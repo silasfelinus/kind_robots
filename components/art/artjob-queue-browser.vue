@@ -310,7 +310,15 @@
           </div>
         </div>
 
-        <div class="mt-3 grid gap-3 xl:grid-cols-2">
+        <div
+          v-if="artJobStore.loadingJobs && !artJobStore.jobs.length"
+          class="mt-3 flex min-h-40 flex-col items-center justify-center gap-3 rounded-2xl border border-dashed border-base-300 p-8 text-center"
+        >
+          <span class="loading loading-spinner loading-md text-primary" />
+          <p class="text-sm text-base-content/70">{{ queueLoadMessage }}</p>
+        </div>
+
+        <div v-else class="mt-3 grid gap-3 xl:grid-cols-2">
           <artjob-queue-card
             v-for="job in artJobStore.jobs"
             :key="job.id"
@@ -379,6 +387,7 @@ import {
   type ArtJobStatus,
   type UptimeSample,
 } from '@/stores/artJobStore'
+import { useLoadStore } from '@/stores/loadStore'
 import { useServerStore } from '@/stores/serverStore'
 import { useUserStore } from '@/stores/userStore'
 import type { Server } from '@/stores/serverStore'
@@ -386,12 +395,14 @@ import type { Server } from '@/stores/serverStore'
 type EditorAction = 'EDIT' | 'NEW_OUTPUT' | 'OVERWRITE'
 
 const artJobStore = useArtJobStore()
+const loadStore = useLoadStore()
 const serverStore = useServerStore()
 const userStore = useUserStore()
 
 const selectedWindow = ref(24)
 const pageSizeInput = ref('20')
 const pageInput = ref('1')
+const queueLoadMessage = ref(loadStore.randomLoadMessage())
 const editorJob = ref<ArtJobRecord | null>(null)
 const slideshowOpen = ref(false)
 const editorAction = ref<EditorAction>('EDIT')
@@ -410,9 +421,6 @@ const summaryStatuses: ArtJobStatus[] = ['PENDING', 'RUNNING', 'FAILED', 'DONE']
 const stats = computed(() => artJobStore.stats)
 const uptime = computed(() => artJobStore.uptime)
 const windowHours = computed(() => artJobStore.windowHours)
-// Only self-hosted render servers (ComfyUI / Automatic1111). Cloud providers
-// like OpenAI are omitted — this panel mirrors the private servers the uptime
-// endpoint tracks, so no "OpenAI is up" indicators appear here.
 const privateArtServers = computed<Server[]>(() =>
   serverStore.artServers.filter(
     (server: Server) =>
@@ -483,7 +491,6 @@ async function refreshServer(id: number): Promise<void> {
   refreshingServerIds.value = [...refreshingServerIds.value, id]
   try {
     await serverStore.testServerHealth(id)
-    // Pull the freshly recorded health sample into the uptime graph.
     await artJobStore.fetchUptime()
   } finally {
     refreshingServerIds.value = refreshingServerIds.value.filter(
@@ -539,16 +546,19 @@ function openEditor(job: ArtJobRecord, action: EditorAction): void {
 }
 
 async function changeStatus(status: ArtJobStatus | 'ALL'): Promise<void> {
+  queueLoadMessage.value = loadStore.randomLoadMessage()
   await artJobStore.fetchJobs(status, 1)
 }
 
 async function applyPageSize(): Promise<void> {
   const size = Number(pageSizeInput.value)
+  queueLoadMessage.value = loadStore.randomLoadMessage()
   await artJobStore.setJobPageSize(Number.isFinite(size) ? size : 20)
 }
 
 async function applyPage(): Promise<void> {
   const page = Number(pageInput.value)
+  queueLoadMessage.value = loadStore.randomLoadMessage()
   await artJobStore.setJobPage(Number.isFinite(page) ? page : 1)
 }
 
@@ -558,7 +568,19 @@ function onWindowChange(): void {
 }
 
 async function refresh(): Promise<void> {
+  queueLoadMessage.value = loadStore.randomLoadMessage()
   await artJobStore.refreshAll()
+}
+
+async function loadSecondaryDashboardData(): Promise<void> {
+  await Promise.all([
+    ...(serverStore.hasLoaded
+      ? []
+      : [serverStore.initialize({ force: false, fetchRemote: true })]),
+    artJobStore.fetchStats(),
+    artJobStore.fetchUptime(),
+    artJobStore.fetchQueueControl(),
+  ])
 }
 
 onMounted(async () => {
@@ -566,9 +588,15 @@ onMounted(async () => {
   selectedWindow.value = artJobStore.windowHours
   pageSizeInput.value = String(artJobStore.jobPageSize || 20)
   pageInput.value = String(artJobStore.jobPage || 1)
-  await Promise.all([
-    serverStore.initialize({ force: false, fetchRemote: true }),
-    artJobStore.refreshAll(),
-  ])
+
+  if (artJobStore.jobs.length) {
+    void artJobStore.fetchJobs()
+    void loadSecondaryDashboardData()
+    return
+  }
+
+  queueLoadMessage.value = loadStore.randomLoadMessage()
+  await artJobStore.fetchJobs()
+  void loadSecondaryDashboardData()
 })
 </script>

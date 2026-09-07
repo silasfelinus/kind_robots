@@ -9,7 +9,7 @@
          list, so they ride the shell's toolbar line instead. -->
     <header
       v-if="showHeader"
-      class="flex shrink-0 items-center justify-between gap-2 rounded-2xl border border-base-300 bg-base-200 px-3 py-2"
+      class="flex shrink-0 items-center justify-between gap-2 kr-panel-muted-row"
     >
       <div class="min-w-0">
         <h2 class="truncate text-sm font-bold text-base-content">

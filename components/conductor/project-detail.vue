@@ -456,7 +456,7 @@
         <div
           v-for="milestone in selectedProject.milestones"
           :key="milestone.id"
-          class="flex items-center gap-3 rounded-xl border border-base-300 bg-base-200 px-3 py-2"
+          class="flex items-center gap-3 kr-panel-muted-compact-row"
         >
           <div
             class="flex size-6 shrink-0 items-center justify-center rounded-full border"

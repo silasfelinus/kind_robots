@@ -5,7 +5,7 @@
   >
     <header
       v-if="showHeader"
-      class="shrink-0 rounded-xl border border-base-300 bg-base-200 px-3 py-2"
+      class="shrink-0 kr-panel-muted-compact-row"
     >
       <div class="flex items-center gap-2">
         <Icon name="kind-icon:gallery" class="h-5 w-5 shrink-0 text-primary" />

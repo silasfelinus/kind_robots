@@ -318,7 +318,7 @@
         />
 
         <div
-          class="flex flex-wrap items-center justify-between gap-2 rounded-2xl border border-base-300 bg-base-200 px-3 py-2 text-smart-caption text-base-content/60"
+          class="flex flex-wrap items-center justify-between gap-2 kr-panel-muted-row text-smart-caption text-base-content/60"
         >
           <span class="font-bold text-base-content/70">Text server</span>
           <span class="truncate">{{ activeServerLabel }}</span>

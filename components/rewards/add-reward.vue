@@ -225,7 +225,7 @@
 
             <div
               v-if="rewardStore.rewardForm.artImageId"
-              class="w-full rounded-2xl border border-base-300 bg-base-200 px-3 py-2 text-xs text-base-content/60"
+              class="w-full kr-panel-muted-row text-xs text-base-content/60"
             >
               Linked ArtImage #{{ rewardStore.rewardForm.artImageId }}
             </div>

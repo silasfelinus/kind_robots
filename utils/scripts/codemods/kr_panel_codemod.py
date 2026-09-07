@@ -102,6 +102,19 @@ VARIANTS = [
     # bg-base-100) and from kr-panel-tint-compact/-50 at the background
     # token (solid vs opacity), so no collision at this list position.
     ("kr-panel-muted-compact-xs", ["rounded-xl", "border", "border-base-300", "bg-base-200", "p-2"]),
+    # t-104 slice 130: .kr-panel-muted's solid bg-base-200 fill at the
+    # asymmetric row padding (px-3 py-2) used for plain (non-toggle) list
+    # rows -- distinct from .kr-toggle-row-sm, which shares this exact
+    # box-model but always bundles `label cursor-pointer justify-between`
+    # for a DaisyUI toggle strip; this variant is for rows with no such
+    # extras. Six trailing tokens diverge from every p-*/px-*-only sequence
+    # above at the padding position, so no collision.
+    ("kr-panel-muted-row", ["rounded-2xl", "border", "border-base-300", "bg-base-200", "px-3", "py-2"]),
+    # Same shape at .kr-panel-compact's rounded-xl radius instead of
+    # rounded-2xl (t-104 slice 130) -- the row-padding counterpart to
+    # .kr-panel-muted-compact-xs, same naming relationship as
+    # .kr-panel-compact-xs -> .kr-panel-compact-70-row's `-row` suffix.
+    ("kr-panel-muted-compact-row", ["rounded-xl", "border", "border-base-300", "bg-base-200", "px-3", "py-2"]),
 ]
 
 CLASS_ATTR_RE = re.compile(r'(?<![:\w-])class="([^"]*)"')

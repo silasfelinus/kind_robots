@@ -544,7 +544,7 @@
         />
         <div
           v-else
-          class="flex min-h-40 flex-col items-center justify-center gap-2 rounded-2xl border border-dashed border-base-300 bg-base-200/40 p-6 text-center"
+          class="flex min-h-40 flex-col items-center justify-center gap-2 kr-panel-dashed-tint text-center"
         >
           <Icon name="kind-icon:image" class="h-8 w-8 text-base-content/25" />
           <p class="text-sm text-base-content/55">

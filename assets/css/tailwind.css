@@ -723,6 +723,18 @@ section:has(div[class*='xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]'])
     @apply rounded-xl border border-dashed border-base-300 bg-base-200/50 p-3;
   }
 
+  /* The .kr-panel-dashed shape at 40% opacity instead of 50% (interface-vision
+   * t-104 slice 140) -- a distinct tint step of the same dashed empty-state
+   * family, not a drifting duplicate: bg-base-200/40 never collides with
+   * .kr-panel-dashed's own bg-base-200/50 token. Previously hand-rolled
+   * across 3 occurrences in 3 files (daily-dream-object-art-workbench.vue,
+   * art-generator.vue, academy-remix.vue), all "generate something" empty
+   * states pairing flex-col/items-center/justify-center/gap-2/text-center
+   * with this exact border/background/padding shape. */
+  .kr-panel-dashed-tint {
+    @apply rounded-2xl border border-dashed border-base-300 bg-base-200/40 p-6;
+  }
+
   /* The hand-rolled toggle-row label: a bordered muted strip pairing a
    * label with a DaisyUI `toggle` input (Public/Mature/Active-style
    * checkboxes) — same rounded-2xl/border-base-300/bg-base-200 surface as

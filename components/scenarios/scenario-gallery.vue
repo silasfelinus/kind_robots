@@ -248,7 +248,7 @@
 
       <div
         v-else-if="filteredScenarios.length === 0"
-        class="flex h-full min-h-48 flex-col items-center justify-center gap-3 rounded-2xl border border-dashed border-base-300 bg-base-200/50 p-6 text-center text-base-content/60"
+        class="flex h-full min-h-48 flex-col items-center justify-center gap-3 kr-panel-dashed text-center text-base-content/60"
       >
         <Icon name="kind-icon:map" class="h-10 w-10 opacity-50" />
 

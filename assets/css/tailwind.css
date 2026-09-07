@@ -625,6 +625,23 @@ section:has(div[class*='xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]'])
     @apply rounded-2xl border border-base-300 bg-base-100;
   }
 
+  /* The empty-state dashed placeholder shape (interface-vision t-104 slice
+   * 126): a dashed border distinguishes it from every solid-border kr-panel*
+   * surface above -- used for "nothing here yet" galleries/lists. Previously
+   * hand-rolled across 3 occurrences (dream-relationship-gallery.vue,
+   * scenario-relationship-gallery.vue, scenario-gallery.vue). */
+  .kr-panel-dashed {
+    @apply rounded-2xl border border-dashed border-base-300 bg-base-200/50 p-6;
+  }
+
+  /* The .kr-panel-dashed shape at .kr-panel-compact's rounded-xl/p-3
+   * radius-and-padding step instead of the base rounded-2xl/p-6 (interface-
+   * vision t-104 slice 126) -- previously hand-rolled across 2 occurrences
+   * (art-lora-picker.vue). */
+  .kr-panel-dashed-compact {
+    @apply rounded-xl border border-dashed border-base-300 bg-base-200/50 p-3;
+  }
+
   /* The hand-rolled toggle-row label: a bordered muted strip pairing a
    * label with a DaisyUI `toggle` input (Public/Mature/Active-style
    * checkboxes) — same rounded-2xl/border-base-300/bg-base-200 surface as

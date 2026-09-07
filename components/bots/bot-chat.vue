@@ -49,7 +49,7 @@
     <div
       class="grid min-h-0 grid-rows-[auto_minmax(0,1fr)_auto] overflow-hidden kr-panel-flat"
     >
-      <div class="shrink-0 border-b border-base-300 p-4">
+      <div class="shrink-0 kr-panel-header">
         <div
           v-if="botStore.currentBot"
           class="flex flex-col gap-4 sm:flex-row sm:items-center"

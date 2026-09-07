@@ -778,6 +778,20 @@ section:has(div[class*='xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]'])
     @apply border-t border-base-300 bg-base-100 p-3;
   }
 
+  /* The header-bar counterpart to .kr-panel-footer above (interface-vision
+   * t-104 slice 134): a single bottom divider (border-b, matching the
+   * distinct-token-1 reasoning that keeps .kr-panel-footer's border-t from
+   * colliding with any all-sides `border` variant) at the wider `p-4`
+   * padding step, with no background fill -- these header bars sit flush
+   * against a parent surface that already supplies its own background,
+   * unlike .kr-panel-footer which needs bg-base-100 to sit opaquely over
+   * scrollable content beneath it. Previously hand-rolled across 6
+   * occurrences in 6 files (bot-chat.vue, reward-encounter.vue,
+   * mural-manager.vue x2, navigation-health.vue, artjob-editor.vue). */
+  .kr-panel-header {
+    @apply border-b border-base-300 p-4;
+  }
+
   /*
    * Status callouts — inline tinted notices (the most-repeated surface in
    * the app, previously written by hand with drifting opacities like

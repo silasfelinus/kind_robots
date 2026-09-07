@@ -178,9 +178,7 @@
     </section>
 
     <section v-else class="kr-stage kr-panel-flat">
-      <div
-        class="flex shrink-0 items-center gap-3 border-b border-base-300 bg-base-200 p-3"
-      >
+      <div class="flex shrink-0 items-center gap-3 kr-panel-header-muted">
         <div
           class="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-primary/15 text-base font-black text-primary"
         >

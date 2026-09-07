@@ -2,7 +2,7 @@
 <template>
   <section class="flex min-h-0 flex-col overflow-hidden kr-panel-flat">
     <header
-      class="flex shrink-0 items-start justify-between gap-2 border-b border-base-300 bg-base-200 p-3"
+      class="flex shrink-0 items-start justify-between gap-2 kr-panel-header-muted"
     >
       <div class="min-w-0">
         <h3 class="truncate text-lg font-black text-primary">{{ title }}</h3>

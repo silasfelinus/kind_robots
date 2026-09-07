@@ -186,7 +186,7 @@
 
       <div v-if="activeMode === 'pages'" class="flex flex-col gap-4">
         <div
-          class="flex flex-col gap-3 rounded-3xl border border-base-300 bg-base-100 p-4 sm:flex-row sm:items-center sm:justify-between"
+          class="flex flex-col gap-3 kr-panel-section-flat sm:flex-row sm:items-center sm:justify-between"
         >
           <div>
             <h4 class="text-xl font-black">{{ studio.selectedBook?.title }}</h4>
@@ -558,7 +558,7 @@
 
       <div
         v-if="activeMode === 'color'"
-        class="rounded-3xl border border-base-300 bg-base-100 p-4"
+        class="kr-panel-section-flat"
       >
         <div class="mb-4">
           <h4 class="text-xl font-black">End-user coloring preview</h4>

@@ -54,10 +54,7 @@
       </p>
 
       <!-- Recent entries (BROWSE-UX.md §1) -- fixed global view, no filters -->
-      <div
-        v-if="recentEntries.length"
-        class="rounded-3xl border border-base-300 bg-base-100 p-4"
-      >
+      <div v-if="recentEntries.length" class="kr-panel-section-flat">
         <p class="mb-2 text-xs font-semibold uppercase text-base-content/50">
           Recent entries
         </p>
@@ -84,7 +81,7 @@
       <!-- Stats strip -->
       <div
         v-if="stats"
-        class="grid grid-cols-2 gap-2 rounded-3xl border border-base-300 bg-base-100 p-4 sm:grid-cols-3 lg:grid-cols-6"
+        class="grid grid-cols-2 gap-2 kr-panel-section-flat sm:grid-cols-3 lg:grid-cols-6"
       >
         <div
           class="flex flex-col items-center gap-0.5 rounded-2xl p-2 text-center"
@@ -151,7 +148,7 @@
       <!-- By media type / by month / top starred (BROWSE-UX.md §4) -->
       <div
         v-if="stats && (mediaTypeBreakdown.length || stats.topStarred.length)"
-        class="grid grid-cols-[repeat(auto-fit,minmax(16rem,1fr))] gap-4 rounded-3xl border border-base-300 bg-base-100 p-4"
+        class="grid grid-cols-[repeat(auto-fit,minmax(16rem,1fr))] gap-4 kr-panel-section-flat"
       >
         <div v-if="mediaTypeBreakdown.length" class="flex flex-col gap-2">
           <p class="text-xs font-semibold uppercase text-base-content/50">
@@ -237,7 +234,7 @@
       <!-- Year-over-year comparison (BROWSE-UX.md §4) -->
       <div
         v-if="stats && showYearComparison"
-        class="overflow-x-auto rounded-3xl border border-base-300 bg-base-100 p-4"
+        class="overflow-x-auto kr-panel-section-flat"
       >
         <p class="mb-2 text-xs font-semibold uppercase text-base-content/50">
           Year over year

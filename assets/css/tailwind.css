@@ -735,6 +735,22 @@ section:has(div[class*='xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]'])
     @apply rounded-3xl border border-base-300 bg-base-100 p-5 shadow-sm;
   }
 
+  /* .kr-panel-section's own rounded-3xl/border-base-300/bg-base-100 radius
+   * family, but at .kr-panel-muted-md's p-4 padding step and with no
+   * shadow-sm (interface-vision t-104 slice 131) -- a distinct, separately
+   * hand-rolled shape from .kr-panel-section, not a drifting duplicate
+   * (both p-4 and p-5 rounded-3xl panels appear in the same files, e.g.
+   * coloring-book-studio.vue). The `-flat` suffix follows .kr-panel-flat's
+   * convention of "same shape family, no shadow" even though this variant
+   * also differs by one padding step, since that is the actual repeated
+   * shape found in the codebase (10 occurrences across 6 files:
+   * watchlist-browse.vue x4, coloring-book-package-readiness.vue x2,
+   * coloring-book-cover-studio.vue, coloring-book-studio.vue x2,
+   * coloring-book-readiness.vue). */
+  .kr-panel-section-flat {
+    @apply rounded-3xl border border-base-300 bg-base-100 p-4;
+  }
+
   /*
    * Status callouts — inline tinted notices (the most-repeated surface in
    * the app, previously written by hand with drifting opacities like

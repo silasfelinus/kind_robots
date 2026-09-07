@@ -93,7 +93,7 @@
           <div
             v-for="stat in statRows"
             :key="stat.key"
-            class="rounded-xl border border-base-300 bg-base-200 p-2 text-center"
+            class="kr-panel-muted-compact-xs text-center"
           >
             <div
               class="truncate text-[10px] font-bold uppercase text-base-content/60"

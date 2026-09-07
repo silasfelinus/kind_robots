@@ -45,7 +45,7 @@
           <li
             v-for="item in currentStep.items"
             :key="item.label"
-            class="flex flex-col items-center gap-1 rounded-xl border border-base-300 bg-base-200 p-2 text-center"
+            class="flex flex-col items-center gap-1 kr-panel-muted-compact-xs text-center"
           >
             <Icon :name="item.icon" class="h-5 w-5 text-secondary" />
             <span class="text-xs font-bold">{{ item.label }}</span>

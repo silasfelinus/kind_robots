@@ -650,6 +650,19 @@ section:has(div[class*='xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]'])
     @apply rounded-xl border border-base-300 bg-base-100/70 px-3 py-2;
   }
 
+  /* .kr-panel-muted's recessed solid bg-base-200 background at
+   * .kr-panel-compact's rounded-xl radius instead of .kr-panel-muted's own
+   * rounded-2xl (interface-vision t-104 slice 129) -- the muted family's
+   * first rounded-xl member, at the tightest `p-2` padding step (same -xs
+   * suffix as .kr-panel-compact-xs for the smallest size in a ladder).
+   * Distinct from .kr-panel-tint-compact/-50 (60%/50% opacity) since this
+   * background is a solid fill, not a tint. Previously hand-rolled across 6
+   * occurrences in 3 files (art-interact.vue x4, character-card.vue,
+   * first-launch-intro.vue). */
+  .kr-panel-muted-compact-xs {
+    @apply rounded-xl border border-base-300 bg-base-200 p-2;
+  }
+
   /* Flat bordered surface for dense lists, rows, and inboxes. */
   .kr-panel-flat {
     @apply rounded-2xl border border-base-300 bg-base-100;

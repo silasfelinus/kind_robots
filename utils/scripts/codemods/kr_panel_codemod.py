@@ -235,7 +235,7 @@ SAFE_EXTRA_RE = re.compile(
     r"shadow(-\S+)?|"
     r"(text|font|leading|tracking|whitespace|break)-\S+|"
     r"overflow(-\S+)?|"
-    r"(relative|absolute|fixed|sticky|static)|"
+    r"(relative|absolute|fixed|sticky|static|isolate)|"
     r"(inset|top|left|right|bottom|z)-\S+|"
     r"(opacity|transition|duration|ease|animate)-\S+|"
     r"transition|"
@@ -246,6 +246,17 @@ SAFE_EXTRA_RE = re.compile(
     r"kr-(pane|pane-scroll|surface|stage|unbound|container|container-wide|section|toolbar|scroll)"
     r")$"
 )
+# 2026-09-07 (t-104 slice 141) addition: `isolate` -- sets only `isolation:
+# isolate` (a new stacking context), no background/border-color/radius
+# declaration of its own, so it can't affect the cascade question this
+# allowlist polices. Unblocks the one occurrence this slice found while
+# re-running the codemod's own skip report: pages/play/challenges/[slug].vue's
+# `relative isolate overflow-hidden rounded-3xl border border-base-300
+# bg-base-100 p-5 shadow-xl sm:p-8` (kr-panel-section-plain, added t-104 slice
+# 137; `isolate` was the only unsafe token blocking the match, `sm:p-8` and
+# `shadow-xl` were already covered by the responsive-prefix and bare-shadow
+# allowlist entries above).
+#
 # 2026-09-06 (t-104 slice 119) addition: `kr-scroll` -- `@apply min-h-0 flex-1
 # overflow-y-auto overscroll-contain` in tailwind.css; pure layout/scroll
 # behavior, same verified-empty-of-bg/border/radius category as the other

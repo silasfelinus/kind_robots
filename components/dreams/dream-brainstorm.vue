@@ -357,7 +357,7 @@
         </section>
 
         <footer
-          class="grid shrink-0 grid-cols-1 gap-2 border-t border-base-300 bg-base-100 p-3 lg:grid-cols-[minmax(0,1fr)_auto_auto_auto]"
+          class="grid shrink-0 grid-cols-1 gap-2 kr-panel-footer lg:grid-cols-[minmax(0,1fr)_auto_auto_auto]"
         >
           <textarea
             v-model="globalFeedback"

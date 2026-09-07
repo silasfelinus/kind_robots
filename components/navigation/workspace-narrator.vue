@@ -397,7 +397,7 @@
                 </template>
               </kr-chat-window>
 
-              <footer class="shrink-0 border-t border-base-300 bg-base-100 p-3">
+              <footer class="shrink-0 kr-panel-footer">
                 <section
                   v-if="statusMessage"
                   class="mb-2 rounded-2xl border p-2 text-sm"

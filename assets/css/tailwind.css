@@ -751,6 +751,19 @@ section:has(div[class*='xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]'])
     @apply rounded-3xl border border-base-300 bg-base-100 p-4;
   }
 
+  /* The sticky-footer action-bar shape at the bottom of full-height
+   * chat/narrator panes (interface-vision t-104 slice 132): a single top
+   * divider (border-t, not the all-sides `border` every other kr-panel*
+   * variant above uses) plus a solid bg-base-100 backing and compact `p-3`
+   * padding -- no border-radius, since this sits flush against its parent
+   * pane's own edges rather than floating as a boxed panel. Previously
+   * hand-rolled across 5 occurrences in 5 files (bot-chat.vue, workspace-
+   * narrator.vue, dream-brainstorm.vue, reward-encounter.vue, scenario-
+   * story.vue). */
+  .kr-panel-footer {
+    @apply border-t border-base-300 bg-base-100 p-3;
+  }
+
   /*
    * Status callouts — inline tinted notices (the most-repeated surface in
    * the app, previously written by hand with drifting opacities like

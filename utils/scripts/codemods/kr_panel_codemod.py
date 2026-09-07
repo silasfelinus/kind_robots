@@ -184,6 +184,18 @@ VARIANTS = [
     # token shorter than .kr-panel-section-flat's own 5-token p-4 sequence but
     # diverging at the final token (p-5 vs p-4), so no collision with it.
     ("kr-panel-section-plain", ["rounded-3xl", "border", "border-base-300", "bg-base-100", "p-5"]),
+    # t-104 slice 138: a third padding step of the dashed empty-state family
+    # (kr-panel-dashed's p-6, kr-panel-dashed-compact's p-3), but with NO
+    # background fill at all -- unlike both of those, which carry
+    # bg-base-200/50. This is a visually distinct shape (no tint), not just
+    # another padding size of the same fill, found across 4 occurrences in 3
+    # files (facet-gallery.vue, stylist-relay-status.vue,
+    # artjob-queue-browser.vue x2), all "no results yet" placeholder blocks
+    # with text-center + muted text-base-content/50 copy. Diverges from
+    # kr-panel-dashed's own 6-token sequence at position 5 (p-8 vs
+    # bg-base-200/50), so an exact-match attempt at a given position can only
+    # ever succeed for one of them -- no collision.
+    ("kr-panel-dashed-plain", ["rounded-2xl", "border", "border-dashed", "border-base-300", "p-8"]),
 ]
 
 CLASS_ATTR_RE = re.compile(r'(?<![:\w-])class="([^"]*)"')

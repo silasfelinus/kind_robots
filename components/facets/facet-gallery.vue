@@ -92,7 +92,7 @@
 
       <p
         v-if="!catalog.loading && !visibleGroups.length"
-        class="rounded-2xl border border-dashed border-base-300 p-8 text-center text-sm text-base-content/50"
+        class="kr-panel-dashed-plain text-center text-sm text-base-content/50"
       >
         No facets match these filters.
       </p>

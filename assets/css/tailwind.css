@@ -633,6 +633,15 @@ section:has(div[class*='xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]'])
     @apply rounded-xl border border-base-300 bg-base-100 p-2;
   }
 
+  /* .kr-panel-compact-xs's own shape one step tighter still (interface-vision
+   * t-104 slice 142) -- `p-1` instead of `p-2`, the floating search-results
+   * dropdown panel shared identically by every facet-picker component
+   * (character-facet-picker.vue, reward-facet-picker.vue, facet-picker.vue,
+   * art-facet-selector.vue). Previously hand-rolled across all 4. */
+  .kr-panel-compact-2xs {
+    @apply rounded-xl border border-base-300 bg-base-100 p-1;
+  }
+
   /* .kr-panel-compact's own bg-base-100 at 70% opacity instead of a solid
    * fill (interface-vision t-104 slice 125) -- same opacity-suffix
    * convention as the tint-family additions above, previously hand-rolled

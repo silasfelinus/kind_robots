@@ -63,7 +63,7 @@
       />
       <div
         v-if="open"
-        class="absolute z-40 mt-1 max-h-80 w-full overflow-y-auto rounded-xl border border-base-300 bg-base-100 p-1 shadow-xl"
+        class="absolute z-40 mt-1 max-h-80 w-full overflow-y-auto kr-panel-compact-2xs shadow-xl"
       >
         <template v-for="group in groupedResults" :key="group.taxonomy">
           <div

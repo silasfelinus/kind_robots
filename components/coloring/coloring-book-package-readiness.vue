@@ -97,7 +97,7 @@
         <article
           v-for="stage in stages"
           :key="stage.label"
-          class="rounded-2xl border border-base-300 bg-base-200/40 p-4"
+          class="kr-panel-tint-md"
         >
           <div class="flex items-center justify-between gap-2">
             <icon :name="stage.icon" class="size-6" :class="stage.ready ? 'text-success' : 'text-warning'" />

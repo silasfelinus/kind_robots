@@ -190,7 +190,7 @@
             </label>
 
             <details
-              class="rounded-2xl border border-base-300 bg-base-200/40 p-3"
+              class="kr-panel-tint-sm"
             >
               <summary class="cursor-pointer text-sm font-semibold select-none">
                 Raw job JSON
@@ -210,7 +210,7 @@
           </div>
 
           <aside class="flex flex-col gap-3">
-            <div class="rounded-2xl border border-base-300 bg-base-200/40 p-3">
+            <div class="kr-panel-tint-sm">
               <label class="flex flex-col gap-1 text-sm">
                 <span class="font-semibold">Engine preset</span>
                 <select

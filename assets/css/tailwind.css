@@ -551,6 +551,21 @@ section:has(div[class*='xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]'])
     @apply rounded-2xl border border-base-300 bg-base-200 p-4;
   }
 
+  /* The first opacity-variant primitive in the .kr-panel-muted family
+   * (interface-vision t-104 slice 123): identical rounded-2xl/border-base-300
+   * shape, but the recessed background sits at 40% opacity (bg-base-200/40)
+   * instead of the solid bg-base-200 -- a lighter-weight "tint" used for
+   * nested informational rows rather than a full secondary panel. Reuses the
+   * -sm/-md size-ladder suffixes for the same p-3/p-4 padding split as the
+   * solid family, previously hand-rolled across 10 occurrences (4 at -sm,
+   * 6 at -md). */
+  .kr-panel-tint-sm {
+    @apply rounded-2xl border border-base-300 bg-base-200/40 p-3;
+  }
+  .kr-panel-tint-md {
+    @apply rounded-2xl border border-base-300 bg-base-200/40 p-4;
+  }
+
   /* The compact bordered surface on the "plain" base-100 background
    * (interface-vision t-104 slice 118): a smaller radius than .kr-panel
    * (rounded-xl, not rounded-2xl) at the dense `p-3` padding used for

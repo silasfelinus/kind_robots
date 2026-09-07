@@ -175,7 +175,7 @@
             />
           </div>
 
-          <div class="rounded-2xl border border-base-300 bg-base-200/40 p-3">
+          <div class="kr-panel-tint-sm">
             <label class="form-control">
               <div class="label py-1">
                 <span class="label-text text-xs font-black uppercase tracking-wide">
@@ -224,7 +224,7 @@
           :href="revision.archivedUrl || undefined"
           :target="revision.archivedUrl ? '_blank' : undefined"
           rel="noopener noreferrer"
-          class="flex flex-col gap-2 rounded-2xl border border-base-300 bg-base-200/40 p-3"
+          class="flex flex-col gap-2 kr-panel-tint-sm"
           :class="revision.archivedUrl ? 'transition hover:border-primary hover:shadow-sm' : ''"
         >
           <img

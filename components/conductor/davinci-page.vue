@@ -279,7 +279,7 @@
 
               <div
                 v-else-if="currentChapter"
-                class="flex flex-col gap-3 rounded-2xl border border-base-300 bg-base-200/40 p-4"
+                class="flex flex-col gap-3 kr-panel-tint-md"
               >
                 <h4 v-if="currentChapter.title" class="text-base font-black">
                   {{ currentChapter.title }}

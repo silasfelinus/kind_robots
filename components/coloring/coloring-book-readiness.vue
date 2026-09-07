@@ -80,7 +80,7 @@
 
     <div v-if="selectedBook && selectedSummary" class="flex flex-col gap-4">
       <div
-        class="flex flex-col gap-3 rounded-2xl border border-base-300 bg-base-200/40 p-4 lg:flex-row lg:items-center lg:justify-between"
+        class="flex flex-col gap-3 kr-panel-tint-md lg:flex-row lg:items-center lg:justify-between"
       >
         <div>
           <h4 class="text-xl font-black">{{ selectedBook.title }} interiors</h4>

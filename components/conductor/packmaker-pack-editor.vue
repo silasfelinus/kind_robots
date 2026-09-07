@@ -9,7 +9,7 @@
 -->
 <template>
   <div
-    class="flex flex-col gap-4 rounded-2xl border border-base-300 bg-base-200/40 p-4"
+    class="flex flex-col gap-4 kr-panel-tint-md"
   >
     <div class="flex items-center justify-between gap-2">
       <h4 class="text-sm font-black text-base-content">

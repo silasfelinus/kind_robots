@@ -6,7 +6,7 @@ import { useButterflyStore } from './butterflyStore'
 export const useLoadStore = defineStore('loadStore', () => {
   const desktopRevealStarted = ref(false)
   const recentLoadMessages = ref<string[]>([])
-  const remainingLoadMessages = ref<string[]>([])
+  let remainingLoadMessages: string[] = []
 
   const loadMessages = [
     'Brewing tea...',
@@ -120,9 +120,9 @@ export const useLoadStore = defineStore('loadStore', () => {
 
     for (let index = shuffled.length - 1; index > 0; index -= 1) {
       const swapIndex = Math.floor(Math.random() * (index + 1))
-      const current = shuffled[index]
+      const current = shuffled[index] as string
       shuffled[index] = shuffled[swapIndex] as string
-      shuffled[swapIndex] = current as string
+      shuffled[swapIndex] = current
     }
 
     const lastMessage = recentLoadMessages.value[0]
@@ -133,21 +133,20 @@ export const useLoadStore = defineStore('loadStore', () => {
     ) {
       const swapIndex = Math.floor(Math.random() * (shuffled.length - 1))
       const lastIndex = shuffled.length - 1
-      const current = shuffled[lastIndex]
+      const current = shuffled[lastIndex] as string
       shuffled[lastIndex] = shuffled[swapIndex] as string
-      shuffled[swapIndex] = current as string
+      shuffled[swapIndex] = current
     }
 
-    remainingLoadMessages.value = shuffled
+    remainingLoadMessages = shuffled
   }
 
   function randomLoadMessage() {
-    if (!remainingLoadMessages.value.length) {
+    if (!remainingLoadMessages.length) {
       refillLoadMessageDeck()
     }
 
-    const message =
-      remainingLoadMessages.value.pop() ?? 'Loading failed successfully...'
+    const message = remainingLoadMessages.pop() ?? 'Loading failed successfully...'
 
     rememberLoadMessage(message)
     return message

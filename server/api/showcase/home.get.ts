@@ -116,16 +116,34 @@ function artOf(record: ArtPathRecord | null | undefined): ShowcaseArt {
 }
 
 /**
- * An object's own art fields first, then its linked primary ArtImage. Objects
- * are backfilled with cardPath/heroPath directly (interface-vision t-007), but
- * older rows still carry their art only through the relation.
+ * An object's own art fields, filled in per field from its linked primary
+ * ArtImage. Project still carries all four slots itself; the other six models
+ * carry only `imagePath` and get their crops from the primary render.
  */
 function artOfEntity(
   entity: ArtPathRecord & { ArtImage?: ArtPathRecord | null },
 ): ShowcaseArt {
   const own = artOf(entity)
-  if (own.imagePath || own.cardPath || own.heroPath || own.iconPath) return own
-  return artOf(entity.ArtImage)
+  const primary = artOf(entity.ArtImage)
+
+  /*
+   * MERGED PER FIELD, not "own or else the relation". Since the slot collapse
+   * the six non-Project models carry only `imagePath`; their crops live on the
+   * primary ArtImage the object points at (Dream.ArtImage is literally the
+   * `DreamPrimaryArtImage` relation), so the same render supplies the frame.
+   * Returning `own` whole the moment it had an imagePath -- what this did
+   * before -- would now discard every crop those objects still have.
+   *
+   * Project is unaffected: it kept its own four slots, so its values simply win
+   * each field.
+   */
+  return {
+    imagePath: own.imagePath || primary.imagePath,
+    cardPath: own.cardPath || primary.cardPath,
+    heroPath: own.heroPath || primary.heroPath,
+    iconPath: own.iconPath || primary.iconPath,
+    fileType: own.fileType || primary.fileType,
+  }
 }
 
 function hasArt(art: ShowcaseArt): boolean {
@@ -250,39 +268,88 @@ const artImageRelationSelect = {
 } as const satisfies Prisma.ArtImageSelect
 
 /**
- * The art columns the seven showcase OBJECTS carry. Only the four *Path fields:
- * `path` and `fileType` are ArtImage-only columns.
+ * The art columns the seven showcase OBJECTS still carry: `imagePath` and
+ * nothing else. `path` and `fileType` are ArtImage-only columns, and
+ * cardPath/heroPath/iconPath were dropped from the six collapsed models by the
+ * entity-art slot collapse (1e4ca2a, 2026-09-06) -- one primary render per
+ * object, cropped per frame on the ArtImage it points at. Project is the lone
+ * holdout that kept its own four slots, so it selects them separately below.
  *
- * THIS CONSTANT SHIPPED WRONG AND BROKE THE WHOLE ENDPOINT (2026-08-29). It
- * included `path` and `fileType`, so every entity query raised
- * "Unknown field `path` for select statement on model `Dream`" -- a Prisma
- * VALIDATION error, thrown before any connection is attempted -- and because
- * the handler fans out through Promise.all, one bad select 500'd all ten
- * queries. The home page rendered its error note and nothing else.
+ * THIS CONSTANT HAS NOW SHIPPED WRONG TWICE, THE SAME WAY, AND 400'd THE WHOLE
+ * ENDPOINT BOTH TIMES.
  *
- * WHY TYPESCRIPT DIDN'T CATCH IT, AND WHY THIS LINE IS THE FIX. Excess-property
- * checking only applies to FRESH object literals. Spreading a variable
- * (`select: { id: true, ...entityArtSelect }`) launders its properties past that
- * check, so `vue-tsc` passed a query Prisma rejects at runtime. Adding
- * `satisfies` at each call site does not help either -- the spread is still not
- * fresh. Constraining the shared constant itself is what works: the
- * intersection below means a field must exist on ALL SEVEN models to live here,
- * and adding an eighth model to the union is what forces the next person to
- * check. Verified by reverting this line locally -- `path` and `fileType` are
- * reported as excess properties.
+ *   - 2026-08-29: it included `path`/`fileType`, so every entity query raised
+ *     "Unknown field `path` for select statement on model `Dream`".
+ *   - 2026-09-07: the entity-art slot collapse (1e4ca2a) dropped
+ *     cardPath/heroPath/iconPath from six models and updated 43 files, but not
+ *     this one. Same validation error, same 400, same blank front page.
+ *
+ * Both are Prisma VALIDATION errors, thrown before any connection is attempted,
+ * and because the handler fans out through Promise.all one bad select takes all
+ * ten queries down with it. Neither is a 500, which is worth knowing when one
+ * happens again: errorHandler has no branch for PrismaClientValidationError
+ * (it is not a PrismaClientKnownRequestError), so it lands in the generic
+ * `Error` case and answers 400.
+ *
+ * WHY TYPESCRIPT DIDN'T CATCH EITHER ONE. Two separate reasons, and the second
+ * one is why the 2026-08-29 fix did not hold:
+ *
+ *   1. Excess-property checking only applies to FRESH object literals, so
+ *      spreading a variable (`select: { id: true, ...entityArtSelect }`)
+ *      launders its properties past the check at every call site.
+ *   2. `Prisma.DreamSelect` AND FRIENDS CANNOT REJECT AN UNKNOWN FIELD AT ALL.
+ *      They are wrapped in the client's `GetSelect<>`, which carries an index
+ *      signature so client extensions can add their own keys -- verified
+ *      directly: `'totallyMadeUpField' extends keyof Prisma.DreamSelect` is
+ *      TRUE. So the 2026-08-29 fix's `satisfies DreamSelect & CharacterSelect &
+ *      ... & ProjectSelect` was inert. It never checked anything, which is
+ *      exactly why it sat there looking like a guard while three freshly
+ *      dropped columns walked past it.
+ *
+ * `Prisma.DreamSelectScalar` is the plain, un-extended, columns-only form and
+ * has NO index signature (same probe returns FALSE), so it is what the keys are
+ * checked against below -- one model at a time, since an intersection would
+ * additionally accept a field present on only ONE member and Project still has
+ * the three columns the other six lost.
  */
 const entityArtSelect = {
   imagePath: true,
+} as const
+
+/**
+ * Project keeps the four-slot shape the other six models gave up.
+ */
+const projectArtSelect = {
+  ...entityArtSelect,
   cardPath: true,
   heroPath: true,
   iconPath: true,
-} as const satisfies Prisma.DreamSelect &
-  Prisma.CharacterSelect &
-  Prisma.BotSelect &
-  Prisma.RewardSelect &
-  Prisma.ScenarioSelect &
-  Prisma.FacetSelect &
-  Prisma.ProjectSelect
+} as const
+
+/**
+ * The guard that actually holds: every key of `entityArtSelect` must be a real
+ * column on EVERY model that spreads it, and every key of `projectArtSelect` a
+ * real column on Project.
+ *
+ * Each entry below is `never` while its constant is valid for that model and
+ * resolves to the offending field name when it is not, so reintroducing a
+ * dropped column fails the assignment naming the exact field. Adding an eighth
+ * showcase model is a line here, which is what forces the next person to check.
+ */
+type UnknownOn<Keys, Model> = Exclude<Keys, keyof Model>
+type EntityArtKey = keyof typeof entityArtSelect
+
+const _artSelectsAreValid: [never, never, never, never, never, never, never] =
+  [] as unknown as [
+    UnknownOn<EntityArtKey, Prisma.DreamSelectScalar>,
+    UnknownOn<EntityArtKey, Prisma.CharacterSelectScalar>,
+    UnknownOn<EntityArtKey, Prisma.BotSelectScalar>,
+    UnknownOn<EntityArtKey, Prisma.RewardSelectScalar>,
+    UnknownOn<EntityArtKey, Prisma.ScenarioSelectScalar>,
+    UnknownOn<EntityArtKey, Prisma.FacetSelectScalar>,
+    UnknownOn<keyof typeof projectArtSelect, Prisma.ProjectSelectScalar>,
+  ]
+void _artSelectsAreValid
 
 /* ── hero ────────────────────────────────────────────────────────────────── */
 
@@ -319,6 +386,9 @@ const heroCastSelect = {
   slug: true,
   theme: true,
   ...entityArtSelect,
+  // The cast's crops live on each member's primary render now, exactly as the
+  // rails' do -- without this the strip falls back to uncropped full renders.
+  ArtImage: { select: artImageRelationSelect },
 } as const
 
 const heroDreamInclude = {
@@ -423,7 +493,7 @@ function buildHeroCast(dream: HeroDream): ShowcaseCard[] {
           theme: location.theme,
           badge: 'Location',
           createdAt: location.createdAt,
-          art: artOf(location),
+          art: artOfEntity(location),
         }),
       )
     }
@@ -444,7 +514,7 @@ function buildHeroCast(dream: HeroDream): ShowcaseCard[] {
         theme: character.theme,
         badge: 'Character',
         createdAt: character.createdAt,
-        art: artOf(character),
+        art: artOfEntity(character),
       }),
     )
   }
@@ -459,7 +529,7 @@ function buildHeroCast(dream: HeroDream): ShowcaseCard[] {
         theme: reward.theme,
         badge: reward.rewardType === 'SKILL' ? 'Skill' : 'Item',
         createdAt: reward.createdAt,
-        art: artOf(reward),
+        art: artOfEntity(reward),
       }),
     )
   }
@@ -474,7 +544,7 @@ function buildHeroCast(dream: HeroDream): ShowcaseCard[] {
         theme: scenario.theme,
         badge: 'Scenario',
         createdAt: scenario.createdAt,
-        art: artOf(scenario),
+        art: artOfEntity(scenario),
       }),
     )
   }
@@ -497,7 +567,7 @@ function buildHeroCast(dream: HeroDream): ShowcaseCard[] {
         theme: facet.theme,
         badge: 'Facet',
         createdAt: facet.createdAt,
-        art: artOf(facet),
+        art: artOfEntity(facet),
       }),
     )
   }
@@ -871,7 +941,7 @@ async function loadProjects(): Promise<ShowcaseCard[]> {
       priority: true,
       conductorSlug: true,
       liveUrl: true,
-      ...entityArtSelect,
+      ...projectArtSelect,
       ArtImage: { select: artImageRelationSelect },
     },
   })

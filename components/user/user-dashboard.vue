@@ -277,7 +277,7 @@
                   </p>
 
                   <label
-                    class="flex items-center justify-between gap-2 rounded-xl border border-base-300 bg-base-200 px-3 py-2"
+                    class="flex items-center justify-between gap-2 kr-panel-muted-compact-row"
                   >
                     <span class="text-xs font-bold">
                       {{ showMature ? 'On' : 'Off' }}

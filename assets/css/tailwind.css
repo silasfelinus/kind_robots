@@ -663,6 +663,30 @@ section:has(div[class*='xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]'])
     @apply rounded-xl border border-base-300 bg-base-200 p-2;
   }
 
+  /* .kr-panel-muted's solid bg-base-200 fill at the asymmetric row padding
+   * (px-3 py-2) used for plain (non-toggle) list rows (interface-vision
+   * t-104 slice 130) -- distinct from .kr-toggle-row-sm below, which shares
+   * this exact box-model but always bundles `label cursor-pointer
+   * justify-between` for a DaisyUI toggle strip; this variant is for rows
+   * with no such extras. Previously hand-rolled across 8 occurrences in 8
+   * files (bot-gallery.vue, reward-gallery.vue, add-reward.vue,
+   * add-scenario.vue, scenario-story.vue, server-gallery.vue,
+   * checkpoint-gallery.vue, mural-manager.vue). */
+  .kr-panel-muted-row {
+    @apply rounded-2xl border border-base-300 bg-base-200 px-3 py-2;
+  }
+
+  /* .kr-panel-muted-row's own shape at .kr-panel-compact's rounded-xl
+   * radius instead of rounded-2xl (interface-vision t-104 slice 130) -- the
+   * row-padding counterpart to .kr-panel-muted-compact-xs, same `-row`
+   * suffix convention as .kr-panel-compact-70-row. Previously hand-rolled
+   * across 5 occurrences (art-gallery.vue, art-interact.vue,
+   * project-detail.vue, project-placement-manager.vue, user-dashboard.vue).
+   */
+  .kr-panel-muted-compact-row {
+    @apply rounded-xl border border-base-300 bg-base-200 px-3 py-2;
+  }
+
   /* Flat bordered surface for dense lists, rows, and inboxes. */
   .kr-panel-flat {
     @apply rounded-2xl border border-base-300 bg-base-100;

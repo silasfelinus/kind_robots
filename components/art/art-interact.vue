@@ -440,7 +440,7 @@
                   <label
                     v-for="collection in visibleCollectionOptions"
                     :key="collection.id"
-                    class="mb-1 flex cursor-pointer items-center justify-between gap-3 rounded-xl border border-base-300 bg-base-200 px-3 py-2 transition hover:bg-base-300"
+                    class="mb-1 flex cursor-pointer items-center justify-between gap-3 kr-panel-muted-compact-row transition hover:bg-base-300"
                   >
                     <span class="min-w-0">
                       <span class="block truncate text-sm font-semibold">{{

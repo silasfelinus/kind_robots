@@ -55,9 +55,7 @@
             Save image
           </button>
 
-          <div
-            class="rounded-2xl border border-base-300 bg-base-200 px-3 py-2 text-sm"
-          >
+          <div class="kr-panel-muted-row text-sm">
             <span class="font-bold text-base-content/60">Active:</span>
             <span class="ml-2 font-black text-primary">
               {{ activeColor?.name || 'None' }}

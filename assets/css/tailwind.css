@@ -792,6 +792,24 @@ section:has(div[class*='xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]'])
     @apply border-b border-base-300 p-4;
   }
 
+  /* An inline section divider (interface-vision t-104 slice 135): a top
+   * border rule with top-only spacing (`pt-3`, no bottom/left/right padding)
+   * used inside a flex-col stack to separate a trailing block (actions,
+   * meta, a secondary list) from the content above it -- distinct from
+   * .kr-panel-footer/.kr-panel-header, which are full-padding bars flush
+   * against a pane's own edges; this sits inline within a parent that
+   * already supplies its own outer padding and vertical gap. `pt-3` as the
+   * third token (vs. `bg-base-100`/`p-4`) means this can never collide with
+   * .kr-panel-footer's or .kr-panel-header's own sequences at the same list
+   * position. Previously hand-rolled across 16 occurrences in 9 files
+   * (agent-credentials-panel.vue, cthulhuquarium-game.vue x6,
+   * reaction-card.vue, animation-selector.vue, kr-card-back.vue,
+   * coloring-book-manager.vue, image-upload.vue, lora-triage.vue,
+   * mandarin.vue x3). */
+  .kr-panel-divider {
+    @apply border-t border-base-300 pt-3;
+  }
+
   /*
    * Status callouts — inline tinted notices (the most-repeated surface in
    * the app, previously written by hand with drifting opacities like

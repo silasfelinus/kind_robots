@@ -150,6 +150,12 @@ VARIANTS = [
     # token shorter than kr-panel-footer's own sequence (no bg-base-100), so
     # it can't collide with that either.
     ("kr-panel-header", ["border-b", "border-base-300", "p-4"]),
+    # t-104 slice 135: an inline section divider -- a top border rule with
+    # top-only spacing (pt-3, no other padding) used inside a flex-col stack
+    # to separate a trailing block from the content above it. `pt-3` as the
+    # third token means this can never collide with kr-panel-footer's
+    # (`bg-base-100`) or kr-panel-header's (`p-4`) own sequences.
+    ("kr-panel-divider", ["border-t", "border-base-300", "pt-3"]),
 ]
 
 CLASS_ATTR_RE = re.compile(r'(?<![:\w-])class="([^"]*)"')

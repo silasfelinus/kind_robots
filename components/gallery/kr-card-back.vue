@@ -214,10 +214,7 @@
           edit and review. That matches the three abilities verifyCardActionContract
           already names as the card's job.
         -->
-        <div
-          v-if="$slots.reviews && reviewsOpen"
-          class="mt-4 border-t border-base-300 pt-3"
-        >
+        <div v-if="$slots.reviews && reviewsOpen" class="mt-4 kr-panel-divider">
           <slot name="reviews" />
         </div>
       </template>

@@ -143,7 +143,7 @@
           </p>
         </div>
 
-        <div class="border-t border-base-300 pt-3">
+        <div class="kr-panel-divider">
           <!-- Metadata section header -->
           <div class="mb-3 flex items-center gap-2">
             <icon name="kind-icon:settings" class="h-4 w-4 text-primary" />

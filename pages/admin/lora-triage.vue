@@ -133,9 +133,7 @@
             </label>
           </div>
 
-          <div
-            class="flex flex-wrap items-center gap-2 border-t border-base-300 pt-3"
-          >
+          <div class="flex flex-wrap items-center gap-2 kr-panel-divider">
             <span class="text-sm font-bold"
               >{{ triageStore.selectedCount }} selected</span
             >

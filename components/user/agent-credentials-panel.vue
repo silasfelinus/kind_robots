@@ -133,7 +133,7 @@
     </div>
 
     <form
-      class="mt-4 flex flex-col gap-3 border-t border-base-300 pt-3"
+      class="mt-4 flex flex-col gap-3 kr-panel-divider"
       @submit.prevent="createCredential"
     >
       <div class="flex items-center justify-between gap-3">

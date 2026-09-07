@@ -48,7 +48,7 @@
       />
       <div
         v-if="showResults && search.trim()"
-        class="absolute z-30 mt-1 max-h-64 w-full overflow-y-auto rounded-xl border border-base-300 bg-base-100 p-1 shadow-xl"
+        class="absolute z-30 mt-1 max-h-64 w-full overflow-y-auto kr-panel-compact-2xs shadow-xl"
       >
         <button
           v-for="facet in searchResults"

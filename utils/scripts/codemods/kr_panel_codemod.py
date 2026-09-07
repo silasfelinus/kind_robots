@@ -200,6 +200,15 @@ VARIANTS = [
     # instead of 50% -- bg-base-200/40 never collides with kr-panel-dashed's
     # own bg-base-200/50 token at the same list position.
     ("kr-panel-dashed-tint", ["rounded-2xl", "border", "border-dashed", "border-base-300", "bg-base-200/40", "p-6"]),
+    # t-104 slice 142: .kr-panel-compact's own shape one step tighter than
+    # .kr-panel-compact-xs's p-2 -- p-1, the floating search-results dropdown
+    # shape shared by every facet-picker component. Previously hand-rolled
+    # identically across 4 occurrences (character-facet-picker.vue,
+    # reward-facet-picker.vue, facet-picker.vue, art-facet-selector.vue), each
+    # wrapped in `absolute z-30/z-40 mt-1 max-h-64/max-h-80 w-full
+    # overflow-y-auto ... shadow-xl` -- all on the safe-extras allowlist, none
+    # of which touches background/border/radius.
+    ("kr-panel-compact-2xs", ["rounded-xl", "border", "border-base-300", "bg-base-100", "p-1"]),
 ]
 
 CLASS_ATTR_RE = re.compile(r'(?<![:\w-])class="([^"]*)"')

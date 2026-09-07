@@ -53,9 +53,7 @@
     </header>
 
     <!-- Relay endpoint -->
-    <div
-      class="flex flex-wrap items-end gap-3 rounded-xl border border-base-300 bg-base-200/60 p-3"
-    >
+    <div class="flex flex-wrap items-end gap-3 kr-panel-tint-compact">
       <label class="flex-1">
         <span
           class="mb-1 block text-xs font-bold uppercase text-base-content/60"
@@ -75,7 +73,7 @@
     </div>
 
     <!-- Simulate an Echo utterance -->
-    <div class="rounded-xl border border-base-300 bg-base-200/60 p-3">
+    <div class="kr-panel-tint-compact">
       <p class="mb-2 text-xs font-bold uppercase text-base-content/60">
         Speak to Serendipity (or simulate)
       </p>
@@ -135,9 +133,7 @@
       </div>
 
       <!-- Live animation state -->
-      <aside
-        class="flex flex-col gap-3 rounded-xl border border-base-300 bg-base-200/60 p-3"
-      >
+      <aside class="flex flex-col gap-3 kr-panel-tint-compact">
         <div>
           <p class="text-xs font-bold uppercase text-base-content/60">
             Active animations
@@ -184,10 +180,7 @@
     </div>
 
     <!-- Art drafts (surfaced from voice; never generated or published here) -->
-    <div
-      v-if="voice.artRequests.length > 0"
-      class="rounded-xl border border-base-300 bg-base-200/60 p-3"
-    >
+    <div v-if="voice.artRequests.length > 0" class="kr-panel-tint-compact">
       <p class="mb-2 text-xs font-bold uppercase text-base-content/60">
         Art drafts from voice ({{ voice.artRequests.length }})
       </p>

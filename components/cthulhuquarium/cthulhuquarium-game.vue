@@ -35,7 +35,7 @@
            dismissible notice of what happened. -->
       <div
         v-if="tankStore.lastRareEvent"
-        class="flex items-start gap-2 rounded-xl border border-base-300 bg-base-200/60 p-3 text-sm"
+        class="flex items-start gap-2 kr-panel-tint-compact text-sm"
       >
         <Icon
           name="kind-icon:sparkles"

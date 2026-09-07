@@ -30,7 +30,7 @@
     </div>
 
     <div
-      class="mt-4 rounded-xl border border-base-300 bg-base-200/60 p-3 text-sm font-semibold"
+      class="mt-4 kr-panel-tint-compact text-sm font-semibold"
       role="status"
       aria-live="polite"
     >

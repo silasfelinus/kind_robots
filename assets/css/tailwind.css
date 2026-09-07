@@ -566,6 +566,21 @@ section:has(div[class*='xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]'])
     @apply rounded-2xl border border-base-300 bg-base-200/40 p-4;
   }
 
+  /* Second tint-family primitive (interface-vision t-104 slice 124): the
+   * rounded-xl/p-3 radius-and-padding shape already named by .kr-panel-compact,
+   * but at the recessed bg-base-200 background from the -muted/-tint families
+   * instead of .kr-panel-compact's own solid bg-base-100 -- and at 60%
+   * opacity rather than a solid fill. Named by composing both halves of what
+   * it is (tint family + compact shape) since it doesn't extend either
+   * existing size ladder cleanly: it shares .kr-panel-tint-sm/-md's opacity
+   * concept but not their radius, and .kr-panel-compact's radius but not its
+   * color or opacity. Previously hand-rolled across 6 occurrences in 3 files
+   * (cthulhuquarium-game.vue, ruler-hooked-fishing-encounter.vue,
+   * serendipity-page.vue x4). */
+  .kr-panel-tint-compact {
+    @apply rounded-xl border border-base-300 bg-base-200/60 p-3;
+  }
+
   /* The compact bordered surface on the "plain" base-100 background
    * (interface-vision t-104 slice 118): a smaller radius than .kr-panel
    * (rounded-xl, not rounded-2xl) at the dense `p-3` padding used for

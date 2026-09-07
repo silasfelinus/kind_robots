@@ -133,7 +133,7 @@
         </template>
       </kr-chat-window>
 
-      <div class="shrink-0 border-t border-base-300 bg-base-100 p-3">
+      <div class="shrink-0 kr-panel-footer">
         <!-- Starter prompts were a sixth hand-rolled pick-one row. -->
         <kr-choice-list
           class="mb-3"

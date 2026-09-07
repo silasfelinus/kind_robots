@@ -215,7 +215,7 @@
           </template>
         </kr-chat-window>
 
-        <div class="shrink-0 border-t border-base-300 bg-base-100 p-3">
+        <div class="shrink-0 kr-panel-footer">
           <div
             class="flex flex-wrap items-center gap-2"
             :class="sessionChats.length === 0 ? 'mb-2' : ''"

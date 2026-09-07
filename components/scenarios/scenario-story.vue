@@ -272,7 +272,7 @@
       @choose="handleReplyChosen"
     />
 
-    <footer class="shrink-0 border-t border-base-300 bg-base-100 p-3">
+    <footer class="shrink-0 kr-panel-footer">
       <div class="mx-auto flex max-w-3xl flex-col gap-2">
         <div
           v-if="storyStore.customDirection"

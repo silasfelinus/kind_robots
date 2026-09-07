@@ -125,6 +125,17 @@ VARIANTS = [
     # six (no shadow-sm), so an exact-match attempt at a given position can
     # only ever succeed for one of them -- no collision.
     ("kr-panel-section-flat", ["rounded-3xl", "border", "border-base-300", "bg-base-100", "p-4"]),
+    # t-104 slice 132: the sticky-footer action-bar shape used at the bottom
+    # of full-height chat/narrator panes -- a single top divider (border-t,
+    # not the all-sides `border` every kr-panel* variant above uses) plus a
+    # solid backing and compact padding, no border-radius at all since this
+    # sits flush against its parent pane's own edges rather than floating as
+    # a boxed panel. Previously hand-rolled across 5 occurrences in 5 files
+    # (bot-chat.vue, workspace-narrator.vue, dream-brainstorm.vue, reward-
+    # encounter.vue, scenario-story.vue). Distinct token 1 (`border-t` vs
+    # `border`) means this can never collide with any solid-border variant
+    # above at the same list position.
+    ("kr-panel-footer", ["border-t", "border-base-300", "bg-base-100", "p-3"]),
 ]
 
 CLASS_ATTR_RE = re.compile(r'(?<![:\w-])class="([^"]*)"')

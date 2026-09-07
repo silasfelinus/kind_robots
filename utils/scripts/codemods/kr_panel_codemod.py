@@ -136,6 +136,12 @@ VARIANTS = [
     # `border`) means this can never collide with any solid-border variant
     # above at the same list position.
     ("kr-panel-footer", ["border-t", "border-base-300", "bg-base-100", "p-3"]),
+    # t-104 slice 133: kr-panel-compact's own shape at the asymmetric row
+    # padding (px-3 py-2) instead of a uniform p-3 -- the base-100 counterpart
+    # to kr-panel-muted-compact-row, same reasoning as kr-panel-compact-70-row
+    # above (one token longer than kr-panel-compact's own sequence, diverging
+    # at the final token, so no collision).
+    ("kr-panel-compact-row", ["rounded-xl", "border", "border-base-300", "bg-base-100", "px-3", "py-2"]),
 ]
 
 CLASS_ATTR_RE = re.compile(r'(?<![:\w-])class="([^"]*)"')

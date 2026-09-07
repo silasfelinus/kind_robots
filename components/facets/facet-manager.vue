@@ -86,7 +86,7 @@
         <div
           v-for="taxonomy in populatedTaxonomies"
           :key="taxonomy"
-          class="flex items-center justify-between rounded-xl border border-base-300 bg-base-100 px-3 py-2"
+          class="flex items-center justify-between kr-panel-compact-row"
         >
           <dt class="truncate text-sm">{{ taxonomyLabel(taxonomy) }}</dt>
           <dd class="kr-badge-ghost-sm shrink-0">

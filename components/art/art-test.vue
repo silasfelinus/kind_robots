@@ -737,7 +737,7 @@ onMounted(async () => {
             {{ endpointDef.engine }}
           </div>
           <div
-            class="rounded-xl border border-base-300 bg-base-100 px-3 py-2 text-xs"
+            class="kr-panel-compact-row text-xs"
           >
             {{ endpointDef.route }}
           </div>
@@ -808,7 +808,7 @@ onMounted(async () => {
 
             <div
               v-if="serverId"
-              class="rounded-xl border border-base-300 bg-base-100 px-3 py-2 text-xs opacity-70"
+              class="kr-panel-compact-row text-xs opacity-70"
             >
               {{ serverStore.getServerById(serverId)?.baseUrl }}
             </div>

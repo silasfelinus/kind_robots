@@ -650,6 +650,20 @@ section:has(div[class*='xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]'])
     @apply rounded-xl border border-base-300 bg-base-100/70 px-3 py-2;
   }
 
+  /* .kr-panel-compact's own shape at the asymmetric row padding (px-3 py-2)
+   * used for plain (non-toggle) list rows on the "plain" base-100 background
+   * (interface-vision t-104 slice 133) -- the base-100 counterpart to
+   * .kr-panel-muted-compact-row below, same `-row` suffix convention.
+   * Distinct from .kr-panel-compact-70-row (bg-base-100/70 opacity) since
+   * this background is a solid fill, not a tint. Previously hand-rolled
+   * across 5 occurrences in 4 files (facet-manager.vue, art-gallery.vue,
+   * art-test.vue x2, for-you-manager.vue); 2 further occurrences in
+   * art-interact.vue left hand-rolled (bundle a DaisyUI `label` root class
+   * outside the codemod's safe-extras allowlist). */
+  .kr-panel-compact-row {
+    @apply rounded-xl border border-base-300 bg-base-100 px-3 py-2;
+  }
+
   /* .kr-panel-muted's recessed solid bg-base-200 background at
    * .kr-panel-compact's rounded-xl radius instead of .kr-panel-muted's own
    * rounded-2xl (interface-vision t-104 slice 129) -- the muted family's

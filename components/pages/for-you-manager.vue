@@ -107,7 +107,7 @@
               <div class="flex flex-wrap items-center gap-2">
                 <label
                   v-if="conductorStore.pausedHumanGates.length"
-                  class="flex cursor-pointer items-center gap-2 rounded-xl border border-base-300 bg-base-100 px-3 py-2 text-xs font-bold shadow-sm"
+                  class="flex cursor-pointer items-center gap-2 kr-panel-compact-row text-xs font-bold shadow-sm"
                 >
                   <input
                     v-model="showPausedProjects"

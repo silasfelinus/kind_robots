@@ -206,7 +206,7 @@
 
       <div v-else class="flex min-h-0 flex-col gap-2">
         <div
-          class="flex items-center gap-2 rounded-xl border border-base-300 bg-base-100 px-3 py-2"
+          class="flex items-center gap-2 kr-panel-compact-row"
         >
           <Icon
             :name="activeGroup.isVirtual ? 'kind-icon:archive' : 'kind-icon:folder'"

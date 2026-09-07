@@ -824,6 +824,22 @@ section:has(div[class*='xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]'])
     @apply border-t border-base-300 p-3;
   }
 
+  /* .kr-panel-section's own rounded-3xl/border-base-300/bg-base-100/p-5
+   * shape (interface-vision t-104 slice 137), but with no shadow-sm --
+   * .kr-panel-section itself had never actually been added to the codemod
+   * this file's other primitives are migrated with, so this is the FIRST
+   * VARIANTS entry covering that shape family. Occurrences found carry three
+   * different trailing shadow states -- none, shadow-lg, or shadow-xl, the
+   * latter two as a plain utility token after this class -- and a bare
+   * utility-layer shadow-* always overrides this components-layer class's
+   * lack of one, so all three stay zero-visual-delta under this one
+   * primitive. Previously hand-rolled across 7 occurrences in 4 files
+   * (coloring-book-studio.vue x4, aquarium browse/[username]/[slug].vue,
+   * aquarium leaderboard/index.vue, play/challenges/[slug].vue). */
+  .kr-panel-section-plain {
+    @apply rounded-3xl border border-base-300 bg-base-100 p-5;
+  }
+
   /*
    * Status callouts — inline tinted notices (the most-repeated surface in
    * the app, previously written by hand with drifting opacities like

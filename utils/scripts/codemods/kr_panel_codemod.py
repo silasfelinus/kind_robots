@@ -164,6 +164,26 @@ VARIANTS = [
     # vs `pt-3`), so an exact-match attempt at a given position can only ever
     # succeed for one of them -- no collision.
     ("kr-panel-footer-bare", ["border-t", "border-base-300", "p-3"]),
+    # t-104 slice 137: .kr-panel-section's own rounded-3xl/border-base-300/
+    # bg-base-100/p-5 shape, but matched WITHOUT its trailing shadow-sm token
+    # -- found while enumerating remaining border-base-300 windows for the
+    # next slice, .kr-panel-section itself (approved interface-vision/t-123)
+    # was never added to this codemod's VARIANTS, so this is the FIRST entry
+    # covering that shape family at all. A 5-token sequence, not .kr-panel-
+    # section's own 6-token shadow-sm sequence, because real occurrences carry
+    # three different trailing shadow states -- none (coloring-book-
+    # studio.vue x4), shadow-lg, or shadow-xl (both as a separate SAFE_EXTRA
+    # token after this sequence, e.g. aquarium leaderboard/browse pages) --
+    # and matching shadow-sm specifically would find none of them. The
+    # no-shadow files stay genuinely zero-visual-delta (bare 5-token
+    # replacement); the shadow-lg/shadow-xl ones are equally zero-visual-delta
+    # by this codemod's own established policy (a bare utility-layer shadow-*
+    # token always overrides the components-layer shadow-sm .kr-panel-section
+    # applies, per this file's SAFE_EXTRA_RE header comment) -- confirmed by
+    # this slice's own dry run, which substituted both cases identically. One
+    # token shorter than .kr-panel-section-flat's own 5-token p-4 sequence but
+    # diverging at the final token (p-5 vs p-4), so no collision with it.
+    ("kr-panel-section-plain", ["rounded-3xl", "border", "border-base-300", "bg-base-100", "p-5"]),
 ]
 
 CLASS_ATTR_RE = re.compile(r'(?<![:\w-])class="([^"]*)"')

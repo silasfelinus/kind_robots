@@ -46,7 +46,7 @@
 
       <template v-else-if="tank">
         <header
-          class="rounded-3xl border border-base-300 bg-base-100 p-5 shadow-lg sm:p-7"
+          class="kr-panel-section-plain shadow-lg sm:p-7"
         >
           <div class="flex items-center gap-3">
             <div

@@ -196,6 +196,10 @@ VARIANTS = [
     # bg-base-200/50), so an exact-match attempt at a given position can only
     # ever succeed for one of them -- no collision.
     ("kr-panel-dashed-plain", ["rounded-2xl", "border", "border-dashed", "border-base-300", "p-8"]),
+    # t-104 slice 140: the .kr-panel-dashed shape at 40% background opacity
+    # instead of 50% -- bg-base-200/40 never collides with kr-panel-dashed's
+    # own bg-base-200/50 token at the same list position.
+    ("kr-panel-dashed-tint", ["rounded-2xl", "border", "border-dashed", "border-base-300", "bg-base-200/40", "p-6"]),
 ]
 
 CLASS_ATTR_RE = re.compile(r'(?<![:\w-])class="([^"]*)"')

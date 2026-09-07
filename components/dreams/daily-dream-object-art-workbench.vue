@@ -132,7 +132,7 @@
           </span>
         </label>
 
-        <label class="flex cursor-pointer items-start gap-3 rounded-xl border border-base-300 bg-base-100/70 p-3">
+        <label class="flex cursor-pointer items-start gap-3 kr-panel-compact-70">
           <input
             v-model="preserveOriginal"
             type="checkbox"

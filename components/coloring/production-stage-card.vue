@@ -1,7 +1,5 @@
 <template>
-  <article
-    class="flex min-h-28 flex-col gap-2 rounded-2xl border border-base-300 bg-base-200/50 p-3"
-  >
+  <article class="flex min-h-28 flex-col gap-2 kr-panel-tint-sm-50">
     <div class="flex items-center justify-between gap-2">
       <icon
         :name="iconName"

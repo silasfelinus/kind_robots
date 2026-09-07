@@ -120,7 +120,7 @@
         <article
           v-for="item in selectedPack.items"
           :key="item.id"
-          class="flex flex-col gap-2 rounded-2xl border border-base-300 bg-base-200/50 p-3 sm:flex-row sm:items-center sm:justify-between"
+          class="flex flex-col gap-2 kr-panel-tint-sm-50 sm:flex-row sm:items-center sm:justify-between"
         >
           <div class="min-w-0 flex-1">
             <div class="flex flex-wrap items-center gap-2">

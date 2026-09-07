@@ -14,7 +14,7 @@
         <article
           v-for="fish in roster"
           :key="fish.slug"
-          class="min-h-32 rounded-xl border border-base-300 bg-base-200/50 p-3"
+          class="min-h-32 kr-panel-tint-compact-50"
         >
           <template v-if="entryFor(fish.slug)">
             <div class="flex flex-wrap items-center gap-2">

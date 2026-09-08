@@ -118,7 +118,7 @@
           {{ isBatchGenerating ? 'Brainstorming…' : activeCandidates.length ? 'Fresh batch' : (isArtPromptDomain ? 'Generate art prompts' : 'Generate ideas') }}
         </button>
 
-        <p class="max-w-xl text-xs leading-5 text-base-content/50">
+        <p class="kr-text-dim-xs max-w-xl leading-5">
           {{ resultCountModel }} distinct direction{{ resultCountModel === 1 ? '' : 's' }}. A fresh batch does not erase the previous one.
         </p>
       </div>
@@ -338,7 +338,7 @@
             Remove
           </button>
         </div>
-        <p v-else-if="isResolvingSource" class="mt-3 text-xs text-base-content/50">
+        <p v-else-if="isResolvingSource" class="kr-text-dim-xs mt-3">
           Loading selected source…
         </p>
 
@@ -398,7 +398,7 @@
               @click="pickSource(option)"
             >
               <span class="font-bold">{{ option.title }}</span>
-              <span v-if="option.subtitle" class="ml-2 text-xs text-base-content/50">{{ option.subtitle }}</span>
+              <span v-if="option.subtitle" class="kr-text-dim-xs ml-2">{{ option.subtitle }}</span>
             </button>
           </li>
         </ul>
@@ -522,7 +522,7 @@
                       {{ saved.name }}
                     </span>
                     <span
-                      class="mt-0.5 block truncate text-xs text-base-content/50"
+                      class="kr-text-dim-xs mt-0.5 block truncate"
                     >
                       {{ saved.premise || 'No premise recorded.' }}
                     </span>

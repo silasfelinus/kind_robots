@@ -112,7 +112,7 @@
                   {{ preset.label }} · {{ preset.width }}×{{ preset.height }} · {{ preset.fps }} fps
                 </option>
               </select>
-              <span class="text-xs leading-relaxed text-base-content/50">
+              <span class="kr-text-dim-xs leading-relaxed">
                 {{ store.selectedPreset.description }}
               </span>
             </label>
@@ -120,7 +120,7 @@
             <label class="flex cursor-pointer items-center justify-between gap-4 kr-panel-compact">
               <div>
                 <span class="block text-sm font-black">Mature batch</span>
-                <span class="block text-xs text-base-content/50">
+                <span class="kr-text-dim-xs block">
                   Carries the existing ArtJob maturity flag into every generated clip.
                 </span>
               </div>
@@ -164,7 +164,7 @@
               </button>
             </div>
 
-            <p class="text-xs leading-relaxed text-base-content/50">
+            <p class="kr-text-dim-xs leading-relaxed">
               Resume is idempotent for the current source bytes and settings. Change the image,
               preset, duration, or maturity and it intentionally becomes a new render.
             </p>
@@ -181,7 +181,7 @@
                   :class="{ 'ring-2 ring-primary': statusFilter === tile.key }"
                   @click="statusFilter = statusFilter === tile.key ? 'all' : tile.key"
                 >
-                  <p class="text-xs font-bold text-base-content/50">{{ tile.label }}</p>
+                  <p class="kr-text-dim-xs font-bold">{{ tile.label }}</p>
                   <p class="text-2xl font-black">{{ tile.count }}</p>
                 </button>
               </div>
@@ -189,7 +189,7 @@
                 <progress class="progress progress-primary flex-1" :value="store.completionPercent" max="100" />
                 <span class="w-12 text-right text-sm font-black">{{ store.completionPercent }}%</span>
               </div>
-              <p v-if="statusFilter !== 'all'" class="mt-3 flex items-center gap-2 text-xs text-base-content/50">
+              <p v-if="statusFilter !== 'all'" class="kr-text-dim-xs mt-3 flex items-center gap-2">
                 Showing {{ filteredSources.length }} {{ statusFilter }} scene{{ filteredSources.length === 1 ? '' : 's' }} only.
                 <button type="button" class="link" @click="statusFilter = 'all'">Clear filter</button>
               </p>

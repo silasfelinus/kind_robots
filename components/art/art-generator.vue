@@ -42,7 +42,7 @@
               </span>
             </button>
 
-            <p class="text-center text-xs text-base-content/50">
+            <p class="kr-text-dim-xs text-center">
               {{ readinessSummary }}
             </p>
           </div>

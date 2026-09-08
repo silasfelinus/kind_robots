@@ -241,7 +241,7 @@
           </span>
           <span
             v-if="subtitle(record)"
-            class="min-w-0 flex-1 truncate text-xs text-base-content/50"
+            class="kr-text-dim-xs min-w-0 flex-1 truncate"
           >
             {{ subtitle(record) }}
           </span>

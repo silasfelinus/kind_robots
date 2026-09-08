@@ -322,7 +322,7 @@
       >
         <label class="form-control">
           <span class="font-black">One last note, if you want one</span>
-          <span class="mt-1 text-xs text-base-content/50">
+          <span class="kr-text-dim-xs mt-1">
             A boundary, relationship, running gag, or bit of direction the
             narrator should remember.
           </span>
@@ -347,7 +347,7 @@
           Clear the table
         </button>
         <div class="flex items-center gap-3">
-          <p class="hidden text-xs text-base-content/50 sm:block">
+          <p class="kr-text-dim-xs hidden sm:block">
             {{ canBegin ? 'Ready when you are.' : 'A premise unlocks the story.' }}
           </p>
           <button

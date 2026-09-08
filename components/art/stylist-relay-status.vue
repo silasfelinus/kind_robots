@@ -46,7 +46,7 @@
 
       <div
         v-if="!loading && !error && !agents.length"
-        class="kr-panel-dashed-plain text-center text-xs text-base-content/50"
+        class="kr-text-dim-xs kr-panel-dashed-plain text-center"
       >
         No relay has polled since the server last restarted.
       </div>

@@ -312,7 +312,7 @@
                 class="flex cursor-pointer list-none items-center justify-between px-3 py-2 text-sm font-bold"
               >
                 <span>Prompt Text</span>
-                <span class="text-xs font-normal text-base-content/50"
+                <span class="kr-text-dim-xs font-normal"
                   >{{ editForm.promptString.length }} chars</span
                 >
               </summary>
@@ -433,10 +433,9 @@
                       <span class="block truncate text-sm font-semibold">{{
                         collection.label || `Collection ${collection.id}`
                       }}</span>
-                      <span
-                        class="block truncate text-xs text-base-content/50"
-                        >{{ getCollectionMeta(collection) }}</span
-                      >
+                      <span class="kr-text-dim-xs block truncate">{{
+                        getCollectionMeta(collection)
+                      }}</span>
                     </span>
                     <input
                       type="checkbox"

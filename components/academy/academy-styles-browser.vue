@@ -57,7 +57,7 @@
           </div>
         </div>
 
-        <p class="text-xs font-semibold text-base-content/50" aria-live="polite">
+        <p class="kr-text-dim-xs font-semibold" aria-live="polite">
           {{ resultSummary }}
         </p>
       </div>

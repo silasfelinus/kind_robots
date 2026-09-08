@@ -196,7 +196,7 @@
           <h3 class="truncate text-base font-black text-base-content">
             {{ activeThread.otherLabel }}
           </h3>
-          <p class="truncate text-xs text-base-content/50">
+          <p class="kr-text-dim-xs truncate">
             {{ activeThread.count }}
             {{ activeThread.count === 1 ? 'message' : 'messages' }}
           </p>

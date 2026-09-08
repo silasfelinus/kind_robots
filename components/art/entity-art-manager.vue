@@ -8,7 +8,7 @@
           <h3 class="text-sm font-black">Artwork</h3>
           <span class="kr-badge-ghost-xs">{{ entityLabel }}</span>
         </div>
-        <p class="mt-1 text-xs text-base-content/50">
+        <p class="kr-text-dim-xs mt-1">
           Recreate with Krea, edit the current image with SDXL or Kontext, or upload a finished replacement.
         </p>
       </div>
@@ -174,7 +174,7 @@
         >
           {{ collectionSlides.length }} collection
         </span>
-        <span class="ml-auto text-xs text-base-content/50">
+        <span class="kr-text-dim-xs ml-auto">
           {{ carouselIndex + 1 }} / {{ carouselSlides.length }}
         </span>
       </div>

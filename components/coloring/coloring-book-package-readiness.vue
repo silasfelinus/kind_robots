@@ -106,7 +106,7 @@
             </span>
           </div>
           <h4 class="mt-3 font-black">{{ stage.label }}</h4>
-          <p class="mt-1 text-xs leading-relaxed text-base-content/50">
+          <p class="kr-text-dim-xs mt-1 leading-relaxed">
             {{ stage.detail }}
           </p>
         </article>
@@ -115,7 +115,7 @@
       <div class="grid gap-4 xl:grid-cols-2">
         <article class="kr-panel-section-flat">
           <h4 class="text-lg font-black">Source-production blockers</h4>
-          <p class="mt-1 text-xs text-base-content/50">
+          <p class="kr-text-dim-xs mt-1">
             {{ selectedPackage.finalPairCount }}/{{ selectedPackage.expectedInteriorCount }} final pairs ·
             cover {{ selectedPackage.coverStatus }}
           </p>
@@ -132,7 +132,7 @@
                   {{ blocker.values.length }}
                 </span>
               </div>
-              <p class="mt-1 break-words text-xs text-base-content/50">
+              <p class="kr-text-dim-xs mt-1 break-words">
                 {{ summarizeValues(blocker.values) }}
               </p>
             </div>
@@ -145,7 +145,7 @@
 
         <article class="kr-panel-section-flat">
           <h4 class="text-lg font-black">Layout and export blockers</h4>
-          <p class="mt-1 text-xs text-base-content/50">
+          <p class="kr-text-dim-xs mt-1">
             These fields stay unresolved until a printer, trim, binding, and template are chosen.
           </p>
 

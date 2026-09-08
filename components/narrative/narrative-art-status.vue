@@ -56,7 +56,7 @@
 
     <div
       v-else
-      class="flex min-h-20 items-center justify-center p-4 text-xs text-base-content/50"
+      class="kr-text-dim-xs flex min-h-20 items-center justify-center p-4"
     >
       {{ statusMessage }}
     </div>

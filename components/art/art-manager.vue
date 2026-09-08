@@ -137,7 +137,7 @@
               </button>
             </div>
 
-            <p class="hidden text-xs text-base-content/50 lg:block">
+            <p class="kr-text-dim-xs hidden lg:block">
               {{
                 artJobWorkspaceTab === 'queue'
                   ? 'Jobs refresh every 15s; health summaries refresh every minute'

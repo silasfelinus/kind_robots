@@ -334,7 +334,7 @@
                   <p class="truncate text-xl font-black text-primary">
                     {{ dreamStore.dreamForm.title || 'Untitled Dream' }}
                   </p>
-                  <p class="mt-1 text-xs text-base-content/50">
+                  <p class="kr-text-dim-xs mt-1">
                     {{ dreamTypeLabel(dreamStore.dreamForm.dreamType) }} ·
                     {{ dreamStore.dreamForm.isPublic ? 'Public' : 'Private' }}
                   </p>

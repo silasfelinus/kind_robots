@@ -95,7 +95,7 @@
         </div>
       </dl>
 
-      <p class="mt-4 text-xs text-base-content/50">
+      <p class="kr-text-dim-xs mt-4">
         {{ facetStore.facets.length }} canonical Facets ·
         {{
           facetStore.facets.length - facetStore.activeFacets.length

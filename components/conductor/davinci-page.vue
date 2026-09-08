@@ -130,7 +130,7 @@
               >
                 {{ run.protagonistName || run.title }}
               </p>
-              <p class="text-xs font-semibold text-base-content/50">
+              <p class="kr-text-dim-xs font-semibold">
                 <template v-if="narrationMode === 'ai'">
                   Chapter {{ chapterIndex }}
                   <span v-if="narratorName" class="text-base-content/40"
@@ -224,7 +224,7 @@
                   class="loading loading-dots loading-lg text-primary/70"
                   aria-hidden="true"
                 />
-                <p class="text-xs font-semibold text-base-content/50">
+                <p class="kr-text-dim-xs font-semibold">
                   {{ narratorName || 'The narrator' }} is writing chapter
                   {{ chapterIndex }}…
                 </p>

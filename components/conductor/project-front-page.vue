@@ -104,7 +104,7 @@
             <span class="text-sm font-black leading-none text-base-content">{{
               stat.value
             }}</span>
-            <span class="text-xs font-semibold text-base-content/50">{{
+            <span class="kr-text-dim-xs font-semibold">{{
               stat.label
             }}</span>
           </div>

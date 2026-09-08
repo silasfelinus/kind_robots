@@ -23,7 +23,7 @@
             name="kind-icon:gearhammer"
             class="size-3.5 shrink-0 text-primary/70"
           />
-          <span class="text-xs font-semibold text-base-content/50">
+          <span class="kr-text-dim-xs font-semibold">
             {{ userStore.isAdmin ? 'Conductor' : 'Projects' }}
           </span>
           <span v-if="userStore.isAdmin" class="kr-badge-primary-xs"
@@ -248,7 +248,7 @@
               @submit.prevent="submitNewTodo"
             >
               <h4
-                class="text-xs font-bold uppercase tracking-wide text-base-content/50"
+                class="kr-text-dim-xs font-bold uppercase tracking-wide"
               >
                 New Task
               </h4>
@@ -363,7 +363,7 @@
               <p class="text-xs font-semibold text-accent/80">
                 🍯 Honey-Do Queue
               </p>
-              <p class="mt-0.5 text-xs text-base-content/50">
+              <p class="kr-text-dim-xs mt-0.5">
                 Action items your AI assigned to you. These help your projects
                 along — check them off as you go.
               </p>
@@ -473,7 +473,7 @@
                   </div>
                   <p
                     v-if="todo.description"
-                    class="ml-8 text-xs leading-relaxed text-base-content/50"
+                    class="kr-text-dim-xs ml-8 leading-relaxed"
                   >
                     {{ todo.description }}
                   </p>
@@ -610,7 +610,7 @@
             <!-- PROJECT TASK / COMMENT CREATION -->
             <div v-if="linkedProject" class="kr-panel-flat shrink-0 p-4">
               <h4
-                class="text-xs font-bold uppercase tracking-wide text-base-content/50"
+                class="kr-text-dim-xs font-bold uppercase tracking-wide"
               >
                 Add task / comment
               </h4>
@@ -930,7 +930,7 @@
                           {{ task.title }}
                         </p>
                         <div
-                          class="mt-1 flex flex-wrap items-center gap-1.5 text-xs text-base-content/50"
+                          class="kr-text-dim-xs mt-1 flex flex-wrap items-center gap-1.5"
                         >
                           <span>{{ task.id }}</span>
                           <span v-if="task.milestone"
@@ -983,7 +983,7 @@
                         </div>
                         <p
                           v-if="task.note"
-                          class="mt-1.5 line-clamp-3 text-xs leading-relaxed text-base-content/50"
+                          class="kr-text-dim-xs mt-1.5 line-clamp-3 leading-relaxed"
                         >
                           {{ task.note }}
                         </p>
@@ -1005,7 +1005,7 @@
                     class="group rounded-2xl border border-base-300 bg-base-200/50"
                   >
                     <summary
-                      class="flex cursor-pointer list-none items-start gap-2 px-4 py-2 text-xs font-semibold text-base-content/50 marker:content-none"
+                      class="kr-text-dim-xs flex cursor-pointer list-none items-start gap-2 px-4 py-2 font-semibold marker:content-none"
                     >
                       <Icon
                         name="kind-icon:chevron-right"
@@ -1063,7 +1063,7 @@
               <div class="flex items-center gap-2">
                 <Icon name="kind-icon:check" class="size-4 text-primary" />
                 <h4
-                  class="text-xs font-bold uppercase tracking-wide text-base-content/50"
+                  class="kr-text-dim-xs font-bold uppercase tracking-wide"
                 >
                   Feature Wishlist
                 </h4>

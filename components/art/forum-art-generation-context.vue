@@ -158,7 +158,7 @@
         </a>
       </div>
 
-      <p class="mt-2 text-xs text-base-content/50">
+      <p class="kr-text-dim-xs mt-2">
         The durable ArtJob survives this page. For an existing object or a
         contribution you do not own, completion creates a new Commons reply
         instead of mutating the source. Plain owned posts can still receive

@@ -234,10 +234,7 @@
                 >
                   {{ resourceLabel(resource) }}
                 </h2>
-                <p
-                  v-if="resource.generation"
-                  class="mt-1 text-xs text-base-content/50"
-                >
+                <p v-if="resource.generation" class="kr-text-dim-xs mt-1">
                   {{ resource.generation }}
                 </p>
                 <p

@@ -180,7 +180,7 @@
           {{ store.isEffectActive(store.selectedItem.id) ? 'Stop effect' : 'Preview effect' }}
         </button>
 
-        <p class="text-xs leading-relaxed text-base-content/50">
+        <p class="kr-text-dim-xs leading-relaxed">
           Animation history now belongs in source control and Conductor. The retired
           Component museum is no longer used as a parallel build ledger.
         </p>

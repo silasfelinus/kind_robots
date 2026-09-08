@@ -116,7 +116,7 @@
               :key="stat.key"
               class="kr-panel-muted-sm"
             >
-              <p class="text-xs font-bold uppercase text-base-content/50">
+              <p class="kr-text-dim-xs font-bold uppercase">
                 {{ stat.label }}
               </p>
 
@@ -134,9 +134,7 @@
 
           <div class="mt-3 grid gap-2 text-sm">
             <div class="kr-tile-md">
-              <p class="text-xs font-bold uppercase text-base-content/50">
-                Character
-              </p>
+              <p class="kr-text-dim-xs font-bold uppercase">Character</p>
 
               <p class="mt-1 font-semibold">
                 {{ selectedCharacterName }}
@@ -144,9 +142,7 @@
             </div>
 
             <div class="kr-tile-md">
-              <p class="text-xs font-bold uppercase text-base-content/50">
-                Scenario
-              </p>
+              <p class="kr-text-dim-xs font-bold uppercase">Scenario</p>
 
               <p class="mt-1 font-semibold">
                 {{ selectedScenarioTitle }}
@@ -154,9 +150,7 @@
             </div>
 
             <div class="kr-tile-md">
-              <p class="text-xs font-bold uppercase text-base-content/50">
-                Reward
-              </p>
+              <p class="kr-text-dim-xs font-bold uppercase">Reward</p>
 
               <p class="mt-1 font-semibold">
                 {{ selectedRewardTitle }}

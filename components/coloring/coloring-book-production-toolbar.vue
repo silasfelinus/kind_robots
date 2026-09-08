@@ -85,7 +85,7 @@
       />
       <div class="flex flex-col gap-2">
         <h4 class="font-black">Current B&amp;W production candidate</h4>
-        <p class="break-all text-xs text-base-content/50">
+        <p class="kr-text-dim-xs break-all">
           {{
             production?.bwRenderedPath ||
             proposal.bwPath ||

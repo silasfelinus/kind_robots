@@ -70,9 +70,7 @@
           <article
             class="rounded-2xl border border-primary/20 bg-base-100 shadow-lg p-5 space-y-1"
           >
-            <h2 class="text-xs uppercase tracking-wide text-base-content/50">
-              Accrued
-            </h2>
+            <h2 class="kr-text-dim-xs uppercase tracking-wide">Accrued</h2>
             <div class="text-3xl font-extrabold text-primary tabular-nums">
               {{ formatUsdCents(data.accrual.totalCents) }}
             </div>
@@ -85,9 +83,7 @@
           <article
             class="rounded-2xl border border-success/20 bg-base-100 shadow-lg p-5 space-y-1"
           >
-            <h2 class="text-xs uppercase tracking-wide text-base-content/50">
-              Remitted
-            </h2>
+            <h2 class="kr-text-dim-xs uppercase tracking-wide">Remitted</h2>
             <div class="text-3xl font-extrabold text-success tabular-nums">
               {{ formatUsdCents(data.remittedTotalCents) }}
             </div>
@@ -100,9 +96,7 @@
           <article
             class="rounded-2xl border border-accent/20 bg-base-100 shadow-lg p-5 space-y-1"
           >
-            <h2 class="text-xs uppercase tracking-wide text-base-content/50">
-              Outstanding
-            </h2>
+            <h2 class="kr-text-dim-xs uppercase tracking-wide">Outstanding</h2>
             <div
               class="text-3xl font-extrabold tabular-nums"
               :class="

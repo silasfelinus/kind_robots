@@ -24,7 +24,7 @@
           <h2 class="text-lg font-black text-base-content">
             Create a Performer
           </h2>
-          <p class="mt-0.5 text-xs text-base-content/50">
+          <p class="kr-text-dim-xs mt-0.5">
             Build a custom cast member from scratch.
           </p>
         </div>
@@ -64,7 +64,7 @@
           <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <div class="flex flex-col gap-1.5">
               <label
-                class="text-xs font-bold uppercase tracking-widest text-base-content/50"
+                class="kr-text-dim-xs font-bold uppercase tracking-widest"
                 >Name *</label
               >
               <input
@@ -77,7 +77,7 @@
             </div>
             <div class="flex flex-col gap-1.5">
               <label
-                class="text-xs font-bold uppercase tracking-widest text-base-content/50"
+                class="kr-text-dim-xs font-bold uppercase tracking-widest"
               >
                 Voice / Notes
               </label>
@@ -145,7 +145,7 @@
           <div class="flex flex-col gap-1.5">
             <div class="flex items-center justify-between">
               <label
-                class="text-xs font-bold uppercase tracking-widest text-base-content/50"
+                class="kr-text-dim-xs font-bold uppercase tracking-widest"
                 >Stage Prompt</label
               >
               <button
@@ -176,7 +176,7 @@
           <div class="flex flex-col gap-2">
             <div class="flex items-center justify-between">
               <label
-                class="text-xs font-bold uppercase tracking-widest text-base-content/50"
+                class="kr-text-dim-xs font-bold uppercase tracking-widest"
                 >Avatar Image</label
               >
               <button

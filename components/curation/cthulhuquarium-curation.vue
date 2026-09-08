@@ -22,7 +22,7 @@
         Hide settled designs
       </label>
 
-      <div class="ml-auto text-right text-xs text-base-content/50">
+      <div class="kr-text-dim-xs ml-auto text-right">
         <p class="font-black text-base-content/80">
           {{ visibleRows.length }} shown
         </p>
@@ -72,7 +72,7 @@
                 <h2 class="text-xl font-black">{{ fish.name }}</h2>
                 <span class="kr-badge-outline-sm">{{ fish.rarity }}</span>
               </div>
-              <p class="mt-1 text-xs italic text-base-content/50">
+              <p class="kr-text-dim-xs mt-1 italic">
                 {{ fish.species }}
               </p>
             </div>

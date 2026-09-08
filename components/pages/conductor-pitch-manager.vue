@@ -22,7 +22,7 @@
               <h2 class="text-xl font-black tracking-tight sm:text-2xl">
                 Pitch Review
               </h2>
-              <p class="text-xs font-medium text-base-content/50 sm:text-sm">
+              <p class="kr-text-dim-xs font-medium sm:text-sm">
                 Decisions stay visible. Duplicates stop cosplaying as new projects.
               </p>
             </div>
@@ -202,7 +202,7 @@
                     {{ signal.label }}
                   </span>
                 </div>
-                <p class="mt-2 text-xs leading-relaxed text-base-content/50">
+                <p class="kr-text-dim-xs mt-2 leading-relaxed">
                   This is a warning, not an automatic verdict. The useful increment may belong inside an existing roadmap instead of becoming another project.
                 </p>
               </div>

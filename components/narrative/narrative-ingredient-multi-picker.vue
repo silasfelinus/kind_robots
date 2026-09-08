@@ -15,7 +15,7 @@
         <p
           v-if="helper"
           :id="helperId"
-          class="mt-1 max-w-3xl text-xs leading-relaxed text-base-content/50"
+          class="kr-text-dim-xs mt-1 max-w-3xl leading-relaxed"
         >
           {{ helper }}
         </p>
@@ -86,7 +86,7 @@
     <div
       v-else-if="!items.length"
       role="status"
-      class="rounded-2xl border border-dashed border-base-300 bg-base-100/60 p-5 text-center text-xs text-base-content/50"
+      class="kr-text-dim-xs rounded-2xl border border-dashed border-base-300 bg-base-100/60 p-5 text-center"
     >
       {{ emptyState }}
     </div>

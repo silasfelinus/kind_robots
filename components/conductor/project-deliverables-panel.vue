@@ -27,9 +27,7 @@
 
     <!-- Goal / expected final deliverable -->
     <div v-if="goalText || editing" class="mb-4">
-      <p class="mb-1 text-xs font-semibold text-base-content/50">
-        What 100% looks like
-      </p>
+      <p class="kr-text-dim-xs mb-1 font-semibold">What 100% looks like</p>
       <textarea
         v-if="editing"
         v-model="goalDraft"

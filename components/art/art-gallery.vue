@@ -13,7 +13,7 @@
           {{ activeGroup ? activeGroup.title : 'Gallery' }}
         </h2>
         <p
-          class="hidden min-w-0 truncate text-xs text-base-content/50 sm:block"
+          class="kr-text-dim-xs hidden min-w-0 truncate sm:block"
         >
           {{ headerSummary }}
         </p>
@@ -120,7 +120,7 @@
         </label>
 
         <span
-          class="ml-auto hidden flex-wrap items-center gap-1.5 text-xs text-base-content/50 sm:flex"
+          class="kr-text-dim-xs ml-auto hidden flex-wrap items-center gap-1.5 sm:flex"
         >
           <span class="kr-badge-ghost-sm">
             {{ visibleGroups.length }} collections
@@ -504,7 +504,7 @@
     </section>
 
     <footer
-      class="shrink-0 flex items-center gap-3 rounded-xl border border-base-300 bg-base-200/80 px-3 py-2 text-xs text-base-content/50"
+      class="kr-text-dim-xs shrink-0 flex items-center gap-3 rounded-xl border border-base-300 bg-base-200/80 px-3 py-2"
     >
       <span>
         <span class="font-bold text-base-content">

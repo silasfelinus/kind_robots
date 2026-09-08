@@ -146,7 +146,7 @@
           v-if="
             showNegativePrompt && displayImage.negativePrompt && size === 'lg'
           "
-          class="mt-0.5 line-clamp-1 text-xs text-base-content/50"
+          class="kr-text-dim-xs mt-0.5 line-clamp-1"
         >
           ↓ {{ displayImage.negativePrompt }}
         </p>

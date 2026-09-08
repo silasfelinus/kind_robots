@@ -30,7 +30,7 @@
         Donate at againstmalaria.com/amibot
       </a>
 
-      <p class="mt-2 text-xs text-base-content/50">
+      <p class="kr-text-dim-xs mt-2">
         Opens the Against Malaria Foundation's official fundraiser page in a new
         tab.
       </p>

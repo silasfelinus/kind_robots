@@ -52,7 +52,7 @@
           v-if="showPersonality && bot.personality"
           class="kr-panel-flat p-3 text-sm"
         >
-          <p class="text-xs font-bold uppercase text-base-content/50">
+          <p class="kr-text-dim-xs font-bold uppercase">
             Personality
           </p>
 
@@ -65,7 +65,7 @@
           v-if="showPromptPreview && bot.prompt"
           class="kr-panel-flat p-3 text-sm"
         >
-          <p class="text-xs font-bold uppercase text-base-content/50">Prompt</p>
+          <p class="kr-text-dim-xs font-bold uppercase">Prompt</p>
 
           <p class="mt-1 line-clamp-4 text-base-content/70">
             {{ bot.prompt }}

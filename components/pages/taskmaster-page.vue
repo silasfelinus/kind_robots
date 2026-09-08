@@ -202,7 +202,7 @@
               >
                 <span class="min-w-0 flex-1">
                   <span class="block text-sm font-black">Recipe ingredients</span>
-                  <span class="block truncate text-xs text-base-content/50">
+                  <span class="kr-text-dim-xs block truncate">
                     {{ selectedTone }} · {{ selectedLocationLabel }} ·
                     {{ selectedGrammarLabel }}
                   </span>

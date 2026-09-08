@@ -119,16 +119,36 @@ function Test-ModelsDir([string] $Path) {
 function Find-LocalRoot {
   $candidates = @()
   if ($env:COMFYUI_MODELS) { $candidates += $env:COMFYUI_MODELS }
-  # Every fixed drive, common install spellings. Ordered so a D:/E: data drive
-  # wins over C: -- that is where a render box usually keeps models.
+
+  # Data drives before C:, since that is where a render box keeps weights.
   $drives = Get-PSDrive -PSProvider FileSystem -ErrorAction SilentlyContinue |
-    Where-Object { $_.Free -ne $null } | Select-Object -ExpandProperty Root
-  foreach ($d in ($drives | Sort-Object -Descending)) {
-    foreach ($p in 'ComfyUI\models', 'comfyui\models', 'AI\ComfyUI\models',
-                   'ComfyUI_windows_portable\ComfyUI\models', 'stable-diffusion\ComfyUI\models') {
+    Where-Object { $null -ne $_.Free } | Select-Object -ExpandProperty Root
+  $drives = $drives | Sort-Object -Descending
+
+  # Known spellings first.
+  foreach ($d in $drives) {
+    foreach ($p in 'ComfyUI\models', 'comfyui\models', 'comfy\models',
+                   'AI\ComfyUI\models', 'ComfyUI_windows_portable\ComfyUI\models',
+                   'stable-diffusion\ComfyUI\models') {
       $candidates += (Join-Path $d $p)
     }
   }
+
+  # Then a bounded search, because installs get named things no list predicts.
+  # Ferngrotto's is D:\comfy\comfy-fast\models -- a nested folder under a
+  # "comfy" root, which no fixed list was ever going to guess. Only directories
+  # two levels below a drive root whose top segment looks AI-ish are considered,
+  # so this stays a handful of stat calls rather than a disk crawl.
+  foreach ($d in $drives) {
+    $tops = Get-ChildItem -LiteralPath $d -Directory -ErrorAction SilentlyContinue |
+      Where-Object { $_.Name -match '^(comfy|ai|stable|sd|diffus)' }
+    foreach ($top in $tops) {
+      $candidates += (Join-Path $top.FullName 'models')
+      $subs = Get-ChildItem -LiteralPath $top.FullName -Directory -ErrorAction SilentlyContinue
+      foreach ($sub in $subs) { $candidates += (Join-Path $sub.FullName 'models') }
+    }
+  }
+
   foreach ($c in $candidates) {
     if (Test-ModelsDir $c) { return (Resolve-Path -LiteralPath $c).Path }
   }
@@ -156,7 +176,7 @@ if (-not $Local) {
   if ($Local) { Write-Host "auto-detected ComfyUI models dir: $Local" }
 }
 if (-not $Local) {
-  Fail "could not find a ComfyUI models directory. Pass it: -Local D:\ComfyUI\models"
+  Fail "could not find a ComfyUI models directory. Pass it, e.g. -Local D:\comfy\comfy-fast\models. To locate it: Get-ChildItem D:\ -Recurse -Directory -Filter models -Depth 3 | Select FullName"
 }
 
 if (-not $Remote) {

@@ -18,7 +18,7 @@
 
         <button
           v-if="activeThread"
-          class="btn btn-ghost btn-sm shrink-0 rounded-2xl border border-base-300 bg-base-100"
+          class="kr-btn-ghost-2xl-outline shrink-0"
           type="button"
           @click="closeThread"
         >
@@ -45,7 +45,7 @@
         </label>
 
         <button
-          class="btn btn-ghost rounded-2xl border border-base-300 bg-base-100"
+          class="kr-btn-ghost-md-2xl-outline"
           type="button"
           :disabled="isLoading"
           @click="refreshChats"

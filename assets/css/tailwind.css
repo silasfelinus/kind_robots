@@ -1056,6 +1056,44 @@ section:has(div[class*='xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]'])
     @apply btn btn-ghost rounded-2xl;
   }
 
+  /* A ghost button styled to also read as an outlined surface — the same
+   * `border border-base-300 bg-base-100` outline .kr-panel-flat gives a
+   * container, layered on top of the `sm`/`rounded-xl` ghost-button shape
+   * (interface-vision t-104 slice 147). `btn btn-ghost btn-sm rounded-xl
+   * border border-base-300 bg-base-100`, previously hand-rolled in
+   * workspace-header.vue. Named `-outline` (not a size/radius suffix) since
+   * it adds a border+background layer on top of an existing shape rather
+   * than changing the shape itself — mirrors `badge-outline`'s modifier
+   * role on the badge family. */
+  .kr-btn-ghost-outline {
+    @apply btn btn-ghost btn-sm rounded-xl border border-base-300 bg-base-100;
+  }
+
+  /* The `.kr-btn-ghost-md` (DaisyUI default size) counterpart to
+   * .kr-btn-ghost-outline (interface-vision t-104 slice 147): `btn btn-ghost
+   * rounded-xl border border-base-300 bg-base-100`, previously hand-rolled
+   * in taskmaster-page.vue. */
+  .kr-btn-ghost-md-outline {
+    @apply btn btn-ghost rounded-xl border border-base-300 bg-base-100;
+  }
+
+  /* The `.kr-btn-ghost-2xl` (wider corner radius) counterpart to
+   * .kr-btn-ghost-outline (interface-vision t-104 slice 147): `btn btn-ghost
+   * btn-sm rounded-2xl border border-base-300 bg-base-100`, previously
+   * hand-rolled in chat-gallery.vue. */
+  .kr-btn-ghost-2xl-outline {
+    @apply btn btn-ghost btn-sm rounded-2xl border border-base-300 bg-base-100;
+  }
+
+  /* The `.kr-btn-ghost-md-2xl` counterpart to .kr-btn-ghost-outline
+   * (interface-vision t-104 slice 147): `btn btn-ghost rounded-2xl border
+   * border-base-300 bg-base-100`, previously hand-rolled in
+   * chat-gallery.vue (a second, distinct call site from the -2xl-outline
+   * shape above). */
+  .kr-btn-ghost-md-2xl-outline {
+    @apply btn btn-ghost rounded-2xl border border-base-300 bg-base-100;
+  }
+
   /* The most-repeated *filled* (non-ghost) button shape in the app
    * (interface-vision t-104 slice 51): the primary-color small action
    * button used for form submits and gallery/manager primary actions —

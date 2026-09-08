@@ -40,7 +40,7 @@
           <p class="text-sm font-semibold text-base-content">
             {{ activeSample.prompt }}
           </p>
-          <p class="text-xs text-base-content/60">
+          <p class="kr-text-dim-xs-60">
             {{ activeSample.window }} · Fundamentals
           </p>
           <div class="flex flex-wrap gap-1.5 pt-1">

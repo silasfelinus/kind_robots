@@ -17,7 +17,7 @@
           <h3 id="artjob-editor-title" class="text-lg font-semibold">
             {{ editorTitle }}
           </h3>
-          <p class="mt-1 text-xs text-base-content/60">{{ actionHint }}</p>
+          <p class="kr-text-dim-xs-60 mt-1">{{ actionHint }}</p>
         </div>
         <button
           type="button"
@@ -228,7 +228,7 @@
                   </option>
                 </select>
               </label>
-              <p class="mt-2 text-xs leading-relaxed text-base-content/60">
+              <p class="kr-text-dim-xs-60 mt-2 leading-relaxed">
                 {{ selectedPresetHint }}
               </p>
               <dl class="mt-3 grid grid-cols-2 gap-2 text-[11px]">

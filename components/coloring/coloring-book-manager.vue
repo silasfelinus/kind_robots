@@ -35,7 +35,7 @@
             Free
           </span>
         </div>
-        <p v-if="set.description" class="text-xs text-base-content/60">
+        <p v-if="set.description" class="kr-text-dim-xs-60">
           {{ set.description }}
         </p>
 
@@ -173,7 +173,7 @@
 
         <aside class="flex flex-col gap-3 kr-panel-flat p-3">
           <p
-            class="flex items-center gap-1.5 text-xs font-black uppercase tracking-wide text-base-content/60"
+            class="kr-text-dim-xs-60 flex items-center gap-1.5 font-black uppercase tracking-wide"
           >
             <Icon name="kind-icon:palette" class="h-3.5 w-3.5" />
             Palette
@@ -226,7 +226,7 @@
             class="flex flex-col gap-1.5 kr-panel-divider"
           >
             <p
-              class="text-xs font-black uppercase tracking-wide text-base-content/60"
+              class="kr-text-dim-xs-60 font-black uppercase tracking-wide"
             >
               Fill a whole group
             </p>

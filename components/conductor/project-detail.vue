@@ -149,9 +149,7 @@
             class="flex items-center gap-2 border-b border-base-300/70 px-3 py-2"
           >
             <Icon name="kind-icon:dream" class="size-4 text-primary" />
-            <span
-              class="text-xs font-bold uppercase tracking-wide text-base-content/60"
-            >
+            <span class="kr-text-dim-xs-60 font-bold uppercase tracking-wide">
               Project Profile
             </span>
             <span class="ml-auto text-[0.65rem] text-base-content/35"
@@ -317,9 +315,7 @@
           name="kind-icon:chevron-right"
           class="size-3.5 shrink-0 transition-transform group-open:rotate-90"
         />
-        <span
-          class="text-xs font-bold uppercase tracking-wide text-base-content/60"
-        >
+        <span class="kr-text-dim-xs-60 font-bold uppercase tracking-wide">
           Roadmap
         </span>
         <span class="kr-badge-ghost-xs ml-auto">
@@ -440,9 +436,7 @@
           name="kind-icon:chevron-right"
           class="size-3.5 shrink-0 transition-transform group-open:rotate-90"
         />
-        <span
-          class="text-xs font-bold uppercase tracking-wide text-base-content/60"
-        >
+        <span class="kr-text-dim-xs-60 font-bold uppercase tracking-wide">
           Milestones
         </span>
         <span class="kr-badge-ghost-xs ml-auto">
@@ -498,9 +492,7 @@
           class="size-3.5 shrink-0 transition-transform group-open:rotate-90"
         />
         <Icon name="kind-icon:document" class="size-4 text-info" />
-        <span
-          class="text-xs font-bold uppercase tracking-wide text-base-content/60"
-        >
+        <span class="kr-text-dim-xs-60 font-bold uppercase tracking-wide">
           Project Notes
         </span>
         <span class="ml-auto text-xs text-base-content/35">Conductor</span>

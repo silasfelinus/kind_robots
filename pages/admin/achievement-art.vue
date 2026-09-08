@@ -47,9 +47,7 @@
         >
           <aside class="kr-panel space-y-3 p-4">
             <label class="form-control gap-1">
-              <span class="text-xs font-bold text-base-content/60"
-                >Find achievement</span
-              >
+              <span class="kr-text-dim-xs-60 font-bold">Find achievement</span>
               <input
                 v-model="search"
                 type="search"

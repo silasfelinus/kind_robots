@@ -159,9 +159,7 @@
             :key="row.label"
             class="flex items-center gap-2"
           >
-            <span class="w-20 shrink-0 text-xs text-base-content/60">{{
-              row.label
-            }}</span>
+            <span class="kr-text-dim-xs-60 w-20 shrink-0">{{ row.label }}</span>
             <progress
               class="progress progress-primary h-2 w-full"
               :value="row.count"
@@ -404,7 +402,7 @@
 
         <label
           v-if="showSeasonFilter"
-          class="flex items-center gap-1.5 text-xs font-semibold text-base-content/60"
+          class="kr-text-dim-xs-60 flex items-center gap-1.5 font-semibold"
         >
           Season
           <input

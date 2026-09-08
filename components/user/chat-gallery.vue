@@ -125,7 +125,7 @@
                   </h3>
                   <p
                     v-if="thread.title && thread.title !== thread.otherLabel"
-                    class="truncate text-xs font-semibold text-base-content/60"
+                    class="kr-text-dim-xs-60 truncate font-semibold"
                   >
                     {{ thread.title }}
                   </p>

@@ -20,7 +20,7 @@
             </h1>
 
             <p
-              class="mt-0.5 truncate text-xs font-semibold text-base-content/60 sm:text-sm"
+              class="kr-text-dim-xs-60 mt-0.5 truncate font-semibold sm:text-sm"
             >
               Preview, apply, and tune the whole vibe grid.
             </p>

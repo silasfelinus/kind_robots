@@ -2,7 +2,7 @@
   <label class="flex cursor-pointer items-center justify-between gap-4 py-3">
     <span>
       <span class="block font-semibold">Show maturity toggle in header</span>
-      <span class="block text-xs text-base-content/60">
+      <span class="kr-text-dim-xs-60 block">
         Add a quick 18+ visibility control to the workspace header. This
         preference stays in this browser.
       </span>

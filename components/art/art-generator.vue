@@ -122,7 +122,7 @@
               </button>
             </div>
 
-            <p class="mt-3 text-xs text-base-content/60">
+            <p class="kr-text-dim-xs-60 mt-3">
               <span class="font-semibold">{{ activeProfile.label }}</span>
               — {{ activeProfile.blurb }}
             </p>
@@ -273,7 +273,7 @@
 
               <p
                 v-if="checkpointPresetMismatch"
-                class="mt-2 flex flex-wrap items-center gap-2 text-xs text-base-content/60"
+                class="kr-text-dim-xs-60 mt-2 flex flex-wrap items-center gap-2"
               >
                 This checkpoint usually wants
                 <button
@@ -286,7 +286,7 @@
               </p>
             </template>
 
-            <p v-else class="mt-2 text-xs text-base-content/60">
+            <p v-else class="kr-text-dim-xs-60 mt-2">
               {{ activeProfile.label }} loads its own model, so there is no
               checkpoint to choose. Pick an
               <span class="font-semibold">SDXL checkpoint</span> recipe to

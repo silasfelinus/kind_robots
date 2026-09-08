@@ -129,7 +129,7 @@
               {{ userStore.isLoggedIn ? userStore.username : 'Guest' }}
             </span>
 
-            <span class="block truncate text-xs text-base-content/60">
+            <span class="kr-text-dim-xs-60 block truncate">
               {{ userStore.isLoggedIn ? userStore.role : 'Not logged in' }}
             </span>
           </span>
@@ -195,7 +195,7 @@
 
           <p
             v-if="!store.accounts.length"
-            class="rounded-xl border border-dashed border-base-300 p-2 text-xs text-base-content/60"
+            class="kr-text-dim-xs-60 rounded-xl border border-dashed border-base-300 p-2"
           >
             No saved logins yet. Login once, then this switcher starts
             collecting tiny test goblins.
@@ -362,7 +362,7 @@
             </span>
             <span
               v-if="n.body"
-              class="line-clamp-2 pl-4 text-xs text-base-content/60"
+              class="kr-text-dim-xs-60 line-clamp-2 pl-4"
             >
               {{ n.body }}
             </span>

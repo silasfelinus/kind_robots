@@ -23,7 +23,7 @@
             Visitor preview
           </button>
         </div>
-        <p class="text-xs text-base-content/60">
+        <p class="kr-text-dim-xs-60">
           {{ visitorPreview ? 'Edit controls hidden' : saveStatus }}
         </p>
       </div>

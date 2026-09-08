@@ -103,7 +103,7 @@
 
     <details class="rounded-xl border border-base-300 bg-base-200/60">
       <summary
-        class="cursor-pointer px-3 py-2 text-xs font-bold text-base-content/60"
+        class="kr-text-dim-xs-60 cursor-pointer px-3 py-2 font-bold"
       >
         Create a new Facet
       </summary>

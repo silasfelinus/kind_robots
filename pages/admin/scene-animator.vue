@@ -50,7 +50,7 @@
             </div>
 
             <label class="form-control gap-1">
-              <span class="text-xs font-bold text-base-content/60">Source folder</span>
+              <span class="kr-text-dim-xs-60 font-bold">Source folder</span>
               <select
                 class="select select-bordered rounded-xl"
                 :value="store.selectedFolder"
@@ -70,7 +70,7 @@
 
             <div class="grid gap-3 sm:grid-cols-2 xl:grid-cols-1 2xl:grid-cols-2">
               <label class="form-control gap-1">
-                <span class="text-xs font-bold text-base-content/60">Engine</span>
+                <span class="kr-text-dim-xs-60 font-bold">Engine</span>
                 <select
                   class="select select-bordered rounded-xl"
                   :value="store.engine"
@@ -83,7 +83,7 @@
               </label>
 
               <label class="form-control gap-1">
-                <span class="text-xs font-bold text-base-content/60">Clip length</span>
+                <span class="kr-text-dim-xs-60 font-bold">Clip length</span>
                 <div class="join w-full">
                   <input
                     v-model.number="store.durationSeconds"
@@ -101,7 +101,7 @@
             </div>
 
             <label class="form-control gap-1">
-              <span class="text-xs font-bold text-base-content/60">Video preset</span>
+              <span class="kr-text-dim-xs-60 font-bold">Video preset</span>
               <select
                 class="select select-bordered rounded-xl"
                 :value="store.presetId"

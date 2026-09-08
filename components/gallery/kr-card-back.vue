@@ -100,7 +100,7 @@
           {{ title }}
         </h2>
 
-        <p v-if="subtitle" class="mt-0.5 text-xs text-base-content/60">
+        <p v-if="subtitle" class="kr-text-dim-xs-60 mt-0.5">
           {{ subtitle }}
         </p>
       </div>
@@ -112,7 +112,7 @@
           {{ title }}
         </h2>
 
-        <p v-if="subtitle" class="mt-0.5 text-xs text-base-content/60">
+        <p v-if="subtitle" class="kr-text-dim-xs-60 mt-0.5">
           {{ subtitle }}
         </p>
 

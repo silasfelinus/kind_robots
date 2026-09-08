@@ -105,7 +105,7 @@
               </span>
               <span
                 v-if="tab.summary || tab.description"
-                class="line-clamp-2 text-xs font-medium text-base-content/60"
+                class="kr-text-dim-xs-60 line-clamp-2 font-medium"
               >
                 {{ tab.summary || tab.description }}
               </span>

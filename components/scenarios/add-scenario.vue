@@ -229,7 +229,7 @@
 
             <div
               v-if="scenarioStore.scenarioForm.artImageId"
-              class="w-full kr-panel-muted-row text-xs text-base-content/60"
+              class="kr-text-dim-xs-60 w-full kr-panel-muted-row"
             >
               Linked ArtImage #{{ scenarioStore.scenarioForm.artImageId }}
             </div>

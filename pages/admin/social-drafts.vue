@@ -74,7 +74,7 @@
         <!-- Filters -->
         <section class="flex flex-wrap items-center gap-3">
           <label class="form-control gap-1">
-            <span class="text-xs font-bold text-base-content/60">Status</span>
+            <span class="kr-text-dim-xs-60 font-bold">Status</span>
             <select
               v-model="draftsStore.statusFilter"
               class="kr-select-sm"
@@ -87,7 +87,7 @@
             </select>
           </label>
           <label class="form-control gap-1">
-            <span class="text-xs font-bold text-base-content/60">Platform</span>
+            <span class="kr-text-dim-xs-60 font-bold">Platform</span>
             <select
               v-model="draftsStore.platformFilter"
               class="kr-select-sm"

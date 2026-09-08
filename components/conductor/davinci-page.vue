@@ -413,7 +413,7 @@
           Each life resolves into one of the seeded endings below — reach it
           once and the matching achievement is yours for good.
         </p>
-        <p v-if="totalEndings > 0" class="text-xs text-base-content/60">
+        <p v-if="totalEndings > 0" class="kr-text-dim-xs-60">
           {{ totalEndings }} ending{{ totalEndings === 1 ? '' : 's' }} seeded so
           far.
         </p>

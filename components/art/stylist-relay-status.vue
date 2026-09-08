@@ -24,7 +24,7 @@
       <div class="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h2 class="text-lg font-semibold">Relay Diagnostics</h2>
-          <p class="text-xs text-base-content/60">
+          <p class="kr-text-dim-xs-60">
             Home-relay poll telemetry from /api/art/queue/claim — resets on
             server restart.
           </p>

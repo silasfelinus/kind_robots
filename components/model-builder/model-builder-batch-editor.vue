@@ -17,7 +17,7 @@
           <Icon name="kind-icon:layers" class="h-4 w-4 text-primary" />
           Batch edit — {{ group.label }}
         </h4>
-        <p class="mt-0.5 text-xs text-base-content/60">
+        <p class="kr-text-dim-xs-60 mt-0.5">
           {{ group.items.length }} {{ group.targetModel }} items · edit them
           together, fine-tune any one below
         </p>

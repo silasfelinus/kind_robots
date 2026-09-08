@@ -4,7 +4,7 @@
     <div class="flex items-start justify-between gap-2">
       <div>
         <h3 class="text-base font-black text-base-content">1. Pick a source model</h3>
-        <p class="mt-1 text-xs text-base-content/60">
+        <p class="kr-text-dim-xs-60 mt-1">
           Choose the existing record to upgrade or expand from. Every run keeps a
           snapshot of this source.
         </p>
@@ -54,7 +54,7 @@
 
     <p
       v-if="activeType"
-      class="rounded-xl bg-base-100 px-3 py-2 text-xs text-base-content/60"
+      class="kr-text-dim-xs-60 rounded-xl bg-base-100 px-3 py-2"
     >
       {{ activeType.blurb }}
     </p>

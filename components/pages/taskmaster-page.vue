@@ -574,7 +574,7 @@
                   >
                     Serendipity's handrail
                   </p>
-                  <p class="mt-1 text-xs leading-relaxed text-base-content/60">
+                  <p class="kr-text-dim-xs-60 mt-1 leading-relaxed">
                     The fiction can be surprising, but the work cannot silently
                     change beneath it.
                   </p>
@@ -669,7 +669,7 @@
                 >
                   <div class="text-center">
                     <p class="text-sm font-black text-secondary">Quest complete</p>
-                    <p class="mt-1 text-xs text-base-content/60">
+                    <p class="kr-text-dim-xs-60 mt-1">
                       Review any real-world updates below before applying them.
                     </p>
                   </div>

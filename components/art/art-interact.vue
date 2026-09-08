@@ -8,7 +8,7 @@
         <h1 class="text-xl font-black text-primary md:text-2xl">
           Selected Image
         </h1>
-        <p class="truncate text-xs text-base-content/60 md:text-sm">
+        <p class="kr-text-dim-xs-60 truncate md:text-sm">
           Edit metadata, collections, ideas, and remix options.
         </p>
       </div>
@@ -463,7 +463,7 @@
                   <h2 class="truncate text-base font-black text-primary">
                     Remix
                   </h2>
-                  <p class="truncate text-xs text-base-content/60">
+                  <p class="kr-text-dim-xs-60 truncate">
                     Send back to generator.
                   </p>
                 </div>

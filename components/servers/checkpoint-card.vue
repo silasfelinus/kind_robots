@@ -76,7 +76,7 @@
 
       <p
         v-if="showDescription && checkpointDescription && !isHiddenMature"
-        class="line-clamp-2 text-xs text-base-content/60"
+        class="kr-text-dim-xs-60 line-clamp-2"
       >
         {{ checkpointDescription }}
       </p>

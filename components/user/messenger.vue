@@ -53,7 +53,7 @@
                 c.unreadCount
               }}</span>
             </div>
-            <span class="block truncate text-xs text-base-content/60">
+            <span class="kr-text-dim-xs-60 block truncate">
               {{ c.lastMessage?.content || 'Say hello…' }}
             </span>
           </div>

@@ -158,7 +158,7 @@
       >
         <Icon name="kind-icon:image" class="size-3.5 text-secondary" />
         <span
-          class="text-xs font-bold uppercase tracking-wide text-base-content/60"
+          class="kr-text-dim-xs-60 font-bold uppercase tracking-wide"
         >
           Artwork &amp; inspirations
         </span>
@@ -258,7 +258,7 @@
 
       <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <label class="form-control gap-1">
-          <span class="text-xs font-semibold text-base-content/60">Target</span>
+          <span class="kr-text-dim-xs-60 font-semibold">Target</span>
           <select v-model="selectedField" class="kr-select-sm" :disabled="submitting">
             <option v-for="slot in slots" :key="slot.field" :value="slot.field">
               {{ slot.label }}
@@ -267,7 +267,7 @@
         </label>
 
         <label class="form-control gap-1">
-          <span class="text-xs font-semibold text-base-content/60">Method</span>
+          <span class="kr-text-dim-xs-60 font-semibold">Method</span>
           <select v-model="generationMode" class="kr-select-sm" :disabled="submitting">
             <option value="recreate">New prompt · recreate</option>
             <option value="img2img" :disabled="!currentSrc">Current image · img2img</option>
@@ -275,7 +275,7 @@
         </label>
 
         <label class="form-control gap-1">
-          <span class="text-xs font-semibold text-base-content/60">Engine</span>
+          <span class="kr-text-dim-xs-60 font-semibold">Engine</span>
           <select v-model="generationEngine" class="kr-select-sm" :disabled="submitting">
             <template v-if="generationMode === 'recreate'">
               <option value="krea2">Krea 2 · default</option>
@@ -289,7 +289,7 @@
         </label>
 
         <label class="form-control gap-1">
-          <span class="text-xs font-semibold text-base-content/60">Preset</span>
+          <span class="kr-text-dim-xs-60 font-semibold">Preset</span>
           <select v-model="presetKey" class="kr-select-sm" :disabled="submitting">
             <option v-for="preset in availablePresets" :key="preset.key" :value="preset.key">
               {{ preset.label }}
@@ -299,7 +299,7 @@
       </div>
 
       <label class="form-control gap-1">
-        <span class="text-xs font-semibold text-base-content/60">Art direction</span>
+        <span class="kr-text-dim-xs-60 font-semibold">Art direction</span>
         <textarea
           v-model="prompt"
           class="textarea textarea-bordered min-h-28 rounded-xl text-sm"
@@ -317,7 +317,7 @@
         class="grid gap-3 kr-panel-compact-70 sm:grid-cols-[minmax(0,1fr)_auto]"
       >
         <label class="form-control gap-1">
-          <span class="text-xs font-semibold text-base-content/60">SDXL checkpoint</span>
+          <span class="kr-text-dim-xs-60 font-semibold">SDXL checkpoint</span>
           <select
             v-model.number="checkpointResourceId"
             class="kr-select-sm"
@@ -336,7 +336,7 @@
       </div>
 
       <fieldset class="space-y-1">
-        <legend class="text-xs font-semibold text-base-content/60">Current image</legend>
+        <legend class="kr-text-dim-xs-60 font-semibold">Current image</legend>
         <div class="grid gap-1 sm:grid-cols-2">
           <label class="flex cursor-pointer items-start gap-2 rounded-lg px-2 py-1.5 hover:bg-base-100/60">
             <input
@@ -421,7 +421,7 @@
 
       <div class="grid gap-3 sm:grid-cols-2">
         <label class="form-control gap-1">
-          <span class="text-xs font-semibold text-base-content/60">Target</span>
+          <span class="kr-text-dim-xs-60 font-semibold">Target</span>
           <select v-model="selectedField" class="kr-select-sm" :disabled="submitting">
             <option v-for="slot in slots" :key="slot.field" :value="slot.field">
               {{ slot.label }}
@@ -429,7 +429,7 @@
           </select>
         </label>
         <label class="form-control gap-1">
-          <span class="text-xs font-semibold text-base-content/60">New image</span>
+          <span class="kr-text-dim-xs-60 font-semibold">New image</span>
           <input
             type="file"
             accept="image/png,image/jpeg,image/webp"
@@ -441,7 +441,7 @@
       </div>
 
       <fieldset class="space-y-1">
-        <legend class="text-xs font-semibold text-base-content/60">Current image</legend>
+        <legend class="kr-text-dim-xs-60 font-semibold">Current image</legend>
         <div class="grid gap-1 sm:grid-cols-2">
           <label class="flex cursor-pointer items-start gap-2 rounded-lg px-2 py-1.5 hover:bg-base-100/60">
             <input

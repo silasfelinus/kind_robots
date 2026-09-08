@@ -137,7 +137,7 @@
             :key="role.key"
             class="flex flex-col gap-0.5"
           >
-            <p class="text-xs font-semibold text-base-content/60">
+            <p class="kr-text-dim-xs-60 font-semibold">
               {{ role.label }}
             </p>
             <div class="flex flex-wrap gap-1">
@@ -385,7 +385,7 @@
                   <p class="truncate text-sm font-black text-primary">
                     {{ pendingCastName }}
                   </p>
-                  <p class="truncate text-xs text-base-content/60">
+                  <p class="kr-text-dim-xs-60 truncate">
                     {{ pendingCastSpecies }} · click a slot below to assign
                   </p>
                 </div>
@@ -418,7 +418,7 @@
                     <h3 class="text-sm font-black text-base-content">
                       {{ role.label }}
                     </h3>
-                    <p class="text-xs text-base-content/60">
+                    <p class="kr-text-dim-xs-60">
                       {{ role.description }}
                     </p>
                   </div>

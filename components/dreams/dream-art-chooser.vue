@@ -18,7 +18,7 @@
           </span>
         </div>
 
-        <p class="mt-1 text-xs text-base-content/60">
+        <p class="kr-text-dim-xs-60 mt-1">
           Pick the Dream highlight image, or attach a whole art collection.
         </p>
       </div>
@@ -111,7 +111,7 @@
         Clear Image
       </button>
 
-      <p class="min-w-0 flex-1 truncate text-xs text-base-content/60">
+      <p class="kr-text-dim-xs-60 min-w-0 flex-1 truncate">
         {{ statusLine }}
       </p>
     </div>

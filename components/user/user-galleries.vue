@@ -42,7 +42,7 @@
 
               <div class="min-w-0">
                 <h3 class="truncate font-black">{{ section.label }}</h3>
-                <p class="text-xs text-base-content/60">
+                <p class="kr-text-dim-xs-60">
                   {{ section.items.length }}
                   {{
                     section.items.length === 1
@@ -134,7 +134,7 @@
                 <div class="flex items-start justify-between gap-3">
                   <div class="min-w-0">
                     <p class="truncate text-sm font-black">{{ getItemTitle(item) }}</p>
-                    <p class="text-xs text-base-content/60">ID {{ item.id }}</p>
+                    <p class="kr-text-dim-xs-60">ID {{ item.id }}</p>
                   </div>
                   <span
                     v-if="getItemVisibility(item)"

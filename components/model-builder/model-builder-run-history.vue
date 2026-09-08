@@ -4,7 +4,7 @@
     <div class="flex items-start justify-between gap-2">
       <div>
         <h3 class="text-base font-black text-base-content">Run history</h3>
-        <p class="mt-1 text-xs text-base-content/60">
+        <p class="kr-text-dim-xs-60 mt-1">
           Your recent Model Builder runs. Reopen one to keep working, or cancel
           what you no longer need.
         </p>

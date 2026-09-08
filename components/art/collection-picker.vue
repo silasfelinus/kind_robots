@@ -54,7 +54,7 @@
               class="h-5 w-5 shrink-0"
             />
           </span>
-          <span class="mt-2 text-xs text-base-content/60">
+          <span class="kr-text-dim-xs-60 mt-2">
             Draw the dungeon deck from the whole playable art library.
           </span>
         </button>
@@ -85,7 +85,7 @@
             />
           </span>
 
-          <span class="mt-2 text-xs text-base-content/60">
+          <span class="kr-text-dim-xs-60 mt-2">
             {{ getCollectionMeta(collection) }}
           </span>
         </button>

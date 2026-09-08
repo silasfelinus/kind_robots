@@ -4,7 +4,7 @@
     <div class="flex items-start justify-between gap-2">
       <div>
         <h3 class="text-base font-black text-base-content">3. Build run</h3>
-        <p class="mt-1 text-xs text-base-content/60">
+        <p class="kr-text-dim-xs-60 mt-1">
           <span class="font-bold text-base-content">{{
             run?.sourceLabel
           }}</span>
@@ -80,7 +80,7 @@
         </div>
         <p
           v-if="sourceBlurb"
-          class="mt-0.5 line-clamp-3 text-xs leading-snug text-base-content/60"
+          class="kr-text-dim-xs-60 mt-0.5 line-clamp-3 leading-snug"
         >
           {{ sourceBlurb }}
         </p>

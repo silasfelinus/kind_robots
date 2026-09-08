@@ -1,7 +1,7 @@
 <!-- /components/narrative/narrative-ingredient-multi-picker.vue -->
 <template>
   <section
-    class="kr-panel-flat space-y-3 p-3"
+    class="space-y-3 rounded-[1.75rem] border border-base-300 bg-base-100/85 p-4 shadow-sm"
     role="group"
     :aria-labelledby="headingId"
     :aria-describedby="describedBy"
@@ -9,16 +9,13 @@
   >
     <div class="flex flex-wrap items-start gap-2">
       <div class="min-w-0 flex-1">
-        <h3
-          :id="headingId"
-          class="text-xs font-bold uppercase tracking-wide text-base-content/55"
-        >
+        <h3 :id="headingId" class="text-lg font-black">
           {{ label }}
         </h3>
         <p
           v-if="helper"
           :id="helperId"
-          class="mt-1 text-xs leading-relaxed text-base-content/45"
+          class="mt-1 max-w-3xl text-xs leading-relaxed text-base-content/50"
         >
           {{ helper }}
         </p>
@@ -44,7 +41,7 @@
 
     <label
       v-if="searchVisible"
-      class="kr-input-sm flex w-full items-center gap-2 bg-base-100"
+      class="kr-input-sm flex w-full max-w-xl items-center gap-2 bg-base-100"
     >
       <Icon
         name="kind-icon:search"
@@ -77,7 +74,7 @@
     <div
       v-else-if="loading"
       role="status"
-      class="flex min-h-32 items-center justify-center kr-panel-flat border-dashed bg-base-100/60"
+      class="flex min-h-56 items-center justify-center rounded-2xl border border-dashed border-base-300 bg-base-100/60"
     >
       <span
         class="loading loading-dots loading-md text-secondary motion-reduce:hidden"
@@ -89,7 +86,7 @@
     <div
       v-else-if="!items.length"
       role="status"
-      class="kr-panel-flat border-dashed bg-base-100/60 p-4 text-center text-xs text-base-content/50"
+      class="rounded-2xl border border-dashed border-base-300 bg-base-100/60 p-5 text-center text-xs text-base-content/50"
     >
       {{ emptyState }}
     </div>
@@ -97,12 +94,15 @@
     <p
       v-else-if="query.trim() && !filteredItems.length"
       role="status"
-      class="kr-panel-flat border-dashed rounded-xl bg-base-100/60 px-3 py-2 text-xs text-base-content/45"
+      class="rounded-xl border border-dashed border-base-300 bg-base-100/60 px-3 py-2 text-xs text-base-content/45"
     >
       No matching {{ label.toLowerCase() }}.
     </p>
 
-    <div v-else class="grid gap-2 md:grid-cols-2 xl:grid-cols-3">
+    <div
+      v-else
+      class="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6"
+    >
       <NarrativeIngredientCard
         v-for="item in visibleItems"
         :key="item.id ?? item.slug"
@@ -119,7 +119,7 @@
     <div v-if="showToggle" class="flex justify-center">
       <button
         type="button"
-        class="btn btn-ghost btn-sm rounded-xl border border-base-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary/70 motion-reduce:transform-none motion-reduce:transition-none"
+        class="btn btn-ghost btn-sm rounded-xl border border-base-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary/70"
         :disabled="disabled"
         :aria-expanded="expanded"
         @click="expanded = !expanded"
@@ -175,18 +175,12 @@ const query = ref('')
 const expanded = ref(false)
 
 const atLimit = computed(() => props.modelValue.length >= props.maxSelections)
-/* The count badge is v-else to the loading spinner, so while loading its id
-   does not exist in the DOM; pointing aria-describedby at it then is a
-   dangling reference for screen readers. */
 const describedBy = computed(() =>
   [props.helper ? helperId : '', props.loading ? '' : countId]
     .filter(Boolean)
     .join(' '),
 )
 
-/* See narrative-ingredient-picker.vue: the search box only renders while the
-   list is longer than the initial limit, and the store-derived lists can
-   shrink after a query has been typed. Drop the query when its input goes. */
 const searchVisible = computed(
   () => props.items.length > Math.max(1, props.initialLimit),
 )
@@ -219,10 +213,6 @@ watch(
   },
 )
 
-/* Same hidden-selection case as narrative-ingredient-picker.vue, extended to
-   multiple selections: expand if ANY selected slug sorts beyond the initial
-   collapsed slice, so a restored setupDraft never shows selected Facets or
-   Rewards as if nothing were picked. Only ever turns expanded on. */
 watch(
   () => [props.items, props.modelValue] as const,
   ([items, values]) => {

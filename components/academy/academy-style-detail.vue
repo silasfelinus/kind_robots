@@ -16,7 +16,7 @@
         />
         <div class="absolute inset-0 bg-linear-to-t from-black/80 via-transparent to-transparent" />
         <div class="absolute inset-x-0 bottom-0 p-4 text-white">
-          <p class="text-lg font-black leading-tight">{{ lesson.name }}</p>
+          <p class="kr-text-black-lg leading-tight">{{ lesson.name }}</p>
           <p class="mt-1 text-xs text-white/70">{{ lesson.era }} · {{ lesson.region }}</p>
         </div>
       </div>
@@ -330,7 +330,7 @@
             <Icon name="kind-icon:chat" class="h-4 w-4" />
             Reflect
           </p>
-          <h4 class="mt-2 text-lg font-black text-base-content">Look again after you remix</h4>
+          <h4 class="kr-text-black-lg mt-2 text-base-content">Look again after you remix</h4>
           <ul class="mt-3 flex flex-col gap-2">
             <li
               v-for="prompt in reflectPrompts"

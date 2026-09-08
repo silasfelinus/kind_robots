@@ -43,7 +43,7 @@
       @submit.prevent="updateProfile"
     >
       <div class="mb-4">
-        <h3 class="text-lg font-black">Profile Details</h3>
+        <h3 class="kr-text-black-lg">Profile Details</h3>
       </div>
 
       <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
@@ -99,7 +99,7 @@
       class="flex min-h-48 flex-1 items-center justify-center kr-panel text-center"
     >
       <div>
-        <p class="text-lg font-black">No user profile available.</p>
+        <p class="kr-text-black-lg">No user profile available.</p>
         <p class="kr-text-dim-sm mt-1">
           Guest mode is adorable, but it does not fill out forms.
         </p>

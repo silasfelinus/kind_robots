@@ -2,7 +2,7 @@
 <template>
   <div class="flex h-full w-full flex-col gap-4 p-4">
     <header class="flex flex-col gap-1">
-      <h2 class="text-lg font-black text-base-content">Card Back</h2>
+      <h2 class="kr-text-black-lg text-base-content">Card Back</h2>
       <p class="kr-text-dim-sm">
         Pick the design shown when your workspace cards flip.
       </p>

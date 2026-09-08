@@ -13,7 +13,7 @@
     >
       <div class="flex items-center gap-2.5">
         <Icon name="mdi:theater" class="h-5 w-5 text-primary" />
-        <h1 class="text-lg font-black tracking-tight">Stage</h1>
+        <h1 class="kr-text-black-lg tracking-tight">Stage</h1>
         <span
           v-if="store.selectedStage"
           class="rounded-full border border-primary/30 bg-primary/10 px-2.5 py-0.5 text-xs font-bold text-primary"
@@ -682,7 +682,7 @@
                 class="mx-auto h-32 w-auto rounded-2xl object-cover opacity-60"
               />
               <div>
-                <p class="text-lg font-black text-base-content/40">
+                <p class="kr-text-black-lg text-base-content/40">
                   {{
                     store.castReady ? 'Cast is ready.' : 'Cast is not ready.'
                   }}

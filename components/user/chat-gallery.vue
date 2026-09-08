@@ -88,7 +88,7 @@
       >
         <Icon name="kind-icon:chat" class="h-12 w-12 text-base-content/30" />
         <div>
-          <p class="text-lg font-black text-base-content">No messages found.</p>
+          <p class="kr-text-black-lg text-base-content">No messages found.</p>
           <p class="kr-text-dim-sm">
             When a message arrives, human or otherwise, it will show up here.
           </p>
@@ -105,7 +105,7 @@
             @click="openThread(thread)"
           >
             <div
-              class="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-primary/15 text-lg font-black text-primary"
+              class="kr-text-black-lg flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-primary/15 text-primary"
             >
               <img
                 v-if="thread.otherAvatar"

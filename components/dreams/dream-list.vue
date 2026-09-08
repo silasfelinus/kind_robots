@@ -5,7 +5,7 @@
       class="flex shrink-0 items-start justify-between gap-2 kr-panel-header-muted"
     >
       <div class="min-w-0">
-        <h3 class="truncate text-lg font-black text-primary">{{ title }}</h3>
+        <h3 class="kr-text-black-lg truncate text-primary">{{ title }}</h3>
         <p class="kr-text-dim-xs-60">{{ subtitle }}</p>
       </div>
 

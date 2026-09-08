@@ -118,7 +118,7 @@
                 {{ stat.label }}
               </p>
 
-              <p class="mt-1 text-lg font-black text-primary">
+              <p class="kr-text-black-lg mt-1 text-primary">
                 {{ stat.value }}
               </p>
             </div>

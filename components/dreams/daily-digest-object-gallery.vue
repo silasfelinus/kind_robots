@@ -9,7 +9,7 @@
           Complete bundle
         </p>
         <div class="mt-0.5 flex flex-wrap items-baseline gap-x-3 gap-y-1">
-          <h3 class="text-lg font-black">Objects in this Daily Dream</h3>
+          <h3 class="kr-text-black-lg">Objects in this Daily Dream</h3>
           <p class="kr-text-dim-xs hidden lg:block">
             Open any object for full details, editing, and artwork controls.
           </p>

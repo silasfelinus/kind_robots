@@ -104,7 +104,7 @@
         {{ formatCents(hourlyRateCents) }}/hr × {{ formatMinutes(totalMinutes) }} +
         {{ formatCents(productCostCents) }} products
       </span>
-      <span class="text-lg font-black text-primary">{{ formatCents(totalCents) }}</span>
+      <span class="kr-text-black-lg text-primary">{{ formatCents(totalCents) }}</span>
     </div>
 
     <button

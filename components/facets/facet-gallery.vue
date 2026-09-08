@@ -72,7 +72,7 @@
         class="space-y-3"
       >
         <div class="flex items-baseline gap-2">
-          <h2 class="text-lg font-black">
+          <h2 class="kr-text-black-lg">
             {{ taxonomyLabel(group.taxonomy) }}
           </h2>
           <span class="kr-badge-secondary-sm">{{ group.total }}</span>

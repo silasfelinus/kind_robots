@@ -96,7 +96,7 @@
       </div>
 
       <div v-if="resolvedArtSrc" class="min-w-0 px-3 pb-3 pt-2">
-        <h2 class="break-words text-lg font-black leading-tight">
+        <h2 class="kr-text-black-lg break-words leading-tight">
           {{ title }}
         </h2>
 
@@ -108,7 +108,7 @@
       <!-- No art: the title has to carry the header on its own, so it keeps
            the badges beside it rather than leaving an empty plate. -->
       <div v-else class="min-w-0 flex-1 p-3">
-        <h2 class="break-words text-lg font-black leading-tight">
+        <h2 class="kr-text-black-lg break-words leading-tight">
           {{ title }}
         </h2>
 

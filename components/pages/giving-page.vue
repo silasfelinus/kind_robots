@@ -40,7 +40,7 @@
       <div class="kr-panel p-5">
         <Icon name="kind-icon:heart" class="h-6 w-6 text-secondary" />
 
-        <h2 class="mt-2 text-lg font-black text-base-content">Why AMF?</h2>
+        <h2 class="kr-text-black-lg mt-2 text-base-content">Why AMF?</h2>
 
         <p class="kr-text-dim-sm-70 mt-1 leading-relaxed">
           {{ trivia }}
@@ -50,7 +50,7 @@
       <div class="kr-panel p-5">
         <Icon name="kind-icon:cart" class="h-6 w-6 text-secondary" />
 
-        <h2 class="mt-2 text-lg font-black text-base-content">
+        <h2 class="kr-text-black-lg mt-2 text-base-content">
           Prefer It On Your Receipt?
         </h2>
 

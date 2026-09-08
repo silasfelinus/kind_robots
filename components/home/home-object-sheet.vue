@@ -48,7 +48,7 @@
             >
               {{ kindLabel }}
             </p>
-            <h2 class="truncate text-lg font-black sm:text-xl">
+            <h2 class="kr-text-black-lg truncate sm:text-xl">
               {{ detail?.title || card.title }}
             </h2>
             <p

@@ -23,7 +23,7 @@
             :class="entry.starred ? 'text-warning' : 'text-base-content/25'"
           />
         </button>
-        <h2 class="truncate text-lg font-black text-base-content">
+        <h2 class="kr-text-black-lg truncate text-base-content">
           {{ entry.title }}
         </h2>
       </div>

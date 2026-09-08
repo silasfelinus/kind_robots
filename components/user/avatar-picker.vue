@@ -21,7 +21,7 @@
       </span>
 
       <div class="min-w-0 flex-1">
-        <h1 class="text-lg font-black leading-tight text-base-content">
+        <h1 class="kr-text-black-lg leading-tight text-base-content">
           Choose your avatar
         </h1>
         <p class="kr-text-dim-xs-55 truncate">

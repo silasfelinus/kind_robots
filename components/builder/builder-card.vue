@@ -50,7 +50,7 @@
             {{ card.label }}
           </p>
 
-          <h3 class="line-clamp-2 text-lg font-black leading-tight text-base-content xl:text-sm">
+          <h3 class="kr-text-black-lg line-clamp-2 leading-tight text-base-content xl:text-sm">
             {{ card.title }}
           </h3>
         </div>

@@ -86,7 +86,7 @@
         <div
           class="flex flex-col items-center gap-0.5 rounded-2xl p-2 text-center"
         >
-          <span class="text-lg font-black text-base-content">{{
+          <span class="kr-text-black-lg text-base-content">{{
             stats.totalCount
           }}</span>
           <span class="kr-text-dim-xs font-semibold">entries</span>
@@ -94,7 +94,7 @@
         <div
           class="flex flex-col items-center gap-0.5 rounded-2xl p-2 text-center"
         >
-          <span class="text-lg font-black text-base-content">{{
+          <span class="kr-text-black-lg text-base-content">{{
             stats.starredCount
           }}</span>
           <span class="kr-text-dim-xs font-semibold">starred</span>
@@ -102,7 +102,7 @@
         <div
           class="flex flex-col items-center gap-0.5 rounded-2xl p-2 text-center"
         >
-          <span class="text-lg font-black text-base-content">{{
+          <span class="kr-text-black-lg text-base-content">{{
             Math.round(stats.audiobookHours)
           }}</span>
           <span class="kr-text-dim-xs font-semibold">audiobook hrs</span>
@@ -110,7 +110,7 @@
         <div
           class="flex flex-col items-center gap-0.5 rounded-2xl p-2 text-center"
         >
-          <span class="text-lg font-black text-base-content">{{
+          <span class="kr-text-black-lg text-base-content">{{
             stats.pagesRead
           }}</span>
           <span class="kr-text-dim-xs font-semibold">pages read</span>
@@ -118,7 +118,7 @@
         <div
           class="flex flex-col items-center gap-0.5 rounded-2xl p-2 text-center"
         >
-          <span class="text-lg font-black text-base-content">{{
+          <span class="kr-text-black-lg text-base-content">{{
             stats.comicIssuesRead
           }}</span>
           <span class="kr-text-dim-xs font-semibold">comics read</span>
@@ -126,7 +126,7 @@
         <div
           class="flex flex-col items-center gap-0.5 rounded-2xl p-2 text-center"
         >
-          <span class="text-lg font-black text-base-content">{{
+          <span class="kr-text-black-lg text-base-content">{{
             stats.tvSeasonCount
           }}</span>
           <span class="kr-text-dim-xs font-semibold"

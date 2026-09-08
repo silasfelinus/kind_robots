@@ -248,7 +248,7 @@
             class="rounded-3xl border border-dashed border-base-300 bg-base-200/40 px-6 py-16 text-center"
           >
             <Icon name="kind-icon:trophy" class="mx-auto size-10 text-primary/50" />
-            <h4 class="mt-4 text-lg font-black uppercase">No fights on this card</h4>
+            <h4 class="kr-text-black-lg mt-4 uppercase">No fights on this card</h4>
             <p class="mx-auto mt-2 max-w-md text-sm text-base-content/55">
               Try another division or status. The seeded challenges remain in the
               arena even when this particular bracket is empty.

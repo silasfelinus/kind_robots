@@ -191,7 +191,7 @@
       <Icon name="kind-icon:warning" class="h-10 w-10" />
 
       <div>
-        <p class="text-lg font-black">Unknown tab: {{ activeTab }}</p>
+        <p class="kr-text-black-lg">Unknown tab: {{ activeTab }}</p>
         <p class="mt-1 text-sm opacity-80">Expected one of: {{ slotTabs }}</p>
       </div>
 

@@ -142,7 +142,7 @@
           </template>
 
           <div v-else class="py-5">
-            <p class="text-lg font-black">No Daily Dreams have landed yet.</p>
+            <p class="kr-text-black-lg">No Daily Dreams have landed yet.</p>
             <p
               class="kr-text-dim-sm mt-2 max-w-xl leading-relaxed"
             >

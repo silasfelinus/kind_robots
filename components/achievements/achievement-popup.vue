@@ -65,7 +65,7 @@
             >
               Reward
             </p>
-            <p class="text-lg font-black text-accent">
+            <p class="kr-text-black-lg text-accent">
               +{{ achievement.karma ?? 0 }} karma
             </p>
             <p class="kr-text-dim-xs-55">

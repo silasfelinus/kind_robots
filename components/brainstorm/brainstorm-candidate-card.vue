@@ -73,7 +73,7 @@
         </template>
         <h3
           v-else-if="candidate.title"
-          class="break-words text-lg font-black leading-snug text-base-content"
+          class="kr-text-black-lg break-words leading-snug text-base-content"
         >
           {{ candidate.title }}
         </h3>

@@ -155,21 +155,21 @@
           <dl class="grid grid-cols-2 gap-3 text-sm">
             <div class="kr-tile-md">
               <dt class="text-base-content/50">Pending color</dt>
-              <dd class="text-lg font-black">{{ book.counts.pending }}</dd>
+              <dd class="kr-text-black-lg">{{ book.counts.pending }}</dd>
             </div>
             <div class="kr-tile-md">
               <dt class="text-base-content/50">Needs attention</dt>
-              <dd class="text-lg font-black">
+              <dd class="kr-text-black-lg">
                 {{ book.counts.needsReview + book.counts.blocked }}
               </dd>
             </div>
             <div class="kr-tile-md">
               <dt class="text-base-content/50">Accepted color</dt>
-              <dd class="text-lg font-black">{{ book.counts.acceptedColor }}</dd>
+              <dd class="kr-text-black-lg">{{ book.counts.acceptedColor }}</dd>
             </div>
             <div class="kr-tile-md">
               <dt class="text-base-content/50">Final pairs</dt>
-              <dd class="text-lg font-black">{{ book.counts.finalPairs }}</dd>
+              <dd class="kr-text-black-lg">{{ book.counts.finalPairs }}</dd>
             </div>
           </dl>
 

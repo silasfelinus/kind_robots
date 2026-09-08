@@ -261,7 +261,7 @@
                   <td class="text-right font-bold">{{ entry.winRate }}%</td>
                   <td class="text-right font-bold">{{ entry.score.votes }}</td>
                   <td
-                    class="text-right text-lg font-black"
+                    class="kr-text-black-lg text-right"
                     :class="scoreClass(entry.score.netScore)"
                   >
                     {{ signedScore(entry.score.netScore) }}

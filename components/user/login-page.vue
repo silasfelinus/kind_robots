@@ -150,7 +150,7 @@
 
           <button
             type="submit"
-            class="group mt-1 flex w-full items-center justify-center gap-2 rounded-2xl bg-linear-to-r from-primary via-secondary to-accent px-6 py-3.5 text-lg font-black text-primary-content shadow-[0_14px_34px_rgba(80,80,220,0.32)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_18px_42px_rgba(80,80,220,0.42)] active:translate-y-0"
+            class="kr-text-black-lg group mt-1 flex w-full items-center justify-center gap-2 rounded-2xl bg-linear-to-r from-primary via-secondary to-accent px-6 py-3.5 text-primary-content shadow-[0_14px_34px_rgba(80,80,220,0.32)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_18px_42px_rgba(80,80,220,0.42)] active:translate-y-0"
           >
             <span>Sign In</span>
             <Icon
@@ -178,7 +178,7 @@
         >
           <Icon name="kind-icon:check" class="mx-auto h-10 w-10 text-success" />
 
-          <p class="text-lg font-black text-success">
+          <p class="kr-text-black-lg text-success">
             You are already signed in.
           </p>
 

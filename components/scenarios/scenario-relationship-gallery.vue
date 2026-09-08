@@ -8,7 +8,7 @@
     <header class="shrink-0 kr-panel-flat px-3 py-2">
       <div class="flex flex-wrap items-center justify-between gap-3">
         <div class="min-w-0">
-          <h2 class="truncate text-lg font-black text-base-content">
+          <h2 class="kr-text-black-lg truncate text-base-content">
             {{ title }}
           </h2>
           <p class="kr-text-dim-sm truncate">

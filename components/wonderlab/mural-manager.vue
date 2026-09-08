@@ -75,7 +75,7 @@
     >
       <aside class="kr-pane kr-panel-flat">
         <div class="shrink-0 kr-panel-header">
-          <h2 class="text-lg font-black">Saved Colors</h2>
+          <h2 class="kr-text-black-lg">Saved Colors</h2>
           <p class="kr-text-dim-sm mt-1">
             Pick one, then click a section or flood a group.
           </p>
@@ -212,7 +212,7 @@
 
       <aside class="kr-pane kr-panel-flat">
         <div class="shrink-0 kr-panel-header">
-          <h2 class="text-lg font-black">Sections & Groups</h2>
+          <h2 class="kr-text-black-lg">Sections & Groups</h2>
           <p class="kr-text-dim-sm mt-1">
             Use groups for shared paint IDs, then click exact sections for
             overrides.
@@ -229,7 +229,7 @@
             >
               Selected section
             </p>
-            <h3 class="mt-1 text-lg font-black text-primary">
+            <h3 class="kr-text-black-lg mt-1 text-primary">
               {{ selectedSection.label }}
             </h3>
             <p class="mt-1 text-sm text-base-content/65">

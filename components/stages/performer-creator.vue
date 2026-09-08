@@ -21,7 +21,7 @@
         class="flex shrink-0 items-center justify-between border-b border-base-300 px-5 py-4"
       >
         <div>
-          <h2 class="text-lg font-black text-base-content">
+          <h2 class="kr-text-black-lg text-base-content">
             Create a Performer
           </h2>
           <p class="kr-text-dim-xs mt-0.5">

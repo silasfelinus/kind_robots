@@ -6,7 +6,7 @@
   >
     <div class="flex items-start justify-between gap-3">
       <div class="min-w-0">
-        <h3 class="text-lg font-black text-primary">
+        <h3 class="kr-text-black-lg text-primary">
           {{ title }}
         </h3>
 

@@ -33,7 +33,7 @@
 
       <!-- ── Security ─────────────────────────────────────────────── -->
       <div class="kr-panel-flat p-5">
-        <h2 class="mb-1 text-lg font-black">Security</h2>
+        <h2 class="kr-text-black-lg mb-1">Security</h2>
         <p class="kr-text-dim-sm-70 mb-4">
           Update your password and verify your email address.
         </p>
@@ -129,7 +129,7 @@
 
       <!-- ── Privacy & Consent ────────────────────────────────────── -->
       <div class="kr-panel-flat p-5">
-        <h2 class="mb-1 text-lg font-black">Privacy &amp; Consent</h2>
+        <h2 class="kr-text-black-lg mb-1">Privacy &amp; Consent</h2>
         <p class="kr-text-dim-sm-70 mb-4">
           Consent is the default here. Choose what you see and what others can
           do.
@@ -234,7 +234,7 @@
 
       <!-- ── Newsletter ───────────────────────────────────────────── -->
       <div class="kr-panel-flat p-5">
-        <h2 class="mb-1 text-lg font-black">Updates &amp; Promotions</h2>
+        <h2 class="kr-text-black-lg mb-1">Updates &amp; Promotions</h2>
         <p class="kr-text-dim-sm-70 mb-4">
           Can we email you updates? Pick a rhythm — we only send what you ask
           for, and we'll email you once to confirm.

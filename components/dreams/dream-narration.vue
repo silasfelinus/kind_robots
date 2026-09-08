@@ -4,7 +4,7 @@
     <header class="shrink-0 kr-panel-flat p-3">
       <div class="flex flex-wrap items-center justify-between gap-3">
         <div class="min-w-0">
-          <h1 class="truncate text-lg font-black text-primary">
+          <h1 class="kr-text-black-lg truncate text-primary">
             {{ dreamTitle }}
           </h1>
           <p class="kr-text-dim-sm truncate">

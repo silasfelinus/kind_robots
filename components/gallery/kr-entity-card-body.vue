@@ -257,7 +257,7 @@
     </div>
 
     <div v-if="showDescription && !compact" class="px-0.5 pt-2.5">
-      <p class="line-clamp-3 text-sm leading-relaxed text-base-content/70">
+      <p class="kr-text-dim-sm-70 line-clamp-3 leading-relaxed">
         {{ description || descriptionFallback }}
       </p>
     </div>

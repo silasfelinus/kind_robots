@@ -15,7 +15,7 @@
           <h2 class="text-2xl font-black leading-tight text-base-content sm:text-3xl">
             The Art History Timeline
           </h2>
-          <p class="mt-2 text-sm leading-relaxed text-base-content/70 sm:text-base">
+          <p class="kr-text-dim-sm-70 mt-2 leading-relaxed sm:text-base">
             Start with the pictures. Move through thirty-three centuries of style,
             open whatever catches your eye, then turn what you learn into a remix.
           </p>
@@ -131,7 +131,7 @@
           </div>
 
           <div class="flex flex-1 flex-col gap-3 p-4">
-            <p class="line-clamp-2 text-sm leading-relaxed text-base-content/70">
+            <p class="kr-text-dim-sm-70 line-clamp-2 leading-relaxed">
               {{ style.recognitionCues[0] }}
             </p>
             <div class="mt-auto flex items-center justify-between gap-3 text-xs font-bold text-primary">

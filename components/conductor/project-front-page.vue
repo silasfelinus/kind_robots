@@ -146,7 +146,7 @@
               {{ block.title }}
             </h3>
           </div>
-          <p class="text-sm leading-relaxed text-base-content/70">
+          <p class="kr-text-dim-sm-70 leading-relaxed">
             {{ block.body }}
           </p>
         </article>
@@ -173,7 +173,7 @@
         class="flex flex-col items-center gap-3 rounded-3xl border border-info/30 bg-info/5 p-6 text-center"
       >
         <Icon name="kind-icon:external-link" class="size-8 text-info/70" />
-        <p class="text-sm text-base-content/70">
+        <p class="kr-text-dim-sm-70">
           This experience lives in its own app. Launch it to dive in.
         </p>
         <a

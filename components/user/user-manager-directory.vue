@@ -13,7 +13,7 @@
     >
       <div>
         <h1 class="text-2xl font-black">User Admin</h1>
-        <p class="text-sm text-base-content/70">
+        <p class="kr-text-dim-sm-70">
           {{ store.roster.length }} users · manage roles, maturity, access, and
           logins.
         </p>
@@ -221,7 +221,7 @@
     <dialog ref="passwordDialog" class="modal">
       <div class="modal-box rounded-2xl">
         <h3 class="mb-1 text-lg font-black">Reset password</h3>
-        <p class="mb-3 text-sm text-base-content/70">
+        <p class="kr-text-dim-sm-70 mb-3">
           Set a new password for <strong>{{ pwTarget?.username }}</strong
           >.
         </p>

@@ -5,7 +5,7 @@
       <h1 class="text-3xl font-black text-primary md:text-4xl">
         {{ title }}
       </h1>
-      <p class="mt-2 text-sm text-base-content/70">
+      <p class="kr-text-dim-sm-70 mt-2">
         {{ subtitle }}
       </p>
     </header>
@@ -29,7 +29,7 @@
               <h2 class="text-xl font-bold text-base-content">
                 Character Identity
               </h2>
-              <p class="text-sm text-base-content/70">
+              <p class="kr-text-dim-sm-70">
                 Give this person a name, place in the world, and recognizable silhouette.
               </p>
             </div>
@@ -146,7 +146,7 @@
           <div class="mb-4 flex items-center justify-between gap-2">
             <div>
               <h2 class="text-xl font-bold text-base-content">Portrait</h2>
-              <p class="text-sm text-base-content/70">
+              <p class="kr-text-dim-sm-70">
                 Upload, borrow, or generate character art.
               </p>
             </div>
@@ -283,7 +283,7 @@
         >
           <div>
             <h2 class="text-xl font-bold text-base-content">Character Stats</h2>
-            <p class="text-sm text-base-content/70">
+            <p class="kr-text-dim-sm-70">
               Rarity-style strengths for adventures and rewards.
             </p>
           </div>
@@ -330,7 +330,7 @@
             <h2 class="text-xl font-bold text-base-content">
               AI Update Controls
             </h2>
-            <p class="text-sm text-base-content/70">
+            <p class="kr-text-dim-sm-70">
               Choose fields to refresh while protecting the parts already working.
             </p>
           </div>

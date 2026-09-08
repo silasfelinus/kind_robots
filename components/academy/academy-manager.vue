@@ -37,7 +37,7 @@
               class="loading loading-spinner loading-lg text-primary"
               aria-hidden="true"
             />
-            <p class="text-sm text-base-content/70">
+            <p class="kr-text-dim-sm-70">
               Dusting off the timeline, warming up the remix engine, and
               politely waking thirty-three centuries of dead masters...
             </p>

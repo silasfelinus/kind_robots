@@ -5,9 +5,7 @@
       <section class="flex flex-col gap-4 kr-panel-section">
         <div class="flex items-center gap-2">
           <Icon name="kind-icon:castle" class="size-5 text-primary" />
-          <h3
-            class="text-sm font-black uppercase tracking-wide text-base-content/70"
-          >
+          <h3 class="kr-text-dim-sm-70 font-black uppercase tracking-wide">
             Live a life
           </h3>
         </div>
@@ -80,7 +78,7 @@
             class="flex flex-col gap-3"
             @submit.prevent="startLife"
           >
-            <p class="text-sm text-base-content/70">
+            <p class="kr-text-dim-sm-70">
               Seed a fresh life. You'll move through a run of chapters, each
               choice nudging your legacy, wealth, love, wisdom, health, freedom,
               fame, creation, community, and mystery — then your story resolves
@@ -250,7 +248,7 @@
                 class="flex flex-col items-center gap-3 rounded-2xl border border-warning/40 bg-warning/10 p-6 text-center"
               >
                 <Icon name="kind-icon:warning" class="size-8 text-warning/70" />
-                <p class="text-sm text-base-content/70">
+                <p class="kr-text-dim-sm-70">
                   The narrator is having trouble with this chapter.
                 </p>
                 <p class="kr-text-dim-xs">{{ narrationError }}</p>
@@ -346,7 +344,7 @@
                 class="flex flex-col items-center gap-3 rounded-2xl border border-primary/30 bg-primary/5 p-6 text-center"
               >
                 <Icon name="kind-icon:trophy" class="size-8 text-primary/70" />
-                <p class="text-sm text-base-content/70">
+                <p class="kr-text-dim-sm-70">
                   {{
                     currentChapter
                       ? 'You can keep living, or draw the line here and see what it all added up to.'
@@ -386,7 +384,7 @@
               :label="`Illustration for how ${run?.protagonistName || 'this life'} ended`"
               @retry="retryEndingArt"
             />
-            <p class="max-w-md text-sm text-base-content/70">
+            <p class="kr-text-dim-sm-70 max-w-md">
               {{ endingData.summary }}
             </p>
             <p v-if="awardedNote" class="text-xs font-semibold text-success">
@@ -407,13 +405,11 @@
       <section class="flex flex-col items-start gap-3 kr-panel-section">
         <div class="flex items-center gap-2">
           <Icon name="kind-icon:trophy" class="size-5 text-primary" />
-          <h3
-            class="text-sm font-black uppercase tracking-wide text-base-content/70"
-          >
+          <h3 class="kr-text-dim-sm-70 font-black uppercase tracking-wide">
             Endings on record
           </h3>
         </div>
-        <p class="text-sm text-base-content/70">
+        <p class="kr-text-dim-sm-70">
           Each life resolves into one of the seeded endings below — reach it
           once and the matching achievement is yours for good.
         </p>

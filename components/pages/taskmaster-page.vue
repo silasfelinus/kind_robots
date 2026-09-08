@@ -48,7 +48,7 @@
               Turn the next real thing into a quest
             </h2>
             <p
-              class="mt-3 max-w-lg text-sm font-semibold leading-relaxed text-base-content/70 sm:text-base"
+              class="kr-text-dim-sm-70 mt-3 max-w-lg font-semibold leading-relaxed sm:text-base"
             >
               Name what matters. Shape the adventure. Review the practical plan
               before the story begins.

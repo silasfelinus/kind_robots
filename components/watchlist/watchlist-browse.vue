@@ -47,7 +47,7 @@
       <!-- Most active month (BROWSE-UX.md §1) -->
       <p
         v-if="mostActiveMonth"
-        class="kr-panel-flat px-4 py-2 text-center text-sm font-semibold text-base-content/70"
+        class="kr-text-dim-sm-70 kr-panel-flat px-4 py-2 text-center font-semibold"
       >
         You consumed the most in {{ mostActiveMonth.label }}:
         {{ mostActiveMonth.count }} entries

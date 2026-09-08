@@ -17,7 +17,7 @@
             v-if="rewardStore.selectedReward"
             class="flex min-w-0 items-center gap-2"
           >
-            <p class="truncate text-sm text-base-content/70">
+            <p class="kr-text-dim-sm-70 truncate">
               Selected:
               <span class="font-semibold text-primary">
                 {{ selectedRewardTitle }}

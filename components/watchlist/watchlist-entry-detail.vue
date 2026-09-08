@@ -33,7 +33,7 @@
       </div>
     </div>
 
-    <dl class="grid grid-cols-2 gap-x-4 gap-y-1 text-sm text-base-content/70">
+    <dl class="kr-text-dim-sm-70 grid grid-cols-2 gap-x-4 gap-y-1">
       <div>
         <dt class="text-xs font-semibold uppercase text-base-content/45">
           Consumed

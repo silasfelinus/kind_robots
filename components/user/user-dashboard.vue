@@ -253,7 +253,7 @@
                     <span class="text-sm font-black">Theme</span>
                   </div>
 
-                  <p class="truncate text-sm text-base-content/70">
+                  <p class="kr-text-dim-sm-70 truncate">
                     {{ themeStore.currentTheme }}
                   </p>
 

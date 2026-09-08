@@ -161,9 +161,7 @@
             <p v-if="entry.meta" class="mt-1 text-xs text-base-content/50">
               {{ entry.meta }}
             </p>
-            <p
-              class="mt-2 line-clamp-3 whitespace-pre-wrap text-sm text-base-content/70"
-            >
+            <p class="kr-text-dim-sm-70 mt-2 line-clamp-3 whitespace-pre-wrap">
               {{ entry.body }}
             </p>
           </div>

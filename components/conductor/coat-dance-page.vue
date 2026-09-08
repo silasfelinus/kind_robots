@@ -5,13 +5,11 @@
       <section class="flex flex-col gap-3 kr-panel-section">
         <div class="flex items-center gap-2">
           <Icon name="kind-icon:sparkles" class="size-5 text-primary" />
-          <h3
-            class="text-sm font-black uppercase tracking-wide text-base-content/70"
-          >
+          <h3 class="kr-text-dim-sm-70 font-black uppercase tracking-wide">
             Behind the coat
           </h3>
         </div>
-        <p class="text-sm leading-relaxed text-base-content/70">
+        <p class="kr-text-dim-sm-70 leading-relaxed">
           The source is real: an experimental physical-theater duet with a black
           Goodwill trench coat, performed around 2006 while finishing a dance
           major at Humboldt State University — physical theater, object

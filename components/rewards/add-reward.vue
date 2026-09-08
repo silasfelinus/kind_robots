@@ -6,7 +6,7 @@
         {{ heading }}
       </h1>
 
-      <p class="mt-2 text-sm text-base-content/70">
+      <p class="kr-text-dim-sm-70 mt-2">
         {{ subtitle }}
       </p>
     </header>
@@ -150,7 +150,7 @@
       <section class="kr-panel-flat p-4">
         <div class="mb-4">
           <h2 class="text-xl font-bold text-base-content">Publishing</h2>
-          <p class="text-sm text-base-content/70">
+          <p class="kr-text-dim-sm-70">
             Control who can discover this reward and whether mature-content filtering applies.
           </p>
         </div>
@@ -183,7 +183,7 @@
           <div>
             <h2 class="text-xl font-bold text-base-content">Reward Essence</h2>
 
-            <p class="text-sm text-base-content/70">
+            <p class="kr-text-dim-sm-70">
               Use reusable choices to shape what kind of story prompt this
               reward becomes.
             </p>
@@ -205,7 +205,7 @@
           <div>
             <h2 class="text-xl font-bold text-base-content">Reward Art</h2>
 
-            <p class="text-sm text-base-content/70">
+            <p class="kr-text-dim-sm-70">
               Upload, generate, or attach an image for the reward.
             </p>
           </div>

@@ -8,7 +8,7 @@
   <section class="kr-container max-w-3xl flex flex-col gap-6 p-4">
     <header>
       <h1 class="text-2xl font-black">Friends</h1>
-      <p class="text-sm text-base-content/70">
+      <p class="kr-text-dim-sm-70">
         Connect with people, manage requests, and control who can reach you.
       </p>
     </header>

@@ -93,7 +93,7 @@
       >
         <div class="kr-panel-flat p-3">
           <h3 class="font-black text-warning">Choose a Dream first</h3>
-          <p class="mt-1 text-sm text-base-content/70">
+          <p class="kr-text-dim-sm-70 mt-1">
             This Scenario view needs a Dream anchor before it can show useful
             relationships.
           </p>

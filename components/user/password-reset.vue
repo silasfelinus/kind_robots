@@ -10,7 +10,7 @@
       <h1 class="text-2xl font-black">
         {{ hasToken ? 'Choose a new password' : 'Reset your password' }}
       </h1>
-      <p class="text-sm text-base-content/70">
+      <p class="kr-text-dim-sm-70">
         {{
           hasToken
             ? 'Pick a new password for your account.'
@@ -26,7 +26,7 @@
       @submit.prevent="onRequest"
     >
       <label class="flex flex-col gap-1">
-        <span class="text-sm font-bold text-base-content/70">Email</span>
+        <span class="kr-text-dim-sm-70 font-bold">Email</span>
         <input
           v-model="email"
           type="email"
@@ -51,7 +51,7 @@
       @submit.prevent="onReset"
     >
       <label class="flex flex-col gap-1">
-        <span class="text-sm font-bold text-base-content/70">New password</span>
+        <span class="kr-text-dim-sm-70 font-bold">New password</span>
         <input
           v-model="next"
           type="password"
@@ -60,9 +60,7 @@
         />
       </label>
       <label class="flex flex-col gap-1">
-        <span class="text-sm font-bold text-base-content/70"
-          >Confirm password</span
-        >
+        <span class="kr-text-dim-sm-70 font-bold">Confirm password</span>
         <input
           v-model="confirm"
           type="password"

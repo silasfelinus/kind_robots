@@ -8,9 +8,7 @@
         Character Interact
       </h1>
 
-      <p
-        class="mx-auto mt-2 max-w-3xl text-sm text-base-content/70 md:text-base"
-      >
+      <p class="kr-text-dim-sm-70 mx-auto mt-2 max-w-3xl md:text-base">
         Chat with a character, drop them into a scenario, hand them a reward, or
         build a prompt for your next weird little adventure.
       </p>
@@ -161,7 +159,7 @@
               </div>
 
               <div v-if="isSendingChat" class="flex justify-start">
-                <div class="kr-panel p-3 text-sm text-base-content/70">
+                <div class="kr-text-dim-sm-70 kr-panel p-3">
                   <span class="loading loading-dots loading-sm text-primary" />
                   Thinking in character...
                 </div>

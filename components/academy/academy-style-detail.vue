@@ -21,7 +21,7 @@
         </div>
       </div>
       <div class="flex flex-col gap-3 p-4">
-        <p class="line-clamp-4 text-sm leading-relaxed text-base-content/70">
+        <p class="kr-text-dim-sm-70 line-clamp-4 leading-relaxed">
           {{ lesson.keyIdeas }}
         </p>
         <div class="flex flex-wrap gap-1.5">

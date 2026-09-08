@@ -7,7 +7,7 @@
     >
       <div class="flex flex-col items-center gap-3 text-center">
         <span class="loading loading-spinner loading-lg text-primary" />
-        <p class="text-sm text-base-content/70">
+        <p class="kr-text-dim-sm-70">
           {{ managerLoadMessage }}
         </p>
       </div>

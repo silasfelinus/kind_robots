@@ -95,7 +95,7 @@
       </div>
 
       <!-- BYO hint -->
-      <div class="rounded-xl bg-base-200 p-4 text-sm text-base-content/70">
+      <div class="kr-text-dim-sm-70 rounded-xl bg-base-200 p-4">
         💡 Using your own API key or local server? Those generations are free —
         and sharing what you make can earn you bonus mana.
       </div>

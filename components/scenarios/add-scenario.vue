@@ -6,7 +6,7 @@
         {{ heading }}
       </h1>
 
-      <p class="mt-2 text-sm text-base-content/70">
+      <p class="kr-text-dim-sm-70 mt-2">
         {{ subtitle }}
       </p>
     </header>
@@ -116,7 +116,7 @@
       <section class="kr-panel-flat p-4">
         <div class="mb-4">
           <h2 class="text-xl font-bold text-base-content">Publishing</h2>
-          <p class="text-sm text-base-content/70">
+          <p class="kr-text-dim-sm-70">
             Control who can discover this scenario and whether mature-content
             filtering applies.
           </p>
@@ -148,7 +148,7 @@
           <div>
             <h2 class="text-xl font-bold text-base-content">Opening Choices</h2>
 
-            <p class="text-sm text-base-content/70">
+            <p class="kr-text-dim-sm-70">
               These become the starting choices players can click when the
               scenario begins.
             </p>
@@ -209,7 +209,7 @@
           <div>
             <h2 class="text-xl font-bold text-base-content">Scenario Art</h2>
 
-            <p class="text-sm text-base-content/70">
+            <p class="kr-text-dim-sm-70">
               Upload, randomize, or generate a visual anchor.
             </p>
           </div>

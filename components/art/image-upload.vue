@@ -38,7 +38,7 @@
         <Icon :name="icon" class="h-7 w-7" />
       </span>
       <div class="text-center">
-        <p class="text-sm font-semibold text-base-content/70">
+        <p class="kr-text-dim-sm-70 font-semibold">
           Drop images here or
           <span class="font-bold text-primary underline underline-offset-2"
             >browse</span

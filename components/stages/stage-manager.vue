@@ -291,7 +291,7 @@
             <div class="kr-panel-muted-sm">
               <button
                 type="button"
-                class="flex items-center gap-2 text-sm font-semibold text-base-content/70 hover:text-base-content"
+                class="kr-text-dim-sm-70 flex items-center gap-2 font-semibold hover:text-base-content"
                 @click="showPerformerGallery = !showPerformerGallery"
               >
                 <Icon

@@ -113,7 +113,7 @@
             aria-label="Book description"
             class="textarea textarea-bordered min-h-36 w-full text-sm leading-relaxed"
           />
-          <p v-else class="whitespace-pre-line text-sm leading-relaxed text-base-content/70">
+          <p v-else class="kr-text-dim-sm-70 whitespace-pre-line leading-relaxed">
             {{ draft.bookDescription }}
           </p>
 
@@ -179,7 +179,7 @@
           class="textarea textarea-bordered min-h-64 w-full text-sm leading-relaxed"
           placeholder="Write your note here."
         />
-        <p v-else class="whitespace-pre-line text-sm leading-relaxed text-base-content/70">
+        <p v-else class="kr-text-dim-sm-70 whitespace-pre-line leading-relaxed">
           {{ draft.personalNote }}
         </p>
       </section>
@@ -211,7 +211,7 @@
           aria-label="AI disclosure"
           class="textarea textarea-bordered min-h-56 w-full text-sm leading-relaxed"
         />
-        <p v-else class="whitespace-pre-line text-sm leading-relaxed text-base-content/70">
+        <p v-else class="kr-text-dim-sm-70 whitespace-pre-line leading-relaxed">
           {{ draft.aiNote }}
         </p>
       </section>

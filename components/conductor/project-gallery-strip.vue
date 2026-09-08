@@ -8,9 +8,7 @@
   <section v-if="images.length" class="kr-panel-section">
     <div class="mb-3 flex items-center gap-2">
       <Icon name="kind-icon:image" class="size-5 text-primary" />
-      <h3
-        class="text-sm font-black uppercase tracking-wide text-base-content/70"
-      >
+      <h3 class="kr-text-dim-sm-70 font-black uppercase tracking-wide">
         {{ title }}
       </h3>
       <span class="kr-badge-ghost-sm ml-auto rounded-lg">{{

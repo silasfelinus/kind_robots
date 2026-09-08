@@ -32,7 +32,7 @@
 
       <p class="text-base font-bold text-error">Content query failed</p>
 
-      <p class="max-w-xl text-sm text-base-content/70">
+      <p class="kr-text-dim-sm-70 max-w-xl">
         Nuxt Content could not load {{ contentPath }}.
       </p>
     </div>

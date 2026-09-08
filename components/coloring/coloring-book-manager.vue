@@ -12,7 +12,7 @@
             <Icon name="kind-icon:paintbrush" class="h-5 w-5 text-primary" />
             Coloring Book
           </h2>
-          <p class="text-sm text-base-content/70">
+          <p class="kr-text-dim-sm-70">
             Pick a page and start coloring. Your work saves itself — walk away
             mid-masterpiece with total confidence.
           </p>

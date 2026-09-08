@@ -72,7 +72,7 @@
               {{ botStore.currentBot.subtitle }}
             </p>
 
-            <p class="mt-2 line-clamp-3 text-sm text-base-content/70">
+            <p class="kr-text-dim-sm-70 mt-2 line-clamp-3">
               {{ selectedBotSummary }}
             </p>
           </div>

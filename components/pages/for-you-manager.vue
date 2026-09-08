@@ -363,7 +363,7 @@
 
                 <p
                   v-if="pitch.idea"
-                  class="mt-3 line-clamp-5 text-sm leading-relaxed text-base-content/70"
+                  class="kr-text-dim-sm-70 mt-3 line-clamp-5 leading-relaxed"
                 >
                   {{ pitch.idea }}
                 </p>

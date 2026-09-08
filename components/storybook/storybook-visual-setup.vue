@@ -132,7 +132,7 @@
           >
             <span
               v-if="store.isWeaving"
-              class="loading loading-spinner loading-sm"
+              class="kr-spinner-sm"
             />
             <Icon v-else name="kind-icon:book-open" class="size-4" />
             {{ store.isWeaving ? 'Opening the story…' : 'Open this story' }}
@@ -358,7 +358,7 @@
           >
             <span
               v-if="store.isWeaving"
-              class="loading loading-spinner loading-sm"
+              class="kr-spinner-sm"
             />
             <Icon v-else name="kind-icon:book-open" class="size-4" />
             {{ store.isWeaving ? 'Opening…' : 'Open this story' }}

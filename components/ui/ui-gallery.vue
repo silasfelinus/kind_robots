@@ -264,7 +264,7 @@
             <button class="btn btn-primary">md</button>
             <button class="btn btn-primary btn-lg">lg</button>
             <button class="btn btn-primary">
-              <span class="loading loading-spinner loading-sm" />
+              <span class="kr-spinner-sm" />
               Loading
             </button>
           </div>

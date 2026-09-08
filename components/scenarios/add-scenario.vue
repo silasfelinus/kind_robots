@@ -265,10 +265,7 @@
               :disabled="isGeneratingArt"
               @click="generateArtImage"
             >
-              <span
-                v-if="isGeneratingArt"
-                class="loading loading-spinner loading-sm"
-              />
+              <span v-if="isGeneratingArt" class="kr-spinner-sm" />
               {{ isGeneratingArt ? 'Generating...' : 'Generate Art' }}
             </button>
           </div>
@@ -308,10 +305,7 @@
           :disabled="scenarioStore.isSaving"
           @click="saveScenario"
         >
-          <span
-            v-if="scenarioStore.isSaving"
-            class="loading loading-spinner loading-sm"
-          />
+          <span v-if="scenarioStore.isSaving" class="kr-spinner-sm" />
           {{ saveLabel }}
         </button>
       </footer>

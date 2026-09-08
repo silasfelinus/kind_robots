@@ -68,7 +68,7 @@
           type="submit"
           :disabled="loading"
         >
-          <span v-if="loading" class="loading loading-spinner loading-sm" />
+          <span v-if="loading" class="kr-spinner-sm" />
           <Icon v-else name="kind-icon:search" class="h-4 w-4" />
           {{ source === 'civarchive' ? 'Look up' : 'Search' }}
         </button>
@@ -180,7 +180,7 @@
         :disabled="loading"
         @click="runSearch(false)"
       >
-        <span v-if="loading" class="loading loading-spinner loading-sm" />
+        <span v-if="loading" class="kr-spinner-sm" />
         Load more
       </button>
     </footer>

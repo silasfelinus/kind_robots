@@ -136,7 +136,7 @@
         >
           <span
             v-if="isSubmitting"
-            class="loading loading-spinner loading-sm"
+            class="kr-spinner-sm"
           />
 
           <Icon v-else name="kind-icon:check" class="h-4 w-4" />

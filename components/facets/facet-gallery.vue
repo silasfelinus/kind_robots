@@ -11,7 +11,7 @@
       </div>
       <span
         v-if="catalog.loading"
-        class="loading loading-spinner loading-sm"
+        class="kr-spinner-sm"
         aria-label="Loading facets"
       />
       <span class="badge badge-ghost shrink-0">{{ visibleCount }} shown</span>

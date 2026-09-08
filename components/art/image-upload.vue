@@ -456,10 +456,7 @@
         :disabled="isUploading || isFinalizingUpload"
         @click="handleBatchUpload"
       >
-        <span
-          v-if="isUploading || isFinalizingUpload"
-          class="loading loading-spinner loading-sm"
-        />
+        <span v-if="isUploading || isFinalizingUpload" class="kr-spinner-sm" />
         <Icon v-else name="kind-icon:camera" class="h-5 w-5" />
         {{
           isUploading || isFinalizingUpload

@@ -80,7 +80,7 @@
         type="submit"
         :disabled="isSaving || disabled || !label.trim()"
       >
-        <span v-if="isSaving" class="loading loading-spinner loading-sm" />
+        <span v-if="isSaving" class="kr-spinner-sm" />
         <Icon v-else name="kind-icon:plus" class="h-5 w-5" />
         Create Collection
       </button>

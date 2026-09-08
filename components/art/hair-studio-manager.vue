@@ -17,7 +17,7 @@
         v-if="stylist.isBusy"
         class="flex items-center gap-2 text-sm font-bold text-primary"
       >
-        <span class="loading loading-spinner loading-sm" />
+        <span class="kr-spinner-sm" />
         styling
       </span>
     </header>

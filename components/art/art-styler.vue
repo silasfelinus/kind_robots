@@ -567,7 +567,7 @@
         :disabled="!canGenerate"
         @click="runStyleTransfer"
       >
-        <span v-if="isGenerating" class="loading loading-spinner loading-sm" />
+        <span v-if="isGenerating" class="kr-spinner-sm" />
         <Icon v-else name="kind-icon:magic" class="h-5 w-5" />
         {{
           isGenerating

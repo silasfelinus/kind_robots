@@ -140,7 +140,7 @@
         v-if="resourceStore.isLoading && !resourceStore.hasLoaded"
         class="flex min-h-24 items-center justify-center rounded-xl bg-base-200"
       >
-        <span class="loading loading-spinner loading-sm" />
+        <span class="kr-spinner-sm" />
       </div>
 
       <p

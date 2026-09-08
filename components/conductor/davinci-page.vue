@@ -115,10 +115,7 @@
               class="btn btn-primary btn-sm w-fit gap-1.5 rounded-xl"
               :disabled="submitting"
             >
-              <span
-                v-if="submitting"
-                class="loading loading-spinner loading-sm"
-              />
+              <span v-if="submitting" class="kr-spinner-sm" />
               <Icon v-else name="kind-icon:sparkles" class="size-4" />
               Begin a life
             </button>
@@ -362,10 +359,7 @@
                   :disabled="submitting"
                   @click="resolveLife"
                 >
-                  <span
-                    v-if="submitting"
-                    class="loading loading-spinner loading-sm"
-                  />
+                  <span v-if="submitting" class="kr-spinner-sm" />
                   <Icon v-else name="kind-icon:trophy" class="size-4" />
                   See your ending
                 </button>

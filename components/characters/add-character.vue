@@ -180,7 +180,7 @@
             >
               <span
                 v-if="characterStore.isGeneratingArt"
-                class="loading loading-spinner loading-sm"
+                class="kr-spinner-sm"
               />
               <Icon v-else name="kind-icon:magic" class="h-4 w-4" />
               Generate portrait
@@ -502,7 +502,7 @@
         >
           <span
             v-if="characterStore.isSaving"
-            class="loading loading-spinner loading-sm"
+            class="kr-spinner-sm"
           />
           {{ saveLabel }}
         </button>

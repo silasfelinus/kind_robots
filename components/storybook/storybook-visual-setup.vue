@@ -33,7 +33,9 @@
         </p>
       </header>
 
-      <div class="mx-auto grid max-w-7xl gap-4 xl:grid-cols-[minmax(0,1.6fr)_minmax(18rem,0.65fr)]">
+      <div
+        class="mx-auto grid max-w-7xl grid-cols-[repeat(auto-fit,minmax(min(100%,24rem),1fr))] gap-4"
+      >
         <section
           class="rounded-[1.75rem] border border-primary/20 bg-base-100/90 p-4 shadow-lg backdrop-blur sm:p-5"
         >
@@ -51,7 +53,9 @@
             </div>
           </div>
 
-          <div class="mt-4 grid gap-3 sm:grid-cols-[minmax(12rem,0.55fr)_minmax(0,1fr)]">
+          <div
+            class="mt-4 grid grid-cols-[repeat(auto-fit,minmax(min(100%,14rem),1fr))] gap-3"
+          >
             <label class="form-control">
               <span
                 class="mb-1 text-[0.68rem] font-black uppercase tracking-wider text-base-content/50"
@@ -122,7 +126,7 @@
 
           <button
             type="button"
-            class="kr-btn-primary mt-5 w-full justify-center rounded-2xl"
+            class="kr-btn-primary mt-5 w-full justify-center rounded-2xl motion-reduce:transition-none"
             :disabled="!canBegin || store.isWeaving"
             @click="beginStory"
           >
@@ -148,12 +152,14 @@
           </p>
           <h2 class="text-xl font-black">Choose a narrator voice</h2>
         </div>
-        <div class="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+        <div
+          class="grid grid-cols-[repeat(auto-fit,minmax(min(100%,10rem),1fr))] gap-3"
+        >
           <button
             v-for="option in narratorCards"
             :key="option.value"
             type="button"
-            class="group relative aspect-[2/3] overflow-hidden rounded-[1.5rem] border text-left shadow-md transition hover:-translate-y-1 hover:shadow-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/70 motion-reduce:transform-none"
+            class="group relative aspect-[2/3] overflow-hidden rounded-[1.5rem] border text-left shadow-md transition hover:-translate-y-1 hover:shadow-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/70 motion-reduce:transform-none motion-reduce:transition-none"
             :class="
               store.setupDraft.narratorStyle === option.value
                 ? 'border-primary ring-2 ring-primary/45'
@@ -165,7 +171,7 @@
             <img
               :src="option.image"
               alt=""
-              class="absolute inset-0 size-full object-cover transition duration-300 group-hover:scale-105"
+              class="absolute inset-0 size-full object-cover transition duration-300 group-hover:scale-105 motion-reduce:transition-none"
               aria-hidden="true"
             />
             <span
@@ -198,12 +204,14 @@
           </p>
           <h2 class="text-xl font-black">Choose the shape of the tale</h2>
         </div>
-        <div class="grid gap-3 sm:grid-cols-3">
+        <div
+          class="grid grid-cols-[repeat(auto-fit,minmax(min(100%,15rem),1fr))] gap-3"
+        >
           <button
             v-for="option in structureCards"
             :key="option.value"
             type="button"
-            class="group relative min-h-48 overflow-hidden rounded-[1.5rem] border text-left shadow-md transition hover:-translate-y-1 hover:shadow-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/70 motion-reduce:transform-none"
+            class="group relative min-h-48 overflow-hidden rounded-[1.5rem] border text-left shadow-md transition hover:-translate-y-1 hover:shadow-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/70 motion-reduce:transform-none motion-reduce:transition-none"
             :class="
               store.setupDraft.structure === option.value
                 ? 'border-primary ring-2 ring-primary/45'
@@ -215,7 +223,7 @@
             <img
               :src="option.image"
               alt=""
-              class="absolute inset-0 size-full object-cover transition duration-300 group-hover:scale-105"
+              class="absolute inset-0 size-full object-cover transition duration-300 group-hover:scale-105 motion-reduce:transition-none"
               aria-hidden="true"
             />
             <span
@@ -332,7 +340,7 @@
       >
         <button
           type="button"
-          class="btn btn-ghost btn-sm rounded-xl"
+          class="btn btn-ghost btn-sm rounded-xl motion-reduce:transition-none"
           :disabled="store.isWeaving"
           @click="store.resetSetup()"
         >
@@ -344,7 +352,7 @@
           </p>
           <button
             type="button"
-            class="kr-btn-primary rounded-xl"
+            class="kr-btn-primary rounded-xl motion-reduce:transition-none"
             :disabled="!canBegin || store.isWeaving"
             @click="beginStory"
           >

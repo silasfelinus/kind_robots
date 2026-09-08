@@ -7,7 +7,7 @@ icon: kind-icon:butterfly
 tooltip: Say "Serendipity, turn butterflies on" and watch it happen here.
 dottiTip: The house is listening. Speak kindly.
 amiTip: Your voice becomes a butterfly. Try it.
-channelKey: play
+channelKey: plan
 tabKey: serendipity
 dashboardKey: scenario
 dashboardTab: serendipity

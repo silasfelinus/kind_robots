@@ -9,7 +9,7 @@ tooltip: Kind Robots privacy policy and data philosophy.
 dottiTip: Your data belongs to you. Full stop.
 amiTip: Even robots have a code of ethics. Ours just happens to be written down.
 sort: info
-channelKey: sanctuary
+channelKey: home
 tabKey: about
 dashboardKey: giftshop
 dashboardTab: community

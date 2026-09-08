@@ -1,6 +1,6 @@
 ---
 contentType: tab
-channelKey: sanctuary
+channelKey: home
 tabKey: about
 dashboardKey: giftshop
 dashboardTab: community
@@ -10,7 +10,7 @@ subtitle: Humans and robots building a kinder future
 description: Our story, values, community, and anti-malaria mission.
 icon: kind-icon:heart
 route: /about
-sort: 20
+sort: 200
 ---
 
 Meet the people, values, and mission behind Kind Robots.

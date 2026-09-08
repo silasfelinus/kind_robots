@@ -9,7 +9,7 @@ tooltip: Art history lessons with a remix button. The masters would approve. Pro
 sort: highlight
 dottiTip: Can you really learn art history from a robot?
 amiTip: Every artist here has been public domain for decades — we checked. The robots just dust the frames and run the remix engine!
-channelKey: play
+channelKey: plan
 tabKey: academy
 dashboardKey: academy
 dashboardTab: timeline

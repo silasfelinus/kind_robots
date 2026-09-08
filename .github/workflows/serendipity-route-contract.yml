@@ -6,7 +6,7 @@ on:
     paths:
       - '.github/workflows/serendipity-route-contract.yml'
       - 'content/serendipity.md'
-      - 'content/channels/play/serendipity.md'
+      - 'content/channels/plan/serendipity.md'
       - 'components/pages/serendipity-page.vue'
       - 'components/conductor/voice-lab-page.vue'
       - 'stores/helpers/dashboardHelper.ts'
@@ -18,7 +18,7 @@ on:
     paths:
       - '.github/workflows/serendipity-route-contract.yml'
       - 'content/serendipity.md'
-      - 'content/channels/play/serendipity.md'
+      - 'content/channels/plan/serendipity.md'
       - 'components/pages/serendipity-page.vue'
       - 'components/conductor/voice-lab-page.vue'
       - 'stores/helpers/dashboardHelper.ts'

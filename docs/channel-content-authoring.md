@@ -10,13 +10,12 @@ content/channels/
 ├── home/
 ├── plan/
 ├── play/
-├── sanctuary/
 └── admin/
 ```
 
 Each folder contains one parent channel document named `index.md` and one Markdown document per tab.
 
-Play is the single creative channel. A model tab should lead to that model's own manager, where browsing, creating, editing, and interacting live together. Do not add a parallel Builder channel or duplicate model-specific creation tabs in another channel.
+Home combines personal/account surfaces with the Kind Robots mission, giving, and gift shop. Plan owns tools for making, learning, practicing, projects, and structured work. Play is for browsing and interacting with creative worlds, characters, rewards, galleries, and experiments. Keep each destination in one canonical channel rather than duplicating model-specific or product-specific tabs across channels.
 
 ## Add a channel
 
@@ -42,7 +41,7 @@ amiTip: AMI gets the second line.
 ---
 ```
 
-`channelKey` must be lowercase kebab-case. The top-level channel list is intentionally limited to Home, Plan, Play, Sanctuary, and Admin. Update the channel-content contract only when deliberately changing that information architecture.
+`channelKey` must be lowercase kebab-case. The top-level channel list is intentionally limited to Home, Plan, Play, and Admin. Update the channel-content contract only when deliberately changing that information architecture.
 
 Only put `dashboardKey` on the parent when every child truly belongs to the same legacy dashboard. Diverse channels keep legacy adapters on individual tabs instead.
 

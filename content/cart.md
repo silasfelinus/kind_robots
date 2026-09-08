@@ -4,7 +4,7 @@ room: Butterfly Checkout
 description: Review your Kind Robots cart and continue to secure Stripe checkout.
 icon: kind-icon:cart
 image: splash/sanctuary.png
-channelKey: sanctuary
+channelKey: home
 tabKey: cart
 dashboardKey: giftshop
 dashboardTab: giftshop

@@ -8,8 +8,8 @@ icon: kind-icon:butterfly
 tooltip: The shared home for Kind Robots community and support tools.
 dottiTip: AMI, how many butterflies are you exactly?
 amiTip: Yes.
-channelKey: sanctuary
-tabKey: about
+channelKey: home
+tabKey: giftshop
 dashboardKey: giftshop
 dashboardTab: community
 cards: navCards

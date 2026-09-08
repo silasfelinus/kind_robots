@@ -1,6 +1,6 @@
 ---
 contentType: tab
-channelKey: sanctuary
+channelKey: home
 tabKey: giftshop
 dashboardKey: giftshop
 dashboardTab: giftshop
@@ -10,7 +10,7 @@ subtitle: Support the mission through things we make
 description: Explore plans for print-on-demand art, creative products, subscriptions, and mission support.
 icon: kind-icon:gift
 route: /sanctuary
-sort: 30
+sort: 220
 status: under-construction
 tutorial:
   underConstruction: true

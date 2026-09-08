@@ -390,7 +390,7 @@
       <p v-if="stylist.historyError" class="text-xs text-error">{{ stylist.historyError }}</p>
       <p
         v-else-if="!clientHistory.length && !stylist.isLoadingHistory"
-        class="text-xs text-base-content/40"
+        class="kr-text-dim-xs-40"
       >
         No saved looks yet{{ clientName.trim() ? ' for this client' : '' }}.
       </p>

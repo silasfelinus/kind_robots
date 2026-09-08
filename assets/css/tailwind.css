@@ -1742,6 +1742,23 @@ section:has(div[class*='xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]'])
     @apply text-xs text-base-content/55;
   }
 
+  /* The most-dimmed caption-size metadata line in the `text-xs
+   * text-base-content/NN` family -- `text-xs text-base-content/40`, one
+   * notch quieter than `.kr-text-dim-xs-45`, used for the least-emphasized
+   * annotation on a card or list row (interface-vision t-104 slice 162) --
+   * previously hand-rolled identically in 56 occurrences, the largest
+   * bounded family surfaced by re-running slice 152's original frequency
+   * survey against the sibling opacity variants left open in slice 159's
+   * own note (`/40`, `/70`). Named `kr-text-dim-xs-40` for the same reason
+   * as its siblings -- each size/opacity pairing is a real,
+   * independently-repeated exact shape in the wild, not one that "should
+   * normalize" to a neighboring opacity. The remaining `/70` sibling (51
+   * occurrences) is left for a future slice, same convention as
+   * `.kr-spinner-xs`/`.kr-spinner-sm`. */
+  .kr-text-dim-xs-40 {
+    @apply text-xs text-base-content/40;
+  }
+
   /* A large, primary-colored busy indicator -- `loading loading-spinner
    * loading-lg text-primary`, the centered spinner shown while a gallery,
    * list, or manager view's main content is still loading (interface-vision

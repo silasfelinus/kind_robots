@@ -223,7 +223,7 @@
           actionMessage
         }}</span>
       </div>
-      <p class="text-xs text-base-content/40">
+      <p class="kr-text-dim-xs-40">
         Ready is local bookkeeping. Making pack items public and wiring the
         storefront remain separate, human-approved steps.
       </p>

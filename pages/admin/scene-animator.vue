@@ -273,7 +273,7 @@
                         class="size-full object-cover"
                       />
                     </template>
-                    <div v-else class="grid size-full place-items-center p-3 text-center text-xs text-base-content/40">
+                    <div v-else class="kr-text-dim-xs-40 grid size-full place-items-center p-3 text-center">
                       <template v-if="source.status === 'rendering' || source.status === 'queued'">
                         <span class="kr-spinner-sm" />
                         <span class="mt-1 block">{{ elapsedLabel(source) }}</span>

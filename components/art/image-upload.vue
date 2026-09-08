@@ -44,9 +44,7 @@
             >browse</span
           >
         </p>
-        <p class="mt-0.5 text-xs text-base-content/40">
-          PNG · JPEG · WebP · multiple OK
-        </p>
+        <p class="kr-text-dim-xs-40 mt-0.5">PNG · JPEG · WebP · multiple OK</p>
       </div>
     </div>
 
@@ -148,7 +146,7 @@
           <div class="mb-3 flex items-center gap-2">
             <icon name="kind-icon:settings" class="h-4 w-4 text-primary" />
             <h3 class="text-sm font-black text-base-content">Image Metadata</h3>
-            <span class="text-xs text-base-content/40"
+            <span class="kr-text-dim-xs-40"
               >Optional — added to every image in this batch</span
             >
           </div>

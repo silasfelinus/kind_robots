@@ -63,7 +63,7 @@
                   {{ post.channel }}
                 </span>
               </div>
-              <span class="text-xs text-base-content/40">#{{ post.id }}</span>
+              <span class="kr-text-dim-xs-40">#{{ post.id }}</span>
             </div>
 
             <p class="whitespace-pre-line text-sm">{{ post.content }}</p>

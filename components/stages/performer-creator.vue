@@ -126,7 +126,7 @@
             <button
               v-if="!form.species"
               type="button"
-              class="rounded-full border border-dashed border-secondary/40 px-2.5 py-0.5 text-xs text-base-content/40 hover:border-secondary hover:text-secondary"
+              class="kr-text-dim-xs-40 rounded-full border border-dashed border-secondary/40 px-2.5 py-0.5 hover:border-secondary hover:text-secondary"
               @click="activeTab = 'species'"
             >
               + species
@@ -134,7 +134,7 @@
             <button
               v-if="!selectedTraits.length"
               type="button"
-              class="rounded-full border border-dashed border-primary/40 px-2.5 py-0.5 text-xs text-base-content/40 hover:border-primary hover:text-primary"
+              class="kr-text-dim-xs-40 rounded-full border border-dashed border-primary/40 px-2.5 py-0.5 hover:border-primary hover:text-primary"
               @click="activeTab = 'personality'"
             >
               + personality
@@ -363,7 +363,7 @@
               </button>
             </span>
             <span
-              class="rounded-full bg-base-200 px-2.5 py-0.5 text-xs text-base-content/40"
+              class="kr-text-dim-xs-40 rounded-full bg-base-200 px-2.5 py-0.5"
             >
               {{ selectedTraits.length }} selected
             </span>
@@ -469,7 +469,7 @@
       <div
         class="flex shrink-0 items-center justify-between border-t border-base-300 px-5 py-4"
       >
-        <div class="text-xs text-base-content/40 flex flex-wrap gap-1.5">
+        <div class="kr-text-dim-xs-40 flex flex-wrap gap-1.5">
           <span v-if="form.species" class="font-semibold text-secondary">{{
             form.species
           }}</span>

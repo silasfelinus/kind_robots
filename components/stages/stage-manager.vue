@@ -89,7 +89,7 @@
         class="kr-pane-scroll flex flex-col border-r border-base-300 bg-base-100/60 backdrop-blur-sm p-4 gap-3"
       >
         <p
-          class="text-xs font-bold uppercase tracking-widest text-base-content/40"
+          class="kr-text-dim-xs-40 font-bold uppercase tracking-widest"
         >
           Show Status
         </p>
@@ -128,7 +128,7 @@
         <!-- Cast status -->
         <div v-if="store.selectedStage" class="flex flex-col gap-1.5">
           <p
-            class="text-xs font-bold uppercase tracking-widest text-base-content/40"
+            class="kr-text-dim-xs-40 font-bold uppercase tracking-widest"
           >
             Cast
           </p>
@@ -185,7 +185,7 @@
         <!-- Turn progress -->
         <div v-if="store.transcript.length" class="flex flex-col gap-1.5">
           <p
-            class="text-xs font-bold uppercase tracking-widest text-base-content/40"
+            class="kr-text-dim-xs-40 font-bold uppercase tracking-widest"
           >
             Progress
           </p>
@@ -786,7 +786,7 @@
             </span>
             <span
               v-if="!store.castReady"
-              class="text-xs italic text-base-content/40"
+              class="kr-text-dim-xs-40 italic"
               >Fill required roles to start.</span
             >
           </div>

@@ -592,7 +592,7 @@
             selected
           </span>
         </span>
-        <span class="text-xs text-base-content/40"
+        <span class="kr-text-dim-xs-40"
           >Copy or export without leaving this page</span
         >
       </summary>

@@ -49,7 +49,7 @@
       >
         <div class="flex items-start justify-between gap-3">
           <div>
-            <p class="text-xs font-black uppercase tracking-widest text-base-content/40">
+            <p class="kr-text-dim-xs-40 font-black uppercase tracking-widest">
               Book {{ book.order }}
             </p>
             <h4 class="text-xl font-black">{{ book.title }}</h4>
@@ -150,7 +150,7 @@
           </p>
 
           <div class="mt-4">
-            <p class="text-xs font-black uppercase tracking-widest text-base-content/40">
+            <p class="kr-text-dim-xs-40 font-black uppercase tracking-widest">
               Missing layout decisions
             </p>
             <div class="mt-2 flex flex-wrap gap-2">
@@ -171,7 +171,7 @@
           </div>
 
           <div class="mt-4">
-            <p class="text-xs font-black uppercase tracking-widest text-base-content/40">
+            <p class="kr-text-dim-xs-40 font-black uppercase tracking-widest">
               Missing exports
             </p>
             <div class="mt-2 flex flex-wrap gap-2">

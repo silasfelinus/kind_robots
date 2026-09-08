@@ -50,7 +50,7 @@
       <pre class="whitespace-pre-wrap text-xs text-base-content/70">{{ preview }}</pre>
     </div>
 
-    <p class="text-xs text-base-content/40">
+    <p class="kr-text-dim-xs-40">
       Settings save automatically on this device. "Superkate loves you!" is not
       configurable. It's the law.
     </p>

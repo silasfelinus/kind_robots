@@ -91,7 +91,7 @@
                 `Image #${selectedSourceImage.id}`
               }}
             </p>
-            <p class="text-xs text-base-content/40">Ready to style</p>
+            <p class="kr-text-dim-xs-40">Ready to style</p>
           </div>
           <button
             type="button"
@@ -222,7 +222,7 @@
           class="flex min-h-28 flex-col items-center justify-center rounded-xl border border-base-300 bg-base-200/60 text-center"
         >
           <Icon name="kind-icon:image" class="h-8 w-8 text-base-content/20" />
-          <p class="mt-1 text-xs text-base-content/40">No images found</p>
+          <p class="kr-text-dim-xs-40 mt-1">No images found</p>
         </div>
       </div>
 
@@ -280,7 +280,7 @@
           class="flex min-h-28 flex-col items-center justify-center rounded-xl border border-base-300 bg-base-200/60 text-center"
         >
           <Icon name="kind-icon:image" class="h-8 w-8 text-base-content/20" />
-          <p class="mt-1 text-xs text-base-content/40">No starters found</p>
+          <p class="kr-text-dim-xs-40 mt-1">No starters found</p>
         </div>
       </div>
     </div>
@@ -353,9 +353,7 @@
             <Icon name="mdi:palette" class="h-3 w-3" />
             {{ selectedStyle.label }}
           </p>
-          <p v-else class="text-xs text-base-content/40 italic">
-            Pick a style below
-          </p>
+          <p v-else class="kr-text-dim-xs-40 italic">Pick a style below</p>
         </div>
       </div>
     </Transition>
@@ -479,7 +477,7 @@
         <div class="flex items-center gap-1.5">
           <Icon name="kind-icon:edit" class="h-4 w-4 text-primary" />
           <span class="text-xs font-black text-base-content">Prompt</span>
-          <span class="ml-auto text-xs text-base-content/40">
+          <span class="kr-text-dim-xs-40 ml-auto">
             {{
               selectedStyle?.loraPath
                 ? 'LoRA trigger auto-prepended'

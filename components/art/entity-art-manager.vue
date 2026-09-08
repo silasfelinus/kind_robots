@@ -129,7 +129,7 @@
             </p>
           </article>
         </div>
-        <p v-else class="py-6 text-center text-xs text-base-content/40">
+        <p v-else class="kr-text-dim-xs-40 py-6 text-center">
           No saved {{ selectedSlot.label.toLowerCase() }} versions.
         </p>
       </aside>
@@ -330,7 +330,7 @@
           </select>
         </label>
         <span v-if="loadingResources" class="loading loading-spinner loading-sm self-end mb-1" />
-        <p v-else class="self-end pb-2 text-xs text-base-content/40">
+        <p v-else class="kr-text-dim-xs-40 self-end pb-2">
           Leave unchanged to use the same default workflow that is producing the current quality.
         </p>
       </div>

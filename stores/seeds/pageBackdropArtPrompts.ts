@@ -472,12 +472,6 @@ const PAGES: PageSeed[] = [
       'A room of hanging rulers, plumb lines and brass gauges catching light, a drafting stool below. Exacting and quiet.',
   },
   {
-    page: 'sanctuary-hub',
-    title: 'Sanctuary — The Quiet Grove',
-    scene:
-      'A still grove of tall pale trees around a mirror pool, soft mist, drifting fireflies, a stone bench. Restful and reverent.',
-  },
-  {
     page: 'scoop-cms',
     title: 'Scoop CMS — The Composing Room',
     scene:

@@ -258,8 +258,12 @@ function Get-RemoteIndex {
 $plan = @()
 $missing = 0
 foreach ($line in $Manifest) {
-  $tier, $subdir, $rel = $line -split '\|', 3
-  if ($Tier -ne 'all' -and $Tier -ne $tier) { continue }
+  # $rowTier, NOT $tier. PowerShell variable names are case-INSENSITIVE, so a
+  # loop variable called $tier IS the $Tier parameter: the first manifest line
+  # overwrote it, every subsequent comparison compared a row against itself,
+  # and `-Tier core` silently planned all 217 GB instead of 13.3 GB.
+  $rowTier, $subdir, $rel = $line -split '\|', 3
+  if ($Tier -ne 'all' -and $Tier -ne $rowTier) { continue }
 
   $relWin = $rel -replace '/', '\'
   $leaf = Split-Path $relWin -Leaf
@@ -296,18 +300,18 @@ foreach ($line in $Manifest) {
   }
 
   if (-not $src) {
-    Write-Host ('  {0,-6} {1,-12} {2,-52} MISSING on share' -f $tier, $subdir, $rel)
+    Write-Host ('  {0,-6} {1,-12} {2,-52} MISSING on share' -f $rowTier, $subdir, $rel)
     $missing++
     continue
   }
 
   if ((Test-Path -LiteralPath $dest -PathType Leaf) -and
       ((Get-Item -LiteralPath $dest).Length -eq $src.Length)) {
-    Write-Host ('  {0,-6} {1,-12} {2,-52} already local ({3})' -f $tier, $subdir, $rel, (Format-Size $src.Length))
+    Write-Host ('  {0,-6} {1,-12} {2,-52} already local ({3})' -f $rowTier, $subdir, $rel, (Format-Size $src.Length))
     continue
   }
 
-  Write-Host ('  {0,-6} {1,-12} {2,-52} COPY {3}' -f $tier, $subdir, $rel, (Format-Size $src.Length))
+  Write-Host ('  {0,-6} {1,-12} {2,-52} COPY {3}' -f $rowTier, $subdir, $rel, (Format-Size $src.Length))
   $plan += [pscustomobject]@{ Subdir = $subdir; Rel = $relWin; Src = $src; Dest = $dest; Bytes = $src.Length }
 }
 

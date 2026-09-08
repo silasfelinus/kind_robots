@@ -15,13 +15,12 @@ loadingMessage: Loading your dashboard...
 refreshLabel: Refresh Home
 dottiTip: Start here when you want to see what is yours or what Kind Robots is about.
 amiTip: Home has your people, your settings, and the butterflies keeping the lights on.
-# Stage 3 backdrop art, resolved by slug via /api/art/backdrop/<page>-<variant>.
-# The route finds the completed ArtJob for this page and redirects to its
-# image, so art appears on its own once generation finishes. Until then the
-# route 404s and the page renders exactly as before.
-backgroundMobile: /api/art/backdrop/home-mobile
-backgroundTablet: /api/art/backdrop/home-tablet
-backgroundDesktop: /api/art/backdrop/home-desktop
+# Sanctuary has been folded into Home, so its former hub art now becomes the
+# shared Home-channel backdrop. The Dashboard tab overrides this with the
+# original Home backdrop below, preserving its existing visual identity.
+backgroundMobile: /api/art/backdrop/sanctuary-hub-mobile
+backgroundTablet: /api/art/backdrop/sanctuary-hub-tablet
+backgroundDesktop: /api/art/backdrop/sanctuary-hub-desktop
 ---
 
 Your personal space for activity, communication, favorites, settings, mission, and support.

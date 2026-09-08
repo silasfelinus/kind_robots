@@ -9,12 +9,17 @@ export type ArtJobAffinityCandidate = {
   priority: number
 }
 
+export type SmartQueueMatchTier = 'exact' | 'model' | 'none'
+
 export type SmartQueueSelection<T extends ArtJobAffinityCandidate> = {
   candidate: T | null
   affinityMatched: boolean
+  matchTier: SmartQueueMatchTier
   bypassedCount: number
   preferredAffinity: string | null
   selectedAffinity: string | null
+  preferredModelKey?: string | null
+  selectedModelKey?: string | null
 }
 
 const MODEL_RESOURCE_KEYS = new Set([
@@ -37,6 +42,28 @@ const MODEL_RESOURCE_KEYS = new Set([
   'upscale_model',
   'upscale_model_name',
   'vae_name',
+])
+
+// The resources whose swap costs a MULTI-GIGABYTE VRAM reload. On Ferngrotto's
+// 12GB 3060 a unet/checkpoint change evicts nearly everything and reloads from
+// disk; a LoRA or VAE change is a rounding error next to it. artJobQueueAffinityKey
+// deliberately treats all named resources alike, which is right for "can this run
+// with zero reload" and wrong for "which jobs should sit next to each other".
+//
+// Measured on the live queue, 2026-09-08: 23 pending jobs used exactly TWO heavy
+// models (flux1-kontext-dev-q5_k_m, krea-2-turbo-q5_k_s) but produced SEVEN
+// distinct full affinity keys, because jobs in the same family carried different
+// LoRA counts. Seven keys over two models means the exact-match pass almost never
+// fires inside a priority tier, so the claim falls back to FIFO and the engine
+// swaps unets far more often than the work requires.
+const HEAVY_MODEL_RESOURCE_KEYS = new Set([
+  'checkpoint',
+  'checkpoint_name',
+  'ckpt_name',
+  'diffusion_model',
+  'model_name',
+  'sd_model_checkpoint',
+  'unet_name',
 ])
 
 const MODEL_LOADER_CLASS_PATTERN =
@@ -105,7 +132,8 @@ function collectNamedResources(
   if (depth > 8 || value === null || value === undefined) return
 
   if (Array.isArray(value)) {
-    for (const child of value) collectNamedResources(child, resources, depth + 1)
+    for (const child of value)
+      collectNamedResources(child, resources, depth + 1)
     return
   }
 
@@ -173,10 +201,54 @@ export function artJobQueueAffinityKey(
   return `${normalizedEngine}|${parts.length ? parts.join('|') : 'default'}`
 }
 
+/**
+ * The heavy half of the affinity key: engine plus whichever unet/checkpoint the
+ * job loads, ignoring LoRAs, VAEs, CLIPs and loader settings.
+ *
+ * Returns null when no heavy resource can be identified, and callers must treat
+ * that as "do not group" rather than as a key. An engine-only fallback would
+ * bucket every unparsed payload together and reorder work on no evidence at all.
+ */
+export function artJobQueueModelKey(
+  engine: string,
+  rawPayload: unknown,
+): string | null {
+  const normalizedEngine = String(engine || 'UNKNOWN').toUpperCase()
+  const resources = new Set<string>()
+  collectNamedResources(asRecord(rawPayload) ?? {}, resources)
+
+  const heavy = [...resources]
+    .filter((entry) => HEAVY_MODEL_RESOURCE_KEYS.has(entry.split(':', 1)[0]))
+    .sort()
+
+  if (!heavy.length) return null
+  return `${normalizedEngine}|${heavy.join('|')}`
+}
+
+/**
+ * Pick the next job to claim, preferring one the engine can run with the least
+ * reloading.
+ *
+ * TWO TIERS, tried in order within the highest-priority window:
+ *
+ *   1. EXACT - same full affinity key: same unet AND same LoRAs, VAE, loader
+ *      settings. Nothing reloads at all.
+ *   2. MODEL - same heavy model, different accessories. A LoRA swap costs a few
+ *      hundred MB; the unet swap this avoids costs eight to twelve, which on a
+ *      12GB card means evicting the text encoders too and reloading them next
+ *      time round. This tier is why Krea and Flux work now arrives in runs
+ *      instead of interleaved.
+ *
+ * Priority still dominates absolutely: both tiers only ever look inside the
+ * highest-priority group, so a promoted job is never passed over for a cheaper
+ * one. maxBypass bounds each tier so a busy model family cannot starve older
+ * work indefinitely.
+ */
 export function selectSmartQueueCandidate<T extends ArtJobAffinityCandidate>(
   candidates: T[],
   preferredAffinity: string | null,
   maxBypass = 24,
+  preferredModelKey: string | null = null,
 ): SmartQueueSelection<T> {
   const ordered = [...candidates].sort(
     (left, right) => right.priority - left.priority || left.id - right.id,
@@ -187,20 +259,28 @@ export function selectSmartQueueCandidate<T extends ArtJobAffinityCandidate>(
     return {
       candidate: null,
       affinityMatched: false,
+      matchTier: 'none',
       bypassedCount: 0,
       preferredAffinity,
       selectedAffinity: null,
+      preferredModelKey,
+      selectedModelKey: null,
     }
   }
 
   const oldestAffinity = artJobQueueAffinityKey(oldest.engine, oldest.payload)
-  if (!preferredAffinity) {
+  const oldestModelKey = artJobQueueModelKey(oldest.engine, oldest.payload)
+
+  if (!preferredAffinity && !preferredModelKey) {
     return {
       candidate: oldest,
       affinityMatched: false,
+      matchTier: 'none',
       bypassedCount: 0,
       preferredAffinity: null,
       selectedAffinity: oldestAffinity,
+      preferredModelKey: null,
+      selectedModelKey: oldestModelKey,
     }
   }
 
@@ -208,32 +288,65 @@ export function selectSmartQueueCandidate<T extends ArtJobAffinityCandidate>(
   const samePriority = ordered.filter(
     (candidate) => candidate.priority === highestPriority,
   )
-  const matchIndex = samePriority.findIndex((candidate) => {
-    return (
-      artJobQueueAffinityKey(candidate.engine, candidate.payload) ===
-      preferredAffinity
-    )
-  })
+  const cap = Math.max(0, maxBypass)
 
-  if (matchIndex >= 0 && matchIndex <= Math.max(0, maxBypass)) {
-    const candidate = samePriority[matchIndex] ?? oldest
+  const pick = (index: number, tier: 'exact' | 'model') => {
+    const candidate = samePriority[index] ?? oldest
     return {
       candidate,
       affinityMatched: true,
-      bypassedCount: matchIndex,
+      matchTier: tier,
+      bypassedCount: index,
       preferredAffinity,
       selectedAffinity: artJobQueueAffinityKey(
         candidate.engine,
         candidate.payload,
       ),
-    }
+      preferredModelKey,
+      selectedModelKey: artJobQueueModelKey(
+        candidate.engine,
+        candidate.payload,
+      ),
+    } satisfies SmartQueueSelection<T>
   }
+
+  if (preferredAffinity) {
+    const exactIndex = samePriority.findIndex(
+      (candidate) =>
+        artJobQueueAffinityKey(candidate.engine, candidate.payload) ===
+        preferredAffinity,
+    )
+    if (exactIndex >= 0 && exactIndex <= cap) return pick(exactIndex, 'exact')
+  }
+
+  // Null means "no heavy resource identified" on one side or the other, which
+  // is not a match - see artJobQueueModelKey.
+  if (preferredModelKey) {
+    const modelIndex = samePriority.findIndex(
+      (candidate) =>
+        artJobQueueModelKey(candidate.engine, candidate.payload) ===
+        preferredModelKey,
+    )
+    if (modelIndex >= 0 && modelIndex <= cap) return pick(modelIndex, 'model')
+  }
+
+  const oldestMatchesExact =
+    !!preferredAffinity && oldestAffinity === preferredAffinity
+  const oldestMatchesModel =
+    !!preferredModelKey && oldestModelKey === preferredModelKey
 
   return {
     candidate: oldest,
-    affinityMatched: oldestAffinity === preferredAffinity,
+    affinityMatched: oldestMatchesExact || oldestMatchesModel,
+    matchTier: oldestMatchesExact
+      ? 'exact'
+      : oldestMatchesModel
+        ? 'model'
+        : 'none',
     bypassedCount: 0,
     preferredAffinity,
     selectedAffinity: oldestAffinity,
+    preferredModelKey,
+    selectedModelKey: oldestModelKey,
   }
 }

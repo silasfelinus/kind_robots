@@ -8,7 +8,7 @@ icon: kind-icon:mermaid
 tooltip: Six years of hand-carved words about gods moonlighting as street performers. The only AI on this page is the paragraph that admits it.
 dottiTip: A whole novel and not one robot in it? Bold choice, honestly.
 amiTip: I checked every canal. Zero butterflies, but the mermaids seemed nice. 🧜✨
-channelKey: sanctuary
+channelKey: plan
 tabKey: mermaids
 dashboardKey: giftshop
 dashboardTab: mermaids

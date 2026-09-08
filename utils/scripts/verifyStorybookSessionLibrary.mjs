@@ -16,7 +16,6 @@ const storePath = 'stores/storybookStore.ts'
 
 const helper = source(helperPath)
 const shell = source(shellPath)
-const store = source(storePath)
 
 includesAll(helperPath, [
   "const LIBRARY_STORAGE_KEY = 'storybook-session-library-v1'",

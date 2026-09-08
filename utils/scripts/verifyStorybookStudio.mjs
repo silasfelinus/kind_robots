@@ -22,7 +22,6 @@ const storePath = 'stores/storybookStore.ts'
 const agentsPath = 'AGENTS.md'
 
 const page = source(pagePath)
-const shell = source(shellPath)
 const setup = source(setupPath)
 const ingredientCard = source(ingredientCardPath)
 const store = source(storePath)

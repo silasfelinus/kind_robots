@@ -15,7 +15,7 @@
       </div>
       <div class="flex flex-wrap items-center gap-2">
         <button class="kr-btn-primary-plain" :disabled="running" @click="store.runBoth">
-          <span v-if="running" class="loading loading-spinner loading-xs" />
+          <span v-if="running" class="kr-spinner-xs" />
           Run both
         </button>
         <button class="kr-btn-ghost-plain" :disabled="running" @click="store.newMatchup">

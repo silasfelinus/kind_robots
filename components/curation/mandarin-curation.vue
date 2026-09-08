@@ -16,7 +16,7 @@
           :disabled="loading"
           @click="store.load()"
         >
-          <span v-if="loading" class="loading loading-spinner loading-xs" />
+          <span v-if="loading" class="kr-spinner-xs" />
           Refresh
         </button>
       </div>
@@ -432,7 +432,7 @@
               :disabled="!canSave"
               @click="store.saveSelected()"
             >
-              <span v-if="saving" class="loading loading-spinner loading-xs" />
+              <span v-if="saving" class="kr-spinner-xs" />
               Save changes
             </button>
             <button

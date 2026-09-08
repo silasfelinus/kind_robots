@@ -109,7 +109,7 @@
           >
             <span
               v-if="cancellingRunId === run.id"
-              class="loading loading-spinner loading-xs"
+              class="kr-spinner-xs"
               aria-hidden="true"
             />
             <Icon

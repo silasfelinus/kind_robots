@@ -23,7 +23,7 @@
         >
           <span
             v-if="channelContentStore.loading"
-            class="loading loading-spinner loading-xs"
+            class="kr-spinner-xs"
           />
           <Icon v-else name="kind-icon:refresh" class="h-4 w-4" />
           Reload content

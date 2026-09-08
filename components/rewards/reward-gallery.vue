@@ -64,7 +64,7 @@
             :disabled="isLoading"
             @click="refreshRewards(true)"
           >
-            <span v-if="isLoading" class="loading loading-spinner loading-xs" />
+            <span v-if="isLoading" class="kr-spinner-xs" />
             <Icon v-else name="kind-icon:refresh" class="h-4 w-4" />
             <span class="hidden sm:inline">Refresh</span>
           </button>

@@ -32,7 +32,7 @@
       </div>
 
       <button class="kr-btn" type="button" :disabled="loading" @click="load">
-        <span v-if="loading" class="loading loading-spinner loading-xs" />
+        <span v-if="loading" class="kr-spinner-xs" />
         Refresh
       </button>
     </div>
@@ -297,10 +297,7 @@
                 :disabled="isGenerating(fish.slug) || !canGenerate(fish)"
                 @click="generate(fish)"
               >
-                <span
-                  v-if="isGenerating(fish.slug)"
-                  class="loading loading-spinner loading-xs"
-                />
+                <span v-if="isGenerating(fish.slug)" class="kr-spinner-xs" />
                 {{
                   isGenerating(fish.slug)
                     ? generationLabel(fish.slug)
@@ -313,10 +310,7 @@
                 :disabled="isSaving(fish.slug)"
                 @click="save(fish)"
               >
-                <span
-                  v-if="isSaving(fish.slug)"
-                  class="loading loading-spinner loading-xs"
-                />
+                <span v-if="isSaving(fish.slug)" class="kr-spinner-xs" />
                 Save curation
               </button>
               <span v-if="draft.jobId" class="text-xs text-base-content/45">

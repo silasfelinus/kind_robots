@@ -159,7 +159,7 @@
                   <p class="text-xs opacity-60">Create “{{ searchQuery.trim() }}” as a requested learning card.</p>
                 </div>
                 <button class="kr-btn-primary-plain" type="button" :disabled="requestingWord" @click="requestCurrentWord">
-                  <span v-if="requestingWord" class="loading loading-spinner loading-xs" />
+                  <span v-if="requestingWord" class="kr-spinner-xs" />
                   {{ requestingWord ? 'Creating…' : 'Create requested card' }}
                 </button>
               </div>

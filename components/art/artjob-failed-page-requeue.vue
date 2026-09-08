@@ -18,10 +18,7 @@
           :disabled="Boolean(submitting)"
           @click="cancelFailedOnPage"
         >
-          <span
-            v-if="submitting === 'cancel'"
-            class="loading loading-spinner loading-xs"
-          />
+          <span v-if="submitting === 'cancel'" class="kr-spinner-xs" />
           Clear failed on this page ({{ failedJobIds.length }})
         </button>
         <button
@@ -30,10 +27,7 @@
           :disabled="Boolean(submitting)"
           @click="requeueFailedOnPage"
         >
-          <span
-            v-if="submitting === 'requeue'"
-            class="loading loading-spinner loading-xs"
-          />
+          <span v-if="submitting === 'requeue'" class="kr-spinner-xs" />
           Requeue failed on this page ({{ failedJobIds.length }})
         </button>
       </div>

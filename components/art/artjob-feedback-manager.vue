@@ -25,7 +25,7 @@
         >
           <span
             v-if="artJobStore.loadingTrainerJobs"
-            class="loading loading-spinner loading-xs"
+            class="kr-spinner-xs"
           />
           Refresh
         </button>

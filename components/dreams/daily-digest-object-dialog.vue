@@ -164,7 +164,7 @@
                   class="btn btn-primary btn-sm gap-2 rounded-xl"
                   :disabled="saving || !hasChanges || missingRequiredField"
                 >
-                  <span v-if="saving" class="loading loading-spinner loading-xs" />
+                  <span v-if="saving" class="kr-spinner-xs" />
                   <Icon v-else name="kind-icon:save" class="size-4" />
                   {{ saving ? 'Saving…' : 'Save changes' }}
                 </button>

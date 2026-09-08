@@ -59,7 +59,7 @@
         class="kr-btn-primary-plain"
         :class="{ 'btn-disabled': uploading }"
       >
-        <span v-if="uploading" class="loading loading-spinner loading-xs" />
+        <span v-if="uploading" class="kr-spinner-xs" />
         <Icon v-else name="kind-icon:upload" class="size-4" />
         Add photos
         <input

@@ -42,7 +42,7 @@
             :disabled="isLoading"
             @click="refresh"
           >
-            <span v-if="isLoading" class="loading loading-spinner loading-xs" />
+            <span v-if="isLoading" class="kr-spinner-xs" />
             <Icon v-else name="kind-icon:refresh" class="size-4" />
             Refresh
           </button>
@@ -217,7 +217,7 @@
                   :disabled="isUpdating(pitch.slug)"
                   @click="setStatus(pitch, 'approved')"
                 >
-                  <span v-if="isUpdating(pitch.slug)" class="loading loading-spinner loading-xs" />
+                  <span v-if="isUpdating(pitch.slug)" class="kr-spinner-xs" />
                   <Icon v-else name="kind-icon:check" class="size-3.5" />
                   Approve
                 </button>
@@ -293,7 +293,7 @@
             :disabled="requestingPitches"
             @click="requestPitchRun"
           >
-            <span v-if="requestingPitches" class="loading loading-spinner loading-xs" />
+            <span v-if="requestingPitches" class="kr-spinner-xs" />
             <Icon v-else name="kind-icon:sparkles" class="size-4" />
             Queue a fresh pitch run
           </button>

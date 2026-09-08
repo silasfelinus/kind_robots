@@ -533,7 +533,7 @@
     <Transition name="fade">
       <div v-if="isGenerating" class="flex flex-col gap-2">
         <div class="flex items-center gap-2 text-xs font-semibold text-primary">
-          <span class="loading loading-spinner loading-xs" />
+          <span class="kr-spinner-xs" />
           Applying {{ generatingStyleLabel }} via Kontext…
         </div>
         <progress class="progress progress-primary w-full" />

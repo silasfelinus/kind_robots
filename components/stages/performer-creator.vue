@@ -156,7 +156,7 @@
               >
                 <span
                   v-if="llmLoading"
-                  class="loading loading-spinner loading-xs"
+                  class="kr-spinner-xs"
                 />
                 <Icon v-else name="mdi:sparkles" class="h-3.5 w-3.5" />
                 {{ form.prompt ? 'Regenerate' : 'Generate' }}

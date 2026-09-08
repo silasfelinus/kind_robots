@@ -106,7 +106,7 @@
           class="badge badge-warning badge-lg gap-2"
           :title="`Requested ${formatDate(item.requestedAt)} — waiting for the next Worker cycle`"
         >
-          <span class="loading loading-spinner loading-xs" />
+          <span class="kr-spinner-xs" />
           {{ item.slug }}
         </div>
       </div>

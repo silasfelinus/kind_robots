@@ -126,7 +126,7 @@
         title="Refresh project"
         @click="refreshProject"
       >
-        <span v-if="refreshing" class="loading loading-spinner loading-xs" />
+        <span v-if="refreshing" class="kr-spinner-xs" />
         <Icon v-else name="kind-icon:refresh" class="size-3.5" />
       </button>
     </div>
@@ -296,10 +296,7 @@
               class="kr-btn-primary"
               :disabled="!projectTaskText.trim() || projectTaskSubmitting"
             >
-              <span
-                v-if="projectTaskSubmitting"
-                class="loading loading-spinner loading-xs"
-              />
+              <span v-if="projectTaskSubmitting" class="kr-spinner-xs" />
               Add
             </button>
           </div>

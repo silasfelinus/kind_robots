@@ -48,7 +48,7 @@
         :disabled="store.loading"
         @click="refresh"
       >
-        <span v-if="store.loading" class="loading loading-spinner loading-xs" />
+        <span v-if="store.loading" class="kr-spinner-xs" />
         Refresh
       </button>
     </div>

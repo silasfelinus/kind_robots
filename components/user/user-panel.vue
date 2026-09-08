@@ -32,7 +32,7 @@
         :disabled="isSaving || !hasProfile"
         @click="updateProfile"
       >
-        <span v-if="isSaving" class="loading loading-spinner loading-xs" />
+        <span v-if="isSaving" class="kr-spinner-xs" />
         <span>{{ isSaving ? 'Saving...' : 'Update Profile' }}</span>
       </button>
     </header>
@@ -88,7 +88,7 @@
           class="btn btn-primary w-full rounded-xl md:w-auto"
           :disabled="isSaving"
         >
-          <span v-if="isSaving" class="loading loading-spinner loading-xs" />
+          <span v-if="isSaving" class="kr-spinner-xs" />
           <span>{{ isSaving ? 'Saving Profile' : 'Save Changes' }}</span>
         </button>
       </div>

@@ -35,7 +35,7 @@
         </span>
 
         <span class="flex shrink-0 items-center gap-2">
-          <span v-if="isUpdating" class="loading loading-spinner loading-xs" />
+          <span v-if="isUpdating" class="kr-spinner-xs" />
           <input
             type="checkbox"
             class="toggle toggle-warning toggle-sm"
@@ -67,7 +67,7 @@
       :disabled="isUpdating"
       @click="setShowMature(!showMature)"
     >
-      <span v-if="isUpdating" class="loading loading-spinner loading-xs" />
+      <span v-if="isUpdating" class="kr-spinner-xs" />
       <Icon
         v-else
         :name="showMature ? 'kind-icon:eye' : 'kind-icon:eye-off'"

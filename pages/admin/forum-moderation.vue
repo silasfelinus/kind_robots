@@ -21,7 +21,7 @@
           :disabled="loading"
           @click="moderationStore.fetchHiddenPosts()"
         >
-          <span v-if="loading" class="loading loading-spinner loading-xs" />
+          <span v-if="loading" class="kr-spinner-xs" />
           Refresh
         </button>
       </header>

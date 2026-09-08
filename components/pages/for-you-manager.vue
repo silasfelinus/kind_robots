@@ -72,10 +72,7 @@
               :disabled="conductorStore.pending"
               @click="conductorStore.fetchProjects(true)"
             >
-              <span
-                v-if="conductorStore.pending"
-                class="loading loading-spinner loading-xs"
-              />
+              <span v-if="conductorStore.pending" class="kr-spinner-xs" />
               <Icon v-else name="kind-icon:refresh-cw" class="size-4" />
               Refresh
             </button>
@@ -225,7 +222,7 @@
                   >
                     <span
                       v-if="taskIsUpdating(gate.project.slug, gate.task.id)"
-                      class="loading loading-spinner loading-xs"
+                      class="kr-spinner-xs"
                     />
                     <Icon v-else name="kind-icon:check" class="size-4" />
                     Approve

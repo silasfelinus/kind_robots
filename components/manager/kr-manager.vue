@@ -86,7 +86,7 @@
         :disabled="loading"
         @click="emit('refresh')"
       >
-        <span v-if="loading" class="loading loading-spinner loading-xs" />
+        <span v-if="loading" class="kr-spinner-xs" />
         <Icon v-else name="kind-icon:refresh" class="h-4 w-4" />
         Refresh
       </button>

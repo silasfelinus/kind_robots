@@ -50,7 +50,7 @@
           >
             <span
               v-if="dreamStore.isSaving"
-              class="loading loading-spinner loading-xs"
+              class="kr-spinner-xs"
             />
             <Icon v-else name="kind-icon:save" class="h-4 w-4" />
             {{ saveLabel }}

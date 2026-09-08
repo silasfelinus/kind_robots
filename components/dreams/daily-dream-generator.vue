@@ -62,7 +62,7 @@
           :disabled="loading"
           @click="createDailyDream"
         >
-          <span v-if="loading" class="loading loading-spinner loading-xs" />
+          <span v-if="loading" class="kr-spinner-xs" />
           <Icon v-else name="kind-icon:dream" class="size-4" />
           Build today’s Dream
         </button>

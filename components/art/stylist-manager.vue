@@ -25,7 +25,7 @@
         class="mr-1 flex items-center gap-1 text-xs font-semibold text-base-content/50"
         title="Syncing the service book"
       >
-        <span class="loading loading-spinner loading-xs" />
+        <span class="kr-spinner-xs" />
         syncing
       </span>
       <span

@@ -31,10 +31,7 @@
         aria-label="Refresh art collections"
         @click="loadAssets(true)"
       >
-        <span
-          v-if="isLoadingAssets"
-          class="loading loading-spinner loading-xs"
-        />
+        <span v-if="isLoadingAssets" class="kr-spinner-xs" />
         <Icon v-else name="kind-icon:refresh" class="h-4 w-4" />
       </button>
     </div>
@@ -77,10 +74,7 @@
         :disabled="!selectedCollectionId || isSaving"
         @click="attachSelectedCollection"
       >
-        <span
-          v-if="isSavingCollection"
-          class="loading loading-spinner loading-xs"
-        />
+        <span v-if="isSavingCollection" class="kr-spinner-xs" />
         <Icon v-else name="kind-icon:folder" class="h-4 w-4" />
         Attach Collection
       </button>
@@ -92,7 +86,7 @@
         data-tip="Pick a random image from a connected collection"
         @click="useRandomCollectionImage"
       >
-        <span v-if="isSavingImage" class="loading loading-spinner loading-xs" />
+        <span v-if="isSavingImage" class="kr-spinner-xs" />
         <Icon v-else name="kind-icon:dice" class="h-4 w-4" />
         Random from Collection
       </button>

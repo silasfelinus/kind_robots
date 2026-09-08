@@ -732,7 +732,7 @@
                       >
                         <span
                           v-if="item.status === 'queued'"
-                          class="loading loading-spinner loading-xs"
+                          class="kr-spinner-xs"
                         />
                         <template v-else>Apply</template>
                       </button>

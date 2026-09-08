@@ -67,10 +67,7 @@
               :disabled="account.isSaving"
               @click="onSendVerification"
             >
-              <span
-                v-if="account.isSaving"
-                class="loading loading-spinner loading-xs"
-              />
+              <span v-if="account.isSaving" class="kr-spinner-xs" />
               Send verification email
             </button>
           </div>
@@ -120,10 +117,7 @@
               class="kr-btn-primary"
               :disabled="account.isSaving || !canSubmitPassword"
             >
-              <span
-                v-if="account.isSaving"
-                class="loading loading-spinner loading-xs"
-              />
+              <span v-if="account.isSaving" class="kr-spinner-xs" />
               {{ hasPassword ? 'Update password' : 'Set password' }}
             </button>
             <span

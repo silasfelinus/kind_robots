@@ -53,10 +53,7 @@
             :disabled="isLoading || botStore.loading"
             @click="refreshBots(true)"
           >
-            <span
-              v-if="isLoading || botStore.loading"
-              class="loading loading-spinner loading-xs"
-            />
+            <span v-if="isLoading || botStore.loading" class="kr-spinner-xs" />
             <Icon v-else name="kind-icon:refresh" class="h-4 w-4" />
             <span class="hidden sm:inline">Refresh</span>
           </button>

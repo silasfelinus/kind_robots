@@ -62,7 +62,7 @@
       >
         <span
           v-if="s.status === 'generating'"
-          class="loading loading-spinner loading-xs"
+          class="kr-spinner-xs"
         />
         {{ s.label }}
       </div>

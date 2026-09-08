@@ -154,7 +154,7 @@
           >
             <span
               v-if="queuing === card.civitaiModelVersionId"
-              class="loading loading-spinner loading-xs"
+              class="kr-spinner-xs"
             />
             <Icon v-else :name="downloadButtonIcon(card)" class="h-4 w-4" />
             {{ downloadButtonLabel(card) }}

@@ -145,10 +145,7 @@
             :disabled="entry.reviewPublic || isPublishing || !draft.trim()"
             @click="publish"
           >
-            <span
-              v-if="isPublishing"
-              class="loading loading-spinner loading-xs"
-            />
+            <span v-if="isPublishing" class="kr-spinner-xs" />
             {{ entry.reviewPublic ? 'Published' : 'Publish' }}
           </button>
         </div>

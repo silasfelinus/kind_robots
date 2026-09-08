@@ -10,7 +10,7 @@
           this character independently of their name.
         </p>
       </div>
-      <span v-if="loading || saving" class="loading loading-spinner loading-xs" />
+      <span v-if="loading || saving" class="kr-spinner-xs" />
       <span class="kr-badge-ghost-sm">{{ selectedFacets.length }}</span>
     </div>
 

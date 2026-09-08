@@ -42,7 +42,7 @@
             :disabled="isLoading"
             @click="refresh"
           >
-            <span v-if="isLoading" class="loading loading-spinner loading-xs" />
+            <span v-if="isLoading" class="kr-spinner-xs" />
             Refresh
           </button>
         </div>
@@ -123,7 +123,7 @@
                   >
                     <span
                       v-if="refreshingServerIds.includes(server.id)"
-                      class="loading loading-spinner loading-xs"
+                      class="kr-spinner-xs"
                     />
                     <span v-else>Refresh</span>
                   </button>
@@ -136,7 +136,7 @@
                   >
                     <span
                       v-if="removingServerIds.includes(server.id)"
-                      class="loading loading-spinner loading-xs"
+                      class="kr-spinner-xs"
                     />
                     <span v-else>Remove</span>
                   </button>

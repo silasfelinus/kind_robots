@@ -133,7 +133,7 @@
               title="Refresh"
               @click="refreshGallery(true)"
             >
-              <span v-if="isLoadingGallery" class="loading loading-spinner loading-xs" />
+              <span v-if="isLoadingGallery" class="kr-spinner-xs" />
               <Icon v-else name="kind-icon:refresh" class="h-4 w-4" />
             </button>
           </div>

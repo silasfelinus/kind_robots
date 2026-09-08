@@ -12,7 +12,7 @@
       </div>
       <span
         v-if="saving || loadingAssignments"
-        class="loading loading-spinner loading-xs"
+        class="kr-spinner-xs"
       />
       <span class="kr-badge-ghost-sm">{{ selectedFacets.length }}</span>
     </div>
@@ -140,7 +140,7 @@
         >
           <span
             v-if="facetStore.saving"
-            class="loading loading-spinner loading-xs"
+            class="kr-spinner-xs"
           />
           <Icon v-else name="kind-icon:plus" class="size-3.5" />
           Create and attach

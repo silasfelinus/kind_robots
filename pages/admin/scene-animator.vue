@@ -21,7 +21,7 @@
             :disabled="store.loading || store.queueing || !userStore.isAdmin"
             @click="store.load()"
           >
-            <span v-if="store.loading" class="loading loading-spinner loading-xs" />
+            <span v-if="store.loading" class="kr-spinner-xs" />
             Refresh
           </button>
         </div>
@@ -307,7 +307,7 @@
                     :disabled="store.queueing"
                     @click="store.retrySource(source.name)"
                   >
-                    <span v-if="store.retryingSource === source.name" class="loading loading-spinner loading-xs" />
+                    <span v-if="store.retryingSource === source.name" class="kr-spinner-xs" />
                     Retry this scene
                   </button>
                 </div>

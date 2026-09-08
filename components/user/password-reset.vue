@@ -39,10 +39,7 @@
         class="kr-btn-primary"
         :disabled="account.isSaving || !email"
       >
-        <span
-          v-if="account.isSaving"
-          class="loading loading-spinner loading-xs"
-        />
+        <span v-if="account.isSaving" class="kr-spinner-xs" />
         Send reset link
       </button>
     </form>
@@ -78,10 +75,7 @@
         class="kr-btn-primary"
         :disabled="account.isSaving || next.length < 8 || next !== confirm"
       >
-        <span
-          v-if="account.isSaving"
-          class="loading loading-spinner loading-xs"
-        />
+        <span v-if="account.isSaving" class="kr-spinner-xs" />
         Set new password
       </button>
     </form>

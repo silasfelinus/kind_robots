@@ -10,7 +10,7 @@
           {{ title }}
         </h3>
 
-        <p class="text-sm text-base-content/60">
+        <p class="kr-text-dim-sm">
           Add a custom checkpoint, LoRA, embedding, sampler, API, or URL
           resource.
         </p>

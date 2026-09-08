@@ -7,7 +7,7 @@
       </span>
       <div>
         <p class="text-2xl font-black tracking-tight">Rebel Button</p>
-        <p class="text-sm text-base-content/60">
+        <p class="kr-text-dim-sm">
           Do not press this button. (You're going to press it.)
         </p>
       </div>

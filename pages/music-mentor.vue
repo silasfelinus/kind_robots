@@ -9,7 +9,7 @@
         </div>
         <div class="min-w-0 flex-1 space-y-1">
           <p class="text-2xl font-black tracking-tight">Music Mentor</p>
-          <p class="text-sm text-base-content/60">
+          <p class="kr-text-dim-sm">
             Upload a recording of your sung medley and get honest, specific
             feedback on the singing and the arrangement. Everything is analyzed
             <strong>in your browser</strong> — the audio never leaves your

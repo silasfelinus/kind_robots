@@ -219,9 +219,7 @@
               Session Controls
             </h2>
 
-            <p class="text-sm text-base-content/60">
-              Runtime options for this chat session.
-            </p>
+            <p class="kr-text-dim-sm">Runtime options for this chat session.</p>
           </div>
 
           <Icon name="kind-icon:sliders" class="h-6 w-6 text-primary" />

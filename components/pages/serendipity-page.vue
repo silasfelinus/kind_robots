@@ -20,7 +20,7 @@
         </span>
         <div>
           <p class="text-2xl font-black tracking-tight">Serendipity</p>
-          <p class="text-sm text-base-content/60">
+          <p class="kr-text-dim-sm">
             Talk to Kind Robots through your Amazon Echo.
           </p>
         </div>

@@ -18,7 +18,7 @@
           {{ isEditing ? 'Edit Model' : 'Add Model' }}
         </h3>
 
-        <p class="text-sm text-base-content/60">
+        <p class="kr-text-dim-sm">
           Hand-add or fix a checkpoint's label, base model, path, or preview.
         </p>
       </div>

@@ -8,7 +8,7 @@
       </span>
       <div>
         <p class="text-2xl font-black tracking-tight">Privacy Policy</p>
-        <p class="text-sm text-base-content/60">Last updated: May 2026</p>
+        <p class="kr-text-dim-sm">Last updated: May 2026</p>
       </div>
     </header>
 

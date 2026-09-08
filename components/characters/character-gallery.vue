@@ -13,7 +13,7 @@
             {{ formTitle }}
           </h3>
 
-          <p class="text-sm text-base-content/60">
+          <p class="kr-text-dim-sm">
             {{ formSubtitle }}
           </p>
         </div>

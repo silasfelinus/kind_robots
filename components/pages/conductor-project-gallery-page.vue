@@ -10,7 +10,7 @@
       </div>
       <div class="min-w-0 flex-1">
         <h2 class="text-2xl font-black tracking-tight">Projects</h2>
-        <p class="text-sm text-base-content/60">
+        <p class="kr-text-dim-sm">
           Browse every Conductor project, filter by status, or start a new
           one.
         </p>

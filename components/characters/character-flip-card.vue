@@ -74,7 +74,7 @@
                   Selected Character
                 </h2>
 
-                <p class="text-sm text-base-content/60">
+                <p class="kr-text-dim-sm">
                   Choose who gets interrogated by destiny.
                 </p>
               </div>
@@ -102,7 +102,7 @@
               <div>
                 <h2 class="text-xl font-bold text-base-content">Chat</h2>
 
-                <p class="text-sm text-base-content/60">
+                <p class="kr-text-dim-sm">
                   Ask something sincere, weird, tactical, or suspiciously
                   therapeutic.
                 </p>

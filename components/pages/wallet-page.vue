@@ -6,7 +6,7 @@
       </span>
       <div>
         <p class="text-2xl font-black tracking-tight">Wallet</p>
-        <p class="text-sm text-base-content/60">
+        <p class="kr-text-dim-sm">
           Your karma and mana balance — earned by contributing, spent to
           create.
         </p>
@@ -32,7 +32,7 @@
       >
         <div class="flex items-end justify-between">
           <div>
-            <h2 class="text-sm text-base-content/60">Karma</h2>
+            <h2 class="kr-text-dim-sm">Karma</h2>
             <div class="text-5xl font-extrabold text-primary tabular-nums">
               {{ karmaStore.balance }}
             </div>
@@ -46,7 +46,7 @@
           </button>
         </div>
 
-        <p class="text-sm text-base-content/60">
+        <p class="kr-text-dim-sm">
           Earned by reacting, creating, sharing, and helping other Kind Robots
           users — a running score of your community contribution.
         </p>

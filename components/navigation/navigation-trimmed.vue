@@ -12,7 +12,7 @@
       <div class="flex flex-wrap items-end justify-between gap-3">
         <div class="flex min-w-0 flex-col">
           <h2 class="text-xl font-black sm:text-2xl">Explore Kind Robots</h2>
-          <p class="text-sm text-base-content/60">
+          <p class="kr-text-dim-sm">
             Every place you can go, grouped by channel.
           </p>
         </div>

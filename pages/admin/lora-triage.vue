@@ -305,7 +305,7 @@
         <footer
           class="kr-panel flex flex-wrap items-center justify-between gap-3 p-3"
         >
-          <div class="text-sm text-base-content/60">
+          <div class="kr-text-dim-sm">
             Showing {{ pageStart }}–{{ pageEnd }} of
             {{ filteredResources.length }} matching LoRAs
           </div>

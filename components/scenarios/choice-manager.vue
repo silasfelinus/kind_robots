@@ -26,7 +26,7 @@
         />
         <div class="p-2 text-center">
           <p class="font-semibold">{{ option.text }}</p>
-          <p class="text-sm text-base-content/60">{{ option.description }}</p>
+          <p class="kr-text-dim-sm">{{ option.description }}</p>
         </div>
       </div>
     </div>

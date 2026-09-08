@@ -17,7 +17,7 @@
         <h2 class="truncate text-lg font-bold text-base-content">
           Discover {{ discoverType === 'CHECKPOINT' ? 'Checkpoints' : 'LoRAs' }}
         </h2>
-        <p class="text-sm text-base-content/60">
+        <p class="kr-text-dim-sm">
           Search Civitai and download straight into your library.
         </p>
       </div>
@@ -168,7 +168,7 @@
       class="kr-panel-muted border-dashed text-center"
     >
       <p class="font-bold">No results.</p>
-      <p class="text-sm text-base-content/60">
+      <p class="kr-text-dim-sm">
         Try a different search or base model.
       </p>
     </div>

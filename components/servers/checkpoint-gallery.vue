@@ -140,9 +140,7 @@
       <template #empty>
         <div class="kr-panel-muted border-dashed text-center">
           <p class="font-bold">No checkpoints found.</p>
-          <p class="text-sm text-base-content/60">
-            Try another filter or add a checkpoint.
-          </p>
+          <p class="kr-text-dim-sm">Try another filter or add a checkpoint.</p>
         </div>
       </template>
     </kr-gallery>

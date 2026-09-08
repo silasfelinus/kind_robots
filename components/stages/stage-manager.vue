@@ -224,7 +224,7 @@
         >
           <div class="flex flex-col gap-1">
             <h2 class="text-2xl font-black text-base-content">Pick a Stage</h2>
-            <p class="text-sm text-base-content/60">
+            <p class="kr-text-dim-sm">
               Choose the format. This determines the roles, rotation, and tone
               of the performance.
             </p>
@@ -281,7 +281,7 @@
               <h2 class="text-2xl font-black text-base-content">
                 Cast the Show
               </h2>
-              <p class="text-sm text-base-content/60">
+              <p class="kr-text-dim-sm">
                 Assign characters, bots, or preset performers to each role.
                 Required slots are shown first.
               </p>
@@ -504,7 +504,7 @@
             <h2 class="text-2xl font-black text-base-content">
               Configure the Show
             </h2>
-            <p class="text-sm text-base-content/60">
+            <p class="kr-text-dim-sm">
               Optional topic, custom opening, turn count, and server settings.
             </p>
           </div>

@@ -9,7 +9,7 @@
       </span>
       <div class="min-w-0 flex-1">
         <h2 class="text-lg font-black">Hair Studio</h2>
-        <p class="text-sm text-base-content/60">
+        <p class="kr-text-dim-sm">
           Preview a new color or cut on a private client photo.
         </p>
       </div>

@@ -11,7 +11,7 @@
         <h2 class="text-xl font-black text-primary">
           {{ form.id ? 'Edit Server' : 'Add Server' }}
         </h2>
-        <p class="text-sm text-base-content/60">
+        <p class="kr-text-dim-sm">
           Servers are now simple access cards: type, URL, endpoint, health path,
           and auth.
         </p>

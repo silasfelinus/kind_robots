@@ -8,7 +8,7 @@
         </span>
         <div>
           <p class="text-2xl font-black tracking-tight">Global Leaderboard</p>
-          <p class="text-sm text-base-content/60">
+          <p class="kr-text-dim-sm">
             The highest click records ever recorded, ranked best to worst.
           </p>
         </div>

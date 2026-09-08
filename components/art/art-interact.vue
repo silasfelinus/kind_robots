@@ -297,9 +297,7 @@
                 />
               </label>
 
-              <label
-                class="label cursor-pointer justify-between rounded-xl border border-base-300 bg-base-100 px-3 py-2"
-              >
+              <label class="kr-toggle-row-plain">
                 <span class="label-text text-xs font-bold">Public</span>
                 <input
                   v-model="editForm.isPublic"
@@ -308,9 +306,7 @@
                 />
               </label>
 
-              <label
-                class="label cursor-pointer justify-between rounded-xl border border-base-300 bg-base-100 px-3 py-2"
-              >
+              <label class="kr-toggle-row-plain">
                 <span class="label-text text-xs font-bold">Mature</span>
                 <input
                   v-model="editForm.isMature"

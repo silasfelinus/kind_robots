@@ -30,7 +30,7 @@
       <section class="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <label class="form-control">
           <span class="label">
-            <span class="label-text font-bold">Title</span>
+            <span class="kr-label-bold">Title</span>
           </span>
 
           <input
@@ -43,12 +43,12 @@
 
         <label class="form-control">
           <span class="label">
-            <span class="label-text font-bold">Locations</span>
+            <span class="kr-label-bold">Locations</span>
           </span>
 
           <div class="form-control">
             <span class="label">
-              <span class="label-text font-bold">Dream Location</span>
+              <span class="kr-label-bold">Dream Location</span>
             </span>
 
             <dream-gallery
@@ -66,7 +66,7 @@
 
         <label class="form-control lg:col-span-2">
           <span class="label">
-            <span class="label-text font-bold">Description</span>
+            <span class="kr-label-bold">Description</span>
           </span>
 
           <textarea
@@ -87,7 +87,7 @@
 
         <label class="form-control kr-panel-flat p-4">
           <span class="label">
-            <span class="label-text font-bold">Inspirations</span>
+            <span class="kr-label-bold">Inspirations</span>
           </span>
 
           <textarea
@@ -124,7 +124,7 @@
 
         <div class="grid grid-cols-1 gap-3 md:grid-cols-2">
           <label class="kr-toggle-row">
-            <span class="label-text font-bold">Public</span>
+            <span class="kr-label-bold">Public</span>
             <input
               v-model="scenarioStore.scenarioForm.isPublic"
               type="checkbox"
@@ -133,7 +133,7 @@
           </label>
 
           <label class="kr-toggle-row">
-            <span class="label-text font-bold">Mature</span>
+            <span class="kr-label-bold">Mature</span>
             <input
               v-model="scenarioStore.scenarioForm.isMature"
               type="checkbox"
@@ -248,7 +248,7 @@
 
             <label class="form-control">
               <span class="label">
-                <span class="label-text font-bold">Art Prompt</span>
+                <span class="kr-label-bold">Art Prompt</span>
               </span>
 
               <textarea

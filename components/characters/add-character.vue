@@ -46,7 +46,7 @@
 
           <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
             <label class="form-control">
-              <span class="label-text font-bold">Name</span>
+              <span class="kr-label-bold">Name</span>
               <input
                 v-model="characterStore.characterForm.name"
                 type="text"
@@ -57,7 +57,7 @@
             </label>
 
             <label class="form-control">
-              <span class="label-text font-bold">Honorific</span>
+              <span class="kr-label-bold">Honorific</span>
               <input
                 v-model="characterStore.characterForm.honorific"
                 type="text"
@@ -68,7 +68,7 @@
             </label>
 
             <label class="form-control">
-              <span class="label-text font-bold">Role</span>
+              <span class="kr-label-bold">Role</span>
               <input
                 v-model="characterStore.characterForm.role"
                 type="text"
@@ -78,7 +78,7 @@
             </label>
 
             <label class="form-control">
-              <span class="label-text font-bold">Title</span>
+              <span class="kr-label-bold">Title</span>
               <input
                 v-model="characterStore.characterForm.title"
                 type="text"
@@ -88,7 +88,7 @@
             </label>
 
             <label class="form-control">
-              <span class="label-text font-bold">Class</span>
+              <span class="kr-label-bold">Class</span>
               <input
                 v-model="characterStore.characterForm.class"
                 type="text"
@@ -99,7 +99,7 @@
             </label>
 
             <label class="form-control">
-              <span class="label-text font-bold">Species</span>
+              <span class="kr-label-bold">Species</span>
               <input
                 v-model="characterStore.characterForm.species"
                 type="text"
@@ -110,7 +110,7 @@
             </label>
 
             <label class="form-control">
-              <span class="label-text font-bold">Genre</span>
+              <span class="kr-label-bold">Genre</span>
               <input
                 v-model="characterStore.characterForm.genre"
                 type="text"
@@ -121,7 +121,7 @@
             </label>
 
             <label class="form-control">
-              <span class="label-text font-bold">Gender</span>
+              <span class="kr-label-bold">Gender</span>
               <input
                 v-model="characterStore.characterForm.gender"
                 type="text"
@@ -131,7 +131,7 @@
             </label>
 
             <label class="form-control md:col-span-2">
-              <span class="label-text font-bold">Presentation</span>
+              <span class="kr-label-bold">Presentation</span>
               <input
                 v-model="characterStore.characterForm.presentation"
                 type="text"
@@ -162,7 +162,7 @@
           <image-upload class="mt-4" />
 
           <label class="form-control mt-4">
-            <span class="label-text font-bold">Art prompt</span>
+            <span class="kr-label-bold">Art prompt</span>
             <textarea
               v-model="characterStore.characterForm.artPrompt"
               class="kr-textarea-muted mt-1 min-h-28"
@@ -206,7 +206,7 @@
 
           <div class="grid gap-4">
             <label class="form-control">
-              <span class="label-text font-bold">Personality</span>
+              <span class="kr-label-bold">Personality</span>
               <textarea
                 v-model="characterStore.characterForm.personality"
                 class="kr-textarea-muted mt-1 min-h-32"
@@ -216,7 +216,7 @@
             </label>
 
             <label class="form-control">
-              <span class="label-text font-bold">Voice</span>
+              <span class="kr-label-bold">Voice</span>
               <textarea
                 v-model="characterStore.characterForm.voice"
                 class="kr-textarea-muted mt-1 min-h-28"
@@ -226,7 +226,7 @@
             </label>
 
             <label class="form-control">
-              <span class="label-text font-bold">Sample response</span>
+              <span class="kr-label-bold">Sample response</span>
               <textarea
                 v-model="characterStore.characterForm.sampleResponse"
                 class="kr-textarea-muted mt-1 min-h-28"
@@ -244,7 +244,7 @@
 
           <div class="grid gap-4">
             <label class="form-control">
-              <span class="label-text font-bold">Backstory</span>
+              <span class="kr-label-bold">Backstory</span>
               <textarea
                 v-model="characterStore.characterForm.backstory"
                 class="kr-textarea-muted mt-1 min-h-36"
@@ -254,7 +254,7 @@
             </label>
 
             <label class="form-control">
-              <span class="label-text font-bold">Drive</span>
+              <span class="kr-label-bold">Drive</span>
               <input
                 v-model="characterStore.characterForm.drive"
                 type="text"
@@ -265,7 +265,7 @@
             </label>
 
             <label class="form-control">
-              <span class="label-text font-bold">Quirks</span>
+              <span class="kr-label-bold">Quirks</span>
               <textarea
                 v-model="characterStore.characterForm.quirks"
                 class="kr-textarea-muted mt-1 min-h-28"
@@ -304,7 +304,7 @@
             :key="stat.key"
             class="form-control"
           >
-            <span class="label-text font-bold">{{ stat.label }}</span>
+            <span class="kr-label-bold">{{ stat.label }}</span>
             <select
               v-model="characterStore.characterForm[stat.key]"
               class="select select-bordered mt-1 w-full bg-base-200"
@@ -413,7 +413,7 @@
 
         <div class="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-5">
           <label class="form-control">
-            <span class="label-text font-bold">Level</span>
+            <span class="kr-label-bold">Level</span>
             <input
               v-model.number="characterStore.characterForm.level"
               type="number"
@@ -423,7 +423,7 @@
           </label>
 
           <label class="form-control">
-            <span class="label-text font-bold">Experience</span>
+            <span class="kr-label-bold">Experience</span>
             <input
               v-model.number="characterStore.characterForm.experience"
               type="number"
@@ -433,7 +433,7 @@
           </label>
 
           <label class="form-control">
-            <span class="label-text font-bold">Designer</span>
+            <span class="kr-label-bold">Designer</span>
             <input
               v-model="characterStore.characterForm.designer"
               type="text"

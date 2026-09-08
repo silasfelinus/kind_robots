@@ -22,7 +22,7 @@
     <form v-else class="grid gap-3" @submit.prevent="createCollection">
       <label class="form-control">
         <span class="label py-1">
-          <span class="label-text font-bold">New Collection</span>
+          <span class="kr-label-bold">New Collection</span>
 
           <button
             class="kr-btn-ghost-xs"
@@ -45,7 +45,7 @@
 
       <div v-if="showFlags" class="grid grid-cols-1 gap-2 sm:grid-cols-2">
         <label class="kr-toggle-row">
-          <span class="label-text font-bold">Public</span>
+          <span class="kr-label-bold">Public</span>
 
           <input
             v-model="isPublic"
@@ -56,7 +56,7 @@
         </label>
 
         <label class="kr-toggle-row">
-          <span class="label-text font-bold">Mature</span>
+          <span class="kr-label-bold">Mature</span>
 
           <input
             v-model="isMature"

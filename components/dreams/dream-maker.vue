@@ -216,7 +216,7 @@
             <div class="grid gap-3 md:grid-cols-3">
               <label class="form-control">
                 <span class="label py-1"
-                  ><span class="label-text font-bold">Icon</span></span
+                  ><span class="kr-label-bold">Icon</span></span
                 >
                 <input
                   v-model="dreamStore.dreamForm.icon"
@@ -228,7 +228,7 @@
 
               <label class="form-control">
                 <span class="label py-1"
-                  ><span class="label-text font-bold">Art Image ID</span></span
+                  ><span class="kr-label-bold">Art Image ID</span></span
                 >
                 <input
                   v-model.number="dreamStore.dreamForm.artImageId"
@@ -241,7 +241,7 @@
 
               <label class="form-control">
                 <span class="label py-1"
-                  ><span class="label-text font-bold"
+                  ><span class="kr-label-bold"
                     >Art Collection ID</span
                   ></span
                 >
@@ -258,7 +258,7 @@
             <div class="mt-3 grid gap-3 md:grid-cols-2">
               <label class="form-control">
                 <span class="label py-1"
-                  ><span class="label-text font-bold">Designer</span></span
+                  ><span class="kr-label-bold">Designer</span></span
                 >
                 <input
                   v-model="dreamStore.dreamForm.designer"
@@ -276,7 +276,7 @@
             <h2 class="text-lg font-black">Visibility</h2>
             <div class="mt-3 grid gap-2">
               <label class="kr-toggle-row-sm">
-                <span class="label-text font-bold">Public</span>
+                <span class="kr-label-bold">Public</span>
                 <input
                   v-model="dreamStore.dreamForm.isPublic"
                   type="checkbox"
@@ -285,7 +285,7 @@
               </label>
 
               <label class="kr-toggle-row-sm">
-                <span class="label-text font-bold">Mature</span>
+                <span class="kr-label-bold">Mature</span>
                 <input
                   v-model="dreamStore.dreamForm.isMature"
                   type="checkbox"
@@ -300,7 +300,7 @@
                 column from the UI at all.
               -->
               <label class="kr-toggle-row-sm">
-                <span class="label-text font-bold">Reviews</span>
+                <span class="kr-label-bold">Reviews</span>
                 <input
                   v-model="dreamStore.dreamForm.allowReviews"
                   type="checkbox"
@@ -309,7 +309,7 @@
               </label>
 
               <label class="kr-toggle-row-sm">
-                <span class="label-text font-bold">Active</span>
+                <span class="kr-label-bold">Active</span>
                 <input
                   v-model="dreamStore.dreamForm.isActive"
                   type="checkbox"

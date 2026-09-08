@@ -1592,6 +1592,21 @@ section:has(div[class*='xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]'])
     @apply loading loading-spinner loading-sm;
   }
 
+  /* A bolded DaisyUI form-label caption -- `label-text font-bold`, the
+   * label text of a form field's leading `<label class="label">` when the
+   * field name itself needs emphasis, no size/color override
+   * (interface-vision t-104 slice 152) -- previously hand-rolled
+   * identically 145 times across the app, the largest bounded family
+   * surfaced by slice 151's frequency survey and named as its own
+   * follow-up target in that slice's kaizen suggestion. The sized/tinted
+   * siblings found alongside it (`label-text text-xs font-bold`, `text-xs
+   * font-semibold`, `text-xs font-bold uppercase tracking-wide`, etc.) are
+   * left for future slices, same convention as `.kr-spinner-xs`/
+   * `.kr-spinner-sm`. */
+  .kr-label-bold {
+    @apply label-text font-bold;
+  }
+
   .text-smart {
     @apply text-sm md:text-lg lg:text-lg xl:text-xl;
   }

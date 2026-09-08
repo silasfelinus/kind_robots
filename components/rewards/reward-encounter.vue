@@ -307,7 +307,7 @@
           <div class="grid grid-cols-1 gap-4">
             <label class="form-control">
               <span class="label">
-                <span class="label-text font-bold">How do you find it?</span>
+                <span class="kr-label-bold">How do you find it?</span>
               </span>
 
               <select
@@ -331,7 +331,7 @@
 
             <label class="form-control">
               <span class="label">
-                <span class="label-text font-bold">Tone</span>
+                <span class="kr-label-bold">Tone</span>
               </span>
 
               <select
@@ -351,7 +351,7 @@
 
           <label class="form-control mt-4">
             <span class="label">
-              <span class="label-text font-bold">What do you do?</span>
+              <span class="kr-label-bold">What do you do?</span>
               <span class="label-text-alt text-base-content/50">Optional</span>
             </span>
 
@@ -374,7 +374,7 @@
 
           <label class="form-control">
             <span class="label">
-              <span class="label-text font-bold">Your background</span>
+              <span class="kr-label-bold">Your background</span>
               <span class="label-text-alt text-base-content/50">Optional</span>
             </span>
 

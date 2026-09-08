@@ -41,7 +41,7 @@
     <div class="grid grid-cols-1 gap-3 lg:grid-cols-2">
       <label class="form-control">
         <span class="label">
-          <span class="label-text font-bold">Name (unique)</span>
+          <span class="kr-label-bold">Name (unique)</span>
         </span>
 
         <input
@@ -57,7 +57,7 @@
 
       <label class="form-control">
         <span class="label">
-          <span class="label-text font-bold">Custom Label</span>
+          <span class="kr-label-bold">Custom Label</span>
         </span>
 
         <input
@@ -73,7 +73,7 @@
     <div class="grid grid-cols-1 gap-3 lg:grid-cols-2">
       <label class="form-control">
         <span class="label">
-          <span class="label-text font-bold">Type</span>
+          <span class="kr-label-bold">Type</span>
         </span>
 
         <select
@@ -87,7 +87,7 @@
 
       <label class="form-control">
         <span class="label">
-          <span class="label-text font-bold">Base Model</span>
+          <span class="kr-label-bold">Base Model</span>
         </span>
 
         <select
@@ -107,7 +107,7 @@
 
     <label class="form-control">
       <span class="label">
-        <span class="label-text font-bold">Local Path</span>
+        <span class="kr-label-bold">Local Path</span>
         <span class="label-text-alt text-base-content/50">
           relative to the Lora root — becomes ComfyUI's lora_name
         </span>
@@ -125,7 +125,7 @@
     <div class="grid grid-cols-1 gap-3 lg:grid-cols-2">
       <label class="form-control">
         <span class="label">
-          <span class="label-text font-bold">Trigger Words</span>
+          <span class="kr-label-bold">Trigger Words</span>
           <span class="label-text-alt text-base-content/50">all, comma-separated</span>
         </span>
 
@@ -140,7 +140,7 @@
 
       <label class="form-control">
         <span class="label">
-          <span class="label-text font-bold">Default Trigger</span>
+          <span class="kr-label-bold">Default Trigger</span>
           <span class="label-text-alt text-base-content/50">injected at gen time</span>
         </span>
 
@@ -157,7 +157,7 @@
     <div class="grid grid-cols-1 gap-3 lg:grid-cols-2">
       <label class="form-control">
         <span class="label">
-          <span class="label-text font-bold">Preview Image URL</span>
+          <span class="kr-label-bold">Preview Image URL</span>
         </span>
 
         <input
@@ -171,7 +171,7 @@
 
       <label class="form-control">
         <span class="label">
-          <span class="label-text font-bold">Civitai URL</span>
+          <span class="kr-label-bold">Civitai URL</span>
         </span>
 
         <input
@@ -186,7 +186,7 @@
 
     <label class="form-control">
       <span class="label">
-        <span class="label-text font-bold">Description</span>
+        <span class="kr-label-bold">Description</span>
       </span>
 
       <textarea
@@ -206,7 +206,7 @@
           class="toggle toggle-warning"
         />
 
-        <span class="label-text font-bold">Mature (NSFW)</span>
+        <span class="kr-label-bold">Mature (NSFW)</span>
       </label>
 
       <button

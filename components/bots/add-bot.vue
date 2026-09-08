@@ -47,7 +47,7 @@
           <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
             <label class="form-control">
               <span class="label">
-                <span class="label-text font-bold">Name</span>
+                <span class="kr-label-bold">Name</span>
               </span>
 
               <input
@@ -61,7 +61,7 @@
 
             <label class="form-control">
               <span class="label">
-                <span class="label-text font-bold">Subtitle</span>
+                <span class="kr-label-bold">Subtitle</span>
               </span>
 
               <input
@@ -75,7 +75,7 @@
 
             <label class="form-control md:col-span-2">
               <span class="label">
-                <span class="label-text font-bold">Description</span>
+                <span class="kr-label-bold">Description</span>
               </span>
 
               <textarea
@@ -88,7 +88,7 @@
 
             <label class="form-control">
               <span class="label">
-                <span class="label-text font-bold">Tagline</span>
+                <span class="kr-label-bold">Tagline</span>
               </span>
 
               <input
@@ -102,7 +102,7 @@
 
             <label class="form-control">
               <span class="label">
-                <span class="label-text font-bold">Bot Type</span>
+                <span class="kr-label-bold">Bot Type</span>
               </span>
 
               <select
@@ -119,7 +119,7 @@
 
             <label class="form-control">
               <span class="label">
-                <span class="label-text font-bold">Designer</span>
+                <span class="kr-label-bold">Designer</span>
               </span>
 
               <input
@@ -132,7 +132,7 @@
 
             <label class="form-control">
               <span class="label">
-                <span class="label-text font-bold">Theme</span>
+                <span class="kr-label-bold">Theme</span>
               </span>
 
               <input
@@ -169,7 +169,7 @@
           <div class="mt-4 flex flex-col gap-3">
             <label class="form-control">
               <span class="label">
-                <span class="label-text font-bold">Avatar Image</span>
+                <span class="kr-label-bold">Avatar Image</span>
               </span>
 
               <input
@@ -296,7 +296,7 @@
           <div class="grid gap-4">
             <label class="form-control">
               <span class="label">
-                <span class="label-text font-bold">Personality</span>
+                <span class="kr-label-bold">Personality</span>
               </span>
 
               <textarea
@@ -309,7 +309,7 @@
 
             <label class="form-control">
               <span class="label">
-                <span class="label-text font-bold">System Prompt</span>
+                <span class="kr-label-bold">System Prompt</span>
               </span>
 
               <textarea
@@ -322,7 +322,7 @@
 
             <label class="form-control">
               <span class="label">
-                <span class="label-text font-bold">Sample Response</span>
+                <span class="kr-label-bold">Sample Response</span>
               </span>
 
               <textarea
@@ -343,7 +343,7 @@
           <div class="grid gap-4">
             <label class="form-control">
               <span class="label">
-                <span class="label-text font-bold">Bot Intro</span>
+                <span class="kr-label-bold">Bot Intro</span>
               </span>
 
               <textarea
@@ -356,7 +356,7 @@
 
             <label class="form-control">
               <span class="label">
-                <span class="label-text font-bold">User Intro</span>
+                <span class="kr-label-bold">User Intro</span>
               </span>
 
               <textarea
@@ -369,7 +369,7 @@
 
             <label class="form-control">
               <span class="label">
-                <span class="label-text font-bold">Modules</span>
+                <span class="kr-label-bold">Modules</span>
               </span>
 
               <textarea
@@ -405,7 +405,7 @@
 
         <div class="grid grid-cols-1 gap-3 md:grid-cols-3">
           <label class="kr-toggle-row">
-            <span class="label-text font-bold">Public</span>
+            <span class="kr-label-bold">Public</span>
 
             <input
               v-model="botStore.botForm.isPublic"
@@ -415,7 +415,7 @@
           </label>
 
           <label class="kr-toggle-row">
-            <span class="label-text font-bold">Under Construction</span>
+            <span class="kr-label-bold">Under Construction</span>
 
             <input
               v-model="botStore.botForm.underConstruction"
@@ -425,7 +425,7 @@
           </label>
 
           <label class="kr-toggle-row">
-            <span class="label-text font-bold">Can Delete</span>
+            <span class="kr-label-bold">Can Delete</span>
 
             <input
               v-model="botStore.botForm.canDelete"

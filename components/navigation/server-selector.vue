@@ -48,7 +48,7 @@
 
           <section class="grid gap-3 md:grid-cols-2">
             <label class="form-control min-w-0">
-              <span class="label-text font-bold">Default Art</span>
+              <span class="kr-label-bold">Default Art</span>
               <select
                 v-model.number="selectedArtServerId"
                 class="select select-bordered w-full rounded-xl"
@@ -65,7 +65,7 @@
             </label>
 
             <label class="form-control min-w-0">
-              <span class="label-text font-bold">Default Text</span>
+              <span class="kr-label-bold">Default Text</span>
               <select
                 v-model.number="selectedTextServerId"
                 class="select select-bordered w-full rounded-xl"
@@ -257,7 +257,7 @@
 
             <div class="mt-3 grid gap-3 md:grid-cols-2">
               <label class="form-control min-w-0">
-                <span class="label-text font-bold">Server Type</span>
+                <span class="kr-label-bold">Server Type</span>
                 <select
                   v-model="newLocal.serverType"
                   class="select select-bordered w-full rounded-xl"
@@ -269,7 +269,7 @@
               </label>
 
               <label class="form-control min-w-0">
-                <span class="label-text font-bold">Connection Type</span>
+                <span class="kr-label-bold">Connection Type</span>
                 <select
                   v-model="newLocal.accessMode"
                   class="select select-bordered w-full rounded-xl"
@@ -283,7 +283,7 @@
               </label>
 
               <label class="form-control min-w-0">
-                <span class="label-text font-bold">Label</span>
+                <span class="kr-label-bold">Label</span>
                 <input
                   v-model.trim="newLocal.label"
                   class="input input-bordered w-full rounded-xl"
@@ -293,7 +293,7 @@
               </label>
 
               <label class="form-control min-w-0">
-                <span class="label-text font-bold">Base URL</span>
+                <span class="kr-label-bold">Base URL</span>
                 <input
                   v-model.trim="newLocal.baseUrl"
                   class="input input-bordered w-full rounded-xl"
@@ -347,7 +347,7 @@
 
             <div class="mt-3 grid gap-3 md:grid-cols-2">
               <label class="form-control min-w-0">
-                <span class="label-text font-bold">Label</span>
+                <span class="kr-label-bold">Label</span>
                 <input
                   v-model.trim="editForm.label"
                   class="input input-bordered w-full rounded-xl"
@@ -356,7 +356,7 @@
               </label>
 
               <label class="form-control min-w-0">
-                <span class="label-text font-bold">Connection Type</span>
+                <span class="kr-label-bold">Connection Type</span>
                 <select
                   v-model="editForm.accessMode"
                   class="select select-bordered w-full rounded-xl"
@@ -370,7 +370,7 @@
               </label>
 
               <label class="form-control min-w-0 md:col-span-2">
-                <span class="label-text font-bold">Base URL</span>
+                <span class="kr-label-bold">Base URL</span>
                 <input
                   v-model.trim="editForm.baseUrl"
                   class="input input-bordered w-full rounded-xl"
@@ -379,7 +379,7 @@
               </label>
 
               <label class="form-control min-w-0">
-                <span class="label-text font-bold">Endpoint Path</span>
+                <span class="kr-label-bold">Endpoint Path</span>
                 <input
                   v-model.trim="editForm.endpointPath"
                   class="input input-bordered w-full rounded-xl"
@@ -388,7 +388,7 @@
               </label>
 
               <label class="form-control min-w-0">
-                <span class="label-text font-bold">Health Path</span>
+                <span class="kr-label-bold">Health Path</span>
                 <input
                   v-model.trim="editForm.healthPath"
                   class="input input-bordered w-full rounded-xl"
@@ -397,7 +397,7 @@
               </label>
 
               <label class="form-control min-w-0 md:col-span-2">
-                <span class="label-text font-bold">Model</span>
+                <span class="kr-label-bold">Model</span>
                 <input
                   v-model.trim="editForm.model"
                   class="input input-bordered w-full rounded-xl"
@@ -407,7 +407,7 @@
               </label>
 
               <label class="form-control min-w-0 md:col-span-2">
-                <span class="label-text font-bold">Notes</span>
+                <span class="kr-label-bold">Notes</span>
                 <textarea
                   v-model.trim="editForm.notes"
                   class="textarea textarea-bordered w-full rounded-xl"

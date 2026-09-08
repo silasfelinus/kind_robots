@@ -11,6 +11,7 @@ description: Learn how Kind Robots handles personal data and the principles behi
 icon: kind-icon:shield
 route: /privacy
 sort: 50
+visible: false
 ---
 
-A public promise about privacy belongs beside the mission and values it protects.
+The privacy page remains public and directly reachable without a dedicated Sanctuary tab.

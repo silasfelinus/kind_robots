@@ -125,7 +125,7 @@
         >
           <div>
             <h2 class="text-lg font-black">The spark</h2>
-            <p class="mt-1 text-xs leading-relaxed text-base-content/55">
+            <p class="kr-text-dim-xs-55 mt-1 leading-relaxed">
               Begin with the promise of the story. A sentence is enough; a
               strange paragraph is welcome.
             </p>
@@ -170,9 +170,7 @@
           </div>
 
           <div class="kr-panel-flat space-y-2 p-3">
-            <h3
-              class="text-xs font-bold uppercase tracking-wide text-base-content/55"
-            >
+            <h3 class="kr-text-dim-xs-55 font-bold uppercase tracking-wide">
               Narrator voice
             </h3>
             <div class="flex flex-wrap gap-2">
@@ -195,9 +193,7 @@
           </div>
 
           <div class="kr-panel-flat space-y-2 p-3">
-            <h3
-              class="text-xs font-bold uppercase tracking-wide text-base-content/55"
-            >
+            <h3 class="kr-text-dim-xs-55 font-bold uppercase tracking-wide">
               Shape of the tale
             </h3>
             <div class="grid gap-2 md:grid-cols-3">
@@ -215,9 +211,7 @@
                 @click="store.setupDraft.structure = structure.value"
               >
                 <span class="text-sm font-black">{{ structure.label }}</span>
-                <span
-                  class="mt-1 block text-xs leading-relaxed text-base-content/55"
-                >
+                <span class="kr-text-dim-xs-55 mt-1 block leading-relaxed">
                   {{ structure.description }}
                 </span>
               </button>
@@ -231,7 +225,7 @@
         >
           <div>
             <h2 class="text-lg font-black">The cast</h2>
-            <p class="mt-1 text-xs leading-relaxed text-base-content/55">
+            <p class="kr-text-dim-xs-55 mt-1 leading-relaxed">
               Choose up to five existing characters. Leaving the cast empty lets
               Storybook invent whoever the premise requires.
             </p>
@@ -264,7 +258,7 @@
         >
           <div>
             <h2 class="text-lg font-black">The world and its flavor</h2>
-            <p class="mt-1 text-xs leading-relaxed text-base-content/55">
+            <p class="kr-text-dim-xs-55 mt-1 leading-relaxed">
               Use canonical Dreams, Facets, and Rewards as ingredients. Their
               artwork becomes part of the setup surface while technical art
               direction remains automatic.
@@ -346,7 +340,7 @@
         >
           <div>
             <h2 class="text-lg font-black">Story bible</h2>
-            <p class="mt-1 text-xs leading-relaxed text-base-content/55">
+            <p class="kr-text-dim-xs-55 mt-1 leading-relaxed">
               Review the creative contract before Storybook writes the opening
               scene.
             </p>
@@ -364,15 +358,13 @@
               </dd>
             </div>
             <div class="kr-panel-flat p-3">
-              <dt class="text-xs font-bold text-base-content/55">Narration</dt>
+              <dt class="kr-text-dim-xs-55 font-bold">Narration</dt>
               <dd class="mt-1 text-sm capitalize">
                 {{ store.setupDraft.narratorStyle }} · {{ structureLabel }}
               </dd>
             </div>
             <div class="kr-panel-flat p-3">
-              <dt class="text-xs font-bold text-base-content/55">
-                Plot thread
-              </dt>
+              <dt class="kr-text-dim-xs-55 font-bold">Plot thread</dt>
               <dd class="mt-2 flex items-center gap-3">
                 <div v-if="selectedScenario" class="w-16 shrink-0">
                   <KrArtPlate
@@ -390,7 +382,7 @@
               </dd>
             </div>
             <div class="kr-panel-flat p-3">
-              <dt class="text-xs font-bold text-base-content/55">Setting</dt>
+              <dt class="kr-text-dim-xs-55 font-bold">Setting</dt>
               <dd class="mt-2 flex items-center gap-3">
                 <div v-if="selectedLocation" class="w-16 shrink-0">
                   <KrArtPlate
@@ -408,7 +400,7 @@
               </dd>
             </div>
             <div class="kr-panel-flat p-3">
-              <dt class="text-xs font-bold text-base-content/55">Cast</dt>
+              <dt class="kr-text-dim-xs-55 font-bold">Cast</dt>
               <dd class="mt-2">
                 <ul v-if="selectedCast.length" class="flex flex-wrap gap-2">
                   <li
@@ -433,7 +425,7 @@
               </dd>
             </div>
             <div class="kr-panel-flat p-3">
-              <dt class="text-xs font-bold text-base-content/55">Facets</dt>
+              <dt class="kr-text-dim-xs-55 font-bold">Facets</dt>
               <dd class="mt-2">
                 <ul v-if="selectedFacets.length" class="flex flex-wrap gap-2">
                   <li
@@ -458,9 +450,7 @@
               </dd>
             </div>
             <div class="kr-panel-flat p-3 md:col-span-2">
-              <dt class="text-xs font-bold text-base-content/55">
-                Possible Rewards
-              </dt>
+              <dt class="kr-text-dim-xs-55 font-bold">Possible Rewards</dt>
               <dd class="mt-2">
                 <ul v-if="selectedRewards.length" class="flex flex-wrap gap-2">
                   <li
@@ -488,9 +478,7 @@
               v-if="store.setupDraft.notes.trim()"
               class="kr-panel-flat p-3 md:col-span-2"
             >
-              <dt class="text-xs font-bold text-base-content/55">
-                Additional direction
-              </dt>
+              <dt class="kr-text-dim-xs-55 font-bold">Additional direction</dt>
               <dd class="mt-1 whitespace-pre-line text-sm leading-relaxed">
                 {{ store.setupDraft.notes }}
               </dd>
@@ -645,7 +633,7 @@
             class="rounded-2xl border border-success/30 bg-success/5 p-4 text-center"
           >
             <p class="font-black text-success">The tale rests here</p>
-            <p class="mt-1 text-xs text-base-content/55">
+            <p class="kr-text-dim-xs-55 mt-1">
               The completed session remains saved in this browser until you
               begin another.
             </p>

@@ -13,7 +13,7 @@
 
     <div class="mt-3 grid gap-3 lg:grid-cols-3">
       <section class="kr-panel-flat p-3">
-        <h3 class="text-xs font-bold uppercase tracking-wide text-base-content/55">
+        <h3 class="kr-text-dim-xs-55 font-bold uppercase tracking-wide">
           Inventory
         </h3>
         <div v-if="session.inventory.length" class="mt-2 space-y-2">
@@ -57,7 +57,7 @@
       </section>
 
       <section class="kr-panel-flat p-3">
-        <h3 class="text-xs font-bold uppercase tracking-wide text-base-content/55">
+        <h3 class="kr-text-dim-xs-55 font-bold uppercase tracking-wide">
           Consequences
         </h3>
         <ol v-if="recentConsequences.length" class="mt-2 space-y-2">
@@ -84,7 +84,7 @@
       </section>
 
       <section class="kr-panel-flat p-3">
-        <h3 class="text-xs font-bold uppercase tracking-wide text-base-content/55">
+        <h3 class="kr-text-dim-xs-55 font-bold uppercase tracking-wide">
           Branch path
         </h3>
         <ol v-if="recentBranches.length" class="mt-2 space-y-2">

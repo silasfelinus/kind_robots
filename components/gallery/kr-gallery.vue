@@ -116,7 +116,7 @@
                 </h2>
                 <p
                   v-if="item.description"
-                  class="mt-0.5 line-clamp-2 text-xs text-base-content/55"
+                  class="kr-text-dim-xs-55 mt-0.5 line-clamp-2"
                 >
                   {{ item.description }}
                 </p>
@@ -192,7 +192,7 @@
                   </h2>
                   <p
                     v-if="item.description"
-                    class="mt-0.5 line-clamp-2 text-xs text-base-content/55"
+                    class="kr-text-dim-xs-55 mt-0.5 line-clamp-2"
                   >
                     {{ item.description }}
                   </p>
@@ -286,7 +286,7 @@
                   </h2>
                   <p
                     v-if="item.description"
-                    class="line-clamp-2 text-xs text-base-content/55"
+                    class="kr-text-dim-xs-55 line-clamp-2"
                   >
                     {{ item.description }}
                   </p>

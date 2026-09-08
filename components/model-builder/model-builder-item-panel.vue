@@ -247,7 +247,7 @@
 
       <div
         v-if="item.generation !== 'image'"
-        class="rounded-lg bg-base-200 px-2 py-1.5 text-xs text-base-content/55"
+        class="kr-text-dim-xs-55 rounded-lg bg-base-200 px-2 py-1.5"
       >
         {{ item.generation }} generation is defined in the recipe but not yet
         wired into this front-end slice — image outputs run through the live art

@@ -18,7 +18,7 @@
     <div class="flex flex-wrap items-baseline justify-between gap-2">
       <div>
         <p class="text-sm font-black">The casting board</p>
-        <p class="mt-0.5 text-xs leading-relaxed text-base-content/55">
+        <p class="kr-text-dim-xs-55 mt-0.5 leading-relaxed">
           Drag a card onto a part, or use its buttons. Leave a card blank and
           the story decides.
         </p>

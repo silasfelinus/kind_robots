@@ -7,7 +7,7 @@
           <Icon name="kind-icon:sparkles" class="size-4 text-secondary" />
           LoRAs <span class="font-normal opacity-50">(optional)</span>
         </h3>
-        <p class="mt-0.5 text-xs text-base-content/55">
+        <p class="kr-text-dim-xs-55 mt-0.5">
           Stack up to {{ MAX_LORAS_PER_JOB }} compatible LoRAs. They apply in
           order, and trigger words are added to the render prompt automatically.
         </p>

@@ -1714,6 +1714,25 @@ section:has(div[class*='xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]'])
     @apply text-xs text-base-content/60;
   }
 
+  /* A caption-size metadata line one notch dimmer than `.kr-text-dim-xs-60`
+   * -- `text-xs text-base-content/55`, the middle opacity of the `text-xs
+   * text-base-content/NN` family sitting between `.kr-text-dim-xs`'s 50%
+   * and `.kr-text-dim-xs-60`'s 60% (interface-vision t-104 slice 159) --
+   * previously hand-rolled in 49 files (123 occurrences, subset-match
+   * including extra tokens like `mt-1`, `truncate`, `flex items-center
+   * gap-*`, `font-*`), the next-largest bounded family surfaced by
+   * re-running slice 152's original frequency survey against the sibling
+   * opacity variants left open in slice 158's own note (`/40`, `/55`,
+   * `/70`). Named `kr-text-dim-xs-55` for the same reason as its siblings --
+   * each size/opacity pairing is a real, independently-repeated exact shape
+   * in the wild, not one that "should normalize" to a neighboring opacity.
+   * The remaining `/40` (24 files, 38 occurrences) and `/70` (29
+   * occurrences) siblings are left for future slices, same convention as
+   * `.kr-spinner-xs`/`.kr-spinner-sm`. */
+  .kr-text-dim-xs-55 {
+    @apply text-xs text-base-content/55;
+  }
+
   /* A large, primary-colored busy indicator -- `loading loading-spinner
    * loading-lg text-primary`, the centered spinner shown while a gallery,
    * list, or manager view's main content is still loading (interface-vision

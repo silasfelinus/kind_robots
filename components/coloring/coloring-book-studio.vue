@@ -283,7 +283,7 @@
                 </span>
               </div>
               <p
-                class="line-clamp-2 text-xs leading-relaxed text-base-content/55"
+                class="kr-text-dim-xs-55 line-clamp-2 leading-relaxed"
               >
                 {{ proposal.prompt || 'No production prompt yet.' }}
               </p>

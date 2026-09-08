@@ -41,7 +41,7 @@
         <p class="text-sm font-bold text-error">
           {{ art.status === 'cancelled' ? 'Illustration cancelled' : 'Illustration paused' }}
         </p>
-        <p class="mt-1 text-xs leading-relaxed text-base-content/55">
+        <p class="kr-text-dim-xs-55 mt-1 leading-relaxed">
           {{ art.error || 'The story continues without blocking. You can retry this image.' }}
         </p>
       </div>

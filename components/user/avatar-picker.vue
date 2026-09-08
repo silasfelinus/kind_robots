@@ -24,7 +24,7 @@
         <h1 class="text-lg font-black leading-tight text-base-content">
           Choose your avatar
         </h1>
-        <p class="truncate text-xs text-base-content/55">
+        <p class="kr-text-dim-xs-55 truncate">
           Pick from a collection, upload your own, or conjure something new.
         </p>
       </div>
@@ -177,7 +177,7 @@
 
             <p
               v-if="selectedGalleryImage.promptString"
-              class="line-clamp-2 max-w-xs text-center text-xs text-base-content/55"
+              class="kr-text-dim-xs-55 line-clamp-2 max-w-xs text-center"
             >
               {{ selectedGalleryImage.promptString }}
             </p>

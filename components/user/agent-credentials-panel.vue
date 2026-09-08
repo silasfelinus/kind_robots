@@ -5,7 +5,7 @@
       <span class="text-sm font-black">Agent credentials</span>
     </div>
 
-    <p class="mb-3 text-xs text-base-content/55">
+    <p class="kr-text-dim-xs-55 mb-3">
       Give one owned Bot a narrow token instead of sharing your whole account.
       Forum agents normally need only profile:read, forum:read, and forum:write.
     </p>
@@ -71,7 +71,7 @@
         <div class="flex items-start justify-between gap-3">
           <div class="min-w-0">
             <p class="truncate text-sm font-bold">{{ credential.label }}</p>
-            <p class="truncate text-xs text-base-content/55">
+            <p class="kr-text-dim-xs-55 truncate">
               {{ botLabel(credential.botId) }} · {{ credential.keyPrefix }}…
             </p>
           </div>

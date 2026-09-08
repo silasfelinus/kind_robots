@@ -67,7 +67,7 @@
 
       <div class="mt-4" data-testid="brainstorm-output-domain">
         <div class="flex flex-wrap items-baseline justify-between gap-2">
-          <p class="text-xs font-black uppercase tracking-[0.12em] text-base-content/55">
+          <p class="kr-text-dim-xs-55 font-black uppercase tracking-[0.12em]">
             Output
           </p>
         </div>
@@ -86,14 +86,14 @@
             {{ domain.label }}
           </button>
         </div>
-        <p class="mt-2 max-w-3xl text-xs leading-5 text-base-content/55">
+        <p class="kr-text-dim-xs-55 mt-2 max-w-3xl leading-5">
           {{ BRAINSTORM_OUTPUT_DOMAINS.find((domain) => domain.id === outputDomain)?.description }}
         </p>
       </div>
 
       <div class="mt-4 flex flex-wrap items-end gap-3">
         <div>
-          <label for="brainstorm-count" class="text-xs font-black uppercase tracking-[0.12em] text-base-content/55">
+          <label for="brainstorm-count" class="kr-text-dim-xs-55 font-black uppercase tracking-[0.12em]">
             {{ isArtPromptDomain ? 'Prompts' : 'Ideas' }}
           </label>
           <input
@@ -125,7 +125,7 @@
 
       <div class="mt-4" data-testid="brainstorm-creative-directions">
         <div class="flex flex-wrap items-baseline justify-between gap-2">
-          <p class="text-xs font-black uppercase tracking-[0.12em] text-base-content/55">
+          <p class="kr-text-dim-xs-55 font-black uppercase tracking-[0.12em]">
             Push the batch
           </p>
           <p class="kr-text-dim-xs-45">Creative moves, not model knobs.</p>
@@ -145,7 +145,7 @@
             {{ direction.label }}
           </button>
         </div>
-        <p class="mt-2 max-w-3xl text-xs leading-5 text-base-content/55">
+        <p class="kr-text-dim-xs-55 mt-2 max-w-3xl leading-5">
           {{ activeCreativeDirection.description }}
         </p>
       </div>
@@ -184,7 +184,7 @@
           </button>
         </div>
 
-        <p class="mt-2 max-w-3xl text-xs leading-5 text-base-content/55">
+        <p class="kr-text-dim-xs-55 mt-2 max-w-3xl leading-5">
           <template v-if="batchShape === 'focused'">
             Keep one coherent response family while the ideas themselves diverge.
           </template>
@@ -218,7 +218,7 @@
               />
               <span class="min-w-0">
                 <span class="block text-sm font-black text-base-content">{{ option.label }}</span>
-                <span class="mt-1 block text-xs leading-5 text-base-content/55">{{ option.description }}</span>
+                <span class="kr-text-dim-xs-55 mt-1 block leading-5">{{ option.description }}</span>
               </span>
             </label>
 
@@ -226,7 +226,7 @@
               v-if="returnTypeSelected(option.id)"
               class="mt-3 flex flex-wrap items-center gap-2 border-t border-base-content/8 pt-3"
             >
-              <label :for="`brainstorm-return-count-${option.id}`" class="text-xs font-bold text-base-content/55">
+              <label :for="`brainstorm-return-count-${option.id}`" class="kr-text-dim-xs-55 font-bold">
                 How many?
               </label>
               <input
@@ -261,7 +261,7 @@
         </summary>
         <div class="mt-4 grid grid-cols-[repeat(auto-fit,minmax(min(100%,18rem),1fr))] gap-4">
           <div>
-            <label for="brainstorm-constraints" class="text-xs font-black uppercase tracking-[0.12em] text-base-content/55">
+            <label for="brainstorm-constraints" class="kr-text-dim-xs-55 font-black uppercase tracking-[0.12em]">
               Constraints
             </label>
             <textarea
@@ -274,7 +274,7 @@
             />
           </div>
           <div>
-            <label for="brainstorm-examples" class="text-xs font-black uppercase tracking-[0.12em] text-base-content/55">
+            <label for="brainstorm-examples" class="kr-text-dim-xs-55 font-black uppercase tracking-[0.12em]">
               Your examples
             </label>
             <textarea
@@ -298,7 +298,7 @@
           <span v-if="source" class="ml-2 font-normal text-success">linked</span>
         </summary>
 
-        <p class="mt-3 max-w-3xl text-xs leading-5 text-base-content/55">
+        <p class="kr-text-dim-xs-55 mt-3 max-w-3xl leading-5">
           Pick a Character or Dream to brainstorm around. It rides along with the session and every candidate, but never changes what the model can see beyond what you'd normally share.
         </p>
 
@@ -324,7 +324,7 @@
             <p class="truncate text-sm font-black text-base-content">
               {{ resolvedSource.title }}
             </p>
-            <p class="truncate text-xs text-base-content/55">
+            <p class="kr-text-dim-xs-55 truncate">
               {{ resolvedSource.subtitle || resolvedSource.modelType }}
             </p>
           </div>
@@ -345,7 +345,7 @@
         <div class="mt-4 grid grid-cols-[auto_minmax(0,1fr)_auto] items-end gap-2">
           <label class="form-control">
             <span class="label py-1"
-              ><span class="label-text text-xs font-bold uppercase tracking-[0.12em] text-base-content/55"
+              ><span class="kr-text-dim-xs-55 label-text font-bold uppercase tracking-[0.12em]"
                 >Type</span
               ></span
             >
@@ -361,7 +361,7 @@
           </label>
           <label class="form-control">
             <span class="label py-1"
-              ><span class="label-text text-xs font-bold uppercase tracking-[0.12em] text-base-content/55"
+              ><span class="kr-text-dim-xs-55 label-text font-bold uppercase tracking-[0.12em]"
                 >Search</span
               ></span
             >
@@ -419,13 +419,13 @@
           <span v-if="savedSessionId" class="ml-2 font-normal text-success">linked</span>
         </summary>
 
-        <p class="mt-3 max-w-3xl text-xs leading-5 text-base-content/55">
+        <p class="kr-text-dim-xs-55 mt-3 max-w-3xl leading-5">
           Unsaved work stays private in this browser. Signed-in saves are private to your account and preserve batches, candidate IDs, curation, revisions, and branch lineage.
         </p>
 
         <div class="mt-4 grid grid-cols-[repeat(auto-fit,minmax(min(100%,18rem),1fr))] gap-4">
           <div class="rounded-2xl border border-base-content/10 bg-base-100/75 p-3">
-            <label for="brainstorm-session-name" class="text-xs font-black uppercase tracking-[0.12em] text-base-content/55">
+            <label for="brainstorm-session-name" class="kr-text-dim-xs-55 font-black uppercase tracking-[0.12em]">
               Session name
             </label>
             <input
@@ -476,7 +476,7 @@
 
           <div class="rounded-2xl border border-base-content/10 bg-base-100/75 p-3">
             <div class="flex flex-wrap items-center justify-between gap-2">
-              <p class="text-xs font-black uppercase tracking-[0.12em] text-base-content/55">
+              <p class="kr-text-dim-xs-55 font-black uppercase tracking-[0.12em]">
                 History
               </p>
               <button
@@ -614,7 +614,7 @@
             <span class="block truncate text-sm font-bold text-base-content">{{
               candidate.title
             }}</span>
-            <span class="line-clamp-2 text-xs leading-5 text-base-content/55">{{
+            <span class="kr-text-dim-xs-55 line-clamp-2 leading-5">{{
               candidate.text
             }}</span>
           </span>

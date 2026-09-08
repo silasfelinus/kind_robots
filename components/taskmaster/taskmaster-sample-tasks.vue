@@ -15,7 +15,7 @@
         <h3 id="taskmaster-samples-heading" class="mt-1 text-base font-black">
           Borrow a beginning
         </h3>
-        <p class="mt-1 text-xs leading-relaxed text-base-content/55">
+        <p class="kr-text-dim-xs-55 mt-1 leading-relaxed">
           Each spark builds a reviewable plan. Nothing is applied automatically.
         </p>
       </div>

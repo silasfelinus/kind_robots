@@ -84,7 +84,7 @@
               <span class="block truncate font-black text-base-content">
                 {{ effect.label }}
               </span>
-              <span class="block truncate text-xs text-base-content/55">
+              <span class="kr-text-dim-xs-55 block truncate">
                 {{ effect.id }}
               </span>
             </span>

@@ -75,7 +75,7 @@
               </p>
               <p
                 v-else-if="item.artImageId > 0"
-                class="text-xs text-base-content/55"
+                class="kr-text-dim-xs-55"
               >
                 Artwork #{{ item.artImageId }}
               </p>
@@ -123,7 +123,7 @@
             <div class="text-4xl font-black text-primary">
               ${{ cartStore.formattedTotalPrice }}
             </div>
-            <p class="mt-1 text-xs text-base-content/55">
+            <p class="kr-text-dim-xs-55 mt-1">
               Prices are validated again on the server. The browser cannot set
               its own Stripe price.
             </p>

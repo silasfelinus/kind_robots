@@ -68,7 +68,7 @@
         <div class="flex items-center justify-between gap-3">
           <div>
             <p class="text-sm font-black text-base-content">{{ progressHeadline }}</p>
-            <p class="mt-0.5 text-xs text-base-content/55">{{ progressMessage }}</p>
+            <p class="kr-text-dim-xs-55 mt-0.5">{{ progressMessage }}</p>
           </div>
           <span class="text-sm font-black text-primary">{{ progressPercent }}%</span>
         </div>

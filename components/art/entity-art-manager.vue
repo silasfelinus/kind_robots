@@ -97,7 +97,7 @@
       <aside v-if="history.length" class="kr-panel-tint-compact-50">
         <div class="mb-2 flex items-center gap-2">
           <Icon name="kind-icon:history" class="size-3.5 text-base-content/50" />
-          <h4 class="text-xs font-black uppercase tracking-wide text-base-content/55">
+          <h4 class="kr-text-dim-xs-55 font-black uppercase tracking-wide">
             Inspiration history
           </h4>
           <span class="kr-badge-ghost-xs ml-auto">{{ filteredHistory.length }}</span>
@@ -371,7 +371,7 @@
         </div>
       </fieldset>
 
-      <div class="rounded-lg bg-base-100/60 px-3 py-2 text-xs text-base-content/55">
+      <div class="kr-text-dim-xs-55 rounded-lg bg-base-100/60 px-3 py-2">
         <strong>{{ generationMode === 'recreate' ? 'Recreate' : 'Img2img' }}:</strong>
         {{ engineLabel }} · {{ selectedSlot.width }}×{{ selectedSlot.height }}
         <template v-if="selectedPreset.description"> · {{ selectedPreset.description }}</template>

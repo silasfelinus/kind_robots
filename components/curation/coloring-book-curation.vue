@@ -2,7 +2,7 @@
   <section class="space-y-4">
     <div class="kr-panel flex flex-wrap items-end gap-3 p-4">
       <label class="form-control min-w-60 gap-1">
-        <span class="text-xs font-bold text-base-content/55">Book</span>
+        <span class="kr-text-dim-xs-55 font-bold">Book</span>
         <select
           :value="store.selectedBookSlug"
           class="kr-select-sm"
@@ -22,7 +22,7 @@
       </label>
 
       <label class="form-control min-w-56 flex-1 gap-1">
-        <span class="text-xs font-bold text-base-content/55">Find a page</span>
+        <span class="kr-text-dim-xs-55 font-bold">Find a page</span>
         <input
           v-model="search"
           type="search"
@@ -176,7 +176,7 @@
             </h2>
             <p
               v-if="proposal.notes.length"
-              class="mt-2 line-clamp-2 text-xs leading-5 text-base-content/55"
+              class="kr-text-dim-xs-55 mt-2 line-clamp-2 leading-5"
             >
               {{ proposal.notes.join(' · ') }}
             </p>

@@ -148,7 +148,7 @@
           </p>
           <h4 class="mt-1 text-xl font-black text-base-content">Look before you read</h4>
         </div>
-        <p class="max-w-xl text-xs leading-relaxed text-base-content/55">
+        <p class="kr-text-dim-xs-55 max-w-xl leading-relaxed">
           These are real historical works with provenance links. Open any image to visit its source collection.
         </p>
       </div>
@@ -308,7 +308,7 @@
               </p>
             </div>
 
-            <p class="flex items-start gap-2 text-xs leading-relaxed text-base-content/55">
+            <p class="kr-text-dim-xs-55 flex items-start gap-2 leading-relaxed">
               <Icon name="kind-icon:refresh" class="mt-0.5 h-4 w-4 shrink-0" />
               Not quite right? Try a different source image, tweak the instruction, or adjust the style strength and remix again.
             </p>

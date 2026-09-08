@@ -68,7 +68,7 @@
             <p class="text-lg font-black text-accent">
               +{{ achievement.karma ?? 0 }} karma
             </p>
-            <p class="text-xs text-base-content/55">
+            <p class="kr-text-dim-xs-55">
               You found 1 Jellybean (+1 mana)!
             </p>
           </div>

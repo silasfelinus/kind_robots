@@ -1,6 +1,6 @@
 ---
 contentType: tab
-channelKey: play
+channelKey: plan
 tabKey: davinci
 dashboardKey: wonder
 dashboardTab: davinci
@@ -10,8 +10,8 @@ subtitle: Explore strange endings and creative branches
 description: Experiment with generated endings, branching ideas, and visual storytelling.
 icon: kind-icon:brain
 route: /play/davinci
-sort: 130
-requiredRole: GUEST
+sort: 85
+requiredRole: ADMIN
 ---
 
-A narrative experiment where endings are prototypes rather than conclusions.
+An admin-only narrative experiment kept in Plan while it is still being shaped.

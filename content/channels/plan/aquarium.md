@@ -1,6 +1,6 @@
 ---
 contentType: tab
-channelKey: play
+channelKey: plan
 tabKey: aquarium
 label: Cthulhuquarium
 title: Cthulhuquarium
@@ -8,7 +8,8 @@ subtitle: Feed the things in the tank
 description: A darkly funny idle aquarium. Click for coins, buy food, keep the monsters fed, and find out what else is down there.
 icon: kind-icon:fish
 route: /play/aquarium
-sort: 135
+sort: 90
+requiredRole: ADMIN
 ---
 
-It sits in the back of the curiosity shop, and now it is yours to feed.
+An admin-only project surface kept in Plan while the aquarium grows teeth.

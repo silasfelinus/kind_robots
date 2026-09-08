@@ -11,7 +11,7 @@ description: Restyle a private client photo with a new color or cut in a dedicat
 icon: kind-icon:magic
 route: /build/hair-studio
 sort: 55
-requiredRole: GUEST
+requiredRole: ADMIN
 ---
 
-A dedicated hairstyle experiment lab, separate from the Superkate service calculator and client book.
+A dedicated admin-only hairstyle experiment lab, separate from the Superkate service calculator and client book.

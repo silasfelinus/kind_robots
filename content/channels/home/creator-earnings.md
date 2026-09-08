@@ -12,6 +12,7 @@ icon: kind-icon:coin
 route: /creator-earnings
 sort: 76
 requiredPermission: authenticated
+visible: false
 ---
 
-Creator earnings belong in the user's Home channel, right beside Wallet — both are personal balance surfaces for the signed-in user.
+Creator earnings now live inside Account while the direct page remains available.

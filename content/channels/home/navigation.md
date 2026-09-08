@@ -11,6 +11,7 @@ description: Review destinations, favorites, and the tools used to move through 
 icon: kind-icon:map
 route: /navigation
 sort: 40
+visible: false
 ---
 
-A personal map of the site and the places you return to most often.
+The navigation overview remains available directly without duplicating the navigation controls themselves.

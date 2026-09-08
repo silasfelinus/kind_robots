@@ -123,10 +123,23 @@ assert.ok(maturityToggle.includes("variant === 'resource'"))
 assert.ok(maturityToggle.includes('accountStore.updateConsent'))
 assert.ok(maturityToggle.includes('showMature: value'))
 
+// Account became a composed destination in the 2026-09-08 navigation cleanup:
+// the content route still mounts ONE MDC component (the layout contract), and
+// that wrapper must keep the canonical settings surface while adding creator
+// earnings beside it.
 const accountPage = readFileSync('content/account.md', 'utf8')
 assert.ok(
-  accountPage.includes(':account-settings'),
-  'The canonical /account route must mount account-settings',
+  accountPage.includes(':account-center'),
+  'The canonical /account route must mount account-center',
+)
+const accountCenter = readFileSync('components/user/account-center.vue', 'utf8')
+assert.ok(
+  accountCenter.includes('<account-settings'),
+  'Account center must retain account-settings',
+)
+assert.ok(
+  accountCenter.includes('<creator-earnings-page'),
+  'Account center must include creator earnings',
 )
 
 const accountSettings = readFileSync(

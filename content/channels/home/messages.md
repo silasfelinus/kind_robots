@@ -12,6 +12,7 @@ icon: kind-icon:message
 route: /messages
 sort: 90
 requiredPermission: authenticated
+visible: false
 ---
 
-Direct messages and unread conversation state live in the user's Home channel.
+Direct messages remain available directly while Home navigation groups them under Friends.

@@ -6,12 +6,12 @@ dashboardKey: user
 dashboardTab: profile
 label: Account
 title: Account & Privacy
-subtitle: Your settings, your consent
-description: Change your password, verify your email, tune privacy and consent, and manage newsletter updates.
+subtitle: Settings, consent, and creator earnings
+description: Change your password, verify your email, tune privacy and consent, manage newsletter updates, and review creator earnings.
 icon: kind-icon:settings
 route: /account
 sort: 70
 requiredPermission: authenticated
 ---
 
-Account settings and consent controls belong in the user's Home channel.
+Account settings, consent controls, and creator earnings live together in the user's Home channel.

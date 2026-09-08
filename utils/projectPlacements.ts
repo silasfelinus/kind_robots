@@ -28,7 +28,7 @@ export const PROJECT_PLACEMENTS: Record<string, ProjectPlacement> = {
     route: '/coloring',
   },
   'challenge-center': {
-    channelKey: 'play',
+    channelKey: 'plan',
     tabKey: 'challenges',
     route: '/play/challenges',
   },
@@ -43,7 +43,7 @@ export const PROJECT_PLACEMENTS: Record<string, ProjectPlacement> = {
     route: '/taskmaster',
   },
   'mermaids-of-venice': {
-    channelKey: 'sanctuary',
+    channelKey: 'plan',
     tabKey: 'mermaids',
     route: '/mermaids',
   },
@@ -78,12 +78,12 @@ export const PROJECT_PLACEMENTS: Record<string, ProjectPlacement> = {
     route: '/packs',
   },
   davinci: {
-    channelKey: 'play',
+    channelKey: 'plan',
     tabKey: 'davinci',
     route: '/play/davinci',
   },
   cthulhuquarium: {
-    channelKey: 'play',
+    channelKey: 'plan',
     tabKey: 'aquarium',
     route: '/play/aquarium',
   },
@@ -98,7 +98,7 @@ export const PROJECT_PLACEMENTS: Record<string, ProjectPlacement> = {
     route: '/plan/projects/coat-dance',
   },
   'ruler-hooked': {
-    channelKey: 'play',
+    channelKey: 'plan',
     tabKey: 'ruler-hooked',
     route: '/plan/projects/ruler-hooked',
   },

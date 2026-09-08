@@ -13,6 +13,7 @@ route: /cart
 sort: 35
 loadingMessage: Gathering the cart butterflies...
 refreshLabel: Refresh cart
+visible: false
 ---
 
-Review the cart, adjust quantities, and continue to secure Stripe checkout.
+The cart remains reachable when needed without occupying a Sanctuary navigation slot.

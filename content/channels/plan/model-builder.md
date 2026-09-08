@@ -11,6 +11,7 @@ description: Define schemas, compose reusable builders, and generate new creatio
 icon: kind-icon:blueprint
 route: /model-builder
 sort: 74
+requiredRole: ADMIN
 ---
 
-Use the advanced model builder as the meta-tool behind future creative workflows.
+Use the admin-only model builder as the meta-tool behind future creative workflows.

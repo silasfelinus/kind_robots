@@ -11,6 +11,7 @@ description: Open a page, fill regions, save palettes, and return to works in pr
 icon: kind-icon:paintbrush
 route: /coloring
 sort: 65
+requiredRole: ADMIN
 ---
 
-Color AI-generated pages and playful sampler art.
+Admin-only coloring tools for AI-generated pages and sampler art.

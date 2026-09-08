@@ -12,6 +12,7 @@ icon: kind-icon:bag
 route: /wallet
 sort: 75
 requiredPermission: authenticated
+visible: false
 ---
 
-Karma and mana balances belong in the user's Home channel.
+The page remains directly reachable without a dedicated Home navigation tab.

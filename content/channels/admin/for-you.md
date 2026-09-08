@@ -1,6 +1,6 @@
 ---
 contentType: tab
-channelKey: home
+channelKey: admin
 tabKey: for-you
 label: For You
 title: For You
@@ -9,7 +9,7 @@ description: Human gates, pitch proposals, notifications, and personal follow-up
 icon: kind-icon:checklist
 route: /for-you
 sort: 15
-requiredPermission: authenticated
+requiredRole: ADMIN
 ---
 
 Decisions, proposals, and personal follow-ups gathered into one attention desk.

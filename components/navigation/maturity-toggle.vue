@@ -28,7 +28,7 @@
             <span class="block text-sm font-bold text-base-content">
               {{ label }}
             </span>
-            <span class="block text-xs text-base-content/55">
+            <span class="kr-text-dim-xs-55 block">
               {{ showMature ? visibleText : hiddenText }}
             </span>
           </span>

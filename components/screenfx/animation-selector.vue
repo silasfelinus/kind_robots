@@ -15,7 +15,7 @@
           <h2 class="text-lg font-black text-base-content">
             Animation preferences
           </h2>
-          <p class="text-xs text-base-content/55">
+          <p class="kr-text-dim-xs-55">
             Startup effects and butterfly behavior for this browser only.
           </p>
         </div>
@@ -77,7 +77,7 @@
         <span class="block text-sm font-black text-base-content">
           Adaptive guardrails
         </span>
-        <span class="block text-xs text-base-content/55">
+        <span class="kr-text-dim-xs-55 block">
           Treat your values as maximums and step down only when frames repeatedly
           struggle.
         </span>

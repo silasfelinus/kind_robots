@@ -106,7 +106,7 @@
                   <span class="block truncate text-sm font-black">
                     {{ color.name }}
                   </span>
-                  <span class="block font-mono text-xs text-base-content/55">
+                  <span class="kr-text-dim-xs-55 block font-mono">
                     {{ color.value }}
                   </span>
                 </span>
@@ -254,7 +254,7 @@
               <div class="flex items-start justify-between gap-3">
                 <div>
                   <h3 class="font-black">{{ group.label }}</h3>
-                  <p class="mt-1 text-xs text-base-content/55">
+                  <p class="kr-text-dim-xs-55 mt-1">
                     {{ group.sections.length }} sections ·
                     {{ group.mixed ? 'mixed colors' : 'one color' }}
                   </p>

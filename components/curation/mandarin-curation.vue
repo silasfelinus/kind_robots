@@ -4,7 +4,7 @@
       <div class="flex flex-wrap items-start justify-between gap-3">
         <div>
           <h1 class="text-xl font-black">Mandarin catalog</h1>
-          <p class="mt-1 max-w-3xl text-xs leading-5 text-base-content/55">
+          <p class="kr-text-dim-xs-55 mt-1 max-w-3xl leading-5">
             Curate one canonical learner-facing entry while the pinned source
             data stays untouched. Changes are global overrides with an
             append-only audit trail, not parallel editions.
@@ -57,9 +57,7 @@
         "
       >
         <label class="form-control gap-1">
-          <span class="text-xs font-black text-base-content/55"
-            >Search catalog</span
-          >
+          <span class="kr-text-dim-xs-55 font-black">Search catalog</span>
           <input
             v-model="search"
             type="search"
@@ -69,7 +67,7 @@
         </label>
 
         <label class="form-control gap-1">
-          <span class="text-xs font-black text-base-content/55">Category</span>
+          <span class="kr-text-dim-xs-55 font-black">Category</span>
           <select v-model="categoryFilter" class="kr-select-sm">
             <option value="all">All categories</option>
             <option
@@ -83,7 +81,7 @@
         </label>
 
         <label class="form-control gap-1">
-          <span class="text-xs font-black text-base-content/55">HSK</span>
+          <span class="kr-text-dim-xs-55 font-black">HSK</span>
           <select v-model="hskFilter" class="kr-select-sm">
             <option value="all">All levels</option>
             <option value="1">HSK 1</option>
@@ -92,7 +90,7 @@
         </label>
 
         <label class="form-control gap-1">
-          <span class="text-xs font-black text-base-content/55">Sort</span>
+          <span class="kr-text-dim-xs-55 font-black">Sort</span>
           <select v-model="sortKey" class="kr-select-sm">
             <option value="hsk">HSK / frequency</option>
             <option value="hanzi">Hanzi</option>

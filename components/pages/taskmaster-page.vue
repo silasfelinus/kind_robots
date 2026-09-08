@@ -120,7 +120,7 @@
                 <h3 class="mt-1 text-lg font-black sm:text-xl">
                   What needs to move?
                 </h3>
-                <p class="mt-1 text-xs leading-relaxed text-base-content/55">
+                <p class="kr-text-dim-xs-55 mt-1 leading-relaxed">
                   Be plain and specific. Serendipity can make it magical after it
                   is honest.
                 </p>
@@ -190,7 +190,7 @@
                   Quest recipe
                 </p>
                 <h3 class="mt-1 text-lg font-black">Shape the journey</h3>
-                <p class="mt-1 text-xs leading-relaxed text-base-content/55">
+                <p class="kr-text-dim-xs-55 mt-1 leading-relaxed">
                   Choose story ingredients, never model machinery.
                 </p>
               </div>
@@ -379,7 +379,7 @@
           class="taskmaster-action-rail sticky bottom-2 z-30 mx-3 mb-3 flex flex-wrap items-center gap-2 rounded-2xl border border-base-300/80 bg-base-100/90 p-2.5 shadow-2xl backdrop-blur-xl sm:mx-5 sm:p-3 lg:mx-8"
         >
           <p
-            class="hidden min-w-48 flex-1 text-xs font-medium leading-relaxed text-base-content/55 lg:block"
+            class="kr-text-dim-xs-55 hidden min-w-48 flex-1 font-medium leading-relaxed lg:block"
           >
             Next: review a practical checkpoint plan before the story begins.
           </p>
@@ -459,7 +459,7 @@
                 <h3 class="mt-1 text-xl font-black">
                   The quest starts with real checkpoints
                 </h3>
-                <p class="mt-1 text-xs leading-relaxed text-base-content/55">
+                <p class="kr-text-dim-xs-55 mt-1 leading-relaxed">
                   Taskmaster weaves these actions into the fiction in order.
                   Nothing is written back without a separate Apply action.
                 </p>
@@ -484,7 +484,7 @@
                   <p class="font-black">{{ checkpoint.title }}</p>
                   <p
                     v-if="checkpoint.detail"
-                    class="mt-1 text-xs leading-relaxed text-base-content/55"
+                    class="kr-text-dim-xs-55 mt-1 leading-relaxed"
                   >
                     {{ checkpoint.detail }}
                   </p>
@@ -752,7 +752,7 @@
                 >
                   What happened in the real world?
                 </p>
-                <p class="mt-1 text-xs text-base-content/55">
+                <p class="kr-text-dim-xs-55 mt-1">
                   Choose the honest checkpoint outcome, then describe what happened
                   below.
                 </p>
@@ -814,7 +814,7 @@
                   <p v-if="store.currentCheckpoint" class="mt-1 text-sm font-black">
                     Current action: {{ store.currentCheckpoint.title }}
                   </p>
-                  <p v-else class="mt-1 text-xs text-base-content/55">
+                  <p v-else class="kr-text-dim-xs-55 mt-1">
                     Every planned checkpoint has an outcome.
                   </p>
                 </div>
@@ -892,7 +892,7 @@
                 <p class="text-sm font-black text-success">
                   All checkpoints have an outcome
                 </p>
-                <p class="mt-0.5 text-xs text-base-content/55">
+                <p class="kr-text-dim-xs-55 mt-0.5">
                   Review any optional Apply actions, then finish for a practical
                   recap.
                 </p>

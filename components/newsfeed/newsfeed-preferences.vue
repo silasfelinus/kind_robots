@@ -10,7 +10,7 @@
     <div class="mb-3 flex items-center justify-between gap-3">
       <div>
         <h3 class="font-black">Manage feeds</h3>
-        <p class="text-xs text-base-content/55">
+        <p class="kr-text-dim-xs-55">
           Choose which feeds appear and the order they're shown in.
         </p>
       </div>
@@ -33,7 +33,7 @@
           <Icon :name="feed.icon" class="size-4 shrink-0 text-primary" />
           <div class="min-w-0">
             <span class="block truncate font-semibold">{{ feed.title }}</span>
-            <span class="block truncate text-xs text-base-content/55">
+            <span class="kr-text-dim-xs-55 block truncate">
               {{ feed.description }}
             </span>
           </div>
@@ -77,7 +77,7 @@
           <Icon :name="feed.icon" class="size-4 shrink-0" />
           <div class="min-w-0">
             <span class="block truncate font-semibold">{{ feed.title }}</span>
-            <span class="block truncate text-xs text-base-content/55">
+            <span class="kr-text-dim-xs-55 block truncate">
               {{ feed.description }}
             </span>
           </div>
@@ -92,10 +92,7 @@
       </li>
     </ul>
 
-    <p
-      v-if="!enabledFeeds.length"
-      class="pt-2 text-center text-xs text-base-content/55"
-    >
+    <p v-if="!enabledFeeds.length" class="kr-text-dim-xs-55 pt-2 text-center">
       No feeds enabled — turn one on above to see it here.
     </p>
   </div>

@@ -5,7 +5,7 @@
       <Icon name="kind-icon:tag" class="size-5 text-secondary" />
       <div class="min-w-0 flex-1">
         <p class="font-black">{{ title }}</p>
-        <p v-if="subtitle" class="text-xs text-base-content/55">
+        <p v-if="subtitle" class="kr-text-dim-xs-55">
           {{ subtitle }}
         </p>
       </div>

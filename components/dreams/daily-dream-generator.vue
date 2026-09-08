@@ -13,7 +13,7 @@
       </span>
       <span class="min-w-0 flex-1">
         <span class="block font-black">Today’s Facet Dream</span>
-        <span class="block truncate text-xs text-base-content/55">
+        <span class="kr-text-dim-xs-55 block truncate">
           A complete Dream graph: world, cast, and material-driven objects.
         </span>
       </span>
@@ -52,7 +52,7 @@
             <option :value="4">4</option>
           </select>
         </label>
-        <p class="text-xs leading-relaxed text-base-content/55">
+        <p class="kr-text-dim-xs-55 leading-relaxed">
           The date supplies a stable seed. Reopening today returns the same Dream
           rather than creating duplicates.
         </p>
@@ -86,7 +86,7 @@
             Dream
           </p>
           <p class="mt-1 font-bold">{{ blueprint.title }}</p>
-          <p class="mt-1 line-clamp-3 text-xs text-base-content/55">
+          <p class="kr-text-dim-xs-55 mt-1 line-clamp-3">
             {{ blueprint.pitch }}
           </p>
         </div>

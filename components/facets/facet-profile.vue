@@ -22,7 +22,7 @@
 
       <div class="min-w-0 flex-1">
         <p class="truncate font-black">{{ selectedFacet.title }}</p>
-        <p class="truncate text-xs text-base-content/55">
+        <p class="kr-text-dim-xs-55 truncate">
           {{ taxonomyLabel(selectedFacet.taxonomy) }}
           <template v-if="selectedFacet.groupLabel">
             · {{ selectedFacet.groupLabel }}

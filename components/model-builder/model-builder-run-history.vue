@@ -80,7 +80,7 @@
                 run.sourceType
               }}</span>
             </div>
-            <div class="flex items-center gap-2 text-xs text-base-content/55">
+            <div class="kr-text-dim-xs-55 flex items-center gap-2">
               <span>{{ recipeLabel(run) }}</span>
               <span class="text-base-content/30">·</span>
               <span>{{ progress(run) }} committed</span>

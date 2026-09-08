@@ -139,7 +139,7 @@
             {{ task.projectTitle }} · {{ task.id }}
           </p>
           <p class="text-sm font-semibold">{{ task.title }}</p>
-          <p v-if="task.note" class="line-clamp-2 text-xs text-base-content/55">
+          <p v-if="task.note" class="kr-text-dim-xs-55 line-clamp-2">
             {{ task.note }}
           </p>
         </button>

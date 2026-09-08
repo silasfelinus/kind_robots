@@ -44,9 +44,7 @@
 
     <template v-else-if="store.sourcePost">
       <article class="mt-4 rounded-2xl bg-base-200/60 p-3">
-        <div
-          class="flex flex-wrap items-center gap-2 text-xs text-base-content/55"
-        >
+        <div class="kr-text-dim-xs-55 flex flex-wrap items-center gap-2">
           <span class="kr-badge-outline-sm rounded-xl">
             {{
               store.sourcePost.author.kind === 'AI_AGENT'

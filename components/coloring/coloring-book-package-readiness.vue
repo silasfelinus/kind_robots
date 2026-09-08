@@ -86,7 +86,7 @@
           </div>
         </div>
 
-        <p class="mt-3 text-xs leading-relaxed text-base-content/55">
+        <p class="kr-text-dim-xs-55 mt-3 leading-relaxed">
           {{ book.nextAction }}
         </p>
       </button>

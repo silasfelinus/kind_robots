@@ -2,9 +2,7 @@
   <section class="space-y-4">
     <div class="kr-panel flex flex-wrap items-end gap-3 p-4">
       <label class="form-control min-w-56 flex-1 gap-1">
-        <span class="text-xs font-bold text-base-content/55"
-          >Find a monster</span
-        >
+        <span class="kr-text-dim-xs-55 font-bold">Find a monster</span>
         <input
           v-model="search"
           type="search"

@@ -110,7 +110,7 @@
               <div class="flex flex-wrap items-start justify-between gap-2">
                 <div>
                   <h4 class="text-sm font-semibold">Video options</h4>
-                  <p class="mt-1 text-xs text-base-content/55">
+                  <p class="kr-text-dim-xs-55 mt-1">
                     These values update both the ArtJob metadata and the Comfy
                     workflow used by the relay.
                   </p>

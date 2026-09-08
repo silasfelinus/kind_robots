@@ -92,7 +92,7 @@
                   <Icon name="kind-icon:settings" class="h-4 w-4" />
                   Recipe
                 </h2>
-                <p class="mt-0.5 text-xs text-base-content/55">
+                <p class="kr-text-dim-xs-55 mt-0.5">
                   Picks the Comfy lane and its known-good numbers.
                 </p>
               </div>
@@ -188,7 +188,7 @@
             </label>
 
             <div class="mt-3 flex flex-wrap items-center gap-2">
-              <span class="text-xs font-bold text-base-content/55">
+              <span class="kr-text-dim-xs-55 font-bold">
                 🎲 Prompt seasoning
               </span>
               <button

@@ -145,7 +145,7 @@
               <span class="block text-sm font-black text-base-content"
                 >Generation Source</span
               >
-              <span class="block truncate text-xs text-base-content/55">
+              <span class="kr-text-dim-xs-55 block truncate">
                 {{ currentArtImage.checkpoint || 'No checkpoint recorded' }}
               </span>
             </span>
@@ -195,7 +195,7 @@
                 <h2 class="truncate text-base font-black text-base-content">
                   Quick Edit
                 </h2>
-                <p class="truncate text-xs text-base-content/55">
+                <p class="kr-text-dim-xs-55 truncate">
                   ArtImage metadata. Image bytes remain unbothered.
                 </p>
               </div>
@@ -354,7 +354,7 @@
                   <h2 class="truncate text-base font-black text-base-content">
                     Collections
                   </h2>
-                  <p class="truncate text-xs text-base-content/55">
+                  <p class="kr-text-dim-xs-55 truncate">
                     {{ selectedCollectionSummary }}
                   </p>
                 </div>
@@ -418,7 +418,7 @@
 
                 <div
                   v-if="visibleCollectionOptions.length === 0"
-                  class="rounded-xl border border-dashed border-base-300 bg-base-200 p-3 text-center text-xs text-base-content/55"
+                  class="kr-text-dim-xs-55 rounded-xl border border-dashed border-base-300 bg-base-200 p-3 text-center"
                 >
                   No collections match that search.
                 </div>

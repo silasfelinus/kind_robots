@@ -62,7 +62,7 @@
             <h3 class="mt-1 text-lg font-black">
               Rebuild or modify {{ selectedSlot.label.toLowerCase() }} art
             </h3>
-            <p class="mt-1 text-xs leading-relaxed text-base-content/55">
+            <p class="kr-text-dim-xs-55 mt-1 leading-relaxed">
               Recreate starts from the prompt. Modify uses the current image as visual guidance.
             </p>
           </div>
@@ -147,7 +147,7 @@
           </span>
         </label>
 
-        <div class="rounded-xl bg-base-100/70 px-3 py-2 text-xs text-base-content/55">
+        <div class="kr-text-dim-xs-55 rounded-xl bg-base-100/70 px-3 py-2">
           <strong>{{ mode === 'recreate' ? 'Recreate' : 'Modify' }}:</strong>
           {{ engineLabel }} · {{ selectedPreset.description }}
         </div>

@@ -55,7 +55,7 @@
           <h3 class="truncate text-base font-black">{{ channel.label }}</h3>
           <p
             v-if="channel.summary || channel.description"
-            class="line-clamp-1 text-xs text-base-content/55"
+            class="kr-text-dim-xs-55 line-clamp-1"
           >
             {{ channel.summary || channel.description }}
           </p>

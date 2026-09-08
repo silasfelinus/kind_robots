@@ -26,7 +26,7 @@
         Gallery
       </button>
 
-      <p class="ml-1 hidden text-xs text-base-content/55 md:block">
+      <p class="kr-text-dim-xs-55 ml-1 hidden md:block">
         Make something new, or browse what you already made.
       </p>
     </nav>

@@ -121,7 +121,7 @@
       <div class="flex flex-wrap items-start justify-between gap-2">
         <div>
           <h2 class="text-lg font-black">Recent stories</h2>
-          <p class="mt-1 text-xs leading-relaxed text-base-content/55">
+          <p class="kr-text-dim-xs-55 mt-1 leading-relaxed">
             Open an existing branch, duplicate it safely, or export a portable
             copy.
           </p>
@@ -155,7 +155,7 @@
               </span>
             </div>
             <p
-              class="mt-1 line-clamp-2 text-xs leading-relaxed text-base-content/55"
+              class="kr-text-dim-xs-55 mt-1 line-clamp-2 leading-relaxed"
             >
               {{ story.bible.premise }}
             </p>

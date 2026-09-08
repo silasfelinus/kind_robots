@@ -12,7 +12,7 @@
     <div class="flex items-center justify-between gap-3">
       <div>
         <h3 class="font-black">Filters</h3>
-        <p class="text-xs text-base-content/55">
+        <p class="kr-text-dim-xs-55">
           Program what shows up -- keywords, sources, categories, and sort.
         </p>
       </div>
@@ -154,7 +154,7 @@
 
     <div class="flex flex-col gap-1.5">
       <span class="text-xs font-bold">Perspective balance</span>
-      <p class="text-xs text-base-content/55">
+      <p class="kr-text-dim-xs-55">
         Only reshapes feeds that carry political coverage (e.g. Activism) —
         other feeds are never affected.
       </p>

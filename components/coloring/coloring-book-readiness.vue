@@ -124,7 +124,7 @@
             </span>
           </div>
 
-          <p class="line-clamp-3 text-xs leading-relaxed text-base-content/55">
+          <p class="kr-text-dim-xs-55 line-clamp-3 leading-relaxed">
             {{ entry.readiness.detail }}
           </p>
 

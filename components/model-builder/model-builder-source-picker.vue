@@ -188,7 +188,7 @@
             </span>
             <span
               v-if="subtitle(record)"
-              class="line-clamp-2 text-xs text-base-content/55"
+              class="kr-text-dim-xs-55 line-clamp-2"
             >
               {{ subtitle(record) }}
             </span>

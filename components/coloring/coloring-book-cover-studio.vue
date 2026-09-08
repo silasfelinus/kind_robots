@@ -237,7 +237,7 @@
           <p class="kr-text-dim-xs-45">
             {{ formatDate(revision.requestedAt) }}
           </p>
-          <p v-if="revision.semanticScore !== null" class="text-xs text-base-content/55">
+          <p v-if="revision.semanticScore !== null" class="kr-text-dim-xs-55">
             Semantic score {{ revision.semanticScore }}
           </p>
         </a>

@@ -8,7 +8,7 @@
         <p class="truncate text-base font-black text-base-content">
           {{ welcomeMessage }}
         </p>
-        <p class="text-xs text-base-content/55">
+        <p class="kr-text-dim-xs-55">
           Karma, mana, achievements, and everything you've made — all in one
           place.
         </p>
@@ -124,7 +124,7 @@
                     <span class="block font-black text-base-content">
                       Dashboard maturity toggle
                     </span>
-                    <span class="block text-xs text-base-content/55">
+                    <span class="kr-text-dim-xs-55 block">
                       Show a quick 18+ visibility control in the workspace
                       header. This preference stays in this browser.
                     </span>
@@ -154,7 +154,7 @@
                     {{ karmaStore.balance }}
                   </p>
 
-                  <p class="mt-1 text-xs text-base-content/55">
+                  <p class="kr-text-dim-xs-55 mt-1">
                     {{ karmaStore.transactions.length }} recent
                     {{
                       karmaStore.transactions.length === 1 ? 'entry' : 'entries'
@@ -191,7 +191,7 @@
                     max="100"
                   />
 
-                  <p class="mt-1 text-xs text-base-content/55">
+                  <p class="kr-text-dim-xs-55 mt-1">
                     {{
                       manaStore.refillReady
                         ? 'Refill ready'
@@ -213,7 +213,7 @@
                     {{ earnedAchievements.length }}
                   </p>
 
-                  <p class="mt-1 text-xs text-base-content/55">earned</p>
+                  <p class="kr-text-dim-xs-55 mt-1">earned</p>
 
                   <button
                     type="button"
@@ -272,7 +272,7 @@
                     <span class="text-sm font-black">Show mature content</span>
                   </label>
 
-                  <p class="text-xs text-base-content/55">
+                  <p class="kr-text-dim-xs-55">
                     Reveal content flagged mature while you browse.
                   </p>
 
@@ -298,7 +298,7 @@
                     <span class="text-sm font-black">Server preferences</span>
                   </div>
 
-                  <p class="text-xs text-base-content/55">
+                  <p class="kr-text-dim-xs-55">
                     Pick default art/text generation servers.
                   </p>
 

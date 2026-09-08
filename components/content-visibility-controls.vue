@@ -3,7 +3,7 @@
     <div class="flex flex-wrap items-start justify-between gap-2">
       <div>
         <h3 class="text-sm font-bold">Content visibility</h3>
-        <p class="mt-0.5 text-xs text-base-content/55">
+        <p class="kr-text-dim-xs-55 mt-0.5">
           Mature work defaults private; general-audience work defaults public.
           You can override privacy after choosing maturity.
         </p>

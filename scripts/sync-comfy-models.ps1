@@ -107,6 +107,51 @@ extra|checkpoints|v1-5-pruned-emaonly.safetensors
 # A directory only counts as the ComfyUI models root if it ALREADY holds a
 # recognisable category folder. Without that check an empty or wrong path could
 # be silently adopted as the destination for ten gigabytes of weights.
+function Test-ModelHeader([string] $Path) {
+  # Cheap integrity smoke test: read the first few bytes and check the container
+  # actually looks like itself. Returns $true (looks right), $false (definitely
+  # corrupt), or $null (format we do not know how to check - not a failure).
+  #
+  # Why size is not enough (2026-09-08): robocopy /J preallocates the whole
+  # destination up front, so a copy interrupted mid-write leaves a file of
+  # EXACTLY the right length with unwritten bytes in it. That is precisely what
+  # happened to Krea-2-Turbo-Q5_K_S.gguf - 8.21 GB local, 8.21 GB on the share,
+  # and a header reading "?z8" instead of "GGUF". ComfyUI-GGUF then raised
+  # `ValueError: GGUF magic invalid` on every Krea2 render, in under a second
+  # each, which fed the render watchdog a failure spike and had it restarting
+  # ComfyUI all night. Every size check in this script passed it, including the
+  # "already local" skip - so a re-run would not have repaired it either.
+  #
+  # Four bytes catch that, and cost nothing next to an 8 GB SHA256. -Verify
+  # still exists for a full checksum when it is worth the read.
+  if (-not (Test-Path -LiteralPath $Path -PathType Leaf)) { return $false }
+  $ext = [System.IO.Path]::GetExtension($Path).ToLowerInvariant()
+
+  try {
+    $fs = [System.IO.File]::OpenRead($Path)
+    try {
+      switch ($ext) {
+        '.gguf' {
+          $buf = New-Object byte[] 4
+          if ($fs.Read($buf, 0, 4) -ne 4) { return $false }
+          return ([System.Text.Encoding]::ASCII.GetString($buf, 0, 4) -eq 'GGUF')
+        }
+        '.safetensors' {
+          # First 8 bytes are a little-endian uint64 giving the JSON header
+          # length, which must fit inside the file with room for tensor data.
+          $buf = New-Object byte[] 8
+          if ($fs.Read($buf, 0, 8) -ne 8) { return $false }
+          $headerLen = [System.BitConverter]::ToUInt64($buf, 0)
+          return (($headerLen -gt 0) -and ($headerLen -lt [uint64]($fs.Length - 8)))
+        }
+        default { return $null }
+      }
+    } finally { $fs.Close() }
+  } catch {
+    return $false
+  }
+}
+
 function Test-ModelsDir([string] $Path) {
   if ([string]::IsNullOrWhiteSpace($Path)) { return $false }
   if (-not (Test-Path -LiteralPath $Path -PathType Container)) { return $false }
@@ -307,8 +352,15 @@ foreach ($line in $Manifest) {
 
   if ((Test-Path -LiteralPath $dest -PathType Leaf) -and
       ((Get-Item -LiteralPath $dest).Length -eq $src.Length)) {
-    Write-Host ('  {0,-6} {1,-12} {2,-52} already local ({3})' -f $rowTier, $subdir, $rel, (Format-Size $src.Length))
-    continue
+    # Right length is not the same as intact - see Test-ModelHeader. A corrupt
+    # local file shadows the good share copy (extra_model_paths.yaml searches
+    # local first), so skipping it here would leave every render failing.
+    if ((Test-ModelHeader $dest) -eq $false) {
+      Write-Host ('  {0,-6} {1,-12} {2,-52} CORRUPT locally - recopying' -f $rowTier, $subdir, $rel)
+    } else {
+      Write-Host ('  {0,-6} {1,-12} {2,-52} already local ({3})' -f $rowTier, $subdir, $rel, (Format-Size $src.Length))
+      continue
+    }
   }
 
   Write-Host ('  {0,-6} {1,-12} {2,-52} COPY {3}' -f $rowTier, $subdir, $rel, (Format-Size $src.Length))
@@ -367,6 +419,11 @@ foreach ($item in $plan) {
       (Get-Item -LiteralPath $staged).Length -ne $item.Bytes) {
     Remove-Item -LiteralPath $stage -Recurse -Force -ErrorAction SilentlyContinue
     Fail "short copy for $($item.Rel) - share copy left in place"
+  }
+
+  if ((Test-ModelHeader $staged) -eq $false) {
+    Remove-Item -LiteralPath $stage -Recurse -Force -ErrorAction SilentlyContinue
+    Fail "corrupt copy for $($item.Rel) - right size, bad container header - share copy left in place"
   }
 
   if ($Verify) {

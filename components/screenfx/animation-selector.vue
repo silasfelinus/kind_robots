@@ -29,7 +29,7 @@
 
     <div class="grid grid-cols-1 gap-3 lg:grid-cols-[minmax(0,1fr)_auto]">
       <label class="form-control min-w-0">
-        <span class="label-text mb-1 text-xs font-black text-base-content/70">
+        <span class="kr-text-dim-xs-70 label-text mb-1 font-black">
           Startup animation
         </span>
 

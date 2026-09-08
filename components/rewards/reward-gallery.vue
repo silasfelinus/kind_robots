@@ -256,7 +256,7 @@
 
           <div
             v-if="rewardStore.selectedReward"
-            class="kr-panel-muted-sm text-xs text-base-content/70"
+            class="kr-text-dim-xs-70 kr-panel-muted-sm"
           >
             <p class="line-clamp-3">
               {{ selectedRewardDescription }}

@@ -294,7 +294,7 @@
             </div>
 
             <div class="rounded-2xl bg-base-100/70 p-3">
-              <p class="text-xs font-bold text-base-content/70">What to expect</p>
+              <p class="kr-text-dim-xs-70 font-bold">What to expect</p>
               <p class="kr-text-dim-xs-60 mt-1 leading-relaxed">
                 The remix should keep hold of the cues above, especially
                 {{ lesson.recognitionCues[0]?.toLowerCase() }}. If it just looks like a generic old painting, the style did not fully take.
@@ -302,7 +302,7 @@
             </div>
 
             <div class="rounded-2xl bg-base-100/70 p-3">
-              <p class="text-xs font-bold text-base-content/70">{{ tryItFailureLabel }}</p>
+              <p class="kr-text-dim-xs-70 font-bold">{{ tryItFailureLabel }}</p>
               <p class="kr-text-dim-xs-60 mt-1 leading-relaxed">
                 {{ tryItFailureNote }}
               </p>

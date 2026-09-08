@@ -112,9 +112,7 @@
             for="image-upload-collection"
           >
             <icon name="kind-icon:folder" class="h-4 w-4 text-secondary" />
-            <span class="text-xs font-bold text-base-content/70"
-              >Add to collection</span
-            >
+            <span class="kr-text-dim-xs-70 font-bold">Add to collection</span>
           </label>
 
           <select
@@ -332,7 +330,7 @@
           for="image-upload-model-connect"
         >
           <icon name="kind-icon:link" class="h-4 w-4 text-accent" />
-          <span class="text-xs font-bold text-base-content/70"
+          <span class="kr-text-dim-xs-70 font-bold"
             >Link image owner to model</span
           >
         </label>

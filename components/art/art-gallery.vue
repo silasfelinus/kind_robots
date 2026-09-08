@@ -111,7 +111,7 @@
         <label
           class="flex cursor-pointer items-center gap-1.5 rounded-lg border border-base-300 bg-base-100 px-2 py-1"
         >
-          <span class="text-xs font-bold text-base-content/70">Mature</span>
+          <span class="kr-text-dim-xs-70 font-bold">Mature</span>
           <input
             v-model="showMature"
             type="checkbox"

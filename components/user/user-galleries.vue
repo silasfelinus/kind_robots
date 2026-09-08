@@ -145,7 +145,7 @@
                 </div>
                 <p
                   v-if="getItemSummary(item)"
-                  class="mt-2 line-clamp-3 text-xs text-base-content/70"
+                  class="kr-text-dim-xs-70 mt-2 line-clamp-3"
                 >
                   {{ getItemSummary(item) }}
                 </p>

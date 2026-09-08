@@ -311,7 +311,7 @@
 
         <div
           v-if="isQueued"
-          class="mt-1.5 flex items-center gap-1.5 rounded-lg bg-base-200 px-2 py-1 text-xs text-base-content/70"
+          class="kr-text-dim-xs-70 mt-1.5 flex items-center gap-1.5 rounded-lg bg-base-200 px-2 py-1"
           role="status"
           aria-live="polite"
           aria-busy="true"
@@ -367,7 +367,7 @@
 
       <div
         v-if="preview"
-        class="space-y-1 rounded-lg bg-base-200 p-2 text-xs text-base-content/70"
+        class="kr-text-dim-xs-70 space-y-1 rounded-lg bg-base-200 p-2"
       >
         <div>
           <span class="font-bold text-base-content">{{ preview.action }}</span>

@@ -24,7 +24,7 @@
     <div
       class="flex flex-col gap-2 rounded-xl border border-secondary/30 bg-base-100 p-3"
     >
-      <label class="text-xs font-bold text-base-content/70">
+      <label class="kr-text-dim-xs-70 font-bold">
         Describe the pack and let the model draft a scaffold
       </label>
       <textarea
@@ -100,7 +100,7 @@
     <!-- Items -->
     <div class="flex flex-col gap-2">
       <div class="flex items-center justify-between">
-        <span class="text-xs font-bold text-base-content/70"
+        <span class="kr-text-dim-xs-70 font-bold"
           >Items ({{ draft.items.length }})</span
         >
         <button class="kr-btn-ghost-xs" @click="addItem">

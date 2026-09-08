@@ -19,7 +19,7 @@
 
     <div v-if="!userStore.isLoggedIn" class="flex flex-wrap items-center gap-2">
       <span
-        class="badge badge-outline badge-lg gap-1 rounded-2xl text-xs text-base-content/70"
+        class="kr-text-dim-xs-70 badge badge-outline badge-lg gap-1 rounded-2xl"
       >
         <Icon name="kind-icon:sparkles" class="h-3.5 w-3.5" />
         PDF edition — $9.99

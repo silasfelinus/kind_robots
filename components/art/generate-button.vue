@@ -67,7 +67,7 @@
     </div>
 
     <div
-      class="rounded-2xl border border-base-300 bg-base-200/70 p-3 text-xs font-semibold text-base-content/70"
+      class="kr-text-dim-xs-70 rounded-2xl border border-base-300 bg-base-200/70 p-3 font-semibold"
     >
       <div class="flex flex-wrap items-center gap-2">
         <span class="kr-badge-sm rounded-2xl" :class="selectionBadgeClass">

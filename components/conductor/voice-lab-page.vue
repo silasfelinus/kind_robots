@@ -61,7 +61,7 @@
           <p
             v-for="message in voice.recentMessages.slice(-6)"
             :key="message.id"
-            class="text-xs text-base-content/70"
+            class="kr-text-dim-xs-70"
           >
             <span class="font-bold uppercase">{{ message.role }}:</span>
             {{ message.text }}

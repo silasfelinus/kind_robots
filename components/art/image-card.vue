@@ -279,10 +279,10 @@
       </div>
 
       <details v-if="showDebug" class="kr-panel-compact-xs" @click.stop>
-        <summary class="cursor-pointer text-xs font-bold text-base-content/70">
+        <summary class="kr-text-dim-xs-70 cursor-pointer font-bold">
           Debug
         </summary>
-        <pre class="mt-2 max-h-48 overflow-auto text-xs text-base-content/70">{{
+        <pre class="kr-text-dim-xs-70 mt-2 max-h-48 overflow-auto">{{
           JSON.stringify(debugImage, null, 2)
         }}</pre>
       </details>

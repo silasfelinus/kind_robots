@@ -310,7 +310,7 @@
 
           <div
             v-if="botStore.currentBot"
-            class="kr-panel-muted p-3 text-xs text-base-content/70"
+            class="kr-text-dim-xs-70 kr-panel-muted p-3"
           >
             <p class="line-clamp-3">
               {{ selectedBotDescription }}

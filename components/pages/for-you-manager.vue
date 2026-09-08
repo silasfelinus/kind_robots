@@ -205,7 +205,7 @@
                     />
                   </summary>
                   <p
-                    class="whitespace-pre-wrap border-t border-base-300 px-3 py-3 text-xs leading-relaxed text-base-content/70"
+                    class="kr-text-dim-xs-70 whitespace-pre-wrap border-t border-base-300 px-3 py-3 leading-relaxed"
                   >
                     {{ gate.task.note }}
                   </p>

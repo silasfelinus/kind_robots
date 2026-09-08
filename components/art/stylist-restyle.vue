@@ -128,7 +128,7 @@
 
       <label v-if="sourceImageData" class="flex items-center gap-2">
         <input v-model="maskEnabled" type="checkbox" class="kr-checkbox-primary-xs" />
-        <span class="text-xs text-base-content/70">
+        <span class="kr-text-dim-xs-70">
           Only restyle the hair (paint a mask instead of changing the whole photo)
         </span>
       </label>
@@ -190,7 +190,7 @@
       </label>
 
       <label class="flex flex-col gap-1">
-        <span class="text-xs font-bold text-base-content/70">Extra notes (optional)</span>
+        <span class="kr-text-dim-xs-70 font-bold">Extra notes (optional)</span>
         <input
           v-model="extraNotes"
           type="text"
@@ -199,7 +199,7 @@
         />
       </label>
 
-      <p v-if="changeSummary" class="rounded-lg bg-base-200 p-2 text-xs text-base-content/70">
+      <p v-if="changeSummary" class="kr-text-dim-xs-70 rounded-lg bg-base-200 p-2">
         {{ changeSummary }}
       </p>
     </div>
@@ -225,7 +225,7 @@
       </div>
       <label class="flex items-start gap-2 pt-1">
         <input v-model="protectIdentity" type="checkbox" class="kr-checkbox-primary-xs mt-0.5" />
-        <span class="text-xs text-base-content/70">
+        <span class="kr-text-dim-xs-70">
           Extra-protect the face &amp; identity (a little slower — guards against turning
           them into someone else)
         </span>
@@ -281,7 +281,7 @@
 
     <div
       v-if="isFirstRun"
-      class="flex flex-col gap-1 rounded-xl border border-primary/30 bg-primary/5 p-3 text-xs text-base-content/70"
+      class="kr-text-dim-xs-70 flex flex-col gap-1 rounded-xl border border-primary/30 bg-primary/5 p-3"
     >
       <span class="font-black text-primary">First time in the studio?</span>
       <span>

@@ -34,7 +34,7 @@
         <!-- Sub-view context label -->
         <span
           v-if="viewMode === 'tasks'"
-          class="text-xs font-bold text-base-content/70"
+          class="kr-text-dim-xs-70 font-bold"
           >· Tasks
           <span
             v-if="todoStore.openTodos.length"
@@ -583,7 +583,7 @@
                         :value="selectedProject.progress"
                         max="100"
                       />
-                      <span class="text-xs font-bold text-base-content/70"
+                      <span class="kr-text-dim-xs-70 font-bold"
                         >{{ selectedProject.progress }}%</span
                       >
                     </div>
@@ -1030,7 +1030,7 @@
                         />
                         <div class="min-w-0 flex-1">
                           <p
-                            class="break-words text-xs font-medium leading-snug text-base-content/70"
+                            class="kr-text-dim-xs-70 break-words font-medium leading-snug"
                           >
                             {{ task.title }}
                           </p>

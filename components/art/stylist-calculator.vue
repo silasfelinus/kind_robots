@@ -100,7 +100,7 @@
 
     <!-- Live total -->
     <div class="flex items-center justify-between rounded-xl bg-primary/10 p-3">
-      <span class="text-xs text-base-content/70">
+      <span class="kr-text-dim-xs-70">
         {{ formatCents(hourlyRateCents) }}/hr × {{ formatMinutes(totalMinutes) }} +
         {{ formatCents(productCostCents) }} products
       </span>

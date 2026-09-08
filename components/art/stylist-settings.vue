@@ -47,7 +47,7 @@
 
     <div class="flex flex-col gap-1 kr-panel-compact">
       <span class="text-xs font-black text-base-content">Receipt preview</span>
-      <pre class="whitespace-pre-wrap text-xs text-base-content/70">{{ preview }}</pre>
+      <pre class="kr-text-dim-xs-70 whitespace-pre-wrap">{{ preview }}</pre>
     </div>
 
     <p class="kr-text-dim-xs-40">

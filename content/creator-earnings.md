@@ -9,7 +9,7 @@ tooltip: What you have earned when someone spent tokens on something you made.
 dottiTip: This is honest, not aspirational — no payout button until the payout mechanism is actually designed and approved.
 amiTip: Every cent you have earned, broken down by what made it and when. Nothing to withdraw yet, but nothing hidden either.
 channelKey: home
-tabKey: creator-earnings
+tabKey: account
 dashboardKey: user
 dashboardTab: profile
 requiredPermission: authenticated

@@ -33,10 +33,7 @@
           class="flex h-full min-h-0 flex-1 items-center justify-center kr-panel"
         >
           <div class="flex flex-col items-center gap-3 text-center">
-            <span
-              class="loading loading-spinner loading-lg text-primary"
-              aria-hidden="true"
-            />
+            <span class="kr-spinner-lg-primary" aria-hidden="true" />
             <p class="kr-text-dim-sm-70">
               Dusting off the timeline, warming up the remix engine, and
               politely waking thirty-three centuries of dead masters...

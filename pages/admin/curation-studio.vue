@@ -2,7 +2,7 @@
   <main class="kr-surface h-full min-h-0 overflow-hidden">
     <div class="kr-scroll w-full max-w-none space-y-5 p-4 md:p-6">
       <div v-if="!ready" class="grid min-h-60 place-items-center kr-panel">
-        <span class="loading loading-spinner loading-lg text-primary" />
+        <span class="kr-spinner-lg-primary" />
       </div>
 
       <div

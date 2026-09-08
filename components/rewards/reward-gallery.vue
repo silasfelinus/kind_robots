@@ -187,7 +187,7 @@
         v-if="isLoading"
         class="flex h-full items-center justify-center py-12"
       >
-        <span class="loading loading-spinner loading-lg text-primary" />
+        <span class="kr-spinner-lg-primary" />
       </div>
 
       <div

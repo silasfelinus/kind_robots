@@ -62,7 +62,7 @@
       class="min-h-0 flex-1 overflow-hidden kr-panel-flat"
     >
       <div v-if="isLoading" class="flex h-full items-center justify-center p-6">
-        <span class="loading loading-spinner loading-lg text-primary" />
+        <span class="kr-spinner-lg-primary" />
       </div>
 
       <div

@@ -1311,7 +1311,7 @@ onMounted(async () => {
               v-if="isGenerating"
               class="flex flex-col items-center gap-3 text-center"
             >
-              <span class="loading loading-spinner loading-lg text-primary" />
+              <span class="kr-spinner-lg-primary" />
               <div class="text-lg font-bold">
                 Generating with {{ endpointDef.label }}
               </div>

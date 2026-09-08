@@ -145,7 +145,7 @@
             v-if="isLoadingGallery"
             class="flex flex-1 items-center justify-center"
           >
-            <span class="loading loading-spinner loading-lg text-primary" />
+            <span class="kr-spinner-lg-primary" />
           </div>
 
           <div
@@ -171,7 +171,7 @@
                 v-if="pendingId === selectedGalleryImage.id && isApplying"
                 class="absolute inset-0 flex items-center justify-center bg-base-100/70"
               >
-                <span class="loading loading-spinner loading-lg text-primary" />
+                <span class="kr-spinner-lg-primary" />
               </span>
             </div>
 

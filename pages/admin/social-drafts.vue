@@ -28,7 +28,7 @@
       </header>
 
       <div v-if="!ready" class="grid min-h-52 place-items-center kr-panel">
-        <span class="loading loading-spinner loading-lg text-primary" />
+        <span class="kr-spinner-lg-primary" />
       </div>
 
       <div

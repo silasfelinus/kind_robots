@@ -51,7 +51,7 @@
     </div>
 
     <div v-if="loading" class="grid min-h-64 place-items-center kr-panel">
-      <span class="loading loading-spinner loading-lg text-primary" />
+      <span class="kr-spinner-lg-primary" />
     </div>
 
     <div

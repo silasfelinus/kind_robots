@@ -2,7 +2,7 @@ import assert from 'node:assert/strict'
 import fs from 'node:fs'
 
 const rootPath = 'content/serendipity.md'
-const channelPath = 'content/channels/play/serendipity.md'
+const channelPath = 'content/channels/plan/serendipity.md'
 const componentPath = 'components/pages/serendipity-page.vue'
 
 for (const path of [rootPath, channelPath, componentPath]) {
@@ -12,6 +12,7 @@ for (const path of [rootPath, channelPath, componentPath]) {
 for (const path of [
   'content/serendipity-voice.md',
   'content/channels/play/serendipity-voice.md',
+  'content/channels/plan/serendipity-voice.md',
   'components/pages/serendipity-voice-page.vue',
 ]) {
   assert.equal(fs.existsSync(path), false, `obsolete Serendipity Voice identity remains: ${path}`)
@@ -25,11 +26,13 @@ const voiceLab = fs.readFileSync('components/conductor/voice-lab-page.vue', 'utf
 const boundary = fs.readFileSync('docs/products/storybook-taskmaster-boundary.md', 'utf8')
 
 assert.match(root, /^title: Serendipity$/m)
+assert.match(root, /^channelKey: plan$/m)
 assert.match(root, /^tabKey: serendipity$/m)
 assert.match(root, /^dashboardTab: serendipity$/m)
 assert.match(root, /:serendipity-page\s*$/m)
 assert.doesNotMatch(root, /serendipity-voice-page/)
 
+assert.match(channel, /^channelKey: plan$/m)
 assert.match(channel, /^tabKey: serendipity$/m)
 assert.match(channel, /^dashboardTab: serendipity$/m)
 assert.match(channel, /^label: Serendipity$/m)

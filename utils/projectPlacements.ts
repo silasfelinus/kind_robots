@@ -13,12 +13,12 @@ export type ProjectPlacement = {
 
 export const PROJECT_PLACEMENTS: Record<string, ProjectPlacement> = {
   'music-mentor': {
-    channelKey: 'play',
+    channelKey: 'plan',
     tabKey: 'music-mentor',
     route: '/music-mentor',
   },
   'mandarin-tutor': {
-    channelKey: 'play',
+    channelKey: 'plan',
     tabKey: 'mandarin',
     route: '/play/mandarin',
   },
@@ -38,7 +38,7 @@ export const PROJECT_PLACEMENTS: Record<string, ProjectPlacement> = {
     route: '/appmaker',
   },
   taskmaster: {
-    channelKey: 'play',
+    channelKey: 'plan',
     tabKey: 'taskmaster',
     route: '/taskmaster',
   },
@@ -63,7 +63,7 @@ export const PROJECT_PLACEMENTS: Record<string, ProjectPlacement> = {
     route: '/admin/scene-animator',
   },
   storybook: {
-    channelKey: 'play',
+    channelKey: 'plan',
     tabKey: 'storybook',
     route: '/storybook',
   },
@@ -138,12 +138,12 @@ export const PROJECT_PLACEMENTS: Record<string, ProjectPlacement> = {
     route: '/build/hair-studio',
   },
   'digital-storefront': {
-    channelKey: 'sanctuary',
+    channelKey: 'home',
     tabKey: 'giftshop',
     route: '/sanctuary',
   },
   'ai-art-academy': {
-    channelKey: 'play',
+    channelKey: 'plan',
     tabKey: 'academy',
     route: '/academy',
   },

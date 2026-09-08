@@ -4,8 +4,8 @@ channelKey: plan
 label: Plan
 title: Plan
 room: Conductor
-subtitle: Turn ideas into coordinated work
-description: Projects, roadmaps, production studios, builders, milestones, and human checkpoints.
+subtitle: Make, learn, and turn ideas into coordinated work
+description: Projects, creative studios, learning tools, roadmaps, builders, milestones, and human checkpoints.
 icon: kind-icon:gearhammer
 route: /conductor
 defaultTab: projects
@@ -23,4 +23,4 @@ backgroundTablet: /api/art/backdrop/plan-tablet
 backgroundDesktop: /api/art/backdrop/plan-desktop
 ---
 
-Shape ideas into projects, build their working parts, coordinate the work, and keep humans in the loop.
+Shape ideas into projects, make their working parts, learn new skills, and keep humans in the loop.

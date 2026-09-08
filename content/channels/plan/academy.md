@@ -1,6 +1,6 @@
 ---
 contentType: tab
-channelKey: play
+channelKey: plan
 tabKey: academy
 dashboardKey: academy
 dashboardTab: timeline
@@ -10,7 +10,7 @@ subtitle: Explore styles across art history
 description: Browse historical styles, learn their visual language, and remix your own images.
 icon: kind-icon:palette
 route: /academy
-sort: 100
+sort: 230
 ---
 
-Learn the styles, then immediately commit tasteful visual crimes with them.
+Learn the styles, then immediately put them to work in your own images.

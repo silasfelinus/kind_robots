@@ -15,7 +15,7 @@ backgroundDesktop: /api/art/backdrop/taskmaster-desktop
 tooltip: The fiction stays playful. The real work stays visible and reviewable.
 dottiTip: Pick the quest, then make one honest move at a time.
 amiTip: A to-do list may wear armor, but Taskmaster still shows you what needs doing.
-channelKey: play
+channelKey: plan
 tabKey: taskmaster
 dashboardKey: scenario
 dashboardTab: taskmaster

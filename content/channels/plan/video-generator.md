@@ -1,6 +1,6 @@
 ---
 contentType: tab
-channelKey: play
+channelKey: plan
 tabKey: video-generator
 label: Video Gen
 title: Video Generator
@@ -8,7 +8,7 @@ subtitle: Animate a still into a short clip
 description: Turn a still image into a short looping clip with LTX or WAN, with startup-ready WebP and WebM presets, custom controls, and an optional first-to-last morph.
 icon: kind-icon:video
 route: /play/video-generator
-sort: 150
+sort: 210
 requiredRole: GUEST
 ---
 

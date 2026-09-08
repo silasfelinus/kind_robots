@@ -9,6 +9,9 @@ description: Recent work, favorites, messages, and personal milestones.
 icon: kind-icon:home
 route: /
 sort: 10
+backgroundMobile: /api/art/backdrop/home-mobile
+backgroundTablet: /api/art/backdrop/home-tablet
+backgroundDesktop: /api/art/backdrop/home-desktop
 ---
 
 Your personal dashboard.

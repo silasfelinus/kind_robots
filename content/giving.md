@@ -8,7 +8,7 @@ image: splash/about.png
 tooltip: Give directly to Against Malaria or help keep Kind Robots running. The two kinds of support stay clearly separated.
 dottiTip: I checked the math three times. $2 really does buy a bed net.
 amiTip: Direct donations go to AMF. Monthly support keeps the servers fluttering. 🦋💙
-channelKey: sanctuary
+channelKey: home
 tabKey: giving
 dashboardKey: giftshop
 dashboardTab: community

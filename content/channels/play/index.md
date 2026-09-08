@@ -5,7 +5,7 @@ label: Play
 title: Play
 room: Creative Worlds
 subtitle: Explore, remix, and play
-description: Browse and interact with dreams, art, bots, facets, characters, rewards, scenarios, stories, challenges, and playful experiments.
+description: Browse and interact with dreams, bots, facets, characters, rewards, scenarios, galleries, and experiments.
 icon: kind-icon:dice
 route: /dreams
 defaultTab: dreams

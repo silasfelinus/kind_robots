@@ -24,7 +24,7 @@ const [
   cancelPage,
 ] = await Promise.all([
   source('content/cart.md'),
-  source('content/channels/sanctuary/cart.md'),
+  source('content/channels/home/cart.md'),
   source('components/navigation/cart-button.vue'),
   source('components/navigation/account-hub.vue'),
   source('components/pages/giving-page.vue'),
@@ -49,7 +49,7 @@ assert.match(
 assert.match(
   cartTab,
   /^route: \/cart$/m,
-  'Sanctuary must expose /cart as a tab',
+  'Home must retain /cart as a structurally registered tab',
 )
 
 assert.match(

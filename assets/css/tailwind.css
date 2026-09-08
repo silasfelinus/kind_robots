@@ -1695,6 +1695,25 @@ section:has(div[class*='xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]'])
     @apply text-xs text-base-content/45;
   }
 
+  /* A large, primary-colored busy indicator -- `loading loading-spinner
+   * loading-lg text-primary`, the centered spinner shown while a gallery,
+   * list, or manager view's main content is still loading (interface-vision
+   * t-104 slice 157) -- previously hand-rolled identically in 26 files (28
+   * exact occurrences), the largest bounded family surfaced by this slice's
+   * frequency survey once the still-unresolved `flex items-center gap-2`
+   * layout utility (87 occurrences, set aside as too generic back in slice
+   * 153) was skipped again. Named `kr-spinner-lg-primary` rather than
+   * reusing the `kr-spinner-xs`/`kr-spinner-sm` names because those two are
+   * deliberately colorless (their own colored variants were explicitly left
+   * for a future slice) -- this bounded family's exact shape always carries
+   * `text-primary`, so the color is baked into the name rather than left as
+   * a token callers add themselves. A colorless `loading loading-spinner
+   * loading-lg` sibling exists too, but as a single occurrence (not a
+   * bounded family), so it's left as plain utility classes. */
+  .kr-spinner-lg-primary {
+    @apply loading loading-spinner loading-lg text-primary;
+  }
+
   .text-smart {
     @apply text-sm md:text-lg lg:text-lg xl:text-xl;
   }

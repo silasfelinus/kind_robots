@@ -155,7 +155,7 @@
       v-if="isLoading"
       class="flex min-h-56 flex-1 items-center justify-center rounded-xl bg-base-200"
     >
-      <span class="loading loading-spinner loading-lg text-primary" />
+      <span class="kr-spinner-lg-primary" />
     </div>
 
     <section

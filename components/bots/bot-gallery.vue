@@ -223,7 +223,7 @@
         v-if="isLoading || botStore.loading"
         class="flex h-full items-center justify-center py-12"
       >
-        <span class="loading loading-spinner loading-lg text-primary"></span>
+        <span class="kr-spinner-lg-primary"></span>
       </div>
 
       <div

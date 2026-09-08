@@ -6,7 +6,7 @@
       class="flex h-full min-h-0 flex-1 items-center justify-center kr-panel"
     >
       <div class="flex flex-col items-center gap-3 text-center">
-        <span class="loading loading-spinner loading-lg text-primary" />
+        <span class="kr-spinner-lg-primary" />
         <p class="kr-text-dim-sm-70">
           {{ managerLoadMessage }}
         </p>

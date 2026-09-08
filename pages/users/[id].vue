@@ -68,7 +68,7 @@
         v-else-if="status === 'pending'"
         class="flex min-h-64 items-center justify-center rounded-3xl kr-panel-flat"
       >
-        <span class="loading loading-spinner loading-lg text-primary" />
+        <span class="kr-spinner-lg-primary" />
       </div>
 
       <div

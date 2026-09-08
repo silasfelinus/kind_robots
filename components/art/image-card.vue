@@ -70,7 +70,7 @@
         v-if="loadingImage"
         class="flex h-full w-full items-center justify-center"
       >
-        <span class="loading loading-spinner loading-lg text-primary" />
+        <span class="kr-spinner-lg-primary" />
       </div>
 
       <kr-deferred-image

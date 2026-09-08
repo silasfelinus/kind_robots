@@ -66,7 +66,7 @@
       v-if="!pageDefinition"
       class="flex min-h-0 flex-1 items-center justify-center kr-panel-flat"
     >
-      <span class="loading loading-spinner loading-lg text-primary" />
+      <span class="kr-spinner-lg-primary" />
     </div>
 
     <section

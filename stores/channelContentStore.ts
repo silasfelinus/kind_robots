@@ -90,8 +90,33 @@ export const useChannelContentStore = defineStore('channelContentStore', () => {
       channels.value,
       accessContextRoles(accessContext.value),
     )
+    const permissionFiltered = filterChannelsByPermission(
+      roleFiltered,
+      accessContext.value,
+    )
+    const userEmail = userStore.user?.email?.trim().toLowerCase() ?? ''
+    const isSuperkate =
+      userStore.userId === 1279 || userEmail === 'superkate@gmail.com'
 
-    return filterChannelsByPermission(roleFiltered, accessContext.value)
+    return permissionFiltered
+      .map((channel) => ({
+        ...channel,
+        tabs: channel.tabs.filter((tab) => {
+          if (
+            channel.channelKey === 'home' &&
+            tab.tabKey === 'registration'
+          ) {
+            return !userStore.isLoggedIn
+          }
+
+          if (channel.channelKey === 'plan' && tab.tabKey === 'stylist') {
+            return isSuperkate
+          }
+
+          return true
+        }),
+      }))
+      .filter((channel) => channel.tabs.length > 0)
   })
 
   function syncActiveTabs(): void {

@@ -199,7 +199,7 @@
               <li
                 v-for="top in stats.topStarred"
                 :key="top.id"
-                class="flex items-center gap-1.5 text-xs text-base-content/70"
+                class="kr-text-dim-xs-70 flex items-center gap-1.5"
               >
                 <Icon
                   name="kind-icon:star"

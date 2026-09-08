@@ -57,7 +57,7 @@
             <span v-else>{{ userEmail }} is not verified yet.</span>
           </div>
           <div class="flex items-center gap-2">
-            <span v-if="verifyFeedback" class="text-xs text-base-content/70">
+            <span v-if="verifyFeedback" class="kr-text-dim-xs-70">
               {{ verifyFeedback }}
             </span>
             <button

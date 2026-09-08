@@ -107,9 +107,7 @@
             Inspirations
           </p>
 
-          <p
-            class="mt-0.5 line-clamp-2 text-xs leading-relaxed text-base-content/70"
-          >
+          <p class="kr-text-dim-xs-70 mt-0.5 line-clamp-2 leading-relaxed">
             {{ scenario.inspirations }}
           </p>
         </div>

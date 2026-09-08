@@ -141,7 +141,7 @@
           selected
         </span>
         <label
-          class="flex cursor-pointer items-center gap-1.5 text-xs text-base-content/70"
+          class="kr-text-dim-xs-70 flex cursor-pointer items-center gap-1.5"
         >
           <input
             type="checkbox"

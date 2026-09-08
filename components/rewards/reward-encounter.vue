@@ -470,7 +470,7 @@
 
           <pre
             v-if="showPromptPreview"
-            class="kr-tile-md mt-3 max-h-72 overflow-auto whitespace-pre-wrap text-xs text-base-content/70"
+            class="kr-text-dim-xs-70 kr-tile-md mt-3 max-h-72 overflow-auto whitespace-pre-wrap"
             >{{ rewardPromptPreview }}</pre>
         </section>
       </aside>

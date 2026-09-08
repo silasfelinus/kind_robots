@@ -340,11 +340,9 @@
               Raw Character Context
             </h2>
 
-            <pre
-              class="kr-tile-md max-h-96 overflow-auto text-xs text-base-content/70"
-              >{{
-                JSON.stringify(characterStore.selectedCharacter, null, 2)
-              }}</pre>
+            <pre class="kr-text-dim-xs-70 kr-tile-md max-h-96 overflow-auto">{{
+              JSON.stringify(characterStore.selectedCharacter, null, 2)
+            }}</pre>
           </article>
         </div>
 

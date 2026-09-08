@@ -1759,6 +1759,24 @@ section:has(div[class*='xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]'])
     @apply text-xs text-base-content/40;
   }
 
+  /* The last remaining named opacity in the `text-xs text-base-content/NN`
+   * family -- `text-xs text-base-content/70`, the lightest dim of the set
+   * (least muted, closest to full-opacity body text), used for secondary
+   * caption text that still needs to read clearly rather than recede like
+   * the `/40`-`/60` metadata-line siblings (interface-vision t-104 slice
+   * 163) -- previously hand-rolled identically in 35 files (51
+   * occurrences), the sibling explicitly left open by slice 162's own note
+   * after the `/40` shape was named. Named `kr-text-dim-xs-70` for the same
+   * reason as its siblings -- each size/opacity pairing is a real,
+   * independently-repeated exact shape in the wild, not one that "should
+   * normalize" to a neighboring opacity. This closes out the `text-xs
+   * text-base-content/NN` family surveyed since slice 152 (`/40`, `/45`,
+   * `/50`, `/55`, `/60`, `/70` all now named); the next slice should run a
+   * genuinely fresh full-repo class-frequency survey outside this family. */
+  .kr-text-dim-xs-70 {
+    @apply text-xs text-base-content/70;
+  }
+
   /* A large, primary-colored busy indicator -- `loading loading-spinner
    * loading-lg text-primary`, the centered spinner shown while a gallery,
    * list, or manager view's main content is still loading (interface-vision

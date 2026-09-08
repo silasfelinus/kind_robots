@@ -408,7 +408,7 @@
                   />
                   <div class="min-w-0 flex-1">
                     <p
-                      class="break-words text-xs font-medium leading-snug text-base-content/70"
+                      class="kr-text-dim-xs-70 break-words font-medium leading-snug"
                     >
                       {{ task.title }}
                     </p>

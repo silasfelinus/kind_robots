@@ -119,15 +119,13 @@
           class="mx-0.5 mt-2.5 kr-panel-flat p-2"
           @click.stop
         >
-          <summary
-            class="cursor-pointer text-xs font-bold text-base-content/70"
-          >
+          <summary class="kr-text-dim-xs-70 cursor-pointer font-bold">
             Debug
           </summary>
 
-          <pre
-            class="mt-2 max-h-48 overflow-auto text-xs text-base-content/70"
-            >{{ JSON.stringify(reward, null, 2) }}</pre>
+          <pre class="kr-text-dim-xs-70 mt-2 max-h-48 overflow-auto">{{
+            JSON.stringify(reward, null, 2)
+          }}</pre>
         </details>
       </kr-entity-card-body>
     </reactable-card>

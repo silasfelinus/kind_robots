@@ -150,7 +150,7 @@
         <li
           v-for="related in relatedEntries"
           :key="related.id"
-          class="flex items-center gap-2 text-xs text-base-content/70"
+          class="kr-text-dim-xs-70 flex items-center gap-2"
         >
           <Icon
             v-if="related.starred"

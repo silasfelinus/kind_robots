@@ -1,9 +1,7 @@
 <template>
   <div class="kr-unbound kr-container max-w-3xl p-6 space-y-8">
     <header class="flex items-center gap-3">
-      <span
-        class="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-primary/15 text-primary"
-      >
+      <span class="kr-icon-tile">
         <Icon name="kind-icon:coin" class="h-7 w-7" />
       </span>
       <div>

@@ -3,9 +3,7 @@
     class="kr-unbound privacy-page max-w-3xl mx-auto px-6 py-12 text-base leading-relaxed"
   >
     <header class="mb-10 flex items-center gap-3">
-      <span
-        class="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-primary/15 text-primary"
-      >
+      <span class="kr-icon-tile">
         <Icon name="kind-icon:shield" class="h-7 w-7" />
       </span>
       <div>

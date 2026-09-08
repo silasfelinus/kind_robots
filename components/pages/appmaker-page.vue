@@ -5,9 +5,7 @@
   <section class="kr-unbound kr-container space-y-6 p-4">
     <header class="flex flex-wrap items-center justify-between gap-3">
       <div class="flex items-center gap-3">
-        <span
-          class="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-primary/15 text-primary"
-        >
+        <span class="kr-icon-tile">
           <Icon name="kind-icon:toolbox" class="h-7 w-7" />
         </span>
         <div>

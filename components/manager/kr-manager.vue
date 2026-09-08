@@ -159,10 +159,7 @@
             <h2 class="text-xl font-black text-primary">
               {{ tabConfig.title }}
             </h2>
-            <p
-              v-if="tabConfig.summary"
-              class="mt-1 text-sm text-base-content/60"
-            >
+            <p v-if="tabConfig.summary" class="kr-text-dim-sm mt-1">
               {{ tabConfig.summary }}
             </p>
           </div>

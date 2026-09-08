@@ -11,7 +11,7 @@
             {{ title }}
           </h2>
 
-          <p class="truncate text-sm text-base-content/60">
+          <p class="kr-text-dim-sm truncate">
             <span class="hidden md:inline">{{ subtitle }}</span>
           </p>
         </div>
@@ -221,7 +221,7 @@
                 {{ selectedScenarioTitle }} Cast
               </h3>
 
-              <p class="truncate text-sm text-base-content/60">
+              <p class="kr-text-dim-sm truncate">
                 Character cards connected to this scenario.
               </p>
             </div>
@@ -370,7 +370,7 @@
                 {{ selectedScenarioTitle }} Cast
               </h3>
 
-              <p class="truncate text-sm text-base-content/60">
+              <p class="kr-text-dim-sm truncate">
                 Character cards connected to this scenario.
               </p>
             </div>

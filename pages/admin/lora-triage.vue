@@ -9,7 +9,7 @@
             Temporary catalog cleanup
           </p>
           <div class="mt-1 text-2xl font-black">LoRA maturity triage</div>
-          <p class="mt-1 max-w-3xl text-sm text-base-content/60">
+          <p class="kr-text-dim-sm mt-1 max-w-3xl">
             Confirm LoRAs as SFW or NSFW here, then save the changed maturity
             flags in one pass. Review progress stays in this browser until this
             cleanup page is removed.
@@ -55,7 +55,7 @@
         <p class="text-xl font-black text-base-content">
           Administrator access required
         </p>
-        <p class="mt-2 text-sm text-base-content/60">
+        <p class="kr-text-dim-sm mt-2">
           LoRA maturity triage is restricted to administrators.
         </p>
       </div>

@@ -94,7 +94,7 @@
             <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div class="min-w-0">
                 <h3 class="font-black text-primary">Connections</h3>
-                <p class="text-sm leading-snug text-base-content/60">
+                <p class="kr-text-dim-sm leading-snug">
                   Provider keys and private local servers.
                 </p>
               </div>
@@ -242,7 +242,7 @@
 
               <p
                 v-if="!localServers.length"
-                class="rounded-2xl border border-dashed border-base-300 p-3 text-sm text-base-content/60"
+                class="kr-text-dim-sm rounded-2xl border border-dashed border-base-300 p-3"
               >
                 No local servers saved yet.
               </p>
@@ -330,7 +330,7 @@
             <div class="flex items-start justify-between gap-3">
               <div class="min-w-0">
                 <h3 class="font-black text-info">Edit Local Server</h3>
-                <p class="text-sm leading-snug text-base-content/60">
+                <p class="kr-text-dim-sm leading-snug">
                   Advanced options for endpoints and health checks.
                 </p>
               </div>

@@ -112,7 +112,7 @@
 
                 <template #fallback>
                   <div
-                    class="rounded-2xl border border-dashed border-base-300 p-4 text-sm text-base-content/60"
+                    class="kr-text-dim-sm rounded-2xl border border-dashed border-base-300 p-4"
                   >
                     Loading workspace...
                   </div>

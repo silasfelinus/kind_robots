@@ -8,7 +8,7 @@
           <icon name="kind-icon:book" class="size-6 text-primary" />
           <h3 class="text-2xl font-black">Coloring Book Production Studio</h3>
         </div>
-        <p class="mt-1 max-w-3xl text-sm text-base-content/60">
+        <p class="kr-text-dim-sm mt-1 max-w-3xl">
           Three canonical books, 108 proposal slots, real Conductor prompts,
           paired art, queue state, and targeted revision requests.
         </p>

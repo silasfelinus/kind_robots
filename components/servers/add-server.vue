@@ -126,9 +126,7 @@
       </section>
 
       <section class="kr-panel-muted-md">
-        <h3
-          class="mb-3 text-sm font-black uppercase tracking-wide text-base-content/60"
-        >
+        <h3 class="kr-text-dim-sm mb-3 font-black uppercase tracking-wide">
           Auth
         </h3>
 
@@ -193,9 +191,7 @@
       </section>
 
       <section class="kr-panel-muted-md">
-        <h3
-          class="mb-3 text-sm font-black uppercase tracking-wide text-base-content/60"
-        >
+        <h3 class="kr-text-dim-sm mb-3 font-black uppercase tracking-wide">
           Visibility
         </h3>
 

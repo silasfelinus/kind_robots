@@ -36,7 +36,7 @@
         class="kr-note kr-note-error p-8 text-center font-normal"
       >
         <p class="text-xl font-black text-base-content">Administrator access required</p>
-        <p class="mt-2 text-sm text-base-content/60">
+        <p class="kr-text-dim-sm mt-2">
           Folder animation can enqueue substantial local GPU work, so this surface is admin-only.
         </p>
       </div>

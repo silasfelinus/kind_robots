@@ -144,7 +144,7 @@
           <div v-else class="py-5">
             <p class="text-lg font-black">No Daily Dreams have landed yet.</p>
             <p
-              class="mt-2 max-w-xl text-sm leading-relaxed text-base-content/60"
+              class="kr-text-dim-sm mt-2 max-w-xl leading-relaxed"
             >
               This space follows the current Daily Dream model. As the backlog is
               built and artwork finishes rendering, each day will appear here with

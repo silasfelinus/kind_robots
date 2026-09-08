@@ -116,7 +116,7 @@
 
                 <p
                   v-if="rewardStore.selectedReward.flavorText"
-                  class="mt-1 text-sm italic text-base-content/60"
+                  class="kr-text-dim-sm mt-1 italic"
                 >
                   "{{ rewardStore.selectedReward.flavorText }}"
                 </p>
@@ -156,7 +156,7 @@
             </div>
           </article>
 
-          <div v-else class="kr-panel-muted-md text-sm text-base-content/60">
+          <div v-else class="kr-text-dim-sm kr-panel-muted-md">
             No reward selected. Head back to the gallery and pick something.
           </div>
         </div>
@@ -367,7 +367,7 @@
         <section class="shrink-0 kr-panel-flat p-4 shadow-md">
           <h2 class="mb-1 text-lg font-bold text-base-content">About You</h2>
 
-          <p class="mb-3 text-sm text-base-content/60">
+          <p class="kr-text-dim-sm mb-3">
             Give the story engine some context about who's holding this thing.
             This stays local to the prompt.
           </p>
@@ -399,7 +399,7 @@
                 <span class="kr-badge-ghost-sm ml-2">Optional</span>
               </h2>
 
-              <p class="mt-0.5 truncate text-sm text-base-content/60">
+              <p class="kr-text-dim-sm mt-0.5 truncate">
                 {{ selectedCharacterSummary }}
               </p>
             </div>

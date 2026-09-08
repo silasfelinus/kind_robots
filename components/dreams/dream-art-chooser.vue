@@ -155,7 +155,7 @@
 
       <div
         v-if="!visibleImages.length"
-        class="kr-panel-muted col-span-full flex min-h-40 flex-col items-center justify-center border-dashed text-center text-sm text-base-content/60"
+        class="kr-text-dim-sm kr-panel-muted col-span-full flex min-h-40 flex-col items-center justify-center border-dashed text-center"
       >
         <Icon name="kind-icon:image" class="h-10 w-10 text-primary/60" />
         <p class="mt-2 font-bold">No art found for this filter.</p>

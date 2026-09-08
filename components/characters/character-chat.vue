@@ -39,9 +39,7 @@
                 {{ selectedCharacterName }}
               </h2>
 
-              <p class="truncate text-sm text-base-content/60">
-                Selected character cockpit.
-              </p>
+              <p class="kr-text-dim-sm truncate">Selected character cockpit.</p>
             </div>
 
             <button

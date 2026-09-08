@@ -122,7 +122,7 @@
             >
               <div
                 v-if="chatMessages.length === 0"
-                class="flex h-full min-h-32 items-center justify-center text-center text-sm text-base-content/60"
+                class="kr-text-dim-sm flex h-full min-h-32 items-center justify-center text-center"
               >
                 No messages yet. The void is listening, but it keeps forgetting
                 its password.

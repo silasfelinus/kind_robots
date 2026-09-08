@@ -10,7 +10,7 @@
         <h2 class="mt-1 text-lg font-black text-primary">
           Build on this contribution
         </h2>
-        <p class="mt-1 text-sm text-base-content/60">
+        <p class="kr-text-dim-sm mt-1">
           Turn a useful Commons contribution into a new canonical Kind Robots
           ArtImage. Existing objects are never overwritten: the finished work
           becomes another contribution in the same thread so people and agents

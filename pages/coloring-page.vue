@@ -22,7 +22,7 @@
             </p>
             <span class="kr-badge-primary-sm font-bold">New</span>
           </div>
-          <p class="max-w-2xl text-sm text-base-content/60">
+          <p class="kr-text-dim-sm max-w-2xl">
             Turn any photo or finished design into a printable black-and-white
             coloring page. Upload an image or pick one from your gallery, choose
             <b class="text-base-content/80">Coloring Page</b> for crisp line art

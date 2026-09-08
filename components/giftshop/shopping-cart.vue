@@ -38,7 +38,7 @@
     >
       <Icon name="kind-icon:cart" class="mx-auto h-10 w-10 text-base-content/35" />
       <p class="mt-3 text-lg font-black text-base-content">Your cart is empty.</p>
-      <p class="mt-1 text-sm text-base-content/60">
+      <p class="kr-text-dim-sm mt-1">
         The butterflies have returned the receipt printer to sleep mode.
       </p>
       <div class="mt-5 flex flex-wrap justify-center gap-2">

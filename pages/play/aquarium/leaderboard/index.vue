@@ -59,7 +59,7 @@
       >
         <Icon name="kind-icon:fish" class="mx-auto size-12 text-primary/40" />
         <h2 class="mt-4 text-2xl font-black uppercase">No ranks yet</h2>
-        <p class="mx-auto mt-2 max-w-xl text-sm text-base-content/60">
+        <p class="kr-text-dim-sm mx-auto mt-2 max-w-xl">
           Nobody with a public tank has collected a species yet.
         </p>
       </div>

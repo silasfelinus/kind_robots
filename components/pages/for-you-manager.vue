@@ -34,7 +34,7 @@
             <h2 class="mt-1 text-xl font-black sm:text-2xl">
               Your attention desk
             </h2>
-            <p class="mt-1 max-w-3xl text-sm text-base-content/60">
+            <p class="kr-text-dim-sm mt-1 max-w-3xl">
               Decisions, proposals, and follow-ups gathered into one human-sized
               place.
             </p>

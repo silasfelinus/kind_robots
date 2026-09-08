@@ -24,7 +24,7 @@
 
     <div
       v-else-if="isBusy"
-      class="flex min-h-28 items-center justify-center gap-3 bg-base-200/50 p-4 text-sm text-base-content/60"
+      class="kr-text-dim-sm flex min-h-28 items-center justify-center gap-3 bg-base-200/50 p-4"
     >
       <span
         class="loading loading-spinner loading-sm motion-reduce:hidden"

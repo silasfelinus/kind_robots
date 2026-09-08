@@ -66,7 +66,7 @@
           {{ card.tagline }}
         </p>
 
-        <p class="line-clamp-2 text-sm leading-relaxed text-base-content/60">
+        <p class="kr-text-dim-sm line-clamp-2 leading-relaxed">
           {{ card.narrative }}
         </p>
       </div>

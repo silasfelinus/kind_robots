@@ -37,7 +37,7 @@
           <!-- Inline, not a second line. The subtitle is orientation text and
                was costing a full row of a 768px-tall screen; `hidden md:inline`
                drops it entirely where the room is tightest. -->
-          <p v-else class="truncate text-sm text-base-content/60">
+          <p v-else class="kr-text-dim-sm truncate">
             <span class="hidden md:inline">{{ subtitle }}</span>
           </p>
         </div>
@@ -216,7 +216,7 @@
                   {{ selectedRewardTitle }}
                 </h3>
 
-                <p class="truncate text-sm text-base-content/60">
+                <p class="kr-text-dim-sm truncate">
                   {{ selectedRewardSubtitle }}
                 </p>
               </div>

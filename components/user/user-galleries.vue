@@ -17,7 +17,7 @@
     >
       <div>
         <p class="text-lg font-black">No user selected.</p>
-        <p class="mt-1 text-sm text-base-content/60">
+        <p class="kr-text-dim-sm mt-1">
           The shelves are waiting for an owner.
         </p>
       </div>
@@ -156,7 +156,7 @@
                 class="kr-panel-flat p-4 text-center"
               >
                 <p class="font-black">No {{ section.label }} yet.</p>
-                <p class="mt-1 text-sm text-base-content/60">
+                <p class="kr-text-dim-sm mt-1">
                   Suspiciously tidy. Possibly goblin-cleaned.
                 </p>
               </div>

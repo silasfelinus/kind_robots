@@ -48,7 +48,7 @@
             :value="manaStore.pct"
             max="100"
           />
-          <div class="flex justify-between text-sm text-base-content/60">
+          <div class="kr-text-dim-sm flex justify-between">
             <span v-if="manaStore.refillReady" class="text-success font-medium">
               Refill ready on next load ✨
             </span>

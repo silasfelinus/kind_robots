@@ -847,7 +847,7 @@
             <h2 class="text-2xl font-black text-base-content">
               Cast the chaos.
             </h2>
-            <p class="mt-2 text-sm text-base-content/60">
+            <p class="kr-text-dim-sm mt-2">
               Pick a stage, cast your performers, and run the show.
             </p>
           </div>

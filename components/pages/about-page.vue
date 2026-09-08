@@ -8,7 +8,7 @@
           <Icon name="kind-icon:robot-color" class="h-8 w-8" />
         </span>
         <p class="text-3xl font-black text-base-content">Kind Robots</p>
-        <p class="max-w-md text-sm text-base-content/60">
+        <p class="kr-text-dim-sm max-w-md">
           A playground where creativity, technology, and goodness collide.
         </p>
       </div>
@@ -93,7 +93,7 @@
           </a>
         </div>
 
-        <p class="mt-4 text-sm text-base-content/60">
+        <p class="kr-text-dim-sm mt-4">
           Interested in supporting the project?
           <a
             href="mailto:kindsponsors@kindrobots.org"

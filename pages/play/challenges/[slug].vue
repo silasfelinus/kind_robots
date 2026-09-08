@@ -422,7 +422,7 @@
           <h2 class="mt-4 text-2xl font-black uppercase">
             Waiting for contenders
           </h2>
-          <p class="mx-auto mt-2 max-w-xl text-sm text-base-content/60">
+          <p class="kr-text-dim-sm mx-auto mt-2 max-w-xl">
             The challenge is live, but no ready submissions have entered the
             arena yet.
           </p>

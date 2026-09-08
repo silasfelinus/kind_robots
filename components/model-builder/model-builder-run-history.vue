@@ -34,7 +34,7 @@
     <div class="min-h-0 flex-1 overflow-y-auto">
       <div
         v-if="store.loadingRuns"
-        class="flex h-full min-h-32 items-center justify-center gap-2 text-sm text-base-content/60"
+        class="kr-text-dim-sm flex h-full min-h-32 items-center justify-center gap-2"
         role="status"
         aria-live="polite"
         aria-busy="true"

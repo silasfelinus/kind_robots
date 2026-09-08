@@ -50,7 +50,7 @@
           class="flex min-h-40 flex-col items-center justify-center gap-2 kr-panel-dashed-tint text-center"
         >
           <span class="text-3xl" aria-hidden="true">🏛️</span>
-          <p class="text-sm font-semibold text-base-content/60">
+          <p class="kr-text-dim-sm font-semibold">
             Select a style to see its story
           </p>
           <p class="text-xs text-base-content/40">

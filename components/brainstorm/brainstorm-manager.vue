@@ -828,7 +828,7 @@
     >
       <p class="text-3xl" aria-hidden="true">✦</p>
       <h3 class="mt-2 text-xl font-black text-base-content">No candidates yet.</h3>
-      <p class="mx-auto mt-2 max-w-2xl text-sm leading-6 text-base-content/60">
+      <p class="kr-text-dim-sm mx-auto mt-2 max-w-2xl leading-6">
         The blank page is currently winning. Give Brainstorm something to push against, then decide which ideas deserve to survive.
       </p>
       <div class="mx-auto mt-5 flex max-w-4xl flex-wrap justify-center gap-2" aria-label="Brainstorm starters">

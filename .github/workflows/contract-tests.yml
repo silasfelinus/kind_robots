@@ -43,6 +43,9 @@ jobs:
       - name: Entity art primary/crop contract
         run: npm run test:entity-art-primary-crop
 
+      - name: ArtJob smart-queue affinity contract
+        run: npm run test:artjob-queue-affinity
+
       - name: GitHub file-read contract
         run: npm run test:github-file-contents
 

@@ -7,8 +7,11 @@
 //
 // Smart queueing is enabled by default. Within the highest-priority tier, the
 // relay prefers a bounded lookahead job whose model-loader affinity matches the
-// last job that relay completed. The bypass cap prevents a busy model family
-// from starving older work indefinitely. Set smartQueue=false for strict FIFO.
+// last job that relay completed, trying an exact match (nothing reloads) before
+// a heavy-model match (same unet, different LoRAs - avoids the 8-12GB swap that
+// actually costs throughput on a 12GB card). The bypass cap prevents a busy
+// model family from starving older work indefinitely. Set smartQueue=false for
+// strict FIFO.
 // The claim itself is an updateMany guarded on the expected status, so two
 // relays can never win the same job — the loser retries another candidate.
 import { createError, defineEventHandler, readBody } from 'h3'
@@ -26,6 +29,7 @@ import {
 } from '../../../utils/artJobProvenance'
 import {
   artJobQueueAffinityKey,
+  artJobQueueModelKey,
   selectSmartQueueCandidate,
 } from '../../../utils/artJobQueueAffinity'
 import { reconcileQueuedArtJobCoverage } from '../../../utils/artJobQueueCoverage'
@@ -168,11 +172,19 @@ export default defineEventHandler(async (event) => {
         })
       : null
 
+    const previousPayload = previousJob
+      ? parseArtJobPayload(previousJob.payload)
+      : null
+
     const preferredAffinity = previousJob
-      ? artJobQueueAffinityKey(
-          previousJob.engine,
-          parseArtJobPayload(previousJob.payload),
-        )
+      ? artJobQueueAffinityKey(previousJob.engine, previousPayload)
+      : null
+
+    // The heavy half of the same key. Matching on it lets a Krea job follow a
+    // Krea job that merely uses a different LoRA, which the full key counts as
+    // a miss - see the second tier in selectSmartQueueCandidate.
+    const preferredModelKey = previousJob
+      ? artJobQueueModelKey(previousJob.engine, previousPayload)
       : null
 
     for (let attempt = 0; attempt < CLAIM_CANDIDATE_TRIES; attempt++) {
@@ -226,6 +238,7 @@ export default defineEventHandler(async (event) => {
         eligible,
         smartQueue ? preferredAffinity : null,
         smartQueue ? SMART_QUEUE_MAX_BYPASS : 0,
+        smartQueue ? preferredModelKey : null,
       )
       const candidate = selection.candidate
 
@@ -335,7 +348,7 @@ export default defineEventHandler(async (event) => {
         return {
           success: true,
           message: selection.affinityMatched
-            ? `Job claimed with model affinity (${selection.bypassedCount} older same-priority job(s) bypassed).`
+            ? `Job claimed with ${selection.matchTier === 'model' ? 'heavy-model' : 'exact'} affinity (${selection.bypassedCount} older same-priority job(s) bypassed).`
             : 'Job claimed.',
           data: {
             job: job ? decodeArtJobPayload(job) : null,
@@ -348,9 +361,12 @@ export default defineEventHandler(async (event) => {
             scheduling: {
               mode: smartQueue ? 'SMART' : 'FIFO',
               affinityMatched: selection.affinityMatched,
+              matchTier: selection.matchTier,
               bypassedCount: selection.bypassedCount,
               preferredAffinity: selection.preferredAffinity,
               selectedAffinity: selection.selectedAffinity,
+              preferredModelKey: selection.preferredModelKey ?? null,
+              selectedModelKey: selection.selectedModelKey ?? null,
             },
           },
           statusCode: 200,

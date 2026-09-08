@@ -176,10 +176,22 @@ function Find-RemoteRoot {
   $candidates = @()
   $candidates += '\\alexandria\pc\ai\models'
   $candidates += '\\ALEXANDRIA\pc\ai\models'
-  # Any mapped network drive that happens to expose the same tree.
+  # Mapped network drives. Ferngrotto maps Z: to \\192.168.7.172\pc, and the
+  # Unraid path /mnt/user/pc/ai/models means share "pc" + subpath ai/models --
+  # so the drive letter ALREADY stands in for the share and the models sit at
+  # Z:\ai\models. The earlier code appended 'pc\ai\models' to the letter,
+  # producing Z:\pc\ai\models, which does not exist; that is why detection
+  # failed on the one box this was written for.
   $mapped = Get-PSDrive -PSProvider FileSystem -ErrorAction SilentlyContinue |
-    Where-Object { $_.DisplayRoot -like '\\*' } | Select-Object -ExpandProperty Root
-  foreach ($m in $mapped) { $candidates += (Join-Path $m 'pc\ai\models'); $candidates += $m }
+    Where-Object { $_.DisplayRoot -like '\\*' }
+  foreach ($m in $mapped) {
+    $candidates += (Join-Path $m.Root 'ai\models')          # share IS the drive
+    $candidates += (Join-Path $m.Root 'pc\ai\models')      # drive is one level above
+  }
+  # And the UNC form directly, for when nothing is mapped.
+  foreach ($m in $mapped) {
+    if ($m.DisplayRoot) { $candidates += (Join-Path $m.DisplayRoot 'ai\models') }
+  }
   foreach ($c in $candidates) {
     if ($c -and (Test-Path -LiteralPath $c -PathType Container)) { return $c }
   }

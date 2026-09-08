@@ -122,8 +122,14 @@ function Test-ModelsDir([string] $Path) {
 # whichever happened to sort first. Ambiguity here is not something to resolve
 # by guessing; the caller resolves it with -Local.
 function Find-LocalRoots {
+  # An explicitly configured root is an ANSWER, not a candidate. Pooling it with
+  # the guesses meant setting COMFYUI_MODELS still tripped the "several roots"
+  # refusal below, which defeats the point of setting it.
+  if ($env:COMFYUI_MODELS -and (Test-ModelsDir $env:COMFYUI_MODELS)) {
+    return @((Resolve-Path -LiteralPath $env:COMFYUI_MODELS).Path)
+  }
+
   $candidates = @()
-  if ($env:COMFYUI_MODELS) { $candidates += $env:COMFYUI_MODELS }
 
   $drives = Get-PSDrive -PSProvider FileSystem -ErrorAction SilentlyContinue |
     Where-Object { $null -ne $_.Free } | Select-Object -ExpandProperty Root
@@ -163,8 +169,11 @@ function Find-LocalRoots {
 }
 
 function Find-RemoteRoot {
+  if ($env:ALEXANDRIA_MODELS -and (Test-Path -LiteralPath $env:ALEXANDRIA_MODELS -PathType Container)) {
+    return $env:ALEXANDRIA_MODELS
+  }
+
   $candidates = @()
-  if ($env:ALEXANDRIA_MODELS) { $candidates += $env:ALEXANDRIA_MODELS }
   $candidates += '\\alexandria\pc\ai\models'
   $candidates += '\\ALEXANDRIA\pc\ai\models'
   # Any mapped network drive that happens to expose the same tree.
@@ -193,7 +202,10 @@ if (-not $Local) {
       Write-Host ("   {0}   ({1} model file(s))" -f $r, $n)
     }
     Write-Host ""
-    Fail "cannot tell which one ComfyUI loads from - re-run with the right one, e.g. -Local $($roots[0])"
+    Write-Host "pass the right one with -Local, or set it once so this never asks again:"
+    Write-Host "  [Environment]::SetEnvironmentVariable('COMFYUI_MODELS','<the right path>','User')"
+    Write-Host ""
+    Fail "several ComfyUI models directories found and none configured"
   }
 }
 if (-not $Local) {

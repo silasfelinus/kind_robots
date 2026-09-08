@@ -67,7 +67,7 @@
               {{ agent.agentId }}
             </span>
             <span
-              class="badge badge-sm rounded-2xl"
+              class="kr-badge-sm rounded-2xl"
               :class="staleness(agent.lastSeenAt).badgeClass"
             >
               {{ staleness(agent.lastSeenAt).label }}

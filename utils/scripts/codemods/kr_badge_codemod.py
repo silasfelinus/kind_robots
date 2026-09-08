@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-"""Find or migrate hand-rolled kr-badge-{ghost,warning,outline,primary,secondary}-sm
-and kr-badge-{ghost,outline,primary,warning,success,error,secondary,accent,info,neutral}-xs
-badges.
+"""Find or migrate hand-rolled kr-badge-{ghost,warning,outline,primary,secondary}-sm,
+kr-badge-{ghost,outline,primary,warning,success,error,secondary,accent,info,neutral}-xs,
+and kr-badge-sm (the colorless base) badges.
 
 Dry-run is the default. Pass --write to update matching Vue files in place.
 Only the approved badge shapes are touched (`badge badge-ghost badge-sm`,
@@ -11,7 +11,9 @@ badge-ghost badge-xs`, `badge badge-outline badge-xs`, `badge badge-primary
 badge-xs`, `badge badge-warning badge-xs`, `badge badge-success badge-xs`,
 `badge badge-error badge-xs`, `badge badge-secondary badge-xs`, `badge
 badge-accent badge-xs`, `badge badge-info badge-xs`, `badge badge-neutral
-badge-xs`), and only in static
+badge-xs`, `badge badge-sm` with no color modifier at all -- the
+dynamically-toned shape whose color comes from a sibling `:class` binding),
+and only in static
 `class="..."` attributes -- never `:class`/`v-bind:class` bindings, and
 regardless of the base tokens' order in the source (`badge-ghost badge-sm`
 counts the same as `badge-sm badge-ghost`). A source that already carries
@@ -24,14 +26,15 @@ resolution order is unaffected by folding the three base tokens into one
 name. This includes a second color modifier (e.g. `badge-outline` alongside
 `badge-primary`) preserved as an "extra" token verbatim -- the same latent
 behavior the ghost/warning/outline families already had for a stray color
-token, not new to this pair.
+token, not new to this pair. The colorless `kr-badge-sm` family is the one
+exception to unrestricted extras: see BOUNDED_EXTRAS below.
 
 FAMILIES is ordered most-specific-first on purpose: each entry's base token
 set differs in its size (sm/xs) and color modifier (ghost/warning/outline/
 primary/secondary), so order among them doesn't matter for correctness here
-(no entry's base set is a subset of another's), but a future plain-size
-family (e.g. a colorless `kr-badge-sm`) would need to come LAST, since its
-smaller base set would be a subset of every colored family's tokens above.
+(no entry's base set is a subset of another's), but the plain-size
+`kr-badge-sm` family comes LAST, since its smaller {badge, badge-sm} base
+set is a subset of every colored -sm family's tokens above it.
 """
 
 from __future__ import annotations
@@ -58,7 +61,28 @@ FAMILIES = [
     ("kr-badge-accent-xs", {"badge", "badge-accent", "badge-xs"}),
     ("kr-badge-info-xs", {"badge", "badge-info", "badge-xs"}),
     ("kr-badge-neutral-xs", {"badge", "badge-neutral", "badge-xs"}),
+    # Colorless base, added last per the module docstring: its {badge,
+    # badge-sm} token set is a strict subset of every colored -sm family
+    # above, so it must be tried only after all of them have had a chance
+    # to match (interface-vision t-104 slice 146). Covers the
+    # dynamically-toned badge shape -- a static `badge badge-sm` (usually
+    # paired with `rounded-2xl` as a preserved "extra" token, matching how
+    # `kr-badge-outline-sm rounded-2xl` etc. already read elsewhere) plus a
+    # per-instance `:class` binding supplying the color.
+    ("kr-badge-sm", {"badge", "badge-sm"}),
 ]
+
+# kr-badge-sm's base token set ({badge, badge-sm}) is small enough to appear
+# inside many unrelated hand-rolled combinations (91 subset-match hits across
+# the repo, most never audited for slice 146). Rather than fold every one of
+# those into this slice, cap it to the two shapes actually surveyed: bare, or
+# with `rounded-2xl` as the sole extra (the dynamically-toned pill badge --
+# color supplied by a sibling `:class` binding -- verified in every one of
+# its 15 call sites). Families not listed here keep the unrestricted
+# subset-match behavior they already had.
+BOUNDED_EXTRAS: dict[str, set[frozenset[str]]] = {
+    "kr-badge-sm": {frozenset(), frozenset({"rounded-2xl"})},
+}
 
 
 def migrate_classes(classes: str, exact_only: bool) -> str | None:
@@ -68,6 +92,9 @@ def migrate_classes(classes: str, exact_only: bool) -> str | None:
             continue
         remaining = [token for token in tokens if token not in base_tokens]
         if exact_only and remaining:
+            continue
+        allowed = BOUNDED_EXTRAS.get(primitive)
+        if allowed is not None and frozenset(remaining) not in allowed:
             continue
         return " ".join([primitive, *remaining])
     return None

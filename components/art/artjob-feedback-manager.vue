@@ -92,7 +92,7 @@
               <div class="flex flex-wrap items-center gap-1.5">
                 <span class="font-mono text-xs font-semibold">#{{ job.id }}</span>
                 <span
-                  class="badge badge-sm rounded-2xl"
+                  class="kr-badge-sm rounded-2xl"
                   :class="verdictClass(humanFeedback(job)?.verdict)"
                 >
                   {{ humanFeedback(job)?.verdict || 'NEEDS REVIEW' }}
@@ -198,7 +198,7 @@
             <div class="flex flex-wrap items-center gap-2">
               <span class="font-semibold">Your saved verdict</span>
               <span
-                class="badge badge-sm rounded-2xl"
+                class="kr-badge-sm rounded-2xl"
                 :class="verdictClass(humanFeedback(job)?.verdict)"
               >
                 {{ humanFeedback(job)?.verdict }}

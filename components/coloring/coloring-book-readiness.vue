@@ -119,7 +119,7 @@
               </p>
               <h5 class="font-black">{{ entry.proposal.title }}</h5>
             </div>
-            <span class="badge badge-sm rounded-2xl" :class="readinessTone(entry.readiness.key)">
+            <span class="kr-badge-sm rounded-2xl" :class="readinessTone(entry.readiness.key)">
               {{ entry.readiness.label }}
             </span>
           </div>

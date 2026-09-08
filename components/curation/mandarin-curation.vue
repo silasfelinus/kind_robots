@@ -224,7 +224,7 @@
                 </td>
                 <td>
                   <span
-                    class="badge badge-sm"
+                    class="kr-badge-sm"
                     :class="
                       row.audioReady
                         ? 'badge-success badge-outline'

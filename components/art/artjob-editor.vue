@@ -282,13 +282,13 @@
                   {{ form.sampler || 'sampler default' }}
                 </span>
                 <span
-                  class="badge badge-sm rounded-2xl"
+                  class="kr-badge-sm rounded-2xl"
                   :class="form.isMature ? 'badge-warning' : 'badge-outline'"
                 >
                   {{ form.isMature ? 'Mature' : 'General' }}
                 </span>
                 <span
-                  class="badge badge-sm rounded-2xl"
+                  class="kr-badge-sm rounded-2xl"
                   :class="
                     form.isPublic
                       ? 'badge-success badge-outline'

@@ -101,13 +101,13 @@
           </div>
 
           <div class="flex flex-wrap gap-1.5 text-xs">
-            <span class="badge badge-sm"
+            <span class="kr-badge-sm"
               >order {{ selectedFacet.sortOrder }}</span
             >
-            <span class="badge badge-sm"
+            <span class="kr-badge-sm"
               >weight {{ selectedFacet.randomWeight }}</span
             >
-            <span v-if="selectedFacet.isRandomizable" class="badge badge-sm">
+            <span v-if="selectedFacet.isRandomizable" class="kr-badge-sm">
               randomizable
             </span>
             <span

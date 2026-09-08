@@ -553,19 +553,19 @@
                       >
                       <span
                         v-else
-                        class="badge badge-sm"
+                        class="kr-badge-sm"
                         :class="kindBadgeClass(selectedProject.kind)"
                         >{{ selectedProject.kind }}</span
                       >
                       <span
                         v-if="selectedProject.conductorStatus"
-                        class="badge badge-sm"
+                        class="kr-badge-sm"
                         :class="lifecycleBadgeClass(selectedProject.conductorStatus)"
                         >{{ selectedProject.conductorStatus }}</span
                       >
                       <span
                         v-if="selectedProject.conductorPriority"
-                        class="badge badge-sm"
+                        class="kr-badge-sm"
                         :class="priorityBadgeClass(selectedProject.conductorPriority)"
                         >{{ selectedProject.conductorPriority }} priority</span
                       >

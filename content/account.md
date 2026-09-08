@@ -18,6 +18,4 @@ backgroundTablet: /api/art/backdrop/account-tablet
 backgroundDesktop: /api/art/backdrop/account-desktop
 ---
 
-:account-settings
-
-:creator-earnings-page
+:account-center

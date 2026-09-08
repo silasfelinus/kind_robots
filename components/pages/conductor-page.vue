@@ -614,7 +614,7 @@
               >
                 Add task / comment
               </h4>
-              <p class="mb-3 mt-1 text-xs text-base-content/40">
+              <p class="kr-text-dim-xs-40 mb-3 mt-1">
                 Agent items are picked up asynchronously by the project worker.
                 Honey-dos stay human-facing; feature ideas stay in this project's wishlist.
               </p>
@@ -766,7 +766,7 @@
               </div>
               <div
                 v-else
-                class="kr-panel-flat border-dashed bg-base-100/50 p-4 text-center text-xs text-base-content/40"
+                class="kr-text-dim-xs-40 kr-panel-flat border-dashed bg-base-100/50 p-4 text-center"
               >
                 <Icon
                   name="kind-icon:dream"
@@ -1132,7 +1132,7 @@
                   </div>
                 </div>
               </div>
-              <p v-else class="text-xs text-base-content/40">
+              <p v-else class="kr-text-dim-xs-40">
                 No feature ideas yet. Add one from the task / comment panel above.
               </p>
             </div>

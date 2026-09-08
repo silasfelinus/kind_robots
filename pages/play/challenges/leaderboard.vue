@@ -178,9 +178,7 @@
             >
               {{ signedScore(entry.score.netScore) }}
             </p>
-            <p
-              class="text-xs font-black uppercase tracking-widest text-base-content/40"
-            >
+            <p class="kr-text-dim-xs-40 font-black uppercase tracking-widest">
               total score
             </p>
             <div class="mt-5 grid grid-cols-3 gap-2 text-sm">

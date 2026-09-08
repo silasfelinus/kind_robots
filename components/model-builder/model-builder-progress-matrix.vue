@@ -84,7 +84,7 @@
         >
           {{ sourceBlurb }}
         </p>
-        <p v-else class="mt-0.5 text-xs italic text-base-content/40">
+        <p v-else class="kr-text-dim-xs-40 mt-0.5 italic">
           No description on this record yet.
         </p>
       </div>

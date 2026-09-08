@@ -23,7 +23,7 @@
     </form>
 
     <p v-if="photoError" class="rounded-xl bg-error/10 p-2 text-xs text-error">{{ photoError }}</p>
-    <p v-if="!superkate.sortedCustomers.length" class="text-xs text-base-content/40">
+    <p v-if="!superkate.sortedCustomers.length" class="kr-text-dim-xs-40">
       No clients yet — add one above, or save an appointment and the client is created automatically.
     </p>
 

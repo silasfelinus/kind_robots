@@ -29,7 +29,7 @@
       </button>
     </div>
 
-    <p v-if="!results.length" class="text-xs text-base-content/40">
+    <p v-if="!results.length" class="kr-text-dim-xs-40">
       {{
         superkate.sortedAppointments.length
           ? 'No appointments match those filters.'

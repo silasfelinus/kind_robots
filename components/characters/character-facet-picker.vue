@@ -78,7 +78,7 @@
           </span>
           <span class="min-w-0 flex-1">
             <span class="block truncate text-sm font-semibold">{{ facet.title }}</span>
-            <span class="block truncate text-xs text-base-content/40">
+            <span class="kr-text-dim-xs-40 block truncate">
               {{ facet.aliases.join(' · ') }}
             </span>
           </span>
@@ -86,7 +86,7 @@
         </button>
         <p
           v-if="!searchResults.length"
-          class="px-3 py-3 text-xs text-base-content/40"
+          class="kr-text-dim-xs-40 px-3 py-3"
         >
           No matching Facet.
         </p>

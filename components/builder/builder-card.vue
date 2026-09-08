@@ -76,7 +76,7 @@
       </p>
 
       <div class="mt-auto flex items-center justify-between gap-2 pt-1">
-        <span class="text-xs font-bold text-base-content/40">
+        <span class="kr-text-dim-xs-40 font-bold">
           {{ card.steps.length }} step{{ card.steps.length === 1 ? '' : 's' }}
         </span>
 

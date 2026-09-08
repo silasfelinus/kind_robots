@@ -49,7 +49,7 @@
           >{{ scaffoldMessage }}</span
         >
       </div>
-      <p class="text-xs text-base-content/40">
+      <p class="kr-text-dim-xs-40">
         The draft loads below for review — nothing is saved or generated until
         you say so.
       </p>

@@ -53,7 +53,7 @@
           <p class="kr-text-dim-sm font-semibold">
             Select a style to see its story
           </p>
-          <p class="text-xs text-base-content/40">
+          <p class="kr-text-dim-xs-40">
             Every remix comes with a free history lesson. We're sneaky like
             that.
           </p>

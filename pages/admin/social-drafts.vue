@@ -140,7 +140,7 @@
                   {{ draft.status }}
                 </span>
               </div>
-              <span class="text-xs text-base-content/40">#{{ draft.id }}</span>
+              <span class="kr-text-dim-xs-40">#{{ draft.id }}</span>
             </div>
 
             <img

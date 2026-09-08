@@ -70,7 +70,7 @@
 
             <template #empty>
               <div
-                class="flex min-h-32 flex-col items-center justify-center rounded-xl border border-dashed border-base-300 p-4 text-center text-xs text-base-content/40"
+                class="kr-text-dim-xs-40 flex min-h-32 flex-col items-center justify-center rounded-xl border border-dashed border-base-300 p-4 text-center"
               >
                 <Icon name="kind-icon:trophy" class="mb-2 h-8 w-8 opacity-30" />
                 No achievements earned yet.

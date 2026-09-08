@@ -114,9 +114,7 @@
       />
 
       <div class="flex items-center justify-between">
-        <span class="text-xs text-base-content/40"
-          >{{ draft.length }} / 4000</span
-        >
+        <span class="kr-text-dim-xs-40">{{ draft.length }} / 4000</span>
         <div class="flex items-center gap-2">
           <button
             type="button"

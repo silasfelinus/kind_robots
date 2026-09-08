@@ -7,7 +7,7 @@
       <div>
         <div class="flex flex-wrap items-center gap-2">
           <span class="badge badge-primary rounded-2xl">Production actions</span>
-          <span class="text-xs font-black uppercase tracking-widest text-base-content/40">
+          <span class="kr-text-dim-xs-40 font-black uppercase tracking-widest">
             {{ book?.title }} · {{ proposal.id }}
           </span>
         </div>

@@ -247,7 +247,7 @@
       Show more
     </button>
 
-    <p v-if="sourceErrorCount" class="text-center text-xs text-base-content/40">
+    <p v-if="sourceErrorCount" class="kr-text-dim-xs-40 text-center">
       {{ sourceErrorCount }} source{{ sourceErrorCount === 1 ? '' : 's' }}
       couldn't be reached this refresh — showing what did load.
     </p>

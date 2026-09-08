@@ -243,7 +243,7 @@
             </div>
           </div>
 
-          <p class="mt-auto text-xs text-base-content/40">
+          <p class="kr-text-dim-xs-40 mt-auto">
             Tap a region to fill it with the selected color. Everything saves
             locally as you go.
           </p>

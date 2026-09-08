@@ -52,7 +52,7 @@
       >
       <span
         v-if="showRelativeTime"
-        class="shrink-0 text-xs text-base-content/40"
+        class="kr-text-dim-xs-40 shrink-0"
         >{{ relativeTime(todo.createdAt) }}</span
       >
       <div

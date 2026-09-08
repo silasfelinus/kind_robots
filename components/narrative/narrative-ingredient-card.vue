@@ -2,11 +2,11 @@
 <template>
   <button
     type="button"
-    class="group relative flex min-h-32 w-full overflow-hidden rounded-2xl border text-left shadow-sm transition hover:-translate-y-0.5 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary/70 disabled:cursor-not-allowed disabled:opacity-50 motion-reduce:transform-none motion-reduce:transition-none"
+    class="group relative flex aspect-[2/3] min-h-56 w-full flex-col overflow-hidden rounded-[1.5rem] border text-left shadow-md transition hover:-translate-y-1 hover:shadow-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary/70 disabled:cursor-not-allowed disabled:opacity-50 motion-reduce:transform-none motion-reduce:transition-none"
     :class="
       selected
-        ? 'border-secondary bg-secondary/10 ring-1 ring-secondary/40'
-        : 'border-base-300 bg-base-100 hover:border-secondary/40'
+        ? 'border-secondary ring-2 ring-secondary/45'
+        : 'border-base-300 bg-base-100 hover:border-secondary/45'
     "
     :aria-pressed="selected"
     :aria-label="`${selected ? 'Selected' : 'Select'} ${item.title}`"
@@ -14,50 +14,57 @@
     :disabled="disabled"
     @click="emit('select', item.slug)"
   >
-    <span
-      class="relative flex w-28 shrink-0 items-center justify-center overflow-hidden bg-base-200 sm:w-32"
-      aria-hidden="true"
-    >
+    <span class="absolute inset-0 bg-base-200" aria-hidden="true">
       <img
         v-if="artwork"
         :src="artwork"
         alt=""
-        class="absolute inset-0 size-full object-cover transition duration-300 group-hover:scale-105 motion-reduce:transform-none motion-reduce:transition-none"
-      />
-      <Icon
-        v-else
-        :name="item.icon || 'kind-icon:tag'"
-        class="size-8 text-base-content/35"
+        class="size-full object-cover transition duration-300 group-hover:scale-105 motion-reduce:transform-none motion-reduce:transition-none"
       />
       <span
-        v-if="item.badge"
-        class="badge badge-sm absolute left-2 top-2 max-w-[calc(100%_-_1rem)] truncate rounded-xl border-base-100/60 bg-base-100/90 text-[0.65rem] font-bold shadow-sm"
+        v-else
+        class="flex size-full items-center justify-center bg-linear-to-br from-base-200 to-base-300"
       >
-        {{ item.badge }}
+        <Icon
+          :name="item.icon || 'kind-icon:tag'"
+          class="size-12 text-base-content/30"
+        />
       </span>
     </span>
 
-    <span class="flex min-w-0 flex-1 flex-col justify-center gap-1.5 p-3">
-      <span class="flex items-start gap-2">
-        <span class="min-w-0 flex-1 truncate text-sm font-black">
-          {{ item.title }}
-        </span>
-        <Icon
-          v-if="selected"
-          name="kind-icon:check"
-          class="mt-0.5 size-4 shrink-0 text-secondary"
-          aria-hidden="true"
-        />
+    <span
+      class="absolute inset-0 bg-linear-to-t from-black/90 via-black/15 to-transparent"
+      aria-hidden="true"
+    />
+
+    <span
+      v-if="item.badge"
+      class="badge badge-sm absolute left-2 top-2 z-10 max-w-[calc(100%_-_3.25rem)] truncate rounded-xl border-white/30 bg-black/55 text-[0.62rem] font-bold text-white shadow backdrop-blur"
+    >
+      {{ item.badge }}
+    </span>
+
+    <span
+      v-if="selected"
+      class="absolute right-2 top-2 z-10 flex size-8 items-center justify-center rounded-full bg-secondary text-secondary-content shadow-lg"
+      aria-hidden="true"
+    >
+      <Icon name="kind-icon:check" class="size-4" />
+    </span>
+
+    <span class="relative z-10 mt-auto flex min-w-0 flex-col gap-1.5 p-3 text-white">
+      <span class="text-sm font-black leading-tight sm:text-base">
+        {{ item.title }}
       </span>
       <span
         v-if="summary"
         :id="descriptionId"
-        class="line-clamp-3 text-xs leading-relaxed text-base-content/60"
+        class="line-clamp-3 text-[0.7rem] leading-relaxed text-white/75"
       >
         {{ summary }}
       </span>
-      <span v-else :id="descriptionId" class="text-xs text-base-content/35">
-        Add this ingredient to the narrative.
+      <span v-else :id="descriptionId" class="text-[0.7rem] text-white/60">
+        Add this ingredient to the story.
       </span>
     </span>
   </button>

@@ -205,7 +205,10 @@
     </section>
 
     <div class="min-h-0 flex-1 overflow-hidden">
-      <StorybookPage />
+      <StorybookVisualSetup v-if="!storyStore.session" />
+      <div v-show="storyStore.session" class="size-full">
+        <StorybookPage />
+      </div>
     </div>
   </section>
 </template>
@@ -223,21 +226,6 @@ const libraryOpen = ref(false)
 const restartArmed = ref(false)
 const newStoryArmed = ref(false)
 
-// storybook-page.vue's seedFromQuery() (child, mounted first) treats these as
-// one-shot: it consumes them into the setup draft, then strips them with its
-// own router.replace() so a reload, bookmark, or share never silently re-adds
-// the ingredient. That replace() races this component's own onMounted
-// (parent, mounted second, same synchronous tick) whenever it also calls
-// updateStoryQuery() -- e.g. arriving at `/storybook?character=<slug>` while
-// a previous session is still active in localStorage, exactly the case
-// seedFromQuery's own comment describes ("a link never destroys a story
-// someone was already assembling"). Neither router.replace() has resolved
-// when the second one is built, so updateStoryQuery()'s `{ ...route.query }`
-// still carries the stale, not-yet-stripped ingredient key, and its
-// navigation -- issued after seedFromQuery's -- wins: the ingredient key
-// resurfaces in the URL alongside `story=`, undoing the one-shot consumption
-// seedFromQuery just performed. Stripping these keys here too, on every query
-// rewrite this component makes, closes the race regardless of ordering.
 const SEED_QUERY_KEYS = new Set([
   'scenario',
   'location',
@@ -309,15 +297,6 @@ function downloadStory(
   if (payload) triggerDownload(payload)
 }
 
-// The Export menu used to be a native <details>/<summary> dropdown, the only
-// one in the codebase built that way -- every sibling dropdown (channel-select
-// .vue, tab-select.vue, watchlist-browse.vue) is the focus-based
-// `.dropdown`/`.dropdown-content` pair instead, which channel-select.vue
-// explicitly closes on selection via its own closeDropdown() (blurring
-// document.activeElement). <details> has no such behavior: clicking an item
-// inside it does not close the menu, so after switching to the same
-// focus-based pattern here, closing on click still needs to be wired up by
-// hand -- this mirrors that one closeDropdown() helper.
 function closeExportMenu(): void {
   if (typeof document === 'undefined') return
   const element = document.activeElement as HTMLElement | null
@@ -350,15 +329,6 @@ function formatStoryDate(value: string): string {
 watch(
   () => storyStore.session?.id ?? null,
   (sessionId) => {
-    // A "Restart from the beginning?" / "Discard this tale?" arm is a
-    // confirmation for THIS session, not a standing state. Opening a
-    // different story, duplicating, restarting, or starting a new one all
-    // swap the active session out from under an armed-but-unconfirmed
-    // button -- without this reset, the next session renders straight into
-    // the armed, warning-colored button (never the plain "Restart"/"New
-    // story" one), so a single click that looks like a first press instead
-    // fires the destructive action immediately, with no confirmation ever
-    // given for the story actually on screen.
     restartArmed.value = false
     newStoryArmed.value = false
     if (sessionId !== queryStoryId()) updateStoryQuery(sessionId)
@@ -377,21 +347,6 @@ onMounted(() => {
   storyStore.restoreFromLocalStorage()
   storyStore.initializeLibrary()
   const directId = queryStoryId()
-  // Only call openStory() when it would actually SWITCH sessions. On a plain
-  // reload mid-story, restoreFromLocalStorage() above already restored the
-  // live session, and updateStoryQuery() keeps ?story= in sync with it while
-  // playing -- so directId equals storyStore.session.id on every ordinary
-  // refresh, not just some rare cross-story navigation. Calling openStory()
-  // anyway re-clones the just-restored session and, critically, invokes
-  // resumeNarrativeArtJobs() a SECOND time on top of the one
-  // restoreFromLocalStorage() already performed. For any beat whose art job
-  // enqueue never reached the server before the reload (status still
-  // 'queueing', no jobId yet -- a real window between the optimistic status
-  // update and the resolved POST), both resume() calls independently find no
-  // existing job and independently submit one, generating and billing two
-  // illustrations for a single beat. The watcher below already guards the
-  // same call this way (`value === storyStore.session?.id`); mount just
-  // never matched it.
   if (directId && directId !== storyStore.session?.id) {
     storyStore.openStory(directId)
   }

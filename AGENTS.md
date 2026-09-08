@@ -60,6 +60,25 @@ MariaDB. Production is served at `https://kindrobots.org` through the current co
 - When returning code in chat, return complete copy-paste-ready files or sections — never
   placeholders or ellipses. In-repo, normal targeted edits are fine.
 
+## Art-first interface standard
+
+Kind Robots is an **art-focused website**. Outside settings, administration, diagnostics,
+and similarly utilitarian screens, a feature is not finished merely because every field,
+button, or data object is technically reachable.
+
+- Prefer image-led cards, galleries, canvases, stages, decks, maps, timelines, and other
+  visual interaction surfaces over text-and-button control panels.
+- When a user chooses a Character, Dream, Scenario, Facet, Reward, artwork, or other entity
+  that has art, the art is a primary part of the choice. Do not reduce it to a tiny thumbnail
+  beside a form row unless dense utility UI genuinely requires that treatment.
+- Creative setup flows should feel open and compositional. Avoid wizard/tab proliferation
+  when the choices can coexist coherently on one visual surface.
+- Empty art is a product problem, not permission to design a permanently text-first card.
+  Use the shared art fallback while preserving an image-shaped slot, and wire real entity art
+  whenever the model provides it.
+- Settings-style UI is appropriate for settings. A creative product surface should look and
+  feel designed before it is sent to Silas for visual acceptance.
+
 ## Database — standing rules from Silas (2026-07-02)
 
 The database holds real data.

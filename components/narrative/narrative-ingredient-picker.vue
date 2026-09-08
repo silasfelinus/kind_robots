@@ -1,7 +1,7 @@
 <!-- /components/narrative/narrative-ingredient-picker.vue -->
 <template>
   <section
-    class="kr-panel-flat space-y-3 p-3"
+    class="space-y-3 rounded-[1.75rem] border border-base-300 bg-base-100/85 p-4 shadow-sm"
     role="group"
     :aria-labelledby="headingId"
     :aria-describedby="helper ? helperId : undefined"
@@ -9,16 +9,13 @@
   >
     <div class="flex flex-wrap items-start gap-2">
       <div class="min-w-0 flex-1">
-        <h3
-          :id="headingId"
-          class="text-xs font-bold uppercase tracking-wide text-base-content/55"
-        >
+        <h3 :id="headingId" class="text-lg font-black">
           {{ label }}
         </h3>
         <p
           v-if="helper"
           :id="helperId"
-          class="mt-1 text-xs leading-relaxed text-base-content/45"
+          class="mt-1 max-w-3xl text-xs leading-relaxed text-base-content/50"
         >
           {{ helper }}
         </p>
@@ -28,18 +25,14 @@
         class="loading loading-spinner loading-sm motion-reduce:hidden"
         aria-hidden="true"
       />
-      <span
-        v-else
-        class="kr-badge-ghost-sm rounded-xl"
-        aria-live="polite"
-      >
+      <span v-else class="kr-badge-ghost-sm rounded-xl" aria-live="polite">
         {{ items.length }} options
       </span>
     </div>
 
     <label
       v-if="searchVisible"
-      class="kr-input-sm flex w-full items-center gap-2 bg-base-100"
+      class="kr-input-sm flex w-full max-w-xl items-center gap-2 bg-base-100"
     >
       <Icon
         name="kind-icon:search"
@@ -59,7 +52,7 @@
     <p
       v-if="query.trim() && !filteredItems.length"
       role="status"
-      class="kr-panel-flat border-dashed rounded-xl bg-base-100/60 px-3 py-2 text-xs text-base-content/45"
+      class="rounded-xl border border-dashed border-base-300 bg-base-100/60 px-3 py-2 text-xs text-base-content/45"
     >
       No matching {{ label.toLowerCase() }}. Clear the search or leave the
       narrator free to choose.
@@ -81,7 +74,7 @@
     <div
       v-else-if="loading"
       role="status"
-      class="flex min-h-32 items-center justify-center kr-panel-flat border-dashed bg-base-100/60"
+      class="flex min-h-56 items-center justify-center rounded-2xl border border-dashed border-base-300 bg-base-100/60"
     >
       <span
         class="loading loading-dots loading-md text-secondary motion-reduce:hidden"
@@ -93,23 +86,23 @@
     <div
       v-else-if="!items.length"
       role="status"
-      class="kr-panel-flat border-dashed bg-base-100/60 p-4 text-center text-xs text-base-content/50"
+      class="rounded-2xl border border-dashed border-base-300 bg-base-100/60 p-5 text-center text-xs text-base-content/50"
     >
       {{ emptyState }}
     </div>
 
     <div
       v-else
-      class="grid grid-cols-[repeat(auto-fit,minmax(min(100%,20rem),1fr))] gap-2"
+      class="grid grid-cols-[repeat(auto-fit,minmax(min(100%,10rem),1fr))] gap-3"
     >
       <button
         v-if="allowEmpty"
         type="button"
-        class="flex min-h-32 w-full overflow-hidden rounded-2xl border text-left shadow-sm transition hover:-translate-y-0.5 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary/70 disabled:cursor-not-allowed disabled:opacity-50 motion-reduce:transform-none motion-reduce:transition-none"
+        class="group relative aspect-[2/3] min-h-56 overflow-hidden rounded-[1.5rem] border text-left shadow-md transition hover:-translate-y-1 hover:shadow-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary/70 disabled:cursor-not-allowed disabled:opacity-50 motion-reduce:transform-none motion-reduce:transition-none"
         :class="
           modelValue === null
-            ? 'border-secondary bg-secondary/10 ring-1 ring-secondary/40'
-            : 'border-base-300 bg-base-100 hover:border-secondary/40'
+            ? 'border-secondary ring-2 ring-secondary/45'
+            : 'border-base-300 bg-base-200'
         "
         :aria-pressed="modelValue === null"
         :aria-label="`${modelValue === null ? 'Selected' : 'Select'} ${emptyLabel}`"
@@ -118,26 +111,29 @@
         @click="select(null)"
       >
         <span
-          class="flex w-28 shrink-0 items-center justify-center bg-base-200 sm:w-32"
+          class="absolute inset-0 flex items-center justify-center bg-linear-to-br from-base-200 via-base-300 to-primary/20"
           aria-hidden="true"
         >
-          <Icon :name="emptyIcon" class="size-8 text-base-content/35" />
+          <Icon :name="emptyIcon" class="size-14 text-base-content/25" />
         </span>
-        <span class="flex min-w-0 flex-1 flex-col justify-center gap-1.5 p-3">
-          <span class="flex items-start gap-2">
-            <span class="min-w-0 flex-1 truncate text-sm font-black">
-              {{ emptyLabel }}
-            </span>
-            <Icon
-              v-if="modelValue === null"
-              name="kind-icon:check"
-              class="mt-0.5 size-4 shrink-0 text-secondary"
-              aria-hidden="true"
-            />
+        <span
+          class="absolute inset-0 bg-linear-to-t from-black/85 via-black/10 to-transparent"
+          aria-hidden="true"
+        />
+        <span
+          v-if="modelValue === null"
+          class="absolute right-2 top-2 flex size-8 items-center justify-center rounded-full bg-secondary text-secondary-content shadow"
+          aria-hidden="true"
+        >
+          <Icon name="kind-icon:check" class="size-4" />
+        </span>
+        <span class="absolute inset-x-0 bottom-0 p-3 text-white">
+          <span class="block text-sm font-black sm:text-base">
+            {{ emptyLabel }}
           </span>
           <span
             :id="emptyDescriptionId"
-            class="text-xs leading-relaxed text-base-content/55"
+            class="mt-1 block text-[0.7rem] leading-relaxed text-white/70"
           >
             {{ emptyDescription }}
           </span>
@@ -157,7 +153,7 @@
     <div v-if="showToggle" class="flex justify-center">
       <button
         type="button"
-        class="btn btn-ghost btn-sm rounded-xl border border-base-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary/70 motion-reduce:transform-none motion-reduce:transition-none"
+        class="btn btn-ghost btn-sm rounded-xl border border-base-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary/70 motion-reduce:transition-none"
         :disabled="disabled"
         :aria-expanded="expanded"
         @click="expanded = !expanded"
@@ -243,12 +239,6 @@ const showToggle = computed(
     filteredItems.value.length > Math.max(1, props.initialLimit),
 )
 
-/* The search box only renders while the list is longer than the initial
-   limit. The option lists are store-derived (browseCharacters, the Dream and
-   Reward stores' active filters) and can shrink after a query has been typed
-   -- when that happens the box disappears but the query kept filtering, so
-   the reader was left staring at "No matching characters. Clear the search"
-   with no search left to clear. Drop the query the moment its input goes. */
 const searchVisible = computed(
   () => props.items.length > Math.max(1, props.initialLimit),
 )
@@ -260,13 +250,6 @@ watch(
   },
 )
 
-/* modelValue can arrive already set to a pick from an earlier session --
-   Storybook's setupDraft persists to localStorage and restores it. If that
-   pick sorts beyond the initial collapsed slice, the picker would render
-   collapsed with no card showing as selected at all, and nothing on screen
-   would say a choice was already made. Auto-expand to reveal it; this only
-   ever turns expanded on, never off, so it never fights a manual toggle or
-   the reset above. */
 watch(
   () => [props.items, props.modelValue] as const,
   ([items, value]) => {

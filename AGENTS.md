@@ -75,6 +75,36 @@ The database holds real data.
   `prisma migrate resolve --applied <name>`. Explain what happened.
 - Prefer API writes over raw SQL when a route already exists.
 
+## Commands you hand a human start from a fresh window
+
+Every command block written for Silas to run is copied into a shell you know nothing
+about — a new PowerShell window, a fresh ssh session, a terminal that has been sitting
+open on some other directory since yesterday. It is NOT a continuation of the block you
+wrote three messages ago, and it is not a continuation of the one you wrote in the same
+message either, because the useful ones get copied one at a time.
+
+So every block is self-contained. Include the `cd`. Include the `git pull` if the block
+needs code that was just pushed. Never open with `.\scripts\thing.ps1` or
+`./scripts/thing.sh` and leave the working directory implied.
+
+    # wrong -- fails from anywhere but the one directory you were picturing
+    .\scripts\sync-comfy-models.ps1 -Tier core -Yes
+
+    # right
+    cd D:\code\kind_robots
+    git pull
+    .\scripts\sync-comfy-models.ps1 -Local D:\comfy\comfy-fast\models -Tier core -Yes
+
+Silas, 2026-09-08, after this cost him two rounds: *"if I ran your commands 'from
+ferngrotto' they would fail ... I'm missing a cd and git pull at minimum"*, and again:
+*"don't assume that I'm going to be running commands immediately after the last message
+from the same window."*
+
+The same rule covers paths: write them for the shell he is actually in. `/d/code/...` is
+Git Bash and means nothing to PowerShell, which resolves it against the current drive and
+looks for `D:\d\code\...`. When the shell is unknown, ask or give the PowerShell form,
+since Ferngrotto is Windows.
+
 ## Self-hosted production — merge is not deploy
 
 Production is Alexandria/Unraid. A GitHub merge, a green workflow, and a published GHCR

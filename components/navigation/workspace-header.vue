@@ -14,6 +14,15 @@
   (see account-hub.vue for the inventory) and the horizontal tab strip became a
   dropdown hanging off its own title (see tab-select.vue).
 
+  FIVE, as of 2026-09-08. Silas asked for a Memory Dungeon link "on the
+  dashboard next to the tutorial and account manager links", and this cluster is
+  the only place those two sit side by side. It is a deliberate exception to the
+  rule above, not an oversight: the game is one of his oldest projects and he
+  wants it one click from anywhere. It obeys the constraint that actually
+  matters here -- a fixed-width square icon that never grows -- so it costs the
+  row nothing. It sits BEFORE the workspace toggle, because that one is
+  documented below as the last icon in the row and stays that way.
+
   WHAT THIS DELETES, and why none of it is missed
   ----------------------------------------------
   The strip took a scrolling viewport, two chevron scrollers, a map-icon
@@ -216,6 +225,39 @@
       <account-hub class="header-account shrink-0" />
 
       <!--
+        MEMORY DUNGEON. Silas, 2026-09-08: "I'm really proud of my memory match
+        game, it was one of my first projects and still one that I occasionally
+        return to. I want a link for it on the dashboard next to the tutorial
+        and account manager links."
+
+        A NuxtLink rather than a button because it is navigation, so it gets
+        middle-click, cmd-click and a real href for free. Square and
+        fixed-width, matching the toggle beside it -- see the note at the top of
+        this file about nothing in this row being allowed to grow.
+
+        The icon is the one the page declares for itself
+        (content/play/memory.md, `icon: kind-icon:brain`), so the button and the
+        page it opens agree; the route is that file's own path. The same game
+        also has a nav card in the footer deck (dashboardHelper.ts, the `games`
+        tab, which uses kind-icon:castle); this is a shortcut to it, not a
+        replacement.
+      -->
+      <NuxtLink
+        to="/play/memory"
+        class="btn btn-ghost btn-sm btn-square shrink-0 rounded-xl border border-base-300"
+        :class="
+          memoryActive
+            ? 'border-primary bg-primary/15 text-primary'
+            : 'bg-base-100'
+        "
+        :aria-current="memoryActive ? 'page' : undefined"
+        aria-label="Memory Dungeon"
+        title="Memory Dungeon"
+      >
+        <Icon name="kind-icon:brain" class="h-5 w-5" />
+      </NuxtLink>
+
+      <!--
         FAR RIGHT, per Silas, and the last icon standing in this row.
 
         It is the WORKSPACE toggle -- the workspace sheet is what carries the
@@ -322,6 +364,11 @@ const workspaceSheetOpen = computed(() => navStore.workspaceSheetOpen)
 const workspaceToggleLabel = computed(() =>
   workspaceSheetOpen.value ? 'Close workspace' : 'Open workspace',
 )
+
+// Lit when you are already in the dungeon, matching how the workspace toggle
+// shows its own open state. startsWith rather than an equality check because
+// the game's deeper routes (a level, a run) should keep the button lit too.
+const memoryActive = computed(() => route.path.startsWith('/play/memory'))
 
 const activeTabKey = computed(() => {
   const channel = resolvedChannel.value

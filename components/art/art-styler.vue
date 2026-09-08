@@ -506,9 +506,7 @@
         />
 
         <div class="flex items-center gap-2">
-          <label
-            class="label cursor-pointer gap-2 rounded-lg border border-base-300 bg-base-200 px-2 py-1.5"
-          >
+          <label class="kr-toggle-row-xs">
             <input
               v-model="useNegative"
               type="checkbox"
@@ -519,9 +517,7 @@
               Inherit negative prompt
             </span>
           </label>
-          <label
-            class="label cursor-pointer gap-2 rounded-lg border border-base-300 bg-base-200 px-2 py-1.5"
-          >
+          <label class="kr-toggle-row-xs">
             <input
               v-model="isPublic"
               type="checkbox"

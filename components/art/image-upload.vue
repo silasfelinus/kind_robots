@@ -296,9 +296,7 @@
 
           <!-- Flag toggles -->
           <div class="mt-3 flex flex-wrap gap-2">
-            <label
-              class="label cursor-pointer gap-2 rounded-xl border border-base-300 bg-base-200 px-3 py-2"
-            >
+            <label class="kr-toggle-row-compact">
               <input
                 v-model="imageForm.cfgHalf"
                 type="checkbox"
@@ -307,9 +305,7 @@
               />
               <span class="label-text text-xs font-semibold">CFG + 0.5</span>
             </label>
-            <label
-              class="label cursor-pointer gap-2 rounded-xl border border-base-300 bg-base-200 px-3 py-2"
-            >
+            <label class="kr-toggle-row-compact">
               <input
                 v-model="imageForm.isPublic"
                 type="checkbox"
@@ -318,9 +314,7 @@
               />
               <span class="label-text text-xs font-semibold">Public</span>
             </label>
-            <label
-              class="label cursor-pointer gap-2 rounded-xl border border-base-300 bg-base-200 px-3 py-2"
-            >
+            <label class="kr-toggle-row-compact">
               <input
                 v-model="imageForm.isMature"
                 type="checkbox"

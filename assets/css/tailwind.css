@@ -762,6 +762,36 @@ section:has(div[class*='xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]'])
     @apply label cursor-pointer justify-between rounded-2xl border border-base-300 bg-base-200 px-3 py-2;
   }
 
+  /* .kr-toggle-row-sm's own bg-base-200/px-3-py-2 shape at .kr-panel-
+   * compact's tighter rounded-xl radius instead of rounded-2xl, with a
+   * `gap-2` label layout instead of `justify-between` (interface-vision
+   * t-104 slice 145) -- these three checkbox toggles sit close to their own
+   * label text rather than spread to the row's far edge. Previously
+   * hand-rolled identically across 3 occurrences in image-upload.vue
+   * (CFG + 0.5 / Public / Mature flag toggles). */
+  .kr-toggle-row-compact {
+    @apply label cursor-pointer gap-2 rounded-xl border border-base-300 bg-base-200 px-3 py-2;
+  }
+
+  /* .kr-toggle-row-compact's own shape one radius/padding step tighter still
+   * (interface-vision t-104 slice 145) -- `rounded-lg`/`px-2 py-1.5` instead
+   * of `rounded-xl`/`px-3 py-2`, otherwise identical (bg-base-200, `gap-2`
+   * label layout). Previously hand-rolled identically across 2 occurrences
+   * in art-styler.vue (inherit-negative-prompt / public toggles). */
+  .kr-toggle-row-xs {
+    @apply label cursor-pointer gap-2 rounded-lg border border-base-300 bg-base-200 px-2 py-1.5;
+  }
+
+  /* .kr-toggle-row-compact's own rounded-xl/px-3-py-2 shape on the "plain"
+   * base-100 background instead of base-200, with the `justify-between`
+   * label layout .kr-toggle-row/-sm use (interface-vision t-104 slice 145)
+   * -- the base-100 counterpart these two rounded-2xl variants never covered.
+   * Previously hand-rolled identically across 2 occurrences in
+   * art-interact.vue (Public / Mature toggles). */
+  .kr-toggle-row-plain {
+    @apply label cursor-pointer justify-between rounded-xl border border-base-300 bg-base-100 px-3 py-2;
+  }
+
   /* Larger-radius page-section surface: coloring-book studio panels and
    * conductor-app project pages. Approved by Silas (interface-vision/t-123)
    * as the named primitive for the previously hand-rolled

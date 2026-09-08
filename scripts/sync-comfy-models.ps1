@@ -266,19 +266,31 @@ foreach ($line in $Manifest) {
   $dest = Join-Path $Local (Join-Path $subdir $relWin)
 
   $src = $null
-  # The share mirrors ComfyUI's own layout, so the file is under the CATEGORY
-  # directory: Z:\ai\models\unet\Krea-2-Turbo-Q5_K_S.gguf, not
-  # Z:\ai\models\Krea-2-Turbo-Q5_K_S.gguf. Omitting $subdir here made every
-  # literal lookup miss, which sent the very first file into a full recursive
-  # crawl of a 200 GB+ SMB share before a single byte was copied -- it read as
-  # a hang. Both forms are tried, the layout-mirroring one first.
-  $literal = Join-Path $Remote (Join-Path $subdir $relWin)
-  $flat = Join-Path $Remote $relWin
-  if (Test-Path -LiteralPath $literal -PathType Leaf) {
-    $src = Get-Item -LiteralPath $literal
-  } elseif (Test-Path -LiteralPath $flat -PathType Leaf) {
-    $src = Get-Item -LiteralPath $flat
-  } else {
+  # Where to look on the share, in order. The share mirrors ComfyUI's own
+  # layout, but a category can live under SEVERAL folder names -- Ferngrotto's
+  # extra_model_paths.yaml maps clip to both models/clip AND
+  # models/text_encoders, and the Qwen3-VL encoder is in the latter. Checking
+  # only the manifest's own category name meant that file missed and dropped
+  # into the lazy fallback: a full recursive listing of a 200 GB+ SMB share,
+  # which reads as a hang. These aliases mirror that yaml.
+  $aliases = @{
+    unet        = @('unet', 'diffusion_models', 'Flux')
+    clip        = @('clip', 'text_encoders')
+    vae         = @('vae', 'VAE')
+    checkpoints = @('checkpoints', 'Stable-diffusion', 'SDXL', 'Flux')
+    loras       = @('loras', 'Lora', 'LyCORIS')
+  }
+  $probe = @()
+  foreach ($a in ($aliases[$subdir] + @($subdir) | Select-Object -Unique)) {
+    if ($a) { $probe += (Join-Path $Remote (Join-Path $a $relWin)) }
+  }
+  $probe += (Join-Path $Remote $relWin)   # a flat share, as a last literal try
+
+  $src = $null
+  foreach ($cand in $probe) {
+    if (Test-Path -LiteralPath $cand -PathType Leaf) { $src = Get-Item -LiteralPath $cand; break }
+  }
+  if (-not $src) {
     $idx = Get-RemoteIndex
     if ($idx.ContainsKey($leaf)) { $src = $idx[$leaf] }
   }

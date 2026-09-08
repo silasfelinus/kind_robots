@@ -872,7 +872,7 @@
                     <p class="break-words text-sm font-semibold leading-snug">
                       {{ milestone.title }}
                     </p>
-                    <p class="text-xs text-base-content/50">
+                    <p class="kr-text-dim-xs">
                       weight {{ milestone.weight }}
                       <span v-if="milestoneTaskCounts.get(milestone.id)?.total"
                         >&middot;

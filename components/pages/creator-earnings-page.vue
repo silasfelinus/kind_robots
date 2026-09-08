@@ -139,7 +139,7 @@
                     <p class="truncate text-sm font-black text-base-content">
                       {{ group.title }}
                     </p>
-                    <p class="text-xs text-base-content/50">
+                    <p class="kr-text-dim-xs">
                       {{ sourceTypeLabel(group.sourceType) }}
                     </p>
                   </div>
@@ -152,10 +152,7 @@
                 <p class="text-xl font-black text-primary tabular-nums">
                   {{ formatUsdCents(group.totalCents) }}
                 </p>
-                <p
-                  v-if="group.selfAttributedCents > 0"
-                  class="text-xs text-base-content/50"
-                >
+                <p v-if="group.selfAttributedCents > 0" class="kr-text-dim-xs">
                   +
                   {{ formatUsdCents(group.selfAttributedCents) }} self-generated
                   (not counted above)

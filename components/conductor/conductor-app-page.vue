@@ -42,7 +42,7 @@
             {{ task.title }}
           </li>
         </ul>
-        <p class="text-xs text-base-content/50">
+        <p class="kr-text-dim-xs">
           Not on the App Store or Play Store yet — store readiness is its own
           tracked task before any submission.
         </p>

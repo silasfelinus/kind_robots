@@ -103,7 +103,7 @@
 
             <span
               v-if="gameStarted && !gameOver"
-              class="text-xs text-base-content/50"
+              class="kr-text-dim-xs"
             >
               Changes apply when you restart.
             </span>

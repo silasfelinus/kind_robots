@@ -80,7 +80,7 @@
                 </div>
                 <div class="min-w-0">
                   <div class="truncate font-semibold">{{ u.username }}</div>
-                  <div class="text-xs text-base-content/50">#{{ u.id }}</div>
+                  <div class="kr-text-dim-xs">#{{ u.id }}</div>
                 </div>
               </div>
             </td>

@@ -135,7 +135,7 @@
             </option>
           </select>
 
-          <p class="text-xs text-base-content/50">
+          <p class="kr-text-dim-xs">
             Selected:
             <span class="font-semibold text-primary">
               {{ selectedCollectionLabel }}

@@ -642,7 +642,7 @@
           <Icon name="kind-icon:download" class="h-4 w-4" />
           Export .md
         </button>
-        <span v-if="keptExportMessage" class="text-xs text-base-content/50">{{
+        <span v-if="keptExportMessage" class="kr-text-dim-xs">{{
           keptExportMessage
         }}</span>
       </div>

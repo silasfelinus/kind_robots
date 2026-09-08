@@ -242,7 +242,7 @@
       <div class="flex items-start gap-2">
         <div class="min-w-0 flex-1">
           <p class="text-sm font-black">Generate {{ selectedSlot.label }} replacement</p>
-          <p class="text-xs text-base-content/50">
+          <p class="kr-text-dim-xs">
             Recreate starts fresh with Krea. Img2img uses the current image and defaults to SDXL.
           </p>
         </div>
@@ -405,7 +405,7 @@
       <div class="flex items-start gap-2">
         <div class="min-w-0 flex-1">
           <p class="text-sm font-black">Upload {{ selectedSlot.label }} replacement</p>
-          <p class="text-xs text-base-content/50">
+          <p class="kr-text-dim-xs">
             Upload a finished PNG, JPEG, or WebP, then choose whether the old image remains as inspiration.
           </p>
         </div>

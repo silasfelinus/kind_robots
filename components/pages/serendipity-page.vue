@@ -67,7 +67,7 @@
           @change="saveRelay"
         />
       </label>
-      <p class="text-xs text-base-content/50">
+      <p class="kr-text-dim-xs">
         The serendipity-voice dev server (npm run dev:web).
       </p>
     </div>

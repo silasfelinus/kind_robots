@@ -253,7 +253,7 @@
                 <p class="text-sm text-base-content/70">
                   The narrator is having trouble with this chapter.
                 </p>
-                <p class="text-xs text-base-content/50">{{ narrationError }}</p>
+                <p class="kr-text-dim-xs">{{ narrationError }}</p>
                 <div class="flex flex-wrap justify-center gap-2">
                   <button
                     type="button"

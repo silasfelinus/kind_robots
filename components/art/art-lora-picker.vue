@@ -229,7 +229,7 @@
 
         <p
           v-if="search.trim() && !visibleLoras.length"
-          class="text-xs text-base-content/50"
+          class="kr-text-dim-xs"
         >
           No compatible LoRA matches “{{ search.trim() }}”.
         </p>

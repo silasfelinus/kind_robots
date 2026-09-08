@@ -148,7 +148,7 @@
             </div>
             <p
               v-if="!privateArtServers.length"
-              class="text-xs text-base-content/50"
+              class="kr-text-dim-xs"
             >
               No private art servers registered.
             </p>
@@ -207,7 +207,7 @@
                 No samples in this window.
               </p>
             </div>
-            <p v-if="!uptime.length" class="text-xs text-base-content/50">
+            <p v-if="!uptime.length" class="kr-text-dim-xs">
               No uptime samples yet.
             </p>
           </div>

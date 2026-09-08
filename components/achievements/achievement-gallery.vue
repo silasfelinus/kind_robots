@@ -17,7 +17,7 @@
           <h1 class="text-lg font-black text-base-content">
             {{ userStore.username }}'s Achievements
           </h1>
-          <p class="text-xs text-base-content/50">
+          <p class="kr-text-dim-xs">
             {{ earnedAchievements.length }} earned ·
             {{ unearnedAchievements.length }} remaining
           </p>

@@ -15,7 +15,7 @@
             <strong>in your browser</strong> — the audio never leaves your
             device, and nothing is stored.
           </p>
-          <p class="text-xs text-base-content/50">
+          <p class="kr-text-dim-xs">
             Honest heads-up: this measures the objective stuff (pitch, timing,
             dynamics, structure) and reasons over your setlist. It can't judge
             tone, emotion, or "is this a good voice" — that still needs a human

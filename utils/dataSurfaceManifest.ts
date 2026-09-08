@@ -34,7 +34,7 @@ export const DATA_SURFACES: DataSurfaceEntry[] = [
     label: 'For You attention desk',
     dataSource:
       'stores/conductorStore.ts: humanGates + pendingPitches; stores/todoStore.ts: honeyDoTodos',
-    navEntry: { channelKey: 'home', tabKey: 'for-you' },
+    navEntry: { channelKey: 'admin', tabKey: 'for-you' },
   },
   {
     id: 'video-generator',

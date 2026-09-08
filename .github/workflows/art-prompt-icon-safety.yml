@@ -1,0 +1,56 @@
+name: Art Prompt + Icon Safety
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'server/utils/artJobNormalization.ts'
+      - 'utils/scripts/verifyArtPromptRepair.ts'
+      - 'utils/scripts/auditIcons.ts'
+      - 'assets/icons/**'
+      - 'components/**'
+      - 'pages/**'
+      - 'stores/**'
+      - '.github/workflows/art-prompt-icon-safety.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'server/utils/artJobNormalization.ts'
+      - 'utils/scripts/verifyArtPromptRepair.ts'
+      - 'utils/scripts/auditIcons.ts'
+      - 'assets/icons/**'
+      - 'components/**'
+      - 'pages/**'
+      - 'stores/**'
+      - '.github/workflows/art-prompt-icon-safety.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: art-prompt-icon-safety-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    name: Prompt repair + icon audit
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+        env:
+          CYPRESS_INSTALL_BINARY: '0'
+
+      - name: Verify failed-prompt repair
+        run: npm run test:art-prompt-repair
+
+      - name: Audit literal icon references
+        run: npm run audit:icons

@@ -100,6 +100,7 @@ import type {
   ResolvedChannel,
   ResolvedTab,
 } from '@/stores/helpers/channelContent'
+import { useUserStore } from '@/stores/userStore'
 import { channelTabGroups, isAdminOnlyTab } from '@/utils/channelTabGroups'
 
 const props = withDefaults(
@@ -120,7 +121,32 @@ const emit = defineEmits<{
   select: [tab: ResolvedTab]
 }>()
 
-const groups = computed(() => channelTabGroups(props.channel))
+const userStore = useUserStore()
+const isSuperkate = computed(() => {
+  const email = userStore.user?.email?.trim().toLowerCase() ?? ''
+  return userStore.userId === 1279 || email === 'superkate@gmail.com'
+})
+
+function viewerCanSeeTab(tab: ResolvedTab): boolean {
+  if (props.channel.channelKey === 'home' && tab.tabKey === 'registration') {
+    return !userStore.isLoggedIn
+  }
+
+  if (props.channel.channelKey === 'plan' && tab.tabKey === 'stylist') {
+    return isSuperkate.value
+  }
+
+  return true
+}
+
+const groups = computed(() =>
+  channelTabGroups(props.channel)
+    .map((group) => ({
+      ...group,
+      tabs: group.tabs.filter(viewerCanSeeTab),
+    }))
+    .filter((group) => group.tabs.length > 0),
+)
 const effectiveColumns = computed<1 | 2>(() => {
   return props.columns === 2 && groups.value.length > 1 ? 2 : 1
 })

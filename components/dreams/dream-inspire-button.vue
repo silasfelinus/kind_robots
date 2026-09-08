@@ -39,7 +39,7 @@
       :disabled="generating || pendingPrompts.length === 0"
       @click="handleClick"
     >
-      <span v-if="generating" class="loading loading-spinner loading-sm" />
+      <span v-if="generating" class="kr-spinner-sm" />
       <span v-else>Generate Inspiration</span>
       <span v-if="pendingPrompts.length > 0" class="badge badge-neutral">
         {{ pendingPrompts.length }}

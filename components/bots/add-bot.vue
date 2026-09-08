@@ -486,7 +486,7 @@
         >
           <span
             v-if="botStore.isSaving"
-            class="loading loading-spinner loading-sm"
+            class="kr-spinner-sm"
           />
           {{ saveLabel }}
         </button>

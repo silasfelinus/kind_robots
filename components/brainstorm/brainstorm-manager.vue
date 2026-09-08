@@ -114,7 +114,7 @@
           :disabled="!canGenerate"
           data-testid="brainstorm-generate"
         >
-          <span v-if="isBatchGenerating" class="loading loading-spinner loading-sm" aria-hidden="true" />
+          <span v-if="isBatchGenerating" class="kr-spinner-sm" aria-hidden="true" />
           {{ isBatchGenerating ? 'Brainstorming…' : activeCandidates.length ? 'Fresh batch' : (isArtPromptDomain ? 'Generate art prompts' : 'Generate ideas') }}
         </button>
 

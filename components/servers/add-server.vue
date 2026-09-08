@@ -276,10 +276,7 @@
         type="submit"
         :disabled="serverStore.isSaving || !form.title || !form.baseUrl"
       >
-        <span
-          v-if="serverStore.isSaving"
-          class="loading loading-spinner loading-sm"
-        />
+        <span v-if="serverStore.isSaving" class="kr-spinner-sm" />
         Save Server
       </button>
     </footer>

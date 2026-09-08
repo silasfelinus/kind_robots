@@ -20,7 +20,7 @@
         :disabled="studio.loading"
         @click="studio.fetchStudio()"
       >
-        <span v-if="studio.loading" class="loading loading-spinner loading-sm" />
+        <span v-if="studio.loading" class="kr-spinner-sm" />
         <icon v-else name="kind-icon:refresh" class="size-5" />
         Refresh Conductor
       </button>
@@ -444,7 +444,7 @@
           >
             <span
               v-if="studio.savingPrompt"
-              class="loading loading-spinner loading-sm"
+              class="kr-spinner-sm"
             />
             <icon v-else name="kind-icon:save" class="size-5" />
             Save canonical prompt
@@ -470,7 +470,7 @@
           >
             <span
               v-if="studio.requestingRender"
-              class="loading loading-spinner loading-sm"
+              class="kr-spinner-sm"
             />
             <icon v-else name="kind-icon:sparkles" class="size-5" />
             {{

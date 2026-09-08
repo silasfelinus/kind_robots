@@ -58,7 +58,7 @@
               >
                 <span
                   v-if="loading"
-                  class="loading loading-spinner loading-sm"
+                  class="kr-spinner-sm"
                 />
                 <Icon v-else name="kind-icon:refresh" class="size-4" />
               </button>

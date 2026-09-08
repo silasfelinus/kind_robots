@@ -31,7 +31,7 @@
       v-if="store.loadingPost"
       class="mt-4 flex items-center gap-2 text-sm text-base-content/55"
     >
-      <span class="loading loading-spinner loading-sm" />
+      <span class="kr-spinner-sm" />
       Loading the source forum post…
     </div>
 
@@ -134,10 +134,7 @@
           "
           @click="store.queueArt()"
         >
-          <span
-            v-if="store.queueing"
-            class="loading loading-spinner loading-sm"
-          />
+          <span v-if="store.queueing" class="kr-spinner-sm" />
           {{
             store.queueing
               ? 'Queueing…'

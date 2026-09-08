@@ -54,7 +54,7 @@
             >
               <span
                 v-if="startingId === sample.id"
-                class="loading loading-spinner loading-sm"
+                class="kr-spinner-sm"
               />
               <Icon v-else :name="sample.icon" class="size-5" />
             </span>

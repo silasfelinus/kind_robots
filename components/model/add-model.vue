@@ -162,7 +162,7 @@
         type="submit"
         :disabled="isSaving || !canSubmit"
       >
-        <span v-if="isSaving" class="loading loading-spinner loading-sm" />
+        <span v-if="isSaving" class="kr-spinner-sm" />
         <Icon v-else name="kind-icon:check" class="h-4 w-4" />
         {{ isEditing ? 'Save Changes' : 'Add Model' }}
       </button>

@@ -253,7 +253,7 @@
             >
               <span
                 v-if="isGeneratingArt"
-                class="loading loading-spinner loading-sm"
+                class="kr-spinner-sm"
               />
               {{ isGeneratingArt ? 'Generating...' : 'Generate Art' }}
             </button>
@@ -296,7 +296,7 @@
         >
           <span
             v-if="rewardStore.isSaving"
-            class="loading loading-spinner loading-sm"
+            class="kr-spinner-sm"
           />
           {{ saveLabel }}
         </button>

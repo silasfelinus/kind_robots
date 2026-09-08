@@ -104,7 +104,7 @@
           :disabled="!promptDirty || studio.savingCoverPrompt || promptDraft.trim().length < 40"
           @click="savePrompt"
         >
-          <span v-if="studio.savingCoverPrompt" class="loading loading-spinner loading-sm" />
+          <span v-if="studio.savingCoverPrompt" class="kr-spinner-sm" />
           <icon v-else name="kind-icon:save" class="size-5" />
           Save canonical cover prompt
         </button>
@@ -138,7 +138,7 @@
               :disabled="!canGenerate || studio.requestingAction || promptDirty"
               @click="requestCover(false)"
             >
-              <span v-if="studio.requestingAction" class="loading loading-spinner loading-sm" />
+              <span v-if="studio.requestingAction" class="kr-spinner-sm" />
               <icon v-else name="kind-icon:sparkles" class="size-5" />
               Generate cover candidate
             </button>

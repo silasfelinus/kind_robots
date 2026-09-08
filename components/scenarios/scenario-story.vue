@@ -169,10 +169,7 @@
         :disabled="!canLaunchScenario"
         @click="storyStore.submitStoryTurn"
       >
-        <span
-          v-if="storyStore.isBusy"
-          class="loading loading-spinner loading-sm"
-        />
+        <span v-if="storyStore.isBusy" class="kr-spinner-sm" />
         <Icon v-else name="kind-icon:play" class="h-5 w-5" />
         {{ storyStore.isBusy ? 'Story goblin thinking...' : 'Start Story' }}
       </button>
@@ -330,10 +327,7 @@
           :disabled="!storyStore.canSubmitStory"
           @click="storyStore.submitStoryTurn"
         >
-          <span
-            v-if="storyStore.isBusy"
-            class="loading loading-spinner loading-sm"
-          />
+          <span v-if="storyStore.isBusy" class="kr-spinner-sm" />
           <Icon v-else name="kind-icon:play" class="h-5 w-5" />
           {{
             storyStore.isBusy ? 'Story goblin thinking...' : 'Send Next Turn'

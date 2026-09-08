@@ -1578,6 +1578,20 @@ section:has(div[class*='xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]'])
     @apply loading loading-spinner loading-xs;
   }
 
+  /* Same colorless busy indicator as `.kr-spinner-xs`, one size up: the
+   * `loading-sm` DaisyUI spinner dropped into a wider inline slot or a
+   * standalone loading block (interface-vision t-104 slice 151) --
+   * `loading loading-spinner loading-sm`, previously hand-rolled
+   * identically in 37 files (50 exact occurrences), the largest bounded
+   * family surfaced by slice 150's same frequency survey and named as a
+   * follow-up target in that slice's kaizen suggestion. The colored
+   * variants found alongside it (`text-primary`, `text-primary-content`,
+   * `motion-reduce:hidden`) are left for a future slice, same convention
+   * as `.kr-spinner-xs`. */
+  .kr-spinner-sm {
+    @apply loading loading-spinner loading-sm;
+  }
+
   .text-smart {
     @apply text-sm md:text-lg lg:text-lg xl:text-xl;
   }

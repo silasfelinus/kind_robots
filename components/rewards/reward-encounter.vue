@@ -204,10 +204,7 @@
                 :disabled="!canContinueCustom"
                 @click="continueWithCustomPath"
               >
-                <span
-                  v-if="isStarting"
-                  class="loading loading-spinner loading-sm"
-                />
+                <span v-if="isStarting" class="kr-spinner-sm" />
                 <Icon v-else name="kind-icon:wand" class="h-5 w-5" />
                 Continue Custom Path
               </button>
@@ -259,10 +256,7 @@
             :disabled="!canStartStory"
             @click="startRewardStory"
           >
-            <span
-              v-if="isStarting"
-              class="loading loading-spinner loading-sm"
-            />
+            <span v-if="isStarting" class="kr-spinner-sm" />
             <Icon v-else name="kind-icon:play" class="h-5 w-5" />
             Start Story
           </button>

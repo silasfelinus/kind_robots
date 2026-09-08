@@ -150,7 +150,7 @@
                 :disabled="store.queueing || store.loading || !store.totalCount"
                 @click="store.enqueue(false)"
               >
-                <span v-if="store.queueing" class="loading loading-spinner loading-sm" />
+                <span v-if="store.queueing" class="kr-spinner-sm" />
                 {{ store.missingCount ? `Start / Resume ${store.missingCount} missing` : 'Resume / verify batch' }}
               </button>
               <button
@@ -275,7 +275,7 @@
                     </template>
                     <div v-else class="grid size-full place-items-center p-3 text-center text-xs text-base-content/40">
                       <template v-if="source.status === 'rendering' || source.status === 'queued'">
-                        <span class="loading loading-spinner loading-sm" />
+                        <span class="kr-spinner-sm" />
                         <span class="mt-1 block">{{ elapsedLabel(source) }}</span>
                       </template>
                       <span v-else>{{ statusLabel(source.status) }}</span>

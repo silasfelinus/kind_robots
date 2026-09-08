@@ -182,10 +182,7 @@
             :disabled="!canSend"
             @click="sendMessage"
           >
-            <span
-              v-if="isResponding"
-              class="loading loading-spinner loading-sm"
-            />
+            <span v-if="isResponding" class="kr-spinner-sm" />
             <span v-else>Send</span>
           </button>
         </div>

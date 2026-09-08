@@ -188,7 +188,7 @@
               :disabled="isApplying"
               @click="chooseFromGallery(selectedGalleryImage)"
             >
-              <span v-if="isApplying" class="loading loading-spinner loading-sm" />
+              <span v-if="isApplying" class="kr-spinner-sm" />
               <Icon v-else name="kind-icon:check" class="h-4 w-4" />
               Use this avatar
             </button>

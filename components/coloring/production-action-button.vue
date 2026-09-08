@@ -6,7 +6,7 @@
     :disabled="!enabled || busy"
     @click="emit('click')"
   >
-    <span v-if="busy" class="loading loading-spinner loading-sm" />
+    <span v-if="busy" class="kr-spinner-sm" />
     <icon v-else :name="iconName" class="size-5" />
     {{ armed ? confirmLabel : label }}
   </button>

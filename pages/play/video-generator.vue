@@ -331,7 +331,7 @@
         >
           <span
             v-if="videoStore.isBusy"
-            class="loading loading-spinner loading-sm"
+            class="kr-spinner-sm"
           />
           {{ generateLabel }}
         </button>

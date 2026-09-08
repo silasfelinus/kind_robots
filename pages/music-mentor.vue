@@ -90,7 +90,7 @@
         >
           <span
             v-if="store.isBusy"
-            class="loading loading-spinner loading-sm"
+            class="kr-spinner-sm"
           />
           {{ analyzeLabel }}
         </button>

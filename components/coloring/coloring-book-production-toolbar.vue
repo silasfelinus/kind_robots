@@ -141,7 +141,7 @@
           :disabled="!canRequestBw || studio.requestingAction"
           @click="requestBw(false)"
         >
-          <span v-if="studio.requestingAction" class="loading loading-spinner loading-sm" />
+          <span v-if="studio.requestingAction" class="kr-spinner-sm" />
           <icon v-else name="kind-icon:pencil" class="size-5" />
           Generate B&amp;W counterpart
         </button>

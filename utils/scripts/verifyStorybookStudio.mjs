@@ -15,13 +15,72 @@ function includesAll(path, values) {
 }
 
 const pagePath = 'components/conductor/storybook-page.vue'
+const shellPath = 'components/pages/storybook-library-page.vue'
+const setupPath = 'components/storybook/storybook-visual-setup.vue'
+const ingredientCardPath = 'components/narrative/narrative-ingredient-card.vue'
 const storePath = 'stores/storybookStore.ts'
-const page = source(pagePath)
-const store = source(storePath)
+const agentsPath = 'AGENTS.md'
 
-includesAll(pagePath, [
+const page = source(pagePath)
+const shell = source(shellPath)
+const setup = source(setupPath)
+const ingredientCard = source(ingredientCardPath)
+const store = source(storePath)
+const agents = source(agentsPath)
+
+includesAll(shellPath, [
+  '<StorybookVisualSetup v-if="!storyStore.session"',
+  'v-show="storyStore.session"',
+  '<StorybookPage />',
+])
+
+includesAll(setupPath, [
+  'Lay out your story',
+  'The spark',
+  'Choose a narrator voice',
+  'Choose the shape of the tale',
   '<NarrativeIngredientMultiPicker',
   '<NarrativeIngredientPicker',
+  '<NarrativeRoleAssigner',
+  'characterOptions',
+  'scenarioOptions',
+  'locationOptions',
+  'facetOptions',
+  'rewardOptions',
+  'store.beginStory',
+])
+
+assert.ok(
+  !setup.includes('setupStep'),
+  'The primary Storybook setup must be one visual surface, not a step/tab wizard',
+)
+assert.ok(
+  !setup.includes('setupSteps'),
+  'The primary Storybook setup must not recreate the four-step progress nav',
+)
+
+includesAll(ingredientCardPath, [
+  'aspect-[2/3]',
+  'object-cover',
+  'bg-linear-to-t from-black/90',
+])
+assert.ok(
+  !ingredientCard.includes('w-28 shrink-0'),
+  'Narrative entity art must not be reduced to the old left-thumbnail form row',
+)
+
+assert.match(
+  agents,
+  /Kind Robots is an \*\*art-focused website\*\*/,
+  'The standing agent contract must preserve the art-first product rule',
+)
+assert.match(
+  agents,
+  /Avoid wizard\/tab proliferation/,
+  'Creative setup flows must prefer open visual composition over wizard tabs',
+)
+
+includesAll(pagePath, [
   '<KrChatWindow',
   '<NarrativeResponseComposer',
   'Story bible',
@@ -68,9 +127,6 @@ assert.ok(
   'Storybook store must not treat roadmap tasks as story state',
 )
 
-// Opening generation is the only beat created before the reader has any
-// recovery control. A failed first weave must return to the saved setup draft
-// instead of leaving an active zero-beat session that cannot continue.
 const beginStoryBlock = store.slice(
   store.indexOf('async function beginStory'),
   store.indexOf('async function answerCurrentBeat'),
@@ -89,7 +145,7 @@ includesAll('components/narrative/narrative-ingredient-multi-picker.vue', [
 ])
 
 console.log(
-  'Storybook studio contract passed: dedicated progressive setup, reusable ' +
-    'creative entities, story-bible review, persistent independent sessions, ' +
+  'Storybook studio contract passed: art-first single-screen story spread, ' +
+    'image-led reusable entity choices, independent persistent sessions, ' +
     'shared narrative presentation, and no Taskmaster/task-write boundary leak.',
 )

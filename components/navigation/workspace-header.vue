@@ -23,6 +23,15 @@
   row nothing. It sits BEFORE the workspace toggle, because that one is
   documented below as the last icon in the row and stays that way.
 
+  SIX FOR ADMINS, same day: an ArtJob queue shortcut, rendered only when
+  userStore.isAdmin. Everyone else still sees five. The row reads
+  account -> ops -> play -> help, and both additions are the same fixed-width
+  square, so the no-growth rule still holds.
+
+  If a seventh is ever proposed, weigh it against that rule rather than against
+  the count: what this row cannot afford is a child whose width is unbounded,
+  which is what the 300 lines of deleted measurement below were all for.
+
   WHAT THIS DELETES, and why none of it is missed
   ----------------------------------------------
   The strip took a scrolling viewport, two chevron scrollers, a map-icon
@@ -225,6 +234,41 @@
       <account-hub class="header-account shrink-0" />
 
       <!--
+        ARTJOB QUEUE, ADMINS ONLY. Silas, 2026-09-08: "if the user is an admin
+        (me) I want an artjob queue button as well, next to the others."
+
+        v-if rather than a disabled state: a control that only Silas can use is
+        noise in everyone else's header, and /artjob already refuses non-admins
+        (content/artjob.md carries `requiredRole: ADMIN`, so this is a shortcut
+        to a gated page, not the gate itself -- never treat a hidden button as
+        access control).
+
+        userStore.isAdmin and account-hub.vue's own `v-if="userStore.isLoggedIn"`
+        rows derive from the same user state, so this cluster already renders
+        conditionally on who is signed in and adding another such branch changes
+        nothing about the header's hydration behaviour.
+
+        Ordered account -> ops -> play -> help: this sits with the account hub
+        because it is an operations control, and the game stays next to the
+        tutorial toggle.
+      -->
+      <NuxtLink
+        v-if="userStore.isAdmin"
+        to="/artjob"
+        class="btn btn-ghost btn-sm btn-square shrink-0 rounded-xl border border-base-300"
+        :class="
+          artjobActive
+            ? 'border-primary bg-primary/15 text-primary'
+            : 'bg-base-100'
+        "
+        :aria-current="artjobActive ? 'page' : undefined"
+        aria-label="ArtJob queue"
+        title="ArtJob queue"
+      >
+        <Icon name="kind-icon:server" class="h-5 w-5" />
+      </NuxtLink>
+
+      <!--
         MEMORY DUNGEON. Silas, 2026-09-08: "I'm really proud of my memory match
         game, it was one of my first projects and still one that I occasionally
         return to. I want a link for it on the dashboard next to the tutorial
@@ -369,6 +413,11 @@ const workspaceToggleLabel = computed(() =>
 // shows its own open state. startsWith rather than an equality check because
 // the game's deeper routes (a level, a run) should keep the button lit too.
 const memoryActive = computed(() => route.path.startsWith('/play/memory'))
+
+// Exact match, unlike memoryActive: /artjob is a single page with no children,
+// and startsWith would light the button on any future sibling route that merely
+// shares the prefix.
+const artjobActive = computed(() => route.path === '/artjob')
 
 const activeTabKey = computed(() => {
   const channel = resolvedChannel.value

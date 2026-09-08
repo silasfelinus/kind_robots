@@ -1,5 +1,5 @@
 /**
- * Every `kind-icon:<name>` the code asks for must exist in assets/icons/.
+ * Every `kind-icon:<name>` the runtime code asks for must exist in assets/icons/.
  *
  * A missing custom icon fails at RUNTIME, in the browser console, as
  * `[Icon] failed to load icon 'kind-icon:news'` -- and nowhere else. It does
@@ -42,6 +42,10 @@ const SKIPPED_DIRECTORIES = new Set([
   'dist',
   'coverage',
   'abandonware',
+  // Operational/test scripts contain literal icon strings as fixtures and
+  // assertions. They are not bundled runtime consumers and should not force
+  // decorative SVGs into the app collection.
+  'scripts',
   // Cypress bodies POST arbitrary icon strings as fixture data
   // (`icon: 'kind-icon:array'`). Those are payloads under test, not icons
   // anyone wants drawn, and reporting them asks for SVGs nobody should add.

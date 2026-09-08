@@ -1,5 +1,7 @@
 name: Art Prompt + Icon Safety
 
+# Keep these two focused checks in a small lane so prompt migrations and literal
+# icon references fail fast without waiting for the full contract-test matrix.
 on:
   pull_request:
     branches: [main]

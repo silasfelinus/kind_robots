@@ -376,19 +376,19 @@
 
           <div class="grid gap-3 sm:grid-cols-3">
             <div class="kr-tile-md text-sm">
-              <span class="block text-xs text-base-content/45">Semantic score</span>
+              <span class="kr-text-dim-xs-45 block">Semantic score</span>
               <strong>
                 {{ studio.selectedProposal.queue.semanticScore ?? '—' }}
               </strong>
             </div>
             <div class="kr-tile-md text-sm">
-              <span class="block text-xs text-base-content/45">Render engine</span>
+              <span class="kr-text-dim-xs-45 block">Render engine</span>
               <strong>
                 {{ studio.selectedProposal.queue.renderEngine ?? '—' }}
               </strong>
             </div>
             <div class="kr-tile-md text-sm">
-              <span class="block text-xs text-base-content/45">
+              <span class="kr-text-dim-xs-45 block">
                 Archived revisions
               </span>
               <strong>{{ studio.selectedProposal.queue.revisionCount }}</strong>
@@ -401,7 +401,7 @@
         >
           <div>
             <h4 class="text-xl font-black">Canonical production prompt</h4>
-            <p class="mt-1 break-all text-xs text-base-content/45">
+            <p class="kr-text-dim-xs-45 mt-1 break-all">
               {{ studio.selectedProposal.promptSourcePath }}
             </p>
             <p
@@ -420,7 +420,7 @@
           />
 
           <div
-            class="flex flex-wrap items-center justify-between gap-2 text-xs text-base-content/45"
+            class="kr-text-dim-xs-45 flex flex-wrap items-center justify-between gap-2"
           >
             <span>{{ promptDraft.length }} characters</span>
             <span
@@ -530,7 +530,7 @@
         >
           <div>
             <p
-              class="text-xs font-black uppercase tracking-widest text-base-content/45"
+              class="kr-text-dim-xs-45 font-black uppercase tracking-widest"
             >
               {{ problem.bookTitle }} · {{ problem.proposal.id }}
             </p>

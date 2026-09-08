@@ -222,7 +222,7 @@
               </p>
               <h4 class="mt-2 text-xl font-black text-base-content">People behind the movement</h4>
             </div>
-            <span class="text-xs text-base-content/45">
+            <span class="kr-text-dim-xs-45">
               {{ lesson.artists.length }} featured {{ lesson.artists.length === 1 ? 'artist' : 'artists' }}
             </span>
           </div>
@@ -287,7 +287,7 @@
 
           <div class="flex flex-col gap-4 p-5">
             <div>
-              <p class="text-xs font-black uppercase tracking-wide text-base-content/45">Remix instruction</p>
+              <p class="kr-text-dim-xs-45 font-black uppercase tracking-wide">Remix instruction</p>
               <p class="mt-1 text-sm leading-relaxed text-base-content/80">
                 {{ lesson.remix.template }}
               </p>
@@ -326,7 +326,7 @@
         </section>
 
         <section class="kr-panel-section">
-          <p class="flex items-center gap-1.5 text-xs font-black uppercase tracking-[0.16em] text-base-content/45">
+          <p class="kr-text-dim-xs-45 flex items-center gap-1.5 font-black uppercase tracking-[0.16em]">
             <Icon name="kind-icon:chat" class="h-4 w-4" />
             Reflect
           </p>

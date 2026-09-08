@@ -193,7 +193,7 @@
 
           <p
             v-if="selectedPackage.orderedInteriorManifest"
-            class="mt-4 break-all text-xs text-base-content/45"
+            class="kr-text-dim-xs-45 mt-4 break-all"
           >
             Ordered manifest: {{ selectedPackage.orderedInteriorManifest }}
           </p>

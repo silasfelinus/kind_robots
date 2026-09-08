@@ -62,14 +62,14 @@
 
     <div class="flex flex-wrap items-end justify-between gap-3 px-1">
       <div>
-        <p class="text-xs font-black uppercase tracking-[0.16em] text-base-content/45">
+        <p class="kr-text-dim-xs-45 font-black uppercase tracking-[0.16em]">
           Chronological gallery
         </p>
         <p class="mt-1 text-sm text-base-content/65">
           Each image opens into a lesson, gallery wall, and remix path.
         </p>
       </div>
-      <p class="text-xs font-semibold text-base-content/45">Earliest → latest</p>
+      <p class="kr-text-dim-xs-45 font-semibold">Earliest → latest</p>
     </div>
 
     <ol

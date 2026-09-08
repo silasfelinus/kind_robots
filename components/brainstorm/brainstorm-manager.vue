@@ -35,7 +35,7 @@
           </p>
           <p
             v-if="persona?.tagline"
-            class="mt-1 text-xs italic text-base-content/45"
+            class="kr-text-dim-xs-45 mt-1 italic"
             data-testid="brainstorm-persona-tagline"
           >
             {{ persona.tagline }}
@@ -128,7 +128,7 @@
           <p class="text-xs font-black uppercase tracking-[0.12em] text-base-content/55">
             Push the batch
           </p>
-          <p class="text-xs text-base-content/45">Creative moves, not model knobs.</p>
+          <p class="kr-text-dim-xs-45">Creative moves, not model knobs.</p>
         </div>
         <div class="mt-2 flex flex-wrap gap-2" role="group" aria-label="Creative direction">
           <button
@@ -240,7 +240,7 @@
                 :disabled="isGenerating"
                 @input="updateReturnTypeCount(option.id, $event)"
               />
-              <span class="text-xs text-base-content/45">
+              <span class="kr-text-dim-xs-45">
                 {{ returnTypeCount(option.id) ? 'pinned' : 'Auto' }}
               </span>
             </div>
@@ -249,7 +249,7 @@
 
         <p
           v-if="batchShape === 'assortment' && returnTypes.length"
-          class="mt-3 text-xs leading-5 text-base-content/45"
+          class="kr-text-dim-xs-45 mt-3 leading-5"
         >
           Pinned quotas plus one slot for each Auto lens require at least {{ minimumMixResults }} ideas. Extra slots stay flexible.
         </p>
@@ -404,7 +404,7 @@
         </ul>
         <p
           v-else-if="!isSearchingSource && sourceQuery"
-          class="mt-3 text-xs text-base-content/45"
+          class="kr-text-dim-xs-45 mt-3"
         >
           No {{ sourceModelType }} matched "{{ sourceQuery }}".
         </p>
@@ -469,7 +469,7 @@
               </button>
             </div>
 
-            <p v-if="lastSavedAt" class="mt-2 text-xs text-base-content/45">
+            <p v-if="lastSavedAt" class="kr-text-dim-xs-45 mt-2">
               Last saved {{ formatSavedTime(lastSavedAt) }}.
             </p>
           </div>
@@ -492,7 +492,7 @@
 
             <p
               v-if="!savedSessions.length"
-              class="mt-2 text-xs leading-5 text-base-content/45"
+              class="kr-text-dim-xs-45 mt-2 leading-5"
             >
               No saved sessions loaded yet.
             </p>
@@ -653,7 +653,7 @@
       class="kr-panel-flat flex flex-wrap items-center gap-2 border border-base-content/10 bg-base-100/85 p-3"
       aria-label="Brainstorm batch history"
     >
-      <span class="mr-1 text-xs font-black uppercase tracking-[0.12em] text-base-content/45">Batches</span>
+      <span class="kr-text-dim-xs-45 mr-1 font-black uppercase tracking-[0.12em]">Batches</span>
       <button
         v-for="(batch, index) in batches"
         :key="batch.id"
@@ -672,7 +672,7 @@
       class="flex flex-wrap items-center justify-between gap-3 px-1"
     >
       <div>
-        <p class="text-xs font-black uppercase tracking-[0.14em] text-base-content/45">Current batch</p>
+        <p class="kr-text-dim-xs-45 font-black uppercase tracking-[0.14em]">Current batch</p>
         <p class="mt-1 text-sm text-base-content/65">
           {{ activeCandidates.length }} candidate{{ activeCandidates.length === 1 ? '' : 's' }} ·
           {{ keptCandidates.length }} kept · {{ rejectedCandidates.length }} rejected

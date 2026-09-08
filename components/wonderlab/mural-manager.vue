@@ -182,9 +182,7 @@
 
         <div class="mt-4 grid grid-cols-1 gap-3 md:grid-cols-3">
           <div class="kr-panel-muted-md">
-            <p
-              class="text-xs font-bold uppercase tracking-wide text-base-content/45"
-            >
+            <p class="kr-text-dim-xs-45 font-bold uppercase tracking-wide">
               Sections
             </p>
             <p class="mt-1 text-3xl font-black text-primary">
@@ -193,9 +191,7 @@
           </div>
 
           <div class="kr-panel-muted-md">
-            <p
-              class="text-xs font-bold uppercase tracking-wide text-base-content/45"
-            >
+            <p class="kr-text-dim-xs-45 font-bold uppercase tracking-wide">
               Groups
             </p>
             <p class="mt-1 text-3xl font-black text-secondary">
@@ -204,9 +200,7 @@
           </div>
 
           <div class="kr-panel-muted-md">
-            <p
-              class="text-xs font-bold uppercase tracking-wide text-base-content/45"
-            >
+            <p class="kr-text-dim-xs-45 font-bold uppercase tracking-wide">
               Saved colors
             </p>
             <p class="mt-1 text-3xl font-black text-accent">

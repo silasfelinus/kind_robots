@@ -348,7 +348,7 @@
             />
             <span>
               <span class="block text-sm font-semibold">Keep as inspiration</span>
-              <span class="block text-xs text-base-content/45">
+              <span class="kr-text-dim-xs-45 block">
                 Save the current version in this {{ entityLabel }} artwork history.
               </span>
             </span>
@@ -363,7 +363,7 @@
             />
             <span>
               <span class="block text-sm font-semibold">Do not retain it</span>
-              <span class="block text-xs text-base-content/45">
+              <span class="kr-text-dim-xs-45 block">
                 Replace the entity reference without adding the old version to history.
               </span>
             </span>
@@ -453,7 +453,7 @@
             />
             <span>
               <span class="block text-sm font-semibold">Keep as inspiration</span>
-              <span class="block text-xs text-base-content/45">Retain the previous version in artwork history.</span>
+              <span class="kr-text-dim-xs-45 block">Retain the previous version in artwork history.</span>
             </span>
           </label>
           <label class="flex cursor-pointer items-start gap-2 rounded-lg px-2 py-1.5 hover:bg-base-100/60">
@@ -466,7 +466,7 @@
             />
             <span>
               <span class="block text-sm font-semibold">Do not retain it</span>
-              <span class="block text-xs text-base-content/45">Replace the entity reference without adding history.</span>
+              <span class="kr-text-dim-xs-45 block">Replace the entity reference without adding history.</span>
             </span>
           </label>
         </div>

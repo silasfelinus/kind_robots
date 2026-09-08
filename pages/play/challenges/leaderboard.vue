@@ -89,7 +89,7 @@
               </button>
             </div>
           </fieldset>
-          <p class="text-xs font-bold text-base-content/45">
+          <p class="kr-text-dim-xs-45 font-bold">
             {{ leaderboard.length }} ranked
             {{
               facetFilter === 'contender'
@@ -169,7 +169,7 @@
               #{{ entry.rank }}
             </span>
             <h2 class="mt-3 text-xl font-black uppercase">{{ entry.name }}</h2>
-            <p class="mt-1 text-xs font-bold text-base-content/45">
+            <p class="kr-text-dim-xs-45 mt-1 font-bold">
               {{ entry.subtitle }}
             </p>
             <p
@@ -248,7 +248,7 @@
                       </div>
                       <div>
                         <p class="font-black">{{ entry.name }}</p>
-                        <p class="text-xs text-base-content/45">
+                        <p class="kr-text-dim-xs-45">
                           {{ entry.subtitle }}
                         </p>
                       </div>

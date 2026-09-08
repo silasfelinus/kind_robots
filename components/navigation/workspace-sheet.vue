@@ -54,7 +54,7 @@
 
         <p
           v-if="showDebugPath"
-          class="break-all rounded-xl bg-base-200 px-3 py-2 text-xs font-semibold text-base-content/45"
+          class="kr-text-dim-xs-45 break-all rounded-xl bg-base-200 px-3 py-2 font-semibold"
         >
           {{ imagePath || 'No image path resolved' }}
         </p>

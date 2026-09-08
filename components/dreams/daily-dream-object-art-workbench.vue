@@ -141,7 +141,7 @@
           />
           <span>
             <span class="block text-sm font-bold">Keep the current version as inspiration</span>
-            <span class="block text-xs leading-relaxed text-base-content/45">
+            <span class="kr-text-dim-xs-45 block leading-relaxed">
               Preserve the previous image in object history before the replacement attaches.
             </span>
           </span>

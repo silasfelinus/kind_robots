@@ -288,7 +288,7 @@
                   <div class="flex items-start justify-between gap-2">
                     <div class="min-w-0">
                       <p class="truncate text-sm font-black" :title="source.name">{{ source.name }}</p>
-                      <p class="text-xs text-base-content/45">
+                      <p class="kr-text-dim-xs-45">
                         {{ formatBytes(source.bytes) }}
                         <template v-if="source.jobId"> · ArtJob #{{ source.jobId }}</template>
                       </p>

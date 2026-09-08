@@ -194,7 +194,7 @@
         <div v-if="!returnTarget" class="my-5 flex items-center gap-3">
           <span class="h-px flex-1 bg-base-content/15" />
           <span
-            class="rounded-full border border-base-content/10 bg-base-100/80 px-3 py-1 text-xs font-black uppercase tracking-widest text-base-content/45"
+            class="kr-text-dim-xs-45 rounded-full border border-base-content/10 bg-base-100/80 px-3 py-1 font-black uppercase tracking-widest"
           >
             or
           </span>

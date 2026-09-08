@@ -218,7 +218,7 @@
                 <span class="flex items-center gap-3">
                   <span
                     v-if="bucket.selfAttributedCents > 0"
-                    class="text-xs text-base-content/45"
+                    class="kr-text-dim-xs-45"
                   >
                     +
                     {{ formatUsdCents(bucket.selfAttributedCents) }}

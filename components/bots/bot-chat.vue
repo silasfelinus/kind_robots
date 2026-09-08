@@ -243,7 +243,7 @@
               class="range range-primary range-sm"
             />
 
-            <div class="mt-1 flex justify-between text-xs text-base-content/45">
+            <div class="kr-text-dim-xs-45 mt-1 flex justify-between">
               <span>precise</span>
               <span>balanced</span>
               <span>wild</span>

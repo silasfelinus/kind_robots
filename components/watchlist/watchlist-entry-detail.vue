@@ -35,27 +35,19 @@
 
     <dl class="kr-text-dim-sm-70 grid grid-cols-2 gap-x-4 gap-y-1">
       <div>
-        <dt class="text-xs font-semibold uppercase text-base-content/45">
-          Consumed
-        </dt>
+        <dt class="kr-text-dim-xs-45 font-semibold uppercase">Consumed</dt>
         <dd>{{ consumedLabel }}</dd>
       </div>
       <div v-if="entry.year">
-        <dt class="text-xs font-semibold uppercase text-base-content/45">
-          Year
-        </dt>
+        <dt class="kr-text-dim-xs-45 font-semibold uppercase">Year</dt>
         <dd>{{ entry.year }}</dd>
       </div>
       <div v-if="rewatchLabel">
-        <dt class="text-xs font-semibold uppercase text-base-content/45">
-          Rewatch
-        </dt>
+        <dt class="kr-text-dim-xs-45 font-semibold uppercase">Rewatch</dt>
         <dd>{{ rewatchLabel }}</dd>
       </div>
       <div class="col-span-2">
-        <dt class="text-xs font-semibold uppercase text-base-content/45">
-          Rating
-        </dt>
+        <dt class="kr-text-dim-xs-45 font-semibold uppercase">Rating</dt>
         <dd class="mt-0.5 flex items-center gap-1.5">
           <button
             type="button"
@@ -109,10 +101,7 @@
           <Icon name="kind-icon:check" class="size-3" />
           Published
         </span>
-        <span
-          v-else-if="saveState !== 'idle'"
-          class="text-xs text-base-content/45"
-        >
+        <span v-else-if="saveState !== 'idle'" class="kr-text-dim-xs-45">
           {{ saveStateLabel }}
         </span>
       </div>
@@ -161,15 +150,8 @@
       >
         Related entries
       </h3>
-      <p v-if="isLoadingRelated" class="text-xs text-base-content/45">
-        Loading…
-      </p>
-      <p
-        v-else-if="!relatedEntries.length"
-        class="text-xs text-base-content/45"
-      >
-        None
-      </p>
+      <p v-if="isLoadingRelated" class="kr-text-dim-xs-45">Loading…</p>
+      <p v-else-if="!relatedEntries.length" class="kr-text-dim-xs-45">None</p>
       <ul v-else class="flex flex-col gap-1">
         <li
           v-for="related in relatedEntries"

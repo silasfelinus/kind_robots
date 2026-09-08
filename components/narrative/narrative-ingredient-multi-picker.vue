@@ -94,7 +94,7 @@
     <p
       v-else-if="query.trim() && !filteredItems.length"
       role="status"
-      class="rounded-xl border border-dashed border-base-300 bg-base-100/60 px-3 py-2 text-xs text-base-content/45"
+      class="kr-text-dim-xs-45 rounded-xl border border-dashed border-base-300 bg-base-100/60 px-3 py-2"
     >
       No matching {{ label.toLowerCase() }}.
     </p>

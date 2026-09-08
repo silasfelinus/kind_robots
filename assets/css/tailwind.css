@@ -1677,6 +1677,24 @@ section:has(div[class*='xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]'])
     @apply text-sm text-base-content/70;
   }
 
+  /* A more-dimmed metadata line at caption size -- `text-xs
+   * text-base-content/45`, one step quieter than `.kr-text-dim-xs`'s 50%
+   * opacity, used for the least-emphasized annotation on a card or list row
+   * (timestamps, counts, secondary metadata beside a primary label)
+   * (interface-vision t-104 slice 156) -- previously hand-rolled in 35 files
+   * (83 occurrences, subset-match including extra tokens like `flex
+   * items-center gap-*`, `mt-*`, `truncate`), the sibling candidate surveyed
+   * alongside `text-sm text-base-content/70` in slice 152's original
+   * frequency pass and named as slice 154/155's own follow-up target. Named
+   * `kr-text-dim-xs-45` rather than reusing `kr-text-dim-xs` because that
+   * name is already claimed by the 50%-opacity shape shipped in slice 154 --
+   * both are real, independently-repeated exact shapes in the wild, not one
+   * "should normalize to" the other, same reasoning as
+   * `kr-text-dim-sm-70`/`kr-text-dim-sm`. */
+  .kr-text-dim-xs-45 {
+    @apply text-xs text-base-content/45;
+  }
+
   .text-smart {
     @apply text-sm md:text-lg lg:text-lg xl:text-xl;
   }

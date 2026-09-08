@@ -744,6 +744,25 @@ section:has(div[class*='xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]'])
     @apply rounded-2xl border border-dashed border-base-300 bg-base-200/40 p-6;
   }
 
+  /* A genuinely new family, not another kr-panel-* variant (interface-vision
+   * t-104 slice 148): every kr-panel-* surface above carries a `border
+   * border-base-300` outline, but this small stat/info tile never does --
+   * just a solid rounded-2xl bg-base-200 fill, nested inside a raised
+   * base-100 panel the same way .kr-panel-muted is, minus the border. Named
+   * `kr-tile` rather than folded into the panel family since the missing
+   * border is a structural difference, not a padding/opacity variant.
+   * `-md` (p-3) previously hand-rolled across 10 occurrences (character-
+   * chat.vue x3, character-flip-card.vue x3, coloring-book-studio.vue x4);
+   * `-sm` (p-2) across 11 occurrences (coloring-book-package-readiness.vue
+   * x3, coloring-book-studio.vue x4, coloring-book-readiness.vue x4) — all
+   * grid-of-stats or labeled-value tiles. */
+  .kr-tile-md {
+    @apply rounded-2xl bg-base-200 p-3;
+  }
+  .kr-tile-sm {
+    @apply rounded-2xl bg-base-200 p-2;
+  }
+
   /* The hand-rolled toggle-row label: a bordered muted strip pairing a
    * label with a DaisyUI `toggle` input (Public/Mature/Active-style
    * checkboxes) — same rounded-2xl/border-base-300/bg-base-200 surface as

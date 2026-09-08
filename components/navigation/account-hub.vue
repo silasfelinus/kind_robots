@@ -108,7 +108,7 @@
     >
       <!-- 1. WHO YOU ARE, and the door to the account menu. The full width is
               its own now, so the name and role stop truncating. -->
-      <div class="flex flex-col gap-2 rounded-2xl bg-base-200 p-2">
+      <div class="kr-tile-sm flex flex-col gap-2">
         <button
           type="button"
           class="flex items-center gap-3 rounded-xl p-1 text-left transition hover:bg-base-300/60"

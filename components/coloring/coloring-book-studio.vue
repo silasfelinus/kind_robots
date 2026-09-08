@@ -94,19 +94,19 @@
           />
 
           <div class="grid grid-cols-4 gap-2 text-center text-xs">
-            <div class="rounded-2xl bg-base-200 p-2">
+            <div class="kr-tile-sm">
               <strong class="block text-base">{{ book.counts.prompts }}</strong>
               Prompts
             </div>
-            <div class="rounded-2xl bg-base-200 p-2">
+            <div class="kr-tile-sm">
               <strong class="block text-base">{{ book.counts.rendered }}</strong>
               Rendered
             </div>
-            <div class="rounded-2xl bg-base-200 p-2">
+            <div class="kr-tile-sm">
               <strong class="block text-base">{{ book.counts.acceptedPairs }}</strong>
               Pairs
             </div>
-            <div class="rounded-2xl bg-base-200 p-2">
+            <div class="kr-tile-sm">
               <strong class="block text-base">{{ book.counts.finalPairs }}</strong>
               Final
             </div>
@@ -153,21 +153,21 @@
           </div>
 
           <dl class="grid grid-cols-2 gap-3 text-sm">
-            <div class="rounded-2xl bg-base-200 p-3">
+            <div class="kr-tile-md">
               <dt class="text-base-content/50">Pending color</dt>
               <dd class="text-lg font-black">{{ book.counts.pending }}</dd>
             </div>
-            <div class="rounded-2xl bg-base-200 p-3">
+            <div class="kr-tile-md">
               <dt class="text-base-content/50">Needs attention</dt>
               <dd class="text-lg font-black">
                 {{ book.counts.needsReview + book.counts.blocked }}
               </dd>
             </div>
-            <div class="rounded-2xl bg-base-200 p-3">
+            <div class="kr-tile-md">
               <dt class="text-base-content/50">Accepted color</dt>
               <dd class="text-lg font-black">{{ book.counts.acceptedColor }}</dd>
             </div>
-            <div class="rounded-2xl bg-base-200 p-3">
+            <div class="kr-tile-md">
               <dt class="text-base-content/50">Final pairs</dt>
               <dd class="text-lg font-black">{{ book.counts.finalPairs }}</dd>
             </div>
@@ -375,19 +375,19 @@
           </div>
 
           <div class="grid gap-3 sm:grid-cols-3">
-            <div class="rounded-2xl bg-base-200 p-3 text-sm">
+            <div class="kr-tile-md text-sm">
               <span class="block text-xs text-base-content/45">Semantic score</span>
               <strong>
                 {{ studio.selectedProposal.queue.semanticScore ?? '—' }}
               </strong>
             </div>
-            <div class="rounded-2xl bg-base-200 p-3 text-sm">
+            <div class="kr-tile-md text-sm">
               <span class="block text-xs text-base-content/45">Render engine</span>
               <strong>
                 {{ studio.selectedProposal.queue.renderEngine ?? '—' }}
               </strong>
             </div>
-            <div class="rounded-2xl bg-base-200 p-3 text-sm">
+            <div class="kr-tile-md text-sm">
               <span class="block text-xs text-base-content/45">
                 Archived revisions
               </span>

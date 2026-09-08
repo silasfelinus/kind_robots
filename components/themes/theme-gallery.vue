@@ -346,7 +346,7 @@
           </div>
 
           <pre
-            class="max-h-72 overflow-auto rounded-2xl bg-base-200 p-3 text-xs text-base-content/75"
+            class="kr-tile-md max-h-72 overflow-auto text-xs text-base-content/75"
             >{{ inspectValues }}</pre>
         </section>
       </section>

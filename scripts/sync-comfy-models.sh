@@ -19,10 +19,22 @@
 # it explicitly with --prune-remote. Re-running is safe and resumable: files
 # already present at the right size are skipped.
 #
-#   ./scripts/sync-comfy-models.sh --local /opt/comfyui/models            # plan, then confirm
-#   ./scripts/sync-comfy-models.sh --local /opt/comfyui/models --tier core --yes
-#   ./scripts/sync-comfy-models.sh --local /opt/comfyui/models --dry-run
-#   ./scripts/sync-comfy-models.sh --local /opt/comfyui/models --verify   # + sha256 both ends
+# RUNNING IT, from a raw ssh session on Ferngrotto and nothing else assumed:
+#
+#   cd /path/to/kind_robots        # your checkout; Git Bash spells D:\code as /d/code
+#   git pull --ff-only
+#   bash scripts/sync-comfy-models.sh --dry-run          # shows the plan, copies nothing
+#   bash scripts/sync-comfy-models.sh --tier core --yes  # the 3 Krea 2 files
+#
+# Both roots are auto-detected: it looks for a real ComfyUI models directory in
+# the usual places (including /d/ComfyUI/models under Git Bash) and for the
+# Alexandria share at its Unraid path, a UNC path, or a mapped drive. Override
+# either when the guess is wrong:
+#
+#   bash scripts/sync-comfy-models.sh --local /d/ComfyUI/models --remote //alexandria/pc/ai/models
+#
+# Other flags: --verify (sha256 both ends), --tier core|image|video|extra|all,
+# --prune-remote (delete the share copy after verifying), --yes, --dry-run.
 #
 set -euo pipefail
 
@@ -100,9 +112,71 @@ want_tier() {
 
 die() { echo "error: $*" >&2; exit 1; }
 
+# ── finding things ───────────────────────────────────────────────────────────
+#
+# This runs over a raw ssh session, so it assumes nothing about the working
+# directory and nothing about where ComfyUI or the share live. Both roots are
+# auto-detected and both can be overridden by flag or environment variable.
+
+# Candidate ComfyUI model roots. A directory only counts if it already looks
+# like a ComfyUI models dir, so a stray empty path is never silently adopted as
+# the destination for 10 GB of weights.
+looks_like_models_dir() {
+  [[ -d "$1" ]] || return 1
+  local sub
+  for sub in unet diffusion_models clip text_encoders vae checkpoints loras; do
+    [[ -d "$1/$sub" ]] && return 0
+  done
+  return 1
+}
+
+detect_local_root() {
+  local c
+  for c in \
+    "${COMFYUI_MODELS:-}" \
+    /opt/comfyui/models /opt/ComfyUI/models \
+    "$HOME/ComfyUI/models" "$HOME/comfyui/models" \
+    /workspace/ComfyUI/models /srv/comfyui/models \
+    /c/ComfyUI/models /d/ComfyUI/models /e/ComfyUI/models \
+    /c/comfyui/models /d/comfyui/models /e/comfyui/models
+  do
+    [[ -n "$c" ]] && looks_like_models_dir "$c" && { printf '%s\n' "$c"; return 0; }
+  done
+  return 1
+}
+
+# The Alexandria share, however it happens to be mounted on this box: the
+# Unraid path when Ferngrotto is Linux/WSL, a UNC or drive letter under
+# Git Bash/MSYS on Windows.
+detect_remote_root() {
+  local c
+  for c in \
+    "${REMOTE_ROOT_OVERRIDE:-}" \
+    /mnt/user/pc/ai/models \
+    /mnt/alexandria/pc/ai/models "$HOME/alexandria/pc/ai/models" \
+    //alexandria/pc/ai/models \
+    /z/pc/ai/models /y/pc/ai/models /a/pc/ai/models
+  do
+    [[ -n "$c" && -d "$c" ]] && { printf '%s\n' "$c"; return 0; }
+  done
+  return 1
+}
+
 # ── preflight ────────────────────────────────────────────────────────────────
-[[ -n "$LOCAL_ROOT" ]] || die "pass --local <comfyui models dir> (e.g. /opt/comfyui/models)"
-[[ -d "$REMOTE_ROOT" ]] || die "remote root '$REMOTE_ROOT' is not mounted here. Mount the Alexandria share on Ferngrotto first."
+if [[ -z "$LOCAL_ROOT" ]]; then
+  LOCAL_ROOT="$(detect_local_root || true)"
+  [[ -n "$LOCAL_ROOT" ]] && echo "auto-detected ComfyUI models dir: $LOCAL_ROOT"
+fi
+[[ -n "$LOCAL_ROOT" ]] || die "could not find a ComfyUI models directory. Pass it: --local /path/to/ComfyUI/models (Git Bash on Windows uses /d/ComfyUI/models for D:\\ComfyUI\\models)"
+
+if [[ ! -d "$REMOTE_ROOT" ]]; then
+  detected="$(detect_remote_root || true)"
+  if [[ -n "$detected" ]]; then
+    echo "auto-detected Alexandria share: $detected"
+    REMOTE_ROOT="$detected"
+  fi
+fi
+[[ -d "$REMOTE_ROOT" ]] || die "the Alexandria model share is not reachable at '$REMOTE_ROOT'. Mount it and/or pass --remote <path> (Git Bash on Windows: //alexandria/pc/ai/models or /z/pc/ai/models for a mapped Z:)."
 mkdir -p "$LOCAL_ROOT" || die "cannot create '$LOCAL_ROOT'"
 # rsync is preferred (resumable, progress), but a plain cp is a correct
 # fallback — the size/checksum verification below is what actually guarantees
@@ -124,7 +198,32 @@ find_remote() {
   find "$REMOTE_ROOT" -type f -name "$base" -print -quit 2>/dev/null | grep . || return 1
 }
 
-human() { numfmt --to=iec --suffix=B "${1:-0}" 2>/dev/null || echo "${1:-0}B"; }
+# ── portability ──────────────────────────────────────────────────────────────
+# Ferngrotto may be Linux, WSL, or Git Bash/MSYS on Windows. GNU coreutils are
+# not a given on any of those, so every size/space call has a fallback rather
+# than assuming `stat -c` and `numfmt`.
+file_size() {
+  stat -c %s "$1" 2>/dev/null \
+    || stat -f %z "$1" 2>/dev/null \
+    || wc -c < "$1" 2>/dev/null | tr -d ' ' \
+    || echo -1
+}
+
+human() {
+  local b="${1:-0}"
+  numfmt --to=iec --suffix=B "$b" 2>/dev/null && return
+  awk -v b="$b" 'BEGIN{
+    split("B KB MB GB TB",u," "); i=1
+    while (b>=1024 && i<5) { b/=1024; i++ }
+    printf "%.1f%s\n", b, u[i]
+  }'
+}
+
+avail_bytes() {
+  df -PB1 "$1" 2>/dev/null | awk 'NR==2 {print $4; found=1} END{if(!found) exit 1}' && return
+  # BSD/MSYS df has no -B; -P gives 512-byte blocks unless POSIXLY_CORRECT.
+  df -Pk "$1" 2>/dev/null | awk 'NR==2 {printf "%.0f\n", $4*1024}'
+}
 
 # ── plan ─────────────────────────────────────────────────────────────────────
 PLAN=""      # tier|subdir|rel|src|bytes|action
@@ -141,8 +240,8 @@ while IFS='|' read -r tier subdir rel; do
     continue
   fi
 
-  sbytes=$(stat -c %s "$src" 2>/dev/null || echo 0)
-  if [[ -f "$dest" ]] && [[ "$(stat -c %s "$dest" 2>/dev/null || echo -1)" == "$sbytes" ]]; then
+  sbytes=$(file_size "$src")
+  if [[ -f "$dest" ]] && [[ "$(file_size "$dest")" == "$sbytes" ]]; then
     printf '  %-9s %-12s %-52s already local (%s)\n' "$tier" "$subdir" "$rel" "$(human "$sbytes")"
     continue
   fi
@@ -159,11 +258,11 @@ if [[ -z "$PLAN" ]]; then
   exit 0
 fi
 
-avail=$(df -PB1 "$LOCAL_ROOT" | awk 'NR==2 {print $4}')
+avail=$(avail_bytes "$LOCAL_ROOT" || echo 0)
 echo "to copy : $(human "$total")"
 echo "free    : $(human "$avail") on $LOCAL_ROOT"
 [[ "$missing" -gt 0 ]] && echo "missing : $missing not found on the share (skipped)"
-if (( avail < total )); then
+if [[ "${avail:-0}" -gt 0 ]] && (( avail < total )); then
   die "not enough free space on $LOCAL_ROOT — need $(human "$total"), have $(human "$avail")"
 fi
 echo
@@ -196,7 +295,7 @@ while IFS='|' read -r subdir rel src sbytes; do
     cp --preserve=timestamps "$src" "$dest.part"
   fi
 
-  pbytes=$(stat -c %s "$dest.part" 2>/dev/null || echo -1)
+  pbytes=$(file_size "$dest.part")
   if [[ "$pbytes" != "$sbytes" ]]; then
     rm -f -- "$dest.part"
     die "short copy for $rel (src $sbytes, got $pbytes) — share copy left in place"

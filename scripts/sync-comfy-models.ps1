@@ -116,16 +116,19 @@ function Test-ModelsDir([string] $Path) {
   return $false
 }
 
-function Find-LocalRoot {
+# Returns EVERY plausible models root, not the first one. Ferngrotto has three
+# (D:\comfy\models, D:\comfy\comfy-fast\models, D:\comfy\ComfyUI\models) and
+# picking one by list order would have silently written ten gigabytes into
+# whichever happened to sort first. Ambiguity here is not something to resolve
+# by guessing; the caller resolves it with -Local.
+function Find-LocalRoots {
   $candidates = @()
   if ($env:COMFYUI_MODELS) { $candidates += $env:COMFYUI_MODELS }
 
-  # Data drives before C:, since that is where a render box keeps weights.
   $drives = Get-PSDrive -PSProvider FileSystem -ErrorAction SilentlyContinue |
     Where-Object { $null -ne $_.Free } | Select-Object -ExpandProperty Root
   $drives = $drives | Sort-Object -Descending
 
-  # Known spellings first.
   foreach ($d in $drives) {
     foreach ($p in 'ComfyUI\models', 'comfyui\models', 'comfy\models',
                    'AI\ComfyUI\models', 'ComfyUI_windows_portable\ComfyUI\models',
@@ -134,25 +137,29 @@ function Find-LocalRoot {
     }
   }
 
-  # Then a bounded search, because installs get named things no list predicts.
-  # Ferngrotto's is D:\comfy\comfy-fast\models -- a nested folder under a
-  # "comfy" root, which no fixed list was ever going to guess. Only directories
-  # two levels below a drive root whose top segment looks AI-ish are considered,
-  # so this stays a handful of stat calls rather than a disk crawl.
+  # Installs get named things no list predicts (comfy-fast). Look one and two
+  # levels below a drive root whose top segment looks AI-ish -- a handful of
+  # stat calls, not a disk crawl. custom_nodes/ and the ldm source tree carry
+  # their own "models" folders, so those are excluded by name.
   foreach ($d in $drives) {
     $tops = Get-ChildItem -LiteralPath $d -Directory -ErrorAction SilentlyContinue |
       Where-Object { $_.Name -match '^(comfy|ai|stable|sd|diffus)' }
     foreach ($top in $tops) {
       $candidates += (Join-Path $top.FullName 'models')
-      $subs = Get-ChildItem -LiteralPath $top.FullName -Directory -ErrorAction SilentlyContinue
+      $subs = Get-ChildItem -LiteralPath $top.FullName -Directory -ErrorAction SilentlyContinue |
+        Where-Object { $_.Name -notmatch '^(custom_nodes|custom_bck|comfy|web|venv|\.git)$' }
       foreach ($sub in $subs) { $candidates += (Join-Path $sub.FullName 'models') }
     }
   }
 
+  $found = @()
   foreach ($c in $candidates) {
-    if (Test-ModelsDir $c) { return (Resolve-Path -LiteralPath $c).Path }
+    if (Test-ModelsDir $c) {
+      $full = (Resolve-Path -LiteralPath $c).Path
+      if ($found -notcontains $full) { $found += $full }
+    }
   }
-  return $null
+  return $found
 }
 
 function Find-RemoteRoot {
@@ -172,8 +179,22 @@ function Find-RemoteRoot {
 
 # ── preflight ───────────────────────────────────────────────────────────────
 if (-not $Local) {
-  $Local = Find-LocalRoot
-  if ($Local) { Write-Host "auto-detected ComfyUI models dir: $Local" }
+  $roots = @(Find-LocalRoots)
+  if ($roots.Count -eq 1) {
+    $Local = $roots[0]
+    Write-Host "auto-detected ComfyUI models dir: $Local"
+  } elseif ($roots.Count -gt 1) {
+    # Several real models directories. Which one ComfyUI actually loads from is
+    # a question only its config answers, and copying into the wrong one is
+    # ten gigabytes of silent no-op, so this stops rather than picks.
+    Write-Host "found more than one ComfyUI models directory:" -ForegroundColor Yellow
+    foreach ($r in $roots) {
+      $n = @(Get-ChildItem -LiteralPath $r -Recurse -File -Include *.safetensors, *.gguf, *.ckpt -ErrorAction SilentlyContinue).Count
+      Write-Host ("   {0}   ({1} model file(s))" -f $r, $n)
+    }
+    Write-Host ""
+    Fail "cannot tell which one ComfyUI loads from - re-run with the right one, e.g. -Local $($roots[0])"
+  }
 }
 if (-not $Local) {
   Fail "could not find a ComfyUI models directory. Pass it, e.g. -Local D:\comfy\comfy-fast\models. To locate it: Get-ChildItem D:\ -Recurse -Directory -Filter models -Depth 3 | Select FullName"

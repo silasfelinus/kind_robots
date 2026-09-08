@@ -93,12 +93,12 @@
 
     <div
       v-else
-      class="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6"
+      class="grid grid-cols-[repeat(auto-fit,minmax(min(100%,10rem),1fr))] gap-3"
     >
       <button
         v-if="allowEmpty"
         type="button"
-        class="group relative aspect-[2/3] min-h-56 overflow-hidden rounded-[1.5rem] border text-left shadow-md transition hover:-translate-y-1 hover:shadow-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary/70 disabled:cursor-not-allowed disabled:opacity-50 motion-reduce:transform-none"
+        class="group relative aspect-[2/3] min-h-56 overflow-hidden rounded-[1.5rem] border text-left shadow-md transition hover:-translate-y-1 hover:shadow-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary/70 disabled:cursor-not-allowed disabled:opacity-50 motion-reduce:transform-none motion-reduce:transition-none"
         :class="
           modelValue === null
             ? 'border-secondary ring-2 ring-secondary/45'
@@ -153,7 +153,7 @@
     <div v-if="showToggle" class="flex justify-center">
       <button
         type="button"
-        class="btn btn-ghost btn-sm rounded-xl border border-base-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary/70"
+        class="btn btn-ghost btn-sm rounded-xl border border-base-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary/70 motion-reduce:transition-none"
         :disabled="disabled"
         :aria-expanded="expanded"
         @click="expanded = !expanded"

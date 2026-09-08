@@ -133,7 +133,7 @@
           </h2>
 
           <div class="mt-3 grid gap-2 text-sm">
-            <div class="rounded-2xl bg-base-200 p-3">
+            <div class="kr-tile-md">
               <p class="text-xs font-bold uppercase text-base-content/50">
                 Character
               </p>
@@ -143,7 +143,7 @@
               </p>
             </div>
 
-            <div class="rounded-2xl bg-base-200 p-3">
+            <div class="kr-tile-md">
               <p class="text-xs font-bold uppercase text-base-content/50">
                 Scenario
               </p>
@@ -153,7 +153,7 @@
               </p>
             </div>
 
-            <div class="rounded-2xl bg-base-200 p-3">
+            <div class="kr-tile-md">
               <p class="text-xs font-bold uppercase text-base-content/50">
                 Reward
               </p>
@@ -459,7 +459,7 @@
             </h2>
 
             <pre
-              class="max-h-96 overflow-auto rounded-2xl bg-base-200 p-3 text-xs text-base-content/70"
+              class="kr-tile-md max-h-96 overflow-auto text-xs text-base-content/70"
               >{{
                 JSON.stringify(characterStore.selectedCharacter, null, 2)
               }}</pre>

@@ -51,21 +51,21 @@
         />
 
         <div class="grid grid-cols-4 gap-2 text-center text-xs">
-          <div class="rounded-2xl bg-base-200 p-2">
+          <div class="kr-tile-sm">
             <p class="font-black">{{ item.summary.final }}</p>
             <p class="text-base-content/45">Final</p>
           </div>
-          <div class="rounded-2xl bg-base-200 p-2">
+          <div class="kr-tile-sm">
             <p class="font-black">{{ item.summary.finalize }}</p>
             <p class="text-base-content/45">Finalize</p>
           </div>
-          <div class="rounded-2xl bg-base-200 p-2">
+          <div class="kr-tile-sm">
             <p class="font-black">
               {{ item.summary.acceptColor + item.summary.acceptBw }}
             </p>
             <p class="text-base-content/45">Accept</p>
           </div>
-          <div class="rounded-2xl bg-base-200 p-2">
+          <div class="kr-tile-sm">
             <p class="font-black text-error">{{ item.summary.blocked }}</p>
             <p class="text-base-content/45">Blocked</p>
           </div>

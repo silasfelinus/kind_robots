@@ -376,7 +376,7 @@
         </div>
 
         <pre
-          class="max-h-80 overflow-auto whitespace-pre-wrap rounded-2xl bg-base-200 p-3 text-xs text-base-content/70"
+          class="kr-tile-md max-h-80 overflow-auto whitespace-pre-wrap text-xs text-base-content/70"
           >{{ promptPreview }}</pre>
       </section>
     </aside>

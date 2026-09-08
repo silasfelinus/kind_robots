@@ -1,6 +1,6 @@
 <!-- /components/content/user/user-dashboard.vue -->
 <template>
-  <section class="kr-surface gap-4 rounded-2xl bg-base-200 p-3 sm:p-4">
+  <section class="kr-tile-md kr-surface gap-4 sm:p-4">
     <header class="kr-toolbar kr-panel-flat px-4 py-3">
       <Icon name="kind-icon:sparkles" class="h-5 w-5 shrink-0 text-primary" />
 

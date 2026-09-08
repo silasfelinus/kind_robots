@@ -66,19 +66,19 @@
         />
 
         <div class="grid grid-cols-3 gap-2 text-center text-xs">
-          <div class="rounded-2xl bg-base-200 p-2">
+          <div class="kr-tile-sm">
             <p class="font-black">
               {{ book.finalPairCount }}/{{ book.expectedInteriorCount }}
             </p>
             <p class="text-base-content/45">Final pairs</p>
           </div>
-          <div class="rounded-2xl bg-base-200 p-2">
+          <div class="kr-tile-sm">
             <p class="font-black" :class="book.coverStatus === 'final' ? 'text-success' : ''">
               {{ book.coverStatus }}
             </p>
             <p class="text-base-content/45">Cover</p>
           </div>
-          <div class="rounded-2xl bg-base-200 p-2">
+          <div class="kr-tile-sm">
             <p class="font-black">
               {{ book.missingLayoutFields.length + book.missingExportFields.length }}
             </p>

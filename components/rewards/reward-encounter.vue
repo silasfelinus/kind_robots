@@ -476,7 +476,7 @@
 
           <pre
             v-if="showPromptPreview"
-            class="mt-3 max-h-72 overflow-auto whitespace-pre-wrap rounded-2xl bg-base-200 p-3 text-xs text-base-content/70"
+            class="kr-tile-md mt-3 max-h-72 overflow-auto whitespace-pre-wrap text-xs text-base-content/70"
             >{{ rewardPromptPreview }}</pre>
         </section>
       </aside>

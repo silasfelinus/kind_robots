@@ -138,7 +138,7 @@
         </button>
 
         <!-- result -->
-        <div class="flex min-h-48 items-center justify-center rounded-2xl bg-base-200 p-3">
+        <div class="kr-tile-md flex min-h-48 items-center justify-center">
           <div
             v-if="result(side).status === 'idle'"
             class="flex flex-col items-center gap-2 text-xs text-base-content/50"

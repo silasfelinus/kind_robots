@@ -31,7 +31,7 @@
               {{ card.title }}
             </h2>
           </div>
-          <p class="text-sm leading-relaxed text-base-content/70">
+          <p class="kr-text-dim-sm-70 leading-relaxed">
             {{ card.content }}
           </p>
         </div>
@@ -49,7 +49,7 @@
           </h2>
         </div>
 
-        <p class="text-sm leading-relaxed text-base-content/70">
+        <p class="kr-text-dim-sm-70 leading-relaxed">
           Kind Robots grew alongside creative people and projects that share its
           optimistic, community-minded spirit. Our anti-malaria work points
           donations directly to the Against Malaria Foundation, while our

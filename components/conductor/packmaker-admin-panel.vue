@@ -110,7 +110,7 @@
           <Icon name="kind-icon:pencil" class="size-3.5" />
           Edit / rename
         </button>
-        <p class="w-full text-sm leading-relaxed text-base-content/70">
+        <p class="kr-text-dim-sm-70 w-full leading-relaxed">
           {{ selectedPack.description }}
         </p>
       </div>

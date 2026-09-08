@@ -5,13 +5,11 @@
       <section class="flex flex-col items-start gap-3 kr-panel-section">
         <div class="flex items-center gap-2">
           <Icon name="kind-icon:pencil" class="size-5 text-primary" />
-          <h3
-            class="text-sm font-black uppercase tracking-wide text-base-content/70"
-          >
+          <h3 class="kr-text-dim-sm-70 font-black uppercase tracking-wide">
             Try today's assignment
           </h3>
         </div>
-        <p class="text-sm text-base-content/70">
+        <p class="kr-text-dim-sm-70">
           Sketchy hands you a tier-appropriate drawing prompt, then critiques
           the result on five dimensions and picks your next study. Preview a
           sample from each skill tier below.

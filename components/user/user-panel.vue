@@ -53,7 +53,7 @@
           class="flex min-w-0 flex-col gap-1"
           :class="{ 'md:col-span-2': field.type === 'textarea' }"
         >
-          <span class="text-sm font-bold text-base-content/70">
+          <span class="kr-text-dim-sm-70 font-bold">
             {{ field.label }}
           </span>
 

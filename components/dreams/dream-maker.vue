@@ -340,7 +340,7 @@
                   </p>
                 </div>
               </div>
-              <p class="mt-3 whitespace-pre-wrap text-sm text-base-content/70">
+              <p class="kr-text-dim-sm-70 mt-3 whitespace-pre-wrap">
                 {{
                   dreamStore.dreamForm.pitch ||
                   dreamStore.dreamForm.description ||

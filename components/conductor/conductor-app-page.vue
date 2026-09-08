@@ -9,13 +9,11 @@
       <section class="flex flex-col items-start gap-3 kr-panel-section">
         <div class="flex items-center gap-2">
           <Icon name="kind-icon:server" class="size-5 text-primary" />
-          <h3
-            class="text-sm font-black uppercase tracking-wide text-base-content/70"
-          >
+          <h3 class="kr-text-dim-sm-70 font-black uppercase tracking-wide">
             Build progress
           </h3>
         </div>
-        <p class="text-sm text-base-content/70">
+        <p class="kr-text-dim-sm-70">
           The Flutter client is built in the open, one roadmap task at a time —
           the same conductor roadmap that steers every other project here.
         </p>
@@ -33,7 +31,7 @@
           <li
             v-for="task in nextTasks"
             :key="task.id"
-            class="text-sm text-base-content/70"
+            class="kr-text-dim-sm-70"
           >
             <Icon
               name="kind-icon:sparkles"

@@ -152,7 +152,7 @@
           <Icon :name="store.selectedItem.icon" class="h-12 w-12" />
         </div>
 
-        <p class="text-sm leading-relaxed text-base-content/70">
+        <p class="kr-text-dim-sm-70 leading-relaxed">
           {{ store.selectedItem.tooltip }}
         </p>
 

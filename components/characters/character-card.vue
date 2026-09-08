@@ -84,7 +84,7 @@
       >
         <p
           v-if="showDescription"
-          class="line-clamp-3 text-sm leading-relaxed text-base-content/70"
+          class="kr-text-dim-sm-70 line-clamp-3 leading-relaxed"
         >
           {{ descriptionText }}
         </p>

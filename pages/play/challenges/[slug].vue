@@ -255,7 +255,7 @@
                     {{ entityTitle(submission.Character, 'Unnamed character') }}
                   </h3>
                   <p
-                    class="mt-3 whitespace-pre-line text-sm leading-relaxed text-base-content/70"
+                    class="kr-text-dim-sm-70 mt-3 whitespace-pre-line leading-relaxed"
                   >
                     {{ entityDescription(submission.Character) }}
                   </p>
@@ -274,7 +274,7 @@
                     {{ entityTitle(submission.Scenario, 'Untitled scenario') }}
                   </h3>
                   <p
-                    class="mt-3 whitespace-pre-line text-sm leading-relaxed text-base-content/70"
+                    class="kr-text-dim-sm-70 mt-3 whitespace-pre-line leading-relaxed"
                   >
                     {{ entityDescription(submission.Scenario) }}
                   </p>

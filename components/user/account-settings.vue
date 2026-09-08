@@ -8,7 +8,7 @@
   <section class="kr-container max-w-3xl flex flex-col gap-6 p-4 sm:p-6">
     <header class="flex flex-col gap-1">
       <h1 class="text-2xl font-black">Account &amp; Privacy</h1>
-      <p class="text-sm text-base-content/70">
+      <p class="kr-text-dim-sm-70">
         You're in control. Change what you share, who can reach you, and what
         lands in your inbox.
       </p>
@@ -34,7 +34,7 @@
       <!-- ── Security ─────────────────────────────────────────────── -->
       <div class="kr-panel-flat p-5">
         <h2 class="mb-1 text-lg font-black">Security</h2>
-        <p class="mb-4 text-sm text-base-content/70">
+        <p class="kr-text-dim-sm-70 mb-4">
           Update your password and verify your email address.
         </p>
 
@@ -79,9 +79,7 @@
           @submit.prevent="onChangePassword"
         >
           <label v-if="hasPassword" class="flex flex-col gap-1 sm:col-span-2">
-            <span class="text-sm font-bold text-base-content/70"
-              >Current password</span
-            >
+            <span class="kr-text-dim-sm-70 font-bold">Current password</span>
             <input
               v-model="pw.current"
               type="password"
@@ -90,9 +88,7 @@
             />
           </label>
           <label class="flex flex-col gap-1">
-            <span class="text-sm font-bold text-base-content/70"
-              >New password</span
-            >
+            <span class="kr-text-dim-sm-70 font-bold">New password</span>
             <input
               v-model="pw.next"
               type="password"
@@ -101,7 +97,7 @@
             />
           </label>
           <label class="flex flex-col gap-1">
-            <span class="text-sm font-bold text-base-content/70"
+            <span class="kr-text-dim-sm-70 font-bold"
               >Confirm new password</span
             >
             <input
@@ -134,7 +130,7 @@
       <!-- ── Privacy & Consent ────────────────────────────────────── -->
       <div class="kr-panel-flat p-5">
         <h2 class="mb-1 text-lg font-black">Privacy &amp; Consent</h2>
-        <p class="mb-4 text-sm text-base-content/70">
+        <p class="kr-text-dim-sm-70 mb-4">
           Consent is the default here. Choose what you see and what others can
           do.
         </p>
@@ -239,7 +235,7 @@
       <!-- ── Newsletter ───────────────────────────────────────────── -->
       <div class="kr-panel-flat p-5">
         <h2 class="mb-1 text-lg font-black">Updates &amp; Promotions</h2>
-        <p class="mb-4 text-sm text-base-content/70">
+        <p class="kr-text-dim-sm-70 mb-4">
           Can we email you updates? Pick a rhythm — we only send what you ask
           for, and we'll email you once to confirm.
         </p>

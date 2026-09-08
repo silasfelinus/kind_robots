@@ -72,7 +72,7 @@
         <span class="flex items-center gap-2">
           <Icon name="kind-icon:info" class="h-5 w-5 text-primary" />
           <span
-            class="text-sm font-black uppercase tracking-widest text-base-content/70"
+            class="kr-text-dim-sm-70 font-black uppercase tracking-widest"
           >
             {{ showTutorial ? 'Hide tutorial' : 'Show tutorial' }}
           </span>
@@ -254,7 +254,7 @@
 
                   <div
                     v-if="isFieldOpen(card.key, field.key)"
-                    class="mt-3 rounded-2xl border border-base-300/60 bg-base-100/90 p-3 text-sm font-semibold leading-relaxed text-base-content/70 shadow-sm backdrop-blur"
+                    class="kr-text-dim-sm-70 mt-3 rounded-2xl border border-base-300/60 bg-base-100/90 p-3 font-semibold leading-relaxed shadow-sm backdrop-blur"
                   >
                     {{ fieldDetails(field) }}
                   </div>

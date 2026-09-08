@@ -63,7 +63,7 @@
         </div>
 
         <p
-          class="text-sm font-medium leading-relaxed text-base-content/70 md:text-base"
+          class="kr-text-dim-sm-70 font-medium leading-relaxed md:text-base"
         >
           {{ section.body }}
         </p>
@@ -222,7 +222,7 @@
                   </div>
 
                   <p
-                    class="mt-1.5 text-sm font-medium leading-relaxed text-base-content/70"
+                    class="kr-text-dim-sm-70 mt-1.5 font-medium leading-relaxed"
                   >
                     {{ section.body }}
                   </p>

@@ -7,7 +7,7 @@
           <div class="flex items-center gap-2">
             <Icon name="kind-icon:server" class="size-5 text-primary" />
             <h3
-              class="text-sm font-black uppercase tracking-wide text-base-content/70"
+              class="kr-text-dim-sm-70 font-black uppercase tracking-wide"
             >
               Relay status
             </h3>
@@ -22,7 +22,7 @@
             {{ voice.connected ? 'Relay connected' : 'Relay offline' }}
           </span>
         </div>
-        <p class="text-sm text-base-content/70">
+        <p class="kr-text-dim-sm-70">
           The Serendipity voice runtime
           (<code>silasfelinus/serendipity-voice</code>) bridges an Alexa skill
           to Kind Robots through a local relay. Run
@@ -84,7 +84,7 @@
         <div class="flex items-center gap-2">
           <Icon name="kind-icon:book" class="size-5 text-primary" />
           <h3
-            class="text-sm font-black uppercase tracking-wide text-base-content/70"
+            class="kr-text-dim-sm-70 font-black uppercase tracking-wide"
           >
             What you can say
           </h3>

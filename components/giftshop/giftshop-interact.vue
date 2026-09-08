@@ -48,7 +48,7 @@
               {{ feature.title }}
             </h4>
 
-            <p class="mt-1 text-sm leading-relaxed text-base-content/70">
+            <p class="kr-text-dim-sm-70 mt-1 leading-relaxed">
               {{ feature.text }}
             </p>
           </article>
@@ -114,7 +114,7 @@
               />
 
               <div class="space-y-2 p-4">
-                <p class="line-clamp-2 text-sm text-base-content/70">
+                <p class="kr-text-dim-sm-70 line-clamp-2">
                   {{ art.promptString || 'Featured print' }}
                 </p>
 
@@ -143,7 +143,7 @@
                   {{ item.title }}
                 </h4>
 
-                <p class="text-sm text-base-content/70">
+                <p class="kr-text-dim-sm-70">
                   {{ item.text }}
                 </p>
               </div>
@@ -169,7 +169,7 @@
         <div>
           <h3 class="text-xl font-black text-primary">Cart Nest</h3>
 
-          <p class="text-sm text-base-content/70">
+          <p class="kr-text-dim-sm-70">
             Guarded by three butterflies and one emotionally available receipt
             printer.
           </p>

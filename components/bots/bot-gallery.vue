@@ -13,10 +13,7 @@
             {{ title }}
           </h2>
 
-          <p
-            v-if="botStore.currentBot"
-            class="truncate text-sm text-base-content/70"
-          >
+          <p v-if="botStore.currentBot" class="kr-text-dim-sm-70 truncate">
             Selected:
             <span class="font-semibold text-primary">
               {{ selectedBotTitle }}

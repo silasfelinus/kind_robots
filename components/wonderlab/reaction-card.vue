@@ -37,7 +37,7 @@
         <div
           class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between"
         >
-          <label class="text-sm font-bold text-base-content/70"> Rate </label>
+          <label class="kr-text-dim-sm-70 font-bold"> Rate </label>
 
           <button
             v-if="rating"

@@ -1657,6 +1657,26 @@ section:has(div[class*='xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]'])
     @apply text-xs text-base-content/50;
   }
 
+  /* A less-dimmed secondary caption at body-text size -- `text-sm
+   * text-base-content/70`, the same "secondary caption" role as
+   * `.kr-text-dim-sm` but at a lighter dim (70% vs. 60% opacity), used for
+   * descriptive paragraph text (project/page copy, card body text) rather
+   * than the more muted metadata-style line `.kr-text-dim-sm` targets
+   * (interface-vision t-104 slice 155) -- previously hand-rolled in 63
+   * files (118 occurrences, subset-match including extra tokens like
+   * `leading-relaxed`, `line-clamp-*`, `font-*`), the larger of the two
+   * candidates surveyed in slice 152's original frequency pass and named as
+   * slice 154's own follow-up target alongside `text-xs
+   * text-base-content/45`. Named `kr-text-dim-sm-70` rather than reusing
+   * `kr-text-dim-sm` because that name is already claimed by the 60%-opacity
+   * shape shipped in slice 153 -- both are real, independently-repeated
+   * exact shapes in the wild, not one "should normalize to" the other. The
+   * still-unresolved sibling (`text-xs text-base-content/45`) is left for a
+   * future slice, same convention as `.kr-spinner-xs`/`.kr-spinner-sm`. */
+  .kr-text-dim-sm-70 {
+    @apply text-sm text-base-content/70;
+  }
+
   .text-smart {
     @apply text-sm md:text-lg lg:text-lg xl:text-xl;
   }

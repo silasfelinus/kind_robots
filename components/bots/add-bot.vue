@@ -6,7 +6,7 @@
         {{ title }}
       </h1>
 
-      <p class="mt-2 text-sm text-base-content/70">
+      <p class="kr-text-dim-sm-70 mt-2">
         {{ subtitle }}
       </p>
     </header>
@@ -29,7 +29,7 @@
             <div>
               <h2 class="text-xl font-bold text-base-content">Identity</h2>
 
-              <p class="text-sm text-base-content/70">
+              <p class="kr-text-dim-sm-70">
                 Define the bot’s visible profile and general vibe.
               </p>
             </div>
@@ -150,7 +150,7 @@
             <div>
               <h2 class="text-xl font-bold text-base-content">Avatar</h2>
 
-              <p class="text-sm text-base-content/70">
+              <p class="kr-text-dim-sm-70">
                 Use a URL/path, upload an image, or borrow a gallery image.
               </p>
             </div>
@@ -215,7 +215,7 @@
               AI Update Controls
             </h2>
 
-            <p class="text-sm text-base-content/70">
+            <p class="kr-text-dim-sm-70">
               Select fields for AI to refresh. Fields marked “keep” are
               protected.
             </p>
@@ -389,7 +389,7 @@
           <div>
             <h2 class="text-xl font-bold text-base-content">Publishing</h2>
 
-            <p class="text-sm text-base-content/70">
+            <p class="kr-text-dim-sm-70">
               Control visibility and construction status. The text engine is
               chosen at chat time.
             </p>

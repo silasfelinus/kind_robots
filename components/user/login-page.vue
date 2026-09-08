@@ -61,7 +61,7 @@
             Welcome back, friend 💜
           </p>
 
-          <p class="mt-1 text-sm font-medium text-base-content/70 sm:text-base">
+          <p class="kr-text-dim-sm-70 mt-1 font-medium sm:text-base">
             Sign in and let the tiny robots resume being suspiciously helpful.
           </p>
         </div>
@@ -160,7 +160,7 @@
           </button>
 
           <div
-            class="flex flex-col items-center justify-center gap-2 text-sm font-semibold text-base-content/70 sm:flex-row"
+            class="kr-text-dim-sm-70 flex flex-col items-center justify-center gap-2 font-semibold sm:flex-row"
           >
             <span>New here?</span>
             <NuxtLink
@@ -182,7 +182,7 @@
             You are already signed in.
           </p>
 
-          <p class="text-sm font-semibold text-base-content/70">
+          <p class="kr-text-dim-sm-70 font-semibold">
             The gate robot recognizes you. Slightly alarming, but convenient.
           </p>
 

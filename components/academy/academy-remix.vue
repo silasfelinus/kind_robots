@@ -11,7 +11,7 @@
           <Icon name="kind-icon:magic" class="h-5 w-5 text-primary" />
           Remix Studio
         </h2>
-        <p class="text-sm text-base-content/70">
+        <p class="kr-text-dim-sm-70">
           Pick a historical style, bring an image — yours or from the gallery —
           and let the Kontext engine repaint it the way the masters would have.
         </p>

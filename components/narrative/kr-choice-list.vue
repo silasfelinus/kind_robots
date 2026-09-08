@@ -27,7 +27,7 @@
     role="group"
     :aria-label="label"
   >
-    <p v-if="heading" class="w-full text-sm font-bold text-base-content/70">
+    <p v-if="heading" class="kr-text-dim-sm-70 w-full font-bold">
       {{ heading }}
     </p>
 

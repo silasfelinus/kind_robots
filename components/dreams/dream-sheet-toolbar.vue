@@ -8,7 +8,7 @@
           PitchSheets
         </p>
 
-        <p class="mt-1 text-sm text-base-content/70">
+        <p class="kr-text-dim-sm-70 mt-1">
           {{ statusText }}
         </p>
       </div>

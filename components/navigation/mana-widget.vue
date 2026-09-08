@@ -19,7 +19,7 @@
         class="absolute right-0 z-50 mt-2 w-72 space-y-3 rounded-2xl border border-base-content/10 bg-base-100 p-4 shadow-xl"
       >
         <div class="flex items-baseline justify-between">
-          <span class="text-sm font-medium text-base-content/70">
+          <span class="kr-text-dim-sm-70 font-medium">
             {{ userStore.username }}'s Mana
           </span>
           <span class="text-2xl font-extrabold tabular-nums text-primary">

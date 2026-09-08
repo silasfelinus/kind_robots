@@ -51,7 +51,7 @@
         :open="createOpen"
       >
         <summary
-          class="cursor-pointer px-4 py-3 text-sm font-bold text-base-content/70"
+          class="kr-text-dim-sm-70 cursor-pointer px-4 py-3 font-bold"
           @click.prevent="createOpen = !createOpen"
         >
           + Create a canonical Facet

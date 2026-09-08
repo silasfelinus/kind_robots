@@ -57,7 +57,7 @@
           </div>
 
           <p
-            class="mt-5 rounded-2xl bg-base-200/70 p-4 text-sm leading-relaxed text-base-content/70"
+            class="kr-text-dim-sm-70 mt-5 rounded-2xl bg-base-200/70 p-4 leading-relaxed"
           >
             This member has chosen to make their Kind Robots profile public.
           </p>

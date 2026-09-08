@@ -10,7 +10,7 @@
             Message Timeline
           </p>
           <h2 class="text-2xl font-black text-base-content">Chats</h2>
-          <p class="text-sm text-base-content/70">
+          <p class="kr-text-dim-sm-70">
             Human, system, welcome, bot, and beautifully suspicious robot
             conversations.
           </p>
@@ -144,7 +144,7 @@
                 </div>
               </div>
 
-              <p class="mt-2 line-clamp-2 text-sm text-base-content/70">
+              <p class="kr-text-dim-sm-70 mt-2 line-clamp-2">
                 <span class="font-semibold">
                   {{ previewPrefix(thread.latest) }}
                 </span>

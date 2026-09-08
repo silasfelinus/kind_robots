@@ -89,7 +89,7 @@
                 Giftshop Forum
               </h2>
 
-              <p class="text-sm leading-relaxed text-base-content/70">
+              <p class="kr-text-dim-sm-70 leading-relaxed">
                 The butterflies are drafting community guidelines in glitter
                 ink. This tab is wired to the dashboard canon and ready for the
                 real forum component when it lands.

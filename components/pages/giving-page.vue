@@ -42,7 +42,7 @@
 
         <h2 class="mt-2 text-lg font-black text-base-content">Why AMF?</h2>
 
-        <p class="mt-1 text-sm leading-relaxed text-base-content/70">
+        <p class="kr-text-dim-sm-70 mt-1 leading-relaxed">
           {{ trivia }}
         </p>
       </div>
@@ -54,7 +54,7 @@
           Prefer It On Your Receipt?
         </h2>
 
-        <p class="mt-1 text-sm leading-relaxed text-base-content/70">
+        <p class="kr-text-dim-sm-70 mt-1 leading-relaxed">
           You can add a $1 AMF-designated donation to a Kind Robots purchase.
           Stripe collects it with the rest of the cart, and Kind Robots records
           it separately for AMF remittance. Use the direct link above when you
@@ -101,7 +101,7 @@
         <h2 class="mt-2 text-2xl font-black text-base-content">
           Support Kind Robots Monthly
         </h2>
-        <p class="mx-auto mt-2 max-w-2xl text-sm text-base-content/70">
+        <p class="kr-text-dim-sm-70 mx-auto mt-2 max-w-2xl">
           Monthly plans support Kind Robots itself: servers, art, stories, and
           continued development. This is separate from donations to AMF.
         </p>

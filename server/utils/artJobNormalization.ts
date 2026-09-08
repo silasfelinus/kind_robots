@@ -37,6 +37,18 @@ export const DEFAULT_UNPEOPLED_ART_DIRECTION =
 const VAGUE_ART_DIRECTION =
   /\b(?:(?:rich|cohesive|friendly)\s+)?Kind Robots\s+(?:visual\s+)?(?:style|language)\b/gi
 
+// Exact pre-2026-08-08 wording that shipped before the prompt contract existed.
+// Requeueing those rows verbatim makes them fail forever at claim time. Keep
+// this migration evidence-led and narrow: these are the phrases from the
+// production failures and the commits that replaced their producers (#1606,
+// #1609, #1622), not a second general-purpose prompt sanitizer.
+const LEGACY_ASSET_ART_DIRECTION =
+  'detailed mature western animation with multidimensional worldbuilding, expressive anatomy and faces, confident ink-like linework, dimensional shapes, rich controlled color, cinematic lighting, tactile environments, and clear readable silhouettes; cast characters naturally across many species, ages, body sizes, body shapes, gender presentations, and levels of conventional attractiveness; include robots only when the subject or scene explicitly calls for them'
+
+const LEGACY_CARD_COMPOSITION = /\b(?:2:3\s+portrait\s+)?card composition\b/gi
+const LEGACY_TREASURE_CARD = /\btreasure[- ]card illustration\b/gi
+const LEGACY_ABILITY_CARD = /\bability[- ]card illustration\b/gi
+
 function asRecord(value: unknown): ArtJobPayloadRecord {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return {}
   return value as ArtJobPayloadRecord
@@ -115,6 +127,22 @@ export function normalizeKindRobotsImagePath(value: unknown): string {
 }
 
 /**
+ * Repair only prompt wording that is known to have shipped before the current
+ * prompt contract. The original producers are already fixed; this exists so
+ * explicitly reviewed FAILED rows can cross the newer claim-time gate instead
+ * of cycling back to FAILED unchanged.
+ */
+export function repairLegacyArtPrompt(value: string): string {
+  return value
+    .replace(LEGACY_ASSET_ART_DIRECTION, DEFAULT_ASSET_ART_STYLE)
+    .replace(LEGACY_CARD_COMPOSITION, 'vertical 2:3 portrait composition')
+    .replace(LEGACY_TREASURE_CARD, 'object illustration')
+    .replace(LEGACY_ABILITY_CARD, 'concept illustration')
+    .replace(/\s+/g, ' ')
+    .trim()
+}
+
+/**
  * Swap the legacy "Kind Robots visual style" filler — which gives an image model
  * no visual information — for the concrete house style.
  *
@@ -126,10 +154,9 @@ export function normalizeKindRobotsImagePath(value: unknown): string {
  * DEFAULT_CAST_ART_DIRECTION themselves.
  */
 export function replaceVagueArtDirection(value: string): string {
-  return value
-    .replace(VAGUE_ART_DIRECTION, DEFAULT_ASSET_ART_STYLE)
-    .replace(/\s+/g, ' ')
-    .trim()
+  return repairLegacyArtPrompt(
+    value.replace(VAGUE_ART_DIRECTION, DEFAULT_ASSET_ART_STYLE),
+  )
 }
 
 function normalizeStringsDeep(value: unknown): unknown {

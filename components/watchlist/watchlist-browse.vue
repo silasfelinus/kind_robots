@@ -55,7 +55,7 @@
 
       <!-- Recent entries (BROWSE-UX.md §1) -- fixed global view, no filters -->
       <div v-if="recentEntries.length" class="kr-panel-section-flat">
-        <p class="mb-2 text-xs font-semibold uppercase text-base-content/50">
+        <p class="kr-text-dim-xs mb-2 font-semibold uppercase">
           Recent entries
         </p>
         <ul class="flex flex-col gap-1">
@@ -71,7 +71,7 @@
             <span class="truncate font-semibold text-base-content">{{
               entry.title
             }}</span>
-            <span class="ml-auto shrink-0 text-xs text-base-content/50">{{
+            <span class="kr-text-dim-xs ml-auto shrink-0">{{
               formatDate(entry)
             }}</span>
           </li>
@@ -89,9 +89,7 @@
           <span class="text-lg font-black text-base-content">{{
             stats.totalCount
           }}</span>
-          <span class="text-xs font-semibold text-base-content/50"
-            >entries</span
-          >
+          <span class="kr-text-dim-xs font-semibold">entries</span>
         </div>
         <div
           class="flex flex-col items-center gap-0.5 rounded-2xl p-2 text-center"
@@ -99,9 +97,7 @@
           <span class="text-lg font-black text-base-content">{{
             stats.starredCount
           }}</span>
-          <span class="text-xs font-semibold text-base-content/50"
-            >starred</span
-          >
+          <span class="kr-text-dim-xs font-semibold">starred</span>
         </div>
         <div
           class="flex flex-col items-center gap-0.5 rounded-2xl p-2 text-center"
@@ -109,9 +105,7 @@
           <span class="text-lg font-black text-base-content">{{
             Math.round(stats.audiobookHours)
           }}</span>
-          <span class="text-xs font-semibold text-base-content/50"
-            >audiobook hrs</span
-          >
+          <span class="kr-text-dim-xs font-semibold">audiobook hrs</span>
         </div>
         <div
           class="flex flex-col items-center gap-0.5 rounded-2xl p-2 text-center"
@@ -119,9 +113,7 @@
           <span class="text-lg font-black text-base-content">{{
             stats.pagesRead
           }}</span>
-          <span class="text-xs font-semibold text-base-content/50"
-            >pages read</span
-          >
+          <span class="kr-text-dim-xs font-semibold">pages read</span>
         </div>
         <div
           class="flex flex-col items-center gap-0.5 rounded-2xl p-2 text-center"
@@ -129,9 +121,7 @@
           <span class="text-lg font-black text-base-content">{{
             stats.comicIssuesRead
           }}</span>
-          <span class="text-xs font-semibold text-base-content/50"
-            >comics read</span
-          >
+          <span class="kr-text-dim-xs font-semibold">comics read</span>
         </div>
         <div
           class="flex flex-col items-center gap-0.5 rounded-2xl p-2 text-center"
@@ -139,7 +129,7 @@
           <span class="text-lg font-black text-base-content">{{
             stats.tvSeasonCount
           }}</span>
-          <span class="text-xs font-semibold text-base-content/50"
+          <span class="kr-text-dim-xs font-semibold"
             >TV seasons ({{ stats.tvShowCount }} shows)</span
           >
         </div>
@@ -151,9 +141,7 @@
         class="grid grid-cols-[repeat(auto-fit,minmax(16rem,1fr))] gap-4 kr-panel-section-flat"
       >
         <div v-if="mediaTypeBreakdown.length" class="flex flex-col gap-2">
-          <p class="text-xs font-semibold uppercase text-base-content/50">
-            By media type
-          </p>
+          <p class="kr-text-dim-xs font-semibold uppercase">By media type</p>
           <div
             v-for="row in mediaTypeBreakdown"
             :key="row.label"
@@ -165,7 +153,7 @@
               :value="row.count"
               :max="mediaTypeMax"
             />
-            <span class="w-6 shrink-0 text-right text-xs text-base-content/50">
+            <span class="kr-text-dim-xs w-6 shrink-0 text-right">
               {{ row.count }}
             </span>
           </div>
@@ -174,7 +162,7 @@
         <div class="flex flex-col gap-2">
           <p
             v-if="monthBreakdown.length"
-            class="text-xs font-semibold uppercase text-base-content/50"
+            class="kr-text-dim-xs font-semibold uppercase"
           >
             By month
           </p>
@@ -204,9 +192,7 @@
           </div>
 
           <template v-if="stats.topStarred.length">
-            <p
-              class="mt-2 text-xs font-semibold uppercase text-base-content/50"
-            >
+            <p class="kr-text-dim-xs mt-2 font-semibold uppercase">
               Top starred
             </p>
             <ul class="flex flex-col gap-1">
@@ -234,7 +220,7 @@
         v-if="stats && showYearComparison"
         class="overflow-x-auto kr-panel-section-flat"
       >
-        <p class="mb-2 text-xs font-semibold uppercase text-base-content/50">
+        <p class="kr-text-dim-xs mb-2 font-semibold uppercase">
           Year over year
         </p>
         <table class="table table-sm">
@@ -503,9 +489,7 @@
                 entry.title
               }}</span>
             </div>
-            <div
-              class="flex shrink-0 items-center gap-2 text-xs text-base-content/50"
-            >
+            <div class="kr-text-dim-xs flex shrink-0 items-center gap-2">
               <span
                 v-if="entry.rating"
                 class="kr-badge-warning-sm gap-0.5 rounded-lg"

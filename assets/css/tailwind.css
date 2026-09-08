@@ -1652,7 +1652,16 @@ section:has(div[class*='xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]'])
    * match across sizes. The other opacity/size variants surveyed alongside
    * this one (`text-sm text-base-content/70`, `text-xs
    * text-base-content/45`, `text-xs text-base-content/55`, etc.) are left
-   * for future slices, same convention as `.kr-spinner-xs`/`.kr-spinner-sm`. */
+   * for future slices, same convention as `.kr-spinner-xs`/`.kr-spinner-sm`.
+   * Slice 154 deliberately ran the codemod with `--exact-only`, bounding
+   * that first pass to sources with no extra tokens and leaving the fuller
+   * subset-match pool for later (the script's own `--exact-only` help text
+   * says as much). Slice 160 re-ran it without that flag: 74 further files
+   * (150 occurrences, token-order-independent -- `text-base-content/50
+   * text-xs` as well as `text-xs text-base-content/50`) carried the same
+   * pair alongside extra tokens (`ml-auto`, `mt-1`, `truncate`, `font-bold
+   * uppercase`, etc.). `.kr-text-dim-xs` now covers the family completely;
+   * 0 hand-rolled occurrences of this exact pair remain in `*.vue`. */
   .kr-text-dim-xs {
     @apply text-xs text-base-content/50;
   }

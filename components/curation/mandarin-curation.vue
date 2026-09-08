@@ -274,7 +274,7 @@
                 >unsaved</span
               >
             </div>
-            <p class="mt-1 text-xs text-base-content/50">
+            <p class="kr-text-dim-xs mt-1">
               {{ selectedRow.cardKey }} · {{ selectedRow.source.sourceLabel }}
             </p>
           </div>

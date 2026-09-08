@@ -57,7 +57,7 @@
                 'Unknown User'
               }}
             </h3>
-            <p class="text-xs text-base-content/50 uppercase tracking-widest">
+            <p class="kr-text-dim-xs uppercase tracking-widest">
               {{ formatRole(userById.get(Number(item.id))!.Role) }}
             </p>
 

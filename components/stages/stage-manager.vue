@@ -109,7 +109,7 @@
             <p class="text-xs font-black text-base-content">
               {{ store.selectedStage.label }}
             </p>
-            <p class="text-xs text-base-content/50 mt-0.5 line-clamp-2">
+            <p class="kr-text-dim-xs mt-0.5 line-clamp-2">
               {{ store.selectedStage.tagline }}
             </p>
           </div>
@@ -196,7 +196,7 @@
                 :style="`width: ${Math.min(100, (store.turnIndex / store.maxTurns) * 100)}%`"
               />
             </div>
-            <span class="text-xs text-base-content/50 shrink-0"
+            <span class="kr-text-dim-xs shrink-0"
               >{{ store.turnIndex }}/{{ store.maxTurns }}</span
             >
           </div>
@@ -333,7 +333,7 @@
                       <p class="text-xs font-bold text-base-content truncate">
                         {{ p.name }}
                       </p>
-                      <p class="text-xs text-base-content/50 truncate">
+                      <p class="kr-text-dim-xs truncate">
                         {{ p.species }}
                       </p>
                     </div>
@@ -425,7 +425,7 @@
                 </div>
                 <div class="flex items-center gap-1.5">
                   <span
-                    class="rounded-full border border-base-300 px-2 py-0.5 text-xs text-base-content/50"
+                    class="kr-text-dim-xs rounded-full border border-base-300 px-2 py-0.5"
                     >{{ role.min }}–{{ role.max }}</span
                   >
                   <button
@@ -513,7 +513,7 @@
             <!-- Show title -->
             <div class="flex flex-col gap-1.5">
               <label
-                class="text-xs font-bold uppercase tracking-widest text-base-content/50"
+                class="kr-text-dim-xs font-bold uppercase tracking-widest"
                 >Show Title</label
               >
               <input
@@ -528,7 +528,7 @@
             <!-- Topic -->
             <div class="flex flex-col gap-1.5">
               <label
-                class="text-xs font-bold uppercase tracking-widest text-base-content/50"
+                class="kr-text-dim-xs font-bold uppercase tracking-widest"
                 >Topic / Premise</label
               >
               <input
@@ -543,7 +543,7 @@
             <!-- Custom opening -->
             <div class="flex flex-col gap-1.5 sm:col-span-2">
               <label
-                class="text-xs font-bold uppercase tracking-widest text-base-content/50"
+                class="kr-text-dim-xs font-bold uppercase tracking-widest"
                 >Custom Opening Cue</label
               >
               <input
@@ -560,7 +560,7 @@
             <!-- Turns -->
             <div class="flex flex-col gap-2">
               <label
-                class="text-xs font-bold uppercase tracking-widest text-base-content/50"
+                class="kr-text-dim-xs font-bold uppercase tracking-widest"
                 >Turns ({{ store.maxTurns }})</label
               >
               <input
@@ -580,7 +580,7 @@
             <!-- Delay -->
             <div class="flex flex-col gap-2">
               <label
-                class="text-xs font-bold uppercase tracking-widest text-base-content/50"
+                class="kr-text-dim-xs font-bold uppercase tracking-widest"
                 >Delay between turns ({{ store.turnDelayMs }}ms)</label
               >
               <input
@@ -600,7 +600,7 @@
             <!-- Server -->
             <div class="flex flex-col gap-1.5">
               <label
-                class="text-xs font-bold uppercase tracking-widest text-base-content/50"
+                class="kr-text-dim-xs font-bold uppercase tracking-widest"
                 >Text Server</label
               >
               <select
@@ -622,7 +622,7 @@
             <!-- Model -->
             <div class="flex flex-col gap-1.5">
               <label
-                class="text-xs font-bold uppercase tracking-widest text-base-content/50"
+                class="kr-text-dim-xs font-bold uppercase tracking-widest"
                 >Model</label
               >
               <input
@@ -777,7 +777,7 @@
               <Icon name="mdi:skip-next" class="h-4 w-4" />
             </button>
 
-            <span class="flex-1 text-xs text-base-content/50">
+            <span class="kr-text-dim-xs flex-1">
               Turn {{ store.turnIndex }}/{{ store.maxTurns }}
               <span
                 v-if="store.isGenerating"

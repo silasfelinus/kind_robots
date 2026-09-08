@@ -22,7 +22,7 @@
       <div class="flex-1" />
       <span
         v-if="superkate.isSyncing"
-        class="mr-1 flex items-center gap-1 text-xs font-semibold text-base-content/50"
+        class="kr-text-dim-xs mr-1 flex items-center gap-1 font-semibold"
         title="Syncing the service book"
       >
         <span class="kr-spinner-xs" />

@@ -81,7 +81,7 @@
     </div>
     <p
       v-if="todo.description"
-      class="ml-8 text-xs leading-relaxed text-base-content/50"
+      class="kr-text-dim-xs ml-8 leading-relaxed"
     >
       {{ todo.description }}
     </p>

@@ -66,7 +66,7 @@
           <span class="block text-sm font-black leading-snug">
             {{ sample.task }}
           </span>
-          <span class="block text-xs leading-relaxed text-base-content/50">
+          <span class="kr-text-dim-xs block leading-relaxed">
             {{ sample.helper }}
           </span>
           <span

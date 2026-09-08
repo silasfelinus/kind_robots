@@ -113,7 +113,7 @@
             <Icon name="kind-icon:arrow-left" class="size-4" />
             Newer
           </button>
-          <p class="text-xs font-bold text-base-content/50">
+          <p class="kr-text-dim-xs font-bold">
             {{ Math.min(skip + tanks.length, total) }} of {{ total }}
           </p>
           <button

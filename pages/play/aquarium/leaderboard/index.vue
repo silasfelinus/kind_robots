@@ -110,7 +110,7 @@
             <Icon name="kind-icon:arrow-left" class="size-4" />
             Higher ranks
           </button>
-          <p class="text-xs font-bold text-base-content/50">
+          <p class="kr-text-dim-xs font-bold">
             {{ Math.min(skip + entries.length, total) }} of {{ total }}
           </p>
           <button

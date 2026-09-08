@@ -10,7 +10,7 @@
         </p>
         <div class="mt-0.5 flex flex-wrap items-baseline gap-x-3 gap-y-1">
           <h3 class="text-lg font-black">Objects in this Daily Dream</h3>
-          <p class="hidden text-xs text-base-content/50 lg:block">
+          <p class="kr-text-dim-xs hidden lg:block">
             Open any object for full details, editing, and artwork controls.
           </p>
         </div>

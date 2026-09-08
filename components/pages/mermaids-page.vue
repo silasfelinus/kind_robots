@@ -143,7 +143,7 @@
             aria-label="Signed copies note"
             class="textarea textarea-bordered min-h-20 w-full text-xs"
           />
-          <p v-else class="whitespace-pre-line text-xs text-base-content/50">
+          <p v-else class="kr-text-dim-xs whitespace-pre-line">
             {{ draft.signedCopiesNote }}
           </p>
         </div>

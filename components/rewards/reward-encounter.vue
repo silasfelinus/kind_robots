@@ -45,7 +45,7 @@
           {{ selectedRewardName }}
         </h1>
 
-        <p class="hidden truncate text-xs text-base-content/50 sm:block">
+        <p class="kr-text-dim-xs hidden truncate sm:block">
           Set the scene, then let the narrative gremlin loose.
         </p>
       </div>
@@ -183,7 +183,7 @@
               <label class="form-control">
                 <span class="label py-1">
                   <span
-                    class="label-text text-xs font-bold uppercase tracking-wide text-base-content/50"
+                    class="kr-text-dim-xs label-text font-bold uppercase tracking-wide"
                   >
                     Customize the next move
                   </span>
@@ -244,7 +244,7 @@
               Copy Prompt
             </button>
 
-            <span class="ml-auto text-xs text-base-content/50">
+            <span class="kr-text-dim-xs ml-auto">
               {{ activeServerName }}
             </span>
           </div>

@@ -95,7 +95,7 @@
                   <p class="truncate text-sm font-black">
                     {{ achievement.label }}
                   </p>
-                  <p class="truncate text-xs text-base-content/50">
+                  <p class="kr-text-dim-xs truncate">
                     {{ achievement.triggerCode || achievement.message }}
                   </p>
                 </div>

@@ -149,7 +149,7 @@
               </div>
 
               <div class="min-w-0">
-                <p class="text-xs font-bold uppercase text-base-content/50">
+                <p class="kr-text-dim-xs font-bold uppercase">
                   Current Character
                 </p>
 

@@ -137,7 +137,7 @@
       @submit.prevent="createCredential"
     >
       <div class="flex items-center justify-between gap-3">
-        <p class="text-xs font-black uppercase tracking-widest text-base-content/50">
+        <p class="kr-text-dim-xs font-black uppercase tracking-widest">
           {{ replacingCredentialId ? 'Replacement credential' : 'New credential' }}
         </p>
         <button

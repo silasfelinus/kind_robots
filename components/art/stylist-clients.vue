@@ -46,7 +46,7 @@
 
           <div class="flex min-w-44 flex-1 flex-col">
             <span class="truncate text-sm font-bold">{{ customer.name }}</span>
-            <span class="truncate text-xs text-base-content/50">
+            <span class="kr-text-dim-xs truncate">
               {{ customer.email || 'no email' }} ·
               {{ superkate.appointmentsForCustomer(customer.id).length }} appointments ·
               {{ photoCounts[customer.id] || 0 }} photos

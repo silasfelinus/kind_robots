@@ -158,7 +158,7 @@
                 {{ entry.badge }}
               </span>
             </div>
-            <p v-if="entry.meta" class="mt-1 text-xs text-base-content/50">
+            <p v-if="entry.meta" class="kr-text-dim-xs mt-1">
               {{ entry.meta }}
             </p>
             <p class="kr-text-dim-sm-70 mt-2 line-clamp-3 whitespace-pre-wrap">

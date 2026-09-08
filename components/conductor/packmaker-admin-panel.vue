@@ -21,7 +21,7 @@
         </span>
         <div>
           <h3 class="text-base font-black text-base-content">Pack Generator</h3>
-          <p class="text-xs font-semibold text-base-content/50">
+          <p class="kr-text-dim-xs font-semibold">
             Admin only — items are created private until release is approved
           </p>
         </div>
@@ -141,7 +141,7 @@
               </span>
               <span
                 v-if="stateFor(item.id).refId"
-                class="text-xs font-mono text-base-content/50"
+                class="kr-text-dim-xs font-mono"
                 >#{{ stateFor(item.id).refId }}</span
               >
             </div>

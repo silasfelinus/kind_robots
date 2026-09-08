@@ -275,7 +275,7 @@
       Style it
     </button>
 
-    <p class="text-center text-xs text-base-content/50">
+    <p class="kr-text-dim-xs text-center">
       Styling takes a minute or two — you can keep working or switch tabs; results land below when ready.
     </p>
 

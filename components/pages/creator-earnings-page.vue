@@ -67,7 +67,7 @@
               <div class="text-5xl font-extrabold text-primary tabular-nums">
                 {{ formatUsdCents(summary.totalCents) }}
               </div>
-              <p class="mt-1 text-xs text-base-content/50">
+              <p class="kr-text-dim-xs mt-1">
                 {{ summary.interactionCount }}
                 {{
                   summary.interactionCount === 1

@@ -139,7 +139,7 @@
         <div class="kr-tile-md flex min-h-48 items-center justify-center">
           <div
             v-if="result(side).status === 'idle'"
-            class="flex flex-col items-center gap-2 text-xs text-base-content/50"
+            class="kr-text-dim-xs flex flex-col items-center gap-2"
           >
             <Icon name="kind-icon:image" class="h-8 w-8 opacity-60" />
             No render yet

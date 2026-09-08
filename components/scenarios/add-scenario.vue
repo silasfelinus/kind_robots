@@ -103,7 +103,7 @@
           >
             Freeform genre tags
           </summary>
-          <p class="mt-2 text-xs text-base-content/50">
+          <p class="kr-text-dim-xs mt-2">
             Quick comma-separated genre tags stored on this scenario. For
             reusable genre data shared across scenarios, add Facets above.
           </p>

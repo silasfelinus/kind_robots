@@ -100,7 +100,7 @@
               {{ output.size }}
             </span>
           </div>
-          <p class="truncate text-xs text-base-content/50">
+          <p class="kr-text-dim-xs truncate">
             {{ output.description }}
           </p>
         </div>

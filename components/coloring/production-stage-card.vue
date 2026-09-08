@@ -14,7 +14,7 @@
       </span>
     </div>
     <h4 class="text-sm font-black">{{ label }}</h4>
-    <p class="line-clamp-2 break-all text-xs text-base-content/50">
+    <p class="kr-text-dim-xs line-clamp-2 break-all">
       {{ detail }}
     </p>
   </article>

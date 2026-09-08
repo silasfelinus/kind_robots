@@ -340,7 +340,7 @@
                 {{ task.title }}
               </p>
               <div
-                class="mt-1 flex flex-wrap items-center gap-1.5 text-xs text-base-content/50"
+                class="kr-text-dim-xs mt-1 flex flex-wrap items-center gap-1.5"
               >
                 <span>{{ task.id }}</span>
                 <span v-if="task.milestone">· {{ task.milestone }}</span>
@@ -361,7 +361,7 @@
               </div>
               <p
                 v-if="task.note"
-                class="mt-1.5 line-clamp-3 text-xs leading-relaxed text-base-content/50"
+                class="kr-text-dim-xs mt-1.5 line-clamp-3 leading-relaxed"
               >
                 {{ task.note }}
               </p>
@@ -380,7 +380,7 @@
           class="group rounded-xl border border-base-300 bg-base-200/50"
         >
           <summary
-            class="flex cursor-pointer list-none items-center gap-2 px-3 py-2 text-xs font-semibold text-base-content/50 marker:content-none"
+            class="kr-text-dim-xs flex cursor-pointer list-none items-center gap-2 px-3 py-2 font-semibold marker:content-none"
           >
             <Icon
               name="kind-icon:chevron-right"

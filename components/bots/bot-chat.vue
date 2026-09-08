@@ -162,7 +162,7 @@
             Clear
           </button>
 
-          <span class="ml-auto text-xs text-base-content/50">
+          <span class="kr-text-dim-xs ml-auto">
             {{ activeServerName }}
           </span>
         </div>
@@ -277,15 +277,13 @@
           </label>
 
           <div class="kr-panel-muted p-3 text-sm">
-            <p class="text-xs font-bold uppercase text-base-content/50">
-              Active Text Server
-            </p>
+            <p class="kr-text-dim-xs font-bold uppercase">Active Text Server</p>
 
             <p class="mt-1 font-semibold text-base-content/80">
               {{ activeServerName }}
             </p>
 
-            <p class="mt-1 text-xs text-base-content/50">
+            <p class="kr-text-dim-xs mt-1">
               Servers are selected at runtime. Bots stay portable.
             </p>
           </div>

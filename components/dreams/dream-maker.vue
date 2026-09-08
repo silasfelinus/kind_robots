@@ -191,7 +191,7 @@
             <div class="flex flex-wrap items-center justify-between gap-2">
               <div>
                 <h2 class="text-lg font-black">Art Prompt</h2>
-                <p class="text-sm text-base-content/60">
+                <p class="kr-text-dim-sm">
                   Used by Interact when generating art around this Dream.
                 </p>
               </div>

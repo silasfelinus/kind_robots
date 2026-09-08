@@ -89,7 +89,7 @@
         <Icon name="kind-icon:chat" class="h-12 w-12 text-base-content/30" />
         <div>
           <p class="text-lg font-black text-base-content">No messages found.</p>
-          <p class="text-sm text-base-content/60">
+          <p class="kr-text-dim-sm">
             When a message arrives, human or otherwise, it will show up here.
           </p>
         </div>

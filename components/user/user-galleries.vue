@@ -5,7 +5,7 @@
   >
     <header class="shrink-0 kr-panel-flat p-4">
       <h2 class="text-xl font-black">User Galleries</h2>
-      <p class="text-sm text-base-content/60">
+      <p class="kr-text-dim-sm">
         Records where <span class="font-bold">userId</span> matches this
         profile. Each model gets one row.
       </p>

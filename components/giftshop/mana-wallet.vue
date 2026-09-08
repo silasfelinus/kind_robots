@@ -31,13 +31,13 @@
       >
         <div class="flex items-end justify-between">
           <div>
-            <div class="text-sm text-base-content/60">Current balance</div>
+            <div class="kr-text-dim-sm">Current balance</div>
             <div class="text-5xl font-extrabold text-primary tabular-nums">
               {{ manaStore.isFamily ? '∞' : manaStore.balance }}
             </div>
           </div>
           <div v-if="!manaStore.isFamily" class="text-right">
-            <div class="text-sm text-base-content/60">Daily cap</div>
+            <div class="kr-text-dim-sm">Daily cap</div>
             <div class="text-2xl font-bold">{{ manaStore.cap }}</div>
           </div>
         </div>
@@ -56,7 +56,7 @@
           </div>
         </div>
 
-        <p v-else class="text-sm text-base-content/60">
+        <p v-else class="kr-text-dim-sm">
           Family plan — unlimited generations on house tokens. 🏡
         </p>
 
@@ -83,7 +83,7 @@
       <div
         class="rounded-2xl border border-secondary/20 bg-base-100 shadow-lg p-6 space-y-1"
       >
-        <div class="text-sm text-base-content/60">Purchased tokens</div>
+        <div class="kr-text-dim-sm">Purchased tokens</div>
         <div class="text-3xl font-extrabold text-secondary tabular-nums">
           {{ manaStore.tokens }}
         </div>

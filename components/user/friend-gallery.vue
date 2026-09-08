@@ -12,7 +12,7 @@
     <!-- Header -->
     <div class="flex items-center justify-between">
       <h2 class="text-xl font-bold">Community &amp; Friends</h2>
-      <span class="text-sm text-base-content/60">
+      <span class="kr-text-dim-sm">
         {{ visibleUsers.length }} public profile{{
           visibleUsers.length !== 1 ? 's' : ''
         }}

@@ -1617,6 +1617,29 @@ section:has(div[class*='xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]'])
     @apply font-bold;
   }
 
+  /* A muted secondary caption line at body-text size -- `text-sm
+   * text-base-content/60`, the small descriptive line under a title, form
+   * field, or list item that should read as secondary without dropping to
+   * the smaller `text-xs` scale (interface-vision t-104 slice 153) --
+   * previously hand-rolled identically in 38 files (51 exact occurrences),
+   * the largest single bounded family surfaced by slice 152's frequency
+   * survey once the still-unresolved `flex items-center gap-2` layout
+   * utility (87 occurrences, too generic and context-varied -- checkbox
+   * labels, icon rows, toolbars -- to name as one semantic primitive; see
+   * slice 153's own TALKBACK note) was set aside for a future slice with a
+   * narrower, more deliberate look at its sub-families. Named `kr-text-*`
+   * rather than reusing the existing `kr-*-muted` suffix (`.kr-panel-muted`,
+   * `.kr-input-muted`, `.kr-textarea-muted`) because that suffix already
+   * means "on the base-200 tinted background" elsewhere in this file --
+   * reusing it here for a text-opacity variant would read as the wrong kind
+   * of "muted". The sibling opacity/size variants surveyed alongside this
+   * one (`text-xs text-base-content/50`, `text-sm text-base-content/70`,
+   * `text-xs text-base-content/45`, etc.) are left for future slices, same
+   * convention as `.kr-spinner-xs`/`.kr-spinner-sm`. */
+  .kr-text-dim-sm {
+    @apply text-sm text-base-content/60;
+  }
+
   .text-smart {
     @apply text-sm md:text-lg lg:text-lg xl:text-xl;
   }

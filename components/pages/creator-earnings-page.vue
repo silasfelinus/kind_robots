@@ -6,7 +6,7 @@
       </span>
       <div>
         <p class="text-2xl font-black tracking-tight">Creator Earnings</p>
-        <p class="text-sm text-base-content/60">
+        <p class="kr-text-dim-sm">
           What you've earned when someone spent tokens on something you made — a
           Bot, Character, Facet, Scenario, Pitch, Art, Pack, Reward, or Dream.
         </p>
@@ -63,7 +63,7 @@
         >
           <div class="flex flex-wrap items-end justify-between gap-3">
             <div>
-              <h2 class="text-sm text-base-content/60">Total earned</h2>
+              <h2 class="kr-text-dim-sm">Total earned</h2>
               <div class="text-5xl font-extrabold text-primary tabular-nums">
                 {{ formatUsdCents(summary.totalCents) }}
               </div>

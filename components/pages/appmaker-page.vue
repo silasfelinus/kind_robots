@@ -10,7 +10,7 @@
         </span>
         <div>
           <p class="text-2xl font-black tracking-tight">AppMaker</p>
-          <p class="text-sm text-base-content/60">
+          <p class="kr-text-dim-sm">
             The app factory — every app is a workspace folder, a project
             roadmap, and a Dream sharing one slug.
           </p>

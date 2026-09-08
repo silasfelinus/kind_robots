@@ -180,7 +180,7 @@
 
       <div class="mt-4 grid gap-3">
         <div class="kr-panel-muted-md">
-          <div class="text-sm text-base-content/60">Items</div>
+          <div class="kr-text-dim-sm">Items</div>
 
           <div class="text-3xl font-black text-primary">
             {{ cartStore.totalItems }}
@@ -188,7 +188,7 @@
         </div>
 
         <div class="kr-panel-muted-md">
-          <div class="text-sm text-base-content/60">Total</div>
+          <div class="kr-text-dim-sm">Total</div>
 
           <div class="text-3xl font-black text-secondary">
             ${{ cartStore.formattedTotalPrice }}

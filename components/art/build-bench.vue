@@ -7,7 +7,7 @@
         </span>
         <div>
           <p class="text-2xl font-black tracking-tight">Build Bench</p>
-          <p class="text-sm text-base-content/60">
+          <p class="kr-text-dim-sm">
             Two builds enter, you decide. Clone one side, change a single knob,
             render both, pick the winner.
           </p>

@@ -17,7 +17,7 @@
           {{ isEditing ? 'Edit LoRA' : 'Add LoRA' }}
         </h3>
 
-        <p class="text-sm text-base-content/60">
+        <p class="kr-text-dim-sm">
           Drops into <code>Lora/import</code> get catalogued automatically — use
           this to hand-add or fix a LoRA's label, base model, or triggers.
         </p>

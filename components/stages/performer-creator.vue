@@ -229,7 +229,7 @@
 
         <!-- ── Species ────────────────────────────────────────────────── -->
         <div v-show="activeTab === 'species'" class="flex flex-col gap-3 p-5">
-          <p class="text-sm text-base-content/60">
+          <p class="kr-text-dim-sm">
             What is this entity? Choose from illustrated options or type your
             own.
           </p>
@@ -341,7 +341,7 @@
           v-show="activeTab === 'personality'"
           class="flex flex-col gap-3 p-5"
         >
-          <p class="text-sm text-base-content/60">
+          <p class="kr-text-dim-sm">
             How do they move through the world? Pick as many as apply. The
             combination is the character.
           </p>

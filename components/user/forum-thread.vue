@@ -77,10 +77,7 @@
         </div>
       </div>
 
-      <div
-        v-if="!threadsByChannel(channel.slug).length"
-        class="text-sm text-base-content/60"
-      >
+      <div v-if="!threadsByChannel(channel.slug).length" class="kr-text-dim-sm">
         No posts yet. Be the first to say something.
       </div>
 
@@ -117,11 +114,7 @@
           v-if="expandedThreadId === thread.id"
           class="pl-4 border-l-2 border-base-300 space-y-3 mt-3"
         >
-          <div
-            v-if="repliesLoading"
-            class="text-sm text-base-content/60"
-            role="status"
-          >
+          <div v-if="repliesLoading" class="kr-text-dim-sm" role="status">
             Loading replies…
           </div>
 

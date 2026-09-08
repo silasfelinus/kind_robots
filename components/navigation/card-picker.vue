@@ -3,7 +3,7 @@
   <div class="flex h-full w-full flex-col gap-4 p-4">
     <header class="flex flex-col gap-1">
       <h2 class="text-lg font-black text-base-content">Card Back</h2>
-      <p class="text-sm text-base-content/60">
+      <p class="kr-text-dim-sm">
         Pick the design shown when your workspace cards flip.
       </p>
     </header>

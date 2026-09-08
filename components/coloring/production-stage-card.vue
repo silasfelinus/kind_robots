@@ -7,7 +7,7 @@
         :class="done ? 'text-success' : 'text-base-content/40'"
       />
       <span
-        class="badge badge-sm rounded-2xl"
+        class="kr-badge-sm rounded-2xl"
         :class="done ? 'badge-success' : 'badge-ghost'"
       >
         {{ done ? 'Ready' : 'Waiting' }}

@@ -220,7 +220,7 @@
                 class="absolute right-2 top-2 flex flex-wrap justify-end gap-1"
               >
                 <span
-                  class="badge badge-sm"
+                  class="kr-badge-sm"
                   :class="resource.isMature ? 'badge-error' : 'badge-success'"
                 >
                   DB: {{ resource.isMature ? 'NSFW' : 'SFW' }}

@@ -231,7 +231,7 @@
           <span
             v-for="badge in badges"
             :key="badge.title || badge.label"
-            class="badge badge-sm"
+            class="kr-badge-sm"
             :class="badge.class || 'badge-primary'"
             :title="badge.title || badge.label"
           >

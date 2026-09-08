@@ -4,7 +4,7 @@
       <div>
         <div class="flex flex-wrap items-center gap-2">
           <span v-if="catchResult.newDiscovery" class="kr-badge-primary-sm">NEW SPECIES</span>
-          <span class="badge badge-sm" :class="affinityClass">{{ catchResult.affinity }}</span>
+          <span class="kr-badge-sm" :class="affinityClass">{{ catchResult.affinity }}</span>
           <span class="kr-badge-outline-sm">{{ catchResult.rarity }}</span>
         </div>
         <h3 class="mt-2 text-xl font-black">{{ catchResult.name }}</h3>

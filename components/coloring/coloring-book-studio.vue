@@ -276,7 +276,7 @@
                   <h5 class="font-black">{{ proposal.title }}</h5>
                 </div>
                 <span
-                  class="badge badge-sm rounded-2xl"
+                  class="kr-badge-sm rounded-2xl"
                   :class="statusBadge(proposal.queue.status)"
                 >
                   {{ proposal.queue.status }}

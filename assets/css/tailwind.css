@@ -1441,6 +1441,22 @@ section:has(div[class*='xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]'])
     @apply badge badge-neutral badge-xs;
   }
 
+  /* The colorless base of the badge-sm family (interface-vision t-104 slice
+   * 146): `badge badge-sm` with no color modifier baked in, unlike every
+   * -sm/-xs sibling above -- because at this shape's 27 call sites the color
+   * is always supplied separately, by a sibling `:class` binding that picks
+   * a tone (badge-success/-warning/-outline/etc.) at render time from
+   * component state (job status, verdict, readiness, rarity...). Folding a
+   * fixed color in here would defeat that. 18 files hand-rolled exactly
+   * `badge badge-sm`, 15 of them pairing it with `rounded-2xl` for the pill
+   * shape -- kept as a separate utility on the call site rather than baked
+   * in here, matching how `rounded-2xl` already rides alongside
+   * `kr-badge-outline-sm` etc. elsewhere rather than being part of any of
+   * those primitives. */
+  .kr-badge-sm {
+    @apply badge badge-sm;
+  }
+
   /* The most-repeated hand-rolled textarea shape (interface-vision t-104
    * slice 115): a full-width, bordered DaisyUI textarea on the "plain"
    * base-100 background -- `textarea w-full

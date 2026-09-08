@@ -148,7 +148,7 @@
                     {{ rewardStore.selectedReward.collection }}
                   </span>
 
-                  <span class="badge badge-sm" :class="rarityBadgeClass">
+                  <span class="kr-badge-sm" :class="rarityBadgeClass">
                     {{ rewardStore.selectedReward.rarity }}
                   </span>
                 </div>

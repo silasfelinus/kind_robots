@@ -69,7 +69,7 @@
           #{{ job.id }}
         </span>
         <span
-          class="badge badge-sm rounded-2xl"
+          class="kr-badge-sm rounded-2xl"
           :class="jobStatusClass(job.status)"
         >
           {{ job.status }}
@@ -101,7 +101,7 @@
             #{{ job.id }}
           </span>
           <span
-            class="badge badge-sm rounded-2xl"
+            class="kr-badge-sm rounded-2xl"
             :class="jobStatusClass(job.status)"
           >
             {{ job.status }}
@@ -150,13 +150,13 @@
 
       <div class="flex flex-wrap gap-1">
         <span
-          class="badge badge-sm rounded-2xl"
+          class="kr-badge-sm rounded-2xl"
           :class="jobVisibility.isMature ? 'badge-warning' : 'badge-outline'"
         >
           {{ jobVisibility.isMature ? 'Mature' : 'General' }}
         </span>
         <span
-          class="badge badge-sm rounded-2xl"
+          class="kr-badge-sm rounded-2xl"
           :class="
             jobVisibility.isPublic
               ? 'badge-success badge-outline'

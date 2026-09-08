@@ -62,7 +62,7 @@
                 >Art slideshow</span
               >
               <span
-                class="badge badge-sm rounded-2xl"
+                class="kr-badge-sm rounded-2xl"
                 :class="isPlaying ? 'badge-success' : 'badge-ghost'"
               >
                 {{ isPlaying ? `${intervalSeconds}s` : 'Paused' }}

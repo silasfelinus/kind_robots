@@ -158,7 +158,7 @@
           :aria-busy="isLoading"
           @click="loadFeed()"
         >
-          <span v-if="isLoading" class="loading loading-spinner loading-xs" />
+          <span v-if="isLoading" class="kr-spinner-xs" />
           <Icon v-else name="kind-icon:refresh" class="size-4" />
           <span v-if="!compact" class="hidden 2xl:inline">Refresh</span>
         </button>

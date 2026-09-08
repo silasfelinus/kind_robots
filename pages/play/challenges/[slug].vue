@@ -399,7 +399,7 @@
                           votingSubmissionId === submission.id &&
                           pendingReaction === reaction.value
                         "
-                        class="loading loading-spinner loading-xs"
+                        class="kr-spinner-xs"
                       />
                       <span v-else>{{ reaction.icon }}</span>
                       {{ reaction.label }}

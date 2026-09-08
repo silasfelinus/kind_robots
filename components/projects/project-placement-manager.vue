@@ -88,10 +88,7 @@
               :disabled="busy"
               @click="loadProjects"
             >
-              <span
-                v-if="projectStore.loading"
-                class="loading loading-spinner loading-xs"
-              />
+              <span v-if="projectStore.loading" class="kr-spinner-xs" />
               <Icon v-else name="kind-icon:refresh" class="h-4 w-4" />
               Load projects
             </button>
@@ -102,10 +99,7 @@
               :disabled="busy || !projectStore.loaded"
               @click="applyPlacements"
             >
-              <span
-                v-if="applying"
-                class="loading loading-spinner loading-xs"
-              />
+              <span v-if="applying" class="kr-spinner-xs" />
               <Icon v-else name="kind-icon:wand" class="h-4 w-4" />
               Apply placements
             </button>

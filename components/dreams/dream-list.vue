@@ -16,7 +16,7 @@
         :disabled="isLoading"
         @click="refreshList"
       >
-        <span v-if="isLoading" class="loading loading-spinner loading-xs" />
+        <span v-if="isLoading" class="kr-spinner-xs" />
         <Icon v-else name="kind-icon:refresh" class="h-3 w-3" />
         {{ refreshLabel }}
       </button>

@@ -431,10 +431,7 @@ onMounted(async () => {
             :disabled="resourceGalleryStore.isLoading"
             @click="resourceGalleryStore.loadResources()"
           >
-            <span
-              v-if="resourceGalleryStore.isLoading"
-              class="loading loading-spinner loading-xs"
-            />
+            <span v-if="resourceGalleryStore.isLoading" class="kr-spinner-xs" />
             <icon v-else name="kind-icon:refresh" class="h-3.5 w-3.5" />
             Refresh
           </button>
@@ -530,7 +527,7 @@ onMounted(async () => {
             >
               <span
                 v-if="activePreviewResourceId === infoResource.id"
-                class="loading loading-spinner loading-xs"
+                class="kr-spinner-xs"
               />
               <Icon v-else name="kind-icon:sparkles" class="h-4 w-4" />
               {{ infoResourceArt ? 'Regenerate art' : 'Generate art' }}

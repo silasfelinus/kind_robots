@@ -22,7 +22,7 @@
           :disabled="loading"
           @click="draftsStore.populate()"
         >
-          <span v-if="loading" class="loading loading-spinner loading-xs" />
+          <span v-if="loading" class="kr-spinner-xs" />
           Scan daily dreams for new drafts
         </button>
       </header>
@@ -104,7 +104,7 @@
             :disabled="loading"
             @click="draftsStore.fetchDrafts()"
           >
-            <span v-if="loading" class="loading loading-spinner loading-xs" />
+            <span v-if="loading" class="kr-spinner-xs" />
             Refresh
           </button>
           <span class="text-xs text-base-content/50">

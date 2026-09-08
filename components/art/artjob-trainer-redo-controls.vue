@@ -77,7 +77,7 @@
         :disabled="submitting || promptString.trim().length < 3"
         @click="queueRevision"
       >
-        <span v-if="submitting" class="loading loading-spinner loading-xs" />
+        <span v-if="submitting" class="kr-spinner-xs" />
         {{ submitting ? 'Queuing revision…' : 'Revise + queue redo' }}
       </button>
     </div>

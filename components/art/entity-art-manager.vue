@@ -121,7 +121,7 @@
               :disabled="removingHistoryId === item.id"
               @click="removeHistory(item.id)"
             >
-              <span v-if="removingHistoryId === item.id" class="loading loading-spinner loading-xs" />
+              <span v-if="removingHistoryId === item.id" class="kr-spinner-xs" />
               <Icon v-else name="kind-icon:trash" class="size-3" />
             </button>
             <p class="truncate px-2 py-1 text-[0.65rem] text-base-content/50">
@@ -390,7 +390,7 @@
           class="btn btn-secondary btn-sm ml-auto gap-1.5 rounded-xl"
           :disabled="prompt.trim().length < 3 || submitting || (generationMode === 'img2img' && !currentSrc)"
         >
-          <span v-if="submitting" class="loading loading-spinner loading-xs" />
+          <span v-if="submitting" class="kr-spinner-xs" />
           <Icon v-else name="kind-icon:sparkles" class="size-4" />
           {{ submitting ? 'Queuing…' : `Queue ${selectedSlot.label}` }}
         </button>
@@ -485,7 +485,7 @@
           class="btn btn-primary btn-sm ml-auto gap-1.5 rounded-xl"
           :disabled="!uploadFile || submitting"
         >
-          <span v-if="submitting" class="loading loading-spinner loading-xs" />
+          <span v-if="submitting" class="kr-spinner-xs" />
           <Icon v-else name="kind-icon:upload" class="size-4" />
           {{ submitting ? 'Uploading…' : 'Upload & replace' }}
         </button>

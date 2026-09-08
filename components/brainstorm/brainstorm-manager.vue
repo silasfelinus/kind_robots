@@ -381,7 +381,7 @@
             data-testid="brainstorm-source-search"
             @click="runSourceSearch"
           >
-            <span v-if="isSearchingSource" class="loading loading-spinner loading-xs" aria-hidden="true" />
+            <span v-if="isSearchingSource" class="kr-spinner-xs" aria-hidden="true" />
             Search
           </button>
         </div>
@@ -454,7 +454,7 @@
                 data-testid="brainstorm-save-session"
                 @click="saveSession"
               >
-                <span v-if="persistenceState === 'saving'" class="loading loading-spinner loading-xs" aria-hidden="true" />
+                <span v-if="persistenceState === 'saving'" class="kr-spinner-xs" aria-hidden="true" />
                 {{ savedSessionId ? 'Update saved session' : 'Save session' }}
               </button>
               <button
@@ -737,7 +737,7 @@
         >
           <span
             v-if="isGeneratingArt"
-            class="loading loading-spinner loading-xs"
+            class="kr-spinner-xs"
           />
           <Icon v-else name="kind-icon:sparkles" class="h-4 w-4" />
           {{

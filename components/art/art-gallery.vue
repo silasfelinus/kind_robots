@@ -75,7 +75,7 @@
             :disabled="isLoading"
             @click="refreshGallery"
           >
-            <span v-if="isLoading" class="loading loading-spinner loading-xs" />
+            <span v-if="isLoading" class="kr-spinner-xs" />
             <Icon v-else name="kind-icon:refresh" class="h-3.5 w-3.5" />
           </button>
 
@@ -370,7 +370,7 @@
             >
               <span
                 v-if="isBatchWorking"
-                class="loading loading-spinner loading-xs"
+                class="kr-spinner-xs"
               />
               <Icon v-else name="kind-icon:trash" class="h-3.5 w-3.5" />
               Delete

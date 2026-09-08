@@ -94,7 +94,7 @@
         >
           <span
             v-if="isNarratorResponding"
-            class="loading loading-spinner loading-xs"
+            class="kr-spinner-xs"
           />
           <Icon v-else name="kind-icon:send" class="h-4 w-4" />
         </button>

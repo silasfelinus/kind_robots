@@ -166,7 +166,7 @@
             :disabled="submitting || prompt.trim().length < 3 || (mode === 'img2img' && !currentSrc)"
             @click="queueArt"
           >
-            <span v-if="submitting" class="loading loading-spinner loading-xs" />
+            <span v-if="submitting" class="kr-spinner-xs" />
             <Icon v-else name="kind-icon:sparkles" class="size-4" />
             {{ submitting ? 'Queuing…' : `Queue ${selectedSlot.label}` }}
           </button>

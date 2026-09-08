@@ -22,7 +22,7 @@
         v-if="stylist.isBusy"
         class="flex items-center gap-1 text-xs font-semibold text-primary"
       >
-        <span class="loading loading-spinner loading-xs" />
+        <span class="kr-spinner-xs" />
         {{ stylist.pendingCount }} styling…
       </span>
     </header>
@@ -322,7 +322,7 @@
                   : 'Waiting for the studio engine to pick this up'
               "
             >
-              <span class="loading loading-spinner loading-xs" />
+              <span class="kr-spinner-xs" />
               {{ job.queueState === 'rendering' ? 'rendering' : 'queued' }}
             </span>
             <span v-else-if="job.status === 'failed'" class="kr-badge-error-xs">failed</span>

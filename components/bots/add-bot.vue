@@ -229,7 +229,7 @@
           >
             <span
               v-if="isGeneratingFields"
-              class="loading loading-spinner loading-xs"
+              class="kr-spinner-xs"
             />
             <Icon v-else name="kind-icon:sparkles" class="h-4 w-4" />
             Update Selected

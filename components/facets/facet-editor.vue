@@ -61,10 +61,7 @@
         :disabled="!editForm.title.trim() || facetStore.saving"
         @click="save"
       >
-        <span
-          v-if="facetStore.saving"
-          class="loading loading-spinner loading-xs"
-        />
+        <span v-if="facetStore.saving" class="kr-spinner-xs" />
         Save canonical profile
       </button>
 

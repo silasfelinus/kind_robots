@@ -217,7 +217,7 @@
         class="btn btn-primary btn-sm w-full rounded-xl"
         :disabled="isCreating || !newLabel.trim() || !newBotId || !newScopes.length"
       >
-        <span v-if="isCreating" class="loading loading-spinner loading-xs" />
+        <span v-if="isCreating" class="kr-spinner-xs" />
         {{ replacingCredentialId ? 'Create replacement key' : 'Create credential' }}
       </button>
     </form>

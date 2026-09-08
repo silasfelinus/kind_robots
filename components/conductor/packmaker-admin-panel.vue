@@ -164,7 +164,7 @@
             >
               <span
                 v-if="stateFor(item.id).status === 'creating'"
-                class="loading loading-spinner loading-xs"
+                class="kr-spinner-xs"
               />
               Create record
             </button>
@@ -176,7 +176,7 @@
             >
               <span
                 v-if="stateFor(item.id).status === 'generating-art'"
-                class="loading loading-spinner loading-xs"
+                class="kr-spinner-xs"
               />
               Generate art
             </button>

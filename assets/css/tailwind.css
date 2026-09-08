@@ -1563,6 +1563,21 @@ section:has(div[class*='xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]'])
     @apply grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-primary/15 text-primary;
   }
 
+  /* The colorless DaisyUI busy indicator: a bare tiny spinner dropped into
+   * a button or inline slot while an action is pending, no tint (the
+   * button/text color around it usually already carries the tone)
+   * (interface-vision t-104 slice 150) -- `loading loading-spinner
+   * loading-xs`, previously hand-rolled identically in 83 files (123
+   * occurrences), by far the largest single exact-duplicate class string
+   * found in a survey of the codebase's most-repeated static `class="..."`
+   * values. Named to mirror the `kr-badge-*`/`kr-tile-*` convention of
+   * wrapping DaisyUI's own component classes rather than only hand-rolled
+   * Tailwind utilities -- `.kr-badge-sm` already does the same for
+   * `badge badge-sm`. */
+  .kr-spinner-xs {
+    @apply loading loading-spinner loading-xs;
+  }
+
   .text-smart {
     @apply text-sm md:text-lg lg:text-lg xl:text-xl;
   }

@@ -50,10 +50,7 @@
           :disabled="isLoadingPreview"
           @click="loadProtectedPreview"
         >
-          <span
-            v-if="isLoadingPreview"
-            class="loading loading-spinner loading-xs"
-          />
+          <span v-if="isLoadingPreview" class="kr-spinner-xs" />
           {{ isLoadingPreview ? 'Loading preview' : 'Load protected preview' }}
         </button>
         <p
@@ -298,7 +295,7 @@
           >
             <span
               v-if="priorityStore.prioritizingJobIds.includes(job.id)"
-              class="loading loading-spinner loading-xs"
+              class="kr-spinner-xs"
             />
             {{ job.priority > 0 ? 'Normal priority' : 'Move to front' }}
           </button>

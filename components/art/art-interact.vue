@@ -48,10 +48,7 @@
           "
           @click="setAsAvatar"
         >
-          <span
-            v-if="isSettingAvatar"
-            class="loading loading-spinner loading-xs"
-          />
+          <span v-if="isSettingAvatar" class="kr-spinner-xs" />
           <Icon v-else name="kind-icon:user" class="h-4 w-4" />
           {{ isCurrentAvatar ? 'Avatar' : 'Set avatar' }}
         </button>
@@ -87,10 +84,7 @@
             @click="confirmDelete"
             @blur="deleteArmed = false"
           >
-            <span
-              v-if="isDeleting"
-              class="loading loading-spinner loading-xs"
-            />
+            <span v-if="isDeleting" class="kr-spinner-xs" />
             <Icon v-else name="kind-icon:trash" class="h-4 w-4" />
             Confirm?
           </button>
@@ -212,10 +206,7 @@
                 :disabled="isSaving || !hasDirtyFields"
                 @click="saveImageEdits"
               >
-                <span
-                  v-if="isSaving"
-                  class="loading loading-spinner loading-xs"
-                />
+                <span v-if="isSaving" class="kr-spinner-xs" />
                 <Icon v-else name="kind-icon:save" class="h-4 w-4" />
                 Save
               </button>

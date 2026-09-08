@@ -179,10 +179,7 @@
               :disabled="isUpdating(gate) || !replyText(gate)"
               @click="act(gate, 'answer')"
             >
-              <span
-                v-if="isUpdating(gate)"
-                class="loading loading-spinner loading-xs"
-              />
+              <span v-if="isUpdating(gate)" class="kr-spinner-xs" />
               <Icon v-else name="kind-icon:send" class="size-3" />
               Send to agent
             </button>

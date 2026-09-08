@@ -52,7 +52,7 @@
             v-if="artBusy"
             class="flex items-center gap-1 rounded-full bg-secondary/10 px-2.5 py-1 text-[0.68rem] font-bold text-secondary"
           >
-            <span class="loading loading-spinner loading-xs" />
+            <span class="kr-spinner-xs" />
             Generating art…
           </span>
         </div>
@@ -341,7 +341,7 @@
         >
           <span
             v-if="busy && busyAction === 'regenerate'"
-            class="loading loading-spinner loading-xs"
+            class="kr-spinner-xs"
           />
           Regenerate
         </button>
@@ -351,10 +351,7 @@
           :disabled="disabled"
           @click="branch"
         >
-          <span
-            v-if="busy && busyAction === 'branch'"
-            class="loading loading-spinner loading-xs"
-          />
+          <span v-if="busy && busyAction === 'branch'" class="kr-spinner-xs" />
           More like this
         </button>
         <button
@@ -365,10 +362,7 @@
           :disabled="disabled"
           @click="promote"
         >
-          <span
-            v-if="busy && busyAction === 'promote'"
-            class="loading loading-spinner loading-xs"
-          />
+          <span v-if="busy && busyAction === 'promote'" class="kr-spinner-xs" />
           Promote to Character
         </button>
       </div>

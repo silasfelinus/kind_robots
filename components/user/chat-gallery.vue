@@ -50,7 +50,7 @@
           :disabled="isLoading"
           @click="refreshChats"
         >
-          <span v-if="isLoading" class="loading loading-spinner loading-xs" />
+          <span v-if="isLoading" class="kr-spinner-xs" />
           <Icon v-else name="kind-icon:refresh" class="h-4 w-4" />
           Refresh
         </button>
@@ -232,10 +232,7 @@
             :disabled="isReplying || !canReply || !replyMessage.trim()"
             @click="sendReply"
           >
-            <span
-              v-if="isReplying"
-              class="loading loading-spinner loading-xs"
-            />
+            <span v-if="isReplying" class="kr-spinner-xs" />
             <Icon v-else name="kind-icon:send" class="h-4 w-4" />
             Send
           </button>

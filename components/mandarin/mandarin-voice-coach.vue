@@ -36,7 +36,7 @@
           :disabled="recording || evaluating || Boolean(tutorStore.audioLoadingKey)"
           @click="tutorStore.speak(card)"
         >
-          <span v-if="tutorStore.audioLoadingKey === card.key" class="loading loading-spinner loading-xs" />
+          <span v-if="tutorStore.audioLoadingKey === card.key" class="kr-spinner-xs" />
           {{ tutorStore.audioLoadingKey === card.key ? 'Preparing reference…' : 'Hear reference' }}
         </button>
         <button
@@ -46,7 +46,7 @@
           :disabled="evaluating || !voiceSupported"
           @click="startRecording"
         >
-          <span v-if="evaluating" class="loading loading-spinner loading-xs" />
+          <span v-if="evaluating" class="kr-spinner-xs" />
           {{ evaluating ? 'Checking pronunciation…' : transcript ? 'Try again' : 'Say it' }}
         </button>
         <button

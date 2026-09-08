@@ -337,7 +337,7 @@
             :disabled="saving"
             @click="save"
           >
-            <span v-if="saving" class="loading loading-spinner loading-xs" />
+            <span v-if="saving" class="kr-spinner-xs" />
             {{ actionLabel }}
           </button>
         </div>

@@ -539,7 +539,7 @@
           :disabled="isLoading"
           @click="showMore"
         >
-          <span v-if="isLoading" class="loading loading-spinner loading-xs" />
+          <span v-if="isLoading" class="kr-spinner-xs" />
           Show more
         </button>
       </div>

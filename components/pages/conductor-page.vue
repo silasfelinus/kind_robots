@@ -153,7 +153,7 @@
         >
           <span
             v-if="syncingMissing"
-            class="loading loading-spinner loading-xs"
+            class="kr-spinner-xs"
           />
           <Icon v-else name="kind-icon:warning" class="size-3" />
           Sync {{ missingProjectSlugs.length }}
@@ -179,7 +179,7 @@
           :disabled="pending"
           @click="refreshWorkspace"
         >
-          <span v-if="pending" class="loading loading-spinner loading-xs" />
+          <span v-if="pending" class="kr-spinner-xs" />
           <Icon v-else name="kind-icon:refresh" class="size-3.5" />
         </button>
       </template>
@@ -657,7 +657,7 @@
                   >
                     <span
                       v-if="projectTaskSubmitting"
-                      class="loading loading-spinner loading-xs"
+                      class="kr-spinner-xs"
                     />
                     Add
                   </button>

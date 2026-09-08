@@ -119,10 +119,7 @@
             class="kr-btn-primary-md"
             :disabled="convo.isSending || !draft.trim()"
           >
-            <span
-              v-if="convo.isSending"
-              class="loading loading-spinner loading-xs"
-            />
+            <span v-if="convo.isSending" class="kr-spinner-xs" />
             <Icon v-else name="kind-icon:send" class="h-4 w-4" />
           </button>
         </form>

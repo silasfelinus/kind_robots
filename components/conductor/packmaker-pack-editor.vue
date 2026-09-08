@@ -39,7 +39,7 @@
           :disabled="scaffolding"
           @click="onScaffold"
         >
-          <span v-if="scaffolding" class="loading loading-spinner loading-xs" />
+          <span v-if="scaffolding" class="kr-spinner-xs" />
           Generate scaffold
         </button>
         <span

@@ -122,7 +122,7 @@
             >
               <span
                 v-if="artRequests.requesting[facet.id]"
-                class="loading loading-spinner loading-xs"
+                class="kr-spinner-xs"
               />
               <Icon v-else name="kind-icon:image" class="size-3.5" />
               {{ artRequests.requested[facet.id] ? 'Requested' : 'Art' }}

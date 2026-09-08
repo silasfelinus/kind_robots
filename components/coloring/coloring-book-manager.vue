@@ -141,7 +141,7 @@
           >
             <span
               v-if="isExporting"
-              class="loading loading-spinner loading-xs"
+              class="kr-spinner-xs"
             />
             <Icon v-else name="kind-icon:image" class="h-4 w-4" />
             Save image

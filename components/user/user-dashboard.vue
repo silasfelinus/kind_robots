@@ -53,7 +53,7 @@
           </span>
 
           <div>
-            <p class="text-lg font-black text-base-content">Guest mode.</p>
+            <p class="kr-text-black-lg text-base-content">Guest mode.</p>
             <p class="mt-1 text-sm text-base-content/55">
               Charming, mysterious, and tragically short on saved stuff.
             </p>

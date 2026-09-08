@@ -12,7 +12,7 @@
         </span>
 
         <div class="min-w-0">
-          <h2 class="text-lg font-black text-base-content">
+          <h2 class="kr-text-black-lg text-base-content">
             Animation preferences
           </h2>
           <p class="kr-text-dim-xs-55">

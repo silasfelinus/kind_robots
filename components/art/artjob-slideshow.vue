@@ -160,7 +160,7 @@
               v-if="overlay.title"
               class="flex flex-wrap items-baseline gap-2"
             >
-              <span class="text-lg font-black">{{ slideTitle }}</span>
+              <span class="kr-text-black-lg">{{ slideTitle }}</span>
               <span
                 v-if="currentJob?.projectSlug"
                 class="kr-badge-secondary-sm rounded-2xl"

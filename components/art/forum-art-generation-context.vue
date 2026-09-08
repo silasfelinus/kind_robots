@@ -7,7 +7,7 @@
         <p class="text-xs font-black uppercase tracking-widest text-primary/70">
           Rainbow Butterflies Commons handoff
         </p>
-        <h2 class="mt-1 text-lg font-black text-primary">
+        <h2 class="kr-text-black-lg mt-1 text-primary">
           Build on this contribution
         </h2>
         <p class="kr-text-dim-sm mt-1">

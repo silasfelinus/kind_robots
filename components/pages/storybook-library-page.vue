@@ -120,7 +120,7 @@
     >
       <div class="flex flex-wrap items-start justify-between gap-2">
         <div>
-          <h2 class="text-lg font-black">Recent stories</h2>
+          <h2 class="kr-text-black-lg">Recent stories</h2>
           <p class="kr-text-dim-xs-55 mt-1 leading-relaxed">
             Open an existing branch, duplicate it safely, or export a portable
             copy.

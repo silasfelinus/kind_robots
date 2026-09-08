@@ -46,7 +46,7 @@
               <Icon name="kind-icon:sparkles" class="size-5" />
             </div>
             <div>
-              <h2 class="text-lg font-black">The spark</h2>
+              <h2 class="kr-text-black-lg">The spark</h2>
               <p class="kr-text-dim-xs">
                 One premise is enough. Everything else can stay loose.
               </p>
@@ -230,7 +230,7 @@
               class="absolute inset-0 bg-linear-to-t from-black/85 via-black/20 to-transparent"
             />
             <span class="absolute inset-x-0 bottom-0 p-4 text-white">
-              <span class="block text-lg font-black">{{ option.label }}</span>
+              <span class="kr-text-black-lg block">{{ option.label }}</span>
               <span class="mt-1 block text-xs leading-relaxed text-white/80">
                 {{ option.description }}
               </span>

@@ -19,7 +19,7 @@
           class="sticky top-0 z-10 flex shrink-0 items-start justify-between gap-3 border-b border-base-300 bg-base-100/95 p-4 backdrop-blur"
         >
           <div class="min-w-0">
-            <h2 class="truncate text-lg font-black text-primary sm:text-xl">
+            <h2 class="kr-text-black-lg truncate text-primary sm:text-xl">
               Server Connections
             </h2>
             <p class="kr-text-dim-xs-60 mt-1 leading-snug sm:text-sm">

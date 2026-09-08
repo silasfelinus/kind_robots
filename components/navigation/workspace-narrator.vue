@@ -160,7 +160,7 @@
                   <div class="flex items-center justify-between gap-3">
                     <div class="min-w-0">
                       <h2
-                        class="truncate text-lg font-black leading-tight text-base-content"
+                        class="kr-text-black-lg truncate leading-tight text-base-content"
                       >
                         {{ narratorName }}
                       </h2>

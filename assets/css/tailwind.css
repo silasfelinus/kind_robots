@@ -1796,6 +1796,21 @@ section:has(div[class*='xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]'])
     @apply loading loading-spinner loading-lg text-primary;
   }
 
+  /* The heaviest-weight heading-emphasis text -- `font-black text-lg`, the
+   * bold label/title/stat line used across user, gallery, watchlist, and
+   * challenge surfaces (interface-vision t-104 slice 164) -- previously
+   * hand-rolled identically in 39 files (115 subset-match occurrences), the
+   * largest bounded family surfaced by a fresh full-repo class-frequency
+   * survey once the `text-xs/sm text-base-content/NN` family (slices
+   * 152-163) was fully mined. First of a new `kr-text-black-*` family,
+   * sibling in spirit to `kr-text-dim-*` but for weight instead of opacity;
+   * the sibling sizes surveyed alongside this one (`font-black text-xl`, 78
+   * occurrences; `font-black text-sm`, 109 occurrences) are left for future
+   * slices, same convention as `.kr-text-dim-xs`/`.kr-text-dim-sm`. */
+  .kr-text-black-lg {
+    @apply font-black text-lg;
+  }
+
   .text-smart {
     @apply text-sm md:text-lg lg:text-lg xl:text-xl;
   }

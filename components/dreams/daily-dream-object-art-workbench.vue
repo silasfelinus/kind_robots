@@ -59,7 +59,7 @@
             <p class="text-xs font-black uppercase tracking-[0.16em] text-secondary">
               Art workbench
             </p>
-            <h3 class="mt-1 text-lg font-black">
+            <h3 class="kr-text-black-lg mt-1">
               Rebuild or modify {{ selectedSlot.label.toLowerCase() }} art
             </h3>
             <p class="kr-text-dim-xs-55 mt-1 leading-relaxed">

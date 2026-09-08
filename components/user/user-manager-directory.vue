@@ -166,7 +166,7 @@
     <!-- Create user modal -->
     <dialog ref="createDialog" class="modal">
       <div class="modal-box rounded-2xl">
-        <h3 class="mb-3 text-lg font-black">Create user</h3>
+        <h3 class="kr-text-black-lg mb-3">Create user</h3>
         <div class="flex flex-col gap-3">
           <input
             v-model="createForm.username"
@@ -220,7 +220,7 @@
     <!-- Reset password modal -->
     <dialog ref="passwordDialog" class="modal">
       <div class="modal-box rounded-2xl">
-        <h3 class="mb-1 text-lg font-black">Reset password</h3>
+        <h3 class="kr-text-black-lg mb-1">Reset password</h3>
         <p class="kr-text-dim-sm-70 mb-3">
           Set a new password for <strong>{{ pwTarget?.username }}</strong
           >.

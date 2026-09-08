@@ -14,7 +14,7 @@
           <Icon name="kind-icon:jellybean" class="h-6 w-6" />
         </span>
         <div>
-          <h1 class="text-lg font-black text-base-content">
+          <h1 class="kr-text-black-lg text-base-content">
             {{ userStore.username }}'s Achievements
           </h1>
           <p class="kr-text-dim-xs">

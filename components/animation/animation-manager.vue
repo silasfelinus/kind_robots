@@ -12,7 +12,7 @@
           <Icon name="kind-icon:sparkles" class="h-6 w-6" />
         </span>
         <div>
-          <h2 class="text-lg font-black leading-tight text-base-content">
+          <h2 class="kr-text-black-lg leading-tight text-base-content">
             Animation Manager
           </h2>
           <p class="kr-text-dim-xs-60">
@@ -131,7 +131,7 @@
             <p class="text-xs font-black uppercase tracking-wide text-primary">
               Catalog effect
             </p>
-            <h3 class="mt-1 text-lg font-black text-base-content">
+            <h3 class="kr-text-black-lg mt-1 text-base-content">
               {{ store.selectedItem.label }}
             </h3>
           </div>

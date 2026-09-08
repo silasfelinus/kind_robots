@@ -9,7 +9,7 @@
   >
     <div class="flex flex-wrap items-start gap-2">
       <div class="min-w-0 flex-1">
-        <h3 :id="headingId" class="text-lg font-black">
+        <h3 :id="headingId" class="kr-text-black-lg">
           {{ label }}
         </h3>
         <p

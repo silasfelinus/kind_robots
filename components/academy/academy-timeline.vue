@@ -124,7 +124,7 @@
             </div>
 
             <div class="absolute inset-x-0 bottom-0 p-4">
-              <p class="text-lg font-black leading-tight text-white drop-shadow sm:text-xl">
+              <p class="kr-text-black-lg leading-tight text-white drop-shadow sm:text-xl">
                 {{ style.name }}
               </p>
             </div>

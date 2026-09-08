@@ -112,7 +112,7 @@
               class="rounded-2xl border border-primary/25 bg-primary/5 p-4"
             >
               <p class="text-xs font-black uppercase tracking-[0.15em] text-primary">Object editor</p>
-              <h3 class="mt-1 text-lg font-black">Revise the useful fields</h3>
+              <h3 class="kr-text-black-lg mt-1">Revise the useful fields</h3>
               <p class="mt-1 text-sm leading-relaxed text-base-content/55">
                 These save directly to the existing {{ typeLabel.toLowerCase() }} record. System fields and relationships stay out of reach.
               </p>
@@ -176,7 +176,7 @@
               class="flex min-h-72 flex-col items-center justify-center gap-3 rounded-2xl border border-dashed border-base-300 bg-base-200/40 p-8 text-center"
             >
               <Icon name="kind-icon:lock" class="size-10 text-base-content/25" />
-              <p class="text-lg font-black text-base-content/65">This object is view-only.</p>
+              <p class="kr-text-black-lg text-base-content/65">This object is view-only.</p>
               <p class="max-w-lg text-sm text-base-content/45">
                 Only its owner or an administrator can submit content changes.
               </p>

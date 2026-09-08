@@ -477,7 +477,7 @@
                 {{ entry.score.booed }} · ✕ {{ entry.score.hated }}
               </span>
               <span
-                class="text-lg font-black"
+                class="kr-text-black-lg"
                 :class="scoreClass(entry.score.netScore)"
               >
                 {{ signedScore(entry.score.netScore) }}

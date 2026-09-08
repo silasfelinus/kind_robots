@@ -190,7 +190,7 @@
           <div class="kr-panel-flat p-4">
             <div class="flex flex-wrap items-center justify-between gap-2">
               <div>
-                <h2 class="text-lg font-black">Art Prompt</h2>
+                <h2 class="kr-text-black-lg">Art Prompt</h2>
                 <p class="kr-text-dim-sm">
                   Used by Interact when generating art around this Dream.
                 </p>
@@ -273,7 +273,7 @@
 
         <aside class="grid h-fit gap-3 xl:sticky xl:top-3">
           <section class="kr-panel-flat p-4">
-            <h2 class="text-lg font-black">Visibility</h2>
+            <h2 class="kr-text-black-lg">Visibility</h2>
             <div class="mt-3 grid gap-2">
               <label class="kr-toggle-row-sm">
                 <span class="kr-label-bold">Public</span>
@@ -321,7 +321,7 @@
           </section>
 
           <section class="kr-panel-flat p-4">
-            <h2 class="text-lg font-black">Preview</h2>
+            <h2 class="kr-text-black-lg">Preview</h2>
             <div
               class="mt-3 kr-panel-muted-sm"
             >
@@ -351,7 +351,7 @@
           </section>
 
           <section class="kr-panel-flat p-4">
-            <h2 class="text-lg font-black">Checks</h2>
+            <h2 class="kr-text-black-lg">Checks</h2>
             <div class="mt-3 grid gap-2 text-sm">
               <div
                 v-for="check in checks"

@@ -167,7 +167,7 @@
         class="flex min-h-56 flex-col items-center justify-center rounded-xl border border-base-300 bg-base-100 p-6 text-center text-base-content/60"
       >
         <Icon name="kind-icon:folder" class="h-12 w-12 text-primary" />
-        <p class="mt-2 text-lg font-black text-base-content">Nothing to show.</p>
+        <p class="kr-text-black-lg mt-2 text-base-content">Nothing to show.</p>
         <p class="text-sm">No collections match the current filters.</p>
       </div>
 
@@ -451,7 +451,7 @@
               class="flex min-h-56 w-full flex-col items-center justify-center rounded-xl border border-base-300 bg-base-100 p-6 text-center text-base-content/60"
             >
               <Icon name="kind-icon:image" class="h-12 w-12 text-primary" />
-              <p class="mt-2 text-lg font-black text-base-content">
+              <p class="kr-text-black-lg mt-2 text-base-content">
                 No images here.
               </p>
               <p class="text-sm">No art images match the current filters.</p>

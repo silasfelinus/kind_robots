@@ -15,7 +15,7 @@
             class="flex cursor-pointer list-none flex-wrap items-center justify-between gap-3 p-4 marker:hidden"
           >
             <div>
-              <h3 class="flex items-center gap-2 text-lg font-black">
+              <h3 class="kr-text-black-lg flex items-center gap-2">
                 <Icon name="kind-icon:activity" class="size-5 text-primary" />
                 Production controls & diagnostics
               </h3>

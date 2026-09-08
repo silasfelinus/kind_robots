@@ -114,7 +114,7 @@
 
       <div class="grid gap-4 xl:grid-cols-2">
         <article class="kr-panel-section-flat">
-          <h4 class="text-lg font-black">Source-production blockers</h4>
+          <h4 class="kr-text-black-lg">Source-production blockers</h4>
           <p class="kr-text-dim-xs mt-1">
             {{ selectedPackage.finalPairCount }}/{{ selectedPackage.expectedInteriorCount }} final pairs ·
             cover {{ selectedPackage.coverStatus }}
@@ -144,7 +144,7 @@
         </article>
 
         <article class="kr-panel-section-flat">
-          <h4 class="text-lg font-black">Layout and export blockers</h4>
+          <h4 class="kr-text-black-lg">Layout and export blockers</h4>
           <p class="kr-text-dim-xs mt-1">
             These fields stay unresolved until a printer, trim, binding, and template are chosen.
           </p>

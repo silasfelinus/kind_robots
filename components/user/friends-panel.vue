@@ -15,7 +15,7 @@
 
     <!-- Incoming requests -->
     <div v-if="friends.allIncomingRequests.length" class="kr-panel-flat p-4">
-      <h2 class="mb-3 text-lg font-black">Requests</h2>
+      <h2 class="kr-text-black-lg mb-3">Requests</h2>
       <div class="flex flex-col gap-2">
         <div
           v-for="r in friends.allIncomingRequests"
@@ -45,7 +45,7 @@
 
     <!-- Your friends -->
     <div class="kr-panel-flat p-4">
-      <h2 class="mb-3 text-lg font-black">
+      <h2 class="kr-text-black-lg mb-3">
         Your friends ({{ friends.friendCount }})
       </h2>
       <p v-if="!friends.friendIds.length" class="text-sm text-base-content/50">
@@ -95,7 +95,7 @@
 
     <!-- Find people -->
     <div class="kr-panel-flat p-4">
-      <h2 class="mb-3 text-lg font-black">Find people</h2>
+      <h2 class="kr-text-black-lg mb-3">Find people</h2>
       <input
         v-model="search"
         type="search"
@@ -158,7 +158,7 @@
 
     <!-- Blocked -->
     <div v-if="friends.blockedIds.length" class="kr-panel-flat p-4">
-      <h2 class="mb-3 text-lg font-black">Blocked</h2>
+      <h2 class="kr-text-black-lg mb-3">Blocked</h2>
       <div class="flex flex-col gap-2">
         <div
           v-for="id in friends.blockedIds"

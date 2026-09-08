@@ -6,7 +6,7 @@
         <div class="min-w-0">
           <div class="flex items-center gap-2">
             <Icon :name="statusIcon" class="h-5 w-5 shrink-0" />
-            <h2 class="text-lg font-black text-base-content">
+            <h2 class="kr-text-black-lg text-base-content">
               Server Status
             </h2>
           </div>

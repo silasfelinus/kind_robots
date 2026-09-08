@@ -84,7 +84,7 @@
                 >
                   Your guide
                 </p>
-                <h3 class="truncate text-lg font-black">Serendipity</h3>
+                <h3 class="kr-text-black-lg truncate">Serendipity</h3>
               </div>
             </div>
             <p class="mt-3 text-xs font-medium leading-relaxed text-base-content/65">
@@ -117,7 +117,7 @@
                 >
                   Your objective
                 </p>
-                <h3 class="mt-1 text-lg font-black sm:text-xl">
+                <h3 class="kr-text-black-lg mt-1 sm:text-xl">
                   What needs to move?
                 </h3>
                 <p class="kr-text-dim-xs-55 mt-1 leading-relaxed">
@@ -189,7 +189,7 @@
                 >
                   Quest recipe
                 </p>
-                <h3 class="mt-1 text-lg font-black">Shape the journey</h3>
+                <h3 class="kr-text-black-lg mt-1">Shape the journey</h3>
                 <p class="kr-text-dim-xs-55 mt-1 leading-relaxed">
                   Choose story ingredients, never model machinery.
                 </p>

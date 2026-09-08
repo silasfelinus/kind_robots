@@ -68,7 +68,7 @@
             <span class="block truncate text-xs font-black uppercase tracking-wide">
               {{ tab.label }}
             </span>
-            <span class="text-lg font-black leading-none">{{ tab.count }}</span>
+            <span class="kr-text-black-lg leading-none">{{ tab.count }}</span>
           </span>
         </button>
       </div>
@@ -142,7 +142,7 @@
 
               <div class="min-w-0 flex-1">
                 <div class="flex flex-wrap items-start justify-between gap-2">
-                  <h3 class="min-w-0 flex-1 text-lg font-black leading-tight">
+                  <h3 class="kr-text-black-lg min-w-0 flex-1 leading-tight">
                     {{ pitch.title }}
                   </h3>
                   <span

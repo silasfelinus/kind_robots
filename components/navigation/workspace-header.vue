@@ -197,7 +197,7 @@
             -->
             <p
               v-if="greeting"
-              class="hidden min-w-0 flex-1 truncate text-right text-lg font-black text-base-content/80 xl:block xl:text-xl"
+              class="kr-text-black-lg hidden min-w-0 flex-1 truncate text-right text-base-content/80 xl:block xl:text-xl"
               :title="greeting"
             >
               {{ greeting }}

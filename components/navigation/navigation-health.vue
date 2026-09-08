@@ -140,7 +140,7 @@
                 <Icon :name="channel.icon" class="h-5 w-5" />
               </span>
               <div class="min-w-0">
-                <h2 class="truncate text-lg font-black">{{ channel.label }}</h2>
+                <h2 class="kr-text-black-lg truncate">{{ channel.label }}</h2>
                 <p class="kr-text-dim-xs-45 truncate font-bold">
                   {{ channel.channelKey }} · {{ channel.route }}
                 </p>

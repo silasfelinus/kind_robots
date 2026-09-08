@@ -124,7 +124,7 @@
           class="space-y-4 rounded-2xl border border-primary/20 bg-primary/5 p-4"
         >
           <div>
-            <h2 class="text-lg font-black">The spark</h2>
+            <h2 class="kr-text-black-lg">The spark</h2>
             <p class="kr-text-dim-xs-55 mt-1 leading-relaxed">
               Begin with the promise of the story. A sentence is enough; a
               strange paragraph is welcome.
@@ -224,7 +224,7 @@
           class="space-y-4 rounded-2xl border border-primary/20 bg-primary/5 p-4"
         >
           <div>
-            <h2 class="text-lg font-black">The cast</h2>
+            <h2 class="kr-text-black-lg">The cast</h2>
             <p class="kr-text-dim-xs-55 mt-1 leading-relaxed">
               Choose up to five existing characters. Leaving the cast empty lets
               Storybook invent whoever the premise requires.
@@ -257,7 +257,7 @@
           class="space-y-5 rounded-2xl border border-primary/20 bg-primary/5 p-4"
         >
           <div>
-            <h2 class="text-lg font-black">The world and its flavor</h2>
+            <h2 class="kr-text-black-lg">The world and its flavor</h2>
             <p class="kr-text-dim-xs-55 mt-1 leading-relaxed">
               Use canonical Dreams, Facets, and Rewards as ingredients. Their
               artwork becomes part of the setup surface while technical art
@@ -339,7 +339,7 @@
           class="space-y-4 rounded-2xl border border-primary/20 bg-primary/5 p-4"
         >
           <div>
-            <h2 class="text-lg font-black">Story bible</h2>
+            <h2 class="kr-text-black-lg">Story bible</h2>
             <p class="kr-text-dim-xs-55 mt-1 leading-relaxed">
               Review the creative contract before Storybook writes the opening
               scene.

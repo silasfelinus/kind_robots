@@ -15,7 +15,7 @@
           <p class="text-xs font-black uppercase tracking-widest text-primary">
             {{ step + 1 }} / {{ steps.length }}
           </p>
-          <h2 class="mt-0.5 truncate text-lg font-black sm:text-xl">
+          <h2 class="kr-text-black-lg mt-0.5 truncate sm:text-xl">
             {{ currentStep.title }}
           </h2>
         </div>

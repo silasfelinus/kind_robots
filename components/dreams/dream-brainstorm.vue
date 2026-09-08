@@ -210,7 +210,7 @@
           <section class="kr-panel-muted-sm">
             <div class="mb-3 flex flex-wrap items-center justify-between gap-2">
               <div>
-                <h2 class="text-lg font-black">Fresh Ideas</h2>
+                <h2 class="kr-text-black-lg">Fresh Ideas</h2>
                 <p class="kr-text-dim-xs-60">
                   Accept, reject, edit, and save.
                 </p>
@@ -347,7 +347,7 @@
                 class="h-14 w-14 text-primary/60"
               />
               <div>
-                <p class="text-lg font-black">No fresh ideas yet.</p>
+                <p class="kr-text-black-lg">No fresh ideas yet.</p>
                 <p class="mt-1 text-sm">
                   Feed Brainstorm a pitch and let the text server cook.
                 </p>
@@ -397,7 +397,7 @@
 
       <aside class="kr-pane gap-3 kr-panel-flat p-3">
         <section class="kr-panel-muted-sm">
-          <h2 class="mb-3 text-lg font-black">Text Server</h2>
+          <h2 class="kr-text-black-lg mb-3">Text Server</h2>
           <div class="grid gap-3">
             <label class="form-control">
               <span class="label"
@@ -448,7 +448,7 @@
         </section>
 
         <section class="kr-panel-muted-sm">
-          <h2 class="mb-3 text-lg font-black">Examples</h2>
+          <h2 class="kr-text-black-lg mb-3">Examples</h2>
           <div class="flex flex-wrap gap-2">
             <button
               type="button"

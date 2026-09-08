@@ -831,7 +831,7 @@
             class="h-32 w-24"
             placeholder-icon="kind-icon:fish"
           />
-          <h3 class="text-lg font-black">
+          <h3 class="kr-text-black-lg">
             {{ tankStore.revealedUnlock.Monster.name }}
           </h3>
           <p
@@ -889,7 +889,7 @@
             class="h-32 w-24"
             placeholder-icon="kind-icon:fish"
           />
-          <h3 class="text-lg font-black">
+          <h3 class="kr-text-black-lg">
             {{ tankStore.revealedHatch.Monster.name }}
           </h3>
           <p
@@ -948,7 +948,7 @@
             class="h-32 w-24"
             placeholder-icon="kind-icon:fish"
           />
-          <h3 class="text-lg font-black">
+          <h3 class="kr-text-black-lg">
             {{ breedConfirmPair.a.Monster.name }}
           </h3>
           <p class="text-sm opacity-80">
@@ -1021,7 +1021,7 @@
             class="h-32 w-24"
             placeholder-icon="kind-icon:fish"
           />
-          <h3 class="text-lg font-black">
+          <h3 class="kr-text-black-lg">
             {{ tankStore.revealedBreed.stock.Monster.name }}
           </h3>
           <p
@@ -1071,7 +1071,7 @@
           <p class="text-xs font-black uppercase tracking-wide text-primary">
             The bestiary is complete
           </p>
-          <h3 class="text-lg font-black">Every species, observed.</h3>
+          <h3 class="kr-text-black-lg">Every species, observed.</h3>
           <p class="text-sm opacity-80">
             Nothing here resets and nothing leaves the collection -- the tank
             keeps running exactly as it was. This is just the beat that says so.
@@ -1121,7 +1121,7 @@
           <p class="text-xs font-black uppercase tracking-wide text-primary">
             The last aquarium
           </p>
-          <h3 class="text-lg font-black">
+          <h3 class="kr-text-black-lg">
             Everything is exactly as you left it.
           </h3>
           <p class="text-sm opacity-80">
@@ -1163,7 +1163,7 @@
           <p class="text-xs font-black uppercase tracking-wide text-primary">
             While you were away
           </p>
-          <h3 class="text-lg font-black">
+          <h3 class="kr-text-black-lg">
             {{ tankStore.offlineEarnings }} coins
           </h3>
           <p class="text-sm opacity-80">

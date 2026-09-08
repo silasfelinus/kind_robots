@@ -16,7 +16,7 @@
       class="flex min-h-48 flex-1 items-center justify-center kr-panel text-center"
     >
       <div>
-        <p class="text-lg font-black">No user selected.</p>
+        <p class="kr-text-black-lg">No user selected.</p>
         <p class="kr-text-dim-sm mt-1">
           The shelves are waiting for an owner.
         </p>

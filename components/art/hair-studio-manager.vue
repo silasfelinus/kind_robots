@@ -8,7 +8,7 @@
         <Icon name="kind-icon:magic" class="h-6 w-6" />
       </span>
       <div class="min-w-0 flex-1">
-        <h2 class="text-lg font-black">Hair Studio</h2>
+        <h2 class="kr-text-black-lg">Hair Studio</h2>
         <p class="kr-text-dim-sm">
           Preview a new color or cut on a private client photo.
         </p>

@@ -385,7 +385,7 @@
           </p>
           <button
             type="button"
-            class="btn btn-ghost flex-1 rounded-xl border border-base-300 bg-base-100 sm:flex-none"
+            class="kr-btn-ghost-md-outline flex-1 sm:flex-none"
             :disabled="store.isWeaving || !canBegin"
             @click="begin(true)"
           >

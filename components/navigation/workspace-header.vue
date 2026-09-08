@@ -51,7 +51,7 @@
       <button
         v-if="showBackButton"
         type="button"
-        class="btn btn-ghost btn-sm btn-square shrink-0 rounded-xl border border-base-300 bg-base-100"
+        class="kr-btn-ghost-outline btn-square shrink-0"
         aria-label="Go back"
         title="Go back"
         @click="goBack"

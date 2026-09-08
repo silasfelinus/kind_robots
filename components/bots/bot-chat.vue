@@ -230,7 +230,7 @@
         <div class="grid gap-4">
           <label class="form-control">
             <div class="mb-1 flex items-center justify-between">
-              <span class="label-text font-bold">Temperature</span>
+              <span class="kr-label-bold">Temperature</span>
               <span class="font-mono text-sm font-bold text-primary">
                 {{ temperature.toFixed(1) }}
               </span>
@@ -254,7 +254,7 @@
 
           <label class="form-control">
             <span class="label">
-              <span class="label-text font-bold">Model</span>
+              <span class="kr-label-bold">Model</span>
             </span>
 
             <input
@@ -266,7 +266,7 @@
 
           <label class="form-control">
             <span class="label">
-              <span class="label-text font-bold">Max Tokens</span>
+              <span class="kr-label-bold">Max Tokens</span>
             </span>
 
             <input

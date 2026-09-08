@@ -30,7 +30,7 @@
       <section class="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <label class="form-control">
           <span class="label">
-            <span class="label-text font-bold">Reward Name</span>
+            <span class="kr-label-bold">Reward Name</span>
           </span>
 
           <input
@@ -43,7 +43,7 @@
 
         <label class="form-control">
           <span class="label">
-            <span class="label-text font-bold">Collection</span>
+            <span class="kr-label-bold">Collection</span>
           </span>
 
           <input
@@ -56,7 +56,7 @@
 
         <label class="form-control lg:col-span-2">
           <span class="label">
-            <span class="label-text font-bold">Description</span>
+            <span class="kr-label-bold">Description</span>
             <span class="label-text-alt text-base-content/50">Optional</span>
           </span>
 
@@ -69,7 +69,7 @@
 
         <label class="form-control lg:col-span-2">
           <span class="label">
-            <span class="label-text font-bold">Flavor Text</span>
+            <span class="kr-label-bold">Flavor Text</span>
             <span class="label-text-alt text-base-content/50">Optional</span>
           </span>
 
@@ -83,7 +83,7 @@
 
         <label class="form-control lg:col-span-2">
           <span class="label">
-            <span class="label-text font-bold">Effect</span>
+            <span class="kr-label-bold">Effect</span>
           </span>
 
           <textarea
@@ -97,7 +97,7 @@
       <section class="grid grid-cols-1 gap-4 lg:grid-cols-3">
         <label class="form-control">
           <span class="label">
-            <span class="label-text font-bold">Icon</span>
+            <span class="kr-label-bold">Icon</span>
           </span>
 
           <input
@@ -110,7 +110,7 @@
 
         <label class="form-control">
           <span class="label">
-            <span class="label-text font-bold">Type</span>
+            <span class="kr-label-bold">Type</span>
           </span>
 
           <select
@@ -129,7 +129,7 @@
 
         <label class="form-control">
           <span class="label">
-            <span class="label-text font-bold">Rarity</span>
+            <span class="kr-label-bold">Rarity</span>
           </span>
 
           <select
@@ -157,7 +157,7 @@
 
         <div class="grid grid-cols-1 gap-3 md:grid-cols-2">
           <label class="kr-toggle-row">
-            <span class="label-text font-bold">Public</span>
+            <span class="kr-label-bold">Public</span>
             <input
               v-model="rewardStore.rewardForm.isPublic"
               type="checkbox"
@@ -166,7 +166,7 @@
           </label>
 
           <label class="kr-toggle-row">
-            <span class="label-text font-bold">Mature</span>
+            <span class="kr-label-bold">Mature</span>
             <input
               v-model="rewardStore.rewardForm.isMature"
               type="checkbox"
@@ -234,7 +234,7 @@
           <div class="flex flex-col gap-3">
             <label class="form-control">
               <span class="label">
-                <span class="label-text font-bold">Image Prompt</span>
+                <span class="kr-label-bold">Image Prompt</span>
               </span>
 
               <textarea

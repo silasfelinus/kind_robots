@@ -30,7 +30,7 @@
     <main class="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto p-4">
       <section class="grid gap-3 md:grid-cols-2">
         <label class="form-control">
-          <span class="label-text font-bold">Title</span>
+          <span class="kr-label-bold">Title</span>
           <input
             v-model="form.title"
             class="input input-bordered rounded-xl"
@@ -40,7 +40,7 @@
         </label>
 
         <label class="form-control">
-          <span class="label-text font-bold">Label</span>
+          <span class="kr-label-bold">Label</span>
           <input
             v-model="form.label"
             class="input input-bordered rounded-xl"
@@ -49,7 +49,7 @@
         </label>
 
         <label class="form-control">
-          <span class="label-text font-bold">Server Type</span>
+          <span class="kr-label-bold">Server Type</span>
           <select
             v-model="form.serverType"
             class="select select-bordered rounded-xl"
@@ -65,7 +65,7 @@
         </label>
 
         <label class="form-control">
-          <span class="label-text font-bold">Access Mode</span>
+          <span class="kr-label-bold">Access Mode</span>
           <select
             v-model="form.accessMode"
             class="select select-bordered rounded-xl"
@@ -79,7 +79,7 @@
         </label>
 
         <label class="form-control md:col-span-2">
-          <span class="label-text font-bold">Base URL</span>
+          <span class="kr-label-bold">Base URL</span>
           <input
             v-model="form.baseUrl"
             class="input input-bordered rounded-xl"
@@ -89,7 +89,7 @@
         </label>
 
         <label class="form-control">
-          <span class="label-text font-bold">Endpoint Path</span>
+          <span class="kr-label-bold">Endpoint Path</span>
           <input
             v-model="form.endpointPath"
             class="input input-bordered rounded-xl"
@@ -98,7 +98,7 @@
         </label>
 
         <label class="form-control">
-          <span class="label-text font-bold">Health Path</span>
+          <span class="kr-label-bold">Health Path</span>
           <input
             v-model="form.healthPath"
             class="input input-bordered rounded-xl"
@@ -107,7 +107,7 @@
         </label>
 
         <label class="form-control">
-          <span class="label-text font-bold">Category</span>
+          <span class="kr-label-bold">Category</span>
           <input
             v-model="form.category"
             class="input input-bordered rounded-xl"
@@ -116,7 +116,7 @@
         </label>
 
         <label class="form-control">
-          <span class="label-text font-bold">Model</span>
+          <span class="kr-label-bold">Model</span>
           <input
             v-model="form.model"
             class="input input-bordered rounded-xl"
@@ -134,7 +134,7 @@
 
         <div class="grid gap-3 md:grid-cols-2">
           <label class="form-control">
-            <span class="label-text font-bold">Auth Type</span>
+            <span class="kr-label-bold">Auth Type</span>
             <select
               v-model="form.authType"
               class="select select-bordered rounded-xl"
@@ -148,7 +148,7 @@
           </label>
 
           <label class="form-control">
-            <span class="label-text font-bold">API Key Header Name</span>
+            <span class="kr-label-bold">API Key Header Name</span>
             <input
               v-model="form.apiKeyName"
               class="input input-bordered rounded-xl"
@@ -157,7 +157,7 @@
           </label>
 
           <label class="form-control md:col-span-2">
-            <span class="label-text font-bold">API Key</span>
+            <span class="kr-label-bold">API Key</span>
             <input
               v-model="apiKey"
               :type="showApiKey ? 'text' : 'password'"
@@ -239,7 +239,7 @@
       </section>
 
       <label class="form-control">
-        <span class="label-text font-bold">Description</span>
+        <span class="kr-label-bold">Description</span>
         <textarea
           v-model="form.description"
           class="textarea textarea-bordered min-h-24 rounded-xl"
@@ -248,7 +248,7 @@
       </label>
 
       <label class="form-control">
-        <span class="label-text font-bold">Notes</span>
+        <span class="kr-label-bold">Notes</span>
         <textarea
           v-model="form.notes"
           class="textarea textarea-bordered min-h-24 rounded-xl"

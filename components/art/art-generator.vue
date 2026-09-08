@@ -250,7 +250,7 @@
             <template v-if="activeProfile.supports.checkpoint">
               <label class="form-control mt-2">
                 <span class="label py-1">
-                  <span class="label-text font-bold">Checkpoint</span>
+                  <span class="kr-label-bold">Checkpoint</span>
                   <span class="label-text-alt text-base-content/50">
                     {{ checkpointFamilyLabel }}
                   </span>
@@ -309,7 +309,7 @@
             >
               <label class="form-control">
                 <span class="label py-1">
-                  <span class="label-text font-bold">Steps</span>
+                  <span class="kr-label-bold">Steps</span>
                 </span>
                 <input
                   v-model.number="steps"
@@ -323,7 +323,7 @@
 
               <label class="form-control">
                 <span class="label py-1">
-                  <span class="label-text font-bold">
+                  <span class="kr-label-bold">
                     {{ activeProfile.supports.guidance ? 'Guidance' : 'CFG' }}
                   </span>
                 </span>
@@ -351,7 +351,7 @@
 
               <label v-if="activeProfile.supports.sampler" class="form-control">
                 <span class="label py-1">
-                  <span class="label-text font-bold">Sampler</span>
+                  <span class="kr-label-bold">Sampler</span>
                 </span>
                 <select
                   v-model="sampler"
@@ -373,7 +373,7 @@
                 class="form-control"
               >
                 <span class="label py-1">
-                  <span class="label-text font-bold">Scheduler</span>
+                  <span class="kr-label-bold">Scheduler</span>
                 </span>
                 <select
                   v-model="scheduler"
@@ -393,7 +393,7 @@
               <template v-if="activeProfile.supports.size">
                 <label class="form-control">
                   <span class="label py-1">
-                    <span class="label-text font-bold">Width</span>
+                    <span class="kr-label-bold">Width</span>
                   </span>
                   <input
                     v-model.number="width"
@@ -407,7 +407,7 @@
                 </label>
                 <label class="form-control">
                   <span class="label py-1">
-                    <span class="label-text font-bold">Height</span>
+                    <span class="kr-label-bold">Height</span>
                   </span>
                   <input
                     v-model.number="height"
@@ -423,7 +423,7 @@
 
               <label class="form-control col-span-full">
                 <span class="label py-1">
-                  <span class="label-text font-bold">Seed</span>
+                  <span class="kr-label-bold">Seed</span>
                   <span class="label-text-alt text-base-content/50">
                     blank = random
                   </span>
@@ -449,7 +449,7 @@
 
             <label class="form-control mt-2">
               <span class="label py-1">
-                <span class="label-text font-bold">Comfy server</span>
+                <span class="kr-label-bold">Comfy server</span>
               </span>
               <select
                 v-model="serverChoice"
@@ -475,7 +475,7 @@
 
             <label class="form-control mt-1">
               <span class="label py-1">
-                <span class="label-text font-bold"
+                <span class="kr-label-bold"
                   >Also save to collection</span
                 >
               </span>

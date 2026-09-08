@@ -90,7 +90,7 @@
 
       <label class="form-control mt-4">
         <span class="label py-1">
-          <span class="label-text font-bold">Contribution prompt</span>
+          <span class="kr-label-bold">Contribution prompt</span>
           <span class="label-text-alt"
             >{{ store.promptDraft.length }} / 4000</span
           >

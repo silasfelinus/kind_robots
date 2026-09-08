@@ -34,7 +34,7 @@
     <div class="grid grid-cols-1 gap-3 lg:grid-cols-2">
       <label class="form-control">
         <span class="label">
-          <span class="label-text font-bold">Name</span>
+          <span class="kr-label-bold">Name</span>
         </span>
 
         <input
@@ -49,7 +49,7 @@
 
       <label class="form-control">
         <span class="label">
-          <span class="label-text font-bold">Custom Label</span>
+          <span class="kr-label-bold">Custom Label</span>
         </span>
 
         <input
@@ -65,7 +65,7 @@
     <div class="grid grid-cols-1 gap-3 lg:grid-cols-2">
       <label class="form-control">
         <span class="label">
-          <span class="label-text font-bold">Resource Type</span>
+          <span class="kr-label-bold">Resource Type</span>
         </span>
 
         <select
@@ -86,7 +86,7 @@
 
       <label class="form-control">
         <span class="label">
-          <span class="label-text font-bold">Supported Server</span>
+          <span class="kr-label-bold">Supported Server</span>
         </span>
 
         <select
@@ -107,7 +107,7 @@
 
     <label class="form-control">
       <span class="label">
-        <span class="label-text font-bold">Local Path</span>
+        <span class="kr-label-bold">Local Path</span>
       </span>
 
       <input
@@ -122,7 +122,7 @@
     <div class="grid grid-cols-1 gap-3 lg:grid-cols-3">
       <label class="form-control">
         <span class="label">
-          <span class="label-text font-bold">Civitai URL</span>
+          <span class="kr-label-bold">Civitai URL</span>
         </span>
 
         <input
@@ -136,7 +136,7 @@
 
       <label class="form-control">
         <span class="label">
-          <span class="label-text font-bold">Hugging Face URL</span>
+          <span class="kr-label-bold">Hugging Face URL</span>
         </span>
 
         <input
@@ -150,7 +150,7 @@
 
       <label class="form-control">
         <span class="label">
-          <span class="label-text font-bold">Custom URL</span>
+          <span class="kr-label-bold">Custom URL</span>
         </span>
 
         <input
@@ -165,7 +165,7 @@
 
     <label class="form-control">
       <span class="label">
-        <span class="label-text font-bold">Media Path</span>
+        <span class="kr-label-bold">Media Path</span>
       </span>
 
       <input
@@ -179,7 +179,7 @@
 
     <label class="form-control">
       <span class="label">
-        <span class="label-text font-bold">Description</span>
+        <span class="kr-label-bold">Description</span>
       </span>
 
       <textarea
@@ -191,7 +191,7 @@
 
     <label class="form-control">
       <span class="label">
-        <span class="label-text font-bold">Generation Notes</span>
+        <span class="kr-label-bold">Generation Notes</span>
       </span>
 
       <textarea
@@ -211,7 +211,7 @@
           class="toggle toggle-warning"
         />
 
-        <span class="label-text font-bold">Mature resource</span>
+        <span class="kr-label-bold">Mature resource</span>
       </label>
 
       <button

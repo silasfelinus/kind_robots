@@ -76,7 +76,7 @@
       >
         <label class="form-control">
           <span class="label">
-            <span class="label-text font-bold">Reaction Type</span>
+            <span class="kr-label-bold">Reaction Type</span>
           </span>
 
           <select
@@ -92,7 +92,7 @@
 
         <label v-if="showComment" class="form-control">
           <span class="label">
-            <span class="label-text font-bold">Comment</span>
+            <span class="kr-label-bold">Comment</span>
           </span>
 
           <input

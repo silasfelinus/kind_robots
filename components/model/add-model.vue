@@ -41,7 +41,7 @@
     <div class="grid grid-cols-1 gap-3 lg:grid-cols-2">
       <label class="form-control">
         <span class="label">
-          <span class="label-text font-bold">Name (unique)</span>
+          <span class="kr-label-bold">Name (unique)</span>
         </span>
 
         <input
@@ -57,7 +57,7 @@
 
       <label class="form-control">
         <span class="label">
-          <span class="label-text font-bold">Custom Label</span>
+          <span class="kr-label-bold">Custom Label</span>
         </span>
 
         <input
@@ -72,7 +72,7 @@
 
     <label class="form-control">
       <span class="label">
-        <span class="label-text font-bold">Base Model</span>
+        <span class="kr-label-bold">Base Model</span>
       </span>
 
       <select
@@ -87,7 +87,7 @@
 
     <label class="form-control">
       <span class="label">
-        <span class="label-text font-bold">Local Path</span>
+        <span class="kr-label-bold">Local Path</span>
         <span class="label-text-alt text-base-content/50">
           subfolder-qualified — becomes ComfyUI's ckpt_name
         </span>
@@ -105,7 +105,7 @@
     <div class="grid grid-cols-1 gap-3 lg:grid-cols-2">
       <label class="form-control">
         <span class="label">
-          <span class="label-text font-bold">Preview Image URL</span>
+          <span class="kr-label-bold">Preview Image URL</span>
         </span>
 
         <input
@@ -119,7 +119,7 @@
 
       <label class="form-control">
         <span class="label">
-          <span class="label-text font-bold">Civitai URL</span>
+          <span class="kr-label-bold">Civitai URL</span>
         </span>
 
         <input
@@ -134,7 +134,7 @@
 
     <label class="form-control">
       <span class="label">
-        <span class="label-text font-bold">Description</span>
+        <span class="kr-label-bold">Description</span>
       </span>
 
       <textarea
@@ -154,7 +154,7 @@
           class="toggle toggle-warning"
         />
 
-        <span class="label-text font-bold">Mature (NSFW)</span>
+        <span class="kr-label-bold">Mature (NSFW)</span>
       </label>
 
       <button

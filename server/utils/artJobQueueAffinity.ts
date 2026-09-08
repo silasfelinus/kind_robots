@@ -217,8 +217,16 @@ export function artJobQueueModelKey(
   const resources = new Set<string>()
   collectNamedResources(asRecord(rawPayload) ?? {}, resources)
 
+  // indexOf/slice rather than split(':', 1)[0]: under the repo's strict
+  // settings that index is string | undefined, and a resource value can itself
+  // contain a colon (a path), so slicing at the FIRST colon is also the correct
+  // reading of the `key:value` entries collectNamedResources builds.
   const heavy = [...resources]
-    .filter((entry) => HEAVY_MODEL_RESOURCE_KEYS.has(entry.split(':', 1)[0]))
+    .filter((entry) => {
+      const separator = entry.indexOf(':')
+      if (separator <= 0) return false
+      return HEAVY_MODEL_RESOURCE_KEYS.has(entry.slice(0, separator))
+    })
     .sort()
 
   if (!heavy.length) return null

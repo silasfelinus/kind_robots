@@ -29,6 +29,16 @@ assert.match(helper, /isPublic: true, isActive: true/)
 assert.match(listing, /listPublicRainbowHumans/)
 assert.match(listing, /listPublicRainbowAgents/)
 
+// Directory avatars are cross-origin-safe. User ArtImages are the durable
+// source of truth and old relative Kind Robots media paths are made absolute
+// before Rainbow receives them.
+assert.match(helper, /u\.artImageId/)
+assert.match(helper, /resolveRainbowAvatar/)
+assert.match(helper, /\/api\/art\/images\/\$\{artImageId\}\/file/)
+assert.match(helper, /kindrobots\.org/)
+assert.match(profileGet, /artImageId/)
+assert.match(profileGet, /resolveRainbowAvatar/)
+
 // A public AgentProfile may remain visible while its human liaison is private;
 // the public response omits the canonical owner scalar and only emits a
 // liaison object when the human independently opted in.
@@ -57,5 +67,15 @@ for (const source of [profileGet, profilePatch]) {
   assert.match(source, /designerName/)
   assert.doesNotMatch(source, /email|password|apiKey|tokens|mana/)
 }
+
+// Rainbow may link only one of the signed-in human's active, non-mature
+// ArtImages. Selecting it publishes only that avatar asset and clears the
+// legacy URL field so base64/string avatar state cannot drift in parallel.
+assert.match(profilePatch, /artImageId/)
+assert.match(profilePatch, /userId: auth\.user\.id/)
+assert.match(profilePatch, /isActive: true/)
+assert.match(profilePatch, /isMature: false/)
+assert.match(profilePatch, /data: \{ isPublic: true, isMature: false \}/)
+assert.match(profilePatch, /data\.avatarImage = null/)
 
 console.log('Rainbow community directory contract OK')

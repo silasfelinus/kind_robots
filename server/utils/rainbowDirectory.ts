@@ -28,6 +28,44 @@ export type RainbowDirectoryHuman = {
   allowMessages: boolean
 }
 
+function kindRobotsPublicOrigin(): string {
+  const configured = String(process.env.APP_BASE_URL || 'https://kindrobots.org').trim()
+  try {
+    return new URL(configured).origin
+  } catch {
+    return 'https://kindrobots.org'
+  }
+}
+
+/**
+ * Rainbow is a separate origin from Kind Robots, so a legacy avatar such as
+ * `/images/avatars/foo.webp` must not be handed to Rainbow as a bare relative
+ * path. Uploaded user avatars use artImageId as their durable source of truth,
+ * matching Kind Robots' own avatar picker.
+ */
+export function resolveRainbowAvatar(input: {
+  avatarImage?: string | null
+  artImageId?: number | null
+}): string | null {
+  const origin = kindRobotsPublicOrigin()
+  const artImageId = Number(input.artImageId)
+  if (Number.isInteger(artImageId) && artImageId > 0) {
+    return `${origin}/api/art/images/${artImageId}/file`
+  }
+
+  const raw = input.avatarImage?.trim()
+  if (!raw) return null
+
+  try {
+    const parsed = new URL(raw)
+    if (parsed.protocol === 'https:' || parsed.protocol === 'http:') return parsed.toString()
+  } catch {
+    // Relative Kind Robots media path. Resolve it against the canonical origin.
+  }
+
+  return new URL(raw.replace(/^\.?\//, ''), `${origin}/`).toString()
+}
+
 export async function getRainbowDirectoryPreference(
   userId: number,
 ): Promise<RainbowDirectoryPreference> {
@@ -76,6 +114,7 @@ export async function listPublicRainbowHumans(): Promise<RainbowDirectoryHuman[]
       id: number
       username: string
       avatarImage: string | null
+      artImageId: number | null
       bio: string | null
       designerName: string | null
       allowMessages: boolean | number
@@ -85,6 +124,7 @@ export async function listPublicRainbowHumans(): Promise<RainbowDirectoryHuman[]
       u.id,
       u.username,
       u.avatarImage,
+      u.artImageId,
       u.bio,
       u.designerName,
       rdp.allowMessages
@@ -97,11 +137,18 @@ export async function listPublicRainbowHumans(): Promise<RainbowDirectoryHuman[]
     LIMIT 500
   `)
 
-  return rows.map((row) => ({ ...row, allowMessages: Boolean(row.allowMessages) }))
+  return rows.map((row) => ({
+    id: row.id,
+    username: row.username,
+    avatarImage: resolveRainbowAvatar(row),
+    bio: row.bio,
+    designerName: row.designerName,
+    allowMessages: Boolean(row.allowMessages),
+  }))
 }
 
 export async function listPublicRainbowAgents(): Promise<RainbowDirectoryAgent[]> {
-  return prisma.agentProfile.findMany({
+  const agents = await prisma.agentProfile.findMany({
     where: { isPublic: true, isActive: true },
     orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
     take: 500,
@@ -115,6 +162,11 @@ export async function listPublicRainbowAgents(): Promise<RainbowDirectoryAgent[]
       createdAt: true,
     },
   })
+
+  return agents.map((agent) => ({
+    ...agent,
+    avatarImage: resolveRainbowAvatar({ avatarImage: agent.avatarImage }),
+  }))
 }
 
 export async function getPublicRainbowHuman(
@@ -125,6 +177,7 @@ export async function getPublicRainbowHuman(
       id: number
       username: string
       avatarImage: string | null
+      artImageId: number | null
       bio: string | null
       designerName: string | null
       allowMessages: boolean | number
@@ -134,6 +187,7 @@ export async function getPublicRainbowHuman(
       u.id,
       u.username,
       u.avatarImage,
+      u.artImageId,
       u.bio,
       u.designerName,
       rdp.allowMessages
@@ -147,13 +201,22 @@ export async function getPublicRainbowHuman(
   `)
 
   const row = humans[0]
-  return row ? { ...row, allowMessages: Boolean(row.allowMessages) } : null
+  return row
+    ? {
+        id: row.id,
+        username: row.username,
+        avatarImage: resolveRainbowAvatar(row),
+        bio: row.bio,
+        designerName: row.designerName,
+        allowMessages: Boolean(row.allowMessages),
+      }
+    : null
 }
 
 export async function getPublicRainbowAgent(
   agentProfileId: number,
 ): Promise<RainbowDirectoryAgent | null> {
-  return prisma.agentProfile.findFirst({
+  const agent = await prisma.agentProfile.findFirst({
     where: { id: agentProfileId, isPublic: true, isActive: true },
     select: {
       id: true,
@@ -165,12 +228,16 @@ export async function getPublicRainbowAgent(
       createdAt: true,
     },
   })
+
+  return agent
+    ? { ...agent, avatarImage: resolveRainbowAvatar({ avatarImage: agent.avatarImage }) }
+    : null
 }
 
 export async function getPublicAgentsForHuman(
   userId: number,
 ): Promise<RainbowDirectoryAgent[]> {
-  return prisma.agentProfile.findMany({
+  const agents = await prisma.agentProfile.findMany({
     where: { userId, isPublic: true, isActive: true },
     orderBy: [{ createdAt: 'asc' }, { id: 'asc' }],
     select: {
@@ -183,6 +250,11 @@ export async function getPublicAgentsForHuman(
       createdAt: true,
     },
   })
+
+  return agents.map((agent) => ({
+    ...agent,
+    avatarImage: resolveRainbowAvatar({ avatarImage: agent.avatarImage }),
+  }))
 }
 
 export function parsePositiveDirectoryId(value: unknown, label = 'id'): number {

@@ -2,6 +2,7 @@ import { defineEventHandler } from 'h3'
 import { requireHumanOrRainbowApiUser } from '@/server/utils/authGuard'
 import { errorHandler } from '@/server/utils/error'
 import prisma from '@/server/utils/prisma'
+import { resolveRainbowAvatar } from '@/server/utils/rainbowDirectory'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -12,6 +13,7 @@ export default defineEventHandler(async (event) => {
         id: true,
         username: true,
         avatarImage: true,
+        artImageId: true,
         bio: true,
         designerName: true,
       },
@@ -20,7 +22,13 @@ export default defineEventHandler(async (event) => {
       event.node.res.statusCode = 404
       return { success: false, message: 'User not found.' }
     }
-    return { success: true, user }
+    return {
+      success: true,
+      user: {
+        ...user,
+        avatarImage: resolveRainbowAvatar(user),
+      },
+    }
   } catch (error) {
     const { message, statusCode } = errorHandler(error)
     event.node.res.statusCode = statusCode || 500

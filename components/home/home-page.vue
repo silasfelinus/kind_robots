@@ -165,10 +165,15 @@
       </div>
 
       <!--
-        THE RIGHT COLUMN: the three things that are lists rather than pictures.
-        Needs-you and the newsfeed both scroll and share the leftover height;
-        the project strip sits between them at its natural height because it is
-        six short rows and scrolling it would be silly.
+        THE RIGHT COLUMN: the things that are lists rather than pictures.
+
+        Three of them for Silas, two for everyone else -- "Needs you" is his own
+        decision queue and is admin-gated (see home-attention.vue). What is left
+        divides like this: the projects strip keeps its own height up to a third
+        of the column and scrolls past that, and the newsfeed takes twice the
+        flexible share "Needs you" does, or all of it when "Needs you" is not
+        there. Silas, 2026-09-08: "the news section is too small, it could be
+        twice as big, eating in the what we're building."
       -->
       <div class="flex min-w-0 flex-col gap-2 xl:min-h-0 xl:w-[22%]">
         <!--
@@ -194,14 +199,14 @@
           class="flex shrink-0 gap-1 kr-panel-flat p-1 xl:hidden"
         >
           <button
-            v-for="pane in RIGHT_PANES"
+            v-for="pane in visiblePanes"
             :key="pane.key"
             type="button"
             role="tab"
-            :aria-selected="activePane === pane.key"
+            :aria-selected="currentPane === pane.key"
             class="flex-1 rounded-lg px-2 py-1.5 text-[0.7rem] font-black uppercase tracking-[0.1em] transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary"
             :class="
-              activePane === pane.key
+              currentPane === pane.key
                 ? 'bg-primary text-primary-content'
                 : 'text-base-content/55 hover:text-primary'
             "
@@ -211,7 +216,7 @@
           </button>
         </div>
 
-        <div :class="paneClass('attention')">
+        <div v-if="isAdmin" :class="paneClass('attention')">
           <home-attention class="xl:min-h-0 xl:flex-1" />
         </div>
 
@@ -368,6 +373,7 @@
 import { computed, onMounted, ref } from 'vue'
 import { useConductorStore } from '@/stores/conductorStore'
 import { useHomeShowcaseStore } from '@/stores/homeShowcaseStore'
+import { useUserStore } from '@/stores/userStore'
 import {
   showcaseHref,
   type RailItem,
@@ -390,7 +396,36 @@ const RIGHT_PANES = [
 
 type RightPane = (typeof RIGHT_PANES)[number]['key']
 
+const userStore = useUserStore()
+
+/*
+ * "Needs you" is Silas's own decision queue and is admin-only (see
+ * home-attention.vue -- the projection behind it is public, so it needs a real
+ * check). It drops out of the column entirely for everyone else, tab included.
+ *
+ * The wrapper has to go with it, not just the panel: the wrapper carries
+ * `xl:flex-1`, so leaving it in place for a signed-out visitor would hold half
+ * the column's flexible height open around a section rendering nothing -- which
+ * is most of why the newsfeed was a sliver.
+ */
+const isAdmin = computed(() => userStore.isAdmin)
+
+const visiblePanes = computed(() =>
+  RIGHT_PANES.filter((pane) => pane.key !== 'attention' || isAdmin.value),
+)
+
 const activePane = ref<RightPane>('attention')
+
+/*
+ * The selected tab, corrected for panes that are not there. A signed-out
+ * visitor would otherwise land on the default 'attention' tab and see a blank
+ * pane, since the tab it belongs to is gone but the ref still names it.
+ */
+const currentPane = computed<RightPane>(() =>
+  visiblePanes.value.some((pane) => pane.key === activePane.value)
+    ? activePane.value
+    : (visiblePanes.value[0]?.key ?? 'news'),
+)
 
 /**
  * Show this pane on a phone only when it is the selected tab; always show it
@@ -402,8 +437,31 @@ const activePane = ref<RightPane>('attention')
  */
 function paneClass(pane: RightPane): string {
   const shared = 'min-w-0 flex-col xl:flex xl:min-h-0'
-  const grow = pane === 'projects' ? 'xl:shrink-0' : 'xl:flex-1'
-  return `${activePane.value === pane ? 'flex' : 'hidden'} ${shared} ${grow}`
+
+  /*
+   * Silas, 2026-09-08: "the news section is too small, it could be twice as
+   * big, eating in the what we're building."
+   *
+   * Two changes, because the newsfeed was losing height at both ends. It now
+   * takes twice the share "Needs you" does instead of splitting the flexible
+   * height evenly with it, and the projects strip is capped at a third of the
+   * column and scrolls past that rather than taking its natural height
+   * whatever that turns out to be -- six projects at their natural height were
+   * pushing the feed down to a couple of rows. Capped, not flexed: the strip
+   * is short rows and reads best whole, so it keeps its own height right up to
+   * the cap.
+   *
+   * For a signed-out visitor "Needs you" is gone entirely, so the feed simply
+   * takes all of the flexible height the projects strip does not.
+   */
+  const grow =
+    pane === 'projects'
+      ? 'xl:shrink-0 xl:max-h-[34%] xl:overflow-y-auto'
+      : pane === 'news'
+        ? 'xl:flex-[2]'
+        : 'xl:flex-1'
+
+  return `${currentPane.value === pane ? 'flex' : 'hidden'} ${shared} ${grow}`
 }
 
 type RailDefinition = {
@@ -565,5 +623,15 @@ function fallbackFor(card: ShowcaseCard): string {
 
 onMounted(() => {
   void showcaseStore.load()
+
+  /*
+   * The projects strip's progress bars read conductorStore, and this page is
+   * now the only thing that reliably asks for it. home-attention used to own
+   * this fetch, but it no longer mounts for a signed-out visitor -- who still
+   * sees the strip, and whose bars would otherwise all resolve to null and
+   * disappear. Cached in the store (FRESH_DATA_MS), so it stays a no-op when
+   * anything else on the session has already asked.
+   */
+  void conductorStore.fetchProjects()
 })
 </script>

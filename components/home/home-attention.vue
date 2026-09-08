@@ -39,14 +39,34 @@
   coordination system of record; answering hands it onward. The second is the
   one Silas asked for and the safer default, so it is the one in reach.
 
-  ADMIN-ONLY BY DATA, not by a check here: conductorStore only has gates when
+  ADMIN-ONLY BY AN EXPLICIT CHECK, because "by data" was never true.
+
+  This used to claim the panel gated itself: "conductorStore only has gates when
   the projection is readable, and /api/conductor/task-action is behind
-  requireAdminApiUser -- so a signed-out visitor sees the empty branch and the
-  column collapses out of the layout entirely.
+  requireAdminApiUser -- so a signed-out visitor sees the empty branch." Only
+  the second half held. `/api/conductor/task-action` is indeed admin-only, so a
+  stranger could never ACT on a gate -- but `/api/conductor/projects` is fully
+  public and returns every project's whole task list, `needs-human` rows
+  included. Verified against production 2026-09-08 while signed out: 52
+  projects, 44 needs-human tasks, 36 of them on active/continuous projects --
+  which is exactly the "NEEDS YOU · 36" a logged-out visitor was seeing.
+
+  So every stranger got Silas's personal decision queue on the front page.
+  Silas, 2026-09-08: "unlogged in users should not even see a 'needs you'
+  section as those are explicit to my user admin account."
+
+  The gate list is not secret -- the same rows are on /conductor, which is a
+  public page on purpose -- but it is not a front door for a visitor either:
+  it is one person's inbox, it is the tallest thing in the column, and it
+  pushes the newsfeed (which IS for visitors) into a sliver.
+
+  `userStore.isAdmin` is the check, matching how the rest of the app gates
+  admin-only affordances, and it renders nothing at all for anyone else rather
+  than an empty panel -- the column then gives that height to the newsfeed.
 -->
 <template>
   <section
-    v-if="gates.length || isLoading"
+    v-if="isAdmin && (gates.length || isLoading)"
     class="flex min-h-0 flex-col gap-1 kr-panel-flat p-2"
   >
     <header class="flex shrink-0 items-baseline justify-between gap-2">
@@ -229,8 +249,17 @@ import {
   type ConductorHumanGate,
   type ConductorTaskAction,
 } from '@/stores/conductorStore'
+import { useUserStore } from '@/stores/userStore'
 
 const conductorStore = useConductorStore()
+const userStore = useUserStore()
+
+/*
+ * The whole panel hangs off this. See the note above: the projection these
+ * gates come from is public, so without an explicit check every signed-out
+ * visitor saw Silas's decision queue.
+ */
+const isAdmin = computed(() => userStore.isAdmin)
 
 const gates = computed(() => conductorStore.humanGates)
 const isLoading = computed(() => !conductorStore.hasLoaded)

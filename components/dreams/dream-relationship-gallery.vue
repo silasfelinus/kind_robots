@@ -11,7 +11,7 @@
           <h2 class="truncate text-lg font-black text-base-content">
             {{ title }}
           </h2>
-          <p class="truncate text-sm text-base-content/60">
+          <p class="kr-text-dim-sm truncate">
             {{ subtitleLine }}
           </p>
         </div>

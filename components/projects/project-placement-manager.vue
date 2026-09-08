@@ -64,7 +64,7 @@
         >
           <div>
             <h2 class="font-black">Backfill controls</h2>
-            <p class="mt-1 text-sm text-base-content/60">
+            <p class="kr-text-dim-sm mt-1">
               Existing non-empty live URLs are preserved unless overwrite is
               enabled. Individual failures do not stop the remaining rows.
             </p>

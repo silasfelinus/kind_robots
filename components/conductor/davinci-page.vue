@@ -125,9 +125,7 @@
             class="flex flex-col gap-4"
           >
             <div class="flex flex-wrap items-center justify-between gap-2">
-              <p
-                class="text-sm font-black uppercase tracking-wide text-base-content/60"
-              >
+              <p class="kr-text-dim-sm font-black uppercase tracking-wide">
                 {{ run.protagonistName || run.title }}
               </p>
               <p class="kr-text-dim-xs font-semibold">

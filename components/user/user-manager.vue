@@ -40,7 +40,7 @@
           <Icon name="kind-icon:user" class="h-8 w-8 text-primary" />
         </div>
         <h2 class="text-xl font-black text-base-content">Welcome, guest</h2>
-        <p class="max-w-xs text-sm text-base-content/60">
+        <p class="kr-text-dim-sm max-w-xs">
           Log in to save your progress, set an avatar, and access your full
           account.
         </p>

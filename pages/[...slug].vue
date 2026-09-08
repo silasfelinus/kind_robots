@@ -19,7 +19,7 @@
 
       <p class="text-base font-bold text-info">Loading page…</p>
 
-      <p class="max-w-xl text-sm text-base-content/60">
+      <p class="kr-text-dim-sm max-w-xl">
         Looking for {{ contentPath }}
       </p>
     </div>
@@ -45,7 +45,7 @@
 
       <p class="text-base font-bold text-warning">Page not found</p>
 
-      <p class="max-w-xl text-sm text-base-content/60">
+      <p class="kr-text-dim-sm max-w-xl">
         No Nuxt Content page was found for {{ contentPath }}.
       </p>
     </div>

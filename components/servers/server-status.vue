@@ -11,7 +11,7 @@
             </h2>
           </div>
 
-          <p class="mt-1 text-sm text-base-content/60">
+          <p class="kr-text-dim-sm mt-1">
             {{ summary }}
           </p>
         </div>
@@ -57,7 +57,7 @@
         </div>
       </div>
 
-      <div v-else class="rounded-xl border border-dashed border-base-300 bg-base-200 p-4 text-center text-sm text-base-content/60">
+      <div v-else class="kr-text-dim-sm rounded-xl border border-dashed border-base-300 bg-base-200 p-4 text-center">
         No active server selected.
       </div>
 

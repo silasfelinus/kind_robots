@@ -10,7 +10,7 @@
         >
           Story library
         </p>
-        <p class="mt-0.5 text-sm text-base-content/60">
+        <p class="kr-text-dim-sm mt-0.5">
           {{ storyStore.recentStories.length }} saved
           {{ storyStore.recentStories.length === 1 ? 'story' : 'stories' }} on
           this account

@@ -9,7 +9,7 @@
             Forum moderation
           </p>
           <p class="mt-1 text-2xl font-black">Health-claim escalation queue</p>
-          <p class="mt-1 max-w-2xl text-sm text-base-content/60">
+          <p class="kr-text-dim-sm mt-1 max-w-2xl">
             Posts here were auto-hidden because at least two distinct people
             flagged them as misinformation or unsafe. Restore the post if the
             flag was wrong, or confirm removal if it should stay down.
@@ -37,7 +37,7 @@
         <p class="text-xl font-black text-base-content">
           Administrator access required
         </p>
-        <p class="mt-2 text-sm text-base-content/60">
+        <p class="kr-text-dim-sm mt-2">
           The forum moderation queue is restricted to administrators.
         </p>
       </div>

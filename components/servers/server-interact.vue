@@ -41,14 +41,14 @@
     <div class="grid gap-4 lg:grid-cols-2">
       <div class="kr-panel-flat p-4">
         <h2 class="font-black text-primary">Active Art Server</h2>
-        <p class="mt-1 text-sm text-base-content/60">
+        <p class="kr-text-dim-sm mt-1">
           {{ artSummary }}
         </p>
       </div>
 
       <div class="kr-panel-flat p-4">
         <h2 class="font-black text-secondary">Active Text Server</h2>
-        <p class="mt-1 text-sm text-base-content/60">
+        <p class="kr-text-dim-sm mt-1">
           {{ textSummary }}
         </p>
       </div>

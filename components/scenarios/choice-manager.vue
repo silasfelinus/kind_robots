@@ -45,7 +45,7 @@
       />
     </div>
 
-    <div class="text-right text-sm italic text-base-content/60">
+    <div class="kr-text-dim-sm text-right italic">
       Selected: <strong>{{ choiceEntry.selected || 'none' }}</strong>
     </div>
   </div>

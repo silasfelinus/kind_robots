@@ -98,9 +98,7 @@
         </label>
 
         <details class="kr-panel-flat p-4 lg:col-span-2">
-          <summary
-            class="cursor-pointer text-sm font-bold text-base-content/60"
-          >
+          <summary class="kr-text-dim-sm cursor-pointer font-bold">
             Freeform genre tags
           </summary>
           <p class="kr-text-dim-xs mt-2">

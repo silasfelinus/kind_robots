@@ -53,7 +53,7 @@
             </h2>
             <p
               v-if="detail?.subtitle"
-              class="mt-0.5 line-clamp-1 text-sm text-base-content/60"
+              class="kr-text-dim-sm mt-0.5 line-clamp-1"
             >
               {{ detail.subtitle }}
             </p>

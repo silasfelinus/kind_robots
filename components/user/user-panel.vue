@@ -100,7 +100,7 @@
     >
       <div>
         <p class="text-lg font-black">No user profile available.</p>
-        <p class="mt-1 text-sm text-base-content/60">
+        <p class="kr-text-dim-sm mt-1">
           Guest mode is adorable, but it does not fill out forms.
         </p>
       </div>

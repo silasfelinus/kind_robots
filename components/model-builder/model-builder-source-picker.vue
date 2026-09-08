@@ -70,7 +70,7 @@
 
       <div
         v-else-if="store.loadingSources"
-        class="flex h-full min-h-32 items-center justify-center gap-2 text-sm text-base-content/60"
+        class="kr-text-dim-sm flex h-full min-h-32 items-center justify-center gap-2"
         role="status"
         aria-live="polite"
         aria-busy="true"

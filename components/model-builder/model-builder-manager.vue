@@ -88,7 +88,7 @@
     >
       <div
         v-if="resumingRun"
-        class="flex min-h-32 flex-1 items-center justify-center gap-2 text-sm text-base-content/60"
+        class="kr-text-dim-sm flex min-h-32 flex-1 items-center justify-center gap-2"
         role="status"
         aria-live="polite"
       >

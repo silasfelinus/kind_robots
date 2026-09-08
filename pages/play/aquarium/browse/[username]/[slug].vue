@@ -137,7 +137,7 @@
           class="rounded-3xl border border-dashed border-base-300 bg-base-100 px-6 py-16 text-center"
         >
           <Icon name="kind-icon:fish" class="mx-auto size-12 text-primary/40" />
-          <p class="mt-3 text-sm text-base-content/60">
+          <p class="kr-text-dim-sm mt-3">
             Nothing in this tank yet.
           </p>
         </section>

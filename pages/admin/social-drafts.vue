@@ -9,7 +9,7 @@
             AMI social pipeline administration
           </p>
           <p class="mt-1 text-2xl font-black">Social post review queue</p>
-          <p class="mt-1 max-w-2xl text-sm text-base-content/60">
+          <p class="kr-text-dim-sm mt-1 max-w-2xl">
             Draft-only. AMI, our labelled-AI fundraiser character, proposes
             posts from the daily dream/digest cycle. Nothing here posts anywhere
             -- approving a draft only marks it reviewed. Every draft carries a
@@ -38,7 +38,7 @@
         <p class="text-xl font-black text-base-content">
           Administrator access required
         </p>
-        <p class="mt-2 text-sm text-base-content/60">
+        <p class="kr-text-dim-sm mt-2">
           The social post review queue is restricted to administrators.
         </p>
       </div>

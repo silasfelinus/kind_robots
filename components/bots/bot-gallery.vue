@@ -20,7 +20,7 @@
             </span>
           </p>
 
-          <p v-else class="truncate text-sm text-base-content/60">
+          <p v-else class="kr-text-dim-sm truncate">
             <span class="hidden md:inline">{{ subtitle }}</span>
           </p>
         </div>
@@ -252,7 +252,7 @@
                   {{ selectedBotTitle }}
                 </h3>
 
-                <p class="truncate text-sm text-base-content/60">
+                <p class="kr-text-dim-sm truncate">
                   {{ selectedBotSubtitle }}
                 </p>
               </div>

@@ -9,7 +9,7 @@
             Achievement administration
           </p>
           <p class="mt-1 text-2xl font-black">Achievement artwork</p>
-          <p class="mt-1 text-sm text-base-content/60">
+          <p class="kr-text-dim-sm mt-1">
             Generate, upload, and replace the image attached to each achievement
             definition.
           </p>
@@ -36,7 +36,7 @@
         <p class="text-xl font-black text-base-content">
           Administrator access required
         </p>
-        <p class="mt-2 text-sm text-base-content/60">
+        <p class="kr-text-dim-sm mt-2">
           Achievement artwork management is restricted to administrators.
         </p>
       </div>
@@ -127,7 +127,7 @@
                   <h2 class="mt-1 text-xl font-black">
                     {{ selectedAchievement.label }}
                   </h2>
-                  <p class="mt-2 max-w-3xl text-sm text-base-content/60">
+                  <p class="kr-text-dim-sm mt-2 max-w-3xl">
                     {{ selectedAchievement.message }}
                   </p>
                 </div>

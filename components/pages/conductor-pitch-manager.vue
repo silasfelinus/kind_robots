@@ -179,7 +179,7 @@
                 <p class="text-xs font-black uppercase tracking-widest text-base-content/35">
                   Why bother
                 </p>
-                <p class="mt-1 text-sm leading-relaxed text-base-content/60">
+                <p class="kr-text-dim-sm mt-1 leading-relaxed">
                   {{ pitch.whyDoIt }}
                 </p>
               </div>

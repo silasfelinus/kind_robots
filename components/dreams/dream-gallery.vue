@@ -331,7 +331,7 @@
                   {{ selectedDreamTitle }}
                 </h3>
 
-                <p class="truncate text-sm text-base-content/60">
+                <p class="kr-text-dim-sm truncate">
                   {{ selectedDreamSubtitle }}
                 </p>
               </div>

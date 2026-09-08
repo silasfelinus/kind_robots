@@ -16,7 +16,7 @@ const CREATIVE_DIRECTION_INSTRUCTIONS: Record<string, string> = {
   grounded:
     'Favor ideas that are practical, usable, and plausibly actionable. Keep variety and surprise, but make the value concrete.',
   'darker-funnier':
-    'Look for sharper comic premises, escalation, irony, gallows humor, cartoon peril, or darker absurdity where allowed. Do not substitute cruelty, shock value, or random grossness for an actual joke.',
+    'Look for sharper comic premises, escalation, irony, gallows humor, cartoon peril, or darker absurdity where allowed. Do not substitute cruelty, shock value, random grossness, or merely whimsical weirdness for an actual joke. This changes the comic angle, not the output shape established by the user examples.',
   shorter:
     'Compress each idea to its strongest useful core. Prefer punchy seeds over explanations, throat-clearing, or polished marketing copy.',
   'different-angle':
@@ -29,7 +29,7 @@ const CREATIVE_DIRECTION_INSTRUCTIONS: Record<string, string> = {
 
 const RETURN_TYPE_INSTRUCTIONS: Record<BrainstormReturnTypeId, string> = {
   'dark-humor':
-    'dark humor: gallows humor, irony, cartoon peril, or darker comic premise where allowed; never mere cruelty or shock value',
+    'dark humor: the darkness must exist in the premise itself -- harm, mortality, exploitation, taboo, bleak consequence, or similarly dark material -- and the joke must interact with it; ordinary whimsical absurdity is not dark humor',
   pun: 'pun / wordplay: language drives the idea, but the wordplay must create or sharpen a premise rather than merely rename a noun',
   'dad-joke':
     'dad joke: an earnest groaner, literal misunderstanding, obvious setup, or proudly corny mechanism that still lands as an actual joke',
@@ -56,6 +56,7 @@ const IDEA_QUALITY_BAR = [
   '- Attack the actual premise. Do not merely free-associate around its nouns.',
   '- Make candidates conceptually different from one another. Change the mechanism, angle, implication, relationship, escalation, structure, or point of view, not just adjectives and nouns.',
   '- Prefer specific, generative ideas a human can develop, combine, reject, or mutate.',
+  '- The candidate text itself is the deliverable. Do not inflate a compact idea into a setup paragraph, mini-scene, dialogue exchange, explanation, moral, or commentary unless the user asks for that form.',
   '- Include non-obvious angles. At least some candidates should make the user think “I would not have immediately written that.”',
   '- Understand comic premise and escalation when humor is requested. Random weird nouns are not a substitute for a joke.',
   '- Do not confuse safe with bland. When allowed by ordinary safety boundaries, dark humor, gallows humor, cartoon peril, sarcasm, absurdity, strangeness, horror, seriousness, and moral ambiguity may all be useful creative material.',
@@ -92,6 +93,20 @@ function creativeDirection(mode: string | undefined): string | null {
 
 function returnTypeLabel(id: BrainstormReturnTypeId): string {
   return BRAINSTORM_RETURN_TYPES.find((entry) => entry.id === id)?.label || id
+}
+
+function exampleContract(examples: string[]): string[] {
+  if (!examples.length) return []
+
+  return [
+    '',
+    'EXAMPLE CONTRACT',
+    'The examples below are not merely topical context. Treat their shared FORM as the user’s target output contract unless an explicit constraint says otherwise.',
+    'Infer and match their approximate length, sentence count, point of view, grammatical shape, voice, joke density, and amount of explanation. If the examples are terse one-sentence assertions, every candidate text should be a terse one-sentence assertion. Do not turn a one-line pattern into a paragraph.',
+    'Their CONTENT is already-used territory. Do not reuse, paraphrase, explain, extend, sequel, or lightly remix a fact, joke, object, or mechanism from an example. Generate genuinely new material that belongs beside the examples rather than material derived from them.',
+    'User examples / target references:',
+    ...examples.map((example, index) => `${index + 1}. ${example}`),
+  ]
 }
 
 function assortmentInstructions(
@@ -183,7 +198,7 @@ export function buildBrainstormPrompts(
     '- Return one object with a "candidates" array.',
     artPrompts
       ? '- Every candidate must contain a short "title" (a human label for the prompt, not part of the prompt itself), a "text" field holding the complete image-generation prompt, and one valid "returnType" lens id.'
-      : '- Every candidate must contain a short "title", a useful "text" field, and one valid "returnType" lens id.',
+      : '- Every candidate must contain a short "title" (navigation metadata only), a "text" field containing only the idea itself, and one valid "returnType" lens id.',
     '- The returnType describes the candidate’s creative approach; it must not replace the title or become visible boilerplate inside the idea text.',
     '- Return exactly the requested candidate count.',
   ].join('\n')
@@ -223,12 +238,7 @@ export function buildBrainstormPrompts(
     )
   }
 
-  if (examples.length) {
-    lines.push(
-      'User examples or target references (use as context, not a template to mechanically repeat):',
-      ...examples.map((example, index) => `${index + 1}. ${example}`),
-    )
-  }
+  lines.push(...exampleContract(examples))
 
   if (request.referenceCandidate?.text?.trim()) {
     const reference = request.referenceCandidate
@@ -247,7 +257,7 @@ export function buildBrainstormPrompts(
 
   lines.push(
     '',
-    'Before answering, silently compare the candidates against each other and replace obvious paraphrases or repeated mechanisms.',
+    'Before answering, silently compare the candidates against each other and replace obvious paraphrases or repeated mechanisms. Also compare them against every user example and replace anything that reuses an example’s content rather than merely matching its form.',
     'Return only: {"candidates":[{"title":"...","text":"...","returnType":"dry-observation"}]}',
   )
 

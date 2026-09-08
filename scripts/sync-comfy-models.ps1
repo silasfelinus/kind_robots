@@ -107,6 +107,51 @@ extra|checkpoints|v1-5-pruned-emaonly.safetensors
 # A directory only counts as the ComfyUI models root if it ALREADY holds a
 # recognisable category folder. Without that check an empty or wrong path could
 # be silently adopted as the destination for ten gigabytes of weights.
+function Test-ModelHeader([string] $Path) {
+  # Cheap integrity smoke test: read the first few bytes and check the container
+  # actually looks like itself. Returns $true (looks right), $false (definitely
+  # corrupt), or $null (format we do not know how to check - not a failure).
+  #
+  # Why size is not enough (2026-09-08): robocopy /J preallocates the whole
+  # destination up front, so a copy interrupted mid-write leaves a file of
+  # EXACTLY the right length with unwritten bytes in it. That is precisely what
+  # happened to Krea-2-Turbo-Q5_K_S.gguf - 8.21 GB local, 8.21 GB on the share,
+  # and a header reading "?z8" instead of "GGUF". ComfyUI-GGUF then raised
+  # `ValueError: GGUF magic invalid` on every Krea2 render, in under a second
+  # each, which fed the render watchdog a failure spike and had it restarting
+  # ComfyUI all night. Every size check in this script passed it, including the
+  # "already local" skip - so a re-run would not have repaired it either.
+  #
+  # Four bytes catch that, and cost nothing next to an 8 GB SHA256. -Verify
+  # still exists for a full checksum when it is worth the read.
+  if (-not (Test-Path -LiteralPath $Path -PathType Leaf)) { return $false }
+  $ext = [System.IO.Path]::GetExtension($Path).ToLowerInvariant()
+
+  try {
+    $fs = [System.IO.File]::OpenRead($Path)
+    try {
+      switch ($ext) {
+        '.gguf' {
+          $buf = New-Object byte[] 4
+          if ($fs.Read($buf, 0, 4) -ne 4) { return $false }
+          return ([System.Text.Encoding]::ASCII.GetString($buf, 0, 4) -eq 'GGUF')
+        }
+        '.safetensors' {
+          # First 8 bytes are a little-endian uint64 giving the JSON header
+          # length, which must fit inside the file with room for tensor data.
+          $buf = New-Object byte[] 8
+          if ($fs.Read($buf, 0, 8) -ne 8) { return $false }
+          $headerLen = [System.BitConverter]::ToUInt64($buf, 0)
+          return (($headerLen -gt 0) -and ($headerLen -lt [uint64]($fs.Length - 8)))
+        }
+        default { return $null }
+      }
+    } finally { $fs.Close() }
+  } catch {
+    return $false
+  }
+}
+
 function Test-ModelsDir([string] $Path) {
   if ([string]::IsNullOrWhiteSpace($Path)) { return $false }
   if (-not (Test-Path -LiteralPath $Path -PathType Container)) { return $false }
@@ -116,34 +161,82 @@ function Test-ModelsDir([string] $Path) {
   return $false
 }
 
-function Find-LocalRoot {
+# Returns EVERY plausible models root, not the first one. Ferngrotto has three
+# (D:\comfy\models, D:\comfy\comfy-fast\models, D:\comfy\ComfyUI\models) and
+# picking one by list order would have silently written ten gigabytes into
+# whichever happened to sort first. Ambiguity here is not something to resolve
+# by guessing; the caller resolves it with -Local.
+function Find-LocalRoots {
+  # An explicitly configured root is an ANSWER, not a candidate. Pooling it with
+  # the guesses meant setting COMFYUI_MODELS still tripped the "several roots"
+  # refusal below, which defeats the point of setting it.
+  if ($env:COMFYUI_MODELS -and (Test-ModelsDir $env:COMFYUI_MODELS)) {
+    return @((Resolve-Path -LiteralPath $env:COMFYUI_MODELS).Path)
+  }
+
   $candidates = @()
-  if ($env:COMFYUI_MODELS) { $candidates += $env:COMFYUI_MODELS }
-  # Every fixed drive, common install spellings. Ordered so a D:/E: data drive
-  # wins over C: -- that is where a render box usually keeps models.
+
   $drives = Get-PSDrive -PSProvider FileSystem -ErrorAction SilentlyContinue |
-    Where-Object { $_.Free -ne $null } | Select-Object -ExpandProperty Root
-  foreach ($d in ($drives | Sort-Object -Descending)) {
-    foreach ($p in 'ComfyUI\models', 'comfyui\models', 'AI\ComfyUI\models',
-                   'ComfyUI_windows_portable\ComfyUI\models', 'stable-diffusion\ComfyUI\models') {
+    Where-Object { $null -ne $_.Free } | Select-Object -ExpandProperty Root
+  $drives = $drives | Sort-Object -Descending
+
+  foreach ($d in $drives) {
+    foreach ($p in 'ComfyUI\models', 'comfyui\models', 'comfy\models',
+                   'AI\ComfyUI\models', 'ComfyUI_windows_portable\ComfyUI\models',
+                   'stable-diffusion\ComfyUI\models') {
       $candidates += (Join-Path $d $p)
     }
   }
-  foreach ($c in $candidates) {
-    if (Test-ModelsDir $c) { return (Resolve-Path -LiteralPath $c).Path }
+
+  # Installs get named things no list predicts (comfy-fast). Look one and two
+  # levels below a drive root whose top segment looks AI-ish -- a handful of
+  # stat calls, not a disk crawl. custom_nodes/ and the ldm source tree carry
+  # their own "models" folders, so those are excluded by name.
+  foreach ($d in $drives) {
+    $tops = Get-ChildItem -LiteralPath $d -Directory -ErrorAction SilentlyContinue |
+      Where-Object { $_.Name -match '^(comfy|ai|stable|sd|diffus)' }
+    foreach ($top in $tops) {
+      $candidates += (Join-Path $top.FullName 'models')
+      $subs = Get-ChildItem -LiteralPath $top.FullName -Directory -ErrorAction SilentlyContinue |
+        Where-Object { $_.Name -notmatch '^(custom_nodes|custom_bck|comfy|web|venv|\.git)$' }
+      foreach ($sub in $subs) { $candidates += (Join-Path $sub.FullName 'models') }
+    }
   }
-  return $null
+
+  $found = @()
+  foreach ($c in $candidates) {
+    if (Test-ModelsDir $c) {
+      $full = (Resolve-Path -LiteralPath $c).Path
+      if ($found -notcontains $full) { $found += $full }
+    }
+  }
+  return $found
 }
 
 function Find-RemoteRoot {
+  if ($env:ALEXANDRIA_MODELS -and (Test-Path -LiteralPath $env:ALEXANDRIA_MODELS -PathType Container)) {
+    return $env:ALEXANDRIA_MODELS
+  }
+
   $candidates = @()
-  if ($env:ALEXANDRIA_MODELS) { $candidates += $env:ALEXANDRIA_MODELS }
   $candidates += '\\alexandria\pc\ai\models'
   $candidates += '\\ALEXANDRIA\pc\ai\models'
-  # Any mapped network drive that happens to expose the same tree.
+  # Mapped network drives. Ferngrotto maps Z: to \\192.168.7.172\pc, and the
+  # Unraid path /mnt/user/pc/ai/models means share "pc" + subpath ai/models --
+  # so the drive letter ALREADY stands in for the share and the models sit at
+  # Z:\ai\models. The earlier code appended 'pc\ai\models' to the letter,
+  # producing Z:\pc\ai\models, which does not exist; that is why detection
+  # failed on the one box this was written for.
   $mapped = Get-PSDrive -PSProvider FileSystem -ErrorAction SilentlyContinue |
-    Where-Object { $_.DisplayRoot -like '\\*' } | Select-Object -ExpandProperty Root
-  foreach ($m in $mapped) { $candidates += (Join-Path $m 'pc\ai\models'); $candidates += $m }
+    Where-Object { $_.DisplayRoot -like '\\*' }
+  foreach ($m in $mapped) {
+    $candidates += (Join-Path $m.Root 'ai\models')          # share IS the drive
+    $candidates += (Join-Path $m.Root 'pc\ai\models')      # drive is one level above
+  }
+  # And the UNC form directly, for when nothing is mapped.
+  foreach ($m in $mapped) {
+    if ($m.DisplayRoot) { $candidates += (Join-Path $m.DisplayRoot 'ai\models') }
+  }
   foreach ($c in $candidates) {
     if ($c -and (Test-Path -LiteralPath $c -PathType Container)) { return $c }
   }
@@ -152,11 +245,28 @@ function Find-RemoteRoot {
 
 # ── preflight ───────────────────────────────────────────────────────────────
 if (-not $Local) {
-  $Local = Find-LocalRoot
-  if ($Local) { Write-Host "auto-detected ComfyUI models dir: $Local" }
+  $roots = @(Find-LocalRoots)
+  if ($roots.Count -eq 1) {
+    $Local = $roots[0]
+    Write-Host "auto-detected ComfyUI models dir: $Local"
+  } elseif ($roots.Count -gt 1) {
+    # Several real models directories. Which one ComfyUI actually loads from is
+    # a question only its config answers, and copying into the wrong one is
+    # ten gigabytes of silent no-op, so this stops rather than picks.
+    Write-Host "found more than one ComfyUI models directory:" -ForegroundColor Yellow
+    foreach ($r in $roots) {
+      $n = @(Get-ChildItem -LiteralPath $r -Recurse -File -Include *.safetensors, *.gguf, *.ckpt -ErrorAction SilentlyContinue).Count
+      Write-Host ("   {0}   ({1} model file(s))" -f $r, $n)
+    }
+    Write-Host ""
+    Write-Host "pass the right one with -Local, or set it once so this never asks again:"
+    Write-Host "  [Environment]::SetEnvironmentVariable('COMFYUI_MODELS','<the right path>','User')"
+    Write-Host ""
+    Fail "several ComfyUI models directories found and none configured"
+  }
 }
 if (-not $Local) {
-  Fail "could not find a ComfyUI models directory. Pass it: -Local D:\ComfyUI\models"
+  Fail "could not find a ComfyUI models directory. Pass it, e.g. -Local D:\comfy\comfy-fast\models. To locate it: Get-ChildItem D:\ -Recurse -Directory -Filter models -Depth 3 | Select FullName"
 }
 
 if (-not $Remote) {
@@ -180,7 +290,7 @@ Write-Host ""
 $script:remoteIndex = $null
 function Get-RemoteIndex {
   if ($null -eq $script:remoteIndex) {
-    Write-Host "indexing the share (first lookup that needs it)..."
+    Write-Host "indexing the share -- one full recursive listing, can take minutes over SMB..." -ForegroundColor Yellow
     $script:remoteIndex = @{}
     foreach ($f in Get-ChildItem -LiteralPath $Remote -Recurse -File -ErrorAction SilentlyContinue) {
       if (-not $script:remoteIndex.ContainsKey($f.Name)) { $script:remoteIndex[$f.Name] = $f }
@@ -193,35 +303,67 @@ function Get-RemoteIndex {
 $plan = @()
 $missing = 0
 foreach ($line in $Manifest) {
-  $tier, $subdir, $rel = $line -split '\|', 3
-  if ($Tier -ne 'all' -and $Tier -ne $tier) { continue }
+  # $rowTier, NOT $tier. PowerShell variable names are case-INSENSITIVE, so a
+  # loop variable called $tier IS the $Tier parameter: the first manifest line
+  # overwrote it, every subsequent comparison compared a row against itself,
+  # and `-Tier core` silently planned all 217 GB instead of 13.3 GB.
+  $rowTier, $subdir, $rel = $line -split '\|', 3
+  if ($Tier -ne 'all' -and $Tier -ne $rowTier) { continue }
 
   $relWin = $rel -replace '/', '\'
   $leaf = Split-Path $relWin -Leaf
   $dest = Join-Path $Local (Join-Path $subdir $relWin)
 
   $src = $null
-  $literal = Join-Path $Remote $relWin
-  if (Test-Path -LiteralPath $literal -PathType Leaf) {
-    $src = Get-Item -LiteralPath $literal
-  } else {
+  # Where to look on the share, in order. The share mirrors ComfyUI's own
+  # layout, but a category can live under SEVERAL folder names -- Ferngrotto's
+  # extra_model_paths.yaml maps clip to both models/clip AND
+  # models/text_encoders, and the Qwen3-VL encoder is in the latter. Checking
+  # only the manifest's own category name meant that file missed and dropped
+  # into the lazy fallback: a full recursive listing of a 200 GB+ SMB share,
+  # which reads as a hang. These aliases mirror that yaml.
+  $aliases = @{
+    unet        = @('unet', 'diffusion_models', 'Flux')
+    clip        = @('clip', 'text_encoders')
+    vae         = @('vae', 'VAE')
+    checkpoints = @('checkpoints', 'Stable-diffusion', 'SDXL', 'Flux')
+    loras       = @('loras', 'Lora', 'LyCORIS')
+  }
+  $probe = @()
+  foreach ($a in ($aliases[$subdir] + @($subdir) | Select-Object -Unique)) {
+    if ($a) { $probe += (Join-Path $Remote (Join-Path $a $relWin)) }
+  }
+  $probe += (Join-Path $Remote $relWin)   # a flat share, as a last literal try
+
+  $src = $null
+  foreach ($cand in $probe) {
+    if (Test-Path -LiteralPath $cand -PathType Leaf) { $src = Get-Item -LiteralPath $cand; break }
+  }
+  if (-not $src) {
     $idx = Get-RemoteIndex
     if ($idx.ContainsKey($leaf)) { $src = $idx[$leaf] }
   }
 
   if (-not $src) {
-    Write-Host ('  {0,-6} {1,-12} {2,-52} MISSING on share' -f $tier, $subdir, $rel)
+    Write-Host ('  {0,-6} {1,-12} {2,-52} MISSING on share' -f $rowTier, $subdir, $rel)
     $missing++
     continue
   }
 
   if ((Test-Path -LiteralPath $dest -PathType Leaf) -and
       ((Get-Item -LiteralPath $dest).Length -eq $src.Length)) {
-    Write-Host ('  {0,-6} {1,-12} {2,-52} already local ({3})' -f $tier, $subdir, $rel, (Format-Size $src.Length))
-    continue
+    # Right length is not the same as intact - see Test-ModelHeader. A corrupt
+    # local file shadows the good share copy (extra_model_paths.yaml searches
+    # local first), so skipping it here would leave every render failing.
+    if ((Test-ModelHeader $dest) -eq $false) {
+      Write-Host ('  {0,-6} {1,-12} {2,-52} CORRUPT locally - recopying' -f $rowTier, $subdir, $rel)
+    } else {
+      Write-Host ('  {0,-6} {1,-12} {2,-52} already local ({3})' -f $rowTier, $subdir, $rel, (Format-Size $src.Length))
+      continue
+    }
   }
 
-  Write-Host ('  {0,-6} {1,-12} {2,-52} COPY {3}' -f $tier, $subdir, $rel, (Format-Size $src.Length))
+  Write-Host ('  {0,-6} {1,-12} {2,-52} COPY {3}' -f $rowTier, $subdir, $rel, (Format-Size $src.Length))
   $plan += [pscustomobject]@{ Subdir = $subdir; Rel = $relWin; Src = $src; Dest = $dest; Bytes = $src.Length }
 }
 
@@ -277,6 +419,11 @@ foreach ($item in $plan) {
       (Get-Item -LiteralPath $staged).Length -ne $item.Bytes) {
     Remove-Item -LiteralPath $stage -Recurse -Force -ErrorAction SilentlyContinue
     Fail "short copy for $($item.Rel) - share copy left in place"
+  }
+
+  if ((Test-ModelHeader $staged) -eq $false) {
+    Remove-Item -LiteralPath $stage -Recurse -Force -ErrorAction SilentlyContinue
+    Fail "corrupt copy for $($item.Rel) - right size, bad container header - share copy left in place"
   }
 
   if ($Verify) {

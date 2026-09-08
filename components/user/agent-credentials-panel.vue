@@ -93,7 +93,7 @@
           </span>
         </div>
 
-        <dl class="mt-3 grid grid-cols-1 gap-1 text-xs text-base-content/60">
+        <dl class="kr-text-dim-xs-60 mt-3 grid grid-cols-1 gap-1">
           <div>
             <dt class="font-bold text-base-content/75">Created</dt>
             <dd>{{ formatDate(credential.createdAt) }}</dd>

@@ -37,7 +37,7 @@
                     </p>
 
                     <p
-                      class="mt-1 line-clamp-1 text-xs leading-relaxed text-base-content/60"
+                      class="kr-text-dim-xs-60 mt-1 line-clamp-1 leading-relaxed"
                     >
                       Tap the name or mood to flip into chat.
                     </p>
@@ -315,7 +315,7 @@
                         </span>
 
                         <span
-                          class="mt-0.5 line-clamp-2 block text-xs leading-relaxed text-base-content/60"
+                          class="kr-text-dim-xs-60 mt-0.5 line-clamp-2 block leading-relaxed"
                         >
                           {{ topic.description }}
                         </span>

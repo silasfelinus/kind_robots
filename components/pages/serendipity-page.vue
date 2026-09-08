@@ -55,9 +55,7 @@
     <!-- Relay endpoint -->
     <div class="flex flex-wrap items-end gap-3 kr-panel-tint-compact">
       <label class="flex-1">
-        <span
-          class="mb-1 block text-xs font-bold uppercase text-base-content/60"
-        >
+        <span class="kr-text-dim-xs-60 mb-1 block font-bold uppercase">
           Relay URL
         </span>
         <input
@@ -74,7 +72,7 @@
 
     <!-- Simulate an Echo utterance -->
     <div class="kr-panel-tint-compact">
-      <p class="mb-2 text-xs font-bold uppercase text-base-content/60">
+      <p class="kr-text-dim-xs-60 mb-2 font-bold uppercase">
         Speak to Serendipity (or simulate)
       </p>
       <div class="flex flex-wrap gap-2">
@@ -104,7 +102,7 @@
         class="flex min-h-48 flex-col rounded-xl border border-base-300 bg-base-100"
       >
         <div
-          class="border-b border-base-300 px-3 py-2 text-xs font-bold uppercase text-base-content/60"
+          class="kr-text-dim-xs-60 border-b border-base-300 px-3 py-2 font-bold uppercase"
         >
           Message feed
         </div>
@@ -135,9 +133,7 @@
       <!-- Live animation state -->
       <aside class="flex flex-col gap-3 kr-panel-tint-compact">
         <div>
-          <p class="text-xs font-bold uppercase text-base-content/60">
-            Active animations
-          </p>
+          <p class="kr-text-dim-xs-60 font-bold uppercase">Active animations</p>
           <p
             v-if="activeEffects.length === 0"
             class="mt-1 text-sm text-base-content/50"
@@ -161,7 +157,7 @@
         </div>
 
         <div class="border-t border-base-300 pt-2">
-          <p class="text-xs font-bold uppercase text-base-content/60">Theme</p>
+          <p class="kr-text-dim-xs-60 font-bold uppercase">Theme</p>
           <p class="mt-1 text-sm font-semibold">{{ currentTheme }}</p>
         </div>
 
@@ -181,7 +177,7 @@
 
     <!-- Art drafts (surfaced from voice; never generated or published here) -->
     <div v-if="voice.artRequests.length > 0" class="kr-panel-tint-compact">
-      <p class="mb-2 text-xs font-bold uppercase text-base-content/60">
+      <p class="kr-text-dim-xs-60 mb-2 font-bold uppercase">
         Art drafts from voice ({{ voice.artRequests.length }})
       </p>
       <ul class="space-y-2">
@@ -191,7 +187,7 @@
           class="rounded-lg border border-base-300 bg-base-100 p-2"
         >
           <p class="text-sm font-semibold">“{{ art.prompt }}”</p>
-          <p class="mt-0.5 text-xs text-base-content/60">
+          <p class="kr-text-dim-xs-60 mt-0.5">
             style: {{ art.style || '—' }} · size: {{ art.size || '—' }} ·
             gallery: {{ art.gallery || '—' }}
           </p>

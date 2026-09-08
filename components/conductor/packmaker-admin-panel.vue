@@ -145,7 +145,7 @@
                 >#{{ stateFor(item.id).refId }}</span
               >
             </div>
-            <p class="mt-1 line-clamp-2 text-xs text-base-content/60">
+            <p class="kr-text-dim-xs-60 mt-1 line-clamp-2">
               {{ item.draftPayload?.description }}
             </p>
             <p
@@ -219,11 +219,9 @@
         >
           Back to draft
         </button>
-        <span
-          v-if="actionMessage"
-          class="text-xs font-semibold text-base-content/60"
-          >{{ actionMessage }}</span
-        >
+        <span v-if="actionMessage" class="kr-text-dim-xs-60 font-semibold">{{
+          actionMessage
+        }}</span>
       </div>
       <p class="text-xs text-base-content/40">
         Ready is local bookkeeping. Making pack items public and wiring the

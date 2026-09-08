@@ -87,7 +87,7 @@
 
           <p
             v-if="summary.selfAttributedTotalCents > 0"
-            class="rounded-xl bg-base-200/70 px-3 py-2 text-xs text-base-content/60"
+            class="kr-text-dim-xs-60 rounded-xl bg-base-200/70 px-3 py-2"
           >
             Plus
             <strong>{{

@@ -101,7 +101,7 @@
       <div class="flex min-w-0 items-center gap-1.5">
         <p
           v-if="subtitle"
-          class="min-w-0 flex-1 truncate text-xs text-base-content/60"
+          class="kr-text-dim-xs-60 min-w-0 flex-1 truncate"
           :title="subtitle"
         >
           {{ subtitle }}
@@ -222,7 +222,7 @@
 
         <p
           v-if="subtitle"
-          class="mt-0.5 line-clamp-1 text-xs font-medium text-base-content/60"
+          class="kr-text-dim-xs-60 mt-0.5 line-clamp-1 font-medium"
         >
           {{ subtitle }}
         </p>

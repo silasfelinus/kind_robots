@@ -359,7 +359,7 @@
             <div class="flex items-start justify-between gap-3">
               <div>
                 <p class="font-bold text-base-content">{{ field.label }}</p>
-                <p class="text-xs text-base-content/60">
+                <p class="kr-text-dim-xs-60">
                   {{ field.description }}
                 </p>
               </div>

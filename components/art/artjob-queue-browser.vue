@@ -12,7 +12,7 @@
       <header class="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h2 class="text-lg font-semibold">ArtJob Pipeline</h2>
-          <p class="text-xs text-base-content/60">
+          <p class="kr-text-dim-xs-60">
             Paginated queue, editable generation briefs, render health, and
             recovery tools.
           </p>

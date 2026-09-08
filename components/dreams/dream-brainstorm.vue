@@ -70,7 +70,7 @@
           <div class="flex items-center justify-between gap-2">
             <div>
               <h2 class="font-black">Source Dreams</h2>
-              <p class="text-xs text-base-content/60">
+              <p class="kr-text-dim-xs-60">
                 Pick an existing seed or type fresh text.
               </p>
             </div>
@@ -211,7 +211,7 @@
             <div class="mb-3 flex flex-wrap items-center justify-between gap-2">
               <div>
                 <h2 class="text-lg font-black">Fresh Ideas</h2>
-                <p class="text-xs text-base-content/60">
+                <p class="kr-text-dim-xs-60">
                   Accept, reject, edit, and save.
                 </p>
               </div>

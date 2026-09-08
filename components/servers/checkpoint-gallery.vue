@@ -27,7 +27,7 @@
         <!-- Orientation text, not instruction: it costs a whole row on the
              screens where rows are scarcest, so it appears only once there is
              room for it. -->
-        <p class="hidden truncate text-xs text-base-content/60 md:block">
+        <p class="kr-text-dim-xs-60 hidden truncate md:block">
           {{ subtitleText }}
         </p>
       </div>

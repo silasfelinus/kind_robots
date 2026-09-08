@@ -12,7 +12,7 @@
               {{ pendingCount }} waiting
             </span>
           </div>
-          <p class="mt-1 text-xs text-base-content/60">
+          <p class="kr-text-dim-xs-60 mt-1">
             Review finished renders yourself. Promote and Reject save feedback;
             Revise can queue a real prompt-only or image-guided replacement.
           </p>

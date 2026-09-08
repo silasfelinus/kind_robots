@@ -138,7 +138,7 @@
           >
             <Icon name="kind-icon:camera" class="h-5 w-5" />
           </span>
-          <p class="text-xs font-semibold text-base-content/60">
+          <p class="kr-text-dim-xs-60 font-semibold">
             Drop image or
             <span class="font-bold text-primary underline underline-offset-2">
               browse
@@ -489,7 +489,7 @@
         </div>
 
         <div
-          class="rounded-lg border border-base-300 bg-base-200 px-3 py-2 font-mono text-xs text-base-content/60"
+          class="kr-text-dim-xs-60 rounded-lg border border-base-300 bg-base-200 px-3 py-2 font-mono"
         >
           <span v-if="buildLoraReference(selectedStyle)" class="text-warning">
             {{ buildLoraReference(selectedStyle) }}

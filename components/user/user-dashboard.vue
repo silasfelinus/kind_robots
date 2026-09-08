@@ -91,7 +91,7 @@
                     name="kind-icon:camera"
                     class="h-3.5 w-3.5 text-primary"
                   />
-                  <span class="text-xs font-bold text-base-content/60">
+                  <span class="kr-text-dim-xs-60 font-bold">
                     Change Avatar
                   </span>
                 </div>

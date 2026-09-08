@@ -69,7 +69,7 @@
               <h2 class="text-lg font-black text-base-content">
                 {{ item.notes || itemLabel(item.type) }}
               </h2>
-              <p v-if="item.type === 'donation'" class="text-xs text-base-content/60">
+              <p v-if="item.type === 'donation'" class="kr-text-dim-xs-60">
                 Collected through Kind Robots Stripe checkout and recorded as an
                 AMF-designated amount for separate remittance.
               </p>

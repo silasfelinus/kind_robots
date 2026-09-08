@@ -33,7 +33,7 @@
             :value="manaStore.pct"
             max="100"
           />
-          <div class="flex justify-between text-xs text-base-content/60">
+          <div class="kr-text-dim-xs-60 flex justify-between">
             <span>{{ manaStore.balance }} / {{ manaStore.cap }}</span>
             <span v-if="manaStore.refillReady" class="font-medium text-success">
               Refill ready ✨
@@ -42,7 +42,7 @@
           </div>
         </div>
 
-        <p v-else class="text-xs text-base-content/60">
+        <p v-else class="kr-text-dim-xs-60">
           Family plan — unlimited generations on house tokens. 🏡
         </p>
 

@@ -431,7 +431,7 @@
     <Transition name="fade">
       <div v-if="isUploading" class="flex flex-col gap-2">
         <div
-          class="flex items-center justify-between text-xs font-semibold text-base-content/60"
+          class="kr-text-dim-xs-60 flex items-center justify-between font-semibold"
         >
           <span class="flex items-center gap-1.5">
             <span class="loading loading-spinner loading-xs text-primary" />

@@ -250,7 +250,7 @@
 
             <label class="flex flex-col gap-1">
               <span
-                class="text-xs font-semibold uppercase tracking-wide text-base-content/60"
+                class="kr-text-dim-xs-60 font-semibold uppercase tracking-wide"
               >
                 Seconds per slide
               </span>
@@ -290,7 +290,7 @@
 
             <label class="flex flex-col gap-1">
               <span
-                class="text-xs font-semibold uppercase tracking-wide text-base-content/60"
+                class="kr-text-dim-xs-60 font-semibold uppercase tracking-wide"
               >
                 Random draw depth
               </span>
@@ -330,7 +330,7 @@
 
             <div class="flex flex-col gap-1">
               <span
-                class="text-xs font-semibold uppercase tracking-wide text-base-content/60"
+                class="kr-text-dim-xs-60 font-semibold uppercase tracking-wide"
               >
                 Image fit
               </span>
@@ -356,7 +356,7 @@
 
             <div class="flex flex-col gap-2">
               <span
-                class="text-xs font-semibold uppercase tracking-wide text-base-content/60"
+                class="kr-text-dim-xs-60 font-semibold uppercase tracking-wide"
               >
                 Caption
               </span>

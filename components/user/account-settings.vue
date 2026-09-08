@@ -139,7 +139,7 @@
           <label class="flex items-center justify-between gap-4 py-3">
             <span>
               <span class="block font-semibold">Public by default</span>
-              <span class="block text-xs text-base-content/60">
+              <span class="kr-text-dim-xs-60 block">
                 New creations start visible to everyone.
               </span>
             </span>
@@ -155,7 +155,7 @@
           <label class="flex items-center justify-between gap-4 py-3">
             <span>
               <span class="block font-semibold">Show mature content</span>
-              <span class="block text-xs text-base-content/60">
+              <span class="kr-text-dim-xs-60 block">
                 Reveal content flagged mature while you browse.
               </span>
             </span>
@@ -175,7 +175,7 @@
               <span class="block font-semibold"
                 >List me in the public directory</span
               >
-              <span class="block text-xs text-base-content/60">
+              <span class="kr-text-dim-xs-60 block">
                 Let others find you on the members page.
               </span>
             </span>
@@ -191,7 +191,7 @@
           <label class="flex items-center justify-between gap-4 py-3">
             <span>
               <span class="block font-semibold">Allow friend requests</span>
-              <span class="block text-xs text-base-content/60">
+              <span class="kr-text-dim-xs-60 block">
                 Others can ask to connect with you.
               </span>
             </span>
@@ -207,7 +207,7 @@
           <div class="flex items-center justify-between gap-4 py-3">
             <span>
               <span class="block font-semibold">Who can message me</span>
-              <span class="block text-xs text-base-content/60">
+              <span class="kr-text-dim-xs-60 block">
                 Choose who may start a direct conversation.
               </span>
             </span>

@@ -407,9 +407,7 @@
                   Getting To Know You Questions
                 </h2>
 
-                <p class="text-xs text-base-content/60">
-                  Pick one to load it into chat.
-                </p>
+                <p class="kr-text-dim-xs-60">Pick one to load it into chat.</p>
               </div>
 
               <button

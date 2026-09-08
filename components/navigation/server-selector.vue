@@ -22,7 +22,7 @@
             <h2 class="truncate text-lg font-black text-primary sm:text-xl">
               Server Connections
             </h2>
-            <p class="mt-1 text-xs leading-snug text-base-content/60 sm:text-sm">
+            <p class="kr-text-dim-xs-60 mt-1 leading-snug sm:text-sm">
               Pick defaults, save provider keys, and manage local endpoints.
             </p>
           </div>
@@ -114,7 +114,7 @@
                 <div class="flex items-start justify-between gap-3">
                   <div class="min-w-0">
                     <p class="font-black">OpenAI</p>
-                    <p class="text-xs leading-snug text-base-content/60">
+                    <p class="kr-text-dim-xs-60 leading-snug">
                       {{ serverHasKey(openAiTextServer) ? 'Text saved' : 'No text key saved' }}
                       ·
                       {{ serverHasKey(openAiArtServer) ? 'Images saved' : 'No image key saved' }}
@@ -168,7 +168,7 @@
                 <div class="flex items-start justify-between gap-3">
                   <div class="min-w-0">
                     <p class="font-black">Anthropic</p>
-                    <p class="text-xs leading-snug text-base-content/60">
+                    <p class="kr-text-dim-xs-60 leading-snug">
                       {{ serverHasKey(anthropicServer) ? 'Key saved' : 'No key saved' }}
                     </p>
                   </div>
@@ -224,7 +224,7 @@
                     <p class="truncate font-black">
                       {{ serverName(server) }}
                     </p>
-                    <p class="wrap-break-word text-xs leading-snug text-base-content/60">
+                    <p class="kr-text-dim-xs-60 wrap-break-word leading-snug">
                       {{ localServerLabel(server.serverType) }}
                       <span v-if="server.baseUrl"> · {{ server.baseUrl }}</span>
                     </p>

@@ -6,7 +6,7 @@
         <h3 class="text-base font-black text-base-content">
           2. Choose a recipe &amp; outputs
         </h3>
-        <p class="mt-1 text-xs text-base-content/60">
+        <p class="kr-text-dim-xs-60 mt-1">
           Building from
           <span class="font-bold text-base-content">{{ sourceLabel }}</span>
           <span class="text-base-content/40"> ({{ store.sourceType }})</span>.
@@ -49,7 +49,7 @@
 
     <p
       v-if="store.selectedRecipe"
-      class="rounded-xl bg-base-100 px-3 py-2 text-xs text-base-content/60"
+      class="kr-text-dim-xs-60 rounded-xl bg-base-100 px-3 py-2"
     >
       {{ store.selectedRecipe.summary }}
     </p>
@@ -134,7 +134,7 @@
     <!-- Footer -->
     <div class="kr-toolbar justify-between border-t border-base-300 pt-2">
       <div class="flex items-center gap-3">
-        <span class="text-xs text-base-content/60">
+        <span class="kr-text-dim-xs-60">
           {{ store.selectedOutputCount }} output{{
             store.selectedOutputCount === 1 ? '' : 's'
           }}

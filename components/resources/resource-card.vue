@@ -44,10 +44,7 @@
         {{ triggerText }}
       </p>
 
-      <p
-        v-if="humanDescription"
-        class="line-clamp-2 text-xs text-base-content/60"
-      >
+      <p v-if="humanDescription" class="kr-text-dim-xs-60 line-clamp-2">
         {{ humanDescription }}
       </p>
 

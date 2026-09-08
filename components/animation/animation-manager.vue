@@ -15,7 +15,7 @@
           <h2 class="text-lg font-black leading-tight text-base-content">
             Animation Manager
           </h2>
-          <p class="text-xs text-base-content/60">
+          <p class="kr-text-dim-xs-60">
             {{ store.galleryItems.length }} live catalog effects
           </p>
         </div>
@@ -97,7 +97,7 @@
             </span>
           </button>
 
-          <p class="text-xs leading-relaxed text-base-content/60">
+          <p class="kr-text-dim-xs-60 leading-relaxed">
             {{ effect.tooltip }}
           </p>
 

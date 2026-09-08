@@ -213,7 +213,7 @@
       data-testid="brainstorm-revision-history"
     >
       <summary
-        class="cursor-pointer select-none text-xs font-black uppercase tracking-[0.12em] text-base-content/60"
+        class="kr-text-dim-xs-60 cursor-pointer select-none font-black uppercase tracking-[0.12em]"
       >
         History · {{ candidate.revisions.length }} versions
       </summary>
@@ -255,7 +255,7 @@
             {{ entry.revision.title }}
           </p>
           <p
-            class="mt-1 max-h-20 overflow-auto whitespace-pre-wrap break-words text-xs leading-5 text-base-content/60"
+            class="kr-text-dim-xs-60 mt-1 max-h-20 overflow-auto whitespace-pre-wrap break-words leading-5"
           >
             {{ entry.revision.text }}
           </p>

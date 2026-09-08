@@ -6,7 +6,7 @@
     >
       <div class="min-w-0">
         <h3 class="truncate text-lg font-black text-primary">{{ title }}</h3>
-        <p class="text-xs text-base-content/60">{{ subtitle }}</p>
+        <p class="kr-text-dim-xs-60">{{ subtitle }}</p>
       </div>
 
       <button

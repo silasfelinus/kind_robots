@@ -15,7 +15,7 @@
         <h2 class="truncate text-sm font-bold text-base-content">
           {{ resolvedTitle }}
         </h2>
-        <p class="hidden truncate text-xs text-base-content/60 md:block">
+        <p class="kr-text-dim-xs-60 hidden truncate md:block">
           {{ resolvedSubtitle }}
         </p>
       </div>

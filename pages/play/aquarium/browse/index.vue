@@ -96,7 +96,7 @@
                 </p>
               </div>
             </div>
-            <p class="text-xs font-bold text-base-content/60">
+            <p class="kr-text-dim-xs-60 font-bold">
               {{ tank._count.Stock }}
               {{ tank._count.Stock === 1 ? 'occupant' : 'occupants' }}
             </p>

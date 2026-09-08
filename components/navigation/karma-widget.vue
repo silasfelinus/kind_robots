@@ -24,7 +24,7 @@
           </span>
         </div>
 
-        <p class="text-xs text-base-content/60">
+        <p class="kr-text-dim-xs-60">
           Earned by reacting, creating, sharing, and helping other Kind Robots
           users. A measure of community contribution.
         </p>

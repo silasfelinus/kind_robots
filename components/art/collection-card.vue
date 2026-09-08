@@ -130,10 +130,7 @@
           {{ collectionLabel }}
         </h2>
 
-        <p
-          v-if="showDescription"
-          class="mt-0.5 text-base-content/60 line-clamp-2 text-xs"
-        >
+        <p v-if="showDescription" class="kr-text-dim-xs-60 mt-0.5 line-clamp-2">
           {{ collectionDescription }}
         </p>
       </div>

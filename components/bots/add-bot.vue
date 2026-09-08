@@ -248,7 +248,7 @@
                   {{ field.label }}
                 </p>
 
-                <p class="text-xs text-base-content/60">
+                <p class="kr-text-dim-xs-60">
                   {{ field.description }}
                 </p>
               </div>

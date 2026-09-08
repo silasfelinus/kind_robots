@@ -23,7 +23,7 @@
             :value="doneTasks"
             :max="totalTasks"
           />
-          <span class="text-xs text-base-content/60">
+          <span class="kr-text-dim-xs-60">
             {{ doneTasks }} of {{ totalTasks }} tasks done
           </span>
         </div>

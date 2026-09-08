@@ -71,7 +71,7 @@
         </p>
       </div>
 
-      <p class="hidden line-clamp-2 text-xs leading-relaxed text-base-content/60 xl:block">
+      <p class="kr-text-dim-xs-60 hidden line-clamp-2 leading-relaxed xl:block">
         {{ card.tagline || card.narrative }}
       </p>
 

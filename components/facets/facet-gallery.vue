@@ -37,9 +37,7 @@
           {{ taxonomyLabel(taxonomy) }} ({{ counts[taxonomy] || 0 }})
         </option>
       </select>
-      <label
-        class="ml-auto flex items-center gap-2 text-xs text-base-content/60"
-      >
+      <label class="kr-text-dim-xs-60 ml-auto flex items-center gap-2">
         <input
           v-model="artOnly"
           type="checkbox"

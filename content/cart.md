@@ -5,7 +5,7 @@ description: Review your Kind Robots cart and continue to secure Stripe checkout
 icon: kind-icon:cart
 image: splash/sanctuary.png
 channelKey: sanctuary
-tabKey: giftshop
+tabKey: cart
 dashboardKey: giftshop
 dashboardTab: giftshop
 loadingMessage: Gathering the cart butterflies...

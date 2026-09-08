@@ -245,7 +245,7 @@ Write-Host ""
 $script:remoteIndex = $null
 function Get-RemoteIndex {
   if ($null -eq $script:remoteIndex) {
-    Write-Host "indexing the share (first lookup that needs it)..."
+    Write-Host "indexing the share -- one full recursive listing, can take minutes over SMB..." -ForegroundColor Yellow
     $script:remoteIndex = @{}
     foreach ($f in Get-ChildItem -LiteralPath $Remote -Recurse -File -ErrorAction SilentlyContinue) {
       if (-not $script:remoteIndex.ContainsKey($f.Name)) { $script:remoteIndex[$f.Name] = $f }
@@ -266,9 +266,18 @@ foreach ($line in $Manifest) {
   $dest = Join-Path $Local (Join-Path $subdir $relWin)
 
   $src = $null
-  $literal = Join-Path $Remote $relWin
+  # The share mirrors ComfyUI's own layout, so the file is under the CATEGORY
+  # directory: Z:\ai\models\unet\Krea-2-Turbo-Q5_K_S.gguf, not
+  # Z:\ai\models\Krea-2-Turbo-Q5_K_S.gguf. Omitting $subdir here made every
+  # literal lookup miss, which sent the very first file into a full recursive
+  # crawl of a 200 GB+ SMB share before a single byte was copied -- it read as
+  # a hang. Both forms are tried, the layout-mirroring one first.
+  $literal = Join-Path $Remote (Join-Path $subdir $relWin)
+  $flat = Join-Path $Remote $relWin
   if (Test-Path -LiteralPath $literal -PathType Leaf) {
     $src = Get-Item -LiteralPath $literal
+  } elseif (Test-Path -LiteralPath $flat -PathType Leaf) {
+    $src = Get-Item -LiteralPath $flat
   } else {
     $idx = Get-RemoteIndex
     if ($idx.ContainsKey($leaf)) { $src = $idx[$leaf] }

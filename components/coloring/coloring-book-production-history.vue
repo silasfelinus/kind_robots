@@ -82,12 +82,12 @@
             <p class="text-sm font-black">
               {{ item.status || item.verdict || historyLabel(item.kind) }}
             </p>
-            <p v-if="item.createdAt" class="text-xs text-base-content/45">
+            <p v-if="item.createdAt" class="kr-text-dim-xs-45">
               {{ formatDate(item.createdAt) }}
             </p>
           </div>
 
-          <p v-if="item.path" class="break-all text-xs text-base-content/45">
+          <p v-if="item.path" class="kr-text-dim-xs-45 break-all">
             {{ item.path }}
           </p>
 

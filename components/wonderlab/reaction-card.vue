@@ -10,7 +10,7 @@
     >
       <div class="min-w-0">
         <p
-          class="text-xs font-bold uppercase tracking-wide text-base-content/45"
+          class="kr-text-dim-xs-45 font-bold uppercase tracking-wide"
         >
           Reaction
         </p>

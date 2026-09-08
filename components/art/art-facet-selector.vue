@@ -138,7 +138,7 @@
             </button>
           </div>
         </template>
-        <p v-if="!hasResults" class="px-3 py-3 text-xs text-base-content/45">
+        <p v-if="!hasResults" class="kr-text-dim-xs-45 px-3 py-3">
           {{
             search.trim()
               ? 'No matching canonical Facet.'

@@ -55,7 +55,7 @@
           </span>
         </div>
 
-        <p class="break-all text-xs text-base-content/45">
+        <p class="kr-text-dim-xs-45 break-all">
           {{ displayPath || cover.imagePath }}
         </p>
 
@@ -78,7 +78,7 @@
       <article class="flex flex-col gap-4 kr-panel-section-flat">
         <div>
           <h4 class="text-xl font-black">Cover art prompt</h4>
-          <p v-if="cover.sourceRef" class="mt-1 break-all text-xs text-base-content/45">
+          <p v-if="cover.sourceRef" class="kr-text-dim-xs-45 mt-1 break-all">
             Historical source: {{ cover.sourceRef }}
           </p>
         </div>
@@ -90,7 +90,7 @@
           placeholder="Describe a coherent ensemble front-cover illustration with a quiet title area..."
         />
 
-        <div class="flex flex-wrap items-center justify-between gap-2 text-xs text-base-content/45">
+        <div class="kr-text-dim-xs-45 flex flex-wrap items-center justify-between gap-2">
           <span>{{ promptDraft.length }} characters</span>
           <span v-if="promptDirty" class="kr-badge-warning-sm rounded-2xl">
             Unsaved changes
@@ -200,7 +200,7 @@
                 </button>
               </div>
             </label>
-            <p class="mt-2 text-xs text-base-content/45">
+            <p class="kr-text-dim-xs-45 mt-2">
               The file must already exist inside this book’s Conductor set. Missing ArtJob metadata is preserved as missing, not creatively hallucinated.
             </p>
           </div>
@@ -234,7 +234,7 @@
             class="aspect-[2/3] w-full rounded-xl bg-base-100 object-contain"
           />
           <p class="text-xs font-black">{{ revision.previousStatus || 'Archived revision' }}</p>
-          <p class="text-xs text-base-content/45">
+          <p class="kr-text-dim-xs-45">
             {{ formatDate(revision.requestedAt) }}
           </p>
           <p v-if="revision.semanticScore !== null" class="text-xs text-base-content/55">

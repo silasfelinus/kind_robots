@@ -39,7 +39,7 @@
         <Icon name="kind-icon:warning" class="mx-auto size-10 text-error" />
         <p class="mt-3 text-xl font-black">Tank unavailable</p>
         <p class="mt-2 text-sm text-base-content/65">{{ errorMessage }}</p>
-        <p class="mt-2 text-xs text-base-content/45">
+        <p class="kr-text-dim-xs-45 mt-2">
           Either this tank doesn't exist, or its owner has kept it private.
         </p>
       </div>
@@ -76,7 +76,7 @@
             </div>
           </div>
           <p
-            class="mt-4 text-xs font-bold uppercase tracking-wide text-base-content/45"
+            class="kr-text-dim-xs-45 mt-4 font-bold uppercase tracking-wide"
           >
             Read-only -- visiting doesn't feed, clean, or change anything here.
           </p>

@@ -63,31 +63,25 @@
       <template v-else>
         <section class="grid grid-cols-2 gap-2 sm:grid-cols-4">
           <div class="kr-panel p-3">
-            <p class="text-xs font-black uppercase text-base-content/45">
-              LoRAs
-            </p>
+            <p class="kr-text-dim-xs-45 font-black uppercase">LoRAs</p>
             <p class="mt-1 text-2xl font-black">
               {{ triageStore.loras.length }}
             </p>
           </div>
           <div class="kr-panel p-3">
-            <p class="text-xs font-black uppercase text-base-content/45">
-              Confirmed
-            </p>
+            <p class="kr-text-dim-xs-45 font-black uppercase">Confirmed</p>
             <p class="mt-1 text-2xl font-black text-success">
               {{ triageStore.confirmedCount }}
             </p>
           </div>
           <div class="kr-panel p-3">
-            <p class="text-xs font-black uppercase text-base-content/45">
-              Remaining
-            </p>
+            <p class="kr-text-dim-xs-45 font-black uppercase">Remaining</p>
             <p class="mt-1 text-2xl font-black">
               {{ triageStore.remainingCount }}
             </p>
           </div>
           <div class="kr-panel p-3">
-            <p class="text-xs font-black uppercase text-base-content/45">
+            <p class="kr-text-dim-xs-45 font-black uppercase">
               Unsaved changes
             </p>
             <p class="mt-1 text-2xl font-black text-warning">

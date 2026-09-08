@@ -122,7 +122,7 @@
                 </p>
                 <p
                   v-if="item.meta"
-                  class="mt-1.5 text-xs text-base-content/45"
+                  class="kr-text-dim-xs-45 mt-1.5"
                 >
                   {{ item.meta }}
                 </p>
@@ -202,7 +202,7 @@
 
               <p
                 v-if="item.meta"
-                class="mt-1.5 text-xs text-base-content/45"
+                class="kr-text-dim-xs-45 mt-1.5"
               >
                 {{ item.meta }}
               </p>
@@ -293,7 +293,7 @@
                 </div>
                 <slot name="item-trailing" :item="item" />
               </div>
-              <p v-if="item.meta" class="mt-2 text-xs text-base-content/45">
+              <p v-if="item.meta" class="kr-text-dim-xs-45 mt-2">
                 {{ item.meta }}
               </p>
               <div

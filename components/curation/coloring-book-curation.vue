@@ -277,10 +277,7 @@
             </button>
           </div>
 
-          <div
-            v-else
-            class="flex items-center gap-2 text-xs text-base-content/45"
-          >
+          <div v-else class="kr-text-dim-xs-45 flex items-center gap-2">
             <Icon name="kind-icon:lock" class="size-4" />
             Production edits are admin-only.
           </div>

@@ -313,16 +313,14 @@
                 <span v-if="isSaving(fish.slug)" class="kr-spinner-xs" />
                 Save curation
               </button>
-              <span v-if="draft.jobId" class="text-xs text-base-content/45">
+              <span v-if="draft.jobId" class="kr-text-dim-xs-45">
                 ArtJob #{{ draft.jobId }}
               </span>
             </div>
           </div>
 
           <div v-if="fish.curation.candidateImageIds.length" class="space-y-2">
-            <p
-              class="text-xs font-black uppercase tracking-wider text-base-content/45"
-            >
+            <p class="kr-text-dim-xs-45 font-black uppercase tracking-wider">
               Candidates
             </p>
             <div class="flex flex-wrap gap-2">

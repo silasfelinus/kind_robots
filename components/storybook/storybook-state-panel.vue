@@ -51,7 +51,7 @@
             </span>
           </article>
         </div>
-        <p v-else class="mt-2 text-xs leading-relaxed text-base-content/45">
+        <p v-else class="kr-text-dim-xs-45 mt-2 leading-relaxed">
           The story has not placed a selected Reward in your hands yet.
         </p>
       </section>
@@ -78,7 +78,7 @@
             <span>{{ item.text }}</span>
           </li>
         </ol>
-        <p v-else class="mt-2 text-xs leading-relaxed text-base-content/45">
+        <p v-else class="kr-text-dim-xs-45 mt-2 leading-relaxed">
           Consequences will accumulate as choices alter the story.
         </p>
       </section>
@@ -99,7 +99,7 @@
             <p class="mt-0.5 text-base-content/75">{{ branch.answer }}</p>
           </li>
         </ol>
-        <p v-else class="mt-2 text-xs leading-relaxed text-base-content/45">
+        <p v-else class="kr-text-dim-xs-45 mt-2 leading-relaxed">
           Your first answer will begin this session’s branch history.
         </p>
       </section>

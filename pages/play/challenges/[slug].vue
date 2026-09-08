@@ -109,7 +109,7 @@
               class="grid min-w-40 place-items-center rounded-3xl border border-primary/20 bg-base-100/75 p-5 text-center shadow-lg backdrop-blur"
             >
               <span
-                class="text-xs font-black uppercase tracking-[0.2em] text-base-content/45"
+                class="kr-text-dim-xs-45 font-black uppercase tracking-[0.2em]"
               >
                 Difficulty
               </span>
@@ -213,7 +213,7 @@
                   <h2 class="mt-2 truncate text-xl font-black uppercase">
                     {{ submission.Contender?.name || 'Mystery contender' }}
                   </h2>
-                  <p class="truncate text-xs font-bold text-base-content/45">
+                  <p class="kr-text-dim-xs-45 truncate font-bold">
                     {{ contenderSubtitle(submission) }}
                   </p>
                 </div>
@@ -464,14 +464,14 @@
               </span>
               <div class="min-w-0">
                 <p class="truncate font-black">{{ entry.name }}</p>
-                <p class="text-xs text-base-content/45">
+                <p class="kr-text-dim-xs-45">
                   {{ entry.submissions }}
                   {{ entry.submissions === 1 ? 'entry' : 'entries' }} ·
                   {{ entry.score.votes }} votes
                 </p>
               </div>
               <span
-                class="hidden text-xs font-bold text-base-content/45 sm:inline"
+                class="kr-text-dim-xs-45 hidden font-bold sm:inline"
               >
                 ♥ {{ entry.score.loved }} · 👏 {{ entry.score.clapped }} · 👎
                 {{ entry.score.booed }} · ✕ {{ entry.score.hated }}

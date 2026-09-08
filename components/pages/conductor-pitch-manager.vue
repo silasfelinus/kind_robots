@@ -152,7 +152,7 @@
                     {{ statusLabel(pitch) }}
                   </span>
                 </div>
-                <div class="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-base-content/45">
+                <div class="kr-text-dim-xs-45 mt-1 flex flex-wrap items-center gap-x-3 gap-y-1">
                   <span v-if="pitch.projectTarget" class="flex items-center gap-1">
                     <Icon name="kind-icon:folder" class="size-3" />
                     {{ pitch.projectTarget }}

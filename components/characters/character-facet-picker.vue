@@ -93,7 +93,7 @@
       </div>
     </div>
 
-    <p v-if="!characterId" class="text-xs text-base-content/45">
+    <p v-if="!characterId" class="kr-text-dim-xs-45">
       These choices will attach when the new Character is saved.
     </p>
     <p v-if="errorMessage" class="text-xs text-error">{{ errorMessage }}</p>

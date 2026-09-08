@@ -150,7 +150,7 @@
           class="flex flex-wrap items-center justify-between gap-2 border-b border-base-300 bg-base-200/60 px-4 py-3"
         >
           <p class="font-black">{{ visibleRows.length }} words shown</p>
-          <p class="text-xs text-base-content/45">
+          <p class="kr-text-dim-xs-45">
             Source identity is immutable. Select a row to edit its effective
             learner-facing values.
           </p>
@@ -185,7 +185,7 @@
                     }}</span>
                     <span
                       v-if="row.effective.traditional"
-                      class="text-xs text-base-content/45"
+                      class="kr-text-dim-xs-45"
                     >
                       {{ row.effective.traditional }}
                     </span>

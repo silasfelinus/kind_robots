@@ -56,7 +56,7 @@
       >
         <div class="mb-2 flex items-center justify-between gap-2">
           <p
-            class="truncate text-xs font-bold uppercase tracking-wide text-base-content/45"
+            class="kr-text-dim-xs-45 truncate font-bold uppercase tracking-wide"
           >
             React
           </p>

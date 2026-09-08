@@ -12,6 +12,7 @@ icon: kind-icon:chat
 route: /chats
 sort: 60
 requiredPermission: authenticated
+visible: false
 ---
 
-Conversations and friend communication live close to the user who participated in them.
+Conversations remain available directly while the Home navigation groups them under Friends.

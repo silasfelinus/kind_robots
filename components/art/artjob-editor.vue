@@ -318,7 +318,7 @@
       <footer
         class="flex flex-wrap items-center justify-between gap-3 border-t border-base-300 p-4"
       >
-        <p class="text-xs text-base-content/50">
+        <p class="kr-text-dim-xs">
           Blank seed creates a fresh random seed. Facets, visibility, and video
           settings are persisted as canonical ArtJob provenance.
         </p>

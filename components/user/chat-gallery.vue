@@ -132,7 +132,7 @@
                 </div>
 
                 <div class="flex shrink-0 flex-col items-end gap-1">
-                  <span class="text-xs text-base-content/50">
+                  <span class="kr-text-dim-xs">
                     {{ formatDate(thread.latest.createdAt) }}
                   </span>
                   <span

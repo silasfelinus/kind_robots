@@ -76,7 +76,7 @@
             <div class="text-3xl font-extrabold text-primary tabular-nums">
               {{ formatUsdCents(data.accrual.totalCents) }}
             </div>
-            <p class="text-xs text-base-content/50">
+            <p class="kr-text-dim-xs">
               {{ data.accrual.count }}
               {{ data.accrual.count === 1 ? 'spend' : 'spends' }} on record
             </p>
@@ -91,7 +91,7 @@
             <div class="text-3xl font-extrabold text-success tabular-nums">
               {{ formatUsdCents(data.remittedTotalCents) }}
             </div>
-            <p class="text-xs text-base-content/50">
+            <p class="kr-text-dim-xs">
               {{ data.remittances.length }}
               {{ data.remittances.length === 1 ? 'entry' : 'entries' }} logged
             </p>
@@ -111,7 +111,7 @@
             >
               {{ formatUsdCents(data.outstandingCents) }}
             </div>
-            <p class="text-xs text-base-content/50">accrued minus remitted</p>
+            <p class="kr-text-dim-xs">accrued minus remitted</p>
           </article>
         </section>
 
@@ -212,7 +212,7 @@
             >
               <div class="min-w-0 space-y-0.5 whitespace-normal">
                 <p class="text-sm font-medium">{{ entry.note }}</p>
-                <p class="text-xs text-base-content/50">
+                <p class="kr-text-dim-xs">
                   {{ formatWhen(entry.createdAt) }}
                   · logged by
                   {{ entry.remittedByUsername ?? `user#${entry.remittedById}` }}

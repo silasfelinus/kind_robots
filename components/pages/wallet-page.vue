@@ -73,7 +73,7 @@
               <div class="text-sm font-medium">
                 {{ formatReason(txn.reason) }}
               </div>
-              <div class="text-xs text-base-content/50">
+              <div class="kr-text-dim-xs">
                 {{ formatWhen(txn.createdAt) }}
               </div>
             </div>

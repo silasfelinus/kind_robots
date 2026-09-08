@@ -29,7 +29,7 @@
       </NuxtLink>
     </div>
 
-    <div v-else-if="checkingOwnership" class="text-xs text-base-content/50">
+    <div v-else-if="checkingOwnership" class="kr-text-dim-xs">
       Checking your library...
     </div>
 

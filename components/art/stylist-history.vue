@@ -46,7 +46,7 @@
         <div class="flex flex-wrap items-center gap-2">
           <div class="flex min-w-0 flex-1 flex-col">
             <span class="truncate text-sm font-bold">{{ appointment.clientName }}</span>
-            <span class="text-xs text-base-content/50">
+            <span class="kr-text-dim-xs">
               {{ appointment.date }} · {{ formatCents(appointment.hourlyRateCents) }}/hr ×
               {{ formatMinutes(appointment.minutes) }} +
               {{ formatCents(appointment.productCostCents) }}

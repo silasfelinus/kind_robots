@@ -139,7 +139,7 @@
           <h3 class="line-clamp-2 text-sm font-black" :title="card.name">
             {{ card.name }}
           </h3>
-          <p v-if="card.creator" class="text-xs text-base-content/50">
+          <p v-if="card.creator" class="kr-text-dim-xs">
             by {{ card.creator }}
           </p>
 

@@ -47,7 +47,7 @@
             </div>
             <div>
               <h2 class="text-lg font-black">The spark</h2>
-              <p class="text-xs text-base-content/50">
+              <p class="kr-text-dim-xs">
                 One premise is enough. Everything else can stay loose.
               </p>
             </div>

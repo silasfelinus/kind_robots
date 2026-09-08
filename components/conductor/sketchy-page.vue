@@ -63,7 +63,7 @@
           </div>
         </div>
 
-        <p class="text-xs text-base-content/50">
+        <p class="kr-text-dim-xs">
           The full assignment engine and AI critique loop are in active
           development — this preview mirrors the real skill ladder and rubric.
         </p>

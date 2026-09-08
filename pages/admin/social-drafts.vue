@@ -55,7 +55,7 @@
             <span class="text-sm font-black">
               {{ row.approvedToday }}/{{ row.ceiling }}
             </span>
-            <span class="text-xs text-base-content/50">approved today</span>
+            <span class="kr-text-dim-xs">approved today</span>
             <span
               v-if="row.approvedToday >= row.ceiling"
               class="kr-badge-warning-sm"
@@ -107,7 +107,7 @@
             <span v-if="loading" class="kr-spinner-xs" />
             Refresh
           </button>
-          <span class="text-xs text-base-content/50">
+          <span class="kr-text-dim-xs">
             {{ draftsStore.drafts.length }} draft(s) shown
           </span>
         </section>
@@ -158,7 +158,7 @@
               Disclosure: {{ draft.disclosureLabel }}
             </div>
 
-            <p class="text-xs text-base-content/50">
+            <p class="kr-text-dim-xs">
               Source: DREAM #{{ draft.sourceId }} &middot; queued
               {{ formatDate(draft.createdAt) }}
               <template v-if="draft.reviewedAt">

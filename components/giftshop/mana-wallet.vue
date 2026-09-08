@@ -87,7 +87,7 @@
         <div class="text-3xl font-extrabold text-secondary tabular-nums">
           {{ manaStore.tokens }}
         </div>
-        <p class="text-xs text-base-content/50">
+        <p class="kr-text-dim-xs">
           Credited by top-ups. Generations spend tokens first, then fall back to
           free mana above. Not withdrawable — that's a Stripe refund, not a
           payout.
@@ -123,7 +123,7 @@
           >
             <div class="space-y-0.5">
               <div class="text-sm font-medium">{{ label(t.reason) }}</div>
-              <div class="text-xs text-base-content/50">
+              <div class="kr-text-dim-xs">
                 {{ when(t.createdAt) }}
               </div>
             </div>

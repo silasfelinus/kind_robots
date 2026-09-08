@@ -68,7 +68,7 @@
 
             <p class="whitespace-pre-line text-sm">{{ post.content }}</p>
 
-            <p class="text-xs text-base-content/50">
+            <p class="kr-text-dim-xs">
               By {{ post.botName || post.sender }} &middot; posted
               {{ formatDate(post.createdAt) }}
               <template v-if="post.updatedAt">

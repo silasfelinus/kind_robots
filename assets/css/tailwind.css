@@ -1640,6 +1640,23 @@ section:has(div[class*='xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]'])
     @apply text-sm text-base-content/60;
   }
 
+  /* The `text-xs` counterpart to `.kr-text-dim-sm` (interface-vision t-104
+   * slice 154): the same muted secondary caption concept at the smaller
+   * scale -- `text-xs text-base-content/50`, previously hand-rolled
+   * identically in 33 files (42 exact occurrences), the next largest
+   * bounded family surfaced by slice 152's original frequency survey and
+   * named as a follow-up target in slice 153's own kaizen suggestion. Not
+   * the same opacity as `.kr-text-dim-sm` (50 vs. 60) -- each size has its
+   * own established opacity in the wild, and this migration only
+   * consolidates what was already an exact duplicate, not what "should"
+   * match across sizes. The other opacity/size variants surveyed alongside
+   * this one (`text-sm text-base-content/70`, `text-xs
+   * text-base-content/45`, `text-xs text-base-content/55`, etc.) are left
+   * for future slices, same convention as `.kr-spinner-xs`/`.kr-spinner-sm`. */
+  .kr-text-dim-xs {
+    @apply text-xs text-base-content/50;
+  }
+
   .text-smart {
     @apply text-sm md:text-lg lg:text-lg xl:text-xl;
   }

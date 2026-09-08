@@ -113,7 +113,7 @@
         <Icon name="kind-icon:palette" class="size-4 text-accent" />
         <div>
           <h3 class="text-sm font-bold">Curated artwork</h3>
-          <p class="text-xs text-base-content/50">
+          <p class="kr-text-dim-xs">
             Preserve primary, portrait/card, and hero/wide roles separately.
           </p>
         </div>

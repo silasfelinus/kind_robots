@@ -5,7 +5,7 @@
       <Icon name="kind-icon:tag" class="size-4 text-secondary" />
       <div class="min-w-0 flex-1">
         <h3 class="text-sm font-bold">Reward Facets</h3>
-        <p class="text-xs text-base-content/50">
+        <p class="kr-text-dim-xs">
           Materials, colors, themes, and other reusable traits that shape the
           object independently of its name.
         </p>

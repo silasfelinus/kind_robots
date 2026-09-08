@@ -185,7 +185,7 @@
         <input v-model="enhanceImage" type="checkbox" class="kr-checkbox-primary-sm mt-1" />
         <div class="flex flex-1 flex-col gap-1">
           <span class="text-sm font-bold">Improve the overall image</span>
-          <span class="text-xs text-base-content/50">Cleaner lighting, sharper detail — face and identity kept.</span>
+          <span class="kr-text-dim-xs">Cleaner lighting, sharper detail — face and identity kept.</span>
         </div>
       </label>
 

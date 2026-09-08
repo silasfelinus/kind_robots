@@ -2,9 +2,7 @@
   <section class="kr-container flex flex-col gap-4 p-4 md:p-6">
     <header class="flex flex-wrap items-center justify-between gap-3">
       <div class="flex items-center gap-3">
-        <span
-          class="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-primary/15 text-primary"
-        >
+        <span class="kr-icon-tile">
           <Icon name="kind-icon:server" class="h-7 w-7" />
         </span>
         <div>

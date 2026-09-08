@@ -1552,6 +1552,17 @@ section:has(div[class*='xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]'])
     @apply input w-full bg-base-200;
   }
 
+  /* The page-header icon badge: a tinted `h-12 w-12` square housing a
+   * page-header `<Icon>`, sitting beside the page title (interface-vision
+   * t-104 slice 149) -- previously hand-rolled identically across 8
+   * occurrences (build-bench.vue, mission-accrual-page.vue,
+   * creator-earnings-page.vue, click-leaderboard.vue, privacy-page.vue,
+   * appmaker-page.vue, rebel-button.vue, wallet-page.vue), every one of
+   * them a page-header hero row's leading icon slot. */
+  .kr-icon-tile {
+    @apply grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-primary/15 text-primary;
+  }
+
   .text-smart {
     @apply text-sm md:text-lg lg:text-lg xl:text-xl;
   }

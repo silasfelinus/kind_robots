@@ -140,7 +140,7 @@
             <label class="form-control">
               <span class="label py-1"
                 ><span
-                  class="kr-text-eyebrow-bold label-text text-xs tracking-wide"
+                  class="kr-text-eyebrow-bold text-xs tracking-wide"
                   >Seed Title</span
                 ></span
               >
@@ -156,7 +156,7 @@
             <label class="form-control">
               <span class="label py-1"
                 ><span
-                  class="kr-text-eyebrow-bold label-text text-xs tracking-wide"
+                  class="kr-text-eyebrow-bold text-xs tracking-wide"
                   >Save Type</span
                 ></span
               >
@@ -178,7 +178,7 @@
           <label class="form-control mt-3">
             <span class="label py-1"
               ><span
-                class="kr-text-eyebrow-bold label-text text-xs tracking-wide"
+                class="kr-text-eyebrow-bold text-xs tracking-wide"
                 >Pitch</span
               ></span
             >
@@ -193,7 +193,7 @@
           <label class="form-control mt-3">
             <span class="label py-1"
               ><span
-                class="kr-text-eyebrow-bold label-text text-xs tracking-wide"
+                class="kr-text-eyebrow-bold text-xs tracking-wide"
                 >Direction</span
               ></span
             >

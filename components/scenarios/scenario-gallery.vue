@@ -336,7 +336,7 @@
                 v-if="userStore.isAdmin"
                 class="label cursor-pointer gap-2 rounded-xl border border-base-300 bg-base-200 px-3 py-1.5"
               >
-                <span class="kr-text-bold-sm label-text">Mature</span>
+                <span class="kr-text-bold-sm">Mature</span>
 
                 <input
                   v-model="showMature"

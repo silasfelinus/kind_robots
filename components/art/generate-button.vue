@@ -12,7 +12,7 @@
     >
       <label class="form-control w-full">
         <div class="label py-1">
-          <span class="kr-text-eyebrow label-text text-xs tracking-wide">
+          <span class="kr-text-eyebrow text-xs tracking-wide">
             Image Server
           </span>
         </div>

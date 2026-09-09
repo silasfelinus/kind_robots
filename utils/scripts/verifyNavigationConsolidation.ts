@@ -98,10 +98,10 @@ assert.match(
 const aboutTab = source('content/channels/home/about.md')
 assert.match(aboutTab, /\nlabel: About & Support\n/)
 assert.match(aboutTab, /\nroute: \/about\n/)
-assert.match(source('content/about.md'), /\n:about-support-center\n/)
-const supportHub = source('components/pages/about-support-center.vue')
+assert.match(source('content/about.md'), /\n:about-page\n/)
+const aboutPage = source('components/pages/about-page.vue')
 for (const route of ['/about', '/giving', '/sanctuary']) {
-  assert.ok(supportHub.includes(`to="${route}"`), `About & Support must link to ${route}`)
+  assert.ok(aboutPage.includes(`to="${route}"`), `About & Support must link to ${route}`)
 }
 
 const userAdminTab = source('content/channels/admin/user-admin.md')

@@ -124,6 +124,7 @@ import type {
   ResolvedTab,
 } from '@/stores/helpers/channelContent'
 import { useChannelContentStore } from '@/stores/channelContentStore'
+import { navigationTabs } from '@/utils/channelTabGroups'
 
 type DirectoryChannel = ResolvedChannel & { visibleTabs: ResolvedTab[] }
 
@@ -152,12 +153,12 @@ const filteredChannels = computed<DirectoryChannel[]>(() => {
         [channel.label, channel.title, channel.summary, channel.description]
           .filter(Boolean)
           .some((value) => value.toLowerCase().includes(needle))
-
+      const tabs = navigationTabs(channel)
       const visibleTabs = !needle
-        ? channel.tabs
+        ? tabs
         : channelHit
-          ? channel.tabs
-          : channel.tabs.filter((tab) => tabMatches(tab, needle))
+          ? tabs
+          : tabs.filter((tab) => tabMatches(tab, needle))
 
       return { ...channel, visibleTabs }
     })

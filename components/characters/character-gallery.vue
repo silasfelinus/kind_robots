@@ -133,7 +133,7 @@
         v-else-if="characterStore.error"
         class="flex h-full items-center justify-center rounded-2xl border border-error/40 bg-error/10 p-6 text-center text-error"
       >
-        <p class="text-lg font-bold">
+        <p class="kr-text-bold-lg">
           {{ characterStore.error }}
         </p>
       </div>
@@ -257,7 +257,7 @@
         <Icon name="kind-icon:theater" class="h-12 w-12 text-primary" />
 
         <div class="max-w-2xl">
-          <p class="text-lg font-bold">
+          <p class="kr-text-bold-lg">
             {{ emptyStateTitle }}
           </p>
 

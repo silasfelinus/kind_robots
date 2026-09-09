@@ -194,7 +194,7 @@
         v-else-if="rewardStore.error"
         class="flex h-full items-center justify-center rounded-2xl border border-error/40 bg-error/10 p-6 text-center text-error"
       >
-        <p class="text-lg font-bold">
+        <p class="kr-text-bold-lg">
           {{ rewardStore.error }}
         </p>
       </div>
@@ -302,7 +302,7 @@
       >
         <Icon name="kind-icon:gift" class="h-10 w-10" />
 
-        <p class="text-lg font-bold">No rewards found.</p>
+        <p class="kr-text-bold-lg">No rewards found.</p>
 
         <p class="max-w-xl text-sm opacity-70">
           No public or owned rewards match this gallery.

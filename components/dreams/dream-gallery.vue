@@ -297,7 +297,7 @@
         v-else-if="dreamStore.error"
         class="flex h-full min-h-48 flex-col items-center justify-center gap-3 rounded-2xl border border-error/40 bg-error/10 p-6 text-center text-error"
       >
-        <p class="text-lg font-bold">
+        <p class="kr-text-bold-lg">
           {{ dreamStore.error }}
         </p>
 
@@ -411,7 +411,7 @@
         <Icon name="kind-icon:dream" class="h-12 w-12 text-primary/70" />
 
         <div class="max-w-2xl">
-          <p class="text-lg font-bold">
+          <p class="kr-text-bold-lg">
             {{ emptyStateTitle }}
           </p>
 

@@ -1,7 +1,7 @@
 <!-- /components/content/achievements/achievement-leaderboard.vue -->
 <template>
   <div class="bg-base-300 rounded-2xl border p-4 m-2">
-    <h2 class="text-lg font-bold text-center">Jellybean Collectors</h2>
+    <h2 class="kr-text-bold-lg text-center">Jellybean Collectors</h2>
     <ul class="list-decimal list-inside">
       <li v-for="(entry, index) in leaderboardData" :key="index">
         {{ entry.username }}: {{ entry.count }} jellybeans

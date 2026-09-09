@@ -124,7 +124,7 @@
             <Icon name="kind-icon:chat" class="h-16 w-16 text-primary/60" />
 
             <div>
-              <p class="text-lg font-bold">Start the conversation</p>
+              <p class="kr-text-bold-lg">Start the conversation</p>
               <p class="mt-1 text-sm">
                 Use a starter prompt, or type something suspiciously brilliant.
               </p>
@@ -215,9 +215,7 @@
       <section class="kr-panel-flat p-4">
         <div class="mb-3 flex items-center justify-between gap-2">
           <div>
-            <h2 class="text-lg font-bold text-base-content">
-              Session Controls
-            </h2>
+            <h2 class="kr-text-bold-lg text-base-content">Session Controls</h2>
 
             <p class="kr-text-dim-sm">Runtime options for this chat session.</p>
           </div>
@@ -293,7 +291,7 @@
       </section>
 
       <section class="kr-panel-flat p-4">
-        <h2 class="text-lg font-bold text-base-content">Selected Bot</h2>
+        <h2 class="kr-text-bold-lg text-base-content">Selected Bot</h2>
 
         <bot-card
           v-if="botStore.currentBot"
@@ -358,7 +356,7 @@
       -->
       <section class="shrink-0 kr-panel-flat p-4">
         <div class="mb-3 flex items-center justify-between gap-2">
-          <h2 class="text-lg font-bold text-base-content">Prompt Preview</h2>
+          <h2 class="kr-text-bold-lg text-base-content">Prompt Preview</h2>
 
           <button
             class="kr-btn-ghost-xs"

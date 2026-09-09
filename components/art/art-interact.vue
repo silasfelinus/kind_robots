@@ -106,7 +106,7 @@
       class="flex min-h-72 flex-col items-center justify-center kr-panel text-center text-base-content/55"
     >
       <Icon name="kind-icon:image" class="h-12 w-12 text-primary" />
-      <p class="mt-2 text-lg font-bold">No image selected.</p>
+      <p class="kr-text-bold-lg mt-2">No image selected.</p>
       <p class="mt-1 max-w-xl text-sm">
         Pick something from the gallery. The pixels are standing around holding
         clipboards.

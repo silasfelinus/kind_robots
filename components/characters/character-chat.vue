@@ -106,7 +106,7 @@
           v-if="characterStore.selectedCharacter"
           class="kr-panel-flat p-4"
         >
-          <h2 class="text-lg font-bold text-base-content">Stats</h2>
+          <h2 class="kr-text-bold-lg text-base-content">Stats</h2>
 
           <div class="mt-3 grid grid-cols-2 gap-2">
             <div
@@ -126,9 +126,7 @@
         </section>
 
         <section class="kr-panel-flat p-4">
-          <h2 class="text-lg font-bold text-base-content">
-            Interaction Summary
-          </h2>
+          <h2 class="kr-text-bold-lg text-base-content">Interaction Summary</h2>
 
           <div class="mt-3 grid gap-2 text-sm">
             <div class="kr-tile-md">
@@ -391,7 +389,7 @@
             </div>
 
             <section v-if="adventurePrompt" class="mt-4 kr-panel-muted-md">
-              <h2 class="mb-3 text-lg font-bold text-base-content">
+              <h2 class="kr-text-bold-lg mb-3 text-base-content">
                 Adventure Prompt Preview
               </h2>
 

@@ -81,7 +81,7 @@
                 </span>
                 <input
                   v-model="dreamStore.dreamForm.title"
-                  class="input input-bordered rounded-2xl bg-base-200 text-lg font-bold"
+                  class="kr-text-bold-lg input input-bordered rounded-2xl bg-base-200"
                   type="text"
                   placeholder="The Drowned Archive"
                 />

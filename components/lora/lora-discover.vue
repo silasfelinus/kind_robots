@@ -14,7 +14,7 @@
       class="flex shrink-0 flex-col gap-3 kr-panel-muted-sm"
     >
       <div class="min-w-0">
-        <h2 class="truncate text-lg font-bold text-base-content">
+        <h2 class="kr-text-bold-lg truncate text-base-content">
           Discover {{ discoverType === 'CHECKPOINT' ? 'Checkpoints' : 'LoRAs' }}
         </h2>
         <p class="kr-text-dim-sm">

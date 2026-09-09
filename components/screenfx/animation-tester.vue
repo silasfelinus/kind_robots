@@ -5,7 +5,7 @@
   >
     <h2 class="mb-6 text-4xl font-bold text-primary">Animation Tester</h2>
 
-    <div class="mb-4 text-lg font-bold text-info">
+    <div class="kr-text-bold-lg mb-4 text-info">
       Current Animation:
       <span v-if="animationStore.isActive">{{ currentAnimationLabel }}</span>
       <span v-else>None</span>

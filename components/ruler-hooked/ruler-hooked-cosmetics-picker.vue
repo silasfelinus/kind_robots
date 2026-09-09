@@ -33,7 +33,7 @@
         />
         <div
           v-else
-          class="flex aspect-square w-full items-center justify-center rounded-md bg-base-200 text-lg font-bold opacity-50"
+          class="kr-text-bold-lg flex aspect-square w-full items-center justify-center rounded-md bg-base-200 opacity-50"
         >
           {{ preset.title.charAt(0) }}
         </div>

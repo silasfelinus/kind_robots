@@ -11,7 +11,7 @@
         <p class="mt-1 text-sm opacity-75">{{ catchResult.catchBehavior }}</p>
       </div>
       <div class="text-right">
-        <p class="text-lg font-bold">{{ formatSize(catchResult.sizeCm) }}</p>
+        <p class="kr-text-bold-lg">{{ formatSize(catchResult.sizeCm) }}</p>
         <p class="text-xs uppercase tracking-wide opacity-60">{{ catchResult.quality }} · {{ catchResult.qualityScore }}/100</p>
       </div>
     </div>

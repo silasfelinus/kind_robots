@@ -3,7 +3,7 @@
     <!-- Server selection modal -->
     <dialog ref="serverModalRef" class="modal">
       <div class="modal-box">
-        <h3 class="font-bold text-lg">Select Art Server</h3>
+        <h3 class="kr-text-bold-lg">Select Art Server</h3>
         <p class="py-2 text-sm opacity-70">
           No preferred art server found. Choose one to generate inspiration
           images:

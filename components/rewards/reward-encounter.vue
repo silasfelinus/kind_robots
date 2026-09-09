@@ -41,7 +41,7 @@
       </button>
 
       <div class="min-w-0 flex-1">
-        <h1 class="truncate text-lg font-bold text-primary md:text-xl">
+        <h1 class="kr-text-bold-lg truncate text-primary md:text-xl">
           {{ selectedRewardName }}
         </h1>
 
@@ -300,9 +300,7 @@
           ]"
         />
         <section class="shrink-0 kr-panel-flat p-4 shadow-md">
-          <h2 class="mb-3 text-lg font-bold text-base-content">
-            The Encounter
-          </h2>
+          <h2 class="kr-text-bold-lg mb-3 text-base-content">The Encounter</h2>
 
           <div class="grid grid-cols-1 gap-4">
             <label class="form-control">
@@ -365,7 +363,7 @@
         </section>
 
         <section class="shrink-0 kr-panel-flat p-4 shadow-md">
-          <h2 class="mb-1 text-lg font-bold text-base-content">About You</h2>
+          <h2 class="kr-text-bold-lg mb-1 text-base-content">About You</h2>
 
           <p class="kr-text-dim-sm mb-3">
             Give the story engine some context about who's holding this thing.
@@ -394,7 +392,7 @@
             @click="showCharacterPanel = !showCharacterPanel"
           >
             <div class="min-w-0">
-              <h2 class="text-lg font-bold text-base-content">
+              <h2 class="kr-text-bold-lg text-base-content">
                 Add a Character
                 <span class="kr-badge-ghost-sm ml-2">Optional</span>
               </h2>
@@ -444,9 +442,7 @@
               type="button"
               @click="showPromptPreview = !showPromptPreview"
             >
-              <h2 class="text-lg font-bold text-base-content">
-                Prompt Preview
-              </h2>
+              <h2 class="kr-text-bold-lg text-base-content">Prompt Preview</h2>
 
               <Icon
                 :name="

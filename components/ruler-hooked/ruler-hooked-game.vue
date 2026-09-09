@@ -61,7 +61,7 @@
 
         <div v-if="store.pendingEnding" class="rounded-xl border border-accent bg-accent/10 p-4">
           <p class="kr-text-bold-sm">An ending is within reach:</p>
-          <p class="mt-1 text-lg font-bold">{{ endingTitle }}</p>
+          <p class="kr-text-bold-lg mt-1">{{ endingTitle }}</p>
           <p v-if="endingBody" class="text-sm opacity-80">{{ endingBody }}</p>
           <div class="mt-3 flex gap-2">
             <button type="button" class="btn btn-accent btn-sm" @click="store.acceptEnding()">Take this ending</button>
@@ -70,7 +70,7 @@
         </div>
 
         <div v-if="store.save.status === 'COMPLETE'" class="rounded-xl border border-success bg-success/10 p-4 text-center">
-          <p class="text-lg font-bold">{{ endingTitleFor(store.save.endingKey) }}</p>
+          <p class="kr-text-bold-lg">{{ endingTitleFor(store.save.endingKey) }}</p>
           <p class="text-sm opacity-80">The reign is complete. Start another from the slots below.</p>
         </div>
 

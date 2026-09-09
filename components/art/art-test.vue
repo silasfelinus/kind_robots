@@ -997,7 +997,7 @@ onMounted(async () => {
 
       <main class="flex flex-col gap-6">
         <div class="kr-panel-muted-md md:p-6">
-          <div class="mb-4 text-lg font-bold">Test Builder</div>
+          <div class="kr-text-bold-lg mb-4">Test Builder</div>
 
           <div v-if="endpointDef.mode === 'text'" class="flex flex-col gap-6">
             <div class="flex flex-col gap-3">
@@ -1213,7 +1213,7 @@ onMounted(async () => {
 
         <div class="kr-panel-muted-md md:p-6">
           <div class="mb-3 flex items-center justify-between gap-3">
-            <div class="text-lg font-bold">Built Prompt</div>
+            <div class="kr-text-bold-lg">Built Prompt</div>
             <div class="text-sm opacity-60">{{ endpointDef.label }}</div>
           </div>
 
@@ -1229,7 +1229,7 @@ onMounted(async () => {
           v-if="showPayload"
           class="kr-panel-muted-md md:p-6"
         >
-          <div class="mb-3 text-lg font-bold">Payload Preview</div>
+          <div class="kr-text-bold-lg mb-3">Payload Preview</div>
           <pre
             class="overflow-x-auto kr-panel-flat p-4 text-xs"
             >{{ JSON.stringify(builtPayload, null, 2) }}</pre
@@ -1239,7 +1239,7 @@ onMounted(async () => {
         <div class="kr-panel-muted-md md:p-6">
           <div class="mb-3 flex flex-wrap items-center justify-between gap-3">
             <div>
-              <div class="text-lg font-bold">Generate</div>
+              <div class="kr-text-bold-lg">Generate</div>
               <div class="text-sm opacity-60">
                 Synced to artStore and routed through generate-button.
               </div>
@@ -1284,7 +1284,7 @@ onMounted(async () => {
 
         <div class="kr-panel-muted-md md:p-6">
           <div class="mb-4 flex items-center justify-between gap-3">
-            <div class="text-lg font-bold">Result</div>
+            <div class="kr-text-bold-lg">Result</div>
 
             <div v-if="resultImage" class="flex flex-wrap gap-2">
               <button
@@ -1312,7 +1312,7 @@ onMounted(async () => {
               class="flex flex-col items-center gap-3 text-center"
             >
               <span class="kr-spinner-lg-primary" />
-              <div class="text-lg font-bold">
+              <div class="kr-text-bold-lg">
                 Generating with {{ endpointDef.label }}
               </div>
             </div>
@@ -1329,7 +1329,7 @@ onMounted(async () => {
               class="flex flex-col items-center gap-3 text-center opacity-60"
             >
               <div class="text-5xl">{{ endpointDef.icon }}</div>
-              <div class="text-lg font-bold">
+              <div class="kr-text-bold-lg">
                 Your generated image will appear here
               </div>
               <div class="text-sm">No mystery collage nonsense this time.</div>
@@ -1341,7 +1341,7 @@ onMounted(async () => {
           v-if="showRawResult && resultData"
           class="kr-panel-muted-md md:p-6"
         >
-          <div class="mb-3 text-lg font-bold">Raw API / Store Result</div>
+          <div class="kr-text-bold-lg mb-3">Raw API / Store Result</div>
           <pre
             class="overflow-x-auto kr-panel-flat p-4 text-xs"
             >{{ JSON.stringify(resultData, null, 2) }}</pre

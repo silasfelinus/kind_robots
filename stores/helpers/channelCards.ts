@@ -5,6 +5,7 @@ import type {
   ResolvedChannel,
   ResolvedTab,
 } from '@/stores/helpers/channelContent'
+import { navigationTabs } from '@/utils/channelTabGroups'
 
 function tabPayload(tab: ResolvedTab): Record<string, unknown> {
   return {
@@ -51,7 +52,7 @@ export function channelTabToCard(tab: ResolvedTab): BuilderCard {
 }
 
 export function channelTabsToCards(channel: ResolvedChannel): BuilderCard[] {
-  return channel.tabs.map(channelTabToCard)
+  return navigationTabs(channel).map(channelTabToCard)
 }
 
 export function navigationCardToBuilderCard(

@@ -14,7 +14,7 @@
       </div>
     </header>
 
-    <div class="grid gap-3 md:grid-cols-3">
+    <div class="home-account-links-grid grid gap-3">
       <NuxtLink
         to="/account"
         class="kr-panel flex min-h-40 flex-col gap-3 p-5 transition hover:-translate-y-0.5 hover:border-primary/50 hover:shadow-md"
@@ -59,3 +59,9 @@
     </div>
   </section>
 </template>
+
+<style scoped>
+.home-account-links-grid {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr));
+}
+</style>

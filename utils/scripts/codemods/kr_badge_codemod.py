@@ -27,11 +27,12 @@ resolution order is unaffected by folding the three base tokens into one
 name. This includes a second color modifier (e.g. `badge-outline` alongside
 `badge-primary`) preserved as an "extra" token verbatim -- the same latent
 behavior the ghost/warning/outline families already had for a stray color
-token, not new to this pair. The colorless `kr-badge-sm` family is the one
-exception to unrestricted extras: see BOUNDED_EXTRAS below. `kr-badge-xs`
-(interface-vision t-104 slice 177) is colorless too but is NOT bounded --
-its 25 occurrences across 13 files were individually audited for that
-slice, unlike `kr-badge-sm`'s broader, only-partially-audited 91-hit pool.
+token, not new to this pair. The colorless `kr-badge-sm` family and
+`kr-badge-ghost` are the two exceptions to unrestricted extras: see
+BOUNDED_EXTRAS below. `kr-badge-xs` (interface-vision t-104 slice 177) is
+colorless too but is NOT bounded -- its 25 occurrences across 13 files were
+individually audited for that slice, unlike `kr-badge-sm`'s broader,
+only-partially-audited 91-hit pool.
 
 FAMILIES is ordered most-specific-first on purpose: each entry's base token
 set differs in its size (sm/xs) and color modifier (ghost/warning/outline/
@@ -58,9 +59,11 @@ FAMILIES = [
     ("kr-badge-ghost-xs", {"badge", "badge-ghost", "badge-xs"}),
     # Sizeless sibling of kr-badge-ghost-sm/kr-badge-ghost-xs (interface-vision
     # t-104 slice 181): its {badge, badge-ghost} base is a strict subset of
-    # both of those, so it must come after them. Bounded to an exact match
-    # only (see BOUNDED_EXTRAS below) -- its broader subset-match pool
-    # carries varied, not-yet-individually-audited extra tokens.
+    # both of those, so it must come after them. Bounded to the specific
+    # audited extra-token shapes in BOUNDED_EXTRAS below (slice 181 exact
+    # match only; slice 182 added four more individually-audited shapes) --
+    # a handful of remaining one-off extra-token combinations are still left
+    # unmigrated by design.
     ("kr-badge-ghost", {"badge", "badge-ghost"}),
     ("kr-badge-outline-xs", {"badge", "badge-outline", "badge-xs"}),
     ("kr-badge-primary-xs", {"badge", "badge-primary", "badge-xs"}),
@@ -96,14 +99,32 @@ FAMILIES = [
 # its 15 call sites). Families not listed here keep the unrestricted
 # subset-match behavior they already had.
 #
-# kr-badge-ghost's {badge, badge-ghost} base is similarly small and appears
-# inside a further ~13 hand-rolled combinations carrying varied extra tokens
-# (hover states, rounded-*, backdrop-blur, ...) not yet individually audited
-# (interface-vision t-104 slice 181) -- bounded to an exact match only until
-# a future slice audits the rest.
+# kr-badge-ghost's {badge, badge-ghost} base is similarly small and appeared
+# (slice 181) inside a further ~13 hand-rolled combinations carrying varied
+# extra tokens. Slice 182 individually audited all of them: four clean,
+# repeated shapes are added here --
+#   rounded-2xl            components/coloring/coloring-book-production-history.vue
+#                           (4 identical call sites)
+#   rounded-lg font-black  pages/play/challenges/leaderboard.vue +
+#                           pages/play/challenges/[slug].vue (same badge shape
+#                           reused across the two challenge-list pages)
+#   rounded-lg             pages/play/challenges/[slug].vue (a second,
+#                           plainer badge on the same page)
+#   rounded-xl             components/pages/storybook-library-page.vue
+# -- the remaining ~6 (daily-digest-browser.vue, daily-dream-object-art-
+# workbench.vue, facet-gallery.vue, coloring-book-manager.vue's hover/cursor
+# clickable badge, academy-style-detail.vue, privacy-page.vue's <code> badge)
+# each carry a one-off extra-token combination not shared by any other call
+# site and are left hand-rolled rather than forced into a shared primitive.
 BOUNDED_EXTRAS: dict[str, set[frozenset[str]]] = {
     "kr-badge-sm": {frozenset(), frozenset({"rounded-2xl"})},
-    "kr-badge-ghost": {frozenset()},
+    "kr-badge-ghost": {
+        frozenset(),
+        frozenset({"rounded-2xl"}),
+        frozenset({"rounded-lg", "font-black"}),
+        frozenset({"rounded-lg"}),
+        frozenset({"rounded-xl"}),
+    },
 }
 
 

@@ -92,16 +92,16 @@
           </p>
 
           <div class="flex flex-wrap gap-2 text-xs">
-            <span v-if="item.artImageId" class="badge badge-ghost rounded-2xl">
+            <span v-if="item.artImageId" class="kr-badge-ghost rounded-2xl">
               ArtImage {{ item.artImageId }}
             </span>
-            <span v-if="item.seed !== null" class="badge badge-ghost rounded-2xl">
+            <span v-if="item.seed !== null" class="kr-badge-ghost rounded-2xl">
               Seed {{ item.seed }}
             </span>
-            <span v-if="item.engine" class="badge badge-ghost rounded-2xl">
+            <span v-if="item.engine" class="kr-badge-ghost rounded-2xl">
               {{ item.engine }}
             </span>
-            <span v-if="item.verdict" class="badge badge-ghost rounded-2xl">
+            <span v-if="item.verdict" class="kr-badge-ghost rounded-2xl">
               {{ item.verdict }}
             </span>
           </div>

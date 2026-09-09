@@ -69,7 +69,7 @@
                 <span class="badge rounded-lg font-black" :class="statusClass">
                   {{ challenge.status }}
                 </span>
-                <span class="badge badge-ghost rounded-lg font-black">
+                <span class="kr-badge-ghost rounded-lg font-black">
                   {{ challenge.Submissions.length }} contenders
                 </span>
               </div>
@@ -342,7 +342,7 @@
                     <span
                       v-for="[key, value] in randomSelectionsList(submission)"
                       :key="key"
-                      class="badge badge-ghost rounded-lg"
+                      class="kr-badge-ghost rounded-lg"
                     >
                       {{ key }}: {{ value }}
                     </span>

@@ -118,7 +118,7 @@
             copy.
           </p>
         </div>
-        <span class="badge badge-ghost rounded-xl">
+        <span class="kr-badge-ghost rounded-xl">
           Up to 20 recent sessions
         </span>
       </div>

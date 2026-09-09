@@ -29,7 +29,7 @@
         class="grid gap-3 md:grid-cols-[8rem_8rem_minmax(0,1fr)_auto] md:items-end"
       >
         <label class="form-control">
-          <span class="label py-1 text-xs font-bold">Characters</span>
+          <span class="kr-text-bold-xs label py-1">Characters</span>
           <select
             v-model.number="characterCount"
             class="kr-select-sm"
@@ -41,7 +41,7 @@
           </select>
         </label>
         <label class="form-control">
-          <span class="label py-1 text-xs font-bold">Objects</span>
+          <span class="kr-text-bold-xs label py-1">Objects</span>
           <select
             v-model.number="rewardCount"
             class="kr-select-sm"

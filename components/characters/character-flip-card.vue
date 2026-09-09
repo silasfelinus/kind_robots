@@ -144,7 +144,7 @@
                       : 'border-base-300 bg-base-100 text-base-content'
                   "
                 >
-                  <p class="mb-1 text-xs font-bold opacity-70">
+                  <p class="kr-text-bold-xs mb-1 opacity-70">
                     {{
                       messageItem.role === 'user'
                         ? 'You'

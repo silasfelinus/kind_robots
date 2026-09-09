@@ -42,7 +42,7 @@
         </div>
 
         <div class="w-full bg-base-100 px-2 py-1.5">
-          <p class="text-center text-xs font-bold text-base-content/75">
+          <p class="kr-text-bold-xs text-center text-base-content/75">
             Back {{ back }}
           </p>
         </div>

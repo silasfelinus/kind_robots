@@ -45,7 +45,7 @@
           <p class="italic opacity-80">{{ tankStore.lastRareEvent.tone }}</p>
           <p
             v-if="tankStore.lastRareEvent.bonusCoins > 0"
-            class="mt-1 text-xs font-bold opacity-60"
+            class="kr-text-bold-xs mt-1 opacity-60"
           >
             +{{ tankStore.lastRareEvent.bonusCoins }} coins
           </p>
@@ -782,7 +782,7 @@
             :disabled="visibilitySaving"
             @change="onToggleVisibility"
           />
-          <span class="text-xs font-bold">
+          <span class="kr-text-bold-xs">
             {{ tankStore.tank?.isPublic ? 'Public tank' : 'Private tank' }}
           </span>
         </label>

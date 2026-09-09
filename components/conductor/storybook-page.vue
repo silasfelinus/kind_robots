@@ -34,7 +34,7 @@
           v-for="option in store.modes"
           :key="option.key"
           type="button"
-          class="rounded-lg px-2.5 py-1.5 text-xs font-bold transition"
+          class="kr-text-bold-xs rounded-lg px-2.5 py-1.5 transition"
           :class="
             store.mode === option.key
               ? 'bg-primary text-primary-content shadow-sm'
@@ -94,7 +94,7 @@
             v-for="(item, index) in setupSteps"
             :key="item.label"
             type="button"
-            class="flex items-center gap-2 rounded-xl px-3 py-2 text-left text-xs font-bold transition"
+            class="kr-text-bold-xs flex items-center gap-2 rounded-xl px-3 py-2 text-left transition"
             :class="
               setupStep === index
                 ? 'bg-primary text-primary-content shadow-sm'

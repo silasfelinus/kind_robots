@@ -109,7 +109,7 @@
                 >
                   <div class="text-center">
                     <Icon name="kind-icon:image" class="mx-auto size-10" />
-                    <p class="mt-2 text-xs font-bold">No color candidate</p>
+                    <p class="kr-text-bold-xs mt-2">No color candidate</p>
                   </div>
                 </div>
               </div>
@@ -135,7 +135,7 @@
                 >
                   <div class="text-center">
                     <Icon name="kind-icon:image" class="mx-auto size-10" />
-                    <p class="mt-2 text-xs font-bold">No B&amp;W candidate</p>
+                    <p class="kr-text-bold-xs mt-2">No B&amp;W candidate</p>
                   </div>
                 </div>
               </div>

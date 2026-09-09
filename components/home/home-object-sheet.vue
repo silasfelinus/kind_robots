@@ -138,7 +138,7 @@
                   >
                     {{ fact.label }}
                   </dt>
-                  <dd class="line-clamp-3 text-xs font-bold leading-snug">
+                  <dd class="kr-text-bold-xs line-clamp-3 leading-snug">
                     {{ fact.value }}
                   </dd>
                 </div>

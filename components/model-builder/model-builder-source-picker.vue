@@ -38,7 +38,7 @@
         v-for="type in sourceTypes"
         :key="type.key"
         type="button"
-        class="btn btn-sm h-9 min-h-9 gap-1.5 rounded-xl px-3 text-xs font-bold"
+        class="kr-text-bold-xs btn btn-sm h-9 min-h-9 gap-1.5 rounded-xl px-3"
         :class="
           store.sourceType === type.key
             ? 'btn-primary'
@@ -143,7 +143,7 @@
             />
           </div>
           <div class="min-w-0 p-2">
-            <span class="block truncate text-xs font-bold text-base-content">
+            <span class="kr-text-bold-xs block truncate text-base-content">
               {{ store.sourceLabel(record) }}
             </span>
             <span class="text-[10px] uppercase tracking-wide text-base-content/35">

@@ -134,7 +134,7 @@
             <p class="kr-text-dim-sm-70 line-clamp-2 leading-relaxed">
               {{ style.recognitionCues[0] }}
             </p>
-            <div class="mt-auto flex items-center justify-between gap-3 text-xs font-bold text-primary">
+            <div class="kr-text-bold-xs mt-auto flex items-center justify-between gap-3 text-primary">
               <span>Enter the gallery</span>
               <Icon
                 name="kind-icon:arrow-right"

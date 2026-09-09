@@ -43,7 +43,7 @@
           v-for="tab in TABS"
           :key="tab.key"
           type="button"
-          class="flex items-center gap-1.5 px-5 py-2.5 text-xs font-bold transition-colors"
+          class="kr-text-bold-xs flex items-center gap-1.5 px-5 py-2.5 transition-colors"
           :class="
             activeTab === tab.key
               ? 'border-b-2 border-primary bg-base-100 text-primary'
@@ -98,7 +98,7 @@
           >
             <span
               v-if="form.species"
-              class="inline-flex items-center gap-1 rounded-full bg-secondary/15 px-2.5 py-0.5 text-xs font-bold text-secondary"
+              class="kr-text-bold-xs inline-flex items-center gap-1 rounded-full bg-secondary/15 px-2.5 py-0.5 text-secondary"
             >
               {{ form.species }}
               <button
@@ -112,7 +112,7 @@
             <span
               v-for="trait in selectedTraits"
               :key="trait"
-              class="inline-flex items-center gap-1 rounded-full bg-primary/12 px-2.5 py-0.5 text-xs font-bold text-primary"
+              class="kr-text-bold-xs inline-flex items-center gap-1 rounded-full bg-primary/12 px-2.5 py-0.5 text-primary"
             >
               {{ traitLabel(trait) }}
               <button
@@ -351,7 +351,7 @@
             <span
               v-for="trait in selectedTraits"
               :key="trait"
-              class="inline-flex items-center gap-1 rounded-full bg-primary/15 px-2.5 py-0.5 text-xs font-bold text-primary"
+              class="kr-text-bold-xs inline-flex items-center gap-1 rounded-full bg-primary/15 px-2.5 py-0.5 text-primary"
             >
               {{ traitLabel(trait) }}
               <button

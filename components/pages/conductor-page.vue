@@ -52,7 +52,7 @@
             :alt="selectedProject.name"
             class="size-4 shrink-0 rounded-sm object-cover"
           />
-          <span class="min-w-0 break-words text-xs font-bold leading-tight">{{
+          <span class="kr-text-bold-xs min-w-0 break-words leading-tight">{{
             selectedProject.name || selectedProject.slug
           }}</span>
         </span>

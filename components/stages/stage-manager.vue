@@ -16,19 +16,19 @@
         <h1 class="kr-text-black-lg tracking-tight">Stage</h1>
         <span
           v-if="store.selectedStage"
-          class="rounded-full border border-primary/30 bg-primary/10 px-2.5 py-0.5 text-xs font-bold text-primary"
+          class="kr-text-bold-xs rounded-full border border-primary/30 bg-primary/10 px-2.5 py-0.5 text-primary"
         >
           {{ store.selectedStage.label }}
         </span>
         <span
           v-if="store.isRunning && !store.isPaused"
-          class="rounded-full border border-success/40 bg-success/10 px-2.5 py-0.5 text-xs font-bold text-success"
+          class="kr-text-bold-xs rounded-full border border-success/40 bg-success/10 px-2.5 py-0.5 text-success"
         >
           ● Live
         </span>
         <span
           v-else-if="store.isPaused"
-          class="rounded-full border border-warning/40 bg-warning/10 px-2.5 py-0.5 text-xs font-bold text-warning"
+          class="kr-text-bold-xs rounded-full border border-warning/40 bg-warning/10 px-2.5 py-0.5 text-warning"
         >
           Paused
         </span>
@@ -204,7 +204,7 @@
 
         <!-- Cast ready badge -->
         <div
-          class="rounded-xl p-2.5 text-center text-xs font-bold"
+          class="kr-text-bold-xs rounded-xl p-2.5 text-center"
           :class="
             store.castReady
               ? 'bg-success/10 text-success'
@@ -330,7 +330,7 @@
                       class="h-10 w-10 shrink-0 rounded-xl object-cover"
                     />
                     <div class="min-w-0">
-                      <p class="text-xs font-bold text-base-content truncate">
+                      <p class="kr-text-bold-xs text-base-content truncate">
                         {{ p.name }}
                       </p>
                       <p class="kr-text-dim-xs truncate">

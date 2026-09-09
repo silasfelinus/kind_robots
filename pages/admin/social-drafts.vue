@@ -153,7 +153,7 @@
             <p class="whitespace-pre-line text-sm">{{ draft.bodyText }}</p>
 
             <div
-              class="rounded-xl border border-primary/30 bg-primary/5 p-2 text-xs font-bold text-primary"
+              class="kr-text-bold-xs rounded-xl border border-primary/30 bg-primary/5 p-2 text-primary"
             >
               Disclosure: {{ draft.disclosureLabel }}
             </div>

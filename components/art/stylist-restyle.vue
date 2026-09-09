@@ -208,7 +208,7 @@
     <div class="flex flex-col gap-2 kr-panel-compact">
       <div class="flex items-center justify-between">
         <span class="text-xs font-black text-base-content">How much should it still look like them?</span>
-        <span class="text-xs font-bold text-primary">{{ preserveLabel }}</span>
+        <span class="kr-text-bold-xs text-primary">{{ preserveLabel }}</span>
       </div>
       <input
         v-model.number="preserveStrength"

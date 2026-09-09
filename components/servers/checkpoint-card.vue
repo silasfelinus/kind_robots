@@ -34,7 +34,7 @@
             :name="isHiddenMature ? 'kind-icon:lock' : normalizedFallbackIcon"
             class="h-10 w-10"
           />
-          <span class="text-xs font-bold">
+          <span class="kr-text-bold-xs">
             {{ isHiddenMature ? 'Mature hidden' : 'No preview' }}
           </span>
         </div>

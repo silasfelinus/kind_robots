@@ -12,7 +12,7 @@
         Back
       </button>
       <Icon name="kind-icon:folder" class="size-3.5 shrink-0 text-primary/70" />
-      <span class="min-w-0 max-w-48 truncate text-xs font-bold sm:max-w-none">
+      <span class="kr-text-bold-xs min-w-0 max-w-48 truncate sm:max-w-none">
         {{ linkedProject?.title || selectedProject?.name || props.slug }}
       </span>
 

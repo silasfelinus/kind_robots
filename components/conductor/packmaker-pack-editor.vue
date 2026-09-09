@@ -58,7 +58,7 @@
     <!-- Pack fields -->
     <div class="grid gap-2 sm:grid-cols-2">
       <label class="form-control">
-        <span class="label-text text-xs font-bold">Title</span>
+        <span class="kr-text-bold-xs label-text">Title</span>
         <input
           v-model="draft.title"
           type="text"
@@ -67,7 +67,7 @@
         />
       </label>
       <label class="form-control">
-        <span class="label-text text-xs font-bold">Id (slug)</span>
+        <span class="kr-text-bold-xs label-text">Id (slug)</span>
         <input
           v-model="draft.id"
           type="text"
@@ -77,7 +77,7 @@
         />
       </label>
       <label class="form-control sm:col-span-2">
-        <span class="label-text text-xs font-bold">Description</span>
+        <span class="kr-text-bold-xs label-text">Description</span>
         <textarea
           v-model="draft.description"
           rows="2"
@@ -85,7 +85,7 @@
         />
       </label>
       <label class="form-control">
-        <span class="label-text text-xs font-bold">Price hook</span>
+        <span class="kr-text-bold-xs label-text">Price hook</span>
         <select
           v-model="draft.price.hook"
           class="select select-bordered select-sm"
@@ -133,7 +133,7 @@
         </summary>
         <div class="grid gap-2 p-3 pt-1 sm:grid-cols-2">
           <label class="form-control">
-            <span class="label-text text-xs font-bold">Type</span>
+            <span class="kr-text-bold-xs label-text">Type</span>
             <select
               v-model="item.type"
               class="select select-bordered select-sm"
@@ -146,7 +146,7 @@
             </select>
           </label>
           <label class="form-control">
-            <span class="label-text text-xs font-bold">Shape</span>
+            <span class="kr-text-bold-xs label-text">Shape</span>
             <select
               v-model="item.itemShape"
               class="select select-bordered select-sm"
@@ -161,7 +161,7 @@
             </select>
           </label>
           <label class="form-control sm:col-span-2">
-            <span class="label-text text-xs font-bold">Title</span>
+            <span class="kr-text-bold-xs label-text">Title</span>
             <input
               v-model="item.draftPayload.title"
               type="text"
@@ -170,7 +170,7 @@
             />
           </label>
           <label class="form-control sm:col-span-2">
-            <span class="label-text text-xs font-bold">Description</span>
+            <span class="kr-text-bold-xs label-text">Description</span>
             <textarea
               v-model="item.draftPayload.description"
               rows="2"
@@ -178,7 +178,7 @@
             />
           </label>
           <label class="form-control sm:col-span-2">
-            <span class="label-text text-xs font-bold">Art prompt</span>
+            <span class="kr-text-bold-xs label-text">Art prompt</span>
             <textarea
               v-model="item.draftPayload.artPrompt"
               rows="2"
@@ -186,7 +186,7 @@
             />
           </label>
           <label class="form-control sm:col-span-2">
-            <span class="label-text text-xs font-bold"
+            <span class="kr-text-bold-xs label-text"
               >Text generation prompt</span
             >
             <textarea

@@ -35,11 +35,18 @@
     <Transition name="picker-panel">
       <div
         v-if="expanded"
-        class="grid max-h-72 gap-2 overflow-y-auto rounded-2xl border border-base-content/10 bg-base-200/80 p-2 sm:grid-cols-2 lg:grid-cols-3"
+        class="collection-choice-grid rounded-2xl border border-base-content/10 bg-base-200/80 p-2"
       >
+        <div class="col-span-full px-1 pb-1 pt-0.5">
+          <p class="kr-text-black-sm">Choose the dungeon shelves</p>
+          <p class="kr-text-dim-xs-60 mt-0.5">
+            All art is the default. Pick one or more collections when you want a narrower deck.
+          </p>
+        </div>
+
         <button
           type="button"
-          class="flex min-h-18 flex-col items-start justify-between rounded-2xl border p-3 text-left transition hover:-translate-y-0.5 hover:shadow-lg"
+          class="group flex min-h-44 flex-col items-start rounded-2xl border p-2 text-left transition hover:-translate-y-0.5 hover:shadow-lg"
           :class="
             !hasSelection
               ? 'border-primary bg-primary/15 text-primary'
@@ -47,6 +54,26 @@
           "
           @click="useAllArt"
         >
+          <div class="mb-2 grid h-24 w-full grid-cols-3 overflow-hidden rounded-xl bg-base-300">
+            <template v-if="allArtPreviewPaths.length">
+              <img
+                v-for="(imagePath, index) in allArtPreviewPaths"
+                :key="`${imagePath}-${index}`"
+                :src="imagePath"
+                alt=""
+                class="h-24 w-full object-cover"
+                loading="lazy"
+                @error="hideBrokenPreview"
+              />
+            </template>
+            <div
+              v-else
+              class="col-span-3 flex h-24 items-center justify-center text-3xl text-base-content/30"
+            >
+              <Icon name="kind-icon:gallery" class="h-9 w-9" />
+            </div>
+          </div>
+
           <span class="flex w-full items-start justify-between gap-2">
             <span class="kr-text-black-sm">All available art</span>
             <Icon
@@ -55,7 +82,7 @@
             />
           </span>
           <span class="kr-text-dim-xs-60 mt-2">
-            Draw the dungeon deck from the whole playable art library.
+            Let the dungeon roam across the whole playable art library.
           </span>
         </button>
 
@@ -63,7 +90,7 @@
           v-for="collection in availableCollections"
           :key="collection.id"
           type="button"
-          class="group flex min-h-18 flex-col items-start justify-between rounded-2xl border p-3 text-left transition hover:-translate-y-0.5 hover:shadow-lg"
+          class="group flex min-h-44 flex-col items-start rounded-2xl border p-2 text-left transition hover:-translate-y-0.5 hover:shadow-lg"
           :class="
             isSelected(collection.id)
               ? 'border-primary bg-primary/15 text-primary'
@@ -71,6 +98,26 @@
           "
           @click="toggleCollection(collection.id)"
         >
+          <div class="mb-2 grid h-24 w-full grid-cols-3 overflow-hidden rounded-xl bg-base-300">
+            <template v-if="getCollectionPreviewPaths(collection).length">
+              <img
+                v-for="(imagePath, index) in getCollectionPreviewPaths(collection)"
+                :key="`${collection.id}-${imagePath}-${index}`"
+                :src="imagePath"
+                alt=""
+                class="h-24 w-full object-cover"
+                loading="lazy"
+                @error="hideBrokenPreview"
+              />
+            </template>
+            <div
+              v-else
+              class="col-span-3 flex h-24 items-center justify-center text-3xl text-base-content/30"
+            >
+              <Icon name="kind-icon:gallery" class="h-9 w-9" />
+            </div>
+          </div>
+
           <span class="flex w-full items-start justify-between gap-2">
             <span class="kr-text-black-sm line-clamp-2">
               {{ getCollectionLabel(collection) }}
@@ -103,8 +150,10 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue'
+import type { ArtImage } from '~/prisma/generated/prisma/client'
 import type { ArtCollection } from '@/stores/helpers/collectionHelper'
 import { useArtStore } from '@/stores/artStore'
+import { resolveArtImageThumbSrc } from '@/utils/artImageSrc'
 
 export type CollectionPickerMode =
   | 'all'
@@ -143,7 +192,7 @@ const emit = defineEmits<{
 
 const artStore = useArtStore()
 
-const expanded = ref(false)
+const expanded = ref(true)
 const localMode = ref<CollectionPickerMode>('all')
 const selectedCollectionIds = ref<number[]>([])
 
@@ -170,6 +219,10 @@ const selectedSummary = computed(() => {
   }
 
   return `${selectedCollectionIds.value.length} collections`
+})
+
+const allArtPreviewPaths = computed(() => {
+  return previewPathsFromImages(artStore.artImages, 3)
 })
 
 function syncFromProps() {
@@ -224,24 +277,68 @@ function getCollectionLabel(collection: ArtCollection): string {
   )
 }
 
+function getCollectionImages(collection: ArtCollection): ArtImage[] {
+  const record = collection as ArtCollection & {
+    ArtImages?: ArtImage[]
+    artImages?: ArtImage[]
+    images?: ArtImage[]
+  }
+
+  const imageMap = new Map<number, ArtImage>()
+
+  for (const image of [
+    ...(Array.isArray(record.art) ? record.art : []),
+    ...(Array.isArray(record.ArtImages) ? record.ArtImages : []),
+    ...(Array.isArray(record.artImages) ? record.artImages : []),
+    ...(Array.isArray(record.images) ? record.images : []),
+  ]) {
+    if (image?.id) imageMap.set(image.id, image)
+  }
+
+  return [...imageMap.values()]
+}
+
+function previewPathsFromImages(images: ArtImage[], limit: number): string[] {
+  const paths: string[] = []
+  const seen = new Set<string>()
+
+  for (const image of images) {
+    if (!artStore.showMature && image.isMature) continue
+
+    const path = resolveArtImageThumbSrc(image)
+    if (!path || seen.has(path)) continue
+
+    seen.add(path)
+    paths.push(path)
+
+    if (paths.length >= limit) break
+  }
+
+  return paths
+}
+
+function getCollectionPreviewPaths(collection: ArtCollection): string[] {
+  return previewPathsFromImages(getCollectionImages(collection), 3)
+}
+
 function getCollectionMeta(collection: ArtCollection): string {
   const record = collection as ArtCollection & {
-    ArtImages?: unknown[]
-    artImages?: unknown[]
     isPublic?: boolean | null
     isMature?: boolean | null
   }
 
-  const images = Array.isArray(record.ArtImages)
-    ? record.ArtImages
-    : Array.isArray(record.artImages)
-      ? record.artImages
-      : []
-
+  const imageCount = getCollectionImages(collection).length
   const visibility = record.isPublic ? 'public' : 'private'
   const rating = record.isMature ? 'mature' : 'safe'
 
-  return `${images.length} image${images.length === 1 ? '' : 's'} · ${visibility} · ${rating}`
+  return `${imageCount} image${imageCount === 1 ? '' : 's'} · ${visibility} · ${rating}`
+}
+
+function hideBrokenPreview(event: Event) {
+  const image = event.currentTarget
+  if (!(image instanceof HTMLImageElement)) return
+
+  image.style.visibility = 'hidden'
 }
 
 function emitChange() {
@@ -293,6 +390,31 @@ function useAllArt() {
 </script>
 
 <style scoped>
+.collection-choice-grid {
+  display: grid;
+  max-height: min(60dvh, 32rem);
+  gap: 0.5rem;
+  overflow-y: auto;
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+}
+
+@media (min-width: 640px) {
+  .collection-choice-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1024px) {
+  .collection-choice-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+:global(.splash-screen) .collection-choice-grid {
+  max-height: none;
+  overflow: visible;
+}
+
 .picker-panel-enter-active,
 .picker-panel-leave-active {
   transition:

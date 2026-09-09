@@ -12,7 +12,7 @@
       </span>
     </div>
     <h3 class="kr-text-bold-lg">{{ card.title }}</h3>
-    <p v-if="card.body" class="mt-1 text-sm opacity-80">{{ card.body }}</p>
+    <p v-if="card.body" class="kr-text-faded-sm-80 mt-1">{{ card.body }}</p>
 
     <div class="mt-4 flex flex-col gap-2">
       <button

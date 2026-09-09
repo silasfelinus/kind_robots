@@ -840,7 +840,7 @@
           >
             {{ tankStore.revealedUnlock.Monster.species }}
           </p>
-          <p class="text-sm opacity-80">
+          <p class="kr-text-faded-sm-80">
             {{
               tankStore.revealedUnlock.Monster.fieldNote ||
               'Nothing is written about this one yet.'
@@ -898,7 +898,7 @@
           >
             {{ tankStore.revealedHatch.Monster.species }}
           </p>
-          <p class="text-sm opacity-80">
+          <p class="kr-text-faded-sm-80">
             {{
               tankStore.revealedHatch.Monster.fieldNote ||
               'Nothing is written about this one yet.'
@@ -951,7 +951,7 @@
           <h3 class="kr-text-black-lg">
             {{ breedConfirmPair.a.Monster.name }}
           </h3>
-          <p class="text-sm opacity-80">
+          <p class="kr-text-faded-sm-80">
             Costs {{ breedConfirmPair.a.Monster.breedCost }} coins. Neither
             parent is consumed -- you'll get a new individual with converged
             stats, and just maybe, a secret evolution.
@@ -1030,7 +1030,7 @@
           >
             {{ tankStore.revealedBreed.stock.Monster.species }}
           </p>
-          <p class="text-sm opacity-80">
+          <p class="kr-text-faded-sm-80">
             {{
               tankStore.revealedBreed.stock.Monster.fieldNote ||
               'Nothing is written about this one yet.'
@@ -1072,7 +1072,7 @@
             The bestiary is complete
           </p>
           <h3 class="kr-text-black-lg">Every species, observed.</h3>
-          <p class="text-sm opacity-80">
+          <p class="kr-text-faded-sm-80">
             Nothing here resets and nothing leaves the collection -- the tank
             keeps running exactly as it was. This is just the beat that says so.
           </p>
@@ -1124,7 +1124,7 @@
           <h3 class="kr-text-black-lg">
             Everything is exactly as you left it.
           </h3>
-          <p class="text-sm opacity-80">
+          <p class="kr-text-faded-sm-80">
             Nothing in your tank has changed. But through the glass across the
             shop's window, something enormous drifts past, pauses for a moment
             the way you pause at a tank you've already seen today, and moves on.
@@ -1166,7 +1166,7 @@
           <h3 class="kr-text-black-lg">
             {{ tankStore.offlineEarnings }} coins
           </h3>
-          <p class="text-sm opacity-80">
+          <p class="kr-text-faded-sm-80">
             Something kept working{{ offlineDurationLabel }}. Nobody says by
             whom.
           </p>

@@ -192,7 +192,7 @@
 
       <div>
         <p class="kr-text-black-lg">Unknown tab: {{ activeTab }}</p>
-        <p class="mt-1 text-sm opacity-80">Expected one of: {{ slotTabs }}</p>
+        <p class="kr-text-faded-sm-80 mt-1">Expected one of: {{ slotTabs }}</p>
       </div>
 
       <button

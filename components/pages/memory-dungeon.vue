@@ -167,7 +167,7 @@
         <div class="kr-text-black-2xl leading-tight tracking-tight">
           {{ award.title }}
         </div>
-        <div class="mt-1 text-sm font-medium opacity-80">
+        <div class="kr-text-faded-sm-80 mt-1 font-medium">
           {{ award.subtitle }}
         </div>
       </div>

@@ -2080,6 +2080,25 @@ section:has(div[class*='xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]'])
     @apply text-sm opacity-70;
   }
 
+  /* Sibling of `.kr-text-faded-sm` at the same `text-sm` size but a
+   * heavier 80% opacity -- `text-sm opacity-80` (interface-vision t-104
+   * slice 186), one of the sibling `opacity-NN` shapes slice 184's survey
+   * left open alongside `text-xs opacity-55` and `font-sans opacity-70`.
+   * Found at 16 subset-match occurrences across 6 files
+   * (cthulhuquarium-game.vue, brainstorm-manager.vue, kr-manager.vue,
+   * ruler-hooked-game.vue, ruler-hooked-fishing-encounter.vue,
+   * ruler-hooked-card.vue, appmaker-page.vue), the same conditionally-
+   * rendered status/description caption pattern as its `-70` sibling.
+   * Named `kr-text-faded-sm-80` rather than reusing `kr-text-faded-sm`
+   * because that name is already claimed by the 70%-opacity shape shipped
+   * in slice 185 -- both are real, independently-repeated exact shapes in
+   * the wild, not one that "should normalize" to the other, the same
+   * `kr-text-dim-sm-70`/`kr-text-dim-sm` precedent this family already
+   * follows. */
+  .kr-text-faded-sm-80 {
+    @apply text-sm opacity-80;
+  }
+
   .text-smart {
     @apply text-sm md:text-lg lg:text-lg xl:text-xl;
   }

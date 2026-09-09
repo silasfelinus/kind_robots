@@ -30,9 +30,9 @@ from __future__ import annotations
 import argparse
 import re
 from pathlib import Path
+from _class_attr import CLASS_ATTR
 
 ROOT = Path(__file__).resolve().parents[3]
-CLASS_ATTR = re.compile(r'class="([^"]*)"')
 EXCLUDED_DIR_PARTS = {"node_modules", ".nuxt", "abandonware", "dist"}
 EXCLUDED_FILES = {ROOT / "components/ui/ui-gallery.vue"}
 

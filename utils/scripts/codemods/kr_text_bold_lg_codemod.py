@@ -31,8 +31,7 @@ from __future__ import annotations
 import argparse
 import re
 from pathlib import Path
-
-CLASS_ATTR = re.compile(r'class="([^"]*)"')
+from _class_attr import CLASS_ATTR
 
 PRIMITIVE = "kr-text-bold-lg"
 BASE_TOKENS = {"font-bold", "text-lg"}

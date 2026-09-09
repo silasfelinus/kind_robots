@@ -1,7 +1,7 @@
 // /utils/scripts/verifyDaVinciResolvePanelGuard.ts
 //
 // Regression guard (davinci/t-021 slice 3) -- the "See your ending" resolve
-// panel in components/conductor/davinci-page.vue is a standalone `v-if`, not
+// panel in components/storybook/storybook-life-run.vue is a standalone `v-if`, not
 // part of the `v-if`/`v-else-if` chain above it that switches between the
 // narrating / narrationError / currentChapter states. Its condition was
 // `!narrating && (canEndRun || !currentChapter)`.
@@ -32,7 +32,7 @@ const repositoryRoot = resolve(scriptDirectory, '../..')
 
 const COMPONENT_PATH = join(
   repositoryRoot,
-  'components/conductor/davinci-page.vue',
+  'components/storybook/storybook-life-run.vue',
 )
 
 // Anchored on the resolveLife button's click handler rather than any
@@ -69,7 +69,7 @@ export function checkResolvePanelGuard(content: string): string[] {
   if (!condition) {
     errors.push(
       'Could not find a `<div v-if="...">` wrapping a ' +
-        `\`${CLICK_MARKER}\` button in davinci-page.vue -- has the ` +
+        `\`${CLICK_MARKER}\` button in storybook-life-run.vue -- has the ` +
         'resolve/ending panel been restructured or removed? If so, this ' +
         'guard needs to move with it.',
     )
@@ -114,7 +114,7 @@ function main(): void {
 
   if (errors.length) {
     console.error(
-      'Da Vinci resolve-panel guard contract failed in davinci-page.vue:',
+      'Da Vinci resolve-panel guard contract failed in storybook-life-run.vue:',
     )
     for (const error of errors) console.error(`- ${error}`)
     process.exitCode = 1

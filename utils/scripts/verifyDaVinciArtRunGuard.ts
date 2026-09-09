@@ -1,7 +1,7 @@
 // /utils/scripts/verifyDaVinciArtRunGuard.ts
 //
 // Regression guard (davinci/t-021 slice 13) -- updateChapterArt()/
-// updateEndingArt() in components/conductor/davinci-page.vue are passed as
+// updateEndingArt() in components/storybook/storybook-life-run.vue are passed as
 // callbacks to narrativeArtJobsHelper's enqueue()/retry(), which can take
 // minutes to resolve (5s poll interval, up to 120 attempts) and has no
 // concept of "is this run still active" -- nothing cancels the poll on
@@ -38,7 +38,7 @@ const repositoryRoot = resolve(scriptDirectory, '../..')
 
 const COMPONENT_PATH = join(
   repositoryRoot,
-  'components/conductor/davinci-page.vue',
+  'components/storybook/storybook-life-run.vue',
 )
 
 const RUN_ID_CHECK_RE = /if\s*\(\s*run\.value\?\.id\s*!==\s*runId\s*\)\s*return/
@@ -70,7 +70,7 @@ export function checkArtRunGuard(content: string): string[] {
   )
   if (!updateChapterArt) {
     errors.push(
-      'Could not find `function updateChapterArt(` in davinci-page.vue -- ' +
+      'Could not find `function updateChapterArt(` in storybook-life-run.vue -- ' +
         'has it been restructured or removed? If so, this guard needs to ' +
         'move with it.',
     )
@@ -100,7 +100,7 @@ export function checkArtRunGuard(content: string): string[] {
   )
   if (!updateEndingArt) {
     errors.push(
-      'Could not find `function updateEndingArt(` in davinci-page.vue -- ' +
+      'Could not find `function updateEndingArt(` in storybook-life-run.vue -- ' +
         'has it been restructured or removed? If so, this guard needs to ' +
         'move with it.',
     )
@@ -180,7 +180,9 @@ function main(): void {
   const errors = checkArtRunGuard(content)
 
   if (errors.length) {
-    console.error('Da Vinci art-run guard contract failed in davinci-page.vue:')
+    console.error(
+      'Da Vinci art-run guard contract failed in storybook-life-run.vue:',
+    )
     for (const error of errors) console.error(`- ${error}`)
     process.exitCode = 1
     return

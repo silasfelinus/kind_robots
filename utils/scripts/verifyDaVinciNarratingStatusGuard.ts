@@ -1,7 +1,7 @@
 // /utils/scripts/verifyDaVinciNarratingStatusGuard.ts
 //
 // Regression guard (davinci/t-021 slice 4) -- the "narrator is writing this
-// chapter" busy block in components/conductor/davinci-page.vue announced
+// chapter" busy block in components/storybook/storybook-life-run.vue announced
 // nothing to assistive tech: no role="status"/aria-live="polite" on the
 // wrapping element, and no aria-hidden="true" on its loading-dots spinner.
 // Every comparable busy/loading indicator elsewhere in the app follows the
@@ -9,7 +9,7 @@
 // spinner shape (see academy-manager.vue, model-builder-manager.vue,
 // model-builder-run-history.vue, narrative-response-composer.vue,
 // kr-chat-window.vue, watchlist-browse.vue,
-// narrative-ingredient-picker.vue) -- davinci-page.vue's own errorMessage
+// narrative-ingredient-picker.vue) -- storybook-life-run.vue's own errorMessage
 // alert (role="alert") already follows an analogous pattern for its own
 // state, so the narrating block was the one outlier left with a purely
 // visual spinner and no textual/AT announcement of the busy state.
@@ -29,7 +29,7 @@ const repositoryRoot = resolve(scriptDirectory, '../..')
 
 const COMPONENT_PATH = join(
   repositoryRoot,
-  'components/conductor/davinci-page.vue',
+  'components/storybook/storybook-life-run.vue',
 )
 
 // Anchored on the `v-if="narrating"` marker rather than any surrounding
@@ -60,7 +60,7 @@ export function checkNarratingStatusGuard(content: string): string[] {
   if (!block) {
     errors.push(
       'Could not find a <div v-if="narrating"> block in ' +
-        'davinci-page.vue -- has the narrating/busy state been ' +
+        'storybook-life-run.vue -- has the narrating/busy state been ' +
         'restructured or removed? If so, this guard needs to move with it.',
     )
     return errors
@@ -118,7 +118,7 @@ function main(): void {
 
   if (errors.length) {
     console.error(
-      'Da Vinci narrating-status guard contract failed in davinci-page.vue:',
+      'Da Vinci narrating-status guard contract failed in storybook-life-run.vue:',
     )
     for (const error of errors) console.error(`- ${error}`)
     process.exitCode = 1

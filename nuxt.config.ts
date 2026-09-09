@@ -347,6 +347,14 @@ export default defineNuxtConfig({
    * implementation alive.
    *
    * Storymaker was renamed to Storybook on 2026-08-02 (interface-vision t-002).
+   *
+   * Da Vinci was a separate life-and-legacy game at /play/davinci until
+   * 2026-09-09, when Silas merged it into Storybook: "we care about having a
+   * solid *single* interface that is a stylish and effective storymaker with
+   * many endings." Its engine is intact -- it is the 'life' shape on the
+   * storymaker's setup screen -- so the old path is a permanent alias to the
+   * one interface rather than a dead end.
+   *
    * 301 redirects are intentional because these legacy paths are permanent
    * compatibility aliases, not temporary routing experiments.
    */
@@ -354,6 +362,7 @@ export default defineNuxtConfig({
     '/memory': { redirect: { to: '/play/memory', statusCode: 301 } },
     '/wonderlab': { redirect: { to: '/plan', statusCode: 301 } },
     '/storymaker': { redirect: { to: '/storybook', statusCode: 301 } },
+    '/play/davinci': { redirect: { to: '/storybook', statusCode: 301 } },
   },
 
   nitro: {

@@ -1,7 +1,7 @@
 // /utils/scripts/verifyDaVinciDimensionToneGuard.ts
 //
 // Regression guard (davinci/t-021) -- the dimension grid in
-// components/conductor/davinci-page.vue previously only distinguished "has
+// components/storybook/storybook-life-run.vue previously only distinguished "has
 // any positive value" (success green, border-success/40 bg-success/10) from
 // everything else, including dimensions the player has actively driven
 // negative. Several curated chapters have negative-effect choices by design
@@ -33,7 +33,7 @@ const repositoryRoot = resolve(scriptDirectory, '../..')
 
 const COMPONENT_PATH = join(
   repositoryRoot,
-  'components/conductor/davinci-page.vue',
+  'components/storybook/storybook-life-run.vue',
 )
 
 function extractFunctionSource(content: string, name: string): string | null {
@@ -110,7 +110,7 @@ function main(): void {
 
   if (errors.length) {
     console.error(
-      'Da Vinci dimension-tone guard contract failed in davinci-page.vue:',
+      'Da Vinci dimension-tone guard contract failed in storybook-life-run.vue:',
     )
     for (const error of errors) console.error(`- ${error}`)
     process.exitCode = 1

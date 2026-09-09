@@ -1174,20 +1174,6 @@ export const dashboardConfigs = {
         route: '/build/mural',
       },
       {
-        key: 'davinci',
-        label: 'Da Vinci',
-        icon: 'kind-icon:castle',
-        title: 'Da Vinci Life Sim',
-        summary:
-          'A generative life-and-legacy simulation with a thousand ways to leave a mark.',
-        image: tabImage('wonder', 'davinci'),
-        flourish: '✒',
-        tagline: 'Live a life. Leave a legacy.',
-        narrative:
-          'Step into a generative life simulation of ambition, craft, and rivalry — hundreds of achievements, branching choices, and a legacy that remembers what you built.',
-        route: '/play/davinci',
-      },
-      {
         key: 'watchlist',
         label: 'Watchlist',
         icon: 'kind-icon:movie',

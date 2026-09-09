@@ -2,7 +2,7 @@
 //
 // Regression guard (davinci/t-021 slice 10) -- the outer
 // logged-out/loading/start/playing/ending blocks in
-// components/conductor/davinci-page.vue swap via one v-if/v-else-if chain
+// components/storybook/storybook-life-run.vue swap via one v-if/v-else-if chain
 // keyed on `phase`, but nothing moved focus after a phase change that was
 // itself triggered by a click *inside* the block being replaced. startLife()
 // (start -> playing), resolveLife()/resumeRun() (playing -> loading ->
@@ -36,7 +36,7 @@ const repositoryRoot = resolve(scriptDirectory, '../..')
 
 const COMPONENT_PATH = join(
   repositoryRoot,
-  'components/conductor/davinci-page.vue',
+  'components/storybook/storybook-life-run.vue',
 )
 
 // Anchored on the `v-if="!userStore.isLoggedIn"` marker -- the first branch
@@ -69,7 +69,7 @@ export function checkPhaseFocusGuard(content: string): string[] {
   if (!openingTag) {
     errors.push(
       `Could not find the wrapper enclosing \`${LOGGED_OUT_MARKER}\` in ` +
-        'davinci-page.vue -- has the outer phase chain been renamed, ' +
+        'storybook-life-run.vue -- has the outer phase chain been renamed, ' +
         'removed, or restructured? If so, this guard needs to move with it.',
     )
     return errors
@@ -130,7 +130,7 @@ function main(): void {
 
   if (errors.length) {
     console.error(
-      'Da Vinci phase-focus guard contract failed in davinci-page.vue:',
+      'Da Vinci phase-focus guard contract failed in storybook-life-run.vue:',
     )
     for (const error of errors) console.error(`- ${error}`)
     process.exitCode = 1

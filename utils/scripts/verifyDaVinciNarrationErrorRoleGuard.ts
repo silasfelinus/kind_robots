@@ -1,7 +1,7 @@
 // /utils/scripts/verifyDaVinciNarrationErrorRoleGuard.ts
 //
 // Regression guard (davinci/t-021 slice 8) -- the narration-error callout in
-// components/conductor/davinci-page.vue (`v-else-if="narrationError"`) had
+// components/storybook/storybook-life-run.vue (`v-else-if="narrationError"`) had
 // no role or aria-live semantics at all: a purely visual warning-tinted
 // block with an icon, message, and two action buttons (retry / switch to
 // the curated pool), announcing nothing to assistive tech when a narration
@@ -32,7 +32,7 @@ const repositoryRoot = resolve(scriptDirectory, '../..')
 
 const COMPONENT_PATH = join(
   repositoryRoot,
-  'components/conductor/davinci-page.vue',
+  'components/storybook/storybook-life-run.vue',
 )
 
 // Anchored on the `v-else-if="narrationError"` marker rather than any
@@ -60,7 +60,7 @@ export function checkNarrationErrorRoleGuard(content: string): string[] {
   const openingTag = extractNarrationErrorOpeningTag(content)
   if (!openingTag) {
     errors.push(
-      `Could not find a \`${BLOCK_MARKER}\` block in davinci-page.vue -- ` +
+      `Could not find a \`${BLOCK_MARKER}\` block in storybook-life-run.vue -- ` +
         'has the narration-error callout been renamed, removed, or ' +
         'restructured? If so, this guard needs to move with it.',
     )
@@ -88,7 +88,7 @@ function main(): void {
 
   if (errors.length) {
     console.error(
-      'Da Vinci narration-error role guard contract failed in davinci-page.vue:',
+      'Da Vinci narration-error role guard contract failed in storybook-life-run.vue:',
     )
     for (const error of errors) console.error(`- ${error}`)
     process.exitCode = 1

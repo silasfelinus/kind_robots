@@ -75,7 +75,7 @@
     <div v-if="audioUrl" class="mt-4 kr-panel-tint-md">
       <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <p class="text-xs font-semibold uppercase tracking-wide opacity-55">Your attempt</p>
+          <p class="kr-text-faded-xs-55 font-semibold uppercase tracking-wide">Your attempt</p>
           <p class="kr-text-faded-xs">Not saved by Kind Robots. The clip is sent to the configured speech service only for transcription.</p>
         </div>
         <audio :src="audioUrl" controls class="h-10 max-w-full" />
@@ -88,7 +88,7 @@
       aria-live="polite"
     >
       <div class="kr-panel-tint-md">
-        <p class="text-xs font-semibold uppercase tracking-wide opacity-55">What I heard</p>
+        <p class="kr-text-faded-xs-55 font-semibold uppercase tracking-wide">What I heard</p>
         <p v-if="transcript" class="kr-text-bold-2xl mt-2">{{ transcript }}</p>
         <p v-else class="mt-2 text-sm opacity-60">The transcript was unavailable.</p>
         <div v-if="comparison" class="mt-3 text-sm leading-relaxed">
@@ -100,13 +100,13 @@
           </span>
           {{ comparison.message }}
         </div>
-        <p class="mt-3 text-xs opacity-55">
+        <p class="kr-text-faded-xs-55 mt-3">
           Target: <span class="font-semibold">{{ card.simplified }}</span> · {{ card.pinyin }}
         </p>
       </div>
 
       <div class="kr-panel-tint-md">
-        <p class="text-xs font-semibold uppercase tracking-wide opacity-55">Tone shape</p>
+        <p class="kr-text-faded-xs-55 font-semibold uppercase tracking-wide">Tone shape</p>
         <div v-if="toneAnalysis?.observations.length" class="mt-2 space-y-2">
           <div
             v-for="observation in toneAnalysis.observations"
@@ -124,7 +124,7 @@
           </div>
         </div>
         <p v-else class="mt-2 text-sm opacity-60">No stable pitch trace was available for this attempt.</p>
-        <p v-if="toneAnalysis" class="mt-3 text-xs leading-relaxed opacity-55">
+        <p v-if="toneAnalysis" class="kr-text-faded-xs-55 mt-3 leading-relaxed">
           {{ toneAnalysis.note }} Voiced frames: {{ toneAnalysis.voicedPercent }}%.
         </p>
       </div>

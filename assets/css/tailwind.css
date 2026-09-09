@@ -2099,6 +2099,23 @@ section:has(div[class*='xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]'])
     @apply text-sm opacity-80;
   }
 
+  /* `.kr-text-faded-xs`'s (slice 184, `opacity-60`) `opacity-55` sibling at
+   * the same `xs` size -- `text-xs opacity-55` (interface-vision t-104
+   * slice 187), the last of the sibling `opacity-NN` shapes slice 184's
+   * survey left open alongside `text-sm opacity-70`/`text-sm opacity-80`
+   * (both since shipped). Found at 10 subset-match occurrences across 4
+   * files (mandarin-voice-coach.vue, video-lora-picker.vue,
+   * ruler-hooked-fishing-encounter.vue, pages/play/mandarin.vue), the same
+   * conditionally-rendered status/caption pattern as its `xs`/`sm`
+   * siblings. Named `kr-text-faded-xs-55` rather than reusing
+   * `kr-text-faded-xs` because that name is already claimed by the 60%-
+   * opacity shape shipped in slice 184 -- both are real, independently-
+   * repeated exact shapes in the wild, the same `kr-text-faded-sm-80`/
+   * `kr-text-faded-sm` precedent this family already follows. */
+  .kr-text-faded-xs-55 {
+    @apply text-xs opacity-55;
+  }
+
   .text-smart {
     @apply text-sm md:text-lg lg:text-lg xl:text-xl;
   }

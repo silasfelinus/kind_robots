@@ -118,7 +118,7 @@
               <div class="flex min-w-0 flex-wrap items-center gap-2">
                 <b class="truncate">{{ selectedSet?.label || 'Study set' }}</b>
                 <span class="kr-badge-ghost-sm">{{ galleryItems.length }}</span>
-                <span class="text-xs opacity-55">Tap a card to study it.</span>
+                <span class="kr-text-faded-xs-55">Tap a card to study it.</span>
               </div>
             </template>
           </kr-gallery>
@@ -258,7 +258,7 @@
                   <div v-else class="space-y-3">
                     <Icon name="kind-icon:volume" class="mx-auto size-12 opacity-60" />
                     <button type="button" class="kr-btn-primary-md-plain" @click="store.speak(currentCard)">Hear prompt</button>
-                    <p class="text-xs opacity-55">Listen without seeing the answer.</p>
+                    <p class="kr-text-faded-xs-55">Listen without seeing the answer.</p>
                   </div>
                 </div>
 
@@ -322,7 +322,7 @@
                     <button type="button" class="btn btn-sm btn-outline btn-success" @click="store.rateStudyCard('good')">Good</button>
                     <button type="button" class="btn btn-sm btn-outline btn-accent" @click="store.rateStudyCard('easy')">Easy</button>
                   </div>
-                  <p class="text-xs opacity-55">Rating saves the review and advances. Previous and Next never rate the card.</p>
+                  <p class="kr-text-faded-xs-55">Rating saves the review and advances. Previous and Next never rate the card.</p>
 
                   <details class="rounded-2xl border border-base-300 bg-base-200/25">
                     <summary class="cursor-pointer p-3 text-sm font-semibold">Pronunciation practice</summary>
@@ -335,7 +335,7 @@
                     <Icon name="kind-icon:back" class="size-4" />
                     Previous
                   </button>
-                  <span class="text-xs opacity-55">{{ currentPositionLabel }}</span>
+                  <span class="kr-text-faded-xs-55">{{ currentPositionLabel }}</span>
                   <button type="button" class="kr-btn-ghost-plain" :disabled="focusNavigationLocked" @click="store.nextCard()">
                     Next
                     <Icon name="kind-icon:forward" class="size-4" />
@@ -364,7 +364,7 @@
                 </div>
                 <p class="text-3xl font-bold">{{ currentCard.simplified }}</p>
                 <p class="kr-text-bold-xl tracking-wide">{{ currentCard.pinyin }}</p>
-                <p v-if="currentCard.traditional" class="text-xs opacity-55">Traditional: {{ currentCard.traditional }}</p>
+                <p v-if="currentCard.traditional" class="kr-text-faded-xs-55">Traditional: {{ currentCard.traditional }}</p>
                 <div class="flex flex-wrap justify-center gap-1">
                   <button v-if="canQueueArt" type="button" class="kr-btn-outline-xs" :disabled="artBusy" @click="queueCurrentIllustration">
                     {{ artBusy ? 'Submitting…' : 'Request illustration' }}
@@ -414,7 +414,7 @@
                         <span class="text-3xl font-semibold">{{ component.glyph }}</span>
                         <div>
                           <p class="font-semibold">{{ component.label }}</p>
-                          <p class="text-xs uppercase tracking-wide opacity-55">{{ roleLabel(component.role) }}</p>
+                          <p class="kr-text-faded-xs-55 uppercase tracking-wide">{{ roleLabel(component.role) }}</p>
                           <p v-if="component.meaning" class="mt-1 text-sm">{{ component.meaning }}</p>
                         </div>
                       </div>
@@ -446,7 +446,7 @@
                 >
                   {{ set.name }}
                 </button>
-                <span v-if="!customSets.length" class="text-xs opacity-55">Create a custom deck in Decks.</span>
+                <span v-if="!customSets.length" class="kr-text-faded-xs-55">Create a custom deck in Decks.</span>
               </div>
             </section>
           </article>

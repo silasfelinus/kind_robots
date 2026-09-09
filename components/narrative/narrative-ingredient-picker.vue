@@ -61,7 +61,7 @@
     <div
       v-if="error"
       role="alert"
-      class="flex items-start gap-2 rounded-2xl border border-error/30 bg-error/5 p-3 text-xs text-error"
+      class="kr-text-error-xs flex items-start gap-2 rounded-2xl border border-error/30 bg-error/5 p-3"
     >
       <Icon
         name="kind-icon:alert"

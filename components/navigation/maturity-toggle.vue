@@ -47,7 +47,7 @@
         </span>
       </label>
 
-      <p v-if="updateError" class="px-1 text-xs text-error">
+      <p v-if="updateError" class="kr-text-error-xs px-1">
         {{ updateError }}
       </p>
     </template>

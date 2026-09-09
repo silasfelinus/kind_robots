@@ -176,7 +176,7 @@
               >
                 {{ store.submitting ? 'Logging…' : 'Log remittance' }}
               </button>
-              <p v-if="store.submitError" class="text-xs text-error">
+              <p v-if="store.submitError" class="kr-text-error-xs">
                 {{ store.submitError }}
               </p>
             </div>

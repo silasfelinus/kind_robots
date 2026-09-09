@@ -96,7 +96,7 @@
     <p v-if="!characterId" class="kr-text-dim-xs-45">
       These choices will attach when the new Character is saved.
     </p>
-    <p v-if="errorMessage" class="text-xs text-error">{{ errorMessage }}</p>
+    <p v-if="errorMessage" class="kr-text-error-xs">{{ errorMessage }}</p>
   </section>
 </template>
 

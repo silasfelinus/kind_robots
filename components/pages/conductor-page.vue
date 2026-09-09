@@ -148,7 +148,7 @@
       <div class="flex-1" />
 
       <!-- Error indicator -->
-      <span v-if="error" class="flex items-center gap-1 text-xs text-error">
+      <span v-if="error" class="kr-text-error-xs flex items-center gap-1">
         <Icon name="kind-icon:warning" class="size-3" />
         <span class="hidden max-w-32 truncate sm:inline">{{
           error.message
@@ -380,7 +380,7 @@
               </p>
               <p
                 v-if="highPriorityHoneyDos > 0"
-                class="mt-1 text-xs font-semibold text-error"
+                class="kr-text-error-xs mt-1 font-semibold"
               >
                 {{ highPriorityHoneyDos }} high-priority item{{
                   highPriorityHoneyDos > 1 ? 's' : ''

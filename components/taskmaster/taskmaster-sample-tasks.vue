@@ -79,7 +79,7 @@
       </button>
     </div>
 
-    <p v-if="errorMessage" class="text-xs text-error" role="alert">
+    <p v-if="errorMessage" class="kr-text-error-xs" role="alert">
       {{ errorMessage }}
     </p>
   </section>

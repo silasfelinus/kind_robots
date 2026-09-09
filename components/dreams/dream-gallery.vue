@@ -61,7 +61,7 @@
         -->
         <p
           v-if="dreamStore.error"
-          class="min-w-0 flex-1 truncate text-xs font-medium text-error"
+          class="kr-text-error-xs min-w-0 flex-1 truncate font-medium"
           :title="dreamStore.error"
         >
           {{ dreamStore.error }}

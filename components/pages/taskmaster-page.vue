@@ -369,7 +369,7 @@
 
         <p
           v-if="store.errorMessage"
-          class="relative z-20 mx-4 mb-2 text-xs text-error sm:mx-6"
+          class="kr-text-error-xs relative z-20 mx-4 mb-2 sm:mx-6"
           role="alert"
         >
           {{ store.errorMessage }}
@@ -582,7 +582,7 @@
               </div>
             </section>
 
-            <p v-if="store.errorMessage" class="text-xs text-error" role="alert">
+            <p v-if="store.errorMessage" class="kr-text-error-xs" role="alert">
               {{ store.errorMessage }}
             </p>
 
@@ -880,7 +880,7 @@
               </div>
             </div>
 
-            <p v-if="store.errorMessage" class="text-xs text-error" role="alert">
+            <p v-if="store.errorMessage" class="kr-text-error-xs" role="alert">
               {{ store.errorMessage }}
             </p>
 

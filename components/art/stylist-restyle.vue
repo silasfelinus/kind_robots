@@ -492,7 +492,7 @@
           Refresh
         </button>
       </div>
-      <p v-if="stylist.historyError" class="text-xs text-error">
+      <p v-if="stylist.historyError" class="kr-text-error-xs">
         {{ stylist.historyError }}
       </p>
       <p

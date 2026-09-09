@@ -1964,6 +1964,18 @@ section:has(div[class*='xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]'])
     @apply text-xs font-semibold;
   }
 
+  /* Inline validation/error-message caption -- `text-xs text-error`
+   * (interface-vision t-104 slice 178), the strongest remaining candidate
+   * outside all now-closed `kr-text-black-*`/`kr-text-bold-*`/
+   * `kr-text-dim-*`/`kr-text-eyebrow-*`/`kr-label-*` families, flagged by
+   * slice 177's own kaizen note. A fresh full-repo class-frequency survey
+   * found this shape at 36 subset-match occurrences across 32 files,
+   * consistently a conditionally-rendered `<p>` (often `role="alert"`)
+   * showing a store/form error message right below its field. */
+  .kr-text-error-xs {
+    @apply text-xs text-error;
+  }
+
   .text-smart {
     @apply text-sm md:text-lg lg:text-lg xl:text-xl;
   }

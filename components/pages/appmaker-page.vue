@@ -59,7 +59,7 @@
               />
             </label>
           </div>
-          <p v-if="slugError" class="text-xs text-error">{{ slugError }}</p>
+          <p v-if="slugError" class="kr-text-error-xs">{{ slugError }}</p>
           <label class="form-control">
             <span class="label-text pb-1"
               >What is it? (one line, also steers its art)</span

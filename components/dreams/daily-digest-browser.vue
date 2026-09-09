@@ -152,7 +152,7 @@
             </p>
             <p
               v-if="archiveStore.lastError"
-              class="mt-3 rounded-xl border border-error/30 bg-error/10 px-3 py-2 text-xs text-error"
+              class="kr-text-error-xs mt-3 rounded-xl border border-error/30 bg-error/10 px-3 py-2"
             >
               {{ archiveStore.lastError }}
             </p>

@@ -74,7 +74,7 @@
           <Icon v-else name="kind-icon:plus" class="size-3.5" />
           Create Project
         </button>
-        <p v-if="createError" class="text-xs text-error">{{ createError }}</p>
+        <p v-if="createError" class="kr-text-error-xs">{{ createError }}</p>
       </div>
     </section>
 

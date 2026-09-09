@@ -212,7 +212,7 @@
       />
 
       <div class="shrink-0 border-t border-base-300 bg-base-200 p-3">
-        <p v-if="replyError" class="mb-2 text-xs font-semibold text-error">
+        <p v-if="replyError" class="kr-text-error-xs mb-2 font-semibold">
           {{ replyError }}
         </p>
 

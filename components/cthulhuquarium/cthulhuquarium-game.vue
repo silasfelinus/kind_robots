@@ -956,7 +956,7 @@
             parent is consumed -- you'll get a new individual with converged
             stats, and just maybe, a secret evolution.
           </p>
-          <p v-if="!canConfirmBreed" class="text-xs text-error">
+          <p v-if="!canConfirmBreed" class="kr-text-error-xs">
             Not enough coins, or not enough tank room, for this pairing right
             now.
           </p>

@@ -22,7 +22,7 @@
       <button v-if="editingId" type="button" class="kr-btn-ghost-plain" @click="resetForm">Cancel</button>
     </form>
 
-    <p v-if="photoError" class="rounded-xl bg-error/10 p-2 text-xs text-error">{{ photoError }}</p>
+    <p v-if="photoError" class="kr-text-error-xs rounded-xl bg-error/10 p-2">{{ photoError }}</p>
     <p v-if="!superkate.sortedCustomers.length" class="kr-text-dim-xs-40">
       No clients yet — add one above, or save an appointment and the client is created automatically.
     </p>

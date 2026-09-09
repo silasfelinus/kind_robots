@@ -1,251 +1,169 @@
+<!-- /components/storybook/storybook-visual-setup.vue -->
+<!--
+  SETUP IS A FORM, NOT A SPLASH SCREEN. This used to open with a 34rem hero
+  wash, a centred 5xl headline, and a "Your spread" tally card before the
+  first input -- roughly a full viewport of chrome above the one thing the
+  page actually needs (a premise). Silas, 2026-09-09: "why do we even have
+  the top section so large. A single title and premise sounds reasonable.
+  spread is unnecessary." The spark card is now the first thing on the page,
+  and the sticky footer is the single "Open this story" call to action.
+
+  NO BORROWED TUTORIAL ART. The narrator-voice and structure cards used to be
+  full-bleed `getTutorialHeroPath(...)` images. Those are the tutorial channel
+  banners -- artwork with STORIES / CHARACTERS / LOCATIONS / BOTS / REWARDS set
+  in large type across it. Correct on a tutorial page, wrong here: it labelled
+  "Cinematic" with a picture that says STORIES, and it put generated typography
+  on screen, which the art guidelines forbid. Choice cards carry an icon and
+  their own words instead. If these ever get real art, it must be text-free and
+  actually depict the voice or shape being chosen -- not a channel banner
+  reused for its dimensions.
+-->
 <template>
+  <!--
+    h-full is load-bearing. The host in storybook-library-page.vue is a bounded
+    `min-h-0 flex-1 overflow-hidden` flex item, so without an explicit height
+    this section sized to its own content, overflow-y-auto had nothing to
+    scroll against, and the host simply clipped everything below the fold --
+    the page could not be scrolled at all. This is the component's single
+    scroll region (verifyLayoutContract `one-scroll`); do not add another.
+  -->
   <section
-    class="relative min-h-0 overflow-y-auto rounded-[2rem] border border-base-300 bg-base-100 shadow-xl"
+    class="relative h-full min-h-0 overflow-y-auto overscroll-contain rounded-[2rem] border border-base-300 bg-base-100 shadow-xl"
   >
-    <div class="pointer-events-none absolute inset-x-0 top-0 h-[34rem] overflow-hidden rounded-t-[2rem]">
-      <img
-        :src="heroImage"
-        alt=""
-        class="size-full object-cover opacity-35"
-        aria-hidden="true"
-      />
-      <div
-        class="absolute inset-0 bg-linear-to-b from-base-100/10 via-base-100/75 to-base-100"
-      />
-    </div>
-
-    <div class="relative space-y-7 p-4 sm:p-6 lg:p-8">
-      <header class="mx-auto max-w-5xl text-center">
-        <p
-          class="kr-text-eyebrow text-xs tracking-[0.28em] text-primary/75"
-        >
-          Storybook
-        </p>
-        <h1 class="mt-2 text-3xl font-black sm:text-4xl lg:text-5xl">
-          Lay out your story
-        </h1>
-        <p
-          class="mx-auto mt-3 max-w-2xl text-sm leading-relaxed text-base-content/65 sm:text-base"
-        >
-          Put the pieces on the table. Pick the people, place, plot, mood, and
-          treasures that belong in this tale, then let Storybook weave them
-          together.
-        </p>
-      </header>
-
-      <div
-        class="mx-auto grid max-w-7xl grid-cols-[repeat(auto-fit,minmax(min(100%,24rem),1fr))] gap-4"
+    <div class="space-y-6 p-4 sm:p-5 lg:p-6">
+      <section
+        class="rounded-[1.5rem] border border-primary/20 bg-primary/5 p-4 shadow-sm"
       >
-        <section
-          class="rounded-[1.75rem] border border-primary/20 bg-base-100/90 p-4 shadow-lg backdrop-blur sm:p-5"
-        >
-          <div class="flex items-center gap-3">
-            <div
-              class="flex size-11 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary"
-            >
-              <Icon name="kind-icon:sparkles" class="size-5" />
-            </div>
-            <div>
-              <h2 class="kr-text-black-lg">The spark</h2>
-              <p class="kr-text-dim-xs">
-                One premise is enough. Everything else can stay loose.
-              </p>
-            </div>
-          </div>
-
+        <div class="flex items-center gap-3">
           <div
-            class="mt-4 grid grid-cols-[repeat(auto-fit,minmax(min(100%,14rem),1fr))] gap-3"
+            class="flex size-10 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary"
           >
-            <label class="form-control">
-              <span
-                class="kr-text-eyebrow mb-1 text-[0.68rem] tracking-wider text-base-content/50"
-              >
-                Working title
-              </span>
-              <input
-                v-model="store.setupDraft.title"
-                type="text"
-                class="kr-input rounded-2xl bg-base-100/90"
-                placeholder="The Clockwork Orchard"
-              />
-            </label>
-
-            <label class="form-control">
-              <span
-                class="kr-text-eyebrow mb-1 text-[0.68rem] tracking-wider text-base-content/50"
-              >
-                Premise
-              </span>
-              <textarea
-                v-model="store.setupDraft.premise"
-                rows="4"
-                class="kr-textarea rounded-2xl bg-base-100/90 text-sm leading-relaxed"
-                placeholder="Every midnight, the abandoned observatory receives a letter from a star that should not exist…"
-              />
-            </label>
+            <Icon name="kind-icon:sparkles" class="size-5" />
           </div>
-        </section>
+          <div class="min-w-0">
+            <h2 class="kr-text-black-lg">The spark</h2>
+            <p class="kr-text-dim-xs">
+              One premise is enough. Everything else can stay loose.
+            </p>
+          </div>
+        </div>
 
-        <aside
-          class="rounded-[1.75rem] border border-secondary/20 bg-base-100/90 p-4 shadow-lg backdrop-blur sm:p-5"
+        <div
+          class="mt-3 grid grid-cols-[repeat(auto-fit,minmax(min(100%,16rem),1fr))] gap-3"
         >
-          <p
-            class="kr-text-eyebrow text-[0.68rem] tracking-[0.2em] text-secondary/75"
-          >
-            Your spread
-          </p>
-          <div class="mt-3 grid grid-cols-3 gap-2 text-center">
-            <div class="rounded-2xl bg-base-200/70 p-2">
-              <p class="kr-text-black-xl">{{ selectedCast.length }}</p>
-              <p class="text-[0.65rem] text-base-content/50">cast</p>
-            </div>
-            <div class="rounded-2xl bg-base-200/70 p-2">
-              <p class="kr-text-black-xl">{{ selectedFacets.length }}</p>
-              <p class="text-[0.65rem] text-base-content/50">facets</p>
-            </div>
-            <div class="rounded-2xl bg-base-200/70 p-2">
-              <p class="kr-text-black-xl">{{ selectedRewards.length }}</p>
-              <p class="text-[0.65rem] text-base-content/50">rewards</p>
-            </div>
-          </div>
-
-          <div class="mt-4 flex flex-wrap gap-1.5 text-xs">
-            <span class="kr-badge-ghost-sm rounded-xl capitalize">
-              {{ store.setupDraft.narratorStyle }} voice
-            </span>
-            <span class="kr-badge-ghost-sm rounded-xl">
-              {{ structureLabel }}
-            </span>
-            <span v-if="selectedScenario" class="kr-badge-ghost-sm rounded-xl">
-              {{ selectedScenario.title }}
-            </span>
-            <span v-if="selectedLocation" class="kr-badge-ghost-sm rounded-xl">
-              {{ selectedLocation.title }}
-            </span>
-          </div>
-
-          <button
-            type="button"
-            class="kr-btn-primary mt-5 w-full justify-center rounded-2xl motion-reduce:transition-none"
-            :disabled="!canBegin || store.isWeaving"
-            @click="beginStory"
-          >
+          <label class="form-control">
             <span
-              v-if="store.isWeaving"
-              class="kr-spinner-sm"
+              class="kr-text-eyebrow mb-1 text-[0.68rem] tracking-wider text-base-content/50"
+            >
+              Working title
+            </span>
+            <input
+              v-model="store.setupDraft.title"
+              type="text"
+              class="kr-input rounded-2xl bg-base-100/90"
+              placeholder="The Clockwork Orchard"
             />
-            <Icon v-else name="kind-icon:book-open" class="size-4" />
-            {{ store.isWeaving ? 'Opening the story…' : 'Open this story' }}
-          </button>
-          <p class="mt-2 text-center text-[0.68rem] text-base-content/45">
-            {{ canBegin ? 'You can always start with fewer cards.' : 'Give the story a premise first.' }}
-          </p>
-        </aside>
-      </div>
+          </label>
 
-      <section class="mx-auto max-w-7xl space-y-3">
-        <div>
-          <p
-            class="kr-text-eyebrow text-[0.68rem] tracking-[0.2em] text-base-content/45"
-          >
-            How it feels
-          </p>
-          <h2 class="kr-text-black-xl">Choose a narrator voice</h2>
+          <label class="form-control">
+            <span
+              class="kr-text-eyebrow mb-1 text-[0.68rem] tracking-wider text-base-content/50"
+            >
+              Premise
+            </span>
+            <textarea
+              v-model="store.setupDraft.premise"
+              rows="3"
+              class="kr-textarea rounded-2xl bg-base-100/90 text-sm leading-relaxed"
+              placeholder="Every midnight, the abandoned observatory receives a letter from a star that should not exist…"
+            />
+          </label>
+        </div>
+      </section>
+
+      <section class="space-y-2">
+        <div class="flex flex-wrap items-baseline gap-2">
+          <h2 class="kr-text-black-sm">Narrator voice</h2>
+          <p class="kr-text-dim-xs">How it feels to read.</p>
         </div>
         <div
-          class="grid grid-cols-[repeat(auto-fit,minmax(min(100%,10rem),1fr))] gap-3"
+          class="grid grid-cols-[repeat(auto-fit,minmax(min(100%,15rem),1fr))] gap-2"
         >
           <button
             v-for="option in narratorCards"
             :key="option.value"
             type="button"
-            class="group relative aspect-[2/3] overflow-hidden rounded-[1.5rem] border text-left shadow-md transition hover:-translate-y-1 hover:shadow-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/70 motion-reduce:transform-none motion-reduce:transition-none"
+            class="flex items-start gap-3 rounded-2xl border p-3 text-left transition hover:border-primary/50 hover:shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/70 motion-reduce:transition-none"
             :class="
               store.setupDraft.narratorStyle === option.value
-                ? 'border-primary ring-2 ring-primary/45'
-                : 'border-base-300'
+                ? 'border-primary bg-primary/10 ring-1 ring-primary/40'
+                : 'border-base-300 bg-base-100'
             "
             :aria-pressed="store.setupDraft.narratorStyle === option.value"
             @click="store.setupDraft.narratorStyle = option.value"
           >
-            <img
-              :src="option.image"
-              alt=""
-              class="absolute inset-0 size-full object-cover transition duration-300 group-hover:scale-105 motion-reduce:transition-none"
-              aria-hidden="true"
-            />
             <span
-              class="absolute inset-0 bg-linear-to-t from-black/85 via-black/15 to-transparent"
-            />
-            <span
-              v-if="store.setupDraft.narratorStyle === option.value"
-              class="absolute right-2 top-2 flex size-7 items-center justify-center rounded-full bg-primary text-primary-content shadow"
+              class="flex size-9 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary"
             >
-              <Icon name="kind-icon:check" class="size-4" />
+              <Icon :name="option.icon" class="size-5" />
             </span>
-            <span class="absolute inset-x-0 bottom-0 p-3 text-white">
-              <span class="kr-text-black-sm block sm:text-base">
-                {{ option.label }}
-              </span>
-              <span class="mt-1 block text-[0.68rem] leading-snug text-white/75">
+            <span class="min-w-0 flex-1">
+              <span class="kr-text-black-sm block">{{ option.label }}</span>
+              <span class="kr-text-dim-xs mt-0.5 block leading-snug">
                 {{ option.description }}
               </span>
             </span>
+            <Icon
+              v-if="store.setupDraft.narratorStyle === option.value"
+              name="kind-icon:check"
+              class="size-4 shrink-0 text-primary"
+            />
           </button>
         </div>
       </section>
 
-      <section class="mx-auto max-w-7xl space-y-3">
-        <div>
-          <p
-            class="kr-text-eyebrow text-[0.68rem] tracking-[0.2em] text-base-content/45"
-          >
-            How it unfolds
-          </p>
-          <h2 class="kr-text-black-xl">Choose the shape of the tale</h2>
+      <section class="space-y-2">
+        <div class="flex flex-wrap items-baseline gap-2">
+          <h2 class="kr-text-black-sm">Shape of the tale</h2>
+          <p class="kr-text-dim-xs">How it unfolds.</p>
         </div>
         <div
-          class="grid grid-cols-[repeat(auto-fit,minmax(min(100%,15rem),1fr))] gap-3"
+          class="grid grid-cols-[repeat(auto-fit,minmax(min(100%,15rem),1fr))] gap-2"
         >
           <button
             v-for="option in structureCards"
             :key="option.value"
             type="button"
-            class="group relative min-h-48 overflow-hidden rounded-[1.5rem] border text-left shadow-md transition hover:-translate-y-1 hover:shadow-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/70 motion-reduce:transform-none motion-reduce:transition-none"
+            class="flex items-start gap-3 rounded-2xl border p-3 text-left transition hover:border-primary/50 hover:shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/70 motion-reduce:transition-none"
             :class="
               store.setupDraft.structure === option.value
-                ? 'border-primary ring-2 ring-primary/45'
-                : 'border-base-300'
+                ? 'border-primary bg-primary/10 ring-1 ring-primary/40'
+                : 'border-base-300 bg-base-100'
             "
             :aria-pressed="store.setupDraft.structure === option.value"
             @click="store.setupDraft.structure = option.value"
           >
-            <img
-              :src="option.image"
-              alt=""
-              class="absolute inset-0 size-full object-cover transition duration-300 group-hover:scale-105 motion-reduce:transition-none"
-              aria-hidden="true"
-            />
             <span
-              class="absolute inset-0 bg-linear-to-t from-black/85 via-black/20 to-transparent"
-            />
-            <span class="absolute inset-x-0 bottom-0 p-4 text-white">
-              <span class="kr-text-black-lg block">{{ option.label }}</span>
-              <span class="mt-1 block text-xs leading-relaxed text-white/80">
+              class="flex size-9 shrink-0 items-center justify-center rounded-xl bg-secondary/10 text-secondary"
+            >
+              <Icon :name="option.icon" class="size-5" />
+            </span>
+            <span class="min-w-0 flex-1">
+              <span class="kr-text-black-sm block">{{ option.label }}</span>
+              <span class="kr-text-dim-xs mt-0.5 block leading-snug">
                 {{ option.description }}
               </span>
             </span>
-            <span
+            <Icon
               v-if="store.setupDraft.structure === option.value"
-              class="absolute right-3 top-3 flex size-8 items-center justify-center rounded-full bg-primary text-primary-content shadow"
-            >
-              <Icon name="kind-icon:check" class="size-4" />
-            </span>
+              name="kind-icon:check"
+              class="size-4 shrink-0 text-primary"
+            />
           </button>
         </div>
       </section>
 
-      <div class="mx-auto max-w-7xl space-y-6">
+      <div class="space-y-6">
         <NarrativeIngredientMultiPicker
           v-model="store.setupDraft.castSlugs"
           :items="characterOptions"
@@ -318,7 +236,7 @@
       </div>
 
       <section
-        class="mx-auto max-w-7xl rounded-[1.75rem] border border-base-300 bg-base-100/85 p-4 shadow-sm sm:p-5"
+        class="rounded-[1.5rem] border border-base-300 bg-base-100/85 p-4 shadow-sm"
       >
         <label class="form-control">
           <span class="font-black">One last note, if you want one</span>
@@ -336,7 +254,7 @@
       </section>
 
       <footer
-        class="sticky bottom-3 z-10 mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-3 rounded-2xl border border-base-300 bg-base-100/95 p-3 shadow-xl backdrop-blur"
+        class="sticky bottom-3 z-10 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-base-300 bg-base-100/95 p-3 shadow-xl backdrop-blur"
       >
         <button
           type="button"
@@ -348,7 +266,9 @@
         </button>
         <div class="flex items-center gap-3">
           <p class="kr-text-dim-xs hidden sm:block">
-            {{ canBegin ? 'Ready when you are.' : 'A premise unlocks the story.' }}
+            {{
+              canBegin ? 'Ready when you are.' : 'A premise unlocks the story.'
+            }}
           </p>
           <button
             type="button"
@@ -356,10 +276,7 @@
             :disabled="!canBegin || store.isWeaving"
             @click="beginStory"
           >
-            <span
-              v-if="store.isWeaving"
-              class="kr-spinner-sm"
-            />
+            <span v-if="store.isWeaving" class="kr-spinner-sm" />
             <Icon v-else name="kind-icon:book-open" class="size-4" />
             {{ store.isWeaving ? 'Opening…' : 'Open this story' }}
           </button>
@@ -385,10 +302,6 @@ import {
 } from '@/stores/storybookStore'
 import type { NarrativeIngredientOption } from '@/utils/narrativeIngredients'
 import { isNarrativeRoleKey } from '@/utils/narrativeRoles'
-import {
-  getTutorialHeroPath,
-  getTutorialImagePath,
-} from '@/stores/helpers/tutorialCards'
 
 const store = useStorybookStore()
 const characterStore = useCharacterStore()
@@ -401,55 +314,58 @@ const MAX_CAST_SELECTIONS = 5
 const MAX_FACET_SELECTIONS = 5
 const MAX_REWARD_SELECTIONS = 3
 
-const heroImage = computed(() => getTutorialImagePath('scenario', 'storybook'))
-
+// Icons, not artwork. See the template's header comment: these cards used to
+// carry `getTutorialHeroPath(...)` channel banners, which have their channel
+// name set in large type across the image, so "Cinematic" was illustrated by a
+// picture reading STORIES. Any future art here must be text-free and depict
+// the voice it names.
 const narratorCards: {
   value: StorybookNarratorStyle
   label: string
   description: string
-  image: string
+  icon: string
 }[] = [
   {
     value: 'cinematic',
     label: 'Cinematic',
     description: 'Big images, clean momentum, dramatic turns.',
-    image: getTutorialHeroPath('scenario'),
+    icon: 'kind-icon:movie',
   },
   {
     value: 'playful',
     label: 'Playful',
     description: 'Bouncy, curious, delighted by strange possibilities.',
-    image: getTutorialHeroPath('character'),
+    icon: 'kind-icon:party',
   },
   {
     value: 'storybook',
     label: 'Storybook',
     description: 'Warm, lyrical, and made to be read aloud.',
-    image: getTutorialHeroPath('dream'),
+    icon: 'kind-icon:menu-book',
   },
   {
     value: 'mysterious',
     label: 'Mysterious',
     description: 'Shadows, clues, restraint, and unanswered questions.',
-    image: getTutorialHeroPath('bot'),
+    icon: 'kind-icon:moon',
   },
   {
     value: 'intimate',
     label: 'Intimate',
     description: 'Close to the characters and what they notice.',
-    image: getTutorialHeroPath('reward'),
+    icon: 'kind-icon:heart',
   },
 ]
 
-const structureArt: Record<StorybookStructure, string> = {
-  'short-story': getTutorialHeroPath('reward'),
-  chaptered: getTutorialHeroPath('dream'),
-  episodic: getTutorialHeroPath('scenario'),
+const structureIcons: Record<StorybookStructure, string> = {
+  'short-story': 'kind-icon:feather',
+  chaptered: 'kind-icon:bookshelf',
+  episodic: 'kind-icon:cards',
 }
 
 const structureCards = STORYBOOK_STRUCTURES.map((structure) => ({
   ...structure,
-  image: structureArt[structure.value],
+  icon: structureIcons[structure.value],
 }))
 
 const characterOptions = computed<NarrativeIngredientOption[]>(() =>
@@ -570,12 +486,6 @@ const selectedRewards = computed(() =>
 )
 
 const canBegin = computed(() => store.setupDraft.premise.trim().length >= 10)
-const structureLabel = computed(
-  () =>
-    STORYBOOK_STRUCTURES.find(
-      (structure) => structure.value === store.setupDraft.structure,
-    )?.label || store.setupDraft.structure,
-)
 
 function taxonomyLabel(value: string): string {
   return value

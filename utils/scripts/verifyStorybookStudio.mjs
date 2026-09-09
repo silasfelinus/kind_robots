@@ -34,10 +34,15 @@ includesAll(shellPath, [
 ])
 
 includesAll(setupPath, [
-  'Lay out your story',
+  // Section labels, not marketing copy. The old 'Lay out your story' /
+  // 'Choose a narrator voice' / 'Choose the shape of the tale' headings came
+  // with a 34rem hero wash and a centred 5xl headline above the first input;
+  // Silas cut that on 2026-09-09 ("why do we even have the top section so
+  // large"). What this guard actually protects is that all four groups still
+  // coexist on one surface, so it now pins the surviving group labels.
   'The spark',
-  'Choose a narrator voice',
-  'Choose the shape of the tale',
+  'Narrator voice',
+  'Shape of the tale',
   '<NarrativeIngredientMultiPicker',
   '<NarrativeIngredientPicker',
   '<NarrativeRoleAssigner',
@@ -56,6 +61,38 @@ assert.ok(
 assert.ok(
   !setup.includes('setupSteps'),
   'The primary Storybook setup must not recreate the four-step progress nav',
+)
+
+/*
+ * Narrator voice and structure are enum settings, not entities with art, and
+ * the only "art" they ever had was borrowed: getTutorialHeroPath() returns the
+ * tutorial channel banners, which carry STORIES / CHARACTERS / LOCATIONS /
+ * BOTS / REWARDS in large type across the image. That labelled "Cinematic"
+ * with a picture reading STORIES and put generated typography on screen
+ * (Silas, 2026-09-09: "we aren't supposed to be using text, and this looks
+ * like flux rather than krea"). The art-first rule in AGENTS.md is about
+ * entities that HAVE art -- the ingredient pickers below still render full
+ * art cards, and those are guarded separately.
+ */
+// Checked as an import, not a mention: the component's own header comment
+// names the old helper while explaining why it is gone, and a bare substring
+// test would fail a file for documenting its own compliance.
+assert.ok(
+  !setup.includes('helpers/tutorialCards'),
+  'Storybook setup must not dress enum choices in tutorial channel banner art',
+)
+
+/*
+ * The setup mounts inside storybook-library-page.vue's bounded
+ * `min-h-0 flex-1 overflow-hidden` host. Without an explicit height the
+ * section sizes to its own content, overflow-y-auto has nothing to scroll
+ * against, and the host clips everything past the fold -- the page could not
+ * be scrolled at all (Silas, 2026-09-09: "and I can't even scroll!!!!!").
+ */
+assert.match(
+  setup,
+  /class="relative h-full min-h-0 overflow-y-auto/,
+  'Storybook setup must own a bounded scroll region, or the host clips it',
 )
 
 includesAll(ingredientCardPath, [

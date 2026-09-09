@@ -52,7 +52,7 @@
           </div>
           <div class="absolute inset-0 bg-linear-to-t from-base-content/65 via-transparent to-transparent" />
           <p
-            class="absolute inset-x-2 bottom-2 line-clamp-2 text-xs font-black leading-tight text-base-100 drop-shadow"
+            class="kr-text-black-xs absolute inset-x-2 bottom-2 line-clamp-2 leading-tight text-base-100 drop-shadow"
           >
             {{ style.name }}
           </p>

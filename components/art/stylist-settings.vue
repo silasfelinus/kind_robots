@@ -13,7 +13,7 @@
 
     <div class="grid gap-3 sm:grid-cols-2">
       <label class="flex flex-col gap-1 sm:col-span-2">
-        <span class="text-xs font-black text-base-content">Salon name</span>
+        <span class="kr-text-black-xs text-base-content">Salon name</span>
         <input
           v-model="salonName"
           type="text"
@@ -23,7 +23,7 @@
       </label>
 
       <label class="flex flex-col gap-1">
-        <span class="text-xs font-black text-base-content">Booking / contact link</span>
+        <span class="kr-text-black-xs text-base-content">Booking / contact link</span>
         <input
           v-model="bookingLink"
           type="text"
@@ -34,7 +34,7 @@
       </label>
 
       <label class="flex flex-col gap-1">
-        <span class="text-xs font-black text-base-content">Reply contact</span>
+        <span class="kr-text-black-xs text-base-content">Reply contact</span>
         <input
           v-model="replyContact"
           type="text"
@@ -46,7 +46,7 @@
     </div>
 
     <div class="flex flex-col gap-1 kr-panel-compact">
-      <span class="text-xs font-black text-base-content">Receipt preview</span>
+      <span class="kr-text-black-xs text-base-content">Receipt preview</span>
       <pre class="kr-text-dim-xs-70 whitespace-pre-wrap">{{ preview }}</pre>
     </div>
 

@@ -221,7 +221,7 @@
                     >
                       Current leader
                     </p>
-                    <p class="truncate text-xs font-black">
+                    <p class="kr-text-black-xs truncate">
                       {{ leaderLabel(challenge.slug) }}
                     </p>
                   </div>

@@ -250,7 +250,7 @@
           </div>
           <p
             v-if="entry.revision.title"
-            class="mt-2 text-xs font-black text-base-content/75"
+            class="kr-text-black-xs mt-2 text-base-content/75"
           >
             {{ entry.revision.title }}
           </p>

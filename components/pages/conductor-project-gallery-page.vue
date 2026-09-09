@@ -135,7 +135,7 @@
           class="rounded-lg border border-error/20 bg-base-100 p-3 text-left hover:border-error"
           @click="openSlug(task.projectSlug)"
         >
-          <p class="text-xs font-black text-error">
+          <p class="kr-text-black-xs text-error">
             {{ task.projectTitle }} · {{ task.id }}
           </p>
           <p class="text-sm font-semibold">{{ task.title }}</p>

@@ -178,7 +178,7 @@
                   {{ DIMENSION_LABELS[dim] }}
                 </span>
                 <span
-                  class="text-xs font-black"
+                  class="kr-text-black-xs"
                   :class="dimensionValueClass(statMap[dim] ?? 0)"
                   >{{ statMap[dim] ?? 0 }}</span
                 >

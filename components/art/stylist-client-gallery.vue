@@ -30,7 +30,7 @@
       class="mb-3 flex flex-wrap items-end gap-2 rounded-xl bg-base-100 p-3"
     >
       <label class="flex min-w-28 flex-col gap-1">
-        <span class="text-xs font-bold">Folder</span>
+        <span class="kr-text-bold-xs">Folder</span>
         <input
           v-model="uploadFolder"
           class="input input-bordered input-xs"
@@ -38,7 +38,7 @@
         />
       </label>
       <label class="flex min-w-28 flex-col gap-1">
-        <span class="text-xs font-bold">Type</span>
+        <span class="kr-text-bold-xs">Type</span>
         <select v-model="uploadKind" class="select select-bordered select-xs">
           <option value="before">Before</option>
           <option value="after">After</option>
@@ -48,7 +48,7 @@
         </select>
       </label>
       <label class="flex min-w-44 flex-1 flex-col gap-1">
-        <span class="text-xs font-bold">Caption</span>
+        <span class="kr-text-bold-xs">Caption</span>
         <input
           v-model="uploadCaption"
           class="input input-bordered input-xs"

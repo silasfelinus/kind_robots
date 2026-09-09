@@ -85,7 +85,7 @@
             />
           </div>
           <div class="min-w-0 flex-1">
-            <p class="truncate text-xs font-bold text-base-content">
+            <p class="kr-text-bold-xs truncate text-base-content">
               {{
                 selectedSourceImage.fileName ||
                 `Image #${selectedSourceImage.id}`
@@ -439,7 +439,7 @@
             {{ CATEGORY_ICONS[style.category] }}
           </span>
           <span
-            class="text-xs font-bold leading-tight"
+            class="kr-text-bold-xs leading-tight"
             :class="
               isSelectedStyle(style)
                 ? 'text-primary'

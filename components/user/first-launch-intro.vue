@@ -48,7 +48,7 @@
             class="flex flex-col items-center gap-1 kr-panel-muted-compact-xs text-center"
           >
             <Icon :name="item.icon" class="h-5 w-5 text-secondary" />
-            <span class="text-xs font-bold">{{ item.label }}</span>
+            <span class="kr-text-bold-xs">{{ item.label }}</span>
           </li>
         </ul>
 

@@ -1864,6 +1864,14 @@ section:has(div[class*='xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]'])
     @apply font-bold text-sm;
   }
 
+  /* Sibling of `.kr-text-bold-sm` one size down -- `font-bold text-xs`
+   * (interface-vision t-104 slice 170) -- 84 subset-match occurrences
+   * across 35 files, the natural next `kr-text-bold-*` sibling flagged in
+   * slice 169's own kaizen note. */
+  .kr-text-bold-xs {
+    @apply font-bold text-xs;
+  }
+
   .text-smart {
     @apply text-sm md:text-lg lg:text-lg xl:text-xl;
   }

@@ -217,7 +217,7 @@
             <div class="grid grid-cols-1 gap-2 md:grid-cols-2 xl:grid-cols-4">
               <label class="form-control">
                 <span class="label py-1"
-                  ><span class="label-text text-xs font-bold"
+                  ><span class="kr-text-bold-xs label-text"
                     >Designer</span
                   ></span
                 >
@@ -231,9 +231,7 @@
 
               <label class="form-control">
                 <span class="label py-1"
-                  ><span class="label-text text-xs font-bold"
-                    >Sampler</span
-                  ></span
+                  ><span class="kr-text-bold-xs label-text">Sampler</span></span
                 >
                 <input
                   v-model="editForm.sampler"
@@ -244,7 +242,7 @@
 
               <label class="form-control">
                 <span class="label py-1"
-                  ><span class="label-text text-xs font-bold"
+                  ><span class="kr-text-bold-xs label-text"
                     >Checkpoint</span
                   ></span
                 >
@@ -257,7 +255,7 @@
 
               <label class="form-control">
                 <span class="label py-1"
-                  ><span class="label-text text-xs font-bold">Steps</span></span
+                  ><span class="kr-text-bold-xs label-text">Steps</span></span
                 >
                 <input
                   v-model.number="editForm.steps"
@@ -269,7 +267,7 @@
 
               <label class="form-control">
                 <span class="label py-1"
-                  ><span class="label-text text-xs font-bold">Seed</span></span
+                  ><span class="kr-text-bold-xs label-text">Seed</span></span
                 >
                 <input
                   v-model.number="editForm.seed"
@@ -280,7 +278,7 @@
 
               <label class="form-control">
                 <span class="label py-1"
-                  ><span class="label-text text-xs font-bold">CFG</span></span
+                  ><span class="kr-text-bold-xs label-text">CFG</span></span
                 >
                 <input
                   v-model.number="editForm.cfg"
@@ -291,7 +289,7 @@
               </label>
 
               <label class="kr-toggle-row-plain">
-                <span class="label-text text-xs font-bold">Public</span>
+                <span class="kr-text-bold-xs label-text">Public</span>
                 <input
                   v-model="editForm.isPublic"
                   type="checkbox"
@@ -300,7 +298,7 @@
               </label>
 
               <label class="kr-toggle-row-plain">
-                <span class="label-text text-xs font-bold">Mature</span>
+                <span class="kr-text-bold-xs label-text">Mature</span>
                 <input
                   v-model="editForm.isMature"
                   type="checkbox"
@@ -321,7 +319,7 @@
               <div class="grid gap-2 p-3">
                 <label class="form-control">
                   <span class="label py-1"
-                    ><span class="label-text text-xs font-bold"
+                    ><span class="kr-text-bold-xs label-text"
                       >Prompt</span
                     ></span
                   >
@@ -333,7 +331,7 @@
                 </label>
                 <label class="form-control">
                   <span class="label py-1"
-                    ><span class="label-text text-xs font-bold"
+                    ><span class="kr-text-bold-xs label-text"
                       >Negative Prompt</span
                     ></span
                   >

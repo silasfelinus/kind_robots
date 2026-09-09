@@ -27,7 +27,7 @@
 
     <div class="grid gap-4 sm:grid-cols-2">
       <div class="flex flex-col gap-1.5">
-        <label for="newsfeed-include-keyword" class="text-xs font-bold">
+        <label for="newsfeed-include-keyword" class="kr-text-bold-xs">
           Only show items matching
         </label>
         <div class="flex gap-1.5">
@@ -67,7 +67,7 @@
       </div>
 
       <div class="flex flex-col gap-1.5">
-        <label for="newsfeed-exclude-keyword" class="text-xs font-bold">
+        <label for="newsfeed-exclude-keyword" class="kr-text-bold-xs">
           Hide items matching
         </label>
         <div class="flex gap-1.5">
@@ -108,7 +108,7 @@
     </div>
 
     <div v-if="categories.length" class="flex flex-col gap-1.5">
-      <span class="text-xs font-bold">Categories</span>
+      <span class="kr-text-bold-xs">Categories</span>
       <div class="flex flex-wrap gap-1.5">
         <button
           v-for="category in categories"
@@ -132,7 +132,7 @@
       v-if="feedPreferenceStore.availableSources.length"
       class="flex flex-col gap-1.5"
     >
-      <span class="text-xs font-bold">Sources</span>
+      <span class="kr-text-bold-xs">Sources</span>
       <div class="flex flex-wrap gap-1.5">
         <button
           v-for="source in feedPreferenceStore.availableSources"
@@ -153,7 +153,7 @@
     </div>
 
     <div class="flex flex-col gap-1.5">
-      <span class="text-xs font-bold">Perspective balance</span>
+      <span class="kr-text-bold-xs">Perspective balance</span>
       <p class="kr-text-dim-xs-55">
         Only reshapes feeds that carry political coverage (e.g. Activism) —
         other feeds are never affected.
@@ -175,7 +175,7 @@
           {{ mode.label }}
         </button>
       </div>
-      <label class="flex w-fit items-center gap-2 pt-1 text-xs font-bold">
+      <label class="kr-text-bold-xs flex w-fit items-center gap-2 pt-1">
         <input
           type="checkbox"
           class="toggle toggle-primary toggle-sm"
@@ -191,7 +191,7 @@
     </div>
 
     <div class="flex items-center gap-2">
-      <label for="newsfeed-sort-mode" class="text-xs font-bold">Sort by</label>
+      <label for="newsfeed-sort-mode" class="kr-text-bold-xs">Sort by</label>
       <select
         id="newsfeed-sort-mode"
         class="kr-select-sm"

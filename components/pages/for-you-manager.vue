@@ -102,7 +102,7 @@
               <div class="flex flex-wrap items-center gap-2">
                 <label
                   v-if="conductorStore.pausedHumanGates.length"
-                  class="flex cursor-pointer items-center gap-2 kr-panel-compact-row text-xs font-bold shadow-sm"
+                  class="kr-text-bold-xs flex cursor-pointer items-center gap-2 kr-panel-compact-row shadow-sm"
                 >
                   <input
                     v-model="showPausedProjects"
@@ -149,7 +149,7 @@
                   <div class="min-w-0 flex-1">
                     <button
                       type="button"
-                      class="max-w-full truncate text-left text-xs font-bold text-primary hover:underline"
+                      class="kr-text-bold-xs max-w-full truncate text-left text-primary hover:underline"
                       @click="viewConductorProject(gate.project.slug)"
                     >
                       {{ gate.project.name }} · {{ gate.task.id }}
@@ -194,7 +194,7 @@
                   class="group mt-3 rounded-xl border border-base-300 bg-base-200/50"
                 >
                   <summary
-                    class="flex cursor-pointer list-none items-center justify-between gap-2 px-3 py-2 text-xs font-bold text-base-content/65 marker:hidden"
+                    class="kr-text-bold-xs flex cursor-pointer list-none items-center justify-between gap-2 px-3 py-2 text-base-content/65 marker:hidden"
                   >
                     Context from Conductor
                     <Icon
@@ -343,7 +343,7 @@
               >
                 <div class="flex flex-wrap items-start justify-between gap-2">
                   <div class="min-w-0 flex-1">
-                    <p class="truncate text-xs font-bold text-secondary/80">
+                    <p class="kr-text-bold-xs truncate text-secondary/80">
                       {{ pitch.projectTarget || 'General' }}
                       <span v-if="pitch.date"> · {{ pitch.date }}</span>
                     </p>

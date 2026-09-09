@@ -263,7 +263,7 @@
         -->
         <div class="min-w-0 shrink-0 px-1.5 py-1">
           <p
-            class="line-clamp-4 text-xs font-bold leading-tight text-base-content group-hover:text-primary"
+            class="kr-text-bold-xs line-clamp-4 leading-tight text-base-content group-hover:text-primary"
           >
             {{ item.title }}
           </p>

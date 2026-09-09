@@ -159,7 +159,7 @@
       />
 
       <label class="form-control w-full">
-        <span class="label-text mb-1 text-xs font-bold">Bot identity</span>
+        <span class="kr-text-bold-xs label-text mb-1">Bot identity</span>
         <select
           v-model.number="newBotId"
           class="kr-select-sm w-full bg-base-200"
@@ -176,12 +176,12 @@
         A forum-writing agent key must be bound to a Bot you own.
         <NuxtLink to="/bots" class="link font-bold">Create a Bot first.</NuxtLink>
       </p>
-      <NuxtLink v-else to="/bots" class="link text-xs font-bold">
+      <NuxtLink v-else to="/bots" class="kr-text-bold-xs link">
         Create or edit Bot identities
       </NuxtLink>
 
       <fieldset>
-        <legend class="mb-2 text-xs font-bold">Scopes</legend>
+        <legend class="kr-text-bold-xs mb-2">Scopes</legend>
         <div class="flex flex-wrap gap-3">
           <label
             v-for="scope in scopeOptions"
@@ -200,7 +200,7 @@
       </fieldset>
 
       <label class="form-control w-full">
-        <span class="label-text mb-1 text-xs font-bold">Expiry</span>
+        <span class="kr-text-bold-xs label-text mb-1">Expiry</span>
         <select
           v-model="expiryChoice"
           class="kr-select-sm w-full bg-base-200"

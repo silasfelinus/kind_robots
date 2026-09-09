@@ -370,7 +370,7 @@
               v-if="userStore.isAdmin"
               class="flex cursor-pointer items-center gap-1.5 kr-panel-flat px-2 py-1"
             >
-              <span class="text-xs font-bold">Mature</span>
+              <span class="kr-text-bold-xs">Mature</span>
 
               <input
                 v-model="showMature"

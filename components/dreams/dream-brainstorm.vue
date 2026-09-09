@@ -308,7 +308,7 @@
                   class="form-control mt-2"
                 >
                   <span class="label"
-                    ><span class="label-text text-xs font-bold"
+                    ><span class="kr-text-bold-xs label-text"
                       >Rejection feedback</span
                     ></span
                   >
@@ -401,7 +401,7 @@
           <div class="grid gap-3">
             <label class="form-control">
               <span class="label"
-                ><span class="label-text text-xs font-bold"
+                ><span class="kr-text-bold-xs label-text"
                   >Requests</span
                 ></span
               >
@@ -415,7 +415,7 @@
             </label>
             <label class="form-control">
               <span class="label"
-                ><span class="label-text text-xs font-bold"
+                ><span class="kr-text-bold-xs label-text"
                   >Max Tokens</span
                 ></span
               >
@@ -430,8 +430,8 @@
             </label>
             <label class="form-control">
               <div class="mb-1 flex items-center justify-between">
-                <span class="text-xs font-bold">Temperature</span>
-                <span class="font-mono text-xs font-bold text-primary">{{
+                <span class="kr-text-bold-xs">Temperature</span>
+                <span class="kr-text-bold-xs font-mono text-primary">{{
                   dreamStore.temperature.toFixed(1)
                 }}</span>
               </div>

@@ -117,7 +117,7 @@
 
       <button
         v-if="imageLoadFailed"
-        class="absolute bottom-1.5 left-1.5 rounded-full bg-warning px-2 py-0.5 text-xs font-bold text-warning-content shadow"
+        class="kr-text-bold-xs absolute bottom-1.5 left-1.5 rounded-full bg-warning px-2 py-0.5 text-warning-content shadow"
         type="button"
         title="Retry image"
         @click.stop="loadFullImage"

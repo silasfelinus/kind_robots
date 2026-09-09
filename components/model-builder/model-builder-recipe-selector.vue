@@ -40,7 +40,7 @@
         :aria-pressed="store.recipeKey === recipe.key"
         @click="store.selectRecipe(recipe.key)"
       >
-        <span class="flex items-center gap-1.5 text-xs font-bold">
+        <span class="kr-text-bold-xs flex items-center gap-1.5">
           <Icon :name="recipe.icon" class="h-4 w-4" />
           {{ recipe.label }}
         </span>

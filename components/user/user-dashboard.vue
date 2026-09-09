@@ -277,7 +277,7 @@
                   <label
                     class="flex items-center justify-between gap-2 kr-panel-muted-compact-row"
                   >
-                    <span class="text-xs font-bold">
+                    <span class="kr-text-bold-xs">
                       {{ showMature ? 'On' : 'Off' }}
                     </span>
                     <input

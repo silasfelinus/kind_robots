@@ -211,7 +211,7 @@
               </p>
               <p
                 v-if="brokenImages.has(tab.image)"
-                class="mt-1 break-all text-xs font-bold text-error"
+                class="kr-text-bold-xs mt-1 break-all text-error"
               >
                 Missing: {{ tab.image }}
               </p>

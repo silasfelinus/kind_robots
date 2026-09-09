@@ -41,7 +41,7 @@
           v-for="option in NARRATIVE_ROLES"
           :key="option.key"
           :data-cast-role="option.key"
-          class="flex min-h-12 items-center gap-2 rounded-xl border border-dashed px-2.5 py-2 text-xs font-bold transition"
+          class="kr-text-bold-xs flex min-h-12 items-center gap-2 rounded-xl border border-dashed px-2.5 py-2 transition"
           :class="
             dragOverRole === option.key
               ? 'border-secondary bg-secondary/15 ring-2 ring-secondary/30'

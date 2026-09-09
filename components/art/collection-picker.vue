@@ -1,11 +1,14 @@
 <template>
-  <section class="flex w-full min-w-0 flex-col gap-2 text-base-content">
+  <section
+    ref="pickerRoot"
+    class="flex w-full min-w-0 flex-col gap-2 text-base-content"
+  >
     <div class="flex min-w-0 items-center gap-2">
       <button
         type="button"
         class="btn btn-sm min-w-0 flex-1 justify-between rounded-2xl border-base-content/15 bg-base-100"
         :class="expanded ? 'btn-primary' : 'btn-outline'"
-        @click="expanded = !expanded"
+        @click="handleBrowseClick"
       >
         <span class="flex min-w-0 items-center gap-2">
           <Icon name="kind-icon:gallery" class="h-4 w-4 shrink-0" />
@@ -98,13 +101,141 @@
         </p>
       </div>
     </Transition>
+
+    <Teleport v-if="isSplashPicker" to=".splash-screen">
+      <section
+        :id="galleryId"
+        class="deck-gallery-shell shrink-0 border-t border-yellow-700/30 bg-base-300/98 px-4 py-6 text-base-content sm:px-6 lg:px-8"
+      >
+        <div class="mx-auto flex w-full max-w-7xl flex-col gap-4">
+          <div class="flex flex-wrap items-end justify-between gap-3">
+            <div>
+              <p class="kr-text-black-lg">🖼️ Browse the dungeon shelves</p>
+              <p class="kr-text-dim-sm mt-1 max-w-2xl">
+                All art is the default. Pick one or more collections if you want a particular mood, or ignore this entirely and enter the dungeon.
+              </p>
+            </div>
+            <span class="badge badge-primary badge-outline font-bold">
+              {{ selectedSummary }}
+            </span>
+          </div>
+
+          <div class="deck-gallery-grid grid gap-3">
+            <button
+              type="button"
+              class="group flex min-h-44 flex-col items-start rounded-2xl border p-2 text-left transition hover:-translate-y-0.5 hover:shadow-xl"
+              :class="
+                !hasSelection
+                  ? 'border-primary bg-primary/15 text-primary shadow-lg'
+                  : 'border-base-content/10 bg-base-100 text-base-content'
+              "
+              @click="useAllArt"
+            >
+              <div
+                class="mb-2 grid h-24 w-full grid-cols-3 overflow-hidden rounded-xl bg-base-200"
+              >
+                <template v-if="allArtPreviewPaths.length">
+                  <img
+                    v-for="(imagePath, index) in allArtPreviewPaths"
+                    :key="`${imagePath}-${index}`"
+                    :src="imagePath"
+                    alt=""
+                    class="h-24 w-full object-cover"
+                    loading="lazy"
+                    @error="hideBrokenPreview"
+                  />
+                </template>
+                <div
+                  v-else
+                  class="col-span-3 flex h-24 items-center justify-center text-base-content/30"
+                >
+                  <Icon name="kind-icon:gallery" class="h-9 w-9" />
+                </div>
+              </div>
+
+              <span class="flex w-full items-start justify-between gap-2">
+                <span class="kr-text-black-sm">All available art</span>
+                <Icon
+                  :name="!hasSelection ? 'kind-icon:check-circle' : 'kind-icon:circle'"
+                  class="h-5 w-5 shrink-0"
+                />
+              </span>
+              <span class="kr-text-dim-xs-60 mt-2">
+                Let the dungeon roam across the whole playable art library.
+              </span>
+            </button>
+
+            <button
+              v-for="collection in availableCollections"
+              :key="`gallery-${collection.id}`"
+              type="button"
+              class="group flex min-h-44 flex-col items-start rounded-2xl border p-2 text-left transition hover:-translate-y-0.5 hover:shadow-xl"
+              :class="
+                isSelected(collection.id)
+                  ? 'border-primary bg-primary/15 text-primary shadow-lg'
+                  : 'border-base-content/10 bg-base-100 text-base-content'
+              "
+              @click="toggleCollection(collection.id)"
+            >
+              <div
+                class="mb-2 grid h-24 w-full grid-cols-3 overflow-hidden rounded-xl bg-base-200"
+              >
+                <template v-if="getCollectionPreviewPaths(collection).length">
+                  <img
+                    v-for="(imagePath, index) in getCollectionPreviewPaths(collection)"
+                    :key="`${collection.id}-${imagePath}-${index}`"
+                    :src="imagePath"
+                    alt=""
+                    class="h-24 w-full object-cover"
+                    loading="lazy"
+                    @error="hideBrokenPreview"
+                  />
+                </template>
+                <div
+                  v-else
+                  class="col-span-3 flex h-24 items-center justify-center text-base-content/30"
+                >
+                  <Icon name="kind-icon:gallery" class="h-9 w-9" />
+                </div>
+              </div>
+
+              <span class="flex w-full items-start justify-between gap-2">
+                <span class="kr-text-black-sm line-clamp-2">
+                  {{ getCollectionLabel(collection) }}
+                </span>
+                <Icon
+                  :name="
+                    isSelected(collection.id)
+                      ? 'kind-icon:check-circle'
+                      : 'kind-icon:circle'
+                  "
+                  class="h-5 w-5 shrink-0"
+                />
+              </span>
+              <span class="kr-text-dim-xs-60 mt-2">
+                {{ getCollectionMeta(collection) }}
+              </span>
+            </button>
+          </div>
+
+          <p
+            v-if="!availableCollections.length"
+            class="rounded-2xl border border-warning/30 bg-warning/10 px-4 py-3 text-sm font-semibold text-warning-content"
+          >
+            No collection shelves are ready yet. All available art remains a perfectly good default.
+          </p>
+        </div>
+      </section>
+    </Teleport>
   </section>
 </template>
 
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue'
+import type { ArtImage } from '~/prisma/generated/prisma/client'
 import type { ArtCollection } from '@/stores/helpers/collectionHelper'
 import { useArtStore } from '@/stores/artStore'
+import { resolveArtImageThumbSrc } from '@/utils/artImageSrc'
 
 export type CollectionPickerMode =
   | 'all'
@@ -143,9 +274,12 @@ const emit = defineEmits<{
 
 const artStore = useArtStore()
 
+const pickerRoot = ref<HTMLElement | null>(null)
 const expanded = ref(false)
+const isSplashPicker = ref(false)
 const localMode = ref<CollectionPickerMode>('all')
 const selectedCollectionIds = ref<number[]>([])
+const galleryId = 'memory-dungeon-deck-gallery'
 
 const availableCollections = computed<ArtCollection[]>(() => {
   return artStore.generationCollections
@@ -170,6 +304,10 @@ const selectedSummary = computed(() => {
   }
 
   return `${selectedCollectionIds.value.length} collections`
+})
+
+const allArtPreviewPaths = computed(() => {
+  return previewPathsFromImages(artStore.artImages, 3)
 })
 
 function syncFromProps() {
@@ -202,12 +340,26 @@ watch(
 )
 
 onMounted(async () => {
+  isSplashPicker.value = Boolean(pickerRoot.value?.closest('.splash-screen'))
+
   await artStore.initialize({
     fetchRemote: false,
     hydrateImages: false,
     initializeCollections: true,
   })
 })
+
+function handleBrowseClick() {
+  if (!isSplashPicker.value) {
+    expanded.value = !expanded.value
+    return
+  }
+
+  document.getElementById(galleryId)?.scrollIntoView({
+    behavior: 'smooth',
+    block: 'start',
+  })
+}
 
 function getCollectionLabel(collection: ArtCollection): string {
   const record = collection as ArtCollection & {
@@ -224,24 +376,68 @@ function getCollectionLabel(collection: ArtCollection): string {
   )
 }
 
+function getCollectionImages(collection: ArtCollection): ArtImage[] {
+  const record = collection as ArtCollection & {
+    ArtImages?: ArtImage[]
+    artImages?: ArtImage[]
+    images?: ArtImage[]
+  }
+
+  const imageMap = new Map<number, ArtImage>()
+
+  for (const image of [
+    ...(Array.isArray(record.art) ? record.art : []),
+    ...(Array.isArray(record.ArtImages) ? record.ArtImages : []),
+    ...(Array.isArray(record.artImages) ? record.artImages : []),
+    ...(Array.isArray(record.images) ? record.images : []),
+  ]) {
+    if (image?.id) imageMap.set(image.id, image)
+  }
+
+  return [...imageMap.values()]
+}
+
+function previewPathsFromImages(images: ArtImage[], limit: number): string[] {
+  const paths: string[] = []
+  const seen = new Set<string>()
+
+  for (const image of images) {
+    if (!artStore.showMature && image.isMature) continue
+
+    const path = resolveArtImageThumbSrc(image)
+    if (!path || seen.has(path)) continue
+
+    seen.add(path)
+    paths.push(path)
+
+    if (paths.length >= limit) break
+  }
+
+  return paths
+}
+
+function getCollectionPreviewPaths(collection: ArtCollection): string[] {
+  return previewPathsFromImages(getCollectionImages(collection), 3)
+}
+
 function getCollectionMeta(collection: ArtCollection): string {
   const record = collection as ArtCollection & {
-    ArtImages?: unknown[]
-    artImages?: unknown[]
     isPublic?: boolean | null
     isMature?: boolean | null
   }
 
-  const images = Array.isArray(record.ArtImages)
-    ? record.ArtImages
-    : Array.isArray(record.artImages)
-      ? record.artImages
-      : []
-
+  const imageCount = getCollectionImages(collection).length
   const visibility = record.isPublic ? 'public' : 'private'
   const rating = record.isMature ? 'mature' : 'safe'
 
-  return `${images.length} image${images.length === 1 ? '' : 's'} · ${visibility} · ${rating}`
+  return `${imageCount} image${imageCount === 1 ? '' : 's'} · ${visibility} · ${rating}`
+}
+
+function hideBrokenPreview(event: Event) {
+  const image = event.currentTarget
+  if (!(image instanceof HTMLImageElement)) return
+
+  image.style.visibility = 'hidden'
 }
 
 function emitChange() {
@@ -293,6 +489,32 @@ function useAllArt() {
 </script>
 
 <style scoped>
+.deck-gallery-shell {
+  container-type: inline-size;
+}
+
+.deck-gallery-grid {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+@container (min-width: 32rem) {
+  .deck-gallery-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@container (min-width: 64rem) {
+  .deck-gallery-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+@container (min-width: 80rem) {
+  .deck-gallery-grid {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+}
+
 .picker-panel-enter-active,
 .picker-panel-leave-active {
   transition:

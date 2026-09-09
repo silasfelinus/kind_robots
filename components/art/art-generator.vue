@@ -522,7 +522,7 @@
           <div class="flex items-center gap-2">
             <Icon name="kind-icon:sparkles" class="h-5 w-5 text-primary" />
             <div>
-              <h2 class="text-lg font-bold text-primary">Latest result</h2>
+              <h2 class="kr-text-bold-lg text-primary">Latest result</h2>
               <p class="text-sm text-base-content/55">
                 Your newest render lands here.
               </p>

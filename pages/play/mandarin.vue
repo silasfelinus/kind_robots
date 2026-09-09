@@ -65,7 +65,7 @@
         <section v-if="workspaceView === 'sets'" class="kr-panel-flat space-y-4 p-4 shadow-sm">
           <div class="flex flex-wrap items-center justify-between gap-2">
             <div>
-              <h2 class="text-lg font-bold">Study sets</h2>
+              <h2 class="kr-text-bold-lg">Study sets</h2>
               <p class="text-xs opacity-60">Pick a deck, then jump straight back to the flash card.</p>
             </div>
             <span class="badge badge-ghost">{{ allSets.length }} decks</span>

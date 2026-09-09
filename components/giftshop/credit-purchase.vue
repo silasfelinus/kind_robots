@@ -17,7 +17,7 @@
         @click="purchaseMana(tier.id)"
       >
         <p class="text-xl font-semibold">{{ tier.label }}</p>
-        <p class="text-lg text-success font-bold">${{ tier.priceUsd }}</p>
+        <p class="kr-text-bold-lg text-success">${{ tier.priceUsd }}</p>
       </button>
     </div>
 

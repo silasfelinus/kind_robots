@@ -230,7 +230,7 @@
         v-else-if="botStore.error"
         class="flex h-full items-center justify-center rounded-2xl border border-error/40 bg-error/10 p-6 text-center text-error"
       >
-        <p class="text-lg font-bold">
+        <p class="kr-text-bold-lg">
           {{ botStore.error }}
         </p>
       </div>
@@ -360,7 +360,7 @@
         <Icon name="kind-icon:robot" class="h-12 w-12 text-primary" />
 
         <div>
-          <p class="text-lg font-bold">No bots found.</p>
+          <p class="kr-text-bold-lg">No bots found.</p>
 
           <p class="mt-1 text-sm">
             No public or owned bots match this gallery.

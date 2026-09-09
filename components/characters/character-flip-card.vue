@@ -348,7 +348,7 @@
 
         <aside class="flex min-h-0 flex-col gap-4 overflow-hidden">
           <section class="kr-panel-flat p-4">
-            <h2 class="text-lg font-bold text-base-content">
+            <h2 class="kr-text-bold-lg text-base-content">
               Interaction Summary
             </h2>
 
@@ -395,7 +395,7 @@
           <section class="kr-panel-flat p-4">
             <div class="mb-3 flex items-center justify-between gap-2">
               <div>
-                <h2 class="text-lg font-bold text-base-content">
+                <h2 class="kr-text-bold-lg text-base-content">
                   Getting To Know You Questions
                 </h2>
 
@@ -435,7 +435,7 @@
             v-if="adventurePrompt"
             class="min-h-0 flex-1 overflow-hidden kr-panel-flat p-4"
           >
-            <h2 class="mb-3 text-lg font-bold text-base-content">
+            <h2 class="kr-text-bold-lg mb-3 text-base-content">
               Adventure Prompt Preview
             </h2>
 

@@ -3,7 +3,7 @@
     <div class="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
       <div class="max-w-2xl">
         <div class="flex flex-wrap items-center gap-2">
-          <h3 class="text-lg font-bold">Pronunciation practice</h3>
+          <h3 class="kr-text-bold-lg">Pronunciation practice</h3>
           <span class="badge badge-outline">listen · say · check</span>
         </div>
         <p class="mt-1 text-sm leading-relaxed opacity-70">
@@ -114,7 +114,7 @@
             class="kr-panel-compact"
           >
             <div class="flex flex-wrap items-center gap-2">
-              <span class="text-lg font-bold">{{ observation.syllable }}</span>
+              <span class="kr-text-bold-lg">{{ observation.syllable }}</span>
               <span class="badge badge-outline">{{ observation.expectedArrow }} T{{ observation.expectedTone }}</span>
               <span class="badge" :class="verdictClass(observation.verdict)">
                 heard {{ observation.observedShape }}

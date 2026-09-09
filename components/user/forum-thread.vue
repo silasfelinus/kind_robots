@@ -43,7 +43,7 @@
         v-if="userStore.isLoggedIn && composeChannel === channel.slug"
         class="bg-base-200 p-4 rounded-xl shadow"
       >
-        <h3 class="text-lg font-bold mb-2">
+        <h3 class="kr-text-bold-lg mb-2">
           🧵 New Thread in {{ channel.label }}
         </h3>
         <p v-if="channel.postingGuidance" class="kr-text-dim-sm mb-2">

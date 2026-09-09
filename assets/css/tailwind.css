@@ -1898,6 +1898,22 @@ section:has(div[class*='xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]'])
     @apply font-bold text-xs;
   }
 
+  /* Third entry in the `kr-text-bold-*` family -- `font-bold text-lg`
+   * (interface-vision t-104 slice 176), the natural heading-size sibling
+   * left unsurveyed when slices 169-170 built `-sm`/`-xs` (slice 170's own
+   * kaizen note called those two "every candidate surveyed across slices
+   * 168-170" without ever having looked at `-lg`). A fresh full-repo
+   * class-frequency survey outside all now-closed `kr-text-black-*`/
+   * `kr-text-dim-*`/`kr-text-eyebrow-*`/`kr-label-*` families found this
+   * shape at 48 subset-match occurrences across 24 files, the largest
+   * still-unnamed semantically bounded pattern surfaced this slice --
+   * consistently used for `h2`/`h3`/`p` section-heading emphasis text
+   * (`text-lg font-bold text-base-content` etc.), the same bold-heading
+   * role `.kr-text-black-lg` already covers for `font-black`. */
+  .kr-text-bold-lg {
+    @apply font-bold text-lg;
+  }
+
   /* Sibling of `.kr-label-bold` (`label-text font-bold`) for the plain,
    * weightless form-label caption -- `label-text text-xs`, with the dead
    * `label-text` token dropped the same way `.kr-label-bold` already drops

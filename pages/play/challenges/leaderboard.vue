@@ -229,7 +229,7 @@
                   class="hover"
                 >
                   <td>
-                    <span class="badge badge-ghost rounded-lg font-black"
+                    <span class="kr-badge-ghost rounded-lg font-black"
                       >#{{ entry.rank }}</span
                     >
                   </td>

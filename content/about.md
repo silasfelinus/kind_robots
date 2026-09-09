@@ -12,7 +12,6 @@ channelKey: home
 tabKey: about
 dashboardKey: giftshop
 dashboardTab: community
-cards: navCards
 loadingMessage: Loading plans...
 refreshLabel: Refresh mission statement
 backgroundMobile: /api/art/backdrop/about-mobile

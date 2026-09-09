@@ -26,7 +26,7 @@
             class="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between"
           >
             <div>
-              <h2 class="text-xl font-bold text-base-content">
+              <h2 class="kr-text-bold-xl text-base-content">
                 Character Identity
               </h2>
               <p class="kr-text-dim-sm-70">
@@ -145,7 +145,7 @@
         <aside class="kr-panel-flat p-4">
           <div class="mb-4 flex items-center justify-between gap-2">
             <div>
-              <h2 class="text-xl font-bold text-base-content">Portrait</h2>
+              <h2 class="kr-text-bold-xl text-base-content">Portrait</h2>
               <p class="kr-text-dim-sm-70">
                 Upload, borrow, or generate character art.
               </p>
@@ -200,7 +200,7 @@
 
       <section class="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <div class="kr-panel-flat p-4">
-          <h2 class="mb-3 text-xl font-bold text-base-content">
+          <h2 class="kr-text-bold-xl mb-3 text-base-content">
             Personality and Voice
           </h2>
 
@@ -238,7 +238,7 @@
         </div>
 
         <div class="kr-panel-flat p-4">
-          <h2 class="mb-3 text-xl font-bold text-base-content">
+          <h2 class="kr-text-bold-xl mb-3 text-base-content">
             Story and Motivation
           </h2>
 
@@ -282,7 +282,7 @@
           class="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between"
         >
           <div>
-            <h2 class="text-xl font-bold text-base-content">Character Stats</h2>
+            <h2 class="kr-text-bold-xl text-base-content">Character Stats</h2>
             <p class="kr-text-dim-sm-70">
               Rarity-style strengths for adventures and rewards.
             </p>
@@ -327,7 +327,7 @@
           class="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between"
         >
           <div>
-            <h2 class="text-xl font-bold text-base-content">
+            <h2 class="kr-text-bold-xl text-base-content">
               AI Update Controls
             </h2>
             <p class="kr-text-dim-sm-70">
@@ -399,7 +399,7 @@
         <div
           class="mb-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between"
         >
-          <h2 class="text-xl font-bold text-base-content">Record Settings</h2>
+          <h2 class="kr-text-bold-xl text-base-content">Record Settings</h2>
 
           <allow-reviews-toggle
             v-if="mode === 'edit' && characterStore.selectedCharacter"

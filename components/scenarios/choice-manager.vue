@@ -4,7 +4,7 @@
     v-if="choiceEntry"
     class="flex flex-col space-y-4 w-full p-4 bg-base-200 rounded-2xl border border-base-300 shadow-md"
   >
-    <h2 class="text-xl font-bold text-center capitalize">
+    <h2 class="kr-text-bold-xl text-center capitalize">
       Choose your {{ choiceEntry.label }}
     </h2>
 

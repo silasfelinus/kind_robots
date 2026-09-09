@@ -11,7 +11,7 @@
         class="Icon-extra-large mb-2"
       />
       <!-- Achievement Label -->
-      <div class="text-xl font-bold text-gray-700">
+      <div class="kr-text-bold-xl text-gray-700">
         {{ achievement.label }}
       </div>
       <!-- Subtle Hint -->

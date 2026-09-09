@@ -1931,6 +1931,23 @@ section:has(div[class*='xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]'])
     @apply font-bold text-lg;
   }
 
+  /* Fourth entry in the `kr-text-bold-*` family -- `font-bold text-xl`
+   * (interface-vision t-104 slice 179). Slice 178's own kaizen note flagged
+   * `kr-text-bold-*` as still covering only `-sm`/`-xs`/`-lg`, the exact gap
+   * `.kr-text-black-lg`/`.kr-text-black-xl`/`.kr-text-black-2xl` already
+   * closed for `font-black` across slices 164-168. A fresh full-repo
+   * class-frequency survey outside all now-closed `kr-text-black-*`/
+   * `kr-text-bold-*`/`kr-text-dim-*`/`kr-text-eyebrow-*`/`kr-label-*`/
+   * `kr-badge-*`/`kr-text-error-xs` families found this shape at 35
+   * subset-match occurrences across 13 files, the same bold-heading-emphasis
+   * role one size up from `.kr-text-bold-lg` -- character/bot/scenario/
+   * reward creation-form section titles and card headings. `-2xl` (10
+   * occurrences, 8 files) is the remaining sibling to close the family out
+   * fully, named as the next slice's candidate below. */
+  .kr-text-bold-xl {
+    @apply font-bold text-xl;
+  }
+
   /* Sibling of `.kr-label-bold` (`label-text font-bold`) for the plain,
    * weightless form-label caption -- `label-text text-xs`, with the dead
    * `label-text` token dropped the same way `.kr-label-bold` already drops

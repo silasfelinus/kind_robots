@@ -340,7 +340,7 @@
             {{ deathFlavor }}
           </p>
 
-          <div class="text-xl font-bold">
+          <div class="kr-text-bold-xl">
             Final Score: {{ score.toLocaleString() }}
           </div>
 

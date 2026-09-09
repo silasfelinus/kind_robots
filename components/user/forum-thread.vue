@@ -27,7 +27,7 @@
       class="space-y-4"
     >
       <div class="flex justify-between items-center mt-8 mb-2">
-        <h2 class="text-xl font-bold">
+        <h2 class="kr-text-bold-xl">
           {{ channel.label }}
         </h2>
         <button

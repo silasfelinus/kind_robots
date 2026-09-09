@@ -51,12 +51,12 @@
           users — a running score of your community contribution.
         </p>
 
-        <div v-if="karmaStore.loading" class="text-base-content/50 text-sm">
+        <div v-if="karmaStore.loading" class="kr-text-dim-sm-50">
           Loading…
         </div>
         <div
           v-else-if="!karmaStore.transactions.length"
-          class="text-base-content/50 text-sm"
+          class="kr-text-dim-sm-50"
         >
           No karma activity yet. Go react, create, and share! 🌱
         </div>

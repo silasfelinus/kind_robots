@@ -2116,6 +2116,31 @@ section:has(div[class*='xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]'])
     @apply text-xs opacity-55;
   }
 
+  /* The last unnamed sibling in the `kr-text-dim-*` family (interface-vision
+   * t-104 slice 188) -- `text-sm text-base-content/50`, the same "secondary
+   * caption" role as `.kr-text-dim-sm` (60% opacity) and `.kr-text-dim-sm-70`
+   * (70% opacity) but at 50%, the opacity `.kr-text-dim-xs` already claims at
+   * the smaller `xs` size. Slices 152-163 explicitly surveyed and closed out
+   * the `text-xs text-base-content/NN` family (`/40`-`/70`, all six named)
+   * but never checked `text-sm` against `/50` specifically -- a fresh
+   * full-repo class-frequency survey run after slice 187 closed the
+   * `opacity-NN` sibling set found this exact pair still hand-rolled
+   * identically in 11 files (16 exact occurrences; 39 subset-match including
+   * extra tokens like `flex h-full min-h-32 items-center justify-center
+   * kr-panel-flat border-dashed p-6 text-center`), consistently the "empty
+   * state" dashed-panel caption pattern (model-builder, coloring-book,
+   * facet-gallery, messenger, forum-moderation-panel, etc.). Named
+   * `kr-text-dim-sm-50` rather than reusing `kr-text-dim-sm`/`kr-text-dim-xs`
+   * because both those names are already claimed by their own
+   * independently-repeated exact shapes -- same `kr-text-dim-sm-70`/
+   * `kr-text-dim-sm` precedent this family already follows. Slice 188
+   * deliberately ran the codemod with `--exact-only`, bounding this first
+   * pass to sources with no extra tokens and leaving the fuller subset-match
+   * pool (23 further occurrences) for a later slice. */
+  .kr-text-dim-sm-50 {
+    @apply text-sm text-base-content/50;
+  }
+
   .text-smart {
     @apply text-sm md:text-lg lg:text-lg xl:text-xl;
   }

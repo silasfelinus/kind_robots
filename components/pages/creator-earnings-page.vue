@@ -45,7 +45,7 @@
 
       <div
         v-if="earningsStore.loading && !earningsStore.hasLoaded"
-        class="text-sm text-base-content/50"
+        class="kr-text-dim-sm-50"
       >
         Loading…
       </div>

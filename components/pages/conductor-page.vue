@@ -506,7 +506,7 @@
                     When your AI assigns you an action item, it shows up here.
                   </p>
                 </template>
-                <p v-else class="text-sm text-base-content/50">
+                <p v-else class="kr-text-dim-sm-50">
                   No {{ todoFilter.toLowerCase() }} tasks.
                 </p>
               </div>

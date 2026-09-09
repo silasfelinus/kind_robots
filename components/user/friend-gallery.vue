@@ -107,9 +107,7 @@
               </div>
             </div>
 
-            <p v-else class="text-sm text-base-content/50">
-              No art in collection yet.
-            </p>
+            <p v-else class="kr-text-dim-sm-50">No art in collection yet.</p>
           </div>
         </div>
       </template>

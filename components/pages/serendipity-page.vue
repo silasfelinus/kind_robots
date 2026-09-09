@@ -107,10 +107,7 @@
           Message feed
         </div>
         <div class="kr-scroll flex flex-col gap-2 p-3">
-          <p
-            v-if="voice.recentMessages.length === 0"
-            class="text-sm text-base-content/50"
-          >
+          <p v-if="voice.recentMessages.length === 0" class="kr-text-dim-sm-50">
             Waiting for messages. Connect the relay, then say “Serendipity, turn
             butterflies on.”
           </p>

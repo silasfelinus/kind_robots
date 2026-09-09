@@ -74,7 +74,7 @@
 
           <span
             v-if="activeThemeName"
-            class="inline-flex max-w-44 items-center gap-1.5 truncate rounded-full border border-accent/40 bg-accent/10 px-2.5 py-1 text-xs font-black text-accent"
+            class="kr-text-black-xs inline-flex max-w-44 items-center gap-1.5 truncate rounded-full border border-accent/40 bg-accent/10 px-2.5 py-1 text-accent"
           >
             <Icon name="kind-icon:check" class="h-3.5 w-3.5 shrink-0" />
             <span class="truncate">{{ activeThemeName }}</span>

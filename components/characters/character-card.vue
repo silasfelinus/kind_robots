@@ -101,7 +101,7 @@
               {{ stat.label }}
             </div>
 
-            <div class="truncate text-xs font-black text-primary">
+            <div class="kr-text-black-xs truncate text-primary">
               {{ stat.value }}
             </div>
           </div>

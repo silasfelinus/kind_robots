@@ -1819,12 +1819,24 @@ section:has(div[class*='xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]'])
     @apply font-black text-xl;
   }
 
-  /* Third and final sibling in the `kr-text-black-*` family -- `font-black
+  /* Third sibling in the `kr-text-black-*` family -- `font-black
    * text-sm` (interface-vision t-104 slice 166) -- 108 subset-match
-   * occurrences across 70 files. Closes out the family entirely (`-lg`,
-   * `-xl`, `-sm` all now named), same convention as `.kr-text-dim-*`. */
+   * occurrences across 70 files. */
   .kr-text-black-sm {
     @apply font-black text-sm;
+  }
+
+  /* Fourth and final sibling in the `kr-text-black-*` family -- `font-black
+   * text-xs` (interface-vision t-104 slice 174) -- a fresh full-repo
+   * class-frequency survey once the `label-text`/`kr-label-*` families
+   * closed out (slice 173) found this shape still unnamed at 56
+   * subset-match occurrences across 27 files. Slice 166 called the family
+   * closed at `-lg`/`-xl`/`-sm`, but that was simply the set surveyed at
+   * the time, not a deliberate exclusion of `-xs`. Closes out the family
+   * entirely now (`-lg`, `-xl`, `-sm`, `-xs` all named), same convention as
+   * `.kr-text-dim-*`. */
+  .kr-text-black-xs {
+    @apply font-black text-xs;
   }
 
   /* `font-black uppercase` eyebrow/label text (interface-vision t-104 slice

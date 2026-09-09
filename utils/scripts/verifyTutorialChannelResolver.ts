@@ -65,13 +65,18 @@ import { resolveTutorialChannelFromRoute } from '@/stores/helpers/tutorialCards'
 }
 
 // (3) The wonder key's multi-route array resolves correctly for each of
-// its 7 real routes (using the real, unmodified production route map).
+// its real routes (using the real, unmodified production route map).
+//
+// /play/davinci left this list on 2026-09-09: Da Vinci merged into Storybook
+// as its `life` shape, so the route is a 301 to /storybook and the tutorial
+// that covers it is Storybook's, under the `scenario` channel. Case (3b)
+// below pins both halves of that, so a future edit that quietly re-adds a
+// wonder entry for it -- or drops Storybook's own resolution -- fails here.
 {
   const wonderRoutes = [
     '/plan/newsfeed',
     '/plan/wonderlab',
     '/play/screenfx',
-    '/play/davinci',
     '/plan/watchlist',
     '/plan/projects/ruler-hooked',
     '/plan/voice-lab',
@@ -96,6 +101,22 @@ import { resolveTutorialChannelFromRoute } from '@/stores/helpers/tutorialCards'
     resolveTutorialChannelFromRoute('/dreams'),
     'dream',
     'an unrelated real route must still resolve to its own channel, not wonder',
+  )
+}
+
+// (3b) The merged storymaker. /storybook carries the tutorial that now covers
+// the life shape, and /play/davinci is a redirect with no tutorial channel of
+// its own -- it must not resolve back to wonder.
+{
+  assert.equal(
+    resolveTutorialChannelFromRoute('/storybook'),
+    'scenario',
+    'the storymaker route must resolve to the channel whose tutorial covers it',
+  )
+  assert.notEqual(
+    resolveTutorialChannelFromRoute('/play/davinci'),
+    'wonder',
+    'the retired Da Vinci route must not still claim a wonder tutorial',
   )
 }
 

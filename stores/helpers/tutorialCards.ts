@@ -631,6 +631,13 @@ export const tutorialChannelKeys = Object.keys(
 
 const tutorialRouteMap = {
   ...footerRouteMap,
+  // footerRouteMap gives `scenario` a single route, /stories. The storymaker
+  // lives at /storybook and its tutorial section is in this same channel, so
+  // before this override a reader standing on the storymaker resolved to no
+  // tutorial channel at all. That gap predates the merge but the merge made it
+  // matter: /play/davinci used to resolve to `wonder`, and it is a redirect to
+  // /storybook now, so without this the life shape lost the tutorial it had.
+  scenario: [footerRouteMap.scenario, '/storybook'],
   conductor: '/conductor',
   mural: '/build/mural',
   challenges: '/play/challenges',

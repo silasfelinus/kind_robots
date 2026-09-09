@@ -34,7 +34,22 @@ Production target:
     shot-01.jpg
 ```
 
-Set the source root explicitly when the application can see that path:
+The production container contract maps that host tree read-only to
+`/app/animate` and sets `ANIMATE_PATH=/app/animate`. `docker-compose.yml`
+expresses the mapping directly:
+
+```text
+host:      /mnt/user/pc/kindrobots/animate
+container: /app/animate
+mode:      read-only
+```
+
+The host path can be overridden for Compose deployments with
+`KIND_ROBOTS_ANIMATE_PATH`; the container path stays `/app/animate` so the
+application and deployment agree on one stable location.
+
+For a non-container process that can see the host filesystem directly, set the
+source root explicitly:
 
 ```dotenv
 ANIMATE_PATH=/mnt/user/pc/kindrobots/animate
@@ -70,9 +85,24 @@ as `rootAvailable` in its response, so a misconfigured or not-yet-mounted
 root surfaces as a clear message in the admin UI instead of an opaque request
 failure.
 
-The application/container still needs read access to the chosen source root.
-Adding or changing a production bind mount is an operator deployment step; the
-code does not attempt to alter container configuration itself.
+On Alexandria, Kind Robots is recreated from the saved Unraid DockerMan
+template rather than from `docker-compose.yml`. That template therefore needs
+the same read-only path mapping before Scene Animator can work:
+
+```text
+Host Path:      /mnt/user/pc/kindrobots/animate
+Container Path: /app/animate
+Access Mode:    Read Only
+```
+
+After the template is updated and the container is recreated through the
+normal guarded deployment path, `/api/scene-animator/health` should report
+`root: /app/animate`, `source: ANIMATE_PATH` (when the template supplies that
+environment value) or the fallback source, and `available: true`.
+
+The application never mutates source stills, and the production mount should
+remain read-only. The code does not rewrite Unraid's saved DockerMan template;
+that host configuration is intentionally an operator-owned deployment step.
 
 ## Automatic motion prompt
 

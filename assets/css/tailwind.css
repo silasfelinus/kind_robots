@@ -2065,6 +2065,21 @@ section:has(div[class*='xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]'])
     @apply text-xs opacity-60;
   }
 
+  /* `.kr-text-faded-xs`'s `text-sm` sibling: `text-sm opacity-70`
+   * (interface-vision t-104 slice 185), the largest of the sibling
+   * `opacity-NN` shapes that slice 184's survey left open, found at 14
+   * exact-or-subset occurrences across 10 files, same consistently
+   * conditionally-rendered loading/empty-state caption pattern. Named
+   * `kr-text-faded-sm` (bare, not `kr-text-faded-sm-70`) because it is the
+   * first `sm`-size member of this opacity-based family, the same
+   * bare-name-for-the-first-shape convention `.kr-text-dim-sm` set for the
+   * `text-base-content/NN` family. A later `text-sm opacity-NN` at a
+   * different percentage would follow `.kr-text-dim-sm-70`'s precedent and
+   * take a `-NN` suffix instead of reusing this name. */
+  .kr-text-faded-sm {
+    @apply text-sm opacity-70;
+  }
+
   .text-smart {
     @apply text-sm md:text-lg lg:text-lg xl:text-xl;
   }

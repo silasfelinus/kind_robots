@@ -304,7 +304,7 @@
 
         <p class="kr-text-bold-lg">No rewards found.</p>
 
-        <p class="max-w-xl text-sm opacity-70">
+        <p class="kr-text-faded-sm max-w-xl">
           No public or owned rewards match this gallery.
         </p>
 

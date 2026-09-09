@@ -6,7 +6,7 @@
           <h3 class="kr-text-bold-lg">Pronunciation practice</h3>
           <span class="kr-badge-outline">listen · say · check</span>
         </div>
-        <p class="mt-1 text-sm leading-relaxed opacity-70">
+        <p class="kr-text-faded-sm mt-1 leading-relaxed">
           Hear the reference, say the word yourself, then compare what the recognizer heard with a separate on-device check of the broad tone shape.
         </p>
         <div

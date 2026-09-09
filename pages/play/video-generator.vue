@@ -2,7 +2,7 @@
   <div class="kr-surface">
     <div class="kr-scroll kr-container max-w-7xl space-y-6 p-6">
       <header class="space-y-1">
-        <p class="text-sm opacity-70">
+        <p class="kr-text-faded-sm">
           Animate a still into a short clip. Presets choose sensible studio
           settings, while every generation control remains editable.
         </p>
@@ -247,7 +247,7 @@
               type="checkbox"
               class="toggle toggle-accent"
             />
-            <span class="text-sm opacity-70">
+            <span class="kr-text-faded-sm">
               {{ loop ? 'Seamless loop' : 'Play once' }}
             </span>
           </label>
@@ -338,7 +338,7 @@
 
         <div
           v-if="videoStore.state.message"
-          class="text-center text-sm opacity-70"
+          class="kr-text-faded-sm text-center"
         >
           {{ videoStore.state.message }}
           <span v-if="videoStore.state.jobId" class="opacity-50">

@@ -153,7 +153,7 @@
 
     <div
       v-else-if="!compatibleResources.length"
-      class="rounded-lg border border-dashed border-base-300 bg-base-200/50 p-5 text-center text-sm opacity-70"
+      class="kr-text-faded-sm rounded-lg border border-dashed border-base-300 bg-base-200/50 p-5 text-center"
     >
       No active {{ engine.toUpperCase() }} LoRA Resources are available.
     </div>

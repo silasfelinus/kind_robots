@@ -3,7 +3,7 @@
      Reads and drives the store directly. -->
 <template>
   <div class="rounded-xl border border-base-300 bg-base-100 p-4">
-    <h3 class="kr-text-eyebrow-bold mb-2 text-sm tracking-wide opacity-70">Save slots</h3>
+    <h3 class="kr-text-faded-sm kr-text-eyebrow-bold mb-2 tracking-wide">Save slots</h3>
 
     <div v-if="store.slots.length" class="mb-3 flex flex-col gap-1">
       <div

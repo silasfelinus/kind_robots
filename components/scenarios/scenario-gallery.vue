@@ -261,7 +261,7 @@
             }}
           </p>
 
-          <p class="mt-1 text-sm opacity-70">
+          <p class="kr-text-faded-sm mt-1">
             {{
               searchQuery
                 ? 'Try fewer or stranger words.'

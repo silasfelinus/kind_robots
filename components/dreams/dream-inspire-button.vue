@@ -4,7 +4,7 @@
     <dialog ref="serverModalRef" class="modal">
       <div class="modal-box">
         <h3 class="kr-text-bold-lg">Select Art Server</h3>
-        <p class="py-2 text-sm opacity-70">
+        <p class="kr-text-faded-sm py-2">
           No preferred art server found. Choose one to generate inspiration
           images:
         </p>

@@ -3,7 +3,7 @@
     <div class="kr-panel space-y-4 p-4">
       <div class="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h1 class="text-xl font-black">Mandarin catalog</h1>
+          <h1 class="kr-text-black-xl">Mandarin catalog</h1>
           <p class="kr-text-dim-xs-55 mt-1 max-w-3xl leading-5">
             Curate one canonical learner-facing entry while the pinned source
             data stays untouched. Changes are global overrides with an

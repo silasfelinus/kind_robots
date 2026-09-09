@@ -168,7 +168,7 @@
             >
               #{{ entry.rank }}
             </span>
-            <h2 class="mt-3 text-xl font-black uppercase">{{ entry.name }}</h2>
+            <h2 class="kr-text-black-xl mt-3 uppercase">{{ entry.name }}</h2>
             <p class="kr-text-dim-xs-45 mt-1 font-bold">
               {{ entry.subtitle }}
             </p>
@@ -281,7 +281,7 @@
           name="kind-icon:trophy"
           class="mx-auto size-12 text-base-content/25"
         />
-        <h2 class="mt-4 text-xl font-black">No rankings yet</h2>
+        <h2 class="kr-text-black-xl mt-4">No rankings yet</h2>
         <p class="mt-2 text-sm text-base-content/55">
           This division needs scored submissions before a champion can emerge.
         </p>

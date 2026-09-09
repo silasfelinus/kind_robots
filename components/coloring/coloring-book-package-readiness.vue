@@ -52,7 +52,7 @@
             <p class="kr-text-dim-xs-40 font-black uppercase tracking-widest">
               Book {{ book.order }}
             </p>
-            <h4 class="text-xl font-black">{{ book.title }}</h4>
+            <h4 class="kr-text-black-xl">{{ book.title }}</h4>
           </div>
           <span class="badge rounded-2xl" :class="packageStatusTone(book.status)">
             {{ statusLabel(book.status) }}

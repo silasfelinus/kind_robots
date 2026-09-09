@@ -31,7 +31,7 @@
                 For You
               </p>
             </div>
-            <h2 class="mt-1 text-xl font-black sm:text-2xl">
+            <h2 class="kr-text-black-xl mt-1 sm:text-2xl">
               Your attention desk
             </h2>
             <p class="kr-text-dim-sm mt-1 max-w-3xl">
@@ -96,7 +96,7 @@
                 >
                   Conductor
                 </p>
-                <h2 class="text-xl font-black">Human gates</h2>
+                <h2 class="kr-text-black-xl">Human gates</h2>
                 <p class="text-sm text-base-content/55">
                   Active approvals and questions waiting on your judgment.
                 </p>
@@ -324,7 +324,7 @@
                 >
                   Possibilities
                 </p>
-                <h2 class="text-xl font-black">Pitch proposals</h2>
+                <h2 class="kr-text-black-xl">Pitch proposals</h2>
                 <p class="text-sm text-base-content/55">
                   New ideas waiting for a green light or a merciful trapdoor.
                 </p>
@@ -423,7 +423,7 @@
               >
                 Kind Robots
               </p>
-              <h2 class="text-xl font-black">Personal follow-ups</h2>
+              <h2 class="kr-text-black-xl">Personal follow-ups</h2>
               <p class="text-sm text-base-content/55">
                 Your existing reminders, arranged for an actual human screen.
               </p>

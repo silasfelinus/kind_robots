@@ -33,7 +33,7 @@
         v-else-if="!userStore.isAdmin"
         class="kr-note kr-note-error p-8 text-center font-normal"
       >
-        <p class="text-xl font-black text-base-content">
+        <p class="kr-text-black-xl text-base-content">
           Administrator access required
         </p>
         <p class="kr-text-dim-sm mt-2">
@@ -124,7 +124,7 @@
                   >
                     {{ selectedAchievement.triggerCode }}
                   </p>
-                  <h2 class="mt-1 text-xl font-black">
+                  <h2 class="kr-text-black-xl mt-1">
                     {{ selectedAchievement.label }}
                   </h2>
                   <p class="kr-text-dim-sm mt-2 max-w-3xl">

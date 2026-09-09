@@ -77,7 +77,7 @@
 
       <article class="flex flex-col gap-4 kr-panel-section-flat">
         <div>
-          <h4 class="text-xl font-black">Cover art prompt</h4>
+          <h4 class="kr-text-black-xl">Cover art prompt</h4>
           <p v-if="cover.sourceRef" class="kr-text-dim-xs-45 mt-1 break-all">
             Historical source: {{ cover.sourceRef }}
           </p>

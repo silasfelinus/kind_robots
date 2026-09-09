@@ -374,7 +374,7 @@
             >
               {{ endingData.victoryType }}
             </span>
-            <h4 class="text-xl font-black">{{ endingData.title }}</h4>
+            <h4 class="kr-text-black-xl">{{ endingData.title }}</h4>
             <NarrativeArtStatus
               v-if="endingArt"
               class="w-full max-w-md"

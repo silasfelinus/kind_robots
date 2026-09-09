@@ -96,15 +96,15 @@
           </p>
           <div class="mt-3 grid grid-cols-3 gap-2 text-center">
             <div class="rounded-2xl bg-base-200/70 p-2">
-              <p class="text-xl font-black">{{ selectedCast.length }}</p>
+              <p class="kr-text-black-xl">{{ selectedCast.length }}</p>
               <p class="text-[0.65rem] text-base-content/50">cast</p>
             </div>
             <div class="rounded-2xl bg-base-200/70 p-2">
-              <p class="text-xl font-black">{{ selectedFacets.length }}</p>
+              <p class="kr-text-black-xl">{{ selectedFacets.length }}</p>
               <p class="text-[0.65rem] text-base-content/50">facets</p>
             </div>
             <div class="rounded-2xl bg-base-200/70 p-2">
-              <p class="text-xl font-black">{{ selectedRewards.length }}</p>
+              <p class="kr-text-black-xl">{{ selectedRewards.length }}</p>
               <p class="text-[0.65rem] text-base-content/50">rewards</p>
             </div>
           </div>
@@ -150,7 +150,7 @@
           >
             How it feels
           </p>
-          <h2 class="text-xl font-black">Choose a narrator voice</h2>
+          <h2 class="kr-text-black-xl">Choose a narrator voice</h2>
         </div>
         <div
           class="grid grid-cols-[repeat(auto-fit,minmax(min(100%,10rem),1fr))] gap-3"
@@ -202,7 +202,7 @@
           >
             How it unfolds
           </p>
-          <h2 class="text-xl font-black">Choose the shape of the tale</h2>
+          <h2 class="kr-text-black-xl">Choose the shape of the tale</h2>
         </div>
         <div
           class="grid grid-cols-[repeat(auto-fit,minmax(min(100%,15rem),1fr))] gap-3"

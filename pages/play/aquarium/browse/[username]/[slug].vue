@@ -37,7 +37,7 @@
         class="rounded-3xl border border-error/30 bg-error/10 p-8 text-center"
       >
         <Icon name="kind-icon:warning" class="mx-auto size-10 text-error" />
-        <p class="mt-3 text-xl font-black">Tank unavailable</p>
+        <p class="kr-text-black-xl mt-3">Tank unavailable</p>
         <p class="mt-2 text-sm text-base-content/65">{{ errorMessage }}</p>
         <p class="kr-text-dim-xs-45 mt-2">
           Either this tank doesn't exist, or its owner has kept it private.

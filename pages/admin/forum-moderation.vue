@@ -34,7 +34,7 @@
         v-else-if="!userStore.isAdmin"
         class="kr-note kr-note-error p-8 text-center font-normal"
       >
-        <p class="text-xl font-black text-base-content">
+        <p class="kr-text-black-xl text-base-content">
           Administrator access required
         </p>
         <p class="kr-text-dim-sm mt-2">

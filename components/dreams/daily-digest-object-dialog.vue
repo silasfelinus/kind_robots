@@ -19,7 +19,7 @@
                 {{ entity.slug }}
               </span>
             </div>
-            <h2 class="mt-1 truncate text-xl font-black sm:text-2xl">{{ title }}</h2>
+            <h2 class="kr-text-black-xl mt-1 truncate sm:text-2xl">{{ title }}</h2>
             <p class="mt-1 line-clamp-2 text-sm text-base-content/55">{{ summary }}</p>
           </div>
 

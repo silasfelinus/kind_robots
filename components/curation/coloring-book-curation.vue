@@ -171,7 +171,7 @@
             >
               Slot {{ proposal.slot }}
             </p>
-            <h2 class="mt-1 text-xl font-black leading-tight">
+            <h2 class="kr-text-black-xl mt-1 leading-tight">
               {{ proposal.title }}
             </h2>
             <p

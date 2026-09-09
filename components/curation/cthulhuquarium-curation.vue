@@ -69,7 +69,7 @@
           <div class="flex items-start justify-between gap-3">
             <div class="min-w-0">
               <div class="flex flex-wrap items-center gap-2">
-                <h2 class="text-xl font-black">{{ fish.name }}</h2>
+                <h2 class="kr-text-black-xl">{{ fish.name }}</h2>
                 <span class="kr-badge-outline-sm">{{ fish.rarity }}</span>
               </div>
               <p class="kr-text-dim-xs mt-1 italic">

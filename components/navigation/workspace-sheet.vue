@@ -182,7 +182,7 @@
 
               <div class="min-w-0">
                 <p
-                  class="truncate text-xl font-black leading-tight text-base-content"
+                  class="kr-text-black-xl truncate leading-tight text-base-content"
                 >
                   {{ card.label }}
                 </p>

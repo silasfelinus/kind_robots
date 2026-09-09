@@ -146,7 +146,7 @@
             <Icon name="kind-icon:gallery" class="h-4 w-4" />
             Gallery wall
           </p>
-          <h4 class="mt-1 text-xl font-black text-base-content">Look before you read</h4>
+          <h4 class="kr-text-black-xl mt-1 text-base-content">Look before you read</h4>
         </div>
         <p class="kr-text-dim-xs-55 max-w-xl leading-relaxed">
           These are real historical works with provenance links. Open any image to visit its source collection.
@@ -196,7 +196,7 @@
             <Icon name="kind-icon:search" class="h-4 w-4" />
             How to spot it
           </p>
-          <h4 class="mt-2 text-xl font-black text-base-content">Train your eye</h4>
+          <h4 class="kr-text-black-xl mt-2 text-base-content">Train your eye</h4>
           <div class="mt-4 grid gap-3 sm:grid-cols-2">
             <div
               v-for="(cue, index) in lesson.recognitionCues"
@@ -220,7 +220,7 @@
                 <Icon name="kind-icon:user" class="h-4 w-4" />
                 Meet the masters
               </p>
-              <h4 class="mt-2 text-xl font-black text-base-content">People behind the movement</h4>
+              <h4 class="kr-text-black-xl mt-2 text-base-content">People behind the movement</h4>
             </div>
             <span class="kr-text-dim-xs-45">
               {{ lesson.artists.length }} featured {{ lesson.artists.length === 1 ? 'artist' : 'artists' }}
@@ -252,7 +252,7 @@
                 v-else
                 class="flex items-center justify-center border-r border-base-300 bg-base-200"
               >
-                <div class="flex h-12 w-12 items-center justify-center rounded-full bg-base-100 text-xl font-black text-base-content/30 shadow-inner" aria-hidden="true">
+                <div class="kr-text-black-xl flex h-12 w-12 items-center justify-center rounded-full bg-base-100 text-base-content/30 shadow-inner" aria-hidden="true">
                   {{ artist.name.slice(0, 1) }}
                 </div>
               </div>

@@ -3,7 +3,7 @@
     <div class="flex flex-wrap items-start justify-between gap-3">
       <div>
         <p class="text-xs font-bold uppercase tracking-wide opacity-55">On the line</p>
-        <h3 id="fishing-encounter-title" class="text-xl font-black">{{ encounter.fishName }}</h3>
+        <h3 id="fishing-encounter-title" class="kr-text-black-xl">{{ encounter.fishName }}</h3>
         <p class="mt-1 text-xs opacity-65">{{ encounter.rarity }} · {{ encounter.affinity }} · {{ familyLabel }}</p>
       </div>
       <span class="badge badge-outline">Beat {{ encounter.beat }}/{{ encounter.maxBeats }}</span>

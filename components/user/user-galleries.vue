@@ -4,7 +4,7 @@
     class="flex h-full min-h-0 w-full flex-col gap-4 overflow-hidden kr-panel-muted-md"
   >
     <header class="shrink-0 kr-panel-flat p-4">
-      <h2 class="text-xl font-black">User Galleries</h2>
+      <h2 class="kr-text-black-xl">User Galleries</h2>
       <p class="kr-text-dim-sm">
         Records where <span class="font-bold">userId</span> matches this
         profile. Each model gets one row.

@@ -7,7 +7,7 @@
           <span class="kr-badge-sm" :class="affinityClass">{{ catchResult.affinity }}</span>
           <span class="kr-badge-outline-sm">{{ catchResult.rarity }}</span>
         </div>
-        <h3 class="mt-2 text-xl font-black">{{ catchResult.name }}</h3>
+        <h3 class="kr-text-black-xl mt-2">{{ catchResult.name }}</h3>
         <p class="mt-1 text-sm opacity-75">{{ catchResult.catchBehavior }}</p>
       </div>
       <div class="text-right">

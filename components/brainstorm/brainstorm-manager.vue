@@ -827,7 +827,7 @@
       data-testid="brainstorm-empty"
     >
       <p class="text-3xl" aria-hidden="true">✦</p>
-      <h3 class="mt-2 text-xl font-black text-base-content">No candidates yet.</h3>
+      <h3 class="kr-text-black-xl mt-2 text-base-content">No candidates yet.</h3>
       <p class="kr-text-dim-sm mx-auto mt-2 max-w-2xl leading-6">
         The blank page is currently winning. Give Brainstorm something to push against, then decide which ideas deserve to survive.
       </p>

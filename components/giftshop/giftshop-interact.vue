@@ -167,7 +167,7 @@
     <aside class="kr-panel p-4">
       <div class="flex items-center justify-between gap-3">
         <div>
-          <h3 class="text-xl font-black text-primary">Cart Nest</h3>
+          <h3 class="kr-text-black-xl text-primary">Cart Nest</h3>
 
           <p class="kr-text-dim-sm-70">
             Guarded by three butterflies and one emotionally available receipt

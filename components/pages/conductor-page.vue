@@ -570,7 +570,7 @@
                         >{{ selectedProject.conductorPriority }} priority</span
                       >
                     </div>
-                    <h3 class="break-words text-xl font-black leading-tight sm:text-2xl">
+                    <h3 class="kr-text-black-xl break-words leading-tight sm:text-2xl">
                       {{
                         linkedProject?.title ||
                         selectedProject.name ||

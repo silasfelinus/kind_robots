@@ -331,7 +331,7 @@
                   class="mt-1 h-6 w-6 text-primary"
                 />
                 <div class="min-w-0">
-                  <p class="truncate text-xl font-black text-primary">
+                  <p class="kr-text-black-xl truncate text-primary">
                     {{ dreamStore.dreamForm.title || 'Untitled Dream' }}
                   </p>
                   <p class="kr-text-dim-xs mt-1">

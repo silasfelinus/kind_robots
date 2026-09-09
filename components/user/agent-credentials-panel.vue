@@ -159,7 +159,7 @@
       />
 
       <label class="form-control w-full">
-        <span class="kr-text-bold-xs label-text mb-1">Bot identity</span>
+        <span class="kr-text-bold-xs mb-1">Bot identity</span>
         <select
           v-model.number="newBotId"
           class="kr-select-sm w-full bg-base-200"
@@ -200,7 +200,7 @@
       </fieldset>
 
       <label class="form-control w-full">
-        <span class="kr-text-bold-xs label-text mb-1">Expiry</span>
+        <span class="kr-text-bold-xs mb-1">Expiry</span>
         <select
           v-model="expiryChoice"
           class="kr-select-sm w-full bg-base-200"

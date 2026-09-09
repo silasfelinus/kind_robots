@@ -17,7 +17,7 @@
         </div>
 
         <div class="kr-toolbar">
-          <span class="badge badge-ghost">{{ filteredDreams.length }}</span>
+          <span class="kr-badge-ghost">{{ filteredDreams.length }}</span>
           <span v-if="resolvedDreamId" class="kr-badge-primary-sm rounded-xl">
             Dream #{{ resolvedDreamId }}
           </span>

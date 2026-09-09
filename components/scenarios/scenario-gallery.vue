@@ -17,7 +17,7 @@
         </div>
 
         <div class="flex shrink-0 items-center gap-2">
-          <span v-if="!isLoading" class="badge badge-ghost">
+          <span v-if="!isLoading" class="kr-badge-ghost">
             {{ filteredScenarios.length }}
           </span>
 

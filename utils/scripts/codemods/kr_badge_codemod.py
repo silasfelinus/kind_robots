@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """Find or migrate hand-rolled kr-badge-{ghost,warning,outline,primary,secondary}-sm,
 kr-badge-{ghost,outline,primary,warning,success,error,secondary,accent,info,neutral}-xs,
-kr-badge-sm (the colorless base), and kr-badge-xs (the colorless -xs sibling) badges.
+kr-badge-sm (the colorless base), kr-badge-xs (the colorless -xs sibling), and
+kr-badge-ghost (the sizeless ghost sibling) badges.
 
 Dry-run is the default. Pass --write to update matching Vue files in place.
 Only the approved badge shapes are touched (`badge badge-ghost badge-sm`,
@@ -47,7 +48,7 @@ import argparse
 import re
 from pathlib import Path
 
-CLASS_ATTR = re.compile(r'class="([^"]*)"')
+CLASS_ATTR = re.compile(r'(?<!:)class="([^"]*)"')
 
 FAMILIES = [
     ("kr-badge-ghost-sm", {"badge", "badge-ghost", "badge-sm"}),
@@ -56,6 +57,12 @@ FAMILIES = [
     ("kr-badge-primary-sm", {"badge", "badge-primary", "badge-sm"}),
     ("kr-badge-secondary-sm", {"badge", "badge-secondary", "badge-sm"}),
     ("kr-badge-ghost-xs", {"badge", "badge-ghost", "badge-xs"}),
+    # Sizeless sibling of kr-badge-ghost-sm/kr-badge-ghost-xs (interface-vision
+    # t-104 slice 181): its {badge, badge-ghost} base is a strict subset of
+    # both of those, so it must come after them. Bounded to an exact match
+    # only (see BOUNDED_EXTRAS below) -- its broader subset-match pool
+    # carries varied, not-yet-individually-audited extra tokens.
+    ("kr-badge-ghost", {"badge", "badge-ghost"}),
     ("kr-badge-outline-xs", {"badge", "badge-outline", "badge-xs"}),
     ("kr-badge-primary-xs", {"badge", "badge-primary", "badge-xs"}),
     ("kr-badge-warning-xs", {"badge", "badge-warning", "badge-xs"}),
@@ -89,8 +96,15 @@ FAMILIES = [
 # color supplied by a sibling `:class` binding -- verified in every one of
 # its 15 call sites). Families not listed here keep the unrestricted
 # subset-match behavior they already had.
+#
+# kr-badge-ghost's {badge, badge-ghost} base is similarly small and appears
+# inside a further ~13 hand-rolled combinations carrying varied extra tokens
+# (hover states, rounded-*, backdrop-blur, ...) not yet individually audited
+# (interface-vision t-104 slice 181) -- bounded to an exact match only until
+# a future slice audits the rest.
 BOUNDED_EXTRAS: dict[str, set[frozenset[str]]] = {
     "kr-badge-sm": {frozenset(), frozenset({"rounded-2xl"})},
+    "kr-badge-ghost": {frozenset()},
 }
 
 

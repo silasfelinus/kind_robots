@@ -1447,6 +1447,24 @@ section:has(div[class*='xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]'])
     @apply badge badge-ghost badge-xs;
   }
 
+  /* The sizeless sibling of .kr-badge-ghost-sm/.kr-badge-ghost-xs
+   * (interface-vision t-104 slice 181): bare `badge badge-ghost` with no
+   * size modifier -- the caller relies on DaisyUI's default badge size
+   * (same rationale as .kr-badge-sm/.kr-badge-xs being separate colorless
+   * siblings rather than folded into one shape). Bounded to the 11
+   * exact-match occurrences across 11 files this slice (--exact-only,
+   * same convention .kr-badge-sm's BOUNDED_EXTRAS docstring recommends for
+   * an only-partially-audited pool); a further ~13 occurrences carry
+   * varied extra tokens (hover states, rounded-*, backdrop-blur, ...) not
+   * yet individually audited and left for a future slice. A twelfth exact
+   * match in components/ui/ui-gallery.vue's "Badges & status" showcase
+   * section is a deliberate raw-DaisyUI comparison row (same rationale
+   * ui-gallery.vue's `btn btn-primary` showcase row was excluded for in an
+   * earlier slice) and was left untouched. */
+  .kr-badge-ghost {
+    @apply badge badge-ghost;
+  }
+
   /* The extra-small outline counterpart to .kr-badge-outline-sm (same
    * slice): `badge badge-outline badge-xs`, previously hand-rolled in 16
    * files (18 occurrences). */

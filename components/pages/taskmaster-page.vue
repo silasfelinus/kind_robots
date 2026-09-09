@@ -138,7 +138,7 @@
             <label class="form-control w-full">
               <div class="label py-1">
                 <span
-                  class="kr-text-eyebrow label-text text-[0.68rem] tracking-[0.12em] text-base-content/55"
+                  class="kr-text-eyebrow text-[0.68rem] tracking-[0.12em] text-base-content/55"
                 >
                   Project or task source
                   <span class="font-normal normal-case tracking-normal">(optional)</span>
@@ -322,7 +322,7 @@
                 <label class="form-control w-full">
                   <div class="label py-1">
                     <span
-                      class="kr-text-eyebrow label-text text-[0.68rem] tracking-[0.12em] text-base-content/55"
+                      class="kr-text-eyebrow text-[0.68rem] tracking-[0.12em] text-base-content/55"
                     >
                       Extra flavor
                       <span class="font-normal normal-case tracking-normal">(optional)</span>

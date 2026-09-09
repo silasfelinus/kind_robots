@@ -178,7 +178,7 @@
           <div class="kr-panel-tint-sm">
             <label class="form-control">
               <div class="label py-1">
-                <span class="kr-text-eyebrow label-text text-xs tracking-wide">
+                <span class="kr-text-eyebrow text-xs tracking-wide">
                   Adopt an existing set-local cover file
                 </span>
               </div>

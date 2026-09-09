@@ -137,9 +137,7 @@
                across screens. -->
           <div class="kr-panel-flat space-y-3 p-3">
             <label class="form-control w-full">
-              <span
-                class="kr-text-eyebrow-bold label-text mb-1 text-xs tracking-wide"
-              >
+              <span class="kr-text-eyebrow-bold mb-1 text-xs tracking-wide">
                 Working title (optional)
               </span>
               <input
@@ -151,9 +149,7 @@
             </label>
 
             <label class="form-control w-full">
-              <span
-                class="kr-text-eyebrow-bold label-text mb-1 text-xs tracking-wide"
-              >
+              <span class="kr-text-eyebrow-bold mb-1 text-xs tracking-wide">
                 Premise
               </span>
               <textarea
@@ -319,9 +315,7 @@
 
           <div class="kr-panel-flat space-y-2 p-3">
             <label class="form-control w-full">
-              <span
-                class="kr-text-eyebrow-bold label-text mb-1 text-xs tracking-wide"
-              >
+              <span class="kr-text-eyebrow-bold mb-1 text-xs tracking-wide">
                 Extra story direction (optional)
               </span>
               <textarea

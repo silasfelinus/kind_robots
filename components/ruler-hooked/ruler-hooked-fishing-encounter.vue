@@ -6,7 +6,7 @@
         <h3 id="fishing-encounter-title" class="kr-text-black-xl">{{ encounter.fishName }}</h3>
         <p class="mt-1 text-xs opacity-65">{{ encounter.rarity }} · {{ encounter.affinity }} · {{ familyLabel }}</p>
       </div>
-      <span class="badge badge-outline">Beat {{ encounter.beat }}/{{ encounter.maxBeats }}</span>
+      <span class="kr-badge-outline">Beat {{ encounter.beat }}/{{ encounter.maxBeats }}</span>
     </div>
 
     <p class="mt-3 text-sm opacity-80">{{ encounter.catchBehavior }}</p>

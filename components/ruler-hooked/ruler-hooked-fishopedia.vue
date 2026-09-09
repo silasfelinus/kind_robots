@@ -4,7 +4,7 @@
       class="collapse-title flex items-center justify-between gap-3 pr-12 font-bold"
     >
       <span>📖 Fishopedia</span>
-      <span class="badge badge-outline"
+      <span class="kr-badge-outline"
         >{{ discoveredCount }}/{{ roster.length }} discovered</span
       >
     </summary>

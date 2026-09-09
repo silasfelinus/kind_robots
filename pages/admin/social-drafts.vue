@@ -51,7 +51,7 @@
             :key="row.platform"
             class="flex items-center gap-3 rounded-xl border border-base-300 bg-base-100 px-4 py-2"
           >
-            <span class="badge badge-outline">{{ row.platform }}</span>
+            <span class="kr-badge-outline">{{ row.platform }}</span>
             <span class="kr-text-black-sm">
               {{ row.approvedToday }}/{{ row.ceiling }}
             </span>
@@ -128,7 +128,7 @@
           >
             <div class="flex items-start justify-between gap-2">
               <div class="flex items-center gap-2">
-                <span class="badge badge-outline">{{ draft.platform }}</span>
+                <span class="kr-badge-outline">{{ draft.platform }}</span>
                 <span
                   class="badge"
                   :class="{

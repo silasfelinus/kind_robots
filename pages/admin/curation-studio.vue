@@ -44,9 +44,9 @@
             </button>
           </nav>
           <div class="flex flex-wrap gap-2">
-            <span class="badge badge-outline">Admin only</span>
-            <span class="badge badge-outline">Audited changes</span>
-            <span class="badge badge-outline">ArtJob backed</span>
+            <span class="kr-badge-outline">Admin only</span>
+            <span class="kr-badge-outline">Audited changes</span>
+            <span class="kr-badge-outline">ArtJob backed</span>
           </div>
         </div>
 

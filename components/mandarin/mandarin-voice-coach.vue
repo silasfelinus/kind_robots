@@ -4,7 +4,7 @@
       <div class="max-w-2xl">
         <div class="flex flex-wrap items-center gap-2">
           <h3 class="kr-text-bold-lg">Pronunciation practice</h3>
-          <span class="badge badge-outline">listen · say · check</span>
+          <span class="kr-badge-outline">listen · say · check</span>
         </div>
         <p class="mt-1 text-sm leading-relaxed opacity-70">
           Hear the reference, say the word yourself, then compare what the recognizer heard with a separate on-device check of the broad tone shape.
@@ -115,7 +115,7 @@
           >
             <div class="flex flex-wrap items-center gap-2">
               <span class="kr-text-bold-lg">{{ observation.syllable }}</span>
-              <span class="badge badge-outline">{{ observation.expectedArrow }} T{{ observation.expectedTone }}</span>
+              <span class="kr-badge-outline">{{ observation.expectedArrow }} T{{ observation.expectedTone }}</span>
               <span class="badge" :class="verdictClass(observation.verdict)">
                 heard {{ observation.observedShape }}
               </span>

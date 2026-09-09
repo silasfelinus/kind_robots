@@ -13,8 +13,8 @@
           </p>
         </div>
         <div class="flex flex-wrap gap-2">
-          <span class="badge badge-outline">Private output</span>
-          <span class="badge badge-outline">ArtJob-backed resume</span>
+          <span class="kr-badge-outline">Private output</span>
+          <span class="kr-badge-outline">ArtJob-backed resume</span>
           <button
             type="button"
             class="kr-btn"

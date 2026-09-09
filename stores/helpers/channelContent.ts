@@ -49,6 +49,7 @@ export type ChannelContentItem = {
   requiredRole?: string
   requiredPermission?: string
   visible?: boolean
+  navigation?: boolean
   status?: string
   loadingMessage?: string
   refreshLabel?: string
@@ -103,6 +104,7 @@ export type ResolvedTab = {
   cards: string | NavigationCard[] | null
   tutorial: ResolvedTutorialSection | null
   requiredBeforeNext: string[]
+  navigation: boolean
   requiredRole: string
   requiredPermission: string
   loadingMessage: string
@@ -324,6 +326,7 @@ function resolveTabItem(
     requiredBeforeNext: Array.isArray(item.requiredBeforeNext)
       ? item.requiredBeforeNext
       : [],
+    navigation: item.navigation !== false,
     requiredRole: text(item.requiredRole) || channel.requiredRole,
     requiredPermission:
       text(item.requiredPermission) || channel.requiredPermission,

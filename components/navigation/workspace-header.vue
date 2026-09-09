@@ -484,6 +484,7 @@ const fallbackTab: ResolvedTab = {
   cards: null,
   tutorial: null,
   requiredBeforeNext: [],
+  navigation: true,
   requiredRole: '',
   requiredPermission: '',
   loadingMessage: pageStore.loadingMessage || 'Loading…',

@@ -1,11 +1,14 @@
 <template>
-  <section class="flex w-full min-w-0 flex-col gap-2 text-base-content">
+  <section
+    ref="pickerRoot"
+    class="flex w-full min-w-0 flex-col gap-2 text-base-content"
+  >
     <div class="flex min-w-0 items-center gap-2">
       <button
         type="button"
         class="btn btn-sm min-w-0 flex-1 justify-between rounded-2xl border-base-content/15 bg-base-100"
         :class="expanded ? 'btn-primary' : 'btn-outline'"
-        @click="expanded = !expanded"
+        @click="handleBrowseClick"
       >
         <span class="flex min-w-0 items-center gap-2">
           <Icon name="kind-icon:gallery" class="h-4 w-4 shrink-0" />
@@ -35,18 +38,11 @@
     <Transition name="picker-panel">
       <div
         v-if="expanded"
-        class="collection-choice-grid rounded-2xl border border-base-content/10 bg-base-200/80 p-2"
+        class="grid max-h-72 gap-2 overflow-y-auto rounded-2xl border border-base-content/10 bg-base-200/80 p-2 sm:grid-cols-2 lg:grid-cols-3"
       >
-        <div class="col-span-full px-1 pb-1 pt-0.5">
-          <p class="kr-text-black-sm">Choose the dungeon shelves</p>
-          <p class="kr-text-dim-xs-60 mt-0.5">
-            All art is the default. Pick one or more collections when you want a narrower deck.
-          </p>
-        </div>
-
         <button
           type="button"
-          class="group flex min-h-44 flex-col items-start rounded-2xl border p-2 text-left transition hover:-translate-y-0.5 hover:shadow-lg"
+          class="flex min-h-18 flex-col items-start justify-between rounded-2xl border p-3 text-left transition hover:-translate-y-0.5 hover:shadow-lg"
           :class="
             !hasSelection
               ? 'border-primary bg-primary/15 text-primary'
@@ -54,26 +50,6 @@
           "
           @click="useAllArt"
         >
-          <div class="mb-2 grid h-24 w-full grid-cols-3 overflow-hidden rounded-xl bg-base-300">
-            <template v-if="allArtPreviewPaths.length">
-              <img
-                v-for="(imagePath, index) in allArtPreviewPaths"
-                :key="`${imagePath}-${index}`"
-                :src="imagePath"
-                alt=""
-                class="h-24 w-full object-cover"
-                loading="lazy"
-                @error="hideBrokenPreview"
-              />
-            </template>
-            <div
-              v-else
-              class="col-span-3 flex h-24 items-center justify-center text-3xl text-base-content/30"
-            >
-              <Icon name="kind-icon:gallery" class="h-9 w-9" />
-            </div>
-          </div>
-
           <span class="flex w-full items-start justify-between gap-2">
             <span class="kr-text-black-sm">All available art</span>
             <Icon
@@ -82,7 +58,7 @@
             />
           </span>
           <span class="kr-text-dim-xs-60 mt-2">
-            Let the dungeon roam across the whole playable art library.
+            Draw the dungeon deck from the whole playable art library.
           </span>
         </button>
 
@@ -90,7 +66,7 @@
           v-for="collection in availableCollections"
           :key="collection.id"
           type="button"
-          class="group flex min-h-44 flex-col items-start rounded-2xl border p-2 text-left transition hover:-translate-y-0.5 hover:shadow-lg"
+          class="group flex min-h-18 flex-col items-start justify-between rounded-2xl border p-3 text-left transition hover:-translate-y-0.5 hover:shadow-lg"
           :class="
             isSelected(collection.id)
               ? 'border-primary bg-primary/15 text-primary'
@@ -98,26 +74,6 @@
           "
           @click="toggleCollection(collection.id)"
         >
-          <div class="mb-2 grid h-24 w-full grid-cols-3 overflow-hidden rounded-xl bg-base-300">
-            <template v-if="getCollectionPreviewPaths(collection).length">
-              <img
-                v-for="(imagePath, index) in getCollectionPreviewPaths(collection)"
-                :key="`${collection.id}-${imagePath}-${index}`"
-                :src="imagePath"
-                alt=""
-                class="h-24 w-full object-cover"
-                loading="lazy"
-                @error="hideBrokenPreview"
-              />
-            </template>
-            <div
-              v-else
-              class="col-span-3 flex h-24 items-center justify-center text-3xl text-base-content/30"
-            >
-              <Icon name="kind-icon:gallery" class="h-9 w-9" />
-            </div>
-          </div>
-
           <span class="flex w-full items-start justify-between gap-2">
             <span class="kr-text-black-sm line-clamp-2">
               {{ getCollectionLabel(collection) }}
@@ -145,6 +101,132 @@
         </p>
       </div>
     </Transition>
+
+    <Teleport v-if="isSplashPicker" to=".splash-screen">
+      <section
+        :id="galleryId"
+        class="shrink-0 border-t border-yellow-700/30 bg-base-300/98 px-4 py-6 text-base-content sm:px-6 lg:px-8"
+      >
+        <div class="mx-auto flex w-full max-w-7xl flex-col gap-4">
+          <div class="flex flex-wrap items-end justify-between gap-3">
+            <div>
+              <p class="kr-text-black-lg">🖼️ Browse the dungeon shelves</p>
+              <p class="kr-text-dim-sm mt-1 max-w-2xl">
+                All art is the default. Pick one or more collections if you want a particular mood, or ignore this entirely and enter the dungeon.
+              </p>
+            </div>
+            <span class="badge badge-primary badge-outline font-bold">
+              {{ selectedSummary }}
+            </span>
+          </div>
+
+          <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5">
+            <button
+              type="button"
+              class="group flex min-h-44 flex-col items-start rounded-2xl border p-2 text-left transition hover:-translate-y-0.5 hover:shadow-xl"
+              :class="
+                !hasSelection
+                  ? 'border-primary bg-primary/15 text-primary shadow-lg'
+                  : 'border-base-content/10 bg-base-100 text-base-content'
+              "
+              @click="useAllArt"
+            >
+              <div
+                class="mb-2 grid h-24 w-full grid-cols-3 overflow-hidden rounded-xl bg-base-200"
+              >
+                <template v-if="allArtPreviewPaths.length">
+                  <img
+                    v-for="(imagePath, index) in allArtPreviewPaths"
+                    :key="`${imagePath}-${index}`"
+                    :src="imagePath"
+                    alt=""
+                    class="h-24 w-full object-cover"
+                    loading="lazy"
+                    @error="hideBrokenPreview"
+                  />
+                </template>
+                <div
+                  v-else
+                  class="col-span-3 flex h-24 items-center justify-center text-base-content/30"
+                >
+                  <Icon name="kind-icon:gallery" class="h-9 w-9" />
+                </div>
+              </div>
+
+              <span class="flex w-full items-start justify-between gap-2">
+                <span class="kr-text-black-sm">All available art</span>
+                <Icon
+                  :name="!hasSelection ? 'kind-icon:check-circle' : 'kind-icon:circle'"
+                  class="h-5 w-5 shrink-0"
+                />
+              </span>
+              <span class="kr-text-dim-xs-60 mt-2">
+                Let the dungeon roam across the whole playable art library.
+              </span>
+            </button>
+
+            <button
+              v-for="collection in availableCollections"
+              :key="`gallery-${collection.id}`"
+              type="button"
+              class="group flex min-h-44 flex-col items-start rounded-2xl border p-2 text-left transition hover:-translate-y-0.5 hover:shadow-xl"
+              :class="
+                isSelected(collection.id)
+                  ? 'border-primary bg-primary/15 text-primary shadow-lg'
+                  : 'border-base-content/10 bg-base-100 text-base-content'
+              "
+              @click="toggleCollection(collection.id)"
+            >
+              <div
+                class="mb-2 grid h-24 w-full grid-cols-3 overflow-hidden rounded-xl bg-base-200"
+              >
+                <template v-if="getCollectionPreviewPaths(collection).length">
+                  <img
+                    v-for="(imagePath, index) in getCollectionPreviewPaths(collection)"
+                    :key="`${collection.id}-${imagePath}-${index}`"
+                    :src="imagePath"
+                    alt=""
+                    class="h-24 w-full object-cover"
+                    loading="lazy"
+                    @error="hideBrokenPreview"
+                  />
+                </template>
+                <div
+                  v-else
+                  class="col-span-3 flex h-24 items-center justify-center text-base-content/30"
+                >
+                  <Icon name="kind-icon:gallery" class="h-9 w-9" />
+                </div>
+              </div>
+
+              <span class="flex w-full items-start justify-between gap-2">
+                <span class="kr-text-black-sm line-clamp-2">
+                  {{ getCollectionLabel(collection) }}
+                </span>
+                <Icon
+                  :name="
+                    isSelected(collection.id)
+                      ? 'kind-icon:check-circle'
+                      : 'kind-icon:circle'
+                  "
+                  class="h-5 w-5 shrink-0"
+                />
+              </span>
+              <span class="kr-text-dim-xs-60 mt-2">
+                {{ getCollectionMeta(collection) }}
+              </span>
+            </button>
+          </div>
+
+          <p
+            v-if="!availableCollections.length"
+            class="rounded-2xl border border-warning/30 bg-warning/10 px-4 py-3 text-sm font-semibold text-warning-content"
+          >
+            No collection shelves are ready yet. All available art remains a perfectly good default.
+          </p>
+        </div>
+      </section>
+    </Teleport>
   </section>
 </template>
 
@@ -192,9 +274,12 @@ const emit = defineEmits<{
 
 const artStore = useArtStore()
 
-const expanded = ref(true)
+const pickerRoot = ref<HTMLElement | null>(null)
+const expanded = ref(false)
+const isSplashPicker = ref(false)
 const localMode = ref<CollectionPickerMode>('all')
 const selectedCollectionIds = ref<number[]>([])
+const galleryId = 'memory-dungeon-deck-gallery'
 
 const availableCollections = computed<ArtCollection[]>(() => {
   return artStore.generationCollections
@@ -255,12 +340,26 @@ watch(
 )
 
 onMounted(async () => {
+  isSplashPicker.value = Boolean(pickerRoot.value?.closest('.splash-screen'))
+
   await artStore.initialize({
     fetchRemote: false,
     hydrateImages: false,
     initializeCollections: true,
   })
 })
+
+function handleBrowseClick() {
+  if (!isSplashPicker.value) {
+    expanded.value = !expanded.value
+    return
+  }
+
+  document.getElementById(galleryId)?.scrollIntoView({
+    behavior: 'smooth',
+    block: 'start',
+  })
+}
 
 function getCollectionLabel(collection: ArtCollection): string {
   const record = collection as ArtCollection & {
@@ -390,31 +489,6 @@ function useAllArt() {
 </script>
 
 <style scoped>
-.collection-choice-grid {
-  display: grid;
-  max-height: min(60dvh, 32rem);
-  gap: 0.5rem;
-  overflow-y: auto;
-  grid-template-columns: repeat(1, minmax(0, 1fr));
-}
-
-@media (min-width: 640px) {
-  .collection-choice-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
-@media (min-width: 1024px) {
-  .collection-choice-grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-}
-
-:global(.splash-screen) .collection-choice-grid {
-  max-height: none;
-  overflow: visible;
-}
-
 .picker-panel-enter-active,
 .picker-panel-leave-active {
   transition:

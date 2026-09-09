@@ -233,7 +233,7 @@
             :alt="`${book.title} archived cover revision`"
             class="aspect-[2/3] w-full rounded-xl bg-base-100 object-contain"
           />
-          <p class="text-xs font-black">{{ revision.previousStatus || 'Archived revision' }}</p>
+          <p class="kr-text-black-xs">{{ revision.previousStatus || 'Archived revision' }}</p>
           <p class="kr-text-dim-xs-45">
             {{ formatDate(revision.requestedAt) }}
           </p>

@@ -58,7 +58,7 @@
       >
         <div class="flex items-start gap-2">
           <span
-            class="flex size-6 shrink-0 items-center justify-center rounded-lg bg-accent text-xs font-black text-accent-content"
+            class="kr-text-black-xs flex size-6 shrink-0 items-center justify-center rounded-lg bg-accent text-accent-content"
           >
             {{ index + 1 }}
           </span>

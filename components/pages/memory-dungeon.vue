@@ -30,7 +30,7 @@
               ❤️
             </span>
           </div>
-          <div class="text-xs font-black sm:hidden">❤️ {{ lives }}</div>
+          <div class="kr-text-black-xs sm:hidden">❤️ {{ lives }}</div>
           <div class="mt-0.5 text-[10px] text-base-content/50">
             HP {{ lives }}/{{ maxLives }}
           </div>

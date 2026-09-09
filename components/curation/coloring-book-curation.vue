@@ -206,7 +206,7 @@
           </div>
 
           <label class="form-control gap-1">
-            <span class="text-xs font-black">Pitch / art prompt</span>
+            <span class="kr-text-black-xs">Pitch / art prompt</span>
             <textarea
               v-model="drafts[proposal.id]"
               class="textarea textarea-bordered min-h-28 rounded-xl text-sm leading-5"

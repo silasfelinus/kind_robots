@@ -270,7 +270,7 @@
 
                 <div class="min-w-0 flex-1">
                   <p
-                    class="truncate text-xs font-black leading-tight group-hover:text-primary"
+                    class="kr-text-black-xs truncate leading-tight group-hover:text-primary"
                     :title="project.title"
                   >
                     {{ project.title }}

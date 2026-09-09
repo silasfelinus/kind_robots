@@ -802,6 +802,88 @@ export const useMemoryStore = defineStore('memoryStore', () => {
     return ''
   }
 
+  async function imagePathLoads(imagePath: string): Promise<boolean> {
+    if (!isClient) return Boolean(imagePath)
+
+    return new Promise<boolean>((resolve) => {
+      const probe = new Image()
+      let settled = false
+      let timeoutId: number | null = null
+
+      const finish = (loaded: boolean) => {
+        if (settled) return
+        settled = true
+
+        if (timeoutId !== null) {
+          window.clearTimeout(timeoutId)
+        }
+
+        probe.onload = null
+        probe.onerror = null
+        resolve(loaded)
+      }
+
+      probe.onload = () => finish(true)
+      probe.onerror = () => finish(false)
+      timeoutId = window.setTimeout(() => finish(false), 4000)
+      probe.src = imagePath
+    })
+  }
+
+  async function selectLoadableImagePaths(
+    pool: ArtImage[],
+    needed: number,
+  ): Promise<string[]> {
+    const candidatePaths: string[] = []
+    const seenPaths = new Set<string>()
+
+    for (const image of shuffle(pool)) {
+      const imagePath = extractArtImagePath(image)
+
+      if (!imagePath || seenPaths.has(imagePath)) continue
+
+      seenPaths.add(imagePath)
+      candidatePaths.push(imagePath)
+    }
+
+    const loadablePaths: string[] = []
+    const probeBatchSize = 8
+
+    for (
+      let offset = 0;
+      offset < candidatePaths.length && loadablePaths.length < needed;
+      offset += probeBatchSize
+    ) {
+      const batch = candidatePaths.slice(offset, offset + probeBatchSize)
+      const results = await Promise.all(
+        batch.map(async (imagePath) => ({
+          imagePath,
+          loaded: await imagePathLoads(imagePath),
+        })),
+      )
+
+      for (const result of results) {
+        if (result.loaded) {
+          loadablePaths.push(result.imagePath)
+        }
+      }
+    }
+
+    if (loadablePaths.length < 2) {
+      throw new Error(
+        'The dungeon could not find enough images that actually load. Pick another collection or repair the missing art files first.',
+      )
+    }
+
+    const selectedPaths: string[] = []
+
+    while (selectedPaths.length < needed) {
+      selectedPaths.push(...shuffle(loadablePaths))
+    }
+
+    return selectedPaths.slice(0, needed)
+  }
+
   async function generateMemoryGameImages(): Promise<void> {
     try {
       isLoading.value = true
@@ -828,25 +910,8 @@ export const useMemoryStore = defineStore('memoryStore', () => {
         )
       }
 
-      // Build a pool large enough for pairsNeeded, duplicating images if necessary
-      // (prefer diversity: cycle through shuffled pool rather than repeating the same ones)
       const needed = pairsNeeded.value
-      let expandedPool: ArtImage[] = []
-      const shuffled = shuffle(pool)
-      while (expandedPool.length < needed) {
-        expandedPool = expandedPool.concat(shuffled)
-      }
-      const picked = expandedPool.slice(0, needed)
-
-      const imagePaths = picked
-        .map((image) => extractArtImagePath(image))
-        .filter(Boolean)
-
-      if (imagePaths.length < 2) {
-        throw new Error(
-          'The dungeon could not extract enough valid image paths from the art collection.',
-        )
-      }
+      const imagePaths = await selectLoadableImagePaths(pool, needed)
 
       galleryImages.value = shuffle(
         imagePaths.flatMap((imagePath, pairId) => [

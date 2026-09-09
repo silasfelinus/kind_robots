@@ -24,6 +24,7 @@ from __future__ import annotations
 import argparse
 import re
 from pathlib import Path
+from _class_attr import CLASS_ATTR
 
 # Negative lookbehind excludes `:class="..."`/`v-bind:class="..."` dynamic
 # bindings -- both end in `:` immediately before `class=`, so a bare
@@ -35,8 +36,6 @@ from pathlib import Path
 # `:class="\`... text-2xl ... font-bold ...\`"` binding -- fixed here first;
 # the sibling codemods share the same latent gap, flagged as this slice's
 # kaizen candidate rather than rewritten in scope).
-CLASS_ATTR = re.compile(r'(?<!:)class="([^"]*)"')
-
 PRIMITIVE = "kr-text-bold-2xl"
 BASE_TOKENS = {"font-bold", "text-2xl"}
 

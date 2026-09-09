@@ -12,8 +12,8 @@ from __future__ import annotations
 import argparse
 import re
 from pathlib import Path
+from _class_attr import CLASS_ATTR
 
-CLASS_ATTR = re.compile(r'class="([^"]*)"')
 BASE_TOKENS = {
     "rounded-3xl",
     "border",

@@ -9,6 +9,7 @@ description: Posts auto-hidden after crossing the health-claim flag-escalation t
 icon: kind-icon:flag
 route: /admin/forum-moderation
 sort: 60
+navigation: false
 requiredRole: ADMIN
 ---
 

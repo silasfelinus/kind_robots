@@ -38,7 +38,7 @@
           </div>
           <div v-if="!manaStore.isFamily" class="text-right">
             <div class="kr-text-dim-sm">Daily cap</div>
-            <div class="text-2xl font-bold">{{ manaStore.cap }}</div>
+            <div class="kr-text-bold-2xl">{{ manaStore.cap }}</div>
           </div>
         </div>
 

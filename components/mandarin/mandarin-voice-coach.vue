@@ -89,7 +89,7 @@
     >
       <div class="kr-panel-tint-md">
         <p class="text-xs font-semibold uppercase tracking-wide opacity-55">What I heard</p>
-        <p v-if="transcript" class="mt-2 text-2xl font-bold">{{ transcript }}</p>
+        <p v-if="transcript" class="kr-text-bold-2xl mt-2">{{ transcript }}</p>
         <p v-else class="mt-2 text-sm opacity-60">The transcript was unavailable.</p>
         <div v-if="comparison" class="mt-3 text-sm leading-relaxed">
           <span

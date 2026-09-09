@@ -17,7 +17,7 @@
         :class="{ 'ring-2 ring-accent': !isPatron }"
       >
         <div class="space-y-3">
-          <h3 class="text-2xl font-bold text-accent-content">Free Plan 🧃</h3>
+          <h3 class="kr-text-bold-2xl text-accent-content">Free Plan 🧃</h3>
           <ul class="list-disc list-inside text-base-content/80 space-y-1">
             <li>Access to public tools</li>
             <li>Community forums</li>
@@ -37,7 +37,7 @@
         :class="{ 'ring-2 ring-primary': isPatron }"
       >
         <div class="space-y-3">
-          <h3 class="text-2xl font-bold text-primary">Patron Plan 🚀</h3>
+          <h3 class="kr-text-bold-2xl text-primary">Patron Plan 🚀</h3>
           <ul class="list-disc list-inside text-base-content/80 space-y-1">
             <li>
               <span class="font-semibold text-primary"

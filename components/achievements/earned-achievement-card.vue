@@ -19,7 +19,7 @@
         class="text-9xl mb-2 md:w-16 md:h-16"
       />
 
-      <div class="text-2xl font-bold">
+      <div class="kr-text-bold-2xl">
         <a
           v-if="achievement.pageHint"
           :href="achievement.pageHint"

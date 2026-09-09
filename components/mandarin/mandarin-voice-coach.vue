@@ -76,7 +76,7 @@
       <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <p class="text-xs font-semibold uppercase tracking-wide opacity-55">Your attempt</p>
-          <p class="text-xs opacity-60">Not saved by Kind Robots. The clip is sent to the configured speech service only for transcription.</p>
+          <p class="kr-text-faded-xs">Not saved by Kind Robots. The clip is sent to the configured speech service only for transcription.</p>
         </div>
         <audio :src="audioUrl" controls class="h-10 max-w-full" />
       </div>

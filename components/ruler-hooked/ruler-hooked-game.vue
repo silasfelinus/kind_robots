@@ -17,7 +17,7 @@
         <div class="flex items-center justify-between gap-3">
           <div>
             <p class="kr-text-bold-sm">{{ store.save.ruler.honorific }} {{ store.save.ruler.name }}</p>
-            <p class="text-xs opacity-60">Turn {{ store.save.turnCount }} · {{ store.save.status.toLowerCase() }} · {{ store.save.counters.fishCaught ?? 0 }} fish</p>
+            <p class="kr-text-faded-xs">Turn {{ store.save.turnCount }} · {{ store.save.status.toLowerCase() }} · {{ store.save.counters.fishCaught ?? 0 }} fish</p>
           </div>
           <button
             type="button"

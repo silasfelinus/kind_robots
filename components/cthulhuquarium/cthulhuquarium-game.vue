@@ -185,10 +185,10 @@
         @pointercancel="onCanvasPointerUp"
       />
 
-      <p v-if="tankStore.loading" class="text-xs opacity-60">
+      <p v-if="tankStore.loading" class="kr-text-faded-xs">
         Settling into your tank…
       </p>
-      <p v-else class="text-xs opacity-60">
+      <p v-else class="kr-text-faded-xs">
         Feed the hungriest occupant to keep it paying out. Coins accrue on their
         own while you're away and settle the moment you return -- nothing here
         is saved in this browser, it's all your tank.
@@ -326,7 +326,7 @@
             "Today's arrivals -- check back tomorrow for more."
           }}
         </p>
-        <p v-if="tankStore.catalogLoading" class="text-xs opacity-60">
+        <p v-if="tankStore.catalogLoading" class="kr-text-faded-xs">
           Reading the bestiary…
         </p>
         <div
@@ -366,7 +366,7 @@
               </button>
             </div>
           </div>
-          <p v-if="!tankStore.catalog.length" class="text-xs opacity-60">
+          <p v-if="!tankStore.catalog.length" class="kr-text-faded-xs">
             Nothing left to discover right now.
           </p>
         </div>
@@ -404,7 +404,7 @@
         </button>
 
         <template v-if="showBestiary">
-          <p v-if="tankStore.bestiaryLoading" class="text-xs opacity-60">
+          <p v-if="tankStore.bestiaryLoading" class="kr-text-faded-xs">
             Reading the book…
           </p>
           <div
@@ -460,7 +460,7 @@
                 </button>
               </div>
             </div>
-            <p v-if="!tankStore.bestiary.length" class="text-xs opacity-60">
+            <p v-if="!tankStore.bestiary.length" class="kr-text-faded-xs">
               Nothing in the book yet.
             </p>
           </div>
@@ -492,7 +492,7 @@
         </button>
 
         <template v-if="showSets">
-          <p v-if="tankStore.setCatalogLoading" class="text-xs opacity-60">
+          <p v-if="tankStore.setCatalogLoading" class="kr-text-faded-xs">
             Surveying the build layer…
           </p>
           <div
@@ -538,7 +538,7 @@
                 Equip ({{ entry.cost }})
               </button>
             </div>
-            <p v-if="!tankStore.setCatalog.length" class="text-xs opacity-60">
+            <p v-if="!tankStore.setCatalog.length" class="kr-text-faded-xs">
               No set pieces to show right now.
             </p>
           </div>
@@ -571,7 +571,7 @@
         </button>
 
         <template v-if="showDecor">
-          <p v-if="tankStore.decorCatalogLoading" class="text-xs opacity-60">
+          <p v-if="tankStore.decorCatalogLoading" class="kr-text-faded-xs">
             Sorting through the driftwood…
           </p>
           <div
@@ -602,7 +602,7 @@
                 Place ({{ entry.cost }})
               </button>
             </div>
-            <p v-if="!tankStore.decorCatalog.length" class="text-xs opacity-60">
+            <p v-if="!tankStore.decorCatalog.length" class="kr-text-faded-xs">
               Nothing to place right now.
             </p>
           </div>
@@ -681,7 +681,7 @@
             Every rarity comes in every size -- the shell tells you the line,
             not the size; the price tells you the size, not the line.
           </p>
-          <p v-if="tankStore.eggCatalogLoading" class="text-xs opacity-60">
+          <p v-if="tankStore.eggCatalogLoading" class="kr-text-faded-xs">
             Reading the shelf…
           </p>
           <div

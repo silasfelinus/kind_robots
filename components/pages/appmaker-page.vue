@@ -83,7 +83,7 @@
               createMessage
             }}</span>
           </div>
-          <p class="text-xs opacity-60">
+          <p class="kr-text-faded-xs">
             Creating an app files a scaffold request for the agents: the
             workspace folder, project roadmap, and art prompts appear after the
             next Worker cycle. Free accounts can run
@@ -138,7 +138,7 @@
                 :value="app.taskDone"
                 :max="app.taskTotal"
               />
-              <p class="text-xs opacity-60">
+              <p class="kr-text-faded-xs">
                 {{ app.taskDone }} of {{ app.taskTotal }} tasks done
                 <span
                   v-if="app.needsHuman > 0"

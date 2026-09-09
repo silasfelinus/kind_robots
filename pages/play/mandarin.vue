@@ -66,7 +66,7 @@
           <div class="flex flex-wrap items-center justify-between gap-2">
             <div>
               <h2 class="kr-text-bold-lg">Study sets</h2>
-              <p class="text-xs opacity-60">Pick a deck, then jump straight back to the flash card.</p>
+              <p class="kr-text-faded-xs">Pick a deck, then jump straight back to the flash card.</p>
             </div>
             <span class="kr-badge-ghost">{{ allSets.length }} decks</span>
           </div>
@@ -156,7 +156,7 @@
               <div v-else class="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-dashed border-base-300 p-3">
                 <div>
                   <p class="font-semibold">Not in the catalog yet.</p>
-                  <p class="text-xs opacity-60">Create “{{ searchQuery.trim() }}” as a requested learning card.</p>
+                  <p class="kr-text-faded-xs">Create “{{ searchQuery.trim() }}” as a requested learning card.</p>
                 </div>
                 <button class="kr-btn-primary-plain" type="button" :disabled="requestingWord" @click="requestCurrentWord">
                   <span v-if="requestingWord" class="kr-spinner-xs" />

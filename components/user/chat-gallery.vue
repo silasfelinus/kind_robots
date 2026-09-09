@@ -6,7 +6,7 @@
     <header class="flex shrink-0 flex-col gap-3">
       <div class="flex items-start justify-between gap-3">
         <div v-if="showHeader" class="flex flex-col gap-1">
-          <p class="text-xs font-bold uppercase tracking-wide text-primary">
+          <p class="kr-text-eyebrow-bold text-xs tracking-wide text-primary">
             Message Timeline
           </p>
           <h2 class="text-2xl font-black text-base-content">Chats</h2>

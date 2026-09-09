@@ -183,7 +183,7 @@
               <label class="form-control">
                 <span class="label py-1">
                   <span
-                    class="kr-text-dim-xs label-text font-bold uppercase tracking-wide"
+                    class="kr-text-eyebrow-bold kr-text-dim-xs label-text tracking-wide"
                   >
                     Customize the next move
                   </span>

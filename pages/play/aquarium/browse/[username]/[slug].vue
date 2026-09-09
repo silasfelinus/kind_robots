@@ -76,7 +76,7 @@
             </div>
           </div>
           <p
-            class="kr-text-dim-xs-45 mt-4 font-bold uppercase tracking-wide"
+            class="kr-text-eyebrow-bold kr-text-dim-xs-45 mt-4 tracking-wide"
           >
             Read-only -- visiting doesn't feed, clean, or change anything here.
           </p>

@@ -277,7 +277,9 @@
           </label>
 
           <div class="kr-panel-muted p-3 text-sm">
-            <p class="kr-text-dim-xs font-bold uppercase">Active Text Server</p>
+            <p class="kr-text-eyebrow-bold kr-text-dim-xs">
+              Active Text Server
+            </p>
 
             <p class="mt-1 font-semibold text-base-content/80">
               {{ activeServerName }}

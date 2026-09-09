@@ -186,7 +186,7 @@
               v-if="selectedGettingToKnowYouQuestion"
               class="mb-3 rounded-2xl border border-secondary/40 bg-secondary/10 p-3 text-sm"
             >
-              <p class="text-xs font-bold uppercase text-secondary">
+              <p class="kr-text-eyebrow-bold text-xs text-secondary">
                 Selected getting-to-know-you prompt
               </p>
 
@@ -354,7 +354,7 @@
 
             <div class="mt-3 grid gap-2 text-sm">
               <div class="kr-tile-md">
-                <p class="kr-text-dim-xs font-bold uppercase">Character</p>
+                <p class="kr-text-eyebrow-bold kr-text-dim-xs">Character</p>
 
                 <p class="mt-1 font-semibold">
                   {{ selectedCharacterName }}
@@ -362,7 +362,7 @@
               </div>
 
               <div class="kr-tile-md">
-                <p class="kr-text-dim-xs font-bold uppercase">Scenario</p>
+                <p class="kr-text-eyebrow-bold kr-text-dim-xs">Scenario</p>
 
                 <p class="mt-1 font-semibold">
                   {{ selectedScenarioTitle }}
@@ -370,7 +370,7 @@
               </div>
 
               <div class="kr-tile-md">
-                <p class="kr-text-dim-xs font-bold uppercase">Reward</p>
+                <p class="kr-text-eyebrow-bold kr-text-dim-xs">Reward</p>
 
                 <p class="mt-1 font-semibold">
                   {{ selectedRewardTitle }}
@@ -381,7 +381,7 @@
                 v-if="selectedPrompt"
                 class="rounded-2xl border border-primary/30 bg-primary/10 p-3"
               >
-                <p class="text-xs font-bold uppercase text-primary">
+                <p class="kr-text-eyebrow-bold text-xs text-primary">
                   Active Prompt
                 </p>
 

@@ -77,26 +77,26 @@
           class="mx-0.5 mt-2.5 grid grid-cols-2 gap-2 kr-panel-flat p-3 text-xs"
         >
           <div>
-            <p class="font-bold uppercase text-base-content/45">ID</p>
+            <p class="kr-text-eyebrow-bold text-base-content/45">ID</p>
             <p class="truncate text-base-content/75">#{{ reward.id }}</p>
           </div>
 
           <div>
-            <p class="font-bold uppercase text-base-content/45">Rarity</p>
+            <p class="kr-text-eyebrow-bold text-base-content/45">Rarity</p>
             <p class="truncate text-base-content/75">
               {{ reward.rarity || 'COMMON' }}
             </p>
           </div>
 
           <div>
-            <p class="font-bold uppercase text-base-content/45">Collection</p>
+            <p class="kr-text-eyebrow-bold text-base-content/45">Collection</p>
             <p class="truncate text-base-content/75">
               {{ reward.collection || 'general' }}
             </p>
           </div>
 
           <div>
-            <p class="font-bold uppercase text-base-content/45">Image</p>
+            <p class="kr-text-eyebrow-bold text-base-content/45">Image</p>
             <p class="truncate text-base-content/75">
               {{ reward.artImageId ? `#${reward.artImageId}` : 'none' }}
             </p>

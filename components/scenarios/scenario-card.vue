@@ -102,7 +102,7 @@
           class="mx-0.5 mt-2.5 kr-panel-flat rounded-xl p-2.5"
         >
           <p
-            class="text-[0.65rem] font-bold uppercase tracking-wider text-base-content/50"
+            class="kr-text-eyebrow-bold text-[0.65rem] tracking-wider text-base-content/50"
           >
             Inspirations
           </p>

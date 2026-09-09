@@ -749,7 +749,7 @@ onMounted(async () => {
       <aside class="flex flex-col gap-6">
         <div class="kr-panel-muted-md">
           <div
-            class="mb-3 text-sm font-bold uppercase tracking-widest opacity-60"
+            class="kr-text-eyebrow-bold mb-3 text-sm tracking-widest opacity-60"
           >
             Endpoint
           </div>
@@ -778,7 +778,7 @@ onMounted(async () => {
 
         <div class="kr-panel-muted-md">
           <div
-            class="mb-3 text-sm font-bold uppercase tracking-widest opacity-60"
+            class="kr-text-eyebrow-bold mb-3 text-sm tracking-widest opacity-60"
           >
             Art Server
           </div>
@@ -817,7 +817,7 @@ onMounted(async () => {
 
         <div class="kr-panel-muted-md">
           <div
-            class="mb-3 text-sm font-bold uppercase tracking-widest opacity-60"
+            class="kr-text-eyebrow-bold mb-3 text-sm tracking-widest opacity-60"
           >
             Parameters
           </div>
@@ -968,7 +968,7 @@ onMounted(async () => {
 
         <div class="kr-panel-muted-md">
           <div
-            class="mb-3 text-sm font-bold uppercase tracking-widest opacity-60"
+            class="kr-text-eyebrow-bold mb-3 text-sm tracking-widest opacity-60"
           >
             Debug
           </div>
@@ -1002,7 +1002,7 @@ onMounted(async () => {
           <div v-if="endpointDef.mode === 'text'" class="flex flex-col gap-6">
             <div class="flex flex-col gap-3">
               <div
-                class="text-sm font-bold uppercase tracking-widest opacity-60"
+                class="kr-text-eyebrow-bold text-sm tracking-widest opacity-60"
               >
                 Subject Animal
               </div>
@@ -1055,7 +1055,7 @@ onMounted(async () => {
           >
             <div class="flex flex-col gap-3">
               <div
-                class="text-sm font-bold uppercase tracking-widest opacity-60"
+                class="kr-text-eyebrow-bold text-sm tracking-widest opacity-60"
               >
                 Source Animal
               </div>
@@ -1124,7 +1124,7 @@ onMounted(async () => {
             <div class="grid gap-6 lg:grid-cols-2">
               <div class="flex flex-col gap-3">
                 <div
-                  class="text-sm font-bold uppercase tracking-widest opacity-60"
+                  class="kr-text-eyebrow-bold text-sm tracking-widest opacity-60"
                 >
                   Animal A
                 </div>
@@ -1150,7 +1150,7 @@ onMounted(async () => {
 
               <div class="flex flex-col gap-3">
                 <div
-                  class="text-sm font-bold uppercase tracking-widest opacity-60"
+                  class="kr-text-eyebrow-bold text-sm tracking-widest opacity-60"
                 >
                   Animal B
                 </div>

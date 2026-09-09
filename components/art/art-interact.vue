@@ -154,7 +154,9 @@
 
           <div class="mt-3 grid gap-2 text-xs">
             <div class="kr-panel-muted-compact-xs">
-              <p class="font-bold uppercase text-base-content/45">Checkpoint</p>
+              <p class="kr-text-eyebrow-bold text-base-content/45">
+                Checkpoint
+              </p>
               <p class="mt-1 break-all font-semibold">
                 {{ currentArtImage.checkpoint || 'n/a' }}
               </p>
@@ -162,13 +164,13 @@
 
             <div class="grid grid-cols-1 gap-2 sm:grid-cols-2">
               <div class="kr-panel-muted-compact-xs">
-                <p class="font-bold uppercase text-base-content/45">Sampler</p>
+                <p class="kr-text-eyebrow-bold text-base-content/45">Sampler</p>
                 <p class="mt-1 truncate font-semibold">
                   {{ currentArtImage.sampler || 'n/a' }}
                 </p>
               </div>
               <div class="kr-panel-muted-compact-xs">
-                <p class="font-bold uppercase text-base-content/45">Seed</p>
+                <p class="kr-text-eyebrow-bold text-base-content/45">Seed</p>
                 <p class="mt-1 truncate font-mono">
                   {{ currentArtImage.seed ?? 'n/a' }}
                 </p>
@@ -176,7 +178,7 @@
             </div>
 
             <div class="kr-panel-muted-compact-xs">
-              <p class="font-bold uppercase text-base-content/45">Server</p>
+              <p class="kr-text-eyebrow-bold text-base-content/45">Server</p>
               <p class="mt-1 truncate font-semibold">
                 {{ currentArtImage.serverName || 'n/a' }}
               </p>

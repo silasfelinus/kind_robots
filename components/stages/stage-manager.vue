@@ -89,7 +89,7 @@
         class="kr-pane-scroll flex flex-col border-r border-base-300 bg-base-100/60 backdrop-blur-sm p-4 gap-3"
       >
         <p
-          class="kr-text-dim-xs-40 font-bold uppercase tracking-widest"
+          class="kr-text-eyebrow-bold kr-text-dim-xs-40 tracking-widest"
         >
           Show Status
         </p>
@@ -128,7 +128,7 @@
         <!-- Cast status -->
         <div v-if="store.selectedStage" class="flex flex-col gap-1.5">
           <p
-            class="kr-text-dim-xs-40 font-bold uppercase tracking-widest"
+            class="kr-text-eyebrow-bold kr-text-dim-xs-40 tracking-widest"
           >
             Cast
           </p>
@@ -185,7 +185,7 @@
         <!-- Turn progress -->
         <div v-if="store.transcript.length" class="flex flex-col gap-1.5">
           <p
-            class="kr-text-dim-xs-40 font-bold uppercase tracking-widest"
+            class="kr-text-eyebrow-bold kr-text-dim-xs-40 tracking-widest"
           >
             Progress
           </p>
@@ -513,7 +513,7 @@
             <!-- Show title -->
             <div class="flex flex-col gap-1.5">
               <label
-                class="kr-text-dim-xs font-bold uppercase tracking-widest"
+                class="kr-text-eyebrow-bold kr-text-dim-xs tracking-widest"
                 >Show Title</label
               >
               <input
@@ -528,7 +528,7 @@
             <!-- Topic -->
             <div class="flex flex-col gap-1.5">
               <label
-                class="kr-text-dim-xs font-bold uppercase tracking-widest"
+                class="kr-text-eyebrow-bold kr-text-dim-xs tracking-widest"
                 >Topic / Premise</label
               >
               <input
@@ -543,7 +543,7 @@
             <!-- Custom opening -->
             <div class="flex flex-col gap-1.5 sm:col-span-2">
               <label
-                class="kr-text-dim-xs font-bold uppercase tracking-widest"
+                class="kr-text-eyebrow-bold kr-text-dim-xs tracking-widest"
                 >Custom Opening Cue</label
               >
               <input
@@ -560,7 +560,7 @@
             <!-- Turns -->
             <div class="flex flex-col gap-2">
               <label
-                class="kr-text-dim-xs font-bold uppercase tracking-widest"
+                class="kr-text-eyebrow-bold kr-text-dim-xs tracking-widest"
                 >Turns ({{ store.maxTurns }})</label
               >
               <input
@@ -580,7 +580,7 @@
             <!-- Delay -->
             <div class="flex flex-col gap-2">
               <label
-                class="kr-text-dim-xs font-bold uppercase tracking-widest"
+                class="kr-text-eyebrow-bold kr-text-dim-xs tracking-widest"
                 >Delay between turns ({{ store.turnDelayMs }}ms)</label
               >
               <input
@@ -600,7 +600,7 @@
             <!-- Server -->
             <div class="flex flex-col gap-1.5">
               <label
-                class="kr-text-dim-xs font-bold uppercase tracking-widest"
+                class="kr-text-eyebrow-bold kr-text-dim-xs tracking-widest"
                 >Text Server</label
               >
               <select
@@ -622,7 +622,7 @@
             <!-- Model -->
             <div class="flex flex-col gap-1.5">
               <label
-                class="kr-text-dim-xs font-bold uppercase tracking-widest"
+                class="kr-text-eyebrow-bold kr-text-dim-xs tracking-widest"
                 >Model</label
               >
               <input

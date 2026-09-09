@@ -96,7 +96,7 @@
             class="kr-panel-muted-compact-xs text-center"
           >
             <div
-              class="truncate text-[10px] font-bold uppercase text-base-content/60"
+              class="kr-text-eyebrow-bold truncate text-[10px] text-base-content/60"
             >
               {{ stat.label }}
             </div>

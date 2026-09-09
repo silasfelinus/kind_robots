@@ -64,7 +64,7 @@
           <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <div class="flex flex-col gap-1.5">
               <label
-                class="kr-text-dim-xs font-bold uppercase tracking-widest"
+                class="kr-text-eyebrow-bold kr-text-dim-xs tracking-widest"
                 >Name *</label
               >
               <input
@@ -77,7 +77,7 @@
             </div>
             <div class="flex flex-col gap-1.5">
               <label
-                class="kr-text-dim-xs font-bold uppercase tracking-widest"
+                class="kr-text-eyebrow-bold kr-text-dim-xs tracking-widest"
               >
                 Voice / Notes
               </label>
@@ -145,7 +145,7 @@
           <div class="flex flex-col gap-1.5">
             <div class="flex items-center justify-between">
               <label
-                class="kr-text-dim-xs font-bold uppercase tracking-widest"
+                class="kr-text-eyebrow-bold kr-text-dim-xs tracking-widest"
                 >Stage Prompt</label
               >
               <button
@@ -176,7 +176,7 @@
           <div class="flex flex-col gap-2">
             <div class="flex items-center justify-between">
               <label
-                class="kr-text-dim-xs font-bold uppercase tracking-widest"
+                class="kr-text-eyebrow-bold kr-text-dim-xs tracking-widest"
                 >Avatar Image</label
               >
               <button

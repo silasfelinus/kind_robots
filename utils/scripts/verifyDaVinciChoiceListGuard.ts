@@ -1,7 +1,7 @@
 // /utils/scripts/verifyDaVinciChoiceListGuard.ts
 //
 // Regression guard (davinci/t-021 slice 6) -- the "playing" chapter's choice
-// buttons in components/conductor/davinci-page.vue used to be a hand-rolled
+// buttons in components/storybook/storybook-life-run.vue used to be a hand-rolled
 // `v-for` of plain `btn-outline` buttons: the fourth separate implementation
 // of exactly the pick-one-option list kr-choice-list.vue's own doc comment
 // says it exists to unify ("replaces at least three separate
@@ -27,7 +27,7 @@ const repositoryRoot = resolve(scriptDirectory, '../..')
 
 const COMPONENT_PATH = join(
   repositoryRoot,
-  'components/conductor/davinci-page.vue',
+  'components/storybook/storybook-life-run.vue',
 )
 
 // Anchored on the currentChapter block's narrative paragraph, which sits
@@ -54,7 +54,7 @@ export function checkChoiceListGuard(content: string): string[] {
   if (!region) {
     errors.push(
       `Could not find the \`${NARRATIVE_MARKER}\` marker in ` +
-        'davinci-page.vue -- has the currentChapter block been ' +
+        'storybook-life-run.vue -- has the currentChapter block been ' +
         'restructured or removed? If so, this guard needs to move with it.',
     )
     return errors
@@ -87,7 +87,7 @@ function main(): void {
 
   if (errors.length) {
     console.error(
-      'Da Vinci choice-list guard contract failed in davinci-page.vue:',
+      'Da Vinci choice-list guard contract failed in storybook-life-run.vue:',
     )
     for (const error of errors) console.error(`- ${error}`)
     process.exitCode = 1

@@ -141,7 +141,7 @@ export const tutorialChannels = {
       {
         key: 'storybook',
         title: 'Storybook',
-        body: 'Bring your characters, settings, and rewards together and let the narrator turn choices into consequences with teeth — the long-form loom that gathers everything else into one unfolding story.',
+        body: 'Bring your characters, settings, and rewards together and let the narrator turn choices into consequences with teeth. Choose the shape on the way in: a short story, a chaptered tale, an episodic serial, or a whole life told in chapters and weighed across ten dimensions until it resolves into one of 1,024 endings.',
         image: tutorialImage('scenario', 'storybook'),
       },
     ],
@@ -598,12 +598,6 @@ export const tutorialChannels = {
         image: tutorialImage('wonder', 'screenfx'),
       },
       {
-        key: 'davinci',
-        title: 'Da Vinci Life Sim',
-        body: 'A generative life-and-legacy simulation: hundreds of achievements, branching choices, and a legacy that remembers what you built.',
-        image: tutorialImage('wonder', 'davinci'),
-      },
-      {
         key: 'watchlist',
         title: 'Media Watchlist',
         body: 'Track films and shows across a clean, structured watchlist -- queue, in-progress, and finished -- so the "what should we watch" argument finally has a source of truth.',
@@ -637,6 +631,13 @@ export const tutorialChannelKeys = Object.keys(
 
 const tutorialRouteMap = {
   ...footerRouteMap,
+  // footerRouteMap gives `scenario` a single route, /stories. The storymaker
+  // lives at /storybook and its tutorial section is in this same channel, so
+  // before this override a reader standing on the storymaker resolved to no
+  // tutorial channel at all. That gap predates the merge but the merge made it
+  // matter: /play/davinci used to resolve to `wonder`, and it is a redirect to
+  // /storybook now, so without this the life shape lost the tutorial it had.
+  scenario: [footerRouteMap.scenario, '/storybook'],
   conductor: '/conductor',
   mural: '/build/mural',
   challenges: '/play/challenges',
@@ -648,7 +649,6 @@ const tutorialRouteMap = {
     '/plan/newsfeed',
     '/plan/wonderlab',
     '/play/screenfx',
-    '/play/davinci',
     '/plan/watchlist',
     '/plan/projects/ruler-hooked',
     '/plan/voice-lab',

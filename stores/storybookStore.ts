@@ -11,9 +11,33 @@ import { castLineWithRole } from '@/utils/narrativeRoles'
 import type { NarrativeArtJobState } from '@/utils/narrativeArtJobs'
 import type { NarrativeArtMoment } from '@/utils/narrativeArtProfiles'
 
-export type StorybookStructure = 'short-story' | 'chaptered' | 'episodic'
+/**
+ * The shapes a story can take.
+ *
+ * 'life' is the endings engine (formerly the separate Da Vinci project). It
+ * does not run the beat loop below -- it seeds a LifeRun on the server and
+ * resolves into one of the 1,024 pre-seeded LifeEndings. Silas, 2026-09-09:
+ * "merge the projects ... we care about having a solid *single* interface
+ * that is a stylish and effective storymaker with many endings." So the two
+ * engines are two shapes of one storymaker, chosen on one setup screen,
+ * rather than two products behind two routes.
+ */
+export type StorybookStructure =
+  | 'short-story'
+  | 'chaptered'
+  | 'episodic'
+  | 'life'
+
+/** True for the shapes the client-side beat loop below actually runs. */
+export function isBeatStructure(structure: StorybookStructure): boolean {
+  return structure !== 'life'
+}
 export type StorybookNarratorStyle =
-  'cinematic' | 'playful' | 'storybook' | 'mysterious' | 'intimate'
+  | 'cinematic'
+  | 'playful'
+  | 'storybook'
+  | 'mysterious'
+  | 'intimate'
 
 export type StorybookSetupDraft = {
   title: string
@@ -158,7 +182,11 @@ export const STORYBOOK_MODES: {
 }[] = [
   { key: 'classic', label: 'Classic', hint: 'Your own theme, standard layout' },
   { key: 'storybook', label: 'Storybook', hint: 'Warm paper, serif narration' },
-  { key: 'storybook-dark', label: 'Storybook Dark', hint: 'A lit stage in a dark house' },
+  {
+    key: 'storybook-dark',
+    label: 'Storybook Dark',
+    hint: 'A lit stage in a dark house',
+  },
 ]
 
 const STORYBOOK_MODE_STORAGE_KEY = 'storybookMode'
@@ -168,8 +196,32 @@ function isStorybookMode(value: unknown): value is StorybookMode {
   return STORYBOOK_MODES.some((mode) => mode.key === value)
 }
 
+/**
+ * What the storymaker hands the endings engine when the 'life' shape is
+ * chosen. The same ingredients the beat loop puts in a StorybookBible, mapped
+ * onto the seed columns LifeRun already carries (characterId, dreamId, botId)
+ * -- no schema change was needed to merge the two, because the life engine was
+ * already built to be seeded from Kind Robots records.
+ */
+export type StorybookLifeSeed = {
+  title: string
+  protagonistName: string | null
+  genre: string | null
+  characterId: number | null
+  dreamId: number | null
+  premise: string
+}
+
 const STORAGE_KEY = 'storybook-session'
 const DRAFT_STORAGE_KEY = 'storybook-setup-draft'
+const LIFE_SEED_STORAGE_KEY = 'storybook-life-seed'
+/**
+ * Unchanged from when the life engine lived at /play/davinci. Keeping the key
+ * means a run that was in flight when the merge shipped is still resumable
+ * from the storymaker -- see restoreFromLocalStorage()'s recovery for a
+ * pre-merge run that has this key but no seed.
+ */
+const LIFE_RUN_STORAGE_KEY = 'davinci-active-life-run-id'
 const STATE_OPEN = '[STORY_STATE]'
 const STATE_CLOSE = '[/STORY_STATE]'
 const MAX_STATE_ITEMS = 3
@@ -201,6 +253,12 @@ export const STORYBOOK_STRUCTURES: {
     value: 'episodic',
     label: 'Episodic serial',
     description: 'An open-ended adventure built for returning characters.',
+  },
+  {
+    value: 'life',
+    label: 'A whole life',
+    description:
+      'One life told in chapters, weighed across ten dimensions, and resolved into one of 1,024 endings.',
   },
 ]
 
@@ -234,6 +292,19 @@ function emptyStateDelta(): StorybookStateDelta {
     inventoryAdd: [],
     inventoryRemove: [],
   }
+}
+
+/**
+ * Ingredient ids are `number | string | undefined` because a picker option can
+ * be keyed by slug. Only a real numeric id can be a LifeRun foreign key, so
+ * anything else seeds the run as "no record attached" rather than sending a
+ * slug the server would reject.
+ */
+function numericIngredientId(
+  ingredient: StorybookIngredient | undefined,
+): number | null {
+  const id = ingredient?.id
+  return typeof id === 'number' && Number.isInteger(id) ? id : null
 }
 
 function defaultDraft(): StorybookSetupDraft {
@@ -333,6 +404,12 @@ export const useStorybookStore = defineStore('storybookStore', () => {
 
   const setupDraft = ref<StorybookSetupDraft>(defaultDraft())
   const session = ref<StorybookSession | null>(null)
+  /**
+   * Set while the reader is inside a life run. Its presence -- not the beat
+   * `session` -- is what puts the storymaker into the life engine, so the two
+   * shapes never both claim the stage.
+   */
+  const lifeSeed = ref<StorybookLifeSeed | null>(null)
   const isWeaving = ref(false)
   /*
    * The chat row THIS session's in-flight `weaveBeat` is streaming into.
@@ -430,6 +507,14 @@ export const useStorybookStore = defineStore('storybookStore', () => {
       } else {
         localStorage.removeItem(STORAGE_KEY)
       }
+      if (lifeSeed.value) {
+        localStorage.setItem(
+          LIFE_SEED_STORAGE_KEY,
+          JSON.stringify(lifeSeed.value),
+        )
+      } else {
+        localStorage.removeItem(LIFE_SEED_STORAGE_KEY)
+      }
     } catch {
       // Private browsing and storage quotas should not break the studio.
     }
@@ -473,6 +558,29 @@ export const useStorybookStore = defineStore('storybookStore', () => {
         )
         resumeNarrativeArtJobs()
       }
+      if (!lifeSeed.value) {
+        const lifeSeedRaw = localStorage.getItem(LIFE_SEED_STORAGE_KEY)
+        if (lifeSeedRaw) {
+          lifeSeed.value = JSON.parse(lifeSeedRaw) as StorybookLifeSeed
+        } else if (localStorage.getItem(LIFE_RUN_STORAGE_KEY)) {
+          // A run started before the storymaker merge shipped: the engine's
+          // own active-run key is there, but no seed, because the old
+          // /play/davinci screen collected the protagonist and genre in its
+          // own start form rather than from a story setup. Synthesizing a
+          // placeholder seed is what lets that run resume here instead of
+          // being stranded behind a setup screen it can never get past --
+          // the engine reads the real title and protagonist back off the
+          // LifeRun row anyway, so nothing in the run itself is lost.
+          lifeSeed.value = {
+            title: 'A life already in progress',
+            protagonistName: null,
+            genre: null,
+            characterId: null,
+            dreamId: null,
+            premise: '',
+          }
+        }
+      }
     } catch {
       // Recovering from a bad read shouldn't itself be able to throw: a
       // storage-access failure (privacy mode, a strict cookie/site-data
@@ -484,6 +592,7 @@ export const useStorybookStore = defineStore('storybookStore', () => {
       try {
         localStorage.removeItem(DRAFT_STORAGE_KEY)
         localStorage.removeItem(STORAGE_KEY)
+        localStorage.removeItem(LIFE_SEED_STORAGE_KEY)
       } catch {
         // Best-effort cleanup only — falling through with in-memory-only
         // setupDraft/session below is the actual recovery; stale keys left
@@ -827,6 +936,11 @@ export const useStorybookStore = defineStore('storybookStore', () => {
 
   async function beginStory(input: StorybookStartInput): Promise<boolean> {
     if (!input.premise.trim() || isWeaving.value) return false
+    // The 'life' shape is the endings engine, not the beat loop. Callers route
+    // it to beginLife(); refusing it here means a future caller that forgets
+    // gets a false rather than a half-built beat session whose bible claims a
+    // structure nothing in this loop knows how to narrate.
+    if (!isBeatStructure(input.structure)) return false
     const createdAt = nowIso()
     const bible = buildBible(input)
     session.value = {
@@ -925,10 +1039,48 @@ export const useStorybookStore = defineStore('storybookStore', () => {
     )
   }
 
+  /**
+   * Starts the 'life' shape.
+   *
+   * No AI call and no beat loop here: this only records what the reader chose,
+   * and the life engine (storybook-life-run.vue) creates the LifeRun on the
+   * server from it. Keeping the network call in the component rather than the
+   * store is deliberate -- the engine already owns run creation, resume,
+   * narration, choices and resolution against /api/davinci/*, and moving one
+   * of those six calls up here would split that ownership for no gain.
+   */
+  function beginLife(input: StorybookStartInput): void {
+    const protagonist = input.cast[0]?.title?.trim() || null
+    const genre =
+      input.facets
+        .map((facet) => facet.title)
+        .filter(Boolean)
+        .join(', ') || null
+    lifeSeed.value = {
+      title: input.title?.trim() || protagonist || 'An Unwritten Life',
+      protagonistName: protagonist,
+      genre,
+      characterId: numericIngredientId(input.cast[0]),
+      dreamId: numericIngredientId(input.location),
+      premise: input.premise.trim(),
+    }
+    persist()
+  }
+
+  /** Leaves the life engine and returns the storymaker to its setup screen. */
+  function endLife(): void {
+    lifeSeed.value = null
+    persist()
+  }
+
   watch(setupDraft, persist, { deep: true })
   watch(session, persist, { deep: true })
+  watch(lifeSeed, persist, { deep: true })
 
   return {
+    lifeSeed,
+    beginLife,
+    endLife,
     mode,
     setMode,
     dataTheme,

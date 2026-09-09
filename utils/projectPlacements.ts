@@ -77,10 +77,17 @@ export const PROJECT_PLACEMENTS: Record<string, ProjectPlacement> = {
     tabKey: 'packs',
     route: '/packs',
   },
+  // Merged into Storybook on 2026-09-09 as its `life` shape, so it shares
+  // Storybook's placement rather than keeping a tab of its own: the tab
+  // document content/channels/plan/davinci.md is gone, and this map is
+  // CI-checked against the channel documents that actually exist. The conductor
+  // project survives for the 1,024-ending art-coverage work, which is why the
+  // slug is still here at all -- the projects board needs somewhere to send a
+  // reader who clicks it.
   davinci: {
     channelKey: 'plan',
-    tabKey: 'davinci',
-    route: '/play/davinci',
+    tabKey: 'storybook',
+    route: '/storybook',
   },
   cthulhuquarium: {
     channelKey: 'plan',

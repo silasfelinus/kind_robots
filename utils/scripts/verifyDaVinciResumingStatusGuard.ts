@@ -1,7 +1,7 @@
 // /utils/scripts/verifyDaVinciResumingStatusGuard.ts
 //
 // Regression guard (davinci/t-021 slice 5) -- the "Resuming an existing run"
-// skeleton in components/conductor/davinci-page.vue (rendered while
+// skeleton in components/storybook/storybook-life-run.vue (rendered while
 // `phase === 'loading'`, on every page load that finds a stored run id in
 // localStorage) was a purely visual `animate-pulse` div: no role="status",
 // no aria-live, and no text content at all. Assistive tech got zero signal
@@ -31,7 +31,7 @@ const repositoryRoot = resolve(scriptDirectory, '../..')
 
 const COMPONENT_PATH = join(
   repositoryRoot,
-  'components/conductor/davinci-page.vue',
+  'components/storybook/storybook-life-run.vue',
 )
 
 // Anchored on the `phase === 'loading'` marker rather than any surrounding
@@ -62,7 +62,7 @@ export function checkResumingStatusGuard(content: string): string[] {
   if (!block) {
     errors.push(
       'Could not find a <div v-else-if="phase === \'loading\'"> block in ' +
-        'davinci-page.vue -- has the resuming/loading state been ' +
+        'storybook-life-run.vue -- has the resuming/loading state been ' +
         'restructured or removed? If so, this guard needs to move with it.',
     )
     return errors
@@ -109,7 +109,7 @@ function main(): void {
 
   if (errors.length) {
     console.error(
-      'Da Vinci resuming-status guard contract failed in davinci-page.vue:',
+      'Da Vinci resuming-status guard contract failed in storybook-life-run.vue:',
     )
     for (const error of errors) console.error(`- ${error}`)
     process.exitCode = 1

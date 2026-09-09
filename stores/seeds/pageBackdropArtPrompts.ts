@@ -328,12 +328,6 @@ const PAGES: PageSeed[] = [
       'A brass observatory deck with orreries, charts and a wide balcony over a lantern-lit valley at blue hour. Overview and calm command.',
   },
   {
-    page: 'davinci',
-    title: 'Davinci — The Codex Loft',
-    scene:
-      'A Renaissance loft of flying-machine sketches, mirrored handwriting, brass instruments and a half-built wing. Curious and inventive.',
-  },
-  {
     page: 'error',
     title: 'Error — The Detour',
     scene:

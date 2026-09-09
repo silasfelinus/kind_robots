@@ -2,7 +2,7 @@
 //
 // Shared resume-on-reload wiring for narrativeArtJobsHelper's async art jobs
 // (davinci/t-025, kaizen from t-021 slice 14 / kind_robots#2046).
-// storybookStore.ts, taskmasterStore.ts, and davinci-page.vue each
+// storybookStore.ts, taskmasterStore.ts, and storybook-life-run.vue each
 // independently persist a long-lived art job's in-flight state to
 // localStorage so a page reload/remount can find it again, then call
 // narrativeArtJobsHelper's resume() unconditionally on whatever the cache
@@ -17,7 +17,7 @@
 // share one controller-creation entrypoint, and adds the two genuinely
 // reusable pieces of that pattern:
 //   - a best-effort, owner-scoped localStorage cache (read/write), for a
-//     surface that needs its own dedicated art-jobs cache key (davinci-page.vue
+//     surface that needs its own dedicated art-jobs cache key (storybook-life-run.vue
 //     does -- a queued/rendering LifeRunArt job has no server-side row until
 //     it reaches 'done', so hydrateArtFromRun() alone can never see it);
 //   - resumeEntries(), which loops a collection of cached job states and
@@ -28,9 +28,9 @@
 // each store's own persisted session JSON (persist()/restoreFromLocalStorage())
 // -- neither has a separate art-jobs cache to own, so they only use the
 // controller + resumeEntries() below, not readCache()/writeCache().
-// davinci-page.vue uses all of it. See
+// storybook-life-run.vue uses all of it. See
 // utils/scripts/verifyDaVinciArtResumeGuard.ts for the regression guard that
-// covers davinci-page.vue's specific usage, and
+// covers storybook-life-run.vue's specific usage, and
 // utils/scripts/verifyNarrativeArtPersistence.mjs for the one covering
 // storybookStore.ts/taskmasterStore.ts.
 import { createNarrativeArtJobsController } from '@/stores/helpers/narrativeArtJobsHelper'

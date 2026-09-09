@@ -56,8 +56,16 @@ resolver reads only the ten `DAVINCI_DIMENSIONS` (a dimension passes at
 value ≥ 1), so a choice can track extra stats without affecting the ending
 math. A dimension with no stat row fails by default.
 
-## Boundary
+## Where this sits
 
-Everything stays inside the `Life*` models — no shared session tables with
-Storybook (see `projects/davinci/docs/storybook-boundary-comparison.md`
-in the conductor repo).
+This is the engine behind Storybook's `life` shape. The two products merged on
+2026-09-09 (Silas: _"merge the projects ... a solid single interface that is a
+stylish and effective storymaker with many endings"_), so there is one route,
+one setup screen, and one story library; the reader picks the shape and this
+engine runs when they pick a life.
+
+The play loop still owns its own `Life*` models. That is a statement about what
+they encode — ten dimensions resolving to one of 1,024 pre-seeded endings, which
+the beat loop has no equivalent of — not a separation between products.
+Storybook seeds a run from the Character and LOCATION Dream chosen on the setup
+screen, through the FK columns `createLifeRun` already accepts.

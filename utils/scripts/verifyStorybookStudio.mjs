@@ -1,6 +1,6 @@
 // /utils/scripts/verifyStorybookStudio.mjs
 import assert from 'node:assert/strict'
-import { readFileSync } from 'node:fs'
+import { existsSync, readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 
 function source(path) {
@@ -18,22 +18,65 @@ const pagePath = 'components/conductor/storybook-page.vue'
 const shellPath = 'components/pages/storybook-library-page.vue'
 const setupPath = 'components/storybook/storybook-visual-setup.vue'
 const ingredientCardPath = 'components/narrative/narrative-ingredient-card.vue'
+const lifeRunPath = 'components/storybook/storybook-life-run.vue'
 const storePath = 'stores/storybookStore.ts'
 const agentsPath = 'AGENTS.md'
 
 const page = source(pagePath)
 const setup = source(setupPath)
 const ingredientCard = source(ingredientCardPath)
+const lifeRun = source(lifeRunPath)
 const store = source(storePath)
 const agents = source(agentsPath)
 
+/*
+ * One stage, three states. The life engine is checked first because it is the
+ * merge's load-bearing claim: Storybook and Da Vinci became one interface on
+ * 2026-09-09 (Silas: "merge the projects ... a solid *single* interface that
+ * is a stylish and effective storymaker with many endings"), so a shell that
+ * can only mount the beat loop has silently un-merged them.
+ */
 includesAll(shellPath, [
-  '<StorybookVisualSetup v-if="!storyStore.session"',
-  'v-show="storyStore.session"',
+  '<StorybookLifeRun',
+  ':seed="storyStore.lifeSeed"',
+  '<StorybookVisualSetup v-else-if="!storyStore.session"',
+  'v-show="!storyStore.lifeSeed && storyStore.session"',
   '<StorybookPage />',
 ])
 
+/*
+ * The merged product has ONE front door. There is no /play/davinci page
+ * component any more and no second setup form -- the shape is chosen here,
+ * next to the narrator voice, and the life engine is seeded from the same
+ * ingredients the beat loop uses.
+ */
+assert.ok(
+  !existsSync(resolve(process.cwd(), 'components/conductor/davinci-page.vue')),
+  'Da Vinci must not exist as a separate page component -- it is the life shape of Storybook',
+)
+assert.ok(
+  lifeRun.includes('defineProps<{ seed: StorybookLifeSeed }>'),
+  'The life engine must be seeded by the storymaker, not by its own start form',
+)
+// The opening tag, not the words: the file's own header comment names the
+// wrapper it shed, and a bare substring test would fail it for saying so.
+assert.ok(
+  !lifeRun.includes('<project-front-page'),
+  'The life engine must render inside the storymaker, not behind a project landing card',
+)
+includesAll(storePath, [
+  "| 'life'",
+  'function beginLife(',
+  'function endLife(',
+  'StorybookLifeSeed',
+])
+assert.ok(
+  store.includes('isBeatStructure(input.structure)'),
+  'beginStory must refuse the life shape rather than build a beat session it cannot narrate',
+)
+
 includesAll(setupPath, [
+  'store.beginLife(input)',
   // Section labels, not marketing copy. The old 'Lay out your story' /
   // 'Choose a narrator voice' / 'Choose the shape of the tale' headings came
   // with a 34rem hero wash and a centred 5xl headline above the first input;

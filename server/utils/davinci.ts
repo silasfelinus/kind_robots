@@ -10,10 +10,7 @@
 
 import prisma from './prisma'
 import { LifeArtSceneType } from '~/prisma/generated/prisma/client'
-import {
-  DAVINCI_DIMENSIONS,
-  resolveOutcomeKey,
-} from './davinciDimensions'
+import { DAVINCI_DIMENSIONS, resolveOutcomeKey } from './davinciDimensions'
 
 export interface ResolveLifeRunResult {
   outcomeKey: string
@@ -252,11 +249,16 @@ export async function resolveLifeRunEnding(
 
 // --- Play loop (davinci/t-013) --------------------------------------------
 //
-// The durable-state substrate the Chat narrator will call later: create a run,
-// record a choice with its stat effects, and read a run back for resume. AI
-// narration is out of scope — these endpoints own state, not prose. Per the
-// Storybook boundary doc, this stays inside the Life* models; no shared
-// session tables.
+// The durable-state substrate the Chat narrator calls: create a run, record a
+// choice with its stat effects, and read a run back for resume. AI narration
+// is out of scope — these endpoints own state, not prose.
+//
+// This engine is the 'life' shape of Storybook (merged 2026-09-09). It keeps
+// its own Life* models because they encode something the beat loop has no
+// equivalent of — ten dimensions resolving to one of 1,024 pre-seeded endings
+// — not because the two products are meant to stay apart. Storybook seeds a
+// run from the same Character and Dream the reader picked on the setup screen,
+// through the FK columns createLifeRun already accepts.
 
 function withStatusCode(message: string, statusCode: number): Error {
   const error = new Error(message)
@@ -270,7 +272,11 @@ function withStatusCode(message: string, statusCode: number): Error {
 // — another user's PRIVATE record (audit P6 MEDIUM/LOW). A non-existent id
 // passes here and is caught by the FK constraint on write.
 type AttachableResource =
-  'Character' | 'Dream' | 'Bot' | 'ArtCollection' | 'Chat'
+  | 'Character'
+  | 'Dream'
+  | 'Bot'
+  | 'ArtCollection'
+  | 'Chat'
 
 async function assertAttachable(
   resource: AttachableResource,
@@ -423,7 +429,8 @@ export async function recordLifeChoice(
 
     // Idempotency guard: exactly one LifeChoice is ever meant to exist per
     // (lifeRunId, chapter) — the front end derives chapterIndex from
-    // playedCount and only advances it after a choice lands (davinci-page.vue),
+    // playedCount and only advances it after a choice lands
+    // (storybook-life-run.vue),
     // so a second submission for an already-recorded chapter is always a
     // duplicate, never a legitimate second choice. Without this guard, two
     // browser tabs open on the same run (or a client retry after a dropped

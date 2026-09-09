@@ -1,7 +1,7 @@
 // /utils/scripts/verifyDaVinciNarrateStaleResponseGuard.ts
 //
 // Regression guard (davinci/t-021 slice 12) -- narrateChapter() in
-// components/conductor/davinci-page.vue is called from resumeRun(),
+// components/storybook/storybook-life-run.vue is called from resumeRun(),
 // startLife(), and chooseOption(), and nothing stopped a PRIOR call's
 // response from landing after a NEWER one. "Abandon this life" is only
 // disabled by `submitting`, which chooseOption() already clears before its
@@ -35,7 +35,7 @@ const repositoryRoot = resolve(scriptDirectory, '../..')
 
 const COMPONENT_PATH = join(
   repositoryRoot,
-  'components/conductor/davinci-page.vue',
+  'components/storybook/storybook-life-run.vue',
 )
 
 const FUNCTION_MARKER = 'async function narrateChapter()'
@@ -59,7 +59,7 @@ export function checkNarrateStaleResponseGuard(content: string): string[] {
   if (!TICKET_DECLARATION_RE.test(content)) {
     errors.push(
       'Could not find `let narrateChapterRequestId = 0` in ' +
-        'davinci-page.vue -- has the stale-response ticket for ' +
+        'storybook-life-run.vue -- has the stale-response ticket for ' +
         'narrateChapter() been removed or renamed? A shared, ' +
         'monotonically-incrementing counter is required for the guard ' +
         'below to mean anything.',
@@ -70,7 +70,7 @@ export function checkNarrateStaleResponseGuard(content: string): string[] {
   if (!fn) {
     errors.push(
       'Could not find `async function narrateChapter()` in ' +
-        'davinci-page.vue -- has it been restructured or removed? If so, ' +
+        'storybook-life-run.vue -- has it been restructured or removed? If so, ' +
         'this guard needs to move with it.',
     )
     return errors
@@ -119,7 +119,7 @@ function main(): void {
   if (errors.length) {
     console.error(
       'Da Vinci narrate-stale-response guard contract failed in ' +
-        'davinci-page.vue:',
+        'storybook-life-run.vue:',
     )
     for (const error of errors) console.error(`- ${error}`)
     process.exitCode = 1

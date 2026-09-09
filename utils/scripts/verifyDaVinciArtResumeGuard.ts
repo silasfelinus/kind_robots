@@ -1,7 +1,7 @@
 // /utils/scripts/verifyDaVinciArtResumeGuard.ts
 //
 // Regression guard (davinci/t-021 slice 14) -- a queued or rendering chapter/
-// ending art job in components/conductor/davinci-page.vue has no server-side
+// ending art job in components/storybook/storybook-life-run.vue has no server-side
 // row until it reaches 'done' (persistLifeRunArt() in updateChapterArt()/
 // updateEndingArt() only POSTs to /api/davinci/runs/{id}/art on a 'done'
 // result with an artImageId). hydrateArtFromRun() rebuilds chapterArt/
@@ -54,7 +54,7 @@ const repositoryRoot = resolve(scriptDirectory, '../..')
 
 const COMPONENT_PATH = join(
   repositoryRoot,
-  'components/conductor/davinci-page.vue',
+  'components/storybook/storybook-life-run.vue',
 )
 
 function extractFunction(
@@ -114,7 +114,7 @@ export function checkArtResumeGuard(content: string): string[] {
   )
   if (!resumePendingArtJobs) {
     errors.push(
-      'Could not find `function resumePendingArtJobs(` in davinci-page.vue ' +
+      'Could not find `function resumePendingArtJobs(` in storybook-life-run.vue ' +
         '-- without it, a cached queued/rendering/failed art job from a ' +
         'prior page load is never seeded back into chapterArt/endingArt or ' +
         'reconnected to polling.',
@@ -202,7 +202,7 @@ function main(): void {
 
   if (errors.length) {
     console.error(
-      'Da Vinci art-resume guard contract failed in davinci-page.vue:',
+      'Da Vinci art-resume guard contract failed in storybook-life-run.vue:',
     )
     for (const error of errors) console.error(`- ${error}`)
     process.exitCode = 1

@@ -1,7 +1,7 @@
 // /utils/scripts/verifyDaVinciNarrationErrorToneGuard.ts
 //
 // Regression guard (davinci/t-021 slice 2) -- the narration-error callout in
-// components/conductor/davinci-page.vue used `border-warning/40 bg-warning/5`,
+// components/storybook/storybook-life-run.vue used `border-warning/40 bg-warning/5`,
 // half the documented canonical opacity for a warning status callout
 // (assets/css/tailwind.css's .kr-note-warning formula, and every other
 // border-warning/40 callout in the app, use bg-warning/10). The border
@@ -26,7 +26,7 @@ const repositoryRoot = resolve(scriptDirectory, '../..')
 
 const COMPONENT_PATH = join(
   repositoryRoot,
-  'components/conductor/davinci-page.vue',
+  'components/storybook/storybook-life-run.vue',
 )
 
 function extractNarrationErrorBlock(content: string): string | null {
@@ -51,7 +51,7 @@ export function checkNarrationErrorToneGuard(content: string): string[] {
   if (!openingTag) {
     errors.push(
       'Could not find a `v-else-if="narrationError"` block in ' +
-        'davinci-page.vue -- has the narration-error callout been renamed, ' +
+        'storybook-life-run.vue -- has the narration-error callout been renamed, ' +
         'removed, or restructured? If so, this guard needs to move with it.',
     )
     return errors
@@ -90,7 +90,7 @@ function main(): void {
 
   if (errors.length) {
     console.error(
-      'Da Vinci narration-error tone guard contract failed in davinci-page.vue:',
+      'Da Vinci narration-error tone guard contract failed in storybook-life-run.vue:',
     )
     for (const error of errors) console.error(`- ${error}`)
     process.exitCode = 1

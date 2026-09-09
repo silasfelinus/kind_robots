@@ -18,7 +18,7 @@
 //    role="status" correctly.
 //
 // This exact gap (an error callout with no role) was just closed the same
-// day for davinci-page.vue's narration-error callout (PR #1944,
+// day for storybook-life-run.vue's narration-error callout (PR #1944,
 // verifyDaVinciNarrationErrorRoleGuard.ts) -- this guard follows that one's
 // narrow-textual-checker shape, extended to cover both Model Builder blocks
 // in one guard since they're the same fix applied to two sibling components.
@@ -82,7 +82,7 @@ export function checkItemPanelErrorRoleGuard(content: string): string[] {
         "item's build failed, unlike every comparable warning/error-toned " +
         "block elsewhere in the app (this feature's own " +
         'model-builder-manager.vue statusMessage banner, ' +
-        "davinci-page.vue's narration-error callout, " +
+        "storybook-life-run.vue's narration-error callout, " +
         "academy-manager.vue's managerError block).",
     )
   }

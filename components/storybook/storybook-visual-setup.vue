@@ -297,6 +297,7 @@ import {
   STORYBOOK_STRUCTURES,
   useStorybookStore,
   type StorybookIngredient,
+  type StorybookStartInput,
   type StorybookNarratorStyle,
   type StorybookStructure,
 } from '@/stores/storybookStore'
@@ -361,6 +362,8 @@ const structureIcons: Record<StorybookStructure, string> = {
   'short-story': 'kind-icon:feather',
   chaptered: 'kind-icon:bookshelf',
   episodic: 'kind-icon:cards',
+  // The endings engine, formerly the separate Da Vinci product.
+  life: 'kind-icon:castle',
 }
 
 const structureCards = STORYBOOK_STRUCTURES.map((structure) => ({
@@ -520,7 +523,7 @@ function toIngredient(option: NarrativeIngredientOption): StorybookIngredient {
 
 async function beginStory(): Promise<void> {
   if (!canBegin.value || store.isWeaving) return
-  await store.beginStory({
+  const input: StorybookStartInput = {
     title: store.setupDraft.title,
     premise: store.setupDraft.premise,
     narratorStyle: store.setupDraft.narratorStyle,
@@ -538,6 +541,15 @@ async function beginStory(): Promise<void> {
       ? toIngredient(selectedScenario.value)
       : undefined,
     notes: store.setupDraft.notes,
-  })
+  }
+  // The shape picks the engine. 'life' hands the same ingredients to the
+  // endings engine (a server-side LifeRun resolving into one of 1,024 seeded
+  // endings); everything else runs the client-side beat loop. One setup
+  // screen, one "Open this story" button, two ways a story can be told.
+  if (store.setupDraft.structure === 'life') {
+    store.beginLife(input)
+    return
+  }
+  await store.beginStory(input)
 }
 </script>

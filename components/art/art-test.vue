@@ -725,7 +725,7 @@ onMounted(async () => {
             {{ endpointDef.icon }}
           </div>
           <div>
-            <h1 class="text-2xl font-bold">Art Test Lab</h1>
+            <h1 class="kr-text-bold-2xl">Art Test Lab</h1>
             <p class="text-sm opacity-70">
               Text prompt upgrades, Kontext remix, and animal Kombine chaos.
             </p>

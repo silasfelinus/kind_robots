@@ -4,7 +4,7 @@
     class="flex h-full min-h-0 w-full flex-col gap-4 rounded-2xl bg-base-200 p-4"
   >
     <header class="kr-panel-flat p-4 text-center shadow-md">
-      <h1 class="text-2xl font-bold text-primary md:text-3xl">
+      <h1 class="kr-text-bold-2xl text-primary md:text-3xl">
         Character Interact
       </h1>
 

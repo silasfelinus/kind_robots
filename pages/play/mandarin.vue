@@ -275,7 +275,7 @@
                   </div>
                   <div class="space-y-2 text-center">
                     <p class="text-5xl font-semibold leading-none">{{ currentCard.simplified }}</p>
-                    <p class="text-2xl font-bold tracking-wide">{{ currentCard.pinyin }}</p>
+                    <p class="kr-text-bold-2xl tracking-wide">{{ currentCard.pinyin }}</p>
                     <p class="text-xl font-semibold">{{ currentCard.meaning }}</p>
                     <p v-if="currentCard.meanings.length > 1" class="text-xs leading-relaxed opacity-60">
                       {{ currentCard.meanings.slice(1).join(' · ') }}

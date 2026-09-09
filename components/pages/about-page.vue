@@ -13,6 +13,37 @@
         </p>
       </div>
 
+      <section class="kr-panel mb-6 p-4">
+        <div class="mb-3 flex items-center gap-3">
+          <span
+            class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/12 text-primary"
+          >
+            <Icon name="kind-icon:heart" class="h-5 w-5" />
+          </span>
+          <div>
+            <p class="font-black">About & Support</p>
+            <p class="kr-text-dim-xs-60">
+              Meet the project, give directly to Against Malaria, or visit the shop.
+            </p>
+          </div>
+        </div>
+
+        <div class="flex flex-wrap gap-2">
+          <NuxtLink to="/about" class="btn btn-outline min-w-36 flex-1 justify-start rounded-xl">
+            <Icon name="kind-icon:butterfly" class="h-4 w-4" />
+            About
+          </NuxtLink>
+          <NuxtLink to="/giving" class="btn btn-outline min-w-36 flex-1 justify-start rounded-xl">
+            <Icon name="kind-icon:hand-heart" class="h-4 w-4" />
+            Giving
+          </NuxtLink>
+          <NuxtLink to="/sanctuary" class="btn btn-outline min-w-36 flex-1 justify-start rounded-xl">
+            <Icon name="kind-icon:gift" class="h-4 w-4" />
+            Gift Shop
+          </NuxtLink>
+        </div>
+      </section>
+
       <div class="flex flex-col gap-3">
         <div
           v-for="(card, index) in cards"

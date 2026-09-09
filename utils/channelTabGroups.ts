@@ -10,6 +10,26 @@ export type ChannelTabGroup = {
   admin: boolean
 }
 
+const NAVIGATION_HIDDEN_TABS = new Set([
+  'home:newsfeed',
+  'home:friends',
+  'home:giving',
+  'home:giftshop',
+  'admin:project-placement',
+  'admin:forum-moderation',
+])
+
+export function isNavigationTab(
+  channel: ResolvedChannel,
+  tab: ResolvedTab,
+): boolean {
+  return !NAVIGATION_HIDDEN_TABS.has(`${channel.channelKey}:${tab.tabKey}`)
+}
+
+export function navigationTabs(channel: ResolvedChannel): ResolvedTab[] {
+  return channel.tabs.filter((tab) => isNavigationTab(channel, tab))
+}
+
 export function isAdminOnlyTab(
   channel: ResolvedChannel,
   tab: ResolvedTab,
@@ -20,6 +40,8 @@ export function isAdminOnlyTab(
 export function channelTabGroups(
   channel: ResolvedChannel,
 ): ChannelTabGroup[] {
+  const tabs = navigationTabs(channel)
+
   // The Admin channel is already an access boundary; only mixed channels need
   // a second visual group for their admin-only destinations.
   if (channel.channelKey === 'admin') {
@@ -27,23 +49,21 @@ export function channelTabGroups(
       {
         key: 'all',
         label: '',
-        tabs: channel.tabs,
+        tabs,
         admin: false,
       },
     ]
   }
 
-  const routes = channel.tabs.filter(
-    (tab) => !isAdminOnlyTab(channel, tab),
-  )
-  const admin = channel.tabs.filter((tab) => isAdminOnlyTab(channel, tab))
+  const routes = tabs.filter((tab) => !isAdminOnlyTab(channel, tab))
+  const admin = tabs.filter((tab) => isAdminOnlyTab(channel, tab))
 
   if (!routes.length || !admin.length) {
     return [
       {
         key: 'all',
         label: '',
-        tabs: channel.tabs,
+        tabs,
         admin: false,
       },
     ]

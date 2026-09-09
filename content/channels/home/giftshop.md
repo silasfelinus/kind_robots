@@ -11,6 +11,7 @@ description: Explore plans for print-on-demand art, creative products, subscript
 icon: kind-icon:gift
 route: /sanctuary
 sort: 220
+navigation: false
 status: under-construction
 tutorial:
   underConstruction: true

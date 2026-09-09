@@ -8,7 +8,7 @@ label: ArtJob
 title: ArtJob Pipeline
 subtitle: Manage the generation queue
 description: Review art servers, queue health, failures, retries, and cancellations.
-icon: kind-icon:server
+icon: kind-icon:palette-color
 route: /artjob
 sort: 10
 requiredRole: ADMIN

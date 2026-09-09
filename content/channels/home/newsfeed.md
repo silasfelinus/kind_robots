@@ -11,6 +11,7 @@ description: Explore an experimental feed for collecting, shaping, and reviewing
 icon: kind-icon:news
 route: /plan/newsfeed
 sort: 70
+navigation: false
 ---
 
 A prototype feed where information is invited to arrive with context.

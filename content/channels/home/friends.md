@@ -12,6 +12,7 @@ icon: kind-icon:users
 route: /friends
 sort: 80
 requiredPermission: authenticated
+navigation: false
 ---
 
 Friends is the Home social hub for people, chats, and direct messages.

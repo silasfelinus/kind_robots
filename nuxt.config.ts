@@ -306,7 +306,11 @@ export default defineNuxtConfig({
     },
   },
 
-  css: ['~/assets/css/startup-cover.css', '~/assets/css/tailwind.css'],
+  css: [
+    '~/assets/css/startup-cover.css',
+    '~/assets/css/tailwind.css',
+    '~/assets/css/memory-dungeon.css',
+  ],
 
   runtimeConfig: {
     openaiApiKey: process.env.OPENAI_API_KEY || '',

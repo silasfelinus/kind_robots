@@ -9,7 +9,7 @@
       <span class="kr-badge-outline">Beat {{ encounter.beat }}/{{ encounter.maxBeats }}</span>
     </div>
 
-    <p class="mt-3 text-sm opacity-80">{{ encounter.catchBehavior }}</p>
+    <p class="kr-text-faded-sm-80 mt-3">{{ encounter.catchBehavior }}</p>
 
     <div class="mt-4 grid gap-3">
       <label class="grid gap-1 text-xs font-semibold">

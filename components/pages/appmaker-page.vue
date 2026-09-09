@@ -79,7 +79,7 @@
             >
               {{ creating ? 'Filing request…' : 'Create app' }}
             </button>
-            <span v-if="createMessage" class="text-sm opacity-80">{{
+            <span v-if="createMessage" class="kr-text-faded-sm-80">{{
               createMessage
             }}</span>
           </div>

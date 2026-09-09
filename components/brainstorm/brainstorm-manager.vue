@@ -552,7 +552,7 @@
           <span aria-hidden="true">⚠</span>
           <div class="min-w-0 flex-1">
             <p class="font-black">{{ persistenceErrorHeading }}</p>
-            <p class="mt-1 break-words text-sm opacity-80">{{ persistenceError.message }}</p>
+            <p class="kr-text-faded-sm-80 mt-1 break-words">{{ persistenceError.message }}</p>
           </div>
           <button type="button" class="kr-btn-ghost-plain" @click="store.clearPersistenceError()">
             Dismiss
@@ -570,7 +570,7 @@
       <span aria-hidden="true">⚠</span>
       <div class="min-w-0 flex-1">
         <p class="font-black">{{ errorHeading }}</p>
-        <p class="mt-1 break-words text-sm opacity-80">{{ generationError.message }}</p>
+        <p class="kr-text-faded-sm-80 mt-1 break-words">{{ generationError.message }}</p>
       </div>
       <button type="button" class="kr-btn-ghost-plain" @click="store.clearGenerationError()">
         Dismiss
@@ -758,7 +758,7 @@
       <span aria-hidden="true">⚠</span>
       <div class="min-w-0 flex-1">
         <p class="font-black">Art generation hit a snag</p>
-        <p class="mt-1 break-words text-sm opacity-80">
+        <p class="kr-text-faded-sm-80 mt-1 break-words">
           {{ artGenerationError.message }}
         </p>
       </div>

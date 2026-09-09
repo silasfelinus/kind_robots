@@ -156,7 +156,7 @@
               class="h-1.5 flex-1 rounded-full bg-primary/20"
             />
             <span
-              class="ml-1 shrink-0 text-[0.65rem] font-bold uppercase tracking-widest text-base-content/40"
+              class="kr-text-eyebrow-bold ml-1 shrink-0 text-[0.65rem] tracking-widest text-base-content/40"
             >
               {{ stepCount }} steps
             </span>

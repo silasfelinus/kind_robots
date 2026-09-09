@@ -49,7 +49,7 @@
     <template v-for="(turn, index) in turns" :key="turn.id">
       <div v-if="turn.dateLabel" class="flex justify-center py-1">
         <span
-          class="rounded-full border border-base-300 bg-base-200 px-3 py-1 text-[11px] font-bold uppercase tracking-wide text-base-content/60"
+          class="kr-text-eyebrow-bold rounded-full border border-base-300 bg-base-200 px-3 py-1 text-[11px] tracking-wide text-base-content/60"
         >
           {{ turn.dateLabel }}
         </span>

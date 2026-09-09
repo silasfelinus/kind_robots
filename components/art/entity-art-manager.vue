@@ -158,7 +158,7 @@
       >
         <Icon name="kind-icon:image" class="size-3.5 text-secondary" />
         <span
-          class="kr-text-dim-xs-60 font-bold uppercase tracking-wide"
+          class="kr-text-eyebrow-bold kr-text-dim-xs-60 tracking-wide"
         >
           Artwork &amp; inspirations
         </span>

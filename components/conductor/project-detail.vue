@@ -149,7 +149,7 @@
             class="flex items-center gap-2 border-b border-base-300/70 px-3 py-2"
           >
             <Icon name="kind-icon:dream" class="size-4 text-primary" />
-            <span class="kr-text-dim-xs-60 font-bold uppercase tracking-wide">
+            <span class="kr-text-eyebrow-bold kr-text-dim-xs-60 tracking-wide">
               Project Profile
             </span>
             <span class="ml-auto text-[0.65rem] text-base-content/35"
@@ -259,7 +259,7 @@
         >
           <label class="min-w-0">
             <span
-              class="mb-1 block text-[0.65rem] font-bold uppercase tracking-wide text-base-content/50"
+              class="kr-text-eyebrow-bold mb-1 block text-[0.65rem] tracking-wide text-base-content/50"
             >
               Add task / comment
             </span>
@@ -315,7 +315,7 @@
           name="kind-icon:chevron-right"
           class="size-3.5 shrink-0 transition-transform group-open:rotate-90"
         />
-        <span class="kr-text-dim-xs-60 font-bold uppercase tracking-wide">
+        <span class="kr-text-eyebrow-bold kr-text-dim-xs-60 tracking-wide">
           Roadmap
         </span>
         <span class="kr-badge-ghost-xs ml-auto">
@@ -392,7 +392,7 @@
           <div class="space-y-2 px-3 pb-3">
             <div v-for="group in doneTasksByMilestone" :key="group.id">
               <p
-                class="mb-1 text-[0.65rem] font-bold uppercase tracking-wide text-base-content/40"
+                class="kr-text-eyebrow-bold mb-1 text-[0.65rem] tracking-wide text-base-content/40"
               >
                 {{ group.title }}
               </p>
@@ -436,7 +436,7 @@
           name="kind-icon:chevron-right"
           class="size-3.5 shrink-0 transition-transform group-open:rotate-90"
         />
-        <span class="kr-text-dim-xs-60 font-bold uppercase tracking-wide">
+        <span class="kr-text-eyebrow-bold kr-text-dim-xs-60 tracking-wide">
           Milestones
         </span>
         <span class="kr-badge-ghost-xs ml-auto">
@@ -492,7 +492,7 @@
           class="size-3.5 shrink-0 transition-transform group-open:rotate-90"
         />
         <Icon name="kind-icon:document" class="size-4 text-info" />
-        <span class="kr-text-dim-xs-60 font-bold uppercase tracking-wide">
+        <span class="kr-text-eyebrow-bold kr-text-dim-xs-60 tracking-wide">
           Project Notes
         </span>
         <span class="ml-auto text-xs text-base-content/35">Conductor</span>

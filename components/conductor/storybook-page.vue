@@ -138,7 +138,7 @@
           <div class="kr-panel-flat space-y-3 p-3">
             <label class="form-control w-full">
               <span
-                class="label-text mb-1 text-xs font-bold uppercase tracking-wide"
+                class="kr-text-eyebrow-bold label-text mb-1 text-xs tracking-wide"
               >
                 Working title (optional)
               </span>
@@ -152,7 +152,7 @@
 
             <label class="form-control w-full">
               <span
-                class="label-text mb-1 text-xs font-bold uppercase tracking-wide"
+                class="kr-text-eyebrow-bold label-text mb-1 text-xs tracking-wide"
               >
                 Premise
               </span>
@@ -170,7 +170,7 @@
           </div>
 
           <div class="kr-panel-flat space-y-2 p-3">
-            <h3 class="kr-text-dim-xs-55 font-bold uppercase tracking-wide">
+            <h3 class="kr-text-eyebrow-bold kr-text-dim-xs-55 tracking-wide">
               Narrator voice
             </h3>
             <div class="flex flex-wrap gap-2">
@@ -193,7 +193,7 @@
           </div>
 
           <div class="kr-panel-flat space-y-2 p-3">
-            <h3 class="kr-text-dim-xs-55 font-bold uppercase tracking-wide">
+            <h3 class="kr-text-eyebrow-bold kr-text-dim-xs-55 tracking-wide">
               Shape of the tale
             </h3>
             <div class="grid gap-2 md:grid-cols-3">
@@ -320,7 +320,7 @@
           <div class="kr-panel-flat space-y-2 p-3">
             <label class="form-control w-full">
               <span
-                class="label-text mb-1 text-xs font-bold uppercase tracking-wide"
+                class="kr-text-eyebrow-bold label-text mb-1 text-xs tracking-wide"
               >
                 Extra story direction (optional)
               </span>
@@ -349,7 +349,7 @@
           <dl class="grid gap-3 md:grid-cols-2">
             <div class="kr-panel-flat p-3 md:col-span-2">
               <dt
-                class="text-[0.7rem] font-bold uppercase tracking-wide text-primary/70"
+                class="kr-text-eyebrow-bold text-[0.7rem] tracking-wide text-primary/70"
               >
                 {{ reviewTitle }}
               </dt>

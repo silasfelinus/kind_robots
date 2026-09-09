@@ -40,7 +40,7 @@
     <section class="kr-panel-muted rounded-xl p-2.5">
       <div class="mb-2 flex items-center justify-between gap-2">
         <span
-          class="kr-text-dim-xs font-bold uppercase tracking-wide"
+          class="kr-text-eyebrow-bold kr-text-dim-xs tracking-wide"
         >
           Automate all {{ group.items.length }}
         </span>
@@ -118,7 +118,7 @@
       class="kr-panel-muted rounded-xl p-2.5"
     >
       <span
-        class="kr-text-dim-xs mb-2 block font-bold uppercase tracking-wide"
+        class="kr-text-eyebrow-bold kr-text-dim-xs mb-2 block tracking-wide"
       >
         Set a field on all {{ group.items.length }}
       </span>
@@ -177,7 +177,7 @@
     <!-- Per-item fine-tune -->
     <section class="kr-panel-muted rounded-xl p-2.5">
       <span
-        class="kr-text-dim-xs mb-2 block font-bold uppercase tracking-wide"
+        class="kr-text-eyebrow-bold kr-text-dim-xs mb-2 block tracking-wide"
       >
         Fine-tune individual items
       </span>

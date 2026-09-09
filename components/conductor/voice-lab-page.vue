@@ -63,7 +63,7 @@
             :key="message.id"
             class="kr-text-dim-xs-70"
           >
-            <span class="font-bold uppercase">{{ message.role }}:</span>
+            <span class="kr-text-eyebrow-bold">{{ message.role }}:</span>
             {{ message.text }}
           </p>
         </div>

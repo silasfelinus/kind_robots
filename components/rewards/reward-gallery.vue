@@ -210,7 +210,9 @@
               </div>
 
               <div class="min-w-0">
-                <p class="kr-text-dim-xs font-bold uppercase">Current Reward</p>
+                <p class="kr-text-eyebrow-bold kr-text-dim-xs">
+                  Current Reward
+                </p>
 
                 <h3 class="truncate text-base font-black text-base-content">
                   {{ selectedRewardTitle }}

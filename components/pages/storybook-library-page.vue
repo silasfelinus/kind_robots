@@ -6,7 +6,7 @@
     >
       <div class="min-w-0">
         <p
-          class="text-[0.7rem] font-bold uppercase tracking-wide text-primary/70"
+          class="kr-text-eyebrow-bold text-[0.7rem] tracking-wide text-primary/70"
         >
           Story library
         </p>

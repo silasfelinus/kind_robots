@@ -74,7 +74,7 @@
                 </span>
                 <span
                   v-if="isAdminOnlyTab(channel, tab)"
-                  class="kr-badge-warning-xs shrink-0 font-bold uppercase"
+                  class="kr-text-eyebrow-bold kr-badge-warning-xs shrink-0"
                   title="Admin-only page"
                 >
                   Admin

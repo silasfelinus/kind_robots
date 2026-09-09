@@ -145,23 +145,23 @@
         class="grid grid-cols-2 gap-1.5 kr-panel-compact-xs text-xs"
       >
         <div>
-          <p class="font-bold uppercase text-base-content/40">Images</p>
+          <p class="kr-text-eyebrow-bold text-base-content/40">Images</p>
           <p class="text-base-content/75">{{ imageCount }}</p>
         </div>
         <div>
-          <p class="font-bold uppercase text-base-content/40">Visibility</p>
+          <p class="kr-text-eyebrow-bold text-base-content/40">Visibility</p>
           <p class="text-base-content/75">
             {{ collection.isPublic ? 'Public' : 'Private' }}
           </p>
         </div>
         <div>
-          <p class="font-bold uppercase text-base-content/40">Mature</p>
+          <p class="kr-text-eyebrow-bold text-base-content/40">Mature</p>
           <p class="text-base-content/75">
             {{ collection.isMature ? 'Yes' : 'No' }}
           </p>
         </div>
         <div>
-          <p class="font-bold uppercase text-base-content/40">Updated</p>
+          <p class="kr-text-eyebrow-bold text-base-content/40">Updated</p>
           <p class="text-base-content/75">{{ updatedLabel }}</p>
         </div>
       </div>

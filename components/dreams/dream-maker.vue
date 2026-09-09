@@ -75,7 +75,7 @@
               <label class="form-control">
                 <span class="label py-1">
                   <span
-                    class="label-text text-xs font-bold uppercase tracking-wide"
+                    class="kr-text-eyebrow-bold label-text text-xs tracking-wide"
                     >Title</span
                   >
                 </span>
@@ -90,7 +90,7 @@
               <label class="form-control">
                 <span class="label py-1">
                   <span
-                    class="label-text text-xs font-bold uppercase tracking-wide"
+                    class="kr-text-eyebrow-bold label-text text-xs tracking-wide"
                     >Type</span
                   >
                 </span>
@@ -113,7 +113,7 @@
               <label class="form-control">
                 <span class="label py-1">
                   <span
-                    class="label-text text-xs font-bold uppercase tracking-wide"
+                    class="kr-text-eyebrow-bold label-text text-xs tracking-wide"
                     >Slug</span
                   >
                 </span>
@@ -140,7 +140,7 @@
             <label class="form-control">
               <span class="label py-1">
                 <span
-                  class="label-text text-xs font-bold uppercase tracking-wide"
+                  class="kr-text-eyebrow-bold label-text text-xs tracking-wide"
                   >Dream Pitch</span
                 >
               </span>
@@ -154,7 +154,7 @@
             <label class="form-control mt-3">
               <span class="label py-1">
                 <span
-                  class="label-text text-xs font-bold uppercase tracking-wide"
+                  class="kr-text-eyebrow-bold label-text text-xs tracking-wide"
                   >Description</span
                 >
               </span>
@@ -168,7 +168,7 @@
             <label class="form-control mt-3">
               <span class="label py-1">
                 <span
-                  class="label-text text-xs font-bold uppercase tracking-wide"
+                  class="kr-text-eyebrow-bold label-text text-xs tracking-wide"
                   >Flavor Text</span
                 >
               </span>

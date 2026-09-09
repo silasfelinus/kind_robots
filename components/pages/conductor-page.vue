@@ -248,7 +248,7 @@
               @submit.prevent="submitNewTodo"
             >
               <h4
-                class="kr-text-dim-xs font-bold uppercase tracking-wide"
+                class="kr-text-eyebrow-bold kr-text-dim-xs tracking-wide"
               >
                 New Task
               </h4>
@@ -610,7 +610,7 @@
             <!-- PROJECT TASK / COMMENT CREATION -->
             <div v-if="linkedProject" class="kr-panel-flat shrink-0 p-4">
               <h4
-                class="kr-text-dim-xs font-bold uppercase tracking-wide"
+                class="kr-text-eyebrow-bold kr-text-dim-xs tracking-wide"
               >
                 Add task / comment
               </h4>
@@ -672,7 +672,7 @@
                 <div class="flex flex-wrap items-center gap-2">
                   <Icon name="kind-icon:dream" class="size-4 text-primary" />
                   <h4
-                    class="kr-text-dim-xs-60 font-bold uppercase tracking-wide"
+                    class="kr-text-eyebrow-bold kr-text-dim-xs-60 tracking-wide"
                   >
                     Project Profile
                   </h4>
@@ -820,7 +820,7 @@
                 />
                 <Icon name="kind-icon:document" class="size-4 text-info" />
                 <span
-                  class="kr-text-dim-xs-60 font-bold uppercase tracking-wide"
+                  class="kr-text-eyebrow-bold kr-text-dim-xs-60 tracking-wide"
                   >Project Notes</span
                 >
                 <span class="ml-auto text-xs text-base-content/35">Conductor</span>
@@ -846,7 +846,7 @@
                   class="size-3.5 shrink-0 transition-transform group-open:rotate-90"
                 />
                 <span
-                  class="kr-text-dim-xs-60 font-bold uppercase tracking-wide"
+                  class="kr-text-eyebrow-bold kr-text-dim-xs-60 tracking-wide"
                   >Milestones</span
                 >
                 <span class="kr-badge-ghost-xs ml-auto">
@@ -904,7 +904,7 @@
                   class="size-3.5 shrink-0 transition-transform group-open:rotate-90"
                 />
                 <span
-                  class="kr-text-dim-xs-60 font-bold uppercase tracking-wide"
+                  class="kr-text-eyebrow-bold kr-text-dim-xs-60 tracking-wide"
                   >Roadmap</span
                 >
                 <span class="kr-badge-ghost-xs ml-auto">
@@ -1063,7 +1063,7 @@
               <div class="flex items-center gap-2">
                 <Icon name="kind-icon:check" class="size-4 text-primary" />
                 <h4
-                  class="kr-text-dim-xs font-bold uppercase tracking-wide"
+                  class="kr-text-eyebrow-bold kr-text-dim-xs tracking-wide"
                 >
                   Feature Wishlist
                 </h4>

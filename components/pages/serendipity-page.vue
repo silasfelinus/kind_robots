@@ -28,7 +28,7 @@
 
       <div class="flex items-center gap-2">
         <span
-          class="inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wide"
+          class="kr-text-eyebrow-bold inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs tracking-wide"
           :class="
             voice.connected
               ? 'bg-success/20 text-success'
@@ -55,7 +55,7 @@
     <!-- Relay endpoint -->
     <div class="flex flex-wrap items-end gap-3 kr-panel-tint-compact">
       <label class="flex-1">
-        <span class="kr-text-dim-xs-60 mb-1 block font-bold uppercase">
+        <span class="kr-text-eyebrow-bold kr-text-dim-xs-60 mb-1 block">
           Relay URL
         </span>
         <input
@@ -72,7 +72,7 @@
 
     <!-- Simulate an Echo utterance -->
     <div class="kr-panel-tint-compact">
-      <p class="kr-text-dim-xs-60 mb-2 font-bold uppercase">
+      <p class="kr-text-eyebrow-bold kr-text-dim-xs-60 mb-2">
         Speak to Serendipity (or simulate)
       </p>
       <div class="flex flex-wrap gap-2">
@@ -102,7 +102,7 @@
         class="flex min-h-48 flex-col rounded-xl border border-base-300 bg-base-100"
       >
         <div
-          class="kr-text-dim-xs-60 border-b border-base-300 px-3 py-2 font-bold uppercase"
+          class="kr-text-eyebrow-bold kr-text-dim-xs-60 border-b border-base-300 px-3 py-2"
         >
           Message feed
         </div>
@@ -133,7 +133,9 @@
       <!-- Live animation state -->
       <aside class="flex flex-col gap-3 kr-panel-tint-compact">
         <div>
-          <p class="kr-text-dim-xs-60 font-bold uppercase">Active animations</p>
+          <p class="kr-text-eyebrow-bold kr-text-dim-xs-60">
+            Active animations
+          </p>
           <p
             v-if="activeEffects.length === 0"
             class="mt-1 text-sm text-base-content/50"
@@ -157,7 +159,7 @@
         </div>
 
         <div class="border-t border-base-300 pt-2">
-          <p class="kr-text-dim-xs-60 font-bold uppercase">Theme</p>
+          <p class="kr-text-eyebrow-bold kr-text-dim-xs-60">Theme</p>
           <p class="mt-1 text-sm font-semibold">{{ currentTheme }}</p>
         </div>
 
@@ -177,7 +179,7 @@
 
     <!-- Art drafts (surfaced from voice; never generated or published here) -->
     <div v-if="voice.artRequests.length > 0" class="kr-panel-tint-compact">
-      <p class="kr-text-dim-xs-60 mb-2 font-bold uppercase">
+      <p class="kr-text-eyebrow-bold kr-text-dim-xs-60 mb-2">
         Art drafts from voice ({{ voice.artRequests.length }})
       </p>
       <ul class="space-y-2">

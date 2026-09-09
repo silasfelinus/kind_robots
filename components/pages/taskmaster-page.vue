@@ -489,7 +489,7 @@
                     {{ checkpoint.detail }}
                   </p>
                   <p
-                    class="mt-2 text-[0.65rem] font-bold uppercase tracking-wide text-base-content/35"
+                    class="kr-text-eyebrow-bold mt-2 text-[0.65rem] tracking-wide text-base-content/35"
                   >
                     {{ checkpoint.sourceKind.replace('-', ' ') }}
                   </p>
@@ -520,7 +520,7 @@
               <dl class="mt-4 space-y-3 text-sm">
                 <div>
                   <dt
-                    class="text-[0.65rem] font-bold uppercase tracking-wide text-base-content/40"
+                    class="kr-text-eyebrow-bold text-[0.65rem] tracking-wide text-base-content/40"
                   >
                     Objective
                   </dt>
@@ -531,7 +531,7 @@
                 <div class="grid grid-cols-2 gap-3">
                   <div>
                     <dt
-                      class="text-[0.65rem] font-bold uppercase tracking-wide text-base-content/40"
+                      class="kr-text-eyebrow-bold text-[0.65rem] tracking-wide text-base-content/40"
                     >
                       Tone
                     </dt>
@@ -539,7 +539,7 @@
                   </div>
                   <div>
                     <dt
-                      class="text-[0.65rem] font-bold uppercase tracking-wide text-base-content/40"
+                      class="kr-text-eyebrow-bold text-[0.65rem] tracking-wide text-base-content/40"
                     >
                       Setting
                     </dt>
@@ -550,7 +550,7 @@
                 </div>
                 <div v-if="store.session.genre">
                   <dt
-                    class="text-[0.65rem] font-bold uppercase tracking-wide text-base-content/40"
+                    class="kr-text-eyebrow-bold text-[0.65rem] tracking-wide text-base-content/40"
                   >
                     Genre
                   </dt>

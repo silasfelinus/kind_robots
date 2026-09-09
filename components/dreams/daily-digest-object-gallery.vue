@@ -49,7 +49,7 @@
                 v-if="!item.image"
                 class="absolute inset-0 flex items-center justify-center pt-8 text-center text-base-content/30"
               >
-                <span class="text-[0.58rem] font-bold uppercase tracking-wide">
+                <span class="kr-text-eyebrow-bold text-[0.58rem] tracking-wide">
                   Awaiting art
                 </span>
               </div>

@@ -1839,6 +1839,17 @@ section:has(div[class*='xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]'])
     @apply font-black uppercase;
   }
 
+  /* Sibling of `.kr-text-eyebrow` -- same eyebrow/label-text usage
+   * (`bot-card.vue`, `bot-chat.vue`, `model-builder-item-panel.vue`, etc.)
+   * but `font-bold` instead of `font-black` (interface-vision t-104 slice
+   * 168). A fresh full-repo class-frequency survey outside the now-closed
+   * `kr-text-black-*`/`kr-text-dim-*`/`kr-text-eyebrow` families found
+   * `font-bold uppercase` at 127 subset-match occurrences across 44 files,
+   * the next largest bounded pattern surfaced. */
+  .kr-text-eyebrow-bold {
+    @apply font-bold uppercase;
+  }
+
   .text-smart {
     @apply text-sm md:text-lg lg:text-lg xl:text-xl;
   }

@@ -190,7 +190,7 @@
         >
           <div>
             <h4 class="kr-text-black-xl">{{ studio.selectedBook?.title }}</h4>
-            <p class="text-sm text-base-content/50">
+            <p class="kr-text-dim-sm-50">
               Side-by-side production candidates for every proposal slot.
             </p>
           </div>
@@ -504,7 +504,7 @@
         >
           <div>
             <h4 class="kr-text-black-xl">Queue &amp; review problems</h4>
-            <p class="text-sm text-base-content/50">
+            <p class="kr-text-dim-sm-50">
               Semantic gate failures and proposals that exhausted automatic retries.
             </p>
           </div>
@@ -562,7 +562,7 @@
       >
         <div class="mb-4">
           <h4 class="kr-text-black-xl">End-user coloring preview</h4>
-          <p class="text-sm text-base-content/50">
+          <p class="kr-text-dim-sm-50">
             The existing coloring engine lives here without pretending to be the
             production manager.
           </p>

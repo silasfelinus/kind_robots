@@ -51,10 +51,7 @@
         </p>
       </div>
 
-      <div
-        v-if="store.loading && !store.hasLoaded"
-        class="text-sm text-base-content/50"
-      >
+      <div v-if="store.loading && !store.hasLoaded" class="kr-text-dim-sm-50">
         Loading…
       </div>
 

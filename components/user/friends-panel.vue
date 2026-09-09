@@ -48,7 +48,7 @@
       <h2 class="kr-text-black-lg mb-3">
         Your friends ({{ friends.friendCount }})
       </h2>
-      <p v-if="!friends.friendIds.length" class="text-sm text-base-content/50">
+      <p v-if="!friends.friendIds.length" class="kr-text-dim-sm-50">
         No friends yet — find some below.
       </p>
       <div class="flex flex-col gap-2">
@@ -103,7 +103,7 @@
         class="kr-input-muted mb-3 rounded-xl"
         @input="onSearch"
       />
-      <p v-if="isSearching" class="text-sm text-base-content/50">Searching…</p>
+      <p v-if="isSearching" class="kr-text-dim-sm-50">Searching…</p>
       <div class="flex flex-col gap-2">
         <div
           v-for="u in directory"

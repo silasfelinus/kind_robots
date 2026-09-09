@@ -56,10 +56,10 @@
       {{ errorMessage }}
     </div>
 
-    <div v-if="isLoading" class="text-sm text-base-content/50">Loading…</div>
+    <div v-if="isLoading" class="kr-text-dim-sm-50">Loading…</div>
 
     <div v-else class="flex flex-col gap-2">
-      <p v-if="!credentials.length" class="text-sm text-base-content/50">
+      <p v-if="!credentials.length" class="kr-text-dim-sm-50">
         No agent credentials yet.
       </p>
 

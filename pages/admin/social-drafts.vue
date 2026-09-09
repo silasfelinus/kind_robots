@@ -63,10 +63,7 @@
               ceiling reached
             </span>
           </div>
-          <p
-            v-if="!draftsStore.ceilingStatus.length"
-            class="text-sm text-base-content/50"
-          >
+          <p v-if="!draftsStore.ceilingStatus.length" class="kr-text-dim-sm-50">
             No ceiling data yet -- scan for drafts to load it.
           </p>
         </section>

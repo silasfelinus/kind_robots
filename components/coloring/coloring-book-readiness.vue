@@ -84,7 +84,7 @@
       >
         <div>
           <h4 class="kr-text-black-xl">{{ selectedBook.title }} interiors</h4>
-          <p class="text-sm text-base-content/50">
+          <p class="kr-text-dim-sm-50">
             {{ selectedSummary.actionable }} pages still need an action;
             {{ selectedSummary.final }} are finalized.
           </p>

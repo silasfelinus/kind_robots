@@ -116,7 +116,7 @@
         <Icon name="kind-icon:map" class="h-10 w-10 opacity-50" />
         <div>
           <p class="font-bold">{{ emptyTitle }}</p>
-          <p class="mt-1 text-sm opacity-70">{{ emptySubtitle }}</p>
+          <p class="kr-text-faded-sm mt-1">{{ emptySubtitle }}</p>
         </div>
 
         <button

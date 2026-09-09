@@ -726,7 +726,7 @@ onMounted(async () => {
           </div>
           <div>
             <h1 class="kr-text-bold-2xl">Art Test Lab</h1>
-            <p class="text-sm opacity-70">
+            <p class="kr-text-faded-sm">
               Text prompt upgrades, Kontext remix, and animal Kombine chaos.
             </p>
           </div>

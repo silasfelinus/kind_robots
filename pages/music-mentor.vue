@@ -95,7 +95,7 @@
           {{ analyzeLabel }}
         </button>
 
-        <div v-if="store.state.message" class="text-sm opacity-70 text-center">
+        <div v-if="store.state.message" class="kr-text-faded-sm text-center">
           {{ store.state.message }}
         </div>
 

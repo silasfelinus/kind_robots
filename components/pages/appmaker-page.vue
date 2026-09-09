@@ -90,7 +90,7 @@
             {{ FREE_PROJECT_LIMIT }} active projects.
           </p>
         </template>
-        <p v-else class="text-sm opacity-70">
+        <p v-else class="kr-text-faded-sm">
           Sign in to create an app. Browsing is open to everyone.
         </p>
       </div>
@@ -117,7 +117,7 @@
       <h2 class="text-lg font-semibold">
         Apps <span class="opacity-60">({{ fleet.length }})</span>
       </h2>
-      <p v-if="!fleet.length && !loading" class="text-sm opacity-70">
+      <p v-if="!fleet.length && !loading" class="kr-text-faded-sm">
         No apps yet — create the first one above.
       </p>
       <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -129,7 +129,7 @@
                 app.slug
               }}</span>
             </div>
-            <p v-if="app.description" class="line-clamp-2 text-sm opacity-70">
+            <p v-if="app.description" class="kr-text-faded-sm line-clamp-2">
               {{ app.description }}
             </p>
             <template v-if="app.taskTotal > 0">

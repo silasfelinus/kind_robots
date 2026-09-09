@@ -11,6 +11,7 @@ description: Review Project rows and apply the channel, tab, and live URL placem
 icon: kind-icon:map
 route: /project-placement
 sort: 30
+navigation: false
 requiredRole: ADMIN
 loadingMessage: Loading project placement controls...
 refreshLabel: Reload Projects

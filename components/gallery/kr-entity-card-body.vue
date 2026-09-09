@@ -110,7 +110,7 @@
         <span
           v-for="badge in badges"
           :key="badge.title || badge.label"
-          class="badge badge-xs shrink-0"
+          class="kr-badge-xs shrink-0"
           :class="badge.class || 'badge-primary'"
           :title="badge.title || badge.label"
         >

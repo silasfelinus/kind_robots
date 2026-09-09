@@ -32,9 +32,7 @@
         </span>
 
         <!-- Sub-view context label -->
-        <span
-          v-if="viewMode === 'tasks'"
-          class="kr-text-dim-xs-70 font-bold"
+        <span v-if="viewMode === 'tasks'" class="kr-text-dim-xs-70 font-bold"
           >· Tasks
           <span
             v-if="todoStore.openTodos.length"
@@ -64,23 +62,39 @@
           <button
             type="button"
             class="kr-btn-ghost-circle-xs"
-            :class="linkedProject.isPublic ? 'text-success' : 'text-base-content/35'"
-            :title="linkedProject.isPublic ? 'Public project' : 'Private project'"
-            :aria-label="linkedProject.isPublic ? 'Make project private' : 'Make project public'"
+            :class="
+              linkedProject.isPublic ? 'text-success' : 'text-base-content/35'
+            "
+            :title="
+              linkedProject.isPublic ? 'Public project' : 'Private project'
+            "
+            :aria-label="
+              linkedProject.isPublic
+                ? 'Make project private'
+                : 'Make project public'
+            "
             :disabled="projectSaving"
             @click="patchProject({ isPublic: !linkedProject.isPublic })"
           >
             <Icon
-              :name="linkedProject.isPublic ? 'kind-icon:eye' : 'kind-icon:eye-off'"
+              :name="
+                linkedProject.isPublic ? 'kind-icon:eye' : 'kind-icon:eye-off'
+              "
               class="size-3.5"
             />
           </button>
           <button
             type="button"
             class="kr-btn-ghost-circle-xs"
-            :class="linkedProject.isMature ? 'text-warning' : 'text-base-content/35'"
+            :class="
+              linkedProject.isMature ? 'text-warning' : 'text-base-content/35'
+            "
             :title="linkedProject.isMature ? 'Mature content' : 'Safe content'"
-            :aria-label="linkedProject.isMature ? 'Mark project safe' : 'Mark project mature'"
+            :aria-label="
+              linkedProject.isMature
+                ? 'Mark project safe'
+                : 'Mark project mature'
+            "
             :disabled="projectSaving"
             @click="patchProject({ isMature: !linkedProject.isMature })"
           >
@@ -89,9 +103,17 @@
           <button
             type="button"
             class="kr-btn-ghost-circle-xs"
-            :class="linkedProject.allowReviews ? 'text-success' : 'text-base-content/35'"
+            :class="
+              linkedProject.allowReviews
+                ? 'text-success'
+                : 'text-base-content/35'
+            "
             :title="linkedProject.allowReviews ? 'Reviews on' : 'Reviews off'"
-            :aria-label="linkedProject.allowReviews ? 'Turn reviews off' : 'Turn reviews on'"
+            :aria-label="
+              linkedProject.allowReviews
+                ? 'Turn reviews off'
+                : 'Turn reviews on'
+            "
             :disabled="projectSaving"
             @click="patchProject({ allowReviews: !linkedProject.allowReviews })"
           >
@@ -151,10 +173,7 @@
           :disabled="syncingMissing"
           @click="syncMissingProjects"
         >
-          <span
-            v-if="syncingMissing"
-            class="kr-spinner-xs"
-          />
+          <span v-if="syncingMissing" class="kr-spinner-xs" />
           <Icon v-else name="kind-icon:warning" class="size-3" />
           Sync {{ missingProjectSlugs.length }}
         </button>
@@ -247,9 +266,7 @@
               class="kr-panel-flat space-y-3 p-4"
               @submit.prevent="submitNewTodo"
             >
-              <h4
-                class="kr-text-eyebrow-bold kr-text-dim-xs tracking-wide"
-              >
+              <h4 class="kr-text-eyebrow-bold kr-text-dim-xs tracking-wide">
                 New Task
               </h4>
               <input
@@ -271,17 +288,11 @@
                 :disabled="todoStore.loading"
               />
               <div class="flex flex-wrap items-center gap-2">
-                <select
-                  v-model="newTodoCategory"
-                  class="kr-select-sm"
-                >
+                <select v-model="newTodoCategory" class="kr-select-sm">
                   <option value="AGENT">🤖 Agent Task</option>
                   <option value="HONEYDO">🍯 Honey Do</option>
                 </select>
-                <select
-                  v-model="newTodoPriority"
-                  class="kr-select-sm"
-                >
+                <select v-model="newTodoPriority" class="kr-select-sm">
                   <option value="HIGH">🔴 High</option>
                   <option value="NORMAL">🟡 Normal</option>
                   <option value="LOW">🟢 Low</option>
@@ -560,17 +571,23 @@
                       <span
                         v-if="selectedProject.conductorStatus"
                         class="kr-badge-sm"
-                        :class="lifecycleBadgeClass(selectedProject.conductorStatus)"
+                        :class="
+                          lifecycleBadgeClass(selectedProject.conductorStatus)
+                        "
                         >{{ selectedProject.conductorStatus }}</span
                       >
                       <span
                         v-if="selectedProject.conductorPriority"
                         class="kr-badge-sm"
-                        :class="priorityBadgeClass(selectedProject.conductorPriority)"
+                        :class="
+                          priorityBadgeClass(selectedProject.conductorPriority)
+                        "
                         >{{ selectedProject.conductorPriority }} priority</span
                       >
                     </div>
-                    <h3 class="kr-text-black-xl break-words leading-tight sm:text-2xl">
+                    <h3
+                      class="kr-text-black-xl break-words leading-tight sm:text-2xl"
+                    >
                       {{
                         linkedProject?.title ||
                         selectedProject.name ||
@@ -609,14 +626,13 @@
 
             <!-- PROJECT TASK / COMMENT CREATION -->
             <div v-if="linkedProject" class="kr-panel-flat shrink-0 p-4">
-              <h4
-                class="kr-text-eyebrow-bold kr-text-dim-xs tracking-wide"
-              >
+              <h4 class="kr-text-eyebrow-bold kr-text-dim-xs tracking-wide">
                 Add task / comment
               </h4>
               <p class="kr-text-dim-xs-40 mb-3 mt-1">
                 Agent items are picked up asynchronously by the project worker.
-                Honey-dos stay human-facing; feature ideas stay in this project's wishlist.
+                Honey-dos stay human-facing; feature ideas stay in this
+                project's wishlist.
               </p>
               <form class="space-y-2" @submit.prevent="submitProjectTask">
                 <input
@@ -634,18 +650,12 @@
                   :disabled="projectTaskSubmitting"
                 />
                 <div class="flex flex-wrap items-center gap-2">
-                  <select
-                    v-model="projectTaskCategory"
-                    class="kr-select-sm"
-                  >
+                  <select v-model="projectTaskCategory" class="kr-select-sm">
                     <option value="AGENT">🤖 Agent Task / Comment</option>
                     <option value="HONEYDO">🍯 Honey Do</option>
                     <option value="DESIRED_FEATURE">⭐ Feature Idea</option>
                   </select>
-                  <select
-                    v-model="projectTaskPriority"
-                    class="kr-select-sm"
-                  >
+                  <select v-model="projectTaskPriority" class="kr-select-sm">
                     <option value="HIGH">🔴 High</option>
                     <option value="NORMAL">🟡 Normal</option>
                     <option value="LOW">🟢 Low</option>
@@ -653,12 +663,11 @@
                   <button
                     type="submit"
                     class="btn btn-primary btn-sm ml-auto rounded-xl"
-                    :disabled="!projectTaskTitle.trim() || projectTaskSubmitting"
+                    :disabled="
+                      !projectTaskTitle.trim() || projectTaskSubmitting
+                    "
                   >
-                    <span
-                      v-if="projectTaskSubmitting"
-                      class="kr-spinner-xs"
-                    />
+                    <span v-if="projectTaskSubmitting" class="kr-spinner-xs" />
                     Add
                   </button>
                 </div>
@@ -713,9 +722,7 @@
                 <div class="grid gap-3 sm:grid-cols-2">
                   <div class="form-control">
                     <label class="label py-0.5"
-                      ><span class="kr-label-xs-semibold"
-                        >Live URL</span
-                      ></label
+                      ><span class="kr-label-xs-semibold">Live URL</span></label
                     >
                     <input
                       type="url"
@@ -728,9 +735,7 @@
                   </div>
                   <div class="form-control">
                     <label class="label py-0.5"
-                      ><span class="kr-label-xs-semibold"
-                        >Repo URL</span
-                      ></label
+                      ><span class="kr-label-xs-semibold">Repo URL</span></label
                     >
                     <input
                       type="url"
@@ -823,7 +828,9 @@
                   class="kr-text-eyebrow-bold kr-text-dim-xs-60 tracking-wide"
                   >Project Notes</span
                 >
-                <span class="ml-auto text-xs text-base-content/35">Conductor</span>
+                <span class="ml-auto text-xs text-base-content/35"
+                  >Conductor</span
+                >
               </summary>
               <div
                 class="whitespace-pre-wrap border-t border-base-300/70 px-4 py-3 text-sm leading-relaxed text-base-content/75"
@@ -926,7 +933,9 @@
                         <Icon :name="taskIcon(task.status)" class="size-3" />
                       </div>
                       <div class="min-w-0 flex-1">
-                        <p class="break-words text-sm font-semibold leading-snug">
+                        <p
+                          class="break-words text-sm font-semibold leading-snug"
+                        >
                           {{ task.title }}
                         </p>
                         <div
@@ -951,7 +960,7 @@
                         >
                           <span
                             v-if="task.stakes && task.stakes !== 'reversible'"
-                            class="badge badge-xs"
+                            class="kr-badge-xs"
                             :class="stakesBadgeClass(task.stakes)"
                             >{{ task.stakes }}</span
                           >
@@ -1062,9 +1071,7 @@
             >
               <div class="flex items-center gap-2">
                 <Icon name="kind-icon:check" class="size-4 text-primary" />
-                <h4
-                  class="kr-text-eyebrow-bold kr-text-dim-xs tracking-wide"
-                >
+                <h4 class="kr-text-eyebrow-bold kr-text-dim-xs tracking-wide">
                   Feature Wishlist
                 </h4>
               </div>
@@ -1133,7 +1140,8 @@
                 </div>
               </div>
               <p v-else class="kr-text-dim-xs-40">
-                No feature ideas yet. Add one from the task / comment panel above.
+                No feature ideas yet. Add one from the task / comment panel
+                above.
               </p>
             </div>
           </div>
@@ -1330,14 +1338,12 @@ const sortedActiveProjects = computed(() =>
     const pa =
       (a.priority as ProjectPriorityLevel | undefined) ??
       (projectRecordForSlug(a.slug)?.priority as
-        | ProjectPriorityLevel
-        | undefined) ??
+        ProjectPriorityLevel | undefined) ??
       'NORMAL'
     const pb =
       (b.priority as ProjectPriorityLevel | undefined) ??
       (projectRecordForSlug(b.slug)?.priority as
-        | ProjectPriorityLevel
-        | undefined) ??
+        ProjectPriorityLevel | undefined) ??
       'NORMAL'
     return (order[pa] ?? 1) - (order[pb] ?? 1)
   }),
@@ -1372,7 +1378,8 @@ const filteredTodos = computed(() => {
       // Keep legacy KAIZEN rows reachable without preserving a dedicated
       // Kaizen concept in the workspace UI.
       return [...todoStore.regularAgentTodos, ...todoStore.kaizenTodos].sort(
-        (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+        (a, b) =>
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
       )
   }
 })

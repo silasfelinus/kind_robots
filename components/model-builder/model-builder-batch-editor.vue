@@ -39,9 +39,7 @@
     <!-- Automate the whole group -->
     <section class="kr-panel-muted rounded-xl p-2.5">
       <div class="mb-2 flex items-center justify-between gap-2">
-        <span
-          class="kr-text-eyebrow-bold kr-text-dim-xs tracking-wide"
-        >
+        <span class="kr-text-eyebrow-bold kr-text-dim-xs tracking-wide">
           Automate all {{ group.items.length }}
         </span>
         <label
@@ -193,7 +191,7 @@
             {{ item.label }}
           </span>
           <span
-            class="badge badge-xs"
+            class="kr-badge-xs"
             :class="commitBadge(item)"
             :title="
               autoBuildFailed(item)

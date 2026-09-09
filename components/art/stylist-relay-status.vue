@@ -76,7 +76,7 @@
 
           <div class="flex flex-wrap items-center gap-1.5">
             <span
-              class="badge badge-xs rounded-2xl"
+              class="kr-badge-xs rounded-2xl"
               :class="
                 agent.supportsInputImages ? 'badge-success' : 'badge-error'
               "

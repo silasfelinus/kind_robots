@@ -94,10 +94,7 @@
                 aria-hidden="true"
               />
 
-              <div
-                class="min-w-0"
-                :class="mode === 'icons' ? 'p-3' : 'p-3'"
-              >
+              <div class="min-w-0" :class="mode === 'icons' ? 'p-3' : 'p-3'">
                 <div
                   v-if="item.badges?.length"
                   class="mb-1 flex flex-wrap gap-1"
@@ -105,7 +102,7 @@
                   <span
                     v-for="badge in item.badges"
                     :key="badge.label"
-                    class="badge badge-xs"
+                    class="kr-badge-xs"
                     :class="badge.class"
                   >
                     {{ badge.label }}
@@ -120,10 +117,7 @@
                 >
                   {{ item.description }}
                 </p>
-                <p
-                  v-if="item.meta"
-                  class="kr-text-dim-xs-45 mt-1.5"
-                >
+                <p v-if="item.meta" class="kr-text-dim-xs-45 mt-1.5">
                   {{ item.meta }}
                 </p>
               </div>
@@ -171,14 +165,11 @@
             </div>
 
             <div class="min-w-0 flex-1">
-              <div
-                v-if="item.badges?.length"
-                class="mb-1 flex flex-wrap gap-1"
-              >
+              <div v-if="item.badges?.length" class="mb-1 flex flex-wrap gap-1">
                 <span
                   v-for="badge in item.badges"
                   :key="badge.label"
-                  class="badge badge-xs"
+                  class="kr-badge-xs"
                   :class="badge.class"
                 >
                   {{ badge.label }}
@@ -200,10 +191,7 @@
                 <slot name="item-trailing" :item="item" />
               </div>
 
-              <p
-                v-if="item.meta"
-                class="kr-text-dim-xs-45 mt-1.5"
-              >
+              <p v-if="item.meta" class="kr-text-dim-xs-45 mt-1.5">
                 {{ item.meta }}
               </p>
               <div
@@ -263,7 +251,7 @@
                 <span
                   v-for="badge in item.badges"
                   :key="badge.label"
-                  class="badge badge-xs"
+                  class="kr-badge-xs"
                   :class="badge.class"
                 >
                   {{ badge.label }}

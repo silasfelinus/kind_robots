@@ -160,17 +160,17 @@
           <span class="kr-badge-info-xs" :title="`Image #${displayImage.id}`">
             Image #{{ displayImage.id }}
           </span>
-          <span class="badge badge-xs" :class="imageDataBadgeClass">
+          <span class="kr-badge-xs" :class="imageDataBadgeClass">
             data: {{ displayImage.imageData ? 'yes' : 'no' }}
           </span>
           <span
-            class="badge badge-xs"
+            class="kr-badge-xs"
             :class="displayImage.imagePath ? 'badge-info' : 'badge-ghost'"
           >
             path: {{ displayImage.imagePath ? 'yes' : 'no' }}
           </span>
           <span
-            class="badge badge-xs"
+            class="kr-badge-xs"
             :class="
               displayImage.thumbnailData ? 'badge-success' : 'badge-ghost'
             "

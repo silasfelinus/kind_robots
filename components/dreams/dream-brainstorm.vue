@@ -308,7 +308,7 @@
                   class="form-control mt-2"
                 >
                   <span class="label"
-                    ><span class="kr-text-bold-xs label-text"
+                    ><span class="kr-text-bold-xs"
                       >Rejection feedback</span
                     ></span
                   >
@@ -401,7 +401,7 @@
           <div class="grid gap-3">
             <label class="form-control">
               <span class="label"
-                ><span class="kr-text-bold-xs label-text"
+                ><span class="kr-text-bold-xs"
                   >Requests</span
                 ></span
               >
@@ -415,7 +415,7 @@
             </label>
             <label class="form-control">
               <span class="label"
-                ><span class="kr-text-bold-xs label-text"
+                ><span class="kr-text-bold-xs"
                   >Max Tokens</span
                 ></span
               >

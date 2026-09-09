@@ -511,9 +511,7 @@
               class="toggle toggle-primary toggle-xs"
               :disabled="isGenerating"
             />
-            <span class="label-text text-xs font-semibold">
-              Inherit negative prompt
-            </span>
+            <span class="kr-label-xs-semibold"> Inherit negative prompt </span>
           </label>
           <label class="kr-toggle-row-xs">
             <input
@@ -522,7 +520,7 @@
               class="toggle toggle-success toggle-xs"
               :disabled="isGenerating"
             />
-            <span class="label-text text-xs font-semibold">Public</span>
+            <span class="kr-label-xs-semibold">Public</span>
           </label>
         </div>
       </div>

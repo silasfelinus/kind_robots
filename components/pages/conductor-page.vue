@@ -682,7 +682,7 @@
                 </div>
                 <div class="form-control">
                   <label class="label py-0.5"
-                    ><span class="label-text text-xs font-semibold"
+                    ><span class="kr-label-xs-semibold"
                       >Goal — what does 100% look like?</span
                     ></label
                   >
@@ -697,7 +697,7 @@
                 </div>
                 <div class="form-control">
                   <label class="label py-0.5"
-                    ><span class="label-text text-xs font-semibold"
+                    ><span class="kr-label-xs-semibold"
                       >Description</span
                     ></label
                   >
@@ -713,7 +713,7 @@
                 <div class="grid gap-3 sm:grid-cols-2">
                   <div class="form-control">
                     <label class="label py-0.5"
-                      ><span class="label-text text-xs font-semibold"
+                      ><span class="kr-label-xs-semibold"
                         >Live URL</span
                       ></label
                     >
@@ -728,7 +728,7 @@
                   </div>
                   <div class="form-control">
                     <label class="label py-0.5"
-                      ><span class="label-text text-xs font-semibold"
+                      ><span class="kr-label-xs-semibold"
                         >Repo URL</span
                       ></label
                     >

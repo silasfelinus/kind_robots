@@ -1872,6 +1872,39 @@ section:has(div[class*='xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]'])
     @apply font-bold text-xs;
   }
 
+  /* Sibling of `.kr-label-bold` (`label-text font-bold`) for the plain,
+   * weightless form-label caption -- `label-text text-xs`, with the dead
+   * `label-text` token dropped the same way `.kr-label-bold` already drops
+   * it (`label-text` carries no CSS rule anywhere in this repo's `assets/`
+   * or in daisyui's dist CSS -- see `kr_label_bold_codemod.py`'s docstring)
+   * (interface-vision t-104 slice 173) -- previously hand-rolled
+   * identically in 21 occurrences across 4 files (facet-profile-editor.vue,
+   * conductor-project-gallery-page.vue, mission-accrual-page.vue,
+   * ruler-hooked-slots.vue), the bare-size sibling of `label-text text-xs
+   * font-bold` (migrated in slice 171 by reuse of the already-shipped
+   * `.kr-text-bold-xs`) and `label-text text-xs font-semibold` (this same
+   * slice's other target, named `.kr-label-xs-semibold` below) surveyed
+   * together since `kr_label_bold_codemod.py`'s own docstring first flagged
+   * this family in slice 151/152. */
+  .kr-label-xs {
+    @apply text-xs;
+  }
+
+  /* Sibling of `.kr-label-xs` carrying the extra `font-semibold` weight --
+   * `label-text text-xs font-semibold`, dead `label-text` token dropped
+   * the same way (interface-vision t-104 slice 173) -- previously
+   * hand-rolled in 29 subset-match occurrences across 5 files (15 exact,
+   * 14 carrying an additional `mb-1` in image-upload.vue/davinci-page.vue,
+   * preserved verbatim as an extra token). Kept as its own named family
+   * rather than folded into `.kr-label-xs` plus a preserved `font-semibold`
+   * extra, matching this codebase's established convention of naming each
+   * distinct compound weight/size shape separately (`kr-text-dim-xs-45`
+   * vs. `-55` vs. `-60`, `kr-text-bold-sm` vs. `kr-text-bold-xs`, etc.)
+   * rather than treating a real style token as generic pass-through. */
+  .kr-label-xs-semibold {
+    @apply text-xs font-semibold;
+  }
+
   .text-smart {
     @apply text-sm md:text-lg lg:text-lg xl:text-xl;
   }

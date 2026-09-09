@@ -138,7 +138,7 @@
             @submit.prevent="submit"
           >
             <label class="form-control sm:col-span-1">
-              <span class="label-text text-xs">Amount (USD)</span>
+              <span class="kr-label-xs">Amount (USD)</span>
               <input
                 v-model="form.amountUsd"
                 type="number"
@@ -150,7 +150,7 @@
               />
             </label>
             <label class="form-control sm:col-span-2">
-              <span class="label-text text-xs">Note</span>
+              <span class="kr-label-xs">Note</span>
               <input
                 v-model="form.note"
                 type="text"
@@ -160,7 +160,7 @@
               />
             </label>
             <label class="form-control sm:col-span-1">
-              <span class="label-text text-xs">Reference (optional)</span>
+              <span class="kr-label-xs">Reference (optional)</span>
               <input
                 v-model="form.reference"
                 type="text"

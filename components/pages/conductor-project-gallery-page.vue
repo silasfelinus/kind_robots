@@ -24,7 +24,7 @@
       <div class="space-y-3 p-3">
         <div class="grid gap-3 sm:grid-cols-2">
           <label class="form-control sm:col-span-2">
-            <span class="label-text text-xs">Title</span>
+            <span class="kr-label-xs">Title</span>
             <input
               v-model="createForm.title"
               type="text"
@@ -34,7 +34,7 @@
             />
           </label>
           <label class="form-control sm:col-span-2">
-            <span class="label-text text-xs">
+            <span class="kr-label-xs">
               Slug
               <span class="opacity-60">(project URL and Conductor key)</span>
             </span>
@@ -57,7 +57,7 @@
             </span>
           </label>
           <label class="form-control sm:col-span-2">
-            <span class="label-text text-xs">Description</span>
+            <span class="kr-label-xs">Description</span>
             <textarea
               v-model="createForm.description"
               class="textarea textarea-bordered min-h-20 rounded-xl"

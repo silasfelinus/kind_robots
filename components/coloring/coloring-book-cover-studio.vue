@@ -12,7 +12,7 @@
             {{ book.title }}
           </span>
         </div>
-        <h3 class="mt-2 text-2xl font-black">Canonical cover production</h3>
+        <h3 class="kr-text-black-2xl mt-2">Canonical cover production</h3>
         <p class="mt-1 max-w-3xl text-sm text-base-content/55">
           Generate, revise, adopt, accept, and finalize the portrait source illustration.
           Title typography, spine, back cover, barcode space, bleed, and printer template

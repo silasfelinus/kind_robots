@@ -10,7 +10,7 @@
         <div class="min-w-0">
           <div class="flex flex-wrap items-center gap-2">
             <Icon name="kind-icon:dream" class="h-7 w-7 text-primary" />
-            <h1 class="text-2xl font-black text-primary">Dreammaker</h1>
+            <h1 class="kr-text-black-2xl text-primary">Dreammaker</h1>
             <span
               v-if="dreamStore.dreamForm.id"
               class="badge badge-outline rounded-xl"

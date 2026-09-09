@@ -3,7 +3,7 @@
   <section class="kr-container max-w-5xl space-y-6 p-4 sm:p-6">
     <div class="flex flex-wrap items-center justify-between gap-3">
       <div>
-        <h1 class="flex items-center gap-2 text-2xl font-black text-primary">
+        <h1 class="kr-text-black-2xl flex items-center gap-2 text-primary">
           <Icon name="kind-icon:cart" class="h-7 w-7" />
           Your Cart
         </h1>

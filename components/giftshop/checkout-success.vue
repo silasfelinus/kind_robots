@@ -24,7 +24,7 @@
         <div class="kr-text-eyebrow kr-text-dim-xs tracking-widest">
           Confirmed total
         </div>
-        <div class="text-2xl font-black text-primary">
+        <div class="kr-text-black-2xl text-primary">
           {{ verifiedAmount }}
         </div>
       </div>

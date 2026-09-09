@@ -61,7 +61,7 @@
           />
 
           <div class="min-w-0 flex-1 text-center sm:text-left">
-            <h2 class="truncate text-2xl font-black text-base-content">
+            <h2 class="kr-text-black-2xl truncate text-base-content">
               {{ selectedBotName }}
             </h2>
 

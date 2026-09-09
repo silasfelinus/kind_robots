@@ -5,7 +5,7 @@
         <Icon name="kind-icon:money" class="h-7 w-7" />
       </span>
       <div>
-        <p class="text-2xl font-black tracking-tight">Wallet</p>
+        <p class="kr-text-black-2xl tracking-tight">Wallet</p>
         <p class="kr-text-dim-sm">
           Your karma and mana balance — earned by contributing, spent to
           create.

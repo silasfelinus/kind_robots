@@ -7,7 +7,7 @@
 <template>
   <section class="kr-container max-w-md flex flex-col gap-5 p-6">
     <header class="flex flex-col gap-1">
-      <h1 class="text-2xl font-black">
+      <h1 class="kr-text-black-2xl">
         {{ hasToken ? 'Choose a new password' : 'Reset your password' }}
       </h1>
       <p class="kr-text-dim-sm-70">

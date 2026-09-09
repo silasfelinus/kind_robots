@@ -6,7 +6,7 @@
       <div>
         <div class="flex items-center gap-2">
           <icon name="kind-icon:book" class="size-6 text-primary" />
-          <h3 class="text-2xl font-black">Coloring Book Production Studio</h3>
+          <h3 class="kr-text-black-2xl">Coloring Book Production Studio</h3>
         </div>
         <p class="kr-text-dim-sm mt-1 max-w-3xl">
           Three canonical books, 108 proposal slots, real Conductor prompts,
@@ -145,7 +145,7 @@
               >
                 {{ book.slug }}
               </p>
-              <h4 class="text-2xl font-black">{{ book.title }}</h4>
+              <h4 class="kr-text-black-2xl">{{ book.title }}</h4>
             </div>
             <span class="badge badge-primary rounded-2xl">
               {{ book.counts.total }}/{{ book.targetProposals }}
@@ -310,7 +310,7 @@
                 {{ studio.selectedProposal.slot }} ·
                 {{ studio.selectedProposal.id }}
               </p>
-              <h4 class="text-2xl font-black">
+              <h4 class="kr-text-black-2xl">
                 {{ studio.selectedProposal.title }}
               </h4>
             </div>

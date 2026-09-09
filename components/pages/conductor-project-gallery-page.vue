@@ -9,7 +9,7 @@
         <Icon name="kind-icon:gallery" class="size-6" />
       </div>
       <div class="min-w-0 flex-1">
-        <h2 class="text-2xl font-black tracking-tight">Projects</h2>
+        <h2 class="kr-text-black-2xl tracking-tight">Projects</h2>
         <p class="kr-text-dim-sm">
           Browse every Conductor project, filter by status, or start a new
           one.

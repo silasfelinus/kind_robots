@@ -8,7 +8,7 @@
           <p class="kr-text-eyebrow text-xs tracking-widest text-primary">
             Achievement administration
           </p>
-          <p class="mt-1 text-2xl font-black">Achievement artwork</p>
+          <p class="kr-text-black-2xl mt-1">Achievement artwork</p>
           <p class="kr-text-dim-sm mt-1">
             Generate, upload, and replace the image attached to each achievement
             definition.

@@ -70,7 +70,7 @@
               >
                 @{{ tank.User.username }}'s tank
               </p>
-              <h2 class="truncate text-2xl font-black sm:text-3xl">
+              <h2 class="kr-text-black-2xl truncate sm:text-3xl">
                 {{ tank.title }}
               </h2>
             </div>

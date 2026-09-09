@@ -223,7 +223,7 @@
           class="kr-pane-scroll flex flex-col p-5 gap-4"
         >
           <div class="flex flex-col gap-1">
-            <h2 class="text-2xl font-black text-base-content">Pick a Stage</h2>
+            <h2 class="kr-text-black-2xl text-base-content">Pick a Stage</h2>
             <p class="kr-text-dim-sm">
               Choose the format. This determines the roles, rotation, and tone
               of the performance.
@@ -278,7 +278,7 @@
 
           <template v-else>
             <div class="flex flex-col gap-1">
-              <h2 class="text-2xl font-black text-base-content">
+              <h2 class="kr-text-black-2xl text-base-content">
                 Cast the Show
               </h2>
               <p class="kr-text-dim-sm">
@@ -501,7 +501,7 @@
           class="kr-pane-scroll flex flex-col p-5 gap-4"
         >
           <div class="flex flex-col gap-1">
-            <h2 class="text-2xl font-black text-base-content">
+            <h2 class="kr-text-black-2xl text-base-content">
               Configure the Show
             </h2>
             <p class="kr-text-dim-sm">
@@ -844,7 +844,7 @@
             class="mx-auto h-40 w-auto rounded-3xl object-cover opacity-70 shadow-xl"
           />
           <div class="max-w-sm">
-            <h2 class="text-2xl font-black text-base-content">
+            <h2 class="kr-text-black-2xl text-base-content">
               Cast the chaos.
             </h2>
             <p class="kr-text-dim-sm mt-2">

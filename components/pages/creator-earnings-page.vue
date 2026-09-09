@@ -5,7 +5,7 @@
         <Icon name="kind-icon:coin" class="h-7 w-7" />
       </span>
       <div>
-        <p class="text-2xl font-black tracking-tight">Creator Earnings</p>
+        <p class="kr-text-black-2xl tracking-tight">Creator Earnings</p>
         <p class="kr-text-dim-sm">
           What you've earned when someone spent tokens on something you made — a
           Bot, Character, Facet, Scenario, Pitch, Art, Pack, Reward, or Dream.

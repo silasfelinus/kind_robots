@@ -10,7 +10,7 @@
             <div class="flex flex-wrap items-center gap-2">
               <Icon name="kind-icon:gift" class="h-7 w-7 text-primary" />
 
-              <h3 class="text-2xl font-black text-primary sm:text-3xl">
+              <h3 class="kr-text-black-2xl text-primary sm:text-3xl">
                 Swarm Giftshop
               </h3>
 

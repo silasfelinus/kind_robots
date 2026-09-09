@@ -116,7 +116,7 @@
     >
       <div class="flex min-w-0 flex-col gap-2">
         <div class="flex flex-wrap items-center gap-2">
-          <h3 class="text-2xl font-black text-base-content">{{ lesson.name }}</h3>
+          <h3 class="kr-text-black-2xl text-base-content">{{ lesson.name }}</h3>
           <span class="kr-badge-primary-sm font-bold">{{ lesson.era }}</span>
           <span class="kr-badge-ghost-sm">{{ lesson.region }}</span>
         </div>
@@ -280,7 +280,7 @@
               <Icon name="kind-icon:flask" class="h-4 w-4" />
               Try it
             </p>
-            <h4 class="mt-2 text-2xl font-black leading-tight text-base-content">
+            <h4 class="kr-text-black-2xl mt-2 leading-tight text-base-content">
               Turn the lesson into an image
             </h4>
           </div>

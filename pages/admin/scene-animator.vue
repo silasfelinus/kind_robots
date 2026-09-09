@@ -182,7 +182,7 @@
                   @click="statusFilter = statusFilter === tile.key ? 'all' : tile.key"
                 >
                   <p class="kr-text-dim-xs font-bold">{{ tile.label }}</p>
-                  <p class="text-2xl font-black">{{ tile.count }}</p>
+                  <p class="kr-text-black-2xl">{{ tile.count }}</p>
                 </button>
               </div>
               <div class="mt-3 flex items-center gap-3">

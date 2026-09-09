@@ -155,7 +155,7 @@
 
               <div class="min-w-0 flex-1">
                 <p
-                  class="truncate text-2xl font-black leading-none tracking-tight text-base-content drop-shadow-sm"
+                  class="kr-text-black-2xl truncate leading-none tracking-tight text-base-content drop-shadow-sm"
                 >
                   {{ card.label }}
                 </p>

@@ -8,7 +8,7 @@
           <p class="kr-text-eyebrow text-xs tracking-widest text-primary">
             AMI social pipeline administration
           </p>
-          <p class="mt-1 text-2xl font-black">Social post review queue</p>
+          <p class="kr-text-black-2xl mt-1">Social post review queue</p>
           <p class="kr-text-dim-sm mt-1 max-w-2xl">
             Draft-only. AMI, our labelled-AI fundraiser character, proposes
             posts from the daily dream/digest cycle. Nothing here posts anywhere

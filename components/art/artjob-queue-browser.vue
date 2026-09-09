@@ -74,7 +74,7 @@
           >
             {{ status }}
           </div>
-          <div class="mt-1 text-2xl font-black">{{ statusCount(status) }}</div>
+          <div class="kr-text-black-2xl mt-1">{{ statusCount(status) }}</div>
         </div>
       </div>
 

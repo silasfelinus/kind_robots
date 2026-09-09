@@ -10,7 +10,7 @@
         <div class="min-w-0">
           <div class="flex flex-wrap items-center gap-2">
             <Icon name="kind-icon:sparkles" class="h-7 w-7 text-primary" />
-            <h1 class="text-2xl font-black text-primary">Brainstorm</h1>
+            <h1 class="kr-text-black-2xl text-primary">Brainstorm</h1>
             <span class="badge badge-info rounded-xl">Dream Riffs</span>
           </div>
           <p class="mt-1 max-w-4xl text-sm text-base-content/65">

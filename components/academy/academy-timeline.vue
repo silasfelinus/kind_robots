@@ -12,7 +12,7 @@
           </span>
         </div>
         <div class="max-w-2xl">
-          <h2 class="text-2xl font-black leading-tight text-base-content sm:text-3xl">
+          <h2 class="kr-text-black-2xl leading-tight text-base-content sm:text-3xl">
             The Art History Timeline
           </h2>
           <p class="kr-text-dim-sm-70 mt-2 leading-relaxed sm:text-base">

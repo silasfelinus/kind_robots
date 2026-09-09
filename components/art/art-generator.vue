@@ -14,7 +14,7 @@
               <Icon name="kind-icon:paintbrush" class="h-6 w-6 text-primary" />
             </span>
             <div class="min-w-0">
-              <h1 class="text-2xl font-black text-primary">Image Generator</h1>
+              <h1 class="kr-text-black-2xl text-primary">Image Generator</h1>
               <p class="kr-text-dim-sm mt-0.5">
                 Recipe → prompt → pixels. Everything here renders on ComfyUI.
               </p>

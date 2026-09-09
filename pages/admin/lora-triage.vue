@@ -8,7 +8,7 @@
           <p class="kr-text-eyebrow text-xs tracking-widest text-primary">
             Temporary catalog cleanup
           </p>
-          <div class="mt-1 text-2xl font-black">LoRA maturity triage</div>
+          <div class="kr-text-black-2xl mt-1">LoRA maturity triage</div>
           <p class="kr-text-dim-sm mt-1 max-w-3xl">
             Confirm LoRAs as SFW or NSFW here, then save the changed maturity
             flags in one pass. Review progress stays in this browser until this
@@ -64,25 +64,25 @@
         <section class="grid grid-cols-2 gap-2 sm:grid-cols-4">
           <div class="kr-panel p-3">
             <p class="kr-text-eyebrow kr-text-dim-xs-45">LoRAs</p>
-            <p class="mt-1 text-2xl font-black">
+            <p class="kr-text-black-2xl mt-1">
               {{ triageStore.loras.length }}
             </p>
           </div>
           <div class="kr-panel p-3">
             <p class="kr-text-eyebrow kr-text-dim-xs-45">Confirmed</p>
-            <p class="mt-1 text-2xl font-black text-success">
+            <p class="kr-text-black-2xl mt-1 text-success">
               {{ triageStore.confirmedCount }}
             </p>
           </div>
           <div class="kr-panel p-3">
             <p class="kr-text-eyebrow kr-text-dim-xs-45">Remaining</p>
-            <p class="mt-1 text-2xl font-black">
+            <p class="kr-text-black-2xl mt-1">
               {{ triageStore.remainingCount }}
             </p>
           </div>
           <div class="kr-panel p-3">
             <p class="kr-text-eyebrow kr-text-dim-xs-45">Unsaved changes</p>
-            <p class="mt-1 text-2xl font-black text-warning">
+            <p class="kr-text-black-2xl mt-1 text-warning">
               {{ triageStore.pendingChanges.length }}
             </p>
           </div>

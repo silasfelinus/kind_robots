@@ -5,7 +5,7 @@
         <Icon name="kind-icon:hand-heart" class="h-7 w-7" />
       </span>
       <div>
-        <p class="text-2xl font-black tracking-tight">Mission Accrual</p>
+        <p class="kr-text-black-2xl tracking-tight">Mission Accrual</p>
         <p class="kr-text-dim-sm">
           How much mission share has accrued from the RevenueSplit ledger, how
           much has actually been remitted, and the outstanding balance still

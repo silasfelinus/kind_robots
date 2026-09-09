@@ -765,14 +765,11 @@ export const useMemoryStore = defineStore('memoryStore', () => {
   function normalizeImagePath(value: unknown): string {
     if (typeof value !== 'string') return ''
 
-    const cleanPath = value.trim()
-    if (!cleanPath) return ''
-
-    if (cleanPath.startsWith('http') || cleanPath.startsWith('/')) {
-      return cleanPath
+    if (value.startsWith('http') || value.startsWith('/')) {
+      return value
     }
 
-    return `/images/gallery/${cleanPath}`
+    return `/images/gallery/${value}`
   }
 
   function extractArtImagePath(image: unknown): string {
@@ -793,6 +790,7 @@ export const useMemoryStore = defineStore('memoryStore', () => {
       }
     }
 
+    // Fall back to base64 data if present
     if (typeof record.imageData === 'string' && record.imageData) {
       const fileType =
         typeof record.fileType === 'string' && record.fileType

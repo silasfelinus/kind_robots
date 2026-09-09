@@ -33,7 +33,7 @@
       >
         <div class="text-center">
           <span class="loading loading-ring loading-lg text-primary" />
-          <p class="mt-3 text-sm font-bold text-base-content/55">
+          <p class="kr-text-bold-sm mt-3 text-base-content/55">
             Tallying specimens…
           </p>
         </div>
@@ -89,7 +89,7 @@
                 class="size-4 text-primary/60"
               />
             </div>
-            <p class="min-w-0 flex-1 truncate text-sm font-bold">
+            <p class="kr-text-bold-sm min-w-0 flex-1 truncate">
               @{{ entry.username }}
             </p>
             <p class="kr-text-black-sm shrink-0 text-primary">

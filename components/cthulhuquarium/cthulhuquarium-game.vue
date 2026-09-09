@@ -89,7 +89,7 @@
       </div>
 
       <div class="flex flex-wrap items-center justify-between gap-2">
-        <div class="flex items-center gap-3 text-sm font-bold">
+        <div class="kr-text-bold-sm flex items-center gap-3">
           <span class="flex items-center gap-1">
             <Icon name="kind-icon:coin" class="size-4 text-warning" />
             {{ tankStore.coins }}
@@ -211,7 +211,7 @@
           >
             <div class="flex items-start justify-between gap-2">
               <div>
-                <p class="text-sm font-bold">{{ entry.Monster.name }}</p>
+                <p class="kr-text-bold-sm">{{ entry.Monster.name }}</p>
                 <p class="mt-0.5 text-xs italic opacity-70">
                   {{ entry.Monster.species || entry.Monster.behavior || '—' }}
                 </p>
@@ -348,7 +348,7 @@
               placeholder-icon="kind-icon:fish"
             />
             <div class="min-w-0 flex-1">
-              <p class="truncate text-sm font-bold">{{ entry.name }}</p>
+              <p class="kr-text-bold-sm truncate">{{ entry.name }}</p>
               <!-- Deliberately never the field note here -- the server
                    doesn't even send it for unowned species
                    (cthulhuquarium/t-012). It reveals in the dialog below,
@@ -429,7 +429,7 @@
                 "
               />
               <div class="min-w-0 flex-1">
-                <p class="truncate text-sm font-bold">{{ entry.name }}</p>
+                <p class="kr-text-bold-sm truncate">{{ entry.name }}</p>
                 <p class="mt-0.5 line-clamp-2 text-xs italic opacity-70">
                   {{
                     entry.collected
@@ -506,7 +506,7 @@
               :class="{ 'border-primary/60': entry.equipped }"
             >
               <div class="flex items-start justify-between gap-2">
-                <p class="text-sm font-bold">{{ entry.title }}</p>
+                <p class="kr-text-bold-sm">{{ entry.title }}</p>
                 <span
                   v-if="entry.equipped"
                   class="kr-badge-primary-xs shrink-0"
@@ -587,7 +587,7 @@
               }"
             >
               <div class="flex items-start justify-between gap-2">
-                <p class="text-sm font-bold">
+                <p class="kr-text-bold-sm">
                   <span class="mr-1">{{ entry.icon }}</span
                   >{{ entry.title }}
                 </p>
@@ -658,7 +658,7 @@
                 EGG_ICON
               }}</span>
               <div class="min-w-0 flex-1">
-                <p class="truncate text-sm font-bold">
+                <p class="kr-text-bold-sm truncate">
                   {{ egg.rarity.charAt(0)
                   }}{{ egg.rarity.slice(1).toLowerCase() }}
                   Egg
@@ -697,7 +697,7 @@
                 entry.icon
               }}</span>
               <div class="min-w-0 flex-1">
-                <p class="truncate text-sm font-bold">
+                <p class="kr-text-bold-sm truncate">
                   {{ entry.title }}
                   <span class="font-normal opacity-60"
                     >(size {{ entry.size }})</span
@@ -744,7 +744,7 @@
         />
         <div class="min-w-0 flex-1">
           <div class="flex items-start justify-between gap-2">
-            <p class="text-sm font-bold">{{ tankStore.finaleConfig.title }}</p>
+            <p class="kr-text-bold-sm">{{ tankStore.finaleConfig.title }}</p>
             <span
               v-if="tankStore.finaleTriggered"
               class="kr-badge-primary-xs shrink-0"

@@ -4,7 +4,7 @@
     <div class="flex flex-wrap items-center gap-2">
       <Icon name="kind-icon:tag" class="size-4 text-secondary" />
       <div class="min-w-0 flex-1">
-        <h3 class="text-sm font-bold">Character Facets</h3>
+        <h3 class="kr-text-bold-sm">Character Facets</h3>
         <p class="kr-text-dim-xs">
           Species, archetype, quirks, and other reusable traits that shape
           this character independently of their name.

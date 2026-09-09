@@ -26,7 +26,7 @@
       >
         <div class="text-center">
           <span class="loading loading-ring loading-lg text-primary" />
-          <p class="mt-3 text-sm font-bold text-base-content/55">
+          <p class="kr-text-bold-sm mt-3 text-base-content/55">
             Peering into the tank…
           </p>
         </div>
@@ -122,7 +122,7 @@
               placeholder-icon="kind-icon:fish"
             />
             <div class="min-w-0">
-              <p class="truncate text-sm font-bold">
+              <p class="kr-text-bold-sm truncate">
                 {{ entry.nickname || entry.Monster.name }}
               </p>
               <p class="truncate text-xs italic opacity-60">

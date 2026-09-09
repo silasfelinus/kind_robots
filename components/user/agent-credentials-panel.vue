@@ -70,7 +70,7 @@
       >
         <div class="flex items-start justify-between gap-3">
           <div class="min-w-0">
-            <p class="truncate text-sm font-bold">{{ credential.label }}</p>
+            <p class="kr-text-bold-sm truncate">{{ credential.label }}</p>
             <p class="kr-text-dim-xs-55 truncate">
               {{ botLabel(credential.botId) }} · {{ credential.keyPrefix }}…
             </p>

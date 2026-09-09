@@ -183,7 +183,7 @@
           </div>
 
           <div class="min-w-0 flex-1">
-            <span class="block truncate text-sm font-bold text-base-content">
+            <span class="kr-text-bold-sm block truncate text-base-content">
               {{ store.sourceLabel(record) }}
             </span>
             <span
@@ -236,7 +236,7 @@
               class="h-4 w-4 text-base-content/30"
             />
           </div>
-          <span class="shrink-0 truncate text-sm font-bold text-base-content">
+          <span class="kr-text-bold-sm shrink-0 truncate text-base-content">
             {{ store.sourceLabel(record) }}
           </span>
           <span

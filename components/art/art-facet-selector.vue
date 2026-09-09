@@ -4,7 +4,7 @@
     <div class="flex items-center gap-2">
       <Icon name="kind-icon:tag" class="size-4 text-secondary" />
       <div class="min-w-0 flex-1">
-        <h3 class="text-sm font-bold">{{ label }}</h3>
+        <h3 class="kr-text-bold-sm">{{ label }}</h3>
         <p v-if="!compact" class="kr-text-dim-xs">
           Canonical creative direction recorded on the ArtJob and finished
           image.

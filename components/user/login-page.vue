@@ -17,13 +17,13 @@
       />
 
       <div
-        class="pointer-events-none absolute left-4 top-5 hidden rounded-full border border-white/30 bg-white/20 px-4 py-2 text-sm font-bold text-white shadow-xl backdrop-blur-md sm:block"
+        class="kr-text-bold-sm pointer-events-none absolute left-4 top-5 hidden rounded-full border border-white/30 bg-white/20 px-4 py-2 text-white shadow-xl backdrop-blur-md sm:block"
       >
         ✨ empathy.exe loaded
       </div>
 
       <div
-        class="pointer-events-none absolute bottom-5 right-4 hidden rounded-full border border-white/30 bg-white/20 px-4 py-2 text-sm font-bold text-white shadow-xl backdrop-blur-md md:block"
+        class="kr-text-bold-sm pointer-events-none absolute bottom-5 right-4 hidden rounded-full border border-white/30 bg-white/20 px-4 py-2 text-white shadow-xl backdrop-blur-md md:block"
       >
         🦋 tiny robot sanctuary
       </div>
@@ -71,7 +71,7 @@
           class="mb-5 flex flex-col items-center gap-3 rounded-2xl border border-info/30 bg-info/10 px-4 py-6 text-info"
         >
           <Icon name="kind-icon:bubble-loading" class="text-3xl animate-spin" />
-          <span class="text-sm font-bold tracking-wide">
+          <span class="kr-text-bold-sm tracking-wide">
             Authenticating the human...
           </span>
         </div>

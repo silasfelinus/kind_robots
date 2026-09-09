@@ -4,7 +4,7 @@
     <div class="flex flex-wrap items-center gap-2">
       <Icon name="kind-icon:tag" class="size-4 text-secondary" />
       <div class="min-w-0 flex-1">
-        <h3 class="text-sm font-bold">{{ label }}</h3>
+        <h3 class="kr-text-bold-sm">{{ label }}</h3>
         <p class="kr-text-dim-xs">
           Reusable creative building blocks shared by Characters, Bots, Dreams,
           Rewards, Scenarios, and art. Aliases resolve to one canonical Facet.

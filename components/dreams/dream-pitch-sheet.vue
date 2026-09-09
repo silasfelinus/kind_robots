@@ -74,7 +74,7 @@
           </h2>
           <p
             v-if="subtitle"
-            class="mt-2 line-clamp-2 text-sm font-bold leading-snug text-(--sheet-muted) sm:text-base"
+            class="kr-text-bold-sm mt-2 line-clamp-2 leading-snug text-(--sheet-muted) sm:text-base"
           >
             {{ subtitle }}
           </p>

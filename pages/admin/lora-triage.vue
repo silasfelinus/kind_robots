@@ -123,7 +123,7 @@
           </div>
 
           <div class="flex flex-wrap items-center gap-2 kr-panel-divider">
-            <span class="text-sm font-bold"
+            <span class="kr-text-bold-sm"
               >{{ triageStore.selectedCount }} selected</span
             >
             <button
@@ -307,7 +307,7 @@
             >
               Previous
             </button>
-            <span class="text-sm font-bold"
+            <span class="kr-text-bold-sm"
               >Page {{ safePage }} / {{ totalPages }}</span
             >
             <button

@@ -38,7 +38,7 @@
       class="flex min-h-24 flex-wrap items-center justify-between gap-3 bg-error/5 p-4"
     >
       <div class="min-w-0 flex-1">
-        <p class="text-sm font-bold text-error">
+        <p class="kr-text-bold-sm text-error">
           {{ art.status === 'cancelled' ? 'Illustration cancelled' : 'Illustration paused' }}
         </p>
         <p class="kr-text-dim-xs-55 mt-1 leading-relaxed">

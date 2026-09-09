@@ -32,7 +32,7 @@
             class="absolute inset-0 flex flex-col items-center justify-center gap-2 p-6 text-center text-base-content/40"
           >
             <Icon name="kind-icon:image" class="size-12 opacity-40" />
-            <p class="text-sm font-bold">
+            <p class="kr-text-bold-sm">
               No {{ selectedSlot.label.toLowerCase() }} is attached yet.
             </p>
           </div>
@@ -140,7 +140,7 @@
             :disabled="submitting"
           />
           <span>
-            <span class="block text-sm font-bold">Keep the current version as inspiration</span>
+            <span class="kr-text-bold-sm block">Keep the current version as inspiration</span>
             <span class="kr-text-dim-xs-45 block leading-relaxed">
               Preserve the previous image in object history before the replacement attaches.
             </span>

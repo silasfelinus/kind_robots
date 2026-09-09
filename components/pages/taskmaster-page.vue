@@ -248,7 +248,7 @@
                       >
                         Setting
                       </span>
-                      <span class="block truncate text-sm font-bold">
+                      <span class="kr-text-bold-sm block truncate">
                         {{ selectedLocationLabel }}
                       </span>
                     </span>
@@ -292,7 +292,7 @@
                       >
                         Genre, mood, and style
                       </span>
-                      <span class="block truncate text-sm font-bold">
+                      <span class="kr-text-bold-sm block truncate">
                         {{ selectedGrammarLabel }}
                       </span>
                     </span>

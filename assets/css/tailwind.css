@@ -1850,6 +1850,20 @@ section:has(div[class*='xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]'])
     @apply font-bold uppercase;
   }
 
+  /* `font-bold text-sm` label/heading-emphasis text (interface-vision t-104
+   * slice 169) -- first of a new `kr-text-bold-*` family, weight sibling in
+   * spirit to `kr-text-black-*` but for `font-bold` instead of `font-black`
+   * (the same relationship `kr-text-eyebrow-bold` has to `kr-text-eyebrow`).
+   * A fresh full-repo class-frequency survey outside the now-closed
+   * `kr-text-black-*`/`kr-text-dim-*`/`kr-text-eyebrow`/`kr-text-eyebrow-bold`
+   * families found this shape at 90 subset-match occurrences across 57
+   * files, the largest bounded pattern surfaced this slice (`font-bold
+   * text-xs`, 84 occurrences, and `label-text text-xs font-bold`, 25
+   * occurrences, are left for future slices). */
+  .kr-text-bold-sm {
+    @apply font-bold text-sm;
+  }
+
   .text-smart {
     @apply text-sm md:text-lg lg:text-lg xl:text-xl;
   }

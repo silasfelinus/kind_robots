@@ -1,0 +1,66 @@
+name: Navigation Consolidation Contract
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'content/channels/home/**'
+      - 'content/channels/admin/**'
+      - 'content/connect.md'
+      - 'content/about.md'
+      - 'content/user-admin.md'
+      - 'content/artjob.md'
+      - 'components/home/home-account-links.vue'
+      - 'components/pages/about-support-center.vue'
+      - 'components/user/forum-moderation-panel.vue'
+      - 'components/user/user-admin-center.vue'
+      - 'components/navigation/navigation-trimmed.vue'
+      - 'pages/admin/forum-moderation.vue'
+      - 'stores/helpers/channelCards.ts'
+      - 'utils/channelTabGroups.ts'
+      - 'utils/scripts/verifyNavigationConsolidation.ts'
+      - '.github/workflows/navigation-consolidation-contract.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'content/channels/home/**'
+      - 'content/channels/admin/**'
+      - 'content/connect.md'
+      - 'content/about.md'
+      - 'content/user-admin.md'
+      - 'content/artjob.md'
+      - 'components/home/home-account-links.vue'
+      - 'components/pages/about-support-center.vue'
+      - 'components/user/forum-moderation-panel.vue'
+      - 'components/user/user-admin-center.vue'
+      - 'components/navigation/navigation-trimmed.vue'
+      - 'pages/admin/forum-moderation.vue'
+      - 'stores/helpers/channelCards.ts'
+      - 'utils/channelTabGroups.ts'
+      - 'utils/scripts/verifyNavigationConsolidation.ts'
+      - '.github/workflows/navigation-consolidation-contract.yml'
+  workflow_dispatch:
+
+jobs:
+  navigation-consolidation:
+    name: Navigation consolidation verifier
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+        env:
+          CYPRESS_INSTALL_BINARY: '0'
+
+      - name: Verify consolidated navigation
+        run: npx tsx utils/scripts/verifyNavigationConsolidation.ts

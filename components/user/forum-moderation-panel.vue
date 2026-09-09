@@ -45,7 +45,7 @@
         {{ moderationStore.error }}
       </p>
 
-      <div class="grid gap-4 md:grid-cols-2">
+      <div class="forum-moderation-grid grid gap-4">
         <article
           v-for="post in moderationStore.posts"
           :key="post.id"
@@ -123,3 +123,9 @@ function formatDate(value: string) {
   }
 }
 </script>
+
+<style scoped>
+.forum-moderation-grid {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr));
+}
+</style>

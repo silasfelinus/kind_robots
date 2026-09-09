@@ -10,20 +10,11 @@ export type ChannelTabGroup = {
   admin: boolean
 }
 
-const NAVIGATION_HIDDEN_TABS = new Set([
-  'home:newsfeed',
-  'home:friends',
-  'home:giving',
-  'home:giftshop',
-  'admin:project-placement',
-  'admin:forum-moderation',
-])
-
 export function isNavigationTab(
-  channel: ResolvedChannel,
+  _channel: ResolvedChannel,
   tab: ResolvedTab,
 ): boolean {
-  return !NAVIGATION_HIDDEN_TABS.has(`${channel.channelKey}:${tab.tabKey}`)
+  return tab.navigation !== false
 }
 
 export function navigationTabs(channel: ResolvedChannel): ResolvedTab[] {

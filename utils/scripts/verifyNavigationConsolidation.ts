@@ -12,6 +12,19 @@ function source(path: string): string {
   return readFileSync(path, 'utf8')
 }
 
+// Mirrors the six nested destinations' `navigation: false` frontmatter --
+// resolveTabItem() carries that field onto ResolvedTab.navigation, and these
+// hand-built fixtures stand in for that resolution step for tabs that
+// aren't reachable directly from the tab menus/navigation directory.
+const NESTED_TABS = new Set([
+  'home:newsfeed',
+  'home:friends',
+  'home:giving',
+  'home:giftshop',
+  'admin:project-placement',
+  'admin:forum-moderation',
+])
+
 function tab(channelKey: string, tabKey: string): ResolvedTab {
   return {
     channelKey,
@@ -20,6 +33,7 @@ function tab(channelKey: string, tabKey: string): ResolvedTab {
     label: tabKey,
     title: tabKey,
     requiredRole: '',
+    navigation: !NESTED_TABS.has(`${channelKey}:${tabKey}`),
   } as ResolvedTab
 }
 

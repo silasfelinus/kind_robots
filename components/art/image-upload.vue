@@ -151,9 +151,7 @@
 
           <div class="grid gap-3 md:grid-cols-2">
             <label class="form-control">
-              <span class="label-text mb-1 text-xs font-semibold"
-                >Designer</span
-              >
+              <span class="kr-label-xs-semibold mb-1">Designer</span>
               <input
                 v-model.trim="imageForm.designer"
                 type="text"
@@ -164,7 +162,7 @@
             </label>
 
             <label class="form-control">
-              <span class="label-text mb-1 text-xs font-semibold">Genres</span>
+              <span class="kr-label-xs-semibold mb-1">Genres</span>
               <input
                 v-model.trim="imageForm.genres"
                 type="text"
@@ -175,7 +173,7 @@
             </label>
 
             <label class="form-control md:col-span-2">
-              <span class="label-text mb-1 text-xs font-semibold">Prompt</span>
+              <span class="kr-label-xs-semibold mb-1">Prompt</span>
               <textarea
                 v-model.trim="imageForm.promptString"
                 class="textarea textarea-bordered min-h-24"
@@ -185,9 +183,7 @@
             </label>
 
             <label class="form-control md:col-span-2">
-              <span class="label-text mb-1 text-xs font-semibold"
-                >Negative Prompt</span
-              >
+              <span class="kr-label-xs-semibold mb-1">Negative Prompt</span>
               <textarea
                 v-model.trim="imageForm.negativePrompt"
                 class="textarea textarea-bordered min-h-16"
@@ -197,9 +193,7 @@
             </label>
 
             <label class="form-control">
-              <span class="label-text mb-1 text-xs font-semibold"
-                >Checkpoint</span
-              >
+              <span class="kr-label-xs-semibold mb-1">Checkpoint</span>
               <input
                 v-model.trim="imageForm.checkpoint"
                 type="text"
@@ -210,7 +204,7 @@
             </label>
 
             <label class="form-control">
-              <span class="label-text mb-1 text-xs font-semibold">Sampler</span>
+              <span class="kr-label-xs-semibold mb-1">Sampler</span>
               <input
                 v-model.trim="imageForm.sampler"
                 type="text"
@@ -221,7 +215,7 @@
             </label>
 
             <label class="form-control">
-              <span class="label-text mb-1 text-xs font-semibold">Seed</span>
+              <span class="kr-label-xs-semibold mb-1">Seed</span>
               <input
                 v-model.number="imageForm.seed"
                 type="number"
@@ -231,7 +225,7 @@
             </label>
 
             <label class="form-control">
-              <span class="label-text mb-1 text-xs font-semibold">Steps</span>
+              <span class="kr-label-xs-semibold mb-1">Steps</span>
               <input
                 v-model.number="imageForm.steps"
                 type="number"
@@ -242,7 +236,7 @@
             </label>
 
             <label class="form-control">
-              <span class="label-text mb-1 text-xs font-semibold">CFG</span>
+              <span class="kr-label-xs-semibold mb-1">CFG</span>
               <input
                 v-model.number="imageForm.cfg"
                 type="number"
@@ -253,7 +247,7 @@
             </label>
 
             <label class="form-control">
-              <span class="label-text mb-1 text-xs font-semibold">Rarity</span>
+              <span class="kr-label-xs-semibold mb-1">Rarity</span>
               <input
                 v-model.number="imageForm.rarity"
                 type="number"
@@ -264,9 +258,7 @@
             </label>
 
             <label class="form-control">
-              <span class="label-text mb-1 text-xs font-semibold"
-                >Server name</span
-              >
+              <span class="kr-label-xs-semibold mb-1">Server name</span>
               <input
                 v-model.trim="imageForm.serverName"
                 type="text"
@@ -277,9 +269,7 @@
             </label>
 
             <label class="form-control">
-              <span class="label-text mb-1 text-xs font-semibold"
-                >Server URL</span
-              >
+              <span class="kr-label-xs-semibold mb-1">Server URL</span>
               <input
                 v-model.trim="imageForm.serverUrl"
                 type="text"
@@ -299,7 +289,7 @@
                 class="toggle toggle-primary toggle-xs"
                 :disabled="isUploading"
               />
-              <span class="label-text text-xs font-semibold">CFG + 0.5</span>
+              <span class="kr-label-xs-semibold">CFG + 0.5</span>
             </label>
             <label class="kr-toggle-row-compact">
               <input
@@ -308,7 +298,7 @@
                 class="toggle toggle-success toggle-xs"
                 :disabled="isUploading"
               />
-              <span class="label-text text-xs font-semibold">Public</span>
+              <span class="kr-label-xs-semibold">Public</span>
             </label>
             <label class="kr-toggle-row-compact">
               <input
@@ -317,7 +307,7 @@
                 class="toggle toggle-warning toggle-xs"
                 :disabled="isUploading"
               />
-              <span class="label-text text-xs font-semibold">Mature</span>
+              <span class="kr-label-xs-semibold">Mature</span>
             </label>
           </div>
         </div>

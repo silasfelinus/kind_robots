@@ -3,7 +3,7 @@
   <div class="space-y-4">
     <div class="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
       <label class="form-control xl:col-span-2">
-        <span class="label-text text-xs">Canonical title</span>
+        <span class="kr-label-xs">Canonical title</span>
         <input
           v-model="form.title"
           type="text"
@@ -12,7 +12,7 @@
         />
       </label>
       <label class="form-control">
-        <span class="label-text text-xs">Canonical value</span>
+        <span class="kr-label-xs">Canonical value</span>
         <input
           v-model="form.canonicalValue"
           type="text"
@@ -21,7 +21,7 @@
         />
       </label>
       <label class="form-control">
-        <span class="label-text text-xs">Taxonomy</span>
+        <span class="kr-label-xs">Taxonomy</span>
         <select v-model="form.taxonomy" class="kr-select-sm">
           <option
             v-for="taxonomy in FACET_TAXONOMIES"
@@ -33,7 +33,7 @@
         </select>
       </label>
       <label class="form-control sm:col-span-2 xl:col-span-4">
-        <span class="label-text text-xs">Aliases</span>
+        <span class="kr-label-xs">Aliases</span>
         <input
           v-model="form.aliases"
           type="text"
@@ -42,7 +42,7 @@
         />
       </label>
       <label class="form-control">
-        <span class="label-text text-xs">Group key</span>
+        <span class="kr-label-xs">Group key</span>
         <input
           v-model="form.groupKey"
           type="text"
@@ -51,7 +51,7 @@
         />
       </label>
       <label class="form-control">
-        <span class="label-text text-xs">Group label</span>
+        <span class="kr-label-xs">Group label</span>
         <input
           v-model="form.groupLabel"
           type="text"
@@ -60,7 +60,7 @@
         />
       </label>
       <label class="form-control">
-        <span class="label-text text-xs">Sort order</span>
+        <span class="kr-label-xs">Sort order</span>
         <input
           v-model.number="form.sortOrder"
           type="number"
@@ -69,7 +69,7 @@
         />
       </label>
       <label class="form-control">
-        <span class="label-text text-xs">Source rank</span>
+        <span class="kr-label-xs">Source rank</span>
         <input
           v-model.number="form.sourceRank"
           type="number"
@@ -79,7 +79,7 @@
         />
       </label>
       <label class="form-control">
-        <span class="label-text text-xs">Random weight</span>
+        <span class="kr-label-xs">Random weight</span>
         <input
           v-model.number="form.randomWeight"
           type="number"
@@ -89,7 +89,7 @@
         />
       </label>
       <label class="form-control sm:col-span-2 xl:col-span-3">
-        <span class="label-text text-xs">Description</span>
+        <span class="kr-label-xs">Description</span>
         <textarea
           v-model="form.description"
           class="textarea textarea-bordered min-h-24 rounded-xl"
@@ -97,9 +97,7 @@
         />
       </label>
       <label class="form-control sm:col-span-2 xl:col-span-4">
-        <span class="label-text text-xs"
-          >Structured metadata (JSON object)</span
-        >
+        <span class="kr-label-xs">Structured metadata (JSON object)</span>
         <textarea
           v-model="form.metadata"
           class="textarea textarea-bordered min-h-28 rounded-xl font-mono text-xs"
@@ -136,7 +134,7 @@
         </div>
         <div class="grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
           <label class="form-control">
-            <span class="label-text text-xs">Primary image path</span>
+            <span class="kr-label-xs">Primary image path</span>
             <input
               v-model="form.imagePath"
               type="text"
@@ -145,7 +143,7 @@
             />
           </label>
           <label class="form-control sm:col-span-2 xl:col-span-3">
-            <span class="label-text text-xs">Art prompt</span>
+            <span class="kr-label-xs">Art prompt</span>
             <textarea
               v-model="form.artPrompt"
               class="textarea textarea-bordered min-h-24 rounded-xl"

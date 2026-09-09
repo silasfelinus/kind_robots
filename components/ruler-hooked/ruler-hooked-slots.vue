@@ -25,11 +25,11 @@
     <div class="flex flex-col gap-2">
       <div class="flex flex-wrap items-end gap-2">
         <label class="form-control">
-          <span class="label-text text-xs">Ruler name</span>
+          <span class="kr-label-xs">Ruler name</span>
           <input v-model="rulerName" type="text" placeholder="Mo" class="input input-bordered input-sm w-28" />
         </label>
         <label class="form-control">
-          <span class="label-text text-xs">Title</span>
+          <span class="kr-label-xs">Title</span>
           <input
             v-model="honorific"
             type="text"

@@ -159,7 +159,7 @@
           <div class="project-profile-fields grid gap-2 p-3">
             <div class="form-control min-w-0">
               <label class="label py-0.5">
-                <span class="label-text text-xs font-semibold">Goal</span>
+                <span class="kr-label-xs-semibold">Goal</span>
               </label>
               <textarea
                 class="textarea textarea-bordered min-h-16 w-full rounded-xl text-sm leading-relaxed"
@@ -172,9 +172,7 @@
             </div>
             <div class="form-control min-w-0">
               <label class="label py-0.5">
-                <span class="label-text text-xs font-semibold"
-                  >Description</span
-                >
+                <span class="kr-label-xs-semibold">Description</span>
               </label>
               <textarea
                 class="textarea textarea-bordered min-h-16 w-full rounded-xl text-sm leading-relaxed"
@@ -187,7 +185,7 @@
             </div>
             <div class="form-control min-w-0">
               <label class="label py-0.5">
-                <span class="label-text text-xs font-semibold">Live URL</span>
+                <span class="kr-label-xs-semibold">Live URL</span>
               </label>
               <input
                 type="url"
@@ -200,7 +198,7 @@
             </div>
             <div class="form-control min-w-0">
               <label class="label py-0.5">
-                <span class="label-text text-xs font-semibold">Repo URL</span>
+                <span class="kr-label-xs-semibold">Repo URL</span>
               </label>
               <input
                 type="url"
@@ -214,7 +212,7 @@
             <template v-if="userStore.isAdmin">
               <div class="form-control min-w-0">
                 <label class="label py-0.5">
-                  <span class="label-text text-xs font-semibold">Status</span>
+                  <span class="kr-label-xs-semibold">Status</span>
                 </label>
                 <select
                   class="kr-select-sm w-full text-sm"
@@ -235,7 +233,7 @@
               </div>
               <div class="form-control min-w-0">
                 <label class="label py-0.5">
-                  <span class="label-text text-xs font-semibold">Priority</span>
+                  <span class="kr-label-xs-semibold">Priority</span>
                 </label>
                 <select
                   class="kr-select-sm w-full text-sm"

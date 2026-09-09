@@ -85,7 +85,7 @@
               into one of many possible endings.
             </p>
             <label class="form-control w-full max-w-sm">
-              <span class="label-text mb-1 text-xs font-semibold"
+              <span class="kr-label-xs-semibold mb-1"
                 >Protagonist name (optional)</span
               >
               <input
@@ -97,9 +97,7 @@
               />
             </label>
             <label class="form-control w-full max-w-sm">
-              <span class="label-text mb-1 text-xs font-semibold"
-                >Genre (optional)</span
-              >
+              <span class="kr-label-xs-semibold mb-1">Genre (optional)</span>
               <input
                 v-model="genre"
                 type="text"

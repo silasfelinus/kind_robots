@@ -2042,6 +2042,29 @@ section:has(div[class*='xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]'])
     @apply text-xs text-error;
   }
 
+  /* A caption-size status/loading line using generic `opacity-60` rather
+   * than the `text-base-content/NN` alpha-channel family above -- `text-xs
+   * opacity-60` (interface-vision t-104 slice 184), found by a fresh
+   * full-repo class-frequency survey outside every now-closed family
+   * (`kr-text-black-*`, `kr-text-bold-*`, `kr-text-dim-*`,
+   * `kr-text-eyebrow-*`, `kr-label-*`, `kr-badge-*` incl. the `-ghost`/
+   * `-outline` sizeless siblings, `kr-text-error-xs`) at 23 exact
+   * occurrences across 9 files, consistently a conditionally-rendered `<p>`
+   * showing transient loading/empty-state status text. Named
+   * `kr-text-faded-xs` rather than folded into the `kr-text-dim-xs-*`
+   * family or reusing the existing `kr-*-muted` suffix: bare `opacity-N`
+   * dims the whole element (background, border, children too), not just
+   * the text color -- a real mechanical difference from
+   * `text-base-content/NN` -- and `-muted` already means "on the
+   * base-200 tinted background" elsewhere in this file (see
+   * `.kr-text-dim-sm`'s own note). Sibling `opacity-NN` shapes surveyed
+   * alongside this one (`text-sm opacity-70`, `text-sm opacity-80`,
+   * `text-xs opacity-55`, `font-sans opacity-70`, etc.) are left for
+   * future slices, same convention as `.kr-spinner-xs`/`.kr-spinner-sm`. */
+  .kr-text-faded-xs {
+    @apply text-xs opacity-60;
+  }
+
   .text-smart {
     @apply text-sm md:text-lg lg:text-lg xl:text-xl;
   }

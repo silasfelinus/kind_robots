@@ -27,7 +27,7 @@
             {{ opt.label }}
           </button>
         </div>
-        <p class="text-xs opacity-60">{{ activeEngine.hint }}</p>
+        <p class="kr-text-faded-xs">{{ activeEngine.hint }}</p>
       </section>
 
       <section class="space-y-2">
@@ -78,7 +78,7 @@
             </span>
           </button>
         </div>
-        <p class="text-xs opacity-60">
+        <p class="kr-text-faded-xs">
           Presets fill the controls below. Any value can still be changed for
           this render.
         </p>
@@ -213,7 +213,7 @@
             {{ opt.label }}
           </button>
         </div>
-        <p class="text-xs opacity-60">{{ activeOutputFormat.hint }}</p>
+        <p class="kr-text-faded-xs">{{ activeOutputFormat.hint }}</p>
       </section>
 
       <section class="grid gap-4 sm:grid-cols-3">

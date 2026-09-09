@@ -75,7 +75,7 @@
             {{ opt.label }}
           </button>
         </div>
-        <p class="text-xs opacity-60">
+        <p class="kr-text-faded-xs">
           Pick at least one. All four selected by default.
         </p>
       </section>

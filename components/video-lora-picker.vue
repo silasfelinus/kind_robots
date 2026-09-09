@@ -5,7 +5,7 @@
         <h2 class="font-semibold">
           LoRAs <span class="opacity-50">(optional)</span>
         </h2>
-        <p class="text-xs opacity-60">
+        <p class="kr-text-faded-xs">
           Stack up to {{ MAX_LORAS_PER_JOB }} {{ engine.toUpperCase() }} LoRAs.
           Trigger words are added to the render prompt automatically.
         </p>

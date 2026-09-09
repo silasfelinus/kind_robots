@@ -1,25 +1,53 @@
-<!-- /components/conductor/davinci-page.vue -->
+<!-- /components/storybook/storybook-life-run.vue -->
+<!--
+  THE ENDINGS ENGINE, INSIDE THE STORYMAKER.
+
+  This was components/conductor/davinci-page.vue, a separate product at
+  /play/davinci with its own project landing card and its own start form.
+  Silas, 2026-09-09: "merge the projects ... we care about having a solid
+  *single* interface that is a stylish and effective storymaker with many
+  endings. Whatever has been done should be merged." So the whole play loop
+  moved here intact -- run creation, resume, AI narration with a curated
+  fallback pool, the ten dimensions, chapter and ending art, and resolution
+  into one of the 1,024 seeded LifeEndings -- and lost exactly two things:
+  the project-front-page wrapper (the storymaker is the page now) and the
+  start form (the storymaker's own setup screen chooses the shape and hands
+  down the seed).
+
+  Everything else is deliberately unchanged, including every focus,
+  stale-response, and art-attribution guard the davinci/t-021 slices added.
+  Those bugs are not less real for the product having been renamed.
+-->
 <template>
-  <project-front-page class="kr-surface" slug="davinci" :fallback="config">
-    <template #interactive>
-      <section class="flex flex-col gap-4 kr-panel-section">
+  <section class="kr-scroll space-y-4 p-1">
+    <section class="flex flex-col gap-4 kr-panel-section">
+      <div class="flex flex-wrap items-center justify-between gap-2">
         <div class="flex items-center gap-2">
           <Icon name="kind-icon:castle" class="size-5 text-primary" />
           <h3 class="kr-text-eyebrow kr-text-dim-sm-70 tracking-wide">
-            Live a life
+            {{ seed.title }}
           </h3>
         </div>
-
-        <div
-          v-if="errorMessage"
-          role="alert"
-          class="alert alert-warning rounded-2xl text-sm"
+        <button
+          type="button"
+          class="btn btn-ghost btn-xs gap-1 rounded-lg text-base-content/50 normal-case"
+          @click="leaveLife"
         >
-          <Icon name="kind-icon:warning" class="size-5" />
-          <span>{{ errorMessage }}</span>
-        </div>
+          <Icon name="kind-icon:arrow-left" class="size-3.5" />
+          Back to the table
+        </button>
+      </div>
 
-        <!-- Wraps every block that swaps in/out as `phase` changes
+      <div
+        v-if="errorMessage"
+        role="alert"
+        class="alert alert-warning rounded-2xl text-sm"
+      >
+        <Icon name="kind-icon:warning" class="size-5" />
+        <span>{{ errorMessage }}</span>
+      </div>
+
+      <!-- Wraps every block that swaps in/out as `phase` changes
              (logged-out, loading/resuming, start, playing, ending).
              startLife() (start -> playing), resolveLife()/resumeRun()
              (playing -> loading -> ending or playing), and
@@ -38,22 +66,22 @@
              mirroring the same pattern one level down; the paired watch
              below restores focus here once a click from inside this region
              causes the visible phase block to change. -->
-        <div ref="phaseRegion" tabindex="-1" aria-label="Life status">
-          <!-- Logged out -->
-          <div
-            v-if="!userStore.isLoggedIn"
-            class="flex flex-col items-center gap-3 rounded-2xl border border-dashed border-base-300 bg-base-200/40 px-6 py-10 text-center"
-          >
-            <Icon name="kind-icon:castle" class="size-9 text-primary/50" />
-            <p class="max-w-md text-sm text-base-content/65">
-              Log in to seed a life, make choices, and leave a legacy.
-            </p>
-            <NuxtLink to="/login" class="kr-btn-primary">
-              Log in to play
-            </NuxtLink>
-          </div>
+      <div ref="phaseRegion" tabindex="-1" aria-label="Life status">
+        <!-- Logged out -->
+        <div
+          v-if="!userStore.isLoggedIn"
+          class="flex flex-col items-center gap-3 rounded-2xl border border-dashed border-base-300 bg-base-200/40 px-6 py-10 text-center"
+        >
+          <Icon name="kind-icon:castle" class="size-9 text-primary/50" />
+          <p class="max-w-md text-sm text-base-content/65">
+            Log in to seed a life, make choices, and leave a legacy.
+          </p>
+          <NuxtLink to="/login" class="kr-btn-primary">
+            Log in to play
+          </NuxtLink>
+        </div>
 
-          <!-- Resuming an existing run. Purely visual animate-pulse skeleton
+        <!-- Resuming an existing run. Purely visual animate-pulse skeleton
              with no role/aria-live/text carried no announcement to
              assistive tech -- the exact gap slice 4 fixed for the
              narrating busy state below, left unfixed here because this is
@@ -63,93 +91,77 @@
              visible/sr-only text), and academy-manager.vue's
              `isLoadingManager` state, which both cover comparable "we're
              restoring something on load" moments the same way. -->
-          <div
-            v-else-if="phase === 'loading'"
-            role="status"
-            aria-live="polite"
-            class="h-40 animate-pulse rounded-2xl border border-base-300 bg-base-200"
+        <div
+          v-else-if="phase === 'loading'"
+          role="status"
+          aria-live="polite"
+          class="h-40 animate-pulse rounded-2xl border border-base-300 bg-base-200"
+        >
+          <span class="sr-only">Resuming your life…</span>
+        </div>
+
+        <!--
+            Seeded start. The old /play/davinci screen asked for a protagonist
+            name and a genre here; the storymaker's setup screen collects both
+            (and a Character and a LOCATION Dream to hang the run on) before
+            this component ever mounts, so the run is created from the seed on
+            mount instead. This block is only what is left when that fails:
+            a readable reason and a retry, never a second setup form competing
+            with the one the reader already filled in.
+          -->
+        <div
+          v-else-if="phase === 'start'"
+          class="flex flex-col items-center gap-3 rounded-2xl border border-base-300 bg-base-200/40 px-6 py-10 text-center"
+        >
+          <Icon name="kind-icon:castle" class="size-9 text-primary/50" />
+          <p class="kr-text-dim-sm-70 max-w-md">
+            This life has not started yet. Ten dimensions — legacy, wealth,
+            love, wisdom, health, freedom, fame, creation, community, and
+            mystery — move with every choice, and the run resolves into one of
+            many possible endings.
+          </p>
+          <button
+            type="button"
+            class="btn btn-primary btn-sm w-fit gap-1.5 rounded-xl"
+            :disabled="submitting"
+            @click="startLife"
           >
-            <span class="sr-only">Resuming your life…</span>
+            <span v-if="submitting" class="kr-spinner-sm" />
+            <Icon v-else name="kind-icon:sparkles" class="size-4" />
+            Begin this life
+          </button>
+        </div>
+
+        <!-- Playing -->
+        <div v-else-if="phase === 'playing' && run" class="flex flex-col gap-4">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <p class="kr-text-eyebrow kr-text-dim-sm tracking-wide">
+              {{ run.protagonistName || run.title }}
+            </p>
+            <p class="kr-text-dim-xs font-semibold">
+              <template v-if="narrationMode === 'ai'">
+                Chapter {{ chapterIndex }}
+                <span v-if="narratorName" class="text-base-content/40"
+                  >· narrated by {{ narratorName }}</span
+                >
+              </template>
+              <template v-else>
+                Chapter {{ Math.min(chapterIndex, chapterCount) }} of
+                {{ chapterCount }}
+              </template>
+            </p>
+            <button
+              type="button"
+              class="btn btn-ghost btn-xs gap-1 rounded-lg text-base-content/40 normal-case hover:text-error"
+              :disabled="submitting"
+              @click="abandonRun"
+            >
+              <Icon name="kind-icon:close" class="size-3.5" />
+              Abandon this life
+            </button>
           </div>
 
-          <!-- Start a new life -->
-          <form
-            v-else-if="phase === 'start'"
-            class="flex flex-col gap-3"
-            @submit.prevent="startLife"
-          >
-            <p class="kr-text-dim-sm-70">
-              Seed a fresh life. You'll move through a run of chapters, each
-              choice nudging your legacy, wealth, love, wisdom, health, freedom,
-              fame, creation, community, and mystery — then your story resolves
-              into one of many possible endings.
-            </p>
-            <label class="form-control w-full max-w-sm">
-              <span class="kr-label-xs-semibold mb-1"
-                >Protagonist name (optional)</span
-              >
-              <input
-                v-model="protagonistName"
-                type="text"
-                maxlength="255"
-                placeholder="Who are you?"
-                class="kr-input-sm"
-              />
-            </label>
-            <label class="form-control w-full max-w-sm">
-              <span class="kr-label-xs-semibold mb-1">Genre (optional)</span>
-              <input
-                v-model="genre"
-                type="text"
-                maxlength="255"
-                placeholder="e.g. quiet epic, folk tale, heist"
-                class="kr-input-sm"
-              />
-            </label>
-            <button
-              type="submit"
-              class="btn btn-primary btn-sm w-fit gap-1.5 rounded-xl"
-              :disabled="submitting"
-            >
-              <span v-if="submitting" class="kr-spinner-sm" />
-              <Icon v-else name="kind-icon:sparkles" class="size-4" />
-              Begin a life
-            </button>
-          </form>
-
-          <!-- Playing -->
-          <div
-            v-else-if="phase === 'playing' && run"
-            class="flex flex-col gap-4"
-          >
-            <div class="flex flex-wrap items-center justify-between gap-2">
-              <p class="kr-text-eyebrow kr-text-dim-sm tracking-wide">
-                {{ run.protagonistName || run.title }}
-              </p>
-              <p class="kr-text-dim-xs font-semibold">
-                <template v-if="narrationMode === 'ai'">
-                  Chapter {{ chapterIndex }}
-                  <span v-if="narratorName" class="text-base-content/40"
-                    >· narrated by {{ narratorName }}</span
-                  >
-                </template>
-                <template v-else>
-                  Chapter {{ Math.min(chapterIndex, chapterCount) }} of
-                  {{ chapterCount }}
-                </template>
-              </p>
-              <button
-                type="button"
-                class="btn btn-ghost btn-xs gap-1 rounded-lg text-base-content/40 normal-case hover:text-error"
-                :disabled="submitting"
-                @click="abandonRun"
-              >
-                <Icon name="kind-icon:close" class="size-3.5" />
-                Abandon this life
-              </button>
-            </div>
-
-            <!-- Ten individually-meaningful stat pills with no wrapping
+          <!-- Ten individually-meaningful stat pills with no wrapping
                role/aria-label tying them together as one set -- the same gap
                kr-choice-list.vue's own doc comment (and this file's own
                choice-list fix, slice 6) was written to close for the chapter
@@ -160,32 +172,43 @@
                protagonist/antagonist lists, brainstorm-manager.vue's
                direction/shape rows, and this project's own sibling
                storybook-page.vue setup-progress nav. -->
+          <!--
+            Container-width columns, not viewport-width ones. As /play/davinci
+            this was a page component and `grid-cols-5 sm:grid-cols-10`
+            measured the right thing; inside the storymaker's stage it does
+            not -- the stage is narrower than the viewport, so at `sm:` the ten
+            pills were being asked to fit a width the component does not have.
+            auto-fit against a min track lets the row settle at five or ten by
+            the space it actually occupies (verifyLayoutContract
+            `viewport-grid`, the rule the narrative ingredient pickers
+            regressed against twice).
+          -->
+          <div
+            class="grid grid-cols-[repeat(auto-fit,minmax(min(100%,4.25rem),1fr))] gap-2"
+            role="group"
+            aria-label="Life dimensions"
+          >
             <div
-              class="grid grid-cols-5 gap-2 sm:grid-cols-10"
-              role="group"
-              aria-label="Life dimensions"
+              v-for="dim in DAVINCI_DIMENSIONS"
+              :key="dim"
+              class="flex flex-col items-center gap-0.5 rounded-xl border p-2 text-center"
+              :class="dimensionPillClass(statMap[dim] ?? 0)"
+              :title="`${DIMENSION_LABELS[dim]}: ${statMap[dim] ?? 0}`"
             >
-              <div
-                v-for="dim in DAVINCI_DIMENSIONS"
-                :key="dim"
-                class="flex flex-col items-center gap-0.5 rounded-xl border p-2 text-center"
-                :class="dimensionPillClass(statMap[dim] ?? 0)"
-                :title="`${DIMENSION_LABELS[dim]}: ${statMap[dim] ?? 0}`"
+              <span
+                class="kr-text-eyebrow text-[0.55rem] tracking-wide text-base-content/60"
               >
-                <span
-                  class="kr-text-eyebrow text-[0.55rem] tracking-wide text-base-content/60"
-                >
-                  {{ DIMENSION_LABELS[dim] }}
-                </span>
-                <span
-                  class="text-xs font-black"
-                  :class="dimensionValueClass(statMap[dim] ?? 0)"
-                  >{{ statMap[dim] ?? 0 }}</span
-                >
-              </div>
+                {{ DIMENSION_LABELS[dim] }}
+              </span>
+              <span
+                class="text-xs font-black"
+                :class="dimensionValueClass(statMap[dim] ?? 0)"
+                >{{ statMap[dim] ?? 0 }}</span
+              >
             </div>
+          </div>
 
-            <!-- Wraps every block that swaps in/out as narrating/narrationError/
+          <!-- Wraps every block that swaps in/out as narrating/narrationError/
                currentChapter change (busy, error, chapter, and the "See your
                ending" resolve panel below). Clicking a choice inside the
                chapter block, or "Try again"/"Play the written chapters
@@ -201,32 +224,32 @@
                ref="mainContent" tabindex="-1">` pattern; the paired watch
                below restores focus here once a click from inside this region
                causes the visible block to change. -->
-            <div ref="chapterRegion" tabindex="-1" aria-label="Current chapter">
-              <!-- Narrator is composing this chapter. role="status"/aria-live
+          <div ref="chapterRegion" tabindex="-1" aria-label="Current chapter">
+            <!-- Narrator is composing this chapter. role="status"/aria-live
                  match every comparable busy indicator elsewhere in the app
                  (academy-manager.vue, model-builder-manager.vue,
                  model-builder-run-history.vue, narrative-response-composer.vue,
                  kr-chat-window.vue, watchlist-browse.vue,
                  narrative-ingredient-picker.vue) -- this was the one busy
-                 state in davinci-page.vue left as a purely visual spinner
+                 state in this file left as a purely visual spinner
                  with no announcement to assistive tech. -->
-              <div
-                v-if="narrating"
-                role="status"
-                aria-live="polite"
-                class="flex flex-col items-center gap-3 rounded-2xl border border-base-300 bg-base-200/40 p-8 text-center"
-              >
-                <span
-                  class="loading loading-dots loading-lg text-primary/70"
-                  aria-hidden="true"
-                />
-                <p class="kr-text-dim-xs font-semibold">
-                  {{ narratorName || 'The narrator' }} is writing chapter
-                  {{ chapterIndex }}…
-                </p>
-              </div>
+            <div
+              v-if="narrating"
+              role="status"
+              aria-live="polite"
+              class="flex flex-col items-center gap-3 rounded-2xl border border-base-300 bg-base-200/40 p-8 text-center"
+            >
+              <span
+                class="loading loading-dots loading-lg text-primary/70"
+                aria-hidden="true"
+              />
+              <p class="kr-text-dim-xs font-semibold">
+                {{ narratorName || 'The narrator' }} is writing chapter
+                {{ chapterIndex }}…
+              </p>
+            </div>
 
-              <!-- Narration failed. Per the narration-layer spec a broken chapter
+            <!-- Narration failed. Per the narration-layer spec a broken chapter
                surfaces a visible retry rather than a silently fabricated one,
                so the curated pool is offered as an explicit, labelled choice
                instead of a transparent fallback. role="alert" matches every
@@ -235,58 +258,58 @@
                closest structural match (same tinted-callout + retry-button
                shape, same role="alert"), and this file's own errorMessage
                callout above already carries it. This was the one
-               warning-toned block in davinci-page.vue with no role/aria
+               warning-toned block in this file with no role/aria
                semantics at all, left uncovered even after slice 2 fixed its
                color tone. -->
-              <div
-                v-else-if="narrationError"
-                role="alert"
-                class="flex flex-col items-center gap-3 rounded-2xl border border-warning/40 bg-warning/10 p-6 text-center"
-              >
-                <Icon name="kind-icon:warning" class="size-8 text-warning/70" />
-                <p class="kr-text-dim-sm-70">
-                  The narrator is having trouble with this chapter.
-                </p>
-                <p class="kr-text-dim-xs">{{ narrationError }}</p>
-                <div class="flex flex-wrap justify-center gap-2">
-                  <button
-                    type="button"
-                    class="btn btn-primary btn-sm gap-1.5 rounded-xl"
-                    :disabled="narrating"
-                    @click="narrateChapter()"
-                  >
-                    <Icon name="kind-icon:refresh" class="size-4" />
-                    Try again
-                  </button>
-                  <button
-                    type="button"
-                    class="kr-btn btn-outline"
-                    @click="useCuratedChapters"
-                  >
-                    Play the written chapters instead
-                  </button>
-                </div>
-              </div>
-
-              <div
-                v-else-if="currentChapter"
-                class="flex flex-col gap-3 kr-panel-tint-md"
-              >
-                <h4 v-if="currentChapter.title" class="text-base font-black">
-                  {{ currentChapter.title }}
-                </h4>
-                <NarrativeArtStatus
-                  v-if="currentChapterArt"
-                  :art="currentChapterArt"
-                  :label="`Illustration for chapter ${chapterIndex}`"
-                  @retry="retryCurrentChapterArt"
-                />
-                <p
-                  class="whitespace-pre-line text-sm leading-relaxed text-base-content/75"
+            <div
+              v-else-if="narrationError"
+              role="alert"
+              class="flex flex-col items-center gap-3 rounded-2xl border border-warning/40 bg-warning/10 p-6 text-center"
+            >
+              <Icon name="kind-icon:warning" class="size-8 text-warning/70" />
+              <p class="kr-text-dim-sm-70">
+                The narrator is having trouble with this chapter.
+              </p>
+              <p class="kr-text-dim-xs">{{ narrationError }}</p>
+              <div class="flex flex-wrap justify-center gap-2">
+                <button
+                  type="button"
+                  class="btn btn-primary btn-sm gap-1.5 rounded-xl"
+                  :disabled="narrating"
+                  @click="narrateChapter()"
                 >
-                  {{ currentChapter.narrative }}
-                </p>
-                <!-- Was a hand-rolled v-for of plain btn-outline buttons -- the
+                  <Icon name="kind-icon:refresh" class="size-4" />
+                  Try again
+                </button>
+                <button
+                  type="button"
+                  class="kr-btn btn-outline"
+                  @click="useCuratedChapters"
+                >
+                  Play the written chapters instead
+                </button>
+              </div>
+            </div>
+
+            <div
+              v-else-if="currentChapter"
+              class="flex flex-col gap-3 kr-panel-tint-md"
+            >
+              <h4 v-if="currentChapter.title" class="text-base font-black">
+                {{ currentChapter.title }}
+              </h4>
+              <NarrativeArtStatus
+                v-if="currentChapterArt"
+                :art="currentChapterArt"
+                :label="`Illustration for chapter ${chapterIndex}`"
+                @retry="retryCurrentChapterArt"
+              />
+              <p
+                class="whitespace-pre-line text-sm leading-relaxed text-base-content/75"
+              >
+                {{ currentChapter.narrative }}
+              </p>
+              <!-- Was a hand-rolled v-for of plain btn-outline buttons -- the
                  fourth duplicate of exactly the pick-one-option list
                  kr-choice-list.vue was built to unify (its own doc comment:
                  "replaces at least three separate implementations of the
@@ -302,24 +325,24 @@
                  existing plain-button look, rather than also opting into
                  the numbered "storybook gesture" badge as an unrelated
                  visual change in the same pass. -->
-                <kr-choice-list
-                  layout="stack"
-                  label="Choices for this chapter"
-                  :choices="currentChapterChoices"
-                  :disabled="submitting"
-                  :show-index="false"
-                  @select="chooseOptionByKey"
-                />
-                <p
-                  v-if="currentChapter.milestoneCandidate"
-                  class="text-[0.65rem] italic text-base-content/40"
-                >
-                  This life seems headed toward
-                  {{ currentChapter.milestoneCandidate }}.
-                </p>
-              </div>
+              <kr-choice-list
+                layout="stack"
+                label="Choices for this chapter"
+                :choices="currentChapterChoices"
+                :disabled="submitting"
+                :show-index="false"
+                @select="chooseOptionByKey"
+              />
+              <p
+                v-if="currentChapter.milestoneCandidate"
+                class="text-[0.65rem] italic text-base-content/40"
+              >
+                This life seems headed toward
+                {{ currentChapter.milestoneCandidate }}.
+              </p>
+            </div>
 
-              <!-- The run may be ended any time after chapter 6 (raised from 3,
+            <!-- The run may be ended any time after chapter 6 (raised from 3,
                davinci/t-024: simulation-backed, see MIN_CHAPTERS_BEFORE_ENDING
                above) -- enough chapters for a meaningful spread of dimensions.
                The narrator never decides when a life ends — the player does.
@@ -331,103 +354,103 @@
                narration-error retry panel with the misleading "Your
                chapters are told" copy, even at chapter 1 with zero recorded
                choices. -->
-              <div
-                v-if="
-                  !narrating &&
-                  !narrationError &&
-                  (canEndRun || !currentChapter)
-                "
-                class="flex flex-col items-center gap-3 rounded-2xl border border-primary/30 bg-primary/5 p-6 text-center"
+            <div
+              v-if="
+                !narrating && !narrationError && (canEndRun || !currentChapter)
+              "
+              class="flex flex-col items-center gap-3 rounded-2xl border border-primary/30 bg-primary/5 p-6 text-center"
+            >
+              <Icon name="kind-icon:trophy" class="size-8 text-primary/70" />
+              <p class="kr-text-dim-sm-70">
+                {{
+                  currentChapter
+                    ? 'You can keep living, or draw the line here and see what it all added up to.'
+                    : "Your chapters are told. It's time to see how this life resolves."
+                }}
+              </p>
+              <button
+                type="button"
+                class="btn btn-primary btn-sm gap-1.5 rounded-xl"
+                :disabled="submitting"
+                @click="resolveLife"
               >
-                <Icon name="kind-icon:trophy" class="size-8 text-primary/70" />
-                <p class="kr-text-dim-sm-70">
-                  {{
-                    currentChapter
-                      ? 'You can keep living, or draw the line here and see what it all added up to.'
-                      : "Your chapters are told. It's time to see how this life resolves."
-                  }}
-                </p>
-                <button
-                  type="button"
-                  class="btn btn-primary btn-sm gap-1.5 rounded-xl"
-                  :disabled="submitting"
-                  @click="resolveLife"
-                >
-                  <span v-if="submitting" class="kr-spinner-sm" />
-                  <Icon v-else name="kind-icon:trophy" class="size-4" />
-                  See your ending
-                </button>
-              </div>
+                <span v-if="submitting" class="kr-spinner-sm" />
+                <Icon v-else name="kind-icon:trophy" class="size-4" />
+                See your ending
+              </button>
             </div>
           </div>
+        </div>
 
-          <!-- Ending -->
-          <div
-            v-else-if="phase === 'ending' && endingData"
-            class="flex flex-col items-center gap-3 rounded-2xl border border-primary/30 bg-primary/5 p-6 text-center"
+        <!-- Ending -->
+        <div
+          v-else-if="phase === 'ending' && endingData"
+          class="flex flex-col items-center gap-3 rounded-2xl border border-primary/30 bg-primary/5 p-6 text-center"
+        >
+          <span
+            class="badge badge-sm rounded-lg font-black"
+            :class="victoryBadgeClass(endingData.victoryType)"
           >
-            <span
-              class="badge badge-sm rounded-lg font-black"
-              :class="victoryBadgeClass(endingData.victoryType)"
-            >
-              {{ endingData.victoryType }}
-            </span>
-            <h4 class="kr-text-black-xl">{{ endingData.title }}</h4>
-            <NarrativeArtStatus
-              v-if="endingArt"
-              class="w-full max-w-md"
-              :art="endingArt"
-              :label="`Illustration for how ${run?.protagonistName || 'this life'} ended`"
-              @retry="retryEndingArt"
-            />
-            <p class="kr-text-dim-sm-70 max-w-md">
-              {{ endingData.summary }}
-            </p>
-            <p v-if="awardedNote" class="text-xs font-semibold text-success">
-              {{ awardedNote }}
-            </p>
-            <button
-              type="button"
-              class="btn btn-outline btn-sm gap-1.5 rounded-xl"
-              @click="playAgain"
-            >
-              <Icon name="kind-icon:refresh" class="size-4" />
-              Live another life
-            </button>
-          </div>
+            {{ endingData.victoryType }}
+          </span>
+          <h4 class="kr-text-black-xl">{{ endingData.title }}</h4>
+          <NarrativeArtStatus
+            v-if="endingArt"
+            class="w-full max-w-md"
+            :art="endingArt"
+            :label="`Illustration for how ${run?.protagonistName || 'this life'} ended`"
+            @retry="retryEndingArt"
+          />
+          <p class="kr-text-dim-sm-70 max-w-md">
+            {{ endingData.summary }}
+          </p>
+          <p v-if="awardedNote" class="text-xs font-semibold text-success">
+            {{ awardedNote }}
+          </p>
+          <button
+            type="button"
+            class="btn btn-outline btn-sm gap-1.5 rounded-xl"
+            @click="playAgain"
+          >
+            <Icon name="kind-icon:refresh" class="size-4" />
+            Live another life
+          </button>
         </div>
-      </section>
+      </div>
+    </section>
 
-      <section class="flex flex-col items-start gap-3 kr-panel-section">
-        <div class="flex items-center gap-2">
-          <Icon name="kind-icon:trophy" class="size-5 text-primary" />
-          <h3 class="kr-text-eyebrow kr-text-dim-sm-70 tracking-wide">
-            Endings on record
-          </h3>
-        </div>
-        <p class="kr-text-dim-sm-70">
-          Each life resolves into one of the seeded endings below — reach it
-          once and the matching achievement is yours for good.
-        </p>
-        <p v-if="totalEndings > 0" class="kr-text-dim-xs-60">
-          {{ totalEndings }} ending{{ totalEndings === 1 ? '' : 's' }} seeded so
-          far.
-        </p>
-        <ul v-if="recentEndings.length" class="flex flex-col gap-1">
-          <li v-for="ending in recentEndings" :key="ending.id">
-            <span class="text-sm text-base-content/80">{{ ending.label }}</span>
-          </li>
-        </ul>
-      </section>
-    </template>
-  </project-front-page>
+    <section class="flex flex-col items-start gap-3 kr-panel-section">
+      <div class="flex items-center gap-2">
+        <Icon name="kind-icon:trophy" class="size-5 text-primary" />
+        <h3 class="kr-text-eyebrow kr-text-dim-sm-70 tracking-wide">
+          Endings on record
+        </h3>
+      </div>
+      <p class="kr-text-dim-sm-70">
+        Each life resolves into one of the seeded endings below — reach it once
+        and the matching achievement is yours for good.
+      </p>
+      <p v-if="totalEndings > 0" class="kr-text-dim-xs-60">
+        {{ totalEndings }} ending{{ totalEndings === 1 ? '' : 's' }} seeded so
+        far.
+      </p>
+      <ul v-if="recentEndings.length" class="flex flex-col gap-1">
+        <li v-for="ending in recentEndings" :key="ending.id">
+          <span class="text-sm text-base-content/80">{{ ending.label }}</span>
+        </li>
+      </ul>
+    </section>
+  </section>
 </template>
 
 <script setup lang="ts">
 import { computed, nextTick, onMounted, ref, watch } from 'vue'
 import { performFetch } from '@/stores/utils'
 import { useUserStore } from '@/stores/userStore'
-import type { ProjectFrontConfig } from '@/components/conductor/projectFront'
+import {
+  useStorybookStore,
+  type StorybookLifeSeed,
+} from '@/stores/storybookStore'
 import { useAchievementStore } from '@/stores/achievementStore'
 import { createPersistedNarrativeArtJobsController } from '@/stores/helpers/persistedNarrativeArtJobsHelper'
 import type { NarrativeArtJobState } from '@/utils/narrativeArtJobs'
@@ -706,8 +729,11 @@ const STORAGE_KEY = 'davinci-active-life-run-id'
 // alone can never see it -- this key is what lets a reload find it again.
 const ART_JOBS_STORAGE_KEY = 'davinci-active-life-run-art-jobs'
 
+const props = defineProps<{ seed: StorybookLifeSeed }>()
+
 const userStore = useUserStore()
 const achievementStore = useAchievementStore()
+const storybookStore = useStorybookStore()
 
 const phase = ref<'loading' | 'start' | 'playing' | 'ending'>('loading')
 const run = ref<LifeRunRecord | null>(null)
@@ -717,9 +743,6 @@ const endingData = ref<LifeEndingData | null>(null)
 const awardedNote = ref<string | null>(null)
 const errorMessage = ref('')
 const submitting = ref(false)
-
-const protagonistName = ref('')
-const genre = ref('')
 
 const narrationMode = ref<NarrationMode>('ai')
 const narrating = ref(false)
@@ -1133,13 +1156,21 @@ async function startLife() {
   submitting.value = true
   errorMessage.value = ''
 
-  const title = protagonistName.value.trim() || 'An Unwritten Life'
+  // characterId/dreamId are the storymaker's cast lead and primary setting.
+  // LifeRun has carried these columns since the engine was built, which is
+  // why merging the two products needed no migration: the ingredients the
+  // setup screen already collects are exactly the seeds a run accepts. The
+  // server validates that the reader may attach each record (see the
+  // ownership check in server/utils/davinci.ts) -- a slug-keyed or missing
+  // ingredient arrives as null and the run simply starts unattached.
   const response = await performFetch<LifeRunRecord>('/api/davinci/runs', {
     method: 'POST',
     body: JSON.stringify({
-      title,
-      protagonistName: protagonistName.value.trim() || null,
-      genre: genre.value.trim() || null,
+      title: props.seed.title,
+      protagonistName: props.seed.protagonistName,
+      genre: props.seed.genre,
+      characterId: props.seed.characterId,
+      dreamId: props.seed.dreamId,
     }),
   })
 
@@ -1300,8 +1331,6 @@ function playAgain() {
   playedCount.value = 0
   endingData.value = null
   awardedNote.value = null
-  protagonistName.value = ''
-  genre.value = ''
   errorMessage.value = ''
   narrationMode.value = 'ai'
   narrationError.value = ''
@@ -1326,6 +1355,28 @@ function abandonRun() {
   playAgain()
 }
 
+/**
+ * Leaves the life engine for the storymaker's setup screen.
+ *
+ * Confirms only while a run is actually in progress -- returning to the table
+ * from the ending screen, or from a run that never started, discards nothing.
+ * Clearing the engine's own two keys before endLife() matters: the store's
+ * restore path treats a stale active-run key as a pre-merge run to recover, so
+ * leaving it behind would drag the reader straight back into the run they just
+ * stepped out of on the next page load.
+ */
+function leaveLife() {
+  if (phase.value === 'playing' && run.value) {
+    const confirmed = window.confirm(
+      'Leave this life and go back to the table? This discards your progress so far.',
+    )
+    if (!confirmed) return
+  }
+  localStorage.removeItem(STORAGE_KEY)
+  localStorage.removeItem(ART_JOBS_STORAGE_KEY)
+  storybookStore.endLife()
+}
+
 onMounted(() => {
   achievementStore.fetchAchievements()
 
@@ -1336,10 +1387,18 @@ onMounted(() => {
 
   const storedId = localStorage.getItem(STORAGE_KEY)
   if (storedId) {
-    resumeRun(Number(storedId))
-  } else {
-    phase.value = 'start'
+    void resumeRun(Number(storedId))
+    return
   }
+
+  // No stored run, and the reader has already made every choice the old start
+  // form used to ask for -- so the life begins immediately rather than parking
+  // them on a second "are you sure" screen one click after they pressed "Open
+  // this story". The `start` phase still exists for the failure case: if this
+  // call fails, startLife() leaves phase at 'start' with the error visible and
+  // a retry button.
+  phase.value = 'start'
+  void startLife()
 })
 
 const davinciEndingAchievements = computed(() =>
@@ -1351,45 +1410,4 @@ const totalEndings = computed(() => davinciEndingAchievements.value.length)
 const recentEndings = computed(() =>
   davinciEndingAchievements.value.slice(0, 3),
 )
-
-const config: ProjectFrontConfig = {
-  slug: 'davinci',
-  title: 'Da Vinci',
-  icon: 'kind-icon:castle',
-  tagline: 'Live a life. Leave a legacy.',
-  description:
-    'A generative life-and-legacy simulation. Each run seeds a life of ambition and craft, advances through chapters of choices that move your stats, collects art along the way, and resolves into an ending — with hundreds of achievements tracking every mark you leave.',
-  launch: {
-    label: 'Begin a life',
-    href: '/play/davinci',
-    icon: 'kind-icon:sparkles',
-  },
-  stats: [
-    { label: 'achievements', value: '1000+', icon: 'kind-icon:trophy' },
-    { label: 'endings', value: 'many', icon: 'kind-icon:book' },
-  ],
-  sections: [
-    {
-      key: 'choices',
-      title: 'Chapters of choice',
-      body: 'Every decision nudges your stats and bends the story toward a different legacy.',
-      icon: 'kind-icon:map',
-    },
-    {
-      key: 'legacy',
-      title: 'A legacy that remembers',
-      body: 'Runs collect generated art and unlock achievements that persist across lives.',
-      icon: 'kind-icon:trophy',
-    },
-  ],
-  deliverables: {
-    done: [
-      'Life-run schema (runs, choices, stats, endings, achievements)',
-      'Da Vinci API surface',
-      'Playable run UI',
-      'Contextual chapter and ending art',
-    ],
-    next: ['Achievement gallery'],
-  },
-}
 </script>

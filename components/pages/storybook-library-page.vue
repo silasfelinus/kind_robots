@@ -54,7 +54,10 @@
               <li>
                 <button
                   type="button"
-                  @click="downloadStory(undefined, 'markdown'); closeExportMenu()"
+                  @click="
+                    downloadStory(undefined, 'markdown')
+                    closeExportMenu()
+                  "
                 >
                   Markdown
                 </button>
@@ -62,7 +65,10 @@
               <li>
                 <button
                   type="button"
-                  @click="downloadStory(undefined, 'json'); closeExportMenu()"
+                  @click="
+                    downloadStory(undefined, 'json')
+                    closeExportMenu()
+                  "
                 >
                   JSON
                 </button>
@@ -154,9 +160,7 @@
                 {{ story.status }}
               </span>
             </div>
-            <p
-              class="kr-text-dim-xs-55 mt-1 line-clamp-2 leading-relaxed"
-            >
+            <p class="kr-text-dim-xs-55 mt-1 line-clamp-2 leading-relaxed">
               {{ story.bible.premise }}
             </p>
             <p class="mt-2 text-[0.68rem] text-base-content/40">
@@ -204,9 +208,25 @@
       </div>
     </section>
 
+    <!--
+      One stage, three states, in priority order: an in-progress life run, an
+      in-progress beat story, or the setup table. The life engine wins the tie
+      because storybookStore.beginLife() is what put it on screen -- a leftover
+      beat session from an earlier story must not steal the stage from the run
+      the reader just started (and vice versa is impossible: beginStory()
+      refuses the 'life' shape outright).
+    -->
     <div class="min-h-0 flex-1 overflow-hidden">
-      <StorybookVisualSetup v-if="!storyStore.session" />
-      <div v-show="storyStore.session" class="size-full">
+      <StorybookLifeRun
+        v-if="storyStore.lifeSeed"
+        :seed="storyStore.lifeSeed"
+        class="size-full"
+      />
+      <StorybookVisualSetup v-else-if="!storyStore.session" />
+      <div
+        v-show="!storyStore.lifeSeed && storyStore.session"
+        class="size-full"
+      >
         <StorybookPage />
       </div>
     </div>

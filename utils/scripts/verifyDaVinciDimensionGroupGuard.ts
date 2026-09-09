@@ -1,7 +1,7 @@
 // /utils/scripts/verifyDaVinciDimensionGroupGuard.ts
 //
 // Regression guard (davinci/t-021 slice 7) -- the ten-pill dimension grid in
-// components/conductor/davinci-page.vue rendered each stat as an
+// components/storybook/storybook-life-run.vue rendered each stat as an
 // individually meaningful pill (label + value, plus a hover-only :title),
 // but the grid container itself carried no role/aria-label tying the ten
 // pills together as one set. That is the exact gap kr-choice-list.vue's own
@@ -31,7 +31,7 @@ const repositoryRoot = resolve(scriptDirectory, '../..')
 
 const COMPONENT_PATH = join(
   repositoryRoot,
-  'components/conductor/davinci-page.vue',
+  'components/storybook/storybook-life-run.vue',
 )
 
 // Anchored on the `v-for="dim in DAVINCI_DIMENSIONS"` pill loop, which sits
@@ -61,7 +61,7 @@ export function checkDimensionGroupGuard(content: string): string[] {
   if (!region) {
     errors.push(
       `Could not find the \`${PILL_LOOP_MARKER}\` marker in ` +
-        'davinci-page.vue -- has the dimension grid been restructured or ' +
+        'storybook-life-run.vue -- has the dimension grid been restructured or ' +
         'removed? If so, this guard needs to move with it.',
     )
     return errors
@@ -92,7 +92,7 @@ function main(): void {
 
   if (errors.length) {
     console.error(
-      'Da Vinci dimension-group guard contract failed in davinci-page.vue:',
+      'Da Vinci dimension-group guard contract failed in storybook-life-run.vue:',
     )
     for (const error of errors) console.error(`- ${error}`)
     process.exitCode = 1

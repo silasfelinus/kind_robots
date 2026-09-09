@@ -15,7 +15,7 @@ daisyui's own dist CSS; see `kr_label_bold_codemod.py`'s docstring, which
 established this fact first). A fresh survey found this shape at 29
 subset-match occurrences across 5 files this slice (interface-vision t-104
 slice 173; 15 exact, 14 carrying an additional `mb-1` in
-image-upload.vue/davinci-page.vue), previously flagged in
+image-upload.vue/storybook-life-run.vue), previously flagged in
 `kr_label_bold_codemod.py`'s own docstring back in slice 151/152 as a
 bounded family for a future slice.
 

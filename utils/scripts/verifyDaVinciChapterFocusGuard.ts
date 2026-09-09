@@ -1,7 +1,7 @@
 // /utils/scripts/verifyDaVinciChapterFocusGuard.ts
 //
 // Regression guard (davinci/t-021 slice 9) -- the narrating/narrationError/
-// currentChapter/resolve-panel blocks in components/conductor/davinci-page.vue
+// currentChapter/resolve-panel blocks in components/storybook/storybook-life-run.vue
 // swap in and out via one v-if/v-else-if chain, but nothing moved focus
 // after a swap that was itself triggered by a click *inside* the region
 // being replaced. Choosing an option (kr-choice-list -> chooseOptionByKey ->
@@ -38,7 +38,7 @@ const repositoryRoot = resolve(scriptDirectory, '../..')
 
 const COMPONENT_PATH = join(
   repositoryRoot,
-  'components/conductor/davinci-page.vue',
+  'components/storybook/storybook-life-run.vue',
 )
 
 // Anchored on the `v-if="narrating"` marker -- the first branch of the chain
@@ -71,7 +71,7 @@ export function checkChapterFocusGuard(content: string): string[] {
   if (!openingTag) {
     errors.push(
       `Could not find the wrapper enclosing \`${NARRATING_MARKER}\` in ` +
-        'davinci-page.vue -- has the chapter region been renamed, removed, ' +
+        'storybook-life-run.vue -- has the chapter region been renamed, removed, ' +
         'or restructured? If so, this guard needs to move with it.',
     )
     return errors
@@ -135,7 +135,7 @@ function main(): void {
 
   if (errors.length) {
     console.error(
-      'Da Vinci chapter-focus guard contract failed in davinci-page.vue:',
+      'Da Vinci chapter-focus guard contract failed in storybook-life-run.vue:',
     )
     for (const error of errors) console.error(`- ${error}`)
     process.exitCode = 1

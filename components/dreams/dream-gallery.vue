@@ -429,7 +429,7 @@
             v-if="dreamStore.creativeDreams.length > 0"
             class="mt-3 flex flex-wrap justify-center gap-2 text-xs"
           >
-            <span class="badge badge-ghost"
+            <span class="kr-badge-ghost"
               >Loaded: {{ exclusionSummary.total }}</span
             >
 

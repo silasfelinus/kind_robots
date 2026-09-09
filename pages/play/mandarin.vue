@@ -68,7 +68,7 @@
               <h2 class="kr-text-bold-lg">Study sets</h2>
               <p class="text-xs opacity-60">Pick a deck, then jump straight back to the flash card.</p>
             </div>
-            <span class="badge badge-ghost">{{ allSets.length }} decks</span>
+            <span class="kr-badge-ghost">{{ allSets.length }} decks</span>
           </div>
 
           <div class="grid grid-cols-[repeat(auto-fit,minmax(min(100%,17rem),1fr))] gap-2">

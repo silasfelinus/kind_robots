@@ -152,7 +152,7 @@
             </p>
           </div>
 
-          <span class="badge badge-ghost">
+          <span class="kr-badge-ghost">
             {{ intros.length }}
           </span>
         </div>

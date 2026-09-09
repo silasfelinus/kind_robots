@@ -56,7 +56,7 @@
               />
             </label>
             <div class="flex flex-wrap gap-2 text-xs">
-              <span class="badge badge-ghost"
+              <span class="kr-badge-ghost"
                 >{{ achievements.length }} total</span
               >
               <span class="badge badge-warning"

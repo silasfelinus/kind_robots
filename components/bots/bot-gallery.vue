@@ -26,10 +26,7 @@
         </div>
 
         <div class="flex shrink-0 items-center gap-2">
-          <span
-            v-if="!isLoading && !botStore.loading"
-            class="badge badge-ghost"
-          >
+          <span v-if="!isLoading && !botStore.loading" class="kr-badge-ghost">
             {{ filteredBots.length }}
           </span>
 

@@ -44,7 +44,7 @@
       <span v-if="pendingPrompts.length > 0" class="badge badge-neutral">
         {{ pendingPrompts.length }}
       </span>
-      <span v-else class="badge badge-ghost">up to date</span>
+      <span v-else class="kr-badge-ghost">up to date</span>
     </button>
 
     <!-- Per-image status row -->

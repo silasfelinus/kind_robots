@@ -33,7 +33,7 @@
       >
         <div class="text-center">
           <span class="loading loading-ring loading-lg text-primary" />
-          <p class="mt-3 text-sm font-bold text-base-content/55">
+          <p class="kr-text-bold-sm mt-3 text-base-content/55">
             Finding public tanks…
           </p>
         </div>

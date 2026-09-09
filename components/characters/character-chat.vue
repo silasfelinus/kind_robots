@@ -244,9 +244,7 @@
             </div>
 
             <details class="mb-3 kr-panel-muted-sm">
-              <summary
-                class="cursor-pointer text-sm font-bold text-base-content"
-              >
+              <summary class="kr-text-bold-sm cursor-pointer text-base-content">
                 Getting To Know You Questions
               </summary>
 

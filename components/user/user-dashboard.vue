@@ -180,7 +180,7 @@
 
                   <p class="mt-2 text-2xl font-black text-secondary">
                     {{ manaStore.balance }}
-                    <span class="text-sm font-bold text-base-content/45">
+                    <span class="kr-text-bold-sm text-base-content/45">
                       / {{ manaStore.cap }}
                     </span>
                   </p>

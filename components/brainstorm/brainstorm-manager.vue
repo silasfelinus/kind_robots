@@ -154,7 +154,7 @@
         class="mt-4 rounded-2xl border border-base-content/10 bg-base-200/45 p-3"
         data-testid="brainstorm-response-mix"
       >
-        <summary class="cursor-pointer select-none text-sm font-bold text-base-content/75">
+        <summary class="kr-text-bold-sm cursor-pointer select-none text-base-content/75">
           Response mix
           <span class="ml-2 font-normal text-base-content/45">{{ responseMixSummary }}</span>
         </summary>
@@ -256,7 +256,7 @@
       </details>
 
       <details class="mt-4 rounded-2xl border border-base-content/10 bg-base-200/45 p-3">
-        <summary class="cursor-pointer select-none text-sm font-bold text-base-content/75">
+        <summary class="kr-text-bold-sm cursor-pointer select-none text-base-content/75">
           Add constraints or examples
         </summary>
         <div class="mt-4 grid grid-cols-[repeat(auto-fit,minmax(min(100%,18rem),1fr))] gap-4">
@@ -293,7 +293,7 @@
         class="mt-4 rounded-2xl border border-base-content/10 bg-base-200/45 p-3"
         data-testid="brainstorm-source"
       >
-        <summary class="cursor-pointer select-none text-sm font-bold text-base-content/75">
+        <summary class="kr-text-bold-sm cursor-pointer select-none text-base-content/75">
           Ground it in a Kind Robots object
           <span v-if="source" class="ml-2 font-normal text-success">linked</span>
         </summary>
@@ -414,7 +414,7 @@
         class="mt-4 rounded-2xl border border-base-content/10 bg-base-200/45 p-3"
         data-testid="brainstorm-saved-work"
       >
-        <summary class="cursor-pointer select-none text-sm font-bold text-base-content/75">
+        <summary class="kr-text-bold-sm cursor-pointer select-none text-base-content/75">
           Saved work
           <span v-if="savedSessionId" class="ml-2 font-normal text-success">linked</span>
         </summary>
@@ -517,7 +517,7 @@
                 >
                   <span class="min-w-0">
                     <span
-                      class="block truncate text-sm font-bold text-base-content"
+                      class="kr-text-bold-sm block truncate text-base-content"
                     >
                       {{ saved.name }}
                     </span>
@@ -585,7 +585,7 @@
       <summary
         class="flex cursor-pointer select-none flex-wrap items-center justify-between gap-2"
       >
-        <span class="text-sm font-bold text-base-content/75">
+        <span class="kr-text-bold-sm text-base-content/75">
           Kept ideas
           <span class="ml-1 font-normal text-base-content/45">
             {{ selectedKeptCandidates.length }}/{{ allKeptCandidates.length }}
@@ -611,7 +611,7 @@
             @change="toggleKeptSelection(candidate.id)"
           />
           <span class="min-w-0 flex-1">
-            <span class="block truncate text-sm font-bold text-base-content">{{
+            <span class="kr-text-bold-sm block truncate text-base-content">{{
               candidate.title
             }}</span>
             <span class="kr-text-dim-xs-55 line-clamp-2 leading-5">{{
@@ -678,7 +678,7 @@
           {{ keptCandidates.length }} kept · {{ rejectedCandidates.length }} rejected
         </p>
       </div>
-      <p v-if="isGenerating && generationTargetId" class="text-sm font-bold text-secondary">
+      <p v-if="isGenerating && generationTargetId" class="kr-text-bold-sm text-secondary">
         Working on one idea without touching the others…
       </p>
     </div>

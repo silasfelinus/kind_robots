@@ -84,7 +84,7 @@
 
             <p
               v-if="activeDream.PitchSheet?.subtitle"
-              class="mb-3 text-sm font-bold leading-relaxed text-primary"
+              class="kr-text-bold-sm mb-3 leading-relaxed text-primary"
             >
               {{ activeDream.PitchSheet.subtitle }}
             </p>

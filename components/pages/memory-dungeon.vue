@@ -510,7 +510,7 @@
         class="absolute bottom-10 left-2 right-2 z-40 max-h-[min(45dvh,20rem)] overflow-y-auto rounded-2xl border border-base-content/15 bg-base-100/95 px-4 py-3 shadow-2xl backdrop-blur-md sm:left-auto sm:w-96"
       >
         <div class="mb-2 flex items-center justify-between gap-2">
-          <h2 class="text-sm font-bold">🏆 Global Leaderboard</h2>
+          <h2 class="kr-text-bold-sm">🏆 Global Leaderboard</h2>
           <button
             type="button"
             class="kr-btn-ghost-xs-lg"

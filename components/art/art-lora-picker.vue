@@ -3,7 +3,7 @@
   <section class="space-y-3 kr-panel-flat p-3">
     <div class="flex flex-wrap items-start justify-between gap-2">
       <div class="min-w-0">
-        <h3 class="flex items-center gap-2 text-sm font-bold">
+        <h3 class="kr-text-bold-sm flex items-center gap-2">
           <Icon name="kind-icon:sparkles" class="size-4 text-secondary" />
           LoRAs <span class="font-normal opacity-50">(optional)</span>
         </h3>

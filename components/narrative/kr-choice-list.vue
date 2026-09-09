@@ -55,7 +55,7 @@
            the buttons sit inline as quick topics. -->
       <span
         v-if="layout === 'stack' && showIndex"
-        class="grid size-7 shrink-0 place-items-center rounded-full bg-primary/12 text-sm font-bold text-primary"
+        class="kr-text-bold-sm grid size-7 shrink-0 place-items-center rounded-full bg-primary/12 text-primary"
         aria-hidden="true"
       >
         {{ index + 1 }}

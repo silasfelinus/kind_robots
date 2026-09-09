@@ -90,7 +90,7 @@
 
         <div class="min-w-0 flex-1">
           <div class="flex items-center gap-1.5">
-            <span class="truncate text-sm font-bold text-base-content">
+            <span class="kr-text-bold-sm truncate text-base-content">
               {{ output.label }}
             </span>
             <span class="kr-badge-ghost-xs">{{

@@ -315,7 +315,7 @@
         -->
           <div class="min-w-0 shrink-0 px-2 py-1.5">
             <p
-              class="line-clamp-2 text-sm font-bold leading-tight group-hover:text-primary"
+              class="kr-text-bold-sm line-clamp-2 leading-tight group-hover:text-primary"
             >
               {{ member.title }}
             </p>

@@ -72,7 +72,7 @@
             </div>
             <div class="flex items-center justify-between gap-2">
               <span
-                class="text-sm font-bold text-base-content group-hover:text-primary"
+                class="kr-text-bold-sm text-base-content group-hover:text-primary"
               >
                 {{ pageRef.title }}
               </span>

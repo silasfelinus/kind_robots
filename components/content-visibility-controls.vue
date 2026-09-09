@@ -2,7 +2,7 @@
   <section class="space-y-2 kr-panel-flat p-3">
     <div class="flex flex-wrap items-start justify-between gap-2">
       <div>
-        <h3 class="text-sm font-bold">Content visibility</h3>
+        <h3 class="kr-text-bold-sm">Content visibility</h3>
         <p class="kr-text-dim-xs-55 mt-0.5">
           Mature work defaults private; general-audience work defaults public.
           You can override privacy after choosing maturity.

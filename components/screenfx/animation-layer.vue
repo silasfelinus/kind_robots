@@ -22,7 +22,7 @@
         aria-live="polite"
       >
         <div
-          class="pointer-events-auto flex max-w-full items-center gap-3 rounded-2xl px-4 py-3 text-sm font-bold text-base-content shadow-xl backdrop-blur-md"
+          class="kr-text-bold-sm pointer-events-auto flex max-w-full items-center gap-3 rounded-2xl px-4 py-3 text-base-content shadow-xl backdrop-blur-md"
         >
           <span class="loading loading-spinner loading-sm text-primary" />
 

@@ -72,7 +72,7 @@
 
           <div class="flex flex-wrap items-center gap-2">
             <label
-              class="flex cursor-pointer items-center gap-2 kr-panel-muted-compact-row text-sm font-bold"
+              class="kr-text-bold-sm flex cursor-pointer items-center gap-2 kr-panel-muted-compact-row"
             >
               <input
                 v-model="overwriteLiveUrl"

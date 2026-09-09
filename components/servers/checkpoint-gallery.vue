@@ -21,7 +21,7 @@
       class="flex shrink-0 items-center justify-between gap-2 kr-panel-muted-row"
     >
       <div class="min-w-0">
-        <h2 class="truncate text-sm font-bold text-base-content">
+        <h2 class="kr-text-bold-sm truncate text-base-content">
           {{ title }}
         </h2>
         <!-- Orientation text, not instruction: it costs a whole row on the

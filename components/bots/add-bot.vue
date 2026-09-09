@@ -184,7 +184,7 @@
             <div
               class="flex items-center justify-between gap-3 kr-panel-muted-sm"
             >
-              <span class="text-sm font-bold">Keep avatar</span>
+              <span class="kr-text-bold-sm">Keep avatar</span>
 
               <input
                 v-model="keepField.avatarImage"

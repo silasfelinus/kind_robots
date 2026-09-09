@@ -12,7 +12,7 @@
       class="flex shrink-0 items-center justify-between gap-2 kr-panel-muted-row"
     >
       <div class="min-w-0">
-        <h2 class="truncate text-sm font-bold text-base-content">
+        <h2 class="kr-text-bold-sm truncate text-base-content">
           {{ resolvedTitle }}
         </h2>
         <p class="kr-text-dim-xs-60 hidden truncate md:block">

@@ -25,7 +25,7 @@
           </span>
 
           <span class="min-w-0">
-            <span class="block text-sm font-bold text-base-content">
+            <span class="kr-text-bold-sm block text-base-content">
               {{ label }}
             </span>
             <span class="kr-text-dim-xs-55 block">

@@ -62,7 +62,7 @@
       </div>
 
       <div class="min-h-0 flex-1 space-y-1.5 xl:hidden">
-        <p class="line-clamp-1 text-sm font-bold leading-snug text-secondary">
+        <p class="kr-text-bold-sm line-clamp-1 leading-snug text-secondary">
           {{ card.tagline }}
         </p>
 

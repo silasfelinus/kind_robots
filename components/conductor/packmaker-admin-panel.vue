@@ -130,7 +130,7 @@
               >
                 {{ item.type }}
               </span>
-              <span class="truncate text-sm font-bold text-base-content">
+              <span class="kr-text-bold-sm truncate text-base-content">
                 {{ item.draftPayload?.title || item.id }}
               </span>
               <span

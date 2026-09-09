@@ -95,7 +95,7 @@
                     :disabled="store.loading || store.queueing"
                     @change="onDurationChange"
                   />
-                  <span class="join-item grid place-items-center border border-base-300 bg-base-200 px-3 text-sm font-bold">sec</span>
+                  <span class="kr-text-bold-sm join-item grid place-items-center border border-base-300 bg-base-200 px-3">sec</span>
                 </div>
               </label>
             </div>

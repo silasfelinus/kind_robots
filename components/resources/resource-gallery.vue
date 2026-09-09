@@ -440,7 +440,7 @@ onMounted(async () => {
     </header>
 
     <div v-if="showAddChoice" class="flex flex-col gap-3 kr-panel-flat p-4">
-      <p class="text-sm font-bold">What are you adding?</p>
+      <p class="kr-text-bold-sm">What are you adding?</p>
       <div class="flex flex-wrap gap-2">
         <button
           type="button"

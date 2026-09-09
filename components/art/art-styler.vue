@@ -338,7 +338,7 @@
         </Transition>
 
         <div class="flex min-w-0 flex-col justify-center gap-1">
-          <p class="truncate text-sm font-bold text-base-content">
+          <p class="kr-text-bold-sm truncate text-base-content">
             {{
               selectedSourceImage?.fileName ||
               (selectedSourceImage

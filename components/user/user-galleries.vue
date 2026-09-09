@@ -87,7 +87,7 @@
             class="mt-3 kr-panel-muted-sm"
           >
             <div class="mb-3 flex flex-wrap items-center justify-between gap-2">
-              <p class="text-sm font-bold">Inline {{ section.label }} preview</p>
+              <p class="kr-text-bold-sm">Inline {{ section.label }} preview</p>
               <div class="join">
                 <button
                   type="button"

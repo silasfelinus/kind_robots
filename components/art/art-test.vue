@@ -900,7 +900,7 @@ onMounted(async () => {
             </div>
 
             <div v-if="endpointDef.needsSize" class="flex flex-col gap-3">
-              <div class="text-sm font-bold">Size</div>
+              <div class="kr-text-bold-sm">Size</div>
 
               <div class="grid gap-3 md:grid-cols-2">
                 <label class="form-control">
@@ -955,7 +955,7 @@ onMounted(async () => {
             </div>
 
             <div v-if="endpointDef.needsNegative" class="flex flex-col gap-2">
-              <div class="text-sm font-bold">Negative Prompt</div>
+              <div class="kr-text-bold-sm">Negative Prompt</div>
               <textarea
                 v-model="negativePrompt"
                 rows="3"
@@ -1038,7 +1038,7 @@ onMounted(async () => {
               </div>
 
               <label class="form-control">
-                <span class="mb-2 text-sm font-bold">Extra Prompt Notes</span>
+                <span class="kr-text-bold-sm mb-2">Extra Prompt Notes</span>
                 <textarea
                   v-model="extraPrompt"
                   rows="6"
@@ -1092,7 +1092,7 @@ onMounted(async () => {
 
               <div class="flex flex-col gap-4">
                 <label class="form-control">
-                  <span class="mb-2 text-sm font-bold">Artist Style</span>
+                  <span class="kr-text-bold-sm mb-2">Artist Style</span>
                   <select
                     v-model="selectedStyle"
                     class="select select-bordered rounded-2xl bg-base-100"
@@ -1108,7 +1108,7 @@ onMounted(async () => {
                 </label>
 
                 <label class="form-control">
-                  <span class="mb-2 text-sm font-bold">Extra Prompt Notes</span>
+                  <span class="kr-text-bold-sm mb-2">Extra Prompt Notes</span>
                   <textarea
                     v-model="extraPrompt"
                     rows="5"
@@ -1177,7 +1177,7 @@ onMounted(async () => {
 
             <div class="grid gap-4 lg:grid-cols-2">
               <div class="kr-panel-flat p-3">
-                <div class="mb-2 text-sm font-bold">
+                <div class="kr-text-bold-sm mb-2">
                   {{ selectedAnimalADef.label }}
                 </div>
                 <img
@@ -1188,7 +1188,7 @@ onMounted(async () => {
               </div>
 
               <div class="kr-panel-flat p-3">
-                <div class="mb-2 text-sm font-bold">
+                <div class="kr-text-bold-sm mb-2">
                   {{ selectedAnimalBDef.label }}
                 </div>
                 <img
@@ -1200,7 +1200,7 @@ onMounted(async () => {
             </div>
 
             <label class="form-control">
-              <span class="mb-2 text-sm font-bold">Extra Prompt Notes</span>
+              <span class="kr-text-bold-sm mb-2">Extra Prompt Notes</span>
               <textarea
                 v-model="extraPrompt"
                 rows="5"

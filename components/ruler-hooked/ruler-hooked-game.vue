@@ -16,7 +16,7 @@
 
         <div class="flex items-center justify-between gap-3">
           <div>
-            <p class="text-sm font-bold">{{ store.save.ruler.honorific }} {{ store.save.ruler.name }}</p>
+            <p class="kr-text-bold-sm">{{ store.save.ruler.honorific }} {{ store.save.ruler.name }}</p>
             <p class="text-xs opacity-60">Turn {{ store.save.turnCount }} · {{ store.save.status.toLowerCase() }} · {{ store.save.counters.fishCaught ?? 0 }} fish</p>
           </div>
           <button
@@ -60,7 +60,7 @@
         />
 
         <div v-if="store.pendingEnding" class="rounded-xl border border-accent bg-accent/10 p-4">
-          <p class="text-sm font-bold">An ending is within reach:</p>
+          <p class="kr-text-bold-sm">An ending is within reach:</p>
           <p class="mt-1 text-lg font-bold">{{ endingTitle }}</p>
           <p v-if="endingBody" class="text-sm opacity-80">{{ endingBody }}</p>
           <div class="mt-3 flex gap-2">

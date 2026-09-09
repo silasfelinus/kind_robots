@@ -229,7 +229,7 @@
           <label class="form-control">
             <div class="mb-1 flex items-center justify-between">
               <span class="kr-label-bold">Temperature</span>
-              <span class="font-mono text-sm font-bold text-primary">
+              <span class="kr-text-bold-sm font-mono text-primary">
                 {{ temperature.toFixed(1) }}
               </span>
             </div>

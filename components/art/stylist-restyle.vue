@@ -156,7 +156,7 @@
       <label class="flex items-start gap-2">
         <input v-model="changeColor" type="checkbox" class="kr-checkbox-primary-sm mt-1" />
         <div class="flex flex-1 flex-col gap-1">
-          <span class="text-sm font-bold">Change color</span>
+          <span class="kr-text-bold-sm">Change color</span>
           <input
             v-model="colorValue"
             :disabled="!changeColor"
@@ -170,7 +170,7 @@
       <label class="flex items-start gap-2">
         <input v-model="changeStyle" type="checkbox" class="kr-checkbox-primary-sm mt-1" />
         <div class="flex flex-1 flex-col gap-1">
-          <span class="text-sm font-bold">Change style</span>
+          <span class="kr-text-bold-sm">Change style</span>
           <input
             v-model="styleValue"
             :disabled="!changeStyle"
@@ -184,7 +184,7 @@
       <label class="flex items-start gap-2">
         <input v-model="enhanceImage" type="checkbox" class="kr-checkbox-primary-sm mt-1" />
         <div class="flex flex-1 flex-col gap-1">
-          <span class="text-sm font-bold">Improve the overall image</span>
+          <span class="kr-text-bold-sm">Improve the overall image</span>
           <span class="kr-text-dim-xs">Cleaner lighting, sharper detail — face and identity kept.</span>
         </div>
       </label>

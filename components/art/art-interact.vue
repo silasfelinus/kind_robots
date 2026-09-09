@@ -311,7 +311,7 @@
 
             <details class="mt-3 rounded-xl border border-base-300 bg-base-100">
               <summary
-                class="flex cursor-pointer list-none items-center justify-between px-3 py-2 text-sm font-bold"
+                class="kr-text-bold-sm flex cursor-pointer list-none items-center justify-between px-3 py-2"
               >
                 <span>Prompt Text</span>
                 <span class="kr-text-dim-xs font-normal"

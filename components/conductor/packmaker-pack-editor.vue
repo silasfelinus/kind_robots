@@ -120,7 +120,7 @@
           <span class="kr-badge-ghost-xs rounded-lg">{{
             item.type
           }}</span>
-          <span class="text-sm font-bold">{{
+          <span class="kr-text-bold-sm">{{
             item.draftPayload.title || item.id || `item ${index + 1}`
           }}</span>
           <button

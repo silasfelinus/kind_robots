@@ -101,7 +101,7 @@
         </label>
 
         <label
-          class="mt-auto flex cursor-pointer items-center gap-2 rounded-xl border border-base-300 px-3 py-2 text-sm font-bold"
+          class="kr-text-bold-sm mt-auto flex cursor-pointer items-center gap-2 rounded-xl border border-base-300 px-3 py-2"
         >
           <input
             v-model="overrideOnly"

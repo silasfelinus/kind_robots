@@ -40,7 +40,7 @@
       <div class="mb-1.5 flex items-center gap-2">
         <Icon name="kind-icon:lightbulb" class="h-4 w-4 text-primary" />
         <span class="kr-text-eyebrow-bold text-xs tracking-wide">Pitch</span>
-        <span class="badge badge-xs ml-auto" :class="badgeFor('PITCH')">
+        <span class="kr-badge-xs ml-auto" :class="badgeFor('PITCH')">
           {{ item.stages.PITCH.status }}
         </span>
       </div>
@@ -116,7 +116,7 @@
           >Fields &amp; Prompts</span
         >
         <span
-          class="badge badge-xs ml-auto"
+          class="kr-badge-xs ml-auto"
           :class="badgeFor('FIELDS_AND_PROMPTS')"
         >
           {{ item.stages.FIELDS_AND_PROMPTS.status }}
@@ -230,10 +230,7 @@
         <span class="kr-text-eyebrow-bold text-xs tracking-wide"
           >Generate Assets</span
         >
-        <span
-          class="badge badge-xs ml-auto"
-          :class="badgeFor('GENERATE_ASSETS')"
-        >
+        <span class="kr-badge-xs ml-auto" :class="badgeFor('GENERATE_ASSETS')">
           {{ item.stages.GENERATE_ASSETS.status }}
         </span>
       </div>
@@ -360,7 +357,7 @@
       <div class="mb-1.5 flex items-center gap-2">
         <Icon name="kind-icon:check" class="h-4 w-4 text-primary" />
         <span class="kr-text-eyebrow-bold text-xs tracking-wide">Commit</span>
-        <span class="badge badge-xs ml-auto" :class="badgeFor('COMMIT')">
+        <span class="kr-badge-xs ml-auto" :class="badgeFor('COMMIT')">
           {{ item.stages.COMMIT.status }}
         </span>
       </div>

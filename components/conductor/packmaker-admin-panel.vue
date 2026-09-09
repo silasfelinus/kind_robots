@@ -79,7 +79,7 @@
         @click="selectedPackId = pack.id"
       >
         {{ pack.title }}
-        <span class="badge badge-xs" :class="progressBadgeClass(pack.id)">
+        <span class="kr-badge-xs" :class="progressBadgeClass(pack.id)">
           {{ packStore.packProgress(pack.id).done }}/{{
             packStore.packProgress(pack.id).total
           }}
@@ -125,7 +125,7 @@
           <div class="min-w-0 flex-1">
             <div class="flex flex-wrap items-center gap-2">
               <span
-                class="badge badge-xs rounded-lg"
+                class="kr-badge-xs rounded-lg"
                 :class="typeBadge(item.type)"
               >
                 {{ item.type }}
@@ -134,7 +134,7 @@
                 {{ item.draftPayload?.title || item.id }}
               </span>
               <span
-                class="badge badge-xs rounded-lg"
+                class="kr-badge-xs rounded-lg"
                 :class="statusBadge(stateFor(item.id).status)"
               >
                 {{ statusLabel(stateFor(item.id).status) }}

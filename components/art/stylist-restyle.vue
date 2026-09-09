@@ -54,11 +54,17 @@
         <Icon name="kind-icon:image" class="h-4 w-4 text-primary" />
         <span class="kr-text-black-xs text-base-content">Client Photo</span>
         <div class="flex-1" />
-        <div class="flex overflow-hidden rounded-lg border border-base-300 text-xs">
+        <div
+          class="flex overflow-hidden rounded-lg border border-base-300 text-xs"
+        >
           <button
             type="button"
             class="px-2.5 py-1 font-bold transition"
-            :class="sourceTab === 'upload' ? 'bg-primary text-primary-content' : 'bg-base-100 text-base-content/60 hover:bg-base-200'"
+            :class="
+              sourceTab === 'upload'
+                ? 'bg-primary text-primary-content'
+                : 'bg-base-100 text-base-content/60 hover:bg-base-200'
+            "
             :aria-pressed="sourceTab === 'upload'"
             @click="sourceTab = 'upload'"
           >
@@ -67,7 +73,11 @@
           <button
             type="button"
             class="px-2.5 py-1 font-bold transition"
-            :class="sourceTab === 'camera' ? 'bg-primary text-primary-content' : 'bg-base-100 text-base-content/60 hover:bg-base-200'"
+            :class="
+              sourceTab === 'camera'
+                ? 'bg-primary text-primary-content'
+                : 'bg-base-100 text-base-content/60 hover:bg-base-200'
+            "
             :aria-pressed="sourceTab === 'camera'"
             @click="openCamera"
           >
@@ -83,7 +93,11 @@
         tabindex="0"
         aria-label="Upload a client photo"
         class="flex cursor-pointer flex-col items-center justify-center gap-1 rounded-lg border-2 border-dashed p-6 text-center text-xs transition"
-        :class="isDragging ? 'border-primary bg-primary/5' : 'border-base-300 hover:border-primary/60'"
+        :class="
+          isDragging
+            ? 'border-primary bg-primary/5'
+            : 'border-base-300 hover:border-primary/60'
+        "
         @click="fileInput?.click()"
         @dragover.prevent="isDragging = true"
         @dragleave.prevent="isDragging = false"
@@ -91,7 +105,9 @@
         @keydown.enter.space.prevent="fileInput?.click()"
       >
         <Icon name="kind-icon:upload" class="h-6 w-6 text-base-content/50" />
-        <span class="font-bold text-base-content/70">Drop a photo or click to browse</span>
+        <span class="font-bold text-base-content/70"
+          >Drop a photo or click to browse</span
+        >
         <input
           ref="fileInput"
           type="file"
@@ -102,20 +118,38 @@
       </div>
 
       <!-- Camera -->
-      <div v-show="sourceTab === 'camera' && cameraActive" class="flex flex-col items-center gap-2">
+      <div
+        v-show="sourceTab === 'camera' && cameraActive"
+        class="flex flex-col items-center gap-2"
+      >
         <!-- eslint-disable-next-line vuejs-accessibility/media-has-caption -->
-        <video ref="videoEl" autoplay playsinline class="max-h-64 w-full rounded-lg bg-black object-contain" />
+        <video
+          ref="videoEl"
+          autoplay
+          playsinline
+          class="max-h-64 w-full rounded-lg bg-black object-contain"
+        />
         <div class="flex gap-2">
-          <button type="button" class="kr-btn-primary-plain" @click="capturePhoto">
+          <button
+            type="button"
+            class="kr-btn-primary-plain"
+            @click="capturePhoto"
+          >
             <Icon name="kind-icon:camera" class="h-4 w-4" /> Capture
           </button>
-          <button type="button" class="kr-btn-ghost-plain" @click="closeCamera">Cancel</button>
+          <button type="button" class="kr-btn-ghost-plain" @click="closeCamera">
+            Cancel
+          </button>
         </div>
       </div>
 
       <!-- Preview -->
       <div v-if="sourceImageData && !maskEnabled" class="relative">
-        <img :src="sourceImageData" alt="Client photo" class="max-h-64 w-full rounded-lg object-contain" />
+        <img
+          :src="sourceImageData"
+          alt="Client photo"
+          class="max-h-64 w-full rounded-lg object-contain"
+        />
         <button
           type="button"
           class="btn btn-circle btn-error btn-xs absolute right-2 top-2"
@@ -127,9 +161,14 @@
       </div>
 
       <label v-if="sourceImageData" class="flex items-center gap-2">
-        <input v-model="maskEnabled" type="checkbox" class="kr-checkbox-primary-xs" />
+        <input
+          v-model="maskEnabled"
+          type="checkbox"
+          class="kr-checkbox-primary-xs"
+        />
         <span class="kr-text-dim-xs-70">
-          Only restyle the hair (paint a mask instead of changing the whole photo)
+          Only restyle the hair (paint a mask instead of changing the whole
+          photo)
         </span>
       </label>
 
@@ -151,10 +190,16 @@
 
     <!-- What to change -->
     <div class="flex flex-col gap-3 kr-panel-compact">
-      <span class="kr-text-black-xs text-base-content">What are we changing?</span>
+      <span class="kr-text-black-xs text-base-content"
+        >What are we changing?</span
+      >
 
       <label class="flex items-start gap-2">
-        <input v-model="changeColor" type="checkbox" class="kr-checkbox-primary-sm mt-1" />
+        <input
+          v-model="changeColor"
+          type="checkbox"
+          class="kr-checkbox-primary-sm mt-1"
+        />
         <div class="flex flex-1 flex-col gap-1">
           <span class="kr-text-bold-sm">Change color</span>
           <input
@@ -168,7 +213,11 @@
       </label>
 
       <label class="flex items-start gap-2">
-        <input v-model="changeStyle" type="checkbox" class="kr-checkbox-primary-sm mt-1" />
+        <input
+          v-model="changeStyle"
+          type="checkbox"
+          class="kr-checkbox-primary-sm mt-1"
+        />
         <div class="flex flex-1 flex-col gap-1">
           <span class="kr-text-bold-sm">Change style</span>
           <input
@@ -182,10 +231,16 @@
       </label>
 
       <label class="flex items-start gap-2">
-        <input v-model="enhanceImage" type="checkbox" class="kr-checkbox-primary-sm mt-1" />
+        <input
+          v-model="enhanceImage"
+          type="checkbox"
+          class="kr-checkbox-primary-sm mt-1"
+        />
         <div class="flex flex-1 flex-col gap-1">
           <span class="kr-text-bold-sm">Improve the overall image</span>
-          <span class="kr-text-dim-xs">Cleaner lighting, sharper detail — face and identity kept.</span>
+          <span class="kr-text-dim-xs"
+            >Cleaner lighting, sharper detail — face and identity kept.</span
+          >
         </div>
       </label>
 
@@ -199,7 +254,10 @@
         />
       </label>
 
-      <p v-if="changeSummary" class="kr-text-dim-xs-70 rounded-lg bg-base-200 p-2">
+      <p
+        v-if="changeSummary"
+        class="kr-text-dim-xs-70 rounded-lg bg-base-200 p-2"
+      >
         {{ changeSummary }}
       </p>
     </div>
@@ -207,7 +265,9 @@
     <!-- How much to keep them looking like themselves -->
     <div class="flex flex-col gap-2 kr-panel-compact">
       <div class="flex items-center justify-between">
-        <span class="kr-text-black-xs text-base-content">How much should it still look like them?</span>
+        <span class="kr-text-black-xs text-base-content"
+          >How much should it still look like them?</span
+        >
         <span class="kr-text-bold-xs text-primary">{{ preserveLabel }}</span>
       </div>
       <input
@@ -224,10 +284,14 @@
         <span>Keep it them</span>
       </div>
       <label class="flex items-start gap-2 pt-1">
-        <input v-model="protectIdentity" type="checkbox" class="kr-checkbox-primary-xs mt-0.5" />
+        <input
+          v-model="protectIdentity"
+          type="checkbox"
+          class="kr-checkbox-primary-xs mt-0.5"
+        />
         <span class="kr-text-dim-xs-70">
-          Extra-protect the face &amp; identity (a little slower — guards against turning
-          them into someone else)
+          Extra-protect the face &amp; identity (a little slower — guards
+          against turning them into someone else)
         </span>
       </label>
       <button
@@ -240,7 +304,9 @@
       </button>
       <div v-if="advancedOpen" class="grid grid-cols-2 gap-2">
         <label class="flex flex-col gap-1">
-          <span class="text-[10px] font-bold text-base-content/60">Prompt strength (guidance)</span>
+          <span class="text-[10px] font-bold text-base-content/60"
+            >Prompt strength (guidance)</span
+          >
           <input
             v-model.number="guidanceValue"
             type="number"
@@ -276,7 +342,8 @@
     </button>
 
     <p class="kr-text-dim-xs text-center">
-      Styling takes a minute or two — you can keep working or switch tabs; results land below when ready.
+      Styling takes a minute or two — you can keep working or switch tabs;
+      results land below when ready.
     </p>
 
     <div
@@ -294,7 +361,9 @@
     <!-- This session's jobs -->
     <div v-if="visibleJobs.length" class="flex flex-col gap-2">
       <span class="kr-text-black-xs text-base-content">
-        {{ clientName.trim() ? `Styling ${clientName.trim()}` : 'This session' }}
+        {{
+          clientName.trim() ? `Styling ${clientName.trim()}` : 'This session'
+        }}
       </span>
       <p
         v-if="hasStalledQueue"
@@ -314,8 +383,10 @@
             <span class="font-bold">{{ job.client || 'Unnamed client' }}</span>
             <span
               v-if="job.status === 'pending'"
-              class="badge badge-xs gap-1"
-              :class="job.queueState === 'rendering' ? 'badge-info' : 'badge-warning'"
+              class="kr-badge-xs gap-1"
+              :class="
+                job.queueState === 'rendering' ? 'badge-info' : 'badge-warning'
+              "
               :title="
                 job.queueState === 'rendering'
                   ? 'The studio engine is painting'
@@ -325,7 +396,9 @@
               <span class="kr-spinner-xs" />
               {{ job.queueState === 'rendering' ? 'rendering' : 'queued' }}
             </span>
-            <span v-else-if="job.status === 'failed'" class="kr-badge-error-xs">failed</span>
+            <span v-else-if="job.status === 'failed'" class="kr-badge-error-xs"
+              >failed</span
+            >
             <span v-else class="kr-badge-success-xs">done</span>
             <div class="flex-1" />
             <button
@@ -347,8 +420,14 @@
           </div>
           <div class="grid grid-cols-2 gap-1">
             <figure class="flex flex-col gap-1">
-              <img :src="job.before" alt="Before" class="aspect-square w-full rounded-lg object-cover" />
-              <figcaption class="text-center text-[10px] text-base-content/50">Before</figcaption>
+              <img
+                :src="job.before"
+                alt="Before"
+                class="aspect-square w-full rounded-lg object-cover"
+              />
+              <figcaption class="text-center text-[10px] text-base-content/50">
+                Before
+              </figcaption>
             </figure>
             <figure class="flex flex-col gap-1">
               <img
@@ -361,14 +440,29 @@
                 v-else
                 class="flex aspect-square w-full items-center justify-center rounded-lg bg-base-200"
               >
-                <span v-if="job.status === 'pending'" class="loading loading-spinner text-primary" />
-                <Icon v-else name="mdi:image-broken" class="h-6 w-6 text-base-content/30" />
+                <span
+                  v-if="job.status === 'pending'"
+                  class="loading loading-spinner text-primary"
+                />
+                <Icon
+                  v-else
+                  name="mdi:image-broken"
+                  class="h-6 w-6 text-base-content/30"
+                />
               </div>
-              <figcaption class="text-center text-[10px] text-base-content/50">After</figcaption>
+              <figcaption class="text-center text-[10px] text-base-content/50">
+                After
+              </figcaption>
             </figure>
           </div>
-          <p v-if="job.error" class="text-[10px] font-semibold text-error">{{ job.error }}</p>
-          <p v-else class="line-clamp-2 text-[10px] text-base-content/50" :title="job.prompt">
+          <p v-if="job.error" class="text-[10px] font-semibold text-error">
+            {{ job.error }}
+          </p>
+          <p
+            v-else
+            class="line-clamp-2 text-[10px] text-base-content/50"
+            :title="job.prompt"
+          >
             {{ job.prompt }}
           </p>
         </article>
@@ -379,15 +473,28 @@
     <div class="flex flex-col gap-2">
       <div class="flex items-center gap-2">
         <span class="kr-text-black-xs text-base-content">
-          {{ clientName.trim() ? `Past looks for ${clientName.trim()}` : 'Past looks' }}
+          {{
+            clientName.trim()
+              ? `Past looks for ${clientName.trim()}`
+              : 'Past looks'
+          }}
         </span>
-        <span v-if="stylist.isLoadingHistory" class="loading loading-spinner loading-xs text-primary" />
+        <span
+          v-if="stylist.isLoadingHistory"
+          class="loading loading-spinner loading-xs text-primary"
+        />
         <div class="flex-1" />
-        <button type="button" class="kr-btn-ghost-xs-plain" @click="stylist.loadHistory(true)">
+        <button
+          type="button"
+          class="kr-btn-ghost-xs-plain"
+          @click="stylist.loadHistory(true)"
+        >
           Refresh
         </button>
       </div>
-      <p v-if="stylist.historyError" class="text-xs text-error">{{ stylist.historyError }}</p>
+      <p v-if="stylist.historyError" class="text-xs text-error">
+        {{ stylist.historyError }}
+      </p>
       <p
         v-else-if="!clientHistory.length && !stylist.isLoadingHistory"
         class="kr-text-dim-xs-40"
@@ -405,7 +512,9 @@
             type="button"
             class="relative block w-full"
             :disabled="!stylist.beforeFor(image.id)"
-            :title="stylist.beforeFor(image.id) ? 'Tap to compare before/after' : ''"
+            :title="
+              stylist.beforeFor(image.id) ? 'Tap to compare before/after' : ''
+            "
             @click="toggleCompare(image.id)"
           >
             <img
@@ -419,7 +528,7 @@
             />
             <span
               v-if="stylist.beforeFor(image.id)"
-              class="badge badge-xs absolute left-1 top-1"
+              class="kr-badge-xs absolute left-1 top-1"
               :class="comparing[image.id] ? 'badge-neutral' : 'badge-primary'"
             >
               {{ comparing[image.id] ? 'Before' : 'After' }}
@@ -439,10 +548,7 @@
 
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
-import {
-  useStylistStore,
-  clientFromDesigner,
-} from '@/stores/stylistStore'
+import { useStylistStore, clientFromDesigner } from '@/stores/stylistStore'
 import { useSuperkateStore } from '@/stores/superkateStore'
 import type { ArtImage } from '~/prisma/generated/prisma/client'
 
@@ -547,9 +653,17 @@ function toggleCompare(imageId: number) {
 const changeSummary = computed(() => {
   const parts: string[] = []
   if (changeColor.value)
-    parts.push(colorValue.value.trim() ? `color → ${colorValue.value.trim()}` : 'new color')
+    parts.push(
+      colorValue.value.trim()
+        ? `color → ${colorValue.value.trim()}`
+        : 'new color',
+    )
   if (changeStyle.value)
-    parts.push(styleValue.value.trim() ? `style → ${styleValue.value.trim()}` : 'new style')
+    parts.push(
+      styleValue.value.trim()
+        ? `style → ${styleValue.value.trim()}`
+        : 'new style',
+    )
   if (enhanceImage.value) parts.push('image cleanup')
   if (!parts.length) return ''
   return `We'll ${parts.join(', ')} — keeping the same face and person.`
@@ -719,7 +833,9 @@ function submit() {
     guidance: guidanceValue.value,
     steps: stepsValue.value,
     ...(protectIdentity.value ? { negativePrompt: IDENTITY_NEGATIVE } : {}),
-    ...(maskEnabled.value && maskData.value ? { maskData: maskData.value } : {}),
+    ...(maskEnabled.value && maskData.value
+      ? { maskData: maskData.value }
+      : {}),
   })
 }
 

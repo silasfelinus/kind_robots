@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Find or migrate hand-rolled kr-badge-{ghost,warning,outline,primary,secondary}-sm,
 kr-badge-{ghost,outline,primary,warning,success,error,secondary,accent,info,neutral}-xs,
-and kr-badge-sm (the colorless base) badges.
+kr-badge-sm (the colorless base), and kr-badge-xs (the colorless -xs sibling) badges.
 
 Dry-run is the default. Pass --write to update matching Vue files in place.
 Only the approved badge shapes are touched (`badge badge-ghost badge-sm`,
@@ -11,9 +11,9 @@ badge-ghost badge-xs`, `badge badge-outline badge-xs`, `badge badge-primary
 badge-xs`, `badge badge-warning badge-xs`, `badge badge-success badge-xs`,
 `badge badge-error badge-xs`, `badge badge-secondary badge-xs`, `badge
 badge-accent badge-xs`, `badge badge-info badge-xs`, `badge badge-neutral
-badge-xs`, `badge badge-sm` with no color modifier at all -- the
-dynamically-toned shape whose color comes from a sibling `:class` binding),
-and only in static
+badge-xs`, `badge badge-sm` and `badge badge-xs` with no color modifier at
+all -- the dynamically-toned shapes whose color comes from a sibling
+`:class` binding), and only in static
 `class="..."` attributes -- never `:class`/`v-bind:class` bindings, and
 regardless of the base tokens' order in the source (`badge-ghost badge-sm`
 counts the same as `badge-sm badge-ghost`). A source that already carries
@@ -27,14 +27,18 @@ name. This includes a second color modifier (e.g. `badge-outline` alongside
 `badge-primary`) preserved as an "extra" token verbatim -- the same latent
 behavior the ghost/warning/outline families already had for a stray color
 token, not new to this pair. The colorless `kr-badge-sm` family is the one
-exception to unrestricted extras: see BOUNDED_EXTRAS below.
+exception to unrestricted extras: see BOUNDED_EXTRAS below. `kr-badge-xs`
+(interface-vision t-104 slice 177) is colorless too but is NOT bounded --
+its 25 occurrences across 13 files were individually audited for that
+slice, unlike `kr-badge-sm`'s broader, only-partially-audited 91-hit pool.
 
 FAMILIES is ordered most-specific-first on purpose: each entry's base token
 set differs in its size (sm/xs) and color modifier (ghost/warning/outline/
 primary/secondary), so order among them doesn't matter for correctness here
-(no entry's base set is a subset of another's), but the plain-size
-`kr-badge-sm` family comes LAST, since its smaller {badge, badge-sm} base
-set is a subset of every colored -sm family's tokens above it.
+(no entry's base set is a subset of another's), but the two plain-size
+families, `kr-badge-sm` and `kr-badge-xs`, come LAST, since their smaller
+{badge, badge-sm}/{badge, badge-xs} base sets are each a subset of every
+same-size colored family's tokens above them.
 """
 
 from __future__ import annotations
@@ -70,6 +74,11 @@ FAMILIES = [
     # `kr-badge-outline-sm rounded-2xl` etc. already read elsewhere) plus a
     # per-instance `:class` binding supplying the color.
     ("kr-badge-sm", {"badge", "badge-sm"}),
+    # Colorless -xs sibling of kr-badge-sm (interface-vision t-104 slice
+    # 177), same subset-order reasoning: its {badge, badge-xs} base is a
+    # strict subset of every colored -xs family above, so it must come
+    # after all of them too.
+    ("kr-badge-xs", {"badge", "badge-xs"}),
 ]
 
 # kr-badge-sm's base token set ({badge, badge-sm}) is small enough to appear

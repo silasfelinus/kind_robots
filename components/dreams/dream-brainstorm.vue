@@ -1,8 +1,6 @@
 <!-- /components/dreams/dream-brainstorm.vue -->
 <template>
-  <section
-    class="kr-surface kr-panel-muted-sm"
-  >
+  <section class="kr-surface kr-panel-muted-sm">
     <header class="shrink-0 kr-panel-flat p-4">
       <div
         class="flex flex-col gap-3 xl:flex-row xl:items-start xl:justify-between"
@@ -26,10 +24,7 @@
             :disabled="dreamStore.loading || !canGenerate"
             @click="generateCandidates(false)"
           >
-            <span
-              v-if="dreamStore.loading"
-              class="kr-spinner-xs"
-            />
+            <span v-if="dreamStore.loading" class="kr-spinner-xs" />
             <Icon v-else name="kind-icon:sparkles" class="h-4 w-4" />
             Generate
           </button>
@@ -44,11 +39,7 @@
             Resubmit
           </button>
 
-          <button
-            type="button"
-            class="kr-btn-ghost-2xl"
-            @click="resetSession"
-          >
+          <button type="button" class="kr-btn-ghost-2xl" @click="resetSession">
             <Icon name="kind-icon:x" class="h-4 w-4" />
             Reset
           </button>
@@ -139,8 +130,7 @@
           <div class="grid gap-3 lg:grid-cols-[minmax(0,1fr)_14rem]">
             <label class="form-control">
               <span class="label py-1"
-                ><span
-                  class="kr-text-eyebrow-bold text-xs tracking-wide"
+                ><span class="kr-text-eyebrow-bold text-xs tracking-wide"
                   >Seed Title</span
                 ></span
               >
@@ -155,8 +145,7 @@
 
             <label class="form-control">
               <span class="label py-1"
-                ><span
-                  class="kr-text-eyebrow-bold text-xs tracking-wide"
+                ><span class="kr-text-eyebrow-bold text-xs tracking-wide"
                   >Save Type</span
                 ></span
               >
@@ -177,8 +166,7 @@
 
           <label class="form-control mt-3">
             <span class="label py-1"
-              ><span
-                class="kr-text-eyebrow-bold text-xs tracking-wide"
+              ><span class="kr-text-eyebrow-bold text-xs tracking-wide"
                 >Pitch</span
               ></span
             >
@@ -192,8 +180,7 @@
 
           <label class="form-control mt-3">
             <span class="label py-1"
-              ><span
-                class="kr-text-eyebrow-bold text-xs tracking-wide"
+              ><span class="kr-text-eyebrow-bold text-xs tracking-wide"
                 >Direction</span
               ></span
             >
@@ -211,9 +198,7 @@
             <div class="mb-3 flex flex-wrap items-center justify-between gap-2">
               <div>
                 <h2 class="kr-text-black-lg">Fresh Ideas</h2>
-                <p class="kr-text-dim-xs-60">
-                  Accept, reject, edit, and save.
-                </p>
+                <p class="kr-text-dim-xs-60">Accept, reject, edit, and save.</p>
               </div>
               <div class="flex flex-wrap gap-2">
                 <button
@@ -266,7 +251,7 @@
               >
                 <div class="mb-2 flex items-center justify-between gap-2">
                   <span
-                    class="badge badge-xs rounded-xl"
+                    class="kr-badge-xs rounded-xl"
                     :class="statusBadgeClass(candidate.status)"
                     >{{ candidate.status }}</span
                   >
@@ -401,9 +386,7 @@
           <div class="grid gap-3">
             <label class="form-control">
               <span class="label"
-                ><span class="kr-text-bold-xs"
-                  >Requests</span
-                ></span
+                ><span class="kr-text-bold-xs">Requests</span></span
               >
               <input
                 v-model.number="dreamStore.numberOfRequests"
@@ -415,9 +398,7 @@
             </label>
             <label class="form-control">
               <span class="label"
-                ><span class="kr-text-bold-xs"
-                  >Max Tokens</span
-                ></span
+                ><span class="kr-text-bold-xs">Max Tokens</span></span
               >
               <input
                 v-model.number="dreamStore.maxTokens"

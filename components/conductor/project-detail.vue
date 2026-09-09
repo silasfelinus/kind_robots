@@ -87,7 +87,7 @@
         <span
           v-for="[status, count] in taskStatusSummary(selectedProject)"
           :key="status"
-          class="badge badge-xs shrink-0 gap-0.5"
+          class="kr-badge-xs shrink-0 gap-0.5"
           :class="taskBadgeClass(status)"
           :title="`${count} ${status}`"
         >
@@ -348,7 +348,7 @@
                 >
                 <span
                   v-if="task.stakes && task.stakes !== 'reversible'"
-                  class="badge badge-xs"
+                  class="kr-badge-xs"
                   :class="stakesBadgeClass(task.stakes)"
                 >
                   {{ task.stakes }}

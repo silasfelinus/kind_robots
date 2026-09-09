@@ -11,8 +11,7 @@
       <div class="min-w-0 flex-1">
         <h2 class="kr-text-black-2xl tracking-tight">Projects</h2>
         <p class="kr-text-dim-sm">
-          Browse every Conductor project, filter by status, or start a new
-          one.
+          Browse every Conductor project, filter by status, or start a new one.
         </p>
       </div>
     </header>
@@ -71,10 +70,7 @@
           :disabled="!createForm.title.trim() || !!slugError || projects.saving"
           @click="createProject"
         >
-          <span
-            v-if="projects.saving"
-            class="kr-spinner-xs"
-          />
+          <span v-if="projects.saving" class="kr-spinner-xs" />
           <Icon v-else name="kind-icon:plus" class="size-3.5" />
           Create Project
         </button>
@@ -96,8 +92,8 @@
             class="mt-1 block w-full text-left hover:text-primary"
             @click="open(item)"
           >
-            <span class="break-words">{{ item.title }}</span>:
-            {{ item.dbStatus }} → {{ item.status }}
+            <span class="break-words">{{ item.title }}</span
+            >: {{ item.dbStatus }} → {{ item.status }}
           </button>
         </div>
         <div v-if="conductorOnly.length" class="rounded-lg bg-base-100/80 p-2">
@@ -168,7 +164,7 @@
             >
               <Icon :name="option.icon" class="size-3" />
               <span class="hidden sm:inline">{{ option.label }}</span>
-              <span class="badge badge-xs">{{ filterCount(option.value) }}</span>
+              <span class="kr-badge-xs">{{ filterCount(option.value) }}</span>
             </button>
 
             <button
@@ -180,7 +176,7 @@
             >
               <Icon name="kind-icon:warning" class="size-3" />
               <span class="hidden sm:inline">Sync</span>
-              <span class="badge badge-xs">{{ syncIssueCount }}</span>
+              <span class="kr-badge-xs">{{ syncIssueCount }}</span>
             </button>
 
             <button
@@ -192,7 +188,7 @@
             >
               <Icon name="kind-icon:pause" class="size-3" />
               <span class="hidden sm:inline">Blocked</span>
-              <span class="badge badge-xs">{{ blockedTasks.length }}</span>
+              <span class="kr-badge-xs">{{ blockedTasks.length }}</span>
             </button>
 
             <button
@@ -242,12 +238,7 @@ import { slugify } from '@/utils/slugify'
 const IMG_BASE =
   'https://raw.githubusercontent.com/silasfelinus/conductor/main/projects/images'
 type Status =
-  | 'ACTIVE'
-  | 'CONTINUOUS'
-  | 'PAUSED'
-  | 'DONE'
-  | 'BRAINSTORM'
-  | 'ARCHIVED'
+  'ACTIVE' | 'CONTINUOUS' | 'PAUSED' | 'DONE' | 'BRAINSTORM' | 'ARCHIVED'
 type Filter = Exclude<Status, 'BRAINSTORM'> | 'ALL'
 type Item = {
   id: number
@@ -331,7 +322,8 @@ const slugError = computed(() => {
 })
 
 function onTitleInput() {
-  if (!slugTouched.value) createForm.value.slug = slugify(createForm.value.title)
+  if (!slugTouched.value)
+    createForm.value.slug = slugify(createForm.value.title)
 }
 
 function onSlugInput() {
@@ -429,9 +421,9 @@ function toItem(record: ProjectWithRelations): Item {
   const progress = source?.progress ?? (status === 'DONE' ? 100 : 0)
   const drift = Boolean(
     source &&
-      (record.status !== status ||
-        record.priority !== priority ||
-        record.isActive !== (status !== 'ARCHIVED')),
+    (record.status !== status ||
+      record.priority !== priority ||
+      record.isActive !== (status !== 'ARCHIVED')),
   )
   const metaParts = [`${progress}%`, `${done}/${total} done`]
   if (blocked) metaParts.push(`${blocked} blocked`)

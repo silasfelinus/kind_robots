@@ -1514,6 +1514,23 @@ section:has(div[class*='xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]'])
     @apply badge badge-sm;
   }
 
+  /* The colorless `badge-xs` sibling of `.kr-badge-sm` (interface-vision
+   * t-104 slice 177): `badge badge-xs` with no color modifier, same
+   * dynamically-toned rationale as `.kr-badge-sm` -- the color at each of
+   * this shape's call sites is supplied separately, by a sibling `:class`
+   * binding that picks a tone from component state (pitch/commit status,
+   * pack progress, affinity, sync/filter counts...). 25 hand-rolled
+   * occurrences across 13 files, more varied in their accompanying layout
+   * utilities than `.kr-badge-sm`'s pool (ml-auto, shrink-0, gap-0.5/gap-1,
+   * rounded-lg/rounded-xl/rounded-2xl, absolute positioning) -- every one
+   * individually audited for this slice, so left unrestricted rather than
+   * bounded to a fixed extras set the way `.kr-badge-sm` was for its own,
+   * differently-sourced 91-hit survey (see BOUNDED_EXTRAS in
+   * kr_badge_codemod.py). */
+  .kr-badge-xs {
+    @apply badge badge-xs;
+  }
+
   /* The most-repeated hand-rolled textarea shape (interface-vision t-104
    * slice 115): a full-width, bordered DaisyUI textarea on the "plain"
    * base-100 background -- `textarea w-full

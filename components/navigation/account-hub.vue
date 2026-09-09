@@ -340,7 +340,7 @@
         <div class="max-h-56 overflow-y-auto rounded-2xl bg-base-200/60 p-1">
           <p
             v-if="!notifications.items.length"
-            class="px-2 py-4 text-center text-sm text-base-content/50"
+            class="kr-text-dim-sm-50 px-2 py-4 text-center"
           >
             You're all caught up.
           </p>

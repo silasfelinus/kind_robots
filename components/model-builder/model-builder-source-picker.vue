@@ -63,7 +63,7 @@
     <div class="min-h-0 flex-1 overflow-y-auto">
       <div
         v-if="!store.sourceType"
-        class="flex h-full min-h-32 items-center justify-center kr-panel-flat border-dashed p-6 text-center text-sm text-base-content/50"
+        class="kr-text-dim-sm-50 flex h-full min-h-32 items-center justify-center kr-panel-flat border-dashed p-6 text-center"
       >
         Select a source type above to load records.
       </div>
@@ -107,7 +107,7 @@
       -->
       <div
         v-else-if="!store.sources.length"
-        class="flex h-full min-h-32 flex-col items-center justify-center gap-1 kr-panel-flat border-dashed p-6 text-center text-sm text-base-content/50"
+        class="kr-text-dim-sm-50 flex h-full min-h-32 flex-col items-center justify-center gap-1 kr-panel-flat border-dashed p-6 text-center"
       >
         <Icon
           :name="activeType?.icon || 'kind-icon:blueprint'"

@@ -213,7 +213,7 @@
 
       <div
         v-else
-        class="flex min-h-56 flex-col items-center justify-center gap-3 rounded-2xl border border-dashed border-base-300 p-6 text-center text-sm text-base-content/50"
+        class="kr-text-dim-sm-50 flex min-h-56 flex-col items-center justify-center gap-3 rounded-2xl border border-dashed border-base-300 p-6 text-center"
       >
         <span v-if="artJobStore.loadingTrainerJobs">Loading finished art…</span>
         <span v-else-if="reviewMode === 'pending'">

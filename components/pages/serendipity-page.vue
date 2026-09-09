@@ -133,10 +133,7 @@
           <p class="kr-text-eyebrow-bold kr-text-dim-xs-60">
             Active animations
           </p>
-          <p
-            v-if="activeEffects.length === 0"
-            class="mt-1 text-sm text-base-content/50"
-          >
+          <p v-if="activeEffects.length === 0" class="kr-text-dim-sm-50 mt-1">
             None running.
           </p>
           <ul v-else class="mt-1 space-y-1">

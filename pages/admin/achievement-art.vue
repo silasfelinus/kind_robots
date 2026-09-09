@@ -107,7 +107,7 @@
 
               <p
                 v-if="!filteredAchievements.length"
-                class="kr-panel-flat border-dashed p-6 text-center text-sm text-base-content/50"
+                class="kr-text-dim-sm-50 kr-panel-flat border-dashed p-6 text-center"
               >
                 No matching achievements.
               </p>

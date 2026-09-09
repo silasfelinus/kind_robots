@@ -41,7 +41,7 @@
 
     <div
       v-if="!turns.length && !isStreaming"
-      class="rounded-2xl border border-dashed border-base-300 bg-base-200/40 p-5 text-center text-sm text-base-content/50"
+      class="kr-text-dim-sm-50 rounded-2xl border border-dashed border-base-300 bg-base-200/40 p-5 text-center"
     >
       {{ emptyLabel }}
     </div>

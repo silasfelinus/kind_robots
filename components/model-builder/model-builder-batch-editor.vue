@@ -12,7 +12,7 @@
     <div class="flex items-start justify-between gap-2">
       <div>
         <h4
-          class="flex items-center gap-1.5 text-sm font-black text-base-content"
+          class="kr-text-black-sm flex items-center gap-1.5 text-base-content"
         >
           <Icon name="kind-icon:layers" class="h-4 w-4 text-primary" />
           Batch edit — {{ group.label }}

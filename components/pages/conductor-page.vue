@@ -114,7 +114,7 @@
       <template v-if="!userStore.isAdmin && projectStore.loaded">
         <span class="mx-0.5 h-3.5 w-px shrink-0 bg-base-content/10" />
         <span class="flex items-baseline gap-0.5">
-          <span class="text-sm font-black leading-none text-primary">{{
+          <span class="kr-text-black-sm leading-none text-primary">{{
             projectStore.publicProjects.length
           }}</span>
           <span class="text-[0.62rem] font-semibold text-base-content/50"

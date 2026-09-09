@@ -30,7 +30,7 @@
 
         <div class="absolute bottom-0 left-0 right-0 p-4 sm:p-5">
           <p
-            class="inline-flex max-w-full items-center gap-2 rounded-full border border-primary/20 bg-base-100/85 px-3 py-1 text-sm font-black uppercase tracking-widest text-primary shadow-sm backdrop-blur"
+            class="kr-text-black-sm inline-flex max-w-full items-center gap-2 rounded-full border border-primary/20 bg-base-100/85 px-3 py-1 uppercase tracking-widest text-primary shadow-sm backdrop-blur"
           >
             <Icon :name="placeholderIcon" class="h-4 w-4 shrink-0" />
             <span class="truncate">{{ label }}</span>
@@ -96,13 +96,13 @@
       <div class="kr-panel p-4">
         <div class="mb-3 flex items-center justify-between gap-3">
           <p
-            class="flex items-center gap-2 text-sm font-black uppercase tracking-widest text-base-content/45"
+            class="kr-text-black-sm flex items-center gap-2 uppercase tracking-widest text-base-content/45"
           >
             <Icon name="kind-icon:sparkles" class="h-4 w-4 text-primary/70" />
             Progress
           </p>
 
-          <p class="text-sm font-black tabular-nums text-primary">
+          <p class="kr-text-black-sm tabular-nums text-primary">
             {{ completedCount }}/{{ requiredCount }}
           </p>
         </div>

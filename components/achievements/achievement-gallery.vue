@@ -46,7 +46,7 @@
           >
             <Icon name="kind-icon:check" class="h-4 w-4" />
           </span>
-          <h2 class="text-sm font-black text-base-content">Earned</h2>
+          <h2 class="kr-text-black-sm text-base-content">Earned</h2>
           <span class="ml-auto badge badge-success badge-sm">{{
             earnedAchievements.length
           }}</span>
@@ -88,7 +88,7 @@
           >
             <Icon name="kind-icon:trophy" class="h-4 w-4" />
           </span>
-          <h2 class="text-sm font-black text-base-content">Leaderboard</h2>
+          <h2 class="kr-text-black-sm text-base-content">Leaderboard</h2>
         </div>
         <div class="p-3">
           <achievement-leaderboard />
@@ -103,7 +103,7 @@
           >
             <Icon name="kind-icon:question" class="h-4 w-4" />
           </span>
-          <h2 class="text-sm font-black text-base-content">Undiscovered</h2>
+          <h2 class="kr-text-black-sm text-base-content">Undiscovered</h2>
           <span class="kr-badge-ghost-sm ml-auto">{{
             unearnedAchievements.length
           }}</span>

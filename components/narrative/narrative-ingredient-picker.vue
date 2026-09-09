@@ -128,7 +128,7 @@
           <Icon name="kind-icon:check" class="size-4" />
         </span>
         <span class="absolute inset-x-0 bottom-0 p-3 text-white">
-          <span class="block text-sm font-black sm:text-base">
+          <span class="kr-text-black-sm block sm:text-base">
             {{ emptyLabel }}
           </span>
           <span

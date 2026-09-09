@@ -133,7 +133,7 @@
               >
                 <div class="flex items-start justify-between gap-3">
                   <div class="min-w-0">
-                    <p class="truncate text-sm font-black">{{ getItemTitle(item) }}</p>
+                    <p class="kr-text-black-sm truncate">{{ getItemTitle(item) }}</p>
                     <p class="kr-text-dim-xs-60">ID {{ item.id }}</p>
                   </div>
                   <span

@@ -101,7 +101,7 @@
               :name="stat.icon"
               class="size-4 text-primary/70"
             />
-            <span class="text-sm font-black leading-none text-base-content">{{
+            <span class="kr-text-black-sm leading-none text-base-content">{{
               stat.value
             }}</span>
             <span class="kr-text-dim-xs font-semibold">{{

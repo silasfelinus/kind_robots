@@ -67,10 +67,10 @@
       <div class="min-w-[min(100%,20rem)] flex-1">
         <div class="flex items-center justify-between gap-3">
           <div>
-            <p class="text-sm font-black text-base-content">{{ progressHeadline }}</p>
+            <p class="kr-text-black-sm text-base-content">{{ progressHeadline }}</p>
             <p class="kr-text-dim-xs-55 mt-0.5">{{ progressMessage }}</p>
           </div>
-          <span class="text-sm font-black text-primary">{{ progressPercent }}%</span>
+          <span class="kr-text-black-sm text-primary">{{ progressPercent }}%</span>
         </div>
         <progress
           class="progress progress-primary mt-3 w-full"

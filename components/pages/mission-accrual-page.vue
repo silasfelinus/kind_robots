@@ -120,7 +120,7 @@
         <section class="space-y-3">
           <div class="flex items-center justify-between">
             <h2
-              class="text-sm font-black uppercase tracking-widest text-base-content/50"
+              class="kr-text-black-sm uppercase tracking-widest text-base-content/50"
             >
               Log a remittance
             </h2>
@@ -192,7 +192,7 @@
 
         <section v-else class="space-y-3">
           <h2
-            class="text-sm font-black uppercase tracking-widest text-base-content/50"
+            class="kr-text-black-sm uppercase tracking-widest text-base-content/50"
           >
             Remittance log
           </h2>

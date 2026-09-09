@@ -63,7 +63,7 @@
               class="mt-1 size-4 shrink-0 text-base-content/25 transition group-hover:translate-x-0.5 group-hover:text-accent motion-reduce:transition-none"
             />
           </span>
-          <span class="block text-sm font-black leading-snug">
+          <span class="kr-text-black-sm block leading-snug">
             {{ sample.task }}
           </span>
           <span class="kr-text-dim-xs block leading-relaxed">

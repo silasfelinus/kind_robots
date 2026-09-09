@@ -199,7 +199,7 @@
             >
               <div class="flex items-start gap-3.5 p-4 sm:p-5">
                 <span
-                  class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary text-sm font-black text-primary-content shadow-sm ring-2 ring-primary/15 transition group-hover:scale-105"
+                  class="kr-text-black-sm flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary text-primary-content shadow-sm ring-2 ring-primary/15 transition group-hover:scale-105"
                 >
                   {{ index + 1 }}
                 </span>

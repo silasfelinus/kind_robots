@@ -212,7 +212,7 @@
             :name="activeGroup.isVirtual ? 'kind-icon:archive' : 'kind-icon:folder'"
             class="h-4 w-4 shrink-0 text-primary"
           />
-          <h3 class="min-w-0 truncate text-sm font-black text-base-content">
+          <h3 class="kr-text-black-sm min-w-0 truncate text-base-content">
             {{ activeGroup.title }}
           </h3>
           <span
@@ -482,7 +482,7 @@
                 >
                   Selected Image
                 </p>
-                <h3 class="truncate text-sm font-black text-base-content">
+                <h3 class="kr-text-black-sm truncate text-base-content">
                   #{{ selectedImageForOverlay.id }}
                 </h3>
               </div>

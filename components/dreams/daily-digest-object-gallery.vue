@@ -67,7 +67,7 @@
                 <p class="truncate text-[0.58rem] font-black uppercase tracking-[0.12em] text-primary/70">
                   {{ item.typeLabel }}
                 </p>
-                <h4 class="mt-0.5 line-clamp-2 text-sm font-black leading-tight">
+                <h4 class="kr-text-black-sm mt-0.5 line-clamp-2 leading-tight">
                   {{ item.title }}
                 </h4>
               </div>

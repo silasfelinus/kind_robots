@@ -215,7 +215,7 @@
             :name="activeTabConfig.icon || fallbackIcon"
             class="h-4 w-4 shrink-0 text-primary/70"
           />
-          <span class="min-w-0 truncate text-sm font-black xl:text-base">
+          <span class="kr-text-black-sm min-w-0 truncate xl:text-base">
             {{ activeTitle }}
           </span>
         </div>

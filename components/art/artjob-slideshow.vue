@@ -58,9 +58,7 @@
             class="absolute inset-x-0 top-0 flex flex-wrap items-center justify-between gap-2 bg-gradient-to-b from-base-300/90 to-transparent p-3"
           >
             <div class="flex flex-wrap items-center gap-2">
-              <span class="text-sm font-black tracking-wide"
-                >Art slideshow</span
-              >
+              <span class="kr-text-black-sm tracking-wide">Art slideshow</span>
               <span
                 class="kr-badge-sm rounded-2xl"
                 :class="isPlaying ? 'badge-success' : 'badge-ghost'"
@@ -238,7 +236,7 @@
             class="absolute inset-y-0 right-0 flex w-80 max-w-full flex-col gap-4 overflow-y-auto overscroll-contain border-l border-base-content/10 bg-base-100/95 p-4"
           >
             <div class="flex items-center justify-between gap-2">
-              <h3 class="text-sm font-black">Slideshow options</h3>
+              <h3 class="kr-text-black-sm">Slideshow options</h3>
               <button
                 type="button"
                 class="kr-btn-ghost-xs-2xl"

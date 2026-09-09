@@ -97,7 +97,7 @@
           </div>
 
           <label for="login" class="flex flex-col gap-2">
-            <span class="pl-1 text-sm font-black text-base-content/80">
+            <span class="kr-text-black-sm pl-1 text-base-content/80">
               Username
             </span>
             <span
@@ -120,7 +120,7 @@
           </label>
 
           <label for="password" class="flex flex-col gap-2">
-            <span class="pl-1 text-sm font-black text-base-content/80">
+            <span class="kr-text-black-sm pl-1 text-base-content/80">
               Password
             </span>
             <span
@@ -225,7 +225,7 @@
             </div>
 
             <div class="min-w-0 flex-1">
-              <p class="text-sm font-black text-warning">
+              <p class="kr-text-black-sm text-warning">
                 Oops, the gate robot got suspicious.
               </p>
               <p class="mt-1 text-sm leading-snug text-base-content/75">

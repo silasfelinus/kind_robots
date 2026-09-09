@@ -13,7 +13,7 @@
         {{ done ? 'Ready' : 'Waiting' }}
       </span>
     </div>
-    <h4 class="text-sm font-black">{{ label }}</h4>
+    <h4 class="kr-text-black-sm">{{ label }}</h4>
     <p class="kr-text-dim-xs line-clamp-2 break-all">
       {{ detail }}
     </p>

@@ -5,7 +5,7 @@
       <div class="min-w-0 flex-1">
         <div class="flex items-center gap-2">
           <Icon name="kind-icon:palette" class="size-4 text-secondary" />
-          <h3 class="text-sm font-black">Artwork</h3>
+          <h3 class="kr-text-black-sm">Artwork</h3>
           <span class="kr-badge-ghost-xs">{{ entityLabel }}</span>
         </div>
         <p class="kr-text-dim-xs mt-1">
@@ -241,7 +241,7 @@
     >
       <div class="flex items-start gap-2">
         <div class="min-w-0 flex-1">
-          <p class="text-sm font-black">Generate {{ selectedSlot.label }} replacement</p>
+          <p class="kr-text-black-sm">Generate {{ selectedSlot.label }} replacement</p>
           <p class="kr-text-dim-xs">
             Recreate starts fresh with Krea. Img2img uses the current image and defaults to SDXL.
           </p>
@@ -404,7 +404,7 @@
     >
       <div class="flex items-start gap-2">
         <div class="min-w-0 flex-1">
-          <p class="text-sm font-black">Upload {{ selectedSlot.label }} replacement</p>
+          <p class="kr-text-black-sm">Upload {{ selectedSlot.label }} replacement</p>
           <p class="kr-text-dim-xs">
             Upload a finished PNG, JPEG, or WebP, then choose whether the old image remains as inspiration.
           </p>

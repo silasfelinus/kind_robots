@@ -17,7 +17,7 @@
   <div v-if="members.length" class="space-y-4">
     <div class="flex flex-wrap items-baseline justify-between gap-2">
       <div>
-        <p class="text-sm font-black">The casting board</p>
+        <p class="kr-text-black-sm">The casting board</p>
         <p class="kr-text-dim-xs-55 mt-0.5 leading-relaxed">
           Drag a card onto a part, or use its buttons. Leave a card blank and
           the story decides.

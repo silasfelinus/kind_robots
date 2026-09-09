@@ -119,7 +119,7 @@
 
             <label class="flex cursor-pointer items-center justify-between gap-4 kr-panel-compact">
               <div>
-                <span class="block text-sm font-black">Mature batch</span>
+                <span class="kr-text-black-sm block">Mature batch</span>
                 <span class="kr-text-dim-xs block">
                   Carries the existing ArtJob maturity flag into every generated clip.
                 </span>
@@ -187,7 +187,7 @@
               </div>
               <div class="mt-3 flex items-center gap-3">
                 <progress class="progress progress-primary flex-1" :value="store.completionPercent" max="100" />
-                <span class="w-12 text-right text-sm font-black">{{ store.completionPercent }}%</span>
+                <span class="kr-text-black-sm w-12 text-right">{{ store.completionPercent }}%</span>
               </div>
               <p v-if="statusFilter !== 'all'" class="kr-text-dim-xs mt-3 flex items-center gap-2">
                 Showing {{ filteredSources.length }} {{ statusFilter }} scene{{ filteredSources.length === 1 ? '' : 's' }} only.
@@ -287,7 +287,7 @@
                 <div class="space-y-2 p-3">
                   <div class="flex items-start justify-between gap-2">
                     <div class="min-w-0">
-                      <p class="truncate text-sm font-black" :title="source.name">{{ source.name }}</p>
+                      <p class="kr-text-black-sm truncate" :title="source.name">{{ source.name }}</p>
                       <p class="kr-text-dim-xs-45">
                         {{ formatBytes(source.bytes) }}
                         <template v-if="source.jobId"> · ArtJob #{{ source.jobId }}</template>

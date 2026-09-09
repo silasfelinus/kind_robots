@@ -153,7 +153,7 @@
                   <div
                     class="mt-2 flex min-w-0 items-center justify-between gap-2"
                   >
-                    <h3 class="truncate text-sm font-black capitalize">
+                    <h3 class="kr-text-black-sm truncate capitalize">
                       {{ String(item.id) }}
                     </h3>
 
@@ -239,7 +239,7 @@
                   <div
                     class="mt-2 flex min-w-0 items-center justify-between gap-2"
                   >
-                    <h3 class="truncate text-sm font-black">
+                    <h3 class="kr-text-black-sm truncate">
                       {{ sharedById.get(Number(item.id))!.name }}
                     </h3>
 
@@ -331,7 +331,7 @@
             <div class="flex min-w-0 items-center gap-2">
               <Icon name="kind-icon:code" class="h-4 w-4 text-primary" />
 
-              <h2 class="truncate text-sm font-black text-base-content">
+              <h2 class="kr-text-black-sm truncate text-base-content">
                 Active Theme Snapshot
               </h2>
             </div>

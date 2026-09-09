@@ -20,7 +20,7 @@
       <p class="kr-text-dim-xs-45 font-black uppercase tracking-widest">
         {{ headingLabel }}
       </p>
-      <span v-if="averageRating" class="text-sm font-black text-warning">
+      <span v-if="averageRating" class="kr-text-black-sm text-warning">
         {{ averageRating }} ★
       </span>
     </header>
@@ -75,7 +75,7 @@
             {{ roleFor(review) }}
           </span>
 
-          <span v-if="review.rating > 0" class="ml-auto shrink-0 text-sm font-black text-warning">
+          <span v-if="review.rating > 0" class="kr-text-black-sm ml-auto shrink-0 text-warning">
             {{ review.rating }} ★
           </span>
         </div>

@@ -74,7 +74,7 @@
       class="flex cursor-pointer items-center justify-between gap-4 rounded-2xl border border-base-300 bg-base-200 px-4 py-3"
     >
       <span>
-        <span class="block text-sm font-black text-base-content">
+        <span class="kr-text-black-sm block text-base-content">
           Adaptive guardrails
         </span>
         <span class="kr-text-dim-xs-55 block">

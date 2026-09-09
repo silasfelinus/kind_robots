@@ -2,7 +2,7 @@
   <div id="agent-credentials" class="kr-panel-flat p-4">
     <div class="mb-2 flex items-center gap-2">
       <Icon name="kind-icon:key" class="h-5 w-5 text-primary" />
-      <span class="text-sm font-black">Agent credentials</span>
+      <span class="kr-text-black-sm">Agent credentials</span>
     </div>
 
     <p class="kr-text-dim-xs-55 mb-3">

@@ -142,7 +142,7 @@
             class="flex cursor-pointer list-none items-center justify-between gap-2"
           >
             <span>
-              <span class="block text-sm font-black text-base-content"
+              <span class="kr-text-black-sm block text-base-content"
                 >Generation Source</span
               >
               <span class="kr-text-dim-xs-55 block truncate">
@@ -388,7 +388,7 @@
                 class="absolute left-0 right-0 top-full z-30 mt-2 kr-panel-flat p-3 shadow-xl"
               >
                 <div class="mb-2 flex items-center justify-between gap-2">
-                  <p class="text-sm font-black text-base-content">
+                  <p class="kr-text-black-sm text-base-content">
                     Collection Membership
                   </p>
                   <button

@@ -90,7 +90,7 @@
                 />
               </div>
               <div class="min-w-0">
-                <p class="truncate text-sm font-black">{{ tank.title }}</p>
+                <p class="kr-text-black-sm truncate">{{ tank.title }}</p>
                 <p class="kr-text-dim-xs-55 truncate">
                   @{{ tank.User.username }}
                 </p>

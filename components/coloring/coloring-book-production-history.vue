@@ -79,7 +79,7 @@
           </div>
 
           <div>
-            <p class="text-sm font-black">
+            <p class="kr-text-black-sm">
               {{ item.status || item.verdict || historyLabel(item.kind) }}
             </p>
             <p v-if="item.createdAt" class="kr-text-dim-xs-45">

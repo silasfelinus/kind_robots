@@ -201,7 +201,7 @@
                 class="flex cursor-pointer list-none items-center gap-3 rounded-2xl border border-secondary/25 bg-base-100/85 p-3 md:hidden [&::-webkit-details-marker]:hidden"
               >
                 <span class="min-w-0 flex-1">
-                  <span class="block text-sm font-black">Recipe ingredients</span>
+                  <span class="kr-text-black-sm block">Recipe ingredients</span>
                   <span class="kr-text-dim-xs block truncate">
                     {{ selectedTone }} · {{ selectedLocationLabel }} ·
                     {{ selectedGrammarLabel }}
@@ -360,7 +360,7 @@
                   >
                     Serendipity says
                   </p>
-                  <p class="text-sm font-black">Small steps still count as adventure.</p>
+                  <p class="kr-text-black-sm">Small steps still count as adventure.</p>
                 </div>
               </div>
             </div>
@@ -614,7 +614,7 @@
             >
               Current quest
             </p>
-            <p class="truncate text-sm font-black sm:text-base">
+            <p class="kr-text-black-sm truncate sm:text-base">
               {{ store.session.seed.taskTitle || 'Linked project objective' }}
             </p>
           </div>
@@ -668,7 +668,7 @@
                   class="space-y-3 rounded-2xl border border-secondary/30 bg-secondary/10 p-4"
                 >
                   <div class="text-center">
-                    <p class="text-sm font-black text-secondary">Quest complete</p>
+                    <p class="kr-text-black-sm text-secondary">Quest complete</p>
                     <p class="kr-text-dim-xs-60 mt-1">
                       Review any real-world updates below before applying them.
                     </p>
@@ -795,7 +795,7 @@
               >
                 Real objective
               </p>
-              <p class="mt-1 text-sm font-black leading-relaxed">
+              <p class="kr-text-black-sm mt-1 leading-relaxed">
                 {{ store.session.seed.taskTitle }}
               </p>
             </section>
@@ -811,7 +811,7 @@
                   >
                     Practical checkpoint plan
                   </p>
-                  <p v-if="store.currentCheckpoint" class="mt-1 text-sm font-black">
+                  <p v-if="store.currentCheckpoint" class="kr-text-black-sm mt-1">
                     Current action: {{ store.currentCheckpoint.title }}
                   </p>
                   <p v-else class="kr-text-dim-xs-55 mt-1">
@@ -889,7 +889,7 @@
               class="taskmaster-panel space-y-2 border border-success/30 p-3"
             >
               <div>
-                <p class="text-sm font-black text-success">
+                <p class="kr-text-black-sm text-success">
                   All checkpoints have an outcome
                 </p>
                 <p class="kr-text-dim-xs-55 mt-0.5">

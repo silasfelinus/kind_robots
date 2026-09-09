@@ -14,7 +14,7 @@
       <div
         class="kr-panel w-full max-w-3xl rounded-3xl bg-base-100/95 text-center shadow-xl backdrop-blur sm:p-8"
       >
-        <p class="text-sm font-black uppercase tracking-[0.2em] text-primary">
+        <p class="kr-text-black-sm uppercase tracking-[0.2em] text-primary">
           {{ statusCode }} · Lost & Found Room
         </p>
         <h1 class="mt-2 text-3xl font-black sm:text-4xl">

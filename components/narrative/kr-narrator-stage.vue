@@ -38,7 +38,7 @@
             class="min-w-0 rounded-2xl border border-primary/20 bg-base-100/90 px-3 py-1.5 backdrop-blur"
           >
             <p
-              class="truncate text-sm font-black leading-tight text-base-content"
+              class="kr-text-black-sm truncate leading-tight text-base-content"
             >
               {{ narratorName }}
             </p>

@@ -49,7 +49,7 @@
       </div>
 
       <div class="mt-5">
-        <label for="brainstorm-premise" class="text-sm font-black text-base-content">
+        <label for="brainstorm-premise" class="kr-text-black-sm text-base-content">
           Premise
         </label>
         <textarea
@@ -217,7 +217,7 @@
                 @change="store.toggleReturnType(option.id)"
               />
               <span class="min-w-0">
-                <span class="block text-sm font-black text-base-content">{{ option.label }}</span>
+                <span class="kr-text-black-sm block text-base-content">{{ option.label }}</span>
                 <span class="kr-text-dim-xs-55 mt-1 block leading-5">{{ option.description }}</span>
               </span>
             </label>
@@ -321,7 +321,7 @@
             🧩
           </div>
           <div class="min-w-0 flex-1">
-            <p class="truncate text-sm font-black text-base-content">
+            <p class="kr-text-black-sm truncate text-base-content">
               {{ resolvedSource.title }}
             </p>
             <p class="kr-text-dim-xs-55 truncate">

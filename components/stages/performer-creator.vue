@@ -239,7 +239,7 @@
             v-if="form.species"
             class="flex items-center gap-2 rounded-xl border border-secondary/30 bg-secondary/8 px-3 py-2"
           >
-            <span class="text-sm font-black text-secondary">{{
+            <span class="kr-text-black-sm text-secondary">{{
               form.species
             }}</span>
             <button

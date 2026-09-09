@@ -27,7 +27,7 @@
         </p>
       </div>
 
-      <span class="badge badge-outline">
+      <span class="kr-badge-outline">
         {{ reactionCategory }}
       </span>
     </div>

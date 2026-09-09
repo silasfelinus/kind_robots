@@ -2,7 +2,7 @@
 """Find or migrate hand-rolled kr-badge-{ghost,warning,outline,primary,secondary}-sm,
 kr-badge-{ghost,outline,primary,warning,success,error,secondary,accent,info,neutral}-xs,
 kr-badge-sm (the colorless base), kr-badge-xs (the colorless -xs sibling), and
-kr-badge-ghost (the sizeless ghost sibling) badges.
+kr-badge-ghost/kr-badge-outline (the sizeless ghost/outline siblings) badges.
 
 Dry-run is the default. Pass --write to update matching Vue files in place.
 Only the approved badge shapes are touched (`badge badge-ghost badge-sm`,
@@ -66,6 +66,13 @@ FAMILIES = [
     # unmigrated by design.
     ("kr-badge-ghost", {"badge", "badge-ghost"}),
     ("kr-badge-outline-xs", {"badge", "badge-outline", "badge-xs"}),
+    # Sizeless sibling of kr-badge-outline-sm/kr-badge-outline-xs
+    # (interface-vision t-104 slice 183), same reasoning as kr-badge-ghost
+    # above: its {badge, badge-outline} base is a strict subset of both of
+    # those, so it must come after them. Bounded to exact-match only (see
+    # BOUNDED_EXTRAS below) -- a one-off extra-token pool is left for a
+    # future slice, same pattern kr-badge-ghost's first slice followed.
+    ("kr-badge-outline", {"badge", "badge-outline"}),
     ("kr-badge-primary-xs", {"badge", "badge-primary", "badge-xs"}),
     ("kr-badge-warning-xs", {"badge", "badge-warning", "badge-xs"}),
     ("kr-badge-success-xs", {"badge", "badge-success", "badge-xs"}),
@@ -125,6 +132,11 @@ BOUNDED_EXTRAS: dict[str, set[frozenset[str]]] = {
         frozenset({"rounded-lg"}),
         frozenset({"rounded-xl"}),
     },
+    # kr-badge-outline (interface-vision t-104 slice 183): bounded to an
+    # exact match only for this slice, same first-pass convention
+    # kr-badge-ghost used before its own follow-up slice individually
+    # audited the remaining extra-token pool.
+    "kr-badge-outline": {frozenset()},
 }
 
 

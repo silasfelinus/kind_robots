@@ -19,4 +19,4 @@ backgroundTablet: /api/art/backdrop/about-tablet
 backgroundDesktop: /api/art/backdrop/about-desktop
 ---
 
-:about-support-center
+:about-page

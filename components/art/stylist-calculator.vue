@@ -13,7 +13,7 @@
 
     <div class="grid gap-3 sm:grid-cols-2">
       <label class="flex flex-col gap-1">
-        <span class="text-xs font-black text-base-content">Client</span>
+        <span class="kr-text-black-xs text-base-content">Client</span>
         <input
           v-model="clientName"
           type="text"
@@ -31,12 +31,12 @@
       </label>
 
       <label class="flex flex-col gap-1">
-        <span class="text-xs font-black text-base-content">Date</span>
+        <span class="kr-text-black-xs text-base-content">Date</span>
         <input v-model="date" type="date" class="input input-sm input-bordered w-full" />
       </label>
 
       <label class="flex flex-col gap-1">
-        <span class="text-xs font-black text-base-content">Hourly rate ($)</span>
+        <span class="kr-text-black-xs text-base-content">Hourly rate ($)</span>
         <input
           v-model.number="hourlyRate"
           type="number"
@@ -47,7 +47,7 @@
       </label>
 
       <label class="flex flex-col gap-1">
-        <span class="text-xs font-black text-base-content">Product cost ($, optional)</span>
+        <span class="kr-text-black-xs text-base-content">Product cost ($, optional)</span>
         <input
           v-model.number="productCost"
           type="number"
@@ -60,7 +60,7 @@
 
     <!-- Time spent -->
     <div class="flex flex-col gap-2 kr-panel-compact">
-      <span class="text-xs font-black text-base-content">Time spent</span>
+      <span class="kr-text-black-xs text-base-content">Time spent</span>
       <div class="flex flex-wrap gap-1">
         <button
           v-for="chip in TIME_CHIPS"
@@ -121,7 +121,7 @@
       v-if="savedAppointment"
       class="flex flex-col gap-2 rounded-xl border border-success/40 bg-success/5 p-3"
     >
-      <span class="text-xs font-black text-success">Saved! Receipt preview</span>
+      <span class="kr-text-black-xs text-success">Saved! Receipt preview</span>
       <pre class="whitespace-pre-wrap rounded-lg bg-base-100 p-2 text-xs">{{
         superkate.receiptText(savedAppointment)
       }}</pre>

@@ -30,7 +30,7 @@
     <!-- Client -->
     <div class="kr-panel-compact">
       <label class="flex flex-col gap-1">
-        <span class="text-xs font-black text-base-content">Client</span>
+        <span class="kr-text-black-xs text-base-content">Client</span>
         <input
           v-model="clientName"
           type="text"
@@ -52,7 +52,7 @@
     <div class="flex flex-col gap-2 kr-panel-compact">
       <div class="flex items-center gap-2">
         <Icon name="kind-icon:image" class="h-4 w-4 text-primary" />
-        <span class="text-xs font-black text-base-content">Client Photo</span>
+        <span class="kr-text-black-xs text-base-content">Client Photo</span>
         <div class="flex-1" />
         <div class="flex overflow-hidden rounded-lg border border-base-300 text-xs">
           <button
@@ -151,7 +151,7 @@
 
     <!-- What to change -->
     <div class="flex flex-col gap-3 kr-panel-compact">
-      <span class="text-xs font-black text-base-content">What are we changing?</span>
+      <span class="kr-text-black-xs text-base-content">What are we changing?</span>
 
       <label class="flex items-start gap-2">
         <input v-model="changeColor" type="checkbox" class="kr-checkbox-primary-sm mt-1" />
@@ -207,7 +207,7 @@
     <!-- How much to keep them looking like themselves -->
     <div class="flex flex-col gap-2 kr-panel-compact">
       <div class="flex items-center justify-between">
-        <span class="text-xs font-black text-base-content">How much should it still look like them?</span>
+        <span class="kr-text-black-xs text-base-content">How much should it still look like them?</span>
         <span class="kr-text-bold-xs text-primary">{{ preserveLabel }}</span>
       </div>
       <input
@@ -293,7 +293,7 @@
 
     <!-- This session's jobs -->
     <div v-if="visibleJobs.length" class="flex flex-col gap-2">
-      <span class="text-xs font-black text-base-content">
+      <span class="kr-text-black-xs text-base-content">
         {{ clientName.trim() ? `Styling ${clientName.trim()}` : 'This session' }}
       </span>
       <p
@@ -378,7 +378,7 @@
     <!-- Durable per-client history -->
     <div class="flex flex-col gap-2">
       <div class="flex items-center gap-2">
-        <span class="text-xs font-black text-base-content">
+        <span class="kr-text-black-xs text-base-content">
           {{ clientName.trim() ? `Past looks for ${clientName.trim()}` : 'Past looks' }}
         </span>
         <span v-if="stylist.isLoadingHistory" class="loading loading-spinner loading-xs text-primary" />

@@ -106,7 +106,7 @@
             class="h-20 w-full object-cover opacity-80"
           />
           <div class="p-2.5">
-            <p class="text-xs font-black text-base-content">
+            <p class="kr-text-black-xs text-base-content">
               {{ store.selectedStage.label }}
             </p>
             <p class="kr-text-dim-xs mt-0.5 line-clamp-2">

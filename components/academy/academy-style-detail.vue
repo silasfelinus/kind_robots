@@ -204,7 +204,7 @@
               class="flex items-start gap-3 rounded-2xl border border-base-300 bg-base-200/45 p-3"
             >
               <span
-                class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs font-black text-primary"
+                class="kr-text-black-xs flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary"
               >
                 {{ index + 1 }}
               </span>

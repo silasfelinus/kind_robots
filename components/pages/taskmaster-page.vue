@@ -476,7 +476,7 @@
                 class="taskmaster-checkpoint relative flex items-start gap-3 rounded-2xl border border-base-300/85 bg-base-100/90 p-3 shadow-sm backdrop-blur"
               >
                 <span
-                  class="relative z-10 flex size-9 shrink-0 items-center justify-center rounded-full bg-secondary text-xs font-black text-secondary-content shadow-md"
+                  class="kr-text-black-xs relative z-10 flex size-9 shrink-0 items-center justify-center rounded-full bg-secondary text-secondary-content shadow-md"
                 >
                   {{ index + 1 }}
                 </span>

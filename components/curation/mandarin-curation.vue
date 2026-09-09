@@ -326,7 +326,7 @@
             v-if="selectedRow.overriddenFields.length"
             class="flex flex-wrap gap-1"
           >
-            <span class="mr-1 text-xs font-black">Overridden:</span>
+            <span class="kr-text-black-xs mr-1">Overridden:</span>
             <span
               v-for="field in selectedRow.overriddenFields"
               :key="field"
@@ -337,7 +337,7 @@
           </div>
 
           <label class="form-control gap-1">
-            <span class="text-xs font-black">Traditional form</span>
+            <span class="kr-text-black-xs">Traditional form</span>
             <input
               v-model="draft.traditional"
               class="kr-input-sm"
@@ -347,7 +347,7 @@
 
           <label class="form-control gap-1">
             <span
-              class="flex items-center justify-between gap-2 text-xs font-black"
+              class="kr-text-black-xs flex items-center justify-between gap-2"
             >
               Pinyin
               <span
@@ -364,7 +364,7 @@
 
           <label class="form-control gap-1">
             <span
-              class="flex items-center justify-between gap-2 text-xs font-black"
+              class="kr-text-black-xs flex items-center justify-between gap-2"
             >
               Primary meaning
               <span
@@ -377,7 +377,7 @@
           </label>
 
           <label class="form-control gap-1">
-            <span class="text-xs font-black">Meanings / senses</span>
+            <span class="kr-text-black-xs">Meanings / senses</span>
             <textarea
               v-model="draft.meaningsText"
               class="textarea textarea-bordered min-h-28 rounded-xl text-sm leading-5"
@@ -390,7 +390,7 @@
           </label>
 
           <label class="form-control gap-1">
-            <span class="text-xs font-black">Topical categories</span>
+            <span class="kr-text-black-xs">Topical categories</span>
             <input
               v-model="draft.categoriesText"
               class="kr-input-sm"
@@ -403,7 +403,7 @@
           </label>
 
           <label class="form-control gap-1">
-            <span class="text-xs font-black">Usage note</span>
+            <span class="kr-text-black-xs">Usage note</span>
             <textarea
               v-model="draft.usageNote"
               class="textarea textarea-bordered min-h-20 rounded-xl text-sm leading-5"
@@ -412,7 +412,7 @@
           </label>
 
           <label class="form-control gap-1">
-            <span class="text-xs font-black">Change note</span>
+            <span class="kr-text-black-xs">Change note</span>
             <textarea
               v-model="draft.note"
               class="textarea textarea-bordered min-h-16 rounded-xl text-sm leading-5"
@@ -453,7 +453,7 @@
           </div>
 
           <details v-if="selectedRow.changes.length" class="kr-panel-compact">
-            <summary class="cursor-pointer text-xs font-black">
+            <summary class="kr-text-black-xs cursor-pointer">
               Audit history · {{ selectedRow.changes.length }} recent change{{
                 selectedRow.changes.length === 1 ? '' : 's'
               }}

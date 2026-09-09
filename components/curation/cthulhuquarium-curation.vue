@@ -143,7 +143,7 @@
 
           <label class="form-control gap-1">
             <span
-              class="flex items-center justify-between gap-2 text-xs font-black"
+              class="kr-text-black-xs flex items-center justify-between gap-2"
             >
               Art prompt
               <span
@@ -184,7 +184,7 @@
             v-if="fish.curation.inspirations.length"
             class="kr-panel-compact"
           >
-            <summary class="cursor-pointer text-xs font-black">
+            <summary class="kr-text-black-xs cursor-pointer">
               All inspiration art
             </summary>
             <div class="mt-3 flex gap-2 overflow-x-auto pb-1">
@@ -213,7 +213,7 @@
           <div class="kr-panel-compact">
             <div class="flex flex-wrap gap-3">
               <label class="form-control min-w-52 flex-1 gap-1">
-                <span class="text-xs font-black">Render preset</span>
+                <span class="kr-text-black-xs">Render preset</span>
                 <select v-model="draft.presetId" class="kr-select-sm">
                   <option
                     v-for="preset in presets"
@@ -231,7 +231,7 @@
               </label>
 
               <label class="form-control min-w-52 flex-1 gap-1">
-                <span class="text-xs font-black">Starting point</span>
+                <span class="kr-text-black-xs">Starting point</span>
                 <select v-model="draft.sourceMode" class="kr-select-sm">
                   <option value="fresh">Fresh composition</option>
                   <option value="existing">Existing candidate art</option>
@@ -246,7 +246,7 @@
               "
               class="form-control mt-3 gap-1"
             >
-              <span class="text-xs font-black">SDXL checkpoint</span>
+              <span class="kr-text-black-xs">SDXL checkpoint</span>
               <select v-model="draft.checkpoint" class="kr-select-sm">
                 <option value="">Choose checkpoint</option>
                 <option
@@ -263,7 +263,7 @@
               v-if="draft.sourceMode === 'existing'"
               class="form-control mt-3 gap-1"
             >
-              <span class="text-xs font-black">Source ArtImage</span>
+              <span class="kr-text-black-xs">Source ArtImage</span>
               <select v-model.number="draft.sourceImageId" class="kr-select-sm">
                 <option :value="0">Choose candidate</option>
                 <option

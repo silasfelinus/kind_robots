@@ -166,7 +166,7 @@
           class="input input-bordered input-sm min-w-52 flex-1"
           placeholder="Search LoRAs by name, path, or trigger word…"
         />
-        <span class="text-xs opacity-55">
+        <span class="kr-text-faded-xs-55">
           {{ filteredResources.length }} compatible
         </span>
       </div>
@@ -259,7 +259,7 @@
 
       <p
         v-if="search.trim() && !filteredResources.length"
-        class="text-center text-xs opacity-55"
+        class="kr-text-faded-xs-55 text-center"
       >
         No compatible LoRA matches “{{ search.trim() }}”.
       </p>

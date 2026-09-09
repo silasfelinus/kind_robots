@@ -2,7 +2,7 @@
   <section class="rounded-2xl border border-primary/30 bg-base-100 p-4 shadow-sm" aria-labelledby="fishing-encounter-title">
     <div class="flex flex-wrap items-start justify-between gap-3">
       <div>
-        <p class="kr-text-eyebrow-bold text-xs tracking-wide opacity-55">On the line</p>
+        <p class="kr-text-faded-xs-55 kr-text-eyebrow-bold tracking-wide">On the line</p>
         <h3 id="fishing-encounter-title" class="kr-text-black-xl">{{ encounter.fishName }}</h3>
         <p class="mt-1 text-xs opacity-65">{{ encounter.rarity }} · {{ encounter.affinity }} · {{ familyLabel }}</p>
       </div>
@@ -50,7 +50,7 @@
       </button>
     </div>
 
-    <p class="mt-3 text-xs opacity-55">
+    <p class="kr-text-faded-xs-55 mt-3">
       Fishing is beat-based, not twitch-based. Read the cue, choose an action, and the same action sequence will reproduce the same encounter.
     </p>
   </section>

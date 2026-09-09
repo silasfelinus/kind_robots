@@ -166,7 +166,7 @@
         <div v-if="voice.lastAppliedText" class="text-xs text-success">
           Last applied: {{ voice.lastAppliedText }}
         </div>
-        <div v-if="voice.lastError" class="text-xs text-error">
+        <div v-if="voice.lastError" class="kr-text-error-xs">
           {{ voice.lastError }}
         </div>
 

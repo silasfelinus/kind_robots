@@ -67,7 +67,7 @@
             {{ message.text }}
           </p>
         </div>
-        <p v-if="voice.lastError" class="text-xs text-error">
+        <p v-if="voice.lastError" class="kr-text-error-xs">
           {{ voice.lastError }}
         </p>
 

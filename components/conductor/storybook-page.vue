@@ -494,7 +494,7 @@
           </div>
         </section>
 
-        <p v-if="store.errorMessage" class="text-xs text-error">
+        <p v-if="store.errorMessage" class="kr-text-error-xs">
           {{ store.errorMessage }}
         </p>
 
@@ -595,7 +595,7 @@
 
         <StorybookStatePanel :session="store.session" />
 
-        <p v-if="store.errorMessage" class="text-xs text-error">
+        <p v-if="store.errorMessage" class="kr-text-error-xs">
           {{ store.errorMessage }}
         </p>
       </div>

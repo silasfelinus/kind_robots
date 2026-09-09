@@ -88,7 +88,7 @@
       </label>
     </div>
 
-    <p v-if="error" class="mb-3 rounded-xl bg-error/10 p-2 text-xs text-error">
+    <p v-if="error" class="kr-text-error-xs mb-3 rounded-xl bg-error/10 p-2">
       {{ error }}
     </p>
 

@@ -137,7 +137,7 @@
 
             <p
               v-if="engineWarning"
-              class="mt-2 text-xs font-semibold text-error"
+              class="kr-text-error-xs mt-2 font-semibold"
               role="alert"
             >
               {{ engineWarning }}

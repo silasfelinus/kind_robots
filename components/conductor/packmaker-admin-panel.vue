@@ -150,7 +150,7 @@
             </p>
             <p
               v-if="stateFor(item.id).error"
-              class="mt-1 text-xs font-semibold text-error"
+              class="kr-text-error-xs mt-1 font-semibold"
             >
               {{ stateFor(item.id).error }}
             </p>

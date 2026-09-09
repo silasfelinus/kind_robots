@@ -57,7 +57,7 @@
       </button>
     </div>
 
-    <p v-if="error" class="text-xs text-error">{{ error }}</p>
+    <p v-if="error" class="kr-text-error-xs">{{ error }}</p>
   </div>
 </template>
 

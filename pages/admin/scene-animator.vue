@@ -297,7 +297,7 @@
                       {{ statusLabel(source.status) }}
                     </span>
                   </div>
-                  <p v-if="source.error" class="line-clamp-3 text-xs text-error" :title="source.error">
+                  <p v-if="source.error" class="kr-text-error-xs line-clamp-3" :title="source.error">
                     {{ source.error }}
                   </p>
                   <button

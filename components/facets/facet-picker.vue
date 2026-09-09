@@ -148,7 +148,7 @@
       </div>
     </details>
 
-    <p v-if="errorMessage" class="text-xs text-error">{{ errorMessage }}</p>
+    <p v-if="errorMessage" class="kr-text-error-xs">{{ errorMessage }}</p>
   </section>
 </template>
 

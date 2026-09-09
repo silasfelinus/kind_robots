@@ -123,7 +123,7 @@
             <Icon v-else name="kind-icon:send" class="h-4 w-4" />
           </button>
         </form>
-        <p v-if="convo.lastError" class="px-3 pb-2 text-xs text-error">
+        <p v-if="convo.lastError" class="kr-text-error-xs px-3 pb-2">
           {{ convo.lastError }}
         </p>
       </template>

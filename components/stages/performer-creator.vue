@@ -169,7 +169,7 @@
               placeholder="Perform as [Name]. [Voice, mannerisms, perspective, what they care about]..."
               maxlength="500"
             />
-            <p v-if="llmError" class="text-xs text-error">{{ llmError }}</p>
+            <p v-if="llmError" class="kr-text-error-xs">{{ llmError }}</p>
           </div>
 
           <!-- Art / avatar -->

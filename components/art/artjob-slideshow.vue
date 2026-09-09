@@ -47,7 +47,7 @@
             class="kr-spinner-lg-primary"
           />
           <p class="text-sm font-semibold">{{ stageMessage }}</p>
-          <p v-if="slideshowStore.error" class="text-xs text-error">
+          <p v-if="slideshowStore.error" class="kr-text-error-xs">
             {{ slideshowStore.error }}
           </p>
         </div>

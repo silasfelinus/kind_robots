@@ -27,7 +27,7 @@
             class="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between"
           >
             <div>
-              <h2 class="text-xl font-bold text-base-content">Identity</h2>
+              <h2 class="kr-text-bold-xl text-base-content">Identity</h2>
 
               <p class="kr-text-dim-sm-70">
                 Define the bot’s visible profile and general vibe.
@@ -148,7 +148,7 @@
         <aside class="kr-panel-flat p-4">
           <div class="mb-4 flex items-center justify-between gap-2">
             <div>
-              <h2 class="text-xl font-bold text-base-content">Avatar</h2>
+              <h2 class="kr-text-bold-xl text-base-content">Avatar</h2>
 
               <p class="kr-text-dim-sm-70">
                 Use a URL/path, upload an image, or borrow a gallery image.
@@ -211,7 +211,7 @@
           class="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between"
         >
           <div>
-            <h2 class="text-xl font-bold text-base-content">
+            <h2 class="kr-text-bold-xl text-base-content">
               AI Update Controls
             </h2>
 
@@ -289,7 +289,7 @@
 
       <section class="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <div class="kr-panel-flat p-4">
-          <h2 class="mb-3 text-xl font-bold text-base-content">
+          <h2 class="kr-text-bold-xl mb-3 text-base-content">
             Personality and Prompt
           </h2>
 
@@ -336,7 +336,7 @@
         </div>
 
         <div class="kr-panel-flat p-4">
-          <h2 class="mb-3 text-xl font-bold text-base-content">
+          <h2 class="kr-text-bold-xl mb-3 text-base-content">
             Conversation Intros
           </h2>
 
@@ -387,7 +387,7 @@
           class="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between"
         >
           <div>
-            <h2 class="text-xl font-bold text-base-content">Publishing</h2>
+            <h2 class="kr-text-bold-xl text-base-content">Publishing</h2>
 
             <p class="kr-text-dim-sm-70">
               Control visibility and construction status. The text engine is

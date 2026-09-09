@@ -113,7 +113,7 @@
 
       <section class="kr-panel-flat p-4">
         <div class="mb-4">
-          <h2 class="text-xl font-bold text-base-content">Publishing</h2>
+          <h2 class="kr-text-bold-xl text-base-content">Publishing</h2>
           <p class="kr-text-dim-sm-70">
             Control who can discover this scenario and whether mature-content
             filtering applies.
@@ -144,7 +144,7 @@
       <section class="kr-panel-flat p-4">
         <div class="mb-4 flex items-center justify-between gap-2">
           <div>
-            <h2 class="text-xl font-bold text-base-content">Opening Choices</h2>
+            <h2 class="kr-text-bold-xl text-base-content">Opening Choices</h2>
 
             <p class="kr-text-dim-sm-70">
               These become the starting choices players can click when the
@@ -205,7 +205,7 @@
           class="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between"
         >
           <div>
-            <h2 class="text-xl font-bold text-base-content">Scenario Art</h2>
+            <h2 class="kr-text-bold-xl text-base-content">Scenario Art</h2>
 
             <p class="kr-text-dim-sm-70">
               Upload, randomize, or generate a visual anchor.

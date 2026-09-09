@@ -11,7 +11,7 @@
   <div class="flex flex-col gap-4 p-4">
     <!-- Header -->
     <div class="flex items-center justify-between">
-      <h2 class="text-xl font-bold">Community &amp; Friends</h2>
+      <h2 class="kr-text-bold-xl">Community &amp; Friends</h2>
       <span class="kr-text-dim-sm">
         {{ visibleUsers.length }} public profile{{
           visibleUsers.length !== 1 ? 's' : ''

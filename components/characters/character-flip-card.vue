@@ -68,7 +68,7 @@
           <article class="kr-panel-flat p-4">
             <div class="mb-3 flex items-center justify-between gap-2">
               <div>
-                <h2 class="text-xl font-bold text-base-content">
+                <h2 class="kr-text-bold-xl text-base-content">
                   Selected Character
                 </h2>
 
@@ -98,7 +98,7 @@
               class="mb-3 flex flex-col gap-2 md:flex-row md:items-center md:justify-between"
             >
               <div>
-                <h2 class="text-xl font-bold text-base-content">Chat</h2>
+                <h2 class="kr-text-bold-xl text-base-content">Chat</h2>
 
                 <p class="kr-text-dim-sm">
                   Ask something sincere, weird, tactical, or suspiciously
@@ -241,7 +241,7 @@
             v-else-if="activeMode === 'adventure'"
             class="kr-panel-flat p-4"
           >
-            <h2 class="mb-3 text-xl font-bold text-base-content">
+            <h2 class="kr-text-bold-xl mb-3 text-base-content">
               Adventure Setup
             </h2>
 
@@ -297,7 +297,7 @@
             v-else-if="activeMode === 'prompt'"
             class="kr-panel-flat p-4"
           >
-            <h2 class="mb-3 text-xl font-bold text-base-content">
+            <h2 class="kr-text-bold-xl mb-3 text-base-content">
               Character Prompt
             </h2>
 
@@ -336,7 +336,7 @@
           </article>
 
           <article v-else class="kr-panel-flat p-4">
-            <h2 class="mb-3 text-xl font-bold text-base-content">
+            <h2 class="kr-text-bold-xl mb-3 text-base-content">
               Raw Character Context
             </h2>
 

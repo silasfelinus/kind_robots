@@ -149,7 +149,7 @@
 
       <section class="kr-panel-flat p-4">
         <div class="mb-4">
-          <h2 class="text-xl font-bold text-base-content">Publishing</h2>
+          <h2 class="kr-text-bold-xl text-base-content">Publishing</h2>
           <p class="kr-text-dim-sm-70">
             Control who can discover this reward and whether mature-content filtering applies.
           </p>
@@ -181,7 +181,7 @@
           class="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between"
         >
           <div>
-            <h2 class="text-xl font-bold text-base-content">Reward Essence</h2>
+            <h2 class="kr-text-bold-xl text-base-content">Reward Essence</h2>
 
             <p class="kr-text-dim-sm-70">
               Use reusable choices to shape what kind of story prompt this
@@ -203,7 +203,7 @@
           class="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between"
         >
           <div>
-            <h2 class="text-xl font-bold text-base-content">Reward Art</h2>
+            <h2 class="kr-text-bold-xl text-base-content">Reward Art</h2>
 
             <p class="kr-text-dim-sm-70">
               Upload, generate, or attach an image for the reward.

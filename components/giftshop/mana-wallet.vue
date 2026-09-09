@@ -102,7 +102,7 @@
 
       <!-- Spend log -->
       <div class="space-y-3">
-        <h2 class="text-xl font-bold">Recent activity</h2>
+        <h2 class="kr-text-bold-xl">Recent activity</h2>
         <div v-if="manaStore.loading" class="text-base-content/50">
           Loading…
         </div>

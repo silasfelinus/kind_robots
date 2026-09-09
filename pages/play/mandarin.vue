@@ -363,7 +363,7 @@
                   />
                 </div>
                 <p class="text-3xl font-bold">{{ currentCard.simplified }}</p>
-                <p class="text-xl font-bold tracking-wide">{{ currentCard.pinyin }}</p>
+                <p class="kr-text-bold-xl tracking-wide">{{ currentCard.pinyin }}</p>
                 <p v-if="currentCard.traditional" class="text-xs opacity-55">Traditional: {{ currentCard.traditional }}</p>
                 <div class="flex flex-wrap justify-center gap-1">
                   <button v-if="canQueueArt" type="button" class="kr-btn-outline-xs" :disabled="artBusy" @click="queueCurrentIllustration">

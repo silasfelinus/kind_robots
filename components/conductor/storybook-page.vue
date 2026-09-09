@@ -210,7 +210,7 @@
                 :aria-pressed="store.setupDraft.structure === structure.value"
                 @click="store.setupDraft.structure = structure.value"
               >
-                <span class="text-sm font-black">{{ structure.label }}</span>
+                <span class="kr-text-black-sm">{{ structure.label }}</span>
                 <span class="kr-text-dim-xs-55 mt-1 block leading-relaxed">
                   {{ structure.description }}
                 </span>
@@ -559,7 +559,7 @@
     <div v-else class="flex min-h-0 flex-1 flex-col gap-3">
       <div class="shrink-0 space-y-3">
         <details class="rounded-2xl border border-primary/25 bg-primary/5 p-3">
-          <summary class="cursor-pointer text-sm font-black text-primary">
+          <summary class="kr-text-black-sm cursor-pointer text-primary">
             {{ store.session.bible.title }} · Story bible
           </summary>
           <div class="mt-3 grid gap-2 text-xs leading-relaxed sm:grid-cols-2">

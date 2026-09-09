@@ -1814,11 +1814,17 @@ section:has(div[class*='xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]'])
   /* Sibling of `.kr-text-black-lg` one size up -- `font-black text-xl`
    * (interface-vision t-104 slice 165) -- previously hand-rolled
    * identically across admin, aquarium, challenge, and user-profile
-   * surfaces: 72 subset-match occurrences. The other sibling surveyed
-   * alongside this one (`font-black text-sm`, 108 occurrences) is left for
-   * a future slice, same convention as `.kr-text-dim-xs`/`.kr-text-dim-sm`. */
+   * surfaces: 72 subset-match occurrences. */
   .kr-text-black-xl {
     @apply font-black text-xl;
+  }
+
+  /* Third and final sibling in the `kr-text-black-*` family -- `font-black
+   * text-sm` (interface-vision t-104 slice 166) -- 108 subset-match
+   * occurrences across 70 files. Closes out the family entirely (`-lg`,
+   * `-xl`, `-sm` all now named), same convention as `.kr-text-dim-*`. */
+  .kr-text-black-sm {
+    @apply font-black text-sm;
   }
 
   .text-smart {

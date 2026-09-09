@@ -113,7 +113,7 @@
           v-if="cover.semanticReasons.length"
           class="rounded-2xl border border-warning/40 bg-warning/10 p-3"
         >
-          <p class="text-sm font-black text-warning">Latest review notes</p>
+          <p class="kr-text-black-sm text-warning">Latest review notes</p>
           <ul class="mt-2 list-disc space-y-1 pl-5 text-xs text-warning">
             <li v-for="reason in cover.semanticReasons" :key="reason">
               {{ reason }}

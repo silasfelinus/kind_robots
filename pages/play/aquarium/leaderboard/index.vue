@@ -94,7 +94,7 @@
             <p class="min-w-0 flex-1 truncate text-sm font-bold">
               @{{ entry.username }}
             </p>
-            <p class="shrink-0 text-sm font-black text-primary">
+            <p class="kr-text-black-sm shrink-0 text-primary">
               {{ entry.speciesCollected }} species
             </p>
           </li>

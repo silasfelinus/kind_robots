@@ -30,7 +30,7 @@
 
     <div class="flex flex-1 flex-col gap-2 p-3">
       <h3
-        class="line-clamp-3 break-words text-sm font-black leading-snug"
+        class="kr-text-black-sm line-clamp-3 break-words leading-snug"
         :title="label"
       >
         {{ label }}

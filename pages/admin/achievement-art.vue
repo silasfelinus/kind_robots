@@ -92,7 +92,7 @@
                   />
                 </div>
                 <div class="min-w-0 flex-1">
-                  <p class="truncate text-sm font-black">
+                  <p class="kr-text-black-sm truncate">
                     {{ achievement.label }}
                   </p>
                   <p class="kr-text-dim-xs truncate">

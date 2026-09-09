@@ -127,7 +127,7 @@
               class="rounded-2xl bg-base-200/60 p-3"
             >
               <div class="flex items-center justify-between gap-2">
-                <span class="text-sm font-black">{{ blocker.label }}</span>
+                <span class="kr-text-black-sm">{{ blocker.label }}</span>
                 <span class="badge badge-error badge-sm rounded-2xl">
                   {{ blocker.values.length }}
                 </span>

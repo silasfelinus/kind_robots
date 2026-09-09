@@ -382,7 +382,7 @@
                 </div>
 
                 <div class="min-w-0 flex-1">
-                  <p class="truncate text-sm font-black text-primary">
+                  <p class="kr-text-black-sm truncate text-primary">
                     {{ pendingCastName }}
                   </p>
                   <p class="kr-text-dim-xs-60 truncate">
@@ -415,7 +415,7 @@
                     class="h-10 w-10 rounded-2xl border border-base-300 object-cover"
                   />
                   <div>
-                    <h3 class="text-sm font-black text-base-content">
+                    <h3 class="kr-text-black-sm text-base-content">
                       {{ role.label }}
                     </h3>
                     <p class="kr-text-dim-xs-60">

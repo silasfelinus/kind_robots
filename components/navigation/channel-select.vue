@@ -24,7 +24,7 @@
         />
       </span>
 
-      <span class="min-w-0 truncate text-sm font-black sm:text-base xl:text-lg">
+      <span class="kr-text-black-sm min-w-0 truncate sm:text-base xl:text-lg">
         {{ activeChannel.label }}
       </span>
 
@@ -96,9 +96,7 @@
               <span
                 class="flex min-w-0 flex-1 flex-col items-start leading-tight"
               >
-                <span
-                  class="max-w-full truncate text-sm font-black xl:text-base"
-                >
+                <span class="kr-text-black-sm max-w-full truncate xl:text-base">
                   {{ channel.label }}
                 </span>
                 <span

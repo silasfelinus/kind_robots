@@ -8,7 +8,7 @@
     >
       <div class="flex min-w-0 items-center gap-2 px-2 py-1.5 sm:px-3">
         <div class="min-w-0 flex-1 leading-tight">
-          <p class="truncate text-sm font-black tracking-tight sm:text-base">
+          <p class="kr-text-black-sm truncate tracking-tight sm:text-base">
             🏰 Memory Dungeon
           </p>
           <p class="truncate text-[10px] text-base-content/50 sm:text-xs">

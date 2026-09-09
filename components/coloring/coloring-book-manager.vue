@@ -24,7 +24,7 @@
 
       <div v-for="set in sets" :key="set.slug" class="flex flex-col gap-2">
         <div class="flex items-baseline gap-2">
-          <h3 class="text-sm font-black text-base-content">{{ set.title }}</h3>
+          <h3 class="kr-text-black-sm text-base-content">{{ set.title }}</h3>
           <span class="kr-badge-ghost-sm">
             {{ set.pages.length }} pages
           </span>
@@ -108,7 +108,7 @@
             <Icon name="mdi:arrow-left" class="h-4 w-4" />
             Library
           </button>
-          <h2 class="text-sm font-black text-base-content">
+          <h2 class="kr-text-black-sm text-base-content">
             {{ openDefinition.title }}
           </h2>
         </div>

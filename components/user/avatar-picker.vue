@@ -48,7 +48,7 @@
       <button
         v-for="tab in TABS"
         :key="tab.value"
-        class="flex flex-1 items-center justify-center gap-1.5 rounded-xl px-3 py-2 text-sm font-black transition"
+        class="kr-text-black-sm flex flex-1 items-center justify-center gap-1.5 rounded-xl px-3 py-2 transition"
         :class="
           activeTab === tab.value
             ? 'bg-primary text-primary-content shadow-sm shadow-primary/30'

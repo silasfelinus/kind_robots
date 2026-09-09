@@ -124,7 +124,7 @@
                 :key="field.key"
                 class="form-control gap-1.5"
               >
-                <span class="text-sm font-black">{{ field.label }}</span>
+                <span class="kr-text-black-sm">{{ field.label }}</span>
                 <textarea
                   v-if="field.multiline"
                   v-model="draft[field.key]"

@@ -10,7 +10,7 @@
       <Icon name="kind-icon:blueprint" class="h-4 w-4 shrink-0 text-primary" />
 
       <h2
-        class="truncate text-sm font-black leading-none text-base-content sm:text-base"
+        class="kr-text-black-sm truncate leading-none text-base-content sm:text-base"
       >
         Model Builder
       </h2>

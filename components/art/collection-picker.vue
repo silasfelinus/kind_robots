@@ -48,7 +48,7 @@
           @click="useAllArt"
         >
           <span class="flex w-full items-start justify-between gap-2">
-            <span class="text-sm font-black">All available art</span>
+            <span class="kr-text-black-sm">All available art</span>
             <Icon
               :name="!hasSelection ? 'kind-icon:check-circle' : 'kind-icon:circle'"
               class="h-5 w-5 shrink-0"
@@ -72,7 +72,7 @@
           @click="toggleCollection(collection.id)"
         >
           <span class="flex w-full items-start justify-between gap-2">
-            <span class="line-clamp-2 text-sm font-black">
+            <span class="kr-text-black-sm line-clamp-2">
               {{ getCollectionLabel(collection) }}
             </span>
             <Icon

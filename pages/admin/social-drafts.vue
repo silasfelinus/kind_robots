@@ -52,7 +52,7 @@
             class="flex items-center gap-3 rounded-xl border border-base-300 bg-base-100 px-4 py-2"
           >
             <span class="badge badge-outline">{{ row.platform }}</span>
-            <span class="text-sm font-black">
+            <span class="kr-text-black-sm">
               {{ row.approvedToday }}/{{ row.ceiling }}
             </span>
             <span class="kr-text-dim-xs">approved today</span>

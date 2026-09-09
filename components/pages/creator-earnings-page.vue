@@ -124,7 +124,7 @@
         <template v-else>
           <section class="space-y-3">
             <h2
-              class="text-sm font-black uppercase tracking-widest text-base-content/50"
+              class="kr-text-black-sm uppercase tracking-widest text-base-content/50"
             >
               By what you made
             </h2>
@@ -136,7 +136,7 @@
               >
                 <div class="flex items-start justify-between gap-2">
                   <div class="min-w-0">
-                    <p class="truncate text-sm font-black text-base-content">
+                    <p class="kr-text-black-sm truncate text-base-content">
                       {{ group.title }}
                     </p>
                     <p class="kr-text-dim-xs">
@@ -200,7 +200,7 @@
 
           <section class="space-y-3">
             <h2
-              class="text-sm font-black uppercase tracking-widest text-base-content/50"
+              class="kr-text-black-sm uppercase tracking-widest text-base-content/50"
             >
               By period
             </h2>

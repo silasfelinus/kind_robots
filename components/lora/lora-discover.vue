@@ -136,7 +136,7 @@
         </div>
 
         <div class="flex flex-1 flex-col gap-2 p-3 text-center">
-          <h3 class="line-clamp-2 text-sm font-black" :title="card.name">
+          <h3 class="kr-text-black-sm line-clamp-2" :title="card.name">
             {{ card.name }}
           </h3>
           <p v-if="card.creator" class="kr-text-dim-xs">

@@ -103,7 +103,7 @@
                   :style="{ backgroundColor: color.value }"
                 />
                 <span class="min-w-0">
-                  <span class="block truncate text-sm font-black">
+                  <span class="kr-text-black-sm block truncate">
                     {{ color.name }}
                   </span>
                   <span class="kr-text-dim-xs-55 block font-mono">

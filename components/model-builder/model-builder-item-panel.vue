@@ -2,7 +2,7 @@
 <template>
   <div v-if="item" class="flex min-h-0 flex-1 flex-col gap-2 kr-panel-flat p-3">
     <div class="flex items-center gap-2">
-      <h4 class="text-sm font-black text-base-content">{{ item.label }}</h4>
+      <h4 class="kr-text-black-sm text-base-content">{{ item.label }}</h4>
       <span class="kr-badge-ghost-sm">{{ item.action }}</span>
       <span class="kr-badge-ghost-sm">{{ item.generation }}</span>
       <button

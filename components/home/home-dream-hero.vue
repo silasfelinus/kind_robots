@@ -119,7 +119,7 @@
         </p>
 
         <h2
-          class="text-sm font-black leading-tight text-base-content xl:text-base"
+          class="kr-text-black-sm leading-tight text-base-content xl:text-base"
         >
           {{ hero.dream.title }}
         </h2>

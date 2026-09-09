@@ -229,7 +229,7 @@
             <div class="space-y-3 p-3">
               <div class="min-w-0">
                 <h2
-                  class="line-clamp-2 break-words text-sm font-black"
+                  class="kr-text-black-sm line-clamp-2 break-words"
                   :title="resourceLabel(resource)"
                 >
                   {{ resourceLabel(resource) }}

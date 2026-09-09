@@ -4,7 +4,7 @@
     class="rounded-2xl border border-secondary/25 bg-secondary/5 p-3"
     :open="session.branchHistory.length > 0 || session.inventory.length > 0"
   >
-    <summary class="cursor-pointer text-sm font-black text-secondary">
+    <summary class="kr-text-black-sm cursor-pointer text-secondary">
       Story state · {{ session.branchHistory.length }}
       {{ session.branchHistory.length === 1 ? 'choice' : 'choices' }} ·
       {{ session.inventory.length }}

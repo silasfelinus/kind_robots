@@ -125,7 +125,7 @@
           />
 
           <span class="min-w-0 flex-1">
-            <span class="block truncate text-sm font-black text-base-content">
+            <span class="kr-text-black-sm block truncate text-base-content">
               {{ userStore.isLoggedIn ? userStore.username : 'Guest' }}
             </span>
 

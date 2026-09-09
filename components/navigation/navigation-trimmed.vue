@@ -92,7 +92,7 @@
               class="flex min-w-0 flex-1 flex-col items-start leading-tight"
             >
               <span class="flex max-w-full items-center gap-1">
-                <span class="truncate text-sm font-black">
+                <span class="kr-text-black-sm truncate">
                   {{ tab.label }}
                 </span>
                 <span

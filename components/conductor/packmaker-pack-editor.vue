@@ -12,7 +12,7 @@
     class="flex flex-col gap-4 kr-panel-tint-md"
   >
     <div class="flex items-center justify-between gap-2">
-      <h4 class="text-sm font-black text-base-content">
+      <h4 class="kr-text-black-sm text-base-content">
         {{ editingExisting ? `Edit pack: ${draft.title}` : 'New pack' }}
       </h4>
       <button class="kr-btn-ghost-xs" @click="emit('close')">

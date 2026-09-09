@@ -53,7 +53,7 @@
             <Icon name="kind-icon:robot" class="h-5 w-5" />
           </span>
           <span
-            class="truncate text-sm font-black uppercase tracking-[0.18em] text-(--sheet-ink) sm:text-base"
+            class="kr-text-black-sm truncate uppercase tracking-[0.18em] text-(--sheet-ink) sm:text-base"
           >
             Kind Robots
           </span>

@@ -169,7 +169,7 @@
       -->
       <template v-if="editing">
         <div class="mb-3 flex items-center justify-between gap-2">
-          <h3 class="text-sm font-black uppercase tracking-wide opacity-60">
+          <h3 class="kr-text-black-sm uppercase tracking-wide opacity-60">
             Editing
           </h3>
 

@@ -53,7 +53,7 @@
     </span>
 
     <span class="relative z-10 mt-auto flex min-w-0 flex-col gap-1.5 p-3 text-white">
-      <span class="text-sm font-black leading-tight sm:text-base">
+      <span class="kr-text-black-sm leading-tight sm:text-base">
         {{ item.title }}
       </span>
       <span

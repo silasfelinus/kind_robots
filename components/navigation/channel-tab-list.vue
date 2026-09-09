@@ -69,7 +69,7 @@
                 the width that had been hiding it.
               -->
               <span class="flex w-full max-w-full items-center gap-1">
-                <span class="min-w-0 truncate text-sm font-black">
+                <span class="kr-text-black-sm min-w-0 truncate">
                   {{ tab.label }}
                 </span>
                 <span

@@ -94,7 +94,7 @@
       is what made a single chip cost a third of the row's height.
     -->
     <div class="min-w-0 flex-1 pr-1">
-      <h2 class="truncate text-sm font-black leading-tight" :title="title">
+      <h2 class="kr-text-black-sm truncate leading-tight" :title="title">
         {{ title }}
       </h2>
 

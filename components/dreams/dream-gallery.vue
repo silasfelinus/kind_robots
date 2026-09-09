@@ -37,7 +37,7 @@
         >
           <Icon name="kind-icon:dream" class="h-4 w-4 text-primary" />
           <h2
-            class="max-w-36 truncate text-sm font-black text-primary sm:max-w-48"
+            class="kr-text-black-sm max-w-36 truncate text-primary sm:max-w-48"
           >
             {{ title }}
           </h2>

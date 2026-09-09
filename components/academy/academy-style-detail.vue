@@ -172,7 +172,7 @@
           />
           <div class="absolute inset-0 bg-linear-to-t from-black/85 via-black/5 to-transparent" />
           <div class="absolute inset-x-0 bottom-0 p-3 text-white sm:p-4">
-            <p class="text-sm font-black leading-tight drop-shadow sm:text-base">
+            <p class="kr-text-black-sm leading-tight drop-shadow sm:text-base">
               {{ work.workTitle }}
             </p>
             <p class="mt-1 text-xs text-white/75">

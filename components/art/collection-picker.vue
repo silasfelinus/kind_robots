@@ -105,7 +105,7 @@
     <Teleport v-if="isSplashPicker" to=".splash-screen">
       <section
         :id="galleryId"
-        class="shrink-0 border-t border-yellow-700/30 bg-base-300/98 px-4 py-6 text-base-content sm:px-6 lg:px-8"
+        class="deck-gallery-shell shrink-0 border-t border-yellow-700/30 bg-base-300/98 px-4 py-6 text-base-content sm:px-6 lg:px-8"
       >
         <div class="mx-auto flex w-full max-w-7xl flex-col gap-4">
           <div class="flex flex-wrap items-end justify-between gap-3">
@@ -120,7 +120,7 @@
             </span>
           </div>
 
-          <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5">
+          <div class="deck-gallery-grid grid gap-3">
             <button
               type="button"
               class="group flex min-h-44 flex-col items-start rounded-2xl border p-2 text-left transition hover:-translate-y-0.5 hover:shadow-xl"
@@ -489,6 +489,32 @@ function useAllArt() {
 </script>
 
 <style scoped>
+.deck-gallery-shell {
+  container-type: inline-size;
+}
+
+.deck-gallery-grid {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+@container (min-width: 32rem) {
+  .deck-gallery-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@container (min-width: 64rem) {
+  .deck-gallery-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+@container (min-width: 80rem) {
+  .deck-gallery-grid {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+}
+
 .picker-panel-enter-active,
 .picker-panel-leave-active {
   transition:

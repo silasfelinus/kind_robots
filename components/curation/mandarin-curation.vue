@@ -301,7 +301,7 @@
           <div
             class="rounded-xl border border-base-300 bg-base-200/40 p-3 text-xs leading-5"
           >
-            <p class="font-black uppercase tracking-wide text-base-content/55">
+            <p class="kr-text-eyebrow tracking-wide text-base-content/55">
               Immutable source
             </p>
             <p class="mt-1">

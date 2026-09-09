@@ -72,7 +72,7 @@
         <span class="flex items-center gap-2">
           <Icon name="kind-icon:info" class="h-5 w-5 text-primary" />
           <span
-            class="kr-text-dim-sm-70 font-black uppercase tracking-widest"
+            class="kr-text-eyebrow kr-text-dim-sm-70 tracking-widest"
           >
             {{ showTutorial ? 'Hide tutorial' : 'Show tutorial' }}
           </span>
@@ -229,7 +229,7 @@
                   <div class="flex items-end justify-between gap-3">
                     <div class="min-w-0">
                       <p
-                        class="text-xs font-black uppercase tracking-widest text-primary drop-shadow-sm"
+                        class="kr-text-eyebrow text-xs tracking-widest text-primary drop-shadow-sm"
                       >
                         {{ formatFieldKey(field.key) }}
                       </p>
@@ -270,7 +270,7 @@
                 <div class="flex items-start justify-between gap-3">
                   <div class="min-w-0">
                     <p
-                      class="text-xs font-black uppercase tracking-widest text-base-content/35"
+                      class="kr-text-eyebrow text-xs tracking-widest text-base-content/35"
                     >
                       {{ formatFieldKey(field.key) }}
                     </p>

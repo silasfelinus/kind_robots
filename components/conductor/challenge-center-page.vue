@@ -28,11 +28,11 @@
 
             <div class="min-w-0 flex-1 basis-full sm:basis-auto">
               <p
-                class="text-xs font-black uppercase tracking-[0.28em] text-primary"
+                class="kr-text-eyebrow text-xs tracking-[0.28em] text-primary"
               >
                 Select your matchup
               </p>
-              <h3 class="mt-1 text-2xl font-black uppercase sm:text-4xl">
+              <h3 class="kr-text-eyebrow mt-1 text-2xl sm:text-4xl">
                 The Arena
               </h3>
               <p class="mt-2 max-w-2xl text-sm text-base-content/65">
@@ -70,7 +70,7 @@
           <div class="grid gap-4 lg:grid-cols-[1fr_auto] lg:items-end">
             <fieldset>
               <legend
-                class="mb-2 text-[0.65rem] font-black uppercase tracking-[0.22em] text-base-content/50"
+                class="kr-text-eyebrow mb-2 text-[0.65rem] tracking-[0.22em] text-base-content/50"
               >
                 Division
               </legend>
@@ -94,7 +94,7 @@
 
             <fieldset>
               <legend
-                class="mb-2 text-[0.65rem] font-black uppercase tracking-[0.22em] text-base-content/50"
+                class="kr-text-eyebrow mb-2 text-[0.65rem] tracking-[0.22em] text-base-content/50"
               >
                 Fight status
               </legend>
@@ -163,7 +163,7 @@
                   {{ challenge.status }}
                 </span>
                 <span
-                  class="ml-auto text-[0.65rem] font-black uppercase tracking-[0.18em] text-base-content/40"
+                  class="kr-text-eyebrow ml-auto text-[0.65rem] tracking-[0.18em] text-base-content/40"
                 >
                   Fight {{ String(index + 1).padStart(2, '0') }}
                 </span>
@@ -182,7 +182,7 @@
 
               <div class="relative mt-5 space-y-3 border-t border-base-300 pt-4">
                 <div class="flex items-center justify-between gap-3 text-xs">
-                  <span class="font-black uppercase tracking-wider text-base-content/45">
+                  <span class="kr-text-eyebrow tracking-wider text-base-content/45">
                     Difficulty
                   </span>
                   <span
@@ -199,7 +199,7 @@
                 </div>
 
                 <div class="flex items-center justify-between gap-3 text-xs">
-                  <span class="font-black uppercase tracking-wider text-base-content/45">
+                  <span class="kr-text-eyebrow tracking-wider text-base-content/45">
                     Entrants
                   </span>
                   <span class="font-black">
@@ -217,7 +217,7 @@
                   </div>
                   <div class="min-w-0 flex-1">
                     <p
-                      class="text-[0.6rem] font-black uppercase tracking-[0.18em] text-base-content/40"
+                      class="kr-text-eyebrow text-[0.6rem] tracking-[0.18em] text-base-content/40"
                     >
                       Current leader
                     </p>
@@ -234,7 +234,7 @@
                 </div>
 
                 <div
-                  class="flex items-center justify-between text-xs font-black uppercase tracking-wider text-primary"
+                  class="kr-text-eyebrow flex items-center justify-between text-xs tracking-wider text-primary"
                 >
                   <span>Enter matchup</span>
                   <span class="transition-transform group-hover:translate-x-1">→</span>

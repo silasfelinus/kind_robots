@@ -75,12 +75,12 @@
               </div>
 
               <p
-                class="mt-5 text-xs font-black uppercase tracking-[0.3em] text-primary"
+                class="kr-text-eyebrow mt-5 text-xs tracking-[0.3em] text-primary"
               >
                 Championship matchup
               </p>
               <p
-                class="mt-2 max-w-4xl text-3xl font-black uppercase leading-none sm:text-5xl"
+                class="kr-text-eyebrow mt-2 max-w-4xl text-3xl leading-none sm:text-5xl"
               >
                 {{ challenge.title }}
               </p>
@@ -95,7 +95,7 @@
                 class="mt-5 max-w-4xl rounded-2xl border border-secondary/25 bg-secondary/10 p-4"
               >
                 <p
-                  class="text-[0.65rem] font-black uppercase tracking-[0.22em] text-secondary"
+                  class="kr-text-eyebrow text-[0.65rem] tracking-[0.22em] text-secondary"
                 >
                   Judges' brief
                 </p>
@@ -109,7 +109,7 @@
               class="grid min-w-40 place-items-center rounded-3xl border border-primary/20 bg-base-100/75 p-5 text-center shadow-lg backdrop-blur"
             >
               <span
-                class="kr-text-dim-xs-45 font-black uppercase tracking-[0.2em]"
+                class="kr-text-eyebrow kr-text-dim-xs-45 tracking-[0.2em]"
               >
                 Difficulty
               </span>
@@ -225,7 +225,7 @@
                     {{ signedScore(submission.score.netScore) }}
                   </p>
                   <p
-                    class="text-[0.65rem] font-black uppercase tracking-wider text-base-content/40"
+                    class="kr-text-eyebrow text-[0.65rem] tracking-wider text-base-content/40"
                   >
                     {{ submission.score.votes }} votes
                   </p>
@@ -247,7 +247,7 @@
                   class="rounded-2xl border border-primary/20 bg-primary/5 p-5"
                 >
                   <p
-                    class="text-xs font-black uppercase tracking-[0.2em] text-primary"
+                    class="kr-text-eyebrow text-xs tracking-[0.2em] text-primary"
                   >
                     Character entry
                   </p>
@@ -266,7 +266,7 @@
                   class="rounded-2xl border border-secondary/20 bg-secondary/5 p-5"
                 >
                   <p
-                    class="text-xs font-black uppercase tracking-[0.2em] text-secondary"
+                    class="kr-text-eyebrow text-xs tracking-[0.2em] text-secondary"
                   >
                     Scenario entry
                   </p>
@@ -318,7 +318,7 @@
                   class="collapse collapse-arrow kr-panel-flat mt-4"
                 >
                   <summary
-                    class="collapse-title min-h-0 py-3 text-xs font-black uppercase tracking-wider"
+                    class="kr-text-eyebrow collapse-title min-h-0 py-3 text-xs tracking-wider"
                   >
                     Exact prompt used
                   </summary>
@@ -334,7 +334,7 @@
                   class="collapse collapse-arrow kr-panel-flat mt-3"
                 >
                   <summary
-                    class="collapse-title min-h-0 py-3 text-xs font-black uppercase tracking-wider"
+                    class="kr-text-eyebrow collapse-title min-h-0 py-3 text-xs tracking-wider"
                   >
                     Random rolls used
                   </summary>
@@ -372,7 +372,7 @@
 
                 <div>
                   <p
-                    class="mb-2 text-[0.65rem] font-black uppercase tracking-[0.2em] text-base-content/45"
+                    class="kr-text-eyebrow mb-2 text-[0.65rem] tracking-[0.2em] text-base-content/45"
                   >
                     Cast or change your vote
                   </p>
@@ -419,7 +419,7 @@
             name="kind-icon:trophy"
             class="mx-auto size-12 text-primary/40"
           />
-          <h2 class="mt-4 text-2xl font-black uppercase">
+          <h2 class="kr-text-eyebrow mt-4 text-2xl">
             Waiting for contenders
           </h2>
           <p class="kr-text-dim-sm mx-auto mt-2 max-w-xl">
@@ -435,11 +435,11 @@
           <div class="flex flex-wrap items-end justify-between gap-3">
             <div>
               <p
-                class="text-xs font-black uppercase tracking-[0.25em] text-primary"
+                class="kr-text-eyebrow text-xs tracking-[0.25em] text-primary"
               >
                 Live scorecard
               </p>
-              <h2 class="mt-1 text-2xl font-black uppercase">
+              <h2 class="kr-text-eyebrow mt-1 text-2xl">
                 Challenge rankings
               </h2>
             </div>

@@ -27,9 +27,7 @@
           <div class="min-w-0">
             <div class="flex items-center gap-2 text-accent">
               <Icon name="kind-icon:sparkles" class="size-5" />
-              <p class="text-xs font-black uppercase tracking-[0.18em]">
-                For You
-              </p>
+              <p class="kr-text-eyebrow text-xs tracking-[0.18em]">For You</p>
             </div>
             <h2 class="kr-text-black-xl mt-1 sm:text-2xl">
               Your attention desk
@@ -92,7 +90,7 @@
             <div class="flex flex-wrap items-end justify-between gap-3 px-1">
               <div>
                 <p
-                  class="text-xs font-black uppercase tracking-[0.16em] text-warning"
+                  class="kr-text-eyebrow text-xs tracking-[0.16em] text-warning"
                 >
                   Conductor
                 </p>
@@ -320,7 +318,7 @@
             <div class="flex flex-wrap items-end justify-between gap-3 px-1">
               <div>
                 <p
-                  class="text-xs font-black uppercase tracking-[0.16em] text-secondary"
+                  class="kr-text-eyebrow text-xs tracking-[0.16em] text-secondary"
                 >
                   Possibilities
                 </p>
@@ -418,9 +416,7 @@
         <section class="space-y-3">
           <div class="flex flex-wrap items-end justify-between gap-3 px-1">
             <div>
-              <p
-                class="text-xs font-black uppercase tracking-[0.16em] text-accent"
-              >
+              <p class="kr-text-eyebrow text-xs tracking-[0.16em] text-accent">
                 Kind Robots
               </p>
               <h2 class="kr-text-black-xl">Personal follow-ups</h2>

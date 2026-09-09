@@ -4,7 +4,7 @@
       class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between"
     >
       <div class="min-w-0 flex-1">
-        <p class="text-xs font-black uppercase tracking-widest text-primary/70">
+        <p class="kr-text-eyebrow text-xs tracking-widest text-primary/70">
           Rainbow Butterflies Commons handoff
         </p>
         <h2 class="kr-text-black-lg mt-1 text-primary">

@@ -44,7 +44,7 @@
         >
           <div class="min-w-0 flex-1">
             <p
-              class="text-[0.6rem] font-black uppercase tracking-[0.18em] text-primary"
+              class="kr-text-eyebrow text-[0.6rem] tracking-[0.18em] text-primary"
             >
               {{ kindLabel }}
             </p>
@@ -134,7 +134,7 @@
                   class="min-w-0 rounded-lg border border-base-300 bg-base-200/50 px-2 py-1"
                 >
                   <dt
-                    class="text-[0.55rem] font-black uppercase tracking-[0.14em] text-base-content/45"
+                    class="kr-text-eyebrow text-[0.55rem] tracking-[0.14em] text-base-content/45"
                   >
                     {{ fact.label }}
                   </dt>
@@ -197,7 +197,7 @@
         >
           <label
             :for="`redo-prompt-${card.kind}-${card.id}`"
-            class="text-[0.65rem] font-black uppercase tracking-[0.14em] text-primary"
+            class="kr-text-eyebrow text-[0.65rem] tracking-[0.14em] text-primary"
           >
             New art prompt
           </label>

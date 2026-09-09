@@ -173,7 +173,7 @@
 
         <aside class="flex flex-col gap-3 kr-panel-flat p-3">
           <p
-            class="kr-text-dim-xs-60 flex items-center gap-1.5 font-black uppercase tracking-wide"
+            class="kr-text-eyebrow kr-text-dim-xs-60 flex items-center gap-1.5 tracking-wide"
           >
             <Icon name="kind-icon:palette" class="h-3.5 w-3.5" />
             Palette
@@ -226,7 +226,7 @@
             class="flex flex-col gap-1.5 kr-panel-divider"
           >
             <p
-              class="kr-text-dim-xs-60 font-black uppercase tracking-wide"
+              class="kr-text-eyebrow kr-text-dim-xs-60 tracking-wide"
             >
               Fill a whole group
             </p>

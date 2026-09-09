@@ -31,7 +31,7 @@
                 <div class="relative flex items-start justify-between gap-3">
                   <div class="min-w-0">
                     <p
-                      class="truncate text-xs font-black uppercase tracking-widest text-primary"
+                      class="kr-text-eyebrow truncate text-xs tracking-widest text-primary"
                     >
                       Narrator Remote
                     </p>
@@ -120,7 +120,7 @@
 
                         <div class="min-w-0 flex-1">
                           <p
-                            class="text-[0.65rem] font-black uppercase tracking-wide text-primary/70"
+                            class="kr-text-eyebrow text-[0.65rem] tracking-wide text-primary/70"
                           >
                             {{ latestMusing.label }}
                           </p>
@@ -166,7 +166,7 @@
                       </h2>
 
                       <p
-                        class="mt-1 truncate text-xs font-black uppercase tracking-widest text-primary/75"
+                        class="kr-text-eyebrow mt-1 truncate text-xs tracking-widest text-primary/75"
                       >
                         {{ currentEmotionLabel }}
                       </p>
@@ -213,7 +213,7 @@
                     </p>
 
                     <p
-                      class="mt-1 truncate text-[0.65rem] font-black uppercase tracking-widest text-primary/75"
+                      class="kr-text-eyebrow mt-1 truncate text-[0.65rem] tracking-widest text-primary/75"
                     >
                       {{ currentEmotionLabel }}
                     </p>
@@ -278,7 +278,7 @@
                 >
                   <div class="flex items-center justify-between gap-2">
                     <p
-                      class="text-xs font-black uppercase tracking-wide text-primary"
+                      class="kr-text-eyebrow text-xs tracking-wide text-primary"
                     >
                       Topics & Threads
                     </p>
@@ -372,7 +372,7 @@
 
                       <div class="min-w-0 flex-1">
                         <p
-                          class="text-xs font-black uppercase tracking-wide text-primary"
+                          class="kr-text-eyebrow text-xs tracking-wide text-primary"
                         >
                           {{ selectedTopicTitle }}
                         </p>
@@ -479,7 +479,7 @@
 
             <div class="min-w-0 flex-1">
               <p
-                class="text-[0.65rem] font-black uppercase tracking-wide text-primary/70"
+                class="kr-text-eyebrow text-[0.65rem] tracking-wide text-primary/70"
               >
                 {{ latestMusing.label }}
               </p>

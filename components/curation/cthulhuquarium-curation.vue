@@ -89,9 +89,7 @@
           <div
             class="mt-3 rounded-xl border border-base-content/10 bg-base-100/70 p-3"
           >
-            <p
-              class="text-[11px] font-black uppercase tracking-wider text-primary"
-            >
+            <p class="kr-text-eyebrow text-[11px] tracking-wider text-primary">
               Ichthyonomicon
             </p>
             <p class="mt-1 text-sm leading-6">
@@ -318,7 +316,7 @@
           </div>
 
           <div v-if="fish.curation.candidateImageIds.length" class="space-y-2">
-            <p class="kr-text-dim-xs-45 font-black uppercase tracking-wider">
+            <p class="kr-text-eyebrow kr-text-dim-xs-45 tracking-wider">
               Candidates
             </p>
             <div class="flex flex-wrap gap-2">

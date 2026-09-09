@@ -21,7 +21,7 @@
         v-if="cartStore.hasItems"
         class="mx-auto mt-5 w-fit rounded-2xl border border-base-300 bg-base-200 px-5 py-3"
       >
-        <div class="kr-text-dim-xs font-black uppercase tracking-widest">
+        <div class="kr-text-eyebrow kr-text-dim-xs tracking-widest">
           Cart preserved
         </div>
         <div class="text-2xl font-black text-primary">

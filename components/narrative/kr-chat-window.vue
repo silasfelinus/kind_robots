@@ -90,7 +90,7 @@
         >
           <p
             v-if="turn.speaker && turn.from !== 'user'"
-            class="text-[0.65rem] font-black uppercase tracking-wide text-primary/70"
+            class="kr-text-eyebrow text-[0.65rem] tracking-wide text-primary/70"
           >
             {{ turn.speaker }}
           </p>

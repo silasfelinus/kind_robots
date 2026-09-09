@@ -37,22 +37,22 @@
 
       <div v-if="activeServer" class="grid gap-2 text-sm sm:grid-cols-2 lg:grid-cols-4">
         <div class="rounded-xl bg-base-200 p-3">
-          <p class="kr-text-dim-xs font-black uppercase">Type</p>
+          <p class="kr-text-eyebrow kr-text-dim-xs">Type</p>
           <p class="font-bold">{{ activeServer.serverType }}</p>
         </div>
 
         <div class="rounded-xl bg-base-200 p-3">
-          <p class="kr-text-dim-xs font-black uppercase">Access</p>
+          <p class="kr-text-eyebrow kr-text-dim-xs">Access</p>
           <p class="font-bold">{{ activeServer.accessMode }}</p>
         </div>
 
         <div class="rounded-xl bg-base-200 p-3">
-          <p class="kr-text-dim-xs font-black uppercase">Health</p>
+          <p class="kr-text-eyebrow kr-text-dim-xs">Health</p>
           <p class="font-bold">{{ activeServer.lastStatus || 'UNKNOWN' }}</p>
         </div>
 
         <div class="rounded-xl bg-base-200 p-3">
-          <p class="kr-text-dim-xs font-black uppercase">Model</p>
+          <p class="kr-text-eyebrow kr-text-dim-xs">Model</p>
           <p class="truncate font-bold">{{ checkpointStore.currentApiModel || activeServer.model || 'n/a' }}</p>
         </div>
       </div>

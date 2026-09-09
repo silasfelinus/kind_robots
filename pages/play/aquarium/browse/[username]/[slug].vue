@@ -66,7 +66,7 @@
             </div>
             <div class="min-w-0">
               <p
-                class="text-xs font-black uppercase tracking-widest text-primary"
+                class="kr-text-eyebrow text-xs tracking-widest text-primary"
               >
                 @{{ tank.User.username }}'s tank
               </p>

@@ -117,7 +117,7 @@
       <div class="rounded-3xl border border-primary/30 bg-primary/10 p-5 sm:p-6">
         <div class="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <div class="kr-text-dim-xs font-black uppercase tracking-widest">
+            <div class="kr-text-eyebrow kr-text-dim-xs tracking-widest">
               Cart total
             </div>
             <div class="text-4xl font-black text-primary">

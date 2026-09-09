@@ -406,7 +406,7 @@
         class="absolute inset-y-2 left-2 right-2 z-40 flex flex-col overflow-hidden rounded-2xl border border-base-content/20 bg-base-300/95 text-base-content shadow-2xl backdrop-blur-md sm:left-auto sm:w-72 xl:w-80"
       >
         <div
-          class="flex shrink-0 items-center justify-between gap-2 border-b border-base-content/20 bg-base-100/80 px-3 py-2 text-xs font-black uppercase tracking-widest text-base-content"
+          class="kr-text-eyebrow flex shrink-0 items-center justify-between gap-2 border-b border-base-content/20 bg-base-100/80 px-3 py-2 text-xs tracking-widest text-base-content"
         >
           <span>📜 Dungeon Log</span>
           <button

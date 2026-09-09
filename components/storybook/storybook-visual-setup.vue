@@ -17,7 +17,7 @@
     <div class="relative space-y-7 p-4 sm:p-6 lg:p-8">
       <header class="mx-auto max-w-5xl text-center">
         <p
-          class="text-xs font-black uppercase tracking-[0.28em] text-primary/75"
+          class="kr-text-eyebrow text-xs tracking-[0.28em] text-primary/75"
         >
           Storybook
         </p>
@@ -58,7 +58,7 @@
           >
             <label class="form-control">
               <span
-                class="mb-1 text-[0.68rem] font-black uppercase tracking-wider text-base-content/50"
+                class="kr-text-eyebrow mb-1 text-[0.68rem] tracking-wider text-base-content/50"
               >
                 Working title
               </span>
@@ -72,7 +72,7 @@
 
             <label class="form-control">
               <span
-                class="mb-1 text-[0.68rem] font-black uppercase tracking-wider text-base-content/50"
+                class="kr-text-eyebrow mb-1 text-[0.68rem] tracking-wider text-base-content/50"
               >
                 Premise
               </span>
@@ -90,7 +90,7 @@
           class="rounded-[1.75rem] border border-secondary/20 bg-base-100/90 p-4 shadow-lg backdrop-blur sm:p-5"
         >
           <p
-            class="text-[0.68rem] font-black uppercase tracking-[0.2em] text-secondary/75"
+            class="kr-text-eyebrow text-[0.68rem] tracking-[0.2em] text-secondary/75"
           >
             Your spread
           </p>
@@ -146,7 +146,7 @@
       <section class="mx-auto max-w-7xl space-y-3">
         <div>
           <p
-            class="text-[0.68rem] font-black uppercase tracking-[0.2em] text-base-content/45"
+            class="kr-text-eyebrow text-[0.68rem] tracking-[0.2em] text-base-content/45"
           >
             How it feels
           </p>
@@ -198,7 +198,7 @@
       <section class="mx-auto max-w-7xl space-y-3">
         <div>
           <p
-            class="text-[0.68rem] font-black uppercase tracking-[0.2em] text-base-content/45"
+            class="kr-text-eyebrow text-[0.68rem] tracking-[0.2em] text-base-content/45"
           >
             How it unfolds
           </p>

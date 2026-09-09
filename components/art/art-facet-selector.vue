@@ -67,7 +67,7 @@
       >
         <template v-for="group in groupedResults" :key="group.taxonomy">
           <div
-            class="sticky top-0 z-10 flex items-center gap-2 bg-base-100/95 px-2 py-1 text-[10px] font-black uppercase tracking-wide text-base-content/45 backdrop-blur"
+            class="kr-text-eyebrow sticky top-0 z-10 flex items-center gap-2 bg-base-100/95 px-2 py-1 text-[10px] tracking-wide text-base-content/45 backdrop-blur"
           >
             <Icon name="kind-icon:tag" class="size-3" />
             {{ group.label }}

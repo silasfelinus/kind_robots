@@ -226,9 +226,7 @@
               </div>
 
               <div v-if="earnedAchievements.length" class="kr-panel-flat p-3">
-                <p
-                  class="kr-text-dim-xs mb-2 font-black uppercase tracking-widest"
-                >
+                <p class="kr-text-eyebrow kr-text-dim-xs mb-2 tracking-widest">
                   Recent achievements
                 </p>
 

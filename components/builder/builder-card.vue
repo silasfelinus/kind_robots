@@ -45,7 +45,7 @@
       <div class="flex items-start justify-between gap-2">
         <div class="min-w-0">
           <p
-            class="text-xs font-black uppercase tracking-widest text-primary/70"
+            class="kr-text-eyebrow text-xs tracking-widest text-primary/70"
           >
             {{ card.label }}
           </p>

@@ -3,7 +3,7 @@
     <div class="kr-scroll kr-container-wide space-y-5 p-4 md:p-6">
       <header class="kr-toolbar flex flex-wrap items-start justify-between gap-4">
         <div class="max-w-3xl">
-          <p class="text-xs font-black uppercase tracking-widest text-primary">
+          <p class="kr-text-eyebrow text-xs tracking-widest text-primary">
             Admin production
           </p>
           <p class="mt-1 text-3xl font-black">Scene Animator</p>
@@ -45,7 +45,7 @@
         <section class="grid gap-4 xl:grid-cols-[minmax(270px,0.34fr)_minmax(0,1fr)]">
           <aside class="kr-panel space-y-4 p-4 md:p-5">
             <div>
-              <p class="text-xs font-black uppercase tracking-wider text-primary">Batch setup</p>
+              <p class="kr-text-eyebrow text-xs tracking-wider text-primary">Batch setup</p>
               <h2 class="kr-text-black-xl mt-1">Choose the source, then motion</h2>
             </div>
 

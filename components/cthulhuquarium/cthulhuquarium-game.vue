@@ -196,7 +196,7 @@
 
       <div class="flex flex-col gap-2">
         <div class="flex items-center justify-between">
-          <p class="text-xs font-black uppercase tracking-wide opacity-60">
+          <p class="kr-text-eyebrow text-xs tracking-wide opacity-60">
             The tank
           </p>
         </div>
@@ -311,7 +311,7 @@
       </div>
 
       <div class="flex flex-col gap-2">
-        <p class="text-xs font-black uppercase tracking-wide opacity-60">
+        <p class="kr-text-eyebrow text-xs tracking-wide opacity-60">
           Unlock a new occupant
         </p>
         <!-- t-030: the shop rotates -- this is a slice of what's never been
@@ -386,7 +386,7 @@
           class="flex items-center justify-between gap-2 text-left"
           @click="onToggleBestiary"
         >
-          <span class="text-xs font-black uppercase tracking-wide opacity-60">
+          <span class="kr-text-eyebrow text-xs tracking-wide opacity-60">
             The Ichthyonomicon
             <span v-if="tankStore.bestiaryTotalCount > 0" class="opacity-80">
               — {{ tankStore.bestiaryCollectedCount }}/{{
@@ -478,7 +478,7 @@
           class="flex items-center justify-between gap-2 text-left"
           @click="onToggleSets"
         >
-          <span class="text-xs font-black uppercase tracking-wide opacity-60">
+          <span class="kr-text-eyebrow text-xs tracking-wide opacity-60">
             Set pieces
             <span class="opacity-80">
               — {{ tankStore.equippedSets.length }}/{{ tankStore.setSlotsCap }}
@@ -556,7 +556,7 @@
           class="flex items-center justify-between gap-2 text-left"
           @click="onToggleDecor"
         >
-          <span class="text-xs font-black uppercase tracking-wide opacity-60">
+          <span class="kr-text-eyebrow text-xs tracking-wide opacity-60">
             Decorate
             <span v-if="tankStore.placedDecor.length" class="opacity-80">
               — {{ tankStore.placedDecor.length }} placed
@@ -629,7 +629,7 @@
           class="flex items-center justify-between gap-2 text-left"
           @click="onToggleEggs"
         >
-          <span class="text-xs font-black uppercase tracking-wide opacity-60">
+          <span class="kr-text-eyebrow text-xs tracking-wide opacity-60">
             Eggs
             <span v-if="tankStore.eggs.length > 0" class="opacity-80">
               — {{ tankStore.eggs.length }} waiting to hatch
@@ -819,7 +819,7 @@
         <div
           class="modal-box flex max-w-sm flex-col items-center gap-3 rounded-3xl border border-base-300 bg-base-100 text-center shadow-2xl"
         >
-          <p class="text-xs font-black uppercase tracking-wide text-primary">
+          <p class="kr-text-eyebrow text-xs tracking-wide text-primary">
             New occupant
           </p>
           <kr-art-plate
@@ -877,7 +877,7 @@
         <div
           class="modal-box flex max-w-sm flex-col items-center gap-3 rounded-3xl border border-base-300 bg-base-100 text-center shadow-2xl"
         >
-          <p class="text-xs font-black uppercase tracking-wide text-primary">
+          <p class="kr-text-eyebrow text-xs tracking-wide text-primary">
             It hatched
           </p>
           <kr-art-plate
@@ -936,7 +936,7 @@
         <div
           class="modal-box flex max-w-sm flex-col items-center gap-3 rounded-3xl border border-base-300 bg-base-100 text-center shadow-2xl"
         >
-          <p class="text-xs font-black uppercase tracking-wide text-primary">
+          <p class="kr-text-eyebrow text-xs tracking-wide text-primary">
             Breed these two?
           </p>
           <kr-art-plate
@@ -1005,7 +1005,7 @@
             name="kind-icon:sparkles"
             class="size-8 text-warning"
           />
-          <p class="text-xs font-black uppercase tracking-wide text-primary">
+          <p class="kr-text-eyebrow text-xs tracking-wide text-primary">
             {{
               tankStore.revealedBreed.evolved
                 ? 'A secret evolution!'
@@ -1068,7 +1068,7 @@
           class="modal-box flex max-w-sm flex-col items-center gap-3 rounded-3xl border border-base-300 bg-base-100 text-center shadow-2xl"
         >
           <Icon name="kind-icon:trophy" class="size-10 text-warning" />
-          <p class="text-xs font-black uppercase tracking-wide text-primary">
+          <p class="kr-text-eyebrow text-xs tracking-wide text-primary">
             The bestiary is complete
           </p>
           <h3 class="kr-text-black-lg">Every species, observed.</h3>
@@ -1118,7 +1118,7 @@
             class="w-full"
             placeholder-icon="kind-icon:eye"
           />
-          <p class="text-xs font-black uppercase tracking-wide text-primary">
+          <p class="kr-text-eyebrow text-xs tracking-wide text-primary">
             The last aquarium
           </p>
           <h3 class="kr-text-black-lg">
@@ -1160,7 +1160,7 @@
           class="modal-box flex max-w-sm flex-col items-center gap-3 rounded-3xl border border-base-300 bg-base-100 text-center shadow-2xl"
         >
           <Icon name="kind-icon:coin" class="size-8 text-warning" />
-          <p class="text-xs font-black uppercase tracking-wide text-primary">
+          <p class="kr-text-eyebrow text-xs tracking-wide text-primary">
             While you were away
           </p>
           <h3 class="kr-text-black-lg">

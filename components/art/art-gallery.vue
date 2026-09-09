@@ -478,7 +478,7 @@
               </span>
               <div class="min-w-0">
                 <p
-                  class="text-[0.6rem] font-black uppercase tracking-widest text-base-content/40"
+                  class="kr-text-eyebrow text-[0.6rem] tracking-widest text-base-content/40"
                 >
                   Selected Image
                 </p>

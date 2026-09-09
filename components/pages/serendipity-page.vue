@@ -120,7 +120,7 @@
             class="flex items-start gap-2"
           >
             <span
-              class="mt-0.5 rounded-full px-2 py-0.5 text-[0.65rem] font-black uppercase"
+              class="kr-text-eyebrow mt-0.5 rounded-full px-2 py-0.5 text-[0.65rem]"
               :class="roleClass(message.role)"
             >
               {{ message.role }}

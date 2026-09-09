@@ -1827,6 +1827,18 @@ section:has(div[class*='xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]'])
     @apply font-black text-sm;
   }
 
+  /* `font-black uppercase` eyebrow/label text (interface-vision t-104 slice
+   * 167) -- a fresh full-repo class-frequency survey once both the
+   * `kr-text-black-*` and `kr-text-dim-*` families closed out found this
+   * shape at 257 subset-match occurrences across 94 files, the largest
+   * bounded pattern surfaced yet (bigger than any single `kr-text-black-*`
+   * sibling). `tracking-wide` frequently rides along (56 of the 257) but is
+   * left as a caller-supplied extra token rather than folded into the base
+   * set, since plenty of call sites use the base pair alone. */
+  .kr-text-eyebrow {
+    @apply font-black uppercase;
+  }
+
   .text-smart {
     @apply text-sm md:text-lg lg:text-lg xl:text-xl;
   }

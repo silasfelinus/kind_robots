@@ -108,7 +108,7 @@
           -->
           <h2
             v-if="showBothGroups"
-            class="kr-text-dim-xs-55 mb-2 truncate font-black uppercase tracking-wide"
+            class="kr-text-eyebrow kr-text-dim-xs-55 mb-2 truncate tracking-wide"
           >
             Default
           </h2>
@@ -201,7 +201,7 @@
           <!-- Same separator rule as Default above. -->
           <h2
             v-if="showBothGroups"
-            class="kr-text-dim-xs-55 mb-2 truncate font-black uppercase tracking-wide"
+            class="kr-text-eyebrow kr-text-dim-xs-55 mb-2 truncate tracking-wide"
           >
             Shared
           </h2>

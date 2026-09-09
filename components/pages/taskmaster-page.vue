@@ -37,7 +37,7 @@
         <header class="taskmaster-hero relative flex min-h-64 items-start p-4 sm:min-h-72 sm:p-6 lg:min-h-80 lg:p-8">
           <div class="taskmaster-hero-copy max-w-2xl">
             <span
-              class="inline-flex items-center gap-2 rounded-full border border-secondary/30 bg-base-100/80 px-3 py-1.5 text-[0.68rem] font-black uppercase tracking-[0.16em] text-secondary shadow-sm backdrop-blur"
+              class="kr-text-eyebrow inline-flex items-center gap-2 rounded-full border border-secondary/30 bg-base-100/80 px-3 py-1.5 text-[0.68rem] tracking-[0.16em] text-secondary shadow-sm backdrop-blur"
             >
               <Icon name="kind-icon:gearhammer" class="size-4" />
               The Quest Desk
@@ -80,7 +80,7 @@
               </span>
               <div class="min-w-0">
                 <p
-                  class="text-[0.65rem] font-black uppercase tracking-[0.14em] text-secondary"
+                  class="kr-text-eyebrow text-[0.65rem] tracking-[0.14em] text-secondary"
                 >
                   Your guide
                 </p>
@@ -113,7 +113,7 @@
               </span>
               <div class="min-w-0 flex-1">
                 <p
-                  class="text-[0.68rem] font-black uppercase tracking-[0.15em] text-info"
+                  class="kr-text-eyebrow text-[0.68rem] tracking-[0.15em] text-info"
                 >
                   Your objective
                 </p>
@@ -138,7 +138,7 @@
             <label class="form-control w-full">
               <div class="label py-1">
                 <span
-                  class="label-text text-[0.68rem] font-black uppercase tracking-[0.12em] text-base-content/55"
+                  class="kr-text-eyebrow label-text text-[0.68rem] tracking-[0.12em] text-base-content/55"
                 >
                   Project or task source
                   <span class="font-normal normal-case tracking-normal">(optional)</span>
@@ -185,7 +185,7 @@
               </span>
               <div class="min-w-0 flex-1">
                 <p
-                  class="text-[0.68rem] font-black uppercase tracking-[0.15em] text-secondary"
+                  class="kr-text-eyebrow text-[0.68rem] tracking-[0.15em] text-secondary"
                 >
                   Quest recipe
                 </p>
@@ -216,7 +216,7 @@
               <div class="taskmaster-recipe-body space-y-4 pt-4 md:pt-0">
                 <div class="space-y-2">
                   <p
-                    class="text-[0.68rem] font-black uppercase tracking-[0.12em] text-base-content/55"
+                    class="kr-text-eyebrow text-[0.68rem] tracking-[0.12em] text-base-content/55"
                   >
                     Tone
                   </p>
@@ -244,7 +244,7 @@
                     </span>
                     <span class="min-w-0 flex-1">
                       <span
-                        class="block text-[0.65rem] font-black uppercase tracking-[0.12em] text-base-content/45"
+                        class="kr-text-eyebrow block text-[0.65rem] tracking-[0.12em] text-base-content/45"
                       >
                         Setting
                       </span>
@@ -288,7 +288,7 @@
                     </span>
                     <span class="min-w-0 flex-1">
                       <span
-                        class="block text-[0.65rem] font-black uppercase tracking-[0.12em] text-base-content/45"
+                        class="kr-text-eyebrow block text-[0.65rem] tracking-[0.12em] text-base-content/45"
                       >
                         Genre, mood, and style
                       </span>
@@ -322,7 +322,7 @@
                 <label class="form-control w-full">
                   <div class="label py-1">
                     <span
-                      class="label-text text-[0.68rem] font-black uppercase tracking-[0.12em] text-base-content/55"
+                      class="kr-text-eyebrow label-text text-[0.68rem] tracking-[0.12em] text-base-content/55"
                     >
                       Extra flavor
                       <span class="font-normal normal-case tracking-normal">(optional)</span>
@@ -356,7 +356,7 @@
                 </span>
                 <div>
                   <p
-                    class="text-[0.65rem] font-black uppercase tracking-[0.13em] text-secondary"
+                    class="kr-text-eyebrow text-[0.65rem] tracking-[0.13em] text-secondary"
                   >
                     Serendipity says
                   </p>
@@ -418,7 +418,7 @@
           <div class="flex flex-wrap items-start justify-between gap-3">
             <div class="max-w-2xl">
               <p
-                class="text-[0.68rem] font-black uppercase tracking-[0.16em] text-secondary"
+                class="kr-text-eyebrow text-[0.68rem] tracking-[0.16em] text-secondary"
               >
                 Quest briefing
               </p>
@@ -452,7 +452,7 @@
             <div class="flex flex-wrap items-start justify-between gap-3">
               <div>
                 <p
-                  class="text-[0.68rem] font-black uppercase tracking-[0.14em] text-secondary"
+                  class="kr-text-eyebrow text-[0.68rem] tracking-[0.14em] text-secondary"
                 >
                   Practical route
                 </p>
@@ -510,7 +510,7 @@
                 </span>
                 <div>
                   <p
-                    class="text-[0.68rem] font-black uppercase tracking-[0.14em] text-info"
+                    class="kr-text-eyebrow text-[0.68rem] tracking-[0.14em] text-info"
                   >
                     Quest briefing
                   </p>
@@ -570,7 +570,7 @@
                 </span>
                 <div>
                   <p
-                    class="text-[0.65rem] font-black uppercase tracking-[0.14em] text-secondary"
+                    class="kr-text-eyebrow text-[0.65rem] tracking-[0.14em] text-secondary"
                   >
                     Serendipity's handrail
                   </p>
@@ -610,7 +610,7 @@
           </span>
           <div class="min-w-0 flex-1">
             <p
-              class="text-[0.65rem] font-black uppercase tracking-[0.14em] text-info"
+              class="kr-text-eyebrow text-[0.65rem] tracking-[0.14em] text-info"
             >
               Current quest
             </p>
@@ -695,7 +695,7 @@
                   <div class="flex items-center gap-2">
                     <Icon name="kind-icon:gearhammer" class="size-4 text-warning" />
                     <h3
-                      class="text-xs font-black uppercase tracking-wide text-warning"
+                      class="kr-text-eyebrow text-xs tracking-wide text-warning"
                     >
                       Quest ledger
                     </h3>
@@ -748,7 +748,7 @@
             >
               <div>
                 <p
-                  class="text-[0.7rem] font-black uppercase tracking-wide text-info"
+                  class="kr-text-eyebrow text-[0.7rem] tracking-wide text-info"
                 >
                   What happened in the real world?
                 </p>
@@ -791,7 +791,7 @@
               class="taskmaster-panel border border-info/30 p-3"
             >
               <p
-                class="text-[0.68rem] font-black uppercase tracking-[0.14em] text-info"
+                class="kr-text-eyebrow text-[0.68rem] tracking-[0.14em] text-info"
               >
                 Real objective
               </p>
@@ -807,7 +807,7 @@
               <div class="flex flex-wrap items-center justify-between gap-2">
                 <div>
                   <p
-                    class="text-[0.68rem] font-black uppercase tracking-[0.14em] text-secondary"
+                    class="kr-text-eyebrow text-[0.68rem] tracking-[0.14em] text-secondary"
                   >
                     Practical checkpoint plan
                   </p>
@@ -824,7 +824,7 @@
               </div>
               <details class="mt-3">
                 <summary
-                  class="cursor-pointer text-[0.68rem] font-black uppercase tracking-wide text-secondary/75"
+                  class="kr-text-eyebrow cursor-pointer text-[0.68rem] tracking-wide text-secondary/75"
                 >
                   Full checkpoint plan
                 </summary>

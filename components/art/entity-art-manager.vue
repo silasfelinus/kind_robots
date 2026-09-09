@@ -97,7 +97,7 @@
       <aside v-if="history.length" class="kr-panel-tint-compact-50">
         <div class="mb-2 flex items-center gap-2">
           <Icon name="kind-icon:history" class="size-3.5 text-base-content/50" />
-          <h4 class="kr-text-dim-xs-55 font-black uppercase tracking-wide">
+          <h4 class="kr-text-eyebrow kr-text-dim-xs-55 tracking-wide">
             Inspiration history
           </h4>
           <span class="kr-badge-ghost-xs ml-auto">{{ filteredHistory.length }}</span>

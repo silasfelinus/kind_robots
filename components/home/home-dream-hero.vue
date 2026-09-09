@@ -112,9 +112,7 @@
       </div>
 
       <div class="min-w-0 shrink-0">
-        <p
-          class="text-[0.6rem] font-black uppercase tracking-[0.18em] text-primary"
-        >
+        <p class="kr-text-eyebrow text-[0.6rem] tracking-[0.18em] text-primary">
           {{ kicker }}
         </p>
 
@@ -276,7 +274,7 @@
               max-w + truncate because "CHARACTER" is wider than a 4rem tile.
             -->
               <span
-                class="absolute left-1 top-1 max-w-[calc(100%-0.5rem)] truncate rounded bg-base-100/90 px-1 text-[0.45rem] font-black uppercase tracking-[0.08em] text-base-content backdrop-blur"
+                class="kr-text-eyebrow absolute left-1 top-1 max-w-[calc(100%-0.5rem)] truncate rounded bg-base-100/90 px-1 text-[0.45rem] tracking-[0.08em] text-base-content backdrop-blur"
               >
                 {{ member.badge }}
               </span>

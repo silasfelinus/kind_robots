@@ -5,7 +5,7 @@
   >
     <header class="flex items-center justify-between gap-3">
       <div class="min-w-0 flex-1">
-        <p class="text-[0.65rem] font-black uppercase tracking-[0.16em] text-primary">
+        <p class="kr-text-eyebrow text-[0.65rem] tracking-[0.16em] text-primary">
           Complete bundle
         </p>
         <div class="mt-0.5 flex flex-wrap items-baseline gap-x-3 gap-y-1">
@@ -64,7 +64,7 @@
           <div class="flex min-h-0 flex-1 flex-col p-2.5">
             <div class="flex items-start gap-1.5">
               <div class="min-w-0 flex-1">
-                <p class="truncate text-[0.58rem] font-black uppercase tracking-[0.12em] text-primary/70">
+                <p class="kr-text-eyebrow truncate text-[0.58rem] tracking-[0.12em] text-primary/70">
                   {{ item.typeLabel }}
                 </p>
                 <h4 class="kr-text-black-sm mt-0.5 line-clamp-2 leading-tight">

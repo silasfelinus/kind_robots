@@ -89,7 +89,7 @@
                 :key="row.key"
                 class="kr-panel p-4"
               >
-                <p class="text-xs font-black uppercase tracking-[0.14em] text-primary/75">
+                <p class="kr-text-eyebrow text-xs tracking-[0.14em] text-primary/75">
                   {{ row.label }}
                 </p>
                 <p class="mt-2 whitespace-pre-wrap text-sm leading-relaxed text-base-content/75">
@@ -111,7 +111,7 @@
               v-if="canEdit"
               class="rounded-2xl border border-primary/25 bg-primary/5 p-4"
             >
-              <p class="text-xs font-black uppercase tracking-[0.15em] text-primary">Object editor</p>
+              <p class="kr-text-eyebrow text-xs tracking-[0.15em] text-primary">Object editor</p>
               <h3 class="kr-text-black-lg mt-1">Revise the useful fields</h3>
               <p class="mt-1 text-sm leading-relaxed text-base-content/55">
                 These save directly to the existing {{ typeLabel.toLowerCase() }} record. System fields and relationships stay out of reach.

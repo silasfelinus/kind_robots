@@ -43,7 +43,7 @@
               {{ narratorName }}
             </p>
             <p
-              class="truncate text-[0.65rem] font-black uppercase tracking-widest text-primary/75"
+              class="kr-text-eyebrow truncate text-[0.65rem] tracking-widest text-primary/75"
             >
               {{ currentEmotionLabel }}
             </p>

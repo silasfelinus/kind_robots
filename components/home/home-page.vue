@@ -204,7 +204,7 @@
             type="button"
             role="tab"
             :aria-selected="currentPane === pane.key"
-            class="flex-1 rounded-lg px-2 py-1.5 text-[0.7rem] font-black uppercase tracking-[0.1em] transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary"
+            class="kr-text-eyebrow flex-1 rounded-lg px-2 py-1.5 text-[0.7rem] tracking-[0.1em] transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary"
             :class="
               currentPane === pane.key
                 ? 'bg-primary text-primary-content'
@@ -233,7 +233,7 @@
           >
             <header class="flex flex-wrap items-baseline justify-between gap-3">
               <h2
-                class="text-[0.7rem] font-black uppercase tracking-[0.16em] text-primary"
+                class="kr-text-eyebrow text-[0.7rem] tracking-[0.16em] text-primary"
               >
                 What we're building
               </h2>
@@ -333,7 +333,7 @@
             -->
               <template #lead>
                 <h2
-                  class="hidden shrink-0 text-[0.7rem] font-black uppercase tracking-[0.16em] text-primary lg:block"
+                  class="kr-text-eyebrow hidden shrink-0 text-[0.7rem] tracking-[0.16em] text-primary lg:block"
                 >
                   News
                 </h2>

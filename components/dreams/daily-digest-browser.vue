@@ -59,7 +59,7 @@
 
           <div class="absolute inset-x-0 bottom-0 p-5 text-base-100 sm:p-7">
             <p
-              class="text-xs font-black uppercase tracking-[0.18em] text-base-100/70"
+              class="kr-text-eyebrow text-xs tracking-[0.18em] text-base-100/70"
             >
               {{
                 activeDream

@@ -40,7 +40,7 @@
         />
         <span
           v-if="primaryCategory"
-          class="absolute left-1.5 top-1.5 rounded bg-base-100/90 px-1 text-[0.55rem] font-black uppercase tracking-[0.08em] text-base-content backdrop-blur"
+          class="kr-text-eyebrow absolute left-1.5 top-1.5 rounded bg-base-100/90 px-1 text-[0.55rem] tracking-[0.08em] text-base-content backdrop-blur"
         >
           {{ primaryCategory }}
         </span>

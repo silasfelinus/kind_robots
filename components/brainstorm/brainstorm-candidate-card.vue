@@ -9,7 +9,7 @@
       <div class="min-w-0 flex-1">
         <div class="mb-2 flex flex-wrap items-center gap-2">
           <span
-            class="rounded-full px-2.5 py-1 text-[0.68rem] font-black uppercase tracking-[0.14em]"
+            class="kr-text-eyebrow rounded-full px-2.5 py-1 text-[0.68rem] tracking-[0.14em]"
             :class="statusBadgeClass"
           >
             {{ statusLabel }}
@@ -177,7 +177,7 @@
       data-testid="brainstorm-branch-lineage"
     >
       <summary
-        class="cursor-pointer select-none text-xs font-black uppercase tracking-[0.12em] text-secondary/80"
+        class="kr-text-eyebrow cursor-pointer select-none text-xs tracking-[0.12em] text-secondary/80"
       >
         Branch lineage · parent v{{
           candidate.meta.branchOrigin.revisionIndex + 1
@@ -213,7 +213,7 @@
       data-testid="brainstorm-revision-history"
     >
       <summary
-        class="kr-text-dim-xs-60 cursor-pointer select-none font-black uppercase tracking-[0.12em]"
+        class="kr-text-eyebrow kr-text-dim-xs-60 cursor-pointer select-none tracking-[0.12em]"
       >
         History · {{ candidate.revisions.length }} versions
       </summary>
@@ -283,7 +283,7 @@
     >
       <label
         :for="`${candidate.id}-feedback`"
-        class="text-xs font-black uppercase tracking-[0.12em] text-error/80"
+        class="kr-text-eyebrow text-xs tracking-[0.12em] text-error/80"
       >
         What missed?
       </label>

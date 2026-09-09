@@ -33,14 +33,10 @@
           class="relative grid gap-6 lg:grid-cols-[1fr_auto] lg:items-center"
         >
           <div>
-            <p
-              class="text-xs font-black uppercase tracking-[0.3em] text-warning"
-            >
+            <p class="kr-text-eyebrow text-xs tracking-[0.3em] text-warning">
               Championship standings
             </p>
-            <p
-              class="mt-2 text-4xl font-black uppercase leading-none sm:text-6xl"
-            >
+            <p class="kr-text-eyebrow mt-2 text-4xl leading-none sm:text-6xl">
               Hall of contenders
             </p>
             <p class="mt-4 max-w-3xl text-base text-base-content/70">
@@ -56,7 +52,7 @@
                 name="kind-icon:trophy"
                 class="mx-auto size-10 text-warning"
               />
-              <p class="mt-1 text-xs font-black uppercase tracking-widest">
+              <p class="kr-text-eyebrow mt-1 text-xs tracking-widest">
                 Champion
               </p>
             </div>
@@ -68,7 +64,7 @@
         <div class="flex flex-wrap items-end justify-between gap-4">
           <fieldset>
             <legend
-              class="mb-2 text-[0.65rem] font-black uppercase tracking-[0.22em] text-base-content/45"
+              class="kr-text-eyebrow mb-2 text-[0.65rem] tracking-[0.22em] text-base-content/45"
             >
               Weight class
             </legend>
@@ -101,7 +97,7 @@
         <div class="mt-4 border-t border-base-300 pt-4">
           <fieldset>
             <legend
-              class="mb-2 text-[0.65rem] font-black uppercase tracking-[0.22em] text-base-content/45"
+              class="kr-text-eyebrow mb-2 text-[0.65rem] tracking-[0.22em] text-base-content/45"
             >
               Comparison axis
             </legend>
@@ -178,7 +174,7 @@
             >
               {{ signedScore(entry.score.netScore) }}
             </p>
-            <p class="kr-text-dim-xs-40 font-black uppercase tracking-widest">
+            <p class="kr-text-eyebrow kr-text-dim-xs-40 tracking-widest">
               total score
             </p>
             <div class="mt-5 grid grid-cols-3 gap-2 text-sm">

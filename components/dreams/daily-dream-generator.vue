@@ -81,7 +81,7 @@
       <div v-if="blueprint" class="mt-3 grid gap-2 md:grid-cols-3">
         <div class="rounded-xl bg-base-100 p-3">
           <p
-            class="text-[11px] font-black uppercase tracking-wide text-base-content/45"
+            class="kr-text-eyebrow text-[11px] tracking-wide text-base-content/45"
           >
             Dream
           </p>
@@ -92,7 +92,7 @@
         </div>
         <div class="rounded-xl bg-base-100 p-3">
           <p
-            class="text-[11px] font-black uppercase tracking-wide text-base-content/45"
+            class="kr-text-eyebrow text-[11px] tracking-wide text-base-content/45"
           >
             Cast
           </p>
@@ -107,7 +107,7 @@
         </div>
         <div class="rounded-xl bg-base-100 p-3">
           <p
-            class="text-[11px] font-black uppercase tracking-wide text-base-content/45"
+            class="kr-text-eyebrow text-[11px] tracking-wide text-base-content/45"
           >
             Objects
           </p>

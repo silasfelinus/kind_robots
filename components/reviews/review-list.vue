@@ -17,7 +17,7 @@
 <template>
   <section class="grid gap-3">
     <header v-if="showHeader" class="flex flex-wrap items-baseline justify-between gap-2">
-      <p class="kr-text-dim-xs-45 font-black uppercase tracking-widest">
+      <p class="kr-text-eyebrow kr-text-dim-xs-45 tracking-widest">
         {{ headingLabel }}
       </p>
       <span v-if="averageRating" class="kr-text-black-sm text-warning">

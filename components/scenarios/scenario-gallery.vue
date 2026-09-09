@@ -88,19 +88,19 @@
           <template #details>
             <dl class="grid grid-cols-2 gap-2 text-xs">
               <div v-if="infoScenario.locations" class="col-span-2">
-                <dt class="font-black uppercase opacity-55">Locations</dt>
+                <dt class="kr-text-eyebrow opacity-55">Locations</dt>
                 <dd class="whitespace-pre-wrap">
                   {{ infoScenario.locations }}
                 </dd>
               </div>
               <div v-if="infoScenario.inspirations" class="col-span-2">
-                <dt class="font-black uppercase opacity-55">Inspirations</dt>
+                <dt class="kr-text-eyebrow opacity-55">Inspirations</dt>
                 <dd class="whitespace-pre-wrap">
                   {{ infoScenario.inspirations }}
                 </dd>
               </div>
               <div v-if="infoScenario.genres">
-                <dt class="font-black uppercase opacity-55">Genres</dt>
+                <dt class="kr-text-eyebrow opacity-55">Genres</dt>
                 <dd>{{ infoScenario.genres }}</dd>
               </div>
             </dl>

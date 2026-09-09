@@ -5,7 +5,7 @@
         class="kr-toolbar flex flex-wrap items-start justify-between gap-4"
       >
         <div>
-          <p class="text-xs font-black uppercase tracking-widest text-primary">
+          <p class="kr-text-eyebrow text-xs tracking-widest text-primary">
             AMI social pipeline administration
           </p>
           <p class="mt-1 text-2xl font-black">Social post review queue</p>

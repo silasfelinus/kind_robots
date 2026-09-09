@@ -56,7 +56,7 @@
       >
         <div class="flex flex-wrap items-start justify-between gap-3">
           <div>
-            <p class="text-xs font-black uppercase tracking-[0.16em] text-secondary">
+            <p class="kr-text-eyebrow text-xs tracking-[0.16em] text-secondary">
               Art workbench
             </p>
             <h3 class="kr-text-black-lg mt-1">

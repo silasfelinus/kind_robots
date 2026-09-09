@@ -15,7 +15,7 @@
     >
       <p
         v-if="group.label"
-        class="px-3 pb-1 text-[0.65rem] font-black uppercase tracking-[0.18em] text-base-content/45"
+        class="kr-text-eyebrow px-3 pb-1 text-[0.65rem] tracking-[0.18em] text-base-content/45"
       >
         {{ group.label }}
       </p>

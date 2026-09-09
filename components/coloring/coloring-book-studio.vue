@@ -78,7 +78,7 @@
           <div class="flex items-start justify-between gap-3">
             <div>
               <p
-                class="kr-text-dim-xs-40 font-black uppercase tracking-widest"
+                class="kr-text-eyebrow kr-text-dim-xs-40 tracking-widest"
               >
                 Book {{ book.order }}
               </p>
@@ -141,7 +141,7 @@
           <div class="flex items-start justify-between gap-3">
             <div>
               <p
-                class="kr-text-dim-xs-40 font-black uppercase tracking-widest"
+                class="kr-text-eyebrow kr-text-dim-xs-40 tracking-widest"
               >
                 {{ book.slug }}
               </p>
@@ -269,7 +269,7 @@
               <div class="flex items-start justify-between gap-3">
                 <div>
                   <p
-                    class="kr-text-dim-xs-40 font-black uppercase tracking-widest"
+                    class="kr-text-eyebrow kr-text-dim-xs-40 tracking-widest"
                   >
                     Slot {{ proposal.slot }} · {{ proposal.id }}
                   </p>
@@ -304,7 +304,7 @@
           >
             <div>
               <p
-                class="kr-text-dim-xs-40 font-black uppercase tracking-widest"
+                class="kr-text-eyebrow kr-text-dim-xs-40 tracking-widest"
               >
                 {{ studio.selectedBook?.title }} · Slot
                 {{ studio.selectedProposal.slot }} ·
@@ -530,7 +530,7 @@
         >
           <div>
             <p
-              class="kr-text-dim-xs-45 font-black uppercase tracking-widest"
+              class="kr-text-eyebrow kr-text-dim-xs-45 tracking-widest"
             >
               {{ problem.bookTitle }} · {{ problem.proposal.id }}
             </p>

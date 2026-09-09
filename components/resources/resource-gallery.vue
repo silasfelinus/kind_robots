@@ -484,15 +484,15 @@ onMounted(async () => {
           <template #details>
             <dl class="grid grid-cols-2 gap-2 text-xs">
               <div v-if="infoResourceTrigger" class="col-span-2">
-                <dt class="font-black uppercase opacity-55">Trigger</dt>
+                <dt class="kr-text-eyebrow opacity-55">Trigger</dt>
                 <dd class="break-words font-mono">{{ infoResourceTrigger }}</dd>
               </div>
               <div v-if="infoResource.supportedServer">
-                <dt class="font-black uppercase opacity-55">Server</dt>
+                <dt class="kr-text-eyebrow opacity-55">Server</dt>
                 <dd>{{ infoResource.supportedServer }}</dd>
               </div>
               <div v-if="infoResource.localPath" class="col-span-2">
-                <dt class="font-black uppercase opacity-55">Path</dt>
+                <dt class="kr-text-eyebrow opacity-55">Path</dt>
                 <dd class="break-all font-mono">
                   {{ infoResource.localPath }}
                 </dd>

@@ -65,7 +65,7 @@
             <Icon :name="tab.icon" class="size-4" />
           </span>
           <span class="min-w-0 flex-1">
-            <span class="block truncate text-xs font-black uppercase tracking-wide">
+            <span class="kr-text-eyebrow block truncate text-xs tracking-wide">
               {{ tab.label }}
             </span>
             <span class="kr-text-black-lg leading-none">{{ tab.count }}</span>
@@ -167,7 +167,7 @@
 
             <div class="space-y-4 p-4">
               <div>
-                <p class="text-xs font-black uppercase tracking-widest text-base-content/35">
+                <p class="kr-text-eyebrow text-xs tracking-widest text-base-content/35">
                   The idea
                 </p>
                 <p class="mt-1 text-sm leading-relaxed text-base-content/75">
@@ -176,7 +176,7 @@
               </div>
 
               <div v-if="pitch.whyDoIt">
-                <p class="text-xs font-black uppercase tracking-widest text-base-content/35">
+                <p class="kr-text-eyebrow text-xs tracking-widest text-base-content/35">
                   Why bother
                 </p>
                 <p class="kr-text-dim-sm mt-1 leading-relaxed">
@@ -188,7 +188,7 @@
                 v-if="overlapSignals(pitch).length"
                 class="rounded-2xl border border-warning/30 bg-warning/8 p-3"
               >
-                <div class="flex items-center gap-2 text-xs font-black uppercase tracking-wide text-warning">
+                <div class="kr-text-eyebrow flex items-center gap-2 text-xs tracking-wide text-warning">
                   <Icon name="kind-icon:warning" class="size-4" />
                   Existing-work check
                 </div>

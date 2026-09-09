@@ -12,7 +12,7 @@
         class="flex shrink-0 items-start justify-between gap-3 border-b border-base-300 bg-base-100 p-4"
       >
         <div class="min-w-0">
-          <p class="text-xs font-black uppercase tracking-widest text-primary">
+          <p class="kr-text-eyebrow text-xs tracking-widest text-primary">
             {{ step + 1 }} / {{ steps.length }}
           </p>
           <h2 class="kr-text-black-lg mt-0.5 truncate sm:text-xl">

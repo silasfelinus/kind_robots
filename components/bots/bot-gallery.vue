@@ -114,15 +114,15 @@
           <template #details>
             <dl class="grid grid-cols-2 gap-2 text-xs">
               <div v-if="infoBot.personality" class="col-span-2">
-                <dt class="font-black uppercase opacity-55">Personality</dt>
+                <dt class="kr-text-eyebrow opacity-55">Personality</dt>
                 <dd class="whitespace-pre-wrap">{{ infoBot.personality }}</dd>
               </div>
               <div v-if="infoBot.BotType">
-                <dt class="font-black uppercase opacity-55">Type</dt>
+                <dt class="kr-text-eyebrow opacity-55">Type</dt>
                 <dd>{{ infoBot.BotType }}</dd>
               </div>
               <div v-if="infoBot.name">
-                <dt class="font-black uppercase opacity-55">Handle</dt>
+                <dt class="kr-text-eyebrow opacity-55">Handle</dt>
                 <dd class="break-words">{{ infoBot.name }}</dd>
               </div>
             </dl>

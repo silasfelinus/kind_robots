@@ -124,7 +124,7 @@
 
             <div class="min-w-0 flex-1 pr-8">
               <p
-                class="inline-flex items-center gap-1.5 rounded-full border border-primary/25 bg-base-100/70 px-3 py-1 text-[0.65rem] font-black uppercase tracking-[0.18em] text-primary shadow-sm backdrop-blur"
+                class="kr-text-eyebrow inline-flex items-center gap-1.5 rounded-full border border-primary/25 bg-base-100/70 px-3 py-1 text-[0.65rem] tracking-[0.18em] text-primary shadow-sm backdrop-blur"
               >
                 <Icon name="kind-icon:info" class="h-3 w-3" />
                 Tutorial

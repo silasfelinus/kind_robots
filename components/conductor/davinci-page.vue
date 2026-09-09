@@ -5,7 +5,7 @@
       <section class="flex flex-col gap-4 kr-panel-section">
         <div class="flex items-center gap-2">
           <Icon name="kind-icon:castle" class="size-5 text-primary" />
-          <h3 class="kr-text-dim-sm-70 font-black uppercase tracking-wide">
+          <h3 class="kr-text-eyebrow kr-text-dim-sm-70 tracking-wide">
             Live a life
           </h3>
         </div>
@@ -125,7 +125,7 @@
             class="flex flex-col gap-4"
           >
             <div class="flex flex-wrap items-center justify-between gap-2">
-              <p class="kr-text-dim-sm font-black uppercase tracking-wide">
+              <p class="kr-text-eyebrow kr-text-dim-sm tracking-wide">
                 {{ run.protagonistName || run.title }}
               </p>
               <p class="kr-text-dim-xs font-semibold">
@@ -175,7 +175,7 @@
                 :title="`${DIMENSION_LABELS[dim]}: ${statMap[dim] ?? 0}`"
               >
                 <span
-                  class="text-[0.55rem] font-black uppercase tracking-wide text-base-content/60"
+                  class="kr-text-eyebrow text-[0.55rem] tracking-wide text-base-content/60"
                 >
                   {{ DIMENSION_LABELS[dim] }}
                 </span>
@@ -403,7 +403,7 @@
       <section class="flex flex-col items-start gap-3 kr-panel-section">
         <div class="flex items-center gap-2">
           <Icon name="kind-icon:trophy" class="size-5 text-primary" />
-          <h3 class="kr-text-dim-sm-70 font-black uppercase tracking-wide">
+          <h3 class="kr-text-eyebrow kr-text-dim-sm-70 tracking-wide">
             Endings on record
           </h3>
         </div>

@@ -26,7 +26,7 @@
               <Icon :name="card.icon" class="h-5 w-5" />
             </span>
             <h2
-              class="text-base font-black uppercase tracking-wider text-base-content"
+              class="kr-text-eyebrow text-base tracking-wider text-base-content"
             >
               {{ card.title }}
             </h2>
@@ -44,7 +44,7 @@
           >
             <Icon name="kind-icon:heart" class="h-5 w-5" />
           </span>
-          <h2 class="text-base font-black uppercase tracking-wider text-base-content">
+          <h2 class="kr-text-eyebrow text-base tracking-wider text-base-content">
             Community & Sponsors
           </h2>
         </div>

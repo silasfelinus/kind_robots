@@ -61,7 +61,7 @@
           <Icon name="kind-icon:jellybean" class="h-10 w-10 text-accent" />
           <div class="text-left">
             <p
-              class="text-xs font-black uppercase tracking-wider text-accent/70"
+              class="kr-text-eyebrow text-xs tracking-wider text-accent/70"
             >
               Reward
             </p>

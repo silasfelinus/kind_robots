@@ -36,9 +36,7 @@
 
           <div class="mt-4 flex flex-wrap items-start justify-between gap-3">
             <div class="min-w-0">
-              <p
-                class="text-xs font-black uppercase tracking-widest text-primary"
-              >
+              <p class="kr-text-eyebrow text-xs tracking-widest text-primary">
                 Public Kind Robots profile
               </p>
               <p class="mt-1 break-words text-3xl font-black">

@@ -7,7 +7,7 @@
       <div class="flex flex-col justify-center gap-4 p-5 sm:p-7">
         <div class="flex items-center gap-2 text-primary">
           <Icon name="kind-icon:map" class="h-5 w-5" aria-hidden="true" />
-          <span class="text-xs font-black uppercase tracking-[0.18em]">
+          <span class="kr-text-eyebrow text-xs tracking-[0.18em]">
             Art history, room by room
           </span>
         </div>
@@ -62,7 +62,7 @@
 
     <div class="flex flex-wrap items-end justify-between gap-3 px-1">
       <div>
-        <p class="kr-text-dim-xs-45 font-black uppercase tracking-[0.16em]">
+        <p class="kr-text-eyebrow kr-text-dim-xs-45 tracking-[0.16em]">
           Chronological gallery
         </p>
         <p class="mt-1 text-sm text-base-content/65">

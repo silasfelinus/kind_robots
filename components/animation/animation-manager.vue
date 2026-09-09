@@ -128,7 +128,7 @@
       >
         <div class="flex items-start justify-between gap-3">
           <div>
-            <p class="text-xs font-black uppercase tracking-wide text-primary">
+            <p class="kr-text-eyebrow text-xs tracking-wide text-primary">
               Catalog effect
             </p>
             <h3 class="kr-text-black-lg mt-1 text-base-content">

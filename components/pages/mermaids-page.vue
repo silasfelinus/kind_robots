@@ -97,11 +97,11 @@
               v-if="editing"
               v-model="draft.bookHeading"
               aria-label="Book section heading"
-              class="input input-bordered w-full font-black uppercase tracking-wider"
+              class="kr-text-eyebrow input input-bordered w-full tracking-wider"
             />
             <h2
               v-else
-              class="text-base font-black uppercase tracking-wider text-base-content"
+              class="kr-text-eyebrow text-base tracking-wider text-base-content"
             >
               {{ draft.bookHeading }}
             </h2>
@@ -162,11 +162,11 @@
             v-if="editing"
             v-model="draft.personalNoteHeading"
             aria-label="Personal note heading"
-            class="input input-bordered w-full font-black uppercase tracking-wider"
+            class="kr-text-eyebrow input input-bordered w-full tracking-wider"
           />
           <h2
             v-else
-            class="text-base font-black uppercase tracking-wider text-base-content"
+            class="kr-text-eyebrow text-base tracking-wider text-base-content"
           >
             {{ draft.personalNoteHeading }}
           </h2>
@@ -195,11 +195,11 @@
             v-if="editing"
             v-model="draft.aiNoteHeading"
             aria-label="AI disclosure heading"
-            class="input input-bordered w-full font-black uppercase tracking-wider"
+            class="kr-text-eyebrow input input-bordered w-full tracking-wider"
           />
           <h2
             v-else
-            class="text-base font-black uppercase tracking-wider text-base-content"
+            class="kr-text-eyebrow text-base tracking-wider text-base-content"
           >
             {{ draft.aiNoteHeading }}
           </h2>

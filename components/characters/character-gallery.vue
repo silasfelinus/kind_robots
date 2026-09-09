@@ -54,19 +54,19 @@
           <template #details>
             <dl class="grid grid-cols-2 gap-2 text-xs">
               <div v-if="infoCharacter.class">
-                <dt class="font-black uppercase opacity-55">Class</dt>
+                <dt class="kr-text-eyebrow opacity-55">Class</dt>
                 <dd>{{ infoCharacter.class }}</dd>
               </div>
               <div v-if="infoCharacter.genre">
-                <dt class="font-black uppercase opacity-55">Genre</dt>
+                <dt class="kr-text-eyebrow opacity-55">Genre</dt>
                 <dd>{{ infoCharacter.genre }}</dd>
               </div>
               <div v-if="infoCharacter.charm">
-                <dt class="font-black uppercase opacity-55">Charm</dt>
+                <dt class="kr-text-eyebrow opacity-55">Charm</dt>
                 <dd>{{ infoCharacter.charm }}</dd>
               </div>
               <div v-if="infoCharacter.empathy">
-                <dt class="font-black uppercase opacity-55">Empathy</dt>
+                <dt class="kr-text-eyebrow opacity-55">Empathy</dt>
                 <dd>{{ infoCharacter.empathy }}</dd>
               </div>
             </dl>

@@ -212,7 +212,7 @@
       >
         <div>
           <p
-            class="text-[0.58rem] font-black uppercase tracking-widest text-base-content/40"
+            class="kr-text-eyebrow text-[0.58rem] tracking-widest text-base-content/40"
           >
             Image ID
           </p>
@@ -220,7 +220,7 @@
         </div>
         <div>
           <p
-            class="text-[0.58rem] font-black uppercase tracking-widest text-base-content/40"
+            class="kr-text-eyebrow text-[0.58rem] tracking-widest text-base-content/40"
           >
             Steps
           </p>
@@ -228,7 +228,7 @@
         </div>
         <div>
           <p
-            class="text-[0.58rem] font-black uppercase tracking-widest text-base-content/40"
+            class="kr-text-eyebrow text-[0.58rem] tracking-widest text-base-content/40"
           >
             CFG
           </p>
@@ -243,7 +243,7 @@
           @click.stop="copySeed"
         >
           <p
-            class="text-[0.58rem] font-black uppercase tracking-widest text-base-content/40"
+            class="kr-text-eyebrow text-[0.58rem] tracking-widest text-base-content/40"
           >
             Seed
           </p>
@@ -253,7 +253,7 @@
         </button>
         <div v-if="displayImage.imagePath" class="col-span-2">
           <p
-            class="text-[0.58rem] font-black uppercase tracking-widest text-base-content/40"
+            class="kr-text-eyebrow text-[0.58rem] tracking-widest text-base-content/40"
           >
             Path
           </p>

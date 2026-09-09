@@ -119,15 +119,15 @@
           <template #details>
             <dl class="grid grid-cols-2 gap-2 text-xs">
               <div v-if="infoReward.effect" class="col-span-2">
-                <dt class="font-black uppercase opacity-55">Effect</dt>
+                <dt class="kr-text-eyebrow opacity-55">Effect</dt>
                 <dd class="whitespace-pre-wrap">{{ infoReward.effect }}</dd>
               </div>
               <div v-if="infoReward.rarity">
-                <dt class="font-black uppercase opacity-55">Rarity</dt>
+                <dt class="kr-text-eyebrow opacity-55">Rarity</dt>
                 <dd>{{ infoReward.rarity }}</dd>
               </div>
               <div v-if="infoReward.rewardType">
-                <dt class="font-black uppercase opacity-55">Type</dt>
+                <dt class="kr-text-eyebrow opacity-55">Type</dt>
                 <dd>{{ infoReward.rewardType }}</dd>
               </div>
             </dl>

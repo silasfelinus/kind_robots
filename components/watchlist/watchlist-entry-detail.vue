@@ -89,9 +89,7 @@
     <!-- Review editor -->
     <div class="flex flex-col gap-2">
       <div class="flex items-center justify-between">
-        <h3 class="kr-text-dim-xs-60 font-black uppercase tracking-wide">
-          Review
-        </h3>
+        <h3 class="kr-text-eyebrow kr-text-dim-xs-60 tracking-wide">Review</h3>
         <span
           v-if="entry.reviewPublic"
           class="badge badge-success badge-sm gap-1 rounded-lg"
@@ -141,7 +139,7 @@
 
     <!-- Related entries -->
     <div class="flex flex-col gap-1">
-      <h3 class="kr-text-dim-xs-60 font-black uppercase tracking-wide">
+      <h3 class="kr-text-eyebrow kr-text-dim-xs-60 tracking-wide">
         Related entries
       </h3>
       <p v-if="isLoadingRelated" class="kr-text-dim-xs-45">Loading…</p>
@@ -167,7 +165,7 @@
 
     <!-- External links -->
     <div v-if="entry.externalUrl" class="flex flex-col gap-1">
-      <h3 class="kr-text-dim-xs-60 font-black uppercase tracking-wide">
+      <h3 class="kr-text-eyebrow kr-text-dim-xs-60 tracking-wide">
         External links
       </h3>
       <a

@@ -39,7 +39,7 @@
         class="flex h-full w-full flex-col items-center justify-center gap-3 border-dashed border-base-300 bg-base-100 p-5 text-center"
       >
         <span
-          class="text-xs font-black uppercase tracking-widest text-base-content/35"
+          class="kr-text-eyebrow text-xs tracking-widest text-base-content/35"
         >
           {{ canShowJobContent ? previewPlaceholder : 'Mature hidden' }}
         </span>

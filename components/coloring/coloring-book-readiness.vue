@@ -31,7 +31,7 @@
       >
         <div class="flex items-start justify-between gap-3">
           <div>
-            <p class="kr-text-dim-xs-40 font-black uppercase tracking-widest">
+            <p class="kr-text-eyebrow kr-text-dim-xs-40 tracking-widest">
               Book {{ item.book.order }}
             </p>
             <h4 class="kr-text-black-xl">{{ item.book.title }}</h4>
@@ -114,7 +114,7 @@
         >
           <div class="flex items-start justify-between gap-3">
             <div>
-              <p class="kr-text-dim-xs-40 font-black uppercase tracking-widest">
+              <p class="kr-text-eyebrow kr-text-dim-xs-40 tracking-widest">
                 Slot {{ entry.proposal.slot }} · {{ entry.proposal.id }}
               </p>
               <h5 class="font-black">{{ entry.proposal.title }}</h5>

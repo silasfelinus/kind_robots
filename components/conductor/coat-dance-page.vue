@@ -5,7 +5,7 @@
       <section class="flex flex-col gap-3 kr-panel-section">
         <div class="flex items-center gap-2">
           <Icon name="kind-icon:sparkles" class="size-5 text-primary" />
-          <h3 class="kr-text-dim-sm-70 font-black uppercase tracking-wide">
+          <h3 class="kr-text-eyebrow kr-text-dim-sm-70 tracking-wide">
             Behind the coat
           </h3>
         </div>

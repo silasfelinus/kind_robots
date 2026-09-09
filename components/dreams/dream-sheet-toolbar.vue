@@ -3,7 +3,7 @@
   <aside class="kr-panel-flat bg-base-100/90 p-3 shadow-sm backdrop-blur">
     <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
       <div class="min-w-0">
-        <p class="flex items-center gap-2 text-xs font-black uppercase tracking-[0.22em] text-primary">
+        <p class="kr-text-eyebrow flex items-center gap-2 text-xs tracking-[0.22em] text-primary">
           <Icon name="kind-icon:file-sparkles" class="h-4 w-4" />
           PitchSheets
         </p>

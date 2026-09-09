@@ -166,9 +166,7 @@
 
         <div class="space-y-4 p-4">
           <div>
-            <p
-              class="text-[11px] font-black uppercase tracking-wider text-primary"
-            >
+            <p class="kr-text-eyebrow text-[11px] tracking-wider text-primary">
               Slot {{ proposal.slot }}
             </p>
             <h2 class="kr-text-black-xl mt-1 leading-tight">

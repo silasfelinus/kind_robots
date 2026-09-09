@@ -322,7 +322,7 @@
       <section v-if="canSeeNotifications" class="flex flex-col gap-1.5">
         <div class="flex items-center justify-between px-1">
           <p
-            class="kr-text-dim-xs font-black uppercase tracking-widest"
+            class="kr-text-eyebrow kr-text-dim-xs tracking-widest"
           >
             Notifications
           </p>

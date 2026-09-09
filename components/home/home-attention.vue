@@ -70,9 +70,7 @@
     class="flex min-h-0 flex-col gap-1 kr-panel-flat p-2"
   >
     <header class="flex shrink-0 items-baseline justify-between gap-2">
-      <h2
-        class="text-[0.7rem] font-black uppercase tracking-[0.16em] text-primary"
-      >
+      <h2 class="kr-text-eyebrow text-[0.7rem] tracking-[0.16em] text-primary">
         Needs you
         <span v-if="gates.length" class="text-base-content/40"
           >· {{ gates.length }}</span
@@ -130,7 +128,7 @@
           @click="toggle(gate)"
         >
           <p
-            class="truncate text-[0.6rem] font-black uppercase tracking-[0.12em] text-primary"
+            class="kr-text-eyebrow truncate text-[0.6rem] tracking-[0.12em] text-primary"
           >
             {{ gate.project.name || gate.project.slug }}
             <span v-if="gate.task.softGate" class="text-base-content/35"

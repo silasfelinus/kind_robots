@@ -76,7 +76,7 @@
         </div>
 
         <div class="max-w-4xl">
-          <p class="mb-2 text-xs font-black uppercase tracking-[0.18em] text-white/65">
+          <p class="kr-text-eyebrow mb-2 text-xs tracking-[0.18em] text-white/65">
             Enter the movement
           </p>
           <h3 class="text-3xl font-black leading-none drop-shadow sm:text-4xl lg:text-5xl">
@@ -142,7 +142,7 @@
     >
       <div class="mb-4 flex flex-wrap items-end justify-between gap-2">
         <div>
-          <p class="flex items-center gap-1.5 text-xs font-black uppercase tracking-[0.16em] text-primary">
+          <p class="kr-text-eyebrow flex items-center gap-1.5 text-xs tracking-[0.16em] text-primary">
             <Icon name="kind-icon:gallery" class="h-4 w-4" />
             Gallery wall
           </p>
@@ -192,7 +192,7 @@
     >
       <div class="flex min-w-0 flex-col gap-5">
         <section class="kr-panel-section sm:p-6">
-          <p class="flex items-center gap-1.5 text-xs font-black uppercase tracking-[0.16em] text-primary">
+          <p class="kr-text-eyebrow flex items-center gap-1.5 text-xs tracking-[0.16em] text-primary">
             <Icon name="kind-icon:search" class="h-4 w-4" />
             How to spot it
           </p>
@@ -216,7 +216,7 @@
         <section class="kr-panel-section sm:p-6">
           <div class="flex flex-wrap items-end justify-between gap-2">
             <div>
-              <p class="flex items-center gap-1.5 text-xs font-black uppercase tracking-[0.16em] text-secondary">
+              <p class="kr-text-eyebrow flex items-center gap-1.5 text-xs tracking-[0.16em] text-secondary">
                 <Icon name="kind-icon:user" class="h-4 w-4" />
                 Meet the masters
               </p>
@@ -276,7 +276,7 @@
       <aside class="flex min-w-0 flex-col gap-5 xl:sticky xl:top-3">
         <section class="overflow-hidden rounded-3xl border border-primary/25 bg-primary/5 shadow-sm">
           <div class="border-b border-primary/15 bg-primary/10 p-5">
-            <p class="flex items-center gap-1.5 text-xs font-black uppercase tracking-[0.16em] text-primary">
+            <p class="kr-text-eyebrow flex items-center gap-1.5 text-xs tracking-[0.16em] text-primary">
               <Icon name="kind-icon:flask" class="h-4 w-4" />
               Try it
             </p>
@@ -287,7 +287,7 @@
 
           <div class="flex flex-col gap-4 p-5">
             <div>
-              <p class="kr-text-dim-xs-45 font-black uppercase tracking-wide">Remix instruction</p>
+              <p class="kr-text-eyebrow kr-text-dim-xs-45 tracking-wide">Remix instruction</p>
               <p class="mt-1 text-sm leading-relaxed text-base-content/80">
                 {{ lesson.remix.template }}
               </p>
@@ -326,7 +326,7 @@
         </section>
 
         <section class="kr-panel-section">
-          <p class="kr-text-dim-xs-45 flex items-center gap-1.5 font-black uppercase tracking-[0.16em]">
+          <p class="kr-text-eyebrow kr-text-dim-xs-45 flex items-center gap-1.5 tracking-[0.16em]">
             <Icon name="kind-icon:chat" class="h-4 w-4" />
             Reflect
           </p>

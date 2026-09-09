@@ -5,7 +5,7 @@
       class="kr-panel-section flex flex-col gap-4 p-4 sm:p-5 lg:flex-row lg:items-end lg:justify-between"
     >
       <div class="min-w-0 max-w-2xl">
-        <p class="flex items-center gap-1.5 text-xs font-black uppercase tracking-[0.16em] text-primary">
+        <p class="kr-text-eyebrow flex items-center gap-1.5 text-xs tracking-[0.16em] text-primary">
           <Icon name="kind-icon:palette" class="h-4 w-4" aria-hidden="true" />
           Browse the collection
         </p>
@@ -151,7 +151,7 @@
           <p class="mt-2 line-clamp-2 text-xs leading-relaxed text-white/78">
             {{ style.recognitionCues[0] }}
           </p>
-          <div class="mt-3 flex items-center gap-1 text-[0.68rem] font-black uppercase tracking-wide text-white/90">
+          <div class="kr-text-eyebrow mt-3 flex items-center gap-1 text-[0.68rem] tracking-wide text-white/90">
             Open lesson
             <Icon name="kind-icon:arrow-right" class="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" aria-hidden="true" />
           </div>

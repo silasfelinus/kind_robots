@@ -12,7 +12,7 @@
       <div class="flex flex-wrap items-start justify-between gap-4">
         <div class="min-w-[min(100%,28rem)] flex-1">
           <div
-            class="mb-2 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-xs font-black uppercase tracking-[0.16em] text-primary"
+            class="kr-text-eyebrow mb-2 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-xs tracking-[0.16em] text-primary"
             data-testid="brainstorm-persona-badge"
           >
             <img
@@ -67,7 +67,7 @@
 
       <div class="mt-4" data-testid="brainstorm-output-domain">
         <div class="flex flex-wrap items-baseline justify-between gap-2">
-          <p class="kr-text-dim-xs-55 font-black uppercase tracking-[0.12em]">
+          <p class="kr-text-eyebrow kr-text-dim-xs-55 tracking-[0.12em]">
             Output
           </p>
         </div>
@@ -93,7 +93,7 @@
 
       <div class="mt-4 flex flex-wrap items-end gap-3">
         <div>
-          <label for="brainstorm-count" class="kr-text-dim-xs-55 font-black uppercase tracking-[0.12em]">
+          <label for="brainstorm-count" class="kr-text-eyebrow kr-text-dim-xs-55 tracking-[0.12em]">
             {{ isArtPromptDomain ? 'Prompts' : 'Ideas' }}
           </label>
           <input
@@ -125,7 +125,7 @@
 
       <div class="mt-4" data-testid="brainstorm-creative-directions">
         <div class="flex flex-wrap items-baseline justify-between gap-2">
-          <p class="kr-text-dim-xs-55 font-black uppercase tracking-[0.12em]">
+          <p class="kr-text-eyebrow kr-text-dim-xs-55 tracking-[0.12em]">
             Push the batch
           </p>
           <p class="kr-text-dim-xs-45">Creative moves, not model knobs.</p>
@@ -261,7 +261,7 @@
         </summary>
         <div class="mt-4 grid grid-cols-[repeat(auto-fit,minmax(min(100%,18rem),1fr))] gap-4">
           <div>
-            <label for="brainstorm-constraints" class="kr-text-dim-xs-55 font-black uppercase tracking-[0.12em]">
+            <label for="brainstorm-constraints" class="kr-text-eyebrow kr-text-dim-xs-55 tracking-[0.12em]">
               Constraints
             </label>
             <textarea
@@ -274,7 +274,7 @@
             />
           </div>
           <div>
-            <label for="brainstorm-examples" class="kr-text-dim-xs-55 font-black uppercase tracking-[0.12em]">
+            <label for="brainstorm-examples" class="kr-text-eyebrow kr-text-dim-xs-55 tracking-[0.12em]">
               Your examples
             </label>
             <textarea
@@ -425,7 +425,7 @@
 
         <div class="mt-4 grid grid-cols-[repeat(auto-fit,minmax(min(100%,18rem),1fr))] gap-4">
           <div class="rounded-2xl border border-base-content/10 bg-base-100/75 p-3">
-            <label for="brainstorm-session-name" class="kr-text-dim-xs-55 font-black uppercase tracking-[0.12em]">
+            <label for="brainstorm-session-name" class="kr-text-eyebrow kr-text-dim-xs-55 tracking-[0.12em]">
               Session name
             </label>
             <input
@@ -476,7 +476,7 @@
 
           <div class="rounded-2xl border border-base-content/10 bg-base-100/75 p-3">
             <div class="flex flex-wrap items-center justify-between gap-2">
-              <p class="kr-text-dim-xs-55 font-black uppercase tracking-[0.12em]">
+              <p class="kr-text-eyebrow kr-text-dim-xs-55 tracking-[0.12em]">
                 History
               </p>
               <button
@@ -653,7 +653,7 @@
       class="kr-panel-flat flex flex-wrap items-center gap-2 border border-base-content/10 bg-base-100/85 p-3"
       aria-label="Brainstorm batch history"
     >
-      <span class="kr-text-dim-xs-45 mr-1 font-black uppercase tracking-[0.12em]">Batches</span>
+      <span class="kr-text-eyebrow kr-text-dim-xs-45 mr-1 tracking-[0.12em]">Batches</span>
       <button
         v-for="(batch, index) in batches"
         :key="batch.id"
@@ -672,7 +672,7 @@
       class="flex flex-wrap items-center justify-between gap-3 px-1"
     >
       <div>
-        <p class="kr-text-dim-xs-45 font-black uppercase tracking-[0.14em]">Current batch</p>
+        <p class="kr-text-eyebrow kr-text-dim-xs-45 tracking-[0.14em]">Current batch</p>
         <p class="mt-1 text-sm text-base-content/65">
           {{ activeCandidates.length }} candidate{{ activeCandidates.length === 1 ? '' : 's' }} ·
           {{ keptCandidates.length }} kept · {{ rejectedCandidates.length }} rejected
@@ -690,7 +690,7 @@
     >
       <div class="min-w-0">
         <p
-          class="text-xs font-black uppercase tracking-[0.14em] text-secondary/80"
+          class="kr-text-eyebrow text-xs tracking-[0.14em] text-secondary/80"
         >
           Generate art
         </p>

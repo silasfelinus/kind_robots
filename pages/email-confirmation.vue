@@ -21,7 +21,7 @@
 
           <div class="flex flex-col gap-2">
             <p
-              class="kr-text-dim-xs font-black uppercase tracking-[0.2em]"
+              class="kr-text-eyebrow kr-text-dim-xs tracking-[0.2em]"
             >
               Email confirmation
             </p>

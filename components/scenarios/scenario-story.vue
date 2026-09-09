@@ -278,7 +278,7 @@
           <div class="flex items-start justify-between gap-3">
             <div class="min-w-0">
               <p
-                class="text-smart-caption font-black uppercase tracking-widest text-secondary"
+                class="kr-text-eyebrow text-smart-caption tracking-widest text-secondary"
               >
                 Selected action
               </p>

@@ -8,7 +8,7 @@
       <div>
         <div class="flex flex-wrap items-center gap-2">
           <span class="badge badge-accent rounded-2xl">Cover source art</span>
-          <span class="kr-text-dim-xs-40 font-black uppercase tracking-widest">
+          <span class="kr-text-eyebrow kr-text-dim-xs-40 tracking-widest">
             {{ book.title }}
           </span>
         </div>
@@ -178,7 +178,7 @@
           <div class="kr-panel-tint-sm">
             <label class="form-control">
               <div class="label py-1">
-                <span class="label-text text-xs font-black uppercase tracking-wide">
+                <span class="kr-text-eyebrow label-text text-xs tracking-wide">
                   Adopt an existing set-local cover file
                 </span>
               </div>

@@ -163,7 +163,7 @@
               :title="headerMessage"
             >
               <span
-                class="truncate text-[0.65rem] font-black uppercase tracking-[0.18em] text-primary/75"
+                class="kr-text-eyebrow truncate text-[0.65rem] tracking-[0.18em] text-primary/75"
               >
                 {{ brandLine }}
               </span>

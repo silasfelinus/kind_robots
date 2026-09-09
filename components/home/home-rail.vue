@@ -96,7 +96,7 @@
         -->
         <span
           v-if="showLabel"
-          class="truncate text-[0.6rem] font-black uppercase tracking-[0.14em]"
+          class="kr-text-eyebrow truncate text-[0.6rem] tracking-[0.14em]"
           >{{ label }}</span
         >
         <span
@@ -239,7 +239,7 @@
           -->
           <template v-if="item.status" #overlay>
             <span
-              class="absolute left-1 top-1 max-w-[calc(100%-0.5rem)] truncate rounded px-1 text-[0.45rem] font-black uppercase tracking-[0.08em] backdrop-blur"
+              class="kr-text-eyebrow absolute left-1 top-1 max-w-[calc(100%-0.5rem)] truncate rounded px-1 text-[0.45rem] tracking-[0.08em] backdrop-blur"
               :class="statusChipClass(item.status)"
             >
               {{ item.status }}

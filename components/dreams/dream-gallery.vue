@@ -216,15 +216,15 @@
           <template #details>
             <dl class="grid grid-cols-2 gap-2 text-xs">
               <div v-if="infoDream.pitch" class="col-span-2">
-                <dt class="font-black uppercase opacity-55">Pitch</dt>
+                <dt class="kr-text-eyebrow opacity-55">Pitch</dt>
                 <dd class="whitespace-pre-wrap">{{ infoDream.pitch }}</dd>
               </div>
               <div v-if="infoDream.dreamType">
-                <dt class="font-black uppercase opacity-55">Type</dt>
+                <dt class="kr-text-eyebrow opacity-55">Type</dt>
                 <dd>{{ infoDream.dreamType }}</dd>
               </div>
               <div v-if="infoDream.flavorText" class="col-span-2">
-                <dt class="font-black uppercase opacity-55">Flavor</dt>
+                <dt class="kr-text-eyebrow opacity-55">Flavor</dt>
                 <dd class="whitespace-pre-wrap">{{ infoDream.flavorText }}</dd>
               </div>
             </dl>

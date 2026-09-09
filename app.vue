@@ -91,7 +91,7 @@
               class="flex shrink-0 items-center justify-between gap-3 border-b border-base-300 bg-base-100 px-3 py-2"
             >
               <p
-                class="truncate text-xs font-black uppercase tracking-widest text-primary"
+                class="kr-text-eyebrow truncate text-xs tracking-widest text-primary"
               >
                 Workspace
               </p>
@@ -208,7 +208,7 @@
 
       <template #fallback>
         <div
-          class="fixed inset-x-0 bottom-0 z-40 border-t border-base-300 bg-base-100/90 p-3 text-center text-xs font-black uppercase tracking-widest text-primary shadow-xl backdrop-blur"
+          class="kr-text-eyebrow fixed inset-x-0 bottom-0 z-40 border-t border-base-300 bg-base-100/90 p-3 text-center text-xs tracking-widest text-primary shadow-xl backdrop-blur"
         >
           Loading workspace tools...
         </div>

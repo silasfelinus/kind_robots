@@ -126,9 +126,7 @@
       </section>
 
       <section class="kr-panel-muted-md">
-        <h3 class="kr-text-dim-sm mb-3 font-black uppercase tracking-wide">
-          Auth
-        </h3>
+        <h3 class="kr-text-eyebrow kr-text-dim-sm mb-3 tracking-wide">Auth</h3>
 
         <div class="grid gap-3 md:grid-cols-2">
           <label class="form-control">
@@ -191,7 +189,7 @@
       </section>
 
       <section class="kr-panel-muted-md">
-        <h3 class="kr-text-dim-sm mb-3 font-black uppercase tracking-wide">
+        <h3 class="kr-text-eyebrow kr-text-dim-sm mb-3 tracking-wide">
           Visibility
         </h3>
 

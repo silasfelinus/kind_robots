@@ -8,7 +8,7 @@
     <div class="flex flex-wrap items-start justify-between gap-2">
       <div class="min-w-0">
         <p
-          class="text-[0.68rem] font-black uppercase tracking-[0.15em] text-accent"
+          class="kr-text-eyebrow text-[0.68rem] tracking-[0.15em] text-accent"
         >
           Serendipity's sparks
         </p>
@@ -71,7 +71,7 @@
           </span>
           <span
             v-if="sample.id === 'conductor-gates' && gateProject"
-            class="mt-auto block text-[0.65rem] font-black uppercase tracking-wide text-warning"
+            class="kr-text-eyebrow mt-auto block text-[0.65rem] tracking-wide text-warning"
           >
             Starts with {{ gateProject.name }}
           </span>

@@ -18,12 +18,10 @@
       </nav>
 
       <header class="kr-panel-section-plain shadow-lg sm:p-7">
-        <p class="text-xs font-black uppercase tracking-[0.25em] text-primary">
+        <p class="kr-text-eyebrow text-xs tracking-[0.25em] text-primary">
           Cthulhuquarium
         </p>
-        <h2 class="mt-1 text-3xl font-black uppercase sm:text-4xl">
-          Leaderboard
-        </h2>
+        <h2 class="kr-text-eyebrow mt-1 text-3xl sm:text-4xl">Leaderboard</h2>
         <p class="mt-2 max-w-2xl text-sm text-base-content/65">
           Ranked by species collected. Coins aren't scored here.
         </p>
@@ -58,7 +56,7 @@
         class="kr-panel-flat border-dashed rounded-3xl px-6 py-16 text-center"
       >
         <Icon name="kind-icon:fish" class="mx-auto size-12 text-primary/40" />
-        <h2 class="mt-4 text-2xl font-black uppercase">No ranks yet</h2>
+        <h2 class="kr-text-eyebrow mt-4 text-2xl">No ranks yet</h2>
         <p class="kr-text-dim-sm mx-auto mt-2 max-w-xl">
           Nobody with a public tank has collected a species yet.
         </p>

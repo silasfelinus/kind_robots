@@ -7,7 +7,7 @@
           <div class="flex items-center gap-2">
             <Icon name="kind-icon:server" class="size-5 text-primary" />
             <h3
-              class="kr-text-dim-sm-70 font-black uppercase tracking-wide"
+              class="kr-text-eyebrow kr-text-dim-sm-70 tracking-wide"
             >
               Relay status
             </h3>
@@ -84,7 +84,7 @@
         <div class="flex items-center gap-2">
           <Icon name="kind-icon:book" class="size-5 text-primary" />
           <h3
-            class="kr-text-dim-sm-70 font-black uppercase tracking-wide"
+            class="kr-text-eyebrow kr-text-dim-sm-70 tracking-wide"
           >
             What you can say
           </h3>

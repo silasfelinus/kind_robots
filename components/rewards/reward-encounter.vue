@@ -110,7 +110,7 @@
               </div>
 
               <div class="min-w-0 flex-1">
-                <p class="text-xl font-black text-primary">
+                <p class="kr-text-black-xl text-primary">
                   {{ selectedRewardName }}
                 </p>
 

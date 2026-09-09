@@ -15,7 +15,7 @@
           </span>
 
           <div class="min-w-0">
-            <h1 class="truncate text-xl font-black text-primary sm:text-2xl">
+            <h1 class="kr-text-black-xl truncate text-primary sm:text-2xl">
               Theme Gallery
             </h1>
 

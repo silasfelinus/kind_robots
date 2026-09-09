@@ -8,7 +8,7 @@
       class="flex shrink-0 items-start justify-between gap-3 border-b border-base-300 bg-base-200 p-4"
     >
       <div class="min-w-0">
-        <h2 class="text-xl font-black text-primary">
+        <h2 class="kr-text-black-xl text-primary">
           {{ form.id ? 'Edit Server' : 'Add Server' }}
         </h2>
         <p class="kr-text-dim-sm">

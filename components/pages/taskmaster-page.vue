@@ -456,7 +456,7 @@
                 >
                   Practical route
                 </p>
-                <h3 class="mt-1 text-xl font-black">
+                <h3 class="kr-text-black-xl mt-1">
                   The quest starts with real checkpoints
                 </h3>
                 <p class="kr-text-dim-xs-55 mt-1 leading-relaxed">

@@ -82,7 +82,7 @@
               >
                 Book {{ book.order }}
               </p>
-              <h4 class="text-xl font-black">{{ book.title }}</h4>
+              <h4 class="kr-text-black-xl">{{ book.title }}</h4>
             </div>
             <span class="badge badge-outline rounded-2xl">{{ book.status }}</span>
           </div>
@@ -189,7 +189,7 @@
           class="flex flex-col gap-3 kr-panel-section-flat sm:flex-row sm:items-center sm:justify-between"
         >
           <div>
-            <h4 class="text-xl font-black">{{ studio.selectedBook?.title }}</h4>
+            <h4 class="kr-text-black-xl">{{ studio.selectedBook?.title }}</h4>
             <p class="text-sm text-base-content/50">
               Side-by-side production candidates for every proposal slot.
             </p>
@@ -400,7 +400,7 @@
           class="flex flex-col gap-4 kr-panel-section-plain"
         >
           <div>
-            <h4 class="text-xl font-black">Canonical production prompt</h4>
+            <h4 class="kr-text-black-xl">Canonical production prompt</h4>
             <p class="kr-text-dim-xs-45 mt-1 break-all">
               {{ studio.selectedProposal.promptSourcePath }}
             </p>
@@ -503,7 +503,7 @@
           class="flex flex-col gap-2 kr-panel-section-plain sm:flex-row sm:items-center sm:justify-between"
         >
           <div>
-            <h4 class="text-xl font-black">Queue &amp; review problems</h4>
+            <h4 class="kr-text-black-xl">Queue &amp; review problems</h4>
             <p class="text-sm text-base-content/50">
               Semantic gate failures and proposals that exhausted automatic retries.
             </p>
@@ -561,7 +561,7 @@
         class="kr-panel-section-flat"
       >
         <div class="mb-4">
-          <h4 class="text-xl font-black">End-user coloring preview</h4>
+          <h4 class="kr-text-black-xl">End-user coloring preview</h4>
           <p class="text-sm text-base-content/50">
             The existing coloring engine lives here without pretending to be the
             production manager.

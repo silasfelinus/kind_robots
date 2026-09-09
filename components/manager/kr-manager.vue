@@ -156,7 +156,7 @@
             class="mt-1 size-6 shrink-0 text-primary"
           />
           <div class="min-w-0">
-            <h2 class="text-xl font-black text-primary">
+            <h2 class="kr-text-black-xl text-primary">
               {{ tabConfig.title }}
             </h2>
             <p v-if="tabConfig.summary" class="kr-text-dim-sm mt-1">

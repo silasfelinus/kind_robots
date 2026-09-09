@@ -35,7 +35,7 @@
         <section class="kr-panel-flat p-3">
           <div class="mb-3 flex items-center justify-between gap-3">
             <div class="min-w-0">
-              <h2 class="truncate text-xl font-black text-base-content">
+              <h2 class="kr-text-black-xl truncate text-base-content">
                 {{ selectedCharacterName }}
               </h2>
 

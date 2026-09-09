@@ -76,7 +76,7 @@
 
                 <div class="flex w-full flex-col items-center gap-1">
                   <h2
-                    class="max-w-full truncate text-xl font-black text-base-content"
+                    class="kr-text-black-xl max-w-full truncate text-base-content"
                   >
                     {{ displayName }}
                   </h2>

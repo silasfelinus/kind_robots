@@ -11,7 +11,7 @@
             {{ book?.title }} · {{ proposal.id }}
           </span>
         </div>
-        <h3 class="mt-2 text-xl font-black">{{ proposal.title }}</h3>
+        <h3 class="kr-text-black-xl mt-2">{{ proposal.title }}</h3>
         <p class="mt-1 max-w-3xl text-sm text-base-content/55">
           Human decisions and counterpart generation write directly to the canonical
           Conductor ledger. Generation may suggest. Only these controls accept.

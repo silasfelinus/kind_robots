@@ -171,7 +171,7 @@
 
               <div class="relative mt-5 flex-1">
                 <h4
-                  class="text-xl font-black uppercase leading-tight transition group-hover:text-primary"
+                  class="kr-text-black-xl uppercase leading-tight transition group-hover:text-primary"
                 >
                   {{ challenge.title }}
                 </h4>

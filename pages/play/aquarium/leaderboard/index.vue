@@ -46,7 +46,7 @@
         class="rounded-3xl border border-error/30 bg-error/10 p-8 text-center"
       >
         <Icon name="kind-icon:warning" class="mx-auto size-10 text-error" />
-        <p class="mt-3 text-xl font-black">Could not load the leaderboard</p>
+        <p class="kr-text-black-xl mt-3">Could not load the leaderboard</p>
         <p class="mt-2 text-sm text-base-content/65">{{ errorMessage }}</p>
         <button class="btn btn-error btn-sm mt-5 rounded-xl" @click="load()">
           Try again

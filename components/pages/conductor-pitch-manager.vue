@@ -19,7 +19,7 @@
               <Icon name="kind-icon:sparkles" class="size-5" />
             </span>
             <div>
-              <h2 class="text-xl font-black tracking-tight sm:text-2xl">
+              <h2 class="kr-text-black-xl tracking-tight sm:text-2xl">
                 Pitch Review
               </h2>
               <p class="kr-text-dim-xs font-medium sm:text-sm">
@@ -282,7 +282,7 @@
           <span class="flex size-16 items-center justify-center rounded-3xl bg-success/10 text-success">
             <Icon :name="emptyIcon" class="size-8" />
           </span>
-          <h3 class="mt-4 text-xl font-black">{{ emptyTitle }}</h3>
+          <h3 class="kr-text-black-xl mt-4">{{ emptyTitle }}</h3>
           <p class="mt-1 max-w-lg text-sm text-base-content/50">
             {{ emptyMessage }}
           </p>

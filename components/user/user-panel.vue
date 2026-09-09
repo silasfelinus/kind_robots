@@ -7,7 +7,7 @@
       class="flex shrink-0 flex-col gap-3 kr-panel-flat p-4 md:flex-row md:items-center md:justify-between"
     >
       <div class="min-w-0">
-        <h2 class="truncate text-xl font-black">
+        <h2 class="kr-text-black-xl truncate">
           {{ profileTitle }}
         </h2>
 

@@ -149,7 +149,7 @@
                   </span>
                 </div>
 
-                <p class="text-xl font-black text-primary tabular-nums">
+                <p class="kr-text-black-xl text-primary tabular-nums">
                   {{ formatUsdCents(group.totalCents) }}
                 </p>
                 <p v-if="group.selfAttributedCents > 0" class="kr-text-dim-xs">

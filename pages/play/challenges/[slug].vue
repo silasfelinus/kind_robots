@@ -34,7 +34,7 @@
         class="rounded-3xl border border-error/30 bg-error/10 p-8 text-center"
       >
         <Icon name="kind-icon:warning" class="mx-auto size-10 text-error" />
-        <p class="mt-3 text-xl font-black">Arena unavailable</p>
+        <p class="kr-text-black-xl mt-3">Arena unavailable</p>
         <p class="mt-2 text-sm text-base-content/65">{{ errorMessage }}</p>
         <button
           class="btn btn-error btn-sm mt-5 rounded-xl"
@@ -184,7 +184,7 @@
 
               <header class="relative flex items-start gap-4 p-5 pb-4">
                 <div
-                  class="grid size-14 shrink-0 place-items-center rounded-2xl border border-primary/25 bg-primary/10 text-xl font-black text-primary shadow-sm"
+                  class="kr-text-black-xl grid size-14 shrink-0 place-items-center rounded-2xl border border-primary/25 bg-primary/10 text-primary shadow-sm"
                 >
                   {{ contenderInitial(submission) }}
                 </div>
@@ -210,7 +210,7 @@
                       Best variant
                     </span>
                   </div>
-                  <h2 class="mt-2 truncate text-xl font-black uppercase">
+                  <h2 class="kr-text-black-xl mt-2 truncate uppercase">
                     {{ submission.Contender?.name || 'Mystery contender' }}
                   </h2>
                   <p class="kr-text-dim-xs-45 truncate font-bold">

@@ -8,7 +8,7 @@
         <div class="min-w-0">
           <div class="flex items-center gap-2">
             <Icon name="kind-icon:map" class="h-6 w-6 text-primary" />
-            <h1 class="text-xl font-black sm:text-2xl">Project Placement</h1>
+            <h1 class="kr-text-black-xl sm:text-2xl">Project Placement</h1>
           </div>
           <p
             class="mt-2 max-w-3xl text-sm leading-relaxed text-base-content/65"

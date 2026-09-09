@@ -43,7 +43,7 @@
 
       <!-- Body -->
       <div class="p-6 text-center">
-        <p class="text-xl font-black text-base-content">
+        <p class="kr-text-black-xl text-base-content">
           {{ achievement.label }}
         </p>
 

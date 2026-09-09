@@ -5,7 +5,7 @@
       class="flex shrink-0 flex-col gap-2 kr-panel-flat p-3 md:flex-row md:items-center md:justify-between"
     >
       <div class="min-w-0">
-        <h1 class="text-xl font-black text-primary md:text-2xl">
+        <h1 class="kr-text-black-xl text-primary md:text-2xl">
           Selected Image
         </h1>
         <p class="kr-text-dim-xs-60 truncate md:text-sm">

@@ -34,7 +34,7 @@
             <p class="kr-text-dim-xs-40 font-black uppercase tracking-widest">
               Book {{ item.book.order }}
             </p>
-            <h4 class="text-xl font-black">{{ item.book.title }}</h4>
+            <h4 class="kr-text-black-xl">{{ item.book.title }}</h4>
           </div>
           <span
             class="badge rounded-2xl"
@@ -83,7 +83,7 @@
         class="flex flex-col gap-3 kr-panel-tint-md lg:flex-row lg:items-center lg:justify-between"
       >
         <div>
-          <h4 class="text-xl font-black">{{ selectedBook.title }} interiors</h4>
+          <h4 class="kr-text-black-xl">{{ selectedBook.title }} interiors</h4>
           <p class="text-sm text-base-content/50">
             {{ selectedSummary.actionable }} pages still need an action;
             {{ selectedSummary.final }} are finalized.

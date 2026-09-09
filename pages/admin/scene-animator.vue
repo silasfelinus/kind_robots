@@ -35,7 +35,7 @@
         v-else-if="!userStore.isAdmin"
         class="kr-note kr-note-error p-8 text-center font-normal"
       >
-        <p class="text-xl font-black text-base-content">Administrator access required</p>
+        <p class="kr-text-black-xl text-base-content">Administrator access required</p>
         <p class="kr-text-dim-sm mt-2">
           Folder animation can enqueue substantial local GPU work, so this surface is admin-only.
         </p>
@@ -46,7 +46,7 @@
           <aside class="kr-panel space-y-4 p-4 md:p-5">
             <div>
               <p class="text-xs font-black uppercase tracking-wider text-primary">Batch setup</p>
-              <h2 class="mt-1 text-xl font-black">Choose the source, then motion</h2>
+              <h2 class="kr-text-black-xl mt-1">Choose the source, then motion</h2>
             </div>
 
             <label class="form-control gap-1">

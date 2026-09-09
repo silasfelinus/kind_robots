@@ -76,7 +76,7 @@
         class="flex min-h-64 flex-col items-center justify-center gap-3 rounded-3xl border border-warning/40 bg-warning/5 p-6 text-center"
       >
         <Icon name="kind-icon:user" class="size-12 text-warning" />
-        <p class="text-xl font-black">Public profile unavailable</p>
+        <p class="kr-text-black-xl">Public profile unavailable</p>
         <p class="max-w-md text-sm text-base-content/65">
           {{ errorMessage }}
         </p>

@@ -7,7 +7,7 @@
       <div>
         <div class="flex items-center gap-2">
           <icon name="kind-icon:history" class="size-5 text-secondary" />
-          <h3 class="text-xl font-black">Candidate history</h3>
+          <h3 class="kr-text-black-xl">Candidate history</h3>
         </div>
         <p class="mt-1 text-sm text-base-content/55">
           Archived revisions and rejected candidates for {{ proposal.id }}. Nothing

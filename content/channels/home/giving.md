@@ -11,6 +11,7 @@ description: Donate straight to Against Malaria or support Kind Robots monthly f
 icon: kind-icon:hand-heart
 route: /giving
 sort: 210
+navigation: false
 ---
 
 Donate directly to the Against Malaria Foundation or choose a monthly Kind Robots support plan.

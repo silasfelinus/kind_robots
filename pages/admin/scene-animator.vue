@@ -216,7 +216,7 @@
               <div>
                 <Icon name="kind-icon:server" class="mx-auto size-10 text-base-content/30" />
                 <p class="mt-3 font-black">No source images in this folder</p>
-                <p class="mt-1 max-w-lg text-sm text-base-content/50">
+                <p class="kr-text-dim-sm-50 mt-1 max-w-lg">
                   Add PNG, JPG, WebP, or GIF stills under the configured animate source root,
                   then refresh this page.
                 </p>

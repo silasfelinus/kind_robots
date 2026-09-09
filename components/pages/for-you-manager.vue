@@ -299,7 +299,7 @@
               <p class="font-black">
                 No active Conductor gates are waiting on you.
               </p>
-              <p class="mt-1 text-sm text-base-content/50">
+              <p class="kr-text-dim-sm-50 mt-1">
                 <template v-if="conductorStore.pausedHumanGates.length">
                   {{ conductorStore.pausedHumanGates.length }} paused-project
                   gate{{

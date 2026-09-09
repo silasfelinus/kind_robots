@@ -283,7 +283,7 @@
             <Icon :name="emptyIcon" class="size-8" />
           </span>
           <h3 class="kr-text-black-xl mt-4">{{ emptyTitle }}</h3>
-          <p class="mt-1 max-w-lg text-sm text-base-content/50">
+          <p class="kr-text-dim-sm-50 mt-1 max-w-lg">
             {{ emptyMessage }}
           </p>
           <button

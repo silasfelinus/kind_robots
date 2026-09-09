@@ -183,7 +183,7 @@
 
           <p
             v-if="!draftsStore.drafts.length"
-            class="col-span-full rounded-xl border border-dashed border-base-300 p-6 text-center text-sm text-base-content/50"
+            class="kr-text-dim-sm-50 col-span-full rounded-xl border border-dashed border-base-300 p-6 text-center"
           >
             No drafts match this filter. Try "Scan daily dreams for new drafts."
           </p>

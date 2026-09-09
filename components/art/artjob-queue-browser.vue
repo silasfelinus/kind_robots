@@ -328,7 +328,7 @@
 
           <div
             v-if="!artJobStore.jobs.length && !artJobStore.loadingJobs"
-            class="kr-panel-dashed-plain text-center text-sm text-base-content/50 xl:col-span-2"
+            class="kr-text-dim-sm-50 kr-panel-dashed-plain text-center xl:col-span-2"
           >
             No {{ artJobStore.jobStatusFilter }} jobs on this page.
           </div>

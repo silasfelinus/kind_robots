@@ -238,7 +238,7 @@
 
           <p
             v-if="!projectStore.publicProjects.length"
-            class="py-8 text-center text-sm text-base-content/50"
+            class="kr-text-dim-sm-50 py-8 text-center"
           >
             No public projects yet.
           </p>
@@ -499,7 +499,7 @@
                     name="kind-icon:check-circle"
                     class="mx-auto mb-2 size-8 text-success/40"
                   />
-                  <p class="text-sm font-semibold text-base-content/50">
+                  <p class="kr-text-dim-sm-50 font-semibold">
                     No honey-dos right now.
                   </p>
                   <p class="mt-1 text-xs text-base-content/30">

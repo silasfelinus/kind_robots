@@ -118,7 +118,7 @@
 
           <div
             v-else
-            class="flex h-full min-h-56 items-center justify-center rounded-2xl border border-dashed border-base-300 bg-base-200 p-4 text-center text-sm text-base-content/50"
+            class="kr-text-dim-sm-50 flex h-full min-h-56 items-center justify-center rounded-2xl border border-dashed border-base-300 bg-base-200 p-4 text-center"
           >
             No source Dreams found.
           </div>

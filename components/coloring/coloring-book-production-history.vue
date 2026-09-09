@@ -30,7 +30,7 @@
 
     <div
       v-if="!filteredHistory.length"
-      class="flex min-h-28 items-center justify-center rounded-2xl border border-dashed border-base-300 bg-base-200/40 p-5 text-center text-sm text-base-content/50"
+      class="kr-text-dim-sm-50 flex min-h-28 items-center justify-center rounded-2xl border border-dashed border-base-300 bg-base-200/40 p-5 text-center"
     >
       No {{ filter === 'all' ? '' : `${filter} ` }}revision or rejection records yet.
     </div>

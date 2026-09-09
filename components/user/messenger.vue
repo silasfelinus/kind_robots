@@ -23,7 +23,7 @@
       <div class="kr-pane-scroll">
         <p
           v-if="!convo.conversations.length && !convo.isLoadingList"
-          class="p-4 text-sm text-base-content/50"
+          class="kr-text-dim-sm-50 p-4"
         >
           No conversations yet. Find people on the
           <NuxtLink to="/friends" class="link">friends page</NuxtLink>.
@@ -80,10 +80,7 @@
         </header>
 
         <div ref="scrollBox" class="kr-pane-scroll space-y-2 p-3">
-          <p
-            v-if="convo.isLoadingThread"
-            class="text-center text-sm text-base-content/50"
-          >
+          <p v-if="convo.isLoadingThread" class="kr-text-dim-sm-50 text-center">
             Loading…
           </p>
           <div

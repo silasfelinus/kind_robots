@@ -90,7 +90,7 @@
 
         <p
           v-if="!moderationStore.posts.length"
-          class="col-span-full rounded-xl border border-dashed border-base-300 p-6 text-center text-sm text-base-content/50"
+          class="kr-text-dim-sm-50 col-span-full rounded-xl border border-dashed border-base-300 p-6 text-center"
         >
           Nothing pending review right now.
         </p>

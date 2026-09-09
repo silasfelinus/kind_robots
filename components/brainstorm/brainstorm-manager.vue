@@ -26,7 +26,7 @@
             <span v-else aria-hidden="true">🧠</span>
             Brainstorm
           </div>
-          <h2 class="text-2xl font-black tracking-tight text-base-content sm:text-3xl">
+          <h2 class="kr-text-black-2xl tracking-tight text-base-content sm:text-3xl">
             What are we trying to invent?
           </h2>
           <p class="mt-2 max-w-3xl text-sm leading-6 text-base-content/65">

@@ -9,7 +9,7 @@
           <Icon name="kind-icon:palette" class="h-4 w-4" aria-hidden="true" />
           Browse the collection
         </p>
-        <h2 class="mt-2 text-2xl font-black text-base-content sm:text-3xl">Style Gallery</h2>
+        <h2 class="kr-text-black-2xl mt-2 text-base-content sm:text-3xl">Style Gallery</h2>
         <p class="mt-1 text-sm leading-relaxed text-base-content/65">
           Start with the image. Open whatever catches your eye, learn how to recognize it, then remix your own source in that visual language.
         </p>

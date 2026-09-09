@@ -24,7 +24,7 @@
         <div class="kr-text-eyebrow kr-text-dim-xs tracking-widest">
           Cart preserved
         </div>
-        <div class="text-2xl font-black text-primary">
+        <div class="kr-text-black-2xl text-primary">
           {{ cartStore.totalItems }} item{{ cartStore.totalItems === 1 ? '' : 's' }} ·
           ${{ cartStore.formattedTotalPrice }}
         </div>

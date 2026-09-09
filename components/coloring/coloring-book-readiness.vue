@@ -4,7 +4,7 @@
       <div>
         <div class="flex items-center gap-2">
           <icon name="kind-icon:check" class="size-6 text-success" />
-          <h3 class="text-2xl font-black">Book readiness</h3>
+          <h3 class="kr-text-black-2xl">Book readiness</h3>
         </div>
         <p class="mt-1 max-w-3xl text-sm text-base-content/55">
           Every interior page gets one explicit next action. Covers remain separate

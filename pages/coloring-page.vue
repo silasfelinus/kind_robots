@@ -17,7 +17,7 @@
         </div>
         <div class="min-w-0 flex-1">
           <div class="flex flex-wrap items-center gap-2">
-            <p class="text-2xl font-black tracking-tight text-base-content">
+            <p class="kr-text-black-2xl tracking-tight text-base-content">
               Coloring Page Maker
             </p>
             <span class="kr-badge-primary-sm font-bold">New</span>

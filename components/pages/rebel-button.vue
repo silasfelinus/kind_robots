@@ -6,7 +6,7 @@
         <Icon name="kind-icon:button" class="h-7 w-7" />
       </span>
       <div>
-        <p class="text-2xl font-black tracking-tight">Rebel Button</p>
+        <p class="kr-text-black-2xl tracking-tight">Rebel Button</p>
         <p class="kr-text-dim-sm">
           Do not press this button. (You're going to press it.)
         </p>

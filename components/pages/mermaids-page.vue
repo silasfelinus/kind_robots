@@ -53,7 +53,7 @@
               <input
                 v-model="draft.heroTitle"
                 aria-label="Page title"
-                class="input input-bordered mb-3 w-full text-2xl font-black sm:text-3xl"
+                class="kr-text-black-2xl input input-bordered mb-3 w-full sm:text-3xl"
               />
               <textarea
                 v-model="draft.heroSubtitle"

@@ -7,7 +7,7 @@
         <Icon name="kind-icon:users" class="h-6 w-6" />
       </span>
       <div>
-        <h1 class="text-2xl font-black">Connect</h1>
+        <h1 class="kr-text-black-2xl">Connect</h1>
         <p class="kr-text-dim-sm mt-1">
           Account settings, the newsfeed, and your people now share one Home doorway.
         </p>

@@ -9,7 +9,7 @@
           <p class="kr-text-eyebrow-bold text-xs tracking-wide text-primary">
             Message Timeline
           </p>
-          <h2 class="text-2xl font-black text-base-content">Chats</h2>
+          <h2 class="kr-text-black-2xl text-base-content">Chats</h2>
           <p class="kr-text-dim-sm-70">
             Human, system, welcome, bot, and beautifully suspicious robot
             conversations.

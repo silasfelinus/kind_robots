@@ -178,7 +178,7 @@
               >
                 <td>
                   <div class="flex items-center gap-2">
-                    <span class="text-2xl font-black">{{
+                    <span class="kr-text-black-2xl">{{
                       row.effective.simplified
                     }}</span>
                     <span

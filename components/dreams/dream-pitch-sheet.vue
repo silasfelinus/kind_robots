@@ -68,7 +68,7 @@
       <section class="sheet-copy-panel min-w-0 lg:row-span-2">
         <div class="sheet-title-frame">
           <h2
-            class="line-clamp-2 text-2xl font-black leading-none text-(--sheet-ink) sm:text-4xl"
+            class="kr-text-black-2xl line-clamp-2 leading-none text-(--sheet-ink) sm:text-4xl"
           >
             {{ title }}
           </h2>

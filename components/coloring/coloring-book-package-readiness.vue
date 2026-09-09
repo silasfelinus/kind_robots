@@ -15,7 +15,7 @@
             Initial canonical refresh pending
           </span>
         </div>
-        <h3 class="mt-2 text-2xl font-black">Publishing readiness</h3>
+        <h3 class="kr-text-black-2xl mt-2">Publishing readiness</h3>
         <p class="mt-1 max-w-3xl text-sm text-base-content/55">
           Source art, physical layout decisions, and export files are tracked as separate
           gates. A finished illustration is not secretly a paperback wearing sunglasses.

@@ -150,7 +150,7 @@
                     <span class="kr-text-black-sm">Karma</span>
                   </div>
 
-                  <p class="mt-2 text-2xl font-black text-accent">
+                  <p class="kr-text-black-2xl mt-2 text-accent">
                     {{ karmaStore.balance }}
                   </p>
 
@@ -178,7 +178,7 @@
                     <span class="kr-text-black-sm">Mana</span>
                   </div>
 
-                  <p class="mt-2 text-2xl font-black text-secondary">
+                  <p class="kr-text-black-2xl mt-2 text-secondary">
                     {{ manaStore.balance }}
                     <span class="kr-text-bold-sm text-base-content/45">
                       / {{ manaStore.cap }}
@@ -209,7 +209,7 @@
                     <span class="kr-text-black-sm">Achievements</span>
                   </div>
 
-                  <p class="mt-2 text-2xl font-black text-success">
+                  <p class="kr-text-black-2xl mt-2 text-success">
                     {{ earnedAchievements.length }}
                   </p>
 

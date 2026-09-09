@@ -422,7 +422,7 @@
               >
                 Quest briefing
               </p>
-              <h2 class="mt-1 text-2xl font-black leading-tight sm:text-3xl">
+              <h2 class="kr-text-black-2xl mt-1 leading-tight sm:text-3xl">
                 Review the practical plan
               </h2>
               <p class="mt-2 max-w-xl text-sm leading-relaxed text-base-content/65">

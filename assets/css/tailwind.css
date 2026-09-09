@@ -1839,6 +1839,20 @@ section:has(div[class*='xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]'])
     @apply font-black text-xs;
   }
 
+  /* Fifth sibling in the `kr-text-black-*` family -- `font-black text-2xl`
+   * (interface-vision t-104 slice 175). Slice 174 called the family closed
+   * at `-lg`/`-xl`/`-sm`/`-xs`, the same "closed at the sizes surveyed, not
+   * a deliberate exclusion" situation that reopened it for `-xs` one slice
+   * earlier: a fresh full-repo class-frequency survey after slice 174
+   * found `-2xl` unnamed at 72 subset-match occurrences across roughly 50
+   * files, mostly page-header titles (the icon-badge + title/subtitle
+   * pattern t-105's page-polish slices established elsewhere). Same
+   * subset-match/--exact-only codemod convention as every other
+   * `kr-text-black-*`/`kr-text-dim-*` sibling. */
+  .kr-text-black-2xl {
+    @apply font-black text-2xl;
+  }
+
   /* `font-black uppercase` eyebrow/label text (interface-vision t-104 slice
    * 167) -- a fresh full-repo class-frequency survey once both the
    * `kr-text-black-*` and `kr-text-dim-*` families closed out found this

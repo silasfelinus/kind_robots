@@ -12,7 +12,7 @@
           </div>
 
           <div class="min-w-0">
-            <h1 class="text-2xl font-black text-primary">Mural Color Studio</h1>
+            <h1 class="kr-text-black-2xl text-primary">Mural Color Studio</h1>
 
             <p class="mt-1 max-w-3xl text-sm text-base-content/65">
               Color the mural plan by section, fill whole groups with one saved

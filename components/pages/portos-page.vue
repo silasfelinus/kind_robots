@@ -7,7 +7,7 @@
         </div>
         <div class="min-w-0 flex-1">
           <p class="kr-text-eyebrow-bold text-xs tracking-wide text-accent/70">Portos</p>
-          <h2 class="text-2xl font-black leading-tight">Portos Server Setup</h2>
+          <h2 class="kr-text-black-2xl leading-tight">Portos Server Setup</h2>
           <p class="kr-text-dim-sm-70 mt-1 leading-relaxed">
             This tab is reserved for connecting a Porto server address and saving the user/server pairing cleanly once the server entry flow is wired in.
           </p>

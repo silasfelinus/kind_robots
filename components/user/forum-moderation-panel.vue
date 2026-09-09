@@ -5,7 +5,7 @@
         <p class="kr-text-eyebrow text-xs tracking-widest text-primary">
           Forum moderation
         </p>
-        <p class="mt-1 text-2xl font-black">Health-claim escalation queue</p>
+        <p class="kr-text-black-2xl mt-1">Health-claim escalation queue</p>
         <p class="kr-text-dim-sm mt-1 max-w-2xl">
           Posts here were auto-hidden because at least two distinct people flagged them as
           misinformation or unsafe. Restore the post if the flag was wrong, or confirm removal

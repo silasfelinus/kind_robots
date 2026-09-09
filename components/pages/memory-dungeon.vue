@@ -164,7 +164,7 @@
         class="pointer-events-none fixed left-1/2 top-1/3 z-100 min-w-55 -translate-x-1/2 rounded-3xl bg-linear-to-br from-yellow-400 via-orange-400 to-red-400 px-8 py-5 text-center text-black shadow-2xl"
       >
         <div class="mb-1 text-5xl drop-shadow">{{ award.icon }}</div>
-        <div class="text-2xl font-black leading-tight tracking-tight">
+        <div class="kr-text-black-2xl leading-tight tracking-tight">
           {{ award.title }}
         </div>
         <div class="mt-1 text-sm font-medium opacity-80">

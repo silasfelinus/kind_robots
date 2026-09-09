@@ -32,7 +32,7 @@
         </span>
         <h2
           id="achievement-popup"
-          class="mt-3 text-2xl font-black text-white drop-shadow"
+          class="kr-text-black-2xl mt-3 text-white drop-shadow"
         >
           Achievement Unlocked!
         </h2>

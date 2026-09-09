@@ -219,7 +219,7 @@
                 </div>
                 <div class="text-right">
                   <p
-                    class="text-2xl font-black"
+                    class="kr-text-black-2xl"
                     :class="scoreClass(submission.score.netScore)"
                   >
                     {{ signedScore(submission.score.netScore) }}
@@ -251,7 +251,7 @@
                   >
                     Character entry
                   </p>
-                  <h3 class="mt-2 text-2xl font-black">
+                  <h3 class="kr-text-black-2xl mt-2">
                     {{ entityTitle(submission.Character, 'Unnamed character') }}
                   </h3>
                   <p
@@ -270,7 +270,7 @@
                   >
                     Scenario entry
                   </p>
-                  <h3 class="mt-2 text-2xl font-black">
+                  <h3 class="kr-text-black-2xl mt-2">
                     {{ entityTitle(submission.Scenario, 'Untitled scenario') }}
                   </h3>
                   <p

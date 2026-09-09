@@ -85,7 +85,7 @@
             <Icon name="kind-icon:forum" class="h-12 w-12 text-primary" />
 
             <div class="max-w-xl space-y-2">
-              <h2 class="text-2xl font-black text-base-content">
+              <h2 class="kr-text-black-2xl text-base-content">
                 Giftshop Forum
               </h2>
 

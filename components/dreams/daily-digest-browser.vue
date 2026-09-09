@@ -67,7 +67,7 @@
                   : 'The archive is waking up'
               }}
             </p>
-            <h2 class="mt-1 text-2xl font-black leading-tight sm:text-3xl">
+            <h2 class="kr-text-black-2xl mt-1 leading-tight sm:text-3xl">
               {{ activeDream?.title || 'Fresh worlds will gather here' }}
             </h2>
           </div>

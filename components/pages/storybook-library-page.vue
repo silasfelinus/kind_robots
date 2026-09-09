@@ -52,26 +52,12 @@
               class="menu dropdown-content z-20 mt-2 w-44 kr-panel-flat p-2 shadow-xl"
             >
               <li>
-                <button
-                  type="button"
-                  @click="
-                    downloadStory(undefined, 'markdown')
-                    closeExportMenu()
-                  "
-                >
+                <button type="button" @click="downloadStoryAsMarkdown">
                   Markdown
                 </button>
               </li>
               <li>
-                <button
-                  type="button"
-                  @click="
-                    downloadStory(undefined, 'json')
-                    closeExportMenu()
-                  "
-                >
-                  JSON
-                </button>
+                <button type="button" @click="downloadStoryAsJson">JSON</button>
               </li>
             </ul>
           </div>
@@ -321,6 +307,24 @@ function closeExportMenu(): void {
   if (typeof document === 'undefined') return
   const element = document.activeElement as HTMLElement | null
   element?.blur()
+}
+
+// Named wrappers for the export-menu items below instead of an inline
+// multi-statement @click: Prettier's canonical formatting for a
+// multi-statement inline handler is a semicolon-free, one-statement-per-line
+// block, which Vue's template expression compiler cannot parse (it looks
+// like a single expression, not a statement list) -- that's what broke the
+// production build after the storybook/davinci merge (#2549). A single
+// identifier handler sidesteps the ambiguity entirely and can't drift back
+// under a future --write.
+function downloadStoryAsMarkdown(): void {
+  downloadStory(undefined, 'markdown')
+  closeExportMenu()
+}
+
+function downloadStoryAsJson(): void {
+  downloadStory(undefined, 'json')
+  closeExportMenu()
 }
 
 function startNewStory(): void {

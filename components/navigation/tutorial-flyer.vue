@@ -131,7 +131,7 @@
               </p>
 
               <h2
-                class="mt-2.5 text-2xl font-black leading-[1.1] tracking-tight text-base-content sm:text-3xl"
+                class="kr-text-black-2xl mt-2.5 leading-[1.1] tracking-tight text-base-content sm:text-3xl"
               >
                 {{ config.title }}
               </h2>

@@ -7,7 +7,7 @@
         <Icon name="kind-icon:shield" class="h-7 w-7" />
       </span>
       <div>
-        <p class="text-2xl font-black tracking-tight">Privacy Policy</p>
+        <p class="kr-text-black-2xl tracking-tight">Privacy Policy</p>
         <p class="kr-text-dim-sm">Last updated: May 2026</p>
       </div>
     </header>

@@ -12,7 +12,7 @@
       class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between"
     >
       <div>
-        <h1 class="text-2xl font-black">User Admin</h1>
+        <h1 class="kr-text-black-2xl">User Admin</h1>
         <p class="kr-text-dim-sm-70">
           {{ store.roster.length }} users · manage roles, maturity, access, and
           logins.

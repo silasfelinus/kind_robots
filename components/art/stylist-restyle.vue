@@ -415,7 +415,7 @@
               title="Dismiss"
               @click="stylist.dismissJob(job.id)"
             >
-              <Icon name="mdi:close" class="h-3.5 w-3.5" />
+              <Icon name="mdi:close" class="kr-icon-3-5" />
             </button>
           </div>
           <div class="grid grid-cols-2 gap-1">

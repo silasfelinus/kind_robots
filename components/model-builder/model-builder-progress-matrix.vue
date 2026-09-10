@@ -35,7 +35,7 @@
             aria-hidden="true"
           />
           <template v-else>
-            <Icon name="kind-icon:bolt" class="h-3.5 w-3.5" />
+            <Icon name="kind-icon:bolt" class="kr-icon-3-5" />
             Auto-build all
             <span v-if="busyCount" class="kr-badge-ghost-xs"
               >{{ busyCount }} busy</span
@@ -47,7 +47,7 @@
           class="kr-btn-ghost-xs text-base-content/60"
           @click="store.resetRun()"
         >
-          <Icon name="kind-icon:arrow-left" class="h-3.5 w-3.5" />
+          <Icon name="kind-icon:arrow-left" class="kr-icon-3-5" />
           New run
         </button>
       </div>

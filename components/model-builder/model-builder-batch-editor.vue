@@ -60,7 +60,7 @@
           :disabled="anyBatching || store.autoBuilding"
           @click="draftAll('pitch')"
         >
-          <Icon name="kind-icon:sparkles" class="h-3.5 w-3.5" />
+          <Icon name="kind-icon:sparkles" class="kr-icon-3-5" />
           Draft pitches
         </button>
         <button
@@ -70,7 +70,7 @@
           :disabled="anyBatching || store.autoBuilding"
           @click="draftAll('fields')"
         >
-          <Icon name="kind-icon:sparkles" class="h-3.5 w-3.5" />
+          <Icon name="kind-icon:sparkles" class="kr-icon-3-5" />
           Draft fields
         </button>
         <button
@@ -80,7 +80,7 @@
           :disabled="anyBatching || store.autoBuilding"
           @click="draftAll('artPrompt')"
         >
-          <Icon name="kind-icon:sparkles" class="h-3.5 w-3.5" />
+          <Icon name="kind-icon:sparkles" class="kr-icon-3-5" />
           Draft prompts
         </button>
         <button
@@ -91,7 +91,7 @@
             store.batchApproveStage(group.outputKey, 'FIELDS_AND_PROMPTS')
           "
         >
-          <Icon name="kind-icon:check" class="h-3.5 w-3.5" />
+          <Icon name="kind-icon:check" class="kr-icon-3-5" />
           Approve fields
         </button>
         <button
@@ -101,7 +101,7 @@
           :title="autoBuildGroupTitle"
           @click="store.batchAutoBuild(group.outputKey)"
         >
-          <Icon name="kind-icon:bolt" class="h-3.5 w-3.5" />
+          <Icon name="kind-icon:bolt" class="kr-icon-3-5" />
           Auto-build group
           <span v-if="busyCount" class="kr-badge-ghost-xs"
             >{{ busyCount }} busy</span

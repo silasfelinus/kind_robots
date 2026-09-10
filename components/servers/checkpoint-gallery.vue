@@ -38,7 +38,7 @@
         type="button"
         @click="showAdd = !showAdd"
       >
-        <Icon name="kind-icon:plus" class="h-3.5 w-3.5" />
+        <Icon name="kind-icon:plus" class="kr-icon-3-5" />
         Add
       </button>
     </header>
@@ -117,7 +117,7 @@
             type="button"
             @click="refreshStatus"
           >
-            <Icon name="kind-icon:refresh-cw" class="h-3.5 w-3.5" />
+            <Icon name="kind-icon:refresh-cw" class="kr-icon-3-5" />
             <span class="hidden sm:inline">Refresh</span>
           </button>
         </div>

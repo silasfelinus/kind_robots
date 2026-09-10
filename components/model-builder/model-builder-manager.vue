@@ -50,7 +50,7 @@
         :aria-pressed="showHistory"
         @click="showHistory = !showHistory"
       >
-        <Icon name="kind-icon:clock" class="h-3.5 w-3.5" />
+        <Icon name="kind-icon:clock" class="kr-icon-3-5" />
         <span class="hidden sm:inline">History</span>
       </button>
 
@@ -61,7 +61,7 @@
         aria-label="Reset Model Builder"
         @click="store.resetAll()"
       >
-        <Icon name="kind-icon:trash" class="h-3.5 w-3.5" />
+        <Icon name="kind-icon:trash" class="kr-icon-3-5" />
         <span class="hidden sm:inline">Reset</span>
       </button>
     </header>

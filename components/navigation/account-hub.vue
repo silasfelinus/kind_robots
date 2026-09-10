@@ -207,7 +207,7 @@
               class="kr-btn-xs"
               @click="captureCurrent"
             >
-              <Icon name="kind-icon:save" class="h-3.5 w-3.5" />
+              <Icon name="kind-icon:save" class="kr-icon-3-5" />
               Save
             </button>
 
@@ -216,7 +216,7 @@
               class="kr-btn-xs btn-secondary"
               @click="addAccount"
             >
-              <Icon name="kind-icon:plus" class="h-3.5 w-3.5" />
+              <Icon name="kind-icon:plus" class="kr-icon-3-5" />
               Add
             </button>
           </div>
@@ -227,7 +227,7 @@
             class="kr-btn-xs btn-primary w-full justify-center gap-1.5"
             @click="store.close"
           >
-            <Icon name="kind-icon:login" class="h-3.5 w-3.5 shrink-0" />
+            <Icon name="kind-icon:login" class="kr-icon-3-5 shrink-0" />
             Log in
           </NuxtLink>
 
@@ -237,7 +237,7 @@
             class="kr-btn-ghost-xs text-error"
             @click="logout"
           >
-            <Icon name="kind-icon:logout" class="h-3.5 w-3.5" />
+            <Icon name="kind-icon:logout" class="kr-icon-3-5" />
             Log out
           </button>
         </div>

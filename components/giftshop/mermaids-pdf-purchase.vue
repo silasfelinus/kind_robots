@@ -21,7 +21,7 @@
       <span
         class="kr-text-dim-xs-70 badge badge-outline badge-lg gap-1 rounded-2xl"
       >
-        <Icon name="kind-icon:sparkles" class="h-3.5 w-3.5" />
+        <Icon name="kind-icon:sparkles" class="kr-icon-3-5" />
         PDF edition — $9.99
       </span>
       <NuxtLink to="/login" class="kr-btn-outline-plain rounded-2xl">

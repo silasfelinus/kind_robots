@@ -189,7 +189,7 @@
             <Icon
               v-if="badge.icon"
               :name="badge.icon"
-              class="h-3.5 w-3.5"
+              class="kr-icon-3-5"
               :class="badge.label ? 'mr-1' : ''"
               aria-hidden="true"
             />
@@ -238,7 +238,7 @@
             <Icon
               v-if="badge.icon"
               :name="badge.icon"
-              class="h-3.5 w-3.5"
+              class="kr-icon-3-5"
               :class="badge.label ? 'mr-1' : ''"
               aria-hidden="true"
             />

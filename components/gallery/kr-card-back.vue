@@ -178,7 +178,7 @@
             class="kr-btn-ghost-xs"
             @click="editing = false"
           >
-            <Icon name="kind-icon:x" class="h-3.5 w-3.5" />
+            <Icon name="kind-icon:x" class="kr-icon-3-5" />
             Done
           </button>
         </div>

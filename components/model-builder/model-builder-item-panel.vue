@@ -21,7 +21,7 @@
           aria-hidden="true"
         />
         <template v-else>
-          <Icon name="kind-icon:bolt" class="h-3.5 w-3.5" />
+          <Icon name="kind-icon:bolt" class="kr-icon-3-5" />
           Auto
         </template>
       </button>
@@ -74,7 +74,7 @@
             aria-hidden="true"
           />
           <template v-else>
-            <Icon name="kind-icon:magic" class="h-3.5 w-3.5" />
+            <Icon name="kind-icon:magic" class="kr-icon-3-5" />
             Draft with AI
           </template>
         </button>

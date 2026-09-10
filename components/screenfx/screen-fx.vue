@@ -24,7 +24,7 @@
             {{ animationStore.effects.length }} effects
           </span>
           <NuxtLink to="/build/animation-manager" class="fx-manage-link">
-            <Icon name="kind-icon:trophy" class="h-3.5 w-3.5" />
+            <Icon name="kind-icon:trophy" class="kr-icon-3-5" />
             Manage builds
           </NuxtLink>
         </div>

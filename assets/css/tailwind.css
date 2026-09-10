@@ -1819,6 +1819,23 @@ section:has(div[class*='xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]'])
     @apply h-5 w-5;
   }
 
+  /* Same bare sizeless-and-colorless icon-glyph shape as `.kr-icon-3`/
+   * `.kr-icon-5`/`.kr-icon-6`/`.kr-icon-7`/`.kr-icon-8` (interface-vision
+   * t-104 slice 203) -- `h-3.5 w-3.5`, previously hand-rolled identically
+   * in 31 files (78 occurrences via subset-match). Naming convention
+   * decided this slice (left undecided by slices 201 and 202's kaizen
+   * notes): a literal `.` is not a valid bare character in a CSS class
+   * selector without an escape (`.kr-icon-3\.5`), which is fragile to
+   * write and grep for; dash substitution (`kr-icon-3-5`) reads
+   * unambiguously and matches the plain-digit naming every other sibling
+   * in this family already uses. Sibling sizes still open: `h-4 w-4` (95
+   * files, needs further splitting). Distinct from any future
+   * `.kr-icon-primary-3-5` (same size, carries `text-primary`) -- this is
+   * the untinted sibling. */
+  .kr-icon-3-5 {
+    @apply h-3.5 w-3.5;
+  }
+
   /* The colorless DaisyUI busy indicator: a bare tiny spinner dropped into
    * a button or inline slot while an action is pending, no tint (the
    * button/text color around it usually already carries the tone)

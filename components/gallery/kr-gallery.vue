@@ -20,7 +20,7 @@
         :aria-pressed="mode === entry.value"
         @click="emit('update:mode', entry.value)"
       >
-        <Icon :name="entry.icon" class="h-3.5 w-3.5 shrink-0" />
+        <Icon :name="entry.icon" class="kr-icon-3-5 shrink-0" />
         <span class="hidden lg:inline">{{ entry.label }}</span>
       </button>
     </div>

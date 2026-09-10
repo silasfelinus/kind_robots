@@ -334,7 +334,7 @@
             data-testid="brainstorm-source-remove"
             @click="clearSource"
           >
-            <Icon name="kind-icon:x" class="h-3.5 w-3.5" />
+            <Icon name="kind-icon:x" class="kr-icon-3-5" />
             Remove
           </button>
         </div>

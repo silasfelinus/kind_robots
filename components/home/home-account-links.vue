@@ -19,7 +19,7 @@
         to="/account"
         class="kr-panel flex min-h-40 flex-col gap-3 p-5 transition hover:-translate-y-0.5 hover:border-primary/50 hover:shadow-md"
       >
-        <Icon name="kind-icon:settings" class="h-7 w-7 text-primary" />
+        <Icon name="kind-icon:settings" class="kr-icon-primary-7" />
         <div>
           <h2 class="font-black">Account</h2>
           <p class="kr-text-dim-sm mt-1">
@@ -33,7 +33,7 @@
         to="/plan/newsfeed"
         class="kr-panel flex min-h-40 flex-col gap-3 p-5 transition hover:-translate-y-0.5 hover:border-primary/50 hover:shadow-md"
       >
-        <Icon name="kind-icon:news" class="h-7 w-7 text-primary" />
+        <Icon name="kind-icon:news" class="kr-icon-primary-7" />
         <div>
           <h2 class="font-black">Newsfeed</h2>
           <p class="kr-text-dim-sm mt-1">
@@ -47,7 +47,7 @@
         to="/friends"
         class="kr-panel flex min-h-40 flex-col gap-3 p-5 transition hover:-translate-y-0.5 hover:border-primary/50 hover:shadow-md"
       >
-        <Icon name="kind-icon:users" class="h-7 w-7 text-primary" />
+        <Icon name="kind-icon:users" class="kr-icon-primary-7" />
         <div>
           <h2 class="font-black">Friends</h2>
           <p class="kr-text-dim-sm mt-1">

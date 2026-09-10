@@ -1667,6 +1667,24 @@ section:has(div[class*='xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]'])
     @apply h-4 w-4 text-primary;
   }
 
+  /* Same bare-icon shape one size up from `.kr-icon-primary-6` -- `h-7 w-7
+   * text-primary`, no tile/background (interface-vision t-104 slice 194): 8
+   * exact occurrences across 6 files (academy-style-detail.vue,
+   * dream-brainstorm.vue, dream-maker.vue, giftshop-interact.vue,
+   * home-account-links.vue x3, tutorial-flyer.vue), excluding a
+   * `sample/*.vue.txt` template file out of codemod scope. Sibling of
+   * `.kr-icon-primary-4`/`.kr-icon-primary-5`/`.kr-icon-primary-6` above,
+   * not a generalization of any of them -- kept as its own fixed-size
+   * primitive to match every other kr-icon-primary-* sibling. Remaining
+   * sibling sizes still open for future slices: `h-10 w-10 text-primary/60`
+   * (3 files, different opacity -- a distinct token set, not a subset
+   * match of this family), `h-12 w-12 text-primary` (7 files, distinct
+   * from `.kr-icon-tile`'s own `h-12 w-12` which also carries the tile's
+   * background/shape tokens). */
+  .kr-icon-primary-7 {
+    @apply h-7 w-7 text-primary;
+  }
+
   /* The colorless DaisyUI busy indicator: a bare tiny spinner dropped into
    * a button or inline slot while an action is pending, no tint (the
    * button/text color around it usually already carries the tone)

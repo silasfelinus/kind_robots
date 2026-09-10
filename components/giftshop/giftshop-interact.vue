@@ -8,7 +8,7 @@
         >
           <div class="min-w-0 space-y-2">
             <div class="flex flex-wrap items-center gap-2">
-              <Icon name="kind-icon:gift" class="h-7 w-7 text-primary" />
+              <Icon name="kind-icon:gift" class="kr-icon-primary-7" />
 
               <h3 class="kr-text-black-2xl text-primary sm:text-3xl">
                 Swarm Giftshop

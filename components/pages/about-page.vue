@@ -30,15 +30,15 @@
 
         <div class="flex flex-wrap gap-2">
           <NuxtLink to="/about" class="btn btn-outline min-w-36 flex-1 justify-start rounded-xl">
-            <Icon name="kind-icon:butterfly" class="h-4 w-4" />
+            <Icon name="kind-icon:butterfly" class="kr-icon-4" />
             About
           </NuxtLink>
           <NuxtLink to="/giving" class="btn btn-outline min-w-36 flex-1 justify-start rounded-xl">
-            <Icon name="kind-icon:hand-heart" class="h-4 w-4" />
+            <Icon name="kind-icon:hand-heart" class="kr-icon-4" />
             Giving
           </NuxtLink>
           <NuxtLink to="/sanctuary" class="btn btn-outline min-w-36 flex-1 justify-start rounded-xl">
-            <Icon name="kind-icon:gift" class="h-4 w-4" />
+            <Icon name="kind-icon:gift" class="kr-icon-4" />
             Gift Shop
           </NuxtLink>
         </div>
@@ -94,7 +94,7 @@
             rel="noopener"
             class="btn btn-outline justify-start rounded-xl"
           >
-            <Icon name="kind-icon:hand-heart" class="h-4 w-4" />
+            <Icon name="kind-icon:hand-heart" class="kr-icon-4" />
             AMIbot fundraiser
           </a>
           <a
@@ -103,14 +103,14 @@
             rel="noopener"
             class="btn btn-outline justify-start rounded-xl"
           >
-            <Icon name="kind-icon:image" class="h-4 w-4" />
+            <Icon name="kind-icon:image" class="kr-icon-4" />
             Cafe Purr
           </a>
           <NuxtLink
             to="/mermaids"
             class="btn btn-outline justify-start rounded-xl"
           >
-            <Icon name="kind-icon:mermaid" class="h-4 w-4" />
+            <Icon name="kind-icon:mermaid" class="kr-icon-4" />
             Mermaids of Venice
           </NuxtLink>
           <a
@@ -119,7 +119,7 @@
             rel="noopener"
             class="btn btn-outline justify-start rounded-xl"
           >
-            <Icon name="kind-icon:magic" class="h-4 w-4" />
+            <Icon name="kind-icon:magic" class="kr-icon-4" />
             Hair by Superkate
           </a>
         </div>

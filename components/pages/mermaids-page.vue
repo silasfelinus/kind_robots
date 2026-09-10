@@ -124,7 +124,7 @@
               rel="noopener"
               class="btn btn-primary btn-sm rounded-2xl"
             >
-              <Icon name="kind-icon:external-link" class="h-4 w-4" />
+              <Icon name="kind-icon:external-link" class="kr-icon-4" />
               {{ draft.amazonLabel }}
             </a>
             <input

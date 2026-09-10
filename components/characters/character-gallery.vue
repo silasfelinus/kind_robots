@@ -19,7 +19,7 @@
         </div>
 
         <button class="kr-btn-ghost" type="button" @click="closeCharacterForm">
-          <Icon name="kind-icon:x" class="h-4 w-4" />
+          <Icon name="kind-icon:x" class="kr-icon-4" />
           <span class="hidden sm:inline">Close</span>
         </button>
       </div>
@@ -170,7 +170,7 @@
                 type="button"
                 @click="cloneSelectedCharacter"
               >
-                <Icon name="kind-icon:copy" class="h-4 w-4" />
+                <Icon name="kind-icon:copy" class="kr-icon-4" />
                 <span class="hidden sm:inline">Clone</span>
               </button>
 
@@ -180,7 +180,7 @@
                 type="button"
                 @click="startEditingSelectedCharacter"
               >
-                <Icon name="kind-icon:pencil" class="h-4 w-4" />
+                <Icon name="kind-icon:pencil" class="kr-icon-4" />
                 <span class="hidden sm:inline">Edit</span>
               </button>
             </div>
@@ -315,7 +315,7 @@
           type="button"
           @click="startAddingCharacter"
         >
-          <Icon name="kind-icon:plus" class="h-4 w-4" />
+          <Icon name="kind-icon:plus" class="kr-icon-4" />
           Make the first weirdo
         </button>
       </div>

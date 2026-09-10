@@ -32,7 +32,7 @@
           title="Edit Character"
           @click.stop="emit('edit', character.id)"
         >
-          <Icon name="kind-icon:pencil" class="h-4 w-4" />
+          <Icon name="kind-icon:pencil" class="kr-icon-4" />
         </button>
 
         <button
@@ -42,7 +42,7 @@
           title="Clone Character"
           @click.stop="emit('clone', character.id)"
         >
-          <Icon name="kind-icon:copy" class="h-4 w-4" />
+          <Icon name="kind-icon:copy" class="kr-icon-4" />
         </button>
 
         <button
@@ -52,7 +52,7 @@
           title="Delete Character"
           @click.stop="deleteCharacter"
         >
-          <Icon name="kind-icon:trash" class="h-4 w-4" />
+          <Icon name="kind-icon:trash" class="kr-icon-4" />
         </button>
       </template>
 
@@ -116,7 +116,7 @@
             type="button"
             @click.stop="toggleMode('chat')"
           >
-            <Icon name="kind-icon:message" class="h-4 w-4" />
+            <Icon name="kind-icon:message" class="kr-icon-4" />
             Chat
           </button>
 
@@ -128,7 +128,7 @@
             type="button"
             @click.stop="toggleMode('adventure')"
           >
-            <Icon name="kind-icon:compass" class="h-4 w-4" />
+            <Icon name="kind-icon:compass" class="kr-icon-4" />
             Adventure
           </button>
         </div>

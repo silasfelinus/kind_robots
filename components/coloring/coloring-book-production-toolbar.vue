@@ -18,13 +18,13 @@
         </p>
       </div>
       <div class="flex flex-wrap gap-2">
-        <span class="badge badge-outline rounded-2xl">
+        <span class="kr-badge-outline rounded-2xl">
           Color {{ production?.colorStatus || proposal.queue.status }}
         </span>
-        <span class="badge badge-outline rounded-2xl">
+        <span class="kr-badge-outline rounded-2xl">
           B&amp;W {{ production?.bwStatus || 'missing' }}
         </span>
-        <span v-if="production?.pairStatus" class="badge badge-outline rounded-2xl">
+        <span v-if="production?.pairStatus" class="kr-badge-outline rounded-2xl">
           Pair {{ production.pairStatus }}
         </span>
       </div>
@@ -97,10 +97,10 @@
           <span v-if="hasBwScore" class="badge badge-info rounded-2xl">
             Pair score {{ production?.bwSemanticScore }}
           </span>
-          <span v-if="production?.bwSemanticVerdict" class="badge badge-outline rounded-2xl">
+          <span v-if="production?.bwSemanticVerdict" class="kr-badge-outline rounded-2xl">
             {{ production.bwSemanticVerdict }}
           </span>
-          <span v-if="production?.bwRevisionCount" class="badge badge-outline rounded-2xl">
+          <span v-if="production?.bwRevisionCount" class="kr-badge-outline rounded-2xl">
             {{ production.bwRevisionCount }} archived revision{{ production.bwRevisionCount === 1 ? '' : 's' }}
           </span>
         </div>

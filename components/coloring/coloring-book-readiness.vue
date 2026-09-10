@@ -11,7 +11,7 @@
           production blockers until they have their own canonical workflow.
         </p>
       </div>
-      <span class="badge badge-outline rounded-2xl">
+      <span class="kr-badge-outline rounded-2xl">
         {{ totalFinalPairs }}/{{ totalInteriors }} final interior pairs
       </span>
     </header>

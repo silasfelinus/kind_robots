@@ -26,7 +26,7 @@
         <span v-if="cover.semanticScore !== null" class="badge badge-info rounded-2xl">
           Score {{ cover.semanticScore }}
         </span>
-        <span v-if="cover.revisionHistory.length" class="badge badge-outline rounded-2xl">
+        <span v-if="cover.revisionHistory.length" class="kr-badge-outline rounded-2xl">
           {{ cover.revisionHistory.length }} archived revision{{ cover.revisionHistory.length === 1 ? '' : 's' }}
         </span>
       </div>

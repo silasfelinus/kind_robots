@@ -84,7 +84,7 @@
               </p>
               <h4 class="kr-text-black-xl">{{ book.title }}</h4>
             </div>
-            <span class="badge badge-outline rounded-2xl">{{ book.status }}</span>
+            <span class="kr-badge-outline rounded-2xl">{{ book.status }}</span>
           </div>
 
           <progress
@@ -549,7 +549,7 @@
             >
               {{ problem.proposal.queue.status }}
             </span>
-            <span class="badge badge-outline rounded-2xl">
+            <span class="kr-badge-outline rounded-2xl">
               {{ problem.proposal.queue.semanticAttempts }} attempts
             </span>
           </div>

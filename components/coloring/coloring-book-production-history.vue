@@ -70,7 +70,7 @@
             >
               {{ item.variant === 'color' ? 'Color' : 'B&W' }}
             </span>
-            <span class="badge badge-outline rounded-2xl">
+            <span class="kr-badge-outline rounded-2xl">
               {{ historyLabel(item.kind) }}
             </span>
             <span v-if="item.score !== null" class="badge badge-info rounded-2xl">

@@ -76,7 +76,7 @@
                 <span
                   v-for="badge in badges"
                   :key="badge"
-                  class="badge badge-outline rounded-xl"
+                  class="kr-badge-outline rounded-xl"
                 >
                   {{ badge }}
                 </span>

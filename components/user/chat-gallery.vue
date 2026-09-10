@@ -152,7 +152,7 @@
               </p>
 
               <div class="mt-3 flex flex-wrap items-center gap-2">
-                <span class="badge badge-outline rounded-xl">
+                <span class="kr-badge-outline rounded-xl">
                   {{ thread.count }}
                   {{ thread.count === 1 ? 'message' : 'messages' }}
                 </span>

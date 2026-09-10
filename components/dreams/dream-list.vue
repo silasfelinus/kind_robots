@@ -40,7 +40,7 @@
         </template>
 
         <div v-else :class="emptyClass">
-          <Icon :name="emptyIcon" class="h-10 w-10 text-primary/60" />
+          <Icon :name="emptyIcon" class="kr-icon-primary-10" />
           <div>
             <p class="font-black">{{ emptyTitle }}</p>
             <p class="mt-1">{{ emptyMessage }}</p>
@@ -68,7 +68,7 @@
         </template>
 
         <div v-else :class="emptyClass">
-          <Icon :name="emptyIcon" class="h-10 w-10 text-primary/60" />
+          <Icon :name="emptyIcon" class="kr-icon-primary-10" />
           <div>
             <p class="font-black">{{ emptyTitle }}</p>
             <p class="mt-1">{{ emptyMessage }}</p>
@@ -94,7 +94,7 @@
         </template>
 
         <div v-else :class="emptyClass">
-          <Icon :name="emptyIcon" class="h-10 w-10 text-primary/60" />
+          <Icon :name="emptyIcon" class="kr-icon-primary-10" />
           <div>
             <p class="font-black">{{ emptyTitle }}</p>
             <p class="mt-1">{{ emptyMessage }}</p>
@@ -120,7 +120,7 @@
         </template>
 
         <div v-else :class="emptyClass">
-          <Icon :name="emptyIcon" class="h-10 w-10 text-primary/60" />
+          <Icon :name="emptyIcon" class="kr-icon-primary-10" />
           <div>
             <p class="font-black">{{ emptyTitle }}</p>
             <p class="mt-1">{{ emptyMessage }}</p>
@@ -169,7 +169,7 @@
       </div>
 
       <div v-else :class="emptyClass">
-        <Icon :name="emptyIcon" class="h-10 w-10 text-primary/60" />
+        <Icon :name="emptyIcon" class="kr-icon-primary-10" />
         <div>
           <p class="font-black">{{ emptyTitle }}</p>
           <p class="mt-1">{{ emptyMessage }}</p>

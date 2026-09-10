@@ -157,7 +157,7 @@
         v-if="!visibleImages.length"
         class="kr-text-dim-sm kr-panel-muted col-span-full flex min-h-40 flex-col items-center justify-center border-dashed text-center"
       >
-        <Icon name="kind-icon:image" class="h-10 w-10 text-primary/60" />
+        <Icon name="kind-icon:image" class="kr-icon-primary-10" />
         <p class="mt-2 font-bold">No art found for this filter.</p>
         <p class="text-xs">Try another collection, or clear the search.</p>
       </div>

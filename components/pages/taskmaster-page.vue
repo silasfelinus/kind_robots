@@ -136,7 +136,7 @@
             />
 
             <label class="form-control w-full">
-              <div class="label py-1">
+              <div class="kr-label-row">
                 <span
                   class="kr-text-eyebrow text-[0.68rem] tracking-[0.12em] text-base-content/55"
                 >
@@ -320,7 +320,7 @@
                 </details>
 
                 <label class="form-control w-full">
-                  <div class="label py-1">
+                  <div class="kr-label-row">
                     <span
                       class="kr-text-eyebrow text-[0.68rem] tracking-[0.12em] text-base-content/55"
                     >

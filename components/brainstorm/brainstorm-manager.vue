@@ -344,7 +344,7 @@
 
         <div class="mt-4 grid grid-cols-[auto_minmax(0,1fr)_auto] items-end gap-2">
           <label class="form-control">
-            <span class="label py-1"
+            <span class="kr-label-row"
               ><span class="kr-text-eyebrow-bold kr-text-dim-xs-55 tracking-[0.12em]"
                 >Type</span
               ></span
@@ -360,7 +360,7 @@
             </select>
           </label>
           <label class="form-control">
-            <span class="label py-1"
+            <span class="kr-label-row"
               ><span class="kr-text-eyebrow-bold kr-text-dim-xs-55 tracking-[0.12em]"
                 >Search</span
               ></span

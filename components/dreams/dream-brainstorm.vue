@@ -129,7 +129,7 @@
         <section class="shrink-0 kr-panel-header-muted">
           <div class="grid gap-3 lg:grid-cols-[minmax(0,1fr)_14rem]">
             <label class="form-control">
-              <span class="label py-1"
+              <span class="kr-label-row"
                 ><span class="kr-text-eyebrow-bold text-xs tracking-wide"
                   >Seed Title</span
                 ></span
@@ -144,7 +144,7 @@
             </label>
 
             <label class="form-control">
-              <span class="label py-1"
+              <span class="kr-label-row"
                 ><span class="kr-text-eyebrow-bold text-xs tracking-wide"
                   >Save Type</span
                 ></span
@@ -165,7 +165,7 @@
           </div>
 
           <label class="form-control mt-3">
-            <span class="label py-1"
+            <span class="kr-label-row"
               ><span class="kr-text-eyebrow-bold text-xs tracking-wide"
                 >Pitch</span
               ></span
@@ -179,7 +179,7 @@
           </label>
 
           <label class="form-control mt-3">
-            <span class="label py-1"
+            <span class="kr-label-row"
               ><span class="kr-text-eyebrow-bold text-xs tracking-wide"
                 >Direction</span
               ></span

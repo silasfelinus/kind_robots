@@ -216,7 +216,7 @@
 
             <div class="grid grid-cols-1 gap-2 md:grid-cols-2 xl:grid-cols-4">
               <label class="form-control">
-                <span class="label py-1"
+                <span class="kr-label-row"
                   ><span class="kr-text-bold-xs">Designer</span></span
                 >
                 <input
@@ -228,7 +228,7 @@
               </label>
 
               <label class="form-control">
-                <span class="label py-1"
+                <span class="kr-label-row"
                   ><span class="kr-text-bold-xs">Sampler</span></span
                 >
                 <input
@@ -239,7 +239,7 @@
               </label>
 
               <label class="form-control">
-                <span class="label py-1"
+                <span class="kr-label-row"
                   ><span class="kr-text-bold-xs">Checkpoint</span></span
                 >
                 <input
@@ -250,7 +250,7 @@
               </label>
 
               <label class="form-control">
-                <span class="label py-1"
+                <span class="kr-label-row"
                   ><span class="kr-text-bold-xs">Steps</span></span
                 >
                 <input
@@ -262,7 +262,7 @@
               </label>
 
               <label class="form-control">
-                <span class="label py-1"
+                <span class="kr-label-row"
                   ><span class="kr-text-bold-xs">Seed</span></span
                 >
                 <input
@@ -273,7 +273,7 @@
               </label>
 
               <label class="form-control">
-                <span class="label py-1"
+                <span class="kr-label-row"
                   ><span class="kr-text-bold-xs">CFG</span></span
                 >
                 <input
@@ -314,7 +314,7 @@
               </summary>
               <div class="grid gap-2 p-3">
                 <label class="form-control">
-                  <span class="label py-1"
+                  <span class="kr-label-row"
                     ><span class="kr-text-bold-xs">Prompt</span></span
                   >
                   <textarea
@@ -324,7 +324,7 @@
                   />
                 </label>
                 <label class="form-control">
-                  <span class="label py-1"
+                  <span class="kr-label-row"
                     ><span class="kr-text-bold-xs">Negative Prompt</span></span
                   >
                   <textarea

@@ -181,7 +181,7 @@
           <template v-if="canShowCustomFollowup" #footer>
             <div class="kr-panel-flat p-3">
               <label class="form-control">
-                <span class="label py-1">
+                <span class="kr-label-row">
                   <span
                     class="kr-text-eyebrow-bold kr-text-dim-xs tracking-wide"
                   >

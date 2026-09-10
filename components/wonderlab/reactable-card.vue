@@ -42,7 +42,7 @@
         title="React"
         @click.stop="toggleReaction"
       >
-        <Icon name="kind-icon:star" class="h-4 w-4" />
+        <Icon name="kind-icon:star" class="kr-icon-4" />
       </button>
     </div>
 
@@ -66,7 +66,7 @@
             type="button"
             @click="reactionOpen = false"
           >
-            <Icon name="kind-icon:x" class="h-4 w-4" />
+            <Icon name="kind-icon:x" class="kr-icon-4" />
           </button>
         </div>
 

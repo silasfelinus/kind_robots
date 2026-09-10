@@ -19,7 +19,7 @@
               v-if="persona?.avatarImage && !personaAvatarFailed"
               :src="persona.avatarImage"
               :alt="persona.name"
-              class="h-4 w-4 rounded-full object-cover"
+              class="kr-icon-4 rounded-full object-cover"
               loading="lazy"
               @error="personaAvatarFailed = true"
             />

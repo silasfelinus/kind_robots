@@ -85,7 +85,7 @@
 
     <section v-if="themeError" class="shrink-0 kr-note kr-note-error p-3">
       <div class="flex items-start gap-2">
-        <Icon name="kind-icon:alert" class="mt-0.5 h-4 w-4 shrink-0" />
+        <Icon name="kind-icon:alert" class="kr-icon-4 mt-0.5 shrink-0" />
         <p class="whitespace-pre-wrap">{{ themeError }}</p>
       </div>
     </section>

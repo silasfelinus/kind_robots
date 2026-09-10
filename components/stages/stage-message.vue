@@ -34,7 +34,7 @@
     <div
       class="kr-icon-8 rounded-full bg-secondary/20 flex items-center justify-center shrink-0"
     >
-      <Icon name="mdi:account" class="w-4 h-4" />
+      <Icon name="mdi:account" class="kr-icon-4" />
     </div>
     <div class="bg-secondary/20 rounded-2xl px-3 py-2 text-sm">
       <div class="text-xs opacity-60 mb-0.5">{{ entry.speakerLabel }}</div>

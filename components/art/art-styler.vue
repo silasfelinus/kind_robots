@@ -99,7 +99,7 @@
             title="Clear source"
             @click="clearSourceImage"
           >
-            <Icon name="mdi:close" class="h-3 w-3" />
+            <Icon name="mdi:close" class="kr-icon-3" />
           </button>
         </div>
       </Transition>
@@ -350,7 +350,7 @@
             v-if="selectedStyle"
             class="flex items-center gap-1 text-xs font-semibold text-primary"
           >
-            <Icon name="mdi:palette" class="h-3 w-3" />
+            <Icon name="mdi:palette" class="kr-icon-3" />
             {{ selectedStyle.label }}
           </p>
           <p v-else class="kr-text-dim-xs-40 italic">Pick a style below</p>

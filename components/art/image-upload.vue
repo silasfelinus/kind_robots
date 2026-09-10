@@ -73,7 +73,7 @@
           :title="`Remove ${item.file.name}`"
           @click.stop="removeFile(i)"
         >
-          <Icon name="mdi:close" class="h-3 w-3" />
+          <Icon name="mdi:close" class="kr-icon-3" />
         </button>
 
         <Transition name="fade">
@@ -354,7 +354,7 @@
                 :aria-label="`Unlink ${connectedModelType} #${connectedModelId}`"
                 @click="clearModelSelection"
               >
-                <Icon name="mdi:close" class="h-3 w-3" />
+                <Icon name="mdi:close" class="kr-icon-3" />
               </button>
             </div>
 

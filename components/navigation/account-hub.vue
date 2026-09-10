@@ -65,7 +65,7 @@
 
       <span
         v-if="!unreadCount && userStore.isLoggedIn"
-        class="absolute bottom-0 right-0 h-3 w-3 rounded-full border border-base-100 bg-success"
+        class="kr-icon-3 absolute bottom-0 right-0 rounded-full border border-base-100 bg-success"
       />
     </button>
 

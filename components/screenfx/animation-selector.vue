@@ -22,7 +22,7 @@
       </div>
 
       <span class="kr-badge-outline-sm gap-1 border-info/40 text-info">
-        <Icon name="kind-icon:save" class="h-3 w-3" />
+        <Icon name="kind-icon:save" class="kr-icon-3" />
         local storage
       </span>
     </header>

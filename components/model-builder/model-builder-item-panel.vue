@@ -147,7 +147,7 @@
             aria-hidden="true"
           />
           <template v-else>
-            <Icon name="kind-icon:magic" class="h-3 w-3" />
+            <Icon name="kind-icon:magic" class="kr-icon-3" />
             Draft
           </template>
         </button>
@@ -179,7 +179,7 @@
             aria-hidden="true"
           />
           <template v-else>
-            <Icon name="kind-icon:magic" class="h-3 w-3" />
+            <Icon name="kind-icon:magic" class="kr-icon-3" />
             Draft
           </template>
         </button>

@@ -894,7 +894,7 @@
         </div>
         <!-- Label -->
         <div class="flex items-center justify-center gap-1 px-1 py-1.5">
-          <Icon :name="card.icon" class="h-3 w-3 shrink-0" />
+          <Icon :name="card.icon" class="kr-icon-3 shrink-0" />
           <span class="text-[10px] font-black leading-none">{{
             card.label
           }}</span>

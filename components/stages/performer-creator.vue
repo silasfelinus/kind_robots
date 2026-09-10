@@ -106,7 +106,7 @@
                 @click="form.species = ''"
                 class="hover:text-error"
               >
-                <Icon name="mdi:close" class="h-3 w-3" />
+                <Icon name="mdi:close" class="kr-icon-3" />
               </button>
             </span>
             <span
@@ -120,7 +120,7 @@
                 @click="removeTrait(trait)"
                 class="hover:text-error"
               >
-                <Icon name="mdi:close" class="h-3 w-3" />
+                <Icon name="mdi:close" class="kr-icon-3" />
               </button>
             </span>
             <button
@@ -359,7 +359,7 @@
                 class="hover:text-error"
                 @click="removeTrait(trait)"
               >
-                <Icon name="mdi:close" class="h-3 w-3" />
+                <Icon name="mdi:close" class="kr-icon-3" />
               </button>
             </span>
             <span

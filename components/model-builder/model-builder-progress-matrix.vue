@@ -149,7 +149,7 @@
               >
                 <Icon
                   :name="statusIcon(item.stages[stage.key].status)"
-                  class="h-3 w-3"
+                  class="kr-icon-3"
                   aria-hidden="true"
                 />
               </span>

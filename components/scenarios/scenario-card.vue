@@ -55,7 +55,7 @@
             title="Edit Scenario"
             @click.stop="emit('edit', scenario.id)"
           >
-            <Icon name="kind-icon:pencil" class="h-4 w-4" />
+            <Icon name="kind-icon:pencil" class="kr-icon-4" />
           </button>
 
           <button
@@ -65,7 +65,7 @@
             title="Clone Scenario"
             @click.stop="emit('clone', scenario.id)"
           >
-            <Icon name="kind-icon:copy" class="h-4 w-4" />
+            <Icon name="kind-icon:copy" class="kr-icon-4" />
           </button>
 
           <button
@@ -75,7 +75,7 @@
             title="Delete Scenario"
             @click.stop="deleteScenario"
           >
-            <Icon name="kind-icon:trash" class="h-4 w-4" />
+            <Icon name="kind-icon:trash" class="kr-icon-4" />
           </button>
         </div>
       </template>

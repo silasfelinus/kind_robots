@@ -27,7 +27,7 @@
             type="button"
             @click="startAddingScenario"
           >
-            <Icon name="kind-icon:plus" class="h-4 w-4" />
+            <Icon name="kind-icon:plus" class="kr-icon-4" />
             <span class="hidden sm:inline">Add</span>
           </button>
 
@@ -39,7 +39,7 @@
             @click="refreshScenarios(true)"
           >
             <span v-if="isLoading" class="kr-spinner-xs" />
-            <Icon v-else name="kind-icon:refresh" class="h-4 w-4" />
+            <Icon v-else name="kind-icon:refresh" class="kr-icon-4" />
           </button>
         </div>
       </div>
@@ -59,7 +59,7 @@
           type="button"
           @click="showScenarioForm = false"
         >
-          <Icon name="kind-icon:x" class="h-4 w-4" />
+          <Icon name="kind-icon:x" class="kr-icon-4" />
         </button>
       </div>
 
@@ -276,7 +276,7 @@
           type="button"
           @click="startAddingScenario"
         >
-          <Icon name="kind-icon:plus" class="h-4 w-4" />
+          <Icon name="kind-icon:plus" class="kr-icon-4" />
           Add Scenario
         </button>
       </div>

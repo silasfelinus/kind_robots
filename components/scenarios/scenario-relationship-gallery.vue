@@ -38,14 +38,14 @@
             class="kr-btn-primary"
             @click="startAddingScenario"
           >
-            <Icon name="kind-icon:plus" class="h-4 w-4" />
+            <Icon name="kind-icon:plus" class="kr-icon-4" />
             Add
           </button>
 
           <label
             class="input input-bordered input-xs flex min-w-36 flex-1 items-center gap-2 rounded-2xl bg-base-200"
           >
-            <Icon name="kind-icon:search" class="h-4 w-4 opacity-50" />
+            <Icon name="kind-icon:search" class="kr-icon-4 opacity-50" />
             <input
               v-model="searchQuery"
               type="search"
@@ -72,7 +72,7 @@
           class="kr-btn-ghost"
           @click="showScenarioForm = false"
         >
-          <Icon name="kind-icon:x" class="h-4 w-4" />
+          <Icon name="kind-icon:x" class="kr-icon-4" />
         </button>
       </div>
 
@@ -125,7 +125,7 @@
           class="kr-btn-primary"
           @click="startAddingScenario"
         >
-          <Icon name="kind-icon:plus" class="h-4 w-4" />
+          <Icon name="kind-icon:plus" class="kr-icon-4" />
           Add Scenario
         </button>
       </div>

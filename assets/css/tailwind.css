@@ -1846,12 +1846,13 @@ section:has(div[class*='xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]'])
    * subset-match). Slice 206 adds `components/dreams/` (9 files, 37
    * occurrences). Slice 207 adds `components/user/` (8 files, 23
    * occurrences). Slice 208 adds `components/giftshop/` (6 files, 14
+   * occurrences). Slice 209 adds `components/scenarios/` (5 files, 16
    * occurrences), splitting the giant family by directory the way the
    * kaizen notes suggested. Sibling directories still open:
-   * `components/scenarios` (5 files), `components/characters` (5 files),
-   * `components/servers` (4 files), `components/pages` (4 files), and the
-   * rest of the ~100-file family scattered across smaller directories.
-   * Distinct from any future
+   * `components/characters` (5 files), `components/servers` (4 files),
+   * `components/pages` (4 files), and the rest of the family scattered
+   * across smaller directories (~172 occurrences remain repo-wide as of
+   * slice 209). Distinct from any future
    * `.kr-icon-primary-4` (same size, carries `text-primary`) -- this is
    * the untinted sibling. */
   .kr-icon-4 {

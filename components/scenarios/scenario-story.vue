@@ -32,7 +32,7 @@
           type="button"
           @click="storyStore.backToBrowse"
         >
-          <Icon name="kind-icon:arrow-left" class="h-4 w-4" />
+          <Icon name="kind-icon:arrow-left" class="kr-icon-4" />
           <span class="hidden sm:inline">All Scenarios</span>
         </button>
 
@@ -65,7 +65,7 @@
           title="Show or hide scenario details"
           @click="sheetStore.toggleSheet()"
         >
-          <Icon name="kind-icon:info" class="h-4 w-4" />
+          <Icon name="kind-icon:info" class="kr-icon-4" />
           <span class="hidden sm:inline">Info</span>
         </button>
       </div>
@@ -235,7 +235,7 @@
           title="Start over with the same scenario"
           @click="storyStore.newStory"
         >
-          <Icon name="kind-icon:refresh" class="h-4 w-4" />
+          <Icon name="kind-icon:refresh" class="kr-icon-4" />
           <span class="hidden sm:inline">New Story</span>
         </button>
 
@@ -246,7 +246,7 @@
           title="End the story and browse scenarios"
           @click="storyStore.endSession"
         >
-          <Icon name="kind-icon:x" class="h-4 w-4" />
+          <Icon name="kind-icon:x" class="kr-icon-4" />
           <span class="hidden sm:inline">End</span>
         </button>
       </div>

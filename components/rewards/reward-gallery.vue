@@ -53,7 +53,7 @@
             type="button"
             @click="startAddingReward"
           >
-            <Icon name="kind-icon:plus" class="h-4 w-4" />
+            <Icon name="kind-icon:plus" class="kr-icon-4" />
             <span class="hidden sm:inline">Add</span>
           </button>
 
@@ -65,7 +65,7 @@
             @click="refreshRewards(true)"
           >
             <span v-if="isLoading" class="kr-spinner-xs" />
-            <Icon v-else name="kind-icon:refresh" class="h-4 w-4" />
+            <Icon v-else name="kind-icon:refresh" class="kr-icon-4" />
             <span class="hidden sm:inline">Refresh</span>
           </button>
         </div>
@@ -88,7 +88,7 @@
         </div>
 
         <button class="kr-btn-ghost" type="button" @click="closeRewardForm">
-          <Icon name="kind-icon:x" class="h-4 w-4" />
+          <Icon name="kind-icon:x" class="kr-icon-4" />
           <span class="hidden sm:inline">Close</span>
         </button>
       </div>
@@ -230,7 +230,7 @@
               type="button"
               @click="startEditingReward"
             >
-              <Icon name="kind-icon:pencil" class="h-4 w-4" />
+              <Icon name="kind-icon:pencil" class="kr-icon-4" />
               <span class="hidden sm:inline">Edit</span>
             </button>
           </div>
@@ -314,7 +314,7 @@
           type="button"
           @click="startAddingReward"
         >
-          <Icon name="kind-icon:plus" class="h-4 w-4" />
+          <Icon name="kind-icon:plus" class="kr-icon-4" />
           Add Reward
         </button>
       </div>
@@ -424,7 +424,7 @@
               type="button"
               @click="clearSelectedReward"
             >
-              <Icon name="kind-icon:x" class="h-4 w-4" />
+              <Icon name="kind-icon:x" class="kr-icon-4" />
               Clear
             </button>
           </div>

@@ -27,7 +27,7 @@
           class="kr-btn btn-outline"
           title="Toggle effects live on-screen"
         >
-          <Icon name="kind-icon:sparkles" class="h-4 w-4" />
+          <Icon name="kind-icon:sparkles" class="kr-icon-4" />
           Screen FX
         </NuxtLink>
         <NuxtLink
@@ -35,7 +35,7 @@
           class="kr-btn btn-outline"
           title="Animation development work lives in Conductor"
         >
-          <Icon name="kind-icon:scroll" class="h-4 w-4" />
+          <Icon name="kind-icon:scroll" class="kr-icon-4" />
           Conductor
         </NuxtLink>
         <button
@@ -44,7 +44,7 @@
           type="button"
           @click="store.clearEffects()"
         >
-          <Icon name="kind-icon:x" class="h-4 w-4" />
+          <Icon name="kind-icon:x" class="kr-icon-4" />
           Clear {{ activeCount }}
         </button>
       </div>
@@ -141,7 +141,7 @@
             title="Close details"
             @click="store.selectSlug(null)"
           >
-            <Icon name="kind-icon:x" class="h-4 w-4" />
+            <Icon name="kind-icon:x" class="kr-icon-4" />
           </button>
         </div>
 
@@ -176,7 +176,7 @@
           type="button"
           @click="store.previewEffect(store.selectedItem.id)"
         >
-          <Icon name="kind-icon:sparkles" class="h-4 w-4" />
+          <Icon name="kind-icon:sparkles" class="kr-icon-4" />
           {{ store.isEffectActive(store.selectedItem.id) ? 'Stop effect' : 'Preview effect' }}
         </button>
 

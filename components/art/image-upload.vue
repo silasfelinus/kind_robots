@@ -35,7 +35,7 @@
             : 'text-base-content/40'
         "
       >
-        <Icon :name="icon" class="h-7 w-7" />
+        <Icon :name="icon" class="kr-icon-7" />
       </span>
       <div class="text-center">
         <p class="kr-text-dim-sm-70 font-semibold">

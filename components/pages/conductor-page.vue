@@ -867,7 +867,7 @@
                   class="flex items-center gap-3 rounded-2xl border border-base-300 bg-base-200 px-4 py-3"
                 >
                   <div
-                    class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border"
+                    class="kr-icon-7 flex shrink-0 items-center justify-center rounded-full border"
                     :class="milestoneIconClass(milestone.status)"
                   >
                     <Icon

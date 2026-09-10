@@ -4,7 +4,7 @@
     <div class="kr-scroll p-4">
       <header class="flex items-center gap-3 mb-4">
         <span class="kr-icon-tile">
-          <Icon name="kind-icon:trophy" class="h-7 w-7" />
+          <Icon name="kind-icon:trophy" class="kr-icon-7" />
         </span>
         <div>
           <p class="kr-text-black-2xl tracking-tight">Global Leaderboard</p>

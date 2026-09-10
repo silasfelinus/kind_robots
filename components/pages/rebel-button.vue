@@ -3,7 +3,7 @@
   <main class="kr-unbound">
     <header class="flex items-center gap-3 m-2">
       <span class="kr-icon-tile">
-        <Icon name="kind-icon:button" class="h-7 w-7" />
+        <Icon name="kind-icon:button" class="kr-icon-7" />
       </span>
       <div>
         <p class="kr-text-black-2xl tracking-tight">Rebel Button</p>

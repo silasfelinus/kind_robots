@@ -146,7 +146,7 @@
             v-else
             class="flex h-16 w-16 shrink-0 items-center justify-center rounded-xl bg-base-300 text-primary"
           >
-            <Icon :name="entry.icon" class="h-7 w-7" />
+            <Icon :name="entry.icon" class="kr-icon-7" />
           </div>
 
           <div class="min-w-0 flex-1">

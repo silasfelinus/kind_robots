@@ -4,7 +4,7 @@
   >
     <header class="mb-10 flex items-center gap-3">
       <span class="kr-icon-tile">
-        <Icon name="kind-icon:shield" class="h-7 w-7" />
+        <Icon name="kind-icon:shield" class="kr-icon-7" />
       </span>
       <div>
         <p class="kr-text-black-2xl tracking-tight">Privacy Policy</p>

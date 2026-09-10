@@ -1,6 +1,6 @@
 {
   "note": "Layout-contract allow-list. RATCHET: this file may only ever shrink. --update refuses to record a larger count. See utils/scripts/verifyLayoutContract.ts.",
-  "recorded": "2026-08-29",
+  "recorded": "2026-09-10",
   "violations": {
     "one-header": [],
     "one-scroll": [],
@@ -155,8 +155,6 @@
       "components/model-builder/model-builder-source-picker.vue → xl:grid-cols-6",
       "components/model/add-model.vue → lg:grid-cols-2",
       "components/narrative/kr-narrator-stage.vue → md:grid-cols-[minmax(0,1fr)_minmax(0,1.5fr)]",
-      "components/narrative/narrative-ingredient-multi-picker.vue → md:grid-cols-2",
-      "components/narrative/narrative-ingredient-multi-picker.vue → xl:grid-cols-3",
       "components/navigation/card-picker.vue → lg:grid-cols-5",
       "components/navigation/card-picker.vue → sm:grid-cols-3",
       "components/navigation/navigation-health.vue → sm:grid-cols-2",

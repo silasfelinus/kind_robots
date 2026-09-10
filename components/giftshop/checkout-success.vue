@@ -31,7 +31,7 @@
 
       <div class="mt-6 flex flex-wrap justify-center gap-3">
         <NuxtLink to="/sanctuary" class="kr-btn-primary-md-2xl">
-          <Icon name="kind-icon:butterfly" class="h-4 w-4" />
+          <Icon name="kind-icon:butterfly" class="kr-icon-4" />
           Return to Sanctuary
         </NuxtLink>
 
@@ -40,7 +40,7 @@
           to="/cart"
           class="kr-btn-outline-md rounded-2xl"
         >
-          <Icon name="kind-icon:cart" class="h-4 w-4" />
+          <Icon name="kind-icon:cart" class="kr-icon-4" />
           Review cart
         </NuxtLink>
       </div>

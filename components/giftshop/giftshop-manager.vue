@@ -21,7 +21,7 @@
       >
         <Icon
           name="kind-icon:refresh"
-          class="h-4 w-4"
+          class="kr-icon-4"
           :class="isLoadingManager ? 'animate-spin' : ''"
         />
         Refresh

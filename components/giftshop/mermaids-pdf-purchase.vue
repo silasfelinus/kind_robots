@@ -40,7 +40,7 @@
         :disabled="downloading"
         @click="download"
       >
-        <Icon name="kind-icon:download" class="h-4 w-4" />
+        <Icon name="kind-icon:download" class="kr-icon-4" />
         {{ downloading ? 'Preparing download...' : 'Download PDF' }}
       </button>
     </div>
@@ -52,7 +52,7 @@
         :disabled="purchasing"
         @click="purchase"
       >
-        <Icon name="kind-icon:cart" class="h-4 w-4" />
+        <Icon name="kind-icon:cart" class="kr-icon-4" />
         {{ purchasing ? 'Redirecting to checkout...' : 'Buy PDF — $9.99' }}
       </button>
     </div>

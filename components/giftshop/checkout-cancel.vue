@@ -32,7 +32,7 @@
 
       <div class="mt-6 flex flex-wrap justify-center gap-3">
         <NuxtLink to="/cart" class="kr-btn-primary-md-2xl">
-          <Icon name="kind-icon:cart" class="h-4 w-4" />
+          <Icon name="kind-icon:cart" class="kr-icon-4" />
           Return to cart
         </NuxtLink>
 

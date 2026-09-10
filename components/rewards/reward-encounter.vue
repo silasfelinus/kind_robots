@@ -205,7 +205,7 @@
                 @click="continueWithCustomPath"
               >
                 <span v-if="isStarting" class="kr-spinner-sm" />
-                <Icon v-else name="kind-icon:wand" class="h-5 w-5" />
+                <Icon v-else name="kind-icon:wand" class="kr-icon-5" />
                 Continue Custom Path
               </button>
             </div>
@@ -257,7 +257,7 @@
             @click="startRewardStory"
           >
             <span v-if="isStarting" class="kr-spinner-sm" />
-            <Icon v-else name="kind-icon:play" class="h-5 w-5" />
+            <Icon v-else name="kind-icon:play" class="kr-icon-5" />
             Start Story
           </button>
         </div>

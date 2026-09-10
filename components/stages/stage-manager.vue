@@ -856,7 +856,7 @@
             class="btn btn-primary rounded-2xl gap-2"
             @click="activeCard = 'stage'"
           >
-            <Icon name="mdi:theater" class="h-5 w-5" />
+            <Icon name="mdi:theater" class="kr-icon-5" />
             Pick a stage
           </button>
         </div>

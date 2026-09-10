@@ -37,7 +37,7 @@
                 {{ busyLabel }}
               </span>
               <span v-else class="flex items-center gap-2">
-                <Icon name="kind-icon:sparkles" class="h-5 w-5" />
+                <Icon name="kind-icon:sparkles" class="kr-icon-5" />
                 {{ canAfford ? 'Generate Image' : 'Out of mana, top up' }}
               </span>
             </button>

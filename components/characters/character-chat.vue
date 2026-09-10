@@ -307,7 +307,7 @@
                 :disabled="!characterStore.selectedCharacter || isSendingChat"
                 @click="seedChatMessage"
               >
-                <Icon name="kind-icon:dice" class="h-5 w-5" />
+                <Icon name="kind-icon:dice" class="kr-icon-5" />
                 Random Nudge
               </button>
 
@@ -317,7 +317,7 @@
                 :disabled="!characterStore.selectedCharacter || isSendingChat"
                 @click="seedGettingToKnowYouQuestion"
               >
-                <Icon name="kind-icon:question" class="h-5 w-5" />
+                <Icon name="kind-icon:question" class="kr-icon-5" />
                 Get To Know You
               </button>
 
@@ -327,7 +327,7 @@
                 :disabled="!canSendChat"
                 @click="sendCharacterChat"
               >
-                <Icon name="kind-icon:message" class="h-5 w-5" />
+                <Icon name="kind-icon:message" class="kr-icon-5" />
                 Send
               </button>
             </div>

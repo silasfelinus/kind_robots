@@ -49,7 +49,7 @@
         <span
           class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-base-300/70 bg-base-200"
         >
-          <Icon :name="channel.icon" class="h-5 w-5" />
+          <Icon :name="channel.icon" class="kr-icon-5" />
         </span>
         <div class="flex min-w-0 flex-col leading-tight">
           <h3 class="truncate text-base font-black">{{ channel.label }}</h3>

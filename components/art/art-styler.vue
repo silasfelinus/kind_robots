@@ -136,7 +136,7 @@
                 : 'text-base-content/40'
             "
           >
-            <Icon name="kind-icon:camera" class="h-5 w-5" />
+            <Icon name="kind-icon:camera" class="kr-icon-5" />
           </span>
           <p class="kr-text-dim-xs-60 font-semibold">
             Drop image or
@@ -564,7 +564,7 @@
         @click="runStyleTransfer"
       >
         <span v-if="isGenerating" class="kr-spinner-sm" />
-        <Icon v-else name="kind-icon:magic" class="h-5 w-5" />
+        <Icon v-else name="kind-icon:magic" class="kr-icon-5" />
         {{
           isGenerating
             ? 'Generating…'

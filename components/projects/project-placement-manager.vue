@@ -31,7 +31,7 @@
       v-if="!canManage"
       class="alert alert-error rounded-2xl border border-error/30"
     >
-      <Icon name="kind-icon:lock" class="h-5 w-5" />
+      <Icon name="kind-icon:lock" class="kr-icon-5" />
       <span>This workspace requires an administrator account.</span>
     </div>
 
@@ -115,7 +115,7 @@
             :name="
               messageTone === 'error' ? 'kind-icon:error' : 'kind-icon:check'
             "
-            class="h-5 w-5"
+            class="kr-icon-5"
           />
           <span>{{ message }}</span>
         </div>

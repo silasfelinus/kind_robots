@@ -18,7 +18,7 @@
           <span
             class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/12 text-primary"
           >
-            <Icon name="kind-icon:heart" class="h-5 w-5" />
+            <Icon name="kind-icon:heart" class="kr-icon-5" />
           </span>
           <div>
             <p class="font-black">About & Support</p>
@@ -54,7 +54,7 @@
             <span
               class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/12 text-primary"
             >
-              <Icon :name="card.icon" class="h-5 w-5" />
+              <Icon :name="card.icon" class="kr-icon-5" />
             </span>
             <h2
               class="kr-text-eyebrow text-base tracking-wider text-base-content"
@@ -73,7 +73,7 @@
           <span
             class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/12 text-primary"
           >
-            <Icon name="kind-icon:heart" class="h-5 w-5" />
+            <Icon name="kind-icon:heart" class="kr-icon-5" />
           </span>
           <h2 class="kr-text-eyebrow text-base tracking-wider text-base-content">
             Community & Sponsors

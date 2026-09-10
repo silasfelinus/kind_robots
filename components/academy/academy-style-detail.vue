@@ -93,7 +93,7 @@
             class="btn btn-primary rounded-2xl border-0 font-black shadow-lg shadow-black/30"
             @click="emit('remix', lesson.slug)"
           >
-            <Icon name="kind-icon:magic" class="h-5 w-5" />
+            <Icon name="kind-icon:magic" class="kr-icon-5" />
             Remix in {{ lesson.name }}
           </button>
           <a
@@ -319,7 +319,7 @@
               class="btn btn-primary w-full rounded-2xl font-black shadow-lg shadow-primary/20"
               @click="emit('remix', lesson.slug)"
             >
-              <Icon name="kind-icon:magic" class="h-5 w-5" />
+              <Icon name="kind-icon:magic" class="kr-icon-5" />
               Open Remix Studio
             </button>
           </div>

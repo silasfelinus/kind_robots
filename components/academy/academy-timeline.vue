@@ -6,7 +6,7 @@
     >
       <div class="flex flex-col justify-center gap-4 p-5 sm:p-7">
         <div class="flex items-center gap-2 text-primary">
-          <Icon name="kind-icon:map" class="h-5 w-5" aria-hidden="true" />
+          <Icon name="kind-icon:map" class="kr-icon-5" aria-hidden="true" />
           <span class="kr-text-eyebrow text-xs tracking-[0.18em]">
             Art history, room by room
           </span>

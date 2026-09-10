@@ -74,7 +74,7 @@
         title="Go back"
         @click="goBack"
       >
-        <Icon name="kind-icon:arrow-left" class="h-5 w-5" />
+        <Icon name="kind-icon:arrow-left" class="kr-icon-5" />
       </button>
 
       <!-- Channel picker and tab picker share one bordered shell so they read
@@ -265,7 +265,7 @@
         aria-label="ArtJob queue"
         title="ArtJob queue"
       >
-        <Icon name="kind-icon:server" class="h-5 w-5" />
+        <Icon name="kind-icon:server" class="kr-icon-5" />
       </NuxtLink>
 
       <!--
@@ -298,7 +298,7 @@
         aria-label="Memory Dungeon"
         title="Memory Dungeon"
       >
-        <Icon name="kind-icon:brain" class="h-5 w-5" />
+        <Icon name="kind-icon:brain" class="kr-icon-5" />
       </NuxtLink>
 
       <!--
@@ -323,7 +323,7 @@
         :aria-expanded="workspaceSheetOpen"
         @click="navStore.toggleWorkspaceSheet()"
       >
-        <Icon name="kind-icon:question" class="h-5 w-5" />
+        <Icon name="kind-icon:question" class="kr-icon-5" />
       </button>
     </div>
   </header>

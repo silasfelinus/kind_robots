@@ -33,7 +33,7 @@
         class="alert alert-error mb-4"
         role="alert"
       >
-        <Icon name="kind-icon:warning" class="h-5 w-5" />
+        <Icon name="kind-icon:warning" class="kr-icon-5" />
         <span class="flex-1">{{ lastError }}</span>
         <button
           type="button"
@@ -91,7 +91,7 @@
             <span
               class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/12 text-primary"
             >
-              <Icon name="kind-icon:book" class="h-5 w-5" />
+              <Icon name="kind-icon:book" class="kr-icon-5" />
             </span>
             <input
               v-if="editing"
@@ -156,7 +156,7 @@
           <span
             class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-secondary/12 text-secondary"
           >
-            <Icon name="kind-icon:hand-heart" class="h-5 w-5" />
+            <Icon name="kind-icon:hand-heart" class="kr-icon-5" />
           </span>
           <input
             v-if="editing"
@@ -189,7 +189,7 @@
           <span
             class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-accent/12 text-accent"
           >
-            <Icon name="kind-icon:robot-color" class="h-5 w-5" />
+            <Icon name="kind-icon:robot-color" class="kr-icon-5" />
           </span>
           <input
             v-if="editing"

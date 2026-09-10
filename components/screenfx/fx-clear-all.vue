@@ -9,7 +9,7 @@
         type="button"
         @click="animationStore.clearScreenEffects()"
       >
-        <Icon name="kind-icon:close" class="h-5 w-5" />
+        <Icon name="kind-icon:close" class="kr-icon-5" />
         <span>clear all</span>
         <strong>{{ animationStore.screenEffectCount }}</strong>
       </button>

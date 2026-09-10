@@ -76,7 +76,7 @@
             <ul class="space-y-2 text-smart-compact">
               <li class="flex items-center gap-3">
                 <span
-                  class="inline-block h-5 w-5 rounded bg-base-200 ring-1 ring-base-300"
+                  class="kr-icon-5 inline-block rounded bg-base-200 ring-1 ring-base-300"
                 />
                 <code class="font-mono">base-200</code>
                 <span class="opacity-70"
@@ -85,7 +85,7 @@
               </li>
               <li class="flex items-center gap-3">
                 <span
-                  class="inline-block h-5 w-5 rounded bg-base-100 ring-1 ring-base-300"
+                  class="kr-icon-5 inline-block rounded bg-base-100 ring-1 ring-base-300"
                 />
                 <code class="font-mono">base-100</code>
                 <span class="opacity-70"
@@ -93,7 +93,7 @@
                 >
               </li>
               <li class="flex items-center gap-3">
-                <span class="inline-block h-5 w-5 rounded bg-base-300" />
+                <span class="kr-icon-5 inline-block rounded bg-base-300" />
                 <code class="font-mono">base-300</code>
                 <span class="opacity-70">borders & dividers</span>
               </li>

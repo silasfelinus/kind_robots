@@ -5,7 +5,7 @@
       <div class="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
         <div class="min-w-0">
           <div class="flex items-center gap-2">
-            <Icon :name="statusIcon" class="h-5 w-5 shrink-0" />
+            <Icon :name="statusIcon" class="kr-icon-5 shrink-0" />
             <h2 class="kr-text-black-lg text-base-content">
               Server Status
             </h2>

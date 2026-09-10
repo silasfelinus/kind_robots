@@ -79,7 +79,7 @@
           class="btn btn-primary mt-6 w-full rounded-2xl font-black shadow-lg shadow-primary/25 hover:-translate-y-0.5 hover:shadow-primary/40 active:translate-y-0"
           @click.stop="acknowledgeAchievement"
         >
-          <Icon name="kind-icon:check" class="h-5 w-5" />
+          <Icon name="kind-icon:check" class="kr-icon-5" />
           Awesome, thanks!
         </button>
       </div>

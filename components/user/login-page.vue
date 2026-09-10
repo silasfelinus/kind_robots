@@ -155,7 +155,7 @@
             <span>Sign In</span>
             <Icon
               name="kind-icon:sparkles"
-              class="h-5 w-5 transition-transform duration-200 group-hover:rotate-12 group-hover:scale-110"
+              class="kr-icon-5 transition-transform duration-200 group-hover:rotate-12 group-hover:scale-110"
             />
           </button>
 

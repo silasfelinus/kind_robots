@@ -32,7 +32,7 @@
           title="Start Reward Story"
           @click.stop="interactWithReward"
         >
-          <Icon name="kind-icon:story" class="h-4 w-4" />
+          <Icon name="kind-icon:story" class="kr-icon-4" />
         </button>
 
         <button
@@ -42,7 +42,7 @@
           title="Edit Reward"
           @click.stop="emit('edit', reward.id)"
         >
-          <Icon name="kind-icon:pencil" class="h-4 w-4" />
+          <Icon name="kind-icon:pencil" class="kr-icon-4" />
         </button>
 
         <button
@@ -52,7 +52,7 @@
           title="Delete Reward"
           @click.stop="deleteReward"
         >
-          <Icon name="kind-icon:trash" class="h-4 w-4" />
+          <Icon name="kind-icon:trash" class="kr-icon-4" />
         </button>
       </template>
 
@@ -110,7 +110,7 @@
           type="button"
           @click.stop="selectReward"
         >
-          <Icon name="kind-icon:check" class="h-4 w-4" />
+          <Icon name="kind-icon:check" class="kr-icon-4" />
           {{ activeSelected ? 'Selected' : 'Select' }}
         </button>
 

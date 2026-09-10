@@ -78,7 +78,7 @@
             type="button"
             @click.stop="launchBot"
           >
-            <Icon name="kind-icon:message" class="h-4 w-4" />
+            <Icon name="kind-icon:message" class="kr-icon-4" />
             Chat
           </button>
 
@@ -87,7 +87,7 @@
             type="button"
             @click.stop="selectBot"
           >
-            <Icon name="kind-icon:check" class="h-4 w-4" />
+            <Icon name="kind-icon:check" class="kr-icon-4" />
             Select
           </button>
         </div>

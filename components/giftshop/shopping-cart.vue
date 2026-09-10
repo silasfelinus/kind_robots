@@ -28,7 +28,7 @@
       v-if="cartStore.initializing"
       class="rounded-2xl border border-info/30 bg-info/10 p-8 text-center text-info"
     >
-      <Icon name="kind-icon:spinner" class="mx-auto h-8 w-8 animate-spin" />
+      <Icon name="kind-icon:spinner" class="kr-icon-8 mx-auto animate-spin" />
       <p class="mt-2 font-bold">Gathering the cart butterflies...</p>
     </div>
 

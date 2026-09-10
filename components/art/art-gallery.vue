@@ -392,7 +392,7 @@
               <div v-if="image" class="relative">
                 <button
                   v-if="bulkSelectEnabled"
-                  class="absolute left-2 top-2 z-10 flex h-8 w-8 items-center justify-center rounded-xl border shadow-lg transition"
+                  class="kr-icon-8 absolute left-2 top-2 z-10 flex items-center justify-center rounded-xl border shadow-lg transition"
                   :class="
                     isImageSelected(image.id)
                       ? 'border-primary bg-primary text-primary-content'

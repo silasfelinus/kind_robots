@@ -99,7 +99,7 @@
                 @click="coloringStore.setActiveColor(color.id)"
               >
                 <span
-                  class="h-8 w-8 shrink-0 rounded-xl border border-base-300 shadow-inner"
+                  class="kr-icon-8 shrink-0 rounded-xl border border-base-300 shadow-inner"
                   :style="{ backgroundColor: color.value }"
                 />
                 <span class="min-w-0">

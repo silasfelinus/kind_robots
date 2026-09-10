@@ -49,7 +49,7 @@
           <span
             class="flex h-14 w-14 items-center justify-center rounded-2xl bg-base-200 text-base-content/40"
           >
-            <Icon name="kind-icon:user" class="h-8 w-8" />
+            <Icon name="kind-icon:user" class="kr-icon-8" />
           </span>
 
           <div>

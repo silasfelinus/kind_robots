@@ -66,7 +66,7 @@
       <template v-if="convo.activeId">
         <header class="flex items-center gap-2 kr-panel-header-sm">
           <div class="avatar">
-            <div class="h-8 w-8 rounded-full bg-base-300">
+            <div class="kr-icon-8 rounded-full bg-base-300">
               <img
                 v-if="activePeer?.avatarImage"
                 :src="activePeer?.avatarImage || ''"

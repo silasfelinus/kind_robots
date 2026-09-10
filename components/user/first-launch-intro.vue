@@ -29,7 +29,7 @@
         <div
           class="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 text-primary"
         >
-          <Icon :name="currentStep.icon" class="h-8 w-8" />
+          <Icon :name="currentStep.icon" class="kr-icon-8" />
         </div>
 
         <p

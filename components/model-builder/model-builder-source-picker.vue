@@ -221,7 +221,7 @@
           @click="store.selectSource(record)"
         >
           <div
-            class="grid h-8 w-8 shrink-0 place-items-center overflow-hidden rounded-lg bg-base-200"
+            class="kr-icon-8 grid shrink-0 place-items-center overflow-hidden rounded-lg bg-base-200"
           >
             <img
               v-if="recordImage(record)"

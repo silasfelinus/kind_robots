@@ -11,7 +11,7 @@
       class="grid w-full grid-cols-1 gap-3 sm:grid-cols-[minmax(0,1fr)_auto]"
     >
       <label class="form-control w-full">
-        <div class="label py-1">
+        <div class="kr-label-row">
           <span class="kr-text-eyebrow text-xs tracking-wide">
             Image Server
           </span>

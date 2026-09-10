@@ -21,7 +21,7 @@
 
     <form v-else class="grid gap-3" @submit.prevent="createCollection">
       <label class="form-control">
-        <span class="label py-1">
+        <span class="kr-label-row">
           <span class="kr-label-bold">New Collection</span>
 
           <button

@@ -1726,6 +1726,27 @@ section:has(div[class*='xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]'])
     @apply h-12 w-12 text-primary;
   }
 
+  /* DaisyUI's `.label` wrapper span around a form-field caption, with its
+   * default vertical padding overridden down to `py-1` -- `label py-1`
+   * (interface-vision t-104 slice 197), the strongest remaining candidate
+   * outside all now-closed `kr-text-black-*`/`kr-text-bold-*`/
+   * `kr-text-dim-*`/`kr-text-eyebrow-*`/`kr-label-xs*`/`kr-text-error-xs`/
+   * `kr-text-faded-*`/`kr-icon-primary-*` families, flagged by slice 196's
+   * own kaizen note. A fresh full-repo class-frequency survey found this
+   * exact shape at 42 occurrences across 11 files, plus 2 subset-match
+   * occurrences in a 12th file carrying an extra `kr-text-bold-xs` token on
+   * the wrapper itself (44 total) -- consistently a `<span class="label
+   * py-1">` wrapping an inner eyebrow/label-styled span, immediately inside
+   * a `<label class="form-control">`. Named `kr-label-row` rather than
+   * folded into the existing `kr-label-xs`/`kr-label-xs-semibold`/
+   * `kr-label-bold` family: those three apply typography (`text-xs`,
+   * `font-semibold`) to the inner `label-text` span, while this class is
+   * the outer wrapper's own layout override -- a different element in the
+   * same field, not a sibling size/weight of the same one. */
+  .kr-label-row {
+    @apply label py-1;
+  }
+
   /* The colorless DaisyUI busy indicator: a bare tiny spinner dropped into
    * a button or inline slot while an action is pending, no tint (the
    * button/text color around it usually already carries the tone)

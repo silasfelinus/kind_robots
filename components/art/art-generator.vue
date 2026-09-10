@@ -249,7 +249,7 @@
 
             <template v-if="activeProfile.supports.checkpoint">
               <label class="form-control mt-2">
-                <span class="label py-1">
+                <span class="kr-label-row">
                   <span class="kr-label-bold">Checkpoint</span>
                   <span class="label-text-alt text-base-content/50">
                     {{ checkpointFamilyLabel }}
@@ -308,7 +308,7 @@
               class="mt-3 grid grid-cols-[repeat(auto-fit,minmax(min(100%,8rem),1fr))] gap-3"
             >
               <label class="form-control">
-                <span class="label py-1">
+                <span class="kr-label-row">
                   <span class="kr-label-bold">Steps</span>
                 </span>
                 <input
@@ -322,7 +322,7 @@
               </label>
 
               <label class="form-control">
-                <span class="label py-1">
+                <span class="kr-label-row">
                   <span class="kr-label-bold">
                     {{ activeProfile.supports.guidance ? 'Guidance' : 'CFG' }}
                   </span>
@@ -350,7 +350,7 @@
               </label>
 
               <label v-if="activeProfile.supports.sampler" class="form-control">
-                <span class="label py-1">
+                <span class="kr-label-row">
                   <span class="kr-label-bold">Sampler</span>
                 </span>
                 <select
@@ -372,7 +372,7 @@
                 v-if="activeProfile.supports.scheduler"
                 class="form-control"
               >
-                <span class="label py-1">
+                <span class="kr-label-row">
                   <span class="kr-label-bold">Scheduler</span>
                 </span>
                 <select
@@ -392,7 +392,7 @@
 
               <template v-if="activeProfile.supports.size">
                 <label class="form-control">
-                  <span class="label py-1">
+                  <span class="kr-label-row">
                     <span class="kr-label-bold">Width</span>
                   </span>
                   <input
@@ -406,7 +406,7 @@
                   />
                 </label>
                 <label class="form-control">
-                  <span class="label py-1">
+                  <span class="kr-label-row">
                     <span class="kr-label-bold">Height</span>
                   </span>
                   <input
@@ -422,7 +422,7 @@
               </template>
 
               <label class="form-control col-span-full">
-                <span class="label py-1">
+                <span class="kr-label-row">
                   <span class="kr-label-bold">Seed</span>
                   <span class="label-text-alt text-base-content/50">
                     blank = random
@@ -448,7 +448,7 @@
             </h2>
 
             <label class="form-control mt-2">
-              <span class="label py-1">
+              <span class="kr-label-row">
                 <span class="kr-label-bold">Comfy server</span>
               </span>
               <select
@@ -466,7 +466,7 @@
                   {{ serverLabel(server) }}
                 </option>
               </select>
-              <span class="label py-1">
+              <span class="kr-label-row">
                 <span class="label-text-alt text-base-content/55">
                   {{ serverDetail }}
                 </span>
@@ -474,7 +474,7 @@
             </label>
 
             <label class="form-control mt-1">
-              <span class="label py-1">
+              <span class="kr-label-row">
                 <span class="kr-label-bold"
                   >Also save to collection</span
                 >

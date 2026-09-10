@@ -73,7 +73,7 @@
           <div class="kr-panel-flat p-4">
             <div class="grid gap-3 lg:grid-cols-[minmax(0,1fr)_14rem]">
               <label class="form-control">
-                <span class="label py-1">
+                <span class="kr-label-row">
                   <span
                     class="kr-text-eyebrow-bold text-xs tracking-wide"
                     >Title</span
@@ -88,7 +88,7 @@
               </label>
 
               <label class="form-control">
-                <span class="label py-1">
+                <span class="kr-label-row">
                   <span
                     class="kr-text-eyebrow-bold text-xs tracking-wide"
                     >Type</span
@@ -111,7 +111,7 @@
 
             <div class="mt-3 grid gap-3 lg:grid-cols-[minmax(0,1fr)_16rem]">
               <label class="form-control">
-                <span class="label py-1">
+                <span class="kr-label-row">
                   <span
                     class="kr-text-eyebrow-bold text-xs tracking-wide"
                     >Slug</span
@@ -138,7 +138,7 @@
 
           <div class="kr-panel-flat p-4">
             <label class="form-control">
-              <span class="label py-1">
+              <span class="kr-label-row">
                 <span
                   class="kr-text-eyebrow-bold text-xs tracking-wide"
                   >Dream Pitch</span
@@ -152,7 +152,7 @@
             </label>
 
             <label class="form-control mt-3">
-              <span class="label py-1">
+              <span class="kr-label-row">
                 <span
                   class="kr-text-eyebrow-bold text-xs tracking-wide"
                   >Description</span
@@ -166,7 +166,7 @@
             </label>
 
             <label class="form-control mt-3">
-              <span class="label py-1">
+              <span class="kr-label-row">
                 <span
                   class="kr-text-eyebrow-bold text-xs tracking-wide"
                   >Flavor Text</span
@@ -215,7 +215,7 @@
           <div class="kr-panel-flat p-4">
             <div class="grid gap-3 md:grid-cols-3">
               <label class="form-control">
-                <span class="label py-1"
+                <span class="kr-label-row"
                   ><span class="kr-label-bold">Icon</span></span
                 >
                 <input
@@ -227,7 +227,7 @@
               </label>
 
               <label class="form-control">
-                <span class="label py-1"
+                <span class="kr-label-row"
                   ><span class="kr-label-bold">Art Image ID</span></span
                 >
                 <input
@@ -240,7 +240,7 @@
               </label>
 
               <label class="form-control">
-                <span class="label py-1"
+                <span class="kr-label-row"
                   ><span class="kr-label-bold"
                     >Art Collection ID</span
                   ></span
@@ -257,7 +257,7 @@
 
             <div class="mt-3 grid gap-3 md:grid-cols-2">
               <label class="form-control">
-                <span class="label py-1"
+                <span class="kr-label-row"
                   ><span class="kr-label-bold">Designer</span></span
                 >
                 <input

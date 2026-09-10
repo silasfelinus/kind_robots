@@ -20,7 +20,7 @@
           >
             <Icon
               :name="showMature ? 'kind-icon:eye' : 'kind-icon:eye-off'"
-              class="h-5 w-5"
+              class="kr-icon-5"
             />
           </span>
 
@@ -71,7 +71,7 @@
       <Icon
         v-else
         :name="showMature ? 'kind-icon:eye' : 'kind-icon:eye-off'"
-        class="h-5 w-5"
+        class="kr-icon-5"
       />
     </button>
   </div>

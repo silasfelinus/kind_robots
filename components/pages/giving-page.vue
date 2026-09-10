@@ -26,7 +26,7 @@
         rel="noopener"
         class="btn btn-primary btn-lg mt-6 rounded-2xl"
       >
-        <Icon name="kind-icon:gift" class="h-5 w-5" />
+        <Icon name="kind-icon:gift" class="kr-icon-5" />
         Donate at againstmalaria.com/amibot
       </a>
 

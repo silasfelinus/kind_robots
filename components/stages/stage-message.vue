@@ -53,7 +53,7 @@
         :alt="entry.speakerLabel"
         class="w-full h-full object-cover"
       />
-      <Icon v-else name="mdi:account-voice" class="w-5 h-5 opacity-60" />
+      <Icon v-else name="mdi:account-voice" class="kr-icon-5 opacity-60" />
     </div>
     <div class="bg-base-200 rounded-2xl px-3 py-2 text-sm min-w-[6ch]">
       <div class="text-xs font-semibold opacity-80 mb-0.5">

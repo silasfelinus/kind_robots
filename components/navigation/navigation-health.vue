@@ -35,7 +35,7 @@
       v-if="channelContentStore.lastError"
       class="alert alert-error rounded-2xl border border-error/30"
     >
-      <Icon name="kind-icon:error" class="h-5 w-5" />
+      <Icon name="kind-icon:error" class="kr-icon-5" />
       <span>{{ channelContentStore.lastError }}</span>
     </div>
 
@@ -137,7 +137,7 @@
               <span
                 class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-base-300 bg-base-200"
               >
-                <Icon :name="channel.icon" class="h-5 w-5" />
+                <Icon :name="channel.icon" class="kr-icon-5" />
               </span>
               <div class="min-w-0">
                 <h2 class="kr-text-black-lg truncate">{{ channel.label }}</h2>

@@ -9,7 +9,7 @@
     @click="openCart"
   >
     <span class="indicator">
-      <Icon name="kind-icon:cart" class="h-5 w-5" />
+      <Icon name="kind-icon:cart" class="kr-icon-5" />
       <span class="kr-badge-secondary-xs indicator-item">
         {{ compactItemCount }}
       </span>

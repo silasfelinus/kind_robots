@@ -58,7 +58,7 @@
           class="rounded-2xl border border-info/30 bg-info/10 p-4 text-sm text-info-content"
         >
           <div class="flex items-start gap-3">
-            <Icon name="kind-icon:sparkles" class="mt-1 h-5 w-5 shrink-0" />
+            <Icon name="kind-icon:sparkles" class="kr-icon-5 mt-1 shrink-0" />
 
             <div class="space-y-1">
               <p class="font-black">Storefront staging area</p>
@@ -76,7 +76,7 @@
           class="flex flex-col items-start gap-3 rounded-2xl border border-primary/30 bg-primary/10 p-4 text-sm text-primary-content sm:flex-row sm:items-center sm:justify-between"
         >
           <div class="flex items-start gap-3">
-            <Icon name="kind-icon:hand-heart" class="mt-1 h-5 w-5 shrink-0" />
+            <Icon name="kind-icon:hand-heart" class="kr-icon-5 mt-1 shrink-0" />
 
             <div class="space-y-1">
               <p class="font-black">Skip the shop, give directly</p>

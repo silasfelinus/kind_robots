@@ -11,7 +11,7 @@
           <span
             class="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-primary/25 bg-primary/15 text-primary shadow-sm"
           >
-            <Icon name="kind-icon:paintbrush" class="h-5 w-5" />
+            <Icon name="kind-icon:paintbrush" class="kr-icon-5" />
           </span>
 
           <div class="min-w-0">

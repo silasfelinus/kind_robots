@@ -117,7 +117,7 @@
                   <span
                     class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-warning/15 text-warning"
                   >
-                    <Icon name="kind-icon:eye" class="h-5 w-5" />
+                    <Icon name="kind-icon:eye" class="kr-icon-5" />
                   </span>
 
                   <span class="min-w-0">

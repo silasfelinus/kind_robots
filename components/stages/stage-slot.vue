@@ -14,7 +14,7 @@
             :alt="displayName || 'participant'"
             class="h-full w-full object-cover"
           />
-          <Icon v-else :name="typeIcon" class="h-5 w-5 opacity-60" />
+          <Icon v-else :name="typeIcon" class="kr-icon-5 opacity-60" />
         </div>
 
         <div class="min-w-0 flex-1">

@@ -60,7 +60,7 @@
         </span>
 
         <span v-else class="flex items-center gap-2">
-          <icon :name="icon" class="h-5 w-5" />
+          <icon :name="icon" class="kr-icon-5" />
           {{ canAfford ? label : 'Out of mana, top up' }}
         </span>
       </button>

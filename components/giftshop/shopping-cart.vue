@@ -137,7 +137,7 @@
           >
             <Icon
               :name="cartStore.loading ? 'kind-icon:spinner' : 'kind-icon:card'"
-              class="h-5 w-5"
+              class="kr-icon-5"
               :class="{ 'animate-spin': cartStore.loading }"
             />
             {{ cartStore.loading ? 'Opening Stripe...' : 'Secure Stripe checkout' }}

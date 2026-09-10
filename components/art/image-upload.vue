@@ -443,7 +443,7 @@
         @click="handleBatchUpload"
       >
         <span v-if="isUploading || isFinalizingUpload" class="kr-spinner-sm" />
-        <Icon v-else name="kind-icon:camera" class="h-5 w-5" />
+        <Icon v-else name="kind-icon:camera" class="kr-icon-5" />
         {{
           isUploading || isFinalizingUpload
             ? 'Uploading…'
@@ -458,7 +458,7 @@
         :disabled="isUploading"
         @click="fileInput?.click()"
       >
-        <Icon :name="icon" class="h-5 w-5" />
+        <Icon :name="icon" class="kr-icon-5" />
         {{ buttonLabel }}
       </button>
 

@@ -81,7 +81,7 @@
         :disabled="isSaving || disabled || !label.trim()"
       >
         <span v-if="isSaving" class="kr-spinner-sm" />
-        <Icon v-else name="kind-icon:plus" class="h-5 w-5" />
+        <Icon v-else name="kind-icon:plus" class="kr-icon-5" />
         Create Collection
       </button>
     </form>

@@ -54,7 +54,7 @@
             <span class="kr-text-black-sm">All available art</span>
             <Icon
               :name="!hasSelection ? 'kind-icon:check-circle' : 'kind-icon:circle'"
-              class="h-5 w-5 shrink-0"
+              class="kr-icon-5 shrink-0"
             />
           </span>
           <span class="kr-text-dim-xs-60 mt-2">
@@ -84,7 +84,7 @@
                   ? 'kind-icon:check-circle'
                   : 'kind-icon:circle'
               "
-              class="h-5 w-5 shrink-0"
+              class="kr-icon-5 shrink-0"
             />
           </span>
 
@@ -157,7 +157,7 @@
                 <span class="kr-text-black-sm">All available art</span>
                 <Icon
                   :name="!hasSelection ? 'kind-icon:check-circle' : 'kind-icon:circle'"
-                  class="h-5 w-5 shrink-0"
+                  class="kr-icon-5 shrink-0"
                 />
               </span>
               <span class="kr-text-dim-xs-60 mt-2">
@@ -209,7 +209,7 @@
                       ? 'kind-icon:check-circle'
                       : 'kind-icon:circle'
                   "
-                  class="h-5 w-5 shrink-0"
+                  class="kr-icon-5 shrink-0"
                 />
               </span>
               <span class="kr-text-dim-xs-60 mt-2">

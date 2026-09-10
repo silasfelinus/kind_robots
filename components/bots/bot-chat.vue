@@ -220,7 +220,7 @@
             <p class="kr-text-dim-sm">Runtime options for this chat session.</p>
           </div>
 
-          <Icon name="kind-icon:sliders" class="h-6 w-6 text-primary" />
+          <Icon name="kind-icon:sliders" class="kr-icon-primary-6" />
         </div>
 
         <div class="grid gap-4">

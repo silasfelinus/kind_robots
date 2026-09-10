@@ -145,7 +145,7 @@
               <div
                 class="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-base-300 bg-primary/10"
               >
-                <Icon name="kind-icon:person" class="h-6 w-6 text-primary" />
+                <Icon name="kind-icon:person" class="kr-icon-primary-6" />
               </div>
 
               <div class="min-w-0">

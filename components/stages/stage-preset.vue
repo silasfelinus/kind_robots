@@ -22,7 +22,7 @@
       />
       <Icon
         :name="preset.icon"
-        class="absolute bottom-2 left-2 h-6 w-6 text-primary drop-shadow"
+        class="kr-icon-primary-6 absolute bottom-2 left-2 drop-shadow"
       />
     </figure>
 

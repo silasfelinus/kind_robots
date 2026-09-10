@@ -150,7 +150,7 @@
               <div
                 class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-primary/20 bg-base-100/85 shadow-sm backdrop-blur"
               >
-                <Icon :name="card.icon" class="h-6 w-6 text-primary" />
+                <Icon :name="card.icon" class="kr-icon-primary-6" />
               </div>
 
               <div class="min-w-0 flex-1">

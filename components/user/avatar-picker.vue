@@ -17,7 +17,7 @@
           class="h-full w-full object-cover"
           @error="onPreviewError"
         />
-        <Icon v-else name="kind-icon:user" class="h-6 w-6 text-primary" />
+        <Icon v-else name="kind-icon:user" class="kr-icon-primary-6" />
       </span>
 
       <div class="min-w-0 flex-1">

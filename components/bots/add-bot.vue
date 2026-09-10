@@ -253,7 +253,7 @@
                 </p>
               </div>
 
-              <Icon :name="field.icon" class="h-5 w-5 shrink-0 text-primary" />
+              <Icon :name="field.icon" class="kr-icon-primary-5 shrink-0" />
             </div>
 
             <div class="mt-3 grid grid-cols-2 gap-2">

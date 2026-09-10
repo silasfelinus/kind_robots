@@ -12,7 +12,7 @@
       class="flex shrink-0 items-center justify-between gap-3 border-b border-base-300 bg-base-100/80 px-4 py-2.5 backdrop-blur-sm"
     >
       <div class="flex items-center gap-2.5">
-        <Icon name="mdi:theater" class="h-5 w-5 text-primary" />
+        <Icon name="mdi:theater" class="kr-icon-primary-5" />
         <h1 class="kr-text-black-lg tracking-tight">Stage</h1>
         <span
           v-if="store.selectedStage"

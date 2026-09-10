@@ -67,7 +67,7 @@
         >
           <Icon
             :name="sourceIcon(run)"
-            class="h-5 w-5 shrink-0 text-primary"
+            class="kr-icon-primary-5 shrink-0"
             aria-hidden="true"
           />
 

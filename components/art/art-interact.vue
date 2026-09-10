@@ -149,7 +149,7 @@
                 {{ currentArtImage.checkpoint || 'No checkpoint recorded' }}
               </span>
             </span>
-            <Icon name="kind-icon:brain" class="h-5 w-5 text-primary" />
+            <Icon name="kind-icon:brain" class="kr-icon-primary-5" />
           </summary>
 
           <div class="mt-3 grid gap-2 text-xs">
@@ -458,7 +458,7 @@
                     Send back to generator.
                   </p>
                 </div>
-                <Icon name="kind-icon:sparkles" class="h-5 w-5 text-primary" />
+                <Icon name="kind-icon:sparkles" class="kr-icon-primary-5" />
               </div>
               <textarea
                 v-model="remixPrompt"

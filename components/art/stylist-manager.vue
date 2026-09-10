@@ -4,7 +4,7 @@
     <nav
       class="flex flex-wrap items-center gap-1 rounded-2xl border border-base-300 bg-base-200 p-2"
     >
-      <Icon name="kind-icon:sparkles" class="ml-1 h-5 w-5 text-primary" />
+      <Icon name="kind-icon:sparkles" class="kr-icon-primary-5 ml-1" />
       <span class="kr-text-black-sm mr-2 text-base-content">
         {{ superkate.settings.salonName }} Services
       </span>

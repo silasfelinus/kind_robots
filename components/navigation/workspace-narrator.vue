@@ -182,7 +182,7 @@
 
                       <Icon
                         name="kind-icon:rotate"
-                        class="h-5 w-5 text-primary"
+                        class="kr-icon-primary-5"
                       />
                     </div>
                   </div>
@@ -367,7 +367,7 @@
                     <div class="flex items-start gap-3">
                       <Icon
                         :name="selectedTopicIcon"
-                        class="mt-0.5 h-5 w-5 shrink-0 text-primary"
+                        class="kr-icon-primary-5 mt-0.5 shrink-0"
                       />
 
                       <div class="min-w-0 flex-1">

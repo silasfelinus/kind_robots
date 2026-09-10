@@ -3,7 +3,7 @@
   <section class="flex flex-col gap-4 kr-panel-muted-md">
     <div class="flex items-center justify-between">
       <div class="flex items-center gap-2">
-        <Icon name="kind-icon:magic" class="h-5 w-5 text-primary" />
+        <Icon name="kind-icon:magic" class="kr-icon-primary-5" />
         <h2 class="text-base font-black text-base-content">Style Transfer</h2>
         <span class="kr-badge-primary-sm">Kontext</span>
       </div>
@@ -311,7 +311,7 @@
           >
             <Icon
               name="mdi:arrow-right"
-              class="h-5 w-5 text-primary drop-shadow"
+              class="kr-icon-primary-5 drop-shadow"
             />
           </div>
         </div>

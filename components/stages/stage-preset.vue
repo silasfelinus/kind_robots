@@ -31,7 +31,7 @@
         <Icon
           v-if="!preset.imagePath"
           :name="preset.icon"
-          class="h-5 w-5 shrink-0 text-primary"
+          class="kr-icon-primary-5 shrink-0"
         />
         <h3 class="card-title text-sm leading-tight">
           {{ preset.label }}

@@ -32,7 +32,7 @@
         @click="loadAssets(true)"
       >
         <span v-if="isLoadingAssets" class="kr-spinner-xs" />
-        <Icon v-else name="kind-icon:refresh" class="h-4 w-4" />
+        <Icon v-else name="kind-icon:refresh" class="kr-icon-4" />
       </button>
     </div>
 
@@ -42,7 +42,7 @@
       <label
         class="input input-sm input-bordered flex items-center gap-2 rounded-2xl bg-base-100"
       >
-        <Icon name="kind-icon:search" class="h-4 w-4 opacity-60" />
+        <Icon name="kind-icon:search" class="kr-icon-4 opacity-60" />
         <input
           v-model="searchQuery"
           type="search"
@@ -75,7 +75,7 @@
         @click="attachSelectedCollection"
       >
         <span v-if="isSavingCollection" class="kr-spinner-xs" />
-        <Icon v-else name="kind-icon:folder" class="h-4 w-4" />
+        <Icon v-else name="kind-icon:folder" class="kr-icon-4" />
         Attach Collection
       </button>
 
@@ -87,7 +87,7 @@
         @click="useRandomCollectionImage"
       >
         <span v-if="isSavingImage" class="kr-spinner-xs" />
-        <Icon v-else name="kind-icon:dice" class="h-4 w-4" />
+        <Icon v-else name="kind-icon:dice" class="kr-icon-4" />
         Random from Collection
       </button>
 
@@ -97,7 +97,7 @@
         :disabled="!activeCollectionId || isSaving"
         @click="clearDreamCollection"
       >
-        <Icon name="kind-icon:close" class="h-4 w-4" />
+        <Icon name="kind-icon:close" class="kr-icon-4" />
         Detach Collection
       </button>
 
@@ -107,7 +107,7 @@
         :disabled="!activeArtImageId || isSaving"
         @click="clearHighlightImage"
       >
-        <Icon name="kind-icon:close" class="h-4 w-4" />
+        <Icon name="kind-icon:close" class="kr-icon-4" />
         Clear Image
       </button>
 

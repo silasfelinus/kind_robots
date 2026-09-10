@@ -99,7 +99,7 @@
               class="sheet-highlight"
             >
               <span class="sheet-highlight-icon">
-                <Icon :name="highlight.icon || typeIcon" class="h-4 w-4" />
+                <Icon :name="highlight.icon || typeIcon" class="kr-icon-4" />
               </span>
               <p class="min-w-0 text-sm leading-snug text-(--sheet-muted)">
                 <strong class="font-black text-(--sheet-ink)"
@@ -164,7 +164,7 @@
           :disabled="sheetStore.isSaving"
           @click.stop="ensureSheet"
         >
-          <Icon name="kind-icon:file-plus" class="h-4 w-4" />
+          <Icon name="kind-icon:file-plus" class="kr-icon-4" />
           Create Sheet
         </button>
 
@@ -174,7 +174,7 @@
           type="button"
           @click.stop="emit('edit', activeSheet.id)"
         >
-          <Icon name="kind-icon:pencil" class="h-4 w-4" />
+          <Icon name="kind-icon:pencil" class="kr-icon-4" />
           Edit
         </button>
       </footer>

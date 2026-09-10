@@ -4,7 +4,7 @@
     <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
       <div class="min-w-0">
         <p class="kr-text-eyebrow flex items-center gap-2 text-xs tracking-[0.22em] text-primary">
-          <Icon name="kind-icon:file-sparkles" class="h-4 w-4" />
+          <Icon name="kind-icon:file-sparkles" class="kr-icon-4" />
           PitchSheets
         </p>
 
@@ -20,7 +20,7 @@
           :disabled="sheetStore.loading || sheetStore.isSaving"
           @click="refreshSheets"
         >
-          <Icon name="kind-icon:refresh" class="h-4 w-4" />
+          <Icon name="kind-icon:refresh" class="kr-icon-4" />
           Refresh
         </button>
 
@@ -30,7 +30,7 @@
           :disabled="!missingDreams.length || sheetStore.isSaving"
           @click="createMissingSheets"
         >
-          <Icon name="kind-icon:file-plus" class="h-4 w-4" />
+          <Icon name="kind-icon:file-plus" class="kr-icon-4" />
           Create Missing
         </button>
       </div>

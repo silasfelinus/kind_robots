@@ -20,12 +20,12 @@
             title="Start a Storybook story seeded with this Location"
             @click="startStoryWithLocation"
           >
-            <Icon name="kind-icon:book-open" class="h-4 w-4" />
+            <Icon name="kind-icon:book-open" class="kr-icon-4" />
             <span class="hidden sm:inline">Start a story with this</span>
           </button>
 
           <button type="button" class="kr-btn-ghost" @click="backToGallery">
-            <Icon name="kind-icon:arrow-left" class="h-4 w-4" />
+            <Icon name="kind-icon:arrow-left" class="kr-icon-4" />
             All Dreams
           </button>
 
@@ -35,7 +35,7 @@
             :disabled="!dreamStore.selectedDreamId"
             @click="editDream"
           >
-            <Icon name="kind-icon:edit" class="h-4 w-4" />
+            <Icon name="kind-icon:edit" class="kr-icon-4" />
             Edit
           </button>
         </div>
@@ -54,7 +54,7 @@
           "
           @click="workspaceStore.setDreamPanel(panel.key)"
         >
-          <Icon :name="panel.icon" class="h-4 w-4" />
+          <Icon :name="panel.icon" class="kr-icon-4" />
           {{ panel.label }}
         </button>
       </nav>

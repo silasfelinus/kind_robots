@@ -31,7 +31,7 @@
             class="kr-btn-ghost-2xl"
             @click="randomizeSeed"
           >
-            <Icon name="kind-icon:dice" class="h-4 w-4" />
+            <Icon name="kind-icon:dice" class="kr-icon-4" />
             Random Seed
           </button>
           <button
@@ -39,7 +39,7 @@
             class="kr-btn-outline-plain rounded-2xl"
             @click="clearForm"
           >
-            <Icon name="kind-icon:x" class="h-4 w-4" />
+            <Icon name="kind-icon:x" class="kr-icon-4" />
             Clear
           </button>
           <button
@@ -52,7 +52,7 @@
               v-if="dreamStore.isSaving"
               class="kr-spinner-xs"
             />
-            <Icon v-else name="kind-icon:save" class="h-4 w-4" />
+            <Icon v-else name="kind-icon:save" class="kr-icon-4" />
             {{ saveLabel }}
           </button>
         </div>
@@ -130,7 +130,7 @@
                 class="btn btn-outline mt-auto rounded-2xl"
                 @click="suggestSlug"
               >
-                <Icon name="kind-icon:wand" class="h-4 w-4" />
+                <Icon name="kind-icon:wand" class="kr-icon-4" />
                 Suggest Slug
               </button>
             </div>
@@ -200,7 +200,7 @@
                 class="btn btn-secondary btn-sm rounded-2xl"
                 @click="copyPitchToArtPrompt"
               >
-                <Icon name="kind-icon:copy" class="h-4 w-4" />
+                <Icon name="kind-icon:copy" class="kr-icon-4" />
                 Use Pitch
               </button>
             </div>

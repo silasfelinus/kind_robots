@@ -1477,11 +1477,16 @@ section:has(div[class*='xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]'])
    * size modifier -- the caller relies on DaisyUI's default badge size,
    * same rationale as .kr-badge-ghost being a separate sizeless sibling
    * rather than folded into its -sm/-xs counterparts. Bounded to the 13
-   * exact-match occurrences across 8 files this slice (--exact-only, same
+   * exact-match occurrences across 8 files that slice (--exact-only, same
    * convention .kr-badge-ghost's first slice used); a fourteenth exact
    * match in components/ui/ui-gallery.vue's "Badges & status" showcase
    * section is a deliberate raw-DaisyUI comparison row and was left
-   * untouched, matching the precedent set for that section's other rows. */
+   * untouched, matching the precedent set for that section's other rows.
+   * Slice 190 extended the bounded-extras pool with two clean, repeated
+   * shapes found layering a plain Tailwind `rounded-2xl`/`rounded-xl` on
+   * top (15 more occurrences across 10 files, kept as a preserved extra
+   * token after the primitive -- see kr_badge_codemod.py's
+   * BOUNDED_EXTRAS for the exact file list). */
   .kr-badge-outline {
     @apply badge badge-outline;
   }

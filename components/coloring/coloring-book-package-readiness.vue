@@ -22,7 +22,7 @@
         </p>
       </div>
       <div class="flex flex-wrap gap-2">
-        <span class="badge badge-outline rounded-2xl">
+        <span class="kr-badge-outline rounded-2xl">
           {{ sourceReadyCount }}/{{ packageData.books.length }} source-ready
         </span>
         <span

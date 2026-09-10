@@ -49,7 +49,7 @@
                 @{{ user.username }}
               </p>
             </div>
-            <span v-if="user.Role" class="badge badge-outline rounded-xl">
+            <span v-if="user.Role" class="kr-badge-outline rounded-xl">
               {{ formatRole(user.Role) }}
             </span>
           </div>

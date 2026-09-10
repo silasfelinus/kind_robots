@@ -13,7 +13,7 @@
             <h1 class="kr-text-black-2xl text-primary">Dreammaker</h1>
             <span
               v-if="dreamStore.dreamForm.id"
-              class="badge badge-outline rounded-xl"
+              class="kr-badge-outline rounded-xl"
             >
               Editing #{{ dreamStore.dreamForm.id }}
             </span>

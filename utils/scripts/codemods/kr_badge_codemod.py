@@ -133,10 +133,30 @@ BOUNDED_EXTRAS: dict[str, set[frozenset[str]]] = {
         frozenset({"rounded-xl"}),
     },
     # kr-badge-outline (interface-vision t-104 slice 183): bounded to an
-    # exact match only for this slice, same first-pass convention
+    # exact match only for that first slice, same first-pass convention
     # kr-badge-ghost used before its own follow-up slice individually
-    # audited the remaining extra-token pool.
-    "kr-badge-outline": {frozenset()},
+    # audited the remaining extra-token pool. Slice 190 is that follow-up:
+    # of the ~14 remaining hand-rolled `badge badge-outline <extra>`
+    # call sites, two clean, repeated shapes surveyed clean --
+    #   rounded-2xl  11 occurrences / 6 files (coloring-book-production-
+    #                history.vue, coloring-book-production-toolbar.vue x5,
+    #                coloring-book-package-readiness.vue,
+    #                coloring-book-cover-studio.vue,
+    #                coloring-book-studio.vue x2, coloring-book-readiness.vue)
+    #   rounded-xl   4 occurrences / 4 files (chat-gallery.vue,
+    #                daily-digest-object-dialog.vue, dream-maker.vue,
+    #                pages/users/[id].vue)
+    # -- added here. The remaining one-offs (a second color modifier
+    # alongside badge-outline in coloring-book-package-readiness.vue/
+    # artjob-editor.vue, or a stray `group-open:badge-primary` variant
+    # utility in coloring-book-page.vue) each carry a shape not shared by
+    # any other call site and are left hand-rolled rather than forced into
+    # this bounded set.
+    "kr-badge-outline": {
+        frozenset(),
+        frozenset({"rounded-2xl"}),
+        frozenset({"rounded-xl"}),
+    },
 }
 
 

@@ -51,7 +51,7 @@
     <!-- Source image -->
     <div class="flex flex-col gap-2 kr-panel-compact">
       <div class="flex items-center gap-2">
-        <Icon name="kind-icon:image" class="h-4 w-4 text-primary" />
+        <Icon name="kind-icon:image" class="kr-icon-primary-4" />
         <span class="kr-text-black-xs text-base-content">Client Photo</span>
         <div class="flex-1" />
         <div

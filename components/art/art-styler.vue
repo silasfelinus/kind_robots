@@ -20,7 +20,7 @@
 
     <div class="flex flex-col gap-2 kr-panel-compact">
       <div class="flex items-center gap-2">
-        <Icon name="kind-icon:image" class="h-4 w-4 text-primary" />
+        <Icon name="kind-icon:image" class="kr-icon-primary-4" />
         <span class="kr-text-black-xs text-base-content">Source Image</span>
         <div class="flex-1" />
         <div
@@ -475,7 +475,7 @@
         class="flex flex-col gap-3 rounded-xl border border-primary/30 bg-base-100 p-3"
       >
         <div class="flex items-center gap-1.5">
-          <Icon name="kind-icon:edit" class="h-4 w-4 text-primary" />
+          <Icon name="kind-icon:edit" class="kr-icon-primary-4" />
           <span class="kr-text-black-xs text-base-content">Prompt</span>
           <span class="kr-text-dim-xs-40 ml-auto">
             {{

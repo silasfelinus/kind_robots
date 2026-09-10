@@ -35,7 +35,7 @@
           class="flex min-w-0 shrink-0 items-center gap-1.5 pr-1"
           :title="subtitle"
         >
-          <Icon name="kind-icon:dream" class="h-4 w-4 text-primary" />
+          <Icon name="kind-icon:dream" class="kr-icon-primary-4" />
           <h2
             class="kr-text-black-sm max-w-36 truncate text-primary sm:max-w-48"
           >

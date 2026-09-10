@@ -160,7 +160,7 @@
                     <Icon
                       v-if="activeThemeName === String(item.id)"
                       name="kind-icon:check"
-                      class="h-4 w-4 shrink-0 text-primary"
+                      class="kr-icon-primary-4 shrink-0"
                     />
                   </div>
 
@@ -329,7 +329,7 @@
         <section v-if="inspectValues" class="kr-panel-flat p-3 shadow">
           <div class="mb-2 flex items-center justify-between gap-2">
             <div class="flex min-w-0 items-center gap-2">
-              <Icon name="kind-icon:code" class="h-4 w-4 text-primary" />
+              <Icon name="kind-icon:code" class="kr-icon-primary-4" />
 
               <h2 class="kr-text-black-sm truncate text-base-content">
                 Active Theme Snapshot

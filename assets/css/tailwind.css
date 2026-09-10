@@ -1652,6 +1652,21 @@ section:has(div[class*='xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]'])
     @apply h-6 w-6 text-primary;
   }
 
+  /* Same bare-icon shape one size down -- `h-4 w-4 text-primary`, no
+   * tile/background (interface-vision t-104 slice 193): 16 subset-match
+   * occurrences across 10 files (most carrying an extra `shrink-0`).
+   * Sibling of `.kr-icon-primary-5`/`.kr-icon-primary-6` above, not a
+   * generalization of either -- kept as its own fixed-size primitive to
+   * match every other kr-icon-primary-* sibling. Remaining sibling sizes
+   * still open for future slices: `h-7 w-7 text-primary` (6 files,
+   * excluding the sample/ template file), `h-10 w-10 text-primary/60` (3
+   * files, different opacity), `h-12 w-12 text-primary` (7 files, distinct
+   * from `.kr-icon-tile`'s own `h-12 w-12` which also carries the tile's
+   * background/shape tokens). */
+  .kr-icon-primary-4 {
+    @apply h-4 w-4 text-primary;
+  }
+
   /* The colorless DaisyUI busy indicator: a bare tiny spinner dropped into
    * a button or inline slot while an action is pending, no tint (the
    * button/text color around it usually already carries the tone)

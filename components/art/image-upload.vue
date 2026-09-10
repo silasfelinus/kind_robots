@@ -142,7 +142,7 @@
         <div class="kr-panel-divider">
           <!-- Metadata section header -->
           <div class="mb-3 flex items-center gap-2">
-            <icon name="kind-icon:settings" class="h-4 w-4 text-primary" />
+            <icon name="kind-icon:settings" class="kr-icon-primary-4" />
             <h3 class="kr-text-black-sm text-base-content">Image Metadata</h3>
             <span class="kr-text-dim-xs-40"
               >Optional — added to every image in this batch</span
@@ -344,7 +344,7 @@
               v-if="connectedModelId"
               class="mb-2 flex items-center gap-2 rounded-xl bg-primary/10 px-3 py-2 text-xs"
             >
-              <Icon name="mdi:link-variant" class="h-4 w-4 text-primary" />
+              <Icon name="mdi:link-variant" class="kr-icon-primary-4" />
               <span class="font-semibold text-primary"
                 >{{ connectedModelType }} #{{ connectedModelId }}</span
               >

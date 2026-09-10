@@ -63,7 +63,7 @@
             class="btn btn-outline btn-sm justify-start rounded-xl"
             @click="dismiss"
           >
-            <Icon :name="link.icon" class="h-4 w-4" />
+            <Icon :name="link.icon" class="kr-icon-4" />
             {{ link.label }}
           </NuxtLink>
         </div>
@@ -101,7 +101,7 @@
           </button>
 
           <button v-else class="kr-btn-primary" type="button" @click="dismiss">
-            <Icon name="kind-icon:check" class="h-4 w-4" />
+            <Icon name="kind-icon:check" class="kr-icon-4" />
             Let's go
           </button>
         </div>

@@ -20,12 +20,12 @@
         type="button"
         @click="introStore.open()"
       >
-        <Icon name="kind-icon:map" class="h-4 w-4" />
+        <Icon name="kind-icon:map" class="kr-icon-4" />
         Replay intro
       </button>
 
       <NuxtLink v-if="isGuest" to="/login" class="kr-btn-primary">
-        <Icon name="kind-icon:login" class="h-4 w-4" />
+        <Icon name="kind-icon:login" class="kr-icon-4" />
         Sign in
       </NuxtLink>
 
@@ -35,7 +35,7 @@
         type="button"
         @click="logout"
       >
-        <Icon name="kind-icon:logout" class="h-4 w-4" />
+        <Icon name="kind-icon:logout" class="kr-icon-4" />
         Sign out
       </button>
     </header>

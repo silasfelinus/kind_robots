@@ -58,7 +58,7 @@
                 :to="section.to"
                 class="kr-btn-ghost-xs"
               >
-                <Icon name="kind-icon:external-link" class="h-4 w-4" />
+                <Icon name="kind-icon:external-link" class="kr-icon-4" />
                 Open {{ section.label }}
               </NuxtLink>
 
@@ -75,7 +75,7 @@
                       ? 'kind-icon:chevron-up'
                       : 'kind-icon:chevron-down'
                   "
-                  class="h-4 w-4"
+                  class="kr-icon-4"
                 />
                 {{ expandedSections[section.key] ? 'Hide inline' : 'Show inline' }}
               </button>

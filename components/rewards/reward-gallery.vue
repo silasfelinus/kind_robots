@@ -29,7 +29,7 @@
               type="button"
               @click="continueWithSelected"
             >
-              <Icon name="kind-icon:story" class="h-3 w-3" />
+              <Icon name="kind-icon:story" class="kr-icon-3" />
               Continue
             </button>
           </div>

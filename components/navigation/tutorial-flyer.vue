@@ -57,7 +57,7 @@
             v-if="section.underConstruction"
             class="kr-badge-warning-sm gap-1 rounded-lg font-semibold"
           >
-            <Icon name="kind-icon:wrench" class="h-3 w-3" />
+            <Icon name="kind-icon:wrench" class="kr-icon-3" />
             Coming soon
           </span>
         </div>
@@ -126,7 +126,7 @@
               <p
                 class="kr-text-eyebrow inline-flex items-center gap-1.5 rounded-full border border-primary/25 bg-base-100/70 px-3 py-1 text-[0.65rem] tracking-[0.18em] text-primary shadow-sm backdrop-blur"
               >
-                <Icon name="kind-icon:info" class="h-3 w-3" />
+                <Icon name="kind-icon:info" class="kr-icon-3" />
                 Tutorial
               </p>
 
@@ -216,7 +216,7 @@
                       v-if="section.underConstruction"
                       class="kr-badge-warning-sm gap-1 rounded-lg font-semibold"
                     >
-                      <Icon name="kind-icon:wrench" class="h-3 w-3" />
+                      <Icon name="kind-icon:wrench" class="kr-icon-3" />
                       Coming soon
                     </span>
                   </div>

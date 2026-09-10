@@ -109,7 +109,7 @@
               :title="store.isEffectActive(effect.id) ? 'Turn this effect off' : 'Trigger this effect live on screen'"
               @click="store.previewEffect(effect.id)"
             >
-              <Icon :name="store.isEffectActive(effect.id) ? 'kind-icon:x' : 'kind-icon:eye'" class="h-3 w-3" />
+              <Icon :name="store.isEffectActive(effect.id) ? 'kind-icon:x' : 'kind-icon:eye'" class="kr-icon-3" />
               {{ store.isEffectActive(effect.id) ? 'Stop' : 'Preview' }}
             </button>
             <span class="kr-badge-ghost-sm">

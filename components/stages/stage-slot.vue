@@ -31,7 +31,7 @@
           title="Clear slot"
           @click="emit('clear', slot.slotId)"
         >
-          <Icon name="mdi:close" class="h-3 w-3" />
+          <Icon name="mdi:close" class="kr-icon-3" />
         </button>
       </div>
     </template>
@@ -81,7 +81,7 @@
           title="Generate temporary bot for this role"
           @click="emit('requestTemporary', slot.slotId, slot.roleKey)"
         >
-          <Icon name="mdi:auto-fix" class="h-3 w-3" />
+          <Icon name="mdi:auto-fix" class="kr-icon-3" />
         </button>
 
         <button
@@ -90,7 +90,7 @@
           title="Remove slot"
           @click="emit('removeSlot', slot.slotId)"
         >
-          <Icon name="mdi:close" class="h-3 w-3" />
+          <Icon name="mdi:close" class="kr-icon-3" />
         </button>
       </div>
     </template>

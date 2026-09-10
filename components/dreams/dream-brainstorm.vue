@@ -71,7 +71,7 @@
               :disabled="dreamStore.loading"
               @click="refreshDreams"
             >
-              <Icon name="kind-icon:refresh" class="h-3 w-3" />
+              <Icon name="kind-icon:refresh" class="kr-icon-3" />
             </button>
           </div>
 
@@ -463,7 +463,7 @@
                 class="kr-btn-xs btn-square btn-ghost text-error"
                 @click="removeExample(index)"
               >
-                <Icon name="kind-icon:x" class="h-3 w-3" />
+                <Icon name="kind-icon:x" class="kr-icon-3" />
               </button>
             </div>
           </div>

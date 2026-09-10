@@ -117,7 +117,7 @@
           <Icon
             v-if="badge.icon"
             :name="badge.icon"
-            class="h-3 w-3"
+            class="kr-icon-3"
             :class="badge.label ? 'mr-1' : ''"
             aria-hidden="true"
           />
@@ -270,7 +270,7 @@
         :class="chip.class || 'badge-ghost'"
         :title="chip.title || chip.label"
       >
-        <Icon v-if="chip.icon" :name="chip.icon" class="mr-1 h-3 w-3" />
+        <Icon v-if="chip.icon" :name="chip.icon" class="kr-icon-3 mr-1" />
         {{ chip.label }}
       </span>
     </div>

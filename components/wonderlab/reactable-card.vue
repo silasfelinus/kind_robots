@@ -31,7 +31,7 @@
         class="flex items-center gap-1 rounded-full bg-base-100 px-2 py-1 text-xs font-semibold text-amber-500 shadow"
         title="Karma earned from reactions to this item"
       >
-        <Icon name="kind-icon:star" class="h-3 w-3" />
+        <Icon name="kind-icon:star" class="kr-icon-3" />
         {{ normalizedEarnedKarma }}
       </span>
 

@@ -112,7 +112,7 @@
         v-if="selected"
         class="absolute bottom-1.5 right-1.5 rounded-full bg-primary p-1.5 text-primary-content shadow-lg shadow-primary/40"
       >
-        <Icon name="kind-icon:check" class="h-3 w-3" />
+        <Icon name="kind-icon:check" class="kr-icon-3" />
       </div>
 
       <button

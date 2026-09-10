@@ -206,7 +206,7 @@
             class="kr-btn-ghost-xs-lg"
             @click="emit('select-item', item.id)"
           >
-            <Icon name="kind-icon:pencil" class="h-3 w-3" />
+            <Icon name="kind-icon:pencil" class="kr-icon-3" />
             Edit
           </button>
         </li>

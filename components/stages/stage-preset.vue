@@ -52,7 +52,7 @@
             v-if="role.badgeImagePath"
             :src="role.badgeImagePath"
             :alt="role.label"
-            class="h-3 w-3 rounded-full object-cover"
+            class="kr-icon-3 rounded-full object-cover"
           />
           {{ role.label }}
         </span>

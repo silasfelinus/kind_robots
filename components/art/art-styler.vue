@@ -14,7 +14,7 @@
         title="Close"
         @click="emit('close')"
       >
-        <Icon name="mdi:close" class="h-4 w-4" />
+        <Icon name="mdi:close" class="kr-icon-4" />
       </button>
     </div>
 
@@ -453,7 +453,7 @@
         <Transition name="pop">
           <div
             v-if="isSelectedStyle(style)"
-            class="absolute right-1.5 top-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-primary"
+            class="kr-icon-4 absolute right-1.5 top-1.5 flex items-center justify-center rounded-full bg-primary"
           >
             <Icon name="mdi:check" class="h-3 w-3 text-primary-content" />
           </div>
@@ -541,7 +541,7 @@
         v-if="errorMessage"
         class="flex items-center gap-1.5 text-sm font-semibold text-error"
       >
-        <Icon name="kind-icon:alert" class="h-4 w-4" />
+        <Icon name="kind-icon:alert" class="kr-icon-4" />
         {{ errorMessage }}
       </p>
     </Transition>
@@ -551,7 +551,7 @@
         v-if="successMessage"
         class="flex items-center gap-1.5 text-sm font-semibold text-success"
       >
-        <Icon name="kind-icon:check" class="h-4 w-4" />
+        <Icon name="kind-icon:check" class="kr-icon-4" />
         {{ successMessage }}
       </p>
     </Transition>

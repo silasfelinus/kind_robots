@@ -11,7 +11,7 @@
         @click="handleBrowseClick"
       >
         <span class="flex min-w-0 items-center gap-2">
-          <Icon name="kind-icon:gallery" class="h-4 w-4 shrink-0" />
+          <Icon name="kind-icon:gallery" class="kr-icon-4 shrink-0" />
           <span class="truncate text-left">
             <span class="font-black">{{ title }}:</span>
             {{ selectedSummary }}
@@ -19,7 +19,7 @@
         </span>
         <Icon
           :name="expanded ? 'kind-icon:chevron-up' : 'kind-icon:chevron-down'"
-          class="h-4 w-4 shrink-0"
+          class="kr-icon-4 shrink-0"
         />
       </button>
 
@@ -30,7 +30,7 @@
         title="Use all available art"
         @click="useAllArt"
       >
-        <Icon name="kind-icon:trash" class="h-4 w-4" />
+        <Icon name="kind-icon:trash" class="kr-icon-4" />
         <span class="hidden sm:inline">All art</span>
       </button>
     </div>

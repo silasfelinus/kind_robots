@@ -19,7 +19,7 @@
         title="Edit Image"
         @click.stop="emit('edit', displayImage.id)"
       >
-        <Icon name="kind-icon:pencil" class="h-4 w-4" />
+        <Icon name="kind-icon:pencil" class="kr-icon-4" />
       </button>
 
       <button
@@ -29,7 +29,7 @@
         title="Make coloring page"
         @click.stop="makeColoringPage"
       >
-        <Icon name="kind-icon:paintbrush" class="h-4 w-4" />
+        <Icon name="kind-icon:paintbrush" class="kr-icon-4" />
       </button>
 
       <button
@@ -44,7 +44,7 @@
         title="Copy Prompt"
         @click.stop="copyPrompt"
       >
-        <Icon name="kind-icon:copy" class="h-4 w-4" />
+        <Icon name="kind-icon:copy" class="kr-icon-4" />
       </button>
 
       <button
@@ -54,7 +54,7 @@
         title="Delete Image"
         @click.stop="emit('delete', displayImage.id)"
       >
-        <Icon name="kind-icon:trash" class="h-4 w-4" />
+        <Icon name="kind-icon:trash" class="kr-icon-4" />
       </button>
     </template>
 

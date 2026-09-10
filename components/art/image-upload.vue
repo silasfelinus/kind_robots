@@ -478,7 +478,7 @@
         v-if="message"
         class="flex items-center gap-1.5 text-sm font-semibold text-success"
       >
-        <icon name="kind-icon:check" class="h-4 w-4" />{{ message }}
+        <icon name="kind-icon:check" class="kr-icon-4" />{{ message }}
       </p>
     </Transition>
     <Transition name="fade">
@@ -486,7 +486,7 @@
         v-if="error"
         class="flex items-center gap-1.5 text-sm font-semibold text-error"
       >
-        <icon name="kind-icon:alert" class="h-4 w-4" />{{ error }}
+        <icon name="kind-icon:alert" class="kr-icon-4" />{{ error }}
       </p>
     </Transition>
   </section>

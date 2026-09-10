@@ -135,7 +135,7 @@
             class="kr-btn-primary-plain"
             @click="capturePhoto"
           >
-            <Icon name="kind-icon:camera" class="h-4 w-4" /> Capture
+            <Icon name="kind-icon:camera" class="kr-icon-4" /> Capture
           </button>
           <button type="button" class="kr-btn-ghost-plain" @click="closeCamera">
             Cancel
@@ -156,7 +156,7 @@
           title="Remove photo"
           @click="clearSource"
         >
-          <Icon name="mdi:close" class="h-4 w-4" />
+          <Icon name="mdi:close" class="kr-icon-4" />
         </button>
       </div>
 
@@ -183,7 +183,7 @@
           title="Remove photo"
           @click="clearSource"
         >
-          <Icon name="mdi:close" class="h-4 w-4" /> Remove photo
+          <Icon name="mdi:close" class="kr-icon-4" /> Remove photo
         </button>
       </div>
     </div>
@@ -337,7 +337,7 @@
       :disabled="!canGenerate"
       @click="submit"
     >
-      <Icon name="kind-icon:magic" class="h-4 w-4" />
+      <Icon name="kind-icon:magic" class="kr-icon-4" />
       Style it
     </button>
 

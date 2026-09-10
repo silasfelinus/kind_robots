@@ -102,7 +102,7 @@
             ? 'kind-icon:alert'
             : 'kind-icon:check'
         "
-        class="mt-0.5 h-4 w-4 shrink-0"
+        class="kr-icon-4 mt-0.5 shrink-0"
       />
       {{ artStore.generationMessage }}
     </div>

@@ -16,7 +16,7 @@
         :class="superkate.activeView === view.key ? 'btn-primary' : 'btn-ghost'"
         @click="superkate.activeView = view.key"
       >
-        <Icon :name="view.icon" class="h-4 w-4" />
+        <Icon :name="view.icon" class="kr-icon-4" />
         {{ view.label }}
       </button>
       <div class="flex-1" />

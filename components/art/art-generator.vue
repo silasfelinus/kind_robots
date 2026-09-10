@@ -64,7 +64,7 @@
                 ? 'kind-icon:alert'
                 : 'kind-icon:check'
             "
-            class="mt-0.5 h-4 w-4 shrink-0"
+            class="kr-icon-4 mt-0.5 shrink-0"
           />
           {{ artStore.generationMessage }}
         </div>
@@ -89,7 +89,7 @@
                 <h2
                   class="flex items-center gap-2 text-base font-bold text-primary"
                 >
-                  <Icon name="kind-icon:settings" class="h-4 w-4" />
+                  <Icon name="kind-icon:settings" class="kr-icon-4" />
                   Recipe
                 </h2>
                 <p class="kr-text-dim-xs-55 mt-0.5">
@@ -150,7 +150,7 @@
                 <span
                   class="label-text flex items-center gap-1.5 text-base font-bold text-primary"
                 >
-                  <Icon name="kind-icon:prompt" class="h-4 w-4" />
+                  <Icon name="kind-icon:prompt" class="kr-icon-4" />
                   Prompt
                 </span>
                 <button
@@ -243,7 +243,7 @@
             <h2
               class="flex items-center gap-2 text-base font-bold text-primary"
             >
-              <Icon name="kind-icon:checkpoint" class="h-4 w-4" />
+              <Icon name="kind-icon:checkpoint" class="kr-icon-4" />
               Model
             </h2>
 
@@ -300,7 +300,7 @@
             <h2
               class="flex items-center gap-2 text-base font-bold text-primary"
             >
-              <Icon name="kind-icon:settings" class="h-4 w-4" />
+              <Icon name="kind-icon:settings" class="kr-icon-4" />
               Settings
             </h2>
 
@@ -443,7 +443,7 @@
             <h2
               class="flex items-center gap-2 text-base font-bold text-primary"
             >
-              <Icon name="kind-icon:server" class="h-4 w-4" />
+              <Icon name="kind-icon:server" class="kr-icon-4" />
               Destination
             </h2>
 
@@ -533,7 +533,7 @@
             class="kr-btn-ghost"
             @click="goToGallery"
           >
-            <Icon name="kind-icon:gallery" class="h-4 w-4" />
+            <Icon name="kind-icon:gallery" class="kr-icon-4" />
             Gallery
           </button>
         </div>

@@ -1836,6 +1836,23 @@ section:has(div[class*='xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]'])
     @apply h-3.5 w-3.5;
   }
 
+  /* Same bare sizeless-and-colorless icon-glyph shape as `.kr-icon-3`/
+   * `.kr-icon-3-5`/`.kr-icon-5`/`.kr-icon-6`/`.kr-icon-7`/`.kr-icon-8`
+   * (interface-vision t-104 slice 204) -- `h-4 w-4`, the largest sibling in
+   * this family (~100 files) and flagged by every prior slice's kaizen note
+   * as needing further splitting before any slice attempted it. This slice
+   * takes the `components/art/` directory only (15 files, 47 occurrences
+   * via subset-match) as the first bounded sub-slice, splitting the giant
+   * family by directory the way the kaizen notes suggested. Sibling
+   * directories still open: `components/navigation` (12 files),
+   * `components/dreams` (9 files), `components/user` (7 files), and the
+   * rest of the ~100-file family. Distinct from any future
+   * `.kr-icon-primary-4` (same size, carries `text-primary`) -- this is the
+   * untinted sibling. */
+  .kr-icon-4 {
+    @apply h-4 w-4;
+  }
+
   /* The colorless DaisyUI busy indicator: a bare tiny spinner dropped into
    * a button or inline slot while an action is pending, no tint (the
    * button/text color around it usually already carries the tone)

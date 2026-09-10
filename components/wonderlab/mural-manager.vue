@@ -27,7 +27,7 @@
             type="button"
             @click="coloringStore.undo()"
           >
-            <Icon name="mdi:undo" class="h-4 w-4" />
+            <Icon name="mdi:undo" class="kr-icon-4" />
             Undo
           </button>
 
@@ -36,7 +36,7 @@
             type="button"
             @click="coloringStore.resetPage()"
           >
-            <Icon name="kind-icon:refresh" class="h-4 w-4" />
+            <Icon name="kind-icon:refresh" class="kr-icon-4" />
             Reset
           </button>
 
@@ -48,7 +48,7 @@
             @click="saveImage"
           >
             <span v-if="isExporting" class="kr-spinner-xs" />
-            <Icon v-else name="kind-icon:image" class="h-4 w-4" />
+            <Icon v-else name="kind-icon:image" class="kr-icon-4" />
             Save image
           </button>
 
@@ -123,7 +123,7 @@
                 "
                 @click="coloringStore.removeColor(color.id)"
               >
-                <Icon name="kind-icon:trash" class="h-4 w-4" />
+                <Icon name="kind-icon:trash" class="kr-icon-4" />
               </button>
             </div>
           </div>
@@ -158,7 +158,7 @@
               class="btn btn-sm btn-primary rounded-xl text-white"
               type="submit"
             >
-              <Icon name="kind-icon:plus" class="h-4 w-4" />
+              <Icon name="kind-icon:plus" class="kr-icon-4" />
               Save Color
             </button>
           </div>

@@ -300,7 +300,7 @@
                       ? 'mdi:chevron-down'
                       : 'mdi:chevron-right'
                   "
-                  class="h-4 w-4"
+                  class="kr-icon-4"
                 />
                 Performer Gallery ({{ store.performers.length }} preset
                 performers)
@@ -344,7 +344,7 @@
                       class="btn btn-primary btn-sm rounded-xl gap-1.5"
                       @click="openPerformerCreator()"
                     >
-                      <Icon name="mdi:account-plus" class="h-4 w-4" />
+                      <Icon name="mdi:account-plus" class="kr-icon-4" />
                       Create Custom Performer
                     </button>
 
@@ -354,7 +354,7 @@
                       class="btn btn-ghost btn-sm rounded-xl gap-1.5"
                       @click="pendingCustomPerformer = null"
                     >
-                      <Icon name="mdi:close" class="h-4 w-4" />
+                      <Icon name="mdi:close" class="kr-icon-4" />
                       Clear Custom
                     </button>
                   </div>
@@ -489,7 +489,7 @@
                 @click="activeCard = 'settings'"
               >
                 Cast ready — configure show
-                <Icon name="mdi:arrow-right" class="h-4 w-4" />
+                <Icon name="mdi:arrow-right" class="kr-icon-4" />
               </button>
             </div>
           </template>
@@ -641,7 +641,7 @@
               class="kr-btn-outline-md"
               @click="activeCard = 'cast'"
             >
-              <Icon name="mdi:arrow-left" class="h-4 w-4" /> Back
+              <Icon name="mdi:arrow-left" class="kr-icon-4" /> Back
             </button>
             <button
               type="button"
@@ -649,7 +649,7 @@
               :disabled="!store.castReady"
               @click="goToRun"
             >
-              <Icon name="mdi:play" class="h-4 w-4" />
+              <Icon name="mdi:play" class="kr-icon-4" />
               Start the show
             </button>
           </div>
@@ -702,7 +702,7 @@
                   class="kr-btn btn-outline"
                   @click="activeCard = 'cast'"
                 >
-                  <Icon name="mdi:account-multiple-plus" class="h-4 w-4" /> Cast
+                  <Icon name="mdi:account-multiple-plus" class="kr-icon-4" /> Cast
                   Roles
                 </button>
                 <button
@@ -711,7 +711,7 @@
                   :disabled="!store.castReady"
                   @click="store.start()"
                 >
-                  <Icon name="mdi:play" class="h-4 w-4" /> Start Show
+                  <Icon name="mdi:play" class="kr-icon-4" /> Start Show
                 </button>
               </div>
             </div>
@@ -730,7 +730,7 @@
                 :disabled="!store.castReady"
                 @click="store.start()"
               >
-                <Icon name="mdi:play" class="h-4 w-4" /> Start
+                <Icon name="mdi:play" class="kr-icon-4" /> Start
               </button>
             </template>
             <template v-else-if="!store.isPaused">
@@ -739,7 +739,7 @@
                 class="btn btn-warning btn-sm rounded-2xl"
                 @click="store.pause()"
               >
-                <Icon name="mdi:pause" class="h-4 w-4" /> Pause
+                <Icon name="mdi:pause" class="kr-icon-4" /> Pause
               </button>
             </template>
             <template v-else>
@@ -748,7 +748,7 @@
                 class="btn btn-primary btn-sm rounded-2xl"
                 @click="store.resume()"
               >
-                <Icon name="mdi:play" class="h-4 w-4" /> Resume
+                <Icon name="mdi:play" class="kr-icon-4" /> Resume
               </button>
             </template>
 
@@ -758,7 +758,7 @@
               class="kr-btn-ghost-2xl"
               @click="store.stop()"
             >
-              <Icon name="mdi:stop" class="h-4 w-4" />
+              <Icon name="mdi:stop" class="kr-icon-4" />
             </button>
             <button
               type="button"
@@ -766,7 +766,7 @@
               :disabled="store.isGenerating || !store.transcript.length"
               @click="store.regenerateLastTurn()"
             >
-              <Icon name="mdi:refresh" class="h-4 w-4" />
+              <Icon name="mdi:refresh" class="kr-icon-4" />
             </button>
             <button
               type="button"
@@ -774,7 +774,7 @@
               :disabled="store.isGenerating"
               @click="store.generateNextTurn()"
             >
-              <Icon name="mdi:skip-next" class="h-4 w-4" />
+              <Icon name="mdi:skip-next" class="kr-icon-4" />
             </button>
 
             <span class="kr-text-dim-xs flex-1">
@@ -809,7 +809,7 @@
                 :disabled="!interjection.trim()"
                 @click="submitInterjection"
               >
-                <Icon name="mdi:send" class="h-4 w-4" />
+                <Icon name="mdi:send" class="kr-icon-4" />
               </button>
             </div>
             <div class="flex gap-2">
@@ -826,7 +826,7 @@
                 :disabled="!narratorBeat.trim()"
                 @click="submitNarratorBeat"
               >
-                <Icon name="mdi:script-text" class="h-4 w-4" />
+                <Icon name="mdi:script-text" class="kr-icon-4" />
               </button>
             </div>
           </div>
@@ -885,7 +885,7 @@
             class="h-full w-full object-cover opacity-80"
           />
           <div v-else class="flex h-full items-center justify-center">
-            <Icon :name="card.icon" class="h-4 w-4 opacity-40" />
+            <Icon :name="card.icon" class="kr-icon-4 opacity-40" />
           </div>
           <div
             v-if="activeCard === card.key"

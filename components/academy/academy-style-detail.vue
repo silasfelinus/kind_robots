@@ -55,7 +55,7 @@
         aria-label="Close lesson"
         @click="emit('close')"
       >
-        <Icon name="mdi:close" class="h-4 w-4" />
+        <Icon name="mdi:close" class="kr-icon-4" />
       </button>
 
       <div class="absolute inset-x-0 bottom-0 flex flex-col gap-4 p-5 text-white sm:p-7 lg:p-9">
@@ -103,7 +103,7 @@
             rel="noopener noreferrer"
             class="btn rounded-2xl border-white/30 bg-black/35 text-white backdrop-blur hover:bg-black/55"
           >
-            <Icon name="kind-icon:gallery" class="h-4 w-4" />
+            <Icon name="kind-icon:gallery" class="kr-icon-4" />
             View a real work
           </a>
         </div>
@@ -132,7 +132,7 @@
         aria-label="Close lesson"
         @click="emit('close')"
       >
-        <Icon name="mdi:close" class="h-4 w-4" />
+        <Icon name="mdi:close" class="kr-icon-4" />
       </button>
     </header>
 
@@ -143,7 +143,7 @@
       <div class="mb-4 flex flex-wrap items-end justify-between gap-2">
         <div>
           <p class="kr-text-eyebrow flex items-center gap-1.5 text-xs tracking-[0.16em] text-primary">
-            <Icon name="kind-icon:gallery" class="h-4 w-4" />
+            <Icon name="kind-icon:gallery" class="kr-icon-4" />
             Gallery wall
           </p>
           <h4 class="kr-text-black-xl mt-1 text-base-content">Look before you read</h4>
@@ -193,7 +193,7 @@
       <div class="flex min-w-0 flex-col gap-5">
         <section class="kr-panel-section sm:p-6">
           <p class="kr-text-eyebrow flex items-center gap-1.5 text-xs tracking-[0.16em] text-primary">
-            <Icon name="kind-icon:search" class="h-4 w-4" />
+            <Icon name="kind-icon:search" class="kr-icon-4" />
             How to spot it
           </p>
           <h4 class="kr-text-black-xl mt-2 text-base-content">Train your eye</h4>
@@ -217,7 +217,7 @@
           <div class="flex flex-wrap items-end justify-between gap-2">
             <div>
               <p class="kr-text-eyebrow flex items-center gap-1.5 text-xs tracking-[0.16em] text-secondary">
-                <Icon name="kind-icon:user" class="h-4 w-4" />
+                <Icon name="kind-icon:user" class="kr-icon-4" />
                 Meet the masters
               </p>
               <h4 class="kr-text-black-xl mt-2 text-base-content">People behind the movement</h4>
@@ -277,7 +277,7 @@
         <section class="overflow-hidden rounded-3xl border border-primary/25 bg-primary/5 shadow-sm">
           <div class="border-b border-primary/15 bg-primary/10 p-5">
             <p class="kr-text-eyebrow flex items-center gap-1.5 text-xs tracking-[0.16em] text-primary">
-              <Icon name="kind-icon:flask" class="h-4 w-4" />
+              <Icon name="kind-icon:flask" class="kr-icon-4" />
               Try it
             </p>
             <h4 class="kr-text-black-2xl mt-2 leading-tight text-base-content">
@@ -309,7 +309,7 @@
             </div>
 
             <p class="kr-text-dim-xs-55 flex items-start gap-2 leading-relaxed">
-              <Icon name="kind-icon:refresh" class="mt-0.5 h-4 w-4 shrink-0" />
+              <Icon name="kind-icon:refresh" class="kr-icon-4 mt-0.5 shrink-0" />
               Not quite right? Try a different source image, tweak the instruction, or adjust the style strength and remix again.
             </p>
 
@@ -327,7 +327,7 @@
 
         <section class="kr-panel-section">
           <p class="kr-text-eyebrow kr-text-dim-xs-45 flex items-center gap-1.5 tracking-[0.16em]">
-            <Icon name="kind-icon:chat" class="h-4 w-4" />
+            <Icon name="kind-icon:chat" class="kr-icon-4" />
             Reflect
           </p>
           <h4 class="kr-text-black-lg mt-2 text-base-content">Look again after you remix</h4>
@@ -337,7 +337,7 @@
               :key="prompt"
               class="flex items-start gap-2 rounded-xl bg-base-200/45 p-3 text-sm leading-relaxed text-base-content/75"
             >
-              <Icon name="kind-icon:question" class="mt-0.5 h-4 w-4 shrink-0 text-primary/60" />
+              <Icon name="kind-icon:question" class="kr-icon-4 mt-0.5 shrink-0 text-primary/60" />
               {{ prompt }}
             </li>
           </ul>

@@ -36,7 +36,7 @@
             type="button"
             @click="startAddingBot"
           >
-            <Icon name="kind-icon:plus" class="h-4 w-4" />
+            <Icon name="kind-icon:plus" class="kr-icon-4" />
             <span class="hidden sm:inline">Add</span>
           </button>
 
@@ -48,7 +48,7 @@
             @click="refreshBots(true)"
           >
             <span v-if="isLoading || botStore.loading" class="kr-spinner-xs" />
-            <Icon v-else name="kind-icon:refresh" class="h-4 w-4" />
+            <Icon v-else name="kind-icon:refresh" class="kr-icon-4" />
             <span class="hidden sm:inline">Refresh</span>
           </button>
         </div>
@@ -71,7 +71,7 @@
         </div>
 
         <button class="kr-btn-ghost" type="button" @click="closeBotForm">
-          <Icon name="kind-icon:x" class="h-4 w-4" />
+          <Icon name="kind-icon:x" class="kr-icon-4" />
           <span class="hidden sm:inline">Close</span>
         </button>
       </div>
@@ -144,7 +144,7 @@
               class="btn btn-outline btn-sm mr-auto rounded-xl"
               @click="cloneInfoBot"
             >
-              <Icon name="kind-icon:copy" class="h-4 w-4" />
+              <Icon name="kind-icon:copy" class="kr-icon-4" />
               Clone
             </button>
 
@@ -154,7 +154,7 @@
               class="btn btn-outline btn-error btn-sm rounded-xl"
               @click="deleteInfoBot"
             >
-              <Icon name="kind-icon:trash" class="h-4 w-4" />
+              <Icon name="kind-icon:trash" class="kr-icon-4" />
               Delete
             </button>
           </template>
@@ -262,7 +262,7 @@
                 type="button"
                 @click="launchSelectedBot"
               >
-                <Icon name="kind-icon:play" class="h-4 w-4" />
+                <Icon name="kind-icon:play" class="kr-icon-4" />
                 <span class="hidden sm:inline">Launch</span>
               </button>
 
@@ -272,7 +272,7 @@
                 type="button"
                 @click="cloneSelectedBot"
               >
-                <Icon name="kind-icon:copy" class="h-4 w-4" />
+                <Icon name="kind-icon:copy" class="kr-icon-4" />
                 <span class="hidden sm:inline">Clone</span>
               </button>
 
@@ -282,7 +282,7 @@
                 type="button"
                 @click="startEditingSelectedBot"
               >
-                <Icon name="kind-icon:pencil" class="h-4 w-4" />
+                <Icon name="kind-icon:pencil" class="kr-icon-4" />
                 <span class="hidden sm:inline">Edit</span>
               </button>
             </div>
@@ -370,7 +370,7 @@
           type="button"
           @click="startAddingBot"
         >
-          <Icon name="kind-icon:plus" class="h-4 w-4" />
+          <Icon name="kind-icon:plus" class="kr-icon-4" />
           Build Bot
         </button>
       </div>
@@ -469,7 +469,7 @@
                 <Icon
                   v-if="segment.icon"
                   :name="segment.icon"
-                  class="h-4 w-4"
+                  class="kr-icon-4"
                   aria-hidden="true"
                 />
                 <span :class="segment.icon ? 'sr-only' : 'text-xs font-bold'">
@@ -542,7 +542,7 @@
               type="button"
               @click="clearSelectedBot"
             >
-              <Icon name="kind-icon:x" class="h-4 w-4" />
+              <Icon name="kind-icon:x" class="kr-icon-4" />
               Clear
             </button>
           </div>

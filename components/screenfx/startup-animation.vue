@@ -49,7 +49,7 @@
             :disabled="!hasSelectableEffects"
             @click="selectPreviousEffect"
           >
-            <Icon name="kind-icon:chevron-left" class="h-4 w-4" />
+            <Icon name="kind-icon:chevron-left" class="kr-icon-4" />
           </button>
 
           <button
@@ -59,7 +59,7 @@
             :disabled="!hasSelectableEffects"
             @click="selectRandomEffect"
           >
-            <Icon name="kind-icon:sparkles" class="h-4 w-4" />
+            <Icon name="kind-icon:sparkles" class="kr-icon-4" />
             <span class="hidden sm:inline">Random</span>
           </button>
 
@@ -71,7 +71,7 @@
             :disabled="!hasSelectableEffects"
             @click="selectNextEffect"
           >
-            <Icon name="kind-icon:chevron-right" class="h-4 w-4" />
+            <Icon name="kind-icon:chevron-right" class="kr-icon-4" />
           </button>
         </div>
 
@@ -93,7 +93,7 @@
           aria-label="Leave startup animation"
           @click="startupStore.requestExit()"
         >
-          <Icon name="kind-icon:x" class="h-4 w-4" />
+          <Icon name="kind-icon:x" class="kr-icon-4" />
         </button>
       </template>
 
@@ -108,7 +108,7 @@
           title="Pause the launch and explore animations"
           @click="startupStore.enterControlMode()"
         >
-          <Icon name="kind-icon:sparkles" class="h-4 w-4" />
+          <Icon name="kind-icon:sparkles" class="kr-icon-4" />
           <span>Pause &amp; explore</span>
         </button>
       </template>

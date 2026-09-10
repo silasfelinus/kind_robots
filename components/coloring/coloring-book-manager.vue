@@ -105,7 +105,7 @@
             class="kr-btn-ghost-2xl"
             @click="closePage"
           >
-            <Icon name="mdi:arrow-left" class="h-4 w-4" />
+            <Icon name="mdi:arrow-left" class="kr-icon-4" />
             Library
           </button>
           <h2 class="kr-text-black-sm text-base-content">
@@ -120,7 +120,7 @@
             title="Undo last fill"
             @click="coloringStore.undo()"
           >
-            <Icon name="mdi:undo" class="h-4 w-4" />
+            <Icon name="mdi:undo" class="kr-icon-4" />
             Undo
           </button>
           <button
@@ -129,7 +129,7 @@
             title="Clear all fills"
             @click="coloringStore.resetPage()"
           >
-            <Icon name="mdi:restore" class="h-4 w-4" />
+            <Icon name="mdi:restore" class="kr-icon-4" />
             Reset
           </button>
           <button
@@ -143,7 +143,7 @@
               v-if="isExporting"
               class="kr-spinner-xs"
             />
-            <Icon v-else name="kind-icon:image" class="h-4 w-4" />
+            <Icon v-else name="kind-icon:image" class="kr-icon-4" />
             Save image
           </button>
           <button
@@ -152,7 +152,7 @@
             title="Download your color assignments as JSON"
             @click="downloadAssignments"
           >
-            <Icon name="mdi:download" class="h-4 w-4" />
+            <Icon name="mdi:download" class="kr-icon-4" />
             Save file
           </button>
         </div>
@@ -200,7 +200,7 @@
               title="Paint blank (eraser)"
               @click="coloringStore.setActiveColor(BLANK_COLOR_ID)"
             >
-              <Icon name="mdi:eraser" class="h-4 w-4" />
+              <Icon name="mdi:eraser" class="kr-icon-4" />
             </button>
           </div>
 
@@ -216,7 +216,7 @@
               class="btn btn-outline btn-sm flex-1 rounded-2xl"
               @click="addCustomColor"
             >
-              <Icon name="mdi:plus" class="h-4 w-4" />
+              <Icon name="mdi:plus" class="kr-icon-4" />
               Add color
             </button>
           </div>

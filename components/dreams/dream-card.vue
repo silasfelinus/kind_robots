@@ -59,7 +59,7 @@
           title="Edit Dream"
           @click="emit('edit', dream.id)"
         >
-          <Icon name="kind-icon:edit" class="h-4 w-4" />
+          <Icon name="kind-icon:edit" class="kr-icon-4" />
         </button>
 
         <button
@@ -69,7 +69,7 @@
           title="Archive Dream"
           @click="emit('delete', dream.id)"
         >
-          <Icon name="kind-icon:archive" class="h-4 w-4" />
+          <Icon name="kind-icon:archive" class="kr-icon-4" />
         </button>
       </template>
 

@@ -25,7 +25,7 @@
             @click="generateCandidates(false)"
           >
             <span v-if="dreamStore.loading" class="kr-spinner-xs" />
-            <Icon v-else name="kind-icon:sparkles" class="h-4 w-4" />
+            <Icon v-else name="kind-icon:sparkles" class="kr-icon-4" />
             Generate
           </button>
 
@@ -35,12 +35,12 @@
             :disabled="dreamStore.loading || !canResubmit"
             @click="generateCandidates(true)"
           >
-            <Icon name="kind-icon:refresh" class="h-4 w-4" />
+            <Icon name="kind-icon:refresh" class="kr-icon-4" />
             Resubmit
           </button>
 
           <button type="button" class="kr-btn-ghost-2xl" @click="resetSession">
-            <Icon name="kind-icon:x" class="h-4 w-4" />
+            <Icon name="kind-icon:x" class="kr-icon-4" />
             Reset
           </button>
         </div>
@@ -78,7 +78,7 @@
           <label
             class="input input-bordered input-sm mt-3 flex items-center gap-2 rounded-2xl bg-base-100"
           >
-            <Icon name="kind-icon:search" class="h-4 w-4 opacity-60" />
+            <Icon name="kind-icon:search" class="kr-icon-4 opacity-60" />
             <input
               v-model="sourceSearch"
               class="grow"

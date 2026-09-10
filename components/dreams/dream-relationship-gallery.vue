@@ -35,7 +35,7 @@
           <label
             class="input input-bordered input-xs flex min-w-36 flex-1 items-center gap-2 rounded-2xl bg-base-200"
           >
-            <Icon name="kind-icon:search" class="h-4 w-4 opacity-50" />
+            <Icon name="kind-icon:search" class="kr-icon-4 opacity-50" />
             <input
               v-model="searchQuery"
               type="search"

@@ -117,7 +117,7 @@
             aria-label="All types"
             @click="selectedType = 'all'"
           >
-            <Icon name="kind-icon:cards" class="h-4 w-4" />
+            <Icon name="kind-icon:cards" class="kr-icon-4" />
           </button>
 
           <button
@@ -131,7 +131,7 @@
             :aria-label="dreamTypeLabel(type)"
             @click="selectedType = type"
           >
-            <Icon :name="dreamTypeIcon(type)" class="h-4 w-4" />
+            <Icon :name="dreamTypeIcon(type)" class="kr-icon-4" />
           </button>
         </div>
 
@@ -151,7 +151,7 @@
           aria-label="Show only my Dreams"
           @click="showMineOnly = !showMineOnly"
         >
-          <Icon name="kind-icon:user" class="h-4 w-4" />
+          <Icon name="kind-icon:user" class="kr-icon-4" />
         </button>
 
         <button
@@ -163,7 +163,7 @@
           aria-label="Show archived Dreams"
           @click="showArchived = !showArchived"
         >
-          <Icon name="kind-icon:archive" class="h-4 w-4" />
+          <Icon name="kind-icon:archive" class="kr-icon-4" />
         </button>
 
         <button
@@ -179,7 +179,7 @@
             v-if="isLoading || dreamStore.loading"
             class="kr-spinner-xs"
           />
-          <Icon v-else name="kind-icon:refresh" class="h-4 w-4" />
+          <Icon v-else name="kind-icon:refresh" class="kr-icon-4" />
         </button>
 
         <button
@@ -190,7 +190,7 @@
           aria-label="New Dream"
           @click="startAddingDream"
         >
-          <Icon name="kind-icon:plus" class="h-4 w-4" />
+          <Icon name="kind-icon:plus" class="kr-icon-4" />
         </button>
       </div>
     </header>
@@ -307,7 +307,7 @@
           class="btn btn-error btn-sm rounded-2xl"
           @click="refreshDreams(true)"
         >
-          <Icon name="kind-icon:refresh" class="h-4 w-4" />
+          <Icon name="kind-icon:refresh" class="kr-icon-4" />
           Try Again
         </button>
       </div>
@@ -343,7 +343,7 @@
               type="button"
               @click="startEditingSelectedDream"
             >
-              <Icon name="kind-icon:pencil" class="h-4 w-4" />
+              <Icon name="kind-icon:pencil" class="kr-icon-4" />
               <span class="hidden sm:inline">Edit</span>
             </button>
           </div>
@@ -473,7 +473,7 @@
           type="button"
           @click="startAddingDream"
         >
-          <Icon name="kind-icon:plus" class="h-4 w-4" />
+          <Icon name="kind-icon:plus" class="kr-icon-4" />
           Make the first Dream
         </button>
       </div>

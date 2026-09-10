@@ -1838,13 +1838,13 @@ section:has(div[class*='xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]'])
 
   /* Same bare sizeless-and-colorless icon-glyph shape as `.kr-icon-3`/
    * `.kr-icon-3-5`/`.kr-icon-5`/`.kr-icon-6`/`.kr-icon-7`/`.kr-icon-8`
-   * (interface-vision t-104 slice 204) -- `h-4 w-4`, the largest sibling in
-   * this family (~100 files) and flagged by every prior slice's kaizen note
-   * as needing further splitting before any slice attempted it. This slice
-   * takes the `components/art/` directory only (15 files, 47 occurrences
-   * via subset-match) as the first bounded sub-slice, splitting the giant
-   * family by directory the way the kaizen notes suggested. Sibling
-   * directories still open: `components/navigation` (12 files),
+   * (interface-vision t-104 slices 204-205) -- `h-4 w-4`, the largest
+   * sibling in this family (~100 files) and flagged by every prior slice's
+   * kaizen note as needing further splitting before any slice attempted it.
+   * Slice 204 took `components/art/` (15 files, 47 occurrences). Slice 205
+   * adds `components/navigation/` (9 files, 17 occurrences via
+   * subset-match), splitting the giant family by directory the way the
+   * kaizen notes suggested. Sibling directories still open:
    * `components/dreams` (9 files), `components/user` (7 files), and the
    * rest of the ~100-file family. Distinct from any future
    * `.kr-icon-primary-4` (same size, carries `text-primary`) -- this is the

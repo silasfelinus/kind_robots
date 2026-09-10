@@ -45,7 +45,7 @@
       >
         <Icon
           :name="activeTab?.icon || channel.icon"
-          class="h-4 w-4 shrink-0 xl:h-5 xl:w-5"
+          class="kr-icon-4 shrink-0 xl:h-5 xl:w-5"
         />
       </span>
 

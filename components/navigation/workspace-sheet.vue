@@ -32,7 +32,7 @@
           <p
             class="kr-text-black-sm inline-flex max-w-full items-center gap-2 rounded-full border border-primary/20 bg-base-100/85 px-3 py-1 uppercase tracking-widest text-primary shadow-sm backdrop-blur"
           >
-            <Icon :name="placeholderIcon" class="h-4 w-4 shrink-0" />
+            <Icon :name="placeholderIcon" class="kr-icon-4 shrink-0" />
             <span class="truncate">{{ label }}</span>
           </p>
         </div>
@@ -143,7 +143,7 @@
               class="btn btn-sm btn-circle absolute right-3 top-3 border-none bg-base-100/80 text-error shadow-sm backdrop-blur hover:bg-base-100"
               @click="builderStore.removeSection(card.key)"
             >
-              <Icon name="kind-icon:trash" class="h-4 w-4" />
+              <Icon name="kind-icon:trash" class="kr-icon-4" />
             </button>
 
             <div class="absolute inset-x-0 bottom-0 flex items-end gap-3 p-4">

@@ -267,7 +267,7 @@
             @click="close"
           >
             Got it
-            <Icon name="kind-icon:arrow-right" class="h-4 w-4" />
+            <Icon name="kind-icon:arrow-right" class="kr-icon-4" />
           </button>
         </footer>
       </article>

@@ -20,7 +20,7 @@
       >
         <Icon
           :name="activeChannel.icon"
-          class="h-4 w-4 shrink-0 xl:h-5 xl:w-5"
+          class="kr-icon-4 shrink-0 xl:h-5 xl:w-5"
         />
       </span>
 
@@ -90,7 +90,7 @@
               <span
                 class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-base-300/50 bg-base-200 text-base-content xl:h-10 xl:w-10"
               >
-                <Icon :name="channel.icon" class="h-4 w-4 shrink-0" />
+                <Icon :name="channel.icon" class="kr-icon-4 shrink-0" />
               </span>
 
               <span
@@ -117,7 +117,7 @@
             >
               <Icon
                 name="kind-icon:chevron-right"
-                class="h-4 w-4 transition-transform"
+                class="kr-icon-4 transition-transform"
                 :class="
                   expandedChannelKey === channel.channelKey ? 'rotate-90' : ''
                 "

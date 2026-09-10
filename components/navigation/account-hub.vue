@@ -275,7 +275,7 @@
           aria-label="Reload the app"
           @click="requestFullStartupReload"
         >
-          <Icon name="kind-icon:refresh" class="h-4 w-4" />
+          <Icon name="kind-icon:refresh" class="kr-icon-4" />
         </button>
 
         <!--
@@ -303,7 +303,7 @@
           :aria-label="cardHandLabel"
           @click="navStore.toggleWorkspaceHand"
         >
-          <Icon name="kind-icon:cards" class="h-4 w-4" />
+          <Icon name="kind-icon:cards" class="kr-icon-4" />
         </button>
 
         <template v-if="userStore.isLoggedIn">

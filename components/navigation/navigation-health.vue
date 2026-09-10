@@ -25,7 +25,7 @@
             v-if="channelContentStore.loading"
             class="kr-spinner-xs"
           />
-          <Icon v-else name="kind-icon:refresh" class="h-4 w-4" />
+          <Icon v-else name="kind-icon:refresh" class="kr-icon-4" />
           Reload content
         </button>
       </div>

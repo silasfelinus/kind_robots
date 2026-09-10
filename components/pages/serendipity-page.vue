@@ -144,7 +144,7 @@
             >
               <Icon
                 :name="effect.icon"
-                class="h-4 w-4"
+                class="kr-icon-4"
                 :style="{ color: effect.color }"
               />
               {{ effect.label }}

@@ -68,7 +68,7 @@
             :disabled="!donationItem"
             @click="addDonationToCart"
           >
-            <Icon name="kind-icon:plus" class="h-4 w-4" />
+            <Icon name="kind-icon:plus" class="kr-icon-4" />
             Add $1 donation to cart
           </button>
 
@@ -78,7 +78,7 @@
             class="kr-btn-primary rounded-2xl"
             @click="openCart"
           >
-            <Icon name="kind-icon:cart" class="h-4 w-4" />
+            <Icon name="kind-icon:cart" class="kr-icon-4" />
             View cart
             <span class="badge badge-secondary">
               {{ cartStore.totalItems }}

@@ -105,7 +105,7 @@
             @click="openThread(thread)"
           >
             <div
-              class="kr-text-black-lg flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-primary/15 text-primary"
+              class="kr-icon-primary-12 kr-text-black-lg flex shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-primary/15"
             >
               <img
                 v-if="thread.otherAvatar"

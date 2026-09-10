@@ -6,7 +6,7 @@
     >
       <Icon
         name="kind-icon:hand-heart"
-        class="mx-auto h-12 w-12 text-primary"
+        class="kr-icon-primary-12 mx-auto"
       />
 
       <p class="mt-4 text-3xl font-black text-base-content sm:text-4xl">

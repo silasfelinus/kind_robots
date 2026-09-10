@@ -14,7 +14,7 @@
     <header class="flex flex-wrap items-center justify-between gap-3">
       <div class="flex items-center gap-3">
         <span
-          class="grid h-12 w-12 place-items-center rounded-2xl bg-primary/15 text-primary"
+          class="kr-icon-primary-12 grid place-items-center rounded-2xl bg-primary/15"
         >
           <Icon name="kind-icon:butterfly" class="h-7 w-7" />
         </span>

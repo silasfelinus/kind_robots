@@ -254,7 +254,7 @@
         v-else-if="filteredCharacters.length === 0"
         class="flex h-full flex-col items-center justify-center gap-3 kr-panel-muted text-center text-base-content/60"
       >
-        <Icon name="kind-icon:theater" class="h-12 w-12 text-primary" />
+        <Icon name="kind-icon:theater" class="kr-icon-primary-12" />
 
         <div class="max-w-2xl">
           <p class="kr-text-bold-lg">

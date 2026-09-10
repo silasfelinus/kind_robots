@@ -82,7 +82,7 @@
             v-else
             class="flex min-h-full flex-col items-center justify-center gap-3 text-center"
           >
-            <Icon name="kind-icon:forum" class="h-12 w-12 text-primary" />
+            <Icon name="kind-icon:forum" class="kr-icon-primary-12" />
 
             <div class="max-w-xl space-y-2">
               <h2 class="kr-text-black-2xl text-base-content">

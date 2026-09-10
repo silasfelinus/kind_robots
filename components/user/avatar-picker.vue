@@ -152,7 +152,7 @@
             v-else-if="!galleryImages.length"
             class="flex flex-1 flex-col items-center justify-center gap-2 text-center text-base-content/55"
           >
-            <Icon name="kind-icon:gallery" class="h-10 w-10 text-primary/60" />
+            <Icon name="kind-icon:gallery" class="kr-icon-primary-10" />
             <p class="kr-text-bold-sm text-base-content">No images here yet.</p>
             <p class="text-xs">Try the Upload or Generate tab to make your first one.</p>
           </div>

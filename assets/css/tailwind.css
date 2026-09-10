@@ -1685,6 +1685,20 @@ section:has(div[class*='xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]'])
     @apply h-7 w-7 text-primary;
   }
 
+  /* Same bare-icon shape family, but a distinct token set -- `h-10 w-10
+   * text-primary/60` carries a `/60` opacity modifier on the color instead
+   * of the bare `text-primary` every other kr-icon-primary-* sibling uses,
+   * so it is not a subset match of any of them (interface-vision t-104
+   * slice 195): 7 exact occurrences across 3 files (dream-art-chooser.vue,
+   * dream-list.vue x5, avatar-picker.vue). Kept as its own fixed-size
+   * primitive to match every other kr-icon-primary-* sibling. Remaining
+   * sibling size still open for a future slice: `h-12 w-12 text-primary`
+   * (7 files, distinct from `.kr-icon-tile`'s own `h-12 w-12` which also
+   * carries the tile's background/shape tokens). */
+  .kr-icon-primary-10 {
+    @apply h-10 w-10 text-primary/60;
+  }
+
   /* The colorless DaisyUI busy indicator: a bare tiny spinner dropped into
    * a button or inline slot while an action is pending, no tint (the
    * button/text color around it usually already carries the tone)

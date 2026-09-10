@@ -210,7 +210,7 @@
         >
           <Icon
             :name="activeGroup.isVirtual ? 'kind-icon:archive' : 'kind-icon:folder'"
-            class="h-4 w-4 shrink-0 text-primary"
+            class="kr-icon-primary-4 shrink-0"
           />
           <h3 class="kr-text-black-sm min-w-0 truncate text-base-content">
             {{ activeGroup.title }}

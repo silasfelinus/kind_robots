@@ -7,7 +7,7 @@
     <header
       class="flex h-10 shrink-0 items-center gap-2 border-b border-base-300 bg-base-100 px-2 sm:px-3"
     >
-      <Icon name="kind-icon:blueprint" class="h-4 w-4 shrink-0 text-primary" />
+      <Icon name="kind-icon:blueprint" class="kr-icon-primary-4 shrink-0" />
 
       <h2
         class="kr-text-black-sm truncate leading-none text-base-content sm:text-base"

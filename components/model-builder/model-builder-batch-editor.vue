@@ -14,7 +14,7 @@
         <h4
           class="kr-text-black-sm flex items-center gap-1.5 text-base-content"
         >
-          <Icon name="kind-icon:layers" class="h-4 w-4 text-primary" />
+          <Icon name="kind-icon:layers" class="kr-icon-primary-4" />
           Batch edit — {{ group.label }}
         </h4>
         <p class="kr-text-dim-xs-60 mt-0.5">

@@ -248,7 +248,7 @@
                           ? 'kind-icon:chevron-up'
                           : 'kind-icon:info'
                       "
-                      class="h-4 w-4 shrink-0 text-primary"
+                      class="kr-icon-primary-4 shrink-0"
                     />
                   </div>
 

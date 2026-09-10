@@ -38,7 +38,7 @@
     <!-- Stage: PITCH -->
     <section class="kr-panel-flat rounded-xl p-2.5">
       <div class="mb-1.5 flex items-center gap-2">
-        <Icon name="kind-icon:lightbulb" class="h-4 w-4 text-primary" />
+        <Icon name="kind-icon:lightbulb" class="kr-icon-primary-4" />
         <span class="kr-text-eyebrow-bold text-xs tracking-wide">Pitch</span>
         <span class="kr-badge-xs ml-auto" :class="badgeFor('PITCH')">
           {{ item.stages.PITCH.status }}
@@ -111,7 +111,7 @@
     <!-- Stage: FIELDS_AND_PROMPTS -->
     <section class="kr-panel-flat rounded-xl p-2.5">
       <div class="mb-1.5 flex items-center gap-2">
-        <Icon name="kind-icon:list" class="h-4 w-4 text-primary" />
+        <Icon name="kind-icon:list" class="kr-icon-primary-4" />
         <span class="kr-text-eyebrow-bold text-xs tracking-wide"
           >Fields &amp; Prompts</span
         >
@@ -226,7 +226,7 @@
     <!-- Stage: GENERATE_ASSETS -->
     <section class="kr-panel-flat rounded-xl p-2.5">
       <div class="mb-1.5 flex items-center gap-2">
-        <Icon name="kind-icon:sparkles" class="h-4 w-4 text-primary" />
+        <Icon name="kind-icon:sparkles" class="kr-icon-primary-4" />
         <span class="kr-text-eyebrow-bold text-xs tracking-wide"
           >Generate Assets</span
         >
@@ -355,7 +355,7 @@
     <!-- Stage: COMMIT -->
     <section class="kr-panel-flat rounded-xl p-2.5">
       <div class="mb-1.5 flex items-center gap-2">
-        <Icon name="kind-icon:check" class="h-4 w-4 text-primary" />
+        <Icon name="kind-icon:check" class="kr-icon-primary-4" />
         <span class="kr-text-eyebrow-bold text-xs tracking-wide">Commit</span>
         <span class="kr-badge-xs ml-auto" :class="badgeFor('COMMIT')">
           {{ item.stages.COMMIT.status }}

@@ -629,7 +629,7 @@
           data-testid="brainstorm-copy-kept"
           @click="copySelectedKept"
         >
-          <Icon name="kind-icon:copy" class="h-4 w-4" />
+          <Icon name="kind-icon:copy" class="kr-icon-4" />
           Copy selected
         </button>
         <button
@@ -639,7 +639,7 @@
           data-testid="brainstorm-export-kept"
           @click="exportSelectedKept"
         >
-          <Icon name="kind-icon:download" class="h-4 w-4" />
+          <Icon name="kind-icon:download" class="kr-icon-4" />
           Export .md
         </button>
         <span v-if="keptExportMessage" class="kr-text-dim-xs">{{
@@ -739,7 +739,7 @@
             v-if="isGeneratingArt"
             class="kr-spinner-xs"
           />
-          <Icon v-else name="kind-icon:sparkles" class="h-4 w-4" />
+          <Icon v-else name="kind-icon:sparkles" class="kr-icon-4" />
           {{
             isGeneratingArt
               ? artProgressLabel

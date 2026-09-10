@@ -39,7 +39,7 @@
               type="button"
               @click="seedBot"
             >
-              <Icon name="kind-icon:dice" class="h-4 w-4" />
+              <Icon name="kind-icon:dice" class="kr-icon-4" />
               Seed
             </button>
           </div>
@@ -199,7 +199,7 @@
               type="button"
               @click="useRandomArtImage"
             >
-              <Icon name="kind-icon:dice" class="h-4 w-4" />
+              <Icon name="kind-icon:dice" class="kr-icon-4" />
               Random Art Image
             </button>
           </div>
@@ -231,7 +231,7 @@
               v-if="isGeneratingFields"
               class="kr-spinner-xs"
             />
-            <Icon v-else name="kind-icon:sparkles" class="h-4 w-4" />
+            <Icon v-else name="kind-icon:sparkles" class="kr-icon-4" />
             Update Selected
           </button>
         </div>

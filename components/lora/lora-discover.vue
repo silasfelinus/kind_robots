@@ -69,7 +69,7 @@
           :disabled="loading"
         >
           <span v-if="loading" class="kr-spinner-sm" />
-          <Icon v-else name="kind-icon:search" class="h-4 w-4" />
+          <Icon v-else name="kind-icon:search" class="kr-icon-4" />
           {{ source === 'civarchive' ? 'Look up' : 'Search' }}
         </button>
       </form>
@@ -156,7 +156,7 @@
               v-if="queuing === card.civitaiModelVersionId"
               class="kr-spinner-xs"
             />
-            <Icon v-else :name="downloadButtonIcon(card)" class="h-4 w-4" />
+            <Icon v-else :name="downloadButtonIcon(card)" class="kr-icon-4" />
             {{ downloadButtonLabel(card) }}
           </button>
         </div>

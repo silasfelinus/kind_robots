@@ -282,7 +282,7 @@
               aria-hidden="true"
             />
             <template v-else>
-              <Icon name="kind-icon:sparkles" class="h-4 w-4" />
+              <Icon name="kind-icon:sparkles" class="kr-icon-4" />
               {{
                 item.imagePath ? 'Regenerate candidate' : 'Generate candidate'
               }}
@@ -302,7 +302,7 @@
             "
             @click="store.generateItemAssetAsync(item.id)"
           >
-            <Icon name="kind-icon:clock" class="h-4 w-4" />
+            <Icon name="kind-icon:clock" class="kr-icon-4" />
           </button>
         </div>
 

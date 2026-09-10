@@ -119,7 +119,7 @@
               class="absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-full bg-success text-success-content shadow-md"
               title="Lesson explored"
             >
-              <Icon name="kind-icon:check" class="h-4 w-4" aria-hidden="true" />
+              <Icon name="kind-icon:check" class="kr-icon-4" aria-hidden="true" />
               <span class="sr-only">Lesson explored</span>
             </div>
 
@@ -138,7 +138,7 @@
               <span>Enter the gallery</span>
               <Icon
                 name="kind-icon:arrow-right"
-                class="h-4 w-4 transition-transform group-hover:translate-x-1"
+                class="kr-icon-4 transition-transform group-hover:translate-x-1"
                 aria-hidden="true"
               />
             </div>

@@ -19,7 +19,7 @@
           type="button"
           @click="navStore.setDashboardTab('art', 'gallery')"
         >
-          <Icon name="kind-icon:image" class="h-4 w-4" />
+          <Icon name="kind-icon:image" class="kr-icon-4" />
           Gallery
         </button>
 
@@ -29,7 +29,7 @@
           type="button"
           @click="deselectAndReturn"
         >
-          <Icon name="kind-icon:x" class="h-4 w-4" />
+          <Icon name="kind-icon:x" class="kr-icon-4" />
           Deselect
         </button>
 
@@ -49,7 +49,7 @@
           @click="setAsAvatar"
         >
           <span v-if="isSettingAvatar" class="kr-spinner-xs" />
-          <Icon v-else name="kind-icon:user" class="h-4 w-4" />
+          <Icon v-else name="kind-icon:user" class="kr-icon-4" />
           {{ isCurrentAvatar ? 'Avatar' : 'Set avatar' }}
         </button>
 
@@ -59,7 +59,7 @@
           :disabled="!currentArtImage"
           @click="startRemix"
         >
-          <Icon name="kind-icon:sparkles" class="h-4 w-4" />
+          <Icon name="kind-icon:sparkles" class="kr-icon-4" />
           Remix
         </button>
 
@@ -72,7 +72,7 @@
             title="Delete this image"
             @click="deleteArmed = true"
           >
-            <Icon name="kind-icon:trash" class="h-4 w-4" />
+            <Icon name="kind-icon:trash" class="kr-icon-4" />
             <span class="hidden sm:inline">Delete</span>
           </button>
 
@@ -85,7 +85,7 @@
             @blur="deleteArmed = false"
           >
             <span v-if="isDeleting" class="kr-spinner-xs" />
-            <Icon v-else name="kind-icon:trash" class="h-4 w-4" />
+            <Icon v-else name="kind-icon:trash" class="kr-icon-4" />
             Confirm?
           </button>
         </template>
@@ -209,7 +209,7 @@
                 @click="saveImageEdits"
               >
                 <span v-if="isSaving" class="kr-spinner-xs" />
-                <Icon v-else name="kind-icon:save" class="h-4 w-4" />
+                <Icon v-else name="kind-icon:save" class="kr-icon-4" />
                 Save
               </button>
             </div>
@@ -371,7 +371,7 @@
                       ? 'kind-icon:chevron-up'
                       : 'kind-icon:chevron-down'
                   "
-                  class="h-4 w-4"
+                  class="kr-icon-4"
                 />
               </button>
 
@@ -388,7 +388,7 @@
                     type="button"
                     @click="isCollectionMenuOpen = false"
                   >
-                    <Icon name="kind-icon:x" class="h-4 w-4" />
+                    <Icon name="kind-icon:x" class="kr-icon-4" />
                   </button>
                 </div>
 
@@ -470,7 +470,7 @@
                 type="button"
                 @click="startRemix"
               >
-                <Icon name="kind-icon:sparkles" class="h-4 w-4" />
+                <Icon name="kind-icon:sparkles" class="kr-icon-4" />
                 Send to Generator
               </button>
             </div>

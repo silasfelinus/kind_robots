@@ -77,7 +77,7 @@
         >
           <pre class="whitespace-pre-wrap text-xs">{{ superkate.receiptText(appointment) }}</pre>
           <a :href="superkate.receiptMailto(appointment)" class="kr-btn-outline-xs">
-            <Icon name="mdi:email-outline" class="h-4 w-4" />
+            <Icon name="mdi:email-outline" class="kr-icon-4" />
             Open receipt email
           </a>
         </div>

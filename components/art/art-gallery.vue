@@ -412,7 +412,7 @@
                         ? 'kind-icon:check'
                         : 'kind-icon:plus'
                     "
-                    class="h-4 w-4"
+                    class="kr-icon-4"
                   />
                 </button>
 
@@ -474,7 +474,7 @@
               <span
                 class="flex h-8 w-8 items-center justify-center rounded-xl bg-primary/15 text-primary"
               >
-                <icon name="kind-icon:image" class="h-4 w-4" />
+                <icon name="kind-icon:image" class="kr-icon-4" />
               </span>
               <div class="min-w-0">
                 <p
@@ -492,7 +492,7 @@
               type="button"
               @click="clearSelectedImage"
             >
-              <Icon name="kind-icon:x" class="h-4 w-4" />
+              <Icon name="kind-icon:x" class="kr-icon-4" />
               Close
             </button>
           </header>

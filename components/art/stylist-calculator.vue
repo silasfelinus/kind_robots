@@ -129,7 +129,7 @@
         :href="superkate.receiptMailto(savedAppointment)"
         class="kr-btn-outline-plain"
       >
-        <Icon name="mdi:email-outline" class="h-4 w-4" />
+        <Icon name="mdi:email-outline" class="kr-icon-4" />
         Open receipt email
       </a>
     </div>

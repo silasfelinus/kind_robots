@@ -22,7 +22,7 @@
         title="Edit Collection"
         @click.stop="emit('edit', collection.id)"
       >
-        <Icon name="kind-icon:pencil" class="h-4 w-4" />
+        <Icon name="kind-icon:pencil" class="kr-icon-4" />
       </button>
 
       <button
@@ -34,7 +34,7 @@
         title="Delete Collection"
         @click.stop="deleteCollection"
       >
-        <Icon name="kind-icon:trash" class="h-4 w-4" />
+        <Icon name="kind-icon:trash" class="kr-icon-4" />
       </button>
     </template>
 

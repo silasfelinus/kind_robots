@@ -12,11 +12,11 @@
       @click="openForm"
     >
       <span class="flex items-center gap-2">
-        <Icon name="kind-icon:plus" class="h-4 w-4" />
+        <Icon name="kind-icon:plus" class="kr-icon-4" />
         New collection
       </span>
 
-      <Icon name="kind-icon:folder" class="h-4 w-4" />
+      <Icon name="kind-icon:folder" class="kr-icon-4" />
     </button>
 
     <form v-else class="grid gap-3" @submit.prevent="createCollection">

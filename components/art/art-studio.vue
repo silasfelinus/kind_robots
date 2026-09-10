@@ -11,7 +11,7 @@
         :aria-pressed="activeTab === 'generate'"
         @click="selectPrimaryTab('generate')"
       >
-        <Icon name="kind-icon:sparkles" class="h-4 w-4" />
+        <Icon name="kind-icon:sparkles" class="kr-icon-4" />
         Generate
       </button>
 
@@ -22,7 +22,7 @@
         :aria-pressed="activeTab === 'gallery'"
         @click="selectPrimaryTab('gallery')"
       >
-        <Icon name="kind-icon:gallery" class="h-4 w-4" />
+        <Icon name="kind-icon:gallery" class="kr-icon-4" />
         Gallery
       </button>
 

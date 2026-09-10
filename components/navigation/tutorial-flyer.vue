@@ -119,7 +119,7 @@
                 loading="lazy"
                 class="h-full w-full object-cover"
               />
-              <Icon v-else name="kind-icon:info" class="h-7 w-7 text-primary" />
+              <Icon v-else name="kind-icon:info" class="kr-icon-primary-7" />
             </div>
 
             <div class="min-w-0 flex-1 pr-8">

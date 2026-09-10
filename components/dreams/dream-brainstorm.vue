@@ -7,7 +7,7 @@
       >
         <div class="min-w-0">
           <div class="flex flex-wrap items-center gap-2">
-            <Icon name="kind-icon:sparkles" class="h-7 w-7 text-primary" />
+            <Icon name="kind-icon:sparkles" class="kr-icon-primary-7" />
             <h1 class="kr-text-black-2xl text-primary">Brainstorm</h1>
             <span class="badge badge-info rounded-xl">Dream Riffs</span>
           </div>

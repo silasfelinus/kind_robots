@@ -328,7 +328,7 @@
               <div class="flex items-start gap-3">
                 <Icon
                   :name="dreamStore.dreamForm.icon || 'kind-icon:dream'"
-                  class="mt-1 h-6 w-6 text-primary"
+                  class="kr-icon-primary-6 mt-1"
                 />
                 <div class="min-w-0">
                   <p class="kr-text-black-xl truncate text-primary">

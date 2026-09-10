@@ -378,7 +378,7 @@
                   v-else
                   class="flex h-12 w-12 items-center justify-center rounded-2xl bg-base-300"
                 >
-                  <Icon name="mdi:account-star" class="h-6 w-6 text-primary" />
+                  <Icon name="mdi:account-star" class="kr-icon-primary-6" />
                 </div>
 
                 <div class="min-w-0 flex-1">

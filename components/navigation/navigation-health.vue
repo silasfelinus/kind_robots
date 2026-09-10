@@ -5,7 +5,7 @@
       <div class="flex flex-col gap-3 p-5 sm:flex-row sm:items-start sm:justify-between">
         <div class="min-w-0">
           <div class="flex items-center gap-2">
-            <Icon name="kind-icon:compass" class="h-6 w-6 text-primary" />
+            <Icon name="kind-icon:compass" class="kr-icon-primary-6" />
             <h1 class="kr-text-black-xl sm:text-2xl">Navigation Health</h1>
           </div>
           <p class="mt-2 max-w-3xl text-sm leading-relaxed text-base-content/65">

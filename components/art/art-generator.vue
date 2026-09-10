@@ -11,7 +11,7 @@
             <span
               class="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-primary/15"
             >
-              <Icon name="kind-icon:paintbrush" class="h-6 w-6 text-primary" />
+              <Icon name="kind-icon:paintbrush" class="kr-icon-primary-6" />
             </span>
             <div class="min-w-0">
               <h1 class="kr-text-black-2xl text-primary">Image Generator</h1>

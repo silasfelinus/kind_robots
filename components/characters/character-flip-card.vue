@@ -46,7 +46,7 @@
           "
           @click="setActiveMode(tab.key)"
         >
-          <Icon :name="tab.icon" class="h-4 w-4" />
+          <Icon :name="tab.icon" class="kr-icon-4" />
           {{ tab.label }}
         </button>
 
@@ -56,7 +56,7 @@
           :disabled="isSendingChat"
           @click="clearSelectedCharacter"
         >
-          <Icon name="kind-icon:x" class="h-4 w-4" />
+          <Icon name="kind-icon:x" class="kr-icon-4" />
           Clear Character
         </button>
       </div>
@@ -112,7 +112,7 @@
                 :disabled="chatMessages.length === 0 || isSendingChat"
                 @click="clearChatMessages"
               >
-                <Icon name="kind-icon:x" class="h-4 w-4" />
+                <Icon name="kind-icon:x" class="kr-icon-4" />
                 Clear Chat
               </button>
             </div>

@@ -56,7 +56,7 @@
           type="button"
           @click="preview"
         >
-          <Icon name="kind-icon:play" class="h-4 w-4" />
+          <Icon name="kind-icon:play" class="kr-icon-4" />
           Preview
         </button>
 

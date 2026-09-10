@@ -21,7 +21,7 @@
         </div>
 
         <span class="badge badge-warning badge-lg shrink-0 gap-1 font-black">
-          <Icon name="kind-icon:shield" class="h-4 w-4" />
+          <Icon name="kind-icon:shield" class="kr-icon-4" />
           Admin
         </span>
       </div>
@@ -89,7 +89,7 @@
               @click="loadProjects"
             >
               <span v-if="projectStore.loading" class="kr-spinner-xs" />
-              <Icon v-else name="kind-icon:refresh" class="h-4 w-4" />
+              <Icon v-else name="kind-icon:refresh" class="kr-icon-4" />
               Load projects
             </button>
 
@@ -100,7 +100,7 @@
               @click="applyPlacements"
             >
               <span v-if="applying" class="kr-spinner-xs" />
-              <Icon v-else name="kind-icon:wand" class="h-4 w-4" />
+              <Icon v-else name="kind-icon:wand" class="kr-icon-4" />
               Apply placements
             </button>
           </div>

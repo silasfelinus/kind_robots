@@ -36,7 +36,7 @@
         :disabled="isStarting"
         @click="backToGallery"
       >
-        <Icon name="kind-icon:arrow-left" class="h-4 w-4" />
+        <Icon name="kind-icon:arrow-left" class="kr-icon-4" />
         <span class="hidden sm:inline">Rewards</span>
       </button>
 
@@ -65,7 +65,7 @@
         title="Start a Storybook story seeded with this Reward"
         @click="startStoryWithReward"
       >
-        <Icon name="kind-icon:book-open" class="h-4 w-4" />
+        <Icon name="kind-icon:book-open" class="kr-icon-4" />
         <span class="hidden sm:inline">Start a story with this</span>
       </button>
     </header>
@@ -429,7 +429,7 @@
               :disabled="isStarting"
               @click="characterStore.deselectCharacter?.()"
             >
-              <Icon name="kind-icon:x" class="h-4 w-4" />
+              <Icon name="kind-icon:x" class="kr-icon-4" />
               Remove character
             </button>
           </div>

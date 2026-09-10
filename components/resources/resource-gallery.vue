@@ -529,7 +529,7 @@ onMounted(async () => {
                 v-if="activePreviewResourceId === infoResource.id"
                 class="kr-spinner-xs"
               />
-              <Icon v-else name="kind-icon:sparkles" class="h-4 w-4" />
+              <Icon v-else name="kind-icon:sparkles" class="kr-icon-4" />
               {{ infoResourceArt ? 'Regenerate art' : 'Generate art' }}
             </button>
 
@@ -538,7 +538,7 @@ onMounted(async () => {
               class="kr-btn-primary"
               @click="addToGeneration(infoResource)"
             >
-              <Icon name="kind-icon:plus" class="h-4 w-4" />
+              <Icon name="kind-icon:plus" class="kr-icon-4" />
               Add to build
             </button>
           </template>

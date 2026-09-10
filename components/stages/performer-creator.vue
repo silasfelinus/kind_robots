@@ -33,7 +33,7 @@
           class="kr-btn-ghost"
           @click="emit('close')"
         >
-          <Icon name="mdi:close" class="h-4 w-4" />
+          <Icon name="mdi:close" class="kr-icon-4" />
         </button>
       </div>
 
@@ -418,7 +418,7 @@
                 <!-- Selected check badge -->
                 <div
                   v-if="isTraitSelected(choice.value)"
-                  class="absolute right-1 top-1 flex h-4 w-4 items-center justify-center rounded-full bg-primary shadow"
+                  class="kr-icon-4 absolute right-1 top-1 flex items-center justify-center rounded-full bg-primary shadow"
                 >
                   <Icon
                     name="mdi:check"
@@ -496,7 +496,7 @@
             :disabled="!form.name.trim()"
             @click="handleAssign"
           >
-            <Icon name="mdi:account-plus" class="h-4 w-4" />
+            <Icon name="mdi:account-plus" class="kr-icon-4" />
             Add to Cast
           </button>
         </div>

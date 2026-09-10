@@ -96,7 +96,7 @@
             v-if="isNarratorResponding"
             class="kr-spinner-xs"
           />
-          <Icon v-else name="kind-icon:send" class="h-4 w-4" />
+          <Icon v-else name="kind-icon:send" class="kr-icon-4" />
         </button>
       </div>
     </div>

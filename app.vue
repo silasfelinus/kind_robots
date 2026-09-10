@@ -102,7 +102,7 @@
                 aria-label="Close workspace"
                 @click="setWorkspaceSheetOpen(false)"
               >
-                <Icon name="kind-icon:close" class="h-4 w-4" />
+                <Icon name="kind-icon:close" class="kr-icon-4" />
               </button>
             </div>
 

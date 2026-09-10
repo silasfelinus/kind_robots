@@ -17,7 +17,7 @@
           title="Previous effect"
           @click="animationStore.prevEffect()"
         >
-          <Icon name="kind-icon:chevron-left" class="h-4 w-4" />
+          <Icon name="kind-icon:chevron-left" class="kr-icon-4" />
         </button>
 
         <span
@@ -32,7 +32,7 @@
           title="Next effect"
           @click="animationStore.nextEffect()"
         >
-          <Icon name="kind-icon:chevron-right" class="h-4 w-4" />
+          <Icon name="kind-icon:chevron-right" class="kr-icon-4" />
         </button>
 
         <div class="mx-1 h-4 w-px bg-white/20" />
@@ -43,7 +43,7 @@
           title="Stop animation"
           @click="animationStore.stop()"
         >
-          <Icon name="kind-icon:x" class="h-4 w-4" />
+          <Icon name="kind-icon:x" class="kr-icon-4" />
         </button>
       </div>
 

@@ -112,7 +112,7 @@
             type="button"
             @click="toggleComment"
           >
-            <Icon name="kind-icon:comment" class="h-4 w-4" />
+            <Icon name="kind-icon:comment" class="kr-icon-4" />
             {{ showComment ? 'Hide Comment' : 'Comment' }}
           </button>
 
@@ -122,7 +122,7 @@
             type="button"
             @click="clearReaction"
           >
-            <Icon name="kind-icon:x" class="h-4 w-4" />
+            <Icon name="kind-icon:x" class="kr-icon-4" />
             Clear
           </button>
         </div>
@@ -139,7 +139,7 @@
             class="kr-spinner-sm"
           />
 
-          <Icon v-else name="kind-icon:check" class="h-4 w-4" />
+          <Icon v-else name="kind-icon:check" class="kr-icon-4" />
           Submit
         </button>
       </div>
@@ -155,7 +155,7 @@
           type="button"
           @click="share(platform.key)"
         >
-          <Icon :name="platform.icon" class="h-4 w-4" />
+          <Icon :name="platform.icon" class="kr-icon-4" />
           {{ platform.label }}
         </button>
       </div>

@@ -141,7 +141,7 @@
             v-if="result(side).status === 'idle'"
             class="kr-text-dim-xs flex flex-col items-center gap-2"
           >
-            <Icon name="kind-icon:image" class="h-8 w-8 opacity-60" />
+            <Icon name="kind-icon:image" class="kr-icon-8 opacity-60" />
             No render yet
           </div>
           <div v-else-if="result(side).status === 'queued' || result(side).status === 'rendering'" class="flex flex-col items-center gap-2 text-xs">

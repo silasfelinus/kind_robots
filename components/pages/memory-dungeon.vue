@@ -137,7 +137,7 @@
           <img
             v-if="challenge.targetImagePath"
             :src="challenge.targetImagePath"
-            class="h-8 w-8 shrink-0 rounded border-2 border-black object-cover shadow"
+            class="kr-icon-8 shrink-0 rounded border-2 border-black object-cover shadow"
             alt="Challenge target"
           />
 

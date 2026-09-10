@@ -32,7 +32,7 @@
     class="self-end max-w-[80%] flex flex-row-reverse items-start gap-2"
   >
     <div
-      class="w-8 h-8 rounded-full bg-secondary/20 flex items-center justify-center shrink-0"
+      class="kr-icon-8 rounded-full bg-secondary/20 flex items-center justify-center shrink-0"
     >
       <Icon name="mdi:account" class="w-4 h-4" />
     </div>

@@ -59,7 +59,7 @@
         >
           <div class="flex items-center gap-2">
             <div class="avatar">
-              <div class="h-8 w-8 rounded-full bg-base-300">
+              <div class="kr-icon-8 rounded-full bg-base-300">
                 <img
                   v-if="avatarFor(id)"
                   :src="avatarFor(id)"
@@ -112,7 +112,7 @@
         >
           <div class="flex items-center gap-2">
             <div class="avatar">
-              <div class="h-8 w-8 rounded-full bg-base-300">
+              <div class="kr-icon-8 rounded-full bg-base-300">
                 <img
                   v-if="u.avatarImage"
                   :src="u.avatarImage"

@@ -16,7 +16,7 @@
       @focus="scheduleChannelMenuViewportUpdate"
     >
       <span
-        class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-base-300/70 bg-base-200 sm:h-9 sm:w-9 xl:h-10 xl:w-10"
+        class="kr-icon-8 flex shrink-0 items-center justify-center rounded-lg border border-base-300/70 bg-base-200 sm:h-9 sm:w-9 xl:h-10 xl:w-10"
       >
         <Icon
           :name="activeChannel.icon"

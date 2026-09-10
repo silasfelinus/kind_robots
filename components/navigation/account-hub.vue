@@ -168,7 +168,7 @@
             <img
               :src="account.avatarImage || fallbackAvatar"
               :alt="`${account.username} avatar`"
-              class="h-8 w-8 shrink-0 rounded-lg border border-base-300 object-cover"
+              class="kr-icon-8 shrink-0 rounded-lg border border-base-300 object-cover"
             />
 
             <span class="min-w-0 flex-1">

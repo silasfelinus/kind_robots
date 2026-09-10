@@ -84,7 +84,7 @@
         role="alert"
         class="flex h-full min-h-32 flex-col items-center justify-center gap-2 rounded-2xl border border-dashed border-error/30 bg-error/5 p-6 text-center text-sm text-error"
       >
-        <Icon name="kind-icon:warning" class="h-6 w-6" />
+        <Icon name="kind-icon:warning" class="kr-icon-6" />
         {{ store.sourcesError }}
         <button
           type="button"

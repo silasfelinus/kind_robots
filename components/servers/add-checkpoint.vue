@@ -22,7 +22,7 @@
         type="button"
         @click="emit('close')"
       >
-        <Icon name="kind-icon:x" class="h-4 w-4" />
+        <Icon name="kind-icon:x" class="kr-icon-4" />
         <span class="hidden sm:inline">Close</span>
       </button>
     </div>
@@ -220,7 +220,7 @@
         :disabled="isSaving || !canSubmit"
       >
         <span v-if="isSaving" class="kr-spinner-sm" />
-        <Icon v-else name="kind-icon:plus" class="h-4 w-4" />
+        <Icon v-else name="kind-icon:plus" class="kr-icon-4" />
         Save Checkpoint
       </button>
     </div>

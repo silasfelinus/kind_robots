@@ -21,7 +21,7 @@
           title="Select"
           @click="selectServer"
         >
-          <Icon name="kind-icon:cursor-click" class="h-4 w-4" />
+          <Icon name="kind-icon:cursor-click" class="kr-icon-4" />
         </button>
 
         <button
@@ -31,7 +31,7 @@
           title="Edit"
           @click="editServer"
         >
-          <Icon name="kind-icon:pencil" class="h-4 w-4" />
+          <Icon name="kind-icon:pencil" class="kr-icon-4" />
         </button>
 
         <button
@@ -41,7 +41,7 @@
           title="Test health"
           @click="testServer"
         >
-          <Icon name="kind-icon:activity" class="h-4 w-4" />
+          <Icon name="kind-icon:activity" class="kr-icon-4" />
         </button>
       </div>
 

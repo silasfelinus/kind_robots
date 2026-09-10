@@ -59,7 +59,7 @@
         v-if="isActive"
         class="absolute bottom-2 right-2 rounded-full bg-primary p-2 text-primary-content shadow"
       >
-        <Icon name="kind-icon:check" class="h-4 w-4" />
+        <Icon name="kind-icon:check" class="kr-icon-4" />
       </div>
     </div>
 
@@ -113,7 +113,7 @@
         :disabled="!canSelect"
         @click.stop="selectCheckpoint"
       >
-        <Icon name="kind-icon:checkpoint" class="h-4 w-4" />
+        <Icon name="kind-icon:checkpoint" class="kr-icon-4" />
         {{ isActive ? 'Selected' : 'Select' }}
       </button>
     </div>

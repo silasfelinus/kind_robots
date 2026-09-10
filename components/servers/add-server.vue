@@ -23,7 +23,7 @@
         title="Close"
         @click="closeForm"
       >
-        <Icon name="kind-icon:x" class="h-4 w-4" />
+        <Icon name="kind-icon:x" class="kr-icon-4" />
       </button>
     </header>
 
@@ -171,7 +171,7 @@
             >
               <Icon
                 :name="showApiKey ? 'kind-icon:eye-off' : 'kind-icon:eye'"
-                class="h-4 w-4"
+                class="kr-icon-4"
               />
               {{ showApiKey ? 'Hide key' : 'Show key' }}
             </button>

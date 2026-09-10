@@ -17,7 +17,7 @@
           :disabled="convo.isLoadingList"
           @click="convo.loadConversations()"
         >
-          <Icon name="kind-icon:refresh" class="h-4 w-4" />
+          <Icon name="kind-icon:refresh" class="kr-icon-4" />
         </button>
       </header>
       <div class="kr-pane-scroll">
@@ -117,7 +117,7 @@
             :disabled="convo.isSending || !draft.trim()"
           >
             <span v-if="convo.isSending" class="kr-spinner-xs" />
-            <Icon v-else name="kind-icon:send" class="h-4 w-4" />
+            <Icon v-else name="kind-icon:send" class="kr-icon-4" />
           </button>
         </form>
         <p v-if="convo.lastError" class="kr-text-error-xs px-3 pb-2">

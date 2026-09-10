@@ -22,7 +22,7 @@
           type="button"
           @click="closeThread"
         >
-          <Icon name="kind-icon:arrow-left" class="h-4 w-4" />
+          <Icon name="kind-icon:arrow-left" class="kr-icon-4" />
           Back
         </button>
       </div>
@@ -34,7 +34,7 @@
         <label
           class="input input-bordered flex items-center gap-2 rounded-2xl bg-base-100"
         >
-          <Icon name="kind-icon:search" class="h-4 w-4 opacity-60" />
+          <Icon name="kind-icon:search" class="kr-icon-4 opacity-60" />
           <input
             v-model="searchQuery"
             type="text"
@@ -51,7 +51,7 @@
           @click="refreshChats"
         >
           <span v-if="isLoading" class="kr-spinner-xs" />
-          <Icon v-else name="kind-icon:refresh" class="h-4 w-4" />
+          <Icon v-else name="kind-icon:refresh" class="kr-icon-4" />
           Refresh
         </button>
       </div>
@@ -233,7 +233,7 @@
             @click="sendReply"
           >
             <span v-if="isReplying" class="kr-spinner-xs" />
-            <Icon v-else name="kind-icon:send" class="h-4 w-4" />
+            <Icon v-else name="kind-icon:send" class="kr-icon-4" />
             Send
           </button>
         </div>

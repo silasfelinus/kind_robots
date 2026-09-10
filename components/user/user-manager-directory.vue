@@ -30,7 +30,7 @@
           <option v-for="r in ROLES" :key="r" :value="r">{{ r }}</option>
         </select>
         <button class="kr-btn-primary" @click="openCreate">
-          <Icon name="kind-icon:plus" class="h-4 w-4" /> New user
+          <Icon name="kind-icon:plus" class="kr-icon-4" /> New user
         </button>
       </div>
     </header>
@@ -102,7 +102,7 @@
                   :name="
                     u.emailVerified ? 'kind-icon:check' : 'kind-icon:message'
                   "
-                  class="h-4 w-4 shrink-0"
+                  class="kr-icon-4 shrink-0"
                   :class="u.emailVerified ? 'text-success' : 'text-warning'"
                   :title="
                     u.emailVerified ? 'Verified' : 'Click to force-verify'
@@ -141,7 +141,7 @@
                   title="Reset password"
                   @click="openPassword(u)"
                 >
-                  <Icon name="kind-icon:lock" class="h-4 w-4" />
+                  <Icon name="kind-icon:lock" class="kr-icon-4" />
                 </button>
                 <button
                   class="btn btn-outline btn-xs rounded-lg"
@@ -149,7 +149,7 @@
                   title="Log in as this user"
                   @click="onLoginAs(u)"
                 >
-                  <Icon name="kind-icon:login" class="h-4 w-4" /> Login as
+                  <Icon name="kind-icon:login" class="kr-icon-4" /> Login as
                 </button>
               </div>
             </td>

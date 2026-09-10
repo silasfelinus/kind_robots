@@ -36,7 +36,7 @@
         title="Close"
         @click="emit('close')"
       >
-        <Icon name="kind-icon:x" class="h-4 w-4" />
+        <Icon name="kind-icon:x" class="kr-icon-4" />
       </button>
     </header>
 
@@ -59,7 +59,7 @@
         :aria-selected="activeTab === tab.value"
         @click="activeTab = tab.value"
       >
-        <Icon :name="tab.icon" class="h-4 w-4" />
+        <Icon :name="tab.icon" class="kr-icon-4" />
         <span class="hidden sm:inline">{{ tab.label }}</span>
       </button>
     </div>
@@ -77,7 +77,7 @@
       >
         <Icon
           :name="statusTone === 'error' ? 'kind-icon:alert' : 'kind-icon:check'"
-          class="h-4 w-4 shrink-0"
+          class="kr-icon-4 shrink-0"
         />
         {{ statusMessage }}
       </div>
@@ -134,7 +134,7 @@
               @click="refreshGallery(true)"
             >
               <span v-if="isLoadingGallery" class="kr-spinner-xs" />
-              <Icon v-else name="kind-icon:refresh" class="h-4 w-4" />
+              <Icon v-else name="kind-icon:refresh" class="kr-icon-4" />
             </button>
           </div>
         </div>
@@ -189,7 +189,7 @@
               @click="chooseFromGallery(selectedGalleryImage)"
             >
               <span v-if="isApplying" class="kr-spinner-sm" />
-              <Icon v-else name="kind-icon:check" class="h-4 w-4" />
+              <Icon v-else name="kind-icon:check" class="kr-icon-4" />
               Use this avatar
             </button>
           </template>

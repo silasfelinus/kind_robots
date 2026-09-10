@@ -927,7 +927,7 @@
                   >
                     <div class="flex items-start gap-3">
                       <div
-                        class="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full border"
+                        class="kr-icon-6 mt-0.5 flex shrink-0 items-center justify-center rounded-full border"
                         :class="taskIconClass(task.status)"
                       >
                         <Icon :name="taskIcon(task.status)" class="size-3" />

@@ -9,7 +9,7 @@
         <span
           class="flex h-11 w-11 items-center justify-center rounded-2xl border border-accent/40 bg-accent/10 text-accent"
         >
-          <Icon name="kind-icon:sparkles" class="h-6 w-6" />
+          <Icon name="kind-icon:sparkles" class="kr-icon-6" />
         </span>
         <div>
           <h2 class="kr-text-black-lg leading-tight text-base-content">
@@ -77,7 +77,7 @@
               class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border"
               :style="{ borderColor: effect.color, color: effect.color }"
             >
-              <Icon :name="effect.icon" class="h-6 w-6" />
+              <Icon :name="effect.icon" class="kr-icon-6" />
             </span>
 
             <span class="min-w-0 flex-1">

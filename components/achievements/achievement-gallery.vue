@@ -11,7 +11,7 @@
         <span
           class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/15 text-primary"
         >
-          <Icon name="kind-icon:jellybean" class="h-6 w-6" />
+          <Icon name="kind-icon:jellybean" class="kr-icon-6" />
         </span>
         <div>
           <h1 class="kr-text-black-lg text-base-content">

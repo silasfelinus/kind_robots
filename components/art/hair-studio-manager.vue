@@ -5,7 +5,7 @@
       <span
         class="flex h-11 w-11 items-center justify-center rounded-2xl bg-primary/15 text-primary"
       >
-        <Icon name="kind-icon:magic" class="h-6 w-6" />
+        <Icon name="kind-icon:magic" class="kr-icon-6" />
       </span>
       <div class="min-w-0 flex-1">
         <h2 class="kr-text-black-lg">Hair Studio</h2>

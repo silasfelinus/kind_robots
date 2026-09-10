@@ -4,7 +4,7 @@
       <span
         class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-primary/12 text-primary"
       >
-        <Icon name="kind-icon:users" class="h-6 w-6" />
+        <Icon name="kind-icon:users" class="kr-icon-6" />
       </span>
       <div>
         <h1 class="kr-text-black-2xl">Connect</h1>

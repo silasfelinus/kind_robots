@@ -221,7 +221,7 @@
             <div
               class="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-warning/25 text-warning"
             >
-              <Icon name="kind-icon:warning" class="h-6 w-6" />
+              <Icon name="kind-icon:warning" class="kr-icon-6" />
             </div>
 
             <div class="min-w-0 flex-1">

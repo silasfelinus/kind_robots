@@ -36,7 +36,7 @@
         <div
           class="flex h-12 w-12 items-center justify-center rounded-full bg-success text-success-content shadow-lg"
         >
-          <Icon name="kind-icon:check" class="h-6 w-6" />
+          <Icon name="kind-icon:check" class="kr-icon-6" />
         </div>
       </div>
     </div>

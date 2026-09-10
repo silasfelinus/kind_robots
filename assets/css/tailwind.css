@@ -1747,6 +1747,27 @@ section:has(div[class*='xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]'])
     @apply label py-1;
   }
 
+  /* A bare, colorless 24px icon glyph -- `h-6 w-6`, no tile/background and
+   * no `text-*` tint of its own (interface-vision t-104 slice 198). Opens
+   * the sizeless-and-colorless sibling family to the now-closed
+   * `kr-icon-primary-*` family (slices 191-196): those all carry a
+   * `text-primary`/`text-primary/60` color token alongside the size; this
+   * shape has none, usually inheriting color from surrounding text or a
+   * parent's own `text-*` class. Flagged by slice 197's kaizen note --
+   * `h-4 w-4` alone runs ~326 occurrences across 102 files, an order of
+   * magnitude too large for one slice, so this family is being opened size
+   * by size the same way `kr-icon-primary-*` was. `h-6 w-6` was picked
+   * first as the smallest well-bounded size: 9 exact occurrences across 8
+   * files, plus 2 further subset-match occurrences (an extra `shrink-0` in
+   * one, a larger rounded-full badge composition in the other) across 2
+   * more files (11 total, 10 files). Sibling sizes surveyed alongside this
+   * one and left open for future slices: `h-3 w-3` (19 files), `h-3.5
+   * w-3.5` (31 files), `h-4 w-4` (102 files, needs further splitting),
+   * `h-5 w-5` (35 files), `h-7 w-7` (15 files), `h-8 w-8` (18 files). */
+  .kr-icon-6 {
+    @apply h-6 w-6;
+  }
+
   /* The colorless DaisyUI busy indicator: a bare tiny spinner dropped into
    * a button or inline slot while an action is pending, no tint (the
    * button/text color around it usually already carries the tone)

@@ -8,7 +8,7 @@
         <span
           class="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-secondary/15 text-secondary"
         >
-          <Icon name="kind-icon:sparkles" class="h-6 w-6" />
+          <Icon name="kind-icon:sparkles" class="kr-icon-6" />
         </span>
 
         <div class="min-w-0">

@@ -8,7 +8,7 @@
       aria-label="Server settings"
       @click="openSelector"
     >
-      <Icon name="kind-icon:server" class="h-6 w-6 shrink-0" />
+      <Icon name="kind-icon:server" class="kr-icon-6 shrink-0" />
     </button>
 
     <dialog ref="selectorDialog" class="modal modal-bottom sm:modal-middle">

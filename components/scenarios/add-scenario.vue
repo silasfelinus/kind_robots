@@ -174,7 +174,7 @@
           />
 
           <button class="kr-btn-primary-md" type="button" @click="addIntro">
-            <Icon name="kind-icon:plus" class="h-4 w-4" />
+            <Icon name="kind-icon:plus" class="kr-icon-4" />
             Add
           </button>
         </div>

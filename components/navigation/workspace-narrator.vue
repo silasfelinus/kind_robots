@@ -304,7 +304,7 @@
                       <span
                         class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-primary/20 bg-primary/10 text-primary"
                       >
-                        <Icon :name="topic.icon" class="h-4 w-4" />
+                        <Icon :name="topic.icon" class="kr-icon-4" />
                       </span>
 
                       <span class="min-w-0 flex-1">
@@ -433,7 +433,7 @@
                       class="btn btn-secondary btn-sm rounded-2xl"
                       @click="showTopics = !showTopics"
                     >
-                      <Icon name="kind-icon:map" class="h-4 w-4" />
+                      <Icon name="kind-icon:map" class="kr-icon-4" />
                       Topics
                     </button>
                   </div>
@@ -448,7 +448,7 @@
                       v-if="isNarratorResponding"
                       class="kr-spinner-xs"
                     />
-                    <Icon v-else name="kind-icon:send" class="h-4 w-4" />
+                    <Icon v-else name="kind-icon:send" class="kr-icon-4" />
                     Ask
                   </button>
                 </div>

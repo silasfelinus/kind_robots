@@ -33,7 +33,7 @@
             aria-label="Close server settings"
             @click="closeSelector"
           >
-            <Icon name="kind-icon:x" class="h-4 w-4" />
+            <Icon name="kind-icon:x" class="kr-icon-4" />
           </button>
         </header>
 
@@ -104,7 +104,7 @@
                 type="button"
                 @click="showAddLocal = !showAddLocal"
               >
-                <Icon name="kind-icon:plus" class="h-4 w-4" />
+                <Icon name="kind-icon:plus" class="kr-icon-4" />
                 Add Local
               </button>
             </div>
@@ -341,7 +341,7 @@
                 aria-label="Cancel editing local server"
                 @click="cancelEdit"
               >
-                <Icon name="kind-icon:x" class="h-4 w-4" />
+                <Icon name="kind-icon:x" class="kr-icon-4" />
               </button>
             </div>
 

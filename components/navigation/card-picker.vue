@@ -37,7 +37,7 @@
             v-if="back === selected"
             class="absolute right-2 top-2 flex h-7 w-7 items-center justify-center rounded-full bg-primary text-primary-content shadow"
           >
-            <Icon name="kind-icon:check" class="h-4 w-4" />
+            <Icon name="kind-icon:check" class="kr-icon-4" />
           </div>
         </div>
 

@@ -520,7 +520,7 @@
       <section class="kr-panel-flat p-4">
         <div class="mb-3 flex flex-wrap items-center justify-between gap-2">
           <div class="flex items-center gap-2">
-            <Icon name="kind-icon:sparkles" class="h-5 w-5 text-primary" />
+            <Icon name="kind-icon:sparkles" class="kr-icon-primary-5" />
             <div>
               <h2 class="kr-text-bold-lg text-primary">Latest result</h2>
               <p class="text-sm text-base-content/55">

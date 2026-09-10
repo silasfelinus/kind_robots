@@ -1,7 +1,7 @@
 <template>
   <div id="agent-credentials" class="kr-panel-flat p-4">
     <div class="mb-2 flex items-center gap-2">
-      <Icon name="kind-icon:key" class="h-5 w-5 text-primary" />
+      <Icon name="kind-icon:key" class="kr-icon-primary-5" />
       <span class="kr-text-black-sm">Agent credentials</span>
     </div>
 

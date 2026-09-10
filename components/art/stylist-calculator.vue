@@ -7,7 +7,7 @@
 <template>
   <section class="flex flex-col gap-4 kr-panel-muted-md">
     <header class="flex items-center gap-2">
-      <Icon name="kind-icon:sparkles" class="h-5 w-5 text-primary" />
+      <Icon name="kind-icon:sparkles" class="kr-icon-primary-5" />
       <h2 class="text-base font-black text-base-content">New Appointment</h2>
     </header>
 

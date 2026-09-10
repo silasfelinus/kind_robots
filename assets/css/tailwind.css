@@ -1617,6 +1617,27 @@ section:has(div[class*='xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]'])
     @apply grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-primary/15 text-primary;
   }
 
+  /* A bare 20px primary-tinted icon -- `h-5 w-5 text-primary`, no tile/
+   * background, just size + color (interface-vision t-104 slice 191). A
+   * fresh full-repo class-frequency survey outside all now-closed families
+   * (kr-text-black-*, kr-text-bold-*, kr-text-dim-*, kr-text-eyebrow-*,
+   * kr-label-*, kr-badge-* incl. -ghost/-outline sizeless siblings and
+   * their bounded extras, kr-text-error-xs, kr-text-faded-*) found this
+   * shape at 17 exact occurrences across 16 files, plus 11 further
+   * subset-match occurrences (mostly carrying an extra `shrink-0`) across 8
+   * more files. Distinct from `.kr-icon-tile` -- that one is a tinted
+   * rounded square housing a page-header icon; this is the bare icon glyph
+   * itself, most often inline beside a label or in a list row. Sibling
+   * sizes surveyed alongside this one and left open for future slices:
+   * `h-4 w-4 text-primary` (12 files), `h-6 w-6 text-primary` (11 files),
+   * `h-7 w-7 text-primary` (5 files), `h-10 w-10 text-primary/60` (3
+   * files, different opacity), `h-12 w-12 text-primary` (5 files, distinct
+   * from `.kr-icon-tile`'s own `h-12 w-12` which also carries the tile's
+   * background/shape tokens). */
+  .kr-icon-primary-5 {
+    @apply h-5 w-5 text-primary;
+  }
+
   /* The colorless DaisyUI busy indicator: a bare tiny spinner dropped into
    * a button or inline slot while an action is pending, no tint (the
    * button/text color around it usually already carries the tone)

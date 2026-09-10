@@ -6,7 +6,7 @@
 <template>
   <section class="flex flex-col gap-4 kr-panel-muted-md">
     <header class="flex items-center gap-2">
-      <Icon name="kind-icon:book" class="h-5 w-5 text-primary" />
+      <Icon name="kind-icon:book" class="kr-icon-primary-5" />
       <h2 class="text-base font-black text-base-content">Appointments</h2>
       <span class="kr-badge-ghost-sm">{{ results.length }}</span>
     </header>

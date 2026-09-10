@@ -9,7 +9,7 @@
           <h2
             class="flex items-center gap-2 text-base font-black text-base-content"
           >
-            <Icon name="kind-icon:paintbrush" class="h-5 w-5 text-primary" />
+            <Icon name="kind-icon:paintbrush" class="kr-icon-primary-5" />
             Coloring Book
           </h2>
           <p class="kr-text-dim-sm-70">

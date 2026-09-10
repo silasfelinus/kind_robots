@@ -37,7 +37,7 @@
               <div
                 class="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-primary/10"
               >
-                <Icon :name="section.icon" class="h-5 w-5 text-primary" />
+                <Icon :name="section.icon" class="kr-icon-primary-5" />
               </div>
 
               <div class="min-w-0">

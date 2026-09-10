@@ -2,7 +2,7 @@
 <template>
   <section class="kr-tile-md kr-surface gap-4 sm:p-4">
     <header class="kr-toolbar kr-panel-flat px-4 py-3">
-      <Icon name="kind-icon:sparkles" class="h-5 w-5 shrink-0 text-primary" />
+      <Icon name="kind-icon:sparkles" class="kr-icon-primary-5 shrink-0" />
 
       <div class="min-w-0 flex-1">
         <p class="truncate text-base font-black text-base-content">
@@ -246,7 +246,7 @@
                   <div class="flex items-center gap-2">
                     <Icon
                       name="kind-icon:paintbrush"
-                      class="h-5 w-5 text-primary"
+                      class="kr-icon-primary-5"
                     />
                     <span class="kr-text-black-sm">Theme</span>
                   </div>

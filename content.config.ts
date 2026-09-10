@@ -146,7 +146,9 @@ const pageSchema = sharedNavigationSchema.extend({
 const channelSchema = sharedNavigationSchema.extend({
   contentType: z.enum(['channel', 'tab']),
   channelKey: z.string(),
-  navigation: contentNavigationSchema.default(false),
+  // Channel tabs are navigable unless frontmatter explicitly opts them out.
+  // This matches resolveTabItem()'s `item.navigation !== false` contract.
+  navigation: contentNavigationSchema.default(true),
 })
 
 export type ContentType = z.infer<typeof pageSchema>

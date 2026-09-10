@@ -138,7 +138,7 @@
         class="btn btn-sm absolute right-2 top-2 rounded-xl border-none bg-black/55 text-white hover:bg-black/75"
         @click="emit('back')"
       >
-        <Icon name="kind-icon:arrow-left" class="h-4 w-4" />
+        <Icon name="kind-icon:arrow-left" class="kr-icon-4" />
         Back
       </button>
     </header>
@@ -246,7 +246,7 @@
         :aria-expanded="reviewsOpen"
         @click="reviewsOpen = !reviewsOpen"
       >
-        <Icon name="kind-icon:comment" class="h-4 w-4" />
+        <Icon name="kind-icon:comment" class="kr-icon-4" />
         Reviews
       </button>
 
@@ -256,7 +256,7 @@
         class="kr-btn btn-outline"
         @click="editing = true"
       >
-        <Icon name="kind-icon:edit" class="h-4 w-4" />
+        <Icon name="kind-icon:edit" class="kr-icon-4" />
         Edit
       </button>
 
@@ -267,7 +267,7 @@
         @click="emit('interact')"
       >
         {{ interactLabel }}
-        <Icon name="kind-icon:arrow-right" class="h-4 w-4" />
+        <Icon name="kind-icon:arrow-right" class="kr-icon-4" />
       </button>
     </footer>
   </section>

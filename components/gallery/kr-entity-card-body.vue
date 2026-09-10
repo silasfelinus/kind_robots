@@ -203,7 +203,7 @@
           v-if="selected"
           class="absolute right-2 top-9 rounded-full bg-primary p-1.5 text-primary-content shadow-lg"
         >
-          <Icon name="kind-icon:check" class="h-4 w-4" aria-hidden="true" />
+          <Icon name="kind-icon:check" class="kr-icon-4" aria-hidden="true" />
         </div>
       </template>
     </kr-art-plate>

@@ -29,7 +29,7 @@
         type="button"
         @click="resetAchievements"
       >
-        <Icon name="kind-icon:refresh" class="h-4 w-4" />
+        <Icon name="kind-icon:refresh" class="kr-icon-4" />
         Reset
       </button>
     </header>
@@ -44,7 +44,7 @@
           <span
             class="flex h-7 w-7 items-center justify-center rounded-lg bg-success/15 text-success"
           >
-            <Icon name="kind-icon:check" class="h-4 w-4" />
+            <Icon name="kind-icon:check" class="kr-icon-4" />
           </span>
           <h2 class="kr-text-black-sm text-base-content">Earned</h2>
           <span class="ml-auto badge badge-success badge-sm">{{
@@ -86,7 +86,7 @@
           <span
             class="flex h-7 w-7 items-center justify-center rounded-lg bg-secondary/15 text-secondary"
           >
-            <Icon name="kind-icon:trophy" class="h-4 w-4" />
+            <Icon name="kind-icon:trophy" class="kr-icon-4" />
           </span>
           <h2 class="kr-text-black-sm text-base-content">Leaderboard</h2>
         </div>
@@ -101,7 +101,7 @@
           <span
             class="flex h-7 w-7 items-center justify-center rounded-lg bg-base-300 text-base-content/50"
           >
-            <Icon name="kind-icon:question" class="h-4 w-4" />
+            <Icon name="kind-icon:question" class="kr-icon-4" />
           </span>
           <h2 class="kr-text-black-sm text-base-content">Undiscovered</h2>
           <span class="kr-badge-ghost-sm ml-auto">{{

@@ -6,7 +6,7 @@
     >
       <div class="min-w-0 max-w-2xl">
         <p class="kr-text-eyebrow flex items-center gap-1.5 text-xs tracking-[0.16em] text-primary">
-          <Icon name="kind-icon:palette" class="h-4 w-4" aria-hidden="true" />
+          <Icon name="kind-icon:palette" class="kr-icon-4" aria-hidden="true" />
           Browse the collection
         </p>
         <h2 class="kr-text-black-2xl mt-2 text-base-content sm:text-3xl">Style Gallery</h2>
@@ -52,7 +52,7 @@
               title="Clear search"
               @click="clearSearch"
             >
-              <Icon name="mdi:close" class="h-4 w-4" aria-hidden="true" />
+              <Icon name="mdi:close" class="kr-icon-4" aria-hidden="true" />
             </button>
           </div>
         </div>
@@ -82,7 +82,7 @@
       <button type="button" class="kr-btn-primary rounded-2xl" @click="openNextLesson">
         <Icon
           :name="nextLesson ? 'kind-icon:arrow-right' : 'kind-icon:refresh'"
-          class="h-4 w-4"
+          class="kr-icon-4"
           aria-hidden="true"
         />
         {{ nextLesson ? 'Continue learning' : 'Review from the start' }}

@@ -62,7 +62,7 @@
       :aria-expanded="false"
       @click="expand"
     >
-      <Icon name="kind-icon:search" class="h-4 w-4" />
+      <Icon name="kind-icon:search" class="kr-icon-4" />
 
       <!-- A filter you cannot see is the failure mode this whole component has
            to avoid; the dot is the collapsed state admitting it is doing
@@ -85,7 +85,7 @@
       v-else
       class="kr-input-sm flex w-full min-w-0 items-center gap-2 bg-base-200"
     >
-      <Icon name="kind-icon:search" class="h-4 w-4 shrink-0 opacity-50" />
+      <Icon name="kind-icon:search" class="kr-icon-4 shrink-0 opacity-50" />
 
       <input
         ref="inputEl"

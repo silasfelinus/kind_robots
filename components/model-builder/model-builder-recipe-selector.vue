@@ -41,7 +41,7 @@
         @click="store.selectRecipe(recipe.key)"
       >
         <span class="kr-text-bold-xs flex items-center gap-1.5">
-          <Icon :name="recipe.icon" class="h-4 w-4" />
+          <Icon :name="recipe.icon" class="kr-icon-4" />
           {{ recipe.label }}
         </span>
       </button>
@@ -166,7 +166,7 @@
           aria-hidden="true"
         />
         <template v-else>
-          <Icon name="kind-icon:play" class="h-4 w-4" />
+          <Icon name="kind-icon:play" class="kr-icon-4" />
           Start build run
         </template>
       </button>

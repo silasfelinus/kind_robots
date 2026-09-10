@@ -47,7 +47,7 @@
         :aria-pressed="store.sourceType === type.key"
         @click="store.selectSourceType(type.key)"
       >
-        <Icon :name="type.icon" class="h-4 w-4" />
+        <Icon :name="type.icon" class="kr-icon-4" />
         {{ type.label }}
       </button>
     </div>

@@ -87,7 +87,7 @@
         @click="emit('refresh')"
       >
         <span v-if="loading" class="kr-spinner-xs" />
-        <Icon v-else name="kind-icon:refresh" class="h-4 w-4" />
+        <Icon v-else name="kind-icon:refresh" class="kr-icon-4" />
         Refresh
       </button>
     </div>
@@ -170,7 +170,7 @@
           type="button"
           @click="goToDefaultTab"
         >
-          <Icon name="kind-icon:arrow-left" class="h-4 w-4" />
+          <Icon name="kind-icon:arrow-left" class="kr-icon-4" />
           <span class="hidden sm:inline">{{ defaultTabLabel }}</span>
         </button>
       </header>

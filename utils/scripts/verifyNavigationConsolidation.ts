@@ -12,6 +12,18 @@ function source(path: string): string {
   return readFileSync(path, 'utf8')
 }
 
+const contentConfig = source('content.config.ts')
+assert.match(
+  contentConfig,
+  /const channelSchema = sharedNavigationSchema\.extend\(\{[\s\S]*?navigation: contentNavigationSchema\.default\(true\),[\s\S]*?\}\)/,
+  'channel content must default navigation to true so ordinary tabs remain in channel submenus unless they explicitly opt out',
+)
+assert.match(
+  contentConfig,
+  /const pageSchema = sharedNavigationSchema\.extend\(\{[\s\S]*?navigation: contentNavigationSchema\.default\(false\),[\s\S]*?\}\)/,
+  'ordinary page content must keep its existing navigation:false default',
+)
+
 // Mirrors the six nested destinations' `navigation: false` frontmatter --
 // resolveTabItem() carries that field onto ResolvedTab.navigation, and these
 // hand-built fixtures stand in for that resolution step for tabs that
@@ -147,4 +159,4 @@ assert.ok(
   'the full navigation directory must honor nested destinations too',
 )
 
-console.log('Navigation consolidation verified: hubs, nested routes, admin composition, access metadata, and ArtJob icon all hold.')
+console.log('Navigation consolidation verified: schema defaults, hubs, nested routes, admin composition, access metadata, and ArtJob icon all hold.')

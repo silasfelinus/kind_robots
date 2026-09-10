@@ -4,7 +4,7 @@
     <div class="flex flex-wrap items-center justify-between gap-3">
       <div>
         <h1 class="kr-text-black-2xl flex items-center gap-2 text-primary">
-          <Icon name="kind-icon:cart" class="h-7 w-7" />
+          <Icon name="kind-icon:cart" class="kr-icon-7" />
           Your Cart
         </h1>
         <p class="mt-1 text-sm text-base-content/65">

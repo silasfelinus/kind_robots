@@ -144,7 +144,7 @@
               <div
                 v-for="slot in slotsForRole(role.key)"
                 :key="slot.slotId"
-                class="flex h-7 w-7 items-center justify-center overflow-hidden rounded-full border-2"
+                class="kr-icon-7 flex items-center justify-center overflow-hidden rounded-full border-2"
                 :class="
                   isSlotFilled(slot)
                     ? 'border-success bg-success/15'
@@ -174,7 +174,7 @@
                   role.min - slotsForRole(role.key).length,
                 )"
                 :key="`empty-${i}`"
-                class="flex h-7 w-7 items-center justify-center rounded-full border-2 border-dashed border-warning/40 bg-warning/8"
+                class="kr-icon-7 flex items-center justify-center rounded-full border-2 border-dashed border-warning/40 bg-warning/8"
               >
                 <Icon name="mdi:plus" class="h-3 w-3 text-warning/50" />
               </div>

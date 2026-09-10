@@ -5,7 +5,7 @@
       <div class="fx-header">
         <div v-if="showHeader" class="fx-title">
           <span class="fx-logo">
-            <Icon name="kind-icon:sparkles" class="h-7 w-7" />
+            <Icon name="kind-icon:sparkles" class="kr-icon-7" />
           </span>
           <div>
             <h2>Screen FX</h2>

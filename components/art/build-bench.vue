@@ -3,7 +3,7 @@
     <header class="flex flex-wrap items-center justify-between gap-3">
       <div class="flex items-center gap-3">
         <span class="kr-icon-tile">
-          <Icon name="kind-icon:server" class="h-7 w-7" />
+          <Icon name="kind-icon:server" class="kr-icon-7" />
         </span>
         <div>
           <p class="kr-text-black-2xl tracking-tight">Build Bench</p>

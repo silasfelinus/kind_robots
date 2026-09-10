@@ -16,7 +16,7 @@
         <span
           class="kr-icon-primary-12 grid place-items-center rounded-2xl bg-primary/15"
         >
-          <Icon name="kind-icon:butterfly" class="h-7 w-7" />
+          <Icon name="kind-icon:butterfly" class="kr-icon-7" />
         </span>
         <div>
           <p class="text-2xl font-black tracking-tight">Serendipity</p>

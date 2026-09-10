@@ -1768,6 +1768,18 @@ section:has(div[class*='xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]'])
     @apply h-6 w-6;
   }
 
+  /* Same bare sizeless-and-colorless icon-glyph shape as `.kr-icon-6`, one
+   * size up (interface-vision t-104 slice 199) -- `h-7 w-7`, previously
+   * hand-rolled identically in 15 files (16 occurrences), the next
+   * smallest well-bounded sibling per slice 198's kaizen note. Sibling
+   * sizes still open: `h-3 w-3` (19 files), `h-3.5 w-3.5` (31 files),
+   * `h-4 w-4` (102 files, needs further splitting), `h-5 w-5` (35 files),
+   * `h-8 w-8` (18 files). Distinct from `.kr-icon-primary-7` (same size,
+   * carries `text-primary`) -- this is the untinted sibling. */
+  .kr-icon-7 {
+    @apply h-7 w-7;
+  }
+
   /* The colorless DaisyUI busy indicator: a bare tiny spinner dropped into
    * a button or inline slot while an action is pending, no tint (the
    * button/text color around it usually already carries the tone)

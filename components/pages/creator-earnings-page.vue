@@ -2,7 +2,7 @@
   <div class="kr-unbound kr-container max-w-3xl p-6 space-y-8">
     <header class="flex items-center gap-3">
       <span class="kr-icon-tile">
-        <Icon name="kind-icon:coin" class="h-7 w-7" />
+        <Icon name="kind-icon:coin" class="kr-icon-7" />
       </span>
       <div>
         <p class="kr-text-black-2xl tracking-tight">Creator Earnings</p>

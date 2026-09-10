@@ -1699,6 +1699,33 @@ section:has(div[class*='xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]'])
     @apply h-10 w-10 text-primary/60;
   }
 
+  /* Final documented sibling in this family -- `h-12 w-12 text-primary`, no
+   * tile/background tokens (interface-vision t-104 slice 196): a live
+   * re-search against current `main` found 9 exact occurrences across 8
+   * files (art-gallery.vue x2, art-interact.vue, bot-gallery.vue,
+   * character-gallery.vue, giftshop-manager.vue, giving-page.vue,
+   * serendipity-page.vue, chat-gallery.vue). Two of those sit inside a
+   * larger tile-shaped class string that already matches `.kr-icon-tile`'s
+   * own tokens almost verbatim (serendipity-page.vue's
+   * `grid h-12 w-12 place-items-center rounded-2xl bg-primary/15
+   * text-primary`, chat-gallery.vue's `kr-text-black-lg flex h-12 w-12
+   * shrink-0 items-center justify-center overflow-hidden rounded-2xl
+   * bg-primary/15 text-primary`) -- left as subset-match candidates rather
+   * than folded into `.kr-icon-tile`, matching every prior kr-icon-primary-*
+   * slice's convention of preserving extra tokens verbatim rather than
+   * reinterpreting the shape; no rendered output changes either way since
+   * `.kr-icon-primary-12` contributes exactly `h-12 w-12 text-primary` and
+   * the remaining tokens are carried through unchanged. A distinct
+   * `h-12 w-12 text-primary/70` occurrence (dream-gallery.vue) was found and
+   * correctly excluded -- not a subset match, same reasoning as
+   * `.kr-icon-primary-10`'s own `/60` opacity carve-out above. This closes
+   * out the kr-icon-primary-* family (4/5/6/7/10/12); a fresh full-repo
+   * class-frequency survey outside all now-closed families is the next
+   * step. */
+  .kr-icon-primary-12 {
+    @apply h-12 w-12 text-primary;
+  }
+
   /* The colorless DaisyUI busy indicator: a bare tiny spinner dropped into
    * a button or inline slot while an action is pending, no tint (the
    * button/text color around it usually already carries the tone)

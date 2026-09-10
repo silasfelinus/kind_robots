@@ -105,7 +105,7 @@
       v-if="!currentArtImage"
       class="flex min-h-72 flex-col items-center justify-center kr-panel text-center text-base-content/55"
     >
-      <Icon name="kind-icon:image" class="h-12 w-12 text-primary" />
+      <Icon name="kind-icon:image" class="kr-icon-primary-12" />
       <p class="kr-text-bold-lg mt-2">No image selected.</p>
       <p class="mt-1 max-w-xl text-sm">
         Pick something from the gallery. The pixels are standing around holding

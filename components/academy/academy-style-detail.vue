@@ -70,7 +70,7 @@
             v-if="isViewed"
             class="badge border-0 bg-success text-success-content font-bold"
           >
-            <Icon name="kind-icon:check" class="mr-1 h-3.5 w-3.5" />
+            <Icon name="kind-icon:check" class="kr-icon-3-5 mr-1" />
             Explored
           </span>
         </div>

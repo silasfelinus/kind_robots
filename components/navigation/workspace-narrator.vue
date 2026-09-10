@@ -53,7 +53,7 @@
                       "
                       @click="togglePin"
                     >
-                      <Icon name="kind-icon:pin" class="h-3.5 w-3.5" />
+                      <Icon name="kind-icon:pin" class="kr-icon-3-5" />
                     </button>
 
                     <button
@@ -62,7 +62,7 @@
                       aria-label="Close narrator"
                       @click="closeNarrator"
                     >
-                      <Icon name="kind-icon:close" class="h-3.5 w-3.5" />
+                      <Icon name="kind-icon:close" class="kr-icon-3-5" />
                     </button>
                   </div>
                 </div>
@@ -227,7 +227,7 @@
                       aria-label="Toggle narrator topics"
                       @click="showTopics = !showTopics"
                     >
-                      <Icon name="kind-icon:map" class="h-3.5 w-3.5" />
+                      <Icon name="kind-icon:map" class="kr-icon-3-5" />
                     </button>
 
                     <button
@@ -236,7 +236,7 @@
                       aria-label="Return to narrator portrait"
                       @click="closeChatFace"
                     >
-                      <Icon name="kind-icon:close" class="h-3.5 w-3.5" />
+                      <Icon name="kind-icon:close" class="kr-icon-3-5" />
                     </button>
                   </div>
                 </div>

@@ -19,7 +19,7 @@
         :disabled="store.startingRun"
         @click="store.goToStep('source')"
       >
-        <Icon name="kind-icon:arrow-left" class="h-3.5 w-3.5" />
+        <Icon name="kind-icon:arrow-left" class="kr-icon-3-5" />
         Change source
       </button>
     </div>

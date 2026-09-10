@@ -40,7 +40,7 @@
         class="kr-btn-ghost-xs-plain"
         @click="clear"
       >
-        <Icon name="mdi:eraser" class="h-3.5 w-3.5" /> Clear
+        <Icon name="mdi:eraser" class="kr-icon-3-5" /> Clear
       </button>
       <span class="text-base-content/50">
         {{

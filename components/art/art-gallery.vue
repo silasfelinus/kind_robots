@@ -47,7 +47,7 @@
             type="button"
             @click="clearActiveGroup"
           >
-            <Icon name="kind-icon:arrow-left" class="h-3.5 w-3.5" />
+            <Icon name="kind-icon:arrow-left" class="kr-icon-3-5" />
             Back
           </button>
 
@@ -58,7 +58,7 @@
             type="button"
             @click="toggleBulkSelect"
           >
-            <Icon name="kind-icon:checklist" class="h-3.5 w-3.5" />
+            <Icon name="kind-icon:checklist" class="kr-icon-3-5" />
             {{ bulkSelectEnabled ? 'Selecting' : 'Select' }}
           </button>
 
@@ -76,7 +76,7 @@
             @click="refreshGallery"
           >
             <span v-if="isLoading" class="kr-spinner-xs" />
-            <Icon v-else name="kind-icon:refresh" class="h-3.5 w-3.5" />
+            <Icon v-else name="kind-icon:refresh" class="kr-icon-3-5" />
           </button>
 
           <button
@@ -85,7 +85,7 @@
             type="button"
             @click="clearSelectedImage"
           >
-            <Icon name="kind-icon:x" class="h-3.5 w-3.5" />
+            <Icon name="kind-icon:x" class="kr-icon-3-5" />
           </button>
         </div>
       </div>
@@ -139,7 +139,7 @@
       v-if="errorMessage"
       class="shrink-0 flex items-center gap-2 kr-note kr-note-error rounded-xl px-3 py-2 text-xs"
     >
-      <icon name="kind-icon:alert" class="h-3.5 w-3.5 shrink-0" />
+      <icon name="kind-icon:alert" class="kr-icon-3-5 shrink-0" />
       {{ errorMessage }}
     </div>
 
@@ -147,7 +147,7 @@
       v-if="successMessage"
       class="shrink-0 flex items-center gap-2 kr-note kr-note-success rounded-xl px-3 py-2 text-xs"
     >
-      <icon name="kind-icon:check" class="h-3.5 w-3.5 shrink-0" />
+      <icon name="kind-icon:check" class="kr-icon-3-5 shrink-0" />
       {{ successMessage }}
     </div>
 
@@ -229,7 +229,7 @@
             type="button"
             @click="clearActiveGroup"
           >
-            <Icon name="kind-icon:arrow-left" class="h-3.5 w-3.5" />
+            <Icon name="kind-icon:arrow-left" class="kr-icon-3-5" />
             Collections
           </button>
         </div>
@@ -249,7 +249,7 @@
               :disabled="isBatchWorking"
               @click="selectAllFilteredImages"
             >
-              <Icon name="kind-icon:gallery" class="h-3.5 w-3.5" />
+              <Icon name="kind-icon:gallery" class="kr-icon-3-5" />
               Select all filtered
             </button>
 
@@ -259,7 +259,7 @@
               :disabled="isBatchWorking || !selectedImageCount"
               @click="clearImageSelection"
             >
-              <Icon name="kind-icon:x" class="h-3.5 w-3.5" />
+              <Icon name="kind-icon:x" class="kr-icon-3-5" />
               Clear
             </button>
 
@@ -301,7 +301,7 @@
               "
               @click="addSelectedToCollection"
             >
-              <Icon name="kind-icon:plus" class="h-3.5 w-3.5" />
+              <Icon name="kind-icon:plus" class="kr-icon-3-5" />
               Add
             </button>
 
@@ -315,7 +315,7 @@
               "
               @click="removeSelectedFromCollection"
             >
-              <Icon name="kind-icon:minus" class="h-3.5 w-3.5" />
+              <Icon name="kind-icon:minus" class="kr-icon-3-5" />
               Remove
             </button>
 
@@ -326,7 +326,7 @@
               :disabled="isBatchWorking || !selectedImageCount"
               @click="removeSelectedFromActiveCollection"
             >
-              <Icon name="kind-icon:folder" class="h-3.5 w-3.5" />
+              <Icon name="kind-icon:folder" class="kr-icon-3-5" />
               Remove from here
             </button>
           </div>
@@ -358,7 +358,7 @@
               :disabled="isBatchWorking || !canBatchModifyImages"
               @click="applySelectedImageFlags"
             >
-              <Icon name="kind-icon:edit" class="h-3.5 w-3.5" />
+              <Icon name="kind-icon:edit" class="kr-icon-3-5" />
               Apply edits
             </button>
 
@@ -372,7 +372,7 @@
                 v-if="isBatchWorking"
                 class="kr-spinner-xs"
               />
-              <Icon v-else name="kind-icon:trash" class="h-3.5 w-3.5" />
+              <Icon v-else name="kind-icon:trash" class="kr-icon-3-5" />
               Delete
             </button>
           </div>

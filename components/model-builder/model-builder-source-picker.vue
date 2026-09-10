@@ -27,7 +27,7 @@
           :aria-pressed="viewMode === mode.value"
           @click="setViewMode(mode.value)"
         >
-          <Icon :name="mode.icon" class="h-3.5 w-3.5" />
+          <Icon :name="mode.icon" class="kr-icon-3-5" />
         </button>
       </div>
     </div>

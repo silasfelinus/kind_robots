@@ -27,7 +27,7 @@
               :aria-pressed="lessonFilter === option.value"
               @click="lessonFilter = option.value"
             >
-              <Icon :name="option.icon" class="h-3.5 w-3.5" aria-hidden="true" />
+              <Icon :name="option.icon" class="kr-icon-3-5" aria-hidden="true" />
               {{ option.label }}
             </button>
           </div>
@@ -139,7 +139,7 @@
           class="absolute right-2.5 top-2.5 flex h-7 w-7 items-center justify-center rounded-full bg-success text-success-content shadow-md"
           title="Lesson explored"
         >
-          <Icon name="kind-icon:check" class="h-3.5 w-3.5" aria-hidden="true" />
+          <Icon name="kind-icon:check" class="kr-icon-3-5" aria-hidden="true" />
           <span class="sr-only">Lesson explored</span>
         </div>
 
@@ -153,7 +153,7 @@
           </p>
           <div class="kr-text-eyebrow mt-3 flex items-center gap-1 text-[0.68rem] tracking-wide text-white/90">
             Open lesson
-            <Icon name="kind-icon:arrow-right" class="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" aria-hidden="true" />
+            <Icon name="kind-icon:arrow-right" class="kr-icon-3-5 transition-transform group-hover:translate-x-1" aria-hidden="true" />
           </div>
         </div>
       </button>

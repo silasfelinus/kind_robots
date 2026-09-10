@@ -114,7 +114,7 @@
         v-if="activeSelected"
         class="absolute bottom-2 right-2 rounded-full bg-primary p-1.5 text-primary-content shadow"
       >
-        <Icon name="kind-icon:check" class="h-3.5 w-3.5" />
+        <Icon name="kind-icon:check" class="kr-icon-3-5" />
       </div>
     </div>
 
@@ -174,7 +174,7 @@
           :disabled="isHiddenMature"
           @click.stop="selectCollection"
         >
-          <Icon name="kind-icon:folder" class="h-3.5 w-3.5" />
+          <Icon name="kind-icon:folder" class="kr-icon-3-5" />
           {{ activeSelected ? 'Selected' : 'Open' }}
         </button>
       </div>

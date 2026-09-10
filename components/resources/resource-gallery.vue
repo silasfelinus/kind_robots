@@ -421,7 +421,7 @@ onMounted(async () => {
             class="btn btn-primary btn-xs rounded-2xl"
             @click="openAddChoice"
           >
-            <icon name="kind-icon:plus" class="h-3.5 w-3.5" />
+            <icon name="kind-icon:plus" class="kr-icon-3-5" />
             Add
           </button>
 
@@ -432,7 +432,7 @@ onMounted(async () => {
             @click="resourceGalleryStore.loadResources()"
           >
             <span v-if="resourceGalleryStore.isLoading" class="kr-spinner-xs" />
-            <icon v-else name="kind-icon:refresh" class="h-3.5 w-3.5" />
+            <icon v-else name="kind-icon:refresh" class="kr-icon-3-5" />
             Refresh
           </button>
         </div>
@@ -696,7 +696,7 @@ onMounted(async () => {
             title="Show only Resources flagged mature"
             @click="matureOnly = !matureOnly"
           >
-            <Icon name="kind-icon:eye" class="h-3.5 w-3.5" />
+            <Icon name="kind-icon:eye" class="kr-icon-3-5" />
             <span class="hidden sm:inline">Mature only</span>
           </button>
 

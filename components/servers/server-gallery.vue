@@ -26,7 +26,7 @@
         type="button"
         @click="startAddServer"
       >
-        <Icon name="kind-icon:plus" class="h-3.5 w-3.5" />
+        <Icon name="kind-icon:plus" class="kr-icon-3-5" />
         Add Server
       </button>
     </header>
@@ -77,7 +77,7 @@
             type="button"
             @click="refreshServers"
           >
-            <Icon name="kind-icon:refresh-cw" class="h-3.5 w-3.5" />
+            <Icon name="kind-icon:refresh-cw" class="kr-icon-3-5" />
             <span class="hidden sm:inline">Refresh</span>
           </button>
         </div>

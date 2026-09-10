@@ -273,7 +273,7 @@
           type="button"
           @click.stop="selectImage"
         >
-          <Icon name="kind-icon:check" class="h-3.5 w-3.5" />
+          <Icon name="kind-icon:check" class="kr-icon-3-5" />
           {{ selected ? 'Selected' : 'Select' }}
         </button>
       </div>

@@ -16,7 +16,7 @@
           :disabled="store.loadingRuns || Boolean(cancellingRunId)"
           @click="store.fetchRuns()"
         >
-          <Icon name="kind-icon:refresh" class="h-3.5 w-3.5" aria-hidden="true" />
+          <Icon name="kind-icon:refresh" class="kr-icon-3-5" aria-hidden="true" />
           Refresh
         </button>
         <button
@@ -25,7 +25,7 @@
           :disabled="Boolean(cancellingRunId)"
           @click="startNew"
         >
-          <Icon name="kind-icon:add" class="h-3.5 w-3.5" aria-hidden="true" />
+          <Icon name="kind-icon:add" class="kr-icon-3-5" aria-hidden="true" />
           New run
         </button>
       </div>
@@ -96,7 +96,7 @@
             :aria-label="`Cancel run ${run.sourceLabel || `#${run.sourceId}`}`"
             @click="armedRunId = run.id"
           >
-            <Icon name="kind-icon:trash" class="h-3.5 w-3.5" aria-hidden="true" />
+            <Icon name="kind-icon:trash" class="kr-icon-3-5" aria-hidden="true" />
           </button>
           <button
             v-else
@@ -115,7 +115,7 @@
             <Icon
               v-else
               name="kind-icon:trash"
-              class="h-3.5 w-3.5"
+              class="kr-icon-3-5"
               aria-hidden="true"
             />
             {{ cancellingRunId === run.id ? 'Cancelling…' : 'Confirm?' }}

@@ -51,7 +51,7 @@
           "
           @click="activeTab = tab.key"
         >
-          <Icon :name="tab.icon" class="h-3.5 w-3.5" />
+          <Icon :name="tab.icon" class="kr-icon-3-5" />
           {{ tab.label }}
         </button>
       </div>
@@ -158,7 +158,7 @@
                   v-if="llmLoading"
                   class="kr-spinner-xs"
                 />
-                <Icon v-else name="mdi:sparkles" class="h-3.5 w-3.5" />
+                <Icon v-else name="mdi:sparkles" class="kr-icon-3-5" />
                 {{ form.prompt ? 'Regenerate' : 'Generate' }}
               </button>
             </div>
@@ -185,7 +185,7 @@
                 :disabled="!form.name.trim()"
                 @click="buildArtPrompt"
               >
-                <Icon name="mdi:auto-fix" class="h-3.5 w-3.5" /> Build art
+                <Icon name="mdi:auto-fix" class="kr-icon-3-5" /> Build art
                 prompt
               </button>
             </div>
@@ -247,7 +247,7 @@
               class="ml-auto text-secondary/50 hover:text-error"
               @click="form.species = ''"
             >
-              <Icon name="mdi:close" class="h-3.5 w-3.5" />
+              <Icon name="mdi:close" class="kr-icon-3-5" />
             </button>
           </div>
 

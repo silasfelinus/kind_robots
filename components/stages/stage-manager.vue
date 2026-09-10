@@ -43,7 +43,7 @@
             class="kr-btn-xs btn-warning"
             @click="store.pause()"
           >
-            <Icon name="mdi:pause" class="h-3.5 w-3.5" /> Pause
+            <Icon name="mdi:pause" class="kr-icon-3-5" /> Pause
           </button>
           <button
             v-else
@@ -51,14 +51,14 @@
             class="kr-btn-xs btn-success"
             @click="store.resume()"
           >
-            <Icon name="mdi:play" class="h-3.5 w-3.5" /> Resume
+            <Icon name="mdi:play" class="kr-icon-3-5" /> Resume
           </button>
           <button
             type="button"
             class="kr-btn-ghost-xs"
             @click="store.stop()"
           >
-            <Icon name="mdi:stop" class="h-3.5 w-3.5" />
+            <Icon name="mdi:stop" class="kr-icon-3-5" />
           </button>
         </template>
         <button
@@ -66,14 +66,14 @@
           class="kr-btn-ghost-xs"
           @click="store.persist()"
         >
-          <Icon name="mdi:content-save" class="h-3.5 w-3.5" />
+          <Icon name="mdi:content-save" class="kr-icon-3-5" />
         </button>
         <button
           type="button"
           class="kr-btn-xs btn-ghost text-error/60 hover:text-error"
           @click="store.clearTranscript()"
         >
-          <Icon name="mdi:broom" class="h-3.5 w-3.5" />
+          <Icon name="mdi:broom" class="kr-icon-3-5" />
         </button>
       </div>
     </header>
@@ -395,7 +395,7 @@
                   class="kr-btn-ghost-xs"
                   @click="clearPendingCastMember"
                 >
-                  <Icon name="mdi:close" class="h-3.5 w-3.5" />
+                  <Icon name="mdi:close" class="kr-icon-3-5" />
                 </button>
               </div>
             </Transition>
@@ -434,7 +434,7 @@
                     class="kr-btn-ghost-xs"
                     @click="store.addCastSlot(role.key)"
                   >
-                    <Icon name="mdi:plus" class="h-3.5 w-3.5" />
+                    <Icon name="mdi:plus" class="kr-icon-3-5" />
                   </button>
                 </div>
               </header>

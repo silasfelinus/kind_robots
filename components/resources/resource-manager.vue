@@ -41,7 +41,7 @@
             :title="tab.label"
             @click="selectTab(tab.key)"
           >
-            <Icon :name="tab.icon" class="h-3.5 w-3.5" />
+            <Icon :name="tab.icon" class="kr-icon-3-5" />
             <span class="hidden sm:inline">{{ tab.label }}</span>
           </button>
         </div>
@@ -63,7 +63,7 @@
           :title="tab.label"
           @click="selectTab(tab.key)"
         >
-          <Icon :name="tab.icon" class="h-3.5 w-3.5" />
+          <Icon :name="tab.icon" class="kr-icon-3-5" />
           <span class="hidden sm:inline">{{ tab.label }}</span>
         </button>
       </div>

@@ -12,8 +12,6 @@ export async function assertCanManageGrantSubject(
   subjectType: GrantSubject,
   subjectId: number,
 ): Promise<void> {
-  if (actor.isAdmin) return
-
   let ownerId: number | null | undefined
 
   if (subjectType === 'PROJECT') {
@@ -38,14 +36,20 @@ export async function assertCanManageGrantSubject(
       })
     )?.ownerId
   } else {
-    throw createError({ statusCode: 400, message: 'Unsupported grant subject type.' })
+    throw createError({
+      statusCode: 400,
+      message: 'Unsupported grant subject type.',
+    })
   }
 
   if (ownerId === undefined) {
     throw createError({ statusCode: 404, message: 'Grant subject not found.' })
   }
 
-  if (ownerId !== actor.id) {
-    throw createError({ statusCode: 403, message: 'Only the subject owner or an admin may manage grants.' })
+  if (!actor.isAdmin && ownerId !== actor.id) {
+    throw createError({
+      statusCode: 403,
+      message: 'Only the subject owner or an admin may manage grants.',
+    })
   }
 }

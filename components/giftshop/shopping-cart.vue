@@ -19,7 +19,7 @@
         :disabled="cartStore.loading"
         @click="cartStore.clearCart"
       >
-        <Icon name="kind-icon:trash" class="h-4 w-4" />
+        <Icon name="kind-icon:trash" class="kr-icon-4" />
         Clear cart
       </button>
     </div>
@@ -108,7 +108,7 @@
             :disabled="cartStore.loading"
             @click="cartStore.removeItem(item.id)"
           >
-            <Icon name="kind-icon:trash" class="h-4 w-4" />
+            <Icon name="kind-icon:trash" class="kr-icon-4" />
             Remove
           </button>
         </article>

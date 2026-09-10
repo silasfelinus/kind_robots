@@ -28,7 +28,7 @@
           </div>
 
           <button type="button" class="kr-btn-primary-md-2xl" @click="goToCart">
-            <Icon name="kind-icon:cart" class="h-4 w-4" />
+            <Icon name="kind-icon:cart" class="kr-icon-4" />
             Cart
             <span v-if="cartStore.totalItems" class="badge badge-secondary">
               {{ cartStore.totalItems }}
@@ -92,7 +92,7 @@
             to="/giving"
             class="btn btn-primary btn-sm shrink-0 rounded-2xl"
           >
-            <Icon name="kind-icon:gift" class="h-4 w-4" />
+            <Icon name="kind-icon:gift" class="kr-icon-4" />
             Give directly
           </NuxtLink>
         </div>
@@ -123,7 +123,7 @@
                   class="btn btn-sm btn-outline rounded-2xl"
                   @click="addFeaturedPrint(art)"
                 >
-                  <Icon name="kind-icon:plus" class="h-4 w-4" />
+                  <Icon name="kind-icon:plus" class="kr-icon-4" />
                   Add to cart
                 </button>
               </div>
@@ -156,7 +156,7 @@
               class="btn btn-sm btn-outline mt-4 rounded-2xl"
               @click="addShowcaseItem(item)"
             >
-              <Icon name="kind-icon:plus" class="h-4 w-4" />
+              <Icon name="kind-icon:plus" class="kr-icon-4" />
               Add to cart
             </button>
           </article>
@@ -196,7 +196,7 @@
         </div>
 
         <button type="button" class="kr-btn-primary-md-2xl" @click="goToCart">
-          <Icon name="kind-icon:cart" class="h-4 w-4" />
+          <Icon name="kind-icon:cart" class="kr-icon-4" />
           Review cart
         </button>
 
@@ -206,7 +206,7 @@
           :disabled="!cartStore.hasItems"
           @click="cartStore.clearCart()"
         >
-          <Icon name="kind-icon:trash" class="h-4 w-4" />
+          <Icon name="kind-icon:trash" class="kr-icon-4" />
           Release cart butterflies
         </button>
 

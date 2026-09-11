@@ -21,6 +21,7 @@ import {
   clampDecorCoordinate,
   conflictsWithEquippedIdleSet,
   convergeBreedStats,
+  DEBRIS_SPOTLESS_MILESTONE_THRESHOLD,
   DECOR_CATALOG,
   deriveFishRarityTier,
   effectiveSizeCap,
@@ -31,12 +32,16 @@ import {
   feedCost,
   FEED_RESTORES_HUNGER_TO,
   firedBestiaryMilestones,
+  FIRST_FULL_TANK_MILESTONE,
+  FIRST_SPOTLESS_TANK_MILESTONE,
   HUNGER_STARTING_VALUE,
   isKnownDecorKind,
   isKnownEggRarity,
   isKnownEggSize,
   isKnownSetPieceKind,
   justCompletedBestiary as computeJustCompletedBestiary,
+  justFirstFullTank,
+  justFirstSpotlessTank,
   LAST_AQUARIUM_CONFIG,
   MAX_CLEAN_CLICKS_PER_REQUEST,
   mergeBestStats,
@@ -52,6 +57,7 @@ import {
   todaysShopDateKey,
   unlockCost,
   type BestiaryMilestoneConfig,
+  type LandmarkMilestoneConfig,
   type LastAquariumConfig,
   type RareEventResult,
   type StatBlock,
@@ -193,6 +199,11 @@ const ownedAquariumSelect = {
   setSlotsCap: true,
   sizeCap: true,
   debrisLevel: true,
+  // cthulhuquarium/t-074: sticky "debris has ever reached
+  // DEBRIS_SPOTLESS_MILESTONE_THRESHOLD" flag backing the first_spotless_tank
+  // milestone -- selected here (not just written) so cleanTankForUser can
+  // read it back for the justFirstSpotlessTank check without a second query.
+  debrisEverHigh: true,
   lastCleanedAt: true,
   createdAt: true,
   updatedAt: true,
@@ -399,12 +410,24 @@ export async function settleTickForUser(
       }
     }
 
+    // cthulhuquarium/t-074: sticky, never cleared once true -- same
+    // "nothing here may ever decrease" discipline as collectedCount.
+    // settleTick only ever raises debris within its own loop (offset only by
+    // debris_skimmer, still net non-negative there -- see its own comment),
+    // so the highest debris this call reaches is always newDebrisLevel.
+    const debrisEverHighAfter =
+      tank.debrisEverHigh ||
+      settlement.newDebrisLevel >= DEBRIS_SPOTLESS_MILESTONE_THRESHOLD
+
     const updated = await tx.aquarium.update({
       where: { id: tank.id },
       data: {
         coins: { increment: totalCoinsEarned },
         debrisLevel: settlement.newDebrisLevel,
         lastTickAt: settlement.newLastTickAt,
+        ...(debrisEverHighAfter !== tank.debrisEverHigh
+          ? { debrisEverHigh: debrisEverHighAfter }
+          : {}),
       },
       select: ownedAquariumSelect,
     })
@@ -523,6 +546,13 @@ export async function feedFishForUser(
 export interface CleanResult {
   aquarium: ClientAquarium
   debrisLevel: number
+  // cthulhuquarium/t-074: true only the one time this clean crosses debris
+  // down to 0 having previously reached DEBRIS_SPOTLESS_MILESTONE_THRESHOLD
+  // -- see justFirstSpotlessTank. Kept as its own boolean rather than folded
+  // into a firedMilestones array like the purchase/breed routes: clean is the
+  // only route that can fire this one landmark, so there's nothing to
+  // aggregate.
+  firstSpotlessTank: boolean
 }
 
 export async function cleanTankForUser(
@@ -545,27 +575,59 @@ export async function cleanTankForUser(
   const newDebrisLevel = cleanDebris(tank.debrisLevel, safeClicks)
 
   if (newDebrisLevel === tank.debrisLevel) {
-    return { aquarium: tank, debrisLevel: tank.debrisLevel }
+    return {
+      aquarium: tank,
+      debrisLevel: tank.debrisLevel,
+      firstSpotlessTank: false,
+    }
   }
 
-  const aquarium = await prisma.$transaction(async (tx) => {
-    const now = new Date()
-    const updated = await tx.aquarium.update({
-      where: { id: tank.id },
-      data: { debrisLevel: newDebrisLevel, lastCleanedAt: now },
-      select: ownedAquariumSelect,
-    })
+  const { aquarium, firstSpotlessTank } = await prisma.$transaction(
+    async (tx) => {
+      const now = new Date()
+      const updated = await tx.aquarium.update({
+        where: { id: tank.id },
+        data: { debrisLevel: newDebrisLevel, lastCleanedAt: now },
+        select: ownedAquariumSelect,
+      })
 
-    await logEvent(tx, tank.id, 'clean', {
-      previousDebrisLevel: tank.debrisLevel,
-      newDebrisLevel,
-      clicks: safeClicks,
-    })
+      await logEvent(tx, tank.id, 'clean', {
+        previousDebrisLevel: tank.debrisLevel,
+        newDebrisLevel,
+        clicks: safeClicks,
+      })
 
-    return updated
-  })
+      let firstSpotlessTank = false
+      if (
+        justFirstSpotlessTank(tank.debrisEverHigh, tank.debrisLevel, newDebrisLevel)
+      ) {
+        const alreadyLogged = await tx.aquariumEvent.findFirst({
+          where: {
+            aquariumId: tank.id,
+            kind: milestoneEventKind(FIRST_SPOTLESS_TANK_MILESTONE),
+          },
+          select: { id: true },
+        })
+        if (!alreadyLogged) {
+          firstSpotlessTank = true
+          await logEvent(
+            tx,
+            tank.id,
+            milestoneEventKind(FIRST_SPOTLESS_TANK_MILESTONE),
+            { landmark: FIRST_SPOTLESS_TANK_MILESTONE.id },
+          )
+        }
+      }
 
-  return { aquarium: toClientAquarium(aquarium), debrisLevel: newDebrisLevel }
+      return { aquarium: updated, firstSpotlessTank }
+    },
+  )
+
+  return {
+    aquarium: toClientAquarium(aquarium),
+    debrisLevel: newDebrisLevel,
+    firstSpotlessTank,
+  }
 }
 
 // ---------------------------------------------------------------------------
@@ -601,6 +663,34 @@ const BESTIARY_COMPLETE_EVENT_KIND = 'bestiary-complete'
 // same shape as BESTIARY_COMPLETE_EVENT_KIND's own guard above.
 function milestoneEventKind(milestone: { id: string }): string {
   return `milestone-${milestone.id}`
+}
+
+// cthulhuquarium/t-074: shared by every call site that can grow
+// currentReservedSize (species purchase, egg purchase, breed) -- same
+// existing-row idempotency guard as the bestiary-milestone blocks below,
+// factored out once instead of tripled since none of the surrounding
+// per-route logic differs. Query-only (no write) so the caller can push the
+// result onto its own `firedMilestones` array and let that array's existing
+// logEvent loop do the actual logging, same as every bestiary milestone --
+// this never double-logs the event itself.
+async function checkFirstFullTank(
+  tx: TransactionClient,
+  aquariumId: number,
+  reservedSizeBefore: number,
+  reservedSizeAfter: number,
+  effectiveCap: number,
+): Promise<LandmarkMilestoneConfig | null> {
+  if (!justFirstFullTank(reservedSizeBefore, reservedSizeAfter, effectiveCap)) {
+    return null
+  }
+  const alreadyLogged = await tx.aquariumEvent.findFirst({
+    where: {
+      aquariumId,
+      kind: milestoneEventKind(FIRST_FULL_TANK_MILESTONE),
+    },
+    select: { id: true },
+  })
+  return alreadyLogged ? null : FIRST_FULL_TANK_MILESTONE
 }
 
 const bestiaryMonsterSelect = {
@@ -918,8 +1008,9 @@ export interface PurchaseSpeciesResult {
   // an AquariumEvent by the time this is returned. Frontend interstitial
   // presentation (Charlotte handing over the background) is a separate,
   // not-yet-built layer -- see t-028's roadmap note; this is the gate
-  // itself, not the ceremony around it.
-  firedMilestones: BestiaryMilestoneConfig[]
+  // itself, not the ceremony around it. cthulhuquarium/t-074: also carries
+  // the (at most one) first_full_tank landmark this purchase crossed.
+  firedMilestones: Array<BestiaryMilestoneConfig | LandmarkMilestoneConfig>
 }
 
 export async function purchaseSpeciesForUser(
@@ -1031,7 +1122,9 @@ export async function purchaseSpeciesForUser(
         collectedCountBefore,
         collectedCountAfter,
       )
-      const firedMilestones: BestiaryMilestoneConfig[] = []
+      const firedMilestones: Array<
+        BestiaryMilestoneConfig | LandmarkMilestoneConfig
+      > = []
       if (candidateMilestones.length > 0) {
         const alreadyLoggedKinds = new Set(
           (
@@ -1050,6 +1143,18 @@ export async function purchaseSpeciesForUser(
           }
         }
       }
+
+      // cthulhuquarium/t-074: this purchase is exactly the growth event
+      // currentSize/newSize above already priced against tank.effectiveSizeCap.
+      const fullTankMilestone = await checkFirstFullTank(
+        tx,
+        tank.id,
+        currentSize,
+        currentSize + newSize,
+        tank.effectiveSizeCap,
+      )
+      if (fullTankMilestone) firedMilestones.push(fullTankMilestone)
+
       const slotsCapDelta = firedMilestones.reduce(
         (sum, milestone) => sum + milestone.slotsCapDelta,
         0,
@@ -1149,6 +1254,11 @@ export interface PurchaseEggResult {
   aquarium: ClientAquarium
   egg: OwnedAquarium['Eggs'][number]
   cost: number
+  // cthulhuquarium/t-074: an unhatched egg reserves its size the instant it's
+  // bought (see this function's own comment), so THIS is the growth event
+  // for first_full_tank, not the later hatch -- at most one entry, since it's
+  // the only landmark an egg purchase can cross.
+  firedMilestones: LandmarkMilestoneConfig[]
 }
 
 export async function purchaseEggForUser(
@@ -1189,27 +1299,46 @@ export async function purchaseEggForUser(
     )
   }
 
-  const { aquarium, egg } = await prisma.$transaction(async (tx) => {
-    const createdEgg = await tx.aquariumEgg.create({
-      data: { aquariumId: tank.id, rarity, size },
-      select: ownedEggSelect,
-    })
-    const updatedAquarium = await tx.aquarium.update({
-      where: { id: tank.id },
-      data: { coins: { decrement: cost } },
-      select: ownedAquariumSelect,
-    })
-    await logEvent(tx, tank.id, 'purchase', {
-      type: 'egg',
-      rarity,
-      size,
-      aquariumEggId: createdEgg.id,
-      cost,
-    })
-    return { aquarium: updatedAquarium, egg: createdEgg }
-  })
+  const { aquarium, egg, firedMilestones } = await prisma.$transaction(
+    async (tx) => {
+      const createdEgg = await tx.aquariumEgg.create({
+        data: { aquariumId: tank.id, rarity, size },
+        select: ownedEggSelect,
+      })
 
-  return { aquarium: toClientAquarium(aquarium), egg, cost }
+      const firedMilestones: LandmarkMilestoneConfig[] = []
+      const fullTankMilestone = await checkFirstFullTank(
+        tx,
+        tank.id,
+        currentSize,
+        currentSize + size,
+        tank.effectiveSizeCap,
+      )
+      if (fullTankMilestone) firedMilestones.push(fullTankMilestone)
+
+      const updatedAquarium = await tx.aquarium.update({
+        where: { id: tank.id },
+        data: { coins: { decrement: cost } },
+        select: ownedAquariumSelect,
+      })
+      await logEvent(tx, tank.id, 'purchase', {
+        type: 'egg',
+        rarity,
+        size,
+        aquariumEggId: createdEgg.id,
+        cost,
+      })
+      for (const milestone of firedMilestones) {
+        await logEvent(tx, tank.id, milestoneEventKind(milestone), {
+          landmark: milestone.id,
+          slotsCapDelta: milestone.slotsCapDelta,
+        })
+      }
+      return { aquarium: updatedAquarium, egg: createdEgg, firedMilestones }
+    },
+  )
+
+  return { aquarium: toClientAquarium(aquarium), egg, cost, firedMilestones }
 }
 
 export interface HatchEggResult {
@@ -1463,7 +1592,9 @@ export interface BreedResult {
   // created stock row is then the EVOLVED species, not the parents' own.
   evolved: boolean
   justCompletedBestiary: boolean
-  firedMilestones: BestiaryMilestoneConfig[]
+  // cthulhuquarium/t-074: also carries the (at most one) first_full_tank
+  // landmark this breed crossed.
+  firedMilestones: Array<BestiaryMilestoneConfig | LandmarkMilestoneConfig>
 }
 
 export async function breedFishForUser(
@@ -1606,7 +1737,9 @@ export async function breedFishForUser(
         collectedCountBefore,
         collectedCountAfter,
       )
-      const firedMilestones: BestiaryMilestoneConfig[] = []
+      const firedMilestones: Array<
+        BestiaryMilestoneConfig | LandmarkMilestoneConfig
+      > = []
       if (candidateMilestones.length > 0) {
         const alreadyLoggedKinds = new Set(
           (
@@ -1625,6 +1758,19 @@ export async function breedFishForUser(
           }
         }
       }
+
+      // cthulhuquarium/t-074: this breed is exactly the growth event
+      // currentSize/offspringSize above already priced against
+      // tank.effectiveSizeCap.
+      const fullTankMilestone = await checkFirstFullTank(
+        tx,
+        tank.id,
+        currentSize,
+        currentSize + offspringSize,
+        tank.effectiveSizeCap,
+      )
+      if (fullTankMilestone) firedMilestones.push(fullTankMilestone)
+
       const slotsCapDelta = firedMilestones.reduce(
         (sum, milestone) => sum + milestone.slotsCapDelta,
         0,

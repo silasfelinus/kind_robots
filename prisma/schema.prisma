@@ -2284,41 +2284,50 @@ model LifeRunArt {
 /// Monster rows -- AquariumStock references them, never duplicates them.
 /// See projects/cthulhuquarium/roadmap.yaml and DESIGN-BRIEF.md in conductor.
 model Aquarium {
-  id            Int             @id @default(autoincrement())
-  createdAt     DateTime        @default(now())
-  updatedAt     DateTime?       @default(now()) @updatedAt
-  userId        Int
+  id             Int             @id @default(autoincrement())
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime?       @default(now()) @updatedAt
+  userId         Int
   /// cthulhuquarium/t-032: was globally @unique, which collides the moment a
   /// second user picks the same tank name (e.g. "my-tank"). Slugs only need
   /// to be unique per owner -- see the @@unique([userId, slug]) below.
-  slug          String          @db.VarChar(255)
-  title         String          @db.VarChar(255)
-  coins         Int             @default(0)
-  backgroundKey String?         @db.VarChar(255)
-  isPublic      Boolean         @default(false)
-  lastTickAt    DateTime?
+  slug           String          @db.VarChar(255)
+  title          String          @db.VarChar(255)
+  coins          Int             @default(0)
+  backgroundKey  String?         @db.VarChar(255)
+  isPublic       Boolean         @default(false)
+  lastTickAt     DateTime?
   /// cthulhuquarium/t-032: counted set-piece slots (SYSTEMS.md "Capacity: two
   /// pools, two units"). Starts at three per SYSTEMS.md; a tank upgrade raises
   /// this alongside sizeCap. Distinct pool from fish capacity -- do not sum
   /// with sizeCap.
-  setSlotsCap   Int             @default(3)
+  setSlotsCap    Int             @default(3)
   /// cthulhuquarium/t-032: weighed fish capacity, measured against the sum of
   /// placed AquariumStock's Monster.size. [v1 placeholder -- economy.yaml
   /// predates this two-pool split (it was written for a single shared-pool
   /// model Silas later superseded) and does not yet carry a tuned starting
   /// value; this default is a starting-point guess for a future balance pass,
   /// not a confirmed number.]
-  sizeCap       Int             @default(10)
+  sizeCap        Int             @default(10)
   /// cthulhuquarium/t-032 item 5 (t-027 dependency): tank-wide debris level,
   /// settled server-side like hunger. 0 = spotless.
-  debrisLevel   Int             @default(0)
-  lastCleanedAt DateTime?
-  User          User            @relation(fields: [userId], references: [id], onDelete: Cascade)
-  Stock         AquariumStock[]
-  Events        AquariumEvent[]
-  Sets          AquariumSet[]
-  Decor         AquariumDecor[]
-  Eggs          AquariumEgg[]
+  debrisLevel    Int             @default(0)
+  lastCleanedAt  DateTime?
+  /// cthulhuquarium/t-074: sticky flag for the first_spotless_tank milestone
+  /// (economy.yaml: "debris reaches 0 after having been >= 80"). Set true the
+  /// moment a settleTick ever pushes debrisLevel to
+  /// DEBRIS_SPOTLESS_MILESTONE_THRESHOLD or above, and never cleared again --
+  /// same "nothing here may ever decrease" discipline as the bestiary count
+  /// above, so a player who dirtied the tank once and cleaned it down across
+  /// several separate clean() calls still gets credit, not just one who
+  /// happens to clear an 80+ debris level in a single click-batch request.
+  debrisEverHigh Boolean         @default(false)
+  User           User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  Stock          AquariumStock[]
+  Events         AquariumEvent[]
+  Sets           AquariumSet[]
+  Decor          AquariumDecor[]
+  Eggs           AquariumEgg[]
 
   @@unique([userId, slug])
   @@index([userId])

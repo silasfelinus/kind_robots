@@ -16,10 +16,15 @@ import {
   conflictsWithEquippedIdleSet,
   DEBRIS_CLICK_CLEARS,
   DEBRIS_RANGE,
+  DEBRIS_SPOTLESS_MILESTONE_THRESHOLD,
   effectiveSizeCap,
   feedCoinRebate,
   firedBestiaryMilestones,
+  FIRST_FULL_TANK_MILESTONE,
+  FIRST_SPOTLESS_TANK_MILESTONE,
   isKnownSetPieceKind,
+  justFirstFullTank,
+  justFirstSpotlessTank,
   LAST_AQUARIUM_CONFIG,
   MAX_ACCRUAL_TICKS,
   MAX_CLEAN_CLICKS_PER_REQUEST,
@@ -834,6 +839,56 @@ assert.deepEqual(firedBestiaryMilestones(20, 25), [])
 
 console.log(
   '✅ firedBestiaryMilestones: crosses each bestiary breakpoint exactly once, handles multi-breakpoint jumps',
+)
+
+// --- justFirstFullTank / justFirstSpotlessTank: cthulhuquarium/t-074's ----
+// one-off landmark milestones ------------------------------------------------
+
+assert.deepEqual(FIRST_FULL_TANK_MILESTONE, {
+  id: 'first_full_tank',
+  slotsCapDelta: 0,
+})
+assert.deepEqual(FIRST_SPOTLESS_TANK_MILESTONE, {
+  id: 'first_spotless_tank',
+  slotsCapDelta: 0,
+})
+// DEBRIS_BANDS' own worst (filthy, 0.25x) band starts at 80 -- t-074's
+// threshold is that same number, not a second, independently-chosen one.
+assert.equal(DEBRIS_SPOTLESS_MILESTONE_THRESHOLD, 80)
+
+// justFirstFullTank: crosses effectiveSizeCap for the first time.
+assert.equal(justFirstFullTank(8, 10, 10), true)
+// Already at/over cap before this call -- must not re-fire.
+assert.equal(justFirstFullTank(10, 10, 10), false)
+assert.equal(justFirstFullTank(10, 12, 10), false)
+// Still under cap after -- no crossing yet.
+assert.equal(justFirstFullTank(5, 8, 10), false)
+// A single addition can jump straight past the cap -- still counts as the
+// crossing, same "landing on or past the threshold" rule as bestiary.
+assert.equal(justFirstFullTank(6, 15, 10), true)
+// Empty tank, zero cap edge case -- 0 is not < 0, so no crossing.
+assert.equal(justFirstFullTank(0, 0, 0), false)
+
+console.log(
+  '✅ justFirstFullTank: fires exactly on the crossing into effectiveSizeCap, never before or after',
+)
+
+// justFirstSpotlessTank: debris reaches 0 AND has ever hit the threshold.
+// Never been high -- cleaning to 0 does not count.
+assert.equal(justFirstSpotlessTank(false, 3, 0), false)
+// Been high, and this transition actually reaches 0 from a nonzero level.
+assert.equal(justFirstSpotlessTank(true, 3, 0), true)
+// Been high, but debris was already 0 before this call (a no-op clean, or
+// an idempotent re-check) -- nothing actually happened.
+assert.equal(justFirstSpotlessTank(true, 0, 0), false)
+// Been high, but this transition doesn't reach 0 -- not spotless yet.
+assert.equal(justFirstSpotlessTank(true, 10, 3), false)
+// Never been high and debris is already 0 -- still false, same reasoning
+// as the first case.
+assert.equal(justFirstSpotlessTank(false, 0, 0), false)
+
+console.log(
+  '✅ justFirstSpotlessTank: requires both the sticky debrisEverHigh flag and an actual nonzero-to-0 transition',
 )
 
 // --- mergeBestStats: the Ichthyonomicon's best-individual-seen record ------

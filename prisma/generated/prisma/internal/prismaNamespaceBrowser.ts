@@ -1988,7 +1988,8 @@ export const AquariumScalarFieldEnum = {
   setSlotsCap: 'setSlotsCap',
   sizeCap: 'sizeCap',
   debrisLevel: 'debrisLevel',
-  lastCleanedAt: 'lastCleanedAt'
+  lastCleanedAt: 'lastCleanedAt',
+  debrisEverHigh: 'debrisEverHigh'
 } as const
 
 export type AquariumScalarFieldEnum = (typeof AquariumScalarFieldEnum)[keyof typeof AquariumScalarFieldEnum]

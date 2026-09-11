@@ -17,12 +17,11 @@
 
   THE PANELS HAVE DISTINCT COLOUR IDENTITIES. Silas, 2026-09-11: the new
   dashboard's layout and content are right, but the individual sections need
-  more dynamism in their colour schemes. Each shelf therefore gets a stable
-  blend of the theme's primary, secondary, and accent inks. The six blends are
-  distinct without borrowing info/success/warning/error, whose semantic meaning
-  is reserved for status. The wash stays light enough for the artwork to lead,
-  and it follows whatever app theme is active instead of baking Storybook hex
-  values into this component.
+  more dynamism in their colour schemes. The first pass tried to get there with
+  tiny opacity shifts inside the house Storybook palette; on the real dashboard
+  those shifts were functionally invisible. Each shelf now wears one curated
+  built-in daisyUI theme instead, with a clearly visible primary/secondary wash.
+  The artwork and each entity tile's own theme still lead inside that frame.
 
   THE HEADER IS ONE ROW: a glyph, the shelf's name, its count, and the chevrons.
   It began as two glyphs and no words -- Silas, 2026-08-29: "Would love to
@@ -66,8 +65,8 @@
 -->
 <template>
   <section
-    class="flex h-full min-w-0 flex-col gap-1 kr-panel-flat p-2"
-    :class="surfaceTone.panel"
+    :data-theme="surfaceTone.theme"
+    class="flex h-full min-w-0 flex-col gap-1 kr-panel-flat border-2 border-primary/60 bg-linear-to-br from-primary/25 via-base-100 to-secondary/20 p-2 shadow-sm"
   >
     <header class="flex shrink-0 items-center gap-1">
       <!--
@@ -76,8 +75,7 @@
       -->
       <NuxtLink
         :to="seeAllHref"
-        class="flex min-w-0 shrink items-center gap-1 rounded transition-colors focus-visible:outline focus-visible:outline-2"
-        :class="surfaceTone.link"
+        class="flex min-w-0 shrink items-center gap-1 rounded text-primary transition-colors hover:text-primary/70 focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary"
         :title="`${label} — ${seeAllLabel}`"
         :aria-label="`${label} — ${seeAllLabel}`"
       >
@@ -132,22 +130,18 @@
       <span v-show="canScroll" class="flex shrink-0 items-center">
         <button
           type="button"
-          class="grid size-5 place-items-center rounded text-base-content/45 transition-colors disabled:opacity-25 focus-visible:outline focus-visible:outline-2"
-          :class="surfaceTone.control"
+          class="grid size-5 place-items-center rounded text-base-content/45 transition-colors hover:text-primary disabled:opacity-25 focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary"
           :disabled="atStart"
-          :aria-label="`Scroll ${label} backwards`
-          "
+          :aria-label="`Scroll ${label} backwards`"
           @click="scrollBy(-1)"
         >
           <Icon name="kind-icon:chevron-left" class="size-3.5" />
         </button>
         <button
           type="button"
-          class="grid size-5 place-items-center rounded text-base-content/45 transition-colors disabled:opacity-25 focus-visible:outline focus-visible:outline-2"
-          :class="surfaceTone.control"
+          class="grid size-5 place-items-center rounded text-base-content/45 transition-colors hover:text-primary disabled:opacity-25 focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary"
           :disabled="atEnd"
-          :aria-label="`Scroll ${label} forwards`
-          "
+          :aria-label="`Scroll ${label} forwards`"
           @click="scrollBy(1)"
         >
           <Icon name="kind-icon:chevron-right" class="size-3.5" />
@@ -356,58 +350,19 @@ const atStart = ref(true)
 const atEnd = ref(false)
 
 type SurfaceTone = {
-  panel: string
-  link: string
-  control: string
+  theme: string
 }
 
 const SURFACE_TONES: Record<string, SurfaceTone> = {
-  '/art': {
-    panel:
-      'border-secondary/30 bg-linear-to-br from-secondary/12 via-base-100 to-primary/6',
-    link:
-      'text-secondary hover:text-secondary/70 focus-visible:outline-secondary',
-    control: 'hover:text-secondary focus-visible:outline-secondary',
-  },
-  '/dreams': {
-    panel:
-      'border-primary/30 bg-linear-to-br from-primary/12 via-base-100 to-secondary/6',
-    link: 'text-primary hover:text-primary/70 focus-visible:outline-primary',
-    control: 'hover:text-primary focus-visible:outline-primary',
-  },
-  '/characters': {
-    panel:
-      'border-accent/30 bg-linear-to-br from-accent/14 via-base-100 to-primary/5',
-    link: 'text-accent hover:text-accent/70 focus-visible:outline-accent',
-    control: 'hover:text-accent focus-visible:outline-accent',
-  },
-  '/stories': {
-    panel:
-      'border-secondary/30 bg-linear-to-br from-secondary/8 via-base-100 to-accent/12',
-    link:
-      'text-secondary hover:text-secondary/70 focus-visible:outline-secondary',
-    control: 'hover:text-secondary focus-visible:outline-secondary',
-  },
-  '/rewards': {
-    panel:
-      'border-primary/30 bg-linear-to-br from-primary/8 via-base-100 to-accent/12',
-    link: 'text-primary hover:text-primary/70 focus-visible:outline-primary',
-    control: 'hover:text-primary focus-visible:outline-primary',
-  },
-  '/facets': {
-    panel:
-      'border-accent/30 bg-linear-to-br from-accent/10 via-base-100 to-secondary/10',
-    link: 'text-accent hover:text-accent/70 focus-visible:outline-accent',
-    control: 'hover:text-accent focus-visible:outline-accent',
-  },
+  '/art': { theme: 'nord' },
+  '/dreams': { theme: 'cupcake' },
+  '/characters': { theme: 'garden' },
+  '/stories': { theme: 'retro' },
+  '/rewards': { theme: 'bumblebee' },
+  '/facets': { theme: 'aqua' },
 }
 
-const DEFAULT_SURFACE_TONE: SurfaceTone = {
-  panel:
-    'border-primary/30 bg-linear-to-br from-primary/10 via-base-100 to-secondary/6',
-  link: 'text-primary hover:text-primary/70 focus-visible:outline-primary',
-  control: 'hover:text-primary focus-visible:outline-primary',
-}
+const DEFAULT_SURFACE_TONE: SurfaceTone = { theme: 'pastel' }
 
 const surfaceTone = computed(
   () => SURFACE_TONES[props.seeAllHref] ?? DEFAULT_SURFACE_TONE,

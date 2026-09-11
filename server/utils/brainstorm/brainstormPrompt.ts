@@ -134,6 +134,7 @@ function assortmentInstructions(
 
   const lines = [
     'Batch shape: ASSORTMENT with user-selected response lenses.',
+    'The selected lenses are an allow-list, not a starting point. Every candidate in this batch must use one of them.',
     'Each selected Auto lens must appear at least once. Each pinned count is an exact quota.',
   ]
 
@@ -151,9 +152,20 @@ function assortmentInstructions(
     )
   }
 
-  if (wildcardSlots > 0) {
+  // brainstorm/t-023: a lens selection is an allow-list, not a floor. Selecting
+  // only Dark humor on Auto used to produce one dark-humor candidate and N-1
+  // unselected ones, because every remaining slot was explicitly opened to
+  // "another valid response lens" -- the model was following instructions.
+  // Selected lenses now own every slot. Unselected lenses stay reachable only
+  // when the user pinned exact quotas that cannot fill the batch by themselves,
+  // since a pinned count is a ceiling as well as a floor.
+  if (wildcardSlots > 0 && automatic.length) {
     lines.push(
-      `${wildcardSlots} remaining wildcard slot${wildcardSlots === 1 ? '' : 's'} may use an Auto lens again or another valid response lens if it materially improves the batch, but must never exceed a pinned quota.`,
+      `Distribute the ${wildcardSlots} remaining slot${wildcardSlots === 1 ? '' : 's'} among the Auto lenses above, never exceeding a pinned quota. Do not introduce unselected response lenses.`,
+    )
+  } else if (wildcardSlots > 0) {
+    lines.push(
+      `Every selected lens carries an exact pinned quota, which leaves ${wildcardSlots} slot${wildcardSlots === 1 ? '' : 's'} unassigned. Fill ${wildcardSlots === 1 ? 'it' : 'them'} with whichever response lenses best fit the premise, never exceeding a pinned quota.`,
     )
   } else {
     lines.push(

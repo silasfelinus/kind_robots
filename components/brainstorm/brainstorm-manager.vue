@@ -29,29 +29,25 @@
           <h2 class="kr-text-black-2xl tracking-tight text-base-content sm:text-3xl">
             What are we trying to invent?
           </h2>
-          <p class="mt-2 max-w-3xl text-sm leading-6 text-base-content/65">
-            Give Brainstorm a premise, problem, joke setup, art target, or half-formed thought.
-            It will propose a batch. You keep the sparks and bully the beige ones into doing better.
-          </p>
-          <p
-            v-if="persona?.tagline"
-            class="kr-text-dim-xs-45 mt-1 italic"
-            data-testid="brainstorm-persona-tagline"
-          >
-            {{ persona.tagline }}
-          </p>
-        </div>
-
-        <div class="rounded-2xl border border-secondary/20 bg-secondary/10 px-4 py-3 text-sm text-base-content/75">
-          <p class="font-black text-secondary">Human taste stays in charge.</p>
-          <p class="mt-1 max-w-56 leading-5">The model makes options. None become anything else until you choose.</p>
         </div>
       </div>
 
       <div class="mt-5">
-        <label for="brainstorm-premise" class="kr-text-black-sm text-base-content">
-          Premise
-        </label>
+        <div class="flex flex-wrap items-baseline justify-between gap-2">
+          <label for="brainstorm-premise" class="kr-text-black-sm text-base-content">
+            Premise
+          </label>
+          <button
+            v-if="hasSessionWork"
+            type="button"
+            class="btn btn-ghost btn-sm h-auto min-h-8 rounded-full border border-base-content/10 bg-base-100 px-3 py-1.5"
+            :disabled="isGenerating"
+            data-testid="brainstorm-new-pitch"
+            @click="startNewPitch"
+          >
+            Start a new pitch
+          </button>
+        </div>
         <textarea
           id="brainstorm-premise"
           v-model="premiseModel"
@@ -251,7 +247,8 @@
           v-if="batchShape === 'assortment' && returnTypes.length"
           class="kr-text-dim-xs-45 mt-3 leading-5"
         >
-          Pinned quotas plus one slot for each Auto lens require at least {{ minimumMixResults }} ideas. Extra slots stay flexible.
+          Only the lenses you select are used. Pinned quotas are exact; the rest of the batch is
+          split among your Auto lenses. Needs at least {{ minimumMixResults }} ideas.
         </p>
       </details>
 
@@ -773,7 +770,7 @@
 
     <div
       v-if="activeCandidates.length"
-      class="grid grid-cols-[repeat(auto-fit,minmax(min(100%,20rem),1fr))] items-start gap-4"
+      class="grid grid-cols-[repeat(auto-fit,minmax(min(100%,20rem),1fr))] items-stretch gap-4"
       data-testid="brainstorm-candidates"
     >
       <BrainstormCandidateCard
@@ -1315,6 +1312,31 @@ function rejectCandidate(candidateId: string): void {
 
 function resetCandidate(candidateId: string): void {
   store.resetCandidateStatus(candidateId)
+}
+
+// brainstorm/t-023: the store has always exposed clearSession(), but nothing
+// ever called it, so switching premise left the previous pitch's batches and
+// kept ideas in place (they are persisted by the store's own deep watch).
+// Retyping the premise therefore produced a second batch stacked on top of an
+// unrelated first one, with no way to start clean.
+const hasSessionWork = computed(
+  () => batches.value.length > 0 || allKeptCandidates.value.length > 0,
+)
+
+function startNewPitch(): void {
+  // Clearing discards kept ideas, which are the expensive part of a session --
+  // confirm before throwing them away rather than making this a one-click loss.
+  const keptCount = allKeptCandidates.value.length
+  const detail = keptCount
+    ? ` You have ${keptCount} kept idea${keptCount === 1 ? '' : 's'} that will be discarded.`
+    : ''
+  if (
+    import.meta.client &&
+    !window.confirm(`Start a new pitch?${detail} Save this session first if you want to keep it.`)
+  ) {
+    return
+  }
+  store.clearSession()
 }
 
 function deleteCandidate(candidateId: string): void {

@@ -133,7 +133,7 @@
           <div class="grid gap-2">
             <input
               v-model="newColorName"
-              class="input input-bordered input-sm bg-base-200"
+              class="kr-input-sm bg-base-200"
               type="text"
               placeholder="Color name"
             />
@@ -141,7 +141,7 @@
             <div class="grid grid-cols-[1fr_auto] gap-2">
               <input
                 v-model="newColorValue"
-                class="input input-bordered input-sm bg-base-200 font-mono"
+                class="kr-input-sm bg-base-200 font-mono"
                 type="text"
                 placeholder="#55a9b5"
               />

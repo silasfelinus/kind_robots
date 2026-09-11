@@ -10,11 +10,11 @@
     <form class="flex flex-wrap items-end gap-2 kr-panel-compact" @submit.prevent="save">
       <label class="flex min-w-40 flex-1 flex-col gap-1">
         <span class="kr-text-black-xs">Name</span>
-        <input v-model="name" type="text" placeholder="Client name" class="input input-sm input-bordered w-full" />
+        <input v-model="name" type="text" placeholder="Client name" class="kr-input-sm w-full" />
       </label>
       <label class="flex min-w-40 flex-1 flex-col gap-1">
         <span class="kr-text-black-xs">Email (optional)</span>
-        <input v-model="email" type="email" placeholder="For receipt prefill" class="input input-sm input-bordered w-full" />
+        <input v-model="email" type="email" placeholder="For receipt prefill" class="kr-input-sm w-full" />
       </label>
       <button type="submit" class="kr-btn-primary-plain" :disabled="!name.trim()">
         {{ editingId ? 'Update' : 'Add client' }}

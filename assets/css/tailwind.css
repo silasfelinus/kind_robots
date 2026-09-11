@@ -1606,6 +1606,18 @@ section:has(div[class*='xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]'])
     @apply input w-full bg-base-200;
   }
 
+  /* The small (not full-width) sibling of .kr-input (interface-vision t-104
+   * slice 219): DaisyUI's compact `input-sm` size, previously hand-rolled as
+   * `input input-bordered input-sm` -- `input-bordered` is a dead legacy v4
+   * class in this repo's daisyUI v5 (dropped here the same way .kr-input
+   * already drops it), leaving `input input-sm` as the real applied shape.
+   * 54 occurrences across 25 files, almost always a filter/search-bar or
+   * compact inline field rather than a full form input -- distinct from
+   * .kr-input/.kr-input-muted's `w-full` shape, so not folded into either. */
+  .kr-input-sm {
+    @apply input input-sm;
+  }
+
   /* The page-header icon badge: a tinted `h-12 w-12` square housing a
    * page-header `<Icon>`, sitting beside the page title (interface-vision
    * t-104 slice 149) -- previously hand-rolled identically across 8

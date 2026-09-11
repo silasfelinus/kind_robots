@@ -17,7 +17,7 @@
         <input
           v-model="salonName"
           type="text"
-          class="input input-sm input-bordered w-full"
+          class="kr-input-sm w-full"
           @change="save"
         />
       </label>
@@ -28,7 +28,7 @@
           v-model="bookingLink"
           type="text"
           placeholder="Booking URL, phone, or however clients should reach out"
-          class="input input-sm input-bordered w-full"
+          class="kr-input-sm w-full"
           @change="save"
         />
       </label>
@@ -39,7 +39,7 @@
           v-model="replyContact"
           type="text"
           placeholder="Where replies should go"
-          class="input input-sm input-bordered w-full"
+          class="kr-input-sm w-full"
           @change="save"
         />
       </label>

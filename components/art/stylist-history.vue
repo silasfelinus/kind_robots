@@ -16,9 +16,9 @@
         v-model="query"
         type="text"
         placeholder="Search by client"
-        class="input input-sm input-bordered min-w-40 flex-1"
+        class="kr-input-sm min-w-40 flex-1"
       />
-      <input v-model="date" type="date" class="input input-sm input-bordered" />
+      <input v-model="date" type="date" class="kr-input-sm" />
       <button
         v-if="query || date"
         type="button"

@@ -179,7 +179,7 @@
         v-model="store.state.note"
         type="text"
         placeholder="Notes on this matchup (why the winner won)…"
-        class="input input-bordered input-sm flex-1"
+        class="kr-input-sm flex-1"
       />
       <button class="kr-btn-plain" @click="store.saveMatchup">Save matchup</button>
     </div>

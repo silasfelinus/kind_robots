@@ -26,7 +26,7 @@
       <div class="flex flex-wrap items-end gap-2">
         <label class="form-control">
           <span class="kr-label-xs">Ruler name</span>
-          <input v-model="rulerName" type="text" placeholder="Mo" class="input input-bordered input-sm w-28" />
+          <input v-model="rulerName" type="text" placeholder="Mo" class="kr-input-sm w-28" />
         </label>
         <label class="form-control">
           <span class="kr-label-xs">Title</span>
@@ -35,7 +35,7 @@
             type="text"
             list="ruler-honorific-suggestions"
             placeholder="Queen"
-            class="input input-bordered input-sm w-32"
+            class="kr-input-sm w-32"
           />
           <datalist id="ruler-honorific-suggestions">
             <option v-for="h in honorificSuggestions" :key="h" :value="h" />

@@ -799,7 +799,7 @@
               <input
                 v-model="interjection"
                 type="text"
-                class="input input-bordered input-sm flex-1 rounded-2xl bg-base-100 focus:border-primary"
+                class="kr-input-sm flex-1 rounded-2xl bg-base-100 focus:border-primary"
                 placeholder="Jump in as yourself…"
                 @keydown.enter.prevent="submitInterjection"
               />
@@ -816,7 +816,7 @@
               <input
                 v-model="narratorBeat"
                 type="text"
-                class="input input-bordered input-sm flex-1 rounded-2xl bg-base-100 focus:border-primary"
+                class="kr-input-sm flex-1 rounded-2xl bg-base-100 focus:border-primary"
                 placeholder="Add a stage direction or scene beat…"
                 @keydown.enter.prevent="submitNarratorBeat"
               />

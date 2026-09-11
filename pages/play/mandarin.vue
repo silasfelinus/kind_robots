@@ -94,7 +94,7 @@
               <div class="join w-full max-w-xl">
                 <input
                   v-model="newSetName"
-                  class="input input-bordered input-sm join-item min-w-0 flex-1"
+                  class="kr-input-sm join-item min-w-0 flex-1"
                   placeholder="Work phrases"
                   maxlength="80"
                 />
@@ -130,7 +130,7 @@
               <span class="label-text mb-1 font-semibold">Find Hanzi, pinyin, or English</span>
               <input
                 v-model="searchQuery"
-                class="input input-bordered input-sm w-full"
+                class="kr-input-sm w-full"
                 placeholder="说, shuō, speak, casino…"
                 autocomplete="off"
               />

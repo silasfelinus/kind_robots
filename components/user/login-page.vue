@@ -128,7 +128,7 @@
             >
               <Icon
                 name="kind-icon:lock"
-                class="h-5 w-5 shrink-0 text-secondary"
+                class="kr-icon-5 shrink-0 text-secondary"
               />
               <input
                 id="password"

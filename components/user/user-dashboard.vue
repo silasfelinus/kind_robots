@@ -145,7 +145,7 @@
                   <div class="flex items-center gap-2">
                     <Icon
                       name="kind-icon:jellybean"
-                      class="h-5 w-5 text-accent"
+                      class="kr-icon-5 text-accent"
                     />
                     <span class="kr-text-black-sm">Karma</span>
                   </div>
@@ -173,7 +173,7 @@
                   <div class="flex items-center gap-2">
                     <Icon
                       name="kind-icon:sparkles"
-                      class="h-5 w-5 text-secondary"
+                      class="kr-icon-5 text-secondary"
                     />
                     <span class="kr-text-black-sm">Mana</span>
                   </div>
@@ -204,7 +204,7 @@
                   <div class="flex items-center gap-2">
                     <Icon
                       name="kind-icon:trophy"
-                      class="h-5 w-5 text-success"
+                      class="kr-icon-5 text-success"
                     />
                     <span class="kr-text-black-sm">Achievements</span>
                   </div>
@@ -266,7 +266,7 @@
 
                 <div class="flex flex-col gap-2 kr-panel-flat p-4">
                   <label class="flex cursor-pointer items-center gap-2">
-                    <Icon name="kind-icon:eye" class="h-5 w-5 text-warning" />
+                    <Icon name="kind-icon:eye" class="kr-icon-5 text-warning" />
                     <span class="kr-text-black-sm">Show mature content</span>
                   </label>
 
@@ -292,7 +292,7 @@
 
                 <div class="flex flex-col gap-2 kr-panel-flat p-4">
                   <div class="flex items-center gap-2">
-                    <Icon name="kind-icon:server" class="h-5 w-5 text-info" />
+                    <Icon name="kind-icon:server" class="kr-icon-5 text-info" />
                     <span class="kr-text-black-sm">Server preferences</span>
                   </div>
 

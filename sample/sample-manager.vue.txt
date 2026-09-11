@@ -26,7 +26,7 @@
           v-if="isLoadingManager"
           class="loading loading-spinner loading-xs"
         />
-        <Icon v-else name="kind-icon:refresh" class="h-4 w-4" />
+        <Icon v-else name="kind-icon:refresh" class="kr-icon-4" />
         Refresh
       </button>
     </div>
@@ -56,7 +56,7 @@
           type="button"
           @click="goToGallery"
         >
-          <Icon name="kind-icon:arrow-left" class="h-4 w-4" />
+          <Icon name="kind-icon:arrow-left" class="kr-icon-4" />
           <span class="hidden sm:inline">Gallery</span>
         </button>
       </div>

@@ -133,6 +133,9 @@ jobs:
       - name: ArtImage offload contract
         run: npm run test:art-image-offload
 
+      - name: Animated art offload contract
+        run: npm run test:animated-art-offload
+
       - name: ESLint ratchet
         run: npm run test:lint-ratchet
 

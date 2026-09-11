@@ -35,6 +35,7 @@ import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 
 const HELPER = 'server/utils/artImageOffload.ts'
+const ENCODING = 'server/utils/artImageEncoding.ts'
 const COMPLETE = 'server/api/art/queue/[id]/complete.post.ts'
 const BACKFILL = 'utils/scripts/offloadArtImageData.ts'
 const PLACEMENT = 'server/utils/artImageFilePath.ts'
@@ -211,6 +212,52 @@ check(
     `hashes ArtImage.imageData against the Comfy completion proof. Offloading ` +
     `first nulls the column that assertion reads and rejects every ` +
     `proof-carrying job.`,
+)
+
+/* -- 5b. the transcode may not decide by extension alone -------------------- */
+//
+// 'webp' is both the still format everything is transcoded INTO and the
+// container ComfyUI's SaveAnimatedWEBP writes every 'webp' video preset into
+// (wan-startup-webp, the default for engine 'wan', is what every Scene
+// Animator job uses). So an extension-keyed clip check cannot tell a still
+// from a clip, and `sharp(buffer)` defaults to `pages: 1` -- it keeps frame 0
+// and silently drops the rest. On 2026-09-11 that flattened Scene Animator's
+// first render to a still and then nulled the only animated copy.
+//
+// The behavioural proof lives in verifyAnimatedArtOffload.test.ts; this pins
+// that the helper still asks about frames at all.
+
+const encoding = read(ENCODING)
+
+check(
+  /resolveOffloadEncoding\s*\(/.test(helper),
+  `${HELPER} must resolve its bytes through resolveOffloadEncoding in ` +
+    `${ENCODING}. Re-encoding inline here puts the destructive decision behind ` +
+    `a prisma import, where the DB-free contract workflow cannot test it.`,
+)
+
+check(
+  !/\bsharp\b/.test(helper),
+  `${HELPER} must not transcode directly — that belongs in ${ENCODING}, which ` +
+    `imports no database and can therefore be exercised with real bytes.`,
+)
+
+check(
+  /\bpages\b/.test(encoding) && /\.metadata\s*\(/.test(encoding),
+  `${ENCODING} must read sharp metadata's \`pages\` before transcoding. ` +
+    `Classifying clips by file extension alone cannot see an animated WebP ` +
+    `or GIF, and sharp then re-encodes frame 0 and discards the rest — ` +
+    `silently, and after the read-back guard has already approved the write.`,
+)
+
+const metadataIndex = encoding.search(/\.metadata\s*\(/)
+const encodeIndex = encoding.search(/\.webp\s*\(\s*\{\s*quality/)
+
+check(
+  metadataIndex !== -1 && encodeIndex !== -1 && metadataIndex < encodeIndex,
+  `${ENCODING} must inspect the frame count BEFORE re-encoding. Checking ` +
+    `after the transcode inspects the flattened copy, which always reports ` +
+    `one page.`,
 )
 
 /* -- 6. no route writes a bare filename into imagePath ---------------------- */

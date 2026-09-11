@@ -31,18 +31,10 @@
 import path from 'node:path'
 import fs from 'node:fs/promises'
 import { createHash } from 'node:crypto'
-import sharp from 'sharp'
 import prisma from './prisma'
 import { resolveArtImageFilePath } from './artImageFilePath'
+import { resolveOffloadEncoding } from './artImageEncoding'
 import type { EntityArtDb } from './entityArt'
-
-// Matches exportPageBackdropArt.ts and file.get.ts: 82 measured 8.3x smaller
-// than the source PNG with no visible artefacts at card size.
-const WEBP_QUALITY = 82
-
-// Clips are stored verbatim. sharp cannot decode them, and re-encoding a video
-// to WebP would silently turn a clip into a still.
-const VIDEO_TYPES = new Set(['mp4', 'webm', 'mov', 'mkv'])
 
 export type OffloadResult = {
   offloaded: boolean
@@ -145,12 +137,10 @@ export async function offloadArtImageBytes(
     }
 
     const storedType = (image.fileType || 'png').toLowerCase()
-    const isVideo = VIDEO_TYPES.has(storedType)
-    const extension = isVideo ? storedType : 'webp'
-
-    const bytes = isVideo
-      ? original
-      : await sharp(original).webp({ quality: WEBP_QUALITY }).toBuffer()
+    const { extension, bytes, keepVerbatim } = await resolveOffloadEncoding(
+      storedType,
+      original,
+    )
 
     /*
      * The destination follows conductor's URL-MAPPING.md convention —
@@ -199,7 +189,9 @@ export async function offloadArtImageBytes(
       data: {
         imagePath: servedPath,
         imageData: null,
-        ...(isVideo ? {} : { fileType: 'webp' }),
+        // An animated gif kept verbatim is still a gif; only a transcoded
+        // still actually became a webp.
+        ...(keepVerbatim ? {} : { fileType: 'webp' }),
       },
     })
 

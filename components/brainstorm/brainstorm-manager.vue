@@ -236,7 +236,7 @@
                 :max="BRAINSTORM_MAX_RESULTS"
                 :value="returnTypeCount(option.id) ?? ''"
                 placeholder="Auto"
-                class="input input-bordered input-sm w-24 bg-base-100"
+                class="kr-input-sm w-24 bg-base-100"
                 :disabled="isGenerating"
                 @input="updateReturnTypeCount(option.id, $event)"
               />

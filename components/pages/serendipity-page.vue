@@ -60,7 +60,7 @@
         </span>
         <input
           v-model="relayInput"
-          class="input input-bordered input-sm w-full"
+          class="kr-input-sm w-full"
           placeholder="http://localhost:4173"
           @change="saveRelay"
         />
@@ -89,7 +89,7 @@
       <form class="mt-3 flex gap-2" @submit.prevent="send(utterance)">
         <input
           v-model="utterance"
-          class="input input-bordered input-sm flex-1"
+          class="kr-input-sm flex-1"
           placeholder="Serendipity, turn butterflies on"
         />
         <button class="kr-btn-primary-plain" type="submit">Send</button>

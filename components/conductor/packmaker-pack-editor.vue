@@ -62,7 +62,7 @@
         <input
           v-model="draft.title"
           type="text"
-          class="input input-bordered input-sm"
+          class="kr-input-sm"
           @input="syncIdFromTitle"
         />
       </label>
@@ -71,7 +71,7 @@
         <input
           v-model="draft.id"
           type="text"
-          class="input input-bordered input-sm font-mono"
+          class="kr-input-sm font-mono"
           :disabled="editingExisting"
           @input="idTouched = true"
         />
@@ -165,7 +165,7 @@
             <input
               v-model="item.draftPayload.title"
               type="text"
-              class="input input-bordered input-sm"
+              class="kr-input-sm"
               @input="item.id = slugify(item.draftPayload.title)"
             />
           </label>

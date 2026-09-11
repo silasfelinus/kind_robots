@@ -33,7 +33,7 @@
           </div>
 
           <div class="flex min-w-0 flex-1 items-center gap-2 lg:flex-none">
-            <label class="input input-bordered input-sm flex min-w-0 flex-1 items-center gap-1.5 bg-base-100 lg:w-72">
+            <label class="kr-input-sm flex min-w-0 flex-1 items-center gap-1.5 bg-base-100 lg:w-72">
               <Icon name="kind-icon:search" class="h-3.5 w-3.5 shrink-0 text-base-content/40" aria-hidden="true" />
               <input
                 ref="searchInputRef"

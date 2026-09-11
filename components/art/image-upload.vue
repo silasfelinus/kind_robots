@@ -155,7 +155,7 @@
               <input
                 v-model.trim="imageForm.designer"
                 type="text"
-                class="input input-bordered input-sm"
+                class="kr-input-sm"
                 :disabled="isUploading"
                 placeholder="who made this beautiful little menace?"
               />
@@ -166,7 +166,7 @@
               <input
                 v-model.trim="imageForm.genres"
                 type="text"
-                class="input input-bordered input-sm"
+                class="kr-input-sm"
                 :disabled="isUploading"
                 placeholder="gothic, surreal, sci-fi"
               />
@@ -197,7 +197,7 @@
               <input
                 v-model.trim="imageForm.checkpoint"
                 type="text"
-                class="input input-bordered input-sm"
+                class="kr-input-sm"
                 :disabled="isUploading"
                 placeholder="model checkpoint"
               />
@@ -208,7 +208,7 @@
               <input
                 v-model.trim="imageForm.sampler"
                 type="text"
-                class="input input-bordered input-sm"
+                class="kr-input-sm"
                 :disabled="isUploading"
                 placeholder="Euler a, DPM++ 2M, etc."
               />
@@ -219,7 +219,7 @@
               <input
                 v-model.number="imageForm.seed"
                 type="number"
-                class="input input-bordered input-sm"
+                class="kr-input-sm"
                 :disabled="isUploading"
               />
             </label>
@@ -230,7 +230,7 @@
                 v-model.number="imageForm.steps"
                 type="number"
                 min="1"
-                class="input input-bordered input-sm"
+                class="kr-input-sm"
                 :disabled="isUploading"
               />
             </label>
@@ -241,7 +241,7 @@
                 v-model.number="imageForm.cfg"
                 type="number"
                 min="0"
-                class="input input-bordered input-sm"
+                class="kr-input-sm"
                 :disabled="isUploading"
               />
             </label>
@@ -252,7 +252,7 @@
                 v-model.number="imageForm.rarity"
                 type="number"
                 min="0"
-                class="input input-bordered input-sm"
+                class="kr-input-sm"
                 :disabled="isUploading"
               />
             </label>
@@ -262,7 +262,7 @@
               <input
                 v-model.trim="imageForm.serverName"
                 type="text"
-                class="input input-bordered input-sm"
+                class="kr-input-sm"
                 :disabled="isUploading"
                 placeholder="A1111, Comfy, Flux…"
               />
@@ -273,7 +273,7 @@
               <input
                 v-model.trim="imageForm.serverUrl"
                 type="text"
-                class="input input-bordered input-sm"
+                class="kr-input-sm"
                 :disabled="isUploading"
                 placeholder="optional source endpoint"
               />

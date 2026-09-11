@@ -76,7 +76,7 @@
           </div>
 
           <label
-            class="input input-bordered input-sm mt-3 flex items-center gap-2 rounded-2xl bg-base-100"
+            class="kr-input-sm mt-3 flex items-center gap-2 rounded-2xl bg-base-100"
           >
             <Icon name="kind-icon:search" class="kr-icon-4 opacity-60" />
             <input
@@ -393,7 +393,7 @@
                 type="number"
                 min="1"
                 max="10"
-                class="input input-bordered input-sm rounded-2xl bg-base-100"
+                class="kr-input-sm rounded-2xl bg-base-100"
               />
             </label>
             <label class="form-control">
@@ -406,7 +406,7 @@
                 min="300"
                 max="4000"
                 step="100"
-                class="input input-bordered input-sm rounded-2xl bg-base-100"
+                class="kr-input-sm rounded-2xl bg-base-100"
               />
             </label>
             <label class="form-control">

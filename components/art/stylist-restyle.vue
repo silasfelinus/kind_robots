@@ -36,7 +36,7 @@
           type="text"
           list="stylist-client-suggestions"
           placeholder="Whose hair are we styling?"
-          class="input input-sm input-bordered w-full"
+          class="kr-input-sm w-full"
         />
         <datalist id="stylist-client-suggestions">
           <option

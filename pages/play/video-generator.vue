@@ -267,7 +267,7 @@
               min="64"
               max="2048"
               step="8"
-              class="input input-bordered input-sm w-full"
+              class="kr-input-sm w-full"
             />
           </div>
           <div class="space-y-1">
@@ -278,7 +278,7 @@
               min="64"
               max="2048"
               step="8"
-              class="input input-bordered input-sm w-full"
+              class="kr-input-sm w-full"
             />
           </div>
           <div class="space-y-1">
@@ -299,7 +299,7 @@
               v-model="seedInput"
               type="number"
               min="0"
-              class="input input-bordered input-sm w-full"
+              class="kr-input-sm w-full"
             />
           </div>
         </div>

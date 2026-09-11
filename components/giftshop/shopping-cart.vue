@@ -91,7 +91,7 @@
                 type="number"
                 min="1"
                 max="25"
-                class="input input-sm input-bordered w-20"
+                class="kr-input-sm w-20"
                 :disabled="cartStore.loading"
                 @change="updateQuantity(item.id, item.quantity)"
               />

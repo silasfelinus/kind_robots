@@ -40,7 +40,7 @@
       class="mt-3 grid gap-2 lg:grid-cols-[minmax(0,1fr)_minmax(12rem,18rem)]"
     >
       <label
-        class="input input-sm input-bordered flex items-center gap-2 rounded-2xl bg-base-100"
+        class="kr-input-sm flex items-center gap-2 rounded-2xl bg-base-100"
       >
         <Icon name="kind-icon:search" class="kr-icon-4 opacity-60" />
         <input

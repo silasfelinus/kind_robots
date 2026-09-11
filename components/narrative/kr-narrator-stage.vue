@@ -81,7 +81,7 @@
         <input
           v-model="narratorMessage"
           type="text"
-          class="input input-bordered input-sm min-w-0 flex-1 rounded-2xl bg-base-100 text-sm"
+          class="kr-input-sm min-w-0 flex-1 rounded-2xl bg-base-100 text-sm"
           :placeholder="narratorPlaceholder"
           :disabled="!canUseNarrator || isNarratorResponding"
           @keydown.enter.prevent="sendNarratorMessage"

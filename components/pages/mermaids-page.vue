@@ -131,7 +131,7 @@
               v-if="editing"
               v-model="draft.amazonLabel"
               aria-label="Amazon button label"
-              class="input input-bordered input-sm min-w-48 flex-1"
+              class="kr-input-sm min-w-48 flex-1"
             />
           </div>
 

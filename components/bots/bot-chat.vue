@@ -255,7 +255,7 @@
 
             <input
               v-model="modelName"
-              class="input input-bordered input-sm bg-base-200"
+              class="kr-input-sm bg-base-200"
               placeholder="Optional model override"
             />
           </label>
@@ -267,7 +267,7 @@
 
             <input
               v-model.number="maxTokens"
-              class="input input-bordered input-sm bg-base-200"
+              class="kr-input-sm bg-base-200"
               type="number"
               min="128"
               step="128"

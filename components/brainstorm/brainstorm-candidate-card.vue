@@ -65,7 +65,7 @@
             :id="`${candidate.id}-title`"
             ref="editTitleInput"
             v-model="draftTitle"
-            class="input input-bordered input-sm w-full font-bold"
+            class="kr-input-sm w-full font-bold"
             maxlength="120"
             placeholder="Optional title"
             :disabled="disabled"

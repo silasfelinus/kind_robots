@@ -19,7 +19,7 @@
           type="text"
           list="calculator-client-suggestions"
           placeholder="Client name"
-          class="input input-sm input-bordered w-full"
+          class="kr-input-sm w-full"
         />
         <datalist id="calculator-client-suggestions">
           <option
@@ -32,7 +32,7 @@
 
       <label class="flex flex-col gap-1">
         <span class="kr-text-black-xs text-base-content">Date</span>
-        <input v-model="date" type="date" class="input input-sm input-bordered w-full" />
+        <input v-model="date" type="date" class="kr-input-sm w-full" />
       </label>
 
       <label class="flex flex-col gap-1">
@@ -42,7 +42,7 @@
           type="number"
           min="0"
           step="5"
-          class="input input-sm input-bordered w-full"
+          class="kr-input-sm w-full"
         />
       </label>
 
@@ -53,7 +53,7 @@
           type="number"
           min="0"
           step="1"
-          class="input input-sm input-bordered w-full"
+          class="kr-input-sm w-full"
         />
       </label>
     </div>

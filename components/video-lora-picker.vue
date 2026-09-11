@@ -132,7 +132,7 @@
             min="-2"
             max="2"
             step="0.05"
-            class="input input-bordered input-sm w-full"
+            class="kr-input-sm w-full"
             :aria-label="`${resourceLabel(entry.resource)} strength value`"
             @input="setStrength(entry.resourceId, $event)"
           />
@@ -163,7 +163,7 @@
         <input
           v-model="search"
           type="search"
-          class="input input-bordered input-sm min-w-52 flex-1"
+          class="kr-input-sm min-w-52 flex-1"
           placeholder="Search LoRAs by name, path, or trigger word…"
         />
         <span class="kr-text-faded-xs-55">

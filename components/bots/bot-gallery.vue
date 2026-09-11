@@ -289,7 +289,7 @@
           </div>
 
           <select
-            class="select select-bordered w-full bg-base-200"
+            class="kr-select-muted"
             :value="botStore.currentBot?.id ?? ''"
             aria-label="Select bot"
             @change="selectBotFromEvent"

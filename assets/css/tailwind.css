@@ -1618,6 +1618,27 @@ section:has(div[class*='xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]'])
     @apply input input-sm;
   }
 
+  /* The compact `input-xs` sibling of .kr-input-sm (interface-vision t-104
+   * slice 234): previously hand-rolled as `input input-bordered input-xs` --
+   * `input-bordered` is the same dead legacy v4 class .kr-input-sm already
+   * drops, leaving `input input-xs` as the real applied shape. 11
+   * occurrences across 2 files (build-bench.vue's per-side inference
+   * config fields, stylist-client-gallery.vue's compact filters). */
+  .kr-input-xs {
+    @apply input input-xs;
+  }
+
+  /* The `select` counterpart to .kr-input-muted (interface-vision t-104
+   * slice 234): the same full-width DaisyUI select shape on the muted
+   * base-200 background -- previously hand-rolled as `select
+   * select-bordered w-full bg-base-200`; `select-bordered` is the same dead
+   * legacy v4 class .kr-input/.kr-input-sm already drop from their input
+   * counterparts, leaving `select w-full bg-base-200` as the real applied
+   * shape. 10 occurrences across 8 files. */
+  .kr-select-muted {
+    @apply select w-full bg-base-200;
+  }
+
   /* The page-header icon badge: a tinted `h-12 w-12` square housing a
    * page-header `<Icon>`, sitting beside the page title (interface-vision
    * t-104 slice 149) -- previously hand-rolled identically across 8

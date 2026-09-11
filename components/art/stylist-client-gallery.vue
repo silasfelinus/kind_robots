@@ -33,7 +33,7 @@
         <span class="kr-text-bold-xs">Folder</span>
         <input
           v-model="uploadFolder"
-          class="input input-bordered input-xs"
+          class="kr-input-xs"
           placeholder="general"
         />
       </label>
@@ -51,7 +51,7 @@
         <span class="kr-text-bold-xs">Caption</span>
         <input
           v-model="uploadCaption"
-          class="input input-bordered input-xs"
+          class="kr-input-xs"
           placeholder="Color, formula, date, or notes"
         />
       </label>

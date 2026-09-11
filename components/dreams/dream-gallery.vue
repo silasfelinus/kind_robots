@@ -349,7 +349,7 @@
           </div>
 
           <select
-            class="select select-bordered w-full bg-base-200"
+            class="kr-select-muted"
             :value="dreamStore.selectedDream?.id ?? ''"
             aria-label="Select Dream"
             @change="selectDreamFromEvent"

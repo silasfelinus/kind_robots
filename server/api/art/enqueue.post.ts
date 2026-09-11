@@ -113,6 +113,11 @@ type ArtEnqueueRequest = {
   }> | null
   checkpointResourceId?: number | null
   loraResourceIds?: number[] | null
+  // Kontext base-UNet override (coloring-book/t-039). `.gguf` keeps the
+  // UnetLoaderGGUF path, `.safetensors` switches to core UNETLoader. Unset
+  // preserves the previous hardcoded default.
+  unetName?: string | null
+  unetWeightDtype?: string | null
   designer?: string | null
   isPublic?: boolean | null
   isMature?: boolean | null
@@ -669,6 +674,12 @@ function buildJobPayload(
       loraName: body.loraName ?? null,
       loraStrength: body.loraStrength ?? null,
       loras: body.loras ?? null,
+      // Optional base-UNet override. Exists so the Kontext checkpoint can be
+      // swapped without a deploy while the corrupted-noise defect
+      // (coloring-book/t-039) is bisected -- the UNet was hardcoded, so "is the
+      // GGUF quant the cause?" was untestable. Unset keeps the default.
+      unetName: body.unetName ?? null,
+      unetWeightDtype: body.unetWeightDtype ?? null,
     })
     return {
       jobEngine: 'COMFY',

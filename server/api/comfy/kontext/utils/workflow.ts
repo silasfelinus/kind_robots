@@ -59,6 +59,22 @@ export type KontextWorkflowInput = {
   loraStrength?: number | null
   // Multiple stacked LoRAs, applied in order. Supersedes the pair above.
   loras?: LoraSelectionInput[] | null
+  // Optional base-UNet override (cthulhuquarium art audit / coloring-book t-039,
+  // ai-art-academy t-079). The Kontext UNet was hardcoded to the GGUF-quantised
+  // flux1-kontext-dev-Q5_K_M.gguf, which made it impossible to answer the one
+  // question that matters about the corrupted-noise defect: is the quantised
+  // checkpoint the cause? A plain Kontext call with no LoRA at all renders pure
+  // static (ArtJob 21693), so the fault is upstream of the LoRA branch and the
+  // quantised UNet is the leading suspect -- but it could not be swapped out to
+  // check.
+  //
+  // Pass a `.gguf` name to keep the UnetLoaderGGUF path, or a `.safetensors`
+  // name to load through core ComfyUI's UNETLoader instead. Unset preserves the
+  // exact previous behaviour, so no existing caller changes.
+  unetName?: string | null
+  // Weight dtype for the non-GGUF UNETLoader path. Defaults to fp8_e4m3fn,
+  // which matches the fp8-scaled Kontext checkpoint in the Resource library.
+  unetWeightDtype?: string | null
 }
 
 export const DEFAULT_KONTEXT_WIDTH = 1024
@@ -85,6 +101,43 @@ function resolveSeed(seed?: number | null): number {
 
 function clamp(value: number, min: number, max: number): number {
   return Math.min(max, Math.max(min, value))
+}
+
+const DEFAULT_KONTEXT_UNET = 'flux1-kontext-dev-Q5_K_M.gguf'
+const DEFAULT_KONTEXT_UNET_WEIGHT_DTYPE = 'fp8_e4m3fn'
+
+/**
+ * Node 59, the base UNet the whole Kontext graph hangs off.
+ *
+ * GGUF checkpoints need the ComfyUI-GGUF node pack's `UnetLoaderGGUF`; ordinary
+ * `.safetensors` weights need core ComfyUI's `UNETLoader`, which additionally
+ * wants a weight dtype. Feeding a `.safetensors` name to the GGUF loader (or the
+ * reverse) fails at graph execution, so the file extension picks the node rather
+ * than the caller having to know which is which.
+ *
+ * Default is unchanged from when this was inlined, so callers that pass nothing
+ * get exactly the previous graph.
+ */
+function buildKontextUnetLoader(input: KontextWorkflowInput): ComfyWorkflowNode {
+  const unetName = input.unetName?.trim() || DEFAULT_KONTEXT_UNET
+
+  if (unetName.toLowerCase().endsWith('.gguf')) {
+    return {
+      inputs: { unet_name: unetName },
+      class_type: 'UnetLoaderGGUF',
+      _meta: { title: 'Unet Loader (GGUF)' },
+    }
+  }
+
+  return {
+    inputs: {
+      unet_name: unetName,
+      weight_dtype:
+        input.unetWeightDtype?.trim() || DEFAULT_KONTEXT_UNET_WEIGHT_DTYPE,
+    },
+    class_type: 'UNETLoader',
+    _meta: { title: 'Load Diffusion Model' },
+  }
 }
 
 export function buildKontextWorkflow(
@@ -224,11 +277,7 @@ export function buildKontextWorkflow(
       class_type: 'ReferenceLatent',
       _meta: { title: 'ReferenceLatent' },
     },
-    '59': {
-      inputs: { unet_name: 'flux1-kontext-dev-Q5_K_M.gguf' },
-      class_type: 'UnetLoaderGGUF',
-      _meta: { title: 'Unet Loader (GGUF)' },
-    },
+    '59': buildKontextUnetLoader(input),
     '60': {
       inputs: {
         detail_amount: 0.06,

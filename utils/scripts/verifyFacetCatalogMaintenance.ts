@@ -272,20 +272,21 @@ for (const required of [
   assert.ok(entityArt.includes(required), `Entity art is missing ${required}`)
 }
 
-// Was "must expose canonical icon, card, and hero variants" (256/512/1280).
-// Those slots are rejected at enqueue now, so the editor offers the primary
-// alone; entityArt.ts still declares the retired configs above because
-// completion and history reads share them.
+// Was "must expose canonical icon, card, and hero variants" (256/512/1280),
+// then a literal imagePath/1024 slot. Those retired slots are rejected at
+// enqueue now, and the editor names no slot at all: its roster comes from the
+// entity art endpoint via listEntityArtSlots, which reads the same table the
+// enqueue gate reads. entityArt.ts still declares the retired configs above
+// because completion and history reads share them.
 assert.ok(
-  editor.includes("field: 'imagePath'") && editor.includes('width: 1024'),
-  'Facet editor must expose the primary art slot.',
+  editor.includes('entity-type="facet"') && editor.includes(':entity="facet"'),
+  'Facet editor must mount the entity art manager for the Facet.',
 )
-for (const retired of ["field: 'iconPath'", "field: 'cardPath'", "field: 'heroPath'"]) {
-  assert.ok(
-    !editor.includes(retired),
-    `Facet editor still offers ${retired}, which the enqueue gate rejects.`,
-  )
-}
+assert.ok(
+  !editor.includes(':slots="['),
+  'Facet editor hardcodes an art slot array again; the roster must come from ' +
+    'the endpoint so a retired slot cannot outlive the enqueue gate.',
+)
 assert.ok(
   !manager.includes('useFacetArtRequestStore') &&
     !editor.includes('useFacetArtRequestStore') &&

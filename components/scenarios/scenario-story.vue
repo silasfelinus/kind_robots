@@ -75,36 +75,6 @@
       v-if="selectedScenario"
       entity-type="scenario"
       :entity="selectedScenario"
-      :slots="[
-        {
-          field: 'imagePath',
-          label: 'Scenario image',
-          aspect: '16 / 9',
-          width: 1536,
-          height: 864,
-        },
-        {
-          field: 'iconPath',
-          label: 'Icon',
-          aspect: '1 / 1',
-          width: 256,
-          height: 256,
-        },
-        {
-          field: 'cardPath',
-          label: 'Card',
-          aspect: '2 / 3',
-          width: 512,
-          height: 768,
-        },
-        {
-          field: 'heroPath',
-          label: 'Hero',
-          aspect: '16 / 9',
-          width: 1280,
-          height: 720,
-        },
-      ]"
     />
 
     <article

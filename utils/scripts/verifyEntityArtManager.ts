@@ -60,6 +60,51 @@ expectContains('server/utils/entityArt.ts', [
   'entityArtHistoryPrefix',
 ])
 
+/*
+ * The slot collapse, enforced from the client side. ENTITY_FIELDS retires
+ * card/hero/icon and prepareEntityArtEnqueue refuses to generate them, so a
+ * call site that hands over its own slot array offers tabs the server will
+ * reject -- which is exactly what every project surface was still doing months
+ * later. The roster comes from the endpoint, retired slots ride in the
+ * inspiration loop, and an inspiration can be promoted back into the primary.
+ */
+expectContains('components/art/entity-art-manager.vue', [
+  'serverSlots.value = response.data.slots || []',
+  'const editableSlots = computed(() =>',
+  "slide.kind === 'inspiration'",
+  '/promote`',
+  'canPromoteActiveSlide',
+  '.art-stage-image',
+  'object-fit: contain;',
+])
+
+expectContains('server/utils/entityArt.ts', [
+  'export function listEntityArtSlots(',
+  'retired: config.retired === true,',
+])
+
+expectContains('server/api/art/entities/[entityType]/[id].get.ts', [
+  'slots: listEntityArtSlots(target.entityType)',
+])
+
+expectContains('server/api/art/entities/[entityType]/[id]/promote.post.ts', [
+  'applyEntityArtImage',
+  'entityType_entityId_artImageId',
+  'target.config.retired',
+])
+
+for (const callSite of [
+  'components/bots/bot-chat.vue',
+  'components/characters/character-chat.vue',
+  'components/rewards/reward-encounter.vue',
+  'components/facets/facet-editor.vue',
+  'components/scenarios/scenario-story.vue',
+  'components/conductor/project-detail.vue',
+  'components/pages/conductor-page.vue',
+]) {
+  expectOmits(callSite, [':slots="['])
+}
+
 expectContains('components/art/entity-art-manager.vue', [
   'Queued as ArtJob',
   'startPolling(activeJobId)',
@@ -90,7 +135,6 @@ expectContains('components/conductor/project-detail.vue', [
   'data-project-notes',
   '@container (min-width: 72rem)',
   'grid-template-columns: minmax(0, 3fr) minmax(22rem, 2fr);',
-  'height: 20vh;',
   'v-model="projectTaskText"',
   'taskStatusSummary(selectedProject)',
   '<progress',
@@ -113,7 +157,8 @@ const projectDetailOrder = [
 if (
   projectDetailOrder.some((index) => index < 0) ||
   projectDetailOrder.some(
-    (index, position) => position > 0 && index <= projectDetailOrder[position - 1]!,
+    (index, position) =>
+      position > 0 && index <= projectDetailOrder[position - 1]!,
   )
 ) {
   throw new Error(
@@ -126,7 +171,9 @@ if (
     projectDetailSource,
   )
 ) {
-  throw new Error('Project roadmap must be an expandable container open by default.')
+  throw new Error(
+    'Project roadmap must be an expandable container open by default.',
+  )
 }
 
 for (const marker of ['data-project-milestones', 'data-project-notes']) {
@@ -136,16 +183,53 @@ for (const marker of ['data-project-milestones', 'data-project-notes']) {
   if (
     detailsStart < 0 ||
     detailsEnd < 0 ||
-    /\sopen(?:\s|>)/.test(projectDetailSource.slice(detailsStart, detailsEnd + 1))
+    /\sopen(?:\s|>)/.test(
+      projectDetailSource.slice(detailsStart, detailsEnd + 1),
+    )
   ) {
     throw new Error(`${marker} must remain collapsed by default.`)
   }
 }
 
-if (!/<section class="kr-panel-flat overflow-hidden" data-project-profile>/.test(projectDetailSource)) {
-  throw new Error('Project Profile must stay always open rather than returning to a disclosure.')
+if (
+  !/<section class="kr-panel-flat overflow-hidden" data-project-profile>/.test(
+    projectDetailSource,
+  )
+) {
+  throw new Error(
+    'Project Profile must stay always open rather than returning to a disclosure.',
+  )
 }
 
+/*
+ * Every conductor surface that renders a roadmap has to be able to act on the
+ * task it is showing. A gate opened on either one used to be answerable only
+ * from the For You home surface (Silas, 2026-09-11: "I cannot actually respond
+ * to tasks, I can't clear tasks that are human gated").
+ */
+expectContains('components/conductor/task-responder.vue', [
+  'conductorStore.submitTaskAction(',
+  "runTaskAction('answer')",
+  "runTaskAction('approve')",
+  "runTaskAction('reject')",
+  "runTaskAction('comment')",
+  'sendTaskNote',
+  'todoStore.createTodo(',
+])
+
+for (const roadmapSurface of [
+  'components/conductor/project-detail.vue',
+  'components/pages/conductor-page.vue',
+]) {
+  expectContains(roadmapSurface, ['<TaskResponder', ':task="task"'])
+}
+
+/*
+ * project-detail.vue used to reach into entity-art-manager.vue by Tailwind
+ * class string to hide one of its two image viewers and clamp the other to
+ * 20vh, which is what left project art unreadable with dead space under it.
+ * The child owns one stage now; these selectors must not come back.
+ */
 expectOmits('components/conductor/project-detail.vue', [
   'Feature Wishlist',
   'projectTaskTitle',
@@ -154,6 +238,11 @@ expectOmits('components/conductor/project-detail.vue', [
   'min-h-[200px]',
   'sm:grid-cols-2',
   'xl:grid-cols-',
+  '.mt-3.grid.gap-3',
+  '.group.relative.mt-3.min-h-40',
+  'aspect-ratio: auto !important',
+  "field: 'heroPath'",
+  "field: 'cardPath'",
 ])
 
 expectContains('components/pages/conductor-manager.vue', [

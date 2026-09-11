@@ -292,16 +292,29 @@ async function main(): Promise<void> {
     '<FacetProfileEditor v-model="createForm" />',
   )
 
-  // The art slots were imagePath + iconPath + cardPath + heroPath. Only the
-  // primary is generated now; the retired fields are rejected at enqueue, so
-  // offering their upload slots here would have been three buttons that 400.
+  /*
+   * The art slots were imagePath + iconPath + cardPath + heroPath. Only the
+   * primary is generated now; the retired fields are rejected at enqueue, so
+   * offering their upload slots here would have been three buttons that 400.
+   * The editor no longer names a slot at all -- the roster arrives from the
+   * entity art endpoint, which is the same table the enqueue gate reads, so
+   * the two cannot drift. Per this file's own rule above, assert the structure
+   * (which editor, mounted for which entity) rather than a spelling of the
+   * inputs.
+   */
   for (const field of [
     '<FacetProfileEditor v-model="editForm" />',
     'entity-type="facet"',
-    "field: 'imagePath'",
-    "aspect: '1 / 1'",
+    ':entity="facet"',
   ]) {
     requireText('components/facets/facet-editor.vue', facetEditor, field)
+  }
+  if (facetEditor.includes(':slots="[')) {
+    throw new Error(
+      'components/facets/facet-editor.vue hardcodes an art slot array again; ' +
+        'the roster must come from the entity art endpoint so a retired slot ' +
+        'cannot be offered after the enqueue gate starts rejecting it.',
+    )
   }
 
   // Was the literal chain `facet.cardPath || facet.imagePath || facet.heroPath`.

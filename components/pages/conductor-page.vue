@@ -786,29 +786,6 @@
                 entity-type="project"
                 :entity="linkedProject"
                 :collection-slides="projectCollectionSlides"
-                :slots="[
-                  {
-                    field: 'heroPath',
-                    label: 'Hero',
-                    aspect: '16 / 9',
-                    width: 1280,
-                    height: 720,
-                  },
-                  {
-                    field: 'cardPath',
-                    label: 'Card',
-                    aspect: '2 / 3',
-                    width: 512,
-                    height: 768,
-                  },
-                  {
-                    field: 'imagePath',
-                    label: 'Icon',
-                    aspect: '1 / 1',
-                    width: 256,
-                    height: 256,
-                  },
-                ]"
               />
             </div>
 
@@ -1003,6 +980,12 @@
                         >{{ task.status }}</span
                       >
                     </div>
+
+                    <TaskResponder
+                      :project-slug="selectedProject.slug"
+                      :task="task"
+                      :project-id="linkedProject?.id ?? null"
+                    />
                   </div>
                 </div>
 
@@ -1176,6 +1159,7 @@ import type { BuilderCard } from '@/stores/helpers/builderCards'
 import type { GalleryItem } from '@/components/gallery/kr-gallery.vue'
 import { IS_GALLERY_MODE, type GalleryMode } from '@/utils/galleryVocabulary'
 import EntityArtManager from '@/components/art/entity-art-manager.vue'
+import TaskResponder from '@/components/conductor/task-responder.vue'
 import SnapshotModeBanner from '@/components/navigation/snapshot-mode-banner.vue'
 
 type ProjectPatch = {

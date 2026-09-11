@@ -50,9 +50,12 @@ async function main(): Promise<void> {
   // than an editor expanding inside a grid cell. The Library tab keeps
   // creation and the catalog fetch.
   requireText(files.facetEditor, facetEditor, 'EntityArtManager')
-  // Was field: 'iconPath'. Icon/card/hero are rejected at enqueue since the
-  // slot collapse, so the primary is the slot the editor still offers.
-  requireText(files.facetEditor, facetEditor, "field: 'imagePath'")
+  /*
+   * Was field: 'iconPath', then field: 'imagePath'. Icon/card/hero are
+   * rejected at enqueue since the slot collapse, and the editor now takes its
+   * roster from the entity art endpoint rather than naming a slot at all.
+   */
+  requireText(files.facetEditor, facetEditor, 'entity-type="facet"')
   requireText(files.facetEditor, facetEditor, 'Save canonical profile')
   for (const [label, text] of [
     [files.manager, manager],

@@ -91,10 +91,13 @@ export const ENTITY_FIELDS: Record<
    * Kind Robots set (e.g. 'kind-icon:bot'); it is never an art slot and never
    * generated. `iconPath` points at a fully developed logo image and IS an art
    * slot, rendered at 256x256 so small grid cells stop reusing a 1024px
-   * portrait. `project` still labels its `imagePath` 'Icon' for backward
-   * compatibility -- see server/api/conductor/project-art-complete.post.ts,
-   * which maps that field onto the ArtImage `iconPath` variant. Migrating
-   * project onto a real iconPath column is deliberately left for t-009.
+   * portrait. `project` renders its `imagePath` primary at the same 1024x1024
+   * as every other collapsed entity, so the one main image is large enough to
+   * be re-cropped into a hero or card frame; the 256x256 icon variant it used
+   * to be could not. server/api/conductor/project-art-complete.post.ts still
+   * maps that field onto the ArtImage `iconPath` variant, so conductor's own
+   * icon deliveries keep landing. Migrating project onto a real iconPath
+   * column is deliberately left for t-009.
    */
   bot: {
     avatarImage: {
@@ -259,9 +262,9 @@ export const ENTITY_FIELDS: Record<
   },
   project: {
     imagePath: {
-      label: 'Icon',
-      width: 256,
-      height: 256,
+      label: 'Image',
+      width: 1024,
+      height: 1024,
       primary: true,
     },
     cardPath: {
@@ -372,6 +375,41 @@ export function getEntityArtFieldConfig(
     })
   }
   return { field, ...config }
+}
+
+export type EntityArtSlotInfo = {
+  field: string
+  label: string
+  width: number
+  height: number
+  primary: boolean
+  retired: boolean
+}
+
+/**
+ * The slot roster for an entity type, primary first.
+ *
+ * Call sites used to hardcode their own slot arrays, which is how
+ * project-detail.vue and conductor-page.vue ended up offering Hero, Card and
+ * Icon as three peer tabs months after the slot collapse retired all three
+ * (Silas, 2026-09-11: "we're still displaying as if they are expecting a three
+ * way card hero icon set"). Serving the roster from the same table that
+ * `prepareEntityArtEnqueue` refuses retired work from means a client cannot
+ * offer to generate a slot the server will reject.
+ */
+export function listEntityArtSlots(
+  entityType: EntityArtType,
+): EntityArtSlotInfo[] {
+  return Object.entries(ENTITY_FIELDS[entityType])
+    .map(([field, config]) => ({
+      field,
+      label: config.label,
+      width: config.width,
+      height: config.height,
+      primary: config.primary,
+      retired: config.retired === true,
+    }))
+    .sort((left, right) => Number(right.primary) - Number(left.primary))
 }
 
 export function entityArtHistoryPrefix(

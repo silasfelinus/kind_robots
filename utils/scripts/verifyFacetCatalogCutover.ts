@@ -215,9 +215,15 @@ async function main(): Promise<void> {
   requireText(files.facetManager, text.facetManager, 'FacetProfileEditor')
   requireText(files.facetManager, text.facetManager, 'facetProfilePayload')
   requireText(files.facetEditor, text.facetEditor, 'EntityArtManager')
-  // Was field: 'iconPath'. The slot collapse retired icon/card/hero, so the
-  // editor offers the one slot that still enqueues.
-  requireText(files.facetEditor, text.facetEditor, "field: 'imagePath'")
+  /*
+   * Was field: 'iconPath', then field: 'imagePath'. The slot collapse retired
+   * icon/card/hero, and the editor no longer names any slot: the roster comes
+   * from the entity art endpoint (listEntityArtSlots), which reads the same
+   * table the enqueue gate rejects retired slots from. Forbidding the literal
+   * array is the stronger guard -- a hardcoded list is exactly how the project
+   * surfaces kept offering three retired slots for months after the collapse.
+   */
+  forbidText(files.facetEditor, text.facetEditor, ':slots="[')
   forbidText(files.facetManager, text.facetManager, 'requestPrimaryArtwork')
   forbidText(files.facetManager, text.facetManager, 'useFacetArtRequestStore')
   forbidText(files.facetEditor, text.facetEditor, 'requestPrimaryArtwork')

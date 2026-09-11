@@ -8,7 +8,9 @@ function expectContains(path: string, needles: string[]): void {
   const source = read(path)
   for (const needle of needles) {
     if (!source.includes(needle)) {
-      throw new Error(`${path} is missing Project prompt suggestion contract: ${needle}`)
+      throw new Error(
+        `${path} is missing Project prompt suggestion contract: ${needle}`,
+      )
     }
   }
 }
@@ -31,9 +33,14 @@ expectContains('plugins/entity-art-prompt-suggest.client.ts', [
   "element.closest('.project-art-compact')",
   'projectStore.projectForSlug(workspaceSlug)',
   "entityType: 'project'",
-  "{ field: 'imagePath', label: 'Icon', width: 256, height: 256 }",
-  "{ field: 'cardPath', label: 'Card', width: 512, height: 768 }",
+  // Primary FIRST, and at the collapsed 1024 size. entity-art-manager.vue
+  // hides its Target select when an entity has one generatable slot, so
+  // selectedSlot() falls through to the head of this roster -- a heroPath or
+  // 256px icon head would frame the suggestion for a slot enqueue rejects.
+  "{ field: 'imagePath', label: 'Image', width: 1024, height: 1024 }",
   "{ field: 'heroPath', label: 'Hero', width: 1280, height: 720 }",
+  "{ field: 'cardPath', label: 'Card', width: 512, height: 768 }",
+  'context.slots[0]',
   "button.textContent = '✨ Suggest prompt'",
   'entityRef: entityRef(context)',
   'current: textarea.value',

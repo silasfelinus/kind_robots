@@ -11,9 +11,9 @@
 //      wan-startup-webp, the default for engine 'wan' and therefore for every
 //      Scene Animator job -- through SaveAnimatedWEBP.
 //   2. The relay stamps the resulting ArtImage `fileType: 'webp'`.
-//   3. offloadArtImageBytes() classified clips by extension against a
-//      VIDEO_TYPES set of mp4/webm/mov/mkv. 'webp' is not in it, so an animated
-//      clip was treated as a still and re-encoded.
+//   3. The offload classified clips by extension against a VIDEO_TYPES set of
+//      mp4/webm/mov/mkv. 'webp' is not in it, so an animated clip was treated
+//      as a still and re-encoded.
 //   4. `sharp(buffer)` defaults to `pages: 1`. It decodes frame 0 and silently
 //      discards the rest -- no error, no warning, a much smaller file.
 //   5. The offload then wrote that single frame to the share and nulled
@@ -26,11 +26,15 @@
 // path -- while a true still is still transcoded, which is the reason the
 // re-encode exists at all.
 //
+// Imports server/utils/artImageEncoding.ts rather than artImageOffload.ts on
+// purpose: the latter pulls in prisma at module load, which throws without a
+// DATABASE_URL, and this belongs in the DB-free contract-tests workflow.
+//
 //   npx tsx utils/scripts/verifyAnimatedArtOffload.test.ts
 import assert from 'node:assert/strict'
 import sharp from 'sharp'
 
-import { resolveOffloadEncoding } from '../../server/utils/artImageOffload.js'
+import { resolveOffloadEncoding } from '../../server/utils/artImageEncoding.js'
 
 const WIDTH = 64
 const HEIGHT = 64

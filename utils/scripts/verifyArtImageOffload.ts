@@ -35,6 +35,7 @@ import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 
 const HELPER = 'server/utils/artImageOffload.ts'
+const ENCODING = 'server/utils/artImageEncoding.ts'
 const COMPLETE = 'server/api/art/queue/[id]/complete.post.ts'
 const BACKFILL = 'utils/scripts/offloadArtImageData.ts'
 const PLACEMENT = 'server/utils/artImageFilePath.ts'
@@ -226,21 +227,37 @@ check(
 // The behavioural proof lives in verifyAnimatedArtOffload.test.ts; this pins
 // that the helper still asks about frames at all.
 
+const encoding = read(ENCODING)
+
 check(
-  /\bpages\b/.test(helper) && /\.metadata\s*\(/.test(helper),
-  `${HELPER} must read sharp metadata's \`pages\` before transcoding. ` +
+  /resolveOffloadEncoding\s*\(/.test(helper),
+  `${HELPER} must resolve its bytes through resolveOffloadEncoding in ` +
+    `${ENCODING}. Re-encoding inline here puts the destructive decision behind ` +
+    `a prisma import, where the DB-free contract workflow cannot test it.`,
+)
+
+check(
+  !/\bsharp\b/.test(helper),
+  `${HELPER} must not transcode directly — that belongs in ${ENCODING}, which ` +
+    `imports no database and can therefore be exercised with real bytes.`,
+)
+
+check(
+  /\bpages\b/.test(encoding) && /\.metadata\s*\(/.test(encoding),
+  `${ENCODING} must read sharp metadata's \`pages\` before transcoding. ` +
     `Classifying clips by file extension alone cannot see an animated WebP ` +
     `or GIF, and sharp then re-encodes frame 0 and discards the rest — ` +
     `silently, and after the read-back guard has already approved the write.`,
 )
 
-const metadataIndex = helper.search(/\.metadata\s*\(/)
-const encodeIndex = helper.search(/\.webp\s*\(\s*\{\s*quality/)
+const metadataIndex = encoding.search(/\.metadata\s*\(/)
+const encodeIndex = encoding.search(/\.webp\s*\(\s*\{\s*quality/)
 
 check(
   metadataIndex !== -1 && encodeIndex !== -1 && metadataIndex < encodeIndex,
-  `${HELPER} must inspect the frame count BEFORE re-encoding. Checking after ` +
-    `the transcode inspects the flattened copy, which always reports one page.`,
+  `${ENCODING} must inspect the frame count BEFORE re-encoding. Checking ` +
+    `after the transcode inspects the flattened copy, which always reports ` +
+    `one page.`,
 )
 
 /* -- 6. no route writes a bare filename into imagePath ---------------------- */

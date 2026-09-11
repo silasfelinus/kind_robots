@@ -6,10 +6,7 @@
     :target="allowNavigation ? '_blank' : undefined"
     :rel="allowNavigation ? 'noopener noreferrer' : undefined"
     class="group flex h-full flex-col overflow-hidden kr-panel-flat shadow-sm transition-shadow duration-300 hover:shadow-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-base-100 motion-safe:hover:-translate-y-0.5 motion-safe:transition-transform"
-    :class="[
-      compact ? 'gap-1 p-2' : 'gap-2 p-3',
-      cardToneClass,
-    ]"
+    :class="[compact ? 'gap-1 p-2' : 'gap-2 p-3', cardToneClass]"
   >
     <!--
       COMPACT IS ITS OWN LAYOUT: picture, then headline, and nothing else.
@@ -180,17 +177,18 @@ const primaryCategory = computed(() => props.item.category?.[0] || '')
  * stable category tint: stories about the same kind of thing keep the same
  * paper wash while neighbouring categories stop reading as one cream slab.
  *
- * Semantic daisyUI tokens keep the palette compatible with Storybook Dark and
- * every user-selected theme. Five percent is intentional: the image and title
- * stay foreground, and the tint is visible mostly in the gutters and border.
+ * The blends use only primary/secondary/accent, because the house surface
+ * contract reserves info/success/warning/error for actual status. Keeping the
+ * opacity low lets the image and headline stay foreground while the gutters
+ * and border carry the category identity in every active theme.
  */
 const CARD_TONES = [
-  'border-primary/30 bg-primary/5',
-  'border-secondary/30 bg-secondary/5',
-  'border-accent/30 bg-accent/5',
-  'border-info/30 bg-info/5',
-  'border-success/30 bg-success/5',
-  'border-warning/30 bg-warning/5',
+  'border-primary/25 bg-linear-to-br from-primary/7 via-base-100 to-secondary/4',
+  'border-secondary/25 bg-linear-to-br from-secondary/7 via-base-100 to-accent/4',
+  'border-accent/25 bg-linear-to-br from-accent/8 via-base-100 to-primary/4',
+  'border-primary/25 bg-linear-to-br from-secondary/5 via-base-100 to-primary/7',
+  'border-secondary/25 bg-linear-to-br from-accent/6 via-base-100 to-secondary/6',
+  'border-accent/25 bg-linear-to-br from-primary/5 via-base-100 to-accent/7',
 ] as const
 
 const cardToneClass = computed(() => {

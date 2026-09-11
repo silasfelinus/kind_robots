@@ -338,15 +338,29 @@
             :key="entry.id"
             class="flex items-start gap-2 kr-panel-compact"
           >
-            <kr-art-plate
-              :source="withCthulhuquariumArt(entry)"
-              variant="icon"
-              shape="plate"
-              frame="thin"
-              fit="cover"
-              class="size-12 shrink-0"
-              placeholder-icon="kind-icon:fish"
-            />
+            <!-- cthulhuquarium/t-067: kr-art-plate's shape="plate" aspect box
+                 forces `w-full` internally, which fights an externally passed
+                 size-* class for the `width` property at equal specificity and
+                 wins -- the plate then stretches to the row's full width
+                 instead of staying icon-sized (same bug and fix as
+                 kr-entity-card-body.vue's icon thumbnail, see its comment).
+                 Constrain from an outer wrapper instead of via a class on the
+                 plate itself, and use shape="square" (not "plate") to match
+                 what this file's header comment already documents `icon`
+                 shapes as wanting: small and square, the intro piece to a
+                 text-forward row. -->
+            <div
+              class="size-12 shrink-0 overflow-hidden rounded-2xl border border-base-300"
+            >
+              <kr-art-plate
+                :source="withCthulhuquariumArt(entry)"
+                variant="icon"
+                shape="square"
+                frame="none"
+                fit="cover"
+                placeholder-icon="kind-icon:fish"
+              />
+            </div>
             <div class="min-w-0 flex-1">
               <p class="kr-text-bold-sm truncate">{{ entry.name }}</p>
               <!-- Deliberately never the field note here -- the server
@@ -388,16 +402,21 @@
         >
           <!-- cthulhuquarium/t-065: the authored cover plate. The book had a
                formal name and a text label; now it has its cover. -->
-          <kr-art-plate
+          <!-- cthulhuquarium/t-067: see the fish-list wrapper comment above --
+               same width-cascade fix, wrapper-owned size and border. -->
+          <div
             v-if="artByName('ichthyonomicon')"
-            :source="{ imagePath: artByName('ichthyonomicon') }"
-            variant="icon"
-            shape="plate"
-            frame="thin"
-            fit="cover"
-            class="size-10 shrink-0"
-            placeholder-icon="kind-icon:book"
-          />
+            class="size-10 shrink-0 overflow-hidden rounded-2xl border border-base-300"
+          >
+            <kr-art-plate
+              :source="{ imagePath: artByName('ichthyonomicon') }"
+              variant="icon"
+              shape="square"
+              frame="none"
+              fit="cover"
+              placeholder-icon="kind-icon:book"
+            />
+          </div>
           <span class="kr-text-eyebrow text-xs tracking-wide opacity-60">
             The Ichthyonomicon
             <span v-if="tankStore.bestiaryTotalCount > 0" class="opacity-80">
@@ -429,17 +448,24 @@
               class="flex items-start gap-2 kr-panel-compact"
               :class="{ 'opacity-60': !entry.collected }"
             >
-              <kr-art-plate
-                :source="entry.collected ? withCthulhuquariumArt(entry) : null"
-                variant="icon"
-                shape="plate"
-                frame="thin"
-                fit="cover"
-                class="size-12 shrink-0"
-                :placeholder-icon="
-                  entry.collected ? 'kind-icon:fish' : 'kind-icon:lock'
-                "
-              />
+              <!-- cthulhuquarium/t-067: see the fish-list wrapper comment
+                   above -- same width-cascade fix. -->
+              <div
+                class="size-12 shrink-0 overflow-hidden rounded-2xl border border-base-300"
+              >
+                <kr-art-plate
+                  :source="
+                    entry.collected ? withCthulhuquariumArt(entry) : null
+                  "
+                  variant="icon"
+                  shape="square"
+                  frame="none"
+                  fit="cover"
+                  :placeholder-icon="
+                    entry.collected ? 'kind-icon:fish' : 'kind-icon:lock'
+                  "
+                />
+              </div>
               <div class="min-w-0 flex-1">
                 <p class="kr-text-bold-sm truncate">{{ entry.name }}</p>
                 <p class="mt-0.5 line-clamp-2 text-xs italic opacity-70">
@@ -666,22 +692,24 @@
               :key="egg.id"
               class="flex items-start gap-2 rounded-xl border border-primary/60 bg-base-100 p-3"
             >
-              <kr-art-plate
+              <!-- cthulhuquarium/t-067: see the fish-list wrapper comment
+                   above -- same width-cascade fix. -->
+              <div
                 v-if="artForEggTier(egg.rarity)"
-                :source="{ imagePath: artForEggTier(egg.rarity) }"
-                variant="icon"
-                shape="plate"
-                frame="thin"
-                fit="cover"
-                class="size-12 shrink-0"
-                placeholder-icon="kind-icon:egg"
-              />
-              <span
-                v-else
-                class="text-3xl leading-none"
-                aria-hidden="true"
-                >{{ EGG_ICON }}</span
+                class="size-12 shrink-0 overflow-hidden rounded-2xl border border-base-300"
               >
+                <kr-art-plate
+                  :source="{ imagePath: artForEggTier(egg.rarity) }"
+                  variant="icon"
+                  shape="square"
+                  frame="none"
+                  fit="cover"
+                  placeholder-icon="kind-icon:egg"
+                />
+              </div>
+              <span v-else class="text-3xl leading-none" aria-hidden="true">{{
+                EGG_ICON
+              }}</span>
               <div class="min-w-0 flex-1">
                 <p class="kr-text-bold-sm truncate">
                   {{ egg.rarity.charAt(0)
@@ -758,15 +786,22 @@
         v-if="tankStore.finaleConfig"
         class="flex items-start gap-2 kr-panel-divider"
       >
-        <kr-art-plate
-          :source="{ imagePath: setLastAquariumArt }"
-          variant="icon"
-          shape="plate"
-          frame="thin"
-          fit="cover"
-          class="size-12 shrink-0"
-          placeholder-icon="kind-icon:box"
-        />
+        <!-- cthulhuquarium/t-067: THE reported bug -- "The Last Aquarium" row
+             rendering one word per line because this plate stretched to the
+             row's full width. See the fish-list wrapper comment above for the
+             root cause and fix (same width-cascade issue, same fix here). -->
+        <div
+          class="size-12 shrink-0 overflow-hidden rounded-2xl border border-base-300"
+        >
+          <kr-art-plate
+            :source="{ imagePath: setLastAquariumArt }"
+            variant="icon"
+            shape="square"
+            frame="none"
+            fit="cover"
+            placeholder-icon="kind-icon:box"
+          />
+        </div>
         <div class="min-w-0 flex-1">
           <div class="flex items-start justify-between gap-2">
             <p class="kr-text-bold-sm">{{ tankStore.finaleConfig.title }}</p>
@@ -1038,7 +1073,9 @@
             }}
           </p>
           <kr-art-plate
-            :source="withCthulhuquariumArt(tankStore.revealedBreed.stock.Monster)"
+            :source="
+              withCthulhuquariumArt(tankStore.revealedBreed.stock.Monster)
+            "
             variant="card"
             shape="plate"
             frame="thin"

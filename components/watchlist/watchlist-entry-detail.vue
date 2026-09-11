@@ -183,6 +183,7 @@
 <script setup lang="ts">
 import { ref, computed, watch, onMounted, onBeforeUnmount } from 'vue'
 import type { MediaType } from '~/prisma/generated/prisma/client'
+import { useUserStore } from '@/stores/userStore'
 
 export type MediaEntryDetail = {
   id: number
@@ -213,16 +214,41 @@ type RelatedEntry = {
 
 type MediaEntryPatchResponse = {
   success: boolean
+  message?: string
   data: MediaEntryDetail
 }
 
 type MediaEntryRelatedResponse = {
   success: boolean
+  message?: string
   data: RelatedEntry[]
 }
 
 const props = defineProps<{ entry: MediaEntryDetail }>()
 const emit = defineEmits<{ (e: 'updated', entry: MediaEntryDetail): void }>()
+
+const userStore = useUserStore()
+
+// media-watchlist/t-019: same missing-Authorization-header bug as
+// watchlist-browse.vue -- every route here is admin-gated, but nothing ever
+// attached the signed-in user's token, so requests looked anonymous
+// regardless of who was actually signed in.
+function authHeaders(): Record<string, string> | undefined {
+  const token = userStore.token || userStore.user?.token || ''
+  return token ? { Authorization: `Bearer ${token}` } : undefined
+}
+
+function extractApiErrorMessage(error: unknown, fallback: string): string {
+  if (error && typeof error === 'object') {
+    const data = (error as { data?: unknown }).data
+    if (data && typeof data === 'object') {
+      const message = (data as { message?: unknown }).message
+      if (typeof message === 'string' && message) return message
+    }
+  }
+  if (error instanceof Error && error.message) return error.message
+  return fallback
+}
 
 const draft = ref(props.entry.review ?? '')
 const saveState = ref<'idle' | 'saving' | 'saved'>('idle')
@@ -238,6 +264,7 @@ async function fetchRelated(id: number) {
   try {
     const res = await $fetch<MediaEntryRelatedResponse, string>(
       `/api/media-entries/${id}/related`,
+      { headers: authHeaders() },
     )
     relatedEntries.value = res?.success ? res.data : []
   } catch {
@@ -309,14 +336,13 @@ async function patch(
   try {
     const res = await $fetch<MediaEntryPatchResponse, string>(
       `/api/media-entries/${props.entry.id}`,
-      { method: 'PATCH', body },
+      { method: 'PATCH', body, headers: authHeaders() },
     )
-    if (!res?.success) throw new Error('Update failed.')
+    if (!res?.success) throw new Error(res?.message || 'Update failed.')
     emit('updated', res.data)
     return res.data
   } catch (error) {
-    errorMessage.value =
-      error instanceof Error ? error.message : 'Failed to save.'
+    errorMessage.value = extractApiErrorMessage(error, 'Failed to save.')
     return null
   }
 }

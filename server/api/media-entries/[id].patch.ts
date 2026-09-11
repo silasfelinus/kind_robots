@@ -12,7 +12,13 @@
 //   publish   boolean         — true sets reviewPublic = true (one-way per the
 //                                MVP rule: "Publish" only sets the flag, no UI
 //                                exposes un-publishing)
-import { defineEventHandler, readBody, getRouterParam, createError } from 'h3'
+import {
+  defineEventHandler,
+  readBody,
+  getRouterParam,
+  createError,
+  setResponseStatus,
+} from 'h3'
 import prisma from '~/server/utils/prisma'
 import { errorHandler } from '~/server/utils/error'
 import { requireAdminApiUser } from '~/server/utils/authGuard'
@@ -101,6 +107,8 @@ export default defineEventHandler(async (event) => {
 
     return { success: true, data: updated }
   } catch (error) {
-    return errorHandler(error)
+    const result = errorHandler(error)
+    setResponseStatus(event, result.statusCode || 500)
+    return result
   }
 })

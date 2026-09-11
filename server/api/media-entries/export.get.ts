@@ -11,7 +11,7 @@
 //
 // Query: search, mediaType, starred, sort, year, month, season (all
 // optional, same semantics as index.get.ts).
-import { defineEventHandler, getQuery, setHeader } from 'h3'
+import { defineEventHandler, getQuery, setHeader, setResponseStatus } from 'h3'
 import type { MediaEntry, Prisma } from '~/prisma/generated/prisma/client'
 import { MediaType } from '~/prisma/generated/prisma/client'
 import prisma from '~/server/utils/prisma'
@@ -170,6 +170,8 @@ export default defineEventHandler(async (event) => {
 
     return csv
   } catch (error) {
-    return errorHandler(error)
+    const result = errorHandler(error)
+    setResponseStatus(event, result.statusCode || 500)
+    return result
   }
 })

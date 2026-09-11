@@ -5,8 +5,9 @@
     :href="allowNavigation ? item.url : undefined"
     :target="allowNavigation ? '_blank' : undefined"
     :rel="allowNavigation ? 'noopener noreferrer' : undefined"
-    class="group flex h-full flex-col overflow-hidden kr-panel-flat shadow-sm transition-shadow duration-300 hover:shadow-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-base-100 motion-safe:hover:-translate-y-0.5 motion-safe:transition-transform"
-    :class="[compact ? 'gap-1 p-2' : 'gap-2 p-3', cardToneClass]"
+    :data-theme="cardTheme"
+    class="group flex h-full flex-col overflow-hidden kr-panel-flat border-2 border-primary/45 bg-linear-to-br from-base-100 via-base-100 to-primary/20 shadow-sm transition-shadow duration-300 hover:shadow-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-base-100 motion-safe:hover:-translate-y-0.5 motion-safe:transition-transform"
+    :class="compact ? 'gap-1 p-2' : 'gap-2 p-3'"
   >
     <!--
       COMPACT IS ITS OWN LAYOUT: picture, then headline, and nothing else.
@@ -171,31 +172,33 @@ const feedPreferenceStore = useFeedPreferenceStore()
 const primaryCategory = computed(() => props.item.category?.[0] || '')
 
 /*
- * A quiet category wash, not a new theme. Silas, 2026-09-11: the dashboard's
- * section placement/content is right, but the colour schemes need more life.
- * News is a wall of peer cards, so its equivalent of a section colour is a
- * stable category tint: stories about the same kind of thing keep the same
- * paper wash while neighbouring categories stop reading as one cream slab.
- *
- * The blends use only primary/secondary/accent, because the house surface
- * contract reserves info/success/warning/error for actual status. Keeping the
- * opacity low lets the image and headline stay foreground while the gutters
- * and border carry the category identity in every active theme.
+ * News needs visible variation, not a five-percent tint nobody can perceive.
+ * Use only stock daisyUI themes, the same palette source as entity cards. The
+ * category/source hash is stable, so neighboring topics vary without cards
+ * changing clothes on every render. This is deliberately a curated LIGHT set:
+ * enough hue range to break up the wall of paper, without dropping random dark
+ * themes into a reading-heavy feed.
  */
-const CARD_TONES = [
-  'border-primary/25 bg-linear-to-br from-primary/7 via-base-100 to-secondary/4',
-  'border-secondary/25 bg-linear-to-br from-secondary/7 via-base-100 to-accent/4',
-  'border-accent/25 bg-linear-to-br from-accent/8 via-base-100 to-primary/4',
-  'border-primary/25 bg-linear-to-br from-secondary/5 via-base-100 to-primary/7',
-  'border-secondary/25 bg-linear-to-br from-accent/6 via-base-100 to-secondary/6',
-  'border-accent/25 bg-linear-to-br from-primary/5 via-base-100 to-accent/7',
+const NEWS_CARD_THEMES = [
+  'cupcake',
+  'bumblebee',
+  'emerald',
+  'corporate',
+  'retro',
+  'valentine',
+  'garden',
+  'lemonade',
+  'winter',
+  'nord',
+  'caramellatte',
+  'silk',
 ] as const
 
-const cardToneClass = computed(() => {
+const cardTheme = computed(() => {
   const seed = primaryCategory.value || props.item.source || props.item.id
   let hash = 0
   for (const char of seed) hash = (hash * 31 + char.charCodeAt(0)) | 0
-  return CARD_TONES[Math.abs(hash) % CARD_TONES.length]
+  return NEWS_CARD_THEMES[Math.abs(hash) % NEWS_CARD_THEMES.length]
 })
 
 // NewsFeedItem carries a plain `image` URL rather than the cardPath/heroPath/

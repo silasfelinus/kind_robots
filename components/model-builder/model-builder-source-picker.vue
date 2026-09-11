@@ -178,7 +178,7 @@
             <Icon
               v-else
               :name="activeType?.icon || 'kind-icon:blueprint'"
-              class="h-5 w-5 text-base-content/30"
+              class="kr-icon-5 text-base-content/30"
             />
           </div>
 

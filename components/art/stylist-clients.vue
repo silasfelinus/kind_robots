@@ -3,7 +3,7 @@
   <section class="stylist-clients kr-panel-muted flex flex-col gap-4 p-4">
     <header class="flex items-center gap-2">
       <Icon name="kind-icon:heart" class="kr-icon-primary-5" />
-      <h2 class="text-base font-black text-base-content">Clients</h2>
+      <h2 class="kr-text-black-base text-base-content">Clients</h2>
       <span class="kr-badge-ghost-sm">{{ superkate.sortedCustomers.length }}</span>
     </header>
 

@@ -78,7 +78,7 @@
     >
       <div class="mb-3 flex items-center justify-between gap-3">
         <div class="min-w-0">
-          <h3 class="truncate text-base font-black text-primary">
+          <h3 class="kr-text-black-base truncate text-primary">
             {{ formTitle }}
           </h3>
 
@@ -214,7 +214,7 @@
                   Current Reward
                 </p>
 
-                <h3 class="truncate text-base font-black text-base-content">
+                <h3 class="kr-text-black-base truncate text-base-content">
                   {{ selectedRewardTitle }}
                 </h3>
 

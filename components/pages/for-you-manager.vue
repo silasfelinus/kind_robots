@@ -154,7 +154,7 @@
                     >
                       {{ gate.project.name }} · {{ gate.task.id }}
                     </button>
-                    <h3 class="mt-1 text-base font-black leading-snug">
+                    <h3 class="kr-text-black-base mt-1 leading-snug">
                       {{ gate.task.title }}
                     </h3>
                   </div>
@@ -347,7 +347,7 @@
                       {{ pitch.projectTarget || 'General' }}
                       <span v-if="pitch.date"> · {{ pitch.date }}</span>
                     </p>
-                    <h3 class="mt-1 text-base font-black leading-snug">
+                    <h3 class="kr-text-black-base mt-1 leading-snug">
                       {{ pitch.title }}
                     </h3>
                   </div>

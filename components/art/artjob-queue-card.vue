@@ -120,7 +120,7 @@
       <div class="min-w-0">
         <div class="flex flex-wrap items-start justify-between gap-2">
           <div class="min-w-0 flex-1">
-            <h3 class="truncate text-base font-black" :title="jobTitle">
+            <h3 class="kr-text-black-base truncate" :title="jobTitle">
               {{ jobTitle }}
             </h3>
             <p

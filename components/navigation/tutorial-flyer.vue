@@ -48,7 +48,7 @@
       <div class="flex min-w-0 flex-1 flex-col gap-1.5">
         <div class="flex flex-wrap items-center gap-2">
           <h3
-            class="text-base font-black leading-tight text-base-content md:text-lg"
+            class="kr-text-black-base leading-tight text-base-content md:text-lg"
           >
             {{ section.title }}
           </h3>
@@ -207,7 +207,7 @@
                 <div class="min-w-0 flex-1">
                   <div class="flex flex-wrap items-center gap-2">
                     <h3
-                      class="text-base font-black leading-tight text-base-content"
+                      class="kr-text-black-base leading-tight text-base-content"
                     >
                       {{ section.title }}
                     </h3>

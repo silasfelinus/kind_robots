@@ -142,7 +142,7 @@
             >
               <Icon :name="block.icon || 'kind-icon:sparkles'" class="size-5" />
             </span>
-            <h3 class="text-base font-black text-base-content">
+            <h3 class="kr-text-black-base text-base-content">
               {{ block.title }}
             </h3>
           </div>

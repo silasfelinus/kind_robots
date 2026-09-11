@@ -3,7 +3,7 @@
   <div class="flex min-h-0 flex-1 flex-col gap-3">
     <div class="flex items-start justify-between gap-2">
       <div>
-        <h3 class="text-base font-black text-base-content">1. Pick a source model</h3>
+        <h3 class="kr-text-black-base text-base-content">1. Pick a source model</h3>
         <p class="kr-text-dim-xs-60 mt-1">
           Choose the existing record to upgrade or expand from. Every run keeps a
           snapshot of this source.

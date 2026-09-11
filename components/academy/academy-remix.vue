@@ -6,7 +6,7 @@
     >
       <div class="flex flex-col gap-1">
         <h2
-          class="flex items-center gap-2 text-base font-black text-base-content"
+          class="kr-text-black-base flex items-center gap-2 text-base-content"
         >
           <Icon name="kind-icon:magic" class="kr-icon-primary-5" />
           Remix Studio

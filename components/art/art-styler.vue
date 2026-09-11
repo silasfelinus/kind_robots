@@ -4,7 +4,7 @@
     <div class="flex items-center justify-between">
       <div class="flex items-center gap-2">
         <Icon name="kind-icon:magic" class="kr-icon-primary-5" />
-        <h2 class="text-base font-black text-base-content">Style Transfer</h2>
+        <h2 class="kr-text-black-base text-base-content">Style Transfer</h2>
         <span class="kr-badge-primary-sm">Kontext</span>
       </div>
       <button

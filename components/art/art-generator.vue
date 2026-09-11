@@ -24,7 +24,7 @@
           <div class="flex w-full shrink-0 flex-col gap-2 lg:w-80">
             <button
               type="button"
-              class="btn btn-primary min-h-12 w-full rounded-2xl text-base font-black"
+              class="kr-text-black-base btn btn-primary min-h-12 w-full rounded-2xl"
               :class="canGenerate ? 'shadow-lg shadow-primary/25' : ''"
               :disabled="!canGenerate"
               @click="handleGenerate"

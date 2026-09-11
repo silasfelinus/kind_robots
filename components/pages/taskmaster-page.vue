@@ -514,7 +514,7 @@
                   >
                     Quest briefing
                   </p>
-                  <p class="text-base font-black">Check the map before departure</p>
+                  <p class="kr-text-black-base">Check the map before departure</p>
                 </div>
               </div>
               <dl class="mt-4 space-y-3 text-sm">

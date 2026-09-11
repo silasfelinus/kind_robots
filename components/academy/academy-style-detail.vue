@@ -257,7 +257,7 @@
                 </div>
               </div>
               <div class="flex min-w-0 flex-col justify-center p-3">
-                <p class="text-base font-black leading-tight text-base-content">
+                <p class="kr-text-black-base leading-tight text-base-content">
                   {{ artist.name }}
                 </p>
                 <p class="mt-0.5 text-xs font-semibold text-primary/80">{{ artist.years }}</p>

@@ -315,7 +315,7 @@
                   class="h-10 w-10 text-secondary"
                 />
 
-                <p class="mt-2 text-base font-black">No shared themes found.</p>
+                <p class="kr-text-black-base mt-2">No shared themes found.</p>
 
                 <p class="mt-1 max-w-md text-sm">
                   Either the goblin published nothing, or your search is too

@@ -5,7 +5,7 @@
       <Icon name="kind-icon:sparkles" class="kr-icon-primary-5 shrink-0" />
 
       <div class="min-w-0 flex-1">
-        <p class="truncate text-base font-black text-base-content">
+        <p class="kr-text-black-base truncate text-base-content">
           {{ welcomeMessage }}
         </p>
         <p class="kr-text-dim-xs-55">

@@ -7,7 +7,7 @@
   <section class="flex flex-col gap-4 kr-panel-muted-md">
     <header class="flex items-center gap-2">
       <Icon name="kind-icon:book" class="kr-icon-primary-5" />
-      <h2 class="text-base font-black text-base-content">Appointments</h2>
+      <h2 class="kr-text-black-base text-base-content">Appointments</h2>
       <span class="kr-badge-ghost-sm">{{ results.length }}</span>
     </header>
 
@@ -52,7 +52,7 @@
               {{ formatCents(appointment.productCostCents) }}
             </span>
           </div>
-          <span class="text-base font-black text-primary">
+          <span class="kr-text-black-base text-primary">
             {{ formatCents(appointment.totalCents) }}
           </span>
           <button

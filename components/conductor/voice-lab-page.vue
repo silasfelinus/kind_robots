@@ -47,7 +47,7 @@
               :name="
                 voice.sending ? 'kind-icon:spinner' : 'kind-icon:microphone'
               "
-              class="size-4"
+              class="kr-icon-4"
               :class="{ 'animate-spin': voice.sending }"
             />
             {{ voice.sending ? 'Sending…' : 'Try it' }}
@@ -75,7 +75,7 @@
           to="/serendipity"
           class="btn btn-ghost btn-sm w-fit gap-1.5 rounded-xl border border-base-300"
         >
-          <Icon name="kind-icon:external-link" class="size-4" />
+          <Icon name="kind-icon:external-link" class="kr-icon-4" />
           Open the full Serendipity view
         </NuxtLink>
       </section>

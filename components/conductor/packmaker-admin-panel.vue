@@ -200,7 +200,7 @@
           :disabled="anyBusy"
           @click="onGenerateAll"
         >
-          <Icon name="kind-icon:sparkles" class="size-4" />
+          <Icon name="kind-icon:sparkles" class="kr-icon-4" />
           Create all remaining records
         </button>
         <button
@@ -209,7 +209,7 @@
           :disabled="!packStore.isPackComplete(selectedPack.id)"
           @click="onMarkReady"
         >
-          <Icon name="kind-icon:check" class="size-4" />
+          <Icon name="kind-icon:check" class="kr-icon-4" />
           Mark pack ready
         </button>
         <button

@@ -67,7 +67,7 @@
             :rel="launch.external ? 'noopener noreferrer' : undefined"
             class="btn btn-primary btn-sm gap-1.5 rounded-2xl sm:btn-md"
           >
-            <Icon :name="launch.icon || 'kind-icon:sparkles'" class="size-4" />
+            <Icon :name="launch.icon || 'kind-icon:sparkles'" class="kr-icon-4" />
             {{ launch.label }}
           </a>
           <a
@@ -80,7 +80,7 @@
           >
             <Icon
               :name="link.icon || 'kind-icon:external-link'"
-              class="size-4"
+              class="kr-icon-4"
             />
             {{ link.label }}
           </a>
@@ -184,7 +184,7 @@
         >
           <Icon
             :name="launch.icon || 'kind-icon:external-link'"
-            class="size-4"
+            class="kr-icon-4"
           />
           {{ launch.label }}
         </a>

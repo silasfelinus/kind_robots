@@ -71,7 +71,7 @@
               @click="conductorStore.fetchProjects(true)"
             >
               <span v-if="conductorStore.pending" class="kr-spinner-xs" />
-              <Icon v-else name="kind-icon:refresh-cw" class="size-4" />
+              <Icon v-else name="kind-icon:refresh-cw" class="kr-icon-4" />
               Refresh
             </button>
           </div>
@@ -199,7 +199,7 @@
                     Context from Conductor
                     <Icon
                       name="kind-icon:chevron-down"
-                      class="size-4 transition-transform group-open:rotate-180"
+                      class="kr-icon-4 transition-transform group-open:rotate-180"
                     />
                   </summary>
                   <p
@@ -222,7 +222,7 @@
                       v-if="taskIsUpdating(gate.project.slug, gate.task.id)"
                       class="kr-spinner-xs"
                     />
-                    <Icon v-else name="kind-icon:check" class="size-4" />
+                    <Icon v-else name="kind-icon:check" class="kr-icon-4" />
                     Approve
                   </button>
 
@@ -230,11 +230,11 @@
                     <summary
                       class="btn btn-outline btn-sm w-full list-none rounded-xl marker:hidden"
                     >
-                      <Icon name="kind-icon:message-square" class="size-4" />
+                      <Icon name="kind-icon:message-square" class="kr-icon-4" />
                       Reply or send back
                       <Icon
                         name="kind-icon:chevron-down"
-                        class="ml-auto size-4 transition-transform group-open:rotate-180"
+                        class="kr-icon-4 ml-auto transition-transform group-open:rotate-180"
                       />
                     </summary>
                     <div

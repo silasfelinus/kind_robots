@@ -46,7 +46,7 @@
                 to="/play/challenges/leaderboard"
                 class="kr-btn btn-outline"
               >
-                <Icon name="kind-icon:trophy" class="size-4" />
+                <Icon name="kind-icon:trophy" class="kr-icon-4" />
                 Rankings
               </NuxtLink>
               <button
@@ -60,7 +60,7 @@
                   v-if="loading"
                   class="kr-spinner-sm"
                 />
-                <Icon v-else name="kind-icon:refresh" class="size-4" />
+                <Icon v-else name="kind-icon:refresh" class="kr-icon-4" />
               </button>
             </div>
           </div>
@@ -213,7 +213,7 @@
                   <div
                     class="grid size-8 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary"
                   >
-                    <Icon name="kind-icon:trophy" class="size-4" />
+                    <Icon name="kind-icon:trophy" class="kr-icon-4" />
                   </div>
                   <div class="min-w-0 flex-1">
                     <p

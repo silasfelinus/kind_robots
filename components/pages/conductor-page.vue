@@ -48,7 +48,7 @@
           <img
             :src="projectIconPath(selectedProject.slug)"
             :alt="selectedProject.name"
-            class="size-4 shrink-0 rounded-sm object-cover"
+            class="kr-icon-4 shrink-0 rounded-sm object-cover"
           />
           <span class="kr-text-bold-xs min-w-0 break-words leading-tight">{{
             selectedProject.name || selectedProject.slug
@@ -302,7 +302,7 @@
                   class="btn btn-primary btn-sm ml-auto rounded-xl"
                   :disabled="!newTodoTitle.trim() || todoStore.loading"
                 >
-                  <Icon name="kind-icon:plus" class="size-4" /> Add
+                  <Icon name="kind-icon:plus" class="kr-icon-4" /> Add
                 </button>
               </div>
             </form>

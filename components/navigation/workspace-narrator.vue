@@ -89,7 +89,7 @@
                       <img
                         :src="displayedNarratorImage"
                         :alt="narratorName"
-                        class="h-full w-full object-cover"
+                        class="kr-img-cover"
                         loading="lazy"
                       />
                     </template>
@@ -98,7 +98,7 @@
                       <img
                         :src="narratorCardBackSrc"
                         :alt="`Card back ${cardBack}`"
-                        class="h-full w-full object-cover"
+                        class="kr-img-cover"
                         loading="lazy"
                       />
                     </template>
@@ -254,7 +254,7 @@
                       <img
                         :src="displayedNarratorImage"
                         :alt="narratorName"
-                        class="h-full w-full object-cover"
+                        class="kr-img-cover"
                         loading="lazy"
                       />
                     </template>
@@ -263,7 +263,7 @@
                       <img
                         :src="narratorCardBackSrc"
                         :alt="`Card back ${cardBack}`"
-                        class="h-full w-full object-cover"
+                        class="kr-img-cover"
                         loading="lazy"
                       />
                     </template>
@@ -524,7 +524,7 @@
             <img
               :src="narratorCardBackSrc"
               :alt="`Card back ${cardBack}`"
-              class="h-full w-full object-cover"
+              class="kr-img-cover"
               loading="lazy"
             />
           </template>

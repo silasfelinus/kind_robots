@@ -49,7 +49,7 @@
           v-if="avatarFor(review)"
           :src="avatarFor(review) as string"
           :alt="nameFor(review)"
-          class="h-full w-full object-cover"
+          class="kr-img-cover"
           loading="lazy"
         />
         <Icon

@@ -541,7 +541,7 @@
                       v-if="!iconFailed"
                       :src="projectIconPath(selectedProject.slug)"
                       :alt="selectedProject.name"
-                      class="h-full w-full object-cover"
+                      class="kr-img-cover"
                       @error="iconFailed = true"
                     />
                     <div

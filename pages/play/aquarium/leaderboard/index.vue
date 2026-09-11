@@ -81,7 +81,7 @@
                 v-if="entry.avatarImage"
                 :src="normalizeImagePath(entry.avatarImage)"
                 :alt="entry.username"
-                class="h-full w-full object-cover"
+                class="kr-img-cover"
               />
               <Icon
                 v-else

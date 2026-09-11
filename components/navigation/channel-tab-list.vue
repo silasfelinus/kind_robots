@@ -39,7 +39,7 @@
                 v-if="tab.image"
                 :src="tab.image"
                 :alt="tab.title || tab.label"
-                class="h-full w-full object-cover"
+                class="kr-img-cover"
               />
               <span
                 class="absolute inset-0 flex items-center justify-center bg-base-content/20"

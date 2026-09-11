@@ -44,7 +44,7 @@
             v-if="style.previewImageSrc"
             :src="style.previewImageSrc"
             alt=""
-            class="h-full w-full object-cover"
+            class="kr-img-cover"
             :class="index === 1 ? 'scale-110' : ''"
           />
           <div v-else class="flex h-full items-center justify-center bg-base-200">

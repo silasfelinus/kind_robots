@@ -14,7 +14,7 @@
           v-if="previewUrl"
           :src="previewUrl"
           alt="Current avatar preview"
-          class="h-full w-full object-cover"
+          class="kr-img-cover"
           @error="onPreviewError"
         />
         <Icon v-else name="kind-icon:user" class="kr-icon-primary-6" />
@@ -162,7 +162,7 @@
               <img
                 :src="thumbFor(selectedGalleryImage)"
                 :alt="selectedGalleryImage.promptString || `Image ${selectedGalleryImage.id}`"
-                class="h-full w-full object-cover"
+                class="kr-img-cover"
                 loading="lazy"
                 decoding="async"
                 @error="onThumbError($event, selectedGalleryImage)"

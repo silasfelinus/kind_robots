@@ -56,7 +56,7 @@
                 v-if="tank.User.avatarImage"
                 :src="normalizeImagePath(tank.User.avatarImage)"
                 :alt="tank.User.username"
-                class="h-full w-full object-cover"
+                class="kr-img-cover"
               />
               <Icon
                 v-else

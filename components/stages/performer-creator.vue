@@ -197,7 +197,7 @@
                   v-if="form.imagePath"
                   :src="String(form.imagePath)"
                   alt="Avatar"
-                  class="h-full w-full object-cover"
+                  class="kr-img-cover"
                 />
                 <Icon
                   v-else

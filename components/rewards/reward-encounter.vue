@@ -94,7 +94,7 @@
                   v-if="rewardHeroSrc"
                   :src="rewardHeroSrc"
                   :alt="selectedRewardName"
-                  class="h-full w-full object-cover"
+                  class="kr-img-cover"
                   @error="handleHeroImageError"
                 />
 

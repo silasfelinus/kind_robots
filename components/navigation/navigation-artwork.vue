@@ -6,7 +6,7 @@
       :src="resolvedSrc"
       :alt="alt"
       loading="lazy"
-      class="h-full w-full object-cover"
+      class="kr-img-cover"
     />
   </span>
 </template>

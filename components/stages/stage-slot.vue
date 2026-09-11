@@ -12,7 +12,7 @@
             v-if="imageUrl"
             :src="imageUrl"
             :alt="displayName || 'participant'"
-            class="h-full w-full object-cover"
+            class="kr-img-cover"
           />
           <Icon v-else :name="typeIcon" class="kr-icon-5 opacity-60" />
         </div>

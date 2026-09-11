@@ -174,7 +174,7 @@
                 v-if="tab.image"
                 :src="tab.image"
                 :alt="tab.title"
-                class="h-full w-full object-cover"
+                class="kr-img-cover"
                 @error="markBroken(tab.image)"
               />
               <span

@@ -25,7 +25,7 @@
               v-if="user.avatarImage"
               :src="normalizeImagePath(user.avatarImage)"
               :alt="displayName"
-              class="h-full w-full object-cover"
+              class="kr-img-cover"
             />
             <Icon
               v-else

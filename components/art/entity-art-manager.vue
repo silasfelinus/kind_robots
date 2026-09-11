@@ -33,9 +33,9 @@
       </div>
     </header>
 
-    <div v-if="slots.length > 1" class="mt-3 flex flex-wrap gap-1.5">
+    <div v-if="editableSlots.length > 1" class="mt-3 flex flex-wrap gap-1.5">
       <button
-        v-for="slot in slots"
+        v-for="slot in editableSlots"
         :key="slot.field"
         type="button"
         class="kr-btn-xs-lg"
@@ -46,34 +46,83 @@
       </button>
     </div>
 
-    <div class="mt-3 grid gap-3" :class="history.length ? 'lg:grid-cols-[minmax(0,1fr)_minmax(12rem,0.8fr)]' : ''">
-      <div
-        class="relative min-h-48 overflow-hidden rounded-xl border border-base-300 bg-base-200"
-        :style="{ aspectRatio: selectedSlot.aspect || undefined }"
-      >
+    <div
+      class="art-stage group relative mt-3 touch-pan-y select-none overflow-hidden rounded-xl border border-base-300 bg-base-200"
+      :style="{ '--art-stage-aspect': selectedSlot.aspect || '1 / 1' }"
+      @mouseenter="carouselPaused = true"
+      @mouseleave="carouselPaused = false"
+      @pointerdown="beginCarouselSwipe"
+      @pointerup="endCarouselSwipe"
+      @pointercancel="cancelCarouselSwipe"
+    >
+      <template v-if="activeCarouselSlide.src && !activeSlideFailed">
         <img
-          v-if="currentSrc && !currentFailed"
-          :key="currentSrc"
-          :src="currentSrc"
-          :alt="`${title} ${selectedSlot.label}`"
-          class="absolute inset-0 size-full object-cover"
-          @error="currentFailed = true"
+          :src="activeCarouselSlide.src"
+          alt=""
+          aria-hidden="true"
+          draggable="false"
+          class="art-stage-backdrop"
         />
-        <div
-          v-else
-          class="absolute inset-0 flex flex-col items-center justify-center gap-2 p-4 text-center text-base-content/40"
-        >
-          <Icon name="kind-icon:image" class="size-10 opacity-40" />
-          <p class="text-xs font-semibold">No {{ selectedSlot.label.toLowerCase() }} yet.</p>
-        </div>
+        <Transition name="entity-carousel-fade">
+          <img
+            :key="activeCarouselSlide.src"
+            :src="activeCarouselSlide.src"
+            :alt="`${title} ${activeCarouselSlide.label}`"
+            draggable="false"
+            class="art-stage-image"
+            @error="markSlideFailed(activeCarouselSlide.src)"
+          />
+        </Transition>
+      </template>
+      <div
+        v-else
+        class="absolute inset-0 flex flex-col items-center justify-center gap-2 p-4 text-center text-base-content/40"
+      >
+        <Icon name="kind-icon:image" class="size-10 opacity-40" />
+        <p class="text-xs font-semibold">
+          No {{ activeCarouselSlide.label.toLowerCase() }} yet.
+        </p>
+      </div>
 
-        <div
-          class="absolute inset-x-0 bottom-0 flex flex-wrap items-center justify-between gap-2 bg-linear-to-t from-base-300/95 to-transparent p-3 pt-10"
+      <div
+        class="pointer-events-none absolute inset-x-0 top-0 flex flex-wrap items-center gap-2 bg-linear-to-b from-base-300/90 to-transparent p-2"
+      >
+        <Icon name="kind-icon:image" class="size-3.5 text-secondary" />
+        <span class="kr-text-eyebrow-bold kr-text-dim-xs-60 tracking-wide">
+          Artwork &amp; inspirations
+        </span>
+        <span v-if="inspirationCount" class="kr-badge-info-xs">
+          {{ inspirationCount }} inspiration{{ inspirationCount === 1 ? '' : 's' }}
+        </span>
+        <span v-if="collectionSlides.length" class="kr-badge-secondary-xs">
+          {{ collectionSlides.length }} collection
+        </span>
+        <span v-if="hasCarousel" class="kr-text-dim-xs ml-auto">
+          {{ carouselIndex + 1 }} / {{ carouselSlides.length }}
+        </span>
+      </div>
+
+      <div
+        class="absolute inset-x-0 bottom-0 flex flex-wrap items-center justify-between gap-2 bg-linear-to-t from-base-300/95 to-transparent p-3 pt-10"
+      >
+        <span
+          class="badge badge-sm border-0 bg-base-100/85 font-bold backdrop-blur"
         >
-          <span class="badge badge-sm border-0 bg-base-100/85 font-bold backdrop-blur">
-            Current {{ selectedSlot.label }}
-          </span>
-          <div v-if="mayEdit" class="flex gap-1">
+          {{ activeSlideCaption }}
+        </span>
+        <div v-if="mayEdit" class="flex flex-wrap gap-1">
+          <button
+            v-if="canPromoteActiveSlide"
+            type="button"
+            class="btn btn-primary btn-xs gap-1 rounded-lg"
+            :disabled="promoting"
+            @click="promoteActiveSlide"
+          >
+            <span v-if="promoting" class="kr-spinner-xs" />
+            <Icon v-else name="kind-icon:star" class="size-3" />
+            Set as {{ primarySlot.label.toLowerCase() }}
+          </button>
+          <template v-else>
             <button
               type="button"
               class="btn btn-secondary btn-xs gap-1 rounded-lg"
@@ -90,103 +139,10 @@
               <Icon name="kind-icon:upload" class="size-3" />
               Upload
             </button>
-          </div>
+          </template>
         </div>
       </div>
 
-      <aside v-if="history.length" class="kr-panel-tint-compact-50">
-        <div class="mb-2 flex items-center gap-2">
-          <Icon name="kind-icon:history" class="size-3.5 text-base-content/50" />
-          <h4 class="kr-text-eyebrow kr-text-dim-xs-55 tracking-wide">
-            Inspiration history
-          </h4>
-          <span class="kr-badge-ghost-xs ml-auto">{{ filteredHistory.length }}</span>
-        </div>
-        <div v-if="filteredHistory.length" class="grid max-h-72 grid-cols-2 gap-2 overflow-y-auto">
-          <article
-            v-for="item in filteredHistory"
-            :key="item.id"
-            class="group relative overflow-hidden rounded-lg border border-base-300 bg-base-100"
-          >
-            <img
-              :src="historySrc(item)"
-              :alt="item.fileName || 'Previous artwork'"
-              class="aspect-square size-full object-cover"
-            />
-            <button
-              v-if="mayEdit"
-              type="button"
-              class="btn btn-circle btn-error btn-xs absolute right-1 top-1 opacity-0 shadow transition-opacity group-hover:opacity-100"
-              title="Remove from inspiration history"
-              :disabled="removingHistoryId === item.id"
-              @click="removeHistory(item.id)"
-            >
-              <span v-if="removingHistoryId === item.id" class="kr-spinner-xs" />
-              <Icon v-else name="kind-icon:trash" class="size-3" />
-            </button>
-            <p class="truncate px-2 py-1 text-[0.65rem] text-base-content/50">
-              {{ item.fieldLabel || item.fileName || `Image ${item.id}` }}
-            </p>
-          </article>
-        </div>
-        <p v-else class="kr-text-dim-xs-40 py-6 text-center">
-          No saved {{ selectedSlot.label.toLowerCase() }} versions.
-        </p>
-      </aside>
-    </div>
-
-    <div
-      v-if="hasCarousel"
-      class="group relative mt-3 min-h-40 touch-pan-y select-none overflow-hidden rounded-xl border border-dashed border-primary/40 bg-primary/5"
-      @mouseenter="carouselPaused = true"
-      @mouseleave="carouselPaused = false"
-      @pointerdown="beginCarouselSwipe"
-      @pointerup="endCarouselSwipe"
-      @pointercancel="cancelCarouselSwipe"
-    >
-      <Transition name="entity-carousel-fade">
-        <img
-          :key="activeCarouselSlide.src"
-          :src="activeCarouselSlide.src"
-          :alt="activeCarouselSlide.label"
-          draggable="false"
-          class="absolute inset-0 size-full object-cover"
-        />
-      </Transition>
-      <div
-        class="pointer-events-none absolute inset-x-0 top-0 flex flex-wrap items-center gap-2 bg-linear-to-b from-base-300/90 to-transparent p-2"
-      >
-        <Icon name="kind-icon:image" class="size-3.5 text-secondary" />
-        <span
-          class="kr-text-eyebrow-bold kr-text-dim-xs-60 tracking-wide"
-        >
-          Artwork &amp; inspirations
-        </span>
-        <span
-          v-if="history.length"
-          class="kr-badge-info-xs"
-        >
-          {{ history.length }} inspiration{{ history.length === 1 ? '' : 's' }}
-        </span>
-        <span
-          v-if="collectionSlides.length"
-          class="kr-badge-secondary-xs"
-        >
-          {{ collectionSlides.length }} collection
-        </span>
-        <span class="kr-text-dim-xs ml-auto">
-          {{ carouselIndex + 1 }} / {{ carouselSlides.length }}
-        </span>
-      </div>
-      <div
-        class="pointer-events-none absolute inset-x-0 bottom-0 bg-linear-to-t from-base-300/90 to-transparent p-2 pt-8"
-      >
-        <span
-          class="badge badge-sm border-0 bg-base-100/85 font-semibold backdrop-blur"
-        >
-          {{ activeCarouselSlide.label }}
-        </span>
-      </div>
       <template v-if="carouselSlides.length > 1">
         <button
           type="button"
@@ -208,30 +164,59 @@
         </button>
       </template>
     </div>
+
     <div
-      v-if="hasCarousel && carouselSlides.length > 1"
-      class="mt-2 flex flex-wrap justify-center gap-1.5"
+      v-if="carouselSlides.length > 1"
+      class="mt-2 flex gap-1.5 overflow-x-auto pb-1"
     >
-      <button
+      <div
         v-for="(slide, index) in carouselSlides"
-        :key="slide.src"
-        type="button"
-        class="relative size-10 overflow-hidden rounded-lg border transition-all"
-        :class="
-          index === carouselIndex
-            ? 'border-primary ring-2 ring-primary/40'
-            : 'border-base-300 opacity-60 hover:opacity-100'
-        "
-        :aria-label="`Show ${slide.label}`"
-        :title="slide.label"
-        @click="selectCarouselSlide(index)"
+        :key="slide.key"
+        class="group/thumb relative shrink-0"
       >
-        <img
-          :src="slide.src"
-          :alt="slide.label"
-          class="size-full object-cover"
-        />
-      </button>
+        <button
+          type="button"
+          class="relative block size-14 overflow-hidden rounded-lg border transition-all"
+          :class="
+            index === carouselIndex
+              ? 'border-primary ring-2 ring-primary/40'
+              : 'border-base-300 opacity-70 hover:opacity-100'
+          "
+          :aria-label="`Show ${slide.label}`"
+          :title="slide.label"
+          @click="selectCarouselSlide(index)"
+        >
+          <img
+            v-if="slide.src"
+            :src="slide.src"
+            :alt="slide.label"
+            class="size-full object-cover"
+          />
+          <span
+            v-else
+            class="flex size-full items-center justify-center text-base-content/30"
+          >
+            <Icon name="kind-icon:image" class="size-4" />
+          </span>
+          <span
+            v-if="slide.kind === 'slot'"
+            class="absolute inset-x-0 bottom-0 truncate bg-base-300/85 px-1 text-[0.55rem] font-bold leading-4"
+          >
+            {{ slide.label }}
+          </span>
+        </button>
+        <button
+          v-if="mayEdit && slide.kind === 'inspiration' && slide.artImageId"
+          type="button"
+          class="btn btn-circle btn-error btn-xs absolute -right-1 -top-1 opacity-0 shadow transition-opacity group-hover/thumb:opacity-100"
+          title="Remove from inspiration history"
+          :disabled="removingHistoryId === slide.artImageId"
+          @click="removeHistory(slide.artImageId)"
+        >
+          <span v-if="removingHistoryId === slide.artImageId" class="kr-spinner-xs" />
+          <Icon v-else name="kind-icon:trash" class="size-3" />
+        </button>
+      </div>
     </div>
 
     <form
@@ -545,13 +530,35 @@ type GenerationPreset = {
   steps?: number
 }
 type CollectionSlide = { src: string; label: string }
-type CarouselSlide = { src: string; label: string; field?: string }
+type CarouselSlide = {
+  key: string
+  src: string
+  label: string
+  kind: 'slot' | 'inspiration' | 'collection'
+  field?: string
+  artImageId?: number
+}
+type ServerArtSlot = {
+  field: string
+  label: string
+  width: number
+  height: number
+  primary: boolean
+  retired: boolean
+}
+type ResolvedSlot = ServerArtSlot & { aspect: string }
 
 const props = withDefaults(
   defineProps<{
     entityType: EntityArtType
     entity: EntityRecord
-    slots: EntityArtSlot[]
+    /**
+     * Optional override. The slot roster normally arrives from the entity art
+     * endpoint, which reads the same table that refuses generation for retired
+     * slots -- hardcoding a list here is how every call site ended up offering
+     * Hero, Card and Icon as peer tabs after all three were retired.
+     */
+    slots?: EntityArtSlot[]
     canEdit?: boolean
     /**
      * Extra read-only slides (e.g. a linked ArtCollection). Canonical entity
@@ -561,6 +568,7 @@ const props = withDefaults(
     collectionSlides?: CollectionSlide[]
   }>(),
   {
+    slots: () => [],
     canEdit: false,
     collectionSlides: () => [],
   },
@@ -573,7 +581,8 @@ const emit = defineEmits<{
 
 const userStore = useUserStore()
 const resourceStore = useResourceStore()
-const selectedField = ref(props.slots[0]?.field || 'imagePath')
+const serverSlots = ref<ServerArtSlot[]>([])
+const selectedField = ref(defaultFieldName())
 const history = ref<HistoryItem[]>([])
 const showGenerate = ref(false)
 const showUpload = ref(false)
@@ -587,7 +596,8 @@ const uploadFile = ref<File | null>(null)
 const submitting = ref(false)
 const loadingResources = ref(false)
 const removingHistoryId = ref<number | null>(null)
-const currentFailed = ref(false)
+const promoting = ref(false)
+const failedSrcs = ref<string[]>([])
 const message = ref('')
 const messageTone = ref<'info' | 'success' | 'error'>('info')
 let pollTimer: ReturnType<typeof setTimeout> | null = null
@@ -611,16 +621,61 @@ const mayEdit = computed(
     userStore.isAdmin ||
     Number(props.entity.userId) === Number(userStore.userId),
 )
-const selectedSlot = computed(() => {
-  const configured = props.slots.find((slot) => slot.field === selectedField.value)
+function defaultFieldName(): string {
+  return props.entityType === 'bot' ? 'avatarImage' : 'imagePath'
+}
+
+function fallbackSlot(): ResolvedSlot {
   return {
-    field: configured?.field || props.slots[0]?.field || 'imagePath',
-    label: configured?.label || 'Image',
-    aspect: configured?.aspect || '1 / 1',
-    width: configured?.width || 1024,
-    height: configured?.height || 1024,
+    field: defaultFieldName(),
+    label: 'Image',
+    aspect: '1 / 1',
+    width: 1024,
+    height: 1024,
+    primary: true,
+    retired: false,
   }
+}
+
+/**
+ * Server roster first, the `slots` prop as an override, and a single synthetic
+ * primary while the first fetch is in flight so the panel never renders an
+ * empty frame.
+ */
+const resolvedSlots = computed<ResolvedSlot[]>(() => {
+  if (props.slots.length) {
+    return props.slots.map((slot, index) => ({
+      field: slot.field,
+      label: slot.label,
+      aspect: slot.aspect || '1 / 1',
+      width: slot.width || 1024,
+      height: slot.height || 1024,
+      primary: index === 0,
+      retired: false,
+    }))
+  }
+  if (serverSlots.value.length) {
+    return serverSlots.value.map((slot) => ({
+      ...slot,
+      aspect: `${slot.width} / ${slot.height}`,
+    }))
+  }
+  return [fallbackSlot()]
 })
+const editableSlots = computed(() =>
+  resolvedSlots.value.filter((slot) => !slot.retired),
+)
+const primarySlot = computed(
+  () =>
+    editableSlots.value.find((slot) => slot.primary) ||
+    editableSlots.value[0] ||
+    fallbackSlot(),
+)
+const selectedSlot = computed<ResolvedSlot>(
+  () =>
+    editableSlots.value.find((slot) => slot.field === selectedField.value) ||
+    primarySlot.value,
+)
 /**
  * A Project's own DB columns (heroPath/cardPath/imagePath) are only one of
  * two places its art can live: conductor's art pipeline commits hero/card/
@@ -640,12 +695,26 @@ const PROJECT_ART_KIND_BY_FIELD: Record<string, 'hero' | 'card' | 'icon'> = {
   imagePath: 'icon',
 }
 
-function projectFallbackSrc(field: string): string {
-  if (props.entityType !== 'project') return ''
-  const kind = PROJECT_ART_KIND_BY_FIELD[field]
+/**
+ * The primary slot reaches for the LARGEST conductor render first and steps
+ * down only when one is missing. One image now serves every view, and the
+ * primary field for a project is still the one conductor delivers its 256px
+ * icon into -- resolving the primary straight to that icon would put a
+ * thumbnail on the main stage for every project whose art lives in the
+ * conductor repo rather than in an ArtImage row.
+ */
+function projectFallbackCandidates(field: string): string[] {
+  if (props.entityType !== 'project') return []
   const slug = props.entity.conductorSlug as string | null | undefined
-  if (!kind || !slug) return ''
-  return projectAssetFallback(slug, kind)
+  if (!slug) return []
+  const own = PROJECT_ART_KIND_BY_FIELD[field]
+  const kinds: ('hero' | 'card' | 'icon')[] =
+    field === primarySlot.value.field
+      ? ['hero', 'card', 'icon']
+      : own
+        ? [own]
+        : []
+  return kinds.map((kind) => projectAssetFallback(slug, kind))
 }
 
 function slotSrc(field: string): string {
@@ -654,14 +723,14 @@ function slotSrc(field: string): string {
   if (props.entity.artImageId && ['imagePath', 'avatarImage'].includes(field)) {
     return `/api/art/images/${props.entity.artImageId}/file`
   }
-  return projectFallbackSrc(field)
+  const candidates = projectFallbackCandidates(field)
+  return (
+    candidates.find((src) => !failedSrcs.value.includes(src)) ||
+    candidates[0] ||
+    ''
+  )
 }
 const currentSrc = computed(() => slotSrc(selectedSlot.value.field))
-const filteredHistory = computed(() =>
-  history.value.filter(
-    (item) => !item.field || item.field === selectedField.value,
-  ),
-)
 const checkpointOptions = computed(() =>
   resourceStore.resources
     .filter((resource) => {
@@ -757,24 +826,76 @@ function historySrc(item: HistoryItem): string {
   return normalizeSrc(item.imagePath || item.path) || `/api/art/images/${item.id}/file`
 }
 
+/**
+ * One loop, every image: the editable slots (empty ones included, so a slot
+ * with no art yet is still reachable), then whatever a retired slot is still
+ * holding, then inspiration history, then the linked collection.
+ *
+ * Retired slots ride along as inspirations rather than as their own tabs. The
+ * art they hold is real and still rendered elsewhere on the site, so hiding it
+ * would lose it, but nothing new is generated into them -- the way back into
+ * circulation is `Set as main`.
+ */
 const carouselSlides = computed<CarouselSlide[]>(() => {
   const out: CarouselSlide[] = []
-  const seen = new Set<string>()
-  const push = (src: string, label: string, field?: string) => {
-    if (!src || seen.has(src)) return
-    seen.add(src)
-    out.push({ src, label, field })
+  const seenSrcs = new Set<string>()
+  const seenIds = new Set<number>()
+  /*
+   * Deduped by ArtImage id as well as by URL. Promoting an inspiration leaves
+   * its history link in place and stamps a cache-busting `?v=` onto the slot
+   * path, so the same image reaches here under two different URLs and would
+   * otherwise show up twice -- once as the main image and once as an
+   * inspiration of itself.
+   */
+  const push = (slide: CarouselSlide) => {
+    if (slide.artImageId) {
+      if (seenIds.has(slide.artImageId)) return
+      seenIds.add(slide.artImageId)
+    }
+    if (slide.src) {
+      if (seenSrcs.has(slide.src)) return
+      seenSrcs.add(slide.src)
+    }
+    out.push(slide)
   }
-  for (const slot of props.slots) push(slotSrc(slot.field), slot.label, slot.field)
+  for (const slot of editableSlots.value) {
+    push({
+      key: `slot:${slot.field}`,
+      src: slotSrc(slot.field),
+      label: slot.label,
+      kind: 'slot',
+      field: slot.field,
+      artImageId: slotArtImageId(slot.field) ?? undefined,
+    })
+  }
+  for (const slot of resolvedSlots.value) {
+    if (!slot.retired) continue
+    const src = slotSrc(slot.field)
+    if (!src) continue
+    push({
+      key: `retired:${slot.field}`,
+      src,
+      label: `Retired · ${slot.label}`,
+      kind: 'inspiration',
+      artImageId: slotArtImageId(slot.field) ?? undefined,
+    })
+  }
   for (const item of history.value) {
-    push(
-      historySrc(item),
-      `Inspiration · ${item.fieldLabel || item.fileName || `Image ${item.id}`}`,
-      item.field,
-    )
+    push({
+      key: `history:${item.id}`,
+      src: historySrc(item),
+      label: `Inspiration · ${item.fieldLabel || item.fileName || `Image ${item.id}`}`,
+      kind: 'inspiration',
+      artImageId: item.id,
+    })
   }
   for (const slide of props.collectionSlides) {
-    push(normalizeSrc(slide.src), slide.label)
+    push({
+      key: `collection:${slide.src || slide.label}`,
+      src: normalizeSrc(slide.src),
+      label: slide.label,
+      kind: 'collection',
+    })
   }
   return out
 })
@@ -782,8 +903,34 @@ const hasCarousel = computed(() => carouselSlides.value.length > 1)
 const activeCarouselSlide = computed<CarouselSlide>(
   () =>
     carouselSlides.value[carouselIndex.value] ??
-    carouselSlides.value[0] ?? { src: '', label: '' },
+    carouselSlides.value[0] ?? {
+      key: 'empty',
+      src: '',
+      label: primarySlot.value.label,
+      kind: 'slot',
+    },
 )
+const activeSlideFailed = computed(() =>
+  failedSrcs.value.includes(activeCarouselSlide.value.src),
+)
+const inspirationCount = computed(
+  () =>
+    carouselSlides.value.filter((slide) => slide.kind === 'inspiration').length,
+)
+const activeSlideCaption = computed(() => {
+  const slide = activeCarouselSlide.value
+  return slide.kind === 'slot' ? `Current ${slide.label}` : slide.label
+})
+/**
+ * Only an image that is not already serving a slot can be promoted, and only
+ * when the endpoint has an id to promote -- a collection slide carries a URL
+ * and nothing else.
+ */
+const canPromoteActiveSlide = computed(() => {
+  const slide = activeCarouselSlide.value
+  if (slide.kind !== 'inspiration' || !slide.artImageId) return false
+  return slotArtImageId(primarySlot.value.field) !== slide.artImageId
+})
 
 function stepCarousel(direction: number) {
   const count = carouselSlides.value.length
@@ -820,8 +967,31 @@ function selectCarouselSlide(index: number) {
 
 function selectSlot(field: string) {
   selectedField.value = field
-  currentFailed.value = false
   message.value = ''
+}
+
+function markSlideFailed(src: string) {
+  if (!src || failedSrcs.value.includes(src)) return
+  failedSrcs.value = [...failedSrcs.value, src]
+}
+
+/**
+ * The ArtImage id behind a slot, resolved the same way the server does it: the
+ * slot's own id column, then the id embedded in an /api/art/images/<id>/file
+ * path, and the record's primary artImageId only for the primary slot.
+ */
+function slotArtImageId(field: string): number | null {
+  const slotIdField = field.match(/^(card|hero|icon)Path$/)
+  const columnValue = slotIdField
+    ? props.entity[`${slotIdField[1]}ArtImageId`]
+    : props.entity.artImageId
+  const columnId = Number(columnValue)
+  if (Number.isInteger(columnId) && columnId > 0) return columnId
+  const raw = props.entity[field]
+  const embedded = Number(
+    typeof raw === 'string' ? raw.match(/\/api\/art\/images\/(\d+)\/file/)?.[1] : NaN,
+  )
+  return Number.isInteger(embedded) && embedded > 0 ? embedded : null
 }
 
 function openGenerate() {
@@ -855,7 +1025,7 @@ function handleFile(event: Event) {
 function applyEntity(entity: EntityRecord | null | undefined) {
   if (!entity) return
   Object.assign(props.entity, entity)
-  currentFailed.value = false
+  failedSrcs.value = []
   emit('updated', props.entity)
 }
 
@@ -864,6 +1034,7 @@ async function fetchEntityArt(force = false) {
   const response = await performFetch<{
     entity: EntityRecord
     history: HistoryItem[]
+    slots?: ServerArtSlot[]
   }>(
     `/api/art/entities/${props.entityType}/${props.entity.id}${query}`,
     force ? { cache: 'no-store' } : {},
@@ -873,6 +1044,48 @@ async function fetchEntityArt(force = false) {
   }
   applyEntity(response.data.entity)
   history.value = response.data.history || []
+  serverSlots.value = response.data.slots || []
+  if (!editableSlots.value.some((slot) => slot.field === selectedField.value)) {
+    selectedField.value = primarySlot.value.field
+  }
+}
+
+async function promoteActiveSlide() {
+  const slide = activeCarouselSlide.value
+  if (!slide.artImageId || promoting.value) return
+  promoting.value = true
+  message.value = ''
+  try {
+    const response = await performFetch<{
+      entity: EntityRecord
+      history: HistoryItem[]
+    }>(`/api/art/entities/${props.entityType}/${props.entity.id}/promote`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        field: primarySlot.value.field,
+        artImageId: slide.artImageId,
+        preserveOriginal: true,
+      }),
+    })
+    if (!response.success || !response.data) {
+      throw new Error(response.message || 'That image could not be set as the main image.')
+    }
+    applyEntity(response.data.entity)
+    history.value = response.data.history || []
+    selectedField.value = primarySlot.value.field
+    carouselIndex.value = 0
+    message.value = response.message || 'Main image updated.'
+    messageTone.value = 'success'
+  } catch (error) {
+    message.value =
+      error instanceof Error
+        ? error.message
+        : 'That image could not be set as the main image.'
+    messageTone.value = 'error'
+  } finally {
+    promoting.value = false
+  }
 }
 
 async function ensureResources() {
@@ -1058,8 +1271,9 @@ watch(generationEngine, () => {
 watch(
   () => [props.entityType, props.entity.id],
   async () => {
-    selectedField.value = props.slots[0]?.field || 'imagePath'
-    currentFailed.value = false
+    serverSlots.value = []
+    selectedField.value = defaultFieldName()
+    failedSrcs.value = []
     history.value = []
     carouselIndex.value = 0
     cancelCarouselSwipe()
@@ -1070,7 +1284,10 @@ watch(
   },
 )
 watch(selectedField, () => {
-  currentFailed.value = false
+  const index = carouselSlides.value.findIndex(
+    (slide) => slide.kind === 'slot' && slide.field === selectedField.value,
+  )
+  if (index >= 0) carouselIndex.value = index
 })
 watch(carouselSlides, (next) => {
   if (carouselIndex.value >= next.length) carouselIndex.value = 0
@@ -1098,6 +1315,37 @@ onBeforeUnmount(() => {
 </script>
 
 <style scoped>
+/*
+ * One stage, sized by the slot's own aspect and clamped so a tall card frame
+ * cannot push the rest of the panel off screen. The image is contained rather
+ * than cropped -- the loop mixes 16:9, 2:3 and square art, and cover hid the
+ * subject of whichever one did not match the frame -- over a blurred copy of
+ * itself so the letterboxing still reads as artwork.
+ */
+.art-stage {
+  aspect-ratio: var(--art-stage-aspect, 1 / 1);
+  min-height: 12rem;
+  max-height: min(50vh, 24rem);
+}
+
+.art-stage-backdrop,
+.art-stage-image {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.art-stage-backdrop {
+  object-fit: cover;
+  filter: blur(1.5rem) saturate(1.1);
+  transform: scale(1.1);
+}
+
+.art-stage-image {
+  object-fit: contain;
+}
+
 .entity-carousel-fade-enter-active,
 .entity-carousel-fade-leave-active {
   transition: opacity 400ms ease;

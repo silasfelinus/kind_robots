@@ -38,19 +38,7 @@
   <section v-if="facet" class="space-y-4">
     <FacetProfileEditor v-model="editForm" />
 
-    <EntityArtManager
-      entity-type="facet"
-      :entity="facet"
-      :slots="[
-        {
-          field: 'imagePath',
-          label: 'Image',
-          aspect: '1 / 1',
-          width: 1024,
-          height: 1024,
-        },
-      ]"
-    />
+    <EntityArtManager entity-type="facet" :entity="facet" />
 
     <p v-if="errorMessage" class="text-sm text-error">{{ errorMessage }}</p>
 

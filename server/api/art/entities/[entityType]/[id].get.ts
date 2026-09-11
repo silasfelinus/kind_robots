@@ -5,6 +5,7 @@ import { errorHandler } from '~/server/utils/error'
 import { requireApiUser } from '~/server/utils/authGuard'
 import {
   listEntityArtHistory,
+  listEntityArtSlots,
   resolveEntityArtTarget,
 } from '~/server/utils/entityArt'
 
@@ -36,6 +37,7 @@ export default defineEventHandler(async (event) => {
       data: {
         entity: target.record,
         history,
+        slots: listEntityArtSlots(target.entityType),
       },
       statusCode: 200,
     }

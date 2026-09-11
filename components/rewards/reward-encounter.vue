@@ -268,36 +268,6 @@
           v-if="rewardStore.selectedReward"
           entity-type="reward"
           :entity="rewardStore.selectedReward"
-          :slots="[
-            {
-              field: 'imagePath',
-              label: 'Reward image',
-              aspect: '1 / 1',
-              width: 1024,
-              height: 1024,
-            },
-            {
-              field: 'iconPath',
-              label: 'Icon',
-              aspect: '1 / 1',
-              width: 256,
-              height: 256,
-            },
-            {
-              field: 'cardPath',
-              label: 'Card',
-              aspect: '2 / 3',
-              width: 512,
-              height: 768,
-            },
-            {
-              field: 'heroPath',
-              label: 'Hero',
-              aspect: '16 / 9',
-              width: 1280,
-              height: 720,
-            },
-          ]"
         />
         <section class="shrink-0 kr-panel-flat p-4 shadow-md">
           <h2 class="kr-text-bold-lg mb-3 text-base-content">The Encounter</h2>

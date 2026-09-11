@@ -140,7 +140,6 @@
         entity-type="project"
         :entity="linkedProject"
         :collection-slides="projectCollectionSlides"
-        :slots="projectArtSlots"
       />
 
       <div class="flex min-w-0 flex-col gap-2">
@@ -371,6 +370,12 @@
               {{ task.status }}
             </span>
           </div>
+
+          <TaskResponder
+            :project-slug="selectedProject.slug"
+            :task="task"
+            :project-id="linkedProject?.id ?? null"
+          />
         </div>
 
         <details
@@ -507,6 +512,7 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import EntityArtManager from '@/components/art/entity-art-manager.vue'
+import TaskResponder from '@/components/conductor/task-responder.vue'
 import type {
   ConductorProject,
   ConductorTask,
@@ -542,30 +548,6 @@ const projectTaskCategory = ref<TodoCategory>('AGENT')
 const projectTaskPriority = ref<ProjectPriorityLevel>('NORMAL')
 const projectTaskSubmitting = ref(false)
 let saveMessageTimer: ReturnType<typeof setTimeout> | null = null
-
-const projectArtSlots = [
-  {
-    field: 'heroPath',
-    label: 'Hero',
-    aspect: '16 / 9',
-    width: 1280,
-    height: 720,
-  },
-  {
-    field: 'cardPath',
-    label: 'Card',
-    aspect: '2 / 3',
-    width: 512,
-    height: 768,
-  },
-  {
-    field: 'imagePath',
-    label: 'Icon',
-    aspect: '1 / 1',
-    width: 256,
-    height: 256,
-  },
-]
 
 type ProjectPatch = {
   description?: string | null
@@ -963,37 +945,13 @@ onBeforeUnmount(() => {
   }
 }
 
-:deep(.project-art-compact header p),
-:deep(.project-art-compact header .badge),
-:deep(.project-art-compact .mt-2.flex.flex-wrap.justify-center) {
-  display: none;
-}
-
-:deep(
-  .project-art-compact:has(.group.relative.mt-3.min-h-40) .mt-3.grid.gap-3
-) {
-  display: none;
-}
-
-:deep(.project-art-compact .mt-3.grid.gap-3) {
-  margin-top: 0.5rem;
-}
-
-:deep(.project-art-compact .mt-3.grid.gap-3 > div) {
-  height: 20vh;
-  min-height: 8rem;
-  max-height: 12rem;
-  aspect-ratio: auto !important;
-}
-
-:deep(.project-art-compact .mt-3.grid.gap-3 aside) {
-  display: none;
-}
-
-:deep(.project-art-compact .group.relative.mt-3.min-h-40) {
-  height: 20vh;
-  min-height: 8rem;
-  max-height: 12rem;
-  margin-top: 0.5rem;
-}
+/*
+ * The Artwork panel owns its own layout. This block used to reach into
+ * entity-art-manager.vue by Tailwind utility-class selector to hide one of its
+ * two image viewers and clamp the other to a fifth of the viewport height.
+ * That is what left project images too small to read with dead space under
+ * them (Silas, 2026-09-11), and it broke silently whenever a utility class in
+ * the child changed. The child renders a single stage now, so there is nothing
+ * to hide -- see verifyEntityArtManager.ts, which keeps those selectors out.
+ */
 </style>

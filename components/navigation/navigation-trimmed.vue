@@ -83,7 +83,7 @@
               >
                 <Icon
                   :name="tab.icon || channel.icon"
-                  class="h-5 w-5 text-base-100 drop-shadow"
+                  class="kr-icon-5 text-base-100 drop-shadow"
                 />
               </span>
             </span>

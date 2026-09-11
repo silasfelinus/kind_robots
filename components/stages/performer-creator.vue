@@ -294,7 +294,7 @@
                 <div v-else class="flex h-full items-center justify-center">
                   <Icon
                     name="mdi:pencil"
-                    class="h-5 w-5 text-base-content/20"
+                    class="kr-icon-5 text-base-content/20"
                   />
                 </div>
                 <!-- Selected overlay -->

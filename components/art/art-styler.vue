@@ -204,7 +204,7 @@
             >
               <Icon
                 name="mdi:check-circle"
-                class="h-5 w-5 text-primary-content drop-shadow"
+                class="kr-icon-5 text-primary-content drop-shadow"
               />
             </div>
           </button>
@@ -258,7 +258,7 @@
               <Icon
                 v-if="!isLoadingStarterImage"
                 name="mdi:check-circle"
-                class="h-5 w-5 text-primary-content drop-shadow"
+                class="kr-icon-5 text-primary-content drop-shadow"
               />
               <span
                 v-else

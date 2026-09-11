@@ -350,7 +350,10 @@
                     {{ selectedCollectionSummary }}
                   </p>
                 </div>
-                <Icon name="kind-icon:folder" class="h-5 w-5 text-secondary" />
+                <Icon
+                  name="kind-icon:folder"
+                  class="kr-icon-5 text-secondary"
+                />
               </div>
 
               <button

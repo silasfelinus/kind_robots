@@ -91,22 +91,31 @@
     </div>
 
     <!--
-      TWO COLUMNS ON DESKTOP. Silas, 2026-09-01: "Needs you, project progress,
-      and newsfeed should be in one column on the right side ... the dream hero
-      gets the extra room ... Then in the lower left corner that remains we
-      should have the six galleries ... in 3 columns and two rows."
+      TWO COLUMNS ON DESKTOP, THEN THE FEED ACROSS THE BOTTOM. Silas, 2026-09-01:
+      "Needs you, project progress, and newsfeed should be in one column on the
+      right side ... the dream hero gets the extra room ... Then in the lower
+      left corner that remains we should have the six galleries ... in 3 columns
+      and two rows." The newsfeed left that column on 2026-09-11 -- see the note
+      above the section at the end of this template.
 
-      Left is the dream and the galleries; right is everything that is a list
-      rather than a picture. The right column is 22% -- "The needs you section is
-      still too wide" applied to what was a third of the band, and narrow enough
-      that the newsfeed reads as a vertical feed rather than a grid.
+      Left is the dream and the galleries; right is the two lists. The right
+      column is 22% -- "The needs you section is still too wide" applied to what
+      was a third of the band.
+
+      `xl:items-stretch`, so both columns are as tall as the taller one, and the
+      projects strip inside the right column takes the slack (see paneClass).
+      Without that the right column ends early and the page backdrop shows
+      through underneath it, which is the whitespace complaint in a new place
+      rather than a fixed one. The left column's height is its own content --
+      two fixed bands -- so the stretch is content-derived, not a percentage of
+      a viewport.
 
       Below `xl` the two columns stack and each band keeps its natural height,
       which is also where the galleries fall back to one swipe-scrollable row
       ("ideally we will be able to do something close to this with tablet but
       have swipe scrolling to show the different object galleries").
     -->
-    <div class="flex flex-col gap-3 xl:flex-row xl:items-start">
+    <div class="flex flex-col gap-3 xl:flex-row xl:items-stretch">
       <div class="flex min-w-0 flex-col gap-3 xl:w-[78%]">
         <!--
           The dream band. 46/54 rather than half and half: the galleries below
@@ -266,7 +275,7 @@
         <div :class="paneClass('projects')">
           <section
             v-if="showcaseStore.projects.length"
-            class="flex w-full shrink-0 flex-col gap-1.5 kr-panel-flat p-3"
+            class="flex w-full shrink-0 flex-col gap-1.5 kr-panel-flat p-3 xl:min-h-0 xl:flex-1 xl:overflow-y-auto"
           >
             <header class="flex flex-wrap items-baseline justify-between gap-3">
               <h2
@@ -347,48 +356,55 @@
             </div>
           </section>
         </div>
-
-        <!--
-          The feed, its heading inside its own control strip rather than in a
-          section header above it (Silas, 2026-08-29). Bounded on small screens
-          by max-h; on xl it simply fills whatever the column has left, which is
-          the "use maximum space" ask. The contract's one-scroll rule does not
-          count a `max-h-*` region -- nested preview, not the page's scroll
-          owner, which is still pages/[...slug].vue's content-host.
-        -->
-        <div :class="paneClass('news')">
-          <section
-            class="flex max-h-[32rem] w-full flex-col overflow-y-auto overscroll-contain kr-panel-flat p-3"
-          >
-            <NewsfeedFeed :initial-limit="24" compact>
-              <!--
-              "News", not "From around the web". Silas, 2026-09-01: "we might as
-              well change 'from around the web' to 'News'". It also buys back the
-              width the topic chips were short of: the heading shares one row
-              with the chips, three controls and the lab link inside a 22%
-              column, and the long version was eating roughly 150px of it.
-            -->
-              <template #lead>
-                <h2
-                  class="kr-text-eyebrow hidden shrink-0 text-[0.7rem] tracking-[0.16em] text-primary lg:block"
-                >
-                  News
-                </h2>
-              </template>
-
-              <template #trail>
-                <NuxtLink
-                  to="/plan/newsfeed"
-                  class="link link-hover shrink-0 text-[0.7rem] font-bold text-base-content/50 hover:text-primary"
-                >
-                  lab →
-                </NuxtLink>
-              </template>
-            </NewsfeedFeed>
-          </section>
-        </div>
       </div>
     </div>
+
+    <!--
+      THE FEED, FULL WIDTH, LAST. Silas, 2026-09-11: "let's readjust the layout
+      so the news gets put on the bottom below everything, 100% width. We have a
+      big problem now with whitespace."
+
+      The whitespace was the feed's doing. It was the tall item in a 22% column
+      beside a left column of fixed-height bands, so the column ran hundreds of
+      pixels past the galleries and the page backdrop showed through the gap.
+      Moving it out of the column removes the mismatch rather than papering over
+      it, and a feed of cards is the one thing here that genuinely wants the
+      whole width: NewsfeedFeed's grid is
+      `auto-fit,minmax(min(100%,13rem),1fr)`, so it follows its container and
+      lays out roughly six across at laptop width instead of one.
+
+      No inner scroller any more either. A `max-h` scroller made sense inside a
+      column that had to share height; as the last band on a page that scrolls,
+      it would only mean scrolling the page to it and then scrolling again
+      inside it. Its heading stays inside its own control strip rather than in a
+      section header above it (Silas, 2026-08-29).
+    -->
+    <section class="w-full kr-panel-flat p-3">
+      <NewsfeedFeed :initial-limit="24" compact>
+        <!--
+          "News", not "From around the web" (Silas, 2026-09-01: "we might as
+          well change 'from around the web' to 'News'"). It was also buying back
+          width the topic chips were short of inside a 22% column; full width the
+          chips have room either way, but the short name is the one he picked.
+        -->
+        <template #lead>
+          <h2
+            class="kr-text-eyebrow hidden shrink-0 text-[0.7rem] tracking-[0.16em] text-primary lg:block"
+          >
+            News
+          </h2>
+        </template>
+
+        <template #trail>
+          <NuxtLink
+            to="/plan/newsfeed"
+            class="link link-hover shrink-0 text-[0.7rem] font-bold text-base-content/50 hover:text-primary"
+          >
+            lab →
+          </NuxtLink>
+        </template>
+      </NewsfeedFeed>
+    </section>
 
     <!--
       The interstitial. Silas, 2026-08-29: "Whenever I click on one of the new
@@ -422,13 +438,21 @@ import type { ArtVariant } from '@/utils/artImageSrc'
 import type { ArtPlateShape } from '@/utils/galleryVocabulary'
 
 /*
- * The three right-column sections, as phone tabs. See the tablist in the
- * template for why this is a switcher rather than a route.
+ * The right-column sections, as phone tabs. See the tablist in the template for
+ * why this is a switcher rather than a route.
+ *
+ * News used to be the third of these. It is a full-width band at the bottom of
+ * the page now (Silas, 2026-09-11), so it is no longer a pane of this column
+ * and no longer a tab: on a phone everything is one column anyway and the feed
+ * simply comes last, which is where he asked for it. That does cost the phone
+ * shortcut he asked for on 2026-09-02 ("I don't love scrolling vertically
+ * forever to finish my todos before seeing projects and news") for news
+ * specifically -- flagged rather than quietly dropped. The two panes it still
+ * guards are the ones that were burying each other.
  */
 const RIGHT_PANES = [
   { key: 'attention', label: 'Needs you' },
   { key: 'projects', label: 'Building' },
-  { key: 'news', label: 'News' },
 ] as const
 
 type RightPane = (typeof RIGHT_PANES)[number]['key']
@@ -463,7 +487,7 @@ const activePane = ref<RightPane>('attention')
 const currentPane = computed<RightPane>(() =>
   visiblePanes.value.some((pane) => pane.key === activePane.value)
     ? activePane.value
-    : (visiblePanes.value[0]?.key ?? 'news'),
+    : (visiblePanes.value[0]?.key ?? 'projects'),
 )
 
 /**
@@ -474,19 +498,29 @@ const currentPane = computed<RightPane>(() =>
  * depend on a media query listener having fired, and a server-rendered page
  * would otherwise flash the wrong pane set before hydration.
  *
- * VISIBILITY ONLY. This used to divide the column's height as well -- the feed
- * took twice the flexible share "Needs you" did (Silas, 2026-09-08: "the news
- * section is too small, it could be twice as big, eating in the what we're
- * building") and the projects strip was capped at `xl:max-h-[34%]`. All of that
- * read the column's height, and the column has no definite height now that the
- * page is not fitted to the viewport, so a flexible share divides nothing and a
- * percentage max-height computes against `auto` and bounds nothing. Each
- * section carries its own explicit bound instead: the feed a `max-h`, the gate
- * list its own (home-attention.vue), the projects strip its natural height,
- * which is short.
+ * NO PERCENTAGE SHARES. This used to divide the column's height -- the feed
+ * took twice the flexible share "Needs you" did and the projects strip was
+ * capped at `xl:max-h-[34%]`. Both read a viewport-derived column height that
+ * no longer exists, so a flexible share divided nothing and a percentage
+ * max-height computed against `auto` and bounded nothing.
+ *
+ * The projects strip does still grow, and that is deliberate rather than a
+ * relapse. The row is `xl:items-stretch`, so this column's height comes from
+ * the left column's own content -- fixed bands, a definite used height -- which
+ * is what `flex-1` needs to divide. Letting the strip take the slack is what
+ * keeps the gap the feed left from reopening under it as backdrop. It scrolls
+ * past what it is given because short rows read fine either whole or scrolled,
+ * and when this column is the taller of the two `flex-1` simply resolves to its
+ * natural height.
+ *
+ * This wrapper only passes the height down; the `flex-1` that matters is on the
+ * PANEL inside it, which carries `shrink-0`. Growing the wrapper alone leaves
+ * the slack as transparent space under a panel that kept its natural height --
+ * the backdrop gap again, one element further in.
  */
 function paneClass(pane: RightPane): string {
-  return `${currentPane.value === pane ? 'flex' : 'hidden'} min-w-0 flex-col xl:flex`
+  const grow = pane === 'projects' ? 'xl:min-h-0 xl:flex-1' : ''
+  return `${currentPane.value === pane ? 'flex' : 'hidden'} min-w-0 flex-col xl:flex ${grow}`
 }
 
 type RailDefinition = {

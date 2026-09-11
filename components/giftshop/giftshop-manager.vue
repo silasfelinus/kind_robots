@@ -100,7 +100,9 @@
       </section>
 
       <section v-else-if="activeTab === 'giftshop'" class="kr-stage h-full">
-        <giftshop-interact class="h-full min-h-0 flex-1 overflow-hidden" />
+        <div class="kr-scroll">
+          <giftshop-interact />
+        </div>
       </section>
 
       <div

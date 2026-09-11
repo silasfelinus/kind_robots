@@ -47,7 +47,7 @@
             :key="item.label"
             class="flex flex-col items-center gap-1 kr-panel-muted-compact-xs text-center"
           >
-            <Icon :name="item.icon" class="h-5 w-5 text-secondary" />
+            <Icon :name="item.icon" class="kr-icon-5 text-secondary" />
             <span class="kr-text-bold-xs">{{ item.label }}</span>
           </li>
         </ul>

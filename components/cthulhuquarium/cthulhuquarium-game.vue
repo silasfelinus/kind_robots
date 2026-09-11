@@ -339,7 +339,7 @@
             class="flex items-start gap-2 kr-panel-compact"
           >
             <kr-art-plate
-              :source="entry"
+              :source="withCthulhuquariumArt(entry)"
               variant="icon"
               shape="plate"
               frame="thin"
@@ -386,6 +386,18 @@
           class="flex items-center justify-between gap-2 text-left"
           @click="onToggleBestiary"
         >
+          <!-- cthulhuquarium/t-065: the authored cover plate. The book had a
+               formal name and a text label; now it has its cover. -->
+          <kr-art-plate
+            v-if="artByName('ichthyonomicon')"
+            :source="{ imagePath: artByName('ichthyonomicon') }"
+            variant="icon"
+            shape="plate"
+            frame="thin"
+            fit="cover"
+            class="size-10 shrink-0"
+            placeholder-icon="kind-icon:book"
+          />
           <span class="kr-text-eyebrow text-xs tracking-wide opacity-60">
             The Ichthyonomicon
             <span v-if="tankStore.bestiaryTotalCount > 0" class="opacity-80">
@@ -418,7 +430,7 @@
               :class="{ 'opacity-60': !entry.collected }"
             >
               <kr-art-plate
-                :source="entry.collected ? entry : null"
+                :source="entry.collected ? withCthulhuquariumArt(entry) : null"
                 variant="icon"
                 shape="plate"
                 frame="thin"
@@ -654,9 +666,22 @@
               :key="egg.id"
               class="flex items-start gap-2 rounded-xl border border-primary/60 bg-base-100 p-3"
             >
-              <span class="text-3xl leading-none" aria-hidden="true">{{
-                EGG_ICON
-              }}</span>
+              <kr-art-plate
+                v-if="artForEggTier(egg.rarity)"
+                :source="{ imagePath: artForEggTier(egg.rarity) }"
+                variant="icon"
+                shape="plate"
+                frame="thin"
+                fit="cover"
+                class="size-12 shrink-0"
+                placeholder-icon="kind-icon:egg"
+              />
+              <span
+                v-else
+                class="text-3xl leading-none"
+                aria-hidden="true"
+                >{{ EGG_ICON }}</span
+              >
               <div class="min-w-0 flex-1">
                 <p class="kr-text-bold-sm truncate">
                   {{ egg.rarity.charAt(0)
@@ -823,7 +848,7 @@
             New occupant
           </p>
           <kr-art-plate
-            :source="tankStore.revealedUnlock.Monster"
+            :source="withCthulhuquariumArt(tankStore.revealedUnlock.Monster)"
             variant="card"
             shape="plate"
             frame="thin"
@@ -881,7 +906,7 @@
             It hatched
           </p>
           <kr-art-plate
-            :source="tankStore.revealedHatch.Monster"
+            :source="withCthulhuquariumArt(tankStore.revealedHatch.Monster)"
             variant="card"
             shape="plate"
             frame="thin"
@@ -940,7 +965,7 @@
             Breed these two?
           </p>
           <kr-art-plate
-            :source="breedConfirmPair.a.Monster"
+            :source="withCthulhuquariumArt(breedConfirmPair.a.Monster)"
             variant="card"
             shape="plate"
             frame="thin"
@@ -1013,7 +1038,7 @@
             }}
           </p>
           <kr-art-plate
-            :source="tankStore.revealedBreed.stock.Monster"
+            :source="withCthulhuquariumArt(tankStore.revealedBreed.stock.Monster)"
             variant="card"
             shape="plate"
             frame="thin"
@@ -1214,6 +1239,15 @@ import { useUserStore } from '~/stores/userStore'
 // into a normal fingerprinted _nuxt/ URL, no infra dependency at all.
 import screenFinaleArt from '~/assets/images/cthulhuquarium/cthulhuquarium-screen-finale.webp'
 import setLastAquariumArt from '~/assets/images/cthulhuquarium/cthulhuquarium-set-last-aquarium.webp'
+// cthulhuquarium/t-065: the other 136 authored plates, delivered by the same
+// route these two already proved. artForEggTier/artByName cover the egg tiers
+// and the named scene plates; withCthulhuquariumArt fills a Monster's empty
+// icon/card slots from its slug without overwriting anything the DB supplies.
+import {
+  artByName,
+  artForEggTier,
+  withCthulhuquariumArt,
+} from '~/utils/cthulhuquariumArt'
 
 /* Fixed logical resolution; CSS scales it to the host width so the canvas
    survives phone widths without its own breakpoint logic. */
@@ -1383,6 +1417,15 @@ const tankStore = useCthulhuquariumTankStore()
 const userStore = useUserStore()
 const username = computed(() => userStore.username)
 const canvasRef = ref<HTMLCanvasElement | null>(null)
+
+/* cthulhuquarium/t-065: the parlour plate, decoded once and drawn as the
+   tank's backdrop. Plain Image rather than a ref because render() reads it
+   every frame and it never needs to trigger reactivity -- a decode failure
+   simply leaves it incomplete and render() skips it. */
+const parlourImage =
+  import.meta.client && artByName('bg-parlour')
+    ? Object.assign(new Image(), { src: artByName('bg-parlour') as string })
+    : null
 const visibilitySaving = ref(false)
 
 // Display-only mirror of server/utils/aquariumEconomy.ts's TICK_SECONDS,
@@ -1734,8 +1777,12 @@ function hitTestDecor(x: number, y: number): TankDecor | null {
 function getWaterGradient(context: CanvasRenderingContext2D): CanvasGradient {
   if (waterGradient && waterGradientContext === context) return waterGradient
   waterGradient = context.createLinearGradient(0, 0, 0, STAGE_HEIGHT)
-  waterGradient.addColorStop(0, '#0d2b2a')
-  waterGradient.addColorStop(1, '#04100f')
+  // cthulhuquarium/t-065: alpha rather than opaque hex, so the parlour plate
+  // drawn underneath reads as a room behind the glass. Kept deep enough that
+  // the water still dominates and the procedural occupants stay legible
+  // against it -- the room is atmosphere, not the subject.
+  waterGradient.addColorStop(0, 'rgba(13, 43, 42, 0.82)')
+  waterGradient.addColorStop(1, 'rgba(4, 16, 15, 0.93)')
   waterGradientContext = context
   return waterGradient
 }
@@ -1769,6 +1816,17 @@ function drawFinaleReframe(context: CanvasRenderingContext2D) {
 }
 
 function render(context: CanvasRenderingContext2D) {
+  // cthulhuquarium/t-065: the authored parlour plate sits behind the glass, so
+  // the tank reads as a room rather than a coloured rectangle. Drawn first and
+  // then covered by the water gradient, which is semi-transparent, so the room
+  // shows through without competing with the fish. The plate is 1344x768
+  // against a 640x360 stage -- both exactly 16:9, so it fills without cropping.
+  // Purely decorative: if the image has not decoded yet (or is missing) the
+  // gradient below is opaque enough on its own and nothing else changes.
+  if (parlourImage?.complete && parlourImage.naturalWidth > 0) {
+    context.drawImage(parlourImage, 0, 0, STAGE_WIDTH, STAGE_HEIGHT)
+  }
+
   context.fillStyle = getWaterGradient(context)
   context.fillRect(0, 0, STAGE_WIDTH, STAGE_HEIGHT)
 

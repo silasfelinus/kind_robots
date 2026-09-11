@@ -1,30 +1,28 @@
 <template>
   <main class="kr-surface h-full min-h-0 overflow-hidden">
     <div class="kr-scroll kr-container-wide space-y-5 p-4 md:p-6">
-      <header class="kr-toolbar flex flex-wrap items-start justify-between gap-4">
-        <div class="max-w-3xl">
-          <p class="kr-text-eyebrow text-xs tracking-widest text-primary">
-            Admin production
-          </p>
-          <p class="mt-1 text-3xl font-black">Scene Animator</p>
-          <p class="mt-2 text-sm text-base-content/65">
-            Point Kind Robots at a folder of still scenes and let the existing Comfy video
-            queue bring each one to life. No shot-by-shot prompt writing required.
-          </p>
-        </div>
-        <div class="flex flex-wrap gap-2">
-          <span class="kr-badge-outline">Private output</span>
-          <span class="kr-badge-outline">ArtJob-backed resume</span>
-          <button
-            type="button"
-            class="kr-btn"
-            :disabled="store.loading || store.queueing || !userStore.isAdmin"
-            @click="store.load()"
-          >
-            <span v-if="store.loading" class="kr-spinner-xs" />
-            Refresh
-          </button>
-        </div>
+      <!-- Controls only. THE HEADER RULE (interface-vision t-004): the shell's
+           workspace-header already renders this page's title and subtitle from
+           content/channels/admin/scene-animator.md frontmatter, so a page
+           component never renders its own title block. This header previously
+           stacked an "Admin production" eyebrow, a text-3xl font-black
+           "Scene Animator", and a long description on top of the shell's own
+           header -- a triplicate of the frontmatter, laid over the page's
+           background art with no surface behind it, which is why it was close
+           to unreadable. It evaded the `one-header` lint because that rule
+           matches a literal <h1> and this was built from <p> tags. -->
+      <header class="kr-toolbar justify-end">
+        <span class="kr-badge-outline">Private output</span>
+        <span class="kr-badge-outline">ArtJob-backed resume</span>
+        <button
+          type="button"
+          class="kr-btn"
+          :disabled="store.loading || store.queueing || !userStore.isAdmin"
+          @click="store.load()"
+        >
+          <span v-if="store.loading" class="kr-spinner-xs" />
+          Refresh
+        </button>
       </header>
 
       <div v-if="!ready" class="grid min-h-60 place-items-center kr-panel">

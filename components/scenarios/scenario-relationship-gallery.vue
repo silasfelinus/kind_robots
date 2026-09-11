@@ -63,7 +63,7 @@
       class="shrink-0 rounded-2xl border border-primary/30 bg-base-100 p-3 shadow-md"
     >
       <div class="mb-3 flex items-center justify-between gap-3">
-        <h3 class="truncate text-base font-black text-primary">
+        <h3 class="kr-text-black-base truncate text-primary">
           {{ formMode === 'edit' ? 'Edit Scenario' : 'Add Scenario' }}
         </h3>
 

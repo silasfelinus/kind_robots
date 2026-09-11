@@ -9,7 +9,7 @@
     >
       <div class="flex items-center gap-2">
         <Icon name="kind-icon:gallery" class="kr-icon-primary-5 shrink-0" />
-        <h2 class="min-w-0 truncate text-base font-black text-base-content">
+        <h2 class="kr-text-black-base min-w-0 truncate text-base-content">
           {{ activeGroup ? activeGroup.title : 'Gallery' }}
         </h2>
         <p

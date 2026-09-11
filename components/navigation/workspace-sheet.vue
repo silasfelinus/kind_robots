@@ -310,7 +310,7 @@
           class="mx-auto h-12 w-12 text-base-content/25"
         />
 
-        <p class="mt-3 text-base font-black text-base-content/65">
+        <p class="kr-text-black-base mt-3 text-base-content/65">
           No completed cards yet.
         </p>
 

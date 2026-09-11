@@ -214,7 +214,7 @@
     <div v-else class="flex items-start justify-between gap-2">
       <div class="min-w-0">
         <h2
-          class="line-clamp-2 text-base font-black leading-tight text-base-content"
+          class="kr-text-black-base line-clamp-2 leading-tight text-base-content"
           :title="title"
         >
           {{ title }}

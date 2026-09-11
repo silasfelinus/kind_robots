@@ -194,7 +194,7 @@
           <section class="kr-panel-muted-sm">
             <div class="mb-3 flex items-center justify-between gap-2">
               <div class="min-w-0">
-                <h2 class="truncate text-base font-black text-base-content">
+                <h2 class="kr-text-black-base truncate text-base-content">
                   Quick Edit
                 </h2>
                 <p class="kr-text-dim-xs-55 truncate">
@@ -343,7 +343,7 @@
             <div class="relative kr-panel-muted-sm">
               <div class="mb-2 flex items-center justify-between gap-2">
                 <div class="min-w-0">
-                  <h2 class="truncate text-base font-black text-base-content">
+                  <h2 class="kr-text-black-base truncate text-base-content">
                     Collections
                   </h2>
                   <p class="kr-text-dim-xs-55 truncate">
@@ -454,7 +454,7 @@
             <div class="rounded-2xl border border-primary/30 bg-primary/10 p-3">
               <div class="mb-2 flex items-center justify-between gap-2">
                 <div class="min-w-0">
-                  <h2 class="truncate text-base font-black text-primary">
+                  <h2 class="kr-text-black-base truncate text-primary">
                     Remix
                   </h2>
                   <p class="kr-text-dim-xs-60 truncate">

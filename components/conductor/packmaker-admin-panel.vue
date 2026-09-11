@@ -20,7 +20,7 @@
           <Icon name="kind-icon:box" class="size-5" />
         </span>
         <div>
-          <h3 class="text-base font-black text-base-content">Pack Generator</h3>
+          <h3 class="kr-text-black-base text-base-content">Pack Generator</h3>
           <p class="kr-text-dim-xs font-semibold">
             Admin only — items are created private until release is approved
           </p>

@@ -12,7 +12,7 @@
         >
           Serendipity's sparks
         </p>
-        <h3 id="taskmaster-samples-heading" class="mt-1 text-base font-black">
+        <h3 id="taskmaster-samples-heading" class="kr-text-black-base mt-1">
           Borrow a beginning
         </h3>
         <p class="kr-text-dim-xs-55 mt-1 leading-relaxed">

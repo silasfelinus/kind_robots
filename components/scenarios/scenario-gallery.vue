@@ -7,7 +7,7 @@
     >
       <div class="flex items-center justify-between gap-3">
         <div class="min-w-0">
-          <h2 class="truncate text-base font-black text-base-content">
+          <h2 class="kr-text-black-base truncate text-base-content">
             {{ title }}
           </h2>
 
@@ -50,7 +50,7 @@
       class="min-h-0 shrink-0 overflow-y-auto rounded-2xl border border-primary/30 bg-base-100 p-3 shadow-md"
     >
       <div class="mb-3 flex items-center justify-between gap-3">
-        <h3 class="truncate text-base font-black text-primary">
+        <h3 class="kr-text-black-base truncate text-primary">
           {{ formMode === 'edit' ? 'Edit Scenario' : 'Add Scenario' }}
         </h3>
 
@@ -217,7 +217,7 @@
         <section v-if="showSelectedCharacterCards" class="kr-panel-flat p-3">
           <div class="mb-3 flex items-center justify-between gap-3">
             <div class="min-w-0">
-              <h3 class="truncate text-base font-black text-base-content">
+              <h3 class="kr-text-black-base truncate text-base-content">
                 {{ selectedScenarioTitle }} Cast
               </h3>
 
@@ -366,7 +366,7 @@
         <section v-if="showSelectedCharacterCards" class="kr-panel-flat p-3">
           <div class="mb-3 flex flex-wrap items-center justify-between gap-3">
             <div class="min-w-0">
-              <h3 class="truncate text-base font-black text-base-content">
+              <h3 class="kr-text-black-base truncate text-base-content">
                 {{ selectedScenarioTitle }} Cast
               </h3>
 

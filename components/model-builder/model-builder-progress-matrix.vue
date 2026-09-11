@@ -3,7 +3,7 @@
   <div class="flex min-h-0 flex-1 flex-col gap-3">
     <div class="flex items-start justify-between gap-2">
       <div>
-        <h3 class="text-base font-black text-base-content">3. Build run</h3>
+        <h3 class="kr-text-black-base text-base-content">3. Build run</h3>
         <p class="kr-text-dim-xs-60 mt-1">
           <span class="font-bold text-base-content">{{
             run?.sourceLabel

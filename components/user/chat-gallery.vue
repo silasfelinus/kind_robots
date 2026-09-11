@@ -120,7 +120,7 @@
             <div class="min-w-0 flex-1">
               <div class="flex items-start justify-between gap-3">
                 <div class="min-w-0">
-                  <h3 class="truncate text-base font-black text-base-content">
+                  <h3 class="kr-text-black-base truncate text-base-content">
                     {{ thread.otherLabel }}
                   </h3>
                   <p
@@ -180,7 +180,7 @@
     <section v-else class="kr-stage kr-panel-flat">
       <div class="flex shrink-0 items-center gap-3 kr-panel-header-muted">
         <div
-          class="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-primary/15 text-base font-black text-primary"
+          class="kr-text-black-base flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-primary/15 text-primary"
         >
           <img
             v-if="activeThread.otherAvatar"
@@ -193,7 +193,7 @@
         </div>
 
         <div class="min-w-0">
-          <h3 class="truncate text-base font-black text-base-content">
+          <h3 class="kr-text-black-base truncate text-base-content">
             {{ activeThread.otherLabel }}
           </h3>
           <p class="kr-text-dim-xs truncate">

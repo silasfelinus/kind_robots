@@ -295,7 +295,7 @@
               v-else-if="currentChapter"
               class="flex flex-col gap-3 kr-panel-tint-md"
             >
-              <h4 v-if="currentChapter.title" class="text-base font-black">
+              <h4 v-if="currentChapter.title" class="kr-text-black-base">
                 {{ currentChapter.title }}
               </h4>
               <NarrativeArtStatus

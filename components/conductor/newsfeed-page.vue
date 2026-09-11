@@ -3,7 +3,7 @@
   <project-front-page class="kr-surface" slug="newsfeed" :fallback="config">
     <template #interactive>
       <section class="kr-panel-section">
-        <h2 class="mb-4 text-base font-black text-base-content">Live feed</h2>
+        <h2 class="kr-text-black-base mb-4 text-base-content">Live feed</h2>
         <NewsfeedFeed />
       </section>
     </template>

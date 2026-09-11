@@ -144,7 +144,7 @@
         </div>
 
         <div class="absolute inset-x-0 bottom-0 p-3 sm:p-4">
-          <p class="text-base font-black leading-tight text-white drop-shadow sm:text-lg">
+          <p class="kr-text-black-base leading-tight text-white drop-shadow sm:text-lg">
             {{ style.name }}
           </p>
           <p class="mt-1 truncate text-[0.68rem] font-semibold text-white/65">{{ style.region }}</p>

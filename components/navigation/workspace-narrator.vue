@@ -207,7 +207,7 @@
                     @click="closeChatFace"
                   >
                     <p
-                      class="truncate text-base font-black leading-tight text-base-content"
+                      class="kr-text-black-base truncate leading-tight text-base-content"
                     >
                       {{ narratorName }}
                     </p>

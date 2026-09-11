@@ -52,7 +52,7 @@
           <Icon :name="channel.icon" class="kr-icon-5" />
         </span>
         <div class="flex min-w-0 flex-col leading-tight">
-          <h3 class="truncate text-base font-black">{{ channel.label }}</h3>
+          <h3 class="kr-text-black-base truncate">{{ channel.label }}</h3>
           <p
             v-if="channel.summary || channel.description"
             class="kr-text-dim-xs-55 line-clamp-1"

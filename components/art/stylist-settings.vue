@@ -8,7 +8,7 @@
   <section class="flex flex-col gap-4 kr-panel-muted-md">
     <header class="flex items-center gap-2">
       <Icon name="kind-icon:adjust" class="kr-icon-primary-5" />
-      <h2 class="text-base font-black text-base-content">Receipt Settings</h2>
+      <h2 class="kr-text-black-base text-base-content">Receipt Settings</h2>
     </header>
 
     <div class="grid gap-3 sm:grid-cols-2">

@@ -124,7 +124,7 @@
     >
       <div class="min-w-0">
         <h2
-          class="font-black leading-tight text-base-content text-base"
+          class="kr-text-black-base leading-tight text-base-content"
           :title="collectionLabel"
         >
           {{ collectionLabel }}

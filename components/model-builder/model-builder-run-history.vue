@@ -3,7 +3,7 @@
   <div class="flex min-h-0 flex-1 flex-col gap-3">
     <div class="flex items-start justify-between gap-2">
       <div>
-        <h3 class="text-base font-black text-base-content">Run history</h3>
+        <h3 class="kr-text-black-base text-base-content">Run history</h3>
         <p class="kr-text-dim-xs-60 mt-1">
           Your recent Model Builder runs. Reopen one to keep working, or cancel
           what you no longer need.

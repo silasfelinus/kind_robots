@@ -2205,6 +2205,20 @@ section:has(div[class*='xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]'])
     @apply font-black text-2xl;
   }
 
+  /* Sixth sibling in the `kr-text-black-*` family -- `font-black text-base`
+   * (interface-vision t-104 slice 235), the one Tailwind text size the
+   * family had not yet named (`-lg`/`-xl`/`-sm`/`-xs`/`-2xl` were all
+   * claimed; `text-base` is Tailwind's own name for its default size, so
+   * `-base` rather than inventing `-md`). A fresh full-repo class-frequency
+   * survey after slice 234 found this shape at 53 subset-match occurrences
+   * across 40 files -- mostly panel/card sub-headings (`<h2>`/`<h3>`, often
+   * paired with `truncate` on gallery card titles). Same
+   * subset-match/--exact-only codemod convention as every other
+   * `kr-text-black-*` sibling. */
+  .kr-text-black-base {
+    @apply font-black text-base;
+  }
+
   /* `font-black uppercase` eyebrow/label text (interface-vision t-104 slice
    * 167) -- a fresh full-repo class-frequency survey once both the
    * `kr-text-black-*` and `kr-text-dim-*` families closed out found this

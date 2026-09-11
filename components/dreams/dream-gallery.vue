@@ -327,7 +327,7 @@
                   Current Dream
                 </p>
 
-                <h3 class="truncate text-base font-black text-base-content">
+                <h3 class="kr-text-black-base truncate text-base-content">
                   {{ selectedDreamTitle }}
                 </h3>
 

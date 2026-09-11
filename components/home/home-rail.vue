@@ -18,10 +18,11 @@
   THE PANELS HAVE DISTINCT COLOUR IDENTITIES. Silas, 2026-09-11: the new
   dashboard's layout and content are right, but the individual sections need
   more dynamism in their colour schemes. Each shelf therefore gets a stable
-  semantic daisyUI tone from its destination: terracotta, sage, blue, ink,
-  gold, or green. The wash stays light enough for the artwork to lead, and it
-  follows whatever app theme is active instead of baking Storybook hex values
-  into this component.
+  blend of the theme's primary, secondary, and accent inks. The six blends are
+  distinct without borrowing info/success/warning/error, whose semantic meaning
+  is reserved for status. The wash stays light enough for the artwork to lead,
+  and it follows whatever app theme is active instead of baking Storybook hex
+  values into this component.
 
   THE HEADER IS ONE ROW: a glyph, the shelf's name, its count, and the chevrons.
   It began as two glyphs and no words -- Silas, 2026-08-29: "Would love to
@@ -134,7 +135,8 @@
           class="grid size-5 place-items-center rounded text-base-content/45 transition-colors disabled:opacity-25 focus-visible:outline focus-visible:outline-2"
           :class="surfaceTone.control"
           :disabled="atStart"
-          :aria-label="`Scroll ${label} backwards`"
+          :aria-label="`Scroll ${label} backwards`
+          "
           @click="scrollBy(-1)"
         >
           <Icon name="kind-icon:chevron-left" class="size-3.5" />
@@ -144,7 +146,8 @@
           class="grid size-5 place-items-center rounded text-base-content/45 transition-colors disabled:opacity-25 focus-visible:outline focus-visible:outline-2"
           :class="surfaceTone.control"
           :disabled="atEnd"
-          :aria-label="`Scroll ${label} forwards`"
+          :aria-label="`Scroll ${label} forwards`
+          "
           @click="scrollBy(1)"
         >
           <Icon name="kind-icon:chevron-right" class="size-3.5" />
@@ -360,39 +363,48 @@ type SurfaceTone = {
 
 const SURFACE_TONES: Record<string, SurfaceTone> = {
   '/art': {
-    panel: 'border-info/35 bg-info/10',
-    link: 'text-info hover:text-info/70 focus-visible:outline-info',
-    control: 'hover:text-info focus-visible:outline-info',
+    panel:
+      'border-secondary/30 bg-linear-to-br from-secondary/12 via-base-100 to-primary/6',
+    link:
+      'text-secondary hover:text-secondary/70 focus-visible:outline-secondary',
+    control: 'hover:text-secondary focus-visible:outline-secondary',
   },
   '/dreams': {
-    panel: 'border-primary/35 bg-primary/10',
+    panel:
+      'border-primary/30 bg-linear-to-br from-primary/12 via-base-100 to-secondary/6',
     link: 'text-primary hover:text-primary/70 focus-visible:outline-primary',
     control: 'hover:text-primary focus-visible:outline-primary',
   },
   '/characters': {
-    panel: 'border-accent/35 bg-accent/10',
+    panel:
+      'border-accent/30 bg-linear-to-br from-accent/14 via-base-100 to-primary/5',
     link: 'text-accent hover:text-accent/70 focus-visible:outline-accent',
     control: 'hover:text-accent focus-visible:outline-accent',
   },
   '/stories': {
-    panel: 'border-secondary/35 bg-secondary/10',
-    link: 'text-secondary hover:text-secondary/70 focus-visible:outline-secondary',
+    panel:
+      'border-secondary/30 bg-linear-to-br from-secondary/8 via-base-100 to-accent/12',
+    link:
+      'text-secondary hover:text-secondary/70 focus-visible:outline-secondary',
     control: 'hover:text-secondary focus-visible:outline-secondary',
   },
   '/rewards': {
-    panel: 'border-warning/40 bg-warning/10',
-    link: 'text-warning hover:text-warning/70 focus-visible:outline-warning',
-    control: 'hover:text-warning focus-visible:outline-warning',
+    panel:
+      'border-primary/30 bg-linear-to-br from-primary/8 via-base-100 to-accent/12',
+    link: 'text-primary hover:text-primary/70 focus-visible:outline-primary',
+    control: 'hover:text-primary focus-visible:outline-primary',
   },
   '/facets': {
-    panel: 'border-success/35 bg-success/10',
-    link: 'text-success hover:text-success/70 focus-visible:outline-success',
-    control: 'hover:text-success focus-visible:outline-success',
+    panel:
+      'border-accent/30 bg-linear-to-br from-accent/10 via-base-100 to-secondary/10',
+    link: 'text-accent hover:text-accent/70 focus-visible:outline-accent',
+    control: 'hover:text-accent focus-visible:outline-accent',
   },
 }
 
 const DEFAULT_SURFACE_TONE: SurfaceTone = {
-  panel: 'border-primary/35 bg-primary/10',
+  panel:
+    'border-primary/30 bg-linear-to-br from-primary/10 via-base-100 to-secondary/6',
   link: 'text-primary hover:text-primary/70 focus-visible:outline-primary',
   control: 'hover:text-primary focus-visible:outline-primary',
 }

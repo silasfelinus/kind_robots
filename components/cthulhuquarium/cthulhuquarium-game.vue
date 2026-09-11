@@ -14,13 +14,17 @@
      drifting motes as a VISUAL reveal of coins the server already credited;
      clicking one just dismisses it. No extra request, no new balance path.
 
-     Fish are still hand-drawn shapes, not art -- t-015 (full art pass) is
-     the task that changes that. What's real now is the swim behavior itself:
-     each occupant's Monster.behavior (the fish bible's own vocabulary --
-     drift/dart/lurk/school/anchor/surface/hover/tumble/cling) selects a
-     movement profile instead of a hardcoded three-value switch, and hue
-     comes from Monster.hue when a balance pass has set it, falling back to
-     a slug-derived hue so an unassigned species still reads consistently
+     Fish render as real art where a species has a delivered plate
+     (cthulhuquarium/t-070, following t-065's bestiary/catalog delivery --
+     see drawFish/getFishImage below), falling back to the original
+     hand-drawn primitives for the ~32/151 species with no plate yet or
+     while an image is still loading. What's real regardless of which draw
+     path fires is the swim behavior: each occupant's Monster.behavior (the
+     fish bible's own vocabulary -- drift/dart/lurk/school/anchor/surface/
+     hover/tumble/cling) selects a movement profile instead of a hardcoded
+     three-value switch, and hue (used by the primitive fallback only) comes
+     from Monster.hue when a balance pass has set it, falling back to a
+     slug-derived hue so an unassigned species still reads consistently
      rather than defaulting to one color. -->
 <template>
   <ClientOnly>
@@ -1283,6 +1287,7 @@ import setLastAquariumArt from '~/assets/images/cthulhuquarium/cthulhuquarium-se
 import {
   artByName,
   artForEggTier,
+  artForSpecies,
   withCthulhuquariumArt,
 } from '~/utils/cthulhuquariumArt'
 
@@ -1661,6 +1666,36 @@ function stockFor(swimmer: Swimmer): TankStock | undefined {
   return tankStore.stock.find((entry) => entry.id === swimmer.stockId)
 }
 
+// cthulhuquarium/t-070: real fish art in the swim view. t-065 delivered 119
+// of 151 species' plates, but only into the bestiary/catalog/reveal panels
+// (see withCthulhuquariumArt) -- the swim canvas kept drawing the hand-drawn
+// primitives below regardless, which the audit (t-068's
+// FULL-GAME-GAP-AUDIT.md) flagged as the most visible remaining gap. This
+// preloads and caches one HTMLImageElement per species slug the first time
+// it's needed and draws it in place of the primitives once loaded; a species
+// with no plate (32/151, mostly *-common starters) or an image still in
+// flight falls back to the original primitive draw, so nothing ever renders
+// blank.
+const fishImageCache = new Map<string, HTMLImageElement | null>()
+
+function getFishImage(slug: string): HTMLImageElement | null {
+  if (fishImageCache.has(slug)) return fishImageCache.get(slug) ?? null
+  const url = artForSpecies(slug)
+  if (!url) {
+    fishImageCache.set(slug, null)
+    return null
+  }
+  // Reserve the slot immediately so a swimmer drawn on the next few frames
+  // (before onload fires) doesn't kick off a duplicate Image() for the same
+  // slug -- the primitive fallback below covers those frames instead.
+  fishImageCache.set(slug, null)
+  const image = new Image()
+  image.onload = () => fishImageCache.set(slug, image)
+  image.onerror = () => fishImageCache.set(slug, null)
+  image.src = url
+  return null
+}
+
 function drawFish(
   context: CanvasRenderingContext2D,
   swimmer: Swimmer,
@@ -1673,10 +1708,27 @@ function drawFish(
   // Hungry occupants desaturate and dim rather than vanishing, so a
   // neglected tank reads as neglected at a glance.
   const life = 0.3 + (hunger / 100) * 0.7
+  const image = getFishImage(monster.slug)
 
   context.save()
   context.translate(swimmer.x, swimmer.y)
   context.scale(facing, 1)
+
+  if (image) {
+    // Art plates are square, subject-centered portraits -- draw one square,
+    // scaled to roughly the same footprint the primitive silhouette used
+    // (nose-to-tail span below is about 2.7x `size`). Hunger still dims the
+    // occupant via alpha, same signal the primitive draw gives.
+    context.globalAlpha = life
+    context.filter = hunger < 100 ? `saturate(${40 + hunger * 0.6}%)` : 'none'
+    const d = size * 2.6
+    context.drawImage(image, -d / 2, -d / 2, d, d)
+    context.filter = 'none'
+    context.globalAlpha = 1
+    context.restore()
+    return
+  }
+
   context.fillStyle = `hsla(${hue}, ${28 + hunger * 0.35}%, ${20 + hunger * 0.14}%, ${life})`
 
   context.beginPath()

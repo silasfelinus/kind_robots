@@ -213,6 +213,36 @@ check(
     `proof-carrying job.`,
 )
 
+/* -- 5b. the transcode may not decide by extension alone -------------------- */
+//
+// 'webp' is both the still format everything is transcoded INTO and the
+// container ComfyUI's SaveAnimatedWEBP writes every 'webp' video preset into
+// (wan-startup-webp, the default for engine 'wan', is what every Scene
+// Animator job uses). So an extension-keyed clip check cannot tell a still
+// from a clip, and `sharp(buffer)` defaults to `pages: 1` -- it keeps frame 0
+// and silently drops the rest. On 2026-09-11 that flattened Scene Animator's
+// first render to a still and then nulled the only animated copy.
+//
+// The behavioural proof lives in verifyAnimatedArtOffload.test.ts; this pins
+// that the helper still asks about frames at all.
+
+check(
+  /\bpages\b/.test(helper) && /\.metadata\s*\(/.test(helper),
+  `${HELPER} must read sharp metadata's \`pages\` before transcoding. ` +
+    `Classifying clips by file extension alone cannot see an animated WebP ` +
+    `or GIF, and sharp then re-encodes frame 0 and discards the rest — ` +
+    `silently, and after the read-back guard has already approved the write.`,
+)
+
+const metadataIndex = helper.search(/\.metadata\s*\(/)
+const encodeIndex = helper.search(/\.webp\s*\(\s*\{\s*quality/)
+
+check(
+  metadataIndex !== -1 && encodeIndex !== -1 && metadataIndex < encodeIndex,
+  `${HELPER} must inspect the frame count BEFORE re-encoding. Checking after ` +
+    `the transcode inspects the flattened copy, which always reports one page.`,
+)
+
 /* -- 6. no route writes a bare filename into imagePath ---------------------- */
 
 for (const route of [...GENERATE_ROUTES, 'server/api/art/save-generated.post.ts']) {

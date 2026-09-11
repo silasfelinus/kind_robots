@@ -111,7 +111,7 @@
       >
         <Icon
           :name="activeType?.icon || 'kind-icon:blueprint'"
-          class="h-6 w-6 text-base-content/30"
+          class="kr-icon-6 text-base-content/30"
         />
         No {{ activeType?.plural.toLowerCase() }} yet.
       </div>
@@ -139,7 +139,7 @@
             <Icon
               v-else
               :name="activeType?.icon || 'kind-icon:blueprint'"
-              class="h-7 w-7 text-base-content/25"
+              class="kr-icon-7 text-base-content/25"
             />
           </div>
           <div class="min-w-0 p-2">
@@ -178,7 +178,7 @@
             <Icon
               v-else
               :name="activeType?.icon || 'kind-icon:blueprint'"
-              class="h-5 w-5 text-base-content/30"
+              class="kr-icon-5 text-base-content/30"
             />
           </div>
 

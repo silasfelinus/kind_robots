@@ -62,6 +62,7 @@ export type AquariumMinAggregateOutputType = {
   debrisLevel: number | null
   lastCleanedAt: Date | null
   debrisEverHigh: boolean | null
+  rivalryObserved: boolean | null
 }
 
 export type AquariumMaxAggregateOutputType = {
@@ -80,6 +81,7 @@ export type AquariumMaxAggregateOutputType = {
   debrisLevel: number | null
   lastCleanedAt: Date | null
   debrisEverHigh: boolean | null
+  rivalryObserved: boolean | null
 }
 
 export type AquariumCountAggregateOutputType = {
@@ -98,6 +100,7 @@ export type AquariumCountAggregateOutputType = {
   debrisLevel: number
   lastCleanedAt: number
   debrisEverHigh: number
+  rivalryObserved: number
   _all: number
 }
 
@@ -136,6 +139,7 @@ export type AquariumMinAggregateInputType = {
   debrisLevel?: true
   lastCleanedAt?: true
   debrisEverHigh?: true
+  rivalryObserved?: true
 }
 
 export type AquariumMaxAggregateInputType = {
@@ -154,6 +158,7 @@ export type AquariumMaxAggregateInputType = {
   debrisLevel?: true
   lastCleanedAt?: true
   debrisEverHigh?: true
+  rivalryObserved?: true
 }
 
 export type AquariumCountAggregateInputType = {
@@ -172,6 +177,7 @@ export type AquariumCountAggregateInputType = {
   debrisLevel?: true
   lastCleanedAt?: true
   debrisEverHigh?: true
+  rivalryObserved?: true
   _all?: true
 }
 
@@ -277,6 +283,7 @@ export type AquariumGroupByOutputType = {
   debrisLevel: number
   lastCleanedAt: Date | null
   debrisEverHigh: boolean
+  rivalryObserved: boolean
   _count: AquariumCountAggregateOutputType | null
   _avg: AquariumAvgAggregateOutputType | null
   _sum: AquariumSumAggregateOutputType | null
@@ -318,6 +325,7 @@ export type AquariumWhereInput = {
   debrisLevel?: Prisma.IntFilter<"Aquarium"> | number
   lastCleanedAt?: Prisma.DateTimeNullableFilter<"Aquarium"> | Date | string | null
   debrisEverHigh?: Prisma.BoolFilter<"Aquarium"> | boolean
+  rivalryObserved?: Prisma.BoolFilter<"Aquarium"> | boolean
   User?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   Stock?: Prisma.AquariumStockListRelationFilter
   Events?: Prisma.AquariumEventListRelationFilter
@@ -342,6 +350,7 @@ export type AquariumOrderByWithRelationInput = {
   debrisLevel?: Prisma.SortOrder
   lastCleanedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   debrisEverHigh?: Prisma.SortOrder
+  rivalryObserved?: Prisma.SortOrder
   User?: Prisma.UserOrderByWithRelationInput
   Stock?: Prisma.AquariumStockOrderByRelationAggregateInput
   Events?: Prisma.AquariumEventOrderByRelationAggregateInput
@@ -371,6 +380,7 @@ export type AquariumWhereUniqueInput = Prisma.AtLeast<{
   debrisLevel?: Prisma.IntFilter<"Aquarium"> | number
   lastCleanedAt?: Prisma.DateTimeNullableFilter<"Aquarium"> | Date | string | null
   debrisEverHigh?: Prisma.BoolFilter<"Aquarium"> | boolean
+  rivalryObserved?: Prisma.BoolFilter<"Aquarium"> | boolean
   User?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   Stock?: Prisma.AquariumStockListRelationFilter
   Events?: Prisma.AquariumEventListRelationFilter
@@ -395,6 +405,7 @@ export type AquariumOrderByWithAggregationInput = {
   debrisLevel?: Prisma.SortOrder
   lastCleanedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   debrisEverHigh?: Prisma.SortOrder
+  rivalryObserved?: Prisma.SortOrder
   _count?: Prisma.AquariumCountOrderByAggregateInput
   _avg?: Prisma.AquariumAvgOrderByAggregateInput
   _max?: Prisma.AquariumMaxOrderByAggregateInput
@@ -421,6 +432,7 @@ export type AquariumScalarWhereWithAggregatesInput = {
   debrisLevel?: Prisma.IntWithAggregatesFilter<"Aquarium"> | number
   lastCleanedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Aquarium"> | Date | string | null
   debrisEverHigh?: Prisma.BoolWithAggregatesFilter<"Aquarium"> | boolean
+  rivalryObserved?: Prisma.BoolWithAggregatesFilter<"Aquarium"> | boolean
 }
 
 export type AquariumCreateInput = {
@@ -437,6 +449,7 @@ export type AquariumCreateInput = {
   debrisLevel?: number
   lastCleanedAt?: Date | string | null
   debrisEverHigh?: boolean
+  rivalryObserved?: boolean
   User: Prisma.UserCreateNestedOneWithoutAquariumsInput
   Stock?: Prisma.AquariumStockCreateNestedManyWithoutAquariumInput
   Events?: Prisma.AquariumEventCreateNestedManyWithoutAquariumInput
@@ -461,6 +474,7 @@ export type AquariumUncheckedCreateInput = {
   debrisLevel?: number
   lastCleanedAt?: Date | string | null
   debrisEverHigh?: boolean
+  rivalryObserved?: boolean
   Stock?: Prisma.AquariumStockUncheckedCreateNestedManyWithoutAquariumInput
   Events?: Prisma.AquariumEventUncheckedCreateNestedManyWithoutAquariumInput
   Sets?: Prisma.AquariumSetUncheckedCreateNestedManyWithoutAquariumInput
@@ -482,6 +496,7 @@ export type AquariumUpdateInput = {
   debrisLevel?: Prisma.IntFieldUpdateOperationsInput | number
   lastCleanedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   debrisEverHigh?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  rivalryObserved?: Prisma.BoolFieldUpdateOperationsInput | boolean
   User?: Prisma.UserUpdateOneRequiredWithoutAquariumsNestedInput
   Stock?: Prisma.AquariumStockUpdateManyWithoutAquariumNestedInput
   Events?: Prisma.AquariumEventUpdateManyWithoutAquariumNestedInput
@@ -506,6 +521,7 @@ export type AquariumUncheckedUpdateInput = {
   debrisLevel?: Prisma.IntFieldUpdateOperationsInput | number
   lastCleanedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   debrisEverHigh?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  rivalryObserved?: Prisma.BoolFieldUpdateOperationsInput | boolean
   Stock?: Prisma.AquariumStockUncheckedUpdateManyWithoutAquariumNestedInput
   Events?: Prisma.AquariumEventUncheckedUpdateManyWithoutAquariumNestedInput
   Sets?: Prisma.AquariumSetUncheckedUpdateManyWithoutAquariumNestedInput
@@ -529,6 +545,7 @@ export type AquariumCreateManyInput = {
   debrisLevel?: number
   lastCleanedAt?: Date | string | null
   debrisEverHigh?: boolean
+  rivalryObserved?: boolean
 }
 
 export type AquariumUpdateManyMutationInput = {
@@ -545,6 +562,7 @@ export type AquariumUpdateManyMutationInput = {
   debrisLevel?: Prisma.IntFieldUpdateOperationsInput | number
   lastCleanedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   debrisEverHigh?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  rivalryObserved?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
 
 export type AquariumUncheckedUpdateManyInput = {
@@ -563,6 +581,7 @@ export type AquariumUncheckedUpdateManyInput = {
   debrisLevel?: Prisma.IntFieldUpdateOperationsInput | number
   lastCleanedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   debrisEverHigh?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  rivalryObserved?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
 
 export type AquariumListRelationFilter = {
@@ -602,6 +621,7 @@ export type AquariumCountOrderByAggregateInput = {
   debrisLevel?: Prisma.SortOrder
   lastCleanedAt?: Prisma.SortOrder
   debrisEverHigh?: Prisma.SortOrder
+  rivalryObserved?: Prisma.SortOrder
 }
 
 export type AquariumAvgOrderByAggregateInput = {
@@ -629,6 +649,7 @@ export type AquariumMaxOrderByAggregateInput = {
   debrisLevel?: Prisma.SortOrder
   lastCleanedAt?: Prisma.SortOrder
   debrisEverHigh?: Prisma.SortOrder
+  rivalryObserved?: Prisma.SortOrder
 }
 
 export type AquariumMinOrderByAggregateInput = {
@@ -647,6 +668,7 @@ export type AquariumMinOrderByAggregateInput = {
   debrisLevel?: Prisma.SortOrder
   lastCleanedAt?: Prisma.SortOrder
   debrisEverHigh?: Prisma.SortOrder
+  rivalryObserved?: Prisma.SortOrder
 }
 
 export type AquariumSumOrderByAggregateInput = {
@@ -789,6 +811,7 @@ export type AquariumCreateWithoutUserInput = {
   debrisLevel?: number
   lastCleanedAt?: Date | string | null
   debrisEverHigh?: boolean
+  rivalryObserved?: boolean
   Stock?: Prisma.AquariumStockCreateNestedManyWithoutAquariumInput
   Events?: Prisma.AquariumEventCreateNestedManyWithoutAquariumInput
   Sets?: Prisma.AquariumSetCreateNestedManyWithoutAquariumInput
@@ -811,6 +834,7 @@ export type AquariumUncheckedCreateWithoutUserInput = {
   debrisLevel?: number
   lastCleanedAt?: Date | string | null
   debrisEverHigh?: boolean
+  rivalryObserved?: boolean
   Stock?: Prisma.AquariumStockUncheckedCreateNestedManyWithoutAquariumInput
   Events?: Prisma.AquariumEventUncheckedCreateNestedManyWithoutAquariumInput
   Sets?: Prisma.AquariumSetUncheckedCreateNestedManyWithoutAquariumInput
@@ -863,6 +887,7 @@ export type AquariumScalarWhereInput = {
   debrisLevel?: Prisma.IntFilter<"Aquarium"> | number
   lastCleanedAt?: Prisma.DateTimeNullableFilter<"Aquarium"> | Date | string | null
   debrisEverHigh?: Prisma.BoolFilter<"Aquarium"> | boolean
+  rivalryObserved?: Prisma.BoolFilter<"Aquarium"> | boolean
 }
 
 export type AquariumCreateWithoutStockInput = {
@@ -879,6 +904,7 @@ export type AquariumCreateWithoutStockInput = {
   debrisLevel?: number
   lastCleanedAt?: Date | string | null
   debrisEverHigh?: boolean
+  rivalryObserved?: boolean
   User: Prisma.UserCreateNestedOneWithoutAquariumsInput
   Events?: Prisma.AquariumEventCreateNestedManyWithoutAquariumInput
   Sets?: Prisma.AquariumSetCreateNestedManyWithoutAquariumInput
@@ -902,6 +928,7 @@ export type AquariumUncheckedCreateWithoutStockInput = {
   debrisLevel?: number
   lastCleanedAt?: Date | string | null
   debrisEverHigh?: boolean
+  rivalryObserved?: boolean
   Events?: Prisma.AquariumEventUncheckedCreateNestedManyWithoutAquariumInput
   Sets?: Prisma.AquariumSetUncheckedCreateNestedManyWithoutAquariumInput
   Decor?: Prisma.AquariumDecorUncheckedCreateNestedManyWithoutAquariumInput
@@ -938,6 +965,7 @@ export type AquariumUpdateWithoutStockInput = {
   debrisLevel?: Prisma.IntFieldUpdateOperationsInput | number
   lastCleanedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   debrisEverHigh?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  rivalryObserved?: Prisma.BoolFieldUpdateOperationsInput | boolean
   User?: Prisma.UserUpdateOneRequiredWithoutAquariumsNestedInput
   Events?: Prisma.AquariumEventUpdateManyWithoutAquariumNestedInput
   Sets?: Prisma.AquariumSetUpdateManyWithoutAquariumNestedInput
@@ -961,6 +989,7 @@ export type AquariumUncheckedUpdateWithoutStockInput = {
   debrisLevel?: Prisma.IntFieldUpdateOperationsInput | number
   lastCleanedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   debrisEverHigh?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  rivalryObserved?: Prisma.BoolFieldUpdateOperationsInput | boolean
   Events?: Prisma.AquariumEventUncheckedUpdateManyWithoutAquariumNestedInput
   Sets?: Prisma.AquariumSetUncheckedUpdateManyWithoutAquariumNestedInput
   Decor?: Prisma.AquariumDecorUncheckedUpdateManyWithoutAquariumNestedInput
@@ -981,6 +1010,7 @@ export type AquariumCreateWithoutSetsInput = {
   debrisLevel?: number
   lastCleanedAt?: Date | string | null
   debrisEverHigh?: boolean
+  rivalryObserved?: boolean
   User: Prisma.UserCreateNestedOneWithoutAquariumsInput
   Stock?: Prisma.AquariumStockCreateNestedManyWithoutAquariumInput
   Events?: Prisma.AquariumEventCreateNestedManyWithoutAquariumInput
@@ -1004,6 +1034,7 @@ export type AquariumUncheckedCreateWithoutSetsInput = {
   debrisLevel?: number
   lastCleanedAt?: Date | string | null
   debrisEverHigh?: boolean
+  rivalryObserved?: boolean
   Stock?: Prisma.AquariumStockUncheckedCreateNestedManyWithoutAquariumInput
   Events?: Prisma.AquariumEventUncheckedCreateNestedManyWithoutAquariumInput
   Decor?: Prisma.AquariumDecorUncheckedCreateNestedManyWithoutAquariumInput
@@ -1040,6 +1071,7 @@ export type AquariumUpdateWithoutSetsInput = {
   debrisLevel?: Prisma.IntFieldUpdateOperationsInput | number
   lastCleanedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   debrisEverHigh?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  rivalryObserved?: Prisma.BoolFieldUpdateOperationsInput | boolean
   User?: Prisma.UserUpdateOneRequiredWithoutAquariumsNestedInput
   Stock?: Prisma.AquariumStockUpdateManyWithoutAquariumNestedInput
   Events?: Prisma.AquariumEventUpdateManyWithoutAquariumNestedInput
@@ -1063,6 +1095,7 @@ export type AquariumUncheckedUpdateWithoutSetsInput = {
   debrisLevel?: Prisma.IntFieldUpdateOperationsInput | number
   lastCleanedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   debrisEverHigh?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  rivalryObserved?: Prisma.BoolFieldUpdateOperationsInput | boolean
   Stock?: Prisma.AquariumStockUncheckedUpdateManyWithoutAquariumNestedInput
   Events?: Prisma.AquariumEventUncheckedUpdateManyWithoutAquariumNestedInput
   Decor?: Prisma.AquariumDecorUncheckedUpdateManyWithoutAquariumNestedInput
@@ -1083,6 +1116,7 @@ export type AquariumCreateWithoutDecorInput = {
   debrisLevel?: number
   lastCleanedAt?: Date | string | null
   debrisEverHigh?: boolean
+  rivalryObserved?: boolean
   User: Prisma.UserCreateNestedOneWithoutAquariumsInput
   Stock?: Prisma.AquariumStockCreateNestedManyWithoutAquariumInput
   Events?: Prisma.AquariumEventCreateNestedManyWithoutAquariumInput
@@ -1106,6 +1140,7 @@ export type AquariumUncheckedCreateWithoutDecorInput = {
   debrisLevel?: number
   lastCleanedAt?: Date | string | null
   debrisEverHigh?: boolean
+  rivalryObserved?: boolean
   Stock?: Prisma.AquariumStockUncheckedCreateNestedManyWithoutAquariumInput
   Events?: Prisma.AquariumEventUncheckedCreateNestedManyWithoutAquariumInput
   Sets?: Prisma.AquariumSetUncheckedCreateNestedManyWithoutAquariumInput
@@ -1142,6 +1177,7 @@ export type AquariumUpdateWithoutDecorInput = {
   debrisLevel?: Prisma.IntFieldUpdateOperationsInput | number
   lastCleanedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   debrisEverHigh?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  rivalryObserved?: Prisma.BoolFieldUpdateOperationsInput | boolean
   User?: Prisma.UserUpdateOneRequiredWithoutAquariumsNestedInput
   Stock?: Prisma.AquariumStockUpdateManyWithoutAquariumNestedInput
   Events?: Prisma.AquariumEventUpdateManyWithoutAquariumNestedInput
@@ -1165,6 +1201,7 @@ export type AquariumUncheckedUpdateWithoutDecorInput = {
   debrisLevel?: Prisma.IntFieldUpdateOperationsInput | number
   lastCleanedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   debrisEverHigh?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  rivalryObserved?: Prisma.BoolFieldUpdateOperationsInput | boolean
   Stock?: Prisma.AquariumStockUncheckedUpdateManyWithoutAquariumNestedInput
   Events?: Prisma.AquariumEventUncheckedUpdateManyWithoutAquariumNestedInput
   Sets?: Prisma.AquariumSetUncheckedUpdateManyWithoutAquariumNestedInput
@@ -1185,6 +1222,7 @@ export type AquariumCreateWithoutEggsInput = {
   debrisLevel?: number
   lastCleanedAt?: Date | string | null
   debrisEverHigh?: boolean
+  rivalryObserved?: boolean
   User: Prisma.UserCreateNestedOneWithoutAquariumsInput
   Stock?: Prisma.AquariumStockCreateNestedManyWithoutAquariumInput
   Events?: Prisma.AquariumEventCreateNestedManyWithoutAquariumInput
@@ -1208,6 +1246,7 @@ export type AquariumUncheckedCreateWithoutEggsInput = {
   debrisLevel?: number
   lastCleanedAt?: Date | string | null
   debrisEverHigh?: boolean
+  rivalryObserved?: boolean
   Stock?: Prisma.AquariumStockUncheckedCreateNestedManyWithoutAquariumInput
   Events?: Prisma.AquariumEventUncheckedCreateNestedManyWithoutAquariumInput
   Sets?: Prisma.AquariumSetUncheckedCreateNestedManyWithoutAquariumInput
@@ -1244,6 +1283,7 @@ export type AquariumUpdateWithoutEggsInput = {
   debrisLevel?: Prisma.IntFieldUpdateOperationsInput | number
   lastCleanedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   debrisEverHigh?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  rivalryObserved?: Prisma.BoolFieldUpdateOperationsInput | boolean
   User?: Prisma.UserUpdateOneRequiredWithoutAquariumsNestedInput
   Stock?: Prisma.AquariumStockUpdateManyWithoutAquariumNestedInput
   Events?: Prisma.AquariumEventUpdateManyWithoutAquariumNestedInput
@@ -1267,6 +1307,7 @@ export type AquariumUncheckedUpdateWithoutEggsInput = {
   debrisLevel?: Prisma.IntFieldUpdateOperationsInput | number
   lastCleanedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   debrisEverHigh?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  rivalryObserved?: Prisma.BoolFieldUpdateOperationsInput | boolean
   Stock?: Prisma.AquariumStockUncheckedUpdateManyWithoutAquariumNestedInput
   Events?: Prisma.AquariumEventUncheckedUpdateManyWithoutAquariumNestedInput
   Sets?: Prisma.AquariumSetUncheckedUpdateManyWithoutAquariumNestedInput
@@ -1287,6 +1328,7 @@ export type AquariumCreateWithoutEventsInput = {
   debrisLevel?: number
   lastCleanedAt?: Date | string | null
   debrisEverHigh?: boolean
+  rivalryObserved?: boolean
   User: Prisma.UserCreateNestedOneWithoutAquariumsInput
   Stock?: Prisma.AquariumStockCreateNestedManyWithoutAquariumInput
   Sets?: Prisma.AquariumSetCreateNestedManyWithoutAquariumInput
@@ -1310,6 +1352,7 @@ export type AquariumUncheckedCreateWithoutEventsInput = {
   debrisLevel?: number
   lastCleanedAt?: Date | string | null
   debrisEverHigh?: boolean
+  rivalryObserved?: boolean
   Stock?: Prisma.AquariumStockUncheckedCreateNestedManyWithoutAquariumInput
   Sets?: Prisma.AquariumSetUncheckedCreateNestedManyWithoutAquariumInput
   Decor?: Prisma.AquariumDecorUncheckedCreateNestedManyWithoutAquariumInput
@@ -1346,6 +1389,7 @@ export type AquariumUpdateWithoutEventsInput = {
   debrisLevel?: Prisma.IntFieldUpdateOperationsInput | number
   lastCleanedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   debrisEverHigh?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  rivalryObserved?: Prisma.BoolFieldUpdateOperationsInput | boolean
   User?: Prisma.UserUpdateOneRequiredWithoutAquariumsNestedInput
   Stock?: Prisma.AquariumStockUpdateManyWithoutAquariumNestedInput
   Sets?: Prisma.AquariumSetUpdateManyWithoutAquariumNestedInput
@@ -1369,6 +1413,7 @@ export type AquariumUncheckedUpdateWithoutEventsInput = {
   debrisLevel?: Prisma.IntFieldUpdateOperationsInput | number
   lastCleanedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   debrisEverHigh?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  rivalryObserved?: Prisma.BoolFieldUpdateOperationsInput | boolean
   Stock?: Prisma.AquariumStockUncheckedUpdateManyWithoutAquariumNestedInput
   Sets?: Prisma.AquariumSetUncheckedUpdateManyWithoutAquariumNestedInput
   Decor?: Prisma.AquariumDecorUncheckedUpdateManyWithoutAquariumNestedInput
@@ -1390,6 +1435,7 @@ export type AquariumCreateManyUserInput = {
   debrisLevel?: number
   lastCleanedAt?: Date | string | null
   debrisEverHigh?: boolean
+  rivalryObserved?: boolean
 }
 
 export type AquariumUpdateWithoutUserInput = {
@@ -1406,6 +1452,7 @@ export type AquariumUpdateWithoutUserInput = {
   debrisLevel?: Prisma.IntFieldUpdateOperationsInput | number
   lastCleanedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   debrisEverHigh?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  rivalryObserved?: Prisma.BoolFieldUpdateOperationsInput | boolean
   Stock?: Prisma.AquariumStockUpdateManyWithoutAquariumNestedInput
   Events?: Prisma.AquariumEventUpdateManyWithoutAquariumNestedInput
   Sets?: Prisma.AquariumSetUpdateManyWithoutAquariumNestedInput
@@ -1428,6 +1475,7 @@ export type AquariumUncheckedUpdateWithoutUserInput = {
   debrisLevel?: Prisma.IntFieldUpdateOperationsInput | number
   lastCleanedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   debrisEverHigh?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  rivalryObserved?: Prisma.BoolFieldUpdateOperationsInput | boolean
   Stock?: Prisma.AquariumStockUncheckedUpdateManyWithoutAquariumNestedInput
   Events?: Prisma.AquariumEventUncheckedUpdateManyWithoutAquariumNestedInput
   Sets?: Prisma.AquariumSetUncheckedUpdateManyWithoutAquariumNestedInput
@@ -1450,6 +1498,7 @@ export type AquariumUncheckedUpdateManyWithoutUserInput = {
   debrisLevel?: Prisma.IntFieldUpdateOperationsInput | number
   lastCleanedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   debrisEverHigh?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  rivalryObserved?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
 
 
@@ -1535,6 +1584,7 @@ export type AquariumSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   debrisLevel?: boolean
   lastCleanedAt?: boolean
   debrisEverHigh?: boolean
+  rivalryObserved?: boolean
   User?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   Stock?: boolean | Prisma.Aquarium$StockArgs<ExtArgs>
   Events?: boolean | Prisma.Aquarium$EventsArgs<ExtArgs>
@@ -1562,9 +1612,10 @@ export type AquariumSelectScalar = {
   debrisLevel?: boolean
   lastCleanedAt?: boolean
   debrisEverHigh?: boolean
+  rivalryObserved?: boolean
 }
 
-export type AquariumOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "userId" | "slug" | "title" | "coins" | "backgroundKey" | "isPublic" | "lastTickAt" | "setSlotsCap" | "sizeCap" | "debrisLevel" | "lastCleanedAt" | "debrisEverHigh", ExtArgs["result"]["aquarium"]>
+export type AquariumOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "userId" | "slug" | "title" | "coins" | "backgroundKey" | "isPublic" | "lastTickAt" | "setSlotsCap" | "sizeCap" | "debrisLevel" | "lastCleanedAt" | "debrisEverHigh" | "rivalryObserved", ExtArgs["result"]["aquarium"]>
 export type AquariumInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   User?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   Stock?: boolean | Prisma.Aquarium$StockArgs<ExtArgs>
@@ -1634,6 +1685,17 @@ export type $AquariumPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
      * happens to clear an 80+ debris level in a single click-batch request.
      */
     debrisEverHigh: boolean
+    /**
+     * cthulhuquarium/t-077: sticky flag for the first_rivalry_resolved
+     * milestone (economy.yaml's rivalry landmark) -- mirrors debrisEverHigh's
+     * "set once, never cleared" discipline above. Set true the moment a
+     * settleTick observes an active rivalry pair for the first time; once the
+     * milestone itself has fired (tracked via the existing AquariumEvent
+     * milestone-first_rivalry_resolved log, same convention as every other
+     * one-off landmark in this file), this flag is never consulted again --
+     * see aquariumRivalryMilestone.ts's rivalryMilestoneState.
+     */
+    rivalryObserved: boolean
   }, ExtArgs["result"]["aquarium"]>
   composites: {}
 }
@@ -2024,6 +2086,7 @@ export interface AquariumFieldRefs {
   readonly debrisLevel: Prisma.FieldRef<"Aquarium", 'Int'>
   readonly lastCleanedAt: Prisma.FieldRef<"Aquarium", 'DateTime'>
   readonly debrisEverHigh: Prisma.FieldRef<"Aquarium", 'Boolean'>
+  readonly rivalryObserved: Prisma.FieldRef<"Aquarium", 'Boolean'>
 }
     
 

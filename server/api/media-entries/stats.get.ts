@@ -5,7 +5,7 @@
 // server/api/art/queue/stats.get.ts. Admin-gated, same as the browse route.
 //
 // Query: ?year=<int> (optional; omit for all-time totals)
-import { defineEventHandler, getQuery } from 'h3'
+import { defineEventHandler, getQuery, setResponseStatus } from 'h3'
 import prisma from '~/server/utils/prisma'
 import { errorHandler } from '~/server/utils/error'
 import { requireAdminApiUser } from '~/server/utils/authGuard'
@@ -171,6 +171,8 @@ export default defineEventHandler(async (event) => {
       },
     }
   } catch (error) {
-    return errorHandler(error)
+    const result = errorHandler(error)
+    setResponseStatus(event, result.statusCode || 500)
+    return result
   }
 })

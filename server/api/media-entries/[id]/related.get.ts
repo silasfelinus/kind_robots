@@ -3,7 +3,12 @@
 // "Related entries — same title, other years or formats" for the Entry
 // Detail panel (media-watchlist/t-006, BROWSE-UX.md §3). Admin-gated, same
 // convention as the other media-entries routes.
-import { defineEventHandler, getRouterParam, createError } from 'h3'
+import {
+  defineEventHandler,
+  getRouterParam,
+  createError,
+  setResponseStatus,
+} from 'h3'
 import prisma from '~/server/utils/prisma'
 import { errorHandler } from '~/server/utils/error'
 import { requireAdminApiUser } from '~/server/utils/authGuard'
@@ -50,6 +55,8 @@ export default defineEventHandler(async (event) => {
 
     return { success: true, data: related }
   } catch (error) {
-    return errorHandler(error)
+    const result = errorHandler(error)
+    setResponseStatus(event, result.statusCode || 500)
+    return result
   }
 })

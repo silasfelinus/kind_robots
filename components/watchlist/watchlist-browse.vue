@@ -543,6 +543,7 @@ type MediaEntrySummary = MediaEntryDetail
 
 type MediaEntriesResponse = {
   success: boolean
+  message?: string
   data: MediaEntrySummary[]
   count: number
   total: number
@@ -579,6 +580,7 @@ type MediaEntryStats = {
 
 type MediaEntryStatsResponse = {
   success: boolean
+  message?: string
   data: MediaEntryStats
 }
 
@@ -647,6 +649,35 @@ const MONTH_LABELS: { value: number; label: string }[] = [
 
 const userStore = useUserStore()
 const isAdmin = computed(() => userStore.isAdmin === true)
+
+// media-watchlist/t-019: every route in this feature is admin-gated
+// (requireAdminApiUser), but none of these $fetch calls ever attached an
+// Authorization header -- every request arrived at the server looking
+// anonymous, so the admin check rejected it regardless of who was actually
+// signed in. This was "the load fails" half of the bug, not a stale/
+// mis-scoped session as first suspected.
+function authHeaders(): Record<string, string> | undefined {
+  const token = userStore.token || userStore.user?.token || ''
+  return token ? { Authorization: `Bearer ${token}` } : undefined
+}
+
+// media-watchlist/t-019 (the error-lies half): the API answers a rejection
+// with HTTP 200 and {success:false, message}, or -- now that the backend
+// sets a real status code -- $fetch/ofetch throws instead and carries the
+// real body on `error.data`. Prefer that real message over a hardcoded
+// string either way, so a user who needs to sign in again is actually told
+// that instead of a generic "failed to load" banner.
+function extractApiErrorMessage(error: unknown, fallback: string): string {
+  if (error && typeof error === 'object') {
+    const data = (error as { data?: unknown }).data
+    if (data && typeof data === 'object') {
+      const message = (data as { message?: unknown }).message
+      if (typeof message === 'string' && message) return message
+    }
+  }
+  if (error instanceof Error && error.message) return error.message
+  return fallback
+}
 
 const search = ref('')
 const activeYear = ref<number | null>(null)
@@ -818,7 +849,10 @@ async function loadStats(): Promise<void> {
   try {
     const res = await $fetch<MediaEntryStatsResponse, string>(
       '/api/media-entries/stats',
-      { query: { year: activeYear.value || undefined } },
+      {
+        query: { year: activeYear.value || undefined },
+        headers: authHeaders(),
+      },
     )
     if (res?.success) stats.value = res.data
   } catch {
@@ -832,7 +866,7 @@ async function loadRecentEntries(): Promise<void> {
   try {
     const res = await $fetch<MediaEntriesResponse, string>(
       '/api/media-entries',
-      { query: { take: 10, sort: 'date_desc' } },
+      { query: { take: 10, sort: 'date_desc' }, headers: authHeaders() },
     )
     if (res?.success) recentEntries.value = res.data
   } catch {
@@ -866,19 +900,22 @@ async function loadEntries(): Promise<void> {
           take,
           skip: skip.value,
         },
+        headers: authHeaders(),
       },
     )
 
     if (!res?.success) {
-      throw new Error('Failed to load the watchlist.')
+      throw new Error(res?.message || 'Failed to load the watchlist.')
     }
 
     entries.value =
       skip.value === 0 ? res.data : [...entries.value, ...res.data]
     total.value = res.total
   } catch (error) {
-    errorMessage.value =
-      error instanceof Error ? error.message : 'Failed to load the watchlist.'
+    errorMessage.value = extractApiErrorMessage(
+      error,
+      'Failed to load the watchlist.',
+    )
   } finally {
     isLoading.value = false
   }

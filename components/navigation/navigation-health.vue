@@ -101,7 +101,7 @@
       class="rounded-2xl border border-error/30 bg-error/5 p-4 shadow-sm"
     >
       <div class="flex items-center gap-2">
-        <Icon name="kind-icon:error" class="h-5 w-5 text-error" />
+        <Icon name="kind-icon:error" class="kr-icon-5 text-error" />
         <h2 class="font-black">Nav manifest issues</h2>
       </div>
       <ul class="mt-3 flex flex-col gap-1.5">

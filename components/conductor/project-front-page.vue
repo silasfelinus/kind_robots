@@ -234,7 +234,20 @@ const view = computed(() => {
   return {
     title: p?.title || f.title,
     tagline: p?.flavorText || f.tagline,
-    description: p?.description || f.description,
+    // Prefer the page's own authored copy over the live Project.description
+    // field: it is seeded (server/api/conductor/sync.post.ts) from Conductor's
+    // notesFromSilas -- Silas's raw internal planning dictation, not player-
+    // facing copy -- and never refreshed after a Project row first exists.
+    // cthulhuquarium/t-066: /play/aquarium was rendering that pitch text
+    // verbatim ("Long time silly project planned... my inspiration is the
+    // absolutely excellent mobile game insaniquarium...") because it happened
+    // to have no authored fallback description at the time. Every current
+    // caller of this component supplies one, so falling back to the live
+    // value only when the page genuinely has no authored description of its
+    // own keeps this component usable for a future page that hasn't written
+    // one yet, without risking raw internal notes leaking onto any surface
+    // that already has real copy.
+    description: f.description || p?.description || undefined,
     icon: p?.icon || f.icon,
     status: p?.status ?? null,
     links: f.links,

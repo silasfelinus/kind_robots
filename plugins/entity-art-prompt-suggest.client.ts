@@ -43,10 +43,20 @@ type ScenarioStore = ReturnType<typeof useScenarioStore>
 
 const BUTTON_MARKER = 'data-entity-art-prompt-suggest'
 const attached = new WeakSet<HTMLTextAreaElement>()
+/*
+ * Primary first in both rosters. entity-art-manager.vue hides its Target
+ * select once an entity has a single generatable slot -- which the slot
+ * collapse made true for every entity -- so there is no longer a select for
+ * `selectedSlot` to read, and it falls through to the head of this list. The
+ * head therefore has to be the primary: taking heroPath for a project (or a
+ * generic 1024 square for a scenario) frames the suggested prompt for a slot
+ * the enqueue gate will not accept. The retired entries stay because a
+ * still-visible Target select on an override call site can select them.
+ */
 const PROJECT_ART_SLOTS: EntityArtSlot[] = [
+  { field: 'imagePath', label: 'Image', width: 1024, height: 1024 },
   { field: 'heroPath', label: 'Hero', width: 1280, height: 720 },
   { field: 'cardPath', label: 'Card', width: 512, height: 768 },
-  { field: 'imagePath', label: 'Icon', width: 256, height: 256 },
 ]
 const SCENARIO_ART_SLOTS: EntityArtSlot[] = [
   { field: 'imagePath', label: 'Scenario image', width: 1536, height: 864 },
@@ -65,8 +75,8 @@ function positiveInteger(value: unknown): number | undefined {
 }
 
 function managerContextFromVue(element: HTMLElement): ManagerContext | null {
-  let instance: VueInstanceLike | null | undefined =
-    (element as VueElement).__vueParentComponent
+  let instance: VueInstanceLike | null | undefined = (element as VueElement)
+    .__vueParentComponent
 
   while (instance) {
     const props = instance.props ?? {}
@@ -246,8 +256,9 @@ function selectedValue(
   predicate: (select: HTMLSelectElement) => boolean,
 ): string {
   return (
-    Array.from(form.querySelectorAll<HTMLSelectElement>('select')).find(predicate)
-      ?.value || ''
+    Array.from(form.querySelectorAll<HTMLSelectElement>('select')).find(
+      predicate,
+    )?.value || ''
   )
 }
 
@@ -259,7 +270,8 @@ function selectedSlot(
     context.slots.some((slot) => slot.field === select.value),
   )
   return (
-    context.slots.find((slot) => slot.field === field) || {
+    context.slots.find((slot) => slot.field === field) ||
+    context.slots[0] || {
       field: field || 'imagePath',
       label: 'Image',
       width: 1024,
@@ -410,11 +422,14 @@ function addSuggestButton(
     } catch (error) {
       const detail =
         error instanceof Error ? cleanString(error.message).slice(0, 72) : ''
-      button.textContent = detail ? `Suggestion failed · ${detail}` : 'Suggestion failed'
+      button.textContent = detail
+        ? `Suggestion failed · ${detail}`
+        : 'Suggestion failed'
       button.title = detail || 'Prompt suggestion failed.'
       window.setTimeout(() => {
         button.textContent = initialLabel
-        button.title = 'Generate an editable art prompt from the canonical record'
+        button.title =
+          'Generate an editable art prompt from the canonical record'
       }, 5000)
     } finally {
       button.dataset.loading = 'false'
@@ -455,12 +470,7 @@ export default defineNuxtPlugin((nuxtApp) => {
               scenarioStore,
             )
           }
-          scanForEntityArtPrompts(
-            node,
-            pageStore,
-            projectStore,
-            scenarioStore,
-          )
+          scanForEntityArtPrompts(node, pageStore, projectStore, scenarioStore)
         }
       }
     })

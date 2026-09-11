@@ -989,9 +989,9 @@ function markSlideFailed(src: string) {
  * path, and the record's primary artImageId only for the primary slot.
  */
 function slotArtImageId(field: string): number | null {
-  const slotIdField = field.match(/^(card|hero|icon)Path$/)
-  const columnValue = slotIdField
-    ? props.entity[`${slotIdField[1]}ArtImageId`]
+  const slotName = field.match(/^(card|hero|icon)Path$/)?.[1]
+  const columnValue = slotName
+    ? props.entity[`${slotName}ArtImageId`]
     : props.entity.artImageId
   const columnId = Number(columnValue)
   if (Number.isInteger(columnId) && columnId > 0) return columnId

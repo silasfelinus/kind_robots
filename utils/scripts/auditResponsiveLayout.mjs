@@ -34,9 +34,16 @@
  *
  *     npm run audit:responsive -- --base http://localhost:3000
  *
- * Exits non-zero when any route/viewport has a defect. Do not pipe the command
- * in CI — that replaces this exit status with the last pipeline stage's, which
- * is how interface-vision t-063's verifier stayed dead for weeks.
+ * THE DEFAULT BASE IS LOCALHOST. Forgetting `--base` while intending to audit a
+ * deployment used to print a full sheet of `✅` against nothing at all, because
+ * a route that could not be reached was not counted (fixed 2026-09-11 — see the
+ * note at the `!loaded` branch). It is counted now, so a wrong or unreachable
+ * base fails instead of flattering.
+ *
+ * Exits non-zero when any route/viewport has a defect, including one that could
+ * not be loaded. Do not pipe the command in CI — that replaces this exit status
+ * with the last pipeline stage's, which is how interface-vision t-063's verifier
+ * stayed dead for weeks.
  */
 
 const args = process.argv.slice(2)
@@ -366,10 +373,35 @@ for (const vp of VIEWPORTS) {
     const m = await page.evaluate(collect, MIN_FLEX_WIDTH).catch(() => null)
     const label = `${vp.name.padEnd(7)} ${route.padEnd(14)}`
 
-    if (!m) {
+    /*
+     * A ROUTE THAT NEVER LOADED IS A FAILURE, NOT A PASS.
+     *
+     * This reported `✅` for every route and viewport while the browser was
+     * sitting on Chrome's own ERR_CONNECTION_RESET page (2026-09-11, auditing
+     * production from a sandbox with no egress to it). The navigation `.catch`
+     * below already recorded `loaded = false`, but nothing consumed it: a
+     * failed navigation leaves a real error DOCUMENT in place, so
+     * `page.evaluate(collect)` succeeds against it and returns measurements of
+     * the error page -- which has no spill, no crushed elements and no broken
+     * art. The `(navigation failed)` message underneath only fires when
+     * `evaluate` itself throws, which it does not.
+     *
+     * This is the failure mode the header warns about two ways over: a
+     * verifier that stays green while measuring nothing, and a result believed
+     * because it was printed rather than because it was looked at. It took
+     * `--shots` and opening the PNGs to notice. So the check fails loudly now,
+     * which also means a CI run against an unreachable deployment reports the
+     * outage instead of a clean bill of health.
+     */
+    if (!loaded) {
+      failures += 1
       console.log(
-        `${label} ⚠️  could not measure${loaded ? '' : ' (navigation failed)'}`,
+        `${label} ❌ navigation failed — nothing was measured. ` +
+          `Is ${BASE} reachable from here?`,
       )
+    } else if (!m) {
+      failures += 1
+      console.log(`${label} ❌ could not measure the page`)
     } else if (
       m.horizontalScroll ||
       m.spill.length ||

@@ -80,7 +80,7 @@
       class="rounded-2xl border border-secondary/30 bg-secondary/5 p-4 shadow-sm"
     >
       <div class="flex items-center gap-2">
-        <Icon name="kind-icon:link" class="h-5 w-5 text-secondary" />
+        <Icon name="kind-icon:link" class="kr-icon-5 text-secondary" />
         <h2 class="font-black">Shared-route groups</h2>
       </div>
       <div class="mt-3 flex flex-wrap gap-2">

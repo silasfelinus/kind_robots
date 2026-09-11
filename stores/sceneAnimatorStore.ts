@@ -326,7 +326,17 @@ export const useSceneAnimatorStore = defineStore('sceneAnimatorStore', () => {
     }
   }
 
-  async function retrySource(sourceFile: string): Promise<boolean> {
+  /**
+   * Queue one source again.
+   *
+   * `force` is what makes a FINISHED scene re-renderable. Without it the
+   * server's dedupe treats DONE as a result worth keeping and skips the
+   * request, which is correct right up until the finished render is the thing
+   * that is wrong -- see the 2026-09-11 flattened-clip bug. It never overrides
+   * a queued or rendering job; that is the server's call, not this one's.
+   */
+  async function retrySource(sourceFile: string, force = false): Promise<boolean> {
+    const label = force ? 're-render this scene' : 'retry this scene'
     queueing.value = true
     retryingSource.value = sourceFile
     clearError()
@@ -342,6 +352,7 @@ export const useSceneAnimatorStore = defineStore('sceneAnimatorStore', () => {
             durationSeconds: durationSeconds.value,
             isMature: isMature.value,
             retryFailed: true,
+            force,
             sourceFile,
           }),
         },
@@ -349,7 +360,7 @@ export const useSceneAnimatorStore = defineStore('sceneAnimatorStore', () => {
         120_000,
       )
       if (!response.success || !response.data) {
-        throw new Error(response.message || 'Failed to retry this scene.')
+        throw new Error(response.message || `Failed to ${label}.`)
       }
       lastEnqueue.value = response.data
       if (response.data.errors.length) {
@@ -358,15 +369,34 @@ export const useSceneAnimatorStore = defineStore('sceneAnimatorStore', () => {
           .join('\n')
         return false
       }
+      /*
+       * A force that queued nothing is a silent no-op otherwise: the card keeps
+       * its old Done badge and the click looks like it did nothing at all. The
+       * one way this happens is an active job the server declined to duplicate,
+       * so say that rather than leaving the operator clicking.
+       */
+      if (force && !response.data.queued.length) {
+        const [skip] = response.data.skipped
+        error.value = skip
+          ? `${sourceFile} was not re-queued: a job is already ${String(skip.reason).toLowerCase()}.`
+          : `${sourceFile} was not re-queued.`
+        await load()
+        return false
+      }
       await load()
       return true
     } catch (cause) {
-      error.value = errorMessage(cause, 'Failed to retry this scene.')
+      error.value = errorMessage(cause, `Failed to ${label}.`)
       return false
     } finally {
       queueing.value = false
       retryingSource.value = null
     }
+  }
+
+  /** Re-render a scene whose latest job already finished. */
+  async function rerenderSource(sourceFile: string): Promise<boolean> {
+    return retrySource(sourceFile, true)
   }
 
   async function selectFolder(folder: string) {
@@ -437,6 +467,7 @@ export const useSceneAnimatorStore = defineStore('sceneAnimatorStore', () => {
     load,
     enqueue,
     retrySource,
+    rerenderSource,
     selectFolder,
     setEngine,
     setPreset,

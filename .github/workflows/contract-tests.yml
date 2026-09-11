@@ -136,6 +136,9 @@ jobs:
       - name: Animated art offload contract
         run: npm run test:animated-art-offload
 
+      - name: Scene Animator resubmit contract
+        run: npm run test:scene-animator-resubmit
+
       - name: ESLint ratchet
         run: npm run test:lint-ratchet
 

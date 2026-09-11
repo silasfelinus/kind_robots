@@ -68,6 +68,7 @@
     "audit:fitness": "tsx utils/scripts/auditObjectFitness.ts",
     "test:migrate-on-deploy": "tsx utils/scripts/verifyMigrateOnDeploy.ts",
     "test:scene-animator-health": "tsx utils/scripts/verifySceneAnimatorHealth.test.ts",
+    "test:scene-animator-resubmit": "tsx utils/scripts/verifySceneAnimatorResubmit.test.ts",
     "test:facet-aliases": "tsx utils/scripts/verifyFacetAliases.ts",
     "audit:art-coverage": "tsx utils/scripts/auditEntityArtCoverage.ts",
     "test:facet-content": "tsx utils/scripts/verifyFacetContentQuality.ts",

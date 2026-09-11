@@ -308,6 +308,22 @@
                     <span v-if="store.retryingSource === source.name" class="kr-spinner-xs" />
                     Retry this scene
                   </button>
+                  <!--
+                    A finished scene is skipped by the dedupe, so this is the
+                    only way to ask for it again — needed whenever the clip that
+                    came back is not the clip you wanted.
+                  -->
+                  <button
+                    v-else-if="source.status === 'done'"
+                    type="button"
+                    class="btn btn-outline btn-xs w-full rounded-lg"
+                    :disabled="store.queueing"
+                    :title="`Discard this result and render ${source.name} again`"
+                    @click="store.rerenderSource(source.name)"
+                  >
+                    <span v-if="store.retryingSource === source.name" class="kr-spinner-xs" />
+                    Re-render this scene
+                  </button>
                 </div>
               </article>
             </div>

@@ -15,7 +15,7 @@
       <img
         :src="preset.imagePath"
         :alt="preset.label"
-        class="h-full w-full object-cover"
+        class="kr-img-cover"
       />
       <div
         class="absolute inset-0 bg-linear-to-t from-base-100/90 to-transparent"

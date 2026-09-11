@@ -113,7 +113,7 @@
                   photoById.get(Number(item.id))!.caption ||
                   `${client.name} ${photoById.get(Number(item.id))!.kind}`
                 "
-                class="h-full w-full object-cover"
+                class="kr-img-cover"
                 decoding="async"
               />
               <div

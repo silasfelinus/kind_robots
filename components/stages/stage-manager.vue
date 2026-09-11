@@ -160,7 +160,7 @@
                   v-else-if="slotImage(slot)"
                   :src="slotImage(slot)!"
                   alt=""
-                  class="h-full w-full object-cover"
+                  class="kr-img-cover"
                 />
                 <Icon
                   v-else

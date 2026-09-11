@@ -117,7 +117,7 @@
                 :src="heroImage"
                 :alt="`${config.title} tutorial`"
                 loading="lazy"
-                class="h-full w-full object-cover"
+                class="kr-img-cover"
               />
               <Icon v-else name="kind-icon:info" class="kr-icon-primary-7" />
             </div>

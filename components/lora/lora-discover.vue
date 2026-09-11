@@ -108,7 +108,7 @@
             v-if="card.previewImageUrl"
             :src="card.previewImageUrl"
             :alt="card.name"
-            class="h-full w-full object-cover"
+            class="kr-img-cover"
             loading="lazy"
           />
           <div

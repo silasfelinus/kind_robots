@@ -62,7 +62,7 @@
                 v-if="pageRef.thumb"
                 :src="pageRef.thumb"
                 :alt="pageRef.title"
-                class="h-full w-full object-cover"
+                class="kr-img-cover"
               />
               <Icon
                 v-else

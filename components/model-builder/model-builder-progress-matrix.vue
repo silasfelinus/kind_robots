@@ -65,7 +65,7 @@
           v-if="sourceImage"
           :src="sourceImage"
           :alt="run?.sourceLabel"
-          class="h-full w-full object-cover"
+          class="kr-img-cover"
           loading="lazy"
         />
         <Icon v-else name="kind-icon:blueprint" class="h-6 w-6 text-base-content/30" />

@@ -12,7 +12,7 @@
         <img
           :src="lesson.previewImageSrc"
           :alt="`${lesson.name} visual style study`"
-          class="h-full w-full object-cover"
+          class="kr-img-cover"
         />
         <div class="absolute inset-0 bg-linear-to-t from-black/80 via-transparent to-transparent" />
         <div class="absolute inset-x-0 bottom-0 p-4 text-white">
@@ -245,7 +245,7 @@
                   :src="artist.portrait.imageSrc"
                   :alt="artistPortraitAlt(artist)"
                   loading="lazy"
-                  class="h-full w-full object-cover"
+                  class="kr-img-cover"
                 />
               </a>
               <div

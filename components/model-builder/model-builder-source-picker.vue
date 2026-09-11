@@ -172,7 +172,7 @@
               v-if="recordImage(record)"
               :src="recordImage(record)"
               alt=""
-              class="h-full w-full object-cover"
+              class="kr-img-cover"
               loading="lazy"
             />
             <Icon
@@ -227,7 +227,7 @@
               v-if="recordImage(record)"
               :src="recordImage(record)"
               alt=""
-              class="h-full w-full object-cover"
+              class="kr-img-cover"
               loading="lazy"
             />
             <Icon

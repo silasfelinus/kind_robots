@@ -2423,6 +2423,20 @@ section:has(div[class*='xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]'])
     @apply text-sm text-base-content/50;
   }
 
+  /* New family opened per slice 232's kaizen note (the bare colored/sizeless
+   * h-N w-N icon-glyph pool interface-vision has touched is now fully
+   * closed; time for a fresh full-repo class-frequency survey outside it).
+   * `h-full w-full object-cover` is the exact, verbatim hand-rolled shape
+   * for an <img>/<video> filling its container -- 30 files, 30 occurrences,
+   * all exact matches with no extra tokens riding along (no rounded-*,
+   * shrink-0, or other modifier folded in at any site). Purely a sizing/
+   * object-fit primitive: no color and no behavior, so this is the same
+   * composition-only substitution as `kr-container`/`kr-icon-*` -- no
+   * geometry or rendering change at any of the 30 sites. */
+  .kr-img-cover {
+    @apply h-full w-full object-cover;
+  }
+
   .text-smart {
     @apply text-sm md:text-lg lg:text-lg xl:text-xl;
   }

@@ -81,7 +81,7 @@
             <img
               :src="sourceImageSrc"
               :alt="selectedSourceImage.fileName || 'Source'"
-              class="h-full w-full object-cover"
+              class="kr-img-cover"
             />
           </div>
           <div class="min-w-0 flex-1">
@@ -297,7 +297,7 @@
             v-if="sourceImageSrc"
             :src="sourceImageSrc"
             :alt="selectedSourceImage?.fileName || 'Source image'"
-            class="h-full w-full object-cover"
+            class="kr-img-cover"
           />
           <div
             v-else
@@ -324,7 +324,7 @@
             <img
               :src="resultImageSrc"
               alt="Styled result"
-              class="h-full w-full object-cover"
+              class="kr-img-cover"
             />
             <div
               class="absolute inset-0 flex items-center justify-center bg-success/40 backdrop-blur-sm"

@@ -111,7 +111,7 @@
                 v-if="thread.otherAvatar"
                 :src="thread.otherAvatar"
                 :alt="thread.otherLabel"
-                class="h-full w-full object-cover"
+                class="kr-img-cover"
                 @error="onAvatarError(thread)"
               />
               <span v-else>{{ getInitials(thread.otherLabel) }}</span>
@@ -186,7 +186,7 @@
             v-if="activeThread.otherAvatar"
             :src="activeThread.otherAvatar"
             :alt="activeThread.otherLabel"
-            class="h-full w-full object-cover"
+            class="kr-img-cover"
             @error="onAvatarError(activeThread)"
           />
           <span v-else>{{ getInitials(activeThread.otherLabel) }}</span>

@@ -39,7 +39,7 @@
               v-if="photoUrls[customer.id]"
               :src="photoUrls[customer.id]"
               :alt="`${customer.name} primary client photo`"
-              class="h-full w-full object-cover"
+              class="kr-img-cover"
             />
             <Icon v-else name="kind-icon:user" class="size-7 text-base-content/25" />
           </div>

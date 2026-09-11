@@ -44,7 +44,7 @@
             type="button"
             @click="startAddingSample"
           >
-            <Icon name="kind-icon:plus" class="h-4 w-4" />
+            <Icon name="kind-icon:plus" class="kr-icon-4" />
             <span class="hidden sm:inline">Add</span>
           </button>
 
@@ -56,7 +56,7 @@
             @click="refreshSamples(true)"
           >
             <span v-if="isLoading" class="loading loading-spinner loading-xs" />
-            <Icon v-else name="kind-icon:refresh" class="h-4 w-4" />
+            <Icon v-else name="kind-icon:refresh" class="kr-icon-4" />
             <span class="hidden sm:inline">Refresh</span>
           </button>
         </div>
@@ -117,7 +117,7 @@
           :disabled="!sampleStore.selectedSample"
           @click="clearSelectedSample"
         >
-          <Icon name="kind-icon:x" class="h-4 w-4" />
+          <Icon name="kind-icon:x" class="kr-icon-4" />
           Clear
         </button>
       </div>
@@ -139,7 +139,7 @@
           type="button"
           @click="closeSampleForm"
         >
-          <Icon name="kind-icon:x" class="h-4 w-4" />
+          <Icon name="kind-icon:x" class="kr-icon-4" />
           <span class="hidden sm:inline">Close</span>
         </button>
       </div>
@@ -186,7 +186,7 @@
           type="button"
           @click="startAddingSample"
         >
-          <Icon name="kind-icon:plus" class="h-4 w-4" />
+          <Icon name="kind-icon:plus" class="kr-icon-4" />
           Add Sample
         </button>
       </div>

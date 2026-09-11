@@ -233,7 +233,7 @@
             <Icon
               v-else
               :name="activeType?.icon || 'kind-icon:blueprint'"
-              class="h-4 w-4 text-base-content/30"
+              class="kr-icon-4 text-base-content/30"
             />
           </div>
           <span class="kr-text-bold-sm shrink-0 truncate text-base-content">

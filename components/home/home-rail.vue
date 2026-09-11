@@ -15,6 +15,14 @@
   dissolved into whatever the backdrop happened to be doing. The panel is that
   ground.
 
+  THE PANELS HAVE DISTINCT COLOUR IDENTITIES. Silas, 2026-09-11: the new
+  dashboard's layout and content are right, but the individual sections need
+  more dynamism in their colour schemes. Each shelf therefore gets a stable
+  semantic daisyUI tone from its destination: terracotta, sage, blue, ink,
+  gold, or green. The wash stays light enough for the artwork to lead, and it
+  follows whatever app theme is active instead of baking Storybook hex values
+  into this component.
+
   THE HEADER IS ONE ROW: a glyph, the shelf's name, its count, and the chevrons.
   It began as two glyphs and no words -- Silas, 2026-08-29: "Would love to
   replace the words for new dreams, characters, etc with just an icon, same with
@@ -56,7 +64,10 @@
   so it is gone rather than tuned.
 -->
 <template>
-  <section class="flex h-full min-w-0 flex-col gap-1 kr-panel-flat p-2">
+  <section
+    class="flex h-full min-w-0 flex-col gap-1 kr-panel-flat p-2"
+    :class="surfaceTone.panel"
+  >
     <header class="flex shrink-0 items-center gap-1">
       <!--
         The shelf's identity, as one glyph. `title` and `aria-label` carry the
@@ -64,7 +75,8 @@
       -->
       <NuxtLink
         :to="seeAllHref"
-        class="flex min-w-0 shrink items-center gap-1 rounded text-primary transition-colors hover:text-primary/70 focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary"
+        class="flex min-w-0 shrink items-center gap-1 rounded transition-colors focus-visible:outline focus-visible:outline-2"
+        :class="surfaceTone.link"
         :title="`${label} — ${seeAllLabel}`"
         :aria-label="`${label} — ${seeAllLabel}`"
       >
@@ -119,7 +131,8 @@
       <span v-show="canScroll" class="flex shrink-0 items-center">
         <button
           type="button"
-          class="grid size-5 place-items-center rounded text-base-content/45 transition-colors hover:text-primary disabled:opacity-25 focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary"
+          class="grid size-5 place-items-center rounded text-base-content/45 transition-colors disabled:opacity-25 focus-visible:outline focus-visible:outline-2"
+          :class="surfaceTone.control"
           :disabled="atStart"
           :aria-label="`Scroll ${label} backwards`"
           @click="scrollBy(-1)"
@@ -128,7 +141,8 @@
         </button>
         <button
           type="button"
-          class="grid size-5 place-items-center rounded text-base-content/45 transition-colors hover:text-primary disabled:opacity-25 focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary"
+          class="grid size-5 place-items-center rounded text-base-content/45 transition-colors disabled:opacity-25 focus-visible:outline focus-visible:outline-2"
+          :class="surfaceTone.control"
           :disabled="atEnd"
           :aria-label="`Scroll ${label} forwards`"
           @click="scrollBy(1)"
@@ -337,6 +351,55 @@ const track = ref<HTMLElement | null>(null)
 const canScroll = ref(false)
 const atStart = ref(true)
 const atEnd = ref(false)
+
+type SurfaceTone = {
+  panel: string
+  link: string
+  control: string
+}
+
+const SURFACE_TONES: Record<string, SurfaceTone> = {
+  '/art': {
+    panel: 'border-info/35 bg-info/10',
+    link: 'text-info hover:text-info/70 focus-visible:outline-info',
+    control: 'hover:text-info focus-visible:outline-info',
+  },
+  '/dreams': {
+    panel: 'border-primary/35 bg-primary/10',
+    link: 'text-primary hover:text-primary/70 focus-visible:outline-primary',
+    control: 'hover:text-primary focus-visible:outline-primary',
+  },
+  '/characters': {
+    panel: 'border-accent/35 bg-accent/10',
+    link: 'text-accent hover:text-accent/70 focus-visible:outline-accent',
+    control: 'hover:text-accent focus-visible:outline-accent',
+  },
+  '/stories': {
+    panel: 'border-secondary/35 bg-secondary/10',
+    link: 'text-secondary hover:text-secondary/70 focus-visible:outline-secondary',
+    control: 'hover:text-secondary focus-visible:outline-secondary',
+  },
+  '/rewards': {
+    panel: 'border-warning/40 bg-warning/10',
+    link: 'text-warning hover:text-warning/70 focus-visible:outline-warning',
+    control: 'hover:text-warning focus-visible:outline-warning',
+  },
+  '/facets': {
+    panel: 'border-success/35 bg-success/10',
+    link: 'text-success hover:text-success/70 focus-visible:outline-success',
+    control: 'hover:text-success focus-visible:outline-success',
+  },
+}
+
+const DEFAULT_SURFACE_TONE: SurfaceTone = {
+  panel: 'border-primary/35 bg-primary/10',
+  link: 'text-primary hover:text-primary/70 focus-visible:outline-primary',
+  control: 'hover:text-primary focus-visible:outline-primary',
+}
+
+const surfaceTone = computed(
+  () => SURFACE_TONES[props.seeAllHref] ?? DEFAULT_SURFACE_TONE,
+)
 
 /*
  * Fixed tile widths, not a responsive column count: a rail's job is to leave a

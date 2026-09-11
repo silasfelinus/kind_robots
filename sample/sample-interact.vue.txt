@@ -16,7 +16,7 @@
         type="button"
         @click="backToGallery"
       >
-        <Icon name="kind-icon:arrow-left" class="h-4 w-4" />
+        <Icon name="kind-icon:arrow-left" class="kr-icon-4" />
         <span class="hidden sm:inline">Gallery</span>
       </button>
 
@@ -171,7 +171,7 @@
               :disabled="!interactionPreview"
               @click="copyPreview"
             >
-              <Icon name="kind-icon:copy" class="h-4 w-4" />
+              <Icon name="kind-icon:copy" class="kr-icon-4" />
               Copy
             </button>
           </div>

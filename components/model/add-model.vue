@@ -77,7 +77,7 @@
 
       <select
         v-model="form.supportedServer"
-        class="select select-bordered w-full bg-base-200"
+        class="kr-select-muted"
       >
         <option v-for="server in SERVER_OPTIONS" :key="server" :value="server">
           {{ server }}

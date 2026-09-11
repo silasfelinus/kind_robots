@@ -88,15 +88,15 @@
           <div class="mt-2 grid grid-cols-3 gap-2">
             <label class="flex flex-col gap-1">
               <span>Steps</span>
-              <input v-model.number="cfg(side).steps" type="number" min="1" class="input input-bordered input-xs" @change="store.persist" />
+              <input v-model.number="cfg(side).steps" type="number" min="1" class="kr-input-xs" @change="store.persist" />
             </label>
             <label class="flex flex-col gap-1">
               <span>CFG</span>
-              <input v-model.number="cfg(side).cfg" type="number" step="0.1" class="input input-bordered input-xs" @change="store.persist" />
+              <input v-model.number="cfg(side).cfg" type="number" step="0.1" class="kr-input-xs" @change="store.persist" />
             </label>
             <label class="flex flex-col gap-1">
               <span>Guidance</span>
-              <input v-model.number="cfg(side).guidance" type="number" step="0.1" class="input input-bordered input-xs" @change="store.persist" />
+              <input v-model.number="cfg(side).guidance" type="number" step="0.1" class="kr-input-xs" @change="store.persist" />
             </label>
             <label class="flex flex-col gap-1">
               <span>Seed</span>
@@ -104,29 +104,29 @@
                 :value="cfg(side).seed ?? ''"
                 type="number"
                 placeholder="random"
-                class="input input-bordered input-xs"
+                class="kr-input-xs"
                 @change="onSeed(side, $event)"
               />
             </label>
             <label class="flex flex-col gap-1">
               <span>Width</span>
-              <input v-model.number="cfg(side).width" type="number" step="8" class="input input-bordered input-xs" @change="store.persist" />
+              <input v-model.number="cfg(side).width" type="number" step="8" class="kr-input-xs" @change="store.persist" />
             </label>
             <label class="flex flex-col gap-1">
               <span>Height</span>
-              <input v-model.number="cfg(side).height" type="number" step="8" class="input input-bordered input-xs" @change="store.persist" />
+              <input v-model.number="cfg(side).height" type="number" step="8" class="kr-input-xs" @change="store.persist" />
             </label>
             <label class="flex flex-col gap-1">
               <span>Sampler</span>
-              <input v-model="cfg(side).sampler" type="text" class="input input-bordered input-xs" @change="store.persist" />
+              <input v-model="cfg(side).sampler" type="text" class="kr-input-xs" @change="store.persist" />
             </label>
             <label class="flex flex-col gap-1">
               <span>Scheduler</span>
-              <input v-model="cfg(side).scheduler" type="text" class="input input-bordered input-xs" @change="store.persist" />
+              <input v-model="cfg(side).scheduler" type="text" class="kr-input-xs" @change="store.persist" />
             </label>
             <label class="flex flex-col gap-1">
               <span>LoRA</span>
-              <input v-model="cfg(side).loraName" type="text" placeholder="none" class="input input-bordered input-xs" @change="store.persist" />
+              <input v-model="cfg(side).loraName" type="text" placeholder="none" class="kr-input-xs" @change="store.persist" />
             </label>
           </div>
         </details>

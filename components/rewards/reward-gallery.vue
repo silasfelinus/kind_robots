@@ -236,7 +236,7 @@
           </div>
 
           <select
-            class="select select-bordered w-full bg-base-200"
+            class="kr-select-muted"
             :value="rewardStore.selectedReward?.id ?? ''"
             aria-label="Select reward"
             @change="selectRewardFromEvent"

@@ -187,7 +187,7 @@
           </div>
 
           <select
-            class="select select-bordered w-full bg-base-200"
+            class="kr-select-muted"
             :value="characterStore.selectedCharacter?.id ?? ''"
             aria-label="Select character"
             @change="selectCharacterFromEvent"

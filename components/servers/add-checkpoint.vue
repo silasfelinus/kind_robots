@@ -68,10 +68,7 @@
           <span class="kr-label-bold">Resource Type</span>
         </span>
 
-        <select
-          v-model="form.resourceType"
-          class="select select-bordered w-full bg-base-200"
-        >
+        <select v-model="form.resourceType" class="kr-select-muted">
           <option value="CHECKPOINT">Checkpoint</option>
           <option value="LORA">LoRA</option>
           <option value="LYCORIS">LyCORIS</option>
@@ -89,10 +86,7 @@
           <span class="kr-label-bold">Supported Server</span>
         </span>
 
-        <select
-          v-model="form.supportedServer"
-          class="select select-bordered w-full bg-base-200"
-        >
+        <select v-model="form.supportedServer" class="kr-select-muted">
           <option value="SDXL">SDXL</option>
           <option value="SD15">SD15</option>
           <option value="FLUX">FLUX</option>

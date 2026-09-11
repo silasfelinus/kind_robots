@@ -107,7 +107,7 @@
 
               <select
                 v-model="botStore.botForm.BotType"
-                class="select select-bordered w-full bg-base-200"
+                class="kr-select-muted"
               >
                 <option value="assistant">assistant</option>
                 <option value="character">character</option>

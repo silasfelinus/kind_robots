@@ -38,14 +38,42 @@
   pages/[...slug].vue's content-host, which is already the page's single scroll
   owner, which is what .kr-unbound on the root declares.
 
-  FILLS THE SCREEN ON DESKTOP. Silas, 2026-09-01: "We still have some dead space
-  at the bottom of the screen. it would be better to specifically choose
-  percentages, at least on desktop, so we are using maximum space." From `xl` the
-  root is `h-full` and every band divides that height by percentage, so the page
-  ends exactly where the viewport does. Below `xl` it is the ordinary stacking
-  column it always was -- a fixed-height layout on a phone crushes content rather
-  than filling space, and he has not asked for a small-screen design yet ("I do
-  not have an ideal layout for tablet and mobile yet").
+  That host also applies `flex: 1 1 0%; min-height: 0` to its first child, so
+  this root is stretched to the host's height whatever height classes it carries
+  -- which is why the percentage layout used `xl:h-full` to cooperate with it,
+  and why taking that off does not strand content below the fold. Content taller
+  than the host still extends the host's scrollable overflow: measured at 4333px
+  inside a 722px viewport below `xl`, where this root already carried no height
+  class (recorded in home-attention.vue's note).
+
+  NO LONGER FILLS THE SCREEN, AT ANY WIDTH. This used to divide the viewport
+  height by percentage from `xl` up (Silas, 2026-09-01: "it would be better to
+  specifically choose percentages, at least on desktop, so we are using maximum
+  space"). That is reversed. Silas, 2026-09-11, from a 1366x768 laptop:
+  "everything is too tight, we should not be forcing a fit to a single screen
+  unless we have an xl display" and then "even more important, we should never be
+  forcing to a single vertical screen, let's let these things breath."
+
+  `xl` is a WIDTH breakpoint at 1280px, so a 1366px laptop clears it while having
+  nowhere near the height the percentage bands assume: about 570px of content
+  area, of which the dream band took 46% and the six galleries split the rest
+  into two rows. Gating the fit on viewport height as well was the first thing
+  tried here, and it is not what he asked for -- he asked for it gone. So every
+  band keeps a natural or an explicitly generous height now and the page scrolls,
+  which is what it did before the density pass.
+
+  WHAT STILL USES A VIEWPORT BREAKPOINT is only the arrangement -- the two
+  columns at `xl`, the 3-wide gallery grid, the phone tab switcher. Those spend
+  horizontal space, which a wide-but-short laptop has plenty of. None of them
+  constrain height.
+
+  EVERY BOUNDED SCROLLER NEEDS A REAL MAX-HEIGHT. `max-h-full` resolves against
+  the parent, so while this page divided the viewport it was a valid bound; with
+  auto-height columns it silently means "as tall as my content" and the scroller
+  stops scrolling. home-attention's gate list has run to seventy-plus rows, so
+  the `xl:max-h-full` escapes came off it and the newsfeed together with the
+  percentage bands -- see the note in home-attention.vue, which already measured
+  this exact failure at 3542px tall on a tablet.
 
   The note has to live up here rather than above the root element: the layout
   contract's root-surface rule reads the FIRST element in the template, and a
@@ -57,7 +85,7 @@
   itself: the animations rail appears on days the pipeline produced clips.
 -->
 <template>
-  <div class="kr-unbound gap-2 pb-4 xl:h-full xl:min-h-0 xl:pb-0">
+  <div class="kr-unbound gap-3 pb-6">
     <div v-if="showcaseStore.errorMessage" class="kr-note kr-note-warning">
       {{ showcaseStore.errorMessage }}
     </div>
@@ -78,15 +106,15 @@
       ("ideally we will be able to do something close to this with tablet but
       have swipe scrolling to show the different object galleries").
     -->
-    <div class="flex flex-col gap-2 xl:min-h-0 xl:flex-1 xl:flex-row">
-      <div class="flex min-w-0 flex-col gap-2 xl:min-h-0 xl:w-[78%]">
+    <div class="flex flex-col gap-3 xl:flex-row xl:items-start">
+      <div class="flex min-w-0 flex-col gap-3 xl:w-[78%]">
         <!--
           The dream band. 46/54 rather than half and half: the galleries below
           are two rows of cards and need the larger share, while the hero is one
           card and one scrolling cast row.
         -->
         <div
-          class="flex flex-col gap-2 lg:h-96 lg:flex-row lg:items-stretch xl:h-[46%] xl:min-h-0 xl:shrink-0"
+          class="flex flex-col gap-3 lg:h-[26rem] lg:flex-row lg:items-stretch"
         >
           <home-dream-hero
             v-if="showcaseStore.hero"
@@ -113,10 +141,19 @@
           get embedded in hosts narrower than the viewport implies). Below xl
           this stays the one horizontally scrolling row it was, which is the
           swipe behaviour asked for on tablet.
+
+          EACH CELL CARRIES ITS OWN HEIGHT (`h-56`), and the grid rows size to
+          it rather than the reverse. home-rail's root is `h-full` and its tile
+          strip is `min-h-0 flex-1`, so a rail reads its height from its cell;
+          while this grid was `grid-rows-2` inside a percentage band the cell
+          had one. With auto rows it would not, and every tile would collapse
+          toward the plate's `min-h-12` floor -- the same crushed look this
+          change is meant to undo, just relocated. 14rem is the breathing room:
+          a plate around 150px tall with its caption under it.
         -->
         <div
           v-if="visibleRails.length"
-          class="no-scrollbar flex gap-2 overflow-x-auto pb-1 xl:grid xl:min-h-0 xl:flex-1 xl:grid-cols-3 xl:grid-rows-2 xl:overflow-visible xl:pb-0"
+          class="no-scrollbar flex gap-2 overflow-x-auto pb-1 xl:grid xl:grid-cols-3 xl:gap-3 xl:overflow-visible xl:pb-0"
         >
           <template v-for="entry in visibleRails" :key="entry.key">
             <!--
@@ -128,14 +165,14 @@
             -->
             <home-art-shelf
               v-if="entry.key === 'art'"
-              class="min-w-[17rem] shrink-0 basis-[calc(25%-0.375rem)] xl:min-h-0 xl:min-w-0 xl:basis-auto"
+              class="h-56 min-w-[17rem] shrink-0 basis-[calc(25%-0.375rem)] xl:min-w-0 xl:basis-auto"
               :fresh="entry.items"
               @select="openCard"
             />
 
             <home-rail
               v-else
-              class="min-w-[17rem] shrink-0 basis-[calc(25%-0.375rem)] xl:min-h-0 xl:min-w-0 xl:basis-auto"
+              class="h-56 min-w-[17rem] shrink-0 basis-[calc(25%-0.375rem)] xl:min-w-0 xl:basis-auto"
               :label="entry.label"
               :icon="entry.icon"
               :items="entry.items"
@@ -153,13 +190,13 @@
 
         <div
           v-else-if="!showcaseStore.hasLoaded"
-          class="flex gap-2 overflow-hidden xl:grid xl:min-h-0 xl:flex-1 xl:grid-cols-3 xl:grid-rows-2"
+          class="flex gap-2 overflow-hidden xl:grid xl:grid-cols-3 xl:gap-3"
           aria-hidden="true"
         >
           <div
             v-for="n in 6"
             :key="n"
-            class="h-44 min-w-[17rem] shrink-0 basis-[calc(25%-0.375rem)] animate-pulse rounded-2xl bg-base-200 xl:h-auto xl:min-w-0 xl:basis-auto"
+            class="h-56 min-w-[17rem] shrink-0 basis-[calc(25%-0.375rem)] animate-pulse rounded-2xl bg-base-200 xl:min-w-0 xl:basis-auto"
           />
         </div>
       </div>
@@ -175,7 +212,7 @@
         there. Silas, 2026-09-08: "the news section is too small, it could be
         twice as big, eating in the what we're building."
       -->
-      <div class="flex min-w-0 flex-col gap-2 xl:min-h-0 xl:w-[22%]">
+      <div class="flex min-w-0 flex-col gap-3 xl:w-[22%]">
         <!--
           ONE PANE AT A TIME ON A PHONE. Silas, 2026-09-02: "Thinking we should
           move the news, todo, project section to a different screen on mobile.
@@ -217,7 +254,7 @@
         </div>
 
         <div v-if="isAdmin" :class="paneClass('attention')">
-          <home-attention class="xl:min-h-0 xl:flex-1" />
+          <home-attention />
         </div>
 
         <!--
@@ -321,7 +358,7 @@
         -->
         <div :class="paneClass('news')">
           <section
-            class="flex max-h-80 w-full flex-col overflow-y-auto overscroll-contain kr-panel-flat p-3 xl:max-h-full xl:min-h-0 xl:flex-1"
+            class="flex max-h-[32rem] w-full flex-col overflow-y-auto overscroll-contain kr-panel-flat p-3"
           >
             <NewsfeedFeed :initial-limit="24" compact>
               <!--
@@ -403,10 +440,12 @@ const userStore = useUserStore()
  * home-attention.vue -- the projection behind it is public, so it needs a real
  * check). It drops out of the column entirely for everyone else, tab included.
  *
- * The wrapper has to go with it, not just the panel: the wrapper carries
- * `xl:flex-1`, so leaving it in place for a signed-out visitor would hold half
- * the column's flexible height open around a section rendering nothing -- which
- * is most of why the newsfeed was a sliver.
+ * The wrapper goes with it, not just the panel: when this column still divided
+ * a fixed height, leaving the wrapper in place for a signed-out visitor held
+ * half that height open around a section rendering nothing -- which was most of
+ * why the newsfeed was a sliver. The column is auto-height now, so an empty
+ * wrapper is merely pointless rather than harmful, but dropping it is still the
+ * honest thing.
  */
 const isAdmin = computed(() => userStore.isAdmin)
 
@@ -434,34 +473,20 @@ const currentPane = computed<RightPane>(() =>
  * `hidden xl:flex` rather than a JS breakpoint check: the xl layout must not
  * depend on a media query listener having fired, and a server-rendered page
  * would otherwise flash the wrong pane set before hydration.
+ *
+ * VISIBILITY ONLY. This used to divide the column's height as well -- the feed
+ * took twice the flexible share "Needs you" did (Silas, 2026-09-08: "the news
+ * section is too small, it could be twice as big, eating in the what we're
+ * building") and the projects strip was capped at `xl:max-h-[34%]`. All of that
+ * read the column's height, and the column has no definite height now that the
+ * page is not fitted to the viewport, so a flexible share divides nothing and a
+ * percentage max-height computes against `auto` and bounds nothing. Each
+ * section carries its own explicit bound instead: the feed a `max-h`, the gate
+ * list its own (home-attention.vue), the projects strip its natural height,
+ * which is short.
  */
 function paneClass(pane: RightPane): string {
-  const shared = 'min-w-0 flex-col xl:flex xl:min-h-0'
-
-  /*
-   * Silas, 2026-09-08: "the news section is too small, it could be twice as
-   * big, eating in the what we're building."
-   *
-   * Two changes, because the newsfeed was losing height at both ends. It now
-   * takes twice the share "Needs you" does instead of splitting the flexible
-   * height evenly with it, and the projects strip is capped at a third of the
-   * column and scrolls past that rather than taking its natural height
-   * whatever that turns out to be -- six projects at their natural height were
-   * pushing the feed down to a couple of rows. Capped, not flexed: the strip
-   * is short rows and reads best whole, so it keeps its own height right up to
-   * the cap.
-   *
-   * For a signed-out visitor "Needs you" is gone entirely, so the feed simply
-   * takes all of the flexible height the projects strip does not.
-   */
-  const grow =
-    pane === 'projects'
-      ? 'xl:shrink-0 xl:max-h-[34%] xl:overflow-y-auto'
-      : pane === 'news'
-        ? 'xl:flex-[2]'
-        : 'xl:flex-1'
-
-  return `${currentPane.value === pane ? 'flex' : 'hidden'} ${shared} ${grow}`
+  return `${currentPane.value === pane ? 'flex' : 'hidden'} min-w-0 flex-col xl:flex`
 }
 
 type RailDefinition = {

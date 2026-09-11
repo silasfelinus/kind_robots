@@ -91,10 +91,14 @@
       layout contract's one-scroll rule deliberately does not count a `max-h-*`
       region -- nested preview, not the page's scroll owner.
 
-      TWO BOUNDS, because one is not enough. `xl:max-h-full` is right at xl,
-      where this sits in a column with a definite height. Below xl that column is
-      auto-height, so `max-h-full` resolves to "as tall as my content" and the
-      scroller silently stops scrolling -- the list simply unrolls into the page.
+      ONE BOUND, applied at every width. This carried `xl:max-h-full` as well,
+      which was right only while the page divided the viewport height and gave
+      this column a definite one to resolve against. home-page.vue stopped doing
+      that on 2026-09-11 (Silas: "we should never be forcing to a single vertical
+      screen, let's let these things breath"), so at every width the column is
+      auto-height, `max-h-full` means "as tall as my content", and the scroller
+      silently stops scrolling -- the list simply unrolls into the page. The
+      explicit rem value is the only bound that holds regardless.
 
       Measured on a tablet at 1180x820 (2026-09-02): this rendered 3542px tall
       with `scrollHeight === clientHeight`, and the page's real scroll owner
@@ -112,7 +116,7 @@
       neighbours.
     -->
     <div
-      class="max-h-[26rem] min-h-0 space-y-1 overflow-y-auto overscroll-contain pr-1 xl:max-h-full"
+      class="max-h-[26rem] min-h-0 space-y-1 overflow-y-auto overscroll-contain pr-1"
     >
       <div
         v-for="gate in gates"

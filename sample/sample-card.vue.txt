@@ -27,7 +27,7 @@
         title="Interact with Sample"
         @click.stop="interactWithSample"
       >
-        <Icon name="kind-icon:play" class="h-4 w-4" />
+        <Icon name="kind-icon:play" class="kr-icon-4" />
       </button>
 
       <button
@@ -37,7 +37,7 @@
         title="Edit Sample"
         @click.stop="emit('edit', sample.id)"
       >
-        <Icon name="kind-icon:pencil" class="h-4 w-4" />
+        <Icon name="kind-icon:pencil" class="kr-icon-4" />
       </button>
 
       <button
@@ -47,7 +47,7 @@
         title="Delete Sample"
         @click.stop="deleteSample"
       >
-        <Icon name="kind-icon:trash" class="h-4 w-4" />
+        <Icon name="kind-icon:trash" class="kr-icon-4" />
       </button>
     </template>
 
@@ -76,7 +76,7 @@
         v-if="activeSelected"
         class="absolute bottom-2 right-2 rounded-full bg-primary p-2 text-primary-content shadow"
       >
-        <Icon name="kind-icon:check" class="h-4 w-4" />
+        <Icon name="kind-icon:check" class="kr-icon-4" />
       </div>
     </div>
 

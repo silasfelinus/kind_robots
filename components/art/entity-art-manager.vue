@@ -242,10 +242,14 @@
       </div>
 
       <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        <label class="form-control gap-1">
+        <label v-if="editableSlots.length > 1" class="form-control gap-1">
           <span class="kr-text-dim-xs-60 font-semibold">Target</span>
           <select v-model="selectedField" class="kr-select-sm" :disabled="submitting">
-            <option v-for="slot in slots" :key="slot.field" :value="slot.field">
+            <option
+              v-for="slot in editableSlots"
+              :key="slot.field"
+              :value="slot.field"
+            >
               {{ slot.label }}
             </option>
           </select>
@@ -405,10 +409,14 @@
       </div>
 
       <div class="grid gap-3 sm:grid-cols-2">
-        <label class="form-control gap-1">
+        <label v-if="editableSlots.length > 1" class="form-control gap-1">
           <span class="kr-text-dim-xs-60 font-semibold">Target</span>
           <select v-model="selectedField" class="kr-select-sm" :disabled="submitting">
-            <option v-for="slot in slots" :key="slot.field" :value="slot.field">
+            <option
+              v-for="slot in editableSlots"
+              :key="slot.field"
+              :value="slot.field"
+            >
               {{ slot.label }}
             </option>
           </select>

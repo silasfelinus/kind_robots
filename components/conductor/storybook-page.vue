@@ -55,7 +55,7 @@
           class="kr-btn-primary"
           @click="store.finishStory()"
         >
-          <Icon name="kind-icon:moon" class="size-4" /> Finish this tale
+          <Icon name="kind-icon:moon" class="kr-icon-4" /> Finish this tale
         </button>
         <!-- New story — arms on first click, fires on second, so an in-progress
              or finished tale can't be discarded by a single stray click. -->
@@ -66,7 +66,7 @@
           :disabled="store.isWeaving"
           @click="newStoryArmed = true"
         >
-          <Icon name="kind-icon:plus" class="size-4" /> New story
+          <Icon name="kind-icon:plus" class="kr-icon-4" /> New story
         </button>
         <button
           v-else
@@ -75,7 +75,7 @@
           @click="startAnother"
           @blur="newStoryArmed = false"
         >
-          <Icon name="kind-icon:alert" class="size-4" /> Discard this tale?
+          <Icon name="kind-icon:alert" class="kr-icon-4" /> Discard this tale?
         </button>
       </div>
     </header>
@@ -505,7 +505,7 @@
             :disabled="setupStep === 0 || store.isWeaving"
             @click="setupStep -= 1"
           >
-            <Icon name="kind-icon:chevron-left" class="size-4" /> Back
+            <Icon name="kind-icon:chevron-left" class="kr-icon-4" /> Back
           </button>
           <div class="flex flex-wrap gap-2">
             <button
@@ -523,7 +523,7 @@
               :disabled="!canAdvance"
               @click="advanceSetup"
             >
-              Continue <Icon name="kind-icon:chevron-right" class="size-4" />
+              Continue <Icon name="kind-icon:chevron-right" class="kr-icon-4" />
             </button>
             <button
               v-else
@@ -537,7 +537,7 @@
                 class="loading loading-dots loading-sm"
               />
               <template v-else>
-                <Icon name="kind-icon:sparkles" class="size-4" /> Write the
+                <Icon name="kind-icon:sparkles" class="kr-icon-4" /> Write the
                 opening scene
               </template>
             </button>

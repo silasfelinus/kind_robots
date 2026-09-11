@@ -9,7 +9,7 @@
           class="kr-btn-ghost-2xl"
           @click="goBack"
         >
-          <Icon name="kind-icon:chevron-left" class="size-4" />
+          <Icon name="kind-icon:chevron-left" class="kr-icon-4" />
           Projects
         </button>
 
@@ -43,7 +43,7 @@
             @click="refresh"
           >
             <span v-if="isLoading" class="kr-spinner-xs" />
-            <Icon v-else name="kind-icon:refresh" class="size-4" />
+            <Icon v-else name="kind-icon:refresh" class="kr-icon-4" />
             Refresh
           </button>
         </div>
@@ -62,7 +62,7 @@
             class="flex size-8 shrink-0 items-center justify-center rounded-xl"
             :class="tab.iconClass"
           >
-            <Icon :name="tab.icon" class="size-4" />
+            <Icon :name="tab.icon" class="kr-icon-4" />
           </span>
           <span class="min-w-0 flex-1">
             <span class="kr-text-eyebrow block truncate text-xs tracking-wide">
@@ -189,7 +189,7 @@
                 class="rounded-2xl border border-warning/30 bg-warning/8 p-3"
               >
                 <div class="kr-text-eyebrow flex items-center gap-2 text-xs tracking-wide text-warning">
-                  <Icon name="kind-icon:warning" class="size-4" />
+                  <Icon name="kind-icon:warning" class="kr-icon-4" />
                   Existing-work check
                 </div>
                 <div class="mt-2 flex flex-wrap gap-2">
@@ -294,7 +294,7 @@
             @click="requestPitchRun"
           >
             <span v-if="requestingPitches" class="kr-spinner-xs" />
-            <Icon v-else name="kind-icon:sparkles" class="size-4" />
+            <Icon v-else name="kind-icon:sparkles" class="kr-icon-4" />
             Queue a fresh pitch run
           </button>
         </div>

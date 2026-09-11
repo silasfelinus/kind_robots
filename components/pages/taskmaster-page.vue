@@ -39,7 +39,7 @@
             <span
               class="kr-text-eyebrow inline-flex items-center gap-2 rounded-full border border-secondary/30 bg-base-100/80 px-3 py-1.5 text-[0.68rem] tracking-[0.16em] text-secondary shadow-sm backdrop-blur"
             >
-              <Icon name="kind-icon:gearhammer" class="size-4" />
+              <Icon name="kind-icon:gearhammer" class="kr-icon-4" />
               The Quest Desk
             </span>
             <h2
@@ -209,7 +209,7 @@
                 </span>
                 <Icon
                   name="kind-icon:chevron-down"
-                  class="size-4 transition-transform group-open:rotate-180"
+                  class="kr-icon-4 transition-transform group-open:rotate-180"
                 />
               </summary>
 
@@ -352,7 +352,7 @@
                 <span
                   class="flex size-9 shrink-0 items-center justify-center rounded-xl bg-secondary text-secondary-content"
                 >
-                  <Icon name="kind-icon:magic" class="size-4" />
+                  <Icon name="kind-icon:magic" class="kr-icon-4" />
                 </span>
                 <div>
                   <p
@@ -389,7 +389,7 @@
             :disabled="store.isWeaving || !canBegin"
             @click="begin(true)"
           >
-            <Icon name="kind-icon:wand" class="size-4" />
+            <Icon name="kind-icon:wand" class="kr-icon-4" />
             Surprise me
           </button>
           <button
@@ -401,7 +401,7 @@
             <span v-if="store.isWeaving" class="loading loading-dots loading-sm" />
             <template v-else>
               Build my quest
-              <Icon name="kind-icon:chevron-right" class="size-4" />
+              <Icon name="kind-icon:chevron-right" class="kr-icon-4" />
             </template>
           </button>
           <p
@@ -436,7 +436,7 @@
               :disabled="store.isWeaving"
               @click="startOver"
             >
-              <Icon name="kind-icon:wand" class="size-4" />
+              <Icon name="kind-icon:wand" class="kr-icon-4" />
               Edit setup
             </button>
           </div>
@@ -592,7 +592,7 @@
               :disabled="store.isWeaving || !store.session.checkpoints.length"
               @click="store.startQuest()"
             >
-              <Icon name="kind-icon:story" class="size-4" />
+              <Icon name="kind-icon:story" class="kr-icon-4" />
               Start the adventure
             </button>
           </aside>

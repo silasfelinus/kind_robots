@@ -24,7 +24,7 @@
           :aria-expanded="libraryOpen"
           @click="libraryOpen = !libraryOpen"
         >
-          <Icon name="kind-icon:book" class="size-4" />
+          <Icon name="kind-icon:book" class="kr-icon-4" />
           {{ libraryOpen ? 'Hide library' : 'Recent stories' }}
         </button>
 
@@ -35,7 +35,7 @@
             :disabled="storyStore.isWeaving"
             @click="duplicateCurrent"
           >
-            <Icon name="kind-icon:copy" class="size-4" /> Duplicate
+            <Icon name="kind-icon:copy" class="kr-icon-4" /> Duplicate
           </button>
 
           <div class="dropdown dropdown-end">
@@ -45,7 +45,7 @@
               class="btn btn-ghost btn-sm rounded-xl border border-base-300"
               aria-haspopup="menu"
             >
-              <Icon name="kind-icon:download" class="size-4" /> Export
+              <Icon name="kind-icon:download" class="kr-icon-4" /> Export
             </button>
             <ul
               tabindex="0"
@@ -69,7 +69,7 @@
             :disabled="storyStore.isWeaving"
             @click="restartArmed = true"
           >
-            <Icon name="kind-icon:refresh" class="size-4" /> Restart
+            <Icon name="kind-icon:refresh" class="kr-icon-4" /> Restart
           </button>
           <button
             v-else
@@ -79,7 +79,7 @@
             @click="restartCurrent"
             @blur="restartArmed = false"
           >
-            <Icon name="kind-icon:alert" class="size-4" /> Restart from the
+            <Icon name="kind-icon:alert" class="kr-icon-4" /> Restart from the
             beginning?
           </button>
 
@@ -90,7 +90,7 @@
             :disabled="storyStore.isWeaving"
             @click="newStoryArmed = true"
           >
-            <Icon name="kind-icon:plus" class="size-4" /> New story
+            <Icon name="kind-icon:plus" class="kr-icon-4" /> New story
           </button>
           <button
             v-else
@@ -100,7 +100,7 @@
             @click="startNewStory"
             @blur="newStoryArmed = false"
           >
-            <Icon name="kind-icon:alert" class="size-4" /> Discard this tale?
+            <Icon name="kind-icon:alert" class="kr-icon-4" /> Discard this tale?
           </button>
         </template>
       </div>

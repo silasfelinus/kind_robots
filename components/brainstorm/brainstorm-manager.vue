@@ -29,22 +29,6 @@
           <h2 class="kr-text-black-2xl tracking-tight text-base-content sm:text-3xl">
             What are we trying to invent?
           </h2>
-          <p class="mt-2 max-w-3xl text-sm leading-6 text-base-content/65">
-            Give Brainstorm a premise, problem, joke setup, art target, or half-formed thought.
-            It will propose a batch. You keep the sparks and bully the beige ones into doing better.
-          </p>
-          <p
-            v-if="persona?.tagline"
-            class="kr-text-dim-xs-45 mt-1 italic"
-            data-testid="brainstorm-persona-tagline"
-          >
-            {{ persona.tagline }}
-          </p>
-        </div>
-
-        <div class="rounded-2xl border border-secondary/20 bg-secondary/10 px-4 py-3 text-sm text-base-content/75">
-          <p class="font-black text-secondary">Human taste stays in charge.</p>
-          <p class="mt-1 max-w-56 leading-5">The model makes options. None become anything else until you choose.</p>
         </div>
       </div>
 
@@ -263,7 +247,8 @@
           v-if="batchShape === 'assortment' && returnTypes.length"
           class="kr-text-dim-xs-45 mt-3 leading-5"
         >
-          Pinned quotas plus one slot for each Auto lens require at least {{ minimumMixResults }} ideas. Extra slots stay flexible.
+          Only the lenses you select are used. Pinned quotas are exact; the rest of the batch is
+          split among your Auto lenses. Needs at least {{ minimumMixResults }} ideas.
         </p>
       </details>
 

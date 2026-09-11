@@ -65,7 +65,16 @@ assert.match(manager, /Assortment/)
 assert.match(manager, /Adaptive assortment/)
 assert.match(manager, /How many\?/)
 assert.match(manager, /placeholder="Auto"/)
-assert.match(manager, /Pinned quotas plus one slot for each Auto lens/)
+// brainstorm/t-023: the helper text now states the allow-list rule -- selecting
+// lenses restricts the batch to them, rather than guaranteeing one slot each and
+// leaving the remainder open to unselected lenses.
+assert.match(manager, /Only the lenses you select are used/)
+assert.match(manager, /split among your Auto lenses/)
+
+// The new-pitch control must stay wired: clearSession() sat exported but
+// uncalled, which is what let a previous pitch's batches survive a premise change.
+assert.match(manager, /data-testid="brainstorm-new-pitch"/)
+assert.match(manager, /store\.clearSession\(\)/)
 assert.match(manager, /BRAINSTORM_RETURN_TYPES/)
 assert.match(manager, /Open field/)
 assert.match(manager, /Stranger/)

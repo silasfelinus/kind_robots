@@ -154,7 +154,13 @@ const darkerFunny = buildBrainstormPrompts({
 })
 assert.match(darkerFunny.userPrompt, /sharper comic premises/i)
 assert.match(darkerFunny.userPrompt, /cartoon peril/i)
-assert.match(darkerFunny.userPrompt, /Do not substitute cruelty, shock value, or random grossness/i)
+// Kept in sync with CREATIVE_DIRECTION_INSTRUCTIONS['darker-funnier']. PR #2507
+// added "or merely whimsical weirdness" to that string without updating this
+// regex, which left the brainstorm-generation-contract check red on main.
+assert.match(
+  darkerFunny.userPrompt,
+  /Do not substitute cruelty, shock value, random grossness, or merely whimsical weirdness/i,
+)
 assert.doesNotMatch(darkerFunny.userPrompt, /Creative direction: darker-funnier/)
 
 const stranger = buildBrainstormPrompts({
@@ -213,7 +219,47 @@ const selectedAssortment = buildBrainstormPrompts({
 assert.match(selectedAssortment.userPrompt, /Dark humor ×2/)
 assert.match(selectedAssortment.userPrompt, /Dry observation ×2/)
 assert.match(selectedAssortment.userPrompt, /Auto lenses: Pun \/ wordplay/)
-assert.match(selectedAssortment.userPrompt, /1 remaining wildcard slot/)
+assert.match(
+  selectedAssortment.userPrompt,
+  /Distribute the 1 remaining slot among the Auto lenses above/,
+)
+assert.match(selectedAssortment.userPrompt, /Do not introduce unselected response lenses/)
+
+// brainstorm/t-023 regression: selecting a single Auto lens must claim the WHOLE
+// batch, not just one slot. Silas selected only Dark humor for 20 ideas and got
+// one dark-humor candidate plus nineteen unselected lenses, because the prompt
+// used to hand every remaining slot to "another valid response lens".
+const singleAutoLens = buildBrainstormPrompts({
+  premise: 'Invent facts about an absurdly rich, out-of-touch lacrosse heir',
+  count: 20,
+  mode: 'darker-funnier',
+  batchShape: 'assortment',
+  returnTypes: [{ id: 'dark-humor' }],
+  source: null,
+})
+assert.match(singleAutoLens.userPrompt, /The selected lenses are an allow-list/)
+assert.match(singleAutoLens.userPrompt, /Auto lenses: Dark humor/)
+assert.match(
+  singleAutoLens.userPrompt,
+  /Distribute the 19 remaining slots among the Auto lenses above/,
+)
+assert.match(singleAutoLens.userPrompt, /Do not introduce unselected response lenses/)
+assert.doesNotMatch(singleAutoLens.userPrompt, /another valid response lens/)
+
+// The escape hatch survives only where it is actually needed: every selected lens
+// pinned to an exact quota that cannot fill the batch on its own.
+const allPinnedUnderfilled = buildBrainstormPrompts({
+  premise: 'Give me several ways to answer this joke premise',
+  count: 10,
+  mode: 'freeform',
+  batchShape: 'assortment',
+  returnTypes: [{ id: 'dark-humor', count: 2 }],
+  source: null,
+})
+assert.match(
+  allPinnedUnderfilled.userPrompt,
+  /Every selected lens carries an exact pinned quota, which leaves 8 slots unassigned/,
+)
 
 const validSelectedMix = normalizeBrainstormCandidates(
   {

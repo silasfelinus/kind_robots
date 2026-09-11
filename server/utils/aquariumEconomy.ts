@@ -228,6 +228,32 @@ export function cleanDebris(debrisLevel: number, clicks = 1): number {
   )
 }
 
+// cthulhuquarium/t-074: economy.yaml's first_spotless_tank milestone trigger
+// is worded exactly "debris reaches 0 after having been >= 80" -- the same
+// 80 as DEBRIS_BANDS' worst (filthy, 0.25x) band above, not an arbitrary
+// second number. A player can cross that band and clean back down to 0
+// across several separate clean() requests (each one only clears
+// DEBRIS_CLICK_CLEARS * clicks), so "having been >= 80" cannot be read off
+// the single request that happens to land on 0 -- it needs the sticky
+// Aquarium.debrisEverHigh flag (set server-side the moment a settleTick
+// ever pushes debrisLevel this high, never cleared) as history the pure
+// transition check below can consult.
+export const DEBRIS_SPOTLESS_MILESTONE_THRESHOLD = 80
+
+// Pure decision logic, same discipline as justCompletedBestiary elsewhere in
+// this file: given a debris-level transition plus the sticky "was ever
+// >= threshold" flag, did the tank just become spotless for the first time?
+// `debrisEverHigh` must already reflect whether THIS transition's own rise
+// (if any) crossed the threshold -- the caller's write order matters, not
+// this function's.
+export function justFirstSpotlessTank(
+  debrisEverHigh: boolean,
+  debrisLevelBefore: number,
+  debrisLevelAfter: number,
+): boolean {
+  return debrisEverHigh && debrisLevelBefore > 0 && debrisLevelAfter === 0
+}
+
 // ---------------------------------------------------------------------------
 // Set pieces -- economy.yaml `set_pieces` (cthulhuquarium/t-026). Bonuses
 // key off fish PROPERTIES or a scarce, counted setSlotsCap slot -- never a
@@ -1035,6 +1061,51 @@ export function firedBestiaryMilestones(
     (milestone) =>
       collectedCountBefore < milestone.threshold &&
       milestone.threshold <= collectedCountAfter,
+  )
+}
+
+// cthulhuquarium/t-074: the two one-off landmark milestones economy.yaml
+// lists alongside the bestiary breakpoints (first_full_tank,
+// first_spotless_tank -- first_evolution and first_rivalry_resolved stay
+// unwired, per this task's own note: no evolution-progression signal exists
+// yet, and first_rivalry_resolved needs the rivalry subsystem cthulhuquarium/
+// t-075 is still building). Both fire at most once per Aquarium ever, not at
+// a repeatable count threshold, so they don't fit BestiaryMilestoneConfig's
+// `threshold` field -- this is the same { id, slotsCapDelta } shape minus
+// that field, and both real entries grant slotsCapDelta: 0 (a background
+// only, same as bestiary_151/last_aquarium).
+export interface LandmarkMilestoneConfig {
+  id: string
+  slotsCapDelta: number
+}
+
+export const FIRST_FULL_TANK_MILESTONE: LandmarkMilestoneConfig = {
+  id: 'first_full_tank',
+  slotsCapDelta: 0,
+}
+
+export const FIRST_SPOTLESS_TANK_MILESTONE: LandmarkMilestoneConfig = {
+  id: 'first_spotless_tank',
+  slotsCapDelta: 0,
+}
+
+// Pure decision logic, same discipline as justCompletedBestiary above:
+// economy.yaml's first_full_tank trigger is "every owned slot is occupied at
+// once", written before t-032's two-pool capacity split. "Owned slot" maps
+// to the weighed fish pool (Aquarium.sizeCap/effectiveSizeCap,
+// aquarium.ts's currentReservedSize), not the counted setSlotsCap pool --
+// setSlotsCap is exclusively for set pieces (t-032's own comment), which a
+// player never experiences as "the tank" filling up with fish. Every call
+// site that grows currentReservedSize (unlock, egg purchase, breed) already
+// computes a before/after pair for its own capacity-exceeded check, so this
+// reuses that same math rather than re-deriving it.
+export function justFirstFullTank(
+  reservedSizeBefore: number,
+  reservedSizeAfter: number,
+  effectiveSizeCap: number,
+): boolean {
+  return (
+    reservedSizeBefore < effectiveSizeCap && reservedSizeAfter >= effectiveSizeCap
   )
 }
 

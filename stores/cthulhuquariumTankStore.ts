@@ -297,6 +297,9 @@ interface PurchaseEggResponse {
   aquarium: Tank
   egg: TankEgg
   cost: number
+  // cthulhuquarium/t-074: an egg reserves its size at purchase, so
+  // first_full_tank can fire here rather than at hatch -- at most one entry.
+  firedMilestones: FiredMilestone[]
 }
 
 interface HatchEggResponse {
@@ -332,16 +335,22 @@ export interface RevealedBreed {
 interface CleanResponse {
   aquarium: Tank
   debrisLevel: number
+  // cthulhuquarium/t-074: true only the one clean that crosses debris down
+  // to 0 having previously reached the spotless-milestone threshold.
+  firstSpotlessTank: boolean
 }
 
 // cthulhuquarium/t-053: a bestiary-breakpoint milestone (t-028's
-// BESTIARY_MILESTONES) a purchase's response just fired. Declared locally
-// rather than importing server/utils/aquariumEconomy.ts's
-// BestiaryMilestoneConfig -- same frontend/backend type-boundary discipline
+// BESTIARY_MILESTONES) a purchase's response just fired. Extended by t-074
+// for the two landmark milestones (first_full_tank, first_spotless_tank),
+// which fire at most once ever rather than at a repeatable count threshold
+// -- `threshold` is optional for exactly those two. Declared locally rather
+// than importing server/utils/aquariumEconomy.ts's BestiaryMilestoneConfig/
+// LandmarkMilestoneConfig -- same frontend/backend type-boundary discipline
 // as the rest of this file.
 export interface FiredMilestone {
   id: string
-  threshold: number
+  threshold?: number
   slotsCapDelta: number
 }
 
@@ -728,6 +737,12 @@ export const useCthulhuquariumTankStore = defineStore(
       })
       if (res.success && res.data) {
         tank.value = res.data.aquarium
+        if (res.data.firstSpotlessTank) {
+          milestoneToastSignal.push({
+            id: 'first_spotless_tank',
+            slotsCapDelta: 0,
+          })
+        }
       } else {
         error.value = res.message || 'Could not clean the tank.'
       }
@@ -988,6 +1003,9 @@ export const useCthulhuquariumTankStore = defineStore(
       )
       if (res.success && res.data) {
         tank.value = res.data.aquarium
+        if (res.data.firedMilestones?.length) {
+          milestoneToastSignal.push(...res.data.firedMilestones)
+        }
         return true
       }
       error.value = res.message || 'Could not buy that egg.'

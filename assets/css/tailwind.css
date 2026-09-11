@@ -1880,11 +1880,16 @@ section:has(div[class*='xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]'])
    * kr-entity-card-body.vue, kr-search-field.vue, add-lora.vue,
    * lora-discover.vue, kr-manager.vue, model-builder-item-panel.vue,
    * model-builder-recipe-selector.vue, model-builder-source-picker.vue.
-   * 13 files / 29 occurrences remain, alphabetically after
-   * model-builder-source-picker.vue -- the next slice can keep taking
-   * arbitrary alphabetical batches the same way. Distinct from any future
-   * `.kr-icon-primary-4` (same size, carries `text-primary`) -- this is
-   * the untinted sibling. */
+   * Slices 215-220 continued taking arbitrary alphabetical batches the
+   * same way; slice 221 audited the remaining GitHub code-search hits and
+   * found only fragmented `h-4 w-4 text-<color>` variants too scattered to
+   * justify a combined primitive (no new `.kr-icon-<color>-4` created).
+   * Slice 222 migrated the last two bare glyphs, in a `.vue.txt` scaffold
+   * template outside this codemod's `*.vue`-only scope. This family is now
+   * fully migrated repo-wide for live `*.vue` files: a slice-223 dry run of
+   * `kr_icon_4_codemod.py` reports 0 remaining candidates. Distinct from
+   * any future `.kr-icon-primary-4` (same size, carries `text-primary`) --
+   * this is the untinted sibling. */
   .kr-icon-4 {
     @apply h-4 w-4;
   }

@@ -191,6 +191,10 @@ interface TickResponse {
   ticksProcessed: number
   coinsEarned: number
   rareEvent: RareEvent | null
+  // cthulhuquarium/t-077: true only the one time a settle observes an
+  // active rivalry having resolved -- same one-off-landmark shape as
+  // CleanResponse.firstSpotlessTank below.
+  firstRivalryResolved: boolean
 }
 
 // cthulhuquarium/t-013: how long the store waits after the last Clean click
@@ -599,6 +603,12 @@ export const useCthulhuquariumTankStore = defineStore(
       if (res.success && res.data) {
         tank.value = res.data.aquarium
         if (res.data.rareEvent) lastRareEvent.value = res.data.rareEvent
+        if (res.data.firstRivalryResolved) {
+          milestoneToastSignal.push({
+            id: 'first_rivalry_resolved',
+            slotsCapDelta: 0,
+          })
+        }
         return {
           coinsEarned: res.data.coinsEarned,
           ticksProcessed: res.data.ticksProcessed,

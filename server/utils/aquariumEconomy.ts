@@ -24,6 +24,8 @@
 // balance constant -- import it from here.
 
 import type { Rarity } from '~/prisma/generated/prisma/client'
+import type { RivalryResult } from './aquariumRivalry'
+import { evaluateRivalry } from './aquariumRivalry'
 
 // economy.yaml: economy.tick_seconds
 export const TICK_SECONDS = 60
@@ -748,6 +750,16 @@ export interface TickFishState {
   // behavior.
   yieldPerTick?: number | null
   tickIntervalSeconds?: number | null
+  // cthulhuquarium/t-077: rivalry-evaluation traits, same shape as
+  // aquariumRivalry.ts's RivalryFish. Every pre-t-077 caller omits these and
+  // keeps identical behavior -- a fish with no `slug` never participates in
+  // rivalry (see the synthesized-unique-identity fallback in settleTick
+  // below), so a test or call site that only cares about hunger/debris/
+  // income math is unaffected.
+  slug?: string | null
+  dietRole?: string | null
+  schoolRole?: string | null
+  rivals?: readonly string[] | null
 }
 
 export interface TickSettlementInput {
@@ -757,7 +769,10 @@ export interface TickSettlementInput {
   fish: readonly TickFishState[]
   // cthulhuquarium/t-026: AquariumSet.kind values currently equipped in the
   // tank. Optional/defaults to none so every pre-t-026 caller (and any test
-  // that doesn't care about sets) keeps identical behavior.
+  // that doesn't care about sets) keeps identical behavior. Also doubles as
+  // the peace_ward check (cthulhuquarium/t-077): 'peace_ward' equipped
+  // suppresses rivalry the same way it suppresses debris via debris_skimmer
+  // above -- one flag, read here, no separate parameter.
   equippedSetKinds?: readonly string[]
 }
 
@@ -768,6 +783,22 @@ export interface TickSettlementResult {
   newDebrisLevel: number
   fishHunger: ReadonlyMap<number, number>
   newLastTickAt: Date
+  // cthulhuquarium/t-077: the rivalry composition evaluated for this
+  // settlement (empty/inactive on a no-op zero-tick call, same "nothing new
+  // happens without real elapsed time" discipline as rare events below) --
+  // the caller (aquarium.ts) feeds this into rivalryMilestoneState to decide
+  // whether to record/fire the first_rivalry_resolved landmark.
+  rivalry: RivalryResult
+}
+
+// cthulhuquarium/t-077: the zero-tick no-op return's rivalry value. A call
+// that processed no real elapsed time changes nothing about the tank's
+// economy (same "nothing new happens" discipline rare events below follow),
+// so it reports no rivalry rather than evaluating one from stale fish state.
+const INERT_RIVALRY_RESULT: RivalryResult = {
+  active: false,
+  pairs: [],
+  multiplierByFishId: new Map(),
 }
 
 // Settles coins/hunger/debris for every whole tick elapsed since
@@ -806,6 +837,7 @@ export function settleTick(input: TickSettlementInput): TickSettlementResult {
       newDebrisLevel: input.debrisLevel,
       fishHunger,
       newLastTickAt: input.lastTickAt ?? input.now,
+      rivalry: INERT_RIVALRY_RESULT,
     }
   }
 
@@ -813,6 +845,25 @@ export function settleTick(input: TickSettlementInput): TickSettlementResult {
   const occupantCount = input.fish.length
   const equippedSetKinds = input.equippedSetKinds ?? []
   const debrisSkimmerActive = equippedSetKinds.includes('debris_skimmer')
+
+  // cthulhuquarium/t-077: composition-only, so evaluated once per settlement
+  // rather than once per (tick x fish) -- rivalry depends on which fish are
+  // in the tank and their traits, never on the hunger/debris state a tick
+  // loop advances. A fish with no `slug` is given a per-id synthetic one
+  // (never shared with another fish) so it can never accidentally satisfy
+  // the same-species rule -- every pre-t-077 caller omits slug/dietRole/
+  // schoolRole/rivals entirely and keeps identical (rivalry-inert) behavior.
+  const rivalryFish = input.fish.map((fish) => ({
+    id: fish.id,
+    slug: fish.slug ?? `__no-slug-${fish.id}`,
+    dietRole: fish.dietRole,
+    schoolRole: fish.schoolRole,
+    rivals: fish.rivals,
+  }))
+  const rivalry = evaluateRivalry(
+    rivalryFish,
+    equippedSetKinds.includes('peace_ward'),
+  )
 
   let debrisLevel = input.debrisLevel
   let grossProduction = 0
@@ -830,11 +881,19 @@ export function settleTick(input: TickSettlementInput): TickSettlementResult {
       // effectively produces twice per tank tick.
       const rateScale =
         TICK_SECONDS / effectiveTickSeconds(fish.tickIntervalSeconds)
+      // cthulhuquarium/t-077: applies the same per-fish multiplier
+      // aquariumRivalryProduction.ts's applyRivalryToProduction wraps
+      // (rivalry.multiplierByFishId, defaulting to 1 for an unaffected
+      // fish) -- inlined here rather than calling that helper once per tick
+      // because the rivalry composition itself is loop-invariant while the
+      // production amount it multiplies is not (hunger decays every tick).
+      const rivalryMult = rivalry.multiplierByFishId.get(fish.id) ?? 1
       grossProduction +=
         incomePerTick(fish.rarity, fish.yieldPerTick) *
         rateScale *
         hungerMultiplier(hunger) *
-        debrisMult
+        debrisMult *
+        rivalryMult
       fishHunger.set(
         fish.id,
         Math.max(HUNGER_RANGE.min, hunger - HUNGER_DECAY_PER_TICK),
@@ -893,6 +952,7 @@ export function settleTick(input: TickSettlementInput): TickSettlementResult {
     // per economy.yaml ("beyond this, no further income accrues"), not
     // banked for a later call. Standard idle-game convention.
     newLastTickAt: input.now,
+    rivalry,
   }
 }
 

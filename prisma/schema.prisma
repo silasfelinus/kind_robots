@@ -2322,6 +2322,15 @@ model Aquarium {
   /// several separate clean() calls still gets credit, not just one who
   /// happens to clear an 80+ debris level in a single click-batch request.
   debrisEverHigh Boolean         @default(false)
+  /// cthulhuquarium/t-077: sticky flag for the first_rivalry_resolved
+  /// milestone (economy.yaml's rivalry landmark) -- mirrors debrisEverHigh's
+  /// "set once, never cleared" discipline above. Set true the moment a
+  /// settleTick observes an active rivalry pair for the first time; once the
+  /// milestone itself has fired (tracked via the existing AquariumEvent
+  /// milestone-first_rivalry_resolved log, same convention as every other
+  /// one-off landmark in this file), this flag is never consulted again --
+  /// see aquariumRivalryMilestone.ts's rivalryMilestoneState.
+  rivalryObserved Boolean        @default(false)
   User           User            @relation(fields: [userId], references: [id], onDelete: Cascade)
   Stock          AquariumStock[]
   Events         AquariumEvent[]

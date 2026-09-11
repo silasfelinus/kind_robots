@@ -651,6 +651,69 @@ console.log(
   '✅ settleTick: debris_skimmer and idle_hoarder/roaming_collector apply correctly and never double-stack',
 )
 
+// settleTick: rivalry wiring (cthulhuquarium/t-077). A predator/prey pair
+// must earn strictly less than the same two fish with rivalry-inert traits,
+// peace_ward must fully restore full production, and a caller that omits
+// every rivalry field (every pre-t-077 test above) must be entirely
+// unaffected -- same discipline as every other opt-in field on TickFishState.
+{
+  const start = new Date('2026-08-25T00:00:00Z')
+  const now = new Date(start.getTime() + TICK_SECONDS * 1000)
+
+  const rivalrous = settleTick({
+    lastTickAt: start,
+    now,
+    debrisLevel: 0,
+    fish: [
+      { id: 1, rarity: 'COMMON', hunger: 100, slug: 'hunter', dietRole: 'predator' },
+      { id: 2, rarity: 'COMMON', hunger: 100, slug: 'grazer', dietRole: 'prey' },
+    ],
+  })
+  const peaceful = settleTick({
+    lastTickAt: start,
+    now,
+    debrisLevel: 0,
+    fish: [
+      { id: 1, rarity: 'COMMON', hunger: 100, slug: 'hunter', dietRole: 'predator' },
+      { id: 2, rarity: 'COMMON', hunger: 100, slug: 'grazer', dietRole: 'prey' },
+    ],
+    equippedSetKinds: ['peace_ward'],
+  })
+  const noTraits = settleTick({
+    lastTickAt: start,
+    now,
+    debrisLevel: 0,
+    fish: [
+      { id: 1, rarity: 'COMMON', hunger: 100 },
+      { id: 2, rarity: 'COMMON', hunger: 100 },
+    ],
+  })
+
+  assert.equal(
+    rivalrous.rivalry.active,
+    true,
+    'a predator/prey pair must be reported as an active rivalry',
+  )
+  assert.ok(
+    rivalrous.coinsEarned < peaceful.coinsEarned,
+    'an active rivalry must reduce coinsEarned relative to the same tank with peace_ward equipped',
+  )
+  assert.equal(
+    peaceful.coinsEarned,
+    noTraits.coinsEarned,
+    'peace_ward must fully restore production to the rivalry-inert baseline',
+  )
+  assert.equal(
+    noTraits.rivalry.active,
+    false,
+    'fish with no slug/dietRole/schoolRole/rivals must never be treated as rivalrous, even sharing an id-derived identity',
+  )
+}
+
+console.log(
+  '✅ settleTick: rivalry (predator/prey, peace_ward, and traitless backward compatibility) wired into production',
+)
+
 // --- PROPERTY TEST: coinsEarned is always a non-negative integer, hunger is
 // always within [0, 100], debris is always within [0, 100], for a wide
 // sweep of random elapsed windows and fish rosters. ---------------------

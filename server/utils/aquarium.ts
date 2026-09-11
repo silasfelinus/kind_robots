@@ -63,6 +63,10 @@ import {
   type StatBlock,
   type StatRolls,
 } from './aquariumEconomy'
+import {
+  FIRST_RIVALRY_RESOLVED_MILESTONE_ID,
+  rivalryMilestoneState,
+} from './aquariumRivalryMilestone'
 
 function apiError(statusCode: number, message: string): Error {
   const error = new Error(message) as Error & { statusCode: number }
@@ -126,6 +130,12 @@ const stockMonsterSelect = {
   tier: true,
   behavior: true,
   hue: true,
+  // cthulhuquarium/t-077: rivalry-evaluation traits (aquariumRivalry.ts's
+  // RivalryFish shape) -- selected here so settleTickForUser can pass real
+  // tank composition into settleTick's rivalry wiring instead of every fish
+  // going through as rivalry-inert.
+  dietRole: true,
+  schoolRole: true,
   ...monsterRaritySelect,
   ...monsterEconomyOverridesSelect,
 } satisfies Prisma.MonsterSelect
@@ -204,6 +214,11 @@ const ownedAquariumSelect = {
   // milestone -- selected here (not just written) so cleanTankForUser can
   // read it back for the justFirstSpotlessTank check without a second query.
   debrisEverHigh: true,
+  // cthulhuquarium/t-077: sticky "has an active rivalry ever been observed"
+  // flag backing first_rivalry_resolved -- selected here (not just written)
+  // so settleTickForUser can read it back for rivalryMilestoneState without
+  // a second query, same discipline as debrisEverHigh above.
+  rivalryObserved: true,
   lastCleanedAt: true,
   createdAt: true,
   updatedAt: true,
@@ -359,6 +374,11 @@ export interface TickResult {
   // folded in -- this is purely so the client can show what happened and
   // why, never a separate balance to reconcile.
   rareEvent: RareEventResult | null
+  // cthulhuquarium/t-077: true only the one time this settle observes an
+  // active rivalry having gone away having previously been observed -- see
+  // rivalryMilestoneState. Its own boolean, same "the only route that can
+  // fire this landmark" reasoning as CleanResult.firstSpotlessTank.
+  firstRivalryResolved: boolean
 }
 
 export async function settleTickForUser(
@@ -378,6 +398,9 @@ export async function settleTickForUser(
       hunger: stock.hunger,
       yieldPerTick: stock.Monster.yieldPerTick,
       tickIntervalSeconds: stock.Monster.tickIntervalSeconds,
+      slug: stock.Monster.slug,
+      dietRole: stock.Monster.dietRole,
+      schoolRole: stock.Monster.schoolRole,
     })),
     equippedSetKinds,
   })
@@ -389,6 +412,7 @@ export async function settleTickForUser(
       ticksProcessed: 0,
       coinsEarned: 0,
       rareEvent: null,
+      firstRivalryResolved: false,
     }
   }
 
@@ -399,7 +423,7 @@ export async function settleTickForUser(
   const rareEvent = rollRareEvent(Math.random(), Math.random())
   const totalCoinsEarned = settlement.coinsEarned + (rareEvent?.bonusCoins ?? 0)
 
-  const aquarium = await prisma.$transaction(async (tx) => {
+  const { aquarium, firstRivalryResolved } = await prisma.$transaction(async (tx) => {
     for (const stock of tank.Stock) {
       const newHunger = settlement.fishHunger.get(stock.id)
       if (newHunger !== undefined && newHunger !== stock.hunger) {
@@ -419,6 +443,28 @@ export async function settleTickForUser(
       tank.debrisEverHigh ||
       settlement.newDebrisLevel >= DEBRIS_SPOTLESS_MILESTONE_THRESHOLD
 
+    // cthulhuquarium/t-077: rivalryMilestoneState reads `tank.rivalryObserved`
+    // as the BEFORE value (mirrors debrisEverHighAfter's own before/after
+    // pattern above) -- "resolved already" is checked via the existing
+    // AquariumEvent log, same convention as every other one-off landmark
+    // (checkFirstFullTank, first_spotless_tank in cleanTankForUser), so a
+    // rivalry that resolves once can never re-fire on a later inactive tick
+    // even though rivalryObserved itself is never cleared afterward.
+    const rivalryResolvedAlreadyLogged = await tx.aquariumEvent.findFirst({
+      where: {
+        aquariumId: tank.id,
+        kind: milestoneEventKind({ id: FIRST_RIVALRY_RESOLVED_MILESTONE_ID }),
+      },
+      select: { id: true },
+    })
+    const rivalryMilestone = rivalryMilestoneState(
+      settlement.rivalry.active,
+      tank.rivalryObserved,
+      Boolean(rivalryResolvedAlreadyLogged),
+    )
+    const rivalryObservedAfter =
+      tank.rivalryObserved || rivalryMilestone.shouldRecordObserved
+
     const updated = await tx.aquarium.update({
       where: { id: tank.id },
       data: {
@@ -427,6 +473,9 @@ export async function settleTickForUser(
         lastTickAt: settlement.newLastTickAt,
         ...(debrisEverHighAfter !== tank.debrisEverHigh
           ? { debrisEverHigh: debrisEverHighAfter }
+          : {}),
+        ...(rivalryObservedAfter !== tank.rivalryObserved
+          ? { rivalryObserved: rivalryObservedAfter }
           : {}),
       },
       select: ownedAquariumSelect,
@@ -446,13 +495,26 @@ export async function settleTickForUser(
       })
     }
 
-    return updated
+    if (rivalryMilestone.shouldFireResolved) {
+      await logEvent(
+        tx,
+        tank.id,
+        milestoneEventKind({ id: FIRST_RIVALRY_RESOLVED_MILESTONE_ID }),
+        { landmark: FIRST_RIVALRY_RESOLVED_MILESTONE_ID },
+      )
+    }
+
+    return {
+      aquarium: updated,
+      firstRivalryResolved: rivalryMilestone.shouldFireResolved,
+    }
   })
 
   return {
     aquarium: toClientAquarium(aquarium),
     elapsedTicks: settlement.elapsedTicks,
     ticksProcessed: settlement.ticksProcessed,
+    firstRivalryResolved,
     coinsEarned: totalCoinsEarned,
     rareEvent,
   }

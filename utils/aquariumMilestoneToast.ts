@@ -26,6 +26,10 @@ export type AquariumMilestoneToastInput = {
 const LANDMARK_TOAST_TEXT: Record<string, string> = {
   first_full_tank: 'Every slot in your tank is full for the first time',
   first_spotless_tank: 'Your tank is spotless for the first time',
+  // cthulhuquarium/t-077: fires once, the first time an active rivalry
+  // (predator/prey, school/anchor, authored, or same-species pressure) has
+  // resolved -- see aquariumRivalryMilestone.ts's rivalryMilestoneState.
+  first_rivalry_resolved: 'A rivalry in your tank has settled for the first time',
 }
 
 export function formatMilestoneToastMessage(

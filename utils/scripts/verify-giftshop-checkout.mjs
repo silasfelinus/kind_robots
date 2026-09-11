@@ -17,6 +17,7 @@ const [
   accountHub,
   givingPage,
   giftshop,
+  giftshopManager,
   shoppingCart,
   checkoutRoute,
   statusRoute,
@@ -29,6 +30,7 @@ const [
   source('components/navigation/account-hub.vue'),
   source('components/pages/giving-page.vue'),
   source('components/giftshop/giftshop-interact.vue'),
+  source('components/giftshop/giftshop-manager.vue'),
   source('components/giftshop/shopping-cart.vue'),
   source('server/api/stripe/checkout.post.ts'),
   source('server/api/stripe/checkout-status.get.ts'),
@@ -99,6 +101,16 @@ assert.doesNotMatch(
   /setDashboardTab\?\.\('giftshop', 'cart'\)/,
   'giftshop must not target an unregistered dashboard tab',
 )
+assert.match(
+  giftshopManager,
+  /v-else-if="activeTab === 'giftshop'"[\s\S]*?<div class="kr-scroll">[\s\S]*?<giftshop-interact\s*\/>/,
+  'giftshop tab must put its long storefront inside a reachable scroll owner',
+)
+assert.doesNotMatch(
+  giftshopManager,
+  /<giftshop-interact[^>]*overflow-hidden/,
+  'giftshop storefront must not be clipped by an overflow-hidden component mount',
+)
 
 assert.match(
   shoppingCart,
@@ -150,5 +162,5 @@ assert.match(
 )
 
 console.log(
-  '✅ Giftshop checkout contract passed: visible cart, real Stripe redirect, verified return, preserved cancellation.',
+  '✅ Giftshop checkout contract passed: visible cart, reachable storefront scroll, real Stripe redirect, verified return, preserved cancellation.',
 )

@@ -1126,6 +1126,18 @@ section:has(div[class*='xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]'])
     @apply btn btn-primary btn-sm rounded-xl;
   }
 
+  /* The `rounded-2xl` sibling of .kr-btn-primary (interface-vision t-104
+   * slice 237): same `sm` size, but with a wider `rounded-2xl` corner
+   * radius instead of `rounded-xl` — `btn btn-primary btn-sm rounded-2xl`,
+   * previously hand-rolled across dreams/stages/conductor/art/narrative
+   * surfaces (13 subset-match occurrences across 12 files). Named for the
+   * radius it overrides (not a size suffix) since the size matches the
+   * base .kr-btn-primary shape, mirroring .kr-btn-ghost-2xl's identical
+   * naming convention on the ghost family. */
+  .kr-btn-primary-2xl {
+    @apply btn btn-primary btn-sm rounded-2xl;
+  }
+
   /* Second-most-repeated filled-button shape (interface-vision t-104 slice 58):
    * DaisyUI's own default (unmodified) button size — no `btn-sm` utility at
    * all — with the same `rounded-xl` override as .kr-btn-primary, `btn

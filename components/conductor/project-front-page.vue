@@ -35,13 +35,13 @@
           </span>
           <span
             v-if="statusLabel"
-            class="badge badge-sm rounded-xl font-semibold"
+            class="kr-badge-sm rounded-xl font-semibold"
             :class="statusBadgeClass"
             >{{ statusLabel }}</span
           >
           <span
             v-if="view.bridge"
-            class="badge badge-info badge-sm rounded-xl font-semibold gap-1"
+            class="kr-badge-sm badge-info rounded-xl font-semibold gap-1"
           >
             <Icon name="kind-icon:external-link" class="size-3" />External app
           </span>
@@ -65,7 +65,7 @@
             :href="launch.href"
             :target="launch.external ? '_blank' : undefined"
             :rel="launch.external ? 'noopener noreferrer' : undefined"
-            class="btn btn-primary btn-sm gap-1.5 rounded-2xl sm:btn-md"
+            class="kr-btn-primary-2xl gap-1.5 sm:btn-md"
           >
             <Icon :name="launch.icon || 'kind-icon:sparkles'" class="kr-icon-4" />
             {{ launch.label }}

@@ -94,7 +94,7 @@
           selectedPack.price.hook
         }}</span>
         <span
-          class="badge badge-sm rounded-xl"
+          class="kr-badge-sm rounded-xl"
           :class="
             packStore.packBuildStatus(selectedPack.id) === 'ready'
               ? 'badge-success'

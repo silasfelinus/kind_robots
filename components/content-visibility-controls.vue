@@ -9,7 +9,7 @@
         </p>
       </div>
       <span
-        class="badge badge-sm rounded-xl"
+        class="kr-badge-sm rounded-xl"
         :class="isPublic ? 'badge-success badge-outline' : 'badge-neutral'"
       >
         {{ isPublic ? 'Public' : 'Private' }}

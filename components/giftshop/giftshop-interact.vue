@@ -88,10 +88,7 @@
             </div>
           </div>
 
-          <NuxtLink
-            to="/giving"
-            class="btn btn-primary btn-sm shrink-0 rounded-2xl"
-          >
+          <NuxtLink to="/giving" class="kr-btn-primary-2xl shrink-0">
             <Icon name="kind-icon:gift" class="kr-icon-4" />
             Give directly
           </NuxtLink>

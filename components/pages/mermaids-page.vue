@@ -122,7 +122,7 @@
               href="https://www.amazon.com/Mermaids-Venice-Silas-Knight/dp/0615516742/"
               target="_blank"
               rel="noopener"
-              class="btn btn-primary btn-sm rounded-2xl"
+              class="kr-btn-primary-2xl"
             >
               <Icon name="kind-icon:external-link" class="kr-icon-4" />
               {{ draft.amazonLabel }}

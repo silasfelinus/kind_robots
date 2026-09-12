@@ -182,7 +182,7 @@
           <span
             v-for="badge in badges"
             :key="badge.title || badge.label"
-            class="badge badge-sm rounded-xl shadow"
+            class="kr-badge-sm rounded-xl shadow"
             :class="badge.class || 'badge-primary'"
             :title="badge.title || badge.label"
           >

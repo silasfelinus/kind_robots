@@ -726,7 +726,7 @@
             <template v-if="!store.isRunning">
               <button
                 type="button"
-                class="btn btn-primary btn-sm rounded-2xl gap-1.5"
+                class="kr-btn-primary-2xl gap-1.5"
                 :disabled="!store.castReady"
                 @click="store.start()"
               >
@@ -745,7 +745,7 @@
             <template v-else>
               <button
                 type="button"
-                class="btn btn-primary btn-sm rounded-2xl"
+                class="kr-btn-primary-2xl"
                 @click="store.resume()"
               >
                 <Icon name="mdi:play" class="kr-icon-4" /> Resume

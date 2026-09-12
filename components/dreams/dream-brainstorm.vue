@@ -20,7 +20,7 @@
         <div class="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap">
           <button
             type="button"
-            class="btn btn-primary btn-sm rounded-2xl text-white"
+            class="kr-btn-primary-2xl text-white"
             :disabled="dreamStore.loading || !canGenerate"
             @click="generateCandidates(false)"
           >

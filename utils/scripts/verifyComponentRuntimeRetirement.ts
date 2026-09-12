@@ -116,16 +116,15 @@ assert.match(manager, /Preview effect/)
 assert.match(manager, /<animation-selector\s*\/>/)
 assert.match(manager, /Coverage zones/)
 assert.match(manager, /Add screen layer/)
-assert.match(manager, /animation-manager-shell kr-surface/)
-assert.equal(
-  [...manager.matchAll(/\bkr-scroll\b/g)].length,
-  1,
-  'Animation Manager must have exactly one inner kr-scroll owner beneath its bounded kr-surface',
-)
 assert.match(
   manager,
-  /<div class="kr-scroll">[\s\S]*animation-manager-content-grid/,
-  'Animation Manager catalog must live inside its kr-scroll owner so lower effects remain reachable',
+  /animation-manager-shell kr-unbound/,
+  'Animation Manager must grow inside pages/[...slug].vue so the content host owns scrolling',
+)
+assert.doesNotMatch(
+  manager,
+  /\bkr-scroll\b|animation-manager-shell kr-surface/,
+  'Animation Manager must not create a nested scroll owner inside the content-host scroller',
 )
 assert.match(manager, /aria-label="Animation display toggles"/)
 assert.match(manager, /:aria-pressed="butterfliesEnabled"/)

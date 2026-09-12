@@ -317,6 +317,9 @@ jobs:
       - name: Storybook ending-deck authoring contract
         run: npm run test:storybook-decks
 
+      - name: Storybook run store contract
+        run: npm run test:storybook-run-store
+
       - name: Da Vinci dimension-tone guard self-test
         run: npm run test:davinci-dimension-tone-guard-selftest
 

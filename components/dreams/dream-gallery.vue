@@ -110,7 +110,7 @@
         >
           <button
             type="button"
-            class="btn btn-sm h-9 w-9 rounded-2xl p-0"
+            class="kr-icon-9 btn btn-sm rounded-2xl p-0"
             :class="selectedType === 'all' ? 'btn-primary' : 'btn-ghost'"
             :aria-pressed="selectedType === 'all'"
             title="All types"
@@ -124,7 +124,7 @@
             v-for="type in dreamTypes"
             :key="type"
             type="button"
-            class="btn btn-sm h-9 w-9 rounded-2xl p-0"
+            class="kr-icon-9 btn btn-sm rounded-2xl p-0"
             :class="selectedType === type ? 'btn-primary' : 'btn-ghost'"
             :aria-pressed="selectedType === type"
             :title="dreamTypeLabel(type)"

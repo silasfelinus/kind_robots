@@ -81,7 +81,7 @@
             class="flex items-center gap-2 rounded-lg px-2 py-2 hover:bg-base-200"
           >
             <span
-              class="flex size-9 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-base-200"
+              class="kr-icon-9 flex shrink-0 items-center justify-center overflow-hidden rounded-lg bg-base-200"
             >
               <img
                 v-if="facetArtwork(facet)"

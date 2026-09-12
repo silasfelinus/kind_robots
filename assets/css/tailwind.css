@@ -1861,6 +1861,22 @@ section:has(div[class*='xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]'])
   }
 
   /* Same bare sizeless-and-colorless icon-glyph shape as `.kr-icon-6`/
+   * `.kr-icon-7`/`.kr-icon-8`, one size up (interface-vision t-104 slice
+   * 242) -- `h-9 w-9`, previously hand-rolled identically in 9 files (11
+   * occurrences), plus its `size-9` shorthand spelling (2 files, 2
+   * occurrences, folded into the same slice as too small for its own).
+   * Picked as the next smallest well-bounded sibling outside the closed
+   * `kr-icon-3`/`kr-icon-3-5`/`kr-icon-4`/`kr-icon-5`/`kr-icon-6`/
+   * `kr-icon-7`/`kr-icon-8` family and their now-closed `size-*` shorthand
+   * siblings (slices 238-241): `h-10 w-10` (14 files, 15 occurrences) and
+   * `h-12 w-12` (9 files, 10 occurrences) remain open. Distinct from any
+   * future `.kr-icon-primary-9` (same size, carries `text-primary`) --
+   * this is the untinted sibling. */
+  .kr-icon-9 {
+    @apply h-9 w-9;
+  }
+
+  /* Same bare sizeless-and-colorless icon-glyph shape as `.kr-icon-6`/
    * `.kr-icon-7`/`.kr-icon-8`, one size down (interface-vision t-104 slice
    * 201) -- `h-3 w-3`, previously hand-rolled identically in 19 files (30
    * occurrences via subset-match), the smallest well-bounded sibling

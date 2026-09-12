@@ -168,7 +168,7 @@
             class="flex items-start gap-3 p-3"
           >
             <span
-              class="relative flex h-9 w-9 shrink-0 overflow-hidden rounded-lg border border-base-300 bg-base-200"
+              class="kr-icon-9 relative flex shrink-0 overflow-hidden rounded-lg border border-base-300 bg-base-200"
             >
               <img
                 v-if="tab.image"

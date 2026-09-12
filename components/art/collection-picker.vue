@@ -149,7 +149,7 @@
                   v-else
                   class="col-span-3 flex h-24 items-center justify-center text-base-content/30"
                 >
-                  <Icon name="kind-icon:gallery" class="h-9 w-9" />
+                  <Icon name="kind-icon:gallery" class="kr-icon-9" />
                 </div>
               </div>
 
@@ -195,7 +195,7 @@
                   v-else
                   class="col-span-3 flex h-24 items-center justify-center text-base-content/30"
                 >
-                  <Icon name="kind-icon:gallery" class="h-9 w-9" />
+                  <Icon name="kind-icon:gallery" class="kr-icon-9" />
                 </div>
               </div>
 

@@ -11,7 +11,7 @@
       >
         <span class="flex min-w-0 items-center gap-3">
           <span
-            class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl"
+            class="kr-icon-9 flex shrink-0 items-center justify-center rounded-xl"
             :class="
               showMature
                 ? 'bg-warning/15 text-warning'

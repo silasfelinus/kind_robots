@@ -47,7 +47,7 @@
     >
       <div class="flex items-center gap-2">
         <span
-          class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-base-300/70 bg-base-200"
+          class="kr-icon-9 flex shrink-0 items-center justify-center rounded-lg border border-base-300/70 bg-base-200"
         >
           <Icon :name="channel.icon" class="kr-icon-5" />
         </span>

@@ -2,7 +2,7 @@
 <template>
   <div class="relative inline-flex shrink-0">
     <button
-      class="kr-btn-ghost-outline flex h-9 min-h-9 w-9 min-w-9 shrink-0 items-center justify-center p-0 sm:h-full sm:w-full sm:min-w-0"
+      class="kr-icon-9 kr-btn-ghost-outline flex min-h-9 min-w-9 shrink-0 items-center justify-center p-0 sm:h-full sm:w-full sm:min-w-0"
       type="button"
       title="Server settings"
       aria-label="Server settings"

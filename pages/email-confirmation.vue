@@ -15,7 +15,7 @@
           >
             <Icon
               :name="result.ok ? 'kind-icon:check' : 'kind-icon:alert'"
-              class="h-9 w-9"
+              class="kr-icon-9"
             />
           </div>
 

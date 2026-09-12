@@ -1611,9 +1611,14 @@ model SceneAnimatorPrompt {
   negativePrompt String?  @db.Text
   /// Admin who last saved it, kept for provenance on a shared surface.
   userId         Int?
-
-  @@index([sourceFolder, sourceFile])
 }
+
+// No index on (sourceFolder, sourceFile). It was here briefly and InnoDB
+// rejected the table outright: two utf8mb4 VARCHAR(512) columns are
+// 2048 + 2048 = 4096 bytes of key, over the 3072-byte limit. It also indexed
+// nothing anybody queries -- every read is by sourceHash, which is unique.
+// If a "list overrides in this folder" view ever wants one, give it explicit
+// prefix lengths, e.g. @@index([sourceFolder(length: 191)]).
 
 /// Smart Icons are used internally to generate the user's icon array. They can create custom icons that are links to pages or commands
 model SmartIcon {

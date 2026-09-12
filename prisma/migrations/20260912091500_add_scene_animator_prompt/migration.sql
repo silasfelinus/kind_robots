@@ -13,7 +13,9 @@ CREATE TABLE `SceneAnimatorPrompt` (
     `negativePrompt` TEXT NULL,
     `userId` INTEGER NULL,
 
+    -- No (sourceFolder, sourceFile) index: two utf8mb4 VARCHAR(512) columns are
+    -- 4096 bytes of key against InnoDB's 3072-byte limit, and every read is by
+    -- sourceHash anyway.
     UNIQUE INDEX `SceneAnimatorPrompt_sourceHash_key`(`sourceHash`),
-    INDEX `SceneAnimatorPrompt_sourceFolder_sourceFile_idx`(`sourceFolder`, `sourceFile`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;

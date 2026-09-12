@@ -157,7 +157,7 @@
                   {{ challenge.challengeType }}
                 </span>
                 <span
-                  class="badge badge-sm rounded-lg font-black"
+                  class="kr-badge-sm rounded-lg font-black"
                   :class="statusClass(challenge.status)"
                 >
                   {{ challenge.status }}

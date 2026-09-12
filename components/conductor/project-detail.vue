@@ -364,7 +364,7 @@
               </p>
             </div>
             <span
-              class="badge badge-sm shrink-0"
+              class="kr-badge-sm shrink-0"
               :class="taskBadgeClass(task.status)"
             >
               {{ task.status }}
@@ -473,7 +473,7 @@
             </p>
           </div>
           <span
-            class="badge badge-sm shrink-0"
+            class="kr-badge-sm shrink-0"
             :class="milestoneBadgeClass(milestone.status)"
           >
             {{ milestone.status }}

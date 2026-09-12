@@ -106,6 +106,34 @@ FAMILIES = [
 # its 15 call sites). Families not listed here keep the unrestricted
 # subset-match behavior they already had.
 #
+# Slice 237 (a separate one-off script, kr_badge_sm_rounded_xl_codemod.py)
+# migrated the `rounded-xl` extra-token pool directly rather than through
+# this shared module; that pool no longer appears in the source tree, so it
+# is not re-added here. Slice 238 audited the remaining hand-rolled
+# `badge badge-sm <extra>` call sites and adds two more clean, repeated
+# shapes to this bounded set --
+#   shrink-0             7 occurrences / 6 files (model-builder-recipe-
+#                         selector.vue, agent-credentials-panel.vue,
+#                         conductor/project-detail.vue x2, pages/conductor-
+#                         page.vue x2, pages/admin/scene-animator.vue --
+#                         the last of these also carries an unrelated
+#                         `:class="statusClass(...)"` binding, untouched)
+#   rounded-lg           2 occurrences / 2 files (conductor/coat-dance-
+#                         page.vue, conductor/voice-lab-page.vue)
+#   rounded-lg font-black 2 occurrences / 2 files (storybook/storybook-
+#                         life-run.vue, conductor/challenge-center-page.vue)
+# -- through this shared codemod instead of another one-off script, since
+# they are more of the same bounded-extras shape this module already
+# tracks. The remaining one-offs (kr-card-back.vue's `border-none bg-
+# black/60 text-white`, kr-entity-card-body.vue's `max-w-full truncate`,
+# entity-art-manager.vue's `border-0 bg-base-100/85 font-bold backdrop-
+# blur`, conductor-pitch-manager.vue's `shrink-0 rounded-2xl font-bold`,
+# conductor-page.vue's standalone `gap-1`, coloring-book-studio.vue's twin
+# `absolute bottom-2 left-2 rounded-2xl` positioned badges, and scene-
+# animator.vue's twin `absolute left-2 top-2 bg-base-100/90` positioned
+# badges) each carry a shape not shared widely enough to bound here and are
+# left hand-rolled for a future slice.
+#
 # kr-badge-ghost's {badge, badge-ghost} base is similarly small and appeared
 # (slice 181) inside a further ~13 hand-rolled combinations carrying varied
 # extra tokens. Slice 182 individually audited all of them: four clean,
@@ -124,7 +152,13 @@ FAMILIES = [
 # each carry a one-off extra-token combination not shared by any other call
 # site and are left hand-rolled rather than forced into a shared primitive.
 BOUNDED_EXTRAS: dict[str, set[frozenset[str]]] = {
-    "kr-badge-sm": {frozenset(), frozenset({"rounded-2xl"})},
+    "kr-badge-sm": {
+        frozenset(),
+        frozenset({"rounded-2xl"}),
+        frozenset({"shrink-0"}),
+        frozenset({"rounded-lg"}),
+        frozenset({"rounded-lg", "font-black"}),
+    },
     "kr-badge-ghost": {
         frozenset(),
         frozenset({"rounded-2xl"}),

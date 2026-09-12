@@ -126,6 +126,8 @@
     "seed:bestiary:verify": "tsx utils/scripts/verifyBestiarySeedMapping.ts",
     "seed:davinci:playloop-verify": "tsx utils/scripts/verifyDaVinciPlayLoop.ts",
     "test:davinci-narration": "tsx utils/scripts/verifyDaVinciNarration.ts",
+    "test:ending-deck-math": "tsx utils/scripts/verifyEndingDeckMath.ts",
+    "test:storybook-narration": "tsx utils/scripts/verifyStorybookNarration.ts",
     "test:davinci-dimension-tone-guard-selftest": "tsx utils/scripts/verifyDaVinciDimensionToneGuard.test.ts",
     "test:davinci-dimension-tone-guard": "tsx utils/scripts/verifyDaVinciDimensionToneGuard.ts",
     "test:davinci-narration-error-tone-guard-selftest": "tsx utils/scripts/verifyDaVinciNarrationErrorToneGuard.test.ts",

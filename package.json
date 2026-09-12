@@ -298,6 +298,7 @@
     "test:model-builder-async-poll-failure-guard": "tsx utils/scripts/verifyModelBuilderAsyncPollFailureGuard.ts",
     "test:art-queue-poll-failure-guard-selftest": "tsx utils/scripts/verifyArtQueuePollFailureGuard.test.ts",
     "test:art-queue-poll-failure-guard": "tsx utils/scripts/verifyArtQueuePollFailureGuard.ts",
+    "test:art-queue-relay-slot-release": "tsx utils/scripts/verifyArtQueueRelaySlotRelease.ts",
     "test:video-job-poll-failure-guard-selftest": "tsx utils/scripts/verifyVideoJobPollFailureGuard.test.ts",
     "test:video-job-poll-failure-guard": "tsx utils/scripts/verifyVideoJobPollFailureGuard.ts",
     "test:build-bench-poll-failure-guard-selftest": "tsx utils/scripts/verifyBuildBenchPollFailureGuard.test.ts",

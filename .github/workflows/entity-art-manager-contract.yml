@@ -25,6 +25,9 @@ on:
       - 'server/api/art/entities/**'
       - 'server/utils/entityArt.ts'
       - 'utils/scripts/verifyArtQueueClaimFastPath.ts'
+      - 'utils/scripts/verifyArtQueueRelaySlotRelease.ts'
+      - 'server/utils/artJobRelaySlot.ts'
+      - 'components/art/artjob-queue-card.vue'
       - 'utils/scripts/verifyEntityArtManager.ts'
       - 'utils/entityArtPromptFraming.ts'
       - 'stores/dailyDreamArchiveStore.ts'
@@ -49,6 +52,7 @@ jobs:
       - run: npm ci
       - run: npx prisma generate
       - run: npx tsx utils/scripts/verifyArtQueueClaimFastPath.ts
+      - run: npx tsx utils/scripts/verifyArtQueueRelaySlotRelease.ts
       - run: npx tsx utils/scripts/verifyEntityArtManager.ts
       - run: npx tsx utils/scripts/verifyEntityArtPromptFraming.ts
       - run: npx tsx utils/scripts/verifyDailyDreamArchiveWorkbench.ts

@@ -45,7 +45,7 @@
             :disabled="!includeDraft.trim()"
             @click="submitInclude()"
           >
-            <Icon name="kind-icon:plus" class="size-4" />
+            <Icon name="kind-icon:plus" class="kr-icon-4" />
           </button>
         </div>
         <div class="flex flex-wrap gap-1.5">
@@ -85,7 +85,7 @@
             :disabled="!excludeDraft.trim()"
             @click="submitExclude()"
           >
-            <Icon name="kind-icon:plus" class="size-4" />
+            <Icon name="kind-icon:plus" class="kr-icon-4" />
           </button>
         </div>
         <div class="flex flex-wrap gap-1.5">

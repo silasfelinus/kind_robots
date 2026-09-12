@@ -65,7 +65,7 @@
     >
       <Icon
         name="kind-icon:alert"
-        class="mt-0.5 size-4 shrink-0"
+        class="kr-icon-4 mt-0.5 shrink-0"
         aria-hidden="true"
       />
       <span>{{ error }}</span>
@@ -126,7 +126,7 @@
       >
         <Icon
           :name="expanded ? 'kind-icon:chevron-up' : 'kind-icon:chevron-down'"
-          class="size-4"
+          class="kr-icon-4"
           aria-hidden="true"
         />
         {{ expanded ? 'Show fewer' : `Show all ${filteredItems.length}` }}

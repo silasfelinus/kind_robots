@@ -127,7 +127,7 @@
           :class="activeMode === mode.key ? 'tab-active' : ''"
           @click="activeMode = mode.key"
         >
-          <icon :name="mode.icon" class="size-4" />
+          <icon :name="mode.icon" class="kr-icon-4" />
           {{ mode.label }}
         </button>
       </div>

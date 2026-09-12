@@ -151,7 +151,7 @@
           @pointerdown.stop
           @click="stepCarousel(-1)"
         >
-          <Icon name="kind-icon:chevron-left" class="size-4" />
+          <Icon name="kind-icon:chevron-left" class="kr-icon-4" />
         </button>
         <button
           type="button"
@@ -160,7 +160,7 @@
           @pointerdown.stop
           @click="stepCarousel(1)"
         >
-          <Icon name="kind-icon:chevron-right" class="size-4" />
+          <Icon name="kind-icon:chevron-right" class="kr-icon-4" />
         </button>
       </template>
     </div>
@@ -196,7 +196,7 @@
             v-else
             class="flex size-full items-center justify-center text-base-content/30"
           >
-            <Icon name="kind-icon:image" class="size-4" />
+            <Icon name="kind-icon:image" class="kr-icon-4" />
           </span>
           <span
             v-if="slide.kind === 'slot'"
@@ -380,7 +380,7 @@
           :disabled="prompt.trim().length < 3 || submitting || (generationMode === 'img2img' && !currentSrc)"
         >
           <span v-if="submitting" class="kr-spinner-xs" />
-          <Icon v-else name="kind-icon:sparkles" class="size-4" />
+          <Icon v-else name="kind-icon:sparkles" class="kr-icon-4" />
           {{ submitting ? 'Queuing…' : `Queue ${selectedSlot.label}` }}
         </button>
       </div>
@@ -479,7 +479,7 @@
           :disabled="!uploadFile || submitting"
         >
           <span v-if="submitting" class="kr-spinner-xs" />
-          <Icon v-else name="kind-icon:upload" class="size-4" />
+          <Icon v-else name="kind-icon:upload" class="kr-icon-4" />
           {{ submitting ? 'Uploading…' : 'Upload & replace' }}
         </button>
       </div>

@@ -12,7 +12,7 @@
     >
       <nav class="flex items-center justify-between gap-3">
         <NuxtLink to="/play/aquarium" class="kr-btn-ghost">
-          <Icon name="kind-icon:arrow-left" class="size-4" />
+          <Icon name="kind-icon:arrow-left" class="kr-icon-4" />
           Your tank
         </NuxtLink>
       </nav>
@@ -105,7 +105,7 @@
             :disabled="loading || skip <= 0"
             @click="prevPage"
           >
-            <Icon name="kind-icon:arrow-left" class="size-4" />
+            <Icon name="kind-icon:arrow-left" class="kr-icon-4" />
             Higher ranks
           </button>
           <p class="kr-text-dim-xs font-bold">
@@ -118,7 +118,7 @@
             @click="nextPage"
           >
             Lower ranks
-            <Icon name="kind-icon:arrow-right" class="size-4" />
+            <Icon name="kind-icon:arrow-right" class="kr-icon-4" />
           </button>
         </div>
       </template>

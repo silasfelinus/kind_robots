@@ -60,7 +60,7 @@
         :class="{ 'btn-disabled': uploading }"
       >
         <span v-if="uploading" class="kr-spinner-xs" />
-        <Icon v-else name="kind-icon:upload" class="size-4" />
+        <Icon v-else name="kind-icon:upload" class="kr-icon-4" />
         Add photos
         <input
           type="file"
@@ -75,7 +75,7 @@
         class="kr-btn-ghost-plain"
         :class="{ 'btn-disabled': uploading }"
       >
-        <Icon name="kind-icon:camera" class="size-4" />
+        <Icon name="kind-icon:camera" class="kr-icon-4" />
         Take photo
         <input
           type="file"

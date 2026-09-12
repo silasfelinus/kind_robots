@@ -65,7 +65,7 @@
             aria-label="Close"
             @click="emit('close')"
           >
-            <Icon name="kind-icon:x" class="size-4" />
+            <Icon name="kind-icon:x" class="kr-icon-4" />
           </button>
         </header>
 
@@ -254,7 +254,7 @@
               :aria-expanded="redoOpen"
               @click="toggleRedo"
             >
-              <Icon name="kind-icon:palette-color" class="size-4" />
+              <Icon name="kind-icon:palette-color" class="kr-icon-4" />
               Redo art
             </button>
 
@@ -263,7 +263,7 @@
               class="btn btn-primary btn-sm gap-1.5 rounded-xl"
             >
               Open {{ kindLabel.toLowerCase() }}
-              <Icon name="kind-icon:chevron-right" class="size-4" />
+              <Icon name="kind-icon:chevron-right" class="kr-icon-4" />
             </NuxtLink>
           </div>
         </footer>

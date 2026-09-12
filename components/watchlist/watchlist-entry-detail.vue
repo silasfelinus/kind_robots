@@ -19,7 +19,7 @@
         >
           <Icon
             name="kind-icon:star"
-            class="size-4"
+            class="kr-icon-4"
             :class="entry.starred ? 'text-warning' : 'text-base-content/25'"
           />
         </button>

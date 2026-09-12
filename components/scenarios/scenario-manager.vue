@@ -22,7 +22,7 @@
             title="Start a Storybook story seeded with this Scenario"
             @click="startStoryWithScenario"
           >
-            <Icon name="kind-icon:book-open" class="size-4" />
+            <Icon name="kind-icon:book-open" class="kr-icon-4" />
             <span class="hidden sm:inline">Start a story with this</span>
           </button>
           <button
@@ -31,7 +31,7 @@
             title="Brainstorm variations grounded in this Scenario"
             @click="startBrainstormWithScenario"
           >
-            <Icon name="kind-icon:brain" class="size-4" />
+            <Icon name="kind-icon:brain" class="kr-icon-4" />
             <span class="hidden sm:inline">Brainstorm variations</span>
           </button>
         </div>

@@ -5,7 +5,7 @@
     >
       <nav class="flex flex-wrap items-center justify-between gap-3">
         <NuxtLink to="/play/challenges" class="kr-btn-ghost">
-          <Icon name="kind-icon:arrow-left" class="size-4" />
+          <Icon name="kind-icon:arrow-left" class="kr-icon-4" />
           Fight card
         </NuxtLink>
         <button
@@ -15,7 +15,7 @@
           @click="loadLeaderboard"
         >
           <span v-if="loading" class="kr-spinner-xs" />
-          <Icon v-else name="kind-icon:refresh" class="size-4" />
+          <Icon v-else name="kind-icon:refresh" class="kr-icon-4" />
           Refresh
         </button>
       </nav>

@@ -277,7 +277,7 @@
             @click="beginStory"
           >
             <span v-if="store.isWeaving" class="kr-spinner-sm" />
-            <Icon v-else name="kind-icon:book-open" class="size-4" />
+            <Icon v-else name="kind-icon:book-open" class="kr-icon-4" />
             {{ store.isWeaving ? 'Opening…' : 'Open this story' }}
           </button>
         </div>

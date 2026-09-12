@@ -127,7 +127,7 @@
             @click="startLife"
           >
             <span v-if="submitting" class="kr-spinner-sm" />
-            <Icon v-else name="kind-icon:sparkles" class="size-4" />
+            <Icon v-else name="kind-icon:sparkles" class="kr-icon-4" />
             Begin this life
           </button>
         </div>
@@ -278,7 +278,7 @@
                   :disabled="narrating"
                   @click="narrateChapter()"
                 >
-                  <Icon name="kind-icon:refresh" class="size-4" />
+                  <Icon name="kind-icon:refresh" class="kr-icon-4" />
                   Try again
                 </button>
                 <button
@@ -375,7 +375,7 @@
                 @click="resolveLife"
               >
                 <span v-if="submitting" class="kr-spinner-sm" />
-                <Icon v-else name="kind-icon:trophy" class="size-4" />
+                <Icon v-else name="kind-icon:trophy" class="kr-icon-4" />
                 See your ending
               </button>
             </div>
@@ -412,7 +412,7 @@
             class="btn btn-outline btn-sm gap-1.5 rounded-xl"
             @click="playAgain"
           >
-            <Icon name="kind-icon:refresh" class="size-4" />
+            <Icon name="kind-icon:refresh" class="kr-icon-4" />
             Live another life
           </button>
         </div>

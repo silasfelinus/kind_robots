@@ -47,7 +47,7 @@
           class="loading loading-spinner loading-sm motion-reduce:hidden"
           aria-hidden="true"
         />
-        <Icon v-else :name="icon" class="size-4" aria-hidden="true" />
+        <Icon v-else :name="icon" class="kr-icon-4" aria-hidden="true" />
         <span class="hidden sm:inline">{{ buttonLabel }}</span>
       </button>
     </div>

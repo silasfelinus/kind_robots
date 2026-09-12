@@ -93,7 +93,7 @@
               <Icon
                 v-else
                 :name="facet.icon || 'kind-icon:tag'"
-                class="size-4"
+                class="kr-icon-4"
               />
             </span>
             <button

@@ -24,7 +24,7 @@
             @click="refresh"
           >
             <span v-if="loading" class="kr-spinner-xs" />
-            <Icon v-else name="kind-icon:refresh" class="size-4" />
+            <Icon v-else name="kind-icon:refresh" class="kr-icon-4" />
             Refresh
           </button>
           <button
@@ -36,7 +36,7 @@
             @click="triageStore.saveChanges()"
           >
             <span v-if="triageStore.isSaving" class="kr-spinner-xs" />
-            <Icon v-else name="kind-icon:save" class="size-4" />
+            <Icon v-else name="kind-icon:save" class="kr-icon-4" />
             Save {{ triageStore.pendingChanges.length }} change{{
               triageStore.pendingChanges.length === 1 ? '' : 's'
             }}

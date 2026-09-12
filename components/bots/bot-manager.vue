@@ -17,7 +17,7 @@
             title="Brainstorm variations grounded in this Bot"
             @click="startBrainstormWithBot"
           >
-            <Icon name="kind-icon:brain" class="size-4" />
+            <Icon name="kind-icon:brain" class="kr-icon-4" />
             <span class="hidden sm:inline">Brainstorm variations</span>
           </button>
         </div>

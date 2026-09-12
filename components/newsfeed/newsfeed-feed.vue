@@ -127,7 +127,7 @@
         >
           <Icon
             :name="startsHere ? 'kind-icon:star' : 'kind-icon:stars'"
-            class="size-4"
+            class="kr-icon-4"
           />
           <span v-if="!compact" class="hidden 2xl:inline">{{ pinLabel }}</span>
         </button>
@@ -139,7 +139,7 @@
           aria-controls="newsfeed-manage-feeds-panel"
           @click="showManageFeeds = !showManageFeeds"
         >
-          <Icon name="kind-icon:sliders" class="size-4" />
+          <Icon name="kind-icon:sliders" class="kr-icon-4" />
           <span v-if="!compact" class="hidden 2xl:inline">Manage feeds</span>
           <Icon
             :name="
@@ -159,7 +159,7 @@
           @click="loadFeed()"
         >
           <span v-if="isLoading" class="kr-spinner-xs" />
-          <Icon v-else name="kind-icon:refresh" class="size-4" />
+          <Icon v-else name="kind-icon:refresh" class="kr-icon-4" />
           <span v-if="!compact" class="hidden 2xl:inline">Refresh</span>
         </button>
 

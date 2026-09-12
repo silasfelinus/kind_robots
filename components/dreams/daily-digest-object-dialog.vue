@@ -29,7 +29,7 @@
             aria-label="Close object details"
             @click="emit('close')"
           >
-            <Icon name="kind-icon:x" class="size-4" />
+            <Icon name="kind-icon:x" class="kr-icon-4" />
           </button>
         </header>
 
@@ -42,7 +42,7 @@
             :class="activeTab === tab.key ? 'btn-primary' : 'btn-ghost'"
             @click="activeTab = tab.key"
           >
-            <Icon :name="tab.icon" class="size-4" />
+            <Icon :name="tab.icon" class="kr-icon-4" />
             {{ tab.label }}
           </button>
         </nav>
@@ -165,7 +165,7 @@
                   :disabled="saving || !hasChanges || missingRequiredField"
                 >
                   <span v-if="saving" class="kr-spinner-xs" />
-                  <Icon v-else name="kind-icon:save" class="size-4" />
+                  <Icon v-else name="kind-icon:save" class="kr-icon-4" />
                   {{ saving ? 'Saving…' : 'Save changes' }}
                 </button>
               </div>

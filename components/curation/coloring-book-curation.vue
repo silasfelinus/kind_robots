@@ -276,7 +276,7 @@
           </div>
 
           <div v-else class="kr-text-dim-xs-45 flex items-center gap-2">
-            <Icon name="kind-icon:lock" class="size-4" />
+            <Icon name="kind-icon:lock" class="kr-icon-4" />
             Production edits are admin-only.
           </div>
         </div>

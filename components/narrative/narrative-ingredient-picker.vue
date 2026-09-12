@@ -125,7 +125,7 @@
           class="absolute right-2 top-2 flex size-8 items-center justify-center rounded-full bg-secondary text-secondary-content shadow"
           aria-hidden="true"
         >
-          <Icon name="kind-icon:check" class="size-4" />
+          <Icon name="kind-icon:check" class="kr-icon-4" />
         </span>
         <span class="absolute inset-x-0 bottom-0 p-3 text-white">
           <span class="kr-text-black-sm block sm:text-base">
@@ -160,7 +160,7 @@
       >
         <Icon
           :name="expanded ? 'kind-icon:chevron-up' : 'kind-icon:chevron-down'"
-          class="size-4"
+          class="kr-icon-4"
           aria-hidden="true"
         />
         {{ expanded ? 'Show fewer' : `Show all ${filteredItems.length}` }}

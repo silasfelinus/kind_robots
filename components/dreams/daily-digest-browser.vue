@@ -176,7 +176,7 @@
             aria-label="Show the previous daily digest"
             @click="showOlder"
           >
-            <Icon name="kind-icon:chevron-left" class="size-4" />
+            <Icon name="kind-icon:chevron-left" class="kr-icon-4" />
             Previous
           </button>
           <button
@@ -187,7 +187,7 @@
             @click="showNewer"
           >
             Next
-            <Icon name="kind-icon:chevron-right" class="size-4" />
+            <Icon name="kind-icon:chevron-right" class="kr-icon-4" />
           </button>
         </div>
 
@@ -208,7 +208,7 @@
           :disabled="loading"
           @click="loadDigests"
         >
-          <Icon name="kind-icon:refresh-cw" class="size-4" />
+          <Icon name="kind-icon:refresh-cw" class="kr-icon-4" />
           Refresh archive
         </button>
       </div>

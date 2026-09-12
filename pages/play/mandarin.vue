@@ -46,7 +46,7 @@
             :aria-selected="workspaceView === view.value"
             @click="workspaceView = view.value"
           >
-            <Icon :name="view.icon" class="size-4" />
+            <Icon :name="view.icon" class="kr-icon-4" />
             {{ view.label }}
           </button>
         </div>
@@ -332,13 +332,13 @@
 
                 <div class="flex items-center justify-between gap-2 kr-panel-divider">
                   <button type="button" class="kr-btn-ghost-plain" :disabled="focusNavigationLocked" @click="store.previousCard()">
-                    <Icon name="kind-icon:back" class="size-4" />
+                    <Icon name="kind-icon:back" class="kr-icon-4" />
                     Previous
                   </button>
                   <span class="kr-text-faded-xs-55">{{ currentPositionLabel }}</span>
                   <button type="button" class="kr-btn-ghost-plain" :disabled="focusNavigationLocked" @click="store.nextCard()">
                     Next
-                    <Icon name="kind-icon:forward" class="size-4" />
+                    <Icon name="kind-icon:forward" class="kr-icon-4" />
                   </button>
                 </div>
               </div>

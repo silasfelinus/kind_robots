@@ -2,7 +2,7 @@
      Read-only kingdom-health meters (data-model.md §4). Fill-% bars, one per axis,
      using the same rangeFill idea as components/abandonware/butterfly/single-slider.vue. -->
 <template>
-  <div class="grid grid-cols-1 gap-2 sm:grid-cols-2">
+  <div class="grid grid-cols-[repeat(auto-fit,minmax(min(100%,14rem),1fr))] gap-2">
     <div v-for="axis in axes" :key="axis.key" class="text-xs">
       <div class="mb-0.5 flex justify-between">
         <span class="font-medium capitalize">{{ axis.key }}</span>

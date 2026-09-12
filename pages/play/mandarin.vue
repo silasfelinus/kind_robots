@@ -435,7 +435,7 @@
 
             <section class="border-t border-base-300 p-4">
               <div class="flex flex-wrap items-center gap-2">
-                <span class="text-sm font-semibold">Save to:</span>
+                <span class="kr-text-semibold-sm">Save to:</span>
                 <button
                   v-for="set in customSets"
                   :key="set.id"

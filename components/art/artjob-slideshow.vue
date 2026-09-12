@@ -46,7 +46,7 @@
             v-if="slideshowStore.loadingPool"
             class="kr-spinner-lg-primary"
           />
-          <p class="text-sm font-semibold">{{ stageMessage }}</p>
+          <p class="kr-text-semibold-sm">{{ stageMessage }}</p>
           <p v-if="slideshowStore.error" class="kr-text-error-xs">
             {{ slideshowStore.error }}
           </p>

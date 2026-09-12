@@ -1,22 +1,28 @@
 #!/usr/bin/env python3
-"""Find hand-rolled `font-semibold text-sm` text candidates.
+"""Find or migrate hand-rolled `font-semibold text-sm` text to
+`kr-text-semibold-sm`.
 
-Interface Vision t-104 slice 249. A fresh repository survey identified this
-pair as the next bounded text-weight family after the established
-`kr-text-bold-*` and `kr-text-black-*` primitives. This first slice is
-intentionally discovery-only: `kr-text-semibold-sm` does not exist yet, so
-this tool refuses `--write` rather than implying a runtime primitive that
-has not been opened.
+Interface Vision t-104 slice 249 surveyed this pair as the next bounded
+text-weight family after the established `kr-text-bold-*` and
+`kr-text-black-*` primitives and shipped this tool discovery-only, since the
+primitive did not exist yet. Slice 250 opens `.kr-text-semibold-sm` and
+enables `--write`.
 
-Only static `class="..."` attributes are inspected. Bound `:class` and
-`v-bind:class` expressions are outside this mechanical migration family.
-Extra utility tokens are preserved in the candidate report; `--exact-only`
-restricts discovery to class strings containing only the two base tokens.
+Dry-run by default, --write to update matching Vue files in place. Only the
+exact `font-semibold text-sm` shape is touched, and only in static
+`class="..."` attributes -- never `:class`/`v-bind:class` bindings,
+regardless of the base tokens' order in the source. A source that already
+carries `kr-text-semibold-sm`, or is missing either base token, is left
+untouched. Extra tokens beyond the base set are preserved verbatim after the
+primitive class, matching every other kr-text-*/kr-badge-*/kr-spinner-*
+codemod's subset-match convention -- pass --exact-only to restrict a slice
+to sources with no extra tokens at all, the safest and most literal pool.
 """
 
 from __future__ import annotations
 
 import argparse
+import re
 from pathlib import Path
 from _class_attr import CLASS_ATTR
 
@@ -24,47 +30,64 @@ PRIMITIVE = "kr-text-semibold-sm"
 BASE_TOKENS = {"font-semibold", "text-sm"}
 
 
-def is_candidate(classes: str, exact_only: bool) -> bool:
+def migrate_classes(classes: str, exact_only: bool) -> str | None:
     tokens = classes.split()
     if PRIMITIVE in tokens or not BASE_TOKENS.issubset(tokens):
-        return False
+        return None
     remaining = [token for token in tokens if token not in BASE_TOKENS]
-    return not exact_only or not remaining
+    if exact_only and remaining:
+        return None
+    return " ".join([PRIMITIVE, *remaining])
+
+
+def migrate_text(text: str, exact_only: bool) -> tuple[str, int]:
+    count = 0
+
+    def replace(match: re.Match[str]) -> str:
+        nonlocal count
+        migrated = migrate_classes(match.group(1), exact_only)
+        if migrated is None:
+            return match.group(0)
+        count += 1
+        return f'class="{migrated}"'
+
+    return CLASS_ATTR.sub(replace, text), count
 
 
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--root", type=Path, default=Path.cwd())
-    parser.add_argument("--exact-only", action="store_true")
+    parser.add_argument("--write", action="store_true")
     parser.add_argument(
-        "--write",
+        "--exact-only",
         action="store_true",
-        help="Reserved for the follow-up slice after kr-text-semibold-sm exists.",
+        help="Only migrate class strings that are exactly the base token set "
+        "(no extra utility tokens preserved). Bounds a slice to the safest, "
+        "most literal candidates; re-run without this flag for the fuller "
+        "subset-match pool in a later slice.",
     )
     args = parser.parse_args()
-
-    if args.write:
-        parser.error(
-            "--write is intentionally disabled until the kr-text-semibold-sm primitive exists"
-        )
 
     total = 0
     for path in sorted(args.root.rglob("*.vue")):
         if any(part in {"node_modules", ".nuxt", ".output"} for part in path.parts):
             continue
+        # newline="" preserves the file's original line endings verbatim --
+        # see kr_badge_codemod.py for why this matters (kind_robots
+        # add-bot.vue, interface-vision t-104 slice 106).
         with path.open(encoding="utf-8", newline="") as f:
             text = f.read()
-        count = sum(
-            1
-            for match in CLASS_ATTR.finditer(text)
-            if is_candidate(match.group(1), args.exact_only)
-        )
+        migrated, count = migrate_text(text, args.exact_only)
         if not count:
             continue
         total += count
         print(f"{path.relative_to(args.root)}: {count}")
+        if args.write:
+            with path.open("w", encoding="utf-8", newline="") as f:
+                f.write(migrated)
 
-    print(f"kr-text-semibold-sm candidate occurrences: {total}")
+    mode = "migrated" if args.write else "candidate"
+    print(f"kr-text-semibold-sm {mode} occurrences: {total}")
     return 0
 
 

@@ -20,7 +20,7 @@
       <span class="badge badge-secondary rounded-xl">{{ dateKey }}</span>
       <Icon
         name="kind-icon:chevron-down"
-        class="size-4 transition-transform group-open:rotate-180"
+        class="kr-icon-4 transition-transform group-open:rotate-180"
       />
     </summary>
 
@@ -63,7 +63,7 @@
           @click="createDailyDream"
         >
           <span v-if="loading" class="kr-spinner-xs" />
-          <Icon v-else name="kind-icon:dream" class="size-4" />
+          <Icon v-else name="kind-icon:dream" class="kr-icon-4" />
           Build today’s Dream
         </button>
       </div>

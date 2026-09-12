@@ -54,7 +54,7 @@
           @dragleave="dragOverRole = null"
           @drop.prevent="dropRole(option.key)"
         >
-          <Icon :name="option.icon" class="size-4 shrink-0" aria-hidden="true" />
+          <Icon :name="option.icon" class="kr-icon-4 shrink-0" aria-hidden="true" />
           <span>{{ option.label }}</span>
         </div>
       </div>

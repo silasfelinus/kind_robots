@@ -167,7 +167,7 @@
             @click="queueArt"
           >
             <span v-if="submitting" class="kr-spinner-xs" />
-            <Icon v-else name="kind-icon:sparkles" class="size-4" />
+            <Icon v-else name="kind-icon:sparkles" class="kr-icon-4" />
             {{ submitting ? 'Queuing…' : `Queue ${selectedSlot.label}` }}
           </button>
         </div>

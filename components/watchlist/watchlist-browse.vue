@@ -461,7 +461,7 @@
             class="btn btn-ghost btn-sm rounded-xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
             @click="selectedId = null"
           >
-            <Icon name="kind-icon:close" class="size-4" />
+            <Icon name="kind-icon:close" class="kr-icon-4" />
           </button>
         </template>
       </watchlist-entry-detail>

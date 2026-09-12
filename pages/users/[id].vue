@@ -6,7 +6,7 @@
         to="/plan/wonderlab"
         class="btn btn-ghost btn-sm mb-4 rounded-xl"
       >
-        <Icon name="kind-icon:arrow-left" class="size-4" />
+        <Icon name="kind-icon:arrow-left" class="kr-icon-4" />
         Back to WonderLab
       </NuxtLink>
 

@@ -5,14 +5,14 @@
     >
       <nav class="flex flex-wrap items-center justify-between gap-3">
         <NuxtLink to="/play/challenges" class="kr-btn-ghost">
-          <Icon name="kind-icon:arrow-left" class="size-4" />
+          <Icon name="kind-icon:arrow-left" class="kr-icon-4" />
           Fight card
         </NuxtLink>
         <NuxtLink
           to="/play/challenges/leaderboard"
           class="kr-btn btn-outline"
         >
-          <Icon name="kind-icon:trophy" class="size-4" />
+          <Icon name="kind-icon:trophy" class="kr-icon-4" />
           Rankings
         </NuxtLink>
       </nav>

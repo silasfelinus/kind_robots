@@ -415,7 +415,7 @@
         aria-label="Scroll the cast backwards"
         @click="scrollCast(-1)"
       >
-        <Icon name="kind-icon:chevron-left" class="size-4" />
+        <Icon name="kind-icon:chevron-left" class="kr-icon-4" />
       </button>
       <button
         v-show="castCanScroll"
@@ -425,7 +425,7 @@
         aria-label="Scroll the cast forwards"
         @click="scrollCast(1)"
       >
-        <Icon name="kind-icon:chevron-right" class="size-4" />
+        <Icon name="kind-icon:chevron-right" class="kr-icon-4" />
       </button>
     </div>
   </section>

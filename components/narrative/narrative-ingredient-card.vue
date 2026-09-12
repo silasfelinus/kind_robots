@@ -49,7 +49,7 @@
       class="absolute right-2 top-2 z-10 flex size-8 items-center justify-center rounded-full bg-secondary text-secondary-content shadow-lg"
       aria-hidden="true"
     >
-      <Icon name="kind-icon:check" class="size-4" />
+      <Icon name="kind-icon:check" class="kr-icon-4" />
     </span>
 
     <span class="relative z-10 mt-auto flex min-w-0 flex-col gap-1.5 p-3 text-white">

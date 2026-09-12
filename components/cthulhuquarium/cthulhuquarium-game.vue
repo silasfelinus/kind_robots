@@ -43,7 +43,7 @@
       >
         <Icon
           name="kind-icon:sparkles"
-          class="mt-0.5 size-4 shrink-0 opacity-60"
+          class="kr-icon-4 mt-0.5 shrink-0 opacity-60"
         />
         <div class="min-w-0 flex-1">
           <p class="italic opacity-80">{{ tankStore.lastRareEvent.tone }}</p>
@@ -60,7 +60,7 @@
           aria-label="Dismiss"
           @click="tankStore.dismissRareEvent()"
         >
-          <Icon name="kind-icon:close" class="size-4" />
+          <Icon name="kind-icon:close" class="kr-icon-4" />
         </button>
       </div>
 
@@ -88,7 +88,7 @@
           aria-label="Dismiss"
           @click="tankStore.dismissMilestoneToast()"
         >
-          <Icon name="kind-icon:close" class="size-4" />
+          <Icon name="kind-icon:close" class="kr-icon-4" />
         </button>
       </div>
 
@@ -99,7 +99,7 @@
             {{ tankStore.coins }}
           </span>
           <span class="flex items-center gap-1 opacity-70">
-            <Icon name="kind-icon:fish" class="size-4" />
+            <Icon name="kind-icon:fish" class="kr-icon-4" />
             {{ tankStore.stock.length }}
           </span>
           <span class="flex items-center gap-1 text-xs opacity-60">
@@ -124,7 +124,7 @@
            deliberately co-viable routes (the debris set and The Sexton are
            the other two, both still unbuilt); this is only the first. -->
       <div class="flex items-center gap-2">
-        <Icon name="kind-icon:sparkles" class="size-4 shrink-0 opacity-60" />
+        <Icon name="kind-icon:sparkles" class="kr-icon-4 shrink-0 opacity-60" />
         <div
           class="h-1.5 flex-1 overflow-hidden rounded-full bg-base-300"
           role="meter"
@@ -434,7 +434,7 @@
             :name="
               showBestiary ? 'kind-icon:chevron-up' : 'kind-icon:chevron-down'
             "
-            class="size-4 shrink-0 opacity-60"
+            class="kr-icon-4 shrink-0 opacity-60"
           />
         </button>
 
@@ -529,7 +529,7 @@
           </span>
           <Icon
             :name="showSets ? 'kind-icon:chevron-up' : 'kind-icon:chevron-down'"
-            class="size-4 shrink-0 opacity-60"
+            class="kr-icon-4 shrink-0 opacity-60"
           />
         </button>
 
@@ -608,7 +608,7 @@
             :name="
               showDecor ? 'kind-icon:chevron-up' : 'kind-icon:chevron-down'
             "
-            class="size-4 shrink-0 opacity-60"
+            class="kr-icon-4 shrink-0 opacity-60"
           />
         </button>
 
@@ -679,7 +679,7 @@
           </span>
           <Icon
             :name="showEggs ? 'kind-icon:chevron-up' : 'kind-icon:chevron-down'"
-            class="size-4 shrink-0 opacity-60"
+            class="kr-icon-4 shrink-0 opacity-60"
           />
         </button>
 

@@ -47,7 +47,7 @@
             :aria-label="`Move ${feed.title} up`"
             @click="moveFeed(feed.slug, -1)"
           >
-            <Icon name="kind-icon:chevron-up" class="size-4" />
+            <Icon name="kind-icon:chevron-up" class="kr-icon-4" />
           </button>
           <button
             type="button"
@@ -56,7 +56,7 @@
             :aria-label="`Move ${feed.title} down`"
             @click="moveFeed(feed.slug, 1)"
           >
-            <Icon name="kind-icon:chevron-down" class="size-4" />
+            <Icon name="kind-icon:chevron-down" class="kr-icon-4" />
           </button>
           <input
             type="checkbox"
@@ -74,7 +74,7 @@
         class="flex items-center justify-between gap-3 py-2.5 opacity-70"
       >
         <div class="flex min-w-0 items-center gap-2">
-          <Icon :name="feed.icon" class="size-4 shrink-0" />
+          <Icon :name="feed.icon" class="kr-icon-4 shrink-0" />
           <div class="min-w-0">
             <span class="block truncate font-semibold">{{ feed.title }}</span>
             <span class="kr-text-dim-xs-55 block truncate">

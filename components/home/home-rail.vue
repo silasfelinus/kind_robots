@@ -79,7 +79,7 @@
         :title="`${label} — ${seeAllLabel}`"
         :aria-label="`${label} — ${seeAllLabel}`"
       >
-        <Icon :name="icon || placeholderIcon" class="size-4 shrink-0" />
+        <Icon :name="icon || placeholderIcon" class="kr-icon-4 shrink-0" />
         <!--
           THE WORDS COME BACK WHERE THERE IS ROOM. Silas, 2026-09-01: "objects
           section should be labeled if the screen supports it."

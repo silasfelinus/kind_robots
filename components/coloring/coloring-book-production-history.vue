@@ -122,7 +122,7 @@
             rel="noopener noreferrer"
             class="btn btn-outline btn-sm mt-auto rounded-2xl"
           >
-            <icon name="kind-icon:external-link" class="size-4" />
+            <icon name="kind-icon:external-link" class="kr-icon-4" />
             Open archived image
           </a>
         </div>

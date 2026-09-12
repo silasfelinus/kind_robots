@@ -72,7 +72,7 @@
         </div>
 
         <div class="mt-3 flex items-center gap-2 text-xs font-semibold text-warning">
-          <icon name="kind-icon:book" class="size-4" />
+          <icon name="kind-icon:book" class="kr-icon-4" />
           Cover workflow not managed yet
         </div>
       </button>

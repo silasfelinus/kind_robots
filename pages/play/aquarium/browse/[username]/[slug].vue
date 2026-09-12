@@ -15,7 +15,7 @@
           to="/play/aquarium/browse"
           class="kr-btn-ghost"
         >
-          <Icon name="kind-icon:arrow-left" class="size-4" />
+          <Icon name="kind-icon:arrow-left" class="kr-icon-4" />
           Public tanks
         </NuxtLink>
       </nav>

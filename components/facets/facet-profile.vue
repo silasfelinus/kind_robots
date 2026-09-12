@@ -17,7 +17,7 @@
         class="kr-btn-ghost"
         @click="closeFacet"
       >
-        <Icon name="kind-icon:chevron-left" class="size-4" /> All Facets
+        <Icon name="kind-icon:chevron-left" class="kr-icon-4" /> All Facets
       </button>
 
       <div class="min-w-0 flex-1">

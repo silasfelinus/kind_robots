@@ -147,7 +147,7 @@
         <img
           :src="`/api/art/images/${imageId}/file`"
           :alt="`Generated art for ${candidate.title || 'this candidate'}`"
-          class="size-full object-cover"
+          class="kr-img-cover"
           loading="lazy"
         />
       </a>

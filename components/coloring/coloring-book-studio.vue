@@ -227,7 +227,7 @@
                   v-if="proposal.colorUrl"
                   :src="proposal.colorUrl"
                   :alt="`${proposal.title} color candidate`"
-                  class="size-full object-cover"
+                  class="kr-img-cover"
                   loading="lazy"
                 />
                 <div
@@ -248,7 +248,7 @@
                   v-if="proposal.bwUrl"
                   :src="proposal.bwUrl"
                   :alt="`${proposal.title} black-and-white page`"
-                  class="size-full object-cover grayscale"
+                  class="kr-img-cover grayscale"
                   loading="lazy"
                 />
                 <div

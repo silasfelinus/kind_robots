@@ -190,7 +190,7 @@
               <kr-deferred-image
                 :src="previewSrc(resource)"
                 :alt="resourceLabel(resource)"
-                class="size-full object-cover"
+                class="kr-img-cover"
               />
 
               <label

@@ -24,7 +24,7 @@
             :key="currentSrc"
             :src="currentSrc"
             :alt="`${title} ${selectedSlot.label}`"
-            class="absolute inset-0 size-full object-cover"
+            class="kr-img-cover absolute inset-0"
             @error="imageFailed = true"
           />
           <div

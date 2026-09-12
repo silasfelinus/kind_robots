@@ -60,7 +60,7 @@
                   v-if="displayImage && !imageFailed"
                   :src="displayImage"
                   :alt="`${title} artwork`"
-                  class="absolute inset-0 size-full object-cover"
+                  class="kr-img-cover absolute inset-0"
                   @error="imageFailed = true"
                 />
                 <div

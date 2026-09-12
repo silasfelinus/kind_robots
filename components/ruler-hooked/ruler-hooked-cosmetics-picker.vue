@@ -63,7 +63,7 @@
           v-if="customPreviewUrl"
           :src="customPreviewUrl"
           alt="Custom portrait preview"
-          class="size-8 rounded object-cover"
+          class="kr-icon-8 rounded object-cover"
         />
         {{ customFile.name }}
         <button type="button" class="kr-btn-ghost-xs-plain" @click="clearCustom">

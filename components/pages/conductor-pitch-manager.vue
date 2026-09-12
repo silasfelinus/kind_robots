@@ -59,7 +59,7 @@
           @click="activeTab = tab.key"
         >
           <span
-            class="flex size-8 shrink-0 items-center justify-center rounded-xl"
+            class="kr-icon-8 flex shrink-0 items-center justify-center rounded-xl"
             :class="tab.iconClass"
           >
             <Icon :name="tab.icon" class="kr-icon-4" />
@@ -280,7 +280,7 @@
           class="flex min-h-72 flex-col items-center justify-center kr-panel-flat border-dashed rounded-3xl bg-base-100/70 p-8 text-center"
         >
           <span class="flex size-16 items-center justify-center rounded-3xl bg-success/10 text-success">
-            <Icon :name="emptyIcon" class="size-8" />
+            <Icon :name="emptyIcon" class="kr-icon-8" />
           </span>
           <h3 class="kr-text-black-xl mt-4">{{ emptyTitle }}</h3>
           <p class="kr-text-dim-sm-50 mt-1 max-w-lg">

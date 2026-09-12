@@ -120,7 +120,7 @@
                 v-else
                 class="flex h-full w-full items-center justify-center text-base-content/30"
               >
-                <Icon name="kind-icon:image" class="size-8" />
+                <Icon name="kind-icon:image" class="kr-icon-8" />
               </div>
               <span
                 v-if="photoById.get(Number(item.id))!.isPrimary"

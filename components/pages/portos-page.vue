@@ -3,7 +3,7 @@
     <div class="kr-scroll flex flex-col gap-4">
       <header class="flex items-start gap-3">
         <div class="flex size-12 shrink-0 items-center justify-center rounded-2xl border border-accent/30 bg-accent/10 text-accent">
-          <Icon name="kind-icon:server" class="size-6" />
+          <Icon name="kind-icon:server" class="kr-icon-6" />
         </div>
         <div class="min-w-0 flex-1">
           <p class="kr-text-eyebrow-bold text-xs tracking-wide text-accent/70">Portos</p>

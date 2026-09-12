@@ -6,7 +6,7 @@
       <div
         class="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-primary/15 text-primary"
       >
-        <Icon name="kind-icon:gallery" class="size-6" />
+        <Icon name="kind-icon:gallery" class="kr-icon-6" />
       </div>
       <div class="min-w-0 flex-1">
         <h2 class="kr-text-black-2xl tracking-tight">Projects</h2>

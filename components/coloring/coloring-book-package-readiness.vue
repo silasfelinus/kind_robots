@@ -100,7 +100,7 @@
           class="kr-panel-tint-md"
         >
           <div class="flex items-center justify-between gap-2">
-            <icon :name="stage.icon" class="size-6" :class="stage.ready ? 'text-success' : 'text-warning'" />
+            <icon :name="stage.icon" class="kr-icon-6" :class="stage.ready ? 'text-success' : 'text-warning'" />
             <span class="kr-badge-sm rounded-2xl" :class="stage.ready ? 'badge-success' : 'badge-warning'">
               {{ stage.ready ? 'Ready' : 'Pending' }}
             </span>

@@ -25,7 +25,7 @@
       >
         <span
           v-if="artwork(facet)"
-          class="size-6 shrink-0 overflow-hidden rounded-lg bg-base-200"
+          class="kr-icon-6 shrink-0 overflow-hidden rounded-lg bg-base-200"
         >
           <img
             :src="artwork(facet) || ''"

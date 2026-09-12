@@ -12,7 +12,7 @@
       {{ simplified }}
     </span>
     <span v-else class="mandarin-art__waiting">
-      <Icon name="kind-icon:image" class="size-8 opacity-80" />
+      <Icon name="kind-icon:image" class="kr-icon-8 opacity-80" />
       <span class="text-xs opacity-80">Picture not ready yet</span>
     </span>
     <slot />

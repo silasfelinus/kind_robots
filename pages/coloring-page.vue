@@ -13,7 +13,7 @@
         <div
           class="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-primary/15 text-primary"
         >
-          <Icon name="kind-icon:magic" class="size-6" />
+          <Icon name="kind-icon:magic" class="kr-icon-6" />
         </div>
         <div class="min-w-0 flex-1">
           <div class="flex flex-wrap items-center gap-2">

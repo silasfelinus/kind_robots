@@ -327,7 +327,7 @@
         >
           <div class="flex items-start gap-2.5">
             <div
-              class="mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-full border"
+              class="kr-icon-6 mt-0.5 flex shrink-0 items-center justify-center rounded-full border"
               :class="taskIconClass(task.status)"
             >
               <Icon :name="taskIcon(task.status)" class="kr-icon-3" />
@@ -453,7 +453,7 @@
           class="flex items-center gap-3 kr-panel-muted-compact-row"
         >
           <div
-            class="flex size-6 shrink-0 items-center justify-center rounded-full border"
+            class="kr-icon-6 flex shrink-0 items-center justify-center rounded-full border"
             :class="milestoneIconClass(milestone.status)"
           >
             <Icon :name="milestoneIcon(milestone.status)" class="kr-icon-3" />

@@ -153,7 +153,7 @@
               >
                 <Icon
                   :name="item.placeholderIcon || 'kind-icon:image'"
-                  class="size-7"
+                  class="kr-icon-7"
                 />
                 <span
                   v-if="item.placeholderLabel"
@@ -232,7 +232,7 @@
               >
                 <Icon
                   :name="item.placeholderIcon || 'kind-icon:image'"
-                  class="size-8"
+                  class="kr-icon-8"
                 />
                 <span
                   v-if="item.placeholderLabel"

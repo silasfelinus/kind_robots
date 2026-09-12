@@ -551,7 +551,7 @@
                     >
                       <Icon
                         :name="kindIcon(selectedProject.kind)"
-                        class="size-7"
+                        class="kr-icon-7"
                       />
                     </div>
                   </div>

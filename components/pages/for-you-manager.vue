@@ -161,12 +161,12 @@
                   <div class="flex shrink-0 flex-wrap gap-1">
                     <span
                       v-if="isPausedGate(gate)"
-                      class="badge badge-neutral badge-sm rounded-xl"
+                      class="kr-badge-sm badge-neutral rounded-xl"
                     >
                       paused
                     </span>
                     <span
-                      class="badge badge-sm rounded-xl"
+                      class="kr-badge-sm rounded-xl"
                       :class="gate.task.softGate ? 'badge-info' : 'badge-error'"
                     >
                       {{ gate.task.softGate ? 'question' : 'approval' }}

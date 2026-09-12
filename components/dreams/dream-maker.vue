@@ -44,7 +44,7 @@
           </button>
           <button
             type="button"
-            class="btn btn-primary btn-sm rounded-2xl text-white"
+            class="kr-btn-primary-2xl text-white"
             :disabled="dreamStore.isSaving || !canSave"
             @click="saveDream"
           >

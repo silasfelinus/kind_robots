@@ -88,7 +88,7 @@
         />
         <button
           type="button"
-          class="btn btn-primary btn-sm shrink-0 rounded-2xl text-white"
+          class="kr-btn-primary-2xl shrink-0 text-white"
           :disabled="!canSendNarrator"
           @click="sendNarratorMessage"
         >

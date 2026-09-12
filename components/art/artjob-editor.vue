@@ -333,7 +333,7 @@
           </button>
           <button
             type="button"
-            class="btn btn-primary btn-sm rounded-2xl"
+            class="kr-btn-primary-2xl"
             :disabled="saving"
             @click="save"
           >

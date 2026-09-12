@@ -136,7 +136,7 @@
             <div class="flex items-start justify-between gap-2">
               <h3 class="truncate font-black">{{ story.bible.title }}</h3>
               <span
-                class="badge badge-sm rounded-xl"
+                class="kr-badge-sm rounded-xl"
                 :class="
                   story.status === 'complete'
                     ? 'badge-success'

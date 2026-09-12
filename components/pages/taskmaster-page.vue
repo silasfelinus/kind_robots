@@ -719,7 +719,7 @@
                       </div>
                       <span
                         v-if="item.status === 'written'"
-                        class="badge badge-success badge-sm rounded-xl"
+                        class="kr-badge-sm badge-success rounded-xl"
                       >
                         written
                       </span>
@@ -837,7 +837,7 @@
                     <div class="flex items-start justify-between gap-2">
                       <p class="font-bold">{{ checkpoint.title }}</p>
                       <span
-                        class="badge badge-sm rounded-xl"
+                        class="kr-badge-sm rounded-xl"
                         :class="
                           checkpoint.status === 'completed'
                             ? 'badge-success'

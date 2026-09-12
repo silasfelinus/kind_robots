@@ -201,7 +201,7 @@
 
     <!-- Save -->
     <div class="flex items-center gap-2">
-      <button class="btn btn-primary btn-sm rounded-2xl" @click="onSave">
+      <button class="kr-btn-primary-2xl" @click="onSave">
         {{ editingExisting ? 'Save changes' : 'Create pack' }}
       </button>
       <span

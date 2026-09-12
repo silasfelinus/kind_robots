@@ -184,7 +184,7 @@
 
         <button
           v-if="allowAdd"
-          class="btn btn-primary btn-sm tooltip tooltip-bottom shrink-0 rounded-2xl text-white"
+          class="kr-btn-primary-2xl tooltip tooltip-bottom shrink-0 text-white"
           type="button"
           data-tip="New Dream"
           aria-label="New Dream"

@@ -154,7 +154,7 @@
               <h4 class="line-clamp-1 font-black text-base-content">
                 {{ entry.title }}
               </h4>
-              <span v-if="entry.badge" class="badge badge-sm rounded-xl">
+              <span v-if="entry.badge" class="kr-badge-sm rounded-xl">
                 {{ entry.badge }}
               </span>
             </div>

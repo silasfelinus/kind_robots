@@ -81,7 +81,7 @@
         </span>
 
         <span
-          class="badge badge-sm rounded-xl font-black"
+          class="kr-badge-sm rounded-xl font-black"
           :class="isCompleted ? 'badge-success' : 'badge-primary badge-outline'"
         >
           {{ isCompleted ? 'done' : 'open' }}

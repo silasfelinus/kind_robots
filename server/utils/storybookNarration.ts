@@ -662,7 +662,14 @@ export function buildStorybookSystemPrompt(
     '',
     proseContract(bounds),
     style ? '' : '',
-    style ? `NARRATOR STYLE (${request.narratorStyle})\n${style}` : '',
+    // The Bot above IS the narrator (storybook/t-042). The dial only changes
+    // how that voice is delivered, so the block says so out loud -- a prompt
+    // carrying two competing voices reads as neither.
+    style ? `DELIVERY (${request.narratorStyle})` : '',
+    style
+      ? `Keep the voice established above. This is how you deliver that voice this scene -- pacing, framing, and what you look at -- not a different narrator.`
+      : '',
+    style ? style : '',
     '',
     'HIDDEN AXES',
     'The story is scored on these axes. Never name them to the reader.',

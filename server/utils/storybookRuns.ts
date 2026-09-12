@@ -454,6 +454,32 @@ function rewardToTreasure(reward: {
 }
 
 /**
+ * The Narrator slot holds a real Bot (storybook/t-042).
+ *
+ * Silas, 2026-09-12: "since the narrators actually exist as bot Narrators, they
+ * provide the general voice, but how they deliver it can still be adjusted."
+ * loadRunNarrator will read whatever Bot this run names into the system prompt,
+ * so a board that points the slot at some other Bot does not fail -- it just
+ * quietly narrates in a voice that was never written to narrate. Refusing here
+ * keeps the slot meaning what the card says it means. Ownership is checked
+ * separately by assertAttachable; this is about the Bot's job, not its access.
+ */
+async function assertNarratorBot(botId: number | null): Promise<void> {
+  if (!botId) return
+  const bot = await prisma.bot.findUnique({
+    where: { id: botId },
+    select: { BotType: true, isActive: true, name: true },
+  })
+  if (!bot) return // The FK will catch a bot that does not exist.
+  if (bot.BotType !== 'NARRATOR' || !bot.isActive) {
+    throw withStatusCode(
+      `${bot.name} is not one of the narrators. Deal the Narrator slot from /api/narrators.`,
+      400,
+    )
+  }
+}
+
+/**
  * Turn the board the reader assembled into a run.
  *
  * Slugs in, ids out: the client names cards, the server resolves them and
@@ -547,6 +573,7 @@ export async function createStoryRun(userId: number, board: StoryBoardInput) {
     assertAttachable('Character', protagonist?.id ?? null, userId),
     assertAttachable('Dream', location?.id ?? null, userId),
     assertAttachable('Bot', board.botId ?? null, userId),
+    assertNarratorBot(board.botId ?? null),
   ])
 
   const narratorStyle =

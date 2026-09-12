@@ -667,6 +667,12 @@ check(
   ),
 )
 check(
+  'the delivery dial modulates the narrator rather than replacing them',
+  system.includes('DELIVERY (mysterious)') &&
+    system.includes('Keep the voice established above') &&
+    system.indexOf('Amri') < system.indexOf('DELIVERY (mysterious)'),
+)
+check(
   'system prompt carries the direct-prose contract',
   system.includes('PROSE CONTRACT') &&
     system.includes('No similes, no metaphors') &&

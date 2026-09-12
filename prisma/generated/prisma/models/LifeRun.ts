@@ -3974,8 +3974,10 @@ export type $LifeRunPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     summary: string | null
     statsSnapshot: string | null
     /**
-     * Which Storybook shape this run is. LIFE is the pre-merge default, so
-     * every existing row keeps its meaning without a backfill.
+     * Which Storybook MODE this run is told in (storybook/t-039). The default
+     * moved LIFE -> STRUCTURED so a run opened by the pre-mode build, which
+     * never sets this column, still lands on the mode that means what LIFE
+     * meant: the da Vinci shape.
      */
     shape: $Enums.StoryShape
     /**
@@ -3983,7 +3985,10 @@ export type $LifeRunPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
      */
     deckId: number | null
     /**
-     * Turns this run gets. NULL falls back to the deck's budget for its shape.
+     * Turns this run gets. NULL means ENDLESS -- an open-ended run resolves when
+     * the reader calls it, not when a budget runs out (storybook/t-040). A run
+     * created before decks existed also has NULL here; those are told apart by
+     * deckId, which only the new engine sets.
      */
     turnBudget: number | null
     narratorStyle: string | null

@@ -2221,12 +2221,17 @@ model LifeRun {
   outcomeKey      String?                 @db.VarChar(16)
   summary         String?                 @db.Text
   statsSnapshot   String?                 @db.LongText
-  /// Which Storybook shape this run is. LIFE is the pre-merge default, so
-  /// every existing row keeps its meaning without a backfill.
-  shape           StoryShape              @default(LIFE)
+  /// Which Storybook MODE this run is told in (storybook/t-039). The default
+  /// moved LIFE -> STRUCTURED so a run opened by the pre-mode build, which
+  /// never sets this column, still lands on the mode that means what LIFE
+  /// meant: the da Vinci shape.
+  shape           StoryShape              @default(STRUCTURED)
   /// NULL means the life deck -- legacy rows predate decks entirely.
   deckId          Int?
-  /// Turns this run gets. NULL falls back to the deck's budget for its shape.
+  /// Turns this run gets. NULL means ENDLESS -- an open-ended run resolves when
+  /// the reader calls it, not when a budget runs out (storybook/t-040). A run
+  /// created before decks existed also has NULL here; those are told apart by
+  /// deckId, which only the new engine sets.
   turnBudget      Int?
   narratorStyle   String?                 @db.VarChar(32)
   premise         String?                 @db.Text
@@ -3367,11 +3372,30 @@ enum EndingDeckOwnerKind {
   SCENARIO
 }
 
+/// The four story MODES a Storybook run can be told in (storybook/t-039).
+///
+/// Silas, 2026-09-12: "Stories should be able to be selected as open-ended
+/// (endless mode), episodic (scenario based), structured (da Vinci mode), and
+/// taskmaster." Length stopped being an identity in the same breath -- a short
+/// tale and a chaptered one are the same open-ended story with a different
+/// budget on the dial (storybook/t-041).
+///
+/// SHORT_STORY / CHAPTERED / LIFE are the pre-mode spellings, kept ONLY so the
+/// build running during the deploy handoff can still write the value it knows.
+/// Rows are backfilled to the new values by the same migration, and nothing
+/// reads the old ones except the defensive map in server/utils/storybookRuns.ts.
+/// Dropping them is its own follow-up, once no deployed build emits them.
+///
+/// The enum and its column are still spelled `shape` because renaming either is
+/// not additive; the taxonomy moved, the column name follows later.
 enum StoryShape {
   SHORT_STORY
   CHAPTERED
   EPISODIC
   LIFE
+  OPEN_ENDED
+  STRUCTURED
+  TASKMASTER
 }
 
 enum StoryMoveSource {

@@ -257,7 +257,7 @@ async function main() {
 
     console.log('1. open a story from a board')
     const created = await createStoryRun(user.id, {
-      shape: 'short-story',
+      mode: 'episodic',
       deckKey: DECK_KEY,
       title: 'Play loop verify story',
       spark: 'A letter arrives from a star that should not exist.',
@@ -478,15 +478,118 @@ async function main() {
     })
     check(legacyRun?.deckId === null, 'a legacy run has no deck')
     check(
-      legacyRun?.shape === 'LIFE',
-      'a legacy run defaults to the life shape',
+      legacyRun?.shape === 'STRUCTURED',
+      'a run created without a mode defaults to structured, the life shape\'s meaning',
     )
     check(
       legacyRun?.turnBudget === null,
       'a legacy run has no turn budget, so no server-side turn gate',
     )
 
-    console.log('9. inventory reads back off the run row')
+    console.log('9. the mode taxonomy, the length dial, and endless play')
+    // storybook/t-039: a client that has not reloaded since the rename still
+    // opens a story rather than getting a 400 on the one action that hurts most.
+    const legacyWire = await createStoryRun(user.id, {
+      shape: 'short-story',
+      deckKey: DECK_KEY,
+      title: 'Legacy wire name',
+      castSlugs: ['verify-storybook-hero'],
+    })
+    check(
+      legacyWire.mode === 'open-ended',
+      'a pre-mode wire name still opens a story, as its mode',
+    )
+    await rejects(
+      'an unknown mode is refused',
+      () =>
+        createStoryRun(user.id, {
+          mode: 'freeform',
+          deckKey: DECK_KEY,
+          castSlugs: ['verify-storybook-hero'],
+        }),
+      400,
+    )
+
+    // storybook/t-041: length is a setting the reader turns, not a mode.
+    const dialled = await createStoryRun(user.id, {
+      mode: 'episodic',
+      deckKey: DECK_KEY,
+      turnBudget: 6,
+      title: 'Dialled to six',
+      castSlugs: ['verify-storybook-hero'],
+    })
+    check(
+      dialled.run.turnBudget === 6,
+      `the length dial overrides the deck's budget (${dialled.run.turnBudget})`,
+    )
+    await rejects(
+      'a budget below the floor is refused',
+      () =>
+        createStoryRun(user.id, {
+          mode: 'episodic',
+          deckKey: DECK_KEY,
+          turnBudget: 1,
+          castSlugs: ['verify-storybook-hero'],
+        }),
+      400,
+    )
+    await rejects(
+      'only an open-ended story may run without a budget',
+      () =>
+        createStoryRun(user.id, {
+          mode: 'episodic',
+          deckKey: DECK_KEY,
+          turnBudget: null,
+          castSlugs: ['verify-storybook-hero'],
+        }),
+      400,
+    )
+
+    // storybook/t-040: no budget, no final turn, and the reader ends it.
+    const endless = await createStoryRun(user.id, {
+      mode: 'open-ended',
+      deckKey: DECK_KEY,
+      turnBudget: null,
+      title: 'Endless',
+      castSlugs: ['verify-storybook-hero'],
+    })
+    check(
+      endless.run.turnBudget === null,
+      'an open-ended story may open with no budget at all',
+    )
+    const endlessId = endless.run.id
+    let endlessTurn = null as Awaited<
+      ReturnType<typeof submitStoryTurn>
+    > | null
+    for (let index = 1; index <= TURN_BUDGET + 2; index += 1) {
+      endlessTurn = await submitStoryTurn(endlessId, user.id, {
+        turnIndex: index,
+        move: { source: 'custom', text: `Keep going, turn ${index}.` },
+      })
+      check(
+        lastRequestSummary?.isFinalTurn === false,
+        `turn ${index} is never announced as the last one`,
+      )
+    }
+    check(
+      endlessTurn?.pendingTurn !== null,
+      'an endless story always has a next scene waiting',
+    )
+    check(
+      endlessTurn?.isFinalTurn === false && endlessTurn?.readyToResolve === true,
+      'past the floor it is resolvable on demand, without ever being final',
+    )
+    const endlessEnding = await resolveStoryRunEnding(
+      endlessId,
+      user.id,
+      user.username,
+    )
+    check(
+      endlessEnding.ending.slug.startsWith('verify-ending-'),
+      'an endless story the reader ends is collectible like any other',
+    )
+
+    console.log('10. inventory reads back off the run row')
     const stored = await prisma.lifeRun.findUnique({
       where: { id: runId },
       select: { inventory: true },

@@ -269,18 +269,24 @@ export async function resolveStoryRunEnding(
     // feel earned rather than picked, so the server holds it even though the
     // client also hides the button.
     //
-    // Only for runs the new engine created. A run with turnBudget NULL was
-    // opened through POST /api/davinci/runs, which never had a server-side
-    // turn gate -- the life UI enforces MIN_CHAPTERS_BEFORE_ENDING itself.
-    // Retrofitting a refusal onto a game already being played is a design
-    // change, not a refactor, so a legacy run still resolves whenever it
+    // Only for runs the new engine created. A run with turnBudget NULL AND
+    // deckId NULL was opened through POST /api/davinci/runs, which never had a
+    // server-side turn gate -- the life UI enforces MIN_CHAPTERS_BEFORE_ENDING
+    // itself. Retrofitting a refusal onto a game already being played is a
+    // design change, not a refactor, so a legacy run still resolves whenever it
     // asks. New life runs get the gate from the life deck's
     // minTurnsBeforeResolve.
+    //
+    // A NULL budget on a run that HAS a deck means something else entirely: an
+    // endless open-ended story (storybook/t-040), which the reader ends on
+    // demand. That is deliberately not a free pass -- it still has to clear the
+    // deck's floor, so "bring this to an end" cannot resolve a story on turn
+    // one and collect an ending for it.
     const playedTurns = Math.max(0, run.currentChapter - 1)
-    const minimum =
-      run.turnBudget === null
-        ? 0
-        : (deckRow.minTurnsBeforeResolve ?? run.turnBudget)
+    const isLegacyRun = run.turnBudget === null && run.deckId === null
+    const minimum = isLegacyRun
+      ? 0
+      : (deckRow.minTurnsBeforeResolve ?? run.turnBudget ?? 0)
     if (playedTurns < minimum) {
       const error = new Error(
         `This story resolves after ${minimum} turns; ${playedTurns} have been played.`,

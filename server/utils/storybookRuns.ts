@@ -1,6 +1,7 @@
 // /server/utils/storybookRuns.ts
 //
-// Server-side story runs for every Storybook shape (storybook/t-029, t-032).
+// Server-side story runs for every Storybook mode (storybook/t-029, t-032,
+// t-039).
 //
 // Before this, only the life shape had a run: the beat shapes lived entirely in
 // the reader's localStorage, which meant a story could not be resumed on
@@ -30,7 +31,7 @@ import {
 import { assertAttachable, withStatusCode } from './davinci'
 import { assertDeckPlayable, isDeckUnlocked } from './storybookGating'
 import {
-  PROSE_BOUNDS_BY_SHAPE,
+  PROSE_BOUNDS_BY_MODE,
   clampEffectsToDeck,
   generateStorybookTurn,
   type StoryBible,
@@ -40,7 +41,7 @@ import {
   type StorybookNarrationRequest,
   type StorybookNarrationResult,
   type StorybookNarratorStyle,
-  type StorybookShape,
+  type StoryMode,
 } from './storybookNarration'
 import type {
   StoryMoveSource,
@@ -55,17 +56,80 @@ const MAX_FACETS = 5
 const MAX_TREASURES = 3
 const MAX_CUSTOM_MOVE_CHARS = 500
 
-const SHAPE_BY_WIRE: Record<StorybookShape, StoryShape> = {
-  'short-story': 'SHORT_STORY',
-  chaptered: 'CHAPTERED',
+/**
+ * The mode taxonomy, in both directions (storybook/t-039).
+ *
+ * ENUM_BY_MODE is what a new run is written with. MODE_BY_ENUM is what any run
+ * is read with, and it is DELIBERATELY total over the legacy values: the
+ * pre-mode build can still write SHORT_STORY / CHAPTERED / LIFE during the
+ * deploy handoff, and a run already in flight must not change mode under the
+ * reader halfway through. Short and chaptered were one story at two lengths, so
+ * both read back as open-ended; the life shape is the structured mode.
+ */
+const ENUM_BY_MODE: Record<StoryMode, StoryShape> = {
+  'open-ended': 'OPEN_ENDED',
   episodic: 'EPISODIC',
-  life: 'LIFE',
+  structured: 'STRUCTURED',
+  taskmaster: 'TASKMASTER',
 }
-const WIRE_BY_SHAPE: Record<StoryShape, StorybookShape> = {
-  SHORT_STORY: 'short-story',
-  CHAPTERED: 'chaptered',
+const MODE_BY_ENUM: Record<StoryShape, StoryMode> = {
+  OPEN_ENDED: 'open-ended',
   EPISODIC: 'episodic',
-  LIFE: 'life',
+  STRUCTURED: 'structured',
+  TASKMASTER: 'taskmaster',
+  // Legacy spellings. Read-only: nothing writes these any more.
+  SHORT_STORY: 'open-ended',
+  CHAPTERED: 'open-ended',
+  LIFE: 'structured',
+}
+
+/**
+ * Pre-mode wire names a client may still send, and the mode each becomes.
+ *
+ * Accepting them costs one lookup and means a stale tab does not get a 400 on
+ * the one action -- opening a story -- that is most annoying to lose.
+ */
+const LEGACY_MODE_ALIASES: Record<string, StoryMode> = {
+  'short-story': 'open-ended',
+  chaptered: 'open-ended',
+  life: 'structured',
+}
+
+/** Turn budgets a reader may set on the dial (storybook/t-041). */
+export const MIN_TURN_BUDGET = 3
+export const MAX_TURN_BUDGET = 40
+
+/** The one mode that may run without a budget. */
+export const ENDLESS_MODE: StoryMode = 'open-ended'
+
+/** The mode a stored run is in, including rows the pre-mode build wrote. */
+export function storyModeOf(run: { shape: StoryShape }): StoryMode {
+  return MODE_BY_ENUM[run.shape]
+}
+
+/**
+ * The budget a stored run actually plays to, or null for an endless one.
+ *
+ * A run this engine opened stores its own budget, and a NULL there MEANS
+ * endless (storybook/t-040). A pre-deck life run has NULL for a different
+ * reason -- it predates budgets entirely -- and is told apart by deckId, which
+ * only the new engine sets.
+ */
+export function effectiveTurnBudget(
+  run: { shape: StoryShape; deckId: number | null; turnBudget: number | null },
+  deck: LoadedDeck,
+): number | null {
+  if (run.turnBudget !== null) return run.turnBudget
+  return run.deckId === null ? deckTurnBudget(deck, storyModeOf(run)) : null
+}
+
+/** Normalize a wire mode, accepting the pre-mode spellings. */
+export function normalizeStoryMode(value: unknown): StoryMode {
+  const raw = String(value ?? '').trim()
+  if (raw in ENUM_BY_MODE) return raw as StoryMode
+  const legacy = LEGACY_MODE_ALIASES[raw]
+  if (legacy) return legacy
+  throw withStatusCode(`Unknown story mode "${raw}".`, 400)
 }
 const MOVE_SOURCE_BY_WIRE: Record<StorybookMove['source'], StoryMoveSource> = {
   option: 'OPTION',
@@ -99,7 +163,16 @@ export interface PendingTurn {
 }
 
 export interface StoryBoardInput {
-  shape: StorybookShape
+  /** Mode card. `shape` is the pre-mode spelling and is still accepted. */
+  mode?: string | null
+  shape?: string | null
+  /**
+   * The length dial (storybook/t-041). Omitted means the deck's budget for this
+   * mode; explicit null means ENDLESS and is legal only in open-ended mode.
+   * Not a card -- Silas, 2026-09-12: cards are "the flavor bits", and a number
+   * of turns is a setting.
+   */
+  turnBudget?: number | null
   deckKey?: string | null
   title?: string | null
   /** The optional typed premise. A board with no spark is a valid board. */
@@ -123,7 +196,8 @@ export interface LoadedDeck {
   axes: DeckDefinition['axes']
   passValue: number
   turnBudget: number
-  turnBudgetByShape: Partial<Record<StorybookShape, number>>
+  /** Keyed by mode, and still readable when a deck YAML uses the old names. */
+  turnBudgetByShape: Record<string, number>
   minTurnsBeforeResolve: number | null
   unlockAchievementId: number | null
 }
@@ -147,15 +221,63 @@ function toDeckDefinition(deck: LoadedDeck): DeckDefinition {
   }
 }
 
-/** Turns this deck gives a run of this shape. */
-export function deckTurnBudget(
+/**
+ * Turns this deck gives a run in this mode.
+ *
+ * Reads the mode key first, then the pre-mode spellings a deck YAML may still
+ * carry (storybook/t-039): the decks ship from conductor
+ * projects/storybook/data/ending-decks/, so a deck row in a database that has
+ * not been re-seeded since the rename still answers with its own tuning rather
+ * than silently falling back to the flat default.
+ */
+const LEGACY_BUDGET_KEYS: Record<StoryMode, string[]> = {
+  'open-ended': ['chaptered', 'short-story'],
+  episodic: [],
+  structured: ['life'],
+  taskmaster: [],
+}
+
+export function deckTurnBudget(deck: LoadedDeck, mode: StoryMode): number {
+  for (const key of [mode, ...LEGACY_BUDGET_KEYS[mode]]) {
+    const candidate = deck.turnBudgetByShape[key]
+    if (typeof candidate === 'number' && candidate > 0) return candidate
+  }
+  return deck.turnBudget
+}
+
+/**
+ * The run's budget, after the reader's length dial.
+ *
+ * Three outcomes: a number they set, the deck's default for the mode, or null
+ * for an endless open-ended run (storybook/t-040) -- which is a story that
+ * resolves when the reader calls it, not one that never ends.
+ */
+export function resolveTurnBudget(
   deck: LoadedDeck,
-  shape: StorybookShape,
-): number {
-  const perShape = deck.turnBudgetByShape[shape]
-  return typeof perShape === 'number' && perShape > 0
-    ? perShape
-    : deck.turnBudget
+  mode: StoryMode,
+  requested: number | null | undefined,
+): number | null {
+  if (requested === undefined) return deckTurnBudget(deck, mode)
+  if (requested === null) {
+    if (mode !== ENDLESS_MODE) {
+      throw withStatusCode(
+        `Only an ${ENDLESS_MODE} story can run without an ending in sight.`,
+        400,
+      )
+    }
+    return null
+  }
+  if (
+    !Number.isInteger(requested) ||
+    requested < MIN_TURN_BUDGET ||
+    requested > MAX_TURN_BUDGET
+  ) {
+    throw withStatusCode(
+      `A story runs between ${MIN_TURN_BUDGET} and ${MAX_TURN_BUDGET} turns.`,
+      400,
+    )
+  }
+  return requested
 }
 
 function hydrateDeck(row: {
@@ -341,10 +463,7 @@ function rewardToTreasure(reward: {
  * rewrite a scene that already happened.
  */
 export async function createStoryRun(userId: number, board: StoryBoardInput) {
-  const shape = board.shape
-  if (!SHAPE_BY_WIRE[shape]) {
-    throw withStatusCode(`Unknown story shape "${shape}".`, 400)
-  }
+  const mode = normalizeStoryMode(board.mode ?? board.shape)
 
   const deck = board.deckKey
     ? await loadDeckByKey(board.deckKey)
@@ -482,7 +601,7 @@ export async function createStoryRun(userId: number, board: StoryBoardInput) {
     .map((treasure) => ({ ...treasure, origin: 'board' as const }))
   const inventory = [...loadout, ...boardInventory]
 
-  const turnBudget = deckTurnBudget(deck, shape)
+  const turnBudget = resolveTurnBudget(deck, mode, board.turnBudget)
 
   const run = await prisma.lifeRun.create({
     data: {
@@ -491,7 +610,7 @@ export async function createStoryRun(userId: number, board: StoryBoardInput) {
       seed: `run-${Date.now()}-${crypto.randomUUID()}`,
       status: 'ACTIVE',
       currentChapter: 1,
-      shape: SHAPE_BY_WIRE[shape],
+      shape: ENUM_BY_MODE[mode],
       deckId: deck.id,
       turnBudget,
       narratorStyle,
@@ -515,7 +634,7 @@ export async function createStoryRun(userId: number, board: StoryBoardInput) {
   try {
     pendingTurn = await narrateInto(run.id, {
       deck,
-      shape,
+      mode,
       narratorStyle,
       narrator: await loadRunNarrator(run),
       seed: run.seed,
@@ -532,17 +651,18 @@ export async function createStoryRun(userId: number, board: StoryBoardInput) {
       error instanceof Error ? error.message : 'The opening scene slipped away.'
   }
 
-  return { run, deck, bible, inventory, pendingTurn, narrationError }
+  return { run, deck, mode, bible, inventory, pendingTurn, narrationError }
 }
 
 interface NarrateArgs {
   deck: LoadedDeck
-  shape: StorybookShape
+  mode: StoryMode
   narratorStyle: StorybookNarratorStyle | null
   narrator: StoryNarrator
   seed: string
   turnIndex: number
-  turnBudget: number
+  /** null is an endless run: there is no last turn to narrate toward. */
+  turnBudget: number | null
   bible: StoryBible
   inventory: RunInventoryEntry[]
   statsSoFar: Record<string, number>
@@ -568,14 +688,17 @@ export function setStorybookNarrator(impl: NarrateFn | null): void {
 
 function buildNarrationRequest(args: NarrateArgs): StorybookNarrationRequest {
   return {
-    shape: args.shape,
+    mode: args.mode,
     deck: toDeckDefinition(args.deck),
     narratorStyle: args.narratorStyle,
     narrator: args.narrator,
     seed: args.seed,
     turnIndex: args.turnIndex,
     turnBudget: args.turnBudget,
-    isFinalTurn: args.turnIndex >= args.turnBudget,
+    // An endless run never has a final turn to write toward, so the narrator
+    // is never told to land the story (storybook/t-040). The reader ends it.
+    isFinalTurn:
+      args.turnBudget !== null && args.turnIndex >= args.turnBudget,
     bible: args.bible,
     statsSoFar: args.statsSoFar,
     inventory: args.inventory.filter((entry) => !entry.consumedAtTurn),
@@ -674,7 +797,10 @@ export async function listStoryRuns(
 
   return runs.map((run) => ({
     ...run,
-    shape: WIRE_BY_SHAPE[run.shape],
+    mode: MODE_BY_ENUM[run.shape],
+    // Kept alongside `mode` for one release so a client mid-deploy does not
+    // read undefined. Remove with the legacy enum values (storybook/t-039).
+    shape: MODE_BY_ENUM[run.shape],
     turnIndex: run.currentChapter,
   }))
 }
@@ -761,8 +887,13 @@ export async function submitStoryTurn(
   }
 
   const deck = await loadDeck(run.deckId)
-  const shape = WIRE_BY_SHAPE[run.shape]
-  const turnBudget = run.turnBudget ?? deckTurnBudget(deck, shape)
+  const mode = MODE_BY_ENUM[run.shape]
+  // NULL is not "unset" for a run this engine opened -- it is endless
+  // (storybook/t-040). Only a pre-deck life run, which has no deck either,
+  // falls back to the deck's budget.
+  const turnBudget = effectiveTurnBudget(run, deck)
+  const isEndless = turnBudget === null
+  const minTurns = deck.minTurnsBeforeResolve ?? 0
   const bible = readBible(run)
   let inventory = readInventory(run)
   const pending = readPendingTurn(run)
@@ -786,8 +917,10 @@ export async function submitStoryTurn(
         inventory,
         turnIndex: run.currentChapter,
         turnBudget,
-        isFinalTurn: run.currentChapter >= turnBudget,
-        readyToResolve: run.currentChapter > turnBudget,
+        isFinalTurn: !isEndless && run.currentChapter >= turnBudget,
+        readyToResolve: isEndless
+          ? run.currentChapter > minTurns
+          : run.currentChapter > turnBudget,
         replayed: true,
       }
     }
@@ -825,7 +958,7 @@ export async function submitStoryTurn(
     }
     const regenerated = await narrateInto(run.id, {
       deck,
-      shape,
+      mode,
       narratorStyle: run.narratorStyle as StorybookNarratorStyle | null,
       narrator,
       seed: run.seed,
@@ -845,8 +978,8 @@ export async function submitStoryTurn(
       inventory,
       turnIndex: run.currentChapter,
       turnBudget,
-      isFinalTurn: run.currentChapter >= turnBudget,
-      readyToResolve: false,
+      isFinalTurn: !isEndless && run.currentChapter >= turnBudget,
+      readyToResolve: isEndless && run.currentChapter > minTurns,
       replayed: false,
     }
   }
@@ -892,11 +1025,11 @@ export async function submitStoryTurn(
     throw withStatusCode(`Unknown move source "${move.source}".`, 400)
   }
 
-  const isFinalTurn = run.currentChapter >= turnBudget
+  const isFinalTurn = !isEndless && run.currentChapter >= turnBudget
   const result = await narrateImpl(
     buildNarrationRequest({
       deck,
-      shape,
+      mode,
       narratorStyle: run.narratorStyle as StorybookNarratorStyle | null,
       narrator,
       seed: run.seed,
@@ -1001,12 +1134,15 @@ export async function submitStoryTurn(
     inventory,
     turnIndex: nextTurnIndex,
     turnBudget,
-    isFinalTurn: nextTurnIndex >= turnBudget,
-    readyToResolve: isFinalTurn,
+    isFinalTurn: !isEndless && nextTurnIndex >= turnBudget,
+    // An endless story is collectible: once it is past the deck's floor the
+    // reader may bring it to an end whenever they like, and it resolves into
+    // the same deck as any other run rather than trailing off uncounted.
+    readyToResolve: isEndless ? nextTurnIndex > minTurns : isFinalTurn,
     replayed: false,
     // Only the life shape has ever shown its axis values to the reader.
     stats: deck.ownerKind === 'LIFE' ? statsSoFar : undefined,
-    narratedWordBounds: PROSE_BOUNDS_BY_SHAPE[shape],
+    narratedWordBounds: PROSE_BOUNDS_BY_MODE[mode],
   }
 }
 

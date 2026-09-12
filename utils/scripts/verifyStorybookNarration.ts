@@ -1,12 +1,12 @@
 // /utils/scripts/verifyStorybookNarration.ts
 //
 // Contract check for server/utils/storybookNarration.ts (storybook/t-031),
-// the one narration layer every Storybook shape goes through.
+// the one narration layer every Storybook mode goes through.
 //
 // Model output reaching the play loop is the whole risk surface, so every
 // app-owned bound is asserted directly: the deck's axis allowlist, the delta
 // clamp, the choice band (including the final scene's empty band), the prose
-// word bounds per shape, and the Reward-slug allowlists on inventory changes.
+// word bounds per mode, and the Reward-slug allowlists on inventory changes.
 // The prompt assertions cover the two things Silas asked for by name -- direct
 // prose, and a narrator style that modulates it -- plus the sheet-play block.
 //
@@ -23,7 +23,7 @@ import {
   NARRATION_MAX_CHOICES,
   NARRATION_MIN_CHOICES,
   NARRATOR_STYLE_DIRECTIVES,
-  PROSE_BOUNDS_BY_SHAPE,
+  PROSE_BOUNDS_BY_MODE,
   buildStorybookSystemPrompt,
   buildStorybookUserPrompt,
   storybookResponseSchema,
@@ -89,8 +89,8 @@ const deck: DeckDefinition = {
   ],
 }
 
-const shape = 'short-story' as const
-const bounds = PROSE_BOUNDS_BY_SHAPE[shape]
+const mode = 'open-ended' as const
+const bounds = PROSE_BOUNDS_BY_MODE[mode]
 const prose = Array.from({ length: 80 }, (_, index) => `word${index}`).join(' ')
 const treasureSlugs = ['brass-key', 'cousin-who-knows-a-guy']
 
@@ -206,7 +206,7 @@ check(
       stateDelta: undefined,
     }),
     LIFE_DECK,
-    { bounds: PROSE_BOUNDS_BY_SHAPE.life },
+    { bounds: PROSE_BOUNDS_BY_MODE.structured },
   ).moveEffects.legacy === 1,
 )
 
@@ -271,7 +271,7 @@ const greedy = validateStorybookNarration(
     stateDelta: undefined,
   }),
   LIFE_DECK,
-  { bounds: PROSE_BOUNDS_BY_SHAPE.life },
+  { bounds: PROSE_BOUNDS_BY_MODE.structured },
 )
 check(
   `trims a greedy effects map to ${MAX_EFFECT_AXES_PER_MOVE} axes, keeping the largest swings`,
@@ -440,16 +440,16 @@ rejects(
   'no choices',
 )
 
-console.log('Storybook narration — prose length is per shape')
+console.log('Storybook narration — prose length is per mode')
 
 const shortProse = Array.from({ length: 40 }, (_, i) => `word${i}`).join(' ')
 rejects(
-  'rejects prose under the shape minimum',
+  'rejects prose under the mode minimum',
   () => validate(payload({ narrativeText: shortProse })),
   'words',
 )
 check(
-  'the same prose is fine for a shape with a lower floor',
+  'the same prose is fine for a mode with a lower floor',
   validateStorybookNarration(
     payload({
       narrativeText: shortProse,
@@ -457,11 +457,11 @@ check(
       stateDelta: undefined,
     }),
     deck,
-    { bounds: PROSE_BOUNDS_BY_SHAPE.life, treasureSlugs },
+    { bounds: PROSE_BOUNDS_BY_MODE.structured, treasureSlugs },
   ).narrativeText === shortProse,
 )
 rejects(
-  'rejects prose over the shape maximum',
+  'rejects prose over the mode maximum',
   () =>
     validate(
       payload({
@@ -474,8 +474,8 @@ rejects(
   'words',
 )
 check(
-  'every shape declares a band, and none of them invites purple prose',
-  Object.values(PROSE_BOUNDS_BY_SHAPE).every(
+  'every mode declares a band, and none of them invites purple prose',
+  Object.values(PROSE_BOUNDS_BY_MODE).every(
     (band) => band.min > 0 && band.max > band.min,
   ),
 )
@@ -604,7 +604,7 @@ function request(
   overrides: Partial<StorybookNarrationRequest> = {},
 ): StorybookNarrationRequest {
   return {
-    shape,
+    mode,
     deck,
     narratorStyle: 'mysterious',
     narrator: {
@@ -657,8 +657,14 @@ function request(
 const system = buildStorybookSystemPrompt(request())
 check('system prompt names the narrator', system.includes('Amri'))
 check(
-  'system prompt names the shape being told',
-  system.includes('short story'),
+  'system prompt names the mode being told',
+  system.includes('open-ended story'),
+)
+check(
+  'a caller may override the mode label without changing the mode',
+  buildStorybookSystemPrompt(request({ modeLabel: 'whole life' })).includes(
+    'narrating a whole life',
+  ),
 )
 check(
   'system prompt carries the direct-prose contract',
@@ -667,7 +673,7 @@ check(
     system.includes('Plain nouns and strong verbs'),
 )
 check(
-  'system prompt states the shape word band',
+  'system prompt states the mode word band',
   system.includes(`between ${bounds.min} and ${bounds.max} words`),
 )
 check(

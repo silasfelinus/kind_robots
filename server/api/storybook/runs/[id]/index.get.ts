@@ -3,28 +3,23 @@
 // Resume a story: the run, the scene the reader is looking at, the turns
 // already played, the character sheet, and the ending if it reached one.
 //
-// A genre deck's axis values are withheld. The life shape keeps sending its
-// ten dimensions, which have been on screen as stat pills since davinci/t-014.
+// A genre deck's axis values are withheld. The structured mode keeps sending
+// its ten dimensions, which have been on screen as stat pills since
+// davinci/t-014.
 
 import { defineEventHandler, createError } from 'h3'
 import { errorHandler } from '../../../../utils/error'
 import { requireApiUser } from '../../../../utils/authGuard'
 import {
-  deckTurnBudget,
+  effectiveTurnBudget,
   getStoryRunForUser,
   loadDeck,
   publicPendingTurn,
   readBible,
   readInventory,
   readPendingTurn,
+  storyModeOf,
 } from '../../../../utils/storybookRuns'
-
-const SHAPE_WIRE = {
-  SHORT_STORY: 'short-story',
-  CHAPTERED: 'chaptered',
-  EPISODIC: 'episodic',
-  LIFE: 'life',
-} as const
 
 export default defineEventHandler(async (event) => {
   let response
@@ -42,8 +37,11 @@ export default defineEventHandler(async (event) => {
 
     const run = await getStoryRunForUser(runId, user.id)
     const deck = await loadDeck(run.deckId)
-    const shape = SHAPE_WIRE[run.shape]
-    const turnBudget = run.turnBudget ?? deckTurnBudget(deck, shape)
+    const mode = storyModeOf(run)
+    // null is an endless open-ended run: it has no last turn, and the reader
+    // is the one who ends it (storybook/t-040).
+    const turnBudget = effectiveTurnBudget(run, deck)
+    const minTurns = deck.minTurnsBeforeResolve ?? 0
     const isLifeDeck = deck.ownerKind === 'LIFE'
 
     const stats: Record<string, number> = {}
@@ -56,7 +54,10 @@ export default defineEventHandler(async (event) => {
         run: {
           id: run.id,
           title: run.title,
-          shape,
+          mode,
+          // Kept for one release so a client mid-deploy does not read
+          // undefined. Drops with the legacy enum values (storybook/t-039).
+          shape: mode,
           status: run.status,
           turnIndex: run.currentChapter,
           turnBudget,
@@ -84,7 +85,8 @@ export default defineEventHandler(async (event) => {
         ending: run.Ending,
         art: run.Art,
         readyToResolve:
-          run.status === 'ACTIVE' && run.currentChapter > turnBudget,
+          run.status === 'ACTIVE' &&
+          run.currentChapter > (turnBudget ?? minTurns),
         // Withheld for a genre deck: its axes are the deck's secret.
         stats: isLifeDeck ? stats : undefined,
       },

@@ -1,6 +1,6 @@
 // /server/utils/storybookNarration.ts
 //
-// ONE narration layer for every Storybook shape.
+// ONE narration layer for every Storybook mode.
 //
 // Before this, the same idea -- (narrator config + seed objects + state
 // snapshot + recent history) -> a structured response -- was built twice:
@@ -24,7 +24,19 @@
 import { DEFAULT_DECK_PASS_VALUE, type DeckDefinition } from './endingDeckMath'
 import { completeStructured } from './structuredCompletion'
 
-export type StorybookShape = 'short-story' | 'chaptered' | 'episodic' | 'life'
+/**
+ * The four modes a story can be told in (storybook/t-039).
+ *
+ * Silas, 2026-09-12: "Stories should be able to be selected as open-ended
+ * (endless mode), episodic (scenario based), structured (da Vinci mode), and
+ * taskmaster." These replaced the four SHAPES -- short story, chaptered tale,
+ * episodic serial, whole life -- because two of those were the same story at
+ * two lengths, and length is a dial now (storybook/t-041).
+ */
+export type StoryMode = 'open-ended' | 'episodic' | 'structured' | 'taskmaster'
+
+/** @deprecated The pre-mode spelling. Same type; use StoryMode in new code. */
+export type StorybookShape = StoryMode
 
 export type StorybookNarratorStyle =
   'cinematic' | 'playful' | 'storybook' | 'mysterious' | 'intimate'
@@ -83,13 +95,19 @@ export interface StoryRecentTurn {
 }
 
 export interface StorybookNarrationRequest {
-  shape: StorybookShape
+  mode: StoryMode
+  /**
+   * What to call this mode in the prompt's identity line. Defaults to
+   * MODE_LABELS[mode]; the life adapter passes 'whole life' so a run that has
+   * been told that way since davinci/t-016 keeps the same opening sentence.
+   */
+  modeLabel?: string | null
   deck: DeckDefinition
   narratorStyle?: StorybookNarratorStyle | null
   narrator: StoryNarrator
   seed: string
   turnIndex: number
-  /** null when the shape has no fixed budget (the life shape resolves on its own clock). */
+  /** null when the run has no fixed budget: the structured and open-ended modes both resolve on their own clock. */
   turnBudget: number | null
   isFinalTurn: boolean
   bible: StoryBible
@@ -144,32 +162,42 @@ export const NARRATION_MAX_TOKENS = 900
 const CHOICE_IDS = ['a', 'b', 'c', 'd'] as const
 
 /**
- * Prose word bounds per shape.
+ * Prose word bounds per mode.
  *
  * Silas, 2026-09-12: "Stories should not be verbose with purple prose, they
  * should be direct, but this should be influenced by the narrator." Length is
  * enforced numerically here and directness is enforced by PROSE_CONTRACT below;
  * the narrator style modulates voice WITHIN both, it does not relax either.
  *
- * 'life' keeps the 20-400 band davinciNarration.ts shipped with, because
+ * 'structured' keeps the 20-400 band davinciNarration.ts shipped with, because
  * utils/scripts/verifyDaVinciNarration.ts pins it and a live run's chapters were
  * written against it. Tighten that one together with its guard, not here.
+ *
+ * The old short-story (50-130) and chaptered (70-190) bands collapsed into one
+ * open-ended band when length became a dial (storybook/t-041): a SCENE is not
+ * longer because the story it belongs to is. How many scenes there are is the
+ * turn budget's business, not the prose contract's. 'taskmaster' gets the
+ * tightest band of the four -- it narrates beside the reader's real objective,
+ * and a paragraph of mood between them and their actual work is a tax.
  */
-export const PROSE_BOUNDS_BY_SHAPE: Record<
-  StorybookShape,
+export const PROSE_BOUNDS_BY_MODE: Record<
+  StoryMode,
   { min: number; max: number }
 > = {
-  'short-story': { min: 50, max: 130 },
-  chaptered: { min: 70, max: 190 },
-  episodic: { min: 70, max: 190 },
-  life: { min: 20, max: 400 },
+  'open-ended': { min: 60, max: 170 },
+  episodic: { min: 60, max: 170 },
+  structured: { min: 20, max: 400 },
+  taskmaster: { min: 50, max: 140 },
 }
 
-const SHAPE_LABELS: Record<StorybookShape, string> = {
-  'short-story': 'short story',
-  chaptered: 'chaptered tale',
+/** @deprecated The pre-mode spelling of PROSE_BOUNDS_BY_MODE. */
+export const PROSE_BOUNDS_BY_SHAPE = PROSE_BOUNDS_BY_MODE
+
+export const MODE_LABELS: Record<StoryMode, string> = {
+  'open-ended': 'open-ended story',
   episodic: 'episodic serial',
-  life: 'whole life',
+  structured: 'structured story',
+  taskmaster: 'taskmaster quest',
 }
 
 /**
@@ -447,7 +475,7 @@ export function validateStorybookNarration(
   options?: StorybookValidationOptions,
 ): StorybookNarrationResult {
   const opts = schemaDefaults(options)
-  const bounds = options?.bounds || PROSE_BOUNDS_BY_SHAPE['short-story']
+  const bounds = options?.bounds || PROSE_BOUNDS_BY_MODE['open-ended']
   const maxEffectAxes =
     options && 'maxEffectAxes' in options
       ? (options.maxEffectAxes ?? null)
@@ -617,13 +645,13 @@ export function clampEffectsToDeck(
 export function buildStorybookSystemPrompt(
   request: StorybookNarrationRequest,
 ): string {
-  const bounds = PROSE_BOUNDS_BY_SHAPE[request.shape]
+  const bounds = PROSE_BOUNDS_BY_MODE[request.mode]
   const style = request.narratorStyle
     ? NARRATOR_STYLE_DIRECTIVES[request.narratorStyle]
     : ''
 
   return [
-    `You are ${request.narrator.name}, narrating a ${SHAPE_LABELS[request.shape]} in Kind Robots' Storybook.`,
+    `You are ${request.narrator.name}, narrating a ${request.modeLabel || MODE_LABELS[request.mode]} in Kind Robots' Storybook.`,
     request.narrator.prompt || '',
     request.narrator.personality
       ? `Personality: ${request.narrator.personality}`
@@ -819,7 +847,7 @@ async function callNarrator(
 
   return validateStorybookNarration(payload, request.deck, {
     ...options,
-    bounds: PROSE_BOUNDS_BY_SHAPE[request.shape],
+    bounds: PROSE_BOUNDS_BY_MODE[request.mode],
     treasureSlugs: request.bible.treasures.map((treasure) => treasure.slug),
     inventorySlugs: request.inventory.map((item) => item.slug),
   })

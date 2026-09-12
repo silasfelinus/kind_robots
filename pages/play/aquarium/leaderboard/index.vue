@@ -75,7 +75,7 @@
               {{ entry.rank }}
             </span>
             <div
-              class="grid size-9 shrink-0 place-items-center overflow-hidden rounded-xl border border-base-300 bg-base-200"
+              class="kr-icon-9 grid shrink-0 place-items-center overflow-hidden rounded-xl border border-base-300 bg-base-200"
             >
               <img
                 v-if="entry.avatarImage"

@@ -36,7 +36,7 @@
           @click="convo.loadMessages(c.id)"
         >
           <div class="avatar">
-            <div class="h-9 w-9 rounded-full bg-base-300">
+            <div class="kr-icon-9 rounded-full bg-base-300">
               <img
                 v-if="peer(c)?.avatarImage"
                 :src="peer(c)?.avatarImage || ''"

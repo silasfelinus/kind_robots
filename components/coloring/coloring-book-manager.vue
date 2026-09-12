@@ -184,7 +184,7 @@
               v-for="color in coloringStore.currentPalette"
               :key="color.id"
               type="button"
-              class="h-9 w-9 rounded-full border-2 transition-transform hover:scale-110"
+              class="kr-icon-9 rounded-full border-2 transition-transform hover:scale-110"
               :class="
                 coloringStore.currentPage?.activeColorId === color.id
                   ? 'border-primary ring-2 ring-primary/40'

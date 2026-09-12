@@ -3,6 +3,7 @@ import prisma from '@/server/utils/prisma'
 import { requireAdminApiUser } from '@/server/utils/authGuard'
 import {
   SCENE_ANIMATOR_PROJECT_SLUG,
+  SCENE_ANIMATOR_NEGATIVE_PROMPT,
   SCENE_ANIMATOR_PROMPT,
   listSceneAnimatorSourceFiles,
   parseSceneAnimatorContext,
@@ -207,7 +208,7 @@ export default defineEventHandler(async (event) => {
           engine: config.engine,
           presetId: config.presetId,
           promptString: SCENE_ANIMATOR_PROMPT,
-          negativePrompt: '',
+          negativePrompt: SCENE_ANIMATOR_NEGATIVE_PROMPT,
           firstImageBase64,
           durationSeconds: config.durationSeconds,
           fps: config.fps,

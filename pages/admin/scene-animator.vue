@@ -134,10 +134,10 @@
             <details class="kr-panel-compact text-sm">
               <summary class="cursor-pointer font-black">Automatic motion direction</summary>
               <p class="mt-2 leading-relaxed text-base-content/60">
-                Bring this still scene naturally to life with subtle coherent motion. Preserve the
-                subjects, composition, identity, lighting, and visual style. Add only plausible
-                ambient movement, gentle secondary motion, and stable cinematic camera behavior.
-                Do not introduce new characters, objects, text, or scene changes.
+                {{ SCENE_ANIMATOR_PROMPT }}
+              </p>
+              <p class="kr-text-dim-xs mt-2 leading-relaxed">
+                <span class="font-bold">Avoiding:</span> {{ SCENE_ANIMATOR_NEGATIVE_PROMPT }}
               </p>
             </details>
 
@@ -245,7 +245,7 @@
                       v-if="store.sourcePreviewUrls[source.name]"
                       :src="store.sourcePreviewUrls[source.name]"
                       :alt="`Source ${source.name}`"
-                      class="size-full object-cover"
+                      class="size-full object-contain"
                     />
                     <div v-else class="grid size-full place-items-center text-xs text-base-content/35">
                       Source
@@ -258,7 +258,7 @@
                       <video
                         v-if="isVideoResult(source)"
                         :src="store.resultUrl(source) || undefined"
-                        class="size-full object-cover"
+                        class="size-full object-contain"
                         controls
                         muted
                         loop
@@ -268,7 +268,7 @@
                         v-else
                         :src="store.resultUrl(source) || undefined"
                         :alt="`Animated result for ${source.name}`"
-                        class="size-full object-cover"
+                        class="size-full object-contain"
                       />
                     </template>
                     <div v-else class="kr-text-dim-xs-40 grid size-full place-items-center p-3 text-center">
@@ -339,6 +339,10 @@ import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { useSceneAnimatorStore, type SceneAnimatorSource } from '@/stores/sceneAnimatorStore'
 import { useUserStore } from '@/stores/userStore'
 import type { VideoEngine, VideoPresetId } from '@/utils/videoPresets'
+import {
+  SCENE_ANIMATOR_NEGATIVE_PROMPT,
+  SCENE_ANIMATOR_PROMPT,
+} from '@/utils/sceneAnimatorPrompt'
 
 type StatusFilter = 'all' | 'missing' | 'active' | 'done' | 'failed'
 

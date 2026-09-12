@@ -11,8 +11,13 @@ import type {
 
 export const SCENE_ANIMATOR_PROJECT_SLUG = 'scene-animator'
 
-export const SCENE_ANIMATOR_PROMPT =
-  'Bring this still scene naturally to life with subtle coherent motion. Preserve the subjects, composition, identity, lighting, and visual style. Add only plausible ambient movement, gentle secondary motion, and stable cinematic camera behavior. Do not introduce new characters, objects, text, or scene changes.'
+// Re-exported so existing server-side importers keep working; the strings
+// themselves live in utils/ so the admin surface renders the same text it
+// sends rather than a hand-copied paraphrase. See that file for tuning notes.
+export {
+  SCENE_ANIMATOR_PROMPT,
+  SCENE_ANIMATOR_NEGATIVE_PROMPT,
+} from '@/utils/sceneAnimatorPrompt'
 
 const IMAGE_EXTENSIONS = new Set(['.png', '.jpg', '.jpeg', '.webp', '.gif'])
 

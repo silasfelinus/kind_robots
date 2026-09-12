@@ -31,6 +31,19 @@ type SceneAnimatorEnqueueRequest = {
   // the folder." Exact filename match against listSceneAnimatorSourceFiles;
   // anything else falls through to the normal empty-queue response.
   sourceFile?: string | null
+  // Re-render a source whose latest job already finished.
+  //
+  // Without this there is NO way to ask for a finished scene again: DONE is a
+  // reusable status, so the dedupe skips it before `retryFailed` is ever
+  // consulted, and retryFailed therefore only ever rescues FAILED/CANCELLED.
+  // That is fine while a finished render is by definition the render you
+  // wanted, and wrong the moment it isn't -- the 2026-09-11 offload bug left
+  // every completed Scene Animator clip as a flattened still, DONE and
+  // unreachable from the admin surface (Silas: "We should be able to resubmit
+  // from the scene-animator window").
+  //
+  // Deliberately does NOT override an ACTIVE job: see isActiveStatus below.
+  force?: boolean | null
 }
 
 type EnqueueResponse = {
@@ -72,6 +85,19 @@ function isReusableStatus(status: string): boolean {
   return status === 'PENDING' || status === 'RUNNING' || status === 'DONE'
 }
 
+/**
+ * Queued or mid-render, and therefore never worth a second job.
+ *
+ * This is the half of isReusableStatus that `force` must still respect. The
+ * relay renders one job at a time on a single GPU, so duplicating an in-flight
+ * render does not produce a result any sooner -- it just puts a second job in
+ * front of everything else in the queue. "Re-render this" means the finished
+ * one, not the one already running.
+ */
+function isActiveStatus(status: string): boolean {
+  return status === 'PENDING' || status === 'RUNNING'
+}
+
 function contextFromPayload(payload: string): SceneAnimatorContext | null {
   try {
     const parsed = JSON.parse(payload) as Record<string, unknown>
@@ -88,6 +114,10 @@ export default defineEventHandler(async (event) => {
   const config = resolveConfig(body)
   const preset = getVideoPreset(config.presetId) ?? getDefaultVideoPreset(config.engine)
   const requestedSourceFile = String(body.sourceFile ?? '').trim()
+  // Scoped to one named source on purpose. A folder-wide force would re-render
+  // every finished scene in the batch off one click -- an unbounded GPU spend
+  // on a box that renders one clip at a time.
+  const force = Boolean(body.force) && Boolean(requestedSourceFile)
   const allSources = await listSceneAnimatorSourceFiles(folder)
   const sources = requestedSourceFile
     ? allSources.filter((source) => source.name === requestedSourceFile)
@@ -127,8 +157,10 @@ export default defineEventHandler(async (event) => {
     let existing = latestByKey.get(dedupeKey) ?? null
 
     // Recheck immediately before the expensive enqueue so two open admin tabs are
-    // unlikely to duplicate the same active/completed render.
-    if (!existing || (!isReusableStatus(existing.status) && body.retryFailed)) {
+    // unlikely to duplicate the same active/completed render. A forced re-render
+    // needs this most of all: it is the one path that enqueues over a job it
+    // already saw, so a stale read here is how two of them get queued at once.
+    if (!existing || force || (!isReusableStatus(existing.status) && body.retryFailed)) {
       const live = await prisma.artJob.findFirst({
         where: {
           projectSlug: SCENE_ANIMATOR_PROJECT_SLUG,
@@ -140,11 +172,16 @@ export default defineEventHandler(async (event) => {
       if (live) existing = live
     }
 
-    if (existing && isReusableStatus(existing.status)) {
+    // An active job is never duplicated, forced or not.
+    if (existing && isActiveStatus(existing.status)) {
       skipped.push({ sourceFile: source.name, jobId: existing.id, reason: existing.status })
       continue
     }
-    if (existing && !body.retryFailed) {
+    if (existing && isReusableStatus(existing.status) && !force) {
+      skipped.push({ sourceFile: source.name, jobId: existing.id, reason: existing.status })
+      continue
+    }
+    if (existing && !body.retryFailed && !force) {
       skipped.push({
         sourceFile: source.name,
         jobId: existing.id,

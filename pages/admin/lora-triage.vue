@@ -194,7 +194,7 @@
               />
 
               <label
-                class="absolute left-2 top-2 grid size-8 cursor-pointer place-items-center rounded-lg bg-base-100/90 shadow"
+                class="kr-icon-8 absolute left-2 top-2 grid cursor-pointer place-items-center rounded-lg bg-base-100/90 shadow"
               >
                 <input
                   type="checkbox"

@@ -70,7 +70,7 @@
             class="flex items-center gap-3 kr-panel-flat p-3 shadow-sm"
           >
             <span
-              class="kr-text-black-xs grid size-8 shrink-0 place-items-center rounded-full bg-base-200"
+              class="kr-icon-8 kr-text-black-xs grid shrink-0 place-items-center rounded-full bg-base-200"
             >
               {{ entry.rank }}
             </span>

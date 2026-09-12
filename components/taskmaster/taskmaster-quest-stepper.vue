@@ -11,7 +11,7 @@
       :aria-current="step.key === active ? 'step' : undefined"
     >
       <span
-        class="kr-text-black-xs flex size-7 shrink-0 items-center justify-center rounded-full border shadow-sm"
+        class="kr-icon-7 kr-text-black-xs flex shrink-0 items-center justify-center rounded-full border shadow-sm"
         :class="
           step.key === active
             ? 'border-secondary bg-secondary text-secondary-content'

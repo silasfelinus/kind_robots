@@ -12,7 +12,7 @@
       <div
         class="flex size-12 shrink-0 items-center justify-center rounded-2xl border border-primary/30 bg-primary/10 text-primary"
       >
-        <Icon name="kind-icon:book" class="size-6" />
+        <Icon name="kind-icon:book" class="kr-icon-6" />
       </div>
       <div class="min-w-0 flex-1 basis-full sm:basis-auto">
         <p class="kr-text-black-2xl leading-tight">
@@ -106,7 +106,7 @@
             @click="setupStep = index"
           >
             <span
-              class="flex size-6 shrink-0 items-center justify-center rounded-full border border-current/25"
+              class="kr-icon-6 flex shrink-0 items-center justify-center rounded-full border border-current/25"
             >
               <Icon
                 v-if="index < setupStep"
@@ -402,7 +402,7 @@
                     :key="member.slug"
                     class="flex items-center gap-2 rounded-xl border border-base-300 bg-base-100 py-1 pl-1 pr-2.5"
                   >
-                    <div class="size-8 shrink-0 overflow-hidden rounded-lg">
+                    <div class="kr-icon-8 shrink-0 overflow-hidden rounded-lg">
                       <KrArtPlate
                         :source="member"
                         variant="icon"
@@ -427,7 +427,7 @@
                     :key="facet.slug"
                     class="flex items-center gap-2 rounded-xl border border-base-300 bg-base-100 py-1 pl-1 pr-2.5"
                   >
-                    <div class="size-8 shrink-0 overflow-hidden rounded-lg">
+                    <div class="kr-icon-8 shrink-0 overflow-hidden rounded-lg">
                       <KrArtPlate
                         :source="facet"
                         variant="icon"
@@ -452,7 +452,7 @@
                     :key="reward.slug"
                     class="flex items-center gap-2 rounded-xl border border-base-300 bg-base-100 py-1 pl-1 pr-2.5"
                   >
-                    <div class="size-8 shrink-0 overflow-hidden rounded-lg">
+                    <div class="kr-icon-8 shrink-0 overflow-hidden rounded-lg">
                       <KrArtPlate
                         :source="reward"
                         variant="icon"

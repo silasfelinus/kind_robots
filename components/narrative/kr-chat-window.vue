@@ -76,7 +76,7 @@
           v-if="turn.portrait && turn.from !== 'user'"
           :src="turn.portrait"
           :alt="turn.speaker || 'Narrator'"
-          class="size-8 shrink-0 rounded-full border border-base-300 bg-base-300 object-cover"
+          class="kr-icon-8 shrink-0 rounded-full border border-base-300 bg-base-300 object-cover"
           loading="lazy"
         />
 

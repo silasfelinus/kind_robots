@@ -31,7 +31,7 @@
             v-if="view.icon"
             class="flex size-11 shrink-0 items-center justify-center rounded-2xl border border-white/20 bg-base-100/70 text-primary shadow-lg backdrop-blur"
           >
-            <Icon :name="view.icon" class="size-6" />
+            <Icon :name="view.icon" class="kr-icon-6" />
           </span>
           <span
             v-if="statusLabel"

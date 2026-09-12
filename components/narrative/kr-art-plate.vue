@@ -38,7 +38,7 @@
       v-else
       class="flex h-full w-full items-center justify-center text-base-content/40"
     >
-      <Icon :name="placeholderIcon" class="size-8" aria-hidden="true" />
+      <Icon :name="placeholderIcon" class="kr-icon-8" aria-hidden="true" />
     </div>
 
     <!-- Scrim only when there is a caption to keep legible. An unconditional

@@ -87,6 +87,24 @@
           friends help keep the wider creative ecosystem lively.
         </p>
 
+        <div class="mt-4 rounded-xl border border-primary/20 bg-primary/5 p-4">
+          <div class="mb-2 flex items-center gap-2">
+            <Icon name="kind-icon:butterfly" class="kr-icon-4 text-primary" />
+            <p class="font-bold text-base-content">How the mission share works</p>
+          </div>
+          <p class="kr-text-dim-sm-70 leading-relaxed">
+            Direct donations still go straight to Against Malaria and never pass
+            through Kind Robots. Separately, paid Kind Robots usage keeps an
+            auditable internal revenue ledger: after provider costs, the current
+            model divides net revenue among the platform, the anti-malaria mission,
+            and the attributed creator. The mission portion is an accounting
+            obligation until it is actually remitted, not a donation receipt or a
+            claim that money has already reached the fundraiser. Rainbow Butterflies
+            and AMI own the mission-facing reconciliation and transparency around
+            that process.
+          </p>
+        </div>
+
         <div class="mt-4 grid gap-2 sm:grid-cols-2">
           <a
             href="https://www.againstmalaria.com/amibot"

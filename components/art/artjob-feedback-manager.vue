@@ -7,7 +7,7 @@
       <div class="flex flex-wrap items-start justify-between gap-2">
         <div>
           <div class="flex items-center gap-2">
-            <h3 class="text-sm font-semibold">Art trainer</h3>
+            <h3 class="kr-text-semibold-sm">Art trainer</h3>
             <span class="kr-badge-primary-sm rounded-2xl">
               {{ pendingCount }} waiting
             </span>

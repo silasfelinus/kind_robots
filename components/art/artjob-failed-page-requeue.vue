@@ -3,7 +3,7 @@
   <section v-if="failedJobIds.length || message" class="kr-panel-flat p-3">
     <div class="flex flex-wrap items-center justify-between gap-3">
       <div class="min-w-0">
-        <h3 class="text-sm font-semibold">Failed-job recovery</h3>
+        <h3 class="kr-text-semibold-sm">Failed-job recovery</h3>
         <p class="kr-text-dim-xs-60 mt-1">
           Only the failed jobs currently loaded on page
           {{ artJobStore.jobPage }}

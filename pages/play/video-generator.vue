@@ -218,7 +218,7 @@
 
       <section class="grid gap-4 sm:grid-cols-3">
         <div class="space-y-1">
-          <label class="text-sm font-semibold">Time (seconds)</label>
+          <label class="kr-text-semibold-sm">Time (seconds)</label>
           <input
             v-model.number="durationSeconds"
             type="number"
@@ -229,7 +229,7 @@
           />
         </div>
         <div class="space-y-1">
-          <label class="text-sm font-semibold">FPS</label>
+          <label class="kr-text-semibold-sm">FPS</label>
           <input
             v-model.number="fps"
             type="number"
@@ -240,7 +240,7 @@
           />
         </div>
         <div class="space-y-1">
-          <label class="text-sm font-semibold">Loop</label>
+          <label class="kr-text-semibold-sm">Loop</label>
           <label class="flex h-12 cursor-pointer items-center gap-2">
             <input
               v-model="loop"

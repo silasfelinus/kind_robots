@@ -182,7 +182,7 @@
           :key="art.id"
           class="rounded-lg border border-base-300 bg-base-100 p-2"
         >
-          <p class="text-sm font-semibold">“{{ art.prompt }}”</p>
+          <p class="kr-text-semibold-sm">“{{ art.prompt }}”</p>
           <p class="kr-text-dim-xs-60 mt-0.5">
             style: {{ art.style || '—' }} · size: {{ art.size || '—' }} ·
             gallery: {{ art.gallery || '—' }}

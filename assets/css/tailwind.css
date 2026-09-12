@@ -2723,6 +2723,18 @@ section:has(div[class*='xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]'])
     @apply gap-1;
   }
 
+  /* `font-semibold text-sm` text (interface-vision t-104 slice 250) -- the
+   * next bounded text-weight family after the established `kr-text-bold-*`
+   * and `kr-text-black-*` primitives, surveyed and named in slice 249.
+   * `font-semibold` sits between those two weights, so this is its own
+   * sibling family rather than folding into either. Exact-only slice: 13
+   * occurrences across 9 files carry no extra tokens beyond the base pair;
+   * the wider subset-match pool is left for a future slice per this
+   * family's own established convention. */
+  .kr-text-semibold-sm {
+    @apply font-semibold text-sm;
+  }
+
   .text-smart {
     @apply text-sm md:text-lg lg:text-lg xl:text-xl;
   }

@@ -134,7 +134,7 @@
           <p class="kr-text-black-xs text-error">
             {{ task.projectTitle }} · {{ task.id }}
           </p>
-          <p class="text-sm font-semibold">{{ task.title }}</p>
+          <p class="kr-text-semibold-sm">{{ task.title }}</p>
           <p v-if="task.note" class="kr-text-dim-xs-55 line-clamp-2">
             {{ task.note }}
           </p>

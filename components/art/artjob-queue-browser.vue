@@ -106,7 +106,7 @@
       <div class="grid gap-3 xl:grid-cols-2">
         <div class="kr-panel-flat p-3">
           <div class="mb-2 flex items-center justify-between gap-2">
-            <h3 class="text-sm font-semibold">Private art servers</h3>
+            <h3 class="kr-text-semibold-sm">Private art servers</h3>
             <button
               type="button"
               class="kr-btn-xs-2xl"
@@ -181,7 +181,7 @@
 
         <div class="kr-panel-flat p-3">
           <div class="mb-2 flex items-center justify-between gap-2">
-            <h3 class="text-sm font-semibold">Uptime · {{ windowHours }}h</h3>
+            <h3 class="kr-text-semibold-sm">Uptime · {{ windowHours }}h</h3>
             <div
               class="flex items-center gap-3 text-[10px] text-base-content/50"
             >
@@ -241,7 +241,7 @@
       <section class="kr-panel-flat p-3">
         <div class="flex flex-col gap-3">
           <div class="flex flex-wrap items-center gap-2">
-            <h3 class="text-sm font-semibold">Queue browser</h3>
+            <h3 class="kr-text-semibold-sm">Queue browser</h3>
             <span class="text-[11px] text-base-content/50">
               {{ artJobStore.jobStatusFilter }} · showing {{ pageStart }}–{{
                 pageEnd

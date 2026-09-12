@@ -145,7 +145,7 @@
             </span>
             <input
               type="checkbox"
-              class="toggle toggle-primary"
+              class="kr-toggle-primary"
               :checked="consent.isPublic"
               :disabled="account.isSaving"
               @change="onConsentToggle('isPublic', $event)"
@@ -161,7 +161,7 @@
             </span>
             <input
               type="checkbox"
-              class="toggle toggle-primary"
+              class="kr-toggle-primary"
               :checked="consent.showMature"
               :disabled="account.isSaving"
               @change="onConsentToggle('showMature', $event)"
@@ -181,7 +181,7 @@
             </span>
             <input
               type="checkbox"
-              class="toggle toggle-primary"
+              class="kr-toggle-primary"
               :checked="consent.listInDirectory"
               :disabled="account.isSaving"
               @change="onConsentToggle('listInDirectory', $event)"
@@ -197,7 +197,7 @@
             </span>
             <input
               type="checkbox"
-              class="toggle toggle-primary"
+              class="kr-toggle-primary"
               :checked="consent.allowFriendRequests"
               :disabled="account.isSaving"
               @change="onConsentToggle('allowFriendRequests', $event)"

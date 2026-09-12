@@ -189,7 +189,7 @@
               <input
                 v-model="keepField.avatarImage"
                 type="checkbox"
-                class="toggle toggle-primary"
+                class="kr-toggle-primary"
                 @change="handleKeepFieldChange('avatarImage')"
               />
             </div>
@@ -410,7 +410,7 @@
             <input
               v-model="botStore.botForm.isPublic"
               type="checkbox"
-              class="toggle toggle-success"
+              class="kr-toggle-success"
             />
           </label>
 
@@ -420,7 +420,7 @@
             <input
               v-model="botStore.botForm.underConstruction"
               type="checkbox"
-              class="toggle toggle-warning"
+              class="kr-toggle-warning"
             />
           </label>
 
@@ -430,7 +430,7 @@
             <input
               v-model="botStore.botForm.canDelete"
               type="checkbox"
-              class="toggle toggle-error"
+              class="kr-toggle-error"
             />
           </label>
         </div>

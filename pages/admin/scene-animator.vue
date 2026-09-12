@@ -125,7 +125,7 @@
               <input
                 v-model="store.isMature"
                 type="checkbox"
-                class="toggle toggle-warning"
+                class="kr-toggle-warning"
                 :disabled="store.loading || store.queueing"
                 @change="onMaturityChange"
               />

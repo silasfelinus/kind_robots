@@ -161,7 +161,7 @@
             <input
               v-model="rewardStore.rewardForm.isPublic"
               type="checkbox"
-              class="toggle toggle-success"
+              class="kr-toggle-success"
             />
           </label>
 
@@ -170,7 +170,7 @@
             <input
               v-model="rewardStore.rewardForm.isMature"
               type="checkbox"
-              class="toggle toggle-warning"
+              class="kr-toggle-warning"
             />
           </label>
         </div>

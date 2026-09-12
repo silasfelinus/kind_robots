@@ -151,7 +151,7 @@
         <input
           v-model="form.isMature"
           type="checkbox"
-          class="toggle toggle-warning"
+          class="kr-toggle-warning"
         />
 
         <span class="kr-label-bold">Mature (NSFW)</span>

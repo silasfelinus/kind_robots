@@ -463,7 +463,7 @@
               <span class="text-smart-compact">Checkbox</span>
             </label>
             <label class="flex items-center gap-3">
-              <input type="checkbox" class="toggle toggle-primary" checked />
+              <input type="checkbox" class="kr-toggle-primary" checked />
               <span class="text-smart-compact">Toggle</span>
             </label>
             <label class="flex items-center gap-3">

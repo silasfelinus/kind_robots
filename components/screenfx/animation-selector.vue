@@ -84,7 +84,7 @@
       </span>
 
       <input
-        class="toggle toggle-primary shrink-0"
+        class="kr-toggle-primary shrink-0"
         type="checkbox"
         :checked="settings.adaptive"
         @change="setAdaptive"

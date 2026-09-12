@@ -50,7 +50,7 @@
           <input
             v-model="isPublic"
             type="checkbox"
-            class="toggle toggle-success"
+            class="kr-toggle-success"
             :disabled="isSaving || disabled"
           />
         </label>
@@ -61,7 +61,7 @@
           <input
             v-model="isMature"
             type="checkbox"
-            class="toggle toggle-warning"
+            class="kr-toggle-warning"
             :disabled="isSaving || disabled"
           />
         </label>

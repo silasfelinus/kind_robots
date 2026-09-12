@@ -1,0 +1,73 @@
+name: Storybook Migration History
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/storybook-migration-history.yml'
+      - 'prisma/schema.prisma'
+      - 'prisma/migrations/**'
+      - 'scripts/prisma-migrate-deploy.mjs'
+      - 'scripts/repair-storybook-ending-deck-migration.mjs'
+      - 'utils/scripts/verify-storybook-ending-deck-migration-repair.mjs'
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/storybook-migration-history.yml'
+      - 'prisma/schema.prisma'
+      - 'prisma/migrations/**'
+      - 'scripts/prisma-migrate-deploy.mjs'
+      - 'scripts/repair-storybook-ending-deck-migration.mjs'
+      - 'utils/scripts/verify-storybook-ending-deck-migration-repair.mjs'
+  workflow_dispatch:
+
+concurrency:
+  group: storybook-migration-history-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  repair-contract:
+    name: Failed-migration repair contract
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify repair state machine
+        run: node utils/scripts/verify-storybook-ending-deck-migration-repair.mjs
+
+  migration-history:
+    name: Replay migrations on MariaDB
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    services:
+      mariadb:
+        image: mariadb:11
+        env:
+          MARIADB_ROOT_PASSWORD: scratch
+          MARIADB_DATABASE: storybook_migration_verify
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="healthcheck.sh --connect --innodb_initialized"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+
+    env:
+      DATABASE_URL: mysql://root:scratch@127.0.0.1:3306/storybook_migration_verify
+      MIGRATION_DATABASE_URL: mysql://root:scratch@127.0.0.1:3306/storybook_migration_verify
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+        env:
+          CYPRESS_INSTALL_BINARY: '0'
+      - name: Replay committed migration history
+        run: ./node_modules/.bin/prisma migrate deploy
+      - name: Confirm migration history is current
+        run: ./node_modules/.bin/prisma migrate status

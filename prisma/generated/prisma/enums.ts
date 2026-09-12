@@ -669,6 +669,34 @@ export const LifeVictoryType = {
 export type LifeVictoryType = (typeof LifeVictoryType)[keyof typeof LifeVictoryType]
 
 
+export const EndingDeckOwnerKind = {
+  LIFE: 'LIFE',
+  GENRE_FACET: 'GENRE_FACET',
+  SCENARIO: 'SCENARIO'
+} as const
+
+export type EndingDeckOwnerKind = (typeof EndingDeckOwnerKind)[keyof typeof EndingDeckOwnerKind]
+
+
+export const StoryShape = {
+  SHORT_STORY: 'SHORT_STORY',
+  CHAPTERED: 'CHAPTERED',
+  EPISODIC: 'EPISODIC',
+  LIFE: 'LIFE'
+} as const
+
+export type StoryShape = (typeof StoryShape)[keyof typeof StoryShape]
+
+
+export const StoryMoveSource = {
+  OPTION: 'OPTION',
+  CUSTOM: 'CUSTOM',
+  SHEET: 'SHEET'
+} as const
+
+export type StoryMoveSource = (typeof StoryMoveSource)[keyof typeof StoryMoveSource]
+
+
 export const LifeArtSceneType = {
   MOMENT: 'MOMENT',
   DREAM: 'DREAM',

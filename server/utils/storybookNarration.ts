@@ -578,6 +578,42 @@ function axisLines(deck: DeckDefinition): string {
     .join('\n')
 }
 
+/**
+ * Clamp an effects map to a deck's axes, outside the narration response path.
+ *
+ * The validator already does this for a model response, but the play loop
+ * writes stat rows from effects that may not have come through it -- an
+ * injected narrator in a test, a future caller, an option replayed out of a
+ * stored turn. LifeStat accepts any key by design, so the bound has to hold
+ * where the WRITE happens, not only where the model answers. Same rules:
+ * unknown axes are dropped, deltas are clamped, zeroes are not written, and at
+ * most `maxAxes` axes move.
+ */
+export function clampEffectsToDeck(
+  effects: Record<string, number> | null | undefined,
+  deck: DeckDefinition,
+  maxAxes: number | null = MAX_EFFECT_AXES_PER_MOVE,
+): Record<string, number> {
+  if (!effects) return {}
+  const allowed = new Set(deck.axes.map((axis) => axis.key))
+  const kept: Record<string, number> = {}
+  for (const [key, delta] of Object.entries(effects)) {
+    if (!allowed.has(key)) continue
+    if (typeof delta !== 'number' || !Number.isFinite(delta)) continue
+    const clamped = clampEffect(delta)
+    if (clamped !== 0) kept[key] = clamped
+  }
+  const keys = Object.keys(kept)
+  if (maxAxes === null || keys.length <= maxAxes) return kept
+  const trimmed: Record<string, number> = {}
+  for (const key of keys
+    .sort((a, b) => Math.abs(kept[b]!) - Math.abs(kept[a]!))
+    .slice(0, maxAxes)) {
+    trimmed[key] = kept[key]!
+  }
+  return trimmed
+}
+
 export function buildStorybookSystemPrompt(
   request: StorybookNarrationRequest,
 ): string {

@@ -482,6 +482,7 @@ export const ModelName = {
   Challenge: 'Challenge',
   ChallengeSubmission: 'ChallengeSubmission',
   Contender: 'Contender',
+  EndingDeck: 'EndingDeck',
   LifeRun: 'LifeRun',
   LifeChoice: 'LifeChoice',
   LifeStat: 'LifeStat',
@@ -521,7 +522,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "agentProfile" | "agentProfileCredential" | "agentCheckIn" | "agentNote" | "brainstormSession" | "brainstormCandidate" | "facetAlias" | "facetProfile" | "characterFacet" | "botFacet" | "rewardFacet" | "mandarinAudioAsset" | "mandarinCatalogOverride" | "mandarinCatalogChange" | "mandarinRequestedCard" | "mandarinCustomSet" | "mandarinArtJobLink" | "mandarinCardProgress" | "mandarinReviewEvent" | "modelBuildRun" | "modelBuildItem" | "modelBuildArtifact" | "modelBuildRevision" | "projectPageContent" | "artImage" | "artCollection" | "bot" | "character" | "chat" | "dream" | "dreamRelation" | "project" | "facet" | "dreamFacet" | "scenarioFacet" | "projectFacet" | "projectArtImage" | "projectArtCollection" | "entityArtImage" | "facetArtImage" | "facetArtCollection" | "facetRelation" | "expressionMedia" | "expressionTransition" | "log" | "achievement" | "manaTransaction" | "revenueSplit" | "socialPostDraft" | "missionRemittance" | "product" | "order" | "orderItem" | "entitlement" | "printJob" | "grant" | "pack" | "achievementRecord" | "narratorTopic" | "narratorThread" | "pitchSheet" | "prompt" | "reaction" | "resource" | "reward" | "scenario" | "server" | "serverHealthCheck" | "sceneAnimatorPrompt" | "smartIcon" | "theme" | "user" | "stylistClient" | "stylistAppointment" | "artJob" | "queueControl" | "downloadRequest" | "karmaTransaction" | "referral" | "userRelation" | "userRole" | "todo" | "challenge" | "challengeSubmission" | "contender" | "lifeRun" | "lifeChoice" | "lifeStat" | "lifeEnding" | "lifeAchievement" | "lifeAchievementUnlock" | "lifeRunArt" | "aquarium" | "aquariumStock" | "aquariumSet" | "aquariumDecor" | "aquariumEgg" | "aquariumCodexEntry" | "monster" | "aquariumEvent" | "authToken" | "agentCredential" | "conversation" | "conversationParticipant" | "directMessage" | "notification" | "githubInstallation" | "appRepo" | "mediaEntry"
+    modelProps: "agentProfile" | "agentProfileCredential" | "agentCheckIn" | "agentNote" | "brainstormSession" | "brainstormCandidate" | "facetAlias" | "facetProfile" | "characterFacet" | "botFacet" | "rewardFacet" | "mandarinAudioAsset" | "mandarinCatalogOverride" | "mandarinCatalogChange" | "mandarinRequestedCard" | "mandarinCustomSet" | "mandarinArtJobLink" | "mandarinCardProgress" | "mandarinReviewEvent" | "modelBuildRun" | "modelBuildItem" | "modelBuildArtifact" | "modelBuildRevision" | "projectPageContent" | "artImage" | "artCollection" | "bot" | "character" | "chat" | "dream" | "dreamRelation" | "project" | "facet" | "dreamFacet" | "scenarioFacet" | "projectFacet" | "projectArtImage" | "projectArtCollection" | "entityArtImage" | "facetArtImage" | "facetArtCollection" | "facetRelation" | "expressionMedia" | "expressionTransition" | "log" | "achievement" | "manaTransaction" | "revenueSplit" | "socialPostDraft" | "missionRemittance" | "product" | "order" | "orderItem" | "entitlement" | "printJob" | "grant" | "pack" | "achievementRecord" | "narratorTopic" | "narratorThread" | "pitchSheet" | "prompt" | "reaction" | "resource" | "reward" | "scenario" | "server" | "serverHealthCheck" | "sceneAnimatorPrompt" | "smartIcon" | "theme" | "user" | "stylistClient" | "stylistAppointment" | "artJob" | "queueControl" | "downloadRequest" | "karmaTransaction" | "referral" | "userRelation" | "userRole" | "todo" | "challenge" | "challengeSubmission" | "contender" | "endingDeck" | "lifeRun" | "lifeChoice" | "lifeStat" | "lifeEnding" | "lifeAchievement" | "lifeAchievementUnlock" | "lifeRunArt" | "aquarium" | "aquariumStock" | "aquariumSet" | "aquariumDecor" | "aquariumEgg" | "aquariumCodexEntry" | "monster" | "aquariumEvent" | "authToken" | "agentCredential" | "conversation" | "conversationParticipant" | "directMessage" | "notification" | "githubInstallation" | "appRepo" | "mediaEntry"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -6135,6 +6136,72 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    EndingDeck: {
+      payload: Prisma.$EndingDeckPayload<ExtArgs>
+      fields: Prisma.EndingDeckFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.EndingDeckFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EndingDeckPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.EndingDeckFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EndingDeckPayload>
+        }
+        findFirst: {
+          args: Prisma.EndingDeckFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EndingDeckPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.EndingDeckFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EndingDeckPayload>
+        }
+        findMany: {
+          args: Prisma.EndingDeckFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EndingDeckPayload>[]
+        }
+        create: {
+          args: Prisma.EndingDeckCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EndingDeckPayload>
+        }
+        createMany: {
+          args: Prisma.EndingDeckCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.EndingDeckDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EndingDeckPayload>
+        }
+        update: {
+          args: Prisma.EndingDeckUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EndingDeckPayload>
+        }
+        deleteMany: {
+          args: Prisma.EndingDeckDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.EndingDeckUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.EndingDeckUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EndingDeckPayload>
+        }
+        aggregate: {
+          args: Prisma.EndingDeckAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateEndingDeck>
+        }
+        groupBy: {
+          args: Prisma.EndingDeckGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.EndingDeckGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.EndingDeckCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.EndingDeckCountAggregateOutputType> | number
+        }
+      }
+    }
     LifeRun: {
       payload: Prisma.$LifeRunPayload<ExtArgs>
       fields: Prisma.LifeRunFieldRefs
@@ -9451,6 +9518,28 @@ export const ContenderScalarFieldEnum = {
 export type ContenderScalarFieldEnum = (typeof ContenderScalarFieldEnum)[keyof typeof ContenderScalarFieldEnum]
 
 
+export const EndingDeckScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  key: 'key',
+  title: 'title',
+  description: 'description',
+  ownerKind: 'ownerKind',
+  facetId: 'facetId',
+  scenarioId: 'scenarioId',
+  axes: 'axes',
+  passValue: 'passValue',
+  turnBudget: 'turnBudget',
+  turnBudgetByShape: 'turnBudgetByShape',
+  minTurnsBeforeResolve: 'minTurnsBeforeResolve',
+  unlockAchievementId: 'unlockAchievementId',
+  isActive: 'isActive'
+} as const
+
+export type EndingDeckScalarFieldEnum = (typeof EndingDeckScalarFieldEnum)[keyof typeof EndingDeckScalarFieldEnum]
+
+
 export const LifeRunScalarFieldEnum = {
   id: 'id',
   createdAt: 'createdAt',
@@ -9470,7 +9559,16 @@ export const LifeRunScalarFieldEnum = {
   endingId: 'endingId',
   outcomeKey: 'outcomeKey',
   summary: 'summary',
-  statsSnapshot: 'statsSnapshot'
+  statsSnapshot: 'statsSnapshot',
+  shape: 'shape',
+  deckId: 'deckId',
+  turnBudget: 'turnBudget',
+  narratorStyle: 'narratorStyle',
+  premise: 'premise',
+  scenarioId: 'scenarioId',
+  bible: 'bible',
+  inventory: 'inventory',
+  pendingTurn: 'pendingTurn'
 } as const
 
 export type LifeRunScalarFieldEnum = (typeof LifeRunScalarFieldEnum)[keyof typeof LifeRunScalarFieldEnum]
@@ -9485,7 +9583,12 @@ export const LifeChoiceScalarFieldEnum = {
   prompt: 'prompt',
   choiceText: 'choiceText',
   resultText: 'resultText',
-  effects: 'effects'
+  effects: 'effects',
+  source: 'source',
+  optionId: 'optionId',
+  rewardId: 'rewardId',
+  stateDelta: 'stateDelta',
+  artPrompt: 'artPrompt'
 } as const
 
 export type LifeChoiceScalarFieldEnum = (typeof LifeChoiceScalarFieldEnum)[keyof typeof LifeChoiceScalarFieldEnum]
@@ -9517,7 +9620,8 @@ export const LifeEndingScalarFieldEnum = {
   achievementId: 'achievementId',
   artPrompt: 'artPrompt',
   metadata: 'metadata',
-  isActive: 'isActive'
+  isActive: 'isActive',
+  deckId: 'deckId'
 } as const
 
 export type LifeEndingScalarFieldEnum = (typeof LifeEndingScalarFieldEnum)[keyof typeof LifeEndingScalarFieldEnum]
@@ -10834,6 +10938,17 @@ export const ContenderOrderByRelevanceFieldEnum = {
 export type ContenderOrderByRelevanceFieldEnum = (typeof ContenderOrderByRelevanceFieldEnum)[keyof typeof ContenderOrderByRelevanceFieldEnum]
 
 
+export const EndingDeckOrderByRelevanceFieldEnum = {
+  key: 'key',
+  title: 'title',
+  description: 'description',
+  axes: 'axes',
+  turnBudgetByShape: 'turnBudgetByShape'
+} as const
+
+export type EndingDeckOrderByRelevanceFieldEnum = (typeof EndingDeckOrderByRelevanceFieldEnum)[keyof typeof EndingDeckOrderByRelevanceFieldEnum]
+
+
 export const LifeRunOrderByRelevanceFieldEnum = {
   title: 'title',
   seed: 'seed',
@@ -10841,7 +10956,12 @@ export const LifeRunOrderByRelevanceFieldEnum = {
   genre: 'genre',
   outcomeKey: 'outcomeKey',
   summary: 'summary',
-  statsSnapshot: 'statsSnapshot'
+  statsSnapshot: 'statsSnapshot',
+  narratorStyle: 'narratorStyle',
+  premise: 'premise',
+  bible: 'bible',
+  inventory: 'inventory',
+  pendingTurn: 'pendingTurn'
 } as const
 
 export type LifeRunOrderByRelevanceFieldEnum = (typeof LifeRunOrderByRelevanceFieldEnum)[keyof typeof LifeRunOrderByRelevanceFieldEnum]
@@ -10851,7 +10971,10 @@ export const LifeChoiceOrderByRelevanceFieldEnum = {
   prompt: 'prompt',
   choiceText: 'choiceText',
   resultText: 'resultText',
-  effects: 'effects'
+  effects: 'effects',
+  optionId: 'optionId',
+  stateDelta: 'stateDelta',
+  artPrompt: 'artPrompt'
 } as const
 
 export type LifeChoiceOrderByRelevanceFieldEnum = (typeof LifeChoiceOrderByRelevanceFieldEnum)[keyof typeof LifeChoiceOrderByRelevanceFieldEnum]
@@ -11489,9 +11612,30 @@ export type EnumContenderKindFieldRefInput<$PrismaModel> = FieldRefInputType<$Pr
 
 
 /**
+ * Reference to a field of type 'EndingDeckOwnerKind'
+ */
+export type EnumEndingDeckOwnerKindFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'EndingDeckOwnerKind'>
+    
+
+
+/**
  * Reference to a field of type 'LifeRunStatus'
  */
 export type EnumLifeRunStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'LifeRunStatus'>
+    
+
+
+/**
+ * Reference to a field of type 'StoryShape'
+ */
+export type EnumStoryShapeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'StoryShape'>
+    
+
+
+/**
+ * Reference to a field of type 'StoryMoveSource'
+ */
+export type EnumStoryMoveSourceFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'StoryMoveSource'>
     
 
 
@@ -11800,6 +11944,7 @@ export type GlobalOmitConfig = {
   challenge?: Prisma.ChallengeOmit
   challengeSubmission?: Prisma.ChallengeSubmissionOmit
   contender?: Prisma.ContenderOmit
+  endingDeck?: Prisma.EndingDeckOmit
   lifeRun?: Prisma.LifeRunOmit
   lifeChoice?: Prisma.LifeChoiceOmit
   lifeStat?: Prisma.LifeStatOmit

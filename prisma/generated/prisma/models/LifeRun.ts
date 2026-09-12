@@ -36,6 +36,9 @@ export type LifeRunAvgAggregateOutputType = {
   botId: number | null
   artCollectionId: number | null
   endingId: number | null
+  deckId: number | null
+  turnBudget: number | null
+  scenarioId: number | null
 }
 
 export type LifeRunSumAggregateOutputType = {
@@ -48,6 +51,9 @@ export type LifeRunSumAggregateOutputType = {
   botId: number | null
   artCollectionId: number | null
   endingId: number | null
+  deckId: number | null
+  turnBudget: number | null
+  scenarioId: number | null
 }
 
 export type LifeRunMinAggregateOutputType = {
@@ -70,6 +76,15 @@ export type LifeRunMinAggregateOutputType = {
   outcomeKey: string | null
   summary: string | null
   statsSnapshot: string | null
+  shape: $Enums.StoryShape | null
+  deckId: number | null
+  turnBudget: number | null
+  narratorStyle: string | null
+  premise: string | null
+  scenarioId: number | null
+  bible: string | null
+  inventory: string | null
+  pendingTurn: string | null
 }
 
 export type LifeRunMaxAggregateOutputType = {
@@ -92,6 +107,15 @@ export type LifeRunMaxAggregateOutputType = {
   outcomeKey: string | null
   summary: string | null
   statsSnapshot: string | null
+  shape: $Enums.StoryShape | null
+  deckId: number | null
+  turnBudget: number | null
+  narratorStyle: string | null
+  premise: string | null
+  scenarioId: number | null
+  bible: string | null
+  inventory: string | null
+  pendingTurn: string | null
 }
 
 export type LifeRunCountAggregateOutputType = {
@@ -114,6 +138,15 @@ export type LifeRunCountAggregateOutputType = {
   outcomeKey: number
   summary: number
   statsSnapshot: number
+  shape: number
+  deckId: number
+  turnBudget: number
+  narratorStyle: number
+  premise: number
+  scenarioId: number
+  bible: number
+  inventory: number
+  pendingTurn: number
   _all: number
 }
 
@@ -128,6 +161,9 @@ export type LifeRunAvgAggregateInputType = {
   botId?: true
   artCollectionId?: true
   endingId?: true
+  deckId?: true
+  turnBudget?: true
+  scenarioId?: true
 }
 
 export type LifeRunSumAggregateInputType = {
@@ -140,6 +176,9 @@ export type LifeRunSumAggregateInputType = {
   botId?: true
   artCollectionId?: true
   endingId?: true
+  deckId?: true
+  turnBudget?: true
+  scenarioId?: true
 }
 
 export type LifeRunMinAggregateInputType = {
@@ -162,6 +201,15 @@ export type LifeRunMinAggregateInputType = {
   outcomeKey?: true
   summary?: true
   statsSnapshot?: true
+  shape?: true
+  deckId?: true
+  turnBudget?: true
+  narratorStyle?: true
+  premise?: true
+  scenarioId?: true
+  bible?: true
+  inventory?: true
+  pendingTurn?: true
 }
 
 export type LifeRunMaxAggregateInputType = {
@@ -184,6 +232,15 @@ export type LifeRunMaxAggregateInputType = {
   outcomeKey?: true
   summary?: true
   statsSnapshot?: true
+  shape?: true
+  deckId?: true
+  turnBudget?: true
+  narratorStyle?: true
+  premise?: true
+  scenarioId?: true
+  bible?: true
+  inventory?: true
+  pendingTurn?: true
 }
 
 export type LifeRunCountAggregateInputType = {
@@ -206,6 +263,15 @@ export type LifeRunCountAggregateInputType = {
   outcomeKey?: true
   summary?: true
   statsSnapshot?: true
+  shape?: true
+  deckId?: true
+  turnBudget?: true
+  narratorStyle?: true
+  premise?: true
+  scenarioId?: true
+  bible?: true
+  inventory?: true
+  pendingTurn?: true
   _all?: true
 }
 
@@ -315,6 +381,15 @@ export type LifeRunGroupByOutputType = {
   outcomeKey: string | null
   summary: string | null
   statsSnapshot: string | null
+  shape: $Enums.StoryShape
+  deckId: number | null
+  turnBudget: number | null
+  narratorStyle: string | null
+  premise: string | null
+  scenarioId: number | null
+  bible: string | null
+  inventory: string | null
+  pendingTurn: string | null
   _count: LifeRunCountAggregateOutputType | null
   _avg: LifeRunAvgAggregateOutputType | null
   _sum: LifeRunSumAggregateOutputType | null
@@ -360,6 +435,15 @@ export type LifeRunWhereInput = {
   outcomeKey?: Prisma.StringNullableFilter<"LifeRun"> | string | null
   summary?: Prisma.StringNullableFilter<"LifeRun"> | string | null
   statsSnapshot?: Prisma.StringNullableFilter<"LifeRun"> | string | null
+  shape?: Prisma.EnumStoryShapeFilter<"LifeRun"> | $Enums.StoryShape
+  deckId?: Prisma.IntNullableFilter<"LifeRun"> | number | null
+  turnBudget?: Prisma.IntNullableFilter<"LifeRun"> | number | null
+  narratorStyle?: Prisma.StringNullableFilter<"LifeRun"> | string | null
+  premise?: Prisma.StringNullableFilter<"LifeRun"> | string | null
+  scenarioId?: Prisma.IntNullableFilter<"LifeRun"> | number | null
+  bible?: Prisma.StringNullableFilter<"LifeRun"> | string | null
+  inventory?: Prisma.StringNullableFilter<"LifeRun"> | string | null
+  pendingTurn?: Prisma.StringNullableFilter<"LifeRun"> | string | null
   Unlocks?: Prisma.LifeAchievementUnlockListRelationFilter
   Choices?: Prisma.LifeChoiceListRelationFilter
   ArtCollection?: Prisma.XOR<Prisma.ArtCollectionNullableScalarRelationFilter, Prisma.ArtCollectionWhereInput> | null
@@ -370,6 +454,8 @@ export type LifeRunWhereInput = {
   User?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   Art?: Prisma.LifeRunArtListRelationFilter
   Stats?: Prisma.LifeStatListRelationFilter
+  Deck?: Prisma.XOR<Prisma.EndingDeckNullableScalarRelationFilter, Prisma.EndingDeckWhereInput> | null
+  Scenario?: Prisma.XOR<Prisma.ScenarioNullableScalarRelationFilter, Prisma.ScenarioWhereInput> | null
 }
 
 export type LifeRunOrderByWithRelationInput = {
@@ -392,6 +478,15 @@ export type LifeRunOrderByWithRelationInput = {
   outcomeKey?: Prisma.SortOrderInput | Prisma.SortOrder
   summary?: Prisma.SortOrderInput | Prisma.SortOrder
   statsSnapshot?: Prisma.SortOrderInput | Prisma.SortOrder
+  shape?: Prisma.SortOrder
+  deckId?: Prisma.SortOrderInput | Prisma.SortOrder
+  turnBudget?: Prisma.SortOrderInput | Prisma.SortOrder
+  narratorStyle?: Prisma.SortOrderInput | Prisma.SortOrder
+  premise?: Prisma.SortOrderInput | Prisma.SortOrder
+  scenarioId?: Prisma.SortOrderInput | Prisma.SortOrder
+  bible?: Prisma.SortOrderInput | Prisma.SortOrder
+  inventory?: Prisma.SortOrderInput | Prisma.SortOrder
+  pendingTurn?: Prisma.SortOrderInput | Prisma.SortOrder
   Unlocks?: Prisma.LifeAchievementUnlockOrderByRelationAggregateInput
   Choices?: Prisma.LifeChoiceOrderByRelationAggregateInput
   ArtCollection?: Prisma.ArtCollectionOrderByWithRelationInput
@@ -402,6 +497,8 @@ export type LifeRunOrderByWithRelationInput = {
   User?: Prisma.UserOrderByWithRelationInput
   Art?: Prisma.LifeRunArtOrderByRelationAggregateInput
   Stats?: Prisma.LifeStatOrderByRelationAggregateInput
+  Deck?: Prisma.EndingDeckOrderByWithRelationInput
+  Scenario?: Prisma.ScenarioOrderByWithRelationInput
   _relevance?: Prisma.LifeRunOrderByRelevanceInput
 }
 
@@ -428,6 +525,15 @@ export type LifeRunWhereUniqueInput = Prisma.AtLeast<{
   outcomeKey?: Prisma.StringNullableFilter<"LifeRun"> | string | null
   summary?: Prisma.StringNullableFilter<"LifeRun"> | string | null
   statsSnapshot?: Prisma.StringNullableFilter<"LifeRun"> | string | null
+  shape?: Prisma.EnumStoryShapeFilter<"LifeRun"> | $Enums.StoryShape
+  deckId?: Prisma.IntNullableFilter<"LifeRun"> | number | null
+  turnBudget?: Prisma.IntNullableFilter<"LifeRun"> | number | null
+  narratorStyle?: Prisma.StringNullableFilter<"LifeRun"> | string | null
+  premise?: Prisma.StringNullableFilter<"LifeRun"> | string | null
+  scenarioId?: Prisma.IntNullableFilter<"LifeRun"> | number | null
+  bible?: Prisma.StringNullableFilter<"LifeRun"> | string | null
+  inventory?: Prisma.StringNullableFilter<"LifeRun"> | string | null
+  pendingTurn?: Prisma.StringNullableFilter<"LifeRun"> | string | null
   Unlocks?: Prisma.LifeAchievementUnlockListRelationFilter
   Choices?: Prisma.LifeChoiceListRelationFilter
   ArtCollection?: Prisma.XOR<Prisma.ArtCollectionNullableScalarRelationFilter, Prisma.ArtCollectionWhereInput> | null
@@ -438,6 +544,8 @@ export type LifeRunWhereUniqueInput = Prisma.AtLeast<{
   User?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   Art?: Prisma.LifeRunArtListRelationFilter
   Stats?: Prisma.LifeStatListRelationFilter
+  Deck?: Prisma.XOR<Prisma.EndingDeckNullableScalarRelationFilter, Prisma.EndingDeckWhereInput> | null
+  Scenario?: Prisma.XOR<Prisma.ScenarioNullableScalarRelationFilter, Prisma.ScenarioWhereInput> | null
 }, "id">
 
 export type LifeRunOrderByWithAggregationInput = {
@@ -460,6 +568,15 @@ export type LifeRunOrderByWithAggregationInput = {
   outcomeKey?: Prisma.SortOrderInput | Prisma.SortOrder
   summary?: Prisma.SortOrderInput | Prisma.SortOrder
   statsSnapshot?: Prisma.SortOrderInput | Prisma.SortOrder
+  shape?: Prisma.SortOrder
+  deckId?: Prisma.SortOrderInput | Prisma.SortOrder
+  turnBudget?: Prisma.SortOrderInput | Prisma.SortOrder
+  narratorStyle?: Prisma.SortOrderInput | Prisma.SortOrder
+  premise?: Prisma.SortOrderInput | Prisma.SortOrder
+  scenarioId?: Prisma.SortOrderInput | Prisma.SortOrder
+  bible?: Prisma.SortOrderInput | Prisma.SortOrder
+  inventory?: Prisma.SortOrderInput | Prisma.SortOrder
+  pendingTurn?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.LifeRunCountOrderByAggregateInput
   _avg?: Prisma.LifeRunAvgOrderByAggregateInput
   _max?: Prisma.LifeRunMaxOrderByAggregateInput
@@ -490,6 +607,15 @@ export type LifeRunScalarWhereWithAggregatesInput = {
   outcomeKey?: Prisma.StringNullableWithAggregatesFilter<"LifeRun"> | string | null
   summary?: Prisma.StringNullableWithAggregatesFilter<"LifeRun"> | string | null
   statsSnapshot?: Prisma.StringNullableWithAggregatesFilter<"LifeRun"> | string | null
+  shape?: Prisma.EnumStoryShapeWithAggregatesFilter<"LifeRun"> | $Enums.StoryShape
+  deckId?: Prisma.IntNullableWithAggregatesFilter<"LifeRun"> | number | null
+  turnBudget?: Prisma.IntNullableWithAggregatesFilter<"LifeRun"> | number | null
+  narratorStyle?: Prisma.StringNullableWithAggregatesFilter<"LifeRun"> | string | null
+  premise?: Prisma.StringNullableWithAggregatesFilter<"LifeRun"> | string | null
+  scenarioId?: Prisma.IntNullableWithAggregatesFilter<"LifeRun"> | number | null
+  bible?: Prisma.StringNullableWithAggregatesFilter<"LifeRun"> | string | null
+  inventory?: Prisma.StringNullableWithAggregatesFilter<"LifeRun"> | string | null
+  pendingTurn?: Prisma.StringNullableWithAggregatesFilter<"LifeRun"> | string | null
 }
 
 export type LifeRunCreateInput = {
@@ -505,6 +631,13 @@ export type LifeRunCreateInput = {
   outcomeKey?: string | null
   summary?: string | null
   statsSnapshot?: string | null
+  shape?: $Enums.StoryShape
+  turnBudget?: number | null
+  narratorStyle?: string | null
+  premise?: string | null
+  bible?: string | null
+  inventory?: string | null
+  pendingTurn?: string | null
   Unlocks?: Prisma.LifeAchievementUnlockCreateNestedManyWithoutLifeRunInput
   Choices?: Prisma.LifeChoiceCreateNestedManyWithoutLifeRunInput
   ArtCollection?: Prisma.ArtCollectionCreateNestedOneWithoutLifeRunsInput
@@ -515,6 +648,8 @@ export type LifeRunCreateInput = {
   User: Prisma.UserCreateNestedOneWithoutLifeRunsInput
   Art?: Prisma.LifeRunArtCreateNestedManyWithoutLifeRunInput
   Stats?: Prisma.LifeStatCreateNestedManyWithoutLifeRunInput
+  Deck?: Prisma.EndingDeckCreateNestedOneWithoutRunsInput
+  Scenario?: Prisma.ScenarioCreateNestedOneWithoutLifeRunsInput
 }
 
 export type LifeRunUncheckedCreateInput = {
@@ -537,6 +672,15 @@ export type LifeRunUncheckedCreateInput = {
   outcomeKey?: string | null
   summary?: string | null
   statsSnapshot?: string | null
+  shape?: $Enums.StoryShape
+  deckId?: number | null
+  turnBudget?: number | null
+  narratorStyle?: string | null
+  premise?: string | null
+  scenarioId?: number | null
+  bible?: string | null
+  inventory?: string | null
+  pendingTurn?: string | null
   Unlocks?: Prisma.LifeAchievementUnlockUncheckedCreateNestedManyWithoutLifeRunInput
   Choices?: Prisma.LifeChoiceUncheckedCreateNestedManyWithoutLifeRunInput
   Art?: Prisma.LifeRunArtUncheckedCreateNestedManyWithoutLifeRunInput
@@ -556,6 +700,13 @@ export type LifeRunUpdateInput = {
   outcomeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   statsSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shape?: Prisma.EnumStoryShapeFieldUpdateOperationsInput | $Enums.StoryShape
+  turnBudget?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  narratorStyle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  premise?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bible?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  inventory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pendingTurn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Unlocks?: Prisma.LifeAchievementUnlockUpdateManyWithoutLifeRunNestedInput
   Choices?: Prisma.LifeChoiceUpdateManyWithoutLifeRunNestedInput
   ArtCollection?: Prisma.ArtCollectionUpdateOneWithoutLifeRunsNestedInput
@@ -566,6 +717,8 @@ export type LifeRunUpdateInput = {
   User?: Prisma.UserUpdateOneRequiredWithoutLifeRunsNestedInput
   Art?: Prisma.LifeRunArtUpdateManyWithoutLifeRunNestedInput
   Stats?: Prisma.LifeStatUpdateManyWithoutLifeRunNestedInput
+  Deck?: Prisma.EndingDeckUpdateOneWithoutRunsNestedInput
+  Scenario?: Prisma.ScenarioUpdateOneWithoutLifeRunsNestedInput
 }
 
 export type LifeRunUncheckedUpdateInput = {
@@ -588,6 +741,15 @@ export type LifeRunUncheckedUpdateInput = {
   outcomeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   statsSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shape?: Prisma.EnumStoryShapeFieldUpdateOperationsInput | $Enums.StoryShape
+  deckId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  turnBudget?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  narratorStyle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  premise?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  scenarioId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  bible?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  inventory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pendingTurn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Unlocks?: Prisma.LifeAchievementUnlockUncheckedUpdateManyWithoutLifeRunNestedInput
   Choices?: Prisma.LifeChoiceUncheckedUpdateManyWithoutLifeRunNestedInput
   Art?: Prisma.LifeRunArtUncheckedUpdateManyWithoutLifeRunNestedInput
@@ -614,6 +776,15 @@ export type LifeRunCreateManyInput = {
   outcomeKey?: string | null
   summary?: string | null
   statsSnapshot?: string | null
+  shape?: $Enums.StoryShape
+  deckId?: number | null
+  turnBudget?: number | null
+  narratorStyle?: string | null
+  premise?: string | null
+  scenarioId?: number | null
+  bible?: string | null
+  inventory?: string | null
+  pendingTurn?: string | null
 }
 
 export type LifeRunUpdateManyMutationInput = {
@@ -629,6 +800,13 @@ export type LifeRunUpdateManyMutationInput = {
   outcomeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   statsSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shape?: Prisma.EnumStoryShapeFieldUpdateOperationsInput | $Enums.StoryShape
+  turnBudget?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  narratorStyle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  premise?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bible?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  inventory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pendingTurn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type LifeRunUncheckedUpdateManyInput = {
@@ -651,6 +829,15 @@ export type LifeRunUncheckedUpdateManyInput = {
   outcomeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   statsSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shape?: Prisma.EnumStoryShapeFieldUpdateOperationsInput | $Enums.StoryShape
+  deckId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  turnBudget?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  narratorStyle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  premise?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  scenarioId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  bible?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  inventory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pendingTurn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type LifeRunListRelationFilter = {
@@ -689,6 +876,15 @@ export type LifeRunCountOrderByAggregateInput = {
   outcomeKey?: Prisma.SortOrder
   summary?: Prisma.SortOrder
   statsSnapshot?: Prisma.SortOrder
+  shape?: Prisma.SortOrder
+  deckId?: Prisma.SortOrder
+  turnBudget?: Prisma.SortOrder
+  narratorStyle?: Prisma.SortOrder
+  premise?: Prisma.SortOrder
+  scenarioId?: Prisma.SortOrder
+  bible?: Prisma.SortOrder
+  inventory?: Prisma.SortOrder
+  pendingTurn?: Prisma.SortOrder
 }
 
 export type LifeRunAvgOrderByAggregateInput = {
@@ -701,6 +897,9 @@ export type LifeRunAvgOrderByAggregateInput = {
   botId?: Prisma.SortOrder
   artCollectionId?: Prisma.SortOrder
   endingId?: Prisma.SortOrder
+  deckId?: Prisma.SortOrder
+  turnBudget?: Prisma.SortOrder
+  scenarioId?: Prisma.SortOrder
 }
 
 export type LifeRunMaxOrderByAggregateInput = {
@@ -723,6 +922,15 @@ export type LifeRunMaxOrderByAggregateInput = {
   outcomeKey?: Prisma.SortOrder
   summary?: Prisma.SortOrder
   statsSnapshot?: Prisma.SortOrder
+  shape?: Prisma.SortOrder
+  deckId?: Prisma.SortOrder
+  turnBudget?: Prisma.SortOrder
+  narratorStyle?: Prisma.SortOrder
+  premise?: Prisma.SortOrder
+  scenarioId?: Prisma.SortOrder
+  bible?: Prisma.SortOrder
+  inventory?: Prisma.SortOrder
+  pendingTurn?: Prisma.SortOrder
 }
 
 export type LifeRunMinOrderByAggregateInput = {
@@ -745,6 +953,15 @@ export type LifeRunMinOrderByAggregateInput = {
   outcomeKey?: Prisma.SortOrder
   summary?: Prisma.SortOrder
   statsSnapshot?: Prisma.SortOrder
+  shape?: Prisma.SortOrder
+  deckId?: Prisma.SortOrder
+  turnBudget?: Prisma.SortOrder
+  narratorStyle?: Prisma.SortOrder
+  premise?: Prisma.SortOrder
+  scenarioId?: Prisma.SortOrder
+  bible?: Prisma.SortOrder
+  inventory?: Prisma.SortOrder
+  pendingTurn?: Prisma.SortOrder
 }
 
 export type LifeRunSumOrderByAggregateInput = {
@@ -757,6 +974,9 @@ export type LifeRunSumOrderByAggregateInput = {
   botId?: Prisma.SortOrder
   artCollectionId?: Prisma.SortOrder
   endingId?: Prisma.SortOrder
+  deckId?: Prisma.SortOrder
+  turnBudget?: Prisma.SortOrder
+  scenarioId?: Prisma.SortOrder
 }
 
 export type LifeRunScalarRelationFilter = {
@@ -937,6 +1157,48 @@ export type LifeRunUncheckedUpdateManyWithoutDreamNestedInput = {
   deleteMany?: Prisma.LifeRunScalarWhereInput | Prisma.LifeRunScalarWhereInput[]
 }
 
+export type LifeRunCreateNestedManyWithoutScenarioInput = {
+  create?: Prisma.XOR<Prisma.LifeRunCreateWithoutScenarioInput, Prisma.LifeRunUncheckedCreateWithoutScenarioInput> | Prisma.LifeRunCreateWithoutScenarioInput[] | Prisma.LifeRunUncheckedCreateWithoutScenarioInput[]
+  connectOrCreate?: Prisma.LifeRunCreateOrConnectWithoutScenarioInput | Prisma.LifeRunCreateOrConnectWithoutScenarioInput[]
+  createMany?: Prisma.LifeRunCreateManyScenarioInputEnvelope
+  connect?: Prisma.LifeRunWhereUniqueInput | Prisma.LifeRunWhereUniqueInput[]
+}
+
+export type LifeRunUncheckedCreateNestedManyWithoutScenarioInput = {
+  create?: Prisma.XOR<Prisma.LifeRunCreateWithoutScenarioInput, Prisma.LifeRunUncheckedCreateWithoutScenarioInput> | Prisma.LifeRunCreateWithoutScenarioInput[] | Prisma.LifeRunUncheckedCreateWithoutScenarioInput[]
+  connectOrCreate?: Prisma.LifeRunCreateOrConnectWithoutScenarioInput | Prisma.LifeRunCreateOrConnectWithoutScenarioInput[]
+  createMany?: Prisma.LifeRunCreateManyScenarioInputEnvelope
+  connect?: Prisma.LifeRunWhereUniqueInput | Prisma.LifeRunWhereUniqueInput[]
+}
+
+export type LifeRunUpdateManyWithoutScenarioNestedInput = {
+  create?: Prisma.XOR<Prisma.LifeRunCreateWithoutScenarioInput, Prisma.LifeRunUncheckedCreateWithoutScenarioInput> | Prisma.LifeRunCreateWithoutScenarioInput[] | Prisma.LifeRunUncheckedCreateWithoutScenarioInput[]
+  connectOrCreate?: Prisma.LifeRunCreateOrConnectWithoutScenarioInput | Prisma.LifeRunCreateOrConnectWithoutScenarioInput[]
+  upsert?: Prisma.LifeRunUpsertWithWhereUniqueWithoutScenarioInput | Prisma.LifeRunUpsertWithWhereUniqueWithoutScenarioInput[]
+  createMany?: Prisma.LifeRunCreateManyScenarioInputEnvelope
+  set?: Prisma.LifeRunWhereUniqueInput | Prisma.LifeRunWhereUniqueInput[]
+  disconnect?: Prisma.LifeRunWhereUniqueInput | Prisma.LifeRunWhereUniqueInput[]
+  delete?: Prisma.LifeRunWhereUniqueInput | Prisma.LifeRunWhereUniqueInput[]
+  connect?: Prisma.LifeRunWhereUniqueInput | Prisma.LifeRunWhereUniqueInput[]
+  update?: Prisma.LifeRunUpdateWithWhereUniqueWithoutScenarioInput | Prisma.LifeRunUpdateWithWhereUniqueWithoutScenarioInput[]
+  updateMany?: Prisma.LifeRunUpdateManyWithWhereWithoutScenarioInput | Prisma.LifeRunUpdateManyWithWhereWithoutScenarioInput[]
+  deleteMany?: Prisma.LifeRunScalarWhereInput | Prisma.LifeRunScalarWhereInput[]
+}
+
+export type LifeRunUncheckedUpdateManyWithoutScenarioNestedInput = {
+  create?: Prisma.XOR<Prisma.LifeRunCreateWithoutScenarioInput, Prisma.LifeRunUncheckedCreateWithoutScenarioInput> | Prisma.LifeRunCreateWithoutScenarioInput[] | Prisma.LifeRunUncheckedCreateWithoutScenarioInput[]
+  connectOrCreate?: Prisma.LifeRunCreateOrConnectWithoutScenarioInput | Prisma.LifeRunCreateOrConnectWithoutScenarioInput[]
+  upsert?: Prisma.LifeRunUpsertWithWhereUniqueWithoutScenarioInput | Prisma.LifeRunUpsertWithWhereUniqueWithoutScenarioInput[]
+  createMany?: Prisma.LifeRunCreateManyScenarioInputEnvelope
+  set?: Prisma.LifeRunWhereUniqueInput | Prisma.LifeRunWhereUniqueInput[]
+  disconnect?: Prisma.LifeRunWhereUniqueInput | Prisma.LifeRunWhereUniqueInput[]
+  delete?: Prisma.LifeRunWhereUniqueInput | Prisma.LifeRunWhereUniqueInput[]
+  connect?: Prisma.LifeRunWhereUniqueInput | Prisma.LifeRunWhereUniqueInput[]
+  update?: Prisma.LifeRunUpdateWithWhereUniqueWithoutScenarioInput | Prisma.LifeRunUpdateWithWhereUniqueWithoutScenarioInput[]
+  updateMany?: Prisma.LifeRunUpdateManyWithWhereWithoutScenarioInput | Prisma.LifeRunUpdateManyWithWhereWithoutScenarioInput[]
+  deleteMany?: Prisma.LifeRunScalarWhereInput | Prisma.LifeRunScalarWhereInput[]
+}
+
 export type LifeRunCreateNestedManyWithoutUserInput = {
   create?: Prisma.XOR<Prisma.LifeRunCreateWithoutUserInput, Prisma.LifeRunUncheckedCreateWithoutUserInput> | Prisma.LifeRunCreateWithoutUserInput[] | Prisma.LifeRunUncheckedCreateWithoutUserInput[]
   connectOrCreate?: Prisma.LifeRunCreateOrConnectWithoutUserInput | Prisma.LifeRunCreateOrConnectWithoutUserInput[]
@@ -979,8 +1241,54 @@ export type LifeRunUncheckedUpdateManyWithoutUserNestedInput = {
   deleteMany?: Prisma.LifeRunScalarWhereInput | Prisma.LifeRunScalarWhereInput[]
 }
 
+export type LifeRunCreateNestedManyWithoutDeckInput = {
+  create?: Prisma.XOR<Prisma.LifeRunCreateWithoutDeckInput, Prisma.LifeRunUncheckedCreateWithoutDeckInput> | Prisma.LifeRunCreateWithoutDeckInput[] | Prisma.LifeRunUncheckedCreateWithoutDeckInput[]
+  connectOrCreate?: Prisma.LifeRunCreateOrConnectWithoutDeckInput | Prisma.LifeRunCreateOrConnectWithoutDeckInput[]
+  createMany?: Prisma.LifeRunCreateManyDeckInputEnvelope
+  connect?: Prisma.LifeRunWhereUniqueInput | Prisma.LifeRunWhereUniqueInput[]
+}
+
+export type LifeRunUncheckedCreateNestedManyWithoutDeckInput = {
+  create?: Prisma.XOR<Prisma.LifeRunCreateWithoutDeckInput, Prisma.LifeRunUncheckedCreateWithoutDeckInput> | Prisma.LifeRunCreateWithoutDeckInput[] | Prisma.LifeRunUncheckedCreateWithoutDeckInput[]
+  connectOrCreate?: Prisma.LifeRunCreateOrConnectWithoutDeckInput | Prisma.LifeRunCreateOrConnectWithoutDeckInput[]
+  createMany?: Prisma.LifeRunCreateManyDeckInputEnvelope
+  connect?: Prisma.LifeRunWhereUniqueInput | Prisma.LifeRunWhereUniqueInput[]
+}
+
+export type LifeRunUpdateManyWithoutDeckNestedInput = {
+  create?: Prisma.XOR<Prisma.LifeRunCreateWithoutDeckInput, Prisma.LifeRunUncheckedCreateWithoutDeckInput> | Prisma.LifeRunCreateWithoutDeckInput[] | Prisma.LifeRunUncheckedCreateWithoutDeckInput[]
+  connectOrCreate?: Prisma.LifeRunCreateOrConnectWithoutDeckInput | Prisma.LifeRunCreateOrConnectWithoutDeckInput[]
+  upsert?: Prisma.LifeRunUpsertWithWhereUniqueWithoutDeckInput | Prisma.LifeRunUpsertWithWhereUniqueWithoutDeckInput[]
+  createMany?: Prisma.LifeRunCreateManyDeckInputEnvelope
+  set?: Prisma.LifeRunWhereUniqueInput | Prisma.LifeRunWhereUniqueInput[]
+  disconnect?: Prisma.LifeRunWhereUniqueInput | Prisma.LifeRunWhereUniqueInput[]
+  delete?: Prisma.LifeRunWhereUniqueInput | Prisma.LifeRunWhereUniqueInput[]
+  connect?: Prisma.LifeRunWhereUniqueInput | Prisma.LifeRunWhereUniqueInput[]
+  update?: Prisma.LifeRunUpdateWithWhereUniqueWithoutDeckInput | Prisma.LifeRunUpdateWithWhereUniqueWithoutDeckInput[]
+  updateMany?: Prisma.LifeRunUpdateManyWithWhereWithoutDeckInput | Prisma.LifeRunUpdateManyWithWhereWithoutDeckInput[]
+  deleteMany?: Prisma.LifeRunScalarWhereInput | Prisma.LifeRunScalarWhereInput[]
+}
+
+export type LifeRunUncheckedUpdateManyWithoutDeckNestedInput = {
+  create?: Prisma.XOR<Prisma.LifeRunCreateWithoutDeckInput, Prisma.LifeRunUncheckedCreateWithoutDeckInput> | Prisma.LifeRunCreateWithoutDeckInput[] | Prisma.LifeRunUncheckedCreateWithoutDeckInput[]
+  connectOrCreate?: Prisma.LifeRunCreateOrConnectWithoutDeckInput | Prisma.LifeRunCreateOrConnectWithoutDeckInput[]
+  upsert?: Prisma.LifeRunUpsertWithWhereUniqueWithoutDeckInput | Prisma.LifeRunUpsertWithWhereUniqueWithoutDeckInput[]
+  createMany?: Prisma.LifeRunCreateManyDeckInputEnvelope
+  set?: Prisma.LifeRunWhereUniqueInput | Prisma.LifeRunWhereUniqueInput[]
+  disconnect?: Prisma.LifeRunWhereUniqueInput | Prisma.LifeRunWhereUniqueInput[]
+  delete?: Prisma.LifeRunWhereUniqueInput | Prisma.LifeRunWhereUniqueInput[]
+  connect?: Prisma.LifeRunWhereUniqueInput | Prisma.LifeRunWhereUniqueInput[]
+  update?: Prisma.LifeRunUpdateWithWhereUniqueWithoutDeckInput | Prisma.LifeRunUpdateWithWhereUniqueWithoutDeckInput[]
+  updateMany?: Prisma.LifeRunUpdateManyWithWhereWithoutDeckInput | Prisma.LifeRunUpdateManyWithWhereWithoutDeckInput[]
+  deleteMany?: Prisma.LifeRunScalarWhereInput | Prisma.LifeRunScalarWhereInput[]
+}
+
 export type EnumLifeRunStatusFieldUpdateOperationsInput = {
   set?: $Enums.LifeRunStatus
+}
+
+export type EnumStoryShapeFieldUpdateOperationsInput = {
+  set?: $Enums.StoryShape
 }
 
 export type LifeRunCreateNestedOneWithoutChoicesInput = {
@@ -1096,6 +1404,13 @@ export type LifeRunCreateWithoutArtCollectionInput = {
   outcomeKey?: string | null
   summary?: string | null
   statsSnapshot?: string | null
+  shape?: $Enums.StoryShape
+  turnBudget?: number | null
+  narratorStyle?: string | null
+  premise?: string | null
+  bible?: string | null
+  inventory?: string | null
+  pendingTurn?: string | null
   Unlocks?: Prisma.LifeAchievementUnlockCreateNestedManyWithoutLifeRunInput
   Choices?: Prisma.LifeChoiceCreateNestedManyWithoutLifeRunInput
   Bot?: Prisma.BotCreateNestedOneWithoutLifeRunsInput
@@ -1105,6 +1420,8 @@ export type LifeRunCreateWithoutArtCollectionInput = {
   User: Prisma.UserCreateNestedOneWithoutLifeRunsInput
   Art?: Prisma.LifeRunArtCreateNestedManyWithoutLifeRunInput
   Stats?: Prisma.LifeStatCreateNestedManyWithoutLifeRunInput
+  Deck?: Prisma.EndingDeckCreateNestedOneWithoutRunsInput
+  Scenario?: Prisma.ScenarioCreateNestedOneWithoutLifeRunsInput
 }
 
 export type LifeRunUncheckedCreateWithoutArtCollectionInput = {
@@ -1126,6 +1443,15 @@ export type LifeRunUncheckedCreateWithoutArtCollectionInput = {
   outcomeKey?: string | null
   summary?: string | null
   statsSnapshot?: string | null
+  shape?: $Enums.StoryShape
+  deckId?: number | null
+  turnBudget?: number | null
+  narratorStyle?: string | null
+  premise?: string | null
+  scenarioId?: number | null
+  bible?: string | null
+  inventory?: string | null
+  pendingTurn?: string | null
   Unlocks?: Prisma.LifeAchievementUnlockUncheckedCreateNestedManyWithoutLifeRunInput
   Choices?: Prisma.LifeChoiceUncheckedCreateNestedManyWithoutLifeRunInput
   Art?: Prisma.LifeRunArtUncheckedCreateNestedManyWithoutLifeRunInput
@@ -1181,6 +1507,15 @@ export type LifeRunScalarWhereInput = {
   outcomeKey?: Prisma.StringNullableFilter<"LifeRun"> | string | null
   summary?: Prisma.StringNullableFilter<"LifeRun"> | string | null
   statsSnapshot?: Prisma.StringNullableFilter<"LifeRun"> | string | null
+  shape?: Prisma.EnumStoryShapeFilter<"LifeRun"> | $Enums.StoryShape
+  deckId?: Prisma.IntNullableFilter<"LifeRun"> | number | null
+  turnBudget?: Prisma.IntNullableFilter<"LifeRun"> | number | null
+  narratorStyle?: Prisma.StringNullableFilter<"LifeRun"> | string | null
+  premise?: Prisma.StringNullableFilter<"LifeRun"> | string | null
+  scenarioId?: Prisma.IntNullableFilter<"LifeRun"> | number | null
+  bible?: Prisma.StringNullableFilter<"LifeRun"> | string | null
+  inventory?: Prisma.StringNullableFilter<"LifeRun"> | string | null
+  pendingTurn?: Prisma.StringNullableFilter<"LifeRun"> | string | null
 }
 
 export type LifeRunCreateWithoutBotInput = {
@@ -1196,6 +1531,13 @@ export type LifeRunCreateWithoutBotInput = {
   outcomeKey?: string | null
   summary?: string | null
   statsSnapshot?: string | null
+  shape?: $Enums.StoryShape
+  turnBudget?: number | null
+  narratorStyle?: string | null
+  premise?: string | null
+  bible?: string | null
+  inventory?: string | null
+  pendingTurn?: string | null
   Unlocks?: Prisma.LifeAchievementUnlockCreateNestedManyWithoutLifeRunInput
   Choices?: Prisma.LifeChoiceCreateNestedManyWithoutLifeRunInput
   ArtCollection?: Prisma.ArtCollectionCreateNestedOneWithoutLifeRunsInput
@@ -1205,6 +1547,8 @@ export type LifeRunCreateWithoutBotInput = {
   User: Prisma.UserCreateNestedOneWithoutLifeRunsInput
   Art?: Prisma.LifeRunArtCreateNestedManyWithoutLifeRunInput
   Stats?: Prisma.LifeStatCreateNestedManyWithoutLifeRunInput
+  Deck?: Prisma.EndingDeckCreateNestedOneWithoutRunsInput
+  Scenario?: Prisma.ScenarioCreateNestedOneWithoutLifeRunsInput
 }
 
 export type LifeRunUncheckedCreateWithoutBotInput = {
@@ -1226,6 +1570,15 @@ export type LifeRunUncheckedCreateWithoutBotInput = {
   outcomeKey?: string | null
   summary?: string | null
   statsSnapshot?: string | null
+  shape?: $Enums.StoryShape
+  deckId?: number | null
+  turnBudget?: number | null
+  narratorStyle?: string | null
+  premise?: string | null
+  scenarioId?: number | null
+  bible?: string | null
+  inventory?: string | null
+  pendingTurn?: string | null
   Unlocks?: Prisma.LifeAchievementUnlockUncheckedCreateNestedManyWithoutLifeRunInput
   Choices?: Prisma.LifeChoiceUncheckedCreateNestedManyWithoutLifeRunInput
   Art?: Prisma.LifeRunArtUncheckedCreateNestedManyWithoutLifeRunInput
@@ -1271,6 +1624,13 @@ export type LifeRunCreateWithoutCharacterInput = {
   outcomeKey?: string | null
   summary?: string | null
   statsSnapshot?: string | null
+  shape?: $Enums.StoryShape
+  turnBudget?: number | null
+  narratorStyle?: string | null
+  premise?: string | null
+  bible?: string | null
+  inventory?: string | null
+  pendingTurn?: string | null
   Unlocks?: Prisma.LifeAchievementUnlockCreateNestedManyWithoutLifeRunInput
   Choices?: Prisma.LifeChoiceCreateNestedManyWithoutLifeRunInput
   ArtCollection?: Prisma.ArtCollectionCreateNestedOneWithoutLifeRunsInput
@@ -1280,6 +1640,8 @@ export type LifeRunCreateWithoutCharacterInput = {
   User: Prisma.UserCreateNestedOneWithoutLifeRunsInput
   Art?: Prisma.LifeRunArtCreateNestedManyWithoutLifeRunInput
   Stats?: Prisma.LifeStatCreateNestedManyWithoutLifeRunInput
+  Deck?: Prisma.EndingDeckCreateNestedOneWithoutRunsInput
+  Scenario?: Prisma.ScenarioCreateNestedOneWithoutLifeRunsInput
 }
 
 export type LifeRunUncheckedCreateWithoutCharacterInput = {
@@ -1301,6 +1663,15 @@ export type LifeRunUncheckedCreateWithoutCharacterInput = {
   outcomeKey?: string | null
   summary?: string | null
   statsSnapshot?: string | null
+  shape?: $Enums.StoryShape
+  deckId?: number | null
+  turnBudget?: number | null
+  narratorStyle?: string | null
+  premise?: string | null
+  scenarioId?: number | null
+  bible?: string | null
+  inventory?: string | null
+  pendingTurn?: string | null
   Unlocks?: Prisma.LifeAchievementUnlockUncheckedCreateNestedManyWithoutLifeRunInput
   Choices?: Prisma.LifeChoiceUncheckedCreateNestedManyWithoutLifeRunInput
   Art?: Prisma.LifeRunArtUncheckedCreateNestedManyWithoutLifeRunInput
@@ -1346,6 +1717,13 @@ export type LifeRunCreateWithoutDreamInput = {
   outcomeKey?: string | null
   summary?: string | null
   statsSnapshot?: string | null
+  shape?: $Enums.StoryShape
+  turnBudget?: number | null
+  narratorStyle?: string | null
+  premise?: string | null
+  bible?: string | null
+  inventory?: string | null
+  pendingTurn?: string | null
   Unlocks?: Prisma.LifeAchievementUnlockCreateNestedManyWithoutLifeRunInput
   Choices?: Prisma.LifeChoiceCreateNestedManyWithoutLifeRunInput
   ArtCollection?: Prisma.ArtCollectionCreateNestedOneWithoutLifeRunsInput
@@ -1355,6 +1733,8 @@ export type LifeRunCreateWithoutDreamInput = {
   User: Prisma.UserCreateNestedOneWithoutLifeRunsInput
   Art?: Prisma.LifeRunArtCreateNestedManyWithoutLifeRunInput
   Stats?: Prisma.LifeStatCreateNestedManyWithoutLifeRunInput
+  Deck?: Prisma.EndingDeckCreateNestedOneWithoutRunsInput
+  Scenario?: Prisma.ScenarioCreateNestedOneWithoutLifeRunsInput
 }
 
 export type LifeRunUncheckedCreateWithoutDreamInput = {
@@ -1376,6 +1756,15 @@ export type LifeRunUncheckedCreateWithoutDreamInput = {
   outcomeKey?: string | null
   summary?: string | null
   statsSnapshot?: string | null
+  shape?: $Enums.StoryShape
+  deckId?: number | null
+  turnBudget?: number | null
+  narratorStyle?: string | null
+  premise?: string | null
+  scenarioId?: number | null
+  bible?: string | null
+  inventory?: string | null
+  pendingTurn?: string | null
   Unlocks?: Prisma.LifeAchievementUnlockUncheckedCreateNestedManyWithoutLifeRunInput
   Choices?: Prisma.LifeChoiceUncheckedCreateNestedManyWithoutLifeRunInput
   Art?: Prisma.LifeRunArtUncheckedCreateNestedManyWithoutLifeRunInput
@@ -1408,6 +1797,99 @@ export type LifeRunUpdateManyWithWhereWithoutDreamInput = {
   data: Prisma.XOR<Prisma.LifeRunUpdateManyMutationInput, Prisma.LifeRunUncheckedUpdateManyWithoutDreamInput>
 }
 
+export type LifeRunCreateWithoutScenarioInput = {
+  createdAt?: Date | string
+  updatedAt?: Date | string | null
+  title: string
+  status?: $Enums.LifeRunStatus
+  seed: string
+  protagonistName?: string | null
+  currentAge?: number | null
+  currentChapter?: number
+  genre?: string | null
+  outcomeKey?: string | null
+  summary?: string | null
+  statsSnapshot?: string | null
+  shape?: $Enums.StoryShape
+  turnBudget?: number | null
+  narratorStyle?: string | null
+  premise?: string | null
+  bible?: string | null
+  inventory?: string | null
+  pendingTurn?: string | null
+  Unlocks?: Prisma.LifeAchievementUnlockCreateNestedManyWithoutLifeRunInput
+  Choices?: Prisma.LifeChoiceCreateNestedManyWithoutLifeRunInput
+  ArtCollection?: Prisma.ArtCollectionCreateNestedOneWithoutLifeRunsInput
+  Bot?: Prisma.BotCreateNestedOneWithoutLifeRunsInput
+  Character?: Prisma.CharacterCreateNestedOneWithoutLifeRunsInput
+  Dream?: Prisma.DreamCreateNestedOneWithoutLifeRunsInput
+  Ending?: Prisma.LifeEndingCreateNestedOneWithoutRunsInput
+  User: Prisma.UserCreateNestedOneWithoutLifeRunsInput
+  Art?: Prisma.LifeRunArtCreateNestedManyWithoutLifeRunInput
+  Stats?: Prisma.LifeStatCreateNestedManyWithoutLifeRunInput
+  Deck?: Prisma.EndingDeckCreateNestedOneWithoutRunsInput
+}
+
+export type LifeRunUncheckedCreateWithoutScenarioInput = {
+  id?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string | null
+  userId: number
+  title: string
+  status?: $Enums.LifeRunStatus
+  seed: string
+  protagonistName?: string | null
+  currentAge?: number | null
+  currentChapter?: number
+  genre?: string | null
+  dreamId?: number | null
+  characterId?: number | null
+  botId?: number | null
+  artCollectionId?: number | null
+  endingId?: number | null
+  outcomeKey?: string | null
+  summary?: string | null
+  statsSnapshot?: string | null
+  shape?: $Enums.StoryShape
+  deckId?: number | null
+  turnBudget?: number | null
+  narratorStyle?: string | null
+  premise?: string | null
+  bible?: string | null
+  inventory?: string | null
+  pendingTurn?: string | null
+  Unlocks?: Prisma.LifeAchievementUnlockUncheckedCreateNestedManyWithoutLifeRunInput
+  Choices?: Prisma.LifeChoiceUncheckedCreateNestedManyWithoutLifeRunInput
+  Art?: Prisma.LifeRunArtUncheckedCreateNestedManyWithoutLifeRunInput
+  Stats?: Prisma.LifeStatUncheckedCreateNestedManyWithoutLifeRunInput
+}
+
+export type LifeRunCreateOrConnectWithoutScenarioInput = {
+  where: Prisma.LifeRunWhereUniqueInput
+  create: Prisma.XOR<Prisma.LifeRunCreateWithoutScenarioInput, Prisma.LifeRunUncheckedCreateWithoutScenarioInput>
+}
+
+export type LifeRunCreateManyScenarioInputEnvelope = {
+  data: Prisma.LifeRunCreateManyScenarioInput | Prisma.LifeRunCreateManyScenarioInput[]
+  skipDuplicates?: boolean
+}
+
+export type LifeRunUpsertWithWhereUniqueWithoutScenarioInput = {
+  where: Prisma.LifeRunWhereUniqueInput
+  update: Prisma.XOR<Prisma.LifeRunUpdateWithoutScenarioInput, Prisma.LifeRunUncheckedUpdateWithoutScenarioInput>
+  create: Prisma.XOR<Prisma.LifeRunCreateWithoutScenarioInput, Prisma.LifeRunUncheckedCreateWithoutScenarioInput>
+}
+
+export type LifeRunUpdateWithWhereUniqueWithoutScenarioInput = {
+  where: Prisma.LifeRunWhereUniqueInput
+  data: Prisma.XOR<Prisma.LifeRunUpdateWithoutScenarioInput, Prisma.LifeRunUncheckedUpdateWithoutScenarioInput>
+}
+
+export type LifeRunUpdateManyWithWhereWithoutScenarioInput = {
+  where: Prisma.LifeRunScalarWhereInput
+  data: Prisma.XOR<Prisma.LifeRunUpdateManyMutationInput, Prisma.LifeRunUncheckedUpdateManyWithoutScenarioInput>
+}
+
 export type LifeRunCreateWithoutUserInput = {
   createdAt?: Date | string
   updatedAt?: Date | string | null
@@ -1421,6 +1903,13 @@ export type LifeRunCreateWithoutUserInput = {
   outcomeKey?: string | null
   summary?: string | null
   statsSnapshot?: string | null
+  shape?: $Enums.StoryShape
+  turnBudget?: number | null
+  narratorStyle?: string | null
+  premise?: string | null
+  bible?: string | null
+  inventory?: string | null
+  pendingTurn?: string | null
   Unlocks?: Prisma.LifeAchievementUnlockCreateNestedManyWithoutLifeRunInput
   Choices?: Prisma.LifeChoiceCreateNestedManyWithoutLifeRunInput
   ArtCollection?: Prisma.ArtCollectionCreateNestedOneWithoutLifeRunsInput
@@ -1430,6 +1919,8 @@ export type LifeRunCreateWithoutUserInput = {
   Ending?: Prisma.LifeEndingCreateNestedOneWithoutRunsInput
   Art?: Prisma.LifeRunArtCreateNestedManyWithoutLifeRunInput
   Stats?: Prisma.LifeStatCreateNestedManyWithoutLifeRunInput
+  Deck?: Prisma.EndingDeckCreateNestedOneWithoutRunsInput
+  Scenario?: Prisma.ScenarioCreateNestedOneWithoutLifeRunsInput
 }
 
 export type LifeRunUncheckedCreateWithoutUserInput = {
@@ -1451,6 +1942,15 @@ export type LifeRunUncheckedCreateWithoutUserInput = {
   outcomeKey?: string | null
   summary?: string | null
   statsSnapshot?: string | null
+  shape?: $Enums.StoryShape
+  deckId?: number | null
+  turnBudget?: number | null
+  narratorStyle?: string | null
+  premise?: string | null
+  scenarioId?: number | null
+  bible?: string | null
+  inventory?: string | null
+  pendingTurn?: string | null
   Unlocks?: Prisma.LifeAchievementUnlockUncheckedCreateNestedManyWithoutLifeRunInput
   Choices?: Prisma.LifeChoiceUncheckedCreateNestedManyWithoutLifeRunInput
   Art?: Prisma.LifeRunArtUncheckedCreateNestedManyWithoutLifeRunInput
@@ -1483,6 +1983,99 @@ export type LifeRunUpdateManyWithWhereWithoutUserInput = {
   data: Prisma.XOR<Prisma.LifeRunUpdateManyMutationInput, Prisma.LifeRunUncheckedUpdateManyWithoutUserInput>
 }
 
+export type LifeRunCreateWithoutDeckInput = {
+  createdAt?: Date | string
+  updatedAt?: Date | string | null
+  title: string
+  status?: $Enums.LifeRunStatus
+  seed: string
+  protagonistName?: string | null
+  currentAge?: number | null
+  currentChapter?: number
+  genre?: string | null
+  outcomeKey?: string | null
+  summary?: string | null
+  statsSnapshot?: string | null
+  shape?: $Enums.StoryShape
+  turnBudget?: number | null
+  narratorStyle?: string | null
+  premise?: string | null
+  bible?: string | null
+  inventory?: string | null
+  pendingTurn?: string | null
+  Unlocks?: Prisma.LifeAchievementUnlockCreateNestedManyWithoutLifeRunInput
+  Choices?: Prisma.LifeChoiceCreateNestedManyWithoutLifeRunInput
+  ArtCollection?: Prisma.ArtCollectionCreateNestedOneWithoutLifeRunsInput
+  Bot?: Prisma.BotCreateNestedOneWithoutLifeRunsInput
+  Character?: Prisma.CharacterCreateNestedOneWithoutLifeRunsInput
+  Dream?: Prisma.DreamCreateNestedOneWithoutLifeRunsInput
+  Ending?: Prisma.LifeEndingCreateNestedOneWithoutRunsInput
+  User: Prisma.UserCreateNestedOneWithoutLifeRunsInput
+  Art?: Prisma.LifeRunArtCreateNestedManyWithoutLifeRunInput
+  Stats?: Prisma.LifeStatCreateNestedManyWithoutLifeRunInput
+  Scenario?: Prisma.ScenarioCreateNestedOneWithoutLifeRunsInput
+}
+
+export type LifeRunUncheckedCreateWithoutDeckInput = {
+  id?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string | null
+  userId: number
+  title: string
+  status?: $Enums.LifeRunStatus
+  seed: string
+  protagonistName?: string | null
+  currentAge?: number | null
+  currentChapter?: number
+  genre?: string | null
+  dreamId?: number | null
+  characterId?: number | null
+  botId?: number | null
+  artCollectionId?: number | null
+  endingId?: number | null
+  outcomeKey?: string | null
+  summary?: string | null
+  statsSnapshot?: string | null
+  shape?: $Enums.StoryShape
+  turnBudget?: number | null
+  narratorStyle?: string | null
+  premise?: string | null
+  scenarioId?: number | null
+  bible?: string | null
+  inventory?: string | null
+  pendingTurn?: string | null
+  Unlocks?: Prisma.LifeAchievementUnlockUncheckedCreateNestedManyWithoutLifeRunInput
+  Choices?: Prisma.LifeChoiceUncheckedCreateNestedManyWithoutLifeRunInput
+  Art?: Prisma.LifeRunArtUncheckedCreateNestedManyWithoutLifeRunInput
+  Stats?: Prisma.LifeStatUncheckedCreateNestedManyWithoutLifeRunInput
+}
+
+export type LifeRunCreateOrConnectWithoutDeckInput = {
+  where: Prisma.LifeRunWhereUniqueInput
+  create: Prisma.XOR<Prisma.LifeRunCreateWithoutDeckInput, Prisma.LifeRunUncheckedCreateWithoutDeckInput>
+}
+
+export type LifeRunCreateManyDeckInputEnvelope = {
+  data: Prisma.LifeRunCreateManyDeckInput | Prisma.LifeRunCreateManyDeckInput[]
+  skipDuplicates?: boolean
+}
+
+export type LifeRunUpsertWithWhereUniqueWithoutDeckInput = {
+  where: Prisma.LifeRunWhereUniqueInput
+  update: Prisma.XOR<Prisma.LifeRunUpdateWithoutDeckInput, Prisma.LifeRunUncheckedUpdateWithoutDeckInput>
+  create: Prisma.XOR<Prisma.LifeRunCreateWithoutDeckInput, Prisma.LifeRunUncheckedCreateWithoutDeckInput>
+}
+
+export type LifeRunUpdateWithWhereUniqueWithoutDeckInput = {
+  where: Prisma.LifeRunWhereUniqueInput
+  data: Prisma.XOR<Prisma.LifeRunUpdateWithoutDeckInput, Prisma.LifeRunUncheckedUpdateWithoutDeckInput>
+}
+
+export type LifeRunUpdateManyWithWhereWithoutDeckInput = {
+  where: Prisma.LifeRunScalarWhereInput
+  data: Prisma.XOR<Prisma.LifeRunUpdateManyMutationInput, Prisma.LifeRunUncheckedUpdateManyWithoutDeckInput>
+}
+
 export type LifeRunCreateWithoutChoicesInput = {
   createdAt?: Date | string
   updatedAt?: Date | string | null
@@ -1496,6 +2089,13 @@ export type LifeRunCreateWithoutChoicesInput = {
   outcomeKey?: string | null
   summary?: string | null
   statsSnapshot?: string | null
+  shape?: $Enums.StoryShape
+  turnBudget?: number | null
+  narratorStyle?: string | null
+  premise?: string | null
+  bible?: string | null
+  inventory?: string | null
+  pendingTurn?: string | null
   Unlocks?: Prisma.LifeAchievementUnlockCreateNestedManyWithoutLifeRunInput
   ArtCollection?: Prisma.ArtCollectionCreateNestedOneWithoutLifeRunsInput
   Bot?: Prisma.BotCreateNestedOneWithoutLifeRunsInput
@@ -1505,6 +2105,8 @@ export type LifeRunCreateWithoutChoicesInput = {
   User: Prisma.UserCreateNestedOneWithoutLifeRunsInput
   Art?: Prisma.LifeRunArtCreateNestedManyWithoutLifeRunInput
   Stats?: Prisma.LifeStatCreateNestedManyWithoutLifeRunInput
+  Deck?: Prisma.EndingDeckCreateNestedOneWithoutRunsInput
+  Scenario?: Prisma.ScenarioCreateNestedOneWithoutLifeRunsInput
 }
 
 export type LifeRunUncheckedCreateWithoutChoicesInput = {
@@ -1527,6 +2129,15 @@ export type LifeRunUncheckedCreateWithoutChoicesInput = {
   outcomeKey?: string | null
   summary?: string | null
   statsSnapshot?: string | null
+  shape?: $Enums.StoryShape
+  deckId?: number | null
+  turnBudget?: number | null
+  narratorStyle?: string | null
+  premise?: string | null
+  scenarioId?: number | null
+  bible?: string | null
+  inventory?: string | null
+  pendingTurn?: string | null
   Unlocks?: Prisma.LifeAchievementUnlockUncheckedCreateNestedManyWithoutLifeRunInput
   Art?: Prisma.LifeRunArtUncheckedCreateNestedManyWithoutLifeRunInput
   Stats?: Prisma.LifeStatUncheckedCreateNestedManyWithoutLifeRunInput
@@ -1561,6 +2172,13 @@ export type LifeRunUpdateWithoutChoicesInput = {
   outcomeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   statsSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shape?: Prisma.EnumStoryShapeFieldUpdateOperationsInput | $Enums.StoryShape
+  turnBudget?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  narratorStyle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  premise?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bible?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  inventory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pendingTurn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Unlocks?: Prisma.LifeAchievementUnlockUpdateManyWithoutLifeRunNestedInput
   ArtCollection?: Prisma.ArtCollectionUpdateOneWithoutLifeRunsNestedInput
   Bot?: Prisma.BotUpdateOneWithoutLifeRunsNestedInput
@@ -1570,6 +2188,8 @@ export type LifeRunUpdateWithoutChoicesInput = {
   User?: Prisma.UserUpdateOneRequiredWithoutLifeRunsNestedInput
   Art?: Prisma.LifeRunArtUpdateManyWithoutLifeRunNestedInput
   Stats?: Prisma.LifeStatUpdateManyWithoutLifeRunNestedInput
+  Deck?: Prisma.EndingDeckUpdateOneWithoutRunsNestedInput
+  Scenario?: Prisma.ScenarioUpdateOneWithoutLifeRunsNestedInput
 }
 
 export type LifeRunUncheckedUpdateWithoutChoicesInput = {
@@ -1592,6 +2212,15 @@ export type LifeRunUncheckedUpdateWithoutChoicesInput = {
   outcomeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   statsSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shape?: Prisma.EnumStoryShapeFieldUpdateOperationsInput | $Enums.StoryShape
+  deckId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  turnBudget?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  narratorStyle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  premise?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  scenarioId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  bible?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  inventory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pendingTurn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Unlocks?: Prisma.LifeAchievementUnlockUncheckedUpdateManyWithoutLifeRunNestedInput
   Art?: Prisma.LifeRunArtUncheckedUpdateManyWithoutLifeRunNestedInput
   Stats?: Prisma.LifeStatUncheckedUpdateManyWithoutLifeRunNestedInput
@@ -1610,6 +2239,13 @@ export type LifeRunCreateWithoutStatsInput = {
   outcomeKey?: string | null
   summary?: string | null
   statsSnapshot?: string | null
+  shape?: $Enums.StoryShape
+  turnBudget?: number | null
+  narratorStyle?: string | null
+  premise?: string | null
+  bible?: string | null
+  inventory?: string | null
+  pendingTurn?: string | null
   Unlocks?: Prisma.LifeAchievementUnlockCreateNestedManyWithoutLifeRunInput
   Choices?: Prisma.LifeChoiceCreateNestedManyWithoutLifeRunInput
   ArtCollection?: Prisma.ArtCollectionCreateNestedOneWithoutLifeRunsInput
@@ -1619,6 +2255,8 @@ export type LifeRunCreateWithoutStatsInput = {
   Ending?: Prisma.LifeEndingCreateNestedOneWithoutRunsInput
   User: Prisma.UserCreateNestedOneWithoutLifeRunsInput
   Art?: Prisma.LifeRunArtCreateNestedManyWithoutLifeRunInput
+  Deck?: Prisma.EndingDeckCreateNestedOneWithoutRunsInput
+  Scenario?: Prisma.ScenarioCreateNestedOneWithoutLifeRunsInput
 }
 
 export type LifeRunUncheckedCreateWithoutStatsInput = {
@@ -1641,6 +2279,15 @@ export type LifeRunUncheckedCreateWithoutStatsInput = {
   outcomeKey?: string | null
   summary?: string | null
   statsSnapshot?: string | null
+  shape?: $Enums.StoryShape
+  deckId?: number | null
+  turnBudget?: number | null
+  narratorStyle?: string | null
+  premise?: string | null
+  scenarioId?: number | null
+  bible?: string | null
+  inventory?: string | null
+  pendingTurn?: string | null
   Unlocks?: Prisma.LifeAchievementUnlockUncheckedCreateNestedManyWithoutLifeRunInput
   Choices?: Prisma.LifeChoiceUncheckedCreateNestedManyWithoutLifeRunInput
   Art?: Prisma.LifeRunArtUncheckedCreateNestedManyWithoutLifeRunInput
@@ -1675,6 +2322,13 @@ export type LifeRunUpdateWithoutStatsInput = {
   outcomeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   statsSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shape?: Prisma.EnumStoryShapeFieldUpdateOperationsInput | $Enums.StoryShape
+  turnBudget?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  narratorStyle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  premise?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bible?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  inventory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pendingTurn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Unlocks?: Prisma.LifeAchievementUnlockUpdateManyWithoutLifeRunNestedInput
   Choices?: Prisma.LifeChoiceUpdateManyWithoutLifeRunNestedInput
   ArtCollection?: Prisma.ArtCollectionUpdateOneWithoutLifeRunsNestedInput
@@ -1684,6 +2338,8 @@ export type LifeRunUpdateWithoutStatsInput = {
   Ending?: Prisma.LifeEndingUpdateOneWithoutRunsNestedInput
   User?: Prisma.UserUpdateOneRequiredWithoutLifeRunsNestedInput
   Art?: Prisma.LifeRunArtUpdateManyWithoutLifeRunNestedInput
+  Deck?: Prisma.EndingDeckUpdateOneWithoutRunsNestedInput
+  Scenario?: Prisma.ScenarioUpdateOneWithoutLifeRunsNestedInput
 }
 
 export type LifeRunUncheckedUpdateWithoutStatsInput = {
@@ -1706,6 +2362,15 @@ export type LifeRunUncheckedUpdateWithoutStatsInput = {
   outcomeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   statsSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shape?: Prisma.EnumStoryShapeFieldUpdateOperationsInput | $Enums.StoryShape
+  deckId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  turnBudget?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  narratorStyle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  premise?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  scenarioId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  bible?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  inventory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pendingTurn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Unlocks?: Prisma.LifeAchievementUnlockUncheckedUpdateManyWithoutLifeRunNestedInput
   Choices?: Prisma.LifeChoiceUncheckedUpdateManyWithoutLifeRunNestedInput
   Art?: Prisma.LifeRunArtUncheckedUpdateManyWithoutLifeRunNestedInput
@@ -1724,6 +2389,13 @@ export type LifeRunCreateWithoutEndingInput = {
   outcomeKey?: string | null
   summary?: string | null
   statsSnapshot?: string | null
+  shape?: $Enums.StoryShape
+  turnBudget?: number | null
+  narratorStyle?: string | null
+  premise?: string | null
+  bible?: string | null
+  inventory?: string | null
+  pendingTurn?: string | null
   Unlocks?: Prisma.LifeAchievementUnlockCreateNestedManyWithoutLifeRunInput
   Choices?: Prisma.LifeChoiceCreateNestedManyWithoutLifeRunInput
   ArtCollection?: Prisma.ArtCollectionCreateNestedOneWithoutLifeRunsInput
@@ -1733,6 +2405,8 @@ export type LifeRunCreateWithoutEndingInput = {
   User: Prisma.UserCreateNestedOneWithoutLifeRunsInput
   Art?: Prisma.LifeRunArtCreateNestedManyWithoutLifeRunInput
   Stats?: Prisma.LifeStatCreateNestedManyWithoutLifeRunInput
+  Deck?: Prisma.EndingDeckCreateNestedOneWithoutRunsInput
+  Scenario?: Prisma.ScenarioCreateNestedOneWithoutLifeRunsInput
 }
 
 export type LifeRunUncheckedCreateWithoutEndingInput = {
@@ -1754,6 +2428,15 @@ export type LifeRunUncheckedCreateWithoutEndingInput = {
   outcomeKey?: string | null
   summary?: string | null
   statsSnapshot?: string | null
+  shape?: $Enums.StoryShape
+  deckId?: number | null
+  turnBudget?: number | null
+  narratorStyle?: string | null
+  premise?: string | null
+  scenarioId?: number | null
+  bible?: string | null
+  inventory?: string | null
+  pendingTurn?: string | null
   Unlocks?: Prisma.LifeAchievementUnlockUncheckedCreateNestedManyWithoutLifeRunInput
   Choices?: Prisma.LifeChoiceUncheckedCreateNestedManyWithoutLifeRunInput
   Art?: Prisma.LifeRunArtUncheckedCreateNestedManyWithoutLifeRunInput
@@ -1799,6 +2482,13 @@ export type LifeRunCreateWithoutUnlocksInput = {
   outcomeKey?: string | null
   summary?: string | null
   statsSnapshot?: string | null
+  shape?: $Enums.StoryShape
+  turnBudget?: number | null
+  narratorStyle?: string | null
+  premise?: string | null
+  bible?: string | null
+  inventory?: string | null
+  pendingTurn?: string | null
   Choices?: Prisma.LifeChoiceCreateNestedManyWithoutLifeRunInput
   ArtCollection?: Prisma.ArtCollectionCreateNestedOneWithoutLifeRunsInput
   Bot?: Prisma.BotCreateNestedOneWithoutLifeRunsInput
@@ -1808,6 +2498,8 @@ export type LifeRunCreateWithoutUnlocksInput = {
   User: Prisma.UserCreateNestedOneWithoutLifeRunsInput
   Art?: Prisma.LifeRunArtCreateNestedManyWithoutLifeRunInput
   Stats?: Prisma.LifeStatCreateNestedManyWithoutLifeRunInput
+  Deck?: Prisma.EndingDeckCreateNestedOneWithoutRunsInput
+  Scenario?: Prisma.ScenarioCreateNestedOneWithoutLifeRunsInput
 }
 
 export type LifeRunUncheckedCreateWithoutUnlocksInput = {
@@ -1830,6 +2522,15 @@ export type LifeRunUncheckedCreateWithoutUnlocksInput = {
   outcomeKey?: string | null
   summary?: string | null
   statsSnapshot?: string | null
+  shape?: $Enums.StoryShape
+  deckId?: number | null
+  turnBudget?: number | null
+  narratorStyle?: string | null
+  premise?: string | null
+  scenarioId?: number | null
+  bible?: string | null
+  inventory?: string | null
+  pendingTurn?: string | null
   Choices?: Prisma.LifeChoiceUncheckedCreateNestedManyWithoutLifeRunInput
   Art?: Prisma.LifeRunArtUncheckedCreateNestedManyWithoutLifeRunInput
   Stats?: Prisma.LifeStatUncheckedCreateNestedManyWithoutLifeRunInput
@@ -1864,6 +2565,13 @@ export type LifeRunUpdateWithoutUnlocksInput = {
   outcomeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   statsSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shape?: Prisma.EnumStoryShapeFieldUpdateOperationsInput | $Enums.StoryShape
+  turnBudget?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  narratorStyle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  premise?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bible?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  inventory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pendingTurn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Choices?: Prisma.LifeChoiceUpdateManyWithoutLifeRunNestedInput
   ArtCollection?: Prisma.ArtCollectionUpdateOneWithoutLifeRunsNestedInput
   Bot?: Prisma.BotUpdateOneWithoutLifeRunsNestedInput
@@ -1873,6 +2581,8 @@ export type LifeRunUpdateWithoutUnlocksInput = {
   User?: Prisma.UserUpdateOneRequiredWithoutLifeRunsNestedInput
   Art?: Prisma.LifeRunArtUpdateManyWithoutLifeRunNestedInput
   Stats?: Prisma.LifeStatUpdateManyWithoutLifeRunNestedInput
+  Deck?: Prisma.EndingDeckUpdateOneWithoutRunsNestedInput
+  Scenario?: Prisma.ScenarioUpdateOneWithoutLifeRunsNestedInput
 }
 
 export type LifeRunUncheckedUpdateWithoutUnlocksInput = {
@@ -1895,6 +2605,15 @@ export type LifeRunUncheckedUpdateWithoutUnlocksInput = {
   outcomeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   statsSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shape?: Prisma.EnumStoryShapeFieldUpdateOperationsInput | $Enums.StoryShape
+  deckId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  turnBudget?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  narratorStyle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  premise?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  scenarioId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  bible?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  inventory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pendingTurn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Choices?: Prisma.LifeChoiceUncheckedUpdateManyWithoutLifeRunNestedInput
   Art?: Prisma.LifeRunArtUncheckedUpdateManyWithoutLifeRunNestedInput
   Stats?: Prisma.LifeStatUncheckedUpdateManyWithoutLifeRunNestedInput
@@ -1913,6 +2632,13 @@ export type LifeRunCreateWithoutArtInput = {
   outcomeKey?: string | null
   summary?: string | null
   statsSnapshot?: string | null
+  shape?: $Enums.StoryShape
+  turnBudget?: number | null
+  narratorStyle?: string | null
+  premise?: string | null
+  bible?: string | null
+  inventory?: string | null
+  pendingTurn?: string | null
   Unlocks?: Prisma.LifeAchievementUnlockCreateNestedManyWithoutLifeRunInput
   Choices?: Prisma.LifeChoiceCreateNestedManyWithoutLifeRunInput
   ArtCollection?: Prisma.ArtCollectionCreateNestedOneWithoutLifeRunsInput
@@ -1922,6 +2648,8 @@ export type LifeRunCreateWithoutArtInput = {
   Ending?: Prisma.LifeEndingCreateNestedOneWithoutRunsInput
   User: Prisma.UserCreateNestedOneWithoutLifeRunsInput
   Stats?: Prisma.LifeStatCreateNestedManyWithoutLifeRunInput
+  Deck?: Prisma.EndingDeckCreateNestedOneWithoutRunsInput
+  Scenario?: Prisma.ScenarioCreateNestedOneWithoutLifeRunsInput
 }
 
 export type LifeRunUncheckedCreateWithoutArtInput = {
@@ -1944,6 +2672,15 @@ export type LifeRunUncheckedCreateWithoutArtInput = {
   outcomeKey?: string | null
   summary?: string | null
   statsSnapshot?: string | null
+  shape?: $Enums.StoryShape
+  deckId?: number | null
+  turnBudget?: number | null
+  narratorStyle?: string | null
+  premise?: string | null
+  scenarioId?: number | null
+  bible?: string | null
+  inventory?: string | null
+  pendingTurn?: string | null
   Unlocks?: Prisma.LifeAchievementUnlockUncheckedCreateNestedManyWithoutLifeRunInput
   Choices?: Prisma.LifeChoiceUncheckedCreateNestedManyWithoutLifeRunInput
   Stats?: Prisma.LifeStatUncheckedCreateNestedManyWithoutLifeRunInput
@@ -1978,6 +2715,13 @@ export type LifeRunUpdateWithoutArtInput = {
   outcomeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   statsSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shape?: Prisma.EnumStoryShapeFieldUpdateOperationsInput | $Enums.StoryShape
+  turnBudget?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  narratorStyle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  premise?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bible?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  inventory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pendingTurn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Unlocks?: Prisma.LifeAchievementUnlockUpdateManyWithoutLifeRunNestedInput
   Choices?: Prisma.LifeChoiceUpdateManyWithoutLifeRunNestedInput
   ArtCollection?: Prisma.ArtCollectionUpdateOneWithoutLifeRunsNestedInput
@@ -1987,6 +2731,8 @@ export type LifeRunUpdateWithoutArtInput = {
   Ending?: Prisma.LifeEndingUpdateOneWithoutRunsNestedInput
   User?: Prisma.UserUpdateOneRequiredWithoutLifeRunsNestedInput
   Stats?: Prisma.LifeStatUpdateManyWithoutLifeRunNestedInput
+  Deck?: Prisma.EndingDeckUpdateOneWithoutRunsNestedInput
+  Scenario?: Prisma.ScenarioUpdateOneWithoutLifeRunsNestedInput
 }
 
 export type LifeRunUncheckedUpdateWithoutArtInput = {
@@ -2009,6 +2755,15 @@ export type LifeRunUncheckedUpdateWithoutArtInput = {
   outcomeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   statsSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shape?: Prisma.EnumStoryShapeFieldUpdateOperationsInput | $Enums.StoryShape
+  deckId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  turnBudget?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  narratorStyle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  premise?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  scenarioId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  bible?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  inventory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pendingTurn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Unlocks?: Prisma.LifeAchievementUnlockUncheckedUpdateManyWithoutLifeRunNestedInput
   Choices?: Prisma.LifeChoiceUncheckedUpdateManyWithoutLifeRunNestedInput
   Stats?: Prisma.LifeStatUncheckedUpdateManyWithoutLifeRunNestedInput
@@ -2033,6 +2788,15 @@ export type LifeRunCreateManyArtCollectionInput = {
   outcomeKey?: string | null
   summary?: string | null
   statsSnapshot?: string | null
+  shape?: $Enums.StoryShape
+  deckId?: number | null
+  turnBudget?: number | null
+  narratorStyle?: string | null
+  premise?: string | null
+  scenarioId?: number | null
+  bible?: string | null
+  inventory?: string | null
+  pendingTurn?: string | null
 }
 
 export type LifeRunUpdateWithoutArtCollectionInput = {
@@ -2048,6 +2812,13 @@ export type LifeRunUpdateWithoutArtCollectionInput = {
   outcomeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   statsSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shape?: Prisma.EnumStoryShapeFieldUpdateOperationsInput | $Enums.StoryShape
+  turnBudget?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  narratorStyle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  premise?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bible?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  inventory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pendingTurn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Unlocks?: Prisma.LifeAchievementUnlockUpdateManyWithoutLifeRunNestedInput
   Choices?: Prisma.LifeChoiceUpdateManyWithoutLifeRunNestedInput
   Bot?: Prisma.BotUpdateOneWithoutLifeRunsNestedInput
@@ -2057,6 +2828,8 @@ export type LifeRunUpdateWithoutArtCollectionInput = {
   User?: Prisma.UserUpdateOneRequiredWithoutLifeRunsNestedInput
   Art?: Prisma.LifeRunArtUpdateManyWithoutLifeRunNestedInput
   Stats?: Prisma.LifeStatUpdateManyWithoutLifeRunNestedInput
+  Deck?: Prisma.EndingDeckUpdateOneWithoutRunsNestedInput
+  Scenario?: Prisma.ScenarioUpdateOneWithoutLifeRunsNestedInput
 }
 
 export type LifeRunUncheckedUpdateWithoutArtCollectionInput = {
@@ -2078,6 +2851,15 @@ export type LifeRunUncheckedUpdateWithoutArtCollectionInput = {
   outcomeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   statsSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shape?: Prisma.EnumStoryShapeFieldUpdateOperationsInput | $Enums.StoryShape
+  deckId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  turnBudget?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  narratorStyle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  premise?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  scenarioId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  bible?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  inventory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pendingTurn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Unlocks?: Prisma.LifeAchievementUnlockUncheckedUpdateManyWithoutLifeRunNestedInput
   Choices?: Prisma.LifeChoiceUncheckedUpdateManyWithoutLifeRunNestedInput
   Art?: Prisma.LifeRunArtUncheckedUpdateManyWithoutLifeRunNestedInput
@@ -2103,6 +2885,15 @@ export type LifeRunUncheckedUpdateManyWithoutArtCollectionInput = {
   outcomeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   statsSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shape?: Prisma.EnumStoryShapeFieldUpdateOperationsInput | $Enums.StoryShape
+  deckId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  turnBudget?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  narratorStyle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  premise?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  scenarioId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  bible?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  inventory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pendingTurn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type LifeRunCreateManyBotInput = {
@@ -2124,6 +2915,15 @@ export type LifeRunCreateManyBotInput = {
   outcomeKey?: string | null
   summary?: string | null
   statsSnapshot?: string | null
+  shape?: $Enums.StoryShape
+  deckId?: number | null
+  turnBudget?: number | null
+  narratorStyle?: string | null
+  premise?: string | null
+  scenarioId?: number | null
+  bible?: string | null
+  inventory?: string | null
+  pendingTurn?: string | null
 }
 
 export type LifeRunUpdateWithoutBotInput = {
@@ -2139,6 +2939,13 @@ export type LifeRunUpdateWithoutBotInput = {
   outcomeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   statsSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shape?: Prisma.EnumStoryShapeFieldUpdateOperationsInput | $Enums.StoryShape
+  turnBudget?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  narratorStyle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  premise?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bible?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  inventory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pendingTurn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Unlocks?: Prisma.LifeAchievementUnlockUpdateManyWithoutLifeRunNestedInput
   Choices?: Prisma.LifeChoiceUpdateManyWithoutLifeRunNestedInput
   ArtCollection?: Prisma.ArtCollectionUpdateOneWithoutLifeRunsNestedInput
@@ -2148,6 +2955,8 @@ export type LifeRunUpdateWithoutBotInput = {
   User?: Prisma.UserUpdateOneRequiredWithoutLifeRunsNestedInput
   Art?: Prisma.LifeRunArtUpdateManyWithoutLifeRunNestedInput
   Stats?: Prisma.LifeStatUpdateManyWithoutLifeRunNestedInput
+  Deck?: Prisma.EndingDeckUpdateOneWithoutRunsNestedInput
+  Scenario?: Prisma.ScenarioUpdateOneWithoutLifeRunsNestedInput
 }
 
 export type LifeRunUncheckedUpdateWithoutBotInput = {
@@ -2169,6 +2978,15 @@ export type LifeRunUncheckedUpdateWithoutBotInput = {
   outcomeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   statsSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shape?: Prisma.EnumStoryShapeFieldUpdateOperationsInput | $Enums.StoryShape
+  deckId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  turnBudget?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  narratorStyle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  premise?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  scenarioId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  bible?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  inventory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pendingTurn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Unlocks?: Prisma.LifeAchievementUnlockUncheckedUpdateManyWithoutLifeRunNestedInput
   Choices?: Prisma.LifeChoiceUncheckedUpdateManyWithoutLifeRunNestedInput
   Art?: Prisma.LifeRunArtUncheckedUpdateManyWithoutLifeRunNestedInput
@@ -2194,6 +3012,15 @@ export type LifeRunUncheckedUpdateManyWithoutBotInput = {
   outcomeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   statsSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shape?: Prisma.EnumStoryShapeFieldUpdateOperationsInput | $Enums.StoryShape
+  deckId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  turnBudget?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  narratorStyle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  premise?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  scenarioId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  bible?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  inventory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pendingTurn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type LifeRunCreateManyCharacterInput = {
@@ -2215,6 +3042,15 @@ export type LifeRunCreateManyCharacterInput = {
   outcomeKey?: string | null
   summary?: string | null
   statsSnapshot?: string | null
+  shape?: $Enums.StoryShape
+  deckId?: number | null
+  turnBudget?: number | null
+  narratorStyle?: string | null
+  premise?: string | null
+  scenarioId?: number | null
+  bible?: string | null
+  inventory?: string | null
+  pendingTurn?: string | null
 }
 
 export type LifeRunUpdateWithoutCharacterInput = {
@@ -2230,6 +3066,13 @@ export type LifeRunUpdateWithoutCharacterInput = {
   outcomeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   statsSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shape?: Prisma.EnumStoryShapeFieldUpdateOperationsInput | $Enums.StoryShape
+  turnBudget?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  narratorStyle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  premise?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bible?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  inventory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pendingTurn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Unlocks?: Prisma.LifeAchievementUnlockUpdateManyWithoutLifeRunNestedInput
   Choices?: Prisma.LifeChoiceUpdateManyWithoutLifeRunNestedInput
   ArtCollection?: Prisma.ArtCollectionUpdateOneWithoutLifeRunsNestedInput
@@ -2239,6 +3082,8 @@ export type LifeRunUpdateWithoutCharacterInput = {
   User?: Prisma.UserUpdateOneRequiredWithoutLifeRunsNestedInput
   Art?: Prisma.LifeRunArtUpdateManyWithoutLifeRunNestedInput
   Stats?: Prisma.LifeStatUpdateManyWithoutLifeRunNestedInput
+  Deck?: Prisma.EndingDeckUpdateOneWithoutRunsNestedInput
+  Scenario?: Prisma.ScenarioUpdateOneWithoutLifeRunsNestedInput
 }
 
 export type LifeRunUncheckedUpdateWithoutCharacterInput = {
@@ -2260,6 +3105,15 @@ export type LifeRunUncheckedUpdateWithoutCharacterInput = {
   outcomeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   statsSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shape?: Prisma.EnumStoryShapeFieldUpdateOperationsInput | $Enums.StoryShape
+  deckId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  turnBudget?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  narratorStyle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  premise?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  scenarioId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  bible?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  inventory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pendingTurn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Unlocks?: Prisma.LifeAchievementUnlockUncheckedUpdateManyWithoutLifeRunNestedInput
   Choices?: Prisma.LifeChoiceUncheckedUpdateManyWithoutLifeRunNestedInput
   Art?: Prisma.LifeRunArtUncheckedUpdateManyWithoutLifeRunNestedInput
@@ -2285,6 +3139,15 @@ export type LifeRunUncheckedUpdateManyWithoutCharacterInput = {
   outcomeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   statsSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shape?: Prisma.EnumStoryShapeFieldUpdateOperationsInput | $Enums.StoryShape
+  deckId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  turnBudget?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  narratorStyle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  premise?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  scenarioId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  bible?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  inventory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pendingTurn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type LifeRunCreateManyDreamInput = {
@@ -2306,6 +3169,15 @@ export type LifeRunCreateManyDreamInput = {
   outcomeKey?: string | null
   summary?: string | null
   statsSnapshot?: string | null
+  shape?: $Enums.StoryShape
+  deckId?: number | null
+  turnBudget?: number | null
+  narratorStyle?: string | null
+  premise?: string | null
+  scenarioId?: number | null
+  bible?: string | null
+  inventory?: string | null
+  pendingTurn?: string | null
 }
 
 export type LifeRunUpdateWithoutDreamInput = {
@@ -2321,6 +3193,13 @@ export type LifeRunUpdateWithoutDreamInput = {
   outcomeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   statsSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shape?: Prisma.EnumStoryShapeFieldUpdateOperationsInput | $Enums.StoryShape
+  turnBudget?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  narratorStyle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  premise?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bible?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  inventory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pendingTurn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Unlocks?: Prisma.LifeAchievementUnlockUpdateManyWithoutLifeRunNestedInput
   Choices?: Prisma.LifeChoiceUpdateManyWithoutLifeRunNestedInput
   ArtCollection?: Prisma.ArtCollectionUpdateOneWithoutLifeRunsNestedInput
@@ -2330,6 +3209,8 @@ export type LifeRunUpdateWithoutDreamInput = {
   User?: Prisma.UserUpdateOneRequiredWithoutLifeRunsNestedInput
   Art?: Prisma.LifeRunArtUpdateManyWithoutLifeRunNestedInput
   Stats?: Prisma.LifeStatUpdateManyWithoutLifeRunNestedInput
+  Deck?: Prisma.EndingDeckUpdateOneWithoutRunsNestedInput
+  Scenario?: Prisma.ScenarioUpdateOneWithoutLifeRunsNestedInput
 }
 
 export type LifeRunUncheckedUpdateWithoutDreamInput = {
@@ -2351,6 +3232,15 @@ export type LifeRunUncheckedUpdateWithoutDreamInput = {
   outcomeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   statsSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shape?: Prisma.EnumStoryShapeFieldUpdateOperationsInput | $Enums.StoryShape
+  deckId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  turnBudget?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  narratorStyle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  premise?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  scenarioId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  bible?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  inventory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pendingTurn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Unlocks?: Prisma.LifeAchievementUnlockUncheckedUpdateManyWithoutLifeRunNestedInput
   Choices?: Prisma.LifeChoiceUncheckedUpdateManyWithoutLifeRunNestedInput
   Art?: Prisma.LifeRunArtUncheckedUpdateManyWithoutLifeRunNestedInput
@@ -2376,6 +3266,142 @@ export type LifeRunUncheckedUpdateManyWithoutDreamInput = {
   outcomeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   statsSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shape?: Prisma.EnumStoryShapeFieldUpdateOperationsInput | $Enums.StoryShape
+  deckId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  turnBudget?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  narratorStyle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  premise?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  scenarioId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  bible?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  inventory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pendingTurn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+}
+
+export type LifeRunCreateManyScenarioInput = {
+  id?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string | null
+  userId: number
+  title: string
+  status?: $Enums.LifeRunStatus
+  seed: string
+  protagonistName?: string | null
+  currentAge?: number | null
+  currentChapter?: number
+  genre?: string | null
+  dreamId?: number | null
+  characterId?: number | null
+  botId?: number | null
+  artCollectionId?: number | null
+  endingId?: number | null
+  outcomeKey?: string | null
+  summary?: string | null
+  statsSnapshot?: string | null
+  shape?: $Enums.StoryShape
+  deckId?: number | null
+  turnBudget?: number | null
+  narratorStyle?: string | null
+  premise?: string | null
+  bible?: string | null
+  inventory?: string | null
+  pendingTurn?: string | null
+}
+
+export type LifeRunUpdateWithoutScenarioInput = {
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumLifeRunStatusFieldUpdateOperationsInput | $Enums.LifeRunStatus
+  seed?: Prisma.StringFieldUpdateOperationsInput | string
+  protagonistName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currentAge?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  currentChapter?: Prisma.IntFieldUpdateOperationsInput | number
+  genre?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  outcomeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  statsSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shape?: Prisma.EnumStoryShapeFieldUpdateOperationsInput | $Enums.StoryShape
+  turnBudget?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  narratorStyle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  premise?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bible?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  inventory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pendingTurn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  Unlocks?: Prisma.LifeAchievementUnlockUpdateManyWithoutLifeRunNestedInput
+  Choices?: Prisma.LifeChoiceUpdateManyWithoutLifeRunNestedInput
+  ArtCollection?: Prisma.ArtCollectionUpdateOneWithoutLifeRunsNestedInput
+  Bot?: Prisma.BotUpdateOneWithoutLifeRunsNestedInput
+  Character?: Prisma.CharacterUpdateOneWithoutLifeRunsNestedInput
+  Dream?: Prisma.DreamUpdateOneWithoutLifeRunsNestedInput
+  Ending?: Prisma.LifeEndingUpdateOneWithoutRunsNestedInput
+  User?: Prisma.UserUpdateOneRequiredWithoutLifeRunsNestedInput
+  Art?: Prisma.LifeRunArtUpdateManyWithoutLifeRunNestedInput
+  Stats?: Prisma.LifeStatUpdateManyWithoutLifeRunNestedInput
+  Deck?: Prisma.EndingDeckUpdateOneWithoutRunsNestedInput
+}
+
+export type LifeRunUncheckedUpdateWithoutScenarioInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  userId?: Prisma.IntFieldUpdateOperationsInput | number
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumLifeRunStatusFieldUpdateOperationsInput | $Enums.LifeRunStatus
+  seed?: Prisma.StringFieldUpdateOperationsInput | string
+  protagonistName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currentAge?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  currentChapter?: Prisma.IntFieldUpdateOperationsInput | number
+  genre?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dreamId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  characterId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  botId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  artCollectionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  endingId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  outcomeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  statsSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shape?: Prisma.EnumStoryShapeFieldUpdateOperationsInput | $Enums.StoryShape
+  deckId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  turnBudget?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  narratorStyle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  premise?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bible?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  inventory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pendingTurn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  Unlocks?: Prisma.LifeAchievementUnlockUncheckedUpdateManyWithoutLifeRunNestedInput
+  Choices?: Prisma.LifeChoiceUncheckedUpdateManyWithoutLifeRunNestedInput
+  Art?: Prisma.LifeRunArtUncheckedUpdateManyWithoutLifeRunNestedInput
+  Stats?: Prisma.LifeStatUncheckedUpdateManyWithoutLifeRunNestedInput
+}
+
+export type LifeRunUncheckedUpdateManyWithoutScenarioInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  userId?: Prisma.IntFieldUpdateOperationsInput | number
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumLifeRunStatusFieldUpdateOperationsInput | $Enums.LifeRunStatus
+  seed?: Prisma.StringFieldUpdateOperationsInput | string
+  protagonistName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currentAge?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  currentChapter?: Prisma.IntFieldUpdateOperationsInput | number
+  genre?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dreamId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  characterId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  botId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  artCollectionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  endingId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  outcomeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  statsSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shape?: Prisma.EnumStoryShapeFieldUpdateOperationsInput | $Enums.StoryShape
+  deckId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  turnBudget?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  narratorStyle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  premise?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bible?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  inventory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pendingTurn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type LifeRunCreateManyUserInput = {
@@ -2397,6 +3423,15 @@ export type LifeRunCreateManyUserInput = {
   outcomeKey?: string | null
   summary?: string | null
   statsSnapshot?: string | null
+  shape?: $Enums.StoryShape
+  deckId?: number | null
+  turnBudget?: number | null
+  narratorStyle?: string | null
+  premise?: string | null
+  scenarioId?: number | null
+  bible?: string | null
+  inventory?: string | null
+  pendingTurn?: string | null
 }
 
 export type LifeRunUpdateWithoutUserInput = {
@@ -2412,6 +3447,13 @@ export type LifeRunUpdateWithoutUserInput = {
   outcomeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   statsSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shape?: Prisma.EnumStoryShapeFieldUpdateOperationsInput | $Enums.StoryShape
+  turnBudget?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  narratorStyle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  premise?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bible?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  inventory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pendingTurn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Unlocks?: Prisma.LifeAchievementUnlockUpdateManyWithoutLifeRunNestedInput
   Choices?: Prisma.LifeChoiceUpdateManyWithoutLifeRunNestedInput
   ArtCollection?: Prisma.ArtCollectionUpdateOneWithoutLifeRunsNestedInput
@@ -2421,6 +3463,8 @@ export type LifeRunUpdateWithoutUserInput = {
   Ending?: Prisma.LifeEndingUpdateOneWithoutRunsNestedInput
   Art?: Prisma.LifeRunArtUpdateManyWithoutLifeRunNestedInput
   Stats?: Prisma.LifeStatUpdateManyWithoutLifeRunNestedInput
+  Deck?: Prisma.EndingDeckUpdateOneWithoutRunsNestedInput
+  Scenario?: Prisma.ScenarioUpdateOneWithoutLifeRunsNestedInput
 }
 
 export type LifeRunUncheckedUpdateWithoutUserInput = {
@@ -2442,6 +3486,15 @@ export type LifeRunUncheckedUpdateWithoutUserInput = {
   outcomeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   statsSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shape?: Prisma.EnumStoryShapeFieldUpdateOperationsInput | $Enums.StoryShape
+  deckId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  turnBudget?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  narratorStyle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  premise?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  scenarioId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  bible?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  inventory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pendingTurn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Unlocks?: Prisma.LifeAchievementUnlockUncheckedUpdateManyWithoutLifeRunNestedInput
   Choices?: Prisma.LifeChoiceUncheckedUpdateManyWithoutLifeRunNestedInput
   Art?: Prisma.LifeRunArtUncheckedUpdateManyWithoutLifeRunNestedInput
@@ -2467,6 +3520,142 @@ export type LifeRunUncheckedUpdateManyWithoutUserInput = {
   outcomeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   statsSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shape?: Prisma.EnumStoryShapeFieldUpdateOperationsInput | $Enums.StoryShape
+  deckId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  turnBudget?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  narratorStyle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  premise?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  scenarioId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  bible?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  inventory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pendingTurn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+}
+
+export type LifeRunCreateManyDeckInput = {
+  id?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string | null
+  userId: number
+  title: string
+  status?: $Enums.LifeRunStatus
+  seed: string
+  protagonistName?: string | null
+  currentAge?: number | null
+  currentChapter?: number
+  genre?: string | null
+  dreamId?: number | null
+  characterId?: number | null
+  botId?: number | null
+  artCollectionId?: number | null
+  endingId?: number | null
+  outcomeKey?: string | null
+  summary?: string | null
+  statsSnapshot?: string | null
+  shape?: $Enums.StoryShape
+  turnBudget?: number | null
+  narratorStyle?: string | null
+  premise?: string | null
+  scenarioId?: number | null
+  bible?: string | null
+  inventory?: string | null
+  pendingTurn?: string | null
+}
+
+export type LifeRunUpdateWithoutDeckInput = {
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumLifeRunStatusFieldUpdateOperationsInput | $Enums.LifeRunStatus
+  seed?: Prisma.StringFieldUpdateOperationsInput | string
+  protagonistName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currentAge?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  currentChapter?: Prisma.IntFieldUpdateOperationsInput | number
+  genre?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  outcomeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  statsSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shape?: Prisma.EnumStoryShapeFieldUpdateOperationsInput | $Enums.StoryShape
+  turnBudget?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  narratorStyle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  premise?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bible?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  inventory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pendingTurn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  Unlocks?: Prisma.LifeAchievementUnlockUpdateManyWithoutLifeRunNestedInput
+  Choices?: Prisma.LifeChoiceUpdateManyWithoutLifeRunNestedInput
+  ArtCollection?: Prisma.ArtCollectionUpdateOneWithoutLifeRunsNestedInput
+  Bot?: Prisma.BotUpdateOneWithoutLifeRunsNestedInput
+  Character?: Prisma.CharacterUpdateOneWithoutLifeRunsNestedInput
+  Dream?: Prisma.DreamUpdateOneWithoutLifeRunsNestedInput
+  Ending?: Prisma.LifeEndingUpdateOneWithoutRunsNestedInput
+  User?: Prisma.UserUpdateOneRequiredWithoutLifeRunsNestedInput
+  Art?: Prisma.LifeRunArtUpdateManyWithoutLifeRunNestedInput
+  Stats?: Prisma.LifeStatUpdateManyWithoutLifeRunNestedInput
+  Scenario?: Prisma.ScenarioUpdateOneWithoutLifeRunsNestedInput
+}
+
+export type LifeRunUncheckedUpdateWithoutDeckInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  userId?: Prisma.IntFieldUpdateOperationsInput | number
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumLifeRunStatusFieldUpdateOperationsInput | $Enums.LifeRunStatus
+  seed?: Prisma.StringFieldUpdateOperationsInput | string
+  protagonistName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currentAge?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  currentChapter?: Prisma.IntFieldUpdateOperationsInput | number
+  genre?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dreamId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  characterId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  botId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  artCollectionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  endingId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  outcomeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  statsSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shape?: Prisma.EnumStoryShapeFieldUpdateOperationsInput | $Enums.StoryShape
+  turnBudget?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  narratorStyle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  premise?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  scenarioId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  bible?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  inventory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pendingTurn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  Unlocks?: Prisma.LifeAchievementUnlockUncheckedUpdateManyWithoutLifeRunNestedInput
+  Choices?: Prisma.LifeChoiceUncheckedUpdateManyWithoutLifeRunNestedInput
+  Art?: Prisma.LifeRunArtUncheckedUpdateManyWithoutLifeRunNestedInput
+  Stats?: Prisma.LifeStatUncheckedUpdateManyWithoutLifeRunNestedInput
+}
+
+export type LifeRunUncheckedUpdateManyWithoutDeckInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  userId?: Prisma.IntFieldUpdateOperationsInput | number
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumLifeRunStatusFieldUpdateOperationsInput | $Enums.LifeRunStatus
+  seed?: Prisma.StringFieldUpdateOperationsInput | string
+  protagonistName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currentAge?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  currentChapter?: Prisma.IntFieldUpdateOperationsInput | number
+  genre?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dreamId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  characterId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  botId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  artCollectionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  endingId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  outcomeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  statsSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shape?: Prisma.EnumStoryShapeFieldUpdateOperationsInput | $Enums.StoryShape
+  turnBudget?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  narratorStyle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  premise?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  scenarioId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  bible?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  inventory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pendingTurn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type LifeRunCreateManyEndingInput = {
@@ -2488,6 +3677,15 @@ export type LifeRunCreateManyEndingInput = {
   outcomeKey?: string | null
   summary?: string | null
   statsSnapshot?: string | null
+  shape?: $Enums.StoryShape
+  deckId?: number | null
+  turnBudget?: number | null
+  narratorStyle?: string | null
+  premise?: string | null
+  scenarioId?: number | null
+  bible?: string | null
+  inventory?: string | null
+  pendingTurn?: string | null
 }
 
 export type LifeRunUpdateWithoutEndingInput = {
@@ -2503,6 +3701,13 @@ export type LifeRunUpdateWithoutEndingInput = {
   outcomeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   statsSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shape?: Prisma.EnumStoryShapeFieldUpdateOperationsInput | $Enums.StoryShape
+  turnBudget?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  narratorStyle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  premise?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bible?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  inventory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pendingTurn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Unlocks?: Prisma.LifeAchievementUnlockUpdateManyWithoutLifeRunNestedInput
   Choices?: Prisma.LifeChoiceUpdateManyWithoutLifeRunNestedInput
   ArtCollection?: Prisma.ArtCollectionUpdateOneWithoutLifeRunsNestedInput
@@ -2512,6 +3717,8 @@ export type LifeRunUpdateWithoutEndingInput = {
   User?: Prisma.UserUpdateOneRequiredWithoutLifeRunsNestedInput
   Art?: Prisma.LifeRunArtUpdateManyWithoutLifeRunNestedInput
   Stats?: Prisma.LifeStatUpdateManyWithoutLifeRunNestedInput
+  Deck?: Prisma.EndingDeckUpdateOneWithoutRunsNestedInput
+  Scenario?: Prisma.ScenarioUpdateOneWithoutLifeRunsNestedInput
 }
 
 export type LifeRunUncheckedUpdateWithoutEndingInput = {
@@ -2533,6 +3740,15 @@ export type LifeRunUncheckedUpdateWithoutEndingInput = {
   outcomeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   statsSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shape?: Prisma.EnumStoryShapeFieldUpdateOperationsInput | $Enums.StoryShape
+  deckId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  turnBudget?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  narratorStyle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  premise?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  scenarioId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  bible?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  inventory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pendingTurn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Unlocks?: Prisma.LifeAchievementUnlockUncheckedUpdateManyWithoutLifeRunNestedInput
   Choices?: Prisma.LifeChoiceUncheckedUpdateManyWithoutLifeRunNestedInput
   Art?: Prisma.LifeRunArtUncheckedUpdateManyWithoutLifeRunNestedInput
@@ -2558,6 +3774,15 @@ export type LifeRunUncheckedUpdateManyWithoutEndingInput = {
   outcomeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   statsSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shape?: Prisma.EnumStoryShapeFieldUpdateOperationsInput | $Enums.StoryShape
+  deckId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  turnBudget?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  narratorStyle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  premise?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  scenarioId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  bible?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  inventory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pendingTurn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 
@@ -2638,6 +3863,15 @@ export type LifeRunSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   outcomeKey?: boolean
   summary?: boolean
   statsSnapshot?: boolean
+  shape?: boolean
+  deckId?: boolean
+  turnBudget?: boolean
+  narratorStyle?: boolean
+  premise?: boolean
+  scenarioId?: boolean
+  bible?: boolean
+  inventory?: boolean
+  pendingTurn?: boolean
   Unlocks?: boolean | Prisma.LifeRun$UnlocksArgs<ExtArgs>
   Choices?: boolean | Prisma.LifeRun$ChoicesArgs<ExtArgs>
   ArtCollection?: boolean | Prisma.LifeRun$ArtCollectionArgs<ExtArgs>
@@ -2648,6 +3882,8 @@ export type LifeRunSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   User?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   Art?: boolean | Prisma.LifeRun$ArtArgs<ExtArgs>
   Stats?: boolean | Prisma.LifeRun$StatsArgs<ExtArgs>
+  Deck?: boolean | Prisma.LifeRun$DeckArgs<ExtArgs>
+  Scenario?: boolean | Prisma.LifeRun$ScenarioArgs<ExtArgs>
   _count?: boolean | Prisma.LifeRunCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["lifeRun"]>
 
@@ -2673,9 +3909,18 @@ export type LifeRunSelectScalar = {
   outcomeKey?: boolean
   summary?: boolean
   statsSnapshot?: boolean
+  shape?: boolean
+  deckId?: boolean
+  turnBudget?: boolean
+  narratorStyle?: boolean
+  premise?: boolean
+  scenarioId?: boolean
+  bible?: boolean
+  inventory?: boolean
+  pendingTurn?: boolean
 }
 
-export type LifeRunOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "userId" | "title" | "status" | "seed" | "protagonistName" | "currentAge" | "currentChapter" | "genre" | "dreamId" | "characterId" | "botId" | "artCollectionId" | "endingId" | "outcomeKey" | "summary" | "statsSnapshot", ExtArgs["result"]["lifeRun"]>
+export type LifeRunOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "userId" | "title" | "status" | "seed" | "protagonistName" | "currentAge" | "currentChapter" | "genre" | "dreamId" | "characterId" | "botId" | "artCollectionId" | "endingId" | "outcomeKey" | "summary" | "statsSnapshot" | "shape" | "deckId" | "turnBudget" | "narratorStyle" | "premise" | "scenarioId" | "bible" | "inventory" | "pendingTurn", ExtArgs["result"]["lifeRun"]>
 export type LifeRunInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   Unlocks?: boolean | Prisma.LifeRun$UnlocksArgs<ExtArgs>
   Choices?: boolean | Prisma.LifeRun$ChoicesArgs<ExtArgs>
@@ -2687,6 +3932,8 @@ export type LifeRunInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs
   User?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   Art?: boolean | Prisma.LifeRun$ArtArgs<ExtArgs>
   Stats?: boolean | Prisma.LifeRun$StatsArgs<ExtArgs>
+  Deck?: boolean | Prisma.LifeRun$DeckArgs<ExtArgs>
+  Scenario?: boolean | Prisma.LifeRun$ScenarioArgs<ExtArgs>
   _count?: boolean | Prisma.LifeRunCountOutputTypeDefaultArgs<ExtArgs>
 }
 
@@ -2703,6 +3950,8 @@ export type $LifeRunPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     User: Prisma.$UserPayload<ExtArgs>
     Art: Prisma.$LifeRunArtPayload<ExtArgs>[]
     Stats: Prisma.$LifeStatPayload<ExtArgs>[]
+    Deck: Prisma.$EndingDeckPayload<ExtArgs> | null
+    Scenario: Prisma.$ScenarioPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -2724,6 +3973,38 @@ export type $LifeRunPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     outcomeKey: string | null
     summary: string | null
     statsSnapshot: string | null
+    /**
+     * Which Storybook shape this run is. LIFE is the pre-merge default, so
+     * every existing row keeps its meaning without a backfill.
+     */
+    shape: $Enums.StoryShape
+    /**
+     * NULL means the life deck -- legacy rows predate decks entirely.
+     */
+    deckId: number | null
+    /**
+     * Turns this run gets. NULL falls back to the deck's budget for its shape.
+     */
+    turnBudget: number | null
+    narratorStyle: string | null
+    premise: string | null
+    scenarioId: number | null
+    /**
+     * JSON snapshot of the board the reader assembled (cast with roles,
+     * location, facets, scenario, treasures, spark). Snapshotted at creation on
+     * purpose: later edits to a Character must not rewrite a story in progress.
+     */
+    bible: string | null
+    /**
+     * JSON inventory entries, including consumedAtTurn for spent items.
+     */
+    inventory: string | null
+    /**
+     * JSON of the scene the reader is currently looking at, with the options
+     * offered and their effects. Held SERVER-SIDE so a client cannot author the
+     * stat deltas of the choice it claims to have taken.
+     */
+    pendingTurn: string | null
   }, ExtArgs["result"]["lifeRun"]>
   composites: {}
 }
@@ -3074,6 +4355,8 @@ export interface Prisma__LifeRunClient<T, Null = never, ExtArgs extends runtime.
   User<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   Art<T extends Prisma.LifeRun$ArtArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.LifeRun$ArtArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$LifeRunArtPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   Stats<T extends Prisma.LifeRun$StatsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.LifeRun$StatsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$LifeStatPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  Deck<T extends Prisma.LifeRun$DeckArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.LifeRun$DeckArgs<ExtArgs>>): Prisma.Prisma__EndingDeckClient<runtime.Types.Result.GetResult<Prisma.$EndingDeckPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  Scenario<T extends Prisma.LifeRun$ScenarioArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.LifeRun$ScenarioArgs<ExtArgs>>): Prisma.Prisma__ScenarioClient<runtime.Types.Result.GetResult<Prisma.$ScenarioPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -3122,6 +4405,15 @@ export interface LifeRunFieldRefs {
   readonly outcomeKey: Prisma.FieldRef<"LifeRun", 'String'>
   readonly summary: Prisma.FieldRef<"LifeRun", 'String'>
   readonly statsSnapshot: Prisma.FieldRef<"LifeRun", 'String'>
+  readonly shape: Prisma.FieldRef<"LifeRun", 'StoryShape'>
+  readonly deckId: Prisma.FieldRef<"LifeRun", 'Int'>
+  readonly turnBudget: Prisma.FieldRef<"LifeRun", 'Int'>
+  readonly narratorStyle: Prisma.FieldRef<"LifeRun", 'String'>
+  readonly premise: Prisma.FieldRef<"LifeRun", 'String'>
+  readonly scenarioId: Prisma.FieldRef<"LifeRun", 'Int'>
+  readonly bible: Prisma.FieldRef<"LifeRun", 'String'>
+  readonly inventory: Prisma.FieldRef<"LifeRun", 'String'>
+  readonly pendingTurn: Prisma.FieldRef<"LifeRun", 'String'>
 }
     
 
@@ -3658,6 +4950,44 @@ export type LifeRun$StatsArgs<ExtArgs extends runtime.Types.Extensions.InternalA
   take?: number
   skip?: number
   distinct?: Prisma.LifeStatScalarFieldEnum | Prisma.LifeStatScalarFieldEnum[]
+}
+
+/**
+ * LifeRun.Deck
+ */
+export type LifeRun$DeckArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the EndingDeck
+   */
+  select?: Prisma.EndingDeckSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the EndingDeck
+   */
+  omit?: Prisma.EndingDeckOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.EndingDeckInclude<ExtArgs> | null
+  where?: Prisma.EndingDeckWhereInput
+}
+
+/**
+ * LifeRun.Scenario
+ */
+export type LifeRun$ScenarioArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Scenario
+   */
+  select?: Prisma.ScenarioSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Scenario
+   */
+  omit?: Prisma.ScenarioOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ScenarioInclude<ExtArgs> | null
+  where?: Prisma.ScenarioWhereInput
 }
 
 /**

@@ -31,6 +31,7 @@ export type LifeChoiceAvgAggregateOutputType = {
   lifeRunId: number | null
   chatId: number | null
   chapter: number | null
+  rewardId: number | null
 }
 
 export type LifeChoiceSumAggregateOutputType = {
@@ -38,6 +39,7 @@ export type LifeChoiceSumAggregateOutputType = {
   lifeRunId: number | null
   chatId: number | null
   chapter: number | null
+  rewardId: number | null
 }
 
 export type LifeChoiceMinAggregateOutputType = {
@@ -50,6 +52,11 @@ export type LifeChoiceMinAggregateOutputType = {
   choiceText: string | null
   resultText: string | null
   effects: string | null
+  source: $Enums.StoryMoveSource | null
+  optionId: string | null
+  rewardId: number | null
+  stateDelta: string | null
+  artPrompt: string | null
 }
 
 export type LifeChoiceMaxAggregateOutputType = {
@@ -62,6 +69,11 @@ export type LifeChoiceMaxAggregateOutputType = {
   choiceText: string | null
   resultText: string | null
   effects: string | null
+  source: $Enums.StoryMoveSource | null
+  optionId: string | null
+  rewardId: number | null
+  stateDelta: string | null
+  artPrompt: string | null
 }
 
 export type LifeChoiceCountAggregateOutputType = {
@@ -74,6 +86,11 @@ export type LifeChoiceCountAggregateOutputType = {
   choiceText: number
   resultText: number
   effects: number
+  source: number
+  optionId: number
+  rewardId: number
+  stateDelta: number
+  artPrompt: number
   _all: number
 }
 
@@ -83,6 +100,7 @@ export type LifeChoiceAvgAggregateInputType = {
   lifeRunId?: true
   chatId?: true
   chapter?: true
+  rewardId?: true
 }
 
 export type LifeChoiceSumAggregateInputType = {
@@ -90,6 +108,7 @@ export type LifeChoiceSumAggregateInputType = {
   lifeRunId?: true
   chatId?: true
   chapter?: true
+  rewardId?: true
 }
 
 export type LifeChoiceMinAggregateInputType = {
@@ -102,6 +121,11 @@ export type LifeChoiceMinAggregateInputType = {
   choiceText?: true
   resultText?: true
   effects?: true
+  source?: true
+  optionId?: true
+  rewardId?: true
+  stateDelta?: true
+  artPrompt?: true
 }
 
 export type LifeChoiceMaxAggregateInputType = {
@@ -114,6 +138,11 @@ export type LifeChoiceMaxAggregateInputType = {
   choiceText?: true
   resultText?: true
   effects?: true
+  source?: true
+  optionId?: true
+  rewardId?: true
+  stateDelta?: true
+  artPrompt?: true
 }
 
 export type LifeChoiceCountAggregateInputType = {
@@ -126,6 +155,11 @@ export type LifeChoiceCountAggregateInputType = {
   choiceText?: true
   resultText?: true
   effects?: true
+  source?: true
+  optionId?: true
+  rewardId?: true
+  stateDelta?: true
+  artPrompt?: true
   _all?: true
 }
 
@@ -225,6 +259,11 @@ export type LifeChoiceGroupByOutputType = {
   choiceText: string
   resultText: string | null
   effects: string | null
+  source: $Enums.StoryMoveSource
+  optionId: string | null
+  rewardId: number | null
+  stateDelta: string | null
+  artPrompt: string | null
   _count: LifeChoiceCountAggregateOutputType | null
   _avg: LifeChoiceAvgAggregateOutputType | null
   _sum: LifeChoiceSumAggregateOutputType | null
@@ -260,8 +299,14 @@ export type LifeChoiceWhereInput = {
   choiceText?: Prisma.StringFilter<"LifeChoice"> | string
   resultText?: Prisma.StringNullableFilter<"LifeChoice"> | string | null
   effects?: Prisma.StringNullableFilter<"LifeChoice"> | string | null
+  source?: Prisma.EnumStoryMoveSourceFilter<"LifeChoice"> | $Enums.StoryMoveSource
+  optionId?: Prisma.StringNullableFilter<"LifeChoice"> | string | null
+  rewardId?: Prisma.IntNullableFilter<"LifeChoice"> | number | null
+  stateDelta?: Prisma.StringNullableFilter<"LifeChoice"> | string | null
+  artPrompt?: Prisma.StringNullableFilter<"LifeChoice"> | string | null
   Chat?: Prisma.XOR<Prisma.ChatNullableScalarRelationFilter, Prisma.ChatWhereInput> | null
   LifeRun?: Prisma.XOR<Prisma.LifeRunScalarRelationFilter, Prisma.LifeRunWhereInput>
+  Reward?: Prisma.XOR<Prisma.RewardNullableScalarRelationFilter, Prisma.RewardWhereInput> | null
 }
 
 export type LifeChoiceOrderByWithRelationInput = {
@@ -274,8 +319,14 @@ export type LifeChoiceOrderByWithRelationInput = {
   choiceText?: Prisma.SortOrder
   resultText?: Prisma.SortOrderInput | Prisma.SortOrder
   effects?: Prisma.SortOrderInput | Prisma.SortOrder
+  source?: Prisma.SortOrder
+  optionId?: Prisma.SortOrderInput | Prisma.SortOrder
+  rewardId?: Prisma.SortOrderInput | Prisma.SortOrder
+  stateDelta?: Prisma.SortOrderInput | Prisma.SortOrder
+  artPrompt?: Prisma.SortOrderInput | Prisma.SortOrder
   Chat?: Prisma.ChatOrderByWithRelationInput
   LifeRun?: Prisma.LifeRunOrderByWithRelationInput
+  Reward?: Prisma.RewardOrderByWithRelationInput
   _relevance?: Prisma.LifeChoiceOrderByRelevanceInput
 }
 
@@ -292,8 +343,14 @@ export type LifeChoiceWhereUniqueInput = Prisma.AtLeast<{
   choiceText?: Prisma.StringFilter<"LifeChoice"> | string
   resultText?: Prisma.StringNullableFilter<"LifeChoice"> | string | null
   effects?: Prisma.StringNullableFilter<"LifeChoice"> | string | null
+  source?: Prisma.EnumStoryMoveSourceFilter<"LifeChoice"> | $Enums.StoryMoveSource
+  optionId?: Prisma.StringNullableFilter<"LifeChoice"> | string | null
+  rewardId?: Prisma.IntNullableFilter<"LifeChoice"> | number | null
+  stateDelta?: Prisma.StringNullableFilter<"LifeChoice"> | string | null
+  artPrompt?: Prisma.StringNullableFilter<"LifeChoice"> | string | null
   Chat?: Prisma.XOR<Prisma.ChatNullableScalarRelationFilter, Prisma.ChatWhereInput> | null
   LifeRun?: Prisma.XOR<Prisma.LifeRunScalarRelationFilter, Prisma.LifeRunWhereInput>
+  Reward?: Prisma.XOR<Prisma.RewardNullableScalarRelationFilter, Prisma.RewardWhereInput> | null
 }, "id">
 
 export type LifeChoiceOrderByWithAggregationInput = {
@@ -306,6 +363,11 @@ export type LifeChoiceOrderByWithAggregationInput = {
   choiceText?: Prisma.SortOrder
   resultText?: Prisma.SortOrderInput | Prisma.SortOrder
   effects?: Prisma.SortOrderInput | Prisma.SortOrder
+  source?: Prisma.SortOrder
+  optionId?: Prisma.SortOrderInput | Prisma.SortOrder
+  rewardId?: Prisma.SortOrderInput | Prisma.SortOrder
+  stateDelta?: Prisma.SortOrderInput | Prisma.SortOrder
+  artPrompt?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.LifeChoiceCountOrderByAggregateInput
   _avg?: Prisma.LifeChoiceAvgOrderByAggregateInput
   _max?: Prisma.LifeChoiceMaxOrderByAggregateInput
@@ -326,6 +388,11 @@ export type LifeChoiceScalarWhereWithAggregatesInput = {
   choiceText?: Prisma.StringWithAggregatesFilter<"LifeChoice"> | string
   resultText?: Prisma.StringNullableWithAggregatesFilter<"LifeChoice"> | string | null
   effects?: Prisma.StringNullableWithAggregatesFilter<"LifeChoice"> | string | null
+  source?: Prisma.EnumStoryMoveSourceWithAggregatesFilter<"LifeChoice"> | $Enums.StoryMoveSource
+  optionId?: Prisma.StringNullableWithAggregatesFilter<"LifeChoice"> | string | null
+  rewardId?: Prisma.IntNullableWithAggregatesFilter<"LifeChoice"> | number | null
+  stateDelta?: Prisma.StringNullableWithAggregatesFilter<"LifeChoice"> | string | null
+  artPrompt?: Prisma.StringNullableWithAggregatesFilter<"LifeChoice"> | string | null
 }
 
 export type LifeChoiceCreateInput = {
@@ -335,8 +402,13 @@ export type LifeChoiceCreateInput = {
   choiceText: string
   resultText?: string | null
   effects?: string | null
+  source?: $Enums.StoryMoveSource
+  optionId?: string | null
+  stateDelta?: string | null
+  artPrompt?: string | null
   Chat?: Prisma.ChatCreateNestedOneWithoutLifeChoicesInput
   LifeRun: Prisma.LifeRunCreateNestedOneWithoutChoicesInput
+  Reward?: Prisma.RewardCreateNestedOneWithoutLifeChoicesInput
 }
 
 export type LifeChoiceUncheckedCreateInput = {
@@ -349,6 +421,11 @@ export type LifeChoiceUncheckedCreateInput = {
   choiceText: string
   resultText?: string | null
   effects?: string | null
+  source?: $Enums.StoryMoveSource
+  optionId?: string | null
+  rewardId?: number | null
+  stateDelta?: string | null
+  artPrompt?: string | null
 }
 
 export type LifeChoiceUpdateInput = {
@@ -358,8 +435,13 @@ export type LifeChoiceUpdateInput = {
   choiceText?: Prisma.StringFieldUpdateOperationsInput | string
   resultText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   effects?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  source?: Prisma.EnumStoryMoveSourceFieldUpdateOperationsInput | $Enums.StoryMoveSource
+  optionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stateDelta?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Chat?: Prisma.ChatUpdateOneWithoutLifeChoicesNestedInput
   LifeRun?: Prisma.LifeRunUpdateOneRequiredWithoutChoicesNestedInput
+  Reward?: Prisma.RewardUpdateOneWithoutLifeChoicesNestedInput
 }
 
 export type LifeChoiceUncheckedUpdateInput = {
@@ -372,6 +454,11 @@ export type LifeChoiceUncheckedUpdateInput = {
   choiceText?: Prisma.StringFieldUpdateOperationsInput | string
   resultText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   effects?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  source?: Prisma.EnumStoryMoveSourceFieldUpdateOperationsInput | $Enums.StoryMoveSource
+  optionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  rewardId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  stateDelta?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type LifeChoiceCreateManyInput = {
@@ -384,6 +471,11 @@ export type LifeChoiceCreateManyInput = {
   choiceText: string
   resultText?: string | null
   effects?: string | null
+  source?: $Enums.StoryMoveSource
+  optionId?: string | null
+  rewardId?: number | null
+  stateDelta?: string | null
+  artPrompt?: string | null
 }
 
 export type LifeChoiceUpdateManyMutationInput = {
@@ -393,6 +485,10 @@ export type LifeChoiceUpdateManyMutationInput = {
   choiceText?: Prisma.StringFieldUpdateOperationsInput | string
   resultText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   effects?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  source?: Prisma.EnumStoryMoveSourceFieldUpdateOperationsInput | $Enums.StoryMoveSource
+  optionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stateDelta?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type LifeChoiceUncheckedUpdateManyInput = {
@@ -405,6 +501,11 @@ export type LifeChoiceUncheckedUpdateManyInput = {
   choiceText?: Prisma.StringFieldUpdateOperationsInput | string
   resultText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   effects?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  source?: Prisma.EnumStoryMoveSourceFieldUpdateOperationsInput | $Enums.StoryMoveSource
+  optionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  rewardId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  stateDelta?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type LifeChoiceListRelationFilter = {
@@ -433,6 +534,11 @@ export type LifeChoiceCountOrderByAggregateInput = {
   choiceText?: Prisma.SortOrder
   resultText?: Prisma.SortOrder
   effects?: Prisma.SortOrder
+  source?: Prisma.SortOrder
+  optionId?: Prisma.SortOrder
+  rewardId?: Prisma.SortOrder
+  stateDelta?: Prisma.SortOrder
+  artPrompt?: Prisma.SortOrder
 }
 
 export type LifeChoiceAvgOrderByAggregateInput = {
@@ -440,6 +546,7 @@ export type LifeChoiceAvgOrderByAggregateInput = {
   lifeRunId?: Prisma.SortOrder
   chatId?: Prisma.SortOrder
   chapter?: Prisma.SortOrder
+  rewardId?: Prisma.SortOrder
 }
 
 export type LifeChoiceMaxOrderByAggregateInput = {
@@ -452,6 +559,11 @@ export type LifeChoiceMaxOrderByAggregateInput = {
   choiceText?: Prisma.SortOrder
   resultText?: Prisma.SortOrder
   effects?: Prisma.SortOrder
+  source?: Prisma.SortOrder
+  optionId?: Prisma.SortOrder
+  rewardId?: Prisma.SortOrder
+  stateDelta?: Prisma.SortOrder
+  artPrompt?: Prisma.SortOrder
 }
 
 export type LifeChoiceMinOrderByAggregateInput = {
@@ -464,6 +576,11 @@ export type LifeChoiceMinOrderByAggregateInput = {
   choiceText?: Prisma.SortOrder
   resultText?: Prisma.SortOrder
   effects?: Prisma.SortOrder
+  source?: Prisma.SortOrder
+  optionId?: Prisma.SortOrder
+  rewardId?: Prisma.SortOrder
+  stateDelta?: Prisma.SortOrder
+  artPrompt?: Prisma.SortOrder
 }
 
 export type LifeChoiceSumOrderByAggregateInput = {
@@ -471,6 +588,7 @@ export type LifeChoiceSumOrderByAggregateInput = {
   lifeRunId?: Prisma.SortOrder
   chatId?: Prisma.SortOrder
   chapter?: Prisma.SortOrder
+  rewardId?: Prisma.SortOrder
 }
 
 export type LifeChoiceCreateNestedManyWithoutChatInput = {
@@ -512,6 +630,48 @@ export type LifeChoiceUncheckedUpdateManyWithoutChatNestedInput = {
   connect?: Prisma.LifeChoiceWhereUniqueInput | Prisma.LifeChoiceWhereUniqueInput[]
   update?: Prisma.LifeChoiceUpdateWithWhereUniqueWithoutChatInput | Prisma.LifeChoiceUpdateWithWhereUniqueWithoutChatInput[]
   updateMany?: Prisma.LifeChoiceUpdateManyWithWhereWithoutChatInput | Prisma.LifeChoiceUpdateManyWithWhereWithoutChatInput[]
+  deleteMany?: Prisma.LifeChoiceScalarWhereInput | Prisma.LifeChoiceScalarWhereInput[]
+}
+
+export type LifeChoiceCreateNestedManyWithoutRewardInput = {
+  create?: Prisma.XOR<Prisma.LifeChoiceCreateWithoutRewardInput, Prisma.LifeChoiceUncheckedCreateWithoutRewardInput> | Prisma.LifeChoiceCreateWithoutRewardInput[] | Prisma.LifeChoiceUncheckedCreateWithoutRewardInput[]
+  connectOrCreate?: Prisma.LifeChoiceCreateOrConnectWithoutRewardInput | Prisma.LifeChoiceCreateOrConnectWithoutRewardInput[]
+  createMany?: Prisma.LifeChoiceCreateManyRewardInputEnvelope
+  connect?: Prisma.LifeChoiceWhereUniqueInput | Prisma.LifeChoiceWhereUniqueInput[]
+}
+
+export type LifeChoiceUncheckedCreateNestedManyWithoutRewardInput = {
+  create?: Prisma.XOR<Prisma.LifeChoiceCreateWithoutRewardInput, Prisma.LifeChoiceUncheckedCreateWithoutRewardInput> | Prisma.LifeChoiceCreateWithoutRewardInput[] | Prisma.LifeChoiceUncheckedCreateWithoutRewardInput[]
+  connectOrCreate?: Prisma.LifeChoiceCreateOrConnectWithoutRewardInput | Prisma.LifeChoiceCreateOrConnectWithoutRewardInput[]
+  createMany?: Prisma.LifeChoiceCreateManyRewardInputEnvelope
+  connect?: Prisma.LifeChoiceWhereUniqueInput | Prisma.LifeChoiceWhereUniqueInput[]
+}
+
+export type LifeChoiceUpdateManyWithoutRewardNestedInput = {
+  create?: Prisma.XOR<Prisma.LifeChoiceCreateWithoutRewardInput, Prisma.LifeChoiceUncheckedCreateWithoutRewardInput> | Prisma.LifeChoiceCreateWithoutRewardInput[] | Prisma.LifeChoiceUncheckedCreateWithoutRewardInput[]
+  connectOrCreate?: Prisma.LifeChoiceCreateOrConnectWithoutRewardInput | Prisma.LifeChoiceCreateOrConnectWithoutRewardInput[]
+  upsert?: Prisma.LifeChoiceUpsertWithWhereUniqueWithoutRewardInput | Prisma.LifeChoiceUpsertWithWhereUniqueWithoutRewardInput[]
+  createMany?: Prisma.LifeChoiceCreateManyRewardInputEnvelope
+  set?: Prisma.LifeChoiceWhereUniqueInput | Prisma.LifeChoiceWhereUniqueInput[]
+  disconnect?: Prisma.LifeChoiceWhereUniqueInput | Prisma.LifeChoiceWhereUniqueInput[]
+  delete?: Prisma.LifeChoiceWhereUniqueInput | Prisma.LifeChoiceWhereUniqueInput[]
+  connect?: Prisma.LifeChoiceWhereUniqueInput | Prisma.LifeChoiceWhereUniqueInput[]
+  update?: Prisma.LifeChoiceUpdateWithWhereUniqueWithoutRewardInput | Prisma.LifeChoiceUpdateWithWhereUniqueWithoutRewardInput[]
+  updateMany?: Prisma.LifeChoiceUpdateManyWithWhereWithoutRewardInput | Prisma.LifeChoiceUpdateManyWithWhereWithoutRewardInput[]
+  deleteMany?: Prisma.LifeChoiceScalarWhereInput | Prisma.LifeChoiceScalarWhereInput[]
+}
+
+export type LifeChoiceUncheckedUpdateManyWithoutRewardNestedInput = {
+  create?: Prisma.XOR<Prisma.LifeChoiceCreateWithoutRewardInput, Prisma.LifeChoiceUncheckedCreateWithoutRewardInput> | Prisma.LifeChoiceCreateWithoutRewardInput[] | Prisma.LifeChoiceUncheckedCreateWithoutRewardInput[]
+  connectOrCreate?: Prisma.LifeChoiceCreateOrConnectWithoutRewardInput | Prisma.LifeChoiceCreateOrConnectWithoutRewardInput[]
+  upsert?: Prisma.LifeChoiceUpsertWithWhereUniqueWithoutRewardInput | Prisma.LifeChoiceUpsertWithWhereUniqueWithoutRewardInput[]
+  createMany?: Prisma.LifeChoiceCreateManyRewardInputEnvelope
+  set?: Prisma.LifeChoiceWhereUniqueInput | Prisma.LifeChoiceWhereUniqueInput[]
+  disconnect?: Prisma.LifeChoiceWhereUniqueInput | Prisma.LifeChoiceWhereUniqueInput[]
+  delete?: Prisma.LifeChoiceWhereUniqueInput | Prisma.LifeChoiceWhereUniqueInput[]
+  connect?: Prisma.LifeChoiceWhereUniqueInput | Prisma.LifeChoiceWhereUniqueInput[]
+  update?: Prisma.LifeChoiceUpdateWithWhereUniqueWithoutRewardInput | Prisma.LifeChoiceUpdateWithWhereUniqueWithoutRewardInput[]
+  updateMany?: Prisma.LifeChoiceUpdateManyWithWhereWithoutRewardInput | Prisma.LifeChoiceUpdateManyWithWhereWithoutRewardInput[]
   deleteMany?: Prisma.LifeChoiceScalarWhereInput | Prisma.LifeChoiceScalarWhereInput[]
 }
 
@@ -557,6 +717,10 @@ export type LifeChoiceUncheckedUpdateManyWithoutLifeRunNestedInput = {
   deleteMany?: Prisma.LifeChoiceScalarWhereInput | Prisma.LifeChoiceScalarWhereInput[]
 }
 
+export type EnumStoryMoveSourceFieldUpdateOperationsInput = {
+  set?: $Enums.StoryMoveSource
+}
+
 export type LifeChoiceCreateWithoutChatInput = {
   createdAt?: Date | string
   chapter: number
@@ -564,7 +728,12 @@ export type LifeChoiceCreateWithoutChatInput = {
   choiceText: string
   resultText?: string | null
   effects?: string | null
+  source?: $Enums.StoryMoveSource
+  optionId?: string | null
+  stateDelta?: string | null
+  artPrompt?: string | null
   LifeRun: Prisma.LifeRunCreateNestedOneWithoutChoicesInput
+  Reward?: Prisma.RewardCreateNestedOneWithoutLifeChoicesInput
 }
 
 export type LifeChoiceUncheckedCreateWithoutChatInput = {
@@ -576,6 +745,11 @@ export type LifeChoiceUncheckedCreateWithoutChatInput = {
   choiceText: string
   resultText?: string | null
   effects?: string | null
+  source?: $Enums.StoryMoveSource
+  optionId?: string | null
+  rewardId?: number | null
+  stateDelta?: string | null
+  artPrompt?: string | null
 }
 
 export type LifeChoiceCreateOrConnectWithoutChatInput = {
@@ -617,6 +791,68 @@ export type LifeChoiceScalarWhereInput = {
   choiceText?: Prisma.StringFilter<"LifeChoice"> | string
   resultText?: Prisma.StringNullableFilter<"LifeChoice"> | string | null
   effects?: Prisma.StringNullableFilter<"LifeChoice"> | string | null
+  source?: Prisma.EnumStoryMoveSourceFilter<"LifeChoice"> | $Enums.StoryMoveSource
+  optionId?: Prisma.StringNullableFilter<"LifeChoice"> | string | null
+  rewardId?: Prisma.IntNullableFilter<"LifeChoice"> | number | null
+  stateDelta?: Prisma.StringNullableFilter<"LifeChoice"> | string | null
+  artPrompt?: Prisma.StringNullableFilter<"LifeChoice"> | string | null
+}
+
+export type LifeChoiceCreateWithoutRewardInput = {
+  createdAt?: Date | string
+  chapter: number
+  prompt: string
+  choiceText: string
+  resultText?: string | null
+  effects?: string | null
+  source?: $Enums.StoryMoveSource
+  optionId?: string | null
+  stateDelta?: string | null
+  artPrompt?: string | null
+  Chat?: Prisma.ChatCreateNestedOneWithoutLifeChoicesInput
+  LifeRun: Prisma.LifeRunCreateNestedOneWithoutChoicesInput
+}
+
+export type LifeChoiceUncheckedCreateWithoutRewardInput = {
+  id?: number
+  createdAt?: Date | string
+  lifeRunId: number
+  chatId?: number | null
+  chapter: number
+  prompt: string
+  choiceText: string
+  resultText?: string | null
+  effects?: string | null
+  source?: $Enums.StoryMoveSource
+  optionId?: string | null
+  stateDelta?: string | null
+  artPrompt?: string | null
+}
+
+export type LifeChoiceCreateOrConnectWithoutRewardInput = {
+  where: Prisma.LifeChoiceWhereUniqueInput
+  create: Prisma.XOR<Prisma.LifeChoiceCreateWithoutRewardInput, Prisma.LifeChoiceUncheckedCreateWithoutRewardInput>
+}
+
+export type LifeChoiceCreateManyRewardInputEnvelope = {
+  data: Prisma.LifeChoiceCreateManyRewardInput | Prisma.LifeChoiceCreateManyRewardInput[]
+  skipDuplicates?: boolean
+}
+
+export type LifeChoiceUpsertWithWhereUniqueWithoutRewardInput = {
+  where: Prisma.LifeChoiceWhereUniqueInput
+  update: Prisma.XOR<Prisma.LifeChoiceUpdateWithoutRewardInput, Prisma.LifeChoiceUncheckedUpdateWithoutRewardInput>
+  create: Prisma.XOR<Prisma.LifeChoiceCreateWithoutRewardInput, Prisma.LifeChoiceUncheckedCreateWithoutRewardInput>
+}
+
+export type LifeChoiceUpdateWithWhereUniqueWithoutRewardInput = {
+  where: Prisma.LifeChoiceWhereUniqueInput
+  data: Prisma.XOR<Prisma.LifeChoiceUpdateWithoutRewardInput, Prisma.LifeChoiceUncheckedUpdateWithoutRewardInput>
+}
+
+export type LifeChoiceUpdateManyWithWhereWithoutRewardInput = {
+  where: Prisma.LifeChoiceScalarWhereInput
+  data: Prisma.XOR<Prisma.LifeChoiceUpdateManyMutationInput, Prisma.LifeChoiceUncheckedUpdateManyWithoutRewardInput>
 }
 
 export type LifeChoiceCreateWithoutLifeRunInput = {
@@ -626,7 +862,12 @@ export type LifeChoiceCreateWithoutLifeRunInput = {
   choiceText: string
   resultText?: string | null
   effects?: string | null
+  source?: $Enums.StoryMoveSource
+  optionId?: string | null
+  stateDelta?: string | null
+  artPrompt?: string | null
   Chat?: Prisma.ChatCreateNestedOneWithoutLifeChoicesInput
+  Reward?: Prisma.RewardCreateNestedOneWithoutLifeChoicesInput
 }
 
 export type LifeChoiceUncheckedCreateWithoutLifeRunInput = {
@@ -638,6 +879,11 @@ export type LifeChoiceUncheckedCreateWithoutLifeRunInput = {
   choiceText: string
   resultText?: string | null
   effects?: string | null
+  source?: $Enums.StoryMoveSource
+  optionId?: string | null
+  rewardId?: number | null
+  stateDelta?: string | null
+  artPrompt?: string | null
 }
 
 export type LifeChoiceCreateOrConnectWithoutLifeRunInput = {
@@ -675,6 +921,11 @@ export type LifeChoiceCreateManyChatInput = {
   choiceText: string
   resultText?: string | null
   effects?: string | null
+  source?: $Enums.StoryMoveSource
+  optionId?: string | null
+  rewardId?: number | null
+  stateDelta?: string | null
+  artPrompt?: string | null
 }
 
 export type LifeChoiceUpdateWithoutChatInput = {
@@ -684,7 +935,12 @@ export type LifeChoiceUpdateWithoutChatInput = {
   choiceText?: Prisma.StringFieldUpdateOperationsInput | string
   resultText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   effects?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  source?: Prisma.EnumStoryMoveSourceFieldUpdateOperationsInput | $Enums.StoryMoveSource
+  optionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stateDelta?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   LifeRun?: Prisma.LifeRunUpdateOneRequiredWithoutChoicesNestedInput
+  Reward?: Prisma.RewardUpdateOneWithoutLifeChoicesNestedInput
 }
 
 export type LifeChoiceUncheckedUpdateWithoutChatInput = {
@@ -696,6 +952,11 @@ export type LifeChoiceUncheckedUpdateWithoutChatInput = {
   choiceText?: Prisma.StringFieldUpdateOperationsInput | string
   resultText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   effects?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  source?: Prisma.EnumStoryMoveSourceFieldUpdateOperationsInput | $Enums.StoryMoveSource
+  optionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  rewardId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  stateDelta?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type LifeChoiceUncheckedUpdateManyWithoutChatInput = {
@@ -707,6 +968,74 @@ export type LifeChoiceUncheckedUpdateManyWithoutChatInput = {
   choiceText?: Prisma.StringFieldUpdateOperationsInput | string
   resultText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   effects?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  source?: Prisma.EnumStoryMoveSourceFieldUpdateOperationsInput | $Enums.StoryMoveSource
+  optionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  rewardId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  stateDelta?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+}
+
+export type LifeChoiceCreateManyRewardInput = {
+  id?: number
+  createdAt?: Date | string
+  lifeRunId: number
+  chatId?: number | null
+  chapter: number
+  prompt: string
+  choiceText: string
+  resultText?: string | null
+  effects?: string | null
+  source?: $Enums.StoryMoveSource
+  optionId?: string | null
+  stateDelta?: string | null
+  artPrompt?: string | null
+}
+
+export type LifeChoiceUpdateWithoutRewardInput = {
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  chapter?: Prisma.IntFieldUpdateOperationsInput | number
+  prompt?: Prisma.StringFieldUpdateOperationsInput | string
+  choiceText?: Prisma.StringFieldUpdateOperationsInput | string
+  resultText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  effects?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  source?: Prisma.EnumStoryMoveSourceFieldUpdateOperationsInput | $Enums.StoryMoveSource
+  optionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stateDelta?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  Chat?: Prisma.ChatUpdateOneWithoutLifeChoicesNestedInput
+  LifeRun?: Prisma.LifeRunUpdateOneRequiredWithoutChoicesNestedInput
+}
+
+export type LifeChoiceUncheckedUpdateWithoutRewardInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  lifeRunId?: Prisma.IntFieldUpdateOperationsInput | number
+  chatId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  chapter?: Prisma.IntFieldUpdateOperationsInput | number
+  prompt?: Prisma.StringFieldUpdateOperationsInput | string
+  choiceText?: Prisma.StringFieldUpdateOperationsInput | string
+  resultText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  effects?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  source?: Prisma.EnumStoryMoveSourceFieldUpdateOperationsInput | $Enums.StoryMoveSource
+  optionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stateDelta?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+}
+
+export type LifeChoiceUncheckedUpdateManyWithoutRewardInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  lifeRunId?: Prisma.IntFieldUpdateOperationsInput | number
+  chatId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  chapter?: Prisma.IntFieldUpdateOperationsInput | number
+  prompt?: Prisma.StringFieldUpdateOperationsInput | string
+  choiceText?: Prisma.StringFieldUpdateOperationsInput | string
+  resultText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  effects?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  source?: Prisma.EnumStoryMoveSourceFieldUpdateOperationsInput | $Enums.StoryMoveSource
+  optionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stateDelta?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type LifeChoiceCreateManyLifeRunInput = {
@@ -718,6 +1047,11 @@ export type LifeChoiceCreateManyLifeRunInput = {
   choiceText: string
   resultText?: string | null
   effects?: string | null
+  source?: $Enums.StoryMoveSource
+  optionId?: string | null
+  rewardId?: number | null
+  stateDelta?: string | null
+  artPrompt?: string | null
 }
 
 export type LifeChoiceUpdateWithoutLifeRunInput = {
@@ -727,7 +1061,12 @@ export type LifeChoiceUpdateWithoutLifeRunInput = {
   choiceText?: Prisma.StringFieldUpdateOperationsInput | string
   resultText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   effects?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  source?: Prisma.EnumStoryMoveSourceFieldUpdateOperationsInput | $Enums.StoryMoveSource
+  optionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stateDelta?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Chat?: Prisma.ChatUpdateOneWithoutLifeChoicesNestedInput
+  Reward?: Prisma.RewardUpdateOneWithoutLifeChoicesNestedInput
 }
 
 export type LifeChoiceUncheckedUpdateWithoutLifeRunInput = {
@@ -739,6 +1078,11 @@ export type LifeChoiceUncheckedUpdateWithoutLifeRunInput = {
   choiceText?: Prisma.StringFieldUpdateOperationsInput | string
   resultText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   effects?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  source?: Prisma.EnumStoryMoveSourceFieldUpdateOperationsInput | $Enums.StoryMoveSource
+  optionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  rewardId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  stateDelta?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type LifeChoiceUncheckedUpdateManyWithoutLifeRunInput = {
@@ -750,6 +1094,11 @@ export type LifeChoiceUncheckedUpdateManyWithoutLifeRunInput = {
   choiceText?: Prisma.StringFieldUpdateOperationsInput | string
   resultText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   effects?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  source?: Prisma.EnumStoryMoveSourceFieldUpdateOperationsInput | $Enums.StoryMoveSource
+  optionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  rewardId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  stateDelta?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 
@@ -764,8 +1113,14 @@ export type LifeChoiceSelect<ExtArgs extends runtime.Types.Extensions.InternalAr
   choiceText?: boolean
   resultText?: boolean
   effects?: boolean
+  source?: boolean
+  optionId?: boolean
+  rewardId?: boolean
+  stateDelta?: boolean
+  artPrompt?: boolean
   Chat?: boolean | Prisma.LifeChoice$ChatArgs<ExtArgs>
   LifeRun?: boolean | Prisma.LifeRunDefaultArgs<ExtArgs>
+  Reward?: boolean | Prisma.LifeChoice$RewardArgs<ExtArgs>
 }, ExtArgs["result"]["lifeChoice"]>
 
 
@@ -780,12 +1135,18 @@ export type LifeChoiceSelectScalar = {
   choiceText?: boolean
   resultText?: boolean
   effects?: boolean
+  source?: boolean
+  optionId?: boolean
+  rewardId?: boolean
+  stateDelta?: boolean
+  artPrompt?: boolean
 }
 
-export type LifeChoiceOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "lifeRunId" | "chatId" | "chapter" | "prompt" | "choiceText" | "resultText" | "effects", ExtArgs["result"]["lifeChoice"]>
+export type LifeChoiceOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "lifeRunId" | "chatId" | "chapter" | "prompt" | "choiceText" | "resultText" | "effects" | "source" | "optionId" | "rewardId" | "stateDelta" | "artPrompt", ExtArgs["result"]["lifeChoice"]>
 export type LifeChoiceInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   Chat?: boolean | Prisma.LifeChoice$ChatArgs<ExtArgs>
   LifeRun?: boolean | Prisma.LifeRunDefaultArgs<ExtArgs>
+  Reward?: boolean | Prisma.LifeChoice$RewardArgs<ExtArgs>
 }
 
 export type $LifeChoicePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -793,6 +1154,7 @@ export type $LifeChoicePayload<ExtArgs extends runtime.Types.Extensions.Internal
   objects: {
     Chat: Prisma.$ChatPayload<ExtArgs> | null
     LifeRun: Prisma.$LifeRunPayload<ExtArgs>
+    Reward: Prisma.$RewardPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -804,6 +1166,24 @@ export type $LifeChoicePayload<ExtArgs extends runtime.Types.Extensions.Internal
     choiceText: string
     resultText: string | null
     effects: string | null
+    /**
+     * How the reader made this move: picked an offered option, wrote their own,
+     * or played a card from the protagonist's character sheet.
+     */
+    source: $Enums.StoryMoveSource
+    /**
+     * Which offered option was taken, when source is OPTION.
+     */
+    optionId: string | null
+    /**
+     * The Reward played, when source is SHEET.
+     */
+    rewardId: number | null
+    /**
+     * JSON {consequences,relationshipShifts,inventoryAdd,inventoryRemove}.
+     */
+    stateDelta: string | null
+    artPrompt: string | null
   }, ExtArgs["result"]["lifeChoice"]>
   composites: {}
 }
@@ -1146,6 +1526,7 @@ export interface Prisma__LifeChoiceClient<T, Null = never, ExtArgs extends runti
   readonly [Symbol.toStringTag]: "PrismaPromise"
   Chat<T extends Prisma.LifeChoice$ChatArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.LifeChoice$ChatArgs<ExtArgs>>): Prisma.Prisma__ChatClient<runtime.Types.Result.GetResult<Prisma.$ChatPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   LifeRun<T extends Prisma.LifeRunDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.LifeRunDefaultArgs<ExtArgs>>): Prisma.Prisma__LifeRunClient<runtime.Types.Result.GetResult<Prisma.$LifeRunPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  Reward<T extends Prisma.LifeChoice$RewardArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.LifeChoice$RewardArgs<ExtArgs>>): Prisma.Prisma__RewardClient<runtime.Types.Result.GetResult<Prisma.$RewardPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1184,6 +1565,11 @@ export interface LifeChoiceFieldRefs {
   readonly choiceText: Prisma.FieldRef<"LifeChoice", 'String'>
   readonly resultText: Prisma.FieldRef<"LifeChoice", 'String'>
   readonly effects: Prisma.FieldRef<"LifeChoice", 'String'>
+  readonly source: Prisma.FieldRef<"LifeChoice", 'StoryMoveSource'>
+  readonly optionId: Prisma.FieldRef<"LifeChoice", 'String'>
+  readonly rewardId: Prisma.FieldRef<"LifeChoice", 'Int'>
+  readonly stateDelta: Prisma.FieldRef<"LifeChoice", 'String'>
+  readonly artPrompt: Prisma.FieldRef<"LifeChoice", 'String'>
 }
     
 
@@ -1548,6 +1934,25 @@ export type LifeChoice$ChatArgs<ExtArgs extends runtime.Types.Extensions.Interna
    */
   include?: Prisma.ChatInclude<ExtArgs> | null
   where?: Prisma.ChatWhereInput
+}
+
+/**
+ * LifeChoice.Reward
+ */
+export type LifeChoice$RewardArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Reward
+   */
+  select?: Prisma.RewardSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Reward
+   */
+  omit?: Prisma.RewardOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.RewardInclude<ExtArgs> | null
+  where?: Prisma.RewardWhereInput
 }
 
 /**

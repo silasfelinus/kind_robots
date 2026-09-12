@@ -8,6 +8,12 @@
 //   - LifeEnding       by outcomeKey   (linked to the Achievement)
 //   - LifeAchievement  by conditionKey (ending:{outcomeKey}, linked to both)
 //
+// It also ensures the 'life' EndingDeck exists and that every ending it writes
+// belongs to it (storybook/t-029). The migration seeds that row too, but a
+// scratch database built with `prisma db push` -- which the nightly
+// davinci-seed-verify job uses -- never runs migrations, so the importer has
+// to be able to stand a database up on its own.
+//
 // It NEVER creates ArtImage rows and never touches iconArtImageId /
 // heroArtImageId / artImageId — icon and hero images are seeded as path
 // strings only, until the local generator pipeline produces real files.
@@ -28,6 +34,11 @@ import { readFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import { PrismaClient } from './../../prisma/generated/prisma/client'
 import { PrismaMariaDb } from '@prisma/adapter-mariadb'
+import {
+  LIFE_DECK,
+  LIFE_DECK_KEY,
+  serializeDeckAxes,
+} from '../../server/utils/endingDeckMath'
 
 const VICTORY_TYPES = ['VICTORY', 'FAILURE', 'MIXED', 'SECRET'] as const
 type VictoryType = (typeof VICTORY_TYPES)[number]
@@ -121,9 +132,7 @@ export function validate(ending: EndingPayload, index: number): void {
     )
   }
   if (ending.lifeAchievement.achievementType !== 'ENDING') {
-    throw new Error(
-      `${where}: lifeAchievement.achievementType must be ENDING`,
-    )
+    throw new Error(`${where}: lifeAchievement.achievementType must be ENDING`)
   }
 }
 
@@ -137,9 +146,41 @@ export function loadSeedFile(filePath: string): EndingPayload[] {
   return endings
 }
 
+/**
+ * Find or create the life deck, and answer with its id.
+ *
+ * The axes are the ten Da Vinci dimensions in the bit order
+ * scripts/generate_davinci_endings.py used to name every outcomeKey. LIFE_DECK
+ * is that same list; do not reorder either copy.
+ */
+export async function ensureLifeDeck(prisma: PrismaClient): Promise<number> {
+  const existing = await prisma.endingDeck.findUnique({
+    where: { key: LIFE_DECK_KEY },
+    select: { id: true },
+  })
+  if (existing) return existing.id
+
+  const created = await prisma.endingDeck.create({
+    data: {
+      key: LIFE_DECK_KEY,
+      title: 'A whole life',
+      description:
+        'One life told in chapters, weighed across ten dimensions, and resolved into one of 1,024 endings.',
+      ownerKind: 'LIFE',
+      axes: serializeDeckAxes(LIFE_DECK.axes),
+      passValue: 1,
+      turnBudget: 12,
+      minTurnsBeforeResolve: 6,
+    },
+    select: { id: true },
+  })
+  return created.id
+}
+
 export async function importEnding(
   prisma: PrismaClient,
   ending: EndingPayload,
+  deckId?: number,
 ): Promise<void> {
   const m = ending.achievement
   const achievementData = {
@@ -171,10 +212,22 @@ export async function importEnding(
     achievementId: achievement.id,
     isActive: true,
   }
+  const resolvedDeckId = deckId ?? (await ensureLifeDeck(prisma))
+  // Keyed by (deckId, outcomeKey): outcomeKey alone is no longer unique across
+  // decks, since every three-axis genre deck also produces '000'..'111'.
   const lifeEnding = await prisma.lifeEnding.upsert({
-    where: { outcomeKey: ending.outcomeKey },
-    update: endingData,
-    create: { ...endingData, outcomeKey: ending.outcomeKey },
+    where: {
+      deckId_outcomeKey: {
+        deckId: resolvedDeckId,
+        outcomeKey: ending.outcomeKey,
+      },
+    },
+    update: { ...endingData, deckId: resolvedDeckId },
+    create: {
+      ...endingData,
+      outcomeKey: ending.outcomeKey,
+      deckId: resolvedDeckId,
+    },
   })
 
   const a = ending.lifeAchievement
@@ -216,9 +269,10 @@ export async function importEndings(
   endings: EndingPayload[],
   onProgress?: (done: number, total: number) => void,
 ): Promise<void> {
+  const deckId = await ensureLifeDeck(prisma)
   let done = 0
   for (const ending of endings) {
-    await importEnding(prisma, ending)
+    await importEnding(prisma, ending, deckId)
     done += 1
     if (done % 128 === 0) onProgress?.(done, endings.length)
   }
@@ -233,7 +287,9 @@ export function davinciCounts(prisma: PrismaClient, outcomeKeys: string[]) {
       where: { outcomeKey: { in: outcomeKeys } },
     }),
     prisma.lifeAchievement.count({
-      where: { conditionKey: { in: outcomeKeys.map((key) => `ending:${key}`) } },
+      where: {
+        conditionKey: { in: outcomeKeys.map((key) => `ending:${key}`) },
+      },
     }),
   ])
 }

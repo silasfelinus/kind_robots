@@ -136,6 +136,7 @@ export const ModelName = {
   Challenge: 'Challenge',
   ChallengeSubmission: 'ChallengeSubmission',
   Contender: 'Contender',
+  EndingDeck: 'EndingDeck',
   LifeRun: 'LifeRun',
   LifeChoice: 'LifeChoice',
   LifeStat: 'LifeStat',
@@ -1871,6 +1872,28 @@ export const ContenderScalarFieldEnum = {
 export type ContenderScalarFieldEnum = (typeof ContenderScalarFieldEnum)[keyof typeof ContenderScalarFieldEnum]
 
 
+export const EndingDeckScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  key: 'key',
+  title: 'title',
+  description: 'description',
+  ownerKind: 'ownerKind',
+  facetId: 'facetId',
+  scenarioId: 'scenarioId',
+  axes: 'axes',
+  passValue: 'passValue',
+  turnBudget: 'turnBudget',
+  turnBudgetByShape: 'turnBudgetByShape',
+  minTurnsBeforeResolve: 'minTurnsBeforeResolve',
+  unlockAchievementId: 'unlockAchievementId',
+  isActive: 'isActive'
+} as const
+
+export type EndingDeckScalarFieldEnum = (typeof EndingDeckScalarFieldEnum)[keyof typeof EndingDeckScalarFieldEnum]
+
+
 export const LifeRunScalarFieldEnum = {
   id: 'id',
   createdAt: 'createdAt',
@@ -1890,7 +1913,16 @@ export const LifeRunScalarFieldEnum = {
   endingId: 'endingId',
   outcomeKey: 'outcomeKey',
   summary: 'summary',
-  statsSnapshot: 'statsSnapshot'
+  statsSnapshot: 'statsSnapshot',
+  shape: 'shape',
+  deckId: 'deckId',
+  turnBudget: 'turnBudget',
+  narratorStyle: 'narratorStyle',
+  premise: 'premise',
+  scenarioId: 'scenarioId',
+  bible: 'bible',
+  inventory: 'inventory',
+  pendingTurn: 'pendingTurn'
 } as const
 
 export type LifeRunScalarFieldEnum = (typeof LifeRunScalarFieldEnum)[keyof typeof LifeRunScalarFieldEnum]
@@ -1905,7 +1937,12 @@ export const LifeChoiceScalarFieldEnum = {
   prompt: 'prompt',
   choiceText: 'choiceText',
   resultText: 'resultText',
-  effects: 'effects'
+  effects: 'effects',
+  source: 'source',
+  optionId: 'optionId',
+  rewardId: 'rewardId',
+  stateDelta: 'stateDelta',
+  artPrompt: 'artPrompt'
 } as const
 
 export type LifeChoiceScalarFieldEnum = (typeof LifeChoiceScalarFieldEnum)[keyof typeof LifeChoiceScalarFieldEnum]
@@ -1937,7 +1974,8 @@ export const LifeEndingScalarFieldEnum = {
   achievementId: 'achievementId',
   artPrompt: 'artPrompt',
   metadata: 'metadata',
-  isActive: 'isActive'
+  isActive: 'isActive',
+  deckId: 'deckId'
 } as const
 
 export type LifeEndingScalarFieldEnum = (typeof LifeEndingScalarFieldEnum)[keyof typeof LifeEndingScalarFieldEnum]
@@ -3254,6 +3292,17 @@ export const ContenderOrderByRelevanceFieldEnum = {
 export type ContenderOrderByRelevanceFieldEnum = (typeof ContenderOrderByRelevanceFieldEnum)[keyof typeof ContenderOrderByRelevanceFieldEnum]
 
 
+export const EndingDeckOrderByRelevanceFieldEnum = {
+  key: 'key',
+  title: 'title',
+  description: 'description',
+  axes: 'axes',
+  turnBudgetByShape: 'turnBudgetByShape'
+} as const
+
+export type EndingDeckOrderByRelevanceFieldEnum = (typeof EndingDeckOrderByRelevanceFieldEnum)[keyof typeof EndingDeckOrderByRelevanceFieldEnum]
+
+
 export const LifeRunOrderByRelevanceFieldEnum = {
   title: 'title',
   seed: 'seed',
@@ -3261,7 +3310,12 @@ export const LifeRunOrderByRelevanceFieldEnum = {
   genre: 'genre',
   outcomeKey: 'outcomeKey',
   summary: 'summary',
-  statsSnapshot: 'statsSnapshot'
+  statsSnapshot: 'statsSnapshot',
+  narratorStyle: 'narratorStyle',
+  premise: 'premise',
+  bible: 'bible',
+  inventory: 'inventory',
+  pendingTurn: 'pendingTurn'
 } as const
 
 export type LifeRunOrderByRelevanceFieldEnum = (typeof LifeRunOrderByRelevanceFieldEnum)[keyof typeof LifeRunOrderByRelevanceFieldEnum]
@@ -3271,7 +3325,10 @@ export const LifeChoiceOrderByRelevanceFieldEnum = {
   prompt: 'prompt',
   choiceText: 'choiceText',
   resultText: 'resultText',
-  effects: 'effects'
+  effects: 'effects',
+  optionId: 'optionId',
+  stateDelta: 'stateDelta',
+  artPrompt: 'artPrompt'
 } as const
 
 export type LifeChoiceOrderByRelevanceFieldEnum = (typeof LifeChoiceOrderByRelevanceFieldEnum)[keyof typeof LifeChoiceOrderByRelevanceFieldEnum]

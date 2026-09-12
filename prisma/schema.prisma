@@ -480,6 +480,7 @@ model Facet {
   CharacterLinks     CharacterFacet[]
   BotLinks           BotFacet[]
   RewardLinks        RewardFacet[]
+  EndingDecks        EndingDeck[]
   /// Optional daisyUI theme this record's card wears. NULL falls back to a
   /// stable id-derived pick -- see resolveEntityTheme in utils/entityTheme.ts.
   theme              String?              @db.VarChar(764)
@@ -709,6 +710,7 @@ model Achievement {
   AchievementRecords AchievementRecord[]
   LifeAchievements   LifeAchievement[]
   LifeEndings        LifeEnding[]
+  GatedDecks         EndingDeck[]
 
   @@index([artImageId], map: "Achievement_artImageId_fkey")
 }
@@ -1467,6 +1469,7 @@ model Reward {
   Characters     Character[]   @relation("CharacterToReward")
   Dreams         Dream[]       @relation("DreamToReward")
   FacetLinks     RewardFacet[]
+  LifeChoices    LifeChoice[]
   /// Optional daisyUI theme this record's card wears. NULL falls back to a
   /// stable id-derived pick -- see resolveEntityTheme in utils/entityTheme.ts.
   theme          String?       @db.VarChar(764)
@@ -1513,6 +1516,8 @@ model Scenario {
   FacetLinks           ScenarioFacet[]
   Characters           Character[]           @relation("CharacterToScenario")
   Dreams               Dream[]               @relation("DreamToScenario")
+  EndingDecks          EndingDeck[]
+  LifeRuns             LifeRun[]
   /// Optional daisyUI theme this record's card wears. NULL falls back to a
   /// stable id-derived pick -- see resolveEntityTheme in utils/entityTheme.ts.
   theme                String?               @db.VarChar(764)
@@ -2142,6 +2147,60 @@ model Contender {
   @@index([avatarImageId], map: "Contender_avatarImageId_fkey")
 }
 
+/// An ENDING DECK: the hidden axes a story is scored on, and therefore the set
+/// of endings it can resolve into.
+///
+/// Storybook's four shapes all resolve the same way -- a run accumulates stats
+/// on its deck's axes, and at the end those axes are read as bits in
+/// declaration order to name exactly one ending. The `life` deck (formerly the
+/// separate Da Vinci product) has ten axes and 1,024 endings; a genre deck has
+/// three or four and eight or sixteen. The engine does not know the difference.
+///
+/// `axes` is a JSON array in BIT ORDER: outcomeKey[i] is axes[i]. Reordering a
+/// deck's axes renames every one of its endings, so a deck's axes must not be
+/// reordered once its endings are seeded. See server/utils/endingDeckMath.ts
+/// and conductor projects/storybook/data/ending-decks/README.md.
+model EndingDeck {
+  id                    Int                 @id @default(autoincrement())
+  createdAt             DateTime            @default(now())
+  updatedAt             DateTime?           @default(now()) @updatedAt
+  /// Stable identity, e.g. 'life', 'genre-mystery', 'scenario-midnight-letters'.
+  key                   String              @unique @db.VarChar(64)
+  title                 String              @db.VarChar(255)
+  description           String?             @db.Text
+  ownerKind             EndingDeckOwnerKind @default(GENRE_FACET)
+  /// The GENRE Facet this deck belongs to, when ownerKind is GENRE_FACET.
+  facetId               Int?
+  /// The plot thread this deck belongs to, when ownerKind is SCENARIO.
+  scenarioId            Int?
+  /// JSON DeckAxis[] in bit order. Parsed by parseDeckAxes().
+  axes                  String              @db.LongText
+  /// A stat passes its axis at or above this value. Missing stats fail.
+  passValue             Int                 @default(1)
+  /// Turns a run gets when turnBudgetByShape has no entry for its shape.
+  turnBudget            Int                 @default(8)
+  /// JSON {"short-story":5,"chaptered":8,"episodic":12}.
+  turnBudgetByShape     String?             @db.LongText
+  /// Life resolves on its own clock once this many turns are played; a genre
+  /// deck leaves this NULL and resolves when its turn budget is spent.
+  minTurnsBeforeResolve Int?
+  /// Gating hook. NULL means anyone may play this deck. Enforcement is behind
+  /// STORYBOOK_ENFORCE_DECK_GATES until the card hand can render a lock.
+  unlockAchievementId   Int?
+  isActive              Boolean             @default(true)
+  Facet                 Facet?              @relation(fields: [facetId], references: [id], onDelete: SetNull)
+  Scenario              Scenario?           @relation(fields: [scenarioId], references: [id], onDelete: SetNull)
+  UnlockAchievement     Achievement?        @relation(fields: [unlockAchievementId], references: [id])
+  Endings               LifeEnding[]
+  Runs                  LifeRun[]
+
+  @@index([ownerKind])
+  @@index([facetId])
+  @@index([scenarioId])
+  @@index([unlockAchievementId])
+  @@index([isActive])
+}
+
 model LifeRun {
   id              Int                     @id @default(autoincrement())
   createdAt       DateTime                @default(now())
@@ -2162,6 +2221,26 @@ model LifeRun {
   outcomeKey      String?                 @db.VarChar(16)
   summary         String?                 @db.Text
   statsSnapshot   String?                 @db.LongText
+  /// Which Storybook shape this run is. LIFE is the pre-merge default, so
+  /// every existing row keeps its meaning without a backfill.
+  shape           StoryShape              @default(LIFE)
+  /// NULL means the life deck -- legacy rows predate decks entirely.
+  deckId          Int?
+  /// Turns this run gets. NULL falls back to the deck's budget for its shape.
+  turnBudget      Int?
+  narratorStyle   String?                 @db.VarChar(32)
+  premise         String?                 @db.Text
+  scenarioId      Int?
+  /// JSON snapshot of the board the reader assembled (cast with roles,
+  /// location, facets, scenario, treasures, spark). Snapshotted at creation on
+  /// purpose: later edits to a Character must not rewrite a story in progress.
+  bible           String?                 @db.LongText
+  /// JSON inventory entries, including consumedAtTurn for spent items.
+  inventory       String?                 @db.LongText
+  /// JSON of the scene the reader is currently looking at, with the options
+  /// offered and their effects. Held SERVER-SIDE so a client cannot author the
+  /// stat deltas of the choice it claims to have taken.
+  pendingTurn     String?                 @db.LongText
   Unlocks         LifeAchievementUnlock[]
   Choices         LifeChoice[]
   ArtCollection   ArtCollection?          @relation(fields: [artCollectionId], references: [id])
@@ -2172,6 +2251,8 @@ model LifeRun {
   User            User                    @relation(fields: [userId], references: [id], onDelete: Cascade)
   Art             LifeRunArt[]
   Stats           LifeStat[]
+  Deck            EndingDeck?             @relation(fields: [deckId], references: [id])
+  Scenario        Scenario?               @relation(fields: [scenarioId], references: [id], onDelete: SetNull)
 
   @@index([userId])
   @@index([status])
@@ -2192,13 +2273,26 @@ model LifeChoice {
   prompt     String   @db.Text
   choiceText String   @db.Text
   resultText String?  @db.Text
-  effects    String?  @db.LongText
-  Chat       Chat?    @relation(fields: [chatId], references: [id])
-  LifeRun    LifeRun  @relation(fields: [lifeRunId], references: [id], onDelete: Cascade)
+  effects    String?         @db.LongText
+  /// How the reader made this move: picked an offered option, wrote their own,
+  /// or played a card from the protagonist's character sheet.
+  source     StoryMoveSource @default(OPTION)
+  /// Which offered option was taken, when source is OPTION.
+  optionId   String?         @db.VarChar(8)
+  /// The Reward played, when source is SHEET.
+  rewardId   Int?
+  /// JSON {consequences,relationshipShifts,inventoryAdd,inventoryRemove}.
+  stateDelta String?         @db.LongText
+  artPrompt  String?         @db.Text
+  Chat       Chat?           @relation(fields: [chatId], references: [id])
+  LifeRun    LifeRun         @relation(fields: [lifeRunId], references: [id], onDelete: Cascade)
+  Reward     Reward?         @relation(fields: [rewardId], references: [id], onDelete: SetNull)
 
   @@index([lifeRunId])
   @@index([chatId])
   @@index([chapter])
+  @@index([rewardId])
+  @@index([source])
 }
 
 model LifeStat {
@@ -2218,7 +2312,7 @@ model LifeEnding {
   updatedAt      DateTime?         @default(now()) @updatedAt
   title          String            @db.VarChar(255)
   slug           String            @unique @db.VarChar(255)
-  outcomeKey     String            @unique @db.VarChar(16)
+  outcomeKey     String            @db.VarChar(16)
   summary        String            @db.Text
   victoryType    LifeVictoryType   @default(MIXED)
   icon           String?           @db.VarChar(764)
@@ -2229,6 +2323,11 @@ model LifeEnding {
   artPrompt      String?           @db.Text
   metadata       String?           @db.LongText
   isActive       Boolean           @default(true)
+  /// The deck this ending belongs to. outcomeKey is unique WITHIN a deck, not
+  /// globally -- every three-axis deck produces '000'..'111', so Mystery's
+  /// '101' and Heist's '101' are different endings.
+  deckId         Int
+  Deck           EndingDeck        @relation(fields: [deckId], references: [id])
   Achievements   LifeAchievement[]
   Achievement    Achievement?      @relation(fields: [achievementId], references: [id])
   HeroArtImage   ArtImage?         @relation("LifeEndingHeroArtImage", fields: [heroArtImageId], references: [id])
@@ -2240,6 +2339,8 @@ model LifeEnding {
   @@index([iconArtImageId])
   @@index([heroArtImageId])
   @@index([isActive])
+  @@index([deckId])
+  @@unique([deckId, outcomeKey])
 }
 
 model LifeAchievement {
@@ -3258,6 +3359,25 @@ enum LifeVictoryType {
   FAILURE
   MIXED
   SECRET
+}
+
+enum EndingDeckOwnerKind {
+  LIFE
+  GENRE_FACET
+  SCENARIO
+}
+
+enum StoryShape {
+  SHORT_STORY
+  CHAPTERED
+  EPISODIC
+  LIFE
+}
+
+enum StoryMoveSource {
+  OPTION
+  CUSTOM
+  SHEET
 }
 
 enum LifeArtSceneType {

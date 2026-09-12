@@ -1,6 +1,6 @@
 <!-- /components/animation/animation-manager.vue -->
 <template>
-  <section class="kr-surface gap-4">
+  <section class="animation-manager-shell kr-surface gap-4">
     <header
       v-if="showHeader"
       class="flex flex-wrap items-center justify-between gap-3 border-b border-base-300 px-4 py-3"
@@ -45,7 +45,7 @@
       </div>
     </header>
 
-    <div class="grid grid-cols-1 gap-4 2xl:grid-cols-[minmax(0,1.4fr)_minmax(320px,0.6fr)]">
+    <div class="animation-manager-controls-grid grid gap-4">
       <animation-selector />
 
       <section class="flex min-w-0 flex-col gap-3 kr-panel-flat p-4">
@@ -65,7 +65,7 @@
           </button>
         </header>
 
-        <div class="grid grid-cols-1 gap-2 sm:grid-cols-2 2xl:grid-cols-1">
+        <div class="coverage-zone-grid grid gap-2">
           <article
             v-for="zone in zoneOptions"
             :key="zone.id"
@@ -87,7 +87,7 @@
               <button
                 v-for="placement in placementOptions"
                 :key="placement.value"
-                class="btn btn-xs min-w-0 flex-1 px-2 2xl:flex-none"
+                class="btn btn-xs min-w-0 flex-1 px-2"
                 :class="
                   store.getSurfacePlacement(zone.id) === placement.value
                     ? 'btn-primary'
@@ -106,8 +106,8 @@
       </section>
     </div>
 
-    <div class="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1fr)_320px]">
-      <div class="grid auto-rows-fr grid-cols-1 gap-3 md:grid-cols-2 2xl:grid-cols-3">
+    <div class="animation-manager-content-grid grid gap-4">
+      <div class="effect-card-grid grid auto-rows-fr gap-3">
         <article
           v-for="effect in store.galleryItems"
           :key="effect.id"
@@ -196,7 +196,7 @@
 
       <aside
         v-if="store.selectedItem"
-        class="flex flex-col gap-4 kr-panel-flat p-4 xl:sticky xl:top-4 xl:self-start"
+        class="effect-detail flex flex-col gap-4 kr-panel-flat p-4"
       >
         <div class="flex items-start justify-between gap-3">
           <div>
@@ -243,7 +243,7 @@
           </div>
         </dl>
 
-        <div class="grid grid-cols-1 gap-2 sm:grid-cols-2 xl:grid-cols-1">
+        <div class="effect-detail-actions grid gap-2">
           <button
             class="kr-btn-primary-md-plain"
             type="button"
@@ -315,3 +315,42 @@ function surfaceLabel(surface: FxRegion | 'fullscreen' | undefined): string {
   return surface.charAt(0).toUpperCase() + surface.slice(1)
 }
 </script>
+
+<style scoped>
+.animation-manager-shell {
+  container-name: animation-manager;
+  container-type: inline-size;
+}
+
+.animation-manager-controls-grid {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 32rem), 1fr));
+}
+
+.coverage-zone-grid {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr));
+}
+
+.animation-manager-content-grid {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.effect-card-grid {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr));
+}
+
+.effect-detail-actions {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 10rem), 1fr));
+}
+
+@container animation-manager (min-width: 70rem) {
+  .animation-manager-content-grid {
+    grid-template-columns: minmax(0, 1fr) 20rem;
+  }
+
+  .effect-detail {
+    position: sticky;
+    top: 1rem;
+    align-self: start;
+  }
+}
+</style>

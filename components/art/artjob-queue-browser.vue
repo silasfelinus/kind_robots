@@ -63,19 +63,44 @@
         {{ formatAge(stats.oldestPending.ageSeconds) }}.
       </div>
 
-      <div class="grid grid-cols-[repeat(auto-fit,minmax(min(100%,10rem),1fr))] gap-3">
-        <div
-          v-for="status in summaryStatuses"
-          :key="status"
-          class="kr-panel-flat p-3"
+      <div
+        class="grid grid-cols-[repeat(auto-fit,minmax(min(100%,10rem),1fr))] gap-3"
+      >
+        <button
+          v-for="filter in statusFilters"
+          :key="filter"
+          type="button"
+          class="kr-panel-flat p-3 text-left transition hover:border-primary/50 hover:bg-base-200/50"
+          :class="
+            artJobStore.jobStatusFilter === filter
+              ? 'border-primary bg-primary/10 ring-2 ring-primary/30'
+              : ''
+          "
+          :aria-pressed="artJobStore.jobStatusFilter === filter"
+          :title="`Show ${filter} jobs in the queue browser`"
+          @click="changeStatus(filter)"
         >
-          <div
-            class="text-[11px] font-semibold uppercase tracking-wide text-base-content/50"
-          >
-            {{ status }}
+          <div class="flex items-center justify-between gap-2">
+            <span
+              class="text-[11px] font-semibold uppercase tracking-wide"
+              :class="
+                artJobStore.jobStatusFilter === filter
+                  ? 'text-primary'
+                  : 'text-base-content/50'
+              "
+            >
+              {{ filter }}
+            </span>
+            <span
+              v-if="artJobStore.jobStatusFilter === filter"
+              class="flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wide text-primary"
+            >
+              <span v-if="artJobStore.loadingJobs" class="kr-spinner-xs" />
+              Showing
+            </span>
           </div>
-          <div class="kr-text-black-2xl mt-1">{{ statusCount(status) }}</div>
-        </div>
+          <div class="kr-text-black-2xl mt-1">{{ statusCount(filter) }}</div>
+        </button>
       </div>
 
       <div class="grid gap-3 xl:grid-cols-2">
@@ -96,7 +121,9 @@
               {{ artJobStore.queuePaused ? 'Resume queue' : 'Pause queue' }}
             </button>
           </div>
-          <div class="grid grid-cols-[repeat(auto-fit,minmax(min(100%,14rem),1fr))] gap-2">
+          <div
+            class="grid grid-cols-[repeat(auto-fit,minmax(min(100%,14rem),1fr))] gap-2"
+          >
             <div
               v-for="server in privateArtServers"
               :key="server.id"
@@ -146,10 +173,7 @@
                 {{ server.serverType }} · {{ server.lastStatus }}
               </div>
             </div>
-            <p
-              v-if="!privateArtServers.length"
-              class="kr-text-dim-xs"
-            >
+            <p v-if="!privateArtServers.length" class="kr-text-dim-xs">
               No private art servers registered.
             </p>
           </div>
@@ -216,34 +240,14 @@
 
       <section class="kr-panel-flat p-3">
         <div class="flex flex-col gap-3">
-          <div class="flex flex-wrap items-center justify-between gap-2">
-            <div class="flex flex-wrap items-center gap-2">
-              <h3 class="text-sm font-semibold">Queue browser</h3>
-              <span class="text-[11px] text-base-content/50">
-                Showing {{ pageStart }}–{{ pageEnd }} of
-                {{ artJobStore.jobTotalCount }}
-              </span>
-            </div>
-
-            <div class="flex flex-wrap gap-1">
-              <button
-                v-for="filter in statusFilters"
-                :key="filter"
-                type="button"
-                class="kr-btn-xs-2xl"
-                :class="
-                  artJobStore.jobStatusFilter === filter
-                    ? 'btn-primary'
-                    : 'btn-ghost'
-                "
-                @click="changeStatus(filter)"
-              >
-                {{ filter }}
-                <span class="ml-1 font-mono opacity-70">{{
-                  statusCount(filter)
-                }}</span>
-              </button>
-            </div>
+          <div class="flex flex-wrap items-center gap-2">
+            <h3 class="text-sm font-semibold">Queue browser</h3>
+            <span class="text-[11px] text-base-content/50">
+              {{ artJobStore.jobStatusFilter }} · showing {{ pageStart }}–{{
+                pageEnd
+              }}
+              of {{ artJobStore.jobTotalCount }}
+            </span>
           </div>
 
           <div
@@ -318,7 +322,10 @@
           <p class="kr-text-dim-sm-70">{{ queueLoadMessage }}</p>
         </div>
 
-        <div v-else class="mt-3 grid grid-cols-[repeat(auto-fit,minmax(min(100%,18rem),1fr))] gap-3">
+        <div
+          v-else
+          class="mt-3 grid grid-cols-[repeat(auto-fit,minmax(min(100%,18rem),1fr))] gap-3"
+        >
           <artjob-queue-card
             v-for="job in artJobStore.jobs"
             :key="job.id"
@@ -417,7 +424,6 @@ const statusFilters: Array<ArtJobStatus | 'ALL'> = [
   'CANCELLED',
   'ALL',
 ]
-const summaryStatuses: ArtJobStatus[] = ['PENDING', 'RUNNING', 'FAILED', 'DONE']
 const stats = computed(() => artJobStore.stats)
 const uptime = computed(() => artJobStore.uptime)
 const windowHours = computed(() => artJobStore.windowHours)

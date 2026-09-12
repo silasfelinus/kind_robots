@@ -47,6 +47,16 @@ jobs:
       - name: Layout header contract self-test
         run: npm run test:layout-header-contract-selftest
 
+      - name: Syntax-check changed shell scripts
+        if: github.event_name == 'pull_request'
+        shell: bash
+        run: |
+          mapfile -d '' shell_files < <(git diff --name-only --diff-filter=ACMR -z "${{ github.event.pull_request.base.sha }}...HEAD" -- '*.sh')
+          for file in "${shell_files[@]}"; do
+            echo "bash -n $file"
+            bash -n "$file"
+          done
+
       - name: Audit test-prefixed commits for executable assertions
         if: github.event_name == 'pull_request'
         run: bash scripts/check-test-commit-assertions.sh "${{ github.event.pull_request.base.sha }}"

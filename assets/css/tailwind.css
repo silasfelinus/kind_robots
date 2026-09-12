@@ -2684,6 +2684,25 @@ section:has(div[class*='xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]'])
     @apply h-full w-full object-cover;
   }
 
+  /* New family opened per t-134's kaizen note (the toggle-*-sm/-xs sized
+   * pool is now fully closed; a fresh full-repo class-frequency survey
+   * outside every now-closed family, kr-toggle-* included, turned this up
+   * as the largest remaining well-bounded pool). `form-control gap-1` is
+   * the exact, verbatim hand-rolled outer wrapper for a labeled form
+   * field -- consistently `<label class="form-control gap-1">` around an
+   * inner label-text span and its input, in 10 files (36 exact-match
+   * occurrences); 7 further subset-match occurrences across 4 files carry
+   * extra layout tokens (`flex-1 min-w-56`, `flex-1 min-w-52`, `mt-3`,
+   * `min-w-60`) riding alongside the same base shape, migrated in the same
+   * slice per the standard subset-match convention every other kr-*
+   * codemod already uses. Distinct from `.kr-label-row` (the inner
+   * `<span class="label py-1">` caption, not this outer wrapper). Purely a
+   * composition/spacing primitive: no color and no behavior change at any
+   * of the 43 sites. */
+  .kr-form-field {
+    @apply form-control gap-1;
+  }
+
   .text-smart {
     @apply text-sm md:text-lg lg:text-lg xl:text-xl;
   }

@@ -70,7 +70,7 @@
         </div>
 
         <div class="grid gap-3 sm:grid-cols-3">
-          <label class="form-control gap-1">
+          <label class="kr-form-field">
             <span class="kr-text-dim-xs-60 font-bold">Method</span>
             <select
               v-model="mode"
@@ -82,7 +82,7 @@
             </select>
           </label>
 
-          <label class="form-control gap-1">
+          <label class="kr-form-field">
             <span class="kr-text-dim-xs-60 font-bold">Engine</span>
             <select
               v-model="engine"
@@ -100,7 +100,7 @@
             </select>
           </label>
 
-          <label class="form-control gap-1">
+          <label class="kr-form-field">
             <span class="kr-text-dim-xs-60 font-bold">Strength</span>
             <select
               v-model="presetKey"
@@ -118,7 +118,7 @@
           </label>
         </div>
 
-        <label class="form-control gap-1">
+        <label class="kr-form-field">
           <span class="kr-text-dim-xs-60 font-bold">Art prompt</span>
           <textarea
             v-model="prompt"

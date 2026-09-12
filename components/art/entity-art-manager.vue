@@ -242,7 +242,7 @@
       </div>
 
       <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        <label v-if="editableSlots.length > 1" class="form-control gap-1">
+        <label v-if="editableSlots.length > 1" class="kr-form-field">
           <span class="kr-text-dim-xs-60 font-semibold">Target</span>
           <select v-model="selectedField" class="kr-select-sm" :disabled="submitting">
             <option
@@ -255,7 +255,7 @@
           </select>
         </label>
 
-        <label class="form-control gap-1">
+        <label class="kr-form-field">
           <span class="kr-text-dim-xs-60 font-semibold">Method</span>
           <select v-model="generationMode" class="kr-select-sm" :disabled="submitting">
             <option value="recreate">New prompt · recreate</option>
@@ -263,7 +263,7 @@
           </select>
         </label>
 
-        <label class="form-control gap-1">
+        <label class="kr-form-field">
           <span class="kr-text-dim-xs-60 font-semibold">Engine</span>
           <select v-model="generationEngine" class="kr-select-sm" :disabled="submitting">
             <template v-if="generationMode === 'recreate'">
@@ -277,7 +277,7 @@
           </select>
         </label>
 
-        <label class="form-control gap-1">
+        <label class="kr-form-field">
           <span class="kr-text-dim-xs-60 font-semibold">Preset</span>
           <select v-model="presetKey" class="kr-select-sm" :disabled="submitting">
             <option v-for="preset in availablePresets" :key="preset.key" :value="preset.key">
@@ -287,7 +287,7 @@
         </label>
       </div>
 
-      <label class="form-control gap-1">
+      <label class="kr-form-field">
         <span class="kr-text-dim-xs-60 font-semibold">Art direction</span>
         <textarea
           v-model="prompt"
@@ -305,7 +305,7 @@
         v-if="showCheckpointSelector"
         class="grid gap-3 kr-panel-compact-70 sm:grid-cols-[minmax(0,1fr)_auto]"
       >
-        <label class="form-control gap-1">
+        <label class="kr-form-field">
           <span class="kr-text-dim-xs-60 font-semibold">SDXL checkpoint</span>
           <select
             v-model.number="checkpointResourceId"
@@ -409,7 +409,7 @@
       </div>
 
       <div class="grid gap-3 sm:grid-cols-2">
-        <label v-if="editableSlots.length > 1" class="form-control gap-1">
+        <label v-if="editableSlots.length > 1" class="kr-form-field">
           <span class="kr-text-dim-xs-60 font-semibold">Target</span>
           <select v-model="selectedField" class="kr-select-sm" :disabled="submitting">
             <option
@@ -421,7 +421,7 @@
             </option>
           </select>
         </label>
-        <label class="form-control gap-1">
+        <label class="kr-form-field">
           <span class="kr-text-dim-xs-60 font-semibold">New image</span>
           <input
             type="file"

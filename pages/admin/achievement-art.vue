@@ -46,7 +46,7 @@
           class="grid gap-4 lg:grid-cols-[minmax(260px,0.38fr)_minmax(0,1fr)]"
         >
           <aside class="kr-panel space-y-3 p-4">
-            <label class="form-control gap-1">
+            <label class="kr-form-field">
               <span class="kr-text-dim-xs-60 font-bold">Find achievement</span>
               <input
                 v-model="search"

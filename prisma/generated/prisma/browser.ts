@@ -569,6 +569,16 @@ export type Server = Prisma.ServerModel
  */
 export type ServerHealthCheck = Prisma.ServerHealthCheckModel
 /**
+ * Model SceneAnimatorPrompt
+ * A per-image motion direction for Scene Animator, overriding the shared
+ * default in utils/sceneAnimatorPrompt.ts for one source still.
+ * 
+ * Keyed by the source file's SHA-256 rather than its path, so an override
+ * follows the image through a rename or a move between folders -- the same
+ * identity the render dedupe already uses.
+ */
+export type SceneAnimatorPrompt = Prisma.SceneAnimatorPromptModel
+/**
  * Model SmartIcon
  * Smart Icons are used internally to generate the user's icon array. They can create custom icons that are links to pages or commands
  */

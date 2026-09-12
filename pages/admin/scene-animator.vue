@@ -298,6 +298,58 @@
                   <p v-if="source.error" class="kr-text-error-xs line-clamp-3" :title="source.error">
                     {{ source.error }}
                   </p>
+                  <!--
+                    Per-image motion direction. Collapsed by default: most
+                    sources ride the shared default, and an always-open textarea
+                    on every card would bury the still/motion comparison the
+                    grid exists for.
+                  -->
+                  <details class="kr-panel-compact text-xs" :open="promptDrafts[source.name] !== undefined">
+                    <summary class="flex cursor-pointer items-center justify-between gap-2 font-black">
+                      <span>Motion direction</span>
+                      <span v-if="source.isPromptOverridden" class="badge badge-xs badge-primary">custom</span>
+                      <span v-else class="kr-text-dim-xs-40">default</span>
+                    </summary>
+                    <textarea
+                      :value="promptDrafts[source.name] ?? source.prompt"
+                      rows="5"
+                      class="textarea textarea-bordered mt-2 w-full rounded-lg text-xs leading-relaxed"
+                      :disabled="store.savingPrompt === source.name"
+                      :placeholder="SCENE_ANIMATOR_PROMPT"
+                      @input="onPromptInput(source.name, $event)"
+                    />
+                    <div class="mt-2 flex flex-wrap gap-2">
+                      <button
+                        type="button"
+                        class="btn btn-xs rounded-lg"
+                        :disabled="!isPromptDirty(source) || store.savingPrompt === source.name"
+                        @click="savePrompt(source)"
+                      >
+                        <span v-if="store.savingPrompt === source.name" class="kr-spinner-xs" />
+                        Save prompt
+                      </button>
+                      <button
+                        v-if="isPromptDirty(source)"
+                        type="button"
+                        class="btn btn-ghost btn-xs rounded-lg"
+                        :disabled="store.savingPrompt === source.name"
+                        @click="discardPromptDraft(source.name)"
+                      >
+                        Discard edit
+                      </button>
+                      <button
+                        v-else-if="source.isPromptOverridden"
+                        type="button"
+                        class="btn btn-ghost btn-xs rounded-lg"
+                        :disabled="store.savingPrompt === source.name"
+                        title="Clear this source's own prompt and use the shared default"
+                        @click="resetPrompt(source)"
+                      >
+                        Use default
+                      </button>
+                    </div>
+                  </details>
+
                   <button
                     v-if="source.status === 'failed' || source.status === 'cancelled'"
                     type="button"
@@ -439,6 +491,49 @@ function formatBytes(bytes: number): string {
   if (bytes < 1024) return `${bytes} B`
   if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`
   return `${(bytes / 1024 / 1024).toFixed(1)} MB`
+}
+
+/*
+ * Unsaved prompt edits, keyed by source filename.
+ *
+ * Held here rather than mutating store.sources because the store is refreshed
+ * from the server on a timer and after every enqueue -- writing drafts into it
+ * would have the operator's half-typed direction vanish mid-sentence on the
+ * next poll. A key is present only while an edit is in flight; absent means the
+ * textarea shows whatever the server says the prompt is.
+ */
+const promptDrafts = ref<Record<string, string>>({})
+
+function onPromptInput(sourceFile: string, event: Event): void {
+  const target = event.target as HTMLTextAreaElement | null
+  if (!target) return
+  promptDrafts.value = { ...promptDrafts.value, [sourceFile]: target.value }
+}
+
+function discardPromptDraft(sourceFile: string): void {
+  promptDrafts.value = Object.fromEntries(
+    Object.entries(promptDrafts.value).filter(([key]) => key !== sourceFile),
+  )
+}
+
+function isPromptDirty(source: SceneAnimatorSource): boolean {
+  const draft = promptDrafts.value[source.name]
+  return draft !== undefined && draft.trim() !== source.prompt.trim()
+}
+
+async function savePrompt(source: SceneAnimatorSource): Promise<void> {
+  const draft = promptDrafts.value[source.name]
+  if (draft === undefined) return
+  const saved = await store.savePrompt(source.name, draft)
+  // Drop the draft only on success, so a failed save leaves the operator's
+  // text on screen to retry rather than silently discarding it.
+  if (saved) discardPromptDraft(source.name)
+}
+
+/** Clear this source's own direction and fall back to the shared default. */
+async function resetPrompt(source: SceneAnimatorSource): Promise<void> {
+  const saved = await store.savePrompt(source.name, '')
+  if (saved) discardPromptDraft(source.name)
 }
 
 function isVideoResult(source: SceneAnimatorSource): boolean {

@@ -1592,6 +1592,29 @@ model ServerHealthCheck {
   @@index([checkedAt])
 }
 
+/// A per-image motion direction for Scene Animator, overriding the shared
+/// default in utils/sceneAnimatorPrompt.ts for one source still.
+///
+/// Keyed by the source file's SHA-256 rather than its path, so an override
+/// follows the image through a rename or a move between folders -- the same
+/// identity the render dedupe already uses.
+model SceneAnimatorPrompt {
+  id             Int      @id @default(autoincrement())
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  /// SHA-256 of the source image bytes. One override per image.
+  sourceHash     String   @unique @db.VarChar(64)
+  /// Last known location, for display only. The hash is the identity.
+  sourceFolder   String   @default("") @db.VarChar(512)
+  sourceFile     String   @default("") @db.VarChar(512)
+  prompt         String   @db.Text
+  negativePrompt String?  @db.Text
+  /// Admin who last saved it, kept for provenance on a shared surface.
+  userId         Int?
+
+  @@index([sourceFolder, sourceFile])
+}
+
 /// Smart Icons are used internally to generate the user's icon array. They can create custom icons that are links to pages or commands
 model SmartIcon {
   id          Int       @id @default(autoincrement())

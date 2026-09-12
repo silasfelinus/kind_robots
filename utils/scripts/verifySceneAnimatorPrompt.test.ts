@@ -109,9 +109,22 @@ assert.ok(
     `negativePrompt: '' — a tuned negative prompt no job carries is inert.`,
 )
 
+/*
+ * The enqueue no longer names the constant directly: resolveScenePrompt() is
+ * the single place that chooses between a source's own direction and the
+ * shared default, and it returns SCENE_ANIMATOR_PROMPT for the default case.
+ * What must stay true is that the prompt comes from that decision rather than
+ * from a literal pasted into the route.
+ */
 assert.ok(
-  /promptString:\s*SCENE_ANIMATOR_PROMPT/.test(enqueue),
-  `${ENQUEUE} must send the shared prompt constant, not an inline string`,
+  /promptString:\s*prompt\b/.test(enqueue) && /resolveScenePrompt\(/.test(enqueue),
+  `${ENQUEUE} must send the prompt resolved by resolveScenePrompt()`,
+)
+
+assert.ok(
+  !new RegExp(`promptString:\\s*['"\`]`).test(enqueue),
+  `${ENQUEUE} must not inline a prompt literal — that is a second copy of the ` +
+    `direction, free to drift from the shared one`,
 )
 
 /* -- 5. the operator is shown the real thing, not a stale copy -------------- */

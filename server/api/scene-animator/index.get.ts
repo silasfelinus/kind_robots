@@ -2,6 +2,10 @@ import { defineEventHandler, getQuery } from 'h3'
 import prisma from '@/server/utils/prisma'
 import { requireAdminApiUser } from '@/server/utils/authGuard'
 import {
+  readSceneAnimatorPrompts,
+  resolveScenePrompt,
+} from '@/server/utils/sceneAnimatorPromptStore'
+import {
   SCENE_ANIMATOR_PROJECT_SLUG,
   listSceneAnimatorSourceFiles,
   parseSceneAnimatorContext,
@@ -198,8 +202,17 @@ export default defineEventHandler(async (event) => {
   const resultImageById = new Map(resultImages.map((image) => [image.id, image]))
 
   const configKey = sceneAnimatorConfigKey(config)
+  // One query for the whole folder; each card needs to show the direction it
+  // will actually be rendered with, and a custom one changes its dedupe key.
+  const promptOverrides = await readSceneAnimatorPrompts(
+    sources.map((source) => source.hash),
+  )
   const rows = sources.map((source) => {
-    const dedupeKey = sceneAnimatorDedupeKey(source.hash, config)
+    const { prompt, isOverridden } = resolveScenePrompt(
+      promptOverrides.get(source.hash),
+    )
+    const promptKey = isOverridden ? prompt : null
+    const dedupeKey = sceneAnimatorDedupeKey(source.hash, config, promptKey)
     const job = latestByKey.get(dedupeKey)
     const result = job?.artImageId != null ? (resultImageById.get(job.artImageId) ?? null) : null
     return {
@@ -209,6 +222,10 @@ export default defineEventHandler(async (event) => {
       mime: source.mime,
       sourceUrl: `/api/scene-animator/source?folder=${encodeURIComponent(folder)}&file=${encodeURIComponent(source.name)}`,
       dedupeKey,
+      // What this source will actually be rendered with, and whether that is
+      // its own direction or the shared default.
+      prompt,
+      isPromptOverridden: isOverridden,
       status: job ? jobStatus(job.status) : 'missing',
       jobId: job?.id ?? null,
       artImageId: job?.artImageId ?? null,

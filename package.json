@@ -70,6 +70,7 @@
     "test:scene-animator-health": "tsx utils/scripts/verifySceneAnimatorHealth.test.ts",
     "test:scene-animator-resubmit": "tsx utils/scripts/verifySceneAnimatorResubmit.test.ts",
     "test:scene-animator-prompt": "tsx utils/scripts/verifySceneAnimatorPrompt.test.ts",
+    "test:scene-animator-prompt-override": "tsx utils/scripts/verifySceneAnimatorPromptOverride.test.ts",
     "test:facet-aliases": "tsx utils/scripts/verifyFacetAliases.ts",
     "audit:art-coverage": "tsx utils/scripts/auditEntityArtCoverage.ts",
     "test:facet-content": "tsx utils/scripts/verifyFacetContentQuality.ts",

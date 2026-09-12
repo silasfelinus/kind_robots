@@ -119,6 +119,7 @@ export const ModelName = {
   Scenario: 'Scenario',
   Server: 'Server',
   ServerHealthCheck: 'ServerHealthCheck',
+  SceneAnimatorPrompt: 'SceneAnimatorPrompt',
   SmartIcon: 'SmartIcon',
   Theme: 'Theme',
   User: 'User',
@@ -1517,6 +1518,21 @@ export const ServerHealthCheckScalarFieldEnum = {
 } as const
 
 export type ServerHealthCheckScalarFieldEnum = (typeof ServerHealthCheckScalarFieldEnum)[keyof typeof ServerHealthCheckScalarFieldEnum]
+
+
+export const SceneAnimatorPromptScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  sourceHash: 'sourceHash',
+  sourceFolder: 'sourceFolder',
+  sourceFile: 'sourceFile',
+  prompt: 'prompt',
+  negativePrompt: 'negativePrompt',
+  userId: 'userId'
+} as const
+
+export type SceneAnimatorPromptScalarFieldEnum = (typeof SceneAnimatorPromptScalarFieldEnum)[keyof typeof SceneAnimatorPromptScalarFieldEnum]
 
 
 export const SmartIconScalarFieldEnum = {
@@ -3040,6 +3056,17 @@ export const ServerHealthCheckOrderByRelevanceFieldEnum = {
 } as const
 
 export type ServerHealthCheckOrderByRelevanceFieldEnum = (typeof ServerHealthCheckOrderByRelevanceFieldEnum)[keyof typeof ServerHealthCheckOrderByRelevanceFieldEnum]
+
+
+export const SceneAnimatorPromptOrderByRelevanceFieldEnum = {
+  sourceHash: 'sourceHash',
+  sourceFolder: 'sourceFolder',
+  sourceFile: 'sourceFile',
+  prompt: 'prompt',
+  negativePrompt: 'negativePrompt'
+} as const
+
+export type SceneAnimatorPromptOrderByRelevanceFieldEnum = (typeof SceneAnimatorPromptOrderByRelevanceFieldEnum)[keyof typeof SceneAnimatorPromptOrderByRelevanceFieldEnum]
 
 
 export const SmartIconOrderByRelevanceFieldEnum = {

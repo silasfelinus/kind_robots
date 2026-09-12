@@ -142,6 +142,9 @@ jobs:
       - name: Scene Animator prompt contract
         run: npm run test:scene-animator-prompt
 
+      - name: Scene Animator prompt override contract
+        run: npm run test:scene-animator-prompt-override
+
       - name: ESLint ratchet
         run: npm run test:lint-ratchet
 

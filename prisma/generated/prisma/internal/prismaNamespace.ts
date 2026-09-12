@@ -465,6 +465,7 @@ export const ModelName = {
   Scenario: 'Scenario',
   Server: 'Server',
   ServerHealthCheck: 'ServerHealthCheck',
+  SceneAnimatorPrompt: 'SceneAnimatorPrompt',
   SmartIcon: 'SmartIcon',
   Theme: 'Theme',
   User: 'User',
@@ -520,7 +521,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "agentProfile" | "agentProfileCredential" | "agentCheckIn" | "agentNote" | "brainstormSession" | "brainstormCandidate" | "facetAlias" | "facetProfile" | "characterFacet" | "botFacet" | "rewardFacet" | "mandarinAudioAsset" | "mandarinCatalogOverride" | "mandarinCatalogChange" | "mandarinRequestedCard" | "mandarinCustomSet" | "mandarinArtJobLink" | "mandarinCardProgress" | "mandarinReviewEvent" | "modelBuildRun" | "modelBuildItem" | "modelBuildArtifact" | "modelBuildRevision" | "projectPageContent" | "artImage" | "artCollection" | "bot" | "character" | "chat" | "dream" | "dreamRelation" | "project" | "facet" | "dreamFacet" | "scenarioFacet" | "projectFacet" | "projectArtImage" | "projectArtCollection" | "entityArtImage" | "facetArtImage" | "facetArtCollection" | "facetRelation" | "expressionMedia" | "expressionTransition" | "log" | "achievement" | "manaTransaction" | "revenueSplit" | "socialPostDraft" | "missionRemittance" | "product" | "order" | "orderItem" | "entitlement" | "printJob" | "grant" | "pack" | "achievementRecord" | "narratorTopic" | "narratorThread" | "pitchSheet" | "prompt" | "reaction" | "resource" | "reward" | "scenario" | "server" | "serverHealthCheck" | "smartIcon" | "theme" | "user" | "stylistClient" | "stylistAppointment" | "artJob" | "queueControl" | "downloadRequest" | "karmaTransaction" | "referral" | "userRelation" | "userRole" | "todo" | "challenge" | "challengeSubmission" | "contender" | "lifeRun" | "lifeChoice" | "lifeStat" | "lifeEnding" | "lifeAchievement" | "lifeAchievementUnlock" | "lifeRunArt" | "aquarium" | "aquariumStock" | "aquariumSet" | "aquariumDecor" | "aquariumEgg" | "aquariumCodexEntry" | "monster" | "aquariumEvent" | "authToken" | "agentCredential" | "conversation" | "conversationParticipant" | "directMessage" | "notification" | "githubInstallation" | "appRepo" | "mediaEntry"
+    modelProps: "agentProfile" | "agentProfileCredential" | "agentCheckIn" | "agentNote" | "brainstormSession" | "brainstormCandidate" | "facetAlias" | "facetProfile" | "characterFacet" | "botFacet" | "rewardFacet" | "mandarinAudioAsset" | "mandarinCatalogOverride" | "mandarinCatalogChange" | "mandarinRequestedCard" | "mandarinCustomSet" | "mandarinArtJobLink" | "mandarinCardProgress" | "mandarinReviewEvent" | "modelBuildRun" | "modelBuildItem" | "modelBuildArtifact" | "modelBuildRevision" | "projectPageContent" | "artImage" | "artCollection" | "bot" | "character" | "chat" | "dream" | "dreamRelation" | "project" | "facet" | "dreamFacet" | "scenarioFacet" | "projectFacet" | "projectArtImage" | "projectArtCollection" | "entityArtImage" | "facetArtImage" | "facetArtCollection" | "facetRelation" | "expressionMedia" | "expressionTransition" | "log" | "achievement" | "manaTransaction" | "revenueSplit" | "socialPostDraft" | "missionRemittance" | "product" | "order" | "orderItem" | "entitlement" | "printJob" | "grant" | "pack" | "achievementRecord" | "narratorTopic" | "narratorThread" | "pitchSheet" | "prompt" | "reaction" | "resource" | "reward" | "scenario" | "server" | "serverHealthCheck" | "sceneAnimatorPrompt" | "smartIcon" | "theme" | "user" | "stylistClient" | "stylistAppointment" | "artJob" | "queueControl" | "downloadRequest" | "karmaTransaction" | "referral" | "userRelation" | "userRole" | "todo" | "challenge" | "challengeSubmission" | "contender" | "lifeRun" | "lifeChoice" | "lifeStat" | "lifeEnding" | "lifeAchievement" | "lifeAchievementUnlock" | "lifeRunArt" | "aquarium" | "aquariumStock" | "aquariumSet" | "aquariumDecor" | "aquariumEgg" | "aquariumCodexEntry" | "monster" | "aquariumEvent" | "authToken" | "agentCredential" | "conversation" | "conversationParticipant" | "directMessage" | "notification" | "githubInstallation" | "appRepo" | "mediaEntry"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -5012,6 +5013,72 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    SceneAnimatorPrompt: {
+      payload: Prisma.$SceneAnimatorPromptPayload<ExtArgs>
+      fields: Prisma.SceneAnimatorPromptFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.SceneAnimatorPromptFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SceneAnimatorPromptPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.SceneAnimatorPromptFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SceneAnimatorPromptPayload>
+        }
+        findFirst: {
+          args: Prisma.SceneAnimatorPromptFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SceneAnimatorPromptPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.SceneAnimatorPromptFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SceneAnimatorPromptPayload>
+        }
+        findMany: {
+          args: Prisma.SceneAnimatorPromptFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SceneAnimatorPromptPayload>[]
+        }
+        create: {
+          args: Prisma.SceneAnimatorPromptCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SceneAnimatorPromptPayload>
+        }
+        createMany: {
+          args: Prisma.SceneAnimatorPromptCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.SceneAnimatorPromptDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SceneAnimatorPromptPayload>
+        }
+        update: {
+          args: Prisma.SceneAnimatorPromptUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SceneAnimatorPromptPayload>
+        }
+        deleteMany: {
+          args: Prisma.SceneAnimatorPromptDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.SceneAnimatorPromptUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.SceneAnimatorPromptUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SceneAnimatorPromptPayload>
+        }
+        aggregate: {
+          args: Prisma.SceneAnimatorPromptAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateSceneAnimatorPrompt>
+        }
+        groupBy: {
+          args: Prisma.SceneAnimatorPromptGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SceneAnimatorPromptGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.SceneAnimatorPromptCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SceneAnimatorPromptCountAggregateOutputType> | number
+        }
+      }
+    }
     SmartIcon: {
       payload: Prisma.$SmartIconPayload<ExtArgs>
       fields: Prisma.SmartIconFieldRefs
@@ -9033,6 +9100,21 @@ export const ServerHealthCheckScalarFieldEnum = {
 export type ServerHealthCheckScalarFieldEnum = (typeof ServerHealthCheckScalarFieldEnum)[keyof typeof ServerHealthCheckScalarFieldEnum]
 
 
+export const SceneAnimatorPromptScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  sourceHash: 'sourceHash',
+  sourceFolder: 'sourceFolder',
+  sourceFile: 'sourceFile',
+  prompt: 'prompt',
+  negativePrompt: 'negativePrompt',
+  userId: 'userId'
+} as const
+
+export type SceneAnimatorPromptScalarFieldEnum = (typeof SceneAnimatorPromptScalarFieldEnum)[keyof typeof SceneAnimatorPromptScalarFieldEnum]
+
+
 export const SmartIconScalarFieldEnum = {
   id: 'id',
   createdAt: 'createdAt',
@@ -10556,6 +10638,17 @@ export const ServerHealthCheckOrderByRelevanceFieldEnum = {
 export type ServerHealthCheckOrderByRelevanceFieldEnum = (typeof ServerHealthCheckOrderByRelevanceFieldEnum)[keyof typeof ServerHealthCheckOrderByRelevanceFieldEnum]
 
 
+export const SceneAnimatorPromptOrderByRelevanceFieldEnum = {
+  sourceHash: 'sourceHash',
+  sourceFolder: 'sourceFolder',
+  sourceFile: 'sourceFile',
+  prompt: 'prompt',
+  negativePrompt: 'negativePrompt'
+} as const
+
+export type SceneAnimatorPromptOrderByRelevanceFieldEnum = (typeof SceneAnimatorPromptOrderByRelevanceFieldEnum)[keyof typeof SceneAnimatorPromptOrderByRelevanceFieldEnum]
+
+
 export const SmartIconOrderByRelevanceFieldEnum = {
   title: 'title',
   type: 'type',
@@ -11690,6 +11783,7 @@ export type GlobalOmitConfig = {
   scenario?: Prisma.ScenarioOmit
   server?: Prisma.ServerOmit
   serverHealthCheck?: Prisma.ServerHealthCheckOmit
+  sceneAnimatorPrompt?: Prisma.SceneAnimatorPromptOmit
   smartIcon?: Prisma.SmartIconOmit
   theme?: Prisma.ThemeOmit
   user?: Prisma.UserOmit

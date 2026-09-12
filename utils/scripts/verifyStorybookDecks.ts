@@ -218,6 +218,10 @@ const DECK_DIRS = [
   'conductor-src/projects/storybook/data/ending-decks',
   '../conductor/projects/storybook/data/ending-decks',
 ]
+// The first path is where davinci-seed-verify.yml checks conductor out; the
+// second is the usual side-by-side clone layout. A checkout with neither
+// skips these checks rather than failing, so the suite still runs in a bare
+// kind_robots clone.
 const deckDir = DECK_DIRS.find((dir) => existsSync(dir))
 
 if (!deckDir) {

@@ -3,6 +3,14 @@
   <Teleport to="body">
     <Transition name="animation-layer-fade">
       <div
+        v-if="animationStore.isActive && animationStore.showBackdrop"
+        class="animation-preview-backdrop"
+        aria-hidden="true"
+      />
+    </Transition>
+
+    <Transition name="animation-layer-fade">
+      <div
         v-if="animationStore.isActive && activeComponent"
         class="animation-effect-layer"
         aria-hidden="true"
@@ -57,6 +65,19 @@ const activeComponent = computed(() => {
 </script>
 
 <style scoped>
+.animation-preview-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 79;
+  background:
+    radial-gradient(
+      circle at 50% 15%,
+      color-mix(in srgb, hsl(var(--p)) 10%, transparent),
+      transparent 38rem
+    ),
+    color-mix(in srgb, hsl(var(--b3)) 94%, black 6%);
+}
+
 .animation-effect-layer {
   position: fixed;
   inset: 0;

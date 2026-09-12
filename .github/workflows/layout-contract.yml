@@ -41,3 +41,6 @@ jobs:
 
       - name: Verify mixed pane primitive fixture
         run: npx tsx utils/scripts/verifyMixedPanePrimitivesFixture.ts
+
+      - name: Layout header contract self-test
+        run: npm run test:layout-header-contract-selftest

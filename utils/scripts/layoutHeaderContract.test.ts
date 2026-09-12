@@ -102,4 +102,22 @@ assert.equal(
   'a title inside a kr-panel*/card surface must not be flagged',
 )
 
+// negative: a hero/CTA block -- large title, description, an icon, and a
+// donate button -- says something the shell's own title does not and is not
+// a bare eyebrow+title+description toolbar (kind_robots
+// components/pages/giving-page.vue, conductor interface-vision/t-127)
+const heroWithIconAndCta = page([
+  node('div', ['rounded-2xl', 'border', 'bg-primary/10', 'p-6'], [
+    node('icon', [], []),
+    node('p', ['text-3xl', 'font-black'], []),
+    node('p', [], []),
+    node('a', ['btn', 'btn-primary', 'btn-lg'], []),
+  ]),
+])
+assert.equal(
+  hasShallowDuplicateTitleBlock(heroWithIconAndCta),
+  false,
+  'a title block that also carries its own icon and CTA button must not be flagged',
+)
+
 console.log('layoutHeaderContract.test.ts: all assertions passed')

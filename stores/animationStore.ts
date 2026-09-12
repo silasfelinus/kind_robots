@@ -19,6 +19,7 @@ export interface AnimationLayerOptions {
   surfaces?: Partial<Record<FxRegion, Partial<Record<FxPlacement, boolean>>>>
   message?: string
   durationMs?: number | null
+  showBackdrop?: boolean
 }
 
 interface AnimationStoreState {
@@ -27,6 +28,7 @@ interface AnimationStoreState {
   message: string
   generationSurfaces: FxSurfaceMap
   startedAt: number | null
+  showBackdrop: boolean
   screenEffectIds: AnimationEffectId[]
   screenSurfaces: FxSurfaceMap
 }
@@ -93,6 +95,7 @@ export const useAnimationStore = defineStore('animationStore', () => {
     message: '',
     generationSurfaces: emptySurfaces(),
     startedAt: null,
+    showBackdrop: false,
     screenEffectIds: [],
     screenSurfaces: defaultScreenSurfaces(),
   })
@@ -201,6 +204,7 @@ export const useAnimationStore = defineStore('animationStore', () => {
       options.surfaces,
     )
     state.startedAt = Date.now()
+    state.showBackdrop = Boolean(options.showBackdrop)
     state.isActive = true
 
     if (typeof options.durationMs === 'number' && options.durationMs > 0) {
@@ -250,6 +254,7 @@ export const useAnimationStore = defineStore('animationStore', () => {
     state.activeEffectId = null
     state.message = ''
     state.startedAt = null
+    state.showBackdrop = false
     state.generationSurfaces = emptySurfaces()
   }
 

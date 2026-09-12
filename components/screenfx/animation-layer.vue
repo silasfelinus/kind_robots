@@ -3,8 +3,21 @@
   <Teleport to="body">
     <Transition name="animation-layer-fade">
       <div
+        v-if="animationStore.isActive && animationStore.showBackdrop"
+        class="animation-preview-backdrop"
+        aria-hidden="true"
+      />
+    </Transition>
+
+    <Transition name="animation-layer-fade">
+      <div
         v-if="animationStore.isActive && activeComponent"
         class="animation-effect-layer"
+        :class="{
+          'animation-effect-layer--preview': animationStore.showBackdrop,
+          'animation-effect-layer--interactive':
+            animationStore.showBackdrop && animationStore.activeEffect?.blocksInput,
+        }"
         aria-hidden="true"
       >
         <component
@@ -19,6 +32,7 @@
       <div
         v-if="animationStore.isActive"
         class="animation-status-layer pointer-events-none flex justify-center px-4"
+        :class="{ 'animation-status-layer--preview': animationStore.showBackdrop }"
         aria-live="polite"
       >
         <div
@@ -57,6 +71,19 @@ const activeComponent = computed(() => {
 </script>
 
 <style scoped>
+.animation-preview-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 9990;
+  background:
+    radial-gradient(
+      circle at 50% 15%,
+      color-mix(in srgb, hsl(var(--p)) 10%, transparent),
+      transparent 38rem
+    ),
+    color-mix(in srgb, hsl(var(--b3)) 94%, black 6%);
+}
+
 .animation-effect-layer {
   position: fixed;
   inset: 0;
@@ -64,6 +91,14 @@ const activeComponent = computed(() => {
   overflow: hidden;
   pointer-events: none;
   isolation: isolate;
+}
+
+.animation-effect-layer--preview {
+  z-index: 9991;
+}
+
+.animation-effect-layer--interactive {
+  pointer-events: auto;
 }
 
 .animation-effect-layer__effect {
@@ -78,6 +113,10 @@ const activeComponent = computed(() => {
   inset-inline: 0;
   bottom: 1rem;
   z-index: 90;
+}
+
+.animation-status-layer--preview {
+  z-index: 9992;
 }
 
 .animation-layer-fade-enter-active,

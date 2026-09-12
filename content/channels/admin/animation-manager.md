@@ -6,11 +6,12 @@ dashboardKey: wonder
 dashboardTab: animation-manager
 label: Anim. Manager
 title: Animation Manager
-subtitle: The museum of passive chaos
-description: Browse every Screen FX catalog effect, its build history, and Reaction ratings, then preview, compare, promote, polish, or retire a build.
-icon: kind-icon:trophy
+subtitle: One control room for passive chaos
+description: Browse, preview, layer, position, and choose startup animations from one control room.
+icon: kind-icon:sparkles
 route: /build/animation-manager
-sort: 100
+sort: 65
+requiredRole: ADMIN
 ---
 
-The gallery and promotion workspace for Screen FX build attempts: status, version lineage, and ratings for every effect, one museum row per build.
+The canonical admin surface for Screen FX: isolated previews, persistent screen layers, coverage zones, and startup animation preferences.

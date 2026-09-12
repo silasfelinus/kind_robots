@@ -136,7 +136,7 @@ import { computed } from 'vue'
 import {
   useAnimationPreferenceStore,
   type ButterflyAnimationPreferences,
-  type StartupAnimationChoice
+  type StartupAnimationChoice,
 } from '@/stores/animationPreferenceStore'
 import { useAnimationStore } from '@/stores/animationStore'
 
@@ -166,7 +166,7 @@ const controls: RangeControl[] = [
     min: 0,
     max: 140,
     step: 1,
-    help: 'Maximum visible population.'
+    help: 'Maximum visible population.',
   },
   {
     key: 'fps',
@@ -174,7 +174,7 @@ const controls: RangeControl[] = [
     min: 15,
     max: 120,
     step: 5,
-    help: 'Motion update ceiling.'
+    help: 'Motion update ceiling.',
   },
   {
     key: 'flapSpeedMs',
@@ -182,7 +182,7 @@ const controls: RangeControl[] = [
     min: 160,
     max: 1000,
     step: 20,
-    help: 'Lower milliseconds flap faster.'
+    help: 'Lower milliseconds flap faster.',
   },
   {
     key: 'movementSpeed',
@@ -190,7 +190,7 @@ const controls: RangeControl[] = [
     min: 0.4,
     max: 2,
     step: 0.05,
-    help: 'How quickly butterflies cross the screen.'
+    help: 'How quickly butterflies cross the screen.',
   },
   {
     key: 'size',
@@ -198,7 +198,7 @@ const controls: RangeControl[] = [
     min: 0.45,
     max: 1.4,
     step: 0.05,
-    help: 'Base scale before natural variation.'
+    help: 'Base scale before natural variation.',
   },
   {
     key: 'fadeCycleMs',
@@ -206,7 +206,7 @@ const controls: RangeControl[] = [
     min: 2500,
     max: 18000,
     step: 250,
-    help: 'How long each staggered appearance cycle lasts.'
+    help: 'How long each staggered appearance cycle lasts.',
   },
   {
     key: 'minOpacity',
@@ -214,7 +214,7 @@ const controls: RangeControl[] = [
     min: 0,
     max: 0.5,
     step: 0.01,
-    help: 'How faint butterflies become.'
+    help: 'How faint butterflies become.',
   },
   {
     key: 'maxOpacity',
@@ -222,8 +222,8 @@ const controls: RangeControl[] = [
     min: 0.35,
     max: 1,
     step: 0.01,
-    help: 'How solid butterflies become.'
-  }
+    help: 'How solid butterflies become.',
+  },
 ]
 
 function setStartupEffect(event: Event): void {
@@ -238,20 +238,22 @@ function setAdaptive(event: Event): void {
 
 function setNumber(
   key: keyof Omit<ButterflyAnimationPreferences, 'adaptive'>,
-  event: Event
+  event: Event,
 ): void {
   const target = event.target as HTMLInputElement
   preferenceStore.updateButterflies({ [key]: Number(target.value) })
 }
 
 function formatValue(
-  key: keyof Omit<ButterflyAnimationPreferences, 'adaptive'>
+  key: keyof Omit<ButterflyAnimationPreferences, 'adaptive'>,
 ): string {
   const value = settings.value[key]
 
   if (key === 'fps') return `${Math.round(value)} fps`
   if (key === 'flapSpeedMs' || key === 'fadeCycleMs') {
-    return value >= 1000 ? `${(value / 1000).toFixed(1)}s` : `${Math.round(value)}ms`
+    return value >= 1000
+      ? `${(value / 1000).toFixed(1)}s`
+      : `${Math.round(value)}ms`
   }
   if (key === 'movementSpeed' || key === 'size') return `${value.toFixed(2)}×`
   if (key === 'minOpacity' || key === 'maxOpacity') {
@@ -263,7 +265,7 @@ function formatValue(
 
 function preview(): void {
   const effectId = preferenceStore.resolveStartupEffect(
-    availableEffects.value.map((effect) => effect.id)
+    availableEffects.value.map((effect) => effect.id),
   )
 
   if (!effectId) {
@@ -274,7 +276,8 @@ function preview(): void {
   animationStore.start({
     effectId,
     message: `${availableEffects.value.find((effect) => effect.id === effectId)?.label || 'Animation'} preview`,
-    durationMs: 6000
+    durationMs: 6000,
+    showBackdrop: true,
   })
 }
 </script>

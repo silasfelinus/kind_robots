@@ -13,6 +13,11 @@
       <div
         v-if="animationStore.isActive && activeComponent"
         class="animation-effect-layer"
+        :class="{
+          'animation-effect-layer--preview': animationStore.showBackdrop,
+          'animation-effect-layer--interactive':
+            animationStore.showBackdrop && animationStore.activeEffect?.blocksInput,
+        }"
         aria-hidden="true"
       >
         <component
@@ -27,6 +32,7 @@
       <div
         v-if="animationStore.isActive"
         class="animation-status-layer pointer-events-none flex justify-center px-4"
+        :class="{ 'animation-status-layer--preview': animationStore.showBackdrop }"
         aria-live="polite"
       >
         <div
@@ -68,7 +74,7 @@ const activeComponent = computed(() => {
 .animation-preview-backdrop {
   position: fixed;
   inset: 0;
-  z-index: 79;
+  z-index: 9990;
   background:
     radial-gradient(
       circle at 50% 15%,
@@ -87,6 +93,14 @@ const activeComponent = computed(() => {
   isolation: isolate;
 }
 
+.animation-effect-layer--preview {
+  z-index: 9991;
+}
+
+.animation-effect-layer--interactive {
+  pointer-events: auto;
+}
+
 .animation-effect-layer__effect {
   position: absolute;
   inset: 0;
@@ -99,6 +113,10 @@ const activeComponent = computed(() => {
   inset-inline: 0;
   bottom: 1rem;
   z-index: 90;
+}
+
+.animation-status-layer--preview {
+  z-index: 9992;
 }
 
 .animation-layer-fade-enter-active,

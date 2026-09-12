@@ -104,7 +104,7 @@
           >Items ({{ draft.items.length }})</span
         >
         <button class="kr-btn-ghost-xs" @click="addItem">
-          <Icon name="kind-icon:plus" class="size-3.5" />
+          <Icon name="kind-icon:plus" class="kr-icon-3-5" />
           Add item
         </button>
       </div>

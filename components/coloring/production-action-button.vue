@@ -7,7 +7,7 @@
     @click="emit('click')"
   >
     <span v-if="busy" class="kr-spinner-sm" />
-    <icon v-else :name="iconName" class="size-5" />
+    <icon v-else :name="iconName" class="kr-icon-5" />
     {{ armed ? confirmLabel : label }}
   </button>
 </template>

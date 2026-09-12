@@ -8,7 +8,7 @@
         class="btn btn-ghost btn-xs gap-0.5 rounded-lg px-1.5"
         @click="goBack"
       >
-        <Icon name="kind-icon:chevron-left" class="size-3" />
+        <Icon name="kind-icon:chevron-left" class="kr-icon-3" />
         Back
       </button>
       <Icon name="kind-icon:folder" class="size-3.5 shrink-0 text-primary/70" />
@@ -37,7 +37,7 @@
             :name="
               linkedProject.isPublic ? 'kind-icon:eye' : 'kind-icon:eye-off'
             "
-            class="size-3.5"
+            class="kr-icon-3-5"
           />
         </button>
         <button
@@ -53,7 +53,7 @@
           :disabled="projectSaving"
           @click="patchProject({ isMature: !linkedProject.isMature })"
         >
-          <Icon name="kind-icon:warning" class="size-3.5" />
+          <Icon name="kind-icon:warning" class="kr-icon-3-5" />
         </button>
         <button
           type="button"
@@ -68,7 +68,7 @@
           :disabled="projectSaving"
           @click="patchProject({ allowReviews: !linkedProject.allowReviews })"
         >
-          <Icon name="kind-icon:comment" class="size-3.5" />
+          <Icon name="kind-icon:comment" class="kr-icon-3-5" />
         </button>
       </template>
 
@@ -117,7 +117,7 @@
         aria-label="Brainstorm variations grounded in this Project"
         @click="startBrainstormWithProject"
       >
-        <Icon name="kind-icon:brain" class="size-3.5" />
+        <Icon name="kind-icon:brain" class="kr-icon-3-5" />
       </button>
       <button
         type="button"
@@ -127,7 +127,7 @@
         @click="refreshProject"
       >
         <span v-if="refreshing" class="kr-spinner-xs" />
-        <Icon v-else name="kind-icon:refresh" class="size-3.5" />
+        <Icon v-else name="kind-icon:refresh" class="kr-icon-3-5" />
       </button>
     </div>
 
@@ -310,7 +310,7 @@
       >
         <Icon
           name="kind-icon:chevron-right"
-          class="size-3.5 shrink-0 transition-transform group-open:rotate-90"
+          class="kr-icon-3-5 shrink-0 transition-transform group-open:rotate-90"
         />
         <span class="kr-text-eyebrow-bold kr-text-dim-xs-60 tracking-wide">
           Roadmap
@@ -330,7 +330,7 @@
               class="mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-full border"
               :class="taskIconClass(task.status)"
             >
-              <Icon :name="taskIcon(task.status)" class="size-3" />
+              <Icon :name="taskIcon(task.status)" class="kr-icon-3" />
             </div>
             <div class="min-w-0 flex-1">
               <p class="break-words text-sm font-semibold leading-snug">
@@ -387,7 +387,7 @@
           >
             <Icon
               name="kind-icon:chevron-right"
-              class="size-3.5 shrink-0 transition-transform group-open:rotate-90"
+              class="kr-icon-3-5 shrink-0 transition-transform group-open:rotate-90"
             />
             Completed
             <span class="kr-badge-success-xs ml-auto">{{ doneTaskCount }}</span>
@@ -437,7 +437,7 @@
       >
         <Icon
           name="kind-icon:chevron-right"
-          class="size-3.5 shrink-0 transition-transform group-open:rotate-90"
+          class="kr-icon-3-5 shrink-0 transition-transform group-open:rotate-90"
         />
         <span class="kr-text-eyebrow-bold kr-text-dim-xs-60 tracking-wide">
           Milestones
@@ -456,7 +456,7 @@
             class="flex size-6 shrink-0 items-center justify-center rounded-full border"
             :class="milestoneIconClass(milestone.status)"
           >
-            <Icon :name="milestoneIcon(milestone.status)" class="size-3" />
+            <Icon :name="milestoneIcon(milestone.status)" class="kr-icon-3" />
           </div>
           <div class="min-w-0 flex-1">
             <p class="break-words text-sm font-semibold leading-snug">
@@ -492,7 +492,7 @@
       >
         <Icon
           name="kind-icon:chevron-right"
-          class="size-3.5 shrink-0 transition-transform group-open:rotate-90"
+          class="kr-icon-3-5 shrink-0 transition-transform group-open:rotate-90"
         />
         <Icon name="kind-icon:document" class="size-4 text-info" />
         <span class="kr-text-eyebrow-bold kr-text-dim-xs-60 tracking-wide">

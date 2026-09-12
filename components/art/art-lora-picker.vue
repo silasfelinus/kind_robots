@@ -81,7 +81,7 @@
                 :aria-label="`Move ${loraLabel(entry.resource)} earlier`"
                 @click="move(index, -1)"
               >
-                <Icon name="kind-icon:chevron-up" class="size-3.5" />
+                <Icon name="kind-icon:chevron-up" class="kr-icon-3-5" />
               </button>
               <button
                 type="button"
@@ -90,7 +90,7 @@
                 :aria-label="`Move ${loraLabel(entry.resource)} later`"
                 @click="move(index, 1)"
               >
-                <Icon name="kind-icon:chevron-down" class="size-3.5" />
+                <Icon name="kind-icon:chevron-down" class="kr-icon-3-5" />
               </button>
               <button
                 type="button"
@@ -98,7 +98,7 @@
                 :aria-label="`Remove ${loraLabel(entry.resource)}`"
                 @click="remove(entry.resourceId)"
               >
-                <Icon name="kind-icon:close" class="size-3.5" />
+                <Icon name="kind-icon:close" class="kr-icon-3-5" />
               </button>
             </span>
           </div>
@@ -195,7 +195,7 @@
                 <Icon
                   v-else
                   name="kind-icon:sparkles"
-                  class="size-5 opacity-30"
+                  class="kr-icon-5 opacity-30"
                 />
               </span>
 

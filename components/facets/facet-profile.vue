@@ -49,7 +49,7 @@
         :aria-expanded="reviewsOpen"
         @click="reviewsOpen = !reviewsOpen"
       >
-        <Icon name="kind-icon:comment" class="size-3.5" />
+        <Icon name="kind-icon:comment" class="kr-icon-3-5" />
         <span class="hidden sm:inline">Reviews</span>
       </button>
 
@@ -59,7 +59,7 @@
         title="Start a Storybook story seeded with this Facet"
         @click="startStoryWithFacet"
       >
-        <Icon name="kind-icon:book-open" class="size-3.5" />
+        <Icon name="kind-icon:book-open" class="kr-icon-3-5" />
         <span class="hidden sm:inline">Start a story with this</span>
       </button>
     </header>

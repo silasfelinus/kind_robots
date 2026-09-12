@@ -118,7 +118,7 @@
             role="alert"
             class="alert alert-warning rounded-2xl text-sm"
           >
-            <Icon name="kind-icon:warning" class="size-5" />
+            <Icon name="kind-icon:warning" class="kr-icon-5" />
             <span>{{ errorMessage }}</span>
           </div>
 

@@ -38,7 +38,7 @@
           <div
             class="flex size-10 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary"
           >
-            <Icon name="kind-icon:sparkles" class="size-5" />
+            <Icon name="kind-icon:sparkles" class="kr-icon-5" />
           </div>
           <div class="min-w-0">
             <h2 class="kr-text-black-lg">The spark</h2>
@@ -105,7 +105,7 @@
             <span
               class="flex size-9 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary"
             >
-              <Icon :name="option.icon" class="size-5" />
+              <Icon :name="option.icon" class="kr-icon-5" />
             </span>
             <span class="min-w-0 flex-1">
               <span class="kr-text-black-sm block">{{ option.label }}</span>
@@ -146,7 +146,7 @@
             <span
               class="flex size-9 shrink-0 items-center justify-center rounded-xl bg-secondary/10 text-secondary"
             >
-              <Icon :name="option.icon" class="size-5" />
+              <Icon :name="option.icon" class="kr-icon-5" />
             </span>
             <span class="min-w-0 flex-1">
               <span class="kr-text-black-sm block">{{ option.label }}</span>

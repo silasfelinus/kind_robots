@@ -60,7 +60,7 @@
               aria-label="Remove include keyword"
               @click="feedPreferenceStore.removeIncludeKeyword(word)"
             >
-              <Icon name="kind-icon:close" class="size-3" />
+              <Icon name="kind-icon:close" class="kr-icon-3" />
             </button>
           </span>
         </div>
@@ -100,7 +100,7 @@
               aria-label="Remove exclude keyword"
               @click="feedPreferenceStore.removeExcludeKeyword(word)"
             >
-              <Icon name="kind-icon:close" class="size-3" />
+              <Icon name="kind-icon:close" class="kr-icon-3" />
             </button>
           </span>
         </div>
@@ -122,7 +122,7 @@
           "
           @click="feedPreferenceStore.toggleCategory(category)"
         >
-          <Icon name="kind-icon:tag" class="size-3" />
+          <Icon name="kind-icon:tag" class="kr-icon-3" />
           {{ category }}
         </button>
       </div>

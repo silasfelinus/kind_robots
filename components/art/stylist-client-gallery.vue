@@ -20,7 +20,7 @@
         :aria-expanded="uploadOpen"
         @click="uploadOpen = !uploadOpen"
       >
-        <Icon name="kind-icon:upload" class="size-3.5" />
+        <Icon name="kind-icon:upload" class="kr-icon-3-5" />
         <span class="hidden sm:inline">Upload</span>
       </button>
     </header>

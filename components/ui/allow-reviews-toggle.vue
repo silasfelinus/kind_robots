@@ -8,7 +8,7 @@
     :disabled="saving"
     @click="$emit('toggle')"
   >
-    <Icon name="kind-icon:chat" class="size-3.5" />{{
+    <Icon name="kind-icon:chat" class="kr-icon-3-5" />{{
       allowReviews ? 'Reviews On' : 'Reviews Off'
     }}
   </button>

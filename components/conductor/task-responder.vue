@@ -7,7 +7,7 @@
       :aria-expanded="open"
       @click="toggle"
     >
-      <Icon name="kind-icon:comment" class="size-3" />
+      <Icon name="kind-icon:comment" class="kr-icon-3" />
       {{ isGated ? 'Answer this gate' : 'Respond' }}
     </button>
 
@@ -41,7 +41,7 @@
             @click="runTaskAction('answer')"
           >
             <span v-if="busy" class="kr-spinner-xs" />
-            <Icon v-else name="kind-icon:send" class="size-3" />
+            <Icon v-else name="kind-icon:send" class="kr-icon-3" />
             Send to agent
           </button>
           <button
@@ -80,7 +80,7 @@
           @click="sendTaskNote"
         >
           <span v-if="busy" class="kr-spinner-xs" />
-          <Icon v-else name="kind-icon:send" class="size-3" />
+          <Icon v-else name="kind-icon:send" class="kr-icon-3" />
           Send to worker
         </button>
       </div>

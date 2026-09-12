@@ -89,7 +89,7 @@
 
             <span class="mt-auto inline-flex items-center gap-1 pt-1.5 text-[0.65rem] font-black text-primary">
               Open details
-              <Icon name="kind-icon:chevron-right" class="size-3" />
+              <Icon name="kind-icon:chevron-right" class="kr-icon-3" />
             </span>
           </div>
         </button>

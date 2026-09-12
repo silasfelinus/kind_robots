@@ -68,7 +68,7 @@
               v-if="facetStore.saving"
               class="kr-spinner-xs"
             />
-            <Icon v-else name="kind-icon:plus" class="size-3.5" />
+            <Icon v-else name="kind-icon:plus" class="kr-icon-3-5" />
             Create canonical Facet
           </button>
         </div>

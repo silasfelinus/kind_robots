@@ -99,7 +99,7 @@
           :aria-pressed="activeSlug === group.slug"
           @click="activeSlug = group.slug"
         >
-          <Icon :name="group.icon" class="size-3.5" />
+          <Icon :name="group.icon" class="kr-icon-3-5" />
           {{ group.title }}
         </button>
       </div>
@@ -147,7 +147,7 @@
                 ? 'kind-icon:chevron-up'
                 : 'kind-icon:chevron-down'
             "
-            class="size-3.5"
+            class="kr-icon-3-5"
           />
         </button>
 

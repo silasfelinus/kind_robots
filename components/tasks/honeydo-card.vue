@@ -27,7 +27,7 @@
       >
         <Icon
           :name="isDone ? 'kind-icon:check-circle' : 'kind-icon:circle'"
-          class="size-5"
+          class="kr-icon-5"
         />
       </button>
       <span
@@ -66,7 +66,7 @@
           title="Archive"
           @click="emit('archive')"
         >
-          <Icon name="kind-icon:archive" class="size-3" />
+          <Icon name="kind-icon:archive" class="kr-icon-3" />
         </button>
         <button
           v-if="showDeleteAction"
@@ -75,7 +75,7 @@
           title="Delete"
           @click="emit('delete')"
         >
-          <Icon name="kind-icon:x" class="size-3" />
+          <Icon name="kind-icon:x" class="kr-icon-3" />
         </button>
       </div>
     </div>

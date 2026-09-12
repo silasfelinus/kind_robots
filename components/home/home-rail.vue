@@ -135,7 +135,7 @@
           :aria-label="`Scroll ${label} backwards`"
           @click="scrollBy(-1)"
         >
-          <Icon name="kind-icon:chevron-left" class="size-3.5" />
+          <Icon name="kind-icon:chevron-left" class="kr-icon-3-5" />
         </button>
         <button
           type="button"
@@ -144,7 +144,7 @@
           :aria-label="`Scroll ${label} forwards`"
           @click="scrollBy(1)"
         >
-          <Icon name="kind-icon:chevron-right" class="size-3.5" />
+          <Icon name="kind-icon:chevron-right" class="kr-icon-3-5" />
         </button>
       </span>
     </header>

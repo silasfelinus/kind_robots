@@ -67,7 +67,7 @@
       v-if="colorUsesLegacyAsset || bwUsesLegacyAsset"
       class="alert alert-info rounded-2xl"
     >
-      <icon name="kind-icon:gallery" class="size-5" />
+      <icon name="kind-icon:gallery" class="kr-icon-5" />
       <span>
         The displayed {{ legacyAssetLabel }} predates the current ArtJob queue. Adopting it
         keeps the existing Conductor file and does not fabricate missing generation metadata.
@@ -142,7 +142,7 @@
           @click="requestBw(false)"
         >
           <span v-if="studio.requestingAction" class="kr-spinner-sm" />
-          <icon v-else name="kind-icon:pencil" class="size-5" />
+          <icon v-else name="kind-icon:pencil" class="kr-icon-5" />
           Generate B&amp;W counterpart
         </button>
 
@@ -174,7 +174,7 @@
         :disabled="studio.requestingAction"
         @click="requestBw(true)"
       >
-        <icon name="kind-icon:refresh" class="size-5" />
+        <icon name="kind-icon:refresh" class="kr-icon-5" />
         Archive and regenerate B&amp;W
       </button>
 
@@ -184,7 +184,7 @@
     </div>
 
     <div v-else class="alert rounded-2xl">
-      <icon name="kind-icon:lock" class="size-5" />
+      <icon name="kind-icon:lock" class="kr-icon-5" />
       <span>Production decisions are visible to everyone and writable by admins.</span>
     </div>
   </section>

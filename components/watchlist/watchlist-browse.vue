@@ -345,7 +345,7 @@
           :aria-pressed="starredOnly"
           @click="starredOnly = !starredOnly"
         >
-          <Icon name="kind-icon:star" class="size-3.5" />
+          <Icon name="kind-icon:star" class="kr-icon-3-5" />
           Starred
         </button>
 
@@ -361,7 +361,7 @@
             "
             :aria-pressed="activeMonths.size > 0"
           >
-            <Icon name="kind-icon:clock" class="size-3.5" />
+            <Icon name="kind-icon:clock" class="kr-icon-3-5" />
             {{ activeMonths.size ? `Month (${activeMonths.size})` : 'Month' }}
           </button>
           <div
@@ -415,7 +415,7 @@
           class="btn btn-ghost btn-sm ml-auto gap-1.5 rounded-xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
           @click="exportCsv"
         >
-          <Icon name="kind-icon:download" class="size-3.5" />
+          <Icon name="kind-icon:download" class="kr-icon-3-5" />
           Export CSV
         </button>
       </div>
@@ -494,14 +494,14 @@
                 v-if="entry.rating"
                 class="kr-badge-warning-sm gap-0.5 rounded-lg"
               >
-                <Icon name="kind-icon:star" class="size-3" />{{ entry.rating }}
+                <Icon name="kind-icon:star" class="kr-icon-3" />{{ entry.rating }}
               </span>
               <span
                 v-if="entry.rewatch && entry.rewatch >= 2"
                 class="kr-badge-ghost-sm gap-0.5 rounded-lg"
                 :title="`Watched ${entry.rewatch}x`"
               >
-                <Icon name="kind-icon:history" class="size-3" />{{
+                <Icon name="kind-icon:history" class="kr-icon-3" />{{
                   entry.rewatch
                 }}x
               </span>

@@ -82,7 +82,7 @@
               {{ facet.aliases.join(' · ') }}
             </span>
           </span>
-          <Icon name="kind-icon:plus" class="size-3.5 shrink-0" />
+          <Icon name="kind-icon:plus" class="kr-icon-3-5 shrink-0" />
         </button>
         <p
           v-if="!searchResults.length"

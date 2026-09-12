@@ -111,7 +111,7 @@
               <Icon
                 v-if="index < setupStep"
                 name="kind-icon:check"
-                class="size-3.5"
+                class="kr-icon-3-5"
               />
               <span v-else>{{ index + 1 }}</span>
             </span>

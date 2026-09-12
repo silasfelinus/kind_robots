@@ -55,7 +55,7 @@
         <Icon
           v-if="roleIcon"
           :name="roleIcon"
-          class="size-3"
+          class="kr-icon-3"
           aria-hidden="true"
         />
         {{ roleLabel }}

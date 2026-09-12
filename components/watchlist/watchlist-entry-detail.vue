@@ -56,7 +56,7 @@
             aria-label="Lower rating"
             @click="stepRating(-1)"
           >
-            <Icon name="kind-icon:minus" class="size-3" />
+            <Icon name="kind-icon:minus" class="kr-icon-3" />
           </button>
           <span
             class="min-w-[3.5rem] text-center text-sm font-semibold text-base-content"
@@ -70,7 +70,7 @@
             aria-label="Raise rating"
             @click="stepRating(1)"
           >
-            <Icon name="kind-icon:plus" class="size-3" />
+            <Icon name="kind-icon:plus" class="kr-icon-3" />
           </button>
           <button
             v-if="entry.rating"
@@ -80,7 +80,7 @@
             aria-label="Clear rating"
             @click="clearRating"
           >
-            <Icon name="kind-icon:close" class="size-3" />
+            <Icon name="kind-icon:close" class="kr-icon-3" />
           </button>
         </dd>
       </div>
@@ -94,7 +94,7 @@
           v-if="entry.reviewPublic"
           class="badge badge-success badge-sm gap-1 rounded-lg"
         >
-          <Icon name="kind-icon:check" class="size-3" />
+          <Icon name="kind-icon:check" class="kr-icon-3" />
           Published
         </span>
         <span v-else-if="saveState !== 'idle'" class="kr-text-dim-xs-45">

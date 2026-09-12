@@ -76,7 +76,7 @@
               <span
                 class="flex size-11 shrink-0 items-center justify-center rounded-2xl bg-secondary text-secondary-content shadow-md"
               >
-                <Icon name="kind-icon:magic" class="size-5" />
+                <Icon name="kind-icon:magic" class="kr-icon-5" />
               </span>
               <div class="min-w-0">
                 <p
@@ -109,7 +109,7 @@
               <span
                 class="flex size-11 shrink-0 items-center justify-center rounded-2xl bg-info text-info-content shadow-md"
               >
-                <Icon name="kind-icon:target" class="size-5" />
+                <Icon name="kind-icon:target" class="kr-icon-5" />
               </span>
               <div class="min-w-0 flex-1">
                 <p
@@ -181,7 +181,7 @@
               <span
                 class="flex size-11 shrink-0 items-center justify-center rounded-2xl bg-secondary text-secondary-content shadow-md"
               >
-                <Icon name="kind-icon:flask" class="size-5" />
+                <Icon name="kind-icon:flask" class="kr-icon-5" />
               </span>
               <div class="min-w-0 flex-1">
                 <p
@@ -240,7 +240,7 @@
                     <span
                       class="flex size-10 shrink-0 items-center justify-center rounded-xl bg-secondary/10 text-secondary"
                     >
-                      <Icon name="kind-icon:dream" class="size-5" />
+                      <Icon name="kind-icon:dream" class="kr-icon-5" />
                     </span>
                     <span class="min-w-0 flex-1">
                       <span
@@ -284,7 +284,7 @@
                     <span
                       class="flex size-10 shrink-0 items-center justify-center rounded-xl bg-accent/10 text-accent"
                     >
-                      <Icon name="kind-icon:story" class="size-5" />
+                      <Icon name="kind-icon:story" class="kr-icon-5" />
                     </span>
                     <span class="min-w-0 flex-1">
                       <span
@@ -506,7 +506,7 @@
                 <span
                   class="flex size-11 shrink-0 items-center justify-center rounded-2xl bg-info text-info-content"
                 >
-                  <Icon name="kind-icon:map" class="size-5" />
+                  <Icon name="kind-icon:map" class="kr-icon-5" />
                 </span>
                 <div>
                   <p
@@ -566,7 +566,7 @@
                 <span
                   class="flex size-11 shrink-0 items-center justify-center rounded-2xl bg-secondary text-secondary-content"
                 >
-                  <Icon name="kind-icon:magic" class="size-5" />
+                  <Icon name="kind-icon:magic" class="kr-icon-5" />
                 </span>
                 <div>
                   <p
@@ -606,7 +606,7 @@
           <span
             class="flex size-11 shrink-0 items-center justify-center rounded-2xl bg-info text-info-content"
           >
-            <Icon name="kind-icon:target" class="size-5" />
+            <Icon name="kind-icon:target" class="kr-icon-5" />
           </span>
           <div class="min-w-0 flex-1">
             <p

@@ -23,7 +23,7 @@
         <Icon
           v-if="index < activeIndex"
           name="kind-icon:check"
-          class="size-3.5"
+          class="kr-icon-3-5"
         />
         <template v-else>{{ index + 1 }}</template>
       </span>

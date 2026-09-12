@@ -149,7 +149,7 @@
           Open the dream
           <Icon
             name="kind-icon:chevron-right"
-            class="size-3 motion-safe:transition-transform motion-safe:group-hover:translate-x-1"
+            class="kr-icon-3 motion-safe:transition-transform motion-safe:group-hover:translate-x-1"
           />
         </span>
       </div>

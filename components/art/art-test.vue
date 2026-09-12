@@ -978,7 +978,7 @@ onMounted(async () => {
               <input
                 v-model="showPayload"
                 type="checkbox"
-                class="toggle toggle-primary"
+                class="kr-toggle-primary"
               />
               <span class="label-text">Show payload</span>
             </label>
@@ -987,7 +987,7 @@ onMounted(async () => {
               <input
                 v-model="showRawResult"
                 type="checkbox"
-                class="toggle toggle-secondary"
+                class="kr-toggle-secondary"
               />
               <span class="label-text">Show raw result</span>
             </label>

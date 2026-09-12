@@ -245,7 +245,7 @@
             <input
               v-model="loop"
               type="checkbox"
-              class="toggle toggle-accent"
+              class="kr-toggle-accent"
             />
             <span class="kr-text-faded-sm">
               {{ loop ? 'Seamless loop' : 'Play once' }}

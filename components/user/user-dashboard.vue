@@ -133,7 +133,7 @@
 
                 <input
                   type="checkbox"
-                  class="toggle toggle-warning shrink-0"
+                  class="kr-toggle-warning shrink-0"
                   :checked="showDashboardMaturityToggle"
                   @change="onDashboardMaturityToggleChange"
                 />
@@ -282,7 +282,7 @@
                     </span>
                     <input
                       type="checkbox"
-                      class="toggle toggle-warning"
+                      class="kr-toggle-warning"
                       :checked="showMature"
                       :disabled="accountStore.isSaving"
                       @change="onMatureToggle"

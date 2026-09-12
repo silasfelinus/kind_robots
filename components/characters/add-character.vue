@@ -448,7 +448,7 @@
             <input
               v-model="characterStore.characterForm.isPublic"
               type="checkbox"
-              class="toggle toggle-primary"
+              class="kr-toggle-primary"
             />
           </label>
 
@@ -459,7 +459,7 @@
             <input
               v-model="characterStore.characterForm.isMature"
               type="checkbox"
-              class="toggle toggle-warning"
+              class="kr-toggle-warning"
             />
           </label>
         </div>

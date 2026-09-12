@@ -1416,6 +1416,56 @@ section:has(div[class*='xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]'])
     @apply checkbox checkbox-xs checkbox-primary;
   }
 
+  /* First toggle-color-family primitive (interface-vision t-104 slice 246,
+   * following a fresh full-repo class-frequency survey that turned up this
+   * family as the largest well-bounded pool left outside every family
+   * already closed -- kr-text-*, kr-icon-*, kr-input-*, kr-btn-*, kr-badge-*,
+   * kr-label-row): the plain warning-colored DaisyUI toggle at its default
+   * size -- `toggle toggle-warning`, no size modifier -- previously
+   * hand-rolled in 11 files (11 exact-match occurrences). Distinct from any
+   * future `.kr-toggle-warning-sm`/`-xs`, which would carry a size
+   * modifier too; this is the sizeless base, same shape as
+   * `.kr-badge-ghost`/`.kr-badge-outline` being separate from their own
+   * `-sm`/`-xs` siblings. */
+  .kr-toggle-warning {
+    @apply toggle toggle-warning;
+  }
+
+  /* The primary-colored counterpart to .kr-toggle-warning (same slice):
+   * `toggle toggle-primary`, previously hand-rolled in 6 files (9
+   * occurrences). */
+  .kr-toggle-primary {
+    @apply toggle toggle-primary;
+  }
+
+  /* The success-colored counterpart to .kr-toggle-warning (same slice):
+   * `toggle toggle-success`, previously hand-rolled in 5 files (5
+   * occurrences). */
+  .kr-toggle-success {
+    @apply toggle toggle-success;
+  }
+
+  /* The accent-colored counterpart to .kr-toggle-warning (same slice):
+   * `toggle toggle-accent`, previously hand-rolled in 2 files (2
+   * occurrences). */
+  .kr-toggle-accent {
+    @apply toggle toggle-accent;
+  }
+
+  /* The secondary-colored counterpart to .kr-toggle-warning (same slice):
+   * `toggle toggle-secondary`, previously hand-rolled in 1 file (1
+   * occurrence). */
+  .kr-toggle-secondary {
+    @apply toggle toggle-secondary;
+  }
+
+  /* The error-colored counterpart to .kr-toggle-warning (same slice):
+   * `toggle toggle-error`, previously hand-rolled in 1 file (1
+   * occurrence). */
+  .kr-toggle-error {
+    @apply toggle toggle-error;
+  }
+
   /* First badge-family primitive (interface-vision t-104 slice 109): the
    * small, ghost-styled DaisyUI badge -- `badge badge-ghost badge-sm` --
    * the single most common hand-rolled badge shape in the codebase (31

@@ -280,7 +280,7 @@
                 <input
                   v-model="dreamStore.dreamForm.isPublic"
                   type="checkbox"
-                  class="toggle toggle-primary"
+                  class="kr-toggle-primary"
                 />
               </label>
 
@@ -289,7 +289,7 @@
                 <input
                   v-model="dreamStore.dreamForm.isMature"
                   type="checkbox"
-                  class="toggle toggle-warning"
+                  class="kr-toggle-warning"
                 />
               </label>
 
@@ -304,7 +304,7 @@
                 <input
                   v-model="dreamStore.dreamForm.allowReviews"
                   type="checkbox"
-                  class="toggle toggle-accent"
+                  class="kr-toggle-accent"
                 />
               </label>
 
@@ -313,7 +313,7 @@
                 <input
                   v-model="dreamStore.dreamForm.isActive"
                   type="checkbox"
-                  class="toggle toggle-success"
+                  class="kr-toggle-success"
                 />
               </label>
 

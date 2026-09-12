@@ -10,7 +10,7 @@
 
     <input
       type="checkbox"
-      class="toggle toggle-warning shrink-0"
+      class="kr-toggle-warning shrink-0"
       :checked="showDashboardMaturityToggle"
       @change="onChange"
     />

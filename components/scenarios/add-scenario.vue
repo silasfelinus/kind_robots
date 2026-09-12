@@ -126,7 +126,7 @@
             <input
               v-model="scenarioStore.scenarioForm.isPublic"
               type="checkbox"
-              class="toggle toggle-success"
+              class="kr-toggle-success"
             />
           </label>
 
@@ -135,7 +135,7 @@
             <input
               v-model="scenarioStore.scenarioForm.isMature"
               type="checkbox"
-              class="toggle toggle-warning"
+              class="kr-toggle-warning"
             />
           </label>
         </div>

@@ -374,6 +374,7 @@ export type RewardWhereInput = {
   Characters?: Prisma.CharacterListRelationFilter
   Dreams?: Prisma.DreamListRelationFilter
   FacetLinks?: Prisma.RewardFacetListRelationFilter
+  LifeChoices?: Prisma.LifeChoiceListRelationFilter
 }
 
 export type RewardOrderByWithRelationInput = {
@@ -406,6 +407,7 @@ export type RewardOrderByWithRelationInput = {
   Characters?: Prisma.CharacterOrderByRelationAggregateInput
   Dreams?: Prisma.DreamOrderByRelationAggregateInput
   FacetLinks?: Prisma.RewardFacetOrderByRelationAggregateInput
+  LifeChoices?: Prisma.LifeChoiceOrderByRelationAggregateInput
   _relevance?: Prisma.RewardOrderByRelevanceInput
 }
 
@@ -442,6 +444,7 @@ export type RewardWhereUniqueInput = Prisma.AtLeast<{
   Characters?: Prisma.CharacterListRelationFilter
   Dreams?: Prisma.DreamListRelationFilter
   FacetLinks?: Prisma.RewardFacetListRelationFilter
+  LifeChoices?: Prisma.LifeChoiceListRelationFilter
 }, "id" | "slug">
 
 export type RewardOrderByWithAggregationInput = {
@@ -528,6 +531,7 @@ export type RewardCreateInput = {
   Characters?: Prisma.CharacterCreateNestedManyWithoutRewardsInput
   Dreams?: Prisma.DreamCreateNestedManyWithoutRewardsInput
   FacetLinks?: Prisma.RewardFacetCreateNestedManyWithoutRewardInput
+  LifeChoices?: Prisma.LifeChoiceCreateNestedManyWithoutRewardInput
 }
 
 export type RewardUncheckedCreateInput = {
@@ -557,6 +561,7 @@ export type RewardUncheckedCreateInput = {
   Characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutRewardsInput
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutRewardsInput
   FacetLinks?: Prisma.RewardFacetUncheckedCreateNestedManyWithoutRewardInput
+  LifeChoices?: Prisma.LifeChoiceUncheckedCreateNestedManyWithoutRewardInput
 }
 
 export type RewardUpdateInput = {
@@ -585,6 +590,7 @@ export type RewardUpdateInput = {
   Characters?: Prisma.CharacterUpdateManyWithoutRewardsNestedInput
   Dreams?: Prisma.DreamUpdateManyWithoutRewardsNestedInput
   FacetLinks?: Prisma.RewardFacetUpdateManyWithoutRewardNestedInput
+  LifeChoices?: Prisma.LifeChoiceUpdateManyWithoutRewardNestedInput
 }
 
 export type RewardUncheckedUpdateInput = {
@@ -614,6 +620,7 @@ export type RewardUncheckedUpdateInput = {
   Characters?: Prisma.CharacterUncheckedUpdateManyWithoutRewardsNestedInput
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutRewardsNestedInput
   FacetLinks?: Prisma.RewardFacetUncheckedUpdateManyWithoutRewardNestedInput
+  LifeChoices?: Prisma.LifeChoiceUncheckedUpdateManyWithoutRewardNestedInput
 }
 
 export type RewardCreateManyInput = {
@@ -1038,6 +1045,22 @@ export type RewardUncheckedUpdateManyWithoutUserNestedInput = {
   deleteMany?: Prisma.RewardScalarWhereInput | Prisma.RewardScalarWhereInput[]
 }
 
+export type RewardCreateNestedOneWithoutLifeChoicesInput = {
+  create?: Prisma.XOR<Prisma.RewardCreateWithoutLifeChoicesInput, Prisma.RewardUncheckedCreateWithoutLifeChoicesInput>
+  connectOrCreate?: Prisma.RewardCreateOrConnectWithoutLifeChoicesInput
+  connect?: Prisma.RewardWhereUniqueInput
+}
+
+export type RewardUpdateOneWithoutLifeChoicesNestedInput = {
+  create?: Prisma.XOR<Prisma.RewardCreateWithoutLifeChoicesInput, Prisma.RewardUncheckedCreateWithoutLifeChoicesInput>
+  connectOrCreate?: Prisma.RewardCreateOrConnectWithoutLifeChoicesInput
+  upsert?: Prisma.RewardUpsertWithoutLifeChoicesInput
+  disconnect?: Prisma.RewardWhereInput | boolean
+  delete?: Prisma.RewardWhereInput | boolean
+  connect?: Prisma.RewardWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.RewardUpdateToOneWithWhereWithoutLifeChoicesInput, Prisma.RewardUpdateWithoutLifeChoicesInput>, Prisma.RewardUncheckedUpdateWithoutLifeChoicesInput>
+}
+
 export type RewardCreateWithoutFacetLinksInput = {
   createdAt?: Date | string
   updatedAt?: Date | string | null
@@ -1063,6 +1086,7 @@ export type RewardCreateWithoutFacetLinksInput = {
   Pack?: Prisma.PackCreateNestedOneWithoutRewardsInput
   Characters?: Prisma.CharacterCreateNestedManyWithoutRewardsInput
   Dreams?: Prisma.DreamCreateNestedManyWithoutRewardsInput
+  LifeChoices?: Prisma.LifeChoiceCreateNestedManyWithoutRewardInput
 }
 
 export type RewardUncheckedCreateWithoutFacetLinksInput = {
@@ -1091,6 +1115,7 @@ export type RewardUncheckedCreateWithoutFacetLinksInput = {
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutRewardInput
   Characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutRewardsInput
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutRewardsInput
+  LifeChoices?: Prisma.LifeChoiceUncheckedCreateNestedManyWithoutRewardInput
 }
 
 export type RewardCreateOrConnectWithoutFacetLinksInput = {
@@ -1134,6 +1159,7 @@ export type RewardUpdateWithoutFacetLinksInput = {
   Pack?: Prisma.PackUpdateOneWithoutRewardsNestedInput
   Characters?: Prisma.CharacterUpdateManyWithoutRewardsNestedInput
   Dreams?: Prisma.DreamUpdateManyWithoutRewardsNestedInput
+  LifeChoices?: Prisma.LifeChoiceUpdateManyWithoutRewardNestedInput
 }
 
 export type RewardUncheckedUpdateWithoutFacetLinksInput = {
@@ -1162,6 +1188,7 @@ export type RewardUncheckedUpdateWithoutFacetLinksInput = {
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutRewardNestedInput
   Characters?: Prisma.CharacterUncheckedUpdateManyWithoutRewardsNestedInput
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutRewardsNestedInput
+  LifeChoices?: Prisma.LifeChoiceUncheckedUpdateManyWithoutRewardNestedInput
 }
 
 export type RewardCreateWithoutArtImageInput = {
@@ -1189,6 +1216,7 @@ export type RewardCreateWithoutArtImageInput = {
   Characters?: Prisma.CharacterCreateNestedManyWithoutRewardsInput
   Dreams?: Prisma.DreamCreateNestedManyWithoutRewardsInput
   FacetLinks?: Prisma.RewardFacetCreateNestedManyWithoutRewardInput
+  LifeChoices?: Prisma.LifeChoiceCreateNestedManyWithoutRewardInput
 }
 
 export type RewardUncheckedCreateWithoutArtImageInput = {
@@ -1217,6 +1245,7 @@ export type RewardUncheckedCreateWithoutArtImageInput = {
   Characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutRewardsInput
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutRewardsInput
   FacetLinks?: Prisma.RewardFacetUncheckedCreateNestedManyWithoutRewardInput
+  LifeChoices?: Prisma.LifeChoiceUncheckedCreateNestedManyWithoutRewardInput
 }
 
 export type RewardCreateOrConnectWithoutArtImageInput = {
@@ -1298,6 +1327,7 @@ export type RewardCreateWithoutCharactersInput = {
   Pack?: Prisma.PackCreateNestedOneWithoutRewardsInput
   Dreams?: Prisma.DreamCreateNestedManyWithoutRewardsInput
   FacetLinks?: Prisma.RewardFacetCreateNestedManyWithoutRewardInput
+  LifeChoices?: Prisma.LifeChoiceCreateNestedManyWithoutRewardInput
 }
 
 export type RewardUncheckedCreateWithoutCharactersInput = {
@@ -1326,6 +1356,7 @@ export type RewardUncheckedCreateWithoutCharactersInput = {
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutRewardInput
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutRewardsInput
   FacetLinks?: Prisma.RewardFacetUncheckedCreateNestedManyWithoutRewardInput
+  LifeChoices?: Prisma.LifeChoiceUncheckedCreateNestedManyWithoutRewardInput
 }
 
 export type RewardCreateOrConnectWithoutCharactersInput = {
@@ -1374,6 +1405,7 @@ export type RewardCreateWithoutDreamsInput = {
   Pack?: Prisma.PackCreateNestedOneWithoutRewardsInput
   Characters?: Prisma.CharacterCreateNestedManyWithoutRewardsInput
   FacetLinks?: Prisma.RewardFacetCreateNestedManyWithoutRewardInput
+  LifeChoices?: Prisma.LifeChoiceCreateNestedManyWithoutRewardInput
 }
 
 export type RewardUncheckedCreateWithoutDreamsInput = {
@@ -1402,6 +1434,7 @@ export type RewardUncheckedCreateWithoutDreamsInput = {
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutRewardInput
   Characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutRewardsInput
   FacetLinks?: Prisma.RewardFacetUncheckedCreateNestedManyWithoutRewardInput
+  LifeChoices?: Prisma.LifeChoiceUncheckedCreateNestedManyWithoutRewardInput
 }
 
 export type RewardCreateOrConnectWithoutDreamsInput = {
@@ -1450,6 +1483,7 @@ export type RewardCreateWithoutPackInput = {
   Characters?: Prisma.CharacterCreateNestedManyWithoutRewardsInput
   Dreams?: Prisma.DreamCreateNestedManyWithoutRewardsInput
   FacetLinks?: Prisma.RewardFacetCreateNestedManyWithoutRewardInput
+  LifeChoices?: Prisma.LifeChoiceCreateNestedManyWithoutRewardInput
 }
 
 export type RewardUncheckedCreateWithoutPackInput = {
@@ -1478,6 +1512,7 @@ export type RewardUncheckedCreateWithoutPackInput = {
   Characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutRewardsInput
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutRewardsInput
   FacetLinks?: Prisma.RewardFacetUncheckedCreateNestedManyWithoutRewardInput
+  LifeChoices?: Prisma.LifeChoiceUncheckedCreateNestedManyWithoutRewardInput
 }
 
 export type RewardCreateOrConnectWithoutPackInput = {
@@ -1531,6 +1566,7 @@ export type RewardCreateWithoutReactionsInput = {
   Characters?: Prisma.CharacterCreateNestedManyWithoutRewardsInput
   Dreams?: Prisma.DreamCreateNestedManyWithoutRewardsInput
   FacetLinks?: Prisma.RewardFacetCreateNestedManyWithoutRewardInput
+  LifeChoices?: Prisma.LifeChoiceCreateNestedManyWithoutRewardInput
 }
 
 export type RewardUncheckedCreateWithoutReactionsInput = {
@@ -1559,6 +1595,7 @@ export type RewardUncheckedCreateWithoutReactionsInput = {
   Characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutRewardsInput
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutRewardsInput
   FacetLinks?: Prisma.RewardFacetUncheckedCreateNestedManyWithoutRewardInput
+  LifeChoices?: Prisma.LifeChoiceUncheckedCreateNestedManyWithoutRewardInput
 }
 
 export type RewardCreateOrConnectWithoutReactionsInput = {
@@ -1602,6 +1639,7 @@ export type RewardUpdateWithoutReactionsInput = {
   Characters?: Prisma.CharacterUpdateManyWithoutRewardsNestedInput
   Dreams?: Prisma.DreamUpdateManyWithoutRewardsNestedInput
   FacetLinks?: Prisma.RewardFacetUpdateManyWithoutRewardNestedInput
+  LifeChoices?: Prisma.LifeChoiceUpdateManyWithoutRewardNestedInput
 }
 
 export type RewardUncheckedUpdateWithoutReactionsInput = {
@@ -1630,6 +1668,7 @@ export type RewardUncheckedUpdateWithoutReactionsInput = {
   Characters?: Prisma.CharacterUncheckedUpdateManyWithoutRewardsNestedInput
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutRewardsNestedInput
   FacetLinks?: Prisma.RewardFacetUncheckedUpdateManyWithoutRewardNestedInput
+  LifeChoices?: Prisma.LifeChoiceUncheckedUpdateManyWithoutRewardNestedInput
 }
 
 export type RewardCreateWithoutUserInput = {
@@ -1657,6 +1696,7 @@ export type RewardCreateWithoutUserInput = {
   Characters?: Prisma.CharacterCreateNestedManyWithoutRewardsInput
   Dreams?: Prisma.DreamCreateNestedManyWithoutRewardsInput
   FacetLinks?: Prisma.RewardFacetCreateNestedManyWithoutRewardInput
+  LifeChoices?: Prisma.LifeChoiceCreateNestedManyWithoutRewardInput
 }
 
 export type RewardUncheckedCreateWithoutUserInput = {
@@ -1685,6 +1725,7 @@ export type RewardUncheckedCreateWithoutUserInput = {
   Characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutRewardsInput
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutRewardsInput
   FacetLinks?: Prisma.RewardFacetUncheckedCreateNestedManyWithoutRewardInput
+  LifeChoices?: Prisma.LifeChoiceUncheckedCreateNestedManyWithoutRewardInput
 }
 
 export type RewardCreateOrConnectWithoutUserInput = {
@@ -1711,6 +1752,136 @@ export type RewardUpdateWithWhereUniqueWithoutUserInput = {
 export type RewardUpdateManyWithWhereWithoutUserInput = {
   where: Prisma.RewardScalarWhereInput
   data: Prisma.XOR<Prisma.RewardUpdateManyMutationInput, Prisma.RewardUncheckedUpdateManyWithoutUserInput>
+}
+
+export type RewardCreateWithoutLifeChoicesInput = {
+  createdAt?: Date | string
+  updatedAt?: Date | string | null
+  icon?: string | null
+  collection?: string | null
+  rarity?: $Enums.Rarity
+  imagePath?: string | null
+  allowReviews?: boolean
+  isMature?: boolean
+  isPublic?: boolean
+  isActive?: boolean
+  artPrompt?: string | null
+  rewardType?: $Enums.RewardType
+  description?: string | null
+  effect?: string | null
+  flavorText?: string | null
+  name: string
+  slug?: string | null
+  theme?: string | null
+  Reactions?: Prisma.ReactionCreateNestedManyWithoutRewardInput
+  ArtImage?: Prisma.ArtImageCreateNestedOneWithoutRewardsInput
+  User?: Prisma.UserCreateNestedOneWithoutRewardsInput
+  Pack?: Prisma.PackCreateNestedOneWithoutRewardsInput
+  Characters?: Prisma.CharacterCreateNestedManyWithoutRewardsInput
+  Dreams?: Prisma.DreamCreateNestedManyWithoutRewardsInput
+  FacetLinks?: Prisma.RewardFacetCreateNestedManyWithoutRewardInput
+}
+
+export type RewardUncheckedCreateWithoutLifeChoicesInput = {
+  id?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string | null
+  icon?: string | null
+  collection?: string | null
+  rarity?: $Enums.Rarity
+  userId?: number | null
+  artImageId?: number | null
+  packId?: number | null
+  imagePath?: string | null
+  allowReviews?: boolean
+  isMature?: boolean
+  isPublic?: boolean
+  isActive?: boolean
+  artPrompt?: string | null
+  rewardType?: $Enums.RewardType
+  description?: string | null
+  effect?: string | null
+  flavorText?: string | null
+  name: string
+  slug?: string | null
+  theme?: string | null
+  Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutRewardInput
+  Characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutRewardsInput
+  Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutRewardsInput
+  FacetLinks?: Prisma.RewardFacetUncheckedCreateNestedManyWithoutRewardInput
+}
+
+export type RewardCreateOrConnectWithoutLifeChoicesInput = {
+  where: Prisma.RewardWhereUniqueInput
+  create: Prisma.XOR<Prisma.RewardCreateWithoutLifeChoicesInput, Prisma.RewardUncheckedCreateWithoutLifeChoicesInput>
+}
+
+export type RewardUpsertWithoutLifeChoicesInput = {
+  update: Prisma.XOR<Prisma.RewardUpdateWithoutLifeChoicesInput, Prisma.RewardUncheckedUpdateWithoutLifeChoicesInput>
+  create: Prisma.XOR<Prisma.RewardCreateWithoutLifeChoicesInput, Prisma.RewardUncheckedCreateWithoutLifeChoicesInput>
+  where?: Prisma.RewardWhereInput
+}
+
+export type RewardUpdateToOneWithWhereWithoutLifeChoicesInput = {
+  where?: Prisma.RewardWhereInput
+  data: Prisma.XOR<Prisma.RewardUpdateWithoutLifeChoicesInput, Prisma.RewardUncheckedUpdateWithoutLifeChoicesInput>
+}
+
+export type RewardUpdateWithoutLifeChoicesInput = {
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  collection?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  rarity?: Prisma.EnumRarityFieldUpdateOperationsInput | $Enums.Rarity
+  imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  rewardType?: Prisma.EnumRewardTypeFieldUpdateOperationsInput | $Enums.RewardType
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  effect?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  flavorText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  theme?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  Reactions?: Prisma.ReactionUpdateManyWithoutRewardNestedInput
+  ArtImage?: Prisma.ArtImageUpdateOneWithoutRewardsNestedInput
+  User?: Prisma.UserUpdateOneWithoutRewardsNestedInput
+  Pack?: Prisma.PackUpdateOneWithoutRewardsNestedInput
+  Characters?: Prisma.CharacterUpdateManyWithoutRewardsNestedInput
+  Dreams?: Prisma.DreamUpdateManyWithoutRewardsNestedInput
+  FacetLinks?: Prisma.RewardFacetUpdateManyWithoutRewardNestedInput
+}
+
+export type RewardUncheckedUpdateWithoutLifeChoicesInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  collection?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  rarity?: Prisma.EnumRarityFieldUpdateOperationsInput | $Enums.Rarity
+  userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  packId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  rewardType?: Prisma.EnumRewardTypeFieldUpdateOperationsInput | $Enums.RewardType
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  effect?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  flavorText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  theme?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutRewardNestedInput
+  Characters?: Prisma.CharacterUncheckedUpdateManyWithoutRewardsNestedInput
+  Dreams?: Prisma.DreamUncheckedUpdateManyWithoutRewardsNestedInput
+  FacetLinks?: Prisma.RewardFacetUncheckedUpdateManyWithoutRewardNestedInput
 }
 
 export type RewardCreateManyArtImageInput = {
@@ -1762,6 +1933,7 @@ export type RewardUpdateWithoutArtImageInput = {
   Characters?: Prisma.CharacterUpdateManyWithoutRewardsNestedInput
   Dreams?: Prisma.DreamUpdateManyWithoutRewardsNestedInput
   FacetLinks?: Prisma.RewardFacetUpdateManyWithoutRewardNestedInput
+  LifeChoices?: Prisma.LifeChoiceUpdateManyWithoutRewardNestedInput
 }
 
 export type RewardUncheckedUpdateWithoutArtImageInput = {
@@ -1790,6 +1962,7 @@ export type RewardUncheckedUpdateWithoutArtImageInput = {
   Characters?: Prisma.CharacterUncheckedUpdateManyWithoutRewardsNestedInput
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutRewardsNestedInput
   FacetLinks?: Prisma.RewardFacetUncheckedUpdateManyWithoutRewardNestedInput
+  LifeChoices?: Prisma.LifeChoiceUncheckedUpdateManyWithoutRewardNestedInput
 }
 
 export type RewardUncheckedUpdateManyWithoutArtImageInput = {
@@ -1841,6 +2014,7 @@ export type RewardUpdateWithoutCharactersInput = {
   Pack?: Prisma.PackUpdateOneWithoutRewardsNestedInput
   Dreams?: Prisma.DreamUpdateManyWithoutRewardsNestedInput
   FacetLinks?: Prisma.RewardFacetUpdateManyWithoutRewardNestedInput
+  LifeChoices?: Prisma.LifeChoiceUpdateManyWithoutRewardNestedInput
 }
 
 export type RewardUncheckedUpdateWithoutCharactersInput = {
@@ -1869,6 +2043,7 @@ export type RewardUncheckedUpdateWithoutCharactersInput = {
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutRewardNestedInput
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutRewardsNestedInput
   FacetLinks?: Prisma.RewardFacetUncheckedUpdateManyWithoutRewardNestedInput
+  LifeChoices?: Prisma.LifeChoiceUncheckedUpdateManyWithoutRewardNestedInput
 }
 
 export type RewardUncheckedUpdateManyWithoutCharactersInput = {
@@ -1921,6 +2096,7 @@ export type RewardUpdateWithoutDreamsInput = {
   Pack?: Prisma.PackUpdateOneWithoutRewardsNestedInput
   Characters?: Prisma.CharacterUpdateManyWithoutRewardsNestedInput
   FacetLinks?: Prisma.RewardFacetUpdateManyWithoutRewardNestedInput
+  LifeChoices?: Prisma.LifeChoiceUpdateManyWithoutRewardNestedInput
 }
 
 export type RewardUncheckedUpdateWithoutDreamsInput = {
@@ -1949,6 +2125,7 @@ export type RewardUncheckedUpdateWithoutDreamsInput = {
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutRewardNestedInput
   Characters?: Prisma.CharacterUncheckedUpdateManyWithoutRewardsNestedInput
   FacetLinks?: Prisma.RewardFacetUncheckedUpdateManyWithoutRewardNestedInput
+  LifeChoices?: Prisma.LifeChoiceUncheckedUpdateManyWithoutRewardNestedInput
 }
 
 export type RewardUncheckedUpdateManyWithoutDreamsInput = {
@@ -2025,6 +2202,7 @@ export type RewardUpdateWithoutPackInput = {
   Characters?: Prisma.CharacterUpdateManyWithoutRewardsNestedInput
   Dreams?: Prisma.DreamUpdateManyWithoutRewardsNestedInput
   FacetLinks?: Prisma.RewardFacetUpdateManyWithoutRewardNestedInput
+  LifeChoices?: Prisma.LifeChoiceUpdateManyWithoutRewardNestedInput
 }
 
 export type RewardUncheckedUpdateWithoutPackInput = {
@@ -2053,6 +2231,7 @@ export type RewardUncheckedUpdateWithoutPackInput = {
   Characters?: Prisma.CharacterUncheckedUpdateManyWithoutRewardsNestedInput
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutRewardsNestedInput
   FacetLinks?: Prisma.RewardFacetUncheckedUpdateManyWithoutRewardNestedInput
+  LifeChoices?: Prisma.LifeChoiceUncheckedUpdateManyWithoutRewardNestedInput
 }
 
 export type RewardUncheckedUpdateManyWithoutPackInput = {
@@ -2128,6 +2307,7 @@ export type RewardUpdateWithoutUserInput = {
   Characters?: Prisma.CharacterUpdateManyWithoutRewardsNestedInput
   Dreams?: Prisma.DreamUpdateManyWithoutRewardsNestedInput
   FacetLinks?: Prisma.RewardFacetUpdateManyWithoutRewardNestedInput
+  LifeChoices?: Prisma.LifeChoiceUpdateManyWithoutRewardNestedInput
 }
 
 export type RewardUncheckedUpdateWithoutUserInput = {
@@ -2156,6 +2336,7 @@ export type RewardUncheckedUpdateWithoutUserInput = {
   Characters?: Prisma.CharacterUncheckedUpdateManyWithoutRewardsNestedInput
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutRewardsNestedInput
   FacetLinks?: Prisma.RewardFacetUncheckedUpdateManyWithoutRewardNestedInput
+  LifeChoices?: Prisma.LifeChoiceUncheckedUpdateManyWithoutRewardNestedInput
 }
 
 export type RewardUncheckedUpdateManyWithoutUserInput = {
@@ -2192,6 +2373,7 @@ export type RewardCountOutputType = {
   Characters: number
   Dreams: number
   FacetLinks: number
+  LifeChoices: number
 }
 
 export type RewardCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -2199,6 +2381,7 @@ export type RewardCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions
   Characters?: boolean | RewardCountOutputTypeCountCharactersArgs
   Dreams?: boolean | RewardCountOutputTypeCountDreamsArgs
   FacetLinks?: boolean | RewardCountOutputTypeCountFacetLinksArgs
+  LifeChoices?: boolean | RewardCountOutputTypeCountLifeChoicesArgs
 }
 
 /**
@@ -2239,6 +2422,13 @@ export type RewardCountOutputTypeCountFacetLinksArgs<ExtArgs extends runtime.Typ
   where?: Prisma.RewardFacetWhereInput
 }
 
+/**
+ * RewardCountOutputType without action
+ */
+export type RewardCountOutputTypeCountLifeChoicesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.LifeChoiceWhereInput
+}
+
 
 export type RewardSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -2270,6 +2460,7 @@ export type RewardSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   Characters?: boolean | Prisma.Reward$CharactersArgs<ExtArgs>
   Dreams?: boolean | Prisma.Reward$DreamsArgs<ExtArgs>
   FacetLinks?: boolean | Prisma.Reward$FacetLinksArgs<ExtArgs>
+  LifeChoices?: boolean | Prisma.Reward$LifeChoicesArgs<ExtArgs>
   _count?: boolean | Prisma.RewardCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["reward"]>
 
@@ -2309,6 +2500,7 @@ export type RewardInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   Characters?: boolean | Prisma.Reward$CharactersArgs<ExtArgs>
   Dreams?: boolean | Prisma.Reward$DreamsArgs<ExtArgs>
   FacetLinks?: boolean | Prisma.Reward$FacetLinksArgs<ExtArgs>
+  LifeChoices?: boolean | Prisma.Reward$LifeChoicesArgs<ExtArgs>
   _count?: boolean | Prisma.RewardCountOutputTypeDefaultArgs<ExtArgs>
 }
 
@@ -2322,6 +2514,7 @@ export type $RewardPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs
     Characters: Prisma.$CharacterPayload<ExtArgs>[]
     Dreams: Prisma.$DreamPayload<ExtArgs>[]
     FacetLinks: Prisma.$RewardFacetPayload<ExtArgs>[]
+    LifeChoices: Prisma.$LifeChoicePayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -2697,6 +2890,7 @@ export interface Prisma__RewardClient<T, Null = never, ExtArgs extends runtime.T
   Characters<T extends Prisma.Reward$CharactersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Reward$CharactersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CharacterPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   Dreams<T extends Prisma.Reward$DreamsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Reward$DreamsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DreamPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   FacetLinks<T extends Prisma.Reward$FacetLinksArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Reward$FacetLinksArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$RewardFacetPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  LifeChoices<T extends Prisma.Reward$LifeChoicesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Reward$LifeChoicesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$LifeChoicePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -3246,6 +3440,30 @@ export type Reward$FacetLinksArgs<ExtArgs extends runtime.Types.Extensions.Inter
   take?: number
   skip?: number
   distinct?: Prisma.RewardFacetScalarFieldEnum | Prisma.RewardFacetScalarFieldEnum[]
+}
+
+/**
+ * Reward.LifeChoices
+ */
+export type Reward$LifeChoicesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the LifeChoice
+   */
+  select?: Prisma.LifeChoiceSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the LifeChoice
+   */
+  omit?: Prisma.LifeChoiceOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.LifeChoiceInclude<ExtArgs> | null
+  where?: Prisma.LifeChoiceWhereInput
+  orderBy?: Prisma.LifeChoiceOrderByWithRelationInput | Prisma.LifeChoiceOrderByWithRelationInput[]
+  cursor?: Prisma.LifeChoiceWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.LifeChoiceScalarFieldEnum | Prisma.LifeChoiceScalarFieldEnum[]
 }
 
 /**

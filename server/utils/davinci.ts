@@ -10,7 +10,12 @@
 
 import prisma from './prisma'
 import { LifeArtSceneType } from '~/prisma/generated/prisma/client'
-import { DAVINCI_DIMENSIONS, resolveOutcomeKey } from './davinciDimensions'
+import {
+  LIFE_DECK_KEY,
+  parseDeckAxes,
+  resolveDeckOutcomeKey,
+  type DeckDefinition,
+} from './endingDeckMath'
 
 export interface ResolveLifeRunResult {
   outcomeKey: string
@@ -93,6 +98,97 @@ async function resolveCompletedLifeRun(
   }
 }
 
+/**
+ * Award a deck's COLLECTION achievement once the reader has found every
+ * ending in it.
+ *
+ * Runs inside the resolve transaction so the last ending and the completion
+ * it triggers land together. Does nothing when the deck has no COLLECTION
+ * achievement seeded, which is the normal state for a deck whose art and
+ * copy are still being written.
+ */
+async function awardDeckCollection(
+  tx: TransactionClient,
+  input: {
+    deckId: number
+    deckKey: string
+    userId: number
+    username: string | null
+    lifeRunId: number
+  },
+): Promise<void> {
+  const collectionAchievement = await tx.lifeAchievement.findFirst({
+    where: {
+      achievementType: 'COLLECTION',
+      conditionKey: `deck:${input.deckKey}`,
+      isActive: true,
+    },
+    select: { id: true, achievementId: true },
+  })
+  if (!collectionAchievement) return
+
+  const alreadyHeld = await tx.lifeAchievementUnlock.findFirst({
+    where: { userId: input.userId, achievementId: collectionAchievement.id },
+    select: { id: true },
+  })
+  if (alreadyHeld) return
+
+  const endings = await tx.lifeEnding.findMany({
+    where: { deckId: input.deckId, isActive: true },
+    select: {
+      Achievements: { where: { isActive: true }, select: { id: true } },
+    },
+  })
+  const endingAchievementIds = endings.flatMap((ending) =>
+    ending.Achievements.map((achievement) => achievement.id),
+  )
+  // A deck with no per-ending achievements cannot be "completed" -- there is
+  // nothing to have collected.
+  if (!endingAchievementIds.length) return
+
+  const held = await tx.lifeAchievementUnlock.findMany({
+    where: {
+      userId: input.userId,
+      achievementId: { in: endingAchievementIds },
+    },
+    select: { achievementId: true },
+  })
+  const heldIds = new Set(held.map((unlock) => unlock.achievementId))
+  if (heldIds.size < new Set(endingAchievementIds).size) return
+
+  let achievementRecordId: number | null = null
+  if (collectionAchievement.achievementId) {
+    const existing = await tx.achievementRecord.findFirst({
+      where: {
+        achievementId: collectionAchievement.achievementId,
+        userId: input.userId,
+      },
+      select: { id: true },
+    })
+    achievementRecordId =
+      existing?.id ??
+      (
+        await tx.achievementRecord.create({
+          data: {
+            achievementId: collectionAchievement.achievementId,
+            userId: input.userId,
+            username: input.username,
+          },
+        })
+      ).id
+  }
+
+  await tx.lifeAchievementUnlock.create({
+    data: {
+      userId: input.userId,
+      achievementId: collectionAchievement.id,
+      lifeRunId: input.lifeRunId,
+      achievementRecordId,
+      data: JSON.stringify({ deck: input.deckKey, collected: true }),
+    },
+  })
+}
+
 // Resolves a LifeRun's stats into its deterministic ending and awards the
 // linked Achievement + LifeAchievement. Idempotent: re-resolving an already
 // completed run re-derives the same ending and awards nothing twice.
@@ -102,7 +198,7 @@ async function resolveCompletedLifeRun(
 // MySQL treats each NULL lifeRunId as distinct, and different runs reaching
 // the same ending would each satisfy the constraint. Ending achievements are
 // one-per-user, so we guard on (userId, achievementId) here at the API layer.
-export async function resolveLifeRunEnding(
+export async function resolveStoryRunEnding(
   lifeRunId: number,
   userId: number,
   username?: string | null,
@@ -110,7 +206,7 @@ export async function resolveLifeRunEnding(
   return prisma.$transaction(async (tx) => {
     const run = await tx.lifeRun.findUnique({
       where: { id: lifeRunId },
-      include: { Stats: true },
+      include: { Stats: true, Deck: true },
     })
     if (!run) {
       const error = new Error(`LifeRun ${lifeRunId} does not exist.`)
@@ -149,16 +245,64 @@ export async function resolveLifeRunEnding(
       )
     }
 
+    // Which deck's axes decide this run. A run created before decks existed
+    // has deckId NULL and is a life run by definition, so it resolves against
+    // the life deck exactly as it always did.
+    const deckRow =
+      run.Deck ??
+      (await tx.endingDeck.findUnique({ where: { key: LIFE_DECK_KEY } }))
+    if (!deckRow) {
+      const error = new Error(
+        `No '${LIFE_DECK_KEY}' EndingDeck exists. Run the deck seed importer first.`,
+      )
+      ;(error as Error & { statusCode?: number }).statusCode = 500
+      throw error
+    }
+    const deck: DeckDefinition = {
+      key: deckRow.key,
+      title: deckRow.title,
+      axes: parseDeckAxes(deckRow.axes),
+      passValue: deckRow.passValue,
+    }
+
+    // A story does not get to end early. The budget is what makes an ending
+    // feel earned rather than picked, so the server holds it even though the
+    // client also hides the button.
+    //
+    // Only for runs the new engine created. A run with turnBudget NULL was
+    // opened through POST /api/davinci/runs, which never had a server-side
+    // turn gate -- the life UI enforces MIN_CHAPTERS_BEFORE_ENDING itself.
+    // Retrofitting a refusal onto a game already being played is a design
+    // change, not a refactor, so a legacy run still resolves whenever it
+    // asks. New life runs get the gate from the life deck's
+    // minTurnsBeforeResolve.
+    const playedTurns = Math.max(0, run.currentChapter - 1)
+    const minimum =
+      run.turnBudget === null
+        ? 0
+        : (deckRow.minTurnsBeforeResolve ?? run.turnBudget)
+    if (playedTurns < minimum) {
+      const error = new Error(
+        `This story resolves after ${minimum} turns; ${playedTurns} have been played.`,
+      )
+      ;(error as Error & { statusCode?: number }).statusCode = 409
+      throw error
+    }
+
     const stats: Record<string, number> = {}
     for (const stat of run.Stats) stats[stat.key] = stat.value
-    const outcomeKey = resolveOutcomeKey(stats)
+    const outcomeKey = resolveDeckOutcomeKey(deck, stats)
 
-    const ending = await tx.lifeEnding.findUnique({
-      where: { outcomeKey },
+    // findFirst, not findUnique: the global unique on outcomeKey is still in
+    // place and the composite (deckId, outcomeKey) index does not become the
+    // lookup key until the second genre deck ships (storybook/t-030). Scoping
+    // by deckId here is what lets that later migration be a no-op for callers.
+    const ending = await tx.lifeEnding.findFirst({
+      where: { deckId: deckRow.id, outcomeKey, isActive: true },
     })
     if (!ending) {
       const error = new Error(
-        `No LifeEnding seeded for outcomeKey ${outcomeKey}. Run the Da Vinci seed importer first.`,
+        `No ending seeded for outcomeKey ${outcomeKey} in the ${deckRow.key} deck. Run the seed importer first.`,
       )
       ;(error as Error & { statusCode?: number }).statusCode = 404
       throw error
@@ -228,6 +372,19 @@ export async function resolveLifeRunEnding(
       }
     }
 
+    // A deck is COLLECTED when every one of its active endings has been
+    // found. Silas asked for endings the reader "gets credit for in a
+    // collection"; this is the credit for finishing the collection itself.
+    // Same one-per-user guard as an ending unlock, and silent when the deck
+    // has no COLLECTION achievement seeded.
+    await awardDeckCollection(tx, {
+      deckId: deckRow.id,
+      deckKey: deckRow.key,
+      userId,
+      username: username ?? null,
+      lifeRunId: run.id,
+    })
+
     return {
       outcomeKey,
       stats,
@@ -247,6 +404,21 @@ export async function resolveLifeRunEnding(
   })
 }
 
+/**
+ * The pre-deck name, kept as a delegate.
+ *
+ * POST /api/davinci/runs/:id/resolve and utils/scripts/verifyDaVinciPlayLoop.ts
+ * both call this. A life run has deckId NULL (legacy) or the life deck, so it
+ * resolves through exactly the same path it always did.
+ */
+export async function resolveLifeRunEnding(
+  lifeRunId: number,
+  userId: number,
+  username?: string | null,
+): Promise<ResolveLifeRunResult> {
+  return resolveStoryRunEnding(lifeRunId, userId, username)
+}
+
 // --- Play loop (davinci/t-013) --------------------------------------------
 //
 // The durable-state substrate the Chat narrator calls: create a run, record a
@@ -260,7 +432,7 @@ export async function resolveLifeRunEnding(
 // run from the same Character and Dream the reader picked on the setup screen,
 // through the FK columns createLifeRun already accepts.
 
-function withStatusCode(message: string, statusCode: number): Error {
+export function withStatusCode(message: string, statusCode: number): Error {
   const error = new Error(message)
   ;(error as Error & { statusCode?: number }).statusCode = statusCode
   return error
@@ -272,13 +444,9 @@ function withStatusCode(message: string, statusCode: number): Error {
 // — another user's PRIVATE record (audit P6 MEDIUM/LOW). A non-existent id
 // passes here and is caught by the FK constraint on write.
 type AttachableResource =
-  | 'Character'
-  | 'Dream'
-  | 'Bot'
-  | 'ArtCollection'
-  | 'Chat'
+  'Character' | 'Dream' | 'Bot' | 'ArtCollection' | 'Chat'
 
-async function assertAttachable(
+export async function assertAttachable(
   resource: AttachableResource,
   id: number | null | undefined,
   userId: number,
@@ -379,8 +547,8 @@ export interface RecordChoiceInput {
   choiceText: string
   resultText?: string | null
   // Dimension (or arbitrary stat) key -> integer delta. Applied atomically to
-  // LifeStat. The resolver only reads the 10 DAVINCI_DIMENSIONS, but any stat
-  // key is allowed so the substrate stays flexible.
+  // LifeStat. The resolver only reads the axes its ending deck declares, but
+  // any stat key is allowed so the substrate stays flexible.
   effects?: Record<string, number>
   chatId?: number | null
 }

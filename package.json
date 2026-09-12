@@ -130,6 +130,7 @@
     "test:davinci-narration": "tsx utils/scripts/verifyDaVinciNarration.ts",
     "test:ending-deck-math": "tsx utils/scripts/verifyEndingDeckMath.ts",
     "test:storybook-narration": "tsx utils/scripts/verifyStorybookNarration.ts",
+    "seed:storybook:playloop-verify": "tsx utils/scripts/verifyStorybookPlayLoop.ts",
     "test:davinci-dimension-tone-guard-selftest": "tsx utils/scripts/verifyDaVinciDimensionToneGuard.test.ts",
     "test:davinci-dimension-tone-guard": "tsx utils/scripts/verifyDaVinciDimensionToneGuard.ts",
     "test:davinci-narration-error-tone-guard-selftest": "tsx utils/scripts/verifyDaVinciNarrationErrorToneGuard.test.ts",

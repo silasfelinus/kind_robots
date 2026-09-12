@@ -26,6 +26,10 @@ on:
       - 'utils/scripts/seedDaVinciEndings.ts'
       - 'utils/scripts/verifyDaVinciSeed.ts'
       - 'utils/scripts/verifyDaVinciPlayLoop.ts'
+      - 'utils/scripts/verifyStorybookPlayLoop.ts'
+      - 'server/utils/storybookRuns.ts'
+      - 'server/utils/storybookCollection.ts'
+      - 'server/utils/davinci.ts'
   pull_request:
     paths:
       - '.github/workflows/davinci-seed-verify.yml'
@@ -35,6 +39,10 @@ on:
       - 'utils/scripts/seedDaVinciEndings.ts'
       - 'utils/scripts/verifyDaVinciSeed.ts'
       - 'utils/scripts/verifyDaVinciPlayLoop.ts'
+      - 'utils/scripts/verifyStorybookPlayLoop.ts'
+      - 'server/utils/storybookRuns.ts'
+      - 'server/utils/storybookCollection.ts'
+      - 'server/utils/davinci.ts'
 
 concurrency:
   group: davinci-seed-verify-${{ github.event.pull_request.number || github.ref }}
@@ -101,3 +109,10 @@ jobs:
 
       - name: Run play-loop regression suite
         run: npm run seed:davinci:playloop-verify
+
+      # The deck-generic loop: a whole short story on a scratch three-axis
+      # deck, played with an offered option, a written move, and a card from
+      # the character sheet, then resolved and collected. Runs after the life
+      # seed so the 'life' deck row and its endings already exist.
+      - name: Run Storybook play-loop regression suite
+        run: npm run seed:storybook:playloop-verify

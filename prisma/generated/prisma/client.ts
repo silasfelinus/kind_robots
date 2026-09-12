@@ -721,6 +721,23 @@ export type ChallengeSubmission = Prisma.ChallengeSubmissionModel
  */
 export type Contender = Prisma.ContenderModel
 /**
+ * Model EndingDeck
+ * An ENDING DECK: the hidden axes a story is scored on, and therefore the set
+ * of endings it can resolve into.
+ * 
+ * Storybook's four shapes all resolve the same way -- a run accumulates stats
+ * on its deck's axes, and at the end those axes are read as bits in
+ * declaration order to name exactly one ending. The `life` deck (formerly the
+ * separate Da Vinci product) has ten axes and 1,024 endings; a genre deck has
+ * three or four and eight or sixteen. The engine does not know the difference.
+ * 
+ * `axes` is a JSON array in BIT ORDER: outcomeKey[i] is axes[i]. Reordering a
+ * deck's axes renames every one of its endings, so a deck's axes must not be
+ * reordered once its endings are seeded. See server/utils/endingDeckMath.ts
+ * and conductor projects/storybook/data/ending-decks/README.md.
+ */
+export type EndingDeck = Prisma.EndingDeckModel
+/**
  * Model LifeRun
  * 
  */

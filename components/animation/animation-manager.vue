@@ -25,6 +25,35 @@
       </div>
 
       <div class="flex flex-wrap items-center gap-2">
+        <div
+          class="flex items-center gap-1 rounded-xl border border-base-300 bg-base-200/70 p-1"
+          role="group"
+          aria-label="Animation display toggles"
+        >
+          <button
+            class="btn btn-square btn-sm rounded-lg"
+            :class="butterfliesEnabled ? 'btn-primary' : 'btn-outline'"
+            type="button"
+            :aria-pressed="butterfliesEnabled"
+            :title="butterfliesEnabled ? 'Turn butterflies off' : 'Turn butterflies on'"
+            @click="toggleButterflies"
+          >
+            <Icon name="kind-icon:butterfly" class="kr-icon-4" />
+            <span class="sr-only">Butterflies</span>
+          </button>
+          <button
+            class="btn btn-square btn-sm rounded-lg"
+            :class="coverageEnabled ? 'btn-primary' : 'btn-outline'"
+            type="button"
+            :aria-pressed="coverageEnabled"
+            :title="coverageEnabled ? 'Disable coverage zones' : 'Restore coverage zones'"
+            @click="toggleCoverage"
+          >
+            <Icon name="kind-icon:layers" class="kr-icon-4" />
+            <span class="sr-only">Coverage zones</span>
+          </button>
+        </div>
+
         <NuxtLink
           to="/conductor"
           class="kr-btn btn-outline"
@@ -45,241 +74,252 @@
       </div>
     </header>
 
-    <div class="animation-manager-controls-grid grid gap-4">
-      <animation-selector />
+    <div class="kr-scroll">
+      <div class="flex flex-col gap-4 pb-4">
+        <div class="animation-manager-controls-grid grid gap-4">
+          <animation-selector />
 
-      <section class="flex min-w-0 flex-col gap-3 kr-panel-flat p-4">
-        <header class="flex items-start justify-between gap-3">
-          <div>
-            <h3 class="kr-text-black-sm text-base-content">Coverage zones</h3>
-            <p class="kr-text-dim-xs-55 mt-1">
-              Choose where layered effects render. Isolated previews ignore these zones.
-            </p>
-          </div>
-          <button
-            class="btn btn-ghost btn-xs shrink-0"
-            type="button"
-            @click="store.resetSurfaces()"
-          >
-            Reset
-          </button>
-        </header>
+          <section class="flex min-w-0 flex-col gap-3 kr-panel-flat p-4">
+            <header class="flex items-start justify-between gap-3">
+              <div>
+                <h3 class="kr-text-black-sm text-base-content">Coverage zones</h3>
+                <p class="kr-text-dim-xs-55 mt-1">
+                  Choose where layered effects render. Isolated previews ignore these zones.
+                </p>
+              </div>
+              <button
+                class="btn btn-ghost btn-xs shrink-0"
+                type="button"
+                @click="store.resetSurfaces()"
+              >
+                Reset
+              </button>
+            </header>
 
-        <div class="coverage-zone-grid grid gap-2">
-          <article
-            v-for="zone in zoneOptions"
-            :key="zone.id"
-            class="flex items-center gap-3 rounded-xl border border-base-300 bg-base-200/60 p-3"
-          >
-            <span
-              class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-base-300/70 text-base-content/70"
-            >
-              <Icon :name="zone.icon" class="kr-icon-4" />
-            </span>
-            <span class="min-w-16 text-sm font-black text-base-content">
-              {{ zone.label }}
-            </span>
-            <div
-              class="ml-auto flex min-w-0 flex-1 justify-end gap-1"
-              role="group"
-              :aria-label="`${zone.label} effect placement`"
+            <div class="coverage-zone-grid grid gap-2">
+              <article
+                v-for="zone in zoneOptions"
+                :key="zone.id"
+                class="flex items-center gap-3 rounded-xl border border-base-300 bg-base-200/60 p-3"
+              >
+                <span
+                  class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-base-300/70 text-base-content/70"
+                >
+                  <Icon :name="zone.icon" class="kr-icon-4" />
+                </span>
+                <span class="min-w-16 text-sm font-black text-base-content">
+                  {{ zone.label }}
+                </span>
+                <div
+                  class="ml-auto flex min-w-0 flex-1 justify-end gap-1"
+                  role="group"
+                  :aria-label="`${zone.label} effect placement`"
+                >
+                  <button
+                    v-for="placement in placementOptions"
+                    :key="placement.value"
+                    class="btn btn-xs min-w-0 flex-1 px-2"
+                    :class="
+                      store.getSurfacePlacement(zone.id) === placement.value
+                        ? 'btn-primary'
+                        : 'btn-ghost'
+                    "
+                    type="button"
+                    :aria-pressed="store.getSurfacePlacement(zone.id) === placement.value"
+                    :title="placement.title(zone.label)"
+                    @click="store.setSurfacePlacement(zone.id, placement.value)"
+                  >
+                    {{ placement.label }}
+                  </button>
+                </div>
+              </article>
+            </div>
+          </section>
+        </div>
+
+        <div class="animation-manager-content-grid grid gap-4">
+          <div class="effect-card-grid grid auto-rows-fr gap-3">
+            <article
+              v-for="effect in store.galleryItems"
+              :key="effect.id"
+              class="flex min-w-0 flex-col gap-3 kr-panel-muted-sm transition-shadow hover:shadow-lg"
+              :class="store.selectedSlug === effect.id ? 'ring-2 ring-primary' : ''"
             >
               <button
-                v-for="placement in placementOptions"
-                :key="placement.value"
-                class="btn btn-xs min-w-0 flex-1 px-2"
-                :class="
-                  store.getSurfacePlacement(zone.id) === placement.value
-                    ? 'btn-primary'
-                    : 'btn-ghost'
-                "
+                class="flex w-full items-start gap-3 text-left"
                 type="button"
-                :aria-pressed="store.getSurfacePlacement(zone.id) === placement.value"
-                :title="placement.title(zone.label)"
-                @click="store.setSurfacePlacement(zone.id, placement.value)"
+                @click="store.selectSlug(effect.id)"
               >
-                {{ placement.label }}
+                <span
+                  class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border bg-base-100/50"
+                  :style="{ borderColor: effect.color, color: effect.color }"
+                >
+                  <Icon :name="effect.icon" class="kr-icon-6" />
+                </span>
+
+                <span class="min-w-0 flex-1">
+                  <span class="block truncate font-black text-base-content">
+                    {{ effect.label }}
+                  </span>
+                  <span class="kr-text-dim-xs-55 block truncate">
+                    {{ effect.id }}
+                  </span>
+                </span>
+
+                <span
+                  v-if="store.isLayerActive(effect.id)"
+                  class="badge badge-primary badge-sm shrink-0"
+                >
+                  Layered
+                </span>
+              </button>
+
+              <p class="kr-text-dim-xs-60 min-h-10 leading-relaxed">
+                {{ effect.tooltip }}
+              </p>
+
+              <div class="flex flex-wrap gap-1.5">
+                <span class="kr-badge-ghost-sm">
+                  {{ surfaceLabel(effect.preferredSurface) }}
+                </span>
+                <span
+                  v-if="effect.generationSafe"
+                  class="kr-badge-outline-sm badge-success"
+                >
+                  generation-safe
+                </span>
+                <span
+                  v-if="effect.blocksInput"
+                  class="kr-badge-outline-sm badge-warning"
+                >
+                  captures input
+                </span>
+              </div>
+
+              <div class="mt-auto grid grid-cols-2 gap-2">
+                <button
+                  class="kr-btn-xs-lg"
+                  :class="store.isPreviewing(effect.id) ? 'btn-secondary' : 'btn-outline'"
+                  type="button"
+                  :title="store.isPreviewing(effect.id) ? 'Stop isolated preview' : 'Preview this effect on a clean backdrop'"
+                  @click="store.previewEffect(effect.id)"
+                >
+                  <Icon
+                    :name="store.isPreviewing(effect.id) ? 'kind-icon:x' : 'kind-icon:eye'"
+                    class="kr-icon-3"
+                  />
+                  {{ store.isPreviewing(effect.id) ? 'Stop preview' : 'Preview' }}
+                </button>
+
+                <button
+                  class="kr-btn-xs-lg"
+                  :class="store.isLayerActive(effect.id) ? 'btn-primary' : 'btn-ghost'"
+                  type="button"
+                  :title="store.isLayerActive(effect.id) ? 'Remove this persistent screen layer' : 'Layer this effect over the selected coverage zones'"
+                  @click="store.toggleLayer(effect.id)"
+                >
+                  <Icon name="kind-icon:layers" class="kr-icon-3" />
+                  {{ store.isLayerActive(effect.id) ? 'Unlayer' : 'Layer' }}
+                </button>
+              </div>
+            </article>
+          </div>
+
+          <aside
+            v-if="store.selectedItem"
+            class="effect-detail flex flex-col gap-4 kr-panel-flat p-4"
+          >
+            <div class="flex items-start justify-between gap-3">
+              <div>
+                <p class="kr-text-eyebrow text-xs tracking-wide text-primary">
+                  Catalog effect
+                </p>
+                <h3 class="kr-text-black-lg mt-1 text-base-content">
+                  {{ store.selectedItem.label }}
+                </h3>
+              </div>
+              <button
+                class="kr-btn-ghost-xs-plain"
+                type="button"
+                title="Close details"
+                @click="store.selectSlug(null)"
+              >
+                <Icon name="kind-icon:x" class="kr-icon-4" />
               </button>
             </div>
-          </article>
-        </div>
-      </section>
-    </div>
 
-    <div class="animation-manager-content-grid grid gap-4">
-      <div class="effect-card-grid grid auto-rows-fr gap-3">
-        <article
-          v-for="effect in store.galleryItems"
-          :key="effect.id"
-          class="flex min-w-0 flex-col gap-3 kr-panel-muted-sm transition-shadow hover:shadow-lg"
-          :class="store.selectedSlug === effect.id ? 'ring-2 ring-primary' : ''"
-        >
-          <button
-            class="flex w-full items-start gap-3 text-left"
-            type="button"
-            @click="store.selectSlug(effect.id)"
-          >
-            <span
-              class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border bg-base-100/50"
-              :style="{ borderColor: effect.color, color: effect.color }"
+            <div
+              class="flex h-28 items-center justify-center rounded-2xl border border-base-300 bg-base-200"
+              :style="{ color: store.selectedItem.color }"
             >
-              <Icon :name="effect.icon" class="kr-icon-6" />
-            </span>
+              <Icon :name="store.selectedItem.icon" class="h-14 w-14" />
+            </div>
 
-            <span class="min-w-0 flex-1">
-              <span class="block truncate font-black text-base-content">
-                {{ effect.label }}
-              </span>
-              <span class="kr-text-dim-xs-55 block truncate">
-                {{ effect.id }}
-              </span>
-            </span>
-
-            <span
-              v-if="store.isLayerActive(effect.id)"
-              class="badge badge-primary badge-sm shrink-0"
-            >
-              Layered
-            </span>
-          </button>
-
-          <p class="kr-text-dim-xs-60 min-h-10 leading-relaxed">
-            {{ effect.tooltip }}
-          </p>
-
-          <div class="flex flex-wrap gap-1.5">
-            <span class="kr-badge-ghost-sm">
-              {{ surfaceLabel(effect.preferredSurface) }}
-            </span>
-            <span
-              v-if="effect.generationSafe"
-              class="kr-badge-outline-sm badge-success"
-            >
-              generation-safe
-            </span>
-            <span
-              v-if="effect.blocksInput"
-              class="kr-badge-outline-sm badge-warning"
-            >
-              captures input
-            </span>
-          </div>
-
-          <div class="mt-auto grid grid-cols-2 gap-2">
-            <button
-              class="kr-btn-xs-lg"
-              :class="store.isPreviewing(effect.id) ? 'btn-secondary' : 'btn-outline'"
-              type="button"
-              :title="store.isPreviewing(effect.id) ? 'Stop isolated preview' : 'Preview this effect on a clean backdrop'"
-              @click="store.previewEffect(effect.id)"
-            >
-              <Icon
-                :name="store.isPreviewing(effect.id) ? 'kind-icon:x' : 'kind-icon:eye'"
-                class="kr-icon-3"
-              />
-              {{ store.isPreviewing(effect.id) ? 'Stop preview' : 'Preview' }}
-            </button>
-
-            <button
-              class="kr-btn-xs-lg"
-              :class="store.isLayerActive(effect.id) ? 'btn-primary' : 'btn-ghost'"
-              type="button"
-              :title="store.isLayerActive(effect.id) ? 'Remove this persistent screen layer' : 'Layer this effect over the selected coverage zones'"
-              @click="store.toggleLayer(effect.id)"
-            >
-              <Icon name="kind-icon:layers" class="kr-icon-3" />
-              {{ store.isLayerActive(effect.id) ? 'Unlayer' : 'Layer' }}
-            </button>
-          </div>
-        </article>
-      </div>
-
-      <aside
-        v-if="store.selectedItem"
-        class="effect-detail flex flex-col gap-4 kr-panel-flat p-4"
-      >
-        <div class="flex items-start justify-between gap-3">
-          <div>
-            <p class="kr-text-eyebrow text-xs tracking-wide text-primary">
-              Catalog effect
+            <p class="kr-text-dim-sm-70 leading-relaxed">
+              {{ store.selectedItem.tooltip }}
             </p>
-            <h3 class="kr-text-black-lg mt-1 text-base-content">
-              {{ store.selectedItem.label }}
-            </h3>
-          </div>
-          <button
-            class="kr-btn-ghost-xs-plain"
-            type="button"
-            title="Close details"
-            @click="store.selectSlug(null)"
-          >
-            <Icon name="kind-icon:x" class="kr-icon-4" />
-          </button>
+
+            <dl class="grid gap-2 text-sm">
+              <div class="kr-panel-flat flex items-center justify-between gap-3 p-3">
+                <dt class="font-bold">Preferred surface</dt>
+                <dd>{{ surfaceLabel(store.selectedItem.preferredSurface) }}</dd>
+              </div>
+              <div class="kr-panel-flat flex items-center justify-between gap-3 p-3">
+                <dt class="font-bold">Generation</dt>
+                <dd>{{ store.selectedItem.generationSafe ? 'Safe' : 'Manual only' }}</dd>
+              </div>
+              <div class="kr-panel-flat flex items-center justify-between gap-3 p-3">
+                <dt class="font-bold">Input</dt>
+                <dd>{{ store.selectedItem.blocksInput ? 'Captures input' : 'Pass-through' }}</dd>
+              </div>
+            </dl>
+
+            <div class="effect-detail-actions grid gap-2">
+              <button
+                class="kr-btn-primary-md-plain"
+                type="button"
+                @click="store.previewEffect(store.selectedItem.id)"
+              >
+                <Icon name="kind-icon:eye" class="kr-icon-4" />
+                {{ store.isPreviewing(store.selectedItem.id) ? 'Stop preview' : 'Preview effect' }}
+              </button>
+
+              <button
+                class="kr-btn btn-outline"
+                type="button"
+                @click="store.toggleLayer(store.selectedItem.id)"
+              >
+                <Icon name="kind-icon:layers" class="kr-icon-4" />
+                {{ store.isLayerActive(store.selectedItem.id) ? 'Remove layer' : 'Add screen layer' }}
+              </button>
+            </div>
+
+            <p class="kr-text-dim-xs leading-relaxed">
+              Build history lives in source control and Conductor. This page is the single
+              runtime control room for previewing, layering, positioning, and startup behavior.
+            </p>
+          </aside>
         </div>
-
-        <div
-          class="flex h-28 items-center justify-center rounded-2xl border border-base-300 bg-base-200"
-          :style="{ color: store.selectedItem.color }"
-        >
-          <Icon :name="store.selectedItem.icon" class="h-14 w-14" />
-        </div>
-
-        <p class="kr-text-dim-sm-70 leading-relaxed">
-          {{ store.selectedItem.tooltip }}
-        </p>
-
-        <dl class="grid gap-2 text-sm">
-          <div class="kr-panel-flat flex items-center justify-between gap-3 p-3">
-            <dt class="font-bold">Preferred surface</dt>
-            <dd>{{ surfaceLabel(store.selectedItem.preferredSurface) }}</dd>
-          </div>
-          <div class="kr-panel-flat flex items-center justify-between gap-3 p-3">
-            <dt class="font-bold">Generation</dt>
-            <dd>{{ store.selectedItem.generationSafe ? 'Safe' : 'Manual only' }}</dd>
-          </div>
-          <div class="kr-panel-flat flex items-center justify-between gap-3 p-3">
-            <dt class="font-bold">Input</dt>
-            <dd>{{ store.selectedItem.blocksInput ? 'Captures input' : 'Pass-through' }}</dd>
-          </div>
-        </dl>
-
-        <div class="effect-detail-actions grid gap-2">
-          <button
-            class="kr-btn-primary-md-plain"
-            type="button"
-            @click="store.previewEffect(store.selectedItem.id)"
-          >
-            <Icon name="kind-icon:eye" class="kr-icon-4" />
-            {{ store.isPreviewing(store.selectedItem.id) ? 'Stop preview' : 'Preview effect' }}
-          </button>
-
-          <button
-            class="kr-btn btn-outline"
-            type="button"
-            @click="store.toggleLayer(store.selectedItem.id)"
-          >
-            <Icon name="kind-icon:layers" class="kr-icon-4" />
-            {{ store.isLayerActive(store.selectedItem.id) ? 'Remove layer' : 'Add screen layer' }}
-          </button>
-        </div>
-
-        <p class="kr-text-dim-xs leading-relaxed">
-          Build history lives in source control and Conductor. This page is the single
-          runtime control room for previewing, layering, positioning, and startup behavior.
-        </p>
-      </aside>
+      </div>
     </div>
   </section>
 </template>
 
 <script setup lang="ts">
+import { computed, ref } from 'vue'
 import { useAnimationManagerStore } from '@/stores/animationManagerStore'
+import {
+  DEFAULT_PREFERENCES,
+  useAnimationPreferenceStore,
+} from '@/stores/animationPreferenceStore'
 import type { FxRegion } from '@/stores/animationCatalog'
 import type { FxPlacementState } from '@/stores/animationStore'
 
 withDefaults(defineProps<{ showHeader?: boolean }>(), { showHeader: true })
 
 const store = useAnimationManagerStore()
+const preferenceStore = useAnimationPreferenceStore()
+preferenceStore.initialize()
 
 const zoneOptions: { id: FxRegion; label: string; icon: string }[] = [
   { id: 'header', label: 'Header', icon: 'kind-icon:layout-top' },
@@ -309,6 +349,44 @@ const placementOptions: {
     title: (zone) => `Render layered effects in front of ${zone.toLowerCase()} content`,
   },
 ]
+
+const lastButterflyCount = ref(DEFAULT_PREFERENCES.butterflies.count)
+const savedCoverage = ref<Record<FxRegion, FxPlacementState> | null>(null)
+const butterfliesEnabled = computed(() => preferenceStore.butterflies.count > 0)
+const coverageEnabled = computed(() =>
+  zoneOptions.some((zone) => store.getSurfacePlacement(zone.id) !== 'off'),
+)
+
+function toggleButterflies(): void {
+  if (butterfliesEnabled.value) {
+    lastButterflyCount.value = preferenceStore.butterflies.count
+    preferenceStore.updateButterflies({ count: 0 })
+    return
+  }
+
+  preferenceStore.updateButterflies({
+    count: Math.max(1, lastButterflyCount.value),
+  })
+}
+
+function toggleCoverage(): void {
+  if (coverageEnabled.value) {
+    savedCoverage.value = Object.fromEntries(
+      zoneOptions.map((zone) => [zone.id, store.getSurfacePlacement(zone.id)]),
+    ) as Record<FxRegion, FxPlacementState>
+    zoneOptions.forEach((zone) => store.setSurfacePlacement(zone.id, 'off'))
+    return
+  }
+
+  if (savedCoverage.value) {
+    zoneOptions.forEach((zone) => {
+      store.setSurfacePlacement(zone.id, savedCoverage.value?.[zone.id] ?? 'off')
+    })
+    return
+  }
+
+  store.resetSurfaces()
+}
 
 function surfaceLabel(surface: FxRegion | 'fullscreen' | undefined): string {
   if (!surface || surface === 'fullscreen') return 'Fullscreen'

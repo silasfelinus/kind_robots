@@ -213,8 +213,15 @@ export async function importEnding(
     isActive: true,
   }
   const resolvedDeckId = deckId ?? (await ensureLifeDeck(prisma))
+  // Keyed by (deckId, outcomeKey): outcomeKey alone is no longer unique across
+  // decks, since every three-axis genre deck also produces '000'..'111'.
   const lifeEnding = await prisma.lifeEnding.upsert({
-    where: { outcomeKey: ending.outcomeKey },
+    where: {
+      deckId_outcomeKey: {
+        deckId: resolvedDeckId,
+        outcomeKey: ending.outcomeKey,
+      },
+    },
     update: { ...endingData, deckId: resolvedDeckId },
     create: {
       ...endingData,

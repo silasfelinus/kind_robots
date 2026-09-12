@@ -168,12 +168,12 @@ async function seedFixtures(userId: number) {
       },
     })
     const ending = await prisma.lifeEnding.upsert({
-      where: { outcomeKey: `V${outcomeKey}` },
-      update: { deckId: deck.id, achievementId: achievement.id },
+      where: {
+        deckId_outcomeKey: { deckId: deck.id, outcomeKey },
+      },
+      update: { achievementId: achievement.id },
       create: {
-        // Prefixed so it cannot collide with a real ten-bit life outcomeKey
-        // while the global unique index on outcomeKey is still in place.
-        outcomeKey: `V${outcomeKey}`,
+        outcomeKey,
         deckId: deck.id,
         title: `Verify ending ${outcomeKey}`,
         slug: `verify-ending-${outcomeKey}`,

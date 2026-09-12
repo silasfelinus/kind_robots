@@ -284,7 +284,7 @@ export type LifeEndingGroupByOutputType = {
   artPrompt: string | null
   metadata: string | null
   isActive: boolean
-  deckId: number | null
+  deckId: number
   _count: LifeEndingCountAggregateOutputType | null
   _avg: LifeEndingAvgAggregateOutputType | null
   _sum: LifeEndingSumAggregateOutputType | null
@@ -327,8 +327,8 @@ export type LifeEndingWhereInput = {
   artPrompt?: Prisma.StringNullableFilter<"LifeEnding"> | string | null
   metadata?: Prisma.StringNullableFilter<"LifeEnding"> | string | null
   isActive?: Prisma.BoolFilter<"LifeEnding"> | boolean
-  deckId?: Prisma.IntNullableFilter<"LifeEnding"> | number | null
-  Deck?: Prisma.XOR<Prisma.EndingDeckNullableScalarRelationFilter, Prisma.EndingDeckWhereInput> | null
+  deckId?: Prisma.IntFilter<"LifeEnding"> | number
+  Deck?: Prisma.XOR<Prisma.EndingDeckScalarRelationFilter, Prisma.EndingDeckWhereInput>
   Achievements?: Prisma.LifeAchievementListRelationFilter
   Achievement?: Prisma.XOR<Prisma.AchievementNullableScalarRelationFilter, Prisma.AchievementWhereInput> | null
   HeroArtImage?: Prisma.XOR<Prisma.ArtImageNullableScalarRelationFilter, Prisma.ArtImageWhereInput> | null
@@ -353,7 +353,7 @@ export type LifeEndingOrderByWithRelationInput = {
   artPrompt?: Prisma.SortOrderInput | Prisma.SortOrder
   metadata?: Prisma.SortOrderInput | Prisma.SortOrder
   isActive?: Prisma.SortOrder
-  deckId?: Prisma.SortOrderInput | Prisma.SortOrder
+  deckId?: Prisma.SortOrder
   Deck?: Prisma.EndingDeckOrderByWithRelationInput
   Achievements?: Prisma.LifeAchievementOrderByRelationAggregateInput
   Achievement?: Prisma.AchievementOrderByWithRelationInput
@@ -366,7 +366,6 @@ export type LifeEndingOrderByWithRelationInput = {
 export type LifeEndingWhereUniqueInput = Prisma.AtLeast<{
   id?: number
   slug?: string
-  outcomeKey?: string
   deckId_outcomeKey?: Prisma.LifeEndingDeckIdOutcomeKeyCompoundUniqueInput
   AND?: Prisma.LifeEndingWhereInput | Prisma.LifeEndingWhereInput[]
   OR?: Prisma.LifeEndingWhereInput[]
@@ -374,6 +373,7 @@ export type LifeEndingWhereUniqueInput = Prisma.AtLeast<{
   createdAt?: Prisma.DateTimeFilter<"LifeEnding"> | Date | string
   updatedAt?: Prisma.DateTimeNullableFilter<"LifeEnding"> | Date | string | null
   title?: Prisma.StringFilter<"LifeEnding"> | string
+  outcomeKey?: Prisma.StringFilter<"LifeEnding"> | string
   summary?: Prisma.StringFilter<"LifeEnding"> | string
   victoryType?: Prisma.EnumLifeVictoryTypeFilter<"LifeEnding"> | $Enums.LifeVictoryType
   icon?: Prisma.StringNullableFilter<"LifeEnding"> | string | null
@@ -384,14 +384,14 @@ export type LifeEndingWhereUniqueInput = Prisma.AtLeast<{
   artPrompt?: Prisma.StringNullableFilter<"LifeEnding"> | string | null
   metadata?: Prisma.StringNullableFilter<"LifeEnding"> | string | null
   isActive?: Prisma.BoolFilter<"LifeEnding"> | boolean
-  deckId?: Prisma.IntNullableFilter<"LifeEnding"> | number | null
-  Deck?: Prisma.XOR<Prisma.EndingDeckNullableScalarRelationFilter, Prisma.EndingDeckWhereInput> | null
+  deckId?: Prisma.IntFilter<"LifeEnding"> | number
+  Deck?: Prisma.XOR<Prisma.EndingDeckScalarRelationFilter, Prisma.EndingDeckWhereInput>
   Achievements?: Prisma.LifeAchievementListRelationFilter
   Achievement?: Prisma.XOR<Prisma.AchievementNullableScalarRelationFilter, Prisma.AchievementWhereInput> | null
   HeroArtImage?: Prisma.XOR<Prisma.ArtImageNullableScalarRelationFilter, Prisma.ArtImageWhereInput> | null
   IconArtImage?: Prisma.XOR<Prisma.ArtImageNullableScalarRelationFilter, Prisma.ArtImageWhereInput> | null
   Runs?: Prisma.LifeRunListRelationFilter
-}, "id" | "slug" | "outcomeKey" | "deckId_outcomeKey">
+}, "id" | "slug" | "deckId_outcomeKey">
 
 export type LifeEndingOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
@@ -410,7 +410,7 @@ export type LifeEndingOrderByWithAggregationInput = {
   artPrompt?: Prisma.SortOrderInput | Prisma.SortOrder
   metadata?: Prisma.SortOrderInput | Prisma.SortOrder
   isActive?: Prisma.SortOrder
-  deckId?: Prisma.SortOrderInput | Prisma.SortOrder
+  deckId?: Prisma.SortOrder
   _count?: Prisma.LifeEndingCountOrderByAggregateInput
   _avg?: Prisma.LifeEndingAvgOrderByAggregateInput
   _max?: Prisma.LifeEndingMaxOrderByAggregateInput
@@ -438,7 +438,7 @@ export type LifeEndingScalarWhereWithAggregatesInput = {
   artPrompt?: Prisma.StringNullableWithAggregatesFilter<"LifeEnding"> | string | null
   metadata?: Prisma.StringNullableWithAggregatesFilter<"LifeEnding"> | string | null
   isActive?: Prisma.BoolWithAggregatesFilter<"LifeEnding"> | boolean
-  deckId?: Prisma.IntNullableWithAggregatesFilter<"LifeEnding"> | number | null
+  deckId?: Prisma.IntWithAggregatesFilter<"LifeEnding"> | number
 }
 
 export type LifeEndingCreateInput = {
@@ -454,7 +454,7 @@ export type LifeEndingCreateInput = {
   artPrompt?: string | null
   metadata?: string | null
   isActive?: boolean
-  Deck?: Prisma.EndingDeckCreateNestedOneWithoutEndingsInput
+  Deck: Prisma.EndingDeckCreateNestedOneWithoutEndingsInput
   Achievements?: Prisma.LifeAchievementCreateNestedManyWithoutEndingInput
   Achievement?: Prisma.AchievementCreateNestedOneWithoutLifeEndingsInput
   HeroArtImage?: Prisma.ArtImageCreateNestedOneWithoutLifeEndingHeroesInput
@@ -479,7 +479,7 @@ export type LifeEndingUncheckedCreateInput = {
   artPrompt?: string | null
   metadata?: string | null
   isActive?: boolean
-  deckId?: number | null
+  deckId: number
   Achievements?: Prisma.LifeAchievementUncheckedCreateNestedManyWithoutEndingInput
   Runs?: Prisma.LifeRunUncheckedCreateNestedManyWithoutEndingInput
 }
@@ -497,7 +497,7 @@ export type LifeEndingUpdateInput = {
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   metadata?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  Deck?: Prisma.EndingDeckUpdateOneWithoutEndingsNestedInput
+  Deck?: Prisma.EndingDeckUpdateOneRequiredWithoutEndingsNestedInput
   Achievements?: Prisma.LifeAchievementUpdateManyWithoutEndingNestedInput
   Achievement?: Prisma.AchievementUpdateOneWithoutLifeEndingsNestedInput
   HeroArtImage?: Prisma.ArtImageUpdateOneWithoutLifeEndingHeroesNestedInput
@@ -522,7 +522,7 @@ export type LifeEndingUncheckedUpdateInput = {
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   metadata?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  deckId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  deckId?: Prisma.IntFieldUpdateOperationsInput | number
   Achievements?: Prisma.LifeAchievementUncheckedUpdateManyWithoutEndingNestedInput
   Runs?: Prisma.LifeRunUncheckedUpdateManyWithoutEndingNestedInput
 }
@@ -544,7 +544,7 @@ export type LifeEndingCreateManyInput = {
   artPrompt?: string | null
   metadata?: string | null
   isActive?: boolean
-  deckId?: number | null
+  deckId: number
 }
 
 export type LifeEndingUpdateManyMutationInput = {
@@ -579,7 +579,7 @@ export type LifeEndingUncheckedUpdateManyInput = {
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   metadata?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  deckId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  deckId?: Prisma.IntFieldUpdateOperationsInput | number
 }
 
 export type LifeEndingListRelationFilter = {
@@ -901,7 +901,7 @@ export type LifeEndingCreateWithoutHeroArtImageInput = {
   artPrompt?: string | null
   metadata?: string | null
   isActive?: boolean
-  Deck?: Prisma.EndingDeckCreateNestedOneWithoutEndingsInput
+  Deck: Prisma.EndingDeckCreateNestedOneWithoutEndingsInput
   Achievements?: Prisma.LifeAchievementCreateNestedManyWithoutEndingInput
   Achievement?: Prisma.AchievementCreateNestedOneWithoutLifeEndingsInput
   IconArtImage?: Prisma.ArtImageCreateNestedOneWithoutLifeEndingIconsInput
@@ -924,7 +924,7 @@ export type LifeEndingUncheckedCreateWithoutHeroArtImageInput = {
   artPrompt?: string | null
   metadata?: string | null
   isActive?: boolean
-  deckId?: number | null
+  deckId: number
   Achievements?: Prisma.LifeAchievementUncheckedCreateNestedManyWithoutEndingInput
   Runs?: Prisma.LifeRunUncheckedCreateNestedManyWithoutEndingInput
 }
@@ -952,7 +952,7 @@ export type LifeEndingCreateWithoutIconArtImageInput = {
   artPrompt?: string | null
   metadata?: string | null
   isActive?: boolean
-  Deck?: Prisma.EndingDeckCreateNestedOneWithoutEndingsInput
+  Deck: Prisma.EndingDeckCreateNestedOneWithoutEndingsInput
   Achievements?: Prisma.LifeAchievementCreateNestedManyWithoutEndingInput
   Achievement?: Prisma.AchievementCreateNestedOneWithoutLifeEndingsInput
   HeroArtImage?: Prisma.ArtImageCreateNestedOneWithoutLifeEndingHeroesInput
@@ -975,7 +975,7 @@ export type LifeEndingUncheckedCreateWithoutIconArtImageInput = {
   artPrompt?: string | null
   metadata?: string | null
   isActive?: boolean
-  deckId?: number | null
+  deckId: number
   Achievements?: Prisma.LifeAchievementUncheckedCreateNestedManyWithoutEndingInput
   Runs?: Prisma.LifeRunUncheckedCreateNestedManyWithoutEndingInput
 }
@@ -1026,7 +1026,7 @@ export type LifeEndingScalarWhereInput = {
   artPrompt?: Prisma.StringNullableFilter<"LifeEnding"> | string | null
   metadata?: Prisma.StringNullableFilter<"LifeEnding"> | string | null
   isActive?: Prisma.BoolFilter<"LifeEnding"> | boolean
-  deckId?: Prisma.IntNullableFilter<"LifeEnding"> | number | null
+  deckId?: Prisma.IntFilter<"LifeEnding"> | number
 }
 
 export type LifeEndingUpsertWithWhereUniqueWithoutIconArtImageInput = {
@@ -1058,7 +1058,7 @@ export type LifeEndingCreateWithoutAchievementInput = {
   artPrompt?: string | null
   metadata?: string | null
   isActive?: boolean
-  Deck?: Prisma.EndingDeckCreateNestedOneWithoutEndingsInput
+  Deck: Prisma.EndingDeckCreateNestedOneWithoutEndingsInput
   Achievements?: Prisma.LifeAchievementCreateNestedManyWithoutEndingInput
   HeroArtImage?: Prisma.ArtImageCreateNestedOneWithoutLifeEndingHeroesInput
   IconArtImage?: Prisma.ArtImageCreateNestedOneWithoutLifeEndingIconsInput
@@ -1081,7 +1081,7 @@ export type LifeEndingUncheckedCreateWithoutAchievementInput = {
   artPrompt?: string | null
   metadata?: string | null
   isActive?: boolean
-  deckId?: number | null
+  deckId: number
   Achievements?: Prisma.LifeAchievementUncheckedCreateNestedManyWithoutEndingInput
   Runs?: Prisma.LifeRunUncheckedCreateNestedManyWithoutEndingInput
 }
@@ -1192,7 +1192,7 @@ export type LifeEndingCreateWithoutRunsInput = {
   artPrompt?: string | null
   metadata?: string | null
   isActive?: boolean
-  Deck?: Prisma.EndingDeckCreateNestedOneWithoutEndingsInput
+  Deck: Prisma.EndingDeckCreateNestedOneWithoutEndingsInput
   Achievements?: Prisma.LifeAchievementCreateNestedManyWithoutEndingInput
   Achievement?: Prisma.AchievementCreateNestedOneWithoutLifeEndingsInput
   HeroArtImage?: Prisma.ArtImageCreateNestedOneWithoutLifeEndingHeroesInput
@@ -1216,7 +1216,7 @@ export type LifeEndingUncheckedCreateWithoutRunsInput = {
   artPrompt?: string | null
   metadata?: string | null
   isActive?: boolean
-  deckId?: number | null
+  deckId: number
   Achievements?: Prisma.LifeAchievementUncheckedCreateNestedManyWithoutEndingInput
 }
 
@@ -1249,7 +1249,7 @@ export type LifeEndingUpdateWithoutRunsInput = {
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   metadata?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  Deck?: Prisma.EndingDeckUpdateOneWithoutEndingsNestedInput
+  Deck?: Prisma.EndingDeckUpdateOneRequiredWithoutEndingsNestedInput
   Achievements?: Prisma.LifeAchievementUpdateManyWithoutEndingNestedInput
   Achievement?: Prisma.AchievementUpdateOneWithoutLifeEndingsNestedInput
   HeroArtImage?: Prisma.ArtImageUpdateOneWithoutLifeEndingHeroesNestedInput
@@ -1273,7 +1273,7 @@ export type LifeEndingUncheckedUpdateWithoutRunsInput = {
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   metadata?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  deckId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  deckId?: Prisma.IntFieldUpdateOperationsInput | number
   Achievements?: Prisma.LifeAchievementUncheckedUpdateManyWithoutEndingNestedInput
 }
 
@@ -1290,7 +1290,7 @@ export type LifeEndingCreateWithoutAchievementsInput = {
   artPrompt?: string | null
   metadata?: string | null
   isActive?: boolean
-  Deck?: Prisma.EndingDeckCreateNestedOneWithoutEndingsInput
+  Deck: Prisma.EndingDeckCreateNestedOneWithoutEndingsInput
   Achievement?: Prisma.AchievementCreateNestedOneWithoutLifeEndingsInput
   HeroArtImage?: Prisma.ArtImageCreateNestedOneWithoutLifeEndingHeroesInput
   IconArtImage?: Prisma.ArtImageCreateNestedOneWithoutLifeEndingIconsInput
@@ -1314,7 +1314,7 @@ export type LifeEndingUncheckedCreateWithoutAchievementsInput = {
   artPrompt?: string | null
   metadata?: string | null
   isActive?: boolean
-  deckId?: number | null
+  deckId: number
   Runs?: Prisma.LifeRunUncheckedCreateNestedManyWithoutEndingInput
 }
 
@@ -1347,7 +1347,7 @@ export type LifeEndingUpdateWithoutAchievementsInput = {
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   metadata?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  Deck?: Prisma.EndingDeckUpdateOneWithoutEndingsNestedInput
+  Deck?: Prisma.EndingDeckUpdateOneRequiredWithoutEndingsNestedInput
   Achievement?: Prisma.AchievementUpdateOneWithoutLifeEndingsNestedInput
   HeroArtImage?: Prisma.ArtImageUpdateOneWithoutLifeEndingHeroesNestedInput
   IconArtImage?: Prisma.ArtImageUpdateOneWithoutLifeEndingIconsNestedInput
@@ -1371,7 +1371,7 @@ export type LifeEndingUncheckedUpdateWithoutAchievementsInput = {
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   metadata?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  deckId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  deckId?: Prisma.IntFieldUpdateOperationsInput | number
   Runs?: Prisma.LifeRunUncheckedUpdateManyWithoutEndingNestedInput
 }
 
@@ -1391,7 +1391,7 @@ export type LifeEndingCreateManyHeroArtImageInput = {
   artPrompt?: string | null
   metadata?: string | null
   isActive?: boolean
-  deckId?: number | null
+  deckId: number
 }
 
 export type LifeEndingCreateManyIconArtImageInput = {
@@ -1410,7 +1410,7 @@ export type LifeEndingCreateManyIconArtImageInput = {
   artPrompt?: string | null
   metadata?: string | null
   isActive?: boolean
-  deckId?: number | null
+  deckId: number
 }
 
 export type LifeEndingUpdateWithoutHeroArtImageInput = {
@@ -1426,7 +1426,7 @@ export type LifeEndingUpdateWithoutHeroArtImageInput = {
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   metadata?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  Deck?: Prisma.EndingDeckUpdateOneWithoutEndingsNestedInput
+  Deck?: Prisma.EndingDeckUpdateOneRequiredWithoutEndingsNestedInput
   Achievements?: Prisma.LifeAchievementUpdateManyWithoutEndingNestedInput
   Achievement?: Prisma.AchievementUpdateOneWithoutLifeEndingsNestedInput
   IconArtImage?: Prisma.ArtImageUpdateOneWithoutLifeEndingIconsNestedInput
@@ -1449,7 +1449,7 @@ export type LifeEndingUncheckedUpdateWithoutHeroArtImageInput = {
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   metadata?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  deckId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  deckId?: Prisma.IntFieldUpdateOperationsInput | number
   Achievements?: Prisma.LifeAchievementUncheckedUpdateManyWithoutEndingNestedInput
   Runs?: Prisma.LifeRunUncheckedUpdateManyWithoutEndingNestedInput
 }
@@ -1470,7 +1470,7 @@ export type LifeEndingUncheckedUpdateManyWithoutHeroArtImageInput = {
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   metadata?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  deckId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  deckId?: Prisma.IntFieldUpdateOperationsInput | number
 }
 
 export type LifeEndingUpdateWithoutIconArtImageInput = {
@@ -1486,7 +1486,7 @@ export type LifeEndingUpdateWithoutIconArtImageInput = {
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   metadata?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  Deck?: Prisma.EndingDeckUpdateOneWithoutEndingsNestedInput
+  Deck?: Prisma.EndingDeckUpdateOneRequiredWithoutEndingsNestedInput
   Achievements?: Prisma.LifeAchievementUpdateManyWithoutEndingNestedInput
   Achievement?: Prisma.AchievementUpdateOneWithoutLifeEndingsNestedInput
   HeroArtImage?: Prisma.ArtImageUpdateOneWithoutLifeEndingHeroesNestedInput
@@ -1509,7 +1509,7 @@ export type LifeEndingUncheckedUpdateWithoutIconArtImageInput = {
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   metadata?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  deckId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  deckId?: Prisma.IntFieldUpdateOperationsInput | number
   Achievements?: Prisma.LifeAchievementUncheckedUpdateManyWithoutEndingNestedInput
   Runs?: Prisma.LifeRunUncheckedUpdateManyWithoutEndingNestedInput
 }
@@ -1530,7 +1530,7 @@ export type LifeEndingUncheckedUpdateManyWithoutIconArtImageInput = {
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   metadata?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  deckId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  deckId?: Prisma.IntFieldUpdateOperationsInput | number
 }
 
 export type LifeEndingCreateManyAchievementInput = {
@@ -1549,7 +1549,7 @@ export type LifeEndingCreateManyAchievementInput = {
   artPrompt?: string | null
   metadata?: string | null
   isActive?: boolean
-  deckId?: number | null
+  deckId: number
 }
 
 export type LifeEndingUpdateWithoutAchievementInput = {
@@ -1565,7 +1565,7 @@ export type LifeEndingUpdateWithoutAchievementInput = {
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   metadata?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  Deck?: Prisma.EndingDeckUpdateOneWithoutEndingsNestedInput
+  Deck?: Prisma.EndingDeckUpdateOneRequiredWithoutEndingsNestedInput
   Achievements?: Prisma.LifeAchievementUpdateManyWithoutEndingNestedInput
   HeroArtImage?: Prisma.ArtImageUpdateOneWithoutLifeEndingHeroesNestedInput
   IconArtImage?: Prisma.ArtImageUpdateOneWithoutLifeEndingIconsNestedInput
@@ -1588,7 +1588,7 @@ export type LifeEndingUncheckedUpdateWithoutAchievementInput = {
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   metadata?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  deckId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  deckId?: Prisma.IntFieldUpdateOperationsInput | number
   Achievements?: Prisma.LifeAchievementUncheckedUpdateManyWithoutEndingNestedInput
   Runs?: Prisma.LifeRunUncheckedUpdateManyWithoutEndingNestedInput
 }
@@ -1609,7 +1609,7 @@ export type LifeEndingUncheckedUpdateManyWithoutAchievementInput = {
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   metadata?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  deckId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  deckId?: Prisma.IntFieldUpdateOperationsInput | number
 }
 
 export type LifeEndingCreateManyDeckInput = {
@@ -1749,7 +1749,7 @@ export type LifeEndingSelect<ExtArgs extends runtime.Types.Extensions.InternalAr
   metadata?: boolean
   isActive?: boolean
   deckId?: boolean
-  Deck?: boolean | Prisma.LifeEnding$DeckArgs<ExtArgs>
+  Deck?: boolean | Prisma.EndingDeckDefaultArgs<ExtArgs>
   Achievements?: boolean | Prisma.LifeEnding$AchievementsArgs<ExtArgs>
   Achievement?: boolean | Prisma.LifeEnding$AchievementArgs<ExtArgs>
   HeroArtImage?: boolean | Prisma.LifeEnding$HeroArtImageArgs<ExtArgs>
@@ -1782,7 +1782,7 @@ export type LifeEndingSelectScalar = {
 
 export type LifeEndingOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "title" | "slug" | "outcomeKey" | "summary" | "victoryType" | "icon" | "heroImage" | "iconArtImageId" | "heroArtImageId" | "achievementId" | "artPrompt" | "metadata" | "isActive" | "deckId", ExtArgs["result"]["lifeEnding"]>
 export type LifeEndingInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  Deck?: boolean | Prisma.LifeEnding$DeckArgs<ExtArgs>
+  Deck?: boolean | Prisma.EndingDeckDefaultArgs<ExtArgs>
   Achievements?: boolean | Prisma.LifeEnding$AchievementsArgs<ExtArgs>
   Achievement?: boolean | Prisma.LifeEnding$AchievementArgs<ExtArgs>
   HeroArtImage?: boolean | Prisma.LifeEnding$HeroArtImageArgs<ExtArgs>
@@ -1794,7 +1794,7 @@ export type LifeEndingInclude<ExtArgs extends runtime.Types.Extensions.InternalA
 export type $LifeEndingPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "LifeEnding"
   objects: {
-    Deck: Prisma.$EndingDeckPayload<ExtArgs> | null
+    Deck: Prisma.$EndingDeckPayload<ExtArgs>
     Achievements: Prisma.$LifeAchievementPayload<ExtArgs>[]
     Achievement: Prisma.$AchievementPayload<ExtArgs> | null
     HeroArtImage: Prisma.$ArtImagePayload<ExtArgs> | null
@@ -1819,11 +1819,11 @@ export type $LifeEndingPayload<ExtArgs extends runtime.Types.Extensions.Internal
     metadata: string | null
     isActive: boolean
     /**
-     * The deck this ending belongs to. Backfilled to the life deck for the
-     * 1,024 seeded endings. outcomeKey is unique WITHIN a deck, not globally --
-     * two three-axis decks both produce '101'.
+     * The deck this ending belongs to. outcomeKey is unique WITHIN a deck, not
+     * globally -- every three-axis deck produces '000'..'111', so Mystery's
+     * '101' and Heist's '101' are different endings.
      */
-    deckId: number | null
+    deckId: number
   }, ExtArgs["result"]["lifeEnding"]>
   composites: {}
 }
@@ -2164,7 +2164,7 @@ readonly fields: LifeEndingFieldRefs;
  */
 export interface Prisma__LifeEndingClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
-  Deck<T extends Prisma.LifeEnding$DeckArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.LifeEnding$DeckArgs<ExtArgs>>): Prisma.Prisma__EndingDeckClient<runtime.Types.Result.GetResult<Prisma.$EndingDeckPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  Deck<T extends Prisma.EndingDeckDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.EndingDeckDefaultArgs<ExtArgs>>): Prisma.Prisma__EndingDeckClient<runtime.Types.Result.GetResult<Prisma.$EndingDeckPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   Achievements<T extends Prisma.LifeEnding$AchievementsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.LifeEnding$AchievementsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$LifeAchievementPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   Achievement<T extends Prisma.LifeEnding$AchievementArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.LifeEnding$AchievementArgs<ExtArgs>>): Prisma.Prisma__AchievementClient<runtime.Types.Result.GetResult<Prisma.$AchievementPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   HeroArtImage<T extends Prisma.LifeEnding$HeroArtImageArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.LifeEnding$HeroArtImageArgs<ExtArgs>>): Prisma.Prisma__ArtImageClient<runtime.Types.Result.GetResult<Prisma.$ArtImagePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
@@ -2561,25 +2561,6 @@ export type LifeEndingDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.In
    * Limit how many LifeEndings to delete.
    */
   limit?: number
-}
-
-/**
- * LifeEnding.Deck
- */
-export type LifeEnding$DeckArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the EndingDeck
-   */
-  select?: Prisma.EndingDeckSelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the EndingDeck
-   */
-  omit?: Prisma.EndingDeckOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.EndingDeckInclude<ExtArgs> | null
-  where?: Prisma.EndingDeckWhereInput
 }
 
 /**

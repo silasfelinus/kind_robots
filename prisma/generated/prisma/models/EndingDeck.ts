@@ -678,6 +678,11 @@ export type EndingDeckNullableScalarRelationFilter = {
   isNot?: Prisma.EndingDeckWhereInput | null
 }
 
+export type EndingDeckScalarRelationFilter = {
+  is?: Prisma.EndingDeckWhereInput
+  isNot?: Prisma.EndingDeckWhereInput
+}
+
 export type EndingDeckCreateNestedManyWithoutFacetInput = {
   create?: Prisma.XOR<Prisma.EndingDeckCreateWithoutFacetInput, Prisma.EndingDeckUncheckedCreateWithoutFacetInput> | Prisma.EndingDeckCreateWithoutFacetInput[] | Prisma.EndingDeckUncheckedCreateWithoutFacetInput[]
   connectOrCreate?: Prisma.EndingDeckCreateOrConnectWithoutFacetInput | Prisma.EndingDeckCreateOrConnectWithoutFacetInput[]
@@ -830,12 +835,10 @@ export type EndingDeckCreateNestedOneWithoutEndingsInput = {
   connect?: Prisma.EndingDeckWhereUniqueInput
 }
 
-export type EndingDeckUpdateOneWithoutEndingsNestedInput = {
+export type EndingDeckUpdateOneRequiredWithoutEndingsNestedInput = {
   create?: Prisma.XOR<Prisma.EndingDeckCreateWithoutEndingsInput, Prisma.EndingDeckUncheckedCreateWithoutEndingsInput>
   connectOrCreate?: Prisma.EndingDeckCreateOrConnectWithoutEndingsInput
   upsert?: Prisma.EndingDeckUpsertWithoutEndingsInput
-  disconnect?: Prisma.EndingDeckWhereInput | boolean
-  delete?: Prisma.EndingDeckWhereInput | boolean
   connect?: Prisma.EndingDeckWhereUniqueInput
   update?: Prisma.XOR<Prisma.XOR<Prisma.EndingDeckUpdateToOneWithWhereWithoutEndingsInput, Prisma.EndingDeckUpdateWithoutEndingsInput>, Prisma.EndingDeckUncheckedUpdateWithoutEndingsInput>
 }

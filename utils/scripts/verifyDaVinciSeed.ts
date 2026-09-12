@@ -101,7 +101,11 @@ async function main() {
     // Spot-check that links point at the right rows, not just any rows.
     const sample = endings[endings.length - 1]
     if (!sample) throw new Error('seed file has no payloads to spot-check')
-    const sampleEnding = await prisma.lifeEnding.findUnique({
+    // findFirst, not findUnique: outcomeKey is scoped to its deck now
+    // (storybook/t-030), because every three-axis genre deck also produces
+    // '000'..'111'. The life deck's keys are ten bits wide, so matching on the
+    // key alone still identifies exactly one row here.
+    const sampleEnding = await prisma.lifeEnding.findFirst({
       where: { outcomeKey: sample.outcomeKey },
       include: { Achievement: true, Achievements: true },
     })

@@ -27,6 +27,8 @@ on:
       - 'utils/scripts/verifyDaVinciSeed.ts'
       - 'utils/scripts/verifyDaVinciPlayLoop.ts'
       - 'utils/scripts/verifyStorybookPlayLoop.ts'
+      - 'utils/scripts/seedStorybookDecks.ts'
+      - 'utils/scripts/verifyStorybookDecks.ts'
       - 'server/utils/storybookRuns.ts'
       - 'server/utils/storybookCollection.ts'
       - 'server/utils/davinci.ts'
@@ -40,6 +42,8 @@ on:
       - 'utils/scripts/verifyDaVinciSeed.ts'
       - 'utils/scripts/verifyDaVinciPlayLoop.ts'
       - 'utils/scripts/verifyStorybookPlayLoop.ts'
+      - 'utils/scripts/seedStorybookDecks.ts'
+      - 'utils/scripts/verifyStorybookDecks.ts'
       - 'server/utils/storybookRuns.ts'
       - 'server/utils/storybookCollection.ts'
       - 'server/utils/davinci.ts'
@@ -114,5 +118,11 @@ jobs:
       # deck, played with an offered option, a written move, and a card from
       # the character sheet, then resolved and collected. Runs after the life
       # seed so the 'life' deck row and its endings already exist.
+      # Import the authored genre decks from the conductor checkout above.
+      # This is the only place all three land in one database, so it is where
+      # a same-bit-width collision between decks would show up.
+      - name: Seed Storybook ending decks
+        run: npm run seed:storybook-decks -- conductor-src/projects/storybook/data/ending-decks --write
+
       - name: Run Storybook play-loop regression suite
         run: npm run seed:storybook:playloop-verify

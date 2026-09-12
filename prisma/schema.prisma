@@ -2312,7 +2312,7 @@ model LifeEnding {
   updatedAt      DateTime?         @default(now()) @updatedAt
   title          String            @db.VarChar(255)
   slug           String            @unique @db.VarChar(255)
-  outcomeKey     String            @unique @db.VarChar(16)
+  outcomeKey     String            @db.VarChar(16)
   summary        String            @db.Text
   victoryType    LifeVictoryType   @default(MIXED)
   icon           String?           @db.VarChar(764)
@@ -2323,11 +2323,11 @@ model LifeEnding {
   artPrompt      String?           @db.Text
   metadata       String?           @db.LongText
   isActive       Boolean           @default(true)
-  /// The deck this ending belongs to. Backfilled to the life deck for the
-  /// 1,024 seeded endings. outcomeKey is unique WITHIN a deck, not globally --
-  /// two three-axis decks both produce '101'.
-  deckId         Int?
-  Deck           EndingDeck?       @relation(fields: [deckId], references: [id])
+  /// The deck this ending belongs to. outcomeKey is unique WITHIN a deck, not
+  /// globally -- every three-axis deck produces '000'..'111', so Mystery's
+  /// '101' and Heist's '101' are different endings.
+  deckId         Int
+  Deck           EndingDeck        @relation(fields: [deckId], references: [id])
   Achievements   LifeAchievement[]
   Achievement    Achievement?      @relation(fields: [achievementId], references: [id])
   HeroArtImage   ArtImage?         @relation("LifeEndingHeroArtImage", fields: [heroArtImageId], references: [id])

@@ -63,7 +63,7 @@
         {{ formatAge(stats.oldestPending.ageSeconds) }}.
       </div>
 
-      <div class="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+      <div class="grid grid-cols-[repeat(auto-fit,minmax(min(100%,10rem),1fr))] gap-3">
         <div
           v-for="status in summaryStatuses"
           :key="status"
@@ -96,7 +96,7 @@
               {{ artJobStore.queuePaused ? 'Resume queue' : 'Pause queue' }}
             </button>
           </div>
-          <div class="grid gap-2 sm:grid-cols-2">
+          <div class="grid grid-cols-[repeat(auto-fit,minmax(min(100%,14rem),1fr))] gap-2">
             <div
               v-for="server in privateArtServers"
               :key="server.id"
@@ -318,7 +318,7 @@
           <p class="kr-text-dim-sm-70">{{ queueLoadMessage }}</p>
         </div>
 
-        <div v-else class="mt-3 grid gap-3 xl:grid-cols-2">
+        <div v-else class="mt-3 grid grid-cols-[repeat(auto-fit,minmax(min(100%,18rem),1fr))] gap-3">
           <artjob-queue-card
             v-for="job in artJobStore.jobs"
             :key="job.id"

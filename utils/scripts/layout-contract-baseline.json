@@ -1,6 +1,6 @@
 {
   "note": "Layout-contract allow-list. RATCHET: this file may only ever shrink. --update refuses to record a larger count. See utils/scripts/verifyLayoutContract.ts.",
-  "recorded": "2026-09-10",
+  "recorded": "2026-09-12",
   "violations": {
     "one-header": [],
     "one-scroll": [],
@@ -13,7 +13,6 @@
     "viewport-grid": [
       "components/academy/academy-manager.vue → xl:grid-cols-[minmax(0,1.1fr)_minmax(320px,0.9fr)]",
       "components/academy/academy-remix.vue → xl:grid-cols-[minmax(0,1.2fr)_minmax(300px,0.8fr)]",
-      "components/academy/academy-style-detail.vue → sm:grid-cols-2",
       "components/achievements/achievement-gallery.vue → lg:grid-cols-3",
       "components/animation/animation-manager.vue → sm:grid-cols-2",
       "components/animation/animation-manager.vue → xl:grid-cols-3",
@@ -39,13 +38,9 @@
       "components/art/artjob-editor.vue → lg:grid-cols-[minmax(0,1.25fr)_minmax(280px,0.75fr)]",
       "components/art/artjob-editor.vue → sm:grid-cols-2",
       "components/art/artjob-editor.vue → sm:grid-cols-3",
-      "components/art/artjob-queue-browser.vue → sm:grid-cols-2",
       "components/art/artjob-queue-browser.vue → xl:grid-cols-2",
-      "components/art/artjob-queue-browser.vue → xl:grid-cols-4",
       "components/art/artjob-trainer-redo-controls.vue → sm:grid-cols-2",
       "components/art/build-bench.vue → md:grid-cols-2",
-      "components/art/collection-picker.vue → lg:grid-cols-3",
-      "components/art/collection-picker.vue → sm:grid-cols-2",
       "components/art/entity-art-manager.vue → lg:grid-cols-4",
       "components/art/entity-art-manager.vue → sm:grid-cols-2",
       "components/art/entity-art-manager.vue → sm:grid-cols-[minmax(0,1fr)_auto]",

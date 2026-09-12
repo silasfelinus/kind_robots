@@ -56,6 +56,16 @@ jobs:
             echo "bash -n $file"
             bash -n "$file"
           done
+          # Non-blocking shellcheck pass over the same changed-file set (reuses the
+          # mapfile discovery above rather than re-running git diff): flags real shell
+          # bugs (unquoted expansions, unsafe globbing, etc.) that `bash -n` can't catch.
+          # Warning-only while its false-positive rate on real PR traffic is unknown;
+          # `|| true` keeps it from failing the job even though the step itself still
+          # runs under `bash -e` for the syntax-check loop above.
+          if [ "${#shell_files[@]}" -gt 0 ]; then
+            echo "shellcheck ${shell_files[*]}"
+            shellcheck "${shell_files[@]}" || true
+          fi
 
       - name: Audit test-prefixed commits for executable assertions
         if: github.event_name == 'pull_request'

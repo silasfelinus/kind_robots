@@ -7,11 +7,13 @@ if [[ -z "$base_ref" ]]; then
   exit 2
 fi
 
+test_prefix_re='^test(\([^)]*\))?:[[:space:]]'
+
 warned=0
 while IFS= read -r commit; do
   [[ -z "$commit" ]] && continue
   subject="$(git log -1 --format=%s "$commit")"
-  if [[ ! "$subject" =~ ^test(\([^)]*\))?:[[:space:]] ]]; then
+  if [[ ! "$subject" =~ $test_prefix_re ]]; then
     continue
   fi
 

@@ -31,7 +31,7 @@
             v-else
             class="absolute inset-0 flex flex-col items-center justify-center gap-2 p-6 text-center text-base-content/40"
           >
-            <Icon name="kind-icon:image" class="size-12 opacity-40" />
+            <Icon name="kind-icon:image" class="kr-icon-12 opacity-40" />
             <p class="kr-text-bold-sm">
               No {{ selectedSlot.label.toLowerCase() }} is attached yet.
             </p>

@@ -6,7 +6,7 @@
     <template v-if="isFilled">
       <div class="flex items-center gap-2">
         <div
-          class="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-base-300"
+          class="kr-icon-12 flex shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-base-300"
         >
           <img
             v-if="imageUrl"

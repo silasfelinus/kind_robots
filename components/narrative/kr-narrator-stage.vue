@@ -31,7 +31,7 @@
             v-if="narratorImage"
             :src="narratorImage"
             :alt="narratorName"
-            class="h-12 w-12 shrink-0 rounded-full border-2 border-primary/40 bg-base-100 object-cover shadow-lg"
+            class="kr-icon-12 shrink-0 rounded-full border-2 border-primary/40 bg-base-100 object-cover shadow-lg"
             loading="lazy"
           />
           <div

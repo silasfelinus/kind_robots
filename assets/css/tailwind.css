@@ -1890,6 +1890,20 @@ section:has(div[class*='xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]'])
   }
 
   /* Same bare sizeless-and-colorless icon-glyph shape as `.kr-icon-6`/
+   * `.kr-icon-7`/`.kr-icon-8`/`.kr-icon-9`/`.kr-icon-10`, one size up
+   * (interface-vision t-104 slice 245) -- `h-12 w-12`, previously
+   * hand-rolled identically in 9 files (10 occurrences), plus its
+   * `size-12` shorthand spelling (6 files, 10 occurrences, folded into the
+   * same slice, same convention as `.kr-icon-9`/`size-9` and
+   * `.kr-icon-10`/`size-10`). Picked as the last well-bounded sibling left
+   * open by slice 244's kaizen note, closing the `kr-icon-6` through
+   * `kr-icon-12` size survey. Distinct from any future `.kr-icon-primary-12`
+   * (same size, carries `text-primary`) -- this is the untinted sibling. */
+  .kr-icon-12 {
+    @apply h-12 w-12;
+  }
+
+  /* Same bare sizeless-and-colorless icon-glyph shape as `.kr-icon-6`/
    * `.kr-icon-7`/`.kr-icon-8`, one size down (interface-vision t-104 slice
    * 201) -- `h-3 w-3`, previously hand-rolled identically in 19 files (30
    * occurrences via subset-match), the smallest well-bounded sibling

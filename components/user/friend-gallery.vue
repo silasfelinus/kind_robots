@@ -116,7 +116,7 @@
         <div
           class="flex flex-col items-center gap-2 py-12 text-base-content/50"
         >
-          <Icon name="kind-icon:person" class="h-12 w-12" />
+          <Icon name="kind-icon:person" class="kr-icon-12" />
           <p>No public profiles yet.</p>
         </div>
       </template>

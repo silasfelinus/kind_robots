@@ -8,7 +8,7 @@
       class="flex shrink-0 items-center gap-3 kr-panel-flat px-4 py-3"
     >
       <span
-        class="relative flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-full bg-primary/15 ring-2 ring-accent/40"
+        class="kr-icon-12 relative flex shrink-0 items-center justify-center overflow-hidden rounded-full bg-primary/15 ring-2 ring-accent/40"
       >
         <img
           v-if="previewUrl"

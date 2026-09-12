@@ -116,7 +116,29 @@ assert.match(manager, /Preview effect/)
 assert.match(manager, /<animation-selector\s*\/>/)
 assert.match(manager, /Coverage zones/)
 assert.match(manager, /Add screen layer/)
+assert.match(manager, /animation-manager-shell kr-surface/)
+assert.equal(
+  [...manager.matchAll(/\bkr-scroll\b/g)].length,
+  1,
+  'Animation Manager must have exactly one inner kr-scroll owner beneath its bounded kr-surface',
+)
+assert.match(
+  manager,
+  /<div class="kr-scroll">[\s\S]*animation-manager-content-grid/,
+  'Animation Manager catalog must live inside its kr-scroll owner so lower effects remain reachable',
+)
+assert.match(manager, /aria-label="Animation display toggles"/)
+assert.match(manager, /:aria-pressed="butterfliesEnabled"/)
+assert.match(manager, /kind-icon:butterfly/)
+assert.match(manager, /:aria-pressed="coverageEnabled"/)
 assert.doesNotMatch(manager, /component-card|ComponentStatus|KindComponent|build history|recordAnimationAttempt/)
+
+const selector = await readFile('components/screenfx/animation-selector.vue', 'utf8')
+assert.doesNotMatch(
+  selector,
+  /key:\s*'count'/,
+  'Butterfly population is an icon toggle in Animation Manager, not a range control',
+)
 
 const animationLayer = await readFile('components/screenfx/animation-layer.vue', 'utf8')
 assert.match(animationLayer, /animationStore\.showBackdrop/)

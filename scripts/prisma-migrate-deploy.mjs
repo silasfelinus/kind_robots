@@ -5,6 +5,7 @@ import path from 'node:path'
 import { spawn } from 'node:child_process'
 import mariadb from 'mariadb'
 import { repairKnownFailedMigrations } from './repair-known-prisma-migrations.mjs'
+import { repairStorybookEndingDeckMigration } from './repair-storybook-ending-deck-migration.mjs'
 import { withConnectionRetry } from './db-connection-retry.mjs'
 
 // Production migration execution must use the explicitly elevated migration
@@ -101,7 +102,7 @@ function runPrismaCommand(url, args) {
       stdio: 'inherit',
       env: {
         ...process.env,
-        // Force both variables to the SSL-augmented migration URL. The child
+        // Force both variables to the SSL-augmented elevated URL. The child
         // process remains in the elevated migration lane even when Prisma reads
         // datasource configuration through prisma.config.ts.
         DATABASE_URL: url,
@@ -182,18 +183,24 @@ async function main() {
     parsedUrl.searchParams.set('sslaccept', 'strict')
     const prismaUrl = parsedUrl.toString()
 
-    // The repair runs a short sequence of idempotent, existence-guarded
+    // The repairs run short sequences of idempotent, existence-guarded
     // statements against ProxySQL, which can drop the connection mid-sequence
     // (SQLState 08S01, "socket has unexpectedly been closed") or briefly refuse
     // a new session while the shared user is at max_user_connections. Reconnect
-    // and re-run the repair on connection-level failures — safe because every
-    // step is idempotent — instead of failing the whole production deploy.
+    // and re-run on connection-level failures instead of failing the whole
+    // production deploy. Each repair verifies its final state before changing
+    // Prisma migration bookkeeping.
     await withConnectionRetry(
       async () => {
         let connection
         try {
           connection = await createTlsConnection(parsedUrl, sslCa)
           await repairKnownFailedMigrations({
+            connection,
+            prismaUrl,
+            runPrismaCommand,
+          })
+          await repairStorybookEndingDeckMigration({
             connection,
             prismaUrl,
             runPrismaCommand,

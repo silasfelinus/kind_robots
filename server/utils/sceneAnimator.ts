@@ -268,8 +268,26 @@ function stableNumber(value: number): string {
   return Number(value.toFixed(3)).toString()
 }
 
-export function sceneAnimatorConfigKey(config: SceneAnimatorRenderConfig): string {
-  return [
+/**
+ * The render settings a result is keyed by.
+ *
+ * `promptOverride` is APPENDED, and only when present. That is load-bearing,
+ * not stylistic: every Scene Animator job ever rendered carries a configKey and
+ * a dedupeKey derived from this string, so changing the shape for the default
+ * case would change every existing key at once -- orphaning every finished
+ * render, showing every card as `missing`, and inviting a batch run to redo the
+ * whole folder on the GPU. A source with no custom prompt must therefore keep
+ * producing the exact same nine segments it always has.
+ *
+ * A source WITH a custom prompt is genuinely a different render, so it gets its
+ * own key and dedupes independently -- editing the prompt and re-rendering
+ * cannot collide with the default-prompt result that came before it.
+ */
+export function sceneAnimatorConfigKey(
+  config: SceneAnimatorRenderConfig,
+  promptOverride?: string | null,
+): string {
+  const base = [
     config.engine,
     config.presetId,
     `${config.width}x${config.height}`,
@@ -280,14 +298,20 @@ export function sceneAnimatorConfigKey(config: SceneAnimatorRenderConfig): strin
     `scale-${stableNumber(config.renderScale)}`,
     config.isMature ? 'mature' : 'general',
   ].join('|')
+
+  const custom = promptOverride?.trim()
+  if (!custom) return base
+
+  return `${base}|prompt-${createHash('sha256').update(custom).digest('hex').slice(0, 16)}`
 }
 
 export function sceneAnimatorDedupeKey(
   sourceHash: string,
   config: SceneAnimatorRenderConfig,
+  promptOverride?: string | null,
 ): string {
   return `scene-animator:${sourceHash}:${createHash('sha256')
-    .update(sceneAnimatorConfigKey(config))
+    .update(sceneAnimatorConfigKey(config, promptOverride))
     .digest('hex')}`
 }
 

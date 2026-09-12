@@ -4,7 +4,6 @@ import { requireAdminApiUser } from '@/server/utils/authGuard'
 import {
   SCENE_ANIMATOR_PROJECT_SLUG,
   SCENE_ANIMATOR_NEGATIVE_PROMPT,
-  SCENE_ANIMATOR_PROMPT,
   listSceneAnimatorSourceFiles,
   parseSceneAnimatorContext,
   readSceneAnimatorSource,
@@ -19,6 +18,10 @@ import {
   type VideoEngine,
   type VideoPresetId,
 } from '@/utils/videoPresets'
+import {
+  readSceneAnimatorPrompts,
+  resolveScenePrompt,
+} from '@/server/utils/sceneAnimatorPromptStore'
 
 type SceneAnimatorEnqueueRequest = {
   folder?: string | null
@@ -123,7 +126,12 @@ export default defineEventHandler(async (event) => {
   const sources = requestedSourceFile
     ? allSources.filter((source) => source.name === requestedSourceFile)
     : allSources
-  const configKey = sceneAnimatorConfigKey(config)
+  // Every override for this folder in one query -- the loop below needs the
+  // prompt BEFORE it can compute a dedupe key, so a per-source lookup would be
+  // a round trip per still.
+  const promptOverrides = await readSceneAnimatorPrompts(
+    sources.map((source) => source.hash),
+  )
 
   const existingJobs = await prisma.artJob.findMany({
     where: {
@@ -154,7 +162,14 @@ export default defineEventHandler(async (event) => {
   }
 
   for (const source of sources) {
-    const dedupeKey = sceneAnimatorDedupeKey(source.hash, config)
+    const { prompt, isOverridden } = resolveScenePrompt(
+      promptOverrides.get(source.hash),
+    )
+    // Keyed on the prompt only when it is custom, so default-prompt sources
+    // keep the exact dedupe key they have always had. See sceneAnimatorConfigKey.
+    const promptKey = isOverridden ? prompt : null
+    const configKey = sceneAnimatorConfigKey(config, promptKey)
+    const dedupeKey = sceneAnimatorDedupeKey(source.hash, config, promptKey)
     let existing = latestByKey.get(dedupeKey) ?? null
 
     // Recheck immediately before the expensive enqueue so two open admin tabs are
@@ -207,7 +222,7 @@ export default defineEventHandler(async (event) => {
         body: {
           engine: config.engine,
           presetId: config.presetId,
-          promptString: SCENE_ANIMATOR_PROMPT,
+          promptString: prompt,
           negativePrompt: SCENE_ANIMATOR_NEGATIVE_PROMPT,
           firstImageBase64,
           durationSeconds: config.durationSeconds,
@@ -275,7 +290,10 @@ export default defineEventHandler(async (event) => {
     data: {
       folder,
       config,
-      configKey,
+      // The batch's shared key. Per-source keys diverge from this whenever a
+      // source carries a custom prompt, which is the point of the override --
+      // so this reports the folder's default, not any one render's key.
+      configKey: sceneAnimatorConfigKey(config),
       total: sources.length,
       queued,
       skipped,

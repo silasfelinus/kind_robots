@@ -30,6 +30,10 @@ export type SceneAnimatorSource = {
   mime: string
   sourceUrl: string
   dedupeKey: string
+  /** The motion direction this source will be rendered with. */
+  prompt: string
+  /** True when `prompt` is this source's own, not the shared default. */
+  isPromptOverridden: boolean
   status: SceneAnimatorSourceStatus
   jobId: number | null
   artImageId: number | null
@@ -123,6 +127,7 @@ export const useSceneAnimatorStore = defineStore('sceneAnimatorStore', () => {
   const loading = ref(false)
   const queueing = ref(false)
   const retryingSource = ref<string | null>(null)
+  const savingPrompt = ref<string | null>(null)
   const initialized = ref(false)
   const error = ref<string | null>(null)
   const lastEnqueue = ref<SceneAnimatorEnqueueData | null>(null)
@@ -399,6 +404,49 @@ export const useSceneAnimatorStore = defineStore('sceneAnimatorStore', () => {
     return retrySource(sourceFile, true)
   }
 
+  /**
+   * Save (or clear) one source's own motion direction.
+   *
+   * Saving deliberately does NOT enqueue anything. A prompt edit is free and a
+   * render is minutes of GPU on a box that does one at a time, so the operator
+   * edits, reads it back on the card, and then presses Re-render when it says
+   * what they meant. Passing an empty string clears the override and returns
+   * the source to the shared default.
+   */
+  async function savePrompt(sourceFile: string, prompt: string): Promise<boolean> {
+    savingPrompt.value = sourceFile
+    clearError()
+    try {
+      const response = await performFetch<{
+        sourceFile: string
+        prompt: string | null
+        isOverridden: boolean
+      }>(
+        '/api/scene-animator/prompt',
+        {
+          method: 'PUT',
+          body: JSON.stringify({
+            folder: selectedFolder.value,
+            sourceFile,
+            prompt,
+          }),
+        },
+        1,
+        30_000,
+      )
+      if (!response.success) {
+        throw new Error(response.message || 'Failed to save this prompt.')
+      }
+      await load()
+      return true
+    } catch (cause) {
+      error.value = errorMessage(cause, 'Failed to save this prompt.')
+      return false
+    } finally {
+      savingPrompt.value = null
+    }
+  }
+
   async function selectFolder(folder: string) {
     selectedFolder.value = folder
     await load(folder)
@@ -468,6 +516,8 @@ export const useSceneAnimatorStore = defineStore('sceneAnimatorStore', () => {
     enqueue,
     retrySource,
     rerenderSource,
+    savePrompt,
+    savingPrompt,
     selectFolder,
     setEngine,
     setPreset,

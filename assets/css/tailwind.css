@@ -2696,11 +2696,26 @@ section:has(div[class*='xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]'])
    * `min-w-60`) riding alongside the same base shape, migrated in the same
    * slice per the standard subset-match convention every other kr-*
    * codemod already uses. Distinct from `.kr-label-row` (the inner
-   * `<span class="label py-1">` caption, not this outer wrapper). Purely a
-   * composition/spacing primitive: no color and no behavior change at any
-   * of the 43 sites. */
+   * `<span class="label py-1">` caption, not this outer wrapper).
+   *
+   * `form-control` itself is dead in this daisyUI version -- it does not
+   * appear anywhere in node_modules/daisyui or tailwindcss (daisyUI v5
+   * dropped the v4-era `.form-control` wrapper class), so it currently
+   * contributes zero CSS at every one of the 43 hand-rolled sites; only
+   * `gap-1` (and the sites' own extra tokens) has any visual effect.
+   * Tailwind's `@apply` requires every applied token to resolve to a real
+   * utility, unlike a plain HTML class attribute where an unrecognized
+   * token is silently inert -- `@apply form-control gap-1` therefore fails
+   * the production build (`Cannot apply unknown utility class
+   * form-control`) even though the equivalent literal class name compiles
+   * fine as dead markup. `.kr-form-field` applies only the token that
+   * still does something (`gap-1`), which is byte-identical rendered
+   * behavior to every existing hand-rolled site -- no color/behavior/
+   * geometry change at any of the 43 sites, same guarantee as every other
+   * slice, just with one of the two source tokens already inert before
+   * this migration. */
   .kr-form-field {
-    @apply form-control gap-1;
+    @apply gap-1;
   }
 
   .text-smart {

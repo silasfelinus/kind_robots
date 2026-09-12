@@ -19,7 +19,7 @@
         v-if="artwork"
         :src="artwork"
         alt=""
-        class="size-full object-cover transition duration-300 group-hover:scale-105 motion-reduce:transform-none motion-reduce:transition-none"
+        class="kr-img-cover transition duration-300 group-hover:scale-105 motion-reduce:transform-none motion-reduce:transition-none"
       />
       <span
         v-else

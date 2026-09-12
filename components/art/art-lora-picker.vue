@@ -188,7 +188,7 @@
                   v-if="previewImage(entry.resource)"
                   :src="previewImage(entry.resource)"
                   :alt="`${loraLabel(entry.resource)} preview`"
-                  class="size-full object-cover"
+                  class="kr-img-cover"
                   loading="lazy"
                   @error="hideBrokenImage"
                 />

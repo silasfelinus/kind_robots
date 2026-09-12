@@ -2679,7 +2679,12 @@ section:has(div[class*='xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]'])
    * shrink-0, or other modifier folded in at any site). Purely a sizing/
    * object-fit primitive: no color and no behavior, so this is the same
    * composition-only substitution as `kr-container`/`kr-icon-*` -- no
-   * geometry or rendering change at any of the 30 sites. */
+   * geometry or rendering change at any of the 30 sites. Its `size-full
+   * object-cover` shorthand spelling (Tailwind's `size-*` sets both axes at
+   * once) was folded in as a later slice (t-104 slice 248): 14 files, 19
+   * occurrences, extra tokens (absolute/inset-0, transition/hover/
+   * motion-reduce, grayscale) preserved verbatim -- same convention as the
+   * `kr-icon-N`/`size-N` shorthand siblings. */
   .kr-img-cover {
     @apply h-full w-full object-cover;
   }

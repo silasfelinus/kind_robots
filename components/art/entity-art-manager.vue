@@ -190,7 +190,7 @@
             v-if="slide.src"
             :src="slide.src"
             :alt="slide.label"
-            class="size-full object-cover"
+            class="kr-img-cover"
           />
           <span
             v-else

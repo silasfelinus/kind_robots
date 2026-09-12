@@ -29,7 +29,7 @@
                 v-if="item.ingredient.imagePath"
                 :src="item.ingredient.imagePath"
                 alt=""
-                class="absolute inset-0 size-full object-cover"
+                class="kr-img-cover absolute inset-0"
               />
               <Icon
                 v-else

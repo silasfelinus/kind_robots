@@ -30,7 +30,7 @@
           <img
             :src="artwork(facet) || ''"
             :alt="`${facet.title} artwork`"
-            class="size-full object-cover"
+            class="kr-img-cover"
           />
         </span>
         <span>{{ facet.title }}</span>
@@ -65,7 +65,7 @@
               v-if="artwork(facet)"
               :src="artwork(facet) || ''"
               :alt="`${facet.title} artwork`"
-              class="size-full object-cover"
+              class="kr-img-cover"
             />
             <Icon
               v-else

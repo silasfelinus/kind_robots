@@ -83,7 +83,7 @@
                     v-if="achievement.imagePath"
                     :src="achievement.imagePath"
                     :alt="achievement.label"
-                    class="size-full object-cover"
+                    class="kr-img-cover"
                   />
                   <Icon
                     v-else

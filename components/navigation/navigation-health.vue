@@ -135,7 +135,7 @@
           <div class="flex items-start justify-between gap-3">
             <div class="flex min-w-0 items-start gap-3">
               <span
-                class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-base-300 bg-base-200"
+                class="kr-icon-10 flex shrink-0 items-center justify-center rounded-xl border border-base-300 bg-base-200"
               >
                 <Icon :name="channel.icon" class="kr-icon-5" />
               </span>

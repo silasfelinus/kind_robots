@@ -177,7 +177,7 @@
     >
       <div class="flex min-w-0 items-center gap-3">
         <div
-          class="h-10 w-10 shrink-0 overflow-hidden rounded-xl border border-base-300 bg-base-300"
+          class="kr-icon-10 shrink-0 overflow-hidden rounded-xl border border-base-300 bg-base-300"
         >
           <img
             :src="selectedScenarioImage"

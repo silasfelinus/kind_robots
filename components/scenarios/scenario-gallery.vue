@@ -250,7 +250,7 @@
         v-else-if="filteredScenarios.length === 0"
         class="flex h-full min-h-48 flex-col items-center justify-center gap-3 kr-panel-dashed text-center text-base-content/60"
       >
-        <Icon name="kind-icon:map" class="h-10 w-10 opacity-50" />
+        <Icon name="kind-icon:map" class="kr-icon-10 opacity-50" />
 
         <div>
           <p class="font-bold">

@@ -40,7 +40,7 @@
       v-else-if="error"
       class="flex min-h-64 flex-col items-center justify-center gap-2 text-error"
     >
-      <Icon name="kind-icon:warning" class="size-10" />
+      <Icon name="kind-icon:warning" class="kr-icon-10" />
       <b>{{ error }}</b>
     </div>
 

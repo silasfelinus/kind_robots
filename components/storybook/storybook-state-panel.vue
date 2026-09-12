@@ -23,7 +23,7 @@
             class="flex items-center gap-2 rounded-xl border border-base-300 bg-base-200/40 p-2"
           >
             <span
-              class="relative flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-base-200"
+              class="kr-icon-10 relative flex shrink-0 items-center justify-center overflow-hidden rounded-lg bg-base-200"
             >
               <img
                 v-if="item.ingredient.imagePath"

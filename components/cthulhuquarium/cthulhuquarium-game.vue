@@ -410,7 +410,7 @@
                same width-cascade fix, wrapper-owned size and border. -->
           <div
             v-if="artByName('ichthyonomicon')"
-            class="size-10 shrink-0 overflow-hidden rounded-2xl border border-base-300"
+            class="kr-icon-10 shrink-0 overflow-hidden rounded-2xl border border-base-300"
           >
             <kr-art-plate
               :source="{ imagePath: artByName('ichthyonomicon') }"

@@ -327,7 +327,7 @@
                     <img
                       :src="p.imagePath"
                       :alt="p.name"
-                      class="h-10 w-10 shrink-0 rounded-xl object-cover"
+                      class="kr-icon-10 shrink-0 rounded-xl object-cover"
                     />
                     <div class="min-w-0">
                       <p class="kr-text-bold-xs text-base-content truncate">
@@ -412,7 +412,7 @@
                     v-if="role.badgeImagePath"
                     :src="role.badgeImagePath"
                     :alt="role.label"
-                    class="h-10 w-10 rounded-2xl border border-base-300 object-cover"
+                    class="kr-icon-10 rounded-2xl border border-base-300 object-cover"
                   />
                   <div>
                     <h3 class="kr-text-black-sm text-base-content">

@@ -188,7 +188,7 @@
       v-else
       class="flex min-h-0 flex-1 flex-col items-center justify-center gap-3 kr-note kr-note-warning text-center font-normal"
     >
-      <Icon name="kind-icon:warning" class="h-10 w-10" />
+      <Icon name="kind-icon:warning" class="kr-icon-10" />
 
       <div>
         <p class="kr-text-black-lg">Unknown tab: {{ activeTab }}</p>

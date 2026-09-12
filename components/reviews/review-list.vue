@@ -43,7 +43,7 @@
       class="kr-panel flex items-start gap-3 p-3"
     >
       <div
-        class="flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-primary/20 bg-primary/10"
+        class="kr-icon-10 flex shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-primary/20 bg-primary/10"
       >
         <img
           v-if="avatarFor(review)"

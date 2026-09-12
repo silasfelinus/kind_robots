@@ -308,6 +308,12 @@ jobs:
       - name: Da Vinci narration bounds contract
         run: npm run test:davinci-narration
 
+      - name: Ending deck math contract
+        run: npm run test:ending-deck-math
+
+      - name: Storybook narration bounds contract
+        run: npm run test:storybook-narration
+
       - name: Da Vinci dimension-tone guard self-test
         run: npm run test:davinci-dimension-tone-guard-selftest
 

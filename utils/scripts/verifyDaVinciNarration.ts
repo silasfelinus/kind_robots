@@ -15,11 +15,18 @@ import {
   buildNarrationUserPrompt,
   narrationResponseSchema,
   validateNarrationPayload,
+} from '../../server/utils/davinciNarration'
+// The bounds moved to the shared narration layer when davinciNarration.ts
+// became an adapter over it (storybook/t-031). Same numbers, one definition:
+// Nitro auto-imports server/utils, so two modules exporting these names made
+// every build warn. What this suite asserts is unchanged -- that the LIFE
+// shape still enforces them.
+import {
   NARRATION_EFFECT_MAX,
   NARRATION_EFFECT_MIN,
   NARRATION_MAX_CHOICES,
   NARRATION_MIN_CHOICES,
-} from '../../server/utils/davinciNarration'
+} from '../../server/utils/storybookNarration'
 // Imported from davinciDimensions, not davinci: this suite must stay free of
 // ./prisma, which throws at module load when DATABASE_URL is unset (as it is in
 // the contract-tests job).

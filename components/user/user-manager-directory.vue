@@ -115,7 +115,7 @@
             <td class="text-center">
               <input
                 type="checkbox"
-                class="toggle toggle-xs toggle-primary"
+                class="kr-toggle-primary-xs"
                 :checked="u.showMature"
                 :disabled="store.isSaving"
                 @change="onMature(u.id, $event)"
@@ -124,7 +124,7 @@
             <td class="text-center">
               <input
                 type="checkbox"
-                class="toggle toggle-xs toggle-error"
+                class="kr-toggle-error-xs"
                 :checked="u.isRestricted"
                 :disabled="store.isSaving"
                 :title="
@@ -197,7 +197,7 @@
               <input
                 v-model="createForm.showMature"
                 type="checkbox"
-                class="toggle toggle-sm toggle-primary"
+                class="kr-toggle-primary-sm"
               />
             </label>
           </div>

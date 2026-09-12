@@ -289,7 +289,7 @@
                 <input
                   v-model="editForm.isPublic"
                   type="checkbox"
-                  class="toggle toggle-success toggle-sm"
+                  class="kr-toggle-success-sm"
                 />
               </label>
 
@@ -298,7 +298,7 @@
                 <input
                   v-model="editForm.isMature"
                   type="checkbox"
-                  class="toggle toggle-warning toggle-sm"
+                  class="kr-toggle-warning-sm"
                 />
               </label>
             </div>
@@ -434,7 +434,7 @@
                     </span>
                     <input
                       type="checkbox"
-                      class="toggle toggle-secondary toggle-sm"
+                      class="kr-toggle-secondary-sm"
                       :checked="imageCollectionIds.includes(collection.id)"
                       :disabled="isCollectionSaving"
                       @change="toggleCollection(collection.id)"

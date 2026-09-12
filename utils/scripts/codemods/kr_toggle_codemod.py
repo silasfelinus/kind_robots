@@ -1,32 +1,44 @@
 #!/usr/bin/env python3
 """Find or migrate hand-rolled kr-toggle-{warning,primary,success,accent,
-secondary,error} (the sizeless, colored DaisyUI toggle base) toggles.
+secondary,error} (colored DaisyUI toggles, sizeless and -sm/-xs sized)
+onto their shared primitives.
 
 Dry-run is the default. Pass --write to update matching Vue files in place.
-Only the approved sizeless-colored toggle shapes are touched (`toggle
-toggle-warning`, `toggle toggle-primary`, `toggle toggle-success`, `toggle
-toggle-accent`, `toggle toggle-secondary`, `toggle toggle-error`), and only
-in static `class="..."` attributes -- never `:class`/`v-bind:class`
-bindings, and regardless of the base tokens' order in the source. A source
-that already carries the target primitive, or is missing either base
-token, is left untouched. Extra tokens beyond the base set (shrink-0,
-ml-auto, ...) are preserved verbatim after the primitive class, matching
-the kr-badge-ghost/kr-badge-outline subset-match convention -- they're
-plain Tailwind utilities layered on top, not another component-root class.
+Only the approved colored toggle shapes are touched (the sizeless base --
+`toggle toggle-warning`, `toggle toggle-primary`, `toggle toggle-success`,
+`toggle toggle-accent`, `toggle toggle-secondary`, `toggle toggle-error` --
+and the -sm/-xs sized siblings, e.g. `toggle toggle-sm toggle-primary`),
+and only in static `class="..."` attributes -- never `:class`/
+`v-bind:class` bindings, and regardless of the base tokens' order in the
+source. A source that already carries the target primitive, or is missing
+any base token, is left untouched. Extra tokens beyond the base set
+(shrink-0, ml-auto, ...) are preserved verbatim after the primitive class,
+matching the kr-badge-ghost/kr-badge-outline subset-match convention --
+they're plain Tailwind utilities layered on top, not another
+component-root class.
 
-Picked from a fresh full-repo class-frequency survey (slice 245's kaizen
-note: "not a re-survey of an already-closed family") as the largest
-well-bounded pool left outside every family already closed (kr-text-*,
-kr-icon-*, kr-input-*, kr-btn-*, kr-badge-*, kr-label-row). This slice
-deliberately covers only the sizeless base -- `toggle-sm`/`toggle-xs`
-sized+colored combinations (e.g. `toggle toggle-sm toggle-warning`, ~15
-more occurrences) are a distinct, separately-bounded shape left for a
-future slice, same as `.kr-badge-ghost`/`.kr-badge-outline` were opened
-after their own `-sm`/`-xs` sized siblings already existed.
+The sizeless families were picked from a fresh full-repo class-frequency
+survey (slice 245's kaizen note: "not a re-survey of an already-closed
+family") as the largest well-bounded pool left outside every family
+already closed (kr-text-*, kr-icon-*, kr-input-*, kr-btn-*, kr-badge-*,
+kr-label-row). That slice (t-104 slice 246) deliberately left the
+`toggle-sm`/`toggle-xs` sized+colored combinations out of scope; this
+module now also covers them (interface-vision/t-134), same as
+`.kr-badge-ghost`/`.kr-badge-outline` being opened after their own
+`-sm`/`-xs` sized siblings already existed.
 
-FAMILIES is ordered by occurrence count, most common first; order among
-entries doesn't affect correctness here since no base set is a subset of
-another's (each carries a distinct color token).
+FAMILIES lists the sized (more specific) families first, then the
+sizeless ones. This matters for correctness, not just readability: the
+sizeless base token set (`{toggle, toggle-<color>}`) is a strict subset
+of its own sized sibling's (`{toggle, toggle-sm, toggle-<color>}`), so a
+sized source would also match the sizeless family if that family were
+tried first -- `toggle-sm`/`toggle-xs` would then be captured as an
+"extra" token rather than recognized as part of a more specific shape.
+Trying every sized family before any sizeless one avoids that regardless
+of BOUNDED_EXTRAS contents. Within each specificity tier, families are
+ordered by occurrence count, most common first; order among ties doesn't
+affect correctness since no two same-tier base sets are subsets of one
+another (each carries a distinct color, and/or size, token).
 """
 
 from __future__ import annotations
@@ -36,7 +48,32 @@ import re
 from pathlib import Path
 from _class_attr import CLASS_ATTR
 
-FAMILIES = [
+COLORS = ["warning", "primary", "success", "accent", "secondary", "error"]
+
+# (primitive, size, color) ordered by occurrence count observed at t-134
+# survey time, most common first. toggle-sm toggle-error had zero observed
+# occurrences, so it's intentionally absent -- add it if a future audit
+# finds one, following this same naming/ordering convention.
+_SIZED_ORDER = [
+    ("primary", "sm"),
+    ("primary", "xs"),
+    ("warning", "sm"),
+    ("accent", "xs"),
+    ("warning", "xs"),
+    ("success", "sm"),
+    ("accent", "sm"),
+    ("secondary", "xs"),
+    ("success", "xs"),
+    ("error", "xs"),
+    ("secondary", "sm"),
+]
+
+SIZED_FAMILIES = [
+    (f"kr-toggle-{color}-{size}", {"toggle", f"toggle-{size}", f"toggle-{color}"})
+    for color, size in _SIZED_ORDER
+]
+
+SIZELESS_FAMILIES = [
     ("kr-toggle-warning", {"toggle", "toggle-warning"}),
     ("kr-toggle-primary", {"toggle", "toggle-primary"}),
     ("kr-toggle-success", {"toggle", "toggle-success"}),
@@ -45,17 +82,28 @@ FAMILIES = [
     ("kr-toggle-error", {"toggle", "toggle-error"}),
 ]
 
-# The bare {toggle, toggle-<color>} base sets are small enough to also
-# appear inside a sized combination (`toggle toggle-sm toggle-warning`).
-# Those carry a `toggle-sm`/`toggle-xs` extra token, which is exactly the
-# separately-bounded sized shape called out in the module docstring as out
-# of scope for this slice -- bound each family to only the specific
-# extra-token shapes actually audited for this slice (an exact match, or a
-# plain `shrink-0`), the same way kr-badge-ghost's first slice bounded its
-# own extras before a follow-up slice individually audited the rest.
+FAMILIES = [*SIZED_FAMILIES, *SIZELESS_FAMILIES]
+
+# Bound each family to only the specific extra-token shapes actually
+# audited (an exact match, or a plain `shrink-0`), the same way
+# kr-badge-ghost's first slice bounded its own extras before a follow-up
+# slice individually audited the rest. One sized occurrence
+# (newsfeed-preferences.vue's toggle-sm toggle-primary) carries a distinct
+# extra-token shape audited for t-134, allowed explicitly below.
 BOUNDED_EXTRAS: dict[str, set[frozenset[str]]] = {
     name: {frozenset(), frozenset({"shrink-0"})} for name, _ in FAMILIES
 }
+BOUNDED_EXTRAS["kr-toggle-primary-sm"].add(
+    frozenset(
+        {
+            "ml-1",
+            "focus-visible:outline",
+            "focus-visible:outline-2",
+            "focus-visible:outline-offset-2",
+            "focus-visible:outline-primary",
+        }
+    )
+)
 
 
 def migrate_classes(classes: str, exact_only: bool) -> str | None:

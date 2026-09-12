@@ -153,7 +153,7 @@
                     <input
                       v-model="form.loop"
                       type="checkbox"
-                      class="toggle toggle-accent toggle-sm"
+                      class="kr-toggle-accent-sm"
                     />
                     <span>{{ form.loop ? 'Loop' : 'Play once' }}</span>
                   </span>

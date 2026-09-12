@@ -841,7 +841,7 @@
         <label class="flex cursor-pointer items-center gap-2">
           <input
             type="checkbox"
-            class="toggle toggle-success toggle-sm"
+            class="kr-toggle-success-sm"
             :checked="tankStore.tank?.isPublic ?? false"
             :disabled="visibilitySaving"
             @change="onToggleVisibility"

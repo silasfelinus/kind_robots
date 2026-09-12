@@ -41,7 +41,7 @@
         <input
           v-model="artOnly"
           type="checkbox"
-          class="toggle toggle-secondary toggle-xs"
+          class="kr-toggle-secondary-xs"
         />
         Illustrated only
       </label>

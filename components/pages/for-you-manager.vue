@@ -107,7 +107,7 @@
                   <input
                     v-model="showPausedProjects"
                     type="checkbox"
-                    class="toggle toggle-warning toggle-sm"
+                    class="kr-toggle-warning-sm"
                   />
                   <span>Show paused projects</span>
                   <span class="kr-badge-ghost-sm rounded-lg">

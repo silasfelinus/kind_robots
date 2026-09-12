@@ -455,7 +455,7 @@
           <input
             v-model="requestNote"
             type="text"
-            class="input input-bordered rounded-2xl"
+            class="kr-input-rounded-2xl"
             placeholder="Optional revision direction"
             :readonly="!userStore.isAdmin"
           />

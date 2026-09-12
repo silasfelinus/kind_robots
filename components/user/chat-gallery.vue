@@ -32,7 +32,7 @@
         class="grid gap-2 md:grid-cols-[minmax(0,1fr)_auto] md:items-center"
       >
         <label
-          class="input input-bordered flex items-center gap-2 rounded-2xl bg-base-100"
+          class="kr-input-rounded-2xl flex items-center gap-2 bg-base-100"
         >
           <Icon name="kind-icon:search" class="kr-icon-4 opacity-60" />
           <input

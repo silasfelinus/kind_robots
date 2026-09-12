@@ -332,7 +332,7 @@
                     v-model="vibeInput"
                     type="text"
                     placeholder="storm-lit, clockwork, defiant"
-                    class="input input-bordered w-full rounded-xl border-secondary/20 bg-base-100/90"
+                    class="kr-input-rounded-xl w-full border-secondary/20 bg-base-100/90"
                     :disabled="store.isWeaving"
                   />
                 </label>

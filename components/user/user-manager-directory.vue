@@ -171,19 +171,19 @@
           <input
             v-model="createForm.username"
             placeholder="username"
-            class="input input-bordered rounded-xl bg-base-200"
+            class="kr-input-rounded-xl bg-base-200"
           />
           <input
             v-model="createForm.email"
             type="email"
             placeholder="email (optional)"
-            class="input input-bordered rounded-xl bg-base-200"
+            class="kr-input-rounded-xl bg-base-200"
           />
           <input
             v-model="createForm.password"
             type="password"
             placeholder="password (optional, min 8)"
-            class="input input-bordered rounded-xl bg-base-200"
+            class="kr-input-rounded-xl bg-base-200"
           />
           <div class="flex items-center gap-3">
             <select

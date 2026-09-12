@@ -70,7 +70,7 @@
               <input
                 v-model="form.name"
                 type="text"
-                class="input input-bordered rounded-2xl bg-base-100 focus:border-primary"
+                class="kr-input-rounded-2xl bg-base-100 focus:border-primary"
                 placeholder="Captain Breadcrumbs, Lady Verdict..."
                 maxlength="100"
               />
@@ -84,7 +84,7 @@
               <input
                 v-model="form.comments"
                 type="text"
-                class="input input-bordered rounded-2xl bg-base-100 focus:border-primary"
+                class="kr-input-rounded-2xl bg-base-100 focus:border-primary"
                 placeholder="How they speak, what drives them..."
                 maxlength="300"
               />
@@ -215,7 +215,7 @@
                 <input
                   v-model="form.imagePath"
                   type="text"
-                  class="input input-bordered input-xs rounded-xl bg-base-100 focus:border-primary"
+                  class="kr-input-rounded-xl input-xs bg-base-100 focus:border-primary"
                   placeholder="Or paste image URL directly..."
                 />
               </div>

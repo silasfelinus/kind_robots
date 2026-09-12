@@ -119,7 +119,7 @@
       <input
         v-model="actionNote"
         type="text"
-        class="input input-bordered w-full rounded-2xl"
+        class="kr-input-rounded-2xl w-full"
         placeholder="Optional decision or revision note"
       />
 

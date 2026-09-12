@@ -908,7 +908,7 @@ onMounted(async () => {
                   <input
                     v-model.number="width"
                     type="number"
-                    class="input input-bordered rounded-2xl bg-base-100"
+                    class="kr-input-rounded-2xl bg-base-100"
                   />
                 </label>
 
@@ -917,7 +917,7 @@ onMounted(async () => {
                   <input
                     v-model.number="height"
                     type="number"
-                    class="input input-bordered rounded-2xl bg-base-100"
+                    class="kr-input-rounded-2xl bg-base-100"
                   />
                 </label>
               </div>

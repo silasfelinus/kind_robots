@@ -519,7 +519,7 @@
               <input
                 v-model="store.showTitle"
                 type="text"
-                class="input input-bordered rounded-2xl bg-base-100 focus:border-primary"
+                class="kr-input-rounded-2xl bg-base-100 focus:border-primary"
                 placeholder="Optional title"
                 @change="store.persist()"
               />
@@ -534,7 +534,7 @@
               <input
                 v-model="store.showTopic"
                 type="text"
-                class="input input-bordered rounded-2xl bg-base-100 focus:border-primary"
+                class="kr-input-rounded-2xl bg-base-100 focus:border-primary"
                 placeholder="What's the show about tonight?"
                 @change="store.persist()"
               />
@@ -549,7 +549,7 @@
               <input
                 v-model="store.customOpening"
                 type="text"
-                class="input input-bordered rounded-2xl bg-base-100 focus:border-primary"
+                class="kr-input-rounded-2xl bg-base-100 focus:border-primary"
                 :placeholder="
                   store.selectedStage?.openingCue || 'Opening cue...'
                 "
@@ -628,7 +628,7 @@
               <input
                 v-model="store.selectedModel"
                 type="text"
-                class="input input-bordered rounded-2xl bg-base-100 focus:border-primary"
+                class="kr-input-rounded-2xl bg-base-100 focus:border-primary"
                 placeholder="gpt-4o-mini, llama3.1..."
                 @change="store.persist()"
               />

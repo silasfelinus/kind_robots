@@ -137,7 +137,7 @@
                   v-else
                   v-model="draft[field.key]"
                   type="text"
-                  class="input input-bordered rounded-2xl"
+                  class="kr-input-rounded-2xl"
                   :placeholder="field.placeholder"
                   :disabled="saving"
                 />

@@ -36,7 +36,7 @@
 
         <input
           v-model="label"
-          class="input input-bordered rounded-2xl bg-base-200"
+          class="kr-input-rounded-2xl bg-base-200"
           type="text"
           placeholder="Monster Drag Party favorites"
           :disabled="isSaving || disabled"

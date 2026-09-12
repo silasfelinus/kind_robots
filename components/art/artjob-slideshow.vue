@@ -266,7 +266,7 @@
                   type="number"
                   min="1"
                   max="600"
-                  class="input input-bordered input-xs w-20 rounded-xl"
+                  class="kr-input-rounded-xl input-xs w-20"
                   @change="applyInterval"
                 />
               </div>

@@ -147,7 +147,7 @@
 
                   <input
                     v-model.trim="openAiKey"
-                    class="input input-bordered min-w-0 rounded-xl"
+                    class="kr-input-rounded-xl min-w-0"
                     type="password"
                     name="openai-api-key"
                     autocomplete="new-password"
@@ -197,7 +197,7 @@
 
                   <input
                     v-model.trim="anthropicKey"
-                    class="input input-bordered min-w-0 rounded-xl"
+                    class="kr-input-rounded-xl min-w-0"
                     type="password"
                     name="anthropic-api-key"
                     autocomplete="new-password"
@@ -286,7 +286,7 @@
                 <span class="kr-label-bold">Label</span>
                 <input
                   v-model.trim="newLocal.label"
-                  class="input input-bordered w-full rounded-xl"
+                  class="kr-input-rounded-xl w-full"
                   type="text"
                   :placeholder="defaultLocalLabel(newLocal.serverType)"
                 />
@@ -296,7 +296,7 @@
                 <span class="kr-label-bold">Base URL</span>
                 <input
                   v-model.trim="newLocal.baseUrl"
-                  class="input input-bordered w-full rounded-xl"
+                  class="kr-input-rounded-xl w-full"
                   type="url"
                   placeholder="http://192.168.1.50:8188"
                 />
@@ -350,7 +350,7 @@
                 <span class="kr-label-bold">Label</span>
                 <input
                   v-model.trim="editForm.label"
-                  class="input input-bordered w-full rounded-xl"
+                  class="kr-input-rounded-xl w-full"
                   type="text"
                 />
               </label>
@@ -373,7 +373,7 @@
                 <span class="kr-label-bold">Base URL</span>
                 <input
                   v-model.trim="editForm.baseUrl"
-                  class="input input-bordered w-full rounded-xl"
+                  class="kr-input-rounded-xl w-full"
                   type="url"
                 />
               </label>
@@ -382,7 +382,7 @@
                 <span class="kr-label-bold">Endpoint Path</span>
                 <input
                   v-model.trim="editForm.endpointPath"
-                  class="input input-bordered w-full rounded-xl"
+                  class="kr-input-rounded-xl w-full"
                   type="text"
                 />
               </label>
@@ -391,7 +391,7 @@
                 <span class="kr-label-bold">Health Path</span>
                 <input
                   v-model.trim="editForm.healthPath"
-                  class="input input-bordered w-full rounded-xl"
+                  class="kr-input-rounded-xl w-full"
                   type="text"
                 />
               </label>
@@ -400,7 +400,7 @@
                 <span class="kr-label-bold">Model</span>
                 <input
                   v-model.trim="editForm.model"
-                  class="input input-bordered w-full rounded-xl"
+                  class="kr-input-rounded-xl w-full"
                   type="text"
                   placeholder="Optional"
                 />

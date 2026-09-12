@@ -258,7 +258,7 @@
                   type="number"
                   min="1"
                   max="100"
-                  class="input input-bordered input-xs w-20 rounded-xl"
+                  class="kr-input-rounded-xl input-xs w-20"
                   @keyup.enter="applyPageSize"
                 />
               </label>
@@ -291,7 +291,7 @@
                   type="number"
                   min="1"
                   :max="artJobStore.jobPageCount"
-                  class="input input-bordered input-xs w-16 rounded-xl text-center"
+                  class="kr-input-rounded-xl input-xs w-16 text-center"
                   @keyup.enter="applyPage"
                 />
                 <span>of {{ artJobStore.jobPageCount }}</span>

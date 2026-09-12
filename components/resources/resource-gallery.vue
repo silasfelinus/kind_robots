@@ -646,7 +646,7 @@ onMounted(async () => {
           <input
             v-model="query"
             type="search"
-            class="input input-bordered input-xs w-36 rounded-2xl sm:w-52"
+            class="kr-input-rounded-2xl input-xs w-36 sm:w-52"
             placeholder="Name, trigger, base model..."
             aria-label="Search Resources"
           />

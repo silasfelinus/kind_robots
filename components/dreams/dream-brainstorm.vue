@@ -136,7 +136,7 @@
               >
               <input
                 v-model="seedTitle"
-                class="input input-bordered rounded-2xl bg-base-100 font-bold"
+                class="kr-input-rounded-2xl bg-base-100 font-bold"
                 type="text"
                 placeholder="The Drowned Archive"
                 @input="markHumanEdit"

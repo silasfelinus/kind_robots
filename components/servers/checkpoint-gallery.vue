@@ -63,7 +63,7 @@
           <input
             v-if="showControls"
             v-model="searchQuery"
-            class="input input-bordered input-xs w-32 rounded-xl sm:w-44"
+            class="kr-input-rounded-xl input-xs w-32 sm:w-44"
             placeholder="Search checkpoints"
             aria-label="Search checkpoints"
           />

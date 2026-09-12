@@ -109,7 +109,7 @@
           <input
             v-model="draft"
             placeholder="Write a message…"
-            class="input input-bordered flex-1 rounded-xl bg-base-200"
+            class="kr-input-rounded-xl flex-1 bg-base-200"
           />
           <button
             type="submit"

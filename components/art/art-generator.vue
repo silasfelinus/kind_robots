@@ -313,7 +313,7 @@
                 </span>
                 <input
                   v-model.number="steps"
-                  class="input input-bordered rounded-2xl bg-base-100"
+                  class="kr-input-rounded-2xl bg-base-100"
                   type="number"
                   min="1"
                   max="150"
@@ -330,7 +330,7 @@
                 <input
                   v-if="activeProfile.supports.guidance"
                   v-model.number="guidance"
-                  class="input input-bordered rounded-2xl bg-base-100"
+                  class="kr-input-rounded-2xl bg-base-100"
                   type="number"
                   min="0"
                   max="30"
@@ -340,7 +340,7 @@
                 <input
                   v-else
                   v-model.number="cfg"
-                  class="input input-bordered rounded-2xl bg-base-100"
+                  class="kr-input-rounded-2xl bg-base-100"
                   type="number"
                   min="1"
                   max="30"
@@ -397,7 +397,7 @@
                   </span>
                   <input
                     v-model.number="width"
-                    class="input input-bordered rounded-2xl bg-base-100"
+                    class="kr-input-rounded-2xl bg-base-100"
                     type="number"
                     min="256"
                     max="2048"
@@ -411,7 +411,7 @@
                   </span>
                   <input
                     v-model.number="height"
-                    class="input input-bordered rounded-2xl bg-base-100"
+                    class="kr-input-rounded-2xl bg-base-100"
                     type="number"
                     min="256"
                     max="2048"
@@ -430,7 +430,7 @@
                 </span>
                 <input
                   v-model.number="seed"
-                  class="input input-bordered rounded-2xl bg-base-100"
+                  class="kr-input-rounded-2xl bg-base-100"
                   type="number"
                   placeholder="Random each run"
                   :disabled="artStore.isGenerating"

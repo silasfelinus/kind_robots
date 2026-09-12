@@ -273,7 +273,7 @@
                 v-model="newTodoTitle"
                 type="text"
                 placeholder="What needs doing?"
-                class="input input-bordered w-full rounded-xl"
+                class="kr-input-rounded-xl w-full"
                 :disabled="todoStore.loading"
               />
               <textarea
@@ -639,7 +639,7 @@
                   v-model="projectTaskTitle"
                   type="text"
                   placeholder="What needs doing?"
-                  class="input input-bordered w-full rounded-xl text-sm"
+                  class="kr-input-rounded-xl w-full text-sm"
                   :disabled="projectTaskSubmitting"
                 />
                 <textarea
@@ -726,7 +726,7 @@
                     >
                     <input
                       type="url"
-                      class="input input-bordered rounded-xl text-sm"
+                      class="kr-input-rounded-xl text-sm"
                       placeholder="https://..."
                       :value="linkedProject.liveUrl ?? ''"
                       :disabled="projectSaving"
@@ -739,7 +739,7 @@
                     >
                     <input
                       type="url"
-                      class="input input-bordered rounded-xl text-sm"
+                      class="kr-input-rounded-xl text-sm"
                       placeholder="https://github.com/..."
                       :value="linkedProject.repoUrl ?? ''"
                       :disabled="projectSaving"

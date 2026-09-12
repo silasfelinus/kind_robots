@@ -42,7 +42,7 @@
 
         <input
           v-model="query"
-          class="input input-bordered rounded-xl"
+          class="kr-input-rounded-xl"
           :placeholder="
             source === 'civarchive'
               ? 'CivArchive model id or URL (recovers removed models)'

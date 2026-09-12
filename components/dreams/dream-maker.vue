@@ -81,7 +81,7 @@
                 </span>
                 <input
                   v-model="dreamStore.dreamForm.title"
-                  class="kr-text-bold-lg input input-bordered rounded-2xl bg-base-200"
+                  class="kr-input-rounded-2xl kr-text-bold-lg bg-base-200"
                   type="text"
                   placeholder="The Drowned Archive"
                 />
@@ -119,7 +119,7 @@
                 </span>
                 <input
                   v-model="dreamStore.dreamForm.slug"
-                  class="input input-bordered rounded-2xl bg-base-200"
+                  class="kr-input-rounded-2xl bg-base-200"
                   type="text"
                   placeholder="the-drowned-archive"
                 />
@@ -220,7 +220,7 @@
                 >
                 <input
                   v-model="dreamStore.dreamForm.icon"
-                  class="input input-bordered rounded-2xl bg-base-200"
+                  class="kr-input-rounded-2xl bg-base-200"
                   type="text"
                   placeholder="kind-icon:dream"
                 />
@@ -232,7 +232,7 @@
                 >
                 <input
                   v-model.number="dreamStore.dreamForm.artImageId"
-                  class="input input-bordered rounded-2xl bg-base-200"
+                  class="kr-input-rounded-2xl bg-base-200"
                   type="number"
                   min="1"
                   placeholder="Optional"
@@ -247,7 +247,7 @@
                 >
                 <input
                   v-model.number="dreamStore.dreamForm.artCollectionId"
-                  class="input input-bordered rounded-2xl bg-base-200"
+                  class="kr-input-rounded-2xl bg-base-200"
                   type="number"
                   min="1"
                   placeholder="Optional"
@@ -262,7 +262,7 @@
                 >
                 <input
                   v-model="dreamStore.dreamForm.designer"
-                  class="input input-bordered rounded-2xl bg-base-200"
+                  class="kr-input-rounded-2xl bg-base-200"
                   type="text"
                   placeholder="Kind Designer"
                 />

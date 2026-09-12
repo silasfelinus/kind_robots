@@ -27,7 +27,7 @@
             type="search"
             placeholder="Search destinations…"
             aria-label="Search destinations"
-            class="input input-bordered h-10 w-full rounded-xl pl-9 text-sm"
+            class="kr-input-rounded-xl h-10 w-full pl-9 text-sm"
           />
         </label>
       </div>

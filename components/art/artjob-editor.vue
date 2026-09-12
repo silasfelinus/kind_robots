@@ -171,7 +171,7 @@
               <input
                 v-model="form.checkpoint"
                 list="artjob-checkpoint-presets"
-                class="input input-bordered rounded-2xl"
+                class="kr-input-rounded-2xl"
                 placeholder="Keep the current model or choose a preset"
               />
             </label>
@@ -180,7 +180,7 @@
               <span class="font-semibold">Style LoRA</span>
               <input
                 v-model="form.loraName"
-                class="input input-bordered rounded-2xl font-mono text-xs"
+                class="kr-input-rounded-2xl font-mono text-xs"
                 placeholder="e.g. Kontext/SFW/impressionist.safetensors"
               />
               <span class="text-[11px] text-base-content/50">

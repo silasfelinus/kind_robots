@@ -33,7 +33,7 @@
           <span class="kr-label-bold">Title</span>
           <input
             v-model="form.title"
-            class="input input-bordered rounded-xl"
+            class="kr-input-rounded-xl"
             placeholder="Comfy"
             required
           />
@@ -43,7 +43,7 @@
           <span class="kr-label-bold">Label</span>
           <input
             v-model="form.label"
-            class="input input-bordered rounded-xl"
+            class="kr-input-rounded-xl"
             placeholder="Friendly display label"
           />
         </label>
@@ -82,7 +82,7 @@
           <span class="kr-label-bold">Base URL</span>
           <input
             v-model="form.baseUrl"
-            class="input input-bordered rounded-xl"
+            class="kr-input-rounded-xl"
             placeholder="https://ferngrotto.foxhound-chicken.ts.net"
             required
           />
@@ -92,7 +92,7 @@
           <span class="kr-label-bold">Endpoint Path</span>
           <input
             v-model="form.endpointPath"
-            class="input input-bordered rounded-xl"
+            class="kr-input-rounded-xl"
             placeholder="/prompt"
           />
         </label>
@@ -101,7 +101,7 @@
           <span class="kr-label-bold">Health Path</span>
           <input
             v-model="form.healthPath"
-            class="input input-bordered rounded-xl"
+            class="kr-input-rounded-xl"
             placeholder="/system_stats"
           />
         </label>
@@ -110,7 +110,7 @@
           <span class="kr-label-bold">Category</span>
           <input
             v-model="form.category"
-            class="input input-bordered rounded-xl"
+            class="kr-input-rounded-xl"
             placeholder="personal"
           />
         </label>
@@ -119,7 +119,7 @@
           <span class="kr-label-bold">Model</span>
           <input
             v-model="form.model"
-            class="input input-bordered rounded-xl"
+            class="kr-input-rounded-xl"
             placeholder="Optional model name"
           />
         </label>
@@ -147,7 +147,7 @@
             <span class="kr-label-bold">API Key Header Name</span>
             <input
               v-model="form.apiKeyName"
-              class="input input-bordered rounded-xl"
+              class="kr-input-rounded-xl"
               placeholder="X-API-Key"
             />
           </label>
@@ -157,7 +157,7 @@
             <input
               v-model="apiKey"
               :type="showApiKey ? 'text' : 'password'"
-              class="input input-bordered rounded-xl"
+              class="kr-input-rounded-xl"
               placeholder="Leave blank to keep existing key"
               autocomplete="off"
             />

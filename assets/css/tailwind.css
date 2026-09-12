@@ -1639,6 +1639,29 @@ section:has(div[class*='xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]'])
     @apply select w-full bg-base-200;
   }
 
+  /* The `rounded-xl`-override sibling of .kr-input/.kr-input-sm/.kr-input-xs
+   * (interface-vision t-104 slice 236): those three primitives leave
+   * DaisyUI's own border radius untouched, but a separate pool of inputs
+   * across lora/server/user-directory/conductor/taskmaster surfaces
+   * explicitly overrides it -- previously hand-rolled as `input
+   * input-bordered rounded-xl`; `input-bordered` is the same dead legacy v4
+   * class .kr-input/.kr-input-sm already drop, leaving `input rounded-xl`
+   * as the real applied shape. 35 occurrences across 13 files. */
+  .kr-input-rounded-xl {
+    @apply input rounded-xl;
+  }
+
+  /* The `rounded-2xl` sibling of .kr-input-rounded-xl (same slice): the
+   * wider-corner-radius override on the same shape, previously hand-rolled
+   * as `input input-bordered rounded-2xl` across art-test/performer-
+   * creator/dream-maker/coloring-book surfaces -- `input-bordered` is the
+   * same dead legacy v4 class dropped the same way, leaving `input
+   * rounded-2xl` as the real applied shape. 33 occurrences across 16
+   * files. */
+  .kr-input-rounded-2xl {
+    @apply input rounded-2xl;
+  }
+
   /* The page-header icon badge: a tinted `h-12 w-12` square housing a
    * page-header `<Icon>`, sitting beside the page title (interface-vision
    * t-104 slice 149) -- previously hand-rolled identically across 8

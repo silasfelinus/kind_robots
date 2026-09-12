@@ -54,7 +54,7 @@
         <div class="flex flex-wrap items-center gap-1.5">
           <input
             v-model="searchQuery"
-            class="input input-bordered input-xs w-32 rounded-xl sm:w-44"
+            class="kr-input-rounded-xl input-xs w-32 sm:w-44"
             placeholder="Filter servers"
             aria-label="Filter servers"
           />

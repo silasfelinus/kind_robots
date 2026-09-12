@@ -127,7 +127,7 @@
           <input
             v-model="actionNote"
             type="text"
-            class="input input-bordered rounded-2xl"
+            class="kr-input-rounded-2xl"
             placeholder="Optional cover decision or revision note"
           />
 
@@ -186,7 +186,7 @@
                 <input
                   v-model="legacyPath"
                   type="text"
-                  class="input input-bordered w-full rounded-2xl"
+                  class="kr-input-rounded-2xl w-full"
                   placeholder="approved/my-cover.webp"
                 />
                 <button

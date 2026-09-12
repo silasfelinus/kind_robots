@@ -14,6 +14,23 @@ function includesAll(path, values) {
   }
 }
 
+// Some `values` entries are themselves a list of acceptable alternate
+// spellings of the same rendered shape -- e.g. the interface-vision t-104
+// kr-* consistency umbrella folds a hand-rolled utility combo into a shared
+// primitive that `@apply`s the exact same classes, so the literal source
+// text changes even though nothing renders differently. At least one
+// alternative in the group must be present.
+function includesAllOrAlternatives(path, values) {
+  const contents = source(path)
+  for (const value of values) {
+    const alternatives = Array.isArray(value) ? value : [value]
+    assert.ok(
+      alternatives.some((alt) => contents.includes(alt)),
+      `${path} must include ${alternatives.join(' or ')}`,
+    )
+  }
+}
+
 const pagePath = 'components/conductor/storybook-page.vue'
 const shellPath = 'components/pages/storybook-library-page.vue'
 const setupPath = 'components/storybook/storybook-visual-setup.vue'
@@ -138,9 +155,13 @@ assert.match(
   'Storybook setup must own a bounded scroll region, or the host clips it',
 )
 
-includesAll(ingredientCardPath, [
+includesAllOrAlternatives(ingredientCardPath, [
   'aspect-[2/3]',
-  'object-cover',
+  // 'object-cover' or its kr-img-cover primitive (interface-vision t-104
+  // slice 248): `.kr-img-cover { @apply h-full w-full object-cover; }`
+  // renders byte-identically to the hand-rolled `size-full object-cover`
+  // this card used before.
+  ['object-cover', 'kr-img-cover'],
   'bg-linear-to-t from-black/90',
 ])
 assert.ok(

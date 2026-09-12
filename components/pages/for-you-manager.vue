@@ -26,7 +26,7 @@
         >
           <div class="min-w-0">
             <div class="flex items-center gap-2 text-accent">
-              <Icon name="kind-icon:sparkles" class="size-5" />
+              <Icon name="kind-icon:sparkles" class="kr-icon-5" />
               <p class="kr-text-eyebrow text-xs tracking-[0.18em]">For You</p>
             </div>
             <h2 class="kr-text-black-xl mt-1 sm:text-2xl">
@@ -43,7 +43,7 @@
               v-if="userStore.isAdmin"
               class="badge badge-warning h-auto gap-1 rounded-xl px-3 py-2"
             >
-              <Icon name="kind-icon:lock" class="size-3.5" />
+              <Icon name="kind-icon:lock" class="kr-icon-3-5" />
               {{ conductorStore.humanGates.length }} active gate{{
                 conductorStore.humanGates.length === 1 ? '' : 's'
               }}
@@ -52,13 +52,13 @@
               v-if="userStore.isAdmin"
               class="badge badge-secondary h-auto gap-1 rounded-xl px-3 py-2"
             >
-              <Icon name="kind-icon:lightbulb" class="size-3.5" />
+              <Icon name="kind-icon:lightbulb" class="kr-icon-3-5" />
               {{ conductorStore.pendingPitches.length }} pitch{{
                 conductorStore.pendingPitches.length === 1 ? '' : 'es'
               }}
             </span>
             <span class="badge badge-accent h-auto gap-1 rounded-xl px-3 py-2">
-              <Icon name="kind-icon:check-square" class="size-3.5" />
+              <Icon name="kind-icon:check-square" class="kr-icon-3-5" />
               {{ todoStore.honeyDoTodos.length }} follow-up{{
                 todoStore.honeyDoTodos.length === 1 ? '' : 's'
               }}

@@ -122,7 +122,7 @@
       </section>
 
       <div v-if="errorMessage" class="alert alert-error rounded-2xl">
-        <Icon name="kind-icon:warning" class="size-5" />
+        <Icon name="kind-icon:warning" class="kr-icon-5" />
         <span>{{ errorMessage }}</span>
       </div>
 

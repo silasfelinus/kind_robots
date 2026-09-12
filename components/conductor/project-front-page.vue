@@ -43,7 +43,7 @@
             v-if="view.bridge"
             class="kr-badge-sm badge-info rounded-xl font-semibold gap-1"
           >
-            <Icon name="kind-icon:external-link" class="size-3" />External app
+            <Icon name="kind-icon:external-link" class="kr-icon-3" />External app
           </span>
         </div>
 
@@ -140,7 +140,7 @@
             <span
               class="flex size-9 items-center justify-center rounded-xl bg-primary/12 text-primary"
             >
-              <Icon :name="block.icon || 'kind-icon:sparkles'" class="size-5" />
+              <Icon :name="block.icon || 'kind-icon:sparkles'" class="kr-icon-5" />
             </span>
             <h3 class="kr-text-black-base text-base-content">
               {{ block.title }}

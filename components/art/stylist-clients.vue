@@ -58,7 +58,7 @@
 
           <div class="flex flex-wrap items-center gap-1">
             <button type="button" class="btn btn-primary btn-xs" @click="toggleGallery(customer.id)">
-              <Icon name="kind-icon:image" class="size-3.5" />
+              <Icon name="kind-icon:image" class="kr-icon-3-5" />
               {{ openGalleryId === customer.id ? 'Close gallery' : 'Open gallery' }}
             </button>
             <button type="button" class="kr-btn-ghost-xs-plain" @click="edit(customer)">Edit</button>

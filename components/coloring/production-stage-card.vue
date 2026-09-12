@@ -3,7 +3,7 @@
     <div class="flex items-center justify-between gap-2">
       <icon
         :name="iconName"
-        class="size-5"
+        class="kr-icon-5"
         :class="done ? 'text-success' : 'text-base-content/40'"
       />
       <span

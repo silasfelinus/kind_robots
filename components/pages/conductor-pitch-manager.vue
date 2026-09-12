@@ -16,7 +16,7 @@
         <div class="min-w-0 flex-1">
           <div class="flex flex-wrap items-center gap-2">
             <span class="flex size-10 items-center justify-center rounded-2xl bg-secondary/15 text-secondary">
-              <Icon name="kind-icon:sparkles" class="size-5" />
+              <Icon name="kind-icon:sparkles" class="kr-icon-5" />
             </span>
             <div>
               <h2 class="kr-text-black-xl tracking-tight sm:text-2xl">
@@ -90,7 +90,7 @@
           v-if="activeTab === 'review' && likelyOverlapCount"
           class="badge badge-warning h-8 gap-1 rounded-2xl px-3"
         >
-          <Icon name="kind-icon:warning" class="size-3.5" />
+          <Icon name="kind-icon:warning" class="kr-icon-3-5" />
           {{ likelyOverlapCount }} overlap signal{{ likelyOverlapCount === 1 ? '' : 's' }}
         </span>
       </div>
@@ -137,7 +137,7 @@
                 class="flex size-10 shrink-0 items-center justify-center rounded-2xl"
                 :class="statusIconClass(pitch)"
               >
-                <Icon :name="statusIcon(pitch)" class="size-5" />
+                <Icon :name="statusIcon(pitch)" class="kr-icon-5" />
               </span>
 
               <div class="min-w-0 flex-1">
@@ -154,7 +154,7 @@
                 </div>
                 <div class="kr-text-dim-xs-45 mt-1 flex flex-wrap items-center gap-x-3 gap-y-1">
                   <span v-if="pitch.projectTarget" class="flex items-center gap-1">
-                    <Icon name="kind-icon:folder" class="size-3" />
+                    <Icon name="kind-icon:folder" class="kr-icon-3" />
                     {{ pitch.projectTarget }}
                   </span>
                   <span v-if="pitch.date">{{ pitch.date }}</span>
@@ -218,7 +218,7 @@
                   @click="setStatus(pitch, 'approved')"
                 >
                   <span v-if="isUpdating(pitch.slug)" class="kr-spinner-xs" />
-                  <Icon v-else name="kind-icon:check" class="size-3.5" />
+                  <Icon v-else name="kind-icon:check" class="kr-icon-3-5" />
                   Approve
                 </button>
                 <button
@@ -227,7 +227,7 @@
                   :disabled="isUpdating(pitch.slug)"
                   @click="setStatus(pitch, 'rejected')"
                 >
-                  <Icon name="kind-icon:x" class="size-3.5" />
+                  <Icon name="kind-icon:x" class="kr-icon-3-5" />
                   Reject
                 </button>
                 <button
@@ -236,7 +236,7 @@
                   :disabled="isUpdating(pitch.slug)"
                   @click="setStatus(pitch, 'duplicate')"
                 >
-                  <Icon name="kind-icon:layers" class="size-3.5" />
+                  <Icon name="kind-icon:layers" class="kr-icon-3-5" />
                   Duplicate
                 </button>
                 <button
@@ -245,7 +245,7 @@
                   :disabled="isUpdating(pitch.slug)"
                   @click="setStatus(pitch, 'archived')"
                 >
-                  <Icon name="kind-icon:archive" class="size-3.5" />
+                  <Icon name="kind-icon:archive" class="kr-icon-3-5" />
                   Archive
                 </button>
               </div>
@@ -257,7 +257,7 @@
                   :disabled="isUpdating(pitch.slug)"
                   @click="setStatus(pitch, 'awaiting-silas')"
                 >
-                  <Icon name="kind-icon:undo" class="size-3.5" />
+                  <Icon name="kind-icon:undo" class="kr-icon-3-5" />
                   Return to review
                 </button>
                 <button
@@ -267,7 +267,7 @@
                   :disabled="isUpdating(pitch.slug)"
                   @click="setStatus(pitch, 'archived')"
                 >
-                  <Icon name="kind-icon:archive" class="size-3.5" />
+                  <Icon name="kind-icon:archive" class="kr-icon-3-5" />
                   Archive
                 </button>
               </div>

@@ -135,7 +135,7 @@
           v-if="!isLoggedIn"
           class="alert rounded-2xl border border-warning/30 bg-warning/10"
         >
-          <Icon name="kind-icon:warning" class="size-5" />
+          <Icon name="kind-icon:warning" class="kr-icon-5" />
           <span>
             Browse freely, but sign in before voting. Each account gets exactly
             one current vote per submission.
@@ -151,7 +151,7 @@
             :name="
               voteStatus === 'error' ? 'kind-icon:warning' : 'kind-icon:check'
             "
-            class="size-5"
+            class="kr-icon-5"
           />
           <span>{{ voteMessage }}</span>
         </div>

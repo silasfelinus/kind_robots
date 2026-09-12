@@ -19,7 +19,7 @@
           class="btn btn-secondary btn-xs gap-1 rounded-lg"
           @click="openGenerate"
         >
-          <Icon name="kind-icon:sparkles" class="size-3" />
+          <Icon name="kind-icon:sparkles" class="kr-icon-3" />
           Generate replacement
         </button>
         <button
@@ -27,7 +27,7 @@
           class="btn btn-primary btn-xs gap-1 rounded-lg"
           @click="openUpload"
         >
-          <Icon name="kind-icon:upload" class="size-3" />
+          <Icon name="kind-icon:upload" class="kr-icon-3" />
           Upload image
         </button>
       </div>
@@ -119,7 +119,7 @@
             @click="promoteActiveSlide"
           >
             <span v-if="promoting" class="kr-spinner-xs" />
-            <Icon v-else name="kind-icon:star" class="size-3" />
+            <Icon v-else name="kind-icon:star" class="kr-icon-3" />
             Set as {{ primarySlot.label.toLowerCase() }}
           </button>
           <template v-else>
@@ -128,7 +128,7 @@
               class="btn btn-secondary btn-xs gap-1 rounded-lg"
               @click="openGenerate"
             >
-              <Icon name="kind-icon:sparkles" class="size-3" />
+              <Icon name="kind-icon:sparkles" class="kr-icon-3" />
               Generate
             </button>
             <button
@@ -136,7 +136,7 @@
               class="btn btn-xs gap-1 rounded-lg border-0 bg-base-100/85 backdrop-blur"
               @click="openUpload"
             >
-              <Icon name="kind-icon:upload" class="size-3" />
+              <Icon name="kind-icon:upload" class="kr-icon-3" />
               Upload
             </button>
           </template>
@@ -214,7 +214,7 @@
           @click="removeHistory(slide.artImageId)"
         >
           <span v-if="removingHistoryId === slide.artImageId" class="kr-spinner-xs" />
-          <Icon v-else name="kind-icon:trash" class="size-3" />
+          <Icon v-else name="kind-icon:trash" class="kr-icon-3" />
         </button>
       </div>
     </div>
@@ -237,7 +237,7 @@
           :disabled="submitting"
           @click="closeForms"
         >
-          <Icon name="kind-icon:x" class="size-3" />
+          <Icon name="kind-icon:x" class="kr-icon-3" />
         </button>
       </div>
 
@@ -404,7 +404,7 @@
           :disabled="submitting"
           @click="closeForms"
         >
-          <Icon name="kind-icon:x" class="size-3" />
+          <Icon name="kind-icon:x" class="kr-icon-3" />
         </button>
       </div>
 

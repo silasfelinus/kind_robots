@@ -40,7 +40,7 @@
             class="absolute inset-x-0 top-0 flex flex-wrap items-center gap-2 p-4 sm:p-5"
           >
             <span class="badge badge-primary gap-1 rounded-xl shadow-sm">
-              <Icon name="kind-icon:moon" class="size-3.5" />
+              <Icon name="kind-icon:moon" class="kr-icon-3-5" />
               Daily digest
             </span>
             <span
@@ -103,28 +103,28 @@
                 v-if="relatedDreamCount"
                 class="badge badge-outline gap-1 rounded-xl"
               >
-                <Icon name="kind-icon:map" class="size-3.5" />
+                <Icon name="kind-icon:map" class="kr-icon-3-5" />
                 {{ relatedDreamCount }} place{{ relatedDreamCount === 1 ? '' : 's' }}
               </span>
               <span
                 v-if="activeDream.Characters.length"
                 class="badge badge-outline gap-1 rounded-xl"
               >
-                <Icon name="kind-icon:users" class="size-3.5" />
+                <Icon name="kind-icon:users" class="kr-icon-3-5" />
                 {{ activeDream.Characters.length }} cast
               </span>
               <span
                 v-if="activeDream.Rewards.length"
                 class="badge badge-outline gap-1 rounded-xl"
               >
-                <Icon name="kind-icon:gift" class="size-3.5" />
+                <Icon name="kind-icon:gift" class="kr-icon-3-5" />
                 {{ activeDream.Rewards.length }} discoveries
               </span>
               <span
                 v-if="activeDream.Scenarios.length"
                 class="badge badge-outline gap-1 rounded-xl"
               >
-                <Icon name="kind-icon:story" class="size-3.5" />
+                <Icon name="kind-icon:story" class="kr-icon-3-5" />
                 {{ activeDream.Scenarios.length }} scenario{{
                   activeDream.Scenarios.length === 1 ? '' : 's'
                 }}
@@ -133,7 +133,7 @@
                 v-if="activeDream.Bots.length"
                 class="badge badge-outline gap-1 rounded-xl"
               >
-                <Icon name="kind-icon:robot" class="size-3.5" />
+                <Icon name="kind-icon:robot" class="kr-icon-3-5" />
                 {{ activeDream.Bots.length }} narrator{{
                   activeDream.Bots.length === 1 ? '' : 's'
                 }}

@@ -217,7 +217,7 @@
               @click="submitRedo"
             >
               <span v-if="redoBusy" class="kr-spinner-xs" />
-              <Icon v-else name="kind-icon:refresh" class="size-3.5" />
+              <Icon v-else name="kind-icon:refresh" class="kr-icon-3-5" />
               Queue new art
             </button>
 

@@ -138,7 +138,7 @@
             </div>
           </div>
           <div v-else class="alert alert-success mt-3 rounded-2xl">
-            <icon name="kind-icon:check" class="size-5" />
+            <icon name="kind-icon:check" class="kr-icon-5" />
             <span>All canonical source assets are complete and verified.</span>
           </div>
         </article>
@@ -201,7 +201,7 @@
       </div>
 
       <div class="alert alert-info rounded-2xl">
-        <icon name="kind-icon:info" class="size-5" />
+        <icon name="kind-icon:info" class="kr-icon-5" />
         <span>
           Canonical source art is {{ packageData.requirements.sourcePixelSize }} at
           {{ packageData.requirements.sourceAspectRatio }}. It will not be cropped into a

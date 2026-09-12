@@ -221,7 +221,7 @@
                   :title="prompt.title"
                   @click="studyPromptMode = prompt.value"
                 >
-                  <Icon :name="prompt.icon" class="size-3.5" />
+                  <Icon :name="prompt.icon" class="kr-icon-3-5" />
                   <span class="hidden sm:inline">{{ prompt.label }}</span>
                 </button>
               </div>
@@ -301,7 +301,7 @@
                         :disabled="artBusy"
                         @click="queueCurrentIllustration"
                       >
-                        <Icon name="kind-icon:image" class="size-3.5" />
+                        <Icon name="kind-icon:image" class="kr-icon-3-5" />
                         {{ artBusy ? 'Submitting…' : 'Request art' }}
                       </button>
                       <button

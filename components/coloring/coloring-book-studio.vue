@@ -21,13 +21,13 @@
         @click="studio.fetchStudio()"
       >
         <span v-if="studio.loading" class="kr-spinner-sm" />
-        <icon v-else name="kind-icon:refresh" class="size-5" />
+        <icon v-else name="kind-icon:refresh" class="kr-icon-5" />
         Refresh Conductor
       </button>
     </header>
 
     <div v-if="studio.error" class="alert alert-error rounded-2xl" role="alert">
-      <icon name="kind-icon:alert" class="size-5" />
+      <icon name="kind-icon:alert" class="kr-icon-5" />
       <span>{{ studio.error }}</span>
       <button
         type="button"
@@ -43,7 +43,7 @@
       class="alert alert-success rounded-2xl"
       role="status"
     >
-      <icon name="kind-icon:check" class="size-5" />
+      <icon name="kind-icon:check" class="kr-icon-5" />
       <span>{{ studio.message }}</span>
       <button
         type="button"
@@ -178,7 +178,7 @@
             class="btn btn-primary mt-auto rounded-2xl"
             @click="openBook(book.slug)"
           >
-            <icon name="kind-icon:gallery" class="size-5" />
+            <icon name="kind-icon:gallery" class="kr-icon-5" />
             Open page ledger
           </button>
         </article>
@@ -446,7 +446,7 @@
               v-if="studio.savingPrompt"
               class="kr-spinner-sm"
             />
-            <icon v-else name="kind-icon:save" class="size-5" />
+            <icon v-else name="kind-icon:save" class="kr-icon-5" />
             Save canonical prompt
           </button>
 
@@ -472,7 +472,7 @@
               v-if="studio.requestingRender"
               class="kr-spinner-sm"
             />
-            <icon v-else name="kind-icon:sparkles" class="size-5" />
+            <icon v-else name="kind-icon:sparkles" class="kr-icon-5" />
             {{
               requestNeedsForce
                 ? 'Archive current and request revision'
@@ -484,7 +484,7 @@
             v-if="!userStore.isAdmin"
             class="alert rounded-2xl bg-base-200 text-sm"
           >
-            <icon name="kind-icon:lock" class="size-5" />
+            <icon name="kind-icon:lock" class="kr-icon-5" />
             <span>Production edits and render requests are admin-only.</span>
           </div>
 

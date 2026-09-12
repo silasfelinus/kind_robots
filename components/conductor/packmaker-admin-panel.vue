@@ -17,7 +17,7 @@
         <span
           class="flex size-9 items-center justify-center rounded-xl bg-warning/15 text-warning"
         >
-          <Icon name="kind-icon:box" class="size-5" />
+          <Icon name="kind-icon:box" class="kr-icon-5" />
         </span>
         <div>
           <h3 class="kr-text-black-base text-base-content">Pack Generator</h3>
@@ -28,7 +28,7 @@
       </div>
       <div class="flex items-center gap-1.5">
         <button class="kr-btn-xs btn-primary" @click="openNewPack">
-          <Icon name="kind-icon:plus" class="size-3.5" />
+          <Icon name="kind-icon:plus" class="kr-icon-3-5" />
           New pack
         </button>
         <button class="kr-btn-ghost-xs" @click="showImport = !showImport">
@@ -107,7 +107,7 @@
           title="Rename the pack or edit its manifest entries"
           @click="editorMode = 'edit'"
         >
-          <Icon name="kind-icon:pencil" class="size-3.5" />
+          <Icon name="kind-icon:pencil" class="kr-icon-3-5" />
           Edit / rename
         </button>
         <p class="kr-text-dim-sm-70 w-full leading-relaxed">
@@ -187,7 +187,7 @@
               title="Forget the local link and start this item over as a fresh row"
               @click="packStore.resetItem(selectedPack.id, item.id)"
             >
-              <Icon name="kind-icon:refresh" class="size-3.5" />
+              <Icon name="kind-icon:refresh" class="kr-icon-3-5" />
             </button>
           </div>
         </article>

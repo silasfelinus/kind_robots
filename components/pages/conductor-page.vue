@@ -15,7 +15,7 @@
           class="btn btn-ghost btn-xs gap-0.5 rounded-lg px-1.5"
           @click="goToOverview"
         >
-          <Icon name="kind-icon:chevron-left" class="size-3" />
+          <Icon name="kind-icon:chevron-left" class="kr-icon-3" />
           Back
         </button>
         <span v-else class="flex items-center gap-1.5">
@@ -80,7 +80,7 @@
               :name="
                 linkedProject.isPublic ? 'kind-icon:eye' : 'kind-icon:eye-off'
               "
-              class="size-3.5"
+              class="kr-icon-3-5"
             />
           </button>
           <button
@@ -98,7 +98,7 @@
             :disabled="projectSaving"
             @click="patchProject({ isMature: !linkedProject.isMature })"
           >
-            <Icon name="kind-icon:warning" class="size-3.5" />
+            <Icon name="kind-icon:warning" class="kr-icon-3-5" />
           </button>
           <button
             type="button"
@@ -117,7 +117,7 @@
             :disabled="projectSaving"
             @click="patchProject({ allowReviews: !linkedProject.allowReviews })"
           >
-            <Icon name="kind-icon:comment" class="size-3.5" />
+            <Icon name="kind-icon:comment" class="kr-icon-3-5" />
           </button>
           <span
             v-if="projectSaving"
@@ -149,7 +149,7 @@
 
       <!-- Error indicator -->
       <span v-if="error" class="kr-text-error-xs flex items-center gap-1">
-        <Icon name="kind-icon:warning" class="size-3" />
+        <Icon name="kind-icon:warning" class="kr-icon-3" />
         <span class="hidden max-w-32 truncate sm:inline">{{
           error.message
         }}</span>
@@ -174,7 +174,7 @@
           @click="syncMissingProjects"
         >
           <span v-if="syncingMissing" class="kr-spinner-xs" />
-          <Icon v-else name="kind-icon:warning" class="size-3" />
+          <Icon v-else name="kind-icon:warning" class="kr-icon-3" />
           Sync {{ missingProjectSlugs.length }}
         </button>
         <span
@@ -199,7 +199,7 @@
           @click="refreshWorkspace"
         >
           <span v-if="pending" class="kr-spinner-xs" />
-          <Icon v-else name="kind-icon:refresh" class="size-3.5" />
+          <Icon v-else name="kind-icon:refresh" class="kr-icon-3-5" />
         </button>
       </template>
     </div>
@@ -435,7 +435,7 @@
                             ? 'kind-icon:check-circle'
                             : 'kind-icon:circle'
                         "
-                        class="size-5"
+                        class="kr-icon-5"
                       />
                     </button>
                     <span
@@ -470,7 +470,7 @@
                         title="Archive"
                         @click="todoStore.archiveTodo(todo.id)"
                       >
-                        <Icon name="kind-icon:archive" class="size-3" />
+                        <Icon name="kind-icon:archive" class="kr-icon-3" />
                       </button>
                       <button
                         type="button"
@@ -478,7 +478,7 @@
                         title="Delete"
                         @click="todoStore.deleteTodo(todo.id)"
                       >
-                        <Icon name="kind-icon:x" class="size-3" />
+                        <Icon name="kind-icon:x" class="kr-icon-3" />
                       </button>
                     </div>
                   </div>
@@ -619,7 +619,7 @@
                 class="badge badge-sm gap-1"
                 :class="taskBadgeClass(status)"
               >
-                <Icon :name="taskIcon(status)" class="size-3" />{{ count }}
+                <Icon :name="taskIcon(status)" class="kr-icon-3" />{{ count }}
                 {{ status }}
               </span>
             </div>
@@ -755,7 +755,7 @@
                     rel="noopener noreferrer"
                     class="btn btn-xs btn-outline gap-1"
                   >
-                    <Icon name="kind-icon:external-link" class="size-3" /> Live
+                    <Icon name="kind-icon:external-link" class="kr-icon-3" /> Live
                     Site
                   </a>
                   <a
@@ -765,7 +765,7 @@
                     rel="noopener noreferrer"
                     class="btn btn-xs btn-outline gap-1"
                   >
-                    <Icon name="kind-icon:code" class="size-3" /> Repo
+                    <Icon name="kind-icon:code" class="kr-icon-3" /> Repo
                   </a>
                 </div>
               </div>
@@ -775,7 +775,7 @@
               >
                 <Icon
                   name="kind-icon:dream"
-                  class="mx-auto mb-1 size-5 opacity-40"
+                  class="kr-icon-5 mx-auto mb-1 opacity-40"
                 />
                 No Project record linked for
                 <strong>{{ selectedProject.slug }}</strong>
@@ -798,7 +798,7 @@
               >
                 <Icon
                   name="kind-icon:chevron-right"
-                  class="size-3.5 shrink-0 transition-transform group-open:rotate-90"
+                  class="kr-icon-3-5 shrink-0 transition-transform group-open:rotate-90"
                 />
                 <Icon name="kind-icon:document" class="size-4 text-info" />
                 <span
@@ -827,7 +827,7 @@
               >
                 <Icon
                   name="kind-icon:chevron-right"
-                  class="size-3.5 shrink-0 transition-transform group-open:rotate-90"
+                  class="kr-icon-3-5 shrink-0 transition-transform group-open:rotate-90"
                 />
                 <span
                   class="kr-text-eyebrow-bold kr-text-dim-xs-60 tracking-wide"
@@ -849,7 +849,7 @@
                   >
                     <Icon
                       :name="milestoneIcon(milestone.status)"
-                      class="size-3.5"
+                      class="kr-icon-3-5"
                     />
                   </div>
                   <div class="min-w-0 flex-1">
@@ -885,7 +885,7 @@
               >
                 <Icon
                   name="kind-icon:chevron-right"
-                  class="size-3.5 shrink-0 transition-transform group-open:rotate-90"
+                  class="kr-icon-3-5 shrink-0 transition-transform group-open:rotate-90"
                 />
                 <span
                   class="kr-text-eyebrow-bold kr-text-dim-xs-60 tracking-wide"
@@ -907,7 +907,7 @@
                         class="kr-icon-6 mt-0.5 flex shrink-0 items-center justify-center rounded-full border"
                         :class="taskIconClass(task.status)"
                       >
-                        <Icon :name="taskIcon(task.status)" class="size-3" />
+                        <Icon :name="taskIcon(task.status)" class="kr-icon-3" />
                       </div>
                       <div class="min-w-0 flex-1">
                         <p
@@ -1001,7 +1001,7 @@
                     >
                       <Icon
                         name="kind-icon:chevron-right"
-                        class="mt-0.5 size-3.5 shrink-0 transition-transform group-open:rotate-90"
+                        class="kr-icon-3-5 mt-0.5 shrink-0 transition-transform group-open:rotate-90"
                       />
                       <span class="min-w-0 flex-1 break-words">{{
                         group.title

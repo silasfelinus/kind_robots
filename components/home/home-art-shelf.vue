@@ -51,7 +51,7 @@
           v-for="option in MODES"
           :key="option.key"
           type="button"
-          class="grid size-5 place-items-center transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary"
+          class="kr-icon-5 grid place-items-center transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary"
           :class="
             mode === option.key
               ? 'bg-primary text-primary-content'
@@ -62,7 +62,7 @@
           :aria-label="option.label"
           @click="setMode(option.key)"
         >
-          <Icon :name="option.icon" class="size-3" />
+          <Icon :name="option.icon" class="kr-icon-3" />
         </button>
       </span>
 

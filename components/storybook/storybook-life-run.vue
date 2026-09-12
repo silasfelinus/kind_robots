@@ -33,7 +33,7 @@
           class="btn btn-ghost btn-xs gap-1 rounded-lg text-base-content/50 normal-case"
           @click="leaveLife"
         >
-          <Icon name="kind-icon:arrow-left" class="size-3.5" />
+          <Icon name="kind-icon:arrow-left" class="kr-icon-3-5" />
           Back to the table
         </button>
       </div>
@@ -43,7 +43,7 @@
         role="alert"
         class="alert alert-warning rounded-2xl text-sm"
       >
-        <Icon name="kind-icon:warning" class="size-5" />
+        <Icon name="kind-icon:warning" class="kr-icon-5" />
         <span>{{ errorMessage }}</span>
       </div>
 
@@ -156,7 +156,7 @@
               :disabled="submitting"
               @click="abandonRun"
             >
-              <Icon name="kind-icon:close" class="size-3.5" />
+              <Icon name="kind-icon:close" class="kr-icon-3-5" />
               Abandon this life
             </button>
           </div>

@@ -19,7 +19,7 @@
       >
         <Icon
           :name="editing ? 'kind-icon:x' : 'kind-icon:edit'"
-          class="size-3.5"
+          class="kr-icon-3-5"
         />
         {{ editing ? 'Close' : 'Edit' }}
       </button>

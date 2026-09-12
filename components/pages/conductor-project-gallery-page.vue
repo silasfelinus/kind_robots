@@ -71,7 +71,7 @@
           @click="createProject"
         >
           <span v-if="projects.saving" class="kr-spinner-xs" />
-          <Icon v-else name="kind-icon:plus" class="size-3.5" />
+          <Icon v-else name="kind-icon:plus" class="kr-icon-3-5" />
           Create Project
         </button>
         <p v-if="createError" class="kr-text-error-xs">{{ createError }}</p>
@@ -162,7 +162,7 @@
               :aria-pressed="filter === option.value"
               @click="filter = option.value"
             >
-              <Icon :name="option.icon" class="size-3" />
+              <Icon :name="option.icon" class="kr-icon-3" />
               <span class="hidden sm:inline">{{ option.label }}</span>
               <span class="kr-badge-xs">{{ filterCount(option.value) }}</span>
             </button>
@@ -174,7 +174,7 @@
               :aria-pressed="showSync"
               @click="showSync = !showSync"
             >
-              <Icon name="kind-icon:warning" class="size-3" />
+              <Icon name="kind-icon:warning" class="kr-icon-3" />
               <span class="hidden sm:inline">Sync</span>
               <span class="kr-badge-xs">{{ syncIssueCount }}</span>
             </button>
@@ -186,7 +186,7 @@
               :aria-pressed="showBlocked"
               @click="showBlocked = !showBlocked"
             >
-              <Icon name="kind-icon:pause" class="size-3" />
+              <Icon name="kind-icon:pause" class="kr-icon-3" />
               <span class="hidden sm:inline">Blocked</span>
               <span class="kr-badge-xs">{{ blockedTasks.length }}</span>
             </button>
@@ -197,7 +197,7 @@
               :aria-expanded="createOpen"
               @click="createOpen = !createOpen"
             >
-              <Icon name="kind-icon:plus" class="size-3.5" />
+              <Icon name="kind-icon:plus" class="kr-icon-3-5" />
               <span class="hidden sm:inline">Create</span>
             </button>
 
@@ -207,7 +207,7 @@
               @click="refresh"
             >
               <span v-if="loading" class="kr-spinner-xs" />
-              <Icon v-else name="kind-icon:refresh" class="size-3.5" />
+              <Icon v-else name="kind-icon:refresh" class="kr-icon-3-5" />
               <span class="hidden sm:inline">Refresh</span>
             </button>
           </div>

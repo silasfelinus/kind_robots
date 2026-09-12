@@ -31,7 +31,7 @@
       >
         <span
           v-if="facetArtwork(facet)"
-          class="size-5 overflow-hidden rounded-lg bg-base-200"
+          class="kr-icon-5 overflow-hidden rounded-lg bg-base-200"
         >
           <img
             :src="facetArtwork(facet) || ''"
@@ -69,7 +69,7 @@
           <div
             class="kr-text-eyebrow sticky top-0 z-10 flex items-center gap-2 bg-base-100/95 px-2 py-1 text-[10px] tracking-wide text-base-content/45 backdrop-blur"
           >
-            <Icon name="kind-icon:tag" class="size-3" />
+            <Icon name="kind-icon:tag" class="kr-icon-3" />
             {{ group.label }}
             <span class="font-semibold text-base-content/25">{{
               group.facets.length
@@ -124,7 +124,7 @@
                 v-if="artRequests.requesting[facet.id]"
                 class="kr-spinner-xs"
               />
-              <Icon v-else name="kind-icon:image" class="size-3.5" />
+              <Icon v-else name="kind-icon:image" class="kr-icon-3-5" />
               {{ artRequests.requested[facet.id] ? 'Requested' : 'Art' }}
             </button>
             <button
@@ -134,7 +134,7 @@
               aria-label="Add Facet"
               @click="addFacet(facet.id)"
             >
-              <Icon name="kind-icon:plus" class="size-3.5" />
+              <Icon name="kind-icon:plus" class="kr-icon-3-5" />
             </button>
           </div>
         </template>

@@ -9,7 +9,7 @@
       <span
         class="flex size-10 shrink-0 items-center justify-center rounded-2xl bg-secondary text-secondary-content"
       >
-        <Icon name="kind-icon:sparkles" class="size-5" />
+        <Icon name="kind-icon:sparkles" class="kr-icon-5" />
       </span>
       <span class="min-w-0 flex-1">
         <span class="block font-black">Today’s Facet Dream</span>

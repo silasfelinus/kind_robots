@@ -105,7 +105,7 @@
           @click="savePrompt"
         >
           <span v-if="studio.savingCoverPrompt" class="kr-spinner-sm" />
-          <icon v-else name="kind-icon:save" class="size-5" />
+          <icon v-else name="kind-icon:save" class="kr-icon-5" />
           Save canonical cover prompt
         </button>
 
@@ -139,7 +139,7 @@
               @click="requestCover(false)"
             >
               <span v-if="studio.requestingAction" class="kr-spinner-sm" />
-              <icon v-else name="kind-icon:sparkles" class="size-5" />
+              <icon v-else name="kind-icon:sparkles" class="kr-icon-5" />
               Generate cover candidate
             </button>
 
@@ -150,7 +150,7 @@
               :disabled="studio.requestingAction || promptDirty"
               @click="requestCover(true)"
             >
-              <icon name="kind-icon:refresh" class="size-5" />
+              <icon name="kind-icon:refresh" class="kr-icon-5" />
               Archive and regenerate
             </button>
 
@@ -195,7 +195,7 @@
                   :disabled="!validLegacyPath || studio.requestingAction"
                   @click="adoptExisting"
                 >
-                  <icon name="kind-icon:gallery" class="size-5" />
+                  <icon name="kind-icon:gallery" class="kr-icon-5" />
                   Adopt exact file
                 </button>
               </div>

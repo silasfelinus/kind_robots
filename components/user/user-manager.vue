@@ -46,7 +46,7 @@
         </p>
       </div>
       <NuxtLink to="/login" class="btn btn-primary rounded-xl px-8">
-        <Icon name="kind-icon:login" class="size-5" />
+        <Icon name="kind-icon:login" class="kr-icon-5" />
         Log In
       </NuxtLink>
     </section>

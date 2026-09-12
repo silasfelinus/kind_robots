@@ -24,6 +24,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Set up Node
         uses: actions/setup-node@v4
@@ -44,3 +46,7 @@ jobs:
 
       - name: Layout header contract self-test
         run: npm run test:layout-header-contract-selftest
+
+      - name: Audit test-prefixed commits for executable assertions
+        if: github.event_name == 'pull_request'
+        run: bash scripts/check-test-commit-assertions.sh "${{ github.event.pull_request.base.sha }}"

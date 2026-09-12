@@ -141,7 +141,7 @@ import {
 import { useAnimationStore } from '@/stores/animationStore'
 
 interface RangeControl {
-  key: keyof Omit<ButterflyAnimationPreferences, 'adaptive'>
+  key: keyof Omit<ButterflyAnimationPreferences, 'adaptive' | 'count'>
   label: string
   min: number
   max: number
@@ -160,14 +160,6 @@ const availableEffects = computed(() => {
 })
 
 const controls: RangeControl[] = [
-  {
-    key: 'count',
-    label: 'Butterflies',
-    min: 0,
-    max: 140,
-    step: 1,
-    help: 'Maximum visible population.',
-  },
   {
     key: 'fps',
     label: 'Frame rate',
@@ -237,7 +229,7 @@ function setAdaptive(event: Event): void {
 }
 
 function setNumber(
-  key: keyof Omit<ButterflyAnimationPreferences, 'adaptive'>,
+  key: keyof Omit<ButterflyAnimationPreferences, 'adaptive' | 'count'>,
   event: Event,
 ): void {
   const target = event.target as HTMLInputElement
@@ -245,7 +237,7 @@ function setNumber(
 }
 
 function formatValue(
-  key: keyof Omit<ButterflyAnimationPreferences, 'adaptive'>,
+  key: keyof Omit<ButterflyAnimationPreferences, 'adaptive' | 'count'>,
 ): string {
   const value = settings.value[key]
 

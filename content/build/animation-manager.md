@@ -2,13 +2,13 @@
 title: 'Animation Manager'
 room: 'Animation Manager'
 subtitle: 'The Museum of Passive Chaos'
-description: Browse every Screen FX catalog effect, its build history, working/broken state, and Reaction ratings — then preview, compare, promote, polish, or retire a build.
+description: Preview every Screen FX effect on a clean stage, layer favorites across the app, control coverage zones, and choose what appears at startup.
 image: splash/screenfx.png
-tooltip: A gallery and promotion workspace for every Screen FX animation build attempt.
+tooltip: One control room for every passive animation and screen effect.
 icon: kind-icon:sparkles
 sort: highlight
-dottiTip: AMI, how do we know which butterfly build actually works?
-amiTip: We don't guess — we log it, rate it, and promote the one that survives contact with reality.
+dottiTip: AMI, should one page really control all of reality?
+amiTip: Better one good control room than two cupboards full of unlabeled switches.
 channelKey: admin
 tabKey: animation-manager
 dashboardKey: wonder

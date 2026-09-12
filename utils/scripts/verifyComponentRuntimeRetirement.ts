@@ -59,6 +59,11 @@ assert.equal(
   false,
   'Retired lab-manager wrapper must stay deleted',
 )
+assert.equal(
+  await exists('content/channels/admin/screen-fx.md'),
+  false,
+  'Screen FX must not return as a second admin tab beside Animation Manager',
+)
 
 const [memoryContent, screenFxContent, animationManagerContent] = await Promise.all([
   readFile('content/play/memory.md', 'utf8'),
@@ -67,8 +72,8 @@ const [memoryContent, screenFxContent, animationManagerContent] = await Promise.
 ])
 assert.match(memoryContent, /:memory-dungeon\s*$/m)
 assert.doesNotMatch(memoryContent, /:lab-manager/)
-assert.match(screenFxContent, /:screen-fx\{show-header=false\}\s*$/m)
-assert.doesNotMatch(screenFxContent, /:lab-manager/)
+assert.match(screenFxContent, /^redirect:\s*\/build\/animation-manager\s*$/m)
+assert.doesNotMatch(screenFxContent, /:screen-fx|:lab-manager/)
 assert.match(animationManagerContent, /:animation-manager\s*$/m)
 assert.doesNotMatch(animationManagerContent, /:lab-manager/)
 
@@ -102,12 +107,20 @@ assert.equal(voiceCorpus.length, 39, 'The 39 checked-in voice corpus files must 
 const managerStore = await readFile('stores/animationManagerStore.ts', 'utf8')
 assert.match(managerStore, /animationEffects/)
 assert.match(managerStore, /useAnimationStore/)
+assert.match(managerStore, /showBackdrop:\s*true/)
 assert.doesNotMatch(managerStore, /ComponentStatus|KindComponent|componentStore|animationComponentHelper/)
 
 const manager = await readFile('components/animation/animation-manager.vue', 'utf8')
 assert.match(manager, /live catalog effects/)
 assert.match(manager, /Preview effect/)
+assert.match(manager, /<animation-selector\s*\/>/)
+assert.match(manager, /Coverage zones/)
+assert.match(manager, /Add screen layer/)
 assert.doesNotMatch(manager, /component-card|ComponentStatus|KindComponent|build history|recordAnimationAttempt/)
+
+const animationLayer = await readFile('components/screenfx/animation-layer.vue', 'utf8')
+assert.match(animationLayer, /animationStore\.showBackdrop/)
+assert.match(animationLayer, /animation-preview-backdrop/)
 
 const storeIndex = await readFile('stores/index.ts', 'utf8')
 assert.doesNotMatch(storeIndex, /loadComponentStore|componentStore/)

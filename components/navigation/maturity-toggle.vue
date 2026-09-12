@@ -38,7 +38,7 @@
           <span v-if="isUpdating" class="kr-spinner-xs" />
           <input
             type="checkbox"
-            class="toggle toggle-warning toggle-sm"
+            class="kr-toggle-warning-sm"
             :checked="showMature"
             :disabled="isUpdating"
             :aria-label="buttonLabel"

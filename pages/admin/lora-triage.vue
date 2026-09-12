@@ -114,7 +114,7 @@
             >
               <input
                 type="checkbox"
-                class="toggle toggle-sm toggle-primary"
+                class="kr-toggle-primary-sm"
                 :checked="triageStore.hideConfirmed"
                 @change="handleHideConfirmed"
               />

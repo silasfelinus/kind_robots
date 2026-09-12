@@ -508,7 +508,7 @@
             <input
               v-model="useNegative"
               type="checkbox"
-              class="toggle toggle-primary toggle-xs"
+              class="kr-toggle-primary-xs"
               :disabled="isGenerating"
             />
             <span class="kr-label-xs-semibold"> Inherit negative prompt </span>
@@ -517,7 +517,7 @@
             <input
               v-model="isPublic"
               type="checkbox"
-              class="toggle toggle-success toggle-xs"
+              class="kr-toggle-success-xs"
               :disabled="isGenerating"
             />
             <span class="kr-label-xs-semibold">Public</span>

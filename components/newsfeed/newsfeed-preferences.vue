@@ -60,7 +60,7 @@
           </button>
           <input
             type="checkbox"
-            class="toggle toggle-primary toggle-sm ml-1 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+            class="kr-toggle-primary-sm ml-1 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
             checked
             :aria-label="`Disable ${feed.title}`"
             @change="feedPreferenceStore.disableFeed(feed.slug)"

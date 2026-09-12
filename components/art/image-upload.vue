@@ -286,7 +286,7 @@
               <input
                 v-model="imageForm.cfgHalf"
                 type="checkbox"
-                class="toggle toggle-primary toggle-xs"
+                class="kr-toggle-primary-xs"
                 :disabled="isUploading"
               />
               <span class="kr-label-xs-semibold">CFG + 0.5</span>
@@ -295,7 +295,7 @@
               <input
                 v-model="imageForm.isPublic"
                 type="checkbox"
-                class="toggle toggle-success toggle-xs"
+                class="kr-toggle-success-xs"
                 :disabled="isUploading"
               />
               <span class="kr-label-xs-semibold">Public</span>
@@ -304,7 +304,7 @@
               <input
                 v-model="imageForm.isMature"
                 type="checkbox"
-                class="toggle toggle-warning toggle-xs"
+                class="kr-toggle-warning-xs"
                 :disabled="isUploading"
               />
               <span class="kr-label-xs-semibold">Mature</span>

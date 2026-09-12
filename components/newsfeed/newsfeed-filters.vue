@@ -178,7 +178,7 @@
       <label class="kr-text-bold-xs flex w-fit items-center gap-2 pt-1">
         <input
           type="checkbox"
-          class="toggle toggle-primary toggle-sm"
+          class="kr-toggle-primary-sm"
           :checked="feedPreferenceStore.labelsVisible"
           @change="
             feedPreferenceStore.setLabelsVisible(

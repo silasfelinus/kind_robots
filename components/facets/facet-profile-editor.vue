@@ -159,7 +159,7 @@
         <input
           v-model="form.isRandomizable"
           type="checkbox"
-          class="toggle toggle-secondary toggle-xs"
+          class="kr-toggle-secondary-xs"
         />
         Available to randomizers
       </label>
@@ -167,7 +167,7 @@
         <input
           v-model="form.artRequired"
           type="checkbox"
-          class="toggle toggle-accent toggle-xs"
+          class="kr-toggle-accent-xs"
         />
         Artwork expected
       </label>
@@ -175,7 +175,7 @@
         <input
           v-model="form.isPublic"
           type="checkbox"
-          class="toggle toggle-primary toggle-xs"
+          class="kr-toggle-primary-xs"
         />
         Public
       </label>
@@ -192,7 +192,7 @@
         <input
           v-model="form.allowReviews"
           type="checkbox"
-          class="toggle toggle-accent toggle-xs"
+          class="kr-toggle-accent-xs"
         />
         Allow reviews
       </label>
@@ -200,7 +200,7 @@
         <input
           v-model="form.isMature"
           type="checkbox"
-          class="toggle toggle-warning toggle-xs"
+          class="kr-toggle-warning-xs"
         />
         Mature
       </label>

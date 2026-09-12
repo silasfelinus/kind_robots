@@ -1466,6 +1466,90 @@ section:has(div[class*='xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]'])
     @apply toggle toggle-error;
   }
 
+  /* First sized-colored toggle primitive (interface-vision t-134, kaizen
+   * from t-104 slice 246): the small, primary-colored DaisyUI toggle --
+   * `toggle toggle-sm toggle-primary` -- previously hand-rolled in 4 files
+   * (4 occurrences). Distinct from .kr-toggle-primary (the sizeless base
+   * above); this is its -sm sized sibling, same relationship as
+   * .kr-checkbox-primary-sm to .kr-checkbox-primary. */
+  .kr-toggle-primary-sm {
+    @apply toggle toggle-sm toggle-primary;
+  }
+
+  /* The extra-small counterpart to .kr-toggle-primary-sm (same slice):
+   * `toggle toggle-xs toggle-primary`, previously hand-rolled in 4 files (4
+   * occurrences). */
+  .kr-toggle-primary-xs {
+    @apply toggle toggle-xs toggle-primary;
+  }
+
+  /* The warning-colored, small counterpart to .kr-toggle-primary-sm (same
+   * slice): `toggle toggle-sm toggle-warning`, previously hand-rolled in 4
+   * files (4 occurrences). */
+  .kr-toggle-warning-sm {
+    @apply toggle toggle-sm toggle-warning;
+  }
+
+  /* The accent-colored, extra-small counterpart to .kr-toggle-primary-sm
+   * (same slice): `toggle toggle-xs toggle-accent`, previously hand-rolled
+   * in 3 files (4 occurrences). */
+  .kr-toggle-accent-xs {
+    @apply toggle toggle-xs toggle-accent;
+  }
+
+  /* The warning-colored, extra-small counterpart to .kr-toggle-primary-sm
+   * (same slice): `toggle toggle-xs toggle-warning`, previously
+   * hand-rolled in 3 files (3 occurrences). */
+  .kr-toggle-warning-xs {
+    @apply toggle toggle-xs toggle-warning;
+  }
+
+  /* The success-colored, small counterpart to .kr-toggle-primary-sm (same
+   * slice): `toggle toggle-sm toggle-success`, previously hand-rolled in 3
+   * files (3 occurrences). */
+  .kr-toggle-success-sm {
+    @apply toggle toggle-sm toggle-success;
+  }
+
+  /* The accent-colored, small counterpart to .kr-toggle-primary-sm (same
+   * slice): `toggle toggle-sm toggle-accent`, previously hand-rolled in 2
+   * files (2 occurrences). */
+  .kr-toggle-accent-sm {
+    @apply toggle toggle-sm toggle-accent;
+  }
+
+  /* The secondary-colored, extra-small counterpart to .kr-toggle-primary-sm
+   * (same slice): `toggle toggle-xs toggle-secondary`, previously
+   * hand-rolled in 2 files (2 occurrences). */
+  .kr-toggle-secondary-xs {
+    @apply toggle toggle-xs toggle-secondary;
+  }
+
+  /* The success-colored, extra-small counterpart to .kr-toggle-primary-sm
+   * (same slice): `toggle toggle-xs toggle-success`, previously
+   * hand-rolled in 2 files (2 occurrences). */
+  .kr-toggle-success-xs {
+    @apply toggle toggle-xs toggle-success;
+  }
+
+  /* The error-colored, extra-small counterpart to .kr-toggle-primary-sm
+   * (same slice): `toggle toggle-xs toggle-error`, previously hand-rolled
+   * in 1 file (1 occurrence). */
+  .kr-toggle-error-xs {
+    @apply toggle toggle-xs toggle-error;
+  }
+
+  /* The secondary-colored, small counterpart to .kr-toggle-primary-sm (same
+   * slice): `toggle toggle-sm toggle-secondary`, previously hand-rolled in
+   * 1 file (1 occurrence). Closes the toggle-sm/toggle-xs sized+colored
+   * survey (interface-vision t-134) -- every color/size combination
+   * observed at survey time (11 of the 12 possible color x size pairs;
+   * toggle-sm toggle-error had zero occurrences) now has a matching
+   * primitive. */
+  .kr-toggle-secondary-sm {
+    @apply toggle toggle-sm toggle-secondary;
+  }
+
   /* First badge-family primitive (interface-vision t-104 slice 109): the
    * small, ghost-styled DaisyUI badge -- `badge badge-ghost badge-sm` --
    * the single most common hand-rolled badge shape in the codebase (31

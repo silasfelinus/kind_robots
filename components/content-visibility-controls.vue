@@ -27,7 +27,7 @@
         <input
           :checked="isMature"
           type="checkbox"
-          class="toggle toggle-warning toggle-sm"
+          class="kr-toggle-warning-sm"
           :disabled="disabled"
           @change="onMatureChange"
         />
@@ -45,7 +45,7 @@
         <input
           :checked="isPublic"
           type="checkbox"
-          class="toggle toggle-success toggle-sm"
+          class="kr-toggle-success-sm"
           :disabled="disabled"
           @change="onPublicChange"
         />

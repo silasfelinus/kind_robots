@@ -503,7 +503,7 @@
               <input
                 v-model="showMature"
                 type="checkbox"
-                class="toggle toggle-accent toggle-xs"
+                class="kr-toggle-accent-xs"
               />
             </label>
 

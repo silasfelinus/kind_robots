@@ -115,7 +115,7 @@
           <input
             v-model="showMature"
             type="checkbox"
-            class="toggle toggle-warning toggle-xs"
+            class="kr-toggle-warning-xs"
           />
         </label>
 

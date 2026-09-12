@@ -341,7 +341,7 @@
                 <input
                   v-model="showMature"
                   type="checkbox"
-                  class="toggle toggle-accent toggle-sm"
+                  class="kr-toggle-accent-sm"
                 />
               </label>
             </div>

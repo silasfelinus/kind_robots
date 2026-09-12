@@ -372,11 +372,11 @@
                   v-if="pendingCastImage"
                   :src="pendingCastImage"
                   :alt="pendingCastName"
-                  class="h-12 w-12 rounded-2xl object-cover"
+                  class="kr-icon-12 rounded-2xl object-cover"
                 />
                 <div
                   v-else
-                  class="flex h-12 w-12 items-center justify-center rounded-2xl bg-base-300"
+                  class="kr-icon-12 flex items-center justify-center rounded-2xl bg-base-300"
                 >
                   <Icon name="mdi:account-star" class="kr-icon-primary-6" />
                 </div>

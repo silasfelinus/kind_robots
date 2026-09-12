@@ -77,7 +77,7 @@
                 @click="selectedId = achievement.id"
               >
                 <div
-                  class="grid size-12 shrink-0 place-items-center overflow-hidden rounded-xl bg-base-200"
+                  class="kr-icon-12 grid shrink-0 place-items-center overflow-hidden rounded-xl bg-base-200"
                 >
                   <img
                     v-if="achievement.imagePath"

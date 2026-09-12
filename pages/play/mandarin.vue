@@ -256,7 +256,7 @@
                     <p v-if="artNotice" class="mt-1 text-xs text-success">{{ artNotice }}</p>
                   </div>
                   <div v-else class="space-y-3">
-                    <Icon name="kind-icon:volume" class="mx-auto size-12 opacity-60" />
+                    <Icon name="kind-icon:volume" class="kr-icon-12 mx-auto opacity-60" />
                     <button type="button" class="kr-btn-primary-md-plain" @click="store.speak(currentCard)">Hear prompt</button>
                     <p class="kr-text-faded-xs-55">Listen without seeing the answer.</p>
                   </div>

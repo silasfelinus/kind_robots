@@ -308,7 +308,7 @@
             v-if="resolvedSource.thumbnailUrl"
             :src="resolvedSource.thumbnailUrl"
             :alt="resolvedSource.title"
-            class="h-12 w-12 shrink-0 rounded-xl object-cover"
+            class="kr-icon-12 shrink-0 rounded-xl object-cover"
           />
           <div
             v-else

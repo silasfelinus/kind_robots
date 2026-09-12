@@ -175,7 +175,7 @@
           >
             <div class="flex min-w-0 items-center gap-3">
               <div
-                class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-base-300 bg-base-200 shadow-sm"
+                class="kr-icon-12 flex shrink-0 items-center justify-center rounded-2xl border border-base-300 bg-base-200 shadow-sm"
               >
                 <Icon :name="card.icon" class="h-7 w-7 text-primary/60" />
               </div>

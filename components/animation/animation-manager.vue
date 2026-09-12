@@ -149,7 +149,7 @@
             @click="store.selectSlug(effect.id)"
           >
             <span
-              class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border bg-base-100/50"
+              class="kr-icon-12 flex shrink-0 items-center justify-center rounded-xl border bg-base-100/50"
               :style="{ borderColor: effect.color, color: effect.color }"
             >
               <Icon :name="effect.icon" class="kr-icon-6" />

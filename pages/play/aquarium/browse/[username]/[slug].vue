@@ -50,7 +50,7 @@
         >
           <div class="flex items-center gap-3">
             <div
-              class="grid size-12 shrink-0 place-items-center overflow-hidden rounded-2xl border border-base-300 bg-base-200"
+              class="kr-icon-12 grid shrink-0 place-items-center overflow-hidden rounded-2xl border border-base-300 bg-base-200"
             >
               <img
                 v-if="tank.User.avatarImage"
@@ -118,7 +118,7 @@
               shape="plate"
               frame="thin"
               fit="cover"
-              class="size-12 shrink-0"
+              class="kr-icon-12 shrink-0"
               placeholder-icon="kind-icon:fish"
             />
             <div class="min-w-0">

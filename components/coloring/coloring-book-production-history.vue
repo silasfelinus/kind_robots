@@ -59,7 +59,7 @@
           v-else
           class="flex aspect-[2/3] items-center justify-center bg-base-200 text-base-content/30"
         >
-          <icon name="kind-icon:image-off" class="size-12" />
+          <icon name="kind-icon:image-off" class="kr-icon-12" />
         </div>
 
         <div class="flex flex-col gap-3 p-4">

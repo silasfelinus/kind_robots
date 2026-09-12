@@ -354,7 +354,7 @@
                  shapes as wanting: small and square, the intro piece to a
                  text-forward row. -->
             <div
-              class="size-12 shrink-0 overflow-hidden rounded-2xl border border-base-300"
+              class="kr-icon-12 shrink-0 overflow-hidden rounded-2xl border border-base-300"
             >
               <kr-art-plate
                 :source="withCthulhuquariumArt(entry)"
@@ -455,7 +455,7 @@
               <!-- cthulhuquarium/t-067: see the fish-list wrapper comment
                    above -- same width-cascade fix. -->
               <div
-                class="size-12 shrink-0 overflow-hidden rounded-2xl border border-base-300"
+                class="kr-icon-12 shrink-0 overflow-hidden rounded-2xl border border-base-300"
               >
                 <kr-art-plate
                   :source="
@@ -700,7 +700,7 @@
                    above -- same width-cascade fix. -->
               <div
                 v-if="artForEggTier(egg.rarity)"
-                class="size-12 shrink-0 overflow-hidden rounded-2xl border border-base-300"
+                class="kr-icon-12 shrink-0 overflow-hidden rounded-2xl border border-base-300"
               >
                 <kr-art-plate
                   :source="{ imagePath: artForEggTier(egg.rarity) }"
@@ -795,7 +795,7 @@
              row's full width. See the fish-list wrapper comment above for the
              root cause and fix (same width-cascade issue, same fix here). -->
         <div
-          class="size-12 shrink-0 overflow-hidden rounded-2xl border border-base-300"
+          class="kr-icon-12 shrink-0 overflow-hidden rounded-2xl border border-base-300"
         >
           <kr-art-plate
             :source="{ imagePath: setLastAquariumArt }"

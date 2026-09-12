@@ -89,7 +89,7 @@
           </div>
 
           <form class="kr-panel-divider" @submit.prevent="createSet">
-            <label class="form-control gap-1">
+            <label class="kr-form-field">
               <span class="text-xs font-semibold opacity-65">New custom deck</span>
               <div class="join w-full max-w-xl">
                 <input

@@ -1,7 +1,7 @@
 <template>
   <section class="space-y-4">
     <div class="kr-panel flex flex-wrap items-end gap-3 p-4">
-      <label class="form-control min-w-60 gap-1">
+      <label class="kr-form-field min-w-60">
         <span class="kr-text-dim-xs-55 font-bold">Book</span>
         <select
           :value="store.selectedBookSlug"
@@ -21,7 +21,7 @@
         </select>
       </label>
 
-      <label class="form-control min-w-56 flex-1 gap-1">
+      <label class="kr-form-field min-w-56 flex-1">
         <span class="kr-text-dim-xs-55 font-bold">Find a page</span>
         <input
           v-model="search"
@@ -205,7 +205,7 @@
             </figure>
           </div>
 
-          <label class="form-control gap-1">
+          <label class="kr-form-field">
             <span class="kr-text-black-xs">Pitch / art prompt</span>
             <textarea
               v-model="drafts[proposal.id]"

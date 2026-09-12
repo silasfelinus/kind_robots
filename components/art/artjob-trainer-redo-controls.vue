@@ -12,7 +12,7 @@
 
     <div class="mt-3 space-y-3">
       <div class="grid gap-2 sm:grid-cols-2">
-        <label class="form-control gap-1">
+        <label class="kr-form-field">
           <span class="text-[10px] font-semibold uppercase tracking-wide text-base-content/50">
             Method
           </span>
@@ -28,7 +28,7 @@
           </select>
         </label>
 
-        <label v-if="mode === 'IMG2IMG'" class="form-control gap-1">
+        <label v-if="mode === 'IMG2IMG'" class="kr-form-field">
           <span class="text-[10px] font-semibold uppercase tracking-wide text-base-content/50">
             Model
           </span>
@@ -50,7 +50,7 @@
         </div>
       </div>
 
-      <label class="form-control gap-1">
+      <label class="kr-form-field">
         <span class="text-[10px] font-semibold uppercase tracking-wide text-base-content/50">
           Revised prompt
         </span>

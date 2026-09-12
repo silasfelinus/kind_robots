@@ -1,7 +1,7 @@
 <template>
   <section class="space-y-4">
     <div class="kr-panel flex flex-wrap items-end gap-3 p-4">
-      <label class="form-control min-w-56 flex-1 gap-1">
+      <label class="kr-form-field min-w-56 flex-1">
         <span class="kr-text-dim-xs-55 font-bold">Find a monster</span>
         <input
           v-model="search"
@@ -141,7 +141,7 @@
             }}
           </p>
 
-          <label class="form-control gap-1">
+          <label class="kr-form-field">
             <span
               class="kr-text-black-xs flex items-center justify-between gap-2"
             >
@@ -212,7 +212,7 @@
 
           <div class="kr-panel-compact">
             <div class="flex flex-wrap gap-3">
-              <label class="form-control min-w-52 flex-1 gap-1">
+              <label class="kr-form-field min-w-52 flex-1">
                 <span class="kr-text-black-xs">Render preset</span>
                 <select v-model="draft.presetId" class="kr-select-sm">
                   <option
@@ -230,7 +230,7 @@
                 </span>
               </label>
 
-              <label class="form-control min-w-52 flex-1 gap-1">
+              <label class="kr-form-field min-w-52 flex-1">
                 <span class="kr-text-black-xs">Starting point</span>
                 <select v-model="draft.sourceMode" class="kr-select-sm">
                   <option value="fresh">Fresh composition</option>
@@ -244,7 +244,7 @@
                 selectedPreset(fish.slug).engine === 'comfy' ||
                 draft.sourceMode === 'existing'
               "
-              class="form-control mt-3 gap-1"
+              class="kr-form-field mt-3"
             >
               <span class="kr-text-black-xs">SDXL checkpoint</span>
               <select v-model="draft.checkpoint" class="kr-select-sm">
@@ -261,7 +261,7 @@
 
             <label
               v-if="draft.sourceMode === 'existing'"
-              class="form-control mt-3 gap-1"
+              class="kr-form-field mt-3"
             >
               <span class="kr-text-black-xs">Source ArtImage</span>
               <select v-model.number="draft.sourceImageId" class="kr-select-sm">

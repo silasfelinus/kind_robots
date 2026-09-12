@@ -56,7 +56,7 @@
           );
         "
       >
-        <label class="form-control gap-1">
+        <label class="kr-form-field">
           <span class="kr-text-dim-xs-55 font-black">Search catalog</span>
           <input
             v-model="search"
@@ -66,7 +66,7 @@
           />
         </label>
 
-        <label class="form-control gap-1">
+        <label class="kr-form-field">
           <span class="kr-text-dim-xs-55 font-black">Category</span>
           <select v-model="categoryFilter" class="kr-select-sm">
             <option value="all">All categories</option>
@@ -80,7 +80,7 @@
           </select>
         </label>
 
-        <label class="form-control gap-1">
+        <label class="kr-form-field">
           <span class="kr-text-dim-xs-55 font-black">HSK</span>
           <select v-model="hskFilter" class="kr-select-sm">
             <option value="all">All levels</option>
@@ -89,7 +89,7 @@
           </select>
         </label>
 
-        <label class="form-control gap-1">
+        <label class="kr-form-field">
           <span class="kr-text-dim-xs-55 font-black">Sort</span>
           <select v-model="sortKey" class="kr-select-sm">
             <option value="hsk">HSK / frequency</option>
@@ -336,7 +336,7 @@
             </span>
           </div>
 
-          <label class="form-control gap-1">
+          <label class="kr-form-field">
             <span class="kr-text-black-xs">Traditional form</span>
             <input
               v-model="draft.traditional"
@@ -345,7 +345,7 @@
             />
           </label>
 
-          <label class="form-control gap-1">
+          <label class="kr-form-field">
             <span
               class="kr-text-black-xs flex items-center justify-between gap-2"
             >
@@ -362,7 +362,7 @@
             >
           </label>
 
-          <label class="form-control gap-1">
+          <label class="kr-form-field">
             <span
               class="kr-text-black-xs flex items-center justify-between gap-2"
             >
@@ -376,7 +376,7 @@
             <input v-model="draft.meaning" class="kr-input-sm" />
           </label>
 
-          <label class="form-control gap-1">
+          <label class="kr-form-field">
             <span class="kr-text-black-xs">Meanings / senses</span>
             <textarea
               v-model="draft.meaningsText"
@@ -389,7 +389,7 @@
             >
           </label>
 
-          <label class="form-control gap-1">
+          <label class="kr-form-field">
             <span class="kr-text-black-xs">Topical categories</span>
             <input
               v-model="draft.categoriesText"
@@ -402,7 +402,7 @@
             </span>
           </label>
 
-          <label class="form-control gap-1">
+          <label class="kr-form-field">
             <span class="kr-text-black-xs">Usage note</span>
             <textarea
               v-model="draft.usageNote"
@@ -411,7 +411,7 @@
             />
           </label>
 
-          <label class="form-control gap-1">
+          <label class="kr-form-field">
             <span class="kr-text-black-xs">Change note</span>
             <textarea
               v-model="draft.note"

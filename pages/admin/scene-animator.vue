@@ -47,7 +47,7 @@
               <h2 class="kr-text-black-xl mt-1">Choose the source, then motion</h2>
             </div>
 
-            <label class="form-control gap-1">
+            <label class="kr-form-field">
               <span class="kr-text-dim-xs-60 font-bold">Source folder</span>
               <select
                 class="select select-bordered rounded-xl"
@@ -67,7 +67,7 @@
             </label>
 
             <div class="grid gap-3 sm:grid-cols-2 xl:grid-cols-1 2xl:grid-cols-2">
-              <label class="form-control gap-1">
+              <label class="kr-form-field">
                 <span class="kr-text-dim-xs-60 font-bold">Engine</span>
                 <select
                   class="select select-bordered rounded-xl"
@@ -80,7 +80,7 @@
                 </select>
               </label>
 
-              <label class="form-control gap-1">
+              <label class="kr-form-field">
                 <span class="kr-text-dim-xs-60 font-bold">Clip length</span>
                 <div class="join w-full">
                   <input
@@ -98,7 +98,7 @@
               </label>
             </div>
 
-            <label class="form-control gap-1">
+            <label class="kr-form-field">
               <span class="kr-text-dim-xs-60 font-bold">Video preset</span>
               <select
                 class="select select-bordered rounded-xl"

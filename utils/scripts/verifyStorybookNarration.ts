@@ -16,6 +16,7 @@
 
 import {
   MAX_EFFECT_AXES_PER_MOVE,
+  clampEffectsToDeck,
   MAX_STATE_ITEMS,
   NARRATION_EFFECT_MAX,
   NARRATION_EFFECT_MIN,
@@ -378,6 +379,53 @@ rejects(
       }),
     ),
   'non-numeric delta',
+)
+
+console.log('Storybook narration — clamping at the write boundary')
+
+// The play loop writes stat rows from effects that did not necessarily come
+// through validateStorybookNarration (a stored turn, an injected narrator), and
+// LifeStat accepts any key by design. verifyStorybookPlayLoop.ts caught exactly
+// this on its first real run: a +-9 proposal reached the row unclamped.
+check(
+  'clamps an out-of-range delta',
+  clampEffectsToDeck({ truth: 9, nerve: -9 }, deck).truth ===
+    NARRATION_EFFECT_MAX &&
+    clampEffectsToDeck({ truth: 9, nerve: -9 }, deck).nerve ===
+      NARRATION_EFFECT_MIN,
+  JSON.stringify(clampEffectsToDeck({ truth: 9, nerve: -9 }, deck)),
+)
+check(
+  'drops an axis the deck does not declare rather than writing a stray stat',
+  clampEffectsToDeck({ truth: 1, legacy: 2, charisma: 3 }, deck).legacy ===
+    undefined && clampEffectsToDeck({ truth: 1, legacy: 2 }, deck).truth === 1,
+)
+check(
+  'drops a zero rather than writing a no-op stat row',
+  Object.keys(clampEffectsToDeck({ truth: 0, trust: 1 }, deck)).join(',') ===
+    'trust',
+)
+check(
+  'drops a non-numeric delta',
+  Object.keys(
+    clampEffectsToDeck(
+      { truth: Number.NaN, trust: 1 } as Record<string, number>,
+      deck,
+    ),
+  ).join(',') === 'trust',
+)
+check(
+  'a null or absent effects map is an empty one',
+  Object.keys(clampEffectsToDeck(null, deck)).length === 0,
+)
+check(
+  `caps a greedy map at ${MAX_EFFECT_AXES_PER_MOVE} axes`,
+  Object.keys(
+    clampEffectsToDeck(
+      { legacy: 1, wealth: 2, love: 1, wisdom: 2, health: 1 },
+      LIFE_DECK,
+    ),
+  ).length === MAX_EFFECT_AXES_PER_MOVE,
 )
 
 console.log('Storybook narration — the turn budget ends the story')

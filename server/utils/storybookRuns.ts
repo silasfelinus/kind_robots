@@ -31,6 +31,7 @@ import { assertAttachable, withStatusCode } from './davinci'
 import { assertDeckPlayable, isDeckUnlocked } from './storybookGating'
 import {
   PROSE_BOUNDS_BY_SHAPE,
+  clampEffectsToDeck,
   generateStorybookTurn,
   type StoryBible,
   type StoryNarrator,
@@ -910,7 +911,17 @@ export async function submitStoryTurn(
     }),
   )
 
-  const effects = optionEffects ?? result.moveEffects
+  // Clamped HERE, at the write, not only inside the narration response path.
+  // LifeStat accepts any key by design, and these effects can arrive from a
+  // stored turn or an injected narrator as well as from a validated model
+  // response -- so the deck's axis allowlist and the +-2 bound have to hold on
+  // the way into the row. (This is what utils/scripts/verifyStorybookPlayLoop.ts
+  // caught on its first real run: the stub narrator's +-9 proposal was written
+  // through unclamped, because the only clamp was one layer up.)
+  const effects = clampEffectsToDeck(
+    optionEffects ?? result.moveEffects,
+    toDeckDefinition(deck),
+  )
   const nextTurnIndex = run.currentChapter + 1
   inventory = applyInventoryChange(inventory, {
     delta: result.stateDelta,
@@ -930,6 +941,19 @@ export async function submitStoryTurn(
         narrator: narrator.name,
       }
 
+  // Resolved BEFORE the transaction and written on the create, not patched in
+  // afterwards: a create-then-update left the row correct but returned a stale
+  // object with rewardId still null, which is what the caller and the API
+  // response actually read.
+  const playedRewardId = playedReward
+    ? ((
+        await prisma.reward.findFirst({
+          where: { slug: playedReward.slug },
+          select: { id: true },
+        })
+      )?.id ?? null)
+    : null
+
   const turn = await prisma.$transaction(async (tx) => {
     const created = await tx.lifeChoice.create({
       data: {
@@ -941,25 +965,12 @@ export async function submitStoryTurn(
         resultText: result.narrativeText,
         source: MOVE_SOURCE_BY_WIRE[move.source],
         optionId: move.source === 'option' ? (move.optionId ?? null) : null,
-        rewardId: null,
+        rewardId: playedRewardId,
         effects: JSON.stringify(effects),
         stateDelta: JSON.stringify(result.stateDelta),
         artPrompt: result.artPrompt,
       },
     })
-
-    if (playedReward) {
-      const reward = await tx.reward.findFirst({
-        where: { slug: playedReward.slug },
-        select: { id: true },
-      })
-      if (reward) {
-        await tx.lifeChoice.update({
-          where: { id: created.id },
-          data: { rewardId: reward.id },
-        })
-      }
-    }
 
     for (const [key, delta] of Object.entries(effects)) {
       if (!delta) continue

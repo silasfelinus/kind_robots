@@ -1,7 +1,7 @@
 ---
 title: 'Animation Manager'
 room: 'Animation Manager'
-subtitle: 'The Museum of Passive Chaos'
+subtitle: 'Passive Chaos Control Room'
 description: Preview every Screen FX effect on a clean stage, layer favorites across the app, control coverage zones, and choose what appears at startup.
 image: splash/screenfx.png
 tooltip: One control room for every passive animation and screen effect.

@@ -197,7 +197,7 @@
             How to spot it
           </p>
           <h4 class="kr-text-black-xl mt-2 text-base-content">Train your eye</h4>
-          <div class="mt-4 grid gap-3 sm:grid-cols-2">
+          <div class="mt-4 grid grid-cols-[repeat(auto-fit,minmax(min(100%,16rem),1fr))] gap-3">
             <div
               v-for="(cue, index) in lesson.recognitionCues"
               :key="cue"
@@ -227,7 +227,7 @@
             </span>
           </div>
 
-          <div class="mt-4 grid gap-3 sm:grid-cols-2">
+          <div class="mt-4 grid grid-cols-[repeat(auto-fit,minmax(min(100%,20rem),1fr))] gap-3">
             <div
               v-for="artist in lesson.artists"
               :key="artist.name"

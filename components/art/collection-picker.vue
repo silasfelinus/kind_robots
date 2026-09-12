@@ -38,7 +38,7 @@
     <Transition name="picker-panel">
       <div
         v-if="expanded"
-        class="grid max-h-72 gap-2 overflow-y-auto rounded-2xl border border-base-content/10 bg-base-200/80 p-2 sm:grid-cols-2 lg:grid-cols-3"
+        class="grid max-h-72 grid-cols-[repeat(auto-fit,minmax(min(100%,12rem),1fr))] gap-2 overflow-y-auto rounded-2xl border border-base-content/10 bg-base-200/80 p-2"
       >
         <button
           type="button"

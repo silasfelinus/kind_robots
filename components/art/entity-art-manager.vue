@@ -78,7 +78,7 @@
         v-else
         class="absolute inset-0 flex flex-col items-center justify-center gap-2 p-4 text-center text-base-content/40"
       >
-        <Icon name="kind-icon:image" class="size-10 opacity-40" />
+        <Icon name="kind-icon:image" class="kr-icon-10 opacity-40" />
         <p class="text-xs font-semibold">
           No {{ activeCarouselSlide.label.toLowerCase() }} yet.
         </p>

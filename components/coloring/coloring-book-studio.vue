@@ -234,7 +234,7 @@
                   v-else
                   class="flex size-full items-center justify-center text-base-content/30"
                 >
-                  <icon name="kind-icon:palette" class="size-10" />
+                  <icon name="kind-icon:palette" class="kr-icon-10" />
                 </div>
                 <span
                   class="badge badge-sm absolute bottom-2 left-2 rounded-2xl"
@@ -255,7 +255,7 @@
                   v-else
                   class="flex size-full items-center justify-center text-base-content/30"
                 >
-                  <icon name="kind-icon:pencil" class="size-10" />
+                  <icon name="kind-icon:pencil" class="kr-icon-10" />
                 </div>
                 <span
                   class="badge badge-sm absolute bottom-2 left-2 rounded-2xl"

@@ -77,7 +77,7 @@
         <div class="flex flex-col items-center gap-2 text-base-content/40">
           <Icon
             :name="isHiddenMature ? 'kind-icon:lock' : normalizedFallbackIcon"
-            class="h-10 w-10"
+            class="kr-icon-10"
           />
           <span class="kr-text-bold-xs">
             {{ isHiddenMature ? 'Mature hidden' : 'No preview' }}

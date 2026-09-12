@@ -129,7 +129,7 @@
           @keydown.enter.space.prevent="fileInput?.click()"
         >
           <span
-            class="flex h-10 w-10 items-center justify-center rounded-xl border border-base-300 bg-base-200 transition-transform"
+            class="kr-icon-10 flex items-center justify-center rounded-xl border border-base-300 bg-base-200 transition-transform"
             :class="
               isDragging
                 ? 'scale-110 border-primary/40 bg-primary/10 text-primary'

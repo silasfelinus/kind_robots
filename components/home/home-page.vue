@@ -301,7 +301,7 @@
                 :to="showcaseHref(project)"
                 class="group flex items-center gap-2 rounded-xl border border-base-300 bg-base-100 p-1.5 transition-shadow hover:shadow-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary motion-safe:transition-transform motion-safe:hover:-translate-y-0.5"
               >
-                <div class="size-10 shrink-0 overflow-hidden rounded-lg">
+                <div class="kr-icon-10 shrink-0 overflow-hidden rounded-lg">
                   <kr-art-plate
                     :source="project.art"
                     variant="icon"

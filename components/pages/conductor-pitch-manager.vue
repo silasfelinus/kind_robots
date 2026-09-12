@@ -134,7 +134,7 @@
           >
             <div class="flex items-start gap-3 border-b border-base-300/60 p-4">
               <span
-                class="flex size-10 shrink-0 items-center justify-center rounded-2xl"
+                class="kr-icon-10 flex shrink-0 items-center justify-center rounded-2xl"
                 :class="statusIconClass(pitch)"
               >
                 <Icon :name="statusIcon(pitch)" class="kr-icon-5" />

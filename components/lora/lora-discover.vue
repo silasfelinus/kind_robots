@@ -115,7 +115,7 @@
             v-else
             class="flex h-full w-full items-center justify-center text-base-content/40"
           >
-            <Icon name="kind-icon:image" class="h-10 w-10" />
+            <Icon name="kind-icon:image" class="kr-icon-10" />
           </div>
 
           <div class="absolute left-2 top-2 flex flex-wrap gap-1">

@@ -45,7 +45,7 @@
   <!-- Speaker line -->
   <div v-else class="self-start max-w-[80%] flex items-start gap-2">
     <div
-      class="w-10 h-10 rounded-full bg-base-300 overflow-hidden shrink-0 flex items-center justify-center"
+      class="kr-icon-10 rounded-full bg-base-300 overflow-hidden shrink-0 flex items-center justify-center"
     >
       <img
         v-if="imageUrl"

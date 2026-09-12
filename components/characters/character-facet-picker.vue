@@ -59,7 +59,7 @@
           @click="addFacet(facet.id)"
         >
           <span
-            class="flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-base-200"
+            class="kr-icon-10 flex shrink-0 items-center justify-center overflow-hidden rounded-lg bg-base-200"
           >
             <img
               v-if="artwork(facet)"

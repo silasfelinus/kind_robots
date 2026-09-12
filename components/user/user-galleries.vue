@@ -35,7 +35,7 @@
           >
             <div class="flex min-w-0 items-center gap-3">
               <div
-                class="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-primary/10"
+                class="kr-icon-10 flex shrink-0 items-center justify-center rounded-2xl bg-primary/10"
               >
                 <Icon :name="section.icon" class="kr-icon-primary-5" />
               </div>

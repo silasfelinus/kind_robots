@@ -300,7 +300,7 @@
         v-else-if="filteredRewards.length === 0"
         class="flex h-full flex-col items-center justify-center gap-3 kr-panel-muted text-center text-base-content/60"
       >
-        <Icon name="kind-icon:gift" class="h-10 w-10" />
+        <Icon name="kind-icon:gift" class="kr-icon-10" />
 
         <p class="kr-text-bold-lg">No rewards found.</p>
 

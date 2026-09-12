@@ -73,7 +73,7 @@
           >
             <div class="flex items-center gap-3">
               <div
-                class="grid size-10 shrink-0 place-items-center overflow-hidden rounded-xl border border-base-300 bg-base-200"
+                class="kr-icon-10 grid shrink-0 place-items-center overflow-hidden rounded-xl border border-base-300 bg-base-200"
               >
                 <img
                   v-if="tank.User.avatarImage"

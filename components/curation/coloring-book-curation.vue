@@ -108,7 +108,7 @@
                   class="grid size-full place-items-center text-base-content/30"
                 >
                   <div class="text-center">
-                    <Icon name="kind-icon:image" class="mx-auto size-10" />
+                    <Icon name="kind-icon:image" class="kr-icon-10 mx-auto" />
                     <p class="kr-text-bold-xs mt-2">No color candidate</p>
                   </div>
                 </div>
@@ -134,7 +134,7 @@
                   class="grid size-full place-items-center text-base-content/30"
                 >
                   <div class="text-center">
-                    <Icon name="kind-icon:image" class="mx-auto size-10" />
+                    <Icon name="kind-icon:image" class="kr-icon-10 mx-auto" />
                     <p class="kr-text-bold-xs mt-2">No B&amp;W candidate</p>
                   </div>
                 </div>

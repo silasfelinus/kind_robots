@@ -46,6 +46,7 @@ import {
   ratchetRecordedAt,
   writeRatchetBaseline,
 } from './ratchetBaseline'
+import { hasShallowDuplicateTitleBlock } from './layoutHeaderContract'
 
 const ROOT = process.cwd()
 const BASELINE_PATH = join(ROOT, 'utils/scripts/layout-contract-baseline.json')
@@ -72,7 +73,8 @@ type Baseline = {
 }
 
 const RULE_TITLES: Record<RuleId, string> = {
-  'one-header': 'page components rendering their own <h1>',
+  'one-header':
+    'page components rendering their own <h1> (or an equivalent shell-title block)',
   'one-scroll': 'components declaring more than one scroll region',
   'no-viewport': 'viewport-height units inside the h-dvh shell',
   'one-mdc': 'content pages mounting more than one component',
@@ -383,6 +385,19 @@ function combineScrollCounts(siblings: TemplateNode[]): number {
 /* Count actual scroll-owner elements, not raw utility-string occurrences. */
 function scrollRegionCount(template: string): number {
   return combineScrollCounts(parseTemplate(template))
+}
+
+/*
+ * parseTemplate() walks the whole `<template>...</template>` markup, so its
+ * own top-level result is a single node for the `<template>` tag itself
+ * (matching every other rule above, e.g. the scroll-region fixtures). The
+ * page's real root element -- what hasShallowDuplicateTitleBlock() expects as
+ * nodes[0] -- is one level down, inside that wrapper's children. Same
+ * single-root assumption rootClassList() already makes by reading the
+ * `<template>` block's first opening tag directly.
+ */
+function templateRootNodes(template: string): TemplateNode[] {
+  return parseTemplate(template)[0]?.children ?? []
 }
 
 /*
@@ -765,6 +780,75 @@ function verifyViewportGridBreakpointFixture(): void {
   }
 }
 
+/*
+ * End-to-end pin for the widened one-header rule (conductor interface-vision
+ * t-127): hasShallowDuplicateTitleBlock() is unit-pinned in isolation by
+ * layoutHeaderContract.test.ts against hand-built nodes; this fixture pins
+ * the actual integration path -- real template markup through parseTemplate()
+ * and templateRootNodes() -- so an unwrap mistake here (e.g. forgetting the
+ * <template> wrapper is its own node) fails loudly instead of quietly
+ * returning false on every real page.
+ */
+function verifyShallowDuplicateTitleFixture(): void {
+  const shellToolbarTitle = templateOf(`
+    <template>
+      <div class="kr-toolbar">
+        <p class="text-xs uppercase"></p>
+        <p class="text-3xl font-black"></p>
+        <p class="text-sm"></p>
+      </div>
+    </template>
+  `)
+  if (!hasShallowDuplicateTitleBlock(templateRootNodes(shellToolbarTitle))) {
+    throw new Error(
+      'Shallow-duplicate-title fixture (shell toolbar) was not classified correctly.',
+    )
+  }
+
+  const profileNameInArticle = templateOf(`
+    <template>
+      <article>
+        <h2 class="text-3xl font-black"></h2>
+        <p></p>
+      </article>
+    </template>
+  `)
+  if (hasShallowDuplicateTitleBlock(templateRootNodes(profileNameInArticle))) {
+    throw new Error(
+      'Shallow-duplicate-title fixture (content-surface article) produced a false positive.',
+    )
+  }
+
+  const loneRankValue = templateOf(`
+    <template>
+      <div class="kr-rank-tile">
+        <span class="text-3xl font-black"></span>
+      </div>
+    </template>
+  `)
+  if (hasShallowDuplicateTitleBlock(templateRootNodes(loneRankValue))) {
+    throw new Error(
+      'Shallow-duplicate-title fixture (lone rank value) produced a false positive.',
+    )
+  }
+
+  const heroWithIconAndCta = templateOf(`
+    <template>
+      <div class="rounded-2xl border bg-primary/10 p-6">
+        <Icon name="kind-icon:hand-heart" />
+        <p class="mt-4 text-3xl font-black">Give Directly. We Never Touch It.</p>
+        <p class="mt-3">Donate straight to AMF.</p>
+        <a href="#" class="btn btn-primary btn-lg mt-6">Donate</a>
+      </div>
+    </template>
+  `)
+  if (hasShallowDuplicateTitleBlock(templateRootNodes(heroWithIconAndCta))) {
+    throw new Error(
+      'Shallow-duplicate-title fixture (hero with icon + CTA) produced a false positive.',
+    )
+  }
+}
+
 function verifyAnchorScrollFixture(): void {
   const withAnchorPanes = templateOf(`
     <template>
@@ -865,7 +949,11 @@ function collect(): Record<RuleId, string[]> {
     const r = rel(file)
     const pageComponent = isPageComponent(file)
 
-    if (pageComponent && /<h1[\s>]/.test(templateMarkupOf(source))) {
+    if (
+      pageComponent &&
+      (/<h1[\s>]/.test(templateMarkupOf(source)) ||
+        hasShallowDuplicateTitleBlock(templateRootNodes(template)))
+    ) {
       violations['one-header'].push(r)
     }
 
@@ -989,6 +1077,7 @@ function main(): void {
   verifyFixedOverlayFixture()
   verifyPaneScrollFixture()
   verifyPaneDisplayFixture()
+  verifyShallowDuplicateTitleFixture()
   verifyAnchorScrollFixture()
   verifyViewportGridBreakpointFixture()
   const current = collect()

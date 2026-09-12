@@ -21,7 +21,7 @@
         class="flex cursor-pointer items-center justify-between gap-3 kr-panel-tint-compact-50-row"
       >
         <span>
-          <span class="block text-sm font-semibold">Mature</span>
+          <span class="kr-text-semibold-sm block">Mature</span>
           <span class="block text-[11px] text-base-content/55">18+ content</span>
         </span>
         <input
@@ -37,7 +37,7 @@
         class="flex cursor-pointer items-center justify-between gap-3 kr-panel-tint-compact-50-row"
       >
         <span>
-          <span class="block text-sm font-semibold">Public</span>
+          <span class="kr-text-semibold-sm block">Public</span>
           <span class="block text-[11px] text-base-content/55">
             {{ isPublic ? 'Visible in public surfaces' : 'Owner/admin only' }}
           </span>

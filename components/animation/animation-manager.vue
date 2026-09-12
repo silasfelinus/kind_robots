@@ -1,6 +1,6 @@
 <!-- /components/animation/animation-manager.vue -->
 <template>
-  <section class="animation-manager-shell kr-surface gap-4">
+  <section class="animation-manager-shell kr-unbound gap-4">
     <header
       v-if="showHeader"
       class="flex flex-wrap items-center justify-between gap-3 border-b border-base-300 px-4 py-3"
@@ -25,6 +25,35 @@
       </div>
 
       <div class="flex flex-wrap items-center gap-2">
+        <div
+          class="flex items-center gap-1 rounded-xl border border-base-300 bg-base-200/70 p-1"
+          role="group"
+          aria-label="Animation display toggles"
+        >
+          <button
+            class="btn btn-square btn-sm rounded-lg"
+            :class="butterfliesEnabled ? 'btn-primary' : 'btn-outline'"
+            type="button"
+            :aria-pressed="butterfliesEnabled"
+            :title="butterfliesEnabled ? 'Turn butterflies off' : 'Turn butterflies on'"
+            @click="toggleButterflies"
+          >
+            <Icon name="kind-icon:butterfly" class="kr-icon-4" />
+            <span class="sr-only">Butterflies</span>
+          </button>
+          <button
+            class="btn btn-square btn-sm rounded-lg"
+            :class="coverageEnabled ? 'btn-primary' : 'btn-outline'"
+            type="button"
+            :aria-pressed="coverageEnabled"
+            :title="coverageEnabled ? 'Disable coverage zones' : 'Restore coverage zones'"
+            @click="toggleCoverage"
+          >
+            <Icon name="kind-icon:layers" class="kr-icon-4" />
+            <span class="sr-only">Coverage zones</span>
+          </button>
+        </div>
+
         <NuxtLink
           to="/conductor"
           class="kr-btn btn-outline"
@@ -273,13 +302,20 @@
 </template>
 
 <script setup lang="ts">
+import { computed, ref } from 'vue'
 import { useAnimationManagerStore } from '@/stores/animationManagerStore'
+import {
+  DEFAULT_PREFERENCES,
+  useAnimationPreferenceStore,
+} from '@/stores/animationPreferenceStore'
 import type { FxRegion } from '@/stores/animationCatalog'
 import type { FxPlacementState } from '@/stores/animationStore'
 
 withDefaults(defineProps<{ showHeader?: boolean }>(), { showHeader: true })
 
 const store = useAnimationManagerStore()
+const preferenceStore = useAnimationPreferenceStore()
+preferenceStore.initialize()
 
 const zoneOptions: { id: FxRegion; label: string; icon: string }[] = [
   { id: 'header', label: 'Header', icon: 'kind-icon:layout-top' },
@@ -309,6 +345,44 @@ const placementOptions: {
     title: (zone) => `Render layered effects in front of ${zone.toLowerCase()} content`,
   },
 ]
+
+const lastButterflyCount = ref(DEFAULT_PREFERENCES.butterflies.count)
+const savedCoverage = ref<Record<FxRegion, FxPlacementState> | null>(null)
+const butterfliesEnabled = computed(() => preferenceStore.butterflies.count > 0)
+const coverageEnabled = computed(() =>
+  zoneOptions.some((zone) => store.getSurfacePlacement(zone.id) !== 'off'),
+)
+
+function toggleButterflies(): void {
+  if (butterfliesEnabled.value) {
+    lastButterflyCount.value = preferenceStore.butterflies.count
+    preferenceStore.updateButterflies({ count: 0 })
+    return
+  }
+
+  preferenceStore.updateButterflies({
+    count: Math.max(1, lastButterflyCount.value),
+  })
+}
+
+function toggleCoverage(): void {
+  if (coverageEnabled.value) {
+    savedCoverage.value = Object.fromEntries(
+      zoneOptions.map((zone) => [zone.id, store.getSurfacePlacement(zone.id)]),
+    ) as Record<FxRegion, FxPlacementState>
+    zoneOptions.forEach((zone) => store.setSurfacePlacement(zone.id, 'off'))
+    return
+  }
+
+  if (savedCoverage.value) {
+    zoneOptions.forEach((zone) => {
+      store.setSurfacePlacement(zone.id, savedCoverage.value?.[zone.id] ?? 'off')
+    })
+    return
+  }
+
+  store.resetSurfaces()
+}
 
 function surfaceLabel(surface: FxRegion | 'fullscreen' | undefined): string {
   if (!surface || surface === 'fullscreen') return 'Fullscreen'

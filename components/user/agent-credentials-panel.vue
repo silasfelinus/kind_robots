@@ -76,7 +76,7 @@
             </p>
           </div>
           <span
-            class="badge badge-sm shrink-0"
+            class="kr-badge-sm shrink-0"
             :class="credential.revokedAt ? 'badge-error' : credentialExpired(credential) ? 'badge-warning' : 'badge-success'"
           >
             {{ credentialStatus(credential) }}

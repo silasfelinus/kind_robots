@@ -26,7 +26,7 @@
             class="flex items-center gap-2 text-sm"
           >
             <span
-              class="badge badge-sm rounded-lg"
+              class="kr-badge-sm rounded-lg"
               :class="stage.status === 'done' ? 'badge-success' : 'badge-ghost'"
             >
               {{ stage.status === 'done' ? 'done' : 'planned' }}

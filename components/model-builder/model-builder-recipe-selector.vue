@@ -123,7 +123,7 @@
         </div>
 
         <span
-          class="badge badge-sm shrink-0"
+          class="kr-badge-sm shrink-0"
           :class="actionBadge(output.action)"
         >
           {{ output.action }}

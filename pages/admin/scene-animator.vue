@@ -291,7 +291,7 @@
                         <template v-if="source.jobId"> · ArtJob #{{ source.jobId }}</template>
                       </p>
                     </div>
-                    <span class="badge badge-sm shrink-0" :class="statusClass(source.status)">
+                    <span class="kr-badge-sm shrink-0" :class="statusClass(source.status)">
                       {{ statusLabel(source.status) }}
                     </span>
                   </div>

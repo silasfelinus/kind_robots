@@ -388,7 +388,7 @@
           class="flex flex-col items-center gap-3 rounded-2xl border border-primary/30 bg-primary/5 p-6 text-center"
         >
           <span
-            class="badge badge-sm rounded-lg font-black"
+            class="kr-badge-sm rounded-lg font-black"
             :class="victoryBadgeClass(endingData.victoryType)"
           >
             {{ endingData.victoryType }}

@@ -103,7 +103,7 @@
                 <td class="font-semibold">{{ adapter.domain }}</td>
                 <td>
                   <span
-                    class="badge badge-sm rounded-lg"
+                    class="kr-badge-sm rounded-lg"
                     :class="adapter.badgeClass"
                     >{{ adapter.status }}</span
                   >

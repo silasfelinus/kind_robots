@@ -139,6 +139,9 @@ jobs:
       - name: Scene Animator resubmit contract
         run: npm run test:scene-animator-resubmit
 
+      - name: Scene Animator prompt contract
+        run: npm run test:scene-animator-prompt
+
       - name: ESLint ratchet
         run: npm run test:lint-ratchet
 

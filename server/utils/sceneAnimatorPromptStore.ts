@@ -11,24 +11,19 @@
 // a prompt to an image it cannot see, and -- worse -- silently retarget another
 // operator's override.
 import prisma from './prisma'
-import { SCENE_ANIMATOR_PROMPT } from '@/utils/sceneAnimatorPrompt'
+import {
+  normalizePromptInput,
+  type SceneAnimatorPromptRecord,
+} from './sceneAnimatorPromptResolve'
 
-export type SceneAnimatorPromptRecord = {
-  sourceHash: string
-  prompt: string
-  negativePrompt: string | null
-  updatedAt: Date
-}
-
-/** Longer than any sensible motion direction, short enough to bound the row. */
-export const SCENE_ANIMATOR_PROMPT_MAX = 2000
-
-export function normalizePromptInput(value: unknown): string {
-  return String(value ?? '')
-    .replace(/\r\n/g, '\n')
-    .trim()
-    .slice(0, SCENE_ANIMATOR_PROMPT_MAX)
-}
+// Re-exported so callers that need both the decision and the rows keep one
+// import. The decision itself lives in the prisma-free module above.
+export {
+  SCENE_ANIMATOR_PROMPT_MAX,
+  normalizePromptInput,
+  resolveScenePrompt,
+  type SceneAnimatorPromptRecord,
+} from './sceneAnimatorPromptResolve'
 
 /**
  * Overrides for a set of source hashes, as a map.
@@ -54,21 +49,6 @@ export async function readSceneAnimatorPrompts(
   })
 
   return new Map(rows.map((row) => [row.sourceHash, row]))
-}
-
-/**
- * The prompt a render should actually use for one source.
- *
- * The single place that decides override-or-default, so the enqueue path and
- * the admin surface can never disagree about what will be sent.
- */
-export function resolveScenePrompt(
-  override: SceneAnimatorPromptRecord | null | undefined,
-): { prompt: string; isOverridden: boolean } {
-  const custom = override?.prompt?.trim()
-  return custom
-    ? { prompt: custom, isOverridden: true }
-    : { prompt: SCENE_ANIMATOR_PROMPT, isOverridden: false }
 }
 
 export async function saveSceneAnimatorPrompt(input: {

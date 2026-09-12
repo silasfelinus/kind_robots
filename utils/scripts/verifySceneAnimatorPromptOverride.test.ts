@@ -28,7 +28,7 @@ import {
   sceneAnimatorDedupeKey,
   type SceneAnimatorRenderConfig,
 } from '../../server/utils/sceneAnimator.js'
-import { resolveScenePrompt } from '../../server/utils/sceneAnimatorPromptStore.js'
+import { resolveScenePrompt } from '../../server/utils/sceneAnimatorPromptResolve.js'
 import { SCENE_ANIMATOR_PROMPT } from '../../utils/sceneAnimatorPrompt.js'
 
 const read = (file: string) => readFileSync(resolve(process.cwd(), file), 'utf8')

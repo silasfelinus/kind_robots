@@ -206,6 +206,9 @@
         v-if="job.error"
         class="kr-text-error-xs rounded-2xl border border-error/30 bg-error/10 p-2"
       >
+        <span v-if="errorIsFromEarlierAttempt" class="font-semibold">
+          Earlier attempt ·
+        </span>
         {{ job.error }}
       </div>
 
@@ -418,6 +421,10 @@ const jobRequestId = computed<string>(() => artJobRequestId(props.job))
 const jobImagePath = computed<string>(() => artJobImagePath(props.job))
 
 const jobSettings = computed<string[]>(() => artJobSettings(props.job))
+
+const errorIsFromEarlierAttempt = computed<boolean>(
+  () => props.job.status === 'RUNNING' || props.job.status === 'PENDING',
+)
 
 const imageVersion = computed<string>(() => artJobImageVersion(props.job))
 

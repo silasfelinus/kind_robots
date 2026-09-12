@@ -14,6 +14,18 @@
 // strict FIFO.
 // The claim itself is an updateMany guarded on the expected status, so two
 // relays can never win the same job — the loser retries another candidate.
+//
+// A relay is one slot: it claims, renders, reports, and only then polls again.
+// So a poll from an agent that still holds a RUNNING row is proof that row was
+// abandoned — the outcome report never landed (relay restart between claim and
+// complete, a lost /complete POST, a crash inside process()). Before handing
+// out new work, this releases every RUNNING row the polling agent still holds:
+// back to PENDING with its attempt count intact, or FAILED once the budget is
+// spent. Without that, the abandoned row stayed RUNNING beside the fresh claim
+// until the queue happened to re-offer it after STALE_CLAIM_MINUTES, and a
+// low-priority one could sit behind priority-100 work for hours (2026-09-12:
+// #21788, attempt 2, RUNNING for 63 minutes next to the live #21803). A relay
+// that genuinely renders several jobs at once opts out with singleSlot=false.
 import { createError, defineEventHandler, readBody } from 'h3'
 import prisma from '../../../utils/prisma'
 import { errorHandler } from '../../../utils/error'
@@ -40,6 +52,7 @@ import {
 } from '../../../utils/artJobSamplerRepair'
 import { recordRelayClaimAttempt } from '../../../utils/relayAgentRegistry'
 import { isQueuePaused } from '../../../utils/queueControl'
+import { releaseAbandonedRelayClaims } from '../../../utils/artJobRelaySlot'
 
 const STALE_CLAIM_MINUTES = 15
 const MAX_ATTEMPTS = 3
@@ -54,6 +67,7 @@ type ClaimRequestBody = {
   supportsCompletionProof?: boolean | null
   agentVersion?: string | null
   smartQueue?: boolean | null
+  singleSlot?: boolean | null
 }
 
 export default defineEventHandler(async (event) => {
@@ -75,13 +89,13 @@ export default defineEventHandler(async (event) => {
     const engines = (body?.engines || ['A1111', 'COMFY'])
       .map((engine) => String(engine).toUpperCase())
       .filter((engine) => engine === 'A1111' || engine === 'COMFY') as (
-      | 'A1111'
-      | 'COMFY'
+      'A1111' | 'COMFY'
     )[]
 
     const supportsInputImages = body?.supportsInputImages === true
     const supportsCompletionProof = body?.supportsCompletionProof === true
     const smartQueue = body?.smartQueue !== false
+    const singleSlot = body?.singleSlot !== false
 
     recordRelayClaimAttempt({
       agentId: claimedBy,
@@ -94,6 +108,14 @@ export default defineEventHandler(async (event) => {
       throw createError({ statusCode: 400, message: 'No valid engines given.' })
     }
 
+    // Runs before the paused check and the idle fast path on purpose: a relay
+    // polling while paused has still abandoned whatever it holds, and a
+    // released row is new PENDING work (or a fresh FAILED) that the probe
+    // below must see either way.
+    const released = singleSlot
+      ? await releaseAbandonedRelayClaims(claimedBy, MAX_ATTEMPTS)
+      : []
+
     // Queue paused (admin toggle): hand out no work so the queue is preserved
     // but not drained. Graceful — defaults to not-paused if the control table
     // is not migrated yet, so this can never wedge the pipeline.
@@ -103,6 +125,7 @@ export default defineEventHandler(async (event) => {
         message: 'Queue processing is paused.',
         data: {
           job: null,
+          released,
           paused: true,
           scheduling: { mode: smartQueue ? 'SMART' : 'FIFO' },
         },
@@ -132,6 +155,7 @@ export default defineEventHandler(async (event) => {
         message: 'No runnable jobs.',
         data: {
           job: null,
+          released,
           scheduling: {
             mode: smartQueue ? 'SMART' : 'FIFO',
             preferredAffinity: null,
@@ -208,6 +232,7 @@ export default defineEventHandler(async (event) => {
           message: 'No runnable jobs.',
           data: {
             job: null,
+            released,
             scheduling: {
               mode: smartQueue ? 'SMART' : 'FIFO',
               preferredAffinity,
@@ -352,6 +377,7 @@ export default defineEventHandler(async (event) => {
             : 'Job claimed.',
           data: {
             job: job ? decodeArtJobPayload(job) : null,
+            released,
             relayContract: {
               supportsCompletionProof,
               completionProofRequired:

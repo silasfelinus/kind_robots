@@ -233,7 +233,7 @@
                   </span>
                   <span
                     v-if="isSelected(resource.id)"
-                    class="badge badge-accent badge-sm"
+                    class="kr-badge-accent-sm"
                   >
                     Selected
                   </span>

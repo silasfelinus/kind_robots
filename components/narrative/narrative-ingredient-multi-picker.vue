@@ -22,7 +22,7 @@
       </div>
       <span
         v-if="loading"
-        class="loading loading-spinner loading-sm motion-reduce:hidden"
+        class="kr-spinner-sm motion-reduce:hidden"
         aria-hidden="true"
       />
       <span

@@ -59,6 +59,8 @@ export default defineEventHandler(async (event) => {
         : 'No unsorted art images found.',
     }
   } catch (error: unknown) {
-    return errorHandler(error)
+    const handled = errorHandler(error)
+    event.node.res.statusCode = handled.statusCode || 500
+    return handled
   }
 })

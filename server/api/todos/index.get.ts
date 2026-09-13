@@ -40,6 +40,8 @@ export default defineEventHandler(async (event) => {
     return { success: true, data: sortTodos(todos) }
   } catch (error) {
     if (error instanceof H3Error) throw error
-    return errorHandler(error)
+    const handled = errorHandler(error)
+    event.node.res.statusCode = handled.statusCode || 500
+    return handled
   }
 })

@@ -7,10 +7,12 @@ export default defineEventHandler(async (event) => {
     const id = Number(getRouterParam(event, 'id'))
 
     if (!Number.isInteger(id) || id <= 0) {
-      return errorHandler({
-        statusCode: 400,
+      event.node.res.statusCode = 400
+      return {
+        success: false,
         message: 'Invalid user ID.',
-      })
+        statusCode: 400,
+      }
     }
 
     const user = await prisma.user.findFirst({
@@ -31,10 +33,12 @@ export default defineEventHandler(async (event) => {
     })
 
     if (!user) {
-      return errorHandler({
-        statusCode: 404,
+      event.node.res.statusCode = 404
+      return {
+        success: false,
         message: 'Public user profile not found.',
-      })
+        statusCode: 404,
+      }
     }
 
     return {
@@ -43,6 +47,8 @@ export default defineEventHandler(async (event) => {
       message: 'Public user found.',
     }
   } catch (error) {
-    return errorHandler(error)
+    const handled = errorHandler(error)
+    event.node.res.statusCode = handled.statusCode || 500
+    return handled
   }
 })

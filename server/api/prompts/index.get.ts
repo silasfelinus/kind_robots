@@ -3,7 +3,7 @@ import { defineEventHandler } from 'h3'
 import { errorHandler } from '../../utils/error'
 import prisma from '../../utils/prisma'
 
-export default defineEventHandler(async () => {
+export default defineEventHandler(async (event) => {
   try {
     // Fetch all prompts and their related Art in a single consolidated function
     const data = await prisma.prompt.findMany()
@@ -18,6 +18,7 @@ export default defineEventHandler(async () => {
     // Process error using errorHandler and log for debugging
     const { message, statusCode } = errorHandler(error)
     console.error(`Failed to fetch prompts: ${message}`)
+    event.node.res.statusCode = statusCode || 500
     return {
       success: false,
       message: `Failed to fetch prompts: ${message}`,

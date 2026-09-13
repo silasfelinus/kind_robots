@@ -109,6 +109,7 @@ export default defineEventHandler(async (event) => {
   } catch (error: unknown) {
     const { message, statusCode } = errorHandler(error)
     console.error('🌩️ Cosmic storm encountered:', message)
+    event.node.res.statusCode = statusCode || 500
     return {
       success: false,
       message: `🚀 Mission abort! ${message}`,

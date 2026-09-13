@@ -20,22 +20,24 @@ export default defineEventHandler(async (event) => {
     const { isValid, user, kind } = await validateApiKey(event)
 
     if (!isValid || !user) {
-      return errorHandler({
-        error: new Error('Authorization required.'),
-        context: 'Seed Welcome Messages',
+      event.node.res.statusCode = 401
+      return {
+        success: false,
+        message: 'Authorization required.',
         statusCode: 401,
-      })
+      }
     }
 
     const isAdmin = userIsAdmin(user)
     const isServerKey = kind === 'server'
 
     if (!isAdmin && !isServerKey) {
-      return errorHandler({
-        error: new Error('Admin or server key required.'),
-        context: 'Seed Welcome Messages',
+      event.node.res.statusCode = 403
+      return {
+        success: false,
+        message: 'Admin or server key required.',
         statusCode: 403,
-      })
+      }
     }
 
     const body = await readBody<WelcomeBody>(event).catch(
@@ -105,6 +107,7 @@ export default defineEventHandler(async (event) => {
     }
 
     if (failures.length > 0) {
+      event.node.res.statusCode = 500
       return {
         success: false,
         message: `Seeded ${seeded} welcome message(s), skipped ${skipped}, failed ${failures.length}.`,
@@ -134,10 +137,8 @@ export default defineEventHandler(async (event) => {
       },
     }
   } catch (error) {
-    return errorHandler({
-      error,
-      context: 'Seed Welcome Messages',
-      statusCode: 500,
-    })
+    const handled = errorHandler(error)
+    event.node.res.statusCode = handled.statusCode || 500
+    return handled
   }
 })

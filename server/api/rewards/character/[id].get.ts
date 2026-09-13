@@ -8,22 +8,26 @@ export default defineEventHandler(async (event) => {
   const characterId = Number(event.context.params?.id)
 
   if (isNaN(characterId) || characterId <= 0) {
-    return errorHandler({
-      error: new Error('Invalid Character ID. It must be a positive integer.'),
-      context: 'Fetch Rewards by Character ID',
+    event.node.res.statusCode = 400
+    return {
+      success: false,
+      message: 'Invalid Character ID. It must be a positive integer.',
+      data: null,
       statusCode: 400,
-    })
+    }
   }
 
   try {
     // Authenticate the request
     const { isValid, user } = await validateApiKey(event)
     if (!isValid || !user) {
-      return errorHandler({
-        error: new Error('Invalid or expired token.'),
-        context: 'Fetch Rewards by Character ID',
+      event.node.res.statusCode = 401
+      return {
+        success: false,
+        message: 'Invalid or expired token.',
+        data: null,
         statusCode: 401,
-      })
+      }
     }
 
     // Fetch rewards linked to the specified character with access control
@@ -42,6 +46,7 @@ export default defineEventHandler(async (event) => {
     }
   } catch (error) {
     const { message, statusCode } = errorHandler(error)
+    event.node.res.statusCode = statusCode || 500
     return {
       success: false,
       message,

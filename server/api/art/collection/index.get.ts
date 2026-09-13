@@ -131,6 +131,8 @@ export default defineEventHandler(async (event) => {
         : 'No art collections found.',
     }
   } catch (error: unknown) {
-    return errorHandler(error)
+    const handled = errorHandler(error)
+    event.node.res.statusCode = handled.statusCode || 500
+    return handled
   }
 })

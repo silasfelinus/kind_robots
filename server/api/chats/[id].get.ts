@@ -8,22 +8,26 @@ export default defineEventHandler(async (event) => {
   const id = Number(event.context.params?.id)
 
   if (isNaN(id) || id <= 0) {
-    return errorHandler({
-      error: new Error('Invalid Chat ID. It must be a positive integer.'),
-      context: 'Fetch Single Chat',
+    event.node.res.statusCode = 400
+    return {
+      success: false,
+      message: 'Invalid Chat ID. It must be a positive integer.',
+      data: null,
       statusCode: 400,
-    })
+    }
   }
 
   try {
     // Authenticate the request
     const { isValid, user } = await validateApiKey(event)
     if (!isValid || !user) {
-      return errorHandler({
-        error: new Error('Invalid or expired token.'),
-        context: 'Fetch Single Chat',
+      event.node.res.statusCode = 401
+      return {
+        success: false,
+        message: 'Invalid or expired token.',
+        data: null,
         statusCode: 401,
-      })
+      }
     }
 
     // Fetch the chat by ID, including access control for user and public visibility
@@ -35,11 +39,13 @@ export default defineEventHandler(async (event) => {
     })
 
     if (!chat) {
-      return errorHandler({
-        error: new Error(`Chat with ID ${id} not found or access denied.`),
-        context: 'Fetch Single Chat',
+      event.node.res.statusCode = 404
+      return {
+        success: false,
+        message: `Chat with ID ${id} not found or access denied.`,
+        data: null,
         statusCode: 404,
-      })
+      }
     }
 
     return {
@@ -49,6 +55,7 @@ export default defineEventHandler(async (event) => {
     }
   } catch (error) {
     const { message, statusCode } = errorHandler(error)
+    event.node.res.statusCode = statusCode || 500
     return {
       success: false,
       message,

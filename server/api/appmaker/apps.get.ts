@@ -18,7 +18,7 @@ import { conductorList } from '~/server/utils/conductor-github'
 // waiting for the next Worker cycle, silently invisible to the requester.
 const SCAFFOLD_TITLE_RE = /^Scaffold (?:new|external) app '([a-z0-9-]+)'/
 
-export default defineEventHandler(async () => {
+export default defineEventHandler(async (event) => {
   try {
     const entries = await conductorList('apps')
     const scaffolded = (entries ?? [])
@@ -62,6 +62,8 @@ export default defineEventHandler(async () => {
     return { success: true, data: { scaffolded, pending } }
   } catch (error) {
     if (error instanceof H3Error) throw error
-    return errorHandler(error)
+    const handled = errorHandler(error)
+    event.node.res.statusCode = handled.statusCode || 500
+    return handled
   }
 })

@@ -35,7 +35,7 @@
           <label class="font-semibold">Preset</label>
           <span
             v-if="videoPresetId === defaultPreset.id"
-            class="badge badge-accent badge-sm"
+            class="kr-badge-accent-sm"
           >
             Studio default
           </span>

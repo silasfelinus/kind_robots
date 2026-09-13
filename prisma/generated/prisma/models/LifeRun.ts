@@ -82,6 +82,7 @@ export type LifeRunMinAggregateOutputType = {
   narratorStyle: string | null
   premise: string | null
   scenarioId: number | null
+  questLedger: string | null
   bible: string | null
   inventory: string | null
   pendingTurn: string | null
@@ -113,6 +114,7 @@ export type LifeRunMaxAggregateOutputType = {
   narratorStyle: string | null
   premise: string | null
   scenarioId: number | null
+  questLedger: string | null
   bible: string | null
   inventory: string | null
   pendingTurn: string | null
@@ -144,6 +146,7 @@ export type LifeRunCountAggregateOutputType = {
   narratorStyle: number
   premise: number
   scenarioId: number
+  questLedger: number
   bible: number
   inventory: number
   pendingTurn: number
@@ -207,6 +210,7 @@ export type LifeRunMinAggregateInputType = {
   narratorStyle?: true
   premise?: true
   scenarioId?: true
+  questLedger?: true
   bible?: true
   inventory?: true
   pendingTurn?: true
@@ -238,6 +242,7 @@ export type LifeRunMaxAggregateInputType = {
   narratorStyle?: true
   premise?: true
   scenarioId?: true
+  questLedger?: true
   bible?: true
   inventory?: true
   pendingTurn?: true
@@ -269,6 +274,7 @@ export type LifeRunCountAggregateInputType = {
   narratorStyle?: true
   premise?: true
   scenarioId?: true
+  questLedger?: true
   bible?: true
   inventory?: true
   pendingTurn?: true
@@ -387,6 +393,7 @@ export type LifeRunGroupByOutputType = {
   narratorStyle: string | null
   premise: string | null
   scenarioId: number | null
+  questLedger: string | null
   bible: string | null
   inventory: string | null
   pendingTurn: string | null
@@ -441,6 +448,7 @@ export type LifeRunWhereInput = {
   narratorStyle?: Prisma.StringNullableFilter<"LifeRun"> | string | null
   premise?: Prisma.StringNullableFilter<"LifeRun"> | string | null
   scenarioId?: Prisma.IntNullableFilter<"LifeRun"> | number | null
+  questLedger?: Prisma.StringNullableFilter<"LifeRun"> | string | null
   bible?: Prisma.StringNullableFilter<"LifeRun"> | string | null
   inventory?: Prisma.StringNullableFilter<"LifeRun"> | string | null
   pendingTurn?: Prisma.StringNullableFilter<"LifeRun"> | string | null
@@ -484,6 +492,7 @@ export type LifeRunOrderByWithRelationInput = {
   narratorStyle?: Prisma.SortOrderInput | Prisma.SortOrder
   premise?: Prisma.SortOrderInput | Prisma.SortOrder
   scenarioId?: Prisma.SortOrderInput | Prisma.SortOrder
+  questLedger?: Prisma.SortOrderInput | Prisma.SortOrder
   bible?: Prisma.SortOrderInput | Prisma.SortOrder
   inventory?: Prisma.SortOrderInput | Prisma.SortOrder
   pendingTurn?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -531,6 +540,7 @@ export type LifeRunWhereUniqueInput = Prisma.AtLeast<{
   narratorStyle?: Prisma.StringNullableFilter<"LifeRun"> | string | null
   premise?: Prisma.StringNullableFilter<"LifeRun"> | string | null
   scenarioId?: Prisma.IntNullableFilter<"LifeRun"> | number | null
+  questLedger?: Prisma.StringNullableFilter<"LifeRun"> | string | null
   bible?: Prisma.StringNullableFilter<"LifeRun"> | string | null
   inventory?: Prisma.StringNullableFilter<"LifeRun"> | string | null
   pendingTurn?: Prisma.StringNullableFilter<"LifeRun"> | string | null
@@ -574,6 +584,7 @@ export type LifeRunOrderByWithAggregationInput = {
   narratorStyle?: Prisma.SortOrderInput | Prisma.SortOrder
   premise?: Prisma.SortOrderInput | Prisma.SortOrder
   scenarioId?: Prisma.SortOrderInput | Prisma.SortOrder
+  questLedger?: Prisma.SortOrderInput | Prisma.SortOrder
   bible?: Prisma.SortOrderInput | Prisma.SortOrder
   inventory?: Prisma.SortOrderInput | Prisma.SortOrder
   pendingTurn?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -613,6 +624,7 @@ export type LifeRunScalarWhereWithAggregatesInput = {
   narratorStyle?: Prisma.StringNullableWithAggregatesFilter<"LifeRun"> | string | null
   premise?: Prisma.StringNullableWithAggregatesFilter<"LifeRun"> | string | null
   scenarioId?: Prisma.IntNullableWithAggregatesFilter<"LifeRun"> | number | null
+  questLedger?: Prisma.StringNullableWithAggregatesFilter<"LifeRun"> | string | null
   bible?: Prisma.StringNullableWithAggregatesFilter<"LifeRun"> | string | null
   inventory?: Prisma.StringNullableWithAggregatesFilter<"LifeRun"> | string | null
   pendingTurn?: Prisma.StringNullableWithAggregatesFilter<"LifeRun"> | string | null
@@ -635,6 +647,7 @@ export type LifeRunCreateInput = {
   turnBudget?: number | null
   narratorStyle?: string | null
   premise?: string | null
+  questLedger?: string | null
   bible?: string | null
   inventory?: string | null
   pendingTurn?: string | null
@@ -678,6 +691,7 @@ export type LifeRunUncheckedCreateInput = {
   narratorStyle?: string | null
   premise?: string | null
   scenarioId?: number | null
+  questLedger?: string | null
   bible?: string | null
   inventory?: string | null
   pendingTurn?: string | null
@@ -704,6 +718,7 @@ export type LifeRunUpdateInput = {
   turnBudget?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   narratorStyle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   premise?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  questLedger?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bible?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   inventory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pendingTurn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -747,6 +762,7 @@ export type LifeRunUncheckedUpdateInput = {
   narratorStyle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   premise?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scenarioId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  questLedger?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bible?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   inventory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pendingTurn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -782,6 +798,7 @@ export type LifeRunCreateManyInput = {
   narratorStyle?: string | null
   premise?: string | null
   scenarioId?: number | null
+  questLedger?: string | null
   bible?: string | null
   inventory?: string | null
   pendingTurn?: string | null
@@ -804,6 +821,7 @@ export type LifeRunUpdateManyMutationInput = {
   turnBudget?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   narratorStyle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   premise?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  questLedger?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bible?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   inventory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pendingTurn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -835,6 +853,7 @@ export type LifeRunUncheckedUpdateManyInput = {
   narratorStyle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   premise?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scenarioId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  questLedger?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bible?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   inventory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pendingTurn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -882,6 +901,7 @@ export type LifeRunCountOrderByAggregateInput = {
   narratorStyle?: Prisma.SortOrder
   premise?: Prisma.SortOrder
   scenarioId?: Prisma.SortOrder
+  questLedger?: Prisma.SortOrder
   bible?: Prisma.SortOrder
   inventory?: Prisma.SortOrder
   pendingTurn?: Prisma.SortOrder
@@ -928,6 +948,7 @@ export type LifeRunMaxOrderByAggregateInput = {
   narratorStyle?: Prisma.SortOrder
   premise?: Prisma.SortOrder
   scenarioId?: Prisma.SortOrder
+  questLedger?: Prisma.SortOrder
   bible?: Prisma.SortOrder
   inventory?: Prisma.SortOrder
   pendingTurn?: Prisma.SortOrder
@@ -959,6 +980,7 @@ export type LifeRunMinOrderByAggregateInput = {
   narratorStyle?: Prisma.SortOrder
   premise?: Prisma.SortOrder
   scenarioId?: Prisma.SortOrder
+  questLedger?: Prisma.SortOrder
   bible?: Prisma.SortOrder
   inventory?: Prisma.SortOrder
   pendingTurn?: Prisma.SortOrder
@@ -1408,6 +1430,7 @@ export type LifeRunCreateWithoutArtCollectionInput = {
   turnBudget?: number | null
   narratorStyle?: string | null
   premise?: string | null
+  questLedger?: string | null
   bible?: string | null
   inventory?: string | null
   pendingTurn?: string | null
@@ -1449,6 +1472,7 @@ export type LifeRunUncheckedCreateWithoutArtCollectionInput = {
   narratorStyle?: string | null
   premise?: string | null
   scenarioId?: number | null
+  questLedger?: string | null
   bible?: string | null
   inventory?: string | null
   pendingTurn?: string | null
@@ -1513,6 +1537,7 @@ export type LifeRunScalarWhereInput = {
   narratorStyle?: Prisma.StringNullableFilter<"LifeRun"> | string | null
   premise?: Prisma.StringNullableFilter<"LifeRun"> | string | null
   scenarioId?: Prisma.IntNullableFilter<"LifeRun"> | number | null
+  questLedger?: Prisma.StringNullableFilter<"LifeRun"> | string | null
   bible?: Prisma.StringNullableFilter<"LifeRun"> | string | null
   inventory?: Prisma.StringNullableFilter<"LifeRun"> | string | null
   pendingTurn?: Prisma.StringNullableFilter<"LifeRun"> | string | null
@@ -1535,6 +1560,7 @@ export type LifeRunCreateWithoutBotInput = {
   turnBudget?: number | null
   narratorStyle?: string | null
   premise?: string | null
+  questLedger?: string | null
   bible?: string | null
   inventory?: string | null
   pendingTurn?: string | null
@@ -1576,6 +1602,7 @@ export type LifeRunUncheckedCreateWithoutBotInput = {
   narratorStyle?: string | null
   premise?: string | null
   scenarioId?: number | null
+  questLedger?: string | null
   bible?: string | null
   inventory?: string | null
   pendingTurn?: string | null
@@ -1628,6 +1655,7 @@ export type LifeRunCreateWithoutCharacterInput = {
   turnBudget?: number | null
   narratorStyle?: string | null
   premise?: string | null
+  questLedger?: string | null
   bible?: string | null
   inventory?: string | null
   pendingTurn?: string | null
@@ -1669,6 +1697,7 @@ export type LifeRunUncheckedCreateWithoutCharacterInput = {
   narratorStyle?: string | null
   premise?: string | null
   scenarioId?: number | null
+  questLedger?: string | null
   bible?: string | null
   inventory?: string | null
   pendingTurn?: string | null
@@ -1721,6 +1750,7 @@ export type LifeRunCreateWithoutDreamInput = {
   turnBudget?: number | null
   narratorStyle?: string | null
   premise?: string | null
+  questLedger?: string | null
   bible?: string | null
   inventory?: string | null
   pendingTurn?: string | null
@@ -1762,6 +1792,7 @@ export type LifeRunUncheckedCreateWithoutDreamInput = {
   narratorStyle?: string | null
   premise?: string | null
   scenarioId?: number | null
+  questLedger?: string | null
   bible?: string | null
   inventory?: string | null
   pendingTurn?: string | null
@@ -1814,6 +1845,7 @@ export type LifeRunCreateWithoutScenarioInput = {
   turnBudget?: number | null
   narratorStyle?: string | null
   premise?: string | null
+  questLedger?: string | null
   bible?: string | null
   inventory?: string | null
   pendingTurn?: string | null
@@ -1855,6 +1887,7 @@ export type LifeRunUncheckedCreateWithoutScenarioInput = {
   turnBudget?: number | null
   narratorStyle?: string | null
   premise?: string | null
+  questLedger?: string | null
   bible?: string | null
   inventory?: string | null
   pendingTurn?: string | null
@@ -1907,6 +1940,7 @@ export type LifeRunCreateWithoutUserInput = {
   turnBudget?: number | null
   narratorStyle?: string | null
   premise?: string | null
+  questLedger?: string | null
   bible?: string | null
   inventory?: string | null
   pendingTurn?: string | null
@@ -1948,6 +1982,7 @@ export type LifeRunUncheckedCreateWithoutUserInput = {
   narratorStyle?: string | null
   premise?: string | null
   scenarioId?: number | null
+  questLedger?: string | null
   bible?: string | null
   inventory?: string | null
   pendingTurn?: string | null
@@ -2000,6 +2035,7 @@ export type LifeRunCreateWithoutDeckInput = {
   turnBudget?: number | null
   narratorStyle?: string | null
   premise?: string | null
+  questLedger?: string | null
   bible?: string | null
   inventory?: string | null
   pendingTurn?: string | null
@@ -2041,6 +2077,7 @@ export type LifeRunUncheckedCreateWithoutDeckInput = {
   narratorStyle?: string | null
   premise?: string | null
   scenarioId?: number | null
+  questLedger?: string | null
   bible?: string | null
   inventory?: string | null
   pendingTurn?: string | null
@@ -2093,6 +2130,7 @@ export type LifeRunCreateWithoutChoicesInput = {
   turnBudget?: number | null
   narratorStyle?: string | null
   premise?: string | null
+  questLedger?: string | null
   bible?: string | null
   inventory?: string | null
   pendingTurn?: string | null
@@ -2135,6 +2173,7 @@ export type LifeRunUncheckedCreateWithoutChoicesInput = {
   narratorStyle?: string | null
   premise?: string | null
   scenarioId?: number | null
+  questLedger?: string | null
   bible?: string | null
   inventory?: string | null
   pendingTurn?: string | null
@@ -2176,6 +2215,7 @@ export type LifeRunUpdateWithoutChoicesInput = {
   turnBudget?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   narratorStyle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   premise?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  questLedger?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bible?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   inventory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pendingTurn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2218,6 +2258,7 @@ export type LifeRunUncheckedUpdateWithoutChoicesInput = {
   narratorStyle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   premise?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scenarioId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  questLedger?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bible?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   inventory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pendingTurn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2243,6 +2284,7 @@ export type LifeRunCreateWithoutStatsInput = {
   turnBudget?: number | null
   narratorStyle?: string | null
   premise?: string | null
+  questLedger?: string | null
   bible?: string | null
   inventory?: string | null
   pendingTurn?: string | null
@@ -2285,6 +2327,7 @@ export type LifeRunUncheckedCreateWithoutStatsInput = {
   narratorStyle?: string | null
   premise?: string | null
   scenarioId?: number | null
+  questLedger?: string | null
   bible?: string | null
   inventory?: string | null
   pendingTurn?: string | null
@@ -2326,6 +2369,7 @@ export type LifeRunUpdateWithoutStatsInput = {
   turnBudget?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   narratorStyle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   premise?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  questLedger?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bible?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   inventory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pendingTurn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2368,6 +2412,7 @@ export type LifeRunUncheckedUpdateWithoutStatsInput = {
   narratorStyle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   premise?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scenarioId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  questLedger?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bible?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   inventory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pendingTurn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2393,6 +2438,7 @@ export type LifeRunCreateWithoutEndingInput = {
   turnBudget?: number | null
   narratorStyle?: string | null
   premise?: string | null
+  questLedger?: string | null
   bible?: string | null
   inventory?: string | null
   pendingTurn?: string | null
@@ -2434,6 +2480,7 @@ export type LifeRunUncheckedCreateWithoutEndingInput = {
   narratorStyle?: string | null
   premise?: string | null
   scenarioId?: number | null
+  questLedger?: string | null
   bible?: string | null
   inventory?: string | null
   pendingTurn?: string | null
@@ -2486,6 +2533,7 @@ export type LifeRunCreateWithoutUnlocksInput = {
   turnBudget?: number | null
   narratorStyle?: string | null
   premise?: string | null
+  questLedger?: string | null
   bible?: string | null
   inventory?: string | null
   pendingTurn?: string | null
@@ -2528,6 +2576,7 @@ export type LifeRunUncheckedCreateWithoutUnlocksInput = {
   narratorStyle?: string | null
   premise?: string | null
   scenarioId?: number | null
+  questLedger?: string | null
   bible?: string | null
   inventory?: string | null
   pendingTurn?: string | null
@@ -2569,6 +2618,7 @@ export type LifeRunUpdateWithoutUnlocksInput = {
   turnBudget?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   narratorStyle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   premise?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  questLedger?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bible?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   inventory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pendingTurn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2611,6 +2661,7 @@ export type LifeRunUncheckedUpdateWithoutUnlocksInput = {
   narratorStyle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   premise?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scenarioId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  questLedger?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bible?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   inventory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pendingTurn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2636,6 +2687,7 @@ export type LifeRunCreateWithoutArtInput = {
   turnBudget?: number | null
   narratorStyle?: string | null
   premise?: string | null
+  questLedger?: string | null
   bible?: string | null
   inventory?: string | null
   pendingTurn?: string | null
@@ -2678,6 +2730,7 @@ export type LifeRunUncheckedCreateWithoutArtInput = {
   narratorStyle?: string | null
   premise?: string | null
   scenarioId?: number | null
+  questLedger?: string | null
   bible?: string | null
   inventory?: string | null
   pendingTurn?: string | null
@@ -2719,6 +2772,7 @@ export type LifeRunUpdateWithoutArtInput = {
   turnBudget?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   narratorStyle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   premise?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  questLedger?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bible?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   inventory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pendingTurn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2761,6 +2815,7 @@ export type LifeRunUncheckedUpdateWithoutArtInput = {
   narratorStyle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   premise?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scenarioId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  questLedger?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bible?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   inventory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pendingTurn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2794,6 +2849,7 @@ export type LifeRunCreateManyArtCollectionInput = {
   narratorStyle?: string | null
   premise?: string | null
   scenarioId?: number | null
+  questLedger?: string | null
   bible?: string | null
   inventory?: string | null
   pendingTurn?: string | null
@@ -2816,6 +2872,7 @@ export type LifeRunUpdateWithoutArtCollectionInput = {
   turnBudget?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   narratorStyle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   premise?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  questLedger?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bible?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   inventory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pendingTurn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2857,6 +2914,7 @@ export type LifeRunUncheckedUpdateWithoutArtCollectionInput = {
   narratorStyle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   premise?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scenarioId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  questLedger?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bible?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   inventory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pendingTurn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2891,6 +2949,7 @@ export type LifeRunUncheckedUpdateManyWithoutArtCollectionInput = {
   narratorStyle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   premise?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scenarioId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  questLedger?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bible?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   inventory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pendingTurn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2921,6 +2980,7 @@ export type LifeRunCreateManyBotInput = {
   narratorStyle?: string | null
   premise?: string | null
   scenarioId?: number | null
+  questLedger?: string | null
   bible?: string | null
   inventory?: string | null
   pendingTurn?: string | null
@@ -2943,6 +3003,7 @@ export type LifeRunUpdateWithoutBotInput = {
   turnBudget?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   narratorStyle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   premise?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  questLedger?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bible?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   inventory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pendingTurn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2984,6 +3045,7 @@ export type LifeRunUncheckedUpdateWithoutBotInput = {
   narratorStyle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   premise?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scenarioId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  questLedger?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bible?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   inventory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pendingTurn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3018,6 +3080,7 @@ export type LifeRunUncheckedUpdateManyWithoutBotInput = {
   narratorStyle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   premise?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scenarioId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  questLedger?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bible?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   inventory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pendingTurn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3048,6 +3111,7 @@ export type LifeRunCreateManyCharacterInput = {
   narratorStyle?: string | null
   premise?: string | null
   scenarioId?: number | null
+  questLedger?: string | null
   bible?: string | null
   inventory?: string | null
   pendingTurn?: string | null
@@ -3070,6 +3134,7 @@ export type LifeRunUpdateWithoutCharacterInput = {
   turnBudget?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   narratorStyle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   premise?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  questLedger?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bible?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   inventory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pendingTurn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3111,6 +3176,7 @@ export type LifeRunUncheckedUpdateWithoutCharacterInput = {
   narratorStyle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   premise?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scenarioId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  questLedger?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bible?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   inventory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pendingTurn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3145,6 +3211,7 @@ export type LifeRunUncheckedUpdateManyWithoutCharacterInput = {
   narratorStyle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   premise?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scenarioId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  questLedger?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bible?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   inventory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pendingTurn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3175,6 +3242,7 @@ export type LifeRunCreateManyDreamInput = {
   narratorStyle?: string | null
   premise?: string | null
   scenarioId?: number | null
+  questLedger?: string | null
   bible?: string | null
   inventory?: string | null
   pendingTurn?: string | null
@@ -3197,6 +3265,7 @@ export type LifeRunUpdateWithoutDreamInput = {
   turnBudget?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   narratorStyle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   premise?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  questLedger?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bible?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   inventory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pendingTurn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3238,6 +3307,7 @@ export type LifeRunUncheckedUpdateWithoutDreamInput = {
   narratorStyle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   premise?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scenarioId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  questLedger?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bible?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   inventory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pendingTurn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3272,6 +3342,7 @@ export type LifeRunUncheckedUpdateManyWithoutDreamInput = {
   narratorStyle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   premise?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scenarioId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  questLedger?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bible?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   inventory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pendingTurn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3302,6 +3373,7 @@ export type LifeRunCreateManyScenarioInput = {
   turnBudget?: number | null
   narratorStyle?: string | null
   premise?: string | null
+  questLedger?: string | null
   bible?: string | null
   inventory?: string | null
   pendingTurn?: string | null
@@ -3324,6 +3396,7 @@ export type LifeRunUpdateWithoutScenarioInput = {
   turnBudget?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   narratorStyle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   premise?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  questLedger?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bible?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   inventory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pendingTurn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3365,6 +3438,7 @@ export type LifeRunUncheckedUpdateWithoutScenarioInput = {
   turnBudget?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   narratorStyle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   premise?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  questLedger?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bible?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   inventory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pendingTurn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3399,6 +3473,7 @@ export type LifeRunUncheckedUpdateManyWithoutScenarioInput = {
   turnBudget?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   narratorStyle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   premise?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  questLedger?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bible?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   inventory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pendingTurn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3429,6 +3504,7 @@ export type LifeRunCreateManyUserInput = {
   narratorStyle?: string | null
   premise?: string | null
   scenarioId?: number | null
+  questLedger?: string | null
   bible?: string | null
   inventory?: string | null
   pendingTurn?: string | null
@@ -3451,6 +3527,7 @@ export type LifeRunUpdateWithoutUserInput = {
   turnBudget?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   narratorStyle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   premise?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  questLedger?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bible?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   inventory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pendingTurn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3492,6 +3569,7 @@ export type LifeRunUncheckedUpdateWithoutUserInput = {
   narratorStyle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   premise?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scenarioId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  questLedger?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bible?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   inventory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pendingTurn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3526,6 +3604,7 @@ export type LifeRunUncheckedUpdateManyWithoutUserInput = {
   narratorStyle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   premise?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scenarioId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  questLedger?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bible?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   inventory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pendingTurn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3556,6 +3635,7 @@ export type LifeRunCreateManyDeckInput = {
   narratorStyle?: string | null
   premise?: string | null
   scenarioId?: number | null
+  questLedger?: string | null
   bible?: string | null
   inventory?: string | null
   pendingTurn?: string | null
@@ -3578,6 +3658,7 @@ export type LifeRunUpdateWithoutDeckInput = {
   turnBudget?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   narratorStyle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   premise?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  questLedger?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bible?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   inventory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pendingTurn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3619,6 +3700,7 @@ export type LifeRunUncheckedUpdateWithoutDeckInput = {
   narratorStyle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   premise?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scenarioId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  questLedger?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bible?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   inventory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pendingTurn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3653,6 +3735,7 @@ export type LifeRunUncheckedUpdateManyWithoutDeckInput = {
   narratorStyle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   premise?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scenarioId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  questLedger?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bible?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   inventory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pendingTurn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3683,6 +3766,7 @@ export type LifeRunCreateManyEndingInput = {
   narratorStyle?: string | null
   premise?: string | null
   scenarioId?: number | null
+  questLedger?: string | null
   bible?: string | null
   inventory?: string | null
   pendingTurn?: string | null
@@ -3705,6 +3789,7 @@ export type LifeRunUpdateWithoutEndingInput = {
   turnBudget?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   narratorStyle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   premise?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  questLedger?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bible?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   inventory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pendingTurn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3746,6 +3831,7 @@ export type LifeRunUncheckedUpdateWithoutEndingInput = {
   narratorStyle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   premise?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scenarioId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  questLedger?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bible?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   inventory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pendingTurn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3780,6 +3866,7 @@ export type LifeRunUncheckedUpdateManyWithoutEndingInput = {
   narratorStyle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   premise?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scenarioId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  questLedger?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bible?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   inventory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pendingTurn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3869,6 +3956,7 @@ export type LifeRunSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   narratorStyle?: boolean
   premise?: boolean
   scenarioId?: boolean
+  questLedger?: boolean
   bible?: boolean
   inventory?: boolean
   pendingTurn?: boolean
@@ -3915,12 +4003,13 @@ export type LifeRunSelectScalar = {
   narratorStyle?: boolean
   premise?: boolean
   scenarioId?: boolean
+  questLedger?: boolean
   bible?: boolean
   inventory?: boolean
   pendingTurn?: boolean
 }
 
-export type LifeRunOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "userId" | "title" | "status" | "seed" | "protagonistName" | "currentAge" | "currentChapter" | "genre" | "dreamId" | "characterId" | "botId" | "artCollectionId" | "endingId" | "outcomeKey" | "summary" | "statsSnapshot" | "shape" | "deckId" | "turnBudget" | "narratorStyle" | "premise" | "scenarioId" | "bible" | "inventory" | "pendingTurn", ExtArgs["result"]["lifeRun"]>
+export type LifeRunOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "userId" | "title" | "status" | "seed" | "protagonistName" | "currentAge" | "currentChapter" | "genre" | "dreamId" | "characterId" | "botId" | "artCollectionId" | "endingId" | "outcomeKey" | "summary" | "statsSnapshot" | "shape" | "deckId" | "turnBudget" | "narratorStyle" | "premise" | "scenarioId" | "questLedger" | "bible" | "inventory" | "pendingTurn", ExtArgs["result"]["lifeRun"]>
 export type LifeRunInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   Unlocks?: boolean | Prisma.LifeRun$UnlocksArgs<ExtArgs>
   Choices?: boolean | Prisma.LifeRun$ChoicesArgs<ExtArgs>
@@ -3994,6 +4083,17 @@ export type $LifeRunPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     narratorStyle: string | null
     premise: string | null
     scenarioId: number | null
+    /**
+     * Taskmaster mode's quest ledger (storybook/t-044, t-045): JSON holding the
+     * real objective, the checkpoints dealt from the reader's own project, and
+     * the proposals a turn has made. Separate from `bible`, which is an
+     * immutable board snapshot, and from `inventory`, which means cards: this is
+     * mutable state that changes every turn. NULL in every other mode.
+     * 
+     * A proposal here has NOT been applied. Nothing in this column writes to a
+     * real Todo or Project; only the explicit apply endpoint does.
+     */
+    questLedger: string | null
     /**
      * JSON snapshot of the board the reader assembled (cast with roles,
      * location, facets, scenario, treasures, spark). Snapshotted at creation on
@@ -4416,6 +4516,7 @@ export interface LifeRunFieldRefs {
   readonly narratorStyle: Prisma.FieldRef<"LifeRun", 'String'>
   readonly premise: Prisma.FieldRef<"LifeRun", 'String'>
   readonly scenarioId: Prisma.FieldRef<"LifeRun", 'Int'>
+  readonly questLedger: Prisma.FieldRef<"LifeRun", 'String'>
   readonly bible: Prisma.FieldRef<"LifeRun", 'String'>
   readonly inventory: Prisma.FieldRef<"LifeRun", 'String'>
   readonly pendingTurn: Prisma.FieldRef<"LifeRun", 'String'>

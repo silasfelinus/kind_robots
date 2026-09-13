@@ -2236,6 +2236,15 @@ model LifeRun {
   narratorStyle   String?                 @db.VarChar(32)
   premise         String?                 @db.Text
   scenarioId      Int?
+  /// Taskmaster mode's quest ledger (storybook/t-044, t-045): JSON holding the
+  /// real objective, the checkpoints dealt from the reader's own project, and
+  /// the proposals a turn has made. Separate from `bible`, which is an
+  /// immutable board snapshot, and from `inventory`, which means cards: this is
+  /// mutable state that changes every turn. NULL in every other mode.
+  ///
+  /// A proposal here has NOT been applied. Nothing in this column writes to a
+  /// real Todo or Project; only the explicit apply endpoint does.
+  questLedger     String?                 @db.LongText
   /// JSON snapshot of the board the reader assembled (cast with roles,
   /// location, facets, scenario, treasures, spark). Snapshotted at creation on
   /// purpose: later edits to a Character must not rewrite a story in progress.
@@ -3370,6 +3379,11 @@ enum EndingDeckOwnerKind {
   LIFE
   GENRE_FACET
   SCENARIO
+  /// The Taskmaster deck (storybook/t-044). Not a genre and not a life: its
+  /// axes score the real work a quest moved, not the story it told. Kept
+  /// distinct from LIFE because only the life deck shows its axis values to
+  /// the reader -- a taskmaster deck's axes stay the deck's secret.
+  TASKMASTER
 }
 
 /// The four story MODES a Storybook run can be told in (storybook/t-039).

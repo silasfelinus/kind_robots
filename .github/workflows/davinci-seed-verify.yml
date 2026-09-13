@@ -31,6 +31,7 @@ on:
       - 'utils/scripts/verifyStorybookDecks.ts'
       - 'server/utils/storybookRuns.ts'
       - 'server/utils/storybookCollection.ts'
+      - 'server/utils/storybookQuest.ts'
       - 'server/utils/davinci.ts'
   pull_request:
     paths:
@@ -46,6 +47,7 @@ on:
       - 'utils/scripts/verifyStorybookDecks.ts'
       - 'server/utils/storybookRuns.ts'
       - 'server/utils/storybookCollection.ts'
+      - 'server/utils/storybookQuest.ts'
       - 'server/utils/davinci.ts'
 
 concurrency:

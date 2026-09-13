@@ -23,6 +23,7 @@ import {
   NARRATION_MAX_TOKENS,
   NARRATION_MODEL,
 } from '../../../utils/storybookNarration'
+import { publicQuest } from '../../../utils/storybookQuest'
 
 export default defineEventHandler(async (event) => {
   let response
@@ -64,6 +65,7 @@ export default defineEventHandler(async (event) => {
           deck: { key: created.deck.key, title: created.deck.title },
         },
         bible: created.bible,
+        quest: publicQuest(created.quest),
         inventory: created.inventory,
         pendingTurn: publicPendingTurn(created.pendingTurn, created.deck),
         narrationError: created.narrationError,

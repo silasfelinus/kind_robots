@@ -89,6 +89,7 @@ export default defineEventHandler(async (event) => {
           : null,
         pendingTurn: result.pendingTurn,
         inventory: result.inventory,
+        quest: result.quest,
         turnIndex: result.turnIndex,
         turnBudget: result.turnBudget,
         isFinalTurn: result.isFinalTurn,

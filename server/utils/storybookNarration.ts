@@ -94,8 +94,56 @@ export interface StoryRecentTurn {
   move?: StorybookMove | null
 }
 
+/** One real item a quest is working, as the narrator is allowed to see it. */
+export interface QuestCheckpointBrief {
+  id: string
+  title: string
+  detail?: string | null
+  sourceKind: 'direct-task' | 'honeydo' | 'needs-human'
+  status: string
+}
+
+/**
+ * Taskmaster mode's real-work context (storybook/t-044).
+ *
+ * Deliberately a STRUCTURED block rather than prose folded into the bible: the
+ * Reading has to show the objective beside the fiction at all times, and a
+ * field can be rendered while a paragraph can only be read.
+ */
+export interface QuestBrief {
+  objective: string
+  projectTitle?: string | null
+  /** The one item this turn presents, or null when the quest is winding down. */
+  checkpoint: QuestCheckpointBrief | null
+  /** How many checkpoints are still unresolved, including this one. */
+  remaining: number
+  /**
+   * Proposals the reader has NOT applied. The narrator is told these have not
+   * happened, because a story that narrates an unapplied proposal as done is
+   * the exact failure the Taskmaster boundary rules exist to prevent.
+   */
+  unapplied: string[]
+}
+
+/** What a turn may PROPOSE about a checkpoint. Never a write. */
+export interface QuestProposalDraft {
+  checkpointId: string
+  outcome: QuestOutcome
+  note: string
+}
+
+export const QUEST_OUTCOMES = [
+  'completed',
+  'blocked',
+  'deferred',
+  'needs-info',
+] as const
+export type QuestOutcome = (typeof QUEST_OUTCOMES)[number]
+
 export interface StorybookNarrationRequest {
   mode: StoryMode
+  /** Taskmaster mode only: the real work this quest is about. */
+  quest?: QuestBrief | null
   /**
    * What to call this mode in the prompt's identity line. Defaults to
    * MODE_LABELS[mode]; the life adapter passes 'whole life' so a run that has
@@ -142,6 +190,12 @@ export interface StorybookNarrationResult {
   artPrompt: string | null
   /** Display-only flavor. Nothing is ever awarded from it. */
   endingHint: string | null
+  /**
+   * Taskmaster mode: what this scene PROPOSES about a real item, or null.
+   * A proposal is stored in the quest ledger and changes nothing real until
+   * the reader applies it themselves (storybook/t-045).
+   */
+  proposal?: QuestProposalDraft | null
 }
 
 // Per-move swing bounds. An axis passes at DEFAULT_DECK_PASS_VALUE (1), so an
@@ -248,6 +302,8 @@ export const NARRATOR_STYLE_DIRECTIVES: Record<StorybookNarratorStyle, string> =
  */
 export interface StorybookSchemaOptions {
   finalTurn?: boolean
+  /** Taskmaster mode: allow the response to carry a checkpoint proposal. */
+  includeProposal?: boolean
   includeMoveEffects?: boolean
   includeStateDelta?: boolean
   hintKey?: string
@@ -257,6 +313,7 @@ export interface StorybookSchemaOptions {
 function schemaDefaults(options: StorybookSchemaOptions | undefined) {
   return {
     finalTurn: options?.finalTurn ?? false,
+    includeProposal: options?.includeProposal ?? false,
     includeMoveEffects: options?.includeMoveEffects ?? true,
     includeStateDelta: options?.includeStateDelta ?? true,
     hintKey: options?.hintKey || 'endingHint',
@@ -365,6 +422,41 @@ export function storybookResponseSchema(
     },
   }
 
+  if (opts.includeProposal) {
+    // Taskmaster mode (storybook/t-045). A proposal is a SUGGESTION about a
+    // real item; nothing here writes anything. `checkpointId` empty means the
+    // scene proposed nothing, which is the common and correct case.
+    //
+    // `outcome` is a plain string rather than a schema enum on purpose: strict
+    // mode constrains shape, not values, and this file validates values itself
+    // -- an unknown outcome is rejected below rather than smuggled through.
+    properties.proposal = {
+      type: 'object',
+      description:
+        'A suggestion about the real item this scene presented, or empty. ' +
+        'Answering a question never completes, approves, or writes anything: ' +
+        'the reader applies a proposal themselves, later, on purpose.',
+      properties: {
+        checkpointId: {
+          type: 'string',
+          description:
+            'The id of the checkpoint this proposal is about, or an empty string when the scene proposes nothing.',
+        },
+        outcome: {
+          type: 'string',
+          description: `One of: ${QUEST_OUTCOMES.join(', ')}. Empty when there is no proposal.`,
+        },
+        note: {
+          type: 'string',
+          description:
+            "One plain sentence, in the reader's own terms rather than the story's, saying what would be recorded. Empty when there is no proposal.",
+        },
+      },
+      required: ['checkpointId', 'outcome', 'note'],
+      additionalProperties: false,
+    }
+  }
+
   if (opts.includeMoveEffects) {
     properties.moveEffects = effectsSchema(
       deck,
@@ -385,6 +477,8 @@ export function storybookResponseSchema(
 
 export interface StorybookValidationOptions extends StorybookSchemaOptions {
   bounds?: { min: number; max: number }
+  /** Taskmaster mode: the checkpoint ids a proposal may name. */
+  questCheckpointIds?: string[]
   /** Axes one move may touch. `null` disables the cap (the life shape). */
   maxEffectAxes?: number | null
   /** Reward slugs the fiction may hand out. */
@@ -593,7 +687,52 @@ export function validateStorybookNarration(
     stateDelta,
     artPrompt,
     endingHint,
+    proposal: opts.includeProposal
+      ? readQuestProposal(payload.proposal, options?.questCheckpointIds || [])
+      : null,
   }
+}
+
+/**
+ * Read a checkpoint proposal off a narration response (storybook/t-045).
+ *
+ * Strict: a proposal naming a checkpoint this quest does not hold, or an
+ * outcome outside the four, is REJECTED rather than dropped. A dropped proposal
+ * would leave the reader looking at a scene that says a real item was handled
+ * with nothing in the ledger to apply -- the exact gap between fiction and real
+ * state these rules exist to close.
+ */
+export function readQuestProposal(
+  raw: unknown,
+  checkpointIds: string[],
+): QuestProposalDraft | null {
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return null
+  const entry = raw as Record<string, unknown>
+
+  const checkpointId =
+    typeof entry.checkpointId === 'string' ? entry.checkpointId.trim() : ''
+  if (!checkpointId) return null
+
+  if (!checkpointIds.includes(checkpointId)) {
+    throw new Error(
+      `The narrator proposed an outcome for checkpoint "${checkpointId}", which this quest does not hold.`,
+    )
+  }
+
+  const outcome =
+    typeof entry.outcome === 'string' ? entry.outcome.trim().toLowerCase() : ''
+  if (!(QUEST_OUTCOMES as readonly string[]).includes(outcome)) {
+    throw new Error(
+      `The narrator proposed an unknown outcome "${outcome}". Allowed: ${QUEST_OUTCOMES.join(', ')}.`,
+    )
+  }
+
+  const note = typeof entry.note === 'string' ? entry.note.trim() : ''
+  if (!note) {
+    throw new Error('A checkpoint proposal must say what would be recorded.')
+  }
+
+  return { checkpointId, outcome: outcome as QuestOutcome, note }
 }
 
 function axisLines(deck: DeckDefinition): string {
@@ -642,6 +781,71 @@ export function clampEffectsToDeck(
   return trimmed
 }
 
+/**
+ * Taskmaster mode's quest rules (storybook/t-044).
+ *
+ * Ported from the PERSONA and hookInstruction() that lived in
+ * stores/taskmasterStore.ts. Layered rather than substituted: the narrator Bot
+ * is still the voice (t-042), the prose contract still governs the prose, and
+ * this says what a quest scene is FOR.
+ *
+ * The last three lines are load-bearing safety, not style. A Taskmaster story
+ * that narrates a real item as handled, when nothing has been applied, is the
+ * exact failure docs/products/storybook-taskmaster-boundary.md exists to
+ * prevent -- and it is a correctness bug, not a tone miss.
+ */
+export function questRules(quest: QuestBrief): string {
+  const lines = [
+    'THE QUEST',
+    `This story serves a real objective the reader entered: "${quest.objective}".`,
+    quest.projectTitle
+      ? `It belongs to their project "${quest.projectTitle}".`
+      : '',
+    'Turn that objective into a scene the reader is inside. The fiction may be strange, funny or dramatic, but the real work must stay understandable whenever it appears.',
+    'Never scold, manufacture urgency, or hide a required real-world action behind vague fantasy language.',
+  ]
+
+  if (quest.checkpoint) {
+    const surface =
+      quest.checkpoint.sourceKind === 'direct-task'
+        ? 'the objective the reader chose for this quest'
+        : quest.checkpoint.sourceKind === 'honeydo'
+          ? 'a small real to-do they can act on'
+          : "a real decision waiting on their judgment"
+    lines.push(
+      '',
+      'THIS SCENE PRESENTS',
+      `${surface}: "${quest.checkpoint.title}".`,
+      quest.checkpoint.detail ? `Context: ${quest.checkpoint.detail}` : '',
+      'Make the required real action or decision understandable inside the story\'s voice. Do not use ids or internal jargon.',
+      `If the scene reaches a judgment about it, return a proposal naming this checkpoint (id "${quest.checkpoint.id}"), one of ${QUEST_OUTCOMES.join(', ')}, and one plain sentence of what would be recorded. Propose nothing when the scene has not reached one.`,
+    )
+  } else {
+    lines.push(
+      '',
+      'Every checkpoint has been worked. Bring the quest toward a close rather than opening new real work, and propose nothing.',
+    )
+  }
+
+  if (quest.unapplied.length) {
+    lines.push(
+      '',
+      'NOT YET APPLIED',
+      'The reader has not accepted these proposals, so none of them has happened:',
+      ...quest.unapplied.map((entry) => `- ${entry}`),
+      'Do not narrate any of them as done, filed, or handled.',
+    )
+  }
+
+  lines.push(
+    '',
+    'NEVER imply that answering you completes a real task, approves a decision, or writes anything anywhere. The reader applies a proposal themselves, later, on purpose.',
+    'Nothing you write changes a real to-do, a real project, or any roadmap. You are proposing, and the app is not listening for permission.',
+  )
+
+  return lines.filter((line) => line !== '').join('\n')
+}
+
 export function buildStorybookSystemPrompt(
   request: StorybookNarrationRequest,
 ): string {
@@ -680,6 +884,8 @@ export function buildStorybookSystemPrompt(
     request.isFinalTurn
       ? "This is the last scene before the story resolves. Land the reader's move, close the scene on a held breath, and return an empty choices array."
       : '',
+    request.quest ? '' : '',
+    request.quest ? questRules(request.quest) : '',
   ]
     .filter((line) => line !== '')
     .join('\n')
@@ -809,10 +1015,23 @@ export function buildStorybookUserPrompt(
     ? request.inventory.map((item) => item.slug).join(', ')
     : 'empty'
 
+  const quest = request.quest
   return [
     'STORY BIBLE',
     ...bibleBlock(request.bible),
     '',
+    // The objective rides as its own line rather than inside the bible, so it
+    // is legible to the narrator the same way it is legible on screen.
+    ...(quest
+      ? [
+          `Real objective: ${quest.objective}`,
+          quest.checkpoint
+            ? `This scene's real item: ${quest.checkpoint.title} (id ${quest.checkpoint.id})`
+            : 'No real item left to present.',
+          `Checkpoints still open: ${quest.remaining}`,
+          '',
+        ]
+      : []),
     `Seed: ${request.seed}`,
     request.turnBudget
       ? `Turn ${request.turnIndex} of ${request.turnBudget}`
@@ -839,11 +1058,21 @@ async function callNarrator(
   request: StorybookNarrationRequest,
   options: GenerateStorybookTurnOptions,
 ): Promise<StorybookNarrationResult> {
+  // Taskmaster mode alone carries a proposal, and only for the checkpoints its
+  // ledger actually holds (storybook/t-044, t-045).
+  const questOptions: StorybookValidationOptions = {
+    ...options,
+    includeProposal: Boolean(request.quest),
+    questCheckpointIds: request.quest?.checkpoint
+      ? [request.quest.checkpoint.id]
+      : [],
+  }
+
   const payload = await completeStructured({
     system: buildStorybookSystemPrompt(request),
     user: buildStorybookUserPrompt(request),
     schemaName: 'storybook_scene',
-    schema: storybookResponseSchema(request.deck, options),
+    schema: storybookResponseSchema(request.deck, questOptions),
     model: options.model || NARRATION_MODEL,
     temperature: 0.9,
     maxTokens: options.maxTokens ?? NARRATION_MAX_TOKENS,
@@ -853,7 +1082,7 @@ async function callNarrator(
   })
 
   return validateStorybookNarration(payload, request.deck, {
-    ...options,
+    ...questOptions,
     bounds: PROSE_BOUNDS_BY_MODE[request.mode],
     treasureSlugs: request.bible.treasures.map((treasure) => treasure.slug),
     inventorySlugs: request.inventory.map((item) => item.slug),

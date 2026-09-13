@@ -23,8 +23,19 @@ import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 import { performFetch } from '@/stores/utils'
 
-export type StorybookRunShape =
-  'short-story' | 'chaptered' | 'episodic' | 'life'
+/**
+ * The four modes a story can be told in (storybook/t-039). Replaces the four
+ * shapes: short story and chaptered tale were one story at two lengths, and
+ * length is a setting now, not an identity (storybook/t-041).
+ */
+export type StorybookRunMode =
+  | 'open-ended'
+  | 'episodic'
+  | 'structured'
+  | 'taskmaster'
+
+/** @deprecated The pre-mode spelling. Same type; use StorybookRunMode. */
+export type StorybookRunShape = StorybookRunMode
 
 export type StorybookMoveSource = 'option' | 'custom' | 'sheet'
 
@@ -77,7 +88,7 @@ export interface StorybookRunTurn {
 export interface StorybookRunSummary {
   id: number
   title: string
-  shape: StorybookRunShape
+  mode: StorybookRunMode
   status: string
   turnIndex: number
   turnBudget: number | null
@@ -96,16 +107,22 @@ export interface StorybookRunSummary {
 export interface StorybookRun {
   id: number
   title: string
-  shape: StorybookRunShape
+  mode: StorybookRunMode
   status: string
   turnIndex: number
-  turnBudget: number
+  /** null is an endless open-ended run: the reader decides when it ends. */
+  turnBudget: number | null
   narratorStyle: string | null
   deck: { key: string; title: string; axisCount: number }
 }
 
 export interface StorybookBoard {
-  shape: StorybookRunShape
+  mode: StorybookRunMode
+  /**
+   * The length dial (storybook/t-041): omit for the deck's default, pass null
+   * for an endless open-ended story. A setting, never a card.
+   */
+  turnBudget?: number | null
   deckKey?: string | null
   title?: string | null
   spark?: string | null
@@ -196,16 +213,27 @@ export const useStorybookRunStore = defineStore('storybookRunStore', () => {
   const errorMessage = ref('')
 
   const turnIndex = computed(() => run.value?.turnIndex ?? 0)
-  const turnBudget = computed(() => run.value?.turnBudget ?? 0)
+  const turnBudget = computed(() => run.value?.turnBudget ?? null)
+  /**
+   * An endless open-ended run has no budget, so it has no final turn and the
+   * pips must not read "3 of 8" (storybook/t-040). It is still resolvable --
+   * the server says when, and the reader chooses the moment.
+   */
+  const isEndless = computed(
+    () => Boolean(run.value) && run.value?.turnBudget == null,
+  )
   const isFinalTurn = computed(
-    () => Boolean(run.value) && turnIndex.value >= turnBudget.value,
-  )
-  const readyToResolve = computed(
     () =>
-      run.value?.status === 'ACTIVE' &&
-      turnBudget.value > 0 &&
-      turnIndex.value > turnBudget.value,
+      Boolean(run.value) &&
+      turnBudget.value !== null &&
+      turnIndex.value >= turnBudget.value,
   )
+  const canEndOnDemand = ref(false)
+  const readyToResolve = computed(() => {
+    if (run.value?.status !== 'ACTIVE') return false
+    if (turnBudget.value === null) return canEndOnDemand.value
+    return turnBudget.value > 0 && turnIndex.value > turnBudget.value
+  })
   const isComplete = computed(() => run.value?.status === 'COMPLETE')
   /** Cards the reader can actually play this turn. */
   const playableCards = computed(() =>
@@ -235,6 +263,11 @@ export const useStorybookRunStore = defineStore('storybookRunStore', () => {
     }
     if (run.value && typeof payload.turnIndex === 'number') {
       run.value = { ...run.value, turnIndex: payload.turnIndex }
+    }
+    // The server decides when an endless story may be brought to an end -- it
+    // holds the deck's floor, and the client never has the deck's axes anyway.
+    if (typeof payload.readyToResolve === 'boolean') {
+      canEndOnDemand.value = payload.readyToResolve
     }
   }
 
@@ -328,6 +361,7 @@ export const useStorybookRunStore = defineStore('storybookRunStore', () => {
         pendingTurn: StorybookPendingTurn | null
         turns: StorybookRunTurn[]
         ending: Record<string, unknown> | null
+        readyToResolve?: boolean
         stats?: Record<string, number>
       }>(`/api/storybook/runs/${runId}`)
       if (!response.success || !response.data) {
@@ -342,6 +376,7 @@ export const useStorybookRunStore = defineStore('storybookRunStore', () => {
       turns.value = response.data.turns
       ending.value = response.data.ending
       stats.value = response.data.stats ?? null
+      canEndOnDemand.value = Boolean(response.data.readyToResolve)
       writeStoredRunId(runId)
       return true
     } finally {
@@ -462,7 +497,9 @@ export const useStorybookRunStore = defineStore('storybookRunStore', () => {
     errorMessage,
     turnIndex,
     turnBudget,
+    isEndless,
     isFinalTurn,
+    canEndOnDemand,
     readyToResolve,
     isComplete,
     playableCards,

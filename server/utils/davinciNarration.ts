@@ -31,7 +31,7 @@ import {
   generateStorybookTurn,
   storybookResponseSchema,
   validateStorybookNarration,
-  PROSE_BOUNDS_BY_SHAPE,
+  PROSE_BOUNDS_BY_MODE,
   type StorybookNarrationRequest,
   type StoryNarrator,
 } from './storybookNarration'
@@ -106,7 +106,12 @@ function toStorybookRequest(
   request: DaVinciNarrationRequest,
 ): StorybookNarrationRequest {
   return {
-    shape: 'life',
+    // The life shape became the STRUCTURED mode (storybook/t-039). The label
+    // is passed explicitly so the identity line a live run has been narrated
+    // with since davinci/t-016 -- "narrating a whole life" -- does not change
+    // under a taxonomy rename.
+    mode: 'structured',
+    modeLabel: 'whole life',
     deck: LIFE_DECK,
     narratorStyle: null,
     narrator: request.narrator,
@@ -149,7 +154,7 @@ export function validateNarrationPayload(
 ): DaVinciNarrationResult {
   const result = validateStorybookNarration(value, LIFE_DECK, {
     ...LIFE_NARRATION_OPTIONS,
-    bounds: PROSE_BOUNDS_BY_SHAPE.life,
+    bounds: PROSE_BOUNDS_BY_MODE.structured,
   })
   return {
     narrativeText: result.narrativeText,

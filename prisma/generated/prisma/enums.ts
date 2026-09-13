@@ -682,7 +682,10 @@ export const StoryShape = {
   SHORT_STORY: 'SHORT_STORY',
   CHAPTERED: 'CHAPTERED',
   EPISODIC: 'EPISODIC',
-  LIFE: 'LIFE'
+  LIFE: 'LIFE',
+  OPEN_ENDED: 'OPEN_ENDED',
+  STRUCTURED: 'STRUCTURED',
+  TASKMASTER: 'TASKMASTER'
 } as const
 
 export type StoryShape = (typeof StoryShape)[keyof typeof StoryShape]

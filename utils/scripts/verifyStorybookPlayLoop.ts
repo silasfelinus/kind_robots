@@ -88,6 +88,7 @@ async function rejects(
 }
 
 const prose = Array.from({ length: 70 }, (_, index) => `word${index}`).join(' ')
+const NON_NARRATOR_BOT_NAME = 'verify-storybook-not-a-narrator'
 
 /** What the stub narrator was last asked for, so the loop can be inspected. */
 let lastRequestSummary: {
@@ -257,7 +258,7 @@ async function main() {
 
     console.log('1. open a story from a board')
     const created = await createStoryRun(user.id, {
-      shape: 'short-story',
+      mode: 'episodic',
       deckKey: DECK_KEY,
       title: 'Play loop verify story',
       spark: 'A letter arrives from a star that should not exist.',
@@ -478,15 +479,153 @@ async function main() {
     })
     check(legacyRun?.deckId === null, 'a legacy run has no deck')
     check(
-      legacyRun?.shape === 'LIFE',
-      'a legacy run defaults to the life shape',
+      legacyRun?.shape === 'STRUCTURED',
+      'a run created without a mode defaults to structured, the life shape\'s meaning',
     )
     check(
       legacyRun?.turnBudget === null,
       'a legacy run has no turn budget, so no server-side turn gate',
     )
 
-    console.log('9. inventory reads back off the run row')
+    console.log('9. the mode taxonomy, the length dial, and endless play')
+    // storybook/t-039: a client that has not reloaded since the rename still
+    // opens a story rather than getting a 400 on the one action that hurts most.
+    const legacyWire = await createStoryRun(user.id, {
+      shape: 'short-story',
+      deckKey: DECK_KEY,
+      title: 'Legacy wire name',
+      castSlugs: ['verify-storybook-hero'],
+    })
+    check(
+      legacyWire.mode === 'open-ended',
+      'a pre-mode wire name still opens a story, as its mode',
+    )
+    await rejects(
+      'an unknown mode is refused',
+      () =>
+        createStoryRun(user.id, {
+          mode: 'freeform',
+          deckKey: DECK_KEY,
+          castSlugs: ['verify-storybook-hero'],
+        }),
+      400,
+    )
+
+    // storybook/t-041: length is a setting the reader turns, not a mode.
+    const dialled = await createStoryRun(user.id, {
+      mode: 'episodic',
+      deckKey: DECK_KEY,
+      turnBudget: 6,
+      title: 'Dialled to six',
+      castSlugs: ['verify-storybook-hero'],
+    })
+    check(
+      dialled.run.turnBudget === 6,
+      `the length dial overrides the deck's budget (${dialled.run.turnBudget})`,
+    )
+    await rejects(
+      'a budget below the floor is refused',
+      () =>
+        createStoryRun(user.id, {
+          mode: 'episodic',
+          deckKey: DECK_KEY,
+          turnBudget: 1,
+          castSlugs: ['verify-storybook-hero'],
+        }),
+      400,
+    )
+    await rejects(
+      'only an open-ended story may run without a budget',
+      () =>
+        createStoryRun(user.id, {
+          mode: 'episodic',
+          deckKey: DECK_KEY,
+          turnBudget: null,
+          castSlugs: ['verify-storybook-hero'],
+        }),
+      400,
+    )
+
+    // storybook/t-040: no budget, no final turn, and the reader ends it.
+    const endless = await createStoryRun(user.id, {
+      mode: 'open-ended',
+      deckKey: DECK_KEY,
+      turnBudget: null,
+      title: 'Endless',
+      castSlugs: ['verify-storybook-hero'],
+    })
+    check(
+      endless.run.turnBudget === null,
+      'an open-ended story may open with no budget at all',
+    )
+    const endlessId = endless.run.id
+    let endlessTurn = null as Awaited<
+      ReturnType<typeof submitStoryTurn>
+    > | null
+    for (let index = 1; index <= TURN_BUDGET + 2; index += 1) {
+      endlessTurn = await submitStoryTurn(endlessId, user.id, {
+        turnIndex: index,
+        move: { source: 'custom', text: `Keep going, turn ${index}.` },
+      })
+      check(
+        lastRequestSummary?.isFinalTurn === false,
+        `turn ${index} is never announced as the last one`,
+      )
+    }
+    check(
+      endlessTurn?.pendingTurn !== null,
+      'an endless story always has a next scene waiting',
+    )
+    check(
+      endlessTurn?.isFinalTurn === false && endlessTurn?.readyToResolve === true,
+      'past the floor it is resolvable on demand, without ever being final',
+    )
+    const endlessEnding = await resolveStoryRunEnding(
+      endlessId,
+      user.id,
+      user.username,
+    )
+    check(
+      endlessEnding.ending.slug.startsWith('verify-ending-'),
+      'an endless story the reader ends is collectible like any other',
+    )
+
+    console.log('10. the Narrator slot holds a real narrator Bot')
+    // storybook/t-042: the slot is a Bot card, so a Bot that was never written
+    // to narrate is refused rather than quietly given the voice.
+    // Bot.name is not unique, so this is find-then-create rather than upsert.
+    const notANarrator =
+      (await prisma.bot.findFirst({
+        where: { name: NON_NARRATOR_BOT_NAME },
+        select: { id: true },
+      })) ??
+      (await prisma.bot.create({
+        data: {
+          name: NON_NARRATOR_BOT_NAME,
+          subtitle: 'Not a narrator',
+          description: 'A scratch bot for the play-loop regression suite.',
+          BotType: 'ASSISTANT',
+          botIntro: 'A scratch bot for the play-loop regression suite.',
+          userIntro: 'Not for narrating.',
+          prompt: 'You are a scratch fixture.',
+          userId: user.id,
+          isPublic: true,
+        },
+        select: { id: true },
+      }))
+    await rejects(
+      'a Bot that is not a narrator cannot take the Narrator slot',
+      () =>
+        createStoryRun(user.id, {
+          mode: 'episodic',
+          deckKey: DECK_KEY,
+          botId: notANarrator.id,
+          castSlugs: ['verify-storybook-hero'],
+        }),
+      400,
+    )
+
+    console.log('11. inventory reads back off the run row')
     const stored = await prisma.lifeRun.findUnique({
       where: { id: runId },
       select: { inventory: true },
@@ -521,6 +660,7 @@ async function main() {
       where: { triggerCode: { startsWith: `verify-ending-${DECK_KEY}-` } },
     })
     await prisma.endingDeck.deleteMany({ where: { key: DECK_KEY } })
+    await prisma.bot.deleteMany({ where: { name: NON_NARRATOR_BOT_NAME } })
     await prisma.character.deleteMany({
       where: { slug: 'verify-storybook-hero' },
     })

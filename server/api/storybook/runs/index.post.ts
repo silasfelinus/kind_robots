@@ -1,6 +1,6 @@
 // /server/api/storybook/runs/index.post.ts
 //
-// Open a story from the board the reader assembled: shape, deck, cast,
+// Open a story from the board the reader assembled: mode, deck, cast,
 // setting, facets, plot thread, treasures, narrator, and an optional spark.
 // The body names cards by slug; the server resolves them, checks the reader
 // may use each one, snapshots the board into the run, and narrates the opening
@@ -54,7 +54,10 @@ export default defineEventHandler(async (event) => {
         run: {
           id: created.run.id,
           title: created.run.title,
-          shape: body.shape,
+          mode: created.mode,
+          // Kept for one release so a client mid-deploy does not read
+          // undefined. Drops with the legacy enum values (storybook/t-039).
+          shape: created.mode,
           status: created.run.status,
           turnIndex: created.run.currentChapter,
           turnBudget: created.run.turnBudget,

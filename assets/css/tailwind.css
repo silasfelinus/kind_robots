@@ -2526,6 +2526,41 @@ section:has(div[class*='xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]'])
     @apply font-bold text-2xl;
   }
 
+  /* A new sibling in spirit to `.kr-text-bold-*` above, but for color
+   * instead of size (interface-vision t-104 slice 253) -- `font-bold
+   * text-base-content`, with no size token at all rather than one of the
+   * family's `-sm`/`-xs`/`-lg`/`-xl`/`-2xl` sizes. A fresh full-repo
+   * class-frequency survey outside all now-closed `kr-text-black-*`/
+   * `kr-text-bold-*`/`kr-text-dim-*`/`kr-text-eyebrow-*`/`kr-label-*`/
+   * `kr-icon-primary-*` families found this exact 2-token shape at 9
+   * occurrences across 7 files (add-bot.vue,
+   * model-builder-recipe-selector.vue, model-builder-item-panel.vue,
+   * model-builder-progress-matrix.vue, add-character.vue, art-gallery.vue
+   * x3, about-page.vue), plus a wider subset-match pool carrying extra
+   * tokens. Named with the color as a suffix, matching
+   * `.kr-icon-primary-*`/`.kr-badge-primary-*`'s convention of appending
+   * the color token to the base shape name. */
+  .kr-text-bold-content {
+    @apply font-bold text-base-content;
+  }
+
+  /* Same new color-suffixed sibling shape as `.kr-text-bold-content` above,
+   * but for `font-black` instead of `font-bold` and `text-primary` instead
+   * of `text-base-content` (interface-vision t-104 slice 253, surveyed and
+   * migrated together in the same slice as `.kr-text-bold-content`, the
+   * same two-combo-per-slice bundling slice 237 used for
+   * `.kr-btn-primary-2xl`/`.kr-badge-sm`). The same survey found this exact
+   * 2-token shape at 8 occurrences across 7 files (server-selector.vue,
+   * dream-art-chooser.vue, giftshop-interact.vue x2, shopping-cart.vue,
+   * coloring-book-readiness.vue, stylist-restyle.vue, server-interact.vue)
+   * -- section/card heading emphasis text -- plus a wider subset-match
+   * pool carrying extra tokens. Distinct from the existing
+   * `kr-text-black-*` family, which pairs `font-black` with an explicit
+   * Tailwind size rather than a color. */
+  .kr-text-black-primary {
+    @apply font-black text-primary;
+  }
+
   /* Sibling of `.kr-label-bold` (`label-text font-bold`) for the plain,
    * weightless form-label caption -- `label-text text-xs`, with the dead
    * `label-text` token dropped the same way `.kr-label-bold` already drops

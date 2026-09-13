@@ -2,7 +2,7 @@
 <template>
   <section class="kr-container-wide flex flex-col gap-6 kr-panel-muted p-4">
     <header class="text-center">
-      <h1 class="text-3xl font-black text-primary md:text-4xl">
+      <h1 class="kr-text-black-primary text-3xl md:text-4xl">
         {{ title }}
       </h1>
       <p class="kr-text-dim-sm-70 mt-2">
@@ -358,7 +358,7 @@
           >
             <div class="flex items-start justify-between gap-3">
               <div>
-                <p class="font-bold text-base-content">{{ field.label }}</p>
+                <p class="kr-text-bold-content">{{ field.label }}</p>
                 <p class="kr-text-dim-xs-60">
                   {{ field.description }}
                 </p>

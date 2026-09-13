@@ -95,7 +95,7 @@
         </div>
 
         <div v-if="featuredArt.length" class="space-y-3">
-          <h4 class="font-black text-primary">Featured prints</h4>
+          <h4 class="kr-text-black-primary">Featured prints</h4>
 
           <div class="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
             <article
@@ -136,7 +136,7 @@
           >
             <div class="flex items-start justify-between gap-3">
               <div class="space-y-1">
-                <h4 class="font-black text-primary">
+                <h4 class="kr-text-black-primary">
                   {{ item.title }}
                 </h4>
 
@@ -179,7 +179,7 @@
         <div class="kr-panel-muted-md">
           <div class="kr-text-dim-sm">Items</div>
 
-          <div class="text-3xl font-black text-primary">
+          <div class="kr-text-black-primary text-3xl">
             {{ cartStore.totalItems }}
           </div>
         </div>

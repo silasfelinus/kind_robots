@@ -5,7 +5,7 @@
       <div>
         <h3 class="kr-text-black-base text-base-content">3. Build run</h3>
         <p class="kr-text-dim-xs-60 mt-1">
-          <span class="font-bold text-base-content">{{
+          <span class="kr-text-bold-content">{{
             run?.sourceLabel
           }}</span>
           · {{ recipeLabel }} · {{ store.runProgress.committed }}/{{

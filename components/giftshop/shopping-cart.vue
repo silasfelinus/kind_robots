@@ -96,7 +96,7 @@
                 @change="updateQuantity(item.id, item.quantity)"
               />
               <span class="text-base-content/45">=</span>
-              <span class="font-black text-primary">
+              <span class="kr-text-black-primary">
                 ${{ lineTotal(item).toFixed(2) }}
               </span>
             </div>
@@ -120,7 +120,7 @@
             <div class="kr-text-eyebrow kr-text-dim-xs tracking-widest">
               Cart total
             </div>
-            <div class="text-4xl font-black text-primary">
+            <div class="kr-text-black-primary text-4xl">
               ${{ cartStore.formattedTotalPrice }}
             </div>
             <p class="kr-text-dim-xs-55 mt-1">

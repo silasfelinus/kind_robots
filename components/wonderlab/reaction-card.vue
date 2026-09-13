@@ -16,7 +16,7 @@
         </p>
 
         <h2
-          class="truncate font-black text-primary"
+          class="kr-text-black-primary truncate"
           :class="compact ? 'text-base' : 'text-xl'"
         >
           {{ targetTitle || formattedTargetType }}

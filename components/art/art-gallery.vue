@@ -507,17 +507,17 @@
       class="kr-text-dim-xs shrink-0 flex items-center gap-3 rounded-xl border border-base-300 bg-base-200/80 px-3 py-2"
     >
       <span>
-        <span class="font-bold text-base-content">
+        <span class="kr-text-bold-content">
           {{ collectionStore.collections.length }}
         </span>
         collections
       </span>
       <span>
-        <span class="font-bold text-base-content">{{ totalImageCount }}</span>
+        <span class="kr-text-bold-content">{{ totalImageCount }}</span>
         images
       </span>
       <span v-if="activeGroup">
-        <span class="font-bold text-base-content">
+        <span class="kr-text-bold-content">
           {{ filteredActiveImages.length }}
         </span>
         shown

@@ -154,7 +154,7 @@
               :class="entry.rank === 1 ? 'opacity-100' : 'opacity-45'"
             />
             <div
-              class="mx-auto mt-3 grid size-20 place-items-center rounded-full border-4 border-base-100 bg-primary/10 text-3xl font-black text-primary shadow-lg"
+              class="kr-text-black-primary mx-auto mt-3 grid size-20 place-items-center rounded-full border-4 border-base-100 bg-primary/10 text-3xl shadow-lg"
             >
               {{ entry.name.slice(0, 1).toUpperCase() }}
             </div>
@@ -236,7 +236,7 @@
                   <td>
                     <div class="flex items-center gap-3">
                       <div
-                        class="grid size-10 place-items-center rounded-xl bg-primary/10 font-black text-primary"
+                        class="kr-text-black-primary grid size-10 place-items-center rounded-xl bg-primary/10"
                       >
                         {{ entry.name.slice(0, 1).toUpperCase() }}
                       </div>

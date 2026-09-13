@@ -367,7 +367,7 @@
         class="kr-text-dim-xs-70 space-y-1 rounded-lg bg-base-200 p-2"
       >
         <div>
-          <span class="font-bold text-base-content">{{ preview.action }}</span>
+          <span class="kr-text-bold-content">{{ preview.action }}</span>
           → {{ preview.targetType }}
         </div>
         <div>{{ preview.summary }}</div>

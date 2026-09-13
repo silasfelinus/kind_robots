@@ -140,7 +140,7 @@
             >
           </p>
           <p
-            class="line-clamp-2 text-[0.7rem] font-bold leading-snug text-base-content group-hover:text-primary"
+            class="kr-text-bold-content line-clamp-2 text-[0.7rem] leading-snug group-hover:text-primary"
           >
             {{ gate.task.title }}
           </p>

@@ -8,7 +8,7 @@
         </h3>
         <p class="kr-text-dim-xs-60 mt-1">
           Building from
-          <span class="font-bold text-base-content">{{ sourceLabel }}</span>
+          <span class="kr-text-bold-content">{{ sourceLabel }}</span>
           <span class="text-base-content/40"> ({{ store.sourceType }})</span>.
           Defaults are a convenience — toggle whatever you want.
         </p>

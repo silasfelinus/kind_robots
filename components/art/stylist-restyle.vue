@@ -350,7 +350,7 @@
       v-if="isFirstRun"
       class="kr-text-dim-xs-70 flex flex-col gap-1 rounded-xl border border-primary/30 bg-primary/5 p-3"
     >
-      <span class="font-black text-primary">First time in the studio?</span>
+      <span class="kr-text-black-primary">First time in the studio?</span>
       <span>
         1. Add or snap a client photo &nbsp;2. Tick color, style, and/or cleanup
         &nbsp;3. Style it — the new look appears beside the original, and every

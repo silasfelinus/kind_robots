@@ -112,9 +112,7 @@
           class="flex min-h-48 flex-col items-center justify-center gap-3 kr-panel-flat border-dashed p-6 text-center"
         >
           <Icon name="kind-icon:coin" class="h-10 w-10 text-base-content/30" />
-          <p class="text-base font-bold text-base-content">
-            Nothing accrued yet.
-          </p>
+          <p class="kr-text-bold-content text-base">Nothing accrued yet.</p>
           <p class="max-w-sm text-sm text-base-content/55">
             Nobody has spent tokens on anything you've made yet. Once they do,
             your share shows up here — nothing to fix, nothing hidden.

@@ -133,7 +133,7 @@
               {{ entry.proposal.accepted.color ? 'Color accepted' : 'Color pending' }} ·
               {{ entry.proposal.accepted.bw ? 'B&W accepted' : 'B&W pending' }}
             </span>
-            <span class="font-black text-primary">Open →</span>
+            <span class="kr-text-black-primary">Open →</span>
           </div>
         </button>
       </div>

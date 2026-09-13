@@ -40,7 +40,7 @@
 
     <div class="grid gap-4 lg:grid-cols-2">
       <div class="kr-panel-flat p-4">
-        <h2 class="font-black text-primary">Active Art Server</h2>
+        <h2 class="kr-text-black-primary">Active Art Server</h2>
         <p class="kr-text-dim-sm mt-1">
           {{ artSummary }}
         </p>

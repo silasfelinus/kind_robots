@@ -117,7 +117,16 @@ const asyncKey = computed(() => `public-user:${userId.value}`)
 
 const { data, status } = await useAsyncData<PublicUserResponse>(
   asyncKey,
-  () => $fetch<PublicUserResponse, string>(`/api/users/public/${userId.value}`),
+  () =>
+    $fetch<PublicUserResponse, string>(
+      `/api/users/public/${userId.value}`,
+    ).catch(
+      (error) =>
+        (error?.data as PublicUserResponse | undefined) ?? {
+          success: false,
+          message: 'This profile is private or does not exist.',
+        },
+    ),
   {
     watch: [userId],
   },

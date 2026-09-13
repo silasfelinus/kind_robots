@@ -10,31 +10,34 @@ export default defineEventHandler(async (event) => {
     const { isValid, user } = await validateApiKey(event)
 
     if (!isValid || !user) {
-      return errorHandler({
-        error: new Error('Authorization required.'),
-        context: 'Fetch Inbox Chats',
+      event.node.res.statusCode = 401
+      return {
+        success: false,
+        message: 'Authorization required.',
         statusCode: 401,
-      })
+      }
     }
 
     const id = Number(getRouterParam(event, 'id'))
 
     if (!Number.isInteger(id) || id <= 0) {
-      return errorHandler({
-        error: new Error('Invalid user ID. It must be a positive integer.'),
-        context: 'Fetch Inbox Chats',
+      event.node.res.statusCode = 400
+      return {
+        success: false,
+        message: 'Invalid user ID. It must be a positive integer.',
         statusCode: 400,
-      })
+      }
     }
 
     const isAdmin = userIsAdmin(user)
 
     if (!isAdmin && user.id !== id) {
-      return errorHandler({
-        error: new Error('You can only view your own inbox.'),
-        context: 'Fetch Inbox Chats',
+      event.node.res.statusCode = 403
+      return {
+        success: false,
+        message: 'You can only view your own inbox.',
         statusCode: 403,
-      })
+      }
     }
 
     const targetUser = await prisma.user.findUnique({
@@ -46,11 +49,12 @@ export default defineEventHandler(async (event) => {
     })
 
     if (!targetUser) {
-      return errorHandler({
-        error: new Error('User not found.'),
-        context: 'Fetch Inbox Chats',
+      event.node.res.statusCode = 404
+      return {
+        success: false,
+        message: 'User not found.',
         statusCode: 404,
-      })
+      }
     }
 
     const username = targetUser.username || ''
@@ -75,10 +79,8 @@ export default defineEventHandler(async (event) => {
       data: chats,
     }
   } catch (error) {
-    return errorHandler({
-      error,
-      context: 'Fetch Inbox Chats',
-      statusCode: 500,
-    })
+    const handled = errorHandler(error)
+    event.node.res.statusCode = handled.statusCode || 500
+    return handled
   }
 })

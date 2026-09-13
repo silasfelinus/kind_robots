@@ -3,7 +3,7 @@ import { defineEventHandler } from 'h3'
 import { errorHandler } from '../../utils/error'
 import { fetchUsers } from '.'
 
-export default defineEventHandler(async () => {
+export default defineEventHandler(async (event) => {
   try {
     // Fetch users with pagination logic
     const fetchResponse = await fetchUsers()
@@ -20,6 +20,7 @@ export default defineEventHandler(async () => {
   } catch (error) {
     const handledError = errorHandler(error)
     console.error('Failed to fetch users:', handledError.message)
+    event.node.res.statusCode = handledError.statusCode || 500
     return {
       success: false,
       message: `Failed to fetch users. Reason: ${handledError.message}`,

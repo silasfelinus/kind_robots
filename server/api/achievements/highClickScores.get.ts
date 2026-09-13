@@ -4,7 +4,7 @@ import { defineEventHandler } from 'h3'
 import prisma from '../../utils/prisma'
 import { errorHandler } from '../../utils/error'
 
-export default defineEventHandler(async () => {
+export default defineEventHandler(async (event) => {
   let response
 
   try {
@@ -41,6 +41,7 @@ export default defineEventHandler(async () => {
       message: handledError.message || 'Failed to fetch high click scores.',
       statusCode: handledError.statusCode || 500,
     }
+    event.node.res.statusCode = response.statusCode
   }
 
   return response

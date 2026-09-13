@@ -1,1 +1,1717 @@
-PLACEHOLDER
+<!-- /components/art/art-styler.vue -->
+<template>
+  <section class="flex flex-col gap-4 kr-panel-muted-md">
+    <div class="flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <Icon name="kind-icon:magic" class="kr-icon-primary-5" />
+        <h2 class="kr-text-black-base text-base-content">Style Transfer</h2>
+        <span class="kr-badge-primary-sm">Kontext</span>
+      </div>
+      <button
+        v-if="showClose"
+        type="button"
+        class="btn btn-circle btn-ghost btn-sm"
+        title="Close"
+        @click="emit('close')"
+      >
+        <Icon name="mdi:close" class="kr-icon-4" />
+      </button>
+    </div>
+
+    <div class="flex flex-col gap-2 kr-panel-compact">
+      <div class="flex items-center gap-2">
+        <Icon name="kind-icon:image" class="kr-icon-primary-4" />
+        <span class="kr-text-black-xs text-base-content">Source Image</span>
+        <div class="flex-1" />
+        <div
+          class="flex overflow-hidden rounded-lg border border-base-300 text-xs"
+          role="group"
+          aria-label="Source image tab"
+        >
+          <button
+            type="button"
+            class="px-2.5 py-1 font-bold transition"
+            :class="
+              sourceTab === 'upload'
+                ? 'bg-primary text-primary-content'
+                : 'bg-base-100 text-base-content/60 hover:bg-base-200'
+            "
+            :aria-pressed="sourceTab === 'upload'"
+            @click="sourceTab = 'upload'"
+          >
+            Upload
+          </button>
+          <button
+            type="button"
+            class="px-2.5 py-1 font-bold transition"
+            :class="
+              sourceTab === 'gallery'
+                ? 'bg-primary text-primary-content'
+                : 'bg-base-100 text-base-content/60 hover:bg-base-200'
+            "
+            :aria-pressed="sourceTab === 'gallery'"
+            @click="sourceTab = 'gallery'"
+          >
+            Gallery
+          </button>
+          <button
+            type="button"
+            class="px-2.5 py-1 font-bold transition"
+            :class="
+              sourceTab === 'starters'
+                ? 'bg-primary text-primary-content'
+                : 'bg-base-100 text-base-content/60 hover:bg-base-200'
+            "
+            :aria-pressed="sourceTab === 'starters'"
+            @click="sourceTab = 'starters'"
+          >
+            Starters
+          </button>
+        </div>
+      </div>
+
+      <Transition name="slide-fade">
+        <div
+          v-if="selectedSourceImage"
+          class="flex items-center gap-3 rounded-xl border border-primary/30 bg-primary/5 px-3 py-2"
+        >
+          <div
+            class="relative h-14 w-14 shrink-0 overflow-hidden rounded-xl border border-base-300"
+          >
+            <img
+              :src="sourceImageSrc"
+              :alt="selectedSourceImage.fileName || 'Source'"
+              class="kr-img-cover"
+            />
+          </div>
+          <div class="min-w-0 flex-1">
+            <p class="kr-text-bold-xs truncate text-base-content">
+              {{
+                selectedSourceImage.fileName ||
+                `Image #${selectedSourceImage.id}`
+              }}
+            </p>
+            <p class="kr-text-dim-xs-40">Ready to style</p>
+          </div>
+          <button
+            type="button"
+            class="btn btn-circle btn-ghost btn-xs shrink-0"
+            title="Clear source"
+            @click="clearSourceImage"
+          >
+            <Icon name="mdi:close" class="kr-icon-3" />
+          </button>
+        </div>
+      </Transition>
+
+      <div v-if="sourceTab === 'upload'" class="flex flex-col gap-2">
+        <input
+          ref="fileInput"
+          type="file"
+          accept="image/png, image/jpeg, image/webp"
+          class="hidden"
+          @change="handleFileSelect"
+        />
+        <div
+          role="button"
+          tabindex="0"
+          aria-label="Upload a source image"
+          class="flex min-h-28 cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed transition-all duration-200"
+          :class="
+            isDragging
+              ? 'scale-[1.01] border-primary bg-primary/10 shadow-md shadow-primary/20'
+              : 'border-base-300 bg-base-200/60 hover:border-primary/60 hover:bg-base-100 hover:shadow-sm'
+          "
+          @dragover.prevent="isDragging = true"
+          @dragleave.prevent="isDragging = false"
+          @drop.prevent="handleDrop"
+          @click="fileInput?.click()"
+          @keydown.enter.space.prevent="fileInput?.click()"
+        >
+          <span
+            class="kr-icon-10 flex items-center justify-center rounded-xl border border-base-300 bg-base-200 transition-transform"
+            :class="
+              isDragging
+                ? 'scale-110 border-primary/40 bg-primary/10 text-primary'
+                : 'text-base-content/40'
+            "
+          >
+            <Icon name="kind-icon:camera" class="kr-icon-5" />
+          </span>
+          <p class="kr-text-dim-xs-60 font-semibold">
+            Drop image or
+            <span class="font-bold text-primary underline underline-offset-2">
+              browse
+            </span>
+          </p>
+          <p class="text-[0.65rem] text-base-content/40">PNG · JPEG · WebP</p>
+        </div>
+      </div>
+
+      <div v-else-if="sourceTab === 'gallery'" class="flex flex-col gap-2">
+        <label
+          class="input input-bordered input-xs flex items-center gap-1.5 bg-base-200"
+        >
+          <Icon
+            name="kind-icon:search"
+            class="h-3.5 w-3.5 shrink-0 text-base-content/40"
+          />
+          <input
+            v-model="gallerySearch"
+            type="search"
+            class="min-w-0 flex-1 bg-transparent"
+            placeholder="Search images…"
+            aria-label="Search my images"
+          />
+        </label>
+
+        <div
+          v-if="galleryImages.length"
+          class="grid max-h-52 grid-cols-4 gap-1.5 overflow-y-auto rounded-xl sm:grid-cols-5 md:grid-cols-6"
+        >
+          <button
+            v-for="image in galleryImages"
+            :key="image.id"
+            type="button"
+            class="group relative aspect-square overflow-hidden rounded-xl border-2 transition-all"
+            :class="
+              selectedSourceImage?.id === image.id
+                ? 'border-primary shadow-md shadow-primary/20'
+                : 'border-transparent hover:border-primary/50'
+            "
+            :title="image.fileName || `Image #${image.id}`"
+            :aria-pressed="selectedSourceImage?.id === image.id"
+            @click="selectGalleryImage(image)"
+          >
+            <img
+              v-if="galleryThumbs[image.id]"
+              :src="galleryThumbs[image.id]"
+              :alt="image.fileName || String(image.id)"
+              class="h-full w-full object-cover transition-transform group-hover:scale-105"
+            />
+            <div
+              v-else
+              class="flex h-full w-full items-center justify-center bg-base-200"
+            >
+              <Icon
+                name="kind-icon:image"
+                class="h-4 w-4 text-base-content/20"
+              />
+            </div>
+            <div
+              v-if="selectedSourceImage?.id === image.id"
+              class="absolute inset-0 flex items-center justify-center bg-primary/30"
+            >
+              <Icon
+                name="mdi:check-circle"
+                class="kr-icon-5 text-primary-content drop-shadow"
+              />
+            </div>
+          </button>
+        </div>
+
+        <div
+          v-else-if="isLoadingGallery"
+          class="flex min-h-28 items-center justify-center rounded-xl bg-base-200"
+        >
+          <span class="kr-loading-primary-sm" />
+        </div>
+
+        <div
+          v-else
+          class="flex min-h-28 flex-col items-center justify-center rounded-xl border border-base-300 bg-base-200/60 text-center"
+        >
+          <Icon name="kind-icon:image" class="h-8 w-8 text-base-content/20" />
+          <p class="kr-text-dim-xs-40 mt-1">No images found</p>
+        </div>
+      </div>
+
+      <div v-else class="flex flex-col gap-2">
+        <div
+          v-if="starterEntries.length"
+          class="grid max-h-52 grid-cols-4 gap-1.5 overflow-y-auto rounded-xl sm:grid-cols-5 md:grid-cols-6"
+        >
+          <button
+            v-for="entry in starterEntries"
+            :key="entry.file"
+            type="button"
+            class="group relative aspect-square overflow-hidden rounded-xl border-2 transition-all disabled:opacity-50"
+            :class="
+              selectedStarterFile === entry.file
+                ? 'border-primary shadow-md shadow-primary/20'
+                : 'border-transparent hover:border-primary/50'
+            "
+            :disabled="isLoadingStarterImage"
+            :title="`${entry.workTitle} — ${entry.artist}`"
+            :aria-pressed="selectedStarterFile === entry.file"
+            @click="selectStarterEntry(entry)"
+          >
+            <img
+              :src="starterImageSrc(entry)"
+              :alt="entry.workTitle"
+              class="h-full w-full object-cover transition-transform group-hover:scale-105"
+            />
+            <div
+              v-if="selectedStarterFile === entry.file"
+              class="absolute inset-0 flex items-center justify-center bg-primary/30"
+            >
+              <Icon
+                v-if="!isLoadingStarterImage"
+                name="mdi:check-circle"
+                class="kr-icon-5 text-primary-content drop-shadow"
+              />
+              <span
+                v-else
+                class="loading loading-spinner loading-sm text-primary-content"
+              />
+            </div>
+          </button>
+        </div>
+
+        <div
+          v-else-if="isLoadingStarters"
+          class="flex min-h-28 items-center justify-center rounded-xl bg-base-200"
+        >
+          <span class="kr-loading-primary-sm" />
+        </div>
+
+        <div
+          v-else
+          class="flex min-h-28 flex-col items-center justify-center rounded-xl border border-base-300 bg-base-200/60 text-center"
+        >
+          <Icon name="kind-icon:image" class="h-8 w-8 text-base-content/20" />
+          <p class="kr-text-dim-xs-40 mt-1">No starters found</p>
+        </div>
+      </div>
+    </div>
+
+    <Transition name="slide-fade">
+      <div
+        v-if="selectedSourceImage || resultImage"
+        class="flex items-center gap-3 kr-panel-compact"
+      >
+        <div
+          class="relative h-20 w-20 shrink-0 overflow-hidden rounded-xl border border-base-300"
+        >
+          <img
+            v-if="sourceImageSrc"
+            :src="sourceImageSrc"
+            :alt="selectedSourceImage?.fileName || 'Source image'"
+            class="kr-img-cover"
+          />
+          <div
+            v-else
+            class="flex h-full w-full items-center justify-center bg-base-200"
+          >
+            <Icon name="kind-icon:image" class="h-8 w-8 text-base-content/30" />
+          </div>
+          <div
+            v-if="resultImageSrc"
+            class="absolute -right-3 top-1/2 z-10 -translate-y-1/2"
+          >
+            <Icon
+              name="mdi:arrow-right"
+              class="kr-icon-primary-5 drop-shadow"
+            />
+          </div>
+        </div>
+
+        <Transition name="slide-fade">
+          <div
+            v-if="resultImageSrc"
+            class="relative h-20 w-20 shrink-0 overflow-hidden rounded-xl border-2 border-primary"
+          >
+            <img
+              :src="resultImageSrc"
+              alt="Styled result"
+              class="kr-img-cover"
+            />
+            <div
+              class="absolute inset-0 flex items-center justify-center bg-success/40 backdrop-blur-sm"
+            >
+              <Icon
+                name="mdi:check-circle"
+                class="h-7 w-7 text-success-content drop-shadow"
+              />
+            </div>
+          </div>
+        </Transition>
+
+        <div class="flex min-w-0 flex-col justify-center gap-1">
+          <p class="kr-text-bold-sm truncate text-base-content">
+            {{
+              selectedSourceImage?.fileName ||
+              (selectedSourceImage
+                ? `Image #${selectedSourceImage.id}`
+                : 'No image')
+            }}
+          </p>
+          <p
+            v-if="selectedStyle"
+            class="flex items-center gap-1 text-xs font-semibold text-primary"
+          >
+            <Icon name="mdi:palette" class="kr-icon-3" />
+            {{ selectedStyle.label }}
+          </p>
+          <p v-else class="kr-text-dim-xs-40 italic">Pick a style below</p>
+        </div>
+      </div>
+    </Transition>
+
+    <div
+      class="flex flex-wrap gap-1.5"
+      role="group"
+      aria-label="Filter styles by category"
+    >
+      <button
+        v-for="cat in allCategories"
+        :key="cat"
+        type="button"
+        class="badge cursor-pointer select-none border transition-all duration-150"
+        :class="
+          activeCategory === cat
+            ? 'badge-primary border-primary font-bold'
+            : 'badge-ghost border-base-300 hover:border-primary/40 hover:text-primary'
+        "
+        :aria-pressed="activeCategory === cat"
+        @click="activeCategory = activeCategory === cat ? null : cat"
+      >
+        <span class="mr-1">{{ CATEGORY_ICONS[cat] }}</span>
+        {{ cat }}
+      </button>
+    </div>
+
+    <div
+      class="grid gap-2"
+      style="
+        grid-template-columns: repeat(auto-fill, minmax(min(140px, 100%), 1fr));
+      "
+    >
+      <button
+        v-for="style in filteredStyles"
+        :key="styleKey(style)"
+        type="button"
+        class="group relative flex flex-col items-center gap-1.5 overflow-hidden rounded-2xl border-2 p-0 text-center transition-all duration-150"
+        :class="
+          isSelectedStyle(style)
+            ? 'border-primary shadow-md shadow-primary/20'
+            : 'border-base-300 bg-base-100 hover:border-primary/50 hover:shadow-sm'
+        "
+        :title="style.triggerPhrase"
+        :aria-pressed="isSelectedStyle(style)"
+        @click="selectStyle(style)"
+      >
+        <div
+          v-if="style.previewImageSrc"
+          class="relative w-full overflow-hidden"
+          style="aspect-ratio: 1 / 1"
+        >
+          <img
+            :src="style.previewImageSrc"
+            alt=""
+            class="h-full w-full object-cover transition-transform duration-200 group-hover:scale-105"
+          />
+          <div
+            class="absolute inset-x-0 bottom-0 h-2/5 bg-linear-to-t from-base-300/80 to-transparent"
+          />
+          <div
+            class="absolute inset-x-0 bottom-0 flex flex-col items-center gap-0.5 px-1.5 pb-2 pt-1"
+          >
+            <span
+              class="text-[0.65rem] font-black leading-tight text-base-content drop-shadow-md"
+            >
+              {{ style.label }}
+            </span>
+          </div>
+          <span
+            class="absolute left-1.5 top-1.5 text-base leading-none drop-shadow"
+          >
+            {{ CATEGORY_ICONS[style.category] }}
+          </span>
+        </div>
+
+        <div
+          v-else
+          class="flex w-full flex-col items-center gap-1.5 px-2 py-3"
+          :class="isSelectedStyle(style) ? 'bg-primary/10' : 'bg-base-100'"
+        >
+          <span class="text-xl leading-none">
+            {{ CATEGORY_ICONS[style.category] }}
+          </span>
+          <span
+            class="kr-text-bold-xs leading-tight"
+            :class="
+              isSelectedStyle(style)
+                ? 'text-primary'
+                : 'text-base-content/80 group-hover:text-primary'
+            "
+          >
+            {{ style.label }}
+          </span>
+        </div>
+
+        <Transition name="pop">
+          <div
+            v-if="isSelectedStyle(style)"
+            class="kr-icon-4 absolute right-1.5 top-1.5 flex items-center justify-center rounded-full bg-primary"
+          >
+            <Icon name="mdi:check" class="h-3 w-3 text-primary-content" />
+          </div>
+        </Transition>
+
+        <div
+          v-if="style.resourceId"
+          class="absolute left-1.5 top-1.5"
+          title="Loaded from resource DB"
+        >
+          <span class="kr-badge-success-xs px-1">DB</span>
+        </div>
+      </button>
+    </div>
+
+    <Transition name="slide-fade">
+      <div
+        v-if="selectedStyle"
+        class="flex flex-col gap-3 rounded-xl border border-primary/30 bg-base-100 p-3"
+      >
+        <div class="flex items-center gap-1.5">
+          <Icon name="kind-icon:edit" class="kr-icon-primary-4" />
+          <span class="kr-text-black-xs text-base-content">Prompt</span>
+          <span class="kr-text-dim-xs-40 ml-auto">
+            {{
+              selectedStyle?.loraPath
+                ? 'LoRA trigger auto-prepended'
+                : 'Style instruction auto-prepended'
+            }}
+          </span>
+        </div>
+
+        <div
+          class="kr-text-dim-xs-60 rounded-lg border border-base-300 bg-base-200 px-3 py-2 font-mono"
+        >
+          <span v-if="buildLoraReference(selectedStyle)" class="text-warning">
+            {{ buildLoraReference(selectedStyle) }}
+          </span>
+          <span class="text-primary"> {{ selectedStyle.triggerPhrase }}</span>
+          <span v-if="extraPrompt.trim()">, {{ extraPrompt }}</span>
+        </div>
+
+        <textarea
+          v-model="extraPrompt"
+          class="textarea textarea-bordered textarea-sm min-h-16 resize-none text-sm"
+          placeholder="Additional prompt details (optional)…"
+          :disabled="isGenerating"
+        />
+
+        <div class="flex items-center gap-2">
+          <label class="kr-toggle-row-xs">
+            <input
+              v-model="useNegative"
+              type="checkbox"
+              class="kr-toggle-primary-xs"
+              :disabled="isGenerating"
+            />
+            <span class="kr-label-xs-semibold"> Inherit negative prompt </span>
+          </label>
+          <label class="kr-toggle-row-xs">
+            <input
+              v-model="isPublic"
+              type="checkbox"
+              class="kr-toggle-success-xs"
+              :disabled="isGenerating"
+            />
+            <span class="kr-label-xs-semibold">Public</span>
+          </label>
+        </div>
+      </div>
+    </Transition>
+
+    <Transition name="fade">
+      <div v-if="isGenerating" class="flex flex-col gap-2">
+        <div class="flex items-center gap-2 text-xs font-semibold text-primary">
+          <span class="kr-spinner-xs" />
+          Applying {{ generatingStyleLabel }} via Kontext…
+        </div>
+        <progress class="progress progress-primary w-full" />
+      </div>
+    </Transition>
+
+    <Transition name="fade">
+      <p
+        v-if="errorMessage"
+        class="flex items-center gap-1.5 text-sm font-semibold text-error"
+      >
+        <Icon name="kind-icon:alert" class="kr-icon-4" />
+        {{ errorMessage }}
+      </p>
+    </Transition>
+
+    <Transition name="fade">
+      <p
+        v-if="successMessage"
+        class="flex items-center gap-1.5 text-sm font-semibold text-success"
+      >
+        <Icon name="kind-icon:check" class="kr-icon-4" />
+        {{ successMessage }}
+      </p>
+    </Transition>
+
+    <div class="flex gap-2">
+      <button
+        type="button"
+        class="btn btn-primary flex-1 rounded-2xl font-black shadow-lg shadow-primary/20 hover:-translate-y-0.5 hover:shadow-primary/30 active:translate-y-0 disabled:translate-y-0 disabled:shadow-none"
+        :disabled="!canGenerate"
+        @click="runStyleTransfer"
+      >
+        <span v-if="isGenerating" class="kr-spinner-sm" />
+        <Icon v-else name="kind-icon:magic" class="kr-icon-5" />
+        {{
+          isGenerating
+            ? 'Generating…'
+            : !selectedSourceImage
+              ? 'Select a source image'
+              : !selectedStyle
+                ? 'Pick a style'
+                : `Apply ${selectedStyle.label}`
+        }}
+      </button>
+
+      <button
+        v-if="selectedStyle"
+        type="button"
+        class="kr-btn-ghost-md-2xl"
+        :disabled="isGenerating"
+        @click="clearSelection"
+      >
+        Clear
+      </button>
+    </div>
+  </section>
+</template>
+
+<script setup lang="ts">
+import { computed, onMounted, ref, watch } from 'vue'
+import { useArtStore } from '@/stores/artStore'
+import { useResourceStore } from '@/stores/resourceStore'
+import { useUserStore } from '@/stores/userStore'
+import { useServerStore } from '@/stores/serverStore'
+import {
+  STYLE_CATEGORY_ICONS,
+  styleEntryKey,
+  COLORING_STYLES,
+} from '@/stores/helpers/styleHelper'
+import type { StyleCategory, StyleEntry } from '@/stores/helpers/styleHelper'
+import type { ArtImage, Server } from '~/prisma/generated/prisma/client'
+
+interface StarterEntry {
+  file: string
+  workTitle: string
+  artist: string
+}
+
+const props = withDefaults(
+  defineProps<{
+    serverId?: number | null
+    /**
+     * External style list (e.g. the AI Art Academy registry). When provided,
+     * it replaces the builtin styles and resource-DB hydration is skipped.
+     */
+    styles?: StyleEntry[] | null
+    /** Hide the close button when embedded as a full tab rather than a panel. */
+    showClose?: boolean
+    /** Preselect a style by its key (slug/loraPath/label) — e.g. Academy lesson CTA. */
+    selectedStyleKey?: string | null
+    /**
+     * Preselect a gallery ArtImage as the source by id — e.g. the "Make
+     * coloring page" one-tap from an image card. Loaded on mount.
+     */
+    sourceImageId?: number | null
+  }>(),
+  {
+    serverId: null,
+    styles: null,
+    showClose: true,
+    selectedStyleKey: null,
+    sourceImageId: null,
+  },
+)
+
+const emit = defineEmits<{
+  generated: [image: ArtImage, style: StyleEntry | null]
+  close: []
+  styleSelected: [style: StyleEntry | null]
+}>()
+
+const artStore = useArtStore()
+const resourceStore = useResourceStore()
+const userStore = useUserStore()
+const serverStore = useServerStore()
+
+const CATEGORY_ICONS = STYLE_CATEGORY_ICONS
+const styleKey = styleEntryKey
+
+const BUILTIN_STYLES: StyleEntry[] = [
+  {
+    loraPath: 'FLUX/watercolor.safetensors',
+    loraWeight: 1,
+    triggerPhrase: 'Convert this image into loose watercolor style',
+    label: 'Watercolor',
+    category: 'Painterly',
+    previewImageSrc: '/images/styler/watercolor.webp',
+  },
+  {
+    loraPath: 'FLUX/acrylic.safetensors',
+    loraWeight: 1,
+    triggerPhrase: 'Convert this image into acrylic art style',
+    label: 'Acrylic',
+    category: 'Painterly',
+    previewImageSrc: '/images/styler/acrylic.webp',
+  },
+  {
+    loraPath: 'FLUX/impressionist.safetensors',
+    loraWeight: 1,
+    triggerPhrase: 'Convert this image into impressionist art style',
+    label: 'Impressionist',
+    category: 'Painterly',
+    previewImageSrc: '/images/styler/impressionist.webp',
+  },
+  {
+    loraPath: 'FLUX/flux1-kt_oil_painting_lora_v2.safetensors',
+    loraWeight: 1,
+    triggerPhrase: 'oil style',
+    label: 'Oil (v2)',
+    category: 'Painterly',
+    previewImageSrc: '/images/styler/oil2.webp',
+  },
+  {
+    loraPath: 'FLUX/FLUX-daubrez-DB4RZ.safetensors',
+    loraWeight: 1,
+    triggerPhrase: 'DB4RZ style painting',
+    label: 'DB4RZ Painterly',
+    category: 'Painterly',
+    previewImageSrc: '/images/styler/db4rz.webp',
+  },
+
+  {
+    loraPath: 'FLUX/manuscript_illustration_kontext.safetensors',
+    loraWeight: 1,
+    triggerPhrase: 'make it a manuscript illustration',
+    label: 'Manuscript',
+    category: 'Illustration',
+    previewImageSrc: '/images/styler/manuscript.webp',
+  },
+  {
+    loraPath: 'FLUX/itacomic_mima6_noc_d4a2e11',
+    loraWeight: 1,
+    triggerPhrase: 'itacomic1 illustration',
+    label: 'ITA Comic',
+    category: 'Illustration',
+    previewImageSrc: '/images/styler/itacomic.webp',
+  },
+  {
+    loraPath: 'FLUX/realcomic_000000900.safetensors',
+    loraWeight: 1,
+    triggerPhrase: 'convert the image into an illustration style',
+    label: 'Real Comic',
+    category: 'Illustration',
+    previewImageSrc: '/images/styler/illustration.webp',
+  },
+  {
+    loraPath: 'FLUX/luc_cris_art_style.safetensors',
+    loraWeight: 1,
+    triggerPhrase: 'lucart style',
+    label: 'Lucart',
+    category: 'Illustration',
+    previewImageSrc: '/images/styler/lucart.webp',
+  },
+  {
+    loraPath: 'FLUX/collage.safetensors',
+    loraWeight: 1,
+    triggerPhrase: 'Convert this image into collage art style',
+    label: 'Collage',
+    category: 'Illustration',
+    previewImageSrc: '/images/styler/collage.webp',
+  },
+  {
+    loraPath: 'FLUX/disney_lora_comfy_converted.safetensors',
+    loraWeight: 1,
+    triggerPhrase: 'Disney style',
+    label: 'Disney',
+    category: 'Cartoon',
+    previewImageSrc: '/images/styler/disney.webp',
+  },
+  {
+    loraPath: 'FLUX/american_kontext.safetensors',
+    loraWeight: 1,
+    triggerPhrase: 'American Cartoon Style',
+    label: 'American Cartoon',
+    category: 'Cartoon',
+    previewImageSrc: '/images/styler/cartoon.webp',
+  },
+  {
+    loraPath: 'FLUX/gorillaz-kontext-lora.safetensors',
+    loraWeight: 1,
+    triggerPhrase: 'make this image gorillaz style',
+    label: 'Gorillaz',
+    category: 'Cartoon',
+    previewImageSrc: '/images/styler/gorillaz.webp',
+  },
+  {
+    loraPath: 'FLUX/FlatAnimation.safetensors',
+    loraWeight: 1,
+    triggerPhrase: 'change into animation style',
+    label: 'Flat Animation',
+    category: 'Cartoon',
+    previewImageSrc: '/images/styler/flatanimation.webp',
+  },
+  {
+    loraPath: 'FLUX/kontext-qtorealanime.safetensors',
+    loraWeight: 1,
+    triggerPhrase: 'converted to a real anime style',
+    label: 'Real Anime',
+    category: 'Anime',
+    previewImageSrc: '/images/styler/realanime.webp',
+  },
+  {
+    loraPath: 'FLUX/ink_style-4-500.safetensors',
+    loraWeight: 1,
+    triggerPhrase: 'ink style',
+    label: 'Ink',
+    category: 'Ink',
+    previewImageSrc: '/images/styler/inkstyle.webp',
+  },
+  {
+    loraPath: 'FLUX/fae_ink.safetensors',
+    loraWeight: 1,
+    triggerPhrase: 'fae_ink',
+    label: 'Fae Ink',
+    category: 'Ink',
+    previewImageSrc: '/images/styler/fae-ink.webp',
+  },
+  // Coloring-book conversions (shared with the dedicated /coloring-page maker).
+  ...COLORING_STYLES,
+  {
+    loraPath: 'FLUX/Claymation.safetensors',
+    loraWeight: 1,
+    triggerPhrase: 'Claymation',
+    label: 'Claymation',
+    category: '3D/Craft',
+    previewImageSrc: '/images/styler/clay.webp',
+  },
+  {
+    loraPath: 'FLUX/Papercraft_Magic_style.safetensors',
+    loraWeight: 1,
+    triggerPhrase: 'Convert to Papercraft Magic style',
+    label: 'Papercraft',
+    category: '3D/Craft',
+    previewImageSrc: '/images/styler/papercraft.webp',
+  },
+  {
+    loraPath: 'FLUX/LSD_and_Mushrooms_from_Trippy_Lalaland_Ethanar.safetensors',
+    loraWeight: 1,
+    triggerPhrase: 'Trippy Lalaland',
+    label: 'Trippy Lalaland',
+    category: 'Trippy',
+    previewImageSrc: '/images/styler/trippy.webp',
+  },
+
+  {
+    loraPath: 'FLUX/Brain_Melt.safetensors',
+    loraWeight: 0.8,
+    triggerPhrase: 'acid surrealism',
+    label: 'Brain Melt',
+    category: 'Trippy',
+    previewImageSrc: '/images/styler/brainmelt.webp',
+  },
+
+  {
+    loraPath: 'FLUX/aidmaHyperrealism-FLUX-v0.3.safetensors',
+    loraWeight: 1,
+    triggerPhrase: 'hyperrealism',
+    label: 'Hyperrealism',
+    category: 'Realism',
+    previewImageSrc: '/images/styler/hyperrealism.webp',
+  },
+]
+
+const styles = ref<StyleEntry[]>(
+  props.styles?.length ? [...props.styles] : [...BUILTIN_STYLES],
+)
+const selectedStyle = ref<StyleEntry | null>(null)
+const activeCategory = ref<StyleCategory | null>(null)
+const extraPrompt = ref('')
+const useNegative = ref(true)
+const isPublic = ref(true)
+const isGenerating = ref(false)
+// Snapshot of the style being generated, separate from the live
+// `selectedStyle` ref -- a user can reselect a different style while a
+// generation is still in flight (see the `generationToken` comment below),
+// which would otherwise make the "Applying X via Kontext…" banner name a
+// style other than the one the in-flight request is actually for.
+const generatingStyleLabel = ref('')
+const errorMessage = ref('')
+const successMessage = ref('')
+const resultImage = ref<ArtImage | null>(null)
+
+const selectedSourceImage = ref<ArtImage | null>(null)
+const sourceTab = ref<'upload' | 'gallery' | 'starters'>('upload')
+const uploadedImageData = ref<string | null>(null)
+const fileInput = ref<HTMLInputElement | null>(null)
+const isDragging = ref(false)
+
+const gallerySearch = ref('')
+const galleryThumbs = ref<Record<number, string>>({})
+const isLoadingGallery = ref(false)
+// getArtImageById failures (404, network, no thumbnail/imagePath in the
+// response) are excluded from future hydrateGalleryThumbs() batches so a
+// permanently-unfetchable image can't keep the recursive drain below running
+// forever.
+const failedGalleryThumbIds = new Set<number>()
+// Shared across all three source tabs (upload/gallery/starters), not just
+// gallery-to-gallery: an in-flight starter or upload read can otherwise
+// resolve after a later selection on a different tab and silently overwrite
+// it, since each tab's own async load has no way to know a newer pick
+// happened elsewhere in the meantime.
+let sourceSelectionToken = 0
+// Nothing in the template disables style/source selection while a Kontext
+// generation is in flight (only the extra-prompt textarea and the style
+// "Clear" button are isGenerating-gated) -- a user can pick a different
+// style or source image mid-generation. Without this, runStyleTransfer's
+// success/error handlers unconditionally overwrite resultImage/successMessage
+// /errorMessage once the request settles, silently reattaching a stale
+// result (or reviving a result the user already cleared) to whatever
+// selection is on screen by then. Bumped by every selection-changing action
+// below; runStyleTransfer captures it at the start and only applies its
+// outcome to visible state if it's unchanged when the request settles.
+let generationToken = 0
+
+const starterEntries = ref<StarterEntry[]>([])
+const isLoadingStarters = ref(false)
+const selectedStarterFile = ref<string | null>(null)
+const isLoadingStarterImage = ref(false)
+
+const allCategories = computed<StyleCategory[]>(() => {
+  return [...new Set(styles.value.map((style) => style.category))]
+})
+
+const filteredStyles = computed(() => {
+  return activeCategory.value
+    ? styles.value.filter((style) => style.category === activeCategory.value)
+    : styles.value
+})
+
+const galleryImages = computed<ArtImage[]>(() => {
+  const query = gallerySearch.value.trim().toLowerCase()
+
+  return artStore.artImages
+    .filter((img) => {
+      if (!query) return true
+
+      return [img.fileName, img.promptString, String(img.id)]
+        .filter(Boolean)
+        .join(' ')
+        .toLowerCase()
+        .includes(query)
+    })
+    .slice(0, 48)
+})
+
+// ArtImage.path is not always a URL: upload flows across the app (this
+// component, image-upload.vue, add-bot/-character/-reward/
+// -scenario.vue) write bracketed metadata tags like '[UploadedImage]' into
+// it instead, since imagePath is the real path and is only populated
+// outside production (see server/utils/UploadArtImage.ts). Treating one of
+// those tags as an <img> src renders a broken-image icon even when a usable
+// thumbnailData/imageData payload is available one branch below.
+function isPlaceholderImagePath(path?: string | null): boolean {
+  return !!path && path.startsWith('[') && path.endsWith(']')
+}
+
+const sourceImageSrc = computed<string>(() => {
+  if (uploadedImageData.value) return uploadedImageData.value
+  if (!selectedSourceImage.value) return ''
+
+  const img = selectedSourceImage.value as ArtImage & {
+    imageData?: string | null
+    thumbnailData?: string | null
+    imagePath?: string | null
+    path?: string | null
+  }
+
+  // Path-first: stored path, then inline base64, then the base64 thumb cache.
+  const path =
+    img.imagePath || (isPlaceholderImagePath(img.path) ? '' : img.path) || ''
+  if (path) return path
+
+  if (img.thumbnailData) {
+    return `data:image/${img.fileType || 'png'};base64,${img.thumbnailData}`
+  }
+
+  if (img.imageData) {
+    return `data:image/${img.fileType || 'png'};base64,${img.imageData}`
+  }
+
+  return galleryThumbs.value[img.id] || ''
+})
+
+const resultImageSrc = computed<string>(() => {
+  if (!resultImage.value) return ''
+
+  const img = resultImage.value as ArtImage & {
+    imageData?: string | null
+    imagePath?: string | null
+    path?: string | null
+  }
+
+  // Path-first: stored path, then inline base64.
+  const path =
+    img.imagePath || (isPlaceholderImagePath(img.path) ? '' : img.path) || ''
+  if (path) return path
+
+  if (img.imageData) {
+    return `data:image/${img.fileType || 'png'};base64,${img.imageData}`
+  }
+
+  return ''
+})
+
+const kontextServer = computed<Server | null>(() => {
+  const servers = Array.isArray(serverStore.servers)
+    ? (serverStore.servers as Server[])
+    : []
+
+  if (props.serverId) {
+    const explicitServer = serverStore.getServerById(props.serverId) ?? null
+
+    if (isUsableKontextServer(explicitServer)) {
+      return explicitServer
+    }
+  }
+
+  if (isUsableKontextServer(serverStore.activeArtServer)) {
+    return serverStore.activeArtServer
+  }
+
+  const userId = userStore.userId ?? userStore.user?.id ?? null
+
+  if (userId) {
+    const ownedServer = servers.find((server) => {
+      return server.userId === userId && isUsableKontextServer(server)
+    })
+
+    if (ownedServer) return ownedServer
+  }
+
+  return servers.find(isUsableKontextServer) || null
+})
+
+const kontextServerId = computed<number | null>(() => {
+  return kontextServer.value?.id ?? null
+})
+
+const canGenerate = computed(() => {
+  return (
+    !isGenerating.value && !!selectedStyle.value && !!selectedSourceImage.value
+  )
+})
+
+function isUsableKontextServer(
+  server: Server | null | undefined,
+): server is Server {
+  if (!server) return false
+  if (!server.isActive) return false
+  if (server.serverType !== 'COMFY') return false
+  if (server.isOfficial) return false
+  if (server.category === 'official') return false
+  if (server.userId === 9) return false
+
+  return true
+}
+
+const ACCEPTED_IMAGE_TYPES = new Set(['image/png', 'image/jpeg', 'image/webp'])
+
+function isAcceptedImageFile(file: File): boolean {
+  return ACCEPTED_IMAGE_TYPES.has(file.type)
+}
+
+function handleFileSelect(event: Event) {
+  const input = event.target as HTMLInputElement
+  const file = input.files?.[0]
+
+  if (file) {
+    if (!isAcceptedImageFile(file)) {
+      // Every other selection path in this component clears both messages
+      // together (see processUploadedFile/selectGalleryImage/selectStarterEntry
+      // below) so a stale banner never survives the next action. This
+      // rejection path only ever set errorMessage, so a leftover
+      // "Style applied!" success banner from a prior generation stayed on
+      // screen right alongside the new rejection error.
+      successMessage.value = ''
+      errorMessage.value = 'Only PNG, JPEG, or WebP images are supported.'
+    } else {
+      processUploadedFile(file)
+    }
+  }
+
+  if (fileInput.value) {
+    fileInput.value.value = ''
+  }
+}
+
+function handleDrop(event: DragEvent) {
+  isDragging.value = false
+
+  const file = event.dataTransfer?.files?.[0]
+
+  if (!file) return
+
+  if (!isAcceptedImageFile(file)) {
+    // See handleFileSelect above: clear a stale success banner alongside
+    // the new error so the two don't render at the same time.
+    successMessage.value = ''
+    errorMessage.value = 'Only PNG, JPEG, or WebP images are supported.'
+    return
+  }
+
+  processUploadedFile(file)
+}
+
+function buildSyntheticSourceImage(
+  dataUrl: string,
+  fileName: string,
+  fileType: string,
+): ArtImage {
+  return {
+    id: -1,
+    fileName,
+    fileType: fileType.replace('image/', ''),
+    imageData: dataUrl.split(',')[1] ?? null,
+    thumbnailData: null,
+    imagePath: null,
+  } as unknown as ArtImage
+}
+
+function processUploadedFile(file: File) {
+  ++generationToken
+  const token = ++sourceSelectionToken
+  const reader = new FileReader()
+
+  reader.onload = (event) => {
+    if (token !== sourceSelectionToken) return
+
+    const dataUrl = event.target?.result as string
+
+    uploadedImageData.value = dataUrl
+    selectedSourceImage.value = buildSyntheticSourceImage(
+      dataUrl,
+      file.name,
+      file.type,
+    )
+    selectedStarterFile.value = null
+    errorMessage.value = ''
+    successMessage.value = ''
+    resultImage.value = null
+  }
+
+  reader.readAsDataURL(file)
+}
+
+function starterImageSrc(entry: StarterEntry): string {
+  return `/${entry.file.replace(/^public\//, '')}`
+}
+
+async function loadStarterEntries(): Promise<void> {
+  if (starterEntries.value.length || isLoadingStarters.value) return
+
+  isLoadingStarters.value = true
+
+  try {
+    // Plain `fetch`, not Nuxt's `$fetch`: this is a static public/ asset, not
+    // a server/api/** route, but `$fetch`'s generic overload still resolves
+    // every request against the full typed NitroFetchRequest route-key union
+    // (TypedInternalResponse/MatchedRoutes). That match gets more expensive
+    // as server/api/** grows and pushed vue-tsc over its recursion limit
+    // here (TS2589) once appmaker/t-009 added a couple more route files —
+    // this call only ever runs client-side (triggered by a sourceTab watcher
+    // on user interaction), so a relative URL resolves fine without $fetch's
+    // isomorphic base-URL handling.
+    const response = await fetch(
+      '/images/academy/starters/starters.manifest.json',
+    )
+    starterEntries.value = (await response.json()) as StarterEntry[]
+  } catch (error) {
+    console.warn('[art-styler] loadStarterEntries:', error)
+  } finally {
+    isLoadingStarters.value = false
+  }
+}
+
+async function selectStarterEntry(entry: StarterEntry): Promise<void> {
+  ++generationToken
+  errorMessage.value = ''
+  successMessage.value = ''
+  resultImage.value = null
+  isLoadingStarterImage.value = true
+  // Mark this entry selected immediately, not after the fetch resolves --
+  // the template's overlay (spinner while loading, checkmark once done) is
+  // gated on `selectedStarterFile === entry.file`. Setting it only on
+  // success meant it flipped true in the same synchronous tick as
+  // isLoadingStarterImage flipping back to false, so Vue only ever
+  // rendered the "done" state and the loading spinner branch never
+  // painted a frame -- clicking a starter gave no visual feedback beyond
+  // the (identical-looking) disabled state on every thumbnail.
+  selectedStarterFile.value = entry.file
+  const token = ++sourceSelectionToken
+
+  try {
+    const response = await fetch(starterImageSrc(entry))
+    const blob = await response.blob()
+    const dataUrl = await new Promise<string>((resolve, reject) => {
+      const reader = new FileReader()
+      reader.onload = () => resolve(reader.result as string)
+      reader.onerror = () => reject(reader.error)
+      reader.readAsDataURL(blob)
+    })
+
+    // A later selection on any tab (upload, gallery, or another starter)
+    // may have already claimed a newer token while this fetch was in
+    // flight -- don't let a slow-but-successful load clobber it.
+    if (token !== sourceSelectionToken) return
+
+    uploadedImageData.value = dataUrl
+    selectedSourceImage.value = buildSyntheticSourceImage(
+      dataUrl,
+      `${entry.workTitle} — ${entry.artist}`,
+      blob.type || 'image/jpeg',
+    )
+  } catch (error) {
+    if (token !== sourceSelectionToken) return
+
+    errorMessage.value =
+      error instanceof Error ? error.message : 'Could not load starter image.'
+    // Roll back the optimistic selection so a failed load doesn't leave a
+    // checkmark on a thumbnail that was never actually applied as source.
+    if (selectedStarterFile.value === entry.file) {
+      selectedStarterFile.value = null
+    }
+  } finally {
+    // Always clear the loading flag regardless of token: it gates every
+    // starter thumbnail's disabled state (see template), and nothing else
+    // resets it once this fetch settles -- leaving it true after a stale
+    // race would strand every starter thumbnail disabled.
+    isLoadingStarterImage.value = false
+  }
+}
+
+async function selectGalleryImage(image: ArtImage) {
+  ++generationToken
+  uploadedImageData.value = null
+  resultImage.value = null
+  errorMessage.value = ''
+  successMessage.value = ''
+  selectedStarterFile.value = null
+
+  const token = ++sourceSelectionToken
+
+  if (galleryThumbs.value[image.id]) {
+    selectedSourceImage.value = image
+    return
+  }
+
+  try {
+    const fetched = await artStore.getArtImageById(image.id, {
+      includeImageData: false,
+      includeThumbnailData: true,
+    })
+
+    if (token !== sourceSelectionToken) return
+
+    if (fetched) {
+      const hydrated = fetched as ArtImage & { thumbnailData?: string | null }
+
+      if (hydrated.thumbnailData) {
+        galleryThumbs.value = {
+          ...galleryThumbs.value,
+          [image.id]: `data:image/${hydrated.fileType || 'png'};base64,${hydrated.thumbnailData}`,
+        }
+      }
+
+      selectedSourceImage.value = hydrated
+    } else {
+      selectedSourceImage.value = image
+    }
+  } catch {
+    if (token === sourceSelectionToken) {
+      selectedSourceImage.value = image
+    }
+  }
+}
+
+function clearSourceImage() {
+  // Invalidate any in-flight source-selection fetch (upload, starter, gallery,
+  // or a slow deep-link applySourceImageId) so it can't silently repopulate
+  // the source after the user has explicitly cleared it.
+  ++sourceSelectionToken
+  // Also invalidate an in-flight generation so its result can't reappear
+  // here after the user has explicitly cleared the source.
+  ++generationToken
+  selectedSourceImage.value = null
+  uploadedImageData.value = null
+  selectedStarterFile.value = null
+  resultImage.value = null
+  errorMessage.value = ''
+  successMessage.value = ''
+}
+
+async function hydrateGalleryThumbs() {
+  const missing = galleryImages.value
+    .filter(
+      (img) =>
+        !galleryThumbs.value[img.id] && !failedGalleryThumbIds.has(img.id),
+    )
+    .slice(0, 24)
+
+  if (!missing.length) return
+
+  isLoadingGallery.value = true
+
+  try {
+    await Promise.all(
+      missing.map(async (img) => {
+        try {
+          const fetched = await artStore.getArtImageById(img.id, {
+            includeImageData: false,
+            includeThumbnailData: true,
+          })
+
+          const hydrated = fetched as
+            (ArtImage & { thumbnailData?: string | null }) | null
+
+          if (hydrated?.thumbnailData) {
+            galleryThumbs.value = {
+              ...galleryThumbs.value,
+              [img.id]: `data:image/${hydrated.fileType || 'png'};base64,${hydrated.thumbnailData}`,
+            }
+          } else if (hydrated?.imagePath) {
+            galleryThumbs.value = {
+              ...galleryThumbs.value,
+              [img.id]: hydrated.imagePath,
+            }
+          } else {
+            failedGalleryThumbIds.add(img.id)
+          }
+        } catch {
+          failedGalleryThumbIds.add(img.id)
+        }
+      }),
+    )
+  } finally {
+    isLoadingGallery.value = false
+  }
+
+  // galleryImages.value shows up to 48 entries but each batch only fetches
+  // 24; without this, everything past the first batch stayed a permanent
+  // placeholder unless a search happened to narrow the list further.
+  if (
+    galleryImages.value.some(
+      (img) =>
+        !galleryThumbs.value[img.id] && !failedGalleryThumbIds.has(img.id),
+    )
+  ) {
+    void hydrateGalleryThumbs()
+  }
+}
+
+function buildLoraReference(style: StyleEntry): string {
+  if (!style.loraPath) return ''
+  return `<lora:${style.loraPath}:${style.loraWeight ?? 1}>`
+}
+
+function isSelectedStyle(style: StyleEntry): boolean {
+  return (
+    !!selectedStyle.value && styleKey(selectedStyle.value) === styleKey(style)
+  )
+}
+
+function selectStyle(style: StyleEntry) {
+  ++generationToken
+  selectedStyle.value = isSelectedStyle(style) ? null : { ...style }
+  errorMessage.value = ''
+  successMessage.value = ''
+  resultImage.value = null
+  emit('styleSelected', selectedStyle.value)
+}
+
+function clearSelection() {
+  ++generationToken
+  selectedStyle.value = null
+  extraPrompt.value = ''
+  errorMessage.value = ''
+  successMessage.value = ''
+  resultImage.value = null
+  emit('styleSelected', null)
+}
+
+async function hydrateFromResourceStore(): Promise<void> {
+  // External registries (e.g. Academy) own their style list entirely.
+  if (props.styles?.length) return
+
+  try {
+    if (!resourceStore.hasLoaded) {
+      await resourceStore.getResources()
+    }
+
+    const dbLoras = resourceStore.resources.filter((resource) => {
+      return (
+        resource.resourceType === 'LORA' &&
+        (resource.supportedServer === 'KONTEXT' ||
+          resource.supportedServer === 'FLUX' ||
+          resource.supportedServer === 'GENERIC')
+      )
+    })
+
+    if (!dbLoras.length) return
+
+    // Match by filename stem (case/slash-insensitive), NOT by the full stored
+    // path — the builtins hardcode legacy `FLUX/...` strings that no longer
+    // exist on the art server, so the real match lives at a different folder
+    // (`Kontext/SFW/...`, `Flux/SFW/...`). We adopt the resource's actual
+    // localPath below so the workflow gets a name ComfyUI can resolve.
+    const stemOf = (path?: string | null): string =>
+      path
+        ?.replace(/\\/g, '/')
+        .split('/')
+        .pop()
+        ?.replace(/\.safetensors$/i, '')
+        .toLowerCase() || ''
+
+    const builtinStems = new Set(
+      styles.value.map((style) => stemOf(style.loraPath)).filter(Boolean),
+    )
+
+    const updated = styles.value.map((style) => {
+      const stem = stemOf(style.loraPath)
+
+      const match = dbLoras.find((resource) => {
+        return (
+          (stem && stemOf(resource.localPath) === stem) ||
+          resource.name?.toLowerCase().includes(style.label.toLowerCase())
+        )
+      })
+
+      if (!match) return style
+
+      return {
+        ...style,
+        // Use the resource's real path, not the builtin's legacy `FLUX/...`.
+        loraPath: match.localPath || style.loraPath,
+        resourceId: match.id,
+        previewImageSrc: style.previewImageSrc || match.imagePath || undefined,
+      }
+    })
+
+    const newFromDb = dbLoras
+      .filter((resource) => {
+        if (!resource.localPath) return false
+        // Dedupe against builtins by filename stem (a builtin already covers
+        // this LoRA under a legacy path); the DB path is used verbatim.
+        return !builtinStems.has(stemOf(resource.localPath))
+      })
+      .map((resource): StyleEntry => {
+        return {
+          loraPath: resource.localPath!,
+          loraWeight: 1,
+          triggerPhrase:
+            resource.artPrompt || resource.customLabel || resource.name,
+          label: resource.customLabel || resource.name,
+          category: 'Illustration',
+          resourceId: resource.id,
+          previewImageSrc: resource.imagePath || undefined,
+        }
+      })
+
+    styles.value = [...updated, ...newFromDb]
+  } catch (error) {
+    if (error instanceof Error && error.name === 'AbortError') return
+    console.warn('[art-styler] hydrateFromResourceStore:', error)
+  }
+}
+
+async function runStyleTransfer(): Promise<void> {
+  if (!selectedStyle.value || !selectedSourceImage.value) return
+
+  const token = ++generationToken
+  const style = selectedStyle.value
+  errorMessage.value = ''
+  successMessage.value = ''
+  isGenerating.value = true
+  generatingStyleLabel.value = style.label
+  resultImage.value = null
+
+  try {
+    const loraRef = buildLoraReference(style)
+
+    const promptString = [
+      loraRef
+        ? `${loraRef} ${style.triggerPhrase}`.trim()
+        : style.triggerPhrase,
+      extraPrompt.value.trim(),
+    ]
+      .filter(Boolean)
+      .join(', ')
+
+    let sourceImage = selectedSourceImage.value as ArtImage & {
+      imageData?: string | null
+      thumbnailData?: string | null
+      negativePrompt?: string | null
+    }
+
+    if (
+      !uploadedImageData.value &&
+      sourceImage.id > 0 &&
+      !sourceImage.imageData
+    ) {
+      const fetched = await artStore.getArtImageById(sourceImage.id, {
+        includeImageData: true,
+        includeThumbnailData: true,
+      })
+
+      if (fetched) {
+        sourceImage = fetched as ArtImage & {
+          imageData?: string | null
+          thumbnailData?: string | null
+          negativePrompt?: string | null
+        }
+        // Only reflect the freshly-fetched image data back into the visible
+        // selection if the user hasn't since picked a different source or
+        // started a newer generation -- this is the one write to
+        // selectedSourceImage in the whole file that wasn't token-guarded,
+        // so a slow-but-successful lazy fetch from a superseded request
+        // could silently revert a newer pick back to the stale image it was
+        // still processing (same pattern as the resultImage/successMessage
+        // guard below).
+        if (token === generationToken) {
+          selectedSourceImage.value = fetched
+        }
+      }
+    }
+
+    const base64Payload = uploadedImageData.value
+      ? (uploadedImageData.value.split(',')[1] ?? null)
+      : (sourceImage.imageData ?? null)
+
+    if (!base64Payload) {
+      throw new Error('Could not load full image data for style transfer.')
+    }
+
+    const serverId = kontextServerId.value
+    const serverName =
+      kontextServer.value?.label ?? kontextServer.value?.title ?? null
+
+    const result = await artStore.generateArt({
+      promptString,
+      negativePrompt: useNegative.value ? sourceImage.negativePrompt || '' : '',
+      userId: userStore.userId ?? undefined,
+      serverId,
+      serverName,
+      engine: 'kontext',
+      transport: 'backend',
+      isPublic: isPublic.value,
+      isMature: sourceImage.isMature ?? false,
+      sourceImageId: sourceImage.id > 0 ? sourceImage.id : undefined,
+      sourceImageBase64: base64Payload,
+      // Actually load the style's LoRA in the render graph (see
+      // buildKontextWorkflow's LoraLoaderModelOnly wiring) — previously this
+      // only reached the graph as inert `<lora:...>` prompt text.
+      loraName: style.loraPath || undefined,
+      loraStrength: style.loraPath ? (style.loraWeight ?? 1) : undefined,
+      // Provenance: link the generated image back to the LoRA Resource this
+      // style is backed by (see resourceProvenance.ts / #937).
+      loraResourceIds: style.resourceId ? [style.resourceId] : undefined,
+    })
+
+    if (!result.success || !result.data) {
+      throw new Error(result.message || 'Generation failed.')
+    }
+
+    // The image was created either way, so still notify listeners (e.g.
+    // academy-remix.vue marking the style remixed) -- but only reattach the
+    // result to this component's own preview/banner if the user hasn't
+    // since picked a different style/source or cleared the selection out
+    // from under this still-in-flight request.
+    if (token === generationToken) {
+      resultImage.value = result.data
+      successMessage.value = `Style applied! Image #${result.data.id} created.`
+    }
+    emit('generated', result.data, style)
+  } catch (error) {
+    if (token === generationToken) {
+      errorMessage.value =
+        error instanceof Error ? error.message : 'Generation failed.'
+    }
+  } finally {
+    isGenerating.value = false
+  }
+}
+
+watch(sourceTab, async (tab) => {
+  if (tab === 'starters') {
+    await loadStarterEntries()
+    return
+  }
+
+  if (tab !== 'gallery') return
+
+  if (!artStore.artImages.length) {
+    isLoadingGallery.value = true
+
+    try {
+      await artStore.fetchAllArtImages({
+        force: false,
+        includeImageData: false,
+        includeThumbnailData: false,
+      })
+    } finally {
+      isLoadingGallery.value = false
+    }
+  }
+
+  await hydrateGalleryThumbs()
+})
+
+watch(gallerySearch, () => {
+  void hydrateGalleryThumbs()
+})
+
+watch(
+  () => props.styles,
+  (next) => {
+    if (next?.length) {
+      styles.value = [...next]
+
+      if (
+        selectedStyle.value &&
+        !next.some((style) => isSelectedStyle(style))
+      ) {
+        selectedStyle.value = null
+        emit('styleSelected', null)
+      }
+    }
+  },
+  { deep: true },
+)
+
+watch(
+  () => props.selectedStyleKey,
+  (key) => {
+    if (!key) return
+    if (selectedStyle.value && styleKey(selectedStyle.value) === key) return
+
+    const match = styles.value.find((style) => styleKey(style) === key)
+
+    if (match) {
+      selectedStyle.value = { ...match }
+      errorMessage.value = ''
+      successMessage.value = ''
+      resultImage.value = null
+      emit('styleSelected', selectedStyle.value)
+    }
+  },
+  { immediate: true },
+)
+
+// Preselect a gallery image passed by id (e.g. the "Make coloring page" deep
+// link). We only need the thumbnail for the preview here -- runStyleTransfer
+// lazily fetches the full imageData when the user generates.
+async function applySourceImageId(
+  id: number | null | undefined,
+): Promise<void> {
+  if (!id || id <= 0) return
+
+  ++generationToken
+  uploadedImageData.value = null
+  selectedStarterFile.value = null
+  resultImage.value = null
+
+  const token = ++sourceSelectionToken
+
+  try {
+    const fetched = await artStore.getArtImageById(id, {
+      includeImageData: false,
+      includeThumbnailData: true,
+    })
+
+    if (token !== sourceSelectionToken) return
+    if (!fetched) return
+
+    const hydrated = fetched as ArtImage & { thumbnailData?: string | null }
+
+    if (hydrated.thumbnailData) {
+      galleryThumbs.value = {
+        ...galleryThumbs.value,
+        [id]: `data:image/${hydrated.fileType || 'png'};base64,${hydrated.thumbnailData}`,
+      }
+    }
+
+    selectedSourceImage.value = fetched
+    sourceTab.value = 'gallery'
+  } catch {
+    // Non-fatal: the user can still pick a source manually.
+  }
+}
+
+watch(
+  () => props.sourceImageId,
+  (id) => {
+    void applySourceImageId(id)
+  },
+)
+
+onMounted(() => {
+  void hydrateFromResourceStore()
+  void applySourceImageId(props.sourceImageId)
+})
+</script>
+
+<style scoped>
+.slide-fade-enter-active,
+.slide-fade-leave-active {
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease;
+}
+
+.slide-fade-enter-from,
+.slide-fade-leave-to {
+  opacity: 0;
+  transform: translateY(-6px);
+}
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.18s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+
+.pop-enter-active {
+  transition:
+    opacity 0.15s ease,
+    transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.pop-leave-active {
+  transition:
+    opacity 0.1s ease,
+    transform 0.1s ease;
+}
+
+.pop-enter-from,
+.pop-leave-to {
+  opacity: 0;
+  transform: scale(0.4);
+}
+</style>

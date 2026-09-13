@@ -1586,6 +1586,19 @@ section:has(div[class*='xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]'])
     @apply badge badge-secondary badge-sm;
   }
 
+  /* Bug fix, not a new slice: the accent-colored counterpart to
+   * .kr-badge-primary-sm/.kr-badge-secondary-sm -- `badge badge-accent
+   * badge-sm` -- was referenced as `kr-badge-accent-sm` starting with
+   * PR #2691 (ruler-hooked-card.vue) and copied into three more files by
+   * later slices (#2692 video-lora-picker.vue, #2693 user-dashboard.vue,
+   * #2694 video-generator.vue) without ever defining this class. All four
+   * call sites have been rendering as unstyled plain text, not a badge,
+   * since #2691 merged. Adding the missing primitive here restores the
+   * intended DaisyUI accent-badge styling with no template changes needed. */
+  .kr-badge-accent-sm {
+    @apply badge badge-accent badge-sm;
+  }
+
   /* The extra-small, ghost-styled counterpart to .kr-badge-ghost-sm
    * (interface-vision t-104 slice 112): `badge badge-ghost badge-xs`, the
    * largest hand-rolled `badge-xs` pool surveyed (16 files, 21 occurrences). */

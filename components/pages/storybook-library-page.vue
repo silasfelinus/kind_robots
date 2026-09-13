@@ -195,16 +195,27 @@
     </section>
 
     <!--
-      One stage, three states, in priority order: an in-progress life run, an
-      in-progress beat story, or the setup table. The life engine wins the tie
-      because storybookStore.beginLife() is what put it on screen -- a leftover
-      beat session from an earlier story must not steal the stage from the run
-      the reader just started (and vice versa is impossible: beginStory()
-      refuses the 'life' shape outright).
+      THE STORYMAKER IS THE FRONT DOOR (storybook/t-034, t-035). The Table and
+      the Reading run on the server-side engine -- four modes, ending decks, the
+      character sheet, the quest ledger -- and are what /storybook opens on.
+
+      The three branches below it are the outgoing client beat loop, kept
+      reachable at ?legacy=1 only until storybook/t-037 deletes them together
+      with stores/storybookStore.ts and rewrites the guards that pin them. This
+      is a transitional state with a task attached, not a second front door: do
+      not build anything new against it.
+
+      Legacy order, unchanged: an in-progress life run, an in-progress beat
+      story, or the old setup table. The life engine wins the tie because
+      storybookStore.beginLife() is what put it on screen -- a leftover beat
+      session from an earlier story must not steal the stage from the run the
+      reader just started (and vice versa is impossible: beginStory() refuses
+      the 'life' shape outright).
     -->
     <div class="min-h-0 flex-1 overflow-hidden">
+      <StorybookStorymaker v-if="!legacy" class="size-full" />
       <StorybookLifeRun
-        v-if="storyStore.lifeSeed"
+        v-else-if="storyStore.lifeSeed"
         :seed="storyStore.lifeSeed"
         class="size-full"
       />
@@ -220,13 +231,16 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref, watch } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useStorybookStore } from '@/stores/storybookStore'
 
 const storyStore = useStorybookStore()
 const route = useRoute()
 const router = useRouter()
+
+/** ?legacy=1 keeps the outgoing beat loop reachable until storybook/t-037. */
+const legacy = computed(() => route.query.legacy === '1')
 
 const libraryOpen = ref(false)
 const restartArmed = ref(false)

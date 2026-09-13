@@ -78,6 +78,48 @@ export interface StorybookPendingTurn {
   narrator: string
 }
 
+/** Taskmaster mode's real work, as the reader is allowed to see it. */
+export interface StorybookQuestCheckpoint {
+  id: string
+  title: string
+  detail: string | null
+  sourceKind: 'direct-task' | 'honeydo' | 'needs-human'
+  status: string
+  todoId: number | null
+  conductorTaskId: string | null
+  projectSlug: string | null
+}
+
+export interface StorybookQuestProposal {
+  id: string
+  checkpointId: string
+  turnIndex: number
+  outcome: string
+  note: string
+  /** What applying this would do, in plain words, BEFORE it is done. */
+  effect: string
+  /** False until the reader accepts it. Never render an unapplied one as done. */
+  applied: boolean
+  appliedAt: string | null
+  appliedTodoId: number | null
+}
+
+export interface StorybookQuest {
+  objective: string
+  projectSlug: string | null
+  projectTitle: string | null
+  checkpoints: StorybookQuestCheckpoint[]
+  activeCheckpointId: string | null
+  proposals: StorybookQuestProposal[]
+}
+
+export interface StorybookRunArt {
+  id: number
+  chapter: number
+  sceneType?: string | null
+  ArtImage?: { imagePath?: string | null; path?: string | null } | null
+}
+
 export interface StorybookRunTurn {
   turnIndex: number
   narrativeText: string
@@ -200,6 +242,9 @@ export const useStorybookRunStore = defineStore('storybookRunStore', () => {
   const inventory = ref<StorybookRunTreasure[]>([])
   const bible = ref<Record<string, unknown> | null>(null)
   const ending = ref<Record<string, unknown> | null>(null)
+  /** Taskmaster mode only. Null in every other mode. */
+  const quest = ref<StorybookQuest | null>(null)
+  const art = ref<StorybookRunArt[]>([])
   const adventures = ref<StorybookRunSummary[]>([])
   const decks = ref<StorybookRunDeck[]>([])
   const collection = ref<StorybookCollection | null>(null)
@@ -209,6 +254,7 @@ export const useStorybookRunStore = defineStore('storybookRunStore', () => {
   const isOpening = ref(false)
   const isNarrating = ref(false)
   const isResolving = ref(false)
+  const isApplying = ref(false)
   const isLoading = ref(false)
   const errorMessage = ref('')
 
@@ -243,6 +289,8 @@ export const useStorybookRunStore = defineStore('storybookRunStore', () => {
   function reset(): void {
     run.value = null
     pendingTurn.value = null
+    quest.value = null
+    art.value = []
     turns.value = []
     inventory.value = []
     bible.value = null
@@ -268,6 +316,9 @@ export const useStorybookRunStore = defineStore('storybookRunStore', () => {
     // holds the deck's floor, and the client never has the deck's axes anyway.
     if (typeof payload.readyToResolve === 'boolean') {
       canEndOnDemand.value = payload.readyToResolve
+    }
+    if (payload.quest !== undefined) {
+      quest.value = (payload.quest as StorybookQuest | null) ?? null
     }
   }
 
@@ -321,6 +372,7 @@ export const useStorybookRunStore = defineStore('storybookRunStore', () => {
         bible: Record<string, unknown>
         inventory: StorybookRunTreasure[]
         pendingTurn: StorybookPendingTurn | null
+        quest: StorybookQuest | null
         narrationError: string | null
       }>('/api/storybook/runs', {
         method: 'POST',
@@ -335,6 +387,8 @@ export const useStorybookRunStore = defineStore('storybookRunStore', () => {
       bible.value = response.data.bible
       inventory.value = response.data.inventory
       pendingTurn.value = response.data.pendingTurn
+      quest.value = response.data.quest ?? null
+      art.value = []
       turns.value = []
       ending.value = null
       stats.value = null
@@ -361,6 +415,8 @@ export const useStorybookRunStore = defineStore('storybookRunStore', () => {
         pendingTurn: StorybookPendingTurn | null
         turns: StorybookRunTurn[]
         ending: Record<string, unknown> | null
+        quest: StorybookQuest | null
+        art?: StorybookRunArt[]
         readyToResolve?: boolean
         stats?: Record<string, number>
       }>(`/api/storybook/runs/${runId}`)
@@ -375,6 +431,8 @@ export const useStorybookRunStore = defineStore('storybookRunStore', () => {
       pendingTurn.value = response.data.pendingTurn
       turns.value = response.data.turns
       ending.value = response.data.ending
+      quest.value = response.data.quest ?? null
+      art.value = response.data.art ?? []
       stats.value = response.data.stats ?? null
       canEndOnDemand.value = Boolean(response.data.readyToResolve)
       writeStoredRunId(runId)
@@ -479,9 +537,44 @@ export const useStorybookRunStore = defineStore('storybookRunStore', () => {
     reset()
   }
 
+  /**
+   * Apply one quest proposal (storybook/t-045).
+   *
+   * The ONLY thing in this store that changes a real to-do. Playing a turn
+   * never does; the reader accepts a proposal here, explicitly, and the server
+   * refuses anything this route did not authorize.
+   */
+  async function applyProposal(proposalId: string): Promise<boolean> {
+    const active = run.value
+    if (!active || isApplying.value) return false
+    isApplying.value = true
+    errorMessage.value = ''
+    try {
+      const response = await performFetch<{
+        quest: StorybookQuest | null
+        alreadyApplied: boolean
+      }>(
+        `/api/storybook/runs/${active.id}/proposals/${encodeURIComponent(proposalId)}/apply`,
+        { method: 'POST' },
+      )
+      if (!response.success || !response.data) {
+        errorMessage.value = response.message || 'That did not go through.'
+        return false
+      }
+      quest.value = response.data.quest ?? quest.value
+      return true
+    } finally {
+      isApplying.value = false
+    }
+  }
+
   return {
     run,
     pendingTurn,
+    quest,
+    art,
+    isApplying,
+    applyProposal,
     turns,
     inventory,
     bible,

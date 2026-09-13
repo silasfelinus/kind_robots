@@ -56,8 +56,12 @@
           >
             <span class="flex items-center gap-1">
               <Icon :name="spec.icon" class="kr-icon-4 text-primary" />
-              <span class="kr-text-semibold-sm">{{ spec.label }}</span>
-              <span v-if="spec.required" class="kr-text-dim-xs">*</span>
+              <span class="kr-text-semibold-sm">{{ labelFor(spec) }}</span>
+              <span
+                v-if="spec.required || requiredInMode(spec.key)"
+                class="kr-text-dim-xs"
+                >*</span
+              >
             </span>
 
             <span
@@ -83,7 +87,7 @@
                 </span>
               </template>
               <span v-else class="kr-text-dim-xs px-1 text-center">
-                {{ spec.hint }}
+                {{ hintFor(spec) }}
               </span>
             </span>
           </button>
@@ -226,6 +230,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import { useCharacterStore } from '@/stores/characterStore'
+import { useProjectStore } from '@/stores/projectStore'
 import { useDreamStore } from '@/stores/dreamStore'
 import { useFacetStore } from '@/stores/facetStore'
 import { useRewardStore } from '@/stores/rewardStore'
@@ -242,6 +247,7 @@ import {
   NARRATOR_DELIVERIES,
   STORYBOOK_SLOT_SPECS,
   isGenreFacet,
+  type StorybookSlotSpec,
   isPlaceDream,
   toGenreCard,
   toHeroCard,
@@ -265,6 +271,7 @@ const dreamStore = useDreamStore()
 const facetStore = useFacetStore()
 const rewardStore = useRewardStore()
 const scenarioStore = useScenarioStore()
+const projectStore = useProjectStore()
 
 const slotSpecs = STORYBOOK_SLOT_SPECS
 const lengthPresets = LENGTH_PRESETS
@@ -291,6 +298,27 @@ const board = ref<Record<StorybookSlot, NarrativeIngredientOption[]>>({
   treasures: [],
 })
 
+/**
+ * The reader's conductor-backed projects, as Thread cards for taskmaster mode.
+ *
+ * Only projects carrying a conductorSlug: that slug is what the server deals
+ * checkpoints from, so a Kind Robots project with no Conductor side would put
+ * an objective on the board with nothing behind it.
+ */
+const projectCards = computed<NarrativeIngredientOption[]>(() =>
+  projectStore.projects
+    .filter((project) => project.conductorSlug)
+    .map((project) => ({
+      id: project.id,
+      slug: project.conductorSlug as string,
+      title: project.title || `Project ${project.id}`,
+      description: project.description,
+      imagePath: project.imagePath,
+      icon: 'kind-icon:gearhammer',
+      badge: 'Your project',
+    })),
+)
+
 const activeSpec = computed(
   () => slotSpecs.find((spec) => spec.key === activeSlot.value) || slotSpecs[0]!,
 )
@@ -300,6 +328,28 @@ const mode = computed<StorybookRunMode>(
 )
 const isTaskmaster = computed(() => mode.value === 'taskmaster')
 const isEndlessChoice = computed(() => mode.value === 'open-ended')
+
+/**
+ * The Thread slot changes job in taskmaster mode -- it is the project the real
+ * work is dealt from, and it stops being optional. Renaming the well rather
+ * than adding a ninth slot keeps the board the same board in every mode, which
+ * is the point of absorbing Taskmaster instead of porting it.
+ */
+function labelFor(spec: StorybookSlotSpec): string {
+  if (spec.key === 'thread' && isTaskmaster.value) return 'Project'
+  return spec.label
+}
+
+function hintFor(spec: StorybookSlotSpec): string {
+  if (spec.key === 'thread' && isTaskmaster.value) {
+    return 'Whose real work this quest is'
+  }
+  return spec.hint
+}
+
+function requiredInMode(slot: StorybookSlot): boolean {
+  return slot === 'thread' && isTaskmaster.value
+}
 
 function placed(slot: StorybookSlot): NarrativeIngredientOption[] {
   return board.value[slot]
@@ -353,9 +403,16 @@ const activeDeck = computed<NarrativeIngredientOption[]>(() => {
       case 'narrator':
         return narrators.value.map(toNarratorCard)
       case 'thread':
-        return scenarioStore.scenarios
-          .filter((scenario) => scenario.slug)
-          .map(toThreadCard)
+        // In taskmaster mode the Thread slot is where the real work comes
+        // from, so it deals the reader's own projects instead of Scenarios
+        // (storybook/t-046). Silas chose that scope on 2026-09-13: one
+        // project's work, because a quest that sweeps up every loose to-do
+        // stops having an objective.
+        return isTaskmaster.value
+          ? projectCards.value
+          : scenarioStore.scenarios
+              .filter((scenario) => scenario.slug)
+              .map(toThreadCard)
       case 'treasures':
         return rewardStore.rewards
           .filter((reward) => reward.isActive && reward.slug)
@@ -396,6 +453,20 @@ async function openStory() {
   const hero = board.value.hero[0]
   if (!hero) return
 
+  // Said here rather than let the server say it: a taskmaster quest with no
+  // objective is a story with nothing to serve, and one with no project has no
+  // real work in it.
+  if (isTaskmaster.value && !spark.value.trim()) {
+    errorMessage.value =
+      'A taskmaster quest needs an objective: say what you are trying to get done.'
+    return
+  }
+  if (isTaskmaster.value && !board.value.thread[0]) {
+    errorMessage.value =
+      'Deal a project into the Thread slot — that is where the real work comes from.'
+    return
+  }
+
   const payload: StorybookBoard = {
     mode: mode.value,
     // The Genre card IS the deck: a genre facet's slug is its deck key.
@@ -411,7 +482,14 @@ async function openStory() {
     castSlugs: [hero.slug, ...board.value.company.map((card) => card.slug)],
     locationSlug: board.value.place[0]?.slug ?? null,
     facetSlugs: board.value.genre.map((card) => card.slug),
-    scenarioSlug: board.value.thread[0]?.slug ?? null,
+    // The Thread card is a project in taskmaster mode and a Scenario in every
+    // other, so it goes into a different field depending on which.
+    projectSlug: isTaskmaster.value
+      ? (board.value.thread[0]?.slug ?? null)
+      : null,
+    scenarioSlug: isTaskmaster.value
+      ? null
+      : (board.value.thread[0]?.slug ?? null),
     rewardSlugs: board.value.treasures.map((card) => card.slug),
   }
 
@@ -433,6 +511,7 @@ onMounted(async () => {
   // allSettled, not all: one slow or failing deck must not leave the whole
   // table empty. A board missing its treasures still opens a story.
   await Promise.allSettled([
+    projectStore.fetchProjects(),
     characterStore.initialize(),
     dreamStore.initialize(),
     facetStore.fetchFacets(),

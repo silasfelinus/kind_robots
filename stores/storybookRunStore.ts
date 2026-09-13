@@ -161,6 +161,12 @@ export interface StorybookRun {
 export interface StorybookBoard {
   mode: StorybookRunMode
   /**
+   * Taskmaster mode only: the conductor project whose real work the Thread slot
+   * deals. Required in that mode -- a quest without a project has no work in
+   * it, only a story about work.
+   */
+  projectSlug?: string | null
+  /**
    * The length dial (storybook/t-041): omit for the deck's default, pass null
    * for an endless open-ended story. A setting, never a card.
    */

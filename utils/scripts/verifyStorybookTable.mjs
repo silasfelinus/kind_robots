@@ -138,6 +138,35 @@ check(
     /quest\.objective/.test(reading),
 )
 
+console.log('\nStorybook Taskmaster — the accept step is the feature')
+
+check(
+  'a proposal says what applying would do before it is applied',
+  /proposal\.effect/.test(reading) && /proposal\.note/.test(reading),
+)
+check(
+  'an unapplied proposal is labelled as not having happened',
+  /Not applied — nothing has changed yet/.test(reading),
+)
+check(
+  'accepting is a button the reader presses, not a turn side effect',
+  /runStore\.applyProposal\(proposal\.id\)/.test(reading) &&
+    !/applyProposal/.test(table),
+)
+check(
+  'an applied proposal renders differently from an unapplied one',
+  /v-if="proposal\.applied"/.test(reading),
+)
+check(
+  'the Thread slot deals real projects in taskmaster mode',
+  /isTaskmaster\.value\s*\n?\s*\? projectCards\.value/.test(table) &&
+    /conductorSlug/.test(table),
+)
+check(
+  'a taskmaster quest refuses to open without an objective and a project',
+  /needs an objective/.test(table) && /Thread slot/.test(table),
+)
+
 console.log('\nStorybook — the storymaker is the front door')
 
 check(

@@ -9,8 +9,10 @@ The production path is therefore host-driven:
 3. The deployer pulls the current `ghcr.io/silasfelinus/kind_robots:latest` image.
 4. Pending Prisma migrations from that image run through the isolated `kindrobot_migrate` credential.
 5. Only after migrations succeed does Unraid's own DockerMan updater recreate `KindRobots` from its saved template.
-6. The script waits for the container health check before reporting success.
-7. After a healthy handoff, the deployer removes dangling Docker images carrying Kind Robots' `org.opencontainers.image.source` label. It does not run a host-wide image prune or touch other projects' images.
+6. The script verifies that the container is running and waits for the container health check before reporting success.
+7. If the container is stopped while already on the latest image, the deployer starts it and requires a healthy result instead of treating image parity as success.
+8. If a post-update health check fails, the deployer performs one start/restart recovery attempt and requires that recovery to become healthy.
+9. After a healthy handoff, the deployer removes dangling Docker images carrying Kind Robots' `org.opencontainers.image.source` label. It does not run a host-wide image prune or touch other projects' images.
 
 If migration fails, the container update is not attempted. The long-running application never receives `MIGRATION_DATABASE_URL`.
 
@@ -34,6 +36,8 @@ exec /bin/bash /mnt/user/appdata/kind_robots/scripts/unraid-user-script.sh
 
 Schedule it for every **5 minutes**. User Scripts owns the schedule and persistence across Unraid restarts; the repository owns the deployment behavior.
 
+`KindRobots` must be **excluded from Community Applications Docker Auto Update**. The Kind Robots User Script is the single owner of application updates because it runs migrations before asking DockerMan to replace the container. Allowing CA Auto Update to manipulate the same container creates a second, migration-unaware deployment path and can race the guarded deployer while it is pulling, migrating, or recreating the container.
+
 The migration credential remains where it already belongs:
 
 ```text
@@ -54,14 +58,17 @@ The scheduled launcher refreshes a clean `main` checkout with `git pull --ff-onl
 
 The deployer uses `flock`, so overlapping User Script runs cannot race each other. It records the image whose migrations were last verified and rechecks migrations at least once per day even when the image has not changed. This repairs the common failure mode where a container was manually Force Updated while the migration step was skipped.
 
+Image parity is not treated as service health. On a no-op image check the deployer also verifies that `KindRobots` is running and healthy; if the container is stopped it starts it. After a DockerMan replacement, a failed health check gets one recovery attempt before the deploy is reported failed. If the narrow exact-image migration path has to stop the app and a later command aborts, an exit trap attempts to restore the container before the script exits.
+
 DockerMan's `latest`-tag handoff can leave the previously running image untagged, which Unraid displays as an **orphan image**. Each scheduled deploy check now removes only dangling images labeled as originating from `silasfelinus/kind_robots`, including backlog from earlier deploys. Images belonging to Kapowarr or any other container are outside this cleanup's scope.
 
 User Scripts captures each run's output. For direct troubleshooting, run:
 
 ```bash
 cd /mnt/user/appdata/kind_robots
+git pull --ff-only
 bash scripts/unraid-user-script.sh
-docker inspect KindRobots --format '{{.Image}} {{.State.Health.Status}}'
+docker inspect KindRobots --format '{{.Image}} {{.State.Status}} {{.State.Health.Status}}'
 ```
 
 ## Manual deployment
@@ -70,6 +77,7 @@ The same guarded path can be run at any time:
 
 ```bash
 cd /mnt/user/appdata/kind_robots
+git pull --ff-only
 bash scripts/deploy-unraid.sh
 ```
 

@@ -41,6 +41,9 @@ jobs:
       - name: Verify layout contract
         run: npm run test:layout-contract
 
+      - name: Verify kr-* class coverage
+        run: npm run test:kr-class-coverage
+
       - name: Verify mixed pane primitive fixture
         run: npx tsx utils/scripts/verifyMixedPanePrimitivesFixture.ts
 

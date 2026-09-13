@@ -81,6 +81,7 @@
     "test:facet-gallery": "tsx utils/scripts/verifyFacetGallery.ts",
     "test:layout-contract": "tsx utils/scripts/verifyLayoutContract.ts",
     "test:layout-header-contract-selftest": "tsx utils/scripts/layoutHeaderContract.test.ts",
+    "test:kr-class-coverage": "tsx utils/scripts/verifyKrClassCoverage.ts",
     "test:art-slideshow-rotation": "tsx utils/scripts/verifyArtSlideshowRotation.test.ts",
     "audit:responsive": "node utils/scripts/auditResponsiveLayout.mjs",
     "test:daily-dream-facets": "prisma validate && tsx utils/scripts/verifyDailyDreamFacets.ts",

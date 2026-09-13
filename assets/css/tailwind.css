@@ -2806,6 +2806,42 @@ section:has(div[class*='xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]'])
     @apply font-semibold text-sm;
   }
 
+  /* DaisyUI `loading` spinner, primary-tinted, at its smallest size
+   * (interface-vision t-104 slice 260) -- a fresh full-repo class-frequency
+   * survey outside all now-closed families (`kr-badge-*`, `kr-text-black-*`/
+   * `kr-text-bold-*`/`kr-text-dim-*`/`kr-text-eyebrow-*`/
+   * `kr-text-semibold-*`, `kr-label-*`, `kr-icon-primary-*`,
+   * `kr-input-rounded-*`, per slice 259's kaizen note) found `loading
+   * loading-spinner loading-xs text-primary` hand-rolled 6 times across 4
+   * files. Sibling of `.kr-loading-primary-sm`/`.kr-loading-primary-md`
+   * below -- named with the color as a suffix and the size appended,
+   * matching `.kr-icon-primary-*`'s established convention, rather than a
+   * single primitive with a variable size (DaisyUI's own `loading-*`
+   * classes are themselves the size modifier, so each size is its own
+   * fixed-shape primitive here too). Remaining sibling shapes left open:
+   * `loading-dots`/`loading-ring`/`loading-bars` variants, and any
+   * non-`text-primary` tint (e.g. `text-primary-content`, seen once in
+   * art-styler.vue). */
+  .kr-loading-primary-xs {
+    @apply loading loading-spinner loading-xs text-primary;
+  }
+
+  /* Sibling of `.kr-loading-primary-xs` above, one size up -- `loading
+   * loading-spinner loading-sm text-primary` (interface-vision t-104 slice
+   * 260, same survey). 5 exact-match occurrences across 4 files. */
+  .kr-loading-primary-sm {
+    @apply loading loading-spinner loading-sm text-primary;
+  }
+
+  /* Sibling of `.kr-loading-primary-xs`/`.kr-loading-primary-sm` above, one
+   * size up again -- `loading loading-md loading-spinner text-primary`
+   * (interface-vision t-104 slice 260, same survey). 6 exact-match
+   * occurrences across 6 files -- the widest reach of the three sibling
+   * sizes closed this slice. */
+  .kr-loading-primary-md {
+    @apply loading loading-spinner loading-md text-primary;
+  }
+
   .text-smart {
     @apply text-sm md:text-lg lg:text-lg xl:text-xl;
   }

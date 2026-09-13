@@ -214,7 +214,7 @@
           v-else-if="isLoadingGallery"
           class="flex min-h-28 items-center justify-center rounded-xl bg-base-200"
         >
-          <span class="loading loading-spinner loading-sm text-primary" />
+          <span class="kr-loading-primary-sm" />
         </div>
 
         <div
@@ -272,7 +272,7 @@
           v-else-if="isLoadingStarters"
           class="flex min-h-28 items-center justify-center rounded-xl bg-base-200"
         >
-          <span class="loading loading-spinner loading-sm text-primary" />
+          <span class="kr-loading-primary-sm" />
         </div>
 
         <div

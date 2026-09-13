@@ -26,7 +26,7 @@
     </header>
 
     <div v-if="loading && !reviews.length" class="flex min-h-16 items-center justify-center">
-      <span class="loading loading-spinner loading-sm text-primary" />
+      <span class="kr-loading-primary-sm" />
     </div>
 
     <p

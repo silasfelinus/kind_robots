@@ -121,7 +121,7 @@
           </button>
           <span
             v-if="projectSaving"
-            class="loading loading-spinner loading-xs text-primary"
+            class="kr-loading-primary-xs"
           />
           <span
             v-else-if="projectSaveMessage"
@@ -158,11 +158,11 @@
       <!-- Loading spinner (initial load only) -->
       <span
         v-if="pending && !conductorStore.hasLoaded"
-        class="loading loading-spinner loading-xs text-primary"
+        class="kr-loading-primary-xs"
       />
       <span
         v-if="todoStore.loading && viewMode === 'tasks'"
-        class="loading loading-spinner loading-xs text-primary"
+        class="kr-loading-primary-xs"
       />
 
       <!-- Missing projects sync (admin) -->

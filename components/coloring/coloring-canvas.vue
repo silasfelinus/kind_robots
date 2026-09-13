@@ -89,7 +89,7 @@
       v-if="!rasterReady"
       class="absolute inset-0 flex items-center justify-center bg-base-200/60"
     >
-      <span class="loading loading-spinner loading-md text-primary" />
+      <span class="kr-loading-primary-md" />
     </div>
   </div>
 

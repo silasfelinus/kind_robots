@@ -100,7 +100,7 @@
 
       <span
         v-if="projectSaving"
-        class="loading loading-spinner loading-xs text-primary"
+        class="kr-loading-primary-xs"
       />
       <span
         v-else-if="projectSaveMessage"

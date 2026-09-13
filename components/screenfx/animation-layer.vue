@@ -38,7 +38,7 @@
         <div
           class="kr-text-bold-sm pointer-events-auto flex max-w-full items-center gap-3 rounded-2xl px-4 py-3 text-base-content shadow-xl backdrop-blur-md"
         >
-          <span class="loading loading-spinner loading-sm text-primary" />
+          <span class="kr-loading-primary-sm" />
 
           <Icon
             :name="animationStore.activeEffect?.icon || 'kind-icon:sparkles'"

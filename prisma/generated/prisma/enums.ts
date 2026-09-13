@@ -672,7 +672,8 @@ export type LifeVictoryType = (typeof LifeVictoryType)[keyof typeof LifeVictoryT
 export const EndingDeckOwnerKind = {
   LIFE: 'LIFE',
   GENRE_FACET: 'GENRE_FACET',
-  SCENARIO: 'SCENARIO'
+  SCENARIO: 'SCENARIO',
+  TASKMASTER: 'TASKMASTER'
 } as const
 
 export type EndingDeckOwnerKind = (typeof EndingDeckOwnerKind)[keyof typeof EndingDeckOwnerKind]

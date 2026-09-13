@@ -31,6 +31,18 @@ import {
 import { assertAttachable, withStatusCode } from './davinci'
 import { assertDeckPlayable, isDeckUnlocked } from './storybookGating'
 import {
+  TASKMASTER_DECK_KEY,
+  activeCheckpoint,
+  dealQuestCheckpoints,
+  normalizeObjective,
+  questBrief,
+  publicQuest,
+  readQuestLedger,
+  recordProposal,
+  serializeQuestLedger,
+  type QuestLedger,
+} from './storybookQuest'
+import {
   PROSE_BOUNDS_BY_MODE,
   clampEffectsToDeck,
   generateStorybookTurn,
@@ -165,6 +177,12 @@ export interface PendingTurn {
 export interface StoryBoardInput {
   /** Mode card. `shape` is the pre-mode spelling and is still accepted. */
   mode?: string | null
+  /**
+   * Taskmaster mode: the conductor project whose real work the Thread slot
+   * deals. Required in that mode -- a quest without a project has no work in
+   * it, only a story about work.
+   */
+  projectSlug?: string | null
   shape?: string | null
   /**
    * The length dial (storybook/t-041). Omitted means the deck's budget for this
@@ -480,6 +498,48 @@ async function assertNarratorBot(botId: number | null): Promise<void> {
 }
 
 /**
+ * Open a taskmaster quest from the board (storybook/t-044).
+ *
+ * The Spark slot carries the Objective in this mode, and it is required: a
+ * quest without one is a story with nothing to serve. The project is required
+ * for the same reason -- it is where the real work comes from.
+ */
+async function openQuestLedger(
+  board: StoryBoardInput,
+  userId: number,
+): Promise<QuestLedger> {
+  const objective = normalizeObjective(board.spark)
+  const projectSlug = (board.projectSlug || '').trim()
+  if (!projectSlug) {
+    throw withStatusCode(
+      'A taskmaster quest needs a project: its real work is dealt from one.',
+      400,
+    )
+  }
+
+  const project = await prisma.project.findFirst({
+    where: { conductorSlug: projectSlug },
+    select: { id: true, title: true },
+  })
+
+  const checkpoints = await dealQuestCheckpoints({
+    objective,
+    projectId: project?.id ?? null,
+    projectSlug,
+    projectTitle: project?.title ?? null,
+  })
+
+  void userId
+  return {
+    objective,
+    projectSlug,
+    projectTitle: project?.title ?? null,
+    checkpoints,
+    proposals: [],
+  }
+}
+
+/**
  * Turn the board the reader assembled into a run.
  *
  * Slugs in, ids out: the client names cards, the server resolves them and
@@ -491,10 +551,18 @@ async function assertNarratorBot(botId: number | null): Promise<void> {
 export async function createStoryRun(userId: number, board: StoryBoardInput) {
   const mode = normalizeStoryMode(board.mode ?? board.shape)
 
+  // Taskmaster resolves into its own deck (Silas, 2026-09-13) rather than a
+  // genre's, so the mode picks it when the board does not name one. Real work
+  // is collected like any other adventure.
   const deck = board.deckKey
     ? await loadDeckByKey(board.deckKey)
-    : await loadDeck(null)
+    : mode === 'taskmaster'
+      ? await loadDeckByKey(TASKMASTER_DECK_KEY)
+      : await loadDeck(null)
   await assertDeckPlayable(deck, userId)
+
+  const quest =
+    mode === 'taskmaster' ? await openQuestLedger(board, userId) : null
 
   const castSlugs = (board.castSlugs || []).filter(Boolean).slice(0, MAX_CAST)
   const facetSlugs = (board.facetSlugs || [])
@@ -650,6 +718,7 @@ export async function createStoryRun(userId: number, board: StoryBoardInput) {
       botId: board.botId ?? null,
       bible: JSON.stringify(bible),
       inventory: JSON.stringify(inventory),
+      questLedger: quest ? serializeQuestLedger(quest) : null,
     },
   })
 
@@ -672,18 +741,30 @@ export async function createStoryRun(userId: number, board: StoryBoardInput) {
       statsSoFar: {},
       recentTurns: [],
       move: null,
+      quest,
     })
   } catch (error) {
     narrationError =
       error instanceof Error ? error.message : 'The opening scene slipped away.'
   }
 
-  return { run, deck, mode, bible, inventory, pendingTurn, narrationError }
+  return {
+    run,
+    deck,
+    mode,
+    bible,
+    inventory,
+    quest,
+    pendingTurn,
+    narrationError,
+  }
 }
 
 interface NarrateArgs {
   deck: LoadedDeck
   mode: StoryMode
+  /** Taskmaster mode: the quest this scene serves. */
+  quest?: QuestLedger | null
   narratorStyle: StorybookNarratorStyle | null
   narrator: StoryNarrator
   seed: string
@@ -716,6 +797,7 @@ export function setStorybookNarrator(impl: NarrateFn | null): void {
 function buildNarrationRequest(args: NarrateArgs): StorybookNarrationRequest {
   return {
     mode: args.mode,
+    quest: args.quest ? questBrief(args.quest) : null,
     deck: toDeckDefinition(args.deck),
     narratorStyle: args.narratorStyle,
     narrator: args.narrator,
@@ -921,6 +1003,15 @@ export async function submitStoryTurn(
   const turnBudget = effectiveTurnBudget(run, deck)
   const isEndless = turnBudget === null
   const minTurns = deck.minTurnsBeforeResolve ?? 0
+  let quest = readQuestLedger(run)
+  /**
+   * A quest may close once every checkpoint has been worked, even with turns
+   * left on the budget. Ported from canClose() in stores/taskmasterStore.ts:
+   * real work is finished when it is finished, and making someone play out two
+   * more scenes to collect an ending they have earned is padding.
+   */
+  const questDone = (ledger: QuestLedger | null): boolean =>
+    Boolean(ledger) && activeCheckpoint(ledger!) === null
   const bible = readBible(run)
   let inventory = readInventory(run)
   const pending = readPendingTurn(run)
@@ -945,9 +1036,11 @@ export async function submitStoryTurn(
         turnIndex: run.currentChapter,
         turnBudget,
         isFinalTurn: !isEndless && run.currentChapter >= turnBudget,
-        readyToResolve: isEndless
-          ? run.currentChapter > minTurns
-          : run.currentChapter > turnBudget,
+        readyToResolve:
+          (isEndless
+            ? run.currentChapter > minTurns
+            : run.currentChapter > turnBudget) ||
+          (questDone(quest) && run.currentChapter > minTurns),
         replayed: true,
       }
     }
@@ -986,6 +1079,7 @@ export async function submitStoryTurn(
     const regenerated = await narrateInto(run.id, {
       deck,
       mode,
+      quest,
       narratorStyle: run.narratorStyle as StorybookNarratorStyle | null,
       narrator,
       seed: run.seed,
@@ -1006,7 +1100,8 @@ export async function submitStoryTurn(
       turnIndex: run.currentChapter,
       turnBudget,
       isFinalTurn: !isEndless && run.currentChapter >= turnBudget,
-      readyToResolve: isEndless && run.currentChapter > minTurns,
+      readyToResolve:
+        (isEndless || questDone(quest)) && run.currentChapter > minTurns,
       replayed: false,
     }
   }
@@ -1057,6 +1152,7 @@ export async function submitStoryTurn(
     buildNarrationRequest({
       deck,
       mode,
+      quest,
       narratorStyle: run.narratorStyle as StorybookNarratorStyle | null,
       narrator,
       seed: run.seed,
@@ -1083,6 +1179,13 @@ export async function submitStoryTurn(
     toDeckDefinition(deck),
   )
   const nextTurnIndex = run.currentChapter + 1
+
+  // A proposal is RECORDED, never applied (storybook/t-045). The checkpoint
+  // moves on so the next scene presents the next item, and the reader's real
+  // to-do list is exactly as it was a moment ago.
+  if (quest && result.proposal) {
+    quest = recordProposal(quest, result.proposal, run.currentChapter)
+  }
   inventory = applyInventoryChange(inventory, {
     delta: result.stateDelta,
     bible,
@@ -1147,6 +1250,7 @@ export async function submitStoryTurn(
         currentChapter: nextTurnIndex,
         inventory: JSON.stringify(inventory),
         pendingTurn: nextPending ? JSON.stringify(nextPending) : null,
+        ...(quest ? { questLedger: serializeQuestLedger(quest) } : {}),
       },
     })
 
@@ -1165,8 +1269,11 @@ export async function submitStoryTurn(
     // An endless story is collectible: once it is past the deck's floor the
     // reader may bring it to an end whenever they like, and it resolves into
     // the same deck as any other run rather than trailing off uncounted.
-    readyToResolve: isEndless ? nextTurnIndex > minTurns : isFinalTurn,
+    readyToResolve:
+      (isEndless ? nextTurnIndex > minTurns : isFinalTurn) ||
+      (questDone(quest) && nextTurnIndex > minTurns),
     replayed: false,
+    quest: publicQuest(quest),
     // Only the life shape has ever shown its axis values to the reader.
     stats: deck.ownerKind === 'LIFE' ? statsSoFar : undefined,
     narratedWordBounds: PROSE_BOUNDS_BY_MODE[mode],

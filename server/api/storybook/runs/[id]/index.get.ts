@@ -20,6 +20,10 @@ import {
   readPendingTurn,
   storyModeOf,
 } from '../../../../utils/storybookRuns'
+import {
+  publicQuest,
+  readQuestLedger,
+} from '../../../../utils/storybookQuest'
 
 export default defineEventHandler(async (event) => {
   let response
@@ -71,6 +75,9 @@ export default defineEventHandler(async (event) => {
           updatedAt: run.updatedAt,
         },
         bible: readBible(run),
+        // The reader owns this work, so none of it is withheld from them -- and
+        // the Reading has to show the objective beside the fiction at all times.
+        quest: publicQuest(readQuestLedger(run)),
         inventory: readInventory(run),
         pendingTurn: publicPendingTurn(readPendingTurn(run), deck),
         turns: run.Choices.map((choice) => ({

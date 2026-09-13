@@ -37,12 +37,16 @@ import {
   submitStoryTurn,
 } from '../../server/utils/storybookRuns'
 import type { StorybookNarrationResult } from '../../server/utils/storybookNarration'
+import { applyQuestProposal } from '../../server/utils/storybookQuest'
 
 const TEST_USERNAME = 'storybook-playloop-verify'
 const DECK_KEY = 'verify-mystery'
 const ITEM_SLUG = 'verify-brass-key'
 const SKILL_SLUG = 'verify-quick-tongue'
 const TURN_BUDGET = 4
+const QUEST_DECK_KEY = 'verify-taskmaster'
+const QUEST_PROJECT_SLUG = 'verify-storybook-quest-project'
+const QUEST_TODO_TITLE = 'Verify quest honeydo'
 
 const AXES: DeckAxis[] = [
   {
@@ -98,7 +102,16 @@ let lastRequestSummary: {
   moveSource: string | null
   playedReward: string | null
   inventorySlugs: string[]
+  questObjective: string | null
+  questCheckpointId: string | null
+  questUnapplied: string[]
 } | null = null
+
+/**
+ * When set, the stub narrator proposes this outcome for whatever checkpoint the
+ * quest is currently presenting. Taskmaster mode only (storybook/t-045).
+ */
+let stubProposalOutcome: string | null = null
 
 function stubNarration(): void {
   setStorybookNarrator(async (request) => {
@@ -109,6 +122,9 @@ function stubNarration(): void {
       moveSource: request.move?.source ?? null,
       playedReward: request.playedReward?.slug ?? null,
       inventorySlugs: request.inventory.map((item) => item.slug),
+      questObjective: request.quest?.objective ?? null,
+      questCheckpointId: request.quest?.checkpoint?.id ?? null,
+      questUnapplied: request.quest?.unapplied ?? [],
     }
     const result: StorybookNarrationResult = {
       narrativeText: prose,
@@ -129,6 +145,14 @@ function stubNarration(): void {
       },
       artPrompt: null,
       endingHint: null,
+      proposal:
+        stubProposalOutcome && request.quest?.checkpoint
+          ? {
+              checkpointId: request.quest.checkpoint.id,
+              outcome: stubProposalOutcome as 'completed',
+              note: 'Swept the workshop and put the tools back.',
+            }
+          : null,
     }
     return result
   })
@@ -242,6 +266,69 @@ async function seedFixtures(userId: number) {
   })
 
   return { deck, character }
+}
+
+/**
+ * A project with one open HONEYDO on it, and a taskmaster deck to resolve into.
+ *
+ * The project is a Kind Robots Project row carrying a conductorSlug, which is
+ * how dealQuestCheckpoints finds it -- the same join the Projects page uses.
+ */
+async function seedQuestFixtures(userId: number) {
+  const deck = await prisma.endingDeck.upsert({
+    where: { key: QUEST_DECK_KEY },
+    update: {
+      axes: serializeDeckAxes(AXES),
+      ownerKind: 'TASKMASTER',
+      minTurnsBeforeResolve: 1,
+      isActive: true,
+    },
+    create: {
+      key: QUEST_DECK_KEY,
+      title: 'Verify Taskmaster',
+      description: 'A scratch quest deck for the play-loop regression suite.',
+      ownerKind: 'TASKMASTER',
+      axes: serializeDeckAxes(AXES),
+      passValue: 1,
+      turnBudget: 4,
+      minTurnsBeforeResolve: 1,
+    },
+  })
+
+  const existingProject = await prisma.project.findFirst({
+    where: { conductorSlug: QUEST_PROJECT_SLUG },
+    select: { id: true },
+  })
+  const project =
+    existingProject ??
+    (await prisma.project.create({
+      data: {
+        title: 'Verify Quest Project',
+        conductorSlug: QUEST_PROJECT_SLUG,
+        userId,
+      },
+      select: { id: true },
+    }))
+
+  const existingTodo = await prisma.todo.findFirst({
+    where: { title: QUEST_TODO_TITLE },
+    select: { id: true },
+  })
+  if (existingTodo) {
+    await prisma.todo.delete({ where: { id: existingTodo.id } })
+  }
+  const todo = await prisma.todo.create({
+    data: {
+      title: QUEST_TODO_TITLE,
+      category: 'HONEYDO',
+      status: 'OPEN',
+      userId,
+      projectId: project.id,
+    },
+    select: { id: true },
+  })
+
+  return { deck, project, todo }
 }
 
 async function main() {
@@ -625,7 +712,113 @@ async function main() {
       400,
     )
 
-    console.log('11. inventory reads back off the run row')
+    console.log('11. taskmaster mode: real work, proposals, and one apply')
+    const questFixtures = await seedQuestFixtures(user.id)
+
+    await rejects(
+      'a quest without an objective is refused',
+      () =>
+        createStoryRun(user.id, {
+          mode: 'taskmaster',
+          deckKey: QUEST_DECK_KEY,
+          projectSlug: QUEST_PROJECT_SLUG,
+          castSlugs: ['verify-storybook-hero'],
+        }),
+      400,
+    )
+    await rejects(
+      'a quest without a project is refused',
+      () =>
+        createStoryRun(user.id, {
+          mode: 'taskmaster',
+          deckKey: QUEST_DECK_KEY,
+          spark: 'Clear the workshop bench.',
+          castSlugs: ['verify-storybook-hero'],
+        }),
+      400,
+    )
+
+    stubProposalOutcome = 'completed'
+    const quest = await createStoryRun(user.id, {
+      mode: 'taskmaster',
+      deckKey: QUEST_DECK_KEY,
+      spark: 'Clear the workshop bench.',
+      projectSlug: QUEST_PROJECT_SLUG,
+      castSlugs: ['verify-storybook-hero'],
+    })
+    const questRunId = quest.run.id
+    check(
+      quest.quest?.objective === 'Clear the workshop bench.',
+      'the objective is stored on the run, not folded into the prose',
+    )
+    check(
+      (quest.quest?.checkpoints.length ?? 0) >= 2,
+      `the quest deals real checkpoints (${quest.quest?.checkpoints.length})`,
+    )
+    check(
+      quest.quest?.checkpoints.some(
+        (checkpoint) => checkpoint.todoId === questFixtures.todo.id,
+      ) === true,
+      "the reader's own open HONEYDO is one of them",
+    )
+    check(
+      lastRequestSummary?.questObjective === 'Clear the workshop bench.',
+      'the narrator is told the real objective',
+    )
+
+    // THE RULE (storybook/t-045): a turn proposes, and nothing real moves.
+    const questTurn = await submitStoryTurn(questRunId, user.id, {
+      turnIndex: 1,
+      move: { source: 'custom', text: 'Start with the bench.' },
+    })
+    const proposals = questTurn.quest?.proposals ?? []
+    check(proposals.length === 1, `the turn recorded one proposal (${proposals.length})`)
+    check(
+      proposals[0]?.applied === false && proposals[0]?.appliedAt === null,
+      'the proposal is recorded as NOT applied',
+    )
+
+    const untouched = await prisma.todo.findUnique({
+      where: { id: questFixtures.todo.id },
+      select: { status: true, description: true },
+    })
+    check(
+      untouched?.status === 'OPEN' && untouched.description === null,
+      'playing the turn changed nothing on the real to-do',
+    )
+    check(
+      (lastRequestSummary?.questUnapplied.length ?? 0) === 0,
+      'the first turn had no unapplied proposals to warn about yet',
+    )
+
+    // Only the explicit apply writes.
+    const firstProposal = proposals.find(
+      (proposal) =>
+        quest.quest?.checkpoints.find(
+          (checkpoint) => checkpoint.id === proposal.checkpointId,
+        )?.todoId === questFixtures.todo.id,
+    )
+    const targetProposal = firstProposal ?? proposals[0]!
+    const applied = await applyQuestProposal(
+      questRunId,
+      user.id,
+      targetProposal.id,
+    )
+    check(applied.alreadyApplied === false, 'the first apply lands')
+    const again = await applyQuestProposal(
+      questRunId,
+      user.id,
+      targetProposal.id,
+    )
+    check(again.alreadyApplied === true, 'applying twice writes nothing twice')
+
+    await rejects(
+      "another reader cannot apply this quest's proposals",
+      () => applyQuestProposal(questRunId, user.id + 99_999, targetProposal.id),
+      403,
+    )
+
+    console.log('12. inventory reads back off the run row')
     const stored = await prisma.lifeRun.findUnique({
       where: { id: runId },
       select: { inventory: true },
@@ -659,8 +852,21 @@ async function main() {
     await prisma.achievement.deleteMany({
       where: { triggerCode: { startsWith: `verify-ending-${DECK_KEY}-` } },
     })
-    await prisma.endingDeck.deleteMany({ where: { key: DECK_KEY } })
+    await prisma.endingDeck.deleteMany({
+      where: { key: { in: [DECK_KEY, QUEST_DECK_KEY] } },
+    })
     await prisma.bot.deleteMany({ where: { name: NON_NARRATOR_BOT_NAME } })
+    await prisma.todo.deleteMany({
+      where: {
+        OR: [
+          { title: QUEST_TODO_TITLE },
+          { title: { startsWith: 'Taskmaster decision on' } },
+        ],
+      },
+    })
+    await prisma.project.deleteMany({
+      where: { conductorSlug: QUEST_PROJECT_SLUG },
+    })
     await prisma.character.deleteMany({
       where: { slug: 'verify-storybook-hero' },
     })

@@ -1920,6 +1920,7 @@ export const LifeRunScalarFieldEnum = {
   narratorStyle: 'narratorStyle',
   premise: 'premise',
   scenarioId: 'scenarioId',
+  questLedger: 'questLedger',
   bible: 'bible',
   inventory: 'inventory',
   pendingTurn: 'pendingTurn'
@@ -3313,6 +3314,7 @@ export const LifeRunOrderByRelevanceFieldEnum = {
   statsSnapshot: 'statsSnapshot',
   narratorStyle: 'narratorStyle',
   premise: 'premise',
+  questLedger: 'questLedger',
   bible: 'bible',
   inventory: 'inventory',
   pendingTurn: 'pendingTurn'

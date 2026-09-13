@@ -42,11 +42,70 @@
       <!-- Taskmaster keeps the real objective beside the fiction, always -->
       <div
         v-if="quest"
-        class="rounded-2xl border border-warning/40 bg-warning/5 p-3"
+        class="space-y-2 rounded-2xl border border-warning/40 bg-warning/5 p-3"
         data-testid="storybook-quest-objective"
       >
-        <p class="kr-text-eyebrow">Objective</p>
-        <p class="kr-text-semibold-sm">{{ quest.objective }}</p>
+        <div>
+          <p class="kr-text-eyebrow">Objective</p>
+          <p class="kr-text-semibold-sm">{{ quest.objective }}</p>
+        </div>
+
+        <ul v-if="openCheckpoints.length" class="space-y-0.5">
+          <li
+            v-for="checkpoint in openCheckpoints"
+            :key="checkpoint.id"
+            class="kr-text-dim-xs flex items-center gap-1"
+          >
+            <Icon
+              :name="
+                checkpoint.id === quest.activeCheckpointId
+                  ? 'kind-icon:arrow-right'
+                  : 'kind-icon:circle'
+              "
+              class="kr-icon-3"
+            />
+            {{ checkpoint.title }}
+          </li>
+        </ul>
+
+        <!--
+          THE ACCEPT STEP (storybook/t-045, t-046). A turn PROPOSES; this is
+          where a proposal becomes a real change, and only because the reader
+          pressed it. Every proposal says what applying would do BEFORE it is
+          applied, and an unapplied one is labelled as not having happened --
+          a story must never look like it silently edited a task list.
+        -->
+        <div
+          v-for="proposal in quest.proposals"
+          :key="proposal.id"
+          class="rounded-xl border border-base-300 bg-base-100 p-2"
+          data-testid="storybook-proposal"
+        >
+          <p class="kr-text-semibold-sm">{{ proposal.note }}</p>
+          <p class="kr-text-dim-xs">{{ proposal.effect }}</p>
+          <div class="mt-1 flex flex-wrap items-center gap-2">
+            <span
+              v-if="proposal.applied"
+              class="badge badge-success badge-sm"
+              data-testid="storybook-proposal-applied"
+            >
+              Applied
+            </span>
+            <template v-else>
+              <span class="badge badge-outline badge-sm">
+                Not applied — nothing has changed yet
+              </span>
+              <button
+                type="button"
+                class="btn btn-xs btn-primary"
+                :disabled="runStore.isApplying"
+                @click="runStore.applyProposal(proposal.id)"
+              >
+                Accept
+              </button>
+            </template>
+          </div>
+        </div>
       </div>
 
       <!-- The scene -->
@@ -203,6 +262,16 @@ const canMove = computed(
   () => Boolean(runStore.pendingTurn) && !runStore.isComplete,
 )
 const quest = computed(() => runStore.quest)
+
+/** Checkpoints still to work, so the reader can see what the quest holds. */
+const openCheckpoints = computed(() =>
+  (quest.value?.checkpoints ?? []).filter(
+    (checkpoint) =>
+      checkpoint.status === 'pending' ||
+      checkpoint.status === 'proposed' ||
+      checkpoint.status === 'needs-info',
+  ),
+)
 
 /**
  * The art already generated for this turn, if any.

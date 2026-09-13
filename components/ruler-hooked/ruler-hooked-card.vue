@@ -5,7 +5,7 @@
   <div class="rounded-xl border border-base-300 bg-base-100 p-4 shadow-lg">
     <div class="mb-1 flex items-center gap-2">
       <span v-if="card.kind === 'arc-step'" class="kr-badge-secondary-sm">story</span>
-      <span v-else-if="card.kind === 'finale'" class="badge badge-accent badge-sm">finale</span>
+      <span v-else-if="card.kind === 'finale'" class="kr-badge-accent-sm">finale</span>
       <span v-else class="kr-badge-sm">the kingdom</span>
       <span v-if="card.characters?.length" class="kr-text-faded-xs">
         {{ card.characters.join(' · ') }}

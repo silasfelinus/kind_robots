@@ -55,7 +55,7 @@
         <Icon
           v-else
           :name="authorOf(review) ? 'kind-icon:sparkles' : 'kind-icon:user'"
-          class="size-5 text-primary"
+          class="kr-icon-primary-5"
         />
       </div>
 

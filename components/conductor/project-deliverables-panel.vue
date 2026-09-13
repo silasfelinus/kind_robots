@@ -7,7 +7,7 @@
 <template>
   <section class="kr-panel-section">
     <div class="mb-3 flex items-center gap-2">
-      <Icon name="kind-icon:check-circle" class="size-5 text-primary" />
+      <Icon name="kind-icon:check-circle" class="kr-icon-primary-5" />
       <h3 class="kr-text-eyebrow kr-text-dim-sm-70 tracking-wide">
         Deliverables &amp; status
       </h3>

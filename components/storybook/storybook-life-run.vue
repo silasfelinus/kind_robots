@@ -23,7 +23,7 @@
     <section class="flex flex-col gap-4 kr-panel-section">
       <div class="flex flex-wrap items-center justify-between gap-2">
         <div class="flex items-center gap-2">
-          <Icon name="kind-icon:castle" class="size-5 text-primary" />
+          <Icon name="kind-icon:castle" class="kr-icon-primary-5" />
           <h3 class="kr-text-eyebrow kr-text-dim-sm-70 tracking-wide">
             {{ seed.title }}
           </h3>
@@ -421,7 +421,7 @@
 
     <section class="flex flex-col items-start gap-3 kr-panel-section">
       <div class="flex items-center gap-2">
-        <Icon name="kind-icon:trophy" class="size-5 text-primary" />
+        <Icon name="kind-icon:trophy" class="kr-icon-primary-5" />
         <h3 class="kr-text-eyebrow kr-text-dim-sm-70 tracking-wide">
           Endings on record
         </h3>

@@ -19,7 +19,6 @@
 //
 //   node utils/scripts/verifyStorybookTable.mjs
 
-import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 
 const TABLE = 'components/storybook/storybook-table.vue'
@@ -155,8 +154,51 @@ check(
 )
 check(
   'the storymaker shows the Reading when there is a run, the Table when not',
-  /<StorybookReading[\s\S]{0,120}v-if="runStore\.run"/.test(storymaker) &&
+  /<StorybookReading[\s\S]{0,120}v-else-if="runStore\.run"/.test(storymaker) &&
     storymaker.includes('<StorybookTable'),
+)
+check(
+  'a resolved run shows its ending rather than another turn',
+  storymaker.includes('<StorybookEnding') &&
+    /runStore\.isComplete && runStore\.ending/.test(storymaker),
+)
+check(
+  'the Collection sits with the Table, not behind a run',
+  storymaker.includes('<StorybookCollection'),
+)
+
+console.log('\nStorybook Ending — credit without spoilers')
+
+const endingScreen = read('components/storybook/storybook-ending.vue')
+const collectionScreen = read('components/storybook/storybook-collection.vue')
+
+check(
+  'the ending reveal names the deck total it was added to',
+  endingScreen.includes('Added to your collection') &&
+    /collection\.found/.test(endingScreen) &&
+    /collection\.total/.test(endingScreen),
+)
+check(
+  'an unfound ending renders no title and no summary',
+  /entry\.unlocked \? entry\.title : 'Not found yet'/.test(endingScreen) &&
+    /v-if="entry\.unlocked"[\s\S]{0,120}entry\.title/.test(endingScreen),
+)
+check(
+  'a thousand-ending album is capped rather than drawn tile by tile',
+  /MAX_ALBUM_TILES/.test(endingScreen),
+)
+check(
+  'found endings are drawn before the dark ones',
+  /const found = all\.filter\(\(entry\) => entry\.unlocked\)/.test(
+    endingScreen,
+  ),
+)
+check(
+  'the Collection reads adventures off the server, not localStorage',
+  // The word appears in this file's header, explaining what it replaced -- so
+  // this looks for a CALL, not a mention.
+  /runStore\.fetchAdventures\(\)/.test(collectionScreen) &&
+    !/localStorage\.(get|set|remove)Item/.test(collectionScreen),
 )
 
 if (failures > 0) {

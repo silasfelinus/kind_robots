@@ -7,20 +7,41 @@
 -->
 <template>
   <div class="size-full">
+    <StorybookEnding
+      v-if="showEnding"
+      @again="playAgain"
+      @new-table="newTable"
+    />
     <StorybookReading
-      v-if="runStore.run"
+      v-else-if="runStore.run"
       @left="onLeft"
       @resolved="onResolved"
     />
-    <StorybookTable v-else @opened="onOpened" />
+    <div v-else class="flex size-full min-h-0 flex-col gap-4 overflow-y-auto">
+      <StorybookTable @opened="onOpened" />
+      <div class="px-1 pb-4">
+        <StorybookCollection @open="openAdventure" />
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue'
+import { computed, onMounted } from 'vue'
 import { useStorybookRunStore } from '@/stores/storybookRunStore'
 
 const runStore = useStorybookRunStore()
+
+/**
+ * A resolved run shows its ending, not another turn.
+ *
+ * Both halves are required: `ending` alone could be a stale object from a run
+ * the reader has since left, and `isComplete` alone would show an empty card
+ * for the moment between the resolve request and its answer.
+ */
+const showEnding = computed(() =>
+  Boolean(runStore.run && runStore.isComplete && runStore.ending),
+)
 
 function onOpened(): void {
   // The store already holds the run; the template switches on it.
@@ -31,8 +52,27 @@ function onLeft(): void {
 }
 
 function onResolved(): void {
-  // The ending lands in the store and the Reading shows it. The Collection
-  // (storybook/t-036) is where it gets its album row.
+  // The ending is in the store; showEnding switches the screen.
+}
+
+/**
+ * Play the same table again.
+ *
+ * Deliberately drops the reader back on the Table with their board still
+ * dealt rather than silently opening a second run: the same cards with a
+ * different length or narrator is the common second play, and re-opening
+ * behind their back spends a narration they did not ask for.
+ */
+function playAgain(): void {
+  runStore.leaveRun()
+}
+
+function newTable(): void {
+  runStore.leaveRun()
+}
+
+function openAdventure(runId: number): void {
+  void runStore.loadRun(runId)
 }
 
 onMounted(() => {

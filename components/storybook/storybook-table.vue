@@ -215,7 +215,7 @@
         >
           <span
             v-if="runStore.isOpening"
-            class="loading loading-spinner loading-sm"
+            class="kr-spinner-sm"
           />
           Open this story
         </button>

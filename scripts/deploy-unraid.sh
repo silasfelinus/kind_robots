@@ -93,25 +93,70 @@ state_is_fresh_for() {
   (( age < MIGRATION_RECHECK_SECONDS ))
 }
 
+container_state() {
+  docker inspect -f '{{.State.Status}}' "$CONTAINER" 2>/dev/null || true
+}
+
+container_health() {
+  docker inspect -f '{{if .State.Health}}{{.State.Health.Status}}{{else}}{{.State.Status}}{{end}}' "$CONTAINER" 2>/dev/null || true
+}
+
 wait_for_health() {
   local deadline=$(( $(date +%s) + HEALTH_TIMEOUT_SECONDS ))
-  local status
+  local state=""
+  local status=""
 
   while (( $(date +%s) < deadline )); do
-    status="$(docker inspect -f '{{if .State.Health}}{{.State.Health.Status}}{{else}}{{.State.Status}}{{end}}' "$CONTAINER" 2>/dev/null || true)"
+    state="$(container_state)"
+    if [[ "$state" != "running" ]]; then
+      log "container is not running while waiting for health: ${state:-missing}"
+      return 1
+    fi
+
+    status="$(container_health)"
     case "$status" in
       healthy|running)
         log "container health is $status"
         return 0
         ;;
-      unhealthy|exited|dead)
-        fail "container entered terminal health state: $status"
+      unhealthy)
+        log 'container health is unhealthy'
+        return 1
         ;;
     esac
     sleep 5
   done
 
-  fail "container did not become healthy within ${HEALTH_TIMEOUT_SECONDS}s"
+  log "container did not become healthy within ${HEALTH_TIMEOUT_SECONDS}s (state=${state:-unknown} health=${status:-unknown})"
+  return 1
+}
+
+ensure_container_running() {
+  local state
+  state="$(container_state)"
+  if [[ "$state" == "running" ]]; then
+    return 0
+  fi
+
+  log "container state is ${state:-missing}; starting $CONTAINER"
+  docker start "$CONTAINER" >/dev/null || fail "could not start $CONTAINER"
+}
+
+recover_container_after_failed_health() {
+  local state
+  state="$(container_state)"
+
+  if [[ "$state" == "running" ]]; then
+    log 'container failed health after deploy; restarting it once'
+    docker restart "$CONTAINER" >/dev/null || fail "could not restart $CONTAINER"
+  else
+    log "container state is ${state:-missing} after deploy; starting it"
+    docker start "$CONTAINER" >/dev/null || fail "could not start $CONTAINER after deploy"
+  fi
+
+  if ! wait_for_health; then
+    fail 'container recovery attempt did not become healthy'
+  fi
 }
 
 cleanup_dangling_kindrobots_images() {
@@ -144,6 +189,17 @@ cleanup_dangling_kindrobots_images() {
   fi
 }
 
+stopped_for_exact_image_migration=false
+restart_after_interrupted_exact_image_migration() {
+  if [[ "$stopped_for_exact_image_migration" == true ]]; then
+    log "deploy interrupted after stopping $CONTAINER; attempting to restore service"
+    if ! docker start "$CONTAINER" >/dev/null 2>&1; then
+      log "WARNING: automatic restore of $CONTAINER failed"
+    fi
+  fi
+}
+trap restart_after_interrupted_exact_image_migration EXIT
+
 log "checking registry image $IMAGE"
 docker pull "$IMAGE"
 
@@ -165,27 +221,39 @@ else
 fi
 
 if [[ "$needs_update" == false ]]; then
+  ensure_container_running
+  if ! wait_for_health; then
+    fail 'KindRobots already runs the latest image but is not healthy'
+  fi
   cleanup_dangling_kindrobots_images "$running_id"
-  log 'KindRobots already runs the latest image'
+  log 'KindRobots already runs the latest image and is healthy'
   exit 0
 fi
 
 log "updating $CONTAINER through Unraid DockerMan"
 php -q "$UNRAID_UPDATE_SCRIPT" "$CONTAINER"
 
+if ! docker inspect "$CONTAINER" >/dev/null 2>&1; then
+  fail "DockerMan update completed but $CONTAINER is missing"
+fi
+
 deployed_id="$(docker inspect -f '{{.Image}}' "$CONTAINER")"
 
 if [[ "$deployed_id" != "$latest_id" ]]; then
   log "registry moved during deploy or DockerMan selected a different image: expected=$latest_id deployed=$deployed_id"
   log 'stopping the app briefly so the exact deployed image can migrate before serving'
+  stopped_for_exact_image_migration=true
   docker stop "$CONTAINER" >/dev/null
   load_migration_credential
   run_migrations "$deployed_id"
   write_migration_state "$deployed_id"
   docker start "$CONTAINER" >/dev/null
+  stopped_for_exact_image_migration=false
 fi
 
-wait_for_health
+if ! wait_for_health; then
+  recover_container_after_failed_health
+fi
 
 final_id="$(docker inspect -f '{{.Image}}' "$CONTAINER")"
 cleanup_dangling_kindrobots_images "$final_id"

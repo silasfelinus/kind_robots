@@ -234,7 +234,7 @@
         >
           <span
             v-if="runStore.isResolving"
-            class="loading loading-spinner loading-sm"
+            class="kr-spinner-sm"
           />
           {{ runStore.isEndless ? 'Bring this to an end' : 'See your ending' }}
         </button>

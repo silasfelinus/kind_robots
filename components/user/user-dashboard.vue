@@ -81,7 +81,7 @@
                     {{ displayName }}
                   </h2>
 
-                  <span class="badge badge-accent badge-sm">Logged in</span>
+                  <span class="kr-badge-accent-sm">Logged in</span>
                 </div>
               </div>
 

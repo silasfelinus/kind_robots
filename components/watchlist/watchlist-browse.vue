@@ -430,7 +430,7 @@
           v-else-if="isLoading && !entries.length"
           class="flex min-h-32 items-center justify-center kr-panel-flat"
         >
-          <span class="loading loading-spinner loading-md text-primary" />
+          <span class="kr-loading-primary-md" />
           <span class="sr-only">Loading entries…</span>
         </div>
 

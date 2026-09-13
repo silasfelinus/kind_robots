@@ -6,7 +6,7 @@
       class="mb-4 shrink-0 kr-panel-flat p-4"
     >
       <div v-if="isLoadingManager" class="flex items-center gap-2 text-sm">
-        <span class="loading loading-spinner loading-sm text-primary" />
+        <span class="kr-loading-primary-sm" />
         <span>Loading servers...</span>
       </div>
 

@@ -318,7 +318,7 @@
           v-if="artJobStore.loadingJobs && !artJobStore.jobs.length"
           class="mt-3 flex min-h-40 flex-col items-center justify-center gap-3 kr-panel-dashed-plain text-center"
         >
-          <span class="loading loading-spinner loading-md text-primary" />
+          <span class="kr-loading-primary-md" />
           <p class="kr-text-dim-sm-70">{{ queueLoadMessage }}</p>
         </div>
 

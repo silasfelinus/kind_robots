@@ -481,7 +481,7 @@
         </span>
         <span
           v-if="stylist.isLoadingHistory"
-          class="loading loading-spinner loading-xs text-primary"
+          class="kr-loading-primary-xs"
         />
         <div class="flex-1" />
         <button

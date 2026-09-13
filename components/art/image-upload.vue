@@ -420,7 +420,7 @@
           class="kr-text-dim-xs-60 flex items-center justify-between font-semibold"
         >
           <span class="flex items-center gap-1.5">
-            <span class="loading loading-spinner loading-xs text-primary" />
+            <span class="kr-loading-primary-xs" />
             Uploading {{ uploadProgress }} / {{ uploadTotal }}
           </span>
           <span class="font-bold text-primary">{{ uploadPercent }}%</span>

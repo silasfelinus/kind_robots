@@ -76,7 +76,7 @@
         -->
         <div class="kr-scroll p-3 sm:p-4">
           <div v-if="pending" class="flex min-h-40 items-center justify-center">
-            <span class="loading loading-spinner loading-md text-primary" />
+            <span class="kr-loading-primary-md" />
             <span class="sr-only">Loading details…</span>
           </div>
 

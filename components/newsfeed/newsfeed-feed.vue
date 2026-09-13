@@ -185,7 +185,7 @@
         v-else-if="isLoading && !allItems.length"
         class="flex min-h-40 items-center justify-center kr-panel-flat"
       >
-        <span class="loading loading-spinner loading-md text-primary" />
+        <span class="kr-loading-primary-md" />
         <span class="sr-only">Loading the newsfeed…</span>
       </div>
 

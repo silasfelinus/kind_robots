@@ -91,7 +91,7 @@
         v-if="!sets.length && !loadError"
         class="flex min-h-28 items-center justify-center rounded-2xl border border-base-300 bg-base-200/60"
       >
-        <span class="loading loading-spinner loading-md text-primary" />
+        <span class="kr-loading-primary-md" />
       </div>
     </template>
 

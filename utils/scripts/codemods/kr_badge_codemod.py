@@ -2,7 +2,8 @@
 """Find or migrate hand-rolled kr-badge-{ghost,warning,outline,primary,secondary}-sm,
 kr-badge-{ghost,outline,primary,warning,success,error,secondary,accent,info,neutral}-xs,
 kr-badge-sm (the colorless base), kr-badge-xs (the colorless -xs sibling), and
-kr-badge-ghost/kr-badge-outline (the sizeless ghost/outline siblings) badges.
+kr-badge-ghost/kr-badge-outline/kr-badge-warning/kr-badge-secondary (the sizeless
+ghost/outline/warning/secondary siblings) badges.
 
 Dry-run is the default. Pass --write to update matching Vue files in place.
 Only the approved badge shapes are touched (`badge badge-ghost badge-sm`,
@@ -81,6 +82,15 @@ FAMILIES = [
     ("kr-badge-accent-xs", {"badge", "badge-accent", "badge-xs"}),
     ("kr-badge-info-xs", {"badge", "badge-info", "badge-xs"}),
     ("kr-badge-neutral-xs", {"badge", "badge-neutral", "badge-xs"}),
+    # Sizeless sibling of kr-badge-warning-sm/kr-badge-warning-xs
+    # (interface-vision t-104 slice 254), same reasoning as kr-badge-ghost/
+    # kr-badge-outline above: its {badge, badge-warning} base is a strict
+    # subset of both of those sized siblings, so it must come after them.
+    # Bounded to exact-match only (see BOUNDED_EXTRAS below).
+    ("kr-badge-warning", {"badge", "badge-warning"}),
+    # Sizeless sibling of kr-badge-secondary-sm/kr-badge-secondary-xs (same
+    # slice), same reasoning.
+    ("kr-badge-secondary", {"badge", "badge-secondary"}),
     # Colorless base, added last per the module docstring: its {badge,
     # badge-sm} token set is a strict subset of every colored -sm family
     # above, so it must be tried only after all of them have had a chance
@@ -191,6 +201,12 @@ BOUNDED_EXTRAS: dict[str, set[frozenset[str]]] = {
         frozenset({"rounded-2xl"}),
         frozenset({"rounded-xl"}),
     },
+    # kr-badge-warning/kr-badge-secondary (interface-vision t-104 slice 254):
+    # bounded to an exact match only for this first slice, same first-pass
+    # convention kr-badge-ghost/kr-badge-outline used before their own
+    # follow-up slices individually audited the remaining extra-token pool.
+    "kr-badge-warning": {frozenset()},
+    "kr-badge-secondary": {frozenset()},
 }
 
 

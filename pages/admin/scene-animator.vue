@@ -307,7 +307,7 @@
                   <details class="kr-panel-compact text-xs" :open="promptDrafts[source.name] !== undefined">
                     <summary class="flex cursor-pointer items-center justify-between gap-2 font-black">
                       <span>Motion direction</span>
-                      <span v-if="source.isPromptOverridden" class="badge badge-xs badge-primary">custom</span>
+                      <span v-if="source.isPromptOverridden" class="kr-badge-primary-xs">custom</span>
                       <span v-else class="kr-text-dim-xs-40">default</span>
                     </summary>
                     <textarea

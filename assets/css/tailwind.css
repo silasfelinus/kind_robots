@@ -1681,6 +1681,29 @@ section:has(div[class*='xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]'])
     @apply badge badge-neutral badge-xs;
   }
 
+  /* The warning-colored sizeless sibling of .kr-badge-warning-sm/
+   * .kr-badge-warning-xs (interface-vision t-104 slice 254): bare `badge
+   * badge-warning` with no size modifier -- the caller relies on DaisyUI's
+   * default badge size, same rationale as .kr-badge-ghost/.kr-badge-outline
+   * being separate sizeless siblings of their own -sm/-xs families. Bounded
+   * to an exact match only (9 occurrences across 8 files), same first-pass
+   * convention .kr-badge-ghost's own first slice used. A ninth exact match
+   * in components/ui/ui-gallery.vue's "Badges & status" showcase row is a
+   * deliberate raw-DaisyUI comparison row (same rationale that section's
+   * other rows were excluded for) and was left untouched. */
+  .kr-badge-warning {
+    @apply badge badge-warning;
+  }
+
+  /* The secondary-colored sizeless sibling of .kr-badge-secondary-sm/
+   * .kr-badge-secondary-xs (same slice): bare `badge badge-secondary`,
+   * previously hand-rolled in 7 files (7 occurrences), exact match only.
+   * An eighth exact match in components/ui/ui-gallery.vue's showcase row
+   * was left untouched for the same reason as .kr-badge-warning above. */
+  .kr-badge-secondary {
+    @apply badge badge-secondary;
+  }
+
   /* The colorless base of the badge-sm family (interface-vision t-104 slice
    * 146): `badge badge-sm` with no color modifier baked in, unlike every
    * -sm/-xs sibling above -- because at this shape's 27 call sites the color

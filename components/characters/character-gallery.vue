@@ -281,14 +281,14 @@
 
             <span
               v-if="exclusionSummary.hiddenByOwnership"
-              class="badge badge-warning"
+              class="kr-badge-warning"
             >
               Private: {{ exclusionSummary.hiddenByOwnership }}
             </span>
 
             <span
               v-if="exclusionSummary.hiddenByMature"
-              class="badge badge-warning"
+              class="kr-badge-warning"
             >
               Mature: {{ exclusionSummary.hiddenByMature }}
             </span>
@@ -302,7 +302,7 @@
 
             <span
               v-if="exclusionSummary.hiddenBySearch"
-              class="badge badge-secondary"
+              class="kr-badge-secondary"
             >
               Search: {{ exclusionSummary.hiddenBySearch }}
             </span>

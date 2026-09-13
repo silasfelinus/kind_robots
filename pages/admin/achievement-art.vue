@@ -59,7 +59,7 @@
               <span class="kr-badge-ghost"
                 >{{ achievements.length }} total</span
               >
-              <span class="badge badge-warning"
+              <span class="kr-badge-warning"
                 >{{ missingArtCount }} without art</span
               >
             </div>

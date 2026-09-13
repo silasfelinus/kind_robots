@@ -16,7 +16,7 @@
           >
             <div>
               <h3 class="kr-text-black-lg flex items-center gap-2">
-                <Icon name="kind-icon:activity" class="size-5 text-primary" />
+                <Icon name="kind-icon:activity" class="kr-icon-primary-5" />
                 Production controls & diagnostics
               </h3>
               <p class="mt-1 text-sm text-base-content/55">

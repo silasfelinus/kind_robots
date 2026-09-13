@@ -7,7 +7,7 @@
 <template>
   <section v-if="images.length" class="kr-panel-section">
     <div class="mb-3 flex items-center gap-2">
-      <Icon name="kind-icon:image" class="size-5 text-primary" />
+      <Icon name="kind-icon:image" class="kr-icon-primary-5" />
       <h3 class="kr-text-eyebrow kr-text-dim-sm-70 tracking-wide">
         {{ title }}
       </h3>

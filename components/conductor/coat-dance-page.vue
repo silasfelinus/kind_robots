@@ -4,7 +4,7 @@
     <template #interactive>
       <section class="flex flex-col gap-3 kr-panel-section">
         <div class="flex items-center gap-2">
-          <Icon name="kind-icon:sparkles" class="size-5 text-primary" />
+          <Icon name="kind-icon:sparkles" class="kr-icon-primary-5" />
           <h3 class="kr-text-eyebrow kr-text-dim-sm-70 tracking-wide">
             Behind the coat
           </h3>

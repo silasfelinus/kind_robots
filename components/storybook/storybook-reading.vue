@@ -59,7 +59,7 @@
 
       <p
         v-if="runStore.pendingTurn"
-        class="whitespace-pre-line kr-text-base"
+        class="whitespace-pre-line"
         data-testid="storybook-scene"
       >
         {{ runStore.pendingTurn.narrativeText }}

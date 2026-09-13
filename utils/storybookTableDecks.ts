@@ -127,7 +127,7 @@ export const MODE_CARDS: (NarrativeIngredientOption & {
     title: 'Open-ended',
     description: 'A story with no last page. You decide when it ends.',
     flavorText: 'Endless',
-    icon: 'kind-icon:infinity',
+    icon: 'kind-icon:refresh',
     badge: 'Mode',
   },
   {
@@ -144,7 +144,7 @@ export const MODE_CARDS: (NarrativeIngredientOption & {
     description:
       'One life told in chapters, weighed across ten hidden dimensions.',
     flavorText: 'Da Vinci mode',
-    icon: 'kind-icon:hourglass',
+    icon: 'kind-icon:clock',
     badge: 'Mode',
   },
   {

@@ -166,7 +166,7 @@
         <article>
           <div class="flex items-center justify-between gap-2">
             <h2 class="font-black text-warning">Missing</h2>
-            <span class="badge badge-warning">{{ result.missing.length }}</span>
+            <span class="kr-badge-warning">{{ result.missing.length }}</span>
           </div>
           <ul class="mt-3 space-y-1.5 text-sm">
             <li

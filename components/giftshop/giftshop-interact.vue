@@ -30,7 +30,7 @@
           <button type="button" class="kr-btn-primary-md-2xl" @click="goToCart">
             <Icon name="kind-icon:cart" class="kr-icon-4" />
             Cart
-            <span v-if="cartStore.totalItems" class="badge badge-secondary">
+            <span v-if="cartStore.totalItems" class="kr-badge-secondary">
               {{ cartStore.totalItems }}
             </span>
           </button>

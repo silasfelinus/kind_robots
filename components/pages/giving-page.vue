@@ -80,7 +80,7 @@
           >
             <Icon name="kind-icon:cart" class="kr-icon-4" />
             View cart
-            <span class="badge badge-secondary">
+            <span class="kr-badge-secondary">
               {{ cartStore.totalItems }}
             </span>
           </button>

@@ -166,7 +166,7 @@
 
             <span
               v-if="store.isLayerActive(effect.id)"
-              class="badge badge-primary badge-sm shrink-0"
+              class="kr-badge-primary-sm shrink-0"
             >
               Layered
             </span>

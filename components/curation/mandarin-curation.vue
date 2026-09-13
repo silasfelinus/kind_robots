@@ -267,7 +267,7 @@
               <span class="text-4xl font-black">{{
                 selectedRow.effective.simplified
               }}</span>
-              <span v-if="selectedRow.hasOverride" class="badge badge-warning"
+              <span v-if="selectedRow.hasOverride" class="kr-badge-warning"
                 >global override</span
               >
               <span v-if="draftDirty" class="badge badge-info badge-outline"

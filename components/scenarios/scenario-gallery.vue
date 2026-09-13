@@ -226,7 +226,7 @@
               </p>
             </div>
 
-            <span class="badge badge-secondary">
+            <span class="kr-badge-secondary">
               {{ selectedScenarioCharacters.length }}
             </span>
           </div>
@@ -375,7 +375,7 @@
               </p>
             </div>
 
-            <span class="badge badge-secondary">
+            <span class="kr-badge-secondary">
               {{ selectedScenarioCharacters.length }}
             </span>
           </div>

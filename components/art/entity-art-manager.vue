@@ -318,7 +318,7 @@
             </option>
           </select>
         </label>
-        <span v-if="loadingResources" class="loading loading-spinner loading-sm self-end mb-1" />
+        <span v-if="loadingResources" class="kr-spinner-sm self-end mb-1" />
         <p v-else class="kr-text-dim-xs-40 self-end pb-2">
           Leave unchanged to use the same default workflow that is producing the current quality.
         </p>

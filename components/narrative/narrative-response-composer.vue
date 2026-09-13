@@ -44,7 +44,7 @@
       >
         <span
           v-if="loading"
-          class="loading loading-spinner loading-sm motion-reduce:hidden"
+          class="kr-spinner-sm motion-reduce:hidden"
           aria-hidden="true"
         />
         <Icon v-else :name="icon" class="kr-icon-4" aria-hidden="true" />

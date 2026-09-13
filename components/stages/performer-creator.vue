@@ -308,7 +308,7 @@
               <!-- Label -->
               <div class="px-1.5 py-1 text-center">
                 <p
-                  class="truncate text-[10px] font-bold leading-tight text-base-content"
+                  class="kr-text-bold-content truncate text-[10px] leading-tight"
                 >
                   {{ choice.label }}
                 </p>
@@ -429,7 +429,7 @@
               <!-- Label -->
               <div class="px-1 py-1 text-center">
                 <p
-                  class="truncate text-[10px] font-bold leading-tight text-base-content"
+                  class="kr-text-bold-content truncate text-[10px] leading-tight"
                 >
                   {{ choice.label }}
                 </p>

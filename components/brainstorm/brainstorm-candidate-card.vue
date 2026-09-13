@@ -243,7 +243,7 @@
             }}</span>
             <span
               v-if="entry.current"
-              class="ml-auto rounded-full bg-primary/10 px-2 py-0.5 font-black text-primary"
+              class="kr-text-black-primary ml-auto rounded-full bg-primary/10 px-2 py-0.5"
             >
               current
             </span>

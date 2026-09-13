@@ -52,7 +52,7 @@
           </div>
 
           <p
-            class="font-display text-4xl font-black leading-none tracking-tight text-primary drop-shadow-sm sm:text-5xl"
+            class="kr-text-black-primary font-display text-4xl leading-none tracking-tight drop-shadow-sm sm:text-5xl"
           >
             Kind Robots
           </p>

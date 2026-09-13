@@ -93,7 +93,7 @@
           <section class="kr-panel-muted-sm">
             <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div class="min-w-0">
-                <h3 class="font-black text-primary">Connections</h3>
+                <h3 class="kr-text-black-primary">Connections</h3>
                 <p class="kr-text-dim-sm leading-snug">
                   Provider keys and private local servers.
                 </p>

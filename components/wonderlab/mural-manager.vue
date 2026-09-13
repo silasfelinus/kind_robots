@@ -54,7 +54,7 @@
 
           <div class="kr-panel-muted-row text-sm">
             <span class="font-bold text-base-content/60">Active:</span>
-            <span class="ml-2 font-black text-primary">
+            <span class="kr-text-black-primary ml-2">
               {{ activeColor?.name || 'None' }}
             </span>
           </div>
@@ -185,7 +185,7 @@
             <p class="kr-text-eyebrow-bold kr-text-dim-xs-45 tracking-wide">
               Sections
             </p>
-            <p class="mt-1 text-3xl font-black text-primary">
+            <p class="kr-text-black-primary mt-1 text-3xl">
               {{ pageDefinition.regions?.length ?? 0 }}
             </p>
           </div>

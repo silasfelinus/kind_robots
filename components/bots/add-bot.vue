@@ -244,7 +244,7 @@
           >
             <div class="flex items-start justify-between gap-3">
               <div>
-                <p class="font-bold text-base-content">
+                <p class="kr-text-bold-content">
                   {{ field.label }}
                 </p>
 

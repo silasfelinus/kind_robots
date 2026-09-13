@@ -9,7 +9,7 @@
     >
       <div class="flex items-start justify-between gap-3">
         <div class="min-w-0">
-          <h2 class="truncate text-base font-bold text-base-content">
+          <h2 class="kr-text-bold-content truncate text-base">
             {{ title }}
           </h2>
 

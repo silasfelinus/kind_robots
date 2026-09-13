@@ -4,7 +4,7 @@
     <div class="flex flex-wrap items-start justify-between gap-2">
       <div class="min-w-0">
         <div class="flex flex-wrap items-center gap-2">
-          <h2 class="font-black text-primary">Dream Art Links</h2>
+          <h2 class="kr-text-black-primary">Dream Art Links</h2>
 
           <span v-if="activeArtImageId" class="kr-badge-primary-sm rounded-xl">
             Image #{{ activeArtImageId }}

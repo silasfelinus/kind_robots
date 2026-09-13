@@ -87,7 +87,7 @@
               </span>
             </div>
 
-            <span class="mt-auto inline-flex items-center gap-1 pt-1.5 text-[0.65rem] font-black text-primary">
+            <span class="kr-text-black-primary mt-auto inline-flex items-center gap-1 pt-1.5 text-[0.65rem]">
               Open details
               <Icon name="kind-icon:chevron-right" class="kr-icon-3" />
             </span>

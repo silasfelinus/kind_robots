@@ -102,7 +102,7 @@
               "
               @click="selectDream(dream.id)"
             >
-              <p class="truncate font-black text-primary">
+              <p class="kr-text-black-primary truncate">
                 {{ dream.title || 'Untitled Dream' }}
               </p>
               <p class="mt-1 line-clamp-2 text-xs text-base-content/65">

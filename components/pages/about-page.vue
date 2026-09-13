@@ -90,7 +90,7 @@
         <div class="mt-4 rounded-xl border border-primary/20 bg-primary/5 p-4">
           <div class="mb-2 flex items-center gap-2">
             <Icon name="kind-icon:butterfly" class="kr-icon-4 text-primary" />
-            <p class="font-bold text-base-content">How the mission share works</p>
+            <p class="kr-text-bold-content">How the mission share works</p>
           </div>
           <p class="kr-text-dim-sm-70 leading-relaxed">
             Direct donations still go straight to Against Malaria and never pass

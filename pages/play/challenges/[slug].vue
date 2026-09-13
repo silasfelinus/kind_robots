@@ -124,7 +124,7 @@
                   >★</span
                 >
               </span>
-              <span class="mt-3 text-5xl font-black italic text-primary"
+              <span class="kr-text-black-primary mt-3 text-5xl italic"
                 >VS</span
               >
             </div>
@@ -458,7 +458,7 @@
               class="grid grid-cols-[auto_1fr_auto_auto] items-center gap-3 rounded-2xl border border-base-300 bg-base-200/40 px-4 py-3"
             >
               <span
-                class="grid size-9 place-items-center rounded-xl bg-primary/10 font-black text-primary"
+                class="kr-text-black-primary grid size-9 place-items-center rounded-xl bg-primary/10"
               >
                 #{{ entry.rank }}
               </span>

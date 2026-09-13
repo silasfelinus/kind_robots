@@ -106,7 +106,7 @@
             <div class="absolute inset-0 bg-linear-to-t from-black/80 via-black/10 to-black/10" />
 
             <div class="absolute left-3 top-3 flex flex-wrap gap-1.5">
-              <span class="badge border-0 bg-base-100/90 text-[0.65rem] font-bold text-base-content shadow-sm backdrop-blur">
+              <span class="kr-text-bold-content badge border-0 bg-base-100/90 text-[0.65rem] shadow-sm backdrop-blur">
                 {{ style.era }}
               </span>
               <span class="badge border-0 bg-base-100/80 text-[0.65rem] text-base-content/75 shadow-sm backdrop-blur">

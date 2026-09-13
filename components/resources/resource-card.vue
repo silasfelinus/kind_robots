@@ -19,10 +19,10 @@
         <span class="kr-badge-primary-sm">
           {{ resource.resourceType }}
         </span>
-        <span v-if="resource.generation" class="badge badge-neutral badge-sm">
+        <span v-if="resource.generation" class="kr-badge-sm badge-neutral">
           {{ resource.generation }}
         </span>
-        <span v-if="resource.isMature" class="badge badge-error badge-sm">
+        <span v-if="resource.isMature" class="kr-badge-sm badge-error">
           18+
         </span>
       </div>

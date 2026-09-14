@@ -7,7 +7,9 @@ import { validateApiKey } from '../../utils/validateKey'
 import { resourceMutationSelect } from './selects'
 import { assertOwnershipIsUnchanged } from './compatibility'
 import type { Prisma, Resource } from '~/prisma/generated/prisma/client'
+import { GrantLevel } from '~/prisma/generated/prisma/client'
 import { userIsAdmin } from '../../utils/authUser'
+import { existsActiveGrant } from '~/server/utils/contentAccess'
 
 type ResourcePatchBody = Partial<Omit<Resource, 'userId'>> &
   Record<string, unknown> & {
@@ -64,8 +66,17 @@ export default defineEventHandler(async (event) => {
 
     const isOwner = existingResource.userId === user.id
     const isAdmin = userIsAdmin(user)
+    const hasAdminGrant =
+      !isOwner &&
+      !isAdmin &&
+      (await existsActiveGrant(
+        user.id,
+        'RESOURCE',
+        resourceId,
+        GrantLevel.ADMIN,
+      ))
 
-    if (!isOwner && !isAdmin) {
+    if (!isOwner && !isAdmin && !hasAdminGrant) {
       throw createError({
         statusCode: 403,
         message: 'You do not have permission to update this resource.',

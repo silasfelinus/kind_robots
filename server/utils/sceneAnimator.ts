@@ -96,6 +96,21 @@ function mimeForFile(filename: string): string {
   }
 }
 
+/**
+ * Resolves the configured source root, or throws.
+ *
+ * There used to be a third tier here -- `path.resolve(process.cwd(),
+ * 'animate')` -- for when neither env var is set. That default pointed inside
+ * the APPLICATION working directory, which is exactly where Silas said this
+ * feature's content must never live (2026-09-11): "due to the sensitive
+ * mature nature of some animation production, it shouldn't be a part of the
+ * kind robots directory, but rather part of comfy, or the media folders."
+ * Harmless today only because nothing exists at `/app/animate` in the image
+ * and the deployment binds a read-only host tree over it -- a default that
+ * quietly succeeds in the wrong place is worse than one that fails loudly, so
+ * an unconfigured root is now a hard 503 instead of a silent resolve
+ * (scene-animator/t-007).
+ */
 export function getSceneAnimatorRoot(): string {
   const configured = process.env.ANIMATE_PATH?.trim()
   if (configured) return path.resolve(configured)
@@ -105,21 +120,28 @@ export function getSceneAnimatorRoot(): string {
     return path.resolve(imageRoot, '..', 'animate')
   }
 
-  return path.resolve(process.cwd(), 'animate')
+  throw createError({
+    statusCode: 503,
+    message:
+      'Scene Animator source root is not configured: set ANIMATE_PATH to a ' +
+      'directory mounted into the container.',
+  })
 }
 
-/** How `getSceneAnimatorRoot()` arrived at its answer — surfaced in health
- *  diagnostics so an operator can tell "misconfigured" from "not mounted yet"
- *  without reading source. */
+/** How `getSceneAnimatorRoot()` arrived at its answer, or would have failed to
+ *  -- surfaced in health diagnostics so an operator can tell "misconfigured"
+ *  from "not mounted yet" without reading source. `unconfigured` replaces the
+ *  old `fallback` member: there is no longer a path to attribute anything to
+ *  when neither env var is set (scene-animator/t-007). */
 export type SceneAnimatorRootSource =
   | 'ANIMATE_PATH'
   | 'IMAGES_PATH-derived'
-  | 'fallback'
+  | 'unconfigured'
 
 export function getSceneAnimatorRootSource(): SceneAnimatorRootSource {
   if (process.env.ANIMATE_PATH?.trim()) return 'ANIMATE_PATH'
   if (process.env.IMAGES_PATH?.trim()) return 'IMAGES_PATH-derived'
-  return 'fallback'
+  return 'unconfigured'
 }
 
 export type SceneAnimatorRootStatus = {
@@ -140,8 +162,26 @@ export type SceneAnimatorRootStatus = {
  * the dedicated `/api/scene-animator/health` check (which only needs the verdict).
  */
 export async function readSceneAnimatorRootStatus(): Promise<SceneAnimatorRootStatus> {
-  const root = getSceneAnimatorRoot()
   const source = getSceneAnimatorRootSource()
+
+  // getSceneAnimatorRoot() now throws when unconfigured (scene-animator/t-007)
+  // rather than resolving a fallback path -- caught here, not left to escape,
+  // since this function's whole point is to report that state, not throw it.
+  let root: string
+  try {
+    root = getSceneAnimatorRoot()
+  } catch (error) {
+    return {
+      available: false,
+      root: '',
+      source,
+      folders: [],
+      reason:
+        error instanceof Error
+          ? error.message
+          : 'Scene Animator source root is not configured.',
+    }
+  }
 
   try {
     const folders = await listSceneAnimatorFolders()

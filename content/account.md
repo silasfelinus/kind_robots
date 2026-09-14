@@ -18,4 +18,6 @@ backgroundTablet: /api/art/backdrop/account-tablet
 backgroundDesktop: /api/art/backdrop/account-desktop
 ---
 
+:home-account-links
+
 :account-center

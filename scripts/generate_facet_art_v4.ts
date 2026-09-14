@@ -13,11 +13,27 @@
 // describe what the image will be used for. Those wrappers were rendered as
 // logos/title copy by the v2/v3 Facet producer.
 //
+// v5 (2026-09-14) extends that same principle one step further, to the words
+// the producer itself adds. v4 removed the app context but replaced it with
+// art-direction jargon -- "Iconic scene, concrete focal subject", "unmistakable
+// silhouette" -- which is still writing ABOUT a picture rather than describing
+// one. For a Facet with prose of its own the clause was diluted and the art was
+// fine. For a Facet without prose the clause WAS the prompt, and Krea rendered
+// it exactly as written: 154 GENRE/THEME/SETTING Facets came back as the same
+// grey concrete bust, 50 OCCUPATION/ROLE/ARCHETYPE Facets as the same black
+// paper cut-out. Found from a Storybook genre-picker screenshot, six weeks
+// after the renders landed and long after they had passed a green test suite
+// that asserted the exact clause was acceptable.
+//
 // Usage:
 //   npx tsx scripts/generate_facet_art.ts
 //   npx tsx scripts/generate_facet_art.ts --write
 //   npx tsx scripts/generate_facet_art.ts --write --all-variants
 //   npx tsx scripts/generate_facet_art.ts --write --repair-tainted
+//
+// --repair-tainted re-queues v2/v3 wholesale, and the v4 renders whose prompt
+// was clause-dominated. Healthy v4 renders and non-depictable prompt-modifier
+// Facets are counted and reported, never re-rolled.
 
 import 'dotenv/config'
 import { buildKrea2WorkflowFromRequest } from '../server/api/comfy/krea2/utils/workflow'
@@ -39,10 +55,19 @@ const WRITE = process.argv.includes('--write')
 const ALL_VARIANTS = process.argv.includes('--all-variants')
 const REPAIR_TAINTED = process.argv.includes('--repair-tainted')
 const PROJECT_SLUG = 'facet-catalog'
-const FACET_ART_VERSION = 'facet-coverage-krea2-v4'
+// The module keeps its v4 filename (three verify scripts and the stable
+// entrypoint import it by path); this constant, not the filename, is the
+// provenance of record.
+const FACET_ART_VERSION = 'facet-coverage-krea2-v5'
 const LEGACY_FACET_ART_VERSIONS = new Set([
   'facet-multi-art-krea2-v2',
   'facet-coverage-krea2-v3',
+  // v4's own output. Its taxonomy clauses were art-direction jargon and Krea
+  // painted them literally; see taxonomyVisualLanguage() below. Unlike v2/v3,
+  // v4 is NOT uniformly tainted -- a Facet with real prose diluted the clause
+  // and rendered correctly -- so the repair sweep narrows this one by
+  // v4PromptWasClauseDominated() rather than re-rendering the whole catalog.
+  'facet-coverage-krea2-v4',
 ])
 
 // v2 and v3 persisted this exact generated wrapper into Facet.artPrompt. It is
@@ -58,6 +83,22 @@ const LEGACY_FACET_ART_VERSIONS = new Set([
 const LEGACY_GENERATED_IDENTITY =
   /^Illustrate the Facet concept (?:“[^”]+”|"[^"]+")\.\s*/i
 
+// v4 persisted its own generated tail into Facet.artPrompt the same way. Every
+// v4 clause is listed, not only the two that misrendered: a stored v4 prompt is
+// returned verbatim by buildFacetIdentityPrompt(), so any clause left
+// unrecognized would be handed straight back to the prompt contract, which now
+// rejects the jargon -- aborting the whole run instead of repairing it.
+const LEGACY_V4_TAXONOMY_TAILS = [
+  'One unmistakable full creature, recognizable anatomy, distinctive personality, habitat cues.',
+  'Iconic scene, concrete focal subject, environment, action, strong atmosphere.',
+  'Character-centered visual metaphor, clear emotion through pose, expression, costume, and environment.',
+  'Unmistakable palette or material behavior through lighting, texture, and a strong central form.',
+  'Polished sample of the visual treatment, coherent medium, linework, palette, lighting, and surface detail.',
+  'Single distinctive figure in action, readable tools, unmistakable silhouette, workplace cues.',
+  'Premium collectible object or emblem, rarity expressed through materials and lighting, clean silhouette.',
+  'Single clear subject or emblem, immediately legible at thumbnail size.',
+] as const
+
 // Order matters. It is the same coverage fallback contract used by the UI and
 // claim-time deduper: a general image is most reusable, then card, hero, icon.
 const ART_VARIANTS = [
@@ -67,7 +108,7 @@ const ART_VARIANTS = [
     width: 1024,
     height: 1024,
     composition:
-      'One decisive square composition with excellent thumbnail readability.',
+      'A square picture with the subject large and centred.',
   },
   {
     field: 'cardPath',
@@ -75,7 +116,7 @@ const ART_VARIANTS = [
     width: 512,
     height: 768,
     composition:
-      'A vertical 2:3 composition with clear foreground, middle ground, and breathing room around the focal subject.',
+      'A tall picture with open space above and below the subject.',
   },
   {
     field: 'heroPath',
@@ -83,7 +124,7 @@ const ART_VARIANTS = [
     width: 1280,
     height: 720,
     composition:
-      'A cinematic 16:9 composition with the focal subject safely inside the center region.',
+      'A wide picture with the subject near the middle.',
   },
   {
     field: 'iconPath',
@@ -91,7 +132,7 @@ const ART_VARIANTS = [
     width: 256,
     height: 256,
     composition:
-      'A bold square emblem with a clean silhouette and simple readable forms.',
+      'A small square picture with one simple shape filling it.',
   },
 ] as const
 
@@ -260,41 +301,112 @@ function metadataArtworkPrompt(metadata: JsonObject): string {
   return [...new Set(hints)].join(', ')
 }
 
+/*
+ * These clauses are the LAST thing in the prompt and, for a Facet with no prose
+ * of its own, very nearly the ONLY thing in it. So each one has to read as a
+ * description of a picture that already exists, in ordinary words, and never as
+ * a brief commissioning one.
+ *
+ * The v4 wording did the opposite and Krea painted it verbatim (2026-09-14):
+ *
+ *   'Iconic scene, concrete focal subject, ...'  -> a monumental CONCRETE BUST,
+ *   the same grey head in the same grey room for all 154 GENRE/THEME/SETTING
+ *   Facets that had no description. Office Satire, Body Horror and Aging
+ *   Protagonist are the same image with different damage on it.
+ *
+ *   '... unmistakable silhouette, workplace cues.' -> a literal black paper
+ *   cut-out of a man on a desk, for all 50 OCCUPATION/ROLE/ARCHETYPE Facets.
+ *
+ * "everyone in it" rather than "the people in it": this catalog's GENRE and
+ * THEME rows include animal- and robot-centred entries (Animal Interiority),
+ * and naming people forces people. It is still a DECISION that the frame has a
+ * cast, stated once, not a conditional -- Krea cannot evaluate "if the scene
+ * calls for them" and paints the clause instead (ART-PROMPTS.md, 2026-08-08).
+ *
+ * Rules for editing anything below: no art-direction nouns (focal subject,
+ * silhouette, emblem, composition, thumbnail), no adjective that names a
+ * material unless the image really is made of it ("concrete", "iconic"), no
+ * negation, and no instruction the model would have to obey rather than draw.
+ * server/utils/artPromptContract.ts now rejects the known offenders outright.
+ */
 function taxonomyVisualLanguage(taxonomy: string): string {
   switch (taxonomy) {
     case 'ANIMAL':
     case 'SPECIES':
-      return 'One unmistakable full creature, recognizable anatomy, distinctive personality, habitat cues.'
+      return 'The whole animal head to tail, its markings and proportions true to the species, alert in the habitat it lives in.'
     case 'GENRE':
     case 'THEME':
+      return 'A scene of this kind underway, everyone in it and the place around them painted together, the light and the weather carrying its mood.'
     case 'SETTING':
-      return 'Iconic scene, concrete focal subject, environment, action, strong atmosphere.'
+      return 'The place itself, wide and lived-in, its architecture and ground and sky and weather doing the work.'
     case 'PERSONALITY':
     case 'ALIGNMENT':
     case 'QUIRK':
     case 'BACKSTORY':
-      return 'Character-centered visual metaphor, clear emotion through pose, expression, costume, and environment.'
+      return 'A person at full height doing something only someone like this would do, in a place that belongs to them, the feeling carried in the face and the posture.'
     case 'COLOR':
     case 'MATERIAL':
-      return 'Unmistakable palette or material behavior through lighting, texture, and a strong central form.'
+      return 'A single large form filling the frame, made of this, lit so the colour and the surface behave the way they really do.'
     case 'STYLE':
     case 'ART_DIRECTION':
-    case 'PROMPT_ENHANCEMENT':
-      return 'Polished sample of the visual treatment, coherent medium, linework, palette, lighting, and surface detail.'
+      return 'A finished picture made this way, the medium and the linework and the palette and the lighting all plainly visible in it.'
     case 'OCCUPATION':
     case 'ARCHETYPE':
     case 'ROLE':
-      return 'Single distinctive figure in action, readable tools, unmistakable silhouette, workplace cues.'
+      return 'A person at full height in the middle of this work, the tools of the trade in their hands, the room or the landscape of that work around them.'
     case 'RARITY':
     case 'REWARD_TYPE':
-      return 'Premium collectible object or emblem, rarity expressed through materials and lighting, clean silhouette.'
+      return 'A single treasured object resting alone, its materials and the light around it telling you how rare it is.'
     default:
-      return 'Single clear subject or emblem, immediately legible at thumbnail size.'
+      return 'One clear subject alone in the frame, large and plainly lit.'
   }
 }
 
 export function isLegacyGeneratedFacetPrompt(value: unknown): boolean {
-  return LEGACY_GENERATED_IDENTITY.test(clean(value))
+  const prompt = clean(value)
+  if (!prompt) return false
+  if (LEGACY_GENERATED_IDENTITY.test(prompt)) return true
+  return LEGACY_V4_TAXONOMY_TAILS.some((tail) => prompt.endsWith(tail))
+}
+
+/**
+ * True when v4's taxonomy clause was effectively the ENTIRE prompt, because the
+ * Facet carried no description, flavor text, or examples of its own. With no
+ * prose to dilute it, the clause was the only subject Krea had.
+ */
+export function v4PromptWasClauseDominated(facet: FacetRow): boolean {
+  return !compactLines([facet.description, facet.flavorText, facet.examples])
+    .length
+}
+
+/**
+ * Whether a v4 render is one of the ones that actually came back wrong.
+ *
+ * Both halves are required, and the pairing is the whole point:
+ *
+ *   - clause-dominated, because a Facet with prose of its own had a real
+ *     subject and rendered correctly even with the jargon appended. 210 stored
+ *     prompts are in that group; their text is rebuilt by the recognizer above,
+ *     but re-rolling their art would replace good images with a fresh random
+ *     seed for nothing.
+ *   - contract-violating, because not every bare clause misrendered. The ANIMAL
+ *     clause names a real subject ("One unmistakable full creature...") and its
+ *     64 renders are correct -- a Blue-Footed Booby looks like a Blue-Footed
+ *     Booby. Only the clauses the contract now rejects are the ones Krea was
+ *     observed to paint literally: 154 GENRE/THEME/SETTING concrete busts and
+ *     50 OCCUPATION/ROLE/ARCHETYPE paper silhouettes.
+ *
+ * Asking the contract rather than re-listing the bad clauses here keeps one
+ * source of truth: what we refuse to send is exactly what we go back and fix.
+ */
+export function v4RenderNeedsRepair(facet: FacetRow): boolean {
+  if (!v4PromptWasClauseDominated(facet)) return false
+  return checkArtPromptContract({
+    prompt: clean(facet.artPrompt),
+    engine: 'krea2',
+    steps: 8,
+    cfg: 1,
+  }).some((violation) => violation.rule === 'art-direction-jargon')
 }
 
 export function facetEntityMarker(
@@ -352,7 +464,7 @@ export function buildFacetVariantPrompt(
   return [
     identityPrompt,
     variant.composition,
-    'Polished fantasy illustration. Rich controlled lighting. Crisp subject separation. Clean unmarked surfaces.',
+    'Polished fantasy illustration. Rich controlled lighting. Clean unmarked surfaces.',
   ].join('\n\n')
 }
 
@@ -380,7 +492,7 @@ function repairRetry(sourceJobId: number): JsonObject {
     targetArtImageId: null,
     refreshSeed: true,
     requestedAt: new Date().toISOString(),
-    reason: 'facet-krea-context-prompt-repair-v4',
+    reason: 'facet-art-direction-jargon-repair-v5',
   }
 }
 
@@ -451,7 +563,7 @@ export function buildFacetArtPayload(
         coverageMode: ALL_VARIANTS ? 'all-variants' : 'baseline',
         ...(repair
           ? {
-              repairReason: 'krea-context-prompt-text',
+              repairReason: 'art-direction-jargon-rendered-literally',
               repairSourceJobId: repair.sourceJobId,
               repairSourceVersion: repair.sourceVersion,
             }
@@ -778,8 +890,22 @@ export async function main(): Promise<void> {
         }
       }
 
+      // The single source of truth for "this legacy job gets a v5 replacement".
+      // Cancellation and re-queue both consult it, so a job can never be
+      // cancelled by one rule and skipped by the other.
+      const isRepairableLegacyJob = (
+        version: string,
+        facet: FacetRow | undefined,
+        profile: ProfileRow | undefined,
+      ): boolean => {
+        if (!facet || !profile || !profile.artRequired) return false
+        if (version !== 'facet-coverage-krea2-v4') return true
+        if (profile.taxonomy === 'PROMPT_ENHANCEMENT') return false
+        return v4RenderNeedsRepair(facet)
+      }
+
       const history = historyJobs as HistoryJob[]
-      const v4Keys = new Set<string>()
+      const currentVersionKeys = new Set<string>()
       const legacyPendingIds: number[] = []
       for (const job of history) {
         const target = artTarget(job.payload)
@@ -789,11 +915,16 @@ export async function main(): Promise<void> {
           target.version === FACET_ART_VERSION &&
           ['PENDING', 'RUNNING', 'DONE'].includes(job.status)
         ) {
-          v4Keys.add(key)
+          currentVersionKeys.add(key)
         }
         if (
           LEGACY_FACET_ART_VERSIONS.has(target.version) &&
-          job.status === 'PENDING'
+          job.status === 'PENDING' &&
+          // A pending job is cancelled because a replacement is coming. Only
+          // v4 jobs the repair sweep will actually re-queue qualify: cancelling
+          // a healthy v4 job whose repair is deliberately skipped would leave
+          // that Facet with neither art nor a job to make it.
+          isRepairableLegacyJob(target.version, facetById.get(target.entityId), profileByFacet.get(target.entityId))
         ) {
           legacyPendingIds.push(job.id)
         }
@@ -801,6 +932,8 @@ export async function main(): Promise<void> {
 
       const repairQueued = new Set<string>()
       const repairSkippedSuperseded: number[] = []
+      const repairSkippedHealthy: number[] = []
+      const repairSkippedNonVisual: number[] = []
       const repairBlocked: number[] = []
       if (REPAIR_TAINTED) {
         for (const job of history) {
@@ -810,13 +943,35 @@ export async function main(): Promise<void> {
           if (!['PENDING', 'RUNNING', 'DONE'].includes(job.status)) continue
 
           const key = `${target.entityId}:${target.field}`
-          if (v4Keys.has(key) || repairQueued.has(key)) continue
+          if (currentVersionKeys.has(key) || repairQueued.has(key)) continue
 
           const facet = facetById.get(target.entityId)
           const profile = profileByFacet.get(target.entityId)
           if (!facet || !profile || !profile.artRequired) continue
           if ((blockersByFacet.get(facet.id) ?? []).length) {
             repairBlocked.push(job.id)
+            continue
+          }
+
+          // v2/v3 were tainted wholesale. v4 was not: only the prose-less
+          // Facets, where the jargon clause was the whole prompt, rendered
+          // badly. Re-rolling the rest would burn GPU hours replacing art that
+          // is already good with a fresh random seed.
+          if (
+            target.version === 'facet-coverage-krea2-v4' &&
+            !v4RenderNeedsRepair(facet)
+          ) {
+            repairSkippedHealthy.push(job.id)
+            continue
+          }
+
+          // A prompt-modifier Facet ("4k render", "award-winning") names no
+          // visible thing, so there is no prompt that renders it well and a
+          // repair render is just a different arbitrary picture. v4 gave them
+          // unrelated portraits. Report them instead; suppressing or retiring
+          // the art slot is a catalog decision, not a render decision.
+          if (profile.taxonomy === 'PROMPT_ENHANCEMENT') {
+            repairSkippedNonVisual.push(job.id)
             continue
           }
 
@@ -901,7 +1056,7 @@ export async function main(): Promise<void> {
               claimedAt: null,
               claimedBy: null,
               error:
-                'Cancelled by Facet Krea prompt repair: v2/v3 contextual prompt is known to induce rendered text; superseded by semantic v4 prompt.',
+                'Cancelled by Facet Krea prompt repair: the v2/v3 contextual wrapper rendered as text and the v4 taxonomy clause rendered as concrete busts and paper silhouettes; superseded by the v5 depictive prompt.',
             },
           })
         }
@@ -935,7 +1090,7 @@ export async function main(): Promise<void> {
         console.log(
           `Facet art: ${inserted} job(s) queued, ${reused.length} active coverage job(s) reused, ${blocked.length} entry/entries held for catalog review.` +
             (REPAIR_TAINTED
-              ? ` Repair scan: ${repairQueued.size} v2/v3 target(s) resubmitted, ${legacyPendingIds.length} tainted pending job(s) cancelled, ${repairSkippedSuperseded.length} superseded output(s) preserved, ${repairBlocked.length} blocked target(s) held.`
+              ? ` Repair scan: ${repairQueued.size} tainted target(s) resubmitted, ${legacyPendingIds.length} tainted pending job(s) cancelled, ${repairSkippedSuperseded.length} superseded output(s) preserved, ${repairSkippedHealthy.length} healthy v4 render(s) left alone, ${repairSkippedNonVisual.length} prompt-modifier Facet(s) reported rather than re-rolled, ${repairBlocked.length} blocked target(s) held.`
               : ''),
         )
       }
@@ -959,6 +1114,8 @@ export async function main(): Promise<void> {
               repairQueued: repairQueued.size,
               repairPendingCancelled: legacyPendingIds.length,
               repairSupersededPreserved: repairSkippedSuperseded.length,
+              repairHealthyPreserved: repairSkippedHealthy.length,
+              repairNonVisualReported: repairSkippedNonVisual.length,
               repairBlocked: repairBlocked.length,
               blocked: blocked.length,
             },
@@ -966,7 +1123,7 @@ export async function main(): Promise<void> {
             blocked: blocked.slice(0, 100),
             policy: {
               prompt:
-                'Krea receives semantic image content only: subject, scene, medium, composition, lighting, and texture. App/taxonomy/context wrappers are excluded.',
+                'Krea receives semantic image content only: subject, scene, medium, composition, lighting, and texture. App/taxonomy/context wrappers are excluded, and so is art-direction jargon -- the clause has to describe a picture, not commission one.',
               qualityGate:
                 'Validate Krea 2 prompts before enqueue; do not generate art for duplicate, malformed, composite, taxonomy-leaking, cargo-cult, or unreviewed legacy Facets.',
               repair:

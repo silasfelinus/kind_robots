@@ -30,6 +30,19 @@
 //      budget; jobs ran at cfg 7 / 20 steps because the queue builder resolved
 //      steps per-engine but hardcoded a single generic cfg.
 //
+//   6. ART-DIRECTION JARGON. The words an art director uses to ASK for a picture
+//      are not words that describe one. "Iconic scene, concrete focal subject"
+//      tells a person "make the main thing specific and memorable"; it tells a
+//      caption-conditioned model to paint a monument, made of concrete, with a
+//      face on it. 154 GENRE/THEME/SETTING Facets came back as the same grey
+//      concrete bust in the same grey concrete room -- Office Satire, Body
+//      Horror and Aging Protagonist are literally the same head -- because that
+//      clause WAS the whole prompt for every Facet with no prose of its own.
+//      "Unmistakable silhouette" did it to 50 OCCUPATION/ROLE/ARCHETYPE Facets:
+//      Chaos Consultant and Accidental Diplomat are both a black paper cut-out
+//      of a man on a desk. Found 2026-09-14 from a Storybook genre-picker
+//      screenshot, six weeks after the renders landed.
+//
 //   5. CONTEXTUAL WRAPPERS. "Illustrate the Facet concept ..." followed by
 //      "Create ... for Kind Robots ..." is useful instruction text for a chat
 //      model and harmful conditioning for Krea. Krea does not need to know what
@@ -123,6 +136,22 @@ const FORMAT_PATTERNS: Array<{ pattern: RegExp; rule: string }> = [
     rule: 'format-vocabulary',
   },
   { pattern: /\bcomic (?:page|panel|strip)\b/i, rule: 'format-vocabulary' },
+]
+
+// Rule 6. Deliberately the exact clauses with rendered evidence behind them,
+// not a blanket ban on art vocabulary. The neighbouring Facet clause
+// "Character-centered visual metaphor, clear emotion through pose..." is NOT
+// listed: its 17 Facets rendered correctly, so there is nothing to ban it on.
+// Likewise only "unmistakable"/"clean" silhouette are matched -- the phrasings
+// this producer emitted -- so artAssetSuggest's "strong silhouette" direction,
+// which has never misrendered, keeps working.
+const ART_DIRECTION_JARGON_PATTERNS: Array<{ pattern: RegExp; rule: string }> = [
+  { pattern: /\bconcrete\s+(?:focal\s+)?subject\b/i, rule: 'art-direction-jargon' },
+  { pattern: /\biconic\s+scene\b/i, rule: 'art-direction-jargon' },
+  { pattern: /\b(?:unmistakable|clean)\s+silhouette\b/i, rule: 'art-direction-jargon' },
+  { pattern: /\bthumbnail\s+readability\b/i, rule: 'art-direction-jargon' },
+  { pattern: /\blegible at thumbnail size\b/i, rule: 'art-direction-jargon' },
+  { pattern: /\bsubject separation\b/i, rule: 'art-direction-jargon' },
 ]
 
 // "Kind Robots visual style" gives an image model nothing, and used to be
@@ -237,6 +266,27 @@ export function checkArtPromptContract(
         `format — frame, title bar, and invented text included. Describe the ` +
         `subject and the aspect ratio instead.`,
     })
+  }
+
+  // Scoped to the distilled engines: those are the caption-conditioned ones
+  // that paint the jargon. A ChatGPT-targeted prompt elsewhere in the repo may
+  // legitimately use art-direction vocabulary, because ChatGPT reads it as
+  // direction.
+  if (DISTILLED_ENGINE_LIMITS[String(input.engine || '').trim().toLowerCase()]) {
+    for (const { pattern, rule } of ART_DIRECTION_JARGON_PATTERNS) {
+      const match = prompt.match(pattern)
+      if (!match) continue
+      if (typeof match.index === 'number' && negated(prompt, match.index)) continue
+      violations.push({
+        rule,
+        detail:
+          `"${match[0]}" is how you ask a person for a picture, not how you ` +
+          `describe one. A caption-conditioned model renders the words: ` +
+          `"concrete" becomes concrete, "iconic" becomes a monument, ` +
+          `"silhouette" becomes a black cut-out. Say what is actually visible ` +
+          `in the frame instead.`,
+      })
+    }
   }
 
   if (VAGUE_BRAND_STYLE.test(prompt)) {

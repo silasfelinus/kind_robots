@@ -379,16 +379,82 @@ assert.deepEqual(
   'the repaired ladle prompt must pass — three exclusions is under the pile threshold',
 )
 
+// The Facet v4 prompt. This fixture used to assert an EMPTY violation list,
+// which is how the clause below reached production and stayed there: the test
+// suite certified it. It cleared the app/taxonomy wrapper rules, and nothing
+// looked at the art-direction jargon that replaced them.
+//
+// Krea rendered "Iconic scene, concrete focal subject" as a monumental concrete
+// bust, identically, for every prose-less GENRE/THEME/SETTING Facet in the
+// catalog (2026-09-14, from a Storybook genre-picker screenshot).
+const FACET_V4_AS_SHIPPED =
+  'Surreal Horror. dream logic nightmare in a rain-black forest, red-haired revenant and kneeling traveler, impossible perspective, wet oil paint. Iconic scene, concrete focal subject, environment, action, strong atmosphere. One decisive square composition with excellent thumbnail readability. Polished fantasy illustration. Rich controlled lighting. Crisp subject separation. Clean unmarked surfaces.'
+
+assert.ok(
+  rules({ prompt: FACET_V4_AS_SHIPPED, engine: 'krea2', steps: 8, cfg: 1 })
+    .includes('art-direction-jargon'),
+  'the v4 taxonomy clause must be rejected: Krea paints "concrete" as concrete',
+)
+
+// Each phrase alone, so weakening one pattern fails one assertion rather than
+// silently leaving the others to carry the test.
+for (const jargon of [
+  'A city at dusk. Iconic scene, concrete focal subject, environment, action.',
+  'A dockworker hauling rope. Single distinctive figure in action, readable tools, unmistakable silhouette, workplace cues.',
+  'A jewelled astrolabe on velvet. Premium collectible object, clean silhouette.',
+  'A lighthouse in fog. One decisive square composition with excellent thumbnail readability.',
+  'A fox in snow. Single clear subject, immediately legible at thumbnail size.',
+  'A kettle on a stove. Rich controlled lighting. Crisp subject separation.',
+]) {
+  assert.ok(
+    rules({ prompt: jargon, engine: 'krea2', steps: 8, cfg: 1 }).includes(
+      'art-direction-jargon',
+    ),
+    `art-direction jargon must be rejected for Krea: ${jargon}`,
+  )
+}
+
+// The v5 replacement clauses must pass. If this breaks, the producer is
+// emitting jargon again.
+for (const clause of [
+  'Office Satire. A scene of this kind underway, everyone in it and the place around them painted together, the light and the weather carrying its mood. A square picture with the subject large and centred. Polished fantasy illustration. Rich controlled lighting. Clean unmarked surfaces.',
+  'Chaos Consultant. A person at full height in the middle of this work, the tools of the trade in their hands, the room or the landscape of that work around them.',
+  'Blue-Footed Booby. The whole animal head to tail, its markings and proportions true to the species, alert in the habitat it lives in.',
+]) {
+  assert.deepEqual(
+    rules({ prompt: clause, engine: 'krea2', steps: 8, cfg: 1 }),
+    [],
+    `the v5 Facet prompt must pass: ${clause.slice(0, 48)}...`,
+  )
+}
+
+// Narrowness, in both directions.
 assert.deepEqual(
   rules({
     prompt:
-      'Surreal Horror. dream logic nightmare in a rain-black forest, red-haired revenant and kneeling traveler, impossible perspective, wet oil paint. Iconic scene, concrete focal subject, environment, action, strong atmosphere. One decisive square composition with excellent thumbnail readability. Polished fantasy illustration. Rich controlled lighting. Crisp subject separation. Clean unmarked surfaces.',
+      'A weathered bronze diver standing on a concrete sea wall, spray breaking behind her.',
     engine: 'krea2',
     steps: 8,
     cfg: 1,
   }),
   [],
-  'the semantic Facet v4 prompt must pass without app/taxonomy context',
+  'a real concrete sea wall is subject matter, not jargon',
+)
+assert.deepEqual(
+  rules({
+    prompt:
+      'One immediately readable object with a strong silhouette, warm rim light.',
+    engine: 'krea2',
+    steps: 8,
+    cfg: 1,
+  }),
+  [],
+  '"strong silhouette" has never misrendered and artAssetSuggest still emits it',
+)
+assert.deepEqual(
+  rules({ prompt: FACET_V4_AS_SHIPPED, engine: 'dall-e-3' }),
+  [],
+  'the rule is scoped to caption-conditioned engines; an instruction-following model reads jargon as direction',
 )
 
 // A dream whose subject genuinely is a card catalog must still be renderable.

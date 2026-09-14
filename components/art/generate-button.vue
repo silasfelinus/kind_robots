@@ -55,7 +55,7 @@
         @click="handleGenerate"
       >
         <span v-if="artStore.isGenerating" class="flex items-center gap-2">
-          <span class="loading loading-dots loading-sm" />
+          <span class="kr-spinner-sm-dots" />
           {{ busyText }}
         </span>
 

@@ -58,7 +58,7 @@
       v-if="studio.loading && !studio.books.length"
       class="flex min-h-80 items-center justify-center rounded-3xl border border-base-300 bg-base-100"
     >
-      <span class="loading loading-dots loading-lg" />
+      <span class="kr-spinner-lg-dots" />
     </div>
 
     <template v-else>

@@ -240,7 +240,7 @@
               class="flex flex-col items-center gap-3 rounded-2xl border border-base-300 bg-base-200/40 p-8 text-center"
             >
               <span
-                class="loading loading-dots loading-lg text-primary/70"
+                class="kr-spinner-lg-dots text-primary/70"
                 aria-hidden="true"
               />
               <p class="kr-text-dim-xs font-semibold">

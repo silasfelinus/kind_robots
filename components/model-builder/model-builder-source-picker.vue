@@ -75,7 +75,7 @@
         aria-live="polite"
         aria-busy="true"
       >
-        <span class="loading loading-dots loading-md" aria-hidden="true" />
+        <span class="kr-spinner-md-dots" aria-hidden="true" />
         Loading {{ activeType?.plural.toLowerCase() }}…
       </div>
 

@@ -2396,6 +2396,56 @@ section:has(div[class*='xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]'])
     @apply loading loading-spinner loading-lg text-primary;
   }
 
+  /* The colorless DaisyUI `loading-dots` busy indicator, smallest size --
+   * `loading loading-dots loading-xs`, the same "no tint" busy-indicator
+   * role as `.kr-spinner-xs` but the dots animation instead of the spinner
+   * ring (interface-vision t-104 slice 269) -- a fresh full-repo
+   * class-frequency survey found this entirely unmigrated: every existing
+   * `kr-spinner-*` primitive covers only `loading-spinner`, and
+   * `kr_loading_primary_xs_codemod.py`'s own docstring explicitly set
+   * `loading-dots` aside as a future slice. Previously hand-rolled
+   * identically in 3 files (8 exact occurrences: model-builder-item-panel.vue
+   * x6, model-builder-progress-matrix.vue, stage-message.vue). Named
+   * `kr-spinner-xs-dots` (size before animation-variant) so every
+   * `kr-spinner-<size>*` name sits alphabetically next to its already-named
+   * `kr-spinner-<size>` sibling. The `-sm`/`-md`/`-lg` siblings surveyed
+   * alongside this one are named below; any `text-*`-tinted or
+   * `motion-reduce:hidden`-carrying variant is left for a future slice. */
+  .kr-spinner-xs-dots {
+    @apply loading loading-dots loading-xs;
+  }
+
+  /* The `-sm` sibling of `.kr-spinner-xs-dots` (interface-vision t-104 slice
+   * 269): `loading loading-dots loading-sm`, previously hand-rolled
+   * identically in 6 files (6 exact occurrences: model-builder-recipe-
+   * selector.vue, model-builder-item-panel.vue, conductor/storybook-page.vue,
+   * art/generate-button.vue, art/art-generator.vue, pages/taskmaster-page.vue).
+   * Same colorless convention as `.kr-spinner-xs-dots`. */
+  .kr-spinner-sm-dots {
+    @apply loading loading-dots loading-sm;
+  }
+
+  /* The `-md` sibling of `.kr-spinner-xs-dots` (interface-vision t-104 slice
+   * 269): `loading loading-dots loading-md`, previously hand-rolled
+   * identically in 3 files (3 exact occurrences: model-builder-run-history.vue,
+   * model-builder-source-picker.vue, model-builder-manager.vue). Same
+   * colorless convention as `.kr-spinner-xs-dots`. */
+  .kr-spinner-md-dots {
+    @apply loading loading-dots loading-md;
+  }
+
+  /* The `-lg` sibling of `.kr-spinner-xs-dots` (interface-vision t-104 slice
+   * 269): `loading loading-dots loading-lg`, previously hand-rolled
+   * identically in 2 files (2 exact occurrences: storybook/storybook-
+   * reading.vue, coloring/coloring-book-studio.vue). Same colorless
+   * convention as `.kr-spinner-xs-dots`. This closes out the bounded,
+   * colorless `loading-dots` size ladder surveyed in slice 269; the next
+   * slice should run a genuinely fresh full-repo class-frequency survey
+   * outside every family named so far. */
+  .kr-spinner-lg-dots {
+    @apply loading loading-dots loading-lg;
+  }
+
   /* The heaviest-weight heading-emphasis text -- `font-black text-lg`, the
    * bold label/title/stat line used across user, gallery, watchlist, and
    * challenge surfaces (interface-vision t-104 slice 164) -- previously

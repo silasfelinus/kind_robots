@@ -92,7 +92,7 @@
         role="status"
         aria-live="polite"
       >
-        <span class="loading loading-dots loading-md" aria-hidden="true" />
+        <span class="kr-spinner-md-dots" aria-hidden="true" />
         Restoring your latest build run…
       </div>
       <model-builder-run-history

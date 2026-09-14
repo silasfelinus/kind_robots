@@ -398,7 +398,7 @@
             :disabled="store.isWeaving || !canBegin"
             @click="begin(false)"
           >
-            <span v-if="store.isWeaving" class="loading loading-dots loading-sm" />
+            <span v-if="store.isWeaving" class="kr-spinner-sm-dots" />
             <template v-else>
               Build my quest
               <Icon name="kind-icon:chevron-right" class="kr-icon-4" />

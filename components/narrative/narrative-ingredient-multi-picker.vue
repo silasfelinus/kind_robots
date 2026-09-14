@@ -77,7 +77,7 @@
       class="flex min-h-56 items-center justify-center rounded-2xl border border-dashed border-base-300 bg-base-100/60"
     >
       <span
-        class="loading loading-dots loading-md text-secondary motion-reduce:hidden"
+        class="kr-spinner-md-dots text-secondary motion-reduce:hidden"
         aria-hidden="true"
       />
       <span class="sr-only">Loading {{ label.toLowerCase() }}.</span>

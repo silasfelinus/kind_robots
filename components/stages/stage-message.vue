@@ -63,7 +63,7 @@
         {{ entry.content }}
       </div>
       <div v-else class="opacity-50 italic text-xs">
-        <span class="loading loading-dots loading-xs"></span>
+        <span class="kr-spinner-xs-dots"></span>
       </div>
     </div>
   </div>

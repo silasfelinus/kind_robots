@@ -162,7 +162,7 @@
       >
         <span
           v-if="store.startingRun"
-          class="loading loading-dots loading-sm"
+          class="kr-spinner-sm-dots"
           aria-hidden="true"
         />
         <template v-else>

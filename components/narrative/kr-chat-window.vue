@@ -141,7 +141,7 @@
       }}</template>
       <span v-else class="flex items-center gap-2 text-base-content/60">
         <span
-          class="loading loading-dots loading-sm motion-reduce:hidden"
+          class="kr-spinner-sm-dots motion-reduce:hidden"
           aria-hidden="true"
         />
         {{ streamingLabel }}

@@ -199,15 +199,27 @@
     <div
       class="flex flex-col gap-3 kr-panel-muted-sm sm:flex-row sm:items-center sm:justify-between"
     >
-      <label class="label cursor-pointer justify-start gap-3">
-        <input
-          v-model="form.isMature"
-          type="checkbox"
-          class="kr-toggle-warning"
-        />
+      <div class="flex flex-wrap items-center gap-4">
+        <label class="label cursor-pointer justify-start gap-3">
+          <input
+            v-model="form.isPublic"
+            type="checkbox"
+            class="kr-toggle-success"
+          />
 
-        <span class="kr-label-bold">Mature (NSFW)</span>
-      </label>
+          <span class="kr-label-bold">Public</span>
+        </label>
+
+        <label class="label cursor-pointer justify-start gap-3">
+          <input
+            v-model="form.isMature"
+            type="checkbox"
+            class="kr-toggle-warning"
+          />
+
+          <span class="kr-label-bold">Mature (NSFW)</span>
+        </label>
+      </div>
 
       <button
         class="kr-btn-primary-md"
@@ -249,6 +261,7 @@ type AddLoraForm = {
   civitaiUrl: string
   description: string
   isMature: boolean
+  isPublic: boolean
 }
 
 const props = withDefaults(
@@ -318,6 +331,7 @@ const form = reactive<AddLoraForm>({
   civitaiUrl: '',
   description: '',
   isMature: false,
+  isPublic: false,
 })
 
 function hydrateFromLora(lora: Partial<Resource> | null) {
@@ -332,6 +346,7 @@ function hydrateFromLora(lora: Partial<Resource> | null) {
   form.civitaiUrl = safeText(lora?.civitaiUrl)
   form.description = safeText(lora?.description)
   form.isMature = Boolean(lora?.isMature)
+  form.isPublic = Boolean(lora?.isPublic)
 }
 
 watch(
@@ -373,6 +388,7 @@ async function submitLora() {
       civitaiUrl: cleanOptional(form.civitaiUrl),
       description: cleanOptional(form.description),
       isMature: form.isMature,
+      isPublic: form.isPublic,
     } as Partial<Resource>
 
     let saved: Resource | null = null

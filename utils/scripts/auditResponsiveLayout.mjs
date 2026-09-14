@@ -63,7 +63,7 @@ const ROUTES = flag(
   // the `channelKey: play` bucket plus the sibling `content/play/*` subdir
   // routes -- academy, facets, resources (shadowed by pages/resources.vue,
   // which is the page actually rendered at this path), serendipity,
-  // storybook, taskmaster, and /play/challenges, /play/davinci, /play/memory,
+  // storybook, and /play/challenges, /play/davinci, /play/memory,
   // /play/screenfx. Slice 4 covers the remaining `content/plan/*` pages --
   // newsfeed, voice-lab, watchlist, wonderlab, and the plan/projects/* case
   // studies (coat-dance, humboldt-scoop, ruler-hooked, sketchy) -- plus the
@@ -84,7 +84,7 @@ const ROUTES = flag(
   '/,/conductor,/dreams,/art,/bots,/characters,/rewards,/stories,' +
     '/account,/achievements,/chats,/dashboard,/for-you,/friends,/messages,/navigation,/register,/themes,/wallet,' +
     '/appmaker,/brainstorm,/coloring,/model-builder,/packs,/stylist,/conductor-app,' +
-    '/academy,/facets,/resources,/serendipity,/storybook,/taskmaster,' +
+    '/academy,/facets,/resources,/serendipity,/storybook,' +
     '/play/challenges,/play/davinci,/play/memory,/play/screenfx,' +
     '/plan/newsfeed,/plan/voice-lab,/plan/watchlist,/plan/wonderlab,' +
     '/plan/projects/coat-dance,/plan/projects/humboldt-scoop,/plan/projects/ruler-hooked,/plan/projects/sketchy,' +

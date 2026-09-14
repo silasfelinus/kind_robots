@@ -157,7 +157,10 @@ check(
 // output rather than silent.
 const SURFACES = [
   'components/conductor/storybook-page.vue',
-  'components/pages/taskmaster-page.vue',
+  // components/pages/taskmaster-page.vue left this list on 2026-09-14
+  // (storybook/t-047) -- taskmaster is a mode of the storymaker now, so the
+  // storybook surfaces above and below already cover it. (This ratchet skips
+  // missing files anyway; naming a deleted one would just be misleading.)
   'components/bots/bot-interact.vue',
   'components/rewards/reward-interact.vue',
   'components/characters/character-interact.vue',

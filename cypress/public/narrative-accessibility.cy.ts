@@ -71,55 +71,6 @@ const storyTwo = {
   ],
 }
 
-const taskSession = {
-  id: 'task-accessibility-one',
-  userId: null,
-  seed: {
-    userId: null,
-    taskTitle: 'Sort the donation boxes',
-    vibeTags: ['warm', 'adventurous'],
-    tone: 'adventurous',
-    surprise: false,
-  },
-  checkpoints: [
-    {
-      id: 'checkpoint-one',
-      title: 'Label the three donation boxes',
-      detail: 'Use keep, donate, and recycle labels.',
-      sourceKind: 'direct-task',
-      status: 'active',
-      updatedAt: timestamp,
-    },
-  ],
-  beats: [
-    {
-      id: 'task-beat-one',
-      sessionId: 'task-accessibility-one',
-      narrative:
-        'Three supply crates wait beneath the guild banner, each ready for an honest label.',
-      question: {
-        prompt: 'What happened when you labeled the boxes?',
-        realWorldKind: 'direct-task',
-        checkpointId: 'checkpoint-one',
-      },
-      createdAt: timestamp,
-    },
-  ],
-  status: 'active',
-  createdAt: timestamp,
-  updatedAt: timestamp,
-}
-
-Cypress.on('uncaught:exception', (error) => {
-  if (
-    /ResizeObserver loop completed with undelivered notifications/i.test(
-      error.message,
-    )
-  ) {
-    return false
-  }
-})
-
 function expectNoHorizontalOverflow(): void {
   cy.document().then((document) => {
     const root = document.documentElement
@@ -136,10 +87,6 @@ function preloadStorybook(window: Window): void {
     'storybook-session-library-v1',
     JSON.stringify([storyOne, storyTwo]),
   )
-}
-
-function preloadTaskmaster(window: Window): void {
-  window.localStorage.setItem('taskmaster-session', JSON.stringify(taskSession))
 }
 
 function expectAccessibleTranscript(): void {
@@ -192,27 +139,12 @@ describe('Narrative accessibility and resume acceptance', () => {
     expectNoHorizontalOverflow()
   })
 
-  for (const viewport of viewports) {
-    it(`shows Taskmaster checkpoint outcomes and accessible response controls on ${viewport.name}`, () => {
-      cy.viewport(viewport.width, viewport.height)
-      cy.visit('/taskmaster', { onBeforeLoad: preloadTaskmaster })
-
-      cy.contains('Current action: Label the three donation boxes', {
-        timeout: 30_000,
-      }).should('be.visible')
-      cy.contains('Three supply crates wait beneath the guild banner').should(
-        'be.visible',
-      )
-      expectAccessibleTranscript()
-
-      cy.contains('What happened in the real world?').should('be.visible')
-      cy.contains('button', 'Blocked')
-        .should('have.attr', 'aria-pressed', 'false')
-        .click()
-        .should('have.attr', 'aria-pressed', 'true')
-      cy.get('label.sr-only').contains('Your response').should('exist')
-      cy.get('textarea').should('not.be.disabled').focus().should('have.focus')
-      expectNoHorizontalOverflow()
-    })
-  }
+  // The Taskmaster cases were removed on 2026-09-14 (storybook/t-047).
+  // They preloaded a `taskmaster-session` localStorage blob and visited
+  // /taskmaster; a taskmaster quest is a server-side run now and that route
+  // 301s to /storybook. The accessibility they covered -- labelled transcript,
+  // aria-pressed outcome buttons, focusable response field, no horizontal
+  // overflow -- is the SAME Reading screen the /storybook cases above already
+  // exercise, because taskmaster is a mode of that screen rather than a
+  // separate page.
 })

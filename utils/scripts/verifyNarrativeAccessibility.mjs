@@ -96,7 +96,7 @@ for (const path of [
   multiPickerPath,
   artStatusPath,
   // The shared choice list now renders the suggested-response row, the
-  // Taskmaster outcome picker, the tone row and the narrator's quick topics.
+  // quest outcome picker, the tone row and the narrator's quick topics.
   // It lifts on hover, so it owes readers the same reduced-motion respect.
   choiceListPath,
 ]) {
@@ -144,16 +144,12 @@ includesAll(artStatusPath, [
 includesAll(specPath, [
   '/storybook',
   '/storybook?story=story-accessibility-two',
-  '/taskmaster',
   '1440',
   '390',
   'storybook-session',
   'storybook-session-library-v1',
-  'taskmaster-session',
   'expectAccessibleTranscript',
   'expectNoHorizontalOverflow',
-  'Current action: Label the three donation boxes',
-  'What happened in the real world?',
   'aria-pressed',
   'have.focus',
 ])

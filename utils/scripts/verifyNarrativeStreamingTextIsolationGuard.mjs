@@ -1,7 +1,8 @@
 // /utils/scripts/verifyNarrativeStreamingTextIsolationGuard.mjs
 //
-// Regression guard (storybook/t-010, cycle 34). storybookStore.ts and
-// taskmasterStore.ts each call the shared chatStore's `generateText()` from
+// Regression guard (storybook/t-010, cycle 34). storybookStore.ts and (until
+// storybook/t-047 retired it) taskmasterStore.ts each call the shared
+// chatStore's `generateText()` from
 // their own `weaveBeat()`, and both derived their `streamingText` computed
 // from `chatStore.pendingText` -- a SINGLE module-level singleton
 // (`pendingChatId`) shared across every `generateText` caller in the app,
@@ -34,10 +35,15 @@ import { resolve } from 'node:path'
 import { extractTsFunctionBody } from './lib/extractTsFunctionBody.mjs'
 
 const CHAT_STORE_PATH = 'stores/chatStore.ts'
-const NARRATIVE_STORES = [
-  { path: 'stores/storybookStore.ts', fn: 'weaveBeat' },
-  { path: 'stores/taskmasterStore.ts', fn: 'weaveBeat' },
-]
+// stores/taskmasterStore.ts left this list on 2026-09-14 (storybook/t-047) when
+// /taskmaster retired into the storymaker. It was the SECOND caller in the race
+// described above -- the one whose generateText() overwrote the shared
+// pendingChatId while Storybook's call was still in flight. A taskmaster quest
+// narrates server-side now (server/utils/storybookNarration.ts) and never calls
+// chatStore.generateText() from the browser at all, so it cannot enter this
+// race from either side. The chatStore assertions below are unchanged and still
+// guard the scoped read path the remaining caller depends on.
+const NARRATIVE_STORES = [{ path: 'stores/storybookStore.ts', fn: 'weaveBeat' }]
 
 const chatStoreContent = readFileSync(
   resolve(process.cwd(), CHAT_STORE_PATH),
@@ -145,7 +151,7 @@ for (const { path, fn } of NARRATIVE_STORES) {
 
 console.log(
   'Narrative streaming-text isolation guard contract passed: ' +
-    'storybookStore.ts and taskmasterStore.ts each scope streamingText to ' +
-    'their own in-flight chat id via chatStore.chatText(), rather than ' +
+    'storybookStore.ts scopes streamingText to ' +
+    'its own in-flight chat id via chatStore.chatText(), rather than ' +
     'racing the shared chatStore.pendingText singleton.',
 )

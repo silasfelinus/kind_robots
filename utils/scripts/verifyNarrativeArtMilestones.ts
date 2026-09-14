@@ -5,17 +5,10 @@ import type {
   StorybookSession,
   StorybookStateDelta,
 } from '../../stores/storybookStore'
-import type {
-  TaskmasterBeat,
-  TaskmasterCheckpoint,
-  TaskmasterSession,
-} from '../../stores/taskmasterStore'
 import {
   MIN_BEATS_BETWEEN_ART,
   STORYBOOK_INTERMEDIATE_ART_LIMIT,
-  TASKMASTER_INTERMEDIATE_ART_LIMIT,
   selectStorybookArtMilestone,
-  selectTaskmasterArtMilestone,
 } from '../narrativeArtMilestones'
 
 const emptyDelta = (): StorybookStateDelta => ({
@@ -144,107 +137,14 @@ assert.equal(
 assert.equal(STORYBOOK_INTERMEDIATE_ART_LIMIT, 2)
 assert.equal(MIN_BEATS_BETWEEN_ART, 2)
 
-function checkpoint(
-  id: string,
-  status: TaskmasterCheckpoint['status'],
-): TaskmasterCheckpoint {
-  return {
-    id,
-    title: `Checkpoint ${id}`,
-    sourceKind: 'direct-task',
-    status,
-    updatedAt: new Date().toISOString(),
-  }
-}
-
-function taskBeat(
-  id: string,
-  checkpointId: string,
-  options: { artMoment?: 'opening' | 'chapter' | 'location' | 'pivotal-event' | 'finale' } = {},
-): TaskmasterBeat {
-  return {
-    id,
-    sessionId: 'task-session',
-    narrative: 'The practical quest continues.',
-    question: {
-      prompt: 'What happened?',
-      realWorldKind: 'direct-task',
-      checkpointId,
-    },
-    art: options.artMoment
-      ? ({ moment: options.artMoment } as TaskmasterBeat['art'])
-      : undefined,
-    createdAt: new Date().toISOString(),
-  }
-}
-
-function taskSession(
-  beats: TaskmasterBeat[],
-  checkpoints: TaskmasterCheckpoint[],
-): TaskmasterSession {
-  return {
-    id: 'task-session',
-    userId: 1,
-    seed: {
-      userId: 1,
-      taskTitle: 'Finish the practical test',
-      vibeTags: [],
-      tone: 'adventurous',
-      surprise: false,
-    },
-    checkpoints,
-    beats,
-    status: 'active',
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  }
-}
-
-const taskOpening = taskBeat('t0', 'cp1', { artMoment: 'opening' })
-const taskMiddle = taskBeat('t1', 'cp1')
-const blockedTurn = taskBeat('t2', 'cp2')
-let task = taskSession(
-  [taskOpening, taskMiddle, blockedTurn],
-  [checkpoint('cp1', 'blocked'), checkpoint('cp2', 'active')],
-)
-assert.equal(
-  selectTaskmasterArtMilestone(task, blockedTurn),
-  'pivotal-event',
-  'A blocked prior checkpoint should create the one Taskmaster pivot image',
-)
-
-const chapterTurn = taskBeat('t2c', 'cp2')
-task = taskSession(
-  [taskOpening, taskMiddle, chapterTurn],
-  [checkpoint('cp1', 'completed'), checkpoint('cp2', 'active')],
-)
-assert.equal(
-  selectTaskmasterArtMilestone(task, chapterTurn),
-  'chapter',
-  'A new checkpoint after the cooldown should create a chapter image',
-)
-
-const taskCapped = taskBeat('t4', 'cp3')
-task = taskSession(
-  [
-    taskOpening,
-    taskMiddle,
-    taskBeat('t2a', 'cp2', { artMoment: 'chapter' }),
-    taskBeat('t3', 'cp2'),
-    taskCapped,
-  ],
-  [
-    checkpoint('cp1', 'completed'),
-    checkpoint('cp2', 'completed'),
-    checkpoint('cp3', 'active'),
-  ],
-)
-assert.equal(
-  selectTaskmasterArtMilestone(task, taskCapped),
-  null,
-  'Taskmaster must respect its single intermediate-art limit',
-)
-assert.equal(TASKMASTER_INTERMEDIATE_ART_LIMIT, 1)
+// The Taskmaster fixtures and cases left this suite on 2026-09-14
+// (storybook/t-047) with selectTaskmasterArtMilestone() itself. They built a
+// TaskmasterSession out of stores/taskmasterStore.ts types and asserted the
+// one-pivot / cooldown / single-intermediate-art rules against it; that session
+// shape no longer exists in the browser, because a taskmaster quest is a
+// server-side run. The cooldown and cap logic they exercised is shared code
+// (hasArtCooldown, intermediateArtCount) and is still covered by the Storybook
+// cases above.
 
 console.log(
   'Narrative art milestone classifier passed: deterministic evidence, cooldowns, and hard product limits are enforced.',

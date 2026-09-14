@@ -360,7 +360,8 @@ const PAGE_ROOTS = [
   'rebel-button',
   'serendipity-page',
   'storybook-library-page',
-  'taskmaster-page',
+  // 'taskmaster-page' was removed on 2026-09-14 (storybook/t-047) with the
+  // /taskmaster route it backed.
   'wallet-page',
 ]
 

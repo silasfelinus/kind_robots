@@ -71,7 +71,14 @@ async function main(): Promise<void> {
     profileForm: 'utils/facetProfileForm.ts',
     picker: 'components/facets/facet-picker.vue',
     manager: 'components/facets/facet-manager.vue',
-    taskmaster: 'components/pages/taskmaster-page.vue',
+    // Was components/pages/taskmaster-page.vue until 2026-09-14, when the
+    // /taskmaster route retired into the storymaker (storybook/t-047). The slot
+    // is for a Facet CONSUMER -- a story surface that selects facets BY
+    // TAXONOMY and would drift silently if the enum changed under it -- and the
+    // storymaker's setup screen is the direct successor: the taskmaster page's
+    // `storyGrammarTaxonomies.has(facet.taxonomy)` is
+    // `creativeFacetTaxonomies.has(facet.taxonomy)` here.
+    storySetup: 'components/storybook/storybook-visual-setup.vue',
   } as const
 
   const entries = await Promise.all(
@@ -175,12 +182,12 @@ async function main(): Promise<void> {
   forbidText(files.manager, text.manager, 'facet.kind')
 
   requireText(
-    files.taskmaster,
-    text.taskmaster,
-    'storyGrammarTaxonomies.has(facet.taxonomy)',
+    files.storySetup,
+    text.storySetup,
+    'creativeFacetTaxonomies.has(facet.taxonomy)',
   )
-  forbidText(files.taskmaster, text.taskmaster, 'facet.kind')
-  forbidText(files.taskmaster, text.taskmaster, 'serendipity')
+  forbidText(files.storySetup, text.storySetup, 'facet.kind')
+  forbidText(files.storySetup, text.storySetup, 'serendipity')
 
   process.stdout.write(
     `Facet taxonomy authority verified across ${prismaTaxonomies.length} typed taxonomies.\n`,

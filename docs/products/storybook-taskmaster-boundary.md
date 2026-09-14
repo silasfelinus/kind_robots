@@ -30,7 +30,7 @@ and write-backs — so keeping two of them is now duplication rather than separa
 | Taskmaster owns a `taskmaster-session` localStorage key | A story run row, resumable on any device |
 | Checkpoints are a client-side plan | Checkpoints are turns |
 | Projects and HONEYDOs are "real hooks" | Real work is dealt into the Thread slot as cards |
-| `/taskmaster` is the sole task-story route | `/taskmaster` redirects to `/storybook`, the way `/play/davinci` does (t-047) |
+| `/taskmaster` is the sole task-story route | `/taskmaster` redirects to `/storybook`, the way `/play/davinci` does (t-047, done 2026-09-14) |
 
 Da Vinci went through this same merge three days earlier and became the `life` shape — now the
 **structured** mode — of the same engine. Its boundary document got exactly this treatment:
@@ -63,7 +63,11 @@ The former task-story product was renamed completely to Taskmaster, leaving the 
 route free for the voice-led experience. That rename stands; absorbing Taskmaster into Storybook does
 not reopen it.
 
-- `/taskmaster` is the sole task-story product route until t-047 retires it in favour of `/storybook`.
+- `/taskmaster` was retired on 2026-09-14 (t-047). It is a permanent 301 to `/storybook`, where taskmaster
+  is the fourth mode. `components/pages/taskmaster-page.vue`, `components/taskmaster/*`,
+  `stores/taskmasterStore.ts`, `content/taskmaster.md` and `content/channels/plan/taskmaster.md` are
+  deleted; the three Taskmaster CI guards were REWRITTEN against the storymaker surface rather than
+  removed, and still pin the checkpoint engine, the work sources and the quest's durability.
 - `/serendipity` is the sole Serendipity product route and hosts the voice-led experience.
 - `/serendipity-voice` must not remain as a route, redirect, alias, compatibility page, content slug,
   component identity, or dashboard key.

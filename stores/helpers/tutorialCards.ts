@@ -132,16 +132,15 @@ export const tutorialChannels = {
         body: 'Create a new scenario with an intro, choices, stakes, and room for players to surprise the narrator.',
         image: tutorialImage('scenario', 'add'),
       },
-      {
-        key: 'taskmaster',
-        title: 'Taskmaster',
-        body: 'Choose a project or enter an objective, select narrative ingredients, and advance real work through a playful second-person quest. Taskmaster directs story art automatically and never applies real-world changes without review.',
-        image: tutorialImage('scenario', 'taskmaster'),
-      },
+      // The Taskmaster card was retired on 2026-09-14 (storybook/t-047) when
+      // /taskmaster became a MODE of Storybook rather than its own route. What
+      // it taught -- real work, real objective on screen, nothing applied
+      // without review -- moved into the Storybook card below, which is the
+      // only place a reader can now reach it.
       {
         key: 'storybook',
         title: 'Storybook',
-        body: 'Bring your characters, settings, and rewards together and let the narrator turn choices into consequences with teeth. Choose the shape on the way in: a short story, a chaptered tale, an episodic serial, or a whole life told in chapters and weighed across ten dimensions until it resolves into one of 1,024 endings.',
+        body: 'Bring your characters, settings, and rewards together and let the narrator turn choices into consequences with teeth. Choose the mode on the way in: open-ended play with no turn budget, an episodic serial, a structured life weighed across ten dimensions until it resolves into one of 1,024 endings, or taskmaster — a quest built from your own real project work, with the objective on screen beside the fiction and nothing applied to a real to-do until you press Accept.',
         image: tutorialImage('scenario', 'storybook'),
       },
     ],

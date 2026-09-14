@@ -1,18 +1,19 @@
 // /utils/narrativeArtMilestones.ts
+//
+// selectTaskmasterArtMilestone() and TASKMASTER_INTERMEDIATE_ART_LIMIT were
+// removed on 2026-09-14 (storybook/t-047). They read a TaskmasterSession held
+// in the browser by stores/taskmasterStore.ts; a taskmaster quest is a
+// server-side run now, so there is no client session to choose art moments
+// from. The rules themselves are not lost -- art for a taskmaster run is
+// directed server-side alongside every other mode.
 import type {
   StorybookBeat,
   StorybookSession,
   StorybookStateDelta,
 } from '@/stores/storybookStore'
-import type {
-  TaskmasterBeat,
-  TaskmasterCheckpointStatus,
-  TaskmasterSession,
-} from '@/stores/taskmasterStore'
 import type { NarrativeArtMoment } from '@/utils/narrativeArtProfiles'
 
 export const STORYBOOK_INTERMEDIATE_ART_LIMIT = 2
-export const TASKMASTER_INTERMEDIATE_ART_LIMIT = 1
 export const MIN_BEATS_BETWEEN_ART = 2
 
 const LOCATION_TRANSITION_PATTERN =
@@ -102,50 +103,5 @@ export function selectStorybookArtMilestone(
   if (newlyIntroducedCast(session, beat, beatIndex)) return 'character-introduction'
   if (storyChapterBoundary(session, beatIndex)) return 'chapter'
   if (LOCATION_TRANSITION_PATTERN.test(beat.narrative)) return 'location'
-  return null
-}
-
-function isDifficultCheckpointOutcome(
-  status: TaskmasterCheckpointStatus | undefined,
-): boolean {
-  return status === 'blocked' || status === 'needs-info'
-}
-
-export function selectTaskmasterArtMilestone(
-  session: TaskmasterSession,
-  beat: TaskmasterBeat,
-): NarrativeArtMoment | null {
-  if (beat.art || session.status !== 'active') return null
-  const beatIndex = session.beats.findIndex((entry) => entry.id === beat.id)
-  if (beatIndex <= 0) return null
-  if (intermediateArtCount(session.beats) >= TASKMASTER_INTERMEDIATE_ART_LIMIT) {
-    return null
-  }
-  if (!hasArtCooldown(session.beats, beatIndex)) return null
-
-  const previousBeat = session.beats[beatIndex - 1]
-  const previousCheckpoint = previousBeat?.question.checkpointId
-    ? session.checkpoints.find(
-        (checkpoint) => checkpoint.id === previousBeat.question.checkpointId,
-      )
-    : null
-  if (isDifficultCheckpointOutcome(previousCheckpoint?.status)) {
-    return 'pivotal-event'
-  }
-
-  const previousCheckpointId = previousBeat?.question.checkpointId
-  const currentCheckpointId = beat.question.checkpointId
-  if (
-    beatIndex >= 2 &&
-    previousCheckpointId &&
-    currentCheckpointId &&
-    previousCheckpointId !== currentCheckpointId
-  ) {
-    return 'chapter'
-  }
-
-  if (session.location && LOCATION_TRANSITION_PATTERN.test(beat.narrative)) {
-    return 'location'
-  }
   return null
 }

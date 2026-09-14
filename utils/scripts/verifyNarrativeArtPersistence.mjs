@@ -21,17 +21,14 @@ const artStorePath = 'stores/artStore.ts'
 const enqueuePath = 'server/api/art/enqueue.post.ts'
 const recoveryPath = 'server/api/art/queue/narrative.get.ts'
 const storyStorePath = 'stores/storybookStore.ts'
-const taskStorePath = 'stores/taskmasterStore.ts'
 const turnsPath = 'utils/narrativeTurns.ts'
 const statusPath = 'components/narrative/narrative-art-status.vue'
 const storyPagePath = 'components/conductor/storybook-page.vue'
-const taskPagePath = 'components/pages/taskmaster-page.vue'
 
 const profiles = source(profilesPath)
 const controller = source(controllerPath)
 const artStore = source(artStorePath)
 const storyStore = source(storyStorePath)
-const taskStore = source(taskStorePath)
 
 includesAll(profilesPath, [
   "engine: 'krea2'",
@@ -153,7 +150,11 @@ assert.ok(
   'Interrupted sessions must attempt authenticated job recovery before re-enqueue',
 )
 
-for (const storePath of [storyStorePath, taskStorePath]) {
+// stores/taskmasterStore.ts left this loop on 2026-09-14 (storybook/t-047):
+// it was deleted with the /taskmaster route, and a taskmaster quest's art is
+// directed server-side now. storybookStore.ts is the last client beat loop
+// still holding art state, and storybook/t-037 retires it.
+for (const storePath of [storyStorePath]) {
   includesAll(storePath, [
     'art?: NarrativeArtJobState',
     // davinci/t-025: both stores now share
@@ -172,8 +173,7 @@ for (const storePath of [storyStorePath, taskStorePath]) {
 }
 
 assert.ok(
-  !storyStore.includes('await requestBeatArt(') &&
-    !taskStore.includes('await requestBeatArt('),
+  !storyStore.includes('await requestBeatArt('),
   'Narrative text generation must not wait for scene art rendering',
 )
 
@@ -183,10 +183,10 @@ assert.ok(
 // `void poll(...)` callback -- a throw there kills that beat's poll loop and
 // leaves the illustration stuck with no retry affordance. Storybook has
 // guarded this since it was written; Taskmaster went unguarded until
-// storybook/t-010 cycle 36.
+// storybook/t-010 cycle 36, and its store is gone entirely as of
+// storybook/t-047 -- a server-side quest has no localStorage writer to guard.
 for (const [label, storeSource, writer] of [
   ['Storybook', storyStore, 'function persist()'],
-  ['Taskmaster', taskStore, 'function saveToLocalStorage()'],
 ]) {
   const start = storeSource.indexOf(writer)
   assert.ok(start >= 0, `${label} must keep its localStorage writer`)
@@ -211,7 +211,7 @@ includesAll(statusPath, [
   "@click=\"$emit('retry')\"",
   'Automatic story art',
 ])
-for (const pagePath of [storyPagePath, taskPagePath]) {
+for (const pagePath of [storyPagePath]) {
   includesAll(pagePath, [
     '#after-turn="{ turn }"',
     '<NarrativeArtStatus',

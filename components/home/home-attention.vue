@@ -39,6 +39,27 @@
   coordination system of record; answering hands it onward. The second is the
   one Silas asked for and the safer default, so it is the one in reach.
 
+  THE NOTE SHOWN HERE IS A SUMMARY, NOT THE RAW FIELD (kind-robots/t-078,
+  remaining polish item 2). A gate's `note` accumulates every prior cycle's
+  progress paragraph -- some run past 10,000 characters -- so `line-clamp-4`
+  over the raw text used to show four lines of whatever the OLDEST still-open
+  paragraph happened to be, not the actionable part. Notes written to the
+  "Writing needs-human task notes for Silas" template in conductor's
+  AGENTS.md lead with `FOR SILAS:` and a `TO APPROVE:` segment specifically so
+  a reader (or this panel) can jump straight to the question and the
+  recommendation; `summarizeGateNote` below extracts exactly those two spans
+  and falls back to the note's own opening clip when a note predates or
+  ignores the convention.
+
+  A SUBMISSION RECEIPT THAT OUTLIVES THE ROW (remaining polish item 1). The
+  `answer`/`approve` actions release the task off `needs-human`, which drops
+  it out of `gates` on the very same tick this component sets `sentKey` --
+  the confirmation text lived inside `v-if="openKey === gateKey(gate)"`, a
+  block belonging to a row that had already stopped existing, so it never
+  actually painted. `receipts` is a section-level list instead of a per-row
+  one, so it survives the row's own disappearance; each entry self-clears
+  after `RECEIPT_TTL_MS` and can also be dismissed by hand.
+
   ADMIN-ONLY BY AN EXPLICIT CHECK, because "by data" was never true.
 
   This used to claim the panel gated itself: "conductorStore only has gates when
@@ -66,7 +87,7 @@
 -->
 <template>
   <section
-    v-if="isAdmin && (gates.length || isLoading)"
+    v-if="isAdmin && (gates.length || isLoading || receipts.length)"
     class="flex min-h-0 flex-col gap-1 kr-panel-flat p-2"
   >
     <header class="flex shrink-0 items-baseline justify-between gap-2">
@@ -84,6 +105,32 @@
         conductor →
       </NuxtLink>
     </header>
+
+    <!--
+      The receipts. Section-level and separate from `gates` on purpose -- see
+      the file header note. Newest first, capped, each self-dismissing.
+    -->
+    <ul v-if="receipts.length" class="shrink-0 space-y-1">
+      <li
+        v-for="receipt in receipts"
+        :key="receipt.id"
+        class="flex items-start gap-1.5 rounded-lg border border-success/30 bg-success/10 px-1.5 py-1 text-[0.65rem] leading-snug text-success"
+      >
+        <Icon name="kind-icon:check" class="kr-icon-3 mt-0.5 shrink-0" />
+        <span class="min-w-0 flex-1">
+          <span class="font-bold">{{ receipt.title }}</span>
+          — {{ receiptVerb(receipt.action) }}.
+        </span>
+        <button
+          type="button"
+          class="shrink-0 text-success/50 hover:text-success"
+          title="Dismiss"
+          @click="dismissReceipt(receipt.id)"
+        >
+          <Icon name="kind-icon:x" class="kr-icon-3" />
+        </button>
+      </li>
+    </ul>
 
     <!--
       A bounded scroller, not an unbounded list: the gate count is unpredictable
@@ -155,12 +202,20 @@
           v-if="openKey === gateKey(gate)"
           class="border-t border-base-300 p-2"
         >
-          <p
+          <div
             v-if="gate.task.note"
-            class="mb-1.5 line-clamp-4 whitespace-pre-line rounded bg-base-200/60 p-1.5 text-[0.65rem] leading-snug text-base-content/60"
+            class="mb-1.5 space-y-1 rounded bg-base-200/60 p-1.5 text-[0.65rem] leading-snug text-base-content/60"
           >
-            {{ gate.task.note }}
-          </p>
+            <p class="line-clamp-3 whitespace-pre-line">
+              {{ noteSummary(gate).question }}
+            </p>
+            <p
+              v-if="noteSummary(gate).recommendation"
+              class="line-clamp-2 whitespace-pre-line font-bold text-base-content/70"
+            >
+              → {{ noteSummary(gate).recommendation }}
+            </p>
+          </div>
 
           <label class="sr-only" :for="`gate-reply-${gateKey(gate)}`">
             Your answer for {{ gate.task.title }}
@@ -242,7 +297,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import {
   useConductorStore,
   type ConductorHumanGate,
@@ -269,6 +324,118 @@ const replies = ref<Record<string, string>>({})
 
 function gateKey(gate: ConductorHumanGate): string {
   return `${gate.project.slug}/${gate.task.id}`
+}
+
+/*
+ * The note summary. See the file header note for why this exists: a raw
+ * `note` can run past 10,000 characters of accumulated cycle history, and
+ * `line-clamp-*` alone just shows the oldest few lines of it.
+ *
+ * Every FOR-SILAS-note this panel is actually meant to surface follows
+ * conductor AGENTS.md's template -- `FOR SILAS: <question>` then, later,
+ * `TO APPROVE: <recommendation>` -- so the split is a plain substring search,
+ * not a summarizer. A note that predates or ignores the template (an older
+ * gate, or a hand-written one) has no `FOR SILAS:` marker at all, and this
+ * falls back to clipping its own opening text instead of hiding it.
+ */
+const NOTE_SUMMARY_LIMIT = 220
+const FOR_SILAS_MARKER = /FOR SILAS:?/i
+const TO_APPROVE_MARKER = /TO APPROVE:?/i
+
+function clipNote(text: string, limit = NOTE_SUMMARY_LIMIT): string {
+  const trimmed = text.trim()
+  if (trimmed.length <= limit) return trimmed
+  return `${trimmed.slice(0, limit - 1).trimEnd()}…`
+}
+
+function summarizeGateNote(note: string | null | undefined): {
+  question: string
+  recommendation: string | null
+} {
+  // Collapsed to one line first: these notes are YAML block scalars and the
+  // markers can land mid-paragraph, so a literal newline inside the question
+  // span would otherwise survive into `whitespace-pre-line` as a stray break.
+  const flat = (note ?? '').replace(/\s+/g, ' ').trim()
+  if (!flat) {
+    return {
+      question: 'No note recorded for this gate yet.',
+      recommendation: null,
+    }
+  }
+
+  const silasMatch = FOR_SILAS_MARKER.exec(flat)
+  if (!silasMatch) {
+    return { question: clipNote(flat), recommendation: null }
+  }
+
+  const afterSilas = flat.slice(silasMatch.index + silasMatch[0].length)
+  const approveMatch = TO_APPROVE_MARKER.exec(afterSilas)
+  if (!approveMatch) {
+    return { question: clipNote(afterSilas), recommendation: null }
+  }
+
+  const question = afterSilas.slice(0, approveMatch.index)
+  const recommendation = afterSilas.slice(
+    approveMatch.index + approveMatch[0].length,
+  )
+
+  return {
+    question: clipNote(question) || clipNote(afterSilas),
+    recommendation: clipNote(recommendation) || null,
+  }
+}
+
+function noteSummary(gate: ConductorHumanGate) {
+  return summarizeGateNote(gate.task.note)
+}
+
+/*
+ * The receipts. Section-level state rather than per-row, so a submission
+ * survives the row it was submitted from disappearing -- see the file header
+ * note for the bug this replaces (the confirmation text used to live inside
+ * the very row `answer`/`approve` had just removed from `gates`).
+ */
+interface GateReceipt {
+  id: string
+  title: string
+  action: ConductorTaskAction
+}
+
+const RECEIPT_TTL_MS = 12_000
+const MAX_RECEIPTS = 4
+
+const receipts = ref<GateReceipt[]>([])
+const receiptTimers = new Map<string, ReturnType<typeof setTimeout>>()
+
+function receiptVerb(action: ConductorTaskAction): string {
+  if (action === 'approve') return 'approved and closed'
+  if (action === 'reject') return 'sent back for another pass'
+  if (action === 'comment') return 'noted, gate left open'
+  return 'sent to the next agent'
+}
+
+function dismissReceipt(id: string): void {
+  const timer = receiptTimers.get(id)
+  if (timer) {
+    clearTimeout(timer)
+    receiptTimers.delete(id)
+  }
+  receipts.value = receipts.value.filter((receipt) => receipt.id !== id)
+}
+
+function pushReceipt(
+  gate: ConductorHumanGate,
+  action: ConductorTaskAction,
+): void {
+  const id = `${gateKey(gate)}-${Date.now()}`
+  receipts.value = [
+    { id, title: gate.task.title, action },
+    ...receipts.value,
+  ].slice(0, MAX_RECEIPTS)
+  receiptTimers.set(
+    id,
+    setTimeout(() => dismissReceipt(id), RECEIPT_TTL_MS),
+  )
 }
 
 function replyText(gate: ConductorHumanGate): string {
@@ -308,9 +475,14 @@ async function act(
    * `answer` and `approve` both move the task off `needs-human`, so the store's
    * optimistic update drops it out of `humanGates` and this row disappears on
    * its own. A `comment` leaves it in place, so the panel stays open with the
-   * note now visible above the box.
+   * note now visible above the box. The receipt is pushed for the same two
+   * actions, precisely because those are the ones whose own confirmation text
+   * is about to vanish along with the row.
    */
-  if (action !== 'comment') openKey.value = ''
+  if (action !== 'comment') {
+    openKey.value = ''
+    pushReceipt(gate, action)
+  }
 }
 
 onMounted(() => {
@@ -319,5 +491,10 @@ onMounted(() => {
    * when anything else on the session has already asked.
    */
   void conductorStore.fetchProjects()
+})
+
+onBeforeUnmount(() => {
+  receiptTimers.forEach((timer) => clearTimeout(timer))
+  receiptTimers.clear()
 })
 </script>

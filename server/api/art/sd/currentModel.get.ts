@@ -156,10 +156,12 @@ export default defineEventHandler(async (event) => {
       message: 'Current model fetched.',
     }
   } catch (error) {
-    return errorHandler({
-      error,
-      context: 'fetching current Stable Diffusion model',
-      defaultMessage: 'Failed to fetch current model.',
-    })
+    const handled = errorHandler(error)
+    event.node.res.statusCode = handled.statusCode || 500
+    return {
+      success: false,
+      data: null,
+      message: handled.message || 'Failed to fetch current model.',
+    }
   }
 })

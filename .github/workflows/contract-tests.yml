@@ -293,6 +293,12 @@ jobs:
       - name: AppMaker scaffold-collision guard
         run: npm run test:appmaker-scaffold-collision-guard
 
+      - name: errorHandler status propagation guard self-test
+        run: npm run test:error-handler-status-propagation-selftest
+
+      - name: errorHandler status propagation guard
+        run: npm run test:error-handler-status-propagation
+
       - name: Project conductorSlug immutability guard self-test
         run: npm run test:project-conductor-slug-immutability-guard-selftest
 

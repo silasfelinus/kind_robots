@@ -4,6 +4,10 @@
   Repair Ferngrotto's ComfyUI local-first model path configuration.
 
 .DESCRIPTION
+  Ferngrotto runs ComfyUI from D:\comfy\comfy-fast while its local model root
+  is D:\comfy\models. The `comfyui_local` name below is only a YAML section
+  label; it is not a filesystem directory.
+
   The model sync scripts place text encoders in models/clip, but a 2026-09-08
   extra_model_paths.yaml revision pointed the local `clip` and `text_encoders`
   keys at models/text_encoders instead. That leaves the large local Qwen/Krea
@@ -77,10 +81,15 @@ $raw = $raw.Substring(0, $shareMatch.Index) + $shareSection +
   $raw.Substring($shareMatch.Index + $shareMatch.Length)
 
 # Invariant: local is the only section carrying is_default: true.
-$defaultSections = [regex]::Matches($raw, '(?ms)^(?<name>[A-Za-z0-9_-]+):\s*\r?\n(?<body>.*?)(?=^[A-Za-z0-9_-]+:\s*$|\z)') |
-  Where-Object { $_.Groups['body'].Value -match '(?m)^\s+is_default:\s*true\s*$' } |
-  ForEach-Object { $_.Groups['name'].Value }
-if (@($defaultSections).Count -ne 1 -or $defaultSections[0] -ne 'comfyui_local') {
+# Force an array here. PowerShell unwraps a one-item pipeline result to a scalar;
+# indexing that scalar with [0] returns its first character ("c"), not the first
+# section name. That made a correct single `comfyui_local` result fail validation.
+$defaultSections = @(
+  [regex]::Matches($raw, '(?ms)^(?<name>[A-Za-z0-9_-]+):\s*\r?\n(?<body>.*?)(?=^[A-Za-z0-9_-]+:\s*$|\z)') |
+    Where-Object { $_.Groups['body'].Value -match '(?m)^\s+is_default:\s*true\s*$' } |
+    ForEach-Object { $_.Groups['name'].Value }
+)
+if ($defaultSections.Count -ne 1 -or $defaultSections[0] -ne 'comfyui_local') {
   throw "expected comfyui_local to be the only default section; found: $($defaultSections -join ', ')"
 }
 

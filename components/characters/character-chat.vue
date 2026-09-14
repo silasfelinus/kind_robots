@@ -123,6 +123,14 @@
               </p>
             </div>
 
+            <div class="kr-tile-md">
+              <p class="kr-text-eyebrow-bold kr-text-dim-xs">Text Server</p>
+
+              <p class="mt-1 font-semibold">
+                {{ activeTextServerName }}
+              </p>
+            </div>
+
             <div
               v-if="selectedPrompt"
               class="rounded-2xl border border-primary/30 bg-primary/10 p-3"
@@ -433,6 +441,7 @@ import { useCharacterStore } from '@/stores/characterStore'
 import { useChatStore } from '@/stores/chatStore'
 import { useRewardStore } from '@/stores/rewardStore'
 import { useScenarioStore } from '@/stores/scenarioStore'
+import { useServerStore } from '@/stores/serverStore'
 
 type CharacterInteractMode = 'chat' | 'adventure' | 'prompt' | 'debug'
 type ChatRole = 'user' | 'assistant'
@@ -452,6 +461,7 @@ const characterStore = useCharacterStore()
 const chatStore = useChatStore()
 const rewardStore = useRewardStore()
 const scenarioStore = useScenarioStore()
+const serverStore = useServerStore()
 
 const activeMode = ref<CharacterInteractMode>('chat')
 const chatMessage = ref('')
@@ -548,6 +558,12 @@ const selectedRewardTitle = computed(() => {
   if (!reward) return 'No reward selected'
 
   return reward.name || reward.description || 'Unnamed reward'
+})
+
+const activeTextServerName = computed(() => {
+  const server = serverStore.activeTextServer
+
+  return server?.label || server?.title || 'Platform text route'
 })
 
 const canSendChat = computed(() => {
@@ -738,6 +754,7 @@ async function sendCharacterChat() {
       messages: buildCharacterMessages(content),
       temperature: 0.85,
       maxTokens: 700,
+      serverId: serverStore.activeTextServer?.id ?? null,
     })
 
     chatMessages.value.push({
@@ -862,6 +879,9 @@ onMounted(async () => {
       createDefaultForm: true,
     }),
     chatStore.initialize(),
+    ...(serverStore.hasLoaded
+      ? []
+      : [serverStore.initialize({ fetchRemote: true })]),
   ])
 })
 

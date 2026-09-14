@@ -24,6 +24,11 @@ export type ArtQueueEntry = {
   id: string
   source: string
   status: 'pending'
+  // ISO-8601 UTC (kind-robots/t-101): every entry carries no other timestamp,
+  // so without this a two-hour backlog and a six-week stuck one look
+  // identical on inspection. Set once at request time in
+  // server/api/conductor/art-request.post.ts and never rewritten.
+  requested_at: string
   target_repo: string
   image_path: string
   source_url: string
@@ -85,6 +90,7 @@ export function renderRequestEntry(entry: ArtQueueEntry): string {
     `- id: ${yamlQuoted(normalized.id)}`,
     `  source: ${yamlQuoted(normalized.source)}`,
     `  status: ${yamlQuoted(normalized.status)}`,
+    `  requested_at: ${yamlQuoted(normalized.requested_at)}`,
     `  target_repo: ${yamlQuoted(normalized.target_repo)}`,
     `  image_path: ${yamlQuoted(normalized.image_path)}`,
     `  source_url: ${yamlQuoted(normalized.source_url)}`,

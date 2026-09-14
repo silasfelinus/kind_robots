@@ -358,6 +358,7 @@ async function buildEntry(
     id,
     source: 'kind-robots-missing-image',
     status: 'pending',
+    requested_at: new Date().toISOString(),
     target_repo: target.targetRepo,
     image_path: target.imagePath,
     source_url: target.sourceUrl,

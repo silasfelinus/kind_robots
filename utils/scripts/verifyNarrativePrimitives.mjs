@@ -54,41 +54,17 @@ includesAll('components/narrative/narrative-response-composer.vue', [
   "emit('submit', text)",
 ])
 
-const taskmasterPage = source('components/pages/taskmaster-page.vue')
-for (const component of [
-  '<NarrativeIngredientPicker',
-  '<KrChatWindow',
-  '<NarrativeResponseComposer',
-]) {
-  assert.ok(
-    taskmasterPage.includes(component),
-    `Taskmaster must consume the shared ${component.slice(1)} primitive`,
-  )
-}
-
-assert.ok(
-  !taskmasterPage.includes('v-for="facet in genreFacets"'),
-  'Taskmaster must not restore its former duplicated Facet button loop',
-)
-assert.ok(
-  !taskmasterPage.includes('v-for="dream in locationDreams"'),
-  'Taskmaster must not restore its former duplicated location button loop',
-)
-assert.ok(
-  !taskmasterPage.includes('v-for="outcome in checkpointOutcomes"') &&
-    !taskmasterPage.includes('v-for="tone in TASKMASTER_TONES"'),
-  'Taskmaster must not restore its hand-rolled outcome or tone button grids',
-)
-
-const taskmasterStore = source('stores/taskmasterStore.ts')
+// The Taskmaster page and store checks left this guard on 2026-09-14
+// (storybook/t-047). They pinned that components/pages/taskmaster-page.vue
+// consumed the shared narrative primitives rather than re-rolling its own
+// pickers, outcome grid and tone row -- both files are deleted, and taskmaster
+// is a MODE of the storymaker now, so the same screens the checks below
+// already cover ARE the taskmaster surface. The one assertion worth keeping is
+// the negative: Storybook must not grow its own Taskmaster state machine back.
 const storybookPage = source('components/conductor/storybook-page.vue')
 assert.ok(
-  taskmasterStore.includes("defineStore('taskmasterStore'"),
-  'Taskmaster must retain its own product store',
-)
-assert.ok(
   !storybookPage.includes('useTaskmasterStore'),
-  'Storybook must not inherit the Taskmaster state machine',
+  'Storybook must not resurrect a client-side Taskmaster state machine',
 )
 
 console.log(

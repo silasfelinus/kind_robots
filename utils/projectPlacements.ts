@@ -37,10 +37,16 @@ export const PROJECT_PLACEMENTS: Record<string, ProjectPlacement> = {
     tabKey: 'appmaker',
     route: '/appmaker',
   },
+  // Absorbed into Storybook on 2026-09-14 as its `taskmaster` MODE, so it shares
+  // Storybook's placement rather than keeping a tab of its own -- the same
+  // treatment davinci got below. The tab documents content/taskmaster.md and
+  // content/channels/plan/taskmaster.md are gone, and this map is CI-checked
+  // against the channel documents that actually exist. The slug stays because
+  // the projects board still needs somewhere to send a reader who clicks it.
   taskmaster: {
     channelKey: 'plan',
-    tabKey: 'taskmaster',
-    route: '/taskmaster',
+    tabKey: 'storybook',
+    route: '/storybook',
   },
   'mermaids-of-venice': {
     channelKey: 'plan',

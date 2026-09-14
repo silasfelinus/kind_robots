@@ -62,13 +62,13 @@ assert.match(
 )
 assert.match(scenarioStore, /updateScenario\(scenarioId, data\)/)
 
-const taskmasterStore = read('stores/taskmasterStore.ts')
-assert.match(
-  taskmasterStore,
-  /export type TaskmasterSession = \{[\s\S]*?userId: number \| null/,
-)
-assert.match(taskmasterStore, /const STORAGE_KEY = 'taskmaster-session'/)
-assert.doesNotMatch(taskmasterStore, /serendipity/i)
+// stores/taskmasterStore.ts left this suite on 2026-09-14 (storybook/t-047).
+// It pinned that a client-held TaskmasterSession carried a nullable userId and
+// that the Serendipity rename left nothing behind. The store is deleted: a
+// taskmaster quest is a server-side LifeRun whose ownership is a real foreign
+// key, checked on every read and every apply by
+// utils/scripts/verifyStorybookTaskmasterSafety.ts, which is a stronger
+// guarantee than a nullable field in a localStorage blob ever was.
 
 const promptStore = read('stores/promptStore.ts')
 const promptCreate = promptStore.slice(
@@ -134,5 +134,5 @@ assert.match(artStore, /includeImageData:\s*true/)
 assert.match(artStore, /saveBrowserGeneratedArtImage[\s\S]*getArtImageById/)
 
 console.log(
-  `API client follow-ups verified: no fallback mutation owners; Taskmaster uses authenticated nullable ownership; lean sample ${leanBytes} bytes vs ${fullBytes} bytes; hydrated media survives lean merges.`,
+  `API client follow-ups verified: no fallback mutation owners; lean sample ${leanBytes} bytes vs ${fullBytes} bytes; hydrated media survives lean merges.`,
 )

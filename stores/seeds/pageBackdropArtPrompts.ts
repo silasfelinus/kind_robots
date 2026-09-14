@@ -95,7 +95,7 @@ const CANVAS: Record<
 // should not be one copy-paste away from returning.
 //
 // The unpeopled rule is scoped to PEOPLE, not to everything alive. Several
-// scenes want fauna or props — butterflies on taskmaster, jellyfish drifters on
+// scenes want fauna or props — jellyfish drifters on
 // dreams, half-assembled robots on the workbenches of bots — and a blanket "no
 // creatures, no robots" would fight the very scene it wraps.
 const CONTRACT = `Create one standalone environment illustration to be used as a full-bleed page background for the Kind Robots web app. This is SCENERY: interface panels, cards and toolbars will be drawn on top of it, so the composition must stay open and calm through the centre of the canvas and carry its interest at the edges. The place is empty of inhabitants — no people, no figures, no characters, no faces, no crowd, an unpeopled setting waiting to be entered. No central subject and no single dominant focal point; every surface unmarked and free of text.`
@@ -123,12 +123,10 @@ type PageSeed = {
  * instead of with what I guessed it was.
  */
 const PAGES: PageSeed[] = [
-  {
-    page: 'taskmaster',
-    title: 'Taskmaster — Quest Workshop',
-    scene:
-      'A quest workshop at golden hour: a warm timber and brass workroom opening onto a valley of floating islands and drifting lantern-light, with a glowing arched portal set into mossy stone off to one side. Pinned route maps, rope, compasses and half-finished plans hang at the edges of the room. Butterflies and small motes of light drift through. The mood is capable and encouraging — real work, made an adventure.',
-  },
+  // The `taskmaster` seed (Quest Workshop) was removed on 2026-09-14 with the
+  // /taskmaster route it dressed (storybook/t-047). Its backdrop endpoint no
+  // longer has a page declaring it, so verifyPageBackdrop.ts correctly read the
+  // leftover seed as art queued to render nowhere.
   {
     page: 'dreams',
     title: 'Dreams — Dream Deck',

@@ -5,15 +5,15 @@ on:
     branches: [main]
     paths:
       - '.github/workflows/taskmaster-sample-tasks-contract.yml'
-      - 'components/taskmaster/taskmaster-sample-tasks.vue'
-      - 'content/taskmaster.md'
+      - 'components/storybook/storybook-table.vue'
+      - 'server/utils/storybookQuest.ts'
       - 'utils/scripts/verifyTaskmasterSampleTasks.mjs'
   pull_request:
     branches: [main]
     paths:
       - '.github/workflows/taskmaster-sample-tasks-contract.yml'
-      - 'components/taskmaster/taskmaster-sample-tasks.vue'
-      - 'content/taskmaster.md'
+      - 'components/storybook/storybook-table.vue'
+      - 'server/utils/storybookQuest.ts'
       - 'utils/scripts/verifyTaskmasterSampleTasks.mjs'
   workflow_dispatch:
 
@@ -39,5 +39,5 @@ jobs:
         with:
           node-version: '24'
 
-      - name: Verify samples and human-gate boundary
+      - name: Verify quest work sources and human-gate boundary
         run: node utils/scripts/verifyTaskmasterSampleTasks.mjs

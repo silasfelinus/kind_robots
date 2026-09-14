@@ -914,17 +914,11 @@ export const dashboardConfigs = {
           'Storybook is the long-form loom: bring your cast, settings, and rewards together and let the narrator help you spin a collaborative story that actually goes somewhere.',
         route: '/storybook',
       },
-      {
-        key: 'taskmaster',
-        label: 'Taskmaster',
-        icon: 'kind-icon:gearhammer',
-        title: 'Taskmaster',
-        summary: 'Turn real objectives into a choice-driven adventure.',
-        image: tabImage('scenario', 'taskmaster'),
-        narrative:
-          'Taskmaster wraps real work in a second-person quest while keeping the actual objective visible and every write-back explicit.',
-        route: '/taskmaster',
-      },
+      // Taskmaster lost its tab on 2026-09-14 (storybook/t-047): it is a MODE of
+      // Storybook now, not a destination, so the Storybook tab directly above is
+      // where a reader who wants to turn real work into a quest goes. Keeping a
+      // second tab whose route 301s to /storybook would have put the same screen
+      // on the board twice -- the same reason Da Vinci has no tab of its own.
       {
         key: 'serendipity',
         label: 'Serendipity',

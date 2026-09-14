@@ -38,14 +38,17 @@ jobs:
           node - <<'NODE'
           const fs = require('node:fs')
           const plugin = fs.readFileSync('plugins/narrative-milestone-art.client.ts', 'utf8')
+          // The Taskmaster tokens (selectTaskmasterArtMilestone, seenTaskBeats,
+          // requestTaskArt) left this list on 2026-09-14 with the /taskmaster
+          // route (storybook/t-047). The plugin's taskmaster half watched a
+          // client-held session that no longer exists -- a taskmaster quest is a
+          // server-side run. The Storybook tokens below still pin the same
+          // coordinator boundary for the one client beat loop that remains.
           for (const token of [
             'selectStorybookArtMilestone',
-            'selectTaskmasterArtMilestone',
             'seenStoryBeats',
-            'seenTaskBeats',
             "{ flush: 'post' }",
             'if (!beat.art) requestStoryArt(beat)',
-            'if (!beat.art) requestTaskArt(beat)',
           ]) {
             if (!plugin.includes(token)) throw new Error(`Missing coordinator boundary: ${token}`)
           }

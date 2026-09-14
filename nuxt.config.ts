@@ -359,6 +359,14 @@ export default defineNuxtConfig({
    * storymaker's setup screen -- so the old path is a permanent alias to the
    * one interface rather than a dead end.
    *
+   * Taskmaster was a separate task-story product at /taskmaster until
+   * 2026-09-14, when it became Storybook's fourth MODE (storybook/t-044..047).
+   * Silas, 2026-09-12: "we should work taskmaster into this project as well,
+   * removing the taskmaster route when done." Its checkpoint engine, its
+   * write-back proposal rules and its quest ledger all moved to the server and
+   * are intact -- pick 'taskmaster' on the storymaker's setup screen -- so, like
+   * Da Vinci, the old path is a permanent alias rather than a dead end.
+   *
    * 301 redirects are intentional because these legacy paths are permanent
    * compatibility aliases, not temporary routing experiments.
    */
@@ -367,6 +375,7 @@ export default defineNuxtConfig({
     '/wonderlab': { redirect: { to: '/plan', statusCode: 301 } },
     '/storymaker': { redirect: { to: '/storybook', statusCode: 301 } },
     '/play/davinci': { redirect: { to: '/storybook', statusCode: 301 } },
+    '/taskmaster': { redirect: { to: '/storybook', statusCode: 301 } },
   },
 
   nitro: {

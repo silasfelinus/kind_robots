@@ -9,7 +9,7 @@
 <template>
   <section class="kr-container max-w-2xl flex flex-col gap-4 p-4">
     <p v-if="loading" class="kr-text-dim-sm-50">Loading…</p>
-    <p v-else-if="!project" class="kr-text-sm text-error">
+    <p v-else-if="!project" class="text-sm text-error">
       Project not found, or you don't have permission to view it.
     </p>
     <template v-else-if="canManage">
@@ -22,7 +22,7 @@
       </header>
       <ShareManager subject-type="PROJECT" :subject-id="project.id" />
     </template>
-    <p v-else class="kr-text-sm text-error">
+    <p v-else class="text-sm text-error">
       Only this project's owner or an admin can manage sharing.
     </p>
   </section>

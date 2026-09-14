@@ -23,7 +23,7 @@
         :key="grant.id"
         class="flex items-center justify-between gap-2 rounded-xl bg-base-200 px-2.5 py-1.5"
       >
-        <span class="kr-text-sm truncate">
+        <span class="text-sm truncate">
           {{ granteeLabel(grant.granteeId) }}
           <span class="kr-badge-ghost-sm ml-1">{{ grant.level }}</span>
         </span>
@@ -56,7 +56,7 @@
           :key="candidate.id"
           class="flex items-center justify-between gap-2 rounded-xl bg-base-200 px-2.5 py-1.5"
         >
-          <span class="kr-text-sm truncate">{{
+          <span class="text-sm truncate">{{
             candidate.designerName || candidate.username
           }}</span>
           <div class="flex shrink-0 items-center gap-1.5">
@@ -81,7 +81,7 @@
       <p v-else-if="search.trim()" class="kr-text-dim-sm-50">No matches.</p>
     </div>
 
-    <p v-if="grants.error" class="kr-text-sm text-error">{{ grants.error }}</p>
+    <p v-if="grants.error" class="text-sm text-error">{{ grants.error }}</p>
   </div>
 </template>
 

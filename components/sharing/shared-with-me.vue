@@ -36,7 +36,7 @@
       </li>
     </ul>
 
-    <p v-if="grants.error" class="text-sm text-error">{{ grants.error }}</p>
+    <p v-if="grants.error" class="kr-text-error-sm">{{ grants.error }}</p>
   </section>
 </template>
 

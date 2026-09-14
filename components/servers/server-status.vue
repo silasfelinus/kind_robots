@@ -61,7 +61,7 @@
         No active server selected.
       </div>
 
-      <p v-if="checkpointStore.modelStatusError" class="rounded-xl border border-error/30 bg-error/10 p-3 text-sm text-error">
+      <p v-if="checkpointStore.modelStatusError" class="kr-text-error-sm rounded-xl border border-error/30 bg-error/10 p-3">
         {{ checkpointStore.modelStatusError }}
       </p>
     </div>

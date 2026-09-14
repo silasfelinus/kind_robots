@@ -68,7 +68,7 @@
       </div>
     </div>
 
-    <p v-if="errorMsg" class="text-error text-sm">{{ errorMsg }}</p>
+    <p v-if="errorMsg" class="kr-text-error-sm">{{ errorMsg }}</p>
   </div>
 </template>
 

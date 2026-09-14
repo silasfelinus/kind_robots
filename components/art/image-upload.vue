@@ -484,7 +484,7 @@
     <Transition name="fade">
       <p
         v-if="error"
-        class="flex items-center gap-1.5 text-sm font-semibold text-error"
+        class="kr-text-error-sm flex items-center gap-1.5 font-semibold"
       >
         <icon name="kind-icon:alert" class="kr-icon-4" />{{ error }}
       </p>

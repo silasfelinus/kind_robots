@@ -470,7 +470,7 @@
           v-if="
             conductorStore.taskUpdateError || conductorStore.pitchUpdateError
           "
-          class="rounded-2xl border border-error/20 bg-error/10 px-4 py-3 text-sm text-error"
+          class="kr-text-error-sm rounded-2xl border border-error/20 bg-error/10 px-4 py-3"
         >
           {{
             conductorStore.taskUpdateError || conductorStore.pitchUpdateError

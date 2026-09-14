@@ -61,7 +61,7 @@
       </select>
     </div>
 
-    <p v-if="errorMessage" class="shrink-0 text-sm text-error">
+    <p v-if="errorMessage" class="kr-text-error-sm shrink-0">
       {{ errorMessage }}
     </p>
 

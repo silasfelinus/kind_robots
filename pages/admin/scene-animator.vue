@@ -198,7 +198,7 @@
               class="kr-note kr-note-error"
             >
               <div class="flex items-start justify-between gap-3">
-                <pre class="whitespace-pre-wrap font-sans text-sm text-error">{{ store.error }}</pre>
+                <pre class="kr-text-error-sm whitespace-pre-wrap font-sans">{{ store.error }}</pre>
                 <button class="kr-btn-ghost-xs-plain" type="button" @click="store.clearError()">Dismiss</button>
               </div>
             </div>

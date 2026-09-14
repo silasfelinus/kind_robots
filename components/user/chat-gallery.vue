@@ -70,7 +70,7 @@
         class="flex h-full flex-col items-center justify-center gap-3 p-6 text-center"
       >
         <Icon name="kind-icon:warning" class="h-10 w-10 text-error" />
-        <p class="max-w-md text-sm font-semibold text-error">
+        <p class="kr-text-error-sm max-w-md font-semibold">
           {{ errorMessage }}
         </p>
         <button

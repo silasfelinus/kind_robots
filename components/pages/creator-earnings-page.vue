@@ -52,7 +52,7 @@
 
       <div
         v-else-if="earningsStore.error"
-        class="rounded-2xl border border-error/40 bg-error/5 p-4 text-sm text-error"
+        class="kr-text-error-sm rounded-2xl border border-error/40 bg-error/5 p-4"
       >
         {{ earningsStore.error }}
       </div>

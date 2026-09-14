@@ -1,0 +1,172 @@
+name: Kind Robots Health Monitor
+
+# kindrobots-unraid/t-016: t-014 (2026-09-04, ~4h15m outage) and t-015
+# (2026-09-08, ~2h57m outage) were both the same site-wide 502 signature, and
+# both were only ever observed and cleared by whichever scheduled Conductor
+# sweep happened to be running -- never caught independently, and never in
+# real time. This workflow is that independent check: it runs on GitHub's own
+# schedule, outside the Conductor sweep cadence entirely, so an outage is
+# caught (and Silas notified) within minutes of starting instead of whenever
+# the next sweep happens to land.
+#
+# Deliberately the simplest thing that catches the next occurrence in real
+# time: probe the health endpoint, and use a GitHub issue as both the alert
+# and the state of "is an outage currently open" -- no state file, no new
+# secret, no cross-repo write. Opening the issue (with an assignee) is what
+# pages Silas; the issue stays open for the duration and is closed with the
+# recovery time once the probe succeeds again, giving a plain, searchable
+# history of every outage this catches.
+#
+# Root-causing the 502 (container-recreate-without-restart is the leading
+# theory) is explicitly out of scope here -- see the task note. This only
+# needs to catch the next one while it is happening.
+
+on:
+  schedule:
+    - cron: '*/10 * * * *'
+  workflow_dispatch: {}
+
+permissions:
+  issues: write
+
+concurrency:
+  group: kindrobots-health-monitor
+  cancel-in-progress: false
+
+env:
+  HEALTH_URL: https://kindrobots.org/api/health/database
+  OUTAGE_LABEL: site-outage
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Probe health endpoint (with one debounce retry)
+        id: probe
+        run: |
+          set +e
+
+          probe_once() {
+            curl -sS --max-time 15 -o /tmp/health-body.json -w '%{http_code}' "$HEALTH_URL"
+          }
+
+          code="$(probe_once)"
+          if [ "$code" = "200" ]; then
+            echo "ok=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          first_code="$code"
+          first_body="$(cat /tmp/health-body.json 2>/dev/null | tail -c 1000)"
+
+          # A single failed request can be a transient network blip between
+          # this runner and the host, not a real outage. One retry after a
+          # short wait is enough debounce without delaying real detection by
+          # more than the schedule already allows.
+          sleep 30
+          code="$(probe_once)"
+          if [ "$code" = "200" ]; then
+            echo "ok=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          second_body="$(cat /tmp/health-body.json 2>/dev/null | tail -c 1000)"
+
+          echo "ok=false" >> "$GITHUB_OUTPUT"
+          {
+            echo "detail<<HEALTH_DETAIL_EOF"
+            echo "First attempt: HTTP ${first_code:-<no response>}"
+            echo "$first_body"
+            echo
+            echo "Second attempt (30s later): HTTP ${code:-<no response>}"
+            echo "$second_body"
+            echo "HEALTH_DETAIL_EOF"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Open or refresh the outage issue
+        if: steps.probe.outputs.ok == 'false'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const detail = ${{ toJSON(steps.probe.outputs.detail) }}
+            const label = process.env.OUTAGE_LABEL
+            const now = new Date().toISOString()
+
+            const open = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              labels: label,
+            })
+
+            if (open.data.length > 0) {
+              // Already alerted for this outage. Refresh the body's "last
+              // confirmed still down" line so the issue reflects it's
+              // ongoing, without a new comment every 10 minutes for what
+              // could be a multi-hour outage.
+              const issue = open.data[0]
+              const body = issue.body || ''
+              const marker = /\n\nLast confirmed still down: .*$/s
+              const refreshed = marker.test(body)
+                ? body.replace(marker, `\n\nLast confirmed still down: ${now} UTC`)
+                : `${body}\n\nLast confirmed still down: ${now} UTC`
+              await github.rest.issues.update({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue.number,
+                body: refreshed,
+              })
+              return
+            }
+
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `kindrobots.org health check failing (${process.env.HEALTH_URL})`,
+              labels: [label],
+              assignees: ['silasfelinus'],
+              body: [
+                `\`GET ${process.env.HEALTH_URL}\` failed two probes 30s apart, first detected ${now} UTC.`,
+                '',
+                'This issue is opened and closed automatically by kindrobots-health-monitor.yml',
+                '(kindrobots-unraid/t-016) — it stays open for the duration of the outage and',
+                'closes itself with the recovery time once the probe succeeds again.',
+                '',
+                '```',
+                detail,
+                '```',
+                '',
+                `Last confirmed still down: ${now} UTC`,
+              ].join('\n'),
+            })
+
+      - name: Close the outage issue on recovery
+        if: steps.probe.outputs.ok == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const label = process.env.OUTAGE_LABEL
+            const now = new Date().toISOString()
+
+            const open = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              labels: label,
+            })
+
+            for (const issue of open.data) {
+              const openedAt = new Date(issue.created_at).getTime()
+              const durationMin = Math.round((Date.now() - openedAt) / 60000)
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue.number,
+                body: `Recovered: \`${process.env.HEALTH_URL}\` returned 200 at ${now} UTC (outage lasted ~${durationMin} min).`,
+              })
+              await github.rest.issues.update({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue.number,
+                state: 'closed',
+              })
+            }

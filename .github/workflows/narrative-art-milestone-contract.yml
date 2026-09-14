@@ -40,10 +40,14 @@ jobs:
           const plugin = fs.readFileSync('plugins/narrative-milestone-art.client.ts', 'utf8')
           // The Taskmaster tokens (selectTaskmasterArtMilestone, seenTaskBeats,
           // requestTaskArt) left this list on 2026-09-14 with the /taskmaster
-          // route (storybook/t-047). The plugin's taskmaster half watched a
-          // client-held session that no longer exists -- a taskmaster quest is a
-          // server-side run. The Storybook tokens below still pin the same
+          // route, in storybook task t-047. The plugin's taskmaster half watched
+          // a client-held session that no longer exists -- a taskmaster quest is
+          // a server-side run. The Storybook tokens below still pin the same
           // coordinator boundary for the one client beat loop that remains.
+          // (Task ids are written without a slash inside `run:` blocks.
+          // verifyWorkflowPaths.ts scans shell steps for bare lowercase
+          // slash-joined tokens and reads a project-qualified task id as a
+          // repo-relative path that does not exist.)
           for (const token of [
             'selectStorybookArtMilestone',
             'seenStoryBeats',

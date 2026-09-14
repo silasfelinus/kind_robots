@@ -93,7 +93,12 @@ for (const required of [
   'width: 1280',
   'height: 720',
   "const PROJECT_SLUG = 'facet-catalog'",
-  "const FACET_ART_VERSION = 'facet-coverage-krea2-v4'",
+  "const FACET_ART_VERSION = 'facet-coverage-krea2-v5'",
+  // v4's own renders are repairable now, so its version has to stay in the
+  // legacy set or the concrete-bust cohort is never picked up again.
+  "'facet-coverage-krea2-v4',",
+  'v4RenderNeedsRepair',
+  'isRepairableLegacyJob',
   "'facet-multi-art-krea2-v2'",
   "'facet-coverage-krea2-v3'",
   "const ALL_VARIANTS = process.argv.includes('--all-variants')",
@@ -115,8 +120,8 @@ for (const required of [
   'isLegacyGeneratedFacetPrompt',
   'legacyPendingIds',
   "status: 'CANCELLED'",
-  "reason: 'facet-krea-context-prompt-repair-v4'",
-  "repairReason: 'krea-context-prompt-text'",
+  "reason: 'facet-art-direction-jargon-repair-v5'",
+  "repairReason: 'art-direction-jargon-rendered-literally'",
   "mode: 'NEW_OUTPUT'",
 ]) {
   assert.ok(art.includes(required), `Missing Facet art contract: ${required}`)
@@ -156,8 +161,25 @@ for (const required of [
   )
 }
 
+// The v4 taxonomy and composition clauses. Krea painted them literally --
+// "concrete focal subject" as a concrete bust, "unmistakable silhouette" as a
+// paper cut-out -- for every Facet with no prose of its own (2026-09-14).
+//
+// Each is anchored to the point where the producer RETURNS or ASSIGNS it, not
+// to the clause text alone: the same sentences still appear in the file's
+// comments and, necessarily, in LEGACY_V4_TAXONOMY_TAILS, which is how the
+// repair recognizes a stored v4 prompt. Matching bare text would forbid the
+// repair from knowing what it repairs.
 for (const forbidden of [
-  'portrait card artwork',
+  "return 'Iconic scene, concrete focal subject",
+  "return 'Single distinctive figure in action",
+  "return 'Premium collectible object or emblem",
+  "return 'Single clear subject or emblem",
+  "composition:\n      'One decisive square composition",
+  "'A vertical 2:3 composition with clear foreground",
+  "'A cinematic 16:9 composition with the focal subject",
+  "'A bold square emblem with a clean silhouette",
+  'Crisp subject separation.',
   'room for card chrome',
   'icon logo artwork',
   '`Illustrate the Facet concept “${facet.title}”.`',
@@ -180,7 +202,7 @@ for (const required of [
 ]) {
   assert.ok(
     art.includes(required),
-    `Facet v4 must preserve semantic image-only prompting: ${required}`,
+    `Facet v5 must preserve semantic image-only prompting: ${required}`,
   )
 }
 

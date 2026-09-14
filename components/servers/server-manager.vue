@@ -10,7 +10,7 @@
         <span>Loading servers...</span>
       </div>
 
-      <div v-if="managerError" class="mt-2 text-sm text-error">
+      <div v-if="managerError" class="kr-text-error-sm mt-2">
         {{ managerError }}
       </div>
 

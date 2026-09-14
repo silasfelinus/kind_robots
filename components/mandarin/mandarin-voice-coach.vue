@@ -57,20 +57,20 @@
         >
           Stop & check
         </button>
-        <span v-if="recording" class="flex items-center gap-2 text-sm font-semibold text-error" role="status">
+        <span v-if="recording" class="kr-text-error-sm flex items-center gap-2 font-semibold" role="status">
           <span class="h-2.5 w-2.5 animate-pulse rounded-full bg-current" />
           Recording · {{ secondsRemaining }}s max
         </span>
       </div>
     </div>
 
-    <p v-if="tutorStore.speechError" class="mt-3 text-sm text-error" role="alert">
+    <p v-if="tutorStore.speechError" class="kr-text-error-sm mt-3" role="alert">
       {{ tutorStore.speechError }}
     </p>
     <p v-if="!voiceSupported" class="mt-3 text-sm opacity-60">
       This browser does not expose microphone recording. Reference pronunciation still works.
     </p>
-    <p v-if="error" class="mt-3 text-sm text-error" role="alert">{{ error }}</p>
+    <p v-if="error" class="kr-text-error-sm mt-3" role="alert">{{ error }}</p>
 
     <div v-if="audioUrl" class="mt-4 kr-panel-tint-md">
       <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">

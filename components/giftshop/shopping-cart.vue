@@ -148,7 +148,7 @@
 
     <div
       v-if="checkoutMessage || cartStore.lastError"
-      class="rounded-2xl border border-error/30 bg-error/10 p-4 text-sm text-error"
+      class="kr-text-error-sm rounded-2xl border border-error/30 bg-error/10 p-4"
       role="alert"
     >
       {{ checkoutMessage || cartStore.lastError }}

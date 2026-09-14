@@ -81,7 +81,7 @@
       <p v-else-if="search.trim()" class="kr-text-dim-sm-50">No matches.</p>
     </div>
 
-    <p v-if="grants.error" class="text-sm text-error">{{ grants.error }}</p>
+    <p v-if="grants.error" class="kr-text-error-sm">{{ grants.error }}</p>
   </div>
 </template>
 

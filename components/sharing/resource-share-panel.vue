@@ -8,7 +8,7 @@
 <template>
   <section class="kr-container max-w-2xl flex flex-col gap-4 p-4">
     <p v-if="loading" class="kr-text-dim-sm-50">Loading…</p>
-    <p v-else-if="!resource" class="text-sm text-error">
+    <p v-else-if="!resource" class="kr-text-error-sm">
       Resource not found, or you don't have permission to view it.
     </p>
     <template v-else-if="canManage">
@@ -23,7 +23,7 @@
       </header>
       <ShareManager subject-type="RESOURCE" :subject-id="resource.id" />
     </template>
-    <p v-else class="text-sm text-error">
+    <p v-else class="kr-text-error-sm">
       Only this resource's owner or an admin can manage sharing.
     </p>
   </section>

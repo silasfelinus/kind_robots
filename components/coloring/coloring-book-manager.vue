@@ -17,7 +17,7 @@
             mid-masterpiece with total confidence.
           </p>
         </div>
-        <span v-if="loadError" class="text-sm font-semibold text-error">
+        <span v-if="loadError" class="kr-text-error-sm font-semibold">
           {{ loadError }}
         </span>
       </header>

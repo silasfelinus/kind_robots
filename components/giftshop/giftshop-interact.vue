@@ -209,7 +209,7 @@
 
         <p
           v-if="cartStore.lastError"
-          class="rounded-2xl border border-error/30 bg-error/10 p-3 text-sm text-error"
+          class="kr-text-error-sm rounded-2xl border border-error/30 bg-error/10 p-3"
         >
           {{ cartStore.lastError }}
         </p>

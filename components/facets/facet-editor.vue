@@ -40,7 +40,7 @@
 
     <EntityArtManager entity-type="facet" :entity="facet" />
 
-    <p v-if="errorMessage" class="text-sm text-error">{{ errorMessage }}</p>
+    <p v-if="errorMessage" class="kr-text-error-sm">{{ errorMessage }}</p>
 
     <div class="flex flex-wrap gap-2">
       <button

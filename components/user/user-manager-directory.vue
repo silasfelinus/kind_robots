@@ -201,7 +201,7 @@
               />
             </label>
           </div>
-          <p v-if="createError" class="text-sm text-error">{{ createError }}</p>
+          <p v-if="createError" class="kr-text-error-sm">{{ createError }}</p>
         </div>
         <div class="modal-action">
           <button class="kr-btn-ghost-md" @click="closeCreate">Cancel</button>
@@ -231,7 +231,7 @@
           placeholder="New password (min 8)"
           class="kr-input-muted rounded-xl"
         />
-        <p v-if="pwError" class="mt-2 text-sm text-error">{{ pwError }}</p>
+        <p v-if="pwError" class="kr-text-error-sm mt-2">{{ pwError }}</p>
         <div class="modal-action">
           <button class="kr-btn-ghost-md" @click="closePassword">Cancel</button>
           <button

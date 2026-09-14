@@ -123,7 +123,7 @@
       v-if="showBlocked && blockedTasks.length"
       class="shrink-0 rounded-xl border border-error/30 bg-error/10 p-3"
     >
-      <strong class="text-sm text-error">Why work is blocked</strong>
+      <strong class="kr-text-error-sm">Why work is blocked</strong>
       <div class="mt-2 grid gap-2 lg:grid-cols-2">
         <button
           v-for="task in blockedTasks"

@@ -2692,6 +2692,17 @@ section:has(div[class*='xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]'])
     @apply text-xs text-error;
   }
 
+  /* The `-sm` sibling of `.kr-text-error-xs` above -- `text-sm text-error`
+   * (interface-vision t-104 slice 270), found by a fresh full-repo
+   * class-frequency survey outside every now-closed family at 10 exact
+   * occurrences across 8 files, plus a further 18 subset-match occurrences
+   * across 16 more files carrying extra background/border/padding/layout
+   * wrapper tokens around the same error-caption role -- same shape as
+   * `.kr-text-error-xs` itself was found in at slice 178, one size up. */
+  .kr-text-error-sm {
+    @apply text-sm text-error;
+  }
+
   /* A caption-size status/loading line using generic `opacity-60` rather
    * than the `text-base-content/NN` alpha-channel family above -- `text-xs
    * opacity-60` (interface-vision t-104 slice 184), found by a fresh

@@ -105,7 +105,7 @@
 
       <div
         v-if="conductorStore.pitchUpdateError"
-        class="shrink-0 rounded-2xl border border-error/30 bg-error/10 px-4 py-3 text-sm text-error"
+        class="kr-text-error-sm shrink-0 rounded-2xl border border-error/30 bg-error/10 px-4 py-3"
       >
         {{ conductorStore.pitchUpdateError }}
       </div>

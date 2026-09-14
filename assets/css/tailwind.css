@@ -1599,6 +1599,16 @@ section:has(div[class*='xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]'])
     @apply badge badge-accent badge-sm;
   }
 
+  /* The success-colored small badge (interface-vision t-104 slice 271): `badge
+   * badge-success badge-sm`, the `-sm` sibling of `.kr-badge-success-xs` above
+   * -- a fresh full-repo class-frequency survey outside every now-closed
+   * family found this shape at 6 exact occurrences across 6 files, plus 3
+   * subset-match occurrences across 3 more files carrying an extra
+   * positioning/spacing token. */
+  .kr-badge-success-sm {
+    @apply badge badge-success badge-sm;
+  }
+
   /* The extra-small, ghost-styled counterpart to .kr-badge-ghost-sm
    * (interface-vision t-104 slice 112): `badge badge-ghost badge-xs`, the
    * largest hand-rolled `badge-xs` pool surveyed (16 files, 21 occurrences). */

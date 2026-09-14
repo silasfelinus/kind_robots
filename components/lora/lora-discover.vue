@@ -129,7 +129,7 @@
 
           <span
             v-if="card.owned"
-            class="absolute right-2 top-2 badge badge-success badge-sm"
+            class="kr-badge-success-sm absolute right-2 top-2"
           >
             Owned
           </span>

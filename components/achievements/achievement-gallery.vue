@@ -47,7 +47,7 @@
             <Icon name="kind-icon:check" class="kr-icon-4" />
           </span>
           <h2 class="kr-text-black-sm text-base-content">Earned</h2>
-          <span class="ml-auto badge badge-success badge-sm">{{
+          <span class="kr-badge-success-sm ml-auto">{{
             earnedAchievements.length
           }}</span>
         </div>

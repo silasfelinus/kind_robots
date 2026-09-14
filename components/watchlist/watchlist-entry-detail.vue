@@ -92,7 +92,7 @@
         <h3 class="kr-text-eyebrow kr-text-dim-xs-60 tracking-wide">Review</h3>
         <span
           v-if="entry.reviewPublic"
-          class="badge badge-success badge-sm gap-1 rounded-lg"
+          class="kr-badge-success-sm gap-1 rounded-lg"
         >
           <Icon name="kind-icon:check" class="kr-icon-3" />
           Published

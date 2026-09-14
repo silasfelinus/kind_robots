@@ -86,13 +86,13 @@
           <div class="mt-1 flex flex-wrap items-center gap-2">
             <span
               v-if="proposal.applied"
-              class="badge badge-success badge-sm"
+              class="kr-badge-success-sm"
               data-testid="storybook-proposal-applied"
             >
               Applied
             </span>
             <template v-else>
-              <span class="badge badge-outline badge-sm">
+              <span class="kr-badge-outline-sm">
                 Not applied — nothing has changed yet
               </span>
               <button
@@ -217,7 +217,7 @@
           <span
             v-for="(value, key) in runStore.stats"
             :key="key"
-            class="badge badge-outline"
+            class="kr-badge-outline"
           >
             {{ key }} {{ value }}
           </span>

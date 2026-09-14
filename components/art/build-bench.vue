@@ -40,7 +40,7 @@
             <span class="badge badge-lg" :class="side === 'A' ? 'badge-primary' : 'badge-secondary'">
               Build {{ side }}
             </span>
-            <span v-if="store.state.winner === side" class="badge badge-success badge-sm">🏆 winner</span>
+            <span v-if="store.state.winner === side" class="kr-badge-success-sm">🏆 winner</span>
           </div>
           <button
             class="kr-btn-ghost-xs-plain"

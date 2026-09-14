@@ -7,6 +7,14 @@
 // isn't referenced by something in content as an md or app.vue, it is likely
 // orphaned."
 //
+// RETIRED 2026-08-11 (kind_robots commit 8a383a4d, "removed abandonware"):
+// Silas deleted components/abandonware/ outright rather than keep parking
+// orphans in it. There is no longer a parking destination — an unreachable
+// component found below is a candidate for deletion (or repair, if it should
+// actually be live), not for moving anywhere. The PARKED_SEGMENT plumbing
+// below is kept only because it degrades to a harmless no-op with the
+// directory gone (see kind-robots/t-095); it is not live policy.
+//
 // WHY A GREP IS NOT ENOUGH. "Is anything referencing this file?" has the wrong
 // shape. model-gallery referenced model-card, which referenced lora-card — all
 // three looked referenced, and all three were dead, because nothing reachable
@@ -16,7 +24,7 @@
 // THE ROOT SET is what the app boots or routes into: app.vue, error.vue,
 // layouts/, pages/, and the `:component` MDC mounts inside content/*.md. Every
 // component reachable from those by following template references is live.
-// Everything else is a candidate for components/abandonware/.
+// Everything else is a candidate for removal.
 //
 // PLUS ONE ROOT THAT IS NOT A TEMPLATE: a directory-local `import.meta.glob`.
 // components/screenfx/effect-component-registry.ts globs `./*.vue` and mounts
@@ -57,7 +65,11 @@ const root = process.cwd()
 const BASELINE = resolve(root, 'utils/scripts/component-reachability-baseline.json')
 const SCRIPT = 'utils/scripts/verifyComponentReachability.ts'
 
-/** Parked components are deliberately unreachable — that is what parking means. */
+/**
+ * Parked components were deliberately unreachable — that is what parking meant.
+ * The directory itself is gone (retired 2026-08-11, see the header note); this
+ * constant and the functions that use it are inert unless it ever comes back.
+ */
 const PARKED_SEGMENT = 'abandonware'
 
 /**
@@ -285,9 +297,13 @@ export function reachableFrom(roots: Set<string>, edges: Map<string, Set<string>
 /**
  * Every import inside a parked component must still resolve.
  *
+ * Inert since parking was retired 2026-08-11 (see the header note) — there is
+ * no components/abandonware/ to walk, so this always returns []. Left in place
+ * in case parking (or something shaped like it) ever comes back.
+ *
  * Parking moves a file one directory deeper, which silently breaks any
  * `./../../stores/x` that was correct at the old depth — and nothing else
- * catches it. tsconfig excludes components/abandonware/, so vue-tsc is blind
+ * catches it. tsconfig excluded components/abandonware/, so vue-tsc was blind
  * here by design, and the museum's glob means Vite compiles these files anyway,
  * so a stale specifier is a hard `nuxt build` failure rather than a dead file
  * nobody notices. That is exactly what happened on the first parking run:
@@ -329,6 +345,11 @@ export function unresolvedParkedImports(exists: (p: string) => boolean): string[
 
 /**
  * Tooling that still names a component at its PRE-parking path.
+ *
+ * Inert since parking was retired 2026-08-11 (see the header note) — the
+ * `existsSync(... PARKED_SEGMENT ...)` check below can never match with no
+ * components/abandonware/ to find anything in, so this always returns [].
+ * Left in place in case parking (or something shaped like it) ever comes back.
  *
  * Verifiers, workflow trigger filters and review-batch configs address
  * components by string path, so parking moves the file out from under a
@@ -523,31 +544,22 @@ function main(): void {
       `${ratchetDelta(orphans.length, baseline?.orphans.length)}\n`,
   )
 
-  // Parked count is PROGRESS, not debt, and it is meant to climb.
-  //
-  // Silas, 2026-08-05: "I do hope that many components will be parked in the
-  // end, since we are substituting for quality bespoke. this might as well be a
-  // good standard for progress, though not at the expense of quality."
-  //
-  // So the two numbers read in opposite directions on purpose: orphans ratchet
-  // DOWN to zero (nothing dead left lying in the app), while parked climbs as
-  // hand-rolled components are replaced by the shared kit. Nothing caps it.
-  //
-  // The one way this metric could lie: a component goes orphaned because
-  // somebody deleted its mount by accident, and parking it makes the loss
-  // permanent and tidy-looking. Read the orphan list before acting on it — a
-  // component that was live last week is a bug report, not a parking candidate.
-  process.stdout.write(
-    `Parked in components/${PARKED_SEGMENT}/: ${parked} ` +
-      `(${Math.round((parked / (parked + files.size)) * 100)}% of all components) — ` +
-      `still exhibited in WonderLab, out of the app build.\n`,
-  )
+  // Parking was retired 2026-08-11 (see the header note) — components/abandonware/
+  // no longer exists, so `parked` is always 0 today. Kept only so the count comes
+  // back honestly if the directory is ever reintroduced; suppressed when zero
+  // rather than printing a permanently-stale "still exhibited in WonderLab" line.
+  if (parked > 0) {
+    process.stdout.write(
+      `Parked in components/${PARKED_SEGMENT}/: ${parked} ` +
+        `(${Math.round((parked / (parked + files.size)) * 100)}% of all components).\n`,
+    )
+  }
 
   if (update) {
     if (grown.length) {
       console.error(
         `Refusing to record MORE orphans (${baseline?.orphans.length ?? 0} → ${orphans.length}).\n` +
-          `Park the new ones in components/abandonware/, or explain in the PR why they must stay.`,
+          `Delete the new ones, or explain in the PR why they must stay unreachable.`,
       )
       process.exitCode = 1
       return
@@ -578,9 +590,8 @@ function main(): void {
   for (const entry of orphans.filter((o) => !known.has(o))) console.error(`     ${entry}`)
   console.error(
     `\nNothing in app.vue, pages/, layouts/ or a content MDC mount reaches these,` +
-      `\neven transitively. Park them in components/abandonware/ — they stay` +
-      `\nreviewable in WonderLab but leave the app build. If one IS reached by a` +
-      `\nruntime path this cannot see (<component :is>, a string-addressed mount,` +
+      `\neven transitively. Delete them if they're genuinely dead. If one IS reached` +
+      `\nby a runtime path this cannot see (<component :is>, a string-addressed mount,` +
       `\nor a plugin selector), say so in the PR and re-record with --update.\n`,
   )
   process.exitCode = 1

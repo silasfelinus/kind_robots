@@ -150,12 +150,19 @@
       <div class="kr-table-felt space-y-3" data-testid="storybook-board">
         <div v-for="row in slotRows" :key="row.title">
           <p class="kr-text-eyebrow mb-1 opacity-70">{{ row.title }}</p>
-          <div class="flex flex-wrap gap-2">
+          <div
+            class="mx-auto grid w-full gap-3"
+            :class="
+              row.specs.length === 2
+                ? 'max-w-xl grid-cols-2'
+                : 'max-w-3xl grid-cols-3'
+            "
+          >
             <button
               v-for="spec in row.specs"
               :key="spec.key"
               type="button"
-              class="group w-[7.5rem] shrink-0 rounded-2xl border-2 bg-base-100/70 p-1.5 text-left transition"
+              class="group w-full max-w-[9rem] justify-self-center rounded-2xl border-2 bg-base-100/70 p-1.5 text-left transition"
               :class="[
                 spec.key === activeSlot
                   ? 'border-primary bg-primary/10'
@@ -259,7 +266,7 @@
         <div
           v-for="card in activeDeck"
           :key="card.slug"
-          class="w-[6.5rem] shrink-0 snap-start"
+          class="w-[9.5rem] shrink-0 snap-start"
         >
           <NarrativeIngredientCard
             :item="card"

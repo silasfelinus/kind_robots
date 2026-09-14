@@ -9,6 +9,7 @@ import {
 import { useArtStore } from '@/stores/artStore'
 import { useUserStore } from '@/stores/userStore'
 import type { Resource } from '@/stores/resourceStore'
+import ShareManager from '@/components/sharing/share-manager.vue'
 
 const RESOURCE_TYPE = {
   CHECKPOINT: 'CHECKPOINT',
@@ -137,10 +138,19 @@ const infoResourceBadges = computed(() => {
     .map(String)
 })
 
+/*
+ * Owner or admin only (kind-robots/t-099), the same rule
+ * resource-share-panel.vue already applies to sharing this same Resource.
+ * The PATCH route enforces this server-side regardless (isOwner/isAdmin/
+ * hasAdminGrant), but showing the Edit button to a viewer who can only ever
+ * get a 403 back is its own bug -- this keeps the button honest about who it
+ * actually works for.
+ */
 const canEditInfoResource = computed(() => {
   const entry = infoResource.value
   if (!entry) return false
-  return EDITABLE_RESOURCE_TYPES.includes(String(entry.resourceType))
+  if (!EDITABLE_RESOURCE_TYPES.includes(String(entry.resourceType))) return false
+  return entry.userId === userStore.userId || userStore.isAdmin
 })
 
 const showAddChoice = ref(false)
@@ -577,6 +587,14 @@ onMounted(async () => {
               @saved="(saved: Resource) => handleSaved(saved, done)"
               @close="done"
             />
+
+            <!--
+              Sharing lives next to the other visibility controls now
+              (kind-robots/t-099, kaizen from t-062) instead of only on the
+              standalone /resources/[id]/share route -- that route can stay as
+              a direct link, this is just no longer the only way to reach it.
+            -->
+            <ShareManager subject-type="RESOURCE" :subject-id="infoResource.id" />
           </template>
         </kr-card-back>
 

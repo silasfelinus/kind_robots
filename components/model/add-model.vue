@@ -147,15 +147,27 @@
     <div
       class="flex flex-col gap-3 kr-panel-muted p-3 sm:flex-row sm:items-center sm:justify-between"
     >
-      <label class="label cursor-pointer justify-start gap-3">
-        <input
-          v-model="form.isMature"
-          type="checkbox"
-          class="kr-toggle-warning"
-        />
+      <div class="flex flex-wrap items-center gap-4">
+        <label class="label cursor-pointer justify-start gap-3">
+          <input
+            v-model="form.isPublic"
+            type="checkbox"
+            class="kr-toggle-success"
+          />
 
-        <span class="kr-label-bold">Mature (NSFW)</span>
-      </label>
+          <span class="kr-label-bold">Public</span>
+        </label>
+
+        <label class="label cursor-pointer justify-start gap-3">
+          <input
+            v-model="form.isMature"
+            type="checkbox"
+            class="kr-toggle-warning"
+          />
+
+          <span class="kr-label-bold">Mature (NSFW)</span>
+        </label>
+      </div>
 
       <button
         class="kr-btn-primary-md"
@@ -207,6 +219,7 @@ type AddModelForm = {
   civitaiUrl: string
   description: string
   isMature: boolean
+  isPublic: boolean
 }
 
 const props = withDefaults(
@@ -260,6 +273,7 @@ const form = reactive<AddModelForm>({
   civitaiUrl: '',
   description: '',
   isMature: false,
+  isPublic: false,
 })
 
 function hydrateFromModel(model: Partial<Resource> | null) {
@@ -271,6 +285,7 @@ function hydrateFromModel(model: Partial<Resource> | null) {
   form.civitaiUrl = safeText(model?.civitaiUrl)
   form.description = safeText(model?.description)
   form.isMature = Boolean(model?.isMature)
+  form.isPublic = Boolean(model?.isPublic)
 }
 
 watch(
@@ -310,6 +325,7 @@ async function submitModel() {
       civitaiUrl: cleanOptional(form.civitaiUrl),
       description: cleanOptional(form.description),
       isMature: form.isMature,
+      isPublic: form.isPublic,
     } as Partial<Resource>
 
     let saved: Resource | null = null

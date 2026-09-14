@@ -115,6 +115,17 @@ check(
     /The cast/.test(decks),
 )
 check(
+  'each spread row is centered across the cloth instead of piled at the left edge',
+  table.includes('mx-auto grid w-full gap-3') &&
+    table.includes('justify-self-center') &&
+    table.includes('max-w-3xl grid-cols-3') &&
+    table.includes('max-w-xl grid-cols-2'),
+)
+check(
+  'hand cards are wide enough to preserve the shared 2:3 card shape',
+  table.includes('w-[9.5rem] shrink-0 snap-start'),
+)
+check(
   'the Collection opens from Chronicle rather than sitting under the Table',
   table.includes('chronicleOpen') &&
     table.includes('Chronicle') &&

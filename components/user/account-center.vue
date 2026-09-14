@@ -6,6 +6,7 @@
 -->
 <template>
   <div class="flex min-h-0 flex-col gap-4">
+    <home-account-links />
     <account-settings />
     <creator-earnings-page />
   </div>

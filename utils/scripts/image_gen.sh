@@ -43,7 +43,7 @@ function create_art_gallery() {
                       --arg galleryName "$(basename "$(pwd)")" \
                       --argjson imageNames "[$images]" \
                       '{id: null, name: $galleryName, content: "", description: "", highlightImage: null, isNSFW: false, isAuth: false, user: "cafepurr", createdAt: null, updatedAt: null, images: $imageNames}')
-  echo $gallery_json > gallery.json
+  echo "$gallery_json" > gallery.json
   echo "Just like a brush stroke in a masterpiece, another gallery has been created. Isn't it lovely?"
 }
 
@@ -56,16 +56,16 @@ function describe_images() {
       image_json=$(jq -n \
                       --arg imgName "$imageName" \
                       '{id: null, name: $imgName, content: "", description: "", highlightImage: null, isNSFW: false, isAuth: false, user: "cafepurr", createdAt: null, updatedAt: null}')
-      echo $image_json > "$imageName.json"
+      echo "$image_json" > "$imageName.json"
       echo "Image $imageName now has a personality. Time to shine!"
 
       response=$(curl -s -X POST -H "Content-Type: application/json" -d "$image_json" $API_ENDPOINT)
-      if [[ $(echo $response | jq -r '.id') == null ]]; then
+      if [[ $(echo "$response" | jq -r '.id') == null ]]; then
         echo "Oh no, something went wrong while sharing the image with the database. Let's try again later."
       else
         echo "Image $imageName has been shared with the Image database. Rejoice!"
 
-        id=$(echo $response | jq -r '.id')
+        id=$(echo "$response" | jq -r '.id')
         jq --arg id "$id" '.id = $id' "$imageName.json" | sponge "$imageName.json"
         echo "Image $imageName's local record now has its unique id: $id. It's growing up so fast!"
       fi

@@ -4,14 +4,14 @@ channelKey: home
 tabKey: account
 dashboardKey: user
 dashboardTab: profile
-label: Connect
-title: Account, Newsfeed & Friends
-subtitle: Your profile, feed, and people
-description: One doorway to account settings, the Kind Robots newsfeed, friends, chats, and messages.
-icon: kind-icon:users
-route: /connect
+label: Account
+title: Account
+subtitle: Your profile, settings, feed, and people
+description: Manage your account, catch up on the Kind Robots newsfeed, or jump into friends, chats, and messages.
+icon: kind-icon:settings
+route: /account
 sort: 70
 requiredPermission: authenticated
 ---
 
-Connect is the Home hub for account settings, the newsfeed, friends, chats, and messages.
+Account is the Home hub for profile settings, the newsfeed, friends, chats, and messages.

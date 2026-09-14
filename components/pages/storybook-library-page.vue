@@ -1,7 +1,19 @@
 <!-- /components/pages/storybook-library-page.vue -->
 <template>
   <section class="kr-surface">
+    <!--
+      THE LEGACY BAND (storybook/t-010, 2026-09-13). Silas, on the new
+      storymaker: this header was "a questionable use of space showing us story
+      library / 0 saved stories on this account and a link to recent stories",
+      and the space belongs to configuration. The Table owns that now, and its
+      Chronicle button owns the library.
+
+      Kept behind ?legacy=1 rather than deleted because storybook/t-037 removes
+      this markup together with stores/storybookStore.ts and the ~16 guards that
+      pin it, in one deliberate pass. Nothing new goes in here.
+    -->
     <header
+      v-if="legacy"
       class="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-base-300 bg-(--kr-surface-raised) p-3 shadow-sm"
     >
       <div class="min-w-0">
@@ -107,7 +119,7 @@
     </header>
 
     <section
-      v-if="libraryOpen"
+      v-if="legacy && libraryOpen"
       class="max-h-[42dvh] shrink-0 space-y-3 overflow-y-auto rounded-2xl border border-primary/20 bg-primary/5 p-4"
     >
       <div class="flex flex-wrap items-start justify-between gap-2">

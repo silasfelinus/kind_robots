@@ -24,145 +24,56 @@
   do not; it buys nothing functional and is filed as its own polish task.
 -->
 <template>
-  <section
-    class="relative h-full min-h-0 overflow-y-auto overscroll-contain rounded-[2rem] border border-base-300 bg-base-100 shadow-xl"
-  >
-    <div class="space-y-5 p-4 sm:p-5 lg:p-6">
-      <!-- THE BOARD -->
-      <div>
-        <div class="mb-2 flex items-baseline justify-between gap-3">
-          <h2 class="kr-text-black-lg">The table</h2>
-          <p class="kr-text-dim-xs">
-            {{ readyToOpen ? 'Ready when you are.' : 'Genre, place and hero.' }}
-          </p>
-        </div>
+  <!--
+    THREE BANDS, and the order is the point (storybook/t-010, 2026-09-13).
+    Silas: configuration "should really be at the very top", the cards "should
+    appear as a horizontal row at the very bottom of the screen", and the
+    tableau between them should evoke "laying out cards on a velvet tablecloth
+    to tell a story like a tarot reading, with different rows and columns."
 
-        <div
-          class="grid grid-cols-[repeat(auto-fill,minmax(7rem,1fr))] gap-3"
-          data-testid="storybook-board"
-        >
-          <button
-            v-for="spec in slotSpecs"
-            :key="spec.key"
-            type="button"
-            class="group flex flex-col gap-1 rounded-2xl border-2 p-2 text-left transition"
-            :class="
-              spec.key === activeSlot
-                ? 'border-primary bg-primary/5'
-                : 'border-base-300 bg-base-200/40 hover:border-primary/40'
-            "
-            :aria-pressed="spec.key === activeSlot"
-            @click="activeSlot = spec.key"
-          >
-            <span class="flex items-center gap-1">
-              <Icon :name="spec.icon" class="kr-icon-4 text-primary" />
-              <span class="kr-text-semibold-sm">{{ labelFor(spec) }}</span>
-              <span
-                v-if="spec.required || requiredInMode(spec.key)"
-                class="kr-text-dim-xs"
-                >*</span
-              >
-            </span>
-
-            <span
-              class="relative flex aspect-[2/3] items-center justify-center overflow-hidden rounded-xl border border-dashed border-base-300 bg-base-100"
-            >
-              <template v-if="placed(spec.key).length">
-                <img
-                  v-if="artFor(placed(spec.key)[0])"
-                  :src="artFor(placed(spec.key)[0]) || undefined"
-                  :alt="placed(spec.key)[0]?.title || spec.label"
-                  class="kr-img-cover absolute inset-0"
-                />
-                <span
-                  class="absolute inset-x-0 bottom-0 bg-base-100/85 px-1 py-0.5 text-center kr-text-semibold-sm"
-                >
-                  {{ placed(spec.key)[0]?.title }}
-                </span>
-                <span
-                  v-if="placed(spec.key).length > 1"
-                  class="absolute right-1 top-1 rounded-full bg-primary px-1.5 text-primary-content kr-text-dim-xs"
-                >
-                  +{{ placed(spec.key).length - 1 }}
-                </span>
-              </template>
-              <span v-else class="kr-text-dim-xs px-1 text-center">
-                {{ hintFor(spec) }}
-              </span>
-            </span>
-          </button>
-        </div>
-      </div>
-
-      <!-- THE HAND: the deck for whichever slot is active -->
-      <div class="rounded-[1.5rem] border border-base-300 bg-base-200/40 p-3">
-        <div class="mb-2 flex flex-wrap items-center justify-between gap-2">
-          <h3 class="kr-text-semibold-sm">
-            {{ activeSpec.label }}
-            <span class="kr-text-dim-xs">
-              · {{ placed(activeSlot).length }} of {{ activeSpec.capacity }}
-            </span>
-          </h3>
-          <input
-            v-model="search"
-            type="search"
-            :placeholder="`Search ${activeSpec.label.toLowerCase()}`"
-            class="input input-sm input-bordered w-full sm:w-56"
-          />
-        </div>
-
-        <p v-if="!activeDeck.length" class="kr-text-dim-xs py-6 text-center">
-          Nothing to deal here yet.
-        </p>
-        <div
-          v-else
-          class="grid grid-cols-[repeat(auto-fill,minmax(6.5rem,1fr))] gap-2"
-          data-testid="storybook-hand"
-        >
-          <NarrativeIngredientCard
-            v-for="card in activeDeck"
-            :key="card.slug"
-            :item="card"
-            :selected="isPlaced(activeSlot, card.slug)"
-            @select="toggleCard(activeSlot, card)"
-          />
-        </div>
-      </div>
-
-      <!-- SETTINGS: typed input and dials, never cards -->
-      <div
-        class="grid grid-cols-[repeat(auto-fit,minmax(min(100%,16rem),1fr))] gap-3"
-      >
-        <label class="form-control">
-          <span class="kr-text-eyebrow mb-1">Working title</span>
+    The middle band is the ONLY scroll region (verifyLayoutContract one-scroll);
+    the bar and the hand are fixed ends of the same flex column.
+  -->
+  <section class="flex size-full min-h-0 flex-col gap-2">
+    <!-- BAND 1: configuration and the two commands -->
+    <header
+      class="shrink-0 rounded-2xl border border-base-300 bg-(--kr-surface-raised) p-2 shadow-sm"
+    >
+      <div class="flex flex-wrap items-end gap-2">
+        <label class="form-control min-w-0 flex-1 basis-40">
+          <span class="kr-text-eyebrow mb-0.5">Working title</span>
           <input
             v-model="title"
             type="text"
-            class="input input-bordered"
+            class="input input-sm input-bordered"
             placeholder="Optional"
           />
         </label>
 
-        <label class="form-control">
-          <span class="kr-text-eyebrow mb-1">
+        <label class="form-control min-w-0 flex-[2] basis-56">
+          <span class="kr-text-eyebrow mb-0.5">
             {{ isTaskmaster ? 'Objective' : 'Spark' }}
           </span>
-          <textarea
+          <input
             v-model="spark"
-            class="textarea textarea-bordered"
-            rows="2"
+            type="text"
+            class="input input-sm input-bordered"
             :placeholder="
               isTaskmaster
                 ? 'What are you actually trying to get done?'
-                : 'Optional — leave it empty and the narrator invents one.'
+                : 'Optional — the narrator will invent one'
             "
           />
         </label>
 
-        <label v-if="!isEndlessChoice" class="form-control">
-          <span class="kr-text-eyebrow mb-1">Length</span>
-          <select v-model.number="turnBudget" class="select select-bordered">
-            <option :value="0">The deck's default</option>
+        <label class="form-control min-w-0 basis-40">
+          <span class="kr-text-eyebrow mb-0.5">Length</span>
+          <select
+            v-model.number="turnBudget"
+            class="select select-sm select-bordered"
+          >
+            <option v-if="isEndlessChoice" :value="-1">Endless</option>
+            <option :value="0">Deck default</option>
             <option
               v-for="preset in lengthPresets"
               :key="preset.value"
@@ -173,24 +84,15 @@
           </select>
         </label>
 
-        <label v-else class="form-control">
-          <span class="kr-text-eyebrow mb-1">Length</span>
-          <select v-model.number="turnBudget" class="select select-bordered">
-            <option :value="-1">Endless — you decide when it ends</option>
-            <option :value="0">The deck's default</option>
-            <option
-              v-for="preset in lengthPresets"
-              :key="preset.value"
-              :value="preset.value"
-            >
-              {{ preset.label }} — {{ preset.hint }}
-            </option>
-          </select>
-        </label>
-
-        <label v-if="placed('narrator').length" class="form-control">
-          <span class="kr-text-eyebrow mb-1">Delivery</span>
-          <select v-model="narratorStyle" class="select select-bordered">
+        <label
+          v-if="placed('narrator').length"
+          class="form-control min-w-0 basis-36"
+        >
+          <span class="kr-text-eyebrow mb-0.5">Delivery</span>
+          <select
+            v-model="narratorStyle"
+            class="select select-sm select-bordered"
+          >
             <option
               v-for="delivery in deliveries"
               :key="delivery.value"
@@ -200,28 +102,171 @@
             </option>
           </select>
         </label>
+
+        <div class="ml-auto flex items-center gap-1">
+          <!-- One word and an icon, so it survives a phone (Silas, 2026-09-13). -->
+          <button
+            type="button"
+            class="btn btn-ghost btn-sm rounded-xl border border-base-300"
+            :aria-expanded="chronicleOpen"
+            @click="chronicleOpen = !chronicleOpen"
+          >
+            <Icon name="kind-icon:bookshelf" class="kr-icon-4" />
+            <span>Chronicle</span>
+          </button>
+          <button
+            type="button"
+            class="btn btn-sm btn-ghost rounded-xl border border-base-300"
+            @click="clearTable"
+          >
+            Clear
+          </button>
+          <button
+            type="button"
+            class="btn btn-primary btn-sm"
+            :disabled="!readyToOpen || runStore.isOpening"
+            @click="openStory"
+          >
+            <span
+              v-if="runStore.isOpening"
+              class="loading loading-spinner loading-xs"
+            />
+            Open this story
+          </button>
+        </div>
       </div>
 
-      <p v-if="errorMessage" class="kr-text-dim-xs text-error">
+      <p v-if="errorMessage" class="kr-text-dim-xs mt-1 text-error">
         {{ errorMessage }}
       </p>
+    </header>
 
-      <div class="flex flex-wrap items-center gap-2">
-        <button
-          type="button"
-          class="btn btn-primary"
-          :disabled="!readyToOpen || runStore.isOpening"
-          @click="openStory"
+    <!-- BAND 2: the cloth. The page's one scroll region. -->
+    <div class="min-h-0 flex-1 overflow-y-auto overscroll-contain">
+      <div v-if="chronicleOpen" class="mb-2">
+        <StorybookCollection @open="openAdventure" />
+      </div>
+
+      <div class="kr-table-felt space-y-3" data-testid="storybook-board">
+        <div v-for="row in slotRows" :key="row.title">
+          <p class="kr-text-eyebrow mb-1 opacity-70">{{ row.title }}</p>
+          <div class="flex flex-wrap gap-2">
+            <button
+              v-for="spec in row.specs"
+              :key="spec.key"
+              type="button"
+              class="group w-[7.5rem] shrink-0 rounded-2xl border-2 bg-base-100/70 p-1.5 text-left transition"
+              :class="[
+                spec.key === activeSlot
+                  ? 'border-primary bg-primary/10'
+                  : 'border-base-300/70 hover:border-primary/50',
+                placed(spec.key).length ? 'kr-table-slot-filled' : '',
+              ]"
+              :aria-pressed="spec.key === activeSlot"
+              @click="activeSlot = spec.key"
+            >
+              <span class="mb-1 flex items-center gap-1">
+                <Icon :name="spec.icon" class="kr-icon-4 text-primary" />
+                <span class="kr-text-semibold-sm truncate">
+                  {{ labelFor(spec) }}
+                </span>
+                <span
+                  v-if="spec.required || requiredInMode(spec.key)"
+                  class="kr-text-dim-xs"
+                  >*</span
+                >
+              </span>
+
+              <span
+                class="relative flex aspect-[2/3] items-center justify-center overflow-hidden rounded-xl border bg-base-200/60"
+                :class="
+                  placed(spec.key).length
+                    ? 'border-primary/40'
+                    : 'border-dashed border-base-300'
+                "
+              >
+                <template v-if="placed(spec.key).length">
+                  <img
+                    v-if="artFor(placed(spec.key)[0])"
+                    :src="artFor(placed(spec.key)[0]) || undefined"
+                    :alt="placed(spec.key)[0]?.title || spec.label"
+                    class="kr-img-cover absolute inset-0"
+                  />
+                  <Icon
+                    v-else
+                    :name="placed(spec.key)[0]?.icon || spec.icon"
+                    class="kr-icon-8 text-primary/70"
+                  />
+                  <span
+                    class="absolute inset-x-0 bottom-0 bg-base-100/85 px-1 py-0.5 text-center kr-text-semibold-sm"
+                  >
+                    {{ placed(spec.key)[0]?.title }}
+                  </span>
+                  <span
+                    v-if="placed(spec.key).length > 1"
+                    class="absolute left-1 top-1 rounded-full bg-primary px-1.5 text-primary-content kr-text-dim-xs"
+                  >
+                    +{{ placed(spec.key).length - 1 }}
+                  </span>
+                  <span
+                    class="absolute right-1 top-1 rounded-full bg-base-100/90 px-1 kr-text-dim-xs"
+                    role="button"
+                    tabindex="0"
+                    aria-label="Take this card back"
+                    @click.stop="clearSlot(spec.key)"
+                    @keydown.enter.stop.prevent="clearSlot(spec.key)"
+                  >
+                    ×
+                  </span>
+                </template>
+                <span v-else class="kr-text-dim-xs px-1 text-center">
+                  {{ hintFor(spec) }}
+                </span>
+              </span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- BAND 3: the hand, on the floor -->
+    <div
+      class="shrink-0 rounded-2xl border border-base-300 bg-(--kr-surface-raised) p-2 shadow-sm"
+      data-testid="storybook-hand"
+    >
+      <div class="mb-1 flex flex-wrap items-center gap-2">
+        <span class="kr-text-semibold-sm">
+          {{ activeSpec.label }}
+          <span class="kr-text-dim-xs">
+            · {{ placed(activeSlot).length }} of {{ activeSpec.capacity }}
+          </span>
+        </span>
+        <input
+          v-model="search"
+          type="search"
+          :placeholder="`Search ${activeSpec.label.toLowerCase()}`"
+          class="input input-xs input-bordered ml-auto w-32 sm:w-48"
+        />
+      </div>
+
+      <p v-if="!activeDeck.length" class="kr-text-dim-xs py-4 text-center">
+        Nothing to deal here yet.
+      </p>
+      <div
+        v-else
+        class="flex snap-x snap-mandatory gap-2 overflow-x-auto pb-1"
+      >
+        <div
+          v-for="card in activeDeck"
+          :key="card.slug"
+          class="w-[6.5rem] shrink-0 snap-start"
         >
-          <span
-            v-if="runStore.isOpening"
-            class="kr-spinner-sm"
+          <NarrativeIngredientCard
+            :item="card"
+            :selected="isPlaced(activeSlot, card.slug)"
+            @select="toggleCard(activeSlot, card)"
           />
-          Open this story
-        </button>
-        <button type="button" class="btn btn-ghost" @click="clearTable">
-          Clear the table
-        </button>
+        </div>
       </div>
     </div>
   </section>
@@ -245,6 +290,7 @@ import {
   LENGTH_PRESETS,
   MODE_CARDS,
   NARRATOR_DELIVERIES,
+  STORYBOOK_SLOT_ROWS,
   STORYBOOK_SLOT_SPECS,
   isGenreFacet,
   type StorybookSlotSpec,
@@ -263,7 +309,7 @@ import {
   type NarrativeIngredientOption,
 } from '@/utils/narrativeIngredients'
 
-const emit = defineEmits<{ opened: [runId: number] }>()
+const emit = defineEmits<{ opened: [runId: number]; resume: [runId: number] }>()
 
 const runStore = useStorybookRunStore()
 const characterStore = useCharacterStore()
@@ -278,6 +324,7 @@ const lengthPresets = LENGTH_PRESETS
 const deliveries = NARRATOR_DELIVERIES
 
 const activeSlot = ref<StorybookSlot>('genre')
+const chronicleOpen = ref(false)
 const search = ref('')
 const title = ref('')
 const spark = ref('')
@@ -317,6 +364,16 @@ const projectCards = computed<NarrativeIngredientOption[]>(() =>
       icon: 'kind-icon:gearhammer',
       badge: 'Your project',
     })),
+)
+
+/** The spread, resolved to real slot specs so the template stays declarative. */
+const slotRows = computed(() =>
+  STORYBOOK_SLOT_ROWS.map((row) => ({
+    title: row.title,
+    specs: row.slots
+      .map((slot) => slotSpecs.find((spec) => spec.key === slot))
+      .filter((spec): spec is StorybookSlotSpec => Boolean(spec)),
+  })),
 )
 
 const activeSpec = computed(
@@ -380,6 +437,12 @@ function toggleCard(slot: StorybookSlot, card: NarrativeIngredientOption) {
   }
   board.value[slot] =
     spec.capacity === 1 ? [card] : [...current, card].slice(-spec.capacity)
+}
+
+/** Take every card back off a slot. The × on a laid card. */
+function clearSlot(slot: StorybookSlot): void {
+  board.value[slot] = []
+  activeSlot.value = slot
 }
 
 function matches(card: NarrativeIngredientOption): boolean {
@@ -499,12 +562,19 @@ async function openStory() {
   if (turnBudget.value === -1) payload.turnBudget = null
   else if (turnBudget.value > 0) payload.turnBudget = turnBudget.value
 
+  chronicleOpen.value = false
   const opened = await runStore.openStory(payload)
   if (!opened) {
     errorMessage.value = runStore.errorMessage || 'That story would not open.'
     return
   }
   if (runStore.run) emit('opened', runStore.run.id)
+}
+
+/** Reopening an adventure from the Chronicle is the parent's job. */
+function openAdventure(runId: number): void {
+  chronicleOpen.value = false
+  emit('resume', runId)
 }
 
 onMounted(async () => {

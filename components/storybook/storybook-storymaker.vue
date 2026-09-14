@@ -17,12 +17,12 @@
       @left="onLeft"
       @resolved="onResolved"
     />
-    <div v-else class="flex size-full min-h-0 flex-col gap-4 overflow-y-auto">
-      <StorybookTable @opened="onOpened" />
-      <div class="px-1 pb-4">
-        <StorybookCollection @open="openAdventure" />
-      </div>
-    </div>
+    <!--
+      The Table owns its own three bands now (storybook/t-010, 2026-09-13), and
+      the Chronicle it opens is where the Collection lives. Nothing is stacked
+      under it: the floor of the screen belongs to the hand.
+    -->
+    <StorybookTable v-else @opened="onOpened" @resume="openAdventure" />
   </div>
 </template>
 

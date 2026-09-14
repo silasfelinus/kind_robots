@@ -715,6 +715,39 @@ section:has(div[class*='xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]'])
     @apply rounded-2xl border border-base-300 bg-base-100;
   }
 
+  /* THE TABLECLOTH (storybook/t-010, 2026-09-13). Silas, looking at the new
+   * storymaker: "a backdrop that evokes laying out cards on a velvet
+   * tablecloth to tell a story like a tarot reading, with different rows and
+   * columns."
+   *
+   * A felt ground rather than a picture: a radial pool of light in the middle,
+   * an inset shadow so the cloth sits below the page, and a warm stitched
+   * edge. Built from theme tokens so `storybook` and `storybook-dark` each get
+   * their own cloth instead of one hard-coded green that only works in one --
+   * and defined here rather than inline so verifyKrClassCoverage.ts can see
+   * it and a polish pass cannot quietly replace it with a gradient soup. */
+  .kr-table-felt {
+    @apply relative rounded-[2rem] border border-primary/25 p-3 shadow-inner sm:p-4;
+    background-image:
+      radial-gradient(
+        ellipse at 50% 0%,
+        color-mix(in oklab, var(--color-primary) 14%, transparent),
+        transparent 62%
+      ),
+      linear-gradient(
+        to bottom,
+        color-mix(in oklab, var(--color-base-300) 70%, transparent),
+        color-mix(in oklab, var(--color-base-300) 92%, transparent)
+      );
+  }
+
+  /* A card laid on the cloth: the art fills the well, a warm ring and a small
+   * lift say "placed", and it sits a touch off-square the way a dealt card
+   * does. Empty wells keep the dashed outline instead. */
+  .kr-table-slot-filled {
+    @apply border-primary/60 shadow-md ring-1 ring-primary/30;
+  }
+
   /* The empty-state dashed placeholder shape (interface-vision t-104 slice
    * 126): a dashed border distinguishes it from every solid-border kr-panel*
    * surface above -- used for "nothing here yet" galleries/lists. Previously

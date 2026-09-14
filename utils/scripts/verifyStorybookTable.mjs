@@ -33,6 +33,7 @@ const reading = read(READING)
 const storymaker = read(STORYMAKER)
 const shell = read(SHELL)
 const decks = read(DECKS)
+const felt = read('assets/css/tailwind.css')
 
 let failures = 0
 function check(label, condition) {
@@ -70,6 +71,59 @@ check(
 check(
   'only genre, place and hero are required',
   (decks.match(/required: true/g) || []).length === 3,
+)
+
+console.log('\nStorybook Table — three bands, in this order')
+
+// Silas, 2026-09-13: configuration "should really be at the very top", the
+// cards "should appear as a horizontal row at the very bottom of the screen".
+// Layout is exactly what a later polish pass silently undoes, so the ORDER is
+// pinned rather than the styling.
+const bandOrder = ['<header', 'kr-table-felt', 'data-testid="storybook-hand"']
+const bandPositions = bandOrder.map((marker) => table.indexOf(marker))
+check(
+  'the Table renders a top bar, then the cloth, then the hand',
+  bandPositions.every((position) => position > 0) &&
+    bandPositions.every(
+      (position, index) => index === 0 || position > bandPositions[index - 1],
+    ),
+)
+check(
+  'configuration lives in the top bar, above the cloth',
+  table.indexOf('v-model="title"') < table.indexOf('kr-table-felt') &&
+    table.indexOf('v-model="spark"') < table.indexOf('kr-table-felt') &&
+    table.indexOf('v-model.number="turnBudget"') <
+      table.indexOf('kr-table-felt'),
+)
+check(
+  'the hand is the last band, so nothing sits below it',
+  table.lastIndexOf('data-testid="storybook-hand"') >
+    table.lastIndexOf('kr-table-felt'),
+)
+check(
+  'the hand is a horizontal row, not a grid',
+  /data-testid="storybook-hand"[\s\S]{0,1400}overflow-x-auto/.test(table),
+)
+check(
+  'the cloth is a shared class, not inline gradient soup',
+  table.includes('kr-table-felt') && felt.includes('.kr-table-felt'),
+)
+check(
+  'the spread is laid in named rows rather than one auto-fill strip',
+  decks.includes('STORYBOOK_SLOT_ROWS') &&
+    /The frame/.test(decks) &&
+    /The cast/.test(decks),
+)
+check(
+  'the Collection opens from Chronicle rather than sitting under the Table',
+  table.includes('chronicleOpen') &&
+    table.includes('Chronicle') &&
+    !/StorybookCollection/.test(storymaker),
+)
+check(
+  'the legacy library band only exists at ?legacy=1',
+  shell.includes('<header\n      v-if="legacy"') ||
+    /v-if="legacy"[\s\S]{0,200}kr-surface-raised/.test(shell),
 )
 
 console.log('\nStorybook Table — settings stay ordinary controls')
@@ -192,8 +246,11 @@ check(
     /runStore\.isComplete && runStore\.ending/.test(storymaker),
 )
 check(
-  'the Collection sits with the Table, not behind a run',
-  storymaker.includes('<StorybookCollection'),
+  'the Collection is reachable from the Table, not behind a run',
+  // It moved into the Table's Chronicle drawer on 2026-09-13, so the
+  // storymaker no longer renders it directly -- the Table does.
+  table.includes('<StorybookCollection') &&
+    !storymaker.includes('<StorybookCollection'),
 )
 
 console.log('\nStorybook Ending — credit without spoilers')

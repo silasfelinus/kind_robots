@@ -6,8 +6,11 @@
 // only surfaced as an uncaught 503 buried inside the folder-listing request
 // (index.get.ts hardcoded `rootAvailable: true` unconditionally) -- this
 // asserts the replacement actually reports the unavailable case instead of
-// throwing, and that it names the right source for each of the three ways
-// the root can be configured.
+// throwing, and that it names the right source for each of the two ways the
+// root can be configured, plus the unconfigured case (scene-animator/t-007:
+// getSceneAnimatorRoot() now throws rather than resolving a cwd-based
+// fallback when neither env var is set, and this function must still catch
+// that and report it rather than let it escape).
 import assert from 'node:assert/strict'
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
@@ -34,8 +37,8 @@ async function run(): Promise<void> {
     resetEnv()
     assert.equal(
       getSceneAnimatorRootSource(),
-      'fallback',
-      'with neither env var set, the source must be reported as fallback',
+      'unconfigured',
+      'with neither env var set, the source must be reported as unconfigured',
     )
 
     process.env.IMAGES_PATH = join(workDir, 'images')
@@ -66,6 +69,28 @@ async function run(): Promise<void> {
     assert.ok(
       missing.reason && missing.reason.length > 0,
       'an unavailable root must carry a human-readable reason',
+    )
+
+    // --- unconfigured root: reported, not thrown, no cwd fallback ----------
+    //
+    // scene-animator/t-007: getSceneAnimatorRoot() used to resolve
+    // process.cwd() + 'animate' here -- inside the application directory,
+    // which is exactly where Silas said mature animation content must never
+    // live. It now throws instead, but readSceneAnimatorRootStatus() must
+    // still catch that and report it like any other unavailable-root case,
+    // not let it escape as an uncaught exception.
+    resetEnv()
+    const unconfigured = await readSceneAnimatorRootStatus()
+    assert.equal(
+      unconfigured.available,
+      false,
+      'an unconfigured root must be reported as unavailable, not thrown',
+    )
+    assert.equal(unconfigured.source, 'unconfigured')
+    assert.deepEqual(unconfigured.folders, [])
+    assert.ok(
+      unconfigured.reason?.includes('ANIMATE_PATH'),
+      'the unconfigured reason must name ANIMATE_PATH so an operator knows what to set',
     )
 
     // --- available root: real folders and counts ---------------------------

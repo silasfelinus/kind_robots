@@ -17,7 +17,7 @@
       >
         <span
           v-if="isAutoBuilding"
-          class="loading loading-dots loading-xs"
+          class="kr-spinner-xs-dots"
           aria-hidden="true"
         />
         <template v-else>
@@ -70,7 +70,7 @@
         >
           <span
             v-if="isDrafting('pitch')"
-            class="loading loading-dots loading-xs"
+            class="kr-spinner-xs-dots"
             aria-hidden="true"
           />
           <template v-else>
@@ -143,7 +143,7 @@
         >
           <span
             v-if="isDrafting('fields')"
-            class="loading loading-dots loading-xs"
+            class="kr-spinner-xs-dots"
             aria-hidden="true"
           />
           <template v-else>
@@ -175,7 +175,7 @@
         >
           <span
             v-if="isDrafting('artPrompt')"
-            class="loading loading-dots loading-xs"
+            class="kr-spinner-xs-dots"
             aria-hidden="true"
           />
           <template v-else>
@@ -278,7 +278,7 @@
           >
             <span
               v-if="isGenerating"
-              class="loading loading-dots loading-sm"
+              class="kr-spinner-sm-dots"
               aria-hidden="true"
             />
             <template v-else>
@@ -313,7 +313,7 @@
           aria-live="polite"
           aria-busy="true"
         >
-          <span class="loading loading-dots loading-xs" aria-hidden="true" />
+          <span class="kr-spinner-xs-dots" aria-hidden="true" />
           {{ item.queueState === 'rendering' ? 'Rendering…' : 'Queued…' }}
         </div>
       </template>
@@ -407,7 +407,7 @@
         >
           <span
             v-if="isCommitting"
-            class="loading loading-dots loading-xs"
+            class="kr-spinner-xs-dots"
             aria-hidden="true"
           />
           <template v-else>

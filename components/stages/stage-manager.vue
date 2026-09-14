@@ -781,7 +781,7 @@
               Turn {{ store.turnIndex }}/{{ store.maxTurns }}
               <span
                 v-if="store.isGenerating"
-                class="loading loading-dots loading-xs ml-1.5"
+                class="kr-spinner-xs-dots ml-1.5"
               />
             </span>
             <span

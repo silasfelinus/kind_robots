@@ -160,7 +160,7 @@
 
               <div v-if="isSendingChat" class="flex justify-start">
                 <div class="kr-text-dim-sm-70 kr-panel p-3">
-                  <span class="loading loading-dots loading-sm text-primary" />
+                  <span class="kr-spinner-sm-dots text-primary" />
                   Thinking in character...
                 </div>
               </div>

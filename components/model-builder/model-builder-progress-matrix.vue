@@ -31,7 +31,7 @@
         >
           <span
             v-if="store.autoBuilding"
-            class="loading loading-dots loading-xs"
+            class="kr-spinner-xs-dots"
             aria-hidden="true"
           />
           <template v-else>

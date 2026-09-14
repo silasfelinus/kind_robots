@@ -38,9 +38,13 @@ const RECIPE_SELECTOR_PATH = join(
 // The "Start build run" button: an aria-busy attribute bound to
 // store.startingRun and a click handler calling store.startRun(), followed
 // (within a bounded window) by a v-if="store.startingRun" loading-dots
-// spinner span.
+// spinner span. Accepts either the raw DaisyUI tokens or the
+// kr-spinner-*-dots primitive that interface-vision/t-104 slice 269 migrated
+// this exact spinner onto (kr_spinner_dots_sm_codemod.py) -- same rendered
+// shape, different source spelling (see verifyStorybookStudio.mjs's
+// includesAllOrAlternatives() for the same class of fix, slice 248).
 const START_RUN_LOADING_PATTERN =
-  /:aria-busy="store\.startingRun"[\s\S]{0,120}?@click="store\.startRun\(\)"[\s\S]{0,120}?v-if="store\.startingRun"[\s\S]{0,60}?loading loading-dots/
+  /:aria-busy="store\.startingRun"[\s\S]{0,120}?@click="store\.startRun\(\)"[\s\S]{0,120}?v-if="store\.startingRun"[\s\S]{0,60}?(?:loading loading-dots|kr-spinner-\S*dots)/
 
 export function checkStartRunLoadingGuard(content: string): string[] {
   const errors: string[] = []

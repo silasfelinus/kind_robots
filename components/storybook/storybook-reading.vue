@@ -124,7 +124,7 @@
         {{ runStore.pendingTurn.narrativeText }}
       </p>
       <div v-else-if="runStore.isNarrating" class="py-8 text-center">
-        <span class="loading loading-dots loading-lg" />
+        <span class="kr-spinner-lg-dots" />
       </div>
       <div v-else-if="!runStore.isComplete" class="py-6 text-center">
         <p class="kr-text-dim-xs mb-2">This scene never arrived.</p>

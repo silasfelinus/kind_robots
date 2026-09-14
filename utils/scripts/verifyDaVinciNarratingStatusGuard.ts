@@ -87,11 +87,21 @@ export function checkNarratingStatusGuard(content: string): string[] {
     )
   }
 
-  const spinnerIndex = block.indexOf('loading loading-dots')
+  // Accepts either the raw DaisyUI tokens or the kr-spinner-*-dots primitive
+  // that interface-vision/t-104 slice 269 migrated this exact spinner onto
+  // (kr_spinner_dots_lg_codemod.py) -- same rendered shape, different source
+  // spelling, so this guard must not read a primitive migration as a
+  // regression (see verifyStorybookStudio.mjs's includesAllOrAlternatives()
+  // for the same class of fix, slice 248).
+  const spinnerMarkerMatch = block.match(
+    /loading loading-dots|kr-spinner-\S*dots/,
+  )
+  const spinnerIndex = spinnerMarkerMatch?.index ?? -1
   if (spinnerIndex === -1) {
     errors.push(
-      'Could not find the loading loading-dots spinner inside the ' +
-        'narrating block -- has the spinner markup changed?',
+      'Could not find the loading-dots spinner (raw DaisyUI tokens or a ' +
+        'kr-spinner-*-dots primitive) inside the narrating block -- has ' +
+        'the spinner markup changed?',
     )
   } else {
     const spinnerTagStart = block.lastIndexOf('<span', spinnerIndex)

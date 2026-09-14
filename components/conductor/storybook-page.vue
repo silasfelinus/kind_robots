@@ -532,10 +532,7 @@
               :disabled="!canBegin || store.isWeaving"
               @click="beginStory"
             >
-              <span
-                v-if="store.isWeaving"
-                class="loading loading-dots loading-sm"
-              />
+              <span v-if="store.isWeaving" class="kr-spinner-sm-dots" />
               <template v-else>
                 <Icon name="kind-icon:sparkles" class="kr-icon-4" /> Write the
                 opening scene

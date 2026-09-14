@@ -28,10 +28,7 @@
         aria-live="polite"
         class="inline-flex items-center"
       >
-        <span
-          class="loading loading-dots loading-sm text-primary"
-          aria-hidden="true"
-        />
+        <span class="kr-spinner-sm-dots text-primary" aria-hidden="true" />
         <span class="sr-only">Saving batch changes…</span>
       </span>
     </div>

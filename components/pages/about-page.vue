@@ -21,7 +21,7 @@
             <Icon name="kind-icon:heart" class="kr-icon-5" />
           </span>
           <div>
-            <p class="font-black">About & Support</p>
+            <p class="font-black">Support</p>
             <p class="kr-text-dim-xs-60">
               Meet the project, give directly to Against Malaria, or visit the shop.
             </p>

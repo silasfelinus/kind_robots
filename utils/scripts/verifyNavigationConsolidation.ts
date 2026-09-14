@@ -24,10 +24,6 @@ assert.match(
   'ordinary page content must keep its existing navigation:false default',
 )
 
-// Mirrors the six nested destinations' `navigation: false` frontmatter --
-// resolveTabItem() carries that field onto ResolvedTab.navigation, and these
-// hand-built fixtures stand in for that resolution step for tabs that
-// aren't reachable directly from the tab menus/navigation directory.
 const NESTED_TABS = new Set([
   'home:newsfeed',
   'home:friends',
@@ -35,6 +31,7 @@ const NESTED_TABS = new Set([
   'home:giftshop',
   'admin:project-placement',
   'admin:forum-moderation',
+  'admin:navigation-health',
 ])
 
 function tab(channelKey: string, tabKey: string): ResolvedTab {
@@ -78,13 +75,15 @@ assert.deepEqual(
 const admin = channel('admin', [
   'artjob',
   'project-placement',
+  'navigation-health',
+  'serendipity',
   'user-admin',
   'forum-moderation',
 ])
 assert.deepEqual(
   navigationTabs(admin).map((entry) => entry.tabKey),
-  ['artjob', 'user-admin'],
-  'Admin navigation must hide project placement and the standalone moderation destination',
+  ['artjob', 'serendipity', 'user-admin'],
+  'Admin navigation must expose Serendipity while hiding diagnostic and nested destinations',
 )
 
 for (const path of [
@@ -94,6 +93,7 @@ for (const path of [
   'content/channels/home/giftshop.md',
   'content/channels/admin/project-placement.md',
   'content/channels/admin/forum-moderation.md',
+  'content/channels/admin/navigation-health.md',
 ]) {
   const content = source(path)
   assert.match(content, /\nnavigation: false\n/, `${path} must declare that it is nested, not deleted`)
@@ -104,17 +104,26 @@ for (const path of [
   )
 }
 
-const connectTab = source('content/channels/home/account.md')
-assert.match(connectTab, /\nlabel: Connect\n/)
-assert.match(connectTab, /\nroute: \/connect\n/)
-assert.match(connectTab, /\nrequiredPermission: authenticated\n/)
+const accountTab = source('content/channels/home/account.md')
+assert.match(accountTab, /\nlabel: Account\n/)
+assert.match(accountTab, /\nroute: \/account\n/)
+assert.match(accountTab, /\nrequiredPermission: authenticated\n/)
 
-const connectPage = source('content/connect.md')
-assert.match(connectPage, /\n:home-account-links\n/)
-const connectLinks = source('components/home/home-account-links.vue')
-for (const route of ['/account', '/plan/newsfeed', '/friends']) {
-  assert.ok(connectLinks.includes(`to="${route}"`), `Connect hub must link to ${route}`)
+const accountPage = source('content/account.md')
+assert.match(
+  accountPage,
+  /\n:home-account-links\n[\s\S]*\n:account-center\n/,
+  'Account must show Newsfeed and Friends links before the existing account controls',
+)
+const accountLinks = source('components/home/home-account-links.vue')
+for (const route of ['/plan/newsfeed', '/friends']) {
+  assert.ok(accountLinks.includes(`to="${route}"`), `Account hub must link to ${route}`)
 }
+assert.equal(
+  accountLinks.includes('to="/account"'),
+  false,
+  'Account hub must not link back to itself',
+)
 assert.match(
   source('content/friends.md'),
   /\nrequiredPermission: authenticated\n/,
@@ -122,13 +131,23 @@ assert.match(
 )
 
 const aboutTab = source('content/channels/home/about.md')
-assert.match(aboutTab, /\nlabel: About & Support\n/)
+assert.match(aboutTab, /\nlabel: Support\n/)
+assert.match(aboutTab, /\ntitle: Support\n/)
 assert.match(aboutTab, /\nroute: \/about\n/)
+assert.match(source('content/about.md'), /\ntitle: 'Support'\n/)
 assert.match(source('content/about.md'), /\n:about-page\n/)
 const aboutPage = source('components/pages/about-page.vue')
 for (const route of ['/about', '/giving', '/sanctuary']) {
-  assert.ok(aboutPage.includes(`to="${route}"`), `About & Support must link to ${route}`)
+  assert.ok(aboutPage.includes(`to="${route}"`), `Support must link to ${route}`)
 }
+
+const serendipityTab = source('content/channels/admin/serendipity.md')
+assert.match(serendipityTab, /\nchannelKey: admin\n/)
+assert.match(serendipityTab, /\nroute: \/serendipity\n/)
+assert.match(serendipityTab, /\nrequiredRole: ADMIN\n/)
+const serendipityPage = source('content/serendipity.md')
+assert.match(serendipityPage, /\nchannelKey: admin\n/)
+assert.match(serendipityPage, /\nrequiredRole: ADMIN\n/)
 
 const userAdminTab = source('content/channels/admin/user-admin.md')
 assert.match(userAdminTab, /\nlabel: Users & Moderation\n/)
@@ -159,4 +178,4 @@ assert.ok(
   'the full navigation directory must honor nested destinations too',
 )
 
-console.log('Navigation consolidation verified: schema defaults, hubs, nested routes, admin composition, access metadata, and ArtJob icon all hold.')
+console.log('Navigation consolidation verified: Account, Support, admin Serendipity, hidden diagnostics, nested routes, access metadata, and ArtJob icon all hold.')

@@ -6,8 +6,10 @@ on:
     paths:
       - 'content/channels/home/**'
       - 'content/channels/admin/**'
+      - 'content/account.md'
       - 'content/connect.md'
       - 'content/about.md'
+      - 'content/serendipity.md'
       - 'content/user-admin.md'
       - 'content/artjob.md'
       - 'components/home/home-account-links.vue'
@@ -25,8 +27,10 @@ on:
     paths:
       - 'content/channels/home/**'
       - 'content/channels/admin/**'
+      - 'content/account.md'
       - 'content/connect.md'
       - 'content/about.md'
+      - 'content/serendipity.md'
       - 'content/user-admin.md'
       - 'content/artjob.md'
       - 'components/home/home-account-links.vue'

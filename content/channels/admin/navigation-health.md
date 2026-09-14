@@ -9,6 +9,7 @@ description: Review channels, tabs, shared routes, legacy adapters, permissions,
 icon: kind-icon:compass
 route: /navigation-health
 sort: 40
+navigation: false
 requiredRole: ADMIN
 loadingMessage: Loading navigation health...
 refreshLabel: Reload Navigation

@@ -107,11 +107,9 @@ export function catchBlocksCallingErrorHandler(body: string): string[] {
   const blocks: string[] = []
   const catchStart = /\bcatch\b\s*(?:\([^)]*\))?\s*\{/g
 
-  for (
-    let match = catchStart.exec(body);
-    match;
-    match = catchStart.exec(body)
-  ) {
+  for (;;) {
+    const match = catchStart.exec(body)
+    if (!match) break
     const braceOpen = match.index + match[0].length - 1
     let depth = 0
     let i = braceOpen
@@ -147,7 +145,11 @@ export function findUnpropagatedErrorHandlerCalls(body: string): string[] {
 
   for (const block of catchBlocksCallingErrorHandler(body)) {
     const call = /errorHandler\s*\([^]{0,40}/.exec(block)
-    offendingSnippets.push(call ? call[0].replace(/\s+/g, ' ') : 'errorHandler(...)')
+    if (!call) {
+      offendingSnippets.push('errorHandler(...)')
+      continue
+    }
+    offendingSnippets.push(call[0].replace(/\s+/g, ' '))
   }
 
   return offendingSnippets
@@ -159,11 +161,9 @@ export function extractHandlerBodies(content: string): string[] {
   const clean = stripComments(content)
   const bodies: string[] = []
 
-  for (
-    let match = HANDLER_CALL.exec(clean);
-    match;
-    match = HANDLER_CALL.exec(clean)
-  ) {
+  for (;;) {
+    const match = HANDLER_CALL.exec(clean)
+    if (!match) break
     const range = findHandlerBodyRange(clean, match.index + match[0].length)
     if (!range) continue
     bodies.push(clean.slice(range.start, range.end))

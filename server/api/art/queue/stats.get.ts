@@ -8,7 +8,7 @@
 //
 // Query: ?window=<hours> (default 24, max 720)
 //        ?summary=true returns the lightweight queue-card summary with three
-//        focused queries instead of the full seven-query diagnostics pass.
+//        focused queries instead of the full diagnostics pass.
 import { defineEventHandler, getQuery } from 'h3'
 import prisma from '../../../utils/prisma'
 import { errorHandler } from '../../../utils/error'
@@ -18,6 +18,7 @@ import { groupArtFailuresBySignature } from '../../../utils/artFailureSignature'
 // Mirror claim.post.ts STALE_CLAIM_MINUTES: a RUNNING job whose claim is older
 // than this is considered stuck (its relay likely died mid-render).
 const STALE_CLAIM_MINUTES = 15
+const HOSTBUF_FAILURE_SIGNATURE = 'hostbuf_file_reader_read failed'
 
 function countByStatus(
   groups: { status: string; _count: { _all: number } }[],
@@ -81,11 +82,9 @@ export default defineEventHandler(async (event) => {
           staleRunningCount,
           staleRunning: [],
           recentFailed: [],
-          // Additive summary layer (ai-art-academy/t-073): empty here since
-          // recentFailed itself is empty in summary mode -- same shape as
-          // the full mode below so consumers don't need a mode-specific
-          // branch to read it.
           failuresBySignature: [],
+          latestDoneAt: null,
+          latestHostbufFailureAt: null,
           imagesCreatedInWindow: 0,
           imagesByServer: [],
         },
@@ -99,12 +98,16 @@ export default defineEventHandler(async (event) => {
       oldestPending,
       staleRunning,
       recentFailed,
+      latestDone,
+      latestHostbufFailure,
       imagesInWindow,
       imagesByServer,
     ] = await Promise.all([
       // All-time queue depth per status.
       prisma.artJob.groupBy({ by: ['status'], _count: { _all: true } }),
-      // Jobs created in the window, per status (throughput).
+      // Jobs created in the window, per status. This is useful throughput
+      // context, but deliberately NOT used as a recovery timestamp: a job can
+      // finish long after it was created.
       prisma.artJob.groupBy({
         by: ['status'],
         where: { createdAt: { gte: since } },
@@ -130,8 +133,9 @@ export default defineEventHandler(async (event) => {
           projectSlug: true,
         },
       }),
-      // Recent FAILED jobs with their error text (distinguishes ComfyUI/SD down
-      // vs save-generated failures).
+      // Latest FAILED jobs for human diagnostics. This sample is intentionally
+      // independent from the requested window, so callers must use updatedAt
+      // when they need time-bounded failure counts.
       prisma.artJob.findMany({
         where: { status: 'FAILED' },
         orderBy: { id: 'desc' },
@@ -144,6 +148,25 @@ export default defineEventHandler(async (event) => {
           updatedAt: true,
           projectSlug: true,
         },
+      }),
+      // Actual completion time of the newest successful render. This is the
+      // recovery fact a monitor needs; createdAt/windowThroughput cannot prove
+      // that a renderer recovered after an outage.
+      prisma.artJob.findFirst({
+        where: { status: 'DONE' },
+        orderBy: { updatedAt: 'desc' },
+        select: { updatedAt: true },
+      }),
+      // Persist the most recent host-buffer incident independently of the
+      // 25-row recentFailed sample so an unresolved outage cannot silently age
+      // out of monitoring simply because other failures happened afterward.
+      prisma.artJob.findFirst({
+        where: {
+          status: 'FAILED',
+          error: { contains: HOSTBUF_FAILURE_SIGNATURE },
+        },
+        orderBy: { updatedAt: 'desc' },
+        select: { updatedAt: true },
       }),
       prisma.artImage.count({ where: { createdAt: { gte: since } } }),
       prisma.artImage.groupBy({
@@ -174,12 +197,9 @@ export default defineEventHandler(async (event) => {
         staleRunningCount: staleRunning.length,
         staleRunning,
         recentFailed,
-        // Additive summary layer (ai-art-academy/t-073): the same
-        // `recentFailed` sample above, grouped by normalized error
-        // signature and then by projectSlug, so "is MY project's queue
-        // clean" is a glance instead of a manual scan of the raw array.
-        // `recentFailed` itself is untouched -- raw detail stays available.
         failuresBySignature: groupArtFailuresBySignature(recentFailed),
+        latestDoneAt: latestDone?.updatedAt ?? null,
+        latestHostbufFailureAt: latestHostbufFailure?.updatedAt ?? null,
         imagesCreatedInWindow: imagesInWindow,
         imagesByServer: imagesByServer.map((group) => ({
           serverName: group.serverName,

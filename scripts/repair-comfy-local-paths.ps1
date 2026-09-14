@@ -10,12 +10,16 @@
 
   The model sync scripts place text encoders in models/clip, but a 2026-09-08
   extra_model_paths.yaml revision pointed the local `clip` and `text_encoders`
-  keys at models/text_encoders instead. That leaves the large local Qwen/Krea
-  encoder invisible and lets ComfyUI fall through to the Alexandria SMB copy.
+  keys at models/text_encoders. The same local section also used
+  `base_path: D:/comfy/comfy-fast`, which made every `models/...` entry resolve
+  under the ComfyUI code directory instead of D:/comfy/models. Together those
+  mistakes leave the large local Qwen/Krea encoder invisible and let ComfyUI
+  fall through to the Alexandria SMB copy.
 
-  This script makes two narrow, idempotent changes:
-    1. the local comfyui_local clip/text_encoders keys point at models/clip;
-    2. the Alexandria comfyui section is no longer marked is_default, so the
+  This script makes three narrow, idempotent changes:
+    1. the local comfyui_local base_path points at D:/comfy;
+    2. the local comfyui_local clip/text_encoders keys point at models/clip;
+    3. the Alexandria comfyui section is no longer marked is_default, so the
        local section is the only default-priority model root.
 
   A timestamped backup is written before any change. The script deliberately
@@ -45,6 +49,20 @@ if ($raw -notmatch $shareHeader) { throw 'missing comfyui section; refusing to g
 $localMatch = [regex]::Match($raw, '(?ms)^comfyui_local:\s*\r?\n(?<body>.*?)(?=^[A-Za-z0-9_-]+:\s*$|\z)')
 if (-not $localMatch.Success) { throw 'could not parse comfyui_local section' }
 $localSection = $localMatch.Value
+
+# ComfyUI's code directory and model root are intentionally different on
+# Ferngrotto. With base_path D:/comfy, every `models/...` entry below resolves
+# into D:/comfy/models. A base of D:/comfy/comfy-fast silently points back into
+# the application's own models folder, which is not where sync-comfy-models.ps1
+# puts the local copies.
+$localSection = [regex]::Replace(
+  $localSection,
+  '(?m)^(\s+base_path:\s*)D:[\\/]comfy[\\/]comfy-fast\s*$',
+  '${1}D:/comfy'
+)
+if ($localSection -notmatch '(?m)^\s+base_path:\s*D:/comfy\s*$') {
+  throw 'local base_path was not D:/comfy or the known stale D:/comfy/comfy-fast value; refusing to write'
+}
 
 # The sync scripts intentionally store all text encoders under models/clip.
 # Both ComfyUI folder keys may point there; folder key != physical directory.
@@ -106,6 +124,7 @@ if ($PSCmdlet.ShouldProcess($Path, "Back up to '$backup' and repair local-first 
 
   Write-Host "Updated : $Path" -ForegroundColor Green
   Write-Host "Backup  : $backup"
+  Write-Host 'Local base_path -> D:/comfy (models resolve under D:/comfy/models)'
   Write-Host 'Local clip/text_encoders -> models/clip'
   Write-Host 'Only comfyui_local retains is_default: true'
   Write-Host ''

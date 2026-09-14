@@ -617,6 +617,12 @@ jobs:
       - name: Model Builder commit target-persistence guard contract
         run: npm run test:model-builder-commit-target-persistence-guard
 
+      - name: Model Builder commit idempotency-claim guard checker self-test
+        run: npm run test:model-builder-commit-idempotency-claim-guard-selftest
+
+      - name: Model Builder commit idempotency-claim guard contract
+        run: npm run test:model-builder-commit-idempotency-claim-guard
+
       - name: Model Builder PATCH stale stage-status guard checker self-test
         run: npm run test:model-builder-patch-stale-stage-status-guard-selftest
 

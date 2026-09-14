@@ -1,5 +1,5 @@
 ---
-title: 'About & Support'
+title: 'Support'
 room: 'About Room'
 subtitle: 'Unapologetically Optimistic'
 description: Meet Kind Robots, then choose whether to give directly to Against Malaria or explore the gift shop.

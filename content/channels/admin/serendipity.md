@@ -1,6 +1,6 @@
 ---
 contentType: tab
-channelKey: plan
+channelKey: admin
 tabKey: serendipity
 dashboardKey: scenario
 dashboardTab: serendipity
@@ -10,7 +10,8 @@ subtitle: Talk to the story and watch the site respond
 description: Use the Serendipity voice surface, follow the shared message feed, and trigger playful spoken interactions.
 icon: kind-icon:butterfly
 route: /serendipity
-sort: 240
+sort: 45
+requiredRole: ADMIN
 ---
 
-The Serendipity experience lives in Plan; its relay diagnostics and integration machinery remain in Lab.
+Serendipity is an admin-only voice integration surface.

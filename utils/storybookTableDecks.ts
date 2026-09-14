@@ -33,6 +33,23 @@ export const STORYBOOK_SLOTS = [
 
 export type StorybookSlot = (typeof STORYBOOK_SLOTS)[number]
 
+/**
+ * The spread, in rows (storybook/t-010, 2026-09-13).
+ *
+ * Silas: "a backdrop that evokes laying out cards on a velvet tablecloth to
+ * tell a story like a tarot reading, with different rows and columns." One
+ * auto-fill row of eight reads as a toolbar; three named rows read as a
+ * spread, and each row answers a different question about the story.
+ */
+export const STORYBOOK_SLOT_ROWS: {
+  title: string
+  slots: StorybookSlot[]
+}[] = [
+  { title: 'The frame', slots: ['mode', 'genre', 'place'] },
+  { title: 'The cast', slots: ['hero', 'company', 'narrator'] },
+  { title: 'The turn', slots: ['thread', 'treasures'] },
+]
+
 export interface StorybookSlotSpec {
   key: StorybookSlot
   label: string

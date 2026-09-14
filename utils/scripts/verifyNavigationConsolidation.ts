@@ -110,10 +110,13 @@ assert.match(accountTab, /\nroute: \/account\n/)
 assert.match(accountTab, /\nrequiredPermission: authenticated\n/)
 
 const accountPage = source('content/account.md')
-assert.match(
-  accountPage,
-  /\n:home-account-links\n[\s\S]*\n:account-center\n/,
-  'Account must show Newsfeed and Friends links before the existing account controls',
+assert.match(accountPage, /\n:account-center\n/)
+const accountCenter = source('components/user/account-center.vue')
+const accountLinksIndex = accountCenter.indexOf('<home-account-links />')
+const accountSettingsIndex = accountCenter.indexOf('<account-settings />')
+assert.ok(
+  accountLinksIndex >= 0 && accountSettingsIndex >= 0 && accountLinksIndex < accountSettingsIndex,
+  'Account center must show Newsfeed and Friends links before the existing account controls',
 )
 const accountLinks = source('components/home/home-account-links.vue')
 for (const route of ['/plan/newsfeed', '/friends']) {

@@ -70,6 +70,33 @@ jobs:
             shellcheck "${shell_files[@]}" || true
           fi
 
+      - name: Blocking shellcheck (high-confidence rules)
+        if: github.event_name == 'pull_request'
+        shell: bash
+        run: |
+          # interface-vision/t-133: promotes specific shellcheck rule classes from
+          # the warning-only pass above to hard-failing, now that real PR traffic
+          # plus a full audit of this repo's *.sh corpus has shown their
+          # false-positive rate. Re-discovers the changed *.sh set rather than
+          # sharing the previous step's mapfile array, since each `run:` block gets
+          # its own shell.
+          #
+          # Promoted so far (2026-09-14): SC2086 (unquoted variable expansion) --
+          # every SC2086 hit found (the full 12-script repo corpus, plus available
+          # CI history) was a genuine bug (unquoted $var in echo/curl on JSON/URL
+          # values), zero false positives; fixed the 4 pre-existing hits in
+          # utils/scripts/image_gen.sh so this starts from a clean baseline.
+          # NOT promoted: SC2207/SC2010/SC2209/SC1003 each had only a single
+          # occurrence in the same audit, and SC2209 was a confirmed false positive
+          # (sync-comfy-models.sh:184's `COPY_TOOL=rsync` flagged as a likely-intended
+          # command substitution when it's just a tool-name string) -- they stay
+          # warning-only until more traffic clears them.
+          mapfile -d '' shell_files < <(git diff --name-only --diff-filter=ACMR -z "${{ github.event.pull_request.base.sha }}...HEAD" -- '*.sh')
+          if [ "${#shell_files[@]}" -gt 0 ]; then
+            echo "shellcheck --include=SC2086 ${shell_files[*]}"
+            shellcheck --include=SC2086 "${shell_files[@]}"
+          fi
+
       - name: Audit test-prefixed commits for executable assertions
         if: github.event_name == 'pull_request'
         run: bash scripts/check-test-commit-assertions.sh "${{ github.event.pull_request.base.sha }}"

@@ -337,7 +337,7 @@
                 Building
               </span>
 
-              <span v-else class="badge badge-success badge-sm"> Ready </span>
+              <span v-else class="kr-badge-success-sm"> Ready </span>
 
               <span
                 v-if="botStore.currentBot.BotType"

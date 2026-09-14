@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Find or migrate hand-rolled kr-badge-{ghost,warning,outline,primary,secondary}-sm,
+"""Find or migrate hand-rolled kr-badge-{ghost,warning,outline,primary,secondary,success}-sm,
 kr-badge-{ghost,outline,primary,warning,success,error,secondary,accent,info,neutral}-xs,
 kr-badge-sm (the colorless base), kr-badge-xs (the colorless -xs sibling), and
 kr-badge-ghost/kr-badge-outline/kr-badge-warning/kr-badge-secondary (the sizeless
@@ -9,11 +9,12 @@ Dry-run is the default. Pass --write to update matching Vue files in place.
 Only the approved badge shapes are touched (`badge badge-ghost badge-sm`,
 `badge badge-warning badge-sm`, `badge badge-outline badge-sm`, `badge
 badge-primary badge-sm`, `badge badge-secondary badge-sm`, `badge
-badge-ghost badge-xs`, `badge badge-outline badge-xs`, `badge badge-primary
-badge-xs`, `badge badge-warning badge-xs`, `badge badge-success badge-xs`,
-`badge badge-error badge-xs`, `badge badge-secondary badge-xs`, `badge
-badge-accent badge-xs`, `badge badge-info badge-xs`, `badge badge-neutral
-badge-xs`, `badge badge-sm` and `badge badge-xs` with no color modifier at
+badge-success badge-sm`, `badge badge-ghost badge-xs`, `badge badge-outline
+badge-xs`, `badge badge-primary badge-xs`, `badge badge-warning badge-xs`,
+`badge badge-success badge-xs`, `badge badge-error badge-xs`, `badge
+badge-secondary badge-xs`, `badge badge-accent badge-xs`, `badge badge-info
+badge-xs`, `badge badge-neutral badge-xs`, `badge badge-sm` and `badge
+badge-xs` with no color modifier at
 all -- the dynamically-toned shapes whose color comes from a sibling
 `:class` binding), and only in static
 `class="..."` attributes -- never `:class`/`v-bind:class` bindings, and
@@ -57,6 +58,13 @@ FAMILIES = [
     ("kr-badge-outline-sm", {"badge", "badge-outline", "badge-sm"}),
     ("kr-badge-primary-sm", {"badge", "badge-primary", "badge-sm"}),
     ("kr-badge-secondary-sm", {"badge", "badge-secondary", "badge-sm"}),
+    # The success-colored counterpart to kr-badge-primary-sm/kr-badge-
+    # secondary-sm (interface-vision t-104 slice 271), the `-sm` sibling of
+    # kr-badge-success-xs below: found by a fresh full-repo class-frequency
+    # survey outside every now-closed family at 6 exact occurrences across 6
+    # files, plus 3 subset-match occurrences across 3 more files carrying an
+    # extra positioning/spacing token.
+    ("kr-badge-success-sm", {"badge", "badge-success", "badge-sm"}),
     ("kr-badge-ghost-xs", {"badge", "badge-ghost", "badge-xs"}),
     # Sizeless sibling of kr-badge-ghost-sm/kr-badge-ghost-xs (interface-vision
     # t-104 slice 181): its {badge, badge-ghost} base is a strict subset of

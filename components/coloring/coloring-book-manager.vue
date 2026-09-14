@@ -30,7 +30,7 @@
           </span>
           <span
             v-if="set.access?.tier === 'free'"
-            class="badge badge-success badge-sm"
+            class="kr-badge-success-sm"
           >
             Free
           </span>

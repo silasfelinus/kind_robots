@@ -141,7 +141,7 @@
             >
             <span
               v-else-if="friends.relationship(u.id) === 'friend'"
-              class="badge badge-success badge-sm"
+              class="kr-badge-success-sm"
               >Friend</span
             >
             <button

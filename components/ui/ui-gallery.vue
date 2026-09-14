@@ -279,14 +279,14 @@
         />
         <div class="kr-panel flex flex-wrap items-center gap-2">
           <span class="badge badge-primary">primary</span>
-          <span class="badge badge-secondary">secondary</span>
+          <span class="kr-badge-secondary">secondary</span>
           <span class="badge badge-accent">accent</span>
           <span class="badge badge-info">info</span>
           <span class="badge badge-success">success</span>
-          <span class="badge badge-warning">warning</span>
+          <span class="kr-badge-warning">warning</span>
           <span class="badge badge-error">error</span>
-          <span class="badge badge-outline">outline</span>
-          <span class="badge badge-ghost">ghost</span>
+          <span class="kr-badge-outline">outline</span>
+          <span class="kr-badge-ghost">ghost</span>
         </div>
       </section>
 
@@ -546,7 +546,7 @@
               <tr>
                 <td>Build UI gallery</td>
                 <td>global-ui</td>
-                <td><span class="badge badge-success badge-sm">done</span></td>
+                <td><span class="kr-badge-success-sm">done</span></td>
               </tr>
               <tr>
                 <td>Wire desired-features list</td>

@@ -36,6 +36,7 @@ function sampleEntry(overrides: Partial<ArtQueueEntry> = {}): ArtQueueEntry {
     id: 'conductor-packmaker-icon-abc12345',
     source: 'kind-robots-missing-image',
     status: 'pending',
+    requested_at: '2026-09-14T00:00:00.000Z',
     target_repo: 'silasfelinus/conductor',
     image_path: 'projects/images/packmaker-icon.webp',
     source_url: '/images/packmaker-icon.webp',
@@ -61,6 +62,13 @@ console.log('renderRequestEntry indentation')
     lines[0],
   )
   check('no line contains a tab character', !rendered.includes('\t'))
+  check(
+    'requested_at renders right after status, quoted',
+    rendered.includes(
+      '  status: "pending"\n  requested_at: "2026-09-14T00:00:00.000Z"\n',
+    ),
+    rendered,
+  )
 
   let sawFoldedHeader = false
   let indentationOk = true
@@ -124,6 +132,10 @@ console.log('optional field handling')
   check('size omitted when empty', !minimal.includes('size:'))
   check('label omitted when empty', !minimal.includes('label:'))
   check('required keys still present', minimal.includes('  image_path: '))
+  check(
+    'requested_at is always present, never treated as optional',
+    minimal.includes('  requested_at: '),
+  )
 }
 
 // --- appendRequest: items land at column 0 for every seed shape --------------

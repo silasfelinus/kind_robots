@@ -599,7 +599,7 @@ const props = withDefaults(
      * this title is the only label. Duplication on the ROUTE is not duplication
      * everywhere, so bot-interact opts out explicitly and the default is left
      * alone for the pickers. reward-gallery and scenario-gallery carry the same
-     * split for the same reason (character-chat, character-flip-card).
+     * split for the same reason (character-chat, character-card).
      */
     showHeader?: boolean
     showImages?: boolean

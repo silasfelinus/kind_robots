@@ -1,14 +1,14 @@
 // /utils/scripts/verifyAppmakerScaffoldCollisionGuard.ts
 //
-// Regression guard (appmaker/t-012) -- both of AppMaker's self-serve app
-// creation routes originally checked slug uniqueness only against the
-// kind_robots Prisma `Project`/`Dream` tables (and, for the external-repo
-// flow, `AppRepo`), never the conductor repo's apps/ folder listing that
-// apps.get.ts itself treats as the real source of truth for "already
-// scaffolded" (`conductorList('apps')`, filtered to `type === 'dir'`).
-// Several apps were scaffolded directly by an agent before either self-serve
-// flow existed (apps/storybook, apps/wishmaster, apps/sketchy, ...) and never
-// got a matching Project row.
+// Regression guard (appmaker/t-012, reshaped by kind-robots/t-094) -- both of
+// AppMaker's self-serve app creation routes originally checked slug
+// uniqueness only against the kind_robots Prisma `Project`/`Dream` tables
+// (and, for the external-repo flow, `AppRepo`), never the conductor repo's
+// apps/ folder listing that apps.get.ts itself treats as the real source of
+// truth for "already scaffolded" (`conductorList('apps')`, filtered to
+// `type === 'dir'`). Several apps were scaffolded directly by an agent before
+// either self-serve flow existed (apps/storybook, apps/wishmaster,
+// apps/sketchy, ...) and never got a matching Project row.
 //
 // That gap let a user request a slug colliding with one of those folders:
 // - scaffold-request.post.ts: the request succeeded (201, Todo filed, one of
@@ -27,12 +27,15 @@
 // `type === 'dir'` match on the candidate slug into each handler's own
 // "already taken" 409.
 //
-// This asserts the textual shape of that fix stays in place in both route
-// files: each still calls conductorList('apps'), still filters its `dir`
-// entries by name against the candidate slug, and still folds that result
-// into its own "already taken" condition -- not a bare check that silently
-// accepts a slug belonging to a pre-existing, unregistered apps/ folder
-// again.
+// kind-robots/t-094 then extracted that duplicated check (plus the
+// duplicated `SLUG_RE`/`slugify()` pair) into a single shared helper,
+// `server/utils/appmakerSlug.ts`'s `isSlugTaken()`. This guard now asserts
+// TWO things instead of one: (1) the shared helper module itself still does
+// the real collision work (still calls `conductorList('apps')`, still
+// filters `dir` entries by name, still folds Project/Dream/scaffolded-folder
+// into its returned boolean), and (2) each route still imports and calls
+// `isSlugTaken()` and folds its result into its own "already taken" 409 --
+// not a bare check that silently reverts to Prisma-only validation again.
 import { readFileSync } from 'node:fs'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -40,20 +43,21 @@ import { fileURLToPath } from 'node:url'
 const scriptDirectory = dirname(fileURLToPath(import.meta.url))
 const repositoryRoot = resolve(scriptDirectory, '../..')
 
+export const SHARED_HELPER_PATH = join(
+  repositoryRoot,
+  'server/utils/appmakerSlug.ts',
+)
+
 interface RouteConfig {
   label: string
   path: string
   // The full "already taken" condition expected in the fixed handler, e.g.
-  // `existingProject || existingDream || alreadyScaffolded`.
+  // `if (await isSlugTaken(slug))`.
   alreadyTakenPattern: RegExp
 }
 
-// Default pattern for checkScaffoldCollisionGuard()'s optional second
-// argument -- pulled out as its own constant (rather than indexing into
-// SCAFFOLD_COLLISION_ROUTES[0]) so a default-parameter initializer can't trip
-// TypeScript's noUncheckedIndexedAccess-style "possibly undefined" check.
 const SCAFFOLD_REQUEST_ALREADY_TAKEN_PATTERN =
-  /if\s*\(\s*existingProject\s*\|\|\s*existingDream\s*\|\|\s*alreadyScaffolded\s*\)/
+  /if\s*\(\s*await\s+isSlugTaken\(slug\)\s*\)/
 
 export const SCAFFOLD_COLLISION_ROUTES: RouteConfig[] = [
   {
@@ -64,8 +68,7 @@ export const SCAFFOLD_COLLISION_ROUTES: RouteConfig[] = [
   {
     label: 'create-app.post.ts',
     path: join(repositoryRoot, 'server/api/appmaker/github/create-app.post.ts'),
-    alreadyTakenPattern:
-      /if\s*\(\s*existingProject\s*\|\|\s*existingDream\s*\|\|\s*existingAppRepo\s*\|\|\s*alreadyScaffolded\s*\)/,
+    alreadyTakenPattern: /if\s*\(\s*taken\s*\|\|\s*existingAppRepo\s*\)/,
   },
 ]
 
@@ -88,21 +91,23 @@ function extractHandlerSource(content: string): string | null {
   return content.slice(braceOpen, i + 1)
 }
 
-export function checkScaffoldCollisionGuard(
+// Checks that a route file still delegates slug-collision checking to the
+// shared `isSlugTaken()` helper and folds its result into its own 409.
+export function checkRouteUsesSharedHelper(
   content: string,
-  alreadyTakenPattern: RegExp = SCAFFOLD_REQUEST_ALREADY_TAKEN_PATTERN,
+  alreadyTakenPattern: RegExp,
 ): string[] {
   const errors: string[] = []
 
   if (
-    !/import\s*\{\s*conductorList\s*\}\s*from\s*['"][^'"]*conductor-github['"]/.test(
+    !/import\s*\{[^}]*\bisSlugTaken\b[^}]*\}\s*from\s*['"][^'"]*appmakerSlug['"]/.test(
       content,
     )
   ) {
     errors.push(
-      'no longer imports `conductorList` from conductor-github -- has the ' +
-        'apps/ folder collision check been dropped, leaving slug uniqueness ' +
-        'checked only against the Prisma tables?',
+      'no longer imports `isSlugTaken` from `appmakerSlug` -- has this ' +
+        'route reverted to its own inline Project/Dream/apps-folder ' +
+        'collision check instead of the shared helper (kind-robots/t-094)?',
     )
   }
 
@@ -117,30 +122,70 @@ export function checkScaffoldCollisionGuard(
     return errors
   }
 
-  if (!/conductorList\(\s*['"]apps['"]\s*\)/.test(body)) {
+  if (!/isSlugTaken\(\s*slug\s*\)/.test(body)) {
     errors.push(
-      "the handler no longer calls conductorList('apps') -- the candidate " +
-        "slug is no longer checked against the conductor repo's actual " +
-        'apps/ folder listing, so a slug matching a pre-existing, ' +
-        'unregistered apps/<slug>/ folder will silently pass validation.',
+      'the handler no longer calls `isSlugTaken(slug)` -- slug ' +
+        'uniqueness may no longer be checked against the conductor apps/ ' +
+        'folder listing at all.',
     )
   }
 
-  if (!/entry\.type === 'dir' && entry\.name === slug/.test(body)) {
+  if (!alreadyTakenPattern.test(body)) {
     errors.push(
-      "the handler no longer filters conductorList('apps') entries by " +
+      'the "already taken" 409 no longer folds `isSlugTaken()`\'s result ' +
+        'into its condition -- the shared collision check may be computed ' +
+        'but not actually enforced.',
+    )
+  }
+
+  return errors
+}
+
+// Checks that the shared helper module itself still does the real work: the
+// same conductorList('apps') call, the same `dir` entry filter, and folding
+// existingProject/existingDream/alreadyScaffolded into its returned boolean
+// that both routes used to duplicate inline.
+export function checkSharedHelperImplementation(content: string): string[] {
+  const errors: string[] = []
+
+  if (
+    !/import\s*\{\s*conductorList\s*\}\s*from\s*['"][^'"]*conductor-github['"]/.test(
+      content,
+    )
+  ) {
+    errors.push(
+      'appmakerSlug.ts no longer imports `conductorList` from ' +
+        'conductor-github -- has the apps/ folder collision check been ' +
+        'dropped from the shared helper?',
+    )
+  }
+
+  if (!/conductorList\(\s*['"]apps['"]\s*\)/.test(content)) {
+    errors.push(
+      "appmakerSlug.ts no longer calls conductorList('apps') -- the " +
+        "candidate slug is no longer checked against the conductor repo's " +
+        'actual apps/ folder listing.',
+    )
+  }
+
+  if (!/entry\.type === 'dir' && entry\.name === slug/.test(content)) {
+    errors.push(
+      "appmakerSlug.ts no longer filters conductorList('apps') entries by " +
         "`entry.type === 'dir' && entry.name === slug` -- has the " +
         'collision match against the scaffolded-folder listing been ' +
         'weakened or dropped?',
     )
   }
 
-  if (!alreadyTakenPattern.test(body)) {
+  if (
+    !/existingProject\s*\|\|\s*existingDream\s*\|\|\s*alreadyScaffolded/.test(
+      content,
+    )
+  ) {
     errors.push(
-      'the "already taken" 409 no longer folds `alreadyScaffolded` into ' +
-        'its condition alongside the existing Prisma lookups -- the apps/ ' +
-        'folder collision result is no longer checked even if it is still ' +
-        'computed.',
+      'appmakerSlug.ts no longer folds `existingProject || existingDream || ' +
+        'alreadyScaffolded` into its returned boolean -- the apps/ folder ' +
+        'collision result may be computed but no longer actually returned.',
     )
   }
 
@@ -150,9 +195,25 @@ export function checkScaffoldCollisionGuard(
 function main(): void {
   let anyFailed = false
 
+  const helperContent = readFileSync(SHARED_HELPER_PATH, 'utf8')
+  const helperErrors = checkSharedHelperImplementation(helperContent)
+  if (helperErrors.length) {
+    anyFailed = true
+    console.error(
+      'AppMaker scaffold-collision guard contract failed in appmakerSlug.ts:',
+    )
+    for (const error of helperErrors) console.error(`- ${error}`)
+  } else {
+    console.log(
+      'AppMaker scaffold-collision guard contract passed for appmakerSlug.ts: ' +
+        'isSlugTaken() still checks Project, Dream, and the conductor apps/ ' +
+        'folder listing.',
+    )
+  }
+
   for (const route of SCAFFOLD_COLLISION_ROUTES) {
     const content = readFileSync(route.path, 'utf8')
-    const errors = checkScaffoldCollisionGuard(
+    const errors = checkRouteUsesSharedHelper(
       content,
       route.alreadyTakenPattern,
     )

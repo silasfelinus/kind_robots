@@ -11,9 +11,7 @@ import { requireApiUser } from '@/server/utils/authGuard'
 import { enforceProjectCap } from '@/server/utils/projectCap'
 import { listInstallationRepositories } from '@/server/utils/appmakerGithub'
 import { userIsAdmin, userRoles } from '@/server/utils/authUser'
-import { conductorList } from '~/server/utils/conductor-github'
-
-const SLUG_RE = /^[a-z][a-z0-9-]{1,40}$/
+import { SLUG_RE, slugify, isSlugTaken } from '@/server/utils/appmakerSlug'
 
 type CreateAppBody = {
   installationId?: number
@@ -23,15 +21,6 @@ type CreateAppBody = {
   title?: string
   slug?: string
   description?: string
-}
-
-function slugify(value: string): string {
-  return value
-    .toLowerCase()
-    .trim()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '')
-    .slice(0, 40)
 }
 
 function getWorkerUserId(): number {
@@ -121,41 +110,19 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    const [existingProject, existingDream, existingAppRepo, scaffoldedApps] =
-      await Promise.all([
-        prisma.project.findFirst({
-          where: { OR: [{ slug }, { conductorSlug: slug }] },
-          select: { id: true },
-        }),
-        prisma.dream.findUnique({ where: { slug }, select: { id: true } }),
-        prisma.appRepo.findUnique({
-          where: { slug_userId: { slug, userId: user.id } },
-          select: { id: true },
-        }),
-        conductorList('apps'),
-      ])
+    // Project/Dream/conductor apps-folder collision is shared with
+    // scaffold-request.post.ts via appmakerSlug.ts (appmaker/t-012,
+    // kind-robots/t-094); this route also has its own per-user AppRepo slug
+    // to check, run in parallel alongside it.
+    const [taken, existingAppRepo] = await Promise.all([
+      isSlugTaken(slug),
+      prisma.appRepo.findUnique({
+        where: { slug_userId: { slug, userId: user.id } },
+        select: { id: true },
+      }),
+    ])
 
-    // Mirrors scaffold-request.post.ts's collision guard (appmaker/t-012):
-    // apps.get.ts treats a `dir` entry under conductor's apps/ folder as the
-    // real source of truth for "already scaffolded", but several apps (e.g.
-    // apps/storybook, apps/wishmaster) were scaffolded directly by an agent
-    // before either self-serve flow existed and never got a matching Project
-    // row. Without this check, a user could register this same slug through
-    // the external-repo flow -- existingProject/existingDream/existingAppRepo
-    // would all miss it (no Project, Dream, or AppRepo row exists for an
-    // agent-scaffolded monorepo app), so the request would succeed and create
-    // a Project that permanently collides with the existing apps/<slug>/
-    // folder's own identity.
-    const alreadyScaffolded = (scaffoldedApps ?? []).some(
-      (entry) => entry.type === 'dir' && entry.name === slug,
-    )
-
-    if (
-      existingProject ||
-      existingDream ||
-      existingAppRepo ||
-      alreadyScaffolded
-    ) {
+    if (taken || existingAppRepo) {
       throw createError({
         statusCode: 409,
         message: `Slug '${slug}' is already taken.`,

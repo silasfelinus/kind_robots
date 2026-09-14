@@ -262,7 +262,7 @@
               />
               <span
                 v-else
-                class="loading loading-spinner loading-sm text-primary-content"
+                class="kr-spinner-sm text-primary-content"
               />
             </div>
           </button>

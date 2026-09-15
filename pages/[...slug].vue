@@ -6,7 +6,12 @@
          legacy stub is a description of the redirect, not content. -->
     <div
       v-else-if="activePage?.body && !redirectTarget"
-      class="content-host flex h-full min-h-0 w-full flex-col overflow-y-auto overscroll-contain rounded-2xl"
+      class="content-host flex h-full min-h-0 w-full flex-col rounded-2xl"
+      :class="
+        contentPath === '/artjob'
+          ? 'overflow-hidden'
+          : 'overflow-y-auto overscroll-contain'
+      "
     >
       <ContentRenderer :value="activePage" />
     </div>

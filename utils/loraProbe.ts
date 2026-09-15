@@ -351,7 +351,19 @@ const PROBE_BASE_PREFERENCE: Record<
   Exclude<LoraProbeFamily, 'unsupported' | 'flux'>,
   string[]
 > = {
-  pony: ['ponyFaetality', 'realcartoonPony', 'cyberrealisticPony'],
+  /*
+   * ponyFaetality is DELIBERATELY ABSENT. It was first here, and it wedged the
+   * relay: ArtJob 22838 was claimed three times, hung on the model load every
+   * time, and ended FAILED at attempts 3 with errorMessage null -- a hang, not
+   * a rejection, the same signature as the Flux.2 Klein checkpoint in
+   * conductor/t-165. Do not re-add it without evidence it loads.
+   *
+   * realcartoonPony leads on aesthetics (it lets a style LoRA through where the
+   * photorealistic cyberrealisticPony fights it). cyberrealisticPony is the
+   * fallback because it is the one Pony base observed to load successfully
+   * here (ArtJob 22835, slowly at 12m30s, but it finished).
+   */
+  pony: ['realcartoonPony', 'cyberrealisticPony'],
   illustrious: ['illustrij', 'ntrMIXIllustriousXL', 'furrytoonmix'],
   sdxl: ['dreamshaperXL', 'duskMixXLIllustration', 'sdxlUnstableDiffusers'],
   sd15: ['duchaitenStylelikeme', 'revAnimated'],

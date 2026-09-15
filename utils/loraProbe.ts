@@ -266,6 +266,25 @@ export function classifyLoraFamily(
       return 'illustrious'
     // Kontext is an edit model: it needs a source image, not a text probe.
     if (value.includes('kontext')) return 'unsupported'
+    /*
+     * Flux.2 and Flux.2 Klein are a different architecture from Flux.1, and the
+     * flux lane renders on a fixed Flux.1 dev UNet. This is not a cosmetic
+     * mismatch: on 2026-09-15 ArtJob 22837 applied
+     * Flux/SFW/Flux_2-Turbo-LoRA_comfyui.safetensors through that lane and hung
+     * ComfyUI for 90+ minutes, blowing through two 1800s soft timeouts and
+     * wedging the relay's only slot until it was restarted by hand. The whole
+     * render queue stopped behind it.
+     *
+     * conductor/t-147 closed the mirror-image case as mitigated by
+     * kind_robots#2435, which blocks Flux.1 LoRAs from the Flux.2 lane. That
+     * guard is directional and does not cover this way round.
+     */
+    if (
+      value.includes('flux.2') ||
+      value.includes('flux2') ||
+      value.includes('klein')
+    )
+      return 'unsupported'
     if (value.includes('flux')) return 'flux'
     if (value.includes('sdxl')) return 'sdxl'
     if (value.includes('sd 1.5') || value === '1.5' || value.includes('sd1.5'))

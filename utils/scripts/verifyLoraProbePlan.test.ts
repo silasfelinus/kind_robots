@@ -463,6 +463,28 @@ function run(): void {
     )
   }
 
+  /*
+   * Flux.2 must never reach the flux lane. ArtJob 22837 applied a Flux.2 Turbo
+   * LoRA through the Flux.1 dev UNet on 2026-09-15 and hung ComfyUI for 90+
+   * minutes, wedging the relay's single slot and stopping the whole render
+   * queue until it was restarted by hand. kind_robots#2435 blocks the mirror
+   * case (Flux.1 LoRA into the Flux.2 lane) but is directional.
+   */
+  for (const generation of ['Flux.2 D', 'Flux.2 Klein 9B', 'flux2', 'Klein']) {
+    assert.equal(
+      classifyLoraFamily(generation),
+      'unsupported',
+      `${generation} must not be routed onto the Flux.1 dev UNet`,
+    )
+  }
+  for (const generation of ['Flux.1 D', 'Flux (from metadata)', 'FLUX']) {
+    assert.equal(
+      classifyLoraFamily(generation),
+      'flux',
+      `${generation} is genuinely Flux.1 and still renders`,
+    )
+  }
+
   console.log('verifyLoraProbePlan: all assertions passed')
 }
 

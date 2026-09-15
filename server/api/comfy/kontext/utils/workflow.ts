@@ -31,14 +31,49 @@ export type KontextWorkflowInput = {
   scheduler?: string | null
   denoise?: number | null
   filenamePrefix?: string | null
+  // How much of the ORIGINAL photo to preserve, 0..1. 0 = full reimagine from
+  // an empty latent (the legacy Kontext behavior); higher values initialise the
+  // sampler from the encoded source photo at a reduced denoise, so the person's
+  // face, body, and background survive — this is the "weight from the original
+  // picture" control. It also makes the output follow the source's aspect ratio
+  // instead of a forced 1024x1024 square. Ignored (treated as full denoise) when
+  // a mask is supplied, where the mask alone decides what changes.
   originalWeight?: number | null
+  // Optional real negative prompt. When set, the graph swaps BasicGuider for
+  // CFGGuider (cfg > 1) so the negative actually constrains the result — Flux
+  // ignores negatives on the default cfg=1 path. Left empty keeps the cheaper
+  // single-pass BasicGuider path unchanged.
   negativePrompt?: string | null
   cfg?: number | null
+  // Optional hair/region mask (uploaded as a separate input image, white =
+  // change, black = keep). When set, only the masked region is repainted via
+  // SetLatentNoiseMask over the source-init latent — everything else is locked
+  // to the original. Core ComfyUI nodes only (LoadImageMask/SetLatentNoiseMask).
   maskName?: string | null
+  // Optional style LoRA (matches GenerateArtData.loraName/loraStrength and the
+  // pattern already used by simpleCheckpointWorkflow.ts / imageToVideoWorkflow.ts).
+  // When set, a LoraLoaderModelOnly node is spliced between the base UNet loader
+  // and ModelSamplingFlux so the render graph actually applies the LoRA — until
+  // now this only ever reached the graph as inert `<lora:...>` prompt text.
   loraName?: string | null
   loraStrength?: number | null
+  // Multiple stacked LoRAs, applied in order. Supersedes the pair above.
   loras?: LoraSelectionInput[] | null
+  // Optional base-UNet override (cthulhuquarium art audit / coloring-book t-039,
+  // ai-art-academy t-079). The Kontext UNet was hardcoded to the GGUF-quantised
+  // flux1-kontext-dev-Q5_K_M.gguf, which made it impossible to answer the one
+  // question that matters about the corrupted-noise defect: is the quantised
+  // checkpoint the cause? A plain Kontext call with no LoRA at all renders pure
+  // static (ArtJob 21693), so the fault is upstream of the LoRA branch and the
+  // quantised UNet is the leading suspect -- but it could not be swapped out to
+  // check.
+  //
+  // Pass a `.gguf` name to keep the UnetLoaderGGUF path, or a `.safetensors`
+  // name to load through core ComfyUI's UNETLoader instead. Unset preserves the
+  // exact previous behaviour, so no existing caller changes.
   unetName?: string | null
+  // Weight dtype for the non-GGUF UNETLoader path. Defaults to fp8_e4m3fn,
+  // which matches the fp8-scaled Kontext checkpoint in the Resource library.
   unetWeightDtype?: string | null
 }
 
@@ -49,7 +84,11 @@ export const DEFAULT_KONTEXT_GUIDANCE = 2.5
 export const DEFAULT_KONTEXT_SAMPLER = 'euler'
 export const DEFAULT_KONTEXT_SCHEDULER = 'simple'
 export const DEFAULT_KONTEXT_DENOISE = 1
+// cfg used only on the CFGGuider (real-negative) path; the default BasicGuider
+// path is effectively cfg=1. Flux stays coherent at a low positive cfg.
 export const DEFAULT_KONTEXT_CFG = 2.5
+// Minimum denoise floor so a very high originalWeight still leaves the model
+// enough budget to actually apply the requested change.
 const MIN_IMG2IMG_DENOISE = 0.15
 
 function resolveSeed(seed?: number | null): number {
@@ -67,6 +106,18 @@ function clamp(value: number, min: number, max: number): number {
 const DEFAULT_KONTEXT_UNET = 'flux1-kontext-dev-Q5_K_M.gguf'
 const DEFAULT_KONTEXT_UNET_WEIGHT_DTYPE = 'fp8_e4m3fn'
 
+/**
+ * Node 59, the base UNet the whole Kontext graph hangs off.
+ *
+ * GGUF checkpoints need the ComfyUI-GGUF node pack's `UnetLoaderGGUF`; ordinary
+ * `.safetensors` weights need core ComfyUI's `UNETLoader`, which additionally
+ * wants a weight dtype. Feeding a `.safetensors` name to the GGUF loader (or the
+ * reverse) fails at graph execution, so the file extension picks the node rather
+ * than the caller having to know which is which.
+ *
+ * Default is unchanged from when this was inlined, so callers that pass nothing
+ * get exactly the previous graph.
+ */
 function buildKontextUnetLoader(input: KontextWorkflowInput): ComfyWorkflowNode {
   const unetName = input.unetName?.trim() || DEFAULT_KONTEXT_UNET
 
@@ -105,8 +156,13 @@ export function buildKontextWorkflow(
     Number.isFinite(input.originalWeight)
       ? clamp(input.originalWeight, 0, 1)
       : 0
+  // Init from the encoded source when preserving the original or when masking
+  // (a mask needs a base latent to protect). Otherwise start from empty latent.
   const useImg2Img = originalWeight > 0 || useMask
 
+  // With an img2img init, denoise sets how much of the original survives:
+  // denoise = 1 - originalWeight (floored). Masking with no weight keeps full
+  // denoise so the masked region is fully restyled while the rest is locked.
   const denoise = useImg2Img
     ? originalWeight > 0
       ? clamp(1 - originalWeight, MIN_IMG2IMG_DENOISE, 1)
@@ -144,6 +200,7 @@ export function buildKontextWorkflow(
         guider: ['22', 0],
         sampler: ['16', 0],
         sigmas: ['17', 0],
+        // latent_image is patched below depending on img2img/mask.
         latent_image: ['27', 0],
       },
       class_type: 'SamplerCustomAdvanced',
@@ -164,6 +221,8 @@ export function buildKontextWorkflow(
       class_type: 'BasicScheduler',
       _meta: { title: 'BasicScheduler' },
     },
+    // 22 is the guider — BasicGuider by default; replaced with CFGGuider below
+    // when a real negative prompt is supplied.
     '22': {
       inputs: { model: ['30', 0], conditioning: ['42', 0] },
       class_type: 'BasicGuider',
@@ -221,6 +280,12 @@ export function buildKontextWorkflow(
     '59': buildKontextUnetLoader(input),
   }
 
+  // --- optional style LoRA: load once off the base UNet and route
+  //     ModelSamplingFlux's model input through it, so both the scheduler and
+  //     guider (which both read model from node 30) pick it up. Mirrors the
+  //     LoraLoaderModelOnly pattern in simpleCheckpointWorkflow.ts /
+  //     imageToVideoWorkflow.ts. No-op (base graph unchanged) when no LoRA is
+  //     requested, so prompt-only styles keep their existing behavior. ---
   const loras = normalizeLoraSelections(input)
   if (loras.length) {
     const model = appendModelOnlyLoraChain(workflow, {
@@ -231,8 +296,12 @@ export function buildKontextWorkflow(
     ;(workflow['30']!.inputs as Record<string, unknown>).model = model
   }
 
+  // --- img2img init: start from the encoded source photo (node 39) so the
+  //     person and framing survive, instead of the empty latent (node 27). ---
   let latentRef: [string, number] = useImg2Img ? ['39', 0] : ['27', 0]
 
+  // --- optional hair/region mask: only the white area of the mask is denoised,
+  //     the rest is locked to the source latent. ---
   if (useMask) {
     workflow['70'] = {
       inputs: { image: maskName, channel: 'red' },
@@ -249,6 +318,7 @@ export function buildKontextWorkflow(
 
   ;(workflow['13']!.inputs as Record<string, unknown>).latent_image = latentRef
 
+  // --- real negative prompt via CFGGuider (Flux ignores negatives at cfg=1) ---
   if (useNegative) {
     workflow['7'] = {
       inputs: { text: negativePrompt, clip: ['11', 0] },
@@ -282,6 +352,12 @@ export function getKontextImageExtension(imageData: string): string {
 
 export type KontextInputImage = { name: string; imageData: string }
 
+// The ArtJob payload's `images` array: the source photo, plus an optional
+// hair/region mask image the relay uploads to Comfy's input folder alongside
+// it (see buildKontextWorkflow's `maskName`/LoadImageMask wiring above). Only
+// appended when both a mask name and its data are present -- mirrors the
+// maskName-gated node wiring so the payload and the workflow graph can never
+// disagree about whether a mask is in play.
 export function buildKontextInputImages(
   imageName: string,
   imageData: string,

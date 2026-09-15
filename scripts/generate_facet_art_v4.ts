@@ -540,6 +540,7 @@ export function curatedPromptNeedsRender(
   facet: FacetRow,
   hasAttempt: boolean,
   renderedPrompt: string | undefined,
+  paintedPrompt?: string | undefined,
 ): boolean {
   const curated = clean(facet.artPrompt)
   // Nothing authored here, or the text is the producer's own: not this mode's
@@ -547,9 +548,44 @@ export function curatedPromptNeedsRender(
   if (!curated || isLegacyGeneratedFacetPrompt(curated)) return false
   // Never rendered at all -- ordinary coverage queues it.
   if (!hasAttempt) return false
+  /*
+   * The picture on the card is the only thing Silas can see, so it is the only
+   * honest answer to "has this been rendered yet".
+   *
+   * The job payload answers a DIFFERENT question -- what the producer last
+   * ASKED for -- and the two come apart whenever a job is queued and then does
+   * not produce the linked image: cancelled before claim, failed, or superseded
+   * by an older image that stayed linked. On 2026-09-15 that gap hid 148
+   * genre/theme cards whose catalog prompt was the authored one, whose job
+   * payload was the authored one, and whose actual picture had been painted
+   * from the retired v5 template clause. Every counter said done; every card
+   * was wrong.
+   *
+   * So prefer what was painted, and fall back to the payload only when nothing
+   * is linked. The renderer appends framing guidance to the stored prompt, so
+   * containment is the correct comparison against a painted prompt, where the
+   * payload's basePrompt is stored raw and compares exactly.
+   */
+  if (paintedPrompt !== undefined) {
+    return !promptWasPainted(curated, paintedPrompt)
+  }
   // Rendered from this exact text already.
   if (renderedPrompt && renderedPrompt === curated) return false
   return true
+}
+
+/**
+ * Whether `painted` is the text that produced a picture from `curated`.
+ *
+ * Containment rather than equality: the renderer appends framing and style
+ * guidance ("A square picture with the subject large and centred.") to the
+ * prompt it was given, so an exact match never holds for a real render.
+ */
+export function promptWasPainted(curated: string, painted: string): boolean {
+  const norm = (value: string) => value.replace(/\s+/g, ' ').trim().toLowerCase()
+  const needle = norm(curated)
+  if (!needle) return false
+  return norm(painted).includes(needle)
 }
 
 export function v5RenderNeedsRepair(facet: FacetRow): boolean {
@@ -1015,6 +1051,33 @@ export async function main(): Promise<void> {
 
       const facetRows = facets as FacetRow[]
       const facetById = new Map(facetRows.map((facet) => [facet.id, facet]))
+      /*
+       * What each Facet's current picture was ACTUALLY painted from. Read from
+       * the linked ArtImage rather than inferred from the job payload -- see
+       * curatedPromptNeedsRender for why the two disagree and what it cost.
+       */
+      const paintedPromptByFacet = new Map<number, string>()
+      if (REQUEUE_CURATED) {
+        const linkedImageIds = facetRows
+          .map((facet) => facet.artImageId)
+          .filter((id): id is number => typeof id === 'number')
+        if (linkedImageIds.length) {
+          const images = await prisma.artImage.findMany({
+            where: { id: { in: linkedImageIds } },
+            select: { id: true, promptString: true },
+          })
+          const promptByImage = new Map(
+            images.map((image) => [image.id, image.promptString ?? '']),
+          )
+          for (const facet of facetRows) {
+            if (facet.artImageId === null) continue
+            const painted = promptByImage.get(facet.artImageId)
+            if (painted !== undefined) {
+              paintedPromptByFacet.set(facet.id, painted)
+            }
+          }
+        }
+      }
       const profileByFacet = new Map(
         profiles.map((profile) => [profile.facetId, profile as ProfileRow]),
       )
@@ -1281,6 +1344,7 @@ export async function main(): Promise<void> {
               facet,
               attempted.has(key),
               newestJobPrompt.get(key),
+              paintedPromptByFacet.get(facet.id),
             )
           ) {
             continue

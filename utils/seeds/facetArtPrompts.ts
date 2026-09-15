@@ -467,4 +467,158 @@ export const CURATED_FACET_ART_PROMPTS: Record<string, string> = {
   // Zero-G Opera
   'zero-g-opera':
     'A performance in a spherical hall with the audience seated on every surface, singers turning slowly in mid-air at the centre.',
+
+  // ── PROMPT_ENHANCEMENT ──
+  //
+  // One shared scene could not do this, and the two attempts failed at
+  // opposite ends of the same mistake. v1 -- a pear and a marble under flat
+  // light -- gave the techniques nothing to ACT ON: no light source to make
+  // volumetric, no metal to gild. v2 put all of it in frame, and then the
+  // scene was already doing every effect at maximum, so naming one changed
+  // nothing: volumetric light and gilded shimmer came back as the same
+  // photograph (Silas, 2026-09-15: "volumetric and gilded shimmer are not
+  // recognizably different from my eyes"). Only bokeh worked, because a lens
+  // operation can transform any frame at all.
+  //
+  // So each technique now gets a scene chosen so the image IS the technique:
+  // volumetric light is dust in a shaft, gilded shimmer is gold leaf under a
+  // burnisher, subsurface scattering is a hand held against a window. Direct
+  // A/B comparison is given up, and it was never paying for itself -- 45
+  // identical pears compared nothing. A picker card has to say its own name at
+  // a glance, which is the same conclusion the genre cards reached.
+  // ambient occlusion
+  'ambient-occlusion':
+    'Plain white plaster spheres and cubes crowded together on white paper under flat light, every point of contact darkening to soft grey where the surfaces meet.',
+  // bokeh background
+  'bokeh-background':
+    'A single wet leaf held close to the lens, a street of hanging festival lights behind it dissolved into large soft circles of gold and red.',
+  // cinematic lighting
+  'cinematic-lighting':
+    'A figure standing in a doorway lit hard from one side and edged in cold blue from behind, the rest of the room falling away to black.',
+  // clean background
+  'clean-background':
+    'A single red enamel teapot on a seamless white sweep, nothing else from edge to edge, its shadow a soft pool directly beneath it.',
+  // color harmony
+  'color-harmony':
+    'Folded cloths laid out in ochre, rust and deep amber with one narrow teal ribbon across them, every colour agreeing with its neighbour.',
+  // cool reflections
+  'cool-reflections':
+    'A chrome ball bearing resting on blue glass under an overcast skylight, the whole cold room curving across its surface.',
+  // crisp geometry
+  'crisp-geometry':
+    'Machined aluminium blocks stacked beside a steel rule on a matte bench, every edge dead straight and every corner square under even light.',
+  // depth of field
+  'depth-of-field':
+    'Five brass thimbles in a row receding across a table, the third one perfectly sharp while those in front and behind melt away.',
+  // digital painting
+  'digital-painting':
+    'A harbour at dusk in broad confident digital brushwork, colour blocked in flat and blended soft, the strokes still visible.',
+  // dramatic shadows
+  'dramatic-shadows':
+    'A slatted blind throwing hard bars of light across an empty office wall and floor, a chair cut in half by the pattern.',
+  // dynamic lightfall
+  'dynamic-lightfall':
+    'Sunlight breaking through moving cloud onto a green hillside, bright patches sweeping across the grass while the rest lies in shade.',
+  // epic scene composition
+  'epic-scene-composition':
+    'A lone rider tiny at the foot of a vast canyon wall, the land sweeping back through three ranges of cliffs toward a distant storm.',
+  // film grain
+  'film-grain':
+    'A black and white street photograph on pushed high-speed stock, heavy silver grain across the pale sky and in the shadows under a café awning.',
+  // fine brush strokes
+  'fine-brush-strokes':
+    'A close view of an oil portrait\'s cheek where each small sable stroke of pink and cream sits separately on the canvas weave.',
+  // gilded shimmer
+  'gilded-shimmer':
+    'A restorer laying gold leaf onto a carved frame, the fresh gold flaring where the burnisher has passed and lying dull where it has not.',
+  // glass-like skin
+  'glass-like-skin':
+    'A porcelain doll\'s face under soft window light, the surface so smooth and faintly translucent that the light sinks a little before it returns.',
+  // glowing pigments
+  'glowing-pigments':
+    'Powdered pigments heaped in open jars under ultraviolet light, the magenta and green burning far brighter than the dim room around them.',
+  // gradient brilliance
+  'gradient-brilliance':
+    'A length of silk lifted from a dye bath, running from deep indigo through violet to pale gold in one unbroken sweep.',
+  // highlighted contours
+  'highlighted-contours':
+    'A dark bronze torso lit by a single lamp high to one side, a thin bright line following every muscle and every edge.',
+  // holographic glow
+  'holographic-glow':
+    'A sheet of holographic foil stickers tilted toward a window, rainbow interference sliding across the surface as the angle changes.',
+  // impeccable contrast
+  'impeccable-contrast':
+    'A white ceramic cup on black velvet, the white holding full detail and the black going to true depth with nothing muddy between them.',
+  // intricate patterning
+  'intricate-patterning':
+    'The corner of a hand-knotted carpet filled edge to edge with tiny repeating floral medallions in madder and indigo.',
+  // layered complexity
+  'layered-complexity':
+    'A forest interior with ferns in the foreground, trunks in the middle distance, and mist-separated ridges stacking away behind.',
+  // luxurious textures
+  'luxurious-textures':
+    'Crushed velvet, heavy silk, dense fur and a gold tassel heaped together, each fabric catching the light in its own way.',
+  // macro fidelity
+  'macro-fidelity':
+    'An extreme close view of a bee\'s eye and the fine hairs on its face, every facet and every hair resolved.',
+  // moody atmosphere
+  'moody-atmosphere':
+    'A rain-wet alley at night under one sodium lamp, fog holding the light low and everything beyond it blue-grey.',
+  // neon reflections
+  'neon-reflections':
+    'Wet city pavement beneath a pink and cyan sign, the letters stretched into long coloured streaks across the standing water.',
+  // oil on canvas effect
+  'oil-on-canvas-effect':
+    'A still life of lemons in thick oil paint, ridges of pigment standing up where the knife passed, canvas weave showing at the edges.',
+  // painterly mood
+  'painterly-mood':
+    'A riverbank in summer rendered loosely, edges dissolved and forms suggested rather than described, colour doing all the work.',
+  // photo-real shadows
+  'photo-real-shadows':
+    'A wooden chair on a concrete floor in afternoon sun, its shadow sharp at the legs and softening as it travels away.',
+  // photoreal lighting
+  'photoreal-lighting':
+    'A kitchen window in morning light with a bowl of eggs on the sill, lit exactly as a camera would record it.',
+  // precise rim light
+  'precise-rim-light':
+    'A black cat against a black studio background with one strip light behind, a clean bright edge tracing its back and its ears.',
+  // ray tracing
+  'ray-tracing':
+    'Clear glass spheres clustered on white marble under one bright source, throwing sharp caustic patterns of light across the stone.',
+  // renaissance realism
+  'renaissance-realism':
+    'A three-quarter portrait of a young woman in a dark green gown before a shuttered window, softly modelled in the Florentine manner.',
+  // rich color grading
+  'rich-color-grading':
+    'A desert highway at golden hour with warm highlights and cool teal shadows, the whole frame pushed toward a film look.',
+  // sharp focus
+  'sharp-focus':
+    'A dandelion clock against a plain dark field, every seed and filament rendered crisply from one edge of the frame to the other.',
+  // soft bloom
+  'soft-bloom':
+    'A bedroom window at sunrise where the light spills past the frame and blooms gently into the room.',
+  // studio photography
+  'studio-photography':
+    'A pair of leather boots on a seamless grey backdrop under a large softbox with a reflector below, catalogue-clean.',
+  // subsurface scattering
+  'subsurface-scattering':
+    'A hand held up against a bright window, the fingers glowing deep red where the light passes through the flesh.',
+  // symmetric composition
+  'symmetric-composition':
+    'A tiled hall photographed dead centre, the vaulted ceiling and two rows of columns mirroring exactly about the middle line.',
+  // ultra-smooth edges
+  'ultra-smooth-edges':
+    'Three matte resin shapes on a pale surface, every outline clean and unbroken, the surfaces without grain or pitting.',
+  // ultra textured
+  'ultra-textured':
+    'A weathered oak door seen close, deep grain and flaking paint and rusted nail heads and lichen all raised under raking light.',
+  // vivid chroma
+  'vivid-chroma':
+    'A market stall of powdered holi colours heaped in cones of magenta, emerald and cobalt, saturated to the very limit.',
+  // volumetric light
+  'volumetric-light':
+    'Dust turning in hard shafts of sunlight falling through a high broken window into a dark stone hall, each beam solid in the air.',
+  // warm highlights
+  'warm-highlights':
+    'A copper kettle on a stove in late afternoon, the light picking out warm orange highlights along its shoulder and its handle.',
 }

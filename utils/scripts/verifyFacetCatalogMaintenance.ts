@@ -105,6 +105,14 @@ for (const required of [
   // repair target even after a newer version already fixed that slot. On the
   // v6 run that queued 45 duplicate swatch jobs. Ranking versions and skipping
   // any slot already attempted more recently closes it for every future bump.
+  // An argv flag that is silently ignored has cost two full queue cycles:
+  // --requeue-curated on an older build ran as a plain --write, and --facets on
+  // an older build queued all 146. Both printed numbers that looked like
+  // success. Unknown flags must refuse, not shrug.
+  'const KNOWN_FLAGS',
+  'Unrecognized option(s)',
+  'process.exit(2)',
+  'facetFilterUnmatched',
   'const VERSION_ORDER',
   'newestAttemptRank',
   'repairSkippedNewerAttempt',
@@ -129,7 +137,12 @@ for (const required of [
   'isLegacyGeneratedFacetPrompt',
   'legacyPendingIds',
   "status: 'CANCELLED'",
-  "reason: 'facet-art-direction-jargon-repair-v5'",
+  // The default retry reason; requeue paths pass their own. What matters is
+  // that retry provenance is attached at all -- without it artJobQueueCoverage
+  // cancels a replacement before claim, which silently killed all 146 authored
+  // prompts on 2026-09-15.
+  "reason = 'facet-art-direction-jargon-repair-v5'",
+  'retry: repairRetry(repair.sourceJobId, repair.reason)',
   "repairReason: 'art-direction-jargon-rendered-literally'",
   "mode: 'NEW_OUTPUT'",
 ]) {

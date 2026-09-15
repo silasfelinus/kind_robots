@@ -3,7 +3,10 @@
 // The authored prompts are content, and content rots quietly. These checks are
 // the ones that would have caught each failure this work has already shipped.
 import assert from 'node:assert/strict'
-import { readFileSync } from 'node:fs'
+import { readFileSync, writeFileSync, mkdtempSync } from 'node:fs'
+import { spawnSync } from 'node:child_process'
+import { join } from 'node:path'
+import { tmpdir } from 'node:os'
 import { CURATED_FACET_ART_PROMPTS } from '../seeds/facetArtPrompts'
 import { checkArtPromptContract } from '../../server/utils/artPromptContract'
 import { readFacetCoverageTarget } from '../../server/utils/artJobQueueCoverage'
@@ -206,5 +209,32 @@ for (const [slug, prompt] of entries) {
     `${slug} still uses the shared swatch scene that demonstrated nothing`,
   )
 }
+
+// ── Importing the producer must not exit the process ────────────────────────
+//
+// The unknown-flag guard was a top-level statement, so it ran on IMPORT.
+// applyCuratedFacetArtPrompts.ts imports this module for
+// isLegacyGeneratedFacetPrompt, so its own `--apply` looked like an unknown
+// producer flag and the apply died before writing a single prompt. A module
+// that exits when someone imports it is worse than the failure the guard
+// prevents, so the guard belongs in main().
+const probeDir = mkdtempSync(join(tmpdir(), 'facet-import-probe-'))
+const probe = join(probeDir, 'probe.ts')
+writeFileSync(
+  probe,
+  `import(${JSON.stringify(join(process.cwd(), 'scripts/generate_facet_art_v4'))})\n` +
+    `  .then(() => console.log('ok'))\n` +
+    `  .catch((error) => { console.error(error); process.exit(1) })\n`,
+)
+const imported = spawnSync('npx', ['tsx', probe, '--apply', '--some-other-tool-flag'], {
+  encoding: 'utf8',
+  cwd: process.cwd(),
+})
+assert.equal(
+  imported.status,
+  0,
+  `importing the producer with a foreign flag must not exit: ${imported.stderr?.slice(0, 400)}`,
+)
+assert.match(imported.stdout ?? '', /ok/)
 
 console.log(`Curated Facet art prompts verified (${entries.length}).`)

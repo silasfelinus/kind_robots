@@ -32,7 +32,6 @@ import type {
 const RAIL_LIMIT = 12
 const ART_RAIL_LIMIT = 18
 const ANIMATION_RAIL_LIMIT = 8
-const PROJECT_LIMIT = 6
 
 /**
  * How many recent dream candidates to inspect before giving up on finding one
@@ -928,7 +927,6 @@ async function loadProjects(): Promise<ShowcaseCard[]> {
       status: { in: ['ACTIVE', 'CONTINUOUS'] },
     },
     orderBy: [{ priority: 'desc' }, { updatedAt: 'desc' }, { id: 'desc' }],
-    take: PROJECT_LIMIT,
     select: {
       id: true,
       createdAt: true,

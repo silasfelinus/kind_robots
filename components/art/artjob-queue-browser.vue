@@ -369,7 +369,6 @@ const statusFilters: Array<ArtJobStatus | 'ALL'> = [
 ]
 const stats = computed(() => artJobStore.stats)
 const uptime = computed(() => artJobStore.uptime)
-const windowHours = computed(() => artJobStore.windowHours)
 const privateArtServers = computed<Server[]>(() =>
   serverStore.artServers.filter(
     (server: Server) =>

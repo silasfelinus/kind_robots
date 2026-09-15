@@ -53,10 +53,13 @@
             </button>
           </div>
 
-          <CharacterFlipCard
+          <character-card
             v-if="characterStore.selectedCharacter"
             :character="characterStore.selectedCharacter"
-            :show-stats="true"
+            :selected="true"
+            :show-actions="false"
+            :show-mode-buttons="false"
+            :show-stats="false"
             image-fit="contain"
           />
 

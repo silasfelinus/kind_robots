@@ -79,10 +79,10 @@ export type KontextWorkflowInput = {
 
 export const DEFAULT_KONTEXT_WIDTH = 1024
 export const DEFAULT_KONTEXT_HEIGHT = 1024
-export const DEFAULT_KONTEXT_STEPS = 20
+export const DEFAULT_KONTEXT_STEPS = 10
 export const DEFAULT_KONTEXT_GUIDANCE = 2.5
-export const DEFAULT_KONTEXT_SAMPLER = 'res_multistep'
-export const DEFAULT_KONTEXT_SCHEDULER = 'sgm_uniform'
+export const DEFAULT_KONTEXT_SAMPLER = 'euler'
+export const DEFAULT_KONTEXT_SCHEDULER = 'simple'
 export const DEFAULT_KONTEXT_DENOISE = 1
 // cfg used only on the CFGGuider (real-negative) path; the default BasicGuider
 // path is effectively cfg=1. Flux stays coherent at a low positive cfg.
@@ -198,7 +198,7 @@ export function buildKontextWorkflow(
       inputs: {
         noise: ['25', 0],
         guider: ['22', 0],
-        sampler: ['60', 0],
+        sampler: ['16', 0],
         sigmas: ['17', 0],
         // latent_image is patched below depending on img2img/mask.
         latent_image: ['27', 0],
@@ -278,23 +278,6 @@ export function buildKontextWorkflow(
       _meta: { title: 'ReferenceLatent' },
     },
     '59': buildKontextUnetLoader(input),
-    '60': {
-      inputs: {
-        detail_amount: 0.06,
-        start: 0.3,
-        end: 0.7,
-        bias: 0.5,
-        exponent: 1,
-        start_offset: 0,
-        end_offset: 0,
-        fade: 0,
-        smooth: true,
-        cfg_scale_override: 0,
-        sampler: ['16', 0],
-      },
-      class_type: 'DetailDaemonSamplerNode',
-      _meta: { title: 'Detail Daemon Sampler' },
-    },
   }
 
   // --- optional style LoRA: load once off the base UNet and route

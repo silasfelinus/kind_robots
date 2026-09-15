@@ -104,7 +104,7 @@ assert.equal(
   'no maskName must mean no SetLatentNoiseMask node',
 )
 
-// --- coloring-book/t-039: pin the proven-good Kontext model chain -----------
+// --- coloring-book/t-039: pin the supplied working Kontext graph -----------
 
 assert.equal(
   unmaskedWorkflow['11']?.class_type,
@@ -124,7 +124,7 @@ assert.deepEqual(
 assert.deepEqual(
   unmaskedWorkflow['59']?.inputs,
   { unet_name: 'flux1-kontext-dev-Q5_K_M.gguf' },
-  'the working reference proves the existing GGUF Kontext UNet is not the corrupted-static regression',
+  'the working reference proves the existing GGUF Kontext UNet is compatible with a healthy render',
 )
 assert.deepEqual(
   unmaskedWorkflow['10']?.inputs,
@@ -141,9 +141,48 @@ assert.deepEqual(
   ['27', 0],
   'default Kontext sampling must still start from the empty SD3 latent',
 )
+assert.equal(
+  unmaskedWorkflow['16']?.class_type,
+  'KSamplerSelect',
+  'Kontext must select its sampler directly with KSamplerSelect',
+)
+assert.deepEqual(
+  unmaskedWorkflow['16']?.inputs,
+  { sampler_name: 'euler' },
+  'fresh Kontext jobs must use the euler sampler from the supplied working graph',
+)
+assert.equal(
+  unmaskedWorkflow['17']?.class_type,
+  'BasicScheduler',
+  'Kontext must use BasicScheduler for the supplied working graph',
+)
+assert.deepEqual(
+  unmaskedWorkflow['17']?.inputs,
+  {
+    scheduler: 'simple',
+    steps: 10,
+    denoise: 1,
+    model: ['30', 0],
+  },
+  'fresh Kontext jobs must use the simple 10-step schedule from the supplied working graph',
+)
+assert.deepEqual(
+  (unmaskedWorkflow['13']?.inputs as { sampler?: unknown })?.sampler,
+  ['16', 0],
+  'SamplerCustomAdvanced must consume KSamplerSelect directly, with no DetailDaemon wrapper',
+)
+assert.equal(
+  Object.values(unmaskedWorkflow).some(
+    (node) => node?.class_type === 'DetailDaemonSamplerNode',
+  ),
+  false,
+  'fresh Kontext jobs must not insert DetailDaemon into the sampler path',
+)
 
-// A retry of an ArtJob stored during the broken #1870 era must be repaired to
-// the same encoder path instead of silently reapplying the GGUF T5 loader.
+// A retry of an ArtJob stored during the broken #1870 era must still repair the
+// encoder mismatch identified in the first t-039 pass. Sampler parity is pinned
+// above for fresh jobs and will be extended to retry normalization only after a
+// live canary proves that this graph change resolves the rendered-static defect.
 const brokenEraWorkflow = structuredClone(unmaskedWorkflow)
 brokenEraWorkflow['11'] = {
   class_type: 'DualCLIPLoaderGGUF',
@@ -173,6 +212,6 @@ assert.deepEqual(
 )
 
 console.log(
-  'kontext workflow verified: masks forward correctly, the proven-good fp8 ' +
-    'T5/stock-loader path is pinned, and retries repair broken-era GGUF T5 jobs.',
+  'kontext workflow verified: masks forward correctly, the supplied fp8 T5 ' +
+    'encoder is pinned, and fresh jobs use the working euler/simple sampler path without DetailDaemon.',
 )

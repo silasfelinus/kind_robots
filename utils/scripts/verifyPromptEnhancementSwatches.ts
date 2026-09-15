@@ -14,6 +14,7 @@ import {
 import {
   buildFacetIdentityPrompt,
   buildFacetVariantPrompt,
+  isLegacyGeneratedFacetPrompt,
   v4RenderNeedsRepair,
 } from '../../scripts/generate_facet_art_v4'
 
@@ -158,6 +159,24 @@ assert.equal(
   ),
   false,
   'prose means the render had a real subject and is not this bug',
+)
+
+// A stored swatch prompt is GENERATED, and must be recognized as such. It lives
+// in promptEnhancementPolicy.ts rather than the taxonomy tables, which is how it
+// was missed once: buildFacetIdentityPrompt returns an unrecognized stored
+// prompt verbatim, so the subject could be edited here forever without any
+// render changing. The subject is the likeliest thing to need changing -- it is
+// a bet that one pear and one marble can carry 46 techniques.
+assert.ok(
+  isLegacyGeneratedFacetPrompt(`film grain. ${ENHANCEMENT_SWATCH_SUBJECT}`),
+  'a stored swatch prompt must be rebuildable, or the subject is frozen forever',
+)
+assert.equal(
+  isLegacyGeneratedFacetPrompt(
+    'A still life a painter set up herself, one pear and one marble she chose.',
+  ),
+  false,
+  'curated prose that merely resembles the swatch stays curated',
 )
 
 console.log('Prompt-enhancement swatch and retirement policy verified.')

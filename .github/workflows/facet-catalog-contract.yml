@@ -80,6 +80,9 @@ jobs:
       - name: Verify prompt-enhancement swatch and retirement policy
         run: npx tsx utils/scripts/verifyPromptEnhancementSwatches.ts
 
+      - name: Verify curated Facet art prompts
+        run: npx tsx utils/scripts/verifyCuratedFacetArtPrompts.ts
+
       - name: Verify whole-catalog Facet audit
         run: npx tsx utils/scripts/verifyFacetCatalogAudit.ts
 

@@ -1,7 +1,7 @@
 <!-- /components/navigation/maturity-toggle.vue -->
 <template>
   <div
-    v-if="userStore.isLoggedIn"
+    v-if="userStore.isLoggedIn && !userStore.isMaturityRestricted"
     :class="variant === 'resource' ? 'space-y-1' : 'contents'"
   >
     <template v-if="variant === 'resource'">

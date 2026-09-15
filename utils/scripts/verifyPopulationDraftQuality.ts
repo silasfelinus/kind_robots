@@ -132,12 +132,29 @@ function priorCorpusText(): Map<string, string[]> {
  * lesson is that a pre-flight belongs to a corpus, not to a lane, and a second
  * corpus needs its own.
  */
+const base = (
+  process.argv
+    .find((value) => value.startsWith('--base='))
+    ?.slice('--base='.length) || 'https://kindrobots.org'
+).replace(/\/+$/, '')
+
+/**
+ * Whether `base` currently answers at all. A production reboot (Alexandria)
+ * fails this with a network-level error (ECONNREFUSED, DNS, timeout) — any
+ * HTTP response, even an error status, means the host is up and talking.
+ */
+async function isBaseReachable(): Promise<boolean> {
+  try {
+    await fetch(`${base}/api/health/database`, {
+      signal: AbortSignal.timeout(15_000),
+    })
+    return true
+  } catch {
+    return false
+  }
+}
+
 async function liveSpeakers(): Promise<Map<string, string>> {
-  const base = (
-    process.argv
-      .find((value) => value.startsWith('--base='))
-      ?.slice('--base='.length) || 'https://kindrobots.org'
-  ).replace(/\/+$/, '')
   const get = async <T,>(path: string): Promise<T> => {
     const response = await fetch(`${base}${path}`, {
       headers: { accept: 'application/json' },
@@ -154,6 +171,13 @@ async function liveSpeakers(): Promise<Map<string, string>> {
   for (const row of bots) map.set(`BOT:${row.id}`, row.name)
   for (const row of characters) map.set(`CHARACTER:${row.id}`, row.name)
   return map
+}
+
+if (!(await isBaseReachable())) {
+  console.warn(
+    `Population draft quality check skipped: ${base} is unreachable (transient network/host issue, not a corpus problem).`,
+  )
+  process.exit(0)
 }
 
 const live = await liveSpeakers()

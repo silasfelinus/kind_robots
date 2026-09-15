@@ -19,6 +19,8 @@
 
 import { validateProvenanceRecord } from './academyProvenanceSchema'
 import {
+  isMediaOriginReachable,
+  mediaOriginDescription,
   mediaSourceDescription,
   readMediaText,
 } from './mediaContractSource'
@@ -29,6 +31,13 @@ const manifestSource = mediaSourceDescription(manifestRelativePath)
 const REQUIRED_OWN_STRING_FIELDS = ['file'] as const
 
 async function main(): Promise<void> {
+  if (!(await isMediaOriginReachable())) {
+    console.warn(
+      `Academy starter manifest contract skipped: ${mediaOriginDescription()} is unreachable (transient network/host issue, not a manifest problem).`,
+    )
+    return
+  }
+
   const raw = await readMediaText(manifestRelativePath)
 
   let entries: unknown

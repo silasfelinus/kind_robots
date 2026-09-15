@@ -69,6 +69,31 @@ export async function readMediaText(relativePath: string): Promise<string> {
   return response.text()
 }
 
+/**
+ * Whether the media origin currently answers at all. Filesystem-backed runs
+ * (MEDIA_ROOT set) are always reachable — there's no network involved.
+ *
+ * A response of any status counts as reachable: the host is up and talking.
+ * Only a network-level failure (connection refused, DNS, timeout) means no.
+ */
+export async function isMediaOriginReachable(): Promise<boolean> {
+  if (mediaRoot) return true
+
+  try {
+    await fetch(mediaOrigin, {
+      method: 'HEAD',
+      signal: AbortSignal.timeout(requestTimeoutMs),
+    })
+    return true
+  } catch {
+    return false
+  }
+}
+
+export function mediaOriginDescription(): string {
+  return mediaRoot ? `filesystem (${mediaRoot})` : mediaOrigin
+}
+
 export async function mediaAssetExists(relativePath: string): Promise<boolean> {
   const normalized = normalizeRelativePath(relativePath)
   const cached = existenceCache.get(normalized)

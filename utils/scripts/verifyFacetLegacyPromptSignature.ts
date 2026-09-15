@@ -16,6 +16,7 @@ import {
   isLegacyGeneratedFacetPrompt,
   v4PromptWasClauseDominated,
   v4RenderNeedsRepair,
+  v5RenderNeedsRepair,
 } from '../../scripts/generate_facet_art_v4'
 
 const wrapperPrompts = [
@@ -153,6 +154,34 @@ for (const prompt of curatedPrompts) {
     `curated or empty prompt must never be treated as the generated wrapper: ${String(prompt)}`,
   )
 }
+
+// ── v5 ──────────────────────────────────────────────────────────────────────
+//
+// v5's occupation clause made 50 headless torsos holding generic hammers. v6
+// replaces it, and repair has to reach exactly those 50: v5's genre and theme
+// renders are good, and 69 of their jobs were still in the queue when v6 was
+// written, so widening this would both re-roll good art and cancel live work.
+const V5_OCC =
+  'A person at full height in the middle of this work, the tools of the trade in their hands, the room or the landscape of that work around them.'
+const V5_GENRE =
+  'A scene of this kind underway, everyone in it and the place around them painted together, the light and the weather carrying its mood.'
+
+assert.ok(
+  isLegacyGeneratedFacetPrompt(`Chaos Consultant. ${V5_OCC}`),
+  'a v5 clause must be recognized as provenance, or no edit can ever reach a render',
+)
+assert.ok(isLegacyGeneratedFacetPrompt(`Office Satire. ${V5_GENRE}`))
+assert.equal(
+  v5RenderNeedsRepair({ artPrompt: `Chaos Consultant. ${V5_OCC}` } as never),
+  true,
+  'the headless-torso cohort must be resubmitted',
+)
+assert.equal(
+  v5RenderNeedsRepair({ artPrompt: `Office Satire. ${V5_GENRE}` } as never),
+  false,
+  'v5 genre renders are good and their pending jobs must not be cancelled',
+)
+assert.equal(v5RenderNeedsRepair({ artPrompt: null } as never), false)
 
 // FacetProfile.metadata.artworkPrompt is seed-time provenance for the old
 // contextual producers. It must never reach the identity prompt when it names

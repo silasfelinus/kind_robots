@@ -93,11 +93,13 @@ for (const required of [
   'width: 1280',
   'height: 720',
   "const PROJECT_SLUG = 'facet-catalog'",
-  "const FACET_ART_VERSION = 'facet-coverage-krea2-v5'",
-  // v4's own renders are repairable now, so its version has to stay in the
-  // legacy set or the concrete-bust cohort is never picked up again.
+  "const FACET_ART_VERSION = 'facet-coverage-krea2-v6'",
+  // Each superseded version stays in the legacy set, or its cohort is never
+  // picked up again: v4 is the concrete busts, v5 the headless torsos.
   "'facet-coverage-krea2-v4',",
+  "'facet-coverage-krea2-v5',",
   'v4RenderNeedsRepair',
+  'v5RenderNeedsRepair',
   'isRepairableLegacyJob',
   "'facet-multi-art-krea2-v2'",
   "'facet-coverage-krea2-v3'",
@@ -180,6 +182,10 @@ for (const forbidden of [
   "'A cinematic 16:9 composition with the focal subject",
   "'A bold square emblem with a clean silhouette",
   'Crisp subject separation.',
+  // v5's occupation clause: "at full height" cropped the head off all 50 of its
+  // cards, and "tools of the trade" put generic hammers in every one.
+  "return 'A person at full height in the middle of this work",
+  "return 'A person at full height doing something only someone like this",
   'room for card chrome',
   'icon logo artwork',
   '`Illustrate the Facet concept “${facet.title}”.`',

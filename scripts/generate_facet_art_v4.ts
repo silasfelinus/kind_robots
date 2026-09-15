@@ -62,7 +62,7 @@ const PROJECT_SLUG = 'facet-catalog'
 // The module keeps its v4 filename (three verify scripts and the stable
 // entrypoint import it by path); this constant, not the filename, is the
 // provenance of record.
-const FACET_ART_VERSION = 'facet-coverage-krea2-v5'
+const FACET_ART_VERSION = 'facet-coverage-krea2-v6'
 const LEGACY_FACET_ART_VERSIONS = new Set([
   'facet-multi-art-krea2-v2',
   'facet-coverage-krea2-v3',
@@ -72,6 +72,11 @@ const LEGACY_FACET_ART_VERSIONS = new Set([
   // and rendered correctly -- so the repair sweep narrows this one by
   // v4PromptWasClauseDominated() rather than re-rendering the whole catalog.
   'facet-coverage-krea2-v4',
+  // v5's occupation clause. It fixed the black paper cut-out and introduced two
+  // new faults of its own; see taxonomyVisualLanguage(). Narrowed by
+  // v5RenderNeedsRepair() to the 50 rows that carry that one clause -- v5's
+  // genre and theme renders are good and must not be re-rolled.
+  'facet-coverage-krea2-v5',
 ])
 
 // v2 and v3 persisted this exact generated wrapper into Facet.artPrompt. It is
@@ -102,6 +107,26 @@ const LEGACY_V4_TAXONOMY_TAILS = [
   'Premium collectible object or emblem, rarity expressed through materials and lighting, clean silhouette.',
   'Single clear subject or emblem, immediately legible at thumbnail size.',
 ] as const
+
+// The v5 clauses. Same reasoning as the v4 table above: a stored prompt this
+// function does not recognize is returned verbatim by buildFacetIdentityPrompt,
+// so an unlisted clause would be handed back to Krea unchanged and no edit here
+// could ever reach a render.
+const LEGACY_V5_TAXONOMY_TAILS = [
+  'The whole animal head to tail, its markings and proportions true to the species, alert in the habitat it lives in.',
+  'A scene of this kind underway, everyone in it and the place around them painted together, the light and the weather carrying its mood.',
+  'The place itself, wide and lived-in, its architecture and ground and sky and weather doing the work.',
+  'A person at full height doing something only someone like this would do, in a place that belongs to them, the feeling carried in the face and the posture.',
+  'A single large form filling the frame, made of this, lit so the colour and the surface behave the way they really do.',
+  'A finished picture made this way, the medium and the linework and the palette and the lighting all plainly visible in it.',
+  'A person at full height in the middle of this work, the tools of the trade in their hands, the room or the landscape of that work around them.',
+  'A single treasured object resting alone, its materials and the light around it telling you how rare it is.',
+  'One clear subject alone in the frame, large and plainly lit.',
+] as const
+
+/** The single v5 clause that misrendered, kept separate so repair can target it. */
+const V5_OCCUPATION_TAIL =
+  'A person at full height in the middle of this work, the tools of the trade in their hands, the room or the landscape of that work around them.'
 
 // Order matters. It is the same coverage fallback contract used by the UI and
 // claim-time deduper: a general image is most reusable, then card, hero, icon.
@@ -347,7 +372,7 @@ function taxonomyVisualLanguage(taxonomy: string): string {
     case 'ALIGNMENT':
     case 'QUIRK':
     case 'BACKSTORY':
-      return 'A person at full height doing something only someone like this would do, in a place that belongs to them, the feeling carried in the face and the posture.'
+      return 'One person seen from head to shoes, doing something only someone like this would do, in a place that belongs to them, the feeling carried in the face and the posture.'
     case 'COLOR':
     case 'MATERIAL':
       return 'A single large form filling the frame, made of this, lit so the colour and the surface behave the way they really do.'
@@ -366,10 +391,27 @@ function taxonomyVisualLanguage(taxonomy: string): string {
      */
     case 'PROMPT_ENHANCEMENT':
       return ENHANCEMENT_SWATCH_SUBJECT
+    /*
+     * v6 (2026-09-15). The v5 wording here made 50 near-identical cards, and it
+     * did it in two separate ways, both worth keeping written down:
+     *
+     *   "at full height" -> Krea filled the frame with a body and CROPPED THE
+     *   HEAD. Every one of the 50 is a headless torso. The phrase reads as a
+     *   framing instruction to a person and as "make the body big" to a caption
+     *   model; naming the head and the shoes instead gives it two anchors it
+     *   has to fit inside the frame.
+     *
+     *   "the tools of the trade in their hands" -> literal hammers and pliers
+     *   in all 50, whatever the row actually was. "Ambient Threat" and "Apex
+     *   Predator" are not trades. This is the ORIGINAL bug in a new costume: a
+     *   concrete noun sitting in the boilerplate gets painted every time, and
+     *   when the title is abstract the boilerplate is all Krea has. The clause
+     *   must not name any object at all.
+     */
     case 'OCCUPATION':
     case 'ARCHETYPE':
     case 'ROLE':
-      return 'A person at full height in the middle of this work, the tools of the trade in their hands, the room or the landscape of that work around them.'
+      return 'One person seen from head to shoes, their face turned toward the light, standing in the place where they do this.'
     case 'RARITY':
     case 'REWARD_TYPE':
       return 'A single treasured object resting alone, its materials and the light around it telling you how rare it is.'
@@ -382,7 +424,18 @@ export function isLegacyGeneratedFacetPrompt(value: unknown): boolean {
   const prompt = clean(value)
   if (!prompt) return false
   if (LEGACY_GENERATED_IDENTITY.test(prompt)) return true
-  return LEGACY_V4_TAXONOMY_TAILS.some((tail) => prompt.endsWith(tail))
+  if (LEGACY_V4_TAXONOMY_TAILS.some((tail) => prompt.endsWith(tail))) return true
+  return LEGACY_V5_TAXONOMY_TAILS.some((tail) => prompt.endsWith(tail))
+}
+
+/**
+ * A v5 render that came back wrong. Only the occupation clause did: its 50
+ * OCCUPATION/ROLE/ARCHETYPE cards are headless torsos holding generic hammers
+ * in a generic meadow, near-identical to each other. v5's genre, theme and
+ * setting renders are good and are deliberately excluded.
+ */
+export function v5RenderNeedsRepair(facet: FacetRow): boolean {
+  return clean(facet.artPrompt).endsWith(V5_OCCUPATION_TAIL)
 }
 
 /**
@@ -945,8 +998,9 @@ export async function main(): Promise<void> {
         profile: ProfileRow | undefined,
       ): boolean => {
         if (!facet || !profile || !profile.artRequired) return false
-        if (version !== 'facet-coverage-krea2-v4') return true
         if (isRetiredPromptEnhancement(facet)) return false
+        if (version === 'facet-coverage-krea2-v5') return v5RenderNeedsRepair(facet)
+        if (version !== 'facet-coverage-krea2-v4') return true
         return v4RenderNeedsRepair(facet, profile.taxonomy)
       }
 
@@ -1006,6 +1060,17 @@ export async function main(): Promise<void> {
           if (
             target.version === 'facet-coverage-krea2-v4' &&
             !v4RenderNeedsRepair(facet, profile.taxonomy)
+          ) {
+            repairSkippedHealthy.push(job.id)
+            continue
+          }
+
+          // v5 is mostly good. Only its occupation clause misrendered, and a
+          // pending v5 genre job must survive this run untouched -- 69 of them
+          // were still draining the queue when v6 was written.
+          if (
+            target.version === 'facet-coverage-krea2-v5' &&
+            !v5RenderNeedsRepair(facet)
           ) {
             repairSkippedHealthy.push(job.id)
             continue

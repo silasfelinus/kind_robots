@@ -1475,6 +1475,7 @@ export async function main(): Promise<void> {
               ? {
                   sourceJobId: entry.repairSourceJobId,
                   sourceVersion: entry.repairSourceVersion,
+                  reason: entry.repairReason,
                 }
               : undefined,
           ),
@@ -1549,7 +1550,11 @@ export async function main(): Promise<void> {
               available: Object.fromEntries(available),
               notRequired: notRequired.length,
               pendingReused: reused.length,
-              queued: queue.length,
+              // What was actually written. Before --facets existed these were
+              // the same number; with a filter they are not, and reporting the
+              // pre-filter figure made a scoped run of 3 print "queued: 191".
+              queued: scopedQueue.length,
+              queuedBeforeFacetFilter: queue.length,
               repairQueued: repairQueued.size,
               repairPendingCancelled: legacyPendingIds.length,
               repairSupersededPreserved: repairSkippedSuperseded.length,

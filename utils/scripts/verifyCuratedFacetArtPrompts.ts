@@ -163,5 +163,19 @@ for (const reason of ['facet-curated-prompt-refresh', 'facet-swatch-subject-refr
     `requeue path ${reason} must cite a source job so retry provenance is attached`,
   )
 }
+// Naming a reason on the queue entry is half of it; the call site has to pass
+// it. It did not, so the first scoped run stamped three swatch refreshes as
+// "facet-art-direction-jargon-repair-v5" -- harmless to the render, and a lie
+// to whoever reads the provenance next.
+assert.ok(
+  producerSource.includes('reason: entry.repairReason'),
+  'buildFacetArtPayload must receive the entry reason, or every requeue is stamped with the default',
+)
+// And the queued total has to mean what was written. Reporting the pre-filter
+// count made a scoped run of 3 print "queued: 191".
+assert.ok(
+  producerSource.includes('queued: scopedQueue.length'),
+  'the queued total must report what was written, not what was considered',
+)
 
 console.log(`Curated Facet art prompts verified (${entries.length}).`)

@@ -383,23 +383,23 @@ const HAIR: EmbodimentFacetSeed[] = [
     description:
       'Saturated, deliberate and maintained at real cost. Roots are touched up before anything else in the budget.',
     artPrompt:
-      'Hair in a vivid unnatural colour — magenta, jade or electric blue — saturated to the ends, roots freshly done.',
-    scope: 'humanoid',
+      'Hair, fur or plumage in a vivid unnatural colour — magenta, jade or electric blue — saturated to the ends, roots freshly done.',
+    scope: 'any',
   },
   {
     title: 'Faded Rainbow',
     description:
       'Several colours laid over each other and grown out at different rates, so it now reads as a timeline.',
     artPrompt:
-      'Multi-coloured hair in soft horizontal bands of faded pink, green and violet, natural colour showing at the root.',
-    scope: 'humanoid',
+      'Multi-coloured hair or fur in soft bands of faded pink, green and violet, the natural colour showing through at the roots.',
+    scope: 'any',
   },
   {
     title: 'One Streak, Deliberate',
     description:
       'Otherwise ordinary hair carrying a single bright stripe, kept up for years past whatever started it.',
     artPrompt:
-      'Dark hair with one saturated coloured streak at the front, sharply bounded, freshly maintained.',
+      'Dark hair or fur with one saturated coloured streak at the front, sharply bounded, freshly maintained.',
     scope: 'any',
   },
   {
@@ -407,7 +407,7 @@ const HAIR: EmbodimentFacetSeed[] = [
     description:
       'Went white decades early and has been explaining it ever since. The explanation changes.',
     artPrompt:
-      'Pure white hair over an unlined young face, thick and healthy rather than thinned.',
+      'Pure white hair or fur, thick and healthy rather than thinned, on a body showing no other sign of age.',
     scope: 'any',
   },
   {
@@ -415,7 +415,7 @@ const HAIR: EmbodimentFacetSeed[] = [
     description:
       'Greying in patches rather than all over, which reads as damage instead of age.',
     artPrompt:
-      'Dark hair greying in irregular patches, one temple fully white, the rest barely touched.',
+      'Dark hair or fur greying in irregular patches, one side of the head gone fully white, the rest barely touched.',
     scope: 'any',
   },
   {
@@ -423,7 +423,7 @@ const HAIR: EmbodimentFacetSeed[] = [
     description:
       'Genuinely red and constantly assumed to be dyed, a correction long since abandoned.',
     artPrompt:
-      'Copper-red hair, coarse and bright in direct light, pale lashes and brows matching.',
+      'Copper-red hair or fur, coarse and bright in direct light, the same tone repeated in the finer hair around the eyes.',
     scope: 'any',
   },
   {
@@ -431,7 +431,7 @@ const HAIR: EmbodimentFacetSeed[] = [
     description:
       'Darker at the root and burned pale at the ends by years outdoors. Grows out and bleaches again.',
     artPrompt:
-      'Hair dark at the scalp fading to brittle straw-pale ends, texture dry and roughened.',
+      'Dark at the roots and fading to brittle straw-pale ends, texture dry and roughened.',
     scope: 'any',
   },
   {

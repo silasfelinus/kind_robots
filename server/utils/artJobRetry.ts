@@ -5,6 +5,7 @@ import { wanFrameCount } from '../api/comfy/wan/utils/imageToVideoWorkflow'
 import {
   fluxDualClipLoaderNode,
   isFluxDualClipLoader,
+  kontextDualClipLoaderNode,
 } from './fluxTextEncoders'
 
 export type ArtJobRetryMode = 'NEW_OUTPUT' | 'OVERWRITE'
@@ -15,11 +16,9 @@ export const ART_JOB_RETRY_MODES = new Set<ArtJobRetryMode>([
 ])
 
 const SEED_KEYS = new Set(['seed', 'noise_seed'])
-// Sourced from fluxTextEncoders so a retry cannot put back an encoder the
-// builders no longer emit. Until 2026-08-13 these were separate literals, so
-// changing the builders alone would have held only until a job was retried --
-// this normalizer would have rewritten it to the fp8 T5, intermittently, and
-// looked like the GGUF switch failing to stick.
+// Sourced from fluxTextEncoders so retry normalization follows the same
+// engine-specific encoder choice as fresh workflow builders. Kontext deliberately
+// uses a different T5 path from ordinary Flux after coloring-book/t-039.
 
 function asRecord(value: unknown): ArtJobPayloadRecord {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return {}
@@ -175,11 +174,18 @@ function workflowVideoNumber(
   return null
 }
 
+function isKontextWorkflow(workflow: ArtJobPayloadRecord): boolean {
+  return Object.values(workflow).some(
+    (node) => stringValue(asRecord(node).class_type) === 'FluxKontextImageScale',
+  )
+}
+
 function normalizeLegacyComfyWorkflow(
   payload: ArtJobPayloadRecord,
 ): ArtJobPayloadRecord {
   const workflow = asRecord(payload.workflow)
   if (!Object.keys(workflow).length) return payload
+  const kontextWorkflow = isKontextWorkflow(workflow)
 
   for (const node of Object.values(workflow)) {
     const record = asRecord(node)
@@ -216,9 +222,12 @@ function normalizeLegacyComfyWorkflow(
       stringValue(inputs.type).toLowerCase() === 'flux'
     ) {
       // Rebuild the whole node, not just the names: the loader CLASS follows
-      // the encoder file (GGUF vs safetensors), so rewriting names alone could
-      // leave a .gguf on the stock DualCLIPLoader.
-      const loader = fluxDualClipLoaderNode()
+      // the encoder file (GGUF vs safetensors). Kontext is identified from its
+      // FluxKontextImageScale node so legacy jobs and retries get the same
+      // compatibility encoder as newly built Kontext workflows.
+      const loader = kontextWorkflow
+        ? kontextDualClipLoaderNode()
+        : fluxDualClipLoaderNode()
       record.class_type = loader.class_type
       record.inputs = { ...inputs, ...loader.inputs }
       if (!('device' in loader.inputs))

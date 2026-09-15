@@ -65,6 +65,7 @@ const CONTEXT_FOLDER: Record<EntityArtType, string> = {
   facet: 'facets',
   project: 'projects',
   achievement: 'achievements',
+  resource: 'resources',
 }
 
 export type ResolvedArtFilePath = {

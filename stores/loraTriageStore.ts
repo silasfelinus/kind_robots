@@ -5,8 +5,33 @@ import {
   type ResourceGalleryRecord,
 } from '@/stores/resourceGalleryStore'
 import { useResourceStore } from '@/stores/resourceStore'
+import { performFetch } from '@/stores/utils'
+import { hasBlindPreview } from '@/utils/loraProbe'
 
 export type LoraTriageDecision = 'sfw' | 'nsfw'
+
+export type LoraRenderState = 'queued' | 'failed'
+
+type ProbePlan = {
+  resourceId: number
+  label: string
+  family: string
+  // Null on the flux lane, which resolves its own UNet and takes no catalog
+  // checkpoint -- not an error, and not something to render as "missing base".
+  checkpoint: { id: number; name: string; localPath: string | null } | null
+  enqueue: Record<string, unknown>
+}
+
+type ProbeSkip = {
+  resourceId: number
+  label: string
+  family: string
+  reason: string
+}
+
+// Enqueue is a database write per plan, not a render, so this only paces the
+// request burst -- the GPU work is drained by the queue worker afterwards.
+const ENQUEUE_CONCURRENCY = 4
 
 interface StoredLoraTriageProgress {
   version: 1
@@ -31,6 +56,20 @@ export const useLoraTriageStore = defineStore('loraTriageStore', () => {
   const isSaving = ref(false)
   const saveMessage = ref('')
   const saveError = ref('')
+
+  /*
+   * Render state is deliberately NOT persisted. A queued job's real outcome is
+   * the ArtImage the completion path writes back onto the Resource, so a reload
+   * should re-read that rather than trust a stale local flag.
+   */
+  const renderStates = ref<Record<number, LoraRenderState>>({})
+  const isRendering = ref(false)
+  const renderMessage = ref('')
+  const renderError = ref('')
+  const renderDone = ref(0)
+  const renderTotal = ref(0)
+  const probeSkipped = ref<ProbeSkip[]>([])
+  let cancelRequested = false
 
   const loras = computed<ResourceGalleryRecord[]>(() =>
     resourceGalleryStore.resources.filter((resource) => {
@@ -68,6 +107,21 @@ export const useLoraTriageStore = defineStore('loraTriageStore', () => {
   )
 
   const selectedCount = computed(() => selectedIds.value.length)
+
+  /*
+   * LoRAs with nothing to look at: no generated ArtImage, no stored path, and
+   * either no remote preview or one on a host that no longer resolves. These
+   * are the rows whose maturity flag was set without an image to judge it by.
+   */
+  const missingPreviewLoras = computed(() =>
+    loras.value.filter((resource) => hasBlindPreview(resource)),
+  )
+
+  const missingPreviewCount = computed(() => missingPreviewLoras.value.length)
+
+  function renderStateFor(resourceId: number): LoraRenderState | null {
+    return renderStates.value[resourceId] ?? null
+  }
 
   function persist(): void {
     if (typeof window === 'undefined') return
@@ -204,6 +258,110 @@ export const useLoraTriageStore = defineStore('loraTriageStore', () => {
     }
   }
 
+  async function renderPreviews(resourceIds?: number[]): Promise<void> {
+    if (isRendering.value) return
+
+    const ids = resourceIds?.length
+      ? [...new Set(resourceIds)]
+      : missingPreviewLoras.value.map((resource) => resource.id)
+
+    if (!ids.length) {
+      renderError.value = 'No LoRAs are missing a preview.'
+      return
+    }
+
+    isRendering.value = true
+    cancelRequested = false
+    renderMessage.value = ''
+    renderError.value = ''
+    probeSkipped.value = []
+    renderDone.value = 0
+    renderTotal.value = 0
+
+    try {
+      const planned = await performFetch<{
+        plans: ProbePlan[]
+        skipped: ProbeSkip[]
+      }>('/api/lora/probe-plan', {
+        method: 'POST',
+        body: JSON.stringify({
+          scope: 'ids',
+          resourceIds: ids,
+          limit: ids.length,
+        }),
+      })
+
+      if (!planned?.success || !planned.data) {
+        renderError.value = planned?.message || 'Could not plan the previews.'
+        return
+      }
+
+      const plans = planned.data.plans
+      probeSkipped.value = planned.data.skipped ?? []
+      renderTotal.value = plans.length
+
+      if (!plans.length) {
+        renderError.value =
+          'Nothing could be planned -- every selected LoRA lacks a usable base model.'
+        return
+      }
+
+      const queued: Record<number, LoraRenderState> = { ...renderStates.value }
+      let cursor = 0
+      let failures = 0
+
+      async function worker(): Promise<void> {
+        while (cursor < plans.length && !cancelRequested) {
+          const plan = plans[cursor]
+          cursor += 1
+          if (!plan) continue
+
+          try {
+            const response = await performFetch<unknown>('/api/art/enqueue', {
+              method: 'POST',
+              body: JSON.stringify(plan.enqueue),
+            })
+            if (response?.success) queued[plan.resourceId] = 'queued'
+            else {
+              queued[plan.resourceId] = 'failed'
+              failures += 1
+            }
+          } catch {
+            queued[plan.resourceId] = 'failed'
+            failures += 1
+          }
+
+          renderDone.value += 1
+          renderStates.value = { ...queued }
+        }
+      }
+
+      await Promise.all(
+        Array.from({ length: Math.min(ENQUEUE_CONCURRENCY, plans.length) }, () =>
+          worker(),
+        ),
+      )
+
+      const succeeded = renderDone.value - failures
+      renderMessage.value = cancelRequested
+        ? `Stopped after queueing ${succeeded} preview render(s).`
+        : `Queued ${succeeded} preview render(s).`
+
+      if (failures) {
+        renderError.value = `${failures} enqueue request(s) failed.`
+      }
+    } catch (error) {
+      renderError.value =
+        error instanceof Error ? error.message : 'Could not queue the previews.'
+    } finally {
+      isRendering.value = false
+    }
+  }
+
+  function cancelRender(): void {
+    if (isRendering.value) cancelRequested = true
+  }
+
   return {
     decisions,
     selectedIds,
@@ -228,5 +386,17 @@ export const useLoraTriageStore = defineStore('loraTriageStore', () => {
     setHideConfirmed,
     clearProgress,
     saveChanges,
+    renderStates,
+    isRendering,
+    renderMessage,
+    renderError,
+    renderDone,
+    renderTotal,
+    probeSkipped,
+    missingPreviewLoras,
+    missingPreviewCount,
+    renderStateFor,
+    renderPreviews,
+    cancelRender,
   }
 })

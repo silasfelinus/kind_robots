@@ -455,6 +455,35 @@ export function isLegacyGeneratedFacetPrompt(value: unknown): boolean {
  * in a generic meadow, near-identical to each other. v5's genre, theme and
  * setting renders are good and are deliberately excluded.
  */
+/**
+ * Whether a Facet's curated prompt has outrun the picture on screen.
+ *
+ * Pulled out of main() and exported because the first version of this shipped
+ * broken and no test could reach it: the selection lived inside a function that
+ * needs a database, so "queues nothing at all" looked exactly like "nothing to
+ * do". 146 authored prompts were written and zero jobs were created.
+ *
+ * @param hasAttempt whether ANY job has ever targeted this slot. Distinct from
+ *   having a recorded prompt: a v2/v3 job predates basePromptString, so an
+ *   attempted slot with no recorded prompt cannot be compared and must be
+ *   re-rendered rather than assumed current.
+ */
+export function curatedPromptNeedsRender(
+  facet: FacetRow,
+  hasAttempt: boolean,
+  renderedPrompt: string | undefined,
+): boolean {
+  const curated = clean(facet.artPrompt)
+  // Nothing authored here, or the text is the producer's own: not this mode's
+  // business. The repair modes own generated prompts.
+  if (!curated || isLegacyGeneratedFacetPrompt(curated)) return false
+  // Never rendered at all -- ordinary coverage queues it.
+  if (!hasAttempt) return false
+  // Rendered from this exact text already.
+  if (renderedPrompt && renderedPrompt === curated) return false
+  return true
+}
+
 export function v5RenderNeedsRepair(facet: FacetRow): boolean {
   return clean(facet.artPrompt).endsWith(V5_OCCUPATION_TAIL)
 }
@@ -844,7 +873,13 @@ export async function main(): Promise<void> {
           },
           select: { id: true, status: true, payload: true },
         }),
-        REPAIR_TAINTED
+        // Both modes read job history. --requeue-curated compares each Facet's
+        // curated prompt against the prompt its current picture was actually
+        // made from, and that comparison lives in the job payload: with an
+        // empty history every Facet looks like it has never been rendered, and
+        // the sweep silently queues nothing. That is exactly what the first
+        // production run did -- 146 prompts written, 0 jobs queued.
+        REPAIR_TAINTED || REQUEUE_CURATED
           ? prisma.artJob.findMany({
               where: {
                 projectSlug: PROJECT_SLUG,
@@ -1102,12 +1137,14 @@ export async function main(): Promise<void> {
        */
       const curatedRequeue: QueueEntry[] = []
       if (REQUEUE_CURATED) {
+        const attempted = new Set<string>()
         const newestJobPrompt = new Map<string, string>()
         for (const job of history) {
           const target = artTarget(job.payload)
           if (!target) continue
           if (!['PENDING', 'RUNNING', 'DONE'].includes(job.status)) continue
           const key = `${target.entityId}:${target.field}`
+          attempted.add(key)
           const rank = versionRank(target.version)
           if (rank >= (newestAttemptRank.get(key) ?? -1) && target.basePrompt) {
             newestJobPrompt.set(key, target.basePrompt)
@@ -1117,13 +1154,17 @@ export async function main(): Promise<void> {
           const profile = profileByFacet.get(facet.id)
           if (!profile || !profile.artRequired) continue
           if ((blockersByFacet.get(facet.id) ?? []).length) continue
-          const curated = clean(facet.artPrompt)
-          if (!curated || isLegacyGeneratedFacetPrompt(curated)) continue
           const variant = ART_VARIANTS[0]
           const key = `${facet.id}:${variant.field}`
-          const rendered = newestJobPrompt.get(key)
-          // No prior job at all means ordinary coverage already handles it.
-          if (!rendered || rendered === curated) continue
+          if (
+            !curatedPromptNeedsRender(
+              facet,
+              attempted.has(key),
+              newestJobPrompt.get(key),
+            )
+          ) {
+            continue
+          }
           curatedRequeue.push({
             facet,
             profile,

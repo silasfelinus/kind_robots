@@ -119,6 +119,18 @@
               <option value="NSFW">NSFW only</option>
             </select>
 
+            <select
+              v-model.number="pageSize"
+              class="kr-select-sm w-auto"
+              aria-label="LoRAs per page"
+              @change="page = 1"
+            >
+              <option :value="24">24 per page</option>
+              <option :value="48">48 per page</option>
+              <option :value="96">96 per page</option>
+              <option :value="192">192 per page</option>
+            </select>
+
             <label
               class="flex cursor-pointer items-center gap-2 rounded-xl px-2 py-1 text-sm"
             >
@@ -349,8 +361,6 @@ import { useUserStore } from '@/stores/userStore'
 import { useLoraTriageStore } from '@/stores/loraTriageStore'
 import type { ResourceGalleryRecord } from '@/stores/resourceGalleryStore'
 
-const PAGE_SIZE = 48
-
 type MaturityFilter = 'ALL' | 'SFW' | 'NSFW'
 
 const userStore = useUserStore()
@@ -360,6 +370,7 @@ const loading = ref(false)
 const query = ref('')
 const generation = ref('ALL')
 const maturity = ref<MaturityFilter>('ALL')
+const pageSize = ref(48)
 const page = ref(1)
 
 const generations = computed(() =>
@@ -398,18 +409,18 @@ const filteredResources = computed(() => {
 })
 
 const totalPages = computed(() =>
-  Math.max(1, Math.ceil(filteredResources.value.length / PAGE_SIZE)),
+  Math.max(1, Math.ceil(filteredResources.value.length / pageSize.value)),
 )
 const safePage = computed(() => Math.min(page.value, totalPages.value))
 const pageResources = computed(() => {
-  const start = (safePage.value - 1) * PAGE_SIZE
-  return filteredResources.value.slice(start, start + PAGE_SIZE)
+  const start = (safePage.value - 1) * pageSize.value
+  return filteredResources.value.slice(start, start + pageSize.value)
 })
 const pageStart = computed(() =>
-  filteredResources.value.length ? (safePage.value - 1) * PAGE_SIZE + 1 : 0,
+  filteredResources.value.length ? (safePage.value - 1) * pageSize.value + 1 : 0,
 )
 const pageEnd = computed(() =>
-  Math.min(safePage.value * PAGE_SIZE, filteredResources.value.length),
+  Math.min(safePage.value * pageSize.value, filteredResources.value.length),
 )
 
 function resourceLabel(resource: ResourceGalleryRecord): string {
@@ -422,7 +433,9 @@ function triggerText(resource: ResourceGalleryRecord): string {
   )
 }
 
-function effectiveMaturity(resource: ResourceGalleryRecord): Exclude<MaturityFilter, 'ALL'> {
+function effectiveMaturity(
+  resource: ResourceGalleryRecord,
+): Exclude<MaturityFilter, 'ALL'> {
   const decision = triageStore.decisionFor(resource.id)
   if (decision) return decision === 'nsfw' ? 'NSFW' : 'SFW'
   return resource.isMature ? 'NSFW' : 'SFW'

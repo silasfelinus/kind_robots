@@ -22,6 +22,25 @@ enum FacetTaxonomy {
   ROLE
   ALIGNMENT
   GENDER
+  // Embodiment axes (2026-09-15). Everything about a character's BODY was
+  // previously unrolled vocabulary, so every generator that drew Facets got
+  // rich genre/species/occupation variety over a body it had to invent
+  // unaided -- and unaided bodies converge. Measured across all 98 authored
+  // Daily Dream characters: 0% had a saturated hair colour, 0% had long hair,
+  // 14.3% named an age, 9.2% named a skin tone, and she/her outnumbered
+  // he/him 4.3 to 1. Every axis the seed plan rolled varied; every axis it
+  // did not roll collapsed to one value.
+  //
+  // ORIGIN is culture, never phenotype, and it applies to non-humans too: a
+  // walrus raised in a Lisbon-facing trade quarter wears that quarter's
+  // oilcloth and swears by its saints. It does not have its people's
+  // cheekbones. Humanoid complexion is DERIVED from ORIGIN by the author
+  // rather than rolled from a standalone race table, which is the whole
+  // reason there is no COMPLEXION value here.
+  AGE
+  BUILD
+  HAIR
+  ORIGIN
   BOT_TYPE
   DREAM_TYPE
   REWARD_TYPE

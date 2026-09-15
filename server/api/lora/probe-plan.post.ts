@@ -186,16 +186,36 @@ export default defineEventHandler(async (event) => {
     }
 
     /*
-     * Flux last (Silas, 2026-09-15). The queue drains one job at a time, and a
-     * Flux render measured 25+ minutes against ~13 for the comfy lane, so a
-     * Flux job sitting mid-queue stalls everything behind it. Ordering them to
-     * the tail lets the 191 comfy-lane previews land first and the slow ones
-     * trickle in behind, rather than dropping them.
+     * Order: comfy lane first, grouped by checkpoint; flux last.
+     *
+     * GROUPING IS THE EXPENSIVE PART. Jobs drain oldest-first, and the relay
+     * does not send `smartQueue`, so claim.post.ts's model-affinity bypass is
+     * inert -- consecutive jobs on different checkpoints each pay a cold model
+     * load. The relay log for 2026-09-14 shows 63 consecutive renders at ~65s
+     * each on a resident model, against 12m30s for ArtJob 22835, whose only
+     * difference was that cyberrealisticPony had to be loaded first. Enqueuing
+     * this batch interleaved across five checkpoints would pay that load
+     * repeatedly; grouped, it pays it four times.
+     *
+     * Flux last (Silas, 2026-09-15): a Flux render measured 28 minutes against
+     * ~65s for a warm comfy render, so a Flux job mid-queue stalls everything
+     * behind it. Ordering them to the tail lets the comfy-lane previews land
+     * first rather than dropping them.
      */
     plans.sort((a, b) => {
-      const rank = (plan: Record<string, unknown>) =>
+      const lane = (plan: Record<string, unknown>) =>
         plan.family === 'flux' ? 1 : 0
-      return rank(a) - rank(b)
+      const laneDelta = lane(a) - lane(b)
+      if (laneDelta) return laneDelta
+
+      const model = (plan: Record<string, unknown>) => {
+        const checkpoint = plan.checkpoint as { localPath?: string } | null
+        return checkpoint?.localPath || ''
+      }
+      const modelDelta = model(a).localeCompare(model(b))
+      if (modelDelta) return modelDelta
+
+      return Number(a.resourceId) - Number(b.resourceId)
     })
 
     return {

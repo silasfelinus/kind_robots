@@ -17,7 +17,14 @@ import {
   v4PromptWasClauseDominated,
   v4RenderNeedsRepair,
   v5RenderNeedsRepair,
+  taxonomyVisualLanguage,
+  CLAUSE_TAXONOMIES,
+  swatchSubjectIsStale,
 } from '../../scripts/generate_facet_art_v4'
+import {
+  ENHANCEMENT_SWATCH_SUBJECT,
+  ENHANCEMENT_SWATCH_SUBJECTS,
+} from '../../utils/promptEnhancementPolicy'
 
 const wrapperPrompts = [
   'Illustrate the Facet concept “Surreal Horror”. A dream logic nightmare. Build one iconic scene.',
@@ -252,5 +259,45 @@ assert.match(
   /paint-splattered easel under a skylight/,
   'a metadata prompt that is a usable caption on its own is still honoured',
 )
+
+// ── The registry guard ──────────────────────────────────────────────────────
+//
+// This is the check that would have caught all three of the silent freezes in
+// this work. buildFacetIdentityPrompt hands back an unrecognized stored prompt
+// verbatim, so a clause the producer can emit but the recognizer cannot match
+// is a cohort that edits can never reach: the change lands, the tests pass, and
+// not one picture moves. It happened with v4's clauses, then v5's, then the
+// swatch subject -- silently every time.
+for (const taxonomy of CLAUSE_TAXONOMIES) {
+  const clause = taxonomyVisualLanguage(taxonomy)
+  assert.ok(
+    isLegacyGeneratedFacetPrompt(`Some Title. ${clause}`),
+    `the clause for ${taxonomy} is emitted but unregistered, so that cohort can never be rebuilt: ${clause}`,
+  )
+}
+assert.ok(
+  isLegacyGeneratedFacetPrompt(`film grain. ${ENHANCEMENT_SWATCH_SUBJECT}`),
+  'the current swatch subject must be registered',
+)
+for (const subject of ENHANCEMENT_SWATCH_SUBJECTS) {
+  assert.ok(
+    isLegacyGeneratedFacetPrompt(`film grain. ${subject}`),
+    `an older swatch subject must stay registered or its cohort freezes: ${subject.slice(0, 50)}...`,
+  )
+}
+
+// Older swatch subjects are what gets re-rendered; the current one is current.
+assert.equal(
+  swatchSubjectIsStale({ artPrompt: `film grain. ${ENHANCEMENT_SWATCH_SUBJECTS[1]}` } as never),
+  true,
+  'a swatch made from a superseded subject must be re-rendered',
+)
+assert.equal(
+  swatchSubjectIsStale({ artPrompt: `film grain. ${ENHANCEMENT_SWATCH_SUBJECT}` } as never),
+  false,
+  'a swatch already made from the current subject is current',
+)
+assert.equal(swatchSubjectIsStale({ artPrompt: 'Office Satire. A cubicle farm.' } as never), false)
+assert.equal(swatchSubjectIsStale({ artPrompt: null } as never), false)
 
 console.log('Facet legacy prompt signature contract verified.')

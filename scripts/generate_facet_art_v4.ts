@@ -49,6 +49,7 @@ import {
 } from '../utils/facetCatalogAudit'
 import {
   ENHANCEMENT_SWATCH_SUBJECT,
+  ENHANCEMENT_SWATCH_SUBJECTS,
   isRetiredPromptEnhancement,
 } from '../utils/promptEnhancementPolicy'
 import {
@@ -70,6 +71,24 @@ const REPAIR_TAINTED = process.argv.includes('--repair-tainted')
  * which is the exact silent failure that has already cost three rounds here.
  */
 const REQUEUE_CURATED = process.argv.includes('--requeue-curated')
+/*
+ * --facets <slug,slug> limits everything this run would queue to those Facets.
+ *
+ * Art direction is judged by looking, and looking costs a render. Without a way
+ * to try three, every wording change is an all-or-nothing bet on 45 or 146
+ * pictures -- which is how two bad clauses reached the whole catalog before
+ * anyone saw one. Dry-run reporting is unaffected.
+ */
+const FACET_FILTER = (() => {
+  const index = process.argv.indexOf('--facets')
+  if (index < 0) return null
+  const raw = process.argv[index + 1] ?? ''
+  const slugs = raw
+    .split(',')
+    .map((entry) => entry.trim().toLowerCase())
+    .filter(Boolean)
+  return slugs.length ? new Set(slugs) : null
+})()
 const PROJECT_SLUG = 'facet-catalog'
 // The module keeps its v4 filename (three verify scripts and the stable
 // entrypoint import it by path); this constant, not the filename, is the
@@ -371,7 +390,7 @@ function metadataArtworkPrompt(metadata: JsonObject): string {
  * negation, and no instruction the model would have to obey rather than draw.
  * server/utils/artPromptContract.ts now rejects the known offenders outright.
  */
-function taxonomyVisualLanguage(taxonomy: string): string {
+export function taxonomyVisualLanguage(taxonomy: string): string {
   switch (taxonomy) {
     case 'ANIMAL':
     case 'SPECIES':
@@ -433,20 +452,67 @@ function taxonomyVisualLanguage(taxonomy: string): string {
   }
 }
 
+/**
+ * Every taxonomy taxonomyVisualLanguage() answers for. Exported so the contract
+ * test can enumerate the clauses this producer can currently emit and prove
+ * each one is registered below.
+ */
+export const CLAUSE_TAXONOMIES = [
+  'ANIMAL', 'SPECIES', 'GENRE', 'THEME', 'SETTING', 'PERSONALITY', 'ALIGNMENT',
+  'QUIRK', 'BACKSTORY', 'COLOR', 'MATERIAL', 'STYLE', 'ART_DIRECTION',
+  'PROMPT_ENHANCEMENT', 'OCCUPATION', 'ARCHETYPE', 'ROLE', 'RARITY',
+  'REWARD_TYPE', 'DREAM_TYPE',
+] as const
+
+/*
+ * Every clause this producer has EVER appended to a generated prompt.
+ *
+ * buildFacetIdentityPrompt returns an unrecognized stored prompt verbatim, so a
+ * clause missing from here is a cohort that can never be rebuilt: edits land,
+ * tests pass, and not one picture changes. That has happened three times in
+ * this work -- v4's clauses, v5's, and the swatch subject -- each time silently.
+ *
+ * Keeping one list, rather than a check per generation, is what makes the
+ * failure testable: verifyFacetLegacyPromptSignature enumerates
+ * CLAUSE_TAXONOMIES and fails if any clause the producer can emit today is
+ * absent here. Retiring an entry is what freezes a cohort, so entries are only
+ * ever added.
+ */
+const GENERATED_PROMPT_TAILS: readonly string[] = [
+  ...LEGACY_V4_TAXONOMY_TAILS,
+  ...LEGACY_V5_TAXONOMY_TAILS,
+  ...ENHANCEMENT_SWATCH_SUBJECTS,
+  // v6 taxonomy clauses.
+  'The whole animal head to tail, its markings and proportions true to the species, alert in the habitat it lives in.',
+  'A scene of this kind underway, everyone in it and the place around them painted together, the light and the weather carrying its mood.',
+  'The place itself, wide and lived-in, its architecture and ground and sky and weather doing the work.',
+  'One person seen from head to shoes, doing something only someone like this would do, in a place that belongs to them, the feeling carried in the face and the posture.',
+  'A single large form filling the frame, made of this, lit so the colour and the surface behave the way they really do.',
+  'A finished picture made this way, the medium and the linework and the palette and the lighting all plainly visible in it.',
+  'One person seen from head to shoes, their face turned toward the light, standing in the place where they do this.',
+  'A single treasured object resting alone, its materials and the light around it telling you how rare it is.',
+  'One clear subject alone in the frame, large and plainly lit.',
+]
+
 export function isLegacyGeneratedFacetPrompt(value: unknown): boolean {
   const prompt = clean(value)
   if (!prompt) return false
   if (LEGACY_GENERATED_IDENTITY.test(prompt)) return true
-  if (LEGACY_V4_TAXONOMY_TAILS.some((tail) => prompt.endsWith(tail))) return true
-  if (LEGACY_V5_TAXONOMY_TAILS.some((tail) => prompt.endsWith(tail))) return true
-  // The enhancement swatch is generated too. It is not in the taxonomy tables
-  // because it comes from utils/promptEnhancementPolicy.ts, and that is exactly
-  // how it got missed: a stored swatch prompt read as CURATED, so editing
-  // ENHANCEMENT_SWATCH_SUBJECT could never have reached a render. The subject
-  // is the one thing most likely to need changing -- it is a deliberate bet
-  // that a fixed pear and marble can carry 46 different techniques, and if that
-  // bet is wrong the fix is a different subject.
-  return prompt.endsWith(ENHANCEMENT_SWATCH_SUBJECT)
+  return GENERATED_PROMPT_TAILS.some((tail) => prompt.endsWith(tail))
+}
+
+/**
+ * A swatch rendered from an older subject. The v1 scene was correct but inert:
+ * flat light, one distance, one material, no palette, so most of the 45
+ * techniques had nothing to act on and the cards were 45 pictures of a pear.
+ */
+export function swatchSubjectIsStale(facet: FacetRow): boolean {
+  const prompt = clean(facet.artPrompt)
+  if (!prompt) return false
+  return (
+    ENHANCEMENT_SWATCH_SUBJECTS.some((subject) => prompt.endsWith(subject)) &&
+    !prompt.endsWith(ENHANCEMENT_SWATCH_SUBJECT)
+  )
 }
 
 /**
@@ -599,7 +665,10 @@ export function buildFacetIdentityPrompt(
  */
 function styleTail(taxonomy: string): string {
   if (taxonomy === 'PROMPT_ENHANCEMENT') {
-    return 'Rich controlled lighting. Clean unmarked surfaces.'
+    // The swatch scene names its own lamp and its own falloff. "Rich controlled
+    // lighting" on top of that argues with the half of the group that is about
+    // shadow -- moody atmosphere, dramatic shadows, volumetric light.
+    return 'Clean unmarked surfaces.'
   }
   return 'Polished fantasy illustration. Rich controlled lighting. Clean unmarked surfaces.'
 }
@@ -1136,6 +1205,7 @@ export async function main(): Promise<void> {
        * was made from text that no longer exists.
        */
       const curatedRequeue: QueueEntry[] = []
+      const staleSwatchRequeue: QueueEntry[] = []
       if (REQUEUE_CURATED) {
         const attempted = new Set<string>()
         const newestJobPrompt = new Map<string, string>()
@@ -1172,7 +1242,27 @@ export async function main(): Promise<void> {
             variant,
           })
         }
-        queue.push(...curatedRequeue)
+
+        // Swatches are generated, not curated, so the check above cannot see
+        // them -- but a new swatch subject has exactly the same problem an
+        // edited authored prompt does: the picture on screen was made from text
+        // that no longer exists. Kept as its own narrow predicate rather than
+        // widening the curated one, because "regenerate everything whose clause
+        // changed" would re-roll the 64 animal cards, and those are good.
+        for (const facet of facetRows) {
+          const profile = profileByFacet.get(facet.id)
+          if (!profile || !profile.artRequired) continue
+          if ((blockersByFacet.get(facet.id) ?? []).length) continue
+          if (isRetiredPromptEnhancement(facet)) continue
+          if (!swatchSubjectIsStale(facet)) continue
+          staleSwatchRequeue.push({
+            facet,
+            profile,
+            identityPrompt: buildFacetIdentityPrompt(facet, profile),
+            variant: ART_VARIANTS[0],
+          })
+        }
+        queue.push(...curatedRequeue, ...staleSwatchRequeue)
       }
 
       const repairQueued = new Set<string>()
@@ -1290,7 +1380,14 @@ export async function main(): Promise<void> {
       // Built in dry-run mode too, so a dry run exercises the same prompt
       // contract as the write and reports a rejected prompt instead of
       // passing a plan the write then refuses.
-      const jobRows = queue.map((entry) => ({
+      const scopedQueue = FACET_FILTER
+        ? queue.filter((entry) =>
+            FACET_FILTER.has(String(entry.facet.slug ?? '').toLowerCase()),
+          )
+        : queue
+      const scopedOut = queue.length - scopedQueue.length
+
+      const jobRows = scopedQueue.map((entry) => ({
         engine: 'COMFY' as const,
         userId: entry.facet.userId,
         projectSlug: PROJECT_SLUG,
@@ -1371,6 +1468,7 @@ export async function main(): Promise<void> {
             coverageMode: ALL_VARIANTS ? 'all-variants' : 'baseline',
             repairTainted: REPAIR_TAINTED,
             requeueCurated: REQUEUE_CURATED,
+            facetFilter: FACET_FILTER ? [...FACET_FILTER] : null,
             projectSlug: PROJECT_SLUG,
             version: FACET_ART_VERSION,
             repairedVersions: [...LEGACY_FACET_ART_VERSIONS],
@@ -1388,6 +1486,8 @@ export async function main(): Promise<void> {
               repairNonVisualReported: repairSkippedNonVisual.length,
               repairNewerAttemptSkipped: repairSkippedNewerAttempt.length,
               curatedPromptRequeued: curatedRequeue.length,
+              staleSwatchRequeued: staleSwatchRequeue.length,
+              heldByFacetFilter: scopedOut,
               repairBlocked: repairBlocked.length,
               blocked: blocked.length,
             },

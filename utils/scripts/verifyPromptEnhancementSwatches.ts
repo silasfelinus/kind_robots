@@ -179,4 +179,40 @@ assert.equal(
   'curated prose that merely resembles the swatch stays curated',
 )
 
+// ── What the swatch scene has to contain ────────────────────────────────────
+//
+// v1 was correct and inert: it rendered fine and demonstrated almost nothing,
+// because flat light, one distance, one material and no palette leave most of
+// the 45 techniques with nothing to act on. These assert the properties the
+// scene exists for, so a future simplification cannot quietly undo them.
+const subject = ENHANCEMENT_SWATCH_SUBJECT.toLowerCase()
+for (const [need, words] of [
+  ['a light source in frame, for the twelve light and shadow techniques', ['lamp', 'flame', 'burning']],
+  ['depth, for depth of field and bokeh', ['behind', 'back of', 'falls away']],
+  ['a translucent organic surface, for subsurface scattering', ['pear']],
+  ['glass, for refraction and ray tracing', ['glass', 'marble']],
+  ['woven texture, for intricate patterning and luxurious textures', ['silk', 'embroidered', 'cloth']],
+  ['a reflective plane, for cool and neon reflections', ['polished', 'reflection']],
+  ['saturated colour, for the five colour techniques', ['peacock-blue', 'brass', 'spectrum']],
+] as [string, string[]][]) {
+  assert.ok(
+    words.some((word) => subject.includes(word)),
+    `the swatch scene must provide ${need}`,
+  )
+}
+assert.ok(
+  ENHANCEMENT_SWATCH_SUBJECT.split(/\s+/).length >= 40,
+  'a scene thin enough to be short is a scene thin enough to demonstrate nothing',
+)
+assert.deepEqual(
+  checkArtPromptContract({
+    prompt: `volumetric light. ${ENHANCEMENT_SWATCH_SUBJECT}`,
+    engine: 'krea2',
+    steps: 8,
+    cfg: 1,
+  }),
+  [],
+  'the swatch scene must pass the prompt contract',
+)
+
 console.log('Prompt-enhancement swatch and retirement policy verified.')

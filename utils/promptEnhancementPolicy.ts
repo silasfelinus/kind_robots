@@ -89,15 +89,53 @@ export function isRetiredPromptEnhancement(facet: {
 /**
  * The fixed subject every enhancement swatch renders.
  *
- * Chosen so one frame can carry every technique in the kept group: an organic
- * surface for subsurface scattering and soft light, glass for refraction and
- * ray tracing, two objects at different depths for depth of field and bokeh,
- * and a plain wall for the "clean background" family. Concrete nouns only --
- * no art-direction vocabulary, no negation, no format words. See
- * server/utils/artPromptContract.ts for why that matters.
+ * v1 was "one ripe pear and one clear glass marble on a bare wooden table, a
+ * plain pale wall behind them". It held the subject still, which is the point,
+ * and it rendered correctly -- but it gave most of the 45 techniques nothing to
+ * act on. Flat even light and a blank wall mean "dramatic shadows", "precise
+ * rim light", "volumetric light" and "warm highlights" have no source to key
+ * off; two objects at the same distance leave "depth of field" and "bokeh
+ * background" almost nothing to separate; one matte skin and one glass ball
+ * cannot show "gilded shimmer", "luxurious textures" or "intricate patterning";
+ * and nothing in frame is saturated, so the five colour techniques have no
+ * palette to grade. Side by side the cards differed. At card size they were 45
+ * pictures of a pear.
  *
- * It is deliberately CONSTANT. The comparison only works if the subject never
- * moves, so changing this string re-rolls the meaning of all 46 cards.
+ * v2 is built backwards from what the 45 actually have to demonstrate:
+ *
+ *   a burning lamp IN FRAME       -> the twelve light and shadow techniques get
+ *                                    a real source, a direction, and a falloff
+ *   a dark room receding behind   -> depth of field, bokeh, moody atmosphere
+ *   pear / glass / gilt / silk    -> subsurface, refraction, specular metal,
+ *                                    woven texture: four surfaces that answer
+ *                                    light differently in the same frame
+ *   a spectrum cast by the marble -> prismatic and holographic glow, and a
+ *                                    caustic is the thing ray tracing is FOR
+ *   polished tabletop             -> cool reflections, neon reflections
+ *   peacock blue against warm gilt-> a real palette for the colour five
+ *
+ * Still one scene, still identical across all 45, because the comparison is
+ * the entire value: the technique has to be the only variable. The weakest
+ * coverage is the four composition techniques -- "epic scene composition" on a
+ * tabletop will always be a stretch -- and that is a known limit, not an
+ * oversight.
+ *
+ * Changing this re-renders all 45. ENHANCEMENT_SWATCH_SUBJECTS keeps every
+ * previous wording so a stored prompt written by an older version is still
+ * recognized as generator output and gets rebuilt; drop one and that cohort
+ * freezes forever with no error.
  */
 export const ENHANCEMENT_SWATCH_SUBJECT =
-  'A still life of one ripe pear and one clear glass marble on a bare wooden table, a plain pale wall behind them.'
+  'A small brass oil lamp burning at the back of a dark polished table, its light reaching across a ripe pear, a clear glass marble, and a folded length of peacock-blue embroidered silk; the marble casts a thin band of spectrum onto the cloth, the tabletop holds a soft reflection of the flame, and the room behind falls away into shadow.'
+
+/** Every swatch subject this producer has ever emitted, newest first. */
+export const ENHANCEMENT_SWATCH_SUBJECTS: readonly string[] = [
+  ENHANCEMENT_SWATCH_SUBJECT,
+  // v1, 2026-09-15. Correct but inert: nothing in it for most of the 45.
+  'A still life of one ripe pear and one clear glass marble on a bare wooden table, a plain pale wall behind them.',
+]
+
+/** True for a swatch prompt written by this or any earlier subject. */
+export function isEnhancementSwatchPrompt(prompt: string): boolean {
+  return ENHANCEMENT_SWATCH_SUBJECTS.some((subject) => prompt.endsWith(subject))
+}

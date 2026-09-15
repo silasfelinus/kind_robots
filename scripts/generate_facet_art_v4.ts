@@ -30,6 +30,7 @@
 //   npx tsx scripts/generate_facet_art.ts --write
 //   npx tsx scripts/generate_facet_art.ts --write --all-variants
 //   npx tsx scripts/generate_facet_art.ts --write --repair-tainted
+//   npx tsx scripts/generate_facet_art.ts --write --requeue-curated
 //
 // --repair-tainted re-queues v2/v3 wholesale, and the v4 renders whose prompt
 // was clause-dominated. Healthy v4 renders and non-depictable prompt-modifier
@@ -58,6 +59,17 @@ import {
 const WRITE = process.argv.includes('--write')
 const ALL_VARIANTS = process.argv.includes('--all-variants')
 const REPAIR_TAINTED = process.argv.includes('--repair-tainted')
+/*
+ * Re-render a Facet whose curated artPrompt no longer matches the prompt its
+ * current picture was made from.
+ *
+ * Authored prompts are the answer to variety -- a shared clause can only ever
+ * give 146 cards the same look -- but the repair modes cannot see them: those
+ * select on a known GENERATED clause, and a curated prompt matches none. So
+ * without this, writing a better prompt changes nothing that anyone can see,
+ * which is the exact silent failure that has already cost three rounds here.
+ */
+const REQUEUE_CURATED = process.argv.includes('--requeue-curated')
 const PROJECT_SLUG = 'facet-catalog'
 // The module keeps its v4 filename (three verify scripts and the stable
 // entrypoint import it by path); this constant, not the filename, is the
@@ -253,6 +265,7 @@ type ArtTarget = {
   entityId: number
   field: FacetArtField
   version: string
+  basePrompt: string
 }
 
 type QueueEntry = {
@@ -707,6 +720,10 @@ function artTarget(payload: string): ArtTarget | null {
     entityId,
     field: field as FacetArtField,
     version: clean(parsed.facetArtworkVersion),
+    // The identity prompt this job actually rendered. Comparing it to the
+    // Facet's current artPrompt is how --requeue-curated notices that someone
+    // has written a better prompt since the picture was made.
+    basePrompt: clean(parsed.basePromptString),
   }
 }
 
@@ -1074,6 +1091,49 @@ export async function main(): Promise<void> {
         }
       }
 
+      /*
+       * A curated prompt that has changed since the picture was made.
+       *
+       * Keyed on the newest job's recorded basePromptString rather than on a
+       * clause, because that is the only thing that stays true for an AUTHORED
+       * prompt: there is no pattern to match, and the whole point of authoring
+       * is that every one is different. If they differ, the picture on screen
+       * was made from text that no longer exists.
+       */
+      const curatedRequeue: QueueEntry[] = []
+      if (REQUEUE_CURATED) {
+        const newestJobPrompt = new Map<string, string>()
+        for (const job of history) {
+          const target = artTarget(job.payload)
+          if (!target) continue
+          if (!['PENDING', 'RUNNING', 'DONE'].includes(job.status)) continue
+          const key = `${target.entityId}:${target.field}`
+          const rank = versionRank(target.version)
+          if (rank >= (newestAttemptRank.get(key) ?? -1) && target.basePrompt) {
+            newestJobPrompt.set(key, target.basePrompt)
+          }
+        }
+        for (const facet of facetRows) {
+          const profile = profileByFacet.get(facet.id)
+          if (!profile || !profile.artRequired) continue
+          if ((blockersByFacet.get(facet.id) ?? []).length) continue
+          const curated = clean(facet.artPrompt)
+          if (!curated || isLegacyGeneratedFacetPrompt(curated)) continue
+          const variant = ART_VARIANTS[0]
+          const key = `${facet.id}:${variant.field}`
+          const rendered = newestJobPrompt.get(key)
+          // No prior job at all means ordinary coverage already handles it.
+          if (!rendered || rendered === curated) continue
+          curatedRequeue.push({
+            facet,
+            profile,
+            identityPrompt: buildFacetIdentityPrompt(facet, profile),
+            variant,
+          })
+        }
+        queue.push(...curatedRequeue)
+      }
+
       const repairQueued = new Set<string>()
       const repairSkippedSuperseded: number[] = []
       const repairSkippedHealthy: number[] = []
@@ -1269,6 +1329,7 @@ export async function main(): Promise<void> {
             mode: WRITE ? 'write' : 'dry-run',
             coverageMode: ALL_VARIANTS ? 'all-variants' : 'baseline',
             repairTainted: REPAIR_TAINTED,
+            requeueCurated: REQUEUE_CURATED,
             projectSlug: PROJECT_SLUG,
             version: FACET_ART_VERSION,
             repairedVersions: [...LEGACY_FACET_ART_VERSIONS],
@@ -1285,6 +1346,7 @@ export async function main(): Promise<void> {
               repairHealthyPreserved: repairSkippedHealthy.length,
               repairNonVisualReported: repairSkippedNonVisual.length,
               repairNewerAttemptSkipped: repairSkippedNewerAttempt.length,
+              curatedPromptRequeued: curatedRequeue.length,
               repairBlocked: repairBlocked.length,
               blocked: blocked.length,
             },

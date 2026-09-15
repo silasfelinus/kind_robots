@@ -425,7 +425,15 @@ export function isLegacyGeneratedFacetPrompt(value: unknown): boolean {
   if (!prompt) return false
   if (LEGACY_GENERATED_IDENTITY.test(prompt)) return true
   if (LEGACY_V4_TAXONOMY_TAILS.some((tail) => prompt.endsWith(tail))) return true
-  return LEGACY_V5_TAXONOMY_TAILS.some((tail) => prompt.endsWith(tail))
+  if (LEGACY_V5_TAXONOMY_TAILS.some((tail) => prompt.endsWith(tail))) return true
+  // The enhancement swatch is generated too. It is not in the taxonomy tables
+  // because it comes from utils/promptEnhancementPolicy.ts, and that is exactly
+  // how it got missed: a stored swatch prompt read as CURATED, so editing
+  // ENHANCEMENT_SWATCH_SUBJECT could never have reached a render. The subject
+  // is the one thing most likely to need changing -- it is a deliberate bet
+  // that a fixed pear and marble can carry 46 different techniques, and if that
+  // bet is wrong the fix is a different subject.
+  return prompt.endsWith(ENHANCEMENT_SWATCH_SUBJECT)
 }
 
 /**

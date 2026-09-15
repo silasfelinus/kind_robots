@@ -1127,7 +1127,7 @@ export async function main(): Promise<void> {
               qualityGate:
                 'Validate Krea 2 prompts before enqueue; do not generate art for duplicate, malformed, composite, taxonomy-leaking, cargo-cult, or unreviewed legacy Facets.',
               repair:
-                'When --repair-tainted is set, cancel pending v2/v3 jobs and resubmit v2/v3 outputs that still own their Facet slot. Preserve outputs already superseded by a different ArtImage id.',
+                'When --repair-tainted is set: resubmit v2/v3 outputs that still own their Facet slot, and the v4 outputs whose prompt was both clause-dominated and rejected by the art-direction-jargon rule. Preserve outputs already superseded by a different ArtImage id, healthy v4 renders, and prompt-modifier Facets that depict nothing. Cancel a pending legacy job only when a replacement is being queued for it.',
               scope: ALL_VARIANTS
                 ? 'Explicit enhancement mode: queue every missing imagePath, cardPath, heroPath, and iconPath without replacing curated art.'
                 : 'Coverage-first mode: queue at most one imagePath job for a Facet with no display art and no active Facet ArtJob.',

@@ -3,15 +3,15 @@
 // The authored prompts are content, and content rots quietly. These checks are
 // the ones that would have caught each failure this work has already shipped.
 import assert from 'node:assert/strict'
+import { readFileSync } from 'node:fs'
 import { CURATED_FACET_ART_PROMPTS } from '../seeds/facetArtPrompts'
 import { checkArtPromptContract } from '../../server/utils/artPromptContract'
+import { readFacetCoverageTarget } from '../../server/utils/artJobQueueCoverage'
 import {
+  buildFacetArtPayload,
   curatedPromptNeedsRender,
   isLegacyGeneratedFacetPrompt,
 } from '../../scripts/generate_facet_art_v4'
-import { readFileSync } from 'node:fs'
-import { buildFacetArtPayload } from '../../scripts/generate_facet_art_v4'
-import { readFacetCoverageTarget } from '../../server/utils/artJobQueueCoverage'
 
 const entries = Object.entries(CURATED_FACET_ART_PROMPTS)
 assert.ok(entries.length >= 146, `expected the full authored set, got ${entries.length}`)

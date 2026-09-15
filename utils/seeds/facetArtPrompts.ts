@@ -670,4 +670,167 @@ export const CURATED_FACET_ART_PROMPTS: Record<string, string> = {
   // warm highlights
   'warm-highlights':
     'A copper kettle on a stove in late afternoon, the light picking out warm orange highlights along its shoulder and its handle.',
+
+  // ── Facets still carrying the older 'Illustrate the Facet concept ...'
+  //    wrapper, which the contract gate rejects outright. Each keeps the image
+  //    its own description already named. ──
+  // Alchemist
+  'alchemist':
+    'A cluttered bench where one flask has just turned clear, its owner already reaching past it for the next, unsurprised.',
+  // Artificer
+  'artificer':
+    'A workshop wall hung with a machine built from three other machines, its maker adding a fourth arm to it in good light.',
+  // Assassin
+  'assassin':
+    'Deep in a colonnade\'s shadow a still figure waits, watching a lit doorway across the courtyard where someone stands unaware.',
+  // Bard
+  'bard':
+    'A lute propped against a tavern chair with a notice of safe conduct tucked under its strings, ale rings drying on the table.',
+  // Bounty Hunter
+  'bounty-hunter':
+    'A folded contract held in a gloved hand at the rail of a crowded market balcony, far below it the one person not moving.',
+  // Cleric
+  'cleric':
+    'Someone kneeling to bandage a wounded stranger in a ruined chapel, the gold light from the window falling well behind them.',
+  // Clown
+  'clown':
+    'Full greasepaint and a ruffled collar at a bus stop in the rain, the face beneath the makeup thinking about something else.',
+  // Criminal Mastermind
+  'criminal-mastermind':
+    'One finger resting on a city map spread across a billiard table, three glasses set out where three people will sit.',
+  // Cupid
+  'cupid':
+    'A small winged figure sitting on a park wall at a comfortable distance, watching two strangers discover the same bench.',
+  // Druid
+  'druid':
+    'Someone standing across a logging road with their hand flat against the bark of the last uncut tree, machines idling ahead.',
+  // Gambler
+  'gambler':
+    'Cards laid face down under a low green lamp, one hand resting flat beside them, the pot heaped and unattended.',
+  // Groupie
+  'groupie':
+    'One upturned face lit from the stage in a dark crowd, entirely absorbed, while everyone around is filming instead.',
+  // Mad Scientist
+  'mad-scientist':
+    'A figure turning toward the room with delight while behind them something in a tank has grown a second working eye.',
+  // Mime
+  'mime':
+    'White gloves pressed against a wall that is not there, on an empty plaza where the pigeons have started walking around it.',
+  // Monk
+  'monk':
+    'Sweeping a stone courtyard at first light, the broom moving evenly, a staff leaning within arm\'s reach against the pillar.',
+  // Musician
+  'musician':
+    'Eyes shut over a battered saxophone in a near-empty club, turned away from the tables toward the amplifier.',
+  // Netrunner
+  'netrunner':
+    'Someone half-lit by a screen in a dark room, their hands on a deck whose cables run up into nothing above them.',
+  // NPC
+  'npc':
+    'A villager standing at a precise spot beside a well, facing the road, mouth open on a sentence they have said before.',
+  // Oracle
+  'oracle':
+    'An old woman in a doorway watching a young traveller approach, already deciding how much of it to say.',
+  // Paladin
+  'paladin':
+    'Armour laid out piece by piece on a stone floor at dawn, its wearer sitting beside it with their hands empty.',
+  // Performance Artist
+  'performance-artist':
+    'A person suspended in a harness above a gallery floor, pouring honey slowly onto a chair while staff watch from the doorway.',
+  // Philanthropist
+  'philanthropist':
+    'A cheque passed across a folding table to a woman whose hands have gone to her face, the giver looking slightly away.',
+  // Poet
+  'poet':
+    'An open notebook on a windowsill above a wet street, its writer turned toward the glass, head tilted, listening.',
+  // Politician
+  'politician':
+    'Mid-gesture at a lectern with one hand raised to the room, the other hidden below the wood.',
+  // Polymath
+  'polymath':
+    'A room where a half-built telescope, an opened clock and a pinned butterfly share one table, their owner starting a fourth thing.',
+  // Ranger
+  'ranger':
+    'A figure at the treeline where the field ends, bow slung, looking back along the way they came rather than ahead.',
+  // Reporter
+  'reporter':
+    'Someone in a cordoned doorway with a notebook out, taking down what they can see past the shoulder of the officer blocking it.',
+  // Rogue
+  'rogue':
+    'A hand testing a shuttered window from a narrow alley while the street beyond carries on in daylight.',
+  // Slacker
+  'slacker':
+    'A person lying full length on a sunlit lawn with a bicycle fallen beside them, eyes open, entirely unhurried.',
+  // Super Hero
+  'super-hero':
+    'Someone standing on a rooftop with their back to the city, behind them a bridge already buckling and traffic stopped.',
+  // Super Villain
+  'super-villain':
+    'A figure mid-speech on a gantry above a great machine, arms wide, addressing something restrained and offscreen below.',
+  // Troublemaker
+  'troublemaker':
+    'A kid slipping out of a side door with a delighted expression while behind them a stack of crates goes over.',
+  // Warlock
+  'warlock':
+    'A man at a desk rereading a signed page by candlelight, the wax seal broken, the room around him long since gone cold.',
+  // Warrior
+  'warrior':
+    'A scarred fighter walking straight up the centre of a rubble-strewn street, shield low, everyone else in doorways.',
+  // Waste of Space
+  'waste-of-space':
+    'A person occupying an armchair with total commitment in a room where three other people are clearly trying to work.',
+  // Witch
+  'witch':
+    'A cellar door propped open with a stone and a woman going down the steps with a lamp, the workbench behind her still lit.',
+  // Wizard
+  'wizard':
+    'An old man at a lectern with a book open before him, annotating the margin of a page in small firm handwriting.',
+  // Celtic Mythology
+  'celtic-mythology':
+    'A ring of standing stones on a wet green hillside at dusk, one stone carved with spirals, sheep grazing between them.',
+  // Cli-Fi (Climate Fiction)
+  'cli-fi-climate-fiction':
+    'Floodwater standing level with the porch steps along a suburban street, a family carrying boxes out to a boat at the kerb.',
+  // Cozy Undead
+  'cozy-undead':
+    'A skeleton in a knitted cardigan pouring tea for two in a warm kitchen, waiting for someone who has not arrived yet.',
+  // Eastern European Folklore
+  'eastern-european-folklore':
+    'A wooden house standing on two enormous bird\'s legs in a birch wood, its shutters open, a path of bones leading up to it.',
+  // Noir
+  'noir':
+    'A man in a wet overcoat under a street lamp at three in the morning, the fog taking the far end of the road entirely.',
+  // Oceanic Mythology
+  'oceanic-mythology':
+    'An outrigger canoe drawn up on black sand beneath carved wooden figures facing out to a bright and empty ocean.',
+  // Accountant
+  'accountant':
+    'A late office where one person has stopped with a finger on a printed column, the rest of the floor dark behind them.',
+  // Creative Writer
+  'creative-writer':
+    'Someone at a cafe window watching an argument outside, their notebook already open and their coffee going cold.',
+  // Doctor
+  'doctor':
+    'A surgeon leaning close under a bright lamp, absolutely still, their assistant watching their hands rather than the patient.',
+  // Hacker
+  'hacker':
+    'A quiet apartment where someone reads a scrolling access log with mild interest, the log being a record of themselves.',
+  // Lawyer
+  'lawyer':
+    'Documents squared in three exact rows across a boardroom table, one page turned face up, its reader already standing.',
+  // Public Notary
+  'public-notary':
+    'An old brass stamp resting on a signed page, its keeper looking steadily at the person across the counter, saying nothing.',
+  // Space Lawyer
+  'space-lawyer':
+    'A woman in a plain suit closing a folder at her desk, and through the window behind her a planet that should not be there.',
+  // Infinite Archive
+  'infinite-archive':
+    'Shelves running up out of sight above a reading table, where one open book has a single eye looking out of the page.',
+  // Unusual Perspective
+  'unusual-perspective':
+    'A kitchen seen from inside the open refrigerator, the cook leaning in with a hand out, lit entirely by the shelf lamp.',
+  // physically accurate materials
+  'physically-accurate-materials':
+    'A cut log, a sheet of hammered copper and a block of wet clay set side by side on a bench, each taking the light its own way.',
 }

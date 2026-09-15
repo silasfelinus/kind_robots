@@ -546,8 +546,22 @@ export function curatedPromptNeedsRender(
   // Nothing authored here, or the text is the producer's own: not this mode's
   // business. The repair modes own generated prompts.
   if (!curated || isLegacyGeneratedFacetPrompt(curated)) return false
-  // Never rendered at all -- ordinary coverage queues it.
-  if (!hasAttempt) return false
+  /*
+   * Never rendered at all: ordinary coverage queues it -- UNLESS the Facet
+   * already carries a hand-placed asset under /images. imagePath counts as
+   * art-backed in the coverage audit, so coverage skips those rows forever,
+   * and with no job in their history this mode used to skip them too. The
+   * result was a silent limbo: 15 genres given authored prompts on 2026-09-15
+   * (fantasy, steampunk, mystery, romance ...) sat with the right text and no
+   * way to ever be painted from it, because a static .webp made them look
+   * finished to the only two modes that could have queued them.
+   *
+   * A static asset is not a render of the curated prompt, so those rows are
+   * this mode's to claim. They cannot double-queue with coverage precisely
+   * because coverage considers them backed.
+   */
+  const staticOnly = Boolean(clean(facet.imagePath)) && facet.artImageId === null
+  if (!hasAttempt && !staticOnly) return false
   /*
    * The picture on the card is the only thing Silas can see, so it is the only
    * honest answer to "has this been rendered yet".

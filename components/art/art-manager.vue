@@ -96,7 +96,7 @@
 
         <template v-else-if="activeTab === 'artjob'">
           <div
-            class="kr-toolbar justify-between border-b border-base-300 bg-base-100 px-3 py-2"
+            class="kr-toolbar border-b border-base-300 bg-base-100 px-2 py-1"
           >
             <div
               role="tablist"
@@ -106,7 +106,7 @@
               <button
                 type="button"
                 role="tab"
-                class="tab h-auto min-h-9 gap-2 rounded-xl px-4"
+                class="tab h-auto min-h-8 gap-1.5 rounded-xl px-3"
                 :class="{ 'tab-active': artJobWorkspaceTab === 'queue' }"
                 :aria-selected="artJobWorkspaceTab === 'queue'"
                 @click="selectArtJobWorkspace('queue')"
@@ -122,7 +122,7 @@
               <button
                 type="button"
                 role="tab"
-                class="tab h-auto min-h-9 gap-2 rounded-xl px-4"
+                class="tab h-auto min-h-8 gap-1.5 rounded-xl px-3"
                 :class="{ 'tab-active': artJobWorkspaceTab === 'trainer' }"
                 :aria-selected="artJobWorkspaceTab === 'trainer'"
                 @click="selectArtJobWorkspace('trainer')"
@@ -136,19 +136,11 @@
                 </span>
               </button>
             </div>
-
-            <p class="kr-text-dim-xs hidden lg:block">
-              {{
-                artJobWorkspaceTab === 'queue'
-                  ? 'Jobs refresh every 15s; health summaries refresh every minute'
-                  : 'Review finished renders and leave training feedback'
-              }}
-            </p>
           </div>
 
           <div
             v-show="artJobWorkspaceTab === 'queue'"
-            class="kr-stage gap-3 p-3"
+            class="kr-stage gap-1 p-2"
           >
             <artjob-failed-page-requeue class="shrink-0" />
             <artjob-queue-browser class="min-h-0 flex-1 overflow-hidden" />
@@ -156,7 +148,7 @@
 
           <div
             v-show="artJobWorkspaceTab === 'trainer'"
-            class="min-h-0 flex-1 overflow-hidden p-3"
+            class="min-h-0 flex-1 overflow-hidden p-2"
           >
             <artjob-feedback-manager class="h-full min-h-0 overflow-hidden" />
           </div>

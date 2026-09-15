@@ -14,7 +14,7 @@ import {
 } from '../../scripts/generate_facet_art_v4'
 
 const entries = Object.entries(CURATED_FACET_ART_PROMPTS)
-assert.ok(entries.length >= 146, `expected the full authored set, got ${entries.length}`)
+assert.ok(entries.length >= 191, `expected the full authored set, got ${entries.length}`)
 
 for (const [slug, prompt] of entries) {
   assert.ok(prompt.trim().length > 40, `${slug}: too thin to carry a picture`)
@@ -177,5 +177,34 @@ assert.ok(
   producerSource.includes('queued: scopedQueue.length'),
   'the queued total must report what was written, not what was considered',
 )
+
+// The enhancement swatches are authored per technique now, because one shared
+// scene failed twice in opposite directions: too bare to demonstrate anything,
+// then so loaded that naming a technique changed nothing. Each of these has to
+// be a scene that IS its technique, so a handful are spot-checked for the
+// subject that carries them.
+for (const [slug, needle] of [
+  ['volumetric-light', 'shaft'],
+  ['gilded-shimmer', 'gold leaf'],
+  ['subsurface-scattering', 'through the flesh'],
+  ['film-grain', 'grain'],
+  ['bokeh-background', 'circles'],
+  ['macro-fidelity', 'close view'],
+] as [string, string][]) {
+  const prompt = CURATED_FACET_ART_PROMPTS[slug]
+  assert.ok(prompt, `${slug} must have an authored prompt`)
+  assert.ok(
+    prompt.toLowerCase().includes(needle),
+    `${slug} must depict its technique, not merely be lit by it (looking for "${needle}")`,
+  )
+}
+// The pear scene is retired as a per-facet prompt. If it comes back, the two
+// failures above are being repeated.
+for (const [slug, prompt] of entries) {
+  assert.ok(
+    !prompt.includes('brass oil lamp burning at the back of a dark polished table'),
+    `${slug} still uses the shared swatch scene that demonstrated nothing`,
+  )
+}
 
 console.log(`Curated Facet art prompts verified (${entries.length}).`)

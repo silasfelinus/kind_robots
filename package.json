@@ -125,6 +125,8 @@
     "inspect:art-image-data": "tsx utils/scripts/inspectArtImageData.ts",
     "characters:repair": "tsx utils/scripts/repairCharacterSlugs.mjs",
     "seed:davinci": "tsx utils/scripts/seedDaVinciEndings.ts",
+    "seed:embodiment": "tsx utils/scripts/seedEmbodimentFacetCatalog.ts",
+    "seed:embodiment:apply": "tsx utils/scripts/seedEmbodimentFacetCatalog.ts --apply",
     "seed:davinci:verify": "tsx utils/scripts/verifyDaVinciSeed.ts",
     "seed:bestiary": "prisma generate && tsx scripts/seed_bestiary.ts",
     "seed:bestiary:write": "prisma generate && tsx scripts/seed_bestiary.ts --write",

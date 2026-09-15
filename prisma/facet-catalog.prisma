@@ -6,6 +6,27 @@
 // nested object; fieldKey is usage metadata, so one PERSONALITY Facet can shape
 // either a Character or a Bot without duplicating the concept.
 
+// Embodiment axes (2026-09-15): AGE, BUILD, HAIR, ORIGIN.
+//
+// Everything about a character's body was previously unrolled vocabulary, so
+// every generator that drew Facets got rich genre/species/occupation variety
+// over a body it had to invent unaided -- and unaided bodies converge. Measured
+// across all 98 authored Daily Dream characters: none had a saturated hair
+// colour, none had long hair, 14.3% named an age, 9.2% named a skin tone, and
+// she/her outnumbered he/him more than four to one. Every axis the seed plan
+// rolled varied; every axis it did not roll collapsed to one value.
+//
+// Origin here is culture, never phenotype, and it applies to non-humans too: a
+// walrus raised in a Lisbon-facing trade quarter wears that quarter's oilcloth
+// and swears by its saints. It does not have its people's cheekbones. Humanoid
+// complexion is derived from origin by the author rather than rolled from a
+// standalone race table, which is the whole reason there is no complexion value
+// in this enum.
+//
+// NOTE for future editors: keep prose out of the braces below. The contract
+// check in utils/scripts/verifyFacetTaxonomyAuthority.ts parses this enum by
+// taking every all-caps token inside it, so a capitalised word in an inner
+// comment is read as an enum value and fails the build.
 enum FacetTaxonomy {
   GENRE
   ANIMAL
@@ -22,6 +43,10 @@ enum FacetTaxonomy {
   ROLE
   ALIGNMENT
   GENDER
+  AGE
+  BUILD
+  HAIR
+  ORIGIN
   BOT_TYPE
   DREAM_TYPE
   REWARD_TYPE

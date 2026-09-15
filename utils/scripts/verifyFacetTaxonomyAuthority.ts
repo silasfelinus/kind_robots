@@ -1,6 +1,6 @@
 // Verify that FacetProfile.taxonomy is the typed, user-facing classifier and
 // Facet.kind is gone (t-072); FacetProfile.taxonomy is the sole authority.
-import { readFile } from 'node:fs/promises'
+import { readdir, readFile } from 'node:fs/promises'
 import { resolve } from 'node:path'
 import { containsCode } from './lib/sourceText'
 
@@ -33,6 +33,39 @@ function extractQuotedArray(text: string, marker: string): string[] {
     .filter((value): value is string => Boolean(value))
 }
 
+/**
+ * The migration that currently DEFINES the taxonomy column, which is the newest
+ * one that redefines it rather than the one that first established it.
+ *
+ * This used to assert every enum value against the fixed 20260727022500
+ * migration, which was correct only while the enum never changed. Adding a
+ * value (AGE/BUILD/HAIR/ORIGIN, 2026-09-15) made that assertion demand an edit
+ * to an already-applied migration -- which would change its checksum and put
+ * every deployed database into migration drift. The contract being protected is
+ * "a migration exists that gives the column exactly the enum Prisma declares",
+ * and the newest redefinition is the one that does it.
+ */
+async function latestTaxonomyMigration(): Promise<{ path: string; text: string }> {
+  const dir = 'prisma/migrations'
+  const entries = await readdir(resolve(root, dir), { withFileTypes: true })
+  const candidates: Array<{ path: string; text: string }> = []
+  for (const entry of entries.filter((item) => item.isDirectory()).sort()) {
+    const path = `${dir}/${entry.name}/migration.sql`
+    let text: string
+    try {
+      text = await source(path)
+    } catch {
+      continue
+    }
+    if (text.includes('MODIFY `taxonomy` ENUM(')) candidates.push({ path, text })
+  }
+  const latest = candidates.at(-1)
+  if (!latest) {
+    throw new Error('No migration defines the FacetProfile.taxonomy enum.')
+  }
+  return latest
+}
+
 function extractPrismaEnum(text: string, enumName: string): string[] {
   const match = text.match(
     new RegExp(`enum\\s+${enumName}\\s*\\{([\\s\\S]*?)\\}`),
@@ -43,6 +76,15 @@ function extractPrismaEnum(text: string, enumName: string): string[] {
     .split(/\s+/)
     .map((value) => value.trim())
     .filter((value) => /^[A-Z][A-Z_]+$/.test(value))
+}
+
+/** The value set the defining migration actually gives the column. */
+function extractSqlEnum(text: string): string[] {
+  const open = text.lastIndexOf('MODIFY `taxonomy` ENUM(')
+  const close = text.indexOf(')', open)
+  return Array.from(text.slice(open, close).matchAll(/'([A-Z_]+)'/g)).map(
+    (match) => match[1] as string,
+  )
 }
 
 function sameValues(label: string, left: string[], right: string[]): void {
@@ -105,11 +147,19 @@ async function main(): Promise<void> {
     text.schema,
     'taxonomy         FacetTaxonomy @default(OTHER)',
   )
+  // The original authority migration still owns the one-time backfill; only the
+  // per-value check moves to whichever migration currently defines the column.
   requireText(files.migration, text.migration, 'MODIFY `taxonomy` ENUM(')
   requireText(files.migration, text.migration, "SET `taxonomy` = 'OTHER'")
+  const definingMigration = await latestTaxonomyMigration()
   for (const taxonomy of prismaTaxonomies) {
-    requireText(files.migration, text.migration, `'${taxonomy}'`)
+    requireText(definingMigration.path, definingMigration.text, `'${taxonomy}'`)
   }
+  sameValues(
+    'Prisma/migration taxonomy',
+    prismaTaxonomies,
+    extractSqlEnum(definingMigration.text),
+  )
 
   requireText(
     files.profileInput,

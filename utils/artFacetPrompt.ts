@@ -16,29 +16,46 @@ export function artFacetPromptValue(entry: ArtFacetPromptEntry): string {
 // then descriptive qualities, then stylistic direction, and enhancement/quality
 // tags last (where diffusion models weight them best). Unlisted taxonomies keep
 // their original relative position in the middle band.
+// Scaled by 10 relative to the original spacing (2026-09-15) purely to make
+// room inside the identity band for the four embodiment axes. Every existing
+// taxonomy keeps its exact relative position; nothing reorders.
 const TAXONOMY_PROMPT_PRIORITY: Record<string, number> = {
-  SPECIES: 10,
-  ANIMAL: 10,
-  ARCHETYPE: 11,
-  OCCUPATION: 11,
-  ROLE: 11,
-  CORE: 12,
-  GENDER: 13,
-  ALIGNMENT: 14,
-  PERSONALITY: 15,
-  QUIRK: 16,
-  BACKSTORY: 17,
-  GENRE: 20,
-  THEME: 21,
-  SETTING: 22,
-  MOOD: 23,
-  COLOR: 24,
-  MATERIAL: 25,
-  STYLE: 30,
-  ART_DIRECTION: 31,
-  PROMPT_ENHANCEMENT: 90,
+  SPECIES: 100,
+  ANIMAL: 100,
+  ARCHETYPE: 110,
+  OCCUPATION: 110,
+  ROLE: 110,
+  CORE: 120,
+  GENDER: 130,
+  // Embodiment sits with the subject, immediately after gender and before
+  // disposition. This placement is load-bearing, not cosmetic: a diffusion
+  // model weights the head of the prompt most, so "silver-locked, broad
+  // through the shoulders, late sixties" has to arrive while it is still
+  // deciding what body to paint. Left at DEFAULT_TAXONOMY_PRIORITY these
+  // would land AFTER style and art direction, where they read as afterthoughts
+  // and get overridden by the style tail -- the same failure that once turned
+  // a reward's `look` into a crowd of people.
+  AGE: 132,
+  BUILD: 134,
+  HAIR: 136,
+  // ORIGIN is culture, so it trails the physical axes and informs dress,
+  // ornament and craft rather than face or frame.
+  ORIGIN: 138,
+  ALIGNMENT: 140,
+  PERSONALITY: 150,
+  QUIRK: 160,
+  BACKSTORY: 170,
+  GENRE: 200,
+  THEME: 210,
+  SETTING: 220,
+  MOOD: 230,
+  COLOR: 240,
+  MATERIAL: 250,
+  STYLE: 300,
+  ART_DIRECTION: 310,
+  PROMPT_ENHANCEMENT: 900,
 }
-const DEFAULT_TAXONOMY_PRIORITY = 50
+const DEFAULT_TAXONOMY_PRIORITY = 500
 
 function taxonomyPriority(taxonomy: string): number {
   return (

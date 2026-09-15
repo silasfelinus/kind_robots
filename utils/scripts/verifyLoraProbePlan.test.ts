@@ -17,6 +17,7 @@ import { resolve } from 'node:path'
 import {
   buildLoraProbePrompt,
   escapeSdPromptWeighting,
+  sanitizeProbeTrigger,
   classifyCheckpointFamily,
   classifyLoraFamily,
   hasBlindPreview,
@@ -129,10 +130,26 @@ function run(): void {
     11,
     'an SFW Pony LoRA prefers the SFW Pony base',
   )
+  /*
+   * NOT alphabetical. cyberrealisticPony sorts first and is what the original
+   * tie-break chose for 61 of the first batch's 205 renders -- and it is a
+   * photorealistic merge, which rendered a style LoRA as a studio photograph
+   * of a toy. PROBE_BASE_PREFERENCE exists to keep that from being decided by
+   * sort order.
+   */
+  const ponyPool = [
+    ...pool,
+    checkpoint(15, 'Pony/ponyFaetality_v11.safetensors', true, 'Pony'),
+  ]
+  assert.equal(
+    selectProbeCheckpoint('pony', true, ponyPool)?.localPath,
+    'Pony/ponyFaetality_v11.safetensors',
+    'a mature Pony LoRA takes the preferred base, not the alphabetical one',
+  )
   assert.equal(
     selectProbeCheckpoint('pony', true, pool)?.id,
     10,
-    'a mature Pony LoRA prefers a mature-capable Pony base',
+    'with no preferred base present it still falls back deterministically',
   )
   assert.equal(
     selectProbeCheckpoint('sdxl', true, pool)?.id,
@@ -205,6 +222,35 @@ function run(): void {
   // --- buildLoraProbePrompt ---
   const pony = buildLoraProbePrompt('pony', 'EPpkJessie, long hair')
   assert.ok(pony)
+
+  /*
+   * No medium anywhere in any scaffold. 'soft even lighting, sharp focus,
+   * plain neutral background' is a product-photography recipe, and on a
+   * photorealistic base it rendered an Adventure Time STYLE LoRA as a studio
+   * photo of a vinyl toy (ArtImage 24472). A probe may fix the subject and the
+   * framing; the medium is the thing being measured.
+   */
+  const MEDIUM_WORDS = [
+    'lighting',
+    'sharp focus',
+    'photo',
+    'photograph',
+    'render',
+    'studio',
+    'lens',
+    'bokeh',
+    'depth of field',
+    'illustration',
+  ]
+  for (const [family, recipe] of Object.entries(LORA_PROBE_RECIPES)) {
+    const probe = recipe.positive('TRIGGER').toLowerCase()
+    for (const word of MEDIUM_WORDS) {
+      assert.ok(
+        !probe.includes(word),
+        `${family} scaffold must not name a medium (found ${word}): ${probe}`,
+      )
+    }
+  }
   assert.ok(
     pony.prompt.startsWith('score_9, score_8_up, score_7_up'),
     'Pony needs its score scaffold ahead of the trigger',
@@ -216,6 +262,51 @@ function run(): void {
   assert.ok(flux)
   assert.equal(flux.negativePrompt, '', 'Flux takes no negative prompt')
   assert.ok(flux.prompt.includes('the calmstyle style'))
+
+  // --- sanitizeProbeTrigger ---
+  /*
+   * defaultTrigger is not reliably a prompt. Across the catalog it holds real
+   * tag lists, A1111 invocation syntax, and -- for rows with no trigger at all
+   * -- the LoRA's own title. Silas flagged the last of these on 2026-09-15:
+   * resource 1123's trigger is the literal string 'FLUX2.D Turbo 8-Step Lora
+   * for ComfyUI', which asks the model to depict its own filename.
+   */
+  assert.equal(
+    sanitizeProbeTrigger(
+      '<lora:foo-illustriousxl-lora:1>, after fellatio, looking at viewer',
+    ),
+    'after fellatio, looking at viewer',
+    'A1111 invocation syntax renders as literal text in ComfyUI and must go',
+  )
+  assert.equal(
+    sanitizeProbeTrigger('Grey Impact - Illustrious/PonyXL'),
+    'Grey Impact',
+  )
+  assert.equal(
+    sanitizeProbeTrigger('Invincible Comic for PonyXL'),
+    'Invincible Comic',
+  )
+  assert.equal(
+    sanitizeProbeTrigger('adventure time, dot eyes'),
+    'adventure time, dot eyes',
+    'a real tag list is left completely alone',
+  )
+  assert.equal(
+    sanitizeProbeTrigger('score_9, 1girl, (pink skin:1.1), smile'),
+    'score_9, 1girl, (pink skin:1.1), smile',
+    'authored (tag:weight) syntax survives sanitizing',
+  )
+  assert.ok(
+    !sanitizeProbeTrigger('FLUX2.D Turbo 8-Step Lora for ComfyUI')
+      .toLowerCase()
+      .includes('comfyui'),
+    'packaging words never reach the prompt',
+  )
+
+  const longTrigger = Array.from({ length: 60 }, (_, i) => `tag${i}`).join(', ')
+  const clipped = sanitizeProbeTrigger(longTrigger)
+  assert.ok(clipped.length <= 240, 'a tag soup is capped')
+  assert.ok(!clipped.endsWith(','), 'the cap lands on a tag boundary')
 
   /*
    * Weighting metacharacters in a trigger must not silently re-weight the

@@ -41,6 +41,10 @@
 // A break between 2 and 3 means the prompt changed and the art was never
 // rebuilt -- the stale-render case, which is invisible from every other angle
 // because the Facet HAS a picture and nothing reports it as missing.
+// Every sibling script that reads KR_API_TOKEN loads the .env first. This one
+// did not, so on the box where the token actually lives it exited 2 with
+// "KR_API_TOKEN is required" while the token was sitting in .env the whole time.
+import 'dotenv/config'
 import { CURATED_FACET_ART_PROMPTS } from '../seeds/facetArtPrompts'
 import { RETIRED_PROMPT_ENHANCEMENT_SLUGS } from '../promptEnhancementPolicy'
 
@@ -154,7 +158,12 @@ export function renderMatchesPrompt(artPrompt: string, promptString: string): bo
 async function main(): Promise<void> {
   const { taxonomies, json, limit } = parseArgs(process.argv.slice(2))
   if (!TOKEN) {
-    console.error('KR_API_TOKEN is required -- this reads the live catalog.')
+    console.error(
+      'KR_API_TOKEN is required -- this reads the live catalog over the API.\n' +
+        'It is read from the environment or from .env in the repo root, the same\n' +
+        'way applyCuratedFacetArtPrompts.ts reads it. To pass it for one run:\n' +
+        '  KR_API_TOKEN=<admin token> npx tsx utils/scripts/auditFacetArtFreshness.ts',
+    )
     process.exit(2)
   }
 

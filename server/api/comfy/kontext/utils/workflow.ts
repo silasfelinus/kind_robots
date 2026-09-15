@@ -4,7 +4,7 @@
 // Mirrors the graph in ../generate.post.ts (kept private there); the direct
 // route and this builder should be deduped in a later pass.
 
-import { fluxDualClipLoaderNode } from '../../../../utils/fluxTextEncoders'
+import { kontextDualClipLoaderNode } from '../../../../utils/fluxTextEncoders'
 import {
   appendModelOnlyLoraChain,
   normalizeLoraSelections,
@@ -193,7 +193,7 @@ export function buildKontextWorkflow(
       class_type: 'VAELoader',
       _meta: { title: 'Load VAE' },
     },
-    '11': fluxDualClipLoaderNode(),
+    '11': kontextDualClipLoaderNode(),
     '13': {
       inputs: {
         noise: ['25', 0],

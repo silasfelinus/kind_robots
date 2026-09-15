@@ -56,6 +56,7 @@ type Facet = {
   taxonomy: string
   artPrompt: string | null
   artImageId: number | null
+  imagePath: string | null
   isActive: boolean
 }
 
@@ -66,6 +67,7 @@ type Finding = {
   state:
     | 'ok'
     | 'no-art'
+    | 'static-art'
     | 'apply-drift'
     | 'render-drift'
     | 'no-prompt'
@@ -184,7 +186,22 @@ async function main(): Promise<void> {
       continue
     }
     if (!facet.artImageId) {
-      findings.push({ ...base(facet), state: 'no-art', detail: 'prompt present, no art' })
+      /*
+       * A hand-placed asset under /images is real art -- it is what the picker
+       * shows -- but it carries no generated provenance, so there is no painted
+       * prompt to compare and nothing here can call it stale. Reporting these as
+       * missing would put 34 permanent rows in every run, and a report that is
+       * wrong about the same rows every day stops being read.
+       */
+      findings.push(
+        facet.imagePath
+          ? {
+              ...base(facet),
+              state: 'static-art',
+              detail: `static asset ${facet.imagePath} -- no generated provenance to check`,
+            }
+          : { ...base(facet), state: 'no-art', detail: 'prompt present, no art' },
+      )
       continue
     }
     // Layer 2 -> 3.
@@ -217,7 +234,8 @@ async function main(): Promise<void> {
     report(findings, scoped.length)
   }
 
-  const stale = findings.filter((f) => f.state !== 'ok')
+  // static-art is a category, not a defect: it never fails the run.
+  const stale = findings.filter((f) => f.state !== 'ok' && f.state !== 'static-art')
   process.exit(stale.length ? 1 : 0)
 }
 
@@ -233,9 +251,11 @@ function report(findings: Finding[], total: number): void {
     byState.set(finding.state, list)
   }
   const ok = byState.get('ok')?.length ?? 0
+  const staticArt = byState.get('static-art')?.length ?? 0
   console.log(`Facets checked: ${total}`)
   console.log(`  fresh art from the current prompt: ${ok}`)
-  for (const state of ['apply-drift', 'render-drift', 'no-art', 'no-prompt'] as const) {
+  if (staticArt) console.log(`  hand-placed static art (not checkable): ${staticArt}`)
+  for (const state of ['apply-drift', 'render-drift', 'no-art', 'no-prompt', 'static-art'] as const) {
     const list = byState.get(state) ?? []
     if (!list.length) continue
     console.log(`\n  ${state}: ${list.length}`)
@@ -245,7 +265,7 @@ function report(findings: Finding[], total: number): void {
     }
     if (list.length > 25) console.log(`      ... and ${list.length - 25} more`)
   }
-  const stale = findings.length - ok
+  const stale = findings.length - ok - staticArt
   console.log(
     stale
       ? `\n${stale} facet(s) are showing art that does not match their current prompt, or no art at all.`

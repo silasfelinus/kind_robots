@@ -84,7 +84,12 @@ export async function main(): Promise<void> {
                 },
                 data: {
                   status: 'CANCELLED',
-                  errorMessage: `Cancelled by ${BATCH_ID}: this Facet is a quality incantation with nothing to depict and is being withdrawn from the catalog.`,
+                  // Released with the status, matching the producer's own
+                  // cancellation shape: a CANCELLED job still holding a claim
+                  // reads as work in flight to anything scanning the queue.
+                  claimedAt: null,
+                  claimedBy: null,
+                  error: `Cancelled by ${BATCH_ID}: this Facet is a quality incantation with nothing to depict and is being withdrawn from the catalog.`,
                 },
               })
               cancelledJobs = cancelled.count

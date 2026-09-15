@@ -14,6 +14,7 @@ import {
   buildFacetArtPayload,
   curatedPromptNeedsRender,
   isLegacyGeneratedFacetPrompt,
+  promptWasPainted,
 } from '../../scripts/generate_facet_art_v4'
 
 const entries = Object.entries(CURATED_FACET_ART_PROMPTS)
@@ -238,3 +239,58 @@ assert.equal(
 assert.match(imported.stdout ?? '', /ok/)
 
 console.log(`Curated Facet art prompts verified (${entries.length}).`)
+
+
+/*
+ * The producer must judge "already rendered" by the picture, not by its own
+ * request.
+ *
+ * 2026-09-15: 148 genre/theme cards held the authored prompt in the catalog AND
+ * in the newest job payload, while the linked ArtImage had been painted from
+ * the retired v5 template clause. Because the predicate compared against the
+ * payload, --requeue-curated selected none of them: every counter read done and
+ * every card was wrong. These fix that comparison in place.
+ */
+{
+  const AUTHORED = 'A war-room table where the battle map is laid out in breakfast things.'
+  const facet = { artPrompt: AUTHORED } as Parameters<typeof curatedPromptNeedsRender>[0]
+
+  // The painted prompt is what the renderer stored: the prompt plus framing.
+  const paintedFromAuthored = `${AUTHORED} A square picture with the subject large and centred.`
+  const paintedFromTemplate =
+    'Absurdist Strategy. A scene of this kind underway, everyone in it and the place around them painted together. A square picture with the subject large and centred.'
+
+  assert.equal(
+    curatedPromptNeedsRender(facet, true, AUTHORED, paintedFromAuthored),
+    false,
+    'a card painted from the authored prompt must not be re-queued',
+  )
+  // The regression itself: payload agrees, picture does not. The picture wins.
+  assert.equal(
+    curatedPromptNeedsRender(facet, true, AUTHORED, paintedFromTemplate),
+    true,
+    'a card painted from an older prompt must be re-queued even when the job payload looks current',
+  )
+  // Nothing linked: fall back to the payload rather than re-rendering blindly.
+  assert.equal(
+    curatedPromptNeedsRender(facet, true, AUTHORED, undefined),
+    false,
+    'with no linked image the payload remains the best available evidence',
+  )
+  // A linked image with no recorded prompt cannot vouch for itself.
+  assert.equal(
+    curatedPromptNeedsRender(facet, true, AUTHORED, ''),
+    true,
+    'a linked image with no recorded prompt must be re-rendered, not assumed current',
+  )
+}
+
+// Containment, not equality -- the renderer always appends framing guidance.
+assert.equal(promptWasPainted('A quiet room.', 'A quiet room. A square picture.'), true)
+assert.equal(promptWasPainted('A quiet room.', 'A LOUD room. A square picture.'), false)
+assert.equal(
+  promptWasPainted('A quiet  room.', 'a quiet room. A square picture.'),
+  true,
+  'whitespace and case must not cause a needless re-render of the whole catalog',
+)
+assert.equal(promptWasPainted('', 'anything'), false)

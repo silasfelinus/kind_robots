@@ -67,7 +67,7 @@
           type="button"
           class="kr-btn-outline-plain rounded-2xl"
           :disabled="isLoadingPreview"
-          @click="loadProtectedPreview"
+          @click="loadProtectedPreview()"
         >
           <span v-if="isLoadingPreview" class="kr-spinner-xs" />
           {{ isLoadingPreview ? 'Loading preview' : 'Load protected preview' }}
@@ -455,7 +455,7 @@ const hiddenMatureMessage = computed<string>(() => {
   if (!jobVisibility.value.isPublic && !ownsJob.value) {
     return "Inline reveal is unavailable for another user's private job."
   }
-  return 'Click the preview to reveal this mature job.'
+  return 'Mature prompt and preview are hidden. Click the preview to reveal this job.'
 })
 
 const jobTitle = computed<string>(() => artJobTitle(props.job))
@@ -514,12 +514,12 @@ const isEditableInPlace = computed<boolean>(() =>
   ['PENDING', 'FAILED', 'CANCELLED'].includes(props.job.status),
 )
 
-async function loadProtectedPreview(): Promise<void> {
+async function loadProtectedPreview(includeMature = false): Promise<void> {
   const id = props.job.artImageId
   if (typeof id !== 'number') return
   // Pass the job's version so an OVERWRITE retry — which reuses this ArtImage
   // id with new bytes — refetches instead of serving the previous render.
-  await artJobStore.loadJobImage(id, imageVersion.value)
+  await artJobStore.loadJobImage(id, imageVersion.value, includeMature)
 }
 
 async function revealMatureJob(): Promise<void> {
@@ -527,7 +527,7 @@ async function revealMatureJob(): Promise<void> {
 
   locallyRevealedMature.value = true
   if (!jobImageSrc.value && typeof props.job.artImageId === 'number') {
-    await loadProtectedPreview()
+    await loadProtectedPreview(true)
   }
 }
 

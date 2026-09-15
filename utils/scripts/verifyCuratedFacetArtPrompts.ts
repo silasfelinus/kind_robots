@@ -18,7 +18,7 @@ import {
 } from '../../scripts/generate_facet_art_v4'
 
 const entries = Object.entries(CURATED_FACET_ART_PROMPTS)
-assert.ok(entries.length >= 206, `expected the full authored set, got ${entries.length}`)
+assert.ok(entries.length >= 259, `expected the full authored set, got ${entries.length}`)
 
 for (const [slug, prompt] of entries) {
   assert.ok(prompt.trim().length > 40, `${slug}: too thin to carry a picture`)
@@ -294,3 +294,52 @@ assert.equal(
   'whitespace and case must not cause a needless re-render of the whole catalog',
 )
 assert.equal(promptWasPainted('', 'anything'), false)
+
+
+/*
+ * A hand-placed asset must not freeze a curated prompt out of ever rendering.
+ *
+ * 2026-09-16: 15 genres authored the day before (fantasy, steampunk, mystery,
+ * romance ...) still showed their old static .webp. Coverage counts imagePath
+ * as art-backed and skipped them; --requeue-curated saw no job in their history
+ * and skipped them too. The right text, and no path to a picture.
+ */
+{
+  const AUTHORED = 'A brass diving apparatus laid open on a workbench, its gears exposed.'
+  const staticOnly = {
+    artPrompt: AUTHORED,
+    imagePath: '/images/art/punk/steampunk.webp',
+    artImageId: null,
+  } as Parameters<typeof curatedPromptNeedsRender>[0]
+
+  assert.equal(
+    curatedPromptNeedsRender(staticOnly, false, undefined, undefined),
+    true,
+    'a curated prompt behind a static asset must be queued -- coverage never will',
+  )
+
+  // A Facet with nothing at all is still coverage's job, not this mode's;
+  // claiming it here would queue the same slot twice.
+  const bare = {
+    artPrompt: AUTHORED,
+    imagePath: null,
+    artImageId: null,
+  } as Parameters<typeof curatedPromptNeedsRender>[0]
+  assert.equal(
+    curatedPromptNeedsRender(bare, false, undefined, undefined),
+    false,
+    'an uncovered Facet belongs to ordinary coverage, not the requeue mode',
+  )
+
+  // Once it has real generated art, the painted prompt decides as before.
+  const painted = {
+    artPrompt: AUTHORED,
+    imagePath: '/api/art/images/999/file',
+    artImageId: 999,
+  } as Parameters<typeof curatedPromptNeedsRender>[0]
+  assert.equal(
+    curatedPromptNeedsRender(painted, true, undefined, `${AUTHORED} A square picture.`),
+    false,
+    'generated art matching the curated prompt stays put',
+  )
+}

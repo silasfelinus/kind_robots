@@ -33,7 +33,9 @@ import {
 import { validateProvenanceRecord } from './academyProvenanceSchema'
 import {
   imageSrcToMediaPath,
+  isMediaOriginReachable,
   mediaAssetExists,
+  mediaOriginDescription,
   mediaSourceDescription,
   readMediaText,
   repositoryFileToMediaPath,
@@ -75,6 +77,13 @@ function isExampleWorkException(value: unknown): value is ExampleWorkException {
 }
 
 async function main(): Promise<void> {
+  if (!(await isMediaOriginReachable())) {
+    console.warn(
+      `Academy examples manifest contract skipped: ${mediaOriginDescription()} is unreachable (transient network/host issue, not a manifest problem).`,
+    )
+    return
+  }
+
   const raw = await readMediaText(manifestRelativePath)
 
   let entries: unknown

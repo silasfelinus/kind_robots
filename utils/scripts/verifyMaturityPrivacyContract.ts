@@ -122,6 +122,12 @@ const maturityToggle = readFileSync(
 assert.ok(maturityToggle.includes("variant === 'resource'"))
 assert.ok(maturityToggle.includes('accountStore.updateConsent'))
 assert.ok(maturityToggle.includes('showMature: value'))
+assert.ok(
+  maturityToggle.includes(
+    'userStore.isLoggedIn && !userStore.isMaturityRestricted',
+  ),
+  'Maturity controls must not be offered to maturity-restricted accounts',
+)
 
 // Account became a composed destination in the 2026-09-08 navigation cleanup:
 // the content route still mounts ONE MDC component (the layout contract), and
@@ -162,15 +168,17 @@ assert.ok(
 assert.ok(dashboardMaturityPreference.includes('initialize()'))
 
 // Repointed 2026-08-10: the header was reduced to account hub / channel / tab
-// / tutorial, and every utility control moved inside the hub. The GATE is
-// unchanged and still asserted literally -- opt-in via the stored preference
-// AND authenticated -- it is simply read from the component that now renders
-// the toggle. Following the old path would assert against a file that no
-// longer mounts it, which passes while proving nothing.
+// / tutorial, and every utility control moved inside the hub. The detailed row
+// remains opt-in, while a compact maturity button is now always available from
+// the account icon for an eligible signed-in user.
 const accountHub = readFileSync('components/navigation/account-hub.vue', 'utf8')
 assert.ok(
   accountHub.includes('showDashboardMaturityToggle && userStore.isLoggedIn'),
-  'The account hub must keep the maturity toggle opt-in and authenticated',
+  'The account hub must keep the detailed maturity row opt-in and authenticated',
+)
+assert.ok(
+  accountHub.includes('<maturity-toggle v-if="userStore.isLoggedIn" />'),
+  'The account hub must keep a compact maturity toggle directly accessible',
 )
 
 const accountStore = readFileSync('stores/accountStore.ts', 'utf8')
@@ -190,6 +198,11 @@ assert.ok(queueCard.includes('jobVisibility.isMature'))
 assert.ok(queueCard.includes('jobVisibility.isPublic'))
 assert.ok(queueCard.includes('canShowJobContent'))
 assert.ok(queueCard.includes('Mature prompt and preview are hidden'))
+assert.ok(queueCard.includes('canRevealMatureJob'))
+assert.ok(queueCard.includes('loadProtectedPreview(true)'))
+
+const artJobStore = readFileSync('stores/artJobStore.ts', 'utf8')
+assert.ok(artJobStore.includes("params.set('showMature', 'true')"))
 
 const enqueueResolver = readFileSync('server/utils/artLoraResource.ts', 'utf8')
 assert.ok(enqueueResolver.includes('resolveMaturityPrivacy(input.body)'))

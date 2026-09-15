@@ -47,6 +47,10 @@ import {
   type FacetAuditInput,
 } from '../utils/facetCatalogAudit'
 import {
+  ENHANCEMENT_SWATCH_SUBJECT,
+  isRetiredPromptEnhancement,
+} from '../utils/promptEnhancementPolicy'
+import {
   createScriptPrismaClient,
   withDatabaseRetry,
 } from './lib/databaseRetry'
@@ -350,6 +354,18 @@ function taxonomyVisualLanguage(taxonomy: string): string {
     case 'STYLE':
     case 'ART_DIRECTION':
       return 'A finished picture made this way, the medium and the linework and the palette and the lighting all plainly visible in it.'
+    /*
+     * A prompt modifier is not a subject, so a swatch supplies one. The same
+     * pear and marble every time, with the technique named first: the title is
+     * the strongest position in a caption, and holding the subject still is
+     * what makes 46 cards a comparison instead of 46 unrelated pictures.
+     *
+     * v4 routed these through the STYLE clause above, which names no subject
+     * either -- so nothing anchored the frame and Krea fell back to its own
+     * portrait prior. That is the whole reason "4k render" is two anime women.
+     */
+    case 'PROMPT_ENHANCEMENT':
+      return ENHANCEMENT_SWATCH_SUBJECT
     case 'OCCUPATION':
     case 'ARCHETYPE':
     case 'ROLE':
@@ -399,8 +415,23 @@ export function v4PromptWasClauseDominated(facet: FacetRow): boolean {
  * Asking the contract rather than re-listing the bad clauses here keeps one
  * source of truth: what we refuse to send is exactly what we go back and fix.
  */
-export function v4RenderNeedsRepair(facet: FacetRow): boolean {
+export function v4RenderNeedsRepair(
+  facet: FacetRow,
+  taxonomy?: string | null,
+): boolean {
   if (!v4PromptWasClauseDominated(facet)) return false
+
+  // PROMPT_ENHANCEMENT failed a different way and the jargon rule cannot see
+  // it. v4 routed the pack through the STYLE clause ("Polished sample of the
+  // visual treatment..."), which trips nothing in the contract -- it is not
+  // jargon, it is simply not a SUBJECT. With the title ("film grain") not a
+  // subject either, the prompt named no thing at all and Krea fell back to its
+  // own portrait prior. A prompt that describes nothing is as broken as one
+  // that describes the wrong thing; it just fails silently instead of loudly,
+  // which is exactly why this needs its own clause rather than a wider jargon
+  // pattern.
+  if (String(taxonomy || '').toUpperCase() === 'PROMPT_ENHANCEMENT') return true
+
   return checkArtPromptContract({
     prompt: clean(facet.artPrompt),
     engine: 'krea2',
@@ -455,16 +486,31 @@ export function buildFacetIdentityPrompt(
     .trim()
 }
 
+/*
+ * The house tail. "Polished fantasy illustration" is right for a genre, a
+ * creature or an archetype, and wrong for an enhancement swatch: half that
+ * group is photographic (film grain, studio photography, photoreal lighting),
+ * and telling Krea "fantasy illustration" fights the very technique the card
+ * exists to demonstrate. Only PROMPT_ENHANCEMENT diverges -- every other
+ * taxonomy keeps the exact tail the 204 queued repairs were dry-run against.
+ */
+function styleTail(taxonomy: string): string {
+  if (taxonomy === 'PROMPT_ENHANCEMENT') {
+    return 'Rich controlled lighting. Clean unmarked surfaces.'
+  }
+  return 'Polished fantasy illustration. Rich controlled lighting. Clean unmarked surfaces.'
+}
+
 export function buildFacetVariantPrompt(
   _facet: FacetRow,
-  _profile: ProfileRow,
+  profile: ProfileRow,
   identityPrompt: string,
   variant: FacetArtVariant,
 ): string {
   return [
     identityPrompt,
     variant.composition,
-    'Polished fantasy illustration. Rich controlled lighting. Clean unmarked surfaces.',
+    styleTail(profile.taxonomy),
   ].join('\n\n')
 }
 
@@ -900,8 +946,8 @@ export async function main(): Promise<void> {
       ): boolean => {
         if (!facet || !profile || !profile.artRequired) return false
         if (version !== 'facet-coverage-krea2-v4') return true
-        if (profile.taxonomy === 'PROMPT_ENHANCEMENT') return false
-        return v4RenderNeedsRepair(facet)
+        if (isRetiredPromptEnhancement(facet)) return false
+        return v4RenderNeedsRepair(facet, profile.taxonomy)
       }
 
       const history = historyJobs as HistoryJob[]
@@ -959,18 +1005,22 @@ export async function main(): Promise<void> {
           // is already good with a fresh random seed.
           if (
             target.version === 'facet-coverage-krea2-v4' &&
-            !v4RenderNeedsRepair(facet)
+            !v4RenderNeedsRepair(facet, profile.taxonomy)
           ) {
             repairSkippedHealthy.push(job.id)
             continue
           }
 
-          // A prompt-modifier Facet ("4k render", "award-winning") names no
-          // visible thing, so there is no prompt that renders it well and a
-          // repair render is just a different arbitrary picture. v4 gave them
-          // unrelated portraits. Report them instead; suppressing or retiring
-          // the art slot is a catalog decision, not a render decision.
-          if (profile.taxonomy === 'PROMPT_ENHANCEMENT') {
+          // A quality incantation ("masterpiece", "4k render") depicts nothing,
+          // so every render of it is an arbitrary picture wearing a label.
+          // Those rows are being withdrawn from the catalog entirely by
+          // utils/scripts/retireCargoCultPromptEnhancements.ts; skip them here
+          // so a repair run before or after that script behaves the same.
+          //
+          // The rest of the pack -- depth of field, subsurface scattering, oil
+          // on canvas effect -- are real techniques and DO repair, onto the
+          // fixed swatch subject.
+          if (isRetiredPromptEnhancement(facet)) {
             repairSkippedNonVisual.push(job.id)
             continue
           }

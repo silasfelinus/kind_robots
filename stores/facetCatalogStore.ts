@@ -21,6 +21,10 @@ export const FACET_TAXONOMIES = [
   'ROLE',
   'ALIGNMENT',
   'GENDER',
+  'AGE',
+  'BUILD',
+  'HAIR',
+  'ORIGIN',
   'BOT_TYPE',
   'DREAM_TYPE',
   'REWARD_TYPE',
@@ -87,6 +91,13 @@ export const CHARACTER_FIELD_TAXONOMIES: Record<string, FacetTaxonomy[]> = {
   class: ['OCCUPATION', 'ARCHETYPE', 'ROLE'],
   alignment: ['ALIGNMENT'],
   gender: ['GENDER'],
+  // Embodiment axes. These are what a character LOOKS like, as opposed to the
+  // fields above, which are what a character IS. Both belong on the Character
+  // builder; only the second set existed before 2026-09-15.
+  age: ['AGE'],
+  build: ['BUILD'],
+  hair: ['HAIR'],
+  origin: ['ORIGIN'],
   personality: ['PERSONALITY'],
   backstory: ['BACKSTORY'],
   quirks: ['QUIRK'],

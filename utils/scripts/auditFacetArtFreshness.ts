@@ -8,6 +8,10 @@
 //   npx tsx utils/scripts/auditFacetArtFreshness.ts --taxonomy GENRE,THEME
 //   npx tsx utils/scripts/auditFacetArtFreshness.ts --json
 //
+// Reads the database directly when DATABASE_URL is set, which is the normal
+// case on Alexandria and needs no token. Falls back to the live HTTP API when
+// the database is not reachable (a sandbox, a laptop), which needs KR_API_TOKEN:
+//
 //   export KR_API_BASE=https://kindrobots.org
 //   export KR_API_TOKEN=<admin token>
 //
@@ -46,6 +50,7 @@
 // "KR_API_TOKEN is required" while the token was sitting in .env the whole time.
 import 'dotenv/config'
 import { CURATED_FACET_ART_PROMPTS } from '../seeds/facetArtPrompts'
+import { createScriptPrismaClient } from '../../scripts/lib/databaseRetry'
 import { RETIRED_PROMPT_ENHANCEMENT_SLUGS } from '../promptEnhancementPolicy'
 
 const API_BASE = process.env.KR_API_BASE ?? 'https://kindrobots.org'
@@ -128,7 +133,13 @@ async function api<T>(path: string): Promise<T> {
 
 const DEFAULT_TAXONOMIES = ['GENRE', 'THEME', 'SETTING', 'OCCUPATION', 'ROLE', 'ARCHETYPE', 'PROMPT_ENHANCEMENT']
 
-async function fetchFacets(taxonomies: string[]): Promise<Facet[]> {
+type Source = {
+  facets: Facet[]
+  /** promptString of each Facet's linked ArtImage, by facet id. */
+  painted: Map<number, string>
+}
+
+async function readFromApi(taxonomies: string[]): Promise<Source> {
   const rows: Facet[] = []
   for (const taxonomy of taxonomies) {
     let skip = 0
@@ -142,7 +153,63 @@ async function fetchFacets(taxonomies: string[]): Promise<Facet[]> {
       if (batch.length < 250) break
     }
   }
-  return rows
+  // Painted prompts are fetched lazily per facet in this mode; see readPainted.
+  return { facets: rows, painted: new Map() }
+}
+
+/**
+ * The same three layers, read straight from the database.
+ *
+ * Preferred wherever DATABASE_URL exists: no token, and one query for the
+ * painted prompts instead of one HTTP round trip per Facet -- which, over 300
+ * rows, was most of the runtime.
+ */
+async function readFromDatabase(taxonomies: string[]): Promise<Source> {
+  const prisma = createScriptPrismaClient()
+  try {
+    const profiles = await prisma.facetProfile.findMany({
+      where: { taxonomy: { in: taxonomies as never[] } },
+      select: { facetId: true, taxonomy: true },
+    })
+    const taxonomyByFacet = new Map(profiles.map((p) => [p.facetId, String(p.taxonomy)]))
+    const rows = await prisma.facet.findMany({
+      where: { id: { in: [...taxonomyByFacet.keys()] } },
+      orderBy: { id: 'asc' },
+      select: {
+        id: true,
+        slug: true,
+        title: true,
+        artPrompt: true,
+        artImageId: true,
+        imagePath: true,
+        isActive: true,
+      },
+    })
+    const facets: Facet[] = rows.map((row) => ({
+      ...row,
+      slug: row.slug ?? '',
+      taxonomy: taxonomyByFacet.get(row.id) ?? 'OTHER',
+    }))
+    const linkedIds = facets
+      .map((facet) => facet.artImageId)
+      .filter((id): id is number => typeof id === 'number')
+    const images = linkedIds.length
+      ? await prisma.artImage.findMany({
+          where: { id: { in: linkedIds } },
+          select: { id: true, promptString: true },
+        })
+      : []
+    const promptByImage = new Map(images.map((image) => [image.id, image.promptString ?? '']))
+    const painted = new Map<number, string>()
+    for (const facet of facets) {
+      if (facet.artImageId === null) continue
+      const prompt = promptByImage.get(facet.artImageId)
+      if (prompt !== undefined) painted.set(facet.id, prompt)
+    }
+    return { facets, painted }
+  } finally {
+    await prisma.$disconnect()
+  }
 }
 
 /**
@@ -157,19 +224,52 @@ export function renderMatchesPrompt(artPrompt: string, promptString: string): bo
 
 async function main(): Promise<void> {
   const { taxonomies, json, limit } = parseArgs(process.argv.slice(2))
-  if (!TOKEN) {
-    console.error(
-      'KR_API_TOKEN is required -- this reads the live catalog over the API.\n' +
-        'It is read from the environment or from .env in the repo root, the same\n' +
-        'way applyCuratedFacetArtPrompts.ts reads it. To pass it for one run:\n' +
-        '  KR_API_TOKEN=<admin token> npx tsx utils/scripts/auditFacetArtFreshness.ts',
-    )
-    process.exit(2)
+  /*
+   * KR_API_TOKEN is not part of this repo's .env contract -- it is not in
+   * .env.example, and the scripts that "just work" on Alexandria work because
+   * DATABASE_URL is there, not because a token is. Requiring one made this
+   * unrunnable on the only box that can reach the database.
+   */
+  const wanted = taxonomies.length ? taxonomies : DEFAULT_TAXONOMIES
+
+  /*
+   * DATABASE_URL being SET is not the same as the database being reachable --
+   * a sandbox can carry the variable and still time out on the host. So try the
+   * database, and fall back to the API only when the connection itself fails.
+   * A query that succeeds and returns nothing is an answer, not a fallback.
+   */
+  let source: Source | null = null
+  let usedDatabase = false
+  if (process.env.DATABASE_URL) {
+    try {
+      source = await readFromDatabase(wanted)
+      usedDatabase = true
+    } catch (error) {
+      if (!TOKEN) {
+        console.error(`Could not reach the database: ${(error as Error).message}`)
+        console.error('Set KR_API_TOKEN to read over the live API instead.')
+        process.exit(2)
+      }
+      console.error(
+        `Database unreachable (${(error as Error).message}); falling back to the live API.`,
+      )
+    }
+  }
+  if (!source) {
+    if (!TOKEN) {
+      console.error(
+        'No reachable database and no KR_API_TOKEN, so there is nothing to read.\n' +
+          'On the host that holds the database, DATABASE_URL in .env is enough.\n' +
+          'From anywhere else, pass a token:\n' +
+          '  KR_API_TOKEN=<admin token> npx tsx utils/scripts/auditFacetArtFreshness.ts',
+      )
+      process.exit(2)
+    }
+    source = await readFromApi(wanted)
   }
 
-  const wanted = taxonomies.length ? taxonomies : DEFAULT_TAXONOMIES
-  const facets = await fetchFacets(wanted)
-  const scoped = limit ? facets.slice(0, limit) : facets
+  const scoped = limit ? source.facets.slice(0, limit) : source.facets
+  console.error(`source: ${usedDatabase ? 'database' : 'live API'}`)
 
   // The retired cargo-cult enhancements were deliberately stripped of their
   // prompts and deactivated; they are not missing art, they are done with.
@@ -214,17 +314,23 @@ async function main(): Promise<void> {
       continue
     }
     // Layer 2 -> 3.
-    let promptString: string
-    try {
-      const image = await api<{ promptString?: string | null }>(`/api/art/image/${facet.artImageId}`)
-      promptString = (image?.promptString ?? '').trim()
-    } catch (error) {
-      findings.push({
-        ...base(facet),
-        state: 'render-drift',
-        detail: `could not read ArtImage ${facet.artImageId}: ${(error as Error).message}`,
-      })
-      continue
+    // The database reader batches every painted prompt up front; the API reader
+    // has to ask per Facet.
+    let promptString = source.painted.get(facet.id)?.trim()
+    if (promptString === undefined) {
+      try {
+        const image = await api<{ promptString?: string | null }>(
+          `/api/art/image/${facet.artImageId}`,
+        )
+        promptString = (image?.promptString ?? '').trim()
+      } catch (error) {
+        findings.push({
+          ...base(facet),
+          state: 'render-drift',
+          detail: `could not read ArtImage ${facet.artImageId}: ${(error as Error).message}`,
+        })
+        continue
+      }
     }
     if (!renderMatchesPrompt(live, promptString)) {
       findings.push({

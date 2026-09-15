@@ -18,7 +18,7 @@ import {
 } from '../../scripts/generate_facet_art_v4'
 
 const entries = Object.entries(CURATED_FACET_ART_PROMPTS)
-assert.ok(entries.length >= 191, `expected the full authored set, got ${entries.length}`)
+assert.ok(entries.length >= 206, `expected the full authored set, got ${entries.length}`)
 
 for (const [slug, prompt] of entries) {
   assert.ok(prompt.trim().length > 40, `${slug}: too thin to carry a picture`)

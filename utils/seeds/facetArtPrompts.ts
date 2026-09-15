@@ -27,6 +27,55 @@
 
 export const CURATED_FACET_ART_PROMPTS: Record<string, string> = {
   // ── GENRE ──
+  // ── Genres frozen on static assets: their stored prompts were the old
+  //    'Illustrate the Facet concept ...' wrapper, which the contract gate
+  //    rejects, so no job could ever be created for them. Each of these keeps
+  //    the specific image its own description already named. ──
+  // Animist
+  'animist':
+    'A mossed boundary stone at a forest path\'s fork, worn smooth where centuries of hands have touched it in passing, one fresh coin left on top.',
+  // Comedy
+  'comedy':
+    'A waiter mid-stumble with a full tray held impossibly level above his head, every diner at the long table turned to watch except one, who is eating.',
+  // Cosmic Dread
+  'cosmic-dread':
+    'A shepherd standing on a bare ridge beneath a moon that fills half the sky, and set into its surface, small and rectangular and unmistakable, a door.',
+  // Cozy Horror
+  'cozy-horror':
+    'A cup of tea steaming on a windowsill in a warm lamplit kitchen, and pressed flat against the dark glass from outside, a wide pale hand.',
+  // Dieselpunk
+  'dieselpunk':
+    'A riveted steel locomotive hauled up on blocks in a soot-blackened yard, mechanics swarming its flank, fuel drums stacked three high against the brick wall behind.',
+  // Fantasy
+  'fantasy':
+    'High on a castle battlement at dusk, a dragon lies coiled with a small book open on one claw, reading, entirely unbothered by the archers below.',
+  // Gothic Comedy
+  'gothic-comedy':
+    'A funeral party crowded into a marble crypt, all in black, all waiting, while the undertaker searches his pockets for a key he has clearly lost.',
+  // Horror
+  'horror':
+    'A lantern set down in a dark wood, and reaching out from inside its glass, thin and lit from within, a human hand.',
+  // Kaiju
+  'kaiju':
+    'A single scaled foot planted across four city blocks, cars and rooftops crushed flat beneath it, the creature above looking away at something on the horizon.',
+  // Mystery
+  'mystery':
+    'A gloved hand holding a magnifying glass turned outward at the viewer, one enormous eye filling the lens, a rain-streaked street behind.',
+  // Mythic Sci-Fi
+  'mythic-sci-fi':
+    'A bronze-armoured giant seated on the launch gantry of a rocket, one hand resting on the fuselage, the countdown board lit behind their shoulder.',
+  // Pastoral Apocalypse
+  'pastoral-apocalypse':
+    'A farmhouse washing line hung with sheets snapping in the wind, under a sky gone green from horizon to horizon.',
+  // Romance
+  'romance':
+    'On a bridge at night, two figures rest their hands on the rail almost but not quite touching, both looking off at the same distant lit window.',
+  // Solarpunk
+  'solarpunk':
+    'A tower block cased in vegetable gardens and glass, a woman on a walkway pinning a blueprint to a trellis while a cargo kite drifts past behind her.',
+  // Steampunk
+  'steampunk':
+    'A brass diving apparatus laid open on a workbench, its gears exposed and its goggles propped on top, steam still bleeding from a cracked copper pipe.',
   // Absurdist Strategy
   'absurdist-strategy':
     'A war-room table where the battle map is laid out in breakfast things, one officer nudging a boiled egg forward with a ruler under a low hanging lamp.',

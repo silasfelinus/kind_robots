@@ -57,39 +57,6 @@ import {
   withDatabaseRetry,
 } from './lib/databaseRetry'
 
-/*
- * Reject a flag this build does not understand, instead of ignoring it.
- *
- * argv flags fail silently by default, and that has now cost two full queue
- * cycles. `--requeue-curated` on a build predating it ran as a plain --write
- * and printed "queued: 0"; `--facets a,b,c` on a build predating THAT queued
- * all 146 and printed a number that looked like success. Both times the run
- * looked healthy and the operator found out from the absence of pictures.
- *
- * An unknown flag almost always means the checkout is older than the command,
- * so say that, and say it before doing any work.
- */
-const KNOWN_FLAGS = new Set([
-  '--write',
-  '--all-variants',
-  '--repair-tainted',
-  '--requeue-curated',
-  '--facets',
-])
-const unknownFlags = process.argv
-  .slice(2)
-  .filter((arg) => arg.startsWith('--') && !KNOWN_FLAGS.has(arg))
-if (unknownFlags.length) {
-  console.error(
-    `Unrecognized option(s): ${unknownFlags.join(', ')}\n` +
-      `This build understands: ${[...KNOWN_FLAGS].join(', ')}\n` +
-      'A flag this build does not know is almost always a checkout older than ' +
-      'the command. Run `git pull` and try again; refusing rather than running ' +
-      'with the option quietly dropped.',
-  )
-  process.exit(2)
-}
-
 const WRITE = process.argv.includes('--write')
 const ALL_VARIANTS = process.argv.includes('--all-variants')
 const REPAIR_TAINTED = process.argv.includes('--repair-tainted')
@@ -921,7 +888,45 @@ async function runWithConcurrency<T>(
   )
 }
 
+/*
+ * Reject a flag this build does not understand, instead of ignoring it.
+ *
+ * argv flags fail silently by default, and that cost two full queue cycles:
+ * `--requeue-curated` on a build predating it ran as a plain --write and
+ * printed "queued: 0"; `--facets a,b,c` on a build predating THAT queued all
+ * 146 and printed a number that looked like success.
+ *
+ * Called from main(), NOT at module scope. As a top-level statement it ran on
+ * IMPORT, so utils/scripts/applyCuratedFacetArtPrompts.ts -- which imports this
+ * module for isLegacyGeneratedFacetPrompt -- died on its own `--apply` before
+ * writing a single prompt. A module that exits the process when someone
+ * imports it is a worse failure than the one this guard prevents.
+ */
+function assertKnownFlags(): void {
+  const KNOWN_FLAGS = new Set([
+    '--write',
+    '--all-variants',
+    '--repair-tainted',
+    '--requeue-curated',
+    '--facets',
+  ])
+  const unknown = process.argv
+    .slice(2)
+    .filter((arg) => arg.startsWith('--') && !KNOWN_FLAGS.has(arg))
+  if (!unknown.length) return
+  console.error(
+    `Unrecognized option(s): ${unknown.join(', ')}\n` +
+      `This build understands: ${[...KNOWN_FLAGS].join(', ')}\n` +
+      'A flag this build does not know is almost always a checkout older than ' +
+      'the command. Run `git pull` and try again; refusing rather than running ' +
+      'with the option quietly dropped.',
+  )
+  process.exit(2)
+}
+
 export async function main(): Promise<void> {
+  assertKnownFlags()
+
   await withDatabaseRetry('Facet artwork queue', async () => {
     const prisma = createScriptPrismaClient()
     try {

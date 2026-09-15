@@ -102,13 +102,11 @@
       column is 22% -- "The needs you section is still too wide" applied to what
       was a third of the band.
 
-      `xl:items-stretch`, so both columns are as tall as the taller one, and the
-      projects strip inside the right column takes the slack (see paneClass).
-      Without that the right column ends early and the page backdrop shows
-      through underneath it, which is the whitespace complaint in a new place
-      rather than a fixed one. The left column's height is its own content --
-      two fixed bands -- so the stretch is content-derived, not a percentage of
-      a viewport.
+      On desktop the left column is the height authority. The right column is
+      size-contained so a longer project list cannot make the whole row taller
+      and reopen the blank band before News. It still stretches to the left
+      column's used height, and the projects pane takes whatever room remains
+      after Needs you, scrolling internally when more cards exist than fit.
 
       Below `xl` the two columns stack and each band keeps its natural height,
       which is also where the galleries fall back to one swipe-scrollable row
@@ -221,7 +219,9 @@
         there. Silas, 2026-09-08: "the news section is too small, it could be
         twice as big, eating in the what we're building."
       -->
-      <div class="flex min-w-0 flex-col gap-3 xl:w-[22%]">
+      <div
+        class="flex min-w-0 flex-col gap-3 xl:min-h-0 xl:w-[22%] xl:[contain:size]"
+      >
         <!--
           ONE PANE AT A TIME ON A PHONE. Silas, 2026-09-02: "Thinking we should
           move the news, todo, project section to a different screen on mobile.
@@ -275,7 +275,7 @@
         <div :class="paneClass('projects')">
           <section
             v-if="showcaseStore.projects.length"
-            class="flex w-full shrink-0 flex-col gap-1.5 kr-panel-flat p-3 xl:min-h-0 xl:flex-1 xl:overflow-y-auto"
+            class="flex w-full flex-col gap-1.5 kr-panel-flat p-3 xl:min-h-0 xl:flex-1 xl:overflow-y-auto"
           >
             <header class="flex flex-wrap items-baseline justify-between gap-3">
               <h2
@@ -504,19 +504,11 @@ const currentPane = computed<RightPane>(() =>
  * no longer exists, so a flexible share divided nothing and a percentage
  * max-height computed against `auto` and bounded nothing.
  *
- * The projects strip does still grow, and that is deliberate rather than a
- * relapse. The row is `xl:items-stretch`, so this column's height comes from
- * the left column's own content -- fixed bands, a definite used height -- which
- * is what `flex-1` needs to divide. Letting the strip take the slack is what
- * keeps the gap the feed left from reopening under it as backdrop. It scrolls
- * past what it is given because short rows read fine either whole or scrolled,
- * and when this column is the taller of the two `flex-1` simply resolves to its
- * natural height.
- *
- * This wrapper only passes the height down; the `flex-1` that matters is on the
- * PANEL inside it, which carries `shrink-0`. Growing the wrapper alone leaves
- * the slack as transparent space under a panel that kept its natural height --
- * the backdrop gap again, one element further in.
+ * On desktop the template size-contains the right column. That removes the
+ * project list's intrinsic height from flex-row sizing, so the hero + galleries
+ * establish the hard bottom edge before News. The projects wrapper then flexes
+ * into the remaining space and its panel is allowed to shrink, which gives
+ * `overflow-y-auto` the finite box it needs to become a real scroller.
  */
 function paneClass(pane: RightPane): string {
   const grow = pane === 'projects' ? 'xl:min-h-0 xl:flex-1' : ''

@@ -141,10 +141,29 @@ function run(): void {
     ...pool,
     checkpoint(15, 'Pony/ponyFaetality_v11.safetensors', true, 'Pony'),
   ]
+  /*
+   * ponyFaetality must never be selected, however well it sorts or matches on
+   * maturity. It wedged the relay: ArtJob 22838 was claimed three times, hung
+   * on the model load every time, and ended FAILED at attempts 3 with
+   * errorMessage null -- a hang, not a rejection, the same signature as the
+   * Flux.2 Klein checkpoint in conductor/t-165.
+   */
+  for (const isMature of [true, false]) {
+    const chosen = selectProbeCheckpoint('pony', isMature, ponyPool)?.localPath
+    assert.ok(
+      chosen && !chosen.includes('ponyFaetality'),
+      `ponyFaetality must never be chosen (isMature=${isMature}, got ${chosen})`,
+    )
+  }
+  assert.equal(
+    selectProbeCheckpoint('pony', false, ponyPool)?.localPath,
+    'Pony/realcartoonPony_v1.safetensors',
+    'an SFW Pony LoRA takes realcartoonPony, which lets a style LoRA through',
+  )
   assert.equal(
     selectProbeCheckpoint('pony', true, ponyPool)?.localPath,
-    'Pony/ponyFaetality_v11.safetensors',
-    'a mature Pony LoRA takes the preferred base, not the alphabetical one',
+    'Pony/cyberrealisticPony_v61.safetensors',
+    'a mature Pony LoRA falls back to the one Pony base observed to load',
   )
   assert.equal(
     selectProbeCheckpoint('pony', true, pool)?.id,

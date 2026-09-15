@@ -185,6 +185,19 @@ export default defineEventHandler(async (event) => {
       })
     }
 
+    /*
+     * Flux last (Silas, 2026-09-15). The queue drains one job at a time, and a
+     * Flux render measured 25+ minutes against ~13 for the comfy lane, so a
+     * Flux job sitting mid-queue stalls everything behind it. Ordering them to
+     * the tail lets the 191 comfy-lane previews land first and the slow ones
+     * trickle in behind, rather than dropping them.
+     */
+    plans.sort((a, b) => {
+      const rank = (plan: Record<string, unknown>) =>
+        plan.family === 'flux' ? 1 : 0
+      return rank(a) - rank(b)
+    })
+
     return {
       success: true,
       message: `Planned ${plans.length} LoRA preview probe(s).`,

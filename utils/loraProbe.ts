@@ -23,6 +23,82 @@ export type LoraProbeRecipe = {
 }
 
 /*
+ * A1111 invocation syntax. ComfyUI has no parser for it, so `<lora:foo:1>`
+ * left in a prompt is rendered as literal text rather than loading anything.
+ */
+const LORA_INVOCATION_PATTERN = /<(?:lora|lyco|lycoris|hypernet):[^>]*>/gi
+
+/*
+ * Platform and packaging words that describe the FILE rather than the image.
+ * Many catalog rows have no real trigger at all and carry their own title in
+ * defaultTrigger -- 'Aka6 [PonyXL] Style Lora', 'Almualim | Style LoRA | SDXL
+ * Pony' -- so probing them unsanitized asks the model to depict the words
+ * "Style Lora" instead of the style. Stripped, not rejected: whatever is left
+ * ('Aka6', 'Almualim') is usually the real trigger token.
+ */
+const PACKAGING_NOISE_PATTERN =
+  /\b(?:lora|loras|lycoris|lyco|hypernetwork|checkpoint|safetensors|comfyui|comfy|a1111|webui|forge|model|version|\d+[- ]?step|for\s+comfyui)\b/gi
+
+/*
+ * Base-model names. A trigger reading 'Grey Impact - Illustrious/PonyXL' is
+ * naming its own compatibility, not asking for anything to be drawn.
+ */
+const BASE_NAME_NOISE_PATTERN =
+  /\b(?:ponyxl|pony\s*diffusion(?:\s*xl)?|pdxl|sdxl|sd\s*1\.5|sd15|illustrious|ilxl|noobai|flux[0-9.]*(?:\s*d(?:ev)?)?|schnell|kontext|klein|wan|ltx|qwen)\b/gi
+
+/*
+ * Left behind once the words above are gone: '[PonyXL]' becomes '[ ]', and
+ * 'Style Lora' becomes a stranded 'Style'. Neither names a subject, and an
+ * empty bracket pair is itself weighting syntax.
+ */
+const EMPTY_GROUP_PATTERN = /[[(]\s*[\])]/g
+const DANGLING_DESCRIPTOR_PATTERN =
+  /(^|,)\s*(?:style|styles|concept|concepts|character|pack|mix|merge)\s*(?=,|$)/gi
+
+// A probe prompt is a caption, not a scene description. A 400-character tag
+// soup drowns the framing that makes the grid comparable.
+const MAX_TRIGGER_CHARS = 240
+
+/**
+ * Turn stored trigger text into something safe to render.
+ *
+ * `defaultTrigger` is not reliably a prompt. It is a byte-identical copy of
+ * `artPrompt` on every row, and across the catalog it holds three different
+ * things: real tag lists, A1111 invocation syntax, and -- most often for rows
+ * with no trigger at all -- the LoRA's own marketing title. Only the first is
+ * a prompt, so the other two are stripped down toward whatever real token they
+ * contain, and an empty result is fine: the probe still shows what the LoRA
+ * does to a neutral prompt, which is the correct read for a style LoRA that
+ * has no trigger word.
+ */
+export function sanitizeProbeTrigger(value: string): string {
+  const cleaned = value
+    .replace(LORA_INVOCATION_PATTERN, ' ')
+    .replace(PACKAGING_NOISE_PATTERN, ' ')
+    .replace(BASE_NAME_NOISE_PATTERN, ' ')
+    .replace(EMPTY_GROUP_PATTERN, ' ')
+    // Separators left stranded by the removals above: '| Style LoRA |' becomes
+    // '|  |', and a run of punctuation renders as punctuation.
+    .replace(/[|/\\]+/g, ', ')
+    .replace(/\s*,\s*(?:,\s*)+/g, ', ')
+    .replace(DANGLING_DESCRIPTOR_PATTERN, '$1')
+    .replace(/\s*,\s*(?:,\s*)+/g, ', ')
+    .replace(/\s{2,}/g, ' ')
+    .replace(/^[\s,\-–—:;.]+|[\s,\-–—:;.]+$/g, '')
+    // 'Invincible Comic for PonyXL' loses its object and ends on 'for'.
+    .replace(/\s+(?:for|with|by|from|of|in|on)\s*$/i, '')
+    .replace(/^[\s,\-–—:;.]+|[\s,\-–—:;.]+$/g, '')
+    .trim()
+
+  if (cleaned.length <= MAX_TRIGGER_CHARS) return cleaned
+
+  // Cut on a tag boundary so the prompt never ends mid-token.
+  const clipped = cleaned.slice(0, MAX_TRIGGER_CHARS)
+  const lastComma = clipped.lastIndexOf(',')
+  return (lastComma > 40 ? clipped.slice(0, lastComma) : clipped).trim()
+}
+
+/*
  * Parentheses and square brackets are attention-weighting syntax in the SD
  * prompt parsers, not literal characters. Catalog triggers carry them often --
  * '(Imminent) Reversed Gangbang (Concept)' is a real defaultTrigger -- and left
@@ -42,10 +118,19 @@ export const DEAD_PREVIEW_HOSTS = ['genur.art']
 
 /*
  * One fixed probe per family, with the trigger injected. Identical scaffolding
- * across a family is the point: when every Pony LoRA renders the same subject,
- * the same framing and the same lighting, whatever differs in the output is the
- * LoRA itself -- which is what makes "lackluster" and "wrongly matched" legible
- * when the grid is scanned. A per-LoRA prompt would hide exactly that signal.
+ * across a family is the point: when every Pony LoRA renders the same subject
+ * and the same framing, whatever differs in the output is the LoRA itself --
+ * which is what makes "lackluster" and "wrongly matched" legible when the grid
+ * is scanned. A per-LoRA prompt would hide exactly that signal.
+ *
+ * The scaffold names SUBJECT and FRAMING only, never medium. An earlier version
+ * ended 'plain neutral background, soft even lighting, sharp focus', which is a
+ * product-photography recipe: on cyberrealisticPony it rendered an Adventure
+ * Time STYLE LoRA as a studio photograph of a vinyl toy (ArtImage 24472,
+ * 2026-09-15). The LoRA was working and correctly matched; the prompt was
+ * asking for a photo. Anything that implies a medium -- lighting, focus, lens,
+ * render, 'photo', 'illustration' -- fights the very thing being probed and
+ * does not belong in this scaffold.
  *
  * Steps, cfg, sampler and scheduler are deliberately absent. The comfy lane
  * resolves them through sdxlSamplerProfile(), which detects distilled/turbo
@@ -79,7 +164,7 @@ export const LORA_PROBE_RECIPES: Record<
       [
         'score_9, score_8_up, score_7_up',
         escapeSdPromptWeighting(trigger),
-        'single subject, upper body, centered, plain neutral background, soft even lighting, sharp focus',
+        'single subject, upper body, centered, simple uncluttered background',
       ]
         .filter(Boolean)
         .join(', '),
@@ -95,7 +180,7 @@ export const LORA_PROBE_RECIPES: Record<
       [
         'masterpiece, best quality, very aesthetic, absurdres',
         escapeSdPromptWeighting(trigger),
-        'single subject, upper body, centered, plain neutral background, soft even lighting, sharp focus',
+        'single subject, upper body, centered, simple uncluttered background',
       ]
         .filter(Boolean)
         .join(', '),
@@ -110,7 +195,7 @@ export const LORA_PROBE_RECIPES: Record<
     positive: (trigger) =>
       [
         escapeSdPromptWeighting(trigger),
-        'single subject, upper body, centered, plain neutral background, soft even lighting, sharp focus, highly detailed',
+        'single subject, upper body, centered, simple uncluttered background',
       ]
         .filter(Boolean)
         .join(', '),
@@ -129,9 +214,9 @@ export const LORA_PROBE_RECIPES: Record<
     loraStrength: 0.8,
     positive: (trigger) =>
       [
-        'best quality, highly detailed',
+        'best quality',
         escapeSdPromptWeighting(trigger),
-        'single subject, upper body, centered, plain neutral background, soft even lighting, sharp focus',
+        'single subject, upper body, centered, simple uncluttered background',
       ]
         .filter(Boolean)
         .join(', '),
@@ -149,8 +234,8 @@ export const LORA_PROBE_RECIPES: Record<
     loraStrength: 0.8,
     positive: (trigger) =>
       trigger
-        ? `A clear reference portrait of a single subject demonstrating ${trigger}, centered upper body, plain neutral background, soft even lighting, sharp focus.`
-        : 'A clear reference portrait of a single subject, centered upper body, plain neutral background, soft even lighting, sharp focus.',
+        ? `${trigger}. A single figure, centered upper body, simple uncluttered background.`
+        : 'A single figure, centered upper body, simple uncluttered background.',
     negative: '',
   },
 }
@@ -227,6 +312,32 @@ const CHECKPOINT_DIR_FAMILY: Record<string, LoraProbeFamily> = {
  */
 const CHECKPOINT_EXCLUDE_PATTERN = /(_mm|motion_module|animatediff)\./i
 
+/*
+ * Preferred probe base per family, most preferred first, matched as a
+ * case-insensitive substring of localPath.
+ *
+ * Without this the tie-break among same-family, same-maturity candidates was
+ * alphabetical, which is arbitrary and turned out to be consequential:
+ * 'cyberrealisticPony_v61' won 61 of the first batch's 205 renders purely
+ * because 'c' sorts before 'p' and 'r', and it is a PHOTOREALISTIC merge, so
+ * every style LoRA routed through it was fighting its base.
+ *
+ * The ordering favours bases that let a LoRA's own look through over bases
+ * with a strong look of their own. That is an aesthetic judgement made from
+ * model names and it is meant to be edited -- it is the one knob that most
+ * changes what the triage grid looks like. Anything not listed falls back to
+ * the deterministic alphabetical order below.
+ */
+const PROBE_BASE_PREFERENCE: Record<
+  Exclude<LoraProbeFamily, 'unsupported' | 'flux'>,
+  string[]
+> = {
+  pony: ['ponyFaetality', 'realcartoonPony', 'cyberrealisticPony'],
+  illustrious: ['illustrij', 'ntrMIXIllustriousXL', 'furrytoonmix'],
+  sdxl: ['dreamshaperXL', 'duskMixXLIllustration', 'sdxlUnstableDiffusers'],
+  sd15: ['duchaitenStylelikeme', 'revAnimated'],
+}
+
 export type ProbeCheckpointCandidate = {
   id: number
   name: string
@@ -276,18 +387,30 @@ export function selectProbeCheckpoint(
   )
   const pool = preferred.length ? preferred : inFamily
 
-  return [...pool].sort((a, b) =>
+  const ranked = [...pool].sort((a, b) =>
     String(a.localPath || a.name).localeCompare(String(b.localPath || b.name)),
-  )[0] as ProbeCheckpointCandidate
+  )
+
+  const order = family === 'flux' ? [] : (PROBE_BASE_PREFERENCE[family] ?? [])
+  for (const wanted of order) {
+    const hit = ranked.find((candidate) =>
+      String(candidate.localPath || candidate.name)
+        .toLowerCase()
+        .includes(wanted.toLowerCase()),
+    )
+    if (hit) return hit
+  }
+
+  return ranked[0] as ProbeCheckpointCandidate
 }
 
 export function probeTriggerText(resource: {
   defaultTrigger?: string | null
   triggerWords?: string | null
 }): string {
-  const trigger = String(resource.defaultTrigger || '').trim()
+  const trigger = sanitizeProbeTrigger(String(resource.defaultTrigger || ''))
   if (trigger) return trigger
-  return String(resource.triggerWords || '').trim()
+  return sanitizeProbeTrigger(String(resource.triggerWords || ''))
 }
 
 export function buildLoraProbePrompt(

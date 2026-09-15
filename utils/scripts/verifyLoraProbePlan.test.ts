@@ -160,15 +160,50 @@ function run(): void {
     'Pony/realcartoonPony_v1.safetensors',
     'an SFW Pony LoRA takes realcartoonPony, which lets a style LoRA through',
   )
+  /*
+   * Pony ignores the maturity match entirely (Silas, 2026-09-15, after
+   * reviewing the first 133 renders: realcartoonPony is "a great default ...
+   * highly consistent"). Without this a mature Pony LoRA fell back to the
+   * photorealistic cyberrealisticPony and got the studio-photo framing the
+   * probe exists to avoid. An SFW-flagged base does not suppress a mature
+   * LoRA -- the flag describes the checkpoint's training, not a render filter.
+   */
   assert.equal(
     selectProbeCheckpoint('pony', true, ponyPool)?.localPath,
-    'Pony/cyberrealisticPony_v61.safetensors',
-    'a mature Pony LoRA falls back to the one Pony base observed to load',
+    'Pony/realcartoonPony_v1.safetensors',
+    'a mature Pony LoRA still takes realcartoonPony',
+  )
+  /*
+   * ...but the override is Pony-only. Every other family still prefers a base
+   * whose maturity matches the LoRA's.
+   */
+  const sdxlPool = [
+    checkpoint(30, 'SDXL/dreamshaperXL_v21TurboDPMSDE.safetensors', false),
+    checkpoint(31, 'SDXL/duskMixXLIllustration_v15.safetensors', true),
+  ]
+  assert.equal(
+    selectProbeCheckpoint('sdxl', true, sdxlPool)?.localPath,
+    'SDXL/duskMixXLIllustration_v15.safetensors',
+    'sdxl still respects the maturity match',
   )
   assert.equal(
-    selectProbeCheckpoint('pony', true, pool)?.id,
-    10,
-    'with no preferred base present it still falls back deterministically',
+    selectProbeCheckpoint('sdxl', false, sdxlPool)?.localPath,
+    'SDXL/dreamshaperXL_v21TurboDPMSDE.safetensors',
+  )
+  /*
+   * With NO name from the preference list in the pool at all, selection still
+   * falls back to the deterministic alphabetical order rather than returning
+   * nothing. (`pool` above does contain realcartoonPony, so it cannot test
+   * this -- that was the bug in an earlier version of this assertion.)
+   */
+  const unlistedPony = [
+    checkpoint(40, 'Pony/zzzUnknownPony_v1.safetensors', true, 'Pony'),
+    checkpoint(41, 'Pony/aaaUnknownPony_v1.safetensors', true, 'Pony'),
+  ]
+  assert.equal(
+    selectProbeCheckpoint('pony', true, unlistedPony)?.id,
+    41,
+    'no preferred base present falls back to alphabetical order',
   )
   assert.equal(
     selectProbeCheckpoint('sdxl', true, pool)?.id,

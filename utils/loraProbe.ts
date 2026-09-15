@@ -399,6 +399,21 @@ export function classifyCheckpointFamily(
  * image while a mature-capable base given a neutral prompt simply produces a
  * neutral image.
  */
+/*
+ * Families whose preferred base is used regardless of the LoRA's maturity.
+ *
+ * Normally a mature LoRA prefers a mature-flagged base, which for Pony meant
+ * falling back to the photorealistic cyberrealisticPony and reintroducing the
+ * studio-photo framing the probe exists to avoid. Silas, 2026-09-15, having
+ * reviewed the first 133 renders: "I actually think realcartoonpony is a great
+ * default. It's highly consistent in my tests and one of my favorites." The
+ * base being SFW-flagged does not suppress a mature LoRA -- the flag describes
+ * the checkpoint's own training, not a filter on what it will render.
+ */
+const PREFERENCE_OVERRIDES_MATURITY: ReadonlySet<LoraProbeFamily> = new Set([
+  'pony',
+])
+
 export function selectProbeCheckpoint(
   family: LoraProbeFamily,
   isMature: boolean,
@@ -416,7 +431,11 @@ export function selectProbeCheckpoint(
   const preferred = inFamily.filter(
     (candidate) => Boolean(candidate.isMature) === isMature,
   )
-  const pool = preferred.length ? preferred : inFamily
+  const pool = PREFERENCE_OVERRIDES_MATURITY.has(family)
+    ? inFamily
+    : preferred.length
+      ? preferred
+      : inFamily
 
   const ranked = [...pool].sort((a, b) =>
     String(a.localPath || a.name).localeCompare(String(b.localPath || b.name)),

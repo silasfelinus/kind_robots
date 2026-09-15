@@ -8,126 +8,123 @@
       The ArtJob dashboard is admin-only.
     </div>
 
-    <div v-else class="flex h-full kr-scroll flex-col gap-2 p-3">
-      <div class="flex flex-wrap items-center justify-between gap-2">
-        <div class="flex min-w-0 flex-wrap items-center gap-1.5">
-          <button
-            v-for="filter in statusFilters"
-            :key="filter"
-            type="button"
-            class="btn btn-ghost btn-xs h-7 min-h-7 gap-1 rounded-full border border-base-300 px-2.5 font-semibold"
-            :class="
-              artJobStore.jobStatusFilter === filter
-                ? 'border-primary bg-primary/10 text-primary'
-                : 'text-base-content/60'
-            "
-            :aria-pressed="artJobStore.jobStatusFilter === filter"
-            :title="`Show ${filter} jobs`"
-            @click="changeStatus(filter)"
-          >
-            <span>{{ filter }}</span>
-            <span class="font-black text-base-content">{{ statusCount(filter) }}</span>
-            <span
-              v-if="artJobStore.jobStatusFilter === filter && artJobStore.loadingJobs"
-              class="kr-spinner-xs"
-            />
-          </button>
-
-          <span
-            v-if="stats?.oldestPending"
-            class="inline-flex h-7 items-center rounded-full border border-warning/30 bg-warning/10 px-2.5 text-[11px] font-medium text-warning-content"
-            :title="`Oldest pending job #${stats.oldestPending.id}`"
-          >
-            Oldest #{{ stats.oldestPending.id }} ·
-            {{ formatAge(stats.oldestPending.ageSeconds) }}
-          </span>
-        </div>
-
-        <div class="flex flex-wrap items-center gap-1.5">
-          <button
-            type="button"
-            class="btn btn-secondary btn-xs h-7 min-h-7 rounded-full px-3"
-            title="Watch finished renders full screen, newest first"
-            @click="slideshowOpen = true"
-          >
-            Slideshow
-          </button>
-          <button
-            type="button"
-            class="btn btn-primary btn-xs h-7 min-h-7 rounded-full px-3"
-            :disabled="isLoading"
-            @click="refresh"
-          >
-            <span v-if="isLoading" class="kr-spinner-xs" />
-            Refresh
-          </button>
-        </div>
-      </div>
-
+    <div v-else class="flex h-full kr-scroll flex-col gap-2 p-2">
       <div
-        v-if="artJobStore.error"
-        class="kr-note kr-note-error p-2 text-xs font-normal"
+        class="flex flex-wrap items-center gap-1 border-b border-base-200 pb-1.5"
       >
-        {{ artJobStore.error }}
-      </div>
-
-      <details class="group border-y border-base-200 py-1.5">
-        <summary
-          class="flex cursor-pointer list-none flex-wrap items-center justify-between gap-2 text-xs [&::-webkit-details-marker]:hidden"
+        <button
+          v-for="filter in statusFilters"
+          :key="filter"
+          type="button"
+          class="btn btn-ghost btn-xs h-6 min-h-6 gap-1 rounded-full border border-base-300 px-2 text-[10px] font-semibold"
+          :class="
+            artJobStore.jobStatusFilter === filter
+              ? 'border-primary bg-primary/10 text-primary'
+              : 'text-base-content/55'
+          "
+          :aria-pressed="artJobStore.jobStatusFilter === filter"
+          :title="`Show ${filter} jobs`"
+          @click="changeStatus(filter)"
         >
-          <span class="flex items-center gap-2 font-semibold">
-            <span
-              v-if="privateArtServers.length"
-              class="h-2 w-2 rounded-full"
-              :class="serverStatusDotClass(privateArtServers[0]?.lastStatus)"
-            />
-            Health
-            <span class="font-normal text-base-content/45">
-              {{ windowHours }}h metrics
-            </span>
-          </span>
-          <span class="text-[11px] text-base-content/45">
-            {{ privateArtServers.length }} art server{{ privateArtServers.length === 1 ? '' : 's' }}
-            · details
-          </span>
-        </summary>
+          <span>{{ filter }}</span>
+          <span class="font-black text-base-content">{{ statusCount(filter) }}</span>
+          <span
+            v-if="artJobStore.jobStatusFilter === filter && artJobStore.loadingJobs"
+            class="kr-spinner-xs"
+          />
+        </button>
 
-        <div class="mt-2 grid gap-2 xl:grid-cols-2">
-          <div class="kr-panel-flat p-3">
-            <div class="mb-2 flex items-center justify-between gap-2">
-              <h3 class="kr-text-semibold-sm">Private art servers</h3>
-              <button
-                type="button"
-                class="kr-btn-xs-2xl"
-                :class="
-                  artJobStore.queuePaused
-                    ? 'btn-success'
-                    : 'btn-warning btn-outline'
-                "
-                :disabled="artJobStore.togglingQueuePause"
-                @click="artJobStore.setQueuePaused(!artJobStore.queuePaused)"
+        <span
+          v-if="stats?.oldestPending"
+          class="inline-flex h-6 items-center rounded-full px-1.5 text-[10px] text-warning"
+          :title="`Oldest pending job #${stats.oldestPending.id}`"
+        >
+          #{{ stats.oldestPending.id }} ·
+          {{ formatAge(stats.oldestPending.ageSeconds) }}
+        </span>
+
+        <div class="ml-auto flex flex-wrap items-center justify-end gap-1">
+          <details class="dropdown dropdown-end">
+            <summary
+              class="btn btn-ghost btn-xs h-6 min-h-6 list-none gap-1 rounded-full border border-base-300 px-2 text-[10px] [&::-webkit-details-marker]:hidden"
+              title="Art server health and queue controls"
+            >
+              <span
+                class="h-2 w-2 rounded-full"
+                :class="serverStatusDotClass(primaryArtServer?.lastStatus)"
+              />
+              <span>{{ primaryArtServer?.label || primaryArtServer?.title || 'Health' }}</span>
+              <span
+                v-if="primaryUptime?.uptimePct !== null && primaryUptime?.uptimePct !== undefined"
+                :class="uptimeClass(primaryUptime.uptimePct)"
               >
-                {{ artJobStore.queuePaused ? 'Resume queue' : 'Pause queue' }}
-              </button>
-            </div>
+                {{ primaryUptime.uptimePct }}%
+              </span>
+              <span
+                v-if="primaryUptime?.avgLatencyMs !== null && primaryUptime?.avgLatencyMs !== undefined"
+                class="text-base-content/45"
+              >
+                {{ primaryUptime.avgLatencyMs }}ms
+              </span>
+              <span v-if="artJobStore.queuePaused" class="font-bold text-warning">
+                paused
+              </span>
+            </summary>
 
             <div
-              class="grid grid-cols-[repeat(auto-fit,minmax(min(100%,14rem),1fr))] gap-2"
+              class="dropdown-content z-50 mt-1 w-[min(38rem,calc(100vw-2rem))] rounded-2xl border border-base-300 bg-base-100 p-3 shadow-xl"
             >
+              <div class="flex flex-wrap items-center justify-between gap-2">
+                <div class="flex items-center gap-2">
+                  <span class="text-xs font-semibold">Health</span>
+                  <select
+                    v-model.number="selectedWindow"
+                    class="select select-bordered select-xs h-7 min-h-7 rounded-xl"
+                    aria-label="Uptime window"
+                    @change="onWindowChange"
+                  >
+                    <option :value="6">6h</option>
+                    <option :value="24">24h</option>
+                    <option :value="72">3d</option>
+                    <option :value="168">7d</option>
+                  </select>
+                </div>
+
+                <button
+                  type="button"
+                  class="kr-btn-xs-2xl"
+                  :class="
+                    artJobStore.queuePaused
+                      ? 'btn-success'
+                      : 'btn-warning btn-outline'
+                  "
+                  :disabled="artJobStore.togglingQueuePause"
+                  @click="artJobStore.setQueuePaused(!artJobStore.queuePaused)"
+                >
+                  {{ artJobStore.queuePaused ? 'Resume queue' : 'Pause queue' }}
+                </button>
+              </div>
+
               <div
-                v-for="server in privateArtServers"
-                :key="server.id"
-                class="rounded-xl border border-base-200 p-2"
+                v-if="privateArtServers.length"
+                class="mt-2 flex flex-col gap-1.5"
               >
-                <div class="flex items-start justify-between gap-2">
-                  <div class="flex min-w-0 items-center gap-2">
+                <div
+                  v-for="server in privateArtServers"
+                  :key="server.id"
+                  class="flex items-center justify-between gap-2 rounded-xl border border-base-200 px-2 py-1.5"
+                >
+                  <div class="flex min-w-0 items-center gap-2 text-xs">
                     <span
-                      class="h-2.5 w-2.5 shrink-0 rounded-full"
+                      class="h-2 w-2 shrink-0 rounded-full"
                       :class="serverStatusDotClass(server.lastStatus)"
                       :title="server.lastStatus"
                     />
-                    <span class="truncate text-sm font-semibold">
+                    <span class="truncate font-semibold">
                       {{ server.label || server.title }}
+                    </span>
+                    <span class="text-[10px] text-base-content/45">
+                      {{ server.serverType }} · {{ server.lastStatus }}
                     </span>
                   </div>
                   <div class="flex shrink-0 items-center gap-1">
@@ -159,189 +156,166 @@
                     </button>
                   </div>
                 </div>
-                <div class="mt-1 text-[11px] text-base-content/60">
-                  {{ server.serverType }} · {{ server.lastStatus }}
-                </div>
               </div>
-              <p v-if="!privateArtServers.length" class="kr-text-dim-xs">
-                No private art servers registered.
-              </p>
-            </div>
-          </div>
 
-          <div class="kr-panel-flat p-3">
-            <div class="mb-2 flex items-center justify-between gap-2">
-              <h3 class="kr-text-semibold-sm">Uptime</h3>
-              <select
-                v-model.number="selectedWindow"
-                class="select select-bordered select-xs rounded-xl"
-                aria-label="Uptime window"
-                @change="onWindowChange"
-              >
-                <option :value="6">6 hours</option>
-                <option :value="24">24 hours</option>
-                <option :value="72">3 days</option>
-                <option :value="168">7 days</option>
-              </select>
-            </div>
-
-            <div class="flex flex-col gap-2">
               <div
-                v-for="server in uptime"
-                :key="server.serverId"
-                class="rounded-xl bg-base-200/50 p-2"
+                v-if="sampledUptime.length"
+                class="mt-2 flex flex-col gap-1.5 border-t border-base-200 pt-2"
               >
-                <div class="flex items-center justify-between gap-3 text-xs">
-                  <span class="truncate font-semibold">{{ server.title }}</span>
-                  <span :class="uptimeClass(server.uptimePct)">
-                    {{
-                      server.uptimePct === null
-                        ? 'no data'
-                        : `${server.uptimePct}%`
-                    }}
-                    <span
-                      v-if="server.avgLatencyMs !== null"
-                      class="text-base-content/50"
-                    >
-                      · {{ server.avgLatencyMs }}ms
-                    </span>
-                  </span>
-                </div>
                 <div
-                  v-if="server.samples.length"
-                  class="mt-2 flex h-6 items-stretch gap-px overflow-hidden rounded"
+                  v-for="server in sampledUptime"
+                  :key="server.serverId"
+                  class="rounded-xl bg-base-200/40 p-2"
                 >
-                  <span
-                    v-for="(sample, index) in server.samples"
-                    :key="index"
-                    class="min-w-0 flex-1 rounded-sm"
-                    :class="sample.ok ? 'bg-success' : 'bg-error'"
-                    :title="sampleTooltip(sample)"
-                  />
+                  <div class="flex items-center justify-between gap-3 text-[11px]">
+                    <span class="truncate font-semibold">{{ server.title }}</span>
+                    <span :class="uptimeClass(server.uptimePct)">
+                      {{ server.uptimePct }}%
+                      <span
+                        v-if="server.avgLatencyMs !== null"
+                        class="text-base-content/45"
+                      >
+                        · {{ server.avgLatencyMs }}ms
+                      </span>
+                    </span>
+                  </div>
+                  <div
+                    class="mt-1.5 flex h-4 items-stretch gap-px overflow-hidden rounded"
+                  >
+                    <span
+                      v-for="(sample, index) in server.samples"
+                      :key="index"
+                      class="min-w-0 flex-1 rounded-sm"
+                      :class="sample.ok ? 'bg-success' : 'bg-error'"
+                      :title="sampleTooltip(sample)"
+                    />
+                  </div>
                 </div>
-                <p v-else class="mt-1 text-[11px] text-base-content/40">
-                  No samples in this window.
-                </p>
               </div>
-              <p v-if="!uptime.length" class="kr-text-dim-xs">
-                No uptime samples yet.
-              </p>
             </div>
-          </div>
-        </div>
-      </details>
+          </details>
 
-      <section class="flex flex-col gap-2">
-        <div class="flex flex-wrap items-center justify-between gap-2 py-1">
-          <span class="text-[11px] text-base-content/55">
-            {{ artJobStore.jobStatusFilter }} · {{ pageStart }}–{{ pageEnd }} of
-            {{ artJobStore.jobTotalCount }}
-          </span>
-
-          <div class="flex flex-wrap items-center gap-1.5 text-xs">
-            <label class="flex items-center gap-1">
-              <span class="sr-only">Jobs per page</span>
-              <select
-                v-model="pageSizeInput"
-                class="select select-bordered select-xs h-7 min-h-7 rounded-xl"
-                aria-label="Jobs per page"
-                :disabled="artJobStore.loadingJobs"
-                @change="applyPageSize"
-              >
-                <option value="20">20 / page</option>
-                <option value="50">50 / page</option>
-                <option value="100">100 / page</option>
-              </select>
-            </label>
-
-            <button
-              type="button"
-              class="btn btn-ghost btn-xs h-7 min-h-7 rounded-xl px-2"
-              :disabled="
-                !artJobStore.jobHasPreviousPage || artJobStore.loadingJobs
-              "
-              aria-label="Previous queue page"
-              @click="artJobStore.setJobPage(artJobStore.jobPage - 1)"
-            >
-              ‹
-            </button>
-            <label class="flex items-center gap-1">
-              <span>Page</span>
-              <input
-                v-model="pageInput"
-                type="number"
-                min="1"
-                :max="artJobStore.jobPageCount"
-                class="kr-input-rounded-xl input-xs h-7 w-14 text-center"
-                @keyup.enter="applyPage"
-              />
-              <span class="text-base-content/45">/ {{ artJobStore.jobPageCount }}</span>
-            </label>
-            <button
-              type="button"
-              class="btn btn-ghost btn-xs h-7 min-h-7 rounded-xl px-2"
-              :disabled="!artJobStore.jobHasNextPage || artJobStore.loadingJobs"
-              aria-label="Next queue page"
-              @click="artJobStore.setJobPage(artJobStore.jobPage + 1)"
-            >
-              ›
-            </button>
-          </div>
-        </div>
-
-        <div
-          v-if="artJobStore.loadingJobs && !artJobStore.jobs.length"
-          class="flex min-h-40 flex-col items-center justify-center gap-3 kr-panel-dashed-plain text-center"
-        >
-          <span class="kr-loading-primary-md" />
-          <p class="kr-text-dim-sm-70">{{ queueLoadMessage }}</p>
-        </div>
-
-        <div
-          v-else
-          class="grid grid-cols-[repeat(auto-fit,minmax(min(100%,18rem),1fr))] gap-3"
-        >
-          <artjob-queue-card
-            v-for="job in artJobStore.jobs"
-            :key="job.id"
-            :job="job"
-            @edit="openEditor"
-          />
-
-          <div
-            v-if="!artJobStore.jobs.length && !artJobStore.loadingJobs"
-            class="kr-text-dim-sm-50 kr-panel-dashed-plain text-center xl:col-span-2"
-          >
-            No {{ artJobStore.jobStatusFilter }} jobs on this page.
-          </div>
-        </div>
-
-        <div
-          v-if="artJobStore.jobPageCount > 1"
-          class="flex items-center justify-center gap-2 border-t border-base-200 pt-2"
-        >
           <button
             type="button"
-            class="kr-btn-ghost-2xl"
-            :disabled="!artJobStore.jobHasPreviousPage"
+            class="btn btn-secondary btn-xs h-6 min-h-6 rounded-full px-2 text-[10px]"
+            title="Watch finished renders full screen, newest first"
+            @click="slideshowOpen = true"
+          >
+            Slideshow
+          </button>
+          <button
+            type="button"
+            class="btn btn-primary btn-xs h-6 min-h-6 rounded-full px-2 text-[10px]"
+            :disabled="isLoading"
+            @click="refresh"
+          >
+            <span v-if="isLoading" class="kr-spinner-xs" />
+            Refresh
+          </button>
+
+          <select
+            v-model="pageSizeInput"
+            class="select select-bordered select-xs h-6 min-h-6 rounded-xl px-2 text-[10px]"
+            aria-label="Jobs per page"
+            :disabled="artJobStore.loadingJobs"
+            @change="applyPageSize"
+          >
+            <option value="20">20/page</option>
+            <option value="50">50/page</option>
+            <option value="100">100/page</option>
+          </select>
+
+          <button
+            type="button"
+            class="btn btn-ghost btn-xs h-6 min-h-6 rounded-xl px-1.5"
+            :disabled="!artJobStore.jobHasPreviousPage || artJobStore.loadingJobs"
+            aria-label="Previous queue page"
             @click="artJobStore.setJobPage(artJobStore.jobPage - 1)"
           >
-            Previous
+            ‹
           </button>
-          <span class="text-xs"
-            >Page {{ artJobStore.jobPage }} of
-            {{ artJobStore.jobPageCount }}</span
-          >
+          <label class="flex h-6 items-center gap-1 text-[10px]">
+            <span class="sr-only">Queue page</span>
+            <input
+              v-model="pageInput"
+              type="number"
+              min="1"
+              :max="artJobStore.jobPageCount"
+              class="kr-input-rounded-xl input-xs h-6 w-11 text-center text-[10px]"
+              @keyup.enter="applyPage"
+            />
+            <span class="text-base-content/40">/{{ artJobStore.jobPageCount }}</span>
+          </label>
           <button
             type="button"
-            class="kr-btn-ghost-2xl"
-            :disabled="!artJobStore.jobHasNextPage"
+            class="btn btn-ghost btn-xs h-6 min-h-6 rounded-xl px-1.5"
+            :disabled="!artJobStore.jobHasNextPage || artJobStore.loadingJobs"
+            aria-label="Next queue page"
             @click="artJobStore.setJobPage(artJobStore.jobPage + 1)"
           >
-            Next
+            ›
           </button>
         </div>
-      </section>
+      </div>
+
+      <div
+        v-if="artJobStore.error"
+        class="kr-note kr-note-error p-2 text-xs font-normal"
+      >
+        {{ artJobStore.error }}
+      </div>
+
+      <div
+        v-if="artJobStore.loadingJobs && !artJobStore.jobs.length"
+        class="flex min-h-40 flex-col items-center justify-center gap-3 kr-panel-dashed-plain text-center"
+      >
+        <span class="kr-loading-primary-md" />
+        <p class="kr-text-dim-sm-70">{{ queueLoadMessage }}</p>
+      </div>
+
+      <div
+        v-else
+        class="grid grid-cols-[repeat(auto-fit,minmax(min(100%,18rem),1fr))] gap-3"
+      >
+        <artjob-queue-card
+          v-for="job in artJobStore.jobs"
+          :key="job.id"
+          :job="job"
+          @edit="openEditor"
+        />
+
+        <div
+          v-if="!artJobStore.jobs.length && !artJobStore.loadingJobs"
+          class="kr-text-dim-sm-50 kr-panel-dashed-plain text-center xl:col-span-2"
+        >
+          No {{ artJobStore.jobStatusFilter }} jobs on this page.
+        </div>
+      </div>
+
+      <div
+        v-if="artJobStore.jobPageCount > 1"
+        class="flex items-center justify-center gap-2 border-t border-base-200 pt-2"
+      >
+        <button
+          type="button"
+          class="kr-btn-ghost-2xl"
+          :disabled="!artJobStore.jobHasPreviousPage"
+          @click="artJobStore.setJobPage(artJobStore.jobPage - 1)"
+        >
+          Previous
+        </button>
+        <span class="text-xs">
+          Page {{ artJobStore.jobPage }} of {{ artJobStore.jobPageCount }}
+        </span>
+        <button
+          type="button"
+          class="kr-btn-ghost-2xl"
+          :disabled="!artJobStore.jobHasNextPage"
+          @click="artJobStore.setJobPage(artJobStore.jobPage + 1)"
+        >
+          Next
+        </button>
+      </div>
     </div>
 
     <artjob-slideshow v-if="slideshowOpen" @close="slideshowOpen = false" />
@@ -395,28 +369,34 @@ const statusFilters: Array<ArtJobStatus | 'ALL'> = [
 ]
 const stats = computed(() => artJobStore.stats)
 const uptime = computed(() => artJobStore.uptime)
-const windowHours = computed(() => artJobStore.windowHours)
 const privateArtServers = computed<Server[]>(() =>
   serverStore.artServers.filter(
     (server: Server) =>
       server.serverType === 'COMFY' || server.serverType === 'A1111',
   ),
 )
+const primaryArtServer = computed(() => privateArtServers.value[0] ?? null)
+const sampledUptime = computed(() =>
+  uptime.value.filter(
+    (server) =>
+      server.samples.length > 0 ||
+      server.uptimePct !== null ||
+      server.avgLatencyMs !== null,
+  ),
+)
+const primaryUptime = computed(() => {
+  const serverId = primaryArtServer.value?.id
+  if (serverId) {
+    const match = sampledUptime.value.find((server) => server.serverId === serverId)
+    if (match) return match
+  }
+  return sampledUptime.value[0] ?? null
+})
 const isLoading = computed(
   () =>
     artJobStore.loadingStats ||
     artJobStore.loadingUptime ||
     artJobStore.loadingJobs,
-)
-const pageStart = computed(() => {
-  if (!artJobStore.jobTotalCount) return 0
-  return (artJobStore.jobPage - 1) * artJobStore.jobPageSize + 1
-})
-const pageEnd = computed(() =>
-  Math.min(
-    artJobStore.jobPage * artJobStore.jobPageSize,
-    artJobStore.jobTotalCount,
-  ),
 )
 
 watch(

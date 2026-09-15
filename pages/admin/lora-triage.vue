@@ -109,6 +109,16 @@
               </option>
             </select>
 
+            <select
+              v-model="maturity"
+              class="kr-select-sm w-auto"
+              aria-label="Filter by maturity"
+            >
+              <option value="ALL">All maturity</option>
+              <option value="SFW">SFW only</option>
+              <option value="NSFW">NSFW only</option>
+            </select>
+
             <label
               class="flex cursor-pointer items-center gap-2 rounded-xl px-2 py-1 text-sm"
             >
@@ -285,7 +295,7 @@
               {{
                 triageStore.hideConfirmed
                   ? 'Turn off “Hide confirmed” to review completed decisions.'
-                  : 'Try changing the search or base-model filter.'
+                  : 'Try changing the search, maturity, or base-model filter.'
               }}
             </p>
           </div>
@@ -341,12 +351,15 @@ import type { ResourceGalleryRecord } from '@/stores/resourceGalleryStore'
 
 const PAGE_SIZE = 48
 
+type MaturityFilter = 'ALL' | 'SFW' | 'NSFW'
+
 const userStore = useUserStore()
 const triageStore = useLoraTriageStore()
 const ready = ref(false)
 const loading = ref(false)
 const query = ref('')
 const generation = ref('ALL')
+const maturity = ref<MaturityFilter>('ALL')
 const page = ref(1)
 
 const generations = computed(() =>
@@ -366,6 +379,8 @@ const filteredResources = computed(() => {
     if (triageStore.hideConfirmed && triageStore.decisionFor(resource.id))
       return false
     if (generation.value !== 'ALL' && resource.generation !== generation.value)
+      return false
+    if (maturity.value !== 'ALL' && effectiveMaturity(resource) !== maturity.value)
       return false
     if (!search) return true
 
@@ -405,6 +420,12 @@ function triggerText(resource: ResourceGalleryRecord): string {
   return (
     resource.defaultTrigger || resource.triggerWords || resource.artPrompt || ''
   )
+}
+
+function effectiveMaturity(resource: ResourceGalleryRecord): Exclude<MaturityFilter, 'ALL'> {
+  const decision = triageStore.decisionFor(resource.id)
+  if (decision) return decision === 'nsfw' ? 'NSFW' : 'SFW'
+  return resource.isMature ? 'NSFW' : 'SFW'
 }
 
 function previewSrc(resource: ResourceGalleryRecord): string {

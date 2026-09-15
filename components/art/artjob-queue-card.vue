@@ -34,6 +34,25 @@
         />
       </a>
 
+      <button
+        v-else-if="canRevealMatureJob"
+        type="button"
+        class="group flex h-full w-full cursor-pointer flex-col items-center justify-center gap-2 border-dashed border-warning/30 bg-warning/5 p-5 text-center transition hover:bg-warning/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-warning"
+        :aria-label="`Reveal mature ArtJob ${job.id}`"
+        @click="revealMatureJob"
+      >
+        <Icon
+          name="kind-icon:eye"
+          class="h-6 w-6 text-warning/70 transition group-hover:text-warning"
+        />
+        <span
+          class="kr-text-eyebrow text-xs tracking-widest text-base-content/45"
+        >
+          Mature hidden
+        </span>
+        <span class="text-xs text-warning-content/80">Click to reveal</span>
+      </button>
+
       <div
         v-else
         class="flex h-full w-full flex-col items-center justify-center gap-3 border-dashed border-base-300 bg-base-100 p-5 text-center"
@@ -57,7 +76,7 @@
           v-if="!canShowJobContent"
           class="max-w-sm text-xs text-warning-content"
         >
-          Enable mature content in your account settings to reveal this job.
+          {{ hiddenMatureMessage }}
         </p>
       </div>
 
@@ -184,7 +203,7 @@
         v-else
         class="rounded-xl border border-warning/30 bg-warning/10 p-2 text-xs text-warning-content"
       >
-        Mature prompt and preview are hidden by your account setting.
+        {{ hiddenMatureMessage }}
       </p>
 
       <div class="flex flex-wrap gap-1">
@@ -221,8 +240,7 @@
             v-if="!canShowJobContent"
             class="rounded-xl border border-warning/30 bg-warning/10 p-3 text-warning-content"
           >
-            Enable mature content in your account settings to view or edit this
-            job's prompt and preview.
+            {{ hiddenMatureMessage }}
           </div>
           <template v-else>
             <div v-if="jobPageLabel || jobImagePath">
@@ -280,7 +298,7 @@
           :title="
             canShowJobContent
               ? 'Copy prompt'
-              : 'Enable mature content to reveal this prompt'
+              : 'Reveal mature content before copying this prompt'
           "
           @click="handleCopy"
         >
@@ -369,6 +387,7 @@ import { computed, ref } from 'vue'
 import { useArtJobStore, type ArtJobRecord } from '@/stores/artJobStore'
 import { useArtJobPriorityStore } from '@/stores/artJobPriorityStore'
 import { useArtStore } from '@/stores/artStore'
+import { useUserStore } from '@/stores/userStore'
 import {
   artJobImagePath,
   artJobImageVersion,
@@ -396,7 +415,9 @@ const emit = defineEmits<{
 const artJobStore = useArtJobStore()
 const priorityStore = useArtJobPriorityStore()
 const artStore = useArtStore()
+const userStore = useUserStore()
 const copied = ref(false)
+const locallyRevealedMature = ref(false)
 
 const jobPrompt = computed<string>(() => artJobPrompt(props.job))
 
@@ -406,9 +427,36 @@ const jobNegativePrompt = computed<string>(() =>
 
 const jobVisibility = computed(() => artJobVisibility(props.job))
 
+const ownsJob = computed<boolean>(() => {
+  const viewerId = userStore.userId
+  return typeof viewerId === 'number' && props.job.userId === viewerId
+})
+
 const canShowJobContent = computed<boolean>(
-  () => !jobVisibility.value.isMature || artStore.showMature,
+  () =>
+    !jobVisibility.value.isMature ||
+    artStore.showMature ||
+    locallyRevealedMature.value,
 )
+
+const canRevealMatureJob = computed<boolean>(() => {
+  return (
+    jobVisibility.value.isMature &&
+    !canShowJobContent.value &&
+    !userStore.isMaturityRestricted &&
+    (jobVisibility.value.isPublic || ownsJob.value)
+  )
+})
+
+const hiddenMatureMessage = computed<string>(() => {
+  if (userStore.isMaturityRestricted) {
+    return 'Mature content is unavailable for this account.'
+  }
+  if (!jobVisibility.value.isPublic && !ownsJob.value) {
+    return "Inline reveal is unavailable for another user's private job."
+  }
+  return 'Click the preview to reveal this mature job.'
+})
 
 const jobTitle = computed<string>(() => artJobTitle(props.job))
 
@@ -472,6 +520,15 @@ async function loadProtectedPreview(): Promise<void> {
   // Pass the job's version so an OVERWRITE retry — which reuses this ArtImage
   // id with new bytes — refetches instead of serving the previous render.
   await artJobStore.loadJobImage(id, imageVersion.value)
+}
+
+async function revealMatureJob(): Promise<void> {
+  if (!canRevealMatureJob.value) return
+
+  locallyRevealedMature.value = true
+  if (!jobImageSrc.value && typeof props.job.artImageId === 'number') {
+    await loadProtectedPreview()
+  }
 }
 
 async function handleCopy(): Promise<void> {

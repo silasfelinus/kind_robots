@@ -17,9 +17,9 @@
   role), as well as mana and token counts, then notifications."
 
     1. who you are      — and a button, because it opens the account menu
-    2. tools            — server, reload, card hand, karma, mana
+    2. tools            — server, reload, card hand, maturity, karma, mana
     3. notifications
-    4. maturity         — a preference, so it sits under the things it affects
+    4. maturity detail  — optional expanded preference row
 
   Tools and wallet were two rows until Silas collapsed them (2026-08-11:
   "karma and mana should be inline with the server and reload icons"), and the
@@ -305,6 +305,8 @@
         >
           <Icon name="kind-icon:cards" class="kr-icon-4" />
         </button>
+
+        <maturity-toggle v-if="userStore.isLoggedIn" />
 
         <template v-if="userStore.isLoggedIn">
           <karma-widget class="shrink-0" />

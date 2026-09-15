@@ -415,7 +415,11 @@ export const useArtJobStore = defineStore('artJobStore', () => {
     }
   }
 
-  async function loadJobImage(id: number, version = ''): Promise<boolean> {
+  async function loadJobImage(
+    id: number,
+    version = '',
+    includeMature = false,
+  ): Promise<boolean> {
     if (!Number.isInteger(id) || id <= 0) return false
     // Only trust the cache when it holds the same version of this ArtImage.
     // Overwrites mutate an id's bytes in place, so an id-only check pins the
@@ -427,8 +431,10 @@ export const useArtJobStore = defineStore('artJobStore', () => {
 
     state.loadingImageIds = [...state.loadingImageIds, id]
     try {
+      const params = new URLSearchParams({ includeImageData: 'true' })
+      if (includeMature) params.set('showMature', 'true')
       const res = await performFetch<ArtImage>(
-        `/api/art/image/${id}?includeImageData=true`,
+        `/api/art/image/${id}?${params.toString()}`,
         { method: 'GET' },
         1,
         30_000,

@@ -101,6 +101,13 @@ for (const required of [
   'v4RenderNeedsRepair',
   'v5RenderNeedsRepair',
   'isRepairableLegacyJob',
+  // A Facet keeps every job it has ever had, so an old version's job stays a
+  // repair target even after a newer version already fixed that slot. On the
+  // v6 run that queued 45 duplicate swatch jobs. Ranking versions and skipping
+  // any slot already attempted more recently closes it for every future bump.
+  'const VERSION_ORDER',
+  'newestAttemptRank',
+  'repairSkippedNewerAttempt',
   "'facet-multi-art-krea2-v2'",
   "'facet-coverage-krea2-v3'",
   "const ALL_VARIANTS = process.argv.includes('--all-variants')",

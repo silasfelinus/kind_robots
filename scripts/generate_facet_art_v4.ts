@@ -1013,6 +1013,36 @@ export async function main(): Promise<void> {
       }
 
       const history = historyJobs as HistoryJob[]
+      /*
+       * Newest attempt per Facet slot, by producer version.
+       *
+       * currentVersionKeys below only knows about jobs at the CURRENT version,
+       * which is empty at the moment a version is bumped. That is not enough: a
+       * Facet keeps every job it has ever had, so after the swatch work landed
+       * at v5, each of the 45 swatch Facets still had its old v4 job sitting in
+       * history -- and the v4 predicate still says "yes, repair this", because
+       * the v4 RENDER really was bad. The v5 job that already fixed it is
+       * invisible to that question.
+       *
+       * Result on the 2026-09-15 v6 run: 95 jobs queued instead of 50, the
+       * extra 45 being a second copy of swatch work already pending. Same
+       * prompt, fresh seed, so the output was right and the compute was wasted.
+       *
+       * Ranking every version once and asking "has this slot already been
+       * attempted more recently?" closes it for every future bump, rather than
+       * needing a new special case each time.
+       */
+      const VERSION_ORDER = [
+        'facet-multi-art-krea2-v2',
+        'facet-coverage-krea2-v3',
+        'facet-coverage-krea2-v4',
+        'facet-coverage-krea2-v5',
+        FACET_ART_VERSION,
+      ]
+      const versionRank = (version: string): number =>
+        VERSION_ORDER.indexOf(version)
+      const newestAttemptRank = new Map<string, number>()
+
       const currentVersionKeys = new Set<string>()
       const legacyPendingIds: number[] = []
       for (const job of history) {
@@ -1024,6 +1054,12 @@ export async function main(): Promise<void> {
           ['PENDING', 'RUNNING', 'DONE'].includes(job.status)
         ) {
           currentVersionKeys.add(key)
+        }
+        if (['PENDING', 'RUNNING', 'DONE'].includes(job.status)) {
+          const rank = versionRank(target.version)
+          if (rank > (newestAttemptRank.get(key) ?? -1)) {
+            newestAttemptRank.set(key, rank)
+          }
         }
         if (
           LEGACY_FACET_ART_VERSIONS.has(target.version) &&
@@ -1042,6 +1078,7 @@ export async function main(): Promise<void> {
       const repairSkippedSuperseded: number[] = []
       const repairSkippedHealthy: number[] = []
       const repairSkippedNonVisual: number[] = []
+      const repairSkippedNewerAttempt: number[] = []
       const repairBlocked: number[] = []
       if (REPAIR_TAINTED) {
         for (const job of history) {
@@ -1052,6 +1089,14 @@ export async function main(): Promise<void> {
 
           const key = `${target.entityId}:${target.field}`
           if (currentVersionKeys.has(key) || repairQueued.has(key)) continue
+
+          // Something newer has already had a go at this slot. Whatever this
+          // older job's own verdict is, it has been superseded by an attempt
+          // that is still pending or already delivered.
+          if ((newestAttemptRank.get(key) ?? -1) > versionRank(target.version)) {
+            repairSkippedNewerAttempt.push(job.id)
+            continue
+          }
 
           const facet = facetById.get(target.entityId)
           const profile = profileByFacet.get(target.entityId)
@@ -1213,7 +1258,7 @@ export async function main(): Promise<void> {
         console.log(
           `Facet art: ${inserted} job(s) queued, ${reused.length} active coverage job(s) reused, ${blocked.length} entry/entries held for catalog review.` +
             (REPAIR_TAINTED
-              ? ` Repair scan: ${repairQueued.size} tainted target(s) resubmitted, ${legacyPendingIds.length} tainted pending job(s) cancelled, ${repairSkippedSuperseded.length} superseded output(s) preserved, ${repairSkippedHealthy.length} healthy v4 render(s) left alone, ${repairSkippedNonVisual.length} prompt-modifier Facet(s) reported rather than re-rolled, ${repairBlocked.length} blocked target(s) held.`
+              ? ` Repair scan: ${repairQueued.size} tainted target(s) resubmitted, ${legacyPendingIds.length} tainted pending job(s) cancelled, ${repairSkippedSuperseded.length} superseded output(s) preserved, ${repairSkippedHealthy.length} healthy v4 render(s) left alone, ${repairSkippedNonVisual.length} prompt-modifier Facet(s) reported rather than re-rolled, ${repairSkippedNewerAttempt.length} slot(s) already attempted by a newer version, ${repairBlocked.length} blocked target(s) held.`
               : ''),
         )
       }
@@ -1239,6 +1284,7 @@ export async function main(): Promise<void> {
               repairSupersededPreserved: repairSkippedSuperseded.length,
               repairHealthyPreserved: repairSkippedHealthy.length,
               repairNonVisualReported: repairSkippedNonVisual.length,
+              repairNewerAttemptSkipped: repairSkippedNewerAttempt.length,
               repairBlocked: repairBlocked.length,
               blocked: blocked.length,
             },

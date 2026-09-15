@@ -211,6 +211,31 @@ function pickInt(
   return Number.isFinite(parsed) ? parsed : undefined
 }
 
+// Bot.description/botIntro/prompt are bounded VarChar columns (764/3000/764
+// -- see SHORT_TEXT_MAX.Bot above), but the raw pitch/fieldsDraft `text`
+// createRecord/updateText fall back to when the FIELDS stage's own
+// description/botIntro/prompt lines are blank is completely unbounded:
+// ModelBuildItem.pitch and .fieldsDraft are both `@db.Text` columns
+// (prisma/model-builder.prisma) with no application-level length cap of
+// their own, and this fallback assigns that raw text directly rather than
+// through pickText -- so SHORT_TEXT_MAX's own cap never runs on it
+// (model-builder/t-029, cycle 103). Before this fix, an expand-manager-bot/
+// expand-narrator-bot CREATE (or any Bot UPDATE) whose FIELDS stage left
+// description/botIntro/prompt blank -- an entirely normal path; nothing
+// requires filling those in before COMMIT -- wrote the full, uncapped pitch
+// straight into description/botIntro/prompt, risking exactly the "Data too
+// long for column" write failure (or silent truncation outside strict mode)
+// SHORT_TEXT_MAX exists to prevent elsewhere, just reached through this
+// fallback instead of pickText. capToBotWidth mirrors pickText's own
+// slice-to-cap behavior for this one non-pickText path.
+function capToBotWidth(
+  value: string,
+  key: 'description' | 'botIntro' | 'prompt',
+): string {
+  const max = SHORT_TEXT_MAX.Bot![key]!
+  return value.length > max ? value.slice(0, max) : value
+}
+
 interface CharacterExtra {
   class?: string
   species?: string
@@ -548,7 +573,10 @@ async function updateText(
     case 'Bot': {
       const bot = await tx.bot.update({
         where: { id },
-        data: { description: text, ...botFields(fields) },
+        data: {
+          description: capToBotWidth(text, 'description'),
+          ...botFields(fields),
+        },
       })
       await syncBotFacetsInTransaction(tx, bot, syncOptions)
       return
@@ -656,11 +684,11 @@ async function createRecord(
       const bot = await tx.bot.create({
         data: {
           name,
-          description: text,
+          description: capToBotWidth(text, 'description'),
           BotType: extra.BotType ?? 'CHATBOT',
-          botIntro: extra.botIntro ?? (text || name),
+          botIntro: extra.botIntro ?? capToBotWidth(text || name, 'botIntro'),
           userIntro: extra.userIntro ?? 'Hello!',
-          prompt: extra.prompt ?? (text || name),
+          prompt: extra.prompt ?? capToBotWidth(text || name, 'prompt'),
           ...priv,
           ...extra,
         },

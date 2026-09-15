@@ -129,7 +129,12 @@ for (const required of [
   'isLegacyGeneratedFacetPrompt',
   'legacyPendingIds',
   "status: 'CANCELLED'",
-  "reason: 'facet-art-direction-jargon-repair-v5'",
+  // The default retry reason; requeue paths pass their own. What matters is
+  // that retry provenance is attached at all -- without it artJobQueueCoverage
+  // cancels a replacement before claim, which silently killed all 146 authored
+  // prompts on 2026-09-15.
+  "reason = 'facet-art-direction-jargon-repair-v5'",
+  'retry: repairRetry(repair.sourceJobId, repair.reason)',
   "repairReason: 'art-direction-jargon-rendered-literally'",
   "mode: 'NEW_OUTPUT'",
 ]) {

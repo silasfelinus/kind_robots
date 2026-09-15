@@ -294,6 +294,7 @@ type QueueEntry = {
   variant: FacetArtVariant
   repairSourceJobId?: number
   repairSourceVersion?: string
+  repairReason?: string
 }
 
 function asObject(value: unknown): JsonObject {
@@ -702,7 +703,7 @@ function facetSnapshot(
   }
 }
 
-function repairRetry(sourceJobId: number): JsonObject {
+function repairRetry(sourceJobId: number, reason = 'facet-art-direction-jargon-repair-v5'): JsonObject {
   return {
     mode: 'NEW_OUTPUT',
     sourceJobId,
@@ -710,7 +711,7 @@ function repairRetry(sourceJobId: number): JsonObject {
     targetArtImageId: null,
     refreshSeed: true,
     requestedAt: new Date().toISOString(),
-    reason: 'facet-art-direction-jargon-repair-v5',
+    reason,
   }
 }
 
@@ -719,7 +720,7 @@ export function buildFacetArtPayload(
   profile: ProfileRow,
   identityPrompt: string,
   variant: FacetArtVariant,
-  repair?: { sourceJobId: number; sourceVersion: string },
+  repair?: { sourceJobId: number; sourceVersion: string; reason?: string },
 ) {
   const promptString = buildFacetVariantPrompt(
     facet,
@@ -771,7 +772,15 @@ export function buildFacetArtPayload(
         preserveOriginal: true,
         mode: 'recreate',
       },
-      ...(repair ? { retry: repairRetry(repair.sourceJobId) } : {}),
+      /*
+       * retry provenance is not decoration: server/utils/artJobQueueCoverage.ts
+       * exempts a job from baseline-coverage cleanup ONLY when payload.retry is
+       * present (readFacetCoverageTarget returns null for it). Without it, a
+       * replacement queued for a Facet that already has art is cancelled before
+       * claim -- which is what happened to all 146 authored-prompt jobs on
+       * 2026-09-15: created, reported queued, then cancelled unrendered.
+       */
+      ...(repair ? { retry: repairRetry(repair.sourceJobId, repair.reason) } : {}),
       facetArtworkVersion: FACET_ART_VERSION,
       facetCatalog: {
         taxonomy: profile.taxonomy,
@@ -1209,6 +1218,7 @@ export async function main(): Promise<void> {
       if (REQUEUE_CURATED) {
         const attempted = new Set<string>()
         const newestJobPrompt = new Map<string, string>()
+        const newestJob = new Map<string, { id: number; version: string }>()
         for (const job of history) {
           const target = artTarget(job.payload)
           if (!target) continue
@@ -1216,8 +1226,9 @@ export async function main(): Promise<void> {
           const key = `${target.entityId}:${target.field}`
           attempted.add(key)
           const rank = versionRank(target.version)
-          if (rank >= (newestAttemptRank.get(key) ?? -1) && target.basePrompt) {
-            newestJobPrompt.set(key, target.basePrompt)
+          if (rank >= (newestAttemptRank.get(key) ?? -1)) {
+            newestJob.set(key, { id: job.id, version: target.version })
+            if (target.basePrompt) newestJobPrompt.set(key, target.basePrompt)
           }
         }
         for (const facet of facetRows) {
@@ -1235,11 +1246,15 @@ export async function main(): Promise<void> {
           ) {
             continue
           }
+          const source = newestJob.get(key)
           curatedRequeue.push({
             facet,
             profile,
             identityPrompt: buildFacetIdentityPrompt(facet, profile),
             variant,
+            repairSourceJobId: source?.id,
+            repairSourceVersion: source?.version,
+            repairReason: 'facet-curated-prompt-refresh',
           })
         }
 
@@ -1255,11 +1270,16 @@ export async function main(): Promise<void> {
           if ((blockersByFacet.get(facet.id) ?? []).length) continue
           if (isRetiredPromptEnhancement(facet)) continue
           if (!swatchSubjectIsStale(facet)) continue
+          const swatchKey = `${facet.id}:${ART_VARIANTS[0].field}`
+          const swatchSource = newestJob.get(swatchKey)
           staleSwatchRequeue.push({
             facet,
             profile,
             identityPrompt: buildFacetIdentityPrompt(facet, profile),
             variant: ART_VARIANTS[0],
+            repairSourceJobId: swatchSource?.id,
+            repairSourceVersion: swatchSource?.version,
+            repairReason: 'facet-swatch-subject-refresh',
           })
         }
         queue.push(...curatedRequeue, ...staleSwatchRequeue)

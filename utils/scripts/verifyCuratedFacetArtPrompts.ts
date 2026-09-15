@@ -10,6 +10,8 @@ import {
   isLegacyGeneratedFacetPrompt,
 } from '../../scripts/generate_facet_art_v4'
 import { readFileSync } from 'node:fs'
+import { buildFacetArtPayload } from '../../scripts/generate_facet_art_v4'
+import { readFacetCoverageTarget } from '../../server/utils/artJobQueueCoverage'
 
 const entries = Object.entries(CURATED_FACET_ART_PROMPTS)
 assert.ok(entries.length >= 146, `expected the full authored set, got ${entries.length}`)
@@ -108,5 +110,58 @@ assert.ok(
   producer.includes('REPAIR_TAINTED || REQUEUE_CURATED'),
   'job history must be loaded for --requeue-curated, or it silently queues nothing',
 )
+
+// ── The job has to survive claim ────────────────────────────────────────────
+//
+// Queueing is not rendering. artJobQueueCoverage cancels any facet-catalog job
+// before claim when the Facet already has display art -- baseline coverage is
+// satisfied -- and it exempts a job only when payload.retry is present
+// (readFacetCoverageTarget returns null for those).
+//
+// A requeue is BY DEFINITION for a Facet that already has art, so without retry
+// provenance every one is cancelled unrendered. That is exactly what happened
+// to all 146 authored prompts: created, reported as queued, cancelled before a
+// single pixel. The producer's own summary said 146 and meant nothing.
+const sampleFacet = {
+  id: 9, title: 'Office Satire', slug: 'office-satire',
+  description: null, flavorText: null, examples: null,
+  artPrompt: 'Office Satire. A cubicle farm where one desk has been slowly built into a fortress of box files, its occupant serenely typing inside it.',
+  imagePath: '/existing.webp', icon: null, artImageId: 5, artCollectionId: null,
+  userId: 1, isPublic: true, isMature: false,
+} as never
+const sampleProfile = {
+  facetId: 9, taxonomy: 'GENRE', canonicalValue: 'office-satire',
+  groupKey: null, groupLabel: null, isRandomizable: true, randomWeight: 1,
+  artRequired: true, sourceRank: 1, metadata: null,
+} as never
+const sampleVariant = {
+  field: 'imagePath', label: 'square illustration', width: 1024, height: 1024,
+  composition: 'A square picture with the subject large and centred.',
+} as never
+
+const baseline = buildFacetArtPayload(sampleFacet, sampleProfile, 'Office Satire. A cubicle farm.', sampleVariant)
+assert.notEqual(
+  readFacetCoverageTarget(baseline),
+  null,
+  'sanity: a job with no retry provenance IS subject to coverage cleanup',
+)
+const replacement = buildFacetArtPayload(
+  sampleFacet, sampleProfile, 'Office Satire. A cubicle farm.', sampleVariant,
+  { sourceJobId: 1, sourceVersion: 'facet-coverage-krea2-v5', reason: 'facet-curated-prompt-refresh' },
+)
+assert.equal(
+  readFacetCoverageTarget(replacement),
+  null,
+  'a replacement job must carry retry provenance or it is cancelled before claim',
+)
+
+// And the producer must actually attach it on both requeue paths.
+const producerSource = readFileSync('scripts/generate_facet_art_v4.ts', 'utf8')
+for (const reason of ['facet-curated-prompt-refresh', 'facet-swatch-subject-refresh']) {
+  assert.ok(
+    producerSource.includes(reason),
+    `requeue path ${reason} must cite a source job so retry provenance is attached`,
+  )
+}
 
 console.log(`Curated Facet art prompts verified (${entries.length}).`)

@@ -77,6 +77,9 @@ jobs:
       - name: Verify legacy Facet art prompt signature
         run: npx tsx utils/scripts/verifyFacetLegacyPromptSignature.ts
 
+      - name: Verify prompt-enhancement swatch and retirement policy
+        run: npx tsx utils/scripts/verifyPromptEnhancementSwatches.ts
+
       - name: Verify whole-catalog Facet audit
         run: npx tsx utils/scripts/verifyFacetCatalogAudit.ts
 

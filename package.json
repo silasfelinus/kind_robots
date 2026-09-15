@@ -15,6 +15,7 @@
     "test:mandarin-srs-selftest": "tsx utils/scripts/verifyMandarinSrs.test.ts",
     "test:agent-credentials-selftest": "tsx utils/scripts/verifyAgentCredentials.test.ts",
     "test:mandarin-art-recipe": "tsx utils/scripts/verifyMandarinArtRecipe.test.ts",
+    "test:lora-probe-plan": "tsx utils/scripts/verifyLoraProbePlan.test.ts",
     "test:mandarin-cloud-merge-selftest": "tsx utils/scripts/verifyMandarinCloudMerge.test.ts",
     "audit:checkpoints": "prisma generate && tsx utils/scripts/auditCheckpointResources.ts",
     "repair:checkpoints": "prisma generate && tsx utils/scripts/repairCheckpointResources.ts",

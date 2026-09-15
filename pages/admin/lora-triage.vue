@@ -28,6 +28,27 @@
             Refresh
           </button>
           <button
+            v-if="triageStore.isRendering"
+            type="button"
+            class="kr-btn btn-outline"
+            @click="triageStore.cancelRender()"
+          >
+            <Icon name="kind-icon:close" class="kr-icon-4" />
+            Stop queueing
+          </button>
+          <button
+            v-else
+            type="button"
+            class="kr-btn btn-outline"
+            :disabled="loading || triageStore.missingPreviewCount === 0"
+            @click="triageStore.renderPreviews()"
+          >
+            <Icon name="kind-icon:sparkles" class="kr-icon-4" />
+            Render {{ triageStore.missingPreviewCount }} missing preview{{
+              triageStore.missingPreviewCount === 1 ? '' : 's'
+            }}
+          </button>
+          <button
             type="button"
             class="kr-btn-primary"
             :disabled="
@@ -61,7 +82,7 @@
       </div>
 
       <template v-else>
-        <section class="grid grid-cols-2 gap-2 sm:grid-cols-4">
+        <section class="grid grid-cols-2 gap-2 sm:grid-cols-5">
           <div class="kr-panel p-3">
             <p class="kr-text-eyebrow kr-text-dim-xs-45">LoRAs</p>
             <p class="kr-text-black-2xl mt-1">
@@ -86,6 +107,53 @@
               {{ triageStore.pendingChanges.length }}
             </p>
           </div>
+          <div class="kr-panel p-3">
+            <p class="kr-text-eyebrow kr-text-dim-xs-45">No preview</p>
+            <p class="kr-text-black-2xl mt-1 text-error">
+              {{ triageStore.missingPreviewCount }}
+            </p>
+          </div>
+        </section>
+
+        <section
+          v-if="
+            triageStore.isRendering ||
+            triageStore.renderMessage ||
+            triageStore.renderError ||
+            triageStore.probeSkipped.length
+          "
+          class="kr-panel space-y-2 p-3"
+        >
+          <div
+            v-if="triageStore.isRendering"
+            class="flex items-center gap-3"
+          >
+            <span class="kr-spinner-xs" />
+            <p class="kr-text-dim-sm">
+              Queueing preview renders — {{ triageStore.renderDone }} of
+              {{ triageStore.renderTotal }}
+            </p>
+          </div>
+          <p v-if="triageStore.renderMessage" class="kr-text-dim-sm text-success">
+            {{ triageStore.renderMessage }}
+          </p>
+          <p v-if="triageStore.renderError" class="kr-text-dim-sm text-error">
+            {{ triageStore.renderError }}
+          </p>
+          <details v-if="triageStore.probeSkipped.length" class="text-sm">
+            <summary class="cursor-pointer kr-text-dim-sm">
+              {{ triageStore.probeSkipped.length }} LoRA(s) could not be planned
+            </summary>
+            <ul class="mt-2 space-y-1">
+              <li
+                v-for="skip in triageStore.probeSkipped"
+                :key="skip.resourceId"
+                class="kr-text-dim-xs"
+              >
+                <span class="font-mono">{{ skip.label }}</span> — {{ skip.reason }}
+              </li>
+            </ul>
+          </details>
         </section>
 
         <section class="kr-panel space-y-3 p-3">
@@ -107,6 +175,15 @@
               <option v-for="base in generations" :key="base" :value="base">
                 {{ base }}
               </option>
+            </select>
+
+            <select
+              v-model="previewFilter"
+              class="kr-select-sm w-auto"
+              aria-label="Filter by preview state"
+            >
+              <option value="ALL">All previews</option>
+              <option value="MISSING">Missing preview only</option>
             </select>
 
             <select
@@ -243,6 +320,24 @@
                   Confirmed
                   {{ triageStore.decisionFor(resource.id)?.toUpperCase() }}
                 </span>
+                <span
+                  v-if="triageStore.renderStateFor(resource.id) === 'queued'"
+                  class="kr-badge-sm badge-info"
+                >
+                  Render queued
+                </span>
+                <span
+                  v-else-if="triageStore.renderStateFor(resource.id) === 'failed'"
+                  class="kr-badge-sm badge-warning"
+                >
+                  Enqueue failed
+                </span>
+                <span
+                  v-else-if="isMissingPreview(resource)"
+                  class="kr-badge-sm badge-error"
+                >
+                  No preview
+                </span>
               </div>
             </div>
 
@@ -292,6 +387,16 @@
                   NSFW
                 </button>
               </div>
+
+              <button
+                type="button"
+                class="kr-btn btn-outline btn-block"
+                :disabled="triageStore.isRendering"
+                @click="triageStore.renderPreviews([resource.id])"
+              >
+                <Icon name="kind-icon:sparkles" class="kr-icon-4" />
+                {{ isMissingPreview(resource) ? 'Render preview' : 'Re-render' }}
+              </button>
             </div>
           </article>
         </section>
@@ -360,8 +465,10 @@ import { computed, onMounted, ref } from 'vue'
 import { useUserStore } from '@/stores/userStore'
 import { useLoraTriageStore } from '@/stores/loraTriageStore'
 import type { ResourceGalleryRecord } from '@/stores/resourceGalleryStore'
+import { hasBlindPreview } from '@/utils/loraProbe'
 
 type MaturityFilter = 'ALL' | 'SFW' | 'NSFW'
+type PreviewFilter = 'ALL' | 'MISSING'
 
 const userStore = useUserStore()
 const triageStore = useLoraTriageStore()
@@ -370,6 +477,7 @@ const loading = ref(false)
 const query = ref('')
 const generation = ref('ALL')
 const maturity = ref<MaturityFilter>('ALL')
+const previewFilter = ref<PreviewFilter>('ALL')
 const pageSize = ref(48)
 const page = ref(1)
 
@@ -392,6 +500,8 @@ const filteredResources = computed(() => {
     if (generation.value !== 'ALL' && resource.generation !== generation.value)
       return false
     if (maturity.value !== 'ALL' && effectiveMaturity(resource) !== maturity.value)
+      return false
+    if (previewFilter.value === 'MISSING' && !hasBlindPreview(resource))
       return false
     if (!search) return true
 
@@ -425,6 +535,10 @@ const pageEnd = computed(() =>
 
 function resourceLabel(resource: ResourceGalleryRecord): string {
   return resource.customLabel || resource.name
+}
+
+function isMissingPreview(resource: ResourceGalleryRecord): boolean {
+  return hasBlindPreview(resource)
 }
 
 function triggerText(resource: ResourceGalleryRecord): string {

@@ -18,6 +18,7 @@ export type EntityArtType =
   | 'facet'
   | 'project'
   | 'achievement'
+  | 'resource'
 
 export type EntityArtMode = 'recreate' | 'img2img'
 
@@ -260,6 +261,19 @@ export const ENTITY_FIELDS: Record<
       primary: true,
     },
   },
+  /*
+   * A LoRA/checkpoint preview. One square slot only -- this image exists to be
+   * scanned in a catalog grid and judged (is the LoRA lackluster, is it matched
+   * to the wrong base, is it mature), not to be framed as a card or a hero.
+   */
+  resource: {
+    imagePath: {
+      label: 'Preview',
+      width: 1024,
+      height: 1024,
+      primary: true,
+    },
+  },
   project: {
     imagePath: {
       label: 'Image',
@@ -351,14 +365,15 @@ export function normalizeEntityArtType(value: unknown): EntityArtType {
     type === 'reward' ||
     type === 'facet' ||
     type === 'project' ||
-    type === 'achievement'
+    type === 'achievement' ||
+    type === 'resource'
   ) {
     return type
   }
   throw createError({
     statusCode: 400,
     message:
-      'Choose Bot, Dream, Character, Scenario, Reward, Facet, Project, or Achievement.',
+      'Choose Bot, Dream, Character, Scenario, Reward, Facet, Project, Achievement, or Resource.',
   })
 }
 
@@ -463,6 +478,10 @@ export async function getEntityArtRecord(
       })) as EntityArtRecord | null
     case 'achievement':
       return (await db.achievement.findUnique({
+        where: { id: entityId },
+      })) as EntityArtRecord | null
+    case 'resource':
+      return (await db.resource.findUnique({
         where: { id: entityId },
       })) as EntityArtRecord | null
   }
@@ -811,6 +830,14 @@ async function updateEntityRecord(
           artImageId: input.artImageId,
         },
       })) as EntityArtRecord
+    case 'resource':
+      return (await db.resource.update({
+        where: { id: input.entityId },
+        data: {
+          imagePath: input.imagePath,
+          artImageId: input.artImageId,
+        },
+      })) as EntityArtRecord
   }
 }
 
@@ -1062,6 +1089,12 @@ function contextLines(
       ['Flavor text', record.flavorText],
       ['Status', record.status],
       ['Priority', record.priority],
+    ],
+    resource: [
+      ['Name', record.customLabel || record.name],
+      ['Model type', record.resourceType],
+      ['Base model', record.generation],
+      ['Trigger words', record.defaultTrigger || record.triggerWords],
     ],
   }
 

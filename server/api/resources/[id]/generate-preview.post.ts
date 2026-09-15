@@ -239,6 +239,28 @@ export default defineEventHandler(async (event) => {
         loraNames: loraName ? [loraName] : [],
       },
       previewResourceId: resource.id,
+      /*
+       * Without this the render was queued and then went nowhere: nothing read
+       * previewResourceId on completion (only preview-job/[jobId].get.ts does,
+       * and only to check ownership while polling), so the finished ArtImage was
+       * never attached to the Resource that asked for it. That is why zero of
+       * the 2,228 catalogued LoRAs carried a preview of their own while this
+       * endpoint had been shipping for weeks -- the loop was open at the far end.
+       *
+       * art/queue/[id]/complete.post.ts reads payload.entityArt regardless of
+       * how the job was created, so declaring it here routes the result through
+       * applyEntityArtCompletion, which sets Resource.artImageId + imagePath and
+       * copies isMature/isPublic from the Resource onto the ArtImage. Declaring
+       * it also arms expectsEntityArtCompletion, so a failed attachment rolls the
+       * completion back instead of marking the job DONE over an unchanged row.
+       */
+      entityArt: {
+        entityType: 'resource',
+        entityId: resource.id,
+        field: 'imagePath',
+        mode: 'recreate',
+        preserveOriginal: true,
+      },
     }
 
     const job = await prisma.artJob.create({

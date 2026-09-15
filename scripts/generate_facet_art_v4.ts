@@ -57,6 +57,39 @@ import {
   withDatabaseRetry,
 } from './lib/databaseRetry'
 
+/*
+ * Reject a flag this build does not understand, instead of ignoring it.
+ *
+ * argv flags fail silently by default, and that has now cost two full queue
+ * cycles. `--requeue-curated` on a build predating it ran as a plain --write
+ * and printed "queued: 0"; `--facets a,b,c` on a build predating THAT queued
+ * all 146 and printed a number that looked like success. Both times the run
+ * looked healthy and the operator found out from the absence of pictures.
+ *
+ * An unknown flag almost always means the checkout is older than the command,
+ * so say that, and say it before doing any work.
+ */
+const KNOWN_FLAGS = new Set([
+  '--write',
+  '--all-variants',
+  '--repair-tainted',
+  '--requeue-curated',
+  '--facets',
+])
+const unknownFlags = process.argv
+  .slice(2)
+  .filter((arg) => arg.startsWith('--') && !KNOWN_FLAGS.has(arg))
+if (unknownFlags.length) {
+  console.error(
+    `Unrecognized option(s): ${unknownFlags.join(', ')}\n` +
+      `This build understands: ${[...KNOWN_FLAGS].join(', ')}\n` +
+      'A flag this build does not know is almost always a checkout older than ' +
+      'the command. Run `git pull` and try again; refusing rather than running ' +
+      'with the option quietly dropped.',
+  )
+  process.exit(2)
+}
+
 const WRITE = process.argv.includes('--write')
 const ALL_VARIANTS = process.argv.includes('--all-variants')
 const REPAIR_TAINTED = process.argv.includes('--repair-tainted')
@@ -89,6 +122,7 @@ const FACET_FILTER = (() => {
     .filter(Boolean)
   return slugs.length ? new Set(slugs) : null
 })()
+const FACET_FILTER_INPUT = FACET_FILTER ? [...FACET_FILTER] : []
 const PROJECT_SLUG = 'facet-catalog'
 // The module keeps its v4 filename (three verify scripts and the stable
 // entrypoint import it by path); this constant, not the filename, is the
@@ -1407,6 +1441,23 @@ export async function main(): Promise<void> {
         : queue
       const scopedOut = queue.length - scopedQueue.length
 
+      // A slug that matches no queued Facet is a typo or a stale name, and
+      // scoping to it silently produces an empty, successful-looking run. The
+      // trailing "~" on a pasted command line is enough to do it.
+      const unmatchedFacets = FACET_FILTER
+        ? FACET_FILTER_INPUT.filter(
+            (slug) =>
+              !queue.some(
+                (entry) => String(entry.facet.slug ?? '').toLowerCase() === slug,
+              ),
+          )
+        : []
+      if (unmatchedFacets.length) {
+        console.error(
+          `--facets matched no queued Facet for: ${unmatchedFacets.join(', ')}`,
+        )
+      }
+
       const jobRows = scopedQueue.map((entry) => ({
         engine: 'COMFY' as const,
         userId: entry.facet.userId,
@@ -1508,6 +1559,7 @@ export async function main(): Promise<void> {
               curatedPromptRequeued: curatedRequeue.length,
               staleSwatchRequeued: staleSwatchRequeue.length,
               heldByFacetFilter: scopedOut,
+              facetFilterUnmatched: unmatchedFacets,
               repairBlocked: repairBlocked.length,
               blocked: blocked.length,
             },

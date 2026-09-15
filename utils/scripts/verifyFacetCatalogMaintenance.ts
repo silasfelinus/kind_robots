@@ -105,6 +105,14 @@ for (const required of [
   // repair target even after a newer version already fixed that slot. On the
   // v6 run that queued 45 duplicate swatch jobs. Ranking versions and skipping
   // any slot already attempted more recently closes it for every future bump.
+  // An argv flag that is silently ignored has cost two full queue cycles:
+  // --requeue-curated on an older build ran as a plain --write, and --facets on
+  // an older build queued all 146. Both printed numbers that looked like
+  // success. Unknown flags must refuse, not shrug.
+  'const KNOWN_FLAGS',
+  'Unrecognized option(s)',
+  'process.exit(2)',
+  'facetFilterUnmatched',
   'const VERSION_ORDER',
   'newestAttemptRank',
   'repairSkippedNewerAttempt',

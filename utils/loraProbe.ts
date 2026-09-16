@@ -84,13 +84,27 @@ const MAX_TRIGGER_CHARS = 240
  */
 export function sanitizeProbeTrigger(value: string): string {
   const cleaned = value
+    /*
+     * Un-escape FIRST. Catalog triggers are often stored already escaped in the
+     * A1111 style -- `medusa \(dota 2\)`, `ranni the witch \(elden ring\)`, the
+     * canonical danbooru disambiguator -- and the separator rule below treats a
+     * backslash as punctuation, because it is there for `Style LoRA | SDXL /
+     * Pony`. That turned every `\(` into `, (`, escapeSdPromptWeighting then
+     * re-escaped the bare parens, and `mix_\(spring\)` came out as three
+     * meaningless tags: `mix_`, `\(spring`, `\)`. 18 queued probes carried a
+     * shredded trigger this way (2026-09-16). Stripping the escapes up front
+     * leaves one clean pass: unescape, sanitize, escape exactly once.
+     */
+    .replace(/\\([()[\]])/g, '$1')
     .replace(LORA_INVOCATION_PATTERN, ' ')
     .replace(PACKAGING_NOISE_PATTERN, ' ')
     .replace(BASE_NAME_NOISE_PATTERN, ' ')
     .replace(EMPTY_GROUP_PATTERN, ' ')
     // Separators left stranded by the removals above: '| Style LoRA |' becomes
     // '|  |', and a run of punctuation renders as punctuation.
-    .replace(/[|/\\]+/g, ', ')
+    // Backslash is NOT in this class: it is the SD escape character, not a
+    // separator. See the un-escape note above.
+    .replace(/[|/]+/g, ', ')
     .replace(/\s*,\s*(?:,\s*)+/g, ', ')
     .replace(DANGLING_DESCRIPTOR_PATTERN, '$1')
     .replace(/\s*,\s*(?:,\s*)+/g, ', ')

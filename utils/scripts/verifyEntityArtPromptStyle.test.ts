@@ -10,7 +10,7 @@
 // was boilerplate, spilling a 75-token CLIP chunk into a second chunk of noise.
 import assert from 'node:assert/strict'
 import { buildEntityArtPrompt } from '../../server/utils/entityArt'
-import { LORA_PROBE_RECIPES } from '../loraProbe'
+import { LORA_PROBE_RECIPES, sanitizeProbeTrigger, escapeSdPromptWeighting } from '../loraProbe'
 import { buildFluxWorkflowFromRequest } from '../../server/api/comfy/flux/utils/workflow'
 import { buildDefaultComfyWorkflow } from '../../server/api/comfy/sdxl/utils/workflow'
 import { checkpointFamily, checkpointProfile } from '../checkpointProfiles'
@@ -288,5 +288,27 @@ assert.equal(
   ).cfg,
   9,
 )
+
+// 12. An already-escaped catalog trigger must survive sanitize+escape intact.
+//
+// Catalog triggers are often stored escaped in the A1111 style -- `medusa
+// \\(dota 2\\)` is the canonical danbooru disambiguator -- and the separator rule
+// treated a backslash as punctuation, because it exists for `Style LoRA | SDXL
+// / Pony`. Every `\\(` became `, (`, escapeSdPromptWeighting re-escaped the bare
+// parens, and `mix_\\(spring\\)` reached the sampler as three meaningless tags:
+// `mix_`, `\\(spring`, `\\)`. 18 queued probes carried a shredded trigger.
+const roundTrip = (v: string) => escapeSdPromptWeighting(sanitizeProbeTrigger(v))
+for (const trigger of [
+  'medusa \\(dota 2\\)',
+  'ranni the witch \\(elden ring\\)',
+  'lich \\(monster girl encyclopedia\\)',
+  'mix_\\(spring\\), spring',
+]) {
+  assert.equal(roundTrip(trigger), trigger, `escaped trigger must round-trip: ${trigger}`)
+}
+
+// The separator rule it shares a pass with still has to work.
+assert.equal(sanitizeProbeTrigger('Grey Impact - Illustrious/PonyXL'), 'Grey Impact')
+assert.ok(!roundTrip('mix_\\(spring\\)').includes(', \\)'), 'no stranded escaped closer')
 
 console.log('verifyEntityArtPromptStyle: all assertions passed')

@@ -10,8 +10,10 @@
 // was boilerplate, spilling a 75-token CLIP chunk into a second chunk of noise.
 import assert from 'node:assert/strict'
 import { buildEntityArtPrompt } from '../../server/utils/entityArt'
-import { LORA_PROBE_RECIPES } from '../loraProbe'
+import { LORA_PROBE_RECIPES, sanitizeProbeTrigger, escapeSdPromptWeighting } from '../loraProbe'
 import { buildFluxWorkflowFromRequest } from '../../server/api/comfy/flux/utils/workflow'
+import { buildDefaultComfyWorkflow } from '../../server/api/comfy/sdxl/utils/workflow'
+import { checkpointFamily, checkpointProfile } from '../checkpointProfiles'
 import { loraTriggerKey } from '../loraTriggerKey'
 import {
   applyRequeueRepoint,
@@ -217,5 +219,132 @@ assert.equal(
   }).action,
   'allow',
 )
+
+// 11. Every checkpoint must reach its OWN family profile.
+//
+// enqueue.post.ts passed `cfgValue: body.cfg ?? 3`, and the builder resolves
+// `input.cfgValue || profile.cfg`, so the literal 3 always won and the
+// distilled profile's cfg (2) was unreachable -- 343 queued probes on
+// dreamshaperXL Turbo rendered over-guided. `steps` deferred correctly with
+// `?? undefined`, which is exactly why the profile looked like it worked.
+function sampler(workflow: Record<string, { class_type?: string; inputs?: Record<string, unknown> }>) {
+  return Object.values(workflow).find((n) => n.class_type === 'KSampler')?.inputs ?? {}
+}
+function clipSkipOf(workflow: Record<string, { class_type?: string; inputs?: Record<string, unknown> }>) {
+  return Object.values(workflow).find((n) => n.class_type === 'CLIPSetLastLayer')?.inputs
+    ?.stop_at_clip_layer
+}
+
+const CHECKPOINTS = [
+  'Pony/realcartoonPony_v1.safetensors',
+  'Illustrious/illustrij_v21.safetensors',
+  'SD15/revAnimated_v2Rebirth.safetensors',
+  'SDXL/duskMixXLIllustration_v15.safetensors',
+  'SDXL/dreamshaperXL_v21TurboDPMSDE.safetensors',
+]
+for (const checkpoint of CHECKPOINTS) {
+  const profile = checkpointProfile(checkpoint)
+  const workflow = buildDefaultComfyWorkflow({ prompt: 'a test subject', checkpoint })
+  const k = sampler(workflow)
+  assert.equal(k.cfg, profile.cfg, `${checkpoint} must use its family cfg`)
+  assert.equal(k.steps, profile.steps, `${checkpoint} must use its family steps`)
+  assert.equal(k.sampler_name, profile.sampler)
+  assert.equal(k.scheduler, profile.scheduler)
+  // The node exists ONLY for -2. Explicit -1 is never emitted: it is a no-op on
+  // plain SDXL but catastrophic on the penultimate-layer lineages -- formless
+  // noise on Pony, and on Illustrious a frame of pure black (mean RGB 0.0,
+  // stddev 0.0 -- a NaN collapse, not a dark image). Omitting it is what the
+  // queue has always done and measures identical to -2 (1.43/255 on ArtJob
+  // 26134), so there is nothing to gain by emitting the failing value.
+  if (profile.clipSkip === -2) {
+    assert.equal(clipSkipOf(workflow), -2, `${checkpoint} must carry clip skip 2`)
+  } else {
+    assert.equal(clipSkipOf(workflow), undefined, `${checkpoint} must emit NO clip-skip node`)
+  }
+}
+
+// A distilled merge overrides its base lineage. dreamshaperXL is SDXL-family by
+// directory, but Turbo by filename, and Turbo wins.
+assert.equal(checkpointFamily('SDXL/dreamshaperXL_v21TurboDPMSDE.safetensors'), 'distilled')
+assert.equal(checkpointFamily('Pony/somePonyLightning_v1.safetensors'), 'distilled')
+
+// Family comes from the DIRECTORY, never Resource.generation: the catalog has
+// duchaitenStylelikeme (SD 1.5) recorded as SDXL and revAnimated as ARCHIVE.
+assert.equal(checkpointFamily('SD15/duchaitenStylelikeme_v15Fp16NoEma.safetensors'), 'sd15')
+assert.equal(checkpointProfile('SD15/revAnimated_v2Rebirth.safetensors').width, 768)
+
+// The LoRA chain and both encoders must read the clip-skipped CLIP, or the
+// LoRA's trigger tokens are encoded at a depth the base was not trained for.
+const chained = buildDefaultComfyWorkflow({
+  prompt: 'a test subject',
+  checkpoint: 'Pony/realcartoonPony_v1.safetensors',
+  loras: [{ name: 'Pony/SFW/example.safetensors', strength: 0.8 }],
+}) as Record<string, { class_type?: string; inputs?: Record<string, unknown> }>
+const skipNode = Object.entries(chained).find(([, n]) => n.class_type === 'CLIPSetLastLayer')
+const loraNode = Object.entries(chained).find(([, n]) => String(n.class_type ?? '').includes('Lora'))
+assert.ok(skipNode && loraNode, 'Pony is a clip-skip-2 family, so the node must exist')
+assert.deepEqual(loraNode![1].inputs!.clip, [skipNode![0], 0], 'LoRA chain reads the skipped CLIP')
+
+// A clip-skip-1 family wires the LoRA chain straight to the checkpoint CLIP.
+const plain = buildDefaultComfyWorkflow({
+  prompt: 'a test subject',
+  checkpoint: 'SDXL/duskMixXLIllustration_v15.safetensors',
+  loras: [{ name: 'SDXL/SFW/example.safetensors', strength: 0.8 }],
+}) as Record<string, { class_type?: string; inputs?: Record<string, unknown> }>
+assert.ok(
+  !Object.values(plain).some((n) => n.class_type === 'CLIPSetLastLayer'),
+  'plain SDXL must not emit a clip-skip node at all',
+)
+assert.deepEqual(
+  Object.values(plain).find((n) => String(n.class_type ?? '').includes('Lora'))!.inputs!.clip,
+  ['1', 1],
+)
+assert.deepEqual(chained['2']!.inputs!.clip, [loraNode![0], 1], 'encoder reads the LoRA CLIP')
+
+// An explicit caller value still wins over the profile.
+assert.equal(
+  sampler(
+    buildDefaultComfyWorkflow({
+      prompt: 'a test subject',
+      checkpoint: 'Pony/realcartoonPony_v1.safetensors',
+      cfgValue: 9,
+      clipSkip: -1,
+    }),
+  ).cfg,
+  9,
+)
+assert.equal(
+  clipSkipOf(
+    buildDefaultComfyWorkflow({
+      prompt: 'a test subject',
+      checkpoint: 'Pony/realcartoonPony_v1.safetensors',
+      clipSkip: -1,
+    }),
+  ),
+  undefined,
+  'even an explicit -1 from a caller must omit the node rather than emit -1',
+)
+
+// 12. An already-escaped catalog trigger must survive sanitize+escape intact.
+//
+// Catalog triggers are often stored escaped in the A1111 style -- `medusa
+// \\(dota 2\\)` is the canonical danbooru disambiguator -- and the separator rule
+// treated a backslash as punctuation, because it exists for `Style LoRA | SDXL
+// / Pony`. Every `\\(` became `, (`, escapeSdPromptWeighting re-escaped the bare
+// parens, and `mix_\\(spring\\)` reached the sampler as three meaningless tags:
+// `mix_`, `\\(spring`, `\\)`. 18 queued probes carried a shredded trigger.
+const roundTrip = (v: string) => escapeSdPromptWeighting(sanitizeProbeTrigger(v))
+for (const trigger of [
+  'medusa \\(dota 2\\)',
+  'ranni the witch \\(elden ring\\)',
+  'lich \\(monster girl encyclopedia\\)',
+  'mix_\\(spring\\), spring',
+]) {
+  assert.equal(roundTrip(trigger), trigger, `escaped trigger must round-trip: ${trigger}`)
+}
+
+// The separator rule it shares a pass with still has to work.
+assert.equal(sanitizeProbeTrigger('Grey Impact - Illustrious/PonyXL'), 'Grey Impact')
+assert.ok(!roundTrip('mix_\\(spring\\)').includes(', \\)'), 'no stranded escaped closer')
 
 console.log('verifyEntityArtPromptStyle: all assertions passed')

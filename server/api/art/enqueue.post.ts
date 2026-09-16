@@ -742,7 +742,12 @@ function buildJobPayload(
   const workflow = buildDefaultComfyWorkflow({
     prompt: promptString,
     negativePrompt: body.negativePrompt ?? '',
-    cfgValue: body.cfg ?? 3,
+    // null, not 3. A literal default here wins over `input.cfgValue ||
+    // profile.cfg` in the builder and made SDXL_DISTILLED_PROFILE.cfg (2)
+    // unreachable, so turbo checkpoints rendered over-guided at 3 -- 343 queued
+    // LoRA probes on dreamshaperXL Turbo among them. `steps` already deferred
+    // to the profile correctly; cfg was the one that did not.
+    cfgValue: body.cfg ?? null,
     seed: body.seed ?? null,
     steps: body.steps ?? undefined,
     checkpoint: body.checkpoint ?? null,

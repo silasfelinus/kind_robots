@@ -5,6 +5,7 @@
 // queue-based enqueue endpoint (/api/art/enqueue) build the same Comfy graph
 // and apply prompt/seed/sampler overrides identically.
 
+import { checkpointProfile } from '~/utils/checkpointProfiles'
 import {
   appendModelClipLoraChain,
   normalizeLoraSelections,
@@ -21,12 +22,25 @@ export type ComfyWorkflowNode = {
 
 export type ComfyWorkflowInput = {
   prompt: string
-  cfgValue: number
+  /**
+   * Omit (or pass null) to take the checkpoint's own profile. Callers used to
+   * be forced to name a number here, and `enqueue.post.ts` satisfied that with
+   * a literal `?? 3` -- which made SDXL_DISTILLED_PROFILE.cfg unreachable
+   * through the main comfy lane, so every turbo checkpoint rendered at cfg 3
+   * instead of 2. See sdxlSamplerProfile below.
+   */
+  cfgValue?: number | null
   negativePrompt?: string
   seed?: number | null
   steps?: number
   checkpoint?: string | null
   sampler?: string | null
+  scheduler?: string | null
+  /**
+   * ComfyUI `stop_at_clip_layer`. Omit to take the checkpoint family's own
+   * value -- -2 for Pony, Illustrious and the SD 1.5 line, -1 for plain SDXL.
+   */
+  clipSkip?: -1 | -2 | null
   /** Optional style LoRA, same shape the img2img builder takes. */
   loraName?: string | null
   loraStrength?: number | null
@@ -370,6 +384,8 @@ export function buildDefaultComfyWorkflow({
   steps,
   checkpoint,
   sampler,
+  scheduler,
+  clipSkip,
   loraName,
   loraStrength,
   loras,
@@ -387,12 +403,34 @@ export function buildDefaultComfyWorkflow({
   // so a caller who names no checkpoint must also get turbo sampler defaults.
   // Profiling `checkpoint` directly would have left the fallback at 20 steps.
   const resolvedCheckpoint = checkpoint || DEFAULT_SDXL_CHECKPOINT
-  const profile = sdxlSamplerProfile(resolvedCheckpoint)
+  // Family-aware: Pony/Illustrious/SD1.5 want a different cfg, sampler and clip
+  // skip from plain SDXL, and a distilled merge of any of them overrides all
+  // three. See utils/checkpointProfiles.ts.
+  const profile = checkpointProfile(resolvedCheckpoint)
+  const resolvedClipSkip = clipSkip ?? profile.clipSkip
   // Wired to the bare checkpoint here and re-pointed at the tail of the LoRA
   // chain below. Resolving the refs up front (as this used to) cannot express a
   // chain, because the tail's node id depends on how many links there are.
   const modelSource: [string, number] = ['1', 0]
-  const clipSource: [string, number] = ['1', 1]
+  /*
+   * The node is emitted ONLY for clip skip 2, never for 1.
+   *
+   * An explicit stop_at_clip_layer of -1 ought to be a no-op, and on plain SDXL
+   * it is. On the lineages trained against the penultimate layer it is
+   * catastrophic, in two different ways (kind-robots/t-105, 2026-09-16, same
+   * seed and LoRA in every case):
+   *   - realcartoonPony + ArtgermLycoXL returned formless noise.
+   *   - Illustrious returned a frame of pure black -- mean RGB 0.0 and stddev
+   *     0.0 on every channel, which is a NaN collapse in the sampler rather
+   *     than a dark picture.
+   * Omitting the node is what the queue has always done and measures identical
+   * to an explicit -2 (mean absolute difference 1.43/255 on ArtJob 26134), so
+   * "no node" is both the safe default and the proven one. There is nothing to
+   * gain by emitting a setting whose only observed effect is to destroy the
+   * render.
+   */
+  const emitClipSkip = resolvedClipSkip === -2
+  const clipSource: [string, number] = emitClipSkip ? ['8', 0] : ['1', 1]
 
   const workflow: ComfyWorkflow = {
     '1': {
@@ -401,6 +439,15 @@ export function buildDefaultComfyWorkflow({
         ckpt_name: resolvedCheckpoint,
       },
     },
+    ...(emitClipSkip
+      ? {
+          '8': {
+            class_type: 'CLIPSetLastLayer',
+            inputs: { clip: ['1', 1] as [string, number], stop_at_clip_layer: -2 },
+            _meta: { title: 'Clip Skip' },
+          },
+        }
+      : {}),
     '2': {
       class_type: 'CLIPTextEncode',
       inputs: {
@@ -424,8 +471,8 @@ export function buildDefaultComfyWorkflow({
     '4': {
       class_type: 'EmptyLatentImage',
       inputs: {
-        width: width ?? 1024,
-        height: height ?? 1024,
+        width: width ?? profile.width,
+        height: height ?? profile.height,
         batch_size: 1,
       },
     },
@@ -438,7 +485,7 @@ export function buildDefaultComfyWorkflow({
         sampler_name: sampler
           ? normalizeComfySampler(sampler)
           : profile.sampler,
-        scheduler: profile.scheduler,
+        scheduler: scheduler?.trim() || profile.scheduler,
         denoise: 1,
         model: modelSource,
         positive: ['2', 0],

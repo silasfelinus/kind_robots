@@ -37,7 +37,7 @@ const LORA_INVOCATION_PATTERN = /<(?:lora|lyco|lycoris|hypernet):[^>]*>/gi
  * ('Aka6', 'Almualim') is usually the real trigger token.
  */
 const PACKAGING_NOISE_PATTERN =
-  /\b(?:lora|loras|lycoris|lyco|hypernetwork|checkpoint|safetensors|comfyui|comfy|a1111|webui|forge|model|version|\d+[- ]?step|for\s+comfyui)\b/gi
+  /\b(?:lora|loras|locon|lycon|lycoris|lyco|hypernetwork|checkpoint|safetensors|comfyui|comfy|a1111|webui|forge|model|version|\d+[- ]?step|for\s+comfyui)\b/gi
 
 /*
  * Base-model names. A trigger reading 'Grey Impact - Illustrious/PonyXL' is
@@ -62,9 +62,26 @@ const BASE_NAME_NOISE_PATTERN =
 // Also matches a group left holding only punctuation: 'Margot Robbie (FLUX+SDXL)'
 // strips to 'Margot Robbie ( + )', which is still weighting syntax wrapped
 // around nothing.
+/*
+ * A bracket group whose entire contents is a platform name -- `Style [Pony]`,
+ * `[Pony XL]`, `(SDXL)` -- names the file's compatibility, not anything to
+ * draw. Handled here rather than by widening BASE_NAME_NOISE_PATTERN, because
+ * bare `pony` outside brackets is a legitimate subject (My Little Pony LoRAs)
+ * and must survive.
+ */
+const BASE_NAME_GROUP_PATTERN =
+  /[[(]\s*(?:pony(?:\s*xl)?|sdxl|sd\s*1\.?5|illustrious|noobai|flux[\d.]*|xl|locon|lycoris|lora)\s*[\])]/gi
+
 const EMPTY_GROUP_PATTERN = /[[(][\s+,\-/|&]*[\])]/g
+/*
+ * Includes the bare base-model words, but ONLY as a standalone tag. `Almualim |
+ * Style LoRA | SDXL Pony` sanitized to `Almualim, Pony` and that lone `Pony`
+ * renders a horse. Matching at comma boundaries keeps it surgical: a My Little
+ * Pony LoRA triggering on `my little pony` or `pony girl` is untouched, because
+ * there the word is part of a phrase rather than the whole tag.
+ */
 const DANGLING_DESCRIPTOR_PATTERN =
-  /(^|,)\s*(?:style|styles|concept|concepts|character|pack|mix|merge)\s*(?=,|$)/gi
+  /(^|,)\s*(?:style|styles|concept|concepts|character|pack|mix|merge|pony|sdxl|xl|sd15|flux|illustrious|v\d+(?:\.\d+)?)\s*(?=,|$)/gi
 
 // A probe prompt is a caption, not a scene description. A 400-character tag
 // soup drowns the framing that makes the grid comparable.
@@ -82,15 +99,60 @@ const MAX_TRIGGER_CHARS = 240
  * does to a neutral prompt, which is the correct read for a style LoRA that
  * has no trigger word.
  */
+/**
+ * Remove brackets that have no partner, keeping the ones that do.
+ *
+ * A stray `(` or `[` is not cosmetic: both are attention-weighting syntax, so an
+ * unmatched opener silently re-weights the whole remainder of the prompt.
+ */
+function dropUnmatchedBrackets(value: string): string {
+  const drop = new Set<number>()
+  const stack: Array<{ ch: string; i: number }> = []
+  const pair: Record<string, string> = { ')': '(', ']': '[' }
+  for (let i = 0; i < value.length; i += 1) {
+    const ch = value[i]
+    if (ch === '(' || ch === '[') stack.push({ ch, i })
+    else if (ch === ')' || ch === ']') {
+      const top = stack[stack.length - 1]
+      if (top && top.ch === pair[ch]) stack.pop()
+      else drop.add(i)
+    }
+  }
+  for (const left of stack) drop.add(left.i)
+  if (!drop.size) return value
+  return [...value]
+    .filter((_, i) => !drop.has(i))
+    .join('')
+    .replace(/\s*,\s*(?:,\s*)+/g, ', ')
+    .replace(/\s{2,}/g, ' ')
+    .replace(/^[\s,]+|[\s,]+$/g, '')
+    .trim()
+}
+
 export function sanitizeProbeTrigger(value: string): string {
-  const cleaned = value
+  const cleaned0 = value
+    /*
+     * Un-escape FIRST. Catalog triggers are often stored already escaped in the
+     * A1111 style -- `medusa \(dota 2\)`, `ranni the witch \(elden ring\)`, the
+     * canonical danbooru disambiguator -- and the separator rule below treats a
+     * backslash as punctuation, because it is there for `Style LoRA | SDXL /
+     * Pony`. That turned every `\(` into `, (`, escapeSdPromptWeighting then
+     * re-escaped the bare parens, and `mix_\(spring\)` came out as three
+     * meaningless tags: `mix_`, `\(spring`, `\)`. 18 queued probes carried a
+     * shredded trigger this way (2026-09-16). Stripping the escapes up front
+     * leaves one clean pass: unescape, sanitize, escape exactly once.
+     */
+    .replace(/\\([()[\]])/g, '$1')
     .replace(LORA_INVOCATION_PATTERN, ' ')
     .replace(PACKAGING_NOISE_PATTERN, ' ')
     .replace(BASE_NAME_NOISE_PATTERN, ' ')
+    .replace(BASE_NAME_GROUP_PATTERN, ' ')
     .replace(EMPTY_GROUP_PATTERN, ' ')
     // Separators left stranded by the removals above: '| Style LoRA |' becomes
     // '|  |', and a run of punctuation renders as punctuation.
-    .replace(/[|/\\]+/g, ', ')
+    // Backslash is NOT in this class: it is the SD escape character, not a
+    // separator. See the un-escape note above.
+    .replace(/[|/]+/g, ', ')
     .replace(/\s*,\s*(?:,\s*)+/g, ', ')
     .replace(DANGLING_DESCRIPTOR_PATTERN, '$1')
     .replace(/\s*,\s*(?:,\s*)+/g, ', ')
@@ -100,13 +162,33 @@ export function sanitizeProbeTrigger(value: string): string {
     .replace(/\s+(?:for|with|by|from|of|in|on)\s*$/i, '')
     .replace(/^[\s,\-–—:;.]+|[\s,\-–—:;.]+$/g, '')
     .trim()
+    /*
+     * Drop tags left holding no word characters at all. Stripping a base-model
+     * name out of `Style \[Pony XL\]` leaves a lone `\]`; other rows ended on a
+     * bare `+` or `:>=`. None of them name anything, and an unmatched bracket is
+     * itself weighting syntax.
+     */
+    .split(',')
+    .filter((tag) => /[0-9A-Za-z\u00c0-\uffff]/.test(tag))
+    .join(',')
+    .replace(/\s*,\s*/g, ', ')
+    .trim()
 
-  if (cleaned.length <= MAX_TRIGGER_CHARS) return cleaned
+  // Dropping those tags can strand a bracket's other half -- `Style [Pony, ]`
+  // loses the ` ]` and leaves `Style [Pony`, and a lone opener re-weights
+  // everything after it. Balance last, once nothing else will move.
+  const balanced = dropUnmatchedBrackets(cleaned0)
+
+  if (balanced.length <= MAX_TRIGGER_CHARS) return balanced
 
   // Cut on a tag boundary so the prompt never ends mid-token.
-  const clipped = cleaned.slice(0, MAX_TRIGGER_CHARS)
+  const clipped = balanced.slice(0, MAX_TRIGGER_CHARS)
   const lastComma = clipped.lastIndexOf(',')
-  return (lastComma > 40 ? clipped.slice(0, lastComma) : clipped).trim()
+  // Re-balance AFTER clipping: the cut can land between an opener and its
+  // closer, putting back the very imbalance the pass above removed.
+  return dropUnmatchedBrackets(
+    (lastComma > 40 ? clipped.slice(0, lastComma) : clipped).trim(),
+  )
 }
 
 /*

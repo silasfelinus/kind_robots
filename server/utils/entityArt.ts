@@ -1090,10 +1090,13 @@ function contextLines(
       ['Status', record.status],
       ['Priority', record.priority],
     ],
+    /*
+     * No 'Model type' or 'Base model' row. "Model type: LORA" and "Base model:
+     * Pony" are catalog metadata, not visual concepts -- on every lane they are
+     * dead tokens diluting the conditioning, and no encoder renders them.
+     */
     resource: [
       ['Name', record.customLabel || record.name],
-      ['Model type', record.resourceType],
-      ['Base model', record.generation],
       ['Trigger words', record.defaultTrigger || record.triggerWords],
     ],
   }
@@ -1104,6 +1107,32 @@ function contextLines(
   })
 }
 
+/**
+ * How the target lane reads a prompt.
+ *
+ * 'prose' is Flux/Krea/Kontext/Z-Image: a T5 or Qwen encoder that genuinely
+ * follows instructions, where the framing sentence and the context rules earn
+ * their tokens.
+ *
+ * 'tags' is the SD lineage -- SD 1.5, SDXL, Pony, Illustrious -- reading
+ * comma-separated danbooru-style tags through CLIP. CLIP does NOT follow
+ * instructions; it embeds them as CONTENT. Appending this block to a Pony
+ * prompt actively harms it three ways, all observed on ArtJob 25398
+ * (kind-robots/t-105, 2026-09-16):
+ *   - "not as text to render" puts the token `text` in the POSITIVE prompt,
+ *     working against the `text` in the negative.
+ *   - "Every surface in frame is blank and unmarked" conditions toward
+ *     blankness, which is not what "don't render letters" was meant to say.
+ *   - "centred on one clear subject" contradicted that LoRA's own trigger
+ *     words ("large male ... very small female"), and the scaffold won: the
+ *     render dropped the second subject entirely.
+ * It is also pure dilution. SDXL's CLIP chunks at 75 tokens; the fixed block
+ * below is ~80 on its own, so it pushed every probe into a second chunk made
+ * almost entirely of boilerplate. Across the 1,560 queued probes it was 71% of
+ * the total prompt text, and 74% of ArtJob 25398's.
+ */
+export type EntityArtPromptStyle = 'prose' | 'tags'
+
 export function buildEntityArtPrompt(
   userPrompt: string,
   target: {
@@ -1111,9 +1140,25 @@ export function buildEntityArtPrompt(
     field: string
     record: EntityArtRecord
   },
+  options?: { style?: EntityArtPromptStyle },
 ): string {
   const field = getEntityArtFieldConfig(target.entityType, target.field)
   const context = contextLines(target.entityType, target.record)
+
+  /*
+   * A `resource` target gets nothing appended, on EITHER lane. Its caller is
+   * the LoRA probe, whose recipe already carries the quality tags, the trigger
+   * words, and the framing -- restating the triggers under a "Trigger words:"
+   * label only double-weights them by accident, and the slot framing below
+   * says "centred on one clear subject", which is the exact phrase that made
+   * ArtJob 25398 drop half of a two-subject LoRA.
+   */
+  if (target.entityType === 'resource') return userPrompt.trim()
+
+  if ((options?.style ?? 'prose') === 'tags') {
+    return [userPrompt.trim(), ...context].filter(Boolean).join('\n')
+  }
+
   return [
     userPrompt.trim(),
     '',

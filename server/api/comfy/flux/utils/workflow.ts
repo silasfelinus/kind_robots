@@ -6,6 +6,11 @@
 // the networking/polling; this module owns only the workflow shape + defaults.
 
 import { fluxDualClipLoaderNode } from '../../../../utils/fluxTextEncoders'
+import {
+  appendModelOnlyLoraChain,
+  normalizeLoraSelections,
+  type LoraSelectionInput,
+} from '../../utils/loraChain'
 
 export type ComfyWorkflow = Record<string, ComfyWorkflowNode>
 
@@ -77,12 +82,13 @@ export function buildFluxWorkflow(input: {
   denoise: number
   unetName: string
   filenamePrefix: string
+  loras?: LoraSelectionInput[] | null
 }): ComfyWorkflow {
   const samplerSeed = resolveFluxSeed(input.seed)
   const wildcardSeed = resolveFluxSeed(input.wildcardSeed)
   const prompt = input.prompt.trim() || defaultFluxPrompt
 
-  return {
+  const workflow: ComfyWorkflow = {
     '4': fluxDualClipLoaderNode(),
     '6': {
       inputs: {
@@ -178,6 +184,34 @@ export function buildFluxWorkflow(input: {
       },
     },
   }
+
+  /*
+   * LoRAs, which this builder silently dropped until 2026-09-16.
+   *
+   * It was the only checkpoint-style builder with no LoRA support at all --
+   * loraChain.ts's own header lists the five that have it and Flux dev is not
+   * among them -- so every Flux job rendered base flux1-dev no matter what the
+   * caller selected. Nothing failed; the image just had nothing to do with the
+   * requested LoRA. That made 126 queued Flux LoRA previews worthless in a way
+   * no error could reveal (kind-robots/t-105).
+   *
+   * Model-only, like krea2 and flux2: CLIP comes from the DualCLIPLoader at
+   * node 4 and must not be re-routed. ImpactWildcardEncode takes the model
+   * through as well as the text, so the chain is spliced between the UNet
+   * loader and node 59 rather than at the sampler.
+   */
+  const loras = normalizeLoraSelections({ loras: input.loras })
+  if (loras.length) {
+    const model = appendModelOnlyLoraChain(workflow, {
+      loras,
+      model: ['24', 0],
+      startId: 70,
+    })
+    const encode = workflow['59']
+    if (encode?.inputs) encode.inputs.model = model
+  }
+
+  return workflow
 }
 
 // Resolve variant defaults + build the workflow from a loose request shape.
@@ -197,6 +231,7 @@ export function buildFluxWorkflowFromRequest(input: {
   sampler?: string | null
   scheduler?: string | null
   denoise?: number | null
+  loras?: LoraSelectionInput[] | null
 }): { workflow: ComfyWorkflow; variant: FluxVariant } {
   const variant: FluxVariant = input.variant === 'schnell' ? 'schnell' : 'dev'
   const fluxConfig = fluxModelByVariant[variant]
@@ -224,6 +259,7 @@ export function buildFluxWorkflowFromRequest(input: {
     denoise: input.denoise ?? DEFAULT_FLUX_DENOISE,
     unetName: fluxConfig.unetName,
     filenamePrefix: fluxConfig.filenamePrefix,
+    loras: input.loras ?? null,
   })
 
   return { workflow, variant }

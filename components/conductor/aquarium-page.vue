@@ -4,6 +4,7 @@
     class="kr-surface"
     slug="cthulhuquarium"
     :fallback="config"
+    :show-deliverables="false"
   >
     <template #interactive>
       <CthulhuquariumGame />

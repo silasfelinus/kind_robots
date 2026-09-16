@@ -23,12 +23,14 @@ export function ponyCfgFromClipping(clippedFraction: number): number | null {
 
   const first = PONY_CFG_CLIPPING_CURVE[0]
   const last = PONY_CFG_CLIPPING_CURVE[PONY_CFG_CLIPPING_CURVE.length - 1]
+  if (!first || !last) return null
   if (clippedFraction <= first.clippedFraction) return first.cfg
   if (clippedFraction >= last.clippedFraction) return last.cfg
 
   for (let index = 1; index < PONY_CFG_CLIPPING_CURVE.length; index += 1) {
     const upper = PONY_CFG_CLIPPING_CURVE[index]
     const lower = PONY_CFG_CLIPPING_CURVE[index - 1]
+    if (!upper || !lower) continue
     if (clippedFraction > upper.clippedFraction) continue
 
     const fraction =

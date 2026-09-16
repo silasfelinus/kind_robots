@@ -6,6 +6,7 @@
 // and apply prompt/seed/sampler overrides identically.
 
 import { checkpointProfile } from '~/utils/checkpointProfiles'
+import { loraStackCfgCeiling } from '~/utils/loraCfg'
 import {
   appendModelClipLoraChain,
   normalizeLoraSelections,
@@ -46,6 +47,17 @@ export type ComfyWorkflowInput = {
   loraStrength?: number | null
   /** Multiple stacked LoRAs, applied in order. Supersedes the pair above. */
   loras?: LoraSelectionInput[] | null
+  /**
+   * Resource.recommendedCfg (kind-robots/t-106) for each selected LoRA,
+   * positionally aligned with `loras`/`loraResourceIds` by the caller.
+   * `buildDefaultComfyWorkflow` takes the MINIMUM of these against the
+   * checkpoint family's own cfg via utils/loraCfg.ts's loraStackCfgCeiling --
+   * an explicit `cfgValue` still wins over both. Only `buildDefaultComfyWorkflow`
+   * reads this today; `patchComfyWorkflow` (the direct/relay render route)
+   * never resolves LoRAs against the Resource table, so it has no
+   * recommendedCfg to apply and this field is a no-op there.
+   */
+  loraRecommendedCfgs?: Array<number | null> | null
   width?: number | null
   height?: number | null
   filenamePrefix?: string | null
@@ -389,6 +401,7 @@ export function buildDefaultComfyWorkflow({
   loraName,
   loraStrength,
   loras,
+  loraRecommendedCfgs,
   width,
   height,
   filenamePrefix,
@@ -481,7 +494,7 @@ export function buildDefaultComfyWorkflow({
       inputs: {
         seed: resolvedSeed,
         steps: steps ?? profile.steps,
-        cfg: cfgValue || profile.cfg,
+        cfg: cfgValue || loraStackCfgCeiling(profile.cfg, loraRecommendedCfgs ?? []),
         sampler_name: sampler
           ? normalizeComfySampler(sampler)
           : profile.sampler,

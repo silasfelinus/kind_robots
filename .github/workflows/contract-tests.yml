@@ -67,6 +67,12 @@ jobs:
       - name: Comfy-only generation contract
         run: npm run test:comfy-only-generation
 
+      - name: LoRA cfg ceiling contract
+        run: npm run test:lora-cfg-ceiling
+
+      - name: LoRA cfg ceiling enqueue-path wiring contract
+        run: npm run test:lora-cfg-wiring
+
       - name: WAN image-to-video mode contract
         run: npm run test:wan-i2v-modes
 

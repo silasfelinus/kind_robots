@@ -181,6 +181,7 @@ export default defineEventHandler(async (event) => {
       isActive: resourceFields.isActive,
       allowReviews: resourceFields.allowReviews,
       artPrompt: resourceFields.artPrompt,
+      recommendedCfg: resourceFields.recommendedCfg,
       ArtImage:
         typeof resourceFields.artImageId === 'number'
           ? { connect: { id: resourceFields.artImageId } }

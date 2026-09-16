@@ -29,6 +29,7 @@ export const resourceMutationSelect = {
   civitaiModelVersionId: true,
   imagePath: true,
   slug: true,
+  recommendedCfg: true,
 } satisfies Prisma.ResourceSelect
 
 export type ResourceMutationResult = Prisma.ResourceGetPayload<{

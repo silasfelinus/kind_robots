@@ -129,7 +129,7 @@
 
         <div
           v-else
-          class="flex flex-1 items-center justify-center text-base-content/50"
+          class="hidden flex-1 items-center justify-center text-base-content/50 sm:flex"
         >
           Select a conversation
         </div>

@@ -39,6 +39,7 @@ type LoraResourceRecord = {
   supportedServer: SupportedServer
   defaultTrigger: string | null
   triggerWords: string | null
+  recommendedCfg: number | null
 }
 
 const LORA_TYPES = [ResourceType.LORA, ResourceType.LYCORIS]
@@ -331,6 +332,17 @@ export async function resolveEnqueueLoraResource(input: {
   resourceIds: number[]
   resourceNames: string[]
   resourceName: string | null
+  /**
+   * Per-selected-LoRA Resource.recommendedCfg (kind-robots/t-106), aligned
+   * positionally with resourceIds. Only populated on the resource-resolved
+   * path below, where the Resource rows are already fetched from the DB --
+   * the name-only path never looks a Resource up, so it has nothing to read.
+   * Always empty until the column is backfilled; callers use
+   * utils/loraCfg.ts's loraStackCfgCeiling, which already treats an
+   * all-null/empty array as "no ceiling" and falls back to the checkpoint
+   * family's own cfg.
+   */
+  recommendedCfgs: Array<number | null>
 }> {
   const normalizedBody: LoraAwareEnqueueBody = {
     ...input.body,
@@ -344,6 +356,7 @@ export async function resolveEnqueueLoraResource(input: {
       resourceIds: [],
       resourceNames: [],
       resourceName: null,
+      recommendedCfgs: [],
     }
   }
 
@@ -363,6 +376,7 @@ export async function resolveEnqueueLoraResource(input: {
       resourceIds: normalizeIds(normalizedBody.loraResourceIds),
       resourceNames: named.map((request) => request.name),
       resourceName: named[0]?.name ?? null,
+      recommendedCfgs: [],
     }
   }
 
@@ -384,6 +398,7 @@ export async function resolveEnqueueLoraResource(input: {
     supportedServer: true,
     defaultTrigger: true,
     triggerWords: true,
+    recommendedCfg: true,
   } as const
 
   const candidates = await prisma.resource.findMany({
@@ -467,5 +482,6 @@ export async function resolveEnqueueLoraResource(input: {
     resourceIds: unique.map(({ resource }) => resource.id),
     resourceNames: loras.map((lora) => lora.name),
     resourceName: loras[0]?.name ?? null,
+    recommendedCfgs: unique.map(({ resource }) => resource.recommendedCfg),
   }
 }

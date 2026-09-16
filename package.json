@@ -16,6 +16,8 @@
     "test:agent-credentials-selftest": "tsx utils/scripts/verifyAgentCredentials.test.ts",
     "test:mandarin-art-recipe": "tsx utils/scripts/verifyMandarinArtRecipe.test.ts",
     "test:lora-probe-plan": "tsx utils/scripts/verifyLoraProbePlan.test.ts",
+    "test:lora-cfg-ceiling": "tsx utils/scripts/verifyLoraCfg.test.ts",
+    "test:lora-cfg-wiring": "tsx utils/scripts/verifyLoraCfgWiring.test.ts",
     "test:zimage-workflow": "tsx utils/scripts/verifyZImageWorkflow.test.ts",
     "test:mandarin-cloud-merge-selftest": "tsx utils/scripts/verifyMandarinCloudMerge.test.ts",
     "audit:checkpoints": "prisma generate && tsx utils/scripts/auditCheckpointResources.ts",

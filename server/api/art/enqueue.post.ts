@@ -488,6 +488,7 @@ export default defineEventHandler(async (event) => {
       body: resolvedBody,
       promptString,
       save,
+      loraRecommendedCfgs: resolvedLora.recommendedCfgs,
     })
     applyArtFacetsToPayload(payload, contextualBasePrompt, facets)
     if (narrativeContext) payload.narrativeContext = narrativeContext
@@ -548,9 +549,14 @@ export default defineEventHandler(async (event) => {
 
 function buildJobPayload(
   engine: EnqueueEngine,
-  ctx: { body: ArtEnqueueRequest; promptString: string; save: SaveBlock },
+  ctx: {
+    body: ArtEnqueueRequest
+    promptString: string
+    save: SaveBlock
+    loraRecommendedCfgs: Array<number | null>
+  },
 ): { jobEngine: 'A1111' | 'COMFY'; payload: Record<string, unknown> } {
-  const { body, promptString, save } = ctx
+  const { body, promptString, save, loraRecommendedCfgs } = ctx
   if (engine === 'a1111') {
     return {
       jobEngine: 'A1111',
@@ -755,6 +761,7 @@ function buildJobPayload(
     loraName: body.loraName ?? null,
     loraStrength: body.loraStrength ?? null,
     loras: body.loras ?? null,
+    loraRecommendedCfgs,
     width: body.width ?? null,
     height: body.height ?? null,
   })

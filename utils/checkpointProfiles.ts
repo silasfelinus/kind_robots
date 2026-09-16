@@ -45,6 +45,9 @@ export type CheckpointProfile = {
 const DISTILLED_PATTERN = /(turbo|lightning|lcm|hyper)/i
 
 export const CHECKPOINT_PROFILES: Record<CheckpointFamily, CheckpointProfile> = {
+  // PROVISIONAL: never swept. Distilled merges converge in a few steps at very
+  // low guidance, so the standard families' result does NOT transfer -- their
+  // usable band is roughly 1-4 rather than 3-13.
   distilled: {
     steps: 8,
     cfg: 2,
@@ -54,15 +57,41 @@ export const CHECKPOINT_PROFILES: Record<CheckpointFamily, CheckpointProfile> = 
     width: 1024,
     height: 1024,
   },
+  /*
+   * MEASURED, 2026-09-16, and the only family here that is. Swept cfg 3->13 on
+   * realcartoonPony_v1 against a character LoRA (AsheLoLXL) and a style LoRA
+   * (ArtgermLycoXL), same seed per strip:
+   *
+   *   cfg      3     7     9    10    11    13
+   *   detail  15.9  19.1  20.7  20.9  21.9  22.6
+   *   clipped 0.11% 2.03% 3.43% 3.48% 4.87% 5.39%
+   *
+   * Detail climbs the whole way, so "best looking single image" keeps pointing
+   * higher; clipping climbs with it, and by 13 one pixel in eighteen is crushed
+   * to black or blown to white, with the render flattening into poster-like
+   * linework. 10 is the efficient point -- it costs essentially the same
+   * clipping as 9 while 11 raises it another 40%.
+   *
+   * The obvious worry was that high guidance would homogenise the previews, the
+   * scaffold's score_9 stack drowning out the LoRA. Tested and false: four
+   * distinct Pony LoRAs at cfg 13 were 14% further apart than at cfg 7, and
+   * still +4.3% after normalising each image's contrast away, so the separation
+   * is structural rather than an artifact of everything getting punchier.
+   *
+   * Conventional Pony guidance is 5-7. It is wrong here, which is the reason
+   * every other family below is labelled provisional rather than assumed.
+   */
   pony: {
     steps: 28,
-    cfg: 6,
+    cfg: 10,
     sampler: 'dpmpp_2m',
     scheduler: 'karras',
     clipSkip: -2,
     width: 1024,
     height: 1024,
   },
+  // PROVISIONAL: cfg never swept. Its one A/B pair only established that clip
+  // skip 1 returns a frame of pure black on this family (ArtJob 26132).
   illustrious: {
     steps: 28,
     cfg: 5,
@@ -72,6 +101,7 @@ export const CHECKPOINT_PROFILES: Record<CheckpointFamily, CheckpointProfile> = 
     width: 1024,
     height: 1024,
   },
+  // PROVISIONAL: a single pair, cfg 6 over cfg 3, judged by eye. Not swept.
   sdxl: {
     steps: 28,
     cfg: 6,
@@ -87,6 +117,7 @@ export const CHECKPOINT_PROFILES: Record<CheckpointFamily, CheckpointProfile> = 
    * grid as a bad LoRA when it is a bad resolution.
    */
   sd15: {
+    // PROVISIONAL: a single pair, cfg 7 over cfg 3, judged by eye. Not swept.
     steps: 28,
     cfg: 7,
     sampler: 'dpmpp_2m',

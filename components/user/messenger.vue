@@ -6,10 +6,10 @@
 -->
 <template>
   <section
-    class="kr-panes mx-auto h-[70vh] w-full max-w-5xl grid-cols-[auto_minmax(0,1fr)] p-3"
+    class="kr-panes mx-auto h-[70vh] w-full max-w-5xl grid-cols-1 p-3 md:grid-cols-[18rem_minmax(0,1fr)]"
   >
     <!-- Conversation list -->
-    <aside class="kr-pane w-full max-w-xs kr-panel-flat sm:w-72">
+    <aside class="kr-pane w-full kr-panel-flat md:w-72">
       <header class="flex items-center justify-between kr-panel-header-sm">
         <h2 class="font-black">Messages</h2>
         <button

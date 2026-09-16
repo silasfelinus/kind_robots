@@ -286,14 +286,33 @@ async function main() {
         return
       }
 
-      const imageResponse = await fetch(`${BASE}${artImage.imagePath}`)
-      if (!imageResponse.ok) {
-        console.warn(
-          `  WARN  resource ${resource.id} (${resource.name}): preview fetch HTTP ${imageResponse.status}`,
-        )
-        return
+      // A production preview fetch can hit a transient network error (seen live:
+      // UND_ERR_HEADERS_TIMEOUT), which is a rejected promise, not an HTTP
+      // status -- letting it escape aborts mapLimited's whole Promise.all and
+      // kills every other in-flight candidate along with it. One retry, then
+      // skip-and-warn like every other per-candidate failure path here.
+      let imageBytes: Buffer | null = null
+      for (let attempt = 0; attempt < 2 && !imageBytes; attempt += 1) {
+        try {
+          const imageResponse = await fetch(`${BASE}${artImage.imagePath}`)
+          if (!imageResponse.ok) {
+            console.warn(
+              `  WARN  resource ${resource.id} (${resource.name}): preview fetch HTTP ${imageResponse.status}`,
+            )
+            return
+          }
+          imageBytes = Buffer.from(await imageResponse.arrayBuffer())
+        } catch (error) {
+          if (attempt === 1) {
+            console.warn(
+              `  WARN  resource ${resource.id} (${resource.name}): preview fetch failed twice: ${error instanceof Error ? error.message : String(error)}`,
+            )
+            return
+          }
+        }
       }
-      const imageBytes = Buffer.from(await imageResponse.arrayBuffer())
+      if (!imageBytes) return
+
       const fraction = await clippedChannelFraction(imageBytes)
       const rawCfg = ponyCfgFromClipping(fraction)
       if (rawCfg === null) return

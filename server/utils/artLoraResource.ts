@@ -1,6 +1,6 @@
 // /server/utils/artLoraResource.ts
 import { createError } from 'h3'
-import { loraTriggerKey } from '~/utils/loraTriggerKey'
+import { loraTriggerKey, stripLoraInvocation } from '~/utils/loraTriggerKey'
 import { ResourceType, SupportedServer } from '~/prisma/generated/prisma/client'
 import { resolveMaturityPrivacy } from '~/utils/maturityPrivacy'
 import {
@@ -302,15 +302,19 @@ function appendResolvedTriggers(
   if (!base) return null
 
   const seen = new Set<string>()
-  const haystack = loraTriggerKey(base)
+  const haystack = loraTriggerKey(stripLoraInvocation(base))
   const additions: string[] = []
 
   for (const resource of resources) {
     for (const term of triggerTerms(resource)) {
-      const key = loraTriggerKey(term)
+      // Strip before both the comparison and the append: the probe already
+      // removed any <lora:...> from the prompt, so an un-stripped term never
+      // matches the haystack and gets appended WITH the syntax intact.
+      const cleaned = stripLoraInvocation(term)
+      const key = loraTriggerKey(cleaned)
       if (!key || seen.has(key) || haystack.includes(key)) continue
       seen.add(key)
-      additions.push(term)
+      additions.push(cleaned)
     }
   }
 

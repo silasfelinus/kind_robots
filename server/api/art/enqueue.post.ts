@@ -15,6 +15,7 @@ import {
 import { buildFluxWorkflowFromRequest } from '../comfy/flux/utils/workflow'
 import { buildKrea2WorkflowFromRequest } from '../comfy/krea2/utils/workflow'
 import { buildFlux2KleinWorkflowFromRequest } from '../comfy/flux2/utils/workflow'
+import { buildZImageWorkflowFromRequest } from '../comfy/zimage/utils/workflow'
 import {
   buildKontextWorkflow,
   getKontextImageExtension,
@@ -53,6 +54,7 @@ type EnqueueEngine =
   | 'kontext'
   | 'ltx'
   | 'wan'
+  | 'zimage'
 
 type JsonRecord = Record<string, unknown>
 
@@ -164,6 +166,9 @@ const ENGINE_ALIASES: Record<string, EnqueueEngine> = {
   'flux2-klein': 'flux2',
   'flux-2': 'flux2',
   sdxl: 'comfy',
+  'z-image': 'zimage',
+  zimageturbo: 'zimage',
+  'z-image-turbo': 'zimage',
   'sdxl-restyle': 'sdxl-img2img',
   'sdxl-i2i': 'sdxl-img2img',
   'sdxl-image': 'sdxl-img2img',
@@ -182,6 +187,8 @@ const GATE_ENGINE: Record<
   kontext: 'kontext',
   ltx: 'ltx',
   wan: 'wan',
+  // Z-Image loads its own UNet/CLIP/VAE, so it gates as an ordinary comfy job.
+  zimage: 'comfy',
 }
 const SLUG_PATTERN = /^[a-z0-9][a-z0-9_-]*$/
 const DEFAULT_ENQUEUE_PRIORITY = 100
@@ -303,7 +310,8 @@ function normalizeEngine(value: unknown): EnqueueEngine {
     engine === 'flux2' ||
     engine === 'kontext' ||
     engine === 'ltx' ||
-    engine === 'wan'
+    engine === 'wan' ||
+    engine === 'zimage'
   ) {
     return engine
   }
@@ -564,6 +572,26 @@ function buildJobPayload(
       sampler: body.sampler ?? null,
       scheduler: body.scheduler ?? null,
       denoise: body.denoise ?? null,
+    })
+    return { jobEngine: 'COMFY', payload: { workflow, promptString, save } }
+  }
+
+  if (engine === 'zimage') {
+    /*
+     * No negativePrompt is passed through: the Z-Image graph derives its
+     * negative by zeroing the positive conditioning (ConditioningZeroOut), so
+     * there is no node for a caller's negative text to reach. cfg and sampler
+     * are fixed by the distilled model rather than taken from the request.
+     */
+    const { workflow } = buildZImageWorkflowFromRequest({
+      prompt: promptString,
+      width: body.width ?? null,
+      height: body.height ?? null,
+      steps: body.steps ?? null,
+      seed: body.seed ?? null,
+      loraName: body.loraName ?? null,
+      loraStrength: body.loraStrength ?? null,
+      loras: body.loras ?? null,
     })
     return { jobEngine: 'COMFY', payload: { workflow, promptString, save } }
   }

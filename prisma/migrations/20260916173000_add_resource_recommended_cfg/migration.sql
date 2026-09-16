@@ -1,0 +1,35 @@
+-- Add Resource.recommendedCfg (kind-robots/t-106).
+--
+-- Silas, mid cfg-sweep: "I'm just wondering if we should have a recommended
+-- cfg in our resources ... if certain ones want more or less with the same
+-- checkpoint, it's the stronger option." Measured evidence from that same
+-- session backs it: on one checkpoint (realcartoonPony_v1), ArtgermLycoXL
+-- clipped only 0.39% of its pixels at cfg 13 while AsheLoLXL clipped 5.39%
+-- at the same setting -- three guidance points apart on the same family
+-- profile. utils/checkpointProfiles.ts can only express a family-level
+-- number, which is always a compromise once LoRAs this different share a
+-- checkpoint.
+--
+-- Populated from clipping, not typed by hand: the t-105 preview batch
+-- renders every registered LoRA, and clipping -- the percentage of pixels
+-- crushed to 0 or blown to 255 -- is computable from each finished probe at
+-- zero extra render cost. Low clipping tolerates more guidance.
+--
+-- Null means "use the checkpoint family's profile cfg" (unchanged default
+-- behavior). When stacking multiple LoRAs, utils/loraCfg.ts's
+-- loraStackCfgCeiling (already landed, kind_robots#2780) takes the MINIMUM
+-- across the family cfg and every selected LoRA's recommendedCfg -- the most
+-- clipping-prone LoRA in the stack is the binding constraint.
+--
+-- This column records what a LoRA TOLERATES, not a taste preference: Silas
+-- consistently preferred cfg 13 by eye on both LoRAs above, where the
+-- clipping budget said 10 for the character one. How close to the ceiling
+-- to actually run is a separate setting, deliberately not this column.
+--
+-- Land the column null and backfill afterwards -- reading it in the enqueue
+-- path and backfilling from t-105's clipping data are deliberate follow-up
+-- scope, not part of this column landing. Purely additive: a nullable
+-- column with no default rewrites no existing rows.
+
+ALTER TABLE `Resource`
+  ADD COLUMN `recommendedCfg` DOUBLE NULL;

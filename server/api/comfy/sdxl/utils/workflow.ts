@@ -5,6 +5,7 @@
 // queue-based enqueue endpoint (/api/art/enqueue) build the same Comfy graph
 // and apply prompt/seed/sampler overrides identically.
 
+import { checkpointProfile } from '~/utils/checkpointProfiles'
 import {
   appendModelClipLoraChain,
   normalizeLoraSelections,
@@ -34,6 +35,12 @@ export type ComfyWorkflowInput = {
   steps?: number
   checkpoint?: string | null
   sampler?: string | null
+  scheduler?: string | null
+  /**
+   * ComfyUI `stop_at_clip_layer`. Omit to take the checkpoint family's own
+   * value -- -2 for Pony, Illustrious and the SD 1.5 line, -1 for plain SDXL.
+   */
+  clipSkip?: -1 | -2 | null
   /** Optional style LoRA, same shape the img2img builder takes. */
   loraName?: string | null
   loraStrength?: number | null
@@ -377,6 +384,8 @@ export function buildDefaultComfyWorkflow({
   steps,
   checkpoint,
   sampler,
+  scheduler,
+  clipSkip,
   loraName,
   loraStrength,
   loras,
@@ -394,12 +403,21 @@ export function buildDefaultComfyWorkflow({
   // so a caller who names no checkpoint must also get turbo sampler defaults.
   // Profiling `checkpoint` directly would have left the fallback at 20 steps.
   const resolvedCheckpoint = checkpoint || DEFAULT_SDXL_CHECKPOINT
-  const profile = sdxlSamplerProfile(resolvedCheckpoint)
+  // Family-aware: Pony/Illustrious/SD1.5 want a different cfg, sampler and clip
+  // skip from plain SDXL, and a distilled merge of any of them overrides all
+  // three. See utils/checkpointProfiles.ts.
+  const profile = checkpointProfile(resolvedCheckpoint)
+  const resolvedClipSkip = clipSkip ?? profile.clipSkip
   // Wired to the bare checkpoint here and re-pointed at the tail of the LoRA
   // chain below. Resolving the refs up front (as this used to) cannot express a
   // chain, because the tail's node id depends on how many links there are.
   const modelSource: [string, number] = ['1', 0]
-  const clipSource: [string, number] = ['1', 1]
+  /*
+   * Node 8 is CLIPSetLastLayer, and every downstream CLIP consumer reads it
+   * rather than the checkpoint directly -- including the LoRA chain, so a LoRA's
+   * trigger tokens are encoded at the same depth the base was trained for.
+   */
+  const clipSource: [string, number] = ['8', 0]
 
   const workflow: ComfyWorkflow = {
     '1': {
@@ -407,6 +425,14 @@ export function buildDefaultComfyWorkflow({
       inputs: {
         ckpt_name: resolvedCheckpoint,
       },
+    },
+    '8': {
+      class_type: 'CLIPSetLastLayer',
+      inputs: {
+        clip: ['1', 1],
+        stop_at_clip_layer: resolvedClipSkip,
+      },
+      _meta: { title: 'Clip Skip' },
     },
     '2': {
       class_type: 'CLIPTextEncode',
@@ -431,8 +457,8 @@ export function buildDefaultComfyWorkflow({
     '4': {
       class_type: 'EmptyLatentImage',
       inputs: {
-        width: width ?? 1024,
-        height: height ?? 1024,
+        width: width ?? profile.width,
+        height: height ?? profile.height,
         batch_size: 1,
       },
     },
@@ -445,7 +471,7 @@ export function buildDefaultComfyWorkflow({
         sampler_name: sampler
           ? normalizeComfySampler(sampler)
           : profile.sampler,
-        scheduler: profile.scheduler,
+        scheduler: scheduler?.trim() || profile.scheduler,
         denoise: 1,
         model: modelSource,
         positive: ['2', 0],

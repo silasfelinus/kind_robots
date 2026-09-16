@@ -12,11 +12,8 @@ import assert from 'node:assert/strict'
 import { buildEntityArtPrompt } from '../../server/utils/entityArt'
 import { LORA_PROBE_RECIPES } from '../loraProbe'
 import { buildFluxWorkflowFromRequest } from '../../server/api/comfy/flux/utils/workflow'
-import {
-  buildDefaultComfyWorkflow,
-  SDXL_DISTILLED_PROFILE,
-  SDXL_STANDARD_PROFILE,
-} from '../../server/api/comfy/sdxl/utils/workflow'
+import { buildDefaultComfyWorkflow } from '../../server/api/comfy/sdxl/utils/workflow'
+import { checkpointFamily, checkpointProfile } from '../checkpointProfiles'
 import { loraTriggerKey } from '../loraTriggerKey'
 import {
   applyRequeueRepoint,
@@ -223,44 +220,73 @@ assert.equal(
   'allow',
 )
 
-// 11. A distilled checkpoint must reach its own cfg.
+// 11. Every checkpoint must reach its OWN family profile.
 //
 // enqueue.post.ts passed `cfgValue: body.cfg ?? 3`, and the builder resolves
-// `input.cfgValue || profile.cfg` -- so the literal 3 always won and
-// SDXL_DISTILLED_PROFILE.cfg (2) was unreachable through the main comfy lane.
-// 343 queued probes on dreamshaperXL Turbo rendered over-guided. `steps`
-// deferred to the profile correctly; only cfg did not.
+// `input.cfgValue || profile.cfg`, so the literal 3 always won and the
+// distilled profile's cfg (2) was unreachable -- 343 queued probes on
+// dreamshaperXL Turbo rendered over-guided. `steps` deferred correctly with
+// `?? undefined`, which is exactly why the profile looked like it worked.
 function sampler(workflow: Record<string, { class_type?: string; inputs?: Record<string, unknown> }>) {
   return Object.values(workflow).find((n) => n.class_type === 'KSampler')?.inputs ?? {}
 }
-const turbo = sampler(
-  buildDefaultComfyWorkflow({
-    prompt: 'a test subject',
-    checkpoint: 'SDXL/dreamshaperXL_v21TurboDPMSDE.safetensors',
-  }),
-)
-assert.equal(turbo.cfg, SDXL_DISTILLED_PROFILE.cfg, 'turbo must use the distilled cfg')
-assert.equal(turbo.steps, SDXL_DISTILLED_PROFILE.steps)
+function clipSkipOf(workflow: Record<string, { class_type?: string; inputs?: Record<string, unknown> }>) {
+  return Object.values(workflow).find((n) => n.class_type === 'CLIPSetLastLayer')?.inputs
+    ?.stop_at_clip_layer
+}
 
-const standard = sampler(
-  buildDefaultComfyWorkflow({
-    prompt: 'a test subject',
-    checkpoint: 'Pony/realcartoonPony_v1.safetensors',
-  }),
-)
-assert.equal(standard.cfg, SDXL_STANDARD_PROFILE.cfg)
-assert.equal(standard.steps, SDXL_STANDARD_PROFILE.steps)
+const CHECKPOINTS = [
+  'Pony/realcartoonPony_v1.safetensors',
+  'Illustrious/illustrij_v21.safetensors',
+  'SD15/revAnimated_v2Rebirth.safetensors',
+  'SDXL/duskMixXLIllustration_v15.safetensors',
+  'SDXL/dreamshaperXL_v21TurboDPMSDE.safetensors',
+]
+for (const checkpoint of CHECKPOINTS) {
+  const profile = checkpointProfile(checkpoint)
+  const workflow = buildDefaultComfyWorkflow({ prompt: 'a test subject', checkpoint })
+  const k = sampler(workflow)
+  assert.equal(k.cfg, profile.cfg, `${checkpoint} must use its family cfg`)
+  assert.equal(k.steps, profile.steps, `${checkpoint} must use its family steps`)
+  assert.equal(k.sampler_name, profile.sampler)
+  assert.equal(k.scheduler, profile.scheduler)
+  assert.equal(clipSkipOf(workflow), profile.clipSkip, `${checkpoint} clip skip`)
+}
 
-// An explicit caller value still wins over both.
+// A distilled merge overrides its base lineage. dreamshaperXL is SDXL-family by
+// directory, but Turbo by filename, and Turbo wins.
+assert.equal(checkpointFamily('SDXL/dreamshaperXL_v21TurboDPMSDE.safetensors'), 'distilled')
+assert.equal(checkpointFamily('Pony/somePonyLightning_v1.safetensors'), 'distilled')
+
+// Family comes from the DIRECTORY, never Resource.generation: the catalog has
+// duchaitenStylelikeme (SD 1.5) recorded as SDXL and revAnimated as ARCHIVE.
+assert.equal(checkpointFamily('SD15/duchaitenStylelikeme_v15Fp16NoEma.safetensors'), 'sd15')
+assert.equal(checkpointProfile('SD15/revAnimated_v2Rebirth.safetensors').width, 768)
+
+// The LoRA chain and both encoders must read the clip-skipped CLIP, or the
+// LoRA's trigger tokens are encoded at a depth the base was not trained for.
+const chained = buildDefaultComfyWorkflow({
+  prompt: 'a test subject',
+  checkpoint: 'Pony/realcartoonPony_v1.safetensors',
+  loras: [{ name: 'Pony/SFW/example.safetensors', strength: 0.8 }],
+}) as Record<string, { class_type?: string; inputs?: Record<string, unknown> }>
+const skipNode = Object.entries(chained).find(([, n]) => n.class_type === 'CLIPSetLastLayer')
+const loraNode = Object.entries(chained).find(([, n]) => String(n.class_type ?? '').includes('Lora'))
+assert.ok(skipNode && loraNode)
+assert.deepEqual(loraNode![1].inputs!.clip, [skipNode![0], 0], 'LoRA chain reads the skipped CLIP')
+assert.deepEqual(chained['2']!.inputs!.clip, [loraNode![0], 1], 'encoder reads the LoRA CLIP')
+
+// An explicit caller value still wins over the profile.
 assert.equal(
   sampler(
     buildDefaultComfyWorkflow({
       prompt: 'a test subject',
-      checkpoint: 'SDXL/dreamshaperXL_v21TurboDPMSDE.safetensors',
-      cfgValue: 7,
+      checkpoint: 'Pony/realcartoonPony_v1.safetensors',
+      cfgValue: 9,
+      clipSkip: -1,
     }),
   ).cfg,
-  7,
+  9,
 )
 
 console.log('verifyEntityArtPromptStyle: all assertions passed')

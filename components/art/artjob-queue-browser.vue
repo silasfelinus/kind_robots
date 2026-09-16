@@ -8,7 +8,14 @@
       The ArtJob dashboard is admin-only.
     </div>
 
-    <div v-else class="flex h-full kr-scroll flex-col gap-2 p-2">
+    <!--
+      No h-full here. kr-scroll is already `min-h-0 flex-1 overflow-y-auto`,
+      and h-full pins the child to the parent's full height on top of that,
+      over-constraining the flex child that is supposed to be sized BY the
+      flex line. Every other page using this primitive (lora-triage, etc.)
+      omits it.
+    -->
+    <div v-else class="flex kr-scroll flex-col gap-2 p-2">
       <div
         class="flex flex-wrap items-center gap-1 border-b border-base-200 pb-1.5"
       >
@@ -16,7 +23,7 @@
           v-for="filter in statusFilters"
           :key="filter"
           type="button"
-          class="btn btn-ghost btn-xs h-6 min-h-6 gap-1 rounded-full border border-base-300 px-2 text-[10px] font-semibold"
+          class="btn btn-ghost btn-sm h-9 min-h-9 gap-1.5 rounded-full border border-base-300 px-3.5 text-xs font-semibold"
           :class="
             artJobStore.jobStatusFilter === filter
               ? 'border-primary bg-primary/10 text-primary'
@@ -27,9 +34,13 @@
           @click="changeStatus(filter)"
         >
           <span>{{ filter }}</span>
-          <span class="font-black text-base-content">{{ statusCount(filter) }}</span>
+          <span class="font-black text-base-content">{{
+            statusCount(filter)
+          }}</span>
           <span
-            v-if="artJobStore.jobStatusFilter === filter && artJobStore.loadingJobs"
+            v-if="
+              artJobStore.jobStatusFilter === filter && artJobStore.loadingJobs
+            "
             class="kr-spinner-xs"
           />
         </button>
@@ -53,20 +64,31 @@
                 class="h-2 w-2 rounded-full"
                 :class="serverStatusDotClass(primaryArtServer?.lastStatus)"
               />
-              <span>{{ primaryArtServer?.label || primaryArtServer?.title || 'Health' }}</span>
+              <span>{{
+                primaryArtServer?.label || primaryArtServer?.title || 'Health'
+              }}</span>
               <span
-                v-if="primaryUptime?.uptimePct !== null && primaryUptime?.uptimePct !== undefined"
+                v-if="
+                  primaryUptime?.uptimePct !== null &&
+                  primaryUptime?.uptimePct !== undefined
+                "
                 :class="uptimeClass(primaryUptime.uptimePct)"
               >
                 {{ primaryUptime.uptimePct }}%
               </span>
               <span
-                v-if="primaryUptime?.avgLatencyMs !== null && primaryUptime?.avgLatencyMs !== undefined"
+                v-if="
+                  primaryUptime?.avgLatencyMs !== null &&
+                  primaryUptime?.avgLatencyMs !== undefined
+                "
                 class="text-base-content/45"
               >
                 {{ primaryUptime.avgLatencyMs }}ms
               </span>
-              <span v-if="artJobStore.queuePaused" class="font-bold text-warning">
+              <span
+                v-if="artJobStore.queuePaused"
+                class="font-bold text-warning"
+              >
                 paused
               </span>
             </summary>
@@ -167,8 +189,12 @@
                   :key="server.serverId"
                   class="rounded-xl bg-base-200/40 p-2"
                 >
-                  <div class="flex items-center justify-between gap-3 text-[11px]">
-                    <span class="truncate font-semibold">{{ server.title }}</span>
+                  <div
+                    class="flex items-center justify-between gap-3 text-[11px]"
+                  >
+                    <span class="truncate font-semibold">{{
+                      server.title
+                    }}</span>
                     <span :class="uptimeClass(server.uptimePct)">
                       {{ server.uptimePct }}%
                       <span
@@ -228,7 +254,9 @@
           <button
             type="button"
             class="btn btn-ghost btn-xs h-6 min-h-6 rounded-xl px-1.5"
-            :disabled="!artJobStore.jobHasPreviousPage || artJobStore.loadingJobs"
+            :disabled="
+              !artJobStore.jobHasPreviousPage || artJobStore.loadingJobs
+            "
             aria-label="Previous queue page"
             @click="artJobStore.setJobPage(artJobStore.jobPage - 1)"
           >
@@ -244,7 +272,9 @@
               class="kr-input-rounded-xl input-xs h-6 w-11 text-center text-[10px]"
               @keyup.enter="applyPage"
             />
-            <span class="text-base-content/40">/{{ artJobStore.jobPageCount }}</span>
+            <span class="text-base-content/40"
+              >/{{ artJobStore.jobPageCount }}</span
+            >
           </label>
           <button
             type="button"
@@ -387,7 +417,9 @@ const sampledUptime = computed(() =>
 const primaryUptime = computed(() => {
   const serverId = primaryArtServer.value?.id
   if (serverId) {
-    const match = sampledUptime.value.find((server) => server.serverId === serverId)
+    const match = sampledUptime.value.find(
+      (server) => server.serverId === serverId,
+    )
     if (match) return match
   }
   return sampledUptime.value[0] ?? null

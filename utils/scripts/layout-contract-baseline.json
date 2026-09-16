@@ -1,6 +1,6 @@
 {
   "note": "Layout-contract allow-list. RATCHET: this file may only ever shrink. --update refuses to record a larger count. See utils/scripts/verifyLayoutContract.ts.",
-  "recorded": "2026-09-14",
+  "recorded": "2026-09-16",
   "violations": {
     "one-header": [],
     "one-scroll": [],
@@ -36,7 +36,6 @@
       "components/art/artjob-editor.vue → lg:grid-cols-[minmax(0,1.25fr)_minmax(280px,0.75fr)]",
       "components/art/artjob-editor.vue → sm:grid-cols-2",
       "components/art/artjob-editor.vue → sm:grid-cols-3",
-      "components/art/artjob-queue-browser.vue → xl:grid-cols-2",
       "components/art/artjob-trainer-redo-controls.vue → sm:grid-cols-2",
       "components/art/build-bench.vue → md:grid-cols-2",
       "components/art/entity-art-manager.vue → lg:grid-cols-4",

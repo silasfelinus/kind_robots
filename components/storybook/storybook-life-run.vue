@@ -455,6 +455,12 @@ import { useAchievementStore } from '@/stores/achievementStore'
 import { createPersistedNarrativeArtJobsController } from '@/stores/helpers/persistedNarrativeArtJobsHelper'
 import type { NarrativeArtJobState } from '@/utils/narrativeArtJobs'
 import type { NarrativeChoice } from '@/components/narrative/kr-choice-list.vue'
+import {
+  LIFE_RUN_ID_KEY,
+  LEGACY_LIFE_RUN_ID_KEY,
+  LIFE_RUN_ART_JOBS_KEY,
+  LEGACY_LIFE_RUN_ART_JOBS_KEY,
+} from '@/utils/storybookLifeRunKeys'
 
 // Mirrors server/utils/davinci.ts DAVINCI_DIMENSIONS — bit order is a
 // display concern here (the server owns the real resolve math), but keeping
@@ -720,14 +726,19 @@ type NarrationMode = 'ai' | 'curated'
 // not how early a dimension's pass/fail state gets decided. Left unchanged.
 const MIN_CHAPTERS_BEFORE_ENDING = 6
 
-const STORAGE_KEY = 'davinci-active-life-run-id'
+// storybook/t-026: renamed from 'davinci-active-life-run-id'. onMounted()
+// below reads the legacy key as a fallback and migrates it forward so a run
+// already in flight when this shipped keeps resuming.
+const STORAGE_KEY = LIFE_RUN_ID_KEY
 // Client-only cache of the active run's in-flight art job states (davinci/t-021
 // slice 14). See the doc comment on persistArtJobs()/resumePendingArtJobs()
 // below for the bug this closes: unlike storybookStore's beats, a queued or
 // rendering LifeRunArt job has no server-side row until it reaches 'done'
 // (persistLifeRunArt only fires on a done poll result), so hydrateArtFromRun()
 // alone can never see it -- this key is what lets a reload find it again.
-const ART_JOBS_STORAGE_KEY = 'davinci-active-life-run-art-jobs'
+// storybook/t-026: renamed from 'davinci-active-life-run-art-jobs';
+// resumePendingArtJobs() below falls back to the legacy key.
+const ART_JOBS_STORAGE_KEY = LIFE_RUN_ART_JOBS_KEY
 
 const props = defineProps<{ seed: StorybookLifeSeed }>()
 
@@ -760,7 +771,7 @@ const aiChapter = ref<ActiveChapter | null>(null)
 // abandoned run's chapter, and requestChapterArt() would then attach the
 // abandoned run's art job to the *new* run's id (run.value.id has already
 // moved on by the time the stale response lands) via
-// POST /api/davinci/runs/{id}/art -- corrupting the new run's art, not just
+// POST /api/storybook/life/runs/{id}/art -- corrupting the new run's art, not just
 // a stale UI flash. Same pattern as modelBuilderStore.ts's
 // fetchRunsRequestId/loadSources' requestedType: capture a ticket per call,
 // discard any response whose ticket no longer matches the latest one.
@@ -930,7 +941,7 @@ async function persistLifeRunArt(
   artImageId: number,
 ) {
   if (!run.value) return
-  await performFetch(`/api/davinci/runs/${run.value.id}/art`, {
+  await performFetch(`/api/storybook/life/runs/${run.value.id}/art`, {
     method: 'POST',
     body: JSON.stringify({ chapter, sceneType, prompt, artImageId }),
   }).catch(() => null)
@@ -1025,10 +1036,17 @@ function persistArtJobs() {
 // blank until the first poll response) also restores a failed job's retry
 // button immediately, not just a still-in-flight job's busy indicator.
 function resumePendingArtJobs(runId: number) {
-  const cached = narrativeArtJobs.readCache<{
-    chapterArt?: Record<string, NarrativeArtJobState>
-    endingArt?: NarrativeArtJobState | null
-  }>(ART_JOBS_STORAGE_KEY, runId)
+  // storybook/t-026: fall back to the pre-rename key so a job cached before
+  // this shipped is still reconnected to polling on the first reload after.
+  const cached =
+    narrativeArtJobs.readCache<{
+      chapterArt?: Record<string, NarrativeArtJobState>
+      endingArt?: NarrativeArtJobState | null
+    }>(ART_JOBS_STORAGE_KEY, runId) ??
+    narrativeArtJobs.readCache<{
+      chapterArt?: Record<string, NarrativeArtJobState>
+      endingArt?: NarrativeArtJobState | null
+    }>(LEGACY_LIFE_RUN_ART_JOBS_KEY, runId)
   if (!cached) return
 
   for (const [key, state] of Object.entries(cached.chapterArt ?? {})) {
@@ -1129,7 +1147,9 @@ function hydrateArtFromRun(data: LifeRunRecord) {
 
 async function resumeRun(id: number) {
   phase.value = 'loading'
-  const response = await performFetch<LifeRunRecord>(`/api/davinci/runs/${id}`)
+  const response = await performFetch<LifeRunRecord>(
+    `/api/storybook/life/runs/${id}`,
+  )
   if (!response.success || !response.data) {
     localStorage.removeItem(STORAGE_KEY)
     phase.value = 'start'
@@ -1163,16 +1183,19 @@ async function startLife() {
   // server validates that the reader may attach each record (see the
   // ownership check in server/utils/davinci.ts) -- a slug-keyed or missing
   // ingredient arrives as null and the run simply starts unattached.
-  const response = await performFetch<LifeRunRecord>('/api/davinci/runs', {
-    method: 'POST',
-    body: JSON.stringify({
-      title: props.seed.title,
-      protagonistName: props.seed.protagonistName,
-      genre: props.seed.genre,
-      characterId: props.seed.characterId,
-      dreamId: props.seed.dreamId,
-    }),
-  })
+  const response = await performFetch<LifeRunRecord>(
+    '/api/storybook/life/runs',
+    {
+      method: 'POST',
+      body: JSON.stringify({
+        title: props.seed.title,
+        protagonistName: props.seed.protagonistName,
+        genre: props.seed.genre,
+        characterId: props.seed.characterId,
+        dreamId: props.seed.dreamId,
+      }),
+    },
+  )
 
   submitting.value = false
 
@@ -1202,7 +1225,7 @@ async function narrateChapter() {
   aiChapter.value = null
 
   const response = await performFetch<NarrationResponseData>(
-    `/api/davinci/runs/${run.value.id}/narrate`,
+    `/api/storybook/life/runs/${run.value.id}/narrate`,
     {
       method: 'POST',
       body: JSON.stringify({ chapter: chapterIndex.value }),
@@ -1271,7 +1294,7 @@ async function chooseOption(choice: LifeChoiceOption) {
   errorMessage.value = ''
 
   const response = await performFetch<ChoiceResponseData>(
-    `/api/davinci/runs/${run.value.id}/choices`,
+    `/api/storybook/life/runs/${run.value.id}/choices`,
     {
       method: 'POST',
       body: JSON.stringify({
@@ -1305,7 +1328,7 @@ async function resolveLife() {
   const response = await performFetch<{
     achievementAwarded: boolean
     lifeAchievementAwarded: boolean
-  }>(`/api/davinci/runs/${run.value.id}/resolve`, { method: 'POST' })
+  }>(`/api/storybook/life/runs/${run.value.id}/resolve`, { method: 'POST' })
 
   if (!response.success) {
     submitting.value = false
@@ -1385,7 +1408,17 @@ onMounted(() => {
     return
   }
 
-  const storedId = localStorage.getItem(STORAGE_KEY)
+  // storybook/t-026: fall back to the pre-rename key and migrate it forward
+  // so a run already in flight when this shipped keeps resuming under the
+  // new key rather than being stranded.
+  let storedId = localStorage.getItem(STORAGE_KEY)
+  if (!storedId) {
+    const legacyId = localStorage.getItem(LEGACY_LIFE_RUN_ID_KEY)
+    if (legacyId) {
+      localStorage.setItem(STORAGE_KEY, legacyId)
+      storedId = legacyId
+    }
+  }
   if (storedId) {
     void resumeRun(Number(storedId))
     return

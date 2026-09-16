@@ -10,6 +10,10 @@ import { useUserStore } from '@/stores/userStore'
 import { castLineWithRole } from '@/utils/narrativeRoles'
 import type { NarrativeArtJobState } from '@/utils/narrativeArtJobs'
 import type { NarrativeArtMoment } from '@/utils/narrativeArtProfiles'
+import {
+  LIFE_RUN_ID_KEY,
+  LEGACY_LIFE_RUN_ID_KEY,
+} from '@/utils/storybookLifeRunKeys'
 
 /**
  * The shapes a story can take.
@@ -216,12 +220,15 @@ const STORAGE_KEY = 'storybook-session'
 const DRAFT_STORAGE_KEY = 'storybook-setup-draft'
 const LIFE_SEED_STORAGE_KEY = 'storybook-life-seed'
 /**
- * Unchanged from when the life engine lived at /play/davinci. Keeping the key
- * means a run that was in flight when the merge shipped is still resumable
- * from the storymaker -- see restoreFromLocalStorage()'s recovery for a
- * pre-merge run that has this key but no seed.
+ * The engine's own active-run key, unchanged in spirit since it lived at
+ * /play/davinci -- keeping it (now renamed, storybook/t-026) means a run that
+ * was in flight when the merge shipped is still resumable from the
+ * storymaker -- see restoreFromLocalStorage()'s recovery for a pre-merge run
+ * that has this key but no seed. Checks the pre-rename legacy key too, since
+ * storybook-life-run.vue's onMounted() only migrates it forward once that
+ * component itself mounts, which may be after this store's own restore runs.
  */
-const LIFE_RUN_STORAGE_KEY = 'davinci-active-life-run-id'
+const LIFE_RUN_STORAGE_KEY = LIFE_RUN_ID_KEY
 const STATE_OPEN = '[STORY_STATE]'
 const STATE_CLOSE = '[/STORY_STATE]'
 const MAX_STATE_ITEMS = 3
@@ -562,7 +569,10 @@ export const useStorybookStore = defineStore('storybookStore', () => {
         const lifeSeedRaw = localStorage.getItem(LIFE_SEED_STORAGE_KEY)
         if (lifeSeedRaw) {
           lifeSeed.value = JSON.parse(lifeSeedRaw) as StorybookLifeSeed
-        } else if (localStorage.getItem(LIFE_RUN_STORAGE_KEY)) {
+        } else if (
+          localStorage.getItem(LIFE_RUN_STORAGE_KEY) ||
+          localStorage.getItem(LEGACY_LIFE_RUN_ID_KEY)
+        ) {
           // A run started before the storymaker merge shipped: the engine's
           // own active-run key is there, but no seed, because the old
           // /play/davinci screen collected the protagonist and genre in its

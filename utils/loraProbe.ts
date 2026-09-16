@@ -283,9 +283,25 @@ const NEGATIVE_SD = [
  * centered in frame" gives a style LoRA something to style without asserting
  * how many subjects there are or how close the camera is.
  */
-const PROBE_FRAMING_TAGS = 'subject centered in frame, simple uncluttered background'
-const PROBE_FRAMING_PROSE =
-  'A subject centered in frame against a simple uncluttered background.'
+/*
+ * "in frame" IS A LITERAL INSTRUCTION TO THE MODEL, not a photography term.
+ *
+ * This scaffold read 'subject centered in frame, simple uncluttered
+ * background', and a Batgirl probe came back as a framed picture hanging on a
+ * textured wall (ArtJob 26318, 2026-09-16). It did exactly as asked: 'frame'
+ * supplied the picture frame and 'simple uncluttered background' supplied the
+ * wall to hang it on. Introduced by #2776 earlier the same day -- the phrasing
+ * it replaced, 'single subject, upper body, centered', contained no such word.
+ *
+ * The word 'subject' goes with it, and that is the point rather than a
+ * side-effect. It existed only so a pure style LoRA contributing no subject of
+ * its own had SOMETHING to render; PROBE_DEFAULT_SUBJECT now gives those rows a
+ * real one, so the placeholder noun that was inviting this reading is no longer
+ * load-bearing. What is left says only where to put the thing and what to put
+ * behind it.
+ */
+const PROBE_FRAMING_TAGS = 'centered, simple uncluttered background'
+const PROBE_FRAMING_PROSE = 'Centered against a simple uncluttered background.'
 
 /*
  * THE SCAFFOLD NAMES A SUBJECT WHEN THE LORA DOES NOT.

@@ -132,3 +132,19 @@ describe('probeSubjectClause', () => {
     expect(probeSubjectClause('', true)).toBe('a woman')
   })
 })
+
+describe('framing scaffold', () => {
+  it('never says "frame" -- the model reads it as a picture frame', () => {
+    // ArtJob 26318: a Batgirl probe came back as a framed picture on a wall.
+    // 'frame' supplied the frame, 'simple uncluttered background' the wall.
+    for (const family of ['pony', 'illustrious', 'sdxl', 'sd15', 'flux', 'zimage'] as const) {
+      expect(buildLoraProbePrompt(family, 'Batgirl')!.prompt).not.toMatch(/\bframe\b/i)
+    }
+  })
+
+  it('still places the subject and clears the background', () => {
+    const out = buildLoraProbePrompt('sdxl', 'Batgirl')!.prompt
+    expect(out).toContain('centered')
+    expect(out).toContain('simple uncluttered background')
+  })
+})

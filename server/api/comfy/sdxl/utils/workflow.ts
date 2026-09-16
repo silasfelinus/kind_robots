@@ -21,7 +21,14 @@ export type ComfyWorkflowNode = {
 
 export type ComfyWorkflowInput = {
   prompt: string
-  cfgValue: number
+  /**
+   * Omit (or pass null) to take the checkpoint's own profile. Callers used to
+   * be forced to name a number here, and `enqueue.post.ts` satisfied that with
+   * a literal `?? 3` -- which made SDXL_DISTILLED_PROFILE.cfg unreachable
+   * through the main comfy lane, so every turbo checkpoint rendered at cfg 3
+   * instead of 2. See sdxlSamplerProfile below.
+   */
+  cfgValue?: number | null
   negativePrompt?: string
   seed?: number | null
   steps?: number

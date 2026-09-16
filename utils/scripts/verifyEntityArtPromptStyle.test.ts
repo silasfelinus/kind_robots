@@ -12,6 +12,11 @@ import assert from 'node:assert/strict'
 import { buildEntityArtPrompt } from '../../server/utils/entityArt'
 import { LORA_PROBE_RECIPES } from '../loraProbe'
 import { buildFluxWorkflowFromRequest } from '../../server/api/comfy/flux/utils/workflow'
+import {
+  buildDefaultComfyWorkflow,
+  SDXL_DISTILLED_PROFILE,
+  SDXL_STANDARD_PROFILE,
+} from '../../server/api/comfy/sdxl/utils/workflow'
 import { loraTriggerKey } from '../loraTriggerKey'
 import {
   applyRequeueRepoint,
@@ -216,6 +221,46 @@ assert.equal(
     },
   }).action,
   'allow',
+)
+
+// 11. A distilled checkpoint must reach its own cfg.
+//
+// enqueue.post.ts passed `cfgValue: body.cfg ?? 3`, and the builder resolves
+// `input.cfgValue || profile.cfg` -- so the literal 3 always won and
+// SDXL_DISTILLED_PROFILE.cfg (2) was unreachable through the main comfy lane.
+// 343 queued probes on dreamshaperXL Turbo rendered over-guided. `steps`
+// deferred to the profile correctly; only cfg did not.
+function sampler(workflow: Record<string, { class_type?: string; inputs?: Record<string, unknown> }>) {
+  return Object.values(workflow).find((n) => n.class_type === 'KSampler')?.inputs ?? {}
+}
+const turbo = sampler(
+  buildDefaultComfyWorkflow({
+    prompt: 'a test subject',
+    checkpoint: 'SDXL/dreamshaperXL_v21TurboDPMSDE.safetensors',
+  }),
+)
+assert.equal(turbo.cfg, SDXL_DISTILLED_PROFILE.cfg, 'turbo must use the distilled cfg')
+assert.equal(turbo.steps, SDXL_DISTILLED_PROFILE.steps)
+
+const standard = sampler(
+  buildDefaultComfyWorkflow({
+    prompt: 'a test subject',
+    checkpoint: 'Pony/realcartoonPony_v1.safetensors',
+  }),
+)
+assert.equal(standard.cfg, SDXL_STANDARD_PROFILE.cfg)
+assert.equal(standard.steps, SDXL_STANDARD_PROFILE.steps)
+
+// An explicit caller value still wins over both.
+assert.equal(
+  sampler(
+    buildDefaultComfyWorkflow({
+      prompt: 'a test subject',
+      checkpoint: 'SDXL/dreamshaperXL_v21TurboDPMSDE.safetensors',
+      cfgValue: 7,
+    }),
+  ).cfg,
+  7,
 )
 
 console.log('verifyEntityArtPromptStyle: all assertions passed')

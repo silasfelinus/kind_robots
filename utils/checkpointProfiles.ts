@@ -44,6 +44,25 @@ export type CheckpointProfile = {
  */
 const DISTILLED_PATTERN = /(turbo|lightning|lcm|hyper)/i
 
+/*
+ * STEPS ARE 20, NOT 28, AND THAT IS MEASURED.
+ *
+ * 28 was convention. Swept 20/24/28 against both a character and a style LoRA
+ * on realcartoonPony at fixed cfg 7 (2026-09-16), edge detail per series:
+ *
+ *   dpmpp_2m/karras  char   19.91 (20)  19.30 (24)  19.06 (28)
+ *   dpmpp_2m/karras  style  23.87 (20)  23.02 (24)  23.97 (28)
+ *   euler/normal     char   19.10 (20)  18.55 (24)  18.23 (28)
+ *   euler/normal     style  20.29 (20)  19.75 (24)  19.10 (28)
+ *
+ * Detail DECLINES with more steps on three of four series and is flat on the
+ * fourth. 28 steps buys nothing and costs 40% more relay time -- roughly nine
+ * hours across the preview batch.
+ *
+ * The sampler in the same sweep is not a wash: dpmpp_2m/karras beats
+ * euler/normal at 20 steps on both subjects, by 4% on the character LoRA and
+ * 18% on the style one. The best configuration here is also the fastest.
+ */
 export const CHECKPOINT_PROFILES: Record<CheckpointFamily, CheckpointProfile> = {
   // PROVISIONAL: never swept. Distilled merges converge in a few steps at very
   // low guidance, so the standard families' result does NOT transfer -- their
@@ -82,7 +101,7 @@ export const CHECKPOINT_PROFILES: Record<CheckpointFamily, CheckpointProfile> = 
    * every other family below is labelled provisional rather than assumed.
    */
   pony: {
-    steps: 28,
+    steps: 20,
     cfg: 10,
     sampler: 'dpmpp_2m',
     scheduler: 'karras',
@@ -93,7 +112,7 @@ export const CHECKPOINT_PROFILES: Record<CheckpointFamily, CheckpointProfile> = 
   // PROVISIONAL: cfg never swept. Its one A/B pair only established that clip
   // skip 1 returns a frame of pure black on this family (ArtJob 26132).
   illustrious: {
-    steps: 28,
+    steps: 20,
     cfg: 5,
     sampler: 'euler_ancestral',
     scheduler: 'normal',
@@ -103,7 +122,7 @@ export const CHECKPOINT_PROFILES: Record<CheckpointFamily, CheckpointProfile> = 
   },
   // PROVISIONAL: a single pair, cfg 6 over cfg 3, judged by eye. Not swept.
   sdxl: {
-    steps: 28,
+    steps: 20,
     cfg: 6,
     sampler: 'dpmpp_2m',
     scheduler: 'karras',
@@ -118,7 +137,7 @@ export const CHECKPOINT_PROFILES: Record<CheckpointFamily, CheckpointProfile> = 
    */
   sd15: {
     // PROVISIONAL: a single pair, cfg 7 over cfg 3, judged by eye. Not swept.
-    steps: 28,
+    steps: 20,
     cfg: 7,
     sampler: 'dpmpp_2m',
     scheduler: 'karras',

@@ -9,7 +9,7 @@
       class="content-host flex h-full min-h-0 w-full flex-col overflow-y-auto overscroll-contain rounded-2xl"
       :style="
         contentPath === '/artjob'
-          ? { overflowY: 'hidden', overscrollBehaviorY: 'auto' }
+          ? { overflow: 'clip', overscrollBehaviorY: 'auto' }
           : undefined
       "
     >

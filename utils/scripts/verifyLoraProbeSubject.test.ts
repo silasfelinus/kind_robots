@@ -17,6 +17,7 @@ import {
   buildLoraProbePrompt,
   capProbeTriggerTags,
   probeSubjectClause,
+  sanitizeProbeTrigger,
   triggerNamesSubject,
 } from '../loraProbe'
 
@@ -51,10 +52,33 @@ describe('probe subject injection', () => {
     expect(pony('portrait')).toContain('portrait, 1girl')
   })
 
-  it('still recognises pony as a real subject noun', () => {
-    // DANGLING_DESCRIPTOR_PATTERN strips a bare trailing `pony` as packaging,
-    // but a My Little Pony LoRA genuinely means it.
+  it('does not mistake the base model for a subject', () => {
+    // Found by running this against the live queue after the first pass: these
+    // four counted as having a subject and so were left without one.
+    for (const t of [
+      'Bartolomeobari Style - Pony XL',
+      'Deadflow (Bee) Style Pony XL',
+      'Custom Pony Styles Collection',
+      'Sky ( Artist Style ) Pony',
+    ]) {
+      expect(triggerNamesSubject(sanitizeProbeTrigger(t))).toBe(false)
+    }
+    // ...while a genuine My Little Pony LoRA is still caught, by `girl`.
     expect(triggerNamesSubject('my little pony, pony girl')).toBe(true)
+  })
+
+  it('strips a spaced "Pony XL" the way it strips "PonyXL"', () => {
+    expect(sanitizeProbeTrigger('Bartolomeobari Style - Pony XL')).not.toMatch(/pony/i)
+  })
+
+  it('treats "character sheet" as a format, not a subject', () => {
+    expect(triggerNamesSubject('character sheet, multiple views, expressions')).toBe(false)
+  })
+
+  it('still detects plurals, monsters and creatures', () => {
+    expect(triggerNamesSubject('multiple girls, harem, 3girls')).toBe(true)
+    expect(triggerNamesSubject('Piranha Plant [Set3], Tentacle Monster')).toBe(true)
+    expect(triggerNamesSubject('Fantastic Dragon')).toBe(true)
   })
 })
 

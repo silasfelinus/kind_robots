@@ -52,7 +52,7 @@ const PACKAGING_NOISE_PATTERN =
  * for.
  */
 const BASE_NAME_NOISE_PATTERN =
-  /(?<![\w-])(?:ponyxl|pony\s*diffusion(?:\s*xl)?|pdxl|sdxl|sd\s*1\.5|sd15|illustrious|ilxl|noobai|flux[0-9.]*(?:\s*d(?:ev)?)?|schnell|kontext|klein|wan|ltx|qwen)(?![\w-])/gi
+  /(?<![\w-])(?:pony\s*xl|pony\s*diffusion(?:\s*xl)?|pdxl|sdxl|sd\s*1\.5|sd15|illustrious|ilxl|noobai|flux[0-9.]*(?:\s*d(?:ev)?)?|schnell|kontext|klein|wan|ltx|qwen)(?![\w-])/gi
 
 /*
  * Left behind once the words above are gone: '[PonyXL]' becomes '[ ]', and
@@ -329,9 +329,21 @@ const PROBE_DEFAULT_SUBJECT_PROSE = 'a woman'
  * Framing words are deliberately absent: 'upper body', 'portrait' and 'face'
  * say how to frame a subject, not what the subject is, and counting them as
  * subjects is what would let `portrait` alone through as a complete prompt.
+ *
+ * So are two words that look like subjects and are not, each caught by this
+ * running against the live queue after the first pass:
+ *
+ *   'pony'      -- almost always the BASE MODEL. 'Bartolomeobari Style - Pony
+ *                  XL', 'Custom Pony Styles Collection' and 'Sky ( Artist
+ *                  Style ) Pony' all counted as having a subject and so were
+ *                  left without one. A genuine My Little Pony LoRA triggers on
+ *                  'my little pony, pony girl' and is still caught, by 'girl'.
+ *   'character' -- 'character sheet' and 'character design' are formats. A
+ *                  LoRA whose only noun is 'character' is better served by
+ *                  getting a subject than by being counted as having one.
  */
 const SUBJECT_NOUN_PATTERN =
-  /(?:^|[\s,([])(?:\d*(?:girl|boy)s?|girls?|boys?|wo?m[ae]n|male|female|person|people|couple|child|children|lady|guy|character|robot|mecha|animal|cat|dog|horse|dragon|creature|monster|knight|warrior|witch|wizard|elf|orc|mermaid|angel|demon|vampire|ghost|pony)(?:$|[\s,)\]])/i
+  /(?:^|[\s,([])(?:\d*(?:girl|boy)s?|girls?|boys?|wo?m[ae]n|male|female|person|people|couple|child|children|lady|guy|robot|mecha|animal|cat|dog|horse|dragon|creature|monster|knight|warrior|witch|wizard|elf|orc|mermaid|angel|demon|vampire|ghost)(?:$|[\s,)\]])/i
 
 export function triggerNamesSubject(trigger: string): boolean {
   return SUBJECT_NOUN_PATTERN.test(String(trigger || ''))

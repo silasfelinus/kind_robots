@@ -58,14 +58,15 @@
           <details class="dropdown dropdown-end">
             <summary
               class="btn btn-ghost btn-xs h-6 min-h-6 list-none gap-1 rounded-full border border-base-300 px-2 text-[10px] [&::-webkit-details-marker]:hidden"
-              title="Art server health and queue controls"
+              title="Art server health details"
             >
               <span
                 class="h-2 w-2 rounded-full"
                 :class="serverStatusDotClass(primaryArtServer?.lastStatus)"
               />
+              <span class="font-semibold">Health</span>
               <span>{{
-                primaryArtServer?.label || primaryArtServer?.title || 'Health'
+                primaryArtServer?.label || primaryArtServer?.title || 'server'
               }}</span>
               <span
                 v-if="
@@ -91,6 +92,7 @@
               >
                 paused
               </span>
+              <span class="text-base-content/40" aria-hidden="true">▾</span>
             </summary>
 
             <div
@@ -111,20 +113,6 @@
                     <option :value="168">7d</option>
                   </select>
                 </div>
-
-                <button
-                  type="button"
-                  class="kr-btn-xs-2xl"
-                  :class="
-                    artJobStore.queuePaused
-                      ? 'btn-success'
-                      : 'btn-warning btn-outline'
-                  "
-                  :disabled="artJobStore.togglingQueuePause"
-                  @click="artJobStore.setQueuePaused(!artJobStore.queuePaused)"
-                >
-                  {{ artJobStore.queuePaused ? 'Resume queue' : 'Pause queue' }}
-                </button>
               </div>
 
               <div
@@ -220,6 +208,28 @@
               </div>
             </div>
           </details>
+
+          <button
+            type="button"
+            class="btn btn-xs h-6 min-h-6 rounded-full px-2 text-[10px]"
+            :class="
+              artJobStore.queuePaused
+                ? 'btn-success'
+                : 'btn-warning btn-outline'
+            "
+            :disabled="artJobStore.togglingQueuePause"
+            :title="
+              artJobStore.queuePaused
+                ? 'Resume ArtJob queue processing'
+                : 'Pause ArtJob queue processing'
+            "
+            @click="artJobStore.setQueuePaused(!artJobStore.queuePaused)"
+          >
+            <span v-if="artJobStore.togglingQueuePause" class="kr-spinner-xs" />
+            <span v-else>{{
+              artJobStore.queuePaused ? 'Resume queue' : 'Pause queue'
+            }}</span>
+          </button>
 
           <button
             type="button"

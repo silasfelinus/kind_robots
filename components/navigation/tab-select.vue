@@ -49,7 +49,7 @@
         />
       </span>
 
-      <span class="kr-text-black-sm min-w-0 flex-1 truncate sm:text-base">
+      <span class="kr-text-black-sm min-w-8 flex-1 truncate sm:text-base">
         {{ activeTab?.label || channel.label }}
       </span>
 

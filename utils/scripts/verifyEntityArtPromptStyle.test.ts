@@ -13,6 +13,10 @@ import { buildEntityArtPrompt } from '../../server/utils/entityArt'
 import { LORA_PROBE_RECIPES } from '../loraProbe'
 import { buildFluxWorkflowFromRequest } from '../../server/api/comfy/flux/utils/workflow'
 import { loraTriggerKey } from '../loraTriggerKey'
+import {
+  applyRequeueRepoint,
+  assessRequeueSafety,
+} from '../quarantinedCheckpoints'
 
 const record = {
   id: 1,
@@ -159,5 +163,59 @@ assert.equal(loraTriggerKey('Blue \\[Archive\\]'), loraTriggerKey('blue [archive
 assert.equal(loraTriggerKey('zzYor, black hair,'), loraTriggerKey('zzyor, black hair'))
 // Genuinely different triggers must stay different.
 assert.notEqual(loraTriggerKey('she hulk'), loraTriggerKey('she hulk(marvel)'))
+
+// 10. A requeue must not silently re-run a frozen graph whose checkpoint the
+//     planner has since abandoned. Both cases below actually happened on
+//     2026-09-16 after a dashboard requeue, because fixing the planner does
+//     nothing to a graph already written into a job's payload.
+const faetality = {
+  '1': {
+    class_type: 'CheckpointLoaderSimple',
+    inputs: { ckpt_name: 'Pony/ponyFaetality_v11.safetensors' },
+  },
+}
+const verdict = assessRequeueSafety(faetality)
+assert.equal(verdict.action, 'repoint')
+if (verdict.action === 'repoint') {
+  assert.equal(verdict.to, 'Pony/realcartoonPony_v1.safetensors')
+  assert.ok(applyRequeueRepoint(faetality, verdict.from, verdict.to))
+  assert.equal(
+    faetality['1'].inputs.ckpt_name,
+    'Pony/realcartoonPony_v1.safetensors',
+  )
+}
+
+// A Z-Image checkpoint on an SD-shaped graph cannot be repaired by swapping a
+// file -- it is the wrong graph -- so it must be refused, not repointed.
+assert.equal(
+  assessRequeueSafety({
+    '1': {
+      class_type: 'CheckpointLoaderSimple',
+      inputs: { ckpt_name: 'ZImage/zImageTurboNSFW_82_FP8.safetensors' },
+    },
+  }).action,
+  'block',
+)
+
+// But the real Z-Image lane loads its UNet separately and must stay allowed,
+// or the guard would block the very lane that fixes the blocked case.
+assert.equal(
+  assessRequeueSafety({
+    '1': {
+      class_type: 'UNETLoader',
+      inputs: { unet_name: 'z_image_turbo_bf16.safetensors' },
+    },
+  }).action,
+  'allow',
+)
+assert.equal(
+  assessRequeueSafety({
+    '1': {
+      class_type: 'CheckpointLoaderSimple',
+      inputs: { ckpt_name: 'Pony/realcartoonPony_v1.safetensors' },
+    },
+  }).action,
+  'allow',
+)
 
 console.log('verifyEntityArtPromptStyle: all assertions passed')

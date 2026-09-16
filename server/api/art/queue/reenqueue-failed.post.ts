@@ -20,6 +20,10 @@ import {
   repairQueuedArtSampler,
 } from '../../../utils/artJobSamplerRepair'
 import { refreshArtJobLoraResources } from '../../../utils/artJobResourceRefresh'
+import {
+  applyRequeueRepoint,
+  assessRequeueSafety,
+} from '~/utils/quarantinedCheckpoints'
 
 const REQUEUE_CONCURRENCY = 10
 
@@ -37,6 +41,8 @@ type RequeueResult = {
   loraPathChanged: boolean
   loraResourceIds: number[]
   loraNames: string[]
+  /** Set when a quarantined checkpoint was swapped out; surfaced to the caller. */
+  checkpointRepointed?: { from: string; to: string; reason: string }
 }
 
 type RequeueFailure = {
@@ -64,6 +70,28 @@ async function requeueFailedJob(
   const resourceRefresh = await refreshArtJobLoraResources(
     samplerRepair.payload,
   )
+
+  /*
+   * Same principle as the sampler clamp above, one layer out: a requeue resets
+   * `attempts` but never re-derives the frozen graph, so a row can be sent back
+   * to a checkpoint the planner has since abandoned. See
+   * utils/quarantinedCheckpoints.ts for the two rows that proved it.
+   */
+  const safety = assessRequeueSafety(
+    resourceRefresh.payload.workflow as Record<string, unknown> | undefined,
+  )
+  if (safety.action === 'block') {
+    throw new Error(`Refusing to requeue ArtJob ${source.id}: ${safety.reason}`)
+  }
+  const repointed =
+    safety.action === 'repoint' &&
+    applyRequeueRepoint(
+      resourceRefresh.payload.workflow as Record<string, unknown> | undefined,
+      safety.from,
+      safety.to,
+    )
+      ? { from: safety.from, to: safety.to, reason: safety.reason }
+      : null
   const priorProvenance = readArtJobProvenance(source.payload)
   const { payload } = enrichArtJobPayload(
     source.engine,
@@ -84,6 +112,7 @@ async function requeueFailedJob(
     loraResourceIds: resourceRefresh.loraResourceIds,
     loraNames: resourceRefresh.loraNames,
     samplerChanged: samplerRepair.changed,
+    checkpointRepointed: repointed,
   }
   recordSamplerRepair(payload, samplerRepair, repairedAt)
 
@@ -113,6 +142,7 @@ async function requeueFailedJob(
     loraPathChanged: resourceRefresh.changed,
     loraResourceIds: resourceRefresh.loraResourceIds,
     loraNames: resourceRefresh.loraNames,
+    ...(repointed ? { checkpointRepointed: repointed } : {}),
   }
 }
 

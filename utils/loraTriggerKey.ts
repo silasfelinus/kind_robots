@@ -20,3 +20,21 @@ export function loraTriggerKey(value: string): string {
     .replace(/[\s,;]+$/, '')
     .trim()
 }
+
+/**
+ * A1111 LoRA invocation syntax, which ComfyUI has no parser for.
+ *
+ * `<lora:foo:1>` reaches the graph as literal prompt text: inert at best, and
+ * on a tag lane it is a pile of tokens competing with the real trigger. The
+ * probe already strips it, but appendResolvedTriggers used to re-add the raw
+ * catalog trigger afterwards and put it straight back -- 41 queued probes
+ * carried one on 2026-09-16.
+ */
+export function stripLoraInvocation(value: string): string {
+  return value
+    .replace(/<\s*lora\s*:[^>]*>/gi, ' ')
+    .replace(/\s*,\s*(?:,\s*)+/g, ', ')
+    .replace(/\s{2,}/g, ' ')
+    .replace(/^[\s,]+|[\s,]+$/g, '')
+    .trim()
+}

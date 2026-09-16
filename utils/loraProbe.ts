@@ -43,15 +43,26 @@ const PACKAGING_NOISE_PATTERN =
  * Base-model names. A trigger reading 'Grey Impact - Illustrious/PonyXL' is
  * naming its own compatibility, not asking for anything to be drawn.
  */
+/*
+ * Bounded on [\w-] rather than \b, because \b matches at a hyphen and these
+ * names appear INSIDE filename-shaped triggers. `sadakage-v1-sdxl-10ep` came
+ * out as `sadakage-v1- -10ep`, a token no LoRA responds to, and the same
+ * happened to `vintage-ads-sdxl-1350` and `blowjob-sdxl-3-000008`. A bracketed
+ * or space-separated `[PonyXL]` still matches, which is the case this exists
+ * for.
+ */
 const BASE_NAME_NOISE_PATTERN =
-  /\b(?:ponyxl|pony\s*diffusion(?:\s*xl)?|pdxl|sdxl|sd\s*1\.5|sd15|illustrious|ilxl|noobai|flux[0-9.]*(?:\s*d(?:ev)?)?|schnell|kontext|klein|wan|ltx|qwen)\b/gi
+  /(?<![\w-])(?:ponyxl|pony\s*diffusion(?:\s*xl)?|pdxl|sdxl|sd\s*1\.5|sd15|illustrious|ilxl|noobai|flux[0-9.]*(?:\s*d(?:ev)?)?|schnell|kontext|klein|wan|ltx|qwen)(?![\w-])/gi
 
 /*
  * Left behind once the words above are gone: '[PonyXL]' becomes '[ ]', and
  * 'Style Lora' becomes a stranded 'Style'. Neither names a subject, and an
  * empty bracket pair is itself weighting syntax.
  */
-const EMPTY_GROUP_PATTERN = /[[(]\s*[\])]/g
+// Also matches a group left holding only punctuation: 'Margot Robbie (FLUX+SDXL)'
+// strips to 'Margot Robbie ( + )', which is still weighting syntax wrapped
+// around nothing.
+const EMPTY_GROUP_PATTERN = /[[(][\s+,\-/|&]*[\])]/g
 const DANGLING_DESCRIPTOR_PATTERN =
   /(^|,)\s*(?:style|styles|concept|concepts|character|pack|mix|merge)\s*(?=,|$)/gi
 

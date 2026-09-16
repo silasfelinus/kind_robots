@@ -413,11 +413,24 @@ export function buildDefaultComfyWorkflow({
   // chain, because the tail's node id depends on how many links there are.
   const modelSource: [string, number] = ['1', 0]
   /*
-   * Node 8 is CLIPSetLastLayer, and every downstream CLIP consumer reads it
-   * rather than the checkpoint directly -- including the LoRA chain, so a LoRA's
-   * trigger tokens are encoded at the same depth the base was trained for.
+   * The node is emitted ONLY for clip skip 2, never for 1.
+   *
+   * An explicit stop_at_clip_layer of -1 ought to be a no-op, and on plain SDXL
+   * it is. On the lineages trained against the penultimate layer it is
+   * catastrophic, in two different ways (kind-robots/t-105, 2026-09-16, same
+   * seed and LoRA in every case):
+   *   - realcartoonPony + ArtgermLycoXL returned formless noise.
+   *   - Illustrious returned a frame of pure black -- mean RGB 0.0 and stddev
+   *     0.0 on every channel, which is a NaN collapse in the sampler rather
+   *     than a dark picture.
+   * Omitting the node is what the queue has always done and measures identical
+   * to an explicit -2 (mean absolute difference 1.43/255 on ArtJob 26134), so
+   * "no node" is both the safe default and the proven one. There is nothing to
+   * gain by emitting a setting whose only observed effect is to destroy the
+   * render.
    */
-  const clipSource: [string, number] = ['8', 0]
+  const emitClipSkip = resolvedClipSkip === -2
+  const clipSource: [string, number] = emitClipSkip ? ['8', 0] : ['1', 1]
 
   const workflow: ComfyWorkflow = {
     '1': {
@@ -426,14 +439,15 @@ export function buildDefaultComfyWorkflow({
         ckpt_name: resolvedCheckpoint,
       },
     },
-    '8': {
-      class_type: 'CLIPSetLastLayer',
-      inputs: {
-        clip: ['1', 1],
-        stop_at_clip_layer: resolvedClipSkip,
-      },
-      _meta: { title: 'Clip Skip' },
-    },
+    ...(emitClipSkip
+      ? {
+          '8': {
+            class_type: 'CLIPSetLastLayer',
+            inputs: { clip: ['1', 1] as [string, number], stop_at_clip_layer: -2 },
+            _meta: { title: 'Clip Skip' },
+          },
+        }
+      : {}),
     '2': {
       class_type: 'CLIPTextEncode',
       inputs: {

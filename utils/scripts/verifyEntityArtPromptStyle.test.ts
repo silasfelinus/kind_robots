@@ -250,7 +250,17 @@ for (const checkpoint of CHECKPOINTS) {
   assert.equal(k.steps, profile.steps, `${checkpoint} must use its family steps`)
   assert.equal(k.sampler_name, profile.sampler)
   assert.equal(k.scheduler, profile.scheduler)
-  assert.equal(clipSkipOf(workflow), profile.clipSkip, `${checkpoint} clip skip`)
+  // The node exists ONLY for -2. Explicit -1 is never emitted: it is a no-op on
+  // plain SDXL but catastrophic on the penultimate-layer lineages -- formless
+  // noise on Pony, and on Illustrious a frame of pure black (mean RGB 0.0,
+  // stddev 0.0 -- a NaN collapse, not a dark image). Omitting it is what the
+  // queue has always done and measures identical to -2 (1.43/255 on ArtJob
+  // 26134), so there is nothing to gain by emitting the failing value.
+  if (profile.clipSkip === -2) {
+    assert.equal(clipSkipOf(workflow), -2, `${checkpoint} must carry clip skip 2`)
+  } else {
+    assert.equal(clipSkipOf(workflow), undefined, `${checkpoint} must emit NO clip-skip node`)
+  }
 }
 
 // A distilled merge overrides its base lineage. dreamshaperXL is SDXL-family by
@@ -272,8 +282,23 @@ const chained = buildDefaultComfyWorkflow({
 }) as Record<string, { class_type?: string; inputs?: Record<string, unknown> }>
 const skipNode = Object.entries(chained).find(([, n]) => n.class_type === 'CLIPSetLastLayer')
 const loraNode = Object.entries(chained).find(([, n]) => String(n.class_type ?? '').includes('Lora'))
-assert.ok(skipNode && loraNode)
+assert.ok(skipNode && loraNode, 'Pony is a clip-skip-2 family, so the node must exist')
 assert.deepEqual(loraNode![1].inputs!.clip, [skipNode![0], 0], 'LoRA chain reads the skipped CLIP')
+
+// A clip-skip-1 family wires the LoRA chain straight to the checkpoint CLIP.
+const plain = buildDefaultComfyWorkflow({
+  prompt: 'a test subject',
+  checkpoint: 'SDXL/duskMixXLIllustration_v15.safetensors',
+  loras: [{ name: 'SDXL/SFW/example.safetensors', strength: 0.8 }],
+}) as Record<string, { class_type?: string; inputs?: Record<string, unknown> }>
+assert.ok(
+  !Object.values(plain).some((n) => n.class_type === 'CLIPSetLastLayer'),
+  'plain SDXL must not emit a clip-skip node at all',
+)
+assert.deepEqual(
+  Object.values(plain).find((n) => String(n.class_type ?? '').includes('Lora'))!.inputs!.clip,
+  ['1', 1],
+)
 assert.deepEqual(chained['2']!.inputs!.clip, [loraNode![0], 1], 'encoder reads the LoRA CLIP')
 
 // An explicit caller value still wins over the profile.
@@ -287,6 +312,17 @@ assert.equal(
     }),
   ).cfg,
   9,
+)
+assert.equal(
+  clipSkipOf(
+    buildDefaultComfyWorkflow({
+      prompt: 'a test subject',
+      checkpoint: 'Pony/realcartoonPony_v1.safetensors',
+      clipSkip: -1,
+    }),
+  ),
+  undefined,
+  'even an explicit -1 from a caller must omit the node rather than emit -1',
 )
 
 // 12. An already-escaped catalog trigger must survive sanitize+escape intact.

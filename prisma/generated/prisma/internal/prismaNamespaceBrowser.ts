@@ -1403,7 +1403,8 @@ export const ResourceScalarFieldEnum = {
   slug: 'slug',
   commercialSafe: 'commercialSafe',
   allowReviews: 'allowReviews',
-  loraTarget: 'loraTarget'
+  loraTarget: 'loraTarget',
+  recommendedCfg: 'recommendedCfg'
 } as const
 
 export type ResourceScalarFieldEnum = (typeof ResourceScalarFieldEnum)[keyof typeof ResourceScalarFieldEnum]

@@ -1423,6 +1423,25 @@ model Resource {
   /// state. Not yet read anywhere -- the picker/enqueue guard this enables is
   /// deliberate follow-up scope, not part of this column landing.
   loraTarget            LoraTarget?
+  /// Per-LoRA guidance ceiling (kind-robots/t-106), backfilled from the
+  /// clipping percentage measured in the t-105 preview batch: the fraction of
+  /// a probe's pixels crushed to 0 or blown to 255 at a given cfg. Low
+  /// clipping means the LoRA tolerates more guidance; high clipping means it
+  /// wants less. Null means "use the checkpoint family's profile cfg" --
+  /// utils/checkpointProfiles.ts already expresses that, and a family-level
+  /// number is always a compromise once different LoRAs on the same
+  /// checkpoint want guidance points apart. Records what a LoRA TOLERATES,
+  /// not a taste preference -- Silas can and does prefer running closer to
+  /// (or past) this ceiling by eye; that is a separate setting, deliberately
+  /// not this column. When stacking multiple LoRAs, the caller takes the
+  /// MINIMUM of every selected LoRA's recommendedCfg (plus the family cfg):
+  /// the most clipping-prone LoRA in the stack is the binding constraint.
+  /// See utils/loraCfg.ts's loraStackCfgCeiling, already landed and unit
+  /// tested against this exact rule. Nullable with no default: adding this
+  /// column changes no runtime behavior today. Reading it in the enqueue
+  /// path and backfilling it from t-105's clipping data are deliberate
+  /// follow-up scope, not part of this column landing.
+  recommendedCfg        Float?
   ArtImages             ArtImage[]      @relation("ArtImageCheckpointResource")
   Reactions             Reaction[]
   ArtImage              ArtImage?       @relation("ResourcePreviewImage", fields: [artImageId], references: [id])

@@ -132,6 +132,7 @@ function collect(minFlexWidth) {
       cs.visibility !== 'hidden' && cs.display !== 'none' && cs.opacity !== '0'
     )
   }
+  const assistiveOnly = (el) => Boolean(el.closest('.sr-only'))
   const describe = (el, extra) =>
     `<${el.tagName.toLowerCase()}${el.id ? '#' + el.id : ''}> ` +
     `"${(el.textContent || '').trim().replace(/\s+/g, ' ').slice(0, 34)}" ` +
@@ -143,9 +144,10 @@ function collect(minFlexWidth) {
    * hand would otherwise report every off-screen item as a defect, which is
    * how a checker earns the right to be ignored.
    *
-   * The excuse is conditional: it only applies when the scroller ITSELF fits.
-   * A scroller that overflows is a genuine defect and is still reported, on
-   * the scroller, where the fix belongs.
+   * Nested rails matter here. An inner scroller can itself be offscreen because
+   * its whole shelf is inside an outer swipe rail. Keep walking until a fitting
+   * scroll ancestor is found rather than treating the first offscreen nested
+   * scroller as proof that the item leaked out of the page.
    */
   const insideFittingScrollerX = (el) => {
     for (
@@ -155,7 +157,8 @@ function collect(minFlexWidth) {
     ) {
       const cs = getComputedStyle(p)
       if (cs.overflowX === 'auto' || cs.overflowX === 'scroll') {
-        return p.getBoundingClientRect().right <= vw + 1
+        const b = p.getBoundingClientRect()
+        if (b.left >= -1 && b.right <= vw + 1) return true
       }
     }
     return false
@@ -166,7 +169,7 @@ function collect(minFlexWidth) {
   const starved = []
   for (const el of document.querySelectorAll('body *')) {
     const b = el.getBoundingClientRect()
-    if (!visible(el, b)) continue
+    if (!visible(el, b) || assistiveOnly(el)) continue
 
     // Outermost offender only: a wide child otherwise reports its whole
     // ancestor chain and buries the actual cause.
@@ -184,9 +187,10 @@ function collect(minFlexWidth) {
     if (b.height >= 12 && b.width >= 1 && b.width < minFlexWidth) {
       const cs = getComputedStyle(el)
       const flexible = cs.flexGrow !== '0' || cs.flexBasis !== 'auto'
-      const meaningful =
-        el.textContent.trim() || el.querySelector('img,svg,input,select,button')
-      if (flexible && meaningful) {
+      const label = el.textContent.trim()
+      const textIsClipped = label && el.scrollWidth > el.clientWidth + 1
+      const hasVisualControl = el.querySelector('img,svg,input,select,button')
+      if (flexible && (textIsClipped || hasVisualControl)) {
         crushed.push({
           node: el,
           text: describe(el, `w=${Math.round(b.width)}`),

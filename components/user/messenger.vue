@@ -5,134 +5,137 @@
   conversationStore (lastReadAt-driven). Bot/forum chat stays on chatStore.
 -->
 <template>
-  <section
-    class="kr-panes mx-auto h-[70vh] w-full max-w-5xl grid-cols-[auto_minmax(0,1fr)] p-3"
-  >
-    <!-- Conversation list -->
-    <aside class="kr-pane w-full max-w-xs kr-panel-flat sm:w-72">
-      <header class="flex items-center justify-between kr-panel-header-sm">
-        <h2 class="font-black">Messages</h2>
-        <button
-          class="kr-btn-ghost-xs-plain"
-          :disabled="convo.isLoadingList"
-          @click="convo.loadConversations()"
-        >
-          <Icon name="kind-icon:refresh" class="kr-icon-4" />
-        </button>
-      </header>
-      <div class="kr-pane-scroll">
-        <p
-          v-if="!convo.conversations.length && !convo.isLoadingList"
-          class="kr-text-dim-sm-50 p-4"
-        >
-          No conversations yet. Find people on the
-          <NuxtLink to="/friends" class="link">friends page</NuxtLink>.
-        </p>
-        <button
-          v-for="c in convo.conversations"
-          :key="c.id"
-          class="flex w-full items-center gap-2 border-b border-base-200 p-3 text-left hover:bg-base-200"
-          :class="{ 'bg-base-200': c.id === convo.activeId }"
-          @click="convo.loadMessages(c.id)"
-        >
-          <div class="avatar">
-            <div class="kr-icon-9 rounded-full bg-base-300">
-              <img
-                v-if="peer(c)?.avatarImage"
-                :src="peer(c)?.avatarImage || ''"
-                :alt="peer(c)?.username"
-              />
-            </div>
-          </div>
-          <div class="min-w-0 flex-1">
-            <div class="flex items-center justify-between">
-              <span class="truncate font-semibold">{{
-                peer(c)?.username || 'Conversation'
-              }}</span>
-              <span v-if="c.unreadCount" class="kr-badge-primary-sm">{{
-                c.unreadCount
-              }}</span>
-            </div>
-            <span class="kr-text-dim-xs-60 block truncate">
-              {{ c.lastMessage?.content || 'Say hello…' }}
-            </span>
-          </div>
-        </button>
-      </div>
-    </aside>
-
-    <!-- Active thread -->
-    <div class="kr-pane min-w-0 kr-panel-flat">
-      <template v-if="convo.activeId">
-        <header class="flex items-center gap-2 kr-panel-header-sm">
-          <div class="avatar">
-            <div class="kr-icon-8 rounded-full bg-base-300">
-              <img
-                v-if="activePeer?.avatarImage"
-                :src="activePeer?.avatarImage || ''"
-                :alt="activePeer?.username"
-              />
-            </div>
-          </div>
-          <span class="font-black">{{
-            activePeer?.username || 'Conversation'
-          }}</span>
-        </header>
-
-        <div ref="scrollBox" class="kr-pane-scroll space-y-2 p-3">
-          <p v-if="convo.isLoadingThread" class="kr-text-dim-sm-50 text-center">
-            Loading…
-          </p>
-          <div
-            v-for="m in convo.messages"
-            :key="m.id"
-            class="flex"
-            :class="m.senderId === myId ? 'justify-end' : 'justify-start'"
-          >
-            <div
-              class="max-w-[75%] rounded-2xl px-3 py-2 text-sm"
-              :class="
-                m.senderId === myId
-                  ? 'bg-primary text-primary-content'
-                  : 'bg-base-200'
-              "
-            >
-              {{ m.content }}
-            </div>
-          </div>
-        </div>
-
-        <form
-          class="flex items-center gap-2 kr-panel-footer-bare"
-          @submit.prevent="onSend"
-        >
-          <input
-            v-model="draft"
-            placeholder="Write a message…"
-            class="kr-input-rounded-xl flex-1 bg-base-200"
-          />
+  <div class="messenger-shell mx-auto w-full max-w-5xl">
+    <section class="messenger-panes kr-panes h-[70vh] grid-cols-1 p-3">
+      <!-- Conversation list -->
+      <aside class="messenger-list kr-pane w-full kr-panel-flat">
+        <header class="flex items-center justify-between kr-panel-header-sm">
+          <h2 class="font-black">Messages</h2>
           <button
-            type="submit"
-            class="kr-btn-primary-md"
-            :disabled="convo.isSending || !draft.trim()"
+            class="kr-btn-ghost-xs-plain"
+            :disabled="convo.isLoadingList"
+            @click="convo.loadConversations()"
           >
-            <span v-if="convo.isSending" class="kr-spinner-xs" />
-            <Icon v-else name="kind-icon:send" class="kr-icon-4" />
+            <Icon name="kind-icon:refresh" class="kr-icon-4" />
           </button>
-        </form>
-        <p v-if="convo.lastError" class="kr-text-error-xs px-3 pb-2">
-          {{ convo.lastError }}
-        </p>
-      </template>
+        </header>
+        <div class="kr-pane-scroll">
+          <p
+            v-if="!convo.conversations.length && !convo.isLoadingList"
+            class="kr-text-dim-sm-50 p-4"
+          >
+            No conversations yet. Find people on the
+            <NuxtLink to="/friends" class="link">friends page</NuxtLink>.
+          </p>
+          <button
+            v-for="c in convo.conversations"
+            :key="c.id"
+            class="flex w-full items-center gap-2 border-b border-base-200 p-3 text-left hover:bg-base-200"
+            :class="{ 'bg-base-200': c.id === convo.activeId }"
+            @click="convo.loadMessages(c.id)"
+          >
+            <div class="avatar">
+              <div class="kr-icon-9 rounded-full bg-base-300">
+                <img
+                  v-if="peer(c)?.avatarImage"
+                  :src="peer(c)?.avatarImage || ''"
+                  :alt="peer(c)?.username"
+                />
+              </div>
+            </div>
+            <div class="min-w-0 flex-1">
+              <div class="flex items-center justify-between">
+                <span class="truncate font-semibold">{{
+                  peer(c)?.username || 'Conversation'
+                }}</span>
+                <span v-if="c.unreadCount" class="kr-badge-primary-sm">{{
+                  c.unreadCount
+                }}</span>
+              </div>
+              <span class="kr-text-dim-xs-60 block truncate">
+                {{ c.lastMessage?.content || 'Say hello…' }}
+              </span>
+            </div>
+          </button>
+        </div>
+      </aside>
 
-      <div
-        v-else
-        class="flex flex-1 items-center justify-center text-base-content/50"
-      >
-        Select a conversation
+      <!-- Active thread -->
+      <div class="kr-pane min-w-0 kr-panel-flat">
+        <template v-if="convo.activeId">
+          <header class="flex items-center gap-2 kr-panel-header-sm">
+            <div class="avatar">
+              <div class="kr-icon-8 rounded-full bg-base-300">
+                <img
+                  v-if="activePeer?.avatarImage"
+                  :src="activePeer?.avatarImage || ''"
+                  :alt="activePeer?.username"
+                />
+              </div>
+            </div>
+            <span class="font-black">{{
+              activePeer?.username || 'Conversation'
+            }}</span>
+          </header>
+
+          <div ref="scrollBox" class="kr-pane-scroll space-y-2 p-3">
+            <p
+              v-if="convo.isLoadingThread"
+              class="kr-text-dim-sm-50 text-center"
+            >
+              Loading…
+            </p>
+            <div
+              v-for="m in convo.messages"
+              :key="m.id"
+              class="flex"
+              :class="m.senderId === myId ? 'justify-end' : 'justify-start'"
+            >
+              <div
+                class="max-w-[75%] rounded-2xl px-3 py-2 text-sm"
+                :class="
+                  m.senderId === myId
+                    ? 'bg-primary text-primary-content'
+                    : 'bg-base-200'
+                "
+              >
+                {{ m.content }}
+              </div>
+            </div>
+          </div>
+
+          <form
+            class="flex items-center gap-2 kr-panel-footer-bare"
+            @submit.prevent="onSend"
+          >
+            <input
+              v-model="draft"
+              placeholder="Write a message…"
+              class="kr-input-rounded-xl flex-1 bg-base-200"
+            />
+            <button
+              type="submit"
+              class="kr-btn-primary-md"
+              :disabled="convo.isSending || !draft.trim()"
+            >
+              <span v-if="convo.isSending" class="kr-spinner-xs" />
+              <Icon v-else name="kind-icon:send" class="kr-icon-4" />
+            </button>
+          </form>
+          <p v-if="convo.lastError" class="kr-text-error-xs px-3 pb-2">
+            {{ convo.lastError }}
+          </p>
+        </template>
+
+        <div
+          v-else
+          class="flex flex-1 items-center justify-center text-base-content/50"
+        >
+          Select a conversation
+        </div>
       </div>
-    </div>
-  </section>
+    </section>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -184,3 +187,19 @@ onMounted(async () => {
   }
 })
 </script>
+
+<style scoped>
+.messenger-shell {
+  container-type: inline-size;
+}
+
+@container (min-width: 40rem) {
+  .messenger-panes {
+    grid-template-columns: 18rem minmax(0, 1fr);
+  }
+
+  .messenger-list {
+    width: 18rem;
+  }
+}
+</style>

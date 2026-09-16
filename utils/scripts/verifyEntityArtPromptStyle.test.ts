@@ -11,6 +11,8 @@
 import assert from 'node:assert/strict'
 import { buildEntityArtPrompt } from '../../server/utils/entityArt'
 import { LORA_PROBE_RECIPES } from '../loraProbe'
+import { buildFluxWorkflowFromRequest } from '../../server/api/comfy/flux/utils/workflow'
+import { loraTriggerKey } from '../loraTriggerKey'
 
 const record = {
   id: 1,
@@ -42,21 +44,32 @@ for (const banned of [
   assert.ok(!tags.includes(banned), `tag lane must not contain ${banned}`)
 }
 
-// 3. The prose lane keeps its framing -- T5/Qwen genuinely follow it.
+// 3. A resource probe gets nothing appended on the PROSE lane either. The slot
+//    framing there says "centred on one clear subject" -- the exact phrase that
+//    dropped half of ArtJob 25398's two-subject LoRA -- and Name/Trigger words
+//    only restate what the recipe already carries.
 const prose = buildEntityArtPrompt('A candid photograph.', target, {
   style: 'prose',
 })
-assert.ok(prose.includes('Compose this as'))
-assert.ok(prose.includes('Trigger words: large male, t1nyg1rlz, very small female'))
+assert.equal(prose, 'A candid photograph.')
+for (const banned of ['Compose this as', 'one clear subject', 'Trigger words']) {
+  assert.ok(!prose.includes(banned), `prose resource probe must not carry ${banned}`)
+}
 
-// 4. Catalog metadata is dead weight on EVERY lane, prose included.
-assert.ok(!prose.includes('Model type'), 'prose lane must not carry Model type')
-assert.ok(!prose.includes('Base model'), 'prose lane must not carry Base model')
+// 4. A non-resource entity still gets its context, and still never gets the
+//    catalog metadata rows.
+const character = buildEntityArtPrompt('A candid photograph.', {
+  ...target,
+  entityType: 'character' as const,
+})
+assert.ok(character.includes('Compose this as'), 'characters keep prose framing')
+assert.ok(!character.includes('Model type'))
+assert.ok(!character.includes('Base model'))
 
 // 5. Default stays prose, so existing callers are unchanged.
 assert.equal(buildEntityArtPrompt('A candid photograph.', target), prose)
 
-// 6. No recipe may reimpose a single-subject or cropped framing.
+// 6. No recipe may reimpose a single-subject or cropped framing...
 for (const [family, recipe] of Object.entries(LORA_PROBE_RECIPES)) {
   const positive = recipe.positive('t1nyg1rlz')
   for (const banned of ['single subject', 'upper body', 'single figure']) {
@@ -66,6 +79,14 @@ for (const [family, recipe] of Object.entries(LORA_PROBE_RECIPES)) {
     )
   }
   assert.ok(positive.includes('t1nyg1rlz'), `${family} recipe must keep the trigger`)
+
+  // ...but every recipe MUST still name a subject. A pure style LoRA supplies
+  // none of its own, and a prompt with no subject noun renders nothing in
+  // particular -- the Z-Image mannequin failure.
+  assert.ok(
+    /\bsubject\b/i.test(positive),
+    `${family} recipe must anchor a subject, or style LoRAs have nothing to style`,
+  )
 }
 
 // 7. The whole point: a Pony probe now fits one 75-token CLIP chunk.
@@ -77,5 +98,66 @@ assert.ok(
   full.length / 4 < 75,
   `Pony probe must fit one CLIP chunk, got ~${Math.round(full.length / 4)} tokens`,
 )
+
+// 8. The Flux lane must actually apply the LoRA it was handed.
+//
+// buildFluxWorkflowFromRequest accepted no `loras` at all until 2026-09-16, so
+// every Flux job rendered base flux1-dev with the selection silently dropped.
+// Nothing errored -- 126 queued Flux LoRA previews were simply of the wrong
+// thing, which no failure could have revealed.
+const withLora = buildFluxWorkflowFromRequest({
+  prompt: 'aidmaHyperrealism. A subject centered in frame.',
+  loras: [{ name: 'Flux/aidmaHyperrealism.safetensors', strength: 0.8 }],
+})
+const loraNodes = Object.values(withLora.workflow).filter((node) =>
+  String(node.class_type ?? '').includes('Lora'),
+)
+assert.equal(loraNodes.length, 1, 'Flux workflow must chain the requested LoRA')
+assert.equal(
+  loraNodes[0]?.inputs?.lora_name,
+  'Flux/aidmaHyperrealism.safetensors',
+)
+
+// It must be spliced between the UNet and the encoder that feeds the sampler,
+// not left dangling where nothing reads it.
+const encode = Object.entries(withLora.workflow).find(
+  ([, node]) => node.class_type === 'ImpactWildcardEncode',
+)
+const loraId = Object.entries(withLora.workflow).find(
+  ([, node]) => String(node.class_type ?? '').includes('Lora'),
+)?.[0]
+assert.deepEqual(
+  encode?.[1]?.inputs?.model,
+  [loraId, 0],
+  'ImpactWildcardEncode must read the LoRA chain, not the raw UNet',
+)
+assert.deepEqual(
+  loraNodes[0]?.inputs?.model,
+  ['24', 0],
+  'the LoRA chain must start at the GGUF UNet loader',
+)
+
+// No LoRAs requested -> graph is untouched and still routes UNet -> encoder.
+const noLora = buildFluxWorkflowFromRequest({ prompt: 'a plain test prompt.' })
+assert.equal(
+  Object.values(noLora.workflow).filter((n) =>
+    String(n.class_type ?? '').includes('Lora'),
+  ).length,
+  0,
+)
+assert.deepEqual(noLora.workflow['59']?.inputs?.model, ['24', 0])
+
+// 9. Trigger dedup must see through the probe's own escaping.
+//
+// ArtJob 24571 ended `..., she hulk(marvel)` because the escaped copy already
+// in the prompt (`she hulk\\(marvel\\)`) failed a plain substring test, so the
+// raw term was appended again -- re-weighting `marvel`, which is precisely
+// what escaping existed to prevent.
+assert.equal(loraTriggerKey('she hulk\\(marvel\\)'), loraTriggerKey('she hulk(marvel)'))
+assert.equal(loraTriggerKey('Blue \\[Archive\\]'), loraTriggerKey('blue [archive]'))
+// A trailing comma in a catalog trigger broke the same test the same way.
+assert.equal(loraTriggerKey('zzYor, black hair,'), loraTriggerKey('zzyor, black hair'))
+// Genuinely different triggers must stay different.
+assert.notEqual(loraTriggerKey('she hulk'), loraTriggerKey('she hulk(marvel)'))
 
 console.log('verifyEntityArtPromptStyle: all assertions passed')

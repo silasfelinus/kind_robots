@@ -1145,14 +1145,17 @@ export function buildEntityArtPrompt(
   const field = getEntityArtFieldConfig(target.entityType, target.field)
   const context = contextLines(target.entityType, target.record)
 
+  /*
+   * A `resource` target gets nothing appended, on EITHER lane. Its caller is
+   * the LoRA probe, whose recipe already carries the quality tags, the trigger
+   * words, and the framing -- restating the triggers under a "Trigger words:"
+   * label only double-weights them by accident, and the slot framing below
+   * says "centred on one clear subject", which is the exact phrase that made
+   * ArtJob 25398 drop half of a two-subject LoRA.
+   */
+  if (target.entityType === 'resource') return userPrompt.trim()
+
   if ((options?.style ?? 'prose') === 'tags') {
-    /*
-     * A `resource` target gets nothing appended at all. Its caller is the LoRA
-     * probe, whose recipe already puts the quality tags, the trigger words, and
-     * the framing tags in the prompt -- restating the triggers under a
-     * "Trigger words:" label just double-weights them by accident.
-     */
-    if (target.entityType === 'resource') return userPrompt.trim()
     return [userPrompt.trim(), ...context].filter(Boolean).join('\n')
   }
 

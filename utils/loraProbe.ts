@@ -170,10 +170,19 @@ const NEGATIVE_SD = [
  * the concept needs and how tight the crop should be, which is the whole point
  * of a preview grid. Most Pony/Illustrious character LoRAs already carry `solo`
  * or `1girl` in their triggers, so they stay single-subject on their own.
+ *
+ * It still says "subject", though, and that word is load-bearing in the other
+ * direction. A pure STYLE LoRA -- aidmaHyperrealism, "Western Cartoon The
+ * Legend of Vox Machina style" -- contributes no subject of its own, so a
+ * framing with no noun at all leaves it nothing to render and the preview
+ * becomes arbitrary. That is the same failure as the Z-Image mannequin: a
+ * prompt with no subject gets an image of nothing in particular. "subject
+ * centered in frame" gives a style LoRA something to style without asserting
+ * how many subjects there are or how close the camera is.
  */
-const PROBE_FRAMING_TAGS = 'centered composition, simple uncluttered background'
+const PROBE_FRAMING_TAGS = 'subject centered in frame, simple uncluttered background'
 const PROBE_FRAMING_PROSE =
-  'A centered composition with a simple uncluttered background.'
+  'A subject centered in frame against a simple uncluttered background.'
 
 export const LORA_PROBE_RECIPES: Record<
   Exclude<LoraProbeFamily, 'unsupported'>,

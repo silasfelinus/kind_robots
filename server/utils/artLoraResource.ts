@@ -1,5 +1,6 @@
 // /server/utils/artLoraResource.ts
 import { createError } from 'h3'
+import { loraTriggerKey } from '~/utils/loraTriggerKey'
 import { ResourceType, SupportedServer } from '~/prisma/generated/prisma/client'
 import { resolveMaturityPrivacy } from '~/utils/maturityPrivacy'
 import {
@@ -280,6 +281,8 @@ function readLoraRequests(body: LoraAwareEnqueueBody): LoraRequest[] {
     .slice(0, MAX_LORAS_PER_JOB)
 }
 
+// Comparison-only normalizer; see utils/loraTriggerKey.ts for why escaping
+// and trailing punctuation have to be stripped before deduping.
 function triggerTerms(resource: LoraResourceRecord): string[] {
   const preferred = String(resource.defaultTrigger || '').trim()
   if (preferred) return [preferred]
@@ -299,12 +302,12 @@ function appendResolvedTriggers(
   if (!base) return null
 
   const seen = new Set<string>()
-  const haystack = base.toLowerCase()
+  const haystack = loraTriggerKey(base)
   const additions: string[] = []
 
   for (const resource of resources) {
     for (const term of triggerTerms(resource)) {
-      const key = term.toLowerCase()
+      const key = loraTriggerKey(term)
       if (!key || seen.has(key) || haystack.includes(key)) continue
       seen.add(key)
       additions.push(term)

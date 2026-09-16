@@ -576,6 +576,10 @@ function buildJobPayload(
   if (engine === 'flux') {
     const { workflow } = buildFluxWorkflowFromRequest({
       variant: body.variant ?? null,
+      // Was omitted, so every Flux job silently rendered base flux1-dev with
+      // the caller's LoRA selection discarded. See the LoRA note in
+      // server/api/comfy/flux/utils/workflow.ts.
+      loras: body.loras ?? null,
       prompt: promptString,
       negativePrompt: body.negativePrompt ?? null,
       width: body.width ?? null,

@@ -239,6 +239,16 @@ const NEGATIVE_SD = [
   'signature',
   'text',
   'cropped',
+  /*
+   * 'cropped' alone did not hold. Both figures in the 2026-09-16 Pony strip
+   * came back cut off at the mouth -- the model scales a standing figure to
+   * fill a 1:1 frame and the head is what leaves it. Naming the specific
+   * failure works where the general word did not, and it does this without
+   * asserting a shot size in the positive prompt, which is what broke the
+   * full-body LoRAs the last time framing was tightened.
+   */
+  'head out of frame',
+  'cropped head',
   'extra limbs',
   'deformed hands',
 ].join(', ')
@@ -277,6 +287,89 @@ const PROBE_FRAMING_TAGS = 'subject centered in frame, simple uncluttered backgr
 const PROBE_FRAMING_PROSE =
   'A subject centered in frame against a simple uncluttered background.'
 
+/*
+ * THE SCAFFOLD NAMES A SUBJECT WHEN THE LORA DOES NOT.
+ *
+ * Measured across all 2,658 probe jobs on 2026-09-16: 81.2% carried no subject
+ * noun at all, and for 49.4% the entire prompt body was a single tag. The
+ * median prompt was two tags. `anna`, `Apple - Style`, `pumpkinspicelatte
+ * Style` -- that is the whole instruction, and eleven rows were empty.
+ *
+ * A prompt with no subject does not render nothing; it renders something
+ * arbitrary, differently every time, which is worse. It is the same failure as
+ * the Z-Image mannequin, and at this scale it means the style half of the
+ * triage grid was never comparable LoRA-to-LoRA: each style LoRA invented its
+ * own subject, so the one variable the grid exists to isolate was never
+ * isolated.
+ *
+ * Injected CONDITIONALLY, which is the whole design. PROBE_FRAMING_TAGS above
+ * documents why an unconditional subject is wrong: 'single subject' contradicted
+ * the "Very Small Women" LoRA's own 'large male, very small female' triggers and
+ * the render dropped a figure. So a LoRA that names any subject of its own keeps
+ * it untouched and this adds nothing. Only the 81% that name none get a subject,
+ * and they are exactly the rows that currently render pot luck.
+ *
+ * `1girl` rather than a neutral phrase, chosen by Silas 2026-09-16: it is the
+ * highest-frequency tag in the Danbooru-derived training sets these families
+ * come from, so it is the most reliable subject token available, and the probe
+ * grid is his own LoRA library rather than user-facing output. Change this one
+ * constant to change the default for every SD-lineage probe.
+ */
+const PROBE_DEFAULT_SUBJECT = '1girl'
+
+/*
+ * Flux and Z-Image read prose through T5, where `1girl` is a Danbooru token
+ * with no meaning. Same decision, spelled for a different text encoder.
+ */
+const PROBE_DEFAULT_SUBJECT_PROSE = 'a woman'
+
+/*
+ * Does the trigger text already name something to draw?
+ *
+ * Framing words are deliberately absent: 'upper body', 'portrait' and 'face'
+ * say how to frame a subject, not what the subject is, and counting them as
+ * subjects is what would let `portrait` alone through as a complete prompt.
+ */
+const SUBJECT_NOUN_PATTERN =
+  /(?:^|[\s,([])(?:\d*(?:girl|boy)s?|girls?|boys?|wo?m[ae]n|male|female|person|people|couple|child|children|lady|guy|character|robot|mecha|animal|cat|dog|horse|dragon|creature|monster|knight|warrior|witch|wizard|elf|orc|mermaid|angel|demon|vampire|ghost|pony)(?:$|[\s,)\]])/i
+
+export function triggerNamesSubject(trigger: string): boolean {
+  return SUBJECT_NOUN_PATTERN.test(String(trigger || ''))
+}
+
+/*
+ * A trigger list, not a scene. 10.2% of probes dumped 12+ raw tags in -- the
+ * Marge Simpson row sends 'the simpsons, source cartoon, round eyes, dot
+ * pupils, marge simpson' and one row sends twenty `mix_(x)` concepts from a
+ * multi-concept LoRA. Past roughly eight tags they compete rather than compose,
+ * and the scaffold that makes the grid comparable is what gets drowned.
+ *
+ * Kept from the FRONT: catalog trigger fields lead with the activation token
+ * (`msp3yt0n`, `mlgswtch`) and trail off into descriptive filler, so the front
+ * is the part that actually invokes the LoRA.
+ */
+const MAX_TRIGGER_TAGS = 8
+
+export function capProbeTriggerTags(trigger: string): string {
+  const tags = String(trigger || '')
+    .split(',')
+    .map((tag) => tag.trim())
+    .filter(Boolean)
+  return tags.slice(0, MAX_TRIGGER_TAGS).join(', ')
+}
+
+/**
+ * The trigger text as it should appear in a probe: capped, and given a subject
+ * if it names none.
+ */
+export function probeSubjectClause(trigger: string, prose = false): string {
+  const capped = capProbeTriggerTags(trigger)
+  const subject = prose ? PROBE_DEFAULT_SUBJECT_PROSE : PROBE_DEFAULT_SUBJECT
+  if (!capped) return subject
+  if (triggerNamesSubject(capped)) return capped
+  return `${capped}, ${subject}`
+}
+
 export const LORA_PROBE_RECIPES: Record<
   Exclude<LoraProbeFamily, 'unsupported'>,
   LoraProbeRecipe
@@ -290,7 +383,7 @@ export const LORA_PROBE_RECIPES: Record<
     positive: (trigger) =>
       [
         'score_9, score_8_up, score_7_up',
-        escapeSdPromptWeighting(trigger),
+        escapeSdPromptWeighting(probeSubjectClause(trigger)),
         PROBE_FRAMING_TAGS,
       ]
         .filter(Boolean)
@@ -306,7 +399,7 @@ export const LORA_PROBE_RECIPES: Record<
     positive: (trigger) =>
       [
         'masterpiece, best quality, very aesthetic, absurdres',
-        escapeSdPromptWeighting(trigger),
+        escapeSdPromptWeighting(probeSubjectClause(trigger)),
         PROBE_FRAMING_TAGS,
       ]
         .filter(Boolean)
@@ -321,7 +414,7 @@ export const LORA_PROBE_RECIPES: Record<
     loraStrength: 0.8,
     positive: (trigger) =>
       [
-        escapeSdPromptWeighting(trigger),
+        escapeSdPromptWeighting(probeSubjectClause(trigger)),
         PROBE_FRAMING_TAGS,
       ]
         .filter(Boolean)
@@ -342,7 +435,7 @@ export const LORA_PROBE_RECIPES: Record<
     positive: (trigger) =>
       [
         'best quality',
-        escapeSdPromptWeighting(trigger),
+        escapeSdPromptWeighting(probeSubjectClause(trigger)),
         PROBE_FRAMING_TAGS,
       ]
         .filter(Boolean)
@@ -367,9 +460,7 @@ export const LORA_PROBE_RECIPES: Record<
     height: 1024,
     loraStrength: 0.8,
     positive: (trigger) =>
-      trigger
-        ? `${trigger}. ${PROBE_FRAMING_PROSE}`
-        : PROBE_FRAMING_PROSE,
+      `${probeSubjectClause(trigger, true)}. ${PROBE_FRAMING_PROSE}`,
     negative: '',
   },
   flux: {
@@ -379,9 +470,7 @@ export const LORA_PROBE_RECIPES: Record<
     height: 1024,
     loraStrength: 0.8,
     positive: (trigger) =>
-      trigger
-        ? `${trigger}. ${PROBE_FRAMING_PROSE}`
-        : PROBE_FRAMING_PROSE,
+      `${probeSubjectClause(trigger, true)}. ${PROBE_FRAMING_PROSE}`,
     negative: '',
   },
 }

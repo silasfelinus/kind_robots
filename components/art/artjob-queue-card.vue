@@ -80,6 +80,17 @@
         </p>
       </div>
 
+      <button
+        v-if="canHideMatureJob"
+        type="button"
+        class="kr-btn-xs-2xl btn-warning btn-outline absolute bottom-2 right-2 z-10 bg-base-100/80"
+        :aria-label="`Hide mature ArtJob ${job.id} again`"
+        @click.stop.prevent="hideMatureJob"
+      >
+        <Icon name="kind-icon:eye" class="kr-icon-4" />
+        Hide
+      </button>
+
       <div class="absolute left-2 top-2 flex flex-wrap gap-1">
         <span class="badge badge-neutral badge-sm rounded-2xl font-mono">
           #{{ job.id }}
@@ -199,12 +210,22 @@
       >
         {{ jobPrompt || 'Prompt unavailable.' }}
       </p>
-      <p
+      <div
         v-else
-        class="rounded-xl border border-warning/30 bg-warning/10 p-2 text-xs text-warning-content"
+        class="flex flex-wrap items-center gap-2 rounded-xl border border-warning/30 bg-warning/10 p-2 text-xs text-warning-content"
       >
-        {{ hiddenMatureMessage }}
-      </p>
+        <span class="min-w-0 flex-1">{{ hiddenMatureMessage }}</span>
+        <button
+          v-if="canRevealMatureJob"
+          type="button"
+          class="kr-btn-outline-plain rounded-2xl"
+          :aria-label="`Reveal mature ArtJob ${job.id}`"
+          @click="revealMatureJob"
+        >
+          <Icon name="kind-icon:eye" class="kr-icon-4" />
+          Reveal
+        </button>
+      </div>
 
       <div class="flex flex-wrap gap-1">
         <span
@@ -238,9 +259,19 @@
         <div class="flex flex-col gap-3 kr-panel-footer-bare text-xs">
           <div
             v-if="!canShowJobContent"
-            class="rounded-xl border border-warning/30 bg-warning/10 p-3 text-warning-content"
+            class="flex flex-wrap items-center gap-2 rounded-xl border border-warning/30 bg-warning/10 p-3 text-warning-content"
           >
-            {{ hiddenMatureMessage }}
+            <span class="min-w-0 flex-1">{{ hiddenMatureMessage }}</span>
+            <button
+              v-if="canRevealMatureJob"
+              type="button"
+              class="kr-btn-outline-plain rounded-2xl"
+              :aria-label="`Reveal mature ArtJob ${job.id}`"
+              @click="revealMatureJob"
+            >
+              <Icon name="kind-icon:eye" class="kr-icon-4" />
+              Reveal
+            </button>
           </div>
           <template v-else>
             <div v-if="jobPageLabel || jobImagePath">
@@ -439,6 +470,9 @@ const canShowJobContent = computed<boolean>(
     locallyRevealedMature.value,
 )
 
+/** Only a DONE job renders the image block that carries the click-to-reveal. */
+const hasPreviewSurface = computed<boolean>(() => props.job.status === 'DONE')
+
 const canRevealMatureJob = computed<boolean>(() => {
   return (
     jobVisibility.value.isMature &&
@@ -454,6 +488,17 @@ const hiddenMatureMessage = computed<string>(() => {
   }
   if (!jobVisibility.value.isPublic && !ownsJob.value) {
     return "Inline reveal is unavailable for another user's private job."
+  }
+  /*
+   * Only a DONE job renders a preview surface to click (see the
+   * `job.status === 'DONE'` guard on the preview block). Telling the owner of a
+   * FAILED or still-queued mature job to "click the preview" pointed at an
+   * affordance that was never rendered, so its prompt -- and on a failure, the
+   * error context that makes the prompt worth reading -- could not be reached
+   * at all. Silas hit this on ArtJob 22838, 2026-09-16.
+   */
+  if (!hasPreviewSurface.value) {
+    return 'Mature prompt is hidden. Use Reveal to read it.'
   }
   return 'Mature prompt and preview are hidden. Click the preview to reveal this job.'
 })
@@ -521,6 +566,25 @@ async function loadProtectedPreview(includeMature = false): Promise<void> {
   // id with new bytes — refetches instead of serving the previous render.
   await artJobStore.loadJobImage(id, imageVersion.value, includeMature)
 }
+
+/**
+ * Re-hide a job revealed on this card.
+ *
+ * Reveal used to be one-way: once clicked there was no way back without a
+ * reload, which is the wrong default for mature content on a shared screen
+ * (Silas, 2026-09-16). Only the local reveal is undone -- artStore.showMature
+ * is the account-level setting and is not touched here.
+ */
+function hideMatureJob(): void {
+  locallyRevealedMature.value = false
+}
+
+const canHideMatureJob = computed<boolean>(
+  () =>
+    jobVisibility.value.isMature &&
+    locallyRevealedMature.value &&
+    !artStore.showMature,
+)
 
 async function revealMatureJob(): Promise<void> {
   if (!canRevealMatureJob.value) return

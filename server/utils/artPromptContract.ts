@@ -82,6 +82,8 @@ export const DISTILLED_ENGINE_LIMITS: Record<
   { cfg: number; maxSteps: number }
 > = {
   krea2: { cfg: 1, maxSteps: 12 },
+  // Z-Image Turbo: the exported ComfyUI template runs 8 steps at cfg 1.
+  zimage: { cfg: 1, maxSteps: 12 },
   // The enqueue endpoint normalizes to "flux2"; Conductor's consumer calls the
   // same engine "flux2-klein". Both spellings reach this gate, so both are keyed
   // rather than relying on either side to normalize first.

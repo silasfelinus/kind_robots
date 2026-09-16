@@ -539,6 +539,45 @@ function run(): void {
     )
   }
 
+  /*
+   * Z-Image is its own lane, not an SD checkpoint. ArtJob 25378 proved the
+   * ordinary comfy graph cannot run it: CheckpointLoaderSimple loaded the
+   * weights and CLIPTextEncode then failed with "clip input is invalid: None",
+   * because Z-Image ships its text encoder (Qwen3-4B) separately.
+   */
+  for (const generation of ['ZImageTurbo', 'ZImageBase', 'z-image turbo']) {
+    assert.equal(
+      classifyLoraFamily(generation),
+      'zimage',
+      `${generation} routes to the zimage lane`,
+    )
+  }
+  assert.equal(LORA_PROBE_RECIPES.zimage.engine, 'zimage')
+  assert.equal(
+    LORA_PROBE_RECIPES.zimage.basePolicy,
+    'engine-default',
+    'the zimage lane loads fixed weights, so it picks no catalog checkpoint',
+  )
+  assert.equal(
+    selectProbeCheckpoint('zimage', true, [
+      checkpoint(
+        50,
+        'ZImage/zImageTurboNSFW_82_FP8.safetensors',
+        true,
+        'ZImageTurbo',
+      ),
+    ]),
+    null,
+    'a ZImage/ checkpoint is never selected -- the lane supplies its own UNet',
+  )
+  const zimageProbe = buildLoraProbePrompt('zimage', 'RealisticSnapshot')
+  assert.ok(zimageProbe)
+  assert.equal(
+    zimageProbe.negativePrompt,
+    '',
+    'Z-Image derives its negative by zeroing the positive conditioning',
+  )
+
   console.log('verifyLoraProbePlan: all assertions passed')
 }
 

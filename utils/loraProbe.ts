@@ -1,7 +1,7 @@
 export type LoraProbeFamily =
-  'pony' | 'illustrious' | 'sdxl' | 'sd15' | 'flux' | 'unsupported'
+  'pony' | 'illustrious' | 'sdxl' | 'sd15' | 'flux' | 'zimage' | 'unsupported'
 
-export type LoraProbeEngine = 'comfy' | 'flux'
+export type LoraProbeEngine = 'comfy' | 'flux' | 'zimage'
 
 export type LoraProbeRecipe = {
   engine: LoraProbeEngine
@@ -226,6 +226,25 @@ export const LORA_PROBE_RECIPES: Record<
    * Flux reads natural language and takes no negative prompt -- a comma-tag
    * string scaffolded for SD would waste most of its conditioning.
    */
+  /*
+   * Z-Image Turbo. Like flux this lane loads a fixed set of weights
+   * (z_image_turbo_bf16 + qwen_3_4b + ae.safetensors) rather than a catalog
+   * checkpoint, and it takes no negative prompt -- the graph derives one by
+   * zeroing the positive conditioning. See
+   * server/api/comfy/zimage/utils/workflow.ts.
+   */
+  zimage: {
+    engine: 'zimage',
+    basePolicy: 'engine-default',
+    width: 1024,
+    height: 1024,
+    loraStrength: 0.8,
+    positive: (trigger) =>
+      trigger
+        ? `${trigger}. A single figure, centered upper body, simple uncluttered background.`
+        : 'A single figure, centered upper body, simple uncluttered background.',
+    negative: '',
+  },
   flux: {
     engine: 'flux',
     basePolicy: 'engine-default',
@@ -286,6 +305,7 @@ export function classifyLoraFamily(
     )
       return 'unsupported'
     if (value.includes('flux')) return 'flux'
+    if (value.includes('zimage') || value.includes('z-image')) return 'zimage'
     if (value.includes('sdxl')) return 'sdxl'
     if (value.includes('sd 1.5') || value === '1.5' || value.includes('sd1.5'))
       return 'sd15'
@@ -348,7 +368,7 @@ const CHECKPOINT_EXCLUDE_PATTERN = /(_mm|motion_module|animatediff)\./i
  * the deterministic alphabetical order below.
  */
 const PROBE_BASE_PREFERENCE: Record<
-  Exclude<LoraProbeFamily, 'unsupported' | 'flux'>,
+  Exclude<LoraProbeFamily, 'unsupported' | 'flux' | 'zimage'>,
   string[]
 > = {
   /*
@@ -441,7 +461,10 @@ export function selectProbeCheckpoint(
     String(a.localPath || a.name).localeCompare(String(b.localPath || b.name)),
   )
 
-  const order = family === 'flux' ? [] : (PROBE_BASE_PREFERENCE[family] ?? [])
+  const order =
+    family === 'flux' || family === 'zimage'
+      ? []
+      : (PROBE_BASE_PREFERENCE[family] ?? [])
   for (const wanted of order) {
     const hit = ranked.find((candidate) =>
       String(candidate.localPath || candidate.name)

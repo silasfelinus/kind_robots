@@ -501,7 +501,8 @@
     "flag:mature-resources": "tsx utils/scripts/flagMatureResources.ts",
     "test:mature-terms": "tsx utils/scripts/flagMatureResources.ts --self-test",
     "test:artjob-priority-bounds": "tsx utils/scripts/verifyArtJobPriorityBounds.ts",
-    "test:wan-i2v-modes": "tsx utils/scripts/verifyWanI2vModes.ts"
+    "test:wan-i2v-modes": "tsx utils/scripts/verifyWanI2vModes.ts",
+    "test:entity-art-prompt-style": "tsx utils/scripts/verifyEntityArtPromptStyle.test.ts"
   },
   "devDependencies": {
     "@nuxt/eslint": "^1.1.0",

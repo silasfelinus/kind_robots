@@ -150,6 +150,31 @@ const NEGATIVE_SD = [
   'deformed hands',
 ].join(', ')
 
+/*
+ * Framing for the probe, and deliberately NOT "single subject, upper body".
+ *
+ * That phrasing broke any LoRA whose concept needs more than one body or more
+ * than a head-and-shoulders crop. ArtJob 25398 is the worked example
+ * (kind-robots/t-105, 2026-09-16): the "Very Small Women" Pony LoRA's own
+ * trigger words are "large male, t1nyg1rlz, very small female" -- a size
+ * DIFFERENCE concept that cannot show at all without two figures in frame --
+ * and "single subject" sat six tokens away contradicting them. The render
+ * dropped the woman and returned one man, which reads in the triage grid as a
+ * broken LoRA when it was a broken probe.
+ *
+ * "upper body" fails the same LoRAs a second way: even with both figures
+ * present, a head-and-shoulders crop cannot show relative scale. It also
+ * clipped outfit, pose, and full-body LoRAs.
+ *
+ * Neutral framing lets the LoRA and its own triggers decide how many subjects
+ * the concept needs and how tight the crop should be, which is the whole point
+ * of a preview grid. Most Pony/Illustrious character LoRAs already carry `solo`
+ * or `1girl` in their triggers, so they stay single-subject on their own.
+ */
+const PROBE_FRAMING_TAGS = 'centered composition, simple uncluttered background'
+const PROBE_FRAMING_PROSE =
+  'A centered composition with a simple uncluttered background.'
+
 export const LORA_PROBE_RECIPES: Record<
   Exclude<LoraProbeFamily, 'unsupported'>,
   LoraProbeRecipe
@@ -164,7 +189,7 @@ export const LORA_PROBE_RECIPES: Record<
       [
         'score_9, score_8_up, score_7_up',
         escapeSdPromptWeighting(trigger),
-        'single subject, upper body, centered, simple uncluttered background',
+        PROBE_FRAMING_TAGS,
       ]
         .filter(Boolean)
         .join(', '),
@@ -180,7 +205,7 @@ export const LORA_PROBE_RECIPES: Record<
       [
         'masterpiece, best quality, very aesthetic, absurdres',
         escapeSdPromptWeighting(trigger),
-        'single subject, upper body, centered, simple uncluttered background',
+        PROBE_FRAMING_TAGS,
       ]
         .filter(Boolean)
         .join(', '),
@@ -195,7 +220,7 @@ export const LORA_PROBE_RECIPES: Record<
     positive: (trigger) =>
       [
         escapeSdPromptWeighting(trigger),
-        'single subject, upper body, centered, simple uncluttered background',
+        PROBE_FRAMING_TAGS,
       ]
         .filter(Boolean)
         .join(', '),
@@ -216,7 +241,7 @@ export const LORA_PROBE_RECIPES: Record<
       [
         'best quality',
         escapeSdPromptWeighting(trigger),
-        'single subject, upper body, centered, simple uncluttered background',
+        PROBE_FRAMING_TAGS,
       ]
         .filter(Boolean)
         .join(', '),
@@ -241,8 +266,8 @@ export const LORA_PROBE_RECIPES: Record<
     loraStrength: 0.8,
     positive: (trigger) =>
       trigger
-        ? `${trigger}. A single figure, centered upper body, simple uncluttered background.`
-        : 'A single figure, centered upper body, simple uncluttered background.',
+        ? `${trigger}. ${PROBE_FRAMING_PROSE}`
+        : PROBE_FRAMING_PROSE,
     negative: '',
   },
   flux: {
@@ -253,8 +278,8 @@ export const LORA_PROBE_RECIPES: Record<
     loraStrength: 0.8,
     positive: (trigger) =>
       trigger
-        ? `${trigger}. A single figure, centered upper body, simple uncluttered background.`
-        : 'A single figure, centered upper body, simple uncluttered background.',
+        ? `${trigger}. ${PROBE_FRAMING_PROSE}`
+        : PROBE_FRAMING_PROSE,
     negative: '',
   },
 }

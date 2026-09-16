@@ -173,6 +173,19 @@ const ENGINE_ALIASES: Record<string, EnqueueEngine> = {
   'sdxl-i2i': 'sdxl-img2img',
   'sdxl-image': 'sdxl-img2img',
 }
+/*
+ * Lanes whose text encoder is CLIP reading danbooru-style tags (SD 1.5, SDXL,
+ * Pony, Illustrious) rather than a T5/Qwen encoder that follows instructions.
+ * They get the tag-style entity context; see EntityArtPromptStyle in
+ * server/utils/entityArt.ts for what the prose block does to a Pony prompt.
+ * krea2/flux2/kontext/zimage are Flux- or Qwen-family and stay on prose.
+ */
+const TAG_PROMPT_ENGINES = new Set<EnqueueEngine>([
+  'a1111',
+  'comfy',
+  'sdxl-img2img',
+])
+
 const VIDEO_ENGINES = new Set<EnqueueEngine>(['ltx', 'wan'])
 const GATE_ENGINE: Record<
   EnqueueEngine,
@@ -436,7 +449,9 @@ export default defineEventHandler(async (event) => {
     const requestedFacets = facetRequest(resolvedBody)
     const basePromptString = requestedFacets.basePromptString || requestedPrompt
     const contextualBasePrompt = entityArt
-      ? buildEntityArtPrompt(basePromptString, entityArt.target)
+      ? buildEntityArtPrompt(basePromptString, entityArt.target, {
+          style: TAG_PROMPT_ENGINES.has(engine) ? 'tags' : 'prose',
+        })
       : basePromptString
     const facets = await resolveArtFacetSelection({
       facetIds: requestedFacets.facetIds,

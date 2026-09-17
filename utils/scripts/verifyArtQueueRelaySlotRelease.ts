@@ -97,6 +97,10 @@ for (const required of [
   'candidate.claimedAt?.toISOString()',
   'enrichedPayload.processingStartedAt = processingStartedAt',
   'claimedAt: claimTime,',
+  'const payloadForClaim = { ...samplerRepair.payload }',
+  'delete payloadForClaim.processingStartedAt',
+  'assertQueuedArtPromptContract(candidate.engine, payloadForClaim)',
+  'const currentProvenance = readArtJobProvenance(payloadForClaim)',
 ]) {
   assertIncludes(route, 'Art queue stable processing start', required)
 }

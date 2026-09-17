@@ -250,17 +250,25 @@ const NEGATIVE_SD = [
   'head out of frame',
   'cropped head',
   /*
-   * Ages the subject explicitly, on every probe, alongside the adult qualifier
-   * in PROBE_DEFAULT_SUBJECT. Belt and braces deliberately: the positive
-   * qualifier steers and this forecloses, because ~450 probes pair an injected
-   * subject with a LoRA from an NSFW directory and a bare `1girl` was returning
-   * pre-teen subjects. Not optional, and not per-probe.
+   * Forecloses minors on every lane that takes a negative prompt.
    *
-   * Kept deliberately narrow. `teenager` was here and was removed (Silas,
-   * 2026-09-17): the catalog holds LoRAs of characters who are canonically
-   * eighteen or nineteen and legitimately depicted as adults, and the word
-   * covers them as much as it covers a minor. The terms that remain name
-   * children only, so none of them is ambiguous in that way.
+   * This is now the ONLY age guard, and deliberately so. The positive side
+   * injected `1girl` for a day and it biased pre-teen across nine unrelated
+   * LoRAs; `adult, mature female` then aged the whole grid to 40-50+. Both were
+   * removed because a scaffold noun competes with the LoRA being previewed. A
+   * negative does not: it constrains what must not appear without pulling the
+   * subject anywhere, so it costs nothing in fidelity.
+   *
+   * It also covers the case the positive side never could -- a LoRA supplying
+   * its own young-reading trigger, which no injected token touches.
+   *
+   * Kept narrow. `teenager` was here and was removed (Silas, 2026-09-17): the
+   * catalog holds characters who are canonically eighteen or nineteen and
+   * legitimately depicted as adults, and the word covers them as much as it
+   * covers a minor. Every term below names children only.
+   *
+   * Flux and Z-Image take no negative prompt at all, so this does not reach
+   * them.
    */
   'child',
   'children',
@@ -313,103 +321,56 @@ const NEGATIVE_SD = [
  * wall to hang it on. Introduced by #2776 earlier the same day -- the phrasing
  * it replaced, 'single subject, upper body, centered', contained no such word.
  *
- * The word 'subject' goes with it, and that is the point rather than a
- * side-effect. It existed only so a pure style LoRA contributing no subject of
- * its own had SOMETHING to render; PROBE_DEFAULT_SUBJECT now gives those rows a
- * real one, so the placeholder noun that was inviting this reading is no longer
- * load-bearing. What is left says only where to put the thing and what to put
- * behind it.
+ * The word 'subject' goes with it. It existed only so a pure style LoRA
+ * contributing no subject of its own had SOMETHING to render, and that is no
+ * longer a job the scaffold takes on at all. What is left says only where to
+ * put the thing and what to put behind it.
  */
 const PROBE_FRAMING_TAGS = 'centered, simple uncluttered background'
 const PROBE_FRAMING_PROSE = 'Centered against a simple uncluttered background.'
 
 /*
- * THE SCAFFOLD NAMES A SUBJECT WHEN THE LORA DOES NOT.
+ * NO SUBJECT IS INJECTED. A probe renders the LoRA's own trigger and nothing
+ * more.
  *
- * Measured across all 2,658 probe jobs on 2026-09-16: 81.2% carried no subject
- * noun at all, and for 49.4% the entire prompt body was a single tag. The
- * median prompt was two tags. `anna`, `Apple - Style`, `pumpkinspicelatte
- * Style` -- that is the whole instruction, and eleven rows were empty.
+ * One was injected here, and the attempt is recorded because every repair made
+ * it worse:
  *
- * A prompt with no subject does not render nothing; it renders something
- * arbitrary, differently every time, which is worse. It is the same failure as
- * the Z-Image mannequin, and at this scale it means the style half of the
- * triage grid was never comparable LoRA-to-LoRA: each style LoRA invented its
- * own subject, so the one variable the grid exists to isolate was never
- * isolated.
+ *   - 81.2% of 2,658 probes named no subject at all and rendered something
+ *     arbitrary, so `1girl` was injected into those -- the highest-frequency
+ *     tag in the Danbooru-derived sets these families come from.
+ *   - `1girl` spans every age and biased strongly young: six of nine
+ *     consecutive probes across nine unrelated LoRAs came back pre-teen, and
+ *     449 pending probes paired it with a LoRA under NSFW/.
+ *   - `adult, mature female` was added to age it. `mature female` is a
+ *     Danbooru term for OLDER, and the grid came back uniformly 40-50+
+ *     (Silas, 2026-09-17: "massively distorting the loras").
  *
- * Injected CONDITIONALLY, which is the whole design. PROBE_FRAMING_TAGS above
- * documents why an unconditional subject is wrong: 'single subject' contradicted
- * the "Very Small Women" LoRA's own 'large male, very small female' triggers and
- * the render dropped a figure. So a LoRA that names any subject of its own keeps
- * it untouched and this adds nothing. Only the 81% that name none get a subject,
- * and they are exactly the rows that currently render pot luck.
+ * Each token pulled the render somewhere the LoRA was not. A scaffold subject
+ * competes with the thing being previewed whichever noun it is, and the
+ * arbitrary-render problem it was meant to solve is the milder complaint: a
+ * style LoRA with no subject renders something unpredictable, which reads
+ * correctly as "this LoRA carries no subject" once the scaffold is known to add
+ * none.
  *
- * `1girl` rather than a neutral phrase, chosen by Silas 2026-09-16: it is the
- * highest-frequency tag in the Danbooru-derived training sets these families
- * come from, so it is the most reliable subject token available, and the probe
- * grid is his own LoRA library rather than user-facing output. Change this one
- * constant to change the default for every SD-lineage probe.
+ * The minor-exclusion terms in NEGATIVE_SD stay. A negative constrains what
+ * must not appear without pulling the subject anywhere, so it costs nothing in
+ * fidelity, and it is the guard that has to hold when a LoRA supplies its own
+ * young-reading trigger.
  *
- * THE ADULT QUALIFIER IS NOT COSMETIC AND MUST NOT BE REMOVED.
- *
- * `1girl` is a Danbooru tag spanning every age, and on these bases it biases
- * strongly young: nine consecutive probes across nine unrelated LoRAs (paste
- * fairy tale, shroom, leaf, Dixit, diterlizzi, desert, Deadpool, Dave McKean,
- * cyberpunk) returned six pre-teen subjects on the bare tag, 2026-09-17. The
- * only thing those renders shared was this constant.
- *
- * This default is applied to EVERY probe that names no subject of its own, and
- * 449 of those were queued against LoRAs under an NSFW/ directory. A subject
- * token that skews child-like, paired with an NSFW LoRA, generates child
- * sexual abuse material. That is the failure mode this qualifier and the
- * matching negative terms exist to prevent, and it is why neither is
- * adjustable per-probe.
+ * If a particular probe genuinely needs a figure, name it at the call site.
+ * Do not reinstate a global default here.
  */
-const PROBE_DEFAULT_SUBJECT = '1girl, adult, mature female'
-
-/*
- * Flux and Z-Image read prose through T5, where `1girl` is a Danbooru token
- * with no meaning. Same decision, spelled for a different text encoder.
- */
-const PROBE_DEFAULT_SUBJECT_PROSE = 'an adult woman'
-
-/*
- * Does the trigger text already name something to draw?
- *
- * Framing words are deliberately absent: 'upper body', 'portrait' and 'face'
- * say how to frame a subject, not what the subject is, and counting them as
- * subjects is what would let `portrait` alone through as a complete prompt.
- *
- * So are two words that look like subjects and are not, each caught by this
- * running against the live queue after the first pass:
- *
- *   'pony'      -- almost always the BASE MODEL. 'Bartolomeobari Style - Pony
- *                  XL', 'Custom Pony Styles Collection' and 'Sky ( Artist
- *                  Style ) Pony' all counted as having a subject and so were
- *                  left without one. A genuine My Little Pony LoRA triggers on
- *                  'my little pony, pony girl' and is still caught, by 'girl'.
- *   'character' -- 'character sheet' and 'character design' are formats. A
- *                  LoRA whose only noun is 'character' is better served by
- *                  getting a subject than by being counted as having one.
- */
-const SUBJECT_NOUN_PATTERN =
-  /(?:^|[\s,([])(?:\d*(?:girl|boy)s?|girls?|boys?|wo?m[ae]n|male|female|person|people|couple|child|children|lady|guy|robot|mecha|animal|cat|dog|horse|dragon|creature|monster|knight|warrior|witch|wizard|elf|orc|mermaid|angel|demon|vampire|ghost)(?:$|[\s,)\]])/i
-
-export function triggerNamesSubject(trigger: string): boolean {
-  return SUBJECT_NOUN_PATTERN.test(String(trigger || ''))
-}
 
 /*
  * A trigger list, not a scene. 10.2% of probes dumped 12+ raw tags in -- the
  * Marge Simpson row sends 'the simpsons, source cartoon, round eyes, dot
- * pupils, marge simpson' and one row sends twenty `mix_(x)` concepts from a
- * multi-concept LoRA. Past roughly eight tags they compete rather than compose,
- * and the scaffold that makes the grid comparable is what gets drowned.
+ * pupils, marge simpson' and one sends twenty `mix_(x)` concepts from a
+ * multi-concept LoRA. Past roughly eight tags they compete rather than compose
+ * and drown the scaffold that makes the grid comparable.
  *
  * Kept from the FRONT: catalog trigger fields lead with the activation token
- * (`msp3yt0n`, `mlgswtch`) and trail off into descriptive filler, so the front
- * is the part that actually invokes the LoRA.
+ * (`msp3yt0n`, `mlgswtch`) and trail off into descriptive filler.
  */
 const MAX_TRIGGER_TAGS = 8
 
@@ -421,39 +382,9 @@ export function capProbeTriggerTags(trigger: string): string {
   return tags.slice(0, MAX_TRIGGER_TAGS).join(', ')
 }
 
-/**
- * The trigger text as it should appear in a probe: capped, and given a subject
- * if it names none.
- */
-/*
- * An age term already present in the trigger. `1girl` is not one: it spans
- * every age on these bases.
- */
-const AGE_STATED_PATTERN =
-  /\b(?:adult|mature|milf|wo?m[ae]n|older|elderly|aged|\d{2}\s*years?\s*old)\b/i
-
-/*
- * Age the subject even when the LoRA supplied it.
- *
- * triggerNamesSubject deliberately leaves a LoRA's own subject untouched, which
- * is right for composition and wrong for this: 47 pending probes carried a
- * `1girl` that came from the LoRA's OWN trigger rather than from injection, 36
- * of them against a LoRA under NSFW/. Those never passed through the injected
- * path and so never picked up the adult qualifier.
- *
- * Only the age is added, never a gender -- a `1boy` trigger must not acquire
- * `mature female` -- and nothing is added when the trigger already states an
- * age.
- */
-const AGE_ONLY_QUALIFIER = 'adult'
-
-export function probeSubjectClause(trigger: string, prose = false): string {
-  const capped = capProbeTriggerTags(trigger)
-  const subject = prose ? PROBE_DEFAULT_SUBJECT_PROSE : PROBE_DEFAULT_SUBJECT
-  if (!capped) return subject
-  if (!triggerNamesSubject(capped)) return `${capped}, ${subject}`
-  if (AGE_STATED_PATTERN.test(capped)) return capped
-  return `${capped}, ${prose ? 'an adult' : AGE_ONLY_QUALIFIER}`
+/** The trigger as it should appear in a probe: capped, with nothing added. */
+export function probeSubjectClause(trigger: string): string {
+  return capProbeTriggerTags(trigger)
 }
 
 export const LORA_PROBE_RECIPES: Record<
@@ -546,7 +477,7 @@ export const LORA_PROBE_RECIPES: Record<
     height: 1024,
     loraStrength: 0.8,
     positive: (trigger) =>
-      `${probeSubjectClause(trigger, true)}. ${PROBE_FRAMING_PROSE}`,
+      `${probeSubjectClause(trigger)}. ${PROBE_FRAMING_PROSE}`,
     negative: '',
   },
   flux: {
@@ -556,7 +487,7 @@ export const LORA_PROBE_RECIPES: Record<
     height: 1024,
     loraStrength: 0.8,
     positive: (trigger) =>
-      `${probeSubjectClause(trigger, true)}. ${PROBE_FRAMING_PROSE}`,
+      `${probeSubjectClause(trigger)}. ${PROBE_FRAMING_PROSE}`,
     negative: '',
   },
 }

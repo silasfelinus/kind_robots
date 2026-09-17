@@ -52,3 +52,8 @@ kindblank_*.sql
 __pycache__/
 *.py[cod]
 .pytest_cache/
+
+# Operational one-off scripts run from the scratchpad against the live queue.
+# They carry absolute scratchpad paths and are not repo content; committing one
+# by `git add -A` is what this guards against (d805c30).
+*.tmp.ts

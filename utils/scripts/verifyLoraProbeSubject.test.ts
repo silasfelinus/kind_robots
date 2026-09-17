@@ -135,3 +135,23 @@ describe('composition lives in the negative prompt', () => {
     }
   })
 })
+
+describe('base-model names in a marketing title', () => {
+  /*
+   * ArtJob 28437 rendered 'Realistic Snapshot (Z-Image-Turbo + Krea 2)'
+   * verbatim -- the probe asked for a snapshot of two model names, because
+   * neither engine was in BASE_NAME_NOISE_PATTERN. Every engine added to
+   * LORA_PROBE_RECIPES needs its name added there too.
+   */
+  it('strips engine names the lanes actually use', () => {
+    expect(sanitizeProbeTrigger('Realistic Snapshot (Z-Image-Turbo + Krea 2)'))
+      .toBe('Realistic Snapshot')
+    expect(sanitizeProbeTrigger('Cinematic Look [Z-Image]')).toBe('Cinematic Look')
+    expect(sanitizeProbeTrigger('Painterly - Krea2')).toBe('Painterly')
+  })
+
+  it('leaves a real word that merely resembles one alone', () => {
+    expect(sanitizeProbeTrigger('Turbo Racer')).toBe('Turbo Racer')
+    expect(sanitizeProbeTrigger('my little pony, pony girl')).toBe('my little pony, pony girl')
+  })
+})

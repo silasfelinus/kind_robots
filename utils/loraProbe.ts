@@ -42,6 +42,12 @@ const PACKAGING_NOISE_PATTERN =
 /*
  * Base-model names. A trigger reading 'Grey Impact - Illustrious/PonyXL' is
  * naming its own compatibility, not asking for anything to be drawn.
+ *
+ * The list has to keep up with the lanes. 'Realistic Snapshot (Z-Image-Turbo +
+ * Krea 2)' rendered verbatim (ArtJob 28437) because neither z-image nor krea
+ * was here, so the probe asked for a snapshot of two model names. Every engine
+ * added to LORA_PROBE_RECIPES needs its name added here too, or its LoRAs'
+ * titles start describing the picture.
  */
 /*
  * Bounded on [\w-] rather than \b, because \b matches at a hyphen and these
@@ -52,7 +58,7 @@ const PACKAGING_NOISE_PATTERN =
  * for.
  */
 const BASE_NAME_NOISE_PATTERN =
-  /(?<![\w-])(?:pony\s*xl|pony\s*diffusion(?:\s*xl)?|pdxl|sdxl|sd\s*1\.5|sd15|illustrious|ilxl|noobai|flux[0-9.]*(?:\s*d(?:ev)?)?|schnell|kontext|klein|wan|ltx|qwen)(?![\w-])/gi
+  /(?<![\w-])(?:pony\s*xl|pony\s*diffusion(?:\s*xl)?|pdxl|sdxl|sd\s*1\.5|sd15|illustrious|ilxl|noobai|flux[0-9.]*(?:\s*d(?:ev)?)?|schnell|kontext|klein|wan|ltx|qwen|z[-\s]?image(?:[-\s]?turbo)?|krea(?:\s*\d+)?|chroma|hidream|lumina|auraflow)(?![\w-])/gi
 
 /*
  * Left behind once the words above are gone: '[PonyXL]' becomes '[ ]', and

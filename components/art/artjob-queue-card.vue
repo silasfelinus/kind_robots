@@ -671,14 +671,32 @@ const isLoadingPreview = computed<boolean>(() => {
  * the card only ever built an anonymous URL, which a private row has none of,
  * so it fell back to a manual authenticated fetch.
  */
-const hiddenFromViewer = computed<boolean>(
-  () => jobVisibility.value.isMature && userStore.isMaturityRestricted,
-)
-
 /** The image is mine, so privacy has nothing to say about it. */
 const viewerOwnsJob = computed<boolean>(() => {
   const viewerId = userStore.user?.id
   return typeof viewerId === 'number' && viewerId === props.job.userId
+})
+
+/*
+ * The card does not render at all. Two independent reasons, both absolute.
+ *
+ *   mature + a maturity-restricted account -- "a mature object should not even
+ *     look like it exists for children accounts, so that things like text
+ *     should not be viewable either".
+ *
+ *   private + neither owner nor admin -- "a private object should not show up
+ *     AT ALL for non-admin non-owners. they don't exist" (Silas, 2026-09-17).
+ *
+ * A placeholder reading "Private output" was the wrong answer to the second:
+ * it still told someone the job existed, who made it and that there was
+ * something there to want. Absence is the answer. An admin still sees it,
+ * behind the deliberate override below, because someone has to be able to
+ * moderate what they cannot see by default.
+ */
+const hiddenFromViewer = computed<boolean>(() => {
+  if (jobVisibility.value.isMature && userStore.isMaturityRestricted) return true
+  if (jobVisibility.value.isPublic) return false
+  return !viewerOwnsJob.value && !userStore.isAdmin
 })
 
 /*

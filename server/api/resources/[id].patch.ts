@@ -181,6 +181,17 @@ export default defineEventHandler(async (event) => {
       isActive: resourceFields.isActive,
       allowReviews: resourceFields.allowReviews,
       artPrompt: resourceFields.artPrompt,
+      /*
+       * Both were absent from this allowlist, so every attempt to correct a
+       * trigger came back 400 "No valid update fields provided" while
+       * `artPrompt` -- a byte-identical copy of defaultTrigger on most rows --
+       * was writable. They are the fields the LoRA probe reads, and ten rows
+       * needed a trigger recovered from their own invocation syntax
+       * (`<lora:JesterV2:0.75>` sanitizes to nothing, leaving an empty probe
+       * prompt), so the catalog had no way to record the fix.
+       */
+      triggerWords: resourceFields.triggerWords,
+      defaultTrigger: resourceFields.defaultTrigger,
       ArtImage:
         typeof resourceFields.artImageId === 'number'
           ? { connect: { id: resourceFields.artImageId } }

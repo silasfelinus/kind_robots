@@ -297,6 +297,13 @@ const NEGATIVE_SD = [
  * confidence that these meddlings are going to give us an accurate depiction of
  * the loras."
  *
+ * 'simple uncluttered background' is the clearest case of why none of it
+ * belongs here, because it reads as harmless. It is not: a maximalist artist
+ * style, or a LoRA whose whole concept IS 'maximalism', gets instructed to
+ * undo itself, and the grid then reports that the LoRA is weak (Silas,
+ * 2026-09-17). Every scaffold phrase is an assertion about what the output
+ * should look like, and a preview grid exists precisely to find that out.
+ *
  * The quality preamble stays because it is base-model conditioning rather than
  * art direction -- Pony will not render competently without its score_ tags.
  * Anything else belongs in a custom prompt for the one troublesome LoRA, not

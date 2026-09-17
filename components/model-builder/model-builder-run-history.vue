@@ -49,7 +49,7 @@
       >
         <Icon
           name="kind-icon:blueprint"
-          class="h-8 w-8 text-primary/50"
+          class="kr-icon-8 text-primary/50"
           aria-hidden="true"
         />
         No runs yet — start one from a source model.

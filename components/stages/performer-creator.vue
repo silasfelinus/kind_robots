@@ -202,7 +202,7 @@
                 <Icon
                   v-else
                   name="mdi:account"
-                  class="h-8 w-8 text-base-content/20"
+                  class="kr-icon-8 text-base-content/20"
                 />
               </div>
               <div class="flex flex-1 flex-col gap-2 min-w-0">

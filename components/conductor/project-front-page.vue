@@ -172,7 +172,7 @@
         v-if="view.bridge && launch"
         class="flex flex-col items-center gap-3 rounded-3xl border border-info/30 bg-info/5 p-6 text-center"
       >
-        <Icon name="kind-icon:external-link" class="size-8 text-info/70" />
+        <Icon name="kind-icon:external-link" class="kr-icon-8 text-info/70" />
         <p class="kr-text-dim-sm-70">
           This experience lives in its own app. Launch it to dive in.
         </p>

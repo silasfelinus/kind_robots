@@ -145,7 +145,10 @@
                 </p>
               </div>
 
-              <Icon :name="item.icon" class="h-8 w-8 shrink-0 text-secondary" />
+              <Icon
+                :name="item.icon"
+                class="kr-icon-8 shrink-0 text-secondary"
+              />
             </div>
 
             <button
@@ -172,7 +175,7 @@
           </p>
         </div>
 
-        <Icon name="kind-icon:cart" class="h-8 w-8 text-secondary" />
+        <Icon name="kind-icon:cart" class="kr-icon-8 text-secondary" />
       </div>
 
       <div class="mt-4 grid gap-3">

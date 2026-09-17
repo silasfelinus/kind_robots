@@ -546,7 +546,7 @@
           v-else
           class="flex min-h-40 flex-col items-center justify-center gap-2 kr-panel-dashed-tint text-center"
         >
-          <Icon name="kind-icon:image" class="h-8 w-8 text-base-content/25" />
+          <Icon name="kind-icon:image" class="kr-icon-8 text-base-content/25" />
           <p class="text-sm text-base-content/55">
             Nothing rendered yet this session.
           </p>

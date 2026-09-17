@@ -97,7 +97,7 @@
     v-else
     class="flex min-h-40 flex-col items-center justify-center gap-2 rounded-2xl border border-warning/40 bg-warning/10 p-6 text-center"
   >
-    <Icon name="kind-icon:alert" class="h-8 w-8 text-warning" />
+    <Icon name="kind-icon:alert" class="kr-icon-8 text-warning" />
     <p class="text-sm font-semibold text-warning">
       This page definition is missing its artwork — check the set's page JSON.
     </p>

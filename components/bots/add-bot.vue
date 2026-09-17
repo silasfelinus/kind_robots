@@ -155,7 +155,7 @@
               </p>
             </div>
 
-            <Icon name="kind-icon:robot" class="h-8 w-8 text-primary" />
+            <Icon name="kind-icon:robot" class="kr-icon-8 text-primary" />
           </div>
 
           <img

@@ -33,6 +33,7 @@ export type CharacterAvgAggregateOutputType = {
   artImageId: number | null
   userId: number | null
   packId: number | null
+  unlockAchievementId: number | null
 }
 
 export type CharacterSumAggregateOutputType = {
@@ -42,6 +43,7 @@ export type CharacterSumAggregateOutputType = {
   artImageId: number | null
   userId: number | null
   packId: number | null
+  unlockAchievementId: number | null
 }
 
 export type CharacterMinAggregateOutputType = {
@@ -86,6 +88,7 @@ export type CharacterMinAggregateOutputType = {
   gender: string | null
   slug: string | null
   theme: string | null
+  unlockAchievementId: number | null
 }
 
 export type CharacterMaxAggregateOutputType = {
@@ -130,6 +133,7 @@ export type CharacterMaxAggregateOutputType = {
   gender: string | null
   slug: string | null
   theme: string | null
+  unlockAchievementId: number | null
 }
 
 export type CharacterCountAggregateOutputType = {
@@ -174,6 +178,7 @@ export type CharacterCountAggregateOutputType = {
   gender: number
   slug: number
   theme: number
+  unlockAchievementId: number
   _all: number
 }
 
@@ -185,6 +190,7 @@ export type CharacterAvgAggregateInputType = {
   artImageId?: true
   userId?: true
   packId?: true
+  unlockAchievementId?: true
 }
 
 export type CharacterSumAggregateInputType = {
@@ -194,6 +200,7 @@ export type CharacterSumAggregateInputType = {
   artImageId?: true
   userId?: true
   packId?: true
+  unlockAchievementId?: true
 }
 
 export type CharacterMinAggregateInputType = {
@@ -238,6 +245,7 @@ export type CharacterMinAggregateInputType = {
   gender?: true
   slug?: true
   theme?: true
+  unlockAchievementId?: true
 }
 
 export type CharacterMaxAggregateInputType = {
@@ -282,6 +290,7 @@ export type CharacterMaxAggregateInputType = {
   gender?: true
   slug?: true
   theme?: true
+  unlockAchievementId?: true
 }
 
 export type CharacterCountAggregateInputType = {
@@ -326,6 +335,7 @@ export type CharacterCountAggregateInputType = {
   gender?: true
   slug?: true
   theme?: true
+  unlockAchievementId?: true
   _all?: true
 }
 
@@ -457,6 +467,7 @@ export type CharacterGroupByOutputType = {
   gender: string | null
   slug: string | null
   theme: string | null
+  unlockAchievementId: number | null
   _count: CharacterCountAggregateOutputType | null
   _avg: CharacterAvgAggregateOutputType | null
   _sum: CharacterSumAggregateOutputType | null
@@ -524,6 +535,7 @@ export type CharacterWhereInput = {
   gender?: Prisma.StringNullableFilter<"Character"> | string | null
   slug?: Prisma.StringNullableFilter<"Character"> | string | null
   theme?: Prisma.StringNullableFilter<"Character"> | string | null
+  unlockAchievementId?: Prisma.IntNullableFilter<"Character"> | number | null
   ChallengeSubmissions?: Prisma.ChallengeSubmissionListRelationFilter
   ArtImage?: Prisma.XOR<Prisma.ArtImageNullableScalarRelationFilter, Prisma.ArtImageWhereInput> | null
   User?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
@@ -538,6 +550,7 @@ export type CharacterWhereInput = {
   Rewards?: Prisma.RewardListRelationFilter
   Scenarios?: Prisma.ScenarioListRelationFilter
   FacetLinks?: Prisma.CharacterFacetListRelationFilter
+  UnlockAchievement?: Prisma.XOR<Prisma.AchievementNullableScalarRelationFilter, Prisma.AchievementWhereInput> | null
 }
 
 export type CharacterOrderByWithRelationInput = {
@@ -582,6 +595,7 @@ export type CharacterOrderByWithRelationInput = {
   gender?: Prisma.SortOrderInput | Prisma.SortOrder
   slug?: Prisma.SortOrderInput | Prisma.SortOrder
   theme?: Prisma.SortOrderInput | Prisma.SortOrder
+  unlockAchievementId?: Prisma.SortOrderInput | Prisma.SortOrder
   ChallengeSubmissions?: Prisma.ChallengeSubmissionOrderByRelationAggregateInput
   ArtImage?: Prisma.ArtImageOrderByWithRelationInput
   User?: Prisma.UserOrderByWithRelationInput
@@ -596,6 +610,7 @@ export type CharacterOrderByWithRelationInput = {
   Rewards?: Prisma.RewardOrderByRelationAggregateInput
   Scenarios?: Prisma.ScenarioOrderByRelationAggregateInput
   FacetLinks?: Prisma.CharacterFacetOrderByRelationAggregateInput
+  UnlockAchievement?: Prisma.AchievementOrderByWithRelationInput
   _relevance?: Prisma.CharacterOrderByRelevanceInput
 }
 
@@ -644,6 +659,7 @@ export type CharacterWhereUniqueInput = Prisma.AtLeast<{
   wits?: Prisma.EnumRarityFilter<"Character"> | $Enums.Rarity
   gender?: Prisma.StringNullableFilter<"Character"> | string | null
   theme?: Prisma.StringNullableFilter<"Character"> | string | null
+  unlockAchievementId?: Prisma.IntNullableFilter<"Character"> | number | null
   ChallengeSubmissions?: Prisma.ChallengeSubmissionListRelationFilter
   ArtImage?: Prisma.XOR<Prisma.ArtImageNullableScalarRelationFilter, Prisma.ArtImageWhereInput> | null
   User?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
@@ -658,6 +674,7 @@ export type CharacterWhereUniqueInput = Prisma.AtLeast<{
   Rewards?: Prisma.RewardListRelationFilter
   Scenarios?: Prisma.ScenarioListRelationFilter
   FacetLinks?: Prisma.CharacterFacetListRelationFilter
+  UnlockAchievement?: Prisma.XOR<Prisma.AchievementNullableScalarRelationFilter, Prisma.AchievementWhereInput> | null
 }, "id" | "slug">
 
 export type CharacterOrderByWithAggregationInput = {
@@ -702,6 +719,7 @@ export type CharacterOrderByWithAggregationInput = {
   gender?: Prisma.SortOrderInput | Prisma.SortOrder
   slug?: Prisma.SortOrderInput | Prisma.SortOrder
   theme?: Prisma.SortOrderInput | Prisma.SortOrder
+  unlockAchievementId?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.CharacterCountOrderByAggregateInput
   _avg?: Prisma.CharacterAvgOrderByAggregateInput
   _max?: Prisma.CharacterMaxOrderByAggregateInput
@@ -754,6 +772,7 @@ export type CharacterScalarWhereWithAggregatesInput = {
   gender?: Prisma.StringNullableWithAggregatesFilter<"Character"> | string | null
   slug?: Prisma.StringNullableWithAggregatesFilter<"Character"> | string | null
   theme?: Prisma.StringNullableWithAggregatesFilter<"Character"> | string | null
+  unlockAchievementId?: Prisma.IntNullableWithAggregatesFilter<"Character"> | number | null
 }
 
 export type CharacterCreateInput = {
@@ -808,6 +827,7 @@ export type CharacterCreateInput = {
   Rewards?: Prisma.RewardCreateNestedManyWithoutCharactersInput
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutCharactersInput
   FacetLinks?: Prisma.CharacterFacetCreateNestedManyWithoutCharacterInput
+  UnlockAchievement?: Prisma.AchievementCreateNestedOneWithoutGatedCharactersInput
 }
 
 export type CharacterUncheckedCreateInput = {
@@ -852,6 +872,7 @@ export type CharacterUncheckedCreateInput = {
   gender?: string | null
   slug?: string | null
   theme?: string | null
+  unlockAchievementId?: number | null
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedCreateNestedManyWithoutCharacterInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutCharacterInput
   ExpressionMedia?: Prisma.ExpressionMediaUncheckedCreateNestedManyWithoutCharacterInput
@@ -917,6 +938,7 @@ export type CharacterUpdateInput = {
   Rewards?: Prisma.RewardUpdateManyWithoutCharactersNestedInput
   Scenarios?: Prisma.ScenarioUpdateManyWithoutCharactersNestedInput
   FacetLinks?: Prisma.CharacterFacetUpdateManyWithoutCharacterNestedInput
+  UnlockAchievement?: Prisma.AchievementUpdateOneWithoutGatedCharactersNestedInput
 }
 
 export type CharacterUncheckedUpdateInput = {
@@ -961,6 +983,7 @@ export type CharacterUncheckedUpdateInput = {
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   theme?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  unlockAchievementId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedUpdateManyWithoutCharacterNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutCharacterNestedInput
   ExpressionMedia?: Prisma.ExpressionMediaUncheckedUpdateManyWithoutCharacterNestedInput
@@ -1016,6 +1039,7 @@ export type CharacterCreateManyInput = {
   gender?: string | null
   slug?: string | null
   theme?: string | null
+  unlockAchievementId?: number | null
 }
 
 export type CharacterUpdateManyMutationInput = {
@@ -1100,6 +1124,7 @@ export type CharacterUncheckedUpdateManyInput = {
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   theme?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  unlockAchievementId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
 
 export type CharacterScalarRelationFilter = {
@@ -1165,6 +1190,7 @@ export type CharacterCountOrderByAggregateInput = {
   gender?: Prisma.SortOrder
   slug?: Prisma.SortOrder
   theme?: Prisma.SortOrder
+  unlockAchievementId?: Prisma.SortOrder
 }
 
 export type CharacterAvgOrderByAggregateInput = {
@@ -1174,6 +1200,7 @@ export type CharacterAvgOrderByAggregateInput = {
   artImageId?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   packId?: Prisma.SortOrder
+  unlockAchievementId?: Prisma.SortOrder
 }
 
 export type CharacterMaxOrderByAggregateInput = {
@@ -1218,6 +1245,7 @@ export type CharacterMaxOrderByAggregateInput = {
   gender?: Prisma.SortOrder
   slug?: Prisma.SortOrder
   theme?: Prisma.SortOrder
+  unlockAchievementId?: Prisma.SortOrder
 }
 
 export type CharacterMinOrderByAggregateInput = {
@@ -1262,6 +1290,7 @@ export type CharacterMinOrderByAggregateInput = {
   gender?: Prisma.SortOrder
   slug?: Prisma.SortOrder
   theme?: Prisma.SortOrder
+  unlockAchievementId?: Prisma.SortOrder
 }
 
 export type CharacterSumOrderByAggregateInput = {
@@ -1271,6 +1300,7 @@ export type CharacterSumOrderByAggregateInput = {
   artImageId?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   packId?: Prisma.SortOrder
+  unlockAchievementId?: Prisma.SortOrder
 }
 
 export type CharacterNullableScalarRelationFilter = {
@@ -1422,6 +1452,48 @@ export type CharacterUpdateOneWithoutExpressionTransitionNestedInput = {
   delete?: Prisma.CharacterWhereInput | boolean
   connect?: Prisma.CharacterWhereUniqueInput
   update?: Prisma.XOR<Prisma.XOR<Prisma.CharacterUpdateToOneWithWhereWithoutExpressionTransitionInput, Prisma.CharacterUpdateWithoutExpressionTransitionInput>, Prisma.CharacterUncheckedUpdateWithoutExpressionTransitionInput>
+}
+
+export type CharacterCreateNestedManyWithoutUnlockAchievementInput = {
+  create?: Prisma.XOR<Prisma.CharacterCreateWithoutUnlockAchievementInput, Prisma.CharacterUncheckedCreateWithoutUnlockAchievementInput> | Prisma.CharacterCreateWithoutUnlockAchievementInput[] | Prisma.CharacterUncheckedCreateWithoutUnlockAchievementInput[]
+  connectOrCreate?: Prisma.CharacterCreateOrConnectWithoutUnlockAchievementInput | Prisma.CharacterCreateOrConnectWithoutUnlockAchievementInput[]
+  createMany?: Prisma.CharacterCreateManyUnlockAchievementInputEnvelope
+  connect?: Prisma.CharacterWhereUniqueInput | Prisma.CharacterWhereUniqueInput[]
+}
+
+export type CharacterUncheckedCreateNestedManyWithoutUnlockAchievementInput = {
+  create?: Prisma.XOR<Prisma.CharacterCreateWithoutUnlockAchievementInput, Prisma.CharacterUncheckedCreateWithoutUnlockAchievementInput> | Prisma.CharacterCreateWithoutUnlockAchievementInput[] | Prisma.CharacterUncheckedCreateWithoutUnlockAchievementInput[]
+  connectOrCreate?: Prisma.CharacterCreateOrConnectWithoutUnlockAchievementInput | Prisma.CharacterCreateOrConnectWithoutUnlockAchievementInput[]
+  createMany?: Prisma.CharacterCreateManyUnlockAchievementInputEnvelope
+  connect?: Prisma.CharacterWhereUniqueInput | Prisma.CharacterWhereUniqueInput[]
+}
+
+export type CharacterUpdateManyWithoutUnlockAchievementNestedInput = {
+  create?: Prisma.XOR<Prisma.CharacterCreateWithoutUnlockAchievementInput, Prisma.CharacterUncheckedCreateWithoutUnlockAchievementInput> | Prisma.CharacterCreateWithoutUnlockAchievementInput[] | Prisma.CharacterUncheckedCreateWithoutUnlockAchievementInput[]
+  connectOrCreate?: Prisma.CharacterCreateOrConnectWithoutUnlockAchievementInput | Prisma.CharacterCreateOrConnectWithoutUnlockAchievementInput[]
+  upsert?: Prisma.CharacterUpsertWithWhereUniqueWithoutUnlockAchievementInput | Prisma.CharacterUpsertWithWhereUniqueWithoutUnlockAchievementInput[]
+  createMany?: Prisma.CharacterCreateManyUnlockAchievementInputEnvelope
+  set?: Prisma.CharacterWhereUniqueInput | Prisma.CharacterWhereUniqueInput[]
+  disconnect?: Prisma.CharacterWhereUniqueInput | Prisma.CharacterWhereUniqueInput[]
+  delete?: Prisma.CharacterWhereUniqueInput | Prisma.CharacterWhereUniqueInput[]
+  connect?: Prisma.CharacterWhereUniqueInput | Prisma.CharacterWhereUniqueInput[]
+  update?: Prisma.CharacterUpdateWithWhereUniqueWithoutUnlockAchievementInput | Prisma.CharacterUpdateWithWhereUniqueWithoutUnlockAchievementInput[]
+  updateMany?: Prisma.CharacterUpdateManyWithWhereWithoutUnlockAchievementInput | Prisma.CharacterUpdateManyWithWhereWithoutUnlockAchievementInput[]
+  deleteMany?: Prisma.CharacterScalarWhereInput | Prisma.CharacterScalarWhereInput[]
+}
+
+export type CharacterUncheckedUpdateManyWithoutUnlockAchievementNestedInput = {
+  create?: Prisma.XOR<Prisma.CharacterCreateWithoutUnlockAchievementInput, Prisma.CharacterUncheckedCreateWithoutUnlockAchievementInput> | Prisma.CharacterCreateWithoutUnlockAchievementInput[] | Prisma.CharacterUncheckedCreateWithoutUnlockAchievementInput[]
+  connectOrCreate?: Prisma.CharacterCreateOrConnectWithoutUnlockAchievementInput | Prisma.CharacterCreateOrConnectWithoutUnlockAchievementInput[]
+  upsert?: Prisma.CharacterUpsertWithWhereUniqueWithoutUnlockAchievementInput | Prisma.CharacterUpsertWithWhereUniqueWithoutUnlockAchievementInput[]
+  createMany?: Prisma.CharacterCreateManyUnlockAchievementInputEnvelope
+  set?: Prisma.CharacterWhereUniqueInput | Prisma.CharacterWhereUniqueInput[]
+  disconnect?: Prisma.CharacterWhereUniqueInput | Prisma.CharacterWhereUniqueInput[]
+  delete?: Prisma.CharacterWhereUniqueInput | Prisma.CharacterWhereUniqueInput[]
+  connect?: Prisma.CharacterWhereUniqueInput | Prisma.CharacterWhereUniqueInput[]
+  update?: Prisma.CharacterUpdateWithWhereUniqueWithoutUnlockAchievementInput | Prisma.CharacterUpdateWithWhereUniqueWithoutUnlockAchievementInput[]
+  updateMany?: Prisma.CharacterUpdateManyWithWhereWithoutUnlockAchievementInput | Prisma.CharacterUpdateManyWithWhereWithoutUnlockAchievementInput[]
+  deleteMany?: Prisma.CharacterScalarWhereInput | Prisma.CharacterScalarWhereInput[]
 }
 
 export type CharacterCreateNestedManyWithoutPackInput = {
@@ -1699,6 +1771,7 @@ export type CharacterCreateWithoutFacetLinksInput = {
   Dreams?: Prisma.DreamCreateNestedManyWithoutCharactersInput
   Rewards?: Prisma.RewardCreateNestedManyWithoutCharactersInput
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutCharactersInput
+  UnlockAchievement?: Prisma.AchievementCreateNestedOneWithoutGatedCharactersInput
 }
 
 export type CharacterUncheckedCreateWithoutFacetLinksInput = {
@@ -1743,6 +1816,7 @@ export type CharacterUncheckedCreateWithoutFacetLinksInput = {
   gender?: string | null
   slug?: string | null
   theme?: string | null
+  unlockAchievementId?: number | null
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedCreateNestedManyWithoutCharacterInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutCharacterInput
   ExpressionMedia?: Prisma.ExpressionMediaUncheckedCreateNestedManyWithoutCharacterInput
@@ -1822,6 +1896,7 @@ export type CharacterUpdateWithoutFacetLinksInput = {
   Dreams?: Prisma.DreamUpdateManyWithoutCharactersNestedInput
   Rewards?: Prisma.RewardUpdateManyWithoutCharactersNestedInput
   Scenarios?: Prisma.ScenarioUpdateManyWithoutCharactersNestedInput
+  UnlockAchievement?: Prisma.AchievementUpdateOneWithoutGatedCharactersNestedInput
 }
 
 export type CharacterUncheckedUpdateWithoutFacetLinksInput = {
@@ -1866,6 +1941,7 @@ export type CharacterUncheckedUpdateWithoutFacetLinksInput = {
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   theme?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  unlockAchievementId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedUpdateManyWithoutCharacterNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutCharacterNestedInput
   ExpressionMedia?: Prisma.ExpressionMediaUncheckedUpdateManyWithoutCharacterNestedInput
@@ -1929,6 +2005,7 @@ export type CharacterCreateWithoutArtImageInput = {
   Rewards?: Prisma.RewardCreateNestedManyWithoutCharactersInput
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutCharactersInput
   FacetLinks?: Prisma.CharacterFacetCreateNestedManyWithoutCharacterInput
+  UnlockAchievement?: Prisma.AchievementCreateNestedOneWithoutGatedCharactersInput
 }
 
 export type CharacterUncheckedCreateWithoutArtImageInput = {
@@ -1972,6 +2049,7 @@ export type CharacterUncheckedCreateWithoutArtImageInput = {
   gender?: string | null
   slug?: string | null
   theme?: string | null
+  unlockAchievementId?: number | null
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedCreateNestedManyWithoutCharacterInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutCharacterInput
   ExpressionMedia?: Prisma.ExpressionMediaUncheckedCreateNestedManyWithoutCharacterInput
@@ -2056,6 +2134,7 @@ export type CharacterScalarWhereInput = {
   gender?: Prisma.StringNullableFilter<"Character"> | string | null
   slug?: Prisma.StringNullableFilter<"Character"> | string | null
   theme?: Prisma.StringNullableFilter<"Character"> | string | null
+  unlockAchievementId?: Prisma.IntNullableFilter<"Character"> | number | null
 }
 
 export type CharacterCreateWithoutChatsInput = {
@@ -2109,6 +2188,7 @@ export type CharacterCreateWithoutChatsInput = {
   Rewards?: Prisma.RewardCreateNestedManyWithoutCharactersInput
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutCharactersInput
   FacetLinks?: Prisma.CharacterFacetCreateNestedManyWithoutCharacterInput
+  UnlockAchievement?: Prisma.AchievementCreateNestedOneWithoutGatedCharactersInput
 }
 
 export type CharacterUncheckedCreateWithoutChatsInput = {
@@ -2153,6 +2233,7 @@ export type CharacterUncheckedCreateWithoutChatsInput = {
   gender?: string | null
   slug?: string | null
   theme?: string | null
+  unlockAchievementId?: number | null
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedCreateNestedManyWithoutCharacterInput
   ExpressionMedia?: Prisma.ExpressionMediaUncheckedCreateNestedManyWithoutCharacterInput
   ExpressionTransition?: Prisma.ExpressionTransitionUncheckedCreateNestedManyWithoutCharacterInput
@@ -2232,6 +2313,7 @@ export type CharacterUpdateWithoutChatsInput = {
   Rewards?: Prisma.RewardUpdateManyWithoutCharactersNestedInput
   Scenarios?: Prisma.ScenarioUpdateManyWithoutCharactersNestedInput
   FacetLinks?: Prisma.CharacterFacetUpdateManyWithoutCharacterNestedInput
+  UnlockAchievement?: Prisma.AchievementUpdateOneWithoutGatedCharactersNestedInput
 }
 
 export type CharacterUncheckedUpdateWithoutChatsInput = {
@@ -2276,6 +2358,7 @@ export type CharacterUncheckedUpdateWithoutChatsInput = {
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   theme?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  unlockAchievementId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedUpdateManyWithoutCharacterNestedInput
   ExpressionMedia?: Prisma.ExpressionMediaUncheckedUpdateManyWithoutCharacterNestedInput
   ExpressionTransition?: Prisma.ExpressionTransitionUncheckedUpdateManyWithoutCharacterNestedInput
@@ -2339,6 +2422,7 @@ export type CharacterCreateWithoutDreamsInput = {
   Rewards?: Prisma.RewardCreateNestedManyWithoutCharactersInput
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutCharactersInput
   FacetLinks?: Prisma.CharacterFacetCreateNestedManyWithoutCharacterInput
+  UnlockAchievement?: Prisma.AchievementCreateNestedOneWithoutGatedCharactersInput
 }
 
 export type CharacterUncheckedCreateWithoutDreamsInput = {
@@ -2383,6 +2467,7 @@ export type CharacterUncheckedCreateWithoutDreamsInput = {
   gender?: string | null
   slug?: string | null
   theme?: string | null
+  unlockAchievementId?: number | null
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedCreateNestedManyWithoutCharacterInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutCharacterInput
   ExpressionMedia?: Prisma.ExpressionMediaUncheckedCreateNestedManyWithoutCharacterInput
@@ -2467,6 +2552,7 @@ export type CharacterCreateWithoutExpressionMediaInput = {
   Rewards?: Prisma.RewardCreateNestedManyWithoutCharactersInput
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutCharactersInput
   FacetLinks?: Prisma.CharacterFacetCreateNestedManyWithoutCharacterInput
+  UnlockAchievement?: Prisma.AchievementCreateNestedOneWithoutGatedCharactersInput
 }
 
 export type CharacterUncheckedCreateWithoutExpressionMediaInput = {
@@ -2511,6 +2597,7 @@ export type CharacterUncheckedCreateWithoutExpressionMediaInput = {
   gender?: string | null
   slug?: string | null
   theme?: string | null
+  unlockAchievementId?: number | null
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedCreateNestedManyWithoutCharacterInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutCharacterInput
   ExpressionTransition?: Prisma.ExpressionTransitionUncheckedCreateNestedManyWithoutCharacterInput
@@ -2590,6 +2677,7 @@ export type CharacterUpdateWithoutExpressionMediaInput = {
   Rewards?: Prisma.RewardUpdateManyWithoutCharactersNestedInput
   Scenarios?: Prisma.ScenarioUpdateManyWithoutCharactersNestedInput
   FacetLinks?: Prisma.CharacterFacetUpdateManyWithoutCharacterNestedInput
+  UnlockAchievement?: Prisma.AchievementUpdateOneWithoutGatedCharactersNestedInput
 }
 
 export type CharacterUncheckedUpdateWithoutExpressionMediaInput = {
@@ -2634,6 +2722,7 @@ export type CharacterUncheckedUpdateWithoutExpressionMediaInput = {
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   theme?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  unlockAchievementId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedUpdateManyWithoutCharacterNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutCharacterNestedInput
   ExpressionTransition?: Prisma.ExpressionTransitionUncheckedUpdateManyWithoutCharacterNestedInput
@@ -2697,6 +2786,7 @@ export type CharacterCreateWithoutExpressionTransitionInput = {
   Rewards?: Prisma.RewardCreateNestedManyWithoutCharactersInput
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutCharactersInput
   FacetLinks?: Prisma.CharacterFacetCreateNestedManyWithoutCharacterInput
+  UnlockAchievement?: Prisma.AchievementCreateNestedOneWithoutGatedCharactersInput
 }
 
 export type CharacterUncheckedCreateWithoutExpressionTransitionInput = {
@@ -2741,6 +2831,7 @@ export type CharacterUncheckedCreateWithoutExpressionTransitionInput = {
   gender?: string | null
   slug?: string | null
   theme?: string | null
+  unlockAchievementId?: number | null
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedCreateNestedManyWithoutCharacterInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutCharacterInput
   ExpressionMedia?: Prisma.ExpressionMediaUncheckedCreateNestedManyWithoutCharacterInput
@@ -2820,6 +2911,7 @@ export type CharacterUpdateWithoutExpressionTransitionInput = {
   Rewards?: Prisma.RewardUpdateManyWithoutCharactersNestedInput
   Scenarios?: Prisma.ScenarioUpdateManyWithoutCharactersNestedInput
   FacetLinks?: Prisma.CharacterFacetUpdateManyWithoutCharacterNestedInput
+  UnlockAchievement?: Prisma.AchievementUpdateOneWithoutGatedCharactersNestedInput
 }
 
 export type CharacterUncheckedUpdateWithoutExpressionTransitionInput = {
@@ -2864,6 +2956,7 @@ export type CharacterUncheckedUpdateWithoutExpressionTransitionInput = {
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   theme?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  unlockAchievementId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedUpdateManyWithoutCharacterNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutCharacterNestedInput
   ExpressionMedia?: Prisma.ExpressionMediaUncheckedUpdateManyWithoutCharacterNestedInput
@@ -2874,6 +2967,141 @@ export type CharacterUncheckedUpdateWithoutExpressionTransitionInput = {
   Rewards?: Prisma.RewardUncheckedUpdateManyWithoutCharactersNestedInput
   Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutCharactersNestedInput
   FacetLinks?: Prisma.CharacterFacetUncheckedUpdateManyWithoutCharacterNestedInput
+}
+
+export type CharacterCreateWithoutUnlockAchievementInput = {
+  createdAt?: Date | string
+  updatedAt?: Date | string | null
+  name: string
+  achievements?: string | null
+  alignment?: string | null
+  experience?: number
+  level?: number
+  class?: string | null
+  species?: string | null
+  backstory?: string | null
+  drive?: string | null
+  quirks?: string | null
+  genre?: string | null
+  isPublic?: boolean
+  artPrompt?: string | null
+  honorific?: string | null
+  imagePath?: string | null
+  icon?: string | null
+  allowReviews?: boolean
+  designer?: string | null
+  personality?: string | null
+  sampleResponse?: string | null
+  voice?: string | null
+  isMature?: boolean
+  isActive?: boolean
+  charm?: $Enums.Rarity
+  empathy?: $Enums.Rarity
+  grace?: $Enums.Rarity
+  luck?: $Enums.Rarity
+  might?: $Enums.Rarity
+  presentation?: string | null
+  role?: string | null
+  title?: string | null
+  wits?: $Enums.Rarity
+  gender?: string | null
+  slug?: string | null
+  theme?: string | null
+  ChallengeSubmissions?: Prisma.ChallengeSubmissionCreateNestedManyWithoutCharacterInput
+  ArtImage?: Prisma.ArtImageCreateNestedOneWithoutCharactersInput
+  User?: Prisma.UserCreateNestedOneWithoutCharactersInput
+  Pack?: Prisma.PackCreateNestedOneWithoutCharactersInput
+  Chats?: Prisma.ChatCreateNestedManyWithoutCharacterInput
+  ExpressionMedia?: Prisma.ExpressionMediaCreateNestedManyWithoutCharacterInput
+  ExpressionTransition?: Prisma.ExpressionTransitionCreateNestedManyWithoutCharacterInput
+  LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutCharacterInput
+  Reactions?: Prisma.ReactionCreateNestedManyWithoutCharacterInput
+  AuthoredReactions?: Prisma.ReactionCreateNestedManyWithoutAuthorCharacterInput
+  Dreams?: Prisma.DreamCreateNestedManyWithoutCharactersInput
+  Rewards?: Prisma.RewardCreateNestedManyWithoutCharactersInput
+  Scenarios?: Prisma.ScenarioCreateNestedManyWithoutCharactersInput
+  FacetLinks?: Prisma.CharacterFacetCreateNestedManyWithoutCharacterInput
+}
+
+export type CharacterUncheckedCreateWithoutUnlockAchievementInput = {
+  id?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string | null
+  name: string
+  achievements?: string | null
+  alignment?: string | null
+  experience?: number
+  level?: number
+  class?: string | null
+  species?: string | null
+  backstory?: string | null
+  drive?: string | null
+  quirks?: string | null
+  genre?: string | null
+  artImageId?: number | null
+  isPublic?: boolean
+  userId?: number | null
+  packId?: number | null
+  artPrompt?: string | null
+  honorific?: string | null
+  imagePath?: string | null
+  icon?: string | null
+  allowReviews?: boolean
+  designer?: string | null
+  personality?: string | null
+  sampleResponse?: string | null
+  voice?: string | null
+  isMature?: boolean
+  isActive?: boolean
+  charm?: $Enums.Rarity
+  empathy?: $Enums.Rarity
+  grace?: $Enums.Rarity
+  luck?: $Enums.Rarity
+  might?: $Enums.Rarity
+  presentation?: string | null
+  role?: string | null
+  title?: string | null
+  wits?: $Enums.Rarity
+  gender?: string | null
+  slug?: string | null
+  theme?: string | null
+  ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedCreateNestedManyWithoutCharacterInput
+  Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutCharacterInput
+  ExpressionMedia?: Prisma.ExpressionMediaUncheckedCreateNestedManyWithoutCharacterInput
+  ExpressionTransition?: Prisma.ExpressionTransitionUncheckedCreateNestedManyWithoutCharacterInput
+  LifeRuns?: Prisma.LifeRunUncheckedCreateNestedManyWithoutCharacterInput
+  Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutCharacterInput
+  AuthoredReactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutAuthorCharacterInput
+  Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutCharactersInput
+  Rewards?: Prisma.RewardUncheckedCreateNestedManyWithoutCharactersInput
+  Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutCharactersInput
+  FacetLinks?: Prisma.CharacterFacetUncheckedCreateNestedManyWithoutCharacterInput
+}
+
+export type CharacterCreateOrConnectWithoutUnlockAchievementInput = {
+  where: Prisma.CharacterWhereUniqueInput
+  create: Prisma.XOR<Prisma.CharacterCreateWithoutUnlockAchievementInput, Prisma.CharacterUncheckedCreateWithoutUnlockAchievementInput>
+}
+
+export type CharacterCreateManyUnlockAchievementInputEnvelope = {
+  data: Prisma.CharacterCreateManyUnlockAchievementInput | Prisma.CharacterCreateManyUnlockAchievementInput[]
+  skipDuplicates?: boolean
+}
+
+export type CharacterUpsertWithWhereUniqueWithoutUnlockAchievementInput = {
+  where: Prisma.CharacterWhereUniqueInput
+  update: Prisma.XOR<Prisma.CharacterUpdateWithoutUnlockAchievementInput, Prisma.CharacterUncheckedUpdateWithoutUnlockAchievementInput>
+  create: Prisma.XOR<Prisma.CharacterCreateWithoutUnlockAchievementInput, Prisma.CharacterUncheckedCreateWithoutUnlockAchievementInput>
+}
+
+export type CharacterUpdateWithWhereUniqueWithoutUnlockAchievementInput = {
+  where: Prisma.CharacterWhereUniqueInput
+  data: Prisma.XOR<Prisma.CharacterUpdateWithoutUnlockAchievementInput, Prisma.CharacterUncheckedUpdateWithoutUnlockAchievementInput>
+}
+
+export type CharacterUpdateManyWithWhereWithoutUnlockAchievementInput = {
+  where: Prisma.CharacterScalarWhereInput
+  data: Prisma.XOR<Prisma.CharacterUpdateManyMutationInput, Prisma.CharacterUncheckedUpdateManyWithoutUnlockAchievementInput>
 }
 
 export type CharacterCreateWithoutPackInput = {
@@ -2927,6 +3155,7 @@ export type CharacterCreateWithoutPackInput = {
   Rewards?: Prisma.RewardCreateNestedManyWithoutCharactersInput
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutCharactersInput
   FacetLinks?: Prisma.CharacterFacetCreateNestedManyWithoutCharacterInput
+  UnlockAchievement?: Prisma.AchievementCreateNestedOneWithoutGatedCharactersInput
 }
 
 export type CharacterUncheckedCreateWithoutPackInput = {
@@ -2970,6 +3199,7 @@ export type CharacterUncheckedCreateWithoutPackInput = {
   gender?: string | null
   slug?: string | null
   theme?: string | null
+  unlockAchievementId?: number | null
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedCreateNestedManyWithoutCharacterInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutCharacterInput
   ExpressionMedia?: Prisma.ExpressionMediaUncheckedCreateNestedManyWithoutCharacterInput
@@ -3060,6 +3290,7 @@ export type CharacterCreateWithoutReactionsInput = {
   Rewards?: Prisma.RewardCreateNestedManyWithoutCharactersInput
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutCharactersInput
   FacetLinks?: Prisma.CharacterFacetCreateNestedManyWithoutCharacterInput
+  UnlockAchievement?: Prisma.AchievementCreateNestedOneWithoutGatedCharactersInput
 }
 
 export type CharacterUncheckedCreateWithoutReactionsInput = {
@@ -3104,6 +3335,7 @@ export type CharacterUncheckedCreateWithoutReactionsInput = {
   gender?: string | null
   slug?: string | null
   theme?: string | null
+  unlockAchievementId?: number | null
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedCreateNestedManyWithoutCharacterInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutCharacterInput
   ExpressionMedia?: Prisma.ExpressionMediaUncheckedCreateNestedManyWithoutCharacterInput
@@ -3172,6 +3404,7 @@ export type CharacterCreateWithoutAuthoredReactionsInput = {
   Rewards?: Prisma.RewardCreateNestedManyWithoutCharactersInput
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutCharactersInput
   FacetLinks?: Prisma.CharacterFacetCreateNestedManyWithoutCharacterInput
+  UnlockAchievement?: Prisma.AchievementCreateNestedOneWithoutGatedCharactersInput
 }
 
 export type CharacterUncheckedCreateWithoutAuthoredReactionsInput = {
@@ -3216,6 +3449,7 @@ export type CharacterUncheckedCreateWithoutAuthoredReactionsInput = {
   gender?: string | null
   slug?: string | null
   theme?: string | null
+  unlockAchievementId?: number | null
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedCreateNestedManyWithoutCharacterInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutCharacterInput
   ExpressionMedia?: Prisma.ExpressionMediaUncheckedCreateNestedManyWithoutCharacterInput
@@ -3295,6 +3529,7 @@ export type CharacterUpdateWithoutReactionsInput = {
   Rewards?: Prisma.RewardUpdateManyWithoutCharactersNestedInput
   Scenarios?: Prisma.ScenarioUpdateManyWithoutCharactersNestedInput
   FacetLinks?: Prisma.CharacterFacetUpdateManyWithoutCharacterNestedInput
+  UnlockAchievement?: Prisma.AchievementUpdateOneWithoutGatedCharactersNestedInput
 }
 
 export type CharacterUncheckedUpdateWithoutReactionsInput = {
@@ -3339,6 +3574,7 @@ export type CharacterUncheckedUpdateWithoutReactionsInput = {
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   theme?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  unlockAchievementId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedUpdateManyWithoutCharacterNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutCharacterNestedInput
   ExpressionMedia?: Prisma.ExpressionMediaUncheckedUpdateManyWithoutCharacterNestedInput
@@ -3413,6 +3649,7 @@ export type CharacterUpdateWithoutAuthoredReactionsInput = {
   Rewards?: Prisma.RewardUpdateManyWithoutCharactersNestedInput
   Scenarios?: Prisma.ScenarioUpdateManyWithoutCharactersNestedInput
   FacetLinks?: Prisma.CharacterFacetUpdateManyWithoutCharacterNestedInput
+  UnlockAchievement?: Prisma.AchievementUpdateOneWithoutGatedCharactersNestedInput
 }
 
 export type CharacterUncheckedUpdateWithoutAuthoredReactionsInput = {
@@ -3457,6 +3694,7 @@ export type CharacterUncheckedUpdateWithoutAuthoredReactionsInput = {
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   theme?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  unlockAchievementId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedUpdateManyWithoutCharacterNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutCharacterNestedInput
   ExpressionMedia?: Prisma.ExpressionMediaUncheckedUpdateManyWithoutCharacterNestedInput
@@ -3520,6 +3758,7 @@ export type CharacterCreateWithoutRewardsInput = {
   Dreams?: Prisma.DreamCreateNestedManyWithoutCharactersInput
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutCharactersInput
   FacetLinks?: Prisma.CharacterFacetCreateNestedManyWithoutCharacterInput
+  UnlockAchievement?: Prisma.AchievementCreateNestedOneWithoutGatedCharactersInput
 }
 
 export type CharacterUncheckedCreateWithoutRewardsInput = {
@@ -3564,6 +3803,7 @@ export type CharacterUncheckedCreateWithoutRewardsInput = {
   gender?: string | null
   slug?: string | null
   theme?: string | null
+  unlockAchievementId?: number | null
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedCreateNestedManyWithoutCharacterInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutCharacterInput
   ExpressionMedia?: Prisma.ExpressionMediaUncheckedCreateNestedManyWithoutCharacterInput
@@ -3648,6 +3888,7 @@ export type CharacterCreateWithoutScenariosInput = {
   Dreams?: Prisma.DreamCreateNestedManyWithoutCharactersInput
   Rewards?: Prisma.RewardCreateNestedManyWithoutCharactersInput
   FacetLinks?: Prisma.CharacterFacetCreateNestedManyWithoutCharacterInput
+  UnlockAchievement?: Prisma.AchievementCreateNestedOneWithoutGatedCharactersInput
 }
 
 export type CharacterUncheckedCreateWithoutScenariosInput = {
@@ -3692,6 +3933,7 @@ export type CharacterUncheckedCreateWithoutScenariosInput = {
   gender?: string | null
   slug?: string | null
   theme?: string | null
+  unlockAchievementId?: number | null
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedCreateNestedManyWithoutCharacterInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutCharacterInput
   ExpressionMedia?: Prisma.ExpressionMediaUncheckedCreateNestedManyWithoutCharacterInput
@@ -3776,6 +4018,7 @@ export type CharacterCreateWithoutUserInput = {
   Rewards?: Prisma.RewardCreateNestedManyWithoutCharactersInput
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutCharactersInput
   FacetLinks?: Prisma.CharacterFacetCreateNestedManyWithoutCharacterInput
+  UnlockAchievement?: Prisma.AchievementCreateNestedOneWithoutGatedCharactersInput
 }
 
 export type CharacterUncheckedCreateWithoutUserInput = {
@@ -3819,6 +4062,7 @@ export type CharacterUncheckedCreateWithoutUserInput = {
   gender?: string | null
   slug?: string | null
   theme?: string | null
+  unlockAchievementId?: number | null
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedCreateNestedManyWithoutCharacterInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutCharacterInput
   ExpressionMedia?: Prisma.ExpressionMediaUncheckedCreateNestedManyWithoutCharacterInput
@@ -3909,6 +4153,7 @@ export type CharacterCreateWithoutChallengeSubmissionsInput = {
   Rewards?: Prisma.RewardCreateNestedManyWithoutCharactersInput
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutCharactersInput
   FacetLinks?: Prisma.CharacterFacetCreateNestedManyWithoutCharacterInput
+  UnlockAchievement?: Prisma.AchievementCreateNestedOneWithoutGatedCharactersInput
 }
 
 export type CharacterUncheckedCreateWithoutChallengeSubmissionsInput = {
@@ -3953,6 +4198,7 @@ export type CharacterUncheckedCreateWithoutChallengeSubmissionsInput = {
   gender?: string | null
   slug?: string | null
   theme?: string | null
+  unlockAchievementId?: number | null
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutCharacterInput
   ExpressionMedia?: Prisma.ExpressionMediaUncheckedCreateNestedManyWithoutCharacterInput
   ExpressionTransition?: Prisma.ExpressionTransitionUncheckedCreateNestedManyWithoutCharacterInput
@@ -4032,6 +4278,7 @@ export type CharacterUpdateWithoutChallengeSubmissionsInput = {
   Rewards?: Prisma.RewardUpdateManyWithoutCharactersNestedInput
   Scenarios?: Prisma.ScenarioUpdateManyWithoutCharactersNestedInput
   FacetLinks?: Prisma.CharacterFacetUpdateManyWithoutCharacterNestedInput
+  UnlockAchievement?: Prisma.AchievementUpdateOneWithoutGatedCharactersNestedInput
 }
 
 export type CharacterUncheckedUpdateWithoutChallengeSubmissionsInput = {
@@ -4076,6 +4323,7 @@ export type CharacterUncheckedUpdateWithoutChallengeSubmissionsInput = {
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   theme?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  unlockAchievementId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutCharacterNestedInput
   ExpressionMedia?: Prisma.ExpressionMediaUncheckedUpdateManyWithoutCharacterNestedInput
   ExpressionTransition?: Prisma.ExpressionTransitionUncheckedUpdateManyWithoutCharacterNestedInput
@@ -4139,6 +4387,7 @@ export type CharacterCreateWithoutLifeRunsInput = {
   Rewards?: Prisma.RewardCreateNestedManyWithoutCharactersInput
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutCharactersInput
   FacetLinks?: Prisma.CharacterFacetCreateNestedManyWithoutCharacterInput
+  UnlockAchievement?: Prisma.AchievementCreateNestedOneWithoutGatedCharactersInput
 }
 
 export type CharacterUncheckedCreateWithoutLifeRunsInput = {
@@ -4183,6 +4432,7 @@ export type CharacterUncheckedCreateWithoutLifeRunsInput = {
   gender?: string | null
   slug?: string | null
   theme?: string | null
+  unlockAchievementId?: number | null
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedCreateNestedManyWithoutCharacterInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutCharacterInput
   ExpressionMedia?: Prisma.ExpressionMediaUncheckedCreateNestedManyWithoutCharacterInput
@@ -4262,6 +4512,7 @@ export type CharacterUpdateWithoutLifeRunsInput = {
   Rewards?: Prisma.RewardUpdateManyWithoutCharactersNestedInput
   Scenarios?: Prisma.ScenarioUpdateManyWithoutCharactersNestedInput
   FacetLinks?: Prisma.CharacterFacetUpdateManyWithoutCharacterNestedInput
+  UnlockAchievement?: Prisma.AchievementUpdateOneWithoutGatedCharactersNestedInput
 }
 
 export type CharacterUncheckedUpdateWithoutLifeRunsInput = {
@@ -4306,6 +4557,7 @@ export type CharacterUncheckedUpdateWithoutLifeRunsInput = {
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   theme?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  unlockAchievementId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedUpdateManyWithoutCharacterNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutCharacterNestedInput
   ExpressionMedia?: Prisma.ExpressionMediaUncheckedUpdateManyWithoutCharacterNestedInput
@@ -4359,6 +4611,7 @@ export type CharacterCreateManyArtImageInput = {
   gender?: string | null
   slug?: string | null
   theme?: string | null
+  unlockAchievementId?: number | null
 }
 
 export type CharacterUpdateWithoutArtImageInput = {
@@ -4412,6 +4665,7 @@ export type CharacterUpdateWithoutArtImageInput = {
   Rewards?: Prisma.RewardUpdateManyWithoutCharactersNestedInput
   Scenarios?: Prisma.ScenarioUpdateManyWithoutCharactersNestedInput
   FacetLinks?: Prisma.CharacterFacetUpdateManyWithoutCharacterNestedInput
+  UnlockAchievement?: Prisma.AchievementUpdateOneWithoutGatedCharactersNestedInput
 }
 
 export type CharacterUncheckedUpdateWithoutArtImageInput = {
@@ -4455,6 +4709,7 @@ export type CharacterUncheckedUpdateWithoutArtImageInput = {
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   theme?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  unlockAchievementId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedUpdateManyWithoutCharacterNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutCharacterNestedInput
   ExpressionMedia?: Prisma.ExpressionMediaUncheckedUpdateManyWithoutCharacterNestedInput
@@ -4509,6 +4764,7 @@ export type CharacterUncheckedUpdateManyWithoutArtImageInput = {
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   theme?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  unlockAchievementId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
 
 export type CharacterUpdateWithoutDreamsInput = {
@@ -4562,9 +4818,208 @@ export type CharacterUpdateWithoutDreamsInput = {
   Rewards?: Prisma.RewardUpdateManyWithoutCharactersNestedInput
   Scenarios?: Prisma.ScenarioUpdateManyWithoutCharactersNestedInput
   FacetLinks?: Prisma.CharacterFacetUpdateManyWithoutCharacterNestedInput
+  UnlockAchievement?: Prisma.AchievementUpdateOneWithoutGatedCharactersNestedInput
 }
 
 export type CharacterUncheckedUpdateWithoutDreamsInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  achievements?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  alignment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  experience?: Prisma.IntFieldUpdateOperationsInput | number
+  level?: Prisma.IntFieldUpdateOperationsInput | number
+  class?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  species?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  backstory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  drive?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  quirks?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  genre?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  packId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  honorific?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  personality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sampleResponse?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  voice?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  charm?: Prisma.EnumRarityFieldUpdateOperationsInput | $Enums.Rarity
+  empathy?: Prisma.EnumRarityFieldUpdateOperationsInput | $Enums.Rarity
+  grace?: Prisma.EnumRarityFieldUpdateOperationsInput | $Enums.Rarity
+  luck?: Prisma.EnumRarityFieldUpdateOperationsInput | $Enums.Rarity
+  might?: Prisma.EnumRarityFieldUpdateOperationsInput | $Enums.Rarity
+  presentation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  wits?: Prisma.EnumRarityFieldUpdateOperationsInput | $Enums.Rarity
+  gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  theme?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  unlockAchievementId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedUpdateManyWithoutCharacterNestedInput
+  Chats?: Prisma.ChatUncheckedUpdateManyWithoutCharacterNestedInput
+  ExpressionMedia?: Prisma.ExpressionMediaUncheckedUpdateManyWithoutCharacterNestedInput
+  ExpressionTransition?: Prisma.ExpressionTransitionUncheckedUpdateManyWithoutCharacterNestedInput
+  LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutCharacterNestedInput
+  Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutCharacterNestedInput
+  AuthoredReactions?: Prisma.ReactionUncheckedUpdateManyWithoutAuthorCharacterNestedInput
+  Rewards?: Prisma.RewardUncheckedUpdateManyWithoutCharactersNestedInput
+  Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutCharactersNestedInput
+  FacetLinks?: Prisma.CharacterFacetUncheckedUpdateManyWithoutCharacterNestedInput
+}
+
+export type CharacterUncheckedUpdateManyWithoutDreamsInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  achievements?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  alignment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  experience?: Prisma.IntFieldUpdateOperationsInput | number
+  level?: Prisma.IntFieldUpdateOperationsInput | number
+  class?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  species?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  backstory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  drive?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  quirks?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  genre?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  packId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  honorific?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  personality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sampleResponse?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  voice?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  charm?: Prisma.EnumRarityFieldUpdateOperationsInput | $Enums.Rarity
+  empathy?: Prisma.EnumRarityFieldUpdateOperationsInput | $Enums.Rarity
+  grace?: Prisma.EnumRarityFieldUpdateOperationsInput | $Enums.Rarity
+  luck?: Prisma.EnumRarityFieldUpdateOperationsInput | $Enums.Rarity
+  might?: Prisma.EnumRarityFieldUpdateOperationsInput | $Enums.Rarity
+  presentation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  wits?: Prisma.EnumRarityFieldUpdateOperationsInput | $Enums.Rarity
+  gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  theme?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  unlockAchievementId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+}
+
+export type CharacterCreateManyUnlockAchievementInput = {
+  id?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string | null
+  name: string
+  achievements?: string | null
+  alignment?: string | null
+  experience?: number
+  level?: number
+  class?: string | null
+  species?: string | null
+  backstory?: string | null
+  drive?: string | null
+  quirks?: string | null
+  genre?: string | null
+  artImageId?: number | null
+  isPublic?: boolean
+  userId?: number | null
+  packId?: number | null
+  artPrompt?: string | null
+  honorific?: string | null
+  imagePath?: string | null
+  icon?: string | null
+  allowReviews?: boolean
+  designer?: string | null
+  personality?: string | null
+  sampleResponse?: string | null
+  voice?: string | null
+  isMature?: boolean
+  isActive?: boolean
+  charm?: $Enums.Rarity
+  empathy?: $Enums.Rarity
+  grace?: $Enums.Rarity
+  luck?: $Enums.Rarity
+  might?: $Enums.Rarity
+  presentation?: string | null
+  role?: string | null
+  title?: string | null
+  wits?: $Enums.Rarity
+  gender?: string | null
+  slug?: string | null
+  theme?: string | null
+}
+
+export type CharacterUpdateWithoutUnlockAchievementInput = {
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  achievements?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  alignment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  experience?: Prisma.IntFieldUpdateOperationsInput | number
+  level?: Prisma.IntFieldUpdateOperationsInput | number
+  class?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  species?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  backstory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  drive?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  quirks?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  genre?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  honorific?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  personality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sampleResponse?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  voice?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  charm?: Prisma.EnumRarityFieldUpdateOperationsInput | $Enums.Rarity
+  empathy?: Prisma.EnumRarityFieldUpdateOperationsInput | $Enums.Rarity
+  grace?: Prisma.EnumRarityFieldUpdateOperationsInput | $Enums.Rarity
+  luck?: Prisma.EnumRarityFieldUpdateOperationsInput | $Enums.Rarity
+  might?: Prisma.EnumRarityFieldUpdateOperationsInput | $Enums.Rarity
+  presentation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  wits?: Prisma.EnumRarityFieldUpdateOperationsInput | $Enums.Rarity
+  gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  theme?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ChallengeSubmissions?: Prisma.ChallengeSubmissionUpdateManyWithoutCharacterNestedInput
+  ArtImage?: Prisma.ArtImageUpdateOneWithoutCharactersNestedInput
+  User?: Prisma.UserUpdateOneWithoutCharactersNestedInput
+  Pack?: Prisma.PackUpdateOneWithoutCharactersNestedInput
+  Chats?: Prisma.ChatUpdateManyWithoutCharacterNestedInput
+  ExpressionMedia?: Prisma.ExpressionMediaUpdateManyWithoutCharacterNestedInput
+  ExpressionTransition?: Prisma.ExpressionTransitionUpdateManyWithoutCharacterNestedInput
+  LifeRuns?: Prisma.LifeRunUpdateManyWithoutCharacterNestedInput
+  Reactions?: Prisma.ReactionUpdateManyWithoutCharacterNestedInput
+  AuthoredReactions?: Prisma.ReactionUpdateManyWithoutAuthorCharacterNestedInput
+  Dreams?: Prisma.DreamUpdateManyWithoutCharactersNestedInput
+  Rewards?: Prisma.RewardUpdateManyWithoutCharactersNestedInput
+  Scenarios?: Prisma.ScenarioUpdateManyWithoutCharactersNestedInput
+  FacetLinks?: Prisma.CharacterFacetUpdateManyWithoutCharacterNestedInput
+}
+
+export type CharacterUncheckedUpdateWithoutUnlockAchievementInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -4613,12 +5068,13 @@ export type CharacterUncheckedUpdateWithoutDreamsInput = {
   LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutCharacterNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutCharacterNestedInput
   AuthoredReactions?: Prisma.ReactionUncheckedUpdateManyWithoutAuthorCharacterNestedInput
+  Dreams?: Prisma.DreamUncheckedUpdateManyWithoutCharactersNestedInput
   Rewards?: Prisma.RewardUncheckedUpdateManyWithoutCharactersNestedInput
   Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutCharactersNestedInput
   FacetLinks?: Prisma.CharacterFacetUncheckedUpdateManyWithoutCharacterNestedInput
 }
 
-export type CharacterUncheckedUpdateManyWithoutDreamsInput = {
+export type CharacterUncheckedUpdateManyWithoutUnlockAchievementInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -4703,6 +5159,7 @@ export type CharacterCreateManyPackInput = {
   gender?: string | null
   slug?: string | null
   theme?: string | null
+  unlockAchievementId?: number | null
 }
 
 export type CharacterUpdateWithoutPackInput = {
@@ -4756,6 +5213,7 @@ export type CharacterUpdateWithoutPackInput = {
   Rewards?: Prisma.RewardUpdateManyWithoutCharactersNestedInput
   Scenarios?: Prisma.ScenarioUpdateManyWithoutCharactersNestedInput
   FacetLinks?: Prisma.CharacterFacetUpdateManyWithoutCharacterNestedInput
+  UnlockAchievement?: Prisma.AchievementUpdateOneWithoutGatedCharactersNestedInput
 }
 
 export type CharacterUncheckedUpdateWithoutPackInput = {
@@ -4799,6 +5257,7 @@ export type CharacterUncheckedUpdateWithoutPackInput = {
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   theme?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  unlockAchievementId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedUpdateManyWithoutCharacterNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutCharacterNestedInput
   ExpressionMedia?: Prisma.ExpressionMediaUncheckedUpdateManyWithoutCharacterNestedInput
@@ -4853,6 +5312,7 @@ export type CharacterUncheckedUpdateManyWithoutPackInput = {
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   theme?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  unlockAchievementId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
 
 export type CharacterUpdateWithoutRewardsInput = {
@@ -4906,6 +5366,7 @@ export type CharacterUpdateWithoutRewardsInput = {
   Dreams?: Prisma.DreamUpdateManyWithoutCharactersNestedInput
   Scenarios?: Prisma.ScenarioUpdateManyWithoutCharactersNestedInput
   FacetLinks?: Prisma.CharacterFacetUpdateManyWithoutCharacterNestedInput
+  UnlockAchievement?: Prisma.AchievementUpdateOneWithoutGatedCharactersNestedInput
 }
 
 export type CharacterUncheckedUpdateWithoutRewardsInput = {
@@ -4950,6 +5411,7 @@ export type CharacterUncheckedUpdateWithoutRewardsInput = {
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   theme?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  unlockAchievementId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedUpdateManyWithoutCharacterNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutCharacterNestedInput
   ExpressionMedia?: Prisma.ExpressionMediaUncheckedUpdateManyWithoutCharacterNestedInput
@@ -5004,6 +5466,7 @@ export type CharacterUncheckedUpdateManyWithoutRewardsInput = {
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   theme?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  unlockAchievementId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
 
 export type CharacterUpdateWithoutScenariosInput = {
@@ -5057,6 +5520,7 @@ export type CharacterUpdateWithoutScenariosInput = {
   Dreams?: Prisma.DreamUpdateManyWithoutCharactersNestedInput
   Rewards?: Prisma.RewardUpdateManyWithoutCharactersNestedInput
   FacetLinks?: Prisma.CharacterFacetUpdateManyWithoutCharacterNestedInput
+  UnlockAchievement?: Prisma.AchievementUpdateOneWithoutGatedCharactersNestedInput
 }
 
 export type CharacterUncheckedUpdateWithoutScenariosInput = {
@@ -5101,6 +5565,7 @@ export type CharacterUncheckedUpdateWithoutScenariosInput = {
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   theme?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  unlockAchievementId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedUpdateManyWithoutCharacterNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutCharacterNestedInput
   ExpressionMedia?: Prisma.ExpressionMediaUncheckedUpdateManyWithoutCharacterNestedInput
@@ -5155,6 +5620,7 @@ export type CharacterUncheckedUpdateManyWithoutScenariosInput = {
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   theme?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  unlockAchievementId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
 
 export type CharacterCreateManyUserInput = {
@@ -5198,6 +5664,7 @@ export type CharacterCreateManyUserInput = {
   gender?: string | null
   slug?: string | null
   theme?: string | null
+  unlockAchievementId?: number | null
 }
 
 export type CharacterUpdateWithoutUserInput = {
@@ -5251,6 +5718,7 @@ export type CharacterUpdateWithoutUserInput = {
   Rewards?: Prisma.RewardUpdateManyWithoutCharactersNestedInput
   Scenarios?: Prisma.ScenarioUpdateManyWithoutCharactersNestedInput
   FacetLinks?: Prisma.CharacterFacetUpdateManyWithoutCharacterNestedInput
+  UnlockAchievement?: Prisma.AchievementUpdateOneWithoutGatedCharactersNestedInput
 }
 
 export type CharacterUncheckedUpdateWithoutUserInput = {
@@ -5294,6 +5762,7 @@ export type CharacterUncheckedUpdateWithoutUserInput = {
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   theme?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  unlockAchievementId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedUpdateManyWithoutCharacterNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutCharacterNestedInput
   ExpressionMedia?: Prisma.ExpressionMediaUncheckedUpdateManyWithoutCharacterNestedInput
@@ -5348,6 +5817,7 @@ export type CharacterUncheckedUpdateManyWithoutUserInput = {
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   theme?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  unlockAchievementId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
 
 
@@ -5513,6 +5983,7 @@ export type CharacterSelect<ExtArgs extends runtime.Types.Extensions.InternalArg
   gender?: boolean
   slug?: boolean
   theme?: boolean
+  unlockAchievementId?: boolean
   ChallengeSubmissions?: boolean | Prisma.Character$ChallengeSubmissionsArgs<ExtArgs>
   ArtImage?: boolean | Prisma.Character$ArtImageArgs<ExtArgs>
   User?: boolean | Prisma.Character$UserArgs<ExtArgs>
@@ -5527,6 +5998,7 @@ export type CharacterSelect<ExtArgs extends runtime.Types.Extensions.InternalArg
   Rewards?: boolean | Prisma.Character$RewardsArgs<ExtArgs>
   Scenarios?: boolean | Prisma.Character$ScenariosArgs<ExtArgs>
   FacetLinks?: boolean | Prisma.Character$FacetLinksArgs<ExtArgs>
+  UnlockAchievement?: boolean | Prisma.Character$UnlockAchievementArgs<ExtArgs>
   _count?: boolean | Prisma.CharacterCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["character"]>
 
@@ -5574,9 +6046,10 @@ export type CharacterSelectScalar = {
   gender?: boolean
   slug?: boolean
   theme?: boolean
+  unlockAchievementId?: boolean
 }
 
-export type CharacterOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "name" | "achievements" | "alignment" | "experience" | "level" | "class" | "species" | "backstory" | "drive" | "quirks" | "genre" | "artImageId" | "isPublic" | "userId" | "packId" | "artPrompt" | "honorific" | "imagePath" | "icon" | "allowReviews" | "designer" | "personality" | "sampleResponse" | "voice" | "isMature" | "isActive" | "charm" | "empathy" | "grace" | "luck" | "might" | "presentation" | "role" | "title" | "wits" | "gender" | "slug" | "theme", ExtArgs["result"]["character"]>
+export type CharacterOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "name" | "achievements" | "alignment" | "experience" | "level" | "class" | "species" | "backstory" | "drive" | "quirks" | "genre" | "artImageId" | "isPublic" | "userId" | "packId" | "artPrompt" | "honorific" | "imagePath" | "icon" | "allowReviews" | "designer" | "personality" | "sampleResponse" | "voice" | "isMature" | "isActive" | "charm" | "empathy" | "grace" | "luck" | "might" | "presentation" | "role" | "title" | "wits" | "gender" | "slug" | "theme" | "unlockAchievementId", ExtArgs["result"]["character"]>
 export type CharacterInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   ChallengeSubmissions?: boolean | Prisma.Character$ChallengeSubmissionsArgs<ExtArgs>
   ArtImage?: boolean | Prisma.Character$ArtImageArgs<ExtArgs>
@@ -5592,6 +6065,7 @@ export type CharacterInclude<ExtArgs extends runtime.Types.Extensions.InternalAr
   Rewards?: boolean | Prisma.Character$RewardsArgs<ExtArgs>
   Scenarios?: boolean | Prisma.Character$ScenariosArgs<ExtArgs>
   FacetLinks?: boolean | Prisma.Character$FacetLinksArgs<ExtArgs>
+  UnlockAchievement?: boolean | Prisma.Character$UnlockAchievementArgs<ExtArgs>
   _count?: boolean | Prisma.CharacterCountOutputTypeDefaultArgs<ExtArgs>
 }
 
@@ -5612,6 +6086,7 @@ export type $CharacterPayload<ExtArgs extends runtime.Types.Extensions.InternalA
     Rewards: Prisma.$RewardPayload<ExtArgs>[]
     Scenarios: Prisma.$ScenarioPayload<ExtArgs>[]
     FacetLinks: Prisma.$CharacterFacetPayload<ExtArgs>[]
+    UnlockAchievement: Prisma.$AchievementPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -5659,6 +6134,14 @@ export type $CharacterPayload<ExtArgs extends runtime.Types.Extensions.InternalA
      * stable id-derived pick -- see resolveEntityTheme in utils/entityTheme.ts.
      */
     theme: string | null
+    /**
+     * Gating hook (storybook/t-038, matching EndingDeck.unlockAchievementId):
+     * NULL means always playable. When set, the reader must hold this
+     * Achievement to play the character as Hero or Company -- enforced by
+     * server/utils/storybookGating.ts, behind the same
+     * STORYBOOK_ENFORCE_DECK_GATES flag as deck gating.
+     */
+    unlockAchievementId: number | null
   }, ExtArgs["result"]["character"]>
   composites: {}
 }
@@ -6013,6 +6496,7 @@ export interface Prisma__CharacterClient<T, Null = never, ExtArgs extends runtim
   Rewards<T extends Prisma.Character$RewardsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Character$RewardsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$RewardPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   Scenarios<T extends Prisma.Character$ScenariosArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Character$ScenariosArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ScenarioPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   FacetLinks<T extends Prisma.Character$FacetLinksArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Character$FacetLinksArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CharacterFacetPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  UnlockAchievement<T extends Prisma.Character$UnlockAchievementArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Character$UnlockAchievementArgs<ExtArgs>>): Prisma.Prisma__AchievementClient<runtime.Types.Result.GetResult<Prisma.$AchievementPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -6083,6 +6567,7 @@ export interface CharacterFieldRefs {
   readonly gender: Prisma.FieldRef<"Character", 'String'>
   readonly slug: Prisma.FieldRef<"Character", 'String'>
   readonly theme: Prisma.FieldRef<"Character", 'String'>
+  readonly unlockAchievementId: Prisma.FieldRef<"Character", 'Int'>
 }
     
 
@@ -6749,6 +7234,25 @@ export type Character$FacetLinksArgs<ExtArgs extends runtime.Types.Extensions.In
   take?: number
   skip?: number
   distinct?: Prisma.CharacterFacetScalarFieldEnum | Prisma.CharacterFacetScalarFieldEnum[]
+}
+
+/**
+ * Character.UnlockAchievement
+ */
+export type Character$UnlockAchievementArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Achievement
+   */
+  select?: Prisma.AchievementSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Achievement
+   */
+  omit?: Prisma.AchievementOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.AchievementInclude<ExtArgs> | null
+  where?: Prisma.AchievementWhereInput
 }
 
 /**

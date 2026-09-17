@@ -230,6 +230,13 @@ model Character {
   /// Optional daisyUI theme this record's card wears. NULL falls back to a
   /// stable id-derived pick -- see resolveEntityTheme in utils/entityTheme.ts.
   theme                String?                @db.VarChar(764)
+  /// Gating hook (storybook/t-038, matching EndingDeck.unlockAchievementId):
+  /// NULL means always playable. When set, the reader must hold this
+  /// Achievement to play the character as Hero or Company -- enforced by
+  /// server/utils/storybookGating.ts, behind the same
+  /// STORYBOOK_ENFORCE_DECK_GATES flag as deck gating.
+  unlockAchievementId  Int?
+  UnlockAchievement    Achievement?           @relation(fields: [unlockAchievementId], references: [id], onDelete: SetNull)
 
   @@index([userId], map: "Character_userId_fkey")
   @@index([isPublic])
@@ -237,6 +244,7 @@ model Character {
   @@index([name])
   @@index([artImageId], map: "Character_artImageId_fkey")
   @@index([packId])
+  @@index([unlockAchievementId])
 }
 
 /// a chat can be between users, user to Bot or Character, on to a Forum or Channel (aka chatroom)
@@ -711,6 +719,7 @@ model Achievement {
   LifeAchievements   LifeAchievement[]
   LifeEndings        LifeEnding[]
   GatedDecks         EndingDeck[]
+  GatedCharacters    Character[]
 
   @@index([artImageId], map: "Achievement_artImageId_fkey")
 }

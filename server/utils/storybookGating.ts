@@ -1,15 +1,18 @@
 // /server/utils/storybookGating.ts
 //
-// The gate that will eventually lock a genre, a character, or a narrator until
-// the reader earns it (storybook/t-033, enforced by t-038).
+// The gate that locks a genre deck or a character until the reader earns it
+// (storybook/t-033 built the deck side dormant; t-038 wires up Character and
+// turns both into a real refusal once enforcement is on).
 //
 // Silas, 2026-09-12: "eventually we may gate certain genre choices and or
 // characters, and award them when they finish a story." The award side is real
 // already -- resolving a run credits an ending and, when a deck is complete,
-// its COLLECTION achievement. The LOCK side is deliberately inert: a deck's
-// unlockAchievementId can be set today, and this module already answers whether
-// a reader has it, but refusing a run stays behind an env flag until the card
-// hand can actually render a locked card with an unlock hint. A gate the UI
+// its COLLECTION achievement. The LOCK side stays behind one env flag shared
+// by both gate kinds: a deck or Character's unlockAchievementId can be set
+// today, and this module always answers whether a reader has it (so
+// GET /api/storybook/decks and GET /api/storybook/characters can render a
+// truthful lock before a single reader is turned away), but refusing a run
+// stays inert until STORYBOOK_ENFORCE_DECK_GATES is switched on. A gate the UI
 // cannot explain is a dead end, not a goal.
 
 import prisma from './prisma'
@@ -21,10 +24,31 @@ export function deckGatesEnforced(): boolean {
   return process.env[DECK_GATE_ENV_FLAG] === 'true'
 }
 
-export interface GatedDeck {
+export interface Gated {
+  unlockAchievementId: number | null
+}
+
+export interface GatedDeck extends Gated {
   key: string
   title: string
-  unlockAchievementId: number | null
+}
+
+export interface GatedCharacter extends Gated {
+  id: number
+  name: string
+}
+
+/** True when the reader holds the entity's unlock Achievement (or it has none). */
+export async function isUnlocked(
+  entity: Gated,
+  userId: number,
+): Promise<boolean> {
+  if (!entity.unlockAchievementId) return true
+  const record = await prisma.achievementRecord.findFirst({
+    where: { achievementId: entity.unlockAchievementId, userId },
+    select: { id: true },
+  })
+  return Boolean(record)
 }
 
 /** True when the reader may play this deck right now. */
@@ -32,12 +56,7 @@ export async function isDeckUnlocked(
   deck: GatedDeck,
   userId: number,
 ): Promise<boolean> {
-  if (!deck.unlockAchievementId) return true
-  const record = await prisma.achievementRecord.findFirst({
-    where: { achievementId: deck.unlockAchievementId, userId },
-    select: { id: true },
-  })
-  return Boolean(record)
+  return isUnlocked(deck, userId)
 }
 
 /**
@@ -52,10 +71,30 @@ export async function assertDeckPlayable(
   userId: number,
 ): Promise<void> {
   if (!deck.unlockAchievementId) return
-  if (await isDeckUnlocked(deck, userId)) return
+  if (await isUnlocked(deck, userId)) return
   if (!deckGatesEnforced()) return
   throw withStatusCode(
     `The ${deck.title} deck is still locked. Finish a story that unlocks it first.`,
     403,
   )
+}
+
+/**
+ * Refuse a run cast on a locked Character -- same shape and same flag as
+ * assertDeckPlayable, checked for every cast member (Hero and Company alike;
+ * a locked companion is exactly as much a spoiler as a locked protagonist).
+ */
+export async function assertCastPlayable(
+  cast: GatedCharacter[],
+  userId: number,
+): Promise<void> {
+  if (!deckGatesEnforced()) return
+  for (const character of cast) {
+    if (!character.unlockAchievementId) continue
+    if (await isUnlocked(character, userId)) continue
+    throw withStatusCode(
+      `${character.name} is still locked. Finish a story that unlocks them first.`,
+      403,
+    )
+  }
 }

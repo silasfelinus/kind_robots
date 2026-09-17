@@ -8378,7 +8378,8 @@ export const CharacterScalarFieldEnum = {
   wits: 'wits',
   gender: 'gender',
   slug: 'slug',
-  theme: 'theme'
+  theme: 'theme',
+  unlockAchievementId: 'unlockAchievementId'
 } as const
 
 export type CharacterScalarFieldEnum = (typeof CharacterScalarFieldEnum)[keyof typeof CharacterScalarFieldEnum]

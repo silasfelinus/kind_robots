@@ -1,11 +1,16 @@
 // /server/api/projects/index.get.ts
 import { defineEventHandler, getHeader, getQuery } from 'h3'
-import type { Prisma, ProjectPriority, ProjectStatus } from '~/prisma/generated/prisma/client'
+import type {
+  Prisma,
+  ProjectPriority,
+  ProjectStatus,
+} from '~/prisma/generated/prisma/client'
 import prisma from '~/server/utils/prisma'
 import { errorHandler } from '~/server/utils/error'
 import { validateApiKey } from '~/server/utils/validateKey'
 import { projectInclude, projectPriorities, projectStatuses } from './index'
 import { userIsAdmin } from '../../utils/authUser'
+import { isMaturityRestricted } from '~/server/utils/contentAccess'
 
 type ProjectListQuery = {
   take?: string
@@ -35,6 +40,7 @@ export default defineEventHandler(async (event) => {
     const authorization = getHeader(event, 'authorization')
     let userId: number | null = null
     let isAdmin = false
+    let viewer: Awaited<ReturnType<typeof validateApiKey>>['user']
 
     if (authorization?.startsWith('Bearer ')) {
       try {
@@ -42,6 +48,7 @@ export default defineEventHandler(async (event) => {
         if (auth.isValid && auth.user) {
           userId = auth.user.id
           isAdmin = userIsAdmin(auth.user)
+          viewer = auth.user
         }
       } catch {
         userId = null
@@ -51,7 +58,14 @@ export default defineEventHandler(async (event) => {
 
     const and: Prisma.ProjectWhereInput[] = []
     const includeInactive = booleanParam(query.includeInactive)
-    const includeMature = booleanParam(query.includeMature)
+    /*
+     * `?includeMature=true` was taken at its word. A restriction a query
+     * parameter can lift is not a restriction -- isMaturityRestricted()'s own
+     * docstring names this case -- and the admin bypass beside it had the same
+     * hole from the other side: a CHILD who also holds ADMIN is still a child.
+     */
+    const restricted = isMaturityRestricted(viewer)
+    const includeMature = !restricted && booleanParam(query.includeMature)
     const mine = booleanParam(query.mine)
     const search = typeof query.search === 'string' ? query.search.trim() : ''
     const status = projectStatuses.has(query.status as ProjectStatus)
@@ -62,12 +76,15 @@ export default defineEventHandler(async (event) => {
       : undefined
 
     if (!includeInactive) and.push({ isActive: true })
-    if (!includeMature && !isAdmin) and.push({ isMature: false })
+    if (restricted || (!includeMature && !isAdmin))
+      and.push({ isMature: false })
 
     if (mine) {
       and.push(userId ? { userId } : { id: -1 })
     } else if (!isAdmin) {
-      and.push(userId ? { OR: [{ isPublic: true }, { userId }] } : { isPublic: true })
+      and.push(
+        userId ? { OR: [{ isPublic: true }, { userId }] } : { isPublic: true },
+      )
     }
 
     if (status) and.push({ status })

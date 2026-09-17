@@ -3,6 +3,11 @@ import { defineEventHandler, getQuery } from 'h3'
 import type { Prisma } from '~/prisma/generated/prisma/client'
 import prisma from '../../../utils/prisma'
 import { errorHandler } from '../../../utils/error'
+import {
+  buildArtCollectionWhere,
+  buildArtImageWhere,
+  getArtImageAccessContext,
+} from '~/server/utils/artImageAccess'
 
 const artImageListSelect = {
   id: true,
@@ -57,8 +62,12 @@ function queryPositiveInt(
   return parsed
 }
 
-function buildArtImagesRelation(take: number | null) {
+function buildArtImagesRelation(
+  take: number | null,
+  where: Prisma.ArtImageWhereInput,
+) {
   return {
+    where,
     orderBy: { id: 'desc' },
     ...(take ? { take } : {}),
     select: artImageListSelect,
@@ -77,6 +86,15 @@ export default defineEventHandler(async (event) => {
     const userId = queryPositiveInt(query.userId, null)
     const collectionId = queryPositiveInt(query.id, null)
 
+    /*
+     * `isPublic: true` appears in the select below, which asks for the column
+     * and filters nothing -- so this listed every collection, private and
+     * mature, with its images, to anyone. Both halves now carry the viewer's
+     * rule, and `?userId=` no longer exposes another person's private folders.
+     */
+    const access = await getArtImageAccessContext(event)
+    const imageWhere = buildArtImageWhere(access)
+
     const artCollectionSelect = {
       id: true,
       createdAt: true,
@@ -92,14 +110,19 @@ export default defineEventHandler(async (event) => {
       description: true,
       username: true,
       ...(includeImages
-        ? { ArtImages: buildArtImagesRelation(imageLimit) }
+        ? { ArtImages: buildArtImagesRelation(imageLimit, imageWhere) }
         : {}),
-      _count: { select: { ArtImages: true } },
+      _count: { select: { ArtImages: { where: imageWhere } } },
     } satisfies Prisma.ArtCollectionSelect
 
     const where: Prisma.ArtCollectionWhereInput = {
-      ...(userId ? { userId } : {}),
-      ...(collectionId ? { id: collectionId } : {}),
+      AND: [
+        {
+          ...(userId ? { userId } : {}),
+          ...(collectionId ? { id: collectionId } : {}),
+        },
+        buildArtCollectionWhere(access),
+      ],
     }
 
     const collections = await prisma.artCollection.findMany({

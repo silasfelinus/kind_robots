@@ -5,10 +5,17 @@ import { defineEventHandler } from 'h3'
 import prisma from '../../utils/prisma'
 import { errorHandler } from '../../utils/error'
 import { requireApiUser } from '../../utils/authGuard'
+import { isMaturityRestricted } from '../../utils/contentAccess'
 
 export default defineEventHandler(async (event) => {
   try {
     const { user } = await requireApiUser(event)
+    /*
+     * Membership answers privacy; maturity was never asked. A CHILD account in
+     * a conversation was shown mature messages in its preview and counted them
+     * as unread, which is the "should not even look like it exists" case.
+     */
+    const matureFilter = isMaturityRestricted(user) ? { isMature: false } : {}
 
     const memberships = await prisma.conversationParticipant.findMany({
       where: { userId: user.id },
@@ -37,7 +44,7 @@ export default defineEventHandler(async (event) => {
       memberships.map(async (m) => {
         const convo = m.Conversation
         const lastMessage = await prisma.directMessage.findFirst({
-          where: { conversationId: convo.id, deletedAt: null },
+          where: { conversationId: convo.id, deletedAt: null, ...matureFilter },
           orderBy: { createdAt: 'desc' },
           select: {
             id: true,
@@ -52,6 +59,7 @@ export default defineEventHandler(async (event) => {
             conversationId: convo.id,
             deletedAt: null,
             senderId: { not: user.id },
+            ...matureFilter,
             ...(m.lastReadAt ? { createdAt: { gt: m.lastReadAt } } : {}),
           },
         })

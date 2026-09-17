@@ -2,7 +2,11 @@ import { createError, defineEventHandler } from 'h3'
 import prisma from '../../utils/prisma'
 import { errorHandler } from '../../utils/error'
 import { getOptionalApiUser } from '../../utils/authGuard'
-import { canView, viewablePackIds } from '../../utils/contentAccess'
+import {
+  canViewWithMaturity,
+  isMaturityRestricted,
+  viewablePackIds,
+} from '../../utils/contentAccess'
 import { characterBrowseSelect } from './selects'
 
 export default defineEventHandler(async (event) => {
@@ -29,7 +33,7 @@ export default defineEventHandler(async (event) => {
         })
       }
 
-      if (!(await canView(data, null, auth?.user))) {
+      if (!(await canViewWithMaturity(data, null, auth?.user))) {
         throw createError({
           statusCode: auth ? 403 : 404,
           message: auth
@@ -47,7 +51,7 @@ export default defineEventHandler(async (event) => {
     }
 
     const packIds = userId && !isAdmin ? await viewablePackIds(userId) : []
-    const where = isAdmin
+    const privacy = isAdmin
       ? undefined
       : userId
         ? {
@@ -58,6 +62,19 @@ export default defineEventHandler(async (event) => {
             ],
           }
         : { isPublic: true }
+
+    /*
+     * Privacy was right; maturity was missing, so the catalog listed mature
+     * Characters by name to a maturity-restricted account. Applied to an admin
+     * too -- being an admin is not being an adult.
+     */
+    const matureFilter = isMaturityRestricted(auth?.user)
+      ? { isMature: false }
+      : undefined
+    const where =
+      privacy && matureFilter
+        ? { AND: [privacy, matureFilter] }
+        : (privacy ?? matureFilter)
 
     // The complete catalog is text-first/card-first. Long-form Character detail
     // is loaded explicitly from /api/characters/:id when a caller opens,

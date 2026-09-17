@@ -3,7 +3,10 @@ import { defineEventHandler, getHeader, getQuery } from 'h3'
 import prisma from '@/server/utils/prisma'
 import { errorHandler } from '@/server/utils/error'
 import { validateApiKey } from '@/server/utils/validateKey'
-import { viewablePackIds } from '@/server/utils/contentAccess'
+import {
+  isMaturityRestricted,
+  viewablePackIds,
+} from '@/server/utils/contentAccess'
 import type { Prisma } from '~/prisma/generated/prisma/client'
 import { parseDreamType } from './index'
 
@@ -167,7 +170,11 @@ const dreamListInclude = {
  * a small window without turning an accidental huge value into an expensive
  * query.
  */
-function normalizeLimit(value: unknown, fallback = 48, max = 200): number | undefined {
+function normalizeLimit(
+  value: unknown,
+  fallback = 48,
+  max = 200,
+): number | undefined {
   if (value === undefined || value === null || value === '') return undefined
 
   const parsed = Number(value)
@@ -220,7 +227,16 @@ export default defineEventHandler(async (event) => {
     const packIds = userId && !isAdmin ? await viewablePackIds(userId) : []
     const take = normalizeLimit(query.take)
     const skip = normalizeSkip(query.skip)
-    const includeMature = normalizeBoolean(query.includeMature)
+    /*
+     * `?includeMature=true` was taken at its word. A restriction a query
+     * parameter can lift is not a restriction -- isMaturityRestricted()'s own
+     * docstring names this case -- and the admin bypass beside it had the same
+     * hole from the other side: a CHILD who also holds ADMIN is still a child.
+     */
+    const restricted = isMaturityRestricted(
+      userId ? { id: userId, Role: userRole } : null,
+    )
+    const includeMature = !restricted && normalizeBoolean(query.includeMature)
     const includeInactive =
       normalizeBoolean(query.includeInactive) ||
       normalizeBoolean(query.showInactive)
@@ -239,7 +255,7 @@ export default defineEventHandler(async (event) => {
       andFilters.push({ isActive: true })
     }
 
-    if (!includeMature && !isAdmin) {
+    if (restricted || (!includeMature && !isAdmin)) {
       andFilters.push({ isMature: false })
     }
 

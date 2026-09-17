@@ -5,7 +5,7 @@ import { errorHandler } from '~/server/utils/error'
 import { validateApiKey } from '~/server/utils/validateKey'
 import { projectInclude } from './index'
 import { userIsAdmin } from '../../utils/authUser'
-import { canView } from '~/server/utils/contentAccess'
+import { canView, isMaturityRestricted } from '~/server/utils/contentAccess'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -30,12 +30,14 @@ export default defineEventHandler(async (event) => {
 
     let userId: number | null = null
     let isAdmin = false
+    let viewer: Awaited<ReturnType<typeof validateApiKey>>['user']
     if (getHeader(event, 'authorization')?.startsWith('Bearer ')) {
       try {
         const auth = await validateApiKey(event)
         if (auth.isValid && auth.user) {
           userId = auth.user.id
           isAdmin = userIsAdmin(auth.user)
+          viewer = auth.user
         }
       } catch {
         // Invalid/expired token on an otherwise-optional auth header: fall
@@ -63,6 +65,17 @@ export default defineEventHandler(async (event) => {
         statusCode: 403,
         message: 'You do not have permission to view this Project.',
       })
+    }
+
+    /*
+     * The synthesized `isPublic` above folds in `!project.isMature`, which
+     * keeps a mature project out of the PUBLIC path -- but the owner, an
+     * admin, and a Grant recipient all bypass that clause, so a
+     * maturity-restricted account holding any of those still got a mature
+     * project. Maturity is not a permission to be granted around.
+     */
+    if (project.isMature && isMaturityRestricted(viewer)) {
+      throw createError({ statusCode: 404, message: 'Project not found.' })
     }
 
     event.node.res.statusCode = 200

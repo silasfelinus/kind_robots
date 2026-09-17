@@ -2,6 +2,10 @@
 import { defineEventHandler, createError } from 'h3'
 import prisma from '~/server/utils/prisma'
 import { errorHandler } from '~/server/utils/error'
+import {
+  buildArtImageWhere,
+  getArtImageAccessContext,
+} from '~/server/utils/artImageAccess'
 
 export default defineEventHandler(async (event) => {
   const artImageId = Number(event.context.params?.id)
@@ -14,9 +18,18 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    const data = await prisma.artImage.findUnique({
+    /*
+     * Was a bare findUnique: any ArtImage by id, private and mature alike, to
+     * any caller -- and an ArtImage id is a small integer. The same filter the
+     * art listings use, applied as an AND on the lookup so an image the viewer
+     * may not see simply isn't found. Withholding the bytes while confirming
+     * the row exists is not privacy.
+     */
+    const access = await getArtImageAccessContext(event)
+
+    const data = await prisma.artImage.findFirst({
       where: {
-        id: artImageId,
+        AND: [{ id: artImageId }, buildArtImageWhere(access)],
       },
     })
 

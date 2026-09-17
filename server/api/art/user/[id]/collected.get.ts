@@ -3,6 +3,12 @@ import { defineEventHandler, createError } from 'h3'
 import type { ArtImage } from '~/prisma/generated/prisma/client'
 import { errorHandler } from '../../../../utils/error'
 import prisma from '../../../../utils/prisma'
+import {
+  buildArtCollectionWhere,
+  buildArtImageWhere,
+  getArtImageAccessContext,
+  type ArtImageAccessContext,
+} from '~/server/utils/artImageAccess'
 
 export default defineEventHandler(async (event) => {
   const userId = Number(event.context.params?.id)
@@ -15,7 +21,14 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    const collectedArt = await fetchUserCollectedArt(userId)
+    /*
+     * Was unfiltered in both directions: any caller could name any user id and
+     * receive that person's private collections, including their private and
+     * mature images. The viewer -- not the subject -- decides what comes back
+     * now, on both the ArtCollection rows and the ArtImages inside them.
+     */
+    const access = await getArtImageAccessContext(event)
+    const collectedArt = await fetchUserCollectedArt(userId, access)
 
     return {
       success: true,
@@ -40,17 +53,23 @@ export default defineEventHandler(async (event) => {
   }
 })
 
-async function fetchUserCollectedArt(userId: number): Promise<ArtImage[]> {
+async function fetchUserCollectedArt(
+  ownerId: number,
+  access: ArtImageAccessContext,
+): Promise<ArtImage[]> {
   const collections = await prisma.artCollection.findMany({
     where: {
-      userId,
-      isActive: true,
+      AND: [
+        { userId: ownerId, isActive: true },
+        buildArtCollectionWhere(access),
+      ],
     },
     orderBy: {
       createdAt: 'desc',
     },
     include: {
       ArtImages: {
+        where: buildArtImageWhere(access),
         orderBy: {
           createdAt: 'desc',
         },

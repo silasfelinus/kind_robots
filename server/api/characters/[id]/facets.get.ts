@@ -4,6 +4,7 @@ import prisma from '~/server/utils/prisma'
 import { errorHandler } from '~/server/utils/error'
 import { getOptionalApiUser } from '~/server/utils/authGuard'
 import { loadCharacterFacetCatalog } from '~/server/utils/facetCatalog'
+import { isMaturityRestricted } from '~/server/utils/contentAccess'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -15,12 +16,22 @@ export default defineEventHandler(async (event) => {
     const [character, auth] = await Promise.all([
       prisma.character.findUnique({
         where: { id },
-        select: { id: true, userId: true, isPublic: true },
+        select: { id: true, userId: true, isPublic: true, isMature: true },
       }),
       getOptionalApiUser(event),
     ])
 
     if (!character) {
+      throw createError({ statusCode: 404, message: 'Character not found.' })
+    }
+
+    /*
+     * The owner/admin/public check says nothing about maturity, so a
+     * maturity-restricted account could read a mature Character's Facets --
+     * names and descriptions, which is exactly the "things like text should
+     * not be viewable either" case. Decided by role, so an admin is covered.
+     */
+    if (character.isMature && isMaturityRestricted(auth?.user)) {
       throw createError({ statusCode: 404, message: 'Character not found.' })
     }
 

@@ -2,6 +2,8 @@
 import { defineEventHandler, createError, getRouterParam } from 'h3'
 import prisma from '@/server/utils/prisma'
 import { errorHandler } from '@/server/utils/error'
+import { getOptionalApiUser } from '@/server/utils/authGuard'
+import { isMaturityRestricted } from '@/server/utils/contentAccess'
 
 const defaultNarratorBotId = 433
 
@@ -33,15 +35,17 @@ const expressionMediaSelect = {
   },
 }
 
-function readImagePath(source?: {
-  imagePath?: string | null
-  avatarImage?: string | null
-  ArtImage?: {
+function readImagePath(
+  source?: {
     imagePath?: string | null
-    path?: string | null
-    fileName?: string | null
-  } | null
-} | null) {
+    avatarImage?: string | null
+    ArtImage?: {
+      imagePath?: string | null
+      path?: string | null
+      fileName?: string | null
+    } | null
+  } | null,
+) {
   return (
     source?.imagePath ||
     source?.avatarImage ||
@@ -71,12 +75,20 @@ export default defineEventHandler(async (event) => {
       })
     }
 
+    // Public-and-active was the whole filter on both branches; maturity was
+    // never asked, on the Bot or the Character.
+    const auth = await getOptionalApiUser(event)
+    const matureFilter = isMaturityRestricted(auth?.user)
+      ? { isMature: false }
+      : {}
+
     if (type === 'bot') {
       const bot = await prisma.bot.findFirst({
         where: {
           slug,
           isActive: true,
           isPublic: true,
+          ...matureFilter,
         },
         select: {
           id: true,
@@ -141,6 +153,7 @@ export default defineEventHandler(async (event) => {
         slug,
         isActive: true,
         isPublic: true,
+        ...matureFilter,
       },
       select: {
         id: true,

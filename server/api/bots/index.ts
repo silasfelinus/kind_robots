@@ -1,48 +1,17 @@
 // ~/server/api/bots/index.ts
+//
+// Helper module for the bots routes -- no default export, so Nitro does not
+// serve it. fetchBots/fetchBotById/fetchBotByName/randomBot used to live here
+// and returned every Bot with no `where` at all, private and mature alike.
+// Nothing called them (index.get.ts queries directly, through
+// visibilityWhere), so they are gone rather than guarded: an unfiltered read
+// helper with no callers is a loaded gun for the next endpoint that reaches
+// for it.
 import type { Prisma, Bot } from '~/prisma/generated/prisma/client'
 import prisma from '../../utils/prisma'
 
-export async function fetchBots(
-  page = 1,
-  pageSize = 100,
-): Promise<{ success: boolean; data: Bot[]; message?: string }> {
-  const skip = (page - 1) * pageSize
 
-  const bots = await prisma.bot.findMany({
-    skip,
-    take: pageSize,
-  })
 
-  return { success: true, data: bots }
-}
-
-export async function fetchBotById(
-  id: number,
-): Promise<{ success: boolean; data?: { bot: Bot | null }; message?: string }> {
-  const bot = await prisma.bot.findUnique({
-    where: { id },
-  })
-
-  if (!bot) {
-    return { success: false, message: 'Bot not found', data: { bot: null } }
-  }
-
-  return { success: true, data: { bot } }
-}
-
-export async function fetchBotByName(
-  name: string,
-): Promise<{ success: boolean; data?: { bot: Bot | null }; message?: string }> {
-  const bot = await prisma.bot.findFirst({
-    where: { name },
-  })
-
-  if (!bot) {
-    return { success: false, message: 'Bot not found', data: { bot: null } }
-  }
-
-  return { success: true, data: { bot } }
-}
 
 export async function addBot(
   botData: Partial<Bot>,
@@ -118,25 +87,6 @@ export async function updateBot(
   return { success: true, data: { bot } }
 }
 
-export async function randomBot(): Promise<{
-  success: boolean
-  data?: { bot: Bot | null }
-  message?: string
-}> {
-  const totalBots = await prisma.bot.count()
-
-  if (totalBots === 0) {
-    return { success: false, message: 'No bots available', data: { bot: null } }
-  }
-
-  const randomIndex = Math.floor(Math.random() * totalBots)
-
-  const bot = await prisma.bot.findFirst({
-    skip: randomIndex,
-  })
-
-  return { success: true, data: { bot } }
-}
 
 export async function updateBots(
   botsData: Partial<Bot>[],
@@ -187,11 +137,18 @@ export async function deleteBot(
   return { success: true, message: 'Bot deleted successfully' }
 }
 
-export async function countBots(): Promise<{
+/**
+ * Counts bots the caller may actually see. `where` comes from
+ * visibilityWhere() at the route, so the count agrees with the listing instead
+ * of quietly reporting how many private bots exist.
+ */
+export async function countBots(
+  where: Prisma.BotWhereInput = {},
+): Promise<{
   success: boolean
   data: { count: number }
 }> {
-  const count = await prisma.bot.count()
+  const count = await prisma.bot.count({ where })
 
   return { success: true, data: { count } }
 }

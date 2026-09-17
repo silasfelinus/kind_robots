@@ -65,8 +65,7 @@ const selectedResourceRow = computed(() =>
 )
 
 const selectedHiddenByMaturity = computed(
-  () =>
-    Boolean(selectedResourceRow.value?.isMature) && !canSeeMature.value,
+  () => Boolean(selectedResourceRow.value?.isMature) && !canSeeMature.value,
 )
 
 function clearSelectedResource() {
@@ -200,9 +199,74 @@ const infoResourceBadges = computed(() => {
 const canEditInfoResource = computed(() => {
   const entry = infoResource.value
   if (!entry) return false
-  if (!EDITABLE_RESOURCE_TYPES.includes(String(entry.resourceType))) return false
+  if (!EDITABLE_RESOURCE_TYPES.includes(String(entry.resourceType)))
+    return false
   return entry.userId === userStore.userId || userStore.isAdmin
 })
+
+/*
+ * DELETING A RESOURCE, AND OPTIONALLY WHAT IT MADE.
+ *
+ * Silas, 2026-09-17: "we should also be able to delete resources, with the
+ * option to cascade them to the generated image(s)."
+ *
+ * Two clicks, not one, and the cascade is a deliberate second choice rather
+ * than a default -- a public LoRA can have hundreds of renders behind it, and
+ * the server only ever deletes the ones the caller owns. Delete rights follow
+ * ownership rather than the edit gate: EDITABLE_RESOURCE_TYPES exists because
+ * only checkpoints and LoRAs have a form, which has nothing to do with whether
+ * a row is yours to remove.
+ */
+const canDeleteInfoResource = computed(() => {
+  const entry = infoResource.value
+  if (!entry) return false
+  return entry.userId === userStore.userId || userStore.isAdmin
+})
+
+const confirmingDelete = ref(false)
+const cascadeImagesOnDelete = ref(false)
+const deletingResourceId = ref<number | null>(null)
+
+function startDelete(): void {
+  confirmingDelete.value = true
+  cascadeImagesOnDelete.value = false
+}
+
+function cancelDelete(): void {
+  confirmingDelete.value = false
+  cascadeImagesOnDelete.value = false
+}
+
+async function confirmDelete(close: () => void): Promise<void> {
+  const entry = infoResource.value
+  if (!entry || deletingResourceId.value !== null) return
+
+  deletingResourceId.value = entry.id
+
+  try {
+    const result = await resourceGalleryStore.deleteResource(entry.id, {
+      cascadeImages: cascadeImagesOnDelete.value,
+    })
+
+    if (!result) return
+
+    deleteSummary.value = cascadeImagesOnDelete.value
+      ? `Deleted ${resourceLabel(entry)} and ${result.deletedImages} image(s)` +
+        (result.keptImages
+          ? `. ${result.keptImages} image(s) belonged to someone else and were left in place.`
+          : '.')
+      : `Deleted ${resourceLabel(entry)}. Its images were kept.`
+
+    confirmingDelete.value = false
+    cascadeImagesOnDelete.value = false
+    infoResourceId.value = null
+    close()
+  } finally {
+    deletingResourceId.value = null
+  }
+}
+
+const deleteSummary = ref('')
 
 const showAddChoice = ref(false)
 const showForm = ref(false)
@@ -468,22 +532,51 @@ onMounted(async () => {
       slot. The blurb survives at md+ only -- it is orientation text, and it was
       costing three rows on exactly the screens with the fewest to spare.
     -->
+    <!--
+      What the last delete actually did. The cascade is partial by design --
+      other people's images survive it -- so the count has to be visible
+      somewhere, not buried in a response nobody reads.
+    -->
+    <div
+      v-if="deleteSummary"
+      class="flex flex-wrap items-center justify-between gap-2 rounded-2xl border border-error/40 bg-error/5 px-3 py-2"
+    >
+      <p class="min-w-0 text-sm">{{ deleteSummary }}</p>
+      <button
+        type="button"
+        class="btn btn-ghost btn-xs rounded-2xl"
+        @click="deleteSummary = ''"
+      >
+        Dismiss
+      </button>
+    </div>
+
     <!-- Arriving from a link to one resource. Without a way back this is a
          dead end: the gallery shows one card and every filter looks broken. -->
     <div
       v-if="selectedResourceId !== null"
-      :class="selectedHiddenByMaturity ? 'border-warning/50 bg-warning/10' : 'border-secondary/40 bg-secondary/5'"
+      :class="
+        selectedHiddenByMaturity
+          ? 'border-warning/50 bg-warning/10'
+          : 'border-secondary/40 bg-secondary/5'
+      "
       class="flex flex-wrap items-center justify-between gap-2 rounded-2xl border px-3 py-2"
     >
       <p v-if="selectedHiddenByMaturity" class="min-w-0 text-sm">
-        <span class="font-semibold">{{ selectedResourceRow?.name ?? 'This resource' }}</span>
+        <span class="font-semibold">{{
+          selectedResourceRow?.name ?? 'This resource'
+        }}</span>
         is marked mature, and mature content is hidden for your account. Turn on
         mature content to view it.
       </p>
       <p v-else class="min-w-0 truncate text-sm">
         Showing one resource
-        <span class="font-mono text-xs opacity-70">#{{ selectedResourceId }}</span>
-        <span v-if="!selectedResourceRow" class="opacity-70"> · not in this catalog</span>
+        <span class="font-mono text-xs opacity-70"
+          >#{{ selectedResourceId }}</span
+        >
+        <span v-if="!selectedResourceRow" class="opacity-70">
+          · not in this catalog</span
+        >
       </p>
       <button
         type="button"
@@ -597,6 +690,61 @@ onMounted(async () => {
                 </dd>
               </div>
             </dl>
+
+            <!--
+              A Resource showed exactly one picture -- the generated preview --
+              while ArtImage.LoraResources had been recording every render it
+              was used in all along. This reads that relation back, beside the
+              Civitai preview the LoRA shipped with.
+            -->
+            <resource-art-gallery :resource-id="infoResource.id" />
+
+            <div
+              v-if="confirmingDelete"
+              class="mt-4 rounded-xl border border-error/50 bg-error/10 p-3"
+            >
+              <p class="text-sm font-semibold">
+                Delete {{ resourceLabel(infoResource) }}?
+              </p>
+              <p class="mt-1 text-xs opacity-75">This cannot be undone.</p>
+
+              <label class="mt-3 flex items-start gap-2 text-xs">
+                <input
+                  v-model="cascadeImagesOnDelete"
+                  type="checkbox"
+                  class="checkbox checkbox-xs mt-0.5"
+                />
+                <span>
+                  Also delete the images made with it. Images belonging to other
+                  people are left alone.
+                </span>
+              </label>
+
+              <div class="mt-3 flex items-center justify-end gap-2">
+                <button
+                  type="button"
+                  class="btn btn-ghost btn-xs rounded-lg"
+                  :disabled="deletingResourceId !== null"
+                  @click="cancelDelete"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-error btn-xs rounded-lg"
+                  :disabled="deletingResourceId !== null"
+                  @click="confirmDelete(close)"
+                >
+                  <span
+                    v-if="deletingResourceId !== null"
+                    class="kr-spinner-xs"
+                  />
+                  {{
+                    cascadeImagesOnDelete ? 'Delete both' : 'Delete resource'
+                  }}
+                </button>
+              </div>
+            </div>
           </template>
 
           <!--
@@ -639,6 +787,22 @@ onMounted(async () => {
             >
               <Icon name="kind-icon:plus" class="kr-icon-4" />
               Add to build
+            </button>
+
+            <!--
+              Delete is last and never one click. The cascade checkbox only
+              exists inside the confirmation, so "remove this LoRA" and "remove
+              this LoRA and everything it rendered" can never be the same
+              gesture.
+            -->
+            <button
+              v-if="canDeleteInfoResource && !confirmingDelete"
+              type="button"
+              class="btn btn-ghost btn-sm rounded-xl text-error"
+              @click="startDelete"
+            >
+              <Icon name="kind-icon:trash" class="kr-icon-4" />
+              Delete
             </button>
           </template>
 
@@ -683,7 +847,10 @@ onMounted(async () => {
               standalone /resources/[id]/share route -- that route can stay as
               a direct link, this is just no longer the only way to reach it.
             -->
-            <ShareManager subject-type="RESOURCE" :subject-id="infoResource.id" />
+            <ShareManager
+              subject-type="RESOURCE"
+              :subject-id="infoResource.id"
+            />
           </template>
         </kr-card-back>
 

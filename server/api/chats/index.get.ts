@@ -1,8 +1,15 @@
 // /server/api/chats/index.get.ts
-import { defineEventHandler, createError, getHeader, getQuery, type H3Event } from 'h3'
+import {
+  defineEventHandler,
+  createError,
+  getHeader,
+  getQuery,
+  type H3Event,
+} from 'h3'
 import prisma from '@/server/utils/prisma'
 import { errorHandler } from '@/server/utils/error'
 import { validateApiKey } from '@/server/utils/validateKey'
+import { isMaturityRestricted } from '@/server/utils/contentAccess'
 import type { ChatType, Prisma } from '~/prisma/generated/prisma/client'
 
 type ChatListQuery = {
@@ -87,7 +94,9 @@ function normalizeText(value: unknown): string | undefined {
 function normalizeChatType(value: unknown): ChatType | undefined {
   const raw = normalizeText(value)
 
-  return raw && chatTypes.includes(raw as ChatType) ? (raw as ChatType) : undefined
+  return raw && chatTypes.includes(raw as ChatType)
+    ? (raw as ChatType)
+    : undefined
 }
 
 function isAdmin(role: string | null): boolean {
@@ -200,9 +209,18 @@ export default defineEventHandler(async (event) => {
     const type = normalizeChatType(query.type)
     const channel = normalizeText(query.channel)
     const includeInactive =
-      normalizeBoolean(query.includeInactive) || normalizeBoolean(query.showInactive)
-    const includeMature = normalizeBoolean(query.includeMature)
-    const mine = normalizeBoolean(query.mine) || normalizeBoolean(query.userOnly)
+      normalizeBoolean(query.includeInactive) ||
+      normalizeBoolean(query.showInactive)
+    /*
+     * `?includeMature=true` was taken at its word. A restriction a query
+     * parameter can lift is not a restriction -- isMaturityRestricted()'s own
+     * docstring names this case -- and the admin bypass beside it had the same
+     * hole from the other side: a CHILD who also holds ADMIN is still a child.
+     */
+    const includeMature =
+      !isMaturityRestricted(viewer) && normalizeBoolean(query.includeMature)
+    const mine =
+      normalizeBoolean(query.mine) || normalizeBoolean(query.userOnly)
 
     const where: Prisma.ChatWhereInput = {}
 
@@ -227,7 +245,11 @@ export default defineEventHandler(async (event) => {
 
       if (access === 'public') {
         where.OR = viewer.id
-          ? [{ isPublic: true }, { userId: viewer.id }, { recipientId: viewer.id }]
+          ? [
+              { isPublic: true },
+              { userId: viewer.id },
+              { recipientId: viewer.id },
+            ]
           : [{ isPublic: true }]
       }
     } else if (dreamId) {

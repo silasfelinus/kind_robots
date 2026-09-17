@@ -3,7 +3,10 @@ import { defineEventHandler, createError } from 'h3'
 import prisma from '@/server/utils/prisma'
 import { errorHandler } from '@/server/utils/error'
 import { validateApiKey } from '@/server/utils/validateKey'
-import { existsActiveGrant } from '@/server/utils/contentAccess'
+import {
+  existsActiveGrant,
+  isMaturityRestricted,
+} from '@/server/utils/contentAccess'
 import { assertDreamAccess, dreamInclude, getDreamId } from './index'
 
 export default defineEventHandler(async (event) => {
@@ -46,6 +49,20 @@ export default defineEventHandler(async (event) => {
         userId != null &&
         (await existsActiveGrant(userId, 'PACK', data.packId))
       if (!packGranted) throw accessError
+    }
+
+    /*
+     * assertDreamAccess answers privacy (owner, admin, public) and the Pack
+     * grant answers purchase, but neither says anything about maturity -- so a
+     * CHILD account could read a mature Dream straight off its id. Checked
+     * after access, and it applies to an admin too: a CHILD who also holds
+     * ADMIN is still a child.
+     */
+    if (data.isMature && isMaturityRestricted(user)) {
+      throw createError({
+        statusCode: 404,
+        message: `Dream with ID ${id} not found.`,
+      })
     }
 
     event.node.res.statusCode = 200

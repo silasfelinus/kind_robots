@@ -3,6 +3,8 @@ import { createError, defineEventHandler, getRouterParam } from 'h3'
 import prisma from '~/server/utils/prisma'
 import { errorHandler } from '~/server/utils/error'
 import { buildChallengeLeaderboard } from '~/server/utils/challengeCenter'
+import { getOptionalApiUser } from '@/server/utils/authGuard'
+import { isMaturityRestricted } from '@/server/utils/contentAccess'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -15,8 +17,23 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    const challenge = await prisma.challenge.findUnique({
-      where: { slug },
+    /*
+     * Challenge carries isMature but no isPublic, so maturity is the whole
+     * rule here -- and it was not applied: a maturity-restricted account could
+     * read a mature challenge's title and its contenders' names straight off
+     * the leaderboard. Silas, 2026-09-17: "a mature object should not even look
+     * like it exists for children accounts, so that things like text should not
+     * be viewable either." A restricted viewer gets the same 404 as a slug that
+     * does not exist.
+     */
+    const auth = await getOptionalApiUser(event)
+    const restricted = isMaturityRestricted(auth?.user)
+
+    const challenge = await prisma.challenge.findFirst({
+      where: {
+        slug,
+        ...(restricted ? { isMature: false } : {}),
+      },
       select: {
         id: true,
         slug: true,

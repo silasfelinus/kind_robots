@@ -5,6 +5,7 @@ import { defineEventHandler, createError } from 'h3'
 import prisma from '../../../utils/prisma'
 import { errorHandler } from '../../../utils/error'
 import { requireApiUser } from '../../../utils/authGuard'
+import { isMaturityRestricted } from '../../../utils/contentAccess'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -29,7 +30,13 @@ export default defineEventHandler(async (event) => {
     }
 
     const messages = await prisma.directMessage.findMany({
-      where: { conversationId, deletedAt: null },
+      // Membership above answers privacy; this is the maturity half, which
+      // was missing -- a CHILD in the conversation received mature messages.
+      where: {
+        conversationId,
+        deletedAt: null,
+        ...(isMaturityRestricted(user) ? { isMature: false } : {}),
+      },
       orderBy: { createdAt: 'asc' },
       include: {
         Sender: {

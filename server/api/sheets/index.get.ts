@@ -3,6 +3,7 @@ import { defineEventHandler, getQuery } from 'h3'
 import prisma from '@/server/utils/prisma'
 import { errorHandler } from '@/server/utils/error'
 import { validateApiKey } from '@/server/utils/validateKey'
+import { isMaturityRestricted } from '@/server/utils/contentAccess'
 import type { Prisma } from '~/prisma/generated/prisma/client'
 
 export default defineEventHandler(async (event) => {
@@ -10,7 +11,8 @@ export default defineEventHandler(async (event) => {
     const { isValid, user } = await validateApiKey(event)
     const query = getQuery(event)
     const includeUserData = isValid && user && typeof user.id === 'number'
-    const dreamType = typeof query.dreamType === 'string' ? query.dreamType : undefined
+    const dreamType =
+      typeof query.dreamType === 'string' ? query.dreamType : undefined
     const userId = Number(query.userId)
 
     const where: Prisma.PitchSheetWhereInput = includeUserData
@@ -25,13 +27,25 @@ export default defineEventHandler(async (event) => {
 
     if (dreamType) {
       where.Dream = {
-        ...(typeof where.Dream === 'object' && where.Dream !== null ? where.Dream : {}),
+        ...(typeof where.Dream === 'object' && where.Dream !== null
+          ? where.Dream
+          : {}),
         dreamType: dreamType as never,
       }
     }
 
     if (!Number.isNaN(userId) && userId > 0) {
       where.userId = userId
+    }
+
+    /*
+     * Privacy was right, including the Dream it hangs off. Maturity was never
+     * asked, so a mature PitchSheet -- title, subtitle, hook -- was listed to a
+     * maturity-restricted account. The Dream's own flag counts too: a sheet is
+     * a cover for something, and a cover on a mature Dream is mature.
+     */
+    if (isMaturityRestricted(isValid ? user : null)) {
+      where.AND = [{ isMature: false }, { Dream: { isMature: false } }]
     }
 
     const data = await prisma.pitchSheet.findMany({

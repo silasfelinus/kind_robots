@@ -70,6 +70,12 @@ type ClaimRequestBody = {
   singleSlot?: boolean | null
 }
 
+function validTimestamp(value: unknown): string | null {
+  if (typeof value !== 'string' || !value.trim()) return null
+  const timestamp = new Date(value).getTime()
+  return Number.isFinite(timestamp) ? value : null
+}
+
 export default defineEventHandler(async (event) => {
   try {
     const auth = await requireMachineUser(event)
@@ -269,6 +275,10 @@ export default defineEventHandler(async (event) => {
 
       if (!candidate) continue
 
+      const priorProcessingStartedAt = validTimestamp(
+        candidate.payload.processingStartedAt,
+      )
+
       // Baseline coverage is one useful image per entity, not four speculative
       // variants. Reconcile only this candidate's equivalence class so a large
       // backlog is cleaned as it drains without adding an O(queue) sweep to
@@ -297,6 +307,8 @@ export default defineEventHandler(async (event) => {
           candidate.engine,
           candidate.payload,
         )
+        const payloadForClaim = { ...samplerRepair.payload }
+        delete payloadForClaim.processingStartedAt
 
         // New enqueues pass the prompt contract at creation time. Old backlog
         // rows predate that boundary, so apply the same rules again immediately
@@ -305,12 +317,12 @@ export default defineEventHandler(async (event) => {
         // they were already sitting in PENDING when the gate shipped — the clamp
         // above fixes the sampler numbers, and everything a machine cannot
         // safely rewrite (conditionals, format nouns, text piles) still fails.
-        assertQueuedArtPromptContract(candidate.engine, samplerRepair.payload)
+        assertQueuedArtPromptContract(candidate.engine, payloadForClaim)
 
-        const currentProvenance = readArtJobProvenance(samplerRepair.payload)
+        const currentProvenance = readArtJobProvenance(payloadForClaim)
         enrichedPayload = enrichArtJobPayload(
           candidate.engine as 'A1111' | 'COMFY',
-          samplerRepair.payload,
+          payloadForClaim,
           {
             projectSlug: candidate.projectSlug,
             idempotencyKey: currentProvenance?.idempotencyKey,
@@ -350,6 +362,16 @@ export default defineEventHandler(async (event) => {
         continue
       }
 
+      const claimTime = new Date()
+      const processingStartedAt =
+        candidate.status === 'RUNNING'
+          ? priorProcessingStartedAt ||
+            candidate.claimedAt?.toISOString() ||
+            claimTime.toISOString()
+          : claimTime.toISOString()
+
+      enrichedPayload.processingStartedAt = processingStartedAt
+
       const won = await prisma.artJob.updateMany({
         where: {
           id: candidate.id,
@@ -358,7 +380,7 @@ export default defineEventHandler(async (event) => {
         },
         data: {
           status: 'RUNNING',
-          claimedAt: new Date(),
+          claimedAt: claimTime,
           claimedBy,
           attempts: { increment: 1 },
           payload: serializeArtJobPayload(enrichedPayload),

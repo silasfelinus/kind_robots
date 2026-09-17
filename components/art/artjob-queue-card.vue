@@ -244,7 +244,7 @@
         <span>Actively processing {{ runningElapsed }}</span>
         <span class="text-base-content/40">·</span>
         <span class="font-normal text-base-content/55">
-          started {{ formatDateTime(job.claimedAt) }}
+          started {{ formatDateTime(processingStartedAtValue) }}
         </span>
       </p>
 
@@ -572,9 +572,20 @@ const isEditableInPlace = computed<boolean>(() =>
   ['PENDING', 'FAILED', 'CANCELLED'].includes(props.job.status),
 )
 
+const processingStartedAtValue = computed<string | Date | null>(() => {
+  if (props.job.status !== 'RUNNING') return null
+  const payloadValue = props.job.payload.processingStartedAt
+  if (typeof payloadValue === 'string' && payloadValue.trim()) {
+    const timestamp = new Date(payloadValue).getTime()
+    if (Number.isFinite(timestamp)) return payloadValue
+  }
+  return props.job.claimedAt
+})
+
 const runningStartedAt = computed<number | null>(() => {
-  if (props.job.status !== 'RUNNING' || !props.job.claimedAt) return null
-  const startedAt = new Date(props.job.claimedAt).getTime()
+  const value = processingStartedAtValue.value
+  if (!value) return null
+  const startedAt = new Date(value).getTime()
   return Number.isFinite(startedAt) ? startedAt : null
 })
 

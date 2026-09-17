@@ -3,6 +3,8 @@ import { defineEventHandler } from 'h3'
 import prisma from '../../../utils/prisma'
 import { errorHandler } from '../../../utils/error'
 import { validateApiKey } from '../../../utils/validateKey'
+import { getOptionalApiUser } from '@/server/utils/authGuard'
+import { visibilityWhere } from '@/server/utils/contentAccess'
 
 export default defineEventHandler(async (event) => {
   const characterId = Number(event.context.params?.id)
@@ -31,11 +33,13 @@ export default defineEventHandler(async (event) => {
     }
 
     // Fetch rewards linked to the specified character with access control
+    const auth = await getOptionalApiUser(event)
     const data = await prisma.reward.findMany({
       where: {
-        Characters: {
-          some: { id: characterId }, // Assuming the relationship is set up with `characters` in the `Reward` model
-        },
+        AND: [
+          { Characters: { some: { id: characterId } } },
+          visibilityWhere(auth?.user, { isPublic: true, isMature: true }, auth?.isAdmin),
+        ],
       },
     })
 

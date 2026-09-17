@@ -2,6 +2,8 @@
 import { defineEventHandler, createError } from 'h3'
 import prisma from '../../../utils/prisma'
 import { errorHandler } from '../../../utils/error'
+import { getOptionalApiUser } from '@/server/utils/authGuard'
+import { visibilityWhere } from '@/server/utils/contentAccess'
 
 export default defineEventHandler(async (event) => {
   const promptId = Number(event.context.params?.id)
@@ -14,8 +16,12 @@ export default defineEventHandler(async (event) => {
       })
     }
 
+    const auth = await getOptionalApiUser(event)
     const artImages = await prisma.artImage.findMany({
       where: {
+        AND: [
+          visibilityWhere(auth?.user, { isPublic: true, isMature: true }, auth?.isAdmin),
+        ],
         Prompts: {
           some: {
             id: promptId,

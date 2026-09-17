@@ -2,11 +2,19 @@
 import { defineEventHandler } from 'h3'
 import { errorHandler } from '../../utils/error'
 import prisma from '../../utils/prisma'
+import { getOptionalApiUser } from '@/server/utils/authGuard'
+import { visibilityWhere } from '@/server/utils/contentAccess'
 
 export default defineEventHandler(async (event) => {
   try {
-    // Fetch all prompts and their related Art in a single consolidated function
-    const data = await prisma.prompt.findMany()
+    /*
+     * Was `prisma.prompt.findMany()` with no `where` at all -- every Prompt,
+     * private and mature alike, to any caller. See visibilityWhere().
+     */
+    const auth = await getOptionalApiUser(event)
+    const data = await prisma.prompt.findMany({
+      where: visibilityWhere(auth?.user, { isPublic: true, isMature: true }, auth?.isAdmin),
+    })
 
     // Return success response with prompt details
     return {

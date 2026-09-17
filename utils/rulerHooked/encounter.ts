@@ -8,6 +8,7 @@ import type { FishAffinity, Rarity, RunSave } from '~/types/ruler-hooked'
 import { cloneSave } from './applyEffects'
 import { RULER_HOOKED_FISH, resolveFishingCatch } from './fish'
 import { makeRng } from './seed'
+import { resolveTimingStop, timingProfileFor } from './timingBar'
 
 export type FishingAction = 'REEL' | 'SLACK' | 'WAIT'
 export type FishingPhase = 'APPROACH' | 'FIGHT' | 'LANDED' | 'ESCAPED'
@@ -21,6 +22,18 @@ export interface FishingBeatRecord {
   tension: number
   reversed: boolean
   cue: string
+  /**
+   * Present only for beats resolved through the timing-bar path
+   * (applyFishingStop) -- the raw 0-100 stop position the player recorded.
+   * `quality` is redundant with it (both `action` and `quality` are pure
+   * functions of `stopPosition` + the beat's timing profile) but is kept
+   * alongside it since the profile that produced it isn't itself part of
+   * this record -- recomputing `quality` from `stopPosition` alone would
+   * require re-deriving the profile, which is cheap but unnecessary to make
+   * every reader of a history record do.
+   */
+  stopPosition?: number
+  quality?: number
 }
 
 export interface FishingEncounter {
@@ -190,23 +203,35 @@ function effectiveAction(encounter: FishingEncounter, action: FishingAction): Fi
   return action
 }
 
-function resolveFight(encounter: FishingEncounter, action: FishingAction): FishingEncounter {
+/**
+ * `quality` (0..1, default 1) scales how well the beat's action landed --
+ * fed in from the timing-bar minigame (applyFishingStop below). At the
+ * default of 1 every formula here reduces exactly to the original
+ * fixed-magnitude math, so `applyFishingAction`'s own callers (including
+ * every pre-existing self-test) see byte-identical behavior.
+ */
+function resolveFight(encounter: FishingEncounter, action: FishingAction, quality = 1): FishingEncounter {
   const profile = profileForFish(encounter.fishSlug)
   const next: FishingEncounter = { ...encounter, beat: encounter.beat + 1 }
   const rng = makeRng(`${encounter.seed}:${next.beat}:${action}`)
   const surge = Math.floor(rng.next() * 8)
   const resistance = Math.floor(rng.next() * 5)
   const applied = effectiveAction(encounter, action)
+  const q = Math.max(0, Math.min(1, quality))
 
   if (applied === 'REEL') {
-    next.progress = clamp(next.progress + profile.progressPerReel - resistance)
-    next.tension = clamp(next.tension + profile.tensionPerReel + surge)
+    // quality=1: progressPerReel - resistance, tensionPerReel + surge -- identical to the original fixed formula.
+    next.progress = clamp(next.progress + Math.round(profile.progressPerReel * q) - resistance)
+    next.tension = clamp(next.tension + Math.round(profile.tensionPerReel * (2 - q)) + surge)
   } else if (applied === 'SLACK') {
-    next.progress = clamp(next.progress - 5)
-    next.tension = clamp(next.tension - profile.slackRecovery)
+    // quality=1: -5 progress, -slackRecovery tension -- identical to the original fixed formula.
+    next.progress = clamp(next.progress - Math.round(5 * (2 - q)))
+    next.tension = clamp(next.tension - Math.round(profile.slackRecovery * q))
   } else {
-    next.progress = clamp(next.progress - 1)
-    next.tension = clamp(next.tension - 12 + Math.floor(surge / 2))
+    // Original WAIT formula recovers `12 - floor(surge/2)` tension (9..12); quality scales that recovery.
+    const waitRecovery = 12 - Math.floor(surge / 2)
+    next.progress = clamp(next.progress - Math.round(1 * (2 - q)))
+    next.tension = clamp(next.tension - Math.round(waitRecovery * q))
   }
 
   if (next.tension >= 100) {
@@ -256,6 +281,39 @@ export function applyFishingAction(
   if (encounter.phase === 'LANDED' || encounter.phase === 'ESCAPED') return encounter
   if (encounter.phase === 'APPROACH') return resolveApproach(encounter, action)
   return resolveFight(encounter, action)
+}
+
+/**
+ * Pure reducer for the sliding-marker timing bar: a recorded stop position
+ * (0-100) is resolved against the beat's timing profile (band position/width
+ * -- itself a pure function of family/rarity/beat, see timingBar.ts) into an
+ * action + quality, which then drive the same underlying resolveApproach /
+ * resolveFight logic `applyFishingAction` uses. Same encounter state + same
+ * stop position always produces the same next state, which is what makes
+ * "record the stop positions as the input sequence" (Silas) a real replay
+ * guarantee: the profile that maps a position to an action/quality is
+ * derived only from encounter state, never RNG or wall-clock, so replaying
+ * the same seed against the same recorded stops reproduces the same fight.
+ */
+export function applyFishingStop(encounter: FishingEncounter, stopPosition: number): FishingEncounter {
+  if (encounter.phase === 'LANDED' || encounter.phase === 'ESCAPED') return encounter
+
+  const profile = timingProfileFor(encounter)
+  const { action, quality } = resolveTimingStop(stopPosition, profile)
+  const resolved = encounter.phase === 'APPROACH'
+    ? resolveApproach(encounter, action)
+    : resolveFight(encounter, action, quality)
+
+  const history = resolved.history.slice()
+  const lastBeat = history[history.length - 1]
+  if (lastBeat) {
+    history[history.length - 1] = {
+      ...lastBeat,
+      stopPosition: Math.max(0, Math.min(100, stopPosition)),
+      quality,
+    }
+  }
+  return { ...resolved, history }
 }
 
 export function fishingEncounterFinished(encounter: FishingEncounter): boolean {

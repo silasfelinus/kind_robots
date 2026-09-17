@@ -633,8 +633,35 @@ const isLoadingPreview = computed<boolean>(() => {
   return typeof id === 'number' && artJobStore.loadingImageIds.includes(id)
 })
 
+/*
+ * WHO MAY SEE THIS AT ALL. Two independent rules, per Silas 2026-09-17.
+ *
+ *   isMature  -- shown only to a non-child account that has opted into mature
+ *                content. A local reveal exists for a shared screen, and it is
+ *                still bounded by that account setting.
+ *   isPublic  -- FALSE means the admin or the owner, full stop. There is no
+ *                override for anyone else and no affordance offering one; the
+ *                image simply is not theirs to see. The server enforces this
+ *                independently in /api/art/images/[id]/file.get.ts.
+ *
+ * A private image therefore needs no gate for its OWNER: "Load protected
+ * preview" was asking Silas to click past a boundary that does not apply to
+ * him, once per card, across a queue of thousands. The click existed because
+ * the card only ever built an anonymous URL, which a private row has none of,
+ * so it fell back to a manual authenticated fetch.
+ */
+const viewerMaySeePrivate = computed<boolean>(() => {
+  if (userStore.isAdmin) return true
+  const viewerId = userStore.user?.id
+  return typeof viewerId === 'number' && viewerId === props.job.userId
+})
+
 const canLoadProtectedPreview = computed<boolean>(() => {
   return (
+    // Never offered to someone the privacy rule excludes: a private image is
+    // not theirs to load, so there is no button inviting them to try. The
+    // server refuses them regardless; this stops the UI implying otherwise.
+    viewerMaySeePrivate.value &&
     canShowJobContent.value &&
     typeof props.job.artImageId === 'number' &&
     !publicImageSrc.value &&
@@ -645,7 +672,8 @@ const canLoadProtectedPreview = computed<boolean>(() => {
 const previewPlaceholder = computed<string>(() => {
   if (props.job.status !== 'DONE') return props.job.status
   if (typeof props.job.artImageId !== 'number') return 'No output image'
-  return 'Protected output'
+  // For anyone else this is not a gate to cross, it is simply not theirs.
+  return viewerMaySeePrivate.value ? 'Loading preview' : 'Private output'
 })
 
 const isEditableInPlace = computed<boolean>(() =>
@@ -667,6 +695,20 @@ const runningStartedAt = computed<number | null>(() => {
   if (!value) return null
   const startedAt = new Date(value).getTime()
   return Number.isFinite(startedAt) ? startedAt : null
+})
+
+/*
+ * Fetch it automatically for a viewer who is allowed it anyway.
+ *
+ * Gated on maturity as well: `isMature` is a separate rule with its own
+ * deliberate reveal, so an owner who hides mature content still gets the
+ * reveal step rather than the image.
+ */
+watchEffect(() => {
+  if (!viewerMaySeePrivate.value) return
+  if (!canLoadProtectedPreview.value) return
+  if (jobVisibility.value.isMature && !artStore.showMature) return
+  void loadProtectedPreview()
 })
 
 async function loadProtectedPreview(includeMature = false): Promise<void> {

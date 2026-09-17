@@ -4,6 +4,7 @@ import type { Prisma } from '~/prisma/generated/prisma/client'
 import prisma from '~/server/utils/prisma'
 import { errorHandler } from '~/server/utils/error'
 import { getOptionalApiUser } from '~/server/utils/authGuard'
+import { isMaturityRestricted } from '~/server/utils/contentAccess'
 import {
   facetSummarySelect,
   hydrateFacetSummaries,
@@ -35,6 +36,35 @@ const characterBrowseSelect = {
   imagePath: true,
   isPublic: true,
   artImageId: true,
+}
+
+/*
+ * Scenario itself was never filtered. Both endpoints build a careful Facet
+ * visibility filter for a nested relation and then read Scenario with no
+ * `where` at all (the listing) or `{ id }` (the detail) -- so every private and
+ * mature Scenario, with its cast, was served to anyone. The nested Facet filter
+ * is why this read as guarded for so long: a filter on a different model counts
+ * for nothing.
+ */
+function scenarioVisibilityWhere(options: {
+  userId: number | null
+  isAdmin: boolean
+  isRestricted: boolean
+}): Prisma.ScenarioWhereInput {
+  const clauses: Prisma.ScenarioWhereInput[] = []
+
+  if (!options.isAdmin) {
+    clauses.push(
+      options.userId
+        ? { OR: [{ isPublic: true }, { userId: options.userId }] }
+        : { isPublic: true },
+    )
+  }
+
+  // Applied to an admin too: being an admin is not being an adult.
+  if (options.isRestricted) clauses.push({ isMature: false })
+
+  return clauses.length ? { AND: clauses } : {}
 }
 
 function facetVisibilityWhere(options: {
@@ -71,8 +101,14 @@ export default defineEventHandler(async (event) => {
       userId: auth?.user.id ?? null,
       isAdmin: auth?.isAdmin ?? false,
     })
+    const scenarioWhere = scenarioVisibilityWhere({
+      userId: auth?.user.id ?? null,
+      isAdmin: auth?.isAdmin ?? false,
+      isRestricted: isMaturityRestricted(auth?.user),
+    })
 
     const rows = await prisma.scenario.findMany({
+      where: scenarioWhere,
       include: {
         Dreams: {
           select: dreamSelect,

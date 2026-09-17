@@ -4,7 +4,10 @@ import prisma from '~/server/utils/prisma'
 import { errorHandler } from '~/server/utils/error'
 import { getOptionalApiUser } from '~/server/utils/authGuard'
 import { loadFacetSummaries } from '~/server/utils/facetAssignments'
-import { existsActiveGrant } from '~/server/utils/contentAccess'
+import {
+  existsActiveGrant,
+  isMaturityRestricted,
+} from '~/server/utils/contentAccess'
 import { assertDreamAccess } from '~/server/api/dreams/index'
 
 export default defineEventHandler(async (event) => {
@@ -17,7 +20,13 @@ export default defineEventHandler(async (event) => {
     const [dream, auth] = await Promise.all([
       prisma.dream.findUnique({
         where: { id },
-        select: { id: true, userId: true, isPublic: true, packId: true },
+        select: {
+          id: true,
+          userId: true,
+          isPublic: true,
+          isMature: true,
+          packId: true,
+        },
       }),
       getOptionalApiUser(event),
     ])
@@ -40,6 +49,12 @@ export default defineEventHandler(async (event) => {
         auth?.user.id != null &&
         (await existsActiveGrant(auth.user.id, 'PACK', dream.packId))
       if (!packGranted) throw accessError
+    }
+
+    // Same gap as dreams/[id].get.ts: access and maturity are separate rules,
+    // and only the first was being asked.
+    if (dream.isMature && isMaturityRestricted(auth?.user)) {
+      throw createError({ statusCode: 404, message: 'Dream not found.' })
     }
 
     const links = await prisma.dreamFacet.findMany({

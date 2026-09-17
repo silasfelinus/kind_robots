@@ -4,6 +4,7 @@ import prisma from '~/server/utils/prisma'
 import { errorHandler } from '~/server/utils/error'
 import { getOptionalApiUser } from '~/server/utils/authGuard'
 import { checkPrintEligibility } from '../../utils/printEligibility'
+import { isMaturityRestricted } from '~/server/utils/contentAccess'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -32,10 +33,13 @@ export default defineEventHandler(async (event) => {
       throw createError({ statusCode: 404, message: 'ArtImage not found.' })
     }
 
+    // Same gap as facets.get.ts: the owner and admin branches jumped the
+    // `!image.isMature` clause. Maturity is decided by role, not privilege.
     const canView =
-      auth?.isAdmin ||
-      (Boolean(auth?.user.id) && image.userId === auth?.user.id) ||
-      (image.isPublic && !image.isMature)
+      !(image.isMature && isMaturityRestricted(auth?.user)) &&
+      (auth?.isAdmin ||
+        (Boolean(auth?.user.id) && image.userId === auth?.user.id) ||
+        (image.isPublic && !image.isMature))
 
     if (!canView) {
       throw createError({

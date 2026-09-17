@@ -4,6 +4,7 @@ import prisma from '~/server/utils/prisma'
 import { errorHandler } from '~/server/utils/error'
 import { getOptionalApiUser } from '~/server/utils/authGuard'
 import { loadFacetSummaries } from '~/server/utils/facetAssignments'
+import { isMaturityRestricted } from '~/server/utils/contentAccess'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -25,8 +26,15 @@ export default defineEventHandler(async (event) => {
     }
 
     const isOwner = Boolean(auth?.user.id) && image.userId === auth?.user.id
+    /*
+     * `image.isPublic && !image.isMature` kept mature art off the public path,
+     * but the owner and admin branches jumped it -- so a maturity-restricted
+     * account holding either still got a mature image's Facets. Restrictive
+     * wins: a CHILD who is also an ADMIN is still a child.
+     */
     const canView =
-      auth?.isAdmin || isOwner || (image.isPublic && !image.isMature)
+      !(image.isMature && isMaturityRestricted(auth?.user)) &&
+      (auth?.isAdmin || isOwner || (image.isPublic && !image.isMature))
 
     if (!canView) {
       throw createError({

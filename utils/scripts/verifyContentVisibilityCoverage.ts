@@ -276,8 +276,8 @@ function queries(src: string, bindings: Map<string, string>): Query[] {
     let where = topLevelValue(region, 'where') ?? ''
     if (where === '\0shorthand') where = bindings.get('where') ?? ''
     else {
-      const identifier = where.trim().match(/^([A-Za-z_$][\w$]*)$/)
-      if (identifier) where = bindings.get(identifier[1] as string) ?? where
+      const identifier = where.trim().match(/^([A-Za-z_$][\w$]*)$/)?.[1]
+      if (identifier) where = bindings.get(identifier) ?? where
     }
 
     /*

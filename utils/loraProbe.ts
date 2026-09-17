@@ -255,6 +255,12 @@ const NEGATIVE_SD = [
    * qualifier steers and this forecloses, because ~450 probes pair an injected
    * subject with a LoRA from an NSFW directory and a bare `1girl` was returning
    * pre-teen subjects. Not optional, and not per-probe.
+   *
+   * Kept deliberately narrow. `teenager` was here and was removed (Silas,
+   * 2026-09-17): the catalog holds LoRAs of characters who are canonically
+   * eighteen or nineteen and legitimately depicted as adults, and the word
+   * covers them as much as it covers a minor. The terms that remain name
+   * children only, so none of them is ambiguous in that way.
    */
   'child',
   'children',
@@ -263,7 +269,6 @@ const NEGATIVE_SD = [
   'toddler',
   'infant',
   'young girl',
-  'teenager',
   'extra limbs',
   'deformed hands',
 ].join(', ')

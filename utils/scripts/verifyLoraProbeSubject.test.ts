@@ -169,6 +169,7 @@ describe('the injected subject must read as an adult', () => {
     for (const family of ['pony', 'illustrious', 'sdxl', 'sd15'] as const) {
       const n = buildLoraProbePrompt(family, 'x')!.negativePrompt
       for (const term of ['child', 'loli', 'shota', 'toddler', 'young girl'])
+        // 'teenager' deliberately absent: it covers legitimately adult characters.
         expect(n).toContain(term)
     }
   })

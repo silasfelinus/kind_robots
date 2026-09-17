@@ -12,10 +12,9 @@ import { resolveChoice, applyEffect, cloneSave } from '~/utils/rulerHooked/apply
 import { resolveScene } from '~/utils/rulerHooked/compositor'
 import { makeRng } from '~/utils/rulerHooked/seed'
 import {
-  applyFishingAction,
+  applyFishingStop,
   fishingEncounterFinished,
   startFishingEncounter,
-  type FishingAction,
   type FishingEncounter,
 } from '~/utils/rulerHooked/encounter'
 import {
@@ -170,10 +169,15 @@ export const useRulerHookedStore = defineStore('rulerHooked', () => {
     activeFishing.value = startFishingEncounter(save.value)
   }
 
-  /** Apply one player beat. Terminal outcomes immediately advance the reign turn. */
-  function fishingAction(action: FishingAction) {
+  /**
+   * Apply one player beat from the sliding-marker timing bar. `position` is
+   * the 0-100 stop the player recorded; applyFishingStop resolves it into an
+   * action + quality against the beat's own timing profile. Terminal
+   * outcomes immediately advance the reign turn.
+   */
+  function fishingStop(position: number) {
     if (!save.value || !activeFishing.value) return
-    const nextEncounter = applyFishingAction(activeFishing.value, action)
+    const nextEncounter = applyFishingStop(activeFishing.value, position)
     activeFishing.value = nextEncounter
     if (!fishingEncounterFinished(nextEncounter)) return
 
@@ -249,7 +253,7 @@ export const useRulerHookedStore = defineStore('rulerHooked', () => {
   return {
     bundle, save, activeCard, activeArcId, pendingEnding, activeFishing,
     lastCatch, lastEscape, slots, scene, canFish,
-    init, newGame, updateCosmetics, loadSlot, startFishing, fishingAction, choose,
+    init, newGame, updateCosmetics, loadSlot, startFishing, fishingStop, choose,
     acceptEnding, declineEnding, renameSlot, deleteSlot, refreshSlots,
   }
 })

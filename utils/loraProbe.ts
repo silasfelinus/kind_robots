@@ -86,8 +86,33 @@ const EMPTY_GROUP_PATTERN = /[[(][\s+,\-/|&]*[\])]/g
  * Pony LoRA triggering on `my little pony` or `pony girl` is untouched, because
  * there the word is part of a phrase rather than the whole tag.
  */
+/*
+ * Training methods belong here too, and only here.
+ *
+ * `DoRA`, `LoHa`, `LoKr` and friends name how the file was trained, exactly as
+ * `LoRA` and `LoCon` in PACKAGING_NOISE_PATTERN do -- but those are stripped
+ * anywhere, and these cannot be: `Dora` is also a character name, and a Dora
+ * the Explorer LoRA must survive. As a STANDALONE TAG it is unambiguous, and
+ * that is the only shape the catalog produces: `Michiking | Artist Style |
+ * PonyXL | DoRA` splits on the pipe and leaves `DoRA` alone in a tag
+ * (ArtJob seen rendering 'Michiking, Artist Style, DoRA', 2026-09-17).
+ *
+ * Deliberately NOT included: `slider`. 'Blowjob Depth Slider' and
+ * 'Furryfication Slider' name what the LoRA does rather than how it was built,
+ * and the concept does not survive its removal.
+ */
 const DANGLING_DESCRIPTOR_PATTERN =
-  /(^|,)\s*(?:style|styles|concept|concepts|character|pack|mix|merge|pony|sdxl|xl|sd15|flux|illustrious|v\d+(?:\.\d+)?)\s*(?=,|$)/gi
+  /(^|,)\s*(?:style|styles|concept|concepts|character|pack|mix|merge|pony|sdxl|xl|sd15|flux|illustrious|dora|loha|lokr|locon|lycoris|ia3|boft|oft|glora|v\d+(?:\.\d+)?)\s*[+&-]?\s*(?=,|$)/gi
+
+/*
+ * A training method trailing after a dash, which the comma-boundary rule above
+ * cannot see: 'Clay Mann Artstyle - LoHa'. Anchored to the END of the string
+ * precisely so it stays unambiguous -- 'Dora the Explorer' is a subject at the
+ * start, never a trailing suffix, and 'Blowjob Depth Slider - Pony' is
+ * untouched because the method list here holds no base-model names.
+ */
+const TRAILING_METHOD_PATTERN =
+  /[\s,]*[-\u2013|/]\s*(?:dora|loha|lokr|locon|lycoris|ia3|boft|oft|glora)\s*[+&]?\s*$/gi
 
 // A probe prompt is a caption, not a scene description. A 400-character tag
 // soup drowns the framing that makes the grid comparable.
@@ -135,6 +160,15 @@ function dropUnmatchedBrackets(value: string): string {
     .trim()
 }
 
+function stripDescriptors(value: string): string {
+  const stripped = value
+    .replace(DANGLING_DESCRIPTOR_PATTERN, '$1')
+    .replace(TRAILING_METHOD_PATTERN, '')
+  // See the note at DANGLING_DESCRIPTOR_PATTERN: emptying a trigger is worse
+  // than leaving a descriptor in it.
+  return /[A-Za-z0-9]/.test(stripped) ? stripped : value
+}
+
 export function sanitizeProbeTrigger(value: string): string {
   const cleaned0 = value
     /*
@@ -160,7 +194,9 @@ export function sanitizeProbeTrigger(value: string): string {
     // separator. See the un-escape note above.
     .replace(/[|/]+/g, ', ')
     .replace(/\s*,\s*(?:,\s*)+/g, ', ')
-    .replace(DANGLING_DESCRIPTOR_PATTERN, '$1')
+    // Descriptor and training-method words, guarded so they never empty a
+    // trigger outright -- see the note at DANGLING_DESCRIPTOR_PATTERN.
+    .replace(/^[\s\S]*$/, stripDescriptors)
     .replace(/\s*,\s*(?:,\s*)+/g, ', ')
     .replace(/\s{2,}/g, ' ')
     .replace(/^[\s,\-–—:;.]+|[\s,\-–—:;.]+$/g, '')

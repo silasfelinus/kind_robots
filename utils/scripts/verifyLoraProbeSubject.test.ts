@@ -128,4 +128,26 @@ assert.equal(
 )
 assert.equal(loraNameAsTrigger('', ''), '')
 
+// --- training methods are not subjects --------------------------------------
+// 'Michiking, Artist Style, DoRA' rendered with the method name in it
+// (2026-09-17). DoRA/LoHa/LoKr name how the file was TRAINED, exactly as LoRA
+// and LoCon do -- but unlike those they cannot be stripped anywhere, because
+// `Dora` is also a character name.
+assert.equal(sanitizeProbeTrigger('Michiking | Artist Style | PonyXL | DoRA'), 'Michiking, Artist Style')
+assert.equal(sanitizeProbeTrigger('Tsuji Santa | Artist Style | DoRA + LoRA'), 'Tsuji Santa, Artist Style')
+assert.equal(sanitizeProbeTrigger('Clay Mann Artstyle - LoHa'), 'Clay Mann Artstyle')
+
+// ...and a character called Dora survives, at the start of a trigger where a
+// method name never appears.
+assert.equal(sanitizeProbeTrigger('Dora the Explorer, backpack'), 'Dora the Explorer, backpack')
+
+// Stripping descriptors never empties a trigger: probing the bare base model is
+// worse than rendering the word.
+assert.equal(sanitizeProbeTrigger('Dora'), 'Dora')
+assert.equal(sanitizeProbeTrigger('Style'), 'Style')
+
+// 'slider' is deliberately absent: it names what the LoRA does, not how it was
+// built, and the concept does not survive its removal.
+assert.equal(sanitizeProbeTrigger('Blowjob Depth Slider - Pony'), 'Blowjob Depth Slider - Pony')
+
 console.log('verifyLoraProbeSubject: all assertions passed')

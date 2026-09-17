@@ -18,13 +18,23 @@
      of the compositing spec, because full-frame registration is what makes the
      art direction's shared key-light rule mean anything: a treeline-logged-night
      layer only sits convincingly in front of a far_shore-industrial-night layer if
-     they are drawn on the same canvas. -->
+     they are drawn on the same canvas.
+
+     ASPECT-RATIO, NOT A FIXED HEIGHT (ruler-hooked/t-025, Silas: "ruler image
+     is cut off" -- the King's head gone, leaving torso and fishing reel).
+     Full-play-screen layers are authored at 1344x768 (7:4). A fixed h-72
+     sm:h-96 band paired with w-full puts an arbitrary, viewport-dependent
+     aspect ratio on the container instead, so object-cover had real overflow
+     to crop even for a correctly-authored asset -- at some widths enough to
+     eat the ruler layer's head. Matching the container to the assets' own
+     aspect ratio means object-cover has nothing left to crop for any
+     full-frame layer, at any viewport width. -->
 <template>
   <div
     class="relative w-full overflow-hidden rounded-xl border border-base-300 shadow-inner"
     :aria-label="`Lakeside kingdom at ${scene?.time ?? 'day'}`"
   >
-    <div class="flex h-72 flex-col sm:h-96">
+    <div class="flex aspect-[7/4] flex-col">
       <div
         v-for="layer in layers"
         :key="layer.region"

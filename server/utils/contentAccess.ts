@@ -141,10 +141,18 @@ export async function existsActiveGrant(
 }
 
 export async function viewablePackIds(userId: number): Promise<number[]> {
+  return grantedSubjectIds(userId, 'PACK')
+}
+
+/** Subject ids of a given type this user holds an active VIEW-or-better grant on. */
+export async function grantedSubjectIds(
+  userId: number,
+  subjectType: GrantSubject,
+): Promise<number[]> {
   const grants = await prisma.grant.findMany({
     where: {
       granteeId: userId,
-      subjectType: 'PACK',
+      subjectType,
       status: 'ACTIVE',
       level: { in: qualifyingGrantLevels(GrantLevel.VIEW) },
       OR: [{ expiresAt: null }, { expiresAt: { gt: new Date() } }],
@@ -190,4 +198,120 @@ export async function canView(
   }
 
   return false
+}
+/*
+ * THE VISIBILITY RULE, AS A PRISMA FRAGMENT.
+ *
+ * Silas, 2026-09-17, stating it as one rule for the whole site: "a mature
+ * object should not even look like it exists for children accounts"; "a private
+ * object should not show up AT ALL for non-admin non-owners. they don't exist";
+ * "this should be an api barrier, not a front end barrier".
+ *
+ * It was a front-end barrier in places, and in several listings it was no
+ * barrier at all -- `prisma.prompt.findMany()` with no `where`, and
+ * `prisma.bot.findMany({ skip, take })` returning every bot including private
+ * and mature ones. 23 models carry these flags and the guard was applied ad hoc
+ * per endpoint, so this exists to be applied once per listing rather than
+ * reasoned about again each time.
+ *
+ * Two independent conditions, both AND-ed in:
+ *
+ *   private  -> the owner, or an admin. Not "hidden from" others: absent for
+ *               them, because withholding the picture while publishing the fact
+ *               of it is not privacy.
+ *   mature   -> excluded outright for a maturity-restricted account, which
+ *               isMaturityRestricted decides from ROLES rather than from the
+ *               `showMature` preference, so a CHILD cannot opt themselves in
+ *               with a query parameter.
+ *
+ * An admin sees everything here. Overriding another person's privacy choice is
+ * a deliberate act in the UI rather than something this fragment withholds --
+ * moderation needs to be able to see what it moderates.
+ */
+export type VisibilityFields = {
+  /** The model has an `isPublic` column. */
+  isPublic?: boolean
+  /** The model has an `isMature` column. */
+  isMature?: boolean
+  /** Owner column, when it is not `userId`. */
+  ownerField?: string
+  /** The model has a `packId`: Reward, Character, Dream, Facet. */
+  packGated?: boolean
+  /** The model has its own Grant bucket: PROJECT or RESOURCE. */
+  grantSubject?: GrantSubject
+}
+
+export async function visibilityWhere(
+  user: (MaturityUser & { id?: number | null }) | null | undefined,
+  fields: VisibilityFields = { isPublic: true, isMature: true },
+  isAdmin = false,
+): Promise<Record<string, unknown>> {
+  const clauses: Record<string, unknown>[] = []
+  const ownerField = fields.ownerField ?? 'userId'
+  const viewerId = typeof user?.id === 'number' ? user.id : null
+
+  if (fields.isPublic && !isAdmin) {
+    if (viewerId === null) {
+      clauses.push({ isPublic: true })
+    } else {
+      /*
+       * Mirrors canView()'s formula, which is the site's existing per-object
+       * rule and is RICHER than "public or mine": it also honours Grants and
+       * Packs. A list that ignored those would hide content a person has been
+       * given legitimate access to -- the opposite failure from the one this
+       * fragment exists to fix, and just as wrong.
+       */
+      const or: Record<string, unknown>[] = [
+        { isPublic: true },
+        { [ownerField]: viewerId },
+      ]
+
+      if (fields.grantSubject) {
+        const granted = await grantedSubjectIds(viewerId, fields.grantSubject)
+        if (granted.length) or.push({ id: { in: granted } })
+      }
+
+      if (fields.packGated) {
+        const packs = await viewablePackIds(viewerId)
+        if (packs.length) or.push({ packId: { in: packs } })
+      }
+
+      clauses.push({ OR: or })
+    }
+  }
+
+  /*
+   * Applied to an ADMIN too. Being an admin is not being an adult: a CHILD who
+   * is also an ADMIN is still maturity-restricted, which is why this reads the
+   * role rather than the privilege.
+   */
+  if (fields.isMature && isMaturityRestricted(user)) {
+    clauses.push({ isMature: false })
+  }
+
+  if (!clauses.length) return {}
+  if (clauses.length === 1) return clauses[0] as Record<string, unknown>
+  return { AND: clauses }
+}
+
+/**
+ * canView(), plus the maturity rule. The per-object twin of visibilityWhere().
+ *
+ * canView() answers privacy richly -- owner, admin, Grant, Pack -- and says
+ * nothing about maturity, because it predates that rule being stated for the
+ * whole site. A single-object read needs both: `/api/dreams/12` handing a
+ * mature Dream to a CHILD is the same failure as a listing doing it, and the
+ * id is trivially guessable.
+ *
+ * Maturity is checked after access, and applies to an admin too: a CHILD who
+ * also holds ADMIN is still a child.
+ */
+export async function canViewWithMaturity(
+  subject: AccessSubject & { isMature?: boolean | null },
+  subjectType: GrantSubject | null,
+  user: (AccessUser & MaturityUser) | null | undefined,
+): Promise<boolean> {
+  if (!(await canView(subject, subjectType, user))) return false
+  if (subject.isMature && isMaturityRestricted(user)) return false
+  return true
 }

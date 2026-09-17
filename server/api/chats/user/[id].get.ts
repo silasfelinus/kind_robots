@@ -4,6 +4,8 @@ import prisma from '../../../utils/prisma'
 import { errorHandler } from '../../../utils/error'
 import { validateApiKey } from '../../../utils/validateKey'
 import { userIsAdmin } from '../../../utils/authUser'
+import { getOptionalApiUser } from '@/server/utils/authGuard'
+import { visibilityWhere } from '@/server/utils/contentAccess'
 
 export default defineEventHandler(async (event) => {
   const requestedUserId = Number(getRouterParam(event, 'id'))
@@ -32,10 +34,19 @@ export default defineEventHandler(async (event) => {
       })
     }
 
+    // Returned a user's conversations to any caller. The visibility fragment
+    // narrows to public rows plus the VIEWER's own -- being named in the path
+    // is not the same as being the person asking.
+    const auth = await getOptionalApiUser(event)
     const data = await prisma.chat.findMany({
       where: {
-        isActive: true,
-        OR: [{ userId: requestedUserId }, { recipientId: requestedUserId }],
+        AND: [
+          {
+            isActive: true,
+            OR: [{ userId: requestedUserId }, { recipientId: requestedUserId }],
+          },
+          await visibilityWhere(auth?.user, { isPublic: true, isMature: true }, auth?.isAdmin),
+        ],
       },
       orderBy: {
         createdAt: 'desc',

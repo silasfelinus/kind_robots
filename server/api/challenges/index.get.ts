@@ -2,6 +2,8 @@
 import { createError, defineEventHandler, getQuery } from 'h3'
 import prisma from '~/server/utils/prisma'
 import { errorHandler } from '~/server/utils/error'
+import { getOptionalApiUser } from '@/server/utils/authGuard'
+import { visibilityWhere } from '@/server/utils/contentAccess'
 
 const challengeTypes = new Set([
   'ART',
@@ -45,10 +47,18 @@ export default defineEventHandler(async (event) => {
       'challenge status',
     )
 
+    // Challenge carries isMature but no isPublic, so only the maturity half
+    // applies -- and it is excluded outright for a restricted account.
+    const auth = await getOptionalApiUser(event)
     const challenges = await prisma.challenge.findMany({
       where: {
-        challengeType: challengeType as never,
-        status: (status ?? 'OPEN') as never,
+        AND: [
+          {
+            challengeType: challengeType as never,
+            status: (status ?? 'OPEN') as never,
+          },
+          await visibilityWhere(auth?.user, { isMature: true }, auth?.isAdmin),
+        ],
       },
       include: {
         _count: {

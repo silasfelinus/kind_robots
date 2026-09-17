@@ -77,7 +77,20 @@ async function main(): Promise<void> {
   requireText(files.edit, text.edit, 'readArtFacetIds')
   requireText(files.reenqueue, text.reenqueue, 'readArtFacetIds')
   requireText(files.selection, text.selection, 'readArtFacetSnapshots')
-  requireText(files.complete, text.complete, 'copyArtImageFacets')
+  /*
+   * `copyArtImageFacets` is deliberately NOT required here any more.
+   *
+   * It existed to copy the live image's Facet links onto the archive row an
+   * OVERWRITE completion created, so the archived snapshot kept its Facet
+   * associations. As of 2026-09-17 an overwrite replaces in place and creates
+   * no archive row -- every one it made was empty by construction, because
+   * snapshotData copied a NULL `imageData` while renders live on disk, and the
+   * entity's file path is reused so the previous bytes were already gone.
+   *
+   * There is nothing left to copy Facet links TO. The live image's links are
+   * still set, by syncCompletedArtImageFacets below, which is what actually
+   * protects against Facet loss and stays required.
+   */
   requireText(files.complete, text.complete, 'syncCompletedArtImageFacets')
   requireText(files.complete, text.complete, 'completedFacetIds')
   requireText(files.completion, text.completion, 'facetArtImage.deleteMany')

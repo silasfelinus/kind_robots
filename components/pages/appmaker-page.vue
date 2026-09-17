@@ -1,6 +1,10 @@
 <!-- /components/pages/appmaker-page.vue -->
-<!-- AppMaker (appmaker/t-004): browse the app fleet, create a new app
-     (self-serve; server enforces caps), and jump into each app's project. -->
+<!-- AppMaker (appmaker/t-004): an admin-only internal tool (see
+     content/channels/plan/appmaker.md's requiredRole: ADMIN) for browsing the
+     app fleet, filing a new app scaffold request, and jumping into each app's
+     project. appmaker/t-014: kept admin-only per Silas's decision -- this
+     page's own copy previously described free-tier self-serve access that no
+     non-admin visitor can ever reach. -->
 <template>
   <section class="kr-unbound kr-container space-y-6 p-4">
     <header class="flex flex-wrap items-center justify-between gap-3">
@@ -86,12 +90,11 @@
           <p class="kr-text-faded-xs">
             Creating an app files a scaffold request for the agents: the
             workspace folder, project roadmap, and art prompts appear after the
-            next Worker cycle. Free accounts can run
-            {{ FREE_PROJECT_LIMIT }} active projects.
+            next Worker cycle.
           </p>
         </template>
         <p v-else class="kr-text-faded-sm">
-          Sign in to create an app. Browsing is open to everyone.
+          Admin sign-in required — AppMaker is an internal tool.
         </p>
       </div>
     </div>
@@ -227,7 +230,6 @@ import { usePageStore } from '@/stores/pageStore'
 import { useUserStore } from '@/stores/userStore'
 import { performFetch } from '@/stores/utils'
 
-const FREE_PROJECT_LIMIT = 2
 // Mirrors server/api/appmaker/scaffold-request.post.ts's SLUG_RE — keep in sync.
 const SLUG_RE = /^[a-z][a-z0-9-]{1,40}$/
 

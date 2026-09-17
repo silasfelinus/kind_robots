@@ -420,12 +420,35 @@ export function capProbeTriggerTags(trigger: string): string {
  * The trigger text as it should appear in a probe: capped, and given a subject
  * if it names none.
  */
+/*
+ * An age term already present in the trigger. `1girl` is not one: it spans
+ * every age on these bases.
+ */
+const AGE_STATED_PATTERN =
+  /\b(?:adult|mature|milf|wo?m[ae]n|older|elderly|aged|\d{2}\s*years?\s*old)\b/i
+
+/*
+ * Age the subject even when the LoRA supplied it.
+ *
+ * triggerNamesSubject deliberately leaves a LoRA's own subject untouched, which
+ * is right for composition and wrong for this: 47 pending probes carried a
+ * `1girl` that came from the LoRA's OWN trigger rather than from injection, 36
+ * of them against a LoRA under NSFW/. Those never passed through the injected
+ * path and so never picked up the adult qualifier.
+ *
+ * Only the age is added, never a gender -- a `1boy` trigger must not acquire
+ * `mature female` -- and nothing is added when the trigger already states an
+ * age.
+ */
+const AGE_ONLY_QUALIFIER = 'adult'
+
 export function probeSubjectClause(trigger: string, prose = false): string {
   const capped = capProbeTriggerTags(trigger)
   const subject = prose ? PROBE_DEFAULT_SUBJECT_PROSE : PROBE_DEFAULT_SUBJECT
   if (!capped) return subject
-  if (triggerNamesSubject(capped)) return capped
-  return `${capped}, ${subject}`
+  if (!triggerNamesSubject(capped)) return `${capped}, ${subject}`
+  if (AGE_STATED_PATTERN.test(capped)) return capped
+  return `${capped}, ${prose ? 'an adult' : AGE_ONLY_QUALIFIER}`
 }
 
 export const LORA_PROBE_RECIPES: Record<

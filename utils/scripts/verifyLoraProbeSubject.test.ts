@@ -179,3 +179,34 @@ describe('the injected subject must read as an adult', () => {
     expect(pony('1boy, armor')).not.toMatch(/mature female/)
   })
 })
+
+describe('a LoRA-supplied subject is aged too', () => {
+  /*
+   * 47 pending probes carried a `1girl` from the LoRA's OWN trigger rather than
+   * from injection -- 36 against a LoRA under NSFW/ -- so they never passed
+   * through the injected path and never picked up the qualifier.
+   */
+  it('ages a subject the LoRA named itself', () => {
+    expect(probeSubjectClause('1girl, body_chain, pasties')).toMatch(/\badult\b/)
+    expect(probeSubjectClause('SilkSpectre')).toMatch(/\badult\b/)
+  })
+
+  it('adds an age but never a gender', () => {
+    const out = probeSubjectClause('1boy, armor')
+    expect(out).toMatch(/\badult\b/)
+    expect(out).not.toMatch(/mature female/)
+    expect(out).not.toMatch(/1girl/)
+  })
+
+  it('leaves a trigger that already states an age alone', () => {
+    expect(probeSubjectClause('mature female, red dress')).toBe('mature female, red dress')
+    expect(probeSubjectClause('1girl, 25 years old')).toBe('1girl, 25 years old')
+  })
+
+  it('keeps the two-figure concept intact while ageing it', () => {
+    const out = probeSubjectClause('large male, t1nyg1rlz, very small female')
+    expect(out).toContain('large male, t1nyg1rlz, very small female')
+    expect(out).toMatch(/\badult\b/)
+    expect(out).not.toMatch(/1girl/)
+  })
+})

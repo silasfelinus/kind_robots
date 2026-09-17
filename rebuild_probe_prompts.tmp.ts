@@ -90,7 +90,19 @@ async function main() {
     if (!built) { noFamily += 1; continue }
 
     const current = String(job.payload.promptString || '').replace(/\s+/g, ' ').trim()
-    if (built.prompt === current) { sameAsBefore += 1; continue }
+    // The NEGATIVE has to be diffed too. Skipping on a matching positive alone
+    // left 258 jobs without the minor-exclusion terms, because their positive
+    // was already correct and the edit therefore never fired.
+    let currentNeg = ''
+    for (const n of Object.values<any>(job.payload.workflow || {})) {
+      if (String(n?.class_type) === 'CLIPTextEncode') {
+        const t = String(n?.inputs?.text || '')
+        if (/worst quality|score_6/.test(t)) currentNeg = t.replace(/\s+/g, ' ').trim()
+      }
+    }
+    if (built.prompt === current && built.negativePrompt === currentNeg) {
+      sameAsBefore += 1; continue
+    }
 
     plan.push({
       jobId: job.id, rid, family,

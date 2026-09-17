@@ -4,6 +4,8 @@ import prisma from '../../utils/prisma'
 import { errorHandler } from '../../utils/error'
 import { validateApiKey } from '../../utils/validateKey'
 import { userIsAdmin } from '../../utils/authUser'
+import { isMaturityRestricted } from '../../utils/contentAccess'
+import { getOptionalApiUser } from '@/server/utils/authGuard'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -32,7 +34,6 @@ export default defineEventHandler(async (event) => {
             title: true,
             label: true,
             serverType: true,
-
           },
         },
         ArtImage: {
@@ -50,6 +51,23 @@ export default defineEventHandler(async (event) => {
         statusCode: 404,
         message: `Bot with id ${id} does not exist.`,
       })
+    }
+
+    /*
+     * Privacy below was already right. Maturity was never asked, so a
+     * maturity-restricted account could read a mature Bot -- name, subtitle,
+     * description, prompt -- straight off its id. Read before the privacy
+     * branch, because a PUBLIC mature Bot needs no key at all and would
+     * otherwise never reach a check.
+     */
+    if (bot.isMature) {
+      const viewer = await getOptionalApiUser(event)
+      if (isMaturityRestricted(viewer?.user)) {
+        throw createError({
+          statusCode: 404,
+          message: `Bot with id ${id} does not exist.`,
+        })
+      }
     }
 
     // Public bots are readable without a key (matches the public /api/bots list).

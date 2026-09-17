@@ -4,6 +4,7 @@ import prisma from '@/server/utils/prisma'
 import { errorHandler } from '@/server/utils/error'
 import { validateApiKey } from '@/server/utils/validateKey'
 import { userIsAdmin } from '@/server/utils/authUser'
+import { isMaturityRestricted } from '@/server/utils/contentAccess'
 
 export default defineEventHandler(async (event) => {
   let id = 0
@@ -43,20 +44,29 @@ export default defineEventHandler(async (event) => {
       })
     }
 
+    /*
+     * Maturity is decided before access, and separately from it: owner, admin
+     * and the public path all reached the sheet without anyone asking. A
+     * mature sheet, or a sheet on a mature Dream, does not exist for a
+     * maturity-restricted account.
+     */
+    if (
+      (data.isMature || data.Dream?.isMature || data.Project?.isMature) &&
+      isMaturityRestricted(isValid ? user : null)
+    ) {
+      throw createError({ statusCode: 404, message: 'PitchSheet not found.' })
+    }
+
     const isOwner = Boolean(
       user &&
-        (data.userId === user.id ||
-          data.Dream?.userId === user.id ||
-          data.Project?.userId === user.id),
+      (data.userId === user.id ||
+        data.Dream?.userId === user.id ||
+        data.Project?.userId === user.id),
     )
     const canView =
-      data.isPublic &&
-      (data.Dream?.isPublic ?? data.Project?.isPublic ?? false)
+      data.isPublic && (data.Dream?.isPublic ?? data.Project?.isPublic ?? false)
 
-    if (
-      !canView &&
-      (!isValid || !user || (!userIsAdmin(user) && !isOwner))
-    ) {
+    if (!canView && (!isValid || !user || (!userIsAdmin(user) && !isOwner))) {
       throw createError({
         statusCode: 403,
         message: 'You are not authorized to view this PitchSheet.',

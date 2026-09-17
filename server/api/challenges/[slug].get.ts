@@ -3,6 +3,7 @@ import { createError, defineEventHandler, getRouterParam } from 'h3'
 import prisma from '~/server/utils/prisma'
 import { errorHandler } from '~/server/utils/error'
 import { validateApiKey } from '~/server/utils/validateKey'
+import { isMaturityRestricted } from '~/server/utils/contentAccess'
 import {
   buildChallengeLeaderboard,
   scoreChallengeReactions,
@@ -22,8 +23,19 @@ export default defineEventHandler(async (event) => {
     const auth = await validateApiKey(event)
     const currentUserId = auth.isValid && auth.user ? auth.user.id : null
 
-    const challenge = await prisma.challenge.findUnique({
-      where: { slug },
+    /*
+     * Challenge carries isMature and no isPublic, so maturity is the whole
+     * rule -- and it was not applied here any more than it was on the
+     * leaderboard. A restricted viewer gets the same 404 as a slug that does
+     * not exist.
+     */
+    const challenge = await prisma.challenge.findFirst({
+      where: {
+        slug,
+        ...(isMaturityRestricted(auth.isValid ? auth.user : null)
+          ? { isMature: false }
+          : {}),
+      },
       include: {
         User: {
           select: { id: true, username: true },

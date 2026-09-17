@@ -18,6 +18,8 @@
 import { defineEventHandler, getQuery } from 'h3'
 import prisma from '@/server/utils/prisma'
 import { errorHandler } from '@/server/utils/error'
+import { getOptionalApiUser } from '@/server/utils/authGuard'
+import { isMaturityRestricted } from '@/server/utils/contentAccess'
 
 const MAX_NARRATORS = 60
 
@@ -30,11 +32,17 @@ export default defineEventHandler(async (event) => {
       .trim()
       .slice(0, 64)
 
+    // Public-only was the whole filter, so a mature narrator card -- name,
+    // tagline, one line of voice -- was dealt to maturity-restricted accounts
+    // too.
+    const auth = await getOptionalApiUser(event)
+
     const bots = await prisma.bot.findMany({
       where: {
         BotType: 'NARRATOR',
         isActive: true,
         isPublic: true,
+        ...(isMaturityRestricted(auth?.user) ? { isMature: false } : {}),
         ...(search ? { name: { contains: search } } : {}),
       },
       orderBy: [{ name: 'asc' }],

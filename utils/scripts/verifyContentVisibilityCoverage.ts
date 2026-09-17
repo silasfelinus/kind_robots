@@ -147,6 +147,10 @@ const ALLOWED: Record<string, string> = {
   'server/api/themes/index.get.ts':
     'Theme is site styling. isPublic marks a shared theme rather than private ' +
     'user content.',
+  'server/api/todos/project/[projectId].get.ts':
+    'The Project row is read as `{ userId: true }` purely to authorise the ' +
+    'caller and is never returned. What comes back is Todos, which carry no ' +
+    'isPublic or isMature of their own.',
 }
 
 function walk(dir: string): string[] {
@@ -382,11 +386,21 @@ for (const file of walk(API)) {
 
     if (!MATURE_MODELS.includes(query.model)) continue
 
+    /*
+     * A query that pins userId to the CALLER's own id is reading that person's
+     * own records. Maturity is a rule about what someone is SHOWN of other
+     * people's content -- it does not stand between anyone and their own rows,
+     * and a CHILD's own stylist gallery vanishing out from under them would be
+     * a bug, not a protection. Narrow on purpose: it must be the caller's id
+     * in this query's own where, not a userId from a route or query parameter.
+     */
+    const ownRows = /\buserId:\s*(?:auth\.)?user\.id\b/.test(query.where)
+
     const matureFiltered =
       /\bisMature\b/.test(query.where) ||
       mentions(query.where, MATURITY_BUILDERS)
 
-    if (!matureFiltered && !maturityCheck) maturityGap = true
+    if (!matureFiltered && !maturityCheck && !ownRows) maturityGap = true
   }
 
   if (privacyGap) unguarded.push(rel)

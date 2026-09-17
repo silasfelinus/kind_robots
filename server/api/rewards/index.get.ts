@@ -3,7 +3,10 @@ import { defineEventHandler } from 'h3'
 import prisma from '../../utils/prisma'
 import { errorHandler } from '../../utils/error'
 import { getOptionalApiUser } from '../../utils/authGuard'
-import { viewablePackIds } from '../../utils/contentAccess'
+import {
+  isMaturityRestricted,
+  viewablePackIds,
+} from '../../utils/contentAccess'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -12,7 +15,7 @@ export default defineEventHandler(async (event) => {
     const isAdmin = auth?.isAdmin ?? false
     const packIds = userId && !isAdmin ? await viewablePackIds(userId) : []
 
-    const visibility = isAdmin
+    const privacy = isAdmin
       ? {}
       : userId
         ? {
@@ -23,6 +26,17 @@ export default defineEventHandler(async (event) => {
             ],
           }
         : { isPublic: true }
+
+    /*
+     * Privacy, including Pack grants, was right; maturity was absent, so the
+     * catalog listed mature Rewards to a maturity-restricted account. Applied
+     * to an admin too, and to a Pack the account actually owns: buying
+     * something does not make a CHILD an adult.
+     */
+    const visibility = {
+      ...privacy,
+      ...(isMaturityRestricted(auth?.user) ? { isMature: false } : {}),
+    }
 
     // Gallery/search/edit callers consume Reward scalars only. Do not hydrate
     // ArtImage, Characters, Dreams, Reactions, or User for every catalog row;

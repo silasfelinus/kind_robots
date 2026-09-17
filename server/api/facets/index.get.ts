@@ -4,7 +4,10 @@ import type { Prisma } from '~/prisma/generated/prisma/client'
 import prisma from '~/server/utils/prisma'
 import { errorHandler } from '~/server/utils/error'
 import { getOptionalApiUser } from '~/server/utils/authGuard'
-import { viewablePackIds } from '~/server/utils/contentAccess'
+import {
+  isMaturityRestricted,
+  viewablePackIds,
+} from '~/server/utils/contentAccess'
 import {
   facetSummarySelect,
   hydrateFacetSummaries,
@@ -49,7 +52,11 @@ export default defineEventHandler(async (event) => {
     const isAdmin = auth?.isAdmin ?? false
     const packIds = userId && !isAdmin ? await viewablePackIds(userId) : []
     const includeInactive = isAdmin && toBoolean(query.includeInactive)
-    const includeMature = isAdmin && toBoolean(query.includeMature)
+    // Admin-gated already; restrictive still wins over the privilege.
+    const includeMature =
+      isAdmin &&
+      !isMaturityRestricted(auth?.user) &&
+      toBoolean(query.includeMature)
     const mine = toBoolean(query.mine)
     const take = Math.max(1, toPositiveInt(query.take, 100, 250))
     const skip = toPositiveInt(query.skip, 0, 100000)
@@ -87,7 +94,9 @@ export default defineEventHandler(async (event) => {
       if (!profileIds.length) {
         return { success: true, data: [], count: 0 }
       }
-      andFilters.push({ id: { in: profileIds.map((profile) => profile.facetId) } })
+      andFilters.push({
+        id: { in: profileIds.map((profile) => profile.facetId) },
+      })
     }
 
     if (search) {

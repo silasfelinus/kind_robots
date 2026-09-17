@@ -3,6 +3,7 @@ import { defineEventHandler } from 'h3'
 import prisma from '../../../utils/prisma'
 import { errorHandler } from '../../../utils/error'
 import { validateApiKey } from '../../../utils/validateKey'
+import { isMaturityRestricted } from '../../../utils/contentAccess'
 
 export default defineEventHandler(async (event) => {
   const botId = Number(event.context.params?.id)
@@ -34,6 +35,7 @@ export default defineEventHandler(async (event) => {
     const data = await prisma.chat.findMany({
       where: {
         botId,
+        ...(isMaturityRestricted(user) ? { isMature: false } : {}),
         OR: [{ userId: user.id }, { recipientId: user.id }, { isPublic: true }],
       },
     })

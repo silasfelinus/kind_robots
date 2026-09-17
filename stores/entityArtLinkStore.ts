@@ -21,6 +21,13 @@ export type EntityArtLink = {
   label: string | null
   href: string | null
   exists: boolean
+  /* Card fields, resolved in the same request so opening one costs nothing. */
+  description?: string | null
+  imagePath?: string | null
+  artImageId?: number | null
+  previewImageUrl?: string | null
+  isMature?: boolean
+  detail?: string | null
 }
 
 export const useEntityArtLinkStore = defineStore('entityArtLinkStore', () => {

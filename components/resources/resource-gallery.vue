@@ -48,6 +48,27 @@ const selectedResourceId = computed<number | null>(() =>
   querySelectionId(route.query.resourceId ?? route.query.resource),
 )
 
+/*
+ * The selected row as the catalog knows it, before the maturity rule.
+ *
+ * A direct link to a mature resource with the account toggle off rendered "No
+ * Resources match those filters" -- true, and useless: you followed an explicit
+ * link and the page gave you no way to know why it was empty (Silas,
+ * 2026-09-17, who found it by flipping the toggle himself).
+ */
+const selectedResourceRow = computed(() =>
+  selectedResourceId.value === null
+    ? null
+    : (resourceGalleryStore.resources.find(
+        (entry) => entry.id === selectedResourceId.value,
+      ) ?? null),
+)
+
+const selectedHiddenByMaturity = computed(
+  () =>
+    Boolean(selectedResourceRow.value?.isMature) && !canSeeMature.value,
+)
+
 function clearSelectedResource() {
   const next = { ...route.query }
   delete next.resourceId
@@ -451,11 +472,18 @@ onMounted(async () => {
          dead end: the gallery shows one card and every filter looks broken. -->
     <div
       v-if="selectedResourceId !== null"
-      class="flex flex-wrap items-center justify-between gap-2 rounded-2xl border border-secondary/40 bg-secondary/5 px-3 py-2"
+      :class="selectedHiddenByMaturity ? 'border-warning/50 bg-warning/10' : 'border-secondary/40 bg-secondary/5'"
+      class="flex flex-wrap items-center justify-between gap-2 rounded-2xl border px-3 py-2"
     >
-      <p class="min-w-0 truncate text-sm">
+      <p v-if="selectedHiddenByMaturity" class="min-w-0 text-sm">
+        <span class="font-semibold">{{ selectedResourceRow?.name ?? 'This resource' }}</span>
+        is marked mature, and mature content is hidden for your account. Turn on
+        mature content to view it.
+      </p>
+      <p v-else class="min-w-0 truncate text-sm">
         Showing one resource
         <span class="font-mono text-xs opacity-70">#{{ selectedResourceId }}</span>
+        <span v-if="!selectedResourceRow" class="opacity-70"> · not in this catalog</span>
       </p>
       <button
         type="button"

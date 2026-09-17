@@ -218,6 +218,33 @@ function completedPayload(
   return next
 }
 
+/*
+ * ARTIMAGE ROWS CARRY THE WHOLE IMAGE, SO THESE TRANSACTIONS NEED LONGER THAN 5s.
+ *
+ * `ArtImage.imageData` is a base64 LongText column holding the render itself.
+ * Both completion transactions read it, hash it (assertArtImageMatchesCompletion),
+ * and the overwrite path also COPIES it into an archive row -- several megabytes
+ * moving inside one interactive transaction, plus the facet/collection/entity
+ * link writes.
+ *
+ * Prisma's default interactive-transaction timeout is 5 seconds, and neither
+ * call passed options, so a loaded relay hit "A query cannot be executed on an
+ * expired transaction" and the job FAILED after three attempts. Three jobs died
+ * that way on 2026-09-17 (28437, 28085, 27003) across three unrelated lanes --
+ * z-image, flux and illustrious -- which is what identified it as one bug
+ * rather than three.
+ *
+ * It surfaced now because the overwrite path had been rare: re-rendering 1,685
+ * probes to strip the prompt scaffold put the archive copy on nearly every
+ * completion at once.
+ */
+const COMPLETION_TRANSACTION_OPTIONS = {
+  /* Queue for a free connection rather than failing fast under relay load. */
+  maxWait: 15_000,
+  /* Generous, because the cost scales with image size rather than row count. */
+  timeout: 60_000,
+} as const
+
 export default defineEventHandler(async (event) => {
   try {
     const auth = await requireMachineUser(event)
@@ -436,7 +463,7 @@ export default defineEventHandler(async (event) => {
             entityArt,
             forumArt,
           }
-        })
+        }, COMPLETION_TRANSACTION_OPTIONS)
 
         updated = result.completed
         archivedArtImageId = result.archivedId
@@ -529,7 +556,7 @@ export default defineEventHandler(async (event) => {
           })
 
           return { completed, facetIds, collectionIds, entityArt, forumArt }
-        })
+        }, COMPLETION_TRANSACTION_OPTIONS)
 
         updated = normalResult.completed
         completedFacetIds = normalResult.facetIds

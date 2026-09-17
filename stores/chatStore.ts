@@ -605,7 +605,7 @@ export const useChatStore = defineStore('chatStore', () => {
   }
 
   function defaultModelForProvider(provider: TextGenerationProvider): string {
-    if (provider === 'anthropic') return 'claude-sonnet-4-6'
+    if (provider === 'anthropic') return 'claude-sonnet-5'
     if (provider === 'ollama') return 'llama3.2'
     return 'gpt-4o-mini'
   }

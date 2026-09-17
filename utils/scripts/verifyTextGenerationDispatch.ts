@@ -265,7 +265,7 @@ check(
   () => {
     const payload = buildGenerationPayload('anthropic', {
       messages: baseMessages,
-      model: 'claude-sonnet-4-6',
+      model: 'claude-sonnet-5',
       system: 'be terse',
       maxTokens: 1024,
       stream: true,
@@ -280,7 +280,7 @@ check(
 check('anthropic payload omits `system` entirely when not supplied', () => {
   const payload = buildGenerationPayload('anthropic', {
     messages: baseMessages,
-    model: 'claude-sonnet-4-6',
+    model: 'claude-sonnet-5',
     maxTokens: 1024,
     stream: true,
   })
@@ -371,7 +371,7 @@ check(
   'anthropic response joins text content blocks and maps token usage',
   () => {
     const result = parseGenerationResponse('anthropic', {
-      model: 'claude-sonnet-4-6',
+      model: 'claude-sonnet-5',
       content: [
         { type: 'text', text: 'hello ' },
         { type: 'text', text: 'there' },

@@ -42,6 +42,17 @@ type EntityLookup = {
 const CARD_FIELDS = {
   imagePath: true,
   artImageId: true,
+  /*
+   * The JOINED ArtImage's own paths, which is what actually renders in a
+   * browser. `/api/art/images/:id/file` authenticates by Bearer token only, so
+   * an <img> tag carrying a session cookie gets 403 on any mature or private
+   * row -- the object card showed an empty preview for exactly that reason
+   * while the resource page, which uses these static paths, rendered it fine.
+   * Mirrors resource-card.vue's precedence.
+   */
+  ArtImage: {
+    select: { id: true, thumbnailPath: true, imagePath: true, path: true },
+  },
 } as const
 
 const LOOKUPS: Record<EntityArtType, EntityLookup> = {
@@ -148,6 +159,15 @@ export default defineEventHandler(async (event) => {
             // account setting and this endpoint does not get to overrule it.
             description: typeof row.description === 'string' ? row.description : null,
             imagePath: typeof row.imagePath === 'string' ? row.imagePath : null,
+            artImagePath: (() => {
+              const art = row.ArtImage as Record<string, unknown> | null | undefined
+              if (!art) return null
+              for (const key of ['thumbnailPath', 'imagePath', 'path'] as const) {
+                const value = art[key]
+                if (typeof value === 'string' && value.trim()) return value
+              }
+              return null
+            })(),
             artImageId: typeof row.artImageId === 'number' ? row.artImageId : null,
             previewImageUrl:
               typeof row.previewImageUrl === 'string' ? row.previewImageUrl : null,

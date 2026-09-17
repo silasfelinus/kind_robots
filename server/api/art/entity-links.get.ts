@@ -31,42 +31,62 @@ type EntityLookup = {
   slug?: (row: Record<string, unknown>) => string | null
 }
 
+/*
+ * Enough to render a card without a second round trip.
+ *
+ * Silas, 2026-09-17: a link that navigates away is a worse answer than a card
+ * you can glance at and then follow. Character and Achievement have no
+ * `description` column, so that field is simply absent for them rather than
+ * faked.
+ */
+const CARD_FIELDS = {
+  imagePath: true,
+  artImageId: true,
+} as const
+
 const LOOKUPS: Record<EntityArtType, EntityLookup> = {
   character: {
-    findMany: (ids) => prisma.character.findMany({ where: { id: { in: ids } }, select: { id: true, name: true } }),
+    findMany: (ids) => prisma.character.findMany({ where: { id: { in: ids } }, select: { id: true, name: true, ...CARD_FIELDS } }),
     label: (r) => String(r.name || ''),
   },
   scenario: {
-    findMany: (ids) => prisma.scenario.findMany({ where: { id: { in: ids } }, select: { id: true, title: true } }),
+    findMany: (ids) => prisma.scenario.findMany({ where: { id: { in: ids } }, select: { id: true, title: true, description: true, ...CARD_FIELDS } }),
     label: (r) => String(r.title || ''),
   },
   reward: {
-    findMany: (ids) => prisma.reward.findMany({ where: { id: { in: ids } }, select: { id: true, name: true } }),
+    findMany: (ids) => prisma.reward.findMany({ where: { id: { in: ids } }, select: { id: true, name: true, description: true, ...CARD_FIELDS } }),
     label: (r) => String(r.name || ''),
   },
   bot: {
-    findMany: (ids) => prisma.bot.findMany({ where: { id: { in: ids } }, select: { id: true, name: true } }),
+    findMany: (ids) => prisma.bot.findMany({ where: { id: { in: ids } }, select: { id: true, name: true, description: true, ...CARD_FIELDS } }),
     label: (r) => String(r.name || ''),
   },
   dream: {
-    findMany: (ids) => prisma.dream.findMany({ where: { id: { in: ids } }, select: { id: true, title: true } }),
+    findMany: (ids) => prisma.dream.findMany({ where: { id: { in: ids } }, select: { id: true, title: true, description: true, ...CARD_FIELDS } }),
     label: (r) => String(r.title || ''),
   },
   resource: {
-    findMany: (ids) => prisma.resource.findMany({ where: { id: { in: ids } }, select: { id: true, name: true } }),
+    findMany: (ids) =>
+      prisma.resource.findMany({
+        where: { id: { in: ids } },
+        select: {
+          id: true, name: true, description: true, previewImageUrl: true,
+          isMature: true, resourceType: true, generation: true, ...CARD_FIELDS,
+        },
+      }),
     label: (r) => String(r.name || ''),
   },
   facet: {
-    findMany: (ids) => prisma.facet.findMany({ where: { id: { in: ids } }, select: { id: true, title: true, slug: true } }),
+    findMany: (ids) => prisma.facet.findMany({ where: { id: { in: ids } }, select: { id: true, title: true, slug: true, description: true, ...CARD_FIELDS } }),
     label: (r) => String(r.title || ''),
     slug: (r) => (r.slug ? String(r.slug) : null),
   },
   project: {
-    findMany: (ids) => prisma.project.findMany({ where: { id: { in: ids } }, select: { id: true, title: true } }),
+    findMany: (ids) => prisma.project.findMany({ where: { id: { in: ids } }, select: { id: true, title: true, description: true, ...CARD_FIELDS } }),
     label: (r) => String(r.title || ''),
   },
   achievement: {
-    findMany: (ids) => prisma.achievement.findMany({ where: { id: { in: ids } }, select: { id: true, label: true } }),
+    findMany: (ids) => prisma.achievement.findMany({ where: { id: { in: ids } }, select: { id: true, label: true, ...CARD_FIELDS } }),
     label: (r) => String(r.label || ''),
   },
 }
@@ -123,6 +143,18 @@ export default defineEventHandler(async (event) => {
             label: lookup.label(row) || `${entityType} ${id}`,
             href: entityArtHref(entityType, id, slug),
             exists: true,
+            // Card fields. `isMature` rides along so the client can withhold
+            // the image without a second lookup -- the maturity rule is an
+            // account setting and this endpoint does not get to overrule it.
+            description: typeof row.description === 'string' ? row.description : null,
+            imagePath: typeof row.imagePath === 'string' ? row.imagePath : null,
+            artImageId: typeof row.artImageId === 'number' ? row.artImageId : null,
+            previewImageUrl:
+              typeof row.previewImageUrl === 'string' ? row.previewImageUrl : null,
+            isMature: row.isMature === true,
+            detail:
+              [row.resourceType, row.generation].filter((v) => typeof v === 'string').join(' · ') ||
+              null,
           }
         }
       }),

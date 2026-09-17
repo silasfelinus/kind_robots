@@ -163,15 +163,16 @@
 
             <!-- What this image was made for. Only an entity origin has
                  somewhere to go; the rest state themselves and stop. -->
-            <NuxtLink
-              v-if="originHref"
-              :to="originHref"
+            <button
+              v-if="resolvedOrigin?.exists"
+              type="button"
               class="mt-0.5 flex min-w-0 items-center gap-1 truncate text-xs font-semibold text-secondary hover:underline"
-              :title="`Open ${originTypeLabel}: ${originLabel}`"
+              :title="`View ${originTypeLabel}: ${originLabel}`"
+              @click="showOriginCard = true"
             >
               <Icon name="kind-icon:link" class="h-3 w-3 shrink-0" />
               <span class="truncate">{{ originTypeLabel }} · {{ originLabel }}</span>
-            </NuxtLink>
+            </button>
             <p
               v-else-if="originText"
               class="mt-0.5 truncate text-xs text-base-content/55"
@@ -440,6 +441,11 @@
         </div>
       </div>
     </div>
+      <EntityObjectCard
+      v-if="showOriginCard && resolvedOrigin"
+      :link="resolvedOrigin"
+      @close="showOriginCard = false"
+    />
   </article>
 </template>
 
@@ -451,6 +457,7 @@ import { useArtStore } from '@/stores/artStore'
 import { useUserStore } from '@/stores/userStore'
 import { useEntityArtLinkStore } from '@/stores/entityArtLinkStore'
 import { entityArtTypeLabel } from '@/utils/entityArtLink'
+import EntityObjectCard from '@/components/art/entity-object-card.vue'
 import {
   artJobOrigin,
   artJobOriginLabel,
@@ -553,6 +560,8 @@ const jobPageLabel = computed<string>(() => artJobPageLabel(props.job))
  * The id is all the payload holds, so the name comes from a batched lookup;
  * the link renders as soon as it lands and the card shows the type meanwhile.
  */
+const showOriginCard = ref(false)
+
 const jobOrigin = computed(() => artJobOrigin(props.job))
 
 const resolvedOrigin = computed(() =>
@@ -568,8 +577,6 @@ const originTypeLabel = computed<string>(() =>
 )
 
 const originLabel = computed<string>(() => resolvedOrigin.value?.label ?? '')
-
-const originHref = computed<string | null>(() => resolvedOrigin.value?.href ?? null)
 
 /** Shown when there is nothing to link to: a non-entity origin, a reference
  *  still resolving, or an object deleted after its art was queued. */

@@ -45,7 +45,7 @@ export default defineEventHandler(async (event) => {
     const config = useRuntimeConfig()
     const auth = await requireApiUser(event)
 
-    const model = body.model || 'claude-sonnet-4-6'
+    const model = body.model || 'claude-sonnet-5'
     const maxTokens = body.maxTokens ?? 4096
 
     const server = await resolveOptionalTextServer({

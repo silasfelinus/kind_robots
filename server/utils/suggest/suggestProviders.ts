@@ -50,7 +50,7 @@ export function resolveSuggestModel(
     case 'ollama':
       return 'llama3.2'
     default:
-      return 'claude-sonnet-4-6'
+      return 'claude-sonnet-5'
   }
 }
 

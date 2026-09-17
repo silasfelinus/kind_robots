@@ -50,7 +50,7 @@ export function providerFromServerType(
 }
 
 export function defaultModelForProvider(provider: GenerationProvider): string {
-  if (provider === 'anthropic') return 'claude-sonnet-4-6'
+  if (provider === 'anthropic') return 'claude-sonnet-5'
   if (provider === 'ollama') return 'llama3.2'
 
   return 'gpt-4o-mini'

@@ -17,7 +17,7 @@ import {
   type ManualBackfillPlan,
 } from './commentBackfillGeneration'
 
-const DEFAULT_MODEL = 'claude-sonnet-4-6'
+const DEFAULT_MODEL = 'claude-sonnet-5'
 const BANNED_REVIEW_LANGUAGE =
   /\b(component|wonderlab|museum|exhibit|star rating|rating|review|implementation|usability)\b/i
 const voiceIndex = buildVoiceEvidenceIndex(archivedVoiceRecords)

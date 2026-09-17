@@ -209,7 +209,9 @@ assert.equal(
 const claim = readFileSync('server/api/art/queue/claim.post.ts', 'utf8')
 for (const required of [
   'repairQueuedArtSampler',
-  'assertQueuedArtPromptContract(candidate.engine, samplerRepair.payload)',
+  'const payloadForClaim = { ...samplerRepair.payload }',
+  'delete payloadForClaim.processingStartedAt',
+  'assertQueuedArtPromptContract(candidate.engine, payloadForClaim)',
   'recordSamplerRepair',
 ]) {
   assert.ok(

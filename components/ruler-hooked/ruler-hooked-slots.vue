@@ -12,7 +12,7 @@
         class="flex items-center gap-2 rounded-lg px-2 py-1"
         :class="slot.saveId === store.save?.saveId ? 'bg-primary/10' : 'hover:bg-base-200'"
       >
-        <button type="button" class="flex-1 text-left" @click="store.loadSlot(slot.saveId)">
+        <button type="button" class="flex-1 text-left" @click="selectSlot(slot.saveId)">
           <span class="font-medium">{{ slot.name }}</span>
           <span class="ml-2 text-xs opacity-60">turn {{ slot.turnCount }} · {{ slot.status.toLowerCase() }}</span>
         </button>
@@ -68,6 +68,14 @@ import {
   RULER_PRESETS,
 } from '~/utils/rulerHooked/rulerPresets'
 
+// ruler-hooked/t-024: this panel now lives inside a modal (see
+// ruler-hooked-game.vue) instead of stacking below the play scene as its own
+// document row. `picked` tells the host it can close the modal -- picking a
+// slot or starting a reign both leave `store.save` non-null, so a host that
+// only watched for that transition would miss "switch to a different
+// already-active-feeling slot" entirely.
+const emit = defineEmits<{ (e: 'picked'): void }>()
+
 const store = useRulerHookedStore()
 const rulerName = ref('Mo')
 const honorific = ref('Queen')
@@ -77,12 +85,18 @@ const customPortraitFile = ref<File | null>(null)
 // Preset honorifics as suggestions, not a constraint (t-021: free text).
 const honorificSuggestions = [...new Set(RULER_PRESETS.map((p) => p.title))]
 
+function selectSlot(saveId: string) {
+  store.loadSlot(saveId)
+  emit('picked')
+}
+
 async function start() {
   if (!rulerName.value.trim()) return
   await store.newGame('', rulerName.value.trim(), honorific.value, {
     presetId: presetId.value,
     customPortraitFile: customPortraitFile.value ?? undefined,
   })
+  emit('picked')
 }
 function rename(saveId: string, current: string) {
   const name = typeof window !== 'undefined' ? window.prompt('Rename this reign', current) : null

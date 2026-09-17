@@ -64,12 +64,17 @@ const DISTILLED_PATTERN = /(turbo|lightning|lcm|hyper)/i
  * 18% on the style one. The best configuration here is also the fastest.
  */
 export const CHECKPOINT_PROFILES: Record<CheckpointFamily, CheckpointProfile> = {
-  // PROVISIONAL: never swept. Distilled merges converge in a few steps at very
-  // low guidance, so the standard families' result does NOT transfer -- their
-  // usable band is roughly 1-4 rather than 3-13.
+  /*
+   * MEASURED. Swept cfg 1-4 on dreamshaperXL Turbo; peak usable detail 11.24 at
+   * cfg 2.5 with 3.77% clipping. cfg 4 reaches detail 14.12 but at 8.36%
+   * clipped, well past anything the other families need, so it is excluded.
+   * Distilled merges clip from their very first step -- 0.59% at cfg 1 -- which
+   * is why an absolute clipping budget calibrated on Pony judged this
+   * checkpoint by its floor and returned 1.5.
+   */
   distilled: {
     steps: 8,
-    cfg: 2,
+    cfg: 2.5,
     sampler: 'dpmpp_sde',
     scheduler: 'karras',
     clipSkip: -1,
@@ -109,18 +114,38 @@ export const CHECKPOINT_PROFILES: Record<CheckpointFamily, CheckpointProfile> = 
     width: 1024,
     height: 1024,
   },
-  // PROVISIONAL: cfg never swept. Its one A/B pair only established that clip
-  // skip 1 returns a frame of pure black on this family (ArtJob 26132).
+  /*
+   * MEASURED. Swept cfg 4-8 on illustrij_v21; peak detail 12.10 at cfg 8 with
+   * 0.08% clipping. The range was drawn too narrow -- detail was still climbing
+   * at the top of it -- so the true optimum may be higher and 8 is a floor
+   * rather than a peak. Clip skip 2 is not optional here: an explicit -1
+   * returned a frame of pure black, mean RGB 0.0 and stddev 0.0 (ArtJob 26132).
+   */
   illustrious: {
     steps: 20,
-    cfg: 5,
-    sampler: 'euler_ancestral',
-    scheduler: 'normal',
+    cfg: 8,
+    /*
+     * dpmpp_2m/karras by extension, not by direct measurement. The sampler
+     * sweep ran on Pony, where it beat euler/normal by 4% on a character LoRA
+     * and 18% on a style one; this family's own cfg sweep ran under
+     * euler_ancestral, so its cfg 8 was measured against a different sampler
+     * than it now ships with. Twelve jobs ride on it, so the exposure is small,
+     * but it is an assumption rather than a result.
+     */
+    sampler: 'dpmpp_2m',
+    scheduler: 'karras',
     clipSkip: -2,
     width: 1024,
     height: 1024,
   },
-  // PROVISIONAL: a single pair, cfg 6 over cfg 3, judged by eye. Not swept.
+  /*
+   * MEASURED, and the one family where the metric was OVERRULED. Swept cfg 4-8
+   * on duskMixXLIllustration: edge detail DECLINES monotonically with guidance,
+   * 9.07 at cfg 4 down to 7.85 at 8, at 0% clipping throughout. The rule
+   * therefore picked 4. Silas judged cfg 6 better than cfg 3 on that same LoRA
+   * by eye (ArtJobs 26130/26131), and a 9.07-vs-8.59 detail gap with no
+   * clipping either way is too small to overrule a direct human read.
+   */
   sdxl: {
     steps: 20,
     cfg: 6,
@@ -135,10 +160,18 @@ export const CHECKPOINT_PROFILES: Record<CheckpointFamily, CheckpointProfile> = 
    * subjects and stretched anatomy well before 1024, which reads in a triage
    * grid as a bad LoRA when it is a bad resolution.
    */
+  /*
+   * MEASURED on BOTH SD 1.5 checkpoints, which agree. Swept cfg 4-14:
+   * duchaitenStylelikeme peaks at 14 (detail 22.80, 1.04% clipped),
+   * revAnimated at 14 (detail 20.85, 0.01% clipped). Neither shows a clipping
+   * cliff anywhere in range, so as with illustrious the top is a floor rather
+   * than a peak. The cfg-14 render was inspected directly rather than trusted:
+   * SD 1.5 halos and burns BEFORE it clips, so the clipping metric is blind to
+   * its usual failure mode. It came back clean and richly detailed.
+   */
   sd15: {
-    // PROVISIONAL: a single pair, cfg 7 over cfg 3, judged by eye. Not swept.
     steps: 20,
-    cfg: 7,
+    cfg: 14,
     sampler: 'dpmpp_2m',
     scheduler: 'karras',
     clipSkip: -2,

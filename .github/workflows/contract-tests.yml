@@ -73,6 +73,9 @@ jobs:
       - name: LoRA cfg ceiling enqueue-path wiring contract
         run: npm run test:lora-cfg-wiring
 
+      - name: LoRA probe subject injection contract
+        run: npm run test:lora-probe-subject
+
       - name: WAN image-to-video mode contract
         run: npm run test:wan-i2v-modes
 

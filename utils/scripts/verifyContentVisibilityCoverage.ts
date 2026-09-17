@@ -10,14 +10,32 @@
 // failure mode is a NEW endpoint added later without the guard -- which is
 // exactly how the seven found on 2026-09-17 came to exist.
 //
-// A file counts as guarded when it uses any of the three mechanisms the
-// codebase actually has:
+// A file counts as guarded when it uses any of the mechanisms the codebase
+// actually has:
 //
 //   visibilityWhere()        the Prisma fragment, for list queries
 //   canView()                the per-object check, richer: Grants and Packs
+//   canViewWithMaturity()    that, plus the maturity rule
 //   effectiveShowMature()    the maturity half on its own
 //
+// ...or one of the two model-specific filters that predate those and are
+// equivalent for their model:
+//
+//   buildArtImageWhere()     ArtImage: public-or-own (admin sees all), and
+//                            mature excluded unless the viewer opted in
+//                            through a context that already refuses a CHILD
+//   forumReadWhere()         Chat-as-forum-post: isPublic + isActive, mature
+//   forumReplyReadWhere()    excluded unless getForumReadContext() allowed it,
+//   requireForumThreadRoot() which it will not for a maturity-restricted account
+//
 // ...or when it is admin-gated, or scoped to the caller's own rows.
+//
+// Only files with a default export are routes. `index.ts` beside an
+// `index.get.ts` is a helper module Nitro never serves -- server/api/art and
+// server/api/bots both have one. Their remaining unfiltered reads are
+// write-path lookups (dedupe before a create, the post-seed re-read), checked
+// by hand on 2026-09-17; the dead unfiltered readers that used to sit in
+// bots/index.ts and prompts/index.ts were deleted rather than guarded.
 import assert from 'node:assert/strict'
 import { readFileSync, readdirSync, statSync } from 'node:fs'
 import { join, relative } from 'node:path'
@@ -74,7 +92,8 @@ for (const file of walk(API)) {
   const base = rel.split('/').pop() as string
 
   // Reads only. A mutation's authorisation is a different contract.
-  const isRead = base.endsWith('.get.ts') || base === 'index.ts'
+  const isRoute = /export default/.test(src)
+  const isRead = base.endsWith('.get.ts') || (base === 'index.ts' && isRoute)
   if (!isRead) continue
 
   const queries = GUARDED_MODELS.some((model) =>
@@ -93,6 +112,9 @@ for (const file of walk(API)) {
 
   const guarded =
     /visibilityWhere|canView|effectiveShowMature|isMaturityRestricted/.test(src) ||
+    /buildArtImageWhere|forumReadWhere|forumReplyReadWhere|requireForumThreadRoot/.test(
+      src,
+    ) ||
     handRolledPrivacy
   const adminOnly =
     /requireAdminApiUser|requireMachineUser|isServerKey/.test(src) &&
@@ -109,6 +131,9 @@ for (const file of walk(API)) {
    */
   const handlesMaturity =
     /visibilityWhere|canViewWithMaturity|effectiveShowMature|isMaturityRestricted/.test(
+      src,
+    ) ||
+    /buildArtImageWhere|forumReadWhere|forumReplyReadWhere|requireForumThreadRoot/.test(
       src,
     )
   const touchesMatureModel = MATURE_MODELS.some((model) =>

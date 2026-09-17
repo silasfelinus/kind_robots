@@ -9,6 +9,7 @@ import prisma from '../../../../utils/prisma'
 import { errorHandler } from '../../../../utils/error'
 import { validateApiKey } from '../../../../utils/validateKey'
 import { userIsAdmin } from '../../../../utils/authUser'
+import { isMaturityRestricted } from '../../../../utils/contentAccess'
 
 function fail(
   event: Parameters<Parameters<typeof defineEventHandler>[0]>[0],
@@ -71,10 +72,17 @@ export default defineEventHandler(async (event) => {
       )
     }
 
+    /*
+     * Privacy was already right here -- owner or admin, nobody else. Maturity
+     * was not applied at all, so a CHILD account reading its own messages got
+     * mature ones too. The viewer decides, which is why this reads the CALLER's
+     * restriction rather than the requested user's.
+     */
     const data = await prisma.chat.findMany({
       where: {
         type: 'ToUser',
         isActive: true,
+        ...(isMaturityRestricted(user) ? { isMature: false } : {}),
         OR: [{ userId: requestedUserId }, { recipientId: requestedUserId }],
         botId: null,
         botName: null,

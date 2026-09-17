@@ -2,6 +2,8 @@
 import { createError, defineEventHandler } from 'h3'
 import prisma from '../../utils/prisma'
 import { errorHandler } from '../../utils/error'
+import { getOptionalApiUser } from '@/server/utils/authGuard'
+import { canViewWithMaturity } from '@/server/utils/contentAccess'
 import { promptResourceSelect } from './selects'
 
 export default defineEventHandler(async (event) => {
@@ -15,12 +17,28 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    const data = await prisma.prompt.findUnique({
-      where: { id },
-      select: promptResourceSelect,
-    })
+    const [data, auth] = await Promise.all([
+      prisma.prompt.findUnique({
+        where: { id },
+        select: promptResourceSelect,
+      }),
+      getOptionalApiUser(event),
+    ])
 
     if (!data) {
+      throw createError({
+        statusCode: 404,
+        message: 'Prompt not found.',
+      })
+    }
+
+    /*
+     * The listing filters; this did not, and a prompt id is a small integer.
+     * 404 rather than 403 for a caller who cannot see it: a private prompt
+     * should not confirm its own existence, which is the rule Silas stated
+     * for the whole site ("they don't exist").
+     */
+    if (!(await canViewWithMaturity(data, null, auth?.user))) {
       throw createError({
         statusCode: 404,
         message: 'Prompt not found.',

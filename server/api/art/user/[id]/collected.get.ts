@@ -1,8 +1,13 @@
 // /server/api/art/user/[id]/collected.get.ts
 import { defineEventHandler, createError } from 'h3'
-import type { ArtImage } from '~/prisma/generated/prisma/client'
+import type { ArtImage, Prisma } from '~/prisma/generated/prisma/client'
 import { errorHandler } from '../../../../utils/error'
 import prisma from '../../../../utils/prisma'
+import {
+  buildArtImageWhere,
+  getArtImageAccessContext,
+  type ArtImageAccessContext,
+} from '~/server/utils/artImageAccess'
 
 export default defineEventHandler(async (event) => {
   const userId = Number(event.context.params?.id)
@@ -15,7 +20,14 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    const collectedArt = await fetchUserCollectedArt(userId)
+    /*
+     * Was unfiltered in both directions: any caller could name any user id and
+     * receive that person's private collections, including their private and
+     * mature images. The viewer -- not the subject -- decides what comes back
+     * now, on both the ArtCollection rows and the ArtImages inside them.
+     */
+    const access = await getArtImageAccessContext(event)
+    const collectedArt = await fetchUserCollectedArt(userId, access)
 
     return {
       success: true,
@@ -40,17 +52,46 @@ export default defineEventHandler(async (event) => {
   }
 })
 
-async function fetchUserCollectedArt(userId: number): Promise<ArtImage[]> {
+/**
+ * The ArtCollection half of the same rule buildArtImageWhere() states for
+ * ArtImage: an admin sees every collection, a signed-in viewer sees public ones
+ * plus their own, everyone else sees public ones -- and a mature collection is
+ * excluded unless the viewer may be shown mature content at all.
+ */
+function collectionVisibilityWhere({
+  userId,
+  isAdmin,
+  showMature,
+  isAuthenticated,
+}: ArtImageAccessContext): Prisma.ArtCollectionWhereInput {
+  const privacy: Prisma.ArtCollectionWhereInput = isAdmin
+    ? {}
+    : isAuthenticated && userId
+      ? { OR: [{ isPublic: true }, { userId }] }
+      : { isPublic: true }
+
+  return {
+    AND: [privacy, showMature ? {} : { isMature: false }],
+  }
+}
+
+async function fetchUserCollectedArt(
+  ownerId: number,
+  access: ArtImageAccessContext,
+): Promise<ArtImage[]> {
   const collections = await prisma.artCollection.findMany({
     where: {
-      userId,
-      isActive: true,
+      AND: [
+        { userId: ownerId, isActive: true },
+        collectionVisibilityWhere(access),
+      ],
     },
     orderBy: {
       createdAt: 'desc',
     },
     include: {
       ArtImages: {
+        where: buildArtImageWhere(access),
         orderBy: {
           createdAt: 'desc',
         },

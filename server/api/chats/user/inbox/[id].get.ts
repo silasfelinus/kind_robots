@@ -4,6 +4,7 @@ import prisma from '../../../../utils/prisma'
 import { errorHandler } from '../../../../utils/error'
 import { validateApiKey } from '../../../../utils/validateKey'
 import { userIsAdmin } from '../../../../utils/authUser'
+import { isMaturityRestricted } from '../../../../utils/contentAccess'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -59,9 +60,12 @@ export default defineEventHandler(async (event) => {
 
     const username = targetUser.username || ''
 
+    // Owner-or-admin was already enforced above; maturity was not. A CHILD
+    // account reading its own inbox must not be handed mature messages.
     const chats = await prisma.chat.findMany({
       where: {
         isActive: true,
+        ...(isMaturityRestricted(user) ? { isMature: false } : {}),
         OR: [
           { userId: id },
           { recipientId: id },

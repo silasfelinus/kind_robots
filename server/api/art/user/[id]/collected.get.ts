@@ -1,9 +1,10 @@
 // /server/api/art/user/[id]/collected.get.ts
 import { defineEventHandler, createError } from 'h3'
-import type { ArtImage, Prisma } from '~/prisma/generated/prisma/client'
+import type { ArtImage } from '~/prisma/generated/prisma/client'
 import { errorHandler } from '../../../../utils/error'
 import prisma from '../../../../utils/prisma'
 import {
+  buildArtCollectionWhere,
   buildArtImageWhere,
   getArtImageAccessContext,
   type ArtImageAccessContext,
@@ -52,29 +53,6 @@ export default defineEventHandler(async (event) => {
   }
 })
 
-/**
- * The ArtCollection half of the same rule buildArtImageWhere() states for
- * ArtImage: an admin sees every collection, a signed-in viewer sees public ones
- * plus their own, everyone else sees public ones -- and a mature collection is
- * excluded unless the viewer may be shown mature content at all.
- */
-function collectionVisibilityWhere({
-  userId,
-  isAdmin,
-  showMature,
-  isAuthenticated,
-}: ArtImageAccessContext): Prisma.ArtCollectionWhereInput {
-  const privacy: Prisma.ArtCollectionWhereInput = isAdmin
-    ? {}
-    : isAuthenticated && userId
-      ? { OR: [{ isPublic: true }, { userId }] }
-      : { isPublic: true }
-
-  return {
-    AND: [privacy, showMature ? {} : { isMature: false }],
-  }
-}
-
 async function fetchUserCollectedArt(
   ownerId: number,
   access: ArtImageAccessContext,
@@ -83,7 +61,7 @@ async function fetchUserCollectedArt(
     where: {
       AND: [
         { userId: ownerId, isActive: true },
-        collectionVisibilityWhere(access),
+        buildArtCollectionWhere(access),
       ],
     },
     orderBy: {

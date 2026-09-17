@@ -3,6 +3,11 @@ import { defineEventHandler, createError } from 'h3'
 import type { Prisma } from '~/prisma/generated/prisma/client'
 import prisma from '../../../utils/prisma'
 import { errorHandler } from '../../../utils/error'
+import {
+  buildArtCollectionWhere,
+  buildArtImageWhere,
+  getArtImageAccessContext,
+} from '~/server/utils/artImageAccess'
 
 const artImageListSelect = {
   id: true,
@@ -33,32 +38,35 @@ const artImageListSelect = {
   serverUrl: true,
 } satisfies Prisma.ArtImageSelect
 
-const artCollectionSelect = {
-  id: true,
-  createdAt: true,
-  updatedAt: true,
-  userId: true,
-  label: true,
-  slug: true,
-  parentFolder: true,
-  isMature: true,
-  isPublic: true,
-  isActive: true,
-  artPrompt: true,
-  description: true,
-  username: true,
-  ArtImages: {
-    orderBy: {
-      id: 'desc',
+function buildArtCollectionSelect(imageWhere: Prisma.ArtImageWhereInput) {
+  return {
+    id: true,
+    createdAt: true,
+    updatedAt: true,
+    userId: true,
+    label: true,
+    slug: true,
+    parentFolder: true,
+    isMature: true,
+    isPublic: true,
+    isActive: true,
+    artPrompt: true,
+    description: true,
+    username: true,
+    ArtImages: {
+      where: imageWhere,
+      orderBy: {
+        id: 'desc',
+      },
+      select: artImageListSelect,
     },
-    select: artImageListSelect,
-  },
-  _count: {
-    select: {
-      ArtImages: true,
+    _count: {
+      select: {
+        ArtImages: { where: imageWhere },
+      },
     },
-  },
-} satisfies Prisma.ArtCollectionSelect
+  } satisfies Prisma.ArtCollectionSelect
+}
 
 export default defineEventHandler(async (event) => {
   try {
@@ -71,11 +79,21 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    const data = await prisma.artCollection.findUnique({
+    /*
+     * `isPublic: true` in the select above asks for the column; it never
+     * filtered anything, so this served every collection -- private and mature
+     * alike, with every image inside it -- to anyone who guessed an id. The
+     * collection and its images now each carry the viewer's own rule, and a
+     * collection the viewer may not see is simply not found.
+     */
+    const access = await getArtImageAccessContext(event)
+    const imageWhere = buildArtImageWhere(access)
+
+    const data = await prisma.artCollection.findFirst({
       where: {
-        id: collectionId,
+        AND: [{ id: collectionId }, buildArtCollectionWhere(access)],
       },
-      select: artCollectionSelect,
+      select: buildArtCollectionSelect(imageWhere),
     })
 
     if (!data) {

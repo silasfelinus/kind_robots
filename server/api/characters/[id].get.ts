@@ -2,7 +2,7 @@ import { createError, defineEventHandler } from 'h3'
 import { errorHandler } from '../../utils/error'
 import prisma from '../../utils/prisma'
 import { getOptionalApiUser } from '../../utils/authGuard'
-import { canView } from '../../utils/contentAccess'
+import { canViewWithMaturity } from '../../utils/contentAccess'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -24,7 +24,7 @@ export default defineEventHandler(async (event) => {
       throw createError({ statusCode: 404, message: 'Character not found.' })
     }
 
-    if (!(await canView(data, null, auth?.user))) {
+    if (!(await canViewWithMaturity(data, null, auth?.user))) {
       throw createError({
         statusCode: auth ? 403 : 404,
         message: auth

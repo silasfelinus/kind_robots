@@ -68,6 +68,42 @@ const ALLOWED: Record<string, string> = {
     'user content.',
 }
 
+/*
+ * `isPublic: true` inside a SELECT is not a filter -- it asks for the column.
+ * Counting it as a guard is how art/collection/[id].get.ts and
+ * art/collection/index.get.ts read as "public only" while actually serving
+ * every collection, private and mature, to anyone (found 2026-09-17, by
+ * reading the files the sweep had cleared). Select blocks are excised before
+ * any filter-shaped test runs.
+ */
+function stripSelectBlocks(src: string): string {
+  let out = src
+  const openers = /(\bselect\s*:\s*\{)|([A-Za-z_$][\w$]*Select\b[^=]*=\s*\{)/
+
+  for (;;) {
+    const match = openers.exec(out)
+    if (!match) return out
+
+    const open = match.index + match[0].length - 1
+    let depth = 0
+    let close = -1
+
+    for (let i = open; i < out.length; i += 1) {
+      if (out[i] === '{') depth += 1
+      else if (out[i] === '}') {
+        depth -= 1
+        if (depth === 0) {
+          close = i
+          break
+        }
+      }
+    }
+
+    if (close === -1) return out.slice(0, match.index)
+    out = out.slice(0, match.index) + out.slice(close + 1)
+  }
+}
+
 function walk(dir: string): string[] {
   const out: string[] = []
   for (const entry of readdirSync(dir)) {
@@ -89,6 +125,7 @@ const maturityOnly: string[] = []
 for (const file of walk(API)) {
   const rel = relative(ROOT, file)
   const src = readFileSync(file, 'utf8')
+  const filters = stripSelectBlocks(src)
   const base = rel.split('/').pop() as string
 
   // Reads only. A mutation's authorisation is a different contract.
@@ -108,7 +145,7 @@ for (const file of walk(API)) {
    * overstates the problem, and a sweep that cries wolf gets ignored.
    */
   const handRolledPrivacy =
-    /\.isPublic\b/.test(src) && /userIsAdmin|isAdmin|isOwner/.test(src)
+    /\.isPublic\b/.test(filters) && /userIsAdmin|isAdmin|isOwner/.test(src)
 
   const guarded =
     /visibilityWhere|canView|effectiveShowMature|isMaturityRestricted/.test(src) ||
@@ -119,8 +156,8 @@ for (const file of walk(API)) {
   const adminOnly =
     /requireAdminApiUser|requireMachineUser|isServerKey/.test(src) &&
     !/getOptionalApiUser/.test(src)
-  const ownScoped = /userId:\s*(auth|user)\.|auth\.user\.id/.test(src)
-  const publicOnly = /isPublic:\s*true/.test(src)
+  const ownScoped = /userId:\s*(auth|user)\.|auth\.user\.id/.test(filters)
+  const publicOnly = /isPublic:\s*true/.test(filters)
 
   if (rel in ALLOWED) continue
 

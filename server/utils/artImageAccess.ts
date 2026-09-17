@@ -107,6 +107,33 @@ export function buildArtImageWhere({
   }
 }
 
+/**
+ * The ArtCollection half of the same rule buildArtImageWhere() states for
+ * ArtImage: an admin sees every collection, a signed-in viewer sees public ones
+ * plus their own, everyone else sees public ones -- and a mature collection is
+ * excluded unless the viewer may be shown mature content at all.
+ *
+ * Collections went unfiltered until 2026-09-17: /api/art/collection and
+ * /api/art/collection/:id both selected `isPublic` rather than filtering on it,
+ * and served every collection, private and mature, to anyone who asked.
+ */
+export function buildArtCollectionWhere({
+  userId,
+  isAdmin,
+  showMature,
+  isAuthenticated,
+}: ArtImageAccessContext): Prisma.ArtCollectionWhereInput {
+  const privacy: Prisma.ArtCollectionWhereInput = isAdmin
+    ? {}
+    : isAuthenticated && userId
+      ? { OR: [{ isPublic: true }, { userId }] }
+      : { isPublic: true }
+
+  return {
+    AND: [privacy, showMature ? {} : { isMature: false }],
+  }
+}
+
 export function buildArtImageSelect(
   query: Record<string, QueryValue> = {},
 ) {

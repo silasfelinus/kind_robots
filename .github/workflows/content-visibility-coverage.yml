@@ -31,6 +31,13 @@ jobs:
   verify:
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    # The repo's placeholder, same as typecheck.yml and the other contract
+    # workflows. verifyContentVisibility.test.ts asserts on the SHAPE of the
+    # Prisma fragment and never runs a query -- but it imports contentAccess,
+    # which imports server/utils/prisma, which throws at module load when
+    # DATABASE_URL is unset. Nothing connects; the client is only constructed.
+    env:
+      DATABASE_URL: mysql://root:root@127.0.0.1:3306/kindrobots
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -47,7 +54,7 @@ jobs:
           CYPRESS_INSTALL_BINARY: '0'
 
       # The rule itself: the Prisma fragment's shape, and that a CHILD who is
-      # also an ADMIN stays maturity-restricted. Database-free by design.
+      # also an ADMIN stays maturity-restricted. No query is issued.
       - name: Verify the visibility rule
         run: npx tsx utils/scripts/verifyContentVisibility.test.ts
 

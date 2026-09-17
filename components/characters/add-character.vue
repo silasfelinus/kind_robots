@@ -150,7 +150,7 @@
                 Upload, borrow, or generate character art.
               </p>
             </div>
-            <Icon name="kind-icon:person" class="h-8 w-8 text-primary" />
+            <Icon name="kind-icon:person" class="kr-icon-8 text-primary" />
           </div>
 
           <img

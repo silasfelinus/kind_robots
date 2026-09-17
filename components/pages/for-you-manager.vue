@@ -404,7 +404,7 @@
             >
               <Icon
                 name="kind-icon:lightbulb"
-                class="mx-auto mb-2 size-8 text-secondary/45"
+                class="mx-auto mb-2 kr-icon-8 text-secondary/45"
               />
               <p class="font-bold text-base-content/65">
                 No new pitches are waiting.
@@ -458,7 +458,7 @@
           <div v-else class="kr-panel-flat px-5 py-7 text-center">
             <Icon
               name="kind-icon:check-circle"
-              class="mx-auto mb-2 size-8 text-success/45"
+              class="mx-auto mb-2 kr-icon-8 text-success/45"
             />
             <p class="font-bold text-base-content/65">
               No personal follow-ups are waiting.

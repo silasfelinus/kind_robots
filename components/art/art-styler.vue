@@ -221,7 +221,7 @@
           v-else
           class="flex min-h-28 flex-col items-center justify-center rounded-xl border border-base-300 bg-base-200/60 text-center"
         >
-          <Icon name="kind-icon:image" class="h-8 w-8 text-base-content/20" />
+          <Icon name="kind-icon:image" class="kr-icon-8 text-base-content/20" />
           <p class="kr-text-dim-xs-40 mt-1">No images found</p>
         </div>
       </div>
@@ -279,7 +279,7 @@
           v-else
           class="flex min-h-28 flex-col items-center justify-center rounded-xl border border-base-300 bg-base-200/60 text-center"
         >
-          <Icon name="kind-icon:image" class="h-8 w-8 text-base-content/20" />
+          <Icon name="kind-icon:image" class="kr-icon-8 text-base-content/20" />
           <p class="kr-text-dim-xs-40 mt-1">No starters found</p>
         </div>
       </div>
@@ -303,7 +303,7 @@
             v-else
             class="flex h-full w-full items-center justify-center bg-base-200"
           >
-            <Icon name="kind-icon:image" class="h-8 w-8 text-base-content/30" />
+            <Icon name="kind-icon:image" class="kr-icon-8 text-base-content/30" />
           </div>
           <div
             v-if="resultImageSrc"

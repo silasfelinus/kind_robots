@@ -23,7 +23,7 @@
             <div
               class="grid size-14 shrink-0 place-items-center rounded-2xl border border-primary/30 bg-base-100/80 shadow-lg backdrop-blur"
             >
-              <Icon name="kind-icon:trophy" class="size-8 text-primary" />
+              <Icon name="kind-icon:trophy" class="kr-icon-8 text-primary" />
             </div>
 
             <div class="min-w-0 flex-1 basis-full sm:basis-auto">

@@ -79,7 +79,7 @@
                 >
                   <Icon
                     :name="card.icon || 'kind-icon:cards'"
-                    class="h-8 w-8 text-base-content/25"
+                    class="kr-icon-8 text-base-content/25"
                   />
                 </div>
 

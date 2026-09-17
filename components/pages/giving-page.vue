@@ -97,7 +97,7 @@
       class="kr-panel scroll-mt-24 p-5 sm:p-7"
     >
       <div class="mb-6 text-center">
-        <Icon name="kind-icon:rocket" class="mx-auto h-8 w-8 text-primary" />
+        <Icon name="kind-icon:rocket" class="mx-auto kr-icon-8 text-primary" />
         <h2 class="kr-text-black-2xl mt-2 text-base-content">
           Support Kind Robots Monthly
         </h2>

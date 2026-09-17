@@ -8,7 +8,7 @@
           <div
             class="flex h-14 w-14 items-center justify-center rounded-2xl border-2 border-primary bg-primary/10"
           >
-            <Icon name="kind-icon:paintbrush" class="h-8 w-8 text-primary" />
+            <Icon name="kind-icon:paintbrush" class="kr-icon-8 text-primary" />
           </div>
 
           <div class="min-w-0">

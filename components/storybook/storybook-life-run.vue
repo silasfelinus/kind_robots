@@ -266,7 +266,10 @@
               role="alert"
               class="flex flex-col items-center gap-3 rounded-2xl border border-warning/40 bg-warning/10 p-6 text-center"
             >
-              <Icon name="kind-icon:warning" class="size-8 text-warning/70" />
+              <Icon
+                name="kind-icon:warning"
+                class="kr-icon-8 text-warning/70"
+              />
               <p class="kr-text-dim-sm-70">
                 The narrator is having trouble with this chapter.
               </p>
@@ -360,7 +363,7 @@
               "
               class="flex flex-col items-center gap-3 rounded-2xl border border-primary/30 bg-primary/5 p-6 text-center"
             >
-              <Icon name="kind-icon:trophy" class="size-8 text-primary/70" />
+              <Icon name="kind-icon:trophy" class="kr-icon-8 text-primary/70" />
               <p class="kr-text-dim-sm-70">
                 {{
                   currentChapter

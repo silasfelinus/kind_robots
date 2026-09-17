@@ -275,6 +275,10 @@ export default defineEventHandler(async (event) => {
 
       if (!candidate) continue
 
+      const priorProcessingStartedAt = validTimestamp(
+        candidate.payload.processingStartedAt,
+      )
+
       // Baseline coverage is one useful image per entity, not four speculative
       // variants. Reconcile only this candidate's equivalence class so a large
       // backlog is cleaned as it drains without adding an O(queue) sweep to
@@ -303,6 +307,8 @@ export default defineEventHandler(async (event) => {
           candidate.engine,
           candidate.payload,
         )
+        const payloadForClaim = { ...samplerRepair.payload }
+        delete payloadForClaim.processingStartedAt
 
         // New enqueues pass the prompt contract at creation time. Old backlog
         // rows predate that boundary, so apply the same rules again immediately
@@ -311,12 +317,12 @@ export default defineEventHandler(async (event) => {
         // they were already sitting in PENDING when the gate shipped — the clamp
         // above fixes the sampler numbers, and everything a machine cannot
         // safely rewrite (conditionals, format nouns, text piles) still fails.
-        assertQueuedArtPromptContract(candidate.engine, samplerRepair.payload)
+        assertQueuedArtPromptContract(candidate.engine, payloadForClaim)
 
-        const currentProvenance = readArtJobProvenance(samplerRepair.payload)
+        const currentProvenance = readArtJobProvenance(payloadForClaim)
         enrichedPayload = enrichArtJobPayload(
           candidate.engine as 'A1111' | 'COMFY',
-          samplerRepair.payload,
+          payloadForClaim,
           {
             projectSlug: candidate.projectSlug,
             idempotencyKey: currentProvenance?.idempotencyKey,
@@ -357,9 +363,6 @@ export default defineEventHandler(async (event) => {
       }
 
       const claimTime = new Date()
-      const priorProcessingStartedAt = validTimestamp(
-        candidate.payload.processingStartedAt,
-      )
       const processingStartedAt =
         candidate.status === 'RUNNING'
           ? priorProcessingStartedAt ||

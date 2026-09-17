@@ -1,6 +1,7 @@
 <!-- /components/resources/resource-gallery.vue -->
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import type { GalleryItem } from '@/components/gallery/kr-gallery.vue'
 import {
   useResourceGalleryStore,
@@ -10,6 +11,7 @@ import { useArtStore } from '@/stores/artStore'
 import { useUserStore } from '@/stores/userStore'
 import type { Resource } from '@/stores/resourceStore'
 import ShareManager from '@/components/sharing/share-manager.vue'
+import { querySelectionId } from '@/utils/routeSelection'
 
 const RESOURCE_TYPE = {
   CHECKPOINT: 'CHECKPOINT',
@@ -24,6 +26,34 @@ const userStore = useUserStore()
 const query = ref('')
 const resourceType = ref('ALL')
 const generation = ref('ALL')
+
+const route = useRoute()
+const router = useRouter()
+
+/*
+ * `/resources?resourceId=2726` opens one resource.
+ *
+ * Every other manager already reads an id out of the query -- characters, bots,
+ * dreams, rewards, scenarios -- and utils/routeSelection.ts exists because two
+ * of them had each grown a private copy of the reader. This gallery had only a
+ * `tab` parameter, which meant the ArtQueue's new "made for this object" link
+ * could offer nothing better than an unfiltered list of 2,226 rows, for the
+ * single commonest case in the queue: every LoRA probe is entityType
+ * `resource`.
+ *
+ * Silas, 2026-08-28: "These displays should always lead to something, not just
+ * static displays of images and text."
+ */
+const selectedResourceId = computed<number | null>(() =>
+  querySelectionId(route.query.resourceId ?? route.query.resource),
+)
+
+function clearSelectedResource() {
+  const next = { ...route.query }
+  delete next.resourceId
+  delete next.resource
+  router.replace({ query: next })
+}
 /*
  * THE maturity rule, and the only one.
  *
@@ -235,6 +265,18 @@ const filteredResources = computed(() => {
   const search = query.value.trim().toLowerCase()
 
   return resourceGalleryStore.resources.filter((entry) => {
+    /*
+     * A direct link outranks the filters. Arriving at `?resourceId=N` with a
+     * type dropdown or a stale search still set would otherwise show an empty
+     * gallery and look broken, so the id short-circuits everything below except
+     * the maturity rule -- which is an account setting and not this link's to
+     * override.
+     */
+    if (selectedResourceId.value !== null) {
+      if (entry.id !== selectedResourceId.value) return false
+      return canSeeMature.value || !entry.isMature
+    }
+
     if (
       resourceType.value !== 'ALL' &&
       entry.resourceType !== resourceType.value
@@ -405,6 +447,25 @@ onMounted(async () => {
       slot. The blurb survives at md+ only -- it is orientation text, and it was
       costing three rows on exactly the screens with the fewest to spare.
     -->
+    <!-- Arriving from a link to one resource. Without a way back this is a
+         dead end: the gallery shows one card and every filter looks broken. -->
+    <div
+      v-if="selectedResourceId !== null"
+      class="flex flex-wrap items-center justify-between gap-2 rounded-2xl border border-secondary/40 bg-secondary/5 px-3 py-2"
+    >
+      <p class="min-w-0 truncate text-sm">
+        Showing one resource
+        <span class="font-mono text-xs opacity-70">#{{ selectedResourceId }}</span>
+      </p>
+      <button
+        type="button"
+        class="btn btn-ghost btn-xs rounded-2xl"
+        @click="clearSelectedResource"
+      >
+        Show all resources
+      </button>
+    </div>
+
     <header class="kr-panel px-3 py-2">
       <div class="flex flex-wrap items-center justify-between gap-2">
         <div class="min-w-0">

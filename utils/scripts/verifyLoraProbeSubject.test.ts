@@ -118,3 +118,20 @@ describe('a LoRA whose only trigger is invocation syntax', () => {
     expect(loraNameAsTrigger('', '')).toBe('')
   })
 })
+
+describe('composition lives in the negative prompt', () => {
+  /*
+   * Silas, 2026-09-17: "centered should really be handled by proper negative
+   * prompt data, not specific to what we want in the prompt." A positive
+   * 'centered' competes with any LoRA that is deliberately off-centre; a
+   * negative only rules out the subject being sliced by the frame edge.
+   */
+  it('keeps the subject in frame without asserting a composition', () => {
+    for (const family of ['pony', 'illustrious', 'sdxl', 'sd15'] as const) {
+      const r = buildLoraProbePrompt(family, 'Batgirl')!
+      expect(r.negativePrompt).toContain('cropped')
+      expect(r.negativePrompt).toContain('out of frame')
+      expect(r.prompt).not.toMatch(/\bcentered\b/)
+    }
+  })
+})

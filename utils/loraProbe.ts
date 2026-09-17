@@ -238,7 +238,16 @@ const NEGATIVE_SD = [
   'watermark',
   'signature',
   'text',
+  /*
+   * Composition belongs HERE, not in the positive prompt (Silas, 2026-09-17).
+   * A positive 'centered' asserts what the image should be and competes with
+   * the LoRA -- a composition LoRA, a landscape LoRA, anything deliberately
+   * off-centre gets told to undo itself. A negative only rules out the failure
+   * (a subject sliced by the frame edge) and leaves every valid composition
+   * reachable.
+   */
   'cropped',
+  'out of frame',
   'extra limbs',
   'deformed hands',
 ].join(', ')

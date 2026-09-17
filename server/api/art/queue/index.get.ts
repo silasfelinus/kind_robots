@@ -58,7 +58,9 @@ export default defineEventHandler(async (event) => {
     const orderBy: Prisma.ArtJobOrderByWithRelationInput[] =
       status === 'PENDING'
         ? [{ priority: 'desc' }, { id: 'asc' }]
-        : [{ id: 'desc' }]
+        : status === 'DONE'
+          ? [{ updatedAt: 'desc' }, { id: 'desc' }]
+          : [{ id: 'desc' }]
 
     const storedJobs = await prisma.artJob.findMany({
       where,

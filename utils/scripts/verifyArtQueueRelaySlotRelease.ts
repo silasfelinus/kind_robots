@@ -9,9 +9,9 @@
 // was abandoned (relay restart, lost /complete POST, crash in process()), and
 // claim.post.ts must release it — PENDING with attempts intact, FAILED once
 // the budget is spent — BEFORE the paused check and the idle fast path, so
-// the released row is visible to both. Source-text assertions, matching
-// verifyArtQueueClaimFastPath.ts, plus a pure check of the error message the
-// release stamps so a prior attempt's error is kept rather than overwritten.
+// the released row is visible to both. This also guards the queue browser's
+// completed ordering: DONE jobs are completion history, so the latest updated
+// row must lead even when an older ArtJob id finishes after newer ids.
 import { readFileSync } from 'node:fs'
 import {
   RELAY_CLAIM_RELEASE_REASON,
@@ -19,6 +19,7 @@ import {
 } from '../../server/utils/artJobRelaySlot'
 
 const route = readFileSync('server/api/art/queue/claim.post.ts', 'utf8')
+const listRoute = readFileSync('server/api/art/queue/index.get.ts', 'utf8')
 const util = readFileSync('server/utils/artJobRelaySlot.ts', 'utf8')
 const card = readFileSync('components/art/artjob-queue-card.vue', 'utf8')
 
@@ -106,6 +107,15 @@ for (const required of [
 }
 
 for (const required of [
+  "status === 'PENDING'",
+  "? [{ priority: 'desc' }, { id: 'asc' }]",
+  ": status === 'DONE'",
+  "? [{ updatedAt: 'desc' }, { id: 'desc' }]",
+]) {
+  assertIncludes(listRoute, 'Art queue list ordering', required)
+}
+
+for (const required of [
   'v-if="errorIsFromEarlierAttempt"',
   "props.job.status === 'RUNNING' || props.job.status === 'PENDING'",
 ]) {
@@ -125,4 +135,4 @@ for (const required of [
   assertIncludes(card, 'ArtJob queue card stable running timer', required)
 }
 
-console.log('Art queue relay-slot release verified.')
+console.log('Art queue relay-slot and list ordering verified.')

@@ -2,9 +2,15 @@
 //
 // The relay reports a claimed job's outcome after uploading the rendered bytes
 // through /api/art/save-generated. Normal jobs keep that uploaded ArtImage.
-// OVERWRITE retries use it as a temporary staging row: completion snapshots the
-// old canonical ArtImage for historical ArtJobs, copies the fresh render into
-// the canonical row, and deletes the temporary upload in one transaction.
+// OVERWRITE retries use it as a temporary staging row: completion copies the
+// fresh render into the canonical row and deletes the temporary upload in one
+// transaction.
+//
+// An overwrite REPLACES IN PLACE and retains nothing (2026-09-17). It used to
+// snapshot the previous render into an archive ArtImage and repoint every
+// other job that referenced it, which was broken twice over -- see the note at
+// the overwrite transaction below -- and produced a dead duplicate queue card
+// for every retry.
 import { createError, defineEventHandler, getRouterParam, readBody } from 'h3'
 import type { ArtImage, Prisma } from '~/prisma/generated/prisma/client'
 import prisma from '../../../../utils/prisma'
@@ -27,7 +33,6 @@ import {
 } from '../../../../utils/artJobProvenance'
 import { resolvePersistedArtImageSeed } from '../../../../utils/artImageSeed'
 import {
-  copyArtImageFacets,
   syncCompletedArtImageFacets,
   type FacetCompletionTransaction,
 } from '../../../../utils/artFacetCompletion'
@@ -132,43 +137,6 @@ function assertUploadedPrompt(payload: unknown, image: ArtImage): void {
   }
 }
 
-function snapshotData(image: ArtImage): Prisma.ArtImageUncheckedCreateInput {
-  return {
-    imageData: image.imageData,
-    userId: image.userId,
-    fileName: `${image.fileName || `ArtImage-${image.id}`}-revision-${Date.now()}`,
-    fileType: image.fileType,
-    cfg: image.cfg,
-    cfgHalf: image.cfgHalf,
-    checkpoint: image.checkpoint,
-    checkpointResourceId: image.checkpointResourceId,
-    designer: image.designer,
-    genres: image.genres,
-    imagePath: null,
-    heroPath: null,
-    cardPath: null,
-    iconPath: null,
-    thumbnailPath: null,
-    heroData: null,
-    cardData: null,
-    iconData: null,
-    thumbnailData: null,
-    isMature: image.isMature,
-    isPublic: image.isPublic,
-    isActive: image.isActive,
-    negativePrompt: image.negativePrompt,
-    path: null,
-    promptString: image.promptString,
-    sampler: image.sampler,
-    seed: image.seed,
-    serverId: image.serverId,
-    serverName: image.serverName,
-    serverUrl: image.serverUrl,
-    steps: image.steps,
-    artPrompt: image.artPrompt,
-  }
-}
-
 function replacementData(
   staged: ArtImage,
   userId: number,
@@ -206,7 +174,7 @@ function replacementData(
 
 function completedPayload(
   payload: unknown,
-  archivedArtImageId: number,
+  archivedArtImageId: number | null,
 ): ArtJobPayloadRecord {
   const next = structuredClone(parseArtJobPayload(payload))
   const retry = asRecord(next.retry)
@@ -381,19 +349,34 @@ export default defineEventHandler(async (event) => {
             staged.imageData,
           )
 
-          const archived = await tx.artImage.create({
-            data: snapshotData(target),
-          })
-          const facetTx = tx as unknown as FacetCompletionTransaction
-          await copyArtImageFacets(facetTx, targetArtImageId, archived.id)
-
-          await tx.artJob.updateMany({
-            where: {
-              artImageId: targetArtImageId,
-              id: { not: id },
-            },
-            data: { artImageId: archived.id },
-          })
+          /*
+           * NO ARCHIVE ROW. Silas, 2026-09-17, choosing this over making the
+           * archive real.
+           *
+           * An overwrite used to snapshot the previous render into a new
+           * ArtImage and repoint every other job that referenced it. Both
+           * halves were broken:
+           *
+           *   - snapshotData copies `imageData` and nulls `path`/`imagePath`,
+           *     but renders live on disk and leave `imageData` NULL, so every
+           *     archive row was empty by construction. Six of six sampled
+           *     archives served 404 "Image bytes are unavailable".
+           *   - the file path is deterministic per entity
+           *     (`<slug>-preview-1.webp`), so the replacement had already
+           *     overwritten the previous bytes in place. There was never a file
+           *     for an archive to point at, whatever it recorded.
+           *
+           * The visible cost was a duplicate queue card per overwrite: the
+           * older job repointed to a row that renders nothing. Re-rendering
+           * 1,685 probes produced them at scale, which is how it was noticed.
+           *
+           * So other jobs keep pointing at the live ArtImage, which now holds
+           * the current render. A probe is a disposable preview; keeping every
+           * superseded one costs disk for images that were replaced precisely
+           * because they were wrong. Real version history would mean copying
+           * the file to a revision name BEFORE the replacement lands, which is
+           * the option not taken here.
+           */
 
           const resourceLinks = await resolveArtImageResourceLinks(
             job.payload,
@@ -407,6 +390,7 @@ export default defineEventHandler(async (event) => {
               ...artImageResourceConnectData(resourceLinks),
             },
           })
+          const facetTx = tx as unknown as FacetCompletionTransaction
           const facetIds = await syncCompletedArtImageFacets(
             facetTx,
             tracedPayload,
@@ -417,7 +401,8 @@ export default defineEventHandler(async (event) => {
             tx,
             tracedPayload,
             targetArtImageId,
-            archived.id,
+            // No archive row exists any more; see the note above.
+            null,
           )
           if (expectsEntityArtCompletion && !entityArt) {
             throw createError({
@@ -448,7 +433,7 @@ export default defineEventHandler(async (event) => {
               artImageId: targetArtImageId,
               error: null,
               payload: serializeArtJobPayload(
-                completedPayload(tracedPayload, archived.id),
+                completedPayload(tracedPayload, null),
               ),
             },
           })
@@ -457,7 +442,7 @@ export default defineEventHandler(async (event) => {
 
           return {
             completed,
-            archivedId: archived.id,
+            archivedId: null,
             facetIds,
             collectionIds,
             entityArt,
@@ -608,8 +593,8 @@ export default defineEventHandler(async (event) => {
     return {
       success: true,
       message:
-        replacedArtImageId && archivedArtImageId
-          ? `Job ${id} replaced ArtImage ${replacedArtImageId}; prior render archived as ArtImage ${archivedArtImageId}.`
+        replacedArtImageId
+          ? `Job ${id} replaced ArtImage ${replacedArtImageId} in place; the prior render is not retained.`
           : `Job ${id} → ${updated.status}.`,
       data: {
         job: decodeArtJobPayload(updated),

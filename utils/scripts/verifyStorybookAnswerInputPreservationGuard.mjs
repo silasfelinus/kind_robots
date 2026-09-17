@@ -1,30 +1,29 @@
 // /utils/scripts/verifyStorybookAnswerInputPreservationGuard.mjs
 //
-// Regression guard (storybook/t-010, front-end polish). `submitAnswer` in
-// components/conductor/storybook-page.vue optimistically clears the
-// composer's `answerInput` ref before awaiting `store.answerCurrentBeat()`.
-// `NarrativeResponseComposer` is a fully controlled component (its textarea
-// binds `:value="modelValue"` with no local text state), so `answerInput` is
-// the only place the reader's typed answer lives once submitted.
+// Regression guard for the server-backed Storybook turn loop. The retired
+// client beat loop's `submitAnswer` (components/conductor/storybook-page.vue)
+// optimistically cleared the composer's `answerInput` ref before awaiting
+// `store.answerCurrentBeat()`, so a failed submission silently blanked the
+// reader's typed answer with no way to recover it -- the bug
+// verifyStorybookAnswerRollbackGuard's sibling guard protected against.
 //
-// `answerCurrentBeat`'s own rollback (see verifyStorybookAnswerRollbackGuard)
-// restores STORE consistency when the follow-up `weaveBeat` call fails --
-// but it has no way to restore the composer's local text. Without a matching
-// UI-level restore, a reader whose submission hits a transient generateText
-// failure sees the textarea silently go blank and has to recall and retype
-// their entire answer, with no indication their submission was lost rather
-// than accepted.
+// The new engine's equivalent entry point, `submitWritten()` in
+// components/storybook/storybook-reading.vue, never optimistically clears:
+// it holds the typed text in a local `written` ref, awaits
+// `runStore.writeMove()`, and only clears the ref once that call reports
+// success. A failed move therefore leaves the reader's text exactly where
+// they left it, with nothing to roll back.
 //
-// This asserts the fix's shape stays in place: `submitAnswer` captures
-// `answerCurrentBeat`'s outcome and, on failure, restores `answerInput` to
-// the submitted value.
+// This asserts that shape stays in place: `submitWritten` captures
+// `writeMove`'s outcome and clears `written` only inside the success branch,
+// never unconditionally or before the await resolves.
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { extractTsFunctionBody } from './lib/extractTsFunctionBody.mjs'
 
-const COMPONENT_PATH = 'components/conductor/storybook-page.vue'
-const FN_NAME = 'submitAnswer'
+const COMPONENT_PATH = 'components/storybook/storybook-reading.vue'
+const FN_NAME = 'submitWritten'
 
 const content = readFileSync(resolve(process.cwd(), COMPONENT_PATH), 'utf8')
 const body = extractTsFunctionBody(content, FN_NAME, {
@@ -34,32 +33,35 @@ const body = extractTsFunctionBody(content, FN_NAME, {
     'lost-answer bug it protects against) needs to move with it.',
 })
 
-const required = [
-  [
-    'const wove = await store.answerCurrentBeat(',
-    "must capture answerCurrentBeat's outcome instead of discarding it",
-  ],
-  [
-    '!wove && store.errorMessage',
-    'must branch on a real weaveBeat failure (errorMessage set), not just a falsy return',
-  ],
-  [
-    'answerInput.value = value',
-    'must restore the submitted text into answerInput on failure so the reader does not have to retype it',
-  ],
-]
+const writeCall = body.indexOf('await runStore.writeMove(')
+assert.ok(
+  writeCall >= 0,
+  `${FN_NAME}() no longer awaits runStore.writeMove() -- has the written-move ` +
+    'call been renamed, inlined, or made fire-and-forget? A submission whose ' +
+    'outcome is not awaited/captured cannot gate the input clear on success.',
+)
 
-for (const [needle, why] of required) {
-  assert.ok(
-    body.includes(needle),
-    `${FN_NAME}() no longer contains \`${needle}\` -- ${why}, or a failed ` +
-      "submission silently clears the reader's typed answer with no way " +
-      'to recover it.',
-  )
-}
+const clearCall = body.indexOf("written.value = ''")
+assert.ok(
+  clearCall > writeCall,
+  `${FN_NAME}() must not clear \`written\` before or without checking ` +
+    "writeMove()'s outcome -- clearing unconditionally silently discards the " +
+    "reader's typed answer on a failed submission with no way to recover it.",
+)
+
+const clearLine = body
+  .slice(0, clearCall)
+  .split('\n')
+  .pop()
+assert.ok(
+  /\bif\s*\(\s*ok\s*\)/.test(clearLine ?? ''),
+  `${FN_NAME}() must guard the \`written.value = ''\` clear on the captured ` +
+    'writeMove() outcome (e.g. `if (ok) written.value = \'\'`), or a failed ' +
+    "submission silently clears the reader's typed answer.",
+)
 
 console.log(
   `Storybook answer-input-preservation guard contract passed: ${FN_NAME}() ` +
-    'restores the composer text on a failed submission instead of ' +
-    'silently discarding it.',
+    'clears the composer text only after a successful move, so a failed ' +
+    'submission never discards what the reader typed.',
 )

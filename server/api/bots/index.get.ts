@@ -16,11 +16,11 @@ export default defineEventHandler(async (event) => {
     // Fetch bots with pagination
     const skip = (page - 1) * pageSize
     // Returned every Bot including private and mature ones. See
-    // visibilityWhere(): private is the owner or an admin, mature is excluded
+    // await visibilityWhere(): private is the owner or an admin, mature is excluded
     // outright for a maturity-restricted account.
     const auth = await getOptionalApiUser(event)
     const bots = await prisma.bot.findMany({
-      where: visibilityWhere(auth?.user, { isPublic: true, isMature: true }, auth?.isAdmin),
+      where: await visibilityWhere(auth?.user, { isPublic: true, isMature: true }, auth?.isAdmin),
       skip,
       take: pageSize,
     })

@@ -20,7 +20,7 @@ export default defineEventHandler(async (event) => {
     const artImages = await prisma.artImage.findMany({
       where: {
         AND: [
-          visibilityWhere(auth?.user, { isPublic: true, isMature: true }, auth?.isAdmin),
+          await visibilityWhere(auth?.user, { isPublic: true, isMature: true }, auth?.isAdmin),
         ],
         Prompts: {
           some: {

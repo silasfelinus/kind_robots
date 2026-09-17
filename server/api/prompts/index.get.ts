@@ -9,11 +9,11 @@ export default defineEventHandler(async (event) => {
   try {
     /*
      * Was `prisma.prompt.findMany()` with no `where` at all -- every Prompt,
-     * private and mature alike, to any caller. See visibilityWhere().
+     * private and mature alike, to any caller. See await visibilityWhere().
      */
     const auth = await getOptionalApiUser(event)
     const data = await prisma.prompt.findMany({
-      where: visibilityWhere(auth?.user, { isPublic: true, isMature: true }, auth?.isAdmin),
+      where: await visibilityWhere(auth?.user, { isPublic: true, isMature: true }, auth?.isAdmin),
     })
 
     // Return success response with prompt details

@@ -30,7 +30,7 @@ export default defineEventHandler(async (event) => {
  * `/api/art/user/5` returned every ArtImage that user owns -- private and
  * mature included -- to any caller. The viewer is threaded in rather than read
  * from a global, so the visibility rule is part of this function's contract and
- * a future caller cannot forget it. See visibilityWhere().
+ * a future caller cannot forget it. See await visibilityWhere().
  */
 export async function fetchArtByUserId(
   userId: number,
@@ -40,7 +40,7 @@ export async function fetchArtByUserId(
     where: {
       AND: [
         { userId },
-        visibilityWhere(auth?.user, { isPublic: true, isMature: true }, auth?.isAdmin),
+        await visibilityWhere(auth?.user, { isPublic: true, isMature: true }, auth?.isAdmin),
       ],
     },
     orderBy: {

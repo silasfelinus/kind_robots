@@ -45,7 +45,7 @@ export default defineEventHandler(async (event) => {
             isActive: true,
             OR: [{ userId: requestedUserId }, { recipientId: requestedUserId }],
           },
-          visibilityWhere(auth?.user, { isPublic: true, isMature: true }, auth?.isAdmin),
+          await visibilityWhere(auth?.user, { isPublic: true, isMature: true }, auth?.isAdmin),
         ],
       },
       orderBy: {

@@ -57,7 +57,7 @@ export default defineEventHandler(async (event) => {
             challengeType: challengeType as never,
             status: (status ?? 'OPEN') as never,
           },
-          visibilityWhere(auth?.user, { isMature: true }, auth?.isAdmin),
+          await visibilityWhere(auth?.user, { isMature: true }, auth?.isAdmin),
         ],
       },
       include: {

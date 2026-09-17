@@ -38,7 +38,12 @@ export default defineEventHandler(async (event) => {
       where: {
         AND: [
           { Characters: { some: { id: characterId } } },
-          visibilityWhere(auth?.user, { isPublic: true, isMature: true }, auth?.isAdmin),
+          await visibilityWhere(
+            auth?.user,
+            // Reward carries packId, so a PACK grant must not be filtered out.
+            { isPublic: true, isMature: true, packGated: true },
+            auth?.isAdmin,
+          ),
         ],
       },
     })

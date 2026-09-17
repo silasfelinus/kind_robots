@@ -105,9 +105,20 @@ const typeLabel = computed(() => entityArtTypeLabel(props.link.entityType))
  */
 const imageSrc = computed<string | null>(() => {
   if (props.link.isMature && !canSeeMature.value) return null
-  if (props.link.artImageId) return `/api/art/images/${props.link.artImageId}/file`
-  if (props.link.imagePath) return props.link.imagePath
-  return props.link.previewImageUrl ?? null
+  /*
+   * Static paths only, in resource-card.vue's order.
+   *
+   * `/api/art/images/:id/file` authenticates by Bearer token and a browser
+   * sends a session cookie, so an <img> pointing at it gets 403 on any mature
+   * or private row -- which is why this card rendered an empty preview while
+   * the resource page it links to showed the same image correctly.
+   */
+  return (
+    props.link.artImagePath ||
+    props.link.previewImageUrl ||
+    props.link.imagePath ||
+    null
+  )
 })
 
 const DESCRIPTION_LIMIT = 400

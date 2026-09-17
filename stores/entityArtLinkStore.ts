@@ -24,6 +24,8 @@ export type EntityArtLink = {
   /* Card fields, resolved in the same request so opening one costs nothing. */
   description?: string | null
   imagePath?: string | null
+  /** The joined ArtImage's static path -- what renders in an <img> tag. */
+  artImagePath?: string | null
   artImageId?: number | null
   previewImageUrl?: string | null
   isMature?: boolean

@@ -237,6 +237,17 @@
         </span>
       </div>
 
+      <p
+        v-if="runningStartedAt !== null && runningElapsed"
+        class="flex flex-wrap items-center gap-x-1 text-[11px] font-semibold text-info"
+      >
+        <span>Actively processing {{ runningElapsed }}</span>
+        <span class="text-base-content/40">·</span>
+        <span class="font-normal text-base-content/55">
+          started {{ formatDateTime(job.claimedAt) }}
+        </span>
+      </p>
+
       <p class="text-[11px] text-base-content/50">
         {{ formatDateTime(job.createdAt) }} · attempt {{ job.attempts }} ·
         priority {{ job.priority }}
@@ -414,7 +425,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useArtJobStore, type ArtJobRecord } from '@/stores/artJobStore'
 import { useArtJobPriorityStore } from '@/stores/artJobPriorityStore'
 import { useArtStore } from '@/stores/artStore'
@@ -449,6 +460,8 @@ const artStore = useArtStore()
 const userStore = useUserStore()
 const copied = ref(false)
 const locallyRevealedMature = ref(false)
+const runningElapsed = ref('')
+let runningTimer: ReturnType<typeof setInterval> | null = null
 
 const jobPrompt = computed<string>(() => artJobPrompt(props.job))
 
@@ -559,6 +572,12 @@ const isEditableInPlace = computed<boolean>(() =>
   ['PENDING', 'FAILED', 'CANCELLED'].includes(props.job.status),
 )
 
+const runningStartedAt = computed<number | null>(() => {
+  if (props.job.status !== 'RUNNING' || !props.job.claimedAt) return null
+  const startedAt = new Date(props.job.claimedAt).getTime()
+  return Number.isFinite(startedAt) ? startedAt : null
+})
+
 async function loadProtectedPreview(includeMature = false): Promise<void> {
   const id = props.job.artImageId
   if (typeof id !== 'number') return
@@ -613,6 +632,44 @@ async function togglePriority(): Promise<void> {
   }
   await priorityStore.moveToFront(props.job.id)
 }
+
+function stopRunningTimer(): void {
+  if (runningTimer === null) return
+  clearInterval(runningTimer)
+  runningTimer = null
+}
+
+function formatElapsed(totalSeconds: number): string {
+  const seconds = Math.max(0, Math.floor(totalSeconds))
+  const hours = Math.floor(seconds / 3600)
+  const minutes = Math.floor((seconds % 3600) / 60)
+  const remainder = seconds % 60
+
+  if (hours > 0) {
+    return `${hours}:${String(minutes).padStart(2, '0')}:${String(remainder).padStart(2, '0')}`
+  }
+  return `${minutes}:${String(remainder).padStart(2, '0')}`
+}
+
+function updateRunningElapsed(): void {
+  const startedAt = runningStartedAt.value
+  if (startedAt === null) {
+    runningElapsed.value = ''
+    return
+  }
+  runningElapsed.value = formatElapsed((Date.now() - startedAt) / 1000)
+}
+
+function syncRunningTimer(): void {
+  stopRunningTimer()
+  updateRunningElapsed()
+  if (runningStartedAt.value === null) return
+  runningTimer = setInterval(updateRunningElapsed, 1000)
+}
+
+watch(runningStartedAt, syncRunningTimer)
+onMounted(syncRunningTimer)
+onBeforeUnmount(stopRunningTimer)
 
 function jobStatusClass(status: string): string {
   if (status === 'DONE') return 'badge-success'

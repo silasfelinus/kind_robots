@@ -168,8 +168,18 @@ export const useResourceGalleryStore = defineStore(
         }
 
         resources.value = resources.value.filter((entry) => entry.id !== id)
-        delete previewJobs.value[id]
-        delete resourceArt.value[id]
+
+        /*
+         * Rest-destructured rather than `delete obj[key]`: the ESLint ratchet
+         * counts @typescript-eslint/no-dynamic-delete and only ever allows it
+         * to shrink. It also keeps these refs replaced rather than mutated,
+         * which is what the reads above already assume.
+         */
+        const { [id]: _droppedJob, ...remainingJobs } = previewJobs.value
+        previewJobs.value = remainingJobs
+
+        const { [id]: _droppedArt, ...remainingArt } = resourceArt.value
+        resourceArt.value = remainingArt
 
         return {
           deletedImages: response.data?.deletedImages ?? 0,

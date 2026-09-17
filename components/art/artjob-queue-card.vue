@@ -1,6 +1,21 @@
 <!-- /components/art/artjob-queue-card.vue -->
 <template>
+  <!--
+    A mature job does not exist for a maturity-restricted account.
+
+    Not hidden, not placeholdered -- absent. Silas, 2026-09-17: "a mature object
+    should not even look like it exists for children accounts, so that things
+    like text should not be viewable either." The prompt was already behind
+    canShowJobContent, but the title, the destination and the linked resource
+    name were not, so a CHILD could read what a mature job was for and which
+    LoRA it belonged to.
+
+    userStore.showMature already reads false for a CHILD even when they set it
+    and even when they are also an ADMIN, so this needs no separate rule -- it
+    needs the whole card to stop rendering.
+  -->
   <article
+    v-if="!hiddenFromViewer"
     class="flex min-w-0 flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-200/30"
   >
     <div
@@ -67,10 +82,16 @@
           type="button"
           class="kr-btn-outline-plain rounded-2xl"
           :disabled="isLoadingPreview"
-          @click="loadProtectedPreview()"
+          @click="revealPrivateOutput()"
         >
           <span v-if="isLoadingPreview" class="kr-spinner-xs" />
-          {{ isLoadingPreview ? 'Loading preview' : 'Load protected preview' }}
+          {{
+            isLoadingPreview
+              ? 'Loading preview'
+              : adminMayOverridePrivate
+                ? 'Admin override · show private output'
+                : 'Load preview'
+          }}
         </button>
         <p
           v-if="!canShowJobContent"
@@ -650,18 +671,48 @@ const isLoadingPreview = computed<boolean>(() => {
  * the card only ever built an anonymous URL, which a private row has none of,
  * so it fell back to a manual authenticated fetch.
  */
-const viewerMaySeePrivate = computed<boolean>(() => {
-  if (userStore.isAdmin) return true
+const hiddenFromViewer = computed<boolean>(
+  () => jobVisibility.value.isMature && userStore.isMaturityRestricted,
+)
+
+/** The image is mine, so privacy has nothing to say about it. */
+const viewerOwnsJob = computed<boolean>(() => {
   const viewerId = userStore.user?.id
   return typeof viewerId === 'number' && viewerId === props.job.userId
 })
+
+/*
+ * An admin who is NOT the owner keeps the gate.
+ *
+ * Silas, 2026-09-17: "an admin, including me, should actually have the gate
+ * with an optional unblock if I am not the owner but it is not public. that's
+ * an admin override consideration but that still respects someone's decision
+ * to make something non-public."
+ *
+ * So the override exists and is deliberate: it is never automatic, it is
+ * labelled as an override rather than as a preview, and someone else's choice
+ * to keep an image private is visible in the act of crossing it.
+ */
+const adminMayOverridePrivate = computed<boolean>(
+  () =>
+    userStore.isAdmin &&
+    !viewerOwnsJob.value &&
+    !jobVisibility.value.isPublic,
+)
+
+const adminOverrodePrivate = ref(false)
+
+/** No boundary at all: the owner, or an admin who has chosen to override. */
+const viewerMaySeePrivate = computed<boolean>(
+  () => viewerOwnsJob.value || adminOverrodePrivate.value,
+)
 
 const canLoadProtectedPreview = computed<boolean>(() => {
   return (
     // Never offered to someone the privacy rule excludes: a private image is
     // not theirs to load, so there is no button inviting them to try. The
     // server refuses them regardless; this stops the UI implying otherwise.
-    viewerMaySeePrivate.value &&
+    (viewerMaySeePrivate.value || adminMayOverridePrivate.value) &&
     canShowJobContent.value &&
     typeof props.job.artImageId === 'number' &&
     !publicImageSrc.value &&
@@ -673,7 +724,10 @@ const previewPlaceholder = computed<string>(() => {
   if (props.job.status !== 'DONE') return props.job.status
   if (typeof props.job.artImageId !== 'number') return 'No output image'
   // For anyone else this is not a gate to cross, it is simply not theirs.
-  return viewerMaySeePrivate.value ? 'Loading preview' : 'Private output'
+  if (viewerMaySeePrivate.value) return 'Loading preview'
+  // Same words either way: an admin sees that it is private and is offered the
+  // override button below; everyone else sees only that it is not theirs.
+  return 'Private output'
 })
 
 const isEditableInPlace = computed<boolean>(() =>
@@ -705,11 +759,19 @@ const runningStartedAt = computed<number | null>(() => {
  * reveal step rather than the image.
  */
 watchEffect(() => {
-  if (!viewerMaySeePrivate.value) return
+  // Owner only. An admin overriding someone else's privacy choice does it by
+  // hand, every time, rather than having it done silently on their behalf.
+  if (!viewerOwnsJob.value) return
   if (!canLoadProtectedPreview.value) return
   if (jobVisibility.value.isMature && !artStore.showMature) return
   void loadProtectedPreview()
 })
+
+/** Cross the privacy gate deliberately, then fetch. */
+async function revealPrivateOutput(): Promise<void> {
+  if (adminMayOverridePrivate.value) adminOverrodePrivate.value = true
+  await loadProtectedPreview()
+}
 
 async function loadProtectedPreview(includeMature = false): Promise<void> {
   const id = props.job.artImageId

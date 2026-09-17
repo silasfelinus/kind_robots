@@ -70,6 +70,12 @@ type ClaimRequestBody = {
   singleSlot?: boolean | null
 }
 
+function validTimestamp(value: unknown): string | null {
+  if (typeof value !== 'string' || !value.trim()) return null
+  const timestamp = new Date(value).getTime()
+  return Number.isFinite(timestamp) ? value : null
+}
+
 export default defineEventHandler(async (event) => {
   try {
     const auth = await requireMachineUser(event)
@@ -350,6 +356,19 @@ export default defineEventHandler(async (event) => {
         continue
       }
 
+      const claimTime = new Date()
+      const priorProcessingStartedAt = validTimestamp(
+        candidate.payload.processingStartedAt,
+      )
+      const processingStartedAt =
+        candidate.status === 'RUNNING'
+          ? priorProcessingStartedAt ||
+            candidate.claimedAt?.toISOString() ||
+            claimTime.toISOString()
+          : claimTime.toISOString()
+
+      enrichedPayload.processingStartedAt = processingStartedAt
+
       const won = await prisma.artJob.updateMany({
         where: {
           id: candidate.id,
@@ -358,7 +377,7 @@ export default defineEventHandler(async (event) => {
         },
         data: {
           status: 'RUNNING',
-          claimedAt: new Date(),
+          claimedAt: claimTime,
           claimedBy,
           attempts: { increment: 1 },
           payload: serializeArtJobPayload(enrichedPayload),

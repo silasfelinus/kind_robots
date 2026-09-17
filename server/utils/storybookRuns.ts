@@ -29,7 +29,12 @@ import {
   type DeckDefinition,
 } from './endingDeckMath'
 import { assertAttachable, withStatusCode } from './davinci'
-import { assertDeckPlayable, isDeckUnlocked } from './storybookGating'
+import {
+  assertCastPlayable,
+  assertDeckPlayable,
+  isDeckUnlocked,
+  isUnlocked,
+} from './storybookGating'
 import {
   TASKMASTER_DECK_KEY,
   activeCheckpoint,
@@ -354,7 +359,12 @@ export async function listDecks(userId: number) {
   const rows = await prisma.endingDeck.findMany({
     where: { isActive: true },
     orderBy: [{ ownerKind: 'asc' }, { title: 'asc' }],
-    include: { _count: { select: { Endings: true } } },
+    include: {
+      _count: { select: { Endings: true } },
+      UnlockAchievement: {
+        select: { label: true, subtleHint: true, message: true },
+      },
+    },
   })
 
   return Promise.all(
@@ -375,8 +385,49 @@ export async function listDecks(userId: number) {
         turnBudget: deck.turnBudget,
         turnBudgetByShape: deck.turnBudgetByShape,
         unlocked: await isDeckUnlocked(deck, userId),
+        // Locked-card hints only, never the axis names -- the same secrecy
+        // rule as above. Null on every deck with no unlockAchievementId.
+        unlockHint:
+          row.UnlockAchievement?.subtleHint ||
+          row.UnlockAchievement?.message ||
+          null,
+        unlockLabel: row.UnlockAchievement?.label || null,
       }
     }),
+  )
+}
+
+/**
+ * Characters carrying a gate (storybook/t-038's Character.unlockAchievementId,
+ * the same hook EndingDeck already has). Only the gated subset is returned --
+ * an ungated Character is simply absent, and the Table treats "absent" as
+ * "playable" the same way it treats an ungated deck.
+ */
+export async function listGatedCharacters(userId: number) {
+  const rows = await prisma.character.findMany({
+    where: { unlockAchievementId: { not: null }, isActive: true },
+    select: {
+      slug: true,
+      name: true,
+      unlockAchievementId: true,
+      UnlockAchievement: {
+        select: { label: true, subtleHint: true, message: true },
+      },
+    },
+  })
+
+  return Promise.all(
+    rows
+      .filter((row): row is typeof row & { slug: string } => Boolean(row.slug))
+      .map(async (row) => ({
+        slug: row.slug,
+        unlocked: await isUnlocked(row, userId),
+        unlockHint:
+          row.UnlockAchievement?.subtleHint ||
+          row.UnlockAchievement?.message ||
+          null,
+        unlockLabel: row.UnlockAchievement?.label || null,
+      })),
   )
 }
 
@@ -585,6 +636,7 @@ export async function createStoryRun(userId: number, board: StoryBoardInput) {
             class: true,
             isPublic: true,
             userId: true,
+            unlockAchievementId: true,
             Rewards: {
               select: {
                 slug: true,
@@ -636,6 +688,8 @@ export async function createStoryRun(userId: number, board: StoryBoardInput) {
     .map((slug) => cast.find((member) => member.slug === slug))
     .filter((member): member is (typeof cast)[number] => Boolean(member))
   const protagonist = orderedCast[0] || null
+
+  await assertCastPlayable(orderedCast, userId)
 
   await Promise.all([
     assertAttachable('Character', protagonist?.id ?? null, userId),
@@ -806,8 +860,7 @@ function buildNarrationRequest(args: NarrateArgs): StorybookNarrationRequest {
     turnBudget: args.turnBudget,
     // An endless run never has a final turn to write toward, so the narrator
     // is never told to land the story (storybook/t-040). The reader ends it.
-    isFinalTurn:
-      args.turnBudget !== null && args.turnIndex >= args.turnBudget,
+    isFinalTurn: args.turnBudget !== null && args.turnIndex >= args.turnBudget,
     bible: args.bible,
     statsSoFar: args.statsSoFar,
     inventory: args.inventory.filter((entry) => !entry.consumedAtTurn),

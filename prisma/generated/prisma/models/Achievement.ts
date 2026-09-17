@@ -317,6 +317,7 @@ export type AchievementWhereInput = {
   LifeAchievements?: Prisma.LifeAchievementListRelationFilter
   LifeEndings?: Prisma.LifeEndingListRelationFilter
   GatedDecks?: Prisma.EndingDeckListRelationFilter
+  GatedCharacters?: Prisma.CharacterListRelationFilter
 }
 
 export type AchievementOrderByWithRelationInput = {
@@ -341,6 +342,7 @@ export type AchievementOrderByWithRelationInput = {
   LifeAchievements?: Prisma.LifeAchievementOrderByRelationAggregateInput
   LifeEndings?: Prisma.LifeEndingOrderByRelationAggregateInput
   GatedDecks?: Prisma.EndingDeckOrderByRelationAggregateInput
+  GatedCharacters?: Prisma.CharacterOrderByRelationAggregateInput
   _relevance?: Prisma.AchievementOrderByRelevanceInput
 }
 
@@ -369,6 +371,7 @@ export type AchievementWhereUniqueInput = Prisma.AtLeast<{
   LifeAchievements?: Prisma.LifeAchievementListRelationFilter
   LifeEndings?: Prisma.LifeEndingListRelationFilter
   GatedDecks?: Prisma.EndingDeckListRelationFilter
+  GatedCharacters?: Prisma.CharacterListRelationFilter
 }, "id" | "triggerCode">
 
 export type AchievementOrderByWithAggregationInput = {
@@ -437,6 +440,7 @@ export type AchievementCreateInput = {
   LifeAchievements?: Prisma.LifeAchievementCreateNestedManyWithoutAchievementInput
   LifeEndings?: Prisma.LifeEndingCreateNestedManyWithoutAchievementInput
   GatedDecks?: Prisma.EndingDeckCreateNestedManyWithoutUnlockAchievementInput
+  GatedCharacters?: Prisma.CharacterCreateNestedManyWithoutUnlockAchievementInput
 }
 
 export type AchievementUncheckedCreateInput = {
@@ -460,6 +464,7 @@ export type AchievementUncheckedCreateInput = {
   LifeAchievements?: Prisma.LifeAchievementUncheckedCreateNestedManyWithoutAchievementInput
   LifeEndings?: Prisma.LifeEndingUncheckedCreateNestedManyWithoutAchievementInput
   GatedDecks?: Prisma.EndingDeckUncheckedCreateNestedManyWithoutUnlockAchievementInput
+  GatedCharacters?: Prisma.CharacterUncheckedCreateNestedManyWithoutUnlockAchievementInput
 }
 
 export type AchievementUpdateInput = {
@@ -482,6 +487,7 @@ export type AchievementUpdateInput = {
   LifeAchievements?: Prisma.LifeAchievementUpdateManyWithoutAchievementNestedInput
   LifeEndings?: Prisma.LifeEndingUpdateManyWithoutAchievementNestedInput
   GatedDecks?: Prisma.EndingDeckUpdateManyWithoutUnlockAchievementNestedInput
+  GatedCharacters?: Prisma.CharacterUpdateManyWithoutUnlockAchievementNestedInput
 }
 
 export type AchievementUncheckedUpdateInput = {
@@ -505,6 +511,7 @@ export type AchievementUncheckedUpdateInput = {
   LifeAchievements?: Prisma.LifeAchievementUncheckedUpdateManyWithoutAchievementNestedInput
   LifeEndings?: Prisma.LifeEndingUncheckedUpdateManyWithoutAchievementNestedInput
   GatedDecks?: Prisma.EndingDeckUncheckedUpdateManyWithoutUnlockAchievementNestedInput
+  GatedCharacters?: Prisma.CharacterUncheckedUpdateManyWithoutUnlockAchievementNestedInput
 }
 
 export type AchievementCreateManyInput = {
@@ -570,6 +577,11 @@ export type AchievementListRelationFilter = {
 
 export type AchievementOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
+}
+
+export type AchievementNullableScalarRelationFilter = {
+  is?: Prisma.AchievementWhereInput | null
+  isNot?: Prisma.AchievementWhereInput | null
 }
 
 export type AchievementOrderByRelevanceInput = {
@@ -652,11 +664,6 @@ export type AchievementScalarRelationFilter = {
   isNot?: Prisma.AchievementWhereInput
 }
 
-export type AchievementNullableScalarRelationFilter = {
-  is?: Prisma.AchievementWhereInput | null
-  isNot?: Prisma.AchievementWhereInput | null
-}
-
 export type AchievementCreateNestedManyWithoutArtImageInput = {
   create?: Prisma.XOR<Prisma.AchievementCreateWithoutArtImageInput, Prisma.AchievementUncheckedCreateWithoutArtImageInput> | Prisma.AchievementCreateWithoutArtImageInput[] | Prisma.AchievementUncheckedCreateWithoutArtImageInput[]
   connectOrCreate?: Prisma.AchievementCreateOrConnectWithoutArtImageInput | Prisma.AchievementCreateOrConnectWithoutArtImageInput[]
@@ -697,6 +704,22 @@ export type AchievementUncheckedUpdateManyWithoutArtImageNestedInput = {
   update?: Prisma.AchievementUpdateWithWhereUniqueWithoutArtImageInput | Prisma.AchievementUpdateWithWhereUniqueWithoutArtImageInput[]
   updateMany?: Prisma.AchievementUpdateManyWithWhereWithoutArtImageInput | Prisma.AchievementUpdateManyWithWhereWithoutArtImageInput[]
   deleteMany?: Prisma.AchievementScalarWhereInput | Prisma.AchievementScalarWhereInput[]
+}
+
+export type AchievementCreateNestedOneWithoutGatedCharactersInput = {
+  create?: Prisma.XOR<Prisma.AchievementCreateWithoutGatedCharactersInput, Prisma.AchievementUncheckedCreateWithoutGatedCharactersInput>
+  connectOrCreate?: Prisma.AchievementCreateOrConnectWithoutGatedCharactersInput
+  connect?: Prisma.AchievementWhereUniqueInput
+}
+
+export type AchievementUpdateOneWithoutGatedCharactersNestedInput = {
+  create?: Prisma.XOR<Prisma.AchievementCreateWithoutGatedCharactersInput, Prisma.AchievementUncheckedCreateWithoutGatedCharactersInput>
+  connectOrCreate?: Prisma.AchievementCreateOrConnectWithoutGatedCharactersInput
+  upsert?: Prisma.AchievementUpsertWithoutGatedCharactersInput
+  disconnect?: Prisma.AchievementWhereInput | boolean
+  delete?: Prisma.AchievementWhereInput | boolean
+  connect?: Prisma.AchievementWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.AchievementUpdateToOneWithWhereWithoutGatedCharactersInput, Prisma.AchievementUpdateWithoutGatedCharactersInput>, Prisma.AchievementUncheckedUpdateWithoutGatedCharactersInput>
 }
 
 export type AchievementCreateNestedOneWithoutAchievementRecordsInput = {
@@ -780,6 +803,7 @@ export type AchievementCreateWithoutArtImageInput = {
   LifeAchievements?: Prisma.LifeAchievementCreateNestedManyWithoutAchievementInput
   LifeEndings?: Prisma.LifeEndingCreateNestedManyWithoutAchievementInput
   GatedDecks?: Prisma.EndingDeckCreateNestedManyWithoutUnlockAchievementInput
+  GatedCharacters?: Prisma.CharacterCreateNestedManyWithoutUnlockAchievementInput
 }
 
 export type AchievementUncheckedCreateWithoutArtImageInput = {
@@ -802,6 +826,7 @@ export type AchievementUncheckedCreateWithoutArtImageInput = {
   LifeAchievements?: Prisma.LifeAchievementUncheckedCreateNestedManyWithoutAchievementInput
   LifeEndings?: Prisma.LifeEndingUncheckedCreateNestedManyWithoutAchievementInput
   GatedDecks?: Prisma.EndingDeckUncheckedCreateNestedManyWithoutUnlockAchievementInput
+  GatedCharacters?: Prisma.CharacterUncheckedCreateNestedManyWithoutUnlockAchievementInput
 }
 
 export type AchievementCreateOrConnectWithoutArtImageInput = {
@@ -852,6 +877,112 @@ export type AchievementScalarWhereInput = {
   imagePath?: Prisma.StringNullableFilter<"Achievement"> | string | null
 }
 
+export type AchievementCreateWithoutGatedCharactersInput = {
+  createdAt?: Date | string
+  updatedAt?: Date | string | null
+  label: string
+  message: string
+  icon?: string | null
+  karma?: number
+  pageHint?: string | null
+  subtleHint?: string | null
+  triggerCode?: string | null
+  tooltip?: string | null
+  isActive?: boolean
+  isRepeatable?: boolean
+  artPrompt?: string | null
+  imagePath?: string | null
+  ArtImage?: Prisma.ArtImageCreateNestedOneWithoutAchievementsInput
+  AchievementRecords?: Prisma.AchievementRecordCreateNestedManyWithoutAchievementInput
+  LifeAchievements?: Prisma.LifeAchievementCreateNestedManyWithoutAchievementInput
+  LifeEndings?: Prisma.LifeEndingCreateNestedManyWithoutAchievementInput
+  GatedDecks?: Prisma.EndingDeckCreateNestedManyWithoutUnlockAchievementInput
+}
+
+export type AchievementUncheckedCreateWithoutGatedCharactersInput = {
+  id?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string | null
+  label: string
+  message: string
+  icon?: string | null
+  karma?: number
+  pageHint?: string | null
+  subtleHint?: string | null
+  triggerCode?: string | null
+  tooltip?: string | null
+  isActive?: boolean
+  isRepeatable?: boolean
+  artImageId?: number | null
+  artPrompt?: string | null
+  imagePath?: string | null
+  AchievementRecords?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutAchievementInput
+  LifeAchievements?: Prisma.LifeAchievementUncheckedCreateNestedManyWithoutAchievementInput
+  LifeEndings?: Prisma.LifeEndingUncheckedCreateNestedManyWithoutAchievementInput
+  GatedDecks?: Prisma.EndingDeckUncheckedCreateNestedManyWithoutUnlockAchievementInput
+}
+
+export type AchievementCreateOrConnectWithoutGatedCharactersInput = {
+  where: Prisma.AchievementWhereUniqueInput
+  create: Prisma.XOR<Prisma.AchievementCreateWithoutGatedCharactersInput, Prisma.AchievementUncheckedCreateWithoutGatedCharactersInput>
+}
+
+export type AchievementUpsertWithoutGatedCharactersInput = {
+  update: Prisma.XOR<Prisma.AchievementUpdateWithoutGatedCharactersInput, Prisma.AchievementUncheckedUpdateWithoutGatedCharactersInput>
+  create: Prisma.XOR<Prisma.AchievementCreateWithoutGatedCharactersInput, Prisma.AchievementUncheckedCreateWithoutGatedCharactersInput>
+  where?: Prisma.AchievementWhereInput
+}
+
+export type AchievementUpdateToOneWithWhereWithoutGatedCharactersInput = {
+  where?: Prisma.AchievementWhereInput
+  data: Prisma.XOR<Prisma.AchievementUpdateWithoutGatedCharactersInput, Prisma.AchievementUncheckedUpdateWithoutGatedCharactersInput>
+}
+
+export type AchievementUpdateWithoutGatedCharactersInput = {
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  label?: Prisma.StringFieldUpdateOperationsInput | string
+  message?: Prisma.StringFieldUpdateOperationsInput | string
+  icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  karma?: Prisma.IntFieldUpdateOperationsInput | number
+  pageHint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subtleHint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  triggerCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tooltip?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isRepeatable?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ArtImage?: Prisma.ArtImageUpdateOneWithoutAchievementsNestedInput
+  AchievementRecords?: Prisma.AchievementRecordUpdateManyWithoutAchievementNestedInput
+  LifeAchievements?: Prisma.LifeAchievementUpdateManyWithoutAchievementNestedInput
+  LifeEndings?: Prisma.LifeEndingUpdateManyWithoutAchievementNestedInput
+  GatedDecks?: Prisma.EndingDeckUpdateManyWithoutUnlockAchievementNestedInput
+}
+
+export type AchievementUncheckedUpdateWithoutGatedCharactersInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  label?: Prisma.StringFieldUpdateOperationsInput | string
+  message?: Prisma.StringFieldUpdateOperationsInput | string
+  icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  karma?: Prisma.IntFieldUpdateOperationsInput | number
+  pageHint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subtleHint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  triggerCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tooltip?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isRepeatable?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  AchievementRecords?: Prisma.AchievementRecordUncheckedUpdateManyWithoutAchievementNestedInput
+  LifeAchievements?: Prisma.LifeAchievementUncheckedUpdateManyWithoutAchievementNestedInput
+  LifeEndings?: Prisma.LifeEndingUncheckedUpdateManyWithoutAchievementNestedInput
+  GatedDecks?: Prisma.EndingDeckUncheckedUpdateManyWithoutUnlockAchievementNestedInput
+}
+
 export type AchievementCreateWithoutAchievementRecordsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string | null
@@ -871,6 +1002,7 @@ export type AchievementCreateWithoutAchievementRecordsInput = {
   LifeAchievements?: Prisma.LifeAchievementCreateNestedManyWithoutAchievementInput
   LifeEndings?: Prisma.LifeEndingCreateNestedManyWithoutAchievementInput
   GatedDecks?: Prisma.EndingDeckCreateNestedManyWithoutUnlockAchievementInput
+  GatedCharacters?: Prisma.CharacterCreateNestedManyWithoutUnlockAchievementInput
 }
 
 export type AchievementUncheckedCreateWithoutAchievementRecordsInput = {
@@ -893,6 +1025,7 @@ export type AchievementUncheckedCreateWithoutAchievementRecordsInput = {
   LifeAchievements?: Prisma.LifeAchievementUncheckedCreateNestedManyWithoutAchievementInput
   LifeEndings?: Prisma.LifeEndingUncheckedCreateNestedManyWithoutAchievementInput
   GatedDecks?: Prisma.EndingDeckUncheckedCreateNestedManyWithoutUnlockAchievementInput
+  GatedCharacters?: Prisma.CharacterUncheckedCreateNestedManyWithoutUnlockAchievementInput
 }
 
 export type AchievementCreateOrConnectWithoutAchievementRecordsInput = {
@@ -930,6 +1063,7 @@ export type AchievementUpdateWithoutAchievementRecordsInput = {
   LifeAchievements?: Prisma.LifeAchievementUpdateManyWithoutAchievementNestedInput
   LifeEndings?: Prisma.LifeEndingUpdateManyWithoutAchievementNestedInput
   GatedDecks?: Prisma.EndingDeckUpdateManyWithoutUnlockAchievementNestedInput
+  GatedCharacters?: Prisma.CharacterUpdateManyWithoutUnlockAchievementNestedInput
 }
 
 export type AchievementUncheckedUpdateWithoutAchievementRecordsInput = {
@@ -952,6 +1086,7 @@ export type AchievementUncheckedUpdateWithoutAchievementRecordsInput = {
   LifeAchievements?: Prisma.LifeAchievementUncheckedUpdateManyWithoutAchievementNestedInput
   LifeEndings?: Prisma.LifeEndingUncheckedUpdateManyWithoutAchievementNestedInput
   GatedDecks?: Prisma.EndingDeckUncheckedUpdateManyWithoutUnlockAchievementNestedInput
+  GatedCharacters?: Prisma.CharacterUncheckedUpdateManyWithoutUnlockAchievementNestedInput
 }
 
 export type AchievementCreateWithoutGatedDecksInput = {
@@ -973,6 +1108,7 @@ export type AchievementCreateWithoutGatedDecksInput = {
   AchievementRecords?: Prisma.AchievementRecordCreateNestedManyWithoutAchievementInput
   LifeAchievements?: Prisma.LifeAchievementCreateNestedManyWithoutAchievementInput
   LifeEndings?: Prisma.LifeEndingCreateNestedManyWithoutAchievementInput
+  GatedCharacters?: Prisma.CharacterCreateNestedManyWithoutUnlockAchievementInput
 }
 
 export type AchievementUncheckedCreateWithoutGatedDecksInput = {
@@ -995,6 +1131,7 @@ export type AchievementUncheckedCreateWithoutGatedDecksInput = {
   AchievementRecords?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutAchievementInput
   LifeAchievements?: Prisma.LifeAchievementUncheckedCreateNestedManyWithoutAchievementInput
   LifeEndings?: Prisma.LifeEndingUncheckedCreateNestedManyWithoutAchievementInput
+  GatedCharacters?: Prisma.CharacterUncheckedCreateNestedManyWithoutUnlockAchievementInput
 }
 
 export type AchievementCreateOrConnectWithoutGatedDecksInput = {
@@ -1032,6 +1169,7 @@ export type AchievementUpdateWithoutGatedDecksInput = {
   AchievementRecords?: Prisma.AchievementRecordUpdateManyWithoutAchievementNestedInput
   LifeAchievements?: Prisma.LifeAchievementUpdateManyWithoutAchievementNestedInput
   LifeEndings?: Prisma.LifeEndingUpdateManyWithoutAchievementNestedInput
+  GatedCharacters?: Prisma.CharacterUpdateManyWithoutUnlockAchievementNestedInput
 }
 
 export type AchievementUncheckedUpdateWithoutGatedDecksInput = {
@@ -1054,6 +1192,7 @@ export type AchievementUncheckedUpdateWithoutGatedDecksInput = {
   AchievementRecords?: Prisma.AchievementRecordUncheckedUpdateManyWithoutAchievementNestedInput
   LifeAchievements?: Prisma.LifeAchievementUncheckedUpdateManyWithoutAchievementNestedInput
   LifeEndings?: Prisma.LifeEndingUncheckedUpdateManyWithoutAchievementNestedInput
+  GatedCharacters?: Prisma.CharacterUncheckedUpdateManyWithoutUnlockAchievementNestedInput
 }
 
 export type AchievementCreateWithoutLifeEndingsInput = {
@@ -1075,6 +1214,7 @@ export type AchievementCreateWithoutLifeEndingsInput = {
   AchievementRecords?: Prisma.AchievementRecordCreateNestedManyWithoutAchievementInput
   LifeAchievements?: Prisma.LifeAchievementCreateNestedManyWithoutAchievementInput
   GatedDecks?: Prisma.EndingDeckCreateNestedManyWithoutUnlockAchievementInput
+  GatedCharacters?: Prisma.CharacterCreateNestedManyWithoutUnlockAchievementInput
 }
 
 export type AchievementUncheckedCreateWithoutLifeEndingsInput = {
@@ -1097,6 +1237,7 @@ export type AchievementUncheckedCreateWithoutLifeEndingsInput = {
   AchievementRecords?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutAchievementInput
   LifeAchievements?: Prisma.LifeAchievementUncheckedCreateNestedManyWithoutAchievementInput
   GatedDecks?: Prisma.EndingDeckUncheckedCreateNestedManyWithoutUnlockAchievementInput
+  GatedCharacters?: Prisma.CharacterUncheckedCreateNestedManyWithoutUnlockAchievementInput
 }
 
 export type AchievementCreateOrConnectWithoutLifeEndingsInput = {
@@ -1134,6 +1275,7 @@ export type AchievementUpdateWithoutLifeEndingsInput = {
   AchievementRecords?: Prisma.AchievementRecordUpdateManyWithoutAchievementNestedInput
   LifeAchievements?: Prisma.LifeAchievementUpdateManyWithoutAchievementNestedInput
   GatedDecks?: Prisma.EndingDeckUpdateManyWithoutUnlockAchievementNestedInput
+  GatedCharacters?: Prisma.CharacterUpdateManyWithoutUnlockAchievementNestedInput
 }
 
 export type AchievementUncheckedUpdateWithoutLifeEndingsInput = {
@@ -1156,6 +1298,7 @@ export type AchievementUncheckedUpdateWithoutLifeEndingsInput = {
   AchievementRecords?: Prisma.AchievementRecordUncheckedUpdateManyWithoutAchievementNestedInput
   LifeAchievements?: Prisma.LifeAchievementUncheckedUpdateManyWithoutAchievementNestedInput
   GatedDecks?: Prisma.EndingDeckUncheckedUpdateManyWithoutUnlockAchievementNestedInput
+  GatedCharacters?: Prisma.CharacterUncheckedUpdateManyWithoutUnlockAchievementNestedInput
 }
 
 export type AchievementCreateWithoutLifeAchievementsInput = {
@@ -1177,6 +1320,7 @@ export type AchievementCreateWithoutLifeAchievementsInput = {
   AchievementRecords?: Prisma.AchievementRecordCreateNestedManyWithoutAchievementInput
   LifeEndings?: Prisma.LifeEndingCreateNestedManyWithoutAchievementInput
   GatedDecks?: Prisma.EndingDeckCreateNestedManyWithoutUnlockAchievementInput
+  GatedCharacters?: Prisma.CharacterCreateNestedManyWithoutUnlockAchievementInput
 }
 
 export type AchievementUncheckedCreateWithoutLifeAchievementsInput = {
@@ -1199,6 +1343,7 @@ export type AchievementUncheckedCreateWithoutLifeAchievementsInput = {
   AchievementRecords?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutAchievementInput
   LifeEndings?: Prisma.LifeEndingUncheckedCreateNestedManyWithoutAchievementInput
   GatedDecks?: Prisma.EndingDeckUncheckedCreateNestedManyWithoutUnlockAchievementInput
+  GatedCharacters?: Prisma.CharacterUncheckedCreateNestedManyWithoutUnlockAchievementInput
 }
 
 export type AchievementCreateOrConnectWithoutLifeAchievementsInput = {
@@ -1236,6 +1381,7 @@ export type AchievementUpdateWithoutLifeAchievementsInput = {
   AchievementRecords?: Prisma.AchievementRecordUpdateManyWithoutAchievementNestedInput
   LifeEndings?: Prisma.LifeEndingUpdateManyWithoutAchievementNestedInput
   GatedDecks?: Prisma.EndingDeckUpdateManyWithoutUnlockAchievementNestedInput
+  GatedCharacters?: Prisma.CharacterUpdateManyWithoutUnlockAchievementNestedInput
 }
 
 export type AchievementUncheckedUpdateWithoutLifeAchievementsInput = {
@@ -1258,6 +1404,7 @@ export type AchievementUncheckedUpdateWithoutLifeAchievementsInput = {
   AchievementRecords?: Prisma.AchievementRecordUncheckedUpdateManyWithoutAchievementNestedInput
   LifeEndings?: Prisma.LifeEndingUncheckedUpdateManyWithoutAchievementNestedInput
   GatedDecks?: Prisma.EndingDeckUncheckedUpdateManyWithoutUnlockAchievementNestedInput
+  GatedCharacters?: Prisma.CharacterUncheckedUpdateManyWithoutUnlockAchievementNestedInput
 }
 
 export type AchievementCreateManyArtImageInput = {
@@ -1297,6 +1444,7 @@ export type AchievementUpdateWithoutArtImageInput = {
   LifeAchievements?: Prisma.LifeAchievementUpdateManyWithoutAchievementNestedInput
   LifeEndings?: Prisma.LifeEndingUpdateManyWithoutAchievementNestedInput
   GatedDecks?: Prisma.EndingDeckUpdateManyWithoutUnlockAchievementNestedInput
+  GatedCharacters?: Prisma.CharacterUpdateManyWithoutUnlockAchievementNestedInput
 }
 
 export type AchievementUncheckedUpdateWithoutArtImageInput = {
@@ -1319,6 +1467,7 @@ export type AchievementUncheckedUpdateWithoutArtImageInput = {
   LifeAchievements?: Prisma.LifeAchievementUncheckedUpdateManyWithoutAchievementNestedInput
   LifeEndings?: Prisma.LifeEndingUncheckedUpdateManyWithoutAchievementNestedInput
   GatedDecks?: Prisma.EndingDeckUncheckedUpdateManyWithoutUnlockAchievementNestedInput
+  GatedCharacters?: Prisma.CharacterUncheckedUpdateManyWithoutUnlockAchievementNestedInput
 }
 
 export type AchievementUncheckedUpdateManyWithoutArtImageInput = {
@@ -1349,6 +1498,7 @@ export type AchievementCountOutputType = {
   LifeAchievements: number
   LifeEndings: number
   GatedDecks: number
+  GatedCharacters: number
 }
 
 export type AchievementCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1356,6 +1506,7 @@ export type AchievementCountOutputTypeSelect<ExtArgs extends runtime.Types.Exten
   LifeAchievements?: boolean | AchievementCountOutputTypeCountLifeAchievementsArgs
   LifeEndings?: boolean | AchievementCountOutputTypeCountLifeEndingsArgs
   GatedDecks?: boolean | AchievementCountOutputTypeCountGatedDecksArgs
+  GatedCharacters?: boolean | AchievementCountOutputTypeCountGatedCharactersArgs
 }
 
 /**
@@ -1396,6 +1547,13 @@ export type AchievementCountOutputTypeCountGatedDecksArgs<ExtArgs extends runtim
   where?: Prisma.EndingDeckWhereInput
 }
 
+/**
+ * AchievementCountOutputType without action
+ */
+export type AchievementCountOutputTypeCountGatedCharactersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.CharacterWhereInput
+}
+
 
 export type AchievementSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -1419,6 +1577,7 @@ export type AchievementSelect<ExtArgs extends runtime.Types.Extensions.InternalA
   LifeAchievements?: boolean | Prisma.Achievement$LifeAchievementsArgs<ExtArgs>
   LifeEndings?: boolean | Prisma.Achievement$LifeEndingsArgs<ExtArgs>
   GatedDecks?: boolean | Prisma.Achievement$GatedDecksArgs<ExtArgs>
+  GatedCharacters?: boolean | Prisma.Achievement$GatedCharactersArgs<ExtArgs>
   _count?: boolean | Prisma.AchievementCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["achievement"]>
 
@@ -1450,6 +1609,7 @@ export type AchievementInclude<ExtArgs extends runtime.Types.Extensions.Internal
   LifeAchievements?: boolean | Prisma.Achievement$LifeAchievementsArgs<ExtArgs>
   LifeEndings?: boolean | Prisma.Achievement$LifeEndingsArgs<ExtArgs>
   GatedDecks?: boolean | Prisma.Achievement$GatedDecksArgs<ExtArgs>
+  GatedCharacters?: boolean | Prisma.Achievement$GatedCharactersArgs<ExtArgs>
   _count?: boolean | Prisma.AchievementCountOutputTypeDefaultArgs<ExtArgs>
 }
 
@@ -1461,6 +1621,7 @@ export type $AchievementPayload<ExtArgs extends runtime.Types.Extensions.Interna
     LifeAchievements: Prisma.$LifeAchievementPayload<ExtArgs>[]
     LifeEndings: Prisma.$LifeEndingPayload<ExtArgs>[]
     GatedDecks: Prisma.$EndingDeckPayload<ExtArgs>[]
+    GatedCharacters: Prisma.$CharacterPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -1824,6 +1985,7 @@ export interface Prisma__AchievementClient<T, Null = never, ExtArgs extends runt
   LifeAchievements<T extends Prisma.Achievement$LifeAchievementsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Achievement$LifeAchievementsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$LifeAchievementPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   LifeEndings<T extends Prisma.Achievement$LifeEndingsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Achievement$LifeEndingsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$LifeEndingPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   GatedDecks<T extends Prisma.Achievement$GatedDecksArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Achievement$GatedDecksArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$EndingDeckPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  GatedCharacters<T extends Prisma.Achievement$GatedCharactersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Achievement$GatedCharactersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CharacterPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2329,6 +2491,30 @@ export type Achievement$GatedDecksArgs<ExtArgs extends runtime.Types.Extensions.
   take?: number
   skip?: number
   distinct?: Prisma.EndingDeckScalarFieldEnum | Prisma.EndingDeckScalarFieldEnum[]
+}
+
+/**
+ * Achievement.GatedCharacters
+ */
+export type Achievement$GatedCharactersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Character
+   */
+  select?: Prisma.CharacterSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Character
+   */
+  omit?: Prisma.CharacterOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CharacterInclude<ExtArgs> | null
+  where?: Prisma.CharacterWhereInput
+  orderBy?: Prisma.CharacterOrderByWithRelationInput | Prisma.CharacterOrderByWithRelationInput[]
+  cursor?: Prisma.CharacterWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.CharacterScalarFieldEnum | Prisma.CharacterScalarFieldEnum[]
 }
 
 /**

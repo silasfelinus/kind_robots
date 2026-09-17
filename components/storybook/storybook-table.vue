@@ -259,10 +259,7 @@
       <p v-if="!activeDeck.length" class="kr-text-dim-xs py-4 text-center">
         Nothing to deal here yet.
       </p>
-      <div
-        v-else
-        class="flex snap-x snap-mandatory gap-2 overflow-x-auto pb-1"
-      >
+      <div v-else class="flex snap-x snap-mandatory gap-2 overflow-x-auto pb-1">
         <div
           v-for="card in activeDeck"
           :key="card.slug"
@@ -384,7 +381,8 @@ const slotRows = computed(() =>
 )
 
 const activeSpec = computed(
-  () => slotSpecs.find((spec) => spec.key === activeSlot.value) || slotSpecs[0]!,
+  () =>
+    slotSpecs.find((spec) => spec.key === activeSlot.value) || slotSpecs[0]!,
 )
 
 const mode = computed<StorybookRunMode>(
@@ -435,6 +433,10 @@ function artFor(card?: NarrativeIngredientOption): string | null {
  * first is the kind of friction the old four-step setup was made of.
  */
 function toggleCard(slot: StorybookSlot, card: NarrativeIngredientOption) {
+  // Belt and suspenders: the card button is already disabled while locked,
+  // but toggleCard is also reachable from a keyboard/testing path that
+  // bypasses the DOM disabled state.
+  if (card.locked) return
   const spec = slotSpecs.find((entry) => entry.key === slot)!
   const current = board.value[slot]
   const already = current.findIndex((entry) => entry.slug === card.slug)
@@ -458,18 +460,63 @@ function matches(card: NarrativeIngredientOption): boolean {
   return `${card.title} ${card.description || ''}`.toLowerCase().includes(term)
 }
 
+/**
+ * Gating (storybook/t-038): a genre card is locked when its deck (key
+ * `genre-{slug}`) reports `unlocked: false`; a hero/company card is locked
+ * when its slug appears in the gated-character list as unlocked: false. An
+ * ungated card is absent from both lookups and stays exactly as it was.
+ */
+const genreDeckBySlug = computed(() => {
+  const map = new Map<string, (typeof runStore.decks)[number]>()
+  for (const deck of runStore.decks) {
+    if (deck.key.startsWith('genre-')) {
+      map.set(deck.key.slice('genre-'.length), deck)
+    }
+  }
+  return map
+})
+
+const gatedCharacterBySlug = computed(() => {
+  const map = new Map<string, (typeof runStore.gatedCharacters)[number]>()
+  for (const character of runStore.gatedCharacters) {
+    map.set(character.slug, character)
+  }
+  return map
+})
+
+function withGenreLock(
+  card: NarrativeIngredientOption,
+): NarrativeIngredientOption {
+  const deck = genreDeckBySlug.value.get(card.slug)
+  if (!deck || deck.unlocked !== false) return card
+  return { ...card, locked: true, unlockHint: deck.unlockHint }
+}
+
+function withCharacterLock(
+  card: NarrativeIngredientOption,
+): NarrativeIngredientOption {
+  const gated = gatedCharacterBySlug.value.get(card.slug)
+  if (!gated || gated.unlocked) return card
+  return { ...card, locked: true, unlockHint: gated.unlockHint }
+}
+
 const activeDeck = computed<NarrativeIngredientOption[]>(() => {
   const deck = (() => {
     switch (activeSlot.value) {
       case 'mode':
         return MODE_CARDS as NarrativeIngredientOption[]
       case 'genre':
-        return facetStore.activeFacets.filter(isGenreFacet).map(toGenreCard)
+        return facetStore.activeFacets
+          .filter(isGenreFacet)
+          .map(toGenreCard)
+          .map(withGenreLock)
       case 'place':
         return dreamStore.dreams.filter(isPlaceDream).map(toPlaceCard)
       case 'hero':
       case 'company':
-        return characterStore.browseCharacters.map(toHeroCard)
+        return characterStore.browseCharacters
+          .map(toHeroCard)
+          .map(withCharacterLock)
       case 'narrator':
         return narrators.value.map(toNarratorCard)
       case 'thread':
@@ -594,6 +641,11 @@ onMounted(async () => {
     facetStore.fetchFacets(),
     rewardStore.initialize(),
     scenarioStore.initialize(),
+    // Gating (storybook/t-038): both are empty/absent whenever nothing is
+    // gated, so this costs two small requests, not two round-trips of
+    // waiting on real content.
+    runStore.fetchDecks(),
+    runStore.fetchGatedCharacters(),
   ])
   const response = await performFetch<NarratorLike[]>('/api/narrators')
   if (response.success && response.data) narrators.value = response.data

@@ -29,10 +29,7 @@ import { performFetch } from '@/stores/utils'
  * length is a setting now, not an identity (storybook/t-041).
  */
 export type StorybookRunMode =
-  | 'open-ended'
-  | 'episodic'
-  | 'structured'
-  | 'taskmaster'
+  'open-ended' | 'episodic' | 'structured' | 'taskmaster'
 
 /** @deprecated The pre-mode spelling. Same type; use StorybookRunMode. */
 export type StorybookRunShape = StorybookRunMode
@@ -50,6 +47,16 @@ export interface StorybookRunDeck {
   turnBudget?: number
   turnBudgetByShape?: Record<string, number>
   unlocked?: boolean
+  /** Locked-card hints only (storybook/t-038) -- never the axes. */
+  unlockHint?: string | null
+  unlockLabel?: string | null
+}
+
+export interface StorybookGatedCharacter {
+  slug: string
+  unlocked: boolean
+  unlockHint?: string | null
+  unlockLabel?: string | null
 }
 
 export interface StorybookRunTreasure {
@@ -253,6 +260,7 @@ export const useStorybookRunStore = defineStore('storybookRunStore', () => {
   const art = ref<StorybookRunArt[]>([])
   const adventures = ref<StorybookRunSummary[]>([])
   const decks = ref<StorybookRunDeck[]>([])
+  const gatedCharacters = ref<StorybookGatedCharacter[]>([])
   const collection = ref<StorybookCollection | null>(null)
   /** Life only. A genre deck's axis values are never sent. */
   const stats = ref<Record<string, number> | null>(null)
@@ -338,6 +346,15 @@ export const useStorybookRunStore = defineStore('storybookRunStore', () => {
       return false
     }
     decks.value = response.data
+    return true
+  }
+
+  async function fetchGatedCharacters(): Promise<boolean> {
+    const response = await performFetch<StorybookGatedCharacter[]>(
+      '/api/storybook/characters',
+    )
+    if (!response.success || !response.data) return false
+    gatedCharacters.value = response.data
     return true
   }
 
@@ -587,6 +604,7 @@ export const useStorybookRunStore = defineStore('storybookRunStore', () => {
     ending,
     adventures,
     decks,
+    gatedCharacters,
     collection,
     stats,
     isOpening,
@@ -603,6 +621,7 @@ export const useStorybookRunStore = defineStore('storybookRunStore', () => {
     isComplete,
     playableCards,
     fetchDecks,
+    fetchGatedCharacters,
     fetchAdventures,
     fetchCollection,
     openStory,

@@ -13,6 +13,13 @@ export type NarrativeIngredientOption = {
   heroPath?: string | null
   icon?: string | null
   badge?: string | null
+  /**
+   * Gated (storybook/t-038): a locked card renders face-down with a lock and
+   * `unlockHint` instead of its art and title. Absent/false on every
+   * ingredient with no gate -- the common case everywhere outside Storybook.
+   */
+  locked?: boolean
+  unlockHint?: string | null
 }
 
 // Kept as a named export because verifyNarrativePrimitives.ts pins it and the

@@ -101,6 +101,47 @@ export const useResourceGalleryStore = defineStore(
       }
     }
 
+    /**
+     * Delete a Resource, optionally taking the images it produced with it.
+     *
+     * Silas, 2026-09-17: "we should also be able to delete resources, with the
+     * option to cascade them to the generated image(s)."
+     *
+     * Returns what the server actually did rather than a bare boolean, because
+     * the cascade is partial by design: images belonging to other people are
+     * left in place, and the caller has to be able to say so.
+     */
+    async function deleteResource(
+      id: number,
+      options: { cascadeImages?: boolean } = {},
+    ): Promise<{ deletedImages: number; keptImages: number } | null> {
+      try {
+        const query = options.cascadeImages ? '?cascade=images' : ''
+        const response = await performFetch<{
+          cascadeImages: boolean
+          deletedImages: number
+          keptImages: number
+        }>(`/api/resources/${id}${query}`, { method: 'DELETE' })
+
+        if (!response.success) {
+          throw new Error(response.message || 'Failed to delete Resource.')
+        }
+
+        resources.value = resources.value.filter((entry) => entry.id !== id)
+        delete previewJobs.value[id]
+
+        return {
+          deletedImages: response.data?.deletedImages ?? 0,
+          keptImages: response.data?.keptImages ?? 0,
+        }
+      } catch (cause) {
+        error.value =
+          cause instanceof Error ? cause.message : 'Failed to delete Resource.'
+        handleError(cause, `deleting Resource ${id}`)
+        return null
+      }
+    }
+
     async function queuePreview(
       id: number,
     ): Promise<PreviewQueueResult | null> {
@@ -228,6 +269,7 @@ export const useResourceGalleryStore = defineStore(
       previewJobs,
       loadResources,
       getResource,
+      deleteResource,
       queuePreview,
       refreshPreviewJob,
       waitForPreview,

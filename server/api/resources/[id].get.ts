@@ -4,7 +4,11 @@ import prisma from '../../utils/prisma'
 import { errorHandler } from '../../utils/error'
 import { getOptionalApiUser } from '../../utils/authGuard'
 import { resourceGallerySelect } from './gallery'
-import { canView, effectiveShowMature } from '~/server/utils/contentAccess'
+import {
+  canView,
+  effectiveShowMature,
+  isMaturityRestricted,
+} from '~/server/utils/contentAccess'
 
 export default defineEventHandler(async (event) => {
   const resourceId = Number(event.context.params?.id)
@@ -49,9 +53,16 @@ export default defineEventHandler(async (event) => {
       auth ? { id: auth.user.id, isAdmin } : null,
     )
 
-    // Mature-gating stays independent of ownership/grants, matching the
-    // prior resourceGalleryWhere() behavior exactly.
-    const matureBlocked = resource.isMature && !isAdmin && !showMature
+    /*
+     * Mature-gating stays independent of ownership/grants, matching the prior
+     * resourceGalleryWhere() behavior -- with the admin bypass closed. Being an
+     * admin is not being an adult: a CHILD who also holds ADMIN is still
+     * maturity-restricted, and `!isAdmin` alone let exactly that combination
+     * through.
+     */
+    const matureBlocked =
+      resource.isMature &&
+      (isMaturityRestricted(auth?.user) || (!isAdmin && !showMature))
 
     if (!allowed || matureBlocked) {
       event.node.res.statusCode = 404

@@ -3,6 +3,7 @@ import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import type { ArtImage, Resource } from '~/prisma/generated/prisma/client'
 import { handleError, performFetch } from '@/stores/utils'
+import { useUserStore } from '@/stores/userStore'
 
 export type ResourcePreviewArtImage = Pick<
   ArtImage,
@@ -17,6 +18,32 @@ export type ResourcePreviewArtImage = Pick<
 
 export type ResourceGalleryRecord = Resource & {
   ArtImage?: ResourcePreviewArtImage | null
+}
+
+/**
+ * One image in a Resource's gallery, tagged with every route that claimed it.
+ * `origins` is the server's, not the client's: an image is routinely both the
+ * generated preview and a LoRA use, and /api/resources/:id/gallery dedupes by
+ * id rather than making the caller ask four times.
+ */
+export type ResourceArtImage = {
+  id: number
+  createdAt?: string | null
+  fileName?: string | null
+  imagePath?: string | null
+  path?: string | null
+  thumbnailPath?: string | null
+  cardPath?: string | null
+  promptString?: string | null
+  isMature?: boolean | null
+  origins: string[]
+}
+
+export type ResourceArtGallery = {
+  resourceId: number
+  /** A URL on the Resource row, not an ArtImage: Civitai's own preview. */
+  civitaiPreviewUrl: string | null
+  images: ResourceArtImage[]
 }
 
 type PreviewJob = {
@@ -44,6 +71,19 @@ export const useResourceGalleryStore = defineStore(
     const isLoading = ref(false)
     const error = ref('')
     const previewJobs = ref<Record<number, PreviewJob>>({})
+
+    /*
+     * A Resource's full gallery, by resource id. AGENTS.md: "Components never
+     * call APIs or localStorage directly. Stores own API calls, localStorage,
+     * and state. This is the rule most often broken by well-meaning edits" --
+     * and it was broken here first, by resource-art-gallery.vue reaching for
+     * performFetch itself. Caching per id is the other half of why it belongs
+     * here: the card back is opened and closed repeatedly over the same few
+     * resources.
+     */
+    const resourceArt = ref<Record<number, ResourceArtGallery>>({})
+    const resourceArtLoading = ref<Record<number, boolean>>({})
+    const resourceArtError = ref<Record<number, string>>({})
 
     function replaceResource(resource: ResourceGalleryRecord): void {
       const index = resources.value.findIndex(
@@ -129,6 +169,7 @@ export const useResourceGalleryStore = defineStore(
 
         resources.value = resources.value.filter((entry) => entry.id !== id)
         delete previewJobs.value[id]
+        delete resourceArt.value[id]
 
         return {
           deletedImages: response.data?.deletedImages ?? 0,
@@ -139,6 +180,53 @@ export const useResourceGalleryStore = defineStore(
           cause instanceof Error ? cause.message : 'Failed to delete Resource.'
         handleError(cause, `deleting Resource ${id}`)
         return null
+      }
+    }
+
+    /**
+     * Load every image that belongs to a Resource: its generated preview, the
+     * Civitai preview URL, everything rendered with it as a LoRA or on it as a
+     * checkpoint, and its entity art history.
+     *
+     * The viewer's maturity preference travels with the request, the same way
+     * the art listings send it. The server still refuses a maturity-restricted
+     * account whatever this says -- isMaturityRestricted reads the ROLE, so
+     * `?showMature=true` cannot lift it.
+     */
+    async function loadResourceArt(
+      id: number,
+      options: { force?: boolean } = {},
+    ): Promise<ResourceArtGallery | null> {
+      if (!Number.isInteger(id) || id <= 0) return null
+      if (resourceArtLoading.value[id]) return resourceArt.value[id] ?? null
+      if (!options.force && resourceArt.value[id]) return resourceArt.value[id]
+
+      const userStore = useUserStore()
+      resourceArtLoading.value = { ...resourceArtLoading.value, [id]: true }
+      const { [id]: _clearedError, ...restErrors } = resourceArtError.value
+      resourceArtError.value = restErrors
+
+      try {
+        const query = userStore.showMature ? '?showMature=true' : ''
+        const response = await performFetch<ResourceArtGallery>(
+          `/api/resources/${id}/gallery${query}`,
+        )
+
+        if (!response.success || !response.data) {
+          throw new Error(response.message || 'Failed to load images.')
+        }
+
+        resourceArt.value = { ...resourceArt.value, [id]: response.data }
+        return response.data
+      } catch (cause) {
+        const message =
+          cause instanceof Error ? cause.message : 'Failed to load images.'
+        resourceArtError.value = { ...resourceArtError.value, [id]: message }
+        handleError(cause, `loading art for Resource ${id}`)
+        return null
+      } finally {
+        const { [id]: _done, ...rest } = resourceArtLoading.value
+        resourceArtLoading.value = rest
       }
     }
 
@@ -267,8 +355,12 @@ export const useResourceGalleryStore = defineStore(
       isLoading,
       error,
       previewJobs,
+      resourceArt,
+      resourceArtLoading,
+      resourceArtError,
       loadResources,
       getResource,
+      loadResourceArt,
       deleteResource,
       queuePreview,
       refreshPreviewJob,

@@ -22,6 +22,13 @@
 
   No mode switcher: this lives inside a card back, where four extra buttons per
   group would be louder than the pictures. Density is fixed compact.
+
+  PRESENTATION ONLY. The fetch, the cache and the error live in
+  resourceGalleryStore, which already owns deleteResource. AGENTS.md:
+  "Components never call APIs or localStorage directly. Stores own API calls,
+  localStorage, and state. This is the rule most often broken by well-meaning
+  edits" -- and a first version broke it here, reaching for performFetch
+  directly while its sibling delete path was correctly in the store.
 -->
 <template>
   <section class="mt-4">
@@ -35,7 +42,7 @@
         v-if="!loading && loaded"
         type="button"
         class="btn btn-ghost btn-xs rounded-lg"
-        @click="load(true)"
+        @click="refresh"
       >
         <Icon name="kind-icon:refresh" class="kr-icon-3-5" />
         Refresh
@@ -78,39 +85,28 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { computed, watch } from 'vue'
 import type { GalleryItem } from '@/components/gallery/kr-gallery.vue'
-import { performFetch } from '@/stores/utils'
-import { useUserStore } from '@/stores/userStore'
-
-type GalleryImage = {
-  id: number
-  createdAt?: string | null
-  fileName?: string | null
-  imagePath?: string | null
-  path?: string | null
-  thumbnailPath?: string | null
-  cardPath?: string | null
-  promptString?: string | null
-  isMature?: boolean | null
-  origins: string[]
-}
-
-type GalleryPayload = {
-  resourceId: number
-  civitaiPreviewUrl: string | null
-  images: GalleryImage[]
-}
+import {
+  useResourceGalleryStore,
+  type ResourceArtImage,
+} from '@/stores/resourceGalleryStore'
 
 const props = defineProps<{ resourceId: number }>()
 const emit = defineEmits<{ (event: 'select', artImageId: number): void }>()
 
-const userStore = useUserStore()
+const resourceGalleryStore = useResourceGalleryStore()
 
-const loading = ref(false)
-const loaded = ref(false)
-const error = ref('')
-const payload = ref<GalleryPayload | null>(null)
+const payload = computed(
+  () => resourceGalleryStore.resourceArt[props.resourceId] ?? null,
+)
+const loading = computed(
+  () => resourceGalleryStore.resourceArtLoading[props.resourceId] === true,
+)
+const error = computed(
+  () => resourceGalleryStore.resourceArtError[props.resourceId] ?? '',
+)
+const loaded = computed(() => payload.value !== null)
 
 /*
  * ORIGIN ORDER IS THE READING ORDER. The generated preview is the card's own
@@ -129,7 +125,7 @@ const ORIGIN_LABELS: Record<string, string> = {
 const ORIGIN_ORDER = ['preview', 'civitai', 'lora', 'checkpoint', 'entity']
 
 /** An image belongs to exactly one heading: its highest-priority origin. */
-function primaryOrigin(image: GalleryImage): string {
+function primaryOrigin(image: ResourceArtImage): string {
   let best = ORIGIN_ORDER.length
   for (const origin of image.origins) {
     const rank = ORIGIN_ORDER.indexOf(origin)
@@ -191,6 +187,10 @@ const totalCount = computed(() =>
   groups.value.reduce((sum, group) => sum + group.items.length, 0),
 )
 
+function refresh(): void {
+  void resourceGalleryStore.loadResourceArt(props.resourceId, { force: true })
+}
+
 function openItem(groupKey: string, item: GalleryItem): void {
   if (groupKey === 'civitai') {
     const url = payload.value?.civitaiPreviewUrl
@@ -201,51 +201,10 @@ function openItem(groupKey: string, item: GalleryItem): void {
   if (typeof item.id === 'number') emit('select', item.id)
 }
 
-async function load(force = false): Promise<void> {
-  if (loading.value) return
-  if (
-    loaded.value &&
-    !force &&
-    payload.value?.resourceId === props.resourceId
-  ) {
-    return
-  }
-
-  loading.value = true
-  error.value = ''
-
-  try {
-    /*
-     * The viewer's own maturity preference travels with the request, the same
-     * way the art listings send it. The server still refuses a
-     * maturity-restricted account whatever this says -- isMaturityRestricted
-     * reads the ROLE, so `?showMature=true` cannot lift it.
-     */
-    const query = userStore.showMature ? '?showMature=true' : ''
-    const response = await performFetch<GalleryPayload>(
-      `/api/resources/${props.resourceId}/gallery${query}`,
-    )
-
-    if (!response?.success || !response.data) {
-      throw new Error(response?.message || 'Failed to load images.')
-    }
-
-    payload.value = response.data
-    loaded.value = true
-  } catch (err) {
-    error.value = err instanceof Error ? err.message : 'Failed to load images.'
-  } finally {
-    loading.value = false
-  }
-}
-
 watch(
   () => props.resourceId,
   (id) => {
-    if (!Number.isInteger(id) || id <= 0) return
-    loaded.value = false
-    payload.value = null
-    void load()
+    void resourceGalleryStore.loadResourceArt(id)
   },
   { immediate: true },
 )

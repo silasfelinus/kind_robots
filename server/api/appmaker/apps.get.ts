@@ -1,6 +1,9 @@
 // GET /api/appmaker/apps — the AppMaker inventory (appmaker/t-004).
-// scaffolded: slugs with a workspace folder at apps/<slug>/ in the conductor repo.
-// pending:    open scaffold-request Todos whose folder hasn't landed yet.
+// scaffolded:         slugs with a workspace folder at apps/<slug>/ in the conductor repo.
+// pending:            open scaffold-request Todos whose folder hasn't landed yet.
+// graduated:           slugs with an AppRepo row (appmaker/t-010) — already
+//                       external, or a graduation request already filed.
+// pendingGraduations:  open "Graduate app" Todos (appmaker/t-010).
 import { defineEventHandler, H3Error } from 'h3'
 import prisma from '@/server/utils/prisma'
 import { errorHandler } from '@/server/utils/error'
@@ -17,6 +20,9 @@ import { conductorList } from '~/server/utils/conductor-github'
 // would never appear in the "Being built" pending list: a real, open Todo
 // waiting for the next Worker cycle, silently invisible to the requester.
 const SCAFFOLD_TITLE_RE = /^Scaffold (?:new|external) app '([a-z0-9-]+)'/
+// graduate-request.post.ts's Todo title — kept in sync with it by hand, same
+// convention as SCAFFOLD_TITLE_RE above.
+const GRADUATE_TITLE_RE = /^Graduate app '([a-z0-9-]+)' to its own repo/
 
 export default defineEventHandler(async (event) => {
   try {
@@ -26,23 +32,38 @@ export default defineEventHandler(async (event) => {
       .map((entry) => entry.name)
       .sort()
 
-    const openScaffoldTodos = await prisma.todo.findMany({
-      where: {
-        status: 'OPEN',
-        category: 'AGENT',
-        OR: [
-          { title: { startsWith: "Scaffold new app '" } },
-          { title: { startsWith: "Scaffold external app '" } },
-        ],
-      },
-      select: {
-        title: true,
-        projectId: true,
-        dreamId: true,
-        createdAt: true,
-      },
-      orderBy: { createdAt: 'desc' },
-    })
+    const [openScaffoldTodos, openGraduateTodos, appRepos] = await Promise.all([
+      prisma.todo.findMany({
+        where: {
+          status: 'OPEN',
+          category: 'AGENT',
+          OR: [
+            { title: { startsWith: "Scaffold new app '" } },
+            { title: { startsWith: "Scaffold external app '" } },
+          ],
+        },
+        select: {
+          title: true,
+          projectId: true,
+          dreamId: true,
+          createdAt: true,
+        },
+        orderBy: { createdAt: 'desc' },
+      }),
+      prisma.todo.findMany({
+        where: {
+          status: 'OPEN',
+          category: 'AGENT',
+          title: { startsWith: "Graduate app '" },
+        },
+        select: { title: true, createdAt: true },
+        orderBy: { createdAt: 'desc' },
+      }),
+      prisma.appRepo.findMany({
+        where: { slug: { in: scaffolded } },
+        select: { slug: true },
+      }),
+    ])
 
     const pending = openScaffoldTodos
       .map((todo) => {
@@ -59,7 +80,19 @@ export default defineEventHandler(async (event) => {
       .filter((item): item is NonNullable<typeof item> => item !== null)
       .filter((item) => !scaffolded.includes(item.slug))
 
-    return { success: true, data: { scaffolded, pending } }
+    const graduated = [...new Set(appRepos.map((row) => row.slug))].sort()
+
+    const pendingGraduations = openGraduateTodos
+      .map((todo) => {
+        const slug = GRADUATE_TITLE_RE.exec(todo.title)?.[1]
+        return slug ? { slug, requestedAt: todo.createdAt } : null
+      })
+      .filter((item): item is NonNullable<typeof item> => item !== null)
+
+    return {
+      success: true,
+      data: { scaffolded, pending, graduated, pendingGraduations },
+    }
   } catch (error) {
     if (error instanceof H3Error) throw error
     const handled = errorHandler(error)

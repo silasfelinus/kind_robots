@@ -148,13 +148,70 @@
                 </span>
               </p>
             </template>
+            <div
+              v-if="userStore.isAdmin && graduationBadge(app.slug)"
+              class="badge badge-ghost badge-sm"
+            >
+              {{ graduationBadge(app.slug) }}
+            </div>
             <div class="card-actions justify-end pt-1">
+              <button
+                v-if="userStore.isAdmin && !graduationBadge(app.slug)"
+                class="kr-btn-outline-plain"
+                @click="toggleGraduatePanel(app.slug)"
+              >
+                {{ graduatingSlug === app.slug ? 'Cancel' : 'Graduate' }}
+              </button>
               <button
                 class="kr-btn-outline-plain"
                 @click="pageStore.setWorkspaceCardKey(app.slug)"
               >
                 Open project
               </button>
+            </div>
+            <div
+              v-if="graduatingSlug === app.slug"
+              class="space-y-2 rounded-lg bg-base-300 p-3"
+            >
+              <p class="kr-text-faded-xs">
+                Files an admin request to graduate '{{ app.slug }}' out to its
+                own repo (squash graduation — see appmaker/t-010). This only
+                files the request; nothing is pushed yet.
+              </p>
+              <label class="form-control">
+                <span class="label-text pb-1 text-xs">Target repo</span>
+                <select
+                  v-model="graduateForm.target"
+                  class="select select-bordered select-sm"
+                >
+                  <option :value="null" disabled>Choose a repo…</option>
+                  <option
+                    v-for="option in installationRepoOptions"
+                    :key="`${option.installationId}:${option.owner}/${option.repo}`"
+                    :value="option"
+                  >
+                    {{ option.owner }}/{{ option.repo }}
+                  </option>
+                </select>
+              </label>
+              <p
+                v-if="!installationRepoOptions.length"
+                class="kr-text-faded-xs"
+              >
+                No connected GitHub installation with an available repo yet —
+                connect one via AppMaker's GitHub integration first.
+              </p>
+              <div class="flex items-center gap-3">
+                <button
+                  class="kr-btn-primary-plain"
+                  :disabled="graduateSubmitting || !graduateForm.target"
+                  @click="submitGraduate(app.slug)"
+                >
+                  {{
+                    graduateSubmitting ? 'Filing…' : 'File graduation request'
+                  }}
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -179,7 +236,21 @@ type PendingScaffold = {
   dreamId: number | null
   requestedAt: string
 }
-type AppsResponse = { scaffolded: string[]; pending: PendingScaffold[] }
+type PendingGraduation = { slug: string; requestedAt: string }
+type AppsResponse = {
+  scaffolded: string[]
+  pending: PendingScaffold[]
+  graduated: string[]
+  pendingGraduations: PendingGraduation[]
+}
+
+type InstallationRepos = {
+  id: number
+  accountLogin: string
+  suspended: boolean
+  availableRepos: Array<{ owner: string; repo: string }>
+}
+type RepoOption = { installationId: number; owner: string; repo: string }
 
 type FleetApp = {
   slug: string
@@ -200,6 +271,13 @@ const error = ref('')
 const createMessage = ref('')
 const scaffolded = ref<string[]>([])
 const pending = ref<PendingScaffold[]>([])
+const graduated = ref<string[]>([])
+const pendingGraduations = ref<PendingGraduation[]>([])
+
+const installations = ref<InstallationRepos[]>([])
+const graduatingSlug = ref<string | null>(null)
+const graduateSubmitting = ref(false)
+const graduateForm = reactive<{ target: RepoOption | null }>({ target: null })
 
 const form = reactive({ title: '', slug: '', description: '' })
 
@@ -231,6 +309,70 @@ const slugError = computed(() => {
   if (SLUG_RE.test(candidate)) return ''
   return 'Slug must be kebab-case: start with a letter, then letters/digits/hyphens.'
 })
+
+const installationRepoOptions = computed<RepoOption[]>(() =>
+  installations.value
+    .filter((installation) => !installation.suspended)
+    .flatMap((installation) =>
+      installation.availableRepos.map((r) => ({
+        installationId: installation.id,
+        owner: r.owner,
+        repo: r.repo,
+      })),
+    ),
+)
+
+// A slug already graduated (or mid-request) shows a status badge instead of
+// the Graduate trigger — null means neither applies.
+function graduationBadge(slug: string): string {
+  if (graduated.value.includes(slug)) return 'Graduated'
+  if (pendingGraduations.value.some((item) => item.slug === slug))
+    return 'Graduation requested'
+  return ''
+}
+
+function toggleGraduatePanel(slug: string): void {
+  if (graduatingSlug.value === slug) {
+    graduatingSlug.value = null
+    return
+  }
+  graduatingSlug.value = slug
+  graduateForm.target = null
+}
+
+async function submitGraduate(slug: string): Promise<void> {
+  if (!graduateForm.target) return
+  graduateSubmitting.value = true
+  error.value = ''
+  try {
+    const res = await performFetch<{ slug: string }>(
+      '/api/appmaker/graduate-request',
+      {
+        method: 'POST',
+        body: JSON.stringify({
+          slug,
+          installationId: graduateForm.target.installationId,
+          owner: graduateForm.target.owner,
+          repo: graduateForm.target.repo,
+        }),
+      },
+    )
+    if (res.success) {
+      graduatingSlug.value = null
+      graduateForm.target = null
+      await refresh()
+    } else {
+      error.value = res.message || 'Could not file the graduation request.'
+    }
+  } catch (graduateError) {
+    error.value =
+      graduateError instanceof Error
+        ? graduateError.message
+        : String(graduateError)
+  } finally {
+    graduateSubmitting.value = false
+  }
+}
 
 const fleet = computed<FleetApp[]>(() =>
   scaffolded.value.map((slug) => {
@@ -290,16 +432,27 @@ async function refresh(): Promise<void> {
   loading.value = true
   error.value = ''
   try {
-    const [appsRes] = await Promise.all([
+    const [appsRes, installationsRes] = await Promise.all([
       performFetch<AppsResponse>('/api/appmaker/apps'),
+      userStore.isAdmin
+        ? performFetch<InstallationRepos[]>('/api/appmaker/github/repos')
+        : Promise.resolve(null),
       conductorStore.fetchProjects(true),
     ])
     if (token !== refreshToken) return
     if (appsRes.success && appsRes.data) {
       scaffolded.value = appsRes.data.scaffolded
       pending.value = appsRes.data.pending
+      graduated.value = appsRes.data.graduated
+      pendingGraduations.value = appsRes.data.pendingGraduations
     } else {
       error.value = appsRes.message || 'Could not load apps.'
+    }
+    // Best-effort: a failed/absent installations fetch just means the
+    // Graduate panel shows "no repo available" rather than blocking the
+    // whole page — non-admins never issue this request at all.
+    if (installationsRes?.success && installationsRes.data) {
+      installations.value = installationsRes.data
     }
   } catch (fetchError) {
     if (token !== refreshToken) return

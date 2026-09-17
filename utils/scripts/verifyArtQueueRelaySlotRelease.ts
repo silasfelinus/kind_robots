@@ -90,6 +90,18 @@ if (relayClaimReleaseError('x'.repeat(5000)).length !== 4000) {
 }
 
 for (const required of [
+  'function validTimestamp(value: unknown): string | null',
+  'const claimTime = new Date()',
+  'candidate.payload.processingStartedAt',
+  "candidate.status === 'RUNNING'",
+  'candidate.claimedAt?.toISOString()',
+  'enrichedPayload.processingStartedAt = processingStartedAt',
+  'claimedAt: claimTime,',
+]) {
+  assertIncludes(route, 'Art queue stable processing start', required)
+}
+
+for (const required of [
   'v-if="errorIsFromEarlierAttempt"',
   "props.job.status === 'RUNNING' || props.job.status === 'PENDING'",
 ]) {
@@ -98,6 +110,15 @@ for (const required of [
     'ArtJob queue card earlier-attempt error label',
     required,
   )
+}
+
+for (const required of [
+  'const processingStartedAtValue = computed<string | Date | null>',
+  'props.job.payload.processingStartedAt',
+  'return props.job.claimedAt',
+  'formatDateTime(processingStartedAtValue)',
+]) {
+  assertIncludes(card, 'ArtJob queue card stable running timer', required)
 }
 
 console.log('Art queue relay-slot release verified.')

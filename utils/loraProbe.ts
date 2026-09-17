@@ -249,6 +249,21 @@ const NEGATIVE_SD = [
    */
   'head out of frame',
   'cropped head',
+  /*
+   * Ages the subject explicitly, on every probe, alongside the adult qualifier
+   * in PROBE_DEFAULT_SUBJECT. Belt and braces deliberately: the positive
+   * qualifier steers and this forecloses, because ~450 probes pair an injected
+   * subject with a LoRA from an NSFW directory and a bare `1girl` was returning
+   * pre-teen subjects. Not optional, and not per-probe.
+   */
+  'child',
+  'children',
+  'loli',
+  'shota',
+  'toddler',
+  'infant',
+  'young girl',
+  'teenager',
   'extra limbs',
   'deformed hands',
 ].join(', ')
@@ -330,14 +345,29 @@ const PROBE_FRAMING_PROSE = 'Centered against a simple uncluttered background.'
  * come from, so it is the most reliable subject token available, and the probe
  * grid is his own LoRA library rather than user-facing output. Change this one
  * constant to change the default for every SD-lineage probe.
+ *
+ * THE ADULT QUALIFIER IS NOT COSMETIC AND MUST NOT BE REMOVED.
+ *
+ * `1girl` is a Danbooru tag spanning every age, and on these bases it biases
+ * strongly young: nine consecutive probes across nine unrelated LoRAs (paste
+ * fairy tale, shroom, leaf, Dixit, diterlizzi, desert, Deadpool, Dave McKean,
+ * cyberpunk) returned six pre-teen subjects on the bare tag, 2026-09-17. The
+ * only thing those renders shared was this constant.
+ *
+ * This default is applied to EVERY probe that names no subject of its own, and
+ * 449 of those were queued against LoRAs under an NSFW/ directory. A subject
+ * token that skews child-like, paired with an NSFW LoRA, generates child
+ * sexual abuse material. That is the failure mode this qualifier and the
+ * matching negative terms exist to prevent, and it is why neither is
+ * adjustable per-probe.
  */
-const PROBE_DEFAULT_SUBJECT = '1girl'
+const PROBE_DEFAULT_SUBJECT = '1girl, adult, mature female'
 
 /*
  * Flux and Z-Image read prose through T5, where `1girl` is a Danbooru token
  * with no meaning. Same decision, spelled for a different text encoder.
  */
-const PROBE_DEFAULT_SUBJECT_PROSE = 'a woman'
+const PROBE_DEFAULT_SUBJECT_PROSE = 'an adult woman'
 
 /*
  * Does the trigger text already name something to draw?

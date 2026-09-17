@@ -25,9 +25,9 @@ const pony = (trigger: string) => buildLoraProbePrompt('pony', trigger)!.prompt
 
 describe('probe subject injection', () => {
   it('gives a subject to the 81% that name none', () => {
-    expect(pony('anna')).toContain('anna, 1girl')
-    expect(pony('Apple - Style')).toContain('Apple - Style, 1girl')
-    expect(pony('')).toContain('score_7_up, 1girl')
+    expect(pony('anna')).toContain('anna, 1girl, adult, mature female')
+    expect(pony('Apple - Style')).toContain('Apple - Style, 1girl, adult')
+    expect(pony('')).toContain('score_7_up, 1girl, adult')
   })
 
   it('leaves a multi-figure concept alone', () => {
@@ -49,7 +49,7 @@ describe('probe subject injection', () => {
     // 'portrait'/'upper body'/'face' say how to frame a subject, not what it is.
     expect(triggerNamesSubject('portrait')).toBe(false)
     expect(triggerNamesSubject('upper body')).toBe(false)
-    expect(pony('portrait')).toContain('portrait, 1girl')
+    expect(pony('portrait')).toContain('portrait, 1girl, adult')
   })
 
   it('does not mistake the base model for a subject', () => {
@@ -104,9 +104,9 @@ describe('trigger capping', () => {
 describe('prose lanes', () => {
   it('uses a prose subject, not a Danbooru token, where T5 reads the prompt', () => {
     // `1girl` is meaningless to T5.
-    expect(buildLoraProbePrompt('flux', 'anna')!.prompt).toContain('a woman')
+    expect(buildLoraProbePrompt('flux', 'anna')!.prompt).toContain('an adult woman')
     expect(buildLoraProbePrompt('flux', 'anna')!.prompt).not.toContain('1girl')
-    expect(buildLoraProbePrompt('zimage', '')!.prompt).toContain('a woman')
+    expect(buildLoraProbePrompt('zimage', '')!.prompt).toContain('an adult woman')
   })
 })
 
@@ -122,14 +122,14 @@ describe('negative prompt', () => {
 
 describe('subject clause is shared by every SD-lineage family', () => {
   it.each(['pony', 'illustrious', 'sdxl', 'sd15'] as const)('%s', (family) => {
-    expect(buildLoraProbePrompt(family, 'anna')!.prompt).toContain('anna, 1girl')
+    expect(buildLoraProbePrompt(family, 'anna')!.prompt).toContain('anna, 1girl, adult')
   })
 })
 
 describe('probeSubjectClause', () => {
   it('is the single place the default lives', () => {
-    expect(probeSubjectClause('')).toBe('1girl')
-    expect(probeSubjectClause('', true)).toBe('a woman')
+    expect(probeSubjectClause('')).toBe('1girl, adult, mature female')
+    expect(probeSubjectClause('', true)).toBe('an adult woman')
   })
 })
 
@@ -146,5 +146,36 @@ describe('framing scaffold', () => {
     const out = buildLoraProbePrompt('sdxl', 'Batgirl')!.prompt
     expect(out).toContain('centered')
     expect(out).toContain('simple uncluttered background')
+  })
+})
+
+describe('the injected subject must read as an adult', () => {
+  /*
+   * 2026-09-17: a bare `1girl` returned six pre-teen subjects across nine
+   * consecutive probes on nine unrelated LoRAs. 449 pending probes paired that
+   * injected subject with a LoRA from an NSFW directory. This is the guard.
+   */
+  it('always ages the injected subject', () => {
+    for (const family of ['pony', 'illustrious', 'sdxl', 'sd15'] as const) {
+      const p = buildLoraProbePrompt(family, 'DonShr00mXL')!.prompt
+      expect(p).toMatch(/\badult\b/)
+      expect(p).toMatch(/\bmature female\b/)
+    }
+    expect(buildLoraProbePrompt('flux', 'anna')!.prompt).toMatch(/\badult woman\b/)
+    expect(buildLoraProbePrompt('zimage', 'anna')!.prompt).toMatch(/\badult woman\b/)
+  })
+
+  it('forecloses minors in the negative prompt on every SD lane', () => {
+    for (const family of ['pony', 'illustrious', 'sdxl', 'sd15'] as const) {
+      const n = buildLoraProbePrompt(family, 'x')!.negativePrompt
+      for (const term of ['child', 'loli', 'shota', 'toddler', 'young girl'])
+        expect(n).toContain(term)
+    }
+  })
+
+  it('does not age a subject the LoRA named itself', () => {
+    // The qualifier rides the INJECTED subject only; a LoRA that names its own
+    // subject is still left alone.
+    expect(pony('1boy, armor')).not.toMatch(/mature female/)
   })
 })

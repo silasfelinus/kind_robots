@@ -37,7 +37,7 @@
         <div
           class="flex h-16 w-16 items-center justify-center rounded-full bg-primary/15"
         >
-          <Icon name="kind-icon:user" class="h-8 w-8 text-primary" />
+          <Icon name="kind-icon:user" class="kr-icon-8 text-primary" />
         </div>
         <h2 class="kr-text-black-xl text-base-content">Welcome, guest</h2>
         <p class="kr-text-dim-sm max-w-xs">

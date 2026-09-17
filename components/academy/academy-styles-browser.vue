@@ -163,7 +163,7 @@
       v-if="!filteredStyles.length"
       class="flex min-h-40 flex-col items-center justify-center rounded-3xl border border-base-300 bg-base-100 px-4 text-center shadow-sm"
     >
-      <Icon :name="emptyStateIcon" class="h-8 w-8 text-base-content/20" aria-hidden="true" />
+      <Icon :name="emptyStateIcon" class="kr-icon-8 text-base-content/20" aria-hidden="true" />
       <p class="mt-2 text-sm text-base-content/45">{{ emptyStateMessage }}</p>
       <button
         v-if="searchQuery || lessonFilter !== 'all'"

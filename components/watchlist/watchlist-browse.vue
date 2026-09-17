@@ -37,7 +37,7 @@
 <template>
   <section class="flex flex-col gap-4">
     <div v-if="!isAdmin" class="kr-panel-flat border-dashed p-6 text-center">
-      <Icon name="kind-icon:lock" class="mx-auto size-8 text-base-content/30" />
+      <Icon name="kind-icon:lock" class="mx-auto kr-icon-8 text-base-content/30" />
       <p class="kr-text-dim-sm mt-2 font-semibold">
         This is a private personal log. Sign in as an admin to browse it.
       </p>

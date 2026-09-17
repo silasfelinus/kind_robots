@@ -497,7 +497,7 @@
                 <template v-if="taskTab === 'HONEYDO' && todoFilter === 'OPEN'">
                   <Icon
                     name="kind-icon:check-circle"
-                    class="mx-auto mb-2 size-8 text-success/40"
+                    class="mx-auto mb-2 kr-icon-8 text-success/40"
                   />
                   <p class="kr-text-dim-sm-50 font-semibold">
                     No honey-dos right now.

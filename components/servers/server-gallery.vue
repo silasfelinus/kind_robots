@@ -100,7 +100,7 @@
         <div class="kr-panel-muted border-dashed text-center">
           <Icon
             name="kind-icon:server-off"
-            class="mx-auto mb-2 h-8 w-8 text-base-content/40"
+            class="mx-auto mb-2 kr-icon-8 text-base-content/40"
           />
           <p class="font-bold">No matching servers.</p>
           <p class="kr-text-dim-sm">

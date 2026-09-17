@@ -1067,7 +1067,7 @@
           <Icon
             v-if="tankStore.revealedBreed.evolved"
             name="kind-icon:sparkles"
-            class="size-8 text-warning"
+            class="kr-icon-8 text-warning"
           />
           <p class="kr-text-eyebrow text-xs tracking-wide text-primary">
             {{
@@ -1225,7 +1225,7 @@
         <div
           class="modal-box flex max-w-sm flex-col items-center gap-3 rounded-3xl border border-base-300 bg-base-100 text-center shadow-2xl"
         >
-          <Icon name="kind-icon:coin" class="size-8 text-warning" />
+          <Icon name="kind-icon:coin" class="kr-icon-8 text-warning" />
           <p class="kr-text-eyebrow text-xs tracking-wide text-primary">
             While you were away
           </p>

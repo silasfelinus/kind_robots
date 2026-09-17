@@ -650,13 +650,54 @@ export function selectProbeCheckpoint(
   return ranked[0] as ProbeCheckpointCandidate
 }
 
+/*
+ * The LoRA's own name, recovered when it is all there is.
+ *
+ * 17 rows carry nothing in defaultTrigger but A1111 invocation syntax --
+ * `<lora:undtoral-000020:1>`, `<lora:JesterV2:0.75>`,
+ * `<lora:inniesbettervaginas_v11:1.0>`. LORA_INVOCATION_PATTERN strips that
+ * wholesale, correctly, because ComfyUI has no parser for it and would render
+ * it as literal text. But the NAME inside is not syntax: LoRA authors routinely
+ * name the file after the activation token, so `undtoral` is very likely the
+ * real trigger and throwing it away left those probes with an empty prompt.
+ *
+ * The trailing training-step counter goes (`-000020`, `-000015`), since it
+ * numbers a checkpoint rather than naming anything. The file stem is the
+ * second choice: `innievag.safetensors` invokes `inniesbettervaginas_v11`, and
+ * the invocation name is the more descriptive of the two.
+ */
+const LORA_INVOCATION_NAME_PATTERN =
+  /<(?:lora|lyco|lycoris|hypernet):\s*([^:>]+)/i
+const TRAINING_STEP_SUFFIX = /-\d{4,6}$/
+
+export function loraNameAsTrigger(
+  invocation?: string | null,
+  localPath?: string | null,
+): string {
+  const fromInvocation = String(invocation || '').match(LORA_INVOCATION_NAME_PATTERN)?.[1]
+  const fromPath = String(localPath || '')
+    .split('/')
+    .pop()
+    ?.replace(/\.(safetensors|ckpt|pt|bin)$/i, '')
+  const name = (fromInvocation || fromPath || '').trim()
+  if (!name) return ''
+  return sanitizeProbeTrigger(name.replace(TRAINING_STEP_SUFFIX, ''))
+}
+
 export function probeTriggerText(resource: {
   defaultTrigger?: string | null
   triggerWords?: string | null
+  localPath?: string | null
 }): string {
   const trigger = sanitizeProbeTrigger(String(resource.defaultTrigger || ''))
   if (trigger) return trigger
-  return sanitizeProbeTrigger(String(resource.triggerWords || ''))
+  const words = sanitizeProbeTrigger(String(resource.triggerWords || ''))
+  if (words) return words
+  // Nothing but invocation syntax survived; the name inside it is the trigger.
+  return loraNameAsTrigger(
+    resource.defaultTrigger || resource.triggerWords,
+    resource.localPath,
+  )
 }
 
 export function buildLoraProbePrompt(

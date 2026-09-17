@@ -13,7 +13,9 @@ import { describe, expect, it } from 'vitest'
 import {
   buildLoraProbePrompt,
   capProbeTriggerTags,
+  loraNameAsTrigger,
   probeSubjectClause,
+  probeTriggerText,
   sanitizeProbeTrigger,
 } from '../loraProbe'
 
@@ -78,5 +80,41 @@ describe('trigger capping', () => {
 describe('sanitizer', () => {
   it('strips a spaced "Pony XL" the way it strips "PonyXL"', () => {
     expect(sanitizeProbeTrigger('Bartolomeobari Style - Pony XL')).not.toMatch(/pony/i)
+  })
+})
+
+describe('a LoRA whose only trigger is invocation syntax', () => {
+  /*
+   * 17 rows carry nothing but `<lora:NAME:weight>`. That syntax is stripped
+   * because ComfyUI has no parser for it, which left those probes with an
+   * entirely empty prompt once the scaffold stopped supplying words. Authors
+   * routinely name the file after the activation token, so the name inside is
+   * the best available trigger.
+   */
+  it('recovers the name from the invocation', () => {
+    expect(probeTriggerText({ defaultTrigger: '<lora:JesterV2:0.75>' })).toBe('JesterV2')
+    expect(probeTriggerText({ defaultTrigger: '<lora:leonard0: >' })).toBe('leonard0')
+    expect(probeTriggerText({ defaultTrigger: '<lora:inniesbettervaginas_v11:1.0>' }))
+      .toBe('inniesbettervaginas_v11')
+  })
+
+  it('drops the training-step counter, which names no concept', () => {
+    expect(probeTriggerText({ defaultTrigger: '<lora:undtoral-000020:1>' })).toBe('undtoral')
+    expect(probeTriggerText({ defaultTrigger: '<lora:ppeach-000018:1>' })).toBe('ppeach')
+  })
+
+  it('falls back to the file stem when there is no invocation either', () => {
+    expect(probeTriggerText({ localPath: 'SD15/SFW/bows1-000015.safetensors' })).toBe('bows1')
+  })
+
+  it('never displaces a real trigger', () => {
+    expect(probeTriggerText({
+      defaultTrigger: '1girl, blue hair',
+      localPath: 'SDXL/SFW/whatever.safetensors',
+    })).toBe('1girl, blue hair')
+  })
+
+  it('returns empty when there is genuinely nothing', () => {
+    expect(loraNameAsTrigger('', '')).toBe('')
   })
 })

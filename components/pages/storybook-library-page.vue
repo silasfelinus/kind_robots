@@ -207,6 +207,46 @@
     </section>
 
     <!--
+      LEGACY EXPORT NOTICE (storybook/t-052). storybook-session-library-v1 is a
+      reader's only copy of a beat-loop story, and it never surfaces on this,
+      the storymaker's own front door -- only at ?legacy=1, a URL nothing links
+      to. Without this, a reader who never happens to try that query param
+      loses those stories silently the day t-037 deletes the beat loop.
+      Dismissal persists (storybook-legacy-notice-dismissed) so it asks once,
+      not on every visit, per the task note's own "surfaced once" framing.
+    -->
+    <div
+      v-if="!legacy && showLegacyExportNotice"
+      role="alert"
+      class="alert alert-info mb-3 shrink-0 rounded-2xl text-sm"
+    >
+      <Icon name="kind-icon:book" class="kr-icon-5" />
+      <span>
+        {{ storyStore.recentStories.length }} older
+        {{ storyStore.recentStories.length === 1 ? 'story' : 'stories' }} from
+        the previous Storybook is still saved on this device. Export
+        {{ storyStore.recentStories.length === 1 ? 'it' : 'them' }} before it's
+        removed.
+      </span>
+      <div class="flex shrink-0 gap-2">
+        <button
+          type="button"
+          class="kr-btn-xs btn-primary"
+          @click="openLegacyLibrary"
+        >
+          Review &amp; export
+        </button>
+        <button
+          type="button"
+          class="kr-btn-xs btn-ghost"
+          @click="dismissLegacyNotice"
+        >
+          Dismiss
+        </button>
+      </div>
+    </div>
+
+    <!--
       THE STORYMAKER IS THE FRONT DOOR (storybook/t-034, t-035). The Table and
       the Reading run on the server-side engine -- four modes, ending decks, the
       character sheet, the quest ledger -- and are what /storybook opens on.
@@ -257,6 +297,27 @@ const legacy = computed(() => route.query.legacy === '1')
 const libraryOpen = ref(false)
 const restartArmed = ref(false)
 const newStoryArmed = ref(false)
+
+/** storybook/t-052: one-time notice pointing a reader at their legacy export. */
+const LEGACY_NOTICE_DISMISSED_KEY = 'storybook-legacy-notice-dismissed'
+const legacyNoticeDismissed = ref(false)
+const showLegacyExportNotice = computed(
+  () => !legacyNoticeDismissed.value && storyStore.recentStories.length > 0,
+)
+
+function dismissLegacyNotice(): void {
+  legacyNoticeDismissed.value = true
+  if (typeof localStorage === 'undefined') return
+  try {
+    localStorage.setItem(LEGACY_NOTICE_DISMISSED_KEY, '1')
+  } catch {
+    // Best-effort only -- the notice simply reappears next visit.
+  }
+}
+
+function openLegacyLibrary(): void {
+  void router.push({ query: { ...route.query, legacy: '1' } })
+}
 
 const SEED_QUERY_KEYS = new Set([
   'scenario',
@@ -402,5 +463,13 @@ onMounted(() => {
   }
   libraryOpen.value = !storyStore.session && storyStore.recentStories.length > 0
   if (storyStore.session && !directId) updateStoryQuery(storyStore.session.id)
+  if (typeof localStorage !== 'undefined') {
+    try {
+      legacyNoticeDismissed.value =
+        localStorage.getItem(LEGACY_NOTICE_DISMISSED_KEY) === '1'
+    } catch {
+      // Best-effort only -- the notice just shows if this read fails.
+    }
+  }
 })
 </script>

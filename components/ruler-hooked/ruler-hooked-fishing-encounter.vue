@@ -38,29 +38,19 @@
       {{ encounter.cue }}
     </div>
 
-    <div class="mt-4 flex flex-wrap gap-2" aria-label="Fishing actions">
-      <button type="button" class="btn btn-primary flex-1" @click="emit('action', 'REEL')">
-        🎣 Reel
-      </button>
-      <button type="button" class="btn btn-secondary flex-1" @click="emit('action', 'SLACK')">
-        🪢 Give slack
-      </button>
-      <button type="button" class="btn btn-ghost flex-1" @click="emit('action', 'WAIT')">
-        👀 Wait
-      </button>
-    </div>
-
-    <p class="kr-text-faded-xs-55 mt-3">
-      Fishing is beat-based, not twitch-based. Read the cue, choose an action, and the same action sequence will reproduce the same encounter.
-    </p>
+    <RulerHookedTimingBar
+      class="mt-4"
+      :encounter="encounter"
+      @stop="emit('stop', $event)"
+    />
   </section>
 </template>
 
 <script setup lang="ts">
-import type { FishingAction, FishingEncounter } from '~/utils/rulerHooked/encounter'
+import type { FishingEncounter } from '~/utils/rulerHooked/encounter'
 
 const props = defineProps<{ encounter: FishingEncounter }>()
-const emit = defineEmits<{ action: [action: FishingAction] }>()
+const emit = defineEmits<{ stop: [position: number] }>()
 
 const familyLabel = computed(() => ({
   STANDARD_TENSION: 'steady tension',

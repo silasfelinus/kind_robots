@@ -56,7 +56,7 @@
         <RulerHookedFishingEncounter
           v-if="store.activeFishing"
           :encounter="store.activeFishing"
-          @action="store.fishingAction($event)"
+          @stop="store.fishingStop($event)"
         />
 
         <div

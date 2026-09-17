@@ -1,13 +1,14 @@
-/*
- * Every entity type an ArtJob can be rendered for must lead somewhere.
- *
- * The routes here were read off each manager component rather than assumed --
- * character-manager reads `characterId ?? character`, scenario-manager lives on
- * /stories rather than /scenarios, and achievement has no manager at all. A
- * wrong param is worse than no link: the page loads and silently selects
- * nothing.
- */
-import { describe, expect, it } from 'vitest'
+// /utils/scripts/verifyEntityArtLink.test.ts
+//
+// Every entity type an ArtJob can be rendered for must lead somewhere.
+//
+// The routes were read off each manager component rather than assumed:
+// character-manager reads `characterId ?? character`, scenario-manager lives on
+// /stories rather than /scenarios, facet is keyed by slug, project puts its id
+// in the path, and achievement has no manager at all. A wrong parameter is
+// worse than no link -- the page loads and silently selects nothing.
+import assert from 'node:assert/strict'
+
 import {
   ENTITY_ART_ROUTES,
   entityArtHref,
@@ -15,62 +16,48 @@ import {
   entityArtTypeLabel,
 } from '../entityArtLink'
 
-describe('entityArtHref', () => {
-  it('deep-links the id-keyed types', () => {
-    expect(entityArtHref('character', 12)).toBe('/characters?characterId=12')
-    expect(entityArtHref('scenario', 7)).toBe('/stories?scenarioId=7')
-    expect(entityArtHref('reward', 3)).toBe('/rewards?rewardId=3')
-    expect(entityArtHref('bot', 44)).toBe('/bots?botId=44')
-    expect(entityArtHref('dream', 9)).toBe('/dreams?dreamId=9')
-    expect(entityArtHref('resource', 2726)).toBe('/resources?resourceId=2726')
-  })
+// --- id-keyed types ---------------------------------------------------------
+assert.equal(entityArtHref('character', 12), '/characters?characterId=12')
+assert.equal(entityArtHref('scenario', 7), '/stories?scenarioId=7')
+assert.equal(entityArtHref('reward', 3), '/rewards?rewardId=3')
+assert.equal(entityArtHref('bot', 44), '/bots?botId=44')
+assert.equal(entityArtHref('dream', 9), '/dreams?dreamId=9')
+assert.equal(entityArtHref('resource', 2726), '/resources?resourceId=2726')
 
-  it('puts a project id in the path, where its route expects it', () => {
-    expect(entityArtHref('project', 5)).toBe('/projects/5')
-  })
+// --- a project id belongs in the path, where its route expects it -----------
+assert.equal(entityArtHref('project', 5), '/projects/5')
 
-  it('keys a facet by slug, and falls back to the list without one', () => {
-    expect(entityArtHref('facet', 2, 'moonlit')).toBe('/facets?facet=moonlit')
-    expect(entityArtHref('facet', 2)).toBe('/facets')
-    // A dead `?facet=` would select nothing and look broken.
-    expect(entityArtHref('facet', 2, '   ')).toBe('/facets')
-  })
+// --- a facet is slug-keyed, and a dead `?facet=` would select nothing -------
+assert.equal(entityArtHref('facet', 2, 'moonlit'), '/facets?facet=moonlit')
+assert.equal(entityArtHref('facet', 2), '/facets')
+assert.equal(entityArtHref('facet', 2, '   '), '/facets')
+assert.equal(entityArtHref('facet', 2, 'a b&c'), '/facets?facet=a%20b%26c')
 
-  it('escapes a slug rather than pasting it into the query raw', () => {
-    expect(entityArtHref('facet', 2, 'a b&c')).toBe('/facets?facet=a%20b%26c')
-  })
+// --- a type with no manager lands on the list and stops ---------------------
+assert.equal(entityArtHref('achievement', 4), '/achievements')
 
-  it('lands on the list for a type with no manager', () => {
-    expect(entityArtHref('achievement', 4)).toBe('/achievements')
-  })
+// --- null rather than a broken link -----------------------------------------
+assert.equal(entityArtHref('nonsense', 1), null)
+assert.equal(entityArtHref('character', 0), null)
+assert.equal(entityArtHref('character', -3), null)
+assert.equal(entityArtHref('character', null), null)
+assert.equal(entityArtHref(null, 12), null)
 
-  it('returns null rather than a broken link', () => {
-    expect(entityArtHref('nonsense', 1)).toBeNull()
-    expect(entityArtHref('character', 0)).toBeNull()
-    expect(entityArtHref('character', -3)).toBeNull()
-    expect(entityArtHref('character', null)).toBeNull()
-    expect(entityArtHref(null, 12)).toBeNull()
-  })
+// --- every type the entity-art pipeline can emit has a route ----------------
+// If EntityArtType gains a member, this fails until it gains a route.
+for (const type of [
+  'bot', 'dream', 'character', 'scenario', 'reward',
+  'facet', 'project', 'achievement', 'resource',
+] as const) {
+  assert.ok(ENTITY_ART_ROUTES[type], `${type} needs a route`)
+  assert.ok(entityArtHref(type, 1, 'slug'), `${type} must produce an href`)
+}
 
-  it('covers every type the entity-art pipeline can emit', () => {
-    // If EntityArtType gains a member, this fails until it gains a route.
-    for (const type of ['bot', 'dream', 'character', 'scenario', 'reward',
-                        'facet', 'project', 'achievement', 'resource'] as const) {
-      expect(ENTITY_ART_ROUTES[type]).toBeDefined()
-      expect(entityArtHref(type, 1, 'slug')).toBeTruthy()
-    }
-  })
-})
+// --- labels and batching keys -----------------------------------------------
+assert.equal(entityArtTypeLabel('resource'), 'Resource')
+assert.equal(entityArtTypeLabel('scenario'), 'Scenario')
+assert.equal(entityArtTypeLabel('mystery'), 'mystery')
+assert.equal(entityArtRefKey('resource', 12), 'resource:12')
+assert.equal(entityArtRefKey(null, null), ':0')
 
-describe('labels and keys', () => {
-  it('labels a type for display', () => {
-    expect(entityArtTypeLabel('resource')).toBe('Resource')
-    expect(entityArtTypeLabel('scenario')).toBe('Scenario')
-    expect(entityArtTypeLabel('mystery')).toBe('mystery')
-  })
-
-  it('builds a stable batching key', () => {
-    expect(entityArtRefKey('resource', 12)).toBe('resource:12')
-    expect(entityArtRefKey(null, null)).toBe(':0')
-  })
-})
+console.log('verifyEntityArtLink: all assertions passed')

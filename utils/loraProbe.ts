@@ -42,6 +42,12 @@ const PACKAGING_NOISE_PATTERN =
 /*
  * Base-model names. A trigger reading 'Grey Impact - Illustrious/PonyXL' is
  * naming its own compatibility, not asking for anything to be drawn.
+ *
+ * The list has to keep up with the lanes. 'Realistic Snapshot (Z-Image-Turbo +
+ * Krea 2)' rendered verbatim (ArtJob 28437) because neither z-image nor krea
+ * was here, so the probe asked for a snapshot of two model names. Every engine
+ * added to LORA_PROBE_RECIPES needs its name added here too, or its LoRAs'
+ * titles start describing the picture.
  */
 /*
  * Bounded on [\w-] rather than \b, because \b matches at a hyphen and these
@@ -52,7 +58,7 @@ const PACKAGING_NOISE_PATTERN =
  * for.
  */
 const BASE_NAME_NOISE_PATTERN =
-  /(?<![\w-])(?:pony\s*xl|pony\s*diffusion(?:\s*xl)?|pdxl|sdxl|sd\s*1\.5|sd15|illustrious|ilxl|noobai|flux[0-9.]*(?:\s*d(?:ev)?)?|schnell|kontext|klein|wan|ltx|qwen)(?![\w-])/gi
+  /(?<![\w-])(?:pony\s*xl|pony\s*diffusion(?:\s*xl)?|pdxl|sdxl|sd\s*1\.5|sd15|illustrious|ilxl|noobai|flux[0-9.]*(?:\s*d(?:ev)?)?|schnell|kontext|klein|wan|ltx|qwen|z[-\s]?image(?:[-\s]?turbo)?|krea(?:\s*\d+)?|chroma|hidream|lumina|auraflow)(?![\w-])/gi
 
 /*
  * Left behind once the words above are gone: '[PonyXL]' becomes '[ ]', and
@@ -238,17 +244,16 @@ const NEGATIVE_SD = [
   'watermark',
   'signature',
   'text',
-  'cropped',
   /*
-   * 'cropped' alone did not hold. Both figures in the 2026-09-16 Pony strip
-   * came back cut off at the mouth -- the model scales a standing figure to
-   * fill a 1:1 frame and the head is what leaves it. Naming the specific
-   * failure works where the general word did not, and it does this without
-   * asserting a shot size in the positive prompt, which is what broke the
-   * full-body LoRAs the last time framing was tightened.
+   * Composition belongs HERE, not in the positive prompt (Silas, 2026-09-17).
+   * A positive 'centered' asserts what the image should be and competes with
+   * the LoRA -- a composition LoRA, a landscape LoRA, anything deliberately
+   * off-centre gets told to undo itself. A negative only rules out the failure
+   * (a subject sliced by the frame edge) and leaves every valid composition
+   * reachable.
    */
-  'head out of frame',
-  'cropped head',
+  'cropped',
+  'out of frame',
   'extra limbs',
   'deformed hands',
 ].join(', ')
@@ -284,97 +289,54 @@ const NEGATIVE_SD = [
  * how many subjects there are or how close the camera is.
  */
 /*
- * "in frame" IS A LITERAL INSTRUCTION TO THE MODEL, not a photography term.
+ * NO FRAMING, NO SUBJECT, NO STYLE. A probe is the LoRA's own trigger plus the
+ * quality preamble its base model requires, and nothing else.
  *
- * This scaffold read 'subject centered in frame, simple uncluttered
- * background', and a Batgirl probe came back as a framed picture hanging on a
- * textured wall (ArtJob 26318, 2026-09-16). It did exactly as asked: 'frame'
- * supplied the picture frame and 'simple uncluttered background' supplied the
- * wall to hang it on. Introduced by #2776 earlier the same day -- the phrasing
- * it replaced, 'single subject, upper body, centered', contained no such word.
+ * Everything this scaffold ever added pulled the render somewhere the LoRA was
+ * not, and each addition had to be walked back in turn over 2026-09-16/17:
  *
- * The word 'subject' goes with it, and that is the point rather than a
- * side-effect. It existed only so a pure style LoRA contributing no subject of
- * its own had SOMETHING to render; PROBE_DEFAULT_SUBJECT now gives those rows a
- * real one, so the placeholder noun that was inviting this reading is no longer
- * load-bearing. What is left says only where to put the thing and what to put
- * behind it.
+ *   'single subject, upper body, centered'  dropped a figure from a
+ *                                           two-figure concept and cropped the
+ *                                           full-body LoRAs
+ *   'subject centered in frame'             rendered framed pictures hanging
+ *                                           on walls (ArtJob 26318)
+ *   '1girl'                                 biased pre-teen across nine
+ *                                           unrelated LoRAs
+ *   'adult, mature female'                  aged the whole grid to 40-50+
+ *   'plain neutral background, soft even    rendered an Adventure Time STYLE
+ *    lighting, sharp focus'                 LoRA as a studio photo of a vinyl
+ *                                           toy (ArtImage 24472)
+ *
+ * Five attempts, five distortions, and in every case the grid stopped showing
+ * the LoRA and started showing the scaffold. Silas, 2026-09-17: "I've got no
+ * confidence that these meddlings are going to give us an accurate depiction of
+ * the loras."
+ *
+ * 'simple uncluttered background' is the clearest case of why none of it
+ * belongs here, because it reads as harmless. It is not: a maximalist artist
+ * style, or a LoRA whose whole concept IS 'maximalism', gets instructed to
+ * undo itself, and the grid then reports that the LoRA is weak (Silas,
+ * 2026-09-17). Every scaffold phrase is an assertion about what the output
+ * should look like, and a preview grid exists precisely to find that out.
+ *
+ * The quality preamble stays because it is base-model conditioning rather than
+ * art direction -- Pony will not render competently without its score_ tags.
+ * Anything else belongs in a custom prompt for the one troublesome LoRA, not
+ * here where it reaches all 2,658.
  */
-const PROBE_FRAMING_TAGS = 'centered, simple uncluttered background'
-const PROBE_FRAMING_PROSE = 'Centered against a simple uncluttered background.'
-
-/*
- * THE SCAFFOLD NAMES A SUBJECT WHEN THE LORA DOES NOT.
- *
- * Measured across all 2,658 probe jobs on 2026-09-16: 81.2% carried no subject
- * noun at all, and for 49.4% the entire prompt body was a single tag. The
- * median prompt was two tags. `anna`, `Apple - Style`, `pumpkinspicelatte
- * Style` -- that is the whole instruction, and eleven rows were empty.
- *
- * A prompt with no subject does not render nothing; it renders something
- * arbitrary, differently every time, which is worse. It is the same failure as
- * the Z-Image mannequin, and at this scale it means the style half of the
- * triage grid was never comparable LoRA-to-LoRA: each style LoRA invented its
- * own subject, so the one variable the grid exists to isolate was never
- * isolated.
- *
- * Injected CONDITIONALLY, which is the whole design. PROBE_FRAMING_TAGS above
- * documents why an unconditional subject is wrong: 'single subject' contradicted
- * the "Very Small Women" LoRA's own 'large male, very small female' triggers and
- * the render dropped a figure. So a LoRA that names any subject of its own keeps
- * it untouched and this adds nothing. Only the 81% that name none get a subject,
- * and they are exactly the rows that currently render pot luck.
- *
- * `1girl` rather than a neutral phrase, chosen by Silas 2026-09-16: it is the
- * highest-frequency tag in the Danbooru-derived training sets these families
- * come from, so it is the most reliable subject token available, and the probe
- * grid is his own LoRA library rather than user-facing output. Change this one
- * constant to change the default for every SD-lineage probe.
- */
-const PROBE_DEFAULT_SUBJECT = '1girl'
-
-/*
- * Flux and Z-Image read prose through T5, where `1girl` is a Danbooru token
- * with no meaning. Same decision, spelled for a different text encoder.
- */
-const PROBE_DEFAULT_SUBJECT_PROSE = 'a woman'
-
-/*
- * Does the trigger text already name something to draw?
- *
- * Framing words are deliberately absent: 'upper body', 'portrait' and 'face'
- * say how to frame a subject, not what the subject is, and counting them as
- * subjects is what would let `portrait` alone through as a complete prompt.
- *
- * So are two words that look like subjects and are not, each caught by this
- * running against the live queue after the first pass:
- *
- *   'pony'      -- almost always the BASE MODEL. 'Bartolomeobari Style - Pony
- *                  XL', 'Custom Pony Styles Collection' and 'Sky ( Artist
- *                  Style ) Pony' all counted as having a subject and so were
- *                  left without one. A genuine My Little Pony LoRA triggers on
- *                  'my little pony, pony girl' and is still caught, by 'girl'.
- *   'character' -- 'character sheet' and 'character design' are formats. A
- *                  LoRA whose only noun is 'character' is better served by
- *                  getting a subject than by being counted as having one.
- */
-const SUBJECT_NOUN_PATTERN =
-  /(?:^|[\s,([])(?:\d*(?:girl|boy)s?|girls?|boys?|wo?m[ae]n|male|female|person|people|couple|child|children|lady|guy|robot|mecha|animal|cat|dog|horse|dragon|creature|monster|knight|warrior|witch|wizard|elf|orc|mermaid|angel|demon|vampire|ghost)(?:$|[\s,)\]])/i
-
-export function triggerNamesSubject(trigger: string): boolean {
-  return SUBJECT_NOUN_PATTERN.test(String(trigger || ''))
-}
 
 /*
  * A trigger list, not a scene. 10.2% of probes dumped 12+ raw tags in -- the
  * Marge Simpson row sends 'the simpsons, source cartoon, round eyes, dot
- * pupils, marge simpson' and one row sends twenty `mix_(x)` concepts from a
- * multi-concept LoRA. Past roughly eight tags they compete rather than compose,
- * and the scaffold that makes the grid comparable is what gets drowned.
+ * pupils, marge simpson' and one sends twenty `mix_(x)` concepts from a
+ * multi-concept LoRA. Past roughly eight tags they compete rather than compose.
+ *
+ * This is the one thing the scaffold still does to a trigger, and it is a cap
+ * rather than an addition: it removes the LoRA's own least-important tags and
+ * puts nothing in their place.
  *
  * Kept from the FRONT: catalog trigger fields lead with the activation token
- * (`msp3yt0n`, `mlgswtch`) and trail off into descriptive filler, so the front
- * is the part that actually invokes the LoRA.
+ * (`msp3yt0n`, `mlgswtch`) and trail off into descriptive filler.
  */
 const MAX_TRIGGER_TAGS = 8
 
@@ -386,16 +348,9 @@ export function capProbeTriggerTags(trigger: string): string {
   return tags.slice(0, MAX_TRIGGER_TAGS).join(', ')
 }
 
-/**
- * The trigger text as it should appear in a probe: capped, and given a subject
- * if it names none.
- */
-export function probeSubjectClause(trigger: string, prose = false): string {
-  const capped = capProbeTriggerTags(trigger)
-  const subject = prose ? PROBE_DEFAULT_SUBJECT_PROSE : PROBE_DEFAULT_SUBJECT
-  if (!capped) return subject
-  if (triggerNamesSubject(capped)) return capped
-  return `${capped}, ${subject}`
+/** The trigger as it should appear in a probe: capped, with nothing added. */
+export function probeSubjectClause(trigger: string): string {
+  return capProbeTriggerTags(trigger)
 }
 
 export const LORA_PROBE_RECIPES: Record<
@@ -412,7 +367,6 @@ export const LORA_PROBE_RECIPES: Record<
       [
         'score_9, score_8_up, score_7_up',
         escapeSdPromptWeighting(probeSubjectClause(trigger)),
-        PROBE_FRAMING_TAGS,
       ]
         .filter(Boolean)
         .join(', '),
@@ -428,7 +382,6 @@ export const LORA_PROBE_RECIPES: Record<
       [
         'masterpiece, best quality, very aesthetic, absurdres',
         escapeSdPromptWeighting(probeSubjectClause(trigger)),
-        PROBE_FRAMING_TAGS,
       ]
         .filter(Boolean)
         .join(', '),
@@ -443,7 +396,6 @@ export const LORA_PROBE_RECIPES: Record<
     positive: (trigger) =>
       [
         escapeSdPromptWeighting(probeSubjectClause(trigger)),
-        PROBE_FRAMING_TAGS,
       ]
         .filter(Boolean)
         .join(', '),
@@ -464,7 +416,6 @@ export const LORA_PROBE_RECIPES: Record<
       [
         'best quality',
         escapeSdPromptWeighting(probeSubjectClause(trigger)),
-        PROBE_FRAMING_TAGS,
       ]
         .filter(Boolean)
         .join(', '),
@@ -488,7 +439,7 @@ export const LORA_PROBE_RECIPES: Record<
     height: 1024,
     loraStrength: 0.8,
     positive: (trigger) =>
-      `${probeSubjectClause(trigger, true)}. ${PROBE_FRAMING_PROSE}`,
+      probeSubjectClause(trigger),
     negative: '',
   },
   flux: {
@@ -498,7 +449,7 @@ export const LORA_PROBE_RECIPES: Record<
     height: 1024,
     loraStrength: 0.8,
     positive: (trigger) =>
-      `${probeSubjectClause(trigger, true)}. ${PROBE_FRAMING_PROSE}`,
+      probeSubjectClause(trigger),
     negative: '',
   },
 }
@@ -721,13 +672,54 @@ export function selectProbeCheckpoint(
   return ranked[0] as ProbeCheckpointCandidate
 }
 
+/*
+ * The LoRA's own name, recovered when it is all there is.
+ *
+ * 17 rows carry nothing in defaultTrigger but A1111 invocation syntax --
+ * `<lora:undtoral-000020:1>`, `<lora:JesterV2:0.75>`,
+ * `<lora:inniesbettervaginas_v11:1.0>`. LORA_INVOCATION_PATTERN strips that
+ * wholesale, correctly, because ComfyUI has no parser for it and would render
+ * it as literal text. But the NAME inside is not syntax: LoRA authors routinely
+ * name the file after the activation token, so `undtoral` is very likely the
+ * real trigger and throwing it away left those probes with an empty prompt.
+ *
+ * The trailing training-step counter goes (`-000020`, `-000015`), since it
+ * numbers a checkpoint rather than naming anything. The file stem is the
+ * second choice: `innievag.safetensors` invokes `inniesbettervaginas_v11`, and
+ * the invocation name is the more descriptive of the two.
+ */
+const LORA_INVOCATION_NAME_PATTERN =
+  /<(?:lora|lyco|lycoris|hypernet):\s*([^:>]+)/i
+const TRAINING_STEP_SUFFIX = /-\d{4,6}$/
+
+export function loraNameAsTrigger(
+  invocation?: string | null,
+  localPath?: string | null,
+): string {
+  const fromInvocation = String(invocation || '').match(LORA_INVOCATION_NAME_PATTERN)?.[1]
+  const fromPath = String(localPath || '')
+    .split('/')
+    .pop()
+    ?.replace(/\.(safetensors|ckpt|pt|bin)$/i, '')
+  const name = (fromInvocation || fromPath || '').trim()
+  if (!name) return ''
+  return sanitizeProbeTrigger(name.replace(TRAINING_STEP_SUFFIX, ''))
+}
+
 export function probeTriggerText(resource: {
   defaultTrigger?: string | null
   triggerWords?: string | null
+  localPath?: string | null
 }): string {
   const trigger = sanitizeProbeTrigger(String(resource.defaultTrigger || ''))
   if (trigger) return trigger
-  return sanitizeProbeTrigger(String(resource.triggerWords || ''))
+  const words = sanitizeProbeTrigger(String(resource.triggerWords || ''))
+  if (words) return words
+  // Nothing but invocation syntax survived; the name inside it is the trigger.
+  return loraNameAsTrigger(
+    resource.defaultTrigger || resource.triggerWords,
+    resource.localPath,
+  )
 }
 
 export function buildLoraProbePrompt(

@@ -239,44 +239,6 @@ const NEGATIVE_SD = [
   'signature',
   'text',
   'cropped',
-  /*
-   * 'cropped' alone did not hold. Both figures in the 2026-09-16 Pony strip
-   * came back cut off at the mouth -- the model scales a standing figure to
-   * fill a 1:1 frame and the head is what leaves it. Naming the specific
-   * failure works where the general word did not, and it does this without
-   * asserting a shot size in the positive prompt, which is what broke the
-   * full-body LoRAs the last time framing was tightened.
-   */
-  'head out of frame',
-  'cropped head',
-  /*
-   * Forecloses minors on every lane that takes a negative prompt.
-   *
-   * This is now the ONLY age guard, and deliberately so. The positive side
-   * injected `1girl` for a day and it biased pre-teen across nine unrelated
-   * LoRAs; `adult, mature female` then aged the whole grid to 40-50+. Both were
-   * removed because a scaffold noun competes with the LoRA being previewed. A
-   * negative does not: it constrains what must not appear without pulling the
-   * subject anywhere, so it costs nothing in fidelity.
-   *
-   * It also covers the case the positive side never could -- a LoRA supplying
-   * its own young-reading trigger, which no injected token touches.
-   *
-   * Kept narrow. `teenager` was here and was removed (Silas, 2026-09-17): the
-   * catalog holds characters who are canonically eighteen or nineteen and
-   * legitimately depicted as adults, and the word covers them as much as it
-   * covers a minor. Every term below names children only.
-   *
-   * Flux and Z-Image take no negative prompt at all, so this does not reach
-   * them.
-   */
-  'child',
-  'children',
-  'loli',
-  'shota',
-  'toddler',
-  'infant',
-  'young girl',
   'extra limbs',
   'deformed hands',
 ].join(', ')
@@ -312,62 +274,44 @@ const NEGATIVE_SD = [
  * how many subjects there are or how close the camera is.
  */
 /*
- * "in frame" IS A LITERAL INSTRUCTION TO THE MODEL, not a photography term.
+ * NO FRAMING, NO SUBJECT, NO STYLE. A probe is the LoRA's own trigger plus the
+ * quality preamble its base model requires, and nothing else.
  *
- * This scaffold read 'subject centered in frame, simple uncluttered
- * background', and a Batgirl probe came back as a framed picture hanging on a
- * textured wall (ArtJob 26318, 2026-09-16). It did exactly as asked: 'frame'
- * supplied the picture frame and 'simple uncluttered background' supplied the
- * wall to hang it on. Introduced by #2776 earlier the same day -- the phrasing
- * it replaced, 'single subject, upper body, centered', contained no such word.
+ * Everything this scaffold ever added pulled the render somewhere the LoRA was
+ * not, and each addition had to be walked back in turn over 2026-09-16/17:
  *
- * The word 'subject' goes with it. It existed only so a pure style LoRA
- * contributing no subject of its own had SOMETHING to render, and that is no
- * longer a job the scaffold takes on at all. What is left says only where to
- * put the thing and what to put behind it.
- */
-const PROBE_FRAMING_TAGS = 'centered, simple uncluttered background'
-const PROBE_FRAMING_PROSE = 'Centered against a simple uncluttered background.'
-
-/*
- * NO SUBJECT IS INJECTED. A probe renders the LoRA's own trigger and nothing
- * more.
+ *   'single subject, upper body, centered'  dropped a figure from a
+ *                                           two-figure concept and cropped the
+ *                                           full-body LoRAs
+ *   'subject centered in frame'             rendered framed pictures hanging
+ *                                           on walls (ArtJob 26318)
+ *   '1girl'                                 biased pre-teen across nine
+ *                                           unrelated LoRAs
+ *   'adult, mature female'                  aged the whole grid to 40-50+
+ *   'plain neutral background, soft even    rendered an Adventure Time STYLE
+ *    lighting, sharp focus'                 LoRA as a studio photo of a vinyl
+ *                                           toy (ArtImage 24472)
  *
- * One was injected here, and the attempt is recorded because every repair made
- * it worse:
+ * Five attempts, five distortions, and in every case the grid stopped showing
+ * the LoRA and started showing the scaffold. Silas, 2026-09-17: "I've got no
+ * confidence that these meddlings are going to give us an accurate depiction of
+ * the loras."
  *
- *   - 81.2% of 2,658 probes named no subject at all and rendered something
- *     arbitrary, so `1girl` was injected into those -- the highest-frequency
- *     tag in the Danbooru-derived sets these families come from.
- *   - `1girl` spans every age and biased strongly young: six of nine
- *     consecutive probes across nine unrelated LoRAs came back pre-teen, and
- *     449 pending probes paired it with a LoRA under NSFW/.
- *   - `adult, mature female` was added to age it. `mature female` is a
- *     Danbooru term for OLDER, and the grid came back uniformly 40-50+
- *     (Silas, 2026-09-17: "massively distorting the loras").
- *
- * Each token pulled the render somewhere the LoRA was not. A scaffold subject
- * competes with the thing being previewed whichever noun it is, and the
- * arbitrary-render problem it was meant to solve is the milder complaint: a
- * style LoRA with no subject renders something unpredictable, which reads
- * correctly as "this LoRA carries no subject" once the scaffold is known to add
- * none.
- *
- * The minor-exclusion terms in NEGATIVE_SD stay. A negative constrains what
- * must not appear without pulling the subject anywhere, so it costs nothing in
- * fidelity, and it is the guard that has to hold when a LoRA supplies its own
- * young-reading trigger.
- *
- * If a particular probe genuinely needs a figure, name it at the call site.
- * Do not reinstate a global default here.
+ * The quality preamble stays because it is base-model conditioning rather than
+ * art direction -- Pony will not render competently without its score_ tags.
+ * Anything else belongs in a custom prompt for the one troublesome LoRA, not
+ * here where it reaches all 2,658.
  */
 
 /*
  * A trigger list, not a scene. 10.2% of probes dumped 12+ raw tags in -- the
  * Marge Simpson row sends 'the simpsons, source cartoon, round eyes, dot
  * pupils, marge simpson' and one sends twenty `mix_(x)` concepts from a
- * multi-concept LoRA. Past roughly eight tags they compete rather than compose
- * and drown the scaffold that makes the grid comparable.
+ * multi-concept LoRA. Past roughly eight tags they compete rather than compose.
+ *
+ * This is the one thing the scaffold still does to a trigger, and it is a cap
+ * rather than an addition: it removes the LoRA's own least-important tags and
+ * puts nothing in their place.
  *
  * Kept from the FRONT: catalog trigger fields lead with the activation token
  * (`msp3yt0n`, `mlgswtch`) and trail off into descriptive filler.
@@ -401,7 +345,6 @@ export const LORA_PROBE_RECIPES: Record<
       [
         'score_9, score_8_up, score_7_up',
         escapeSdPromptWeighting(probeSubjectClause(trigger)),
-        PROBE_FRAMING_TAGS,
       ]
         .filter(Boolean)
         .join(', '),
@@ -417,7 +360,6 @@ export const LORA_PROBE_RECIPES: Record<
       [
         'masterpiece, best quality, very aesthetic, absurdres',
         escapeSdPromptWeighting(probeSubjectClause(trigger)),
-        PROBE_FRAMING_TAGS,
       ]
         .filter(Boolean)
         .join(', '),
@@ -432,7 +374,6 @@ export const LORA_PROBE_RECIPES: Record<
     positive: (trigger) =>
       [
         escapeSdPromptWeighting(probeSubjectClause(trigger)),
-        PROBE_FRAMING_TAGS,
       ]
         .filter(Boolean)
         .join(', '),
@@ -453,7 +394,6 @@ export const LORA_PROBE_RECIPES: Record<
       [
         'best quality',
         escapeSdPromptWeighting(probeSubjectClause(trigger)),
-        PROBE_FRAMING_TAGS,
       ]
         .filter(Boolean)
         .join(', '),
@@ -477,7 +417,7 @@ export const LORA_PROBE_RECIPES: Record<
     height: 1024,
     loraStrength: 0.8,
     positive: (trigger) =>
-      `${probeSubjectClause(trigger)}. ${PROBE_FRAMING_PROSE}`,
+      probeSubjectClause(trigger),
     negative: '',
   },
   flux: {
@@ -487,7 +427,7 @@ export const LORA_PROBE_RECIPES: Record<
     height: 1024,
     loraStrength: 0.8,
     positive: (trigger) =>
-      `${probeSubjectClause(trigger)}. ${PROBE_FRAMING_PROSE}`,
+      probeSubjectClause(trigger),
     negative: '',
   },
 }

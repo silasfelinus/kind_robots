@@ -160,6 +160,25 @@
             >
               Destination · {{ jobPageLabel }}
             </p>
+
+            <!-- What this image was made for. Only an entity origin has
+                 somewhere to go; the rest state themselves and stop. -->
+            <NuxtLink
+              v-if="originHref"
+              :to="originHref"
+              class="mt-0.5 flex min-w-0 items-center gap-1 truncate text-xs font-semibold text-secondary hover:underline"
+              :title="`Open ${originTypeLabel}: ${originLabel}`"
+            >
+              <Icon name="kind-icon:link" class="h-3 w-3 shrink-0" />
+              <span class="truncate">{{ originTypeLabel }} · {{ originLabel }}</span>
+            </NuxtLink>
+            <p
+              v-else-if="originText"
+              class="mt-0.5 truncate text-xs text-base-content/55"
+              :title="originText"
+            >
+              {{ originText }}
+            </p>
           </div>
           <span v-if="jobVariant" class="kr-badge-ghost-sm rounded-2xl">
             {{ jobVariant }}
@@ -425,12 +444,16 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, watch, watchEffect } from 'vue'
 import { useArtJobStore, type ArtJobRecord } from '@/stores/artJobStore'
 import { useArtJobPriorityStore } from '@/stores/artJobPriorityStore'
 import { useArtStore } from '@/stores/artStore'
 import { useUserStore } from '@/stores/userStore'
+import { useEntityArtLinkStore } from '@/stores/entityArtLinkStore'
+import { entityArtTypeLabel } from '@/utils/entityArtLink'
 import {
+  artJobOrigin,
+  artJobOriginLabel,
   artJobImagePath,
   artJobImageVersion,
   artJobNegativePrompt,
@@ -458,6 +481,7 @@ const artJobStore = useArtJobStore()
 const priorityStore = useArtJobPriorityStore()
 const artStore = useArtStore()
 const userStore = useUserStore()
+const entityArtLinkStore = useEntityArtLinkStore()
 const copied = ref(false)
 const locallyRevealedMature = ref(false)
 const runningElapsed = ref('')
@@ -519,6 +543,55 @@ const hiddenMatureMessage = computed<string>(() => {
 const jobTitle = computed<string>(() => artJobTitle(props.job))
 
 const jobPageLabel = computed<string>(() => artJobPageLabel(props.job))
+
+/*
+ * The object this image was made for.
+ *
+ * An ArtImage is a standalone generation, something made by hand in the art
+ * generator, or art made FOR another object -- and until now the card showed
+ * no trace of the third case even though the payload has always carried it.
+ * The id is all the payload holds, so the name comes from a batched lookup;
+ * the link renders as soon as it lands and the card shows the type meanwhile.
+ */
+const jobOrigin = computed(() => artJobOrigin(props.job))
+
+const resolvedOrigin = computed(() =>
+  jobOrigin.value.kind === 'entity'
+    ? entityArtLinkStore.get(jobOrigin.value.entityType, jobOrigin.value.entityId)
+    : null,
+)
+
+const originTypeLabel = computed<string>(() =>
+  jobOrigin.value.kind === 'entity'
+    ? entityArtTypeLabel(jobOrigin.value.entityType)
+    : '',
+)
+
+const originLabel = computed<string>(() => resolvedOrigin.value?.label ?? '')
+
+const originHref = computed<string | null>(() => resolvedOrigin.value?.href ?? null)
+
+/** Shown when there is nothing to link to: a non-entity origin, a reference
+ *  still resolving, or an object deleted after its art was queued. */
+const originText = computed<string>(() => {
+  const origin = jobOrigin.value
+  if (origin.kind !== 'entity') {
+    return origin.kind === 'standalone' ? '' : artJobOriginLabel(origin)
+  }
+  const resolved = resolvedOrigin.value
+  if (!resolved) return `${originTypeLabel.value} #${origin.entityId}`
+  if (!resolved.exists) {
+    return `${originTypeLabel.value} #${origin.entityId} · deleted`
+  }
+  return `${originTypeLabel.value} · ${resolved.label ?? ''}`
+})
+
+watchEffect(() => {
+  const origin = jobOrigin.value
+  if (origin.kind === 'entity') {
+    entityArtLinkStore.request(origin.entityType, origin.entityId)
+  }
+})
 
 const jobVariant = computed<string>(() => artJobVariant(props.job))
 

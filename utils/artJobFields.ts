@@ -227,3 +227,68 @@ export function artJobPublicImageSrc(job: ArtJobFieldsSource): string {
   if (!visibility.isPublic || visibility.isMature) return ''
   return `/api/art/images/${id}/file${artJobImageVersion(job)}`
 }
+
+/*
+ * WHAT THIS IMAGE WAS MADE FOR.
+ *
+ * Silas, 2026-09-17: "each artimage should be either a unique art gen,
+ * something made manually in the art generator page, or something created for
+ * another object." The payload carries five discriminators rather than three,
+ * so they are reported as they are rather than collapsed:
+ *
+ *   entityArt        art FOR an object -- a LoRA probe, a character portrait
+ *   narrativeContext a storybook/taskmaster/davinci beat
+ *   brainstorm       a Brainstorm candidate
+ *   dream            the daily-dream pipeline
+ *   standalone       everything else: the art generator page, or a one-off
+ *
+ * Only `entity` has somewhere to link; see utils/entityArtLink.ts.
+ */
+export type ArtJobOrigin =
+  | { kind: 'entity'; entityType: string; entityId: number }
+  | { kind: 'narrative'; product: string; sessionId: string }
+  | { kind: 'brainstorm'; candidateId: string }
+  | { kind: 'dream'; dreamId: number | null }
+  | { kind: 'standalone' }
+
+export function artJobOrigin(job: ArtJobFieldsSource): ArtJobOrigin {
+  const payload = asRecord(job.payload)
+
+  const entityArt = asRecord(payload.entityArt)
+  const entityType = scalar(entityArt.entityType)
+  const entityId = Number(entityArt.entityId)
+  if (entityType && Number.isInteger(entityId) && entityId > 0) {
+    return { kind: 'entity', entityType, entityId }
+  }
+
+  const narrative = asRecord(payload.narrativeContext)
+  const product = scalar(narrative.product)
+  if (product) {
+    return { kind: 'narrative', product, sessionId: scalar(narrative.sessionId) }
+  }
+
+  const brainstorm = asRecord(payload.brainstormContext)
+  const candidateId = scalar(brainstorm.candidateId)
+  if (candidateId) return { kind: 'brainstorm', candidateId }
+
+  const dreamId = Number(scalar(payload.dreamId) || scalar(asRecord(payload.dream).id))
+  if (Number.isInteger(dreamId) && dreamId > 0) return { kind: 'dream', dreamId }
+
+  return { kind: 'standalone' }
+}
+
+/** Short human phrase for an origin, for surfaces with no room for a link. */
+export function artJobOriginLabel(origin: ArtJobOrigin): string {
+  switch (origin.kind) {
+    case 'entity':
+      return `For ${origin.entityType}`
+    case 'narrative':
+      return `Narrative · ${origin.product}`
+    case 'brainstorm':
+      return 'Brainstorm candidate'
+    case 'dream':
+      return 'Daily dream'
+    default:
+      return 'Standalone generation'
+  }
+}

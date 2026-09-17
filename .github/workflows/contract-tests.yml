@@ -320,6 +320,12 @@ jobs:
       - name: AppMaker pending-scaffold-pattern guard
         run: npm run test:appmaker-pending-scaffold-pattern-guard
 
+      - name: AppMaker graduate-request guard self-test
+        run: npm run test:appmaker-graduate-request-guard-selftest
+
+      - name: AppMaker graduate-request guard
+        run: npm run test:appmaker-graduate-request-guard
+
       - name: Da Vinci narration bounds contract
         run: npm run test:davinci-narration
 

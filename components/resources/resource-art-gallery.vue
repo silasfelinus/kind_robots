@@ -11,9 +11,17 @@
   Civitai preview is a URL rather than an ArtImage row, so it is shown beside
   them and never offered as something to act on.
 
-  Origins are groups, not filters: one image is routinely both the generated
-  preview and a LoRA use, and /api/resources/:id/gallery returns every origin
-  that claimed it rather than making the client ask four times.
+  ON kr-gallery, ONE PER ORIGIN. Origins are groups, not filters: an image is
+  routinely both the generated preview and a LoRA use, and each is a browse
+  grid of the same object, so each is a <kr-gallery>. The route gallery
+  contract is the reason -- a first version hand-rolled its own grid and
+  verifyRouteGalleryContract.ts caught it, correctly: a second grid of art with
+  its own tile markup is exactly the drift kr-gallery exists to prevent, and
+  taking the shared shell also takes `source` resolution, progressive
+  hydration, and the empty and error states for free.
+
+  No mode switcher: this lives inside a card back, where four extra buttons per
+  group would be louder than the pictures. Density is fixed compact.
 -->
 <template>
   <section class="mt-4">
@@ -34,16 +42,21 @@
       </button>
     </header>
 
-    <div v-if="loading" class="flex items-center gap-2 text-xs opacity-60">
-      <span class="kr-spinner-xs" />
-      Loading images…
-    </div>
-
-    <p v-else-if="error" class="text-xs text-error">{{ error }}</p>
-
-    <p v-else-if="!totalCount" class="text-xs opacity-60">
-      No images yet. Generate art for this resource, or use it in a build.
-    </p>
+    <!--
+      The loading, empty and error states are the shell's. A single group
+      renders them when there is nothing yet, so this file never draws a
+      spinner or an empty state of its own.
+    -->
+    <kr-gallery
+      v-if="loading || error || !groups.length"
+      :items="[]"
+      :modes="[]"
+      density="xs"
+      :loading="loading"
+      :error="error"
+      :skeleton-count="4"
+      empty-label="images for this resource yet"
+    />
 
     <div v-else class="space-y-3">
       <div v-for="group in groups" :key="group.key">
@@ -52,37 +65,13 @@
           <span class="opacity-70">({{ group.items.length }})</span>
         </p>
 
-        <div class="grid grid-cols-3 gap-1.5 sm:grid-cols-4">
-          <component
-            :is="group.key === 'civitai' ? 'a' : 'button'"
-            v-for="item in group.items"
-            :key="item.key"
-            v-bind="
-              group.key === 'civitai'
-                ? { href: item.src, target: '_blank', rel: 'noopener' }
-                : { type: 'button' }
-            "
-            class="relative aspect-square overflow-hidden rounded-lg bg-base-200 ring-1 ring-base-300 transition hover:ring-primary"
-            :title="item.title"
-            @click="
-              group.key === 'civitai'
-                ? undefined
-                : emit('select', item.id as number)
-            "
-          >
-            <kr-deferred-image
-              :src="item.src"
-              :alt="item.title"
-              class="h-full w-full object-cover"
-            />
-            <span
-              v-if="item.isMature"
-              class="absolute right-1 top-1 kr-badge-sm badge-error"
-            >
-              18+
-            </span>
-          </component>
-        </div>
+        <kr-gallery
+          :items="group.items"
+          :modes="[]"
+          density="xs"
+          empty-label="images"
+          @open="openItem(group.key, $event)"
+        />
       </div>
     </div>
   </section>
@@ -90,6 +79,7 @@
 
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
+import type { GalleryItem } from '@/components/gallery/kr-gallery.vue'
 import { performFetch } from '@/stores/utils'
 import { useUserStore } from '@/stores/userStore'
 
@@ -138,17 +128,6 @@ const ORIGIN_LABELS: Record<string, string> = {
 
 const ORIGIN_ORDER = ['preview', 'civitai', 'lora', 'checkpoint', 'entity']
 
-/**
- * The static paths, in resource-card.vue's order. `/api/art/images/:id/file`
- * 403s for a browser `<img>` (no Authorization header on an image request), so
- * a card that reached for it drew an empty frame.
- */
-function imageSrc(image: GalleryImage): string {
-  return (
-    image.thumbnailPath || image.cardPath || image.imagePath || image.path || ''
-  )
-}
-
 /** An image belongs to exactly one heading: its highest-priority origin. */
 function primaryOrigin(image: GalleryImage): string {
   let best = ORIGIN_ORDER.length
@@ -159,20 +138,12 @@ function primaryOrigin(image: GalleryImage): string {
   return ORIGIN_ORDER[best] ?? 'entity'
 }
 
-type GalleryTile = {
-  key: string
-  id?: number
-  src: string
-  title: string
-  isMature: boolean
-}
-
-const groups = computed<{ key: string; label: string; items: GalleryTile[] }[]>(
+const groups = computed<{ key: string; label: string; items: GalleryItem[] }[]>(
   () => {
     const data = payload.value
     if (!data) return []
 
-    const out: { key: string; label: string; items: GalleryTile[] }[] = []
+    const out: { key: string; label: string; items: GalleryItem[] }[] = []
 
     for (const origin of ORIGIN_ORDER) {
       if (origin === 'civitai') {
@@ -182,10 +153,12 @@ const groups = computed<{ key: string; label: string; items: GalleryTile[] }[]>(
           label: ORIGIN_LABELS.civitai as string,
           items: [
             {
-              key: 'civitai',
-              src: data.civitaiPreviewUrl,
-              title: 'Civitai preview (opens on civitai.com)',
-              isMature: false,
+              id: 'civitai',
+              title: 'Civitai preview',
+              // A bare URL, not an ArtImage: `card` takes the resolved path
+              // directly, where `source` would resolve a row this has none of.
+              card: data.civitaiPreviewUrl,
+              meta: 'Opens on civitai.com',
             },
           ],
         })
@@ -194,14 +167,16 @@ const groups = computed<{ key: string; label: string; items: GalleryTile[] }[]>(
 
       const items = data.images
         .filter((image) => primaryOrigin(image) === origin)
-        .map((image) => ({
-          key: `img-${image.id}`,
+        .map<GalleryItem>((image) => ({
           id: image.id,
-          src: imageSrc(image),
           title: image.promptString || image.fileName || `Image ${image.id}`,
-          isMature: Boolean(image.isMature),
+          // Let the shell resolve the variant. A hand-rolled path order is how
+          // the object card ended up drawing empty frames.
+          source: image,
+          badges: image.isMature
+            ? [{ label: '18+', class: 'badge-error' }]
+            : undefined,
         }))
-        .filter((item) => Boolean(item.src))
 
       if (items.length) {
         out.push({ key: origin, label: ORIGIN_LABELS[origin] as string, items })
@@ -215,6 +190,16 @@ const groups = computed<{ key: string; label: string; items: GalleryTile[] }[]>(
 const totalCount = computed(() =>
   groups.value.reduce((sum, group) => sum + group.items.length, 0),
 )
+
+function openItem(groupKey: string, item: GalleryItem): void {
+  if (groupKey === 'civitai') {
+    const url = payload.value?.civitaiPreviewUrl
+    if (url) window.open(url, '_blank', 'noopener')
+    return
+  }
+
+  if (typeof item.id === 'number') emit('select', item.id)
+}
 
 async function load(force = false): Promise<void> {
   if (loading.value) return

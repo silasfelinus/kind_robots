@@ -59,6 +59,16 @@
           <Icon name="kind-icon:sliders" class="kr-icon-4" />
           <span class="sr-only">Toggle queue filters</span>
         </button>
+        <button
+          type="button"
+          class="gallery-utility"
+          :class="{ 'gallery-utility-active': showPresetEditor }"
+          title="Sorting bin and action presets"
+          @click="showPresetEditor = !showPresetEditor"
+        >
+          <Icon name="kind-icon:settings" class="kr-icon-4" />
+          <span class="sr-only">Toggle sorting presets</span>
+        </button>
         <span class="queue-count">
           {{ gallery.remainingCount }} / {{ gallery.pile.length }}
         </span>
@@ -180,6 +190,14 @@
             </div>
           </div>
         </div>
+      </section>
+
+      <section
+        v-if="showPresetEditor"
+        class="queue-filter-panel kr-panel max-h-[60vh] overflow-y-auto"
+        aria-label="Sorting bin and action presets"
+      >
+        <ButterflyGalleryPresetEditor />
       </section>
 
       <p class="sr-only" role="status" aria-live="polite">
@@ -481,6 +499,7 @@
 
 <script setup lang="ts">
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import ButterflyGalleryPresetEditor from '@/components/art/ButterflyGalleryPresetEditor.vue'
 import { useButterflyGalleryStore } from '@/stores/butterflyGalleryStore'
 import { useUserStore } from '@/stores/userStore'
 import { computeButterflyFunnelDropPlan } from '@/stores/helpers/butterflyGalleryMotion'
@@ -503,6 +522,7 @@ const infoExpanded = ref(false)
 const dropSequence = ref(0)
 const fadeReveal = ref(false)
 const showFilters = ref(false)
+const showPresetEditor = ref(false)
 
 // -- First-visit intro orchestration (butterfly-gallery/t-015) -------------
 const introTrapdoorOpen = ref(false)

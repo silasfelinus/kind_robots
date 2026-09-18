@@ -27,26 +27,26 @@
           </label>
           <label>
             <span class="kr-text-dim-xs">Folder</span>
-            <select v-model="archive.filters.folderCollectionId" class="kr-select mt-1 w-full" @change="applyFilters">
+            <select v-model="archive.filters.folderCollectionId" class="kr-select-sm mt-1 w-full" @change="applyFilters">
               <option value="">All folders</option>
               <option v-for="folder in archive.folders" :key="folder.id" :value="String(folder.id)">{{ folder.label }}</option>
             </select>
           </label>
           <label>
             <span class="kr-text-dim-xs">Processed</span>
-            <select v-model="archive.filters.processState" class="kr-select mt-1 w-full" @change="applyFilters">
+            <select v-model="archive.filters.processState" class="kr-select-sm mt-1 w-full" @change="applyFilters">
               <option value="">Any state</option><option value="PENDING">Unprocessed</option><option value="IMPORTED">Imported</option><option value="ERROR">Error</option><option value="MISSING">Missing</option>
             </select>
           </label>
           <label>
             <span class="kr-text-dim-xs">Resource match</span>
-            <select v-model="archive.filters.matchState" class="kr-select mt-1 w-full" @change="applyFilters">
+            <select v-model="archive.filters.matchState" class="kr-select-sm mt-1 w-full" @change="applyFilters">
               <option value="">Any match</option><option value="UNMATCHED">Unmatched</option><option value="SUGGESTED">Suggested</option><option value="AMBIGUOUS">Ambiguous</option><option value="CONFIRMED">Confirmed</option><option value="MANUAL">Manual</option>
             </select>
           </label>
           <label>
             <span class="kr-text-dim-xs">Rating</span>
-            <select v-model="archive.filters.rating" class="kr-select mt-1 w-full" @change="applyFilters">
+            <select v-model="archive.filters.rating" class="kr-select-sm mt-1 w-full" @change="applyFilters">
               <option value="">Any rating</option><option v-for="rating in 5" :key="rating" :value="String(rating)">{{ rating }} star{{ rating === 1 ? '' : 's' }}</option>
             </select>
           </label>
@@ -105,7 +105,7 @@ import { useUserStore } from '@/stores/userStore'
 
 const archive = useArtArchiveStore()
 const userStore = useUserStore()
-const ready = computed(() => userStore.isInitialized)
+const ready = computed(() => userStore.initialized)
 
 function fileName(path: string) { return path.split('/').pop() || path }
 function pretty(value: unknown) { return value ? JSON.stringify(value, null, 2) : 'No metadata recorded.' }
@@ -113,7 +113,7 @@ async function applyFilters() { await archive.fetchEntries(true) }
 async function changePage(delta: number) { archive.page += delta; await archive.fetchEntries() }
 
 onMounted(async () => {
-  if (!userStore.isInitialized) await userStore.initialize()
+  if (!userStore.initialized) await userStore.initialize()
   if (userStore.isAdmin) await archive.fetchEntries(true)
 })
 </script>

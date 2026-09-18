@@ -6,13 +6,14 @@ import type {
   ButterflyBinConfig,
   ButterflyPileEntry,
 } from '@/types/butterflyGallery'
+import { defaultArtFor } from '@/utils/defaultArtPool'
 
 export function createButterflyGalleryFixtureEntries(): ButterflyPileEntry[] {
   return [
     {
       id: 9001,
-      thumbnailPath: '/images/placeholder/butterfly-fixture-1-thumb.webp',
-      displayPath: '/images/placeholder/butterfly-fixture-1.webp',
+      thumbnailPath: defaultArtFor('butterfly-fixture-1'),
+      displayPath: defaultArtFor('butterfly-fixture-1'),
       isMature: false,
       isPublic: true,
       processed: false,
@@ -28,8 +29,8 @@ export function createButterflyGalleryFixtureEntries(): ButterflyPileEntry[] {
     },
     {
       id: 9002,
-      thumbnailPath: '/images/placeholder/butterfly-fixture-2-thumb.webp',
-      displayPath: '/images/placeholder/butterfly-fixture-2.webp',
+      thumbnailPath: defaultArtFor('butterfly-fixture-2'),
+      displayPath: defaultArtFor('butterfly-fixture-2'),
       isMature: true,
       isPublic: false,
       processed: false,
@@ -48,8 +49,8 @@ export function createButterflyGalleryFixtureEntries(): ButterflyPileEntry[] {
     },
     {
       id: 9003,
-      thumbnailPath: '/images/placeholder/butterfly-fixture-3-thumb.webp',
-      displayPath: '/images/placeholder/butterfly-fixture-3.webp',
+      thumbnailPath: defaultArtFor('butterfly-fixture-3'),
+      displayPath: defaultArtFor('butterfly-fixture-3'),
       isMature: false,
       isPublic: true,
       processed: true,
@@ -65,8 +66,8 @@ export function createButterflyGalleryFixtureEntries(): ButterflyPileEntry[] {
     },
     {
       id: 9004,
-      thumbnailPath: '/images/placeholder/butterfly-fixture-4-thumb.webp',
-      displayPath: '/images/placeholder/butterfly-fixture-4.webp',
+      thumbnailPath: defaultArtFor('butterfly-fixture-4'),
+      displayPath: defaultArtFor('butterfly-fixture-4'),
       isMature: false,
       isPublic: true,
       processed: false,
@@ -82,8 +83,8 @@ export function createButterflyGalleryFixtureEntries(): ButterflyPileEntry[] {
     },
     {
       id: 9005,
-      thumbnailPath: '/images/placeholder/butterfly-fixture-5-thumb.webp',
-      displayPath: '/images/placeholder/butterfly-fixture-5.webp',
+      thumbnailPath: defaultArtFor('butterfly-fixture-5'),
+      displayPath: defaultArtFor('butterfly-fixture-5'),
       isMature: false,
       isPublic: true,
       processed: false,

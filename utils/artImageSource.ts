@@ -251,3 +251,22 @@ export function withImageVersion(
 
   return `${value}${value.includes('?') ? '&' : '?'}v=${stamp}`
 }
+
+/**
+ * Read a fetched image Blob into a `data:` URI.
+ *
+ * The generator takes `sourceImageBase64`, so anything offered as a starting
+ * image -- a finished ArtJob's bytes, an upstream Civitai sample -- has to
+ * arrive in this shape. Kept here rather than in one store because two
+ * unrelated flows (the trainer's redo, and picking an image out of a gallery)
+ * both need exactly this and had no business each owning a copy.
+ */
+export function blobToDataUri(blob: Blob): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader()
+    reader.onload = () => resolve(String(reader.result || ''))
+    reader.onerror = () =>
+      reject(new Error('The source image could not be read.'))
+    reader.readAsDataURL(blob)
+  })
+}

@@ -602,6 +602,9 @@ jobs:
       - name: ArtQueue overwrite cache-invalidation contract
         run: npm run test:artqueue-overwrite-cache-guard
 
+      - name: Preview source SSRF guard contract
+        run: npm run test:preview-source-guard
+
       - name: Art queue poll-failure guard checker self-test
         run: npm run test:art-queue-poll-failure-guard-selftest
 

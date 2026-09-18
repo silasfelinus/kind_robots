@@ -1,5 +1,6 @@
 <template>
   <main
+    ref="pageRootRef"
     class="butterfly-gallery-page kr-stage kr-scroll h-full min-h-0 overflow-auto"
   >
     <div v-if="!ready" class="grid h-full min-h-80 place-items-center">
@@ -181,6 +182,10 @@
         </div>
       </section>
 
+      <p class="sr-only" role="status" aria-live="polite">
+        {{ gallery.lastSaveMessage }}
+      </p>
+
       <aside class="preset-rail" aria-label="Custom sorting presets">
         <button
           v-for="(bin, index) in gallery.leftBins"
@@ -195,6 +200,12 @@
             },
           ]"
           :disabled="!gallery.selectedEntry || gallery.isBusy"
+          :aria-keyshortcuts="presetShortcutKey(bin.label)"
+          :title="
+            presetShortcutKey(bin.label)
+              ? `Sort into ${presetLabel(bin.label)} (press ${presetShortcutKey(bin.label)})`
+              : undefined
+          "
           @dragover.prevent="dragOverTarget = bin.id"
           @drop.prevent="onDrop(bin.id)"
           @click="onBinClick(bin.id)"
@@ -350,6 +361,8 @@
             'preset-bin-accepted': justAcceptedBinId === 'trash',
           }"
           :disabled="!gallery.selectedEntry || gallery.isBusy"
+          aria-keyshortcuts="Delete"
+          title="Move to trash (press Delete)"
           @dragover.prevent="dragOverTarget = 'trash'"
           @drop.prevent="onDrop('trash')"
           @click="onBinClick('trash')"
@@ -390,6 +403,7 @@
           :style="pileStyle(index, pileEntries.length)"
           draggable="true"
           :aria-label="`Select artwork ${entry.id}`"
+          :aria-pressed="entry.id === gallery.selectedImageId"
           @click="onSelectPileEntry(entry.id)"
           @dragstart="gallery.startDrag(entry.id)"
           @dragend="onDragEnd"
@@ -476,10 +490,15 @@ import {
   computeButterflyIntroTumblePlan,
   type ButterflyIntroTumbleFrame,
 } from '@/stores/helpers/butterflyGalleryIntro'
+import {
+  presetShortcutKey,
+  resolveButterflyShortcutIntent,
+} from '@/stores/helpers/butterflyGalleryShortcuts'
 
 const userStore = useUserStore()
 const gallery = useButterflyGalleryStore()
 const ready = ref(false)
+const pageRootRef = ref<HTMLElement | null>(null)
 const infoExpanded = ref(false)
 const dropSequence = ref(0)
 const fadeReveal = ref(false)
@@ -564,11 +583,16 @@ onMounted(async () => {
 
   window.addEventListener('resize', invalidateFunnelDrop)
   document.addEventListener('visibilitychange', invalidateFunnelDrop)
+  // Bound on the page's own root, not `window`: sorting shortcuts must only
+  // fire for keydowns that bubble from inside the gallery, never while focus
+  // sits on unrelated site chrome outside this page (PR review on t-020).
+  pageRootRef.value?.addEventListener('keydown', handleSortingKeydown)
 })
 
 onBeforeUnmount(() => {
   window.removeEventListener('resize', invalidateFunnelDrop)
   document.removeEventListener('visibilitychange', invalidateFunnelDrop)
+  pageRootRef.value?.removeEventListener('keydown', handleSortingKeydown)
   reducedMotionMql?.removeEventListener('change', handleReducedMotionChange)
   setIntroKeydownListener(false)
   clearIntroTimers()
@@ -802,6 +826,49 @@ function presetRating(label: string): string {
 
 function presetLabel(label: string): string {
   return label.replace(/^\d★\s*\+?\s*/, '')
+}
+
+function isEditableTarget(target: EventTarget | null): boolean {
+  if (!(target instanceof HTMLElement)) return false
+  return (
+    target.tagName === 'INPUT' ||
+    target.tagName === 'TEXTAREA' ||
+    target.tagName === 'SELECT' ||
+    target.isContentEditable
+  )
+}
+
+/** Non-drag sorting shortcuts (butterfly-gallery/t-020): digits 1-5 sort the
+ * selected image into the matching-rating preset bin, Delete trashes it, and
+ * the arrow keys move the pile selection -- all mirroring onBinClick/
+ * onSelectPileEntry so keyboard and drag/click stay behaviorally identical.
+ * The guard conditions (editable target, modifier keys, gallery not
+ * `ready`, no selection for sort/trash) live in the pure, unit-tested
+ * resolveButterflyShortcutIntent(); this handler is just DOM plumbing, bound
+ * on the page's own root element rather than `window` so it only ever fires
+ * for keydowns that actually bubble from inside the gallery. */
+async function handleSortingKeydown(event: KeyboardEvent): Promise<void> {
+  if (event.defaultPrevented) return
+
+  const intent = resolveButterflyShortcutIntent({
+    key: event.key,
+    hasModifier: event.altKey || event.ctrlKey || event.metaKey,
+    isEditableTarget: isEditableTarget(event.target),
+    status: gallery.status,
+    selectedEntryId: gallery.selectedImageId,
+    pileEntryIds: pileEntries.value.map((entry) => entry.id),
+    leftBins: gallery.leftBins,
+  })
+  if (!intent) return
+
+  event.preventDefault()
+  if (intent.type === 'select') {
+    onSelectPileEntry(intent.entryId)
+  } else if (intent.type === 'sort') {
+    await onBinClick(intent.binId)
+  } else {
+    await onBinClick('trash')
+  }
 }
 
 function pileStyle(index: number, total: number): Record<string, string> {
@@ -1051,6 +1118,11 @@ function pileStyle(index: number, total: number): Record<string, string> {
 .preset-bin:focus-visible:not(:disabled) {
   transform: translateX(6px);
   filter: brightness(1.05);
+}
+
+.preset-bin:focus-visible:not(:disabled) {
+  outline: 4px solid var(--color-primary);
+  outline-offset: 3px;
 }
 
 .preset-bin:disabled {
@@ -1327,6 +1399,11 @@ function pileStyle(index: number, total: number): Record<string, string> {
   filter: brightness(1.05);
 }
 
+.right-action:focus-visible:not(:disabled) {
+  outline: 4px solid var(--color-primary);
+  outline-offset: 3px;
+}
+
 .right-action:disabled {
   cursor: not-allowed;
   opacity: 0.62;
@@ -1416,7 +1493,8 @@ function pileStyle(index: number, total: number): Record<string, string> {
   filter: brightness(1.05);
 }
 
-.pile-card-selected {
+.pile-card-selected,
+.pile-card:focus-visible {
   outline: 4px solid var(--color-primary);
   outline-offset: 3px;
 }

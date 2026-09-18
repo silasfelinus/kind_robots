@@ -1120,6 +1120,9 @@ jobs:
       - name: Butterfly Gallery intro orchestration contract
         run: npm run test:butterfly-gallery-intro
 
+      - name: Butterfly Gallery keyboard shortcut contract
+        run: npm run test:butterfly-gallery-shortcuts
+
       - name: Fetch main for capture-group guard diff
         run: git fetch origin main
 

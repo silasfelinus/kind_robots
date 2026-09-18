@@ -5,7 +5,11 @@ import type { ArtImage, ArtJob, Prisma } from '~/prisma/generated/prisma/client'
 import { performFetch } from '@/stores/utils'
 import { resolveArtImageSource } from '~/utils/artImageSource'
 import type { ArtImageSource } from '~/utils/artImageSource'
-import { artJobImageVersion, artJobPublicImageSrc } from '~/utils/artJobFields'
+import {
+  artJobImageVersion,
+  artJobPublicImageSrc,
+  staleOverwriteImageIds,
+} from '~/utils/artJobFields'
 
 export type ArtJobStatus =
   'PENDING' | 'RUNNING' | 'DONE' | 'FAILED' | 'CANCELLED'
@@ -315,17 +319,24 @@ export const useArtJobStore = defineStore('artJobStore', () => {
     }
   }
 
+  /**
+   * Drop the cached bytes of an ArtImage an OVERWRITE retry has just replaced.
+   *
+   * ONLY WHEN THE BYTES ACTUALLY MOVED -- staleOverwriteImageIds holds that
+   * rule and is asserted directly. This used to clear unconditionally for every
+   * DONE+OVERWRITE job in the payload, and fetchJobs IS the queue's live poll,
+   * so every 15 seconds each probe card on the page had its loaded image thrown
+   * away and refetched. The whole visible page is OVERWRITE work (a LoRA probe
+   * overwrites its resource's preview in place), so the effect was every card
+   * blinking back to "Loading preview" on a timer with no new render anywhere
+   * near it. Silas, 2026-09-18: "still getting artqueue elements refreshing
+   * even between new artimage creations."
+   *
+   * This survived the watchEffect fix because it is not a loop at all: the
+   * refetch is the correct response to a cache the poll had just emptied.
+   */
   function completedOverwriteIds(jobs: ArtJobRecord[]): number[] {
-    const ids = jobs
-      .filter((job) => {
-        return (
-          job.status === 'DONE' &&
-          job.payload?.retry?.mode === 'OVERWRITE' &&
-          typeof job.artImageId === 'number'
-        )
-      })
-      .map((job) => job.artImageId as number)
-      .filter((id, index, all) => all.indexOf(id) === index)
+    const ids = staleOverwriteImageIds(jobs, state.imageVersionById)
 
     for (const id of ids) {
       delete state.imageSrcById[id]
@@ -339,6 +350,7 @@ export const useArtJobStore = defineStore('artJobStore', () => {
       // '' never matches a real `?v=` string.
       state.imageVersionById[id] = ''
     }
+
     return ids
   }
 
@@ -464,10 +476,7 @@ export const useArtJobStore = defineStore('artJobStore', () => {
         if (info.src) return true
       }
 
-      state.failedImageKeys = [
-        ...state.failedImageKeys,
-        `${id}:${version}`,
-      ]
+      state.failedImageKeys = [...state.failedImageKeys, `${id}:${version}`]
       if (!res.success) {
         state.error = res.message || `Failed to load ArtImage ${id}.`
       }

@@ -110,5 +110,28 @@ export const useArtArchiveStore = defineStore('artArchiveStore', () => {
   function quarantineEntry(id: number) { return runEntryAction(id, 'quarantine') }
   function restoreEntry(id: number) { return runEntryAction(id, 'restore') }
 
-  return { entries, detail, loading, detailLoading, actionPending, error, total, page, pageSize, pageCount, filters, folders, fetchEntries, selectEntry, clearSelection, quarantineEntry, restoreEntry }
+  /** Click and drag/drop rating action (art-archive/t-013). Unlike
+   * quarantine/restore, rating doesn't change what the current filters would
+   * exclude, so it patches the entry in place (list row + open detail)
+   * instead of a full refetch -- keeps the grid scroll position and page
+   * stable while rating several images in a row. */
+  async function rateEntry(id: number, rating: number | null): Promise<boolean> {
+    actionPending.value = true
+    error.value = ''
+    const response = await performFetch<{ id: number; rating: number | null }>(
+      `/api/admin/art-archive/entries/${id}/rate`,
+      { method: 'PATCH', body: JSON.stringify({ rating }) },
+    )
+    if (response.success && response.data) {
+      const row = entries.value.find((entry) => entry.id === id)
+      if (row) row.rating = response.data.rating
+      if (detail.value?.entry.id === id) detail.value.entry.rating = response.data.rating
+    } else {
+      error.value = response.message || `Could not rate archive entry #${id}.`
+    }
+    actionPending.value = false
+    return response.success
+  }
+
+  return { entries, detail, loading, detailLoading, actionPending, error, total, page, pageSize, pageCount, filters, folders, fetchEntries, selectEntry, clearSelection, quarantineEntry, restoreEntry, rateEntry }
 })

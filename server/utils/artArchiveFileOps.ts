@@ -130,3 +130,18 @@ export async function quarantineConfinedArchiveFile(
   await moveConfinedArchiveFile(resolvedRoot, relativePath, trashRelativePath)
   return trashRelativePath
 }
+
+/**
+ * Restores a previously quarantined file from the trash subtree back to
+ * `originalRelativePath` (art-archive/t-012) -- the exact inverse of
+ * `quarantineConfinedArchiveFile`, reusing the same root-confined,
+ * no-overwrite move so a restore can never land outside the archive root
+ * or clobber a file that has since taken the original path.
+ */
+export async function restoreConfinedArchiveFile(
+  resolvedRoot: string,
+  trashRelativePath: string,
+  originalRelativePath: string,
+): Promise<void> {
+  await moveConfinedArchiveFile(resolvedRoot, trashRelativePath, originalRelativePath)
+}

@@ -15,6 +15,7 @@ import {
   quarantineConfinedArchiveFile,
   quarantineRelativePathFor,
   resolveConfinedTargetPath,
+  restoreConfinedArchiveFile,
 } from '../../server/utils/artArchiveFileOps'
 
 async function exists(p: string): Promise<boolean> {
@@ -123,6 +124,57 @@ async function testQuarantinePathIsKeyedOnEntryIdNotBasename() {
   }
 }
 
+async function testRestoreMovesFileBackToOriginalPath() {
+  const root = await mkdtemp(path.join(os.tmpdir(), 'art-archive-fileops-'))
+  try {
+    await mkdir(path.join(root, 'a'), { recursive: true })
+    await writeFile(path.join(root, 'a', 'one.png'), 'bytes')
+
+    const trashRelativePath = await quarantineConfinedArchiveFile(root, 7, 'a/one.png')
+    await restoreConfinedArchiveFile(root, trashRelativePath, 'a/one.png')
+
+    assert.equal(await exists(path.join(root, trashRelativePath)), false)
+    assert.equal(
+      (await readFile(path.join(root, 'a', 'one.png'), 'utf8')),
+      'bytes',
+      'bytes must survive the round trip untouched',
+    )
+    console.log('verifyArtArchiveFileOps: restore moves a quarantined file back to its original path')
+  } finally {
+    await rm(root, { recursive: true, force: true })
+  }
+}
+
+async function testRestoreRefusesToOverwriteAPathReoccupiedSinceQuarantine() {
+  const root = await mkdtemp(path.join(os.tmpdir(), 'art-archive-fileops-'))
+  try {
+    await mkdir(path.join(root, 'a'), { recursive: true })
+    await writeFile(path.join(root, 'a', 'one.png'), 'original')
+
+    const trashRelativePath = await quarantineConfinedArchiveFile(root, 9, 'a/one.png')
+    // A new, unrelated file has since been scanned into the same original path.
+    await writeFile(path.join(root, 'a', 'one.png'), 'someone else now')
+
+    await assert.rejects(
+      () => restoreConfinedArchiveFile(root, trashRelativePath, 'a/one.png'),
+      /already exists/,
+    )
+    assert.equal(
+      (await readFile(path.join(root, 'a', 'one.png'), 'utf8')),
+      'someone else now',
+      'the reoccupying file must be untouched',
+    )
+    assert.equal(
+      (await readFile(path.join(root, trashRelativePath), 'utf8')),
+      'original',
+      'the quarantined file must stay in the trash rather than being lost',
+    )
+    console.log('verifyArtArchiveFileOps: restore refuses to overwrite a path reoccupied since quarantine')
+  } finally {
+    await rm(root, { recursive: true, force: true })
+  }
+}
+
 async function testResolveConfinedTargetAcceptsNewNestedPath() {
   const root = await mkdtemp(path.join(os.tmpdir(), 'art-archive-fileops-'))
   try {
@@ -141,6 +193,8 @@ async function run() {
   await testRefusesToOverwriteExistingDestination()
   await testQuarantineRelocatesRatherThanDeletes()
   await testQuarantinePathIsKeyedOnEntryIdNotBasename()
+  await testRestoreMovesFileBackToOriginalPath()
+  await testRestoreRefusesToOverwriteAPathReoccupiedSinceQuarantine()
   await testResolveConfinedTargetAcceptsNewNestedPath()
   console.log('verifyArtArchiveFileOps: all assertions passed')
 }

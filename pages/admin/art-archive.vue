@@ -50,6 +50,10 @@
               <option value="">Any rating</option><option v-for="rating in 5" :key="rating" :value="String(rating)">{{ rating }} star{{ rating === 1 ? '' : 's' }}</option>
             </select>
           </label>
+          <label class="flex items-end gap-2 pb-1.5">
+            <input v-model="archive.filters.includeInactive" type="checkbox" class="kr-checkbox-primary-sm" @change="applyFilters" />
+            <span class="kr-text-dim-xs">Show trash</span>
+          </label>
         </section>
 
         <div v-if="archive.error" class="kr-note kr-note-error">{{ archive.error }}</div>
@@ -66,7 +70,7 @@
             </div>
             <div v-if="archive.loading" class="grid min-h-64 place-items-center kr-panel"><span class="kr-spinner-lg-primary" /></div>
             <div v-else class="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 2xl:grid-cols-6">
-              <button v-for="entry in archive.entries" :key="entry.id" type="button" class="group overflow-hidden rounded-2xl border border-base-300 bg-base-200 text-left transition hover:border-primary" @click="archive.selectEntry(entry.id)">
+              <button v-for="entry in archive.entries" :key="entry.id" type="button" class="group overflow-hidden rounded-2xl border border-base-300 bg-base-200 text-left transition hover:border-primary" :class="{ 'opacity-60': !entry.isActive }" @click="archive.selectEntry(entry.id)">
                 <div class="aspect-[2/3] bg-base-300">
                   <img v-if="entry.imagePath" :src="entry.imagePath" :alt="entry.relativePath" class="h-full w-full object-cover" loading="lazy" />
                   <div v-else class="grid h-full place-items-center"><Icon name="kind-icon:image" class="h-10 w-10 opacity-30" /></div>
@@ -74,7 +78,7 @@
                 <div class="space-y-1 p-2">
                   <p class="truncate text-xs font-semibold">{{ fileName(entry.relativePath) }}</p>
                   <p class="truncate text-[10px] opacity-60">{{ entry.parentFolder || 'Archive root' }}</p>
-                  <div class="flex flex-wrap gap-1"><span class="badge badge-xs">{{ entry.processState }}</span><span class="badge badge-xs">{{ entry.matchState }}</span><span v-if="entry.rating" class="badge badge-xs">★ {{ entry.rating }}</span></div>
+                  <div class="flex flex-wrap gap-1"><span v-if="!entry.isActive" class="badge badge-xs badge-error">Trashed</span><span class="badge badge-xs">{{ entry.processState }}</span><span class="badge badge-xs">{{ entry.matchState }}</span><span v-if="entry.rating" class="badge badge-xs">★ {{ entry.rating }}</span></div>
                 </div>
               </button>
             </div>
@@ -83,7 +87,15 @@
           <aside class="kr-panel h-fit p-4 xl:sticky xl:top-0">
             <div v-if="archive.detailLoading" class="grid min-h-48 place-items-center"><span class="kr-spinner-lg-primary" /></div>
             <div v-else-if="archive.detail" class="space-y-4">
-              <div class="flex items-start justify-between gap-3"><div><p class="kr-text-eyebrow">Entry #{{ archive.detail.entry.id }}</p><h2 class="mt-1 break-all font-bold">{{ fileName(archive.detail.entry.relativePath) }}</h2></div><button class="kr-btn btn-ghost btn-sm" @click="archive.clearSelection()"><Icon name="kind-icon:close" /></button></div>
+              <div class="flex items-start justify-between gap-3">
+                <div><p class="kr-text-eyebrow">Entry #{{ archive.detail.entry.id }}</p><h2 class="mt-1 break-all font-bold">{{ fileName(archive.detail.entry.relativePath) }}</h2></div>
+                <div class="flex items-center gap-2">
+                  <button v-if="archive.detail.entry.isActive" type="button" class="kr-btn btn-error btn-sm" :disabled="archive.actionPending" @click="archive.quarantineEntry(archive.detail.entry.id)"><span v-if="archive.actionPending" class="kr-spinner-xs" /><Icon v-else name="kind-icon:trash" class="kr-icon-4" /> Delete</button>
+                  <button v-else type="button" class="kr-btn btn-outline btn-sm" :disabled="archive.actionPending" @click="archive.restoreEntry(archive.detail.entry.id)"><span v-if="archive.actionPending" class="kr-spinner-xs" /><Icon v-else name="kind-icon:refresh" class="kr-icon-4" /> Restore</button>
+                  <button class="kr-btn btn-ghost btn-sm" @click="archive.clearSelection()"><Icon name="kind-icon:close" /></button>
+                </div>
+              </div>
+              <p v-if="!archive.detail.entry.isActive" class="kr-note kr-note-warning text-xs">This entry is in the trash. Restoring will move its file back and make it active again.</p>
               <img v-if="archive.detail.artImage?.path" :src="archive.detail.artImage.path" class="aspect-[2/3] w-full rounded-2xl bg-base-300 object-cover" :alt="archive.detail.entry.relativePath" />
               <dl class="grid grid-cols-[6rem_1fr] gap-x-3 gap-y-2 text-xs"><dt class="opacity-60">Folder</dt><dd class="break-all">{{ archive.detail.entry.parentFolder || 'Archive root' }}</dd><dt class="opacity-60">State</dt><dd>{{ archive.detail.entry.processState }}</dd><dt class="opacity-60">Match</dt><dd>{{ archive.detail.entry.matchState }}<span v-if="archive.detail.entry.resourceMatchLocked"> · locked</span></dd><dt class="opacity-60">Rating</dt><dd>{{ archive.detail.entry.rating || 'Unrated' }}</dd><dt class="opacity-60">Checkpoint</dt><dd>{{ archive.detail.artImage?.checkpointResourceId || 'Unresolved' }}</dd></dl>
               <div><p class="kr-text-dim-xs mb-1">Prompt</p><p class="max-h-28 overflow-auto whitespace-pre-wrap text-xs">{{ archive.detail.artImage?.promptString || 'No normalized prompt' }}</p></div>

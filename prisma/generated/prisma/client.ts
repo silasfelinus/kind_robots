@@ -95,6 +95,11 @@ export type AgentNote = Prisma.AgentNoteModel
  * formal Prisma relation -- the same convention ModelBuildItem/
  * ModelBuildArtifact already use for their own artImageId -- so this ledger
  * never requires a schema change to ArtImage or ArtCollection.
+ * `preQuarantineRelativePath` (t-012) records the entry's real location
+ * immediately before a quarantine ("delete") relocated it into the trash
+ * subtree, so a later restore can move the file back to where it came from;
+ * null for an entry that has never been quarantined, or one quarantined
+ * while its process state was already MISSING (nothing to move back).
  */
 export type ArchiveEntry = Prisma.ArchiveEntryModel
 /**

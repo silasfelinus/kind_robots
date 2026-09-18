@@ -49,7 +49,13 @@ export default defineEventHandler(async (event) => {
         where: { id },
         data: {
           isActive: false,
-          ...(trashRelativePath ? { relativePath: trashRelativePath } : {}),
+          // Record where the file used to live so a later restore
+          // (art-archive/t-012) can move it back -- only meaningful when a
+          // relocation actually happened; a MISSING entry's relativePath is
+          // left as-is, so there is nothing to restore to.
+          ...(trashRelativePath
+            ? { relativePath: trashRelativePath, preQuarantineRelativePath: entry.relativePath }
+            : {}),
         },
       })
       if (entry.artImageId) {

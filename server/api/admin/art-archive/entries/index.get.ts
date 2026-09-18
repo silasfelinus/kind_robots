@@ -1,15 +1,6 @@
-// /server/api/admin/art-archive/entries/index.get.ts
-//
-// Admin-only browse/filter list over the Art Archive ledger (art-archive/
-// t-009). Supports folder/collection, processed state, resource-match
-// state, rating, and a relativePath search filter -- the exact filter set
-// the task note calls for. Read-only: never touches the filesystem.
 import { defineEventHandler, getQuery } from 'h3'
 import type { Prisma } from '~/prisma/generated/prisma/client'
-import {
-  ArchiveEntryMatchState,
-  ArchiveEntryProcessState,
-} from '~/prisma/generated/prisma/client'
+import { ArchiveEntryMatchState, ArchiveEntryProcessState } from '~/prisma/generated/prisma/client'
 import prisma from '~/server/utils/prisma'
 import { errorHandler } from '~/server/utils/error'
 import { requireAdminApiUser } from '~/server/utils/authGuard'
@@ -39,43 +30,25 @@ export default defineEventHandler(async (event) => {
   try {
     await requireAdminApiUser(event)
     const query = getQuery<EntryListQuery>(event)
-
     const where: Prisma.ArchiveEntryWhereInput = {
       isActive: query.includeInactive === 'true' ? undefined : true,
     }
 
     const folderCollectionId = Number(query.folderCollectionId)
-    if (Number.isInteger(folderCollectionId) && folderCollectionId > 0) {
-      where.folderCollectionId = folderCollectionId
-    }
-
-    if (
-      query.processState &&
-      (Object.values(ArchiveEntryProcessState) as string[]).includes(query.processState)
-    ) {
+    if (Number.isInteger(folderCollectionId) && folderCollectionId > 0) where.folderCollectionId = folderCollectionId
+    if (query.processState && (Object.values(ArchiveEntryProcessState) as string[]).includes(query.processState)) {
       where.processState = query.processState as ArchiveEntryProcessState
     }
-
-    if (
-      query.matchState &&
-      (Object.values(ArchiveEntryMatchState) as string[]).includes(query.matchState)
-    ) {
+    if (query.matchState && (Object.values(ArchiveEntryMatchState) as string[]).includes(query.matchState)) {
       where.matchState = query.matchState as ArchiveEntryMatchState
     }
-
     const rating = Number(query.rating)
-    if (Number.isInteger(rating) && rating >= 1 && rating <= 5) {
-      where.rating = rating
-    }
-
-    if (query.search?.trim()) {
-      where.relativePath = { contains: query.search.trim() }
-    }
+    if (Number.isInteger(rating) && rating >= 1 && rating <= 5) where.rating = rating
+    if (query.search?.trim()) where.relativePath = { contains: query.search.trim() }
 
     const page = clampPage(query.page)
     const pageSize = clampPageSize(query.pageSize)
-
-    const [total, entries] = await Promise.all([
+    const [total, rows] = await Promise.all([
       prisma.archiveEntry.count({ where }),
       prisma.archiveEntry.findMany({
         where,
@@ -101,6 +74,16 @@ export default defineEventHandler(async (event) => {
         },
       }),
     ])
+
+    const imageIds = rows.flatMap((entry) => entry.artImageId ? [entry.artImageId] : [])
+    const images = imageIds.length
+      ? await prisma.artImage.findMany({ where: { id: { in: imageIds } }, select: { id: true, path: true } })
+      : []
+    const imagePaths = new Map(images.map((image) => [image.id, image.path]))
+    const entries = rows.map((entry) => ({
+      ...entry,
+      imagePath: entry.artImageId ? imagePaths.get(entry.artImageId) ?? null : null,
+    }))
 
     return {
       success: true,

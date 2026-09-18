@@ -7,6 +7,7 @@ export type ArchiveEntrySummary = {
   relativePath: string
   parentFolder: string | null
   artImageId: number | null
+  imagePath: string | null
   folderCollectionId: number | null
   processState: string
   matchState: string
@@ -16,7 +17,7 @@ export type ArchiveEntrySummary = {
 }
 
 export type ArchiveEntryDetail = {
-  entry: ArchiveEntrySummary & {
+  entry: Omit<ArchiveEntrySummary, 'imagePath'> & {
     extractedMetadata: unknown
     matchSummary: unknown
   }
@@ -32,27 +33,11 @@ export type ArchiveEntryDetail = {
     sampler: string | null
     steps: number | null
   }
-  folderCollection: null | {
-    id: number
-    label: string | null
-    parentFolder: string | null
-  }
+  folderCollection: null | { id: number; label: string | null; parentFolder: string | null }
 }
 
-type ArchiveFilters = {
-  search: string
-  folderCollectionId: string
-  processState: string
-  matchState: string
-  rating: string
-}
-
-type ListPayload = {
-  entries: ArchiveEntrySummary[]
-  page: number
-  pageSize: number
-  total: number
-}
+type ArchiveFilters = { search: string; folderCollectionId: string; processState: string; matchState: string; rating: string }
+type ListPayload = { entries: ArchiveEntrySummary[]; page: number; pageSize: number; total: number }
 
 export const useArtArchiveStore = defineStore('artArchiveStore', () => {
   const entries = ref<ArchiveEntrySummary[]>([])
@@ -63,48 +48,30 @@ export const useArtArchiveStore = defineStore('artArchiveStore', () => {
   const total = ref(0)
   const page = ref(1)
   const pageSize = ref(60)
-  const filters = ref<ArchiveFilters>({
-    search: '',
-    folderCollectionId: '',
-    processState: '',
-    matchState: '',
-    rating: '',
-  })
+  const filters = ref<ArchiveFilters>({ search: '', folderCollectionId: '', processState: '', matchState: '', rating: '' })
 
   const folders = computed(() => {
     const byId = new Map<number, string>()
     for (const entry of entries.value) {
-      if (entry.folderCollectionId && entry.parentFolder) {
-        byId.set(entry.folderCollectionId, entry.parentFolder)
-      }
+      if (entry.folderCollectionId && entry.parentFolder) byId.set(entry.folderCollectionId, entry.parentFolder)
     }
-    return [...byId.entries()]
-      .map(([id, label]) => ({ id, label }))
-      .sort((a, b) => a.label.localeCompare(b.label))
+    return [...byId.entries()].map(([id, label]) => ({ id, label })).sort((a, b) => a.label.localeCompare(b.label))
   })
-
   const pageCount = computed(() => Math.max(1, Math.ceil(total.value / pageSize.value)))
 
   async function fetchEntries(resetPage = false) {
     if (resetPage) page.value = 1
     loading.value = true
     error.value = ''
-    const params = new URLSearchParams({
-      page: String(page.value),
-      pageSize: String(pageSize.value),
-    })
-    for (const [key, value] of Object.entries(filters.value)) {
-      if (value) params.set(key, value)
-    }
+    const params = new URLSearchParams({ page: String(page.value), pageSize: String(pageSize.value) })
+    for (const [key, value] of Object.entries(filters.value)) if (value) params.set(key, value)
     const response = await performFetch<ListPayload>(`/api/admin/art-archive/entries?${params}`)
     if (response.success && response.data) {
       entries.value = response.data.entries
       total.value = response.data.total
       page.value = response.data.page
       pageSize.value = response.data.pageSize
-    } else {
-      error.value = response.message || 'Could not load the archive.'
-    }
+    } else error.value = response.message || 'Could not load the archive.'
     loading.value = false
   }
 
@@ -117,24 +84,7 @@ export const useArtArchiveStore = defineStore('artArchiveStore', () => {
     detailLoading.value = false
   }
 
-  function clearSelection() {
-    detail.value = null
-  }
+  function clearSelection() { detail.value = null }
 
-  return {
-    entries,
-    detail,
-    loading,
-    detailLoading,
-    error,
-    total,
-    page,
-    pageSize,
-    pageCount,
-    filters,
-    folders,
-    fetchEntries,
-    selectEntry,
-    clearSelection,
-  }
+  return { entries, detail, loading, detailLoading, error, total, page, pageSize, pageCount, filters, folders, fetchEntries, selectEntry, clearSelection }
 })

@@ -18,12 +18,6 @@ import {
 // stores use for durable progress.
 const INTRO_PLAYED_KEY = 'kind-robots:butterfly-gallery:intro-played'
 
-// How many pile entries render as physical thumbnails (t-005). The pile
-// metaphor stays "a small stack of paintings", never a rendered wall of
-// every queued image -- remainingCount still reflects the full filtered
-// queue so the count stays honest as the stack itself stays shallow.
-export const BUTTERFLY_PILE_VISIBLE_DEPTH = 5
-
 function readIntroPlayed(): boolean {
   if (typeof window === 'undefined') return false
   try {
@@ -107,14 +101,6 @@ export const useButterflyGalleryStore = defineStore(
 
     const remainingCount = computed(() => visiblePile.value.length)
 
-    /** Only the physical top of the stack renders as thumbnails -- see
-     * BUTTERFLY_PILE_VISIBLE_DEPTH. remainingCount (above) stays keyed to
-     * the full visiblePile so the displayed count never undercounts the
-     * queue just because the stack itself renders shallow. */
-    const topOfPile = computed<ButterflyPileEntry[]>(() =>
-      visiblePile.value.slice(0, BUTTERFLY_PILE_VISIBLE_DEPTH),
-    )
-
     const selectedEntry = computed<ButterflyPileEntry | null>(
       () =>
         pile.value.find((entry) => entry.id === selectedImageId.value) ?? null,
@@ -165,24 +151,6 @@ export const useButterflyGalleryStore = defineStore(
 
     function clearSelection(): void {
       selectedImageId.value = null
-    }
-
-    /** Promote a pile entry into the central frame by drag (as opposed to
-     * dropOnBin's sort-and-advance) -- dropping a dragged pile thumbnail on
-     * the central frame's own drop zone selects it there instead of sorting
-     * it. Falls back to whatever is currently being dragged when no
-     * explicit id is passed, matching dropOnBin's convention. */
-    function promoteToFrame(entryId?: number): void {
-      const targetId = entryId ?? draggingImageId.value
-      const entry = targetId != null ? entryById(targetId) : null
-
-      if (!entry) {
-        cancelDrag()
-        return
-      }
-
-      selectedImageId.value = entry.id
-      if (status.value === 'dragging') cancelDrag()
     }
 
     /** Load the first page through whatever ButterflyGalleryFeedProvider is
@@ -334,6 +302,28 @@ export const useButterflyGalleryStore = defineStore(
           if (rating !== null) entry.rating = rating
           break
         }
+        case 'preset': {
+          const rating =
+            typeof bin.payload.rating === 'number' ? bin.payload.rating : null
+          const collection =
+            typeof bin.payload.collection === 'string'
+              ? bin.payload.collection
+              : null
+          const folder =
+            typeof bin.payload.folder === 'string' ? bin.payload.folder : null
+          const processed =
+            typeof bin.payload.processed === 'boolean'
+              ? bin.payload.processed
+              : null
+
+          if (rating !== null) entry.rating = rating
+          if (collection && !entry.collections.includes(collection)) {
+            entry.collections = [...entry.collections, collection]
+          }
+          if (folder) entry.folder = folder
+          if (processed !== null) entry.processed = processed
+          break
+        }
         default:
           break
       }
@@ -419,7 +409,6 @@ export const useButterflyGalleryStore = defineStore(
       isLoadingMore,
       visiblePile,
       remainingCount,
-      topOfPile,
       selectedEntry,
       leftBins,
       rightBins,
@@ -430,7 +419,6 @@ export const useButterflyGalleryStore = defineStore(
       binById,
       selectImage,
       clearSelection,
-      promoteToFrame,
       loadPile,
       loadMore,
       completeIntro,

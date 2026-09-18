@@ -329,7 +329,28 @@ export async function visibilityWhere(
    * seven endpoints were not; the gate belongs here instead.
    */
   if (fields.isMature && !viewerShowsMature(user, showMature)) {
-    clauses.push({ isMature: false })
+    /*
+     * YOUR OWN MATURE ROWS ARRIVE; THEY ARE COVERED, NOT ABSENT.
+     *
+     * Silas, 2026-09-18: "in the case of mature objects I own, it's better to
+     * carve them out on the listing, it's more likely that I want them hidden
+     * for situational propriety, not gone for good." The toggle is a curtain
+     * over your own work, not a delete -- the row is delivered with its flag
+     * and the card covers it, with an uncover the owner can use.
+     *
+     * Other people's mature content stays absent: there is nothing to uncover
+     * and no reason to ship it.
+     *
+     * The carve-out is the PREFERENCE only. isMaturityRestricted keeps the hard
+     * barrier even on a CHILD's own rows -- a child should not have mature
+     * content, and hiding it is the protective direction.
+     */
+    const ownRowsExempt =
+      viewerId !== null && !isMaturityRestricted(user)
+        ? { OR: [{ isMature: false }, { [ownerField]: viewerId }] }
+        : { isMature: false }
+
+    clauses.push(ownRowsExempt)
   }
 
   if (!clauses.length) return {}

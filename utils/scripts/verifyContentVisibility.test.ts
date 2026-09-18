@@ -96,13 +96,20 @@ async function main() {
       { isPublic: true, isMature: true },
       true,
     ),
-    { isMature: false },
+    // Other people's mature rows are gone; their own arrive to be covered.
+    { OR: [{ isMature: false }, { userId: 15 }] },
   )
 
-  // An adult with the toggle OFF is filtered exactly like a child would be, on
-  // the maturity axis alone -- privacy still resolves to their own rows.
+  /*
+   * An adult with the toggle OFF loses OTHER people's mature rows and KEEPS
+   * their own, which the card covers. Silas, 2026-09-18: "it's more likely that
+   * I want them hidden for situational propriety, not gone for good."
+   */
   assert.deepEqual(await visibilityWhere(optedOut), {
-    AND: [{ OR: [{ isPublic: true }, { userId: 13 }] }, { isMature: false }],
+    AND: [
+      { OR: [{ isPublic: true }, { userId: 13 }] },
+      { OR: [{ isMature: false }, { userId: 13 }] },
+    ],
   })
 
   // And a per-request ask does not change that.
@@ -114,9 +121,21 @@ async function main() {
       true,
     ),
     {
-      AND: [{ OR: [{ isPublic: true }, { userId: 13 }] }, { isMature: false }],
+      AND: [
+        { OR: [{ isPublic: true }, { userId: 13 }] },
+        { OR: [{ isMature: false }, { userId: 13 }] },
+      ],
     },
   )
+
+  /*
+   * THE CARVE-OUT IS THE PREFERENCE ONLY. A CHILD keeps the hard barrier even
+   * on their own rows: a child should not have mature content, and if some
+   * exists, hiding it is the protective direction rather than the polite one.
+   */
+  assert.deepEqual(await visibilityWhere(child), {
+    AND: [{ OR: [{ isPublic: true }, { userId: 9 }] }, { isMature: false }],
+  })
 
   // Anonymous: public and non-mature only. No user means no stored opt-in, which
   // is the safe direction for a missing user -- and matches "showMature should

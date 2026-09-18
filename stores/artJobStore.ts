@@ -166,6 +166,12 @@ type ArtJobState = {
   // pre-overwrite thumbnail, for the rest of the session.
   imageVersionById: Record<number, string>
   loadingImageIds: number[]
+  /**
+   * `${id}:${version}` pairs whose fetch already failed. A failed load records
+   * no version, so without this every caller that retries on falsy -- or any
+   * effect that re-runs when `loadingImageIds` changes -- refetches forever.
+   */
+  failedImageKeys: string[]
   jobStatusFilter: ArtJobStatus | 'ALL'
   jobPage: number
   jobPageSize: number
@@ -205,6 +211,7 @@ export const useArtJobStore = defineStore('artJobStore', () => {
     imageInfoById: {},
     imageVersionById: {},
     loadingImageIds: [],
+    failedImageKeys: [],
     jobStatusFilter: 'PENDING',
     jobPage: 1,
     jobPageSize: DEFAULT_JOB_PAGE_SIZE,
@@ -322,6 +329,9 @@ export const useArtJobStore = defineStore('artJobStore', () => {
 
     for (const id of ids) {
       delete state.imageSrcById[id]
+      state.failedImageKeys = state.failedImageKeys.filter(
+        (key) => !key.startsWith(`${id}:`),
+      )
       delete state.imageInfoById[id]
       // Not `delete`: the lint ratchet counts @typescript-eslint/no-dynamic-delete
       // and blocks any net increase. Clearing the version to '' is equivalent
@@ -428,6 +438,10 @@ export const useArtJobStore = defineStore('artJobStore', () => {
       return true
     }
     if (state.loadingImageIds.includes(id)) return false
+    // Already failed at this exact version: do not ask again. The server's
+    // answer is not going to change until the job or the viewer does, and both
+    // of those change `version` or clear this entry.
+    if (state.failedImageKeys.includes(`${id}:${version}`)) return false
 
     state.loadingImageIds = [...state.loadingImageIds, id]
     try {
@@ -444,10 +458,19 @@ export const useArtJobStore = defineStore('artJobStore', () => {
         state.imageInfoById[id] = info
         state.imageVersionById[id] = version
         if (info.src) state.imageSrcById[id] = info.src
-        return Boolean(info.src)
+        state.failedImageKeys = state.failedImageKeys.filter(
+          (key) => key !== `${id}:${version}`,
+        )
+        if (info.src) return true
       }
 
-      state.error = res.message || `Failed to load ArtImage ${id}.`
+      state.failedImageKeys = [
+        ...state.failedImageKeys,
+        `${id}:${version}`,
+      ]
+      if (!res.success) {
+        state.error = res.message || `Failed to load ArtImage ${id}.`
+      }
       return false
     } finally {
       state.loadingImageIds = state.loadingImageIds.filter(

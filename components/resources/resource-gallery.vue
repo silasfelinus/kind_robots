@@ -969,11 +969,23 @@ onMounted(async () => {
       </template>
 
       <template #item="{ item }">
-        <resource-card
+        <!--
+          The curtain goes around the WHOLE card -- name, trigger and blurb, not
+          just the picture. Silas, 2026-09-18: "the maturity toggle should cover
+          the entire object card, including title and prompt. I should see the
+          option to uncover a mature object if it is owned by me."
+        -->
+        <kr-mature-cover
           v-if="resourceById.get(Number(item.id))"
-          :resource="resourceById.get(Number(item.id))!"
-          @open="openResourceInfo"
-        />
+          :is-mature="resourceById.get(Number(item.id))!.isMature"
+          :owner-id="resourceById.get(Number(item.id))!.userId"
+          :label="resourceLabel(resourceById.get(Number(item.id))!)"
+        >
+          <resource-card
+            :resource="resourceById.get(Number(item.id))!"
+            @open="openResourceInfo"
+          />
+        </kr-mature-cover>
       </template>
 
       <template #empty>

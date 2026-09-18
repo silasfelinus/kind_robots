@@ -1452,6 +1452,7 @@ model Resource {
   /// follow-up scope, not part of this column landing.
   recommendedCfg        Float?
   ArtImages             ArtImage[]      @relation("ArtImageCheckpointResource")
+  Previews              ResourcePreview[]
   Reactions             Reaction[]
   ArtImage              ArtImage?       @relation("ResourcePreviewImage", fields: [artImageId], references: [id])
   User                  User?           @relation(fields: [userId], references: [id])
@@ -3629,4 +3630,56 @@ model MediaEntry {
   @@index([userId, year, mediaType])
   @@index([starred])
   @@index([title])
+}
+
+/// Upstream preview images for a Resource, as a LIST.
+///
+/// `Resource.previewImageUrl` holds exactly ONE url, so a LoRA's gallery showed
+/// one picture however many the model shipped with -- Fantasy_art_XL_V1
+/// (civitai 122806) has ten, and we kept the first (kind_robots, 2026-09-18:
+/// "still not seeing the multiple images when viewing the card or actual object
+/// page").
+///
+/// A TABLE, not a json column on Resource, for two reasons:
+///
+///   Civitai rates each image with its own nsfwLevel, and maturity is a
+///   per-image property once a gate exists that acts on it. A blob cannot be
+///   filtered or indexed on that.
+///
+///   /api/resources is an unpaginated findMany over the whole catalog, and
+///   server/api/resources/gallery.ts already carries a comment about trimming
+///   that payload because it broke on a tablet. An array on the Resource row
+///   would go straight back into every row of it; a table keeps it off the list
+///   query and is read only for the one Resource being opened.
+///
+/// previewImageUrl stays as the card's single face. This is the gallery behind
+/// it, and the two are backfilled from the same source.
+model ResourcePreview {
+  id         Int       @id @default(autoincrement())
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime? @default(now()) @updatedAt
+  resourceId Int
+  /// The image itself. Civitai serves these from image.civitai.com.
+  url        String    @db.VarChar(764)
+  /// Upstream order, which is the author's chosen order; 0 is the cover.
+  sortOrder  Int       @default(0)
+  /// Civitai's own rating: 1 PG, 2 PG-13, 4 R, 8 X, 16 XXX, 32 blocked.
+  nsfwLevel  Int?
+  /// Derived from nsfwLevel at backfill time (R and above), so the same
+  /// maturity rule that governs every other read can be applied to one preview
+  /// rather than to the whole Resource.
+  isMature   Boolean   @default(false)
+  width      Int?
+  height     Int?
+  /// BlurHash from the upstream metadata, for a placeholder while loading.
+  blurHash   String?   @db.VarChar(64)
+  /// 'image' or 'video' -- Civitai model pages carry both.
+  mediaType  String?   @db.VarChar(16)
+  /// Where the row came from, so a future non-Civitai source is distinguishable.
+  source     String    @default("civitai") @db.VarChar(32)
+  Resource   Resource  @relation(fields: [resourceId], references: [id], onDelete: Cascade)
+
+  @@unique([resourceId, url(length: 200)], map: "ResourcePreview_resource_url_key")
+  @@index([resourceId, sortOrder])
+  @@index([isMature])
 }

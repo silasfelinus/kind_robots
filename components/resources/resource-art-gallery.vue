@@ -90,6 +90,7 @@ import type { GalleryItem } from '@/components/gallery/kr-gallery.vue'
 import {
   useResourceGalleryStore,
   type ResourceArtImage,
+  type ResourceUpstreamPreview,
 } from '@/stores/resourceGalleryStore'
 
 const props = defineProps<{ resourceId: number }>()
@@ -143,20 +144,41 @@ const groups = computed<{ key: string; label: string; items: GalleryItem[] }[]>(
 
     for (const origin of ORIGIN_ORDER) {
       if (origin === 'civitai') {
-        if (!data.civitaiPreviewUrl) continue
+        /*
+         * The whole upstream set, not just the one url on the Resource row.
+         * previewImageUrl is the card's single face and is normally the first
+         * of these, so it is only added when the list does not already carry
+         * it -- showing the cover twice made the count look inflated.
+         */
+        const upstream: ResourceUpstreamPreview[] = data.upstreamPreviews ?? []
+        const items: GalleryItem[] = upstream.map((preview) => ({
+          id: `upstream-${preview.id}`,
+          title:
+            preview.mediaType === 'video' ? 'Civitai video' : 'Civitai preview',
+          // A bare URL, not an ArtImage: `card` takes the resolved path
+          // directly, where `source` would resolve a row this has none of.
+          card: preview.url,
+          meta: 'Opens on civitai.com',
+          badges: preview.isMature
+            ? [{ label: '18+', class: 'badge-error' }]
+            : undefined,
+        }))
+
+        const cover = data.civitaiPreviewUrl
+        if (cover && !upstream.some((preview) => preview.url === cover)) {
+          items.unshift({
+            id: 'civitai',
+            title: 'Civitai preview',
+            card: cover,
+            meta: 'Opens on civitai.com',
+          })
+        }
+
+        if (!items.length) continue
         out.push({
           key: 'civitai',
           label: ORIGIN_LABELS.civitai as string,
-          items: [
-            {
-              id: 'civitai',
-              title: 'Civitai preview',
-              // A bare URL, not an ArtImage: `card` takes the resolved path
-              // directly, where `source` would resolve a row this has none of.
-              card: data.civitaiPreviewUrl,
-              meta: 'Opens on civitai.com',
-            },
-          ],
+          items,
         })
         continue
       }
@@ -193,7 +215,8 @@ function refresh(): void {
 
 function openItem(groupKey: string, item: GalleryItem): void {
   if (groupKey === 'civitai') {
-    const url = payload.value?.civitaiPreviewUrl
+    // Whichever upstream image was clicked, not always the cover.
+    const url = typeof item.card === 'string' ? item.card : ''
     if (url) window.open(url, '_blank', 'noopener')
     return
   }

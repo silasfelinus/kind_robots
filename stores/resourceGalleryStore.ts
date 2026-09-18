@@ -39,11 +39,30 @@ export type ResourceArtImage = {
   origins: string[]
 }
 
+/**
+ * One of the model's upstream preview images (ResourcePreview).
+ *
+ * `Resource.previewImageUrl` is a single url and is normally the first of
+ * these; a Civitai model version routinely ships several.
+ */
+export type ResourceUpstreamPreview = {
+  id: number
+  url: string
+  sortOrder: number
+  isMature: boolean
+  width: number | null
+  height: number | null
+  blurHash: string | null
+  mediaType: string | null
+}
+
 export type ResourceArtGallery = {
   resourceId: number
-  /** A URL on the Resource row, not an ArtImage: Civitai's own preview. */
+  /** A URL on the Resource row, not an ArtImage: Civitai's own cover. */
   civitaiPreviewUrl: string | null
   images: ResourceArtImage[]
+  /** The rest of the upstream set, in the author's own order. */
+  upstreamPreviews?: ResourceUpstreamPreview[]
 }
 
 type PreviewJob = {

@@ -123,7 +123,7 @@ export default defineEventHandler(async (event) => {
     const access = await getArtImageAccessContext(event)
     const visible = buildArtImageWhere(access)
 
-    const [preview, loraUses, checkpointUses, entityHistory] =
+    const [preview, loraUses, checkpointUses, entityHistory, upstreamPreviews] =
       await Promise.all([
         resource.artImageId
           ? prisma.artImage.findFirst({
@@ -146,6 +146,34 @@ export default defineEventHandler(async (event) => {
           take: MAX_PER_ORIGIN,
         }),
         listEntityArtHistory(prisma, 'resource', resourceId),
+        /*
+         * The upstream preview LIST. previewImageUrl is one url; a Civitai
+         * model version routinely ships several (Fantasy_art_XL_V1 has ten),
+         * which is why a LoRA's gallery looked like it was dropping images when
+         * it had only ever been given one.
+         *
+         * Maturity is per image here, from Civitai's own nsfwLevel, and obeys
+         * the same rule as everything else. Unlike an ArtImage there is no owner
+         * to carve out: these are upstream urls, nobody's own work, so the
+         * situational-curtain argument does not apply to them.
+         */
+        prisma.resourcePreview.findMany({
+          where: {
+            resourceId,
+            ...(viewerShowsMature(auth?.user) ? {} : { isMature: false }),
+          },
+          orderBy: [{ sortOrder: 'asc' }, { id: 'asc' }],
+          select: {
+            id: true,
+            url: true,
+            sortOrder: true,
+            isMature: true,
+            width: true,
+            height: true,
+            blurHash: true,
+            mediaType: true,
+          },
+        }),
       ])
 
     type GalleryRow = Record<string, unknown> & {
@@ -215,11 +243,18 @@ export default defineEventHandler(async (event) => {
         resourceType: resource.resourceType,
         // A URL, not a row: Civitai's own preview, which this site never owned.
         civitaiPreviewUrl: resource.previewImageUrl || null,
+        /*
+         * The rest of the upstream set. The card's single face stays
+         * civitaiPreviewUrl; this is everything else the model shipped with,
+         * in the author's own order.
+         */
+        upstreamPreviews,
         images,
         counts: {
           total: images.length,
           lora: loraUses.length,
           checkpoint: checkpointUses.length,
+          upstream: upstreamPreviews.length,
         },
       },
       statusCode: 200,

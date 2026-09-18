@@ -359,6 +359,37 @@ export async function visibilityWhere(
 }
 
 /**
+ * May this ROW be shown, on the maturity axis alone?
+ *
+ * THE OWN-ROW CARVE-OUT HAS TO MATCH ON BOTH SIDES. visibilityWhere() delivers
+ * an owner's mature row while their preference is off, so kr-mature-cover can
+ * offer a local uncover -- and the uncover deliberately does not change the
+ * account setting. If the by-id read does not make the same exemption, the
+ * owner uncovers a card and then gets a 404 opening it: the listing and the
+ * detail disagreeing about the same row, which is the exact failure this
+ * session has now produced twice in different places.
+ *
+ * Caught in review on #2827: "an owner can uncover the card and then hit a 404
+ * when opening its gallery/detail path."
+ *
+ * The carve-out is the PREFERENCE only. A maturity-restricted account keeps the
+ * hard barrier even on its own rows.
+ */
+export function maturityAllowsRow(
+  row: { isMature?: boolean | null; userId?: number | null },
+  user: (AccessUser & MaturityUser) | null | undefined,
+  showMature?: boolean,
+): boolean {
+  if (!row.isMature) return true
+  if (viewerShowsMature(user, showMature)) return true
+
+  const viewerId = typeof user?.id === 'number' ? user.id : null
+  return (
+    viewerId !== null && row.userId === viewerId && !isMaturityRestricted(user)
+  )
+}
+
+/**
  * canView(), plus the maturity rule. The per-object twin of visibilityWhere().
  * Maturity is viewerShowsMature(): logged in, not a CHILD, and opted in.
  *
@@ -379,6 +410,5 @@ export async function canViewWithMaturity(
   showMature?: boolean,
 ): Promise<boolean> {
   if (!(await canView(subject, subjectType, user))) return false
-  if (subject.isMature && !viewerShowsMature(user, showMature)) return false
-  return true
+  return maturityAllowsRow(subject, user, showMature)
 }

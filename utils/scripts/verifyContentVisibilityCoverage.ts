@@ -32,6 +32,9 @@
 //   visibilityWhere()        the Prisma fragment, for list queries
 //   canView()                the per-object check, richer: Grants and Packs
 //   canViewWithMaturity()    that, plus the maturity rule
+//   maturityAllowsRow()      the maturity rule for one already-fetched row, with
+//                            the same own-row carve-out visibilityWhere() makes,
+//                            so a listing and its detail page agree
 //   viewerShowsMature()      the maturity rule: logged in, not a CHILD, opted in
 //   effectiveShowMature()    the role-plus-preference half on its own
 //   isMaturityRestricted()   the CHILD barrier alone -- still counts as handling
@@ -120,6 +123,7 @@ const MATURITY_BUILDERS = FILTER_BUILDERS
 const OBJECT_CHECKS = [
   'canView',
   'canViewWithMaturity',
+  'maturityAllowsRow',
   'viewerShowsMature',
   'effectiveShowMature',
   'isMaturityRestricted',
@@ -129,6 +133,7 @@ const OBJECT_CHECKS = [
 /** Per-object checks that settle maturity specifically. */
 const MATURITY_CHECKS = [
   'canViewWithMaturity',
+  'maturityAllowsRow',
   'viewerShowsMature',
   'effectiveShowMature',
   'isMaturityRestricted',

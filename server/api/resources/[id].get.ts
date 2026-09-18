@@ -4,7 +4,7 @@ import prisma from '../../utils/prisma'
 import { errorHandler } from '../../utils/error'
 import { getOptionalApiUser } from '../../utils/authGuard'
 import { resourceGallerySelect } from './gallery'
-import { canView, viewerShowsMature } from '~/server/utils/contentAccess'
+import { canView, maturityAllowsRow } from '~/server/utils/contentAccess'
 
 export default defineEventHandler(async (event) => {
   const resourceId = Number(event.context.params?.id)
@@ -49,12 +49,12 @@ export default defineEventHandler(async (event) => {
     )
 
     /*
-     * One rule, no admin carve-out: logged in, not a CHILD, opted in. The
-     * `!isAdmin` bypass here meant an admin with their own maturity toggle OFF
-     * still received mature resources -- privilege standing in for preference.
-     * An admin who wants to see mature content turns the toggle on like anyone.
+     * The SAME rule the listing uses, including the owner carve-out: an owner
+     * who uncovered this card in the gallery must not get a 404 opening it.
+     * Still no admin carve-out -- privilege is not preference -- and a
+     * maturity-restricted account keeps the hard barrier on its own rows.
      */
-    const matureBlocked = resource.isMature && !viewerShowsMature(auth?.user)
+    const matureBlocked = !maturityAllowsRow(resource, auth?.user)
 
     if (!allowed || matureBlocked) {
       event.node.res.statusCode = 404

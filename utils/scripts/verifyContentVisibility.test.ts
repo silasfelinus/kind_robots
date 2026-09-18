@@ -13,6 +13,7 @@
 import assert from 'node:assert/strict'
 
 import {
+  maturityAllowsRow,
   viewerShowsMature,
   visibilityWhere,
 } from '../../server/utils/contentAccess'
@@ -136,6 +137,71 @@ async function main() {
   assert.deepEqual(await visibilityWhere(child), {
     AND: [{ OR: [{ isPublic: true }, { userId: 9 }] }, { isMature: false }],
   })
+
+  /*
+   * THE BY-ID READ MUST MAKE THE SAME CARVE-OUT AS THE LISTING.
+   *
+   * visibilityWhere() hands an opted-out owner their own mature row so
+   * kr-mature-cover can offer a local uncover, and that uncover deliberately
+   * does not flip the account preference. So every detail/gallery endpoint has
+   * to agree, or the owner uncovers a card in the listing and then gets a 404
+   * opening it. Caught in review on #2827 against
+   * /api/resources/:id and /api/resources/:id/gallery, which both read
+   * `isMature && !viewerShowsMature(user)` with no owner exemption; fixed at
+   * the root, so canViewWithMaturity() and every by-id read built on it now
+   * share this predicate with the listing fragment above.
+   */
+  assert.equal(
+    maturityAllowsRow({ isMature: false, userId: 99 }, optedOut),
+    true,
+    'a non-mature row is never blocked on the maturity axis',
+  )
+  assert.equal(
+    maturityAllowsRow({ isMature: true, userId: 13 }, optedOut),
+    true,
+    'owner + showMature=false: the listing showed it covered, the detail opens',
+  )
+  assert.equal(
+    maturityAllowsRow({ isMature: true, userId: 99 }, optedOut),
+    false,
+    "someone else's mature row stays gone while the preference is off",
+  )
+  assert.equal(
+    maturityAllowsRow({ isMature: true, userId: 99 }, adult),
+    true,
+    "opted in: other people's mature rows open normally",
+  )
+  assert.equal(
+    maturityAllowsRow({ isMature: true, userId: 15 }, adultAdminOptedOut),
+    true,
+    'admin is not the reason -- ownership is; the same carve-out, no wider',
+  )
+
+  // The carve-out is the PREFERENCE only, here too: a CHILD cannot open their
+  // own mature row, exactly as visibilityWhere() will not list it.
+  assert.equal(maturityAllowsRow({ isMature: true, userId: 9 }, child), false)
+  assert.equal(
+    maturityAllowsRow({ isMature: true, userId: 11 }, childAdmin),
+    false,
+  )
+  assert.equal(
+    maturityAllowsRow({ isMature: true, userId: 13 }, null),
+    false,
+    'anonymous owns nothing',
+  )
+
+  // A per-request ask cannot widen this either: an owner who asked for
+  // showMature=false on this one request gets the cover, not the row.
+  assert.equal(
+    maturityAllowsRow({ isMature: true, userId: 13 }, optedOut, true),
+    true,
+    'the parameter cannot widen, but ownership still carries the row',
+  )
+  assert.equal(
+    maturityAllowsRow({ isMature: true, userId: 99 }, adult, false),
+    false,
+    'and it can still narrow',
+  )
 
   // Anonymous: public and non-mature only. No user means no stored opt-in, which
   // is the safe direction for a missing user -- and matches "showMature should

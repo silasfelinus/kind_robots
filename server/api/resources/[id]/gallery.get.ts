@@ -29,7 +29,7 @@ import { defineEventHandler, createError, getRouterParam } from 'h3'
 import prisma from '~/server/utils/prisma'
 import { errorHandler } from '~/server/utils/error'
 import { getOptionalApiUser } from '~/server/utils/authGuard'
-import { canView, viewerShowsMature } from '~/server/utils/contentAccess'
+import { canView, maturityAllowsRow } from '~/server/utils/contentAccess'
 import {
   buildArtImageWhere,
   getArtImageAccessContext,
@@ -106,12 +106,10 @@ export default defineEventHandler(async (event) => {
       auth ? { id: auth.user.id, isAdmin } : null,
     )
     /*
-     * One rule, no admin carve-out: logged in, not a CHILD, opted in. The
-     * `!isAdmin` bypass here meant an admin with their own maturity toggle OFF
-     * still received mature resources -- privilege standing in for preference.
-     * An admin who wants to see mature content turns the toggle on like anyone.
+     * The SAME rule the listing uses, including the owner carve-out: an owner
+     * who uncovered this card must not get a 404 opening its gallery.
      */
-    const matureBlocked = resource.isMature && !viewerShowsMature(auth?.user)
+    const matureBlocked = !maturityAllowsRow(resource, auth?.user)
 
     if (!allowed || matureBlocked) {
       throw createError({ statusCode: 404, message: 'Resource not found.' })

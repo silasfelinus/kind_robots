@@ -108,8 +108,105 @@ function testNonPngFormatDetection() {
   const jpegLike = Buffer.from([0xff, 0xd8, 0xff, 0xe0, 0, 0, 0, 0])
   const metadata = extractArchiveImageMetadata(jpegLike, 'photo.jpg')
   assert.equal(metadata.format, 'jpeg')
-  assert.equal(metadata.supported, false)
+  assert.equal(metadata.supported, false, 'a JPEG with no EXIF/XMP/COM segments carries nothing to report')
   console.log('verifyArtArchiveScanner: non-PNG format detection passed')
+}
+
+/** Builds a minimal TIFF/EXIF buffer with an ImageDescription and a UserComment. */
+function buildExifTiff(imageDescription: string, userComment: string): Buffer {
+  const descBytes = Buffer.from(`${imageDescription}\0`, 'latin1')
+  const ucHeader = Buffer.from('ASCII\0\0\0', 'latin1') // exactly 8 bytes, per the EXIF UserComment header
+  const ucBytes = Buffer.concat([ucHeader, Buffer.from(userComment, 'latin1')])
+
+  const OFFSET_DESC = 56
+  const OFFSET_UC = OFFSET_DESC + descBytes.length
+  const buf = Buffer.alloc(OFFSET_UC + ucBytes.length)
+
+  buf.write('II', 0, 'latin1')
+  buf.writeUInt16LE(0x002a, 2)
+  buf.writeUInt32LE(8, 4) // IFD0 offset
+
+  buf.writeUInt16LE(2, 8) // IFD0: 2 entries
+  buf.writeUInt16LE(0x010e, 10) // ImageDescription
+  buf.writeUInt16LE(2, 12) // ASCII
+  buf.writeUInt32LE(descBytes.length, 14)
+  buf.writeUInt32LE(OFFSET_DESC, 18)
+  buf.writeUInt16LE(0x8769, 22) // ExifIFDPointer
+  buf.writeUInt16LE(4, 24) // LONG
+  buf.writeUInt32LE(1, 26)
+  buf.writeUInt32LE(38, 30) // Exif sub-IFD offset
+  buf.writeUInt32LE(0, 34) // no next IFD
+
+  buf.writeUInt16LE(1, 38) // Exif sub-IFD: 1 entry
+  buf.writeUInt16LE(0x9286, 40) // UserComment
+  buf.writeUInt16LE(7, 42) // UNDEFINED
+  buf.writeUInt32LE(ucBytes.length, 44)
+  buf.writeUInt32LE(OFFSET_UC, 48)
+  buf.writeUInt32LE(0, 52) // no next IFD
+
+  descBytes.copy(buf, OFFSET_DESC)
+  ucBytes.copy(buf, OFFSET_UC)
+  return buf
+}
+
+function jpegSegment(marker: number, payload: Buffer): Buffer {
+  const length = Buffer.alloc(2)
+  length.writeUInt16BE(payload.length + 2, 0)
+  return Buffer.concat([Buffer.from([0xff, marker]), length, payload])
+}
+
+function fakeJpeg(segments: Buffer[]): Buffer {
+  return Buffer.concat([Buffer.from([0xff, 0xd8]), ...segments, Buffer.from([0xff, 0xda])])
+}
+
+function testJpegExifAndCommentExtraction() {
+  const tiff = buildExifTiff('a legacy description', 'hello from user comment')
+  const app1 = jpegSegment(0xe1, Buffer.concat([Buffer.from('Exif\0\0', 'latin1'), tiff]))
+  const com = jpegSegment(0xfe, Buffer.from('legacy comment text', 'latin1'))
+  const metadata = extractArchiveImageMetadata(fakeJpeg([app1, com]), 'legacy.jpg')
+
+  assert.equal(metadata.format, 'jpeg')
+  assert.ok(metadata.supported)
+  if (metadata.format === 'jpeg' && metadata.supported) {
+    assert.equal(metadata.exifImageDescription, 'a legacy description')
+    assert.equal(metadata.exifUserComment, 'hello from user comment')
+    assert.equal(metadata.xmp, null)
+    assert.deepEqual(metadata.comments, ['legacy comment text'])
+  }
+  console.log('verifyArtArchiveScanner: JPEG EXIF + COM extraction passed')
+}
+
+function riffChunk(fourCC: string, data: Buffer): Buffer {
+  const size = Buffer.alloc(4)
+  size.writeUInt32LE(data.length, 0)
+  const padded = data.length % 2 === 1 ? Buffer.concat([data, Buffer.from([0])]) : data
+  return Buffer.concat([Buffer.from(fourCC, 'ascii'), size, padded])
+}
+
+function fakeWebp(chunks: Buffer[]): Buffer {
+  const body = Buffer.concat(chunks)
+  const header = Buffer.alloc(12)
+  header.write('RIFF', 0, 'ascii')
+  header.writeUInt32LE(4 + body.length, 4)
+  header.write('WEBP', 8, 'ascii')
+  return Buffer.concat([header, body])
+}
+
+function testWebpExifAndXmpExtraction() {
+  const tiff = buildExifTiff('a webp description', 'webp user comment')
+  const xmpText = '<x:xmpmeta>test</x:xmpmeta>'
+  const buffer = fakeWebp([riffChunk('EXIF', tiff), riffChunk('XMP ', Buffer.from(xmpText, 'utf8'))])
+  const metadata = extractArchiveImageMetadata(buffer, 'legacy.webp')
+
+  assert.equal(metadata.format, 'webp')
+  assert.ok(metadata.supported)
+  if (metadata.format === 'webp' && metadata.supported) {
+    assert.equal(metadata.exifImageDescription, 'a webp description')
+    assert.equal(metadata.exifUserComment, 'webp user comment')
+    assert.equal(metadata.xmp, xmpText)
+    assert.deepEqual(metadata.comments, [])
+  }
+  console.log('verifyArtArchiveScanner: WebP EXIF + XMP extraction passed')
 }
 
 function testContentHash() {
@@ -153,6 +250,8 @@ async function run() {
   testPngExtractionRoundTrip()
   testComfyGraphParsing()
   testNonPngFormatDetection()
+  testJpegExifAndCommentExtraction()
+  testWebpExifAndXmpExtraction()
   testContentHash()
   await testScannerRootConfinement()
   console.log('verifyArtArchiveScanner: all assertions passed')

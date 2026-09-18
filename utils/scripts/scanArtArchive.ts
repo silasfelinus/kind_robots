@@ -28,6 +28,10 @@ async function main() {
   const withComfy = result.files.filter(
     (file) => file.metadata.format === 'png' && file.metadata.supported && file.metadata.comfy,
   ).length
+  const withJpegWebpMetadata = result.files.filter(
+    (file) =>
+      (file.metadata.format === 'jpeg' || file.metadata.format === 'webp') && file.metadata.supported,
+  ).length
   const byExtension = new Map<string, number>()
   for (const file of result.files) {
     const ext = file.relativePath.slice(file.relativePath.lastIndexOf('.')).toLowerCase()
@@ -41,6 +45,7 @@ async function main() {
   }
   console.log(`  with A1111 params:  ${withA1111}`)
   console.log(`  with Comfy prompt:  ${withComfy}`)
+  console.log(`  with JPEG/WebP EXIF/XMP/comment: ${withJpegWebpMetadata}`)
   console.log(`  issues:             ${result.issues.length}`)
   for (const issue of result.issues.slice(0, 20)) {
     console.log(`    [${issue.reason}] ${issue.path}: ${issue.detail}`)

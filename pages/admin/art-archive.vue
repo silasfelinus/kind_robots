@@ -68,7 +68,7 @@
             <div v-else class="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 2xl:grid-cols-6">
               <button v-for="entry in archive.entries" :key="entry.id" type="button" class="group overflow-hidden rounded-2xl border border-base-300 bg-base-200 text-left transition hover:border-primary" @click="archive.selectEntry(entry.id)">
                 <div class="aspect-[2/3] bg-base-300">
-                  <img v-if="entry.artImageId" :src="`/api/art/image/${entry.artImageId}`" :alt="entry.relativePath" class="h-full w-full object-cover" loading="lazy" />
+                  <img v-if="entry.imagePath" :src="entry.imagePath" :alt="entry.relativePath" class="h-full w-full object-cover" loading="lazy" />
                   <div v-else class="grid h-full place-items-center"><Icon name="kind-icon:image" class="h-10 w-10 opacity-30" /></div>
                 </div>
                 <div class="space-y-1 p-2">
@@ -84,7 +84,7 @@
             <div v-if="archive.detailLoading" class="grid min-h-48 place-items-center"><span class="kr-spinner-lg-primary" /></div>
             <div v-else-if="archive.detail" class="space-y-4">
               <div class="flex items-start justify-between gap-3"><div><p class="kr-text-eyebrow">Entry #{{ archive.detail.entry.id }}</p><h2 class="mt-1 break-all font-bold">{{ fileName(archive.detail.entry.relativePath) }}</h2></div><button class="kr-btn btn-ghost btn-sm" @click="archive.clearSelection()"><Icon name="kind-icon:close" /></button></div>
-              <img v-if="archive.detail.artImage?.id" :src="`/api/art/image/${archive.detail.artImage.id}`" class="aspect-[2/3] w-full rounded-2xl bg-base-300 object-cover" :alt="archive.detail.entry.relativePath" />
+              <img v-if="archive.detail.artImage?.path" :src="archive.detail.artImage.path" class="aspect-[2/3] w-full rounded-2xl bg-base-300 object-cover" :alt="archive.detail.entry.relativePath" />
               <dl class="grid grid-cols-[6rem_1fr] gap-x-3 gap-y-2 text-xs"><dt class="opacity-60">Folder</dt><dd class="break-all">{{ archive.detail.entry.parentFolder || 'Archive root' }}</dd><dt class="opacity-60">State</dt><dd>{{ archive.detail.entry.processState }}</dd><dt class="opacity-60">Match</dt><dd>{{ archive.detail.entry.matchState }}<span v-if="archive.detail.entry.resourceMatchLocked"> · locked</span></dd><dt class="opacity-60">Rating</dt><dd>{{ archive.detail.entry.rating || 'Unrated' }}</dd><dt class="opacity-60">Checkpoint</dt><dd>{{ archive.detail.artImage?.checkpointResourceId || 'Unresolved' }}</dd></dl>
               <div><p class="kr-text-dim-xs mb-1">Prompt</p><p class="max-h-28 overflow-auto whitespace-pre-wrap text-xs">{{ archive.detail.artImage?.promptString || 'No normalized prompt' }}</p></div>
               <details><summary class="cursor-pointer text-xs font-semibold">Extracted metadata</summary><pre class="mt-2 max-h-72 overflow-auto whitespace-pre-wrap break-all rounded-xl bg-base-300 p-3 text-[10px]">{{ pretty(archive.detail.entry.extractedMetadata) }}</pre></details>

@@ -1,4 +1,7 @@
-import type { ButterflyBinConfig } from '@/types/butterflyGallery'
+import type {
+  ButterflyBinConfig,
+  ButterflyBinKind,
+} from '@/types/butterflyGallery'
 
 export type ButterflyGenerationAction =
   | { kind: 'add-lora'; resource: string; weight?: number }
@@ -22,8 +25,23 @@ export type ButterflyBinPresetEnvelope = {
 export const BUTTERFLY_BIN_PRESETS_KEY =
   'kind-robots:butterfly-gallery:bin-presets:v1'
 
+const BIN_KINDS = new Set<ButterflyBinKind>([
+  'processed',
+  'unprocessed',
+  'rating',
+  'trash',
+  'collection',
+  'needs-review',
+  'move',
+  'preset',
+])
+
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value)
+}
+
+function isBinKind(value: unknown): value is ButterflyBinKind {
+  return typeof value === 'string' && BIN_KINDS.has(value as ButterflyBinKind)
 }
 
 function isGenerationAction(value: unknown): value is ButterflyGenerationAction {
@@ -63,7 +81,7 @@ function isCustomBin(value: unknown): value is ButterflyCustomBinPreset {
     typeof value.label === 'string' &&
     (value.side === 'left' || value.side === 'right') &&
     typeof value.icon === 'string' &&
-    typeof value.kind === 'string' &&
+    isBinKind(value.kind) &&
     isRecord(value.payload) &&
     typeof value.sortOrder === 'number' &&
     typeof value.enabled === 'boolean' &&

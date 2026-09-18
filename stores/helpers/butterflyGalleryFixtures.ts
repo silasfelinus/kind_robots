@@ -1,0 +1,133 @@
+// Fixture pile data for the Butterfly Gallery store. Stands in for the real
+// art-archive-backed feed (butterfly-gallery/t-004) so UI work never waits on
+// archive integration -- shape-compatible with ButterflyPileEntry so swapping
+// in a live provider later is a data-source change, not a component rewrite.
+import type {
+  ButterflyBinConfig,
+  ButterflyPileEntry,
+} from '@/types/butterflyGallery'
+
+export function createButterflyGalleryFixtureEntries(): ButterflyPileEntry[] {
+  return [
+    {
+      id: 9001,
+      thumbnailPath: '/images/placeholder/butterfly-fixture-1-thumb.webp',
+      displayPath: '/images/placeholder/butterfly-fixture-1.webp',
+      isMature: false,
+      isPublic: true,
+      processed: false,
+      trashed: false,
+      rating: null,
+      folder: 'inbox',
+      collections: [],
+      prompt: 'a lighthouse at dawn, watercolor',
+      checkpoint: 'sdxl-base-fixture',
+      matchState: 'matched',
+    },
+    {
+      id: 9002,
+      thumbnailPath: '/images/placeholder/butterfly-fixture-2-thumb.webp',
+      displayPath: '/images/placeholder/butterfly-fixture-2.webp',
+      isMature: true,
+      isPublic: false,
+      processed: false,
+      trashed: false,
+      rating: 3,
+      folder: 'inbox',
+      collections: ['favorites'],
+      prompt: 'portrait study, oil paint',
+      checkpoint: 'fixture-mature-checkpoint',
+      matchState: 'matched',
+    },
+    {
+      id: 9003,
+      thumbnailPath: '/images/placeholder/butterfly-fixture-3-thumb.webp',
+      displayPath: '/images/placeholder/butterfly-fixture-3.webp',
+      isMature: false,
+      isPublic: true,
+      processed: true,
+      trashed: false,
+      rating: 5,
+      folder: 'sorted',
+      collections: ['landscapes'],
+      prompt: 'mountain range, ink wash',
+      checkpoint: null,
+      matchState: 'unmatched',
+    },
+    {
+      id: 9004,
+      thumbnailPath: '/images/placeholder/butterfly-fixture-4-thumb.webp',
+      displayPath: '/images/placeholder/butterfly-fixture-4.webp',
+      isMature: false,
+      isPublic: true,
+      processed: false,
+      trashed: false,
+      rating: null,
+      folder: 'inbox',
+      collections: [],
+      prompt: null,
+      checkpoint: 'fixture-checkpoint-b',
+      matchState: 'missing',
+    },
+    {
+      id: 9005,
+      thumbnailPath: '/images/placeholder/butterfly-fixture-5-thumb.webp',
+      displayPath: '/images/placeholder/butterfly-fixture-5.webp',
+      isMature: false,
+      isPublic: true,
+      processed: false,
+      trashed: true,
+      rating: 1,
+      folder: 'sorted',
+      collections: [],
+      prompt: 'city skyline at night',
+      checkpoint: 'fixture-checkpoint-b',
+      matchState: 'matched',
+    },
+  ]
+}
+
+export function createDefaultButterflyBins(): ButterflyBinConfig[] {
+  return [
+    {
+      id: 'needs-review',
+      label: 'Needs Review',
+      side: 'left',
+      icon: 'kind-icon:eye',
+      kind: 'needs-review',
+      payload: {},
+      sortOrder: 0,
+      enabled: true,
+    },
+    {
+      id: 'trash',
+      label: 'Trash',
+      side: 'left',
+      icon: 'kind-icon:trash',
+      kind: 'trash',
+      payload: {},
+      sortOrder: 1,
+      enabled: true,
+    },
+    {
+      id: 'processed',
+      label: 'Processed',
+      side: 'right',
+      icon: 'kind-icon:check',
+      kind: 'processed',
+      payload: {},
+      sortOrder: 0,
+      enabled: true,
+    },
+    {
+      id: 'favorites',
+      label: 'Favorites',
+      side: 'right',
+      icon: 'kind-icon:star',
+      kind: 'collection',
+      payload: { collection: 'favorites' },
+      sortOrder: 1,
+      enabled: true,
+    },
+  ]
+}

@@ -1,5 +1,7 @@
 <template>
-  <main class="butterfly-gallery-page kr-stage kr-scroll h-full min-h-0 overflow-auto">
+  <main
+    class="butterfly-gallery-page kr-stage kr-scroll h-full min-h-0 overflow-auto"
+  >
     <div v-if="!ready" class="grid h-full min-h-80 place-items-center">
       <span class="kr-spinner-lg-primary" />
     </div>
@@ -30,11 +32,7 @@
         data-animation-slot="butterfly-runway"
         aria-hidden="true"
       >
-        <span
-          v-for="index in 8"
-          :key="index"
-          class="runway-panel"
-        />
+        <span v-for="index in 8" :key="index" class="runway-panel" />
       </div>
 
       <div class="drop-funnel" aria-hidden="true">
@@ -123,7 +121,9 @@
               </div>
               <div>
                 <dt>Checkpoint</dt>
-                <dd>{{ gallery.selectedEntry.resource.checkpoint || 'Unknown' }}</dd>
+                <dd>
+                  {{ gallery.selectedEntry.resource.checkpoint || 'Unknown' }}
+                </dd>
               </div>
               <div>
                 <dt>State</dt>
@@ -255,7 +255,11 @@
         class="stage-error kr-note kr-note-error"
       >
         <span>{{ gallery.errorMessage || 'Something went wrong.' }}</span>
-        <button type="button" class="kr-btn btn-ghost btn-sm" @click="gallery.clearError()">
+        <button
+          type="button"
+          class="kr-btn btn-ghost btn-sm"
+          @click="gallery.clearError()"
+        >
           Dismiss
         </button>
       </div>
@@ -380,7 +384,10 @@ function pileStyle(index: number, total: number): Record<string, string> {
       color-mix(in oklch, var(--color-info) 16%, var(--color-base-100)) 0 56%,
       var(--color-base-200) 56% 100%
     );
-  background-size: 88px 88px, 88px 88px, 100% 100%;
+  background-size:
+    88px 88px,
+    88px 88px,
+    100% 100%;
 }
 
 .warehouse-grid {
@@ -466,7 +473,8 @@ function pileStyle(index: number, total: number): Record<string, string> {
   display: grid;
   grid-template-columns: repeat(8, 1fr);
   overflow: hidden;
-  border: 5px solid color-mix(in oklch, var(--color-neutral) 82%, var(--color-info));
+  border: 5px solid
+    color-mix(in oklch, var(--color-neutral) 82%, var(--color-info));
   border-radius: 1.5rem;
   background: color-mix(in oklch, var(--color-info) 18%, var(--color-base-100));
   box-shadow:
@@ -475,13 +483,13 @@ function pileStyle(index: number, total: number): Record<string, string> {
 }
 
 .runway-panel {
-  border-right: 2px solid color-mix(in oklch, var(--color-neutral) 22%, transparent);
-  background:
-    linear-gradient(
-      180deg,
-      color-mix(in oklch, var(--color-info) 10%, transparent),
-      transparent
-    );
+  border-right: 2px solid
+    color-mix(in oklch, var(--color-neutral) 22%, transparent);
+  background: linear-gradient(
+    180deg,
+    color-mix(in oklch, var(--color-info) 10%, transparent),
+    transparent
+  );
 }
 
 .drop-funnel {
@@ -501,7 +509,8 @@ function pileStyle(index: number, total: number): Record<string, string> {
   left: 35%;
   width: 30%;
   height: 40%;
-  border-inline: 5px solid color-mix(in oklch, var(--color-warning-content) 58%, transparent);
+  border-inline: 5px solid
+    color-mix(in oklch, var(--color-warning-content) 58%, transparent);
   background: var(--color-warning);
 }
 
@@ -513,13 +522,12 @@ function pileStyle(index: number, total: number): Record<string, string> {
   height: 61%;
   clip-path: polygon(34% 0, 66% 0, 100% 100%, 0 100%);
   border-radius: 0 0 44% 44%;
-  background:
-    linear-gradient(
-      90deg,
-      color-mix(in oklch, var(--color-warning) 78%, var(--color-base-100)),
-      var(--color-warning) 50%,
-      color-mix(in oklch, var(--color-warning) 76%, var(--color-neutral)) 100%
-    );
+  background: linear-gradient(
+    90deg,
+    color-mix(in oklch, var(--color-warning) 78%, var(--color-base-100)),
+    var(--color-warning) 50%,
+    color-mix(in oklch, var(--color-warning) 76%, var(--color-neutral)) 100%
+  );
   filter: drop-shadow(
     0 8px 5px color-mix(in oklch, var(--color-neutral) 28%, transparent)
   );
@@ -531,7 +539,8 @@ function pileStyle(index: number, total: number): Record<string, string> {
   bottom: 0;
   width: 100%;
   height: 18%;
-  border: 5px solid color-mix(in oklch, var(--color-warning-content) 58%, transparent);
+  border: 5px solid
+    color-mix(in oklch, var(--color-warning-content) 58%, transparent);
   border-radius: 50%;
   background: color-mix(in oklch, var(--color-neutral) 88%, black);
 }
@@ -653,9 +662,14 @@ function pileStyle(index: number, total: number): Record<string, string> {
   width: 100%;
   height: 100%;
   overflow: hidden;
-  border: 6px solid color-mix(in oklch, var(--color-neutral) 82%, var(--color-info));
+  border: 6px solid
+    color-mix(in oklch, var(--color-neutral) 82%, var(--color-info));
   border-radius: 1.15rem;
-  background: color-mix(in oklch, var(--color-base-100) 88%, var(--color-info) 6%);
+  background: color-mix(
+    in oklch,
+    var(--color-base-100) 88%,
+    var(--color-info) 6%
+  );
   box-shadow:
     inset 0 0 0 3px color-mix(in oklch, var(--color-info) 18%, transparent),
     0 16px 30px color-mix(in oklch, var(--color-neutral) 28%, transparent);
@@ -724,7 +738,10 @@ function pileStyle(index: number, total: number): Record<string, string> {
   bottom: 17%;
   width: clamp(190px, 20vw, 300px);
   display: grid;
-  grid-template-rows: minmax(0, 1.9fr) minmax(72px, 0.72fr) minmax(72px, 0.72fr);
+  grid-template-rows: minmax(0, 1.9fr) minmax(72px, 0.72fr) minmax(
+      72px,
+      0.72fr
+    );
   gap: clamp(7px, 0.8vw, 12px);
 }
 
@@ -741,7 +758,11 @@ function pileStyle(index: number, total: number): Record<string, string> {
   min-height: 0;
   overflow: auto;
   padding: clamp(0.7rem, 1vw, 1rem);
-  background: color-mix(in oklch, var(--color-neutral) 90%, var(--color-base-100));
+  background: color-mix(
+    in oklch,
+    var(--color-neutral) 90%,
+    var(--color-base-100)
+  );
   color: var(--color-neutral-content);
 }
 
@@ -890,7 +911,8 @@ function pileStyle(index: number, total: number): Record<string, string> {
   border: 5px solid var(--color-base-100);
   border-radius: 0.35rem;
   background: var(--color-base-100);
-  box-shadow: 0 6px 16px color-mix(in oklch, var(--color-neutral) 26%, transparent);
+  box-shadow: 0 6px 16px
+    color-mix(in oklch, var(--color-neutral) 26%, transparent);
   pointer-events: auto;
   transition:
     translate 140ms ease,

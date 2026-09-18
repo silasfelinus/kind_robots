@@ -402,6 +402,7 @@ export const ModelName = {
   AgentCheckIn: 'AgentCheckIn',
   AgentNote: 'AgentNote',
   ArchiveEntry: 'ArchiveEntry',
+  ArchiveActionPreset: 'ArchiveActionPreset',
   BrainstormSession: 'BrainstormSession',
   BrainstormCandidate: 'BrainstormCandidate',
   FacetAlias: 'FacetAlias',
@@ -523,7 +524,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "agentProfile" | "agentProfileCredential" | "agentCheckIn" | "agentNote" | "archiveEntry" | "brainstormSession" | "brainstormCandidate" | "facetAlias" | "facetProfile" | "characterFacet" | "botFacet" | "rewardFacet" | "mandarinAudioAsset" | "mandarinCatalogOverride" | "mandarinCatalogChange" | "mandarinRequestedCard" | "mandarinCustomSet" | "mandarinArtJobLink" | "mandarinCardProgress" | "mandarinReviewEvent" | "modelBuildRun" | "modelBuildItem" | "modelBuildArtifact" | "modelBuildRevision" | "projectPageContent" | "artImage" | "artCollection" | "bot" | "character" | "chat" | "dream" | "dreamRelation" | "project" | "facet" | "dreamFacet" | "scenarioFacet" | "projectFacet" | "projectArtImage" | "projectArtCollection" | "entityArtImage" | "facetArtImage" | "facetArtCollection" | "facetRelation" | "expressionMedia" | "expressionTransition" | "log" | "achievement" | "manaTransaction" | "revenueSplit" | "socialPostDraft" | "missionRemittance" | "product" | "order" | "orderItem" | "entitlement" | "printJob" | "grant" | "pack" | "achievementRecord" | "narratorTopic" | "narratorThread" | "pitchSheet" | "prompt" | "reaction" | "resource" | "reward" | "scenario" | "server" | "serverHealthCheck" | "sceneAnimatorPrompt" | "smartIcon" | "theme" | "user" | "stylistClient" | "stylistAppointment" | "artJob" | "queueControl" | "downloadRequest" | "karmaTransaction" | "referral" | "userRelation" | "userRole" | "todo" | "challenge" | "challengeSubmission" | "contender" | "endingDeck" | "lifeRun" | "lifeChoice" | "lifeStat" | "lifeEnding" | "lifeAchievement" | "lifeAchievementUnlock" | "lifeRunArt" | "aquarium" | "aquariumStock" | "aquariumSet" | "aquariumDecor" | "aquariumEgg" | "aquariumCodexEntry" | "monster" | "aquariumEvent" | "authToken" | "agentCredential" | "conversation" | "conversationParticipant" | "directMessage" | "notification" | "githubInstallation" | "appRepo" | "mediaEntry"
+    modelProps: "agentProfile" | "agentProfileCredential" | "agentCheckIn" | "agentNote" | "archiveEntry" | "archiveActionPreset" | "brainstormSession" | "brainstormCandidate" | "facetAlias" | "facetProfile" | "characterFacet" | "botFacet" | "rewardFacet" | "mandarinAudioAsset" | "mandarinCatalogOverride" | "mandarinCatalogChange" | "mandarinRequestedCard" | "mandarinCustomSet" | "mandarinArtJobLink" | "mandarinCardProgress" | "mandarinReviewEvent" | "modelBuildRun" | "modelBuildItem" | "modelBuildArtifact" | "modelBuildRevision" | "projectPageContent" | "artImage" | "artCollection" | "bot" | "character" | "chat" | "dream" | "dreamRelation" | "project" | "facet" | "dreamFacet" | "scenarioFacet" | "projectFacet" | "projectArtImage" | "projectArtCollection" | "entityArtImage" | "facetArtImage" | "facetArtCollection" | "facetRelation" | "expressionMedia" | "expressionTransition" | "log" | "achievement" | "manaTransaction" | "revenueSplit" | "socialPostDraft" | "missionRemittance" | "product" | "order" | "orderItem" | "entitlement" | "printJob" | "grant" | "pack" | "achievementRecord" | "narratorTopic" | "narratorThread" | "pitchSheet" | "prompt" | "reaction" | "resource" | "reward" | "scenario" | "server" | "serverHealthCheck" | "sceneAnimatorPrompt" | "smartIcon" | "theme" | "user" | "stylistClient" | "stylistAppointment" | "artJob" | "queueControl" | "downloadRequest" | "karmaTransaction" | "referral" | "userRelation" | "userRole" | "todo" | "challenge" | "challengeSubmission" | "contender" | "endingDeck" | "lifeRun" | "lifeChoice" | "lifeStat" | "lifeEnding" | "lifeAchievement" | "lifeAchievementUnlock" | "lifeRunArt" | "aquarium" | "aquariumStock" | "aquariumSet" | "aquariumDecor" | "aquariumEgg" | "aquariumCodexEntry" | "monster" | "aquariumEvent" | "authToken" | "agentCredential" | "conversation" | "conversationParticipant" | "directMessage" | "notification" | "githubInstallation" | "appRepo" | "mediaEntry"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -854,6 +855,72 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.ArchiveEntryCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.ArchiveEntryCountAggregateOutputType> | number
+        }
+      }
+    }
+    ArchiveActionPreset: {
+      payload: Prisma.$ArchiveActionPresetPayload<ExtArgs>
+      fields: Prisma.ArchiveActionPresetFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ArchiveActionPresetFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ArchiveActionPresetPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ArchiveActionPresetFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ArchiveActionPresetPayload>
+        }
+        findFirst: {
+          args: Prisma.ArchiveActionPresetFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ArchiveActionPresetPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ArchiveActionPresetFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ArchiveActionPresetPayload>
+        }
+        findMany: {
+          args: Prisma.ArchiveActionPresetFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ArchiveActionPresetPayload>[]
+        }
+        create: {
+          args: Prisma.ArchiveActionPresetCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ArchiveActionPresetPayload>
+        }
+        createMany: {
+          args: Prisma.ArchiveActionPresetCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.ArchiveActionPresetDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ArchiveActionPresetPayload>
+        }
+        update: {
+          args: Prisma.ArchiveActionPresetUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ArchiveActionPresetPayload>
+        }
+        deleteMany: {
+          args: Prisma.ArchiveActionPresetDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ArchiveActionPresetUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.ArchiveActionPresetUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ArchiveActionPresetPayload>
+        }
+        aggregate: {
+          args: Prisma.ArchiveActionPresetAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateArchiveActionPreset>
+        }
+        groupBy: {
+          args: Prisma.ArchiveActionPresetGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ArchiveActionPresetGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ArchiveActionPresetCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ArchiveActionPresetCountAggregateOutputType> | number
         }
       }
     }
@@ -7967,6 +8034,21 @@ export const ArchiveEntryScalarFieldEnum = {
 export type ArchiveEntryScalarFieldEnum = (typeof ArchiveEntryScalarFieldEnum)[keyof typeof ArchiveEntryScalarFieldEnum]
 
 
+export const ArchiveActionPresetScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  userId: 'userId',
+  label: 'label',
+  description: 'description',
+  actionType: 'actionType',
+  modifiers: 'modifiers',
+  isActive: 'isActive'
+} as const
+
+export type ArchiveActionPresetScalarFieldEnum = (typeof ArchiveActionPresetScalarFieldEnum)[keyof typeof ArchiveActionPresetScalarFieldEnum]
+
+
 export const BrainstormSessionScalarFieldEnum = {
   id: 'id',
   createdAt: 'createdAt',
@@ -10136,6 +10218,15 @@ export const ArchiveEntryOrderByRelevanceFieldEnum = {
 export type ArchiveEntryOrderByRelevanceFieldEnum = (typeof ArchiveEntryOrderByRelevanceFieldEnum)[keyof typeof ArchiveEntryOrderByRelevanceFieldEnum]
 
 
+export const ArchiveActionPresetOrderByRelevanceFieldEnum = {
+  label: 'label',
+  description: 'description',
+  modifiers: 'modifiers'
+} as const
+
+export type ArchiveActionPresetOrderByRelevanceFieldEnum = (typeof ArchiveActionPresetOrderByRelevanceFieldEnum)[keyof typeof ArchiveActionPresetOrderByRelevanceFieldEnum]
+
+
 export const BrainstormSessionOrderByRelevanceFieldEnum = {
   name: 'name',
   premise: 'premise',
@@ -11332,6 +11423,13 @@ export type EnumArchiveEntryMatchStateFieldRefInput<$PrismaModel> = FieldRefInpu
 
 
 /**
+ * Reference to a field of type 'ArchivePresetActionType'
+ */
+export type EnumArchivePresetActionTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ArchivePresetActionType'>
+    
+
+
+/**
  * Reference to a field of type 'FacetTaxonomy'
  */
 export type EnumFacetTaxonomyFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'FacetTaxonomy'>
@@ -11983,6 +12081,7 @@ export type GlobalOmitConfig = {
   agentCheckIn?: Prisma.AgentCheckInOmit
   agentNote?: Prisma.AgentNoteOmit
   archiveEntry?: Prisma.ArchiveEntryOmit
+  archiveActionPreset?: Prisma.ArchiveActionPresetOmit
   brainstormSession?: Prisma.BrainstormSessionOmit
   brainstormCandidate?: Prisma.BrainstormCandidateOmit
   facetAlias?: Prisma.FacetAliasOmit

@@ -56,6 +56,7 @@ export const ModelName = {
   AgentCheckIn: 'AgentCheckIn',
   AgentNote: 'AgentNote',
   ArchiveEntry: 'ArchiveEntry',
+  ArchiveActionPreset: 'ArchiveActionPreset',
   BrainstormSession: 'BrainstormSession',
   BrainstormCandidate: 'BrainstormCandidate',
   FacetAlias: 'FacetAlias',
@@ -253,6 +254,21 @@ export const ArchiveEntryScalarFieldEnum = {
 } as const
 
 export type ArchiveEntryScalarFieldEnum = (typeof ArchiveEntryScalarFieldEnum)[keyof typeof ArchiveEntryScalarFieldEnum]
+
+
+export const ArchiveActionPresetScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  userId: 'userId',
+  label: 'label',
+  description: 'description',
+  actionType: 'actionType',
+  modifiers: 'modifiers',
+  isActive: 'isActive'
+} as const
+
+export type ArchiveActionPresetScalarFieldEnum = (typeof ArchiveActionPresetScalarFieldEnum)[keyof typeof ArchiveActionPresetScalarFieldEnum]
 
 
 export const BrainstormSessionScalarFieldEnum = {
@@ -2422,6 +2438,15 @@ export const ArchiveEntryOrderByRelevanceFieldEnum = {
 } as const
 
 export type ArchiveEntryOrderByRelevanceFieldEnum = (typeof ArchiveEntryOrderByRelevanceFieldEnum)[keyof typeof ArchiveEntryOrderByRelevanceFieldEnum]
+
+
+export const ArchiveActionPresetOrderByRelevanceFieldEnum = {
+  label: 'label',
+  description: 'description',
+  modifiers: 'modifiers'
+} as const
+
+export type ArchiveActionPresetOrderByRelevanceFieldEnum = (typeof ArchiveActionPresetOrderByRelevanceFieldEnum)[keyof typeof ArchiveActionPresetOrderByRelevanceFieldEnum]
 
 
 export const BrainstormSessionOrderByRelevanceFieldEnum = {

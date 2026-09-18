@@ -2,15 +2,13 @@ import { getQuery, type H3Event } from 'h3'
 import type { Prisma } from '~/prisma/generated/prisma/client'
 import { validateApiKey } from '~/server/utils/validateKey'
 import { userRoles } from '~/server/utils/authUser'
-import { isMaturityRestricted } from '~/server/utils/contentAccess'
+import {
+  isMaturityRestricted,
+  viewerShowsMature,
+} from '~/server/utils/contentAccess'
 
 export type QueryValue =
-  | string
-  | number
-  | boolean
-  | null
-  | undefined
-  | QueryValue[]
+  string | number | boolean | null | undefined | QueryValue[]
 
 type ValidatedUser = {
   id?: number | null
@@ -26,6 +24,8 @@ export type ArtImageAccessContext = {
   isAdmin: boolean
   showMature: boolean
   isAuthenticated: boolean
+  /** CHILD: the hard barrier, which no preference or parameter lifts. */
+  restricted: boolean
 }
 
 export function readBoolean(value: unknown, fallback = false): boolean {
@@ -61,20 +61,25 @@ export async function getArtImageAccessContext(
     const user = auth.user as ValidatedUser | null | undefined
     const isAuthenticated =
       Boolean(auth.isValid) && typeof user?.id === 'number'
-    const requestedMature = readBoolean(
-      query.showMature ?? query.includeMature ?? query.mature,
-      false,
-    )
+    /*
+     * The parameter may only NARROW. This read `requestedMature ||
+     * user.showMature`, so an adult with the maturity toggle OFF could hand
+     * themselves mature images with `?showMature=true` -- a preference a caller
+     * can override is not a preference. Undefined when absent, so a surface
+     * that says nothing gets the account's own answer.
+     */
+    const raw = query.showMature ?? query.includeMature ?? query.mature
+    const requestedMature =
+      raw === undefined || raw === null ? undefined : readBoolean(raw, true)
     const showMature =
-      isAuthenticated &&
-      !isMaturityRestricted(user) &&
-      (requestedMature || user?.showMature === true)
+      isAuthenticated && viewerShowsMature(user, requestedMature)
 
     return {
       userId: isAuthenticated ? Number(user?.id) : null,
       isAdmin: isAuthenticated && isAdminUser(user),
       showMature,
       isAuthenticated,
+      restricted: isMaturityRestricted(user),
     }
   } catch {
     return {
@@ -82,6 +87,7 @@ export async function getArtImageAccessContext(
       isAdmin: false,
       showMature: false,
       isAuthenticated: false,
+      restricted: true,
     }
   }
 }
@@ -98,6 +104,15 @@ export function buildArtImageWhere({
       ? { OR: [{ isPublic: true }, { userId }] }
       : { isPublic: true }
 
+  /*
+   * NO OWN-ROWS CARVE-OUT ON A LISTING. Silas, 2026-09-18: "I might click the
+   * maturity toggle in order to safeguard the page display if I have people
+   * over." A safeguard that leaves your OWN mature rows on screen is not a
+   * safeguard -- on a browse surface, your own content is most of what is on it.
+   *
+   * The carve-out belongs to a DIRECT fetch of one object you are working with
+   * (art/image/:id), not to a grid someone else may be looking at.
+   */
   const matureWhere: Prisma.ArtImageWhereInput = showMature
     ? {}
     : { isMature: false }
@@ -129,14 +144,10 @@ export function buildArtCollectionWhere({
       ? { OR: [{ isPublic: true }, { userId }] }
       : { isPublic: true }
 
-  return {
-    AND: [privacy, showMature ? {} : { isMature: false }],
-  }
+  return { AND: [privacy, showMature ? {} : { isMature: false }] }
 }
 
-export function buildArtImageSelect(
-  query: Record<string, QueryValue> = {},
-) {
+export function buildArtImageSelect(query: Record<string, QueryValue> = {}) {
   const includeImageData = readBoolean(query.includeImageData, false)
   const includeThumbnailData = readBoolean(query.includeThumbnailData, false)
 

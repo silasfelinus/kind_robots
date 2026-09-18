@@ -5,7 +5,7 @@ import { defineEventHandler, createError } from 'h3'
 import prisma from '../../../utils/prisma'
 import { errorHandler } from '../../../utils/error'
 import { requireApiUser } from '../../../utils/authGuard'
-import { isMaturityRestricted } from '../../../utils/contentAccess'
+import { viewerShowsMature } from '../../../utils/contentAccess'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -35,7 +35,7 @@ export default defineEventHandler(async (event) => {
       where: {
         conversationId,
         deletedAt: null,
-        ...(isMaturityRestricted(user) ? { isMature: false } : {}),
+        ...(viewerShowsMature(user) ? {} : { isMature: false }),
       },
       orderBy: { createdAt: 'asc' },
       include: {

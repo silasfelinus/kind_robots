@@ -70,6 +70,41 @@ export function effectiveShowMature(
 }
 
 /**
+ * May this viewer be shown mature content on THIS request?
+ *
+ * THE ONE PREDICATE. Silas, 2026-09-18, settling where the rule lives: "if
+ * something is mature but public, it should still only be seen by a logged in
+ * user that has chosen mature true. there shouldn't be an option for this to
+ * bleed... the backend is the proper place to gate this behavior."
+ *
+ * Three conditions, and all three are the SERVER's:
+ *
+ *   logged in      anonymous callers never see mature content. effectiveShowMature
+ *                  reads `showMature` off a user; there is no user, so it is false.
+ *   not a CHILD    a restriction a role adds, that no preference or parameter lifts.
+ *   opted in       the stored preference, set through the maturity toggle, which
+ *                  persists to /api/users/me/consent and only renders for a
+ *                  logged-in, non-restricted account.
+ *
+ * `requested` is the per-request `?showMature=` parameter, and it may only
+ * NARROW. It used to widen -- getArtImageAccessContext read
+ * `requestedMature || user.showMature`, so an adult with the toggle OFF could
+ * hand themselves mature images with a query string. That is the bleed: a
+ * preference a caller can override is not a preference, the same way a
+ * restriction a caller can lift is not a restriction.
+ *
+ * A surface that never wants mature content passes `false` and gets that.
+ * Nothing can pass `true` and get more than the account already allows.
+ */
+export function viewerShowsMature(
+  user: MaturityUser | null | undefined,
+  requested?: boolean,
+): boolean {
+  if (!effectiveShowMature(user)) return false
+  return requested !== false
+}
+
+/**
  * Is this user barred from mature content outright, whatever they ask for?
  *
  * The companion to effectiveShowMature, and the one that has to gate a
@@ -85,7 +120,8 @@ export function isMaturityRestricted(
 
   const roles = new Set<string>()
   for (const role of user.roles ?? []) roles.add(normalizeRole(role))
-  for (const entry of user.UserRoles ?? []) roles.add(normalizeRole(entry?.role))
+  for (const entry of user.UserRoles ?? [])
+    roles.add(normalizeRole(entry?.role))
   roles.add(normalizeRole(user.Role))
   roles.add(normalizeRole(user.role))
 
@@ -220,7 +256,7 @@ export async function canView(
  *               them, because withholding the picture while publishing the fact
  *               of it is not privacy.
  *   mature   -> excluded outright for a maturity-restricted account, which
- *               isMaturityRestricted decides from ROLES rather than from the
+ *               viewerShowsMature decides from ROLES rather than from the
  *               `showMature` preference, so a CHILD cannot opt themselves in
  *               with a query parameter.
  *
@@ -245,6 +281,8 @@ export async function visibilityWhere(
   user: (MaturityUser & { id?: number | null }) | null | undefined,
   fields: VisibilityFields = { isPublic: true, isMature: true },
   isAdmin = false,
+  /** The per-request `?showMature=` parameter. May only narrow. */
+  showMature?: boolean,
 ): Promise<Record<string, unknown>> {
   const clauses: Record<string, unknown>[] = []
   const ownerField = fields.ownerField ?? 'userId'
@@ -282,10 +320,15 @@ export async function visibilityWhere(
 
   /*
    * Applied to an ADMIN too. Being an admin is not being an adult: a CHILD who
-   * is also an ADMIN is still maturity-restricted, which is why this reads the
-   * role rather than the privilege.
+   * is also an ADMIN is still maturity-restricted, which is why viewerShowsMature
+   * reads the role rather than the privilege.
+   *
+   * This used to ask only viewerShowsMature -- the CHILD barrier -- so an
+   * adult with the toggle OFF still received mature rows from the API, and only
+   * the front end hid them. Thirty-nine components were doing that hiding and
+   * seven endpoints were not; the gate belongs here instead.
    */
-  if (fields.isMature && isMaturityRestricted(user)) {
+  if (fields.isMature && !viewerShowsMature(user, showMature)) {
     clauses.push({ isMature: false })
   }
 
@@ -296,6 +339,7 @@ export async function visibilityWhere(
 
 /**
  * canView(), plus the maturity rule. The per-object twin of visibilityWhere().
+ * Maturity is viewerShowsMature(): logged in, not a CHILD, and opted in.
  *
  * canView() answers privacy richly -- owner, admin, Grant, Pack -- and says
  * nothing about maturity, because it predates that rule being stated for the
@@ -310,8 +354,10 @@ export async function canViewWithMaturity(
   subject: AccessSubject & { isMature?: boolean | null },
   subjectType: GrantSubject | null,
   user: (AccessUser & MaturityUser) | null | undefined,
+  /** The per-request `?showMature=` parameter. May only narrow. */
+  showMature?: boolean,
 ): Promise<boolean> {
   if (!(await canView(subject, subjectType, user))) return false
-  if (subject.isMature && isMaturityRestricted(user)) return false
+  if (subject.isMature && !viewerShowsMature(user, showMature)) return false
   return true
 }

@@ -6,7 +6,7 @@ import { getOptionalApiUser } from '~/server/utils/authGuard'
 import { loadFacetSummaries } from '~/server/utils/facetAssignments'
 import {
   existsActiveGrant,
-  isMaturityRestricted,
+  viewerShowsMature,
 } from '~/server/utils/contentAccess'
 import { assertDreamAccess } from '~/server/api/dreams/index'
 
@@ -53,7 +53,7 @@ export default defineEventHandler(async (event) => {
 
     // Same gap as dreams/[id].get.ts: access and maturity are separate rules,
     // and only the first was being asked.
-    if (dream.isMature && isMaturityRestricted(auth?.user)) {
+    if (dream.isMature && !viewerShowsMature(auth?.user)) {
       throw createError({ statusCode: 404, message: 'Dream not found.' })
     }
 

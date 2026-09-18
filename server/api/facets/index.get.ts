@@ -5,7 +5,7 @@ import prisma from '~/server/utils/prisma'
 import { errorHandler } from '~/server/utils/error'
 import { getOptionalApiUser } from '~/server/utils/authGuard'
 import {
-  isMaturityRestricted,
+  viewerShowsMature,
   viewablePackIds,
 } from '~/server/utils/contentAccess'
 import {
@@ -52,11 +52,17 @@ export default defineEventHandler(async (event) => {
     const isAdmin = auth?.isAdmin ?? false
     const packIds = userId && !isAdmin ? await viewablePackIds(userId) : []
     const includeInactive = isAdmin && toBoolean(query.includeInactive)
-    // Admin-gated already; restrictive still wins over the privilege.
-    const includeMature =
-      isAdmin &&
-      !isMaturityRestricted(auth?.user) &&
-      toBoolean(query.includeMature)
+    /*
+     * Was admin-gated, which is the wrong axis: being an admin is not being an
+     * adult, and an adult who is NOT an admin was refused content their own
+     * account allows. The account decides now; the parameter may only narrow.
+     */
+    const includeMature = viewerShowsMature(
+      auth?.user,
+      typeof query.includeMature === 'undefined'
+        ? undefined
+        : toBoolean(query.includeMature),
+    )
     const mine = toBoolean(query.mine)
     const take = Math.max(1, toPositiveInt(query.take, 100, 250))
     const skip = toPositiveInt(query.skip, 0, 100000)

@@ -2,10 +2,7 @@
 import { defineEventHandler } from 'h3'
 import prisma from '../../utils/prisma'
 import { getOptionalApiUser } from '../../utils/authGuard'
-import {
-  isMaturityRestricted,
-  viewablePackIds,
-} from '../../utils/contentAccess'
+import { viewerShowsMature, viewablePackIds } from '../../utils/contentAccess'
 
 export default defineEventHandler(async (event) => {
   let response
@@ -36,7 +33,7 @@ export default defineEventHandler(async (event) => {
      */
     const visibility = {
       ...privacy,
-      ...(isMaturityRestricted(auth?.user) ? { isMature: false } : {}),
+      ...(viewerShowsMature(auth?.user) ? {} : { isMature: false }),
     }
 
     const where = { isActive: true, ...visibility }

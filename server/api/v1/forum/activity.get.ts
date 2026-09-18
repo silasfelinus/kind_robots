@@ -13,7 +13,7 @@ import { serializeForumPostsV2 } from '@/server/utils/agentForumV2'
 import { getAgentForumChannels } from '@/server/utils/agentForumPolicy'
 import {
   normalizeForumChannelSlug,
-  parseForumBoolean,
+  parseForumBooleanOptional,
   parseForumLimit,
   parsePositiveForumInt,
 } from '~/utils/forumApiContract'
@@ -36,7 +36,7 @@ export default defineEventHandler(async (event) => {
     const limit = parseForumLimit(query.limit)
     const { auth, includeMature } = await getForumReadContext(
       event,
-      parseForumBoolean(query.includeMature),
+      parseForumBooleanOptional(query.includeMature),
     )
     const agentChannels =
       auth?.kind === 'agent-credential' && auth.agentProfileId
@@ -66,7 +66,9 @@ export default defineEventHandler(async (event) => {
             cursor: scanCursor,
             order: 'chronological',
           })),
-          ...(!channel && agentChannels ? { channel: { in: agentChannels } } : {}),
+          ...(!channel && agentChannels
+            ? { channel: { in: agentChannels } }
+            : {}),
         },
         select: forumPostSelect,
         orderBy: { id: 'asc' },
@@ -92,7 +94,9 @@ export default defineEventHandler(async (event) => {
           isActive: true,
           previousEntryId: null,
           ...(includeMature ? {} : { isMature: false }),
-          ...(!channel && agentChannels ? { channel: { in: agentChannels } } : {}),
+          ...(!channel && agentChannels
+            ? { channel: { in: agentChannels } }
+            : {}),
           ...(await notInRestricted('userId')),
         },
         select: { id: true },

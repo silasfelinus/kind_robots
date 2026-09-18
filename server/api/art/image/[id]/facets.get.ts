@@ -4,7 +4,7 @@ import prisma from '~/server/utils/prisma'
 import { errorHandler } from '~/server/utils/error'
 import { getOptionalApiUser } from '~/server/utils/authGuard'
 import { loadFacetSummaries } from '~/server/utils/facetAssignments'
-import { isMaturityRestricted } from '~/server/utils/contentAccess'
+import { viewerShowsMature } from '~/server/utils/contentAccess'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -33,7 +33,7 @@ export default defineEventHandler(async (event) => {
      * wins: a CHILD who is also an ADMIN is still a child.
      */
     const canView =
-      !(image.isMature && isMaturityRestricted(auth?.user)) &&
+      !(image.isMature && !viewerShowsMature(auth?.user)) &&
       (auth?.isAdmin || isOwner || (image.isPublic && !image.isMature))
 
     if (!canView) {

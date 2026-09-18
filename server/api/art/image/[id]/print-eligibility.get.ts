@@ -4,7 +4,7 @@ import prisma from '~/server/utils/prisma'
 import { errorHandler } from '~/server/utils/error'
 import { getOptionalApiUser } from '~/server/utils/authGuard'
 import { checkPrintEligibility } from '../../utils/printEligibility'
-import { isMaturityRestricted } from '~/server/utils/contentAccess'
+import { viewerShowsMature } from '~/server/utils/contentAccess'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -36,7 +36,7 @@ export default defineEventHandler(async (event) => {
     // Same gap as facets.get.ts: the owner and admin branches jumped the
     // `!image.isMature` clause. Maturity is decided by role, not privilege.
     const canView =
-      !(image.isMature && isMaturityRestricted(auth?.user)) &&
+      !(image.isMature && !viewerShowsMature(auth?.user)) &&
       (auth?.isAdmin ||
         (Boolean(auth?.user.id) && image.userId === auth?.user.id) ||
         (image.isPublic && !image.isMature))

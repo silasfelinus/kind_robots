@@ -3,7 +3,7 @@ import { createError, defineEventHandler, getRouterParam } from 'h3'
 import prisma from '~/server/utils/prisma'
 import { errorHandler } from '~/server/utils/error'
 import { validateApiKey } from '~/server/utils/validateKey'
-import { isMaturityRestricted } from '~/server/utils/contentAccess'
+import { viewerShowsMature } from '~/server/utils/contentAccess'
 import {
   buildChallengeLeaderboard,
   scoreChallengeReactions,
@@ -32,9 +32,9 @@ export default defineEventHandler(async (event) => {
     const challenge = await prisma.challenge.findFirst({
       where: {
         slug,
-        ...(isMaturityRestricted(auth.isValid ? auth.user : null)
-          ? { isMature: false }
-          : {}),
+        ...(viewerShowsMature(auth.isValid ? auth.user : null)
+          ? {}
+          : { isMature: false }),
       },
       include: {
         User: {

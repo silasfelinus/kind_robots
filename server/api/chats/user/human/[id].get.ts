@@ -9,7 +9,7 @@ import prisma from '../../../../utils/prisma'
 import { errorHandler } from '../../../../utils/error'
 import { validateApiKey } from '../../../../utils/validateKey'
 import { userIsAdmin } from '../../../../utils/authUser'
-import { isMaturityRestricted } from '../../../../utils/contentAccess'
+import { viewerShowsMature } from '../../../../utils/contentAccess'
 
 function fail(
   event: Parameters<Parameters<typeof defineEventHandler>[0]>[0],
@@ -82,7 +82,7 @@ export default defineEventHandler(async (event) => {
       where: {
         type: 'ToUser',
         isActive: true,
-        ...(isMaturityRestricted(user) ? { isMature: false } : {}),
+        ...(viewerShowsMature(user) ? {} : { isMature: false }),
         OR: [{ userId: requestedUserId }, { recipientId: requestedUserId }],
         botId: null,
         botName: null,

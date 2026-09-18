@@ -32,7 +32,7 @@ import {
   type AuthGuardResult,
 } from './authGuard'
 import { logSystemAction } from './audit'
-import { effectiveShowMature, isMaturityRestricted } from './contentAccess'
+import { isMaturityRestricted, viewerShowsMature } from './contentAccess'
 import { notInRestricted } from './restriction'
 import prisma from './prisma'
 
@@ -175,7 +175,8 @@ function hasSuppliedAuth(event: H3Event): boolean {
 
 export async function getForumReadContext(
   event: H3Event,
-  requestedMature = false,
+  /** `undefined` means the caller did not ask; the account decides. */
+  requestedMature?: boolean,
 ): Promise<ForumReadContext> {
   const auth = await getOptionalApiUser(event)
 
@@ -193,10 +194,13 @@ export async function getForumReadContext(
     })
   }
 
+  /*
+   * `requestedMature || effectiveShowMature(...)` let the parameter WIDEN, so a
+   * reader with the maturity toggle off could ask for mature threads and get
+   * them. viewerShowsMature lets it only narrow.
+   */
   const includeMature = Boolean(
-    auth &&
-    !isMaturityRestricted(auth.user) &&
-    (requestedMature || effectiveShowMature(auth.user)),
+    auth && viewerShowsMature(auth.user, requestedMature),
   )
 
   return { auth, includeMature }

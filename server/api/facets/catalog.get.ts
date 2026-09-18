@@ -2,7 +2,7 @@
 import { defineEventHandler, getQuery } from 'h3'
 import { errorHandler } from '~/server/utils/error'
 import { getOptionalApiUser } from '~/server/utils/authGuard'
-import { isMaturityRestricted } from '~/server/utils/contentAccess'
+import { viewerShowsMature } from '~/server/utils/contentAccess'
 import {
   FACET_TAXONOMIES,
   loadFacetCatalogEntries,
@@ -39,8 +39,12 @@ export default defineEventHandler(async (event) => {
     const data = await loadFacetCatalogEntries({
       taxonomies: parseTaxonomies(query.taxonomy ?? query.taxonomies),
       includeInactive: truthy(query.includeInactive),
-      includeMature:
-        !isMaturityRestricted(auth?.user) && truthy(query.includeMature),
+      includeMature: viewerShowsMature(
+        auth?.user,
+        typeof query.includeMature === 'undefined'
+          ? undefined
+          : truthy(query.includeMature),
+      ),
       randomizableOnly: truthy(query.randomizableOnly),
       userId: auth?.user.id,
       isAdmin: auth?.isAdmin ?? false,

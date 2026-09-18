@@ -5,7 +5,7 @@ import { errorHandler } from '~/server/utils/error'
 import { validateApiKey } from '~/server/utils/validateKey'
 import { projectInclude } from './index'
 import { userIsAdmin } from '../../utils/authUser'
-import { canView, isMaturityRestricted } from '~/server/utils/contentAccess'
+import { canView, viewerShowsMature } from '~/server/utils/contentAccess'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -74,7 +74,7 @@ export default defineEventHandler(async (event) => {
      * maturity-restricted account holding any of those still got a mature
      * project. Maturity is not a permission to be granted around.
      */
-    if (project.isMature && isMaturityRestricted(viewer)) {
+    if (project.isMature && !viewerShowsMature(viewer)) {
       throw createError({ statusCode: 404, message: 'Project not found.' })
     }
 

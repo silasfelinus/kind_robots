@@ -29,11 +29,7 @@ import { defineEventHandler, createError, getRouterParam } from 'h3'
 import prisma from '~/server/utils/prisma'
 import { errorHandler } from '~/server/utils/error'
 import { getOptionalApiUser } from '~/server/utils/authGuard'
-import {
-  canView,
-  effectiveShowMature,
-  isMaturityRestricted,
-} from '~/server/utils/contentAccess'
+import { canView, viewerShowsMature } from '~/server/utils/contentAccess'
 import {
   buildArtImageWhere,
   getArtImageAccessContext,
@@ -109,10 +105,13 @@ export default defineEventHandler(async (event) => {
       'RESOURCE',
       auth ? { id: auth.user.id, isAdmin } : null,
     )
-    const matureBlocked =
-      resource.isMature &&
-      (isMaturityRestricted(auth?.user) ||
-        (!isAdmin && !effectiveShowMature(auth?.user)))
+    /*
+     * One rule, no admin carve-out: logged in, not a CHILD, opted in. The
+     * `!isAdmin` bypass here meant an admin with their own maturity toggle OFF
+     * still received mature resources -- privilege standing in for preference.
+     * An admin who wants to see mature content turns the toggle on like anyone.
+     */
+    const matureBlocked = resource.isMature && !viewerShowsMature(auth?.user)
 
     if (!allowed || matureBlocked) {
       throw createError({ statusCode: 404, message: 'Resource not found.' })

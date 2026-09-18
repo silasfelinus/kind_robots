@@ -19,7 +19,7 @@ import { defineEventHandler, getQuery } from 'h3'
 import prisma from '@/server/utils/prisma'
 import { errorHandler } from '@/server/utils/error'
 import { getOptionalApiUser } from '@/server/utils/authGuard'
-import { isMaturityRestricted } from '@/server/utils/contentAccess'
+import { viewerShowsMature } from '@/server/utils/contentAccess'
 
 const MAX_NARRATORS = 60
 
@@ -42,7 +42,7 @@ export default defineEventHandler(async (event) => {
         BotType: 'NARRATOR',
         isActive: true,
         isPublic: true,
-        ...(isMaturityRestricted(auth?.user) ? { isMature: false } : {}),
+        ...(viewerShowsMature(auth?.user) ? {} : { isMature: false }),
         ...(search ? { name: { contains: search } } : {}),
       },
       orderBy: [{ name: 'asc' }],

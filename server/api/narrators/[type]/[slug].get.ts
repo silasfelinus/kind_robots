@@ -3,7 +3,7 @@ import { defineEventHandler, createError, getRouterParam } from 'h3'
 import prisma from '@/server/utils/prisma'
 import { errorHandler } from '@/server/utils/error'
 import { getOptionalApiUser } from '@/server/utils/authGuard'
-import { isMaturityRestricted } from '@/server/utils/contentAccess'
+import { viewerShowsMature } from '@/server/utils/contentAccess'
 
 const defaultNarratorBotId = 433
 
@@ -78,9 +78,9 @@ export default defineEventHandler(async (event) => {
     // Public-and-active was the whole filter on both branches; maturity was
     // never asked, on the Bot or the Character.
     const auth = await getOptionalApiUser(event)
-    const matureFilter = isMaturityRestricted(auth?.user)
-      ? { isMature: false }
-      : {}
+    const matureFilter = viewerShowsMature(auth?.user)
+      ? {}
+      : { isMature: false }
 
     if (type === 'bot') {
       const bot = await prisma.bot.findFirst({

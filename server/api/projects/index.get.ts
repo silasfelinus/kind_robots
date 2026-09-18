@@ -10,7 +10,7 @@ import { errorHandler } from '~/server/utils/error'
 import { validateApiKey } from '~/server/utils/validateKey'
 import { projectInclude, projectPriorities, projectStatuses } from './index'
 import { userIsAdmin } from '../../utils/authUser'
-import { isMaturityRestricted } from '~/server/utils/contentAccess'
+import { viewerShowsMature } from '~/server/utils/contentAccess'
 
 type ProjectListQuery = {
   take?: string
@@ -59,13 +59,21 @@ export default defineEventHandler(async (event) => {
     const and: Prisma.ProjectWhereInput[] = []
     const includeInactive = booleanParam(query.includeInactive)
     /*
-     * `?includeMature=true` was taken at its word. A restriction a query
-     * parameter can lift is not a restriction -- isMaturityRestricted()'s own
-     * docstring names this case -- and the admin bypass beside it had the same
-     * hole from the other side: a CHILD who also holds ADMIN is still a child.
+     * The account decides; the parameter may only NARROW. Silas, 2026-09-18:
+     * "if something is mature but public, it should still only be seen by a
+     * logged in user that has chosen mature true. there shouldn't be an option
+     * for this to bleed." So an opted-in adult gets mature rows without asking,
+     * `?includeMature=true` buys nothing the account does not already allow,
+     * and `=false` still lets a surface opt out.
+     *
+     * Any admin bypass went with it: being an admin is not being an adult.
      */
-    const restricted = isMaturityRestricted(viewer)
-    const includeMature = !restricted && booleanParam(query.includeMature)
+    const showMature = viewerShowsMature(
+      viewer,
+      typeof query.includeMature === 'undefined'
+        ? undefined
+        : booleanParam(query.includeMature),
+    )
     const mine = booleanParam(query.mine)
     const search = typeof query.search === 'string' ? query.search.trim() : ''
     const status = projectStatuses.has(query.status as ProjectStatus)
@@ -76,8 +84,7 @@ export default defineEventHandler(async (event) => {
       : undefined
 
     if (!includeInactive) and.push({ isActive: true })
-    if (restricted || (!includeMature && !isAdmin))
-      and.push({ isMature: false })
+    if (!showMature) and.push({ isMature: false })
 
     if (mine) {
       and.push(userId ? { userId } : { id: -1 })

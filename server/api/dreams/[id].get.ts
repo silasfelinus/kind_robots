@@ -5,7 +5,7 @@ import { errorHandler } from '@/server/utils/error'
 import { validateApiKey } from '@/server/utils/validateKey'
 import {
   existsActiveGrant,
-  isMaturityRestricted,
+  viewerShowsMature,
 } from '@/server/utils/contentAccess'
 import { assertDreamAccess, dreamInclude, getDreamId } from './index'
 
@@ -58,7 +58,7 @@ export default defineEventHandler(async (event) => {
      * after access, and it applies to an admin too: a CHILD who also holds
      * ADMIN is still a child.
      */
-    if (data.isMature && isMaturityRestricted(user)) {
+    if (data.isMature && !viewerShowsMature(user)) {
       throw createError({
         statusCode: 404,
         message: `Dream with ID ${id} not found.`,

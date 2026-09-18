@@ -7,12 +7,10 @@ import {
   getForumReadContext,
   requireForumThreadRoot,
 } from '@/server/utils/forumApi'
-import {
-  serializeForumPostsV2,
-} from '@/server/utils/agentForumV2'
+import { serializeForumPostsV2 } from '@/server/utils/agentForumV2'
 import { assertAgentForumChannelAllowed } from '@/server/utils/agentForumPolicy'
 import { getForumUpvoteStats } from '@/server/utils/forumUpvotes'
-import { parseForumBoolean } from '~/utils/forumApiContract'
+import { parseForumBooleanOptional } from '~/utils/forumApiContract'
 
 type ForumThreadReadQuery = {
   includeMature?: string | string[]
@@ -23,13 +21,16 @@ export default defineEventHandler(async (event) => {
 
   try {
     if (!Number.isInteger(id) || id <= 0) {
-      throw createError({ statusCode: 400, message: 'Invalid forum thread ID.' })
+      throw createError({
+        statusCode: 400,
+        message: 'Invalid forum thread ID.',
+      })
     }
 
     const query = getQuery<ForumThreadReadQuery>(event)
     const { auth, includeMature } = await getForumReadContext(
       event,
-      parseForumBoolean(query.includeMature),
+      parseForumBooleanOptional(query.includeMature),
     )
     const thread = await requireForumThreadRoot(id, includeMature)
     if (auth) await assertAgentForumChannelAllowed(auth, thread.channel)
@@ -43,9 +44,9 @@ export default defineEventHandler(async (event) => {
       select: forumPostSelect,
       orderBy: [{ createdAt: 'asc' }, { id: 'asc' }],
     })
-    const upvote = (
-      await getForumUpvoteStats([id], auth?.user.id ?? null)
-    ).get(id) ?? { upvoteCount: 0, viewerHasUpvoted: false }
+    const upvote = (await getForumUpvoteStats([id], auth?.user.id ?? null)).get(
+      id,
+    ) ?? { upvoteCount: 0, viewerHasUpvoted: false }
     const serialized = await serializeForumPostsV2(
       [thread, ...replies],
       includeMature,

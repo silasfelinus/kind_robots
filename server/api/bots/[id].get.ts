@@ -4,7 +4,7 @@ import prisma from '../../utils/prisma'
 import { errorHandler } from '../../utils/error'
 import { validateApiKey } from '../../utils/validateKey'
 import { userIsAdmin } from '../../utils/authUser'
-import { isMaturityRestricted } from '../../utils/contentAccess'
+import { viewerShowsMature } from '../../utils/contentAccess'
 import { getOptionalApiUser } from '@/server/utils/authGuard'
 
 export default defineEventHandler(async (event) => {
@@ -62,7 +62,7 @@ export default defineEventHandler(async (event) => {
      */
     if (bot.isMature) {
       const viewer = await getOptionalApiUser(event)
-      if (isMaturityRestricted(viewer?.user)) {
+      if (!viewerShowsMature(viewer?.user)) {
         throw createError({
           statusCode: 404,
           message: `Bot with id ${id} does not exist.`,

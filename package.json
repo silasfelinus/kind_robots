@@ -144,6 +144,7 @@
     "seed:twisted-fairy-tales": "tsx utils/scripts/enqueueTwistedFairyTalesArtPrompts.ts",
     "seed:page-backdrops": "tsx utils/scripts/enqueuePageBackdropArt.ts",
     "export:page-backdrops": "tsx utils/scripts/exportPageBackdropArt.ts",
+    "seed:butterfly-gallery-art": "tsx utils/scripts/enqueueButterflyGalleryArt.ts",
     "prune:art-image-data": "tsx utils/scripts/pruneRedundantArtImageData.ts",
     "inspect:art-image-data": "tsx utils/scripts/inspectArtImageData.ts",
     "characters:repair": "tsx utils/scripts/repairCharacterSlugs.mjs",

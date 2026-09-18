@@ -278,6 +278,7 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import { useCharacterStore } from '@/stores/characterStore'
 import { useProjectStore } from '@/stores/projectStore'
 import { useDreamStore } from '@/stores/dreamStore'
@@ -315,6 +316,8 @@ import {
 
 const emit = defineEmits<{ opened: [runId: number]; resume: [runId: number] }>()
 
+const route = useRoute()
+const router = useRouter()
 const runStore = useStorybookRunStore()
 const characterStore = useCharacterStore()
 const dreamStore = useDreamStore()
@@ -631,6 +634,81 @@ function openAdventure(runId: number): void {
   emit('resume', runId)
 }
 
+/*
+ * ARRIVING WITH AN INGREDIENT ALREADY CHOSEN.
+ *
+ * storybook/t-055: dream-narration.vue, reward-encounter.vue and
+ * facet-profile.vue each link here with `?location=`/`?reward=`/`?facet=`,
+ * expecting the same seeding the legacy storybook-page.vue's own
+ * seedFromQuery() used to give them. The new engine's board holds full
+ * NarrativeIngredientOption cards, not bare slugs, so seeding means finding
+ * the matching card in the deck each slot already deals from -- the same
+ * lookup activeDeck does per slot -- and playing it with toggleCard(), which
+ * already enforces each slot's capacity. A locked genre/hero card is left off
+ * the board rather than forced past its gate. The query is cleared immediately
+ * so a reload, bookmark or share does not silently re-seed after the reader
+ * removes the card.
+ */
+function seedFromQuery(): void {
+  const single = (value: unknown): string | null => {
+    const raw = Array.isArray(value) ? value[0] : value
+    return typeof raw === 'string' && raw ? raw : null
+  }
+
+  const locationSlug = single(route.query.location)
+  if (locationSlug) {
+    const dream = dreamStore.dreams
+      .filter(isPlaceDream)
+      .find((entry) => entry.slug === locationSlug)
+    if (dream) toggleCard('place', toPlaceCard(dream))
+  }
+
+  const characterSlug = single(route.query.character)
+  if (characterSlug) {
+    const character = characterStore.browseCharacters.find(
+      (entry) => entry.slug === characterSlug,
+    )
+    if (character) {
+      const card = withCharacterLock(toHeroCard(character))
+      if (!card.locked) toggleCard('hero', card)
+    }
+  }
+
+  const facetSlug = single(route.query.facet)
+  if (facetSlug) {
+    const facet = facetStore.activeFacets
+      .filter(isGenreFacet)
+      .find((entry) => entry.slug === facetSlug)
+    if (facet) {
+      const card = withGenreLock(toGenreCard(facet))
+      if (!card.locked) toggleCard('genre', card)
+    }
+  }
+
+  const rewardSlug = single(route.query.reward)
+  if (rewardSlug) {
+    const reward = rewardStore.rewards
+      .filter((entry) => entry.isActive && entry.slug)
+      .find((entry) => entry.slug === rewardSlug)
+    if (reward) toggleCard('treasures', toTreasureCard(reward))
+  }
+
+  const scenarioSlug = single(route.query.scenario)
+  if (scenarioSlug && !isTaskmaster.value) {
+    const scenario = scenarioStore.scenarios
+      .filter((entry) => entry.slug)
+      .find((entry) => entry.slug === scenarioSlug)
+    if (scenario) toggleCard('thread', toThreadCard(scenario))
+  }
+
+  const consumed = ['scenario', 'location', 'character', 'facet', 'reward']
+  if (!consumed.some((key) => route.query[key])) return
+  const query = Object.fromEntries(
+    Object.entries(route.query).filter(([key]) => !consumed.includes(key)),
+  )
+  void router.replace({ query })
+}
+
 onMounted(async () => {
   // allSettled, not all: one slow or failing deck must not leave the whole
   // table empty. A board missing its treasures still opens a story.
@@ -647,6 +725,9 @@ onMounted(async () => {
     runStore.fetchDecks(),
     runStore.fetchGatedCharacters(),
   ])
+  // After the decks are loaded, so a deep-linked card can actually be found
+  // in them (storybook/t-055).
+  seedFromQuery()
   const response = await performFetch<NarratorLike[]>('/api/narrators')
   if (response.success && response.data) narrators.value = response.data
 })

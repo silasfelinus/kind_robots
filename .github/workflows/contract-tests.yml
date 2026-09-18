@@ -1072,6 +1072,30 @@ jobs:
       - name: Narrator send-message Dream-switch contract
         run: npm run test:narrator-send-message-dream-switch-guard
 
+      - name: Art Archive scanner contract
+        run: npm run test:art-archive-scanner
+
+      - name: Art Archive importer contract
+        run: npm run test:art-archive-importer
+
+      - name: Art Archive resource-match contract
+        run: npm run test:art-archive-resource-match
+
+      - name: Art Archive import CLI contract
+        run: npm run test:art-archive-import-cli
+
+      - name: Art Archive apply-resource-match contract
+        run: npm run test:art-archive-apply-resource-match
+
+      - name: Art Archive apply-resource-match CLI contract
+        run: npm run test:art-archive-apply-resource-match-cli
+
+      - name: Art Archive reconciler contract
+        run: npm run test:art-archive-reconciler
+
+      - name: Art Archive reconcile CLI contract
+        run: npm run test:art-archive-reconcile-cli
+
       - name: Fetch main for capture-group guard diff
         run: git fetch origin main
 

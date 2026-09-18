@@ -202,6 +202,40 @@ export type DateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
   _max?: Prisma.NestedDateTimeNullableFilter<$PrismaModel>
 }
 
+export type EnumArchiveEntryProcessStateFilter<$PrismaModel = never> = {
+  equals?: $Enums.ArchiveEntryProcessState | Prisma.EnumArchiveEntryProcessStateFieldRefInput<$PrismaModel>
+  in?: $Enums.ArchiveEntryProcessState[]
+  notIn?: $Enums.ArchiveEntryProcessState[]
+  not?: Prisma.NestedEnumArchiveEntryProcessStateFilter<$PrismaModel> | $Enums.ArchiveEntryProcessState
+}
+
+export type EnumArchiveEntryMatchStateFilter<$PrismaModel = never> = {
+  equals?: $Enums.ArchiveEntryMatchState | Prisma.EnumArchiveEntryMatchStateFieldRefInput<$PrismaModel>
+  in?: $Enums.ArchiveEntryMatchState[]
+  notIn?: $Enums.ArchiveEntryMatchState[]
+  not?: Prisma.NestedEnumArchiveEntryMatchStateFilter<$PrismaModel> | $Enums.ArchiveEntryMatchState
+}
+
+export type EnumArchiveEntryProcessStateWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.ArchiveEntryProcessState | Prisma.EnumArchiveEntryProcessStateFieldRefInput<$PrismaModel>
+  in?: $Enums.ArchiveEntryProcessState[]
+  notIn?: $Enums.ArchiveEntryProcessState[]
+  not?: Prisma.NestedEnumArchiveEntryProcessStateWithAggregatesFilter<$PrismaModel> | $Enums.ArchiveEntryProcessState
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumArchiveEntryProcessStateFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumArchiveEntryProcessStateFilter<$PrismaModel>
+}
+
+export type EnumArchiveEntryMatchStateWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.ArchiveEntryMatchState | Prisma.EnumArchiveEntryMatchStateFieldRefInput<$PrismaModel>
+  in?: $Enums.ArchiveEntryMatchState[]
+  notIn?: $Enums.ArchiveEntryMatchState[]
+  not?: Prisma.NestedEnumArchiveEntryMatchStateWithAggregatesFilter<$PrismaModel> | $Enums.ArchiveEntryMatchState
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumArchiveEntryMatchStateFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumArchiveEntryMatchStateFilter<$PrismaModel>
+}
+
 export type EnumFacetTaxonomyFilter<$PrismaModel = never> = {
   equals?: $Enums.FacetTaxonomy | Prisma.EnumFacetTaxonomyFieldRefInput<$PrismaModel>
   in?: $Enums.FacetTaxonomy[]
@@ -1706,6 +1740,40 @@ export type NestedDateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
   _count?: Prisma.NestedIntNullableFilter<$PrismaModel>
   _min?: Prisma.NestedDateTimeNullableFilter<$PrismaModel>
   _max?: Prisma.NestedDateTimeNullableFilter<$PrismaModel>
+}
+
+export type NestedEnumArchiveEntryProcessStateFilter<$PrismaModel = never> = {
+  equals?: $Enums.ArchiveEntryProcessState | Prisma.EnumArchiveEntryProcessStateFieldRefInput<$PrismaModel>
+  in?: $Enums.ArchiveEntryProcessState[]
+  notIn?: $Enums.ArchiveEntryProcessState[]
+  not?: Prisma.NestedEnumArchiveEntryProcessStateFilter<$PrismaModel> | $Enums.ArchiveEntryProcessState
+}
+
+export type NestedEnumArchiveEntryMatchStateFilter<$PrismaModel = never> = {
+  equals?: $Enums.ArchiveEntryMatchState | Prisma.EnumArchiveEntryMatchStateFieldRefInput<$PrismaModel>
+  in?: $Enums.ArchiveEntryMatchState[]
+  notIn?: $Enums.ArchiveEntryMatchState[]
+  not?: Prisma.NestedEnumArchiveEntryMatchStateFilter<$PrismaModel> | $Enums.ArchiveEntryMatchState
+}
+
+export type NestedEnumArchiveEntryProcessStateWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.ArchiveEntryProcessState | Prisma.EnumArchiveEntryProcessStateFieldRefInput<$PrismaModel>
+  in?: $Enums.ArchiveEntryProcessState[]
+  notIn?: $Enums.ArchiveEntryProcessState[]
+  not?: Prisma.NestedEnumArchiveEntryProcessStateWithAggregatesFilter<$PrismaModel> | $Enums.ArchiveEntryProcessState
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumArchiveEntryProcessStateFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumArchiveEntryProcessStateFilter<$PrismaModel>
+}
+
+export type NestedEnumArchiveEntryMatchStateWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.ArchiveEntryMatchState | Prisma.EnumArchiveEntryMatchStateFieldRefInput<$PrismaModel>
+  in?: $Enums.ArchiveEntryMatchState[]
+  notIn?: $Enums.ArchiveEntryMatchState[]
+  not?: Prisma.NestedEnumArchiveEntryMatchStateWithAggregatesFilter<$PrismaModel> | $Enums.ArchiveEntryMatchState
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumArchiveEntryMatchStateFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumArchiveEntryMatchStateFilter<$PrismaModel>
 }
 
 export type NestedEnumFacetTaxonomyFilter<$PrismaModel = never> = {

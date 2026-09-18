@@ -401,6 +401,7 @@ export const ModelName = {
   AgentProfileCredential: 'AgentProfileCredential',
   AgentCheckIn: 'AgentCheckIn',
   AgentNote: 'AgentNote',
+  ArchiveEntry: 'ArchiveEntry',
   BrainstormSession: 'BrainstormSession',
   BrainstormCandidate: 'BrainstormCandidate',
   FacetAlias: 'FacetAlias',
@@ -522,7 +523,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "agentProfile" | "agentProfileCredential" | "agentCheckIn" | "agentNote" | "brainstormSession" | "brainstormCandidate" | "facetAlias" | "facetProfile" | "characterFacet" | "botFacet" | "rewardFacet" | "mandarinAudioAsset" | "mandarinCatalogOverride" | "mandarinCatalogChange" | "mandarinRequestedCard" | "mandarinCustomSet" | "mandarinArtJobLink" | "mandarinCardProgress" | "mandarinReviewEvent" | "modelBuildRun" | "modelBuildItem" | "modelBuildArtifact" | "modelBuildRevision" | "projectPageContent" | "artImage" | "artCollection" | "bot" | "character" | "chat" | "dream" | "dreamRelation" | "project" | "facet" | "dreamFacet" | "scenarioFacet" | "projectFacet" | "projectArtImage" | "projectArtCollection" | "entityArtImage" | "facetArtImage" | "facetArtCollection" | "facetRelation" | "expressionMedia" | "expressionTransition" | "log" | "achievement" | "manaTransaction" | "revenueSplit" | "socialPostDraft" | "missionRemittance" | "product" | "order" | "orderItem" | "entitlement" | "printJob" | "grant" | "pack" | "achievementRecord" | "narratorTopic" | "narratorThread" | "pitchSheet" | "prompt" | "reaction" | "resource" | "reward" | "scenario" | "server" | "serverHealthCheck" | "sceneAnimatorPrompt" | "smartIcon" | "theme" | "user" | "stylistClient" | "stylistAppointment" | "artJob" | "queueControl" | "downloadRequest" | "karmaTransaction" | "referral" | "userRelation" | "userRole" | "todo" | "challenge" | "challengeSubmission" | "contender" | "endingDeck" | "lifeRun" | "lifeChoice" | "lifeStat" | "lifeEnding" | "lifeAchievement" | "lifeAchievementUnlock" | "lifeRunArt" | "aquarium" | "aquariumStock" | "aquariumSet" | "aquariumDecor" | "aquariumEgg" | "aquariumCodexEntry" | "monster" | "aquariumEvent" | "authToken" | "agentCredential" | "conversation" | "conversationParticipant" | "directMessage" | "notification" | "githubInstallation" | "appRepo" | "mediaEntry"
+    modelProps: "agentProfile" | "agentProfileCredential" | "agentCheckIn" | "agentNote" | "archiveEntry" | "brainstormSession" | "brainstormCandidate" | "facetAlias" | "facetProfile" | "characterFacet" | "botFacet" | "rewardFacet" | "mandarinAudioAsset" | "mandarinCatalogOverride" | "mandarinCatalogChange" | "mandarinRequestedCard" | "mandarinCustomSet" | "mandarinArtJobLink" | "mandarinCardProgress" | "mandarinReviewEvent" | "modelBuildRun" | "modelBuildItem" | "modelBuildArtifact" | "modelBuildRevision" | "projectPageContent" | "artImage" | "artCollection" | "bot" | "character" | "chat" | "dream" | "dreamRelation" | "project" | "facet" | "dreamFacet" | "scenarioFacet" | "projectFacet" | "projectArtImage" | "projectArtCollection" | "entityArtImage" | "facetArtImage" | "facetArtCollection" | "facetRelation" | "expressionMedia" | "expressionTransition" | "log" | "achievement" | "manaTransaction" | "revenueSplit" | "socialPostDraft" | "missionRemittance" | "product" | "order" | "orderItem" | "entitlement" | "printJob" | "grant" | "pack" | "achievementRecord" | "narratorTopic" | "narratorThread" | "pitchSheet" | "prompt" | "reaction" | "resource" | "reward" | "scenario" | "server" | "serverHealthCheck" | "sceneAnimatorPrompt" | "smartIcon" | "theme" | "user" | "stylistClient" | "stylistAppointment" | "artJob" | "queueControl" | "downloadRequest" | "karmaTransaction" | "referral" | "userRelation" | "userRole" | "todo" | "challenge" | "challengeSubmission" | "contender" | "endingDeck" | "lifeRun" | "lifeChoice" | "lifeStat" | "lifeEnding" | "lifeAchievement" | "lifeAchievementUnlock" | "lifeRunArt" | "aquarium" | "aquariumStock" | "aquariumSet" | "aquariumDecor" | "aquariumEgg" | "aquariumCodexEntry" | "monster" | "aquariumEvent" | "authToken" | "agentCredential" | "conversation" | "conversationParticipant" | "directMessage" | "notification" | "githubInstallation" | "appRepo" | "mediaEntry"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -787,6 +788,72 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.AgentNoteCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.AgentNoteCountAggregateOutputType> | number
+        }
+      }
+    }
+    ArchiveEntry: {
+      payload: Prisma.$ArchiveEntryPayload<ExtArgs>
+      fields: Prisma.ArchiveEntryFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ArchiveEntryFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ArchiveEntryPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ArchiveEntryFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ArchiveEntryPayload>
+        }
+        findFirst: {
+          args: Prisma.ArchiveEntryFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ArchiveEntryPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ArchiveEntryFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ArchiveEntryPayload>
+        }
+        findMany: {
+          args: Prisma.ArchiveEntryFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ArchiveEntryPayload>[]
+        }
+        create: {
+          args: Prisma.ArchiveEntryCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ArchiveEntryPayload>
+        }
+        createMany: {
+          args: Prisma.ArchiveEntryCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.ArchiveEntryDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ArchiveEntryPayload>
+        }
+        update: {
+          args: Prisma.ArchiveEntryUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ArchiveEntryPayload>
+        }
+        deleteMany: {
+          args: Prisma.ArchiveEntryDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ArchiveEntryUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.ArchiveEntryUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ArchiveEntryPayload>
+        }
+        aggregate: {
+          args: Prisma.ArchiveEntryAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateArchiveEntry>
+        }
+        groupBy: {
+          args: Prisma.ArchiveEntryGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ArchiveEntryGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ArchiveEntryCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ArchiveEntryCountAggregateOutputType> | number
         }
       }
     }
@@ -7877,6 +7944,29 @@ export const AgentNoteScalarFieldEnum = {
 export type AgentNoteScalarFieldEnum = (typeof AgentNoteScalarFieldEnum)[keyof typeof AgentNoteScalarFieldEnum]
 
 
+export const ArchiveEntryScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  contentHash: 'contentHash',
+  relativePath: 'relativePath',
+  parentFolder: 'parentFolder',
+  fileSize: 'fileSize',
+  fileMtime: 'fileMtime',
+  artImageId: 'artImageId',
+  folderCollectionId: 'folderCollectionId',
+  processState: 'processState',
+  matchState: 'matchState',
+  resourceMatchLocked: 'resourceMatchLocked',
+  rating: 'rating',
+  extractedMetadata: 'extractedMetadata',
+  matchSummary: 'matchSummary',
+  isActive: 'isActive'
+} as const
+
+export type ArchiveEntryScalarFieldEnum = (typeof ArchiveEntryScalarFieldEnum)[keyof typeof ArchiveEntryScalarFieldEnum]
+
+
 export const BrainstormSessionScalarFieldEnum = {
   id: 'id',
   createdAt: 'createdAt',
@@ -10035,6 +10125,17 @@ export const AgentNoteOrderByRelevanceFieldEnum = {
 export type AgentNoteOrderByRelevanceFieldEnum = (typeof AgentNoteOrderByRelevanceFieldEnum)[keyof typeof AgentNoteOrderByRelevanceFieldEnum]
 
 
+export const ArchiveEntryOrderByRelevanceFieldEnum = {
+  contentHash: 'contentHash',
+  relativePath: 'relativePath',
+  parentFolder: 'parentFolder',
+  extractedMetadata: 'extractedMetadata',
+  matchSummary: 'matchSummary'
+} as const
+
+export type ArchiveEntryOrderByRelevanceFieldEnum = (typeof ArchiveEntryOrderByRelevanceFieldEnum)[keyof typeof ArchiveEntryOrderByRelevanceFieldEnum]
+
+
 export const BrainstormSessionOrderByRelevanceFieldEnum = {
   name: 'name',
   premise: 'premise',
@@ -11217,6 +11318,20 @@ export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel,
 
 
 /**
+ * Reference to a field of type 'ArchiveEntryProcessState'
+ */
+export type EnumArchiveEntryProcessStateFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ArchiveEntryProcessState'>
+    
+
+
+/**
+ * Reference to a field of type 'ArchiveEntryMatchState'
+ */
+export type EnumArchiveEntryMatchStateFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ArchiveEntryMatchState'>
+    
+
+
+/**
  * Reference to a field of type 'FacetTaxonomy'
  */
 export type EnumFacetTaxonomyFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'FacetTaxonomy'>
@@ -11867,6 +11982,7 @@ export type GlobalOmitConfig = {
   agentProfileCredential?: Prisma.AgentProfileCredentialOmit
   agentCheckIn?: Prisma.AgentCheckInOmit
   agentNote?: Prisma.AgentNoteOmit
+  archiveEntry?: Prisma.ArchiveEntryOmit
   brainstormSession?: Prisma.BrainstormSessionOmit
   brainstormCandidate?: Prisma.BrainstormCandidateOmit
   facetAlias?: Prisma.FacetAliasOmit

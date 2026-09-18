@@ -10,8 +10,11 @@
 import type {
   ButterflyBinConfig,
   ButterflyGalleryActionAdapter,
+  ButterflyGalleryGenerationClient,
+  ButterflyGenerationAction,
   ButterflyPileEntry,
 } from '@/types/butterflyGallery'
+import { buildButterflyGenerationRequest } from '@/stores/helpers/butterflyGalleryGenerationRequest'
 
 export function applyProcessedAction(
   entry: ButterflyPileEntry,
@@ -173,4 +176,37 @@ export async function persistBinOutcome(
     default:
       break
   }
+}
+
+/** Submits any generation actions a preset bin carries (butterfly-
+ * gallery/t-018/t-019) as one ArtJob through the existing durable queue --
+ * Butterfly Gallery is a controller, not a second render queue, so this is
+ * the only place a bin drop ever reaches the render backend. A bin with no
+ * `actions` (every built-in default bin) is a no-op, matching every other
+ * preset behavior unaffected by this task. Returns the submitted job ids
+ * for the caller to record; throws (without touching the entry) if
+ * submission fails, so a failed request never destroys the entry's current
+ * image -- the caller decides what happens next, if anything. */
+export async function persistBinGenerationActions(
+  client: ButterflyGalleryGenerationClient,
+  entry: ButterflyPileEntry,
+  bin: ButterflyBinConfig & { actions?: ButterflyGenerationAction[] },
+): Promise<number[]> {
+  const actions = bin.actions ?? []
+  if (!actions.length) return []
+  const request = buildButterflyGenerationRequest(entry, actions)
+  const { jobId } = await client.submit(request)
+  return [jobId]
+}
+
+/** Records newly submitted generation job ids on the entry -- pure local
+ * mutation, mirrors applyBinOutcome's split from persistBinOutcome. A no-op
+ * for the common case (no generation actions on the bin), so callers can
+ * always call it unconditionally. */
+export function applyPendingGenerationJobIds(
+  entry: ButterflyPileEntry,
+  jobIds: number[],
+): void {
+  if (!jobIds.length) return
+  entry.pendingGenerationJobIds = [...entry.pendingGenerationJobIds, ...jobIds]
 }

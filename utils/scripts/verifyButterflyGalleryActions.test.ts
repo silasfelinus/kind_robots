@@ -13,16 +13,21 @@ import assert from 'node:assert/strict'
 import {
   applyAddToCollectionAction,
   applyBinOutcome,
+  applyPendingGenerationJobIds,
   applyProcessedAction,
   applyRatingAction,
   applyRemoveFromCollectionAction,
   applyRestoreAction,
   applyTrashAction,
+  persistBinGenerationActions,
   persistBinOutcome,
 } from '../../stores/helpers/butterflyGalleryActions'
 import { createFixtureButterflyGalleryActionAdapter } from '../../stores/helpers/butterflyGalleryActionAdapter'
+import { createFixtureButterflyGalleryGenerationClient } from '../../stores/helpers/butterflyGalleryGenerationClient'
+import { buildButterflyGenerationRequest } from '../../stores/helpers/butterflyGalleryGenerationRequest'
 import type {
   ButterflyBinConfig,
+  ButterflyGenerationAction,
   ButterflyPileEntry,
 } from '../../types/butterflyGallery'
 
@@ -45,6 +50,7 @@ function makeEntry(
     resource: { checkpoint: null, loras: [] },
     generationMetadata: null,
     matchState: 'matched',
+    pendingGenerationJobIds: [],
     ...overrides,
   }
 }
@@ -252,9 +258,202 @@ function makeEntry(
   await assert.doesNotReject(adapter.removeFromCollection(1, 'featured'))
 }
 
+// -- fixture-backed generation client issues unique, resolving job ids ---
+
+{
+  const client = createFixtureButterflyGalleryGenerationClient()
+  const request = buildButterflyGenerationRequest(makeEntry(), [
+    { kind: 'add-variant' },
+  ])
+  const first = await client.submit(request)
+  const second = await client.submit(request)
+  assert.notEqual(
+    first.jobId,
+    second.jobId,
+    'the fixture generation client should never reuse a job id',
+  )
+}
+
+// -- buildButterflyGenerationRequest (butterfly-gallery/t-019) -----------
+
+{
+  const entry = makeEntry({
+    prompt: 'a butterfly over a rooftop',
+    negativePrompt: 'blurry',
+    resource: { checkpoint: 'krea2-base', loras: ['starter-lora'] },
+  })
+  const actions: ButterflyGenerationAction[] = [
+    { kind: 'add-lora', resource: 'wings-lora', weight: 0.6 },
+    { kind: 'switch-checkpoint', resource: 'krea2-refined' },
+    { kind: 'append-prompt', text: 'golden hour' },
+    { kind: 'set-generation', values: { steps: 32, cfg: 4.5 } },
+    { kind: 'add-variant' },
+  ]
+
+  const request = buildButterflyGenerationRequest(entry, actions)
+  assert.equal(request.engine, 'krea2', 'request should use the krea2 engine')
+  assert.equal(
+    request.checkpoint,
+    'krea2-refined',
+    'switch-checkpoint should override the entry checkpoint',
+  )
+  assert.deepEqual(
+    request.loras,
+    [{ name: 'starter-lora' }, { name: 'wings-lora', strength: 0.6 }],
+    'add-lora should append to the entry loras without dropping the existing one',
+  )
+  assert.equal(
+    request.promptString,
+    'a butterfly over a rooftop, golden hour',
+    'append-prompt should extend the entry prompt',
+  )
+  assert.deepEqual(
+    request.generation,
+    { steps: 32, cfg: 4.5 },
+    'set-generation should collect its values verbatim',
+  )
+  assert.equal(
+    request.projectSlug,
+    'butterfly-gallery',
+    'request should be tagged with the butterfly-gallery project slug',
+  )
+}
+
+{
+  const entry = makeEntry({
+    prompt: 'a butterfly over a rooftop',
+    resource: { checkpoint: null, loras: ['old-lora'] },
+  })
+  const request = buildButterflyGenerationRequest(entry, [
+    { kind: 'replace-lora', from: 'old-lora', to: 'new-lora', weight: 0.8 },
+    { kind: 'replace-prompt', text: 'a fresh composition entirely' },
+  ])
+  assert.deepEqual(
+    request.loras,
+    [{ name: 'new-lora', strength: 0.8 }],
+    'replace-lora should swap the matching lora by name',
+  )
+  assert.equal(
+    request.promptString,
+    'a fresh composition entirely',
+    'replace-prompt should discard the original prompt entirely',
+  )
+}
+
+// -- persistBinGenerationActions / applyPendingGenerationJobIds ----------
+
+{
+  const client = createFixtureButterflyGalleryGenerationClient()
+  const entry = makeEntry()
+  const binWithNoActions: ButterflyBinConfig = {
+    id: 'preset-five',
+    label: '5★ + Featured Collection',
+    side: 'left',
+    icon: 'kind-icon:star',
+    kind: 'preset',
+    payload: { rating: 5 },
+    sortOrder: 0,
+    enabled: true,
+  }
+
+  const jobIds = await persistBinGenerationActions(
+    client,
+    entry,
+    binWithNoActions,
+  )
+  assert.deepEqual(
+    jobIds,
+    [],
+    'a bin with no actions should submit nothing and return no job ids',
+  )
+  applyPendingGenerationJobIds(entry, jobIds)
+  assert.deepEqual(
+    entry.pendingGenerationJobIds,
+    [],
+    'no-op job ids should never touch the entry',
+  )
+}
+
+{
+  const client = createFixtureButterflyGalleryGenerationClient()
+  const entry = makeEntry({ pendingGenerationJobIds: [1] })
+  const binWithActions: ButterflyBinConfig & {
+    actions: ButterflyGenerationAction[]
+  } = {
+    id: 'preset-variant',
+    label: 'Try a Variant',
+    side: 'left',
+    icon: 'kind-icon:sparkles',
+    kind: 'preset',
+    payload: {},
+    sortOrder: 5,
+    enabled: true,
+    actions: [{ kind: 'add-variant' }],
+  }
+
+  const jobIds = await persistBinGenerationActions(
+    client,
+    entry,
+    binWithActions,
+  )
+  assert.equal(jobIds.length, 1, 'a bin with actions should submit one job')
+  applyPendingGenerationJobIds(entry, jobIds)
+  assert.deepEqual(
+    entry.pendingGenerationJobIds,
+    [1, ...jobIds],
+    'applyPendingGenerationJobIds should append without dropping prior ids',
+  )
+  assert.equal(
+    entry.displayPath,
+    '/display.webp',
+    'submitting a generation request must never touch the entry image itself',
+  )
+}
+
+{
+  const failingClient = {
+    async submit(): Promise<{ jobId: number }> {
+      throw new Error('render backend unavailable')
+    },
+  }
+  const entry = makeEntry()
+  const binWithActions: ButterflyBinConfig & {
+    actions: ButterflyGenerationAction[]
+  } = {
+    id: 'preset-replacement',
+    label: 'Request Replacement',
+    side: 'left',
+    icon: 'kind-icon:refresh',
+    kind: 'preset',
+    payload: {},
+    sortOrder: 6,
+    enabled: true,
+    actions: [{ kind: 'request-replacement' }],
+  }
+
+  await assert.rejects(
+    persistBinGenerationActions(failingClient, entry, binWithActions),
+    /render backend unavailable/,
+    'a failed submission should surface the client error',
+  )
+  assert.equal(
+    entry.displayPath,
+    '/display.webp',
+    'a failed replacement request must never destroy the current source image',
+  )
+  assert.deepEqual(
+    entry.pendingGenerationJobIds,
+    [],
+    'a failed submission must never record a job id',
+  )
+}
+
 console.log(
   'Butterfly Gallery action appliers verified: processed/unprocessed, ' +
     '1-5 rating clamping and clearing, reversible trash/restore, collection ' +
     'add/remove dedup, preset-bin composition, adapter call composition, ' +
-    'and the fixture adapter all behave as expected.',
+    'the fixture adapter, generation-request building from add/replace-lora, ' +
+    'switch-checkpoint, append/replace-prompt, and set-generation actions, ' +
+    'and generation-job submission/recording (including the failure path ' +
+    'never touching the entry) all behave as expected.',
 )

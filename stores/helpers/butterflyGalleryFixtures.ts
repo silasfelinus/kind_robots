@@ -26,6 +26,7 @@ export function createButterflyGalleryFixtureEntries(): ButterflyPileEntry[] {
       resource: { checkpoint: 'sdxl-base-fixture', loras: [] },
       generationMetadata: { sampler: 'DPM++ 2M', steps: 30, seed: 10001 },
       matchState: 'matched',
+      pendingGenerationJobIds: [],
     },
     {
       id: 9002,
@@ -46,6 +47,7 @@ export function createButterflyGalleryFixtureEntries(): ButterflyPileEntry[] {
       },
       generationMetadata: { sampler: 'Euler a', steps: 24, seed: 10002 },
       matchState: 'matched',
+      pendingGenerationJobIds: [],
     },
     {
       id: 9003,
@@ -63,6 +65,7 @@ export function createButterflyGalleryFixtureEntries(): ButterflyPileEntry[] {
       resource: { checkpoint: null, loras: [] },
       generationMetadata: null,
       matchState: 'unmatched',
+      pendingGenerationJobIds: [],
     },
     {
       id: 9004,
@@ -80,6 +83,7 @@ export function createButterflyGalleryFixtureEntries(): ButterflyPileEntry[] {
       resource: { checkpoint: 'fixture-checkpoint-b', loras: [] },
       generationMetadata: null,
       matchState: 'missing',
+      pendingGenerationJobIds: [],
     },
     {
       id: 9005,
@@ -100,6 +104,7 @@ export function createButterflyGalleryFixtureEntries(): ButterflyPileEntry[] {
       },
       generationMetadata: { sampler: 'DPM++ 2M', steps: 28, seed: 10005 },
       matchState: 'matched',
+      pendingGenerationJobIds: [],
     },
   ]
 }

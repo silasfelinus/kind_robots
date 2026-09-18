@@ -18,6 +18,7 @@ import {
   parseComfyPromptGraph,
 } from '../../server/utils/artArchiveMetadata'
 import { scanArchiveRoot } from '../../server/utils/artArchiveScanner'
+import { ARCHIVE_TRASH_FOLDER } from '../../server/utils/artArchiveFileOps'
 
 const PNG_SIGNATURE = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a])
 
@@ -245,6 +246,26 @@ async function testScannerRootConfinement() {
   }
 }
 
+async function testTrashFolderNeverRescanned() {
+  const root = await mkdtemp(path.join(os.tmpdir(), 'art-archive-scan-'))
+  try {
+    await mkdir(path.join(root, ARCHIVE_TRASH_FOLDER), { recursive: true })
+    await writeFile(
+      path.join(root, ARCHIVE_TRASH_FOLDER, '1-quarantined.png'),
+      fakePng([textChunk('parameters', A1111_TEXT)]),
+    )
+    await writeFile(path.join(root, 'live.png'), fakePng([textChunk('parameters', A1111_TEXT)]))
+
+    const result = await scanArchiveRoot(root)
+
+    assert.equal(result.files.length, 1, 'only the live file should be indexed')
+    assert.equal(result.files[0]?.relativePath, 'live.png')
+    console.log('verifyArtArchiveScanner: a quarantined file in the trash subtree is never rescanned')
+  } finally {
+    await rm(root, { recursive: true, force: true })
+  }
+}
+
 async function run() {
   testA1111Parsing()
   testPngExtractionRoundTrip()
@@ -254,6 +275,7 @@ async function run() {
   testWebpExifAndXmpExtraction()
   testContentHash()
   await testScannerRootConfinement()
+  await testTrashFolderNeverRescanned()
   console.log('verifyArtArchiveScanner: all assertions passed')
 }
 

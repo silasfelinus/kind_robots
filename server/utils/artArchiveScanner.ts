@@ -16,6 +16,7 @@ import path from 'node:path'
 import { readdir, readFile, realpath, stat } from 'node:fs/promises'
 import { contentHashOf, extractArchiveImageMetadata } from './artArchiveMetadata'
 import type { ExtractedArchiveMetadata } from './artArchiveMetadata'
+import { ARCHIVE_TRASH_FOLDER } from './artArchiveFileOps'
 
 export const SUPPORTED_ARCHIVE_EXTENSIONS = new Set(['.png', '.jpg', '.jpeg', '.webp'])
 
@@ -94,6 +95,11 @@ async function walk(
   const files: string[] = []
   for (const entry of entries) {
     if (entry.name.startsWith('.')) continue // skip dotfiles/dotdirs (.git, .DS_Store, ...)
+    // Never re-discover a quarantined file (art-archive/t-009): the trash
+    // subtree lives inside the root by construction, so without this skip a
+    // rescan would pick its contents back up as brand-new files and silently
+    // undo an admin's quarantine action on the next pass.
+    if (entry.name === ARCHIVE_TRASH_FOLDER) continue
     const candidate = path.join(directory, entry.name)
 
     if (entry.isDirectory()) {

@@ -141,6 +141,7 @@ export async function persistBinOutcome(
       await adapter.trash(entryId)
       break
     case 'needs-review':
+      await adapter.markNeedsReview(entryId)
       break
     case 'collection': {
       const collection =

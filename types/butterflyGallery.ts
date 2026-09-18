@@ -166,6 +166,7 @@ export interface ButterflyGalleryActionAdapter {
   restore(entryId: number): Promise<void>
   addToCollection(entryId: number, collection: string): Promise<void>
   removeFromCollection(entryId: number, collection: string): Promise<void>
+  markNeedsReview(entryId: number): Promise<void>
 }
 
 // -- Generation contract (butterfly-gallery/t-019) ---------------------------

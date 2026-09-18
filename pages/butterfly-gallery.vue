@@ -181,6 +181,10 @@
         </div>
       </section>
 
+      <p class="sr-only" role="status" aria-live="polite">
+        {{ gallery.lastSaveMessage }}
+      </p>
+
       <aside class="preset-rail" aria-label="Custom sorting presets">
         <button
           v-for="(bin, index) in gallery.leftBins"
@@ -195,6 +199,12 @@
             },
           ]"
           :disabled="!gallery.selectedEntry || gallery.isBusy"
+          :aria-keyshortcuts="presetShortcutKey(bin.label)"
+          :title="
+            presetShortcutKey(bin.label)
+              ? `Sort into ${presetLabel(bin.label)} (press ${presetShortcutKey(bin.label)})`
+              : undefined
+          "
           @dragover.prevent="dragOverTarget = bin.id"
           @drop.prevent="onDrop(bin.id)"
           @click="onBinClick(bin.id)"
@@ -350,6 +360,8 @@
             'preset-bin-accepted': justAcceptedBinId === 'trash',
           }"
           :disabled="!gallery.selectedEntry || gallery.isBusy"
+          aria-keyshortcuts="Delete"
+          title="Move to trash (press Delete)"
           @dragover.prevent="dragOverTarget = 'trash'"
           @drop.prevent="onDrop('trash')"
           @click="onBinClick('trash')"
@@ -390,6 +402,7 @@
           :style="pileStyle(index, pileEntries.length)"
           draggable="true"
           :aria-label="`Select artwork ${entry.id}`"
+          :aria-pressed="entry.id === gallery.selectedImageId"
           @click="onSelectPileEntry(entry.id)"
           @dragstart="gallery.startDrag(entry.id)"
           @dragend="onDragEnd"
@@ -564,11 +577,13 @@ onMounted(async () => {
 
   window.addEventListener('resize', invalidateFunnelDrop)
   document.addEventListener('visibilitychange', invalidateFunnelDrop)
+  window.addEventListener('keydown', handleSortingKeydown)
 })
 
 onBeforeUnmount(() => {
   window.removeEventListener('resize', invalidateFunnelDrop)
   document.removeEventListener('visibilitychange', invalidateFunnelDrop)
+  window.removeEventListener('keydown', handleSortingKeydown)
   reducedMotionMql?.removeEventListener('change', handleReducedMotionChange)
   setIntroKeydownListener(false)
   clearIntroTimers()
@@ -802,6 +817,66 @@ function presetRating(label: string): string {
 
 function presetLabel(label: string): string {
   return label.replace(/^\d★\s*\+?\s*/, '')
+}
+
+function presetShortcutKey(label: string): string | undefined {
+  return label.match(/(\d)★/)?.[1]
+}
+
+function isEditableTarget(target: EventTarget | null): boolean {
+  if (!(target instanceof HTMLElement)) return false
+  return (
+    target.tagName === 'INPUT' ||
+    target.tagName === 'TEXTAREA' ||
+    target.tagName === 'SELECT' ||
+    target.isContentEditable
+  )
+}
+
+/** Non-drag sorting shortcuts (butterfly-gallery/t-020): digits 1-5 sort the
+ * selected image into the matching-rating preset bin, Delete trashes it, and
+ * the arrow keys move the pile selection -- all mirroring onBinClick/
+ * onSelectPileEntry so keyboard and drag/click stay behaviorally identical.
+ * Ignored while typing in a filter field or while the gallery isn't `ready`
+ * (dragging/saving/intro), and never touches keys the browser or app chrome
+ * already owns (no modifiers, no Tab/Escape/Enter/Space interception). */
+async function handleSortingKeydown(event: KeyboardEvent): Promise<void> {
+  if (event.defaultPrevented || event.altKey || event.ctrlKey || event.metaKey)
+    return
+  if (isEditableTarget(event.target)) return
+  if (gallery.status !== 'ready') return
+
+  if (event.key === 'ArrowRight' || event.key === 'ArrowLeft') {
+    const ids = pileEntries.value.map((entry) => entry.id)
+    if (!ids.length) return
+    event.preventDefault()
+    const currentIndex = ids.indexOf(gallery.selectedImageId ?? -1)
+    if (currentIndex === -1) {
+      onSelectPileEntry(ids[0]!)
+      return
+    }
+    const nextIndex = currentIndex + (event.key === 'ArrowRight' ? 1 : -1)
+    if (nextIndex < 0 || nextIndex >= ids.length) return
+    onSelectPileEntry(ids[nextIndex]!)
+    return
+  }
+
+  if (!gallery.selectedEntry) return
+
+  if (/^[1-5]$/.test(event.key)) {
+    const bin = gallery.leftBins.find(
+      (candidate) => presetShortcutKey(candidate.label) === event.key,
+    )
+    if (!bin) return
+    event.preventDefault()
+    await onBinClick(bin.id)
+    return
+  }
+
+  if (event.key === 'Delete') {
+    event.preventDefault()
+    await onBinClick('trash')
+  }
 }
 
 function pileStyle(index: number, total: number): Record<string, string> {
@@ -1051,6 +1126,11 @@ function pileStyle(index: number, total: number): Record<string, string> {
 .preset-bin:focus-visible:not(:disabled) {
   transform: translateX(6px);
   filter: brightness(1.05);
+}
+
+.preset-bin:focus-visible:not(:disabled) {
+  outline: 4px solid var(--color-primary);
+  outline-offset: 3px;
 }
 
 .preset-bin:disabled {
@@ -1327,6 +1407,11 @@ function pileStyle(index: number, total: number): Record<string, string> {
   filter: brightness(1.05);
 }
 
+.right-action:focus-visible:not(:disabled) {
+  outline: 4px solid var(--color-primary);
+  outline-offset: 3px;
+}
+
 .right-action:disabled {
   cursor: not-allowed;
   opacity: 0.62;
@@ -1416,7 +1501,8 @@ function pileStyle(index: number, total: number): Record<string, string> {
   filter: brightness(1.05);
 }
 
-.pile-card-selected {
+.pile-card-selected,
+.pile-card:focus-visible {
   outline: 4px solid var(--color-primary);
   outline-offset: 3px;
 }

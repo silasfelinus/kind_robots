@@ -22,7 +22,7 @@ model ArtImage {
   checkpointResourceId Int?
   designer             String?               @db.VarChar(764)
   genres               String?
-  imagePath            String?
+  imagePath            String?               @db.VarChar(764)
   isMature             Boolean?              @default(false)
   isPublic             Boolean?              @default(true)
   storefrontFeatured   Boolean               @default(false)
@@ -1410,7 +1410,7 @@ model Resource {
   /// LoRAs in the Discover browser and to detect newer upstream versions.
   civitaiModelId        Int?
   civitaiModelVersionId Int?
-  imagePath             String?
+  imagePath             String?         @db.VarChar(764)
   slug                  String?         @unique @db.VarChar(255)
   /// Whether the checkpoint/LoRA this row represents is licensed for
   /// commercial output (per CONTROL.md's commercial-generation licensing
@@ -1521,7 +1521,7 @@ model Scenario {
   intros               String                @db.Text
   userId               Int?
   artImageId           Int?
-  imagePath            String?
+  imagePath            String?               @db.VarChar(764)
   icon                 String?
   allowReviews         Boolean               @default(true)
   locations            String?               @db.Text

@@ -441,6 +441,26 @@
           Dismiss
         </button>
       </div>
+
+      <div v-if="gallery.status === 'intro'" class="intro-overlay">
+        <button type="button" class="intro-skip" @click="finishIntro()">
+          Skip intro
+        </button>
+
+        <div
+          class="intro-trapdoor"
+          :class="{ 'intro-trapdoor-open': introTrapdoorOpen }"
+          aria-hidden="true"
+        />
+
+        <div
+          v-for="frame in introTumbleFrames"
+          :key="frame.id"
+          class="intro-tumble-frame"
+          :style="tumbleFrameStyle(frame)"
+          aria-hidden="true"
+        />
+      </div>
     </div>
   </main>
 </template>
@@ -450,6 +470,12 @@ import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useButterflyGalleryStore } from '@/stores/butterflyGalleryStore'
 import { useUserStore } from '@/stores/userStore'
 import { computeButterflyFunnelDropPlan } from '@/stores/helpers/butterflyGalleryMotion'
+import {
+  INTRO_HARD_TIMEOUT_MS,
+  INTRO_TRAPDOOR_START_MS,
+  computeButterflyIntroTumblePlan,
+  type ButterflyIntroTumbleFrame,
+} from '@/stores/helpers/butterflyGalleryIntro'
 
 const userStore = useUserStore()
 const gallery = useButterflyGalleryStore()
@@ -458,6 +484,13 @@ const infoExpanded = ref(false)
 const dropSequence = ref(0)
 const fadeReveal = ref(false)
 const showFilters = ref(false)
+
+// -- First-visit intro orchestration (butterfly-gallery/t-015) -------------
+const introTrapdoorOpen = ref(false)
+const introTumbleFrames = ref<ButterflyIntroTumbleFrame[]>([])
+let introTimers: ReturnType<typeof setTimeout>[] = []
+let reducedMotionMql: MediaQueryList | null = null
+let introKeydownBound = false
 
 // -- Micro-interactions (butterfly-gallery/t-017) --------------------------
 const funnelMouthRef = ref<HTMLElement | null>(null)
@@ -513,7 +546,21 @@ onMounted(async () => {
 
   await gallery.loadPile()
 
-  if (gallery.status === 'intro') gallery.completeIntro()
+  if (gallery.status === 'intro') {
+    if (prefersReducedMotion()) {
+      // Storyboard: reduced-motion users enter `ready` immediately and may
+      // set the session marker so the full intro does not suddenly play
+      // later in the same session if OS settings change.
+      gallery.completeIntro()
+    } else {
+      startIntro()
+    }
+  }
+
+  if (typeof window !== 'undefined' && window.matchMedia) {
+    reducedMotionMql = window.matchMedia('(prefers-reduced-motion: reduce)')
+    reducedMotionMql.addEventListener('change', handleReducedMotionChange)
+  }
 
   window.addEventListener('resize', invalidateFunnelDrop)
   document.addEventListener('visibilitychange', invalidateFunnelDrop)
@@ -522,6 +569,9 @@ onMounted(async () => {
 onBeforeUnmount(() => {
   window.removeEventListener('resize', invalidateFunnelDrop)
   document.removeEventListener('visibilitychange', invalidateFunnelDrop)
+  reducedMotionMql?.removeEventListener('change', handleReducedMotionChange)
+  setIntroKeydownListener(false)
+  clearIntroTimers()
   if (acceptedBinTimer) clearTimeout(acceptedBinTimer)
   if (activeDropAnimation) activeDropAnimation.cancel()
 })
@@ -540,6 +590,67 @@ watch(
     )
   },
 )
+
+/** Starts the first-visit intro: schedules the trapdoor cue and the one
+ * timer that always wins regardless of animation completion
+ * (MOTION-STORYBOARD.md's hard 3.2s handoff timeout). Idempotent against
+ * being called while status is already 'intro'. */
+function startIntro(): void {
+  clearIntroTimers()
+  introTrapdoorOpen.value = false
+  introTumbleFrames.value = computeButterflyIntroTumblePlan()
+  setIntroKeydownListener(true)
+
+  introTimers.push(
+    setTimeout(() => {
+      introTrapdoorOpen.value = true
+    }, INTRO_TRAPDOOR_START_MS),
+  )
+  introTimers.push(setTimeout(finishIntro, INTRO_HARD_TIMEOUT_MS))
+}
+
+function clearIntroTimers(): void {
+  for (const timer of introTimers) clearTimeout(timer)
+  introTimers = []
+}
+
+/** Idempotent: Skip, the hard timeout, and a mid-intro reduced-motion
+ * preference change all funnel through this one path so the intro can only
+ * ever land in the exact same steady-state DOM, never a half-finished one. */
+function finishIntro(): void {
+  clearIntroTimers()
+  setIntroKeydownListener(false)
+  introTrapdoorOpen.value = false
+  introTumbleFrames.value = []
+  gallery.completeIntro()
+}
+
+function handleReducedMotionChange(event: MediaQueryListEvent): void {
+  if (event.matches && gallery.status === 'intro') finishIntro()
+}
+
+function handleIntroKeydown(event: KeyboardEvent): void {
+  if (event.key === 'Escape') finishIntro()
+}
+
+function setIntroKeydownListener(enabled: boolean): void {
+  if (enabled === introKeydownBound) return
+  introKeydownBound = enabled
+  if (enabled) window.addEventListener('keydown', handleIntroKeydown)
+  else window.removeEventListener('keydown', handleIntroKeydown)
+}
+
+function tumbleFrameStyle(
+  frame: ButterflyIntroTumbleFrame,
+): Record<string, string> {
+  return {
+    left: `${frame.leftPercent}%`,
+    animationDelay: `${frame.delayMs}ms`,
+    animationDuration: `${frame.durationMs}ms`,
+    '--intro-frame-rotate': `${frame.rotationDeg}deg`,
+    '--intro-frame-drift': `${frame.driftPercent}%`,
+  }
+}
 
 function prefersReducedMotion(): boolean {
   return (
@@ -1475,6 +1586,68 @@ function pileStyle(index: number, total: number): Record<string, string> {
   transform: translateX(-50%);
 }
 
+.intro-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 60;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.intro-skip {
+  position: absolute;
+  z-index: 2;
+  top: 1rem;
+  right: 1rem;
+  padding: 0.4rem 0.9rem;
+  border: 1px solid var(--color-base-300);
+  border-radius: 999px;
+  background: color-mix(in oklch, var(--color-base-100) 92%, transparent);
+  color: var(--color-base-content);
+  font-size: 0.72rem;
+  font-weight: 800;
+  backdrop-filter: blur(8px);
+  pointer-events: auto;
+}
+
+.intro-trapdoor {
+  position: absolute;
+  top: 0;
+  left: 9%;
+  right: 9%;
+  height: 17%;
+  border-radius: 0 0 1.25rem 1.25rem;
+  background: color-mix(in oklch, var(--color-neutral) 88%, black);
+  box-shadow: 0 10px 18px
+    color-mix(in oklch, var(--color-neutral) 40%, transparent);
+  transform-origin: top center;
+  transition:
+    transform 400ms cubic-bezier(0.34, 1.56, 0.64, 1),
+    box-shadow 400ms ease;
+}
+
+.intro-trapdoor-open {
+  transform: translateY(-6%) scaleY(0.9);
+  box-shadow: 0 18px 26px
+    color-mix(in oklch, var(--color-neutral) 55%, transparent);
+}
+
+.intro-tumble-frame {
+  position: absolute;
+  top: 12%;
+  width: clamp(46px, 6vw, 78px);
+  aspect-ratio: 4 / 3;
+  border: 4px solid color-mix(in oklch, var(--color-base-100) 90%, transparent);
+  border-radius: 0.3rem;
+  background: color-mix(in oklch, var(--color-info) 22%, var(--color-base-100));
+  box-shadow: 0 6px 14px
+    color-mix(in oklch, var(--color-neutral) 30%, transparent);
+  opacity: 0;
+  animation-name: butterfly-intro-tumble;
+  animation-timing-function: ease-in;
+  animation-fill-mode: forwards;
+}
+
 @keyframes butterfly-gallery-fade {
   from {
     opacity: 0;
@@ -1530,18 +1703,39 @@ function pileStyle(index: number, total: number): Record<string, string> {
   }
 }
 
+@keyframes butterfly-intro-tumble {
+  0% {
+    top: 12%;
+    transform: translateX(0) rotate(0deg);
+    opacity: 0;
+  }
+
+  12% {
+    opacity: 1;
+  }
+
+  100% {
+    top: 74%;
+    transform: translateX(var(--intro-frame-drift, 0%))
+      rotate(var(--intro-frame-rotate, 0deg));
+    opacity: 0.9;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .blank-image-icon,
   .blank-orbit-one,
   .blank-orbit-two,
   .pile-card-pop,
-  .preset-bin-accepted {
+  .preset-bin-accepted,
+  .intro-tumble-frame {
     animation: none;
   }
 
   .preset-bin,
   .right-action,
-  .pile-card {
+  .pile-card,
+  .intro-trapdoor {
     transition: none;
   }
 }

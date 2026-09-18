@@ -76,6 +76,7 @@ export default defineEventHandler(async (event) => {
         generation: true,
         supportedServer: true,
         isMature: true,
+        isPublic: true,
         defaultTrigger: true,
         triggerWords: true,
         artImageId: true,
@@ -173,7 +174,21 @@ export default defineEventHandler(async (event) => {
           width: recipe.width,
           height: recipe.height,
           isMature: Boolean(lora.isMature),
-          isPublic: false,
+          /*
+           * INHERITED, not hardcoded false.
+           *
+           * generate-preview.post.ts has always copied isPublic/isMature from
+           * the Resource; this path pinned isPublic to false, so the same LoRA
+           * produced a PUBLIC preview through one route and a PRIVATE one
+           * through the other. buildArtImageWhere then hid the private half
+           * from everyone but its owner and admins, which is why a probed-only
+           * LoRA's gallery came back empty for anybody else (ArtImage 27324 on
+           * HeavenAngels-000008 is one).
+           *
+           * Silas, 2026-09-18, on the two paths: "both should inherit". A probe
+           * of a public LoRA is no more sensitive than a preview of it.
+           */
+          isPublic: Boolean(lora.isPublic),
           entityArt: {
             entityType: 'resource',
             entityId: lora.id,

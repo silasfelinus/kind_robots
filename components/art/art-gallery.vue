@@ -3,18 +3,13 @@
   <section
     class="flex h-full min-h-0 w-full flex-col gap-2 rounded-2xl bg-base-300 p-2"
   >
-    <header
-      v-if="showHeader"
-      class="shrink-0 kr-panel-muted-compact-row"
-    >
+    <header v-if="showHeader" class="shrink-0 kr-panel-muted-compact-row">
       <div class="flex items-center gap-2">
         <Icon name="kind-icon:gallery" class="kr-icon-primary-5 shrink-0" />
         <h2 class="kr-text-black-base min-w-0 truncate text-base-content">
           {{ activeGroup ? activeGroup.title : 'Gallery' }}
         </h2>
-        <p
-          class="kr-text-dim-xs hidden min-w-0 truncate sm:block"
-        >
+        <p class="kr-text-dim-xs hidden min-w-0 truncate sm:block">
           {{ headerSummary }}
         </p>
 
@@ -125,9 +120,7 @@
           <span class="kr-badge-ghost-sm">
             {{ visibleGroups.length }} collections
           </span>
-          <span class="kr-badge-ghost-sm">
-            {{ totalImageCount }} images
-          </span>
+          <span class="kr-badge-ghost-sm"> {{ totalImageCount }} images </span>
           <span v-if="activeGroup" class="kr-badge-primary-sm">
             {{ filteredActiveImages.length }} in view
           </span>
@@ -205,11 +198,11 @@
       </kr-gallery>
 
       <div v-else class="flex min-h-0 flex-col gap-2">
-        <div
-          class="flex items-center gap-2 kr-panel-compact-row"
-        >
+        <div class="flex items-center gap-2 kr-panel-compact-row">
           <Icon
-            :name="activeGroup.isVirtual ? 'kind-icon:archive' : 'kind-icon:folder'"
+            :name="
+              activeGroup.isVirtual ? 'kind-icon:archive' : 'kind-icon:folder'
+            "
             class="kr-icon-primary-4 shrink-0"
           />
           <h3 class="kr-text-black-sm min-w-0 truncate text-base-content">
@@ -368,10 +361,7 @@
               :disabled="isBatchWorking || !canBatchModifyImages"
               @click="deleteSelectedImages"
             >
-              <span
-                v-if="isBatchWorking"
-                class="kr-spinner-xs"
-              />
+              <span v-if="isBatchWorking" class="kr-spinner-xs" />
               <Icon v-else name="kind-icon:trash" class="kr-icon-3-5" />
               Delete
             </button>
@@ -522,10 +512,7 @@
         </span>
         shown
       </span>
-      <span
-        v-if="activeGroup"
-        class="ml-auto truncate font-bold text-primary"
-      >
+      <span v-if="activeGroup" class="ml-auto truncate font-bold text-primary">
         {{ activeGroup.title }}
       </span>
     </footer>
@@ -642,7 +629,8 @@ const collectionGroups = computed<GalleryGroup[]>(() => {
     .map((image) => hydratedImages.value[image.id] || image)
     .sort((a, b) => b.id - a.id)
   const preview = summary.previewArtImage
-    ? hydratedImages.value[summary.previewArtImage.id] || summary.previewArtImage
+    ? hydratedImages.value[summary.previewArtImage.id] ||
+      summary.previewArtImage
     : null
   const images = fullImages.length ? fullImages : preview ? [preview] : []
   const collection = makePseudoCollection({
@@ -676,7 +664,8 @@ const collectionGroups = computed<GalleryGroup[]>(() => {
 const visibleGroups = computed<GalleryGroup[]>(() => {
   const query = searchQuery.value.trim().toLowerCase()
   return collectionGroups.value.filter((group) => {
-    if (!showMature.value && group.isMature) return false
+    // Maturity is the API's now (viewerShowsMature); a group the viewer may not
+    // see never arrives.
     if (query && !searchableGroupText(group).includes(query)) return false
     return true
   })
@@ -713,9 +702,9 @@ const collectionGalleryItems = computed<GalleryItem[]>(() =>
 const filteredActiveImages = computed(() => {
   if (!activeGroup.value) return []
   const query = searchQuery.value.trim().toLowerCase()
-  return activeGroup.value.images
-    .filter((image) => showMature.value || !image.isMature)
-    .filter((image) => !query || searchableImageText(image).includes(query))
+  return activeGroup.value.images.filter(
+    (image) => !query || searchableImageText(image).includes(query),
+  )
 })
 
 const galleryItems = computed<GalleryItem[]>(() =>
@@ -728,8 +717,7 @@ const galleryItems = computed<GalleryItem[]>(() =>
 )
 
 const imageById = computed(
-  () =>
-    new Map(filteredActiveImages.value.map((image) => [image.id, image])),
+  () => new Map(filteredActiveImages.value.map((image) => [image.id, image])),
 )
 
 const totalImageCount = computed(
@@ -942,14 +930,11 @@ function normalizeCollectionGroup(collection: ArtCollection): GalleryGroup {
       ? explicitCount
       : detailImages.length
   const preview = summary.previewArtImage
-    ? hydratedImages.value[summary.previewArtImage.id] || summary.previewArtImage
-    : detailImages[0] ?? null
+    ? hydratedImages.value[summary.previewArtImage.id] ||
+      summary.previewArtImage
+    : (detailImages[0] ?? null)
   const hasDetail = Boolean(browseStore.collectionDetails[collection.id])
-  const images = hasDetail
-    ? detailImages
-    : preview
-      ? [preview]
-      : detailImages
+  const images = hasDetail ? detailImages : preview ? [preview] : detailImages
   const displayCollection = {
     ...detail,
     artImageCount: imageCount,

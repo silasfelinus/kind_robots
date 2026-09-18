@@ -175,10 +175,7 @@
           aria-label="Refresh Dreams"
           @click="refreshDreams(true)"
         >
-          <span
-            v-if="isLoading || dreamStore.loading"
-            class="kr-spinner-xs"
-          />
+          <span v-if="isLoading || dreamStore.loading" class="kr-spinner-xs" />
           <Icon v-else name="kind-icon:refresh" class="kr-icon-4" />
         </button>
 
@@ -323,9 +320,7 @@
               </div>
 
               <div class="min-w-0">
-                <p class="kr-text-eyebrow-bold kr-text-dim-xs">
-                  Current Dream
-                </p>
+                <p class="kr-text-eyebrow-bold kr-text-dim-xs">Current Dream</p>
 
                 <h3 class="kr-text-black-base truncate text-base-content">
                   {{ selectedDreamTitle }}
@@ -743,9 +738,13 @@ const galleryDreams = computed<DreamWithRelations[]>(() => {
     })
   }
 
-  if (!showMature.value) {
-    dreams = dreams.filter((dream) => !dream.isMature)
-  }
+  /*
+   * NO CLIENT-SIDE MATURITY FILTER. The API decides now (viewerShowsMature:
+   * logged in, not a CHILD, opted in), so a row the viewer may not see never
+   * arrives and there is nothing here to drop. Silas, 2026-09-18: "it doesn't
+   * matter how many front end pieces are doing it one way, the backend is the
+   * proper place to gate this behavior."
+   */
 
   if (showMineOnly.value) {
     dreams = dreams.filter((dream) => dream.userId === currentUserId.value)
@@ -759,8 +758,9 @@ const galleryDreams = computed<DreamWithRelations[]>(() => {
 // has no paging concept (unlike art-gallery's pagedActiveImages), so the
 // broader galleryDreams set (filtered by ownership/mature/archived, not yet by
 // type/search) is the closest equivalent to a "rendered page".
-const { earnedKarma: earnedKarmaByDreamId } = userStore.trackEarnedKarma('dream', () =>
-  galleryDreams.value.map((dream) => dream.id),
+const { earnedKarma: earnedKarmaByDreamId } = userStore.trackEarnedKarma(
+  'dream',
+  () => galleryDreams.value.map((dream) => dream.id),
 )
 
 const dreamTypes = computed(() => {

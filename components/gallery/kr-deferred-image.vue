@@ -37,7 +37,9 @@ const emit = defineEmits<{ error: [event: Event] }>()
 
 const element = ref<HTMLImageElement>()
 const activeSrc = ref(props.eager ? props.src : '')
-const fetchPriority = ref<ViewportHydrationPriority>(props.eager ? 'high' : 'low')
+const fetchPriority = ref<ViewportHydrationPriority>(
+  props.eager ? 'high' : 'low',
+)
 let mounted = false
 let stopObserving: (() => void) | null = null
 
@@ -57,9 +59,20 @@ function reset(): void {
     return
   }
 
-  activeSrc.value = ''
-  fetchPriority.value = 'low'
-  if (!mounted || !element.value) return
+  /*
+   * Do NOT blank an image that is already on screen just because its URL
+   * changed. Entity previews carry a `?v=<updatedAt>` cache-buster, so a row
+   * refresh hands the same picture a new URL -- and clearing activeSrc first
+   * made it vanish and reload every time, which reads as flicker. Keep the old
+   * frame until the new one is observed, and only clear when there is nothing
+   * to show.
+   */
+  if (!activeSrc.value) fetchPriority.value = 'low'
+  if (!mounted || !element.value) {
+    activeSrc.value = ''
+    fetchPriority.value = 'low'
+    return
+  }
 
   stopObserving = observeViewportHydration(element.value, (priority) => {
     fetchPriority.value = priority

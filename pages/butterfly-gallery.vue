@@ -47,6 +47,137 @@
         aria-hidden="true"
       />
 
+      <div class="queue-toolbar">
+        <button
+          type="button"
+          class="gallery-utility"
+          :class="{ 'gallery-utility-active': showFilters }"
+          title="Queue filters and folder/collection browsing"
+          @click="showFilters = !showFilters"
+        >
+          <Icon name="kind-icon:sliders" class="kr-icon-4" />
+          <span class="sr-only">Toggle queue filters</span>
+        </button>
+        <span class="queue-count">
+          {{ gallery.remainingCount }} / {{ gallery.pile.length }}
+        </span>
+      </div>
+
+      <section
+        v-if="showFilters"
+        class="queue-filter-panel kr-panel max-h-[60vh] overflow-y-auto"
+        aria-label="Queue filters and folder/collection browsing"
+      >
+        <div class="queue-filter-row">
+          <label class="queue-filter-field queue-filter-search">
+            <Icon name="kind-icon:search" class="kr-icon-3 opacity-60" />
+            <input
+              v-model="searchModel"
+              type="search"
+              class="kr-input-sm"
+              placeholder="Search prompt"
+            />
+          </label>
+
+          <label class="queue-filter-field">
+            <span class="kr-text-dim-xs">State</span>
+            <select v-model="processedModel" class="kr-select-sm">
+              <option value="all">All</option>
+              <option value="unprocessed">Unprocessed</option>
+              <option value="processed">Processed</option>
+            </select>
+          </label>
+
+          <label class="queue-filter-field">
+            <span class="kr-text-dim-xs">Rating</span>
+            <select v-model="ratingModel" class="kr-select-sm">
+              <option value="">Any</option>
+              <option v-for="n in 5" :key="n" :value="String(n)">
+                {{ n }}★
+              </option>
+            </select>
+          </label>
+
+          <label class="queue-filter-field">
+            <span class="kr-text-dim-xs">Match</span>
+            <select v-model="matchStateModel" class="kr-select-sm">
+              <option value="all">Any</option>
+              <option value="matched">Matched</option>
+              <option value="unmatched">Unmatched</option>
+              <option value="missing">Missing provenance</option>
+            </select>
+          </label>
+
+          <label class="queue-filter-field">
+            <span class="kr-text-dim-xs">Trash</span>
+            <select v-model="trashViewModel" class="kr-select-sm">
+              <option value="active">Active</option>
+              <option value="trashed">Trashed</option>
+              <option value="all">All</option>
+            </select>
+          </label>
+
+          <button
+            type="button"
+            class="kr-btn btn-ghost btn-sm"
+            @click="gallery.resetFilters()"
+          >
+            Reset
+          </button>
+        </div>
+
+        <div class="queue-filter-groups">
+          <div class="queue-filter-group">
+            <p class="queue-filter-group-heading">
+              <Icon name="kind-icon:folder" class="kr-icon-3" /> Folders
+            </p>
+            <div class="queue-filter-chips">
+              <button
+                v-for="folder in gallery.folderSummaries"
+                :key="folder.value"
+                type="button"
+                class="queue-chip"
+                :class="{ 'queue-chip-active': gallery.filters.folder === folder.value }"
+                @click="gallery.toggleFolderFilter(folder.value)"
+              >
+                {{ folder.value }} <span class="queue-chip-count">{{ folder.count }}</span>
+              </button>
+              <p v-if="!gallery.folderSummaries.length" class="kr-text-dim-xs">
+                No folders yet.
+              </p>
+            </div>
+          </div>
+
+          <div class="queue-filter-group">
+            <p class="queue-filter-group-heading">
+              <Icon name="kind-icon:tag" class="kr-icon-3" /> Collections
+            </p>
+            <div class="queue-filter-chips">
+              <button
+                v-for="collection in gallery.collectionSummaries"
+                :key="collection.value"
+                type="button"
+                class="queue-chip"
+                :class="{
+                  'queue-chip-active':
+                    gallery.filters.collection === collection.value,
+                }"
+                @click="gallery.toggleCollectionFilter(collection.value)"
+              >
+                {{ collection.value }}
+                <span class="queue-chip-count">{{ collection.count }}</span>
+              </button>
+              <p
+                v-if="!gallery.collectionSummaries.length"
+                class="kr-text-dim-xs"
+              >
+                No collections yet.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <aside class="preset-rail" aria-label="Custom sorting presets">
         <button
           v-for="(bin, index) in gallery.leftBins"
@@ -180,6 +311,20 @@
         </button>
 
         <button
+          v-if="gallery.selectedEntry?.trashed"
+          type="button"
+          class="right-action restore-action"
+          :disabled="gallery.isBusy"
+          @click="gallery.restoreEntry(gallery.selectedEntry!.id)"
+        >
+          <Icon name="kind-icon:undo" class="right-action-icon" />
+          <span>
+            <strong>Restore</strong>
+            <small>Return to the working pile</small>
+          </span>
+        </button>
+        <button
+          v-else
           type="button"
           class="right-action trash-action"
           :disabled="!gallery.selectedEntry || gallery.isBusy"
@@ -201,6 +346,14 @@
         aria-hidden="true"
       />
 
+      <p v-if="!pileEntries.length" class="queue-empty-note kr-text-dim-sm">
+        {{
+          gallery.pile.length
+            ? 'Nothing matches the current filters.'
+            : 'The pile is empty.'
+        }}
+      </p>
+
       <section class="art-pile" aria-label="Unsorted artwork pile">
         <button
           v-for="(entry, index) in pileEntries"
@@ -209,6 +362,7 @@
           class="pile-card"
           :class="{
             'pile-card-selected': entry.id === gallery.selectedImageId,
+            'pile-card-trashed': entry.trashed,
           }"
           :style="pileStyle(index, pileEntries.length)"
           draggable="true"
@@ -278,8 +432,38 @@ const ready = ref(false)
 const infoExpanded = ref(false)
 const dropSequence = ref(0)
 const animateDrop = ref(false)
+const showFilters = ref(false)
 
 const pileEntries = computed(() => gallery.visiblePile.slice(0, 18))
+
+const searchModel = computed({
+  get: () => gallery.filters.search,
+  set: (value: string) => gallery.setFilter('search', value),
+})
+
+const processedModel = computed({
+  get: () => gallery.filters.processed,
+  set: (value: 'all' | 'processed' | 'unprocessed') =>
+    gallery.setFilter('processed', value),
+})
+
+const ratingModel = computed({
+  get: () => (gallery.filters.rating === null ? '' : String(gallery.filters.rating)),
+  set: (value: string) =>
+    gallery.setFilter('rating', value ? Number(value) : null),
+})
+
+const matchStateModel = computed({
+  get: () => gallery.filters.matchState,
+  set: (value: 'all' | 'matched' | 'unmatched' | 'missing') =>
+    gallery.setFilter('matchState', value),
+})
+
+const trashViewModel = computed({
+  get: () => gallery.filters.trashView,
+  set: (value: 'active' | 'trashed' | 'all') =>
+    gallery.setFilter('trashView', value),
+})
 
 onMounted(async () => {
   await userStore.initialize()
@@ -955,6 +1139,125 @@ function pileStyle(index: number, total: number): Record<string, string> {
   background: color-mix(in oklch, var(--color-base-100) 88%, transparent);
   color: var(--color-base-content);
   backdrop-filter: blur(8px);
+}
+
+.gallery-utility-active {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.queue-toolbar {
+  position: absolute;
+  z-index: 35;
+  top: 1rem;
+  left: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.queue-count {
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+  background: color-mix(in oklch, var(--color-base-100) 88%, transparent);
+  font-size: 0.7rem;
+  font-weight: 800;
+  backdrop-filter: blur(8px);
+}
+
+.queue-filter-panel {
+  position: absolute;
+  z-index: 40;
+  top: 3.6rem;
+  left: 1rem;
+  right: 1rem;
+  padding: 0.85rem;
+  border-radius: 1rem;
+  background: color-mix(in oklch, var(--color-base-100) 96%, transparent);
+  backdrop-filter: blur(10px);
+}
+
+.queue-filter-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: 0.6rem;
+}
+
+.queue-filter-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  font-size: 0.7rem;
+}
+
+.queue-filter-search {
+  flex-direction: row;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.queue-filter-groups {
+  display: grid;
+  gap: 0.7rem;
+  margin-top: 0.75rem;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+}
+
+.queue-filter-group-heading {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  margin-bottom: 0.35rem;
+  font-size: 0.72rem;
+  font-weight: 800;
+  opacity: 0.75;
+}
+
+.queue-filter-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+}
+
+.queue-chip {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.25rem 0.6rem;
+  border: 1px solid var(--color-base-300);
+  border-radius: 999px;
+  font-size: 0.68rem;
+  font-weight: 700;
+}
+
+.queue-chip-active {
+  border-color: var(--color-primary);
+  background: color-mix(in oklch, var(--color-primary) 16%, transparent);
+  color: var(--color-primary);
+}
+
+.queue-chip-count {
+  opacity: 0.6;
+}
+
+.queue-empty-note {
+  position: absolute;
+  z-index: 20;
+  left: 50%;
+  bottom: 3.5rem;
+  transform: translateX(-50%);
+  text-align: center;
+}
+
+.restore-action {
+  background: var(--color-info);
+  color: var(--color-info-content);
+}
+
+.pile-card-trashed {
+  opacity: 0.6;
+  filter: grayscale(0.4);
 }
 
 .stage-error {

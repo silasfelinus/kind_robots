@@ -67,10 +67,20 @@ export type ButterflyBinConfig = {
   enabled: boolean
 }
 
+/** Trash visibility is its own dimension from `matchState` (provenance match
+ * quality) -- a trashed entry can have any matchState, so folding "show
+ * trashed" into `matchState === 'missing'` (as the original t-003 scaffolding
+ * did) silently hid every trashed entry whose matchState wasn't literally
+ * 'missing' (butterfly-gallery/t-009). 'active' (default) hides trashed
+ * entries from the working pile; 'trashed' shows only the recoverable
+ * graveyard; 'all' shows both. */
+export type ButterflyTrashView = 'active' | 'trashed' | 'all'
+
 export type ButterflyGalleryFilters = {
   processed: 'all' | 'processed' | 'unprocessed'
   rating: number | null
   matchState: ButterflyMatchState | 'all'
+  trashView: ButterflyTrashView
   folder: string | null
   collection: string | null
   search: string
@@ -81,10 +91,19 @@ export function defaultButterflyGalleryFilters(): ButterflyGalleryFilters {
     processed: 'all',
     rating: null,
     matchState: 'all',
+    trashView: 'active',
     folder: null,
     collection: null,
     search: '',
   }
+}
+
+/** One folder or collection's name plus how many pile entries currently
+ * carry it -- the data a browsing list/chip row renders (butterfly-
+ * gallery/t-009). */
+export type ButterflyGroupSummary = {
+  value: string
+  count: number
 }
 
 export type ButterflyDropOutcome = {

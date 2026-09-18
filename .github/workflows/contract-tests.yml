@@ -1111,6 +1111,9 @@ jobs:
       - name: Butterfly Gallery curation-action contract
         run: npm run test:butterfly-gallery-actions
 
+      - name: Butterfly Gallery filter/browsing contract
+        run: npm run test:butterfly-gallery-filters
+
       - name: Fetch main for capture-group guard diff
         run: git fetch origin main
 

@@ -14,6 +14,11 @@ import {
 import { defaultButterflyGalleryFeedProvider } from '@/stores/helpers/butterflyGalleryFeedProvider'
 import { createDefaultButterflyBins } from '@/stores/helpers/butterflyGalleryFixtures'
 import {
+  matchesButterflyGalleryFilters,
+  summarizeButterflyGalleryCollections,
+  summarizeButterflyGalleryFolders,
+} from '@/stores/helpers/butterflyGalleryFilters'
+import {
   defaultButterflyGalleryFilters,
   type ButterflyBinConfig,
   type ButterflyDropOutcome,
@@ -69,48 +74,22 @@ export const useButterflyGalleryStore = defineStore(
     const isLoadingMore = ref(false)
 
     const visiblePile = computed<ButterflyPileEntry[]>(() =>
-      pile.value.filter((entry) => {
-        if (entry.trashed && filters.value.matchState !== 'missing')
-          return false
-
-        if (filters.value.processed === 'processed' && !entry.processed)
-          return false
-        if (filters.value.processed === 'unprocessed' && entry.processed)
-          return false
-
-        if (
-          filters.value.rating !== null &&
-          entry.rating !== filters.value.rating
-        )
-          return false
-
-        if (
-          filters.value.matchState !== 'all' &&
-          entry.matchState !== filters.value.matchState
-        ) {
-          return false
-        }
-
-        if (filters.value.folder && entry.folder !== filters.value.folder)
-          return false
-
-        if (
-          filters.value.collection &&
-          !entry.collections.includes(filters.value.collection)
-        ) {
-          return false
-        }
-
-        if (filters.value.search) {
-          const needle = filters.value.search.toLowerCase()
-          if (!(entry.prompt ?? '').toLowerCase().includes(needle)) return false
-        }
-
-        return true
-      }),
+      pile.value.filter((entry) =>
+        matchesButterflyGalleryFilters(entry, filters.value),
+      ),
     )
 
     const remainingCount = computed(() => visiblePile.value.length)
+
+    /** Folder/collection browsing lists (butterfly-gallery/t-009): counted
+     * across the whole pile, not the filtered view, so picking one filter
+     * never makes another folder/collection vanish from the list. */
+    const folderSummaries = computed(() =>
+      summarizeButterflyGalleryFolders(pile.value),
+    )
+    const collectionSummaries = computed(() =>
+      summarizeButterflyGalleryCollections(pile.value),
+    )
 
     const selectedEntry = computed<ButterflyPileEntry | null>(
       () =>
@@ -425,6 +404,20 @@ export const useButterflyGalleryStore = defineStore(
       filters.value = defaultButterflyGalleryFilters()
     }
 
+    /** Clicking an already-selected folder/collection chip clears that
+     * filter instead of re-applying it, so the browsing list doubles as a
+     * toggle rather than needing a separate "clear" control per chip. */
+    function toggleFolderFilter(folder: string): void {
+      setFilter('folder', filters.value.folder === folder ? null : folder)
+    }
+
+    function toggleCollectionFilter(collection: string): void {
+      setFilter(
+        'collection',
+        filters.value.collection === collection ? null : collection,
+      )
+    }
+
     function toggleBatchSelected(entryId: number): void {
       const ids = new Set(batchSelectedIds.value)
       if (ids.has(entryId)) ids.delete(entryId)
@@ -489,6 +482,8 @@ export const useButterflyGalleryStore = defineStore(
       isLoadingMore,
       visiblePile,
       remainingCount,
+      folderSummaries,
+      collectionSummaries,
       selectedEntry,
       leftBins,
       rightBins,
@@ -514,6 +509,8 @@ export const useButterflyGalleryStore = defineStore(
       removeFromCollection,
       setFilter,
       resetFilters,
+      toggleFolderFilter,
+      toggleCollectionFilter,
       toggleBatchSelected,
       clearBatchSelection,
       upsertBin,

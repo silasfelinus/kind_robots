@@ -10,7 +10,8 @@
 // Every engine below is a Comfy lane. OpenAI images and A1111 are deliberately
 // absent from the primary generator profile catalog.
 
-export type ArtGeneratorEngine = 'krea2' | 'flux2' | 'flux' | 'comfy'
+export type ArtGeneratorEngine =
+  'krea2' | 'flux2' | 'flux' | 'comfy' | 'sdxl-img2img'
 
 export type FluxVariant = 'dev' | 'schnell'
 export type ArtRuntimeClass = 'fast' | 'standard' | 'slow'
@@ -83,6 +84,23 @@ export const ART_ENGINE_PROFILES: Record<ArtGeneratorEngine, ArtEngineProfile> =
         guidance: true,
       },
     },
+    'sdxl-img2img': {
+      engine: 'sdxl-img2img',
+      label: 'SDXL from an image',
+      blurb:
+        'Starts from a picture instead of a blank canvas: your checkpoint and LoRA redraw it, and Strength decides how far it may travel from the original.',
+      supports: {
+        checkpoint: true,
+        lora: true,
+        negativePrompt: true,
+        sampler: true,
+        scheduler: true,
+        // The source image decides the size. Offering width and height here
+        // would be offering a setting the workflow overrides.
+        size: false,
+        guidance: false,
+      },
+    },
     comfy: {
       engine: 'comfy',
       label: 'SDXL checkpoint',
@@ -112,6 +130,12 @@ export type ArtGeneratorPreset = {
   width: number
   height: number
   guidance: number | null
+  /**
+   * How far from the source image a render may travel, 0-1. Only the
+   * image-to-image lane uses it; every text-to-image preset leaves it null,
+   * because there is no source to stay near.
+   */
+  denoise: number | null
   variant: FluxVariant | null
   runtimeClass: ArtRuntimeClass
   families: CheckpointFamily[]
@@ -130,6 +154,7 @@ export const ART_GENERATOR_PRESETS: ArtGeneratorPreset[] = [
     width: 1024,
     height: 1024,
     guidance: null,
+    denoise: null,
     variant: null,
     runtimeClass: 'fast',
     families: [],
@@ -146,6 +171,7 @@ export const ART_GENERATOR_PRESETS: ArtGeneratorPreset[] = [
     width: 1024,
     height: 1024,
     guidance: null,
+    denoise: null,
     variant: null,
     runtimeClass: 'standard',
     families: [],
@@ -162,6 +188,7 @@ export const ART_GENERATOR_PRESETS: ArtGeneratorPreset[] = [
     width: 1024,
     height: 1024,
     guidance: null,
+    denoise: null,
     variant: null,
     runtimeClass: 'fast',
     families: [],
@@ -178,6 +205,7 @@ export const ART_GENERATOR_PRESETS: ArtGeneratorPreset[] = [
     width: 1024,
     height: 1024,
     guidance: 4,
+    denoise: null,
     variant: 'schnell',
     runtimeClass: 'standard',
     families: [],
@@ -194,6 +222,7 @@ export const ART_GENERATOR_PRESETS: ArtGeneratorPreset[] = [
     width: 1024,
     height: 1024,
     guidance: 3.5,
+    denoise: null,
     variant: 'dev',
     runtimeClass: 'slow',
     families: [],
@@ -211,6 +240,7 @@ export const ART_GENERATOR_PRESETS: ArtGeneratorPreset[] = [
     width: 1024,
     height: 1024,
     guidance: null,
+    denoise: null,
     variant: null,
     runtimeClass: 'fast',
     families: ['sdxl-distilled', 'pony'],
@@ -227,21 +257,52 @@ export const ART_GENERATOR_PRESETS: ArtGeneratorPreset[] = [
     width: 1024,
     height: 1024,
     guidance: null,
+    denoise: null,
     variant: null,
     runtimeClass: 'standard',
     families: ['sdxl', 'sd15', 'archive', 'unknown'],
   },
+  /*
+   * THE ONLY LANE THAT STARTS FROM A PICTURE.
+   *
+   * Silas, 2026-09-18: "we should be able to select them and modify them, even
+   * if they come from a civitai sample." Picking an image put bytes in
+   * artForm.sourceImageBase64, and every preset above ignores them -- all four
+   * engines are text-to-image, so the picked image was loaded and then had
+   * nowhere to go.
+   *
+   * denoise 0.6 is the middle of the useful range: low enough to keep the
+   * composition and the subject, high enough for the checkpoint and LoRA to
+   * actually restyle it. Below ~0.3 the output is the input; above ~0.8 the
+   * source stops mattering and this may as well be text-to-image.
+   */
+  {
+    id: 'sdxl-from-image',
+    label: 'SDXL · From an image',
+    blurb:
+      'Redraws a picture you picked instead of starting blank. Strength sets how far it may travel.',
+    engine: 'sdxl-img2img',
+    steps: 20,
+    cfg: 3,
+    sampler: 'euler',
+    scheduler: 'normal',
+    width: 1024,
+    height: 1024,
+    guidance: null,
+    denoise: 0.6,
+    variant: null,
+    runtimeClass: 'standard',
+    families: ['sdxl', 'sdxl-distilled', 'pony', 'sd15', 'archive', 'unknown'],
+  },
 ]
+
+/** The preset a picked source image switches the generator into. */
+export const IMAGE_TO_IMAGE_PRESET_ID = 'sdxl-from-image'
 
 export const DEFAULT_ART_PRESET_ID = 'krea2-turbo'
 
 export type CheckpointFamily =
-  | 'sdxl'
-  | 'sdxl-distilled'
-  | 'pony'
-  | 'sd15'
-  | 'archive'
-  | 'unknown'
+  'sdxl' | 'sdxl-distilled' | 'pony' | 'sd15' | 'archive' | 'unknown'
 
 export const CHECKPOINT_FAMILY_LABELS: Record<CheckpointFamily, string> = {
   sdxl: 'SDXL',
@@ -324,6 +385,7 @@ export type PresetSettings = {
   width: number
   height: number
   guidance: number | null
+  denoise: number | null
   variant: FluxVariant | null
 }
 
@@ -337,6 +399,7 @@ export function presetSettings(preset: ArtGeneratorPreset): PresetSettings {
     width: preset.width,
     height: preset.height,
     guidance: preset.guidance,
+    denoise: preset.denoise,
     variant: preset.variant,
   }
 }

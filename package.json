@@ -473,6 +473,7 @@
     "test:storybook-library-session-consistency-guard": "node utils/scripts/verifyStorybookLibrarySessionConsistencyGuard.mjs",
     "test:storybook-location-deep-link-guard": "node utils/scripts/verifyStorybookLocationDeepLinkGuard.mjs",
     "test:storybook-object-entry-links": "node utils/scripts/verifyStorybookObjectEntryLinks.mjs",
+    "test:storybook-table-deep-link-guard": "node utils/scripts/verifyStorybookTableDeepLinkGuard.mjs",
     "test:storybook-restart-input-completeness-guard": "node utils/scripts/verifyStorybookRestartInputCompletenessGuard.mjs",
     "test:storybook-restart-scenario-frame-guard": "node utils/scripts/verifyStorybookRestartScenarioFrameGuard.mjs",
     "test:storybook-restore-idempotency-guard": "node utils/scripts/verifyStorybookRestoreIdempotencyGuard.mjs",

@@ -1096,6 +1096,12 @@ jobs:
       - name: Art Archive reconcile CLI contract
         run: npm run test:art-archive-reconcile-cli
 
+      - name: Art Archive filesystem-safety contract
+        run: npm run test:art-archive-fileops
+
+      - name: Art Archive preset modifiers contract
+        run: npm run test:art-archive-preset-modifiers
+
       - name: Fetch main for capture-group guard diff
         run: git fetch origin main
 

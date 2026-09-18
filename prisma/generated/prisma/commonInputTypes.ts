@@ -236,6 +236,23 @@ export type EnumArchiveEntryMatchStateWithAggregatesFilter<$PrismaModel = never>
   _max?: Prisma.NestedEnumArchiveEntryMatchStateFilter<$PrismaModel>
 }
 
+export type EnumArchivePresetActionTypeFilter<$PrismaModel = never> = {
+  equals?: $Enums.ArchivePresetActionType | Prisma.EnumArchivePresetActionTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.ArchivePresetActionType[]
+  notIn?: $Enums.ArchivePresetActionType[]
+  not?: Prisma.NestedEnumArchivePresetActionTypeFilter<$PrismaModel> | $Enums.ArchivePresetActionType
+}
+
+export type EnumArchivePresetActionTypeWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.ArchivePresetActionType | Prisma.EnumArchivePresetActionTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.ArchivePresetActionType[]
+  notIn?: $Enums.ArchivePresetActionType[]
+  not?: Prisma.NestedEnumArchivePresetActionTypeWithAggregatesFilter<$PrismaModel> | $Enums.ArchivePresetActionType
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumArchivePresetActionTypeFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumArchivePresetActionTypeFilter<$PrismaModel>
+}
+
 export type EnumFacetTaxonomyFilter<$PrismaModel = never> = {
   equals?: $Enums.FacetTaxonomy | Prisma.EnumFacetTaxonomyFieldRefInput<$PrismaModel>
   in?: $Enums.FacetTaxonomy[]
@@ -1774,6 +1791,23 @@ export type NestedEnumArchiveEntryMatchStateWithAggregatesFilter<$PrismaModel = 
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedEnumArchiveEntryMatchStateFilter<$PrismaModel>
   _max?: Prisma.NestedEnumArchiveEntryMatchStateFilter<$PrismaModel>
+}
+
+export type NestedEnumArchivePresetActionTypeFilter<$PrismaModel = never> = {
+  equals?: $Enums.ArchivePresetActionType | Prisma.EnumArchivePresetActionTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.ArchivePresetActionType[]
+  notIn?: $Enums.ArchivePresetActionType[]
+  not?: Prisma.NestedEnumArchivePresetActionTypeFilter<$PrismaModel> | $Enums.ArchivePresetActionType
+}
+
+export type NestedEnumArchivePresetActionTypeWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.ArchivePresetActionType | Prisma.EnumArchivePresetActionTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.ArchivePresetActionType[]
+  notIn?: $Enums.ArchivePresetActionType[]
+  not?: Prisma.NestedEnumArchivePresetActionTypeWithAggregatesFilter<$PrismaModel> | $Enums.ArchivePresetActionType
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumArchivePresetActionTypeFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumArchivePresetActionTypeFilter<$PrismaModel>
 }
 
 export type NestedEnumFacetTaxonomyFilter<$PrismaModel = never> = {

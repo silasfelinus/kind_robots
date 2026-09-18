@@ -50,12 +50,12 @@
     </header>
 
     <!--
-      The loading, empty and error states are the shell's. A single group
-      renders them when there is nothing yet, so this file never draws a
-      spinner or an empty state of its own.
+      The loading, empty and error states are the shell's. An empty gallery
+      renders them, so this file never draws a spinner or an empty state of its
+      own.
     -->
     <kr-gallery
-      v-if="loading || error || !groups.length"
+      v-if="loading || error || !items.length"
       :items="[]"
       :modes="[]"
       density="xs"
@@ -66,20 +66,33 @@
     />
 
     <div v-else class="space-y-3">
-      <div v-for="group in groups" :key="group.key">
-        <p class="mb-1 text-[0.65rem] uppercase tracking-wide opacity-50">
-          {{ group.label }}
-          <span class="opacity-70">({{ group.items.length }})</span>
-        </p>
+      <!--
+        ONE GRID, NOT A STACK OF HEADINGS. Silas, 2026-09-18: "when i look at
+        the resource, I shouldn't just see a single image on one row, we
+        shouldn't just see the rest when scrolling."
 
-        <kr-gallery
-          :items="group.items"
-          :modes="[]"
-          density="xs"
-          empty-label="images"
-          @open="openItem(group.key, $event)"
-        />
-      </div>
+        Origins were section headings, so a resource with one generated preview
+        and ten Civitai samples spent a whole row on the single image and
+        pushed the other ten below the fold -- the grid could fit all eleven in
+        the space the first heading was using. Origin moves onto the tile as a
+        badge: the same information, none of the vertical cost. Reading order
+        is unchanged (generated first, then Civitai, then the body of work), it
+        just flows instead of breaking.
+      -->
+      <p
+        v-if="originSummary"
+        class="text-[0.65rem] uppercase tracking-wide opacity-50"
+      >
+        {{ originSummary }}
+      </p>
+
+      <kr-gallery
+        :items="items"
+        :modes="[]"
+        density="xs"
+        empty-label="images"
+        @open="openItem"
+      />
 
       <!--
         THE PICKED IMAGE, AND WHAT CAN BE DONE WITH IT. Silas, 2026-09-18: "we
@@ -101,7 +114,7 @@
         <button
           type="button"
           class="btn btn-primary btn-xs rounded-2xl"
-          :disabled="sourceBusy"
+          :disabled="sourceBusy || !canUseAsSource"
           @click="useSelectedAsSource"
         >
           <span v-if="sourceBusy" class="kr-loading-primary-xs" />
@@ -171,14 +184,6 @@ const loaded = computed(() => payload.value !== null)
  * with; then the actual body of work. "Used with this LoRA" last would bury
  * the answer to the question that prompted this.
  */
-const ORIGIN_LABELS: Record<string, string> = {
-  preview: 'Generated preview',
-  civitai: 'From Civitai',
-  lora: 'Made with this LoRA',
-  checkpoint: 'Made with this checkpoint',
-  entity: 'Art history',
-}
-
 const ORIGIN_ORDER = ['preview', 'civitai', 'lora', 'checkpoint', 'entity']
 
 /** An image belongs to exactly one heading: its highest-priority origin. */
@@ -191,79 +196,113 @@ function primaryOrigin(image: ResourceArtImage): string {
   return ORIGIN_ORDER[best] ?? 'entity'
 }
 
-const groups = computed<{ key: string; label: string; items: GalleryItem[] }[]>(
-  () => {
-    const data = payload.value
-    if (!data) return []
+/** Short, per-tile origin marks -- the headings these replace. */
+const ORIGIN_BADGES: Record<string, string> = {
+  preview: 'Generated',
+  civitai: 'Civitai',
+  lora: 'This LoRA',
+  checkpoint: 'Checkpoint',
+  entity: 'History',
+}
 
-    const out: { key: string; label: string; items: GalleryItem[] }[] = []
+/** A prompt is not a caption. Enough to recognise the image, no more. */
+const TITLE_LIMIT = 48
 
-    for (const origin of ORIGIN_ORDER) {
-      if (origin === 'civitai') {
-        /*
-         * The whole upstream set, not just the one url on the Resource row.
-         * previewImageUrl is the card's single face and is normally the first
-         * of these, so it is only added when the list does not already carry
-         * it -- showing the cover twice made the count look inflated.
-         */
-        const upstream: ResourceUpstreamPreview[] = data.upstreamPreviews ?? []
-        const items: GalleryItem[] = upstream.map((preview) => ({
-          id: `upstream-${preview.id}`,
-          title:
-            preview.mediaType === 'video' ? 'Civitai video' : 'Civitai preview',
-          // A bare URL, not an ArtImage: `card` takes the resolved path
-          // directly, where `source` would resolve a row this has none of.
-          card: preview.url,
-          meta: 'Opens on civitai.com',
-          badges: preview.isMature
-            ? [{ label: '18+', class: 'badge-error' }]
-            : undefined,
-        }))
+function shortTitle(value: string, fallback: string): string {
+  const text = String(value || '').trim()
+  if (!text) return fallback
+  return text.length > TITLE_LIMIT ? `${text.slice(0, TITLE_LIMIT)}…` : text
+}
 
-        const cover = data.civitaiPreviewUrl
-        if (cover && !upstream.some((preview) => preview.url === cover)) {
-          items.unshift({
-            id: 'civitai',
-            title: 'Civitai preview',
-            card: cover,
-            meta: 'Opens on civitai.com',
-          })
-        }
+const items = computed<GalleryItem[]>(() => {
+  const data = payload.value
+  if (!data) return []
 
-        if (!items.length) continue
-        out.push({
-          key: 'civitai',
-          label: ORIGIN_LABELS.civitai as string,
-          items,
-        })
-        continue
+  const out: GalleryItem[] = []
+
+  for (const origin of ORIGIN_ORDER) {
+    if (origin === 'civitai') {
+      /*
+       * The whole upstream set, not just the one url on the Resource row.
+       * previewImageUrl is the card's single face and is normally the first of
+       * these, so it is only added when the list does not already carry it --
+       * showing the cover twice made the count look inflated.
+       */
+      const upstream: ResourceUpstreamPreview[] = data.upstreamPreviews ?? []
+      const cover = data.civitaiPreviewUrl
+
+      const asItem = (
+        id: string,
+        url: string,
+        isMature: boolean,
+        video = false,
+      ): GalleryItem => ({
+        id,
+        title: video ? 'Civitai video' : 'Civitai sample',
+        // A bare URL, not an ArtImage: `card` takes the resolved path directly,
+        // where `source` would resolve a row this has none of.
+        card: url,
+        badges: [
+          { label: ORIGIN_BADGES.civitai as string, class: 'badge-ghost' },
+          ...(isMature ? [{ label: '18+', class: 'badge-error' }] : []),
+        ],
+      })
+
+      if (cover && !upstream.some((preview) => preview.url === cover)) {
+        out.push(asItem('civitai', cover, false))
       }
 
-      const items = data.images
-        .filter((image) => primaryOrigin(image) === origin)
-        .map<GalleryItem>((image) => ({
-          id: image.id,
-          title: image.promptString || image.fileName || `Image ${image.id}`,
-          // Let the shell resolve the variant. A hand-rolled path order is how
-          // the object card ended up drawing empty frames.
-          source: image,
-          badges: image.isMature
-            ? [{ label: '18+', class: 'badge-error' }]
-            : undefined,
-        }))
-
-      if (items.length) {
-        out.push({ key: origin, label: ORIGIN_LABELS[origin] as string, items })
+      for (const preview of upstream) {
+        out.push(
+          asItem(
+            `upstream-${preview.id}`,
+            preview.url,
+            preview.isMature,
+            preview.mediaType === 'video',
+          ),
+        )
       }
+      continue
     }
 
-    return out
-  },
-)
+    for (const image of data.images) {
+      if (primaryOrigin(image) !== origin) continue
+      out.push({
+        id: image.id,
+        // The prompt used to be the title, which is how one generated image
+        // grew a caption tall enough to own a row by itself.
+        title: shortTitle(image.fileName || '', `Image ${image.id}`),
+        meta: shortTitle(image.promptString || '', ''),
+        // Let the shell resolve the variant. A hand-rolled path order is how
+        // the object card ended up drawing empty frames.
+        source: image,
+        badges: [
+          { label: ORIGIN_BADGES[origin] as string, class: 'badge-ghost' },
+          ...(image.isMature ? [{ label: '18+', class: 'badge-error' }] : []),
+        ],
+      })
+    }
+  }
 
-const totalCount = computed(() =>
-  groups.value.reduce((sum, group) => sum + group.items.length, 0),
-)
+  return out
+})
+
+/** "1 generated · 10 from Civitai" -- what the headings used to say. */
+const originSummary = computed<string>(() => {
+  const data = payload.value
+  if (!data) return ''
+
+  const parts: string[] = []
+  const generated = data.images.length
+  const upstream = data.upstreamPreviews?.length ?? 0
+
+  if (generated) parts.push(`${generated} generated`)
+  if (upstream) parts.push(`${upstream} from Civitai`)
+
+  return parts.join(' · ')
+})
+
+const totalCount = computed(() => items.value.length)
 
 function refresh(): void {
   void resourceGalleryStore.loadResourceArt(props.resourceId, { force: true })
@@ -276,7 +315,7 @@ function refresh(): void {
  * one thing you cannot then do anything with. It selects instead, and "Open
  * original" is still there in the action bar for when leaving IS the intent.
  */
-const selected = ref<{ groupKey: string; item: GalleryItem } | null>(null)
+const selected = ref<GalleryItem | null>(null)
 const sourceMessage = ref('')
 const sourceFailed = ref(false)
 
@@ -284,30 +323,46 @@ const sourceMessageClass = computed(() =>
   sourceFailed.value ? 'text-error' : 'text-success',
 )
 
-/** Upstream previews carry their url in `card`; generated rows do not. */
+/*
+ * An id says which kind of image it is: a generated ArtImage keeps its numeric
+ * row id, an upstream preview is `upstream-<ResourcePreview id>`, and the
+ * Resource's own cover url is the bare string `civitai`. That distinction used
+ * to ride on which section the tile was in; with one grid it has to come from
+ * the item itself.
+ */
 const selectedUrl = computed<string>(() => {
-  const item = selected.value?.item
-  if (selected.value?.groupKey !== 'civitai') return ''
-  return typeof item?.card === 'string' ? item.card : ''
+  const card = selected.value?.card
+  return typeof card === 'string' ? card : ''
 })
 
 const selectedPreviewId = computed<number | null>(() => {
-  if (selected.value?.groupKey !== 'civitai') return null
-  const id = String(selected.value.item.id ?? '')
-  const parsed = Number(id.replace(/^upstream-/, ''))
+  const id = String(selected.value?.id ?? '')
+  if (!id.startsWith('upstream-')) return null
+  const parsed = Number(id.slice('upstream-'.length))
   return Number.isInteger(parsed) && parsed > 0 ? parsed : null
 })
 
 const selectedArtImageId = computed<number | null>(() =>
-  typeof selected.value?.item.id === 'number' ? selected.value.item.id : null,
+  typeof selected.value?.id === 'number' ? selected.value.id : null,
 )
 
 const selectedLabel = computed<string>(() => {
   if (!selected.value) return ''
-  if (selectedPreviewId.value)
+  if (selectedPreviewId.value) {
     return `Civitai sample #${selectedPreviewId.value}`
-  return `Generated image #${selectedArtImageId.value}`
+  }
+  if (selectedArtImageId.value) {
+    return `Generated image #${selectedArtImageId.value}`
+  }
+  // The Resource's own cover url, which is a url and nothing else: it can be
+  // opened, but there is no row behind it to load bytes from.
+  return 'Civitai cover'
 })
+
+/** Only a row-backed image can be turned into bytes. */
+const canUseAsSource = computed<boolean>(
+  () => selectedPreviewId.value !== null || selectedArtImageId.value !== null,
+)
 
 const sourceBusy = computed<boolean>(() => {
   if (selectedPreviewId.value) {
@@ -323,20 +378,18 @@ const sourceBusy = computed<boolean>(() => {
   return false
 })
 
-function openItem(groupKey: string, item: GalleryItem): void {
-  selected.value = { groupKey, item }
+function openItem(item: GalleryItem): void {
+  selected.value = item
   sourceMessage.value = ''
   sourceFailed.value = false
 
   // The generated rows still tell the page which ArtImage is in hand, which is
   // what the resource card uses to swap its own face.
-  if (groupKey !== 'civitai' && typeof item.id === 'number') {
-    emit('select', item.id)
-  }
+  if (typeof item.id === 'number') emit('select', item.id)
 }
 
 async function useSelectedAsSource(): Promise<void> {
-  if (!selected.value) return
+  if (!selected.value || !canUseAsSource.value) return
   sourceMessage.value = ''
   sourceFailed.value = false
 

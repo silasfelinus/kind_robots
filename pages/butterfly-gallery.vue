@@ -1,5 +1,6 @@
 <template>
   <main
+    ref="pageRootRef"
     class="butterfly-gallery-page kr-stage kr-scroll h-full min-h-0 overflow-auto"
   >
     <div v-if="!ready" class="grid h-full min-h-80 place-items-center">
@@ -489,10 +490,15 @@ import {
   computeButterflyIntroTumblePlan,
   type ButterflyIntroTumbleFrame,
 } from '@/stores/helpers/butterflyGalleryIntro'
+import {
+  presetShortcutKey,
+  resolveButterflyShortcutIntent,
+} from '@/stores/helpers/butterflyGalleryShortcuts'
 
 const userStore = useUserStore()
 const gallery = useButterflyGalleryStore()
 const ready = ref(false)
+const pageRootRef = ref<HTMLElement | null>(null)
 const infoExpanded = ref(false)
 const dropSequence = ref(0)
 const fadeReveal = ref(false)
@@ -577,13 +583,16 @@ onMounted(async () => {
 
   window.addEventListener('resize', invalidateFunnelDrop)
   document.addEventListener('visibilitychange', invalidateFunnelDrop)
-  window.addEventListener('keydown', handleSortingKeydown)
+  // Bound on the page's own root, not `window`: sorting shortcuts must only
+  // fire for keydowns that bubble from inside the gallery, never while focus
+  // sits on unrelated site chrome outside this page (PR review on t-020).
+  pageRootRef.value?.addEventListener('keydown', handleSortingKeydown)
 })
 
 onBeforeUnmount(() => {
   window.removeEventListener('resize', invalidateFunnelDrop)
   document.removeEventListener('visibilitychange', invalidateFunnelDrop)
-  window.removeEventListener('keydown', handleSortingKeydown)
+  pageRootRef.value?.removeEventListener('keydown', handleSortingKeydown)
   reducedMotionMql?.removeEventListener('change', handleReducedMotionChange)
   setIntroKeydownListener(false)
   clearIntroTimers()
@@ -819,10 +828,6 @@ function presetLabel(label: string): string {
   return label.replace(/^\d★\s*\+?\s*/, '')
 }
 
-function presetShortcutKey(label: string): string | undefined {
-  return label.match(/(\d)★/)?.[1]
-}
-
 function isEditableTarget(target: EventTarget | null): boolean {
   if (!(target instanceof HTMLElement)) return false
   return (
@@ -837,44 +842,31 @@ function isEditableTarget(target: EventTarget | null): boolean {
  * selected image into the matching-rating preset bin, Delete trashes it, and
  * the arrow keys move the pile selection -- all mirroring onBinClick/
  * onSelectPileEntry so keyboard and drag/click stay behaviorally identical.
- * Ignored while typing in a filter field or while the gallery isn't `ready`
- * (dragging/saving/intro), and never touches keys the browser or app chrome
- * already owns (no modifiers, no Tab/Escape/Enter/Space interception). */
+ * The guard conditions (editable target, modifier keys, gallery not
+ * `ready`, no selection for sort/trash) live in the pure, unit-tested
+ * resolveButterflyShortcutIntent(); this handler is just DOM plumbing, bound
+ * on the page's own root element rather than `window` so it only ever fires
+ * for keydowns that actually bubble from inside the gallery. */
 async function handleSortingKeydown(event: KeyboardEvent): Promise<void> {
-  if (event.defaultPrevented || event.altKey || event.ctrlKey || event.metaKey)
-    return
-  if (isEditableTarget(event.target)) return
-  if (gallery.status !== 'ready') return
+  if (event.defaultPrevented) return
 
-  if (event.key === 'ArrowRight' || event.key === 'ArrowLeft') {
-    const ids = pileEntries.value.map((entry) => entry.id)
-    if (!ids.length) return
-    event.preventDefault()
-    const currentIndex = ids.indexOf(gallery.selectedImageId ?? -1)
-    if (currentIndex === -1) {
-      onSelectPileEntry(ids[0]!)
-      return
-    }
-    const nextIndex = currentIndex + (event.key === 'ArrowRight' ? 1 : -1)
-    if (nextIndex < 0 || nextIndex >= ids.length) return
-    onSelectPileEntry(ids[nextIndex]!)
-    return
-  }
+  const intent = resolveButterflyShortcutIntent({
+    key: event.key,
+    hasModifier: event.altKey || event.ctrlKey || event.metaKey,
+    isEditableTarget: isEditableTarget(event.target),
+    status: gallery.status,
+    selectedEntryId: gallery.selectedImageId,
+    pileEntryIds: pileEntries.value.map((entry) => entry.id),
+    leftBins: gallery.leftBins,
+  })
+  if (!intent) return
 
-  if (!gallery.selectedEntry) return
-
-  if (/^[1-5]$/.test(event.key)) {
-    const bin = gallery.leftBins.find(
-      (candidate) => presetShortcutKey(candidate.label) === event.key,
-    )
-    if (!bin) return
-    event.preventDefault()
-    await onBinClick(bin.id)
-    return
-  }
-
-  if (event.key === 'Delete') {
-    event.preventDefault()
+  event.preventDefault()
+  if (intent.type === 'select') {
+    onSelectPileEntry(intent.entryId)
+  } else if (intent.type === 'sort') {
+    await onBinClick(intent.binId)
+  } else {
     await onBinClick('trash')
   }
 }

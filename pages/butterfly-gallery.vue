@@ -1,5 +1,5 @@
 <template>
-  <main class="butterfly-gallery-page h-full min-h-0 overflow-hidden">
+  <main class="butterfly-gallery-page kr-stage kr-scroll h-full min-h-0 overflow-auto">
     <div v-if="!ready" class="grid h-full min-h-80 place-items-center">
       <span class="kr-spinner-lg-primary" />
     </div>
@@ -352,7 +352,8 @@ function pileStyle(index: number, total: number): Record<string, string> {
   position: relative;
   isolation: isolate;
   width: 100%;
-  min-height: clamp(680px, calc(100vh - 4.5rem), 940px);
+  height: 100%;
+  min-height: 680px;
   overflow: hidden;
   background: var(--color-base-200);
   color: var(--color-base-content);

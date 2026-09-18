@@ -1117,6 +1117,9 @@ jobs:
       - name: Butterfly Gallery funnel-drop motion contract
         run: npm run test:butterfly-gallery-motion
 
+      - name: Butterfly Gallery intro orchestration contract
+        run: npm run test:butterfly-gallery-intro
+
       - name: Fetch main for capture-group guard diff
         run: git fetch origin main
 

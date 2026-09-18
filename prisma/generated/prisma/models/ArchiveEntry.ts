@@ -33,6 +33,11 @@ import type * as Prisma from "../internal/prismaNamespace"
  * formal Prisma relation -- the same convention ModelBuildItem/
  * ModelBuildArtifact already use for their own artImageId -- so this ledger
  * never requires a schema change to ArtImage or ArtCollection.
+ * `preQuarantineRelativePath` (t-012) records the entry's real location
+ * immediately before a quarantine ("delete") relocated it into the trash
+ * subtree, so a later restore can move the file back to where it came from;
+ * null for an entry that has never been quarantined, or one quarantined
+ * while its process state was already MISSING (nothing to move back).
  */
 export type ArchiveEntryModel = runtime.Types.Result.DefaultSelection<Prisma.$ArchiveEntryPayload>
 
@@ -78,6 +83,7 @@ export type ArchiveEntryMinAggregateOutputType = {
   extractedMetadata: string | null
   matchSummary: string | null
   isActive: boolean | null
+  preQuarantineRelativePath: string | null
 }
 
 export type ArchiveEntryMaxAggregateOutputType = {
@@ -98,6 +104,7 @@ export type ArchiveEntryMaxAggregateOutputType = {
   extractedMetadata: string | null
   matchSummary: string | null
   isActive: boolean | null
+  preQuarantineRelativePath: string | null
 }
 
 export type ArchiveEntryCountAggregateOutputType = {
@@ -118,6 +125,7 @@ export type ArchiveEntryCountAggregateOutputType = {
   extractedMetadata: number
   matchSummary: number
   isActive: number
+  preQuarantineRelativePath: number
   _all: number
 }
 
@@ -156,6 +164,7 @@ export type ArchiveEntryMinAggregateInputType = {
   extractedMetadata?: true
   matchSummary?: true
   isActive?: true
+  preQuarantineRelativePath?: true
 }
 
 export type ArchiveEntryMaxAggregateInputType = {
@@ -176,6 +185,7 @@ export type ArchiveEntryMaxAggregateInputType = {
   extractedMetadata?: true
   matchSummary?: true
   isActive?: true
+  preQuarantineRelativePath?: true
 }
 
 export type ArchiveEntryCountAggregateInputType = {
@@ -196,6 +206,7 @@ export type ArchiveEntryCountAggregateInputType = {
   extractedMetadata?: true
   matchSummary?: true
   isActive?: true
+  preQuarantineRelativePath?: true
   _all?: true
 }
 
@@ -303,6 +314,7 @@ export type ArchiveEntryGroupByOutputType = {
   extractedMetadata: string | null
   matchSummary: string | null
   isActive: boolean
+  preQuarantineRelativePath: string | null
   _count: ArchiveEntryCountAggregateOutputType | null
   _avg: ArchiveEntryAvgAggregateOutputType | null
   _sum: ArchiveEntrySumAggregateOutputType | null
@@ -346,6 +358,7 @@ export type ArchiveEntryWhereInput = {
   extractedMetadata?: Prisma.StringNullableFilter<"ArchiveEntry"> | string | null
   matchSummary?: Prisma.StringNullableFilter<"ArchiveEntry"> | string | null
   isActive?: Prisma.BoolFilter<"ArchiveEntry"> | boolean
+  preQuarantineRelativePath?: Prisma.StringNullableFilter<"ArchiveEntry"> | string | null
 }
 
 export type ArchiveEntryOrderByWithRelationInput = {
@@ -366,6 +379,7 @@ export type ArchiveEntryOrderByWithRelationInput = {
   extractedMetadata?: Prisma.SortOrderInput | Prisma.SortOrder
   matchSummary?: Prisma.SortOrderInput | Prisma.SortOrder
   isActive?: Prisma.SortOrder
+  preQuarantineRelativePath?: Prisma.SortOrderInput | Prisma.SortOrder
   _relevance?: Prisma.ArchiveEntryOrderByRelevanceInput
 }
 
@@ -390,6 +404,7 @@ export type ArchiveEntryWhereUniqueInput = Prisma.AtLeast<{
   extractedMetadata?: Prisma.StringNullableFilter<"ArchiveEntry"> | string | null
   matchSummary?: Prisma.StringNullableFilter<"ArchiveEntry"> | string | null
   isActive?: Prisma.BoolFilter<"ArchiveEntry"> | boolean
+  preQuarantineRelativePath?: Prisma.StringNullableFilter<"ArchiveEntry"> | string | null
 }, "id" | "relativePath">
 
 export type ArchiveEntryOrderByWithAggregationInput = {
@@ -410,6 +425,7 @@ export type ArchiveEntryOrderByWithAggregationInput = {
   extractedMetadata?: Prisma.SortOrderInput | Prisma.SortOrder
   matchSummary?: Prisma.SortOrderInput | Prisma.SortOrder
   isActive?: Prisma.SortOrder
+  preQuarantineRelativePath?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.ArchiveEntryCountOrderByAggregateInput
   _avg?: Prisma.ArchiveEntryAvgOrderByAggregateInput
   _max?: Prisma.ArchiveEntryMaxOrderByAggregateInput
@@ -438,6 +454,7 @@ export type ArchiveEntryScalarWhereWithAggregatesInput = {
   extractedMetadata?: Prisma.StringNullableWithAggregatesFilter<"ArchiveEntry"> | string | null
   matchSummary?: Prisma.StringNullableWithAggregatesFilter<"ArchiveEntry"> | string | null
   isActive?: Prisma.BoolWithAggregatesFilter<"ArchiveEntry"> | boolean
+  preQuarantineRelativePath?: Prisma.StringNullableWithAggregatesFilter<"ArchiveEntry"> | string | null
 }
 
 export type ArchiveEntryCreateInput = {
@@ -457,6 +474,7 @@ export type ArchiveEntryCreateInput = {
   extractedMetadata?: string | null
   matchSummary?: string | null
   isActive?: boolean
+  preQuarantineRelativePath?: string | null
 }
 
 export type ArchiveEntryUncheckedCreateInput = {
@@ -477,6 +495,7 @@ export type ArchiveEntryUncheckedCreateInput = {
   extractedMetadata?: string | null
   matchSummary?: string | null
   isActive?: boolean
+  preQuarantineRelativePath?: string | null
 }
 
 export type ArchiveEntryUpdateInput = {
@@ -496,6 +515,7 @@ export type ArchiveEntryUpdateInput = {
   extractedMetadata?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   matchSummary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  preQuarantineRelativePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type ArchiveEntryUncheckedUpdateInput = {
@@ -516,6 +536,7 @@ export type ArchiveEntryUncheckedUpdateInput = {
   extractedMetadata?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   matchSummary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  preQuarantineRelativePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type ArchiveEntryCreateManyInput = {
@@ -536,6 +557,7 @@ export type ArchiveEntryCreateManyInput = {
   extractedMetadata?: string | null
   matchSummary?: string | null
   isActive?: boolean
+  preQuarantineRelativePath?: string | null
 }
 
 export type ArchiveEntryUpdateManyMutationInput = {
@@ -555,6 +577,7 @@ export type ArchiveEntryUpdateManyMutationInput = {
   extractedMetadata?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   matchSummary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  preQuarantineRelativePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type ArchiveEntryUncheckedUpdateManyInput = {
@@ -575,6 +598,7 @@ export type ArchiveEntryUncheckedUpdateManyInput = {
   extractedMetadata?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   matchSummary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  preQuarantineRelativePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type ArchiveEntryOrderByRelevanceInput = {
@@ -601,6 +625,7 @@ export type ArchiveEntryCountOrderByAggregateInput = {
   extractedMetadata?: Prisma.SortOrder
   matchSummary?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
+  preQuarantineRelativePath?: Prisma.SortOrder
 }
 
 export type ArchiveEntryAvgOrderByAggregateInput = {
@@ -629,6 +654,7 @@ export type ArchiveEntryMaxOrderByAggregateInput = {
   extractedMetadata?: Prisma.SortOrder
   matchSummary?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
+  preQuarantineRelativePath?: Prisma.SortOrder
 }
 
 export type ArchiveEntryMinOrderByAggregateInput = {
@@ -649,6 +675,7 @@ export type ArchiveEntryMinOrderByAggregateInput = {
   extractedMetadata?: Prisma.SortOrder
   matchSummary?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
+  preQuarantineRelativePath?: Prisma.SortOrder
 }
 
 export type ArchiveEntrySumOrderByAggregateInput = {
@@ -687,6 +714,7 @@ export type ArchiveEntrySelect<ExtArgs extends runtime.Types.Extensions.Internal
   extractedMetadata?: boolean
   matchSummary?: boolean
   isActive?: boolean
+  preQuarantineRelativePath?: boolean
 }, ExtArgs["result"]["archiveEntry"]>
 
 
@@ -709,9 +737,10 @@ export type ArchiveEntrySelectScalar = {
   extractedMetadata?: boolean
   matchSummary?: boolean
   isActive?: boolean
+  preQuarantineRelativePath?: boolean
 }
 
-export type ArchiveEntryOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "contentHash" | "relativePath" | "parentFolder" | "fileSize" | "fileMtime" | "artImageId" | "folderCollectionId" | "processState" | "matchState" | "resourceMatchLocked" | "rating" | "extractedMetadata" | "matchSummary" | "isActive", ExtArgs["result"]["archiveEntry"]>
+export type ArchiveEntryOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "contentHash" | "relativePath" | "parentFolder" | "fileSize" | "fileMtime" | "artImageId" | "folderCollectionId" | "processState" | "matchState" | "resourceMatchLocked" | "rating" | "extractedMetadata" | "matchSummary" | "isActive" | "preQuarantineRelativePath", ExtArgs["result"]["archiveEntry"]>
 
 export type $ArchiveEntryPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "ArchiveEntry"
@@ -734,6 +763,7 @@ export type $ArchiveEntryPayload<ExtArgs extends runtime.Types.Extensions.Intern
     extractedMetadata: string | null
     matchSummary: string | null
     isActive: boolean
+    preQuarantineRelativePath: string | null
   }, ExtArgs["result"]["archiveEntry"]>
   composites: {}
 }
@@ -1120,6 +1150,7 @@ export interface ArchiveEntryFieldRefs {
   readonly extractedMetadata: Prisma.FieldRef<"ArchiveEntry", 'String'>
   readonly matchSummary: Prisma.FieldRef<"ArchiveEntry", 'String'>
   readonly isActive: Prisma.FieldRef<"ArchiveEntry", 'Boolean'>
+  readonly preQuarantineRelativePath: Prisma.FieldRef<"ArchiveEntry", 'String'>
 }
     
 

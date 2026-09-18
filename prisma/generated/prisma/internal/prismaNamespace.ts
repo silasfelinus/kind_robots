@@ -8095,7 +8095,8 @@ export const ArchiveEntryScalarFieldEnum = {
   rating: 'rating',
   extractedMetadata: 'extractedMetadata',
   matchSummary: 'matchSummary',
-  isActive: 'isActive'
+  isActive: 'isActive',
+  preQuarantineRelativePath: 'preQuarantineRelativePath'
 } as const
 
 export type ArchiveEntryScalarFieldEnum = (typeof ArchiveEntryScalarFieldEnum)[keyof typeof ArchiveEntryScalarFieldEnum]
@@ -10298,7 +10299,8 @@ export const ArchiveEntryOrderByRelevanceFieldEnum = {
   relativePath: 'relativePath',
   parentFolder: 'parentFolder',
   extractedMetadata: 'extractedMetadata',
-  matchSummary: 'matchSummary'
+  matchSummary: 'matchSummary',
+  preQuarantineRelativePath: 'preQuarantineRelativePath'
 } as const
 
 export type ArchiveEntryOrderByRelevanceFieldEnum = (typeof ArchiveEntryOrderByRelevanceFieldEnum)[keyof typeof ArchiveEntryOrderByRelevanceFieldEnum]

@@ -36,19 +36,21 @@ export type ArchiveEntryDetail = {
   folderCollection: null | { id: number; label: string | null; parentFolder: string | null }
 }
 
-type ArchiveFilters = { search: string; folderCollectionId: string; processState: string; matchState: string; rating: string }
+type ArchiveFilters = { search: string; folderCollectionId: string; processState: string; matchState: string; rating: string; includeInactive: boolean }
 type ListPayload = { entries: ArchiveEntrySummary[]; page: number; pageSize: number; total: number }
+type ActionPayload = { alreadyQuarantined?: boolean; alreadyActive?: boolean }
 
 export const useArtArchiveStore = defineStore('artArchiveStore', () => {
   const entries = ref<ArchiveEntrySummary[]>([])
   const detail = ref<ArchiveEntryDetail | null>(null)
   const loading = ref(false)
   const detailLoading = ref(false)
+  const actionPending = ref(false)
   const error = ref('')
   const total = ref(0)
   const page = ref(1)
   const pageSize = ref(60)
-  const filters = ref<ArchiveFilters>({ search: '', folderCollectionId: '', processState: '', matchState: '', rating: '' })
+  const filters = ref<ArchiveFilters>({ search: '', folderCollectionId: '', processState: '', matchState: '', rating: '', includeInactive: false })
 
   const folders = computed(() => {
     const byId = new Map<number, string>()
@@ -64,7 +66,7 @@ export const useArtArchiveStore = defineStore('artArchiveStore', () => {
     loading.value = true
     error.value = ''
     const params = new URLSearchParams({ page: String(page.value), pageSize: String(pageSize.value) })
-    for (const [key, value] of Object.entries(filters.value)) if (value) params.set(key, value)
+    for (const [key, value] of Object.entries(filters.value)) if (value) params.set(key, String(value))
     const response = await performFetch<ListPayload>(`/api/admin/art-archive/entries?${params}`)
     if (response.success && response.data) {
       entries.value = response.data.entries
@@ -86,5 +88,27 @@ export const useArtArchiveStore = defineStore('artArchiveStore', () => {
 
   function clearSelection() { detail.value = null }
 
-  return { entries, detail, loading, detailLoading, error, total, page, pageSize, pageCount, filters, folders, fetchEntries, selectEntry, clearSelection }
+  /** Shared by quarantineEntry/restoreEntry (art-archive/t-012): posts the
+   * action, then refreshes the list and selection from the server rather
+   * than guessing the resulting isActive/path state locally -- both
+   * endpoints are idempotent no-ops when already in the target state, so a
+   * refetch is cheap and always correct. */
+  async function runEntryAction(id: number, path: 'quarantine' | 'restore'): Promise<boolean> {
+    actionPending.value = true
+    error.value = ''
+    const response = await performFetch<ActionPayload>(`/api/admin/art-archive/entries/${id}/${path}`, { method: 'POST' })
+    if (response.success) {
+      if (detail.value?.entry.id === id) clearSelection()
+      await fetchEntries()
+    } else {
+      error.value = response.message || `Could not ${path} archive entry #${id}.`
+    }
+    actionPending.value = false
+    return response.success
+  }
+
+  function quarantineEntry(id: number) { return runEntryAction(id, 'quarantine') }
+  function restoreEntry(id: number) { return runEntryAction(id, 'restore') }
+
+  return { entries, detail, loading, detailLoading, actionPending, error, total, page, pageSize, pageCount, filters, folders, fetchEntries, selectEntry, clearSelection, quarantineEntry, restoreEntry }
 })

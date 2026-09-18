@@ -35,6 +35,7 @@ import {
   getArtImageAccessContext,
 } from '~/server/utils/artImageAccess'
 import { listEntityArtHistory } from '~/server/utils/entityArt'
+import { withImageVersion } from '~/utils/artImageSource'
 
 export type ResourceArtOrigin = 'preview' | 'lora' | 'checkpoint' | 'entity'
 
@@ -232,10 +233,32 @@ export default defineEventHandler(async (event) => {
       return bAt - aAt
     })
 
+    /*
+     * STAMP EVERY RENDERABLE PATH WITH ITS OWN updatedAt.
+     *
+     * A LoRA probe is an OVERWRITE retry: it writes the new render over the
+     * same `…/<slug>-preview-1.webp`, so the URL is stable while the picture
+     * behind it is not, and a browser keeps serving the copy it already has.
+     * The queue card looked right only because it goes through
+     * `/api/art/images/:id/file?v=<updatedAt>`; this gallery and the object
+     * card handed out the bare path and showed whichever render was cached
+     * first. Silas, 2026-09-18: "I just see the original."
+     */
+    const versioned = images.map((row) => {
+      const next = { ...row }
+      for (const key of ['imagePath', 'thumbnailPath', 'cardPath'] as const) {
+        const value = next[key]
+        if (typeof value === 'string' && value.trim()) {
+          next[key] = withImageVersion(value, next.updatedAt as string | null)
+        }
+      }
+      return next
+    })
+
     event.node.res.statusCode = 200
     return {
       success: true,
-      message: `Loaded ${images.length} image(s) for ${resource.name}.`,
+      message: `Loaded ${versioned.length} image(s) for ${resource.name}.`,
       data: {
         resourceId: resource.id,
         resourceType: resource.resourceType,
@@ -247,9 +270,9 @@ export default defineEventHandler(async (event) => {
          * in the author's own order.
          */
         upstreamPreviews,
-        images,
+        images: versioned,
         counts: {
-          total: images.length,
+          total: versioned.length,
           lora: loraUses.length,
           checkpoint: checkpointUses.length,
           upstream: upstreamPreviews.length,

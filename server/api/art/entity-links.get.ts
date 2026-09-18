@@ -16,6 +16,7 @@ import { errorHandler } from '../../utils/error'
 import { requireMachineUser } from '../../utils/authGuard'
 import type { EntityArtType } from '../../utils/entityArt'
 import { entityArtHref, entityArtRefKey } from '~/utils/entityArtLink'
+import { withImageVersion } from '~/utils/artImageSource'
 
 const MAX_REFS = 400
 
@@ -51,29 +52,58 @@ const CARD_FIELDS = {
    * Mirrors resource-card.vue's precedence.
    */
   ArtImage: {
-    select: { id: true, thumbnailPath: true, imagePath: true, path: true },
+    // updatedAt rides along as the cache key: an OVERWRITE retry replaces this
+    // ArtImage's bytes at the SAME path, so without it the card keeps showing
+    // whichever render the browser cached first.
+    select: {
+      id: true,
+      updatedAt: true,
+      thumbnailPath: true,
+      imagePath: true,
+      path: true,
+    },
   },
 } as const
 
 const LOOKUPS: Record<EntityArtType, EntityLookup> = {
   character: {
-    findMany: (ids) => prisma.character.findMany({ where: { id: { in: ids } }, select: { id: true, name: true, ...CARD_FIELDS } }),
+    findMany: (ids) =>
+      prisma.character.findMany({
+        where: { id: { in: ids } },
+        select: { id: true, name: true, ...CARD_FIELDS },
+      }),
     label: (r) => String(r.name || ''),
   },
   scenario: {
-    findMany: (ids) => prisma.scenario.findMany({ where: { id: { in: ids } }, select: { id: true, title: true, description: true, ...CARD_FIELDS } }),
+    findMany: (ids) =>
+      prisma.scenario.findMany({
+        where: { id: { in: ids } },
+        select: { id: true, title: true, description: true, ...CARD_FIELDS },
+      }),
     label: (r) => String(r.title || ''),
   },
   reward: {
-    findMany: (ids) => prisma.reward.findMany({ where: { id: { in: ids } }, select: { id: true, name: true, description: true, ...CARD_FIELDS } }),
+    findMany: (ids) =>
+      prisma.reward.findMany({
+        where: { id: { in: ids } },
+        select: { id: true, name: true, description: true, ...CARD_FIELDS },
+      }),
     label: (r) => String(r.name || ''),
   },
   bot: {
-    findMany: (ids) => prisma.bot.findMany({ where: { id: { in: ids } }, select: { id: true, name: true, description: true, ...CARD_FIELDS } }),
+    findMany: (ids) =>
+      prisma.bot.findMany({
+        where: { id: { in: ids } },
+        select: { id: true, name: true, description: true, ...CARD_FIELDS },
+      }),
     label: (r) => String(r.name || ''),
   },
   dream: {
-    findMany: (ids) => prisma.dream.findMany({ where: { id: { in: ids } }, select: { id: true, title: true, description: true, ...CARD_FIELDS } }),
+    findMany: (ids) =>
+      prisma.dream.findMany({
+        where: { id: { in: ids } },
+        select: { id: true, title: true, description: true, ...CARD_FIELDS },
+      }),
     label: (r) => String(r.title || ''),
   },
   resource: {
@@ -81,32 +111,60 @@ const LOOKUPS: Record<EntityArtType, EntityLookup> = {
       prisma.resource.findMany({
         where: { id: { in: ids } },
         select: {
-          id: true, name: true, description: true, previewImageUrl: true,
-          isMature: true, resourceType: true, generation: true, ...CARD_FIELDS,
+          id: true,
+          name: true,
+          description: true,
+          previewImageUrl: true,
+          isMature: true,
+          resourceType: true,
+          generation: true,
+          ...CARD_FIELDS,
         },
       }),
     label: (r) => String(r.name || ''),
   },
   facet: {
-    findMany: (ids) => prisma.facet.findMany({ where: { id: { in: ids } }, select: { id: true, title: true, slug: true, description: true, ...CARD_FIELDS } }),
+    findMany: (ids) =>
+      prisma.facet.findMany({
+        where: { id: { in: ids } },
+        select: {
+          id: true,
+          title: true,
+          slug: true,
+          description: true,
+          ...CARD_FIELDS,
+        },
+      }),
     label: (r) => String(r.title || ''),
     slug: (r) => (r.slug ? String(r.slug) : null),
   },
   project: {
-    findMany: (ids) => prisma.project.findMany({ where: { id: { in: ids } }, select: { id: true, title: true, description: true, ...CARD_FIELDS } }),
+    findMany: (ids) =>
+      prisma.project.findMany({
+        where: { id: { in: ids } },
+        select: { id: true, title: true, description: true, ...CARD_FIELDS },
+      }),
     label: (r) => String(r.title || ''),
   },
   achievement: {
-    findMany: (ids) => prisma.achievement.findMany({ where: { id: { in: ids } }, select: { id: true, label: true, ...CARD_FIELDS } }),
+    findMany: (ids) =>
+      prisma.achievement.findMany({
+        where: { id: { in: ids } },
+        select: { id: true, label: true, ...CARD_FIELDS },
+      }),
     label: (r) => String(r.label || ''),
   },
 }
 
-function parseRefs(raw: unknown): Array<{ entityType: EntityArtType; entityId: number }> {
+function parseRefs(
+  raw: unknown,
+): Array<{ entityType: EntityArtType; entityId: number }> {
   const out = new Map<string, { entityType: EntityArtType; entityId: number }>()
   for (const part of String(raw || '').split(',')) {
     const [type, id] = part.split(':')
-    const entityType = String(type || '').trim().toLowerCase() as EntityArtType
+    const entityType = String(type || '')
+      .trim()
+      .toLowerCase() as EntityArtType
     const entityId = Number(id)
     if (!LOOKUPS[entityType]) continue
     if (!Number.isInteger(entityId) || entityId <= 0) continue
@@ -129,7 +187,10 @@ export default defineEventHandler(async (event) => {
 
     const byType = new Map<EntityArtType, number[]>()
     for (const ref of refs) {
-      byType.set(ref.entityType, [...(byType.get(ref.entityType) || []), ref.entityId])
+      byType.set(ref.entityType, [
+        ...(byType.get(ref.entityType) || []),
+        ref.entityId,
+      ])
     }
 
     const links: Record<string, unknown> = {}
@@ -144,7 +205,13 @@ export default defineEventHandler(async (event) => {
           if (!row) {
             // The object was deleted after its art was queued. Say so rather
             // than linking to a page that will silently select nothing.
-            links[key] = { entityType, entityId: id, label: null, href: null, exists: false }
+            links[key] = {
+              entityType,
+              entityId: id,
+              label: null,
+              href: null,
+              exists: false,
+            }
             continue
           }
           const slug = lookup.slug?.(row) ?? null
@@ -157,24 +224,41 @@ export default defineEventHandler(async (event) => {
             // Card fields. `isMature` rides along so the client can withhold
             // the image without a second lookup -- the maturity rule is an
             // account setting and this endpoint does not get to overrule it.
-            description: typeof row.description === 'string' ? row.description : null,
+            description:
+              typeof row.description === 'string' ? row.description : null,
             imagePath: typeof row.imagePath === 'string' ? row.imagePath : null,
             artImagePath: (() => {
-              const art = row.ArtImage as Record<string, unknown> | null | undefined
+              const art = row.ArtImage as
+                Record<string, unknown> | null | undefined
               if (!art) return null
-              for (const key of ['thumbnailPath', 'imagePath', 'path'] as const) {
+              for (const key of [
+                'thumbnailPath',
+                'imagePath',
+                'path',
+              ] as const) {
                 const value = art[key]
-                if (typeof value === 'string' && value.trim()) return value
+                if (typeof value === 'string' && value.trim()) {
+                  // Versioned, or a re-probed resource shows its OLD render
+                  // here while the queue card beside it shows the new one.
+                  return withImageVersion(
+                    value,
+                    art.updatedAt as Date | string | null | undefined,
+                  )
+                }
               }
               return null
             })(),
-            artImageId: typeof row.artImageId === 'number' ? row.artImageId : null,
+            artImageId:
+              typeof row.artImageId === 'number' ? row.artImageId : null,
             previewImageUrl:
-              typeof row.previewImageUrl === 'string' ? row.previewImageUrl : null,
+              typeof row.previewImageUrl === 'string'
+                ? row.previewImageUrl
+                : null,
             isMature: row.isMature === true,
             detail:
-              [row.resourceType, row.generation].filter((v) => typeof v === 'string').join(' · ') ||
-              null,
+              [row.resourceType, row.generation]
+                .filter((v) => typeof v === 'string')
+                .join(' · ') || null,
           }
         }
       }),

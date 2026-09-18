@@ -599,6 +599,9 @@ jobs:
       - name: Model Builder async poll-failure guard contract
         run: npm run test:model-builder-async-poll-failure-guard
 
+      - name: ArtQueue overwrite cache-invalidation contract
+        run: npm run test:artqueue-overwrite-cache-guard
+
       - name: Art queue poll-failure guard checker self-test
         run: npm run test:art-queue-poll-failure-guard-selftest
 

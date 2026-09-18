@@ -25,7 +25,8 @@ export type ArtMediaKind = 'image' | 'video' | 'none'
 
 export type ArtImageSourceDiag = {
   hasImageData: boolean
-  imageDataShape: 'data-url' | 'base64' | 'path-in-data-field' | 'unusable' | 'empty'
+  imageDataShape:
+    'data-url' | 'base64' | 'path-in-data-field' | 'unusable' | 'empty'
   fileType: string
   imagePath: string
   path: string
@@ -49,7 +50,10 @@ function isVideoType(fileType?: string | null, path?: string | null): boolean {
   return /\.(mp4|webm|mov|ogv|m4v)(\?|#|$)/i.test((path || '').trim())
 }
 
-function mediaMimeType(fileType: string | null | undefined, kind: 'image' | 'video'): string {
+function mediaMimeType(
+  fileType: string | null | undefined,
+  kind: 'image' | 'video',
+): string {
   const cleaned = (fileType || '').trim().toLowerCase()
   if (cleaned.includes('/')) return cleaned
   if (kind === 'video') {
@@ -119,7 +123,9 @@ export function normalizeMediaPath(value?: string | null): string {
  * the caller should render a <video>, not an <img>. `kind === 'none'` means
  * nothing renderable — `reason` says why (missing bytes vs. unusable path etc.).
  */
-export function resolveArtImageSource(image?: ArtImageLike | null): ArtImageSource {
+export function resolveArtImageSource(
+  image?: ArtImageLike | null,
+): ArtImageSource {
   const fileType = (image?.fileType || '').trim()
   const imagePath = (image?.imagePath || '').trim()
   const path = (image?.path || '').trim()
@@ -150,13 +156,25 @@ export function resolveArtImageSource(image?: ArtImageLike | null): ArtImageSour
   // 1) Inline bytes in imageData.
   if (rawData) {
     if (diag.imageDataShape === 'data-url') {
-      const kind: ArtMediaKind = rawData.startsWith('data:video/') ? 'video' : 'image'
-      return { src: rawData, kind, reason: 'inline data URL', diag: { ...diag, usedField: 'imageData' } }
+      const kind: ArtMediaKind = rawData.startsWith('data:video/')
+        ? 'video'
+        : 'image'
+      return {
+        src: rawData,
+        kind,
+        reason: 'inline data URL',
+        diag: { ...diag, usedField: 'imageData' },
+      }
     }
     if (diag.imageDataShape === 'base64') {
-      const kind: 'image' | 'video' = isVideoType(fileType, imagePath || path) ? 'video' : 'image'
+      const kind: 'image' | 'video' = isVideoType(fileType, imagePath || path)
+        ? 'video'
+        : 'image'
       const src = `data:${mediaMimeType(fileType, kind)};base64,${rawData}`
-      const reason = kind === 'video' ? `video result (fileType=${fileType || 'unknown'}) — render as <video>` : 'inline base64'
+      const reason =
+        kind === 'video'
+          ? `video result (fileType=${fileType || 'unknown'}) — render as <video>`
+          : 'inline base64'
       return { src, kind, reason, diag: { ...diag, usedField: 'imageData' } }
     }
     // 'path-in-data-field' falls through to path handling using imageData as a candidate.
@@ -179,8 +197,13 @@ export function resolveArtImageSource(image?: ArtImageLike | null): ArtImageSour
           : 'none'
   const normalized = normalizeMediaPath(pathCandidateRaw)
   if (normalized) {
-    const kind: 'image' | 'video' = isVideoType(fileType, normalized) ? 'video' : 'image'
-    const reason = kind === 'video' ? `video path (fileType=${fileType || 'unknown'}) — render as <video>` : `path (${usedField})`
+    const kind: 'image' | 'video' = isVideoType(fileType, normalized)
+      ? 'video'
+      : 'image'
+    const reason =
+      kind === 'video'
+        ? `video path (fileType=${fileType || 'unknown'}) — render as <video>`
+        : `path (${usedField})`
     return { src: normalized, kind, reason, diag: { ...diag, usedField } }
   }
 
@@ -196,4 +219,35 @@ export function resolveArtImageSource(image?: ArtImageLike | null): ArtImageSour
     reason = 'no usable image source on this record'
   }
   return { src: '', kind: 'none', reason, diag }
+}
+
+/**
+ * Stamp a renderable path with the ArtImage's own updatedAt.
+ *
+ * AN OVERWRITE RETRY REPLACES THE BYTES AT THE SAME PATH. A LoRA probe writes
+ * its render over `…/<slug>-preview-1.webp` in place, so the URL never changes
+ * while the picture behind it does -- and a browser, correctly, keeps showing
+ * the copy it already has. The ArtJob queue card looked right because it
+ * fetches through `/api/art/images/:id/file?v=<updatedAt>`; every surface using
+ * the bare static path showed whichever render it happened to cache first.
+ *
+ * Silas, 2026-09-18: "still getting incongruity between the object card and the
+ * new image … I just see the original."
+ *
+ * Same `?v=` key artJobImageVersion produces, so the two agree on what a
+ * version is. A path already carrying a version is left alone, and a missing or
+ * unparseable timestamp simply yields no cache-buster rather than a broken one.
+ */
+export function withImageVersion(
+  path: string | null | undefined,
+  updatedAt: Date | string | null | undefined,
+): string | null {
+  const value = String(path || '').trim()
+  if (!value) return null
+  if (/[?&]v=/.test(value)) return value
+
+  const stamp = updatedAt ? new Date(updatedAt).getTime() : Number.NaN
+  if (!Number.isFinite(stamp)) return value
+
+  return `${value}${value.includes('?') ? '&' : '?'}v=${stamp}`
 }

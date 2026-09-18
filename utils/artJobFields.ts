@@ -264,15 +264,22 @@ export function artJobOrigin(job: ArtJobFieldsSource): ArtJobOrigin {
   const narrative = asRecord(payload.narrativeContext)
   const product = scalar(narrative.product)
   if (product) {
-    return { kind: 'narrative', product, sessionId: scalar(narrative.sessionId) }
+    return {
+      kind: 'narrative',
+      product,
+      sessionId: scalar(narrative.sessionId),
+    }
   }
 
   const brainstorm = asRecord(payload.brainstormContext)
   const candidateId = scalar(brainstorm.candidateId)
   if (candidateId) return { kind: 'brainstorm', candidateId }
 
-  const dreamId = Number(scalar(payload.dreamId) || scalar(asRecord(payload.dream).id))
-  if (Number.isInteger(dreamId) && dreamId > 0) return { kind: 'dream', dreamId }
+  const dreamId = Number(
+    scalar(payload.dreamId) || scalar(asRecord(payload.dream).id),
+  )
+  if (Number.isInteger(dreamId) && dreamId > 0)
+    return { kind: 'dream', dreamId }
 
   return { kind: 'standalone' }
 }
@@ -291,4 +298,70 @@ export function artJobOriginLabel(origin: ArtJobOrigin): string {
     default:
       return 'Standalone generation'
   }
+}
+
+export type ArtJobOverwriteSource = ArtJobFieldsSource & {
+  status?: string | null
+}
+
+/**
+ * Which cached ArtImage ids an OVERWRITE retry has actually invalidated.
+ *
+ * A LoRA probe overwrites its resource's preview ArtImage in place, so the
+ * queue's whole visible page is usually `retry.mode: OVERWRITE` -- on
+ * 2026-09-18 all 20 DONE jobs on page 1 were. artJobStore used to drop the
+ * cached bytes for EVERY such job on every `fetchJobs`, and fetchJobs is the
+ * live poll, so each card blinked back to "Loading preview" every 15 seconds
+ * with no new render anywhere near it (Silas: "still getting artqueue elements
+ * refreshing even between new artimage creations").
+ *
+ * The job's own updatedAt already tells the two apart, and it is the same
+ * version string the image cache is keyed by. An id is stale only when
+ * something IS cached for it AND that cache is keyed to a different version --
+ * a genuine overwrite invalidates on the very next poll, a settled job never
+ * does.
+ *
+ * Kept here rather than inside the store so the rule can be asserted directly;
+ * it is a pure function of the payload and the cache.
+ */
+export function staleOverwriteImageIds(
+  jobs: ArtJobOverwriteSource[],
+  cachedVersionById: Record<number, string | undefined>,
+): number[] {
+  // Newest job wins when two on the same page claim one ArtImage id.
+  const versionById = new Map<number, string>()
+  const stampById = new Map<number, number>()
+
+  for (const job of jobs) {
+    const retry = asRecord(asRecord(job.payload).retry)
+    if (
+      job.status !== 'DONE' ||
+      retry.mode !== 'OVERWRITE' ||
+      typeof job.artImageId !== 'number'
+    ) {
+      continue
+    }
+
+    const id = job.artImageId
+    const parsed = job.updatedAt ? new Date(job.updatedAt).getTime() : 0
+    const stamp = Number.isFinite(parsed) ? parsed : 0
+    const seen = stampById.get(id)
+    if (seen !== undefined && seen >= stamp) continue
+
+    stampById.set(id, stamp)
+    versionById.set(id, artJobImageVersion(job))
+  }
+
+  const stale: number[] = []
+
+  for (const [id, version] of versionById) {
+    const cached = cachedVersionById[id]
+    // Nothing cached for this id, or cached at this exact version already:
+    // there is nothing stale to drop, and dropping it is what made the card
+    // blink.
+    if (cached === undefined || cached === version) continue
+    stale.push(id)
+  }
+
+  return stale
 }

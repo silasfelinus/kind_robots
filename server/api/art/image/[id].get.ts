@@ -5,7 +5,10 @@ import prisma from '../../../utils/prisma'
 import { errorHandler } from '../../../utils/error'
 import { validateApiKey } from '../../../utils/validateKey'
 import { userRoles } from '../../../utils/authUser'
-import { viewerShowsMature } from '../../../utils/contentAccess'
+import {
+  isMaturityRestricted,
+  viewerShowsMature,
+} from '../../../utils/contentAccess'
 
 type QueryValue = string | number | boolean | null | undefined | QueryValue[]
 
@@ -23,6 +26,8 @@ type AccessContext = {
   isAdmin: boolean
   showMature: boolean
   isAuthenticated: boolean
+  /** CHILD: the hard barrier, which the own-image carve-out does not lift. */
+  restricted: boolean
 }
 
 type ReadableArtImage = Pick<ArtImage, 'userId' | 'isPublic' | 'isMature'> &
@@ -88,6 +93,7 @@ async function getAccessContext(event: H3Event): Promise<AccessContext> {
       isAdmin: isAuthenticated && isAdminUser(user),
       showMature,
       isAuthenticated,
+      restricted: isMaturityRestricted(user),
     }
   } catch {
     return {
@@ -95,6 +101,7 @@ async function getAccessContext(event: H3Event): Promise<AccessContext> {
       isAdmin: false,
       showMature: false,
       isAuthenticated: false,
+      restricted: true,
     }
   }
 }
@@ -105,17 +112,28 @@ function canReadArtImage(
 ): boolean {
   if (access.isAdmin) return true
 
+  /*
+   * YOUR OWN IMAGE, FETCHED BY ID, IS YOURS. This route is how a tool loads the
+   * one image someone is already working with -- sceneAnimatorStore reads an
+   * animation source through it -- and taking that away from an opted-out adult
+   * mid-task is a bug, not a protection. A maturity-RESTRICTED account keeps the
+   * hard barrier even here: a CHILD should not have mature images, and hiding
+   * one is the protective direction.
+   *
+   * Deliberately narrow to this by-id route. Listings do not do this, because a
+   * grid is what someone else in the room can see.
+   */
+  const isOwner = Boolean(
+    access.isAuthenticated && access.userId && image.userId === access.userId,
+  )
+
+  if (isOwner && !access.restricted) return true
+
   if (!access.showMature && image.isMature) return false
 
   if (image.isPublic) return true
 
-  if (
-    access.isAuthenticated &&
-    access.userId &&
-    image.userId === access.userId
-  ) {
-    return true
-  }
+  if (isOwner) return true
 
   return false
 }

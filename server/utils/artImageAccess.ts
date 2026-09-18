@@ -97,7 +97,6 @@ export function buildArtImageWhere({
   isAdmin,
   showMature,
   isAuthenticated,
-  restricted,
 }: ArtImageAccessContext): Prisma.ArtImageWhereInput {
   const visibilityWhere: Prisma.ArtImageWhereInput = isAdmin
     ? {}
@@ -106,23 +105,17 @@ export function buildArtImageWhere({
       : { isPublic: true }
 
   /*
-   * MATURITY DOES NOT STAND BETWEEN SOMEONE AND THEIR OWN IMAGES.
+   * NO OWN-ROWS CARVE-OUT ON A LISTING. Silas, 2026-09-18: "I might click the
+   * maturity toggle in order to safeguard the page display if I have people
+   * over." A safeguard that leaves your OWN mature rows on screen is not a
+   * safeguard -- on a browse surface, your own content is most of what is on it.
    *
-   * The preference is about what you are SHOWN of other people's content.
-   * Filtering your own renders out of your own tools is a bug, not a
-   * protection -- the scene animator and the forum art flow both fetch a
-   * specific image the person is already working with, and an opted-out adult
-   * would otherwise lose their own mature source mid-task.
-   *
-   * The carve-out is the PREFERENCE only. A maturity-restricted account keeps
-   * the hard barrier even on its own rows: a CHILD should not have mature
-   * images, and if one exists, hiding it is the protective direction.
+   * The carve-out belongs to a DIRECT fetch of one object you are working with
+   * (art/image/:id), not to a grid someone else may be looking at.
    */
   const matureWhere: Prisma.ArtImageWhereInput = showMature
     ? {}
-    : isAuthenticated && userId && !restricted
-      ? { OR: [{ isMature: false }, { userId }] }
-      : { isMature: false }
+    : { isMature: false }
 
   return {
     AND: [visibilityWhere, matureWhere],
@@ -144,7 +137,6 @@ export function buildArtCollectionWhere({
   isAdmin,
   showMature,
   isAuthenticated,
-  restricted,
 }: ArtImageAccessContext): Prisma.ArtCollectionWhereInput {
   const privacy: Prisma.ArtCollectionWhereInput = isAdmin
     ? {}
@@ -152,13 +144,7 @@ export function buildArtCollectionWhere({
       ? { OR: [{ isPublic: true }, { userId }] }
       : { isPublic: true }
 
-  const mature: Prisma.ArtCollectionWhereInput = showMature
-    ? {}
-    : isAuthenticated && userId && !restricted
-      ? { OR: [{ isMature: false }, { userId }] }
-      : { isMature: false }
-
-  return { AND: [privacy, mature] }
+  return { AND: [privacy, showMature ? {} : { isMature: false }] }
 }
 
 export function buildArtImageSelect(query: Record<string, QueryValue> = {}) {

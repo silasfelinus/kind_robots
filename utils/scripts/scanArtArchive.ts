@@ -7,7 +7,7 @@
 // ArchiveEntry/ArtImage; this script is deliberately read-only.
 //
 // Usage:
-//   ART_ARCHIVE_ROOT=/path/to/archive npx tsx utils/scripts/scanArtArchive.ts
+//   PRIVATE_PATH=/path/to/archive npx tsx utils/scripts/scanArtArchive.ts
 //   npx tsx utils/scripts/scanArtArchive.ts --root /path/to/archive
 import { getArtArchiveRoot } from '../../server/utils/artArchiveRoot'
 import { scanArchiveRoot } from '../../server/utils/artArchiveScanner'

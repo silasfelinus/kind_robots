@@ -1,5 +1,6 @@
 // /stores/artTrainerStore.ts
 import { defineStore } from 'pinia'
+import { blobToDataUri } from '~/utils/artImageSource'
 import { ref } from 'vue'
 import { performFetch } from '@/stores/utils'
 import type { ArtJobRecord } from '@/stores/artJobStore'
@@ -19,15 +20,6 @@ type TrainerRedoResponse = {
   sourceArtImageId: number
   mode: ArtTrainerRedoMode
   model: ArtTrainerRedoModel
-}
-
-function blobToDataUri(blob: Blob): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader()
-    reader.onload = () => resolve(String(reader.result || ''))
-    reader.onerror = () => reject(new Error('The source image could not be read.'))
-    reader.readAsDataURL(blob)
-  })
 }
 
 export const useArtTrainerStore = defineStore('artTrainerStore', () => {

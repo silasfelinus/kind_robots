@@ -264,6 +264,8 @@ type ArtStoreState = {
   isGenerating: boolean
   generationMessage: string
   generationMessageTone: 'success' | 'error'
+  /** What the loaded source image is, for the viewer. Nothing downstream reads it. */
+  sourceImageLabel: string
   lastGeneratedArtImage: ArtImage | null
   selectedGenerationCollectionId: number | null
   queueState: 'queued' | 'rendering' | null
@@ -375,6 +377,7 @@ export const useArtStore = defineStore('artStore', () => {
     isGenerating: false,
     generationMessage: '',
     generationMessageTone: 'success',
+    sourceImageLabel: '',
     lastGeneratedArtImage: null,
     selectedGenerationCollectionId: null,
     queueState: null,
@@ -714,6 +717,32 @@ export const useArtStore = defineStore('artStore', () => {
 
   function setArtForm(updates: Partial<GenerateArtData>): void {
     state.artForm = { ...state.artForm, ...updates }
+  }
+
+  /**
+   * Load an image the viewer picked as the starting point for the next
+   * generation.
+   *
+   * Silas, 2026-09-18: "we should be able to select them and modify them, even
+   * if they come from a civitai sample." Where the picture came from stops
+   * mattering here -- a finished ArtJob, an upstream Civitai sample, an upload
+   * -- because all three arrive as a `data:` URI, and artForm.sourceImageBase64
+   * is already what the enqueue payload carries.
+   *
+   * sourceImageId is cleared alongside it: that field names an ArtImage row on
+   * this site, and a Civitai sample has none. Leaving a stale id next to new
+   * bytes is how a job ends up recorded against the wrong parent image.
+   *
+   * `label` is only for telling the viewer what is loaded; nothing downstream
+   * reads it.
+   */
+  function setSourceImage(dataUri: string | null, label = ''): void {
+    state.artForm = {
+      ...state.artForm,
+      sourceImageBase64: dataUri,
+      sourceImageId: null,
+    }
+    state.sourceImageLabel = dataUri ? label : ''
   }
 
   function resetArtForm(overrides: Partial<GenerateArtData> = {}): void {
@@ -2093,6 +2122,7 @@ export const useArtStore = defineStore('artStore', () => {
     deselectArtImage,
     setHoverArtImage,
     setArtForm,
+    setSourceImage,
     resetArtForm,
     updateArtListSelection,
     clearArtListSelections,

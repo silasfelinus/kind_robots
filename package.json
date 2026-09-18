@@ -31,6 +31,7 @@
     "test:art-archive-reconcile-cli": "node utils/scripts/verifyReconcileArtArchiveCli.mjs",
     "test:art-archive-fileops": "tsx utils/scripts/verifyArtArchiveFileOps.test.ts",
     "test:art-archive-preset-modifiers": "tsx utils/scripts/verifyArtArchivePresetModifiers.test.ts",
+    "test:butterfly-gallery-actions": "tsx utils/scripts/verifyButterflyGalleryActions.test.ts",
     "art-archive:scan": "tsx utils/scripts/scanArtArchive.ts",
     "art-archive:import": "tsx utils/scripts/importArtArchive.ts",
     "art-archive:apply-resource-match": "tsx utils/scripts/applyArtArchiveResourceMatch.ts",

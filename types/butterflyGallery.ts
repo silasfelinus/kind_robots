@@ -121,3 +121,24 @@ export type ButterflyFeedPage = {
 export interface ButterflyGalleryFeedProvider {
   fetchPage(query: ButterflyFeedQuery): Promise<ButterflyFeedPage>
 }
+
+// -- Action contract (butterfly-gallery/t-007) -------------------------------
+//
+// The narrow write seam Butterfly Gallery needs from art-archive: mark
+// processed/unprocessed, set a 1-5 rating, trash (reversibly) and restore,
+// and add/remove collection membership. A fixture-backed adapter satisfies
+// this today (stores/helpers/butterflyGalleryActionAdapter.ts) so curation
+// actions are wired end-to-end against local state; a real art-archive-backed
+// adapter swaps in later (t-022) the same way the feed provider above does,
+// without the store or components changing. Butterfly Gallery never recreates
+// archive filesystem semantics itself -- every persistence intent flows
+// through one of these methods.
+
+export interface ButterflyGalleryActionAdapter {
+  setProcessed(entryId: number, processed: boolean): Promise<void>
+  setRating(entryId: number, rating: number | null): Promise<void>
+  trash(entryId: number): Promise<void>
+  restore(entryId: number): Promise<void>
+  addToCollection(entryId: number, collection: string): Promise<void>
+  removeFromCollection(entryId: number, collection: string): Promise<void>
+}

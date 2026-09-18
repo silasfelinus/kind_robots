@@ -1108,6 +1108,9 @@ jobs:
       - name: Art Archive preset modifiers contract
         run: npm run test:art-archive-preset-modifiers
 
+      - name: Butterfly Gallery curation-action contract
+        run: npm run test:butterfly-gallery-actions
+
       - name: Fetch main for capture-group guard diff
         run: git fetch origin main
 

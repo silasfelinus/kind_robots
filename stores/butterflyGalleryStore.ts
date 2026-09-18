@@ -1,5 +1,16 @@
 import { computed, ref } from 'vue'
 import { defineStore } from 'pinia'
+import { defaultButterflyGalleryActionAdapter } from '@/stores/helpers/butterflyGalleryActionAdapter'
+import {
+  applyAddToCollectionAction,
+  applyProcessedAction,
+  applyRatingAction,
+  applyRemoveFromCollectionAction,
+  applyRestoreAction,
+  applyTrashAction,
+  applyBinOutcome,
+  persistBinOutcome,
+} from '@/stores/helpers/butterflyGalleryActions'
 import { defaultButterflyGalleryFeedProvider } from '@/stores/helpers/butterflyGalleryFeedProvider'
 import { createDefaultButterflyBins } from '@/stores/helpers/butterflyGalleryFixtures'
 import {
@@ -230,8 +241,9 @@ export const useButterflyGalleryStore = defineStore(
 
     /** Drop the currently dragged (or explicitly passed) entry onto a bin,
      * running the state machine through dropping -> saving -> ready/error.
-     * Actual persistence is a fixture no-op today; t-007 wires real archive
-     * actions in behind this same entry point. */
+     * Persists through the injectable action adapter (a fixture no-op today;
+     * t-022 wires a real art-archive-backed adapter behind the same seam)
+     * before mutating local state. */
     async function dropOnBin(
       binId: string,
       entryId?: number,
@@ -254,6 +266,11 @@ export const useButterflyGalleryStore = defineStore(
 
       status.value = 'saving'
       try {
+        await persistBinOutcome(
+          defaultButterflyGalleryActionAdapter(),
+          entry.id,
+          bin,
+        )
         applyBinOutcome(entry, bin)
         lastSaveMessage.value = `Sorted into ${bin.label}.`
 
@@ -269,69 +286,132 @@ export const useButterflyGalleryStore = defineStore(
       }
     }
 
-    function applyBinOutcome(
-      entry: ButterflyPileEntry,
-      bin: ButterflyBinConfig,
-    ): void {
-      switch (bin.kind) {
-        case 'processed':
-          entry.processed = true
-          break
-        case 'unprocessed':
-          entry.processed = false
-          break
-        case 'trash':
-          entry.trashed = true
-          break
-        case 'needs-review':
-          entry.matchState = 'unmatched'
-          break
-        case 'collection': {
-          const collection =
-            typeof bin.payload.collection === 'string'
-              ? bin.payload.collection
-              : null
-          if (collection && !entry.collections.includes(collection)) {
-            entry.collections = [...entry.collections, collection]
-          }
-          break
-        }
-        case 'rating': {
-          const rating =
-            typeof bin.payload.rating === 'number' ? bin.payload.rating : null
-          if (rating !== null) entry.rating = rating
-          break
-        }
-        case 'preset': {
-          const rating =
-            typeof bin.payload.rating === 'number' ? bin.payload.rating : null
-          const collection =
-            typeof bin.payload.collection === 'string'
-              ? bin.payload.collection
-              : null
-          const folder =
-            typeof bin.payload.folder === 'string' ? bin.payload.folder : null
-          const processed =
-            typeof bin.payload.processed === 'boolean'
-              ? bin.payload.processed
-              : null
-
-          if (rating !== null) entry.rating = rating
-          if (collection && !entry.collections.includes(collection)) {
-            entry.collections = [...entry.collections, collection]
-          }
-          if (folder) entry.folder = folder
-          if (processed !== null) entry.processed = processed
-          break
-        }
-        default:
-          break
+    /** First-class curation actions (butterfly-gallery/t-007): each persists
+     * through the injectable action adapter before mutating local state, so
+     * a real adapter's failure never leaves the pile showing an outcome that
+     * was never actually saved. Usable independently of the sorting-bin
+     * drop flow above (quick-action drawer, keyboard shortcuts, batch
+     * actions) since they share the same pure appliers as dropOnBin. */
+    async function setProcessed(
+      entryId: number,
+      processed: boolean,
+    ): Promise<boolean> {
+      const entry = entryById(entryId)
+      if (!entry) return false
+      try {
+        await defaultButterflyGalleryActionAdapter().setProcessed(
+          entryId,
+          processed,
+        )
+        applyProcessedAction(entry, processed)
+        return true
+      } catch (error) {
+        errorMessage.value =
+          error instanceof Error
+            ? error.message
+            : 'Could not update processed state.'
+        status.value = 'error'
+        return false
       }
     }
 
-    function setRating(entryId: number, rating: number | null): void {
+    async function setRating(
+      entryId: number,
+      rating: number | null,
+    ): Promise<boolean> {
       const entry = entryById(entryId)
-      if (entry) entry.rating = rating
+      if (!entry) return false
+      try {
+        await defaultButterflyGalleryActionAdapter().setRating(entryId, rating)
+        applyRatingAction(entry, rating)
+        return true
+      } catch (error) {
+        errorMessage.value =
+          error instanceof Error ? error.message : 'Could not update rating.'
+        status.value = 'error'
+        return false
+      }
+    }
+
+    /** Reversible: sets the local trashed flag without ever dropping the
+     * entry from the pile, so restoreEntry can always undo it. */
+    async function trashEntry(entryId: number): Promise<boolean> {
+      const entry = entryById(entryId)
+      if (!entry) return false
+      try {
+        await defaultButterflyGalleryActionAdapter().trash(entryId)
+        applyTrashAction(entry)
+        if (selectedImageId.value === entry.id) selectNextFromPile()
+        return true
+      } catch (error) {
+        errorMessage.value =
+          error instanceof Error ? error.message : 'Could not trash that entry.'
+        status.value = 'error'
+        return false
+      }
+    }
+
+    async function restoreEntry(entryId: number): Promise<boolean> {
+      const entry = entryById(entryId)
+      if (!entry) return false
+      try {
+        await defaultButterflyGalleryActionAdapter().restore(entryId)
+        applyRestoreAction(entry)
+        return true
+      } catch (error) {
+        errorMessage.value =
+          error instanceof Error
+            ? error.message
+            : 'Could not restore that entry.'
+        status.value = 'error'
+        return false
+      }
+    }
+
+    async function addToCollection(
+      entryId: number,
+      collection: string,
+    ): Promise<boolean> {
+      const entry = entryById(entryId)
+      if (!entry || !collection) return false
+      try {
+        await defaultButterflyGalleryActionAdapter().addToCollection(
+          entryId,
+          collection,
+        )
+        applyAddToCollectionAction(entry, collection)
+        return true
+      } catch (error) {
+        errorMessage.value =
+          error instanceof Error
+            ? error.message
+            : 'Could not add to that collection.'
+        status.value = 'error'
+        return false
+      }
+    }
+
+    async function removeFromCollection(
+      entryId: number,
+      collection: string,
+    ): Promise<boolean> {
+      const entry = entryById(entryId)
+      if (!entry || !collection) return false
+      try {
+        await defaultButterflyGalleryActionAdapter().removeFromCollection(
+          entryId,
+          collection,
+        )
+        applyRemoveFromCollectionAction(entry, collection)
+        return true
+      } catch (error) {
+        errorMessage.value =
+          error instanceof Error
+            ? error.message
+            : 'Could not remove from that collection.'
+        status.value = 'error'
+        return false
+      }
     }
 
     function setFilter<K extends keyof ButterflyGalleryFilters>(
@@ -426,7 +506,12 @@ export const useButterflyGalleryStore = defineStore(
       startDrag,
       cancelDrag,
       dropOnBin,
+      setProcessed,
       setRating,
+      trashEntry,
+      restoreEntry,
+      addToCollection,
+      removeFromCollection,
       setFilter,
       resetFilters,
       toggleBatchSelected,

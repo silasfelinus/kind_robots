@@ -37,6 +37,7 @@ function makeEntry(
     resource: { checkpoint: null, loras: [] },
     generationMetadata: null,
     matchState: 'matched',
+    pendingGenerationJobIds: [],
     ...overrides,
   }
 }
@@ -208,7 +209,11 @@ function withFilters(
   const entries = [
     makeEntry({ id: 1, folder: 'inbox', collections: ['favorites'] }),
     makeEntry({ id: 2, folder: 'inbox', collections: [] }),
-    makeEntry({ id: 3, folder: 'sorted', collections: ['favorites', 'landscapes'] }),
+    makeEntry({
+      id: 3,
+      folder: 'sorted',
+      collections: ['favorites', 'landscapes'],
+    }),
     makeEntry({ id: 4, folder: null, collections: [] }),
   ]
 

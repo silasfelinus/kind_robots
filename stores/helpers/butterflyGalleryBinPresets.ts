@@ -1,17 +1,15 @@
 import type {
   ButterflyBinConfig,
   ButterflyBinKind,
+  ButterflyGenerationAction,
 } from '@/types/butterflyGallery'
 
-export type ButterflyGenerationAction =
-  | { kind: 'add-lora'; resource: string; weight?: number }
-  | { kind: 'replace-lora'; from: string; to: string; weight?: number }
-  | { kind: 'switch-checkpoint'; resource: string }
-  | { kind: 'append-prompt'; text: string }
-  | { kind: 'replace-prompt'; text: string }
-  | { kind: 'set-generation'; values: Record<string, string | number | boolean> }
-  | { kind: 'add-variant' }
-  | { kind: 'request-replacement' }
+// Re-exported for existing importers (butterflyGalleryPresetStore.ts,
+// ButterflyGalleryPresetEditor.vue) -- the type now lives in
+// types/butterflyGallery.ts alongside the rest of the generation contract
+// (butterfly-gallery/t-019) so it can be shared with the ArtJob submission
+// seam without those files reaching back into this one.
+export type { ButterflyGenerationAction }
 
 export type ButterflyCustomBinPreset = ButterflyBinConfig & {
   actions: ButterflyGenerationAction[]
@@ -44,7 +42,9 @@ function isBinKind(value: unknown): value is ButterflyBinKind {
   return typeof value === 'string' && BIN_KINDS.has(value as ButterflyBinKind)
 }
 
-function isGenerationAction(value: unknown): value is ButterflyGenerationAction {
+function isGenerationAction(
+  value: unknown,
+): value is ButterflyGenerationAction {
   if (!isRecord(value) || typeof value.kind !== 'string') return false
 
   switch (value.kind) {
@@ -96,7 +96,11 @@ export function parseButterflyBinPresetEnvelope(
   if (!raw) return null
   try {
     const parsed: unknown = JSON.parse(raw)
-    if (!isRecord(parsed) || parsed.version !== 1 || !Array.isArray(parsed.bins)) {
+    if (
+      !isRecord(parsed) ||
+      parsed.version !== 1 ||
+      !Array.isArray(parsed.bins)
+    ) {
       return null
     }
     if (!parsed.bins.every(isCustomBin)) return null
@@ -109,9 +113,10 @@ export function parseButterflyBinPresetEnvelope(
 export function loadButterflyBinPresets(
   storage: Pick<Storage, 'getItem'>,
 ): ButterflyCustomBinPreset[] | null {
-  return parseButterflyBinPresetEnvelope(
-    storage.getItem(BUTTERFLY_BIN_PRESETS_KEY),
-  )?.bins ?? null
+  return (
+    parseButterflyBinPresetEnvelope(storage.getItem(BUTTERFLY_BIN_PRESETS_KEY))
+      ?.bins ?? null
+  )
 }
 
 export function saveButterflyBinPresets(

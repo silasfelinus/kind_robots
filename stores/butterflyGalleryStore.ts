@@ -9,18 +9,20 @@ import {
   applyRestoreAction,
   applyTrashAction,
   applyBinOutcome,
+  applyPendingGenerationJobIds,
+  persistBinGenerationActions,
   persistBinOutcome,
 } from '@/stores/helpers/butterflyGalleryActions'
 import { defaultButterflyGalleryFeedProvider } from '@/stores/helpers/butterflyGalleryFeedProvider'
-import { createDefaultButterflyBins } from '@/stores/helpers/butterflyGalleryFixtures'
 import {
   matchesButterflyGalleryFilters,
   summarizeButterflyGalleryCollections,
   summarizeButterflyGalleryFolders,
 } from '@/stores/helpers/butterflyGalleryFilters'
+import { defaultButterflyGalleryGenerationClient } from '@/stores/helpers/butterflyGalleryGenerationClient'
+import { useButterflyGalleryPresetStore } from '@/stores/butterflyGalleryPresetStore'
 import {
   defaultButterflyGalleryFilters,
-  type ButterflyBinConfig,
   type ButterflyDropOutcome,
   type ButterflyFeedCursor,
   type ButterflyGalleryFilters,
@@ -60,7 +62,12 @@ export const useButterflyGalleryStore = defineStore(
     const errorMessage = ref('')
 
     const pile = ref<ButterflyPileEntry[]>([])
-    const bins = ref<ButterflyBinConfig[]>(createDefaultButterflyBins())
+    // Sorting bins live in the preset store (butterfly-gallery/t-018), not
+    // as a second, disconnected copy here -- leftBins/rightBins/binById
+    // read through it live, so an admin's preset-editor edits reach the
+    // actual preset rail without a page reload (butterfly-gallery/t-019).
+    const presetStore = useButterflyGalleryPresetStore()
+    presetStore.initialize()
     const filters = ref<ButterflyGalleryFilters>(
       defaultButterflyGalleryFilters(),
     )
@@ -97,15 +104,11 @@ export const useButterflyGalleryStore = defineStore(
     )
 
     const leftBins = computed(() =>
-      bins.value
-        .filter((bin) => bin.side === 'left' && bin.enabled)
-        .sort((a, b) => a.sortOrder - b.sortOrder),
+      presetStore.enabledBins.filter((bin) => bin.side === 'left'),
     )
 
     const rightBins = computed(() =>
-      bins.value
-        .filter((bin) => bin.side === 'right' && bin.enabled)
-        .sort((a, b) => a.sortOrder - b.sortOrder),
+      presetStore.enabledBins.filter((bin) => bin.side === 'right'),
     )
 
     const batchSelectedCount = computed(() => batchSelectedIds.value.length)
@@ -123,8 +126,8 @@ export const useButterflyGalleryStore = defineStore(
       return pile.value.find((entry) => entry.id === entryId) ?? null
     }
 
-    function binById(binId: string): ButterflyBinConfig | null {
-      return bins.value.find((bin) => bin.id === binId) ?? null
+    function binById(binId: string) {
+      return presetStore.bins.find((bin) => bin.id === binId) ?? null
     }
 
     function selectNextFromPile(): void {
@@ -221,8 +224,11 @@ export const useButterflyGalleryStore = defineStore(
     /** Drop the currently dragged (or explicitly passed) entry onto a bin,
      * running the state machine through dropping -> saving -> ready/error.
      * Persists through the injectable action adapter (a fixture no-op today;
-     * t-022 wires a real art-archive-backed adapter behind the same seam)
-     * before mutating local state. */
+     * t-022 wires a real art-archive-backed adapter behind the same seam),
+     * then submits any generation actions the bin carries as a real ArtJob
+     * (butterfly-gallery/t-019) -- both before mutating local state, so a
+     * failure on either side never leaves the pile showing an outcome that
+     * was never actually saved or a job that was never actually queued. */
     async function dropOnBin(
       binId: string,
       entryId?: number,
@@ -250,8 +256,18 @@ export const useButterflyGalleryStore = defineStore(
           entry.id,
           bin,
         )
+        const jobIds = await persistBinGenerationActions(
+          defaultButterflyGalleryGenerationClient(),
+          entry,
+          bin,
+        )
         applyBinOutcome(entry, bin)
-        lastSaveMessage.value = `Sorted into ${bin.label}.`
+        applyPendingGenerationJobIds(entry, jobIds)
+        lastSaveMessage.value = jobIds.length
+          ? `Sorted into ${bin.label}; queued ${jobIds.length} regeneration job${
+              jobIds.length > 1 ? 's' : ''
+            }.`
+          : `Sorted into ${bin.label}.`
 
         if (selectedImageId.value === entry.id) selectNextFromPile()
 
@@ -429,19 +445,6 @@ export const useButterflyGalleryStore = defineStore(
       batchSelectedIds.value = []
     }
 
-    function upsertBin(bin: ButterflyBinConfig): void {
-      const index = bins.value.findIndex((existing) => existing.id === bin.id)
-      if (index === -1) bins.value = [...bins.value, bin]
-      else
-        bins.value = bins.value.map((existing, i) =>
-          i === index ? bin : existing,
-        )
-    }
-
-    function removeBin(binId: string): void {
-      bins.value = bins.value.filter((bin) => bin.id !== binId)
-    }
-
     async function rescan(): Promise<void> {
       if (isBusy.value) return
       status.value = 'rescanning'
@@ -471,7 +474,6 @@ export const useButterflyGalleryStore = defineStore(
       status,
       errorMessage,
       pile,
-      bins,
       filters,
       selectedImageId,
       draggingImageId,
@@ -513,8 +515,6 @@ export const useButterflyGalleryStore = defineStore(
       toggleCollectionFilter,
       toggleBatchSelected,
       clearBatchSelection,
-      upsertBin,
-      removeBin,
       rescan,
       clearError,
     }

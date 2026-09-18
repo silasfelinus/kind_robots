@@ -30,6 +30,20 @@ export const ArchiveEntryMatchState = {
 export type ArchiveEntryMatchState = (typeof ArchiveEntryMatchState)[keyof typeof ArchiveEntryMatchState]
 
 
+export const ArchivePresetActionType = {
+  ADD_LORA: 'ADD_LORA',
+  REPLACE_LORA: 'REPLACE_LORA',
+  REPLACE_CHECKPOINT: 'REPLACE_CHECKPOINT',
+  APPEND_PROMPT: 'APPEND_PROMPT',
+  REPLACE_PROMPT: 'REPLACE_PROMPT',
+  CHANGE_SETTINGS: 'CHANGE_SETTINGS',
+  ADDITIONAL_RENDER: 'ADDITIONAL_RENDER',
+  REPLACE_SOURCE: 'REPLACE_SOURCE'
+} as const
+
+export type ArchivePresetActionType = (typeof ArchivePresetActionType)[keyof typeof ArchivePresetActionType]
+
+
 export const FacetTaxonomy = {
   GENRE: 'GENRE',
   ANIMAL: 'ANIMAL',

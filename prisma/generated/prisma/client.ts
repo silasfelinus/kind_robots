@@ -98,6 +98,22 @@ export type AgentNote = Prisma.AgentNoteModel
  */
 export type ArchiveEntry = Prisma.ArchiveEntryModel
 /**
+ * Model ArchiveActionPreset
+ * Persisted, reusable generation-modifier edit for Art Archive curation
+ * (art-archive/t-014): "add/replace a LoRA", "swap checkpoint",
+ * "append/replace prompt text", "change generation settings", "create an
+ * additional render", or "replace the source after successful generation".
+ * `modifiers` deliberately reuses ArtJob's own payload vocabulary (see
+ * server/utils/artJobPayload.ts) rather than inventing a second renderer --
+ * it stores the JSON fragment an admin action later merges into a real
+ * ArtJob payload, shaped per `actionType` by
+ * server/utils/artArchivePresetModifiers.ts. `userId` is a loose reference
+ * with no formal Prisma relation, matching ArchiveEntry's own
+ * artImageId/folderCollectionId convention above -- a preset is
+ * per-admin-author metadata, not a foreign-keyed ownership relationship.
+ */
+export type ArchiveActionPreset = Prisma.ArchiveActionPresetModel
+/**
  * Model BrainstormSession
  * Durable private Brainstorm workspaces. `userId` is intentionally an indexed
  * ownership scalar rather than another back-relation on the already enormous

@@ -14,11 +14,13 @@
 import prisma from '~/server/utils/prisma'
 import { resolveFolderImages, folderPathFromImageUrl } from './folderCollections'
 
-// ArtImage.imagePath is the default VarChar(191) (unlike `path`/`fileName`,
-// which are VarChar(764)). A deeply-nested long slug URL can exceed 191 chars
-// and would throw on insert, failing the whole sync. We guard by skipping any
-// URL that would overflow and reporting it, rather than crashing (t-017).
-export const MAX_IMAGE_PATH = 191
+// ArtImage.imagePath is VarChar(764), matching `path`/`fileName` (widened from
+// the Prisma-default VarChar(191) by kind-robots/t-110, which hit real write
+// failures once static entity-preview URLs started routing through this same
+// column). A deeply-nested long slug URL can still exceed 764 chars and would
+// throw on insert, failing the whole sync. We guard by skipping any URL that
+// would overflow and reporting it, rather than crashing (t-017).
+export const MAX_IMAGE_PATH = 764
 
 export type FolderSyncResult = {
   slug: string

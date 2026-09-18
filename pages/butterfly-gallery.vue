@@ -152,34 +152,12 @@
               </button>
             </section>
 
-            <section
-              aria-label="Selected image"
-              class="kr-panel min-h-72 space-y-3 p-4"
-            >
-              <template v-if="gallery.selectedEntry">
-                <img
-                  :src="gallery.selectedEntry.displayPath"
-                  :alt="gallery.selectedEntry.prompt || 'Untitled artwork'"
-                  class="mx-auto max-h-64 rounded-box object-contain"
-                  draggable="true"
-                  @dragstart="gallery.startDrag(gallery.selectedEntry!.id)"
-                  @dragend="gallery.cancelDrag()"
-                />
-                <dl class="kr-text-dim-sm grid grid-cols-2 gap-2">
-                  <dt>Rating</dt>
-                  <dd>{{ gallery.selectedEntry.rating ?? 'unrated' }}</dd>
-                  <dt>Processed</dt>
-                  <dd>{{ gallery.selectedEntry.processed ? 'yes' : 'no' }}</dd>
-                  <dt>Match state</dt>
-                  <dd>{{ gallery.selectedEntry.matchState }}</dd>
-                  <dt>Prompt</dt>
-                  <dd class="truncate">
-                    {{ gallery.selectedEntry.prompt || '—' }}
-                  </dd>
-                </dl>
-              </template>
-              <p v-else class="kr-text-dim-sm text-center">Pile is empty.</p>
-            </section>
+            <butterfly-central-frame
+              :entry="gallery.selectedEntry"
+              @drag-start="gallery.startDrag($event)"
+              @drag-end="gallery.cancelDrag()"
+              @drop="gallery.promoteToFrame()"
+            />
 
             <section aria-label="Keep bins" class="space-y-2">
               <button
@@ -198,37 +176,27 @@
             </section>
           </div>
 
-          <section aria-label="Pile" class="flex flex-wrap gap-2">
+          <butterfly-painting-pile
+            :entries="gallery.topOfPile"
+            :remaining-count="gallery.remainingCount"
+            :selected-id="gallery.selectedImageId"
+            :disabled="gallery.isBusy"
+            @select="gallery.selectImage($event)"
+            @drag-start="gallery.startDrag($event)"
+            @drag-end="gallery.cancelDrag()"
+          />
+
+          <div v-if="gallery.hasMore" class="flex justify-center">
             <button
-              v-for="entry in gallery.visiblePile"
-              :key="entry.id"
               type="button"
-              class="kr-panel h-16 w-16 overflow-hidden p-0"
-              :class="{
-                'ring-2 ring-primary': entry.id === gallery.selectedImageId,
-              }"
-              draggable="true"
-              @click="gallery.selectImage(entry.id)"
-              @dragstart="gallery.startDrag(entry.id)"
-              @dragend="gallery.cancelDrag()"
-            >
-              <img
-                :src="entry.thumbnailPath"
-                :alt="entry.prompt || 'Untitled artwork'"
-                class="h-full w-full object-cover"
-              />
-            </button>
-            <button
-              v-if="gallery.hasMore"
-              type="button"
-              class="kr-btn btn-outline h-16"
+              class="kr-btn btn-outline"
               :disabled="gallery.isLoadingMore"
               @click="gallery.loadMore()"
             >
               <span v-if="gallery.isLoadingMore" class="kr-spinner-xs" />
               <span v-else>Load more</span>
             </button>
-          </section>
+          </div>
         </template>
       </template>
     </div>

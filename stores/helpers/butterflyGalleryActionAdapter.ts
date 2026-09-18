@@ -16,6 +16,7 @@ export function createFixtureButterflyGalleryActionAdapter(): ButterflyGalleryAc
     async restore(): Promise<void> {},
     async addToCollection(): Promise<void> {},
     async removeFromCollection(): Promise<void> {},
+    async markNeedsReview(): Promise<void> {},
   }
 }
 

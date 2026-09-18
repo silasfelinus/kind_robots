@@ -221,6 +221,9 @@ function makeEntry(
     async removeFromCollection(entryId: number, collection: string) {
       calls.push(`removeFromCollection(${entryId},${collection})`)
     },
+    async markNeedsReview(entryId: number) {
+      calls.push(`markNeedsReview(${entryId})`)
+    },
   }
 
   const presetBin: ButterflyBinConfig = {
@@ -246,6 +249,41 @@ function makeEntry(
   )
 }
 
+// -- persistBinOutcome routes 'needs-review' through the adapter (t-027) -
+
+{
+  const calls: string[] = []
+  const adapter = {
+    async setProcessed() {},
+    async setRating() {},
+    async trash() {},
+    async restore() {},
+    async addToCollection() {},
+    async removeFromCollection() {},
+    async markNeedsReview(entryId: number) {
+      calls.push(`markNeedsReview(${entryId})`)
+    },
+  }
+
+  const needsReviewBin: ButterflyBinConfig = {
+    id: 'needs-review',
+    label: 'Needs Review',
+    side: 'right',
+    icon: 'kind-icon:flag',
+    kind: 'needs-review',
+    payload: {},
+    sortOrder: 0,
+    enabled: true,
+  }
+
+  await persistBinOutcome(adapter, 7, needsReviewBin)
+  assert.deepEqual(
+    calls,
+    ['markNeedsReview(7)'],
+    "persistBinOutcome should call adapter.markNeedsReview for a 'needs-review' bin instead of silently no-oping",
+  )
+}
+
 // -- fixture-backed adapter resolves for every method ---------------------
 
 {
@@ -256,6 +294,7 @@ function makeEntry(
   await assert.doesNotReject(adapter.restore(1))
   await assert.doesNotReject(adapter.addToCollection(1, 'featured'))
   await assert.doesNotReject(adapter.removeFromCollection(1, 'featured'))
+  await assert.doesNotReject(adapter.markNeedsReview(1))
 }
 
 // -- fixture-backed generation client issues unique, resolving job ids ---

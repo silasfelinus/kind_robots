@@ -33,6 +33,7 @@
     "test:art-archive-preset-modifiers": "tsx utils/scripts/verifyArtArchivePresetModifiers.test.ts",
     "test:butterfly-gallery-actions": "tsx utils/scripts/verifyButterflyGalleryActions.test.ts",
     "test:butterfly-gallery-filters": "tsx utils/scripts/verifyButterflyGalleryFilters.test.ts",
+    "test:butterfly-gallery-motion": "tsx utils/scripts/verifyButterflyGalleryMotion.test.ts",
     "art-archive:scan": "tsx utils/scripts/scanArtArchive.ts",
     "art-archive:import": "tsx utils/scripts/importArtArchive.ts",
     "art-archive:apply-resource-match": "tsx utils/scripts/applyArtArchiveResourceMatch.ts",

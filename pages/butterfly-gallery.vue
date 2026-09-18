@@ -38,7 +38,7 @@
       <div class="drop-funnel" aria-hidden="true">
         <div class="drop-funnel-neck" />
         <div class="drop-funnel-bell" />
-        <div class="drop-funnel-mouth" />
+        <div ref="funnelMouthRef" class="drop-funnel-mouth" />
       </div>
 
       <div
@@ -137,10 +137,13 @@
                 :key="folder.value"
                 type="button"
                 class="queue-chip"
-                :class="{ 'queue-chip-active': gallery.filters.folder === folder.value }"
+                :class="{
+                  'queue-chip-active': gallery.filters.folder === folder.value,
+                }"
                 @click="gallery.toggleFolderFilter(folder.value)"
               >
-                {{ folder.value }} <span class="queue-chip-count">{{ folder.count }}</span>
+                {{ folder.value }}
+                <span class="queue-chip-count">{{ folder.count }}</span>
               </button>
               <p v-if="!gallery.folderSummaries.length" class="kr-text-dim-xs">
                 No folders yet.
@@ -184,9 +187,15 @@
           :key="bin.id"
           type="button"
           class="preset-bin"
-          :class="presetClass(index)"
+          :class="[
+            presetClass(index),
+            {
+              'gallery-drop-target-active': dragOverTarget === bin.id,
+              'preset-bin-accepted': justAcceptedBinId === bin.id,
+            },
+          ]"
           :disabled="!gallery.selectedEntry || gallery.isBusy"
-          @dragover.prevent
+          @dragover.prevent="dragOverTarget = bin.id"
           @drop.prevent="onDrop(bin.id)"
           @click="onBinClick(bin.id)"
         >
@@ -200,18 +209,19 @@
       </aside>
 
       <section class="art-display" aria-label="Selected artwork">
-        <div class="art-display-inner">
+        <div ref="frameBoxRef" class="art-display-inner">
           <template v-if="gallery.selectedEntry">
             <img
+              v-show="!dropProxyActive"
               :key="`${gallery.selectedEntry.id}-${dropSequence}`"
               :src="gallery.selectedEntry.displayPath"
               :alt="gallery.selectedEntry.prompt || 'Untitled artwork'"
               class="selected-art"
-              :class="{ 'selected-art-drop': animateDrop }"
+              :class="{ 'selected-art-fade': fadeReveal }"
               draggable="true"
               @dragstart="gallery.startDrag(gallery.selectedEntry!.id)"
-              @dragend="gallery.cancelDrag()"
-              @animationend="animateDrop = false"
+              @dragend="onDragEnd"
+              @animationend="fadeReveal = false"
             />
           </template>
           <div
@@ -225,6 +235,14 @@
             <Icon name="kind-icon:image" class="blank-image-icon" />
           </div>
         </div>
+        <img
+          v-if="dropProxyActive"
+          ref="dropProxyRef"
+          :src="dropProxySrc"
+          :alt="dropProxyAlt"
+          class="funnel-drop-proxy"
+          aria-hidden="true"
+        />
       </section>
 
       <aside class="right-rail">
@@ -327,8 +345,12 @@
           v-else
           type="button"
           class="right-action trash-action"
+          :class="{
+            'gallery-drop-target-active': dragOverTarget === 'trash',
+            'preset-bin-accepted': justAcceptedBinId === 'trash',
+          }"
           :disabled="!gallery.selectedEntry || gallery.isBusy"
-          @dragover.prevent
+          @dragover.prevent="dragOverTarget = 'trash'"
           @drop.prevent="onDrop('trash')"
           @click="onBinClick('trash')"
         >
@@ -363,13 +385,15 @@
           :class="{
             'pile-card-selected': entry.id === gallery.selectedImageId,
             'pile-card-trashed': entry.trashed,
+            'pile-card-pop': entry.id === justSelectedPileId,
           }"
           :style="pileStyle(index, pileEntries.length)"
           draggable="true"
           :aria-label="`Select artwork ${entry.id}`"
-          @click="gallery.selectImage(entry.id)"
+          @click="onSelectPileEntry(entry.id)"
           @dragstart="gallery.startDrag(entry.id)"
-          @dragend="gallery.cancelDrag()"
+          @dragend="onDragEnd"
+          @animationend="justSelectedPileId = null"
         >
           <img
             :src="entry.thumbnailPath"
@@ -422,17 +446,33 @@
 </template>
 
 <script setup lang="ts">
-import { computed, nextTick, onMounted, ref, watch } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useButterflyGalleryStore } from '@/stores/butterflyGalleryStore'
 import { useUserStore } from '@/stores/userStore'
+import { computeButterflyFunnelDropPlan } from '@/stores/helpers/butterflyGalleryMotion'
 
 const userStore = useUserStore()
 const gallery = useButterflyGalleryStore()
 const ready = ref(false)
 const infoExpanded = ref(false)
 const dropSequence = ref(0)
-const animateDrop = ref(false)
+const fadeReveal = ref(false)
 const showFilters = ref(false)
+
+// -- Micro-interactions (butterfly-gallery/t-017) --------------------------
+const funnelMouthRef = ref<HTMLElement | null>(null)
+const frameBoxRef = ref<HTMLElement | null>(null)
+const dropProxyRef = ref<HTMLImageElement | null>(null)
+const dropProxyActive = ref(false)
+const dropProxySrc = ref('')
+const dropProxyAlt = ref('')
+const dragOverTarget = ref<string | null>(null)
+const justAcceptedBinId = ref<string | null>(null)
+const justSelectedPileId = ref<number | null>(null)
+
+let activeDropAnimation: Animation | null = null
+let dropRunToken = 0
+let acceptedBinTimer: ReturnType<typeof setTimeout> | null = null
 
 const pileEntries = computed(() => gallery.visiblePile.slice(0, 18))
 
@@ -448,7 +488,8 @@ const processedModel = computed({
 })
 
 const ratingModel = computed({
-  get: () => (gallery.filters.rating === null ? '' : String(gallery.filters.rating)),
+  get: () =>
+    gallery.filters.rating === null ? '' : String(gallery.filters.rating),
   set: (value: string) =>
     gallery.setFilter('rating', value ? Number(value) : null),
 })
@@ -473,6 +514,16 @@ onMounted(async () => {
   await gallery.loadPile()
 
   if (gallery.status === 'intro') gallery.completeIntro()
+
+  window.addEventListener('resize', invalidateFunnelDrop)
+  document.addEventListener('visibilitychange', invalidateFunnelDrop)
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener('resize', invalidateFunnelDrop)
+  document.removeEventListener('visibilitychange', invalidateFunnelDrop)
+  if (acceptedBinTimer) clearTimeout(acceptedBinTimer)
+  if (activeDropAnimation) activeDropAnimation.cancel()
 })
 
 watch(
@@ -481,20 +532,146 @@ watch(
     infoExpanded.value = false
     if (nextId === null || nextId === previousId) return
 
-    animateDrop.value = false
     dropSequence.value += 1
-    await nextTick()
-    animateDrop.value = true
+    const entry = gallery.entryById(nextId)
+    await runFunnelDrop(
+      entry?.displayPath ?? '',
+      entry?.prompt || 'Untitled artwork',
+    )
   },
 )
 
-function onBinClick(binId: string): void {
-  if (!gallery.selectedEntry) return
-  gallery.dropOnBin(binId, gallery.selectedEntry.id)
+function prefersReducedMotion(): boolean {
+  return (
+    typeof window !== 'undefined' &&
+    !!window.matchMedia &&
+    window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  )
 }
 
-function onDrop(binId: string): void {
-  gallery.dropOnBin(binId)
+/** Latest-selection-wins: a new selection, an unmount, a resize, or the tab
+ * going hidden all cancel any in-flight proxy and land cleanly on the
+ * ordinary steady-state DOM (no stuck proxy), per
+ * MOTION-STORYBOARD.md's interruption rules. */
+function invalidateFunnelDrop(): void {
+  if (!dropProxyActive.value) return
+  dropRunToken += 1
+  if (activeDropAnimation) {
+    activeDropAnimation.cancel()
+    activeDropAnimation = null
+  }
+  dropProxyActive.value = false
+}
+
+/** Animates the selected-image entry from the drop-funnel mouth to the
+ * central frame via a transient fixed-position proxy (Emerge/Stretch/Snap/
+ * Settle, see stores/helpers/butterflyGalleryMotion.ts), falling back to a
+ * brief opacity/scale fade on the real image under reduced motion or when
+ * the funnel/frame geometry isn't usable. */
+async function runFunnelDrop(src: string, alt: string): Promise<void> {
+  const runToken = ++dropRunToken
+  if (activeDropAnimation) {
+    activeDropAnimation.cancel()
+    activeDropAnimation = null
+  }
+
+  let frameRect: DOMRect | null = null
+  let plan: ReturnType<typeof computeButterflyFunnelDropPlan> = null
+
+  if (
+    !prefersReducedMotion() &&
+    typeof document !== 'undefined' &&
+    !document.hidden &&
+    funnelMouthRef.value &&
+    frameBoxRef.value
+  ) {
+    const funnelRect = funnelMouthRef.value.getBoundingClientRect()
+    frameRect = frameBoxRef.value.getBoundingClientRect()
+    plan = computeButterflyFunnelDropPlan(funnelRect, frameRect)
+  }
+
+  if (!plan || !frameRect) {
+    dropProxyActive.value = false
+    fadeReveal.value = false
+    await nextTick()
+    if (runToken !== dropRunToken) return
+    fadeReveal.value = true
+    return
+  }
+
+  dropProxySrc.value = src
+  dropProxyAlt.value = alt
+  dropProxyActive.value = true
+  await nextTick()
+  if (runToken !== dropRunToken) return
+
+  const proxyEl = dropProxyRef.value
+  if (!proxyEl) {
+    dropProxyActive.value = false
+    return
+  }
+
+  proxyEl.style.left = `${frameRect.left}px`
+  proxyEl.style.top = `${frameRect.top}px`
+  proxyEl.style.width = `${frameRect.width}px`
+  proxyEl.style.height = `${frameRect.height}px`
+  proxyEl.style.transformOrigin = plan.transformOrigin
+
+  const animation = proxyEl.animate(
+    plan.keyframes.map((keyframe) => ({
+      offset: keyframe.offset,
+      transform: keyframe.transform,
+    })),
+    {
+      duration: plan.durationMs,
+      easing: 'cubic-bezier(0.22, 0.95, 0.36, 1)',
+      fill: 'forwards',
+    },
+  )
+  activeDropAnimation = animation
+
+  try {
+    await animation.finished
+  } catch {
+    // Cancelled by a newer selection, unmount, resize, or tab-hide -- the
+    // canceller already restored a clean state.
+    return
+  }
+
+  if (runToken !== dropRunToken) return
+  activeDropAnimation = null
+  dropProxyActive.value = false
+}
+
+function flashBinAccepted(binId: string): void {
+  if (acceptedBinTimer) clearTimeout(acceptedBinTimer)
+  justAcceptedBinId.value = binId
+  acceptedBinTimer = setTimeout(() => {
+    justAcceptedBinId.value = null
+    acceptedBinTimer = null
+  }, 380)
+}
+
+function onSelectPileEntry(entryId: number): void {
+  gallery.selectImage(entryId)
+  justSelectedPileId.value = entryId
+}
+
+function onDragEnd(): void {
+  gallery.cancelDrag()
+  dragOverTarget.value = null
+}
+
+async function onBinClick(binId: string): Promise<void> {
+  if (!gallery.selectedEntry) return
+  const outcome = await gallery.dropOnBin(binId, gallery.selectedEntry.id)
+  if (outcome) flashBinAccepted(outcome.binId)
+}
+
+async function onDrop(binId: string): Promise<void> {
+  dragOverTarget.value = null
+  const outcome = await gallery.dropOnBin(binId)
+  if (outcome) flashBinAccepted(outcome.binId)
 }
 
 function presetClass(index: number): string {
@@ -770,6 +947,16 @@ function pileStyle(index: number, total: number): Record<string, string> {
   opacity: 0.58;
 }
 
+.gallery-drop-target-active {
+  outline: 3px solid var(--color-base-100);
+  outline-offset: -3px;
+  filter: brightness(1.15);
+}
+
+.preset-bin-accepted {
+  animation: butterfly-gallery-bin-accept 380ms ease;
+}
+
 .preset-bin-error {
   background: var(--color-error);
   color: var(--color-error-content);
@@ -867,8 +1054,17 @@ function pileStyle(index: number, total: number): Record<string, string> {
   transform-origin: 50% 0;
 }
 
-.selected-art-drop {
-  animation: butterfly-gallery-drop 520ms cubic-bezier(0.22, 0.95, 0.36, 1);
+.selected-art-fade {
+  animation: butterfly-gallery-fade 160ms ease;
+}
+
+.funnel-drop-proxy {
+  position: fixed;
+  z-index: 55;
+  object-fit: contain;
+  background: color-mix(in oklch, var(--color-neutral) 92%, black);
+  pointer-events: none;
+  will-change: transform;
 }
 
 .blank-state-loop {
@@ -1114,6 +1310,14 @@ function pileStyle(index: number, total: number): Record<string, string> {
   outline-offset: 3px;
 }
 
+.pile-card-pop {
+  /* Standalone `scale`, not `transform` -- pileStyle() sets `transform`
+     inline for layout (translateX/rotate), and an `animation` on that same
+     property would clobber it during the pop. `scale` composes with
+     `transform` independently. */
+  animation: butterfly-gallery-pile-pop 260ms ease;
+}
+
 .pile-card img {
   width: 100%;
   height: 100%;
@@ -1271,24 +1475,36 @@ function pileStyle(index: number, total: number): Record<string, string> {
   transform: translateX(-50%);
 }
 
-@keyframes butterfly-gallery-drop {
-  0% {
+@keyframes butterfly-gallery-fade {
+  from {
     opacity: 0;
-    transform: translateY(-72%) scaleX(0.78) scaleY(2.45);
+    scale: 0.98;
   }
-  62% {
+  to {
     opacity: 1;
-    transform: translateY(0) scaleX(0.92) scaleY(1.18);
+    scale: 1;
   }
-  78% {
-    transform: translateY(1%) scaleX(1.06) scaleY(0.82);
+}
+
+@keyframes butterfly-gallery-bin-accept {
+  0% {
+    transform: scale(1);
   }
-  90% {
-    transform: translateY(0) scaleX(0.98) scaleY(1.04);
+  35% {
+    transform: scale(1.08);
   }
   100% {
-    opacity: 1;
-    transform: translateY(0) scaleX(1) scaleY(1);
+    transform: scale(1);
+  }
+}
+
+@keyframes butterfly-gallery-pile-pop {
+  0%,
+  100% {
+    scale: 1;
+  }
+  40% {
+    scale: 1.14;
   }
 }
 
@@ -1315,13 +1531,11 @@ function pileStyle(index: number, total: number): Record<string, string> {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .selected-art-drop {
-    animation: none;
-  }
-
   .blank-image-icon,
   .blank-orbit-one,
-  .blank-orbit-two {
+  .blank-orbit-two,
+  .pile-card-pop,
+  .preset-bin-accepted {
     animation: none;
   }
 

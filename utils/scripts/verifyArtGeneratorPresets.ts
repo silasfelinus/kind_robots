@@ -4,6 +4,7 @@ import {
   ART_ENGINE_PROFILES,
   ART_GENERATOR_PRESETS,
   DEFAULT_ART_PRESET_ID,
+  IMAGE_TO_IMAGE_PRESET_ID,
   defaultPresetSettings,
   detectCheckpointFamily,
   getPreset,
@@ -31,8 +32,60 @@ assert.deepEqual(defaultPresetSettings(), {
   width: 1024,
   height: 1024,
   guidance: null,
+  // The default lane starts from a blank canvas, so there is nothing to stay
+  // near. Only the image-to-image preset carries a denoise.
+  denoise: null,
   variant: null,
 })
+
+/*
+ * THE IMAGE-TO-IMAGE LANE.
+ *
+ * Silas, 2026-09-18: "we should be able to select them and modify them, even if
+ * they come from a civitai sample." Picking an image writes bytes into
+ * artForm.sourceImageBase64, and before this preset existed every lane in the
+ * catalogue was text-to-image -- so the picked image was loaded and then
+ * ignored. This pins the one preset that can actually consume it.
+ */
+assert.equal(IMAGE_TO_IMAGE_PRESET_ID, 'sdxl-from-image')
+assert.equal(preset(IMAGE_TO_IMAGE_PRESET_ID).engine, 'sdxl-img2img')
+
+// Every OTHER preset must leave denoise null: a text-to-image lane carrying a
+// denoise would look like it honours a source image it cannot read.
+for (const entry of ART_GENERATOR_PRESETS) {
+  if (entry.id === IMAGE_TO_IMAGE_PRESET_ID) {
+    assert.ok(
+      typeof entry.denoise === 'number' &&
+        entry.denoise > 0 &&
+        entry.denoise < 1,
+      'the image-to-image preset needs a denoise strictly between 0 and 1',
+    )
+    continue
+  }
+  assert.equal(
+    entry.denoise,
+    null,
+    `preset "${entry.id}" is text-to-image and must not carry a denoise`,
+  )
+  assert.notEqual(
+    entry.engine,
+    'sdxl-img2img',
+    `preset "${entry.id}" must not claim the image-to-image engine`,
+  )
+}
+
+// Exactly one lane starts from a picture; two would make "Use it" ambiguous.
+assert.equal(
+  ART_GENERATOR_PRESETS.filter((entry) => entry.engine === 'sdxl-img2img')
+    .length,
+  1,
+)
+
+// The source image decides the output size, so offering width and height in
+// this lane would be offering a setting the workflow overrides.
+assert.equal(ART_ENGINE_PROFILES['sdxl-img2img'].supports.size, false)
+assert.equal(ART_ENGINE_PROFILES['sdxl-img2img'].supports.checkpoint, true)
+assert.equal(ART_ENGINE_PROFILES['sdxl-img2img'].supports.lora, true)
 
 assert.deepEqual(
   {

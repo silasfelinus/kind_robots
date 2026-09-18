@@ -144,6 +144,85 @@
             </p>
           </section>
 
+          <!--
+            THE PICKED IMAGE. Silas, 2026-09-18: "we should be able to select
+            them and modify them, even if they come from a civitai sample."
+
+            Picking one in a gallery loads it into artForm.sourceImageBase64.
+            Until this panel existed the generator gave no sign it was holding
+            an image, and no preset could consume it -- so a picked image was
+            loaded and then silently ignored.
+          -->
+          <section v-if="sourceImage" class="kr-panel-flat p-4">
+            <div class="flex items-start gap-3">
+              <img
+                :src="sourceImage"
+                alt="Source image for this generation"
+                class="h-20 w-20 shrink-0 rounded-2xl object-cover"
+              />
+
+              <div class="min-w-0 flex-1">
+                <p class="kr-text-eyebrow text-xs tracking-widest opacity-55">
+                  Starting from
+                </p>
+                <p class="truncate text-sm font-semibold">
+                  {{ artStore.sourceImageLabel || 'a picked image' }}
+                </p>
+
+                <p v-if="!usesSourceImage" class="kr-text-dim-sm mt-1">
+                  {{ activePreset.label }} starts from a blank canvas and will
+                  ignore it.
+                </p>
+              </div>
+
+              <div class="flex shrink-0 flex-col gap-1">
+                <button
+                  v-if="!usesSourceImage"
+                  type="button"
+                  class="btn btn-primary btn-xs rounded-2xl"
+                  @click="applyPreset(IMAGE_TO_IMAGE_PRESET_ID)"
+                >
+                  Use it
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-ghost btn-xs rounded-2xl"
+                  @click="clearSourceImage"
+                >
+                  Clear
+                </button>
+              </div>
+            </div>
+
+            <!--
+              Strength is the only control this lane adds, and it is the one
+              that decides whether the result is the source with a new coat of
+              paint or something that merely rhymes with it.
+            -->
+            <label v-if="usesSourceImage" class="form-control mt-3">
+              <span class="label">
+                <span class="label-text text-xs font-semibold">
+                  Strength
+                  <span class="opacity-60">({{ denoise ?? 0.6 }})</span>
+                </span>
+              </span>
+              <input
+                v-model.number="denoise"
+                type="range"
+                min="0.2"
+                max="0.95"
+                step="0.05"
+                class="range range-primary range-xs"
+              />
+              <span class="label">
+                <span class="label-text-alt text-[0.65rem] opacity-55">
+                  Lower keeps the original; higher lets the checkpoint and LoRA
+                  take over.
+                </span>
+              </span>
+            </label>
+          </section>
+
           <section class="kr-panel-flat p-4">
             <label class="form-control">
               <span class="label">
@@ -475,9 +554,7 @@
 
             <label class="form-control mt-1">
               <span class="kr-label-row">
-                <span class="kr-label-bold"
-                  >Also save to collection</span
-                >
+                <span class="kr-label-bold">Also save to collection</span>
               </span>
               <select
                 v-model.number="collectionId"
@@ -528,11 +605,7 @@
               </p>
             </div>
           </div>
-          <button
-            type="button"
-            class="kr-btn-ghost"
-            @click="goToGallery"
-          >
+          <button type="button" class="kr-btn-ghost" @click="goToGallery">
             <Icon name="kind-icon:gallery" class="kr-icon-4" />
             Gallery
           </button>
@@ -577,6 +650,7 @@ import {
   ART_GENERATOR_PRESETS,
   CHECKPOINT_FAMILY_LABELS,
   DEFAULT_ART_PRESET_ID,
+  IMAGE_TO_IMAGE_PRESET_ID,
   detectCheckpointFamily,
   engineProfile,
   getPreset,
@@ -672,6 +746,30 @@ const sampler = formField('sampler', 'euler')
 const scheduler = formField('scheduler', 'simple')
 const width = formField('width', 1024)
 const height = formField('height', 1024)
+const denoise = formField('denoise', 0.6)
+
+/*
+ * THE PICKED IMAGE, AND WHETHER THIS LANE CAN USE IT.
+ *
+ * artForm.sourceImageBase64 is written by "Use as source" in a gallery and
+ * read by buildGenerateArtData, so the bytes travel on their own. What was
+ * missing is both halves of the conversation with the viewer: that an image is
+ * loaded at all, and that most presets here will ignore it.
+ */
+const sourceImage = computed<string>(
+  () => artStore.artForm.sourceImageBase64 || '',
+)
+
+const usesSourceImage = computed<boolean>(
+  () => activePreset.value.engine === 'sdxl-img2img',
+)
+
+function clearSourceImage(): void {
+  artStore.setSourceImage(null)
+  // Leaving the img2img lane selected with nothing to start from would queue a
+  // job the workflow cannot build.
+  if (usesSourceImage.value) applyPreset(DEFAULT_ART_PRESET_ID)
+}
 // content-visibility-controls takes strict booleans, and artForm's flags are
 // optional, so these two are spelled out rather than run through formField.
 const outputIsMature = computed<boolean>({
@@ -834,6 +932,7 @@ function applyPreset(id: string): void {
     width: settings.width,
     height: settings.height,
     guidance: settings.guidance,
+    denoise: settings.denoise,
     variant: settings.variant,
   })
 

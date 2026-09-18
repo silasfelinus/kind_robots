@@ -95,7 +95,16 @@ function validateImagePrompt(prompt: string): {
 }
 
 export type ArtImageGenerationEngine =
-  'a1111' | 'comfy' | 'flux' | 'flux2' | 'krea2' | 'kontext' | 'openai'
+  | 'a1111'
+  | 'comfy'
+  | 'flux'
+  | 'flux2'
+  | 'krea2'
+  | 'kontext'
+  | 'openai'
+  // The image-to-image lane. enqueue.post.ts has accepted it all along; the
+  // generator had no preset for it, so the client union never named it.
+  | 'sdxl-img2img'
 
 export type ArtImageGenerationTransport = 'browser' | 'backend'
 
@@ -1579,6 +1588,9 @@ export const useArtStore = defineStore('artStore', () => {
       flux2: '/api/art/enqueue',
       kontext: '/api/comfy/kontext/generate',
       openai: '/api/chats/openai/images/generate',
+      // The queue, like krea2 and flux2: enqueue.post.ts is where the
+      // image-to-image workflow and its sourceImageBase64 handling live.
+      'sdxl-img2img': '/api/art/enqueue',
     }
     return endpoints[engine]
   }

@@ -25,7 +25,9 @@
     >
       <header class="flex items-start justify-between gap-2">
         <div class="min-w-0">
-          <p class="kr-text-eyebrow text-xs tracking-widest text-base-content/50">
+          <p
+            class="kr-text-eyebrow text-xs tracking-widest text-base-content/50"
+          >
             {{ typeLabel }}
           </p>
           <h3 class="kr-text-black-base break-words">
@@ -44,23 +46,61 @@
       </header>
 
       <div
-        v-if="imageSrc"
+        v-if="heroSrc"
         class="flex aspect-square w-full items-center justify-center overflow-hidden rounded-2xl bg-base-100"
       >
         <img
-          :src="imageSrc"
+          :src="heroSrc"
           :alt="`${typeLabel} ${link.label ?? ''}`"
           class="h-full w-full object-contain"
           loading="lazy"
           decoding="async"
         />
       </div>
+
+      <!--
+        THE REST OF WHAT THIS OBJECT HAS. Silas, 2026-09-18: "I should see the
+        new image and the original and any others as a scrollable gallery when
+        selecting."
+
+        A filmstrip rather than a grid: this is a card back inside a modal, and
+        the point is to page through a handful of renders without leaving the
+        queue. The full grid is the resource page, one button away.
+      -->
+      <div
+        v-if="frames.length > 1"
+        class="-mx-1 flex snap-x snap-mandatory gap-2 overflow-x-auto px-1 pb-1"
+      >
+        <button
+          v-for="(frame, index) in frames"
+          :key="frame.key"
+          type="button"
+          class="h-14 w-14 shrink-0 snap-start overflow-hidden rounded-xl border-2 bg-base-100 transition"
+          :class="
+            index === activeIndex
+              ? 'border-primary'
+              : 'border-transparent opacity-70 hover:opacity-100'
+          "
+          :aria-label="frame.label"
+          :aria-current="index === activeIndex ? 'true' : undefined"
+          @click="activeIndex = index"
+        >
+          <img
+            :src="frame.src"
+            :alt="frame.label"
+            class="h-full w-full object-cover"
+            loading="lazy"
+            decoding="async"
+          />
+        </button>
+      </div>
+      <p v-else-if="galleryLoading" class="kr-text-dim-sm">Loading gallery…</p>
       <p
         v-else-if="link.isMature && !canSeeMature"
         class="rounded-2xl border border-warning/40 bg-warning/5 p-3 text-xs text-base-content/70"
       >
-        This {{ typeLabel.toLowerCase() }} is marked mature, and mature content is
-        hidden for your account.
+        This {{ typeLabel.toLowerCase() }} is marked mature, and mature content
+        is hidden for your account.
       </p>
 
       <p v-if="link.description" class="kr-text-dim-sm whitespace-pre-line">
@@ -85,8 +125,9 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { useUserStore } from '@/stores/userStore'
+import { useResourceGalleryStore } from '@/stores/resourceGalleryStore'
 import { entityArtTypeLabel } from '@/utils/entityArtLink'
 import type { EntityArtLink } from '@/stores/entityArtLinkStore'
 
@@ -120,6 +161,109 @@ const imageSrc = computed<string | null>(() => {
     null
   )
 })
+
+/*
+ * EVERY PICTURE THIS OBJECT HAS, NOT JUST ITS FACE.
+ *
+ * Silas, 2026-09-18: "I should see the new image and the original and any
+ * others as a scrollable gallery when selecting ... but I just see the
+ * original."
+ *
+ * A Resource's art arrives by several routes -- the render generated for it,
+ * every image its LoRA was used in, and the upstream set the Civitai model
+ * shipped with (Fantasy_art_XL_V1 has ten) -- and this card drew exactly one of
+ * them. /api/resources/:id/gallery already returns all of it, so the card only
+ * had to ask.
+ *
+ * Only for `resource`: it is the one entity type with a gallery endpoint. Every
+ * other type keeps the single image rather than being given a strip of one.
+ *
+ * The fetch belongs to resourceGalleryStore, which already owns it for the
+ * resource page. AGENTS.md: "Components never call APIs or localStorage
+ * directly."
+ */
+const galleryStore = useResourceGalleryStore()
+
+const isResource = computed<boolean>(() => props.link.entityType === 'resource')
+
+const galleryLoading = computed<boolean>(
+  () => galleryStore.resourceArtLoading[props.link.entityId] === true,
+)
+
+type Frame = { key: string; src: string; label: string }
+
+const frames = computed<Frame[]>(() => {
+  const out: Frame[] = []
+  const seen = new Set<string>()
+
+  const push = (src: string | null | undefined, label: string, key: string) => {
+    const value = String(src || '').trim()
+    if (!value || seen.has(value)) return
+    seen.add(value)
+    out.push({ key, src: value, label })
+  }
+
+  // The card's own face first: it is what was just clicked, so it should not
+  // jump somewhere else in the strip while the gallery loads.
+  push(imageSrc.value, `${typeLabel.value} ${props.link.label ?? ''}`, 'face')
+
+  if (!isResource.value || (props.link.isMature && !canSeeMature.value)) {
+    return out
+  }
+
+  const gallery = galleryStore.resourceArt[props.link.entityId]
+  if (!gallery) return out
+
+  for (const image of gallery.images ?? []) {
+    /*
+     * Static paths only, as above: an <img> cannot carry a Bearer token, so a
+     * row stored in the database rather than on disk has nothing renderable
+     * here. It is on the resource page, which loads bytes through the store.
+     */
+    push(
+      image.imagePath || image.thumbnailPath || image.cardPath,
+      `Generated image ${image.id}`,
+      `art-${image.id}`,
+    )
+  }
+
+  for (const preview of gallery.upstreamPreviews ?? []) {
+    push(preview.url, 'Upstream Civitai preview', `upstream-${preview.id}`)
+  }
+
+  return out
+})
+
+const activeIndex = ref(0)
+
+const heroSrc = computed<string | null>(
+  () => frames.value[activeIndex.value]?.src ?? imageSrc.value,
+)
+
+// A shorter strip must not leave the selection pointing past its end, and a
+// different object starts at its own face.
+watch(
+  () => [props.link.entityType, props.link.entityId, frames.value.length],
+  ([, , length]) => {
+    if (activeIndex.value >= Number(length)) activeIndex.value = 0
+  },
+)
+
+watch(
+  () => `${props.link.entityType}:${props.link.entityId}`,
+  () => {
+    activeIndex.value = 0
+    loadGallery()
+  },
+)
+
+function loadGallery(): void {
+  if (!isResource.value || !props.link.exists) return
+  if (props.link.isMature && !canSeeMature.value) return
+  void galleryStore.loadResourceArt(props.link.entityId)
+}
+
+onMounted(loadGallery)
 
 const DESCRIPTION_LIMIT = 400
 

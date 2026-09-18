@@ -1,1 +1,368 @@
-Ly8KLy8gVGhlIFRhYmxlJ3MgZGVja3M6IHJlYWwgZW50aXR5IHJlY29yZHMgbWFwcGVkIGludG8gdGhlIGNhcmQgc2hhcGUKLy8gKHN0b3J5Ym9vay90LTAzNCkuCi8vCi8vIFNpbGFzLCAyMDI2LTA5LTEyOiAiQWxsIHNlbGVjdGlvbnMgYmVmb3JlIHRoZSBzdG9yeSBiZWdpbnMgc2hvdWxkIGJlIGNhcmQKLy8gaGFuZCBiYXNlZCIgLS0gY2xhcmlmaWVkIGFzICJ0aGF0IGRvZXNuJ3QgY291bnQgcmVhc29uYWJsZSBzZXR0aW5ncywgc3RhcnQKLy8gc3RvcnksIGV0Yy4gSSBqdXN0IG1lYW50IGFsbCB0aGUgZmxhdm9yIGJpdHMsIGluY2x1ZGluZyBtb2RlIHNlbGVjdCwKLy8gbmFycmF0b3IsIGV0Yy4iIFNvIGV2ZXJ5dGhpbmcgaGVyZSBpcyBhIENBUkQ6IG1vZGUsIGdlbnJlLCBwbGFjZSwgaGVybywKLy8gY29tcGFueSwgbmFycmF0b3IsIHRocmVhZCwgdHJlYXN1cmVzLiBUaXRsZSwgc3Bhcmsvb2JqZWN0aXZlIGFuZCB0aGUgbGVuZ3RoCi8vIGRpYWwgYXJlIG9yZGluYXJ5IGNvbnRyb2xzIGFuZCBhcmUgZGVsaWJlcmF0ZWx5IGFic2VudCBmcm9tIHRoaXMgZmlsZS4KLy8KLy8gRXZlcnkgZGVjayBpcyBhIG1hcHBpbmcgZnVuY3Rpb24gcmF0aGVyIHRoYW4gYSBjb21wb25lbnQsIGJlY2F1c2UKLy8gY29tcG9uZW50cy9uYXJyYXRpdmUvbmFycmF0aXZlLWluZ3JlZGllbnQtY2FyZC52dWUgYWxyZWFkeSBkcmF3cyBhCi8vIE5hcnJhdGl2ZUluZ3JlZGllbnRPcHRpb24gd2l0aCBpdHMgcmVhbCBhcnR3b3JrIGluIHRoZSAyOjMgY2FyZCBzaGFwZS4gVGhlCi8vIG1hcHBpbmdzIG1hdGNoIHRoZSBvbmVzIHRoZSBvdXRnb2luZyBzZXR1cCBzY3JlZW4gdXNlZCwgc28gdGhlIFRhYmxlIHNob3dzCi8vIHRoZSBzYW1lIGFydCB0aGUgcGlja2VycyBkaWQuCgppbXBvcnQgdHlwZSB7IE5hcnJhdGl2ZUluZ3JlZGllbnRPcHRpb24gfSBmcm9tICdAL3V0aWxzL25hcnJhdGl2ZUluZ3JlZGllbnRzJwppbXBvcnQgdHlwZSB7IFN0b3J5Ym9va1J1bk1vZGUgfSBmcm9tICdAL3N0b3Jlcy9zdG9yeWJvb2tSdW5TdG9yZScKCi8qKiBTbG90cyBvbiB0aGUgYm9hcmQsIGluIHRoZSBvcmRlciB0aGV5IGFyZSBkZWFsdC4gKi8KZXhwb3J0IGNvbnN0IFNUT1JZQk9PS19TTE9UUyA9IFsKICAnbW9kZScsCiAgJ2dlbnJlJywKICAncGxhY2UnLAogICdoZXJvJywKICAnY29tcGFueScsCiAgJ25hcnJhdG9yJywKICAndGhyZWFkJywKICAndHJlYXN1cmVzJywKXSBhcyBjb25zdAoKZXhwb3J0IHR5cGUgU3Rvcnlib29rU2xvdCA9ICh0eXBlb2YgU1RPUllCT09LX1NMT1RTKVtudW1iZXJdCgovKioKICogVGhlIHNwcmVhZCwgaW4gcm93cyAoc3Rvcnlib29rL3QtMDEwLCAyMDI2LTA5LTEzKS4KICoKICogU2lsYXM6ICJhIGJhY2tkcm9wIHRoYXQgZXZva2VzIGxheWluZyBvdXQgY2FyZHMgb24gYSB2ZWx2ZXQgdGFibGVjbG90aCB0bwogKiB0ZWxsIGEgc3RvcnkgbGlrZSBhIHRhcm90IHJlYWRpbmcsIHdpdGggZGlmZmVyZW50IHJvd3MgYW5kIGNvbHVtbnMuIiBPbmUKICogYXV0by1maWxsIHJvdyBvZiBlaWdodCByZWFkcyBhcyBhIHRvb2xiYXI7IHRocmVlIG5hbWVkIHJvd3MgcmVhZCBhcyBhCiAqIHNwcmVhZCwgYW5kIGVhY2ggcm93IGFuc3dlcnMgYSBkaWZmZXJlbnQgcXVlc3Rpb24gYWJvdXQgdGhlIHN0b3J5LgogKi8KZXhwb3J0IGNvbnN0IFNUT1JZQk9PS19TTE9UX1JPV1M6IHsKICB0aXRsZTogc3RyaW5nCiAgc2xvdHM6IFN0b3J5Ym9va1Nsb3RbXQp9W10gPSBbCiAgeyB0aXRsZTogJ1RoZSBmcmFtZScsIHNsb3RzOiBbJ21vZGUnLCAnZ2VucmUnLCAncGxhY2UnXSB9LAogIHsgdGl0bGU6ICdUaGUgY2FzdCcsIHNsb3RzOiBbJ2hlcm8nLCAnY29tcGFueScsICduYXJyYXRvciddIH0sCiAgeyB0aXRsZTogJ1RoZSB0dXJuJywgc2xvdHM6IFsndGhyZWFkJywgJ3RyZWFzdXJlcyddIH0sCl0KCmV4cG9ydCBpbnRlcmZhY2UgU3Rvcnlib29rU2xvdFNwZWMgewogIGtleTogU3Rvcnlib29rU2xvdAogIGxhYmVsOiBzdHJpbmcKICAvKiogT25lIGxpbmUgdW5kZXIgdGhlIGVtcHR5IHdlbGwsIHNvIGEgYmxhbmsgYm9hcmQgc3RpbGwgZXhwbGFpbnMgaXRzZWxmLiAqLwogIGhpbnQ6IHN0cmluZwogIHJlcXVpcmVkOiBib29sZWFuCiAgLyoqIEhvdyBtYW55IGNhcmRzIHRoZSBzbG90IGhvbGRzLiAqLwogIGNhcGFjaXR5OiBudW1iZXIKICBpY29uOiBzdHJpbmcKfQoKLyoqCiAqIEdlbnJlLCBQbGFjZSBhbmQgSGVybyBhcmUgdGhlIG9ubHkgcmVxdWlyZWQgc2xvdHMuCiAqCiAqIEV2ZXJ5dGhpbmcgZWxzZSBkZWZhdWx0cyBvciBpcyBnZW51aW5lbHkgb3B0aW9uYWwgLS0gYSBzdG9yeSB3aXRoIG5vCiAqIHRyZWFzdXJlcyBhbmQgbm8gcGxvdCB0aHJlYWQgaXMgYSBmaW5lIHN0b3J5LCBhbmQgdGhlIG5hcnJhdG9yIGZhbGxzIGJhY2sgdG8KICogdGhlIGhvdXNlIGRlZmF1bHQuIFJlcXVpcmluZyBtb3JlIHRoYW4gdGhyZWUgY2FyZHMgdG8gc3RhcnQgdHVybnMgYSB0YWJsZQogKiBpbnRvIGEgZm9ybSwgd2hpY2ggaXMgd2hhdCB0aGlzIHNjcmVlbiByZXBsYWNlZC4KICovCmV4cG9ydCBjb25zdCBTVE9SWUJPT0tfU0xPVF9TUEVDUzogU3Rvcnlib29rU2xvdFNwZWNbXSA9IFsKICB7CiAgICBrZXk6ICdtb2RlJywKICAgIGxhYmVsOiAnTW9kZScsCiAgICBoaW50OiAnSG93IHRoZSBzdG9yeSBpcyB0b2xkJywKICAgIHJlcXVpcmVkOiBmYWxzZSwKICAgIGNhcGFjaXR5OiAxLAogICAgaWNvbjogJ2tpbmQtaWNvbjpjb21wYXNzJywKICB9LAogIHsKICAgIGtleTogJ2dlbnJlJywKICAgIGxhYmVsOiAnR2VucmUnLAogICAgaGludDogJ1RoZSBkZWNrIGl0IHJlc29sdmVzIGludG8nLAogICAgcmVxdWlyZWQ6IHRydWUsCiAgICBjYXBhY2l0eTogMSwKICAgIGljb246ICdraW5kLWljb246c3BhcmtsZXMnLAogIH0sCiAgewogICAga2V5OiAncGxhY2UnLAogICAgbGFiZWw6ICdQbGFjZScsCiAgICBoaW50OiAnV2hlcmUgaXQgaGFwcGVucycsCiAgICByZXF1aXJlZDogdHJ1ZSwKICAgIGNhcGFjaXR5OiAxLAogICAgaWNvbjogJ2tpbmQtaWNvbjptb29uJywKICB9LAogIHsKICAgIGtleTogJ2hlcm8nLAogICAgbGFiZWw6ICdIZXJvJywKICAgIGhpbnQ6ICdXaG8geW91IHBsYXknLAogICAgcmVxdWlyZWQ6IHRydWUsCiAgICBjYXBhY2l0eTogMSwKICAgIGljb246ICdraW5kLWljb246bWFzaycsCiAgfSwKICB7CiAgICBrZXk6ICdjb21wYW55JywKICAgIGxhYmVsOiAnQ29tcGFueScsCiAgICBoaW50OiAnV2hvIGVsc2UgaXMgaGVyZScsCiAgICByZXF1aXJlZDogZmFsc2UsCiAgICBjYXBhY2l0eTogMiwKICAgIGljb246ICdraW5kLWljb246dXNlcnMnLAogIH0sCiAgewogICAga2V5OiAnbmFycmF0b3InLAogICAgbGFiZWw6ICdOYXJyYXRvcicsCiAgICBoaW50OiAnV2hvc2Ugdm9pY2UgdGVsbHMgaXQnLAogICAgcmVxdWlyZWQ6IGZhbHNlLAogICAgY2FwYWNpdHk6IDEsCiAgICBpY29uOiAna2luZC1pY29uOmZlYXRoZXInLAogIH0sCiAgewogICAga2V5OiAndGhyZWFkJywKICAgIGxhYmVsOiAnVGhyZWFkJywKICAgIGhpbnQ6ICdBIHBsb3QgdG8gZm9sbG93JywKICAgIHJlcXVpcmVkOiBmYWxzZSwKICAgIGNhcGFjaXR5OiAxLAogICAgaWNvbjogJ2tpbmQtaWNvbjptYXAnLAogIH0sCiAgewogICAga2V5OiAndHJlYXN1cmVzJywKICAgIGxhYmVsOiAnVHJlYXN1cmVzJywKICAgIGhpbnQ6ICdXaGF0IHRoZSBzdG9yeSBtYXkgaGFuZCBvdXQnLAogICAgcmVxdWlyZWQ6IGZhbHNlLAogICAgY2FwYWNpdHk6IDMsCiAgICBpY29uOiAna2luZC1pY29uOmdpZnQnLAogIH0sCl0KCmV4cG9ydCBjb25zdCBNT0RFX0NBUkRTOiAoTmFycmF0aXZlSW5ncmVkaWVudE9wdGlvbiAmIHsKICBzbHVnOiBTdG9yeWJvb2tSdW5Nb2RlCn0pW10gPSBbCiAgewogICAgc2x1ZzogJ29wZW4tZW5kZWQnLAogICAgdGl0bGU6ICdPcGVuLWVuZGVkJywKICAgIGRlc2NyaXB0aW9uOiAnQSBzdG9yeSB3aXRoIG5vIGxhc3QgcGFnZS4gWW91IGRlY2lkZSB3aGVuIGl0IGVuZHMuJywKICAgIGZsYXZvclRleHQ6ICdFbmRsZXNzJywKICAgIGljb246ICdraW5kLWljb246cmVmcmVzaCcsCiAgICBiYWRnZTogJ01vZGUnLAogICAgaW1hZ2VQYXRoOiAnL2ltYWdlcy9nZW5lcmF0ZWQvMjAyNi8wOS9hcnRpbWFnZS0yNTgzNS0yZDc1ZjU5Ni53ZWJwJywKICB9LAogIHsKICAgIHNsdWc6ICdlcGlzb2RpYycsCiAgICB0aXRsZTogJ0VwaXNvZGljJywKICAgIGRlc2NyaXB0aW9uOiAnQSBwbG90IHRocmVhZCBwbGF5ZWQgb3V0IG92ZXIgYSBzZXQgcnVuIG9mIHNjZW5lcy4nLAogICAgZmxhdm9yVGV4dDogJ1NjZW5hcmlvLWJhc2VkJywKICAgIGljb246ICdraW5kLWljb246bWFwJywKICAgIGJhZGdlOiAnTW9kZScsCiAgICBpbWFnZVBhdGg6ICcvaW1hZ2VzL2dlbmVyYXRlZC8yMDI2LzA5L2FydGltYWdlLTI1ODM2LWM3MTdkZWFhLndlYnAnLAogIH0sCiAgewogICAgc2x1ZzogJ3N0cnVjdHVyZWQnLAogICAgdGl0bGU6ICdTdHJ1Y3R1cmVkJywKICAgIGRlc2NyaXB0aW9uOgogICAgICAnT25lIGxpZmUgdG9sZCBpbiBjaGFwdGVycywgd2VpZ2hlZCBhY3Jvc3MgdGVuIGhpZGRlbiBkaW1lbnNpb25zLicsCiAgICBmbGF2b3JUZXh0OiAnRGEgVmluY2kgbW9kZScsCiAgICBpY29uOiAna2luZC1pY29uOmNsb2NrJywKICAgIGJhZGdlOiAnTW9kZScsCiAgICBpbWFnZVBhdGg6ICcvaW1hZ2VzL2dlbmVyYXRlZC8yMDI2LzA5L2FydGltYWdlLTI1ODM3LWI1MjRkYjI0LndlYnAnLAogIH0sCiAgewogICAgc2x1ZzogJ3Rhc2ttYXN0ZXInLAogICAgdGl0bGU6ICdUYXNrbWFzdGVyJywKICAgIGRlc2NyaXB0aW9uOgogICAgICAnQSBxdWVzdCBidWlsdCBmcm9tIHlvdXIgb3duIHJlYWwgd29yay4gVGhlIHN0b3J5IHNlcnZlcyB0aGUgb2JqZWN0aXZlLicsCiAgICBmbGF2b3JUZXh0OiAnUmVhbCB3b3JrJywKICAgIGljb246ICdraW5kLWljb246Z2VhcmhhbW1lcicsCiAgICBiYWRnZTogJ01vZGUnLAogICAgaW1hZ2VQYXRoOiAnL2ltYWdlcy9nZW5lcmF0ZWQvMjAyNi8wOS9hcnRpbWFnZS0yNTgzOC0xYTE2ZGZhOS53ZWJwJywKICB9LApdCgovKiogVGhlIGZpdmUgZGVsaXZlcnkgZGlhbHMgYSBuYXJyYXRvciBCb3QncyB2b2ljZSBjYW4gYmUgbW9kdWxhdGVkIHdpdGguICovCmV4cG9ydCBjb25zdCBOQVJSQVRPUl9ERUxJVkVSSUVTID0gWwogIHsgdmFsdWU6ICdjaW5lbWF0aWMnLCBsYWJlbDogJ0NpbmVtYXRpYycgfSwKICB7IHZhbHVlOiAncGxheWZ1bCcsIGxhYmVsOiAnUGxheWZ1bCcgfSwKICB7IHZhbHVlOiAnc3Rvcnlib29rJywgbGFiZWw6ICdTdG9yeWJvb2snIH0sCiAgeyB2YWx1ZTogJ215c3RlcmlvdXMnLCBsYWJlbDogJ015c3RlcmlvdXMnIH0sCiAgeyB2YWx1ZTogJ2ludGltYXRlJywgbGFiZWw6ICdJbnRpbWF0ZScgfSwKXSBhcyBjb25zdAoKLyoqIFR1cm4tYnVkZ2V0IHByZXNldHMgZm9yIHRoZSBsZW5ndGggZGlhbC4gQSBzZXR0aW5nLCBuZXZlciBhIGNhcmQuICovCmV4cG9ydCBjb25zdCBMRU5HVEhfUFJFU0VUUyA9IFsKICB7IHZhbHVlOiA1LCBsYWJlbDogJ1Nob3J0JywgaGludDogJzUgdHVybnMnIH0sCiAgeyB2YWx1ZTogOCwgbGFiZWw6ICdTdGFuZGFyZCcsIGhpbnQ6ICc4IHR1cm5zJyB9LAogIHsgdmFsdWU6IDEyLCBsYWJlbDogJ0xvbmcnLCBoaW50OiAnMTIgdHVybnMnIH0sCiAgeyB2YWx1ZTogMjAsIGxhYmVsOiAnRXBpYycsIGhpbnQ6ICcyMCB0dXJucycgfSwKXSBhcyBjb25zdAoKaW50ZXJmYWNlIENoYXJhY3Rlckxpa2UgewogIGlkOiBudW1iZXIKICBzbHVnPzogc3RyaW5nIHwgbnVsbAogIG5hbWU/OiBzdHJpbmcgfCBudWxsCiAgcHJlc2VudGF0aW9uPzogc3RyaW5nIHwgbnVsbAogIHJvbGU/OiBzdHJpbmcgfCBudWxsCiAgY2xhc3M/OiBzdHJpbmcgfCBudWxsCiAgc3BlY2llcz86IHN0cmluZyB8IG51bGwKICBnZW5yZT86IHN0cmluZyB8IG51bGwKICBpbWFnZVBhdGg/OiBzdHJpbmcgfCBudWxsCiAgaXNQdWJsaWM/OiBib29sZWFuIHwgbnVsbAp9CgpleHBvcnQgZnVuY3Rpb24gdG9IZXJvQ2FyZChjaGFyYWN0ZXI6IENoYXJhY3Rlckxpa2UpOiBOYXJyYXRpdmVJbmdyZWRpZW50T3B0aW9uIHsKICByZXR1cm4gewogICAgaWQ6IGNoYXJhY3Rlci5pZCwKICAgIHNsdWc6IGNoYXJhY3Rlci5zbHVnIHx8IGBjaGFyYWN0ZXItJHtjaGFyYWN0ZXIuaWR9YCwKICAgIHRpdGxlOiBjaGFyYWN0ZXIubmFtZSB8fCBgQ2hhcmFjdGVyICR7Y2hhcmFjdGVyLmlkfWAsCiAgICBkZXNjcmlwdGlvbjogY2hhcmFjdGVyLnByZXNlbnRhdGlvbiB8fCBjaGFyYWN0ZXIucm9sZSB8fCBjaGFyYWN0ZXIuY2xhc3MsCiAgICBmbGF2b3JUZXh0OiBbY2hhcmFjdGVyLnNwZWNpZXMsIGNoYXJhY3Rlci5jbGFzcywgY2hhcmFjdGVyLmdlbnJlXQogICAgICAuZmlsdGVyKEJvb2xlYW4pCiAgICAgIC5qb2luKCcgwrcgJyksCiAgICBpbWFnZVBhdGg6IGNoYXJhY3Rlci5pbWFnZVBhdGgsCiAgICBpY29uOiAna2luZC1pY29uOm1hc2snLAogIH0KfQoKaW50ZXJmYWNlIERyZWFtTGlrZSB7CiAgaWQ6IG51bWJlcgogIHNsdWc/OiBzdHJpbmcgfCBudWxsCiAgdGl0bGU/OiBzdHJpbmcgfCBudWxsCiAgZGVzY3JpcHRpb24/OiBzdHJpbmcgfCBudWxsCiAgZmxhdm9yVGV4dD86IHN0cmluZyB8IG51bGwKICBpbWFnZVBhdGg/OiBzdHJpbmcgfCBudWxsCiAgaGlnaGxpZ2h0SW1hZ2U/OiBzdHJpbmcgfCBudWxsCiAgZHJlYW1UeXBlPzogc3RyaW5nIHwgbnVsbAogIGlzQWN0aXZlPzogYm9vbGVhbiB8IG51bGwKICBBcnRJbWFnZT86IHsgaW1hZ2VQYXRoPzogc3RyaW5nIHwgbnVsbCB9IHwgbnVsbAp9CgpleHBvcnQgZnVuY3Rpb24gaXNQbGFjZURyZWFtKGRyZWFtOiBEcmVhbUxpa2UpOiBib29sZWFuIHsKICByZXR1cm4gQm9vbGVhbigKICAgIGRyZWFtLmRyZWFtVHlwZSA9PT0gJ0xPQ0FUSU9OJyAmJiBkcmVhbS5pc0FjdGl2ZSAmJiBkcmVhbS5zbHVnLAogICkKfQoKZXhwb3J0IGZ1bmN0aW9uIHRvUGxhY2VDYXJkKGRyZWFtOiBEcmVhbUxpa2UpOiBOYXJyYXRpdmVJbmdyZWRpZW50T3B0aW9uIHsKICByZXR1cm4gewogICAgaWQ6IGRyZWFtLmlkLAogICAgc2x1ZzogZHJlYW0uc2x1ZyB8fCBTdHJpbmcoZHJlYW0uaWQpLAogICAgdGl0bGU6IGRyZWFtLnRpdGxlIHx8ICdVbnRpdGxlZCBwbGFjZScsCiAgICBkZXNjcmlwdGlvbjogZHJlYW0uZGVzY3JpcHRpb24sCiAgICBmbGF2b3JUZXh0OiBkcmVhbS5mbGF2b3JUZXh0LAogICAgaW1hZ2VQYXRoOgogICAgICBkcmVhbS5pbWFnZVBhdGggfHwgZHJlYW0uaGlnaGxpZ2h0SW1hZ2UgfHwgZHJlYW0uQXJ0SW1hZ2U/LmltYWdlUGF0aCwKICAgIGljb246ICdraW5kLWljb246bW9vbicsCiAgfQp9CgppbnRlcmZhY2UgRmFjZXRMaWtlIHsKICBpZDogbnVtYmVyCiAgc2x1Zz86IHN0cmluZyB8IG51bGwKICB0aXRsZTogc3RyaW5nCiAgZGVzY3JpcHRpb24/OiBzdHJpbmcgfCBudWxsCiAgZmxhdm9yVGV4dD86IHN0cmluZyB8IG51bGwKICBpbWFnZVBhdGg/OiBzdHJpbmcgfCBudWxsCiAgaWNvbj86IHN0cmluZyB8IG51bGwKICB0YXhvbm9teTogc3RyaW5nCn0KCi8qKgogKiBPbmx5IEdFTlJFIGZhY2V0cyBmaWxsIHRoZSBHZW5yZSBzbG90LgogKgogKiBUaGUgb2xkIHNldHVwIHNjcmVlbiBvZmZlcmVkIHNpeCB0YXhvbm9taWVzIGF0IG9uY2UgaW4gYSBzaW5nbGUgcGlja2VyLCB3aGljaAogKiBpcyBob3cgYSByZWFkZXIgZW5kZWQgdXAgY2hvb3NpbmcgYSBtb29kIHdoZXJlIGEgZ2VucmUgd2FzIG1lYW50LiBBIGdlbnJlIElTCiAqIHRoZSBlbmRpbmcgZGVjaywgc28gdGhpcyBzbG90IGNhbm5vdCB0YWtlIGFueXRoaW5nIGVsc2UuCiAqLwpleHBvcnQgZnVuY3Rpb24gaXNHZW5yZUZhY2V0KGZhY2V0OiBGYWNldExpa2UpOiBib29sZWFuIHsKICByZXR1cm4gZmFjZXQudGF4b25vbXkgPT09ICdHRU5SRScgJiYgQm9vbGVhbihmYWNldC5zbHVnKQp9CgpleHBvcnQgZnVuY3Rpb24gdG9HZW5yZUNhcmQoZmFjZXQ6IEZhY2V0TGlrZSk6IE5hcnJhdGl2ZUluZ3JlZGllbnRPcHRpb24gewogIHJldHVybiB7CiAgICBpZDogZmFjZXQuaWQsCiAgICBzbHVnOiBmYWNldC5zbHVnIHx8IFN0cmluZyhmYWNldC5pZCksCiAgICB0aXRsZTogZmFjZXQudGl0bGUsCiAgICBkZXNjcmlwdGlvbjogZmFjZXQuZGVzY3JpcHRpb24sCiAgICBmbGF2b3JUZXh0OiBmYWNldC5mbGF2b3JUZXh0LAogICAgaW1hZ2VQYXRoOiBmYWNldC5pbWFnZVBhdGgsCiAgICBpY29uOiBmYWNldC5pY29uIHx8ICdraW5kLWljb246c3BhcmtsZXMnLAogIH0KfQoKaW50ZXJmYWNlIFNjZW5hcmlvTGlrZSB7CiAgaWQ6IG51bWJlcgogIHNsdWc/OiBzdHJpbmcgfCBudWxsCiAgdGl0bGU/OiBzdHJpbmcgfCBudWxsCiAgZGVzY3JpcHRpb24/OiBzdHJpbmcgfCBudWxsCiAgaW1hZ2VQYXRoPzogc3RyaW5nIHwgbnVsbAogIGdlbnJlcz86IHN0cmluZyB8IG51bGwKfQoKZXhwb3J0IGZ1bmN0aW9uIHRvVGhyZWFkQ2FyZCgKICBzY2VuYXJpbzogU2NlbmFyaW9MaWtlLAopOiBOYXJyYXRpdmVJbmdyZWRpZW50T3B0aW9uIHsKICByZXR1cm4gewogICAgaWQ6IHNjZW5hcmlvLmlkLAogICAgc2x1Zzogc2NlbmFyaW8uc2x1ZyB8fCBTdHJpbmcoc2NlbmFyaW8uaWQpLAogICAgdGl0bGU6IHNjZW5hcmlvLnRpdGxlIHx8ICdVbnRpdGxlZCB0aHJlYWQnLAogICAgZGVzY3JpcHRpb246IHNjZW5hcmlvLmRlc2NyaXB0aW9uLAogICAgaW1hZ2VQYXRoOiBzY2VuYXJpby5pbWFnZVBhdGgsCiAgICBpY29uOiAna2luZC1pY29uOm1hcCcsCiAgICBiYWRnZTogc2NlbmFyaW8uZ2VucmVzIHx8IHVuZGVmaW5lZCwKICB9Cn0KCmludGVyZmFjZSBSZXdhcmRMaWtlIHsKICBpZDogbnVtYmVyCiAgc2x1Zz86IHN0cmluZyB8IG51bGwKICBuYW1lPzogc3RyaW5nIHwgbnVsbAogIGRlc2NyaXB0aW9uPzogc3RyaW5nIHwgbnVsbAogIGVmZmVjdD86IHN0cmluZyB8IG51bGwKICBmbGF2b3JUZXh0Pzogc3RyaW5nIHwgbnVsbAogIGltYWdlUGF0aD86IHN0cmluZyB8IG51bGwKICBpY29uPzogc3RyaW5nIHwgbnVsbAogIHJhcml0eT86IHN0cmluZyB8IG51bGwKICByZXdhcmRUeXBlPzogc3RyaW5nIHwgbnVsbAogIGlzQWN0aXZlPzogYm9vbGVhbiB8IG51bGwKfQoKZXhwb3J0IGZ1bmN0aW9uIHRvVHJlYXN1cmVDYXJkKAogIHJld2FyZDogUmV3YXJkTGlrZSwKKTogTmFycmF0aXZlSW5ncmVkaWVudE9wdGlvbiB7CiAgY29uc3QgcmFyaXR5ID0gKHJld2FyZC5yYXJpdHkgfHwgJycpLnRvTG93ZXJDYXNlKCkKICBjb25zdCBraW5kID0gKHJld2FyZC5yZXdhcmRUeXBlIHx8ICcnKS50b0xvd2VyQ2FzZSgpCiAgcmV0dXJuIHsKICAgIGlkOiByZXdhcmQuaWQsCiAgICBzbHVnOiByZXdhcmQuc2x1ZyB8fCBTdHJpbmcocmV3YXJkLmlkKSwKICAgIHRpdGxlOiByZXdhcmQubmFtZSB8fCBgUmV3YXJkICR7cmV3YXJkLmlkfWAsCiAgICBkZXNjcmlwdGlvbjogcmV3YXJkLmRlc2NyaXB0aW9uIHx8IHJld2FyZC5lZmZlY3QsCiAgICBmbGF2b3JUZXh0OiByZXdhcmQuZmxhdm9yVGV4dCwKICAgIGltYWdlUGF0aDogcmV3YXJkLmltYWdlUGF0aCwKICAgIGljb246IHJld2FyZC5pY29uIHx8ICdraW5kLWljb246Z2lmdCcsCiAgICBiYWRnZTogW3Jhcml0eSwga2luZF0uZmlsdGVyKEJvb2xlYW4pLmpvaW4oJyAnKSB8fCB1bmRlZmluZWQsCiAgfQp9CgpleHBvcnQgaW50ZXJmYWNlIE5hcnJhdG9yTGlrZSB7CiAgaWQ6IG51bWJlcgogIG5hbWU/OiBzdHJpbmcgfCBudWxsCiAgc2x1Zz86IHN0cmluZyB8IG51bGwKICBzdWJ0aXRsZT86IHN0cmluZyB8IG51bGwKICB0YWdsaW5lPzogc3RyaW5nIHwgbnVsbAogIHZvaWNlPzogc3RyaW5nIHwgbnVsbAogIGltYWdlUGF0aD86IHN0cmluZyB8IG51bGwKfQoKZXhwb3J0IGZ1bmN0aW9uIHRvTmFycmF0b3JDYXJkKAogIG5hcnJhdG9yOiBOYXJyYXRvckxpa2UsCik6IE5hcnJhdGl2ZUluZ3JlZGllbnRPcHRpb24gewogIHJldHVybiB7CiAgICBpZDogbmFycmF0b3IuaWQsCiAgICBzbHVnOiBuYXJyYXRvci5zbHVnIHx8IGBib3QtJHtuYXJyYXRvci5pZH1gLAogICAgdGl0bGU6IG5hcnJhdG9yLm5hbWUgfHwgYE5hcnJhdG9yICR7bmFycmF0b3IuaWR9YCwKICAgIGRlc2NyaXB0aW9uOiBuYXJyYXRvci5zdWJ0aXRsZSB8fCBuYXJyYXRvci50YWdsaW5lLAogICAgZmxhdm9yVGV4dDogbmFycmF0b3Iudm9pY2UsCiAgICBpbWFnZVBhdGg6IG5hcnJhdG9yLmltYWdlUGF0aCwKICAgIGljb246ICdraW5kLWljb246ZmVhdGhlcicsCiAgICBiYWRnZTogJ05hcnJhdG9yJywKICB9Cn0K
+//
+// The Table's decks: real entity records mapped into the card shape
+// (storybook/t-034).
+//
+// Silas, 2026-09-12: "All selections before the story begins should be card
+// hand based" -- clarified as "that doesn't count reasonable settings, start
+// story, etc. I just meant all the flavor bits, including mode select,
+// narrator, etc." So everything here is a CARD: mode, genre, place, hero,
+// company, narrator, thread, treasures. Title, spark/objective and the length
+// dial are ordinary controls and are deliberately absent from this file.
+//
+// Every deck is a mapping function rather than a component, because
+// components/narrative/narrative-ingredient-card.vue already draws a
+// NarrativeIngredientOption with its real artwork in the 2:3 card shape. The
+// mappings match the ones the outgoing setup screen used, so the Table shows
+// the same art the pickers did.
+
+import type { NarrativeIngredientOption } from '@/utils/narrativeIngredients'
+import type { StorybookRunMode } from '@/stores/storybookRunStore'
+
+/** Slots on the board, in the order they are dealt. */
+export const STORYBOOK_SLOTS = [
+  'mode',
+  'genre',
+  'place',
+  'hero',
+  'company',
+  'narrator',
+  'thread',
+  'treasures',
+] as const
+
+export type StorybookSlot = (typeof STORYBOOK_SLOTS)[number]
+
+/**
+ * The spread, in rows (storybook/t-010, 2026-09-13).
+ *
+ * Silas: "a backdrop that evokes laying out cards on a velvet tablecloth to
+ * tell a story like a tarot reading, with different rows and columns." One
+ * auto-fill row of eight reads as a toolbar; three named rows read as a
+ * spread, and each row answers a different question about the story.
+ */
+export const STORYBOOK_SLOT_ROWS: {
+  title: string
+  slots: StorybookSlot[]
+}[] = [
+  { title: 'The frame', slots: ['mode', 'genre', 'place'] },
+  { title: 'The cast', slots: ['hero', 'company', 'narrator'] },
+  { title: 'The turn', slots: ['thread', 'treasures'] },
+]
+
+export interface StorybookSlotSpec {
+  key: StorybookSlot
+  label: string
+  /** One line under the empty well, so a blank board still explains itself. */
+  hint: string
+  required: boolean
+  /** How many cards the slot holds. */
+  capacity: number
+  icon: string
+}
+
+/**
+ * Genre, Place and Hero are the only required slots.
+ *
+ * Everything else defaults or is genuinely optional -- a story with no
+ * treasures and no plot thread is a fine story, and the narrator falls back to
+ * the house default. Requiring more than three cards to start turns a table
+ * into a form, which is what this screen replaced.
+ */
+export const STORYBOOK_SLOT_SPECS: StorybookSlotSpec[] = [
+  {
+    key: 'mode',
+    label: 'Mode',
+    hint: 'How the story is told',
+    required: false,
+    capacity: 1,
+    icon: 'kind-icon:compass',
+  },
+  {
+    key: 'genre',
+    label: 'Genre',
+    hint: 'The deck it resolves into',
+    required: true,
+    capacity: 1,
+    icon: 'kind-icon:sparkles',
+  },
+  {
+    key: 'place',
+    label: 'Place',
+    hint: 'Where it happens',
+    required: true,
+    capacity: 1,
+    icon: 'kind-icon:moon',
+  },
+  {
+    key: 'hero',
+    label: 'Hero',
+    hint: 'Who you play',
+    required: true,
+    capacity: 1,
+    icon: 'kind-icon:mask',
+  },
+  {
+    key: 'company',
+    label: 'Company',
+    hint: 'Who else is here',
+    required: false,
+    capacity: 2,
+    icon: 'kind-icon:users',
+  },
+  {
+    key: 'narrator',
+    label: 'Narrator',
+    hint: 'Whose voice tells it',
+    required: false,
+    capacity: 1,
+    icon: 'kind-icon:feather',
+  },
+  {
+    key: 'thread',
+    label: 'Thread',
+    hint: 'A plot to follow',
+    required: false,
+    capacity: 1,
+    icon: 'kind-icon:map',
+  },
+  {
+    key: 'treasures',
+    label: 'Treasures',
+    hint: 'What the story may hand out',
+    required: false,
+    capacity: 3,
+    icon: 'kind-icon:gift',
+  },
+]
+
+export const MODE_CARDS: (NarrativeIngredientOption & {
+  slug: StorybookRunMode
+})[] = [
+  {
+    slug: 'open-ended',
+    title: 'Open-ended',
+    description: 'A story with no last page. You decide when it ends.',
+    flavorText: 'Endless',
+    icon: 'kind-icon:refresh',
+    badge: 'Mode',
+    imagePath: '/images/generated/2026/09/artimage-25835-2d75f596.webp',
+  },
+  {
+    slug: 'episodic',
+    title: 'Episodic',
+    description: 'A plot thread played out over a set run of scenes.',
+    flavorText: 'Scenario-based',
+    icon: 'kind-icon:map',
+    badge: 'Mode',
+    imagePath: '/images/generated/2026/09/artimage-25836-c717deaa.webp',
+  },
+  {
+    slug: 'structured',
+    title: 'Structured',
+    description:
+      'One life told in chapters, weighed across ten hidden dimensions.',
+    flavorText: 'Da Vinci mode',
+    icon: 'kind-icon:clock',
+    badge: 'Mode',
+    imagePath: '/images/generated/2026/09/artimage-25837-b524db24.webp',
+  },
+  {
+    slug: 'taskmaster',
+    title: 'Taskmaster',
+    description:
+      'A quest built from your own real work. The story serves the objective.',
+    flavorText: 'Real work',
+    icon: 'kind-icon:gearhammer',
+    badge: 'Mode',
+    imagePath: '/images/generated/2026/09/artimage-25838-1a16dfa9.webp',
+  },
+]
+
+/** The five delivery dials a narrator Bot's voice can be modulated with. */
+export const NARRATOR_DELIVERIES = [
+  { value: 'cinematic', label: 'Cinematic' },
+  { value: 'playful', label: 'Playful' },
+  { value: 'storybook', label: 'Storybook' },
+  { value: 'mysterious', label: 'Mysterious' },
+  { value: 'intimate', label: 'Intimate' },
+] as const
+
+/** Turn-budget presets for the length dial. A setting, never a card. */
+export const LENGTH_PRESETS = [
+  { value: 5, label: 'Short', hint: '5 turns' },
+  { value: 8, label: 'Standard', hint: '8 turns' },
+  { value: 12, label: 'Long', hint: '12 turns' },
+  { value: 20, label: 'Epic', hint: '20 turns' },
+] as const
+
+interface CharacterLike {
+  id: number
+  slug?: string | null
+  name?: string | null
+  presentation?: string | null
+  role?: string | null
+  class?: string | null
+  species?: string | null
+  genre?: string | null
+  imagePath?: string | null
+  isPublic?: boolean | null
+}
+
+export function toHeroCard(character: CharacterLike): NarrativeIngredientOption {
+  return {
+    id: character.id,
+    slug: character.slug || `character-${character.id}`,
+    title: character.name || `Character ${character.id}`,
+    description: character.presentation || character.role || character.class,
+    flavorText: [character.species, character.class, character.genre]
+      .filter(Boolean)
+      .join(' · '),
+    imagePath: character.imagePath,
+    icon: 'kind-icon:mask',
+  }
+}
+
+interface DreamLike {
+  id: number
+  slug?: string | null
+  title?: string | null
+  description?: string | null
+  flavorText?: string | null
+  imagePath?: string | null
+  highlightImage?: string | null
+  dreamType?: string | null
+  isActive?: boolean | null
+  ArtImage?: { imagePath?: string | null } | null
+}
+
+export function isPlaceDream(dream: DreamLike): boolean {
+  return Boolean(
+    dream.dreamType === 'LOCATION' && dream.isActive && dream.slug,
+  )
+}
+
+export function toPlaceCard(dream: DreamLike): NarrativeIngredientOption {
+  return {
+    id: dream.id,
+    slug: dream.slug || String(dream.id),
+    title: dream.title || 'Untitled place',
+    description: dream.description,
+    flavorText: dream.flavorText,
+    imagePath:
+      dream.imagePath || dream.highlightImage || dream.ArtImage?.imagePath,
+    icon: 'kind-icon:moon',
+  }
+}
+
+interface FacetLike {
+  id: number
+  slug?: string | null
+  title: string
+  description?: string | null
+  flavorText?: string | null
+  imagePath?: string | null
+  icon?: string | null
+  taxonomy: string
+}
+
+/**
+ * Only GENRE facets fill the Genre slot.
+ *
+ * The old setup screen offered six taxonomies at once in a single picker, which
+ * is how a reader ended up choosing a mood where a genre was meant. A genre IS
+ * the ending deck, so this slot cannot take anything else.
+ */
+export function isGenreFacet(facet: FacetLike): boolean {
+  return facet.taxonomy === 'GENRE' && Boolean(facet.slug)
+}
+
+export function toGenreCard(facet: FacetLike): NarrativeIngredientOption {
+  return {
+    id: facet.id,
+    slug: facet.slug || String(facet.id),
+    title: facet.title,
+    description: facet.description,
+    flavorText: facet.flavorText,
+    imagePath: facet.imagePath,
+    icon: facet.icon || 'kind-icon:sparkles',
+  }
+}
+
+interface ScenarioLike {
+  id: number
+  slug?: string | null
+  title?: string | null
+  description?: string | null
+  imagePath?: string | null
+  genres?: string | null
+}
+
+export function toThreadCard(
+  scenario: ScenarioLike,
+): NarrativeIngredientOption {
+  return {
+    id: scenario.id,
+    slug: scenario.slug || String(scenario.id),
+    title: scenario.title || 'Untitled thread',
+    description: scenario.description,
+    imagePath: scenario.imagePath,
+    icon: 'kind-icon:map',
+    badge: scenario.genres || undefined,
+  }
+}
+
+interface RewardLike {
+  id: number
+  slug?: string | null
+  name?: string | null
+  description?: string | null
+  effect?: string | null
+  flavorText?: string | null
+  imagePath?: string | null
+  icon?: string | null
+  rarity?: string | null
+  rewardType?: string | null
+  isActive?: boolean | null
+}
+
+export function toTreasureCard(
+  reward: RewardLike,
+): NarrativeIngredientOption {
+  const rarity = (reward.rarity || '').toLowerCase()
+  const kind = (reward.rewardType || '').toLowerCase()
+  return {
+    id: reward.id,
+    slug: reward.slug || String(reward.id),
+    title: reward.name || `Reward ${reward.id}`,
+    description: reward.description || reward.effect,
+    flavorText: reward.flavorText,
+    imagePath: reward.imagePath,
+    icon: reward.icon || 'kind-icon:gift',
+    badge: [rarity, kind].filter(Boolean).join(' ') || undefined,
+  }
+}
+
+export interface NarratorLike {
+  id: number
+  name?: string | null
+  slug?: string | null
+  subtitle?: string | null
+  tagline?: string | null
+  voice?: string | null
+  imagePath?: string | null
+}
+
+export function toNarratorCard(
+  narrator: NarratorLike,
+): NarrativeIngredientOption {
+  return {
+    id: narrator.id,
+    slug: narrator.slug || `bot-${narrator.id}`,
+    title: narrator.name || `Narrator ${narrator.id}`,
+    description: narrator.subtitle || narrator.tagline,
+    flavorText: narrator.voice,
+    imagePath: narrator.imagePath,
+    icon: 'kind-icon:feather',
+    badge: 'Narrator',
+  }
+}

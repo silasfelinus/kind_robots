@@ -1,4 +1,3 @@
-// /utils/storybookTableDecks.ts
 //
 // The Table's decks: real entity records mapped into the card shape
 // (storybook/t-034).
@@ -146,6 +145,7 @@ export const MODE_CARDS: (NarrativeIngredientOption & {
     flavorText: 'Endless',
     icon: 'kind-icon:refresh',
     badge: 'Mode',
+    imagePath: '/images/generated/2026/09/artimage-25835-2d75f596.webp',
   },
   {
     slug: 'episodic',
@@ -154,6 +154,7 @@ export const MODE_CARDS: (NarrativeIngredientOption & {
     flavorText: 'Scenario-based',
     icon: 'kind-icon:map',
     badge: 'Mode',
+    imagePath: '/images/generated/2026/09/artimage-25836-c717deaa.webp',
   },
   {
     slug: 'structured',
@@ -163,6 +164,7 @@ export const MODE_CARDS: (NarrativeIngredientOption & {
     flavorText: 'Da Vinci mode',
     icon: 'kind-icon:clock',
     badge: 'Mode',
+    imagePath: '/images/generated/2026/09/artimage-25837-b524db24.webp',
   },
   {
     slug: 'taskmaster',
@@ -172,6 +174,7 @@ export const MODE_CARDS: (NarrativeIngredientOption & {
     flavorText: 'Real work',
     icon: 'kind-icon:gearhammer',
     badge: 'Mode',
+    imagePath: '/images/generated/2026/09/artimage-25838-1a16dfa9.webp',
   },
 ]
 

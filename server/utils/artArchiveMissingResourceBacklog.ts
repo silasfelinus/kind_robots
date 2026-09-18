@@ -82,13 +82,19 @@ function rawEvidence(metadataText: string | null): { checkpoint: UnmatchedModelE
   if (!metadataText) return { checkpoint: null, loras: [] }
   try {
     const metadata = JSON.parse(metadataText) as ExtractedArchiveMetadata
+    // Structured checkpoint/LoRA evidence exists only on the PNG variant.
+    // JPEG/WebP metadata is still preserved by the scanner, but its free-form
+    // EXIF/XMP/comments are not safe to reinterpret as model identifiers here.
+    if (!metadata.supported || metadata.format !== 'png') {
+      return { checkpoint: null, loras: [] }
+    }
     const source = metadata.a1111 ?? metadata.comfy
     if (!source) return { checkpoint: null, loras: [] }
     return {
       checkpoint: source.checkpoint || ('checkpointHash' in source && source.checkpointHash)
         ? { name: source.checkpoint, hash: 'checkpointHash' in source ? source.checkpointHash : null, weight: null }
         : null,
-      loras: source.loraTokens.map((token) => ({ name: token.name, hash: null, weight: token.weight ?? null })),
+      loras: source.loraTokens.map((token: { name: string; weight: number | null }) => ({ name: token.name, hash: null, weight: token.weight ?? null })),
     }
   } catch {
     return { checkpoint: null, loras: [] }

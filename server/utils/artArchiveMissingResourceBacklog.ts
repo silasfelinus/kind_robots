@@ -1,5 +1,6 @@
 import type { ArchiveResourceMatchSummary, FieldMatchSummary } from './applyArtArchiveResourceMatch'
 import type { ResourceMatchCandidate, UnmatchedModelEvidence } from './artArchiveResourceMatch'
+import type { ExtractedArchiveMetadata } from './artArchiveMetadata'
 
 export type MissingArchiveResourceType = 'CHECKPOINT' | 'LORA'
 
@@ -7,6 +8,7 @@ export type ArchiveBacklogEntry = {
   id: number
   artImageId: number | null
   relativePath: string
+  extractedMetadata: string | null
   matchSummary: string | null
 }
 
@@ -38,26 +40,22 @@ function backlogKey(resourceType: MissingArchiveResourceType, evidence: Unmatche
   return `${resourceType}:${hash ? `hash:${hash}` : `name:${normalizeName(evidence.name)}`}`
 }
 
-function unresolvedEvidence(field: FieldMatchSummary): UnmatchedModelEvidence | null {
+function unresolvedEvidence(field: FieldMatchSummary, raw: UnmatchedModelEvidence | null): UnmatchedModelEvidence | null {
   if (field.appliedResourceId !== null) return null
-  if (field.outcome.unmatched) return field.outcome.unmatched
-  return { name: null, hash: null, weight: null }
+  return field.outcome.unmatched ?? raw
 }
 
 function addField(
   backlog: Map<string, MissingArchiveResource>,
   resourceType: MissingArchiveResourceType,
   field: FieldMatchSummary,
+  raw: UnmatchedModelEvidence | null,
   example: MissingArchiveResourceExample,
 ): void {
-  const evidence = unresolvedEvidence(field)
-  if (!evidence) return
+  const evidence = unresolvedEvidence(field, raw)
+  if (!evidence?.name && !evidence?.hash) return
 
-  const fallbackName = field.outcome.candidates.length ? `candidate:${field.outcome.candidates.map((candidate) => candidate.resourceId).join(',')}` : null
-  const effectiveEvidence = evidence.name || evidence.hash ? evidence : { ...evidence, name: fallbackName }
-  if (!effectiveEvidence.name && !effectiveEvidence.hash) return
-
-  const key = backlogKey(resourceType, effectiveEvidence)
+  const key = backlogKey(resourceType, evidence)
   const existing = backlog.get(key)
   if (existing) {
     existing.occurrenceCount += 1
@@ -71,13 +69,30 @@ function addField(
   backlog.set(key, {
     key,
     resourceType,
-    name: effectiveEvidence.name,
-    hash: effectiveEvidence.hash,
-    weight: effectiveEvidence.weight,
+    name: evidence.name,
+    hash: evidence.hash,
+    weight: evidence.weight,
     occurrenceCount: 1,
     candidates: [...field.outcome.candidates],
     examples: [example],
   })
+}
+
+function rawEvidence(metadataText: string | null): { checkpoint: UnmatchedModelEvidence | null; loras: UnmatchedModelEvidence[] } {
+  if (!metadataText) return { checkpoint: null, loras: [] }
+  try {
+    const metadata = JSON.parse(metadataText) as ExtractedArchiveMetadata
+    const source = metadata.a1111 ?? metadata.comfy
+    if (!source) return { checkpoint: null, loras: [] }
+    return {
+      checkpoint: source.checkpoint || ('checkpointHash' in source && source.checkpointHash)
+        ? { name: source.checkpoint, hash: 'checkpointHash' in source ? source.checkpointHash : null, weight: null }
+        : null,
+      loras: source.loraTokens.map((token) => ({ name: token.name, hash: null, weight: token.weight ?? null })),
+    }
+  } catch {
+    return { checkpoint: null, loras: [] }
+  }
 }
 
 export function buildMissingArchiveResourceBacklog(entries: ArchiveBacklogEntry[]): MissingArchiveResource[] {
@@ -92,9 +107,10 @@ export function buildMissingArchiveResourceBacklog(entries: ArchiveBacklogEntry[
       continue
     }
 
+    const raw = rawEvidence(entry.extractedMetadata)
     const example = { archiveEntryId: entry.id, artImageId: entry.artImageId, relativePath: entry.relativePath }
-    if (summary.checkpoint) addField(backlog, 'CHECKPOINT', summary.checkpoint, example)
-    for (const lora of summary.loras ?? []) addField(backlog, 'LORA', lora, example)
+    if (summary.checkpoint) addField(backlog, 'CHECKPOINT', summary.checkpoint, raw.checkpoint, example)
+    for (const [index, lora] of (summary.loras ?? []).entries()) addField(backlog, 'LORA', lora, raw.loras[index] ?? null, example)
   }
 
   return [...backlog.values()].sort((a, b) => b.occurrenceCount - a.occurrenceCount || a.key.localeCompare(b.key))
@@ -103,14 +119,14 @@ export function buildMissingArchiveResourceBacklog(entries: ArchiveBacklogEntry[
 export type ArchiveBacklogPoolDelegate = {
   findMany: (args: {
     where: { isActive: true; matchSummary: { not: null } }
-    select: { id: true; artImageId: true; relativePath: true; matchSummary: true }
+    select: { id: true; artImageId: true; relativePath: true; extractedMetadata: true; matchSummary: true }
   }) => PromiseLike<ArchiveBacklogEntry[]>
 }
 
 export async function queryMissingArchiveResourceBacklog(archiveEntry: ArchiveBacklogPoolDelegate): Promise<MissingArchiveResource[]> {
   const entries = await archiveEntry.findMany({
     where: { isActive: true, matchSummary: { not: null } },
-    select: { id: true, artImageId: true, relativePath: true, matchSummary: true },
+    select: { id: true, artImageId: true, relativePath: true, extractedMetadata: true, matchSummary: true },
   })
   return buildMissingArchiveResourceBacklog(entries)
 }

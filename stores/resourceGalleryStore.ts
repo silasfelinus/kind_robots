@@ -3,6 +3,7 @@ import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import type { ArtImage, Resource } from '~/prisma/generated/prisma/client'
 import { handleError, performFetch } from '@/stores/utils'
+import { blobToDataUri } from '~/utils/artImageSource'
 import { useUserStore } from '@/stores/userStore'
 
 export type ResourcePreviewArtImage = Pick<
@@ -259,6 +260,75 @@ export const useResourceGalleryStore = defineStore(
       }
     }
 
+    /*
+     * BYTES FOR A GENERATION SOURCE.
+     *
+     * Silas, 2026-09-18: "we should be able to select them and modify them,
+     * even if they come from a civitai sample."
+     *
+     * Two routes, because the two kinds of gallery image are not the same
+     * thing. A generated ArtImage is ours and has a bytes route. An upstream
+     * Civitai preview is a url on someone else's host, and a browser cannot
+     * read cross-origin pixels back out of an <img> -- so the server fetches it
+     * (see /api/resources/previews/:id/source, which takes a ROW id, never a
+     * caller-supplied url).
+     *
+     * Both return a `data:` URI, which is the shape artForm.sourceImageBase64
+     * and the enqueue payload already speak.
+     */
+    const sourceLoadingKeys = ref<string[]>([])
+
+    function isSourceLoading(key: string): boolean {
+      return sourceLoadingKeys.value.includes(key)
+    }
+
+    async function loadArtImageSource(artImageId: number): Promise<string> {
+      const key = `art:${artImageId}`
+      sourceLoadingKeys.value = [...sourceLoadingKeys.value, key]
+      try {
+        const response = await fetch(`/api/art/images/${artImageId}/file`, {
+          credentials: 'include',
+          cache: 'no-store',
+        })
+        if (!response.ok) {
+          throw new Error(
+            `That image could not be loaded as a source (${response.status}).`,
+          )
+        }
+        const blob = await response.blob()
+        if (!blob.type.startsWith('image/')) {
+          throw new Error(
+            'That file is not an image, so it cannot be a source.',
+          )
+        }
+        return await blobToDataUri(blob)
+      } finally {
+        sourceLoadingKeys.value = sourceLoadingKeys.value.filter(
+          (entry) => entry !== key,
+        )
+      }
+    }
+
+    async function loadPreviewSource(previewId: number): Promise<string> {
+      const key = `preview:${previewId}`
+      sourceLoadingKeys.value = [...sourceLoadingKeys.value, key]
+      try {
+        const response = await performFetch<{ dataUri: string }>(
+          `/api/resources/previews/${previewId}/source`,
+        )
+        if (!response.success || !response.data?.dataUri) {
+          throw new Error(
+            response.message || 'That preview could not be loaded as a source.',
+          )
+        }
+        return response.data.dataUri
+      } finally {
+        sourceLoadingKeys.value = sourceLoadingKeys.value.filter(
+          (entry) => entry !== key,
+        )
+      }
+    }
+
     async function queuePreview(
       id: number,
     ): Promise<PreviewQueueResult | null> {
@@ -386,6 +456,10 @@ export const useResourceGalleryStore = defineStore(
       previewJobs,
       resourceArt,
       resourceArtLoading,
+      sourceLoadingKeys,
+      isSourceLoading,
+      loadArtImageSource,
+      loadPreviewSource,
       resourceArtError,
       loadResources,
       getResource,

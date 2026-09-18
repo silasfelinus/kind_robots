@@ -80,13 +80,68 @@
           @open="openItem(group.key, $event)"
         />
       </div>
+
+      <!--
+        THE PICKED IMAGE, AND WHAT CAN BE DONE WITH IT. Silas, 2026-09-18: "we
+        should be able to select them and modify them, even if they come from a
+        civitai sample."
+
+        A bar rather than per-tile buttons: the tiles are xs-density thumbnails
+        and a button on each would be bigger than the picture. One selection,
+        one row of actions, and it only exists once something is picked.
+      -->
+      <div
+        v-if="selected"
+        class="flex flex-wrap items-center gap-2 rounded-2xl border border-primary/40 bg-primary/5 p-2"
+      >
+        <p class="kr-text-dim-sm min-w-0 flex-1 truncate">
+          {{ selectedLabel }}
+        </p>
+
+        <button
+          type="button"
+          class="btn btn-primary btn-xs rounded-2xl"
+          :disabled="sourceBusy"
+          @click="useSelectedAsSource"
+        >
+          <span v-if="sourceBusy" class="kr-loading-primary-xs" />
+          Use as source
+        </button>
+
+        <a
+          v-if="selectedUrl"
+          :href="selectedUrl"
+          target="_blank"
+          rel="noopener"
+          class="btn btn-ghost btn-xs rounded-2xl"
+        >
+          Open original
+        </a>
+
+        <button
+          type="button"
+          class="btn btn-ghost btn-xs rounded-2xl"
+          @click="selected = null"
+        >
+          Clear
+        </button>
+      </div>
+
+      <p
+        v-if="sourceMessage"
+        class="kr-text-dim-sm"
+        :class="sourceMessageClass"
+      >
+        {{ sourceMessage }}
+      </p>
     </div>
   </section>
 </template>
 
 <script setup lang="ts">
-import { computed, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 import type { GalleryItem } from '@/components/gallery/kr-gallery.vue'
+import { useArtStore } from '@/stores/artStore'
 import {
   useResourceGalleryStore,
   type ResourceArtImage,
@@ -97,6 +152,7 @@ const props = defineProps<{ resourceId: number }>()
 const emit = defineEmits<{ (event: 'select', artImageId: number): void }>()
 
 const resourceGalleryStore = useResourceGalleryStore()
+const artStore = useArtStore()
 
 const payload = computed(
   () => resourceGalleryStore.resourceArt[props.resourceId] ?? null,
@@ -213,20 +269,101 @@ function refresh(): void {
   void resourceGalleryStore.loadResourceArt(props.resourceId, { force: true })
 }
 
-function openItem(groupKey: string, item: GalleryItem): void {
-  if (groupKey === 'civitai') {
-    // Whichever upstream image was clicked, not always the cover.
-    const url = typeof item.card === 'string' ? item.card : ''
-    if (url) window.open(url, '_blank', 'noopener')
-    return
-  }
+/*
+ * A CLICK NOW SELECTS RATHER THAN LEAVING.
+ *
+ * Clicking an upstream preview used to open Civitai in a new tab, which is the
+ * one thing you cannot then do anything with. It selects instead, and "Open
+ * original" is still there in the action bar for when leaving IS the intent.
+ */
+const selected = ref<{ groupKey: string; item: GalleryItem } | null>(null)
+const sourceMessage = ref('')
+const sourceFailed = ref(false)
 
-  if (typeof item.id === 'number') emit('select', item.id)
+const sourceMessageClass = computed(() =>
+  sourceFailed.value ? 'text-error' : 'text-success',
+)
+
+/** Upstream previews carry their url in `card`; generated rows do not. */
+const selectedUrl = computed<string>(() => {
+  const item = selected.value?.item
+  if (selected.value?.groupKey !== 'civitai') return ''
+  return typeof item?.card === 'string' ? item.card : ''
+})
+
+const selectedPreviewId = computed<number | null>(() => {
+  if (selected.value?.groupKey !== 'civitai') return null
+  const id = String(selected.value.item.id ?? '')
+  const parsed = Number(id.replace(/^upstream-/, ''))
+  return Number.isInteger(parsed) && parsed > 0 ? parsed : null
+})
+
+const selectedArtImageId = computed<number | null>(() =>
+  typeof selected.value?.item.id === 'number' ? selected.value.item.id : null,
+)
+
+const selectedLabel = computed<string>(() => {
+  if (!selected.value) return ''
+  if (selectedPreviewId.value)
+    return `Civitai sample #${selectedPreviewId.value}`
+  return `Generated image #${selectedArtImageId.value}`
+})
+
+const sourceBusy = computed<boolean>(() => {
+  if (selectedPreviewId.value) {
+    return resourceGalleryStore.isSourceLoading(
+      `preview:${selectedPreviewId.value}`,
+    )
+  }
+  if (selectedArtImageId.value) {
+    return resourceGalleryStore.isSourceLoading(
+      `art:${selectedArtImageId.value}`,
+    )
+  }
+  return false
+})
+
+function openItem(groupKey: string, item: GalleryItem): void {
+  selected.value = { groupKey, item }
+  sourceMessage.value = ''
+  sourceFailed.value = false
+
+  // The generated rows still tell the page which ArtImage is in hand, which is
+  // what the resource card uses to swap its own face.
+  if (groupKey !== 'civitai' && typeof item.id === 'number') {
+    emit('select', item.id)
+  }
+}
+
+async function useSelectedAsSource(): Promise<void> {
+  if (!selected.value) return
+  sourceMessage.value = ''
+  sourceFailed.value = false
+
+  try {
+    const previewId = selectedPreviewId.value
+    const dataUri = previewId
+      ? await resourceGalleryStore.loadPreviewSource(previewId)
+      : await resourceGalleryStore.loadArtImageSource(
+          selectedArtImageId.value as number,
+        )
+
+    artStore.setSourceImage(dataUri, selectedLabel.value)
+    sourceMessage.value = `${selectedLabel.value} is loaded as the source image for your next generation.`
+  } catch (cause) {
+    sourceFailed.value = true
+    sourceMessage.value =
+      cause instanceof Error
+        ? cause.message
+        : 'That image could not be loaded as a source.'
+  }
 }
 
 watch(
   () => props.resourceId,
   (id) => {
+    selected.value = null
+    sourceMessage.value = ''
     void resourceGalleryStore.loadResourceArt(id)
   },
   { immediate: true },

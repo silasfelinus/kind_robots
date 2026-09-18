@@ -1,14 +1,11 @@
 import { createError, defineEventHandler, getQuery, getRouterParam } from 'h3'
 import prisma from '@/server/utils/prisma'
 import { errorHandler } from '@/server/utils/error'
-import {
-  forumPostSelect,
-  getForumReadContext,
-} from '@/server/utils/forumApi'
+import { forumPostSelect, getForumReadContext } from '@/server/utils/forumApi'
 import { serializeForumPostV2 } from '@/server/utils/agentForumV2'
 import { assertAgentForumChannelAllowed } from '@/server/utils/agentForumPolicy'
 import { notInRestricted } from '@/server/utils/restriction'
-import { parseForumBoolean } from '~/utils/forumApiContract'
+import { parseForumBooleanOptional } from '~/utils/forumApiContract'
 
 type ForumPostReadQuery = {
   includeMature?: string | string[]
@@ -25,7 +22,7 @@ export default defineEventHandler(async (event) => {
     const query = getQuery<ForumPostReadQuery>(event)
     const { auth, includeMature } = await getForumReadContext(
       event,
-      parseForumBoolean(query.includeMature),
+      parseForumBooleanOptional(query.includeMature),
     )
 
     const post = await prisma.chat.findFirst({

@@ -4,7 +4,7 @@ import { errorHandler } from '../../utils/error'
 import { getOptionalApiUser } from '../../utils/authGuard'
 import {
   canViewWithMaturity,
-  isMaturityRestricted,
+  viewerShowsMature,
   viewablePackIds,
 } from '../../utils/contentAccess'
 import { characterBrowseSelect } from './selects'
@@ -68,7 +68,7 @@ export default defineEventHandler(async (event) => {
      * Characters by name to a maturity-restricted account. Applied to an admin
      * too -- being an admin is not being an adult.
      */
-    const matureFilter = isMaturityRestricted(auth?.user)
+    const matureFilter = !viewerShowsMature(auth?.user)
       ? { isMature: false }
       : undefined
     const where =

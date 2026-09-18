@@ -4,7 +4,7 @@ import prisma from '@/server/utils/prisma'
 import { errorHandler } from '@/server/utils/error'
 import { validateApiKey } from '@/server/utils/validateKey'
 import { userIsAdmin } from '@/server/utils/authUser'
-import { isMaturityRestricted } from '@/server/utils/contentAccess'
+import { viewerShowsMature } from '@/server/utils/contentAccess'
 
 export default defineEventHandler(async (event) => {
   let id = 0
@@ -52,7 +52,7 @@ export default defineEventHandler(async (event) => {
      */
     if (
       (data.isMature || data.Dream?.isMature || data.Project?.isMature) &&
-      isMaturityRestricted(isValid ? user : null)
+      !viewerShowsMature(isValid ? user : null)
     ) {
       throw createError({ statusCode: 404, message: 'PitchSheet not found.' })
     }

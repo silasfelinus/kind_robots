@@ -3,10 +3,7 @@ import { defineEventHandler } from 'h3'
 import prisma from '../../utils/prisma'
 import { errorHandler } from '../../utils/error'
 import { getOptionalApiUser } from '../../utils/authGuard'
-import {
-  isMaturityRestricted,
-  viewablePackIds,
-} from '../../utils/contentAccess'
+import { viewerShowsMature, viewablePackIds } from '../../utils/contentAccess'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -35,7 +32,7 @@ export default defineEventHandler(async (event) => {
      */
     const visibility = {
       ...privacy,
-      ...(isMaturityRestricted(auth?.user) ? { isMature: false } : {}),
+      ...(viewerShowsMature(auth?.user) ? {} : { isMature: false }),
     }
 
     // Gallery/search/edit callers consume Reward scalars only. Do not hydrate

@@ -5,7 +5,7 @@ import { defineEventHandler } from 'h3'
 import prisma from '../../utils/prisma'
 import { errorHandler } from '../../utils/error'
 import { requireApiUser } from '../../utils/authGuard'
-import { isMaturityRestricted } from '../../utils/contentAccess'
+import { viewerShowsMature } from '../../utils/contentAccess'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -15,7 +15,7 @@ export default defineEventHandler(async (event) => {
      * a conversation was shown mature messages in its preview and counted them
      * as unread, which is the "should not even look like it exists" case.
      */
-    const matureFilter = isMaturityRestricted(user) ? { isMature: false } : {}
+    const matureFilter = viewerShowsMature(user) ? {} : { isMature: false }
 
     const memberships = await prisma.conversationParticipant.findMany({
       where: { userId: user.id },

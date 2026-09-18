@@ -32,8 +32,12 @@
 //   visibilityWhere()        the Prisma fragment, for list queries
 //   canView()                the per-object check, richer: Grants and Packs
 //   canViewWithMaturity()    that, plus the maturity rule
-//   effectiveShowMature()    the maturity half on its own
-//   isMaturityRestricted()   the same, asked directly
+//   viewerShowsMature()      the maturity rule: logged in, not a CHILD, opted in
+//   effectiveShowMature()    the role-plus-preference half on its own
+//   isMaturityRestricted()   the CHILD barrier alone -- still counts as handling
+//                            maturity, but it is the WEAKER half: it stops a
+//                            child and lets an adult who never opted in through.
+//                            Prefer viewerShowsMature in new code.
 //
 // ...or one of the model-specific filters that predate those and are
 // equivalent for their model:
@@ -116,6 +120,7 @@ const MATURITY_BUILDERS = FILTER_BUILDERS
 const OBJECT_CHECKS = [
   'canView',
   'canViewWithMaturity',
+  'viewerShowsMature',
   'effectiveShowMature',
   'isMaturityRestricted',
   'requireForumThreadRoot',
@@ -124,6 +129,7 @@ const OBJECT_CHECKS = [
 /** Per-object checks that settle maturity specifically. */
 const MATURITY_CHECKS = [
   'canViewWithMaturity',
+  'viewerShowsMature',
   'effectiveShowMature',
   'isMaturityRestricted',
   'requireForumThreadRoot',

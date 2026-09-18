@@ -4,7 +4,7 @@ import prisma from '@/server/utils/prisma'
 import { errorHandler } from '@/server/utils/error'
 import { validateApiKey } from '@/server/utils/validateKey'
 import {
-  isMaturityRestricted,
+  viewerShowsMature,
   viewablePackIds,
 } from '@/server/utils/contentAccess'
 import type { Prisma } from '~/prisma/generated/prisma/client'
@@ -208,6 +208,9 @@ export default defineEventHandler(async (event) => {
 
     let userId: number | null = null
     let userRole: string | null = null
+    // The whole row, not just id/Role: the maturity rule reads `showMature`
+    // off the account now, so the two scalars are no longer enough.
+    let viewer: Awaited<ReturnType<typeof validateApiKey>>['user']
 
     if (authorization?.startsWith('Bearer ')) {
       try {
@@ -216,10 +219,12 @@ export default defineEventHandler(async (event) => {
         if (isValid && user?.id) {
           userId = user.id
           userRole = user.Role ?? null
+          viewer = user
         }
       } catch {
         userId = null
         userRole = null
+        viewer = undefined
       }
     }
 
@@ -228,15 +233,21 @@ export default defineEventHandler(async (event) => {
     const take = normalizeLimit(query.take)
     const skip = normalizeSkip(query.skip)
     /*
-     * `?includeMature=true` was taken at its word. A restriction a query
-     * parameter can lift is not a restriction -- isMaturityRestricted()'s own
-     * docstring names this case -- and the admin bypass beside it had the same
-     * hole from the other side: a CHILD who also holds ADMIN is still a child.
+     * The account decides; the parameter may only NARROW. Silas, 2026-09-18:
+     * "if something is mature but public, it should still only be seen by a
+     * logged in user that has chosen mature true. there shouldn't be an option
+     * for this to bleed." So an opted-in adult gets mature rows without asking,
+     * `?includeMature=true` buys nothing the account does not already allow,
+     * and `=false` still lets a surface opt out.
+     *
+     * Any admin bypass went with it: being an admin is not being an adult.
      */
-    const restricted = isMaturityRestricted(
-      userId ? { id: userId, Role: userRole } : null,
+    const includeMature = viewerShowsMature(
+      viewer,
+      typeof query.includeMature === 'undefined'
+        ? undefined
+        : normalizeBoolean(query.includeMature),
     )
-    const includeMature = !restricted && normalizeBoolean(query.includeMature)
     const includeInactive =
       normalizeBoolean(query.includeInactive) ||
       normalizeBoolean(query.showInactive)
@@ -255,7 +266,7 @@ export default defineEventHandler(async (event) => {
       andFilters.push({ isActive: true })
     }
 
-    if (restricted || (!includeMature && !isAdmin)) {
+    if (!includeMature) {
       andFilters.push({ isMature: false })
     }
 

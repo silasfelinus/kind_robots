@@ -4,11 +4,7 @@ import prisma from '../../utils/prisma'
 import { errorHandler } from '../../utils/error'
 import { getOptionalApiUser } from '../../utils/authGuard'
 import { resourceGallerySelect } from './gallery'
-import {
-  canView,
-  effectiveShowMature,
-  isMaturityRestricted,
-} from '~/server/utils/contentAccess'
+import { canView, viewerShowsMature } from '~/server/utils/contentAccess'
 
 export default defineEventHandler(async (event) => {
   const resourceId = Number(event.context.params?.id)
@@ -41,7 +37,6 @@ export default defineEventHandler(async (event) => {
     }
 
     const isAdmin = auth?.isAdmin ?? false
-    const showMature = effectiveShowMature(auth?.user)
 
     // canView() covers own/admin/an active RESOURCE Grant; `isPublic` here
     // is the resource's plain public flag, same gate resourceGalleryWhere()
@@ -54,15 +49,12 @@ export default defineEventHandler(async (event) => {
     )
 
     /*
-     * Mature-gating stays independent of ownership/grants, matching the prior
-     * resourceGalleryWhere() behavior -- with the admin bypass closed. Being an
-     * admin is not being an adult: a CHILD who also holds ADMIN is still
-     * maturity-restricted, and `!isAdmin` alone let exactly that combination
-     * through.
+     * One rule, no admin carve-out: logged in, not a CHILD, opted in. The
+     * `!isAdmin` bypass here meant an admin with their own maturity toggle OFF
+     * still received mature resources -- privilege standing in for preference.
+     * An admin who wants to see mature content turns the toggle on like anyone.
      */
-    const matureBlocked =
-      resource.isMature &&
-      (isMaturityRestricted(auth?.user) || (!isAdmin && !showMature))
+    const matureBlocked = resource.isMature && !viewerShowsMature(auth?.user)
 
     if (!allowed || matureBlocked) {
       event.node.res.statusCode = 404

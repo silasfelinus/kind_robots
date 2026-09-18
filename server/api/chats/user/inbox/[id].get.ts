@@ -4,7 +4,7 @@ import prisma from '../../../../utils/prisma'
 import { errorHandler } from '../../../../utils/error'
 import { validateApiKey } from '../../../../utils/validateKey'
 import { userIsAdmin } from '../../../../utils/authUser'
-import { isMaturityRestricted } from '../../../../utils/contentAccess'
+import { viewerShowsMature } from '../../../../utils/contentAccess'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -65,7 +65,7 @@ export default defineEventHandler(async (event) => {
     const chats = await prisma.chat.findMany({
       where: {
         isActive: true,
-        ...(isMaturityRestricted(user) ? { isMature: false } : {}),
+        ...(viewerShowsMature(user) ? {} : { isMature: false }),
         OR: [
           { userId: id },
           { recipientId: id },

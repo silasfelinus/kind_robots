@@ -23,11 +23,7 @@ import { performFetch, handleError } from './utils'
 
 export type MessagePolicy = 'EVERYONE' | 'FRIENDS' | 'NONE'
 export type NewsletterFrequency =
-  | 'NEVER'
-  | 'SPECIAL'
-  | 'MONTHLY'
-  | 'WEEKLY'
-  | 'DAILY'
+  'NEVER' | 'SPECIAL' | 'MONTHLY' | 'WEEKLY' | 'DAILY'
 
 export type ConsentPatch = {
   isPublic?: boolean
@@ -89,7 +85,9 @@ export const useAccountStore = defineStore('accountStore', () => {
         const matureResources = currentResources.filter(
           (resource) => resource.isMature === true,
         )
-        const matureIds = new Set(matureResources.map((resource) => resource.id))
+        const matureIds = new Set(
+          matureResources.map((resource) => resource.id),
+        )
         const matureLoraNames = new Set(
           matureResources
             .filter((resource) => {
@@ -155,6 +153,70 @@ export const useAccountStore = defineStore('accountStore', () => {
     } catch (error) {
       handleError(error, 'refreshing maturity-filtered Resources')
     }
+
+    await refreshMaturityContent()
+  }
+
+  /*
+   * EVERY content store, not just the resource family.
+   *
+   * Silas, 2026-09-18, on moving the maturity gate to the API: "if a user
+   * clicks show mature, it will require re-aquiring the objects from the
+   * backend. but ultimately, that's probably what we need. We don't want to get
+   * data that is otherwise blocked until they ask for it."
+   *
+   * That is the trade this pays for. The listings no longer arrive carrying
+   * mature rows for the client to hide, so the client has to ask again when the
+   * answer changes -- in BOTH directions: opting in has nothing cached to
+   * reveal, and opting out leaves rows the browser must stop showing.
+   *
+   * Imported lazily and failed softly per store: a refresh that cannot reach
+   * one store must not strand the toggle, which has already been saved by the
+   * time this runs.
+   */
+  async function refreshMaturityContent(): Promise<void> {
+    const loaders: [string, () => Promise<unknown>][] = []
+
+    try {
+      const [
+        { useBotStore },
+        { useCharacterStore },
+        { useDreamStore },
+        { useRewardStore },
+        { useScenarioStore },
+        { usePromptStore },
+      ] = await Promise.all([
+        import('./botStore'),
+        import('./characterStore'),
+        import('./dreamStore'),
+        import('./rewardStore'),
+        import('./scenarioStore'),
+        import('./promptStore'),
+      ])
+
+      loaders.push(
+        ['bots', () => useBotStore().fetchBots(true)],
+        ['characters', () => useCharacterStore().fetchCharacters(true)],
+        ['dreams', () => useDreamStore().fetchDreams({})],
+        ['rewards', () => useRewardStore().fetchRewards(true)],
+        ['scenarios', () => useScenarioStore().fetchScenarios(true)],
+        ['prompts', () => usePromptStore().fetchPrompts(true)],
+      )
+    } catch (error) {
+      handleError(error, 'loading stores for a maturity refresh')
+      return
+    }
+
+    const results = await Promise.allSettled(loaders.map(([, load]) => load()))
+
+    results.forEach((result, index) => {
+      if (result.status === 'rejected') {
+        handleError(
+          result.reason,
+          `refreshing ${loaders[index]?.[0]} after a maturity change`,
+        )
+      }
+    })
   }
 
   async function run(

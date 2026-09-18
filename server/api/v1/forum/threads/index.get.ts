@@ -13,7 +13,7 @@ import { getAgentForumChannels } from '@/server/utils/agentForumPolicy'
 import { getForumUpvoteStats } from '@/server/utils/forumUpvotes'
 import {
   normalizeForumChannelSlug,
-  parseForumBoolean,
+  parseForumBooleanOptional,
   parseForumLimit,
   parseForumOrder,
   parsePositiveForumInt,
@@ -49,7 +49,7 @@ export default defineEventHandler(async (event) => {
     const order = parseThreadOrder(query.order)
     const { auth, includeMature } = await getForumReadContext(
       event,
-      parseForumBoolean(query.includeMature),
+      parseForumBooleanOptional(query.includeMature),
     )
     const viewerUserId = auth?.user.id ?? null
     const agentChannels =
@@ -66,7 +66,9 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    const rootWhere = async (options: Parameters<typeof forumReadWhere>[0]) => ({
+    const rootWhere = async (
+      options: Parameters<typeof forumReadWhere>[0],
+    ) => ({
       ...(await forumReadWhere(options)),
       ...(!channel && agentChannels ? { channel: { in: agentChannels } } : {}),
     })
@@ -74,7 +76,10 @@ export default defineEventHandler(async (event) => {
     let roots: ForumPostRecord[]
     let hasMore = false
     let nextCursor: number | null = null
-    let upvoteStats = new Map<number, { upvoteCount: number; viewerHasUpvoted: boolean }>()
+    let upvoteStats = new Map<
+      number,
+      { upvoteCount: number; viewerHasUpvoted: boolean }
+    >()
 
     if (order === 'upvotes') {
       const rankingRows = await prisma.chat.findMany({
@@ -148,7 +153,7 @@ export default defineEventHandler(async (event) => {
 
       hasMore = rows.length > limit
       roots = hasMore ? rows.slice(0, limit) : rows
-      nextCursor = hasMore ? roots.at(-1)?.id ?? null : null
+      nextCursor = hasMore ? (roots.at(-1)?.id ?? null) : null
       upvoteStats = await getForumUpvoteStats(
         roots.map((root) => root.id),
         viewerUserId,

@@ -5,7 +5,7 @@ import prisma from '../../../utils/prisma'
 import { errorHandler } from '../../../utils/error'
 import { validateApiKey } from '../../../utils/validateKey'
 import { userRoles } from '../../../utils/authUser'
-import { isMaturityRestricted } from '../../../utils/contentAccess'
+import { viewerShowsMature } from '../../../utils/contentAccess'
 
 type QueryValue = string | number | boolean | null | undefined | QueryValue[]
 
@@ -71,17 +71,17 @@ async function getAccessContext(event: H3Event): Promise<AccessContext> {
     const isAuthenticated =
       Boolean(auth.isValid) && typeof user?.id === 'number'
 
-    const requestedMature = readBoolean(
-      query.showMature ?? query.includeMature ?? query.mature,
-      false,
-    )
-
-    // See the sibling route: the request can opt DOWN but never past the
-    // restriction, or ?showMature=true would defeat it.
+    /*
+     * The comment here used to say "the request can opt DOWN but never past the
+     * restriction" while the code did the opposite: `requestedMature ||
+     * user.showMature` let `?showMature=true` opt UP, past a toggle the account
+     * had turned off. viewerShowsMature is the claim the comment was making.
+     */
+    const raw = query.showMature ?? query.includeMature ?? query.mature
+    const requestedMature =
+      raw === undefined || raw === null ? undefined : readBoolean(raw, true)
     const showMature =
-      isAuthenticated &&
-      !isMaturityRestricted(user) &&
-      (requestedMature || user?.showMature === true)
+      isAuthenticated && viewerShowsMature(user, requestedMature)
 
     return {
       userId: isAuthenticated ? Number(user?.id) : null,
@@ -181,7 +181,8 @@ export default defineEventHandler(async (event) => {
     // Prisma's extended-client generic can exceed TypeScript's comparison depth
     // when a runtime-built select is passed directly. The query contract is
     // intentionally bounded here to the access fields plus the selected record.
-    const findSelected = prisma.artImage.findUnique as unknown as FindSelectedArtImage
+    const findSelected = prisma.artImage
+      .findUnique as unknown as FindSelectedArtImage
     const data = await findSelected({
       where: { id },
       select,

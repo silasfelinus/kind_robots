@@ -4,7 +4,7 @@ import prisma from '~/server/utils/prisma'
 import { errorHandler } from '~/server/utils/error'
 import { getOptionalApiUser } from '~/server/utils/authGuard'
 import { loadFacetSummaries } from '~/server/utils/facetAssignments'
-import { isMaturityRestricted } from '~/server/utils/contentAccess'
+import { viewerShowsMature } from '~/server/utils/contentAccess'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -31,7 +31,7 @@ export default defineEventHandler(async (event) => {
      * names and descriptions, which is exactly the "things like text should
      * not be viewable either" case. Decided by role, so an admin is covered.
      */
-    if (scenario.isMature && isMaturityRestricted(auth?.user)) {
+    if (scenario.isMature && !viewerShowsMature(auth?.user)) {
       throw createError({ statusCode: 404, message: 'Scenario not found.' })
     }
 

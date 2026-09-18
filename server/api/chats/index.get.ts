@@ -9,7 +9,7 @@ import {
 import prisma from '@/server/utils/prisma'
 import { errorHandler } from '@/server/utils/error'
 import { validateApiKey } from '@/server/utils/validateKey'
-import { isMaturityRestricted } from '@/server/utils/contentAccess'
+import { viewerShowsMature } from '@/server/utils/contentAccess'
 import type { ChatType, Prisma } from '~/prisma/generated/prisma/client'
 
 type ChatListQuery = {
@@ -212,13 +212,21 @@ export default defineEventHandler(async (event) => {
       normalizeBoolean(query.includeInactive) ||
       normalizeBoolean(query.showInactive)
     /*
-     * `?includeMature=true` was taken at its word. A restriction a query
-     * parameter can lift is not a restriction -- isMaturityRestricted()'s own
-     * docstring names this case -- and the admin bypass beside it had the same
-     * hole from the other side: a CHILD who also holds ADMIN is still a child.
+     * The account decides; the parameter may only NARROW. Silas, 2026-09-18:
+     * "if something is mature but public, it should still only be seen by a
+     * logged in user that has chosen mature true. there shouldn't be an option
+     * for this to bleed." So an opted-in adult gets mature rows without asking,
+     * `?includeMature=true` buys nothing the account does not already allow,
+     * and `=false` still lets a surface opt out.
+     *
+     * Any admin bypass went with it: being an admin is not being an adult.
      */
-    const includeMature =
-      !isMaturityRestricted(viewer) && normalizeBoolean(query.includeMature)
+    const includeMature = viewerShowsMature(
+      viewer,
+      typeof query.includeMature === 'undefined'
+        ? undefined
+        : normalizeBoolean(query.includeMature),
+    )
     const mine =
       normalizeBoolean(query.mine) || normalizeBoolean(query.userOnly)
 

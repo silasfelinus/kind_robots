@@ -3,7 +3,7 @@ import { defineEventHandler, getQuery } from 'h3'
 import prisma from '@/server/utils/prisma'
 import { errorHandler } from '@/server/utils/error'
 import { validateApiKey } from '@/server/utils/validateKey'
-import { isMaturityRestricted } from '@/server/utils/contentAccess'
+import { viewerShowsMature } from '@/server/utils/contentAccess'
 import type { Prisma } from '~/prisma/generated/prisma/client'
 
 export default defineEventHandler(async (event) => {
@@ -44,7 +44,7 @@ export default defineEventHandler(async (event) => {
      * maturity-restricted account. The Dream's own flag counts too: a sheet is
      * a cover for something, and a cover on a mature Dream is mature.
      */
-    if (isMaturityRestricted(isValid ? user : null)) {
+    if (!viewerShowsMature(isValid ? user : null)) {
       where.AND = [{ isMature: false }, { Dream: { isMature: false } }]
     }
 

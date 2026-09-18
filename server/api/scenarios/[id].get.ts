@@ -4,7 +4,7 @@ import type { Prisma } from '~/prisma/generated/prisma/client'
 import prisma from '~/server/utils/prisma'
 import { errorHandler } from '~/server/utils/error'
 import { getOptionalApiUser } from '~/server/utils/authGuard'
-import { isMaturityRestricted } from '~/server/utils/contentAccess'
+import { viewerShowsMature } from '~/server/utils/contentAccess'
 import {
   facetSummarySelect,
   hydrateFacetSummaries,
@@ -116,7 +116,7 @@ export default defineEventHandler(async (event) => {
     const scenarioWhere = scenarioVisibilityWhere({
       userId: auth?.user.id ?? null,
       isAdmin: auth?.isAdmin ?? false,
-      isRestricted: isMaturityRestricted(auth?.user),
+      isRestricted: !viewerShowsMature(auth?.user),
     })
 
     const row = await prisma.scenario.findFirst({

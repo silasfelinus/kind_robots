@@ -2,15 +2,13 @@ import { getQuery, type H3Event } from 'h3'
 import type { Prisma } from '~/prisma/generated/prisma/client'
 import { validateApiKey } from '~/server/utils/validateKey'
 import { userRoles } from '~/server/utils/authUser'
-import { isMaturityRestricted } from '~/server/utils/contentAccess'
+import {
+  isMaturityRestricted,
+  viewerShowsMature,
+} from '~/server/utils/contentAccess'
 
 export type QueryValue =
-  | string
-  | number
-  | boolean
-  | null
-  | undefined
-  | QueryValue[]
+  string | number | boolean | null | undefined | QueryValue[]
 
 type ValidatedUser = {
   id?: number | null
@@ -26,6 +24,8 @@ export type ArtImageAccessContext = {
   isAdmin: boolean
   showMature: boolean
   isAuthenticated: boolean
+  /** CHILD: the hard barrier, which no preference or parameter lifts. */
+  restricted: boolean
 }
 
 export function readBoolean(value: unknown, fallback = false): boolean {
@@ -61,20 +61,25 @@ export async function getArtImageAccessContext(
     const user = auth.user as ValidatedUser | null | undefined
     const isAuthenticated =
       Boolean(auth.isValid) && typeof user?.id === 'number'
-    const requestedMature = readBoolean(
-      query.showMature ?? query.includeMature ?? query.mature,
-      false,
-    )
+    /*
+     * The parameter may only NARROW. This read `requestedMature ||
+     * user.showMature`, so an adult with the maturity toggle OFF could hand
+     * themselves mature images with `?showMature=true` -- a preference a caller
+     * can override is not a preference. Undefined when absent, so a surface
+     * that says nothing gets the account's own answer.
+     */
+    const raw = query.showMature ?? query.includeMature ?? query.mature
+    const requestedMature =
+      raw === undefined || raw === null ? undefined : readBoolean(raw, true)
     const showMature =
-      isAuthenticated &&
-      !isMaturityRestricted(user) &&
-      (requestedMature || user?.showMature === true)
+      isAuthenticated && viewerShowsMature(user, requestedMature)
 
     return {
       userId: isAuthenticated ? Number(user?.id) : null,
       isAdmin: isAuthenticated && isAdminUser(user),
       showMature,
       isAuthenticated,
+      restricted: isMaturityRestricted(user),
     }
   } catch {
     return {
@@ -82,6 +87,7 @@ export async function getArtImageAccessContext(
       isAdmin: false,
       showMature: false,
       isAuthenticated: false,
+      restricted: true,
     }
   }
 }
@@ -91,6 +97,7 @@ export function buildArtImageWhere({
   isAdmin,
   showMature,
   isAuthenticated,
+  restricted,
 }: ArtImageAccessContext): Prisma.ArtImageWhereInput {
   const visibilityWhere: Prisma.ArtImageWhereInput = isAdmin
     ? {}
@@ -98,9 +105,24 @@ export function buildArtImageWhere({
       ? { OR: [{ isPublic: true }, { userId }] }
       : { isPublic: true }
 
+  /*
+   * MATURITY DOES NOT STAND BETWEEN SOMEONE AND THEIR OWN IMAGES.
+   *
+   * The preference is about what you are SHOWN of other people's content.
+   * Filtering your own renders out of your own tools is a bug, not a
+   * protection -- the scene animator and the forum art flow both fetch a
+   * specific image the person is already working with, and an opted-out adult
+   * would otherwise lose their own mature source mid-task.
+   *
+   * The carve-out is the PREFERENCE only. A maturity-restricted account keeps
+   * the hard barrier even on its own rows: a CHILD should not have mature
+   * images, and if one exists, hiding it is the protective direction.
+   */
   const matureWhere: Prisma.ArtImageWhereInput = showMature
     ? {}
-    : { isMature: false }
+    : isAuthenticated && userId && !restricted
+      ? { OR: [{ isMature: false }, { userId }] }
+      : { isMature: false }
 
   return {
     AND: [visibilityWhere, matureWhere],
@@ -122,6 +144,7 @@ export function buildArtCollectionWhere({
   isAdmin,
   showMature,
   isAuthenticated,
+  restricted,
 }: ArtImageAccessContext): Prisma.ArtCollectionWhereInput {
   const privacy: Prisma.ArtCollectionWhereInput = isAdmin
     ? {}
@@ -129,14 +152,16 @@ export function buildArtCollectionWhere({
       ? { OR: [{ isPublic: true }, { userId }] }
       : { isPublic: true }
 
-  return {
-    AND: [privacy, showMature ? {} : { isMature: false }],
-  }
+  const mature: Prisma.ArtCollectionWhereInput = showMature
+    ? {}
+    : isAuthenticated && userId && !restricted
+      ? { OR: [{ isMature: false }, { userId }] }
+      : { isMature: false }
+
+  return { AND: [privacy, mature] }
 }
 
-export function buildArtImageSelect(
-  query: Record<string, QueryValue> = {},
-) {
+export function buildArtImageSelect(query: Record<string, QueryValue> = {}) {
   const includeImageData = readBoolean(query.includeImageData, false)
   const includeThumbnailData = readBoolean(query.includeThumbnailData, false)
 

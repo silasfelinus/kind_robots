@@ -4,7 +4,7 @@ import prisma from '~/server/utils/prisma'
 import { errorHandler } from '~/server/utils/error'
 import { buildChallengeLeaderboard } from '~/server/utils/challengeCenter'
 import { getOptionalApiUser } from '@/server/utils/authGuard'
-import { isMaturityRestricted } from '@/server/utils/contentAccess'
+import { viewerShowsMature } from '@/server/utils/contentAccess'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -27,7 +27,7 @@ export default defineEventHandler(async (event) => {
      * does not exist.
      */
     const auth = await getOptionalApiUser(event)
-    const restricted = isMaturityRestricted(auth?.user)
+    const restricted = !viewerShowsMature(auth?.user)
 
     const challenge = await prisma.challenge.findFirst({
       where: {

@@ -51,6 +51,29 @@ export type AgentCheckIn = Prisma.AgentCheckInModel
  */
 export type AgentNote = Prisma.AgentNoteModel
 /**
+ * Model ArchiveEntry
+ * Durable archive-entry ledger (art-archive/t-003): filesystem identity and
+ * curation state for one legacy AI-art file, independent of any ArtImage it
+ * has been imported into. This ledger is indexing/curation state, not a
+ * second ArtImage.
+ * 
+ * `contentHash` is the stable content identity a repeat scan uses to tell a
+ * moved file from a changed one; `relativePath` is the file's current
+ * location under the configured archive root and is unique because only one
+ * live entry may occupy a given path at a time. `processState` drives the
+ * admin browser's processed/unprocessed toggle and marks a file MISSING
+ * instead of deleting its row when a rescan can no longer find it (t-008).
+ * `matchState` drives the match-review queue; `resourceMatchLocked` freezes a
+ * manual Resource correction against future automatic matching passes
+ * (t-007). `extractedMetadata`/`matchSummary` are free-form JSON captured by
+ * the scanner and matcher, following ModelBuildRun's own sourceSnapshot
+ * convention. `artImageId`/`folderCollectionId` are loose references with no
+ * formal Prisma relation -- the same convention ModelBuildItem/
+ * ModelBuildArtifact already use for their own artImageId -- so this ledger
+ * never requires a schema change to ArtImage or ArtCollection.
+ */
+export type ArchiveEntry = Prisma.ArchiveEntryModel
+/**
  * Model BrainstormSession
  * Durable private Brainstorm workspaces. `userId` is intentionally an indexed
  * ownership scalar rather than another back-relation on the already enormous

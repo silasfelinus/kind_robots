@@ -9,6 +9,27 @@
 * 🟢 You can import this file directly.
 */
 
+export const ArchiveEntryProcessState = {
+  PENDING: 'PENDING',
+  IMPORTED: 'IMPORTED',
+  ERROR: 'ERROR',
+  MISSING: 'MISSING'
+} as const
+
+export type ArchiveEntryProcessState = (typeof ArchiveEntryProcessState)[keyof typeof ArchiveEntryProcessState]
+
+
+export const ArchiveEntryMatchState = {
+  UNMATCHED: 'UNMATCHED',
+  SUGGESTED: 'SUGGESTED',
+  CONFIRMED: 'CONFIRMED',
+  MANUAL: 'MANUAL',
+  AMBIGUOUS: 'AMBIGUOUS'
+} as const
+
+export type ArchiveEntryMatchState = (typeof ArchiveEntryMatchState)[keyof typeof ArchiveEntryMatchState]
+
+
 export const FacetTaxonomy = {
   GENRE: 'GENRE',
   ANIMAL: 'ANIMAL',

@@ -55,6 +55,7 @@ export const ModelName = {
   AgentProfileCredential: 'AgentProfileCredential',
   AgentCheckIn: 'AgentCheckIn',
   AgentNote: 'AgentNote',
+  ArchiveEntry: 'ArchiveEntry',
   BrainstormSession: 'BrainstormSession',
   BrainstormCandidate: 'BrainstormCandidate',
   FacetAlias: 'FacetAlias',
@@ -229,6 +230,29 @@ export const AgentNoteScalarFieldEnum = {
 } as const
 
 export type AgentNoteScalarFieldEnum = (typeof AgentNoteScalarFieldEnum)[keyof typeof AgentNoteScalarFieldEnum]
+
+
+export const ArchiveEntryScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  contentHash: 'contentHash',
+  relativePath: 'relativePath',
+  parentFolder: 'parentFolder',
+  fileSize: 'fileSize',
+  fileMtime: 'fileMtime',
+  artImageId: 'artImageId',
+  folderCollectionId: 'folderCollectionId',
+  processState: 'processState',
+  matchState: 'matchState',
+  resourceMatchLocked: 'resourceMatchLocked',
+  rating: 'rating',
+  extractedMetadata: 'extractedMetadata',
+  matchSummary: 'matchSummary',
+  isActive: 'isActive'
+} as const
+
+export type ArchiveEntryScalarFieldEnum = (typeof ArchiveEntryScalarFieldEnum)[keyof typeof ArchiveEntryScalarFieldEnum]
 
 
 export const BrainstormSessionScalarFieldEnum = {
@@ -2387,6 +2411,17 @@ export const AgentNoteOrderByRelevanceFieldEnum = {
 } as const
 
 export type AgentNoteOrderByRelevanceFieldEnum = (typeof AgentNoteOrderByRelevanceFieldEnum)[keyof typeof AgentNoteOrderByRelevanceFieldEnum]
+
+
+export const ArchiveEntryOrderByRelevanceFieldEnum = {
+  contentHash: 'contentHash',
+  relativePath: 'relativePath',
+  parentFolder: 'parentFolder',
+  extractedMetadata: 'extractedMetadata',
+  matchSummary: 'matchSummary'
+} as const
+
+export type ArchiveEntryOrderByRelevanceFieldEnum = (typeof ArchiveEntryOrderByRelevanceFieldEnum)[keyof typeof ArchiveEntryOrderByRelevanceFieldEnum]
 
 
 export const BrainstormSessionOrderByRelevanceFieldEnum = {

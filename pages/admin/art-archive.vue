@@ -68,9 +68,25 @@
                 <button class="kr-btn btn-ghost btn-sm" :disabled="archive.page >= archive.pageCount || archive.loading" @click="changePage(1)">Next</button>
               </div>
             </div>
+            <div class="mb-2 flex flex-wrap items-center gap-2">
+              <span class="kr-text-dim-xs">Rate:</span>
+              <button
+                v-for="n in 5"
+                :key="n"
+                type="button"
+                class="kr-btn btn-outline btn-xs"
+                :class="{ 'btn-primary': dragOverRating === n }"
+                :title="`Rate ${n} star${n === 1 ? '' : 's'} -- click while an image is selected, or drag an image here`"
+                @dragover.prevent="dragOverRating = n"
+                @dragleave="dragOverRating = null"
+                @drop.prevent="onRatingDrop(n)"
+                @click="onRatingClick(n)"
+              >{{ n }}★</button>
+              <button type="button" class="kr-btn btn-ghost btn-xs" title="Clear the selected image's rating" @click="onRatingClick(null)">Clear</button>
+            </div>
             <div v-if="archive.loading" class="grid min-h-64 place-items-center kr-panel"><span class="kr-spinner-lg-primary" /></div>
             <div v-else class="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 2xl:grid-cols-6">
-              <button v-for="entry in archive.entries" :key="entry.id" type="button" class="group overflow-hidden rounded-2xl border border-base-300 bg-base-200 text-left transition hover:border-primary" :class="{ 'opacity-60': !entry.isActive }" @click="archive.selectEntry(entry.id)">
+              <button v-for="entry in archive.entries" :key="entry.id" type="button" draggable="true" class="group overflow-hidden rounded-2xl border border-base-300 bg-base-200 text-left transition hover:border-primary" :class="{ 'opacity-60': !entry.isActive }" @click="archive.selectEntry(entry.id)" @dragstart="draggingEntryId = entry.id" @dragend="draggingEntryId = null">
                 <div class="aspect-[2/3] bg-base-300">
                   <img v-if="entry.imagePath" :src="entry.imagePath" :alt="entry.relativePath" class="h-full w-full object-cover" loading="lazy" />
                   <div v-else class="grid h-full place-items-center"><Icon name="kind-icon:image" class="h-10 w-10 opacity-30" /></div>
@@ -111,7 +127,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useArtArchiveStore } from '@/stores/artArchiveStore'
 import { useUserStore } from '@/stores/userStore'
 
@@ -119,10 +135,30 @@ const archive = useArtArchiveStore()
 const userStore = useUserStore()
 const ready = computed(() => userStore.initialized)
 
+const draggingEntryId = ref<number | null>(null)
+const dragOverRating = ref<number | null>(null)
+
 function fileName(path: string) { return path.split('/').pop() || path }
 function pretty(value: unknown) { return value ? JSON.stringify(value, null, 2) : 'No metadata recorded.' }
 async function applyFilters() { await archive.fetchEntries(true) }
 async function changePage(delta: number) { archive.page += delta; await archive.fetchEntries() }
+
+// Rating (art-archive/t-013): the same five targets serve as both a click
+// action (rates whichever entry is open in the detail panel) and a
+// drag/drop target (rates whichever grid entry is being dragged), so rating
+// doesn't require opening an image first.
+async function onRatingClick(rating: number | null) {
+  if (!archive.detail) return
+  await archive.rateEntry(archive.detail.entry.id, rating)
+}
+
+async function onRatingDrop(rating: number) {
+  dragOverRating.value = null
+  const id = draggingEntryId.value
+  draggingEntryId.value = null
+  if (id === null) return
+  await archive.rateEntry(id, rating)
+}
 
 onMounted(async () => {
   if (!userStore.initialized) await userStore.initialize()

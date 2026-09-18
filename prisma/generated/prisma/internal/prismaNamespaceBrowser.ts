@@ -162,7 +162,8 @@ export const ModelName = {
   Notification: 'Notification',
   GithubInstallation: 'GithubInstallation',
   AppRepo: 'AppRepo',
-  MediaEntry: 'MediaEntry'
+  MediaEntry: 'MediaEntry',
+  ResourcePreview: 'ResourcePreview'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -2382,6 +2383,25 @@ export const MediaEntryScalarFieldEnum = {
 export type MediaEntryScalarFieldEnum = (typeof MediaEntryScalarFieldEnum)[keyof typeof MediaEntryScalarFieldEnum]
 
 
+export const ResourcePreviewScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  resourceId: 'resourceId',
+  url: 'url',
+  sortOrder: 'sortOrder',
+  nsfwLevel: 'nsfwLevel',
+  isMature: 'isMature',
+  width: 'width',
+  height: 'height',
+  blurHash: 'blurHash',
+  mediaType: 'mediaType',
+  source: 'source'
+} as const
+
+export type ResourcePreviewScalarFieldEnum = (typeof ResourcePreviewScalarFieldEnum)[keyof typeof ResourcePreviewScalarFieldEnum]
+
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -3594,4 +3614,14 @@ export const MediaEntryOrderByRelevanceFieldEnum = {
 } as const
 
 export type MediaEntryOrderByRelevanceFieldEnum = (typeof MediaEntryOrderByRelevanceFieldEnum)[keyof typeof MediaEntryOrderByRelevanceFieldEnum]
+
+
+export const ResourcePreviewOrderByRelevanceFieldEnum = {
+  url: 'url',
+  blurHash: 'blurHash',
+  mediaType: 'mediaType',
+  source: 'source'
+} as const
+
+export type ResourcePreviewOrderByRelevanceFieldEnum = (typeof ResourcePreviewOrderByRelevanceFieldEnum)[keyof typeof ResourcePreviewOrderByRelevanceFieldEnum]
 

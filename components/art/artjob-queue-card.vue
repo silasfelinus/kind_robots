@@ -776,14 +776,41 @@ const runningStartedAt = computed<number | null>(() => {
  * deliberate reveal, so an owner who hides mature content still gets the
  * reveal step rather than the image.
  */
-watchEffect(() => {
-  // Owner only. An admin overriding someone else's privacy choice does it by
-  // hand, every time, rather than having it done silently on their behalf.
-  if (!viewerOwnsJob.value) return
-  if (!canLoadProtectedPreview.value) return
-  if (jobVisibility.value.isMature && !artStore.showMature) return
-  void loadProtectedPreview()
-})
+/*
+ * `watch` ON EXPLICIT SOURCES, NOT watchEffect.
+ *
+ * watchEffect tracks everything read inside it -- including, through
+ * loadProtectedPreview, artJobStore.loadJobImage, which READS and then WRITES
+ * `loadingImageIds`. So the effect depended on its own side effect: every load
+ * that finished mutated the array, re-triggered the effect, and started
+ * another. A load that SUCCEEDS settles (the version cache short-circuits the
+ * next run), but a load that FAILS never records a version, so it retried
+ * forever -- the finished previews "popping in and out of loading state" Silas
+ * reported on 2026-09-18.
+ *
+ * Naming the sources breaks the cycle: this re-runs when the job, the viewer's
+ * rights, or the image version change, and never because the store noted that
+ * a fetch started or stopped.
+ */
+watch(
+  () => [
+    props.job.artImageId,
+    imageVersion.value,
+    viewerOwnsJob.value,
+    canLoadProtectedPreview.value,
+    jobVisibility.value.isMature,
+    artStore.showMature,
+  ],
+  () => {
+    // Owner only. An admin overriding someone else's privacy choice does it by
+    // hand, every time, rather than having it done silently on their behalf.
+    if (!viewerOwnsJob.value) return
+    if (!canLoadProtectedPreview.value) return
+    if (jobVisibility.value.isMature && !artStore.showMature) return
+    void loadProtectedPreview()
+  },
+  { immediate: true },
+)
 
 /** Cross the privacy gate deliberately, then fetch. */
 async function revealPrivateOutput(): Promise<void> {

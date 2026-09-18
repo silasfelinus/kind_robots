@@ -29,7 +29,7 @@ import { defineEventHandler, createError, getRouterParam } from 'h3'
 import prisma from '~/server/utils/prisma'
 import { errorHandler } from '~/server/utils/error'
 import { getOptionalApiUser } from '~/server/utils/authGuard'
-import { canView, viewerShowsMature } from '~/server/utils/contentAccess'
+import { canView, maturityAllowsRow } from '~/server/utils/contentAccess'
 import {
   buildArtImageWhere,
   getArtImageAccessContext,
@@ -106,12 +106,10 @@ export default defineEventHandler(async (event) => {
       auth ? { id: auth.user.id, isAdmin } : null,
     )
     /*
-     * One rule, no admin carve-out: logged in, not a CHILD, opted in. The
-     * `!isAdmin` bypass here meant an admin with their own maturity toggle OFF
-     * still received mature resources -- privilege standing in for preference.
-     * An admin who wants to see mature content turns the toggle on like anyone.
+     * The SAME rule the listing uses, including the owner carve-out: an owner
+     * who uncovered this card must not get a 404 opening its gallery.
      */
-    const matureBlocked = resource.isMature && !viewerShowsMature(auth?.user)
+    const matureBlocked = !maturityAllowsRow(resource, auth?.user)
 
     if (!allowed || matureBlocked) {
       throw createError({ statusCode: 404, message: 'Resource not found.' })
@@ -123,7 +121,7 @@ export default defineEventHandler(async (event) => {
     const access = await getArtImageAccessContext(event)
     const visible = buildArtImageWhere(access)
 
-    const [preview, loraUses, checkpointUses, entityHistory] =
+    const [preview, loraUses, checkpointUses, entityHistory, upstreamPreviews] =
       await Promise.all([
         resource.artImageId
           ? prisma.artImage.findFirst({
@@ -146,6 +144,34 @@ export default defineEventHandler(async (event) => {
           take: MAX_PER_ORIGIN,
         }),
         listEntityArtHistory(prisma, 'resource', resourceId),
+        /*
+         * The upstream preview LIST. previewImageUrl is one url; a Civitai
+         * model version routinely ships several (Fantasy_art_XL_V1 has ten),
+         * which is why a LoRA's gallery looked like it was dropping images when
+         * it had only ever been given one.
+         *
+         * Maturity is per image here, from Civitai's own nsfwLevel, and obeys
+         * the same rule as everything else. Unlike an ArtImage there is no owner
+         * to carve out: these are upstream urls, nobody's own work, so the
+         * situational-curtain argument does not apply to them.
+         */
+        prisma.resourcePreview.findMany({
+          where: {
+            resourceId,
+            ...(viewerShowsMature(auth?.user) ? {} : { isMature: false }),
+          },
+          orderBy: [{ sortOrder: 'asc' }, { id: 'asc' }],
+          select: {
+            id: true,
+            url: true,
+            sortOrder: true,
+            isMature: true,
+            width: true,
+            height: true,
+            blurHash: true,
+            mediaType: true,
+          },
+        }),
       ])
 
     type GalleryRow = Record<string, unknown> & {
@@ -215,11 +241,18 @@ export default defineEventHandler(async (event) => {
         resourceType: resource.resourceType,
         // A URL, not a row: Civitai's own preview, which this site never owned.
         civitaiPreviewUrl: resource.previewImageUrl || null,
+        /*
+         * The rest of the upstream set. The card's single face stays
+         * civitaiPreviewUrl; this is everything else the model shipped with,
+         * in the author's own order.
+         */
+        upstreamPreviews,
         images,
         counts: {
           total: images.length,
           lora: loraUses.length,
           checkpoint: checkpointUses.length,
+          upstream: upstreamPreviews.length,
         },
       },
       statusCode: 200,

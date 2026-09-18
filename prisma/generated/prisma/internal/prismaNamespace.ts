@@ -508,7 +508,8 @@ export const ModelName = {
   Notification: 'Notification',
   GithubInstallation: 'GithubInstallation',
   AppRepo: 'AppRepo',
-  MediaEntry: 'MediaEntry'
+  MediaEntry: 'MediaEntry',
+  ResourcePreview: 'ResourcePreview'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -524,7 +525,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "agentProfile" | "agentProfileCredential" | "agentCheckIn" | "agentNote" | "archiveEntry" | "archiveActionPreset" | "brainstormSession" | "brainstormCandidate" | "facetAlias" | "facetProfile" | "characterFacet" | "botFacet" | "rewardFacet" | "mandarinAudioAsset" | "mandarinCatalogOverride" | "mandarinCatalogChange" | "mandarinRequestedCard" | "mandarinCustomSet" | "mandarinArtJobLink" | "mandarinCardProgress" | "mandarinReviewEvent" | "modelBuildRun" | "modelBuildItem" | "modelBuildArtifact" | "modelBuildRevision" | "projectPageContent" | "artImage" | "artCollection" | "bot" | "character" | "chat" | "dream" | "dreamRelation" | "project" | "facet" | "dreamFacet" | "scenarioFacet" | "projectFacet" | "projectArtImage" | "projectArtCollection" | "entityArtImage" | "facetArtImage" | "facetArtCollection" | "facetRelation" | "expressionMedia" | "expressionTransition" | "log" | "achievement" | "manaTransaction" | "revenueSplit" | "socialPostDraft" | "missionRemittance" | "product" | "order" | "orderItem" | "entitlement" | "printJob" | "grant" | "pack" | "achievementRecord" | "narratorTopic" | "narratorThread" | "pitchSheet" | "prompt" | "reaction" | "resource" | "reward" | "scenario" | "server" | "serverHealthCheck" | "sceneAnimatorPrompt" | "smartIcon" | "theme" | "user" | "stylistClient" | "stylistAppointment" | "artJob" | "queueControl" | "downloadRequest" | "karmaTransaction" | "referral" | "userRelation" | "userRole" | "todo" | "challenge" | "challengeSubmission" | "contender" | "endingDeck" | "lifeRun" | "lifeChoice" | "lifeStat" | "lifeEnding" | "lifeAchievement" | "lifeAchievementUnlock" | "lifeRunArt" | "aquarium" | "aquariumStock" | "aquariumSet" | "aquariumDecor" | "aquariumEgg" | "aquariumCodexEntry" | "monster" | "aquariumEvent" | "authToken" | "agentCredential" | "conversation" | "conversationParticipant" | "directMessage" | "notification" | "githubInstallation" | "appRepo" | "mediaEntry"
+    modelProps: "agentProfile" | "agentProfileCredential" | "agentCheckIn" | "agentNote" | "archiveEntry" | "archiveActionPreset" | "brainstormSession" | "brainstormCandidate" | "facetAlias" | "facetProfile" | "characterFacet" | "botFacet" | "rewardFacet" | "mandarinAudioAsset" | "mandarinCatalogOverride" | "mandarinCatalogChange" | "mandarinRequestedCard" | "mandarinCustomSet" | "mandarinArtJobLink" | "mandarinCardProgress" | "mandarinReviewEvent" | "modelBuildRun" | "modelBuildItem" | "modelBuildArtifact" | "modelBuildRevision" | "projectPageContent" | "artImage" | "artCollection" | "bot" | "character" | "chat" | "dream" | "dreamRelation" | "project" | "facet" | "dreamFacet" | "scenarioFacet" | "projectFacet" | "projectArtImage" | "projectArtCollection" | "entityArtImage" | "facetArtImage" | "facetArtCollection" | "facetRelation" | "expressionMedia" | "expressionTransition" | "log" | "achievement" | "manaTransaction" | "revenueSplit" | "socialPostDraft" | "missionRemittance" | "product" | "order" | "orderItem" | "entitlement" | "printJob" | "grant" | "pack" | "achievementRecord" | "narratorTopic" | "narratorThread" | "pitchSheet" | "prompt" | "reaction" | "resource" | "reward" | "scenario" | "server" | "serverHealthCheck" | "sceneAnimatorPrompt" | "smartIcon" | "theme" | "user" | "stylistClient" | "stylistAppointment" | "artJob" | "queueControl" | "downloadRequest" | "karmaTransaction" | "referral" | "userRelation" | "userRole" | "todo" | "challenge" | "challengeSubmission" | "contender" | "endingDeck" | "lifeRun" | "lifeChoice" | "lifeStat" | "lifeEnding" | "lifeAchievement" | "lifeAchievementUnlock" | "lifeRunArt" | "aquarium" | "aquariumStock" | "aquariumSet" | "aquariumDecor" | "aquariumEgg" | "aquariumCodexEntry" | "monster" | "aquariumEvent" | "authToken" | "agentCredential" | "conversation" | "conversationParticipant" | "directMessage" | "notification" | "githubInstallation" | "appRepo" | "mediaEntry" | "resourcePreview"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -7920,6 +7921,72 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    ResourcePreview: {
+      payload: Prisma.$ResourcePreviewPayload<ExtArgs>
+      fields: Prisma.ResourcePreviewFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ResourcePreviewFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ResourcePreviewPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ResourcePreviewFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ResourcePreviewPayload>
+        }
+        findFirst: {
+          args: Prisma.ResourcePreviewFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ResourcePreviewPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ResourcePreviewFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ResourcePreviewPayload>
+        }
+        findMany: {
+          args: Prisma.ResourcePreviewFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ResourcePreviewPayload>[]
+        }
+        create: {
+          args: Prisma.ResourcePreviewCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ResourcePreviewPayload>
+        }
+        createMany: {
+          args: Prisma.ResourcePreviewCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.ResourcePreviewDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ResourcePreviewPayload>
+        }
+        update: {
+          args: Prisma.ResourcePreviewUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ResourcePreviewPayload>
+        }
+        deleteMany: {
+          args: Prisma.ResourcePreviewDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ResourcePreviewUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.ResourcePreviewUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ResourcePreviewPayload>
+        }
+        aggregate: {
+          args: Prisma.ResourcePreviewAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateResourcePreview>
+        }
+        groupBy: {
+          args: Prisma.ResourcePreviewGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ResourcePreviewGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ResourcePreviewCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ResourcePreviewCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -10160,6 +10227,25 @@ export const MediaEntryScalarFieldEnum = {
 export type MediaEntryScalarFieldEnum = (typeof MediaEntryScalarFieldEnum)[keyof typeof MediaEntryScalarFieldEnum]
 
 
+export const ResourcePreviewScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  resourceId: 'resourceId',
+  url: 'url',
+  sortOrder: 'sortOrder',
+  nsfwLevel: 'nsfwLevel',
+  isMature: 'isMature',
+  width: 'width',
+  height: 'height',
+  blurHash: 'blurHash',
+  mediaType: 'mediaType',
+  source: 'source'
+} as const
+
+export type ResourcePreviewScalarFieldEnum = (typeof ResourcePreviewScalarFieldEnum)[keyof typeof ResourcePreviewScalarFieldEnum]
+
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -11374,6 +11460,16 @@ export const MediaEntryOrderByRelevanceFieldEnum = {
 export type MediaEntryOrderByRelevanceFieldEnum = (typeof MediaEntryOrderByRelevanceFieldEnum)[keyof typeof MediaEntryOrderByRelevanceFieldEnum]
 
 
+export const ResourcePreviewOrderByRelevanceFieldEnum = {
+  url: 'url',
+  blurHash: 'blurHash',
+  mediaType: 'mediaType',
+  source: 'source'
+} as const
+
+export type ResourcePreviewOrderByRelevanceFieldEnum = (typeof ResourcePreviewOrderByRelevanceFieldEnum)[keyof typeof ResourcePreviewOrderByRelevanceFieldEnum]
+
+
 
 /**
  * Field references
@@ -12188,6 +12284,7 @@ export type GlobalOmitConfig = {
   githubInstallation?: Prisma.GithubInstallationOmit
   appRepo?: Prisma.AppRepoOmit
   mediaEntry?: Prisma.MediaEntryOmit
+  resourcePreview?: Prisma.ResourcePreviewOmit
 }
 
 /* Types for Logging */

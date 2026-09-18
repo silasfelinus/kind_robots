@@ -963,3 +963,29 @@ export type AppRepo = Prisma.AppRepoModel
  * full field-by-field reconciliation against the real 2014-2026 import.
  */
 export type MediaEntry = Prisma.MediaEntryModel
+/**
+ * Model ResourcePreview
+ * Upstream preview images for a Resource, as a LIST.
+ * 
+ * `Resource.previewImageUrl` holds exactly ONE url, so a LoRA's gallery showed
+ * one picture however many the model shipped with -- Fantasy_art_XL_V1
+ * (civitai 122806) has ten, and we kept the first (kind_robots, 2026-09-18:
+ * "still not seeing the multiple images when viewing the card or actual object
+ * page").
+ * 
+ * A TABLE, not a json column on Resource, for two reasons:
+ * 
+ * Civitai rates each image with its own nsfwLevel, and maturity is a
+ * per-image property once a gate exists that acts on it. A blob cannot be
+ * filtered or indexed on that.
+ * 
+ * /api/resources is an unpaginated findMany over the whole catalog, and
+ * server/api/resources/gallery.ts already carries a comment about trimming
+ * that payload because it broke on a tablet. An array on the Resource row
+ * would go straight back into every row of it; a table keeps it off the list
+ * query and is read only for the one Resource being opened.
+ * 
+ * previewImageUrl stays as the card's single face. This is the gallery behind
+ * it, and the two are backfilled from the same source.
+ */
+export type ResourcePreview = Prisma.ResourcePreviewModel

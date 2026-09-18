@@ -376,6 +376,7 @@ import {
   useCharacterStore,
   type CharacterBrowse,
 } from '@/stores/characterStore'
+import { useAccountStore } from '@/stores/accountStore'
 import { useUserStore } from '@/stores/userStore'
 
 type GalleryVariant = 'dashboard' | 'row' | 'dropdown'
@@ -433,6 +434,7 @@ const props = withDefaults(
 
 const characterStore = useCharacterStore()
 const userStore = useUserStore()
+const accountStore = useAccountStore()
 
 const selectedGenre = ref('all')
 const searchQuery = ref('')
@@ -458,12 +460,23 @@ const currentUserId = computed(() => {
   return userStore.userId ?? userStore.user?.id ?? null
 })
 
+/*
+ * Reads the restriction-aware preference and writes through accountStore, which
+ * persists to /api/users/me/consent AND refetches the content stores.
+ *
+ * It used to read `userStore.user?.showMature` raw -- bypassing
+ * effectiveShowMature, so a CHILD who set the flag read `true` -- and write
+ * through userStore.updateUser, which persists but triggers no refetch. That
+ * was survivable while the client did the filtering: the list was already in
+ * memory and the filter just re-ran. Now the SERVER decides what arrives, so a
+ * toggle that does not refetch changes nothing on screen.
+ */
 const showMature = computed({
-  get: () => userStore.user?.showMature ?? userStore.showMature ?? false,
+  get: () => userStore.showMature,
   set: async (value: boolean) => {
     if (!userStore.user) return
 
-    await userStore.updateUser({ showMature: value })
+    await accountStore.updateConsent({ showMature: value })
   },
 })
 
@@ -536,9 +549,13 @@ const galleryCharacters = computed<CharacterBrowse[]>(() => {
     })
   }
 
-  if (!showMature.value) {
-    characters = characters.filter((character) => !character.isMature)
-  }
+  /*
+   * NO CLIENT-SIDE MATURITY FILTER. The API decides now (viewerShowsMature:
+   * logged in, not a CHILD, opted in), so a row the viewer may not see never
+   * arrives and there is nothing here to drop. Silas, 2026-09-18: "it doesn't
+   * matter how many front end pieces are doing it one way, the backend is the
+   * proper place to gate this behavior."
+   */
 
   return characters
 })

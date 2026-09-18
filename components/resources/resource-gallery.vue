@@ -380,15 +380,11 @@ const filteredResources = computed(() => {
     // need: only show mature: just base it on our real toggle, so we are
     // either showing all, or safe".
     //
-    // So the whole select is gone and this is the entire rule: mature allowed,
-    // or safe. Two controls for one concept can only ever agree by accident.
-    //
-    // A "Mature only" button crept back in beside the toggle and made it two
-    // again -- same eye icon, adjacent, one an account preference and the other
-    // a catalog filter. Silas, 2026-09-18: "there are now two maturity toggles
-    // on that page." Removed on the same ruling that removed the select.
-    if (!canSeeMature.value && entry.isMature) return false
-
+    /*
+     * NO CLIENT-SIDE MATURITY FILTER: /api/resources applies viewerShowsMature,
+     * so a mature Resource the viewer may not see never arrives. Silas,
+     * 2026-09-18: "the backend is the proper place to gate this behavior."
+     */
     if (!search) return true
 
     return [

@@ -910,11 +910,26 @@ export async function applyEntityArtImage(
     }
   }
 
+  /*
+   * PREFER THE STATIC FILE. A card renders this in an `<img>`, and an `<img>`
+   * sends no Authorization header -- so /api/art/images/:id/file can only apply
+   * its anonymous rule, which is `isPublic && !isMature`. Every mature or
+   * private entity preview therefore 403'd in the browser, blanked, and was
+   * re-observed by kr-deferred-image, which is the "previews going in and out
+   * of load, repeatedly" Silas reported on 2026-09-18. 1,969 of 2,343 Resources
+   * were pointing at that route.
+   *
+   * The API route stays as the fallback for an ArtImage whose bytes live in the
+   * row rather than on disk. The version query keeps busting the cache either
+   * way, since the static path is stable across re-renders of the same slot.
+   */
   const version =
     artImage.updatedAt?.toISOString() || artImage.createdAt.toISOString()
-  const imagePath = `/api/art/images/${artImage.id}/file?v=${encodeURIComponent(
-    version,
-  )}`
+  const staticPath = String(artImage.imagePath || '').trim()
+  const imagePath =
+    staticPath && !staticPath.includes('/api/art/images/')
+      ? `${staticPath}${staticPath.includes('?') ? '&' : '?'}v=${encodeURIComponent(version)}`
+      : `/api/art/images/${artImage.id}/file?v=${encodeURIComponent(version)}`
 
   await db.artImage.update({
     where: { id: artImage.id },

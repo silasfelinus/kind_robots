@@ -182,10 +182,6 @@ const localRelationMode = ref<RelationMode>(props.relationMode)
 const currentUserId = computed(
   () => userStore.userId ?? userStore.user?.id ?? null,
 )
-const showMature = computed(
-  () => userStore.user?.showMature ?? userStore.showMature ?? false,
-)
-
 const resolvedDreamId = computed(() => {
   const explicitId = Number(props.contextDreamId)
   if (Number.isInteger(explicitId) && explicitId > 0) return explicitId
@@ -236,9 +232,13 @@ const visibleDreams = computed<DreamWithRelations[]>(() => {
     })
   }
 
-  if (!showMature.value) {
-    dreams = dreams.filter((dream) => !dream.isMature)
-  }
+  /*
+   * NO CLIENT-SIDE MATURITY FILTER. The API decides now (viewerShowsMature:
+   * logged in, not a CHILD, opted in), so a row the viewer may not see never
+   * arrives and there is nothing here to drop. Silas, 2026-09-18: "it doesn't
+   * matter how many front end pieces are doing it one way, the backend is the
+   * proper place to gate this behavior."
+   */
 
   return dreams
 })

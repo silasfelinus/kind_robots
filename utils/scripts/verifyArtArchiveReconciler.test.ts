@@ -1,13 +1,14 @@
 // /utils/scripts/verifyArtArchiveReconciler.test.ts
 //
 // Self-test for art-archive/t-008's pure planner
-// (server/utils/artArchiveReconciler.ts's planArchiveReconciliation): new,
-// unchanged, changed-in-place, moved (old path gone), copied (old path still
-// live), and missing (known entry the scan no longer finds anywhere)
-// classification. No Prisma involved -- the planner takes and returns plain
-// data.
+// (server/utils/artArchiveReconcilerPlan.ts's planArchiveReconciliation):
+// new, unchanged, changed-in-place, moved (old path gone), copied (old path
+// still live), and missing (known entry the scan no longer finds anywhere)
+// classification. Imports only the Prisma-free plan module -- pulling in
+// artArchiveReconciler.ts itself would drag in the real Prisma client, which
+// throws without a live DATABASE_URL (this suite runs with none).
 import assert from 'node:assert/strict'
-import { planArchiveReconciliation, type ArchiveLedgerEntry } from '../../server/utils/artArchiveReconciler'
+import { planArchiveReconciliation, type ArchiveLedgerEntry } from '../../server/utils/artArchiveReconcilerPlan'
 
 function entry(overrides: Partial<ArchiveLedgerEntry> = {}): ArchiveLedgerEntry {
   return { id: 1, relativePath: 'a/one.png', contentHash: 'hash-1', ...overrides }

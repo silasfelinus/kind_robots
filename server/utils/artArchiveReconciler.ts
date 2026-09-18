@@ -1,120 +1,26 @@
 // /server/utils/artArchiveReconciler.ts
 //
-// Turns a fresh artArchiveScanner pass into a full reconciliation against the
-// durable ArchiveEntry ledger (art-archive/t-008), building on t-005's
-// path-keyed importArchiveFile(): a rescan today does more than "does this
-// exact path already exist" -- content can reappear at a new path (a move),
-// reappear at a new path while the old path is still present too (a copy),
-// change in place (same path, new bytes), or simply stop appearing at all
-// (missing, never silently deleted per the project's design brief).
-//
-// planArchiveReconciliation() is the pure decision core: given the scanned
-// files and the currently-known entries (id/relativePath/contentHash only),
-// it classifies every scanned file and lists every entry the scan no longer
-// accounts for. It touches no database, so its move/copy/missing logic is
-// unit-testable without Prisma. reconcileArchiveScan() is the impure shell
-// that loads the real ledger, executes the plan, and writes the results.
+// Impure shell for art-archive/t-008: loads the live ArchiveEntry ledger,
+// runs it through artArchiveReconcilerPlan.ts's pure planArchiveReconciliation()
+// against a fresh scan, and writes the result. New/changed/copied files go
+// through t-005's path-keyed importArchiveFile() as before; a moved file is
+// re-keyed onto its new relativePath first (so the importer's own exact-path
+// lookup treats it as an update, carrying the same ArchiveEntry/ArtImage
+// identity across the move) and is disconnected from its old folder
+// ArtCollection if the parent folder changed; a missing entry gets
+// `processState: MISSING` rather than being deleted.
 import prisma from '~/server/utils/prisma'
 import type { ArchiveScanResult, ScannedArchiveFile } from './artArchiveScanner'
 import { importArchiveFile, type ArchiveImportResult } from './artArchiveImporter'
+import { planArchiveReconciliation, type ArchiveReconciliationAction, type MissingArchiveEntry } from './artArchiveReconcilerPlan'
 
-export type ArchiveLedgerEntry = {
-  id: number
-  relativePath: string
-  contentHash: string
-}
-
-export type ArchiveReconciliationAction =
-  | { kind: 'new'; relativePath: string }
-  | { kind: 'unchanged'; relativePath: string; entryId: number }
-  | { kind: 'changed'; relativePath: string; entryId: number }
-  | { kind: 'moved'; relativePath: string; fromEntryId: number; fromRelativePath: string }
-  | { kind: 'copied'; relativePath: string; duplicateOfEntryId: number }
-
-export type MissingArchiveEntry = { entryId: number; relativePath: string }
-
-export type ArchiveReconciliationPlan = {
-  /** One action per scanned file, in scan order. */
-  actions: ArchiveReconciliationAction[]
-  /** Known entries the scan no longer accounts for at any path (not consumed as a move source). */
-  missing: MissingArchiveEntry[]
-}
-
-/**
- * Pure classification of a scan against the known ledger. No I/O.
- *
- * - An exact relativePath match is 'unchanged' or 'changed' depending on
- *   whether the content hash moved with it.
- * - A scanned file with no entry at its own path, but whose content hash
- *   matches a known entry whose OLD path is no longer present in this scan,
- *   is a 'moved' file -- the ledger identity travels with it.
- * - A scanned file with no entry at its own path, whose content hash matches
- *   a known entry whose old path IS still present in this scan, is a
- *   'copied' file: both paths are live, so the original keeps its identity
- *   and the new path gets its own.
- * - Anything left over is genuinely 'new'.
- * - A known entry whose path never turned up in the scan, and that wasn't
- *   consumed as a move's source, is reported as missing -- callers mark it,
- *   they never delete it.
- */
-export function planArchiveReconciliation(
-  files: Pick<ScannedArchiveFile, 'relativePath' | 'contentHash'>[],
-  existingEntries: ArchiveLedgerEntry[],
-): ArchiveReconciliationPlan {
-  const scannedPaths = new Set(files.map((f) => f.relativePath))
-  const byPath = new Map(existingEntries.map((e) => [e.relativePath, e]))
-  const byHash = new Map<string, ArchiveLedgerEntry[]>()
-  for (const entry of existingEntries) {
-    const list = byHash.get(entry.contentHash)
-    if (list) list.push(entry)
-    else byHash.set(entry.contentHash, [entry])
-  }
-
-  // Only a move consumes its source -- an entry matched exactly at its own
-  // path (unchanged/changed) must stay available as a 'copied' reference for
-  // a sibling file that shares its hash at a different, still-live path.
-  const usedAsMoveSource = new Set<number>()
-  const actions: ArchiveReconciliationAction[] = []
-
-  for (const file of files) {
-    const exact = byPath.get(file.relativePath)
-    if (exact) {
-      actions.push({
-        kind: exact.contentHash === file.contentHash ? 'unchanged' : 'changed',
-        relativePath: file.relativePath,
-        entryId: exact.id,
-      })
-      continue
-    }
-
-    const candidates = byHash.get(file.contentHash) ?? []
-    const moveSource = candidates.find((c) => !scannedPaths.has(c.relativePath) && !usedAsMoveSource.has(c.id))
-    if (moveSource) {
-      usedAsMoveSource.add(moveSource.id)
-      actions.push({
-        kind: 'moved',
-        relativePath: file.relativePath,
-        fromEntryId: moveSource.id,
-        fromRelativePath: moveSource.relativePath,
-      })
-      continue
-    }
-
-    const copySource = candidates[0]
-    if (copySource) {
-      actions.push({ kind: 'copied', relativePath: file.relativePath, duplicateOfEntryId: copySource.id })
-      continue
-    }
-
-    actions.push({ kind: 'new', relativePath: file.relativePath })
-  }
-
-  const missing: MissingArchiveEntry[] = existingEntries
-    .filter((e) => !scannedPaths.has(e.relativePath) && !usedAsMoveSource.has(e.id))
-    .map((e) => ({ entryId: e.id, relativePath: e.relativePath }))
-
-  return { actions, missing }
-}
+export type {
+  ArchiveLedgerEntry,
+  ArchiveReconciliationAction,
+  ArchiveReconciliationPlan,
+  MissingArchiveEntry,
+} from './artArchiveReconcilerPlan'
+export { planArchiveReconciliation } from './artArchiveReconcilerPlan'
 
 export type ArchiveReconciliationOutcome = ArchiveReconciliationAction & {
   archiveEntryId: number

@@ -12,15 +12,56 @@ export type ArchiveImportResult = {
   createdCollection: boolean
 }
 
-function folderSlug(parentFolder: string): string {
+type TransactionClient = Parameters<Parameters<typeof prisma.$transaction>[0]>[0]
+
+export function folderSlug(parentFolder: string): string {
   const key = parentFolder || '__root__'
   const digest = createHash('sha256').update(key).digest('hex').slice(0, 16)
   return `archive-folder-${digest}`
 }
 
-function folderLabel(parentFolder: string): string {
+export function folderLabel(parentFolder: string): string {
   if (!parentFolder) return 'Archive Root'
   return path.posix.basename(parentFolder) || parentFolder
+}
+
+/**
+ * Finds or creates the private+mature folder ArtCollection for
+ * `parentFolder`, forcing privacy invariants on every call (matching
+ * importArchiveFile's own behavior) -- shared by the importer and by
+ * admin-initiated moves (art-archive/t-009) so a file relocated into a new
+ * folder gets the identical collection identity a normal import would give
+ * it, rather than a second, slightly different code path drifting from it.
+ */
+export async function ensureFolderCollection(
+  tx: TransactionClient,
+  parentFolder: string,
+  userId: number,
+): Promise<{ id: number; created: boolean }> {
+  const slug = folderSlug(parentFolder)
+  const existing = await tx.artCollection.findUnique({ where: { slug }, select: { id: true } })
+  if (existing) {
+    await tx.artCollection.update({
+      where: { id: existing.id },
+      data: { isPublic: false, isMature: true, isActive: true },
+    })
+    return { id: existing.id, created: false }
+  }
+
+  const created = await tx.artCollection.create({
+    data: {
+      slug,
+      label: folderLabel(parentFolder),
+      parentFolder: parentFolder || null,
+      description: `Private legacy archive folder: ${parentFolder || '/'}`,
+      userId,
+      isPublic: false,
+      isMature: true,
+      isActive: true,
+    },
+    select: { id: true },
+  })
+  return { id: created.id, created: true }
 }
 
 function fileType(relativePath: string): string {
@@ -53,31 +94,8 @@ export async function importArchiveFile(
   userId: number,
 ): Promise<ArchiveImportResult> {
   return prisma.$transaction(async (tx) => {
-    const slug = folderSlug(file.parentFolder)
-    let collection = await tx.artCollection.findUnique({ where: { slug }, select: { id: true } })
-    let createdCollection = false
-
-    if (!collection) {
-      collection = await tx.artCollection.create({
-        data: {
-          slug,
-          label: folderLabel(file.parentFolder),
-          parentFolder: file.parentFolder || null,
-          description: `Private legacy archive folder: ${file.parentFolder || '/'}`,
-          userId,
-          isPublic: false,
-          isMature: true,
-          isActive: true,
-        },
-        select: { id: true },
-      })
-      createdCollection = true
-    } else {
-      await tx.artCollection.update({
-        where: { id: collection.id },
-        data: { isPublic: false, isMature: true, isActive: true },
-      })
-    }
+    const collection = await ensureFolderCollection(tx, file.parentFolder, userId)
+    const createdCollection = collection.created
 
     const existingEntry = await tx.archiveEntry.findUnique({
       where: { relativePath: file.relativePath },

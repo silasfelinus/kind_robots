@@ -218,6 +218,16 @@
                 class="h-full w-full object-cover"
               />
             </button>
+            <button
+              v-if="gallery.hasMore"
+              type="button"
+              class="kr-btn btn-outline h-16"
+              :disabled="gallery.isLoadingMore"
+              @click="gallery.loadMore()"
+            >
+              <span v-if="gallery.isLoadingMore" class="kr-spinner-xs" />
+              <span v-else>Load more</span>
+            </button>
           </section>
         </template>
       </template>

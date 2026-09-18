@@ -21,7 +21,9 @@ export function createButterflyGalleryFixtureEntries(): ButterflyPileEntry[] {
       folder: 'inbox',
       collections: [],
       prompt: 'a lighthouse at dawn, watercolor',
-      checkpoint: 'sdxl-base-fixture',
+      negativePrompt: 'blurry, low detail',
+      resource: { checkpoint: 'sdxl-base-fixture', loras: [] },
+      generationMetadata: { sampler: 'DPM++ 2M', steps: 30, seed: 10001 },
       matchState: 'matched',
     },
     {
@@ -36,7 +38,12 @@ export function createButterflyGalleryFixtureEntries(): ButterflyPileEntry[] {
       folder: 'inbox',
       collections: ['favorites'],
       prompt: 'portrait study, oil paint',
-      checkpoint: 'fixture-mature-checkpoint',
+      negativePrompt: null,
+      resource: {
+        checkpoint: 'fixture-mature-checkpoint',
+        loras: ['fixture-portrait-lora'],
+      },
+      generationMetadata: { sampler: 'Euler a', steps: 24, seed: 10002 },
       matchState: 'matched',
     },
     {
@@ -51,7 +58,9 @@ export function createButterflyGalleryFixtureEntries(): ButterflyPileEntry[] {
       folder: 'sorted',
       collections: ['landscapes'],
       prompt: 'mountain range, ink wash',
-      checkpoint: null,
+      negativePrompt: null,
+      resource: { checkpoint: null, loras: [] },
+      generationMetadata: null,
       matchState: 'unmatched',
     },
     {
@@ -66,7 +75,9 @@ export function createButterflyGalleryFixtureEntries(): ButterflyPileEntry[] {
       folder: 'inbox',
       collections: [],
       prompt: null,
-      checkpoint: 'fixture-checkpoint-b',
+      negativePrompt: null,
+      resource: { checkpoint: 'fixture-checkpoint-b', loras: [] },
+      generationMetadata: null,
       matchState: 'missing',
     },
     {
@@ -81,7 +92,12 @@ export function createButterflyGalleryFixtureEntries(): ButterflyPileEntry[] {
       folder: 'sorted',
       collections: [],
       prompt: 'city skyline at night',
-      checkpoint: 'fixture-checkpoint-b',
+      negativePrompt: 'blurry',
+      resource: {
+        checkpoint: 'fixture-checkpoint-b',
+        loras: ['fixture-night-lora'],
+      },
+      generationMetadata: { sampler: 'DPM++ 2M', steps: 28, seed: 10005 },
       matchState: 'matched',
     },
   ]

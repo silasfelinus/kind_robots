@@ -1,6 +1,10 @@
-// Shared types for the Butterfly Gallery curation surface (butterfly-gallery/t-003).
-// Fixture/private ArtImage data drives this until art-archive/t-004 exposes the
-// real read contract -- see stores/helpers/butterflyGalleryFixtures.ts.
+// Shared types for the Butterfly Gallery curation surface (butterfly-gallery/t-003,
+// t-004). The feed contract (ButterflyGalleryFeedProvider and friends) is the
+// narrow read seam this project needs from the archive; a fixture provider
+// backs it today (stores/helpers/butterflyGalleryFeedProvider.ts) and a real
+// art-archive-backed provider swaps in later without touching the store's
+// public API -- see the project boundary notes in
+// projects/butterfly-gallery/DESIGN-BRIEF.md (conductor repo).
 
 export type ButterflyGalleryStatus =
   | 'loading'
@@ -14,6 +18,11 @@ export type ButterflyGalleryStatus =
 
 export type ButterflyMatchState = 'matched' | 'unmatched' | 'missing'
 
+export type ButterflyResourceProvenance = {
+  checkpoint: string | null
+  loras: string[]
+}
+
 export type ButterflyPileEntry = {
   id: number
   thumbnailPath: string
@@ -26,7 +35,12 @@ export type ButterflyPileEntry = {
   folder: string | null
   collections: string[]
   prompt: string | null
-  checkpoint: string | null
+  negativePrompt: string | null
+  resource: ButterflyResourceProvenance
+  /** Extracted generation metadata beyond prompt/resource (sampler, steps,
+   * seed, etc.) -- deliberately untyped since the archive's extraction
+   * surface is still evolving; consumers narrow what they read from it. */
+  generationMetadata: Record<string, unknown> | null
   matchState: ButterflyMatchState
 }
 
@@ -77,4 +91,33 @@ export type ButterflyDropOutcome = {
   entryId: number
   binId: string
   kind: ButterflyBinKind
+}
+
+// -- Feed contract (butterfly-gallery/t-004) ---------------------------------
+//
+// The narrow read seam Butterfly Gallery needs from art-archive: a page of
+// ButterflyPileEntry records plus a cursor for the next page. Butterfly
+// Gallery never scans the filesystem or matches provenance itself -- it only
+// ever calls fetchPage() through whatever ButterflyGalleryFeedProvider is
+// installed. A fixture provider satisfies this today
+// (stores/helpers/butterflyGalleryFeedProvider.ts); the real provider wraps
+// art-archive's own read APIs once they exist, translating its response
+// shape into ButterflyPileEntry without the store or components changing.
+
+export type ButterflyFeedCursor = string | null
+
+export type ButterflyFeedQuery = {
+  /** Opaque cursor from a prior page's nextCursor. Omitted/null fetches the first page. */
+  cursor?: ButterflyFeedCursor
+  /** Requested page size; a provider may return fewer. */
+  limit?: number
+}
+
+export type ButterflyFeedPage = {
+  entries: ButterflyPileEntry[]
+  nextCursor: ButterflyFeedCursor
+}
+
+export interface ButterflyGalleryFeedProvider {
+  fetchPage(query: ButterflyFeedQuery): Promise<ButterflyFeedPage>
 }

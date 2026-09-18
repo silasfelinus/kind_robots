@@ -1,13 +1,12 @@
 import { computed, ref } from 'vue'
 import { defineStore } from 'pinia'
-import {
-  createButterflyGalleryFixtureEntries,
-  createDefaultButterflyBins,
-} from '@/stores/helpers/butterflyGalleryFixtures'
+import { defaultButterflyGalleryFeedProvider } from '@/stores/helpers/butterflyGalleryFeedProvider'
+import { createDefaultButterflyBins } from '@/stores/helpers/butterflyGalleryFixtures'
 import {
   defaultButterflyGalleryFilters,
   type ButterflyBinConfig,
   type ButterflyDropOutcome,
+  type ButterflyFeedCursor,
   type ButterflyGalleryFilters,
   type ButterflyGalleryStatus,
   type ButterflyPileEntry,
@@ -55,6 +54,8 @@ export const useButterflyGalleryStore = defineStore(
     const batchSelectedIds = ref<number[]>([])
     const introPlayed = ref(false)
     const lastSaveMessage = ref('')
+    const nextCursor = ref<ButterflyFeedCursor>(null)
+    const isLoadingMore = ref(false)
 
     const visiblePile = computed<ButterflyPileEntry[]>(() =>
       pile.value.filter((entry) => {
@@ -119,6 +120,8 @@ export const useButterflyGalleryStore = defineStore(
 
     const batchSelectedCount = computed(() => batchSelectedIds.value.length)
 
+    const hasMore = computed(() => nextCursor.value !== null)
+
     const isBusy = computed(
       () =>
         status.value === 'saving' ||
@@ -150,15 +153,18 @@ export const useButterflyGalleryStore = defineStore(
       selectedImageId.value = null
     }
 
-    /** Load the pile from fixture data. Swap the body for a real art-archive
-     * fetch once butterfly-gallery/t-004's read contract lands; callers
-     * outside the store never need to change. */
+    /** Load the first page through whatever ButterflyGalleryFeedProvider is
+     * installed (a fixture provider today; a real art-archive-backed one
+     * later -- see stores/helpers/butterflyGalleryFeedProvider.ts). Callers
+     * outside the store never need to change when that swap happens. */
     async function loadPile(): Promise<void> {
       status.value = 'loading'
       errorMessage.value = ''
 
       try {
-        pile.value = createButterflyGalleryFixtureEntries()
+        const page = await defaultButterflyGalleryFeedProvider().fetchPage({})
+        pile.value = page.entries
+        nextCursor.value = page.nextCursor
         introPlayed.value = readIntroPlayed()
 
         if (!selectedImageId.value) selectNextFromPile()
@@ -168,6 +174,32 @@ export const useButterflyGalleryStore = defineStore(
         errorMessage.value =
           error instanceof Error ? error.message : 'Failed to load the gallery.'
         status.value = 'error'
+      }
+    }
+
+    /** Append the next page onto the pile. A no-op once the provider reports
+     * no further cursor. */
+    async function loadMore(): Promise<void> {
+      if (isLoadingMore.value || isBusy.value || !hasMore.value) return
+
+      isLoadingMore.value = true
+      try {
+        const page = await defaultButterflyGalleryFeedProvider().fetchPage({
+          cursor: nextCursor.value,
+        })
+        const existingIds = new Set(pile.value.map((entry) => entry.id))
+        pile.value = [
+          ...pile.value,
+          ...page.entries.filter((entry) => !existingIds.has(entry.id)),
+        ]
+        nextCursor.value = page.nextCursor
+      } catch (error) {
+        errorMessage.value =
+          error instanceof Error
+            ? error.message
+            : 'Could not load more of the pile.'
+      } finally {
+        isLoadingMore.value = false
       }
     }
 
@@ -321,7 +353,9 @@ export const useButterflyGalleryStore = defineStore(
       errorMessage.value = ''
 
       try {
-        pile.value = createButterflyGalleryFixtureEntries()
+        const page = await defaultButterflyGalleryFeedProvider().fetchPage({})
+        pile.value = page.entries
+        nextCursor.value = page.nextCursor
         batchSelectedIds.value = []
         if (!entryById(selectedImageId.value ?? -1)) selectNextFromPile()
         status.value = 'ready'
@@ -349,6 +383,8 @@ export const useButterflyGalleryStore = defineStore(
       batchSelectedIds,
       introPlayed,
       lastSaveMessage,
+      nextCursor,
+      isLoadingMore,
       visiblePile,
       remainingCount,
       selectedEntry,
@@ -356,11 +392,13 @@ export const useButterflyGalleryStore = defineStore(
       rightBins,
       batchSelectedCount,
       isBusy,
+      hasMore,
       entryById,
       binById,
       selectImage,
       clearSelection,
       loadPile,
+      loadMore,
       completeIntro,
       replayIntro,
       startDrag,

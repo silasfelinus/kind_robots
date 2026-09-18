@@ -333,6 +333,7 @@
     "test:model-builder-run-epoch-guard": "tsx utils/scripts/verifyModelBuilderRunEpochGuard.ts",
     "test:model-builder-async-poll-failure-guard-selftest": "tsx utils/scripts/verifyModelBuilderAsyncPollFailureGuard.test.ts",
     "test:model-builder-async-poll-failure-guard": "tsx utils/scripts/verifyModelBuilderAsyncPollFailureGuard.ts",
+    "test:preview-source-guard": "tsx utils/scripts/verifyPreviewSourceGuard.test.ts",
     "test:artqueue-overwrite-cache-guard": "tsx utils/scripts/verifyArtQueueOverwriteCacheGuard.test.ts",
     "test:art-queue-poll-failure-guard-selftest": "tsx utils/scripts/verifyArtQueuePollFailureGuard.test.ts",
     "test:art-queue-poll-failure-guard": "tsx utils/scripts/verifyArtQueuePollFailureGuard.ts",

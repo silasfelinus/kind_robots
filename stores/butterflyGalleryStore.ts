@@ -302,6 +302,28 @@ export const useButterflyGalleryStore = defineStore(
           if (rating !== null) entry.rating = rating
           break
         }
+        case 'preset': {
+          const rating =
+            typeof bin.payload.rating === 'number' ? bin.payload.rating : null
+          const collection =
+            typeof bin.payload.collection === 'string'
+              ? bin.payload.collection
+              : null
+          const folder =
+            typeof bin.payload.folder === 'string' ? bin.payload.folder : null
+          const processed =
+            typeof bin.payload.processed === 'boolean'
+              ? bin.payload.processed
+              : null
+
+          if (rating !== null) entry.rating = rating
+          if (collection && !entry.collections.includes(collection)) {
+            entry.collections = [...entry.collections, collection]
+          }
+          if (folder) entry.folder = folder
+          if (processed !== null) entry.processed = processed
+          break
+        }
         default:
           break
       }

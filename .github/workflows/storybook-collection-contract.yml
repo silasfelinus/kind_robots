@@ -1,0 +1,25 @@
+name: Storybook Collection Contract
+
+on:
+  pull_request:
+    paths:
+      - 'components/storybook/storybook-collection.vue'
+      - 'utils/scripts/verifyStorybookCollection.mjs'
+      - '.github/workflows/storybook-collection-contract.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'components/storybook/storybook-collection.vue'
+      - 'utils/scripts/verifyStorybookCollection.mjs'
+      - '.github/workflows/storybook-collection-contract.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  collection-contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify Storybook Collection contract
+        run: node utils/scripts/verifyStorybookCollection.mjs

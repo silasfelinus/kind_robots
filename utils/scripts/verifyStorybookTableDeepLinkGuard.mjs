@@ -97,12 +97,13 @@ assert.ok(
 // loaded -- calling it before means every lookup above finds nothing.
 const onMountedBody = (() => {
   const match = /onMounted\(async \(\) => \{([\s\S]*?)\n\}\)/.exec(tableContent)
-  assert.ok(
-    match,
-    `Could not find \`onMounted(async () => { ... })\` in ${TABLE_PATH} -- ` +
-      'has it been renamed, removed, or restructured? If so, this guard ' +
-      'needs to move with it.',
-  )
+  if (!match) {
+    throw new Error(
+      `Could not find \`onMounted(async () => { ... })\` in ${TABLE_PATH} -- ` +
+        'has it been renamed, removed, or restructured? If so, this guard ' +
+        'needs to move with it.',
+    )
+  }
   return match[1]
 })()
 const allSettledIndex = onMountedBody.indexOf('Promise.allSettled')

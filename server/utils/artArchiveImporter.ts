@@ -154,8 +154,56 @@ export async function importArchiveFile(
   })
 }
 
-export async function importArchiveScan(files: ScannedArchiveFile[], userId: number) {
-  const results: ArchiveImportResult[] = []
-  for (const file of files) results.push(await importArchiveFile(file, userId))
-  return results
+export type ArchiveImportSummary = {
+  root: string
+  filesScanned: number
+  scanIssues: number
+  imagesCreated: number
+  imagesReused: number
+  collectionsCreated: number
+  collectionsReused: number
+  errors: { relativePath: string; message: string }[]
+}
+
+/**
+ * Runs importArchiveFile() over every file in an already-completed scan and
+ * rolls the per-file created/reused counts up into one summary -- the same
+ * counting shape utils/scripts/importArtArchive.ts's CLI reports, so a
+ * caller (the admin import endpoint, art-archive/t-024) gets identical
+ * numbers whether it triggers the scan-then-import flow from the CLI or
+ * over HTTP. A per-file failure is recorded in `errors` and does not abort
+ * the rest of the batch.
+ */
+export async function importArchiveScan(
+  scan: { root: string; files: ScannedArchiveFile[]; issues: unknown[] },
+  userId: number,
+): Promise<ArchiveImportSummary> {
+  let imagesCreated = 0
+  let imagesReused = 0
+  let collectionsCreated = 0
+  let collectionsReused = 0
+  const errors: { relativePath: string; message: string }[] = []
+
+  for (const file of scan.files) {
+    try {
+      const result = await importArchiveFile(file, userId)
+      if (result.createdImage) imagesCreated += 1
+      else imagesReused += 1
+      if (result.createdCollection) collectionsCreated += 1
+      else collectionsReused += 1
+    } catch (error) {
+      errors.push({ relativePath: file.relativePath, message: String(error) })
+    }
+  }
+
+  return {
+    root: scan.root,
+    filesScanned: scan.files.length,
+    scanIssues: scan.issues.length,
+    imagesCreated,
+    imagesReused,
+    collectionsCreated,
+    collectionsReused,
+    errors,
+  }
 }

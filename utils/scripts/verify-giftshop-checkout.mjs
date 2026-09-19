@@ -133,8 +133,18 @@ assert.match(
 )
 assert.match(
   giftshop,
-  /<aside class="kr-panel self-start/,
+  /<aside class="giftshop-cart kr-panel self-start/,
   'cart summary must size to its contents instead of stretching into a blank full-height column',
+)
+assert.match(
+  giftshop,
+  /container: giftshop \/ inline-size;[\s\S]*@container giftshop \(min-width: 56rem\)[\s\S]*grid-template-columns: minmax\(0, 1fr\) 20rem/,
+  'giftshop desktop columns must respond to the component container rather than a viewport breakpoint',
+)
+assert.doesNotMatch(
+  giftshop,
+  /lg:grid-cols/,
+  'giftshop shared component must not restore viewport-keyed column layout',
 )
 assert.match(
   giftshopManager,

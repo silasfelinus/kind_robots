@@ -196,22 +196,69 @@
               <div
                 class="relative flex h-44 items-center justify-center overflow-hidden bg-base-200"
               >
-                <Icon
-                  :name="productIcon(item.type)"
-                  class="absolute size-32 text-base-content/10"
-                />
-
                 <div
-                  class="relative flex size-24 items-center justify-center overflow-hidden rounded-2xl border border-base-300 bg-base-100 p-2 shadow-lg"
-                  :class="item.type === 'sticker' ? '-rotate-3' : ''"
+                  v-if="item.type === 'print'"
+                  class="relative h-36 w-28 rounded-sm bg-base-100 p-2 shadow-xl ring-1 ring-base-content/15"
                 >
                   <img
                     :src="previewImageSrc"
-                    :alt="'Preview art on ' + item.label"
-                    class="h-full w-full rounded-xl object-cover"
+                    :alt="'Poster mockup using ' + previewArtLabel"
+                    class="h-full w-full object-cover"
                     loading="lazy"
                   />
                 </div>
+
+                <div
+                  v-else-if="item.type === 'shirt'"
+                  class="relative flex size-36 items-center justify-center"
+                >
+                  <Icon
+                    name="kind-icon:shirt"
+                    class="absolute size-36 text-base-content/25"
+                    aria-hidden="true"
+                  />
+                  <img
+                    :src="previewImageSrc"
+                    :alt="'Shirt mockup using ' + previewArtLabel"
+                    class="relative mt-3 size-12 rounded-md border border-base-300 object-cover shadow"
+                    loading="lazy"
+                  />
+                </div>
+
+                <div
+                  v-else-if="item.type === 'mug'"
+                  class="relative flex size-36 items-center justify-center"
+                >
+                  <Icon
+                    name="kind-icon:mug"
+                    class="absolute size-36 text-base-content/25"
+                    aria-hidden="true"
+                  />
+                  <img
+                    :src="previewImageSrc"
+                    :alt="'Mug mockup using ' + previewArtLabel"
+                    class="relative mr-5 size-12 rounded-md border border-base-300 object-cover shadow"
+                    loading="lazy"
+                  />
+                </div>
+
+                <div
+                  v-else
+                  class="-rotate-6 rounded-2xl border-4 border-base-100 bg-base-100 p-1 shadow-xl"
+                >
+                  <img
+                    :src="previewImageSrc"
+                    :alt="'Sticker mockup using ' + previewArtLabel"
+                    class="size-24 rounded-xl object-cover"
+                    loading="lazy"
+                  />
+                </div>
+
+                <Icon
+                  :name="productIcon(item.type)"
+                  class="absolute left-3 top-3 size-6 text-base-content/35"
+                  aria-hidden="true"
+                />
 
                 <span
                   class="absolute bottom-2 right-2 rounded-full bg-base-100/90 px-2 py-1 text-xs font-black text-base-content shadow backdrop-blur"
@@ -417,6 +464,10 @@ const previewImageSrc = computed(() => {
     ? resolveArtImageThumbSrc(previewArt.value)
     : '/icon-512x512.png'
 })
+
+const previewArtLabel = computed(
+  () => previewArt.value?.promptString || 'Kind Robots artwork',
+)
 
 onMounted(() => {
   void cartStore.initialize()

@@ -17,7 +17,7 @@
       </button>
     </div>
 
-    <div class="grid max-h-48 grid-cols-4 gap-2 overflow-y-auto sm:grid-cols-6">
+    <div class="grid max-h-48 grid-cols-[repeat(auto-fit,minmax(min(100%,5rem),1fr))] gap-2 overflow-y-auto">
       <button
         v-for="entry in gallery.visiblePile"
         :key="entry.id"

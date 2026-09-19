@@ -73,10 +73,14 @@ export const ART_ENGINE_PROFILES: Record<ArtGeneratorEngine, ArtEngineProfile> =
       engine: 'flux',
       label: 'FLUX.1',
       blurb:
-        'Highest fidelity, slowest. Uses its own guidance value instead of CFG, and does not take a LoRA.',
+        'Highest fidelity, slowest. Uses its own guidance value instead of CFG. Takes a FLUX.1 LoRA -- not a FLUX.2 or Kontext one.',
       supports: {
         checkpoint: false,
-        lora: false,
+        // True since 2026-09-16, when the flux builder stopped silently
+        // dropping LoRAs (kind-robots/t-105). This flag stayed false for three
+        // days after the fix, so the generator kept hiding a picker the
+        // workflow would have honoured.
+        lora: true,
         negativePrompt: false,
         sampler: true,
         scheduler: true,

@@ -13,6 +13,7 @@ import {
 import {
   artLoraCompatibilityRank,
   flux2LoraCompatibilityRank,
+  fluxLoraCompatibilityRank,
   krea2LoraCompatibilityRank,
 } from '../loraSelection'
 
@@ -191,6 +192,83 @@ assert.equal(artLoraCompatibilityRank(fluxLora, 'flux2'), 0)
 assert.equal(artLoraCompatibilityRank(kontextLora, 'flux2'), 0)
 assert.equal(artLoraCompatibilityRank(flux2Lora, 'flux2'), 30)
 
+/*
+ * THE FLUX.1 LANE TAKES A LORA, AND THE CATALOGUE HAS TO SAY SO.
+ *
+ * It advertised supports.lora: false, and artLoraCompatibilityRank returned 0
+ * for every LoRA on this engine. Both were correct until 2026-09-16, when the
+ * flux builder stopped silently dropping them (kind-robots/t-105) -- after
+ * which the generator was hiding a picker the workflow would have honoured,
+ * while the probe pipeline happily ran Flux LoRAs on flux1-dev. Confirmed
+ * against production: 30 of 30 recent jobs were flux1-dev + a Flux LoRA.
+ */
+assert.equal(
+  ART_ENGINE_PROFILES.flux.supports.lora,
+  true,
+  'FLUX.1 takes a LoRA; the builder has wired one since 2026-09-16',
+)
+assert.doesNotMatch(
+  ART_ENGINE_PROFILES.flux.blurb,
+  /does not take a lora/i,
+  'the blurb must not still claim FLUX.1 cannot use a LoRA',
+)
+
+// The real shape, from production: generation 'Flux.1 D', server 'FLUX'.
+assert.equal(fluxLoraCompatibilityRank(fluxLora), 30)
+assert.equal(artLoraCompatibilityRank(fluxLora, 'flux'), 30)
+assert.equal(
+  fluxLoraCompatibilityRank({
+    id: 8,
+    generation: 'Flux.1 D',
+    supportedServer: 'COMFY',
+  }),
+  20,
+)
+assert.equal(
+  fluxLoraCompatibilityRank({
+    id: 9,
+    generation: 'Flux',
+    supportedServer: 'GENERIC',
+  }),
+  10,
+)
+
+/*
+ * THREE MODELS SAY "FLUX", AND ONLY ONE OF THEM IS THIS LANE. A substring test
+ * would offer all three; these are the cases that catch one.
+ */
+assert.equal(
+  fluxLoraCompatibilityRank(flux2Lora),
+  0,
+  'FLUX.2 weights do not load on FLUX.1',
+)
+assert.equal(fluxLoraCompatibilityRank(genericFlux2Lora), 0)
+assert.equal(
+  fluxLoraCompatibilityRank(kontextLora),
+  0,
+  'Kontext is the editing model, not dev',
+)
+assert.equal(artLoraCompatibilityRank(flux2Lora, 'flux'), 0)
+assert.equal(artLoraCompatibilityRank(kontextLora, 'flux'), 0)
+
+// And nothing from another architecture leaks in.
+assert.equal(fluxLoraCompatibilityRank(krea2Lora), 0)
+assert.equal(
+  fluxLoraCompatibilityRank({
+    id: 10,
+    generation: 'Pony',
+    supportedServer: 'SDXL',
+  }),
+  0,
+)
+assert.equal(
+  artLoraCompatibilityRank(
+    { id: 11, generation: 'SDXL', supportedServer: 'SDXL' },
+    'flux',
+  ),
+  0,
+)
+
 for (const name of [
   'dreamshaperXL_v21TurboDPMSDE.safetensors',
   'RealitiesEdgeXLLIGHTNING_TURBOV7.safetensors',
@@ -264,7 +342,15 @@ const lanes = {
 for (const [engine, body] of Object.entries(lanes)) {
   const supports =
     ART_ENGINE_PROFILES[engine as keyof typeof ART_ENGINE_PROFILES].supports
-  assert.equal(body.includes('loraName:'), supports.lora)
+  /*
+   * TWO SPELLINGS MEAN THE SAME THING. krea2, flux2 and comfy take a single
+   * `loraName:`; the flux lane takes the plural `loras:` chain added with the
+   * builder fix in kind-robots/t-105. Testing only the first read the flux
+   * lane as passing no LoRA at all, which is how supports.lora stayed false
+   * for three days after the workflow started honouring one.
+   */
+  const passesLora = body.includes('loraName:') || body.includes('loras:')
+  assert.equal(passesLora, supports.lora)
   assert.equal(body.includes('checkpoint:'), supports.checkpoint)
   assert.equal(body.includes('width:'), supports.size)
   assert.equal(body.includes('scheduler:'), supports.scheduler)

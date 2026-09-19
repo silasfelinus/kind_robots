@@ -8,6 +8,10 @@
 // load. `?variant=thumbnail` serves a cached, downscaled copy
 // (artArchiveThumbnails.ts); anything else serves the original bytes.
 //
+// `?variant=medium` serves a cached ~1200px copy (art-archive/t-035), for
+// the admin detail panel's larger preview -- cheaper first paint than the
+// untouched original for a very large source file.
+//
 // Root-confined via the same path-safety helper the move/quarantine/restore
 // actions use (resolveConfinedExistingPath), and gated identically to
 // entries/index.get.ts (admin + mature-content access) since this reads
@@ -21,7 +25,7 @@ import { requireAdminApiUser } from '~/server/utils/authGuard'
 import { viewerShowsMature } from '~/server/utils/contentAccess'
 import { getArtArchiveRoot } from '~/server/utils/artArchiveRoot'
 import { resolveConfinedExistingPath } from '~/server/utils/artArchiveFileOps'
-import { ensureArchiveThumbnail } from '~/server/utils/artArchiveThumbnails'
+import { ensureArchiveMediumPreview, ensureArchiveThumbnail } from '~/server/utils/artArchiveThumbnails'
 
 const CONTENT_TYPES: Record<string, string> = {
   png: 'image/png',
@@ -54,20 +58,21 @@ export default defineEventHandler(async (event) => {
     }
 
     const resolvedRoot = await realpath(getArtArchiveRoot())
-    const variant = getQuery(event).variant === 'thumbnail' ? 'thumbnail' : 'full'
+    const rawVariant = getQuery(event).variant
+    const variant =
+      rawVariant === 'thumbnail' || rawVariant === 'medium' ? rawVariant : 'full'
 
     // Private+mature content, never a shared CDN entry -- cached per-browser
     // only, matching file.get.ts's own non-public Cache-Control branch.
     setHeader(event, 'Cache-Control', 'private, max-age=3600')
     setHeader(event, 'X-Content-Type-Options', 'nosniff')
 
-    if (variant === 'thumbnail') {
-      const buffer = await ensureArchiveThumbnail(
-        resolvedRoot,
-        entry.id,
-        entry.relativePath,
-        entry.fileMtime ? entry.fileMtime.getTime() : null,
-      )
+    if (variant === 'thumbnail' || variant === 'medium') {
+      const sourceMtimeMs = entry.fileMtime ? entry.fileMtime.getTime() : null
+      const buffer =
+        variant === 'thumbnail'
+          ? await ensureArchiveThumbnail(resolvedRoot, entry.id, entry.relativePath, sourceMtimeMs)
+          : await ensureArchiveMediumPreview(resolvedRoot, entry.id, entry.relativePath, sourceMtimeMs)
       setHeader(event, 'Content-Type', 'image/webp')
       return buffer
     }

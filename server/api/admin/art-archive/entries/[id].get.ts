@@ -95,7 +95,13 @@ export default defineEventHandler(async (event) => {
           ...entry,
           extractedMetadata: parseJsonSafe(entry.extractedMetadata),
           matchSummary: parseJsonSafe(entry.matchSummary),
-          imagePath: hasImage ? `/api/admin/art-archive/entries/${id}/file` : null,
+          // Medium cached preview (art-archive/t-035) -- cheaper first paint
+          // for the detail panel than the untouched original. originalPath
+          // still exposes the full-size file for a viewer who needs it.
+          imagePath: hasImage
+            ? `/api/admin/art-archive/entries/${id}/file?variant=medium`
+            : null,
+          originalPath: hasImage ? `/api/admin/art-archive/entries/${id}/file` : null,
           thumbnailPath: hasImage
             ? `/api/admin/art-archive/entries/${id}/file?variant=thumbnail`
             : null,

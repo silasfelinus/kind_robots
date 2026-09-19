@@ -19,6 +19,12 @@ import { resolveConfinedExistingPath } from './artArchiveFileOps'
 
 export const ARCHIVE_THUMBNAIL_FOLDER = '.art-archive-thumbnails'
 
+// Separate dot-prefixed folder, same reasoning as ARCHIVE_THUMBNAIL_FOLDER
+// (art-archive/t-035): artArchiveScanner.ts's walk() skips any directory
+// starting with `.`, so this cache can never be rediscovered as new archive
+// content on a future scan.
+export const ARCHIVE_MEDIUM_FOLDER = '.art-archive-medium'
+
 // Matches artImageEncoding.ts / file.get.ts: 82 measured 8.3x smaller than
 // the source PNG with no visible artefacts at card size.
 const THUMBNAIL_WEBP_QUALITY = 82
@@ -28,26 +34,38 @@ const THUMBNAIL_WEBP_QUALITY = 82
 // shrinks -- a source narrower than this is left at its original size.
 const THUMBNAIL_MAX_DIMENSION = 480
 
-function cachePathFor(resolvedRoot: string, archiveEntryId: number): string {
-  return path.join(resolvedRoot, ARCHIVE_THUMBNAIL_FOLDER, `${archiveEntryId}.webp`)
+// Wide enough for the admin detail panel's full-width preview at 2x pixel
+// density on a typical desktop viewport, well below what a very large
+// archive original (e.g. a multi-thousand-pixel upscale/render) would be.
+const MEDIUM_MAX_DIMENSION = 1200
+
+function cachePathFor(
+  resolvedRoot: string,
+  folder: string,
+  archiveEntryId: number,
+): string {
+  return path.join(resolvedRoot, folder, `${archiveEntryId}.webp`)
 }
 
 /**
- * Returns a cached thumbnail buffer for `archiveEntryId`, generating (and
- * caching) it first if none exists yet or the cached copy predates the
- * source file's last modification. `sourceMtimeMs` is the ArchiveEntry's own
- * recorded `fileMtime` -- a rescan only bumps it when a file's bytes
- * actually changed, so a stale cached thumbnail from before a re-import is
- * invalidated the same way artArchiveScanner.ts's own size+mtime cache
- * trusts (or distrusts) a previously-recorded identity.
+ * Returns a cached downscaled-WebP buffer for `archiveEntryId` in the given
+ * cache `folder`, generating (and caching) it first if none exists yet or
+ * the cached copy predates the source file's last modification.
+ * `sourceMtimeMs` is the ArchiveEntry's own recorded `fileMtime` -- a
+ * rescan only bumps it when a file's bytes actually changed, so a stale
+ * cached copy from before a re-import is invalidated the same way
+ * artArchiveScanner.ts's own size+mtime cache trusts (or distrusts) a
+ * previously-recorded identity.
  */
-export async function ensureArchiveThumbnail(
+async function ensureArchiveDerivedImage(
   resolvedRoot: string,
+  folder: string,
+  maxDimension: number,
   archiveEntryId: number,
   relativePath: string,
   sourceMtimeMs: number | null,
 ): Promise<Buffer> {
-  const cachePath = cachePathFor(resolvedRoot, archiveEntryId)
+  const cachePath = cachePathFor(resolvedRoot, folder, archiveEntryId)
 
   try {
     const cacheStat = await stat(cachePath)
@@ -58,10 +76,13 @@ export async function ensureArchiveThumbnail(
     // No cached copy yet (or it's unreadable) -- fall through and generate one.
   }
 
-  const sourcePath = await resolveConfinedExistingPath(resolvedRoot, relativePath)
+  const sourcePath = await resolveConfinedExistingPath(
+    resolvedRoot,
+    relativePath,
+  )
   const original = await readFile(sourcePath)
-  const thumbnail = await sharp(original)
-    .resize(THUMBNAIL_MAX_DIMENSION, THUMBNAIL_MAX_DIMENSION, {
+  const derived = await sharp(original)
+    .resize(maxDimension, maxDimension, {
       fit: 'inside',
       withoutEnlargement: true,
     })
@@ -72,8 +93,47 @@ export async function ensureArchiveThumbnail(
   // Write-then-rename so a reader racing the generation never sees a
   // truncated/partial file at the final cache path.
   const tempPath = `${cachePath}.${process.pid}.${Date.now()}.tmp`
-  await writeFile(tempPath, thumbnail)
+  await writeFile(tempPath, derived)
   await rename(tempPath, cachePath)
 
-  return thumbnail
+  return derived
+}
+
+export async function ensureArchiveThumbnail(
+  resolvedRoot: string,
+  archiveEntryId: number,
+  relativePath: string,
+  sourceMtimeMs: number | null,
+): Promise<Buffer> {
+  return ensureArchiveDerivedImage(
+    resolvedRoot,
+    ARCHIVE_THUMBNAIL_FOLDER,
+    THUMBNAIL_MAX_DIMENSION,
+    archiveEntryId,
+    relativePath,
+    sourceMtimeMs,
+  )
+}
+
+/**
+ * Medium-sized cached preview for the admin detail panel (art-archive/t-035):
+ * the detail panel previously always requested the full-size original via
+ * entries/[id]/file.get.ts, which is slow on first paint for a very large
+ * source file. This reuses the same cache-folder/mtime-invalidation pattern
+ * as ensureArchiveThumbnail, just at a larger cap.
+ */
+export async function ensureArchiveMediumPreview(
+  resolvedRoot: string,
+  archiveEntryId: number,
+  relativePath: string,
+  sourceMtimeMs: number | null,
+): Promise<Buffer> {
+  return ensureArchiveDerivedImage(
+    resolvedRoot,
+    ARCHIVE_MEDIUM_FOLDER,
+    MEDIUM_MAX_DIMENSION,
+    archiveEntryId,
+    relativePath,
+    sourceMtimeMs,
+  )
 }

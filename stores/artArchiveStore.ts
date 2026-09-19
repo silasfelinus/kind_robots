@@ -20,6 +20,7 @@ export type ArchiveEntrySummary = {
 export type ArchiveEntryDetail = {
   entry: Omit<ArchiveEntrySummary, 'imagePath' | 'thumbnailPath'> & {
     imagePath: string | null
+    originalPath: string | null
     thumbnailPath: string | null
     extractedMetadata: unknown
     matchSummary: unknown

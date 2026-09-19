@@ -13,6 +13,31 @@ function expectContains(path: string, needles: string[]): void {
   }
 }
 
+// Pins managerContext()'s fallback ordering: the explicit DOM identity path
+// (Page/WorkspaceProject/SelectedScenario) must be tried before the legacy
+// managerContextFromVue private-property introspection, which is
+// compatibility-only and should stay last (kind_robots#2898 kaizen).
+function expectOrder(path: string, needles: string[]): void {
+  const source = read(path)
+  let lastIndex = -1
+  let lastNeedle = ''
+  for (const needle of needles) {
+    const index = source.indexOf(needle)
+    if (index === -1) {
+      throw new Error(`${path} is missing prompt-suggestion contract: ${needle}`)
+    }
+    if (index <= lastIndex) {
+      throw new Error(
+        `${path} must try ${JSON.stringify(needle)} after ${JSON.stringify(
+          lastNeedle,
+        )} -- the explicit DOM identity path must be checked before the legacy managerContextFromVue fallback`,
+      )
+    }
+    lastIndex = index
+    lastNeedle = needle
+  }
+}
+
 expectContains('plugins/entity-art-prompt-suggest.client.ts', [
   "import { suggestArtAssetPrompt } from '@/stores/helpers/artAssetSuggest'",
   "import { usePageStore } from '@/stores/pageStore'",
@@ -38,6 +63,13 @@ expectContains('plugins/entity-art-prompt-suggest.client.ts', [
   'generationMode(form)',
   "textarea.dispatchEvent(new Event('input', { bubbles: true }))",
   'MutationObserver',
+])
+
+expectOrder('plugins/entity-art-prompt-suggest.client.ts', [
+  'managerContextFromPage(element) ||',
+  'managerContextFromWorkspaceProject(element, pageStore, projectStore) ||',
+  'managerContextFromSelectedScenario(element, scenarioStore) ||',
+  'managerContextFromVue(element) ||',
 ])
 
 expectContains('stores/helpers/artAssetSuggest.ts', [

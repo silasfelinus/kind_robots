@@ -1,35 +1,28 @@
 <template>
   <div class="kr-surface">
-    <div class="kr-scroll kr-container max-w-4xl p-4 sm:p-6">
-      <div class="kr-panel space-y-5 p-5 sm:p-6">
-        <header class="flex items-start gap-3 border-b border-base-300 pb-5">
-          <div
-            class="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-primary/15 text-primary"
-          >
-            <Icon name="kind-icon:microphone" class="kr-icon-6" />
-          </div>
-          <div class="min-w-0 flex-1 space-y-2">
-            <p class="kr-text-black-2xl tracking-tight">Music Mentor</p>
-            <p class="text-sm leading-relaxed text-base-content/75">
-              Upload a song or medley for focused feedback on pitch, timing,
-              dynamics, and arrangement.
-            </p>
-            <div
-              class="flex items-start gap-2 rounded-xl bg-base-200/80 px-3 py-2 text-sm text-base-content/75"
-            >
-              <Icon name="kind-icon:shield" class="kr-icon-4 mt-0.5 shrink-0" />
-              <p>
-                <strong>Your recording stays on your device.</strong> We analyze
-                it in your browser and send only the measurements, your notes,
-                and your selected feedback areas for coaching.
-              </p>
-            </div>
-            <p class="kr-text-faded-xs">
-              Music Mentor can measure technique and structure; tone, emotion,
-              and artistic taste still need a human ear.
-            </p>
-          </div>
-        </header>
+    <div class="kr-scroll kr-container max-w-3xl p-6 space-y-6">
+      <header class="flex items-start gap-3">
+        <div
+          class="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-primary/15 text-primary"
+        >
+          <Icon name="kind-icon:microphone" class="kr-icon-6" />
+        </div>
+        <div class="min-w-0 flex-1 space-y-1">
+          <p class="kr-text-black-2xl tracking-tight">Music Mentor</p>
+          <p class="kr-text-dim-sm">
+            Upload a recording of your sung medley and get honest, specific
+            feedback on the singing and the arrangement. Everything is analyzed
+            <strong>in your browser</strong> — the audio never leaves your
+            device, and nothing is stored.
+          </p>
+          <p class="kr-text-dim-xs">
+            Honest heads-up: this measures the objective stuff (pitch, timing,
+            dynamics, structure) and reasons over your setlist. It can't judge
+            tone, emotion, or "is this a good voice" — that still needs a human
+            ear.
+          </p>
+        </div>
+      </header>
 
       <div v-if="!isLoggedIn" class="alert alert-warning text-sm" role="alert">
         You need to be signed in to run an analysis — the coaching step is
@@ -39,7 +32,7 @@
       <!-- File -->
       <section class="space-y-2">
         <label class="font-semibold">
-          1. Add a recording <span class="text-error">*</span>
+          Recording <span class="text-error">*</span>
         </label>
         <input
           type="file"
@@ -47,33 +40,29 @@
           class="file-input file-input-bordered w-full"
           @change="onFileChange"
         />
-        <p v-if="fileName" class="text-xs text-base-content/65">
-          {{ fileName }} · {{ fileSizeMb }} MB · only the audio track is
-          analyzed
+        <p v-if="fileName" class="text-xs opacity-70">
+          {{ fileName }} ({{ fileSizeMb }} MB) — only the audio track is read.
         </p>
-        <p v-else class="text-xs text-base-content/55">
-          MP3, M4A, WAV, MP4, or MOV · up to {{ MAX_MB }} MB. For video, only
-          the audio track is analyzed.
+        <p v-else class="text-xs opacity-50">
+          Audio or video is fine (mp3, m4a, wav, or an iPhone mp4/mov — we just
+          read the audio). Up to {{ MAX_MB }} MB.
         </p>
       </section>
 
       <!-- Setlist -->
       <section class="space-y-2">
-        <label class="font-semibold">
-          2. Add context
-          <span class="text-xs font-normal text-base-content/55">(optional)</span>
-        </label>
+        <label class="font-semibold">Setlist / notes</label>
         <textarea
           v-model="setlist"
           rows="4"
           class="textarea textarea-bordered w-full"
-          placeholder="Songs, keys if you know them, and anything you want the mentor to focus on."
+          placeholder="List the songs in your medley (and keys if you know them), plus anything you want feedback on. This sharpens the arrangement feedback."
         />
       </section>
 
       <!-- Dimensions -->
       <section class="space-y-2">
-        <label class="font-semibold">3. Choose feedback</label>
+        <label class="font-semibold">What should I listen for?</label>
         <div class="flex flex-wrap gap-2">
           <button
             v-for="opt in DIMENSIONS"
@@ -87,7 +76,7 @@
           </button>
         </div>
         <p class="kr-text-faded-xs">
-          All four are selected. Tap any you don't want.
+          Pick at least one. All four selected by default.
         </p>
       </section>
 
@@ -153,7 +142,6 @@
           </li>
         </ul>
       </details>
-      </div>
     </div>
   </div>
 </template>
@@ -169,10 +157,10 @@ import { useUserStore } from '@/stores/userStore'
 const MAX_MB = 250
 
 const DIMENSIONS: { value: MentorDimension; label: string }[] = [
-  { value: 'intonation', label: 'Pitch / intonation' },
-  { value: 'timing', label: 'Timing / rhythm' },
-  { value: 'dynamics', label: 'Dynamics' },
-  { value: 'arrangement', label: 'Arrangement' },
+  { value: 'intonation', label: 'Intonation / pitch' },
+  { value: 'timing', label: 'Timing & rhythm' },
+  { value: 'dynamics', label: 'Dynamics & expression' },
+  { value: 'arrangement', label: 'Arrangement & structure' },
 ]
 
 const store = useMusicMentorStore()
@@ -197,7 +185,7 @@ const canAnalyze = computed(
 const analyzeLabel = computed(() => {
   if (store.state.status === 'extracting') return 'Listening…'
   if (store.state.status === 'thinking') return 'Thinking…'
-  return 'Analyze recording'
+  return 'Analyze my medley'
 })
 
 function onFileChange(event: Event) {

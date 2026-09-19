@@ -134,6 +134,23 @@ const roadAhead = achievementData.find(
 assert.equal(roadAhead?.karma, 1000)
 assert.equal(roadAhead?.isRepeatable, false)
 
+const themeGallery = source('components/themes/theme-gallery.vue')
+const themeCreator = source('components/themes/theme-creator.vue')
+assert.ok(
+  themeGallery.includes(':aria-pressed="themeStore.showCustom"') &&
+    themeGallery.includes('@click="toggleThemeCreator"') &&
+    themeGallery.includes('<theme-creator v-if="themeStore.showCustom"') &&
+    themeGallery.includes('themeStore.setShowCustom(next)'),
+  'The Themes page must expose its custom-theme creator as a persistent toggle instead of stranding the editor state.',
+)
+assert.ok(
+  themeCreator.includes('themeStore.addTheme(nextTheme)') &&
+    themeCreator.includes('themeStore.updateTheme(themeForm.id, nextTheme)') &&
+    themeCreator.includes('themeStore.setActiveTheme(nextTheme)') &&
+    themeCreator.includes('themeStore.fillWithRandomTheme()'),
+  'The live Theme Creator must keep create, update, preview/apply, and randomize actions wired to themeStore.',
+)
+
 assert.ok(
   source('components/admin/kind-loader.vue').includes(
     'rewardAchievementForPath(route.path)',

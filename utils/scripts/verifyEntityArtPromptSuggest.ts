@@ -20,6 +20,8 @@ expectContains('plugins/entity-art-prompt-suggest.client.ts', [
   "import { useScenarioStore } from '@/stores/scenarioStore'",
   '✨ Suggest prompt',
   'managerContextFromVue',
+  'managerContextFromPage',
+  "'[data-art-model], [data-model-id], [data-model-slug]'",
   'managerContextFromWorkspaceProject',
   'managerContextFromSelectedScenario',
   'managerEntityTypeFromChrome',
@@ -71,6 +73,11 @@ expectContains('components/art/entity-art-manager.vue', [
   'Art direction',
   'textarea',
   'maxlength="5000"',
+  ':data-art-model="props.entityType"',
+  ':data-model-id="props.entity.id"',
+  ':data-model-slug="props.entity.slug || undefined"',
+  ':data-art-subject="title"',
+  'slug?: string | null',
 ])
 
 console.log('Entity art prompt suggestion contract verified.')

@@ -54,7 +54,12 @@
       </slot>
     </div>
 
-    <section v-else :class="gridClass" data-kr-gallery-grid>
+    <section
+      v-else
+      :class="gridClass"
+      data-kr-gallery-grid
+      :data-gallery-mode="mode"
+    >
       <template v-if="$slots.item">
         <div
           v-for="item in items"
@@ -89,12 +94,21 @@
             >
               <div
                 v-if="mode !== 'icons'"
-                class="bg-(--kr-surface-sunken)"
+                class="relative bg-(--kr-surface-sunken)"
                 :class="mode === 'heroes' ? 'aspect-video' : 'aspect-2/3'"
                 aria-hidden="true"
-              />
+              >
+                <div
+                  v-if="mode === 'cards'"
+                  class="absolute inset-x-0 bottom-0 bg-linear-to-t from-black/70 to-transparent p-2.5 pt-8"
+                >
+                  <h2 class="line-clamp-2 font-black leading-tight text-white">
+                    {{ item.title }}
+                  </h2>
+                </div>
+              </div>
 
-              <div class="min-w-0" :class="mode === 'icons' ? 'p-3' : 'p-3'">
+              <div v-if="mode !== 'cards'" class="min-w-0 p-3">
                 <div
                   v-if="item.badges?.length"
                   class="mb-1 flex flex-wrap gap-1"
@@ -264,9 +278,19 @@
                 class="absolute bottom-2 left-2 size-11 rounded-xl border border-white/25 object-cover shadow"
                 @error="onArtError(item.icon)"
               />
+              <div
+                v-if="mode === 'cards'"
+                class="absolute inset-x-0 bottom-0 p-2.5 pt-10"
+              >
+                <h2
+                  class="line-clamp-2 font-black leading-tight text-white drop-shadow"
+                >
+                  {{ item.title }}
+                </h2>
+              </div>
             </div>
 
-            <div class="p-3">
+            <div v-if="mode !== 'cards'" class="p-3">
               <div class="flex items-start gap-2">
                 <div class="min-w-0 flex-1">
                   <h2 class="break-words font-black leading-tight">
@@ -465,3 +489,24 @@ function itemTheme(item: GalleryItem): string {
   })
 }
 </script>
+
+<style scoped>
+[data-kr-gallery-grid][data-gallery-mode='cards'] :deep([data-art-context]) {
+  gap: 0.5rem;
+  padding: 0.5rem;
+}
+
+[data-kr-gallery-grid][data-gallery-mode='cards']
+  :deep([data-kr-card-description]),
+[data-kr-gallery-grid][data-gallery-mode='cards'] :deep([data-kr-card-meta]) {
+  display: none;
+}
+
+[data-kr-gallery] :deep(.kr-reward-rarity-badge [data-kr-card-chip-label]) {
+  display: none;
+}
+
+[data-kr-gallery] :deep(.kr-reward-rarity-badge [data-kr-card-chip-icon]) {
+  margin-right: 0;
+}
+</style>

@@ -156,10 +156,10 @@
                   class="kr-icon-7"
                 />
                 <span
-                  v-if="item.placeholderLabel"
+                  v-if="didFail(item) || item.placeholderLabel"
                   class="text-[9px] uppercase tracking-wide"
                 >
-                  {{ item.placeholderLabel }}
+                  {{ didFail(item) ? "Couldn't load" : item.placeholderLabel }}
                 </span>
               </div>
             </div>
@@ -235,10 +235,10 @@
                   class="kr-icon-8"
                 />
                 <span
-                  v-if="item.placeholderLabel"
+                  v-if="didFail(item) || item.placeholderLabel"
                   class="text-[10px] uppercase tracking-wide"
                 >
-                  {{ item.placeholderLabel }}
+                  {{ didFail(item) ? "Couldn't load" : item.placeholderLabel }}
                 </span>
               </div>
               <div
@@ -302,7 +302,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, type CSSProperties } from 'vue'
+import { computed, ref, type CSSProperties, watch } from 'vue'
 import { resolveEntityTheme } from '@/utils/entityTheme'
 import {
   resolveArtVariantSrc,
@@ -347,6 +347,8 @@ const props = withDefaults(
     skeletonCount?: number
     themed?: boolean
     density?: GalleryDensity
+    /** Bump to forgive previously failed images and let them load again. */
+    reloadKey?: number
   }>(),
   {
     mode: 'cards',
@@ -357,6 +359,7 @@ const props = withDefaults(
     skeletonCount: 8,
     themed: false,
     density: undefined,
+    reloadKey: 0,
   },
 )
 
@@ -407,6 +410,40 @@ function onArtError(src: string): void {
   if (!src || failedArt.value.has(src)) return
   failedArt.value = new Set(failedArt.value).add(src)
 }
+
+/**
+ * Did this tile HAVE an image that refused to load, as opposed to never having
+ * had one?
+ *
+ * The placeholder used to be the same generic icon for both, so a picture that
+ * failed once looked exactly like a picture that does not exist -- which is
+ * precisely the confusion it caused on 2026-09-19: a resource gallery full of
+ * empty frames on one device and full of art on another, with no way to tell
+ * from the screen which of the two was happening.
+ */
+function didFail(item: GalleryItem): boolean {
+  const src = displayImage(item)
+  return !!src && failedArt.value.has(src)
+}
+
+/*
+ * A FAILED LOAD IS NOT A PERMANENT FACT.
+ *
+ * failedArt had no reset anywhere, so a single @error -- a dropped request on a
+ * slow link, a blip behind a VPN -- blacklisted that src for as long as this
+ * component stayed mounted. A gallery's own Refresh button could not undo it
+ * either: refetching produces the same url string, which is still in the set,
+ * so the tile stayed empty while the data behind it was perfectly fine.
+ *
+ * `reloadKey` is the caller saying "the viewer asked for this again". Bump it
+ * and every failure is forgiven, which is the only thing a retry needs to be.
+ */
+watch(
+  () => props.reloadKey,
+  () => {
+    if (failedArt.value.size) failedArt.value = new Set()
+  },
+)
 
 function displayImage(item: GalleryItem): string {
   const preResolved =

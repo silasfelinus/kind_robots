@@ -69,29 +69,29 @@ for (const required of ['Krea 2', 'Flux.2 D', 'ZImage', 'Qwen']) {
 
 const loraScanner = readFileSync('scripts/lora-catalog/scan_loras.py', 'utf8')
 const catalogMap =
-  loraScanner.match(/BASEMODEL_MAP:[\\s\\S]*?\\n}\\n\\n\\ndef map_base/)?.[0] ?? ''
+  loraScanner.match(/BASEMODEL_MAP:[\s\S]*?\n}\n\n\ndef map_base/)?.[0] ?? ''
 const catalogGenerations = [...catalogMap.matchAll(
-  /:\\s*\\("[A-Z0-9_]+",\\s*"([^"]+)"\\),/g,
+  /:\s*\("[A-Z0-9_]+",\s*"([^"]+)"\),/g,
 )].map((match) => match[1])
 assert.ok(catalogGenerations.length > 20, 'failed to parse BASEMODEL_MAP')
 for (const generation of catalogGenerations) {
   assert.ok(
     (CIVITAI_BASE_MODELS as readonly string[]).includes(generation),
-    `catalog base model missing from Discover filter: ${generation}`,
+    \`catalog base model missing from Discover filter: \${generation}\`,
   )
 }
 
 const modelScanner = readFileSync('scripts/lora-catalog/scan_models.py', 'utf8')
 const folderHints =
-  modelScanner.match(/FOLDER_BASE_HINTS = \\[\\s\\S]*?\\n\\]\\n\\n\\ndef checkpoint_group/)?.[0] ?? ''
+  modelScanner.match(/FOLDER_BASE_HINTS = \[[\s\S]*?\n\]\n\n\ndef checkpoint_group/)?.[0] ?? ''
 const hintedGenerations = [...folderHints.matchAll(
-  /\\("[^"]+",\\s*"[A-Z0-9_]+",\\s*"([^"]+)"\\),/g,
+  /\("[^"]+",\s*"[A-Z0-9_]+",\s*"([^"]+)"\),/g,
 )].map((match) => match[1])
 assert.ok(hintedGenerations.length > 10, 'failed to parse FOLDER_BASE_HINTS')
 for (const generation of hintedGenerations) {
   assert.ok(
     (CIVITAI_BASE_MODELS as readonly string[]).includes(generation),
-    `folder-detected base model missing from Discover filter: ${generation}`,
+    \`folder-detected base model missing from Discover filter: \${generation}\`,
   )
 }
 

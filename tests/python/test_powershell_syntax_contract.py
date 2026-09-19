@@ -24,8 +24,6 @@ hold, and each is a quiet way for the check to stop checking:
 import re
 from pathlib import Path
 
-import yaml
-
 REPO = Path(__file__).resolve().parents[2]
 WORKFLOW = REPO / ".github" / "workflows" / "powershell-syntax-contract.yml"
 CHECKER = REPO / "scripts" / "Test-PowerShellSyntax.ps1"
@@ -36,11 +34,20 @@ VALID_QUALIFIERS = {
 }
 QUALIFIED = re.compile(r"\$([A-Za-z_][A-Za-z0-9_]*):")
 
+# Read the workflow as TEXT rather than parsed YAML. The Python scripts CI here
+# installs pytest and nothing else, and this repo gates its deployed script on
+# stdlib-only imports -- pulling PyYAML into a shared workflow for one guard is
+# the wrong trade. These assertions catch what actually matters: an edit that
+# silently stops the check from checking.
 
-def _workflow():
-    doc = yaml.safe_load(WORKFLOW.read_text(encoding="utf-8"))
-    # PyYAML parses the `on:` key as the boolean True.
-    return doc, doc.get("on", doc.get(True)), doc["jobs"]["verify"]
+
+def _workflow_text():
+    return WORKFLOW.read_text(encoding="utf-8")
+
+
+def _ps1_path_patterns(text):
+    """Every quoted `*.ps1` glob in the paths filters."""
+    return set(re.findall(r'^\s*-\s*"([^"]*\.ps1)"', text, re.M))
 
 
 def _repo_ps1_files():
@@ -52,29 +59,28 @@ def _repo_ps1_files():
 
 
 def test_runs_on_windows():
-    _, _, job = _workflow()
-    assert "windows" in str(job["runs-on"]).lower(), (
-        f"a real PowerShell parser needs Windows; runs-on is {job['runs-on']!r}"
+    text = _workflow_text()
+    assert re.search(r"^\s*runs-on:\s*windows", text, re.M | re.I), (
+        "a real PowerShell parser needs Windows; no windows runs-on found"
     )
 
 
 def test_parses_with_windows_powershell_51_not_pwsh():
     """pwsh is PowerShell 7; these scripts run under 5.1."""
-    _, _, job = _workflow()
-    shells = [s.get("shell") for s in job["steps"] if "shell" in s]
+    text = _workflow_text()
+    shells = re.findall(r"^\s*shell:\s*(\S+)", text, re.M)
     assert "powershell" in shells, (
         f"no step declares shell: powershell; found {shells!r}"
     )
     assert "pwsh" not in shells, (
-        "pwsh is PowerShell 7, which accepts syntax 5.1 rejects"
+        "pwsh is PowerShell 7, which accepts syntax 5.1 rejects, so it would "
+        "let the original bug class through while reporting green"
     )
 
 
 def test_it_invokes_the_checker_that_exists():
-    _, _, job = _workflow()
     assert CHECKER.exists(), f"missing checker: {CHECKER}"
-    runs = " ".join(s.get("run", "") for s in job["steps"])
-    assert "Test-PowerShellSyntax.ps1" in runs, (
+    assert "Test-PowerShellSyntax.ps1" in _workflow_text(), (
         "the workflow no longer invokes the checker"
     )
 
@@ -90,16 +96,11 @@ def test_the_checker_refuses_to_pass_on_an_empty_file_list():
 
 def test_the_paths_filter_covers_every_ps1_in_the_repo():
     """The filter is a cost control; it must not become a coverage hole."""
-    _, triggers, _ = _workflow()
     ps1_files = _repo_ps1_files()
     assert ps1_files, "no .ps1 files found in the repo at all"
 
-    prefixes = set()
-    for event in ("push", "pull_request"):
-        for pattern in triggers[event]["paths"]:
-            if pattern.endswith(".ps1"):
-                prefixes.add(pattern.split("**")[0])
-    assert prefixes, "no .ps1 path patterns in the filter"
+    prefixes = {p.split("**")[0] for p in _ps1_path_patterns(_workflow_text())}
+    assert prefixes, "no .ps1 path patterns in the workflow's paths filters"
 
     uncovered = [f for f in ps1_files if not any(f.startswith(p) for p in prefixes)]
     assert not uncovered, (

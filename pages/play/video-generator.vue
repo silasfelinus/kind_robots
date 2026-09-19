@@ -230,7 +230,7 @@
 
           <div class="grid gap-2 sm:grid-cols-3">
             <label class="space-y-1">
-              <span class="kr-text-semibold-xs">Seconds</span>
+              <span class="text-xs font-semibold">Seconds</span>
               <input
                 v-model.number="durationSeconds"
                 type="number"
@@ -242,7 +242,7 @@
             </label>
 
             <label class="space-y-1">
-              <span class="kr-text-semibold-xs">FPS</span>
+              <span class="text-xs font-semibold">FPS</span>
               <input
                 v-model.number="fps"
                 type="number"
@@ -254,7 +254,7 @@
             </label>
 
             <label class="space-y-1">
-              <span class="kr-text-semibold-xs">Playback</span>
+              <span class="text-xs font-semibold">Playback</span>
               <span class="flex h-8 cursor-pointer items-center gap-2">
                 <input
                   v-model="loop"
@@ -561,11 +561,6 @@ const runtimeTitle = computed(() => {
   if (runtimeTier.value === 'slow') return 'Slow render warning'
   return 'Very slow render warning'
 })
-const runtimeAlertClass = computed(() =>
-  runtimeTier.value === 'slow' || runtimeTier.value === 'very-slow'
-    ? 'alert-warning'
-    : 'alert-info',
-)
 const timeoutSeconds = computed(() => {
   const tierTimeout = {
     quick: 3_600,

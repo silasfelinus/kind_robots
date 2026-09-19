@@ -123,12 +123,20 @@
         </div>
 
         <div class="flex flex-wrap gap-2">
-          <button class="btn btn-accent btn-sm" type="button" @click="randomizeTheme">
+          <button
+            class="btn btn-accent btn-sm"
+            type="button"
+            @click="randomizeTheme"
+          >
             <Icon name="kind-icon:dice" class="kr-icon-4" />
             Randomize
           </button>
 
-          <button class="btn btn-ghost btn-sm" type="button" @click="resetTheme">
+          <button
+            class="btn btn-ghost btn-sm"
+            type="button"
+            @click="resetTheme"
+          >
             <Icon name="kind-icon:refresh" class="kr-icon-4" />
             Reset
           </button>
@@ -198,13 +206,19 @@
           </div>
 
           <div class="mt-4 grid grid-cols-3 gap-2">
-            <div class="rounded-xl bg-base-200 p-2 text-center text-xs font-bold">
+            <div
+              class="rounded-xl bg-base-200 p-2 text-center text-xs font-bold"
+            >
               base
             </div>
-            <div class="rounded-xl bg-info p-2 text-center text-xs font-bold text-info-content">
+            <div
+              class="rounded-xl bg-info p-2 text-center text-xs font-bold text-info-content"
+            >
               info
             </div>
-            <div class="rounded-xl bg-success p-2 text-center text-xs font-bold text-success-content">
+            <div
+              class="rounded-xl bg-success p-2 text-center text-xs font-bold text-success-content"
+            >
               success
             </div>
           </div>
@@ -215,18 +229,19 @@
 </template>
 
 <script setup lang="ts">
+import { storeToRefs } from 'pinia'
 import { computed, onMounted, ref } from 'vue'
 import { useAchievementStore } from '@/stores/achievementStore'
 import { useThemeStore } from '@/stores/themeStore'
 
 const themeStore = useThemeStore()
 const achievementStore = useAchievementStore()
+const { themeForm } = storeToRefs(themeStore)
 
 const themeError = ref('')
 const isSaving = ref(false)
 const isApplyingPreview = ref(false)
 
-const themeForm = themeStore.themeForm
 const colorKeys = computed(() => themeStore.colorKeys)
 
 const applyAfterSave = computed({
@@ -234,8 +249,8 @@ const applyAfterSave = computed({
   set: (value: boolean) => themeStore.setApplyAfterSave(value),
 })
 
-const updateMode = computed(() => Boolean(themeForm.id))
-const trimmedName = computed(() => themeForm.name?.trim() || '')
+const updateMode = computed(() => Boolean(themeForm.value.id))
+const trimmedName = computed(() => themeForm.value.name?.trim() || '')
 
 onMounted(() => {
   themeStore.initializeThemeFormIfNeeded()
@@ -270,7 +285,7 @@ function randomizeTheme(): void {
 }
 
 const previewStyleObject = computed<Record<string, string>>(() => {
-  const values = safeThemeValues(themeForm.values)
+  const values = safeThemeValues(themeForm.value.values)
   const style: Record<string, string> = {}
 
   for (const [key, value] of Object.entries(values)) {
@@ -283,15 +298,15 @@ const previewStyleObject = computed<Record<string, string>>(() => {
 
 function payload() {
   return {
-    id: themeForm.id,
-    userId: themeForm.userId,
+    id: themeForm.value.id,
+    userId: themeForm.value.userId,
     name: trimmedName.value,
-    prefersDark: themeForm.prefersDark ?? false,
-    colorScheme: themeForm.colorScheme || 'light',
-    isPublic: themeForm.isPublic ?? false,
-    tagline: themeForm.tagline || null,
-    room: themeForm.room || '',
-    values: safeThemeValues(themeForm.values),
+    prefersDark: themeForm.value.prefersDark ?? false,
+    colorScheme: themeForm.value.colorScheme || 'light',
+    isPublic: themeForm.value.isPublic ?? false,
+    tagline: themeForm.value.tagline || null,
+    room: themeForm.value.room || '',
+    values: safeThemeValues(themeForm.value.values),
   }
 }
 
@@ -330,8 +345,8 @@ async function saveTheme(): Promise<void> {
   try {
     const nextTheme = payload()
 
-    if (updateMode.value && themeForm.id) {
-      await themeStore.updateTheme(themeForm.id, nextTheme)
+    if (updateMode.value && themeForm.value.id) {
+      await themeStore.updateTheme(themeForm.value.id, nextTheme)
 
       if (themeStore.lastError) {
         throw new Error(themeStore.lastError)

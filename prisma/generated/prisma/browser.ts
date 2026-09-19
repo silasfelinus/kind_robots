@@ -161,6 +161,42 @@ export type MandarinCatalogOverride = Prisma.MandarinCatalogOverrideModel
  */
 export type MandarinCatalogChange = Prisma.MandarinCatalogChangeModel
 /**
+ * Model MandarinLessonProgress
+ * One learner's progress through a word's lesson page.
+ * 
+ * `completedAt` is what the soft study gate and the lesson point read; `viewedAt` and
+ * `views` are deliberately separate, because opening a lesson and reading it through
+ * are different events and only the second one earns anything. There is no cascade from
+ * MandarinCardProgress: a learner can complete a lesson and never drill the card, or
+ * drill a card whose lesson they never opened (the gate is SOFT by Silas's explicit
+ * choice), so neither table implies the other.
+ */
+export type MandarinLessonProgress = Prisma.MandarinLessonProgressModel
+/**
+ * Model MandarinPointEvent
+ * Append-only points ledger. Never updated after creation.
+ * 
+ * Mirrors KarmaTransaction's shape (amount + balanceAfter + reason + note) for the same
+ * reason that model does it: a running balance you cannot reconstruct is a balance you
+ * cannot debug. MandarinLearnerProfile.totalPoints is the denormalized summary OF this
+ * log, exactly as MandarinCardProgress summarizes MandarinReviewEvent -- not a
+ * replacement for it.
+ * 
+ * `note` carries the human-readable breakdown server/utils/mandarinPoints.ts builds
+ * ("hard recall (base 5) · previously forgotten 2x (x1.50)"), so a learner who wonders
+ * why one review paid 9 and the next paid 1 can be told.
+ */
+export type MandarinPointEvent = Prisma.MandarinPointEventModel
+/**
+ * Model MandarinLearnerProfile
+ * Current-state summary derived from MandarinPointEvent.
+ * 
+ * Deliberately holds no streak, no daily target, and no "last active" date. Silas ruled
+ * those out by name when reopening the project, and a schema that quietly provides the
+ * field is how a nagging mechanic gets built later by accident.
+ */
+export type MandarinLearnerProfile = Prisma.MandarinLearnerProfileModel
+/**
  * Model MandarinRequestedCard
  * User-requested Mandarin learning cards. Core HSK/curated vocabulary remains
  * source-backed and code/data driven; these rows are explicitly generated

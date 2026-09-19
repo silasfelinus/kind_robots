@@ -67,6 +67,9 @@ export const ModelName = {
   MandarinAudioAsset: 'MandarinAudioAsset',
   MandarinCatalogOverride: 'MandarinCatalogOverride',
   MandarinCatalogChange: 'MandarinCatalogChange',
+  MandarinLessonProgress: 'MandarinLessonProgress',
+  MandarinPointEvent: 'MandarinPointEvent',
+  MandarinLearnerProfile: 'MandarinLearnerProfile',
   MandarinRequestedCard: 'MandarinRequestedCard',
   MandarinCustomSet: 'MandarinCustomSet',
   MandarinArtJobLink: 'MandarinArtJobLink',
@@ -445,6 +448,47 @@ export const MandarinCatalogChangeScalarFieldEnum = {
 } as const
 
 export type MandarinCatalogChangeScalarFieldEnum = (typeof MandarinCatalogChangeScalarFieldEnum)[keyof typeof MandarinCatalogChangeScalarFieldEnum]
+
+
+export const MandarinLessonProgressScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  userId: 'userId',
+  cardKey: 'cardKey',
+  viewedAt: 'viewedAt',
+  completedAt: 'completedAt',
+  views: 'views'
+} as const
+
+export type MandarinLessonProgressScalarFieldEnum = (typeof MandarinLessonProgressScalarFieldEnum)[keyof typeof MandarinLessonProgressScalarFieldEnum]
+
+
+export const MandarinPointEventScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  userId: 'userId',
+  cardKey: 'cardKey',
+  reason: 'reason',
+  amount: 'amount',
+  balanceAfter: 'balanceAfter',
+  note: 'note'
+} as const
+
+export type MandarinPointEventScalarFieldEnum = (typeof MandarinPointEventScalarFieldEnum)[keyof typeof MandarinPointEventScalarFieldEnum]
+
+
+export const MandarinLearnerProfileScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  userId: 'userId',
+  totalPoints: 'totalPoints',
+  lessonsCompleted: 'lessonsCompleted',
+  recallsEarned: 'recallsEarned'
+} as const
+
+export type MandarinLearnerProfileScalarFieldEnum = (typeof MandarinLearnerProfileScalarFieldEnum)[keyof typeof MandarinLearnerProfileScalarFieldEnum]
 
 
 export const MandarinRequestedCardScalarFieldEnum = {
@@ -2582,6 +2626,22 @@ export const MandarinCatalogChangeOrderByRelevanceFieldEnum = {
 } as const
 
 export type MandarinCatalogChangeOrderByRelevanceFieldEnum = (typeof MandarinCatalogChangeOrderByRelevanceFieldEnum)[keyof typeof MandarinCatalogChangeOrderByRelevanceFieldEnum]
+
+
+export const MandarinLessonProgressOrderByRelevanceFieldEnum = {
+  cardKey: 'cardKey'
+} as const
+
+export type MandarinLessonProgressOrderByRelevanceFieldEnum = (typeof MandarinLessonProgressOrderByRelevanceFieldEnum)[keyof typeof MandarinLessonProgressOrderByRelevanceFieldEnum]
+
+
+export const MandarinPointEventOrderByRelevanceFieldEnum = {
+  cardKey: 'cardKey',
+  reason: 'reason',
+  note: 'note'
+} as const
+
+export type MandarinPointEventOrderByRelevanceFieldEnum = (typeof MandarinPointEventOrderByRelevanceFieldEnum)[keyof typeof MandarinPointEventOrderByRelevanceFieldEnum]
 
 
 export const MandarinRequestedCardOrderByRelevanceFieldEnum = {

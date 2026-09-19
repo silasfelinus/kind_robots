@@ -133,6 +133,9 @@ jobs:
       - name: Mandarin lesson derivation contract
         run: npm run test:mandarin-lesson
 
+      - name: Mandarin points contract
+        run: npm run test:mandarin-points
+
       - name: Reaction route auth contract
         run: npm run test:reaction-route-auth
 

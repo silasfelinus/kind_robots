@@ -35,6 +35,24 @@
           </button>
         </div>
 
+        <!-- mandarin-tutor/t-023: points. Deliberately a quiet read-out rather than a
+             celebration -- Silas asked for something that trains people, explicitly not
+             for the insistent, nudging shape. There is no streak here and no daily
+             target, because he ruled those out by name. -->
+        <div v-if="pointTotals.totalPoints > 0" class="flex flex-wrap items-center gap-1">
+          <span class="kr-badge-primary-sm" :title="'Points earned from lessons read and cards recalled'">
+            {{ pointTotals.totalPoints }} pts
+          </span>
+          <span class="kr-badge-ghost-sm">{{ pointTotals.lessonsCompleted }} lessons</span>
+          <span
+            v-if="lastAward"
+            class="kr-badge-success-sm"
+            :title="lastAward.reason"
+          >
+            +{{ lastAward.points }}
+          </span>
+        </div>
+
         <div class="join" role="tablist" aria-label="Mandarin view">
           <button
             v-for="view in workspaceViews"
@@ -295,6 +313,25 @@
 
               <div class="flex min-h-72 flex-col justify-between gap-4 p-4 sm:p-5">
                 <div v-if="studyPhase !== 'revealed'" class="my-auto space-y-3 text-center">
+                  <!-- mandarin-tutor/t-023: the SOFT gate. Silas chose soft over hard, so
+                       this prompts and reorders the queue but never withholds the card --
+                       "Reveal answer" stays live underneath. -->
+                  <div
+                    v-if="!lessonRead"
+                    class="rounded-2xl border border-info/35 bg-info/8 p-3 text-left"
+                  >
+                    <p class="kr-text-semibold-sm">Learn this one first</p>
+                    <p class="kr-text-faded-xs mt-1 leading-relaxed">
+                      You haven't read {{ currentCard.simplified }}'s lesson yet — what its
+                      pieces mean, how its tone moves, and which characters share its sound.
+                      Drilling a shape you don't understand is the slow way.
+                    </p>
+                    <NuxtLink :to="lessonLink(currentCard.key)" class="kr-btn-primary-plain mt-2">
+                      <Icon name="kind-icon:book" class="kr-icon-4" />
+                      Read the lesson
+                    </NuxtLink>
+                  </div>
+
                   <p class="text-sm font-semibold opacity-55">Recall the meaning before revealing.</p>
                   <button type="button" class="kr-btn-primary-md-plain" @click="store.revealStudyCard()">Reveal answer</button>
                 </div>
@@ -503,6 +540,9 @@ const {
   studyPhase,
   studySessionRatedForSet,
   studyDiagnostics,
+  pointTotals,
+  pointsLoaded,
+  lastAward,
   canonicalArtUrls,
   canonicalArtStrategies,
   artQueueingKey,
@@ -718,6 +758,14 @@ onBeforeUnmount(() => {
 function lessonLink(key: string): string {
   return `/play/mandarin/learn/${encodeURIComponent(key)}`
 }
+
+// mandarin-tutor/t-023. Treated as "read" until we actually know the learner, so a
+// signed-out visitor is never prompted about progress they cannot record.
+const lessonRead = computed(() => {
+  const key = currentCard.value?.key
+  if (!key || !pointsLoaded.value) return true
+  return store.lessonIsComplete(key)
+})
 
 function roleLabel(role: MandarinComponentRole): string {
   if (role === 'semantic') return 'meaning clue'

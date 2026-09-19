@@ -1,0 +1,80 @@
+/// Lesson comprehension, points, and the learner profile behind them
+/// (mandarin-tutor/t-023, on top of t-022's lesson derivation).
+///
+/// Silas asked for "a point system, which may require a user upgrade to the schema".
+/// The upgrade is this per-domain profile row, NOT a new column on `User`. `User`
+/// already carries questPoints, karma, mana, tokens and earnedTokens; a sixth global
+/// balance owned by one study surface would collide conceptually with the kind-economy
+/// ledgers, would be hard to reverse, and would grow an already-crowded model. A study
+/// score belongs to the study domain.
+///
+/// userId is a plain ownership scalar with no relation back to User, matching every
+/// other Mandarin Tutor model (MandarinRequestedCard, MandarinCardProgress,
+/// MandarinCustomSet), so all three of these are purely additive.
+
+/// One learner's progress through a word's lesson page.
+///
+/// `completedAt` is what the soft study gate and the lesson point read; `viewedAt` and
+/// `views` are deliberately separate, because opening a lesson and reading it through
+/// are different events and only the second one earns anything. There is no cascade from
+/// MandarinCardProgress: a learner can complete a lesson and never drill the card, or
+/// drill a card whose lesson they never opened (the gate is SOFT by Silas's explicit
+/// choice), so neither table implies the other.
+model MandarinLessonProgress {
+  id          Int       @id @default(autoincrement())
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @default(now()) @updatedAt
+  userId      Int
+  cardKey     String    @db.VarChar(255)
+  viewedAt    DateTime  @default(now())
+  completedAt DateTime?
+  views       Int       @default(1)
+
+  @@unique([userId, cardKey])
+  @@index([userId, completedAt])
+}
+
+/// Append-only points ledger. Never updated after creation.
+///
+/// Mirrors KarmaTransaction's shape (amount + balanceAfter + reason + note) for the same
+/// reason that model does it: a running balance you cannot reconstruct is a balance you
+/// cannot debug. MandarinLearnerProfile.totalPoints is the denormalized summary OF this
+/// log, exactly as MandarinCardProgress summarizes MandarinReviewEvent -- not a
+/// replacement for it.
+///
+/// `note` carries the human-readable breakdown server/utils/mandarinPoints.ts builds
+/// ("hard recall (base 5) · previously forgotten 2x (x1.50)"), so a learner who wonders
+/// why one review paid 9 and the next paid 1 can be told.
+model MandarinPointEvent {
+  id           Int      @id @default(autoincrement())
+  createdAt    DateTime @default(now())
+  userId       Int
+  /// Null only if a future award is not about one specific card. Every award this
+  /// task ships names one.
+  cardKey      String?  @db.VarChar(255)
+  /// 'lesson' | 'recall' -- see MANDARIN_POINT_REASONS. A VarChar rather than an enum
+  /// so a new award reason does not need a migration.
+  reason       String   @db.VarChar(32)
+  amount       Int
+  balanceAfter Int
+  note         String?  @db.Text
+
+  @@index([userId, createdAt])
+  @@index([userId, reason])
+}
+
+/// Current-state summary derived from MandarinPointEvent.
+///
+/// Deliberately holds no streak, no daily target, and no "last active" date. Silas ruled
+/// those out by name when reopening the project, and a schema that quietly provides the
+/// field is how a nagging mechanic gets built later by accident.
+model MandarinLearnerProfile {
+  id               Int      @id @default(autoincrement())
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @default(now()) @updatedAt
+  userId           Int      @unique
+  totalPoints      Int      @default(0)
+  lessonsCompleted Int      @default(0)
+  /// Reviews that actually earned points, i.e. successful recalls. Not a review count.
+  recallsEarned    Int      @default(0)
+}

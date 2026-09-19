@@ -25,6 +25,19 @@ type LocalState = {
 export type InteractionMode = 'study' | 'explore'
 export type StudyRating = 'again' | 'hard' | 'good' | 'easy'
 
+/** mandarin-tutor/t-023: the learner's Mandarin point totals. */
+export type MandarinPointTotals = {
+  totalPoints: number
+  lessonsCompleted: number
+  recallsEarned: number
+}
+
+export const EMPTY_MANDARIN_POINT_TOTALS: MandarinPointTotals = {
+  totalPoints: 0,
+  lessonsCompleted: 0,
+  recallsEarned: 0,
+}
+
 type StudySessionEntry = {
   cardKey: string
   rating: StudyRating
@@ -143,6 +156,20 @@ export const useMandarinTutorStore = defineStore('mandarinTutorStore', () => {
   // server-side via /api/mandarin/study/rate and /api/mandarin/study/progress.
   const studyDiagnostics = ref<MandarinStudyDiagnosticsData | null>(null)
   const studyDiagnosticsLoading = ref(false)
+  // mandarin-tutor/t-023. Deliberately server-owned and NOT mirrored into the
+  // localStorage snapshot below: a points balance a learner can edit in devtools is not
+  // a points balance. An unauthenticated visitor simply sees zero.
+  const pointTotals = ref<MandarinPointTotals>({ ...EMPTY_MANDARIN_POINT_TOTALS })
+  const completedLessonKeys = ref<Set<string>>(new Set())
+  const lastAward = ref<{ cardKey: string; points: number; reason: string } | null>(null)
+  /**
+   * True only once GET /api/mandarin/points has answered successfully, which requires a
+   * session. The soft gate's "Learn this first" prompt reads this rather than inferring
+   * from an empty balance: a signed-out visitor and a signed-in learner who has read
+   * nothing yet both have zero points, but only the second one has progress worth
+   * prompting about. Nagging a visitor who cannot record anything is just noise.
+   */
+  const pointsLoaded = ref(false)
   const searchQuery = ref('')
   const focusKey = ref<string | null>(null)
   const focusKeys = ref<string[]>([])
@@ -203,12 +230,41 @@ export const useMandarinTutorStore = defineStore('mandarinTutorStore', () => {
       null,
   )
 
-  const studyCards = computed(() => {
+  const deckCards = computed(() => {
     const keys = selectedSet.value?.cardKeys ?? []
     return keys
       .map((key) => cardMap.value.get(key))
       .filter((card): card is MandarinCard => Boolean(card))
   })
+
+  /**
+   * mandarin-tutor/t-023: the SOFT learn-before-drill gate.
+   *
+   * Silas chose soft explicitly over a hard gate. Cards whose lesson has been read come
+   * first; cards that have not are moved to the back and carry a "Learn this first"
+   * prompt on the study card. Nothing is ever withheld -- a learner who wants to drill
+   * an unread card scrolls to it and drills it.
+   *
+   * The partition is stable (relative order preserved within each group), and for a
+   * learner with no completed lessons at all it is a no-op, so a fresh account sees its
+   * deck in the catalog's own order rather than an empty queue. That last property is
+   * the whole reason the gate is soft.
+   */
+  const studyCards = computed(() => {
+    const completed = completedLessonKeys.value
+    if (!completed.size) return deckCards.value
+
+    const learned: MandarinCard[] = []
+    const unlearned: MandarinCard[] = []
+    for (const card of deckCards.value) {
+      ;(completed.has(card.key) ? learned : unlearned).push(card)
+    }
+    return [...learned, ...unlearned]
+  })
+
+  function lessonIsComplete(cardKey: string): boolean {
+    return completedLessonKeys.value.has(cardKey)
+  }
 
   const currentCard = computed<MandarinCard | null>(() => {
     if (focusKey.value) return cardMap.value.get(focusKey.value) ?? null
@@ -622,6 +678,7 @@ export const useMandarinTutorStore = defineStore('mandarinTutorStore', () => {
     await loadRequestedCards()
     void loadStudyDiagnostics()
     void loadCloudState()
+    void loadPoints()
     const key = currentCard.value?.key
     if (key) await probeCanonicalIllustration(key)
   }
@@ -722,10 +779,83 @@ export const useMandarinTutorStore = defineStore('mandarinTutorStore', () => {
     nextCard()
   }
 
+  /**
+   * mandarin-tutor/t-023. Silent by design for a signed-out visitor: the endpoint
+   * requires a session, and Mandarin Tutor is otherwise usable without one, so a 401
+   * here means "no points yet", not an error worth showing.
+   */
+  async function loadPoints() {
+    if (!import.meta.client) return
+    try {
+      const response = await performFetch<{
+        totals: MandarinPointTotals
+        completedLessonKeys: string[]
+      }>('/api/mandarin/points', {}, 1, 20_000)
+
+      if (!response.success || !response.data) return
+
+      pointTotals.value = {
+        ...EMPTY_MANDARIN_POINT_TOTALS,
+        ...response.data.totals,
+      }
+      completedLessonKeys.value = new Set(
+        response.data.completedLessonKeys ?? [],
+      )
+      pointsLoaded.value = true
+    } catch {
+      // Leave the zeroed defaults in place, and pointsLoaded false.
+    }
+  }
+
+  /**
+   * Record that a lesson was read through. Returns the points awarded, which is 0 for
+   * every completion after the first -- the server decides that, not the client.
+   */
+  async function completeLesson(cardKey: string): Promise<number> {
+    if (!import.meta.client || !cardKey) return 0
+    try {
+      const response = await performFetch<{
+        completedAt: string | null
+        awarded: number
+        totals: MandarinPointTotals
+      }>(
+        `/api/mandarin/lessons/${encodeURIComponent(cardKey)}/complete`,
+        { method: 'POST', body: JSON.stringify({ state: 'completed' }) },
+        1,
+        20_000,
+      )
+
+      if (!response.success || !response.data) {
+        throw new Error(response.message || 'Failed to record the lesson.')
+      }
+
+      if (response.data.completedAt) {
+        completedLessonKeys.value = new Set(completedLessonKeys.value).add(
+          cardKey,
+        )
+      }
+      pointTotals.value = {
+        ...EMPTY_MANDARIN_POINT_TOTALS,
+        ...response.data.totals,
+      }
+      return Number(response.data.awarded) || 0
+    } catch (cause) {
+      // Same posture as persistStudyRating: a learner who read the lesson read it, and
+      // a failed write must not present as the lesson not counting.
+      console.warn('[mandarin] failed to record lesson completion', cause)
+      return 0
+    }
+  }
+
   async function persistStudyRating(cardKey: string, rating: StudyRating) {
     if (!import.meta.client) return
     try {
-      const response = await performFetch<{ dueAt?: string }>(
+      const response = await performFetch<{
+        dueAt?: string
+        awarded?: number
+        awardReason?: string
+        totals?: MandarinPointTotals
+      }>(
         '/api/mandarin/study/rate',
         {
           method: 'POST',
@@ -737,6 +867,20 @@ export const useMandarinTutorStore = defineStore('mandarinTutorStore', () => {
       if (!response.success) {
         throw new Error(response.message || 'Failed to save the study rating.')
       }
+      if (response.data?.totals) {
+        pointTotals.value = {
+          ...EMPTY_MANDARIN_POINT_TOTALS,
+          ...response.data.totals,
+        }
+      }
+      const awarded = Number(response.data?.awarded) || 0
+      lastAward.value = awarded
+        ? {
+            cardKey,
+            points: awarded,
+            reason: String(response.data?.awardReason || ''),
+          }
+        : null
       void loadStudyDiagnostics()
     } catch (cause) {
       // Scheduling is a durability nice-to-have on top of the already-recorded
@@ -1121,6 +1265,10 @@ export const useMandarinTutorStore = defineStore('mandarinTutorStore', () => {
     studySessionLog,
     studyDiagnostics,
     studyDiagnosticsLoading,
+    pointTotals,
+    completedLessonKeys,
+    pointsLoaded,
+    lastAward,
     searchQuery,
     focusKey,
     focusKeys,
@@ -1156,6 +1304,9 @@ export const useMandarinTutorStore = defineStore('mandarinTutorStore', () => {
     loadRequestedCards,
     loadStudyDiagnostics,
     loadCloudState,
+    loadPoints,
+    completeLesson,
+    lessonIsComplete,
     probeCanonicalIllustration,
     selectSet,
     nextCard,

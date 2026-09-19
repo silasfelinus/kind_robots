@@ -1,18 +1,19 @@
 <!-- /components/content/giftshop/giftshop-interact.vue -->
 <template>
-  <section class="grid gap-4 lg:grid-cols-[1.15fr_0.85fr]">
-    <div class="kr-panel p-4">
-      <div class="flex flex-col gap-4">
-        <div
+  <section class="giftshop-shell">
+    <div class="giftshop-layout">
+      <div class="kr-panel p-4">
+      <div class="flex flex-col gap-5">
+        <header
           class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between"
         >
           <div class="min-w-0 space-y-2">
             <div class="flex flex-wrap items-center gap-2">
               <Icon name="kind-icon:gift" class="kr-icon-primary-7" />
 
-              <h3 class="kr-text-black-2xl text-primary sm:text-3xl">
+              <h2 class="kr-text-black-2xl text-primary sm:text-3xl">
                 Swarm Giftshop
-              </h3>
+              </h2>
 
               <div class="badge badge-accent badge-outline">
                 Butterfly approved
@@ -20,10 +21,8 @@
             </div>
 
             <p class="max-w-3xl text-base-content/75">
-              The butterflies have requisitioned this storefront for prints,
-              tokens, support items, and artifacts of questionable but
-              delightful utility. Accounting says this is normal. Accounting is
-              also butterflies.
+              Real things you can buy now, plus a preview of the print-on-demand
+              catalog already wired into Kind Robots.
             </p>
           </div>
 
@@ -34,70 +33,317 @@
               {{ cartStore.totalItems }}
             </span>
           </button>
-        </div>
+        </header>
 
-        <div class="grid gap-3 sm:grid-cols-3">
-          <article
-            v-for="feature in giftshopFeatures"
-            :key="feature.title"
-            class="kr-panel-muted-md transition hover:border-primary/50 hover:bg-primary/10"
+        <section class="space-y-3">
+          <div class="flex flex-wrap items-end justify-between gap-2">
+            <div>
+              <p class="kr-text-eyebrow text-primary">Available now</p>
+              <h3 class="kr-text-black-xl text-base-content">
+                Buy, support, or download
+              </h3>
+            </div>
+
+            <span class="kr-text-dim-xs">
+              Actions live with the thing they describe.
+            </span>
+          </div>
+
+          <div
+            class="grid gap-3 [grid-template-columns:repeat(auto-fit,minmax(min(15rem,100%),1fr))]"
           >
-            <Icon :name="feature.icon" class="mb-3 h-7 w-7 text-secondary" />
+            <article
+              v-if="tokensCatalogEntry"
+              class="flex min-h-52 flex-col kr-panel-muted-md"
+            >
+              <div class="flex items-start justify-between gap-3">
+                <div
+                  class="flex size-11 items-center justify-center rounded-2xl bg-primary/15 text-primary"
+                >
+                  <Icon name="kind-icon:jellybean" class="kr-icon-6" />
+                </div>
+                <span class="kr-badge-primary-sm">
+                  ${{ tokensCatalogEntry.price.toFixed(2) }}
+                </span>
+              </div>
 
-            <h4 class="font-black text-base-content">
-              {{ feature.title }}
-            </h4>
-
-            <p class="kr-text-dim-sm-70 mt-1 leading-relaxed">
-              {{ feature.text }}
-            </p>
-          </article>
-        </div>
-
-        <div
-          class="rounded-2xl border border-info/30 bg-info/10 p-4 text-sm text-info-content"
-        >
-          <div class="flex items-start gap-3">
-            <Icon name="kind-icon:sparkles" class="kr-icon-5 mt-1 shrink-0" />
-
-            <div class="space-y-1">
-              <p class="font-black">Storefront staging area</p>
-
-              <p>
-                This is now the place to wire product cards, token packs, print
-                options, and whatever AMI has classified as commercially
-                whimsical.
+              <h4 class="kr-text-black-primary mt-4">
+                {{ tokensCatalogEntry.label }}
+              </h4>
+              <p class="kr-text-dim-sm-70 mt-1 line-clamp-3">
+                {{ tokensCatalogEntry.description }}
               </p>
+
+              <button
+                type="button"
+                class="btn btn-primary btn-sm mt-auto rounded-2xl"
+                @click="addCatalogItem(tokensCatalogEntry)"
+              >
+                <Icon name="kind-icon:plus" class="kr-icon-4" />
+                Add to cart
+              </button>
+            </article>
+
+            <article
+              v-if="donationCatalogEntry"
+              class="flex min-h-52 flex-col kr-panel-muted-md"
+            >
+              <div class="flex items-start justify-between gap-3">
+                <div
+                  class="flex size-11 items-center justify-center rounded-2xl bg-secondary/15 text-secondary"
+                >
+                  <Icon name="kind-icon:hand-heart" class="kr-icon-6" />
+                </div>
+                <span class="kr-badge-secondary">
+                  ${{ donationCatalogEntry.price.toFixed(2) }}
+                </span>
+              </div>
+
+              <h4 class="kr-text-black-primary mt-4">AMF add-on</h4>
+              <p class="kr-text-dim-sm-70 mt-1 line-clamp-3">
+                Add a one-dollar Against Malaria Foundation-designated donation
+                to this cart.
+              </p>
+
+              <div class="mt-auto flex flex-wrap gap-2">
+                <NuxtLink
+                  to="/giving"
+                  class="btn btn-secondary btn-sm rounded-2xl"
+                >
+                  <Icon name="kind-icon:gift" class="kr-icon-4" />
+                  Give directly
+                </NuxtLink>
+
+                <button
+                  type="button"
+                  class="btn btn-outline btn-sm rounded-2xl"
+                  @click="addCatalogItem(donationCatalogEntry)"
+                >
+                  <Icon name="kind-icon:plus" class="kr-icon-4" />
+                  Add $1
+                </button>
+              </div>
+            </article>
+
+            <article class="flex min-h-52 flex-col kr-panel-muted-md">
+              <div class="flex items-start justify-between gap-3">
+                <div
+                  class="flex size-11 items-center justify-center rounded-2xl bg-accent/15 text-accent"
+                >
+                  <Icon name="kind-icon:rocket" class="kr-icon-6" />
+                </div>
+                <span class="kr-badge-ghost-sm">Monthly</span>
+              </div>
+
+              <h4 class="kr-text-black-primary mt-4">Support Kind Robots</h4>
+              <p class="kr-text-dim-sm-70 mt-1 line-clamp-3">
+                Help cover servers, art generation, stories, and continued
+                development with a recurring supporter plan.
+              </p>
+
+              <NuxtLink
+                to="/giving#monthly-support"
+                class="btn btn-accent btn-sm mt-auto rounded-2xl"
+              >
+                <Icon name="kind-icon:hand-heart" class="kr-icon-4" />
+                View supporter plans
+              </NuxtLink>
+            </article>
+
+            <article class="flex min-h-52 flex-col kr-panel-muted-md">
+              <div class="flex items-start justify-between gap-3">
+                <div
+                  class="flex size-11 items-center justify-center rounded-2xl bg-info/15 text-info"
+                >
+                  <Icon name="kind-icon:book" class="kr-icon-6" />
+                </div>
+                <span class="kr-badge-ghost-sm">Digital</span>
+              </div>
+
+              <h4 class="kr-text-black-primary mt-4">Mermaids of Venice</h4>
+              <p class="kr-text-dim-sm-70 mt-1 line-clamp-3">
+                The entitlement-backed PDF edition is already wired for
+                purchase and secure download.
+              </p>
+
+              <NuxtLink
+                to="/mermaids"
+                class="btn btn-outline btn-sm mt-auto rounded-2xl"
+              >
+                <Icon name="kind-icon:book" class="kr-icon-4" />
+                View the book
+              </NuxtLink>
+            </article>
+          </div>
+        </section>
+
+        <section class="space-y-3">
+          <div class="flex flex-wrap items-end justify-between gap-2">
+            <div>
+              <p class="kr-text-eyebrow text-secondary">Print your art</p>
+              <h3 class="kr-text-black-xl text-base-content">
+                Posters, shirts, stickers, and mugs
+              </h3>
+            </div>
+
+            <span class="kr-badge-ghost-sm">POD preview</span>
+          </div>
+
+          <p class="kr-text-dim-sm-70 max-w-3xl">
+            These are the physical product types already represented by the
+            cart and PrintJob pipeline. The Printful vendor submission is still
+            the remaining fulfillment gate, so the catalog is visible now
+            without pretending an unfulfillable order is ready to ship.
+          </p>
+
+          <div
+            class="grid gap-3 [grid-template-columns:repeat(auto-fit,minmax(min(13rem,100%),1fr))]"
+          >
+            <article
+              v-for="item in physicalCatalog"
+              :key="item.id"
+              class="overflow-hidden rounded-2xl border border-base-300 bg-base-100"
+            >
+              <div
+                class="relative flex h-44 items-center justify-center overflow-hidden bg-base-200"
+              >
+                <div
+                  v-if="item.type === 'print'"
+                  class="relative h-36 w-28 rounded-sm bg-base-100 p-2 shadow-xl ring-1 ring-base-content/15"
+                >
+                  <img
+                    :src="previewImageSrc"
+                    :alt="'Poster mockup using ' + previewArtLabel"
+                    class="h-full w-full object-cover"
+                    loading="lazy"
+                  />
+                </div>
+
+                <div
+                  v-else-if="item.type === 'shirt'"
+                  class="relative flex size-36 items-center justify-center"
+                >
+                  <Icon
+                    name="kind-icon:shirt"
+                    class="absolute size-36 text-base-content/25"
+                    aria-hidden="true"
+                  />
+                  <img
+                    :src="previewImageSrc"
+                    :alt="'Shirt mockup using ' + previewArtLabel"
+                    class="relative mt-3 size-12 rounded-md border border-base-300 object-cover shadow"
+                    loading="lazy"
+                  />
+                </div>
+
+                <div
+                  v-else-if="item.type === 'mug'"
+                  class="relative flex size-36 items-center justify-center"
+                >
+                  <Icon
+                    name="kind-icon:mug"
+                    class="absolute size-36 text-base-content/25"
+                    aria-hidden="true"
+                  />
+                  <img
+                    :src="previewImageSrc"
+                    :alt="'Mug mockup using ' + previewArtLabel"
+                    class="relative mr-5 size-12 rounded-md border border-base-300 object-cover shadow"
+                    loading="lazy"
+                  />
+                </div>
+
+                <div
+                  v-else
+                  class="-rotate-6 rounded-2xl border-4 border-base-100 bg-base-100 p-1 shadow-xl"
+                >
+                  <img
+                    :src="previewImageSrc"
+                    :alt="'Sticker mockup using ' + previewArtLabel"
+                    class="size-24 rounded-xl object-cover"
+                    loading="lazy"
+                  />
+                </div>
+
+                <Icon
+                  :name="productIcon(item.type)"
+                  class="absolute left-3 top-3 size-6 text-base-content/35"
+                  aria-hidden="true"
+                />
+
+                <span
+                  class="absolute bottom-2 right-2 rounded-full bg-base-100/90 px-2 py-1 text-xs font-black text-base-content shadow backdrop-blur"
+                >
+                  ${{ item.price.toFixed(2) }}
+                </span>
+              </div>
+
+              <div class="flex min-h-44 flex-col p-4">
+                <h4 class="kr-text-black-primary">
+                  {{ item.label }}
+                </h4>
+                <p class="kr-text-dim-sm-70 mt-1 line-clamp-2">
+                  {{ item.description }}
+                </p>
+
+                <NuxtLink
+                  to="/art"
+                  class="btn btn-outline btn-sm mt-auto rounded-2xl"
+                >
+                  <Icon name="kind-icon:image" class="kr-icon-4" />
+                  Choose art
+                </NuxtLink>
+              </div>
+            </article>
+          </div>
+
+          <div v-if="featuredArt.length" class="space-y-2">
+            <div class="flex items-center justify-between gap-3">
+              <h4 class="kr-text-black-primary">Featured art previews</h4>
+              <span class="kr-text-dim-xs">
+                Pick one to update the product mockups.
+              </span>
+            </div>
+
+            <div
+              class="grid gap-2 [grid-template-columns:repeat(auto-fill,minmax(6rem,1fr))]"
+            >
+              <button
+                v-for="art in featuredArt"
+                :key="art.id"
+                type="button"
+                class="group overflow-hidden rounded-2xl border bg-base-100 p-1 text-left transition"
+                :class="
+                  previewArt?.id === art.id
+                    ? 'border-primary ring-2 ring-primary/20'
+                    : 'border-base-300 hover:border-primary/50'
+                "
+                @click="selectedPreviewArt = art"
+              >
+                <img
+                  :src="resolveArtImageThumbSrc(art)"
+                  :alt="art.promptString || 'Featured storefront art'"
+                  class="aspect-square w-full rounded-xl object-cover"
+                  loading="lazy"
+                />
+              </button>
             </div>
           </div>
-        </div>
+        </section>
 
-        <div
-          class="flex flex-col items-start gap-3 rounded-2xl border border-primary/30 bg-primary/10 p-4 text-sm text-primary-content sm:flex-row sm:items-center sm:justify-between"
-        >
-          <div class="flex items-start gap-3">
-            <Icon name="kind-icon:hand-heart" class="kr-icon-5 mt-1 shrink-0" />
-
-            <div class="space-y-1">
-              <p class="font-black">Skip the shop, give directly</p>
-
-              <p>
-                Every net purchased through the Against Malaria Foundation saves
-                lives. We never touch the money.
-              </p>
+        <section v-if="featuredArt.length" class="space-y-3">
+          <div class="flex flex-wrap items-end justify-between gap-2">
+            <div>
+              <p class="kr-text-eyebrow text-primary">Featured prints</p>
+              <h3 class="kr-text-black-xl text-base-content">
+                Curated storefront art
+              </h3>
             </div>
           </div>
 
-          <NuxtLink to="/giving" class="kr-btn-primary-2xl shrink-0">
-            <Icon name="kind-icon:gift" class="kr-icon-4" />
-            Give directly
-          </NuxtLink>
-        </div>
-
-        <div v-if="featuredArt.length" class="space-y-3">
-          <h4 class="kr-text-black-primary">Featured prints</h4>
-
-          <div class="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+          <div
+            class="grid gap-3 [grid-template-columns:repeat(auto-fit,minmax(min(14rem,100%),1fr))]"
+          >
             <article
               v-for="art in featuredArt"
               :key="art.id"
@@ -106,65 +352,32 @@
               <img
                 :src="resolveArtImageThumbSrc(art)"
                 :alt="art.promptString || 'Featured print'"
-                class="h-40 w-full object-cover"
+                class="h-44 w-full object-cover"
                 loading="lazy"
               />
 
-              <div class="space-y-2 p-4">
+              <div class="flex min-h-36 flex-col gap-2 p-4">
                 <p class="kr-text-dim-sm-70 line-clamp-2">
                   {{ art.promptString || 'Featured print' }}
                 </p>
 
                 <button
+                  v-if="printCatalogEntry"
                   type="button"
-                  class="btn btn-sm btn-outline rounded-2xl"
+                  class="btn btn-sm btn-outline mt-auto rounded-2xl"
                   @click="addFeaturedPrint(art)"
                 >
                   <Icon name="kind-icon:plus" class="kr-icon-4" />
-                  Add to cart
+                  Add print · ${{ printCatalogEntry.price.toFixed(2) }}
                 </button>
               </div>
             </article>
           </div>
-        </div>
-
-        <div class="grid gap-3 xl:grid-cols-2">
-          <article
-            v-for="item in showcaseItems"
-            :key="item.title"
-            class="kr-panel-muted-md"
-          >
-            <div class="flex items-start justify-between gap-3">
-              <div class="space-y-1">
-                <h4 class="kr-text-black-primary">
-                  {{ item.title }}
-                </h4>
-
-                <p class="kr-text-dim-sm-70">
-                  {{ item.text }}
-                </p>
-              </div>
-
-              <Icon
-                :name="item.icon"
-                class="kr-icon-8 shrink-0 text-secondary"
-              />
-            </div>
-
-            <button
-              type="button"
-              class="btn btn-sm btn-outline mt-4 rounded-2xl"
-              @click="addShowcaseItem(item)"
-            >
-              <Icon name="kind-icon:plus" class="kr-icon-4" />
-              Add to cart
-            </button>
-          </article>
-        </div>
+        </section>
       </div>
     </div>
 
-    <aside class="kr-panel p-4">
+      <aside class="giftshop-cart kr-panel self-start p-4">
       <div class="flex items-center justify-between gap-3">
         <div>
           <h3 class="kr-text-black-xl text-primary">Cart Nest</h3>
@@ -217,95 +430,56 @@
           {{ cartStore.lastError }}
         </p>
       </div>
-    </aside>
+      </aside>
+    </div>
   </section>
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { useCartStore, type CartItem } from '@/stores/cartStore'
+import { useCartStore } from '@/stores/cartStore'
 import { performFetch } from '@/stores/utils'
 import {
   resolveArtImageSrc,
   resolveArtImageThumbSrc,
 } from '@/utils/artImageSrc'
-import { cartItems } from '@/stores/seeds/cartItems'
+import { cartItems, type CartItem } from '@/stores/seeds/cartItems'
 import type { ArtImage } from '~/prisma/generated/prisma/client'
-
-// Placeholder print price until the POD product/pricing pipeline (digital-storefront
-// t-023's PrintJob work) exists to derive a real per-item price for featured art.
-const FEATURED_PRINT_PRICE = 12
 
 type FeaturedArtImage = Pick<
   ArtImage,
   'id' | 'promptString' | 'imagePath' | 'path' | 'thumbnailPath' | 'cardPath'
 >
 
-type GiftshopFeature = {
-  title: string
-  icon: string
-  text: string
-}
-
-type ShowcaseItem = {
-  title: string
-  icon: string
-  text: string
-  type: CartItem['type']
-  artImageId: number
-  imageUrl: string
-  price: number
-}
-
 const cartStore = useCartStore()
 const router = useRouter()
 const featuredArt = ref<FeaturedArtImage[]>([])
+const selectedPreviewArt = ref<FeaturedArtImage | null>(null)
 
-const giftshopFeatures: GiftshopFeature[] = [
-  {
-    title: 'Prints',
-    icon: 'kind-icon:image',
-    text: 'Turn favorite generated art into real-world wall bait.',
-  },
-  {
-    title: 'Tokens',
-    icon: 'kind-icon:jellybean',
-    text: 'Fuel experiments, generations, and future robot nonsense.',
-  },
-  {
-    title: 'Support',
-    icon: 'kind-icon:hand-heart',
-    text: 'Help the swarm fund both the site and the malaria mission.',
-  },
-]
-
-// The print showcase item that used to live here was a guessed placeholder
-// (artImageId: 1, a fake image never validated against a real ArtImage). The
-// real Featured prints grid above sources genuine ArtImage rows via
-// /api/art/storefront-featured and supersedes it. Tokens have no equivalent
-// browsable section elsewhere, so it stays -- but now sourced from the real
-// cartItems catalog (the same array checkout.post.ts trusts server-side)
-// instead of a second hand-maintained copy of its price/label.
 const tokensCatalogEntry = cartItems.find((item) => item.id === 'tokens')
+const donationCatalogEntry = cartItems.find((item) => item.id === 'donation')
+const printCatalogEntry = cartItems.find((item) => item.id === 'print')
 
-const showcaseItems: ShowcaseItem[] = tokensCatalogEntry
-  ? [
-      {
-        title: tokensCatalogEntry.label,
-        icon: 'kind-icon:jellybean',
-        text: tokensCatalogEntry.description || tokensCatalogEntry.label,
-        type: tokensCatalogEntry.type,
-        // Non-art cart items (needsArt: false) use 0 as the client-side
-        // placeholder -- the server only requires/uses artImageId for
-        // needsArt items (see giving-page.vue's donation add for the same
-        // convention).
-        artImageId: 0,
-        imageUrl: tokensCatalogEntry.image,
-        price: tokensCatalogEntry.price,
-      },
-    ]
-  : []
+const physicalCatalog = cartItems.filter(
+  (item) =>
+    item.needsArt &&
+    ['print', 'shirt', 'sticker', 'mug'].includes(item.id),
+)
+
+const previewArt = computed(
+  () => selectedPreviewArt.value ?? featuredArt.value[0] ?? null,
+)
+
+const previewImageSrc = computed(() => {
+  return previewArt.value
+    ? resolveArtImageThumbSrc(previewArt.value)
+    : '/icon-512x512.png'
+})
+
+const previewArtLabel = computed(
+  () => previewArt.value?.promptString || 'Kind Robots artwork',
+)
 
 onMounted(() => {
   void cartStore.initialize()
@@ -322,33 +496,68 @@ async function loadFeaturedArt() {
   }
 }
 
-function addFeaturedPrint(art: FeaturedArtImage) {
+function productIcon(type: CartItem['type']): string {
+  const icons: Partial<Record<CartItem['type'], string>> = {
+    print: 'kind-icon:print',
+    shirt: 'kind-icon:shirt',
+    sticker: 'kind-icon:sticker',
+    mug: 'kind-icon:mug',
+  }
+
+  return icons[type] ?? 'kind-icon:gift'
+}
+
+function addCatalogItem(item: CartItem) {
+  if (item.needsArt) return
+
   cartStore.addItem({
-    type: 'print',
+    type: item.type,
+    artImageId: 0,
+    imageUrl: item.image,
+    quantity: 1,
+    price: item.price,
+    notes: item.label,
+  })
+}
+
+function addFeaturedPrint(art: FeaturedArtImage) {
+  if (!printCatalogEntry) return
+
+  cartStore.addItem({
+    type: printCatalogEntry.type,
     artImageId: art.id,
     imageUrl: resolveArtImageSrc(art),
     quantity: 1,
-    price: FEATURED_PRINT_PRICE,
-    notes: art.promptString || 'Featured print',
+    price: printCatalogEntry.price,
+    notes: art.promptString || printCatalogEntry.label,
   })
-
-  goToCart()
-}
-
-function addShowcaseItem(item: ShowcaseItem) {
-  cartStore.addItem({
-    type: item.type,
-    artImageId: item.artImageId,
-    imageUrl: item.imageUrl,
-    quantity: 1,
-    price: item.price,
-    notes: item.title,
-  })
-
-  goToCart()
 }
 
 function goToCart(): void {
   void router.push('/cart')
 }
 </script>
+
+
+<style scoped>
+.giftshop-shell {
+  container: giftshop / inline-size;
+}
+
+.giftshop-layout {
+  display: grid;
+  align-items: start;
+  gap: 1rem;
+}
+
+@container giftshop (min-width: 56rem) {
+  .giftshop-layout {
+    grid-template-columns: minmax(0, 1fr) 20rem;
+  }
+
+  .giftshop-cart {
+    position: sticky;
+    top: 1rem;
+  }
+}
+</style>

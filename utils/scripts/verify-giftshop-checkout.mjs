@@ -101,6 +101,51 @@ assert.doesNotMatch(
   /setDashboardTab\?\.\('giftshop', 'cart'\)/,
   'giftshop must not target an unregistered dashboard tab',
 )
+assert.doesNotMatch(
+  giftshop,
+  /Storefront staging area|commercially whimsical/,
+  'giftshop must not render internal staging/demo copy to customers',
+)
+assert.match(
+  giftshop,
+  /Available now[\s\S]*tokensCatalogEntry[\s\S]*donationCatalogEntry[\s\S]*Support Kind Robots[\s\S]*Mermaids of Venice/,
+  'giftshop must present its real live offers as aligned product/action cards',
+)
+assert.match(
+  giftshop,
+  /AMF add-on[\s\S]*to="\/giving"[\s\S]*Give directly[\s\S]*Add \$1/,
+  'AMF direct-giving and cart add-on actions must live with the AMF card rather than in a detached staging banner',
+)
+assert.match(
+  giftshop,
+  /Posters, shirts, stickers, and mugs[\s\S]*POD preview[\s\S]*physicalCatalog/,
+  'giftshop must surface the physical POD catalog even before vendor fulfillment is enabled',
+)
+assert.match(
+  giftshop,
+  /Printful vendor submission is still[\s\S]*remaining fulfillment gate/,
+  'giftshop must describe the physical-product fulfillment gate honestly',
+)
+assert.match(
+  giftshop,
+  /previewImageSrc[\s\S]*Featured art previews/,
+  'giftshop POD cards must show a real art-backed mockup preview rather than text-only categories',
+)
+assert.match(
+  giftshop,
+  /<aside class="giftshop-cart kr-panel self-start/,
+  'cart summary must size to its contents instead of stretching into a blank full-height column',
+)
+assert.match(
+  giftshop,
+  /container: giftshop \/ inline-size;[\s\S]*@container giftshop \(min-width: 56rem\)[\s\S]*grid-template-columns: minmax\(0, 1fr\) 20rem/,
+  'giftshop desktop columns must respond to the component container rather than a viewport breakpoint',
+)
+assert.doesNotMatch(
+  giftshop,
+  /lg:grid-cols/,
+  'giftshop shared component must not restore viewport-keyed column layout',
+)
 assert.match(
   giftshopManager,
   /v-else-if="activeTab === 'giftshop'"[\s\S]*?<div class="kr-scroll">[\s\S]*?<giftshop-interact\s*\/>/,

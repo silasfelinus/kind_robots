@@ -208,7 +208,10 @@ function contextualFallback(
     compositionFor(target),
     DEFAULT_ASSET_ART_STYLE,
     DEFAULT_UNPEOPLED_ART_DIRECTION,
-    'no readable text, no logos, no watermark, no collage',
+    // Was 'no readable text, no logos, no watermark, no collage'. Four nouns
+    // in positive conditioning on a cfg-1 engine, which is four things to
+    // draw. The wanted result says the same thing and can be acted on.
+    'every surface bare and unmarked, one single image filling the frame',
   ].join(' ')
 
   return assessArtPrompt(prompt).useful ? compact(prompt, 1200) : ''
@@ -270,8 +273,10 @@ export async function buildContextualArtPrompt(
           'Describe the visible focal subject, supporting elements, action or state, setting, spatial arrangement, composition, camera or framing, lighting, color palette, materials or texture, mood, and concrete rendering style.',
           promptLengthDirection(target),
           'Respect the requested variant: icon is square and simple, card is 2:3 portrait, hero is 16:9 landscape.',
-          'Avoid copyrighted characters, licensed style names, logos, brands, text in the image, collages, and vague filler.',
-          'End with no readable text, no logo, no watermark, no collage.',
+          'Avoid copyrighted characters, licensed style names, and vague filler.',
+          'NEVER write an exclusion in the prompt you return. Not "no text", not "no logo", not "no figure" — the prompt is read by a distilled diffusion transformer at cfg 1, which cannot act on a word holding a noun off and simply renders the noun. "no readable text" is how you order lettering.',
+          'Say what the frame DOES contain instead: "every surface bare and unmarked" rather than naming text, "one single image filling the frame" rather than naming a collage.',
+          'End on a visual note — lighting, material, or mood. Never on a list of things to leave out.',
           'If the supplied context does not identify a real subject, return exactly INSUFFICIENT_CONTEXT.',
         ].join(' '),
         input: [

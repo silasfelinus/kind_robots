@@ -363,20 +363,95 @@ assert.deepEqual(
 
 // ── Prompts that must NOT trip the gate ─────────────────────────────────────
 
+// The 2026-08-08 "repaired" ladle prompt. This fixture asserted an empty
+// violation list on the reasoning that "three exclusions is under the pile
+// threshold" — a threshold that only ever counted TEXT nouns. So the repair
+// shipped naming bystanders, onlookers and a crowd to an engine that cannot
+// act on the "no", and the crowds it was written to remove kept arriving for
+// six weeks. That is the same failure as FACET_V4_AS_SHIPPED above, one rule
+// later: a fixture certified the clause.
+const LADLE_AS_REPAIRED_2026_08_08 =
+  'a single Tidefortune Ladle, one object alone in frame, a dented tin ladle ' +
+  'the length of a forearm, its bowl worn to a mirror finish, the handle ' +
+  'wrapped in salt-stiffened cord, vertical 2:3 portrait composition, museum ' +
+  'product shot, an unpeopled frame — the subject stands alone with no ' +
+  'bystanders, no onlookers, and no crowd, unmarked surfaces, free of text'
+
+assert.ok(
+  rules({
+    prompt: LADLE_AS_REPAIRED_2026_08_08,
+    engine: 'krea2',
+    steps: 8,
+    cfg: 1,
+  }).includes('people-negation'),
+  'the 2026-08-08 repair clause must be rejected: it names three kinds of people',
+)
+
+// The same prompt with the exclusion list replaced by the adjective that was
+// doing the work all along.
 assert.deepEqual(
   rules({
     prompt:
       'a single Tidefortune Ladle, one object alone in frame, a dented tin ladle ' +
       'the length of a forearm, its bowl worn to a mirror finish, the handle ' +
       'wrapped in salt-stiffened cord, vertical 2:3 portrait composition, museum ' +
-      'product shot, an unpeopled frame — the subject stands alone with no ' +
-      'bystanders, no onlookers, and no crowd, unmarked surfaces, free of text',
+      'product shot, an unpeopled frame, the subject alone, the space around it ' +
+      'bare and deserted, every surface bare and unmarked',
     engine: 'krea2',
     steps: 8,
     cfg: 1,
   }),
   [],
-  'the repaired ladle prompt must pass — three exclusions is under the pile threshold',
+  'the positively-stated unpeopled direction must pass',
+)
+
+// Reward 393, "Dr. Eliza Dolittle's Ring": a ring on a leaf, two small animals,
+// and "No figure." It renders as a crowd of Victorian faces and no ring. One
+// negated people noun is enough — this rule is not a count.
+assert.ok(
+  rules({
+    prompt:
+      'A simple glowing ring resting on a leaf, faint sound-ripples of animal ' +
+      'speech emanating from it, a curious bird and beetle leaning in. No figure. ' +
+      'Warm gold-and-green glow, crisp clean linework, gentle and wondrous, ' +
+      'simple background.',
+    engine: 'krea2',
+    steps: 8,
+    cfg: 1,
+  }).includes('people-negation'),
+  '"No figure." must be rejected on its own',
+)
+
+// The adjective between the negation and the noun is where the first version of
+// this matcher failed: capturing only the word after "no" caught "full" and
+// "clear" and missed the noun entirely. These are the exact live wordings.
+for (const shipped of [
+  'no full figure, no faces, no onlookers',
+  'no clear face',
+  'no mortal figure',
+  'no literal person',
+  'without any bystanders',
+]) {
+  assert.ok(
+    rules({ prompt: `a brass orrery on a workbench, ${shipped}`, engine: 'krea2', cfg: 1 })
+      .includes('people-negation'),
+    `"${shipped}" must be rejected`,
+  )
+}
+
+// Scoped to engines whose negative prompt is inert. ChatGPT reads an exclusion
+// as an exclusion, so a prompt bound for it keeps working.
+assert.ok(
+  !rules({ prompt: 'a brass orrery on a workbench, no people', engine: 'comfy', cfg: 7 })
+    .includes('people-negation'),
+  'a non-distilled engine may still be told what to leave out',
+)
+
+// Only nouns that ARE people. Other exclusions are other rules' business.
+assert.ok(
+  !rules({ prompt: 'a brass orrery on a workbench, no border, no colour', engine: 'krea2', cfg: 1 })
+    .includes('people-negation'),
+  'non-people exclusions must not trip this rule',
 )
 
 // The Facet v4 prompt. This fixture used to assert an EMPTY violation list,

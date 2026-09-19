@@ -261,7 +261,11 @@ export function buildMandarinIllustrationPrompt(card: MandarinCard): string {
     // prompt is inert, so that list was a request for exactly those things.
     // Same art direction, stated as the wanted result.
     'Everything is hand-painted: matte pigment on paper, simplified deliberate shapes, plain even light, simple anatomy, relaxed hands, and calm uncluttered surroundings.',
-    // Likewise: the old recipe named text fourteen ways. Once, positively.
-    'Every surface in the picture is blank and unmarked, carrying no writing of any kind.',
+    // Likewise: the old recipe named text fourteen ways. This said it once and
+    // then said it again as a negation -- "blank and unmarked" is the positive
+    // statement, and "carrying no writing of any kind" put the word back. On a
+    // cfg-1 engine once is already one time too many, so the first half is the
+    // whole line now.
+    'Every surface in the picture is blank and unmarked.',
   ].join(' ')
 }

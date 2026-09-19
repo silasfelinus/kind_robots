@@ -32,8 +32,8 @@ function krea2JobAsShipped(steps: number, cfg: number) {
   return {
     promptString:
       'Create artwork for Magic. Visible subject and scene context: a brass ' +
-      'orrery on a workbench, an unpeopled frame — the subject stands alone ' +
-      'with no bystanders, onlookers, or crowd',
+      'orrery on a workbench, an unpeopled frame, the subject alone, the ' +
+      'space around it bare and deserted',
     width: 1024,
     height: 1024,
     steps,

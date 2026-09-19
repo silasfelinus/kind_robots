@@ -465,7 +465,13 @@ export const ART_CARDS: ArtCard[] = [
             value: 'none',
             label: 'None',
             subtext: 'No figures. The subject carries itself.',
-            payload: { promptHint: 'no figures, no people' },
+            // The hint is conditioning, not UI copy: it is concatenated
+            // straight into the positive prompt (generate_facet_art_v4.ts ->
+            // metadataArtworkPrompt), and on a cfg-1 engine the negative
+            // prompt is inert. "no figures, no people" is therefore a request
+            // for figures and people. The subtext above may keep saying "no"
+            // because a person reads it; the hint may not.
+            payload: { promptHint: 'an unpeopled frame, the subject alone, the space around it bare and deserted' },
           },
           {
             value: 'solo',

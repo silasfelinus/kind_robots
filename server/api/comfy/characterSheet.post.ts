@@ -247,7 +247,10 @@ function buildCharacterSheetPrompt(input: {
     productionNotes,
     'Lighting is flat, even studio lighting with minimal shadows. Background is plain white or neutral gray with no environment or props.',
     'Maintain identical proportions, scale, and alignment across all angles.',
-    'No motion blur, no depth of field, no dramatic lighting, no dynamic posing, no overlapping elements, no text, no labels, no watermarks.',
+    // Eleven exclusions, three of them text nouns. Stated as the wanted
+    // result: a model sheet IS everything in focus, evenly lit, separated
+    // and unmarked.
+    'Everything is in sharp focus from front to back, lit evenly and undramatically, each view standing clear of its neighbours, every surface bare and unmarked.',
     'Strict consistency between all views, identical anatomy and proportions, model sheet layout, character turnaround reference, orthographic character sheet.',
   ]
     .filter(Boolean)

@@ -325,18 +325,21 @@ function buildFallbackPrompt(
   const explicit = cleanString(body.prompt)
   if (explicit) return explicit
 
+  // These fallbacks each ended in "no text". On a cfg-1 engine that is a
+  // request for text, not a constraint on it -- see
+  // server/utils/artPromptContract.ts. Say what the surface looks like.
   const label =
     cleanString(body.alt || body.label) || titleFromSlug(target.slug)
   if (target.variant === 'icon') {
-    return `flat minimal app icon for ${label}, bold clean vector shapes, square composition, no text`
+    return `flat minimal app icon for ${label}, bold clean vector shapes, square composition, every surface bare and unmarked`
   }
   if (target.variant === 'card') {
-    return `polished portrait illustration for ${label}, centered subject, rich Kind Robots visual style, no text, 2:3 portrait composition`
+    return `polished portrait illustration for ${label}, centered subject, rich Kind Robots visual style, every surface bare and unmarked, 2:3 portrait composition`
   }
   if (target.variant === 'hero') {
-    return `wide cinematic hero image for ${label}, expressive scene with clear atmosphere and personality, no text, 16:9 landscape composition`
+    return `wide cinematic hero image for ${label}, expressive scene with clear atmosphere and personality, every surface bare and unmarked, 16:9 landscape composition`
   }
-  return `polished web illustration for ${label}, clear subject, cohesive Kind Robots visual style, no text`
+  return `polished web illustration for ${label}, clear subject, cohesive Kind Robots visual style, every surface bare and unmarked`
 }
 
 async function buildEntry(

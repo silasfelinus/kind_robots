@@ -172,17 +172,48 @@ const CONTEXTUAL_WRAPPER_PATTERNS = [
   /\bCreate (?:this as|a) [^.\n]{0,160}\bfor Kind Robots\b/i,
 ]
 
+// 7. PEOPLE NEGATION. The half of rule 3 that never got written down in code.
+//    ART-PROMPTS.md has said since 2026-08-25 that Krea renders the nouns and
+//    drops the word holding them off -- "`no face` is how you commission a
+//    face" -- but the only negation rule below counts TEXT nouns, so every
+//    people negation sailed through. 319 of 351 live Rewards still carry one.
+//    Reward 393, "Dr. Eliza Dolittle's Ring", asks for a ring on a leaf and
+//    ends "No figure."; it renders as a crowd of Victorian faces and no ring.
+//
+//    The 2026-08-08 repair is itself the largest producer. The clause written
+//    to STOP the crowds -- "an unpeopled frame, the subject stands alone with
+//    no bystanders, no onlookers, and no crowd" -- names three kinds of people
+//    on an engine whose negative prompt is inert. The word "unpeopled" was
+//    doing the work; the three exclusions after it were undoing it. This
+//    file's own verifier asserted that prompt returns NO violations, on the
+//    reasoning that "three exclusions is under the pile threshold" -- the
+//    threshold that only ever counted text. That is the same way the v4
+//    taxonomy clause above reached production: a fixture certified it.
+//
+//    So this rule is not a count. One negated people noun is the bug.
+
 // The damage was specific: FIVE text-related nouns ("no readable text, no
 // lettering, no logos, no watermark, no signature") in the POSITIVE prompt of a
 // text-specialist model running at cfg 1, where the ComfyUI negative prompt is
 // inert. Naming text five times to Qwen-Image lineage produces text.
 //
-// This rule is deliberately narrow. An earlier version counted every "no ..."
-// clause and would have rejected the coloring-book lane, which uses eleven
-// exclusions on purpose (no border, no comic, no collage...) — and rejected a
-// prompt whose subject text merely read "no matter how undocumented". Breadth
-// here costs working pipelines; the pathological case is text nouns, in bulk,
-// where guidance cannot act on a negative prompt.
+// This rule is deliberately narrow IN WHICH NOUNS IT COUNTS. An earlier version
+// counted every "no ..." clause and would have rejected the coloring-book lane,
+// which uses eleven exclusions on purpose (no border, no comic, no collage...)
+// — and rejected a prompt whose subject text merely read "no matter how
+// undocumented". Restricting it to the text nouns below fixed that, and it is
+// the noun set, not any count, that does the work.
+//
+// It is NOT narrow in how many it takes, not any more. It used to allow four,
+// which is how a suggested prompt ending "no readable text, no logo, no
+// watermark, no collage" passed the gate on 2026-09-19 — three text nouns,
+// under the threshold, handed to a text specialist that cannot act on the
+// word "no". Silas, reading it: "We shouldn't be telling krea what not to do,
+// that should be the job of the automatic negative prompt that we add, right?"
+// Right in principle and impossible in fact: krea2 renders at cfg 1
+// (KREA2_DEFAULT_CFG), where the ComfyUI negative prompt is inert but wired,
+// so there is no channel to move an exclusion to. The only handling that works
+// is not to write one. One is too many.
 const TEXT_EXCLUSION_NOUNS = new Set([
   'text',
   'lettering',
@@ -204,8 +235,70 @@ const TEXT_EXCLUSION_NOUNS = new Set([
 // READABLE text", and capturing the first word after "no" caught "readable"
 // rather than "text", so the pile went uncounted.
 const NEGATION_CLAUSE =
-  /\bno[ -](?:readable |visible |legible |written |accidental )?([a-z][a-z-]*)/gi
-const MAX_TEXT_EXCLUSIONS = 4
+  /\b(?:no|without|free of|devoid of)[ -](?:readable |visible |legible |written |accidental )?([a-z][a-z-]*)/gi
+
+/*
+ * Rule 7. Nouns that name a human presence, which a caption-conditioned model
+ * will place in the frame the moment the prompt says them -- the negation in
+ * front is not conditioning it can act on.
+ *
+ * Deliberately only nouns that ARE people. "no border", "no text", "no colour"
+ * are other rules' business or nobody's; this one exists because the frame
+ * came back full of strangers.
+ */
+const PEOPLE_NOUNS = new Set([
+  'figure', 'figures',
+  'person', 'persons', 'people', 'peoples',
+  'human', 'humans',
+  'character', 'characters',
+  'face', 'faces',
+  'crowd', 'crowds',
+  'bystander', 'bystanders',
+  'onlooker', 'onlookers',
+  'spectator', 'spectators',
+  'men', 'woman', 'women',
+  'child', 'children',
+  'audience', 'audiences',
+])
+
+/*
+ * Deliberately NOT in that set, because this rule throws a 422 and a false
+ * positive blocks a render that was fine:
+ *
+ *   hand/hands   — "a clock with no hands" is a subject, not a casting note.
+ *   body/bodies  — "no body" reads as substance as often as anatomy.
+ *   cast         — a verb here as often as a noun ("cast in bronze").
+ *   man          — "no man's land" is a place.
+ *   portrait     — an aspect ratio in most of this codebase.
+ *   silhouette   — already handled, positively, by the jargon rule.
+ *
+ * Between them they account for three of the 328 live prompts carrying a
+ * people negation. The other 325 are covered above.
+ */
+
+/*
+ * The negation, then the run of words it governs -- checked WORD BY WORD rather
+ * than by capturing "the noun", because the live wordings are "no FULL figure",
+ * "no CLEAR face", "no MORTAL figure", "no LITERAL person". A capture group
+ * with optional leading adjectives does not work here: it matches happily on
+ * the adjective, the match succeeds, and the scan moves past the noun. That is
+ * the same miss NEGATION_CLAUSE above had with "no readable text".
+ *
+ * The run stops at any punctuation, so a negation cannot reach across a clause
+ * boundary into an unrelated noun ("no rain, the faces of the cliffs" is a
+ * cliff face, not a casting note).
+ */
+const PEOPLE_NEGATION_CLAUSE =
+  /\b(?:no|not|without|avoid|avoiding|never|free of|devoid of|absent of|excluding|omit|omitting)\s+((?:[a-z][a-z-]*\s+){0,2}[a-z][a-z-]*)/gi
+
+function peopleNegations(prompt: string): string[] {
+  const found: string[] = []
+  for (const match of prompt.matchAll(PEOPLE_NEGATION_CLAUSE)) {
+    const words = (match[1] || '').toLowerCase().split(/\s+/)
+    if (words.some((word) => PEOPLE_NOUNS.has(word))) found.push(match[0].trim())
+  }
+  return found
+}
 
 function textExclusions(prompt: string): string[] {
   const found: string[] = []
@@ -315,18 +408,35 @@ export function checkArtPromptContract(
     }
   }
 
+  /*
+   * Checked wherever guidance is inert, the same scope as the text pile: those
+   * are the engines that paint the word instead of subtracting it. A prompt
+   * bound for ChatGPT may say "no people" and be obeyed.
+   */
+  if (guidanceIsInert(engineName, input.cfg)) {
+    const peopleNos = peopleNegations(prompt)
+    if (peopleNos.length) {
+      violations.push({
+        rule: 'people-negation',
+        detail:
+          `${peopleNos.join(', ')} names the people you do not want on an engine ` +
+          `whose negative prompt is inert, so the noun lands in POSITIVE ` +
+          `conditioning and the frame fills with them. Say what the frame IS: ` +
+          `"an unpeopled frame", "a deserted street", "the subject alone on a ` +
+          `plain ground".`,
+      })
+    }
+  }
+
   const textNos = textExclusions(prompt)
-  if (
-    textNos.length > MAX_TEXT_EXCLUSIONS &&
-    guidanceIsInert(engineName, input.cfg)
-  ) {
+  if (textNos.length && guidanceIsInert(engineName, input.cfg)) {
     violations.push({
       rule: 'text-exclusion-pile',
       detail:
-        `${textNos.length} text exclusions (${textNos.join(', ')}) on an engine whose ` +
-        `negative prompt is inert, so every one of those words lands in POSITIVE ` +
-        `conditioning. Say it once, or state the wanted result instead — ` +
-        `"unmarked surfaces" beats naming text five times.`,
+        `${textNos.join(', ')} names text on an engine whose negative prompt is ` +
+        `inert, so the word lands in POSITIVE conditioning on a model from the ` +
+        `strongest open text-rendering lineage there is. State the wanted result ` +
+        `instead: "every surface bare and unmarked".`,
     })
   }
 

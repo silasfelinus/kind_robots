@@ -98,7 +98,14 @@ const CANVAS: Record<
 // scenes want fauna or props — jellyfish drifters on
 // dreams, half-assembled robots on the workbenches of bots — and a blanket "no
 // creatures, no robots" would fight the very scene it wraps.
-const CONTRACT = `Create one standalone environment illustration to be used as a full-bleed page background for the Kind Robots web app. This is SCENERY: interface panels, cards and toolbars will be drawn on top of it, so the composition must stay open and calm through the centre of the canvas and carry its interest at the edges. The place is empty of inhabitants — no people, no figures, no characters, no faces, no crowd, an unpeopled setting waiting to be entered. No central subject and no single dominant focal point; every surface unmarked and free of text.`
+//
+// 2026-09-19: the unpeopled rule used to be spelled "no people, no figures, no
+// characters, no faces, no crowd". Five people nouns, on an engine whose
+// negative prompt is inert, is a cast list. The sentence that followed it --
+// "an unpeopled setting waiting to be entered" -- is the only part of it that
+// ever worked, so it is now the whole rule. Same for the focal-point line: a
+// composition is described by what it does have.
+const CONTRACT = `Create one standalone environment illustration to be used as a full-bleed page background for the Kind Robots web app. This is SCENERY: interface panels, cards and toolbars will be drawn on top of it, so the composition must stay open and calm through the centre of the canvas and carry its interest at the edges. An unpeopled, deserted setting waiting to be entered, its inhabitants elsewhere. The interest is spread evenly to the edges of the frame and the centre stays quiet and open; every surface bare and unmarked.`
 
 const HOUSE_AESTHETIC = `Painted storybook-illustration style with cinematic depth, warm inviting light, soft atmospheric haze in the distance, and rich but unfussy detail.`
 

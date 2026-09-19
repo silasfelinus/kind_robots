@@ -1,10 +1,13 @@
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import {
-  CIVITAI_BASE_MODEL_GROUPS,
+  CIVITAI_BASE_MODEL_FAMILIES,
   CIVITAI_BASE_MODELS,
   CIVITAI_DISCOVER_TYPES,
+  CIVITAI_OTHER_BASE_MODEL_FAMILIES,
+  CIVITAI_SUPPORTED_BASE_MODEL_FAMILIES,
   DOWNLOADABLE_RESOURCE_TYPES,
+  civitaiBaseModelsForFamily,
   resourceTypeForCivitaiModelType,
 } from '../resourceDownloads'
 
@@ -56,59 +59,62 @@ assert.equal(resourceTypeForCivitaiModelType('Upscaler'), 'UPSCALER')
 assert.equal(resourceTypeForCivitaiModelType('Workflow'), null)
 
 assert.equal(
+  new Set(CIVITAI_BASE_MODEL_FAMILIES.map((family) => family.id)).size,
+  CIVITAI_BASE_MODEL_FAMILIES.length,
+  'base-model family ids must be unique',
+)
+assert.equal(
   new Set(CIVITAI_BASE_MODELS).size,
   CIVITAI_BASE_MODELS.length,
-  'base-model filter must not contain duplicate values',
+  'exact Civitai base-model values must not be duplicated across families',
 )
-for (const required of ['Krea 2', 'Flux.2 D', 'ZImage', 'Qwen']) {
-  assert.ok(
-    (CIVITAI_BASE_MODELS as readonly string[]).includes(required),
-    `missing current base-model filter ${required}`,
-  )
-}
+assert.equal(
+  CIVITAI_BASE_MODEL_FAMILIES.length,
+  14,
+  'Discover should stay family-sized instead of regrowing into a version list',
+)
+assert.deepEqual(
+  CIVITAI_SUPPORTED_BASE_MODEL_FAMILIES.map((family) => family.label),
+  ['Krea 2', 'FLUX.2', 'SDXL', 'Pony', 'SD 1.5', 'Z-Image'],
+)
+assert.equal(
+  CIVITAI_OTHER_BASE_MODEL_FAMILIES.some((family) => family.label === 'Krea 1'),
+  false,
+  'Krea 1 is not a useful separate choice when Kind Robots runs Krea 2',
+)
 
-const loraScanner = readFileSync('scripts/lora-catalog/scan_loras.py', 'utf8')
-const catalogMap =
-  loraScanner.match(/BASEMODEL_MAP:[\s\S]*?\n}\n\n\ndef map_base/)?.[0] ?? ''
-const catalogGenerations = [...catalogMap.matchAll(
-  /:\s*\("[A-Z0-9_]+",\s*"([^"]+)"\),/g,
-)]
-  .map((match) => match[1])
-  .filter((value): value is string => Boolean(value))
-assert.ok(catalogGenerations.length > 20, 'failed to parse BASEMODEL_MAP')
-for (const generation of catalogGenerations) {
-  assert.ok(
-    (CIVITAI_BASE_MODELS as readonly string[]).includes(generation),
-    'catalog base model missing from Discover filter: ' + generation,
-  )
-}
-
-const modelScanner = readFileSync('scripts/lora-catalog/scan_models.py', 'utf8')
-const folderHints =
-  modelScanner.match(/FOLDER_BASE_HINTS = \[[\s\S]*?\n\]\n\n\ndef checkpoint_group/)?.[0] ?? ''
-const hintedGenerations = [...folderHints.matchAll(
-  /\("[^"]+",\s*"[A-Z0-9_]+",\s*"([^"]+)"\),/g,
-)]
-  .map((match) => match[1])
-  .filter((value): value is string => Boolean(value))
-assert.ok(hintedGenerations.length > 10, 'failed to parse FOLDER_BASE_HINTS')
-for (const generation of hintedGenerations) {
-  assert.ok(
-    (CIVITAI_BASE_MODELS as readonly string[]).includes(generation),
-    'folder-detected base model missing from Discover filter: ' + generation,
-  )
-}
+assert.deepEqual(civitaiBaseModelsForFamily('krea2'), ['Krea 2'])
+assert.deepEqual(civitaiBaseModelsForFamily('zimage'), [
+  'ZImageTurbo',
+  'ZImageBase',
+])
+assert.ok(civitaiBaseModelsForFamily('sdxl').includes('SDXL 1.0'))
+assert.ok(civitaiBaseModelsForFamily('sdxl').includes('SDXL Turbo'))
+assert.ok(civitaiBaseModelsForFamily('flux2').includes('Flux.2 Klein 9B'))
+assert.deepEqual(civitaiBaseModelsForFamily('SDXL 1.0'), ['SDXL 1.0'])
+assert.deepEqual(civitaiBaseModelsForFamily('not-a-base'), [])
 
 const browse = readFileSync('server/api/lora/browse.get.ts', 'utf8')
 assert.ok(browse.includes('civitaiDiscoverType'))
 assert.ok(browse.includes('resourceTypeForCivitaiModelType'))
+assert.ok(browse.includes('civitaiBaseModelsForFamily'))
+assert.ok(browse.includes("params.append('baseModels', baseModel)"))
+assert.ok(browse.includes('query.baseFamily ?? query.baseModel'))
+assert.ok(browse.includes('options.baseModels.includes(candidate.baseModel'))
 
 const discoverUi = readFileSync('components/lora/lora-discover.vue', 'utf8')
 assert.ok(discoverUi.includes('v-for="entry in CIVITAI_DISCOVER_TYPES"'))
-assert.ok(discoverUi.includes('v-for="group in CIVITAI_BASE_MODEL_GROUPS"'))
-assert.ok(discoverUi.includes('v-for="option in group.options"'))
+assert.ok(
+  discoverUi.includes(
+    'v-for="family in CIVITAI_SUPPORTED_BASE_MODEL_FAMILIES"',
+  ),
+)
+assert.ok(
+  discoverUi.includes('v-for="family in CIVITAI_OTHER_BASE_MODEL_FAMILIES"'),
+)
+assert.ok(discoverUi.includes('optgroup label="✓ Supported here"'))
+assert.ok(discoverUi.includes("params.set('baseFamily', baseFamily.value)"))
 assert.ok(discoverUi.includes('type CivitaiDiscoverResourceType'))
-assert.ok(CIVITAI_BASE_MODEL_GROUPS.length >= 5)
 
 const enqueue = readFileSync(
   'server/api/lora/download-request.post.ts',

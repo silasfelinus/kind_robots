@@ -1,6 +1,9 @@
 import { defineEventHandler, getQuery } from 'h3'
 import type { Prisma } from '~/prisma/generated/prisma/client'
-import { ArchiveEntryMatchState, ArchiveEntryProcessState } from '~/prisma/generated/prisma/client'
+import {
+  ArchiveEntryMatchState,
+  ArchiveEntryProcessState,
+} from '~/prisma/generated/prisma/client'
 import prisma from '~/server/utils/prisma'
 import { errorHandler } from '~/server/utils/error'
 import { requireAdminApiUser } from '~/server/utils/authGuard'
@@ -35,16 +38,29 @@ export default defineEventHandler(async (event) => {
     }
 
     const folderCollectionId = Number(query.folderCollectionId)
-    if (Number.isInteger(folderCollectionId) && folderCollectionId > 0) where.folderCollectionId = folderCollectionId
-    if (query.processState && (Object.values(ArchiveEntryProcessState) as string[]).includes(query.processState)) {
+    if (Number.isInteger(folderCollectionId) && folderCollectionId > 0)
+      where.folderCollectionId = folderCollectionId
+    if (
+      query.processState &&
+      (Object.values(ArchiveEntryProcessState) as string[]).includes(
+        query.processState,
+      )
+    ) {
       where.processState = query.processState as ArchiveEntryProcessState
     }
-    if (query.matchState && (Object.values(ArchiveEntryMatchState) as string[]).includes(query.matchState)) {
+    if (
+      query.matchState &&
+      (Object.values(ArchiveEntryMatchState) as string[]).includes(
+        query.matchState,
+      )
+    ) {
       where.matchState = query.matchState as ArchiveEntryMatchState
     }
     const rating = Number(query.rating)
-    if (Number.isInteger(rating) && rating >= 1 && rating <= 5) where.rating = rating
-    if (query.search?.trim()) where.relativePath = { contains: query.search.trim() }
+    if (Number.isInteger(rating) && rating >= 1 && rating <= 5)
+      where.rating = rating
+    if (query.search?.trim())
+      where.relativePath = { contains: query.search.trim() }
 
     const page = clampPage(query.page)
     const pageSize = clampPageSize(query.pageSize)
@@ -75,15 +91,73 @@ export default defineEventHandler(async (event) => {
       }),
     ])
 
-    const imageIds = rows.flatMap((entry) => entry.artImageId ? [entry.artImageId] : [])
-    const images = imageIds.length
-      ? await prisma.artImage.findMany({ where: { id: { in: imageIds } }, select: { id: true, path: true } })
-      : []
-    const imagePaths = new Map(images.map((image) => [image.id, image.path]))
-    const entries = rows.map((entry) => ({
-      ...entry,
-      imagePath: entry.artImageId ? imagePaths.get(entry.artImageId) ?? null : null,
-    }))
+    const imageIds = rows.flatMap((entry) =>
+      entry.artImageId ? [entry.artImageId] : [],
+    )
+    const folderCollectionIds = [
+      ...new Set(
+        rows.flatMap((entry) =>
+          entry.folderCollectionId ? [entry.folderCollectionId] : [],
+        ),
+      ),
+    ]
+    const [images, folderCollections] = await Promise.all([
+      imageIds.length
+        ? prisma.artImage.findMany({
+            where: { id: { in: imageIds } },
+            select: {
+              id: true,
+              path: true,
+              thumbnailPath: true,
+              isMature: true,
+              isPublic: true,
+              promptString: true,
+              negativePrompt: true,
+              checkpoint: true,
+              sampler: true,
+              steps: true,
+              seed: true,
+              cfg: true,
+            },
+          })
+        : Promise.resolve([]),
+      folderCollectionIds.length
+        ? prisma.artCollection.findMany({
+            where: { id: { in: folderCollectionIds } },
+            select: { id: true, slug: true, label: true },
+          })
+        : Promise.resolve([]),
+    ])
+    const imagesById = new Map(images.map((image) => [image.id, image]))
+    const folderCollectionsById = new Map(
+      folderCollections.map((collection) => [collection.id, collection]),
+    )
+    const entries = rows.map((entry) => {
+      const artImage = entry.artImageId
+        ? (imagesById.get(entry.artImageId) ?? null)
+        : null
+      return {
+        ...entry,
+        imagePath: artImage?.path ?? null,
+        thumbnailPath: artImage?.thumbnailPath ?? artImage?.path ?? null,
+        isMature: artImage?.isMature ?? false,
+        isPublic: artImage?.isPublic ?? true,
+        prompt: artImage?.promptString ?? null,
+        negativePrompt: artImage?.negativePrompt ?? null,
+        checkpoint: artImage?.checkpoint ?? null,
+        generationMetadata: artImage
+          ? {
+              sampler: artImage.sampler ?? null,
+              steps: artImage.steps ?? null,
+              seed: artImage.seed ?? null,
+              cfg: artImage.cfg ?? null,
+            }
+          : null,
+        folderCollection: entry.folderCollectionId
+          ? (folderCollectionsById.get(entry.folderCollectionId) ?? null)
+          : null,
+      }
+    })
 
     return {
       success: true,

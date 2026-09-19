@@ -1,11 +1,13 @@
 // The fixture-backed ButterflyGalleryActionAdapter (butterfly-gallery/t-007).
-// Implements the same write contract a real art-archive-backed adapter will:
-// callers invoke setProcessed/setRating/trash/restore/addToCollection/
+// Implements the same write contract the real, partially art-archive-backed
+// adapter (butterflyGalleryArtArchiveActionAdapter.ts, t-022) uses: callers
+// invoke setProcessed/setRating/trash/restore/addToCollection/
 // removeFromCollection and never see the difference. A fixture adapter
-// resolves immediately with no external persistence, matching the
-// feed provider's fixture-first precedent (butterflyGalleryFeedProvider.ts).
-// Swapping in a real adapter later (t-022) is a one-line change in
-// defaultButterflyGalleryActionAdapter(), not a store/component rewrite.
+// resolves immediately with no external persistence. This module stays free
+// of the real adapter's own imports (which need the Nuxt runtime) so it
+// keeps working under plain-node contract tests; a client plugin
+// (plugins/butterfly-gallery-art-archive-provider.client.ts) installs the
+// real adapter at app startup via setButterflyGalleryActionAdapter().
 import type { ButterflyGalleryActionAdapter } from '@/types/butterflyGallery'
 
 export function createFixtureButterflyGalleryActionAdapter(): ButterflyGalleryActionAdapter {
@@ -23,8 +25,10 @@ export function createFixtureButterflyGalleryActionAdapter(): ButterflyGalleryAc
 let activeAdapter: ButterflyGalleryActionAdapter =
   createFixtureButterflyGalleryActionAdapter()
 
-/** The adapter the store persists through today. Real art-archive integration
- * calls setButterflyGalleryActionAdapter() with its own implementation. */
+/** The adapter the store persists through today. A client plugin swaps in
+ * the real (partially art-archive-backed) adapter at app startup (see this
+ * file's header comment); resetButterflyGalleryActionAdapter() restores
+ * fixtures for tests. */
 export function defaultButterflyGalleryActionAdapter(): ButterflyGalleryActionAdapter {
   return activeAdapter
 }

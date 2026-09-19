@@ -1,8 +1,11 @@
 // The fixture-backed ButterflyGalleryFeedProvider (butterfly-gallery/t-004).
-// Implements the same feed contract a real art-archive-backed provider will:
-// callers page through fetchPage({ cursor, limit }) and never see the
-// difference. Swapping this out later is a one-line change in
-// defaultButterflyGalleryFeedProvider(), not a store/component rewrite.
+// Implements the same feed contract the real art-archive-backed provider
+// (butterflyGalleryArtArchiveFeedProvider.ts, t-022) uses: callers page
+// through fetchPage({ cursor, limit }) and never see the difference. This
+// module stays free of the real provider's own imports (which need the Nuxt
+// runtime) so it keeps working under plain-node contract tests; a client
+// plugin (plugins/butterfly-gallery-art-archive-provider.client.ts) installs
+// the real provider at app startup via setButterflyGalleryFeedProvider().
 import { createButterflyGalleryFixtureEntries } from '@/stores/helpers/butterflyGalleryFixtures'
 import type {
   ButterflyFeedPage,
@@ -46,8 +49,10 @@ export function createFixtureButterflyGalleryFeedProvider(
 let activeProvider: ButterflyGalleryFeedProvider =
   createFixtureButterflyGalleryFeedProvider()
 
-/** The provider the store reads through today. Real art-archive integration
- * calls setButterflyGalleryFeedProvider() with its own implementation. */
+/** The provider the store reads through today. A client plugin swaps in the
+ * real art-archive-backed provider at app startup (see this file's header
+ * comment); resetButterflyGalleryFeedProvider() restores fixtures for
+ * tests. */
 export function defaultButterflyGalleryFeedProvider(): ButterflyGalleryFeedProvider {
   return activeProvider
 }

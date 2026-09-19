@@ -1108,6 +1108,9 @@ jobs:
       - name: Art Archive filesystem-safety contract
         run: npm run test:art-archive-fileops
 
+      - name: Art Archive thumbnail cache contract
+        run: npm run test:art-archive-thumbnails
+
       - name: Art Archive preset modifiers contract
         run: npm run test:art-archive-preset-modifiers
 

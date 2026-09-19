@@ -83,6 +83,10 @@ export default defineEventHandler(async (event) => {
         : null,
     ])
 
+    // artImage.path is a raw path relative to the private archive root --
+    // not web-servable. Point at the byte-serving route (art-archive/t-029)
+    // instead of the unreachable filesystem path.
+    const hasImage = Boolean(artImage?.path)
     return {
       success: true,
       message: `Archive entry #${id} fetched.`,
@@ -91,6 +95,10 @@ export default defineEventHandler(async (event) => {
           ...entry,
           extractedMetadata: parseJsonSafe(entry.extractedMetadata),
           matchSummary: parseJsonSafe(entry.matchSummary),
+          imagePath: hasImage ? `/api/admin/art-archive/entries/${id}/file` : null,
+          thumbnailPath: hasImage
+            ? `/api/admin/art-archive/entries/${id}/file?variant=thumbnail`
+            : null,
         },
         artImage,
         folderCollection,

@@ -8,6 +8,7 @@ export type ArchiveEntrySummary = {
   parentFolder: string | null
   artImageId: number | null
   imagePath: string | null
+  thumbnailPath: string | null
   folderCollectionId: number | null
   processState: string
   matchState: string
@@ -17,7 +18,9 @@ export type ArchiveEntrySummary = {
 }
 
 export type ArchiveEntryDetail = {
-  entry: Omit<ArchiveEntrySummary, 'imagePath'> & {
+  entry: Omit<ArchiveEntrySummary, 'imagePath' | 'thumbnailPath'> & {
+    imagePath: string | null
+    thumbnailPath: string | null
     extractedMetadata: unknown
     matchSummary: unknown
   }

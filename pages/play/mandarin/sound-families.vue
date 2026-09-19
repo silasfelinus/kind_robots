@@ -10,7 +10,7 @@
 
       <header class="kr-panel-section-plain shadow-lg">
         <p class="kr-text-eyebrow-bold">Sound-family index</p>
-        <h1 class="mt-1 text-3xl font-black sm:text-4xl">One sound clue, many characters</h1>
+        <p class="mt-1 text-3xl font-black sm:text-4xl">One sound clue, many characters</p>
         <p class="kr-text-faded-sm mt-2 max-w-3xl leading-relaxed">
           These families come only from phonetic relationships asserted by the pinned character source. Modern readings are shown side by side, including families whose sounds drifted apart over time.
         </p>
@@ -81,12 +81,17 @@
 import type { MandarinCatalogPayload } from '~/utils/mandarin'
 import { buildMandarinSoundFamilies } from '~/utils/mandarinSoundFamilies'
 
-const query = ref('')
-const { data, pending, error } = await useFetch<{
+type MandarinCatalogResponse = {
   success: boolean
   message: string
   data: MandarinCatalogPayload | null
-}>('/api/mandarin')
+}
+
+const query = ref('')
+// Widen the URL to `string` so Nuxt does not recursively instantiate the entire
+// generated route schema for this simple, explicitly typed payload.
+const mandarinCatalogUrl: string = '/api/mandarin'
+const { data, pending, error } = await useFetch<MandarinCatalogResponse>(mandarinCatalogUrl)
 
 const families = computed(() => buildMandarinSoundFamilies(data.value?.data?.cards ?? []))
 const memberCount = computed(() => new Set(families.value.flatMap((family) => family.members.map((member) => member.key))).size)

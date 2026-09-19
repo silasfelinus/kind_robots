@@ -77,7 +77,7 @@ assert.ok(catalogGenerations.length > 20, 'failed to parse BASEMODEL_MAP')
 for (const generation of catalogGenerations) {
   assert.ok(
     (CIVITAI_BASE_MODELS as readonly string[]).includes(generation),
-    \`catalog base model missing from Discover filter: \${generation}\`,
+    'catalog base model missing from Discover filter: ' + generation,
   )
 }
 
@@ -91,7 +91,7 @@ assert.ok(hintedGenerations.length > 10, 'failed to parse FOLDER_BASE_HINTS')
 for (const generation of hintedGenerations) {
   assert.ok(
     (CIVITAI_BASE_MODELS as readonly string[]).includes(generation),
-    \`folder-detected base model missing from Discover filter: \${generation}\`,
+    'folder-detected base model missing from Discover filter: ' + generation,
   )
 }
 

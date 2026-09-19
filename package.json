@@ -38,6 +38,7 @@
     "test:butterfly-gallery-intro": "tsx utils/scripts/verifyButterflyGalleryIntro.test.ts",
     "test:butterfly-gallery-shortcuts": "tsx utils/scripts/verifyButterflyGalleryShortcuts.test.ts",
     "test:butterfly-gallery-art-archive-feed": "tsx utils/scripts/verifyButterflyGalleryArtArchiveFeedProvider.test.ts",
+    "test:butterfly-gallery-fixture-shape-parity": "tsx utils/scripts/verifyButterflyGalleryFixtureShapeParity.test.ts",
     "art-archive:scan": "tsx utils/scripts/scanArtArchive.ts",
     "art-archive:import": "tsx utils/scripts/importArtArchive.ts",
     "art-archive:apply-resource-match": "tsx utils/scripts/applyArtArchiveResourceMatch.ts",

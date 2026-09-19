@@ -32,10 +32,10 @@
           <div v-if="archive.selectedCount" class="flex flex-wrap gap-2">
             <button v-for="n in 5" :key="`batch-${n}`" type="button" class="kr-btn btn-outline btn-sm" :disabled="archive.actionPending" @dragover.prevent @drop.prevent="onBatchRating(n)" @click="onBatchRating(n)">{{ n }}★</button>
             <button type="button" class="kr-btn btn-error btn-sm" :disabled="archive.actionPending" @dragover.prevent @drop.prevent="requestBatchDelete" @click="requestBatchDelete"><Icon name="kind-icon:trash" class="kr-icon-4" /> Delete selected</button>
-            <button v-for="preset in archive.presets" :key="preset.id" type="button" class="kr-btn btn-outline btn-sm" :title="`${preset.actionType}: preset execution lands with ArtJob wiring in t-016`" @dragover.prevent @drop.prevent="previewPreset(preset.id)" @click="previewPreset(preset.id)"><Icon name="kind-icon:magic" class="kr-icon-4" /> {{ preset.label }}</button>
+            <button v-for="preset in archive.presets" :key="preset.id" type="button" class="kr-btn btn-outline btn-sm" :title="`${preset.actionType}: queue this preset as a durable ArtJob for the selected images`" @dragover.prevent @drop.prevent="previewPreset(preset.id)" @click="previewPreset(preset.id)"><Icon name="kind-icon:magic" class="kr-icon-4" /> {{ preset.label }}</button>
           </div>
           <div v-if="pendingDelete" class="kr-note kr-note-warning flex flex-wrap items-center justify-between gap-3"><span>Move {{ archive.selectedCount }} selected file{{ archive.selectedCount === 1 ? '' : 's' }} to recoverable archive trash?</span><div class="flex gap-2"><button type="button" class="kr-btn btn-error btn-sm" @click="confirmBatchDelete">Confirm delete</button><button type="button" class="kr-btn btn-ghost btn-sm" @click="pendingDelete = false">Cancel</button></div></div>
-          <div v-if="selectedPreset" class="kr-note"><strong>{{ selectedPreset.label }}</strong> is ready for {{ archive.selectedCount }} selected image{{ archive.selectedCount === 1 ? '' : 's' }}. Preset execution is deliberately deferred to the durable ArtJob adapter in t-016; this board does not create a second render queue.</div>
+          <div v-if="selectedPreset" class="kr-note flex flex-wrap items-center justify-between gap-3"><span><strong>{{ selectedPreset.label }}</strong> will queue a durable ArtJob for {{ archive.selectedCount }} selected image{{ archive.selectedCount === 1 ? '' : 's' }}, built from each entry's imported prompt/settings. The current archive file is never touched -- review each render and use Delete separately once satisfied.</span><div class="flex gap-2"><button type="button" class="kr-btn btn-primary btn-sm" :disabled="archive.actionPending" @click="confirmApplyPreset"><span v-if="archive.actionPending" class="kr-spinner-xs" /><span v-else>Queue</span></button><button type="button" class="kr-btn btn-ghost btn-sm" @click="selectedPresetId = null">Cancel</button></div></div>
           <div v-if="archive.batchResult" class="kr-note" :class="archive.batchResult.failed.length ? 'kr-note-warning' : 'kr-note-success'">{{ archive.batchResult.succeeded }} / {{ archive.batchResult.attempted }} succeeded<span v-if="archive.batchResult.failed.length">; {{ archive.batchResult.failed.length }} failed and remain selected.</span></div>
         </section>
 
@@ -88,6 +88,12 @@ async function onBatchRating(rating: number) { if (archive.selectedCount) await 
 function requestBatchDelete() { if (archive.selectedCount) pendingDelete.value = true }
 async function confirmBatchDelete() { pendingDelete.value = false; await archive.quarantineSelected() }
 function previewPreset(id: number) { if (archive.selectedCount) selectedPresetId.value = id }
+async function confirmApplyPreset() {
+  if (!selectedPreset.value) return
+  const presetId = selectedPreset.value.id
+  selectedPresetId.value = null
+  await archive.applyPresetToSelected(presetId)
+}
 
 onMounted(async () => {
   if (!userStore.initialized) await userStore.initialize()

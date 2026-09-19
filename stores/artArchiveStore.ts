@@ -169,6 +169,26 @@ export const useArtArchiveStore = defineStore('artArchiveStore', () => {
     return runBatch(selectedIds.value, (id) => rateEntry(id, rating), 'Rating failed.')
   }
 
+  /** art-archive/t-016: queues a durable ArtJob per selected entry from its
+   * imported ArtImage plus the chosen preset. Never touches the entry's file
+   * or isActive state -- only the existing quarantine action does that, once
+   * an admin has reviewed the resulting render. */
+  async function applyPresetEntry(id: number, presetId: number): Promise<boolean> {
+    actionPending.value = true
+    error.value = ''
+    const response = await performFetch<{ jobId: number; status: string; actionType: string }>(
+      `/api/admin/art-archive/entries/${id}/enqueue`,
+      { method: 'POST', body: JSON.stringify({ presetId }) },
+    )
+    if (!response.success) error.value = response.message || `Could not queue a job for archive entry #${id}.`
+    actionPending.value = false
+    return response.success
+  }
+
+  function applyPresetToSelected(presetId: number) {
+    return runBatch(selectedIds.value, (id) => applyPresetEntry(id, presetId), 'Queueing failed.')
+  }
+
   async function quarantineSelected() {
     const ids = [...selectedIds.value]
     const failed: BatchResult['failed'] = []
@@ -188,5 +208,5 @@ export const useArtArchiveStore = defineStore('artArchiveStore', () => {
     return result
   }
 
-  return { entries, detail, presets, selectedIds, selectedCount, batchResult, loading, detailLoading, actionPending, error, total, page, pageSize, pageCount, filters, folders, fetchEntries, fetchPresets, selectEntry, clearSelection, toggleBatchSelection, clearBatchSelection, quarantineEntry, restoreEntry, rateEntry, rateSelected, quarantineSelected }
+  return { entries, detail, presets, selectedIds, selectedCount, batchResult, loading, detailLoading, actionPending, error, total, page, pageSize, pageCount, filters, folders, fetchEntries, fetchPresets, selectEntry, clearSelection, toggleBatchSelection, clearBatchSelection, quarantineEntry, restoreEntry, rateEntry, rateSelected, quarantineSelected, applyPresetToSelected }
 })

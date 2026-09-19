@@ -72,6 +72,21 @@
             </button>
           </div>
 
+          <button
+            class="btn btn-sm gap-1.5 rounded-2xl"
+            :class="
+              themeStore.showCustom
+                ? 'btn-accent'
+                : 'btn-ghost bg-base-100/80'
+            "
+            type="button"
+            :aria-pressed="themeStore.showCustom"
+            @click="toggleThemeCreator"
+          >
+            <Icon name="kind-icon:palette" class="kr-icon-4" />
+            Creator
+          </button>
+
           <span
             v-if="activeThemeName"
             class="kr-text-black-xs inline-flex max-w-44 items-center gap-1.5 truncate rounded-full border border-accent/40 bg-accent/10 px-2.5 py-1 text-accent"
@@ -92,6 +107,8 @@
 
     <main class="min-h-0 flex-1 overflow-y-auto pr-1">
       <section class="flex flex-col gap-3">
+        <theme-creator v-if="themeStore.showCustom" />
+
         <section v-if="showDefaultThemes" class="kr-panel-flat p-3 shadow">
           <!--
             A SEPARATOR, ONLY WHEN THERE IS SOMETHING TO SEPARATE. This was an
@@ -699,6 +716,17 @@ async function applySharedTheme(theme: Theme): Promise<void> {
   const snapshot = await themeStore.getActiveThemeSnapshot(theme.name)
   inspectValues.value = JSON.stringify(snapshot, null, 2)
   achievementStore.rewardAchievementByCode('theme')
+}
+
+function toggleThemeCreator(): void {
+  const next = !themeStore.showCustom
+
+  if (next) {
+    themeStore.initializeThemeFormIfNeeded()
+  }
+
+  themeStore.setShowCustom(next)
+  themeError.value = ''
 }
 
 function handleThemeEdit(theme: Theme): void {

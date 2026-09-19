@@ -31,8 +31,16 @@ export const DEFAULT_CAST_ART_DIRECTION =
 // cfg 1, which makes the ComfyUI negative prompt inert (see
 // server/api/comfy/krea2/utils/workflow.ts); every constraint has to survive
 // inside the positive prompt.
+//
+// It was NOT stated positively until 2026-09-19, which is the whole point of
+// the comment above. "an unpeopled frame" is the positive half and it works;
+// "with no bystanders, onlookers, or crowd" then names three kinds of people to
+// an engine that cannot act on the "no", and Krea drew them. Every prompt this
+// constant touched between 2026-08-08 and now carries that tail, which is why
+// the crowds the 2026-08-08 sweep was written to remove kept arriving. One
+// adjective does the job the exclusion list was undoing.
 export const DEFAULT_UNPEOPLED_ART_DIRECTION =
-  'an unpeopled frame — the subject stands alone with no bystanders, onlookers, or crowd'
+  'an unpeopled frame, the subject alone, the space around it bare and deserted'
 
 const VAGUE_ART_DIRECTION =
   /\b(?:(?:rich|cohesive|friendly)\s+)?Kind Robots\s+(?:visual\s+)?(?:style|language)\b/gi

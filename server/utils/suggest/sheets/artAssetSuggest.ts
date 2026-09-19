@@ -139,9 +139,11 @@ Rules:
 - Respect the requested format: icon is square and simple; card is 2:3 portrait with layered depth; hero is 16:9 landscape with visual flow and negative space.
 - When an existing artPrompt is supplied in canonical data or as the value to refine, preserve its intended subject and constraints while enriching it with the rest of the record.
 - Never use vague phrases such as “Kind Robots style,” “cohesive visual style,” or “make it cinematic” without concrete visual details.
-- Avoid copyrighted characters, licensed artist styles, readable text, logos, watermarks, and collages.
+- Avoid copyrighted characters and licensed artist styles.
+- NEVER write an exclusion. Not “no text”, not “no logo”, not “no figure”, not “without a face”, not “avoid a crowd” — no negation of any kind, anywhere in the paragraph. The prompt is read by a distilled diffusion transformer running at cfg 1, which has no instruction-following layer and cannot act on a word that holds a noun off. It renders the noun. “no readable text” is how you order lettering; “no figure” is how you order a crowd.
+- Say what the frame DOES contain instead. “every surface bare and unmarked” in place of naming text; “an unpeopled frame, the subject alone” in place of naming people; “one single image filling the frame” in place of naming a collage.
 - Return exactly one prompt paragraph with no label, preamble, markdown, or quotation marks.
-- End with: no readable text, no logo, no watermark, no collage.`,
+- End on a visual note — lighting, material, or mood. Never on a list of things to leave out.`,
   fieldPrompts: {
     prompt:
       'Create the final image-generation prompt for this model-backed asset using all relevant canonical and supporting context.',

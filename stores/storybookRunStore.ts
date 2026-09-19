@@ -290,9 +290,12 @@ export const useStorybookRunStore = defineStore('storybookRunStore', () => {
   )
   const canEndOnDemand = ref(false)
   const readyToResolve = computed(() => {
+    // The server is the ONLY source of truth here (storybook-reading.vue's own
+    // header comment). A budgeted Taskmaster run can finish its quest before its
+    // turn budget runs out (questDone() in server/utils/storybookRuns.ts), and a
+    // local turnIndex > turnBudget guess never sees that.
     if (run.value?.status !== 'ACTIVE') return false
-    if (turnBudget.value === null) return canEndOnDemand.value
-    return turnBudget.value > 0 && turnIndex.value > turnBudget.value
+    return canEndOnDemand.value
   })
   const isComplete = computed(() => run.value?.status === 'COMPLETE')
   /** Cards the reader can actually play this turn. */

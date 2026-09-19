@@ -66,95 +66,184 @@ export const CIVITAI_DISCOVER_TYPES = [
 export type CivitaiDiscoverResourceType =
   (typeof CIVITAI_DISCOVER_TYPES)[number]['resourceType']
 
-export type CivitaiBaseModelGroup = {
+export type CivitaiBaseModelFamily = {
+  id: string
   label: string
-  options: readonly string[]
+  baseModels: readonly string[]
+  kindRobotsSupported: boolean
 }
 
-// Keep the Discover base filter aligned with every base/generation family the
-// local catalog knows how to identify. Exact strings matter: Civitai's
-// `baseModels` filter is an enum, not a fuzzy family search.
-//
-// The contract test cross-checks this list against scan_loras.py BASEMODEL_MAP
-// and scan_models.py FOLDER_BASE_HINTS, so adding a new locally-recognized
-// family without exposing it here fails CI instead of silently shrinking the
-// Discover menu again.
-export const CIVITAI_BASE_MODEL_GROUPS = [
+// The UI chooses a useful FAMILY; the proxy expands it to Civitai's exact
+// BaseModel enum strings. This keeps version noise out of the dropdown without
+// throwing away search coverage. "Supported" means Kind Robots currently has
+// a generation lane/checkpoint family that can actually use LoRAs from that
+// family, so those choices deserve first billing in Discover.
+export const CIVITAI_BASE_MODEL_FAMILIES = [
   {
-    label: 'Krea / Flux',
-    options: [
-      'Krea 2',
-      'Krea 1',
-      'Krea',
-      'Flux.2 D',
-      'Flux.2 Klein 9B',
-      'Flux.1 D',
-      'Flux.1 S',
-      'Flux.1 Kontext',
-      'Flux.1',
-    ],
+    id: 'krea2',
+    label: 'Krea 2',
+    baseModels: ['Krea 2'],
+    kindRobotsSupported: true,
   },
   {
-    label: 'SDXL families',
-    options: [
-      'Pony',
-      'Illustrious',
-      'NoobAI',
-      'SDXL 1.0',
+    id: 'flux2',
+    label: 'FLUX.2',
+    baseModels: [
+      'Flux.2 D',
+      'Flux.2 Klein 9B',
+      'Flux.2 Klein 9B-base',
+      'Flux.2 Klein 4B',
+      'Flux.2 Klein 4B-base',
+    ],
+    kindRobotsSupported: true,
+  },
+  {
+    id: 'sdxl',
+    label: 'SDXL',
+    baseModels: [
       'SDXL 0.9',
+      'SDXL 1.0',
       'SDXL 1.0 LCM',
       'SDXL Distilled',
       'SDXL Turbo',
       'SDXL Lightning',
       'SDXL Hyper',
     ],
+    kindRobotsSupported: true,
   },
   {
-    label: 'Stable Diffusion',
-    options: [
-      'SD 1.4',
-      'SD 1.5',
-      'SD 1.5 LCM',
-      'SD 1.5 Hyper',
-      'SD 2.0',
-      'SD 2.1',
+    id: 'pony',
+    label: 'Pony',
+    baseModels: ['Pony', 'Pony V7'],
+    kindRobotsSupported: true,
+  },
+  {
+    id: 'sd15',
+    label: 'SD 1.5',
+    baseModels: ['SD 1.4', 'SD 1.5', 'SD 1.5 LCM', 'SD 1.5 Hyper'],
+    kindRobotsSupported: true,
+  },
+  {
+    id: 'zimage',
+    label: 'Z-Image',
+    baseModels: ['ZImageTurbo', 'ZImageBase'],
+    kindRobotsSupported: true,
+  },
+  {
+    id: 'flux1',
+    label: 'FLUX.1',
+    baseModels: ['Flux.1 S', 'Flux.1 D', 'Flux.1 Krea', 'Flux.1 Kontext'],
+    kindRobotsSupported: false,
+  },
+  {
+    id: 'illustrious',
+    label: 'Illustrious',
+    baseModels: ['Illustrious'],
+    kindRobotsSupported: false,
+  },
+  {
+    id: 'noobai',
+    label: 'NoobAI',
+    baseModels: ['NoobAI'],
+    kindRobotsSupported: false,
+  },
+  {
+    id: 'sd2',
+    label: 'SD 2.x',
+    baseModels: ['SD 2.0', 'SD 2.0 768', 'SD 2.1', 'SD 2.1 768', 'SD 2.1 Unclip'],
+    kindRobotsSupported: false,
+  },
+  {
+    id: 'sd3',
+    label: 'SD 3 / 3.5',
+    baseModels: [
       'SD 3',
       'SD 3.5',
       'SD 3.5 Medium',
       'SD 3.5 Large',
+      'SD 3.5 Large Turbo',
     ],
+    kindRobotsSupported: false,
   },
   {
-    label: 'Other image families',
-    options: [
-      'ZImage',
-      'Z-Image Turbo',
-      'Qwen',
+    id: 'qwen',
+    label: 'Qwen',
+    baseModels: ['Qwen'],
+    kindRobotsSupported: false,
+  },
+  {
+    id: 'other-image',
+    label: 'Other image',
+    baseModels: [
       'Kolors',
-      'PixArt A',
+      'PixArt a',
       'PixArt E',
       'AuraFlow',
+      'Chroma',
+      'HiDream',
+      'Lumina',
+      'Stable Cascade',
+      'Anima',
     ],
+    kindRobotsSupported: false,
   },
   {
-    label: 'Video / multimodal',
-    options: [
-      'Hunyuan',
+    id: 'video',
+    label: 'Video',
+    baseModels: [
       'Hunyuan Video',
-      'Wan Video',
-      'Wan Video 14B i2v 480p',
+      'Mochi',
       'LTXV',
-      'LTX Video',
-      'SVD Video',
-      'Audio',
-      '3D',
+      'LTXV2',
+      'LTXV 2.3',
+      'LTXV 2.5',
+      'SVD',
+      'SVD XT',
+      'Wan Video',
+      'Wan Video 1.3B t2v',
+      'Wan Video 14B t2v',
+      'Wan Video 14B i2v 480p',
+      'Wan Video 14B i2v 720p',
+      'Wan Video 2.2 I2V-A14B',
+      'Wan Video 2.2 T2V-A14B',
+      'Wan Video 2.2 TI2V-5B',
+      'Wan Video 2.5 T2V',
+      'Wan Video 2.5 I2V',
     ],
+    kindRobotsSupported: false,
   },
-] as const satisfies readonly CivitaiBaseModelGroup[]
+] as const satisfies readonly CivitaiBaseModelFamily[]
 
-export const CIVITAI_BASE_MODELS = CIVITAI_BASE_MODEL_GROUPS.flatMap(
-  (group) => group.options,
+export type CivitaiBaseModelFamilyId =
+  (typeof CIVITAI_BASE_MODEL_FAMILIES)[number]['id']
+
+export const CIVITAI_SUPPORTED_BASE_MODEL_FAMILIES =
+  CIVITAI_BASE_MODEL_FAMILIES.filter((family) => family.kindRobotsSupported)
+
+export const CIVITAI_OTHER_BASE_MODEL_FAMILIES =
+  CIVITAI_BASE_MODEL_FAMILIES.filter((family) => !family.kindRobotsSupported)
+
+export const CIVITAI_BASE_MODELS = CIVITAI_BASE_MODEL_FAMILIES.flatMap(
+  (family) => family.baseModels,
 )
+
+export function civitaiBaseModelsForFamily(value: unknown): readonly string[] {
+  const candidate = String(value ?? '').trim()
+  if (!candidate) return []
+
+  const family = CIVITAI_BASE_MODEL_FAMILIES.find(
+    (entry) => entry.id === candidate,
+  )
+  if (family) return family.baseModels
+
+  // Backward compatibility for bookmarked URLs from the earlier exact-value
+  // dropdown. New UI only emits family ids.
+  return CIVITAI_BASE_MODELS.includes(
+    candidate as (typeof CIVITAI_BASE_MODELS)[number],
+  )
+    ? [candidate]
+    : []
+}
 
 export function civitaiDiscoverType(
   value: unknown,

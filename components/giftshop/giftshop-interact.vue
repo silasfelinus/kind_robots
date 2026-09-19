@@ -104,14 +104,24 @@
                 to this cart.
               </p>
 
-              <button
-                type="button"
-                class="btn btn-secondary btn-sm mt-auto rounded-2xl"
-                @click="addCatalogItem(donationCatalogEntry)"
-              >
-                <Icon name="kind-icon:plus" class="kr-icon-4" />
-                Add $1 to cart
-              </button>
+              <div class="mt-auto flex flex-wrap gap-2">
+                <NuxtLink
+                  to="/giving"
+                  class="btn btn-secondary btn-sm rounded-2xl"
+                >
+                  <Icon name="kind-icon:gift" class="kr-icon-4" />
+                  Give directly
+                </NuxtLink>
+
+                <button
+                  type="button"
+                  class="btn btn-outline btn-sm rounded-2xl"
+                  @click="addCatalogItem(donationCatalogEntry)"
+                >
+                  <Icon name="kind-icon:plus" class="kr-icon-4" />
+                  Add $1
+                </button>
+              </div>
             </article>
 
             <article class="flex min-h-52 flex-col kr-panel-muted-md">

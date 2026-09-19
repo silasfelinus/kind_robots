@@ -256,7 +256,8 @@
                 </span>
               </div>
               <div
-                class="absolute inset-0 bg-linear-to-t from-base-300/90 via-transparent to-transparent"
+                class="absolute inset-0 bg-linear-to-t via-transparent to-transparent"
+                :class="mode === 'cards' ? 'from-black/75' : 'from-base-300/90'"
               />
               <div
                 v-if="item.badges?.length"
@@ -272,7 +273,7 @@
                 </span>
               </div>
               <kr-deferred-image
-                v-if="item.icon && !failedArt.has(item.icon)"
+                v-if="mode !== 'cards' && item.icon && !failedArt.has(item.icon)"
                 :src="item.icon"
                 alt=""
                 class="absolute bottom-2 left-2 size-11 rounded-xl border border-white/25 object-cover shadow"

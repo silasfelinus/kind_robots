@@ -1,7 +1,7 @@
 {
   "note": "ESLint RATCHET: this file may only ever shrink. --update refuses to record a larger count. See utils/scripts/verifyLintRatchet.ts.",
-  "recorded": "2026-09-14",
-  "total": 331,
+  "recorded": "2026-09-19",
+  "total": 330,
   "violations": {
     "vue/v-on-event-hyphenation": [
       "app.vue:49:22"

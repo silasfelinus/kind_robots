@@ -113,6 +113,11 @@ assert.match(
 )
 assert.match(
   giftshop,
+  /AMF add-on[\s\S]*to="\/giving"[\s\S]*Give directly[\s\S]*Add \$1/,
+  'AMF direct-giving and cart add-on actions must live with the AMF card rather than in a detached staging banner',
+)
+assert.match(
+  giftshop,
   /POD preview[\s\S]*Posters, shirts, stickers, and mugs[\s\S]*physicalCatalog/,
   'giftshop must surface the physical POD catalog even before vendor fulfillment is enabled',
 )

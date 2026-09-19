@@ -72,7 +72,9 @@ const catalogMap =
   loraScanner.match(/BASEMODEL_MAP:[\s\S]*?\n}\n\n\ndef map_base/)?.[0] ?? ''
 const catalogGenerations = [...catalogMap.matchAll(
   /:\s*\("[A-Z0-9_]+",\s*"([^"]+)"\),/g,
-)].map((match) => match[1])
+)]
+  .map((match) => match[1])
+  .filter((value): value is string => Boolean(value))
 assert.ok(catalogGenerations.length > 20, 'failed to parse BASEMODEL_MAP')
 for (const generation of catalogGenerations) {
   assert.ok(
@@ -86,7 +88,9 @@ const folderHints =
   modelScanner.match(/FOLDER_BASE_HINTS = \[[\s\S]*?\n\]\n\n\ndef checkpoint_group/)?.[0] ?? ''
 const hintedGenerations = [...folderHints.matchAll(
   /\("[^"]+",\s*"[A-Z0-9_]+",\s*"([^"]+)"\),/g,
-)].map((match) => match[1])
+)]
+  .map((match) => match[1])
+  .filter((value): value is string => Boolean(value))
 assert.ok(hintedGenerations.length > 10, 'failed to parse FOLDER_BASE_HINTS')
 for (const generation of hintedGenerations) {
   assert.ok(

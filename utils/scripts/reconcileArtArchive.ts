@@ -10,12 +10,33 @@
 // and ledger state. Mirrors importArtArchive.ts's shape (same --root/--user-id
 // flags, read-then-report structure).
 //
+// --dry-run (art-archive/t-019): before the first large import against the
+// real archive, report the same new/changed/moved/copied/missing counts plus
+// per-file resource-match evidence (t-023's matchArchiveResources) WITHOUT
+// calling reconcileArchiveScan/importArchiveFile at all -- this mode never
+// opens a Prisma write, so it is safe to run against production data with no
+// transaction risk. The privacy invariant it reports (every proposed
+// ArtImage/ArtCollection write is forced private+mature) is not re-derived
+// here -- it is a structural property of importArchiveFile()/
+// ensureFolderCollection() enforced by utils/scripts/verifyArtArchiveImporter.mjs.
+//
 // Usage:
 //   PRIVATE_PATH=/path/to/archive npx tsx utils/scripts/reconcileArtArchive.ts
 //   npx tsx utils/scripts/reconcileArtArchive.ts --root /path/to/archive --user-id 1
+//   npx tsx utils/scripts/reconcileArtArchive.ts --dry-run
 import { getArtArchiveRoot } from '../../server/utils/artArchiveRoot'
-import { scanArchiveRoot } from '../../server/utils/artArchiveScanner'
-import { loadKnownArchiveFiles, reconcileArchiveScan } from '../../server/utils/artArchiveReconciler'
+import { scanArchiveRoot, type ArchiveScanResult } from '../../server/utils/artArchiveScanner'
+import {
+  loadKnownArchiveFiles,
+  reconcileArchiveScan,
+  planArchiveReconciliation,
+  type ArchiveLedgerEntry,
+} from '../../server/utils/artArchiveReconciler'
+import {
+  matchArchiveResources,
+  type ResourceMatchConfidence,
+  type ResourceMatchOutcome,
+} from '../../server/utils/artArchiveResourceMatch'
 import prisma from '../../server/utils/prisma'
 
 function resolveRootArg(): string | null {
@@ -31,11 +52,81 @@ function resolveUserIdArg(): number {
   return Number.isInteger(parsed) && parsed > 0 ? parsed : 1
 }
 
+/**
+ * Read-only plan + resource-match report for a scan, with zero Prisma writes:
+ * fetches the existing ledger, runs it through the pure planner, and matches
+ * each file's embedded generation metadata against the active Resource pool.
+ * Mirrors importArtArchive.ts's per-file matching loop but never calls
+ * importArchiveFile()/reconcileArchiveScan() -- safe to run against the real
+ * production archive before the first bulk import.
+ */
+async function runDryRun(scan: ArchiveScanResult): Promise<void> {
+  const existingEntries: ArchiveLedgerEntry[] = await prisma.archiveEntry.findMany({
+    where: { isActive: true, processState: { not: 'MISSING' } },
+    select: { id: true, relativePath: true, contentHash: true },
+  })
+  const plan = planArchiveReconciliation(scan.files, existingEntries)
+  const countOf = (kind: string) => plan.actions.filter((a) => a.kind === kind).length
+
+  let filesWithMatchEvidence = 0
+  let unmatchedModels = 0
+  const confidenceCounts: Record<ResourceMatchConfidence, number> = { hash: 0, exact: 0, suggested: 0 }
+
+  for (const file of scan.files) {
+    const matches = await matchArchiveResources(
+      file.metadata,
+      file.relativePath,
+      file.parentFolder,
+      prisma.resource,
+    )
+    const outcomes = [matches.checkpoint, ...matches.loras].filter(
+      (outcome): outcome is ResourceMatchOutcome => outcome !== null,
+    )
+    if (outcomes.length > 0) filesWithMatchEvidence += 1
+    for (const outcome of outcomes) {
+      if (outcome.candidates.length > 0) {
+        for (const candidate of outcome.candidates) confidenceCounts[candidate.confidence] += 1
+      } else if (outcome.unmatched) {
+        unmatchedModels += 1
+      }
+    }
+  }
+
+  console.log(`Art Archive DRY-RUN reconciliation of ${scan.root} -- NO DATABASE WRITES PERFORMED`)
+  console.log(`  files scanned:            ${scan.files.length}`)
+  console.log(`  served from cache:        ${scan.cacheHitCount} (skipped re-read/re-hash)`)
+  console.log(`  scan issues:              ${scan.issues.length}`)
+  console.log(`  would import (new):       ${countOf('new')}`)
+  console.log(`  unchanged:                ${countOf('unchanged')}`)
+  console.log(`  would update (changed):   ${countOf('changed')}`)
+  console.log(`  would re-key (moved):     ${countOf('moved')}`)
+  console.log(`  would create (copied):    ${countOf('copied')}`)
+  console.log(`  would mark missing:       ${plan.missing.length}`)
+  console.log(`  files w/ match evidence:  ${filesWithMatchEvidence}`)
+  console.log(
+    `  resource-match candidates by confidence: hash=${confidenceCounts.hash} exact=${confidenceCounts.exact} suggested=${confidenceCounts.suggested}`,
+  )
+  console.log(`  unmatched embedded model evidence: ${unmatchedModels}`)
+  console.log(
+    '  privacy invariant: every proposed ArtImage/ArtCollection write is forced to isPublic=false, ' +
+      "isMature=true by the importer's own write path (enforced by test:art-archive-importer, " +
+      'not re-derived here).',
+  )
+  console.log('  This was a dry run -- no ArchiveEntry/ArtImage/ArtCollection rows were created or changed.')
+}
+
 async function main() {
   const root = resolveRootArg() ?? getArtArchiveRoot()
   const userId = resolveUserIdArg()
+  const dryRun = process.argv.includes('--dry-run')
   const knownFiles = await loadKnownArchiveFiles()
   const scan = await scanArchiveRoot(root, { knownFiles })
+
+  if (dryRun) {
+    await runDryRun(scan)
+    return
+  }
+
   const result = await reconcileArchiveScan(scan, userId)
 
   const countOf = (kind: string) => result.outcomes.filter((o) => o.kind === kind).length

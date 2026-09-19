@@ -196,10 +196,25 @@ export async function scanArchiveRoot(
     try {
       const fileStat = await stat(filePath)
       const known = knownFiles?.get(relativePath)
-      // Trust the cache only when size AND mtime still match exactly -- either
+      // Trust the cache only when size AND mtime still match -- either
       // changing is proof the file's bytes may have too, and a false cache
       // hit would silently propagate a stale hash/metadata pair.
-      if (known && known.fileSize === fileStat.size && known.fileMtimeMs === fileStat.mtimeMs) {
+      //
+      // Truncate the live stat's mtime to whole milliseconds before
+      // comparing: `known.fileMtimeMs` is always derived from a JS `Date`
+      // (ScannedArchiveFile.fileMtime is a Date, and the DB round trip through
+      // ArchiveEntry.fileMtime is one too), and `Date` can only hold
+      // integer-millisecond precision -- it truncates toward zero. A raw
+      // `fs.stat()` result carries sub-millisecond precision on any POSIX
+      // filesystem with nanosecond mtimes (ext4, xfs, ...), so
+      // `fileStat.mtimeMs` is a non-integer float in practice essentially
+      // every time. Comparing it unrounded against an always-integer
+      // `known.fileMtimeMs` made this cache hit almost never fire in
+      // production -- every repeat scan silently re-read and re-hashed every
+      // file's full bytes regardless of whether it had changed, defeating
+      // the whole point of this cache (art-archive/t-030).
+      const fileMtimeMsTruncated = Math.trunc(fileStat.mtimeMs)
+      if (known && known.fileSize === fileStat.size && known.fileMtimeMs === fileMtimeMsTruncated) {
         cacheHitCount += 1
         files.push({
           relativePath,

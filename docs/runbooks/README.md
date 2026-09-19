@@ -6,3 +6,4 @@ Coding agents do not have a standing direct database lane. Ordinary record chang
 - [ProxySQL connection capacity](./proxysql-connection-capacity.md)
 - [Connection-capacity investigation](./connection-capacity-investigation.md) — the 2026-08-04 frontend-session exhaustion
 - [Payment environment configuration](./payment-environment.md)
+- [Rotating the admin token](./admin-token-rotation.md) — replacing the shared `ADMIN_TOKEN` / `KR_API_TOKEN` value, and every consumer that has to move with it

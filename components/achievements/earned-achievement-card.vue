@@ -1,25 +1,27 @@
-<!-- /components/content/achievements/earned-achievement-card.vue -->
 <template>
-  <div
-    class="card bg-base-300 border hover:bg-accent-dark hover:shadow-xl rounded-2xl p-4 m-2 transition duration-300 ease-in-out relative"
+  <article
+    class="card relative h-full min-h-64 rounded-2xl border border-base-300 bg-base-300 p-4 transition duration-300 ease-in-out hover:border-primary/30 hover:shadow-lg"
   >
-    <div class="absolute top-2 right-2 z-6">
-      <Icon name="ph:star-bold" class="text-yellow-400 text-4xl" />
-    </div>
-    <div class="text-center">
+    <Icon
+      name="kind-icon:star"
+      class="absolute right-3 top-3 z-6 text-3xl text-warning"
+      aria-label="Earned achievement"
+    />
+
+    <div class="flex h-full flex-col items-center text-center">
       <kr-deferred-image
         v-if="achievement.imagePath"
         :src="achievement.imagePath"
         :alt="achievement.label"
-        class="mx-auto mb-2 h-24 w-24 rounded-2xl object-cover"
+        class="mb-3 h-24 w-24 rounded-2xl object-cover"
       />
       <Icon
         v-else
         :name="achievement.icon ?? 'kind-icon:map'"
-        class="text-9xl mb-2 md:w-16 md:h-16"
+        class="mb-3 size-16 text-primary"
       />
 
-      <div class="kr-text-bold-2xl">
+      <div class="kr-text-black-xl max-w-full">
         <a
           v-if="achievement.pageHint"
           :href="achievement.pageHint"
@@ -31,39 +33,47 @@
           {{ achievement.label }}
         </template>
       </div>
-      <div class="text-base mb-2">
+
+      <p class="kr-text-dim-sm mt-1 line-clamp-2">
         {{ achievement.subtleHint }}
-      </div>
-      <div class="text-base italic">
+      </p>
+      <p class="mt-3 line-clamp-2 text-sm italic text-base-content/75">
         {{ achievement.tooltip }}
-      </div>
-      <div class="text-xs">
-        Earned on:
-        {{
-          acquiredAt
-            ? new Date(acquiredAt).toLocaleDateString('en-US', {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric',
-              })
-            : 'Unknown'
-        }}
-      </div>
-      <div class="text-xs">Karma: +{{ achievement.karma }}</div>
-      <div>
-        <div class="text-lg">You discovered 1 Jellybean!</div>
-        <Icon name="kind-icon:jellybean" class="text-9xl" />
+      </p>
+
+      <div class="mt-auto flex flex-wrap justify-center gap-2 pt-4">
+        <span class="kr-badge-ghost-sm">Earned {{ earnedDate }}</span>
+        <span class="kr-badge-ghost-sm">+{{ achievement.karma }} karma</span>
+        <span class="kr-badge-primary-sm inline-flex items-center gap-1">
+          <Icon name="kind-icon:jellybean" class="kr-icon-3-5" />
+          1 jellybean
+        </span>
       </div>
     </div>
-  </div>
+  </article>
 </template>
 
 <script setup lang="ts">
-import type { Achievement } from './../../stores/achievementStore'
+import { computed } from 'vue'
+import type { Achievement } from '~/prisma/generated/prisma/client'
 
 const props = defineProps<{
   achievement: Achievement
   acquiredAt: string | null
 }>()
-const { achievement } = props
+
+const earnedDate = computed(() => {
+  if (!props.acquiredAt) return 'date unknown'
+
+  const date = new Date(props.acquiredAt)
+  if (Number.isNaN(date.getTime())) return 'date unknown'
+
+  return date.toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+  })
+})
+
+const achievement = props.achievement
 </script>

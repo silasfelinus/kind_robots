@@ -1,40 +1,34 @@
-<!-- /components/content/achievements/unearned-achievement-card.vue -->
 <template>
-  <!-- Unachieved Achievement Card -->
-  <div
-    class="card bg-base-300 hover:bg-accent-dark hover:shadow-xl rounded-2xl p-4 m-2 border transition duration-300 ease-in-out relative"
+  <article
+    class="card relative h-full min-h-48 rounded-2xl border border-base-300 bg-base-300 p-4 transition duration-300 ease-in-out hover:border-primary/25 hover:shadow-lg"
   >
-    <div class="text-center flex flex-col items-center">
-      <!-- Achievement Icon (art stays hidden until the bean is earned) -->
+    <div class="flex h-full flex-col items-center text-center">
       <Icon
-        :name="props.achievement.icon ?? 'kind-icon:map'"
-        class="Icon-extra-large mb-2"
+        :name="achievement.icon ?? 'kind-icon:map'"
+        class="kr-icon-8 mb-3 text-base-content/70"
       />
-      <!-- Achievement Label -->
-      <div class="kr-text-bold-xl text-gray-700">
+
+      <h3 class="kr-text-black-lg text-base-content">
         {{ achievement.label }}
-      </div>
-      <!-- Subtle Hint -->
-      <div class="text-sm text-gray-500">
+      </h3>
+      <p class="kr-text-dim-sm mt-1 line-clamp-2">
         {{ achievement.subtleHint }}
-      </div>
-      <!-- Tooltip Toggle -->
-      <div
-        class="mt-4 relative"
-        role="button"
-        tabindex="0"
-        aria-expanded="false"
-        @click="toggleTooltip"
-      >
-        <Icon
-          v-if="!revealTooltip"
-          name="kind-icon:question"
-          class="text-accent text-2xl"
-          aria-label="Click for hint"
-        />
+      </p>
+
+      <div class="relative mt-auto pt-4">
+        <button
+          type="button"
+          class="btn btn-ghost btn-sm btn-circle text-accent"
+          :aria-expanded="revealTooltip"
+          :aria-label="revealTooltip ? 'Hide achievement hint' : 'Show achievement hint'"
+          @click="toggleTooltip"
+        >
+          <Icon name="kind-icon:question" class="kr-icon-5" />
+        </button>
+
         <div
-          v-else
-          class="text-sm p-2 absolute bg-base-200 rounded-lg shadow-lg top-full mt-2 text-gray-700"
+          v-if="revealTooltip"
+          class="absolute bottom-full left-1/2 z-10 mb-2 w-56 max-w-[70vw] -translate-x-1/2 rounded-xl border border-base-300 bg-base-100 p-3 text-sm text-base-content shadow-xl"
           role="tooltip"
           aria-live="polite"
         >
@@ -42,24 +36,21 @@
         </div>
       </div>
     </div>
-  </div>
+  </article>
 </template>
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import type { Achievement } from './../../stores/achievementStore'
+import type { Achievement } from '~/prisma/generated/prisma/client'
 
 const props = defineProps<{
   achievement: Achievement
 }>()
 
-// State for tooltip visibility
+const achievement = props.achievement
 const revealTooltip = ref(false)
-
-// Tooltip timer
 let timerId: ReturnType<typeof setTimeout> | null = null
 
-// Toggle tooltip with timer to auto-hide
 const toggleTooltip = () => {
   if (timerId) clearTimeout(timerId)
   revealTooltip.value = !revealTooltip.value
@@ -67,7 +58,7 @@ const toggleTooltip = () => {
   if (revealTooltip.value) {
     timerId = setTimeout(() => {
       revealTooltip.value = false
-    }, 1200) // Tooltip closes after 1.2 seconds
+    }, 2400)
   }
 }
 </script>

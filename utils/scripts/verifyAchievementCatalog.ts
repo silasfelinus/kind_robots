@@ -162,6 +162,52 @@ assert.ok(
   'Unearned achievement cards must keep artwork hidden.',
 )
 
+const achievementGallery = source(
+  'components/achievements/achievement-gallery.vue',
+)
+const achievementLeaderboard = source(
+  'components/achievements/achievement-leaderboard.vue',
+)
+const earnedHeading = achievementGallery.indexOf('>Earned</h2>')
+const leaderboardMount = achievementGallery.indexOf('<achievement-leaderboard')
+const undiscoveredHeading = achievementGallery.indexOf('>Undiscovered</h2>')
+
+assert.ok(
+  earnedHeading >= 0 &&
+    leaderboardMount > earnedHeading &&
+    undiscoveredHeading > leaderboardMount,
+  'Achievements must flow earned cards first, leaderboard as a peer card, then undiscovered achievements below.',
+)
+assert.ok(
+  achievementGallery.includes(
+    'container: achievement-grid / inline-size;',
+  ) &&
+    achievementGallery.includes(
+      '@container achievement-grid (min-width: 42rem)',
+    ) &&
+    achievementGallery.includes(
+      '@container achievement-grid (min-width: 66rem)',
+    ) &&
+    !achievementGallery.includes('lg:grid-cols-3'),
+  'Achievement rows must size to their container at one, two, or three cards instead of restoring the fixed three-column page.',
+)
+assert.ok(
+  achievementGallery.includes(
+    ".achievement-leaderboard-cell[data-has-earned='true']",
+  ) &&
+    achievementGallery.includes('grid-column: 2;') &&
+    achievementGallery.includes(
+      ".achievement-leaderboard-cell[data-has-earned='true'][data-earned-before='2']",
+    ) &&
+    achievementGallery.includes('grid-column: 3;'),
+  'The leaderboard must occupy the last available slot on the first earned row at multi-card widths.',
+)
+assert.ok(
+  achievementLeaderboard.includes('class="card h-full min-h-48') &&
+    !achievementLeaderboard.includes(' m-2'),
+  'The leaderboard must render as an achievement-sized card, not a dedicated column panel.',
+)
+
 const generator = source('scripts/generate_achievement_art.ts')
 assert.ok(
   generator.includes("entityType: 'achievement'") &&

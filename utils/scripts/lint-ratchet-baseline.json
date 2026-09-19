@@ -1,13 +1,12 @@
 {
   "note": "ESLint RATCHET: this file may only ever shrink. --update refuses to record a larger count. See utils/scripts/verifyLintRatchet.ts.",
-  "recorded": "2026-09-14",
-  "total": 331,
+  "recorded": "2026-09-19",
+  "total": 330,
   "violations": {
     "vue/v-on-event-hyphenation": [
       "app.vue:49:22"
     ],
     "@typescript-eslint/no-explicit-any": [
-      "components/achievements/achievement-gallery.vue:179:42",
       "components/giftshop/subscription-manager.vue:100:17",
       "components/giftshop/subscription-manager.vue:112:17",
       "server/api/bots/[id].patch.ts:40:24",

@@ -15,6 +15,7 @@ import { errorHandler } from '../../utils/error'
 import { requireApiUser } from '../../utils/authGuard'
 import { effectiveShowMature } from '~/server/utils/contentAccess'
 import {
+  civitaiBaseModelsForFamily,
   civitaiDiscoverType,
   resourceTypeForCivitaiModelType,
   type CivitaiDiscoverResourceType,
@@ -95,7 +96,7 @@ async function browseCivitai(options: {
   q: string
   limit: number
   cursor: string
-  baseModel: string
+  baseModels: readonly string[]
   nsfw: boolean
   type: BrowseResourceType
 }): Promise<{ cards: BrowseCard[]; nextCursor: string | null }> {
@@ -107,7 +108,9 @@ async function browseCivitai(options: {
   })
   if (options.q) params.set('query', options.q)
   if (options.cursor) params.set('cursor', options.cursor)
-  if (options.baseModel) params.set('baseModels', options.baseModel)
+  for (const baseModel of options.baseModels) {
+    params.append('baseModels', baseModel)
+  }
 
   const payload = (await ofetch(`${CIVITAI_MODELS_URL}?${params.toString()}`, {
     headers: { accept: 'application/json' },
@@ -116,7 +119,12 @@ async function browseCivitai(options: {
 
   const cards = (Array.isArray(payload.items) ? payload.items : [])
     .map((model): BrowseCard | null => {
-      const version = model.modelVersions?.[0]
+      const version =
+        (options.baseModels.length
+          ? model.modelVersions?.find((candidate) =>
+              options.baseModels.includes(candidate.baseModel ?? ''),
+            )
+          : null) ?? model.modelVersions?.[0]
       if (!model.id || !version?.id) return null
 
       const primaryFile =
@@ -319,7 +327,9 @@ export default defineEventHandler(async (event) => {
           q,
           limit: clampInt(query.limit, 24, 1, 50),
           cursor: String(query.cursor ?? '').trim(),
-          baseModel: String(query.baseModel ?? '').trim(),
+          baseModels: civitaiBaseModelsForFamily(
+            query.baseFamily ?? query.baseModel,
+          ),
           nsfw: allowMature && requestedNsfw,
           type,
         })

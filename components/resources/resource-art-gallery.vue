@@ -91,6 +91,7 @@
         :modes="[]"
         density="xs"
         empty-label="images"
+        :reload-key="reloadKey"
         @open="openItem"
       />
 
@@ -304,7 +305,13 @@ const originSummary = computed<string>(() => {
 
 const totalCount = computed(() => items.value.length)
 
+const reloadKey = ref(0)
+
 function refresh(): void {
+  // Also forgives images that failed to load: refetching alone produced the
+  // same urls, which kr-gallery had already blacklisted, so Refresh could not
+  // bring back a picture that blipped on its first attempt.
+  reloadKey.value += 1
   void resourceGalleryStore.loadResourceArt(props.resourceId, { force: true })
 }
 

@@ -14,7 +14,7 @@ import { pickLatestArchiveEntryJobs } from '../../server/utils/pickLatestArchive
     {
       id: 30,
       status: 'DONE',
-      payload: JSON.stringify({ archiveEntryId: 5, archivePresetId: 2 }),
+      payload: JSON.stringify({ archiveEntryId: 5, archivePresetId: 2, actionType: 'ADD_LORA' }),
       updatedAt: '2026-09-19T10:00:00.000Z',
       error: null,
     },
@@ -45,8 +45,10 @@ import { pickLatestArchiveEntryJobs } from '../../server/utils/pickLatestArchive
   assert.equal(result[5]?.jobId, 30, 'keeps the newest (first-seen) job per entry id, not the last')
   assert.equal(result[5]?.status, 'DONE')
   assert.equal(result[5]?.archivePresetId, 2)
+  assert.equal(result[5]?.actionType, 'ADD_LORA', 'actionType is read directly from the payload, independent of archivePresetId')
   assert.equal(result[7]?.jobId, 15)
   assert.equal(result[7]?.archivePresetId, null, 'a missing archivePresetId in the payload stays null, never throws')
+  assert.equal(result[7]?.actionType, null, 'a missing actionType in the payload stays null, never throws')
   assert.equal(result[999], undefined, 'an entry id with no matching job is simply absent from the result')
   assert.equal(Object.keys(result).length, 2, 'a row with no archiveEntryId at all is ignored')
 }

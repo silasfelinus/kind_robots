@@ -39,10 +39,14 @@ export class ArchiveEnqueueError extends Error {}
  * ArtImage has no promptString to build from -- there is nothing a preset
  * merge can do with an empty base.
  *
- * The result is tagged with `archiveEntryId`/`archivePresetId` (matching how
- * enqueue.post.ts already tags narrativeContext/brainstormContext onto a
- * payload) purely for provenance/traceability; these are not consumed by any
- * engine workflow builder.
+ * The result is tagged with `archiveEntryId`/`archivePresetId`/`actionType`
+ * (matching how enqueue.post.ts already tags narrativeContext/
+ * brainstormContext onto a payload) purely for provenance/traceability;
+ * these are not consumed by any engine workflow builder. `actionType` is
+ * tagged independently of `archivePresetId` (art-archive/t-034) so a report
+ * or the job-status board can read it directly from the durable payload
+ * instead of re-resolving it through the ArchiveActionPreset row, which can
+ * later be edited or deleted out from under an already-queued job.
  */
 export function buildArchiveEnqueuePayload(input: {
   archiveEntryId: number
@@ -81,5 +85,6 @@ export function buildArchiveEnqueuePayload(input: {
   const merged = applyArchivePresetToPayload(actionType, modifiers, basePayload)
   merged.archiveEntryId = archiveEntryId
   merged.archivePresetId = presetId
+  merged.actionType = actionType
   return merged
 }

@@ -10,9 +10,55 @@
 // ArtCollection if the parent folder changed; a missing entry gets
 // `processState: MISSING` rather than being deleted.
 import prisma from '~/server/utils/prisma'
-import type { ArchiveScanResult, ScannedArchiveFile } from './artArchiveScanner'
+import type { ArchiveScanResult, KnownArchiveFile, ScannedArchiveFile } from './artArchiveScanner'
+import type { ExtractedArchiveMetadata } from './artArchiveMetadata'
 import { importArchiveFile, type ArchiveImportResult } from './artArchiveImporter'
 import { planArchiveReconciliation, type ArchiveReconciliationAction, type MissingArchiveEntry } from './artArchiveReconcilerPlan'
+
+/**
+ * Loads the live ArchiveEntry ledger into the `knownFiles` shape
+ * `scanArchiveRoot()` accepts, so a repeated/scheduled scan (this reconciler's
+ * whole purpose, per its own module doc) can skip re-reading and re-hashing
+ * every unchanged file's bytes (art-archive/t-018). A row whose
+ * `extractedMetadata` is missing or fails to parse (a legacy/corrupt row) is
+ * left out of the map entirely -- that file then falls back to a full
+ * read+hash+extract on the next scan, which is always correct, just not
+ * cache-accelerated.
+ */
+export async function loadKnownArchiveFiles(): Promise<Map<string, KnownArchiveFile>> {
+  const rows = await prisma.archiveEntry.findMany({
+    where: { isActive: true, processState: { not: 'MISSING' } },
+    select: {
+      relativePath: true,
+      contentHash: true,
+      fileSize: true,
+      fileMtime: true,
+      extractedMetadata: true,
+    },
+  })
+
+  const known = new Map<string, KnownArchiveFile>()
+  for (const row of rows) {
+    // Both are nullable in the schema for rows written before t-003 tracked
+    // them -- without a real size/mtime to compare against, this row can
+    // never safely satisfy the cache's exact-match check, so leave it out
+    // rather than caching a comparison that can't be trusted.
+    if (row.fileSize == null || row.fileMtime == null || !row.extractedMetadata) continue
+    let metadata: ExtractedArchiveMetadata
+    try {
+      metadata = JSON.parse(row.extractedMetadata) as ExtractedArchiveMetadata
+    } catch {
+      continue
+    }
+    known.set(row.relativePath, {
+      contentHash: row.contentHash,
+      fileSize: row.fileSize,
+      fileMtimeMs: row.fileMtime.getTime(),
+      metadata,
+    })
+  }
+  return known
+}
 
 export type {
   ArchiveLedgerEntry,

@@ -42,6 +42,51 @@ export type ArchiveScanResult = {
   root: string
   files: ScannedArchiveFile[]
   issues: ArchiveScanIssue[]
+  /** Files served from `knownFiles` without re-reading/re-hashing their bytes. */
+  cacheHitCount: number
+}
+
+/** A previously-recorded file identity/metadata, keyed by relativePath in `knownFiles`. */
+export type KnownArchiveFile = {
+  contentHash: string
+  fileSize: number
+  fileMtimeMs: number
+  metadata: ExtractedArchiveMetadata
+}
+
+export type ScanArchiveRootOptions = {
+  /**
+   * Previously-recorded file identity/metadata (typically the live
+   * ArchiveEntry ledger), keyed by relativePath. When a candidate file's
+   * current size and mtime match a known entry exactly, the scanner reuses
+   * its cached hash/metadata instead of re-reading and re-hashing the
+   * file's bytes -- large-library scans otherwise re-hash every byte of
+   * every file on every repeated pass (art-archive/t-018). Omit for a full,
+   * uncached scan (unchanged default behavior).
+   */
+  knownFiles?: Map<string, KnownArchiveFile>
+  /** Max files read/hashed concurrently. Default `DEFAULT_SCAN_CONCURRENCY`. */
+  concurrency?: number
+}
+
+export const DEFAULT_SCAN_CONCURRENCY = 8
+
+/** Runs `fn` over `items` with at most `concurrency` calls in flight at once. */
+async function mapWithConcurrency<T>(
+  items: T[],
+  concurrency: number,
+  fn: (item: T) => Promise<void>,
+): Promise<void> {
+  let index = 0
+  async function worker(): Promise<void> {
+    while (index < items.length) {
+      const current = items[index]!
+      index += 1
+      await fn(current)
+    }
+  }
+  const workerCount = Math.max(1, Math.min(concurrency, items.length))
+  await Promise.all(Array.from({ length: workerCount }, () => worker()))
 }
 
 function toPosixRelative(root: string, absolute: string): string {
@@ -123,7 +168,10 @@ async function walk(
  * supported image file found. Read-only: reads directory listings and file
  * bytes, nothing else.
  */
-export async function scanArchiveRoot(root: string): Promise<ArchiveScanResult> {
+export async function scanArchiveRoot(
+  root: string,
+  options: ScanArchiveRootOptions = {},
+): Promise<ArchiveScanResult> {
   const issues: ArchiveScanIssue[] = []
   let resolvedRoot: string
   try {
@@ -133,18 +181,41 @@ export async function scanArchiveRoot(root: string): Promise<ArchiveScanResult> 
       root,
       files: [],
       issues: [{ path: root, reason: 'unreadable', detail: String(error) }],
+      cacheHitCount: 0,
     }
   }
 
   const filePaths = await walk(resolvedRoot, resolvedRoot, issues)
   const files: ScannedArchiveFile[] = []
+  const knownFiles = options.knownFiles
+  let cacheHitCount = 0
 
-  for (const filePath of filePaths) {
+  await mapWithConcurrency(filePaths, options.concurrency ?? DEFAULT_SCAN_CONCURRENCY, async (filePath) => {
+    const relativePath = toPosixRelative(resolvedRoot, filePath)
+    const parentFolder = toPosixRelative(resolvedRoot, path.dirname(filePath))
     try {
-      const [buffer, fileStat] = await Promise.all([readFile(filePath), stat(filePath)])
+      const fileStat = await stat(filePath)
+      const known = knownFiles?.get(relativePath)
+      // Trust the cache only when size AND mtime still match exactly -- either
+      // changing is proof the file's bytes may have too, and a false cache
+      // hit would silently propagate a stale hash/metadata pair.
+      if (known && known.fileSize === fileStat.size && known.fileMtimeMs === fileStat.mtimeMs) {
+        cacheHitCount += 1
+        files.push({
+          relativePath,
+          parentFolder,
+          contentHash: known.contentHash,
+          fileSize: fileStat.size,
+          fileMtime: fileStat.mtime,
+          metadata: known.metadata,
+        })
+        return
+      }
+
+      const buffer = await readFile(filePath)
       files.push({
-        relativePath: toPosixRelative(resolvedRoot, filePath),
-        parentFolder: toPosixRelative(resolvedRoot, path.dirname(filePath)),
+        relativePath,
+        parentFolder,
         contentHash: contentHashOf(buffer),
         fileSize: fileStat.size,
         fileMtime: fileStat.mtime,
@@ -153,8 +224,8 @@ export async function scanArchiveRoot(root: string): Promise<ArchiveScanResult> 
     } catch (error) {
       issues.push({ path: filePath, reason: 'unreadable', detail: String(error) })
     }
-  }
+  })
 
   files.sort((a, b) => a.relativePath.localeCompare(b.relativePath))
-  return { root: resolvedRoot, files, issues }
+  return { root: resolvedRoot, files, issues, cacheHitCount }
 }

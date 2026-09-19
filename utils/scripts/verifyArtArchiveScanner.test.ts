@@ -7,7 +7,7 @@
 // reported as an issue and excluded from the results, never followed).
 import assert from 'node:assert/strict'
 import { createHash } from 'node:crypto'
-import { mkdtemp, mkdir, rm, symlink, writeFile } from 'node:fs/promises'
+import { mkdtemp, mkdir, rm, stat, symlink, writeFile } from 'node:fs/promises'
 import os from 'node:os'
 import path from 'node:path'
 
@@ -17,7 +17,7 @@ import {
   parseA1111Parameters,
   parseComfyPromptGraph,
 } from '../../server/utils/artArchiveMetadata'
-import { scanArchiveRoot } from '../../server/utils/artArchiveScanner'
+import { scanArchiveRoot, type KnownArchiveFile } from '../../server/utils/artArchiveScanner'
 import { ARCHIVE_TRASH_FOLDER } from '../../server/utils/artArchiveFileOps'
 
 const PNG_SIGNATURE = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a])
@@ -266,6 +266,95 @@ async function testTrashFolderNeverRescanned() {
   }
 }
 
+async function testKnownFileCacheIsTrustedWhenStatUnchanged() {
+  const root = await mkdtemp(path.join(os.tmpdir(), 'art-archive-scan-'))
+  try {
+    const filePath = path.join(root, 'cached.png')
+    await writeFile(filePath, fakePng([textChunk('parameters', A1111_TEXT)]))
+    const fileStat = await stat(filePath)
+
+    // Deliberately wrong hash/metadata: proves the scanner trusted the cache
+    // (size+mtime match) instead of re-reading and re-hashing the file.
+    const known: Map<string, KnownArchiveFile> = new Map([
+      [
+        'cached.png',
+        {
+          contentHash: 'stale-cached-hash',
+          fileSize: fileStat.size,
+          fileMtimeMs: fileStat.mtimeMs,
+          metadata: { format: 'unknown', supported: false },
+        },
+      ],
+    ])
+
+    const result = await scanArchiveRoot(root, { knownFiles: known })
+    assert.equal(result.cacheHitCount, 1, 'the unchanged file should be served from cache')
+    assert.equal(result.files[0]?.contentHash, 'stale-cached-hash')
+    assert.equal(result.files[0]?.metadata.supported, false)
+    console.log('verifyArtArchiveScanner: an unchanged known file is served from cache, not re-read')
+  } finally {
+    await rm(root, { recursive: true, force: true })
+  }
+}
+
+async function testKnownFileCacheIsIgnoredWhenStatChanged() {
+  const root = await mkdtemp(path.join(os.tmpdir(), 'art-archive-scan-'))
+  try {
+    const filePath = path.join(root, 'changed.png')
+    await writeFile(filePath, fakePng([textChunk('parameters', A1111_TEXT)]))
+
+    // A known entry for this path with a size that can never match the real
+    // file (real PNGs from fakePng() are always larger than 1 byte) --
+    // proves a stat mismatch forces a real read+hash rather than trusting
+    // the stale cache entry.
+    const known: Map<string, KnownArchiveFile> = new Map([
+      [
+        'changed.png',
+        {
+          contentHash: 'stale-cached-hash',
+          fileSize: 1,
+          fileMtimeMs: 1,
+          metadata: { format: 'unknown', supported: false },
+        },
+      ],
+    ])
+
+    const result = await scanArchiveRoot(root, { knownFiles: known })
+    assert.equal(result.cacheHitCount, 0, 'a stat mismatch must never be served from cache')
+    assert.notEqual(result.files[0]?.contentHash, 'stale-cached-hash')
+    assert.ok(result.files[0]?.metadata.supported)
+    console.log('verifyArtArchiveScanner: a changed file (stat mismatch) is always re-read, never cached')
+  } finally {
+    await rm(root, { recursive: true, force: true })
+  }
+}
+
+async function testBoundedConcurrencyProducesTheSameResultAsSequential() {
+  const root = await mkdtemp(path.join(os.tmpdir(), 'art-archive-scan-'))
+  try {
+    for (let i = 0; i < 12; i += 1) {
+      await writeFile(path.join(root, `file-${String(i).padStart(2, '0')}.png`), fakePng([textChunk('parameters', A1111_TEXT)]))
+    }
+
+    const sequential = await scanArchiveRoot(root, { concurrency: 1 })
+    const concurrent = await scanArchiveRoot(root, { concurrency: 8 })
+
+    assert.equal(sequential.files.length, 12)
+    assert.deepEqual(
+      concurrent.files.map((f) => f.relativePath),
+      sequential.files.map((f) => f.relativePath),
+      'concurrency must not change which files are found or their sorted order',
+    )
+    assert.deepEqual(
+      concurrent.files.map((f) => f.contentHash),
+      sequential.files.map((f) => f.contentHash),
+    )
+    console.log('verifyArtArchiveScanner: bounded concurrency produces the same result as a sequential scan')
+  } finally {
+    await rm(root, { recursive: true, force: true })
+  }
+}
+
 async function run() {
   testA1111Parsing()
   testPngExtractionRoundTrip()
@@ -276,6 +365,9 @@ async function run() {
   testContentHash()
   await testScannerRootConfinement()
   await testTrashFolderNeverRescanned()
+  await testKnownFileCacheIsTrustedWhenStatUnchanged()
+  await testKnownFileCacheIsIgnoredWhenStatChanged()
+  await testBoundedConcurrencyProducesTheSameResultAsSequential()
   console.log('verifyArtArchiveScanner: all assertions passed')
 }
 

@@ -92,7 +92,7 @@ const mandarinCatalogUrl: string = '/api/mandarin'
 const { data, pending, error } = await useAsyncData(
   'mandarin-sound-families',
   async (): Promise<MandarinCatalogResponse> =>
-    await $fetch(mandarinCatalogUrl) as MandarinCatalogResponse,
+    await $fetch<MandarinCatalogResponse, string>(mandarinCatalogUrl),
 )
 
 const families = computed(() => buildMandarinSoundFamilies(data.value?.data?.cards ?? []))

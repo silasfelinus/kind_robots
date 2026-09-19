@@ -76,6 +76,9 @@ jobs:
       - name: LoRA probe subject injection contract
         run: npm run test:lora-probe-subject
 
+      - name: Model download taxonomy contract
+        run: npx tsx utils/scripts/verifyResourceDownloadTaxonomy.ts
+
       - name: WAN image-to-video mode contract
         run: npm run test:wan-i2v-modes
 

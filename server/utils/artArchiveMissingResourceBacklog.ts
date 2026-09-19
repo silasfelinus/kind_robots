@@ -1,6 +1,6 @@
 import type { ArchiveResourceMatchSummary, FieldMatchSummary } from './applyArtArchiveResourceMatch'
 import type { ResourceMatchCandidate, UnmatchedModelEvidence } from './artArchiveResourceMatch'
-import type { ExtractedArchiveMetadata } from './artArchiveMetadata'
+import { narrowToPngMetadata, type ExtractedArchiveMetadata } from './artArchiveMetadata'
 
 export type MissingArchiveResourceType = 'CHECKPOINT' | 'LORA'
 
@@ -85,10 +85,9 @@ function rawEvidence(metadataText: string | null): { checkpoint: UnmatchedModelE
     // Structured checkpoint/LoRA evidence exists only on the PNG variant.
     // JPEG/WebP metadata is still preserved by the scanner, but its free-form
     // EXIF/XMP/comments are not safe to reinterpret as model identifiers here.
-    if (!metadata.supported || metadata.format !== 'png') {
-      return { checkpoint: null, loras: [] }
-    }
-    const source = metadata.a1111 ?? metadata.comfy
+    const png = narrowToPngMetadata(metadata)
+    if (!png) return { checkpoint: null, loras: [] }
+    const source = png.a1111 ?? png.comfy
     if (!source) return { checkpoint: null, loras: [] }
     return {
       checkpoint: source.checkpoint || ('checkpointHash' in source && source.checkpointHash)

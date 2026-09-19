@@ -1,6 +1,7 @@
 import path from 'node:path'
 import { createHash } from 'node:crypto'
 import prisma from '~/server/utils/prisma'
+import { narrowToPngMetadata } from './artArchiveMetadata'
 import type { ScannedArchiveFile } from './artArchiveScanner'
 
 export type ArchiveImportResult = {
@@ -69,8 +70,9 @@ function fileType(relativePath: string): string {
 }
 
 function generationFields(file: ScannedArchiveFile) {
-  if (!file.metadata.supported || file.metadata.format !== 'png') return {}
-  const source = file.metadata.a1111 ?? file.metadata.comfy
+  const png = narrowToPngMetadata(file.metadata)
+  if (!png) return {}
+  const source = png.a1111 ?? png.comfy
   if (!source) return {}
   return {
     promptString: 'prompt' in source ? source.prompt : source.positivePrompt,

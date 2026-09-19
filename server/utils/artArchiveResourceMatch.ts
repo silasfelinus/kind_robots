@@ -30,7 +30,7 @@
 // only -- see utils/scripts/verifyArtArchiveResourceMatch.test.ts.
 import path from 'node:path'
 import { ResourceType } from '~/prisma/generated/prisma/client'
-import type { ExtractedArchiveMetadata } from './artArchiveMetadata'
+import { narrowToPngMetadata, type ExtractedArchiveMetadata } from './artArchiveMetadata'
 
 export type ResourceMatchConfidence = 'hash' | 'exact' | 'suggested'
 
@@ -181,9 +181,10 @@ export async function matchArchiveResources(
   resource: ActiveResourcePoolDelegate,
 ): Promise<ArtImageResourceMatch> {
   const empty: ArtImageResourceMatch = { checkpoint: null, loras: [] }
-  if (metadata.format !== 'png' || !metadata.supported) return empty
+  const png = narrowToPngMetadata(metadata)
+  if (!png) return empty
 
-  const source = metadata.a1111 ?? metadata.comfy
+  const source = png.a1111 ?? png.comfy
   if (!source) return empty
 
   const checkpointName = source.checkpoint

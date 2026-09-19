@@ -145,7 +145,7 @@ assert.ok(
 )
 assert.ok(
   themeCreator.includes('themeStore.addTheme(nextTheme)') &&
-    themeCreator.includes('themeStore.updateTheme(themeForm.id, nextTheme)') &&
+    themeCreator.includes('themeStore.updateTheme(themeForm.value.id, nextTheme)') &&
     themeCreator.includes('themeStore.setActiveTheme(nextTheme)') &&
     themeCreator.includes('themeStore.fillWithRandomTheme()'),
   'The live Theme Creator must keep create, update, preview/apply, and randomize actions wired to themeStore.',

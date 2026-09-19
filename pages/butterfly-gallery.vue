@@ -927,7 +927,11 @@ function pileStyle(index: number, total: number): Record<string, string> {
   inset: 0;
   z-index: 0;
   overflow: hidden;
-  background:
+  /* Rendered room backdrop (t-028, ArtImage 28266) layered over the original
+     procedural grid/floor gradients -- the gradients remain as the graceful
+     fallback if the rendered asset ever fails to load. */
+  background-image:
+    url('/images/butterfly-gallery/room.webp'),
     linear-gradient(
       90deg,
       color-mix(in oklch, var(--color-info) 10%, transparent) 1px,
@@ -943,7 +947,14 @@ function pileStyle(index: number, total: number): Record<string, string> {
       color-mix(in oklch, var(--color-info) 16%, var(--color-base-100)) 0 56%,
       var(--color-base-200) 56% 100%
     );
+  background-repeat: no-repeat, repeat, repeat, repeat;
+  background-position:
+    center,
+    0 0,
+    0 0,
+    0 0;
   background-size:
+    cover,
     88px 88px,
     88px 88px,
     100% 100%;
@@ -1035,7 +1046,10 @@ function pileStyle(index: number, total: number): Record<string, string> {
   border: 5px solid
     color-mix(in oklch, var(--color-neutral) 82%, var(--color-info));
   border-radius: 1.5rem;
-  background: color-mix(in oklch, var(--color-info) 18%, var(--color-base-100));
+  /* Rendered window casing (t-028, ArtImage 28267); the flat color-mix
+     remains as the fallback background if the asset fails to load. */
+  background: color-mix(in oklch, var(--color-info) 18%, var(--color-base-100))
+    url('/images/butterfly-gallery/window.webp') center / cover no-repeat;
   box-shadow:
     inset 0 0 0 3px color-mix(in oklch, var(--color-info) 28%, transparent),
     0 10px 22px color-mix(in oklch, var(--color-neutral) 20%, transparent);
@@ -1160,28 +1174,42 @@ function pileStyle(index: number, total: number): Record<string, string> {
   animation: butterfly-gallery-bin-accept 380ms ease;
 }
 
+/* Rendered collection-bin art (t-028, ArtImage 28269) is blended into each
+   preset bin's solid semantic color via background-blend-mode so the bin's
+   color-coding stays intact; the solid `background` color is the graceful
+   fallback if the asset fails to load. */
 .preset-bin-error {
-  background: var(--color-error);
+  background: var(--color-error) url('/images/butterfly-gallery/bins.webp')
+    center / cover no-repeat;
+  background-blend-mode: multiply;
   color: var(--color-error-content);
 }
 
 .preset-bin-warning {
-  background: color-mix(in oklch, var(--color-warning) 72%, var(--color-error));
+  background: color-mix(in oklch, var(--color-warning) 72%, var(--color-error))
+    url('/images/butterfly-gallery/bins.webp') center / cover no-repeat;
+  background-blend-mode: multiply;
   color: var(--color-warning-content);
 }
 
 .preset-bin-accent {
-  background: var(--color-warning);
+  background: var(--color-warning) url('/images/butterfly-gallery/bins.webp')
+    center / cover no-repeat;
+  background-blend-mode: multiply;
   color: var(--color-warning-content);
 }
 
 .preset-bin-success {
-  background: var(--color-success);
+  background: var(--color-success) url('/images/butterfly-gallery/bins.webp')
+    center / cover no-repeat;
+  background-blend-mode: multiply;
   color: var(--color-success-content);
 }
 
 .preset-bin-info {
-  background: var(--color-info);
+  background: var(--color-info) url('/images/butterfly-gallery/bins.webp')
+    center / cover no-repeat;
+  background-blend-mode: multiply;
   color: var(--color-info-content);
 }
 
@@ -1239,11 +1267,15 @@ function pileStyle(index: number, total: number): Record<string, string> {
   border: 6px solid
     color-mix(in oklch, var(--color-neutral) 82%, var(--color-info));
   border-radius: 1.15rem;
+  /* Rendered display frame (t-028, ArtImage 28268), visible in the blank
+     state and behind any letterboxing; the color-mix remains as the
+     fallback background if the asset fails to load. */
   background: color-mix(
-    in oklch,
-    var(--color-base-100) 88%,
-    var(--color-info) 6%
-  );
+      in oklch,
+      var(--color-base-100) 88%,
+      var(--color-info) 6%
+    )
+    url('/images/butterfly-gallery/frame.webp') center / cover no-repeat;
   box-shadow:
     inset 0 0 0 3px color-mix(in oklch, var(--color-info) 18%, transparent),
     0 16px 30px color-mix(in oklch, var(--color-neutral) 28%, transparent);
@@ -1489,6 +1521,11 @@ function pileStyle(index: number, total: number): Record<string, string> {
   bottom: -8.2rem;
   height: 21rem;
   pointer-events: none;
+  /* Rendered loading-dock platform (t-028, ArtImage 28270) sits behind the
+     pile cards; no prior background existed here, so an image load failure
+     falls back to the original transparent container. */
+  background: url('/images/butterfly-gallery/pile.webp') center / cover
+    no-repeat;
 }
 
 .pile-card {

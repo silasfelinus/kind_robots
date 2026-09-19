@@ -1,17 +1,17 @@
 // /utils/scripts/verifyArtArchiveThumbnails.test.ts
 //
-// Self-test for art-archive/t-029's thumbnail cache
-// (server/utils/artArchiveThumbnails.ts): a first request generates and
-// caches a real downscaled WebP, a later request reuses the cache without
-// re-reading the source, and a source that changed after the cache was
-// written invalidates it. No Prisma involved, so this runs without
+// Self-test for art-archive/t-029's thumbnail cache and t-035's medium
+// preview cache (server/utils/artArchiveThumbnails.ts): a first request
+// generates and caches a real downscaled WebP, a later request reuses the
+// cache without re-reading the source, and a source that changed after the
+// cache was written invalidates it. No Prisma involved, so this runs without
 // DATABASE_URL, mirroring verifyArtArchiveFileOps.test.ts's own convention.
 import assert from 'node:assert/strict'
 import os from 'node:os'
 import path from 'node:path'
 import { mkdtemp, rm, stat, unlink, writeFile } from 'node:fs/promises'
 import sharp from 'sharp'
-import { ensureArchiveThumbnail } from '../../server/utils/artArchiveThumbnails'
+import { ensureArchiveMediumPreview, ensureArchiveThumbnail } from '../../server/utils/artArchiveThumbnails'
 
 async function writeTestPng(filePath: string, color: { r: number; g: number; b: number }): Promise<void> {
   const buffer = await sharp({
@@ -90,11 +90,40 @@ async function testRejectsAPathTraversalRelativePath() {
   }
 }
 
+async function testMediumPreviewIsCappedLargerThanTheThumbnailAndCachedSeparately() {
+  const root = await mkdtemp(path.join(os.tmpdir(), 'art-archive-thumbs-'))
+  try {
+    await writeTestPng(path.join(root, 'one.png'), { r: 80, g: 160, b: 240 })
+
+    const medium = await ensureArchiveMediumPreview(root, 21, 'one.png', Date.now() - 10_000)
+    const metadata = await sharp(medium).metadata()
+
+    assert.equal(metadata.format, 'webp')
+    assert.ok(metadata.width && metadata.width <= 1200, 'medium preview must be capped, not full-size')
+    assert.ok(
+      metadata.width && metadata.width > 480,
+      'medium preview must be larger than the 480px thumbnail cap for this 800px-wide source',
+    )
+
+    const mediumCacheStat = await stat(path.join(root, '.art-archive-medium', '21.webp'))
+    assert.ok(mediumCacheStat.isFile(), 'the generated medium preview must be cached to its own folder')
+
+    // Requesting the thumbnail for the same entry must not collide with the
+    // medium cache -- each variant is a distinct, independently-cached file.
+    const thumbnail = await ensureArchiveThumbnail(root, 21, 'one.png', Date.now() - 10_000)
+    assert.ok(!thumbnail.equals(medium), 'thumbnail and medium caches must not collide')
+    console.log('verifyArtArchiveThumbnails: the medium preview is cached separately from the thumbnail, capped larger')
+  } finally {
+    await rm(root, { recursive: true, force: true })
+  }
+}
+
 async function run() {
   await testGeneratesADownscaledCachedWebp()
   await testCacheHitAvoidsRereadingTheSource()
   await testStaleCacheRegeneratesFromAChangedSource()
   await testRejectsAPathTraversalRelativePath()
+  await testMediumPreviewIsCappedLargerThanTheThumbnailAndCachedSeparately()
   console.log('verifyArtArchiveThumbnails: all assertions passed')
 }
 

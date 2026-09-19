@@ -189,7 +189,7 @@
             class="kr-badge-sm rounded-xl shadow"
             :class="badge.class || 'badge-primary'"
             :title="badge.title || badge.label"
-          :aria-label="badge.title || badge.label || undefined"
+            :aria-label="badge.title || badge.label || undefined"
           >
             <Icon
               v-if="badge.icon"
@@ -200,8 +200,8 @@
               aria-hidden="true"
             />
             <span v-if="badge.label" data-kr-card-chip-label>
-            {{ badge.label }}
-          </span>
+              {{ badge.label }}
+            </span>
             <span v-else class="sr-only">{{ badge.title }}</span>
           </span>
         </div>
@@ -242,7 +242,7 @@
             class="kr-badge-sm"
             :class="badge.class || 'badge-primary'"
             :title="badge.title || badge.label"
-          :aria-label="badge.title || badge.label || undefined"
+            :aria-label="badge.title || badge.label || undefined"
           >
             <Icon
               v-if="badge.icon"
@@ -253,8 +253,8 @@
               aria-hidden="true"
             />
             <span v-if="badge.label" data-kr-card-chip-label>
-            {{ badge.label }}
-          </span>
+              {{ badge.label }}
+            </span>
             <span v-else class="sr-only">{{ badge.title }}</span>
           </span>
         </div>

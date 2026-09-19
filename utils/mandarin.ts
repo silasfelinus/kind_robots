@@ -11,6 +11,16 @@ export type MandarinComponent = {
   label: string
   meaning?: string
   note?: string
+  /**
+   * Which character of a multi-character word this piece belongs to
+   * (mandarin-tutor/t-022). Optional because it is additive: every existing consumer
+   * ignores it, and payloads written before it existed simply omit it. The lesson layer
+   * needs it because `components` is a FLAT union across all of a word's characters --
+   * without this, 电脑's six pieces cannot be attributed to 电 or 脑 except by parsing the
+   * `label` prefix, which is fragile. See utils/mandarinLesson.ts `componentCharacter`,
+   * which still falls back to that label prefix for older payloads.
+   */
+  character?: string
 }
 
 export type MandarinSource = {

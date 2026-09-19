@@ -113,6 +113,7 @@ function roleComponents(
       addComponent({
         glyph: etymology.semantic,
         role: 'semantic',
+        character,
         label: `${character} meaning clue`,
         ...(etymology.hint ? { meaning: etymology.hint } : {}),
         note: `The source explicitly identifies this as the semantic element. ${SOURCE_NOTE}.`,
@@ -122,6 +123,7 @@ function roleComponents(
       addComponent({
         glyph: etymology.phonetic,
         role: 'phonetic',
+        character,
         label: `${character} sound clue`,
         note: `The source explicitly identifies this as the phonetic element; it is not being treated as a second literal definition. ${SOURCE_NOTE}.`,
       })
@@ -138,6 +140,7 @@ function roleComponents(
         addComponent({
           glyph,
           role: 'radical',
+          character,
           label: `${character} dictionary radical`,
           note: `Indexing radical reported by the source. This label does not by itself claim that the radical supplies the character's meaning. ${SOURCE_NOTE}.`,
         })
@@ -146,6 +149,7 @@ function roleComponents(
       addComponent({
         glyph,
         role: 'form',
+        character,
         label: `${character} written component`,
         note: `Structural leaf from the source IDS decomposition; no semantic or phonetic role is asserted here. ${SOURCE_NOTE}.`,
       })
@@ -160,6 +164,7 @@ function roleComponents(
     addComponent({
       glyph: radical,
       role: 'radical',
+      character,
       label: `${character} dictionary radical`,
       note: `Indexing radical reported by the source. This is deliberately separate from etymology. ${SOURCE_NOTE}.`,
     })
@@ -169,6 +174,7 @@ function roleComponents(
     addComponent({
       glyph: '？',
       role: 'uncertain',
+      character,
       label: `${character} unresolved component`,
       note: `The source marks part of this decomposition as unknown or uncertain, so the tutor leaves it unresolved instead of inventing a mnemonic. ${SOURCE_NOTE}.`,
     })

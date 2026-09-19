@@ -57,21 +57,27 @@
 
         <select
           v-if="source === 'civitai'"
-          v-model="baseModel"
+          v-model="baseFamily"
           class="select select-bordered rounded-xl"
+          aria-label="Base model family"
         >
           <option value="">All bases</option>
-          <optgroup
-            v-for="group in CIVITAI_BASE_MODEL_GROUPS"
-            :key="group.label"
-            :label="group.label"
-          >
+          <optgroup label="✓ Supported here">
             <option
-              v-for="option in group.options"
-              :key="option"
-              :value="option"
+              v-for="family in CIVITAI_SUPPORTED_BASE_MODEL_FAMILIES"
+              :key="family.id"
+              :value="family.id"
             >
-              {{ option }}
+              ✓ {{ family.label }}
+            </option>
+          </optgroup>
+          <optgroup label="Other families">
+            <option
+              v-for="family in CIVITAI_OTHER_BASE_MODEL_FAMILIES"
+              :key="family.id"
+              :value="family.id"
+            >
+              {{ family.label }}
             </option>
           </optgroup>
         </select>
@@ -205,8 +211,9 @@ import { computed, ref, watch } from 'vue'
 import { performFetch } from '@/stores/utils'
 import { useUserStore } from '@/stores/userStore'
 import {
-  CIVITAI_BASE_MODEL_GROUPS,
   CIVITAI_DISCOVER_TYPES,
+  CIVITAI_OTHER_BASE_MODEL_FAMILIES,
+  CIVITAI_SUPPORTED_BASE_MODEL_FAMILIES,
   type CivitaiDiscoverResourceType,
 } from '@/utils/resourceDownloads'
 
@@ -236,7 +243,7 @@ const userStore = useUserStore()
 const query = ref('')
 const discoverType = ref<CivitaiDiscoverResourceType>('LORA')
 const source = ref<'civitai' | 'civarchive'>('civitai')
-const baseModel = ref('')
+const baseFamily = ref('')
 const hideOwned = ref(false)
 
 const cards = ref<DiscoverCard[]>([])
@@ -309,7 +316,7 @@ async function runSearch(reset: boolean): Promise<void> {
     params.set('type', discoverType.value)
     if (query.value.trim()) params.set('q', query.value.trim())
     if (source.value === 'civitai') {
-      if (baseModel.value) params.set('baseModel', baseModel.value)
+      if (baseFamily.value) params.set('baseFamily', baseFamily.value)
       if (userStore.showMature) params.set('nsfw', 'true')
       if (!reset && nextCursor.value) params.set('cursor', nextCursor.value)
     }

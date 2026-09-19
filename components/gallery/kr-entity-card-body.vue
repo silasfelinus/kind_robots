@@ -113,15 +113,17 @@
           class="kr-badge-xs shrink-0"
           :class="badge.class || 'badge-primary'"
           :title="badge.title || badge.label"
+        :aria-label="badge.title || badge.label || undefined"
         >
           <Icon
             v-if="badge.icon"
             :name="badge.icon"
             class="kr-icon-3"
+            data-kr-card-chip-icon
             :class="badge.label ? 'mr-1' : ''"
             aria-hidden="true"
           />
-          <template v-if="badge.label">{{ badge.label }}</template>
+          <span v-if="badge.label" data-kr-card-chip-label>{{ badge.label }}</span>
           <span v-else class="sr-only">{{ badge.title }}</span>
         </span>
       </div>
@@ -185,15 +187,17 @@
             class="kr-badge-sm rounded-xl shadow"
             :class="badge.class || 'badge-primary'"
             :title="badge.title || badge.label"
+          :aria-label="badge.title || badge.label || undefined"
           >
             <Icon
               v-if="badge.icon"
               :name="badge.icon"
               class="kr-icon-3-5"
+            data-kr-card-chip-icon
               :class="badge.label ? 'mr-1' : ''"
               aria-hidden="true"
             />
-            <template v-if="badge.label">{{ badge.label }}</template>
+            <span v-if="badge.label" data-kr-card-chip-label>{{ badge.label }}</span>
             <span v-else class="sr-only">{{ badge.title }}</span>
           </span>
         </div>
@@ -234,15 +238,17 @@
             class="kr-badge-sm"
             :class="badge.class || 'badge-primary'"
             :title="badge.title || badge.label"
+          :aria-label="badge.title || badge.label || undefined"
           >
             <Icon
               v-if="badge.icon"
               :name="badge.icon"
               class="kr-icon-3-5"
+            data-kr-card-chip-icon
               :class="badge.label ? 'mr-1' : ''"
               aria-hidden="true"
             />
-            <template v-if="badge.label">{{ badge.label }}</template>
+            <span v-if="badge.label" data-kr-card-chip-label>{{ badge.label }}</span>
             <span v-else class="sr-only">{{ badge.title }}</span>
           </span>
         </div>
@@ -256,13 +262,21 @@
       />
     </div>
 
-    <div v-if="showDescription && !compact" class="px-0.5 pt-2.5">
-      <p class="kr-text-dim-sm-70 line-clamp-3 leading-relaxed">
+    <div
+      v-if="showDescription && !compact"
+      class="px-0.5 pt-2.5"
+      data-kr-card-description
+    >
+      <p class="kr-text-dim-sm-70 line-clamp-2 leading-relaxed">
         {{ description || descriptionFallback }}
       </p>
     </div>
 
-    <div v-if="meta.length" class="flex flex-wrap gap-1.5 px-0.5 pt-2">
+    <div
+      v-if="meta.length"
+      class="flex flex-wrap gap-1.5 px-0.5 pt-2"
+      data-kr-card-meta
+    >
       <span
         v-for="chip in meta"
         :key="chip.label"

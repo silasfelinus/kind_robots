@@ -8,6 +8,7 @@ import { createError, defineEventHandler, getRouterParam } from 'h3'
 import prisma from '~/server/utils/prisma'
 import { errorHandler } from '~/server/utils/error'
 import { requireAdminApiUser } from '~/server/utils/authGuard'
+import { viewerShowsMature } from '~/server/utils/contentAccess'
 
 function parseJsonSafe(raw: string | null): unknown {
   if (!raw) return null
@@ -20,15 +21,28 @@ function parseJsonSafe(raw: string | null): unknown {
 
 export default defineEventHandler(async (event) => {
   try {
-    await requireAdminApiUser(event)
+    const auth = await requireAdminApiUser(event)
+    if (!viewerShowsMature(auth.user)) {
+      throw createError({
+        statusCode: 403,
+        message: 'Mature-content access is required for Art Archive entries.',
+      })
+    }
+
     const id = Number(getRouterParam(event, 'id'))
     if (!Number.isInteger(id) || id <= 0) {
-      throw createError({ statusCode: 400, message: 'Invalid archive entry id.' })
+      throw createError({
+        statusCode: 400,
+        message: 'Invalid archive entry id.',
+      })
     }
 
     const entry = await prisma.archiveEntry.findUnique({ where: { id } })
     if (!entry) {
-      throw createError({ statusCode: 404, message: `Archive entry #${id} not found.` })
+      throw createError({
+        statusCode: 404,
+        message: `Archive entry #${id} not found.`,
+      })
     }
 
     const [artImage, folderCollection] = await Promise.all([
@@ -56,7 +70,15 @@ export default defineEventHandler(async (event) => {
       entry.folderCollectionId
         ? prisma.artCollection.findUnique({
             where: { id: entry.folderCollectionId },
-            select: { id: true, slug: true, label: true, parentFolder: true, isPublic: true, isMature: true, isActive: true },
+            select: {
+              id: true,
+              slug: true,
+              label: true,
+              parentFolder: true,
+              isPublic: true,
+              isMature: true,
+              isActive: true,
+            },
           })
         : null,
     ])

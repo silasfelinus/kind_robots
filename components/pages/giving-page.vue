@@ -1,9 +1,10 @@
 <!-- /components/content/pages/giving-page.vue -->
 <template>
-  <div class="kr-unbound mx-auto max-w-5xl space-y-6 px-4 py-2 sm:px-6 lg:px-8">
-    <div
-      class="rounded-2xl border border-primary/30 bg-primary/10 p-6 text-center shadow-sm sm:p-10"
-    >
+  <div class="kr-unbound mx-auto max-w-5xl px-4 py-2 sm:px-6 lg:px-8">
+    <div class="kr-panel-section space-y-6">
+      <div
+        class="rounded-2xl border border-primary/30 bg-primary/10 p-6 text-center shadow-sm sm:p-10"
+      >
       <Icon
         name="kind-icon:hand-heart"
         class="kr-icon-primary-12 mx-auto"
@@ -110,10 +111,11 @@
       <subscription-manager />
     </section>
 
-    <div
-      class="rounded-2xl border border-info/30 bg-info/10 p-4 text-center text-sm text-info-content"
-    >
-      <p>{{ plea }}</p>
+      <div
+        class="rounded-2xl border border-info/30 bg-info/10 p-4 text-center text-sm text-info-content"
+      >
+        <p>{{ plea }}</p>
+      </div>
     </div>
   </div>
 </template>

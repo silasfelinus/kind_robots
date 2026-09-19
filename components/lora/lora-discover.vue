@@ -61,11 +61,19 @@
           class="select select-bordered rounded-xl"
         >
           <option value="">All bases</option>
-          <option value="Flux.1 D">Flux</option>
-          <option value="SDXL 1.0">SDXL</option>
-          <option value="Pony">Pony</option>
-          <option value="SD 1.5">SD 1.5</option>
-          <option value="Illustrious">Illustrious</option>
+          <optgroup
+            v-for="group in CIVITAI_BASE_MODEL_GROUPS"
+            :key="group.label"
+            :label="group.label"
+          >
+            <option
+              v-for="option in group.options"
+              :key="option"
+              :value="option"
+            >
+              {{ option }}
+            </option>
+          </optgroup>
         </select>
 
         <button
@@ -197,6 +205,7 @@ import { computed, ref, watch } from 'vue'
 import { performFetch } from '@/stores/utils'
 import { useUserStore } from '@/stores/userStore'
 import {
+  CIVITAI_BASE_MODEL_GROUPS,
   CIVITAI_DISCOVER_TYPES,
   type CivitaiDiscoverResourceType,
 } from '@/utils/resourceDownloads'

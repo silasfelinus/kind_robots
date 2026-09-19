@@ -117,6 +117,21 @@ check(
     source.includes('if (!active || isResolving.value) return false'),
 )
 
+console.log(
+  'Storybook run store — readyToResolve trusts the server, never guesses locally',
+)
+
+const readyToResolveBody = source.slice(
+  source.indexOf('const readyToResolve = computed('),
+  source.indexOf('const isComplete = computed('),
+)
+check(
+  'a budgeted run defers to server-derived canEndOnDemand too, not just an endless one',
+  readyToResolveBody.includes('return canEndOnDemand.value') &&
+    !readyToResolveBody.includes('turnBudget.value'),
+  readyToResolveBody.replace(/\s+/g, ' ').trim(),
+)
+
 console.log('Storybook run store — the deck keeps its secrets')
 
 check(

@@ -88,10 +88,12 @@ type MandarinCatalogResponse = {
 }
 
 const query = ref('')
-// Widen the URL to `string` so Nuxt does not recursively instantiate the entire
-// generated route schema for this simple, explicitly typed payload.
 const mandarinCatalogUrl: string = '/api/mandarin'
-const { data, pending, error } = await useFetch<MandarinCatalogResponse>(mandarinCatalogUrl)
+const { data, pending, error } = await useAsyncData(
+  'mandarin-sound-families',
+  async (): Promise<MandarinCatalogResponse> =>
+    await $fetch(mandarinCatalogUrl) as MandarinCatalogResponse,
+)
 
 const families = computed(() => buildMandarinSoundFamilies(data.value?.data?.cards ?? []))
 const memberCount = computed(() => new Set(families.value.flatMap((family) => family.members.map((member) => member.key))).size)

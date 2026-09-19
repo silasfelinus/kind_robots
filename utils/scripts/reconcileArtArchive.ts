@@ -15,7 +15,7 @@
 //   npx tsx utils/scripts/reconcileArtArchive.ts --root /path/to/archive --user-id 1
 import { getArtArchiveRoot } from '../../server/utils/artArchiveRoot'
 import { scanArchiveRoot } from '../../server/utils/artArchiveScanner'
-import { reconcileArchiveScan } from '../../server/utils/artArchiveReconciler'
+import { loadKnownArchiveFiles, reconcileArchiveScan } from '../../server/utils/artArchiveReconciler'
 import prisma from '../../server/utils/prisma'
 
 function resolveRootArg(): string | null {
@@ -34,13 +34,15 @@ function resolveUserIdArg(): number {
 async function main() {
   const root = resolveRootArg() ?? getArtArchiveRoot()
   const userId = resolveUserIdArg()
-  const scan = await scanArchiveRoot(root)
+  const knownFiles = await loadKnownArchiveFiles()
+  const scan = await scanArchiveRoot(root, { knownFiles })
   const result = await reconcileArchiveScan(scan, userId)
 
   const countOf = (kind: string) => result.outcomes.filter((o) => o.kind === kind).length
 
   console.log(`Art Archive reconciliation of ${result.root}`)
   console.log(`  files scanned:       ${result.scannedFileCount}`)
+  console.log(`  served from cache:   ${scan.cacheHitCount} (skipped re-read/re-hash)`)
   console.log(`  scan issues:         ${result.scanIssueCount}`)
   console.log(`  new:                 ${countOf('new')}`)
   console.log(`  unchanged:           ${countOf('unchanged')}`)

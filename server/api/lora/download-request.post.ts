@@ -1,35 +1,24 @@
 // /server/api/lora/download-request.post.ts
 //
-// A logged-in user enqueues a LoRA download from the Discover browser. Mirrors
+// A logged-in user enqueues a model download from the Discover browser. Mirrors
 // the ArtJob enqueue: the server never dials the home network — the import
-// agent pulls PENDING rows via /api/lora/download/claim. We de-dupe against
+// home downloader pulls PENDING rows via /api/lora/download/claim. We de-dupe against
 // in-flight requests and already-owned Resources so a double-click or a re-
 // browse can't queue the same version twice.
 import { createError, defineEventHandler, readBody } from 'h3'
 import prisma from '../../utils/prisma'
 import { errorHandler } from '../../utils/error'
 import { requireApiUser } from '../../utils/authGuard'
+import {
+  DOWNLOADABLE_RESOURCE_TYPES,
+  type DownloadableResourceType,
+} from '~/utils/resourceDownloads'
 
 type DownloadSource = 'CIVITAI' | 'CIVARCHIVE' | 'URL'
 
-// The kinds of model a download can become. Mirrors prisma ResourceType; the
-// import agent reads this to pick the engine directory (loras vs checkpoints).
-const RESOURCE_TYPES = [
-  'CHECKPOINT',
-  'EMBEDDING',
-  'LORA',
-  'LYCORIS',
-  'HYPERNETWORK',
-  'SAMPLER',
-  'CONTROLNET',
-  'URL',
-  'API',
-  'VAE',
-  'TEXT_ENCODER',
-  'DIFFUSION_MODEL',
-] as const
-type ResourceType = (typeof RESOURCE_TYPES)[number]
-
+// Only file-backed Resource kinds belong in the home model download queue.
+// URL/API/SAMPLER Resources are real schema values, but are not model binaries
+// and must never be silently dumped into the LoRA directory.
 type DownloadRequestBody = {
   source?: string | null
   resourceType?: string | null
@@ -48,11 +37,17 @@ function normalizeSource(value: unknown): DownloadSource {
   return 'CIVITAI'
 }
 
-function normalizeResourceType(value: unknown): ResourceType {
-  const candidate = String(value ?? '').toUpperCase()
-  return (RESOURCE_TYPES as readonly string[]).includes(candidate)
-    ? (candidate as ResourceType)
-    : 'LORA'
+function normalizeResourceType(value: unknown): DownloadableResourceType {
+  const candidate = String(value ?? 'LORA').toUpperCase()
+  if (
+    (DOWNLOADABLE_RESOURCE_TYPES as readonly string[]).includes(candidate)
+  ) {
+    return candidate as DownloadableResourceType
+  }
+  throw createError({
+    statusCode: 400,
+    message: `Unsupported downloadable Resource type: ${candidate || '(empty)'}.`,
+  })
 }
 
 function optionalPositiveInt(value: unknown): number | null {

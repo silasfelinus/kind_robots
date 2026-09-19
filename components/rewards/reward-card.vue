@@ -256,13 +256,28 @@ const artFallbackSrc = computed(() => {
  * shared body renders one check from `selected`, so the card no longer says
  * the same thing three times.
  */
-const badges = computed<EntityCardChip[]>(() => [
-  { label: props.reward.rarity || 'COMMON', class: rarityBadgeClass.value },
-])
+const badges = computed<EntityCardChip[]>(() => {
+  const rarity = props.reward.rarity || 'COMMON'
 
-const metaChips = computed<EntityCardChip[]>(() => [
-  { label: props.reward.collection || 'general', class: 'badge-outline' },
-])
+  return [
+    {
+      label: rarity,
+      icon: 'kind-icon:gem',
+      title: `${rarity} rarity`,
+      class: `${rarityBadgeClass.value} kr-reward-rarity-badge`,
+    },
+  ]
+})
+
+const metaChips = computed<EntityCardChip[]>(() => {
+  const collection = props.reward.collection?.trim()
+
+  if (!collection || collection.toLowerCase() === 'general') {
+    return []
+  }
+
+  return [{ label: collection, class: 'badge-outline' }]
+})
 
 function getRarityBadgeClass(rarity?: string | null) {
   switch (rarity) {

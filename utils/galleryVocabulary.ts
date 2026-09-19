@@ -157,9 +157,9 @@ export const VARIANT_SHAPE: Record<ArtVariant, ArtPlateShape> = {
  */
 export const MODE_GRID_CLASS: Record<GalleryMode, string> = {
   cards:
-    'grid gap-3 [grid-template-columns:repeat(auto-fill,minmax(min(11rem,100%),1fr))]',
+    'grid gap-2 [grid-template-columns:repeat(auto-fill,minmax(min(11rem,100%),1fr))]',
   heroes:
-    'grid gap-4 [grid-template-columns:repeat(auto-fill,minmax(min(20rem,100%),1fr))]',
+    'grid gap-3 [grid-template-columns:repeat(auto-fill,minmax(min(20rem,100%),1fr))]',
   // A ROW (square art + title + subtitle), so it needs a row's width. At the
   // old 7rem the art alone took half the column and every title truncated to
   // "The Soun..." -- Silas: "cramped displays".

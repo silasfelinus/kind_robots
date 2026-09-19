@@ -417,6 +417,79 @@ if (!failures.length) {
   ok('kr-gallery built-in Cards/Heroes/Icons renderer follows the shared vocabulary')
 }
 
+/* ------------------------------------------------------------------ *
+ * 8. Cards mode is image-first: tight frames, no below-art prose.
+ * ------------------------------------------------------------------ */
+// Screenshot-directed polish, 2026-09-19. A browse grid is for scanning art.
+// Descriptions and metadata still belong in Heroes, detail/back surfaces, and
+// selected-card affordances, but Cards should not grow a second text card under
+// every 2:3 image. Core object cards are slotted into kr-gallery, so this must
+// be enforced by the shared shell rather than five gallery-specific copies.
+const rewardCard = stripComments(
+  await readFile('components/rewards/reward-card.vue', 'utf8'),
+)
+
+if (!sharedGallery.includes(':data-gallery-mode="mode"')) {
+  fail(
+    'kr-gallery does not expose its active mode on the grid, so Cards-only density rules cannot be scoped safely.',
+  )
+}
+if (
+  !sharedGallery.includes(
+    "[data-kr-gallery-grid][data-gallery-mode='cards'] :deep([data-art-context])",
+  ) ||
+  !sharedGallery.includes('padding: 0.5rem')
+) {
+  fail(
+    'kr-gallery Cards mode no longer tightens the shared reactable-card frame. The gallery frame must stay image-first rather than returning to the wide p-4 shell.',
+  )
+}
+if (
+  !cardBody.includes('data-kr-card-description') ||
+  !cardBody.includes('data-kr-card-meta') ||
+  !sharedGallery.includes(':deep([data-kr-card-description])') ||
+  !sharedGallery.includes(':deep([data-kr-card-meta])')
+) {
+  fail(
+    'Cards mode no longer suppresses the shared below-art description/meta blocks. Keep those markers in kr-entity-card-body and hide them from the shared gallery Cards view.',
+  )
+}
+if (!sharedGallery.includes('v-if="mode !== \'cards\'" class="p-3"')) {
+  fail(
+    'kr-gallery built-in Cards mode has regained a below-art text panel. Cards should carry title over the art; Heroes may keep the supporting text panel.',
+  )
+}
+
+if (
+  !/cards:\s*\n\s*'grid gap-2 /.test(vocabSrc) ||
+  !/heroes:\s*\n\s*'grid gap-3 /.test(vocabSrc)
+) {
+  fail(
+    'MODE_GRID_CLASS has drifted back to the looser gallery gaps. Keep Cards at gap-2 and Heroes at gap-3 unless a later screenshot-directed redesign replaces this contract.',
+  )
+}
+
+if (
+  !rewardCard.includes("icon: 'kind-icon:gem'") ||
+  !rewardCard.includes('kr-reward-rarity-badge') ||
+  !sharedGallery.includes(
+    '.kr-reward-rarity-badge [data-kr-card-chip-label]',
+  )
+) {
+  fail(
+    'Reward rarity in gallery view must be an icon-only visual badge, with the text retained only as accessible/title context.',
+  )
+}
+if (rewardCard.includes("props.reward.collection || 'general'")) {
+  fail(
+    'reward-card has restored the synthetic "general" collection chip. The default collection is not useful gallery metadata.',
+  )
+}
+
+if (!failures.length) {
+  ok('Cards mode is image-first, tightly framed, and reward rarity is icon-led')
+}
+
 /* ------------------------------------------------------------------ */
 
 for (const note of notes) console.log(note)
@@ -429,6 +502,6 @@ if (failures.length) {
 
 console.log(
   '\nGallery consistency contract passed: grids size to their container, cards ' +
-    'follow the gallery mode, built-in rendering matches the shared vocabulary, ' +
-    'and every mode bar is wired to something.',
+    'follow the gallery mode, Cards stay image-first and tightly framed, built-in ' +
+    'rendering matches the shared vocabulary, and every mode bar is wired to something.',
 )

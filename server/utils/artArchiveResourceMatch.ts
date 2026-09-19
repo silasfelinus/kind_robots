@@ -60,6 +60,66 @@ export type ArtImageResourceMatch = {
   loras: ResourceMatchOutcome[]
 }
 
+export type ResourceMatchFileSummary = {
+  /** True when this file's checkpoint and/or any LoRA slot carried real embedded evidence. */
+  hasMatchEvidence: boolean
+  /** Count of outcomes (checkpoint + each LoRA) that had evidence but resolved to no candidate. */
+  unmatchedCount: number
+  /** Count of matched candidates at each confidence tier, across the checkpoint and all LoRAs. */
+  confidenceCounts: Record<ResourceMatchConfidence, number>
+}
+
+export type ResourceMatchAggregate = {
+  filesWithMatchEvidence: number
+  unmatchedModels: number
+  confidenceCounts: Record<ResourceMatchConfidence, number>
+}
+
+function emptyConfidenceCounts(): Record<ResourceMatchConfidence, number> {
+  return { hash: 0, exact: 0, suggested: 0 }
+}
+
+/**
+ * Reduce one file's checkpoint/LoRA match outcomes into the counts every caller
+ * (CLI, admin import endpoint, admin dry-run endpoint) needs to report -- kept as
+ * one pure function so "matched"/"unmatched" can't silently drift between call
+ * sites as matchArchiveResources() evolves (art-archive/t-037).
+ */
+export function summarizeResourceMatch(matches: ArtImageResourceMatch): ResourceMatchFileSummary {
+  const outcomes = [matches.checkpoint, ...matches.loras].filter(
+    (outcome): outcome is ResourceMatchOutcome => outcome !== null,
+  )
+  const confidenceCounts = emptyConfidenceCounts()
+  let unmatchedCount = 0
+  for (const outcome of outcomes) {
+    if (outcome.candidates.length > 0) {
+      for (const candidate of outcome.candidates) confidenceCounts[candidate.confidence] += 1
+    } else if (outcome.unmatched) {
+      unmatchedCount += 1
+    }
+  }
+  return { hasMatchEvidence: outcomes.length > 0, unmatchedCount, confidenceCounts }
+}
+
+/** Sum per-file summaries from {@link summarizeResourceMatch} into a scan-wide total. */
+export function aggregateResourceMatchSummaries(
+  summaries: Iterable<ResourceMatchFileSummary>,
+): ResourceMatchAggregate {
+  const totals: ResourceMatchAggregate = {
+    filesWithMatchEvidence: 0,
+    unmatchedModels: 0,
+    confidenceCounts: emptyConfidenceCounts(),
+  }
+  for (const summary of summaries) {
+    if (summary.hasMatchEvidence) totals.filesWithMatchEvidence += 1
+    totals.unmatchedModels += summary.unmatchedCount
+    for (const tier of Object.keys(totals.confidenceCounts) as ResourceMatchConfidence[]) {
+      totals.confidenceCounts[tier] += summary.confidenceCounts[tier]
+    }
+  }
+  return totals
+}
+
 type ActiveResourceRow = {
   id: number
   resourceType: ResourceType

@@ -13,6 +13,7 @@ import { scanArchiveRoot } from '../../server/utils/artArchiveScanner'
 import { importArchiveFile } from '../../server/utils/artArchiveImporter'
 import {
   matchArchiveResources,
+  summarizeResourceMatch,
   type ResourceMatchOutcome,
 } from '../../server/utils/artArchiveResourceMatch'
 import prisma from '../../server/utils/prisma'
@@ -77,19 +78,16 @@ async function main() {
         file.parentFolder,
         prisma.resource,
       )
-      const outcomes = [matches.checkpoint, ...matches.loras].filter(
-        (outcome): outcome is ResourceMatchOutcome => outcome !== null,
-      )
-      if (outcomes.length > 0) {
+      const fileSummary = summarizeResourceMatch(matches)
+      if (fileSummary.hasMatchEvidence) {
         filesWithMatchEvidence += 1
+        unmatchedModels += fileSummary.unmatchedCount
         console.log(`  resource matches: ${file.relativePath}`)
         if (matches.checkpoint) {
           console.log(`    ${formatOutcome('checkpoint', matches.checkpoint)}`)
-          if (matches.checkpoint.unmatched) unmatchedModels += 1
         }
         matches.loras.forEach((outcome, index) => {
           console.log(`    ${formatOutcome(`LoRA ${index + 1}`, outcome)}`)
-          if (outcome.unmatched) unmatchedModels += 1
         })
       }
     } catch (error) {

@@ -10,7 +10,11 @@ import { errorHandler } from '@/server/utils/error'
 import { getArtArchiveRoot } from '@/server/utils/artArchiveRoot'
 import { scanArchiveRoot } from '@/server/utils/artArchiveScanner'
 import { importArchiveScan } from '@/server/utils/artArchiveImporter'
-import { matchArchiveResources } from '@/server/utils/artArchiveResourceMatch'
+import {
+  matchArchiveResources,
+  summarizeResourceMatch,
+  aggregateResourceMatchSummaries,
+} from '@/server/utils/artArchiveResourceMatch'
 import prisma from '@/server/utils/prisma'
 
 export default defineEventHandler(async (event) => {
@@ -30,14 +34,9 @@ export default defineEventHandler(async (event) => {
       })),
     )
 
-    const filesWithMatchEvidence = resourceMatches.filter(
-      ({ matches }) => matches.checkpoint !== null || matches.loras.length > 0,
-    ).length
-    const unmatchedModels = resourceMatches.reduce((count, { matches }) => {
-      const checkpointUnmatched = matches.checkpoint?.unmatched ? 1 : 0
-      const loraUnmatched = matches.loras.filter((outcome) => outcome.unmatched !== null).length
-      return count + checkpointUnmatched + loraUnmatched
-    }, 0)
+    const { filesWithMatchEvidence, unmatchedModels } = aggregateResourceMatchSummaries(
+      resourceMatches.map(({ matches }) => summarizeResourceMatch(matches)),
+    )
 
     return {
       success: true,

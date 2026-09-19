@@ -27,6 +27,21 @@ export type ExtractedArchiveMetadata =
       supported: false
     }
 
+export type PngArchiveMetadata = Extract<ExtractedArchiveMetadata, { format: 'png' }>
+
+/**
+ * Narrows ExtractedArchiveMetadata to its PNG branch (the only one carrying
+ * structured a1111/comfy fields), or null otherwise. Every call site that
+ * reads `.a1111`/`.comfy` must go through this instead of re-deriving the
+ * `!metadata.supported || metadata.format !== 'png'` guard by hand --
+ * kind_robots#2824 hit a real TypeScript compile error from doing that
+ * inline (art-archive/t-026).
+ */
+export function narrowToPngMetadata(metadata: ExtractedArchiveMetadata): PngArchiveMetadata | null {
+  if (!metadata.supported || metadata.format !== 'png') return null
+  return metadata
+}
+
 export type JpegWebpMetadata = {
   format: 'jpeg' | 'webp'
   supported: true

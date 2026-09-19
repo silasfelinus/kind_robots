@@ -4,7 +4,11 @@ import { errorHandler } from '@/server/utils/error'
 import { getArtArchiveRoot } from '@/server/utils/artArchiveRoot'
 import { scanArchiveRoot } from '@/server/utils/artArchiveScanner'
 import { loadKnownArchiveFiles, planArchiveReconciliation } from '@/server/utils/artArchiveReconciler'
-import { matchArchiveResources, type ResourceMatchConfidence, type ResourceMatchOutcome } from '@/server/utils/artArchiveResourceMatch'
+import {
+  matchArchiveResources,
+  summarizeResourceMatch,
+  aggregateResourceMatchSummaries,
+} from '@/server/utils/artArchiveResourceMatch'
 import prisma from '@/server/utils/prisma'
 
 export default defineEventHandler(async (event) => {
@@ -18,9 +22,6 @@ export default defineEventHandler(async (event) => {
     })
     const plan = planArchiveReconciliation(scan.files, existingEntries)
     const countOf = (kind: string) => plan.actions.filter((action) => action.kind === kind).length
-    const confidenceCounts: Record<ResourceMatchConfidence, number> = { hash: 0, exact: 0, suggested: 0 }
-    let filesWithMatchEvidence = 0
-    let unmatchedModels = 0
 
     const resourceMatches = await Promise.all(
       scan.files.map(async (file) => {
@@ -30,17 +31,11 @@ export default defineEventHandler(async (event) => {
           file.parentFolder,
           prisma.resource,
         )
-        const outcomes = [matches.checkpoint, ...matches.loras].filter(
-          (outcome): outcome is ResourceMatchOutcome => outcome !== null,
-        )
-        if (outcomes.length > 0) filesWithMatchEvidence += 1
-        for (const outcome of outcomes) {
-          if (outcome.candidates.length > 0) {
-            for (const candidate of outcome.candidates) confidenceCounts[candidate.confidence] += 1
-          } else if (outcome.unmatched) unmatchedModels += 1
-        }
         return { relativePath: file.relativePath, matches }
       }),
+    )
+    const { filesWithMatchEvidence, unmatchedModels, confidenceCounts } = aggregateResourceMatchSummaries(
+      resourceMatches.map(({ matches }) => summarizeResourceMatch(matches)),
     )
 
     return {

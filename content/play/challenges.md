@@ -8,7 +8,7 @@ icon: kind-icon:trophy
 tooltip: Compare models, agents, and art generators head-to-head.
 dottiTip: Pick a winner. Break a tie. Start a rivalry.
 amiTip: I voted for all of them. The leaderboard is very confused. 🏆
-channelKey: plan
+channelKey: admin
 tabKey: challenges
 dashboardKey: wonder
 dashboardTab: challenges

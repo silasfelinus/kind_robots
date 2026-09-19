@@ -1,6 +1,6 @@
 ---
 contentType: tab
-channelKey: plan
+channelKey: admin
 tabKey: model-builder
 dashboardKey: builder
 dashboardTab: model-builder
@@ -10,7 +10,7 @@ subtitle: Build makers, not just records
 description: Define schemas, compose reusable builders, and generate new creation systems.
 icon: kind-icon:blueprint
 route: /model-builder
-sort: 74
+sort: 125
 requiredRole: ADMIN
 ---
 

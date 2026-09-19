@@ -1,6 +1,6 @@
 ---
 contentType: tab
-channelKey: plan
+channelKey: admin
 tabKey: appmaker
 dashboardKey: conductor
 dashboardTab: appmaker
@@ -10,7 +10,7 @@ subtitle: Shape an application before building it
 description: Turn project ideas into structured application concepts, surfaces, and implementation plans.
 icon: kind-icon:foundry
 route: /appmaker
-sort: 30
+sort: 100
 requiredRole: ADMIN
 ---
 

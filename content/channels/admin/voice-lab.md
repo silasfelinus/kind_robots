@@ -1,6 +1,6 @@
 ---
 contentType: tab
-channelKey: plan
+channelKey: admin
 tabKey: voice-lab
 dashboardKey: wonder
 dashboardTab: voice-lab
@@ -10,7 +10,7 @@ subtitle: Prototype spoken interfaces and integrations
 description: Experiment with voice input, assistants, and external device integrations.
 icon: kind-icon:microphone
 route: /plan/voice-lab
-sort: 60
+sort: 115
 requiredRole: ADMIN
 ---
 

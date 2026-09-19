@@ -1,6 +1,6 @@
 ---
 contentType: tab
-channelKey: plan
+channelKey: admin
 tabKey: mermaids
 dashboardKey: giftshop
 dashboardTab: mermaids
@@ -10,7 +10,7 @@ subtitle: A writing desk for the novel's landing page
 description: Edit and preview the Mermaids of Venice landing page without generated artwork.
 icon: kind-icon:mermaid
 route: /mermaids
-sort: 100
+sort: 150
 requiredRole: ADMIN
 ---
 

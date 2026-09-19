@@ -6,7 +6,7 @@ description: The experimental Alexa and voice bridge and its relay status.
 image: nav/heroes/games.webp
 icon: kind-icon:microphone
 tooltip: The voice frontier — skill, relay, and status.
-channelKey: plan
+channelKey: admin
 tabKey: voice-lab
 dashboardKey: wonder
 dashboardTab: voice-lab

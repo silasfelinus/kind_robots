@@ -36,13 +36,25 @@ export type ArchiveEntryDetail = {
   folderCollection: null | { id: number; label: string | null; parentFolder: string | null }
 }
 
+export type ArchiveActionPresetSummary = {
+  id: number
+  label: string
+  actionType: string
+  modifiers: unknown
+  isActive: boolean
+}
+
 type ArchiveFilters = { search: string; folderCollectionId: string; processState: string; matchState: string; rating: string; includeInactive: boolean }
 type ListPayload = { entries: ArchiveEntrySummary[]; page: number; pageSize: number; total: number }
 type ActionPayload = { alreadyQuarantined?: boolean; alreadyActive?: boolean }
+type BatchResult = { attempted: number; succeeded: number; failed: Array<{ id: number; message: string }> }
 
 export const useArtArchiveStore = defineStore('artArchiveStore', () => {
   const entries = ref<ArchiveEntrySummary[]>([])
   const detail = ref<ArchiveEntryDetail | null>(null)
+  const presets = ref<ArchiveActionPresetSummary[]>([])
+  const selectedIds = ref<number[]>([])
+  const batchResult = ref<BatchResult | null>(null)
   const loading = ref(false)
   const detailLoading = ref(false)
   const actionPending = ref(false)
@@ -60,6 +72,7 @@ export const useArtArchiveStore = defineStore('artArchiveStore', () => {
     return [...byId.entries()].map(([id, label]) => ({ id, label })).sort((a, b) => a.label.localeCompare(b.label))
   })
   const pageCount = computed(() => Math.max(1, Math.ceil(total.value / pageSize.value)))
+  const selectedCount = computed(() => selectedIds.value.length)
 
   async function fetchEntries(resetPage = false) {
     if (resetPage) page.value = 1
@@ -73,8 +86,16 @@ export const useArtArchiveStore = defineStore('artArchiveStore', () => {
       total.value = response.data.total
       page.value = response.data.page
       pageSize.value = response.data.pageSize
+      const visibleIds = new Set(entries.value.map((entry) => entry.id))
+      selectedIds.value = selectedIds.value.filter((id) => visibleIds.has(id))
     } else error.value = response.message || 'Could not load the archive.'
     loading.value = false
+  }
+
+  async function fetchPresets() {
+    const response = await performFetch<ArchiveActionPresetSummary[]>('/api/admin/art-archive/presets')
+    if (response.success && response.data) presets.value = response.data
+    else error.value = response.message || 'Could not load archive action presets.'
   }
 
   async function selectEntry(id: number) {
@@ -87,12 +108,14 @@ export const useArtArchiveStore = defineStore('artArchiveStore', () => {
   }
 
   function clearSelection() { detail.value = null }
+  function toggleBatchSelection(id: number) {
+    selectedIds.value = selectedIds.value.includes(id)
+      ? selectedIds.value.filter((selectedId) => selectedId !== id)
+      : [...selectedIds.value, id]
+    batchResult.value = null
+  }
+  function clearBatchSelection() { selectedIds.value = []; batchResult.value = null }
 
-  /** Shared by quarantineEntry/restoreEntry (art-archive/t-012): posts the
-   * action, then refreshes the list and selection from the server rather
-   * than guessing the resulting isActive/path state locally -- both
-   * endpoints are idempotent no-ops when already in the target state, so a
-   * refetch is cheap and always correct. */
   async function runEntryAction(id: number, path: 'quarantine' | 'restore'): Promise<boolean> {
     actionPending.value = true
     error.value = ''
@@ -110,11 +133,6 @@ export const useArtArchiveStore = defineStore('artArchiveStore', () => {
   function quarantineEntry(id: number) { return runEntryAction(id, 'quarantine') }
   function restoreEntry(id: number) { return runEntryAction(id, 'restore') }
 
-  /** Click and drag/drop rating action (art-archive/t-013). Unlike
-   * quarantine/restore, rating doesn't change what the current filters would
-   * exclude, so it patches the entry in place (list row + open detail)
-   * instead of a full refetch -- keeps the grid scroll position and page
-   * stable while rating several images in a row. */
   async function rateEntry(id: number, rating: number | null): Promise<boolean> {
     actionPending.value = true
     error.value = ''
@@ -133,5 +151,42 @@ export const useArtArchiveStore = defineStore('artArchiveStore', () => {
     return response.success
   }
 
-  return { entries, detail, loading, detailLoading, actionPending, error, total, page, pageSize, pageCount, filters, folders, fetchEntries, selectEntry, clearSelection, quarantineEntry, restoreEntry, rateEntry }
+  async function runBatch(ids: number[], action: (id: number) => Promise<boolean>, failureMessage: string): Promise<BatchResult> {
+    const failed: BatchResult['failed'] = []
+    let succeeded = 0
+    for (const id of [...new Set(ids)]) {
+      const ok = await action(id)
+      if (ok) succeeded += 1
+      else failed.push({ id, message: error.value || failureMessage })
+    }
+    const result = { attempted: [...new Set(ids)].length, succeeded, failed }
+    batchResult.value = result
+    selectedIds.value = failed.map((item) => item.id)
+    return result
+  }
+
+  function rateSelected(rating: number) {
+    return runBatch(selectedIds.value, (id) => rateEntry(id, rating), 'Rating failed.')
+  }
+
+  async function quarantineSelected() {
+    const ids = [...selectedIds.value]
+    const failed: BatchResult['failed'] = []
+    let succeeded = 0
+    actionPending.value = true
+    error.value = ''
+    for (const id of ids) {
+      const response = await performFetch<ActionPayload>(`/api/admin/art-archive/entries/${id}/quarantine`, { method: 'POST' })
+      if (response.success) succeeded += 1
+      else failed.push({ id, message: response.message || 'Delete failed.' })
+    }
+    const result = { attempted: ids.length, succeeded, failed }
+    batchResult.value = result
+    selectedIds.value = failed.map((item) => item.id)
+    await fetchEntries()
+    actionPending.value = false
+    return result
+  }
+
+  return { entries, detail, presets, selectedIds, selectedCount, batchResult, loading, detailLoading, actionPending, error, total, page, pageSize, pageCount, filters, folders, fetchEntries, fetchPresets, selectEntry, clearSelection, toggleBatchSelection, clearBatchSelection, quarantineEntry, restoreEntry, rateEntry, rateSelected, quarantineSelected }
 })

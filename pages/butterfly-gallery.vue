@@ -548,6 +548,29 @@ let acceptedBinTimer: ReturnType<typeof setTimeout> | null = null
 
 const pileEntries = computed(() => gallery.visiblePile.slice(0, 18))
 
+// -- Auto-prefetch (butterfly-gallery/t-024) --------------------------------
+// The pile only ever renders 18 cards (pileEntries above), so the queue never
+// needs to hold more than a small lookahead window in memory. Rather than
+// requiring a manual "Load more" click once the visible queue runs low,
+// automatically fetch ONE more page (still whatever small page size the
+// active feed provider uses -- 20/50 entries, never the whole backlog) as
+// soon as the filtered view dips under a small buffer above the render cap.
+// Watches pile.length too, not just visiblePile.length, so a page whose new
+// rows are all filtered out (e.g. filtered to "trashed only") still keeps
+// prefetching forward instead of silently stalling with hasMore still true.
+const PREFETCH_VISIBLE_BUFFER = 24
+
+function maybePrefetch(): void {
+  if (gallery.status !== 'ready' || gallery.isLoadingMore || !gallery.hasMore)
+    return
+  if (gallery.visiblePile.length < PREFETCH_VISIBLE_BUFFER) gallery.loadMore()
+}
+
+watch(
+  () => [gallery.pile.length, gallery.visiblePile.length, gallery.hasMore],
+  () => maybePrefetch(),
+)
+
 const searchModel = computed({
   get: () => gallery.filters.search,
   set: (value: string) => gallery.setFilter('search', value),
@@ -1903,6 +1926,82 @@ function pileStyle(index: number, total: number): Record<string, string> {
   .art-pile {
     left: 12%;
     right: 12%;
+  }
+}
+
+/* Phone-width tray layout (butterfly-gallery/t-024). Below 900px the rails
+   above are already icon-only, but their `clamp(180px/190px, 20vw, ...)`
+   minimum width does not shrink further -- two ~185px rails leave almost
+   nothing for `.art-display` on a ~375-414px phone viewport. Bins keep full
+   action parity here (every button still present, still draggable/clickable,
+   still keyboard-reachable) by moving from vertical side rails into two
+   horizontal, independently scrollable bottom trays instead of clipping.
+   `.image-info-panel` is metadata, not an action, so it steps aside here
+   rather than fighting the same width budget as the trays. */
+@media (max-width: 540px) {
+  .butterfly-stage {
+    min-height: 920px;
+  }
+
+  .gallery-utilities {
+    top: 0.75rem;
+    right: 0.75rem;
+    bottom: auto;
+  }
+
+  .art-display {
+    top: 4.5rem;
+    left: 4%;
+    right: 4%;
+    bottom: 21rem;
+  }
+
+  .art-pile {
+    left: 4%;
+    right: 4%;
+    bottom: 9.5rem;
+    height: 13rem;
+  }
+
+  .preset-rail,
+  .right-rail {
+    position: absolute;
+    top: auto;
+    left: 3%;
+    right: 3%;
+    width: auto;
+    display: flex;
+    flex-direction: row;
+    align-items: stretch;
+    gap: 0.5rem;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .preset-rail {
+    bottom: 5.25rem;
+    height: 4.25rem;
+  }
+
+  .right-rail {
+    bottom: 0.75rem;
+    height: 4.25rem;
+  }
+
+  .image-info-panel {
+    display: none;
+  }
+
+  .preset-bin,
+  .right-action {
+    flex: 0 0 auto;
+    width: 11.5rem;
+  }
+
+  .preset-bin-copy span,
+  .right-action small {
+    display: inline;
   }
 }
 </style>

@@ -1,121 +1,119 @@
 <!-- /components/content/pages/giving-page.vue -->
 <template>
-  <div class="kr-unbound mx-auto max-w-5xl px-4 py-2 sm:px-6 lg:px-8">
-    <div class="kr-panel-section space-y-6">
-      <div
-        class="rounded-2xl border border-primary/30 bg-primary/10 p-6 text-center shadow-sm sm:p-10"
+  <div class="kr-unbound kr-panel-section mx-auto max-w-5xl space-y-6">
+    <div
+      class="rounded-2xl border border-primary/30 bg-primary/10 p-6 text-center shadow-sm sm:p-10"
+    >
+      <Icon
+        name="kind-icon:hand-heart"
+        class="kr-icon-primary-12 mx-auto"
+      />
+
+      <p class="mt-4 text-3xl font-black text-base-content sm:text-4xl">
+        Give Directly. We Never Touch It.
+      </p>
+
+      <p class="mx-auto mt-3 max-w-2xl text-base-content/75">
+        Kind Robots supports the
+        <strong>Against Malaria Foundation</strong>. The direct fundraiser link
+        sends your donation straight to AMF, with Kind Robots never receiving or
+        processing the money.
+      </p>
+
+      <a
+        href="https://www.againstmalaria.com/amibot"
+        target="_blank"
+        rel="noopener"
+        class="btn btn-primary btn-lg mt-6 rounded-2xl"
       >
-        <Icon
-          name="kind-icon:hand-heart"
-          class="kr-icon-primary-12 mx-auto"
-        />
+        <Icon name="kind-icon:gift" class="kr-icon-5" />
+        Donate at againstmalaria.com/amibot
+      </a>
 
-        <p class="mt-4 text-3xl font-black text-base-content sm:text-4xl">
-          Give Directly. We Never Touch It.
-        </p>
+      <p class="kr-text-dim-xs mt-2">
+        Opens the Against Malaria Foundation's official fundraiser page in a new
+        tab.
+      </p>
+    </div>
 
-        <p class="mx-auto mt-3 max-w-2xl text-base-content/75">
-          Kind Robots supports the
-          <strong>Against Malaria Foundation</strong>. The direct fundraiser link
-          sends your donation straight to AMF, with Kind Robots never receiving
-          or processing the money.
-        </p>
+    <div class="grid gap-4 sm:grid-cols-2">
+      <div class="kr-panel p-5">
+        <Icon name="kind-icon:heart" class="h-6 w-6 text-secondary" />
 
-        <a
-          href="https://www.againstmalaria.com/amibot"
-          target="_blank"
-          rel="noopener"
-          class="btn btn-primary btn-lg mt-6 rounded-2xl"
-        >
-          <Icon name="kind-icon:gift" class="kr-icon-5" />
-          Donate at againstmalaria.com/amibot
-        </a>
+        <h2 class="kr-text-black-lg mt-2 text-base-content">Why AMF?</h2>
 
-        <p class="kr-text-dim-xs mt-2">
-          Opens the Against Malaria Foundation's official fundraiser page in a
-          new tab.
+        <p class="kr-text-dim-sm-70 mt-1 leading-relaxed">
+          {{ trivia }}
         </p>
       </div>
 
-      <div class="grid gap-4 sm:grid-cols-2">
-        <div class="kr-panel p-5">
-          <Icon name="kind-icon:heart" class="h-6 w-6 text-secondary" />
+      <div class="kr-panel p-5">
+        <Icon name="kind-icon:cart" class="h-6 w-6 text-secondary" />
 
-          <h2 class="kr-text-black-lg mt-2 text-base-content">Why AMF?</h2>
+        <h2 class="kr-text-black-lg mt-2 text-base-content">
+          Prefer It On Your Receipt?
+        </h2>
 
-          <p class="kr-text-dim-sm-70 mt-1 leading-relaxed">
-            {{ trivia }}
-          </p>
+        <p class="kr-text-dim-sm-70 mt-1 leading-relaxed">
+          You can add a $1 AMF-designated donation to a Kind Robots purchase.
+          Stripe collects it with the rest of the cart, and Kind Robots records
+          it separately for AMF remittance. Use the direct link above when you
+          prefer no middleman at all.
+        </p>
+
+        <div class="mt-4 flex flex-wrap gap-2">
+          <button
+            type="button"
+            class="kr-btn-outline-plain rounded-2xl"
+            :disabled="!donationItem"
+            @click="addDonationToCart"
+          >
+            <Icon name="kind-icon:plus" class="kr-icon-4" />
+            Add $1 donation to cart
+          </button>
+
+          <button
+            v-if="added || cartStore.hasItems"
+            type="button"
+            class="kr-btn-primary rounded-2xl"
+            @click="openCart"
+          >
+            <Icon name="kind-icon:cart" class="kr-icon-4" />
+            View cart
+            <span class="kr-badge-secondary">
+              {{ cartStore.totalItems }}
+            </span>
+          </button>
         </div>
 
-        <div class="kr-panel p-5">
-          <Icon name="kind-icon:cart" class="h-6 w-6 text-secondary" />
+        <p v-if="added" class="mt-2 text-xs font-semibold text-success">
+          Added. The cart is now available here and in the dashboard header.
+        </p>
+      </div>
+    </div>
 
-          <h2 class="kr-text-black-lg mt-2 text-base-content">
-            Prefer It On Your Receipt?
-          </h2>
-
-          <p class="kr-text-dim-sm-70 mt-1 leading-relaxed">
-            You can add a $1 AMF-designated donation to a Kind Robots purchase.
-            Stripe collects it with the rest of the cart, and Kind Robots records
-            it separately for AMF remittance. Use the direct link above when you
-            prefer no middleman at all.
-          </p>
-
-          <div class="mt-4 flex flex-wrap gap-2">
-            <button
-              type="button"
-              class="kr-btn-outline-plain rounded-2xl"
-              :disabled="!donationItem"
-              @click="addDonationToCart"
-            >
-              <Icon name="kind-icon:plus" class="kr-icon-4" />
-              Add $1 donation to cart
-            </button>
-
-            <button
-              v-if="added || cartStore.hasItems"
-              type="button"
-              class="kr-btn-primary rounded-2xl"
-              @click="openCart"
-            >
-              <Icon name="kind-icon:cart" class="kr-icon-4" />
-              View cart
-              <span class="kr-badge-secondary">
-                {{ cartStore.totalItems }}
-              </span>
-            </button>
-          </div>
-
-          <p v-if="added" class="mt-2 text-xs font-semibold text-success">
-            Added. The cart is now available here and in the dashboard header.
-          </p>
-        </div>
+    <section
+      id="monthly-support"
+      class="kr-panel scroll-mt-24 p-5 sm:p-7"
+    >
+      <div class="mb-6 text-center">
+        <Icon name="kind-icon:rocket" class="mx-auto kr-icon-8 text-primary" />
+        <h2 class="kr-text-black-2xl mt-2 text-base-content">
+          Support Kind Robots Monthly
+        </h2>
+        <p class="kr-text-dim-sm-70 mx-auto mt-2 max-w-2xl">
+          Monthly plans support Kind Robots itself: servers, art, stories, and
+          continued development. This is separate from donations to AMF.
+        </p>
       </div>
 
-      <section
-        id="monthly-support"
-        class="kr-panel scroll-mt-24 p-5 sm:p-7"
-      >
-        <div class="mb-6 text-center">
-          <Icon name="kind-icon:rocket" class="mx-auto kr-icon-8 text-primary" />
-          <h2 class="kr-text-black-2xl mt-2 text-base-content">
-            Support Kind Robots Monthly
-          </h2>
-          <p class="kr-text-dim-sm-70 mx-auto mt-2 max-w-2xl">
-            Monthly plans support Kind Robots itself: servers, art, stories, and
-            continued development. This is separate from donations to AMF.
-          </p>
-        </div>
+      <subscription-manager />
+    </section>
 
-        <subscription-manager />
-      </section>
-
-      <div
-        class="rounded-2xl border border-info/30 bg-info/10 p-4 text-center text-sm text-info-content"
-      >
-        <p>{{ plea }}</p>
-      </div>
+    <div
+      class="rounded-2xl border border-info/30 bg-info/10 p-4 text-center text-sm text-info-content"
+    >
+      <p>{{ plea }}</p>
     </div>
   </div>
 </template>

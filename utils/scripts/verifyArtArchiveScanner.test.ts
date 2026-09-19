@@ -275,13 +275,20 @@ async function testKnownFileCacheIsTrustedWhenStatUnchanged() {
 
     // Deliberately wrong hash/metadata: proves the scanner trusted the cache
     // (size+mtime match) instead of re-reading and re-hashing the file.
+    //
+    // `fileMtimeMs` is truncated to a whole millisecond here, matching how a
+    // real caller actually stores it: ScannedArchiveFile.fileMtime is a JS
+    // `Date` (integer-ms precision only), and loadKnownArchiveFiles() reads
+    // it back from the DB via `.getTime()`. A raw, untruncated
+    // `fileStat.mtimeMs` here would silently make this test pass without
+    // ever exercising the precision mismatch a live scan actually hits.
     const known: Map<string, KnownArchiveFile> = new Map([
       [
         'cached.png',
         {
           contentHash: 'stale-cached-hash',
           fileSize: fileStat.size,
-          fileMtimeMs: fileStat.mtimeMs,
+          fileMtimeMs: Math.trunc(fileStat.mtimeMs),
           metadata: { format: 'unknown', supported: false },
         },
       ],
@@ -292,6 +299,51 @@ async function testKnownFileCacheIsTrustedWhenStatUnchanged() {
     assert.equal(result.files[0]?.contentHash, 'stale-cached-hash')
     assert.equal(result.files[0]?.metadata.supported, false)
     console.log('verifyArtArchiveScanner: an unchanged known file is served from cache, not re-read')
+  } finally {
+    await rm(root, { recursive: true, force: true })
+  }
+}
+
+async function testKnownFileCacheSurvivesSubMillisecondMtimePrecisionLoss() {
+  const root = await mkdtemp(path.join(os.tmpdir(), 'art-archive-scan-'))
+  try {
+    const filePath = path.join(root, 'cached.png')
+    await writeFile(filePath, fakePng([textChunk('parameters', A1111_TEXT)]))
+    const fileStat = await stat(filePath)
+
+    // Regression test (art-archive/t-030): a real POSIX filesystem's mtime
+    // carries sub-millisecond precision (fileStat.mtimeMs is a non-integer
+    // float in practice essentially every time), but every persisted
+    // `known.fileMtimeMs` is always an integer -- a JS `Date` cannot hold
+    // more precision than whole milliseconds. Comparing the two directly
+    // (the pre-fix behavior) made the cache hit almost never fire in
+    // production: every repeat scan silently re-read and re-hashed every
+    // unchanged file's full bytes. Assert this exact scenario cache-hits.
+    assert.ok(
+      !Number.isInteger(fileStat.mtimeMs),
+      'test environment sanity check: this filesystem must report sub-millisecond mtime precision for the regression to be meaningful',
+    )
+    const known: Map<string, KnownArchiveFile> = new Map([
+      [
+        'cached.png',
+        {
+          contentHash: 'stale-cached-hash',
+          fileSize: fileStat.size,
+          fileMtimeMs: Math.trunc(fileStat.mtimeMs), // integer -- as if it had round-tripped through a Date/DB column
+          metadata: { format: 'unknown', supported: false },
+        },
+      ],
+    ])
+
+    const result = await scanArchiveRoot(root, { knownFiles: known })
+    assert.equal(
+      result.cacheHitCount,
+      1,
+      'an integer-precision known mtime must still cache-hit against a live, sub-millisecond-precision stat',
+    )
+    console.log(
+      'verifyArtArchiveScanner: a Date-truncated known mtime still cache-hits against sub-millisecond live stat precision',
+    )
   } finally {
     await rm(root, { recursive: true, force: true })
   }
@@ -366,6 +418,7 @@ async function run() {
   await testScannerRootConfinement()
   await testTrashFolderNeverRescanned()
   await testKnownFileCacheIsTrustedWhenStatUnchanged()
+  await testKnownFileCacheSurvivesSubMillisecondMtimePrecisionLoss()
   await testKnownFileCacheIsIgnoredWhenStatChanged()
   await testBoundedConcurrencyProducesTheSameResultAsSequential()
   console.log('verifyArtArchiveScanner: all assertions passed')

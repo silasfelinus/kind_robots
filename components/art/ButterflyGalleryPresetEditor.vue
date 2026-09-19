@@ -90,6 +90,8 @@
         </div>
       </article>
     </div>
+
+    <ButterflyGalleryBatchControls />
   </section>
 </template>
 

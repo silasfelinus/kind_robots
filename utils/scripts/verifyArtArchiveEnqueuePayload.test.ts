@@ -74,7 +74,25 @@ function testTagsProvenanceIds() {
   })
   assert.equal(payload.archiveEntryId, 9)
   assert.equal(payload.archivePresetId, 4)
-  console.log('verifyArtArchiveEnqueuePayload: tags archiveEntryId/archivePresetId for provenance')
+  assert.equal(payload.actionType, 'ADDITIONAL_RENDER')
+  console.log('verifyArtArchiveEnqueuePayload: tags archiveEntryId/archivePresetId/actionType for provenance')
+}
+
+function testTagsActionTypeIndependentlyOfPresetId() {
+  // art-archive/t-034: actionType must survive a serialize/parse round-trip
+  // on its own, so a report can read it even if the ArchiveActionPreset row
+  // (archivePresetId points at) is later edited or deleted.
+  const payload = buildArchiveEnqueuePayload({
+    archiveEntryId: 11,
+    presetId: 8,
+    actionType: 'REPLACE_CHECKPOINT',
+    modifiers: {},
+    artImage: BASE_ART_IMAGE,
+  })
+  const roundTripped = parseArtJobPayload(serializeArtJobPayload(payload))
+  assert.equal(roundTripped.actionType, 'REPLACE_CHECKPOINT')
+  assert.equal(roundTripped.archivePresetId, 8)
+  console.log('verifyArtArchiveEnqueuePayload: actionType survives serialization independent of archivePresetId')
 }
 
 function testMergesPresetOnTopOfBasePayload() {
@@ -208,6 +226,7 @@ function testAnExplicitUndefinedModifierDoesNotSilentlyVanish() {
 function run() {
   testBuildsBasePayloadFromArtImage()
   testTagsProvenanceIds()
+  testTagsActionTypeIndependentlyOfPresetId()
   testMergesPresetOnTopOfBasePayload()
   testThrowsWhenArtImageHasNoPromptString()
   testDefaultsMissingSaveFieldsSafely()

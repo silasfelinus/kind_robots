@@ -26,6 +26,10 @@ export type ArchiveEntryJobStatus = {
   jobId: number
   status: string
   archivePresetId: number | null
+  /** Tagged directly on the payload (art-archive/t-034) -- read straight
+   * from here rather than re-resolved from the (possibly since-edited or
+   * -deleted) ArchiveActionPreset row that `archivePresetId` points at. */
+  actionType: string | null
   updatedAt: string | null
   error: string | null
 }
@@ -54,6 +58,7 @@ export function pickLatestArchiveEntryJobs(
       status: row.status,
       archivePresetId:
         typeof payload.archivePresetId === 'number' ? payload.archivePresetId : null,
+      actionType: typeof payload.actionType === 'string' ? payload.actionType : null,
       updatedAt:
         row.updatedAt instanceof Date ? row.updatedAt.toISOString() : (row.updatedAt ?? null),
       error: row.error,

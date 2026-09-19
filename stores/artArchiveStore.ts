@@ -52,7 +52,7 @@ type ArchiveFilters = { search: string; folderCollectionId: string; processState
 type ListPayload = { entries: ArchiveEntrySummary[]; page: number; pageSize: number; total: number }
 type ActionPayload = { alreadyQuarantined?: boolean; alreadyActive?: boolean }
 type BatchResult = { attempted: number; succeeded: number; failed: Array<{ id: number; message: string }> }
-export type ArchiveEntryJobStatus = { jobId: number; status: string; archivePresetId: number | null; updatedAt: string | null; error: string | null }
+export type ArchiveEntryJobStatus = { jobId: number; status: string; archivePresetId: number | null; actionType: string | null; updatedAt: string | null; error: string | null }
 const POLLABLE_JOB_STATUSES = new Set(['PENDING', 'RUNNING'])
 
 export const useArtArchiveStore = defineStore('artArchiveStore', () => {
@@ -217,7 +217,14 @@ export const useArtArchiveStore = defineStore('artArchiveStore', () => {
     if (response.success && response.data) {
       entryJobs.value = {
         ...entryJobs.value,
-        [id]: { jobId: response.data.jobId, status: response.data.status, archivePresetId: presetId, updatedAt: null, error: null },
+        [id]: {
+          jobId: response.data.jobId,
+          status: response.data.status,
+          archivePresetId: presetId,
+          actionType: response.data.actionType ?? null,
+          updatedAt: null,
+          error: null,
+        },
       }
     } else {
       error.value = response.message || `Could not queue a job for archive entry #${id}.`

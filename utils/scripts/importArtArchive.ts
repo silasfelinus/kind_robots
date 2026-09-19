@@ -1,16 +1,9 @@
 // /utils/scripts/importArtArchive.ts
 //
-// CLI entrypoint for the Art Archive importer (art-archive/t-005). Scans the
-// configured root (art-archive/t-004's scanArchiveRoot) and reconciles every
-// file into ArchiveEntry/ArtImage/ArtCollection rows via
-// importArchiveFile() -- until now nothing called that function outside its
-// own contract verifier, so the importer could not run against the real
-// archive at all (art-archive/t-022). Mirrors scanArtArchive.ts's shape:
-// same --root flag, same read-first-then-report structure, just applying
-// instead of dry-running.
-//
-// Resource matching (art-archive/t-006) is deliberately out of scope here --
-// see art-archive/t-023 for reporting match candidates from this entrypoint.
+// CLI entrypoint for the Art Archive importer. Scans the configured root,
+// reconciles every file into ArchiveEntry/ArtImage/ArtCollection rows, and
+// reports the resource-provenance candidates found in each file's embedded
+// generation metadata.
 //
 // Usage:
 //   PRIVATE_PATH=/path/to/archive npx tsx utils/scripts/importArtArchive.ts
@@ -18,6 +11,10 @@
 import { getArtArchiveRoot } from '../../server/utils/artArchiveRoot'
 import { scanArchiveRoot } from '../../server/utils/artArchiveScanner'
 import { importArchiveFile } from '../../server/utils/artArchiveImporter'
+import {
+  matchArchiveResources,
+  type ResourceMatchOutcome,
+} from '../../server/utils/artArchiveResourceMatch'
 import prisma from '../../server/utils/prisma'
 
 function resolveRootArg(): string | null {
@@ -33,6 +30,26 @@ function resolveUserIdArg(): number {
   return Number.isInteger(parsed) && parsed > 0 ? parsed : 1
 }
 
+function formatOutcome(label: string, outcome: ResourceMatchOutcome): string {
+  if (outcome.candidates.length > 0) {
+    return `${label}: ${outcome.candidates
+      .map(
+        (candidate) =>
+          `Resource ${candidate.resourceId} [${candidate.confidence}] ${candidate.evidence}`,
+      )
+      .join('; ')}`
+  }
+
+  const evidence = outcome.unmatched
+  if (!evidence) return `${label}: no embedded evidence`
+  const parts = [
+    evidence.name ? `name=${JSON.stringify(evidence.name)}` : null,
+    evidence.hash ? `hash=${evidence.hash}` : null,
+    evidence.weight != null ? `weight=${evidence.weight}` : null,
+  ].filter(Boolean)
+  return `${label}: UNMATCHED ${parts.join(' ')}`
+}
+
 async function main() {
   const root = resolveRootArg() ?? getArtArchiveRoot()
   const userId = resolveUserIdArg()
@@ -42,6 +59,8 @@ async function main() {
   let imagesReused = 0
   let collectionsCreated = 0
   let collectionsReused = 0
+  let filesWithMatchEvidence = 0
+  let unmatchedModels = 0
   const errors: Array<{ relativePath: string; message: string }> = []
 
   for (const file of scan.files) {
@@ -51,19 +70,43 @@ async function main() {
       else imagesReused += 1
       if (result.createdCollection) collectionsCreated += 1
       else collectionsReused += 1
+
+      const matches = await matchArchiveResources(
+        file.metadata,
+        file.relativePath,
+        file.parentFolder,
+        prisma.resource,
+      )
+      const outcomes = [matches.checkpoint, ...matches.loras].filter(
+        (outcome): outcome is ResourceMatchOutcome => outcome !== null,
+      )
+      if (outcomes.length > 0) {
+        filesWithMatchEvidence += 1
+        console.log(`  resource matches: ${file.relativePath}`)
+        if (matches.checkpoint) {
+          console.log(`    ${formatOutcome('checkpoint', matches.checkpoint)}`)
+          if (matches.checkpoint.unmatched) unmatchedModels += 1
+        }
+        matches.loras.forEach((outcome, index) => {
+          console.log(`    ${formatOutcome(`LoRA ${index + 1}`, outcome)}`)
+          if (outcome.unmatched) unmatchedModels += 1
+        })
+      }
     } catch (error) {
       errors.push({ relativePath: file.relativePath, message: String(error) })
     }
   }
 
   console.log(`Art Archive import of ${scan.root}`)
-  console.log(`  files scanned:       ${scan.files.length}`)
-  console.log(`  scan issues:         ${scan.issues.length}`)
-  console.log(`  images created:      ${imagesCreated}`)
-  console.log(`  images reused:       ${imagesReused}`)
-  console.log(`  collections created: ${collectionsCreated}`)
-  console.log(`  collections reused:  ${collectionsReused}`)
-  console.log(`  import errors:       ${errors.length}`)
+  console.log(`  files scanned:        ${scan.files.length}`)
+  console.log(`  scan issues:          ${scan.issues.length}`)
+  console.log(`  images created:       ${imagesCreated}`)
+  console.log(`  images reused:        ${imagesReused}`)
+  console.log(`  collections created:  ${collectionsCreated}`)
+  console.log(`  collections reused:   ${collectionsReused}`)
+  console.log(`  files with evidence:  ${filesWithMatchEvidence}`)
+  console.log(`  unmatched models:     ${unmatchedModels}`)
+  console.log(`  import/match errors:  ${errors.length}`)
   for (const error of errors.slice(0, 20)) {
     console.log(`    ${error.relativePath}: ${error.message}`)
   }

@@ -46,7 +46,7 @@
             <div v-if="archive.loading" class="grid min-h-64 place-items-center kr-panel"><span class="kr-spinner-lg-primary" /></div>
             <div v-else class="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 2xl:grid-cols-6">
               <div v-for="entry in archive.entries" :key="entry.id" class="group relative overflow-hidden rounded-2xl border border-base-300 bg-base-200 transition hover:border-primary" :class="{ 'opacity-60': !entry.isActive, 'ring-2 ring-primary': archive.selectedIds.includes(entry.id) }">
-                <button type="button" draggable="true" class="block w-full text-left" @click="archive.selectEntry(entry.id)" @dragstart="onDragStart(entry.id)" @dragend="draggingEntryId = null"><div class="aspect-[2/3] bg-base-300"><img v-if="entry.imagePath" :src="entry.imagePath" :alt="entry.relativePath" class="h-full w-full object-cover" loading="lazy" /><div v-else class="grid h-full place-items-center"><Icon name="kind-icon:image" class="h-10 w-10 opacity-30" /></div></div><div class="space-y-1 p-2"><p class="truncate text-xs font-semibold">{{ fileName(entry.relativePath) }}</p><p class="truncate text-[10px] opacity-60">{{ entry.parentFolder || 'Archive root' }}</p><div class="flex flex-wrap gap-1"><span v-if="!entry.isActive" class="badge badge-xs badge-error">Trashed</span><span class="badge badge-xs">{{ entry.processState }}</span><span class="badge badge-xs">{{ entry.matchState }}</span><span v-if="entry.rating" class="badge badge-xs">★ {{ entry.rating }}</span></div></div></button>
+                <button type="button" draggable="true" class="block w-full text-left" @click="archive.selectEntry(entry.id)" @dragstart="onDragStart(entry.id)" @dragend="draggingEntryId = null"><div class="aspect-[2/3] bg-base-300"><img v-if="entry.imagePath" :src="entry.imagePath" :alt="entry.relativePath" class="h-full w-full object-cover" loading="lazy" /><div v-else class="grid h-full place-items-center"><Icon name="kind-icon:image" class="h-10 w-10 opacity-30" /></div></div><div class="space-y-1 p-2"><p class="truncate text-xs font-semibold">{{ fileName(entry.relativePath) }}</p><p class="truncate text-[10px] opacity-60">{{ entry.parentFolder || 'Archive root' }}</p><div class="flex flex-wrap gap-1"><span v-if="!entry.isActive" class="badge badge-xs badge-error">Trashed</span><span class="badge badge-xs">{{ entry.processState }}</span><span class="badge badge-xs">{{ entry.matchState }}</span><span v-if="entry.rating" class="badge badge-xs">★ {{ entry.rating }}</span><span v-if="archive.entryJobs[entry.id]" class="badge badge-xs" :class="jobBadgeClass(archive.entryJobs[entry.id]?.status)" :title="`ArtJob #${archive.entryJobs[entry.id]?.jobId}${archive.entryJobs[entry.id]?.error ? ': ' + archive.entryJobs[entry.id]?.error : ''}`">Job {{ archive.entryJobs[entry.id]?.status }}</span></div></div></button>
                 <button type="button" class="kr-btn btn-circle btn-sm absolute right-2 top-2" :class="archive.selectedIds.includes(entry.id) ? 'btn-primary' : 'btn-ghost bg-base-100/80'" :aria-pressed="archive.selectedIds.includes(entry.id)" :title="archive.selectedIds.includes(entry.id) ? 'Remove from batch' : 'Add to batch'" @click.stop="archive.toggleBatchSelection(entry.id)"><Icon :name="archive.selectedIds.includes(entry.id) ? 'kind-icon:check' : 'kind-icon:plus'" class="kr-icon-4" /></button>
               </div>
             </div>
@@ -64,7 +64,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { useArtArchiveStore } from '@/stores/artArchiveStore'
 import { useUserStore } from '@/stores/userStore'
 
@@ -78,6 +78,11 @@ const selectedPresetId = ref<number | null>(null)
 const selectedPreset = computed(() => archive.presets.find((preset) => preset.id === selectedPresetId.value) || null)
 
 function fileName(path: string) { return path.split('/').pop() || path }
+function jobBadgeClass(status: string | undefined) {
+  if (status === 'DONE') return 'badge-success'
+  if (status === 'FAILED' || status === 'CANCELLED') return 'badge-error'
+  return 'badge-warning'
+}
 function pretty(value: unknown) { return value ? JSON.stringify(value, null, 2) : 'No metadata recorded.' }
 async function applyFilters() { await archive.fetchEntries(true) }
 async function changePage(delta: number) { archive.page += delta; await archive.fetchEntries() }
@@ -95,8 +100,15 @@ async function confirmApplyPreset() {
   await archive.applyPresetToSelected(presetId)
 }
 
+let jobPollTimer: ReturnType<typeof setInterval> | null = null
+
 onMounted(async () => {
   if (!userStore.initialized) await userStore.initialize()
   if (userStore.isAdmin) await Promise.all([archive.fetchEntries(true), archive.fetchPresets()])
+  jobPollTimer = setInterval(() => { void archive.refreshPendingEntryJobs() }, 4000)
+})
+
+onUnmounted(() => {
+  if (jobPollTimer !== null) clearInterval(jobPollTimer)
 })
 </script>

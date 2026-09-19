@@ -48,6 +48,8 @@ type ArchiveFilters = { search: string; folderCollectionId: string; processState
 type ListPayload = { entries: ArchiveEntrySummary[]; page: number; pageSize: number; total: number }
 type ActionPayload = { alreadyQuarantined?: boolean; alreadyActive?: boolean }
 type BatchResult = { attempted: number; succeeded: number; failed: Array<{ id: number; message: string }> }
+export type ArchiveEntryJobStatus = { jobId: number; status: string; archivePresetId: number | null; updatedAt: string | null; error: string | null }
+const POLLABLE_JOB_STATUSES = new Set(['PENDING', 'RUNNING'])
 
 export const useArtArchiveStore = defineStore('artArchiveStore', () => {
   const entries = ref<ArchiveEntrySummary[]>([])
@@ -55,6 +57,7 @@ export const useArtArchiveStore = defineStore('artArchiveStore', () => {
   const presets = ref<ArchiveActionPresetSummary[]>([])
   const selectedIds = ref<number[]>([])
   const batchResult = ref<BatchResult | null>(null)
+  const entryJobs = ref<Record<number, ArchiveEntryJobStatus>>({})
   const loading = ref(false)
   const detailLoading = ref(false)
   const actionPending = ref(false)
@@ -88,8 +91,35 @@ export const useArtArchiveStore = defineStore('artArchiveStore', () => {
       pageSize.value = response.data.pageSize
       const visibleIds = new Set(entries.value.map((entry) => entry.id))
       selectedIds.value = selectedIds.value.filter((id) => visibleIds.has(id))
+      void fetchEntryJobs(entries.value.map((entry) => entry.id))
     } else error.value = response.message || 'Could not load the archive.'
     loading.value = false
+  }
+
+  /** art-archive/t-028: backfills any recent preset-job history for the
+   * given entries (e.g. after a page load or a refresh), keyed by
+   * archiveEntryId as tagged in buildArchiveEnqueuePayload.ts. */
+  async function fetchEntryJobs(ids: number[]) {
+    const uniqueIds = [...new Set(ids)].filter((id) => Number.isInteger(id) && id > 0)
+    if (!uniqueIds.length) return
+    const response = await performFetch<{ jobs: Record<string, ArchiveEntryJobStatus> }>(
+      `/api/admin/art-archive/entries/jobs?ids=${uniqueIds.join(',')}`,
+    )
+    if (response.success && response.data) {
+      const next = { ...entryJobs.value }
+      for (const [idKey, status] of Object.entries(response.data.jobs)) next[Number(idKey)] = status
+      entryJobs.value = next
+    }
+  }
+
+  /** Re-polls only the jobs still in flight, so the board reflects DONE/FAILED
+   * without hammering the endpoint for jobs that already settled. */
+  function refreshPendingEntryJobs() {
+    const pendingIds = Object.entries(entryJobs.value)
+      .filter(([, job]) => POLLABLE_JOB_STATUSES.has(job.status))
+      .map(([id]) => Number(id))
+    if (pendingIds.length) return fetchEntryJobs(pendingIds)
+    return Promise.resolve()
   }
 
   async function fetchPresets() {
@@ -180,7 +210,14 @@ export const useArtArchiveStore = defineStore('artArchiveStore', () => {
       `/api/admin/art-archive/entries/${id}/enqueue`,
       { method: 'POST', body: JSON.stringify({ presetId }) },
     )
-    if (!response.success) error.value = response.message || `Could not queue a job for archive entry #${id}.`
+    if (response.success && response.data) {
+      entryJobs.value = {
+        ...entryJobs.value,
+        [id]: { jobId: response.data.jobId, status: response.data.status, archivePresetId: presetId, updatedAt: null, error: null },
+      }
+    } else {
+      error.value = response.message || `Could not queue a job for archive entry #${id}.`
+    }
     actionPending.value = false
     return response.success
   }
@@ -208,5 +245,5 @@ export const useArtArchiveStore = defineStore('artArchiveStore', () => {
     return result
   }
 
-  return { entries, detail, presets, selectedIds, selectedCount, batchResult, loading, detailLoading, actionPending, error, total, page, pageSize, pageCount, filters, folders, fetchEntries, fetchPresets, selectEntry, clearSelection, toggleBatchSelection, clearBatchSelection, quarantineEntry, restoreEntry, rateEntry, rateSelected, quarantineSelected, applyPresetToSelected }
+  return { entries, detail, presets, selectedIds, selectedCount, batchResult, entryJobs, loading, detailLoading, actionPending, error, total, page, pageSize, pageCount, filters, folders, fetchEntries, fetchPresets, selectEntry, clearSelection, toggleBatchSelection, clearBatchSelection, quarantineEntry, restoreEntry, rateEntry, rateSelected, quarantineSelected, applyPresetToSelected, fetchEntryJobs, refreshPendingEntryJobs }
 })

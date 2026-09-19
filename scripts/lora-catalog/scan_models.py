@@ -82,9 +82,9 @@ KIND_RESOURCE_TYPE = {
     "checkpoint": "CHECKPOINT",
     "video_checkpoint": "CHECKPOINT",       # generation carries LTX/Wan/SVD
     "audio_checkpoint": "CHECKPOINT",
-    "diffusion_model": "DIFFUSION_MODEL",   # NEW enum member (see migration)
-    "text_encoder": "TEXT_ENCODER",         # NEW enum member
-    "vae": "VAE",                           # NEW enum member
+    "diffusion_model": "DIFFUSION_MODEL",
+    "text_encoder": "TEXT_ENCODER",
+    "vae": "VAE",
     "controlnet": "CONTROLNET",
     "hypernetwork": "HYPERNETWORK",
     "embedding": "EMBEDDING",
@@ -307,7 +307,15 @@ def build_entry(path: Path, root: Path, cache: core.Cache,
     e.filename = path.name
     e.name = path.stem
     e.size_bytes = st.st_size
-    e.kind, e.comfy_folder, e.is_tool = classify(e.relpath)
+    # Include the scan root's own last two path segments in classification.
+    # A watched inbox such as models/checkpoints/import otherwise reduces a
+    # plain dropped checkpoint to just "foo.safetensors" and loses the very
+    # "checkpoints" signal that tells us what it is when public hash metadata
+    # is unavailable.
+    classification_path = "/".join(
+        part for part in (root.parent.name, root.name, e.relpath) if part
+    )
+    e.kind, e.comfy_folder, e.is_tool = classify(classification_path)
     # Hash only kinds a by-hash lookup can identify — skips the multi-GB bulk of
     # text encoders / VAEs / upscalers that no hash DB indexes anyway.
     if not no_hash and e.kind in HASH_KINDS:
@@ -672,7 +680,7 @@ def main() -> int:
     resourced = sum(1 for e in entries if to_resource(e))
     print("\n=== Summary ===")
     print(f"  files            : {len(entries)}")
-    print(f"  will be Resources: {resourced}  (checkpoints + components)")
+    print(f"  will be Resources: {resourced}  (file-backed model resources)")
     print(f"  Civitai / Archive: {civ} / {arc}")
     print("  by kind          : " + ", ".join(f"{k}={v}" for k, v in sorted(by_kind.items())))
     print(f"\n  plan : {args.out / 'models-move-plan.csv'}   (review before --organize move)")

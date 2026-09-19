@@ -92,9 +92,14 @@ async function runDryRun(scan: ArchiveScanResult): Promise<void> {
     }
   }
 
+  const dryRunCacheHitPct =
+    scan.files.length > 0 ? ((scan.cacheHitCount / scan.files.length) * 100).toFixed(1) : '0.0'
+
   console.log(`Art Archive DRY-RUN reconciliation of ${scan.root} -- NO DATABASE WRITES PERFORMED`)
   console.log(`  files scanned:            ${scan.files.length}`)
-  console.log(`  served from cache:        ${scan.cacheHitCount} (skipped re-read/re-hash)`)
+  console.log(
+    `  served from cache:        ${scan.cacheHitCount}/${scan.files.length} (${dryRunCacheHitPct}%, skipped re-read/re-hash)`,
+  )
   console.log(`  scan issues:              ${scan.issues.length}`)
   console.log(`  would import (new):       ${countOf('new')}`)
   console.log(`  unchanged:                ${countOf('unchanged')}`)
@@ -130,10 +135,14 @@ async function main() {
   const result = await reconcileArchiveScan(scan, userId)
 
   const countOf = (kind: string) => result.outcomes.filter((o) => o.kind === kind).length
+  const cacheHitPct =
+    result.scannedFileCount > 0 ? ((scan.cacheHitCount / result.scannedFileCount) * 100).toFixed(1) : '0.0'
 
   console.log(`Art Archive reconciliation of ${result.root}`)
   console.log(`  files scanned:       ${result.scannedFileCount}`)
-  console.log(`  served from cache:   ${scan.cacheHitCount} (skipped re-read/re-hash)`)
+  console.log(
+    `  served from cache:   ${scan.cacheHitCount}/${result.scannedFileCount} (${cacheHitPct}%, skipped re-read/re-hash)`,
+  )
   console.log(`  scan issues:         ${result.scanIssueCount}`)
   console.log(`  new:                 ${countOf('new')}`)
   console.log(`  unchanged:           ${countOf('unchanged')}`)

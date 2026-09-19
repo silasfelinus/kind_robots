@@ -270,9 +270,7 @@
               }}</span>
               <span class="kr-text-semibold-sm">
                 also builds {{ family.members.length }}
-                {{
-                  family.members.length === 1 ? 'other card' : 'other cards'
-                }}
+                {{ family.members.length === 1 ? 'other card' : 'other cards' }}
                 in the catalog
               </span>
               <span v-if="family.drifted" class="kr-badge-warning-xs">
@@ -405,11 +403,36 @@
                 The flashcard is for retrieval. This page is for understanding —
                 come back to it whenever the card stops making sense.
               </p>
+              <p
+                v-if="completionNotice"
+                class="mt-2 text-sm font-semibold text-success"
+              >
+                {{ completionNotice }}
+              </p>
             </div>
-            <NuxtLink :to="studyLink" class="kr-btn-primary-md-plain">
-              Study {{ lesson.simplified }}
-              <Icon name="kind-icon:forward" class="kr-icon-4" />
-            </NuxtLink>
+
+            <div class="flex flex-wrap items-center gap-2">
+              <!-- mandarin-tutor/t-023: marking the lesson read is what moves this card
+                   forward in the study queue and pays the one-time lesson point. The
+                   server decides whether anything is actually awarded, so pressing it
+                   twice is harmless and pays nothing the second time. -->
+              <button
+                v-if="!lessonAlreadyRead"
+                type="button"
+                class="kr-btn-outline-md"
+                :disabled="completing"
+                @click="markRead"
+              >
+                <span v-if="completing" class="kr-spinner-xs" />
+                {{ completing ? 'Saving…' : 'I have read this' }}
+              </button>
+              <span v-else class="kr-badge-success-sm">Lesson read</span>
+
+              <NuxtLink :to="studyLink" class="kr-btn-primary-md-plain">
+                Study {{ lesson.simplified }}
+                <Icon name="kind-icon:forward" class="kr-icon-4" />
+              </NuxtLink>
+            </div>
           </div>
         </section>
       </template>
@@ -420,10 +443,12 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue'
 import { performFetch } from '@/stores/utils'
+import { useMandarinTutorStore } from '@/stores/mandarinTutorStore'
 import type { MandarinComponentRole } from '@/utils/mandarin'
 import type { MandarinLesson } from '@/utils/mandarinLesson'
 
 const route = useRoute()
+const store = useMandarinTutorStore()
 
 const cardKey = computed(() => String(route.params.key || '').trim())
 
@@ -470,6 +495,37 @@ onMounted(loadLesson)
 function lessonLink(key: string): string {
   return `/play/mandarin/learn/${encodeURIComponent(key)}`
 }
+
+// mandarin-tutor/t-023: lesson completion and the one-time point.
+const completing = ref(false)
+const completionNotice = ref('')
+
+const lessonAlreadyRead = computed(() => store.lessonIsComplete(cardKey.value))
+
+async function markRead() {
+  if (completing.value || !cardKey.value) return
+  completing.value = true
+  completionNotice.value = ''
+  try {
+    const awarded = await store.completeLesson(cardKey.value)
+    completionNotice.value = awarded
+      ? `+${awarded} points. ${lesson.value?.simplified ?? 'This card'} moves up your study queue.`
+      : 'Recorded.'
+  } finally {
+    completing.value = false
+  }
+}
+
+// The store owns which lessons are complete, but this page can be the first thing a
+// learner opens (a shared link, a bookmark), in which case nothing has loaded it yet.
+onMounted(() => {
+  void store.loadPoints()
+})
+
+// Clear the previous card's notice when navigating to another lesson.
+watch(cardKey, () => {
+  completionNotice.value = ''
+})
 
 // The tutor page already focuses a single card by key via ?card= -- reuse that rather
 // than inventing a second deep-link contract for the same thing.

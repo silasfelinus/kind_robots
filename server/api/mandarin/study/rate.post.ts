@@ -3,6 +3,12 @@
 // mandarin-tutor/t-015: persists a Study-loop self-rating (Again/Hard/Good/Easy) into
 // durable SM-2-lite scheduling state (MandarinCardProgress) and an append-only history
 // event (MandarinReviewEvent). See server/utils/mandarinSrs.ts for the scheduling math.
+//
+// mandarin-tutor/t-023: also pays recall points. The award is computed from the card's
+// state BEFORE this review is applied (see `pointsState` below), which is what makes
+// "re-drilling an easy card earns almost nothing" true -- scoring against the
+// already-updated row would reset the interval first and hand out full credit for a
+// grind. server/utils/mandarinPoints.ts owns the arithmetic and explains each factor.
 import { createError, defineEventHandler, readBody } from 'h3'
 import { requireApiUser } from '../../../utils/authGuard'
 import { errorHandler } from '../../../utils/error'
@@ -11,6 +17,14 @@ import {
   MANDARIN_SRS_INITIAL_STATE,
   nextMandarinSrsSchedule,
 } from '../../../utils/mandarinSrs'
+import {
+  MANDARIN_POINTS_NEW_CARD,
+  awardForRecall,
+} from '../../../utils/mandarinPoints'
+import {
+  readMandarinTotals,
+  recordMandarinPoints,
+} from '../../../utils/mandarinPointsLedger'
 import type { StudyRating } from '../../../../stores/mandarinTutorStore'
 
 const VALID_RATINGS = new Set<StudyRating>(['again', 'hard', 'good', 'easy'])
@@ -64,8 +78,22 @@ export default defineEventHandler(async (event) => {
         }
       : MANDARIN_SRS_INITIAL_STATE
 
+    // Captured before the upsert below rewrites the row. Everything the points model
+    // weighs -- how overdue the card was, how often it has been forgotten, how long the
+    // interval had grown -- describes the review that just happened, not the one being
+    // scheduled.
+    const pointsState = existing
+      ? {
+          repetitions: existing.repetitions,
+          intervalDays: existing.intervalDays,
+          lapses: existing.lapses,
+          lastReviewedAt: existing.lastReviewedAt,
+        }
+      : MANDARIN_POINTS_NEW_CARD
+
     const now = new Date()
     const next = nextMandarinSrsSchedule(currentState, rating, now)
+    const award = awardForRecall(rating, pointsState, now)
 
     const progress = await prisma.mandarinCardProgress.upsert({
       where: { userId_cardKey_dimension: { userId, cardKey, dimension } },
@@ -103,11 +131,29 @@ export default defineEventHandler(async (event) => {
       },
     })
 
+    // Points are a reward layer on top of scheduling, never a precondition for it: a
+    // ledger failure must not cost the learner their review. The schedule and the review
+    // event are already committed by this point.
+    const totals = award.points
+      ? await recordMandarinPoints({
+          userId,
+          reason: 'recall',
+          amount: award.points,
+          cardKey,
+          note: award.reason,
+        })
+      : await readMandarinTotals(userId)
+
     return {
       success: true,
       statusCode: 200,
-      message: 'Study rating recorded.',
+      message: award.points
+        ? `Study rating recorded. +${award.points} points.`
+        : 'Study rating recorded.',
       data: {
+        awarded: award.points,
+        awardReason: award.reason,
+        totals,
         cardKey: progress.cardKey,
         dimension: progress.dimension,
         repetitions: progress.repetitions,

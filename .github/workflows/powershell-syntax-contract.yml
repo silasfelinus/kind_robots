@@ -1,0 +1,44 @@
+# Parse every scripts/*.ps1 with a real PowerShell parser.
+#
+# Ported from conductor after its 2026-09-19 incident: three `Write-Log
+# "$name: ..."` lines were a PARSE error, which disables the WHOLE file, and a
+# render-box watchdog therefore did nothing for eleven days while Task Scheduler
+# reported it healthy. No Linux-hosted check can see that class of bug.
+#
+# The .ps1 files here run on Windows boxes by hand or on a schedule, where a
+# parse error is silent until someone notices the work did not happen.
+#
+# windows-latest costs 2x Linux minutes, so this is paths-filtered: it runs only
+# when a .ps1 here, or this workflow, actually changes.
+name: PowerShell Syntax Contract
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "scripts/**.ps1"
+      - ".github/workflows/powershell-syntax-contract.yml"
+  pull_request:
+    branches: [main]
+    paths:
+      - "scripts/**.ps1"
+      - ".github/workflows/powershell-syntax-contract.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    name: Parse scripts PowerShell
+    runs-on: windows-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Parse every .ps1 with Windows PowerShell 5.1
+        # `shell: powershell` is Windows PowerShell 5.1, which is what these
+        # scripts run under on the Windows boxes. `pwsh` would be PowerShell 7
+        # and can accept syntax 5.1 rejects, which would let the exact class of
+        # bug through while still reporting green.
+        shell: powershell
+        run: .\scripts\Test-PowerShellSyntax.ps1

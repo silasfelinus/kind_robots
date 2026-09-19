@@ -133,6 +133,9 @@ jobs:
       - name: Mandarin lesson derivation contract
         run: npm run test:mandarin-lesson
 
+      - name: Mandarin lesson-coverage audit contract
+        run: npm run test:mandarin-lesson-coverage-selftest
+
       - name: Mandarin points contract
         run: npm run test:mandarin-points
 

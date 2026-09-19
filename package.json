@@ -10,6 +10,8 @@
     "test:icons-selftest": "tsx utils/scripts/auditIcons.ts --self-test",
     "audit:mandarin-provenance": "tsx utils/scripts/auditMandarinCatalog.ts",
     "test:mandarin-content-audit": "tsx utils/scripts/auditMandarinCatalog.ts --self-test",
+    "audit:mandarin-lesson-coverage": "tsx utils/scripts/auditMandarinLessons.ts",
+    "test:mandarin-lesson-coverage-selftest": "tsx utils/scripts/auditMandarinLessons.ts --self-test",
     "audit:mandarin-proficiency-coverage": "tsx utils/scripts/auditMandarinProficiencyCoverage.ts",
     "test:mandarin-proficiency-coverage-selftest": "tsx utils/scripts/auditMandarinProficiencyCoverage.ts --self-test",
     "test:mandarin-srs-selftest": "tsx utils/scripts/verifyMandarinSrs.test.ts",

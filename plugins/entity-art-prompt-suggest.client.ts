@@ -243,11 +243,11 @@ function managerContext(
 ): ManagerContext | null {
   const section = element.closest<HTMLElement>('section')
   return (
-    managerContextFromVue(element) ||
-    (section ? managerContextFromVue(section) : null) ||
     managerContextFromPage(element) ||
     managerContextFromWorkspaceProject(element, pageStore, projectStore) ||
-    managerContextFromSelectedScenario(element, scenarioStore)
+    managerContextFromSelectedScenario(element, scenarioStore) ||
+    managerContextFromVue(element) ||
+    (section ? managerContextFromVue(section) : null)
   )
 }
 

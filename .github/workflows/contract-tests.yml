@@ -1111,6 +1111,9 @@ jobs:
       - name: Art Archive apply-preset-to-payload contract
         run: npm run test:art-archive-apply-preset-to-payload
 
+      - name: Art Archive curation mutation guards contract
+        run: npm run test:art-archive-curation-mutation-guards
+
       - name: Butterfly Gallery curation-action contract
         run: npm run test:butterfly-gallery-actions
 

@@ -66,6 +66,96 @@ export const CIVITAI_DISCOVER_TYPES = [
 export type CivitaiDiscoverResourceType =
   (typeof CIVITAI_DISCOVER_TYPES)[number]['resourceType']
 
+export type CivitaiBaseModelGroup = {
+  label: string
+  options: readonly string[]
+}
+
+// Keep the Discover base filter aligned with every base/generation family the
+// local catalog knows how to identify. Exact strings matter: Civitai's
+// `baseModels` filter is an enum, not a fuzzy family search.
+//
+// The contract test cross-checks this list against scan_loras.py BASEMODEL_MAP
+// and scan_models.py FOLDER_BASE_HINTS, so adding a new locally-recognized
+// family without exposing it here fails CI instead of silently shrinking the
+// Discover menu again.
+export const CIVITAI_BASE_MODEL_GROUPS = [
+  {
+    label: 'Krea / Flux',
+    options: [
+      'Krea 2',
+      'Krea 1',
+      'Krea',
+      'Flux.2 D',
+      'Flux.2 Klein 9B',
+      'Flux.1 D',
+      'Flux.1 S',
+      'Flux.1 Kontext',
+      'Flux.1',
+    ],
+  },
+  {
+    label: 'SDXL families',
+    options: [
+      'Pony',
+      'Illustrious',
+      'NoobAI',
+      'SDXL 1.0',
+      'SDXL 0.9',
+      'SDXL 1.0 LCM',
+      'SDXL Distilled',
+      'SDXL Turbo',
+      'SDXL Lightning',
+      'SDXL Hyper',
+    ],
+  },
+  {
+    label: 'Stable Diffusion',
+    options: [
+      'SD 1.4',
+      'SD 1.5',
+      'SD 1.5 LCM',
+      'SD 1.5 Hyper',
+      'SD 2.0',
+      'SD 2.1',
+      'SD 3',
+      'SD 3.5',
+      'SD 3.5 Medium',
+      'SD 3.5 Large',
+    ],
+  },
+  {
+    label: 'Other image families',
+    options: [
+      'ZImage',
+      'Z-Image Turbo',
+      'Qwen',
+      'Kolors',
+      'PixArt A',
+      'PixArt E',
+      'AuraFlow',
+    ],
+  },
+  {
+    label: 'Video / multimodal',
+    options: [
+      'Hunyuan',
+      'Hunyuan Video',
+      'Wan Video',
+      'Wan Video 14B i2v 480p',
+      'LTXV',
+      'LTX Video',
+      'SVD Video',
+      'Audio',
+      '3D',
+    ],
+  },
+] as const satisfies readonly CivitaiBaseModelGroup[]
+
+export const CIVITAI_BASE_MODELS = CIVITAI_BASE_MODEL_GROUPS.flatMap(
+  (group) => group.options,
+)
+
 export function civitaiDiscoverType(
   value: unknown,
 ): (typeof CIVITAI_DISCOVER_TYPES)[number] {

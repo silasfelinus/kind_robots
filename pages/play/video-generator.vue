@@ -1,11 +1,13 @@
 <template>
   <div class="kr-surface">
-    <div class="kr-scroll kr-container max-w-7xl space-y-6 p-6">
-      <header class="space-y-1">
+    <div class="kr-scroll kr-container max-w-7xl space-y-4 p-4 sm:p-5">
+      <header class="flex flex-wrap items-center justify-between gap-2">
         <p class="kr-text-faded-sm">
-          Animate a still into a short clip. Presets choose sensible studio
-          settings, while every generation control remains editable.
+          Animate a still into a short clip. Pick a preset, add motion, render.
         </p>
+        <span class="kr-badge-ghost-sm">
+          {{ activeEngine.label }} · {{ selectedPreset?.label || 'Custom' }}
+        </span>
       </header>
 
       <div v-if="!isLoggedIn" class="alert alert-warning text-sm" role="alert">
@@ -13,79 +15,80 @@
         account's mana.
       </div>
 
-      <section class="space-y-2">
-        <label class="font-semibold">Engine</label>
-        <div class="flex gap-2">
-          <button
-            v-for="opt in engines"
-            :key="opt.value"
-            type="button"
-            class="kr-btn-plain"
-            :class="engine === opt.value ? 'btn-accent' : 'btn-outline'"
-            @click="selectEngine(opt.value)"
-          >
-            {{ opt.label }}
-          </button>
-        </div>
-        <p class="kr-text-faded-xs">{{ activeEngine.hint }}</p>
-      </section>
+      <section class="kr-panel-flat p-3">
+        <div
+          class="grid items-start gap-4 lg:grid-cols-[auto_minmax(0,1fr)]"
+        >
+          <div class="space-y-2">
+            <label class="kr-text-semibold-sm">Engine</label>
+            <div class="flex gap-2">
+              <button
+                v-for="opt in engines"
+                :key="opt.value"
+                type="button"
+                class="kr-btn-plain"
+                :class="engine === opt.value ? 'btn-accent' : 'btn-outline'"
+                @click="selectEngine(opt.value)"
+              >
+                {{ opt.label }}
+              </button>
+            </div>
+            <p class="kr-text-faded-xs max-w-72">{{ activeEngine.hint }}</p>
+          </div>
 
-      <section class="space-y-2">
-        <div class="flex items-center justify-between gap-3">
-          <label class="font-semibold">Preset</label>
-          <span
-            v-if="videoPresetId === defaultPreset.id"
-            class="kr-badge-accent-sm"
-          >
-            Studio default
-          </span>
-        </div>
-        <div class="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
-          <button
-            type="button"
-            class="btn h-auto min-h-0 justify-start py-3 text-left"
-            :class="videoPresetId === '' ? 'btn-accent' : 'btn-outline'"
-            @click="selectVideoPreset('')"
-          >
-            <span class="flex flex-col items-start">
-              <span class="font-semibold">Custom</span>
-              <span class="text-xs font-normal opacity-70">
-                Keep the current values and tune them manually.
+          <div class="min-w-0 space-y-2">
+            <div class="flex items-center justify-between gap-3">
+              <label class="kr-text-semibold-sm">Preset</label>
+              <span
+                v-if="videoPresetId === defaultPreset.id"
+                class="kr-badge-accent-sm"
+              >
+                Studio default
               </span>
-            </span>
-          </button>
-          <button
-            v-for="preset in availableVideoPresets"
-            :key="preset.id"
-            type="button"
-            class="btn h-auto min-h-0 justify-start py-3 text-left"
-            :class="videoPresetId === preset.id ? 'btn-accent' : 'btn-outline'"
-            @click="selectVideoPreset(preset.id)"
-          >
-            <span class="flex flex-col items-start gap-1">
-              <span class="flex items-center gap-2 font-semibold">
+            </div>
+
+            <div class="flex flex-wrap gap-2">
+              <button
+                type="button"
+                class="btn btn-sm h-auto min-h-0"
+                :class="videoPresetId === '' ? 'btn-accent' : 'btn-outline'"
+                @click="selectVideoPreset('')"
+              >
+                Custom
+              </button>
+
+              <button
+                v-for="preset in availableVideoPresets"
+                :key="preset.id"
+                type="button"
+                class="btn btn-sm h-auto min-h-0"
+                :class="
+                  videoPresetId === preset.id ? 'btn-accent' : 'btn-outline'
+                "
+                @click="selectVideoPreset(preset.id)"
+              >
                 {{ preset.label }}
                 <span
                   v-if="preset.id === defaultPreset.id"
-                  class="kr-badge-accent-xs"
+                  class="text-[10px] opacity-65"
                 >
                   default
                 </span>
-              </span>
-              <span class="text-xs font-normal opacity-70">
-                {{ preset.description }}
-              </span>
-            </span>
-          </button>
+              </button>
+            </div>
+
+            <p class="kr-text-faded-xs line-clamp-2">
+              {{
+                selectedPreset?.description ||
+                'Keep the current values and tune them manually.'
+              }}
+            </p>
+          </div>
         </div>
-        <p class="kr-text-faded-xs">
-          Presets fill the controls below. Any value can still be changed for
-          this render.
-        </p>
       </section>
 
-      <section class="grid gap-4 md:grid-cols-2">
-        <div class="space-y-2 rounded-lg border border-base-300 p-3">
+      <section class="grid gap-3 md:grid-cols-2">
+        <div class="space-y-2 rounded-2xl border border-base-300 bg-base-100/70 p-3">
           <div class="flex items-center justify-between">
             <label class="font-semibold">
               First image <span class="text-error">*</span>
@@ -127,7 +130,7 @@
           </p>
         </div>
 
-        <div class="space-y-2 rounded-lg border border-base-300 p-3">
+        <div class="space-y-2 rounded-2xl border border-base-300 bg-base-100/70 p-3">
           <label class="font-semibold">
             End image <span class="opacity-50">(optional)</span>
           </label>
@@ -174,7 +177,7 @@
         </div>
         <textarea
           v-model="prompt"
-          rows="3"
+          rows="2"
           class="textarea textarea-bordered w-full"
           placeholder="Describe how the image should move…"
         />
@@ -193,64 +196,77 @@
 
       <video-lora-picker v-model="loraPicks" :engine="engine" />
 
-      <content-visibility-controls
-        v-model:is-mature="isMature"
-        v-model:is-public="isPublic"
-        :disabled="videoStore.isBusy"
-      />
+      <section class="grid items-stretch gap-3 lg:grid-cols-2">
+        <content-visibility-controls
+          v-model:is-mature="isMature"
+          v-model:is-public="isPublic"
+          :disabled="videoStore.isBusy"
+        />
 
-      <section class="space-y-2">
-        <label class="font-semibold">Output format</label>
-        <div class="flex flex-wrap gap-2">
-          <button
-            v-for="opt in outputFormats"
-            :key="opt.value"
-            type="button"
-            class="kr-btn-plain"
-            :class="outputFormat === opt.value ? 'btn-accent' : 'btn-outline'"
-            @click="outputFormat = opt.value"
-          >
-            {{ opt.label }}
-          </button>
-        </div>
-        <p class="kr-text-faded-xs">{{ activeOutputFormat.hint }}</p>
-      </section>
+        <div class="kr-panel-flat space-y-3 p-3">
+          <div class="grid gap-3 sm:grid-cols-[auto_minmax(0,1fr)]">
+            <div class="space-y-2">
+              <label class="kr-text-semibold-sm">Format</label>
+              <div class="flex flex-wrap gap-1.5">
+                <button
+                  v-for="opt in outputFormats"
+                  :key="opt.value"
+                  type="button"
+                  class="btn btn-sm"
+                  :class="
+                    outputFormat === opt.value ? 'btn-accent' : 'btn-outline'
+                  "
+                  @click="outputFormat = opt.value"
+                >
+                  {{ opt.label }}
+                </button>
+              </div>
+            </div>
 
-      <section class="grid gap-4 sm:grid-cols-3">
-        <div class="space-y-1">
-          <label class="kr-text-semibold-sm">Time (seconds)</label>
-          <input
-            v-model.number="durationSeconds"
-            type="number"
-            min="0.5"
-            max="30"
-            step="0.5"
-            class="input input-bordered w-full"
-          />
-        </div>
-        <div class="space-y-1">
-          <label class="kr-text-semibold-sm">FPS</label>
-          <input
-            v-model.number="fps"
-            type="number"
-            min="1"
-            max="60"
-            step="1"
-            class="input input-bordered w-full"
-          />
-        </div>
-        <div class="space-y-1">
-          <label class="kr-text-semibold-sm">Loop</label>
-          <label class="flex h-12 cursor-pointer items-center gap-2">
-            <input
-              v-model="loop"
-              type="checkbox"
-              class="kr-toggle-accent"
-            />
-            <span class="kr-text-faded-sm">
-              {{ loop ? 'Seamless loop' : 'Play once' }}
-            </span>
-          </label>
+            <p class="kr-text-faded-xs self-end sm:pb-1">
+              {{ activeOutputFormat.hint }}
+            </p>
+          </div>
+
+          <div class="grid gap-2 sm:grid-cols-3">
+            <label class="space-y-1">
+              <span class="kr-text-semibold-xs">Seconds</span>
+              <input
+                v-model.number="durationSeconds"
+                type="number"
+                min="0.5"
+                max="30"
+                step="0.5"
+                class="kr-input-sm w-full"
+              />
+            </label>
+
+            <label class="space-y-1">
+              <span class="kr-text-semibold-xs">FPS</span>
+              <input
+                v-model.number="fps"
+                type="number"
+                min="1"
+                max="60"
+                step="1"
+                class="kr-input-sm w-full"
+              />
+            </label>
+
+            <label class="space-y-1">
+              <span class="kr-text-semibold-xs">Playback</span>
+              <span class="flex h-8 cursor-pointer items-center gap-2">
+                <input
+                  v-model="loop"
+                  type="checkbox"
+                  class="kr-toggle-accent"
+                />
+                <span class="kr-text-faded-xs">
+                  {{ loop ? 'Loop' : 'Once' }}
+                </span>
+              </span>
+            </label>
+          </div>
         </div>
       </section>
 
@@ -312,20 +328,40 @@
         </div>
       </details>
 
-      <div class="alert text-sm" :class="runtimeAlertClass" role="status">
-        <div class="space-y-1">
-          <p class="font-semibold">{{ runtimeTitle }}</p>
-          <p>{{ runtimeMessage }}</p>
-          <p v-if="selectedPreset?.runtimeHint" class="text-xs opacity-75">
-            {{ selectedPreset.runtimeHint }}
-          </p>
+      <section
+        class="grid items-stretch gap-3 lg:grid-cols-[minmax(0,1fr)_minmax(18rem,26rem)]"
+      >
+        <div
+          class="flex items-center gap-3 rounded-2xl border border-base-300 bg-base-100/70 px-4 py-3 text-sm"
+          :class="
+            runtimeTier === 'slow' || runtimeTier === 'very-slow'
+              ? 'border-warning/50'
+              : ''
+          "
+          role="status"
+        >
+          <Icon
+            :name="
+              runtimeTier === 'slow' || runtimeTier === 'very-slow'
+                ? 'kind-icon:warning'
+                : 'kind-icon:clock'
+            "
+            class="kr-icon-5 shrink-0"
+            :class="
+              runtimeTier === 'slow' || runtimeTier === 'very-slow'
+                ? 'text-warning'
+                : 'text-info'
+            "
+          />
+          <div class="min-w-0">
+            <p class="font-semibold">{{ runtimeTitle }}</p>
+            <p class="kr-text-faded-xs line-clamp-1">{{ runtimeMessage }}</p>
+          </div>
         </div>
-      </div>
 
-      <section class="space-y-3">
         <button
           type="button"
-          class="btn btn-accent btn-lg w-full"
+          class="btn btn-accent btn-lg h-full min-h-14 w-full"
           :disabled="!canGenerate"
           @click="generate"
         >
@@ -335,6 +371,9 @@
           />
           {{ generateLabel }}
         </button>
+      </section>
+
+      <section class="space-y-3">
 
         <div
           v-if="videoStore.state.message"

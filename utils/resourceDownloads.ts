@@ -76,3 +76,32 @@ export function civitaiDiscoverType(
     ) ?? CIVITAI_DISCOVER_TYPES[0]
   )
 }
+
+export function resourceTypeForCivitaiModelType(
+  value: unknown,
+): CivitaiDiscoverResourceType | null {
+  const candidate = String(value ?? '')
+    .trim()
+    .toLowerCase()
+    .replace(/[ _-]+/g, '')
+  switch (candidate) {
+    case 'lora':
+    case 'locon':
+    case 'dora':
+      return 'LORA'
+    case 'checkpoint':
+      return 'CHECKPOINT'
+    case 'textualinversion':
+      return 'EMBEDDING'
+    case 'hypernetwork':
+      return 'HYPERNETWORK'
+    case 'controlnet':
+      return 'CONTROLNET'
+    case 'vae':
+      return 'VAE'
+    case 'upscaler':
+      return 'UPSCALER'
+    default:
+      return null
+  }
+}

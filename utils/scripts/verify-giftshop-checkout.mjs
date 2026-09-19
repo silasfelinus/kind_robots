@@ -101,6 +101,36 @@ assert.doesNotMatch(
   /setDashboardTab\?\.\('giftshop', 'cart'\)/,
   'giftshop must not target an unregistered dashboard tab',
 )
+assert.doesNotMatch(
+  giftshop,
+  /Storefront staging area|commercially whimsical/,
+  'giftshop must not render internal staging/demo copy to customers',
+)
+assert.match(
+  giftshop,
+  /Available now[\s\S]*tokensCatalogEntry[\s\S]*donationCatalogEntry[\s\S]*Support Kind Robots[\s\S]*Mermaids of Venice/,
+  'giftshop must present its real live offers as aligned product/action cards',
+)
+assert.match(
+  giftshop,
+  /physicalCatalog[\s\S]*POD preview[\s\S]*Posters, shirts, stickers, and mugs/,
+  'giftshop must surface the physical POD catalog even before vendor fulfillment is enabled',
+)
+assert.match(
+  giftshop,
+  /Printful vendor submission is still[\s\S]*remaining fulfillment gate/,
+  'giftshop must describe the physical-product fulfillment gate honestly',
+)
+assert.match(
+  giftshop,
+  /previewImageSrc[\s\S]*Featured art previews/,
+  'giftshop POD cards must show a real art-backed mockup preview rather than text-only categories',
+)
+assert.match(
+  giftshop,
+  /<aside class="kr-panel self-start/,
+  'cart summary must size to its contents instead of stretching into a blank full-height column',
+)
 assert.match(
   giftshopManager,
   /v-else-if="activeTab === 'giftshop'"[\s\S]*?<div class="kr-scroll">[\s\S]*?<giftshop-interact\s*\/>/,

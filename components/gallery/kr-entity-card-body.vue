@@ -113,7 +113,7 @@
           class="kr-badge-xs shrink-0"
           :class="badge.class || 'badge-primary'"
           :title="badge.title || badge.label"
-        :aria-label="badge.title || badge.label || undefined"
+          :aria-label="badge.title || badge.label || undefined"
         >
           <Icon
             v-if="badge.icon"
@@ -123,7 +123,9 @@
             :class="badge.label ? 'mr-1' : ''"
             aria-hidden="true"
           />
-          <span v-if="badge.label" data-kr-card-chip-label>{{ badge.label }}</span>
+          <span v-if="badge.label" data-kr-card-chip-label>
+            {{ badge.label }}
+          </span>
           <span v-else class="sr-only">{{ badge.title }}</span>
         </span>
       </div>
@@ -193,11 +195,13 @@
               v-if="badge.icon"
               :name="badge.icon"
               class="kr-icon-3-5"
-            data-kr-card-chip-icon
+              data-kr-card-chip-icon
               :class="badge.label ? 'mr-1' : ''"
               aria-hidden="true"
             />
-            <span v-if="badge.label" data-kr-card-chip-label>{{ badge.label }}</span>
+            <span v-if="badge.label" data-kr-card-chip-label>
+            {{ badge.label }}
+          </span>
             <span v-else class="sr-only">{{ badge.title }}</span>
           </span>
         </div>
@@ -244,11 +248,13 @@
               v-if="badge.icon"
               :name="badge.icon"
               class="kr-icon-3-5"
-            data-kr-card-chip-icon
+              data-kr-card-chip-icon
               :class="badge.label ? 'mr-1' : ''"
               aria-hidden="true"
             />
-            <span v-if="badge.label" data-kr-card-chip-label>{{ badge.label }}</span>
+            <span v-if="badge.label" data-kr-card-chip-label>
+            {{ badge.label }}
+          </span>
             <span v-else class="sr-only">{{ badge.title }}</span>
           </span>
         </div>

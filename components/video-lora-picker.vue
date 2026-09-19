@@ -1,17 +1,15 @@
 <template>
   <details class="rounded-2xl border border-base-300 bg-base-100/70">
     <summary
-      class="flex cursor-pointer list-none items-center justify-between gap-3 px-3 py-2.5"
+      class="cursor-pointer px-3 py-2.5"
     >
-      <span class="min-w-0">
+      <span class="ml-2 inline-flex min-w-0 items-center gap-2 align-middle">
         <span class="font-semibold">LoRAs</span>
-        <span class="ml-1 text-xs opacity-50">(optional)</span>
-        <span class="kr-text-faded-xs ml-2">
-          {{ engine.toUpperCase() }}
+        <span class="text-xs opacity-50">(optional)</span>
+        <span class="kr-text-faded-xs">{{ engine.toUpperCase() }}</span>
+        <span class="kr-badge-ghost-sm">
+          {{ selected.length ? `${selected.length} selected` : 'None selected' }}
         </span>
-      </span>
-      <span class="kr-badge-ghost-sm shrink-0">
-        {{ selected.length ? `${selected.length} selected` : 'None selected' }}
       </span>
     </summary>
 
@@ -184,7 +182,7 @@
 
       <div
         class="overflow-y-auto overscroll-contain pr-1 transition-[max-height]"
-        :class="browserSize === 'expanded' ? 'max-h-none' : 'max-h-[38rem]'"
+        :class="browserSize === 'expanded' ? 'max-h-none' : 'max-h-[26rem]'"
       >
         <div
           class="grid grid-cols-[repeat(auto-fit,minmax(min(100%,17rem),1fr))] gap-3"

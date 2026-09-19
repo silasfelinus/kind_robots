@@ -1,4 +1,4 @@
-import { defineEventHandler, getQuery } from 'h3'
+import { createError, defineEventHandler, getQuery } from 'h3'
 import type { Prisma } from '~/prisma/generated/prisma/client'
 import {
   ArchiveEntryMatchState,
@@ -7,6 +7,7 @@ import {
 import prisma from '~/server/utils/prisma'
 import { errorHandler } from '~/server/utils/error'
 import { requireAdminApiUser } from '~/server/utils/authGuard'
+import { viewerShowsMature } from '~/server/utils/contentAccess'
 
 type EntryListQuery = {
   folderCollectionId?: string
@@ -31,7 +32,14 @@ function clampPage(raw?: string): number {
 
 export default defineEventHandler(async (event) => {
   try {
-    await requireAdminApiUser(event)
+    const auth = await requireAdminApiUser(event)
+    if (!viewerShowsMature(auth.user)) {
+      throw createError({
+        statusCode: 403,
+        message: 'Mature-content access is required for Art Archive entries.',
+      })
+    }
+
     const query = getQuery<EntryListQuery>(event)
     const where: Prisma.ArchiveEntryWhereInput = {
       isActive: query.includeInactive === 'true' ? undefined : true,

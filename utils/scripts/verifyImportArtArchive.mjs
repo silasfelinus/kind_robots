@@ -11,7 +11,7 @@ const checks = [
   ['reports created/reused collection counts', /collectionsCreated[\s\S]*?collectionsReused/],
   ['matches every imported file against the active resource pool', /matchArchiveResources\([\s\S]*?file\.metadata[\s\S]*?file\.relativePath[\s\S]*?file\.parentFolder[\s\S]*?prisma\.resource/],
   ['reports candidate confidence and evidence', /candidate\.confidence[\s\S]*?candidate\.evidence/],
-  ['reports unmatched embedded evidence', /UNMATCHED[\s\S]*?evidence\.name[\s\S]*?evidence\.hash/],
+  ['reports unmatched embedded evidence', /evidence\.name[\s\S]*?evidence\.hash[\s\S]*?UNMATCHED/],
   ['summarizes files carrying match evidence', /filesWithMatchEvidence[\s\S]*?files with evidence/],
   ['a per-file failure does not abort the run', /catch \(error\) \{\s*errors\.push/],
   ['disconnects prisma on exit', /\.finally\(async \(\) => \{\s*await prisma\.\$disconnect\(\)/],

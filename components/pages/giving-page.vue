@@ -1,6 +1,6 @@
 <!-- /components/content/pages/giving-page.vue -->
 <template>
-  <div class="kr-unbound mx-auto max-w-5xl space-y-6 px-4 py-2 sm:px-6 lg:px-8">
+  <div class="kr-unbound kr-panel-section mx-auto max-w-5xl space-y-6">
     <div
       class="rounded-2xl border border-primary/30 bg-primary/10 p-6 text-center shadow-sm sm:p-10"
     >

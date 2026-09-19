@@ -1,29 +1,53 @@
 // /server/api/admin/art-archive/import.post.ts
 //
-// Admin-gated wrapper around the t-022 scan-then-import CLI flow
-// (art-archive/t-024): triggers scanArchiveRoot() + importArchiveScan() over
-// the configured PRIVATE_PATH archive root and returns the same created/
-// reused counts utils/scripts/importArtArchive.ts reports, as JSON -- so an
-// admin can run a reconciliation pass without shell access to the
-// container, and the future admin archive-curation UI (m3) has a route to
-// call.
+// Admin-gated wrapper around the scan-then-import flow (art-archive/t-024):
+// triggers scanArchiveRoot() + importArchiveScan() over the configured
+// PRIVATE_PATH archive root and returns created/reused counts plus the same
+// resource-provenance evidence available to the CLI, as JSON.
 import { defineEventHandler } from 'h3'
 import { requireAdminApiUser } from '@/server/utils/authGuard'
 import { errorHandler } from '@/server/utils/error'
 import { getArtArchiveRoot } from '@/server/utils/artArchiveRoot'
 import { scanArchiveRoot } from '@/server/utils/artArchiveScanner'
 import { importArchiveScan } from '@/server/utils/artArchiveImporter'
+import { matchArchiveResources } from '@/server/utils/artArchiveResourceMatch'
+import prisma from '@/server/utils/prisma'
 
 export default defineEventHandler(async (event) => {
   try {
     const auth = await requireAdminApiUser(event)
     const scan = await scanArchiveRoot(getArtArchiveRoot())
     const summary = await importArchiveScan(scan, auth.user.id)
+    const resourceMatches = await Promise.all(
+      scan.files.map(async (file) => ({
+        relativePath: file.relativePath,
+        matches: await matchArchiveResources(
+          file.metadata,
+          file.relativePath,
+          file.parentFolder,
+          prisma.resource,
+        ),
+      })),
+    )
+
+    const filesWithMatchEvidence = resourceMatches.filter(
+      ({ matches }) => matches.checkpoint !== null || matches.loras.length > 0,
+    ).length
+    const unmatchedModels = resourceMatches.reduce((count, { matches }) => {
+      const checkpointUnmatched = matches.checkpoint?.unmatched ? 1 : 0
+      const loraUnmatched = matches.loras.filter((outcome) => outcome.unmatched !== null).length
+      return count + checkpointUnmatched + loraUnmatched
+    }, 0)
 
     return {
       success: true,
       message: `Imported ${summary.filesScanned} scanned file(s) from ${summary.root}.`,
-      data: summary,
+      data: {
+        ...summary,
+        filesWithMatchEvidence,
+        unmatchedModels,
+        resourceMatches,
+      },
       statusCode: 200,
     }
   } catch (error: unknown) {

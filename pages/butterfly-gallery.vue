@@ -854,11 +854,11 @@ async function onDrop(binId: string): Promise<void> {
 
 function presetClass(index: number): string {
   return [
-    'preset-bin-error',
-    'preset-bin-warning',
-    'preset-bin-accent',
-    'preset-bin-success',
-    'preset-bin-info',
+    'preset-bin-gold',
+    'preset-bin-purple',
+    'preset-bin-blue',
+    'preset-bin-green',
+    'preset-bin-pink',
   ][index % 5] as string
 }
 
@@ -954,7 +954,7 @@ function pileStyle(index: number, total: number): Record<string, string> {
      procedural grid/floor gradients -- the gradients remain as the graceful
      fallback if the rendered asset ever fails to load. */
   background-image:
-    url('/images/butterfly-gallery/room.webp'),
+    url('/images/butterfly-gallery/room.png'),
     linear-gradient(
       90deg,
       color-mix(in oklch, var(--color-info) 10%, transparent) 1px,
@@ -1071,8 +1071,17 @@ function pileStyle(index: number, total: number): Record<string, string> {
   border-radius: 1.5rem;
   /* Rendered window casing (t-028, ArtImage 28267); the flat color-mix
      remains as the fallback background if the asset fails to load. */
-  background: color-mix(in oklch, var(--color-info) 18%, var(--color-base-100))
-    url('/images/butterfly-gallery/window.webp') center / cover no-repeat;
+  background-color: color-mix(
+    in oklch,
+    var(--color-info) 18%,
+    var(--color-base-100)
+  );
+  background-image:
+    url('/images/butterfly-gallery/window.png'),
+    url('/images/butterfly-gallery/runway-background.png');
+  background-repeat: no-repeat, no-repeat;
+  background-position: center, center;
+  background-size: 100% 100%, cover;
   box-shadow:
     inset 0 0 0 3px color-mix(in oklch, var(--color-info) 28%, transparent),
     0 10px 22px color-mix(in oklch, var(--color-neutral) 20%, transparent);
@@ -1197,43 +1206,36 @@ function pileStyle(index: number, total: number): Record<string, string> {
   animation: butterfly-gallery-bin-accept 380ms ease;
 }
 
-/* Rendered collection-bin art (t-028, ArtImage 28269) is blended into each
-   preset bin's solid semantic color via background-blend-mode so the bin's
-   color-coding stays intact; the solid `background` color is the graceful
-   fallback if the asset fails to load. */
-.preset-bin-error {
-  background: var(--color-error) url('/images/butterfly-gallery/bins.webp')
-    center / cover no-repeat;
-  background-blend-mode: multiply;
-  color: var(--color-error-content);
-}
-
-.preset-bin-warning {
-  background: color-mix(in oklch, var(--color-warning) 72%, var(--color-error))
-    url('/images/butterfly-gallery/bins.webp') center / cover no-repeat;
-  background-blend-mode: multiply;
+/* Individual production bin faces live on the media server. Labels, counts,
+   hit areas, hover/selection scaling, and drag/drop behavior remain real DOM. */
+.preset-bin-gold {
+  background: var(--color-warning)
+    url('/images/butterfly-gallery/bin-gold.png') center / 100% 100% no-repeat;
   color: var(--color-warning-content);
 }
 
-.preset-bin-accent {
-  background: var(--color-warning) url('/images/butterfly-gallery/bins.webp')
-    center / cover no-repeat;
-  background-blend-mode: multiply;
-  color: var(--color-warning-content);
+.preset-bin-purple {
+  background: var(--color-secondary)
+    url('/images/butterfly-gallery/bin-purple.png') center / 100% 100% no-repeat;
+  color: var(--color-secondary-content);
 }
 
-.preset-bin-success {
-  background: var(--color-success) url('/images/butterfly-gallery/bins.webp')
-    center / cover no-repeat;
-  background-blend-mode: multiply;
+.preset-bin-blue {
+  background: var(--color-info)
+    url('/images/butterfly-gallery/bin-blue.png') center / 100% 100% no-repeat;
+  color: var(--color-info-content);
+}
+
+.preset-bin-green {
+  background: var(--color-success)
+    url('/images/butterfly-gallery/bin-green.png') center / 100% 100% no-repeat;
   color: var(--color-success-content);
 }
 
-.preset-bin-info {
-  background: var(--color-info) url('/images/butterfly-gallery/bins.webp')
-    center / cover no-repeat;
-  background-blend-mode: multiply;
-  color: var(--color-info-content);
+.preset-bin-pink {
+  background: var(--color-accent)
+    url('/images/butterfly-gallery/bin-pink.png') center / 100% 100% no-repeat;
+  color: var(--color-accent-content);
 }
 
 .preset-bin-icon {
@@ -1298,7 +1300,7 @@ function pileStyle(index: number, total: number): Record<string, string> {
       var(--color-base-100) 88%,
       var(--color-info) 6%
     )
-    url('/images/butterfly-gallery/frame.webp') center / cover no-repeat;
+    url('/images/butterfly-gallery/frame.png') center / cover no-repeat;
   box-shadow:
     inset 0 0 0 3px color-mix(in oklch, var(--color-info) 18%, transparent),
     0 16px 30px color-mix(in oklch, var(--color-neutral) 28%, transparent);
@@ -1336,9 +1338,11 @@ function pileStyle(index: number, total: number): Record<string, string> {
   background:
     radial-gradient(
       circle at 50% 45%,
-      color-mix(in oklch, var(--color-info) 17%, transparent),
+      color-mix(in oklch, var(--color-info) 12%, transparent),
       transparent 42%
     ),
+    url('/images/butterfly-gallery/display-blank-state.png') center / cover
+      no-repeat,
     var(--color-base-100);
 }
 
@@ -1396,11 +1400,12 @@ function pileStyle(index: number, total: number): Record<string, string> {
   min-height: 0;
   overflow: auto;
   padding: clamp(0.7rem, 1vw, 1rem);
-  background: color-mix(
-    in oklch,
-    var(--color-neutral) 90%,
-    var(--color-base-100)
-  );
+  background:
+    linear-gradient(
+      color-mix(in oklch, var(--color-neutral) 82%, transparent),
+      color-mix(in oklch, var(--color-neutral) 82%, transparent)
+    ),
+    url('/images/butterfly-gallery/info-panel.png') center / 100% 100% no-repeat;
   color: var(--color-neutral-content);
 }
 
@@ -1485,12 +1490,14 @@ function pileStyle(index: number, total: number): Record<string, string> {
 }
 
 .cleanup-action {
-  background: var(--color-secondary);
+  background: var(--color-secondary)
+    url('/images/butterfly-gallery/cleanup.png') center / 100% 100% no-repeat;
   color: var(--color-secondary-content);
 }
 
 .trash-action {
-  background: var(--color-error);
+  background: var(--color-error)
+    url('/images/butterfly-gallery/trash.png') center / 100% 100% no-repeat;
   color: var(--color-error-content);
 }
 
@@ -1547,7 +1554,7 @@ function pileStyle(index: number, total: number): Record<string, string> {
   /* Rendered loading-dock platform (t-028, ArtImage 28270) sits behind the
      pile cards; no prior background existed here, so an image load failure
      falls back to the original transparent container. */
-  background: url('/images/butterfly-gallery/pile.webp') center / cover
+  background: url('/images/butterfly-gallery/pile.png') center / cover
     no-repeat;
 }
 

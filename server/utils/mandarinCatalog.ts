@@ -95,14 +95,24 @@ function normalizeSourceEntry(entry: SourceEntry, level: number): MandarinCard |
   const traditional = cleanText(form.t)
   const radical = cleanText(entry.r)
   const guide = STARTER_COMPONENT_GUIDES[simplified]
+  // mandarin-tutor/t-022: stamp the owning character onto each component so the lesson
+  // layer can attribute a multi-character word's pieces without parsing labels. Only
+  // safe for a single-character entry -- for a two-character word this fallback's
+  // `radical` belongs to one of the two characters and the source does not say which,
+  // so it is left unstamped rather than attributed to the wrong half.
+  const soleCharacter = [...simplified].length === 1 ? simplified : ''
   const components = guide
-    ? guide.components
+    ? guide.components.map((component) => ({
+        ...component,
+        ...(soleCharacter ? { character: soleCharacter } : {}),
+      }))
     : radical && radical !== simplified
       ? [
           {
             glyph: radical,
             role: 'radical' as const,
             label: 'dictionary radical',
+            ...(soleCharacter ? { character: soleCharacter } : {}),
             note: 'Useful for indexing and pattern recognition, but not by itself a complete etymology.',
           },
         ]

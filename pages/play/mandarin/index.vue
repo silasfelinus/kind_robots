@@ -211,6 +211,15 @@
                 </span>
               </div>
 
+              <NuxtLink
+                :to="lessonLink(currentCard.key)"
+                class="kr-btn-ghost-xs-plain"
+                title="Read the full lesson for this word"
+              >
+                <Icon name="kind-icon:book" class="kr-icon-3-5" />
+                Lesson
+              </NuxtLink>
+
               <div class="join" aria-label="Study prompt type">
                 <button
                   v-for="prompt in promptModes"
@@ -393,7 +402,12 @@
 
                 <div class="flex items-center justify-between gap-2 kr-panel-divider">
                   <button type="button" class="kr-btn-ghost-plain" :disabled="focusNavigationLocked" @click="store.previousCard()">Previous</button>
-                  <button type="button" class="kr-btn-outline-plain" @click="store.toggleDetails()">{{ detailsVisible ? 'Hide parts' : 'Parts & history' }}</button>
+                  <div class="flex items-center gap-1">
+                    <button type="button" class="kr-btn-outline-plain" @click="store.toggleDetails()">{{ detailsVisible ? 'Hide parts' : 'Parts & history' }}</button>
+                    <NuxtLink :to="lessonLink(currentCard.key)" class="kr-btn-ghost-plain" title="Read the full lesson for this word">
+                      Full lesson
+                    </NuxtLink>
+                  </div>
                   <button type="button" class="kr-btn-ghost-plain" :disabled="focusNavigationLocked" @click="store.nextCard()">Next</button>
                 </div>
               </div>
@@ -465,6 +479,7 @@ import { useMandarinTutorStore } from '@/stores/mandarinTutorStore'
 import type { MandarinComponentRole } from '@/utils/mandarin'
 import type { MandarinBannerTile } from '@/components/mandarin/mandarin-banner.vue'
 
+const route = useRoute()
 const store = useMandarinTutorStore()
 const {
   cards,
@@ -698,6 +713,12 @@ onBeforeUnmount(() => {
   if (artNoticeTimer) clearTimeout(artNoticeTimer)
 })
 
+// mandarin-tutor/t-022: /play/mandarin/learn/<key>. Keys carry a colon and Han
+// characters ("curated:猫"), so they must be encoded rather than interpolated raw.
+function lessonLink(key: string): string {
+  return `/play/mandarin/learn/${encodeURIComponent(key)}`
+}
+
 function roleLabel(role: MandarinComponentRole): string {
   if (role === 'semantic') return 'meaning clue'
   if (role === 'phonetic') return 'sound clue'
@@ -706,8 +727,22 @@ function roleLabel(role: MandarinComponentRole): string {
   return 'uncertain role'
 }
 
-onMounted(() => {
-  void store.initialize()
+// mandarin-tutor/t-022: the return path from a lesson page. /play/mandarin/learn/<key>
+// links back here as ?card=<key> so "Study 说" lands on that exact card instead of
+// dumping the learner at the top of whichever deck they last had open. Focusing needs the
+// catalog loaded first, which is why it waits on initialize() rather than running beside
+// it. An unknown or stale key is ignored on purpose -- a bad bookmark should open the
+// tutor normally, not error.
+onMounted(async () => {
+  await store.initialize()
+
+  const requestedKey = String(route.query.card || '').trim()
+  if (!requestedKey) return
+  if (!cards.value.some((card) => card.key === requestedKey)) return
+
+  workspaceView.value = 'card'
+  store.focusCard(requestedKey)
+  await scrollToCard()
 })
 
 useHead({

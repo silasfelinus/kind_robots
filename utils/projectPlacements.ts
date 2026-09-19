@@ -23,17 +23,17 @@ export const PROJECT_PLACEMENTS: Record<string, ProjectPlacement> = {
     route: '/play/mandarin',
   },
   'coloring-book': {
-    channelKey: 'plan',
+    channelKey: 'admin',
     tabKey: 'coloring',
     route: '/coloring',
   },
   'challenge-center': {
-    channelKey: 'plan',
+    channelKey: 'admin',
     tabKey: 'challenges',
     route: '/play/challenges',
   },
   appmaker: {
-    channelKey: 'plan',
+    channelKey: 'admin',
     tabKey: 'appmaker',
     route: '/appmaker',
   },
@@ -49,12 +49,12 @@ export const PROJECT_PLACEMENTS: Record<string, ProjectPlacement> = {
     route: '/storybook',
   },
   'mermaids-of-venice': {
-    channelKey: 'plan',
+    channelKey: 'admin',
     tabKey: 'mermaids',
     route: '/mermaids',
   },
   'model-builder': {
-    channelKey: 'plan',
+    channelKey: 'admin',
     tabKey: 'model-builder',
     route: '/model-builder',
   },
@@ -96,12 +96,12 @@ export const PROJECT_PLACEMENTS: Record<string, ProjectPlacement> = {
     route: '/storybook',
   },
   cthulhuquarium: {
-    channelKey: 'plan',
+    channelKey: 'admin',
     tabKey: 'aquarium',
     route: '/play/aquarium',
   },
   'media-watchlist': {
-    channelKey: 'plan',
+    channelKey: 'admin',
     tabKey: 'watchlist',
     route: '/plan/watchlist',
   },
@@ -111,7 +111,7 @@ export const PROJECT_PLACEMENTS: Record<string, ProjectPlacement> = {
     route: '/plan/projects/coat-dance',
   },
   'ruler-hooked': {
-    channelKey: 'plan',
+    channelKey: 'admin',
     tabKey: 'ruler-hooked',
     route: '/plan/projects/ruler-hooked',
   },
@@ -131,12 +131,12 @@ export const PROJECT_PLACEMENTS: Record<string, ProjectPlacement> = {
     route: '/scoop-cms',
   },
   'conductor-app': {
-    channelKey: 'plan',
+    channelKey: 'admin',
     tabKey: 'conductor-app',
     route: '/conductor-app',
   },
   'alexa-integration': {
-    channelKey: 'plan',
+    channelKey: 'admin',
     tabKey: 'voice-lab',
     route: '/plan/voice-lab',
   },
@@ -146,7 +146,7 @@ export const PROJECT_PLACEMENTS: Record<string, ProjectPlacement> = {
     route: '/stylist',
   },
   'superkate-hairstyle-ai': {
-    channelKey: 'plan',
+    channelKey: 'admin',
     tabKey: 'hair-studio',
     route: '/build/hair-studio',
   },

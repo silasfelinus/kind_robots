@@ -1,6 +1,6 @@
 ---
 contentType: tab
-channelKey: plan
+channelKey: admin
 tabKey: challenges
 dashboardKey: wonder
 dashboardTab: challenges
@@ -10,7 +10,7 @@ subtitle: Experiments with goals, scores, and friendly pressure
 description: Try structured challenges that connect creative systems, achievements, and community play.
 icon: kind-icon:trophy
 route: /play/challenges
-sort: 80
+sort: 130
 requiredRole: ADMIN
 ---
 

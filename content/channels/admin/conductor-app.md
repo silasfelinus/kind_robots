@@ -1,6 +1,6 @@
 ---
 contentType: tab
-channelKey: plan
+channelKey: admin
 tabKey: conductor-app
 dashboardKey: conductor
 dashboardTab: conductor-app
@@ -10,7 +10,7 @@ subtitle: Steer plans from a mobile client
 description: Review the companion Flutter application for project coordination on the go.
 icon: kind-icon:external-link
 route: /conductor-app
-sort: 40
+sort: 105
 requiredRole: ADMIN
 ---
 

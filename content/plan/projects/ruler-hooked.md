@@ -6,7 +6,7 @@ description: A fishing-meets-kingdom-management slideshow sim of tides, catches,
 image: nav/heroes/games.webp
 icon: kind-icon:crown
 tooltip: Cast lines, land catches, and run a seaside kingdom.
-channelKey: plan
+channelKey: admin
 tabKey: ruler-hooked
 dashboardKey: wonder
 dashboardTab: ruler-hooked

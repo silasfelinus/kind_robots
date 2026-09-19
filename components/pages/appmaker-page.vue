@@ -1,6 +1,6 @@
 <!-- /components/pages/appmaker-page.vue -->
 <!-- AppMaker (appmaker/t-004): an admin-only internal tool (see
-     content/channels/plan/appmaker.md's requiredRole: ADMIN) for browsing the
+     content/channels/admin/appmaker.md's requiredRole: ADMIN) for browsing the
      app fleet, filing a new app scaffold request, and jumping into each app's
      project. appmaker/t-014: kept admin-only per Silas's decision -- this
      page's own copy previously described free-tier self-serve access that no

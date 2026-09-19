@@ -1,6 +1,6 @@
 ---
 contentType: tab
-channelKey: plan
+channelKey: admin
 tabKey: watchlist
 dashboardKey: wonder
 dashboardTab: watchlist
@@ -10,7 +10,7 @@ subtitle: Keep track of stories worth returning to
 description: Explore an experimental media tracker for films, shows, books, and recommendations.
 icon: kind-icon:eye
 route: /plan/watchlist
-sort: 80
+sort: 135
 requiredRole: ADMIN
 ---
 

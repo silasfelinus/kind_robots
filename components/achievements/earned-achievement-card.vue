@@ -18,7 +18,7 @@
       <Icon
         v-else
         :name="achievement.icon ?? 'kind-icon:map'"
-        class="kr-icon-16 mb-3 text-primary"
+        class="mb-3 size-16 text-primary"
       />
 
       <div class="kr-text-black-xl max-w-full">

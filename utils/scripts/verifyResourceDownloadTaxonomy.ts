@@ -78,7 +78,9 @@ assert.deepEqual(
   ['Krea 2', 'FLUX.2', 'SDXL', 'Pony', 'SD 1.5', 'Z-Image'],
 )
 assert.equal(
-  CIVITAI_OTHER_BASE_MODEL_FAMILIES.some((family) => family.label === 'Krea 1'),
+  CIVITAI_OTHER_BASE_MODEL_FAMILIES.some(
+    (family) => String(family.label) === 'Krea 1',
+  ),
   false,
   'Krea 1 is not a useful separate choice when Kind Robots runs Krea 2',
 )

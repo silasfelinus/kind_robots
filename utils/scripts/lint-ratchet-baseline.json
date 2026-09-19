@@ -7,7 +7,6 @@
       "app.vue:49:22"
     ],
     "@typescript-eslint/no-explicit-any": [
-      "components/achievements/achievement-gallery.vue:179:42",
       "components/giftshop/subscription-manager.vue:100:17",
       "components/giftshop/subscription-manager.vue:112:17",
       "server/api/bots/[id].patch.ts:40:24",

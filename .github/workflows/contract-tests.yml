@@ -1114,6 +1114,9 @@ jobs:
       - name: Art Archive curation mutation guards contract
         run: npm run test:art-archive-curation-mutation-guards
 
+      - name: Art Archive enqueue-payload contract
+        run: npm run test:art-archive-enqueue-payload
+
       - name: Butterfly Gallery curation-action contract
         run: npm run test:butterfly-gallery-actions
 

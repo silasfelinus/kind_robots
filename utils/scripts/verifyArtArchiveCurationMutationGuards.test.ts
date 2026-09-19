@@ -43,6 +43,7 @@ const ROUTES: { file: string; mutations: RegExp[] }[] = [
   },
   { file: 'collections.patch.ts', mutations: [/prisma\.artImage\.update\(/] },
   { file: 'needs-review.post.ts', mutations: [/prisma\.archiveEntry\.update\(/] },
+  { file: 'enqueue.post.ts', mutations: [/prisma\.artJob\.create\(/] },
 ]
 
 for (const { file, mutations } of ROUTES) {

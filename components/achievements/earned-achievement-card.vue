@@ -3,7 +3,7 @@
     class="card relative h-full min-h-64 rounded-2xl border border-base-300 bg-base-300 p-4 transition duration-300 ease-in-out hover:border-primary/30 hover:shadow-lg"
   >
     <Icon
-      name="ph:star-bold"
+      name="kind-icon:star"
       class="absolute right-3 top-3 z-6 text-3xl text-warning"
       aria-label="Earned achievement"
     />

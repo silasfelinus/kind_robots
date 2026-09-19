@@ -1,7 +1,8 @@
 <!-- /components/content/giftshop/giftshop-interact.vue -->
 <template>
-  <section class="grid items-start gap-4 lg:grid-cols-[minmax(0,1fr)_20rem]">
-    <div class="kr-panel p-4">
+  <section class="giftshop-shell">
+    <div class="giftshop-layout">
+      <div class="kr-panel p-4">
       <div class="flex flex-col gap-5">
         <header
           class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between"
@@ -376,7 +377,7 @@
       </div>
     </div>
 
-    <aside class="kr-panel self-start p-4 lg:sticky lg:top-4">
+      <aside class="giftshop-cart kr-panel self-start p-4">
       <div class="flex items-center justify-between gap-3">
         <div>
           <h3 class="kr-text-black-xl text-primary">Cart Nest</h3>
@@ -429,7 +430,8 @@
           {{ cartStore.lastError }}
         </p>
       </div>
-    </aside>
+      </aside>
+    </div>
   </section>
 </template>
 
@@ -535,3 +537,27 @@ function goToCart(): void {
   void router.push('/cart')
 }
 </script>
+
+
+<style scoped>
+.giftshop-shell {
+  container: giftshop / inline-size;
+}
+
+.giftshop-layout {
+  display: grid;
+  align-items: start;
+  gap: 1rem;
+}
+
+@container giftshop (min-width: 56rem) {
+  .giftshop-layout {
+    grid-template-columns: minmax(0, 1fr) 20rem;
+  }
+
+  .giftshop-cart {
+    position: sticky;
+    top: 1rem;
+  }
+}
+</style>

@@ -30,6 +30,7 @@
     "test:art-archive-reconciler": "tsx utils/scripts/verifyArtArchiveReconciler.test.ts",
     "test:art-archive-reconcile-cli": "node utils/scripts/verifyReconcileArtArchiveCli.mjs",
     "test:art-archive-fileops": "tsx utils/scripts/verifyArtArchiveFileOps.test.ts",
+    "test:art-archive-thumbnails": "tsx utils/scripts/verifyArtArchiveThumbnails.test.ts",
     "test:art-archive-preset-modifiers": "tsx utils/scripts/verifyArtArchivePresetModifiers.test.ts",
     "test:art-archive-apply-preset-to-payload": "tsx utils/scripts/verifyApplyArchivePresetToPayload.test.ts",
     "test:art-archive-curation-mutation-guards": "tsx utils/scripts/verifyArtArchiveCurationMutationGuards.test.ts",

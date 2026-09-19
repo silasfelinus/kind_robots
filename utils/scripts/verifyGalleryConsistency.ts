@@ -461,8 +461,8 @@ if (!sharedGallery.includes('v-if="mode !== \'cards\'" class="p-3"')) {
 }
 
 if (
-  !/cards:\\s*\\n\\s*'grid gap-2 /.test(vocabSrc) ||
-  !/heroes:\\s*\\n\\s*'grid gap-3 /.test(vocabSrc)
+  !/cards:\s*\n\s*'grid gap-2 /.test(vocabSrc) ||
+  !/heroes:\s*\n\s*'grid gap-3 /.test(vocabSrc)
 ) {
   fail(
     'MODE_GRID_CLASS has drifted back to the looser gallery gaps. Keep Cards at gap-2 and Heroes at gap-3 unless a later screenshot-directed redesign replaces this contract.',

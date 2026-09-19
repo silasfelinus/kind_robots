@@ -144,10 +144,16 @@ export default defineEventHandler(async (event) => {
       const artImage = entry.artImageId
         ? (imagesById.get(entry.artImageId) ?? null)
         : null
+      // artImage.path/thumbnailPath are raw paths relative to the private
+      // archive root -- not web-servable. Point at the byte-serving route
+      // (art-archive/t-029) instead of the unreachable filesystem path.
+      const hasImage = Boolean(artImage?.path)
       return {
         ...entry,
-        imagePath: artImage?.path ?? null,
-        thumbnailPath: artImage?.thumbnailPath ?? artImage?.path ?? null,
+        imagePath: hasImage ? `/api/admin/art-archive/entries/${entry.id}/file` : null,
+        thumbnailPath: hasImage
+          ? `/api/admin/art-archive/entries/${entry.id}/file?variant=thumbnail`
+          : null,
         isMature: artImage?.isMature ?? false,
         isPublic: artImage?.isPublic ?? true,
         prompt: artImage?.promptString ?? null,

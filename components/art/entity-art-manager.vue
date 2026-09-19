@@ -1,6 +1,12 @@
 <!-- /components/art/entity-art-manager.vue -->
 <template>
-  <section class="kr-panel-flat p-4">
+  <section
+    class="kr-panel-flat p-4"
+    :data-art-model="props.entityType"
+    :data-model-id="props.entity.id"
+    :data-model-slug="props.entity.slug || undefined"
+    :data-art-subject="title"
+  >
     <header class="flex flex-wrap items-start gap-2">
       <div class="min-w-0 flex-1">
         <div class="flex items-center gap-2">
@@ -515,6 +521,7 @@ type EntityRecord = Record<string, unknown> & {
   artImageId?: number | null
   title?: string | null
   name?: string | null
+  slug?: string | null
   isPublic?: boolean | null
   isMature?: boolean | null
   designer?: string | null

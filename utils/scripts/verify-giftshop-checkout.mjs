@@ -113,7 +113,7 @@ assert.match(
 )
 assert.match(
   giftshop,
-  /physicalCatalog[\s\S]*POD preview[\s\S]*Posters, shirts, stickers, and mugs/,
+  /POD preview[\s\S]*Posters, shirts, stickers, and mugs[\s\S]*physicalCatalog/,
   'giftshop must surface the physical POD catalog even before vendor fulfillment is enabled',
 )
 assert.match(

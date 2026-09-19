@@ -13,7 +13,6 @@
     "viewport-grid": [
       "components/academy/academy-manager.vue → xl:grid-cols-[minmax(0,1.1fr)_minmax(320px,0.9fr)]",
       "components/academy/academy-remix.vue → xl:grid-cols-[minmax(0,1.2fr)_minmax(300px,0.8fr)]",
-      "components/achievements/achievement-gallery.vue → lg:grid-cols-3",
       "components/art/add-collection.vue → sm:grid-cols-2",
       "components/art/art-gallery.vue → lg:grid-cols-[minmax(12rem,1fr)_auto_auto_auto]",
       "components/art/art-gallery.vue → md:grid-cols-[1fr_1fr_auto_auto]",

@@ -2,7 +2,7 @@
   <section class="space-y-3 border-t border-base-300 pt-3" aria-label="Batch sorting">
     <div class="flex flex-wrap items-center justify-between gap-2">
       <div>
-        <h3 class="kr-text-black-md">Batch sort</h3>
+        <h3 class="kr-text-black-base">Batch sort</h3>
         <p class="kr-text-dim-xs">
           Select from the filtered queue, then apply one preset to the whole batch.
         </p>

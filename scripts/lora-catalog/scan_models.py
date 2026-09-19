@@ -65,7 +65,8 @@ import scan_loras as core  # shared detection engine (same directory)
 # kinds we emit Resource records for. Video/audio checkpoints ARE in scope
 # (kind_robots has video support: GIFs, effects, animation roadmap).
 RESOURCE_KINDS = {"checkpoint", "video_checkpoint", "audio_checkpoint",
-                  "diffusion_model", "text_encoder", "vae"}
+                  "diffusion_model", "text_encoder", "vae", "controlnet",
+                  "hypernetwork", "embedding", "upscaler", "latent_upscaler"}
 
 # kinds worth hashing — a by-hash lookup only helps for models that exist on
 # Civitai/CivArchive. Text encoders, VAEs, clip-vision, upscalers, etc. are
@@ -75,19 +76,20 @@ HASH_KINDS = {"checkpoint", "video_checkpoint", "audio_checkpoint",
               "diffusion_model", "unknown", "lora", "controlnet",
               "hypernetwork", "embedding"}
 
-# kind -> kind_robots ResourceType. Components need enum members that don't
-# exist yet (VAE / TEXT_ENCODER / DIFFUSION_MODEL) — the phase-2 migration must
-# add them; until then the importer can fall back to CHECKPOINT+generation.
+# kind -> kind_robots ResourceType. Keep this aligned with prisma ResourceType;
+# these file-backed kinds are all safe to catalog and route through ComfyUI.
 KIND_RESOURCE_TYPE = {
     "checkpoint": "CHECKPOINT",
     "video_checkpoint": "CHECKPOINT",       # generation carries LTX/Wan/SVD
     "audio_checkpoint": "CHECKPOINT",
-    "diffusion_model": "DIFFUSION_MODEL",   # NEW enum member (see migration)
-    "text_encoder": "TEXT_ENCODER",         # NEW enum member
-    "vae": "VAE",                           # NEW enum member
+    "diffusion_model": "DIFFUSION_MODEL",
+    "text_encoder": "TEXT_ENCODER",
+    "vae": "VAE",
     "controlnet": "CONTROLNET",
     "hypernetwork": "HYPERNETWORK",
     "embedding": "EMBEDDING",
+    "upscaler": "UPSCALER",
+    "latent_upscaler": "LATENT_UPSCALER",
 }
 
 # Filename-based component refinement. Video model folders (LTX, SVD, Wan) are
@@ -101,7 +103,9 @@ COMPONENT_REFINE = [
      "text_encoder", "text_encoders"),
     (re.compile(r"((^|[_\-. ])vae([_\-. ]|$)|image[_\-. ]?decoder)", re.I),
      "vae", "vae"),
-    (re.compile(r"(spatial[_\-. ]?upscaler|(^|[_\-. ])upscal|esrgan|swinir)", re.I),
+    (re.compile(r"spatial[_\-. ]?upscaler", re.I),
+     "latent_upscaler", "latent_upscale_models"),
+    (re.compile(r"((^|[_\-. ])upscal|esrgan|swinir)", re.I),
      "upscaler", "upscale_models"),
 ]
 
@@ -154,7 +158,7 @@ FOLDER_RULES: list[tuple[str, str, str]] = [
     ("realesrgan", "upscaler", "upscale_models"),
     ("swinir", "upscaler", "upscale_models"),
     ("ldsr", "upscaler", "upscale_models"),
-    ("latent_upscale_models", "upscaler", "upscale_models"),
+    ("latent_upscale_models", "latent_upscaler", "latent_upscale_models"),
     ("upscale_models", "upscaler", "upscale_models"),
     # face restore / detection / segmentation
     ("gfpgan", "facerestore", "facerestore_models"),
@@ -303,7 +307,15 @@ def build_entry(path: Path, root: Path, cache: core.Cache,
     e.filename = path.name
     e.name = path.stem
     e.size_bytes = st.st_size
-    e.kind, e.comfy_folder, e.is_tool = classify(e.relpath)
+    # Include the scan root's own last two path segments in classification.
+    # A watched inbox such as models/checkpoints/import otherwise reduces a
+    # plain dropped checkpoint to just "foo.safetensors" and loses the very
+    # "checkpoints" signal that tells us what it is when public hash metadata
+    # is unavailable.
+    classification_path = "/".join(
+        part for part in (root.parent.name, root.name, e.relpath) if part
+    )
+    e.kind, e.comfy_folder, e.is_tool = classify(classification_path)
     # Hash only kinds a by-hash lookup can identify — skips the multi-GB bulk of
     # text encoders / VAEs / upscalers that no hash DB indexes anyway.
     if not no_hash and e.kind in HASH_KINDS:
@@ -668,7 +680,7 @@ def main() -> int:
     resourced = sum(1 for e in entries if to_resource(e))
     print("\n=== Summary ===")
     print(f"  files            : {len(entries)}")
-    print(f"  will be Resources: {resourced}  (checkpoints + components)")
+    print(f"  will be Resources: {resourced}  (file-backed model resources)")
     print(f"  Civitai / Archive: {civ} / {arc}")
     print("  by kind          : " + ", ".join(f"{k}={v}" for k, v in sorted(by_kind.items())))
     print(f"\n  plan : {args.out / 'models-move-plan.csv'}   (review before --organize move)")

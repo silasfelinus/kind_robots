@@ -1,6 +1,6 @@
 <!-- /components/lora/lora-discover.vue -->
 <!--
-  Discover — browse Civitai for new LoRAs and queue downloads into the library.
+  Discover — browse Civitai model classes and queue downloads into the library.
   Search hits /api/lora/browse (server-side proxy; owned rows flagged), each
   card can be one-click downloaded via /api/lora/download-request, which the
   home import agent claims → fetches → catalogs. Maturity follows the account
@@ -15,7 +15,7 @@
     >
       <div class="min-w-0">
         <h2 class="kr-text-bold-lg truncate text-base-content">
-          Discover {{ discoverType === 'CHECKPOINT' ? 'Checkpoints' : 'LoRAs' }}
+          Discover {{ discoverTypeLabel }}
         </h2>
         <p class="kr-text-dim-sm">
           Search Civitai and download straight into your library.
@@ -31,8 +31,13 @@
           class="select select-bordered rounded-xl"
           aria-label="Model type"
         >
-          <option value="LORA">LoRAs</option>
-          <option value="CHECKPOINT">Checkpoints</option>
+          <option
+            v-for="entry in CIVITAI_DISCOVER_TYPES"
+            :key="entry.resourceType"
+            :value="entry.resourceType"
+          >
+            {{ entry.label }}
+          </option>
         </select>
 
         <select v-model="source" class="select select-bordered rounded-xl">
@@ -46,7 +51,7 @@
           :placeholder="
             source === 'civarchive'
               ? 'CivArchive model id or URL (recovers removed models)'
-              : `Search Civitai ${discoverType === 'CHECKPOINT' ? 'checkpoints' : 'LoRAs'}`
+              : `Search Civitai ${discoverTypeLabel.toLowerCase()}`
           "
         />
 
@@ -77,8 +82,8 @@
       <maturity-toggle
         variant="resource"
         label="Mature discovery results"
-        visible-text="Mature LoRAs and checkpoints are included in searches."
-        hidden-text="Mature LoRAs and checkpoints are excluded from searches."
+        visible-text="Mature models are included in searches."
+        hidden-text="Mature models are excluded from searches."
       />
 
       <div class="flex flex-wrap items-center gap-4">
@@ -191,6 +196,10 @@
 import { computed, ref, watch } from 'vue'
 import { performFetch } from '@/stores/utils'
 import { useUserStore } from '@/stores/userStore'
+import {
+  CIVITAI_DISCOVER_TYPES,
+  type CivitaiDiscoverResourceType,
+} from '@/utils/resourceDownloads'
 
 type DiscoverCard = {
   civitaiModelId: number
@@ -202,7 +211,7 @@ type DiscoverCard = {
   fileName: string | null
   creator: string | null
   isMature: boolean
-  resourceType?: 'LORA' | 'CHECKPOINT'
+  resourceType?: CivitaiDiscoverResourceType
   source: 'CIVITAI' | 'CIVARCHIVE'
   owned: boolean
   updatable: boolean
@@ -216,7 +225,7 @@ type BrowseResponse = {
 const userStore = useUserStore()
 
 const query = ref('')
-const discoverType = ref<'LORA' | 'CHECKPOINT'>('LORA')
+const discoverType = ref<CivitaiDiscoverResourceType>('LORA')
 const source = ref<'civitai' | 'civarchive'>('civitai')
 const baseModel = ref('')
 const hideOwned = ref(false)
@@ -227,6 +236,13 @@ const loading = ref(false)
 const error = ref('')
 const queuing = ref<number | null>(null)
 const queuedIds = ref<Set<number>>(new Set())
+
+const discoverTypeLabel = computed(
+  () =>
+    CIVITAI_DISCOVER_TYPES.find(
+      (entry) => entry.resourceType === discoverType.value,
+    )?.label ?? 'Models',
+)
 
 const visibleCards = computed(() => {
   if (!hideOwned.value) return cards.value

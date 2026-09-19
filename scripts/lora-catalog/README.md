@@ -179,10 +179,11 @@ both files together** (copy the whole `lora-catalog/` folder, not one file).
 | `Stable-diffusion/*`, `checkpoints` | `checkpoints/<BaseModel>/` (SDXL, Flux, Pony, Illustrious, SD15, ZImage, Qwen…) |
 | video models (SVD, LTX, Wan) | `checkpoints/Video/<Arch>/` (LTX, SVD, Wan, Hunyuan) |
 | audio models (Stable-Audio, ACE) | `checkpoints/Audio/` |
-| a VAE / text-encoder / upscaler sitting **inside** a video bundle folder | split out to `vae/` · `text_encoders/` · `upscale_models/` (so Comfy's video nodes find them) |
+| a VAE / text-encoder / upscaler sitting **inside** a video bundle folder | split out to `vae/` · `text_encoders/` · `latent_upscale_models/` or `upscale_models/` (so Comfy's video nodes find them) |
 | `unet` **and** `diffusion_models` | `diffusion_models/` (merged) |
 | `text_encoders`, `clip` | `text_encoders/` |
-| `ESRGAN`, `RealESRGAN`, `SwinIR`, `LDSR`, `latent_upscale_models` | `upscale_models/` (merged) |
+| `ESRGAN`, `RealESRGAN`, `SwinIR`, `LDSR` | `upscale_models/` (merged) |
+| `latent_upscale_models` | `latent_upscale_models/` |
 | `GFPGAN`, `Codeformer` | `facerestore_models/` |
 | `vae`, `clip_vision`, `controlnet`, `hypernetworks`, `embeddings`, `ipadapter`, `gligen`, `sams`, `ultralytics`, `animatediff_models` | same name (already correct) |
 
@@ -229,18 +230,16 @@ by the hashed Civitai/CivArchive pass (drop `--no-hash`).
 
 ### Which files become Resources
 
-**Checkpoints + components** (`diffusion_models`, `text_encoders`, `vae`) get
-Resource records — including **video and audio** models (SVD/LTX/Wan/Stable-Audio),
-which are in scope for kind_robots' video features (GIFs, effects, animation).
-Infrastructure (upscalers, face restore, clip_vision, controlnet unless you
-widen scope) is sorted into the right folder but not cataloged. `--skip-video`
+**File-backed model resources** get Resource records: checkpoints (including
+video/audio), diffusion models, text encoders, VAEs, ControlNets, hypernetworks,
+embeddings, pixel upscalers, and latent upscalers. Tool/infrastructure folders
+that Kind Robots does not model as Resources (face restore, clip_vision,
+ipadapter, detection, etc.) are still sorted but not cataloged. `--skip-video`
 leaves the whole video/audio set in place if you'd rather not touch it.
 
-> **Schema note:** the component kinds map to `resourceType` values
-> `DIFFUSION_MODEL`, `TEXT_ENCODER`, `VAE` that **do not exist in the
-> `ResourceType` enum yet**. The phase-2 Prisma migration must add them (or the
-> importer falls back to `CHECKPOINT` + `generation`). This is flagged in the
-> catalog so nothing imports with an invalid enum by surprise.
+The scanner's resource types match the current Prisma `ResourceType` enum,
+including `DIFFUSION_MODEL`, `TEXT_ENCODER`, `VAE`, `LATENT_UPSCALER`, and
+`UPSCALER`.
 
 ---
 
@@ -250,10 +249,9 @@ Once a catalog looks right, push it into the `Resource` table via the batch
 endpoint (`POST /api/resources/batch`). Duplicate names are skipped server-side,
 so re-running is safe and incremental.
 
-**Requires the phase-2 schema migration** (`prisma/migrations/*_lora_catalog_fields`),
-which adds `triggerWords` + `defaultTrigger` columns to `Resource` and the
-`VAE` / `TEXT_ENCODER` / `DIFFUSION_MODEL` (ResourceType) and `LTX` / `WAN`
-(SupportedServer) enum values. Run `prisma migrate deploy` before importing.
+The production schema already includes the catalog fields and file-backed
+Resource types used by these scanners. On a fresh database, run the repository's
+normal `prisma migrate deploy` before importing.
 
 Auth is a **kind_robots API key** (a user API key or admin token) sent as
 `x-api-key` — NOT your Civitai token.

@@ -14,22 +14,27 @@ import prisma from '../../utils/prisma'
 import { errorHandler } from '../../utils/error'
 import { requireApiUser } from '../../utils/authGuard'
 import { effectiveShowMature } from '~/server/utils/contentAccess'
+import {
+  civitaiDiscoverType,
+  resourceTypeForCivitaiModelType,
+  type CivitaiDiscoverResourceType,
+} from '~/utils/resourceDownloads'
 
 const CIVITAI_MODELS_URL = 'https://civitai.com/api/v1/models'
 const CIVARCHIVE_MODEL_URL = 'https://civitaiarchive.com/api/models'
 
-// The two model kinds this browser queues. LoRA is the default; Checkpoint is
-// the base-model tab. `civitaiType` is the value Civitai's `types=` filter wants.
-type BrowseResourceType = 'LORA' | 'CHECKPOINT'
+// ResourceType is broader than Civitai's top-level browse classes. The shared
+// taxonomy exposes only the Civitai model kinds that map cleanly to one of our
+// file-backed Resources; component-only types are still accepted by the
+// download queue/import agents without pretending Civitai can browse them.
+type BrowseResourceType = CivitaiDiscoverResourceType
 
 function normalizeBrowseType(value: unknown): BrowseResourceType {
-  return String(value ?? '').toUpperCase() === 'CHECKPOINT'
-    ? 'CHECKPOINT'
-    : 'LORA'
+  return civitaiDiscoverType(value).resourceType
 }
 
 function civitaiTypeFor(type: BrowseResourceType): string {
-  return type === 'CHECKPOINT' ? 'Checkpoint' : 'LORA'
+  return civitaiDiscoverType(type).civitaiType
 }
 
 type BrowseCard = {
@@ -76,6 +81,7 @@ type CivitaiVersion = {
 type CivitaiModel = {
   id?: number
   name?: string
+  type?: string
   nsfw?: boolean
   creator?: { username?: string }
   modelVersions?: CivitaiVersion[]
@@ -128,7 +134,8 @@ async function browseCivitai(options: {
         fileName: primaryFile?.name ?? null,
         creator: model.creator?.username ?? null,
         isMature: model.nsfw === true,
-        resourceType: options.type,
+        resourceType:
+          resourceTypeForCivitaiModelType(model.type) ?? options.type,
         source: 'CIVITAI',
         owned: false,
         updatable: false,
@@ -159,6 +166,7 @@ type ArchiveVersion = {
 type ArchiveModel = {
   id?: number
   name?: string
+  type?: string
   is_nsfw?: boolean
   creator_name?: string
   creator?: { username?: string }
@@ -228,7 +236,8 @@ async function browseCivArchive(options: {
         fileName: firstString(file?.name),
         creator,
         isMature,
-        resourceType: options.type,
+        resourceType:
+          resourceTypeForCivitaiModelType(model.type) ?? options.type,
         source: 'CIVARCHIVE',
         owned: false,
         updatable: false,

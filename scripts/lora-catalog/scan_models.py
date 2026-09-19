@@ -65,7 +65,8 @@ import scan_loras as core  # shared detection engine (same directory)
 # kinds we emit Resource records for. Video/audio checkpoints ARE in scope
 # (kind_robots has video support: GIFs, effects, animation roadmap).
 RESOURCE_KINDS = {"checkpoint", "video_checkpoint", "audio_checkpoint",
-                  "diffusion_model", "text_encoder", "vae"}
+                  "diffusion_model", "text_encoder", "vae", "controlnet",
+                  "hypernetwork", "embedding", "upscaler", "latent_upscaler"}
 
 # kinds worth hashing — a by-hash lookup only helps for models that exist on
 # Civitai/CivArchive. Text encoders, VAEs, clip-vision, upscalers, etc. are
@@ -75,9 +76,8 @@ HASH_KINDS = {"checkpoint", "video_checkpoint", "audio_checkpoint",
               "diffusion_model", "unknown", "lora", "controlnet",
               "hypernetwork", "embedding"}
 
-# kind -> kind_robots ResourceType. Components need enum members that don't
-# exist yet (VAE / TEXT_ENCODER / DIFFUSION_MODEL) — the phase-2 migration must
-# add them; until then the importer can fall back to CHECKPOINT+generation.
+# kind -> kind_robots ResourceType. Keep this aligned with prisma ResourceType;
+# these file-backed kinds are all safe to catalog and route through ComfyUI.
 KIND_RESOURCE_TYPE = {
     "checkpoint": "CHECKPOINT",
     "video_checkpoint": "CHECKPOINT",       # generation carries LTX/Wan/SVD
@@ -88,6 +88,8 @@ KIND_RESOURCE_TYPE = {
     "controlnet": "CONTROLNET",
     "hypernetwork": "HYPERNETWORK",
     "embedding": "EMBEDDING",
+    "upscaler": "UPSCALER",
+    "latent_upscaler": "LATENT_UPSCALER",
 }
 
 # Filename-based component refinement. Video model folders (LTX, SVD, Wan) are
@@ -101,7 +103,9 @@ COMPONENT_REFINE = [
      "text_encoder", "text_encoders"),
     (re.compile(r"((^|[_\-. ])vae([_\-. ]|$)|image[_\-. ]?decoder)", re.I),
      "vae", "vae"),
-    (re.compile(r"(spatial[_\-. ]?upscaler|(^|[_\-. ])upscal|esrgan|swinir)", re.I),
+    (re.compile(r"spatial[_\-. ]?upscaler", re.I),
+     "latent_upscaler", "latent_upscale_models"),
+    (re.compile(r"((^|[_\-. ])upscal|esrgan|swinir)", re.I),
      "upscaler", "upscale_models"),
 ]
 
@@ -154,7 +158,7 @@ FOLDER_RULES: list[tuple[str, str, str]] = [
     ("realesrgan", "upscaler", "upscale_models"),
     ("swinir", "upscaler", "upscale_models"),
     ("ldsr", "upscaler", "upscale_models"),
-    ("latent_upscale_models", "upscaler", "upscale_models"),
+    ("latent_upscale_models", "latent_upscaler", "latent_upscale_models"),
     ("upscale_models", "upscaler", "upscale_models"),
     # face restore / detection / segmentation
     ("gfpgan", "facerestore", "facerestore_models"),

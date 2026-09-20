@@ -18,6 +18,16 @@
 // slice can shrink one directory's bucket without the ratchet needing to
 // track which individual files moved.
 //
+// NOT the shared grownRatchetBuckets() alone. ratchetBaseline.ts's count-only
+// comparison is right for verifyLintRatchet.ts, whose entries carry line:column
+// and would false-positive on every unrelated line shift in a file -- membership
+// there is too strict to be useful. Prettier's entries are bare file paths with
+// no such churn, so a same-bucket SUBSTITUTION (fixing one baseline file while a
+// different file in the same directory goes unformatted) would hold the count
+// steady and slip through count-only comparison. substitutedRatchetBuckets()
+// below closes that gap by checking membership, on top of (not instead of) the
+// shared shrink-only count check.
+//
 //   npx tsx utils/scripts/verifyPrettierRatchet.ts             # check
 //   npx tsx utils/scripts/verifyPrettierRatchet.ts --update    # re-record (shrink only)
 //   npx tsx utils/scripts/verifyPrettierRatchet.ts --self-test # no Prettier run
@@ -76,6 +86,26 @@ export function bucketByTopDir(files: readonly string[]): RatchetEntries {
 /** Total unformatted files across every bucket. */
 export function totalProblems(buckets: RatchetEntries): number {
   return Object.values(buckets).reduce((sum, list) => sum + list.length, 0)
+}
+
+/**
+ * Buckets containing a CURRENT file that isn't in the baseline's list for
+ * that bucket -- a growth the count-only `grownRatchetBuckets` check alone
+ * cannot see when it lands alongside a same-bucket fix (baseline count 2,
+ * one old entry fixed, one new entry appears, count stays 2).
+ *
+ * A bucket entirely absent from the baseline counts as all-new, same as
+ * `grownRatchetBuckets`'s "missing bucket counts as zero" rule.
+ */
+export function substitutedRatchetBuckets(
+  current: RatchetEntries,
+  baseline: RatchetEntries | null,
+): string[] {
+  if (!baseline) return []
+  return Object.keys(current).filter((bucket) => {
+    const known = new Set(baseline[bucket] ?? [])
+    return (current[bucket] ?? []).some((entry) => !known.has(entry))
+  })
 }
 
 function runPrettier(): string[] {
@@ -158,6 +188,41 @@ function selfTest(): void {
     throw new Error(`shrinking must not fail, got ${JSON.stringify(shrunk)}`)
   }
 
+  // SUBSTITUTION: fixing one baseline file while a different file in the same
+  // bucket goes unformatted holds the count steady, so grownRatchetBuckets
+  // alone must NOT catch it -- that is exactly the gap substitutedRatchetBuckets
+  // exists to close.
+  const sameCountBaseline = { server: ['server/api/a.ts', 'server/api/old.ts'] }
+  const sameCountCurrent = bucketByTopDir([
+    'server/api/a.ts',
+    'server/api/new.ts',
+  ])
+  if (grownRatchetBuckets(sameCountCurrent, sameCountBaseline).length) {
+    throw new Error(
+      'grownRatchetBuckets unexpectedly caught a same-count substitution -- test fixture is wrong',
+    )
+  }
+  const substituted = substitutedRatchetBuckets(
+    sameCountCurrent,
+    sameCountBaseline,
+  )
+  if (JSON.stringify(substituted) !== JSON.stringify(['server'])) {
+    throw new Error(
+      `substitution not detected, got ${JSON.stringify(substituted)}`,
+    )
+  }
+
+  // Only removing baseline entries (no new ones) must NOT read as substitution.
+  const onlyRemoved = substitutedRatchetBuckets(
+    bucketByTopDir(['server/api/a.ts']),
+    { server: ['server/api/a.ts', 'server/api/old.ts'] },
+  )
+  if (onlyRemoved.length) {
+    throw new Error(
+      `removing entries must not read as substitution, got ${JSON.stringify(onlyRemoved)}`,
+    )
+  }
+
   console.log('✅ verifyPrettierRatchet self-test passed.')
 }
 
@@ -175,7 +240,13 @@ function main(): void {
   const buckets = bucketByTopDir(runPrettier())
   const total = totalProblems(buckets)
   const baseline = loadRatchetBaseline<PrettierBaseline>(BASELINE)
-  const grown = grownRatchetBuckets(buckets, baseline?.violations ?? null)
+  const baselineViolations = baseline?.violations ?? null
+  const grown = grownRatchetBuckets(buckets, baselineViolations)
+  const substituted = substitutedRatchetBuckets(buckets, baselineViolations)
+  // Union: a bucket that grew, had a substitution, or both is worse either way.
+  const worse = [...new Set([...grown, ...substituted])].sort((a, b) =>
+    a.localeCompare(b),
+  )
 
   process.stdout.write(
     `Prettier ratchet: ${total} unformatted file(s) across ${Object.keys(buckets).length} director${Object.keys(buckets).length === 1 ? 'y' : 'ies'}` +
@@ -183,14 +254,18 @@ function main(): void {
   )
 
   if (update) {
-    if (grown.length) {
+    if (worse.length) {
       console.error(
-        `Refusing to record a LARGER baseline. These directories grew:\n` +
-          grown
-            .map(
-              (dir) =>
-                `  ${dir}: ${baseline?.violations[dir]?.length ?? 0} → ${buckets[dir]?.length ?? 0}`,
-            )
+        `Refusing to record a LARGER baseline. These directories got worse:\n` +
+          worse
+            .map((dir) => {
+              const was = baseline?.violations[dir]?.length ?? 0
+              const now = buckets[dir]?.length ?? 0
+              const label = grown.includes(dir)
+                ? `${was} → ${now}`
+                : `${now} (same count, different file(s))`
+              return `  ${dir}: ${label}`
+            })
             .join('\n') +
           `\n\nFormat the new files, or explain in the PR why the baseline should rise and edit it by hand.`,
       )
@@ -217,19 +292,22 @@ function main(): void {
     return
   }
 
-  if (!grown.length) {
+  if (!worse.length) {
     process.stdout.write('Prettier ratchet holds — no directory got worse.\n')
     return
   }
 
   console.error(
-    `\n❌ ${grown.length} director${grown.length === 1 ? 'y' : 'ies'} got worse:\n`,
+    `\n❌ ${worse.length} director${worse.length === 1 ? 'y' : 'ies'} got worse:\n`,
   )
 
-  for (const dir of grown) {
+  for (const dir of worse) {
     const was = baseline.violations[dir]?.length ?? 0
     const now = buckets[dir]?.length ?? 0
-    console.error(`  ${dir}: ${was} → ${now}`)
+    const label = grown.includes(dir)
+      ? `${was} → ${now}`
+      : `${now} (same count, different file(s) -- a substitution)`
+    console.error(`  ${dir}: ${label}`)
 
     const known = new Set(baseline.violations[dir] ?? [])
     for (const entry of (buckets[dir] ?? []).filter((e) => !known.has(e))) {

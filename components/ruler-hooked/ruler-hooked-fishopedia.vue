@@ -4,9 +4,7 @@
       class="collapse-title flex items-center justify-between gap-3 pr-12 font-bold"
     >
       <span>📖 Fishopedia</span>
-      <span class="kr-badge-outline"
-        >{{ discoveredCount }}/{{ roster.length }} discovered</span
-      >
+      <span class="kr-badge-outline">{{ discoveredCountLabel }}</span>
     </summary>
 
     <div class="collapse-content">
@@ -82,6 +80,12 @@ const roster = RULER_HOOKED_FISH
 const discoveredCount = computed(
   () => Object.keys(props.save.fishopedia).length,
 )
+const discoveredCountLabel = computed(() => {
+  const count = discoveredCount.value
+  if (count === 0) return 'No species discovered yet'
+  if (count === 1) return '1 species discovered'
+  return `${count} species discovered`
+})
 
 function entryFor(slug: string) {
   return props.save.fishopedia[slug]

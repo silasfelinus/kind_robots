@@ -8,13 +8,13 @@
           LoRAs <span class="font-normal opacity-50">(optional)</span>
         </h3>
         <p class="kr-text-dim-xs-55 mt-0.5">
-          Stack up to {{ MAX_LORAS_PER_JOB }} compatible LoRAs. They apply in
-          order, and trigger words are added to the render prompt automatically.
+          Choose up to {{ MAX_LORAS_PER_JOB }} compatible LoRAs. Triggers are
+          added automatically.
         </p>
       </div>
       <div class="flex flex-wrap items-center gap-1">
         <maturity-toggle
-          variant="icon"
+          variant="compact"
           label="Mature resources"
           visible-text="Mature LoRAs are included."
           hidden-text="Mature LoRAs are hidden."
@@ -46,11 +46,11 @@
         v-if="!supported"
         class="kr-text-dim-xs-60 kr-panel-dashed-compact"
       >
-      {{ engineLabel }} builds its model into the workflow and ignores LoRAs.
-      Switch to a preset that supports them to use this.
-    </p>
+        {{ engineLabel }} builds its model into the workflow and ignores LoRAs.
+        Switch to a preset that supports them to use this.
+      </p>
 
-    <template v-else>
+      <template v-else>
       <ol v-if="selected.length" class="space-y-2">
         <li
           v-for="(entry, index) in selected"
@@ -157,9 +157,8 @@
         v-else-if="!rankedLoras.length"
         class="kr-text-dim-xs-60 kr-panel-dashed-compact text-center"
       >
-        No compatible LoRA Resources are available for {{ compatibilityLabel }}.
-        Switch the model/checkpoint, add a compatible Resource, or enable mature
-        content if the one you expect is flagged 18+.
+        No compatible LoRAs are visible for {{ compatibilityLabel }}.
+        Try another checkpoint or the Mature toggle above.
       </p>
 
       <template v-else>
@@ -241,7 +240,7 @@
           No compatible LoRA matches “{{ search.trim() }}”.
         </p>
       </template>
-    </template>
+      </template>
     </div>
   </section>
 </template>
@@ -294,9 +293,14 @@ const profile = computed(() => engineProfile(props.engine))
 const supported = computed(() => profile.value.supports.lora)
 const engineLabel = computed(() => profile.value.label)
 const atCapacity = computed(() => props.modelValue.length >= MAX_LORAS_PER_JOB)
-const effectiveCheckpointFamily = computed<CheckpointFamily>(() =>
-  props.checkpointFamily ?? detectCheckpointFamily(checkpointStore.selectedCheckpoint),
-)
+const effectiveCheckpointFamily = computed<CheckpointFamily>(() => {
+  if (props.checkpointFamily) return props.checkpointFamily
+
+  const detected = detectCheckpointFamily(checkpointStore.selectedCheckpoint)
+  return props.engine === 'sdxl-img2img' && detected === 'unknown'
+    ? 'sdxl'
+    : detected
+})
 const compatibilityLabel = computed(() => {
   if (props.engine !== 'comfy' && props.engine !== 'sdxl-img2img') {
     return engineLabel.value

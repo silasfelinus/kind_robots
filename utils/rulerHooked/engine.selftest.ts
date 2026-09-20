@@ -20,6 +20,7 @@ function baseSave(): RunSave {
     deckState: { seenCardIds: [], activeArcs: {}, cooldowns: {}, drawBag: [] },
     inventory: { skills: [], items: [] },
     choiceLog: [], flags: {}, fishopedia: {}, endingKey: null,
+    openingSeen: true,
     createdAt: 'x', updatedAt: 'x',
   }
 }

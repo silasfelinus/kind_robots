@@ -16,7 +16,10 @@ const slotKey = (saveId: string) => `rulerHooked:save:${saveId}`
 // with a required-in-practice presetId. Old saves (schemaVersion <= 4) never
 // wrote presetId, so migrateSave() below fills it in with the hero preset
 // rather than leaving the ruler region with nothing to resolve to.
-export const SAVE_SCHEMA_VERSION = 5
+// v6 (t-028): added `openingSeen` for the once-per-reign opening. Old saves
+// never wrote it either, so migrateSave() defaults it to false -- a
+// pre-existing reign gets the introduction once too, same as a new one.
+export const SAVE_SCHEMA_VERSION = 6
 
 // Checked per-call (not captured at module load) so SSR — and headless tests
 // that install a window shim after import — behave correctly.
@@ -62,6 +65,9 @@ function migrateSave(save: RunSave): RunSave {
   if (!save.ruler.cosmetics) save.ruler.cosmetics = {}
   if (!save.ruler.cosmetics.presetId) {
     save.ruler.cosmetics.presetId = HERO_RULER_PRESET_ID
+  }
+  if (typeof save.openingSeen !== 'boolean') {
+    save.openingSeen = false
   }
   save.schemaVersion = SAVE_SCHEMA_VERSION
   return save

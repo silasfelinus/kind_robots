@@ -24,6 +24,7 @@ import {
   RULER_PRESET_IDS,
   RULER_LAYER_FALLBACK_STATE,
 } from '~/utils/rulerHooked/rulerPresets'
+import { ADVISOR_CHARACTER_SLUG } from '~/utils/rulerHooked/advisor'
 
 export const RULER_HOOKED_CONTENT: ContentBundle = {
   contentVersion: '2026.08-content-depth',
@@ -83,6 +84,19 @@ export const RULER_HOOKED_CONTENT: ContentBundle = {
   },
 
   characters: [
+    {
+      // The standing advisor (ruler-hooked/t-028) -- present every reign,
+      // not tied to any one card/arc the way the cast below is. Slug kept in
+      // sync with advisor.ts's ADVISOR_CHARACTER_SLUG rather than duplicated
+      // as a literal, so the two can never drift apart.
+      slug: ADVISOR_CHARACTER_SLUG,
+      name: 'Quill',
+      honorific: 'the Steward',
+      alignment: 'wry-devoted',
+      role: 'castle steward and advisor',
+      drive: 'keep the reign (and the ruler) intact',
+      quirks: 'narrates your fishing like court proceedings',
+    },
     {
       slug: 'warlock-vex',
       name: 'Vex',

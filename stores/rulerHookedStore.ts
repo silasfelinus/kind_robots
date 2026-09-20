@@ -25,7 +25,10 @@ import {
   putPortrait, deletePortrait, makePortraitId,
 } from '~/utils/rulerHooked/portraitStore'
 import { HERO_RULER_PRESET_ID } from '~/utils/rulerHooked/rulerPresets'
-import type { Card, CatchResult, RunSave, SaveSlotMeta } from '~/types/ruler-hooked'
+import {
+  ADVISOR_CHARACTER_SLUG, currentAdvisorLine, type AdvisorLine,
+} from '~/utils/rulerHooked/advisor'
+import type { Card, CatchResult, CharacterRef, RunSave, SaveSlotMeta } from '~/types/ruler-hooked'
 
 const nowStamp = (): string => new Date().toISOString()
 
@@ -50,6 +53,25 @@ export const useRulerHookedStore = defineStore('rulerHooked', () => {
       && !pendingEnding.value
       && save.value.status === 'ACTIVE',
   )
+
+  /** The standing advisor's Character record (ruler-hooked/t-028) -- present
+   *  every reign, independent of which card/arc is active. */
+  const advisorCharacter = computed<CharacterRef | undefined>(() =>
+    bundle.characters.find((c) => c.slug === ADVISOR_CHARACTER_SLUG),
+  )
+  /** What the advisor is currently saying -- a pure function of save +
+   *  transient play state, recomputed whenever any of it changes. */
+  const advisorLine = computed<AdvisorLine | null>(() =>
+    save.value
+      ? currentAdvisorLine(bundle, save.value, {
+          lastCatch: lastCatch.value,
+          lastEscape: lastEscape.value,
+          pendingEnding: pendingEnding.value,
+        })
+      : null,
+  )
+  /** Whether this reign's once-per-reign opening (t-028) still needs showing. */
+  const showOpening = computed(() => !!save.value && !save.value.openingSeen)
 
   function refreshSlots() {
     slots.value = loadIndex().slots
@@ -230,6 +252,13 @@ export const useRulerHookedStore = defineStore('rulerHooked', () => {
     pendingEnding.value = null
   }
 
+  /** Mark this reign's opening as seen (t-028) -- skip or finish both call this. */
+  function dismissOpening() {
+    if (!save.value) return
+    save.value.openingSeen = true
+    persist()
+  }
+
   function renameSlot(saveId: string, name: string) {
     renameSlotStore(saveId, name)
     if (save.value?.saveId === saveId) save.value.name = name
@@ -253,7 +282,8 @@ export const useRulerHookedStore = defineStore('rulerHooked', () => {
   return {
     bundle, save, activeCard, activeArcId, pendingEnding, activeFishing,
     lastCatch, lastEscape, slots, scene, canFish,
+    advisorCharacter, advisorLine, showOpening,
     init, newGame, updateCosmetics, loadSlot, startFishing, fishingStop, choose,
-    acceptEnding, declineEnding, renameSlot, deleteSlot, refreshSlots,
+    acceptEnding, declineEnding, dismissOpening, renameSlot, deleteSlot, refreshSlots,
   }
 })

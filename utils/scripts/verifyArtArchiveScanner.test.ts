@@ -246,6 +246,32 @@ async function testScannerRootConfinement() {
   }
 }
 
+async function testScannerSurvivesInBoundsSymlinkCycle() {
+  // Regression test (art-archive/t-041, 2026-09-20): walk() used to recurse
+  // once per subdirectory with no cycle guard. resolveConfined() only
+  // rejects a path that resolves OUTSIDE the root -- an in-bounds symlink
+  // that loops back to an ancestor directory still passes that check, so
+  // the pre-fix recursive walk() would recurse forever and blow the call
+  // stack ("Maximum call stack size exceeded"), which the production
+  // dry-run/import endpoint then surfaced as an opaque HTTP 400 before
+  // scanning a single file.
+  const root = await mkdtemp(path.join(os.tmpdir(), 'art-archive-scan-'))
+  try {
+    await mkdir(path.join(root, 'a', 'b'), { recursive: true })
+    await writeFile(path.join(root, 'a', 'b', 'real.png'), fakePng([textChunk('parameters', A1111_TEXT)]))
+    // 'a/b/loop' resolves back to 'a' itself -- still inside root.
+    await symlink(path.join(root, 'a'), path.join(root, 'a', 'b', 'loop'))
+
+    const result = await scanArchiveRoot(root)
+
+    assert.equal(result.files.length, 1, 'the cycle must be skipped, not followed forever')
+    assert.equal(result.files[0]?.relativePath, 'a/b/real.png')
+    console.log('verifyArtArchiveScanner: an in-bounds symlink cycle is skipped, not followed forever')
+  } finally {
+    await rm(root, { recursive: true, force: true })
+  }
+}
+
 async function testTrashFolderNeverRescanned() {
   const root = await mkdtemp(path.join(os.tmpdir(), 'art-archive-scan-'))
   try {
@@ -416,6 +442,7 @@ async function run() {
   testWebpExifAndXmpExtraction()
   testContentHash()
   await testScannerRootConfinement()
+  await testScannerSurvivesInBoundsSymlinkCycle()
   await testTrashFolderNeverRescanned()
   await testKnownFileCacheIsTrustedWhenStatUnchanged()
   await testKnownFileCacheSurvivesSubMillisecondMtimePrecisionLoss()

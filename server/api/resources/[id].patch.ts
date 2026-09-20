@@ -193,6 +193,17 @@ export default defineEventHandler(async (event) => {
        */
       triggerWords: resourceFields.triggerWords,
       defaultTrigger: resourceFields.defaultTrigger,
+      /*
+       * The same gap as the two above. `create.ts` accepts both and
+       * scan_loras.py emits both, but they arrive null on rows imported before
+       * the columns existed -- Resources 2427 and 2429 carry
+       * `?modelVersionId=712513` in civitaiUrl and nothing in the columns. The
+       * download and browse lanes key off civitaiModelVersionId, so a row that
+       * knows its own version id only inside a URL string is invisible to
+       * them, and there was no way to write the value back.
+       */
+      civitaiModelId: resourceFields.civitaiModelId,
+      civitaiModelVersionId: resourceFields.civitaiModelVersionId,
       ArtImage:
         typeof resourceFields.artImageId === 'number'
           ? { connect: { id: resourceFields.artImageId } }

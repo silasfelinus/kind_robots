@@ -14,6 +14,7 @@ import {
 } from '../comfy/sdxl/utils/workflow'
 import { buildFluxWorkflowFromRequest } from '../comfy/flux/utils/workflow'
 import { buildKrea2WorkflowFromRequest } from '../comfy/krea2/utils/workflow'
+import { extractRenderRequest } from '../comfy/utils/engineWorkflow'
 import { buildFlux2KleinWorkflowFromRequest } from '../comfy/flux2/utils/workflow'
 import { buildZImageWorkflowFromRequest } from '../comfy/zimage/utils/workflow'
 import {
@@ -473,13 +474,6 @@ export default defineEventHandler(async (event) => {
       facets,
     )
 
-    assertArtPromptContract({
-      prompt: promptString,
-      engine,
-      steps: resolvedBody.steps ?? null,
-      cfg: resolvedBody.cfg ?? null,
-    })
-
     const priority = Number.isInteger(resolvedBody.priority)
       ? Number(resolvedBody.priority)
       : DEFAULT_ENQUEUE_PRIORITY
@@ -494,6 +488,45 @@ export default defineEventHandler(async (event) => {
     if (narrativeContext) payload.narrativeContext = narrativeContext
     if (brainstormContext) payload.brainstormContext = brainstormContext
     if (entityArt) payload.entityArt = entityArt.metadata
+
+    /*
+     * Gate on the string the renderer actually receives, not on the caller's
+     * `promptString`. For krea2 the two are NOT the same: the workflow builder
+     * runs the prompt through `buildKreaSemanticPrompt` before it reaches the
+     * CLIP node, which is where kind-robots#2896 strips an entity's rules text
+     * back out. Gating the pre-semantic string therefore judged words that are
+     * never rendered.
+     *
+     * That is not theoretical. On 2026-09-20 it refused 13 of the negation
+     * repair's re-renders whose rendered prompt was clean, quoting phrases --
+     * "when the scene", "no single person should", "never for the person" --
+     * that existed only in the entity Description `buildEntityArtPrompt`
+     * appends. From the caller's end a 422 quoting a phrase absent from the
+     * prompt it sent reads as the contract having lost its mind, and the same
+     * gate blocks a human re-rendering any Reward whose rules text happens to
+     * contain a negation.
+     *
+     * /api/art/queue has always gated this way and says why in its own comment:
+     * "that is the string ComfyUI receives, and it is not always the caller's
+     * promptString". This endpoint now agrees with it. A payload shape that
+     * cannot be introspected falls back to `promptString` rather than going
+     * ungated.
+     */
+    let renderedPrompt = promptString
+    try {
+      const extracted = extractRenderRequest(payload).prompt
+      if (typeof extracted === 'string' && extracted.trim()) {
+        renderedPrompt = extracted
+      }
+    } catch {
+      // Keep promptString: an un-introspectable payload is still gated.
+    }
+    assertArtPromptContract({
+      prompt: renderedPrompt,
+      engine,
+      steps: resolvedBody.steps ?? null,
+      cfg: resolvedBody.cfg ?? null,
+    })
 
     const provenanceResources = {
       checkpointResourceId:

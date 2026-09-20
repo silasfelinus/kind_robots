@@ -52,6 +52,9 @@ jobs:
       - name: Art prompt contract
         run: npm run test:art-prompt-contract
 
+      - name: Enqueue prompt gate contract
+        run: npm run test:enqueue-prompt-gate
+
       - name: ArtJob sampler repair contract
         run: npm run test:artjob-sampler-repair
 

@@ -11,10 +11,7 @@ export type ColoringBookStudioOperation =
   | 'finalize-cover'
 
 export type ColoringBookHistoryKind =
-  | 'revision'
-  | 'semantic-rejection'
-  | 'mechanical-rejection'
-  | 'unverified'
+  'revision' | 'semantic-rejection' | 'mechanical-rejection' | 'unverified'
 
 export type ColoringBookAsset = {
   path: string

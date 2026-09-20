@@ -16,12 +16,7 @@
 export type LifeRunStatus = 'ACTIVE' | 'COMPLETE' | 'ABANDONED'
 export type RewardType = 'SKILL' | 'ITEM' | 'POWER' | 'PET' | 'MAGIC' | 'FAVOR'
 export type Rarity =
-  | 'COMMON'
-  | 'UNCOMMON'
-  | 'RARE'
-  | 'EPIC'
-  | 'LEGENDARY'
-  | 'MYTHIC'
+  'COMMON' | 'UNCOMMON' | 'RARE' | 'EPIC' | 'LEGENDARY' | 'MYTHIC'
 
 export type FishAffinity = 'GOOD' | 'NEUTRAL' | 'EVIL'
 export type FishQuality = 'ORDINARY' | 'FINE' | 'EXCEPTIONAL' | 'TROPHY'

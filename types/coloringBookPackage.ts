@@ -1,8 +1,5 @@
 export type ColoringBookPackageStatus =
-  | 'source-production'
-  | 'layout-needed'
-  | 'exports-needed'
-  | 'package-ready'
+  'source-production' | 'layout-needed' | 'exports-needed' | 'package-ready'
 
 export type ColoringBookSourceIssues = {
   missingSlots: number[]

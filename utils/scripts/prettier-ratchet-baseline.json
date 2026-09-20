@@ -1,7 +1,7 @@
 {
   "note": "Prettier RATCHET: this file may only ever shrink. --update refuses to record a larger count. See utils/scripts/verifyPrettierRatchet.ts.",
   "recorded": "2026-09-20",
-  "total": 1097,
+  "total": 1094,
   "violations": {
     ".github": [
       ".github/workflows/api-client-followups-contract.yml",
@@ -807,11 +807,6 @@
       "tests/contracts/verifyKrea2PublicQuota.ts",
       "tests/contracts/verifyRainbowDirectory.ts",
       "tests/contracts/verifyRainbowNotifications.ts"
-    ],
-    "types": [
-      "types/coloringBookPackage.ts",
-      "types/coloringBookStudio.ts",
-      "types/ruler-hooked.ts"
     ],
     "utils": [
       "utils/aquariumMilestoneToast.ts",

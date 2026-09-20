@@ -1,16 +1,25 @@
 <template>
-  <section class="space-y-3 rounded-lg border border-base-300 p-3">
-    <div class="flex flex-wrap items-start justify-between gap-3">
-      <div class="min-w-0">
-        <h2 class="font-semibold">
-          LoRAs <span class="opacity-50">(optional)</span>
-        </h2>
+  <details class="rounded-2xl border border-base-300 bg-base-100/70">
+    <summary
+      class="cursor-pointer px-3 py-2.5"
+    >
+      <span class="ml-2 inline-flex min-w-0 items-center gap-2 align-middle">
+        <span class="font-semibold">LoRAs</span>
+        <span class="text-xs opacity-50">(optional)</span>
+        <span class="kr-text-faded-xs">{{ engine.toUpperCase() }}</span>
+        <span class="kr-badge-ghost-sm">
+          {{ selected.length ? `${selected.length} selected` : 'None selected' }}
+        </span>
+      </span>
+    </summary>
+
+    <div class="space-y-3 border-t border-base-300 p-3">
+      <div class="flex flex-wrap items-center justify-between gap-2">
         <p class="kr-text-faded-xs">
-          Stack up to {{ MAX_LORAS_PER_JOB }} {{ engine.toUpperCase() }} LoRAs.
-          Trigger words are added to the render prompt automatically.
+          Stack up to {{ MAX_LORAS_PER_JOB }}. Trigger words are added
+          automatically.
         </p>
-      </div>
-      <div class="flex flex-wrap items-center gap-1">
+        <div class="flex flex-wrap items-center gap-1">
         <div class="join" aria-label="LoRA browser size">
           <button
             type="button"
@@ -173,7 +182,7 @@
 
       <div
         class="overflow-y-auto overscroll-contain pr-1 transition-[max-height]"
-        :class="browserSize === 'expanded' ? 'max-h-none' : 'max-h-[38rem]'"
+        :class="browserSize === 'expanded' ? 'max-h-none' : 'max-h-[26rem]'"
       >
         <div
           class="grid grid-cols-[repeat(auto-fit,minmax(min(100%,17rem),1fr))] gap-3"
@@ -264,7 +273,8 @@
         No compatible LoRA matches “{{ search.trim() }}”.
       </p>
     </template>
-  </section>
+    </div>
+  </details>
 </template>
 
 <script setup lang="ts">

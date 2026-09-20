@@ -116,35 +116,91 @@ console.log(
 )
 
 {
-  // `teachability: 'vocabulary'` must NOT be the test for the pieces beat. A word whose
-  // components are all unasserted structural leaves still has something honest to show,
-  // and the lesson layer already labels them as asserting no role.
+  // REGRESSION, 2026-09-20. This assertion used to say the opposite, and the opposite
+  // shipped: a word whose components were all unasserted leaves still got a pieces
+  // screen, on the reasoning that an honestly-labelled leaf is worth seeing.
+  //
+  // Silas hit that on 的, the most common character in Mandarin: a card titled "What 的
+  // is built from" that opened by saying 的 could not be taken apart, then took it apart
+  // into 白 and 勺 under two paragraphs explaining that neither means anything here. His
+  // verdict: "wtf, there are phrases that mean nothing."
+  //
+  // Having components is NOT the test. Having a component the source gives a job to is.
   const leafOnly = lesson({
     key: 'c:leaf',
     teachability: 'vocabulary',
     characters: [
       {
-        character: '了',
+        character: '的',
+        hasAssertedStructure: false,
+        components: [
+          {
+            glyph: '白',
+            role: 'radical',
+            label: 'radical',
+            contribution: 'filed under',
+          },
+          {
+            glyph: '勺',
+            role: 'form',
+            label: 'leaf',
+            contribution: 'also written with',
+          },
+        ],
+      },
+    ],
+  })
+  assert.deepEqual(
+    beats(buildWordRun(leafOnly)),
+    ['meet', 'sound', 'recall'],
+    'a word with only radical/form components gets NO pieces screen — a card whose whole content is "we do not know" is padding, not honesty',
+  )
+}
+
+console.log(
+  '✅ buildWordRun: a word with nothing asserted gets no pieces screen at all',
+)
+
+{
+  // The other half of the same rule: a mixed word keeps its pieces screen, because one
+  // of its characters does have something to teach.
+  const mixed = lesson({
+    key: 'c:mixed',
+    characters: [
+      {
+        character: '电',
         hasAssertedStructure: false,
         components: [
           {
             glyph: '乙',
             role: 'form',
             label: 'leaf',
-            contribution: 'appears in the form',
+            contribution: 'also written with',
+          },
+        ],
+      },
+      {
+        character: '脑',
+        hasAssertedStructure: true,
+        components: [
+          {
+            glyph: '月',
+            role: 'semantic',
+            label: 'meaning',
+            contribution: 'flesh',
           },
         ],
       },
     ],
   })
   assert.ok(
-    beats(buildWordRun(leafOnly)).includes('pieces'),
-    'a vocabulary-teachability word with real components still gets its pieces screen',
+    beats(buildWordRun(mixed)).includes('pieces'),
+    'one character with a real role is enough to earn the screen for the whole word',
   )
 }
 
 console.log(
-  '✅ buildWordRun: teachability is not the pieces test — having components is',
+  '✅ buildWordRun: a mixed word keeps its pieces screen for the half that teaches',
 )
 
 {

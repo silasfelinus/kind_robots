@@ -256,13 +256,32 @@ export function describeSyllables(pinyin: string): MandarinLessonSyllable[] {
 }
 
 /**
- * What a component contributes, stated as a full sentence.
+ * Roles the source actually makes a claim about, i.e. the ones that TEACH.
  *
- * Every branch is written so it stays true even when the source gave us nothing: a
- * `form` leaf says explicitly that no role is asserted rather than implying one, and a
- * `radical` says it is a filing decision rather than a meaning claim. That distinction
- * is the whole reason `server/utils/mandarinCharacterData.ts` kept the roles separate,
- * and it would be thrown away by a page that rendered every component the same way.
+ * `radical`, `form` and `uncertain` are reference facts, not lessons: a radical is where
+ * a dictionary files a character, a form leaf is a shape the source declines to explain,
+ * and `uncertain` is an explicit gap. They belong in a footnote or a reference page, and
+ * they must never be dressed up as instruction.
+ *
+ * Silas, 2026-09-20, on hitting 的's pieces screen: "wtf, there are phrases that mean
+ * nothing." He was right. That screen was titled "What 的 is built from", opened by
+ * saying 的 could not be taken apart, and then took it apart into 白 and 勺 under two
+ * paragraphs explaining, at length, that neither of them means anything here. Four
+ * sentences of hedging is not honesty -- it is noise wearing honesty's clothes, and it
+ * cost a learner their attention on the single most common character in the language.
+ */
+export function isTeachingRole(role: MandarinComponentRole): boolean {
+  return role === 'semantic' || role === 'phonetic'
+}
+
+/**
+ * What a component contributes, in one short line.
+ *
+ * Short is the whole point. These are read on a teaching card by someone meeting a
+ * character for the first time, not by a lexicographer, and every clause spent
+ * explaining the limits of the source is a clause not spent teaching. The honesty
+ * contract is kept by what is SHOWN -- a claim only appears when the source made one --
+ * rather than by appending a disclaimer to every line.
  */
 export function describeContribution(
   component: MandarinComponent,
@@ -272,18 +291,20 @@ export function describeContribution(
   switch (component.role) {
     case 'semantic':
       return component.meaning
-        ? `${glyph} is the meaning component: it places ${character} in the domain of ${component.meaning}. It tells you what the character is about, not how it sounds.`
-        : `${glyph} is the meaning component: the source identifies it as the piece that carries what ${character} is about, rather than how it sounds.`
+        ? `${glyph} is the meaning side: it puts ${character} in the world of ${component.meaning}.`
+        : `${glyph} is the meaning side: it points at what ${character} is about, not how it sounds.`
     case 'phonetic':
-      return `${glyph} is the sound component: it carries the historical pronunciation family ${character} belongs to, not a second definition. Characters sharing ${glyph} are related by sound, not by meaning.`
+      return `${glyph} is the sound side: it points at how ${character} sounds, not what it means.`
     case 'radical':
-      return `${glyph} is the dictionary radical ${character} is filed under. That is an indexing decision made by dictionary compilers -- on its own it is not a claim that ${glyph} supplies the meaning.`
+      // A lookup fact, stated as a lookup fact. The old version spent two clauses
+      // explaining that it was not a meaning claim, which only made it read like one.
+      return `Filed under ${glyph} in a dictionary.`
     case 'form':
-      return `${glyph} appears in the written form of ${character}, but the source does not say whether it contributes meaning or sound here, so the lesson does not guess.`
+      return `Also written with ${glyph}.`
     case 'uncertain':
-      return `The source marks part of ${character}'s structure as unresolved. Nothing is claimed about this piece rather than a story being invented for it.`
+      return `Part of ${character}'s structure is unresolved in the source.`
     default:
-      return `${glyph} appears in ${character}. The source asserts no role for it.`
+      return `${glyph} appears in ${character}.`
   }
 }
 
@@ -469,7 +490,10 @@ function summarize(
       : `${card.simplified} is a single character.`
 
   if (teachability === 'vocabulary') {
-    return `${shape} The pinned source does not assert a meaning or sound role for any of its pieces, so this lesson teaches ${card.simplified} as a word to learn rather than a structure to take apart.`
+    // One clause, not three. The old version explained the absence of a claim at such
+    // length that it read as the lesson's content -- and it sat on top of a screen that
+    // then contradicted it by listing pieces anyway (see isTeachingRole).
+    return `${shape} Its parts do not explain it, so learn ${card.simplified} as a whole.`
   }
 
   const withStructure = lessonCharacters.filter(
@@ -477,11 +501,11 @@ function summarize(
   ).length
   const structurePart =
     charCount > 1 && withStructure < charCount
-      ? `${withStructure} of them decompose into pieces the source gives a role to.`
-      : 'Its pieces have roles the source states explicitly.'
+      ? `${withStructure} of them break into pieces with a job.`
+      : 'Its pieces each have a job.'
 
   const familyPart = families.length
-    ? ` It sits in ${families.length === 1 ? 'a sound family' : `${families.length} sound families`} built on ${families.map((family) => family.phonetic).join(' and ')}.`
+    ? ` It shares ${families.map((family) => family.phonetic).join(' and ')} with other characters.`
     : ''
 
   return `${shape} ${structurePart}${familyPart}`

@@ -186,30 +186,20 @@
           <h2 class="kr-text-bold-lg">What each piece does</h2>
           <p class="kr-text-faded-xs mt-1">
             A character is not a picture of its meaning. Most are built from one
-            piece that points at the meaning and one that points at the sound —
-            and this page says which is which, or says plainly when the source
-            does not know.
+            piece that points at the meaning and one that points at the sound.
           </p>
 
-          <div class="mt-3 space-y-3">
+          <div v-if="teachingCharacters.length" class="mt-3 space-y-3">
             <article
-              v-for="entry in lesson.characters"
+              v-for="entry in teachingCharacters"
               :key="entry.character"
               class="kr-panel-flat p-3"
             >
-              <div class="flex flex-wrap items-center gap-3">
-                <span class="text-4xl leading-none font-semibold">{{
-                  entry.character
-                }}</span>
-                <span
-                  v-if="!entry.hasAssertedStructure"
-                  class="kr-badge-ghost-xs"
-                >
-                  no role asserted by the source
-                </span>
-              </div>
+              <span class="text-4xl leading-none font-semibold">{{
+                entry.character
+              }}</span>
 
-              <div v-if="entry.components.length" class="mt-3 space-y-2">
+              <div class="mt-3 space-y-2">
                 <div
                   v-for="component in entry.components"
                   :key="`${component.glyph}:${component.role}`"
@@ -227,23 +217,30 @@
                       <p class="mt-1 text-sm leading-relaxed">
                         {{ component.contribution }}
                       </p>
-                      <p
-                        v-if="component.note"
-                        class="kr-text-faded-xs mt-2 leading-relaxed"
-                      >
-                        {{ component.note }}
-                      </p>
                     </div>
                   </div>
                 </div>
               </div>
-
-              <p v-else class="kr-text-faded-sm mt-2">
-                The pinned source supplies no decomposition for
-                {{ entry.character }}, so this lesson does not take it apart.
-              </p>
             </article>
           </div>
+
+          <p v-else class="kr-text-faded-sm mt-3 leading-relaxed">
+            The pinned source gives none of {{ lesson.simplified }}'s pieces a
+            meaning or sound role, so there is no structure to teach here. Learn
+            it as a whole.
+          </p>
+
+          <!-- Radicals and unexplained written parts are reference facts, not lessons.
+               One muted line, not a block each: giving them equal weight is what made
+               的's teaching card read as four different ways of saying nothing
+               (Silas, 2026-09-20). The per-component provenance notes are gone for the
+               same reason -- the source is credited once, under History. -->
+          <p
+            v-if="referenceNotes.length"
+            class="kr-text-dim-xs-45 mt-3 leading-relaxed"
+          >
+            {{ referenceNotes.join(' · ') }}
+          </p>
         </section>
 
         <!-- 4. Sound families --------------------------------------------->
@@ -445,7 +442,7 @@ import { computed, onMounted, ref, watch } from 'vue'
 import { performFetch } from '@/stores/utils'
 import { useMandarinTutorStore } from '@/stores/mandarinTutorStore'
 import type { MandarinComponentRole } from '@/utils/mandarin'
-import type { MandarinLesson } from '@/utils/mandarinLesson'
+import { isTeachingRole, type MandarinLesson } from '@/utils/mandarinLesson'
 
 const route = useRoute()
 const store = useMandarinTutorStore()
@@ -491,6 +488,33 @@ async function loadLesson(): Promise<void> {
 
 watch(cardKey, loadLesson)
 onMounted(loadLesson)
+
+// Same split as the course card: pieces the source gives a job to are the lesson;
+// radicals and unexplained shapes are a footnote.
+const teachingCharacters = computed(() =>
+  (lesson.value?.characters ?? [])
+    .map((entry) => ({
+      ...entry,
+      components: entry.components.filter((component) =>
+        isTeachingRole(component.role),
+      ),
+    }))
+    .filter((entry) => entry.components.length > 0),
+)
+
+const referenceNotes = computed(() => {
+  const notes: string[] = []
+  for (const entry of lesson.value?.characters ?? []) {
+    for (const component of entry.components) {
+      if (isTeachingRole(component.role)) continue
+      if (component.role === 'uncertain') continue
+      if (!notes.includes(component.contribution)) {
+        notes.push(component.contribution)
+      }
+    }
+  }
+  return notes
+})
 
 function lessonLink(key: string): string {
   return `/play/mandarin/learn/${encodeURIComponent(key)}`

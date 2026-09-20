@@ -16,7 +16,7 @@
 // Pure, like every other derivation in this project: lessons in, steps out. No store, no
 // network, no component imports, so the whole course shape is testable by
 // utils/scripts/verifyMandarinCourse.test.ts.
-import type { MandarinLesson } from './mandarinLesson'
+import { isTeachingRole, type MandarinLesson } from './mandarinLesson'
 
 /**
  * The five beats of one word's teaching run.
@@ -143,11 +143,26 @@ export function buildWordRun(
 
   const beats: MandarinCourseBeat[] = ['meet', 'sound']
 
-  // `pieces` needs at least one component to talk about. `teachability` is NOT the test
-  // here: a 'vocabulary' word can still have structural leaves worth seeing, and the
-  // lesson layer already labels them honestly as asserting no role. The test is simply
-  // whether there is anything at all to point at.
-  if (lesson.characters.some((entry) => entry.components.length > 0)) {
+  // `pieces` needs at least one component the source gives a JOB to.
+  //
+  // This rule was the opposite way round until 2026-09-20, and it was wrong. The old
+  // test was "does this word have any components at all", on the reasoning that a
+  // structural leaf is still worth seeing as long as it is labelled honestly. Silas hit
+  // the result on 的 -- the most common character in the language -- and said: "wtf,
+  // there are phrases that mean nothing."
+  //
+  // He was right. That screen was titled "What 的 is built from", opened by stating that
+  // 的 could not be taken apart, and then took it apart into 白 and 勺 under two
+  // paragraphs explaining at length that neither of them means anything here. A card
+  // whose entire content is four different ways of saying "we don't know" is not honest,
+  // it is padding -- the exact habit the empty-beat skipping above exists to prevent. If
+  // there is no claim to teach, there is no teaching card; `meet` already carries the
+  // word, and its summary now says in one clause that the parts do not explain it.
+  if (
+    lesson.characters.some((entry) =>
+      entry.components.some((component) => isTeachingRole(component.role)),
+    )
+  ) {
     beats.push('pieces')
   }
 

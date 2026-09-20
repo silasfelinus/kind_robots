@@ -1310,7 +1310,8 @@ export const useArtStore = defineStore('artStore', () => {
     if (
       data.engine === 'comfy' ||
       data.engine === 'krea2' ||
-      data.engine === 'flux2'
+      data.engine === 'flux2' ||
+      data.engine === 'sdxl-img2img'
     ) {
       return { provider: 'comfy' }
     }
@@ -1365,7 +1366,12 @@ export const useArtStore = defineStore('artStore', () => {
   function serverCanUseEngine(server: Server, engine: ArtImageGenerationEngine): boolean {
     if (engine === 'a1111') return server.serverType === 'A1111'
     if (engine === 'openai') return server.serverType === 'OPENAI'
-    if (engine === 'comfy' || engine === 'krea2' || engine === 'flux2') {
+    if (
+      engine === 'comfy' ||
+      engine === 'krea2' ||
+      engine === 'flux2' ||
+      engine === 'sdxl-img2img'
+    ) {
       return server.serverType === 'COMFY'
     }
     if (engine === 'flux') {

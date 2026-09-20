@@ -92,6 +92,47 @@ assert.ok(
   'the v2 "for Kind Robots" variant wrapper must be rejected even with a custom base prompt',
 )
 
+/*
+ * 2026-09-20. Twenty-three queued Facet jobs carried two more shipped wrappers
+ * that none of the patterns above reached. Same bug, later producers: the
+ * product name, the builder it belongs to and the catalog group are
+ * application context, and a caption model paints them as the title text of
+ * the card it has decided it is drawing.
+ */
+assert.ok(
+  rules({
+    prompt:
+      'A spell, charm, blessing, hex, ritual, miracle, loophole. Kind Robots premium Builder illustration for Reward Types: Magic.',
+    engine: 'krea2',
+  }).includes('contextual-wrapper'),
+  'the "Kind Robots premium Builder illustration for ..." wrapper must be rejected',
+)
+assert.ok(
+  rules({
+    prompt:
+      'General purpose. Answers questions, helps with tasks. Illustrated Bot Type card for a dependable general-purpose bot, warm rounded chassis.',
+    engine: 'krea2',
+  }).includes('contextual-wrapper'),
+  'the "Illustrated Bot Type card for ..." wrapper must be rejected',
+)
+
+/*
+ * ...and the narrowness that keeps those two patterns honest. A scene whose
+ * subject really is a card, or that names the product without handing the
+ * model an app label, stays renderable.
+ */
+for (const prompt of [
+  'A high-visibility jacket faded to chalk, a laminated shift card still clipped to the chest.',
+  'A mass-market coat over an heirloom textile worn as lining, a handwritten recipe card in another script.',
+  'A warehouse wall in the Kind Robots colours, spray-painted mural of a round robot handing over a flower.',
+]) {
+  assert.equal(
+    rules({ prompt, engine: 'krea2' }).includes('contextual-wrapper'),
+    false,
+    `a real card or a real mural is not an app wrapper: ${prompt}`,
+  )
+}
+
 // The Krea workflow builder now has a final semantic scrubber because entity-art
 // callers still carry database context for non-Krea engines. Krea must receive
 // only the useful visual values, never the labels or app-purpose prose.

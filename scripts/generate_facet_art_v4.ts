@@ -494,13 +494,52 @@ const GENERATED_PROMPT_TAILS: readonly string[] = [
   'One person seen from head to shoes, their face turned toward the light, standing in the place where they do this.',
   'A single treasured object resting alone, its materials and the light around it telling you how rare it is.',
   'One clear subject alone in the frame, large and plainly lit.',
+  /*
+   * Variants of the clauses above that reached the live catalog by a route this
+   * file did not know about, and each of which froze a whole cohort.
+   *
+   * The first is a v4 creature clause rewritten as an instruction by an earlier
+   * catalog pass. 97 ANIMAL/SPECIES Facets carry it. Unrecognized, it was
+   * handed back to Krea verbatim -- and because the title is not in it, all 97
+   * prompts named no subject at all. Facet 290 "Octopus" read "Three hearts,
+   * nine brains, infinite arms..." and rendered a three-hearted plush blob;
+   * 285 "Axolotl" rendered a frog (Silas, 2026-09-20: "what the hell is with
+   * the facets that have recently been generated? Octopus, ocelot, axolotl?
+   * The prompts make no sense and the images reflect that").
+   */
+  'Show one unmistakable full creature with recognizable anatomy, personality, and habitat cues.',
+  'Use a character-centered visual metaphor with a clear emotional read.',
+  'Use a single clear subject or emblem that makes the concept understandable at thumbnail size.',
+]
+
+/*
+ * Clause fragments left behind when a REPAIR edits a registered tail.
+ *
+ * Conductor's repair_negation_art_prompts.py strips the jargon this contract
+ * bans -- "unmistakable silhouette", "legible at thumbnail size" -- and those
+ * phrases sit INSIDE two registered v4 tails. Stripping them truncated the
+ * tail, and an endsWith() match against the full string then failed: 128
+ * OCCUPATION/ROLE/ARCHETYPE Facets and 19 more went from recognized to
+ * unrecognized without a single edit to this file. The same pass appends
+ * "Every surface bare and unmarked." AFTER the tail, which breaks endsWith()
+ * from the other end.
+ *
+ * So the match below is containment, not suffix. A registered clause anywhere
+ * in the prompt means the producer wrote it, whatever a later repair trimmed
+ * off the end or glued on after it.
+ */
+const TRUNCATED_TAIL_PREFIXES: readonly string[] = [
+  'Single distinctive figure in action, readable tools',
+  'Single clear subject or emblem, immediately',
+  'Create a premium collectible emblem or object with a strong rarity read',
 ]
 
 export function isLegacyGeneratedFacetPrompt(value: unknown): boolean {
   const prompt = clean(value)
   if (!prompt) return false
   if (LEGACY_GENERATED_IDENTITY.test(prompt)) return true
-  return GENERATED_PROMPT_TAILS.some((tail) => prompt.endsWith(tail))
+  if (GENERATED_PROMPT_TAILS.some((tail) => prompt.includes(tail))) return true
+  return TRUNCATED_TAIL_PREFIXES.some((prefix) => prompt.includes(prefix))
 }
 
 /**

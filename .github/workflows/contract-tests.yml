@@ -1138,6 +1138,9 @@ jobs:
       - name: Art Archive enqueue-payload contract
         run: npm run test:art-archive-enqueue-payload
 
+      - name: Art Archive ingestion controls contract
+        run: npm run test:art-archive-ingestion-controls
+
       - name: Butterfly Gallery curation-action contract
         run: npm run test:butterfly-gallery-actions
 

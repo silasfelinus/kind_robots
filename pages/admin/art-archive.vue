@@ -24,6 +24,33 @@
 
         <div v-if="archive.error" class="kr-note kr-note-error">{{ archive.error }}</div>
 
+        <section class="kr-panel space-y-3 p-3" aria-label="Archive ingestion">
+          <div class="flex flex-wrap items-start justify-between gap-3">
+            <div><p class="kr-text-black-base">Ingest from the media server</p><p class="kr-text-dim-xs">Dry run reads the private archive root and reports what an import would do, writing nothing. Import then creates the missing rows as private and mature, records unresolved checkpoints and LoRAs as evidence instead of failing, and is safe to run again later.</p></div>
+            <div class="flex flex-wrap items-center gap-2">
+              <button type="button" class="kr-btn btn-outline btn-sm" :disabled="archive.ingestionPending" @click="archive.runDryRun()"><span v-if="archive.ingestionPending" class="kr-spinner-xs" /><Icon v-else name="kind-icon:search" class="kr-icon-4" /> Dry run</button>
+              <button type="button" class="kr-btn btn-primary btn-sm" :disabled="!archive.dryRunReport || archive.ingestionPending" :title="importButtonTitle" @click="requestImport"><Icon name="kind-icon:download" class="kr-icon-4" /> Import</button>
+            </div>
+          </div>
+
+          <div v-if="pendingImport && archive.dryRunReport" class="kr-note kr-note-warning flex flex-wrap items-center justify-between gap-3"><span>Import {{ archive.dryRunReport.plan.new }} new and {{ archive.dryRunReport.plan.changed }} changed file{{ archive.dryRunReport.plan.new + archive.dryRunReport.plan.changed === 1 ? '' : 's' }} from {{ archive.dryRunReport.root }}? Large archives take a while and the scan runs to completion before anything is reported.</span><div class="flex gap-2"><button type="button" class="kr-btn btn-primary btn-sm" :disabled="archive.ingestionPending" @click="confirmImport"><span v-if="archive.ingestionPending" class="kr-spinner-xs" /><span v-else>Confirm import</span></button><button type="button" class="kr-btn btn-ghost btn-sm" @click="pendingImport = false">Cancel</button></div></div>
+
+          <div v-if="archive.dryRunReport" class="space-y-2">
+            <p class="kr-text-dim-xs break-all">Previewed {{ archive.dryRunReport.filesScanned }} file{{ archive.dryRunReport.filesScanned === 1 ? '' : 's' }} under {{ archive.dryRunReport.root }} with no database writes.</p>
+            <dl class="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-6">
+              <div v-for="stat in dryRunStats" :key="stat.label" class="rounded-2xl border border-base-300 bg-base-200 p-2 text-xs"><dt class="opacity-60">{{ stat.label }}</dt><dd class="kr-text-black-base">{{ stat.value }}</dd></div>
+            </dl>
+          </div>
+
+          <div v-if="archive.importReport" class="space-y-2">
+            <div class="kr-note break-all" :class="archive.importReport.errors.length ? 'kr-note-warning' : 'kr-note-success'">Imported {{ archive.importReport.filesScanned }} scanned file{{ archive.importReport.filesScanned === 1 ? '' : 's' }} from {{ archive.importReport.root }}.<span v-if="archive.importReport.errors.length"> {{ archive.importReport.errors.length }} file{{ archive.importReport.errors.length === 1 ? '' : 's' }} failed and stayed out of the archive.</span></div>
+            <dl class="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-6">
+              <div v-for="stat in importStats" :key="stat.label" class="rounded-2xl border border-base-300 bg-base-200 p-2 text-xs"><dt class="opacity-60">{{ stat.label }}</dt><dd class="kr-text-black-base">{{ stat.value }}</dd></div>
+            </dl>
+            <details v-if="archive.importReport.errors.length"><summary class="cursor-pointer text-xs font-semibold">Failed files</summary><ul class="mt-2 max-h-48 space-y-1 overflow-auto text-[10px]"><li v-for="failure in archive.importReport.errors" :key="failure.relativePath" class="break-all"><strong>{{ failure.relativePath }}</strong>: {{ failure.message }}</li></ul></details>
+          </div>
+        </section>
+
         <section class="kr-panel space-y-3 p-3" aria-label="Batch curation board">
           <div class="flex flex-wrap items-center justify-between gap-3">
             <div><p class="kr-text-black-base">Curation board</p><p class="kr-text-dim-xs">Select thumbnails, then click or drag them onto an action. Failed items stay selected for retry.</p></div>
@@ -74,10 +101,50 @@ const ready = computed(() => userStore.initialized)
 const draggingEntryId = ref<number | null>(null)
 const dragOverRating = ref<number | null>(null)
 const pendingDelete = ref(false)
+const pendingImport = ref(false)
 const selectedPresetId = ref<number | null>(null)
 const selectedPreset = computed(() => archive.presets.find((preset) => preset.id === selectedPresetId.value) || null)
 
 function fileName(path: string) { return path.split('/').pop() || path }
+const importButtonTitle = computed(() =>
+  archive.dryRunReport
+    ? 'Import the files this dry run found'
+    : 'Run a dry run first so you can see what would be imported',
+)
+const dryRunStats = computed(() => {
+  const report = archive.dryRunReport
+  if (!report) return []
+  return [
+    { label: 'Files scanned', value: report.filesScanned },
+    { label: 'New', value: report.plan.new },
+    { label: 'Changed', value: report.plan.changed },
+    { label: 'Moved', value: report.plan.moved },
+    { label: 'Copied', value: report.plan.copied },
+    { label: 'Unchanged', value: report.plan.unchanged },
+    { label: 'Missing', value: report.plan.missing },
+    { label: 'Cache hits', value: report.cacheHitCount },
+    { label: 'Scan issues', value: report.scanIssueCount },
+    { label: 'With provenance', value: report.filesWithMatchEvidence },
+    { label: 'Hash matches', value: report.confidenceCounts.hash },
+    { label: 'Unresolved models', value: report.unmatchedModels },
+  ]
+})
+const importStats = computed(() => {
+  const report = archive.importReport
+  if (!report) return []
+  return [
+    { label: 'Files scanned', value: report.filesScanned },
+    { label: 'Images created', value: report.imagesCreated },
+    { label: 'Images reused', value: report.imagesReused },
+    { label: 'Collections created', value: report.collectionsCreated },
+    { label: 'Collections reused', value: report.collectionsReused },
+    { label: 'Scan issues', value: report.scanIssues },
+    { label: 'With provenance', value: report.filesWithMatchEvidence },
+    { label: 'Unresolved models', value: report.unmatchedModels },
+  ]
+})
+function requestImport() { if (archive.dryRunReport) pendingImport.value = true }
+async function confirmImport() { pendingImport.value = false; await archive.runImport() }
 function jobBadgeClass(status: string | undefined) {
   if (status === 'DONE') return 'badge-success'
   if (status === 'FAILED' || status === 'CANCELLED') return 'badge-error'

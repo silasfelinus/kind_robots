@@ -48,6 +48,33 @@ export type ArchiveActionPresetSummary = {
   isActive: boolean
 }
 
+export type ArchiveIngestionPlan = { new: number; unchanged: number; changed: number; moved: number; copied: number; missing: number }
+export type ArchiveResourceConfidenceCounts = { hash: number; exact: number; suggested: number }
+
+export type ArchiveDryRunReport = {
+  root: string
+  filesScanned: number
+  cacheHitCount: number
+  scanIssueCount: number
+  plan: ArchiveIngestionPlan
+  filesWithMatchEvidence: number
+  unmatchedModels: number
+  confidenceCounts: ArchiveResourceConfidenceCounts
+}
+
+export type ArchiveImportReport = {
+  root: string
+  filesScanned: number
+  scanIssues: number
+  imagesCreated: number
+  imagesReused: number
+  collectionsCreated: number
+  collectionsReused: number
+  errors: { relativePath: string; message: string }[]
+  filesWithMatchEvidence: number
+  unmatchedModels: number
+}
+
 type ArchiveFilters = { search: string; folderCollectionId: string; processState: string; matchState: string; rating: string; includeInactive: boolean }
 type ListPayload = { entries: ArchiveEntrySummary[]; page: number; pageSize: number; total: number }
 type ActionPayload = { alreadyQuarantined?: boolean; alreadyActive?: boolean }
@@ -62,6 +89,9 @@ export const useArtArchiveStore = defineStore('artArchiveStore', () => {
   const selectedIds = ref<number[]>([])
   const batchResult = ref<BatchResult | null>(null)
   const entryJobs = ref<Record<number, ArchiveEntryJobStatus>>({})
+  const dryRunReport = ref<ArchiveDryRunReport | null>(null)
+  const importReport = ref<ArchiveImportReport | null>(null)
+  const ingestionPending = ref(false)
   const loading = ref(false)
   const detailLoading = ref(false)
   const actionPending = ref(false)
@@ -256,5 +286,41 @@ export const useArtArchiveStore = defineStore('artArchiveStore', () => {
     return result
   }
 
-  return { entries, detail, presets, selectedIds, selectedCount, batchResult, entryJobs, loading, detailLoading, actionPending, error, total, page, pageSize, pageCount, filters, folders, fetchEntries, fetchPresets, selectEntry, clearSelection, toggleBatchSelection, clearBatchSelection, quarantineEntry, restoreEntry, rateEntry, rateSelected, quarantineSelected, applyPresetToSelected, fetchEntryJobs, refreshPendingEntryJobs }
+  /** art-archive/t-040: the read-only reconciliation preview behind
+   * dry-run.post.ts. Writes nothing -- it reports what a real import would
+   * create, move, or leave unchanged, plus how much of the archive carries
+   * resolvable checkpoint/LoRA provenance. */
+  async function runDryRun(): Promise<boolean> {
+    ingestionPending.value = true
+    error.value = ''
+    importReport.value = null
+    const response = await performFetch<ArchiveDryRunReport>('/api/admin/art-archive/dry-run', { method: 'POST' })
+    if (response.success && response.data) dryRunReport.value = response.data
+    else error.value = response.message || 'Could not preview the archive import.'
+    ingestionPending.value = false
+    return response.success
+  }
+
+  /** art-archive/t-040: the real ingestion behind import.post.ts. Every row it
+   * writes is private and mature, and an unresolved checkpoint or LoRA is
+   * recorded as evidence rather than failing the batch, so a repeat run after
+   * adding the missing Resources is safe. */
+  async function runImport(): Promise<boolean> {
+    ingestionPending.value = true
+    error.value = ''
+    const response = await performFetch<ArchiveImportReport>('/api/admin/art-archive/import', { method: 'POST' })
+    if (response.success && response.data) {
+      importReport.value = response.data
+      dryRunReport.value = null
+    } else {
+      error.value = response.message || 'Could not import the archive.'
+    }
+    ingestionPending.value = false
+    if (response.success) await fetchEntries(true)
+    return response.success
+  }
+
+  function clearIngestionReports() { dryRunReport.value = null; importReport.value = null }
+
+  return { entries, detail, presets, selectedIds, selectedCount, batchResult, entryJobs, loading, detailLoading, actionPending, dryRunReport, importReport, ingestionPending, error, total, page, pageSize, pageCount, filters, folders, fetchEntries, fetchPresets, selectEntry, clearSelection, toggleBatchSelection, clearBatchSelection, quarantineEntry, restoreEntry, rateEntry, rateSelected, quarantineSelected, applyPresetToSelected, fetchEntryJobs, refreshPendingEntryJobs, runDryRun, runImport, clearIngestionReports }
 })

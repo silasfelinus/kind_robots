@@ -53,7 +53,12 @@
   color: rgb(254, 249, 195);
 }
 
-.splash-hero > .relative.z-10.mt-auto > div:first-child > section > div:first-child > button:first-child {
+.splash-hero
+  > .relative.z-10.mt-auto
+  > div:first-child
+  > section
+  > div:first-child
+  > button:first-child {
   min-height: 2.65rem;
   border-color: rgba(250, 204, 21, 0.28);
   background: rgba(20, 13, 22, 0.92);

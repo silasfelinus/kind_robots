@@ -59,7 +59,7 @@ export type ScanArchiveRootOptions = {
    * Previously-recorded file identity/metadata (typically the live
    * ArchiveEntry ledger), keyed by relativePath. When a candidate file's
    * current size and mtime match a known entry exactly, the scanner reuses
-   * its cached hash/metadata instead of re-reading and re-hashing the
+   * its cached hash/metadata instead of re-reading/re-hashing the
    * file's bytes -- large-library scans otherwise re-hash every byte of
    * every file on every repeated pass (art-archive/t-018). Omit for a full,
    * uncached scan (unchanged default behavior).
@@ -149,7 +149,10 @@ async function walk(
 
     if (entry.isDirectory()) {
       const confined = await resolveConfined(resolvedRoot, candidate, issues)
-      if (confined) files.push(...(await walk(resolvedRoot, confined, issues)))
+      if (confined) {
+        const nestedFiles = await walk(resolvedRoot, confined, issues)
+        for (const nestedFile of nestedFiles) files.push(nestedFile)
+      }
       continue
     }
 

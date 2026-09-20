@@ -585,9 +585,9 @@
               @selected="handleCollectionSelected"
             />
 
-            <!-- Publishing flags for the image this run produces. Distinct
-                 from the maturity toggle at the top, which decides what the
-                 pickers on this page are allowed to SHOW you. -->
+              <!-- Publishing flags for the image this run produces.
+                   Distinct from the Resource maturity toggle in the LoRA
+                   header, which decides what the pickers may show. -->
               <content-visibility-controls
                 v-model:is-mature="outputIsMature"
                 v-model:is-public="outputIsPublic"

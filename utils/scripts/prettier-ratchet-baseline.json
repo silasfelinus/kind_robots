@@ -1,7 +1,7 @@
 {
   "note": "Prettier RATCHET: this file may only ever shrink. --update refuses to record a larger count. See utils/scripts/verifyPrettierRatchet.ts.",
   "recorded": "2026-09-20",
-  "total": 1094,
+  "total": 1089,
   "violations": {
     ".github": [
       ".github/workflows/api-client-followups-contract.yml",
@@ -12,10 +12,6 @@
       ".github/workflows/open-issue-repairs-contract.yml",
       ".github/workflows/powershell-syntax-contract.yml",
       ".github/workflows/python-scripts.yml"
-    ],
-    ".vscode": [
-      ".vscode/bookmarks.json",
-      ".vscode/settings.json"
     ],
     "(root)": [
       "AGENTS.md",
@@ -35,10 +31,6 @@
       "artifacts/facet-data-audit.json",
       "artifacts/fitness-audit.json",
       "artifacts/proposals-scenarios.json"
-    ],
-    "assets": [
-      "assets/css/memory-dungeon.css",
-      "assets/css/tailwind.css"
     ],
     "components": [
       "components/academy/academy-style-detail.vue",
@@ -360,9 +352,6 @@
       "plugins/entity-art-prompt-suggest.client.ts",
       "plugins/narrative-milestone-art.client.ts",
       "plugins/navigation-image-fallback.client.ts"
-    ],
-    "prisma": [
-      "prisma/seeds/inspiration-prompts.ts"
     ],
     "sample": [
       "sample/generation/bots.md",

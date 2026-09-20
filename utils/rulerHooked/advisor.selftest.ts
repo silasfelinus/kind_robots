@@ -89,6 +89,7 @@ const fresh = (): RunSave =>
       fishopediaNote: '',
       consequenceReveal: '',
       catchBehavior: '',
+      coinsFound: 0,
     },
   })
   assert.equal(line.mood, 'pleased')

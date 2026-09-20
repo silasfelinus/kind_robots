@@ -35,3 +35,5 @@ jobs:
         run: npx tsx utils/rulerHooked/engine.selftest.ts
       - name: Advisor self-test
         run: npx tsx utils/rulerHooked/advisor.selftest.ts
+      - name: Economy (treasure/gear/shop) self-test
+        run: npx tsx utils/rulerHooked/economy.selftest.ts

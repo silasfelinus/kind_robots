@@ -83,10 +83,18 @@ function bandCenterFor(rarity: Rarity, family: FishingFamily, beat: number): num
   return Math.max(20, Math.min(80, base + drift))
 }
 
+const MAX_BAND_WIDTH = 70 // gear may widen the band, but never past this -- stays a game, not a rubber stamp
+const MAX_SWEEP_MS = 3000 // gear may slow the sweep, but never past this
+
 export function timingProfileFor(state: {
   family: FishingFamily
   rarity: Rarity
   beat: number
+  /** Owned-gear bonuses (economy.ts), snapshotted onto the encounter at
+   *  buildEncounter() time. Absent for the plain reducer/selftest shape
+   *  that predates gear -- treated as 0. */
+  gearBandBonus?: number
+  gearSweepMsBonus?: number
 }): TimingBarProfile {
   const difficulty = RARITY_DIFFICULTY[state.rarity]
   // Difficulty tightens the band and speeds the sweep; a longer fight
@@ -95,8 +103,14 @@ export function timingProfileFor(state: {
   const widthStep = difficulty * 3 + beatPressure * 1.5
   const speedStep = difficulty * 120 + beatPressure * 60
 
-  const bandWidth = Math.max(MIN_BAND_WIDTH, BASE_BAND_WIDTH - widthStep)
-  const sweepMs = Math.max(MIN_SWEEP_MS, BASE_SWEEP_MS - speedStep)
+  const bandWidth = Math.min(
+    MAX_BAND_WIDTH,
+    Math.max(MIN_BAND_WIDTH, BASE_BAND_WIDTH - widthStep) + (state.gearBandBonus ?? 0),
+  )
+  const sweepMs = Math.min(
+    MAX_SWEEP_MS,
+    Math.max(MIN_SWEEP_MS, BASE_SWEEP_MS - speedStep) + (state.gearSweepMsBonus ?? 0),
+  )
   const center = bandCenterFor(state.rarity, state.family, state.beat)
   const bandStart = Math.max(0, Math.min(100 - bandWidth, center - bandWidth / 2))
 

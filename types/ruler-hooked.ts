@@ -232,6 +232,8 @@ export interface CatchResult {
   fishopediaNote: string
   consequenceReveal: string
   catchBehavior: string
+  /** Coins found alongside this catch (economy.ts's rollTreasure), 0 if none. */
+  coinsFound: number
 }
 
 // --- content bundle (data-model.md §6) --------------------------------------

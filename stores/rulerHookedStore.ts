@@ -25,6 +25,7 @@ import {
   putPortrait, deletePortrait, makePortraitId,
 } from '~/utils/rulerHooked/portraitStore'
 import { HERO_RULER_PRESET_ID } from '~/utils/rulerHooked/rulerPresets'
+import { GEAR_CATALOG, KINGDOM_CATALOG } from '~/utils/rulerHooked/economy'
 import {
   ADVISOR_CHARACTER_SLUG, currentAdvisorLine, type AdvisorLine,
 } from '~/utils/rulerHooked/advisor'
@@ -279,11 +280,50 @@ export const useRulerHookedStore = defineStore('rulerHooked', () => {
     refreshSlots()
   }
 
+  const coins = computed(() => save.value?.counters.coins ?? 0)
+
+  /**
+   * Spend coins on a permanent gear upgrade (ruler-hooked/t-029). Both the
+   * spend and the flag grant go through the existing closed Effect
+   * reducer (applyEffects.ts) -- no bespoke shop mutation path. A no-op if
+   * the item is unknown, already owned, or unaffordable; the shop UI
+   * disables the button in those cases, this is the authoritative guard.
+   */
+  function purchaseGear(itemId: string) {
+    if (!save.value) return
+    const item = GEAR_CATALOG.find((g) => g.id === itemId)
+    if (!item) return
+    if (save.value.flags[item.flagKey]) return
+    if (coins.value < item.cost) return
+    const next = cloneSave(save.value)
+    applyEffect(next, { counters: { coins: -item.cost }, flags: { set: [item.flagKey] } })
+    next.updatedAt = nowStamp()
+    save.value = next
+    persist()
+  }
+
+  /** Spend coins on a kingdom investment: moves the real kingdomHealth
+   *  sliders (Silas: "wire it to the existing kingdom-health model rather
+   *  than a parallel currency"), via the same Effect reducer. Repeatable
+   *  -- unlike gear, a kingdom item may be bought again for another dose. */
+  function purchaseKingdomItem(itemId: string) {
+    if (!save.value) return
+    const item = KINGDOM_CATALOG.find((k) => k.id === itemId)
+    if (!item) return
+    if (coins.value < item.cost) return
+    const next = cloneSave(save.value)
+    applyEffect(next, { counters: { coins: -item.cost }, sliders: item.sliders })
+    next.updatedAt = nowStamp()
+    save.value = next
+    persist()
+  }
+
   return {
     bundle, save, activeCard, activeArcId, pendingEnding, activeFishing,
-    lastCatch, lastEscape, slots, scene, canFish,
+    lastCatch, lastEscape, slots, scene, canFish, coins,
     advisorCharacter, advisorLine, showOpening,
     init, newGame, updateCosmetics, loadSlot, startFishing, fishingStop, choose,
     acceptEnding, declineEnding, dismissOpening, renameSlot, deleteSlot, refreshSlots,
+    purchaseGear, purchaseKingdomItem,
   }
 })

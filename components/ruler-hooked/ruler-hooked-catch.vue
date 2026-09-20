@@ -16,6 +16,11 @@
       </div>
     </div>
 
+    <p v-if="catchResult.coinsFound > 0" class="mt-2 flex items-center gap-1 text-sm font-medium text-warning">
+      <Icon name="kind-icon:coin" class="kr-icon-3-5" />
+      Found {{ catchResult.coinsFound }} coins in its mouth.
+    </p>
+
     <div class="mt-3 rounded-xl bg-base-100/70 p-3 text-sm">
       <p class="font-semibold">Fishopedia</p>
       <p class="mt-1 opacity-80">{{ catchResult.fishopediaNote }}</p>

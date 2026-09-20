@@ -48,6 +48,15 @@
             </button>
             <button
               type="button"
+              class="btn btn-ghost btn-sm rounded-2xl border border-base-300 gap-1"
+              title="Shop"
+              @click="showShop = true"
+            >
+              <Icon name="kind-icon:coin" class="kr-icon-4" />
+              {{ store.coins }}
+            </button>
+            <button
+              type="button"
               class="kr-btn-primary-md-plain"
               :disabled="!store.canFish"
               @click="store.startFishing()"
@@ -155,6 +164,33 @@
       </dialog>
     </Teleport>
 
+    <!-- Shop (ruler-hooked/t-029): spend coins found while fishing on gear
+         or kingdom investment. -->
+    <Teleport to="body">
+      <dialog
+        v-if="showShop && store.save"
+        class="modal modal-open"
+        aria-modal="true"
+        @cancel.prevent="showShop = false"
+      >
+        <div
+          class="modal-box flex max-w-md flex-col gap-3 rounded-3xl border border-base-300 bg-base-100"
+        >
+          <RulerHookedShop />
+          <button
+            type="button"
+            class="kr-btn-ghost-plain self-end"
+            @click="showShop = false"
+          >
+            Back to the lake
+          </button>
+        </div>
+        <form method="dialog" class="modal-backdrop">
+          <button type="button" @click="showShop = false">close</button>
+        </form>
+      </dialog>
+    </Teleport>
+
     <!-- "Ruler stuff" (ruler-hooked/t-028): who you are, how the realm
          regards you, what your choices have done. -->
     <Teleport to="body">
@@ -217,6 +253,7 @@ function onDialogCancel() {
 const showOpening = computed(() => !showSlots.value && store.showOpening)
 
 const showReignReview = ref(false)
+const showShop = ref(false)
 
 // Preview scene (ruler-hooked/t-024): every region resolved at its own
 // default/first state, purely for rendering a background behind the setup

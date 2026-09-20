@@ -49,6 +49,7 @@
         :meta="showMeta ? metaChips : []"
         :fit="imageFit"
         placeholder-icon="kind-icon:dream"
+        :pending="artPending"
       />
 
       <template #actions>
@@ -94,7 +95,8 @@ import { resolveEntityTheme } from '@/utils/entityTheme'
 import { computed, onMounted, ref, watch } from 'vue'
 import type { ArtImage } from '~/prisma/generated/prisma/client'
 import type { DreamWithRelations } from '@/stores/dreamStore'
-import type { ArtVariant } from '@/utils/artImageSrc'
+import { resolveArtVariantSource, type ArtVariant } from '@/utils/artImageSrc'
+import { useArtPendingState } from '@/utils/useArtPendingState'
 import type { EntityCardChip } from '@/components/gallery/kr-entity-card-body.vue'
 import { useArtStore } from '@/stores/artStore'
 import { useCollectionStore } from '@/stores/collectionStore'
@@ -289,6 +291,20 @@ const previewImage = computed(() => {
     ''
   )
 })
+
+/**
+ * Whatever src kr-entity-card-body/kr-art-plate actually attempted (the same
+ * resolveArtVariantSource chain, mirrored here), so this card -- which owns
+ * its own art-request state per verifyGalleryAdoption.ts -- can tell the
+ * store-free shared body whether that src is queued and calm the "couldn't
+ * load" reading into "on its way" (interface-vision/t-138).
+ */
+const attemptedArtSrc = computed(
+  () =>
+    resolveArtVariantSource(props.dream, props.variant, previewImage.value)
+      .src || previewImage.value,
+)
+const { pending: artPending } = useArtPendingState(() => attemptedArtSrc.value)
 
 // A short, readable preview of any value: truncates long strings (e.g. base64)
 // and labels whether a string looks like a path or raw data.

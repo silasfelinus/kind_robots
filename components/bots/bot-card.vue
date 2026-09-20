@@ -26,6 +26,7 @@
         shape="card"
         compact-shape="hero"
         placeholder-icon="kind-icon:robot"
+        :pending="artPending"
       />
 
       <section
@@ -52,9 +53,7 @@
           v-if="showPersonality && bot.personality"
           class="kr-panel-flat p-3 text-sm"
         >
-          <p class="kr-text-eyebrow-bold kr-text-dim-xs">
-            Personality
-          </p>
+          <p class="kr-text-eyebrow-bold kr-text-dim-xs">Personality</p>
 
           <p class="mt-1 line-clamp-4 text-base-content/70">
             {{ bot.personality }}
@@ -93,16 +92,13 @@
         </div>
 
         <details v-if="showDebug" class="kr-panel-flat p-2" @click.stop>
-          <summary
-            class="kr-text-dim-xs-70 cursor-pointer font-bold"
-          >
+          <summary class="kr-text-dim-xs-70 cursor-pointer font-bold">
             Debug
           </summary>
 
-          <pre
-            class="kr-text-dim-xs-70 mt-2 max-h-48 overflow-auto"
-            >{{ JSON.stringify(bot, null, 2) }}</pre
-          >
+          <pre class="kr-text-dim-xs-70 mt-2 max-h-48 overflow-auto">{{
+            JSON.stringify(bot, null, 2)
+          }}</pre>
         </details>
       </section>
     </reactable-card>
@@ -114,7 +110,8 @@
 import { computed, onMounted, ref, watch } from 'vue'
 import type { Bot } from '~/prisma/generated/prisma/client'
 import { useBotStore } from '@/stores/botStore'
-import type { ArtVariant } from '@/utils/artImageSrc'
+import { resolveArtVariantSource, type ArtVariant } from '@/utils/artImageSrc'
+import { useArtPendingState } from '@/utils/useArtPendingState'
 import { botTypeMeta } from '@/utils/botTypeVocabulary'
 import type { EntityCardChip } from '@/components/gallery/kr-entity-card-body.vue'
 
@@ -207,6 +204,20 @@ const avatarFallback = computed(() => {
 const artFallbackSrc = computed(
   () => loadedBotImage.value || avatarFallback.value,
 )
+
+/**
+ * Whatever src kr-entity-card-body/kr-art-plate actually attempted (the same
+ * resolveArtVariantSource chain, mirrored here), so this card -- which owns
+ * its own art-request state per verifyGalleryAdoption.ts -- can tell the
+ * store-free shared body whether that src is queued and calm the "couldn't
+ * load" reading into "on its way" (interface-vision/t-138).
+ */
+const attemptedArtSrc = computed(
+  () =>
+    resolveArtVariantSource(props.bot, props.variant, artFallbackSrc.value)
+      .src || artFallbackSrc.value,
+)
+const { pending: artPending } = useArtPendingState(() => attemptedArtSrc.value)
 
 /*
  * NO PRIVACY BADGE. Silas, 2026-08-09: "bots don't need to report privacy

@@ -95,6 +95,7 @@
         :badges="badges"
         :meta="showMeta ? metaChips : []"
         placeholder-icon="kind-icon:map"
+        :pending="artPending"
       >
         <!-- The one genuinely Scenario-shaped thing on the card. -->
         <div
@@ -121,7 +122,12 @@ import { resolveEntityTheme } from '@/utils/entityTheme'
 import { computed, onMounted, ref, watch } from 'vue'
 import type { Scenario } from '~/prisma/generated/prisma/client'
 import { useArtStore, type ArtImage } from '@/stores/artStore'
-import { resolveArtImageSrc, type ArtVariant } from '@/utils/artImageSrc'
+import {
+  resolveArtImageSrc,
+  resolveArtVariantSource,
+  type ArtVariant,
+} from '@/utils/artImageSrc'
+import { useArtPendingState } from '@/utils/useArtPendingState'
 import type { EntityCardChip } from '@/components/gallery/kr-entity-card-body.vue'
 import { useScenarioStore } from '@/stores/scenarioStore'
 import { useUserStore } from '@/stores/userStore'
@@ -223,6 +229,20 @@ const artFallbackSrc = computed(() =>
     props.scenario.imagePath || props.fallbackImage,
   ),
 )
+
+/**
+ * Whatever src kr-entity-card-body/kr-art-plate actually attempted (the same
+ * resolveArtVariantSource chain, mirrored here), so this card -- which owns
+ * its own art-request state per verifyGalleryAdoption.ts -- can tell the
+ * store-free shared body whether that src is queued and calm the "couldn't
+ * load" reading into "on its way" (interface-vision/t-138).
+ */
+const attemptedArtSrc = computed(
+  () =>
+    resolveArtVariantSource(props.scenario, props.variant, artFallbackSrc.value)
+      .src || artFallbackSrc.value,
+)
+const { pending: artPending } = useArtPendingState(() => attemptedArtSrc.value)
 
 const introCount = computed(() => {
   return parseScenarioIntros(props.scenario.intros).length

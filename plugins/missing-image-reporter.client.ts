@@ -1,5 +1,6 @@
 import { watch } from 'vue'
 import { useRoute } from 'vue-router'
+import { useArtRequestStore } from '@/stores/artRequestStore'
 import { useConductorStore } from '@/stores/conductorStore'
 import { suggestArtAssetPrompt } from '@/stores/helpers/artAssetSuggest'
 import { useProjectStore } from '@/stores/projectStore'
@@ -203,13 +204,17 @@ function nearbyText(img: HTMLImageElement): string | undefined {
   const container = img.closest<HTMLElement>(
     '[data-art-context], figure, article, li, button, .card, section',
   )
-  const text = compact(container?.innerText || img.parentElement?.innerText, 900)
+  const text = compact(
+    container?.innerText || img.parentElement?.innerText,
+    900,
+  )
   return text || undefined
 }
 
 function pageDescription(): string | undefined {
   const description = cleanString(
-    document.querySelector<HTMLMetaElement>('meta[name="description"]')?.content,
+    document.querySelector<HTMLMetaElement>('meta[name="description"]')
+      ?.content,
   )
   return description || undefined
 }
@@ -259,17 +264,26 @@ export default defineNuxtPlugin(() => {
   const conductorStore = useConductorStore()
   const projectStore = useProjectStore()
   const userStore = useUserStore()
+  const artRequestStore = useArtRequestStore()
   const queued = new Map<string, MissingImageReport>()
   const submitted = new Set<string>()
 
-  function projectContext(report: MissingImageReport): ProjectArtContext | undefined {
-    if (report.modelType !== 'project' && !report.projectId && !report.projectSlug) {
+  function projectContext(
+    report: MissingImageReport,
+  ): ProjectArtContext | undefined {
+    if (
+      report.modelType !== 'project' &&
+      !report.projectId &&
+      !report.projectSlug
+    ) {
       return undefined
     }
 
     const record =
       (report.projectId
-        ? projectStore.projects.find((project) => project.id === report.projectId)
+        ? projectStore.projects.find(
+            (project) => project.id === report.projectId,
+          )
         : null) || projectStore.projectForSlug(report.projectSlug)
     const roadmap = conductorStore.projects.find(
       (project) => project.slug === report.projectSlug,
@@ -291,7 +305,10 @@ export default defineNuxtPlugin(() => {
     return {
       ...(record?.id ? { id: record.id } : {}),
       ...(report.projectSlug || record?.slug || record?.conductorSlug
-        ? { slug: report.projectSlug || record?.conductorSlug || record?.slug || '' }
+        ? {
+            slug:
+              report.projectSlug || record?.conductorSlug || record?.slug || '',
+          }
         : {}),
       ...(record?.title || roadmap?.name
         ? { title: record?.title || roadmap?.name }
@@ -385,7 +402,15 @@ export default defineNuxtPlugin(() => {
       15000,
     )
 
-    if (!result.success) submitted.delete(report.src)
+    if (!result.success) {
+      submitted.delete(report.src)
+      artRequestStore.markError(
+        report.src,
+        result.message || 'Art request could not be queued.',
+      )
+      return
+    }
+    artRequestStore.markRequested(report.src)
   }
 
   function flushQueue() {
@@ -426,14 +451,11 @@ export default defineNuxtPlugin(() => {
       pageUrl: window.location.href || route.fullPath,
       alt: label,
       label,
-      subject:
-        datasetValue(img, context, 'artSubject') || label,
+      subject: datasetValue(img, context, 'artSubject') || label,
       purpose: datasetValue(img, context, 'artPurpose') || undefined,
-      artDescription:
-        datasetValue(img, context, 'artDescription') || undefined,
+      artDescription: datasetValue(img, context, 'artDescription') || undefined,
       artStyle: datasetValue(img, context, 'artStyle') || undefined,
-      artExclusions:
-        datasetValue(img, context, 'artExclusions') || undefined,
+      artExclusions: datasetValue(img, context, 'artExclusions') || undefined,
       variant,
       size: variant ? VARIANT_SIZES[variant] : undefined,
       pageTitle: cleanString(document.title) || undefined,
@@ -444,13 +466,17 @@ export default defineNuxtPlugin(() => {
       modelType,
       modelId,
       modelSlug: modelSlug || undefined,
-      modelField:
-        datasetValue(img, context, 'artModelField') || undefined,
+      modelField: datasetValue(img, context, 'artModelField') || undefined,
       projectId,
       projectSlug,
-      projectField:
-        datasetValue(img, context, 'projectField') || undefined,
+      projectField: datasetValue(img, context, 'projectField') || undefined,
     }
+
+    // Mark it pending the moment the reporter has captured it, whether or not
+    // this session is the one that ends up submitting it -- a reader on a
+    // non-admin session still deserves the calm "on its way" card instead of
+    // a broken image while the report waits for an admin session to flush it.
+    artRequestStore.markRequesting(src)
 
     if (!userStore.isAdmin) {
       queued.set(src, report)

@@ -43,16 +43,23 @@
     <template v-else>
       <span class="absolute inset-0 bg-base-200" aria-hidden="true">
         <img
-          v-if="artwork"
+          v-if="artwork && !artFailed"
           :src="artwork"
           alt=""
           class="kr-img-cover transition duration-300 group-hover:scale-105 motion-reduce:transform-none motion-reduce:transition-none"
+          @error="artFailed = true"
         />
         <span
           v-else
           class="flex size-full items-center justify-center bg-linear-to-br from-base-200 to-base-300"
         >
+          <ArtPendingPlaceholder
+            v-if="artFailed"
+            :pending="artPending"
+            :failed="true"
+          />
           <Icon
+            v-else
             :name="item.icon || 'kind-icon:tag'"
             class="size-12 text-base-content/30"
           />
@@ -101,12 +108,13 @@
 </template>
 
 <script setup lang="ts">
-import { computed, useId } from 'vue'
+import { computed, ref, useId, watch } from 'vue'
 import {
   narrativeIngredientArtwork,
   narrativeIngredientSummary,
   type NarrativeIngredientOption,
 } from '@/utils/narrativeIngredients'
+import { useArtPendingState } from '@/utils/useArtPendingState'
 
 const props = withDefaults(
   defineProps<{
@@ -128,4 +136,17 @@ const cardId = useId()
 const descriptionId = `${cardId}-description`
 const artwork = computed(() => narrativeIngredientArtwork(props.item))
 const summary = computed(() => narrativeIngredientSummary(props.item))
+
+// A dealt hand reuses this component across different cards by slug, so a
+// failure recorded for one card's art must not bleed into the next one dealt
+// into the same slot (interface-vision/t-138).
+const artFailed = ref(false)
+watch(
+  () => props.item.slug,
+  () => {
+    artFailed.value = false
+  },
+)
+
+const { pending: artPending } = useArtPendingState(() => artwork.value || '')
 </script>

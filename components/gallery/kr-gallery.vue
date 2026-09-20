@@ -163,18 +163,15 @@
               />
               <div
                 v-else
-                class="absolute inset-0 flex flex-col items-center justify-center gap-1 bg-linear-to-br from-base-200 to-base-300 text-base-content/40"
+                class="absolute inset-0 bg-linear-to-br from-base-200 to-base-300"
               >
-                <Icon
-                  :name="item.placeholderIcon || 'kind-icon:image'"
-                  class="kr-icon-7"
+                <ArtPendingPlaceholder
+                  :pending="item.artPending"
+                  :failed="didFail(item)"
+                  :icon="item.placeholderIcon"
+                  :label="item.placeholderLabel"
+                  size="sm"
                 />
-                <span
-                  v-if="didFail(item) || item.placeholderLabel"
-                  class="text-[9px] uppercase tracking-wide"
-                >
-                  {{ didFail(item) ? "Couldn't load" : item.placeholderLabel }}
-                </span>
               </div>
             </div>
 
@@ -242,18 +239,14 @@
               />
               <div
                 v-else
-                class="absolute inset-0 flex flex-col items-center justify-center gap-1 bg-linear-to-br from-base-200 to-base-300 text-base-content/40"
+                class="absolute inset-0 bg-linear-to-br from-base-200 to-base-300"
               >
-                <Icon
-                  :name="item.placeholderIcon || 'kind-icon:image'"
-                  class="kr-icon-8"
+                <ArtPendingPlaceholder
+                  :pending="item.artPending"
+                  :failed="didFail(item)"
+                  :icon="item.placeholderIcon"
+                  :label="item.placeholderLabel"
                 />
-                <span
-                  v-if="didFail(item) || item.placeholderLabel"
-                  class="text-[10px] uppercase tracking-wide"
-                >
-                  {{ didFail(item) ? "Couldn't load" : item.placeholderLabel }}
-                </span>
               </div>
               <div
                 class="absolute inset-0 bg-linear-to-t via-transparent to-transparent"
@@ -273,7 +266,9 @@
                 </span>
               </div>
               <kr-deferred-image
-                v-if="mode !== 'cards' && item.icon && !failedArt.has(item.icon)"
+                v-if="
+                  mode !== 'cards' && item.icon && !failedArt.has(item.icon)
+                "
                 :src="item.icon"
                 alt=""
                 class="absolute bottom-2 left-2 size-11 rounded-xl border border-white/25 object-cover shadow"
@@ -359,6 +354,14 @@ export interface GalleryItem {
   badges?: Array<{ label: string; class?: string }>
   placeholderIcon?: string
   placeholderLabel?: string
+  /**
+   * The caller says whether this tile's art has been queued through the
+   * art-request fallback and is not rendered yet (interface-vision/t-138).
+   * kr-gallery stays store-free (verifyGalleryAdoption.ts: "the parent owns
+   * fetching and filtering"), so it renders this rather than reading any
+   * request state itself -- see utils/useArtPendingState.ts.
+   */
+  artPending?: boolean
 }
 
 const props = withDefaults(

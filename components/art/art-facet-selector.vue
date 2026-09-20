@@ -162,6 +162,7 @@ import {
   type FacetTaxonomy,
 } from '@/stores/facetCatalogStore'
 import { useFacetArtRequestStore } from '@/stores/facetArtRequestStore'
+import { useArtRequestStore } from '@/stores/artRequestStore'
 import { useUserStore } from '@/stores/userStore'
 import { normalizeFacetLookupKey } from '@/utils/facetAliases'
 import { resolveEntityArtwork } from '@/utils/artImageSrc'
@@ -186,6 +187,7 @@ const emit = defineEmits<{
 
 const catalog = useFacetCatalogStore()
 const artRequests = useFacetArtRequestStore()
+const artRequestStore = useArtRequestStore()
 const userStore = useUserStore()
 const search = ref('')
 const open = ref(false)
@@ -302,6 +304,12 @@ async function requestArtwork(facet: FacetCatalogEntry): Promise<void> {
   requestMessage.value = path
     ? `Queued curated artwork for ${facet.title} → ${path}`
     : artRequests.errors[facet.id] || 'Artwork request failed.'
+  // Bridge into the shared, src-keyed ledger so every OTHER surface showing
+  // this same picture (the Facets gallery, a Storybook genre card, …) also
+  // reads it as "on its way" rather than blank or broken -- generalizing this
+  // request beyond the Facet-id-keyed store it was recorded in above
+  // (interface-vision/t-138).
+  if (path) artRequestStore.markRequested(path)
 }
 
 function facetArtwork(facet: FacetCatalogEntry): string | null {

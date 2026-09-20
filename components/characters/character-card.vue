@@ -71,6 +71,7 @@
         compact-shape="hero"
         :fit="imageFit"
         placeholder-icon="kind-icon:user"
+        :pending="artPending"
       />
 
       <section
@@ -141,22 +142,22 @@
         </div>
 
         <div
-          v-if="activeMode === 'adventure' && showInlineInteract && richCharacter"
+          v-if="
+            activeMode === 'adventure' && showInlineInteract && richCharacter
+          "
           class="kr-panel-flat p-3"
         >
           <weird-card :character="richCharacter" />
         </div>
 
         <details v-if="showDebug" class="kr-panel-flat p-2">
-          <summary
-            class="kr-text-dim-xs-70 cursor-pointer font-bold"
-          >
+          <summary class="kr-text-dim-xs-70 cursor-pointer font-bold">
             Debug
           </summary>
 
-          <pre
-            class="kr-text-dim-xs-70 mt-2 max-h-48 overflow-auto"
-            >{{ JSON.stringify(character, null, 2) }}</pre>
+          <pre class="kr-text-dim-xs-70 mt-2 max-h-48 overflow-auto">{{
+            JSON.stringify(character, null, 2)
+          }}</pre>
         </details>
       </section>
     </reactable-card>
@@ -168,7 +169,12 @@ import { resolveEntityTheme } from '@/utils/entityTheme'
 import { computed, onMounted, ref, watch } from 'vue'
 import type { Character } from '~/prisma/generated/prisma/client'
 import { useArtStore, type ArtImage } from '@/stores/artStore'
-import { resolveArtImageSrc, type ArtVariant } from '@/utils/artImageSrc'
+import {
+  resolveArtImageSrc,
+  resolveArtVariantSource,
+  type ArtVariant,
+} from '@/utils/artImageSrc'
+import { useArtPendingState } from '@/utils/useArtPendingState'
 import type { EntityCardChip } from '@/components/gallery/kr-entity-card-body.vue'
 import {
   useCharacterStore,
@@ -330,6 +336,23 @@ const artFallbackSrc = computed(() =>
     props.character.imagePath || rotatingFallbackImage.value,
   ),
 )
+
+/**
+ * Whatever src kr-entity-card-body/kr-art-plate actually attempted (the same
+ * resolveArtVariantSource chain, mirrored here), so this card -- which owns
+ * its own art-request state per verifyGalleryAdoption.ts -- can tell the
+ * store-free shared body whether that src is queued and calm the "couldn't
+ * load" reading into "on its way" (interface-vision/t-138).
+ */
+const attemptedArtSrc = computed(
+  () =>
+    resolveArtVariantSource(
+      props.character,
+      props.variant,
+      artFallbackSrc.value,
+    ).src || artFallbackSrc.value,
+)
+const { pending: artPending } = useArtPendingState(() => attemptedArtSrc.value)
 
 const badges = computed<EntityCardChip[]>(() => {
   const result: EntityCardChip[] = [

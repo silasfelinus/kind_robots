@@ -79,6 +79,7 @@
         frame="none"
         fit="cover"
         :placeholder-icon="placeholderIcon"
+        :pending="pending"
       />
     </div>
 
@@ -157,6 +158,7 @@
       :fit="fit"
       hover-zoom
       :placeholder-icon="placeholderIcon"
+      :pending="pending"
       class="rounded-xl"
     >
       <template #caption>
@@ -344,6 +346,14 @@ const props = withDefaults(
     /** 'contain' for portrait art whose edges matter (Characters). */
     fit?: 'cover' | 'contain'
     placeholderIcon?: string
+    /**
+     * The card says whether its art has been queued through the art-request
+     * fallback and is not rendered yet (interface-vision/t-138), passed
+     * straight through to kr-art-plate. This body stays store-free like
+     * kr-art-plate and kr-gallery (verifyGalleryAdoption.ts: "the card owns
+     * its data") -- the card itself reads utils/useArtPendingState.ts.
+     */
+    pending?: boolean
   }>(),
   {
     subtitle: '',
@@ -362,6 +372,7 @@ const props = withDefaults(
     compactShape: undefined,
     fit: 'cover',
     placeholderIcon: 'kind-icon:image',
+    pending: false,
   },
 )
 

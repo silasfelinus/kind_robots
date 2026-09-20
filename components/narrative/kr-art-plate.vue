@@ -34,11 +34,12 @@
       @error="onError"
     />
 
-    <div
-      v-else
-      class="flex h-full w-full items-center justify-center text-base-content/40"
-    >
-      <Icon :name="placeholderIcon" class="kr-icon-8" aria-hidden="true" />
+    <div v-else class="h-full w-full">
+      <ArtPendingPlaceholder
+        :pending="pending"
+        :failed="hasFailedSource"
+        :icon="placeholderIcon"
+      />
     </div>
 
     <!-- Scrim only when there is a caption to keep legible. An unconditional
@@ -108,6 +109,14 @@ const props = withDefaults(
     hoverZoom?: boolean
     eager?: boolean
     placeholderIcon?: string
+    /**
+     * The caller says whether whatever src this plate could not load has
+     * since been queued through the art-request fallback (interface-vision/
+     * t-138) -- this component stays presentational (verifyNarrativeKit.ts:
+     * no store imports, droppable into a bot chat, a dock, a scenario editor
+     * alike), so it does not read that state itself.
+     */
+    pending?: boolean
   }>(),
   {
     source: null,
@@ -122,6 +131,7 @@ const props = withDefaults(
     hoverZoom: false,
     eager: false,
     placeholderIcon: 'kind-icon:image',
+    pending: false,
   },
 )
 
@@ -155,6 +165,19 @@ function onError(event: Event): void {
 const resolved = computed(() =>
   resolveArtVariantSource(props.source, props.variant, props.fallback),
 )
+
+/**
+ * Did every src this plate tried actually fail to load, as opposed to there
+ * never having been one? A record with no art at all has an empty
+ * `resolved.value.src` and reaches the placeholder having attempted nothing --
+ * that stays the plain default icon. Only a real load failure (interface-
+ * vision/t-138) is eligible to read as "couldn't load" or, if the fallback
+ * reporter has since queued it, calm down into "on its way".
+ */
+const hasFailedSource = computed(() => {
+  const attempted = resolved.value.src || props.fallback
+  return Boolean(attempted && failedSources.value.includes(attempted))
+})
 
 const src = computed(() => {
   const candidate = resolved.value.src

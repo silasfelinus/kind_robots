@@ -52,6 +52,23 @@
       </p>
     </template>
 
+    <label
+      v-else-if="variant === 'compact'"
+      class="flex cursor-pointer items-center gap-2 rounded-xl border border-base-300 bg-base-100 px-2 py-1"
+      :title="buttonTitle"
+    >
+      <span class="text-xs font-semibold">Mature</span>
+      <span v-if="isUpdating" class="kr-spinner-xs" />
+      <input
+        type="checkbox"
+        class="kr-toggle-warning-sm"
+        :checked="showMature"
+        :disabled="isUpdating"
+        :aria-label="buttonLabel"
+        @change="onToggleChange"
+      />
+    </label>
+
     <button
       v-else
       type="button"
@@ -82,7 +99,7 @@ import { computed, ref } from 'vue'
 import { useAccountStore } from '@/stores/accountStore'
 import { useUserStore } from '@/stores/userStore'
 
-type MaturityToggleVariant = 'icon' | 'resource'
+type MaturityToggleVariant = 'icon' | 'resource' | 'compact'
 
 const props = withDefaults(
   defineProps<{

@@ -1,9 +1,9 @@
 <!-- /components/art/art-generator.vue -->
 <template>
   <section class="min-h-full w-full">
-    <div class="kr-container flex min-h-full flex-col gap-3 p-2 sm:p-4">
+    <div class="kr-container flex min-h-full flex-col gap-2 p-2 sm:p-3">
       <!-- ── Header: identity, one status line, one Generate ──────────── -->
-      <header class="kr-panel-flat p-4">
+      <header class="kr-panel-flat p-3">
         <div
           class="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between"
         >
@@ -70,20 +70,12 @@
         </div>
       </header>
 
-      <!-- ── The single maturity control for this whole surface ───────── -->
-      <maturity-toggle
-        variant="resource"
-        label="Mature content"
-        visible-text="Mature checkpoints, LoRAs, and Facets are available below."
-        hidden-text="Mature checkpoints, LoRAs, and Facets are hidden below."
-      />
-
       <div
-        class="grid grid-cols-[repeat(auto-fit,minmax(min(100%,26rem),1fr))] gap-3"
+        class="grid grid-cols-[repeat(auto-fit,minmax(min(100%,26rem),1fr))] gap-2"
       >
         <!-- ── Left column: recipe, prompt, facets ────────────────────── -->
-        <div class="flex min-w-0 flex-col gap-3">
-          <section class="kr-panel-flat p-4">
+        <div class="flex min-w-0 flex-col gap-2">
+          <section class="kr-panel-flat p-3">
             <div class="flex flex-wrap items-start justify-between gap-2">
               <div class="min-w-0">
                 <h2
@@ -106,7 +98,7 @@
               </button>
             </div>
 
-            <div class="mt-3 flex flex-wrap gap-2">
+            <div class="mt-2 flex flex-wrap gap-2">
               <button
                 v-for="preset in presets"
                 :key="preset.id"
@@ -122,7 +114,7 @@
               </button>
             </div>
 
-            <p class="kr-text-dim-xs-60 mt-3">
+            <p class="kr-text-dim-xs-60 mt-2">
               <span class="font-semibold">{{ activeProfile.label }}</span>
               — {{ activeProfile.blurb }}
             </p>
@@ -153,7 +145,7 @@
             an image, and no preset could consume it -- so a picked image was
             loaded and then silently ignored.
           -->
-          <section v-if="sourceImage" class="kr-panel-flat p-4">
+          <section v-if="sourceImage" class="kr-panel-flat p-3">
             <div class="flex items-start gap-3">
               <img
                 :src="sourceImage"
@@ -223,7 +215,7 @@
             </label>
           </section>
 
-          <section class="kr-panel-flat p-4">
+          <section class="kr-panel-flat p-3">
             <label class="form-control">
               <span class="label">
                 <span
@@ -243,7 +235,7 @@
               </span>
               <textarea
                 v-model="promptStore.promptField"
-                class="textarea textarea-bordered min-h-36 resize-none rounded-2xl bg-base-200 text-base leading-relaxed"
+                class="textarea textarea-bordered min-h-24 resize-none rounded-2xl bg-base-200 text-base leading-relaxed"
                 placeholder="A clockwork fox knight guarding a neon greenhouse, cinematic lighting, richly detailed…"
                 :disabled="artStore.isGenerating"
               />
@@ -260,13 +252,13 @@
               </span>
               <textarea
                 v-model="negativePrompt"
-                class="textarea textarea-bordered min-h-20 resize-none rounded-2xl bg-base-200 text-sm"
+                class="textarea textarea-bordered min-h-14 resize-none rounded-2xl bg-base-200 text-sm"
                 placeholder="blurry, low quality, bad hands, watermark, text…"
                 :disabled="artStore.isGenerating"
               />
             </label>
 
-            <div class="mt-3 flex flex-wrap items-center gap-2">
+            <div class="mt-2 flex flex-wrap items-center gap-2">
               <span class="kr-text-dim-xs-55 font-bold">
                 🎲 Prompt seasoning
               </span>
@@ -313,12 +305,12 @@
 
           <!-- The ONE facet surface. Selection is canonical Facet ids, which
                ride to the ArtJob and onto the finished ArtImage. -->
-          <art-facet-selector v-model="facetIds" label="Creative Facets" />
+          <art-facet-selector v-model="facetIds" label="Creative Facets" compact />
         </div>
 
         <!-- ── Right column: model, settings, destination ─────────────── -->
-        <div class="flex min-w-0 flex-col gap-3">
-          <section class="kr-panel-flat p-4">
+        <div class="flex min-w-0 flex-col gap-2">
+          <section class="kr-panel-flat p-3">
             <h2
               class="flex items-center gap-2 text-base font-bold text-primary"
             >
@@ -373,9 +365,13 @@
             </p>
           </section>
 
-          <art-lora-picker v-model="loraPicks" :engine="activePreset.engine" />
+          <art-lora-picker
+            v-model="loraPicks"
+            :engine="activePreset.engine"
+            :checkpoint-family="selectedCheckpointFamily"
+          />
 
-          <section class="kr-panel-flat p-4">
+          <section class="kr-panel-flat p-3">
             <h2
               class="flex items-center gap-2 text-base font-bold text-primary"
             >
@@ -384,7 +380,7 @@
             </h2>
 
             <div
-              class="mt-3 grid grid-cols-[repeat(auto-fit,minmax(min(100%,8rem),1fr))] gap-3"
+              class="mt-2 grid grid-cols-[repeat(auto-fit,minmax(min(100%,8rem),1fr))] gap-2"
             >
               <label class="form-control">
                 <span class="kr-label-row">
@@ -518,15 +514,23 @@
             </div>
           </section>
 
-          <section class="kr-panel-flat p-4">
-            <h2
-              class="flex items-center gap-2 text-base font-bold text-primary"
+          <details class="kr-panel-flat">
+            <summary
+              class="flex cursor-pointer list-none items-center justify-between gap-3 p-3"
             >
-              <Icon name="kind-icon:server" class="kr-icon-4" />
-              Destination
-            </h2>
+              <span
+                class="flex min-w-0 items-center gap-2 text-base font-bold text-primary"
+              >
+                <Icon name="kind-icon:server" class="kr-icon-4" />
+                Destination
+              </span>
+              <span class="kr-text-dim-xs min-w-0 truncate text-right">
+                {{ destinationSummary }}
+              </span>
+            </summary>
 
-            <label class="form-control mt-2">
+            <div class="space-y-2 border-t border-base-300 p-3">
+              <label class="form-control">
               <span class="kr-label-row">
                 <span class="kr-label-bold">Comfy server</span>
               </span>
@@ -581,20 +585,20 @@
               @selected="handleCollectionSelected"
             />
 
-            <!-- Publishing flags for the image this run produces. Distinct
-                 from the maturity toggle at the top, which decides what the
-                 pickers on this page are allowed to SHOW you. -->
-            <content-visibility-controls
-              v-model:is-mature="outputIsMature"
-              v-model:is-public="outputIsPublic"
-              class="mt-3"
-              :disabled="artStore.isGenerating"
-            />
-          </section>
+              <!-- Publishing flags for the image this run produces.
+                   Distinct from the Resource maturity toggle in the LoRA
+                   header, which decides what the pickers may show. -->
+              <content-visibility-controls
+                v-model:is-mature="outputIsMature"
+                v-model:is-public="outputIsPublic"
+                :disabled="artStore.isGenerating"
+              />
+            </div>
+          </details>
         </div>
       </div>
 
-      <section class="kr-panel-flat p-4">
+      <section v-if="artStore.lastGeneratedArtImage" class="kr-panel-flat p-3">
         <div class="mb-3 flex flex-wrap items-center justify-between gap-2">
           <div class="flex items-center gap-2">
             <Icon name="kind-icon:sparkles" class="kr-icon-primary-5" />
@@ -611,19 +615,7 @@
           </button>
         </div>
 
-        <image-card
-          v-if="artStore.lastGeneratedArtImage"
-          :art-image="artStore.lastGeneratedArtImage"
-        />
-        <div
-          v-else
-          class="flex min-h-40 flex-col items-center justify-center gap-2 kr-panel-dashed-tint text-center"
-        >
-          <Icon name="kind-icon:image" class="kr-icon-8 text-base-content/25" />
-          <p class="text-sm text-base-content/55">
-            Nothing rendered yet this session.
-          </p>
-        </div>
+        <image-card :art-image="artStore.lastGeneratedArtImage" />
       </section>
     </div>
   </section>
@@ -872,12 +864,15 @@ const selectedCheckpoint = computed<CheckpointResource | null>(() => {
   )
 })
 
-const checkpointFamilyLabel = computed(() => {
-  if (!selectedCheckpoint.value) return ''
-  return CHECKPOINT_FAMILY_LABELS[
-    detectCheckpointFamily(selectedCheckpoint.value)
-  ]
-})
+const selectedCheckpointFamily = computed(() =>
+  detectCheckpointFamily(selectedCheckpoint.value),
+)
+
+const checkpointFamilyLabel = computed(() =>
+  selectedCheckpoint.value
+    ? CHECKPOINT_FAMILY_LABELS[selectedCheckpointFamily.value]
+    : '',
+)
 
 const recommendedPreset = computed(() =>
   presetForCheckpoint(selectedCheckpoint.value),
@@ -977,14 +972,22 @@ const specificServer = computed<Server | null>(() => {
   return id ? ((serverStore.getServerById(id) as Server | null) ?? null) : null
 })
 
+const destinationSummary = computed(() => {
+  if (serverChoice.value === 'any') return 'Any compatible Comfy server'
+  if (serverChoice.value === 'default') return defaultServerLabel.value
+  return specificServer.value
+    ? serverLabel(specificServer.value)
+    : 'Choose a Comfy server'
+})
+
 const serverDetail = computed(() => {
   if (serverChoice.value === 'any') {
-    return 'The art store picks whichever compatible Comfy server is free.'
+    return 'The queue picks whichever compatible Comfy server is free.'
   }
   if (serverChoice.value === 'default') {
     return defaultServer.value
-      ? 'Your preferred Comfy server. Change it in Server Connections.'
-      : 'No preferred Comfy server saved — the queue will route this one.'
+      ? 'Uses your preferred server when it supports this recipe; otherwise the queue picks a compatible Comfy server.'
+      : 'No preferred server is saved, so the queue picks a compatible Comfy server.'
   }
   return 'Used for this generation only.'
 })
@@ -1011,20 +1014,32 @@ const canAfford = computed(() => {
   return manaStore.balance > 0
 })
 
+const destinationCompatible = computed(() => {
+  if (!serverChoice.value.startsWith('server:')) return true
+  const server = specificServer.value
+  return Boolean(
+    server && artStore.canServerRunEngine(server, activePreset.value.engine),
+  )
+})
+
 const canGenerate = computed(() =>
-  Boolean(artStore.canGenerateArt && !artStore.isGenerating && canAfford.value),
+  Boolean(
+    artStore.canGenerateArt &&
+      !artStore.isGenerating &&
+      canAfford.value &&
+      destinationCompatible.value,
+  ),
 )
 
-// flux and kontext need their model family installed on the server; krea2,
-// flux2, and the named-checkpoint lane run on any Comfy box. When the chosen
-// recipe cannot run where this job is headed, the store silently substitutes
-// another engine -- so say so here instead of rendering something the Recipe
-// chip never described.
+// Automatic/default routing chooses a compatible Comfy server itself. Warn only
+// when the user explicitly pins an incompatible server; otherwise a warning
+// about the preferred server describes a route the queue will not actually use.
 const engineWarning = computed(() => {
-  const server = billingServer.value
+  if (!serverChoice.value.startsWith('server:')) return ''
+  const server = specificServer.value
   if (!server) return ''
   if (artStore.canServerRunEngine(server, activePreset.value.engine)) return ''
-  return `${serverLabel(server)} cannot run ${activeProfile.value.label}. This job will be rerouted to whichever lane that server does support.`
+  return `${serverLabel(server)} cannot run ${activeProfile.value.label}. Choose another server or “Whatever is available”.`
 })
 
 const busyLabel = computed(() => {

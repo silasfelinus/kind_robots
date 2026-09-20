@@ -77,6 +77,16 @@
       >
         Also: {{ lesson.meanings.slice(1).join(' · ') }}
       </p>
+
+      <!-- A word whose parts the source gives no job to gets NO pieces screen (see
+           utils/mandarinCourse.ts). Saying so here, in one clause, is the whole of what
+           that screen was ever able to say. -->
+      <p
+        v-if="lesson.teachability === 'vocabulary'"
+        class="kr-text-dim-xs-45 mt-4 text-center leading-relaxed"
+      >
+        Its parts don't explain this one — learn it whole.
+      </p>
     </template>
 
     <!-- HOW IT SOUNDS ------------------------------------------------------ -->
@@ -142,18 +152,13 @@
 
       <div class="mt-4 space-y-3">
         <div
-          v-for="entry in charactersWithPieces"
+          v-for="entry in teachingCharacters"
           :key="entry.character"
           class="kr-panel-flat p-3"
         >
-          <div class="flex flex-wrap items-center gap-3">
-            <span class="text-4xl leading-none font-semibold">{{
-              entry.character
-            }}</span>
-            <span v-if="!entry.hasAssertedStructure" class="kr-badge-ghost-xs">
-              the source asserts no role for these pieces
-            </span>
-          </div>
+          <span class="text-4xl leading-none font-semibold">{{
+            entry.character
+          }}</span>
 
           <div class="mt-3 space-y-2">
             <div
@@ -179,6 +184,16 @@
           </div>
         </div>
       </div>
+
+      <!-- Dictionary radicals and unexplained written parts are reference facts, not
+           lessons, so they get one muted line instead of a block each. Giving them equal
+           weight is what made 的's screen read as four ways of saying nothing. -->
+      <p
+        v-if="referenceNotes.length"
+        class="kr-text-dim-xs-45 mt-3 leading-relaxed"
+      >
+        {{ referenceNotes.join(' · ') }}
+      </p>
     </template>
 
     <!-- SOUND FAMILY -------------------------------------------------------- -->
@@ -319,7 +334,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import type { MandarinComponentRole } from '@/utils/mandarin'
-import type { MandarinLesson } from '@/utils/mandarinLesson'
+import { isTeachingRole, type MandarinLesson } from '@/utils/mandarinLesson'
 import type { MandarinCourseStep } from '@/utils/mandarinCourse'
 
 const props = defineProps<{
@@ -343,14 +358,39 @@ const beat = computed(() =>
   props.step.kind === 'word' ? props.step.beat : null,
 )
 
-// A character with no components has nothing to show on this screen, and the step would
-// not have been generated if NO character had any -- but in a mixed word (电脑 where only
-// 脑 decomposes) the empty half must still be dropped rather than rendered as a bare glyph.
-const charactersWithPieces = computed(
-  () =>
-    props.lesson?.characters.filter((entry) => entry.components.length > 0) ??
-    [],
+/**
+ * Characters with something the source actually gives a job to.
+ *
+ * A mixed word (电脑, where only 脑 decomposes) drops the silent half rather than
+ * rendering it as a bare glyph, and a character whose only pieces are a dictionary
+ * radical and an unexplained stroke group drops out entirely -- those move to
+ * `referenceNotes` below.
+ */
+const teachingCharacters = computed(() =>
+  (props.lesson?.characters ?? [])
+    .map((entry) => ({
+      ...entry,
+      components: entry.components.filter((component) =>
+        isTeachingRole(component.role),
+      ),
+    }))
+    .filter((entry) => entry.components.length > 0),
 )
+
+/** Radicals and unexplained written parts, as one muted line rather than a block each. */
+const referenceNotes = computed(() => {
+  const notes: string[] = []
+  for (const entry of props.lesson?.characters ?? []) {
+    for (const component of entry.components) {
+      if (isTeachingRole(component.role)) continue
+      if (component.role === 'uncertain') continue
+      if (!notes.includes(component.contribution)) {
+        notes.push(component.contribution)
+      }
+    }
+  }
+  return notes
+})
 
 const ROLE_LABELS: Record<MandarinComponentRole, string> = {
   semantic: 'Meaning component',

@@ -13,6 +13,7 @@ import {
   buildMandarinLesson,
   buildMandarinLessonIndex,
   describeContribution,
+  isTeachingRole,
   describeSyllables,
   exactReadingKey,
   homophoneKey,
@@ -118,35 +119,42 @@ console.log('✅ pinyin anatomy: tone stripping and initial/final splitting')
 
 console.log('✅ describeSyllables: tones, sandhi, and per-syllable pitch shape')
 
-// --- the honesty contract --------------------------------------------------
+// --- the honesty contract, and the brevity contract -----------------------
 
 {
   const semantic = describeContribution(
     component('讠', 'semantic', '说', { meaning: 'speech; language' }),
     '说',
   )
-  assert.ok(semantic.includes('speech; language'))
   assert.ok(
-    semantic.includes('not how it sounds'),
+    semantic.includes('speech; language'),
+    'a semantic component names the domain it puts the character in',
+  )
+  assert.ok(
+    semantic.includes('meaning side'),
     'a semantic component must be distinguished from a sound clue in words, not just by a badge',
   )
 
   const phonetic = describeContribution(component('兑', 'phonetic', '说'), '说')
   assert.ok(
-    phonetic.includes('not a second definition'),
+    phonetic.includes('not what it means'),
     'the single most common beginner error is reading the phonetic as a second meaning',
   )
 
   const radical = describeContribution(component('言', 'radical', '说'), '说')
   assert.ok(
-    radical.includes('indexing decision'),
-    'a dictionary radical is a filing decision and must not be presented as a meaning claim',
+    /filed under/i.test(radical),
+    'a dictionary radical is a filing fact and should read as one',
+  )
+  assert.ok(
+    !/meaning|sound/i.test(radical),
+    'a radical line must not claim -- or spend words denying -- a meaning or sound role',
   )
 
   const form = describeContribution(component('丷', 'form', '说'), '说')
   assert.ok(
-    form.includes('does not say') && form.includes('does not guess'),
-    'a structural leaf must explicitly decline to assert a role',
+    /also written with/i.test(form),
+    'an unexplained stroke group is a fact about the written form, not a lesson',
   )
 
   const uncertain = describeContribution(
@@ -161,8 +169,60 @@ console.log('✅ describeSyllables: tones, sandhi, and per-syllable pitch shape'
 }
 
 console.log(
-  '✅ describeContribution: each role states what it does AND what it does not claim',
+  '✅ describeContribution: teaching roles explain, reference roles just state a fact',
 )
+
+{
+  // THE REGRESSION GUARD. Silas, 2026-09-20, on hitting 的's pieces card: "wtf, there
+  // are phrases that mean nothing." Every line on that card was true, sourced, and
+  // carefully hedged -- and together they said nothing, because each one spent its
+  // words explaining the limits of the source instead of teaching.
+  //
+  // The honesty contract is kept by what is SHOWN (a claim appears only where the
+  // source made one, and isTeachingRole decides what earns a teaching card at all),
+  // NOT by appending a disclaimer to every line. This cap is what stops the
+  // disclaimers growing back one clause at a time.
+  const MAX = 90
+  const roles = [
+    'semantic',
+    'phonetic',
+    'radical',
+    'form',
+    'uncertain',
+  ] as const
+  for (const role of roles) {
+    for (const meaning of [undefined, 'speech; language']) {
+      const line = describeContribution(
+        component('言', role, '说', meaning ? { meaning } : {}),
+        '说',
+      )
+      assert.ok(
+        line.length <= MAX,
+        `${role} contribution is ${line.length} chars, over the ${MAX} cap: ${line}`,
+      )
+      assert.ok(
+        line.trim().endsWith('.'),
+        `${role} contribution must be one complete sentence: ${line}`,
+      )
+    }
+  }
+}
+
+console.log(
+  '✅ describeContribution: every line stays inside the 90-character brevity cap',
+)
+
+{
+  // Only semantic and phonetic earn a teaching card. This is the predicate the course
+  // uses to decide whether a word gets a "what it is built from" screen at all.
+  assert.equal(isTeachingRole('semantic'), true)
+  assert.equal(isTeachingRole('phonetic'), true)
+  assert.equal(isTeachingRole('radical'), false)
+  assert.equal(isTeachingRole('form'), false)
+  assert.equal(isTeachingRole('uncertain'), false)
+}
+
+console.log('✅ isTeachingRole: only an asserted role counts as teaching')
 
 // --- component attribution across a multi-character word -------------------
 
@@ -233,8 +293,12 @@ console.log(
     'a card whose only pieces are unasserted structural leaves has no structural story to teach',
   )
   assert.ok(
-    lesson.summary.includes('does not assert'),
-    'the summary must say the source is silent rather than implying the lesson found something',
+    /do not explain it|learn .* as a whole/.test(lesson.summary),
+    'the summary must tell the learner what to DO about the silence, not narrate the silence',
+  )
+  assert.ok(
+    lesson.summary.length <= 120,
+    `the vocabulary summary must stay short (${lesson.summary.length} chars): ${lesson.summary}`,
   )
   assert.ok(
     lesson.history.includes('makes no historical claim'),

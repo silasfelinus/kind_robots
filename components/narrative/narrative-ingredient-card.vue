@@ -114,7 +114,7 @@ import {
   narrativeIngredientSummary,
   type NarrativeIngredientOption,
 } from '@/utils/narrativeIngredients'
-import { useArtPendingState } from '@/composables/useArtPendingState'
+import { useArtPendingState } from '@/utils/useArtPendingState'
 
 const props = withDefaults(
   defineProps<{

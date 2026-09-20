@@ -106,7 +106,6 @@ import {
   type FacetCatalogEntry,
   type FacetTaxonomy,
 } from '@/stores/facetCatalogStore'
-import { useFacetArtRequestStore } from '@/stores/facetArtRequestStore'
 import { normalizeFacetLookupKey } from '@/utils/facetAliases'
 import { resolveEntityArtwork } from '@/utils/artImageSrc'
 import type { GalleryItem } from '@/components/gallery/kr-gallery.vue'
@@ -129,7 +128,6 @@ withDefaults(
 
 const emit = defineEmits<{ select: [facet: FacetCatalogEntry] }>()
 const catalog = useFacetCatalogStore()
-const artRequests = useFacetArtRequestStore()
 
 const search = ref('')
 const taxonomyFilter = ref<FacetTaxonomy | null>(null)
@@ -167,12 +165,6 @@ function toGalleryItem(facet: FacetCatalogEntry): GalleryItem {
     meta: facet.aliases.length ? facet.aliases.join(' · ') : '',
     placeholderIcon: iconName(facet),
     placeholderLabel: facet.artRequired ? 'art pending' : 'no art',
-    // Queued through art-facet-selector.vue's "Request artwork" this session
-    // (interface-vision/t-138) -- kr-gallery reads this rather than any store
-    // of its own; see verifyGalleryAdoption.ts.
-    artPending: Boolean(
-      artRequests.requesting[facet.id] || artRequests.requested[facet.id],
-    ),
   }
 }
 

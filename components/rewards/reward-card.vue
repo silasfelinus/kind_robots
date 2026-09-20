@@ -139,7 +139,7 @@ import { computed, onMounted, ref, watch } from 'vue'
 import type { Reward } from '~/prisma/generated/prisma/client'
 import { useArtStore, type ArtImage } from '@/stores/artStore'
 import { resolveArtVariantSource, type ArtVariant } from '@/utils/artImageSrc'
-import { useArtPendingState } from '@/composables/useArtPendingState'
+import { useArtPendingState } from '@/utils/useArtPendingState'
 import type { EntityCardChip } from '@/components/gallery/kr-entity-card-body.vue'
 import { useRewardStore } from '@/stores/rewardStore'
 

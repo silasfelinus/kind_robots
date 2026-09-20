@@ -351,7 +351,7 @@ const props = withDefaults(
      * fallback and is not rendered yet (interface-vision/t-138), passed
      * straight through to kr-art-plate. This body stays store-free like
      * kr-art-plate and kr-gallery (verifyGalleryAdoption.ts: "the card owns
-     * its data") -- the card itself reads composables/useArtPendingState.ts.
+     * its data") -- the card itself reads utils/useArtPendingState.ts.
      */
     pending?: boolean
   }>(),

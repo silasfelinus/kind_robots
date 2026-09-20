@@ -174,7 +174,7 @@ import {
   resolveArtVariantSource,
   type ArtVariant,
 } from '@/utils/artImageSrc'
-import { useArtPendingState } from '@/composables/useArtPendingState'
+import { useArtPendingState } from '@/utils/useArtPendingState'
 import type { EntityCardChip } from '@/components/gallery/kr-entity-card-body.vue'
 import {
   useCharacterStore,

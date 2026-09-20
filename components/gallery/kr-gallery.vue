@@ -359,7 +359,7 @@ export interface GalleryItem {
    * art-request fallback and is not rendered yet (interface-vision/t-138).
    * kr-gallery stays store-free (verifyGalleryAdoption.ts: "the parent owns
    * fetching and filtering"), so it renders this rather than reading any
-   * request state itself -- see composables/useArtPendingState.ts.
+   * request state itself -- see utils/useArtPendingState.ts.
    */
   artPending?: boolean
 }

@@ -175,6 +175,9 @@ jobs:
       - name: ESLint ratchet
         run: npm run test:lint-ratchet
 
+      - name: Prettier ratchet
+        run: npm run test:prettier-ratchet
+
       - name: Data surface manifest contract
         run: npm run test:data-surface-manifest
 

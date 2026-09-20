@@ -14,6 +14,7 @@ import type {
 } from '~/types/ruler-hooked'
 import type { RngStream } from './seed'
 import { clauseHolds } from './triggers'
+import { rollTreasure } from './economy'
 
 const rarityWeight: Record<Rarity, number> = {
   COMMON: 60,
@@ -231,6 +232,14 @@ export function resolveFishingCatch(save: RunSave, rng: RngStream): CatchResult 
   save.fishopedia[fish.slug] = entry
   save.counters.fishCaught = (save.counters.fishCaught ?? 0) + 1
 
+  // Treasure roll consumes rng AFTER every draw above, so it never shifts
+  // the fish/size/quality outcome an existing seed already depends on.
+  const coinsFound = rollTreasure(fish.rarity, rng)
+  if (coinsFound > 0) {
+    save.counters.coins = (save.counters.coins ?? 0) + coinsFound
+    save.counters.treasuresFound = (save.counters.treasuresFound ?? 0) + 1
+  }
+
   return {
     fishSlug: fish.slug,
     name: fish.name,
@@ -244,5 +253,6 @@ export function resolveFishingCatch(save: RunSave, rng: RngStream): CatchResult 
     fishopediaNote: fish.fishopediaNote,
     consequenceReveal: fish.consequenceReveal,
     catchBehavior: fish.catchBehavior,
+    coinsFound,
   }
 }

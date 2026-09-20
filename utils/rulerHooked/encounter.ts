@@ -6,6 +6,7 @@
 
 import type { FishAffinity, Rarity, RunSave } from '~/types/ruler-hooked'
 import { cloneSave } from './applyEffects'
+import { gearBonusFromFlags } from './economy'
 import { RULER_HOOKED_FISH, resolveFishingCatch } from './fish'
 import { makeRng } from './seed'
 import { resolveTimingStop, timingProfileFor } from './timingBar'
@@ -54,6 +55,12 @@ export interface FishingEncounter {
   approachMistakes: number
   cue: string
   history: FishingBeatRecord[]
+  /** Owned-gear bonuses (economy.ts's gearBonusFromFlags), snapshotted from
+   *  save.flags when the encounter was built and held fixed for its whole
+   *  fight -- buying gear mid-fight can't retroactively change an
+   *  already-hooked fish. Fed straight into timingProfileFor. */
+  gearBandBonus: number
+  gearSweepMsBonus: number
 }
 
 interface FishingProfile {
@@ -104,6 +111,7 @@ export function profileForFish(fishSlug: string): FishingProfile {
 function buildEncounter(save: RunSave, preview: EncounterFish): FishingEncounter {
   const profile = profileForFish(preview.fishSlug)
   const patience = profile.family === 'PATIENCE'
+  const gearBonus = gearBonusFromFlags(save.flags)
 
   return {
     id: `${save.saveId}:${save.turnCount}:${preview.fishSlug}`,
@@ -125,6 +133,8 @@ function buildEncounter(save: RunSave, preview: EncounterFish): FishingEncounter
       ? `${preview.name} circles the lure without committing. Stop pulling and watch it.`
       : `${preview.name} takes the hook. Build progress without letting line tension spike.`,
     history: [],
+    gearBandBonus: gearBonus.bandWidthBonus,
+    gearSweepMsBonus: gearBonus.sweepMsBonus,
   }
 }
 

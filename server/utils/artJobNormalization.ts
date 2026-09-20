@@ -167,17 +167,63 @@ export function replaceVagueArtDirection(value: string): string {
   )
 }
 
-function normalizeStringsDeep(value: unknown): unknown {
-  if (Array.isArray(value)) return value.map(normalizeStringsDeep)
+/**
+ * The keys whose strings are PROMPT TEXT, and therefore the only ones legacy
+ * prompt repair may touch.
+ *
+ * This is an allowlist rather than a denylist because the two failure modes are
+ * not symmetrical. A prompt key missing from this set simply goes unrepaired --
+ * the same state every payload was in before the prompt contract existed, and
+ * recoverable by editing the row. A non-prompt key that a denylist forgot gets
+ * REWRITTEN, and the repair ends with `.replace(/\s+/g, ' ')`, which silently
+ * renames any model file whose name contains two spaces.
+ *
+ * That is not hypothetical. ArtJob 26024 asked for
+ * `Flux/NSFW/dtsvFLUX _ Blowjob  Deepthroat FLUX.safetensors` (Resource 1040,
+ * two spaces, exactly as the file sits on disk) and reached ComfyUI with one,
+ * so it failed with "no matching file" against a model that was present the
+ * whole time (2026-09-16, surfaced 2026-09-20). Its own queueEdit recorded
+ * `loraPathChanged: false` while the path changed underneath it.
+ *
+ * Only the two callers of this function are affected -- /api/art/queue and
+ * /api/art/queue/reenqueue-failed -- which is why the other four catalog rows
+ * holding collapsible whitespace (1979, 2500, 3051, 3320) still have previews:
+ * the probe lane enqueues through /api/art/enqueue, which does not normalize.
+ * That narrows the blast radius without making it benign, because the affected
+ * path is the REPAIR path: a job re-enqueued after any failure had its LoRA
+ * filename corrupted by the attempt to fix it.
+ *
+ * `text` and `wildcard_text` are the baked workflow copies read back by
+ * extractRenderRequest (CLIPTextEncode / ImpactWildcardEncode), so the graph's
+ * prompt and the payload's stay in sync through a repair.
+ */
+const PROMPT_TEXT_KEYS = new Set([
+  'artPrompt',
+  'basePromptString',
+  'negativePrompt',
+  'normalizedPrompt',
+  'populated_text',
+  'prompt',
+  'promptString',
+  'text',
+  'wildcard_text',
+])
+
+function normalizeStringsDeep(value: unknown, key = ''): unknown {
+  if (Array.isArray(value)) {
+    return value.map((child) => normalizeStringsDeep(child, key))
+  }
 
   if (!value || typeof value !== 'object') {
-    return typeof value === 'string' ? replaceVagueArtDirection(value) : value
+    return typeof value === 'string' && PROMPT_TEXT_KEYS.has(key)
+      ? replaceVagueArtDirection(value)
+      : value
   }
 
   return Object.fromEntries(
-    Object.entries(value as Record<string, unknown>).map(([key, child]) => [
-      key,
-      normalizeStringsDeep(child),
+    Object.entries(value as Record<string, unknown>).map(([childKey, child]) => [
+      childKey,
+      normalizeStringsDeep(child, childKey),
     ]),
   )
 }

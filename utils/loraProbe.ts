@@ -36,8 +36,21 @@ const LORA_INVOCATION_PATTERN = /<(?:lora|lyco|lycoris|hypernet):[^>]*>/gi
  * "Style Lora" instead of the style. Stripped, not rejected: whatever is left
  * ('Aka6', 'Almualim') is usually the real trigger token.
  */
+/*
+ * `collection` / `bundle` and `converted` join the list for the same reason the
+ * rest are here: they describe the PACKAGE or the FILE FORMAT, never the image.
+ *
+ * A Civitai "collection" model publishes each of its LoRAs as a version of one
+ * shared model row, so scan_loras.py stamps every one of them with the same
+ * bundle title -- and with no trainedWords to override it, that title becomes
+ * the trigger. Resources 2427 and 2429 (the XLabs disney and mjv6 converts)
+ * both carried `Flux Lora Collection (xlabs)`, both probed as
+ * `Collection (xlabs)`, and both rendered as XLabs-branded product packaging:
+ * two different LoRAs described by one word that belongs to neither
+ * (2026-09-19).
+ */
 const PACKAGING_NOISE_PATTERN =
-  /\b(?:lora|loras|locon|lycon|lycoris|lyco|hypernetwork|checkpoint|safetensors|comfyui|comfy|a1111|webui|forge|model|version|\d+[- ]?step|for\s+comfyui)\b/gi
+  /\b(?:lora|loras|locon|lycon|lycoris|lyco|hypernetwork|checkpoint|safetensors|comfyui|comfy|a1111|webui|forge|model|version|collection|collections|bundle|bundles|converted|\d+[- ]?step|for\s+comfyui)\b/gi
 
 /*
  * Base-model names. A trigger reading 'Grey Impact - Illustrious/PonyXL' is
@@ -160,6 +173,27 @@ function dropUnmatchedBrackets(value: string): string {
     .trim()
 }
 
+/**
+ * Drop a remainder that is nothing but a bracketed attribution.
+ *
+ * Once the packaging words are gone, a bundle title collapses to the publisher
+ * who shipped it -- `Flux Lora Collection (xlabs)` leaves `(xlabs)`. That names
+ * the author of the file, not anything to draw, and it is shared verbatim by
+ * every LoRA in the bundle, so it is worse than useless: it makes unrelated
+ * LoRAs probe identically.
+ *
+ * Emptying is the right answer rather than a repair, and this is the one place
+ * in this module where it is safe to empty a trigger outright: probeTriggerText
+ * falls through to the filename next, and `disney_lora_comfy_converted` and
+ * `mjv6_lora_comfy_converted` still carry the one word that tells them apart.
+ * Failing that, an empty trigger is the documented correct read for a style
+ * LoRA with no trigger word -- see sanitizeProbeTrigger's note.
+ */
+function dropBareAttribution(value: string): string {
+  const outsideGroups = value.replace(/[[(][^\])]*[\])]/g, ' ')
+  return /[0-9A-Za-z\u00c0-\uffff]/.test(outsideGroups) ? value : ''
+}
+
 function stripDescriptors(value: string): string {
   const stripped = value
     .replace(DANGLING_DESCRIPTOR_PATTERN, '$1')
@@ -219,7 +253,7 @@ export function sanitizeProbeTrigger(value: string): string {
   // Dropping those tags can strand a bracket's other half -- `Style [Pony, ]`
   // loses the ` ]` and leaves `Style [Pony`, and a lone opener re-weights
   // everything after it. Balance last, once nothing else will move.
-  const balanced = dropUnmatchedBrackets(cleaned0)
+  const balanced = dropBareAttribution(dropUnmatchedBrackets(cleaned0))
 
   if (balanced.length <= MAX_TRIGGER_CHARS) return balanced
 
@@ -728,6 +762,38 @@ const LORA_INVOCATION_NAME_PATTERN =
   /<(?:lora|lyco|lycoris|hypernet):\s*([^:>]+)/i
 const TRAINING_STEP_SUFFIX = /-\d{4,6}$/
 
+/*
+ * Packaging words that a filename hides behind underscores.
+ *
+ * `_` is a word character, so `\blora\b` does not match inside
+ * `disney_lora_comfy_converted` and PACKAGING_NOISE_PATTERN -- written to
+ * remove exactly those words -- slides straight past it. Spacing every
+ * underscore out would fix that and break something more important: an
+ * activation token is routinely the whole filename, and
+ * `<lora:inniesbettervaginas_v11:1.0>` has to keep its underscores or it stops
+ * being the token the LoRA answers to.
+ *
+ * So this drops WHOLE segments that are nothing but packaging, and rejoins the
+ * rest untouched -- `disney_lora_comfy_converted` becomes `disney`,
+ * `mjv6_lora_comfy_converted` becomes `mjv6`, and any name with no packaging
+ * segment comes back byte-identical.
+ *
+ * Base-model names are deliberately absent. As a whole segment `pony` is a
+ * subject far more often than a compatibility note (`my_little_pony`), which is
+ * the same distinction BASE_NAME_GROUP_PATTERN exists to preserve.
+ */
+const PACKAGING_SEGMENT_PATTERN =
+  /^(?:lora|loras|locon|lycon|lycoris|lyco|hypernetwork|checkpoint|safetensors|comfyui|comfy|a1111|webui|forge|model|version|collection|collections|bundle|bundles|converted|\d+[- ]?step)$/i
+
+function dropPackagingSegments(name: string): string {
+  if (!name.includes('_')) return name
+  const segments = name.split('_')
+  const kept = segments.filter(
+    (segment) => segment && !PACKAGING_SEGMENT_PATTERN.test(segment),
+  )
+  return kept.length === segments.length ? name : kept.join(' ')
+}
+
 export function loraNameAsTrigger(
   invocation?: string | null,
   localPath?: string | null,
@@ -739,7 +805,9 @@ export function loraNameAsTrigger(
     ?.replace(/\.(safetensors|ckpt|pt|bin)$/i, '')
   const name = (fromInvocation || fromPath || '').trim()
   if (!name) return ''
-  return sanitizeProbeTrigger(name.replace(TRAINING_STEP_SUFFIX, ''))
+  return sanitizeProbeTrigger(
+    dropPackagingSegments(name.replace(TRAINING_STEP_SUFFIX, '')),
+  )
 }
 
 export function probeTriggerText(resource: {

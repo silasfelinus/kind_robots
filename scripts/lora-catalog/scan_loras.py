@@ -391,6 +391,34 @@ def _matched(data: Any) -> bool:
     return bool(data) and data is not MISS and not data.get("__miss__")
 
 
+# A version name that is only a release designator -- "v1.0", "V2", "1.5",
+# "final", "beta" -- says nothing about WHICH LoRA the file is, and every model
+# on Civitai has one. Folding those into the label would rename the whole
+# catalog to no purpose, so only a version whose name is a real variant
+# ("disney", "mjv6", "anime") qualifies the model title.
+VERSION_DESIGNATOR = re.compile(
+    r"^(?:v(?:er(?:sion)?)?)?\s*[.\-_]?\s*\d+(?:[.\-_]\d+)*\s*"
+    r"(?:[a-z]{0,2})?$|^(?:final|beta|alpha|release|latest|old|new|fix(?:ed)?)$",
+    re.IGNORECASE,
+)
+
+
+def names_a_variant(version_name: str, model_name: str) -> bool:
+    """Whether a Civitai version name identifies WHICH LoRA a file is.
+
+    True only for a collection-style version ('disney', 'mjv6'), never for a
+    bare release designator and never when it merely restates the model title.
+    """
+    version_name = version_name.strip()
+    if not version_name:
+        return False
+    if version_name.lower() == model_name.strip().lower():
+        return False
+    if VERSION_DESIGNATOR.match(version_name):
+        return False
+    return bool(re.search(r"[A-Za-z]", version_name))
+
+
 def apply_civitai(entry: LoraEntry, data: Any) -> bool:
     """Fold a Civitai model-versions/by-hash response. Returns True if matched."""
     if not _matched(data):
@@ -407,12 +435,35 @@ def apply_civitai(entry: LoraEntry, data: Any) -> bool:
         if version_id:
             url += f"?modelVersionId={version_id}"
         entry.civitaiUrl = url
-    pretty = model.get("name") or data.get("name") or ""
-    if pretty:
-        entry.customLabel = pretty
+    # A Civitai "collection" model publishes several unrelated LoRAs as
+    # VERSIONS of one shared model row, so model.name is a bundle title and
+    # data.name is the only field that says which LoRA this file actually is.
+    # Preferring model.name stamped every version with the same label: Flux
+    # Lora Collection (xlabs) landed on both the disney and the mjv6 convert
+    # (Resources 2427/2429), and with no trainedWords to override it, finalize()
+    # below promoted that title to triggerWords/defaultTrigger/artPrompt on
+    # both. They then probed identically and rendered XLabs product packaging
+    # rather than anything Disney or Midjourney (2026-09-19).
+    #
+    # Keep the model name as the qualifier -- it is what a human recognises in
+    # the gallery -- but lead with the version so the two are never confused.
+    model_name = str(model.get("name") or "").strip()
+    version_name = str(data.get("name") or "").strip()
+    if model_name and names_a_variant(version_name, model_name):
+        entry.customLabel = f"{model_name} — {version_name}"
+    elif model_name or version_name:
+        entry.customLabel = model_name or version_name
     words = data.get("trainedWords") or []
     if isinstance(words, list):
         entry.trigger_words = [str(w) for w in words if w]
+    # A collection version with no trainedWords still says what it is in its
+    # own name. Civitai 637230 publishes seven XLabs LoRAs this way, and three
+    # of them -- Disney, Midjourney, Realism -- list no trained words at all.
+    # Without this, finalize() falls back to the label and the whole bundle
+    # title becomes the trigger, which is what sent Resources 2427 and 2429 to
+    # the renderer describing the package instead of the style (2026-09-19).
+    if not entry.trigger_words and names_a_variant(version_name, model_name):
+        entry.trigger_words = [version_name]
     imgs = data.get("images") or []
     if isinstance(imgs, list) and imgs and isinstance(imgs[0], dict):
         url = imgs[0].get("url")

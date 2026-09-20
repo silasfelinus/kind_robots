@@ -15,7 +15,8 @@
 import fs from 'node:fs'
 
 const store = fs.readFileSync('stores/artArchiveStore.ts', 'utf8')
-const page = fs.readFileSync('pages/admin/art-archive.vue', 'utf8')
+const page = fs.readFileSync('pages/art-archive.vue', 'utf8')
+const tab = fs.readFileSync('content/channels/admin/art-archive.md', 'utf8')
 
 const checks = [
   [
@@ -114,6 +115,29 @@ if (
   console.log(
     'PASS: the real import runs only from an explicit confirmation step',
   )
+
+// A surface nobody can navigate to is only half-shipped (Silas, 2026-09-20:
+// "If the path exists, it should be a nav link in admin channel"). The page
+// shipped with no channel registration at all, so nothing in the app linked to
+// it and the only way in was typing the URL. Pin both halves: the tab exists,
+// and its route is the one the page actually resolves to.
+const tabChecks = [
+  ['archive tab is registered on the admin channel', /\nchannelKey: admin\n/],
+  ['archive tab routes to the page path', /\nroute: \/art-archive\n/],
+  ['archive tab is admin-only', /\nrequiredRole: ADMIN\n/],
+  ['archive tab is a navigable tab, not a hidden one', /\ncontentType: tab\n/],
+]
+for (const [name, pattern] of tabChecks) {
+  if (!pattern.test(tab)) {
+    console.error(`FAIL: ${name}`)
+    failed = true
+  } else console.log(`PASS: ${name}`)
+}
+
+if (fs.existsSync('pages/admin/art-archive.vue')) {
+  console.error('FAIL: the old unreachable pages/admin/art-archive.vue is back alongside the routed page')
+  failed = true
+} else console.log('PASS: the page lives only at the route the nav tab points to')
 
 if (failed) process.exit(1)
 console.log('Art Archive ingestion controls contract verified.')

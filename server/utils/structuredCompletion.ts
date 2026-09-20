@@ -119,9 +119,16 @@ export async function completeStructured<T = unknown>(
     }
   } catch (error) {
     if (error instanceof Error && error.name === 'AbortError') {
-      throw new Error(`${label} timed out before the serverless deadline.`, {
-        cause: error,
-      })
+      // `new Error(...)` always names itself "Error", so the docstring's
+      // "AbortError keeps its name" promise needs this assignment -- without
+      // it, generateStorybookTurn's `firstError.name === 'AbortError'` check
+      // never matches and a timeout gets retried instead of failing fast.
+      const timeoutError = new Error(
+        `${label} timed out before the serverless deadline.`,
+        { cause: error },
+      )
+      timeoutError.name = 'AbortError'
+      throw timeoutError
     }
     throw error
   } finally {

@@ -209,7 +209,37 @@ path filters against `PROTECTED_WRITE_FIELDS`, which is only
 `['id', 'createdAt', 'updatedAt']`. `apiKey` is an ordinary User scalar, so
 `content.update` writes it.
 
-Get your `userId` from `meta.describe` above, then:
+### Authenticating the rotation
+
+You need _an_ admin credential to make the call. Two work, and the second is
+the one that matters after a leak:
+
+**The old key itself**, if you still hold it. It authorizes the call that
+retires it.
+
+**A password login**, if you do not. This is the important case: after a leak
+you have usually already overwritten the old value everywhere you kept it, so
+the only copy left is the one in the database — the exact row you are trying to
+change.
+
+```bash
+curl -sS https://kindrobots.org/api/auth/login \
+  -H 'content-type: application/json' \
+  -d '{"username":"<your username>","password":"<your password>"}'
+```
+
+The response's `data.token` is a JWT (`server/api/auth/index.ts`'s
+`createToken`, 360-day expiry, carrying your `id` claim).
+`getOptionalApiUser` tries `validateJwtAuth` **first**, and it resolves your
+admin role exactly as the API key does — so the JWT is an admin actor for every
+call below. Use it as the Bearer token wherever this runbook says `$OLD_TOKEN`.
+
+This is the escape hatch when the database GUI is also unreachable: it needs
+nothing but your password, and it does not depend on the credential you are
+rotating.
+
+Get your `userId` from `meta.describe` (using whichever credential you just
+established), then:
 
 ```bash
 curl -sS https://kindrobots.org/api/chatgpt \
@@ -224,9 +254,10 @@ Notes on why this works and what it requires:
 - The `user` resource is `adminOnly: true`, and your key already resolves as an
   admin actor — that is the whole reason it works as `KR_API_TOKEN`. A
   non-admin key cannot do this.
-- The old token authorizes the call that retires it. The write is atomic: the
-  moment it lands the old value stops authenticating, so expect the _next_ call
-  with the old token to 401. That is the confirmation, not a failure.
+- The write is atomic: the moment it lands, the old value stops
+  authenticating. If you authenticated with the old key, expect the _next_ call
+  with it to 401 — that is the confirmation, not a failure. A JWT keeps working,
+  since it is not the credential being changed.
 - The response will **not** echo the new key back — `apiKey` is in
   `hiddenFields`, so it is redacted out of the response `select`. Have the new
   value saved before you send the request.

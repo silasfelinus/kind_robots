@@ -43,6 +43,34 @@ Facts that shape the rotation:
   consumer still holding the old value gets a 401 until it is updated too.
   Plan for a short window, or update the consumers first (see step 3).
 
+## First: which credential are you actually holding?
+
+There are **two different things** that both work as "the admin token", and they
+rotate in completely different places. Find out which one you have before you
+touch anything:
+
+```bash
+curl -sS https://kindrobots.org/api/chatgpt \
+  -H "Authorization: Bearer $TOKEN" \
+  -H 'content-type: application/json' \
+  -d '{"operation":"meta.describe"}'
+```
+
+The response's `actor` block answers it, and also hands you the `userId` you
+will need below:
+
+- `"source": "beta-admin-token"` → it is the `ADMIN_TOKEN` / `BETA_ADMIN_TOKEN`
+  **environment variable**. Rotate it with steps 1-4 below.
+- `"source": "user-api-key"` → it is the `apiKey` **column on your User row**
+  (`server/utils/authGuard.ts`'s `validateUserApiKeyAuth`, `where: { apiKey: token }`).
+  It grants admin because your user holds an admin role. Rotate it with the
+  section "Rotating a User.apiKey" below — the environment variable is not
+  involved and changing it will do nothing.
+
+Both resolve through the same four headers and both produce an admin actor, so
+they are indistinguishable from the calling side. `meta.describe` is the only
+cheap way to tell them apart.
+
 ## 1. Generate the new value
 
 32 random bytes, hex. Any of these:
@@ -163,6 +191,58 @@ the Actions secret took.
   remove it, it only makes the exposed copy useless.
 - Check whether the same window exposed anything else from the same file or
   transcript — `.env` leaks are rarely one variable.
+
+## Rotating a `User.apiKey`
+
+**Nothing in this codebase ever writes `User.apiKey`.** It is read by
+`authGuard.ts` and `validateKey.ts`, returned to its own owner by
+`GET /api/users/[id]`, and that is the entire surface. `PATCH /api/users/[id]`
+excludes it by name from its self-editable allowlist ("identity/secrets:
+apiKey, token, password..."). So the column was set by a direct database write
+or a seed, and the obvious way to change it is another direct write — which is
+exactly the option you do not have when Adminer is unreachable.
+
+There is a way through the API. The generic machine-content endpoint can write
+it, because `hiddenFields` in `server/chatgpt/registry/currentModels.ts` gates
+**reads only** — it controls the `select` used to build responses. The write
+path filters against `PROTECTED_WRITE_FIELDS`, which is only
+`['id', 'createdAt', 'updatedAt']`. `apiKey` is an ordinary User scalar, so
+`content.update` writes it.
+
+Get your `userId` from `meta.describe` above, then:
+
+```bash
+curl -sS https://kindrobots.org/api/chatgpt \
+  -H "Authorization: Bearer $OLD_TOKEN" \
+  -H 'content-type: application/json' \
+  -d '{"operation":"content.update","resource":"user","id":<YOUR_USER_ID>,
+       "data":{"apiKey":"<NEW_TOKEN>"}}'
+```
+
+Notes on why this works and what it requires:
+
+- The `user` resource is `adminOnly: true`, and your key already resolves as an
+  admin actor — that is the whole reason it works as `KR_API_TOKEN`. A
+  non-admin key cannot do this.
+- The old token authorizes the call that retires it. The write is atomic: the
+  moment it lands the old value stops authenticating, so expect the _next_ call
+  with the old token to 401. That is the confirmation, not a failure.
+- The response will **not** echo the new key back — `apiKey` is in
+  `hiddenFields`, so it is redacted out of the response `select`. Have the new
+  value saved before you send the request.
+- No deploy and no container restart. The change is a database row; it takes
+  effect on the next request.
+
+Then work the consumer list in step 2 as usual, and verify with step 4.
+
+### A related thing worth knowing
+
+That same read/write asymmetry means an admin actor can write **every** field
+in `hiddenFields` — `password`, `token`, `googleId`, `stripeCustomerId` — on
+**any** user row, not just their own. It is admin-gated, so it is not a
+privilege boundary break. But it does mean an exposed admin credential is
+full control of every account, not just read access to them, which is worth
+knowing when you are sizing up what a leak could have done.
 
 ## Why not just use a scoped credential instead
 

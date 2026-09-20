@@ -192,6 +192,33 @@ assert.equal(artLoraCompatibilityRank(fluxLora, 'flux2'), 0)
 assert.equal(artLoraCompatibilityRank(kontextLora, 'flux2'), 0)
 assert.equal(artLoraCompatibilityRank(flux2Lora, 'flux2'), 30)
 
+// SDXL image-to-image uses the same Resource classes as its server resolver.
+// It must offer SDXL/Comfy/generic LoRAs instead of presenting an empty picker.
+assert.equal(
+  artLoraCompatibilityRank(
+    { id: 12, generation: 'SDXL', supportedServer: 'SDXL' },
+    'sdxl-img2img',
+    'unknown',
+  ),
+  30,
+)
+assert.equal(
+  artLoraCompatibilityRank(
+    { id: 13, generation: 'SDXL', supportedServer: 'COMFY' },
+    'sdxl-img2img',
+    'unknown',
+  ),
+  15,
+)
+assert.equal(
+  artLoraCompatibilityRank(
+    { id: 14, generation: 'SD 1.5', supportedServer: 'SD15' },
+    'sdxl-img2img',
+    'sd15',
+  ),
+  0,
+)
+
 /*
  * THE FLUX.1 LANE TAKES A LORA, AND THE CATALOGUE HAS TO SAY SO.
  *
@@ -361,6 +388,18 @@ const generator = readFileSync('components/art/art-generator.vue', 'utf8')
 assert.ok(generator.includes('ART_GENERATOR_PRESETS'))
 assert.ok(generator.includes("server.serverType === 'COMFY'"))
 assert.ok(generator.includes('activeProfile.supports.negativePrompt'))
+assert.ok(generator.includes(':checkpoint-family="selectedCheckpointFamily"'))
+assert.ok(generator.includes('<details class="kr-panel-flat">'))
+assert.ok(generator.includes('v-if="artStore.lastGeneratedArtImage"'))
+assert.ok(!generator.includes('Nothing rendered yet this session.'))
+
+const artLoraPickerSource = readFileSync(
+  'components/art/art-lora-picker.vue',
+  'utf8',
+)
+assert.ok(artLoraPickerSource.includes("'max-h-[20rem]'"))
+assert.ok(artLoraPickerSource.includes("'max-h-[30rem]'"))
+assert.ok(!artLoraPickerSource.includes('max-h-none'))
 
 const sharedButton = readFileSync('components/art/generate-button.vue', 'utf8')
 assert.ok(sharedButton.includes('DEFAULT_ART_PRESET_ID'))
@@ -379,6 +418,14 @@ assert.ok(
 assert.ok(
   !artStore.includes("selectGenerationSampler('Euler a')"),
   'the shared art store must not inject the legacy A1111 sampler into Comfy generation',
+)
+assert.ok(
+  artStore.includes("data.engine === 'sdxl-img2img'"),
+  'SDXL image-to-image must resolve through a Comfy generation requirement',
+)
+assert.ok(
+  artStore.includes("engine === 'sdxl-img2img'"),
+  'Comfy servers must preserve the SDXL image-to-image engine instead of falling back to another lane',
 )
 
 const bench = readFileSync('stores/buildBenchStore.ts', 'utf8')

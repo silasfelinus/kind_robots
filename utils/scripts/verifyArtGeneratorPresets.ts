@@ -397,8 +397,8 @@ const artLoraPickerSource = readFileSync(
   'components/art/art-lora-picker.vue',
   'utf8',
 )
-assert.ok(artLoraPickerSource.includes("'max-h-[20rem]'"))
-assert.ok(artLoraPickerSource.includes("'max-h-[30rem]'"))
+assert.ok(artLoraPickerSource.includes("'max-h-[14rem]'"))
+assert.ok(artLoraPickerSource.includes("'max-h-[24rem]'"))
 assert.ok(!artLoraPickerSource.includes('max-h-none'))
 
 const sharedButton = readFileSync('components/art/generate-button.vue', 'utf8')

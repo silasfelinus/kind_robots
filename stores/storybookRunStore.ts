@@ -314,6 +314,10 @@ export const useStorybookRunStore = defineStore('storybookRunStore', () => {
     ending.value = null
     stats.value = null
     errorMessage.value = ''
+    // A finished run can leave this true; nothing else clears it before the
+    // next run's first turn payload arrives, so a fresh ACTIVE run would read
+    // readyToResolve from the run it replaced (storybook/t-010 cycle 76).
+    canEndOnDemand.value = false
     writeStoredRunId(null)
   }
 
@@ -417,6 +421,9 @@ export const useStorybookRunStore = defineStore('storybookRunStore', () => {
       art.value = []
       turns.value = []
       ending.value = null
+      // A brand-new run has earned no early resolution yet; never inherit the
+      // prior run's flag (storybook/t-010 cycle 76).
+      canEndOnDemand.value = false
       stats.value = null
       writeStoredRunId(response.data.run.id)
       // The run exists even when its opening scene did not arrive; say so and

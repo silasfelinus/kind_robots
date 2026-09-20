@@ -132,6 +132,28 @@ check(
   readyToResolveBody.replace(/\s+/g, ' ').trim(),
 )
 
+console.log(
+  'Storybook run store — canEndOnDemand never survives into the next run',
+)
+
+const resetBody = source.slice(
+  source.indexOf('function reset('),
+  source.indexOf('function reset(') + 700,
+)
+check(
+  'reset() clears canEndOnDemand, not just run/turns/ending',
+  resetBody.includes('canEndOnDemand.value = false'),
+  'a finished run leaving canEndOnDemand true would let a fresh ACTIVE run read readyToResolve before its first turn payload arrives (storybook/t-010 cycle 76)',
+)
+const openStoryBody = source.slice(
+  source.indexOf('async function openStory('),
+  source.indexOf('async function loadRun('),
+)
+check(
+  'openStory() clears canEndOnDemand when it applies the new run',
+  openStoryBody.includes('canEndOnDemand.value = false'),
+)
+
 console.log('Storybook run store — the deck keeps its secrets')
 
 check(

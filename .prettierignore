@@ -5,3 +5,10 @@ prisma/generated/
 config/art-coverage/
 config/comment-backfill-drafts/
 config/comment-calibration-batch-*.json
+
+# Ratchet baselines are machine-written with plain JSON.stringify (2-space, one
+# entry per line) rather than Prettier's array-collapsing style. Formatting them
+# would make every --update self-referentially "unformatted" the moment Prettier's
+# own ratchet re-measures the repo (utils/scripts/prettier-ratchet-baseline.json
+# would otherwise always report itself as new growth right after being recorded).
+utils/scripts/*-ratchet-baseline.json

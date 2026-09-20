@@ -293,18 +293,11 @@ const profile = computed(() => engineProfile(props.engine))
 const supported = computed(() => profile.value.supports.lora)
 const engineLabel = computed(() => profile.value.label)
 const atCapacity = computed(() => props.modelValue.length >= MAX_LORAS_PER_JOB)
-const effectiveCheckpointFamily = computed<CheckpointFamily>(() => {
-  if (props.checkpointFamily) return props.checkpointFamily
-
-  const detected = detectCheckpointFamily(checkpointStore.selectedCheckpoint)
-  return props.engine === 'sdxl-img2img' && detected === 'unknown'
-    ? 'sdxl'
-    : detected
-})
+const effectiveCheckpointFamily = computed<CheckpointFamily>(() =>
+  props.checkpointFamily ?? detectCheckpointFamily(checkpointStore.selectedCheckpoint),
+)
 const compatibilityLabel = computed(() => {
-  if (props.engine !== 'comfy' && props.engine !== 'sdxl-img2img') {
-    return engineLabel.value
-  }
+  if (props.engine !== 'comfy') return engineLabel.value
   return `${CHECKPOINT_FAMILY_LABELS[effectiveCheckpointFamily.value]} checkpoint`
 })
 

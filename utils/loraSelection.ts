@@ -108,7 +108,14 @@ export function artLoraCompatibilityRank(
     return fluxLoraCompatibilityRank(resource)
   }
 
-  if (engine !== 'comfy' && engine !== 'sdxl-img2img') return 0
+  if (engine === 'sdxl-img2img') {
+    if (server === 'SDXL') return 30
+    if (server === 'COMFY') return 15
+    if (server === 'GENERIC') return 10
+    return 0
+  }
+
+  if (engine !== 'comfy') return 0
 
   if (checkpointFamily === 'sd15') {
     if (server === 'SD15') return 30

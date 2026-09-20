@@ -129,38 +129,52 @@ async function walk(
   directory: string,
   issues: ArchiveScanIssue[],
 ): Promise<string[]> {
-  let entries
-  try {
-    entries = await readdir(directory, { withFileTypes: true })
-  } catch (error) {
-    issues.push({ path: directory, reason: 'unreadable', detail: String(error) })
-    return []
-  }
-
+  // Iterative, explicit-stack traversal rather than recursion (art-archive/t-041,
+  // 2026-09-20): a deep or symlink-looped tree under the configured root blew the
+  // call stack ("Maximum call stack size exceeded"), which the error handler mapped
+  // to an opaque HTTP 400 and aborted the whole production dry-run/import before it
+  // scanned a single file. `visitedDirs` also closes a gap `resolveConfined` doesn't
+  // cover on its own: an in-bounds symlink that loops back to an ancestor directory
+  // (still "inside the root", so it passes the escaped-root check) would otherwise
+  // recurse/loop forever; now it is just skipped the second time.
   const files: string[] = []
-  for (const entry of entries) {
-    if (entry.name.startsWith('.')) continue // skip dotfiles/dotdirs (.git, .DS_Store, ...)
-    // Never re-discover a quarantined file (art-archive/t-009): the trash
-    // subtree lives inside the root by construction, so without this skip a
-    // rescan would pick its contents back up as brand-new files and silently
-    // undo an admin's quarantine action on the next pass.
-    if (entry.name === ARCHIVE_TRASH_FOLDER) continue
-    const candidate = path.join(directory, entry.name)
+  const dirStack: string[] = [directory]
+  const visitedDirs = new Set<string>()
 
-    if (entry.isDirectory()) {
-      const confined = await resolveConfined(resolvedRoot, candidate, issues)
-      if (confined) {
-        const nestedFiles = await walk(resolvedRoot, confined, issues)
-        for (const nestedFile of nestedFiles) files.push(nestedFile)
-      }
+  while (dirStack.length > 0) {
+    const currentDir = dirStack.pop()!
+    if (visitedDirs.has(currentDir)) continue
+    visitedDirs.add(currentDir)
+
+    let entries
+    try {
+      entries = await readdir(currentDir, { withFileTypes: true })
+    } catch (error) {
+      issues.push({ path: currentDir, reason: 'unreadable', detail: String(error) })
       continue
     }
 
-    if (!entry.isFile() && !entry.isSymbolicLink()) continue
-    if (!SUPPORTED_ARCHIVE_EXTENSIONS.has(path.extname(entry.name).toLowerCase())) continue
+    for (const entry of entries) {
+      if (entry.name.startsWith('.')) continue // skip dotfiles/dotdirs (.git, .DS_Store, ...)
+      // Never re-discover a quarantined file (art-archive/t-009): the trash
+      // subtree lives inside the root by construction, so without this skip a
+      // rescan would pick its contents back up as brand-new files and silently
+      // undo an admin's quarantine action on the next pass.
+      if (entry.name === ARCHIVE_TRASH_FOLDER) continue
+      const candidate = path.join(currentDir, entry.name)
 
-    const confined = await resolveConfined(resolvedRoot, candidate, issues)
-    if (confined) files.push(confined)
+      if (entry.isDirectory()) {
+        const confined = await resolveConfined(resolvedRoot, candidate, issues)
+        if (confined) dirStack.push(confined)
+        continue
+      }
+
+      if (!entry.isFile() && !entry.isSymbolicLink()) continue
+      if (!SUPPORTED_ARCHIVE_EXTENSIONS.has(path.extname(entry.name).toLowerCase())) continue
+
+      const confined = await resolveConfined(resolvedRoot, candidate, issues)
+      if (confined) files.push(confined)
+    }
   }
 
   return files

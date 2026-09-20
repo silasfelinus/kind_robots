@@ -27,6 +27,7 @@ import { readFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import { dirname, resolve } from 'node:path'
 import { buildKreaSemanticPrompt } from '../kreaSemanticPrompt'
+import { extractWorkflowPrompt } from '../../server/api/comfy/utils/engineWorkflow'
 import { checkArtPromptContract } from '../../server/utils/artPromptContract'
 
 const here = dirname(fileURLToPath(import.meta.url))
@@ -140,14 +141,19 @@ const source = readFileSync(
   'utf8',
 )
 const buildAt = source.indexOf('const { jobEngine, payload } = buildJobPayload(')
-const extractAt = source.indexOf('extractRenderRequest(payload)')
+const extractAt = source.indexOf('extractWorkflowPrompt(payload)')
 const gateAt = source.indexOf('assertArtPromptContract({')
 assert.ok(buildAt > 0, 'expected buildJobPayload in enqueue.post.ts')
-assert.ok(extractAt > 0, 'the gate must read the prompt out of the built payload')
+assert.ok(extractAt > 0, 'the gate must read the prompt out of the built GRAPH')
 assert.ok(gateAt > 0, 'expected assertArtPromptContract in enqueue.post.ts')
 assert.ok(
   buildAt < extractAt && extractAt < gateAt,
-  'assertArtPromptContract must run after buildJobPayload, on the extracted render request',
+  'assertArtPromptContract must run after buildJobPayload, on the workflow prompt',
+)
+assert.ok(
+  !source.includes('extractRenderRequest(payload).prompt'),
+  'the gate must NOT use extractRenderRequest: it prefers promptString and ' +
+    'only falls back to the CLIP node, which made the first fix a silent no-op',
 )
 assert.equal(
   source.split('assertArtPromptContract({').length - 1,
@@ -155,4 +161,53 @@ assert.equal(
   'exactly one gate, so there is no pre-builder copy judging promptString',
 )
 
-console.log(`verifyEnqueuePromptGate: ok (${CASES.length} records)`)
+// 4. The no-op that shipped. The first version of this fix gated on
+//    `extractRenderRequest(payload).prompt`, which takes `payload.promptString`
+//    first and only falls back to the CLIP node. On this lane promptString IS
+//    the dirty composed string, so the gate read exactly what it had before:
+//    production came up reporting the new commit and went on refusing the same
+//    13 records. Nothing in the behavioural assertions above could see that,
+//    because they never went through a payload. So: a payload whose two fields
+//    DISAGREE, asserting the graph wins.
+const payloadWithDisagreeingFields = {
+  promptString: 'a crowd of bystanders, no readable text, Description: rules prose',
+  workflow: {
+    '3': {
+      class_type: 'CLIPTextEncode',
+      _meta: { title: 'CLIP Text Encode (Prompt)' },
+      inputs: { text: 'a single glowing coin on a bare dark ground' },
+    },
+    '4': {
+      class_type: 'CLIPTextEncode',
+      _meta: { title: 'CLIP Text Encode (Negative)' },
+      inputs: { text: 'blurry, lowres, watermark' },
+    },
+  },
+}
+assert.equal(
+  extractWorkflowPrompt(payloadWithDisagreeingFields),
+  'a single glowing coin on a bare dark ground',
+  'the graph must win over promptString, and the negative node must be skipped',
+)
+assert.equal(
+  checkArtPromptContract({
+    prompt: extractWorkflowPrompt(payloadWithDisagreeingFields),
+    ...KREA,
+  }).length,
+  0,
+  'gating the graph passes where gating promptString would not',
+)
+assert.ok(
+  checkArtPromptContract({
+    prompt: payloadWithDisagreeingFields.promptString,
+    ...KREA,
+  }).length > 0,
+  'fixture is only meaningful if promptString genuinely violates',
+)
+assert.equal(
+  extractWorkflowPrompt({ promptString: 'no graph here' }),
+  '',
+  'no graph returns empty so the caller can fall back rather than gate nothing',
+)
+
+console.log(`verifyEnqueuePromptGate: ok (${CASES.length} records + payload precedence)`)

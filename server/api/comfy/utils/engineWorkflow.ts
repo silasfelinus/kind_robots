@@ -59,6 +59,39 @@ function num(value: unknown): number | null {
 
 // Pull the reusable render inputs out of a source payload — works for both the
 // graph engines (reads the workflow nodes) and the raw A1111 path (top-level).
+/**
+ * The positive prompt as it exists IN THE GRAPH, ignoring `payload.promptString`.
+ *
+ * `extractRenderRequest` deliberately prefers `promptString` and only falls back
+ * to the CLIP node, which is right for its callers -- edit/requeue want the
+ * caller's request, and on the producer lane the two are equal anyway. It is
+ * wrong for a gate. For krea2 the builder rewrites the prompt through
+ * `buildKreaSemanticPrompt` on its way into the node, so `promptString` can
+ * carry text that is never rendered, and judging it rejected 13 records over
+ * words the model never sees (see verifyEnqueuePromptGate.test.ts).
+ *
+ * Returns '' when the payload has no graph to read, so callers can fall back
+ * rather than treating "no workflow" as "empty prompt".
+ */
+export function extractWorkflowPrompt(payload: unknown): string {
+  const workflow = asRecord(asRecord(payload).workflow)
+
+  for (const node of Object.values(workflow)) {
+    const nodeRecord = asRecord(node)
+    const classType = String(nodeRecord.class_type || '')
+    if (classType !== 'CLIPTextEncode' && classType !== 'ImpactWildcardEncode') {
+      continue
+    }
+    const inputs = asRecord(nodeRecord.inputs)
+    const title = String(asRecord(nodeRecord._meta).title || '').toLowerCase()
+    if (title.includes('negative')) continue
+    const text = str(inputs.text) || str(inputs.wildcard_text)
+    if (text) return text
+  }
+
+  return ''
+}
+
 export function extractRenderRequest(payload: unknown): RenderRequest {
   const record = asRecord(payload)
   const workflow = asRecord(record.workflow)

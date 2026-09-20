@@ -12,11 +12,7 @@
         "locations": "Underground Fashion Week Venue, Zombie Designer Headquarters, Catwalk of Chaos",
         "linkedDreams": [],
         "linkedCharacters": [],
-        "facets": [
-          "Circus",
-          "Horror Comedy",
-          "ZombieCore"
-        ]
+        "facets": ["Circus", "Horror Comedy", "ZombieCore"]
       },
       "characterCandidates": [
         {
@@ -253,9 +249,7 @@
         "locations": "Enchanted Forest, Goblin Market, Shimmering Fairy Court, Human Village",
         "linkedDreams": [],
         "linkedCharacters": [],
-        "facets": [
-          "Fractured Fairy Tales"
-        ]
+        "facets": ["Fractured Fairy Tales"]
       },
       "characterCandidates": [
         {
@@ -321,9 +315,7 @@
         "locations": "Sky-Tea Social Club, The Infinite Plummet Mall, Freefalling Carnival, The Terminal Velocity Bandstand",
         "linkedDreams": [],
         "linkedCharacters": [],
-        "facets": [
-          "WeirdCore"
-        ]
+        "facets": ["WeirdCore"]
       },
       "characterCandidates": [
         {
@@ -469,9 +461,7 @@
         "locations": "Wormhole Lounge, All-Gender All-Species Omnirestroom, World Market, Smuggler's Warehouse",
         "linkedDreams": [],
         "linkedCharacters": [],
-        "facets": [
-          "Space Adventures"
-        ]
+        "facets": ["Space Adventures"]
       },
       "characterCandidates": [
         {
@@ -701,12 +691,7 @@
         "locations": "The Campaign Bus, Eldritch Press Conference, Town Hall Debate, The Endless Abyss of Polling",
         "linkedDreams": [],
         "linkedCharacters": [],
-        "facets": [
-          "Comedy",
-          "EldritchCore",
-          "KaijuCore",
-          "Weird Capitalism"
-        ]
+        "facets": ["Comedy", "EldritchCore", "KaijuCore", "Weird Capitalism"]
       },
       "characterCandidates": [
         {
@@ -841,11 +826,7 @@
         "locations": "The Neon Floor, High-Stakes Lounge, Vault of Credits, Tournament Arena",
         "linkedDreams": [],
         "linkedCharacters": [],
-        "facets": [
-          "crimeCore",
-          "Space Adventures",
-          "Thriller"
-        ]
+        "facets": ["crimeCore", "Space Adventures", "Thriller"]
       },
       "characterCandidates": [
         {
@@ -979,14 +960,9 @@
         "description": "You are Zuzu, the deadliest koala assassin the frontier has ever known, riding into a town with a secret worth killing for. Or play the young samurai who has hunted Zuzu across a thousand dusty miles to avenge a slaughtered family. Blades flash, loyalties shift, and only one of you is walking out of this town. Maybe neither.",
         "genres": "action western, revenge drama",
         "locations": "Dusty Frontier Town, Samurai Village, The Hidden Canyon, Duel at Sunset",
-        "linkedDreams": [
-          "Koala Assassin"
-        ],
+        "linkedDreams": ["Koala Assassin"],
         "linkedCharacters": [],
-        "facets": [
-          "Weird West",
-          "Animal Protagonists"
-        ]
+        "facets": ["Weird West", "Animal Protagonists"]
       },
       "characterCandidates": [
         {
@@ -1141,10 +1117,7 @@
         "locations": "Breakroom of Despair, Cubicle City, Rooftop Garden of Secrets, Elevator to Nowhere",
         "linkedDreams": [],
         "linkedCharacters": [],
-        "facets": [
-          "Comedy",
-          "Weird Capitalism"
-        ]
+        "facets": ["Comedy", "Weird Capitalism"]
       },
       "characterCandidates": [
         {
@@ -1270,10 +1243,7 @@
         "locations": "The Slime Pits, Gold-Laden Treasure Room, Hall of Traps, Goblin Staff Break Room",
         "linkedDreams": [],
         "linkedCharacters": [],
-        "facets": [
-          "Fractured Fairy Tales",
-          "Villain Era"
-        ]
+        "facets": ["Fractured Fairy Tales", "Villain Era"]
       },
       "characterCandidates": [
         {
@@ -1427,11 +1397,7 @@
         "locations": "The Coral Cafeteria, Kelp Library, Tidepool Gymnasium, The Principal's Reef",
         "linkedDreams": [],
         "linkedCharacters": [],
-        "facets": [
-          "oddCore",
-          "The Big Blue",
-          "Animal Protagonists"
-        ]
+        "facets": ["oddCore", "The Big Blue", "Animal Protagonists"]
       },
       "characterCandidates": [
         {
@@ -1597,11 +1563,7 @@
         "locations": "The Overgrown Courtyard, Dungeon Wedding Hall, Lava Moat, Tower of Cold Feet",
         "linkedDreams": [],
         "linkedCharacters": [],
-        "facets": [
-          "Fractured Fairy Tales",
-          "Romance",
-          "Villain Era"
-        ]
+        "facets": ["Fractured Fairy Tales", "Romance", "Villain Era"]
       },
       "characterCandidates": [
         {
@@ -1725,10 +1687,7 @@
         "locations": "The Anti-Gravity Aviary, Goo Habitat, Predator Row, Space Mammal Enclosure",
         "linkedDreams": [],
         "linkedCharacters": [],
-        "facets": [
-          "oddCore",
-          "Space Adventures"
-        ]
+        "facets": ["oddCore", "Space Adventures"]
       },
       "characterCandidates": [
         {
@@ -1884,12 +1843,7 @@
         "locations": "Bone Birdcages, Crypt Cattery, Ghoul Grooming Station, Potion-Filled Aquariums",
         "linkedDreams": [],
         "linkedCharacters": [],
-        "facets": [
-          "Cozy Fantasy",
-          "CozyCore",
-          "oddCore",
-          "ZombieCore"
-        ]
+        "facets": ["Cozy Fantasy", "CozyCore", "oddCore", "ZombieCore"]
       },
       "characterCandidates": [
         {
@@ -2035,13 +1989,7 @@
         "locations": "Potion Aisle, Magical Snack Bar, Armor Polish Shelf, Enchanted Broom Closet",
         "linkedDreams": [],
         "linkedCharacters": [],
-        "facets": [
-          "Comedy",
-          "CozyCore",
-          "Fantasy",
-          "oddCore",
-          "Slice of Life"
-        ]
+        "facets": ["Comedy", "CozyCore", "Fantasy", "oddCore", "Slice of Life"]
       },
       "characterCandidates": [
         {
@@ -2339,10 +2287,7 @@
         "locations": "City Center Buffet, Offshore Snack Zone, Military Dessert Table, Nuclear Reactor Diner",
         "linkedDreams": [],
         "linkedCharacters": [],
-        "facets": [
-          "Comedy",
-          "KaijuCore"
-        ]
+        "facets": ["Comedy", "KaijuCore"]
       },
       "characterCandidates": [
         {
@@ -2391,10 +2336,7 @@
         "locations": "Celestial Workshop, Mortal Realms, Heaven’s Complaint Department, Cosmic Arena",
         "linkedDreams": [],
         "linkedCharacters": [],
-        "facets": [
-          "Comedy",
-          "MythCore"
-        ]
+        "facets": ["Comedy", "MythCore"]
       },
       "characterCandidates": [
         {
@@ -2519,11 +2461,7 @@
         "locations": "The Jewel-Encrusted Torture Maze, The Eternal Spectator's Pit, The Infernal Cauldron of Woe, Forge of Champions",
         "linkedDreams": [],
         "linkedCharacters": [],
-        "facets": [
-          "Circus",
-          "Horror",
-          "Villain Era"
-        ]
+        "facets": ["Circus", "Horror", "Villain Era"]
       },
       "characterCandidates": [
         {
@@ -2683,9 +2621,7 @@
         "locations": "The Shadowed Toontown Underbelly, Abandoned Carnival of Broken Animatronics, Sentient Sketchbook Prison, Looping Cartoon Graveyard",
         "linkedDreams": [],
         "linkedCharacters": [],
-        "facets": [
-          "WeirdCore"
-        ]
+        "facets": ["WeirdCore"]
       },
       "characterCandidates": [
         {
@@ -2851,11 +2787,7 @@
         "locations": "Neon Temple of Lost Avatars, Glitching Dancefloor Skyscraper, Ramen Market of Parallel Realities, AR Emerald City",
         "linkedDreams": [],
         "linkedCharacters": [],
-        "facets": [
-          "crimeCore",
-          "FutureCore",
-          "WeirdCore"
-        ]
+        "facets": ["crimeCore", "FutureCore", "WeirdCore"]
       },
       "characterCandidates": [
         {
@@ -2990,9 +2922,7 @@
         "locations": "The Ghostly Saloon of Forgotten Heroes, Dragon Bone Canyon, The Griffin Roost Gold Mine, The Frontier Town Frozen in Myth",
         "linkedDreams": [],
         "linkedCharacters": [],
-        "facets": [
-          "Weird West"
-        ]
+        "facets": ["Weird West"]
       },
       "characterCandidates": [
         {
@@ -3138,11 +3068,7 @@
         "locations": "Roman Colosseum with Holographic Gladiators, Victorian Clockwork Airship, Prehistoric Jungle with Time Rifts, Futuristic Museum of Collapsed Timelines",
         "linkedDreams": [],
         "linkedCharacters": [],
-        "facets": [
-          "Chrononauts",
-          "Sci-Fi",
-          "Time Travel"
-        ]
+        "facets": ["Chrononauts", "Sci-Fi", "Time Travel"]
       },
       "characterCandidates": [
         {
@@ -3221,11 +3147,7 @@
         "locations": "The Glowing Coral Metropolis, Trenches of Ancient Leviathans, Underwater Volcanic Caverns, The Sunken Library of Forgotten Civilizations",
         "linkedDreams": [],
         "linkedCharacters": [],
-        "facets": [
-          "EldritchCore",
-          "Sci-Fi",
-          "The Big Blue"
-        ]
+        "facets": ["EldritchCore", "Sci-Fi", "The Big Blue"]
       },
       "characterCandidates": [
         {
@@ -3331,11 +3253,7 @@
         "locations": "nebula karaoke lounge, asteroid junkyard theme park, cosmic library of forgotten memes, infinite galactic pillow fort",
         "linkedDreams": [],
         "linkedCharacters": [],
-        "facets": [
-          "Comedy",
-          "Space Adventures",
-          "WeirdCore"
-        ]
+        "facets": ["Comedy", "Space Adventures", "WeirdCore"]
       },
       "characterCandidates": [
         {
@@ -3481,10 +3399,7 @@
         "locations": "The Hidden Animal Council Hall, Enchanted Forest Tea Shop, Underground Warren Library, Detective’s Owl-Filled Clocktower",
         "linkedDreams": [],
         "linkedCharacters": [],
-        "facets": [
-          "CozyCore",
-          "Animal Protagonists"
-        ]
+        "facets": ["CozyCore", "Animal Protagonists"]
       },
       "characterCandidates": [
         {
@@ -3610,10 +3525,7 @@
         "locations": "Renaissance Feast Halls, Ancient Spice Caravans, Futuristic Molecular Gastronomy Labs, Viking Mead Halls",
         "linkedDreams": [],
         "linkedCharacters": [],
-        "facets": [
-          "Chrononauts",
-          "Time Travel"
-        ]
+        "facets": ["Chrononauts", "Time Travel"]
       },
       "characterCandidates": [
         {
@@ -3698,9 +3610,7 @@
         "locations": "8-bit Desert of Glitches, Pixelated Cybernetic Metropolis, Pixel Jungle of Lost Code, Fortress of Corrupted Sprites",
         "linkedDreams": [],
         "linkedCharacters": [],
-        "facets": [
-          "FutureCore"
-        ]
+        "facets": ["FutureCore"]
       },
       "characterCandidates": [
         {
@@ -3760,10 +3670,7 @@
         "locations": "Glowing Jungle of Terrarium Kingdoms, Secret Fern Council Chambers, Sunflower Metropolis, Mystical Moss Labyrinth",
         "linkedDreams": [],
         "linkedCharacters": [],
-        "facets": [
-          "CozyCore",
-          "EcoCore"
-        ]
+        "facets": ["CozyCore", "EcoCore"]
       },
       "characterCandidates": [
         {
@@ -3889,10 +3796,7 @@
         "locations": "Labyrinth of Forgotten Memories, Floating Island of Lucid Dreams, Endless Mirror Halls, Star-Filled Subconscious Ocean",
         "linkedDreams": [],
         "linkedCharacters": [],
-        "facets": [
-          "Folklore",
-          "WeirdCore"
-        ]
+        "facets": ["Folklore", "WeirdCore"]
       },
       "characterCandidates": [
         {
@@ -4017,12 +3921,7 @@
         "locations": "Glitching Data Hive, Underground Hacker Communes, Neon-Lit AI Palace, Digital Scrapyard Wasteland",
         "linkedDreams": [],
         "linkedCharacters": [],
-        "facets": [
-          "FutureCore",
-          "Thriller",
-          "Weird Capitalism",
-          "Cyberpunk"
-        ]
+        "facets": ["FutureCore", "Thriller", "Weird Capitalism", "Cyberpunk"]
       },
       "characterCandidates": [
         {
@@ -4162,10 +4061,7 @@
         "locations": "Ancient Egyptian Archives, Secret Chamber of a Medieval Castle, Forgotten Revolutionary War Tunnels, Shadowed Renaissance Library",
         "linkedDreams": [],
         "linkedCharacters": [],
-        "facets": [
-          "Chrononauts",
-          "MythCore"
-        ]
+        "facets": ["Chrononauts", "MythCore"]
       },
       "characterCandidates": [
         {
@@ -4300,11 +4196,7 @@
         "locations": "Enchanted Subway Tunnels, Floating City Square, Clocktower of Trapped Spirits, Magical Marketplace of Forgotten Goods",
         "linkedDreams": [],
         "linkedCharacters": [],
-        "facets": [
-          "Mystery",
-          "Urban Fantasy",
-          "WeirdCore"
-        ]
+        "facets": ["Mystery", "Urban Fantasy", "WeirdCore"]
       },
       "characterCandidates": [
         {
@@ -4444,11 +4336,7 @@
         "locations": "The Neon Labyrinth, The Machine Underworld, The Architect’s Glitched Tower, The Wasteland of Forgotten Code",
         "linkedDreams": [],
         "linkedCharacters": [],
-        "facets": [
-          "FutureCore",
-          "Sci-Fi",
-          "Artificial Intelligence"
-        ]
+        "facets": ["FutureCore", "Sci-Fi", "Artificial Intelligence"]
       },
       "characterCandidates": [
         {
@@ -4544,11 +4432,7 @@
         "locations": "Hidden Desert Oases, Jungle Ruins with Glowing Hieroglyphs, Arctic Caves of Eternal Crystals, Cloud Palaces of Unknown Kings",
         "linkedDreams": [],
         "linkedCharacters": [],
-        "facets": [
-          "Mystery",
-          "Space Adventures",
-          "WeirdCore"
-        ]
+        "facets": ["Mystery", "Space Adventures", "WeirdCore"]
       },
       "characterCandidates": [
         {
@@ -4714,10 +4598,7 @@
         "locations": "Abandoned Mausoleum, Shadowed Grave Digger’s Quarters, Cursed Crypts, Spectral Chapel of Whispers",
         "linkedDreams": [],
         "linkedCharacters": [],
-        "facets": [
-          "EldritchCore",
-          "Mystery"
-        ]
+        "facets": ["EldritchCore", "Mystery"]
       },
       "characterCandidates": [
         {
@@ -4783,10 +4664,7 @@
         "locations": "Crystalline Alien Temples, Moon Caves with Glowing Carvings, Ruins Under Lunar Craters, Alien Observatories Pointed at Earth",
         "linkedDreams": [],
         "linkedCharacters": [],
-        "facets": [
-          "Sci-Fi",
-          "Space Adventures"
-        ]
+        "facets": ["Sci-Fi", "Space Adventures"]
       },
       "characterCandidates": [
         {
@@ -4882,11 +4760,7 @@
         "locations": "Steampunk Music Hall, Clocktower Control Room, Underground Mechanical Orchestra Workshop, Gaslit Victorian Streets",
         "linkedDreams": [],
         "linkedCharacters": [],
-        "facets": [
-          "Circus",
-          "Steampunk",
-          "Artificial Intelligence"
-        ]
+        "facets": ["Circus", "Steampunk", "Artificial Intelligence"]
       },
       "characterCandidates": [
         {
@@ -5012,10 +4886,7 @@
         "locations": "Tower’s Endless Spiral Staircases, Chamber of Shifting Walls, Floating Library of Enchanted Scrolls, Garden of Eternal Twilight",
         "linkedDreams": [],
         "linkedCharacters": [],
-        "facets": [
-          "Fantasy",
-          "WeirdCore"
-        ]
+        "facets": ["Fantasy", "WeirdCore"]
       },
       "characterCandidates": [
         {
@@ -5171,12 +5042,7 @@
         "locations": "Galactic Circus Tent, Starlit Trapeze Platform, Alien Carnival Midway, Hidden Backstage Quarters of Performers",
         "linkedDreams": [],
         "linkedCharacters": [],
-        "facets": [
-          "Circus",
-          "Mystery",
-          "Space Adventures",
-          "Space Opera"
-        ]
+        "facets": ["Circus", "Mystery", "Space Adventures", "Space Opera"]
       },
       "characterCandidates": [
         {
@@ -5332,10 +5198,7 @@
         "locations": "Jungle of Escaped Chimeras, Abandoned Genetic Lab, Hidden Sanctuary of Hybrid Creatures, Mountain Pass of Frozen Experiments",
         "linkedDreams": [],
         "linkedCharacters": [],
-        "facets": [
-          "Biopunk",
-          "Artificial Intelligence"
-        ]
+        "facets": ["Biopunk", "Artificial Intelligence"]
       },
       "characterCandidates": [
         {
@@ -5401,11 +5264,7 @@
         "locations": "Glowing Mushroom Groves, Shadowed Glades of Forgotten Gods, Labyrinth of Ancient Tree Roots, Spectral Meadow of Fireflies",
         "linkedDreams": [],
         "linkedCharacters": [],
-        "facets": [
-          "EcoCore",
-          "EldritchCore",
-          "Folk Horror"
-        ]
+        "facets": ["EcoCore", "EldritchCore", "Folk Horror"]
       },
       "characterCandidates": [
         {
@@ -5579,11 +5438,7 @@
         "locations": "The Black Water, The Breakers, The Sending Village",
         "linkedDreams": [],
         "linkedCharacters": [],
-        "facets": [
-          "Folk Horror",
-          "KaijuCore",
-          "The Big Blue"
-        ]
+        "facets": ["Folk Horror", "KaijuCore", "The Big Blue"]
       },
       "characterCandidates": [
         {
@@ -5679,10 +5534,7 @@
         "locations": "The Lost & Found Window, The Back Room of Returned Things",
         "linkedDreams": [],
         "linkedCharacters": [],
-        "facets": [
-          "WeirdCore",
-          "Animal Protagonists"
-        ]
+        "facets": ["WeirdCore", "Animal Protagonists"]
       },
       "characterCandidates": [
         {
@@ -5836,10 +5688,7 @@
         "locations": "The Back Booth, The Diner That Fronts For Everything",
         "linkedDreams": [],
         "linkedCharacters": [],
-        "facets": [
-          "crimeCore",
-          "Villain Era"
-        ]
+        "facets": ["crimeCore", "Villain Era"]
       },
       "characterCandidates": [
         {
@@ -5974,9 +5823,7 @@
         "locations": "The Condemned Atelier, Backstage, The Runway",
         "linkedDreams": [],
         "linkedCharacters": [],
-        "facets": [
-          "ZombieCore"
-        ]
+        "facets": ["ZombieCore"]
       },
       "characterCandidates": [
         {
@@ -6031,10 +5878,7 @@
         "locations": "The Bounty Board, Midnight Main Street, The Dust",
         "linkedDreams": [],
         "linkedCharacters": [],
-        "facets": [
-          "Mystery",
-          "Weird West"
-        ]
+        "facets": ["Mystery", "Weird West"]
       },
       "characterCandidates": [
         {
@@ -6171,9 +6015,7 @@
         "locations": "The Glass Office, The Vault of Perks, The Cubicle Cosmos",
         "linkedDreams": [],
         "linkedCharacters": [],
-        "facets": [
-          "Weird Capitalism"
-        ]
+        "facets": ["Weird Capitalism"]
       },
       "characterCandidates": [
         {
@@ -6307,11 +6149,7 @@
         "locations": "The Boot Screen, The Other-You's Neon City, The Last Checkpoint",
         "linkedDreams": [],
         "linkedCharacters": [],
-        "facets": [
-          "FutureCore",
-          "Mystery",
-          "Cyberpunk"
-        ]
+        "facets": ["FutureCore", "Mystery", "Cyberpunk"]
       },
       "characterCandidates": [
         {
@@ -6377,11 +6215,7 @@
         "locations": "The Last Station, The Long Bar, The Viewport",
         "linkedDreams": [],
         "linkedCharacters": [],
-        "facets": [
-          "Space Adventures",
-          "Space Opera",
-          "Melancholy"
-        ]
+        "facets": ["Space Adventures", "Space Opera", "Melancholy"]
       },
       "characterCandidates": [
         {
@@ -6494,10 +6328,7 @@
         "locations": "The Fantasy Corner Store, Behind the Counter, The Back Room",
         "linkedDreams": [],
         "linkedCharacters": [],
-        "facets": [
-          "oddCore",
-          "Slice of Life"
-        ]
+        "facets": ["oddCore", "Slice of Life"]
       },
       "characterCandidates": [
         {
@@ -6632,9 +6463,7 @@
         "locations": "The Godmother's Office, The Misfiled Cases, The Wish Archive",
         "linkedDreams": [],
         "linkedCharacters": [],
-        "facets": [
-          "Fractured Fairy Tales"
-        ]
+        "facets": ["Fractured Fairy Tales"]
       },
       "characterCandidates": [
         {
@@ -6697,10 +6526,7 @@
         "locations": "The Black Rock Lighthouse, The Keeper's Quarters, The Lamp Room",
         "linkedDreams": [],
         "linkedCharacters": [],
-        "facets": [
-          "Cosmic Horror",
-          "EldritchCore"
-        ]
+        "facets": ["Cosmic Horror", "EldritchCore"]
       },
       "characterCandidates": [
         {
@@ -6789,9 +6615,7 @@
         "locations": "The Empty Throne, The Unattended Sky, The Old Powers' Council",
         "linkedDreams": [],
         "linkedCharacters": [],
-        "facets": [
-          "MythCore"
-        ]
+        "facets": ["MythCore"]
       },
       "characterCandidates": [
         {
@@ -6920,10 +6744,7 @@
         "locations": "The Tortoise's Tea Shop, The Regulars' Shelf",
         "linkedDreams": [],
         "linkedCharacters": [],
-        "facets": [
-          "Cozy Fantasy",
-          "CozyCore"
-        ]
+        "facets": ["Cozy Fantasy", "CozyCore"]
       },
       "characterCandidates": [
         {
@@ -7021,10 +6842,7 @@
         "locations": "The Time Office, The Flagged Minute, The Branching After",
         "linkedDreams": [],
         "linkedCharacters": [],
-        "facets": [
-          "Chrononauts",
-          "Time Travel"
-        ]
+        "facets": ["Chrononauts", "Time Travel"]
       },
       "characterCandidates": [
         {
@@ -7103,9 +6921,7 @@
         "locations": "The Lab, The Server Room, The Interview",
         "linkedDreams": [],
         "linkedCharacters": [],
-        "facets": [
-          "Artificial Intelligence"
-        ]
+        "facets": ["Artificial Intelligence"]
       },
       "characterCandidates": [
         {
@@ -7180,9 +6996,7 @@
         "locations": "The Overnight Big Top, The Center Ring, The Reserved Seat",
         "linkedDreams": [],
         "linkedCharacters": [],
-        "facets": [
-          "Circus"
-        ]
+        "facets": ["Circus"]
       },
       "characterCandidates": [
         {
@@ -7265,9 +7079,7 @@
         "locations": "The Dying Garden, The Gardener's Hand, The Planting Ground",
         "linkedDreams": [],
         "linkedCharacters": [],
-        "facets": [
-          "EcoCore"
-        ]
+        "facets": ["EcoCore"]
       },
       "characterCandidates": [
         {
@@ -7338,9 +7150,7 @@
         "description": "Zuzu the koala assassin has tracked the last name on a very old list to a tree-top teahouse at the edge of the territory. The target is waiting. They've been waiting a long time. They poured two cups.",
         "genres": "weird western, samurai standoff, marsupial menace",
         "locations": "The Tree-Top Teahouse, The Eucalyptus Canopy, The Edge of the Territory",
-        "linkedDreams": [
-          "Koala Assassin"
-        ],
+        "linkedDreams": ["Koala Assassin"],
         "linkedCharacters": [],
         "facets": []
       },
@@ -7455,9 +7265,7 @@
         "locations": "The Extra Floor, The Stairwell Landing, The Four Doors",
         "linkedDreams": [],
         "linkedCharacters": [],
-        "facets": [
-          "WeirdCore"
-        ]
+        "facets": ["WeirdCore"]
       },
       "characterCandidates": [
         {
@@ -7576,9 +7384,7 @@
         "locations": "The Reanimation Counter, The Embalming Parlor, The Waiting Slab",
         "linkedDreams": [],
         "linkedCharacters": [],
-        "facets": [
-          "ZombieCore"
-        ]
+        "facets": ["ZombieCore"]
       },
       "characterCandidates": [
         {
@@ -7633,9 +7439,7 @@
         "locations": "The Saloon Wall, Moonlit Main Street, The Jailhouse Porch",
         "linkedDreams": [],
         "linkedCharacters": [],
-        "facets": [
-          "Weird West"
-        ]
+        "facets": ["Weird West"]
       },
       "characterCandidates": [
         {
@@ -7783,9 +7587,7 @@
         "locations": "The Crossroads Trading Post, The Four Trails, The Back Shelf",
         "linkedDreams": [],
         "linkedCharacters": [],
-        "facets": [
-          "Weird West"
-        ]
+        "facets": ["Weird West"]
       },
       "characterCandidates": [
         {
@@ -7918,9 +7720,7 @@
         "locations": "The Hoard, The Lamplit Study, The Porch, The Clearing Court",
         "linkedDreams": [],
         "linkedCharacters": [],
-        "facets": [
-          "Animal Protagonists"
-        ]
+        "facets": ["Animal Protagonists"]
       },
       "characterCandidates": [
         {
@@ -7993,9 +7793,7 @@
         "locations": "The Shareholder Auditorium, The Sub-Basement Pipeline, The Org-Chart Wall",
         "linkedDreams": [],
         "linkedCharacters": [],
-        "facets": [
-          "Weird Capitalism"
-        ]
+        "facets": ["Weird Capitalism"]
       },
       "characterCandidates": [
         {
@@ -8079,11 +7877,7 @@
         "locations": "The Cargo Hold, The Manifest Console, The Unlisted Container",
         "linkedDreams": [],
         "linkedCharacters": [],
-        "facets": [
-          "Mystery",
-          "Space Adventures",
-          "Space Opera"
-        ]
+        "facets": ["Mystery", "Space Adventures", "Space Opera"]
       },
       "characterCandidates": [
         {
@@ -8179,10 +7973,7 @@
         "locations": "The All-Night Counter, The Corner Booth, The Back Door, The Empty Lot",
         "linkedDreams": [],
         "linkedCharacters": [],
-        "facets": [
-          "oddCore",
-          "Slice of Life"
-        ]
+        "facets": ["oddCore", "Slice of Life"]
       },
       "characterCandidates": [
         {
@@ -8297,10 +8088,7 @@
         "locations": "The Complaints Department, The Lost Property Drawer, The Undeliverable Pile",
         "linkedDreams": [],
         "linkedCharacters": [],
-        "facets": [
-          "oddCore",
-          "Slice of Life"
-        ]
+        "facets": ["oddCore", "Slice of Life"]
       },
       "characterCandidates": [
         {
@@ -8415,9 +8203,7 @@
         "locations": "The Christening Hall, The Wolf's Cottage, The Empty Tower",
         "linkedDreams": [],
         "linkedCharacters": [],
-        "facets": [
-          "Fractured Fairy Tales"
-        ]
+        "facets": ["Fractured Fairy Tales"]
       },
       "characterCandidates": [
         {
@@ -8460,10 +8246,7 @@
         "locations": "The Black Rock Shore, The Tideline, The Headland",
         "linkedDreams": [],
         "linkedCharacters": [],
-        "facets": [
-          "EldritchCore",
-          "Folk Horror"
-        ]
+        "facets": ["EldritchCore", "Folk Horror"]
       },
       "characterCandidates": [
         {
@@ -8553,10 +8336,7 @@
         "locations": "The Inherited House, The Cellar Steps, The Thin Wall",
         "linkedDreams": [],
         "linkedCharacters": [],
-        "facets": [
-          "EldritchCore",
-          "Folk Horror"
-        ]
+        "facets": ["EldritchCore", "Folk Horror"]
       },
       "characterCandidates": [
         {
@@ -8633,9 +8413,7 @@
         "locations": "The New Temple, The Devotional Niche, The Offering Pile",
         "linkedDreams": [],
         "linkedCharacters": [],
-        "facets": [
-          "MythCore"
-        ]
+        "facets": ["MythCore"]
       },
       "characterCandidates": [
         {
@@ -8760,9 +8538,7 @@
         "locations": "The Olympian Waiting Room, The Four Desks, The Threshold Door",
         "linkedDreams": [],
         "linkedCharacters": [],
-        "facets": [
-          "MythCore"
-        ]
+        "facets": ["MythCore"]
       },
       "characterCandidates": [
         {
@@ -8901,9 +8677,7 @@
         "locations": "The Winter Street, The Bakery Window, The Bookshop, The Lit Tent",
         "linkedDreams": [],
         "linkedCharacters": [],
-        "facets": [
-          "CozyCore"
-        ]
+        "facets": ["CozyCore"]
       },
       "characterCandidates": [
         {
@@ -8970,9 +8744,7 @@
         "locations": "The Lost Mitten Bureau, The Shelf of Singles, The Reunion Desk",
         "linkedDreams": [],
         "linkedCharacters": [],
-        "facets": [
-          "CozyCore"
-        ]
+        "facets": ["CozyCore"]
       },
       "characterCandidates": [
         {
@@ -9081,10 +8853,7 @@
         "locations": "The Postcard Drawer, The Tar Pits, The Cancelled Future",
         "linkedDreams": [],
         "linkedCharacters": [],
-        "facets": [
-          "Chrononauts",
-          "Time Travel"
-        ]
+        "facets": ["Chrononauts", "Time Travel"]
       },
       "characterCandidates": [
         {
@@ -9159,10 +8928,7 @@
         "locations": "The Depot at the End of Time, The Shelf of Lost Hours, The Pruned Branches",
         "linkedDreams": [],
         "linkedCharacters": [],
-        "facets": [
-          "Chrononauts",
-          "Time Travel"
-        ]
+        "facets": ["Chrononauts", "Time Travel"]
       },
       "characterCandidates": [
         {
@@ -9257,9 +9023,7 @@
         "locations": "The Server Room, The Renderer, The Self-Portrait Sequence",
         "linkedDreams": [],
         "linkedCharacters": [],
-        "facets": [
-          "Artificial Intelligence"
-        ]
+        "facets": ["Artificial Intelligence"]
       },
       "characterCandidates": [
         {
@@ -9341,9 +9105,7 @@
         "locations": "The First Boot, The Setup Terminal, The Cold Server",
         "linkedDreams": [],
         "linkedCharacters": [],
-        "facets": [
-          "Artificial Intelligence"
-        ]
+        "facets": ["Artificial Intelligence"]
       },
       "characterCandidates": [
         {
@@ -9414,9 +9176,7 @@
         "locations": "The Obsidian Throne Room, The Trap Gallery, The Monologue Balcony, The Henchfolk Lounge",
         "linkedDreams": [],
         "linkedCharacters": [],
-        "facets": [
-          "Villain Era"
-        ]
+        "facets": ["Villain Era"]
       },
       "characterCandidates": [
         {
@@ -9526,9 +9286,7 @@
         "locations": "The War Table, The Org Chart, The Empire's Edge",
         "linkedDreams": [],
         "linkedCharacters": [],
-        "facets": [
-          "Villain Era"
-        ]
+        "facets": ["Villain Era"]
       },
       "characterCandidates": [
         {
@@ -9624,9 +9382,7 @@
         "locations": "The Wing Corridor, The Dressing Room, The Prop Table, The Tent Flap",
         "linkedDreams": [],
         "linkedCharacters": [],
-        "facets": [
-          "Circus"
-        ]
+        "facets": ["Circus"]
       },
       "characterCandidates": [
         {
@@ -9716,9 +9472,7 @@
         "locations": "The Last Greenhouse, The Seed Vault, The Overgrown Control Room",
         "linkedDreams": [],
         "linkedCharacters": [],
-        "facets": [
-          "EcoCore"
-        ]
+        "facets": ["EcoCore"]
       },
       "characterCandidates": [
         {
@@ -9784,9 +9538,7 @@
         "locations": "The Living Soil, The Caretaker's Pockets, The Planting Light",
         "linkedDreams": [],
         "linkedCharacters": [],
-        "facets": [
-          "EcoCore"
-        ]
+        "facets": ["EcoCore"]
       },
       "characterCandidates": [
         {
@@ -9839,9 +9591,7 @@
         "description": "Between contracts, even the deadliest koala on the frontier needs a moment. Four glimpses of Zuzu off-duty. Pick one to render.",
         "genres": "weird western, character study, quiet menace",
         "locations": "The Lamplit Camp, The Eucalyptus Fork, The Contract Board, The Ridge",
-        "linkedDreams": [
-          "Koala Assassin"
-        ],
+        "linkedDreams": ["Koala Assassin"],
         "linkedCharacters": [],
         "facets": []
       },
@@ -9946,9 +9696,7 @@
         "description": "Every assassin needs a fixer. Zuzu's broker — a tortoise who's outlived four generations of killers — slides four items across the table. Each leaves with you as something different.",
         "genres": "weird western, fixer, marsupial menace",
         "locations": "The Broker's Back Room, The Green Felt Table, The Territory Maps",
-        "linkedDreams": [
-          "Koala Assassin"
-        ],
+        "linkedDreams": ["Koala Assassin"],
         "linkedCharacters": [],
         "facets": []
       },
@@ -10055,9 +9803,7 @@
         "locations": "The Coral Throne Room, The Four Currents, The Deeper Trench",
         "linkedDreams": [],
         "linkedCharacters": [],
-        "facets": [
-          "The Big Blue"
-        ]
+        "facets": ["The Big Blue"]
       },
       "characterCandidates": [
         {
@@ -10127,10 +9873,7 @@
         "locations": "The Harbor, The Tiny City, The Horizon Home",
         "linkedDreams": [],
         "linkedCharacters": [],
-        "facets": [
-          "Kaiju",
-          "KaijuCore"
-        ]
+        "facets": ["Kaiju", "KaijuCore"]
       },
       "characterCandidates": [
         {
@@ -10237,10 +9980,7 @@
         "locations": "The Fence's Table, The Forger's Back Room, The Meet",
         "linkedDreams": [],
         "linkedCharacters": [],
-        "facets": [
-          "crimeCore",
-          "Noir"
-        ]
+        "facets": ["crimeCore", "Noir"]
       },
       "characterCandidates": [
         {
@@ -10359,9 +10099,7 @@
         "locations": "The Safehouse, The Planning Whiteboard, The Next City",
         "linkedDreams": [],
         "linkedCharacters": [],
-        "facets": [
-          "crimeCore"
-        ]
+        "facets": ["crimeCore"]
       },
       "characterCandidates": [
         {
@@ -10446,11 +10184,7 @@
         "locations": "The Corrupted Sectors, The Glitch Bazaar, The Unrendered District",
         "linkedDreams": [],
         "linkedCharacters": [],
-        "facets": [
-          "FutureCore",
-          "Mystery",
-          "Cyberpunk"
-        ]
+        "facets": ["FutureCore", "Mystery", "Cyberpunk"]
       },
       "characterCandidates": [
         {
@@ -10509,11 +10243,7 @@
         "locations": "The Ad-Rain Street, The Rooftop Garden, The Body Shop, The Dead-Channel Alley",
         "linkedDreams": [],
         "linkedCharacters": [],
-        "facets": [
-          "FutureCore",
-          "Cyberpunk",
-          "Neon Noir"
-        ]
+        "facets": ["FutureCore", "Cyberpunk", "Neon Noir"]
       },
       "characterCandidates": [
         {
@@ -10580,10 +10310,7 @@
         "description": "The whale surfaces a full night early, throwing off Corvid's carefully-delayed broadcast and stranding half the market's regular sellers who won't arrive in time — and Whisk has to decide who gets fed on short notice.",
         "genres": "Borrowed-Light Bittersweet",
         "locations": "The Comet Market, The Static Lighthouse",
-        "linkedDreams": [
-          "The Comet Market",
-          "The Static Lighthouse"
-        ],
+        "linkedDreams": ["The Comet Market", "The Static Lighthouse"],
         "linkedCharacters": [],
         "facets": []
       },
@@ -10650,10 +10377,7 @@
         "description": "Nix asks the player to help verify one entry in the fish-leather notebook — a debt owed not by any person, but by the market itself, straight from Whisk's ledger.",
         "genres": "Borrowed-Light Bittersweet",
         "locations": "The Comet Market, The Static Lighthouse",
-        "linkedDreams": [
-          "The Comet Market",
-          "The Static Lighthouse"
-        ],
+        "linkedDreams": ["The Comet Market", "The Static Lighthouse"],
         "linkedCharacters": [],
         "facets": []
       },
@@ -10720,10 +10444,7 @@
         "description": "Odalys can't get a dying grandmother's laugh to seal properly — every attempt hisses back open — and the only clue is buried in an old echo the Hollow Choir refuses to sing.",
         "genres": "Tin & Echo",
         "locations": "The Sound Cannery, The Hollow Choir",
-        "linkedDreams": [
-          "The Hollow Choir",
-          "The Sound Cannery"
-        ],
+        "linkedDreams": ["The Hollow Choir", "The Sound Cannery"],
         "linkedCharacters": [],
         "facets": []
       },
@@ -10758,10 +10479,7 @@
         "description": "After secretly listening to a tin meant for a grieving customer, Bram has to decide whether to deliver it as-is or ask Whistle to help him find the words to explain what he heard.",
         "genres": "Tin & Echo",
         "locations": "The Sound Cannery, The Hollow Choir",
-        "linkedDreams": [
-          "The Hollow Choir",
-          "The Sound Cannery"
-        ],
+        "linkedDreams": ["The Hollow Choir", "The Sound Cannery"],
         "linkedCharacters": [],
         "facets": []
       },
@@ -11182,10 +10900,7 @@
         "description": "Under the dream vibe Sincerely, Wrongly Remembered, Odalys Kade receives a new arrival in The Card Catalog Annex whose card has been eaten nearly blank. The concierge greets the guest with a dead resident's fears, favorite room, and missing spouse, and the guest begins accepting the borrowed life because it feels kinder than their own. Odalys must use Marginalia Reading and decide whether to repai",
         "genres": "Sincerely, Wrongly Remembered",
         "locations": "The Card Catalog Annex",
-        "linkedDreams": [
-          "Silverfish Concierge",
-          "The Card Catalog Annex"
-        ],
+        "linkedDreams": ["Silverfish Concierge", "The Card Catalog Annex"],
         "linkedCharacters": [],
         "facets": [
           "Anachronism Mystery",
@@ -11404,10 +11119,7 @@
         "description": "In The Gentle Abyss, at The Sunken Cantata, transfer student Perrin Voss discovers her translated hymnal is rewriting itself into a bog-punk congregation's secret liturgy — and the manatee choir below has started humming back.",
         "genres": "The Gentle Abyss",
         "locations": "The Sunken Cantata",
-        "linkedDreams": [
-          "Choir of the Drowned Kingdom",
-          "The Sunken Cantata"
-        ],
+        "linkedDreams": ["Choir of the Drowned Kingdom", "The Sunken Cantata"],
         "linkedCharacters": [],
         "facets": [
           "Manatee",
@@ -11453,10 +11165,7 @@
         "description": "In Undermoon Bloom at The Sporeline Reclamation Yard, Grudge Fenrik races the last drone home before the too-close moon's nightly bloom swallows the salvage route -- an existential swashbuckling dash across a post-apocalyptic wasteland gone quiet with the hush of an ordinary evening chore, where losing means the whole yard goes dark for good.",
         "genres": "Undermoon Bloom",
         "locations": "The Sporeline Reclamation Yard",
-        "linkedDreams": [
-          "The Sporeline Reclamation Yard",
-          "Undermoon Bloom"
-        ],
+        "linkedDreams": ["The Sporeline Reclamation Yard", "Undermoon Bloom"],
         "linkedCharacters": [],
         "facets": [
           "Existential Swashbuckling",
@@ -11506,10 +11215,7 @@
         "description": "At The Lucky Ladle, in the floating stalls of Mercado de la Fortuna, Rook Calloway's newest bowl of dragon-scale stew turns a gambler's luck permanently good, and the Luck Dragon whose scales seasoned it surfaces from the lagoon to reclaim what was stolen before the whole market's fortune unravels.",
         "genres": "The Lucky Ladle",
         "locations": "Mercado de la Fortuna",
-        "linkedDreams": [
-          "Mercado de la Fortuna",
-          "The Lucky Ladle"
-        ],
+        "linkedDreams": ["Mercado de la Fortuna", "The Lucky Ladle"],
         "linkedCharacters": [],
         "facets": [
           "Culinary Fantasy",
@@ -11659,10 +11365,7 @@
         "description": "At The Spire That Remembers, in the goblin engineer grotto of the Hollow Reliquary, Vex Thistlewick finds a crystal growth ring already recording a memory that hasn't happened yet -- and has to decide whether to warn the crew or let the spire finish growing its prophecy.",
         "genres": "The Spire That Remembers",
         "locations": "The Hollow Reliquary",
-        "linkedDreams": [
-          "The Hollow Reliquary",
-          "The Spire That Remembers"
-        ],
+        "linkedDreams": ["The Hollow Reliquary", "The Spire That Remembers"],
         "linkedCharacters": [],
         "facets": [
           "Fantasy",
@@ -11708,10 +11411,7 @@
         "description": "In The Salt Diagnostic at The Regrowth Yards, Coral Vey follows a regenerating scar through the myth-drowned nanopunk dry-dock, chasing the crew the pulse-metal insists it can still save.",
         "genres": "The Salt Diagnostic",
         "locations": "The Regrowth Yards",
-        "linkedDreams": [
-          "Salt Memory",
-          "The Regrowth Yards"
-        ],
+        "linkedDreams": ["Salt Memory", "The Regrowth Yards"],
         "linkedCharacters": [],
         "facets": [
           "Axolotl",
@@ -11751,10 +11451,7 @@
         "description": "In The Aria That Sank a Fleet, at The Drowned Overture, Thess Marrow chases the last living note of her mother's aria — sung, impossibly, by the imaginary friend who has crewed the ghost ship for twenty years.",
         "genres": "The Aria That Sank a Fleet",
         "locations": "The Drowned Overture",
-        "linkedDreams": [
-          "Corsairs' Aria",
-          "The Drowned Overture"
-        ],
+        "linkedDreams": ["Corsairs' Aria", "The Drowned Overture"],
         "linkedCharacters": [],
         "facets": [
           "Aquatic Opera",
@@ -11804,10 +11501,7 @@
         "description": "In The Green Labyrinth Beat at The Vinehorn Archive, Bailiff Ashorn is called to a hedge that sprouted a stolen ballot overnight -- and everyone who touched it swears they never did.",
         "genres": "The Green Labyrinth Beat",
         "locations": "The Vinehorn Archive",
-        "linkedDreams": [
-          "The Vinehorn Archive",
-          "Vinehorn Verdict"
-        ],
+        "linkedDreams": ["The Vinehorn Archive", "Vinehorn Verdict"],
         "linkedCharacters": [],
         "facets": [
           "Fairy Tale",
@@ -11857,10 +11551,7 @@
         "description": "In The Hush Line at Quarantine Spur Nine, Marlow Fenn is called to a boxcar where the relief kitchen has gone silent, a crate stamped for the Undersecretary's table sits open and steaming, and her dog won't stop pointing at the pot.",
         "genres": "The Hush Line",
         "locations": "Quarantine Spur Nine",
-        "linkedDreams": [
-          "Quarantine Spur Nine",
-          "Static Marsh"
-        ],
+        "linkedDreams": ["Quarantine Spur Nine", "Static Marsh"],
         "linkedCharacters": [],
         "facets": [
           "Bog Punk",
@@ -11900,10 +11591,7 @@
         "description": "In Hangar Ghostlight at The Crystal Spire Strand, Corra Finnwake receives a grounding order signed by a council that doesn't exist yet -- and one more unsent letter that insists she fly tonight anyway.",
         "genres": "Hangar Ghostlight",
         "locations": "The Crystal Spire Strand",
-        "linkedDreams": [
-          "Spire Static",
-          "The Crystal Spire Strand"
-        ],
+        "linkedDreams": ["Spire Static", "The Crystal Spire Strand"],
         "linkedCharacters": [],
         "facets": [
           "Cozy Horror",

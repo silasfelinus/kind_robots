@@ -3065,16 +3065,12 @@
       {
         "id": 774,
         "title": "Western",
-        "aliases": [
-          "western"
-        ]
+        "aliases": ["western"]
       },
       {
         "id": 777,
         "title": "Dark Academia",
-        "aliases": [
-          "dark-academia"
-        ]
+        "aliases": ["dark-academia"]
       },
       {
         "id": 778,
@@ -3089,293 +3085,207 @@
       {
         "id": 779,
         "title": "Eco-Fiction",
-        "aliases": [
-          "eco-fiction",
-          "Ecological Fiction"
-        ]
+        "aliases": ["eco-fiction", "Ecological Fiction"]
       },
       {
         "id": 780,
         "title": "Cli-Fi (Climate Fiction)",
-        "aliases": [
-          "cli-fi-climate-fiction"
-        ]
+        "aliases": ["cli-fi-climate-fiction"]
       },
       {
         "id": 781,
         "title": "Alternate History",
-        "aliases": [
-          "alternate-history"
-        ]
+        "aliases": ["alternate-history"]
       },
       {
         "id": 786,
         "title": "Absurdist Comedy",
-        "aliases": [
-          "absurdist-comedy"
-        ]
+        "aliases": ["absurdist-comedy"]
       },
       {
         "id": 787,
         "title": "Pirate Adventure",
-        "aliases": [
-          "pirate-adventure"
-        ]
+        "aliases": ["pirate-adventure"]
       },
       {
         "id": 788,
         "title": "Dreamlike Surrealism",
-        "aliases": [
-          "dreamlike-surrealism"
-        ]
+        "aliases": ["dreamlike-surrealism"]
       },
       {
         "id": 789,
         "title": "Monster Romance",
-        "aliases": [
-          "monster-romance"
-        ]
+        "aliases": ["monster-romance"]
       },
       {
         "id": 790,
         "title": "Cartoon Noir",
-        "aliases": [
-          "cartoon-noir"
-        ]
+        "aliases": ["cartoon-noir"]
       },
       {
         "id": 794,
         "title": "Grimdark Fantasy",
-        "aliases": [
-          "grimdark-fantasy"
-        ]
+        "aliases": ["grimdark-fantasy"]
       },
       {
         "id": 796,
         "title": "Noir Thriller",
-        "aliases": [
-          "noir-thriller"
-        ]
+        "aliases": ["noir-thriller"]
       },
       {
         "id": 797,
         "title": "Post-Human Dystopia",
-        "aliases": [
-          "post-human-dystopia"
-        ]
+        "aliases": ["post-human-dystopia"]
       },
       {
         "id": 798,
         "title": "Lovecraftian Horror",
-        "aliases": [
-          "lovecraftian-horror"
-        ]
+        "aliases": ["lovecraftian-horror"]
       },
       {
         "id": 799,
         "title": "Vampire Gothic",
-        "aliases": [
-          "vampire-gothic"
-        ]
+        "aliases": ["vampire-gothic"]
       },
       {
         "id": 800,
         "title": "Dystopian Romance",
-        "aliases": [
-          "dystopian-romance"
-        ]
+        "aliases": ["dystopian-romance"]
       },
       {
         "id": 801,
         "title": "Psychological Horror",
-        "aliases": [
-          "psychological-horror"
-        ]
+        "aliases": ["psychological-horror"]
       },
       {
         "id": 804,
         "title": "Hard Science Fiction",
-        "aliases": [
-          "hard-science-fiction",
-          "Hard Sci-Fi"
-        ]
+        "aliases": ["hard-science-fiction", "Hard Sci-Fi"]
       },
       {
         "id": 808,
         "title": "Astrobiological Adventure",
-        "aliases": [
-          "astrobiological-adventure"
-        ]
+        "aliases": ["astrobiological-adventure"]
       },
       {
         "id": 809,
         "title": "AI Utopia",
-        "aliases": [
-          "ai-utopia"
-        ]
+        "aliases": ["ai-utopia"]
       },
       {
         "id": 810,
         "title": "Martian Colonization",
-        "aliases": [
-          "martian-colonization"
-        ]
+        "aliases": ["martian-colonization"]
       },
       {
         "id": 811,
         "title": "First Contact",
-        "aliases": [
-          "first-contact"
-        ]
+        "aliases": ["first-contact"]
       },
       {
         "id": 812,
         "title": "Alien Invasion",
-        "aliases": [
-          "alien-invasion"
-        ]
+        "aliases": ["alien-invasion"]
       },
       {
         "id": 813,
         "title": "Techno-Thriller",
-        "aliases": [
-          "techno-thriller"
-        ]
+        "aliases": ["techno-thriller"]
       },
       {
         "id": 814,
         "title": "High Fantasy",
-        "aliases": [
-          "high-fantasy"
-        ]
+        "aliases": ["high-fantasy"]
       },
       {
         "id": 815,
         "title": "Low Fantasy",
-        "aliases": [
-          "low-fantasy"
-        ]
+        "aliases": ["low-fantasy"]
       },
       {
         "id": 816,
         "title": "Sword and Sorcery",
-        "aliases": [
-          "sword-and-sorcery"
-        ]
+        "aliases": ["sword-and-sorcery"]
       },
       {
         "id": 818,
         "title": "Heroic Fantasy",
-        "aliases": [
-          "heroic-fantasy"
-        ]
+        "aliases": ["heroic-fantasy"]
       },
       {
         "id": 819,
         "title": "Gaslamp Fantasy",
-        "aliases": [
-          "gaslamp-fantasy"
-        ]
+        "aliases": ["gaslamp-fantasy"]
       },
       {
         "id": 821,
         "title": "Weird Fantasy",
-        "aliases": [
-          "weird-fantasy"
-        ]
+        "aliases": ["weird-fantasy"]
       },
       {
         "id": 823,
         "title": "Medieval Fantasy",
-        "aliases": [
-          "medieval-fantasy"
-        ]
+        "aliases": ["medieval-fantasy"]
       },
       {
         "id": 824,
         "title": "Science Fantasy",
-        "aliases": [
-          "science-fantasy"
-        ]
+        "aliases": ["science-fantasy"]
       },
       {
         "id": 825,
         "title": "Historical Fantasy",
-        "aliases": [
-          "historical-fantasy"
-        ]
+        "aliases": ["historical-fantasy"]
       },
       {
         "id": 826,
         "title": "Horror Fantasy",
-        "aliases": [
-          "horror-fantasy"
-        ]
+        "aliases": ["horror-fantasy"]
       },
       {
         "id": 827,
         "title": "Science Romance",
-        "aliases": [
-          "science-romance"
-        ]
+        "aliases": ["science-romance"]
       },
       {
         "id": 829,
         "title": "Fantasy Noir",
-        "aliases": [
-          "fantasy-noir"
-        ]
+        "aliases": ["fantasy-noir"]
       },
       {
         "id": 830,
         "title": "Musical Adventure",
-        "aliases": [
-          "musical-adventure"
-        ]
+        "aliases": ["musical-adventure"]
       },
       {
         "id": 832,
         "title": "Interactive Fiction",
-        "aliases": [
-          "interactive-fiction"
-        ]
+        "aliases": ["interactive-fiction"]
       },
       {
         "id": 833,
         "title": "Metafiction",
-        "aliases": [
-          "metafiction"
-        ]
+        "aliases": ["metafiction"]
       },
       {
         "id": 834,
         "title": "Afrofuturism",
-        "aliases": [
-          "African Futurism",
-          "Afrofuturism"
-        ]
+        "aliases": ["African Futurism", "Afrofuturism"]
       },
       {
         "id": 835,
         "title": "Asian Fantasy",
-        "aliases": [
-          "asian-fantasy",
-          "east-asian-fantasy"
-        ]
+        "aliases": ["asian-fantasy", "east-asian-fantasy"]
       },
       {
         "id": 836,
         "title": "Celtic Mythology",
-        "aliases": [
-          "celtic-mythology"
-        ]
+        "aliases": ["celtic-mythology"]
       },
       {
         "id": 837,
         "title": "Indigenous Futurism",
-        "aliases": [
-          "indigenous-futurism"
-        ]
+        "aliases": ["indigenous-futurism"]
       },
       {
         "id": 840,
@@ -3388,10 +3298,7 @@
       {
         "id": 842,
         "title": "African Mythpunk",
-        "aliases": [
-          "african-mythpunk",
-          "african-mythic-fantasy"
-        ]
+        "aliases": ["african-mythpunk", "african-mythic-fantasy"]
       },
       {
         "id": 843,
@@ -3406,299 +3313,212 @@
       {
         "id": 1630,
         "title": "Gothic Comedy",
-        "aliases": [
-          "gothic-comedy"
-        ]
+        "aliases": ["gothic-comedy"]
       },
       {
         "id": 1632,
         "title": "Mythic Sci-Fi",
-        "aliases": [
-          "mythic-sci-fi"
-        ]
+        "aliases": ["mythic-sci-fi"]
       },
       {
         "id": 1633,
         "title": "Cosmic Dread",
-        "aliases": [
-          "cosmic-dread"
-        ]
+        "aliases": ["cosmic-dread"]
       },
       {
         "id": 1636,
         "title": "Pastoral Apocalypse",
-        "aliases": [
-          "pastoral-apocalypse"
-        ]
+        "aliases": ["pastoral-apocalypse"]
       },
       {
         "id": 1640,
         "title": "Academic Eldritch",
-        "aliases": [
-          "academic-eldritch"
-        ]
+        "aliases": ["academic-eldritch"]
       },
       {
         "id": 1641,
         "title": "Municipal Necromancy",
-        "aliases": [
-          "municipal-necromancy"
-        ]
+        "aliases": ["municipal-necromancy"]
       },
       {
         "id": 1642,
         "title": "Wilderness Bureaucracy",
-        "aliases": [
-          "wilderness-bureaucracy"
-        ]
+        "aliases": ["wilderness-bureaucracy"]
       },
       {
         "id": 1643,
         "title": "Diplomatic Thriller",
-        "aliases": [
-          "diplomatic-thriller"
-        ]
+        "aliases": ["diplomatic-thriller"]
       },
       {
         "id": 1645,
         "title": "Revolutionary Pastoral",
-        "aliases": [
-          "revolutionary-pastoral"
-        ]
+        "aliases": ["revolutionary-pastoral"]
       },
       {
         "id": 1648,
         "title": "Geological Romance",
-        "aliases": [
-          "geological-romance"
-        ]
+        "aliases": ["geological-romance"]
       },
       {
         "id": 1649,
         "title": "Siege Comedy",
-        "aliases": [
-          "siege-comedy"
-        ]
+        "aliases": ["siege-comedy"]
       },
       {
         "id": 1650,
         "title": "Tender Apocalypse",
-        "aliases": [
-          "tender-apocalypse"
-        ]
+        "aliases": ["tender-apocalypse"]
       },
       {
         "id": 1651,
         "title": "Haunted Procedural",
-        "aliases": [
-          "haunted-procedural"
-        ]
+        "aliases": ["haunted-procedural"]
       },
       {
         "id": 1653,
         "title": "Heist Mythology",
-        "aliases": [
-          "heist-mythology"
-        ]
+        "aliases": ["heist-mythology"]
       },
       {
         "id": 1654,
         "title": "Maritime Mystery",
-        "aliases": [
-          "maritime-mystery"
-        ]
+        "aliases": ["maritime-mystery"]
       },
       {
         "id": 1659,
         "title": "Mecha Opera",
-        "aliases": [
-          "mecha-opera"
-        ]
+        "aliases": ["mecha-opera"]
       },
       {
         "id": 1660,
         "title": "Tournament Arc",
-        "aliases": [
-          "tournament-arc"
-        ]
+        "aliases": ["tournament-arc"]
       },
       {
         "id": 1661,
         "title": "School Horror",
-        "aliases": [
-          "school-horror"
-        ]
+        "aliases": ["school-horror"]
       },
       {
         "id": 1662,
         "title": "Reverse Isekai",
-        "aliases": [
-          "reverse-isekai"
-        ]
+        "aliases": ["reverse-isekai"]
       },
       {
         "id": 1663,
         "title": "Vaporwave Dystopia",
-        "aliases": [
-          "vaporwave-dystopia"
-        ]
+        "aliases": ["vaporwave-dystopia"]
       },
       {
         "id": 1667,
         "title": "Deep Space Western",
-        "aliases": [
-          "deep-space-western"
-        ]
+        "aliases": ["deep-space-western"]
       },
       {
         "id": 1668,
         "title": "Alien Bureaucracy",
-        "aliases": [
-          "alien-bureaucracy"
-        ]
+        "aliases": ["alien-bureaucracy"]
       },
       {
         "id": 1669,
         "title": "Corporate Sci-Fi",
-        "aliases": [
-          "corporate-sci-fi"
-        ]
+        "aliases": ["corporate-sci-fi"]
       },
       {
         "id": 1670,
         "title": "Clockpunk Opera",
-        "aliases": [
-          "clockpunk-opera"
-        ]
+        "aliases": ["clockpunk-opera"]
       },
       {
         "id": 1671,
         "title": "J-Horror",
-        "aliases": [
-          "j-horror"
-        ]
+        "aliases": ["j-horror"]
       },
       {
         "id": 1673,
         "title": "Cryptid Documentary",
-        "aliases": [
-          "cryptid-documentary"
-        ]
+        "aliases": ["cryptid-documentary"]
       },
       {
         "id": 1677,
         "title": "Furry Pastoral",
-        "aliases": [
-          "furry-pastoral"
-        ]
+        "aliases": ["furry-pastoral"]
       },
       {
         "id": 1681,
         "title": "Office Thriller",
-        "aliases": [
-          "office-thriller"
-        ]
+        "aliases": ["office-thriller"]
       },
       {
         "id": 1682,
         "title": "Lovecraftian Office Comedy",
-        "aliases": [
-          "lovecraftian-office-comedy"
-        ]
+        "aliases": ["lovecraftian-office-comedy"]
       },
       {
         "id": 1683,
         "title": "Corporate Espionage",
-        "aliases": [
-          "corporate-espionage"
-        ]
+        "aliases": ["corporate-espionage"]
       },
       {
         "id": 1684,
         "title": "Middle Management Horror",
-        "aliases": [
-          "middle-management-horror"
-        ]
+        "aliases": ["middle-management-horror"]
       },
       {
         "id": 1687,
         "title": "Mythological Comedy",
-        "aliases": [
-          "mythological-comedy"
-        ]
+        "aliases": ["mythological-comedy"]
       },
       {
         "id": 1869,
         "title": "Isekai",
-        "aliases": [
-          "isekai"
-        ]
+        "aliases": ["isekai"]
       },
       {
         "id": 1873,
         "title": "Shonen",
-        "aliases": [
-          "shonen"
-        ]
+        "aliases": ["shonen"]
       },
       {
         "id": 1875,
         "title": "Magical Girl",
-        "aliases": [
-          "magical-girl"
-        ]
+        "aliases": ["magical-girl"]
       },
       {
         "id": 1888,
         "title": "Pastoral",
-        "aliases": [
-          "pastoral"
-        ]
+        "aliases": ["pastoral"]
       },
       {
         "id": 1889,
         "title": "Weird Fiction",
-        "aliases": [
-          "weird-fiction"
-        ]
+        "aliases": ["weird-fiction"]
       },
       {
         "id": 1891,
         "title": "Cyberpunk Fiction",
-        "aliases": [
-          "cyberpunk-fiction",
-          "Cyberpunk Genre"
-        ]
+        "aliases": ["cyberpunk-fiction", "Cyberpunk Genre"]
       },
       {
         "id": 1892,
         "title": "Everyday Wonder",
-        "aliases": [
-          "everyday-wonder",
-          "Mundane Fantasy"
-        ]
+        "aliases": ["everyday-wonder", "Mundane Fantasy"]
       },
       {
         "id": 1896,
         "title": "Japanese Folkloric Fantasy",
-        "aliases": [
-          "japanese-folkloric-fantasy"
-        ]
+        "aliases": ["japanese-folkloric-fantasy"]
       },
       {
         "id": 1897,
         "title": "Everyday Animist Fantasy",
-        "aliases": [
-          "everyday-animist-fantasy",
-          "Everyday Spirit Fantasy"
-        ]
+        "aliases": ["everyday-animist-fantasy", "Everyday Spirit Fantasy"]
       },
       {
         "id": 1903,
         "title": "Political Drama",
-        "aliases": [
-          "political-drama"
-        ]
+        "aliases": ["political-drama"]
       }
     ],
     "unresolvedVocabulary": [

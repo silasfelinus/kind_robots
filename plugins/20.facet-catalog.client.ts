@@ -262,11 +262,15 @@ export default defineNuxtPlugin((nuxtApp) => {
   }
 
   const hydrateForRoute = (path: string): void => {
-    if (path !== '/builder' || catalog.entries.length || hydrationPromise) return
+    if (path !== '/builder' || catalog.entries.length || hydrationPromise)
+      return
 
     hydrationPromise = hydrateCatalog()
       .catch((error) => {
-        console.error('[facet-catalog] Canonical Facet hydration failed.', error)
+        console.error(
+          '[facet-catalog] Canonical Facet hydration failed.',
+          error,
+        )
       })
       .finally(() => {
         hydrationPromise = null

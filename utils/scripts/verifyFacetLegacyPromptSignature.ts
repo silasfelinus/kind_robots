@@ -147,9 +147,11 @@ const curatedPrompts = [
   'A hand-painted rescue buoy, its paint chipped down to bare metal along one whole side.',
   'A poster that says "Illustrate the Facet concept" in peeling letters on a brick wall.',
   'Facet of a cut gemstone, illustrate the refraction with prismatic light.',
-  // Tail matching is anchored to the END of the prompt, so curated prose that
+  // Tail matching looks for the WHOLE registered clause, so curated prose that
   // happens to describe an iconic scene is untouched.
   'An iconic scene from the harbour festival, lanterns strung between masts.',
+  // Likewise a curated prompt that merely mentions a subject or a creature.
+  'A row of identical blank-eyed figures on a conveyor line, all facing the same direction except one whose head has turned to look back at the camera.',
   '',
   null,
   undefined,
@@ -159,6 +161,42 @@ for (const prompt of curatedPrompts) {
     isLegacyGeneratedFacetPrompt(prompt),
     false,
     `curated or empty prompt must never be treated as the generated wrapper: ${String(prompt)}`,
+  )
+}
+
+/*
+ * 2026-09-20. Two ways a producer clause reached the live catalog in a shape
+ * this file did not recognize, each of which froze a cohort:
+ *
+ *   1. A REWORDED clause. 97 ANIMAL/SPECIES Facets end "Show one unmistakable
+ *      full creature with recognizable anatomy, personality, and habitat cues."
+ *      -- the v4 creature clause rewritten as an instruction. Unrecognized, the
+ *      stored prompt went to Krea verbatim, and because these prompts paste the
+ *      Facet description instead of its title, all 97 named no subject at all.
+ *      Facet 290 "Octopus" rendered a three-hearted plush blob from "Three
+ *      hearts, nine brains, infinite arms."
+ *
+ *   2. A REPAIRED clause. Conductor's repair pass strips the jargon this
+ *      contract bans, and two of those phrases sit INSIDE registered v4 tails
+ *      ("... readable tools, unmistakable silhouette, workplace cues."). The
+ *      strip truncates the tail, and it also appends its own replacement
+ *      sentence after it. An endsWith() match failed from both ends, and 147
+ *      Facets went from recognized to unrecognized with no edit to this file.
+ *
+ * Containment, plus the truncated prefixes, is what makes both recoverable.
+ */
+const mutatedProducerTails = [
+  'Three hearts, nine brains, infinite arms. Show one unmistakable full creature with recognizable anatomy, personality, and habitat cues.',
+  'The organizing principle is the list of grievances. Use a character-centered visual metaphor with a clear emotional read. Every surface bare and unmarked.',
+  'Public Notary. Single distinctive figure in action, readable tools',
+  'Reliable. Present. Does what it says. Single clear subject or emblem, immediately',
+  'Legendary. Create a premium collectible emblem or object with a strong rarity read',
+  'Surreal Horror. One clear subject alone in the frame, large and plainly lit. Every surface bare and unmarked.',
+]
+for (const prompt of mutatedProducerTails) {
+  assert.ok(
+    isLegacyGeneratedFacetPrompt(prompt),
+    `a reworded or repair-truncated producer clause must stay recognized: ${prompt}`,
   )
 }
 

@@ -170,6 +170,21 @@ const VAGUE_BRAND_STYLE =
 const CONTEXTUAL_WRAPPER_PATTERNS = [
   /\bIllustrate the Facet concept\b/i,
   /\bCreate (?:this as|a) [^.\n]{0,160}\bfor Kind Robots\b/i,
+  /*
+   * Two more shipped wrappers, found live on 2026-09-20 in 23 queued Facet
+   * jobs. Same failure as the one above -- the product name, the builder it
+   * belongs to and the catalog group are application context, and a caption
+   * model paints them as title text on the card it decides it is drawing.
+   *
+   *   "Kind Robots premium Builder illustration for Reward Types: Magic."
+   *   "Illustrated Bot Type card for a dependable general-purpose bot, ..."
+   *
+   * The second is matched by the taxonomy word plus "card", not by "card"
+   * alone: FORMAT_PATTERNS already owns the generic card nouns, and a scene
+   * that genuinely contains a shift card or a recipe card is not this bug.
+   */
+  /\bKind Robots\b[^.\n]{0,80}\billustration for\b/i,
+  /\b(?:Bot|Reward|Dream|Facet|Rarity|Character)\s+Type[s]?\s+card\b/i,
 ]
 
 // 7. PEOPLE NEGATION. The half of rule 3 that never got written down in code.

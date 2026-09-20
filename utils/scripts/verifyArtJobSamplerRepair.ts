@@ -235,12 +235,34 @@ assert.ok(
   'requeueing a failed job must clamp the sampler, or it fails again at claim',
 )
 
-// The other half of the split: ENQUEUE must keep rejecting outright, so a
-// producer writing new work still fails loudly instead of being quietly fixed.
+// The other half of the split. This used to require that ENQUEUE reject
+// outright, so a producer writing new work failed loudly rather than being
+// quietly fixed. Silas overruled that on 2026-09-20, after a morning in which
+// the hard rejection refused 13 re-renders whose RENDERED prompt was clean and
+// turned four records' wording into a question for him: "just make prompts
+// that work ... maybe loosen things to a warning when it comes to actually
+// submitting prompts? This shouldn't be an issue that comes to me."
+//
+// The intent behind the original assertion survives and is still asserted
+// below: a producer writing bad work must still be TOLD. It is told through
+// payload.promptWarnings now instead of through a 422, which reaches the
+// producer rather than whoever happened to press Generate.
+//
+// What has NOT changed is the no-auto-repair half. Enqueue still does not
+// silently rewrite a producer's prompt; the warning names the problem and the
+// repair scripts fix it at the source.
 const enqueue = readFileSync('server/api/art/enqueue.post.ts', 'utf8')
 assert.ok(
-  enqueue.includes('assertArtPromptContract'),
-  'the enqueue gate must stay a hard rejection',
+  !enqueue.includes('assertArtPromptContract'),
+  'enqueue must not throw on a contract violation — Silas, 2026-09-20',
+)
+assert.ok(
+  enqueue.includes('checkArtPromptContract'),
+  'enqueue must still CHECK the prompt, or a producer is told nothing at all',
+)
+assert.ok(
+  enqueue.includes('payload.promptWarnings = promptWarnings'),
+  'the findings must be recorded on the job, which is what replaces the 422',
 )
 assert.ok(
   !enqueue.includes('repairQueuedArtSampler'),

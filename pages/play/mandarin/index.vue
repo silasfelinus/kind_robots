@@ -239,7 +239,6 @@ import {
 } from '@/stores/mandarinTutorStore'
 import {
   buildCoursePlan,
-  buildWordRun,
   courseProgress,
   runTeachesAnything,
 } from '@/utils/mandarinCourse'

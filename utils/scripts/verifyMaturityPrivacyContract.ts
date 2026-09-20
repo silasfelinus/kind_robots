@@ -54,20 +54,11 @@ assert.ok(videoLoraPicker.includes('<maturity-toggle'))
 assert.ok(videoLoraPicker.includes('resourceStore.visibleLoras'))
 assert.ok(!videoLoraPicker.includes('artStore.showMature'))
 
-// Repointed 2026-08-18: art-maker.vue was replaced by art-generator.vue, which
-// draws ONE maturity toggle for the whole surface instead of art-maker's three
-// (a checkpoint-filter toggle, a bare Mature output toggle, and a Public
-// toggle). The gate is unchanged and asserted harder: the single account-level
-// toggle governs checkpoints, LoRAs, AND Facets, while the OUTPUT maturity of
-// the generated image is set through content-visibility-controls, which keeps
-// mature work private by default.
+// Screenshot-driven density pass, 2026-09-20: the account-level maturity
+// control moved from a full-width band into the LoRA header. It still governs
+// Resource visibility globally (checkpoints + LoRAs) and Facets read the same
+// user preference; output maturity remains a separate per-render choice.
 const artGenerator = readFileSync('components/art/art-generator.vue', 'utf8')
-assert.ok(artGenerator.includes('<maturity-toggle'))
-assert.ok(artGenerator.includes('label="Mature content"'))
-assert.ok(
-  artGenerator.match(/<maturity-toggle/g)?.length === 1,
-  'the generator must draw exactly one maturity toggle',
-)
 assert.ok(artGenerator.includes('checkpointStore.visibleCheckpoints'))
 assert.ok(artGenerator.includes('resourceStore.visibleLoras'))
 assert.ok(artGenerator.includes('<content-visibility-controls'))
@@ -76,6 +67,9 @@ assert.ok(artGenerator.includes('v-model:is-public="outputIsPublic"'))
 assert.ok(!artGenerator.includes('artStore.showMature'))
 
 const artLoraPicker = readFileSync('components/art/art-lora-picker.vue', 'utf8')
+assert.ok(artLoraPicker.includes('<maturity-toggle'))
+assert.ok(artLoraPicker.includes('variant="compact"'))
+assert.ok(artLoraPicker.includes('label="Mature resources"'))
 assert.ok(artLoraPicker.includes('resourceStore.visibleLoras'))
 assert.ok(!artLoraPicker.includes('artStore.showMature'))
 
@@ -120,6 +114,7 @@ const maturityToggle = readFileSync(
   'utf8',
 )
 assert.ok(maturityToggle.includes("variant === 'resource'"))
+assert.ok(maturityToggle.includes("variant === 'compact'"))
 assert.ok(maturityToggle.includes('accountStore.updateConsent'))
 assert.ok(maturityToggle.includes('showMature: value'))
 assert.ok(

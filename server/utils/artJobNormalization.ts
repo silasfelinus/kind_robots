@@ -182,9 +182,16 @@ export function replaceVagueArtDirection(value: string): string {
  * `Flux/NSFW/dtsvFLUX _ Blowjob  Deepthroat FLUX.safetensors` (Resource 1040,
  * two spaces, exactly as the file sits on disk) and reached ComfyUI with one,
  * so it failed with "no matching file" against a model that was present the
- * whole time (2026-09-16, surfaced 2026-09-20). Five catalog rows carry
- * collapsible whitespace in localPath and every one of them was unrenderable
- * through this endpoint.
+ * whole time (2026-09-16, surfaced 2026-09-20). Its own queueEdit recorded
+ * `loraPathChanged: false` while the path changed underneath it.
+ *
+ * Only the two callers of this function are affected -- /api/art/queue and
+ * /api/art/queue/reenqueue-failed -- which is why the other four catalog rows
+ * holding collapsible whitespace (1979, 2500, 3051, 3320) still have previews:
+ * the probe lane enqueues through /api/art/enqueue, which does not normalize.
+ * That narrows the blast radius without making it benign, because the affected
+ * path is the REPAIR path: a job re-enqueued after any failure had its LoRA
+ * filename corrupted by the attempt to fix it.
  *
  * `text` and `wildcard_text` are the baked workflow copies read back by
  * extractRenderRequest (CLIPTextEncode / ImpactWildcardEncode), so the graph's

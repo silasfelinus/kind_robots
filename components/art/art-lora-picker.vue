@@ -40,7 +40,7 @@
 
     <div
       class="min-h-0 overflow-y-auto overscroll-contain pr-1"
-      :class="expanded ? 'max-h-[30rem]' : 'max-h-[20rem]'"
+      :class="expanded ? 'max-h-[24rem]' : 'max-h-[14rem]'"
     >
       <p
         v-if="!supported"

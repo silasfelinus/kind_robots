@@ -1,6 +1,6 @@
 <!-- /components/art/art-lora-picker.vue -->
 <template>
-  <section class="space-y-3 kr-panel-flat p-3">
+  <section class="kr-panel-flat flex min-h-0 flex-col gap-3 p-3">
     <div class="flex flex-wrap items-start justify-between gap-2">
       <div class="min-w-0">
         <h3 class="kr-text-bold-sm flex items-center gap-2">
@@ -13,13 +13,19 @@
         </p>
       </div>
       <div class="flex flex-wrap items-center gap-1">
+        <maturity-toggle
+          variant="icon"
+          label="Mature resources"
+          visible-text="Mature LoRAs are included."
+          hidden-text="Mature LoRAs are hidden."
+        />
         <button
-          v-if="rankedLoras.length"
+          v-if="rankedLoras.length || selected.length"
           type="button"
           class="kr-btn-ghost-xs"
           @click="expanded = !expanded"
         >
-          {{ expanded ? 'Comfortable height' : 'Expand browser' }}
+          {{ expanded ? 'Compact browser' : 'Taller browser' }}
         </button>
         <button
           v-if="modelValue.length"
@@ -32,10 +38,14 @@
       </div>
     </div>
 
-    <p
-      v-if="!supported"
-      class="kr-text-dim-xs-60 kr-panel-dashed-compact"
+    <div
+      class="min-h-0 overflow-y-auto overscroll-contain pr-1"
+      :class="expanded ? 'max-h-[30rem]' : 'max-h-[20rem]'"
     >
+      <p
+        v-if="!supported"
+        class="kr-text-dim-xs-60 kr-panel-dashed-compact"
+      >
       {{ engineLabel }} builds its model into the workflow and ignores LoRAs.
       Switch to a preset that supports them to use this.
     </p>
@@ -160,10 +170,7 @@
           placeholder="Search compatible LoRAs by name, path, or trigger word…"
         />
 
-        <div
-          class="overflow-y-auto overscroll-contain pr-1"
-          :class="expanded ? 'max-h-none' : 'max-h-[32rem]'"
-        >
+        <div>
           <div
             class="grid grid-cols-[repeat(auto-fit,minmax(min(100%,15rem),1fr))] gap-2"
           >
@@ -235,6 +242,7 @@
         </p>
       </template>
     </template>
+    </div>
   </section>
 </template>
 
@@ -290,7 +298,9 @@ const effectiveCheckpointFamily = computed<CheckpointFamily>(() =>
   props.checkpointFamily ?? detectCheckpointFamily(checkpointStore.selectedCheckpoint),
 )
 const compatibilityLabel = computed(() => {
-  if (props.engine !== 'comfy') return engineLabel.value
+  if (props.engine !== 'comfy' && props.engine !== 'sdxl-img2img') {
+    return engineLabel.value
+  }
   return `${CHECKPOINT_FAMILY_LABELS[effectiveCheckpointFamily.value]} checkpoint`
 })
 

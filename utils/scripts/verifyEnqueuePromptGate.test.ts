@@ -193,7 +193,7 @@ assert.ok(
   source.includes('payload.promptWarnings = promptWarnings'),
   'the findings must be recorded on the job so a producer can still see them',
 )
-for (const scope of ["scope: 'author' as const", "scope: 'render' as const"]) {
+for (const scope of ["scope: 'author'", "scope: 'render'"]) {
   assert.ok(
     source.includes(scope),
     `warnings must record ${scope} so the two checks stay distinguishable`,

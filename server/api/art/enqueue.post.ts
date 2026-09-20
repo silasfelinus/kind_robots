@@ -31,7 +31,10 @@ import {
   buildWanImageToVideoWorkflow,
   wanFrameCount,
 } from '../comfy/wan/utils/imageToVideoWorkflow'
-import { checkArtPromptContract } from '../../utils/artPromptContract'
+import {
+  checkArtPromptContract,
+  type ArtPromptViolation,
+} from '../../utils/artPromptContract'
 import {
   applyArtFacetsToPayload,
   normalizeArtFacetIds,
@@ -485,14 +488,13 @@ export default defineEventHandler(async (event) => {
      * not: the entity's Description and Effect are not the caller's art
      * direction, and judging them is what produced 13 false refusals.
      */
-    const promptWarnings = [
-      ...checkArtPromptContract({
-        prompt: basePromptString,
-        engine,
-        steps: resolvedBody.steps ?? null,
-        cfg: resolvedBody.cfg ?? null,
-      }).map((violation) => ({ ...violation, scope: 'author' as const })),
-    ]
+    type PromptWarning = ArtPromptViolation & { scope: 'author' | 'render' }
+    const promptWarnings: PromptWarning[] = checkArtPromptContract({
+      prompt: basePromptString,
+      engine,
+      steps: resolvedBody.steps ?? null,
+      cfg: resolvedBody.cfg ?? null,
+    }).map((violation) => ({ ...violation, scope: 'author' }))
 
     const previewPayload: Record<string, unknown> = {}
     const promptString = applyArtFacetsToPayload(
@@ -557,7 +559,7 @@ export default defineEventHandler(async (event) => {
         engine,
         steps: resolvedBody.steps ?? null,
         cfg: resolvedBody.cfg ?? null,
-      }).map((violation) => ({ ...violation, scope: 'render' as const })),
+      }).map((violation): PromptWarning => ({ ...violation, scope: 'render' })),
     )
 
     /*

@@ -113,6 +113,39 @@ assert.equal(
   probeTriggerText({ defaultTrigger: '<lora:inniesbettervaginas_v11:1.0>' }),
   'inniesbettervaginas_v11',
 )
+// --- a bundle title shared by unrelated LoRAs --------------------------------
+// A Civitai "collection" model publishes each of its LoRAs as a version of one
+// model row, so scan_loras.py labelled every one of them with the bundle title
+// and -- with no trainedWords to override it -- promoted that title to the
+// trigger. Resources 2427 and 2429 (the XLabs disney and mjv6 converts) both
+// carried 'Flux Lora Collection (xlabs)', so both probed identically and both
+// rendered XLabs-branded product packaging (2026-09-19).
+//
+// Stripped of its packaging words the title leaves a bare attribution, which
+// names the publisher rather than a subject, so it empties -- and the filename
+// fallback then recovers the one word that tells the two apart.
+assert.equal(sanitizeProbeTrigger('Flux Lora Collection (xlabs)'), '')
+for (const [stem, expected] of [
+  ['disney_lora_comfy_converted', 'disney'],
+  ['mjv6_lora_comfy_converted', 'mjv6'],
+] as const) {
+  assert.equal(
+    probeTriggerText({
+      defaultTrigger: 'Flux Lora Collection (xlabs)',
+      triggerWords: 'Flux Lora Collection (xlabs)',
+      localPath: `Flux/SFW/${stem}.safetensors`,
+    }),
+    expected,
+  )
+}
+// Underscores are only dropped around a packaging word. An activation token
+// that happens to hold one is left exactly as the LoRA answers to it, and a
+// subject that merely looks like a base-model name survives too.
+assert.equal(
+  probeTriggerText({ localPath: 'Pony/SFW/my_little_pony.safetensors' }),
+  'my_little_pony',
+)
+
 // The training-step counter names a checkpoint, not a concept.
 assert.equal(probeTriggerText({ defaultTrigger: '<lora:undtoral-000020:1>' }), 'undtoral')
 assert.equal(probeTriggerText({ defaultTrigger: '<lora:ppeach-000018:1>' }), 'ppeach')

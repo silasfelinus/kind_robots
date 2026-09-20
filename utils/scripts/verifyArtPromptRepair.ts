@@ -152,6 +152,50 @@ assert.equal(
   'legacy repair must keep top-level and baked workflow prompt copies in sync',
 )
 
+// Legacy prompt repair must never reach a model FILENAME. `repairLegacyArtPrompt`
+// ends with `.replace(/\s+/g, ' ')`, and when the walk applied it to every string
+// in the payload it silently renamed any model file holding two spaces. ArtJob
+// 26024 asked for Resource 1040's real path -- two spaces, exactly as the file
+// sits on disk -- reached ComfyUI with one, and failed as "no matching file"
+// against a LoRA that was present the whole time (2026-09-16).
+const doubleSpacedLora = 'Flux/NSFW/dtsvFLUX _ Blowjob  Deepthroat FLUX.safetensors'
+const filenamePayload = {
+  promptString: weakPrompt,
+  loraName: doubleSpacedLora,
+  checkpoint: 'SDXL/SFW/some  checkpoint.safetensors',
+  workflow: {
+    lora: {
+      class_type: 'LoraLoaderModelOnly',
+      inputs: { lora_name: doubleSpacedLora, strength_model: 0.8 },
+    },
+    unet: {
+      class_type: 'UnetLoaderGGUF',
+      inputs: { unet_name: 'flux1-dev  Q8_0.gguf' },
+    },
+    positive: {
+      class_type: 'CLIPTextEncode',
+      inputs: { text: weakPrompt },
+    },
+  },
+}
+const filenameNormalized = normalizeQueuedArtJobPayload(filenamePayload).payload
+const filenameWorkflow = filenameNormalized.workflow as Record<string, WorkflowNode>
+
+assert.equal(
+  filenameWorkflow.lora?.inputs.lora_name,
+  doubleSpacedLora,
+  'a LoRA filename must reach ComfyUI byte-identical to Resource.localPath',
+)
+assert.equal(filenameNormalized.loraName, doubleSpacedLora)
+assert.equal(filenameWorkflow.unet?.inputs.unet_name, 'flux1-dev  Q8_0.gguf')
+assert.equal(filenameNormalized.checkpoint, 'SDXL/SFW/some  checkpoint.safetensors')
+// ...while the prompt beside them is still repaired.
+assert.doesNotMatch(String(filenameNormalized.promptString), /Kind Robots visual/i)
+assert.equal(
+  filenameWorkflow.positive?.inputs.text,
+  filenameNormalized.promptString,
+)
+
 const repaired = applyArtJobOverrides(structuredClone(payload), {
   promptString: strongPrompt,
 })

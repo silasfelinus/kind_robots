@@ -1,0 +1,7 @@
+# Generated code is regenerated from source schemas and should not be hand-formatted.
+prisma/generated/
+
+# Generated/curation data batches are inputs and outputs, not authored application source.
+config/art-coverage/
+config/comment-backfill-drafts/
+config/comment-calibration-batch-*.json

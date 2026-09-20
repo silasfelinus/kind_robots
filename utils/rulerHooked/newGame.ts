@@ -59,6 +59,7 @@ export function createRun(bundle: ContentBundle, opts: NewGameOpts): RunSave {
     flags: {},
     fishopedia: {},
     endingKey: null,
+    openingSeen: false,
     createdAt: opts.stamp,
     updatedAt: opts.stamp,
   }

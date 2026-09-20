@@ -33,3 +33,5 @@ jobs:
         run: npx tsx utils/rulerHooked/encounter.selftest.ts
       - name: Core engine self-test
         run: npx tsx utils/rulerHooked/engine.selftest.ts
+      - name: Advisor self-test
+        run: npx tsx utils/rulerHooked/advisor.selftest.ts

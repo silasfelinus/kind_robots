@@ -33,6 +33,14 @@
             <button
               type="button"
               class="btn btn-ghost btn-sm btn-square rounded-2xl border border-base-300"
+              title="Your reign"
+              @click="showReignReview = true"
+            >
+              <Icon name="kind-icon:crown" class="kr-icon-4" />
+            </button>
+            <button
+              type="button"
+              class="btn btn-ghost btn-sm btn-square rounded-2xl border border-base-300"
               title="Manage saves"
               @click="showSlots = true"
             >
@@ -48,6 +56,8 @@
             </button>
           </div>
         </div>
+
+        <RulerHookedAdvisor />
 
         <RulerHookedCosmetics />
 
@@ -76,6 +86,7 @@
         <RulerHookedCard
           v-if="store.activeCard"
           :card="store.activeCard"
+          :advisor-name="store.advisorCharacter?.name"
           @choose="store.choose($event)"
         />
 
@@ -124,6 +135,53 @@
       </dialog>
     </Teleport>
 
+    <!-- The once-per-reign opening (ruler-hooked/t-028), hosted in the same
+         centered window as the setup modal above. Shows once the setup
+         modal has closed on an active, not-yet-introduced reign; skip/begin
+         both just dismiss it via dismissOpening(). -->
+    <Teleport to="body">
+      <dialog v-if="showOpening" class="modal modal-open" aria-modal="true">
+        <div
+          class="modal-box flex max-w-md flex-col gap-3 rounded-3xl border border-base-300 bg-base-100"
+        >
+          <RulerHookedOpening
+            @skip="store.dismissOpening()"
+            @done="store.dismissOpening()"
+          />
+        </div>
+        <form method="dialog" class="modal-backdrop">
+          <button type="button" @click="store.dismissOpening()">close</button>
+        </form>
+      </dialog>
+    </Teleport>
+
+    <!-- "Ruler stuff" (ruler-hooked/t-028): who you are, how the realm
+         regards you, what your choices have done. -->
+    <Teleport to="body">
+      <dialog
+        v-if="showReignReview && store.save"
+        class="modal modal-open"
+        aria-modal="true"
+        @cancel.prevent="showReignReview = false"
+      >
+        <div
+          class="modal-box flex max-w-md flex-col gap-3 rounded-3xl border border-base-300 bg-base-100"
+        >
+          <RulerHookedReignReview :save="store.save" />
+          <button
+            type="button"
+            class="kr-btn-ghost-plain self-end"
+            @click="showReignReview = false"
+          >
+            Back to the lake
+          </button>
+        </div>
+        <form method="dialog" class="modal-backdrop">
+          <button type="button" @click="showReignReview = false">close</button>
+        </form>
+      </dialog>
+    </Teleport>
+
     <template #fallback>
       <div class="py-12 text-center text-sm opacity-60">Loading the lake…</div>
     </template>
@@ -153,6 +211,12 @@ function onDialogCancel() {
   // No reign yet: this modal is the only content, so Escape can't dismiss it.
   if (store.save) showSlots.value = false
 }
+
+// The opening (t-028) shows once the setup modal has closed on a reign that
+// hasn't seen it yet -- never stacked on top of slot-picking.
+const showOpening = computed(() => !showSlots.value && store.showOpening)
+
+const showReignReview = ref(false)
 
 // Preview scene (ruler-hooked/t-024): every region resolved at its own
 // default/first state, purely for rendering a background behind the setup

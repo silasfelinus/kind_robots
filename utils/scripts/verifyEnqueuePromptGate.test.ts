@@ -145,38 +145,60 @@ const extractAt = source.indexOf('extractWorkflowPrompt(payload)')
 // lastIndexOf: the FIRST assertArtPromptContract is the author-level gate,
 // which deliberately runs before the payload exists. The graph gate is the
 // last one.
-const gateAt = source.lastIndexOf('assertArtPromptContract({')
+const gateAt = source.lastIndexOf('checkArtPromptContract({')
 assert.ok(buildAt > 0, 'expected buildJobPayload in enqueue.post.ts')
 assert.ok(extractAt > 0, 'the gate must read the prompt out of the built GRAPH')
-assert.ok(gateAt > 0, 'expected assertArtPromptContract in enqueue.post.ts')
+assert.ok(gateAt > 0, 'expected checkArtPromptContract in enqueue.post.ts')
 assert.ok(
   buildAt < extractAt && extractAt < gateAt,
-  'assertArtPromptContract must run after buildJobPayload, on the workflow prompt',
+  'the render check must run after buildJobPayload, on the workflow prompt',
 )
 assert.ok(
   !source.includes('extractRenderRequest(payload).prompt'),
-  'the gate must NOT use extractRenderRequest: it prefers promptString and ' +
-    'only falls back to the CLIP node, which made the first fix a silent no-op',
+  'do NOT use extractRenderRequest here: it prefers promptString and only ' +
+    'falls back to the CLIP node, which made the first fix a silent no-op',
 )
-// Two gates, deliberately, doing different jobs: the caller's own text before
+// Two checks, deliberately, doing different jobs: the caller's own text before
 // entity context is composed in, and the graph after the sanitizer has run.
 assert.equal(
-  source.split('assertArtPromptContract({').length - 1,
+  source.split('checkArtPromptContract({').length - 1,
   2,
-  'expected exactly two gates: the author-level one and the graph one',
+  'expected exactly two checks: the author-level one and the graph one',
 )
 const authorGateAt = source.indexOf('prompt: basePromptString,')
-assert.ok(authorGateAt > 0, 'the author-level gate must judge basePromptString')
+assert.ok(authorGateAt > 0, 'the author-level check must judge basePromptString')
 assert.ok(
   authorGateAt < buildAt,
-  'the author-level gate runs before the payload is built -- it is about the ' +
+  'the author-level check runs before the payload is built -- it is about the ' +
     'caller\'s text, not the render',
 )
 assert.ok(
   !source.includes('prompt: contextualBasePrompt,'),
-  'never gate the composed string: the entity Description and Effect are not ' +
+  'never judge the composed string: the entity Description and Effect are not ' +
     'the caller\'s art direction, and judging them caused 13 false refusals',
 )
+
+// ADVISORY, not blocking. Silas, 2026-09-20: "just make prompts that work ...
+// maybe loosen things to a warning when it comes to actually submitting
+// prompts? This shouldn't be an issue that comes to me." A 422 here lands on
+// whoever pressed Generate rather than whoever wrote the prompt, and stops work
+// that would have rendered fine -- buildKreaSemanticPrompt already strips the
+// caption before it reaches the graph. The findings ride along on the job
+// instead, tagged by which string they came from.
+assert.ok(
+  !source.includes('assertArtPromptContract'),
+  'enqueue must not throw on a contract violation -- it records warnings',
+)
+assert.ok(
+  source.includes('payload.promptWarnings = promptWarnings'),
+  'the findings must be recorded on the job so a producer can still see them',
+)
+for (const scope of ["scope: 'author' as const", "scope: 'render' as const"]) {
+  assert.ok(
+    source.includes(scope),
+    `warnings must record ${scope} so the two checks stay distinguishable`,
+  )
+}
 
 // 4. The no-op that shipped. The first version of this fix gated on
 //    `extractRenderRequest(payload).prompt`, which takes `payload.promptString`

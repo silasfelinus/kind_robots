@@ -31,7 +31,7 @@ import {
   buildWanImageToVideoWorkflow,
   wanFrameCount,
 } from '../comfy/wan/utils/imageToVideoWorkflow'
-import { assertArtPromptContract } from '../../utils/artPromptContract'
+import { checkArtPromptContract } from '../../utils/artPromptContract'
 import {
   applyArtFacetsToPayload,
   normalizeArtFacetIds,
@@ -468,9 +468,10 @@ export default defineEventHandler(async (event) => {
       artCollectionIds: requestedArtCollectionIds,
     }
     /*
-     * Gate the CALLER'S OWN text, before any entity context is composed into
+     * Check the CALLER'S OWN text, before any entity context is composed into
      * it. This is the contract's authoring signal and it is a separate job
-     * from protecting the render below.
+     * from checking the render below. Neither one blocks -- see the note at
+     * the bottom of this pair.
      *
      * Both are needed, because they fail in opposite directions.
      * `buildKreaSemanticPrompt` SANITIZES: it rewrites "a red cube, no
@@ -484,12 +485,14 @@ export default defineEventHandler(async (event) => {
      * not: the entity's Description and Effect are not the caller's art
      * direction, and judging them is what produced 13 false refusals.
      */
-    assertArtPromptContract({
-      prompt: basePromptString,
-      engine,
-      steps: resolvedBody.steps ?? null,
-      cfg: resolvedBody.cfg ?? null,
-    })
+    const promptWarnings = [
+      ...checkArtPromptContract({
+        prompt: basePromptString,
+        engine,
+        steps: resolvedBody.steps ?? null,
+        cfg: resolvedBody.cfg ?? null,
+      }).map((violation) => ({ ...violation, scope: 'author' as const })),
+    ]
 
     const previewPayload: Record<string, unknown> = {}
     const promptString = applyArtFacetsToPayload(
@@ -514,7 +517,7 @@ export default defineEventHandler(async (event) => {
     if (entityArt) payload.entityArt = entityArt.metadata
 
     /*
-     * Gate on the string the renderer actually receives, not on the caller's
+     * And check the string the renderer actually receives, not the caller's
      * `promptString`. For krea2 the two are NOT the same: the workflow builder
      * runs the prompt through `buildKreaSemanticPrompt` before it reaches the
      * CLIP node, which is where kind-robots#2896 strips an entity's rules text
@@ -525,7 +528,7 @@ export default defineEventHandler(async (event) => {
      * repair's re-renders whose rendered prompt was clean, quoting phrases --
      * "when the scene", "no single person should", "never for the person" --
      * that existed only in the entity Description `buildEntityArtPrompt`
-     * appends. From the caller's end a 422 quoting a phrase absent from the
+     * appends. From the caller's end a rejection quoting a phrase absent from the
      * prompt it sent reads as the contract having lost its mind, and the same
      * gate blocks a human re-rendering any Reward whose rules text happens to
      * contain a negation.
@@ -539,21 +542,55 @@ export default defineEventHandler(async (event) => {
      * the caller's request) and useless for a gate. The first attempt at this
      * fix used it and was a silent no-op: production reported the new commit and
      * went on quoting the same entity text back. A payload with no graph to read
-     * falls back to `promptString` rather than going ungated.
+     * falls back to `promptString` rather than going unchecked.
      */
     let renderedPrompt = promptString
     try {
       const fromGraph = extractWorkflowPrompt(payload)
       if (fromGraph.trim()) renderedPrompt = fromGraph
     } catch {
-      // Keep promptString: an un-introspectable payload is still gated.
+      // Keep promptString: an un-introspectable payload is still checked.
     }
-    assertArtPromptContract({
-      prompt: renderedPrompt,
-      engine,
-      steps: resolvedBody.steps ?? null,
-      cfg: resolvedBody.cfg ?? null,
-    })
+    promptWarnings.push(
+      ...checkArtPromptContract({
+        prompt: renderedPrompt,
+        engine,
+        steps: resolvedBody.steps ?? null,
+        cfg: resolvedBody.cfg ?? null,
+      }).map((violation) => ({ ...violation, scope: 'render' as const })),
+    )
+
+    /*
+     * ADVISORY, NOT A GATE. Silas, 2026-09-20, after this endpoint had spent a
+     * morning refusing legitimate re-renders: "just make prompts that work ...
+     * maybe loosen things to a warning when it comes to actually submitting
+     * prompts? This shouldn't be an issue that comes to me."
+     *
+     * Blocking here bought very little and cost a lot. What actually protects
+     * the image is `buildKreaSemanticPrompt`, which strips negations and entity
+     * rules text out of the caption on its way to the CLIP node whether or not
+     * anyone was warned. The contract's real value is telling a PRODUCER that
+     * its stored artPrompt needs fixing -- and a 422 is a terrible way to say
+     * that, because it lands on whoever pressed Generate rather than on whoever
+     * wrote the prompt, and it stops work that would have rendered fine.
+     *
+     * So the violations ride along on the job instead. `scope: 'author'` is the
+     * caller's own text, which a producer can fix at the source;
+     * `scope: 'render'` is what reaches the graph, which is the one that would
+     * actually show up in the picture. Conductor's repair scripts read stored
+     * prompts directly and remain the place this gets cleaned up in bulk.
+     *
+     * The producer lane (/api/art/queue) still refuses: nothing sanitizes a
+     * caller-built workflow, so there the contract is the only thing between a
+     * bad prompt and the model.
+     */
+    if (promptWarnings.length) {
+      payload.promptWarnings = promptWarnings
+      console.warn(
+        `[art/enqueue] prompt contract warnings (${promptWarnings.length}):`,
+        promptWarnings.map((w) => `${w.scope}:${w.rule}`).join(', '),
+      )
+    }
 
     const provenanceResources = {
       checkpointResourceId:

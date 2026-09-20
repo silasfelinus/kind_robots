@@ -17,6 +17,7 @@
     "test:mandarin-srs-selftest": "tsx utils/scripts/verifyMandarinSrs.test.ts",
     "test:mandarin-lesson": "tsx utils/scripts/verifyMandarinLesson.test.ts",
     "test:mandarin-points": "tsx utils/scripts/verifyMandarinPoints.test.ts",
+    "test:mandarin-course": "tsx utils/scripts/verifyMandarinCourse.test.ts",
     "test:agent-credentials-selftest": "tsx utils/scripts/verifyAgentCredentials.test.ts",
     "test:mandarin-art-recipe": "tsx utils/scripts/verifyMandarinArtRecipe.test.ts",
     "test:lora-probe-plan": "tsx utils/scripts/verifyLoraProbePlan.test.ts",

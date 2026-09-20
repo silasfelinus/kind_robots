@@ -9,6 +9,11 @@ import type {
   MandarinStudySet,
 } from '@/utils/mandarin'
 import { mergeArtJobs, mergeCustomSets } from '@/utils/mandarinCloudMerge'
+import {
+  buildMandarinLesson,
+  buildMandarinLessonIndex,
+  type MandarinLesson,
+} from '@/utils/mandarinLesson'
 
 const STORAGE_KEY = 'kind-robots:mandarin-tutor:v1'
 const CANONICAL_ART_RECIPE = 'v2'
@@ -264,6 +269,29 @@ export const useMandarinTutorStore = defineStore('mandarinTutorStore', () => {
 
   function lessonIsComplete(cardKey: string): boolean {
     return completedLessonKeys.value.has(cardKey)
+  }
+
+  /**
+   * mandarin-tutor/t-028: lessons derived on the client from the already-loaded catalog.
+   *
+   * GET /api/mandarin/lessons/[key] still exists and is still the right thing for the
+   * standalone reference page -- it is public, cacheable, and server-renderable. It is
+   * the wrong thing for the guided course, which walks a queue of words and would
+   * otherwise pay a round trip per screen. buildMandarinLesson is pure and lives in
+   * utils/, so the same derivation runs here over `cards` with no extra request and no
+   * risk of the two surfaces disagreeing.
+   *
+   * The index is the expensive half (one pass over the whole catalog to group phonetic
+   * components and readings), so it is computed once and memoized by Vue rather than
+   * rebuilt per card -- buildMandarinLesson's own doc calls out that per-card rebuilding
+   * would be O(cards^2).
+   */
+  const lessonIndex = computed(() => buildMandarinLessonIndex(cards.value))
+
+  function lessonFor(cardKey: string): MandarinLesson | null {
+    const card = cardMap.value.get(cardKey)
+    if (!card) return null
+    return buildMandarinLesson(card, lessonIndex.value)
   }
 
   const currentCard = computed<MandarinCard | null>(() => {
@@ -765,16 +793,31 @@ export const useMandarinTutorStore = defineStore('mandarinTutorStore', () => {
     studyPhase.value = 'revealed'
   }
 
+  /**
+   * Record a rating for one card without touching the deck cursor.
+   *
+   * The Study workspace's rateStudyCard couples three things: it rates the CURRENT card,
+   * and then advances the deck. The guided course (mandarin-tutor/t-028) owns its own
+   * sequence and must not have the deck moved underneath it, so the rating half is split
+   * out here and rateStudyCard becomes the workspace's cursor-advancing wrapper around
+   * it. Both paths hit the same persistence, so points and scheduling cannot drift
+   * between the two surfaces.
+   */
+  function rateCard(cardKey: string, rating: StudyRating) {
+    if (!cardKey) return
+    studySessionLog.value = [
+      ...studySessionLog.value,
+      { cardKey, rating, ratedAt: new Date().toISOString() },
+    ]
+    void persistStudyRating(cardKey, rating)
+  }
+
   function rateStudyCard(rating: StudyRating) {
     if (interactionMode.value !== 'study' || studyPhase.value !== 'revealed')
       return
     const card = currentCard.value
     if (!card) return
-    studySessionLog.value = [
-      ...studySessionLog.value,
-      { cardKey: card.key, rating, ratedAt: new Date().toISOString() },
-    ]
-    void persistStudyRating(card.key, rating)
+    rateCard(card.key, rating)
     // nextCard() calls resetReveal(), which returns studyPhase to 'challenge'.
     nextCard()
   }
@@ -1307,6 +1350,8 @@ export const useMandarinTutorStore = defineStore('mandarinTutorStore', () => {
     loadPoints,
     completeLesson,
     lessonIsComplete,
+    lessonFor,
+    rateCard,
     probeCanonicalIllustration,
     selectSet,
     nextCard,

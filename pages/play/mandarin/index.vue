@@ -1,796 +1,472 @@
+<!-- /pages/play/mandarin/index.vue
+     mandarin-tutor/t-028: the guided course, and the front door to Mandarin Tutor.
+
+     Silas, 2026-09-20: "i want a real front end interface. We start, are given an
+     introduction, then shown cards that give info, basically, a streamlined teaching
+     interface."
+
+     What used to live at this route is now /play/mandarin/browse -- unchanged, one click
+     away, and still the right surface for roaming the catalog, searching, building custom
+     decks, or free drilling. It stopped being the front door because it is a tool: it
+     asks a newcomer to pick a mode, pick a deck, and pick a view before it teaches them
+     anything.
+
+     This page owns the sequence and every write. utils/mandarinCourse.ts decides what a
+     word's teaching looks like, mandarin-course-card.vue renders one screen of it, and
+     neither of those touches the store or the network. -->
 <template>
-  <div class="kr-surface">
-    <div class="kr-scroll kr-container max-w-7xl space-y-4 p-3 sm:p-4">
-      <MandarinBanner
-        :tiles="bannerTiles"
-        :card-count="cards.length"
-        :set-count="allSets.length"
-        :requested-count="requestedCards.length"
-        :active-set-label="selectedSet?.label || ''"
-        :active-set-size="selectedSet?.cardKeys.length || 0"
-        @art-error="markArtBroken"
-      />
-
-      <section class="kr-panel-flat flex flex-wrap items-center justify-between gap-2 p-2 shadow-sm">
-        <div class="join" role="tablist" aria-label="Learning mode">
-          <button
-            type="button"
-            role="tab"
-            :aria-selected="interactionMode === 'study'"
-            class="kr-btn-join-sm"
-            :class="interactionMode === 'study' ? 'btn-primary' : 'btn-ghost'"
-            @click="setMode('study')"
-          >
-            Study
-          </button>
-          <button
-            type="button"
-            role="tab"
-            :aria-selected="interactionMode === 'explore'"
-            class="kr-btn-join-sm"
-            :class="interactionMode === 'explore' ? 'btn-primary' : 'btn-ghost'"
-            @click="setMode('explore')"
-          >
-            Explore
-          </button>
+  <main class="kr-surface bg-base-200/40">
+    <div
+      class="kr-scroll kr-container max-w-3xl space-y-4 px-3 py-4 sm:px-5 sm:py-6"
+    >
+      <!-- Loading ------------------------------------------------------- -->
+      <div
+        v-if="loading && !initialized"
+        class="grid min-h-[60vh] place-items-center kr-panel-flat rounded-3xl"
+      >
+        <div class="text-center">
+          <span class="loading loading-ring loading-lg text-primary" />
+          <p class="kr-text-bold-sm mt-3 text-base-content/55">
+            Loading the catalog…
+          </p>
         </div>
+      </div>
 
-        <!-- mandarin-tutor/t-023: points. Deliberately a quiet read-out rather than a
-             celebration -- Silas asked for something that trains people, explicitly not
-             for the insistent, nudging shape. There is no streak here and no daily
-             target, because he ruled those out by name. -->
-        <div v-if="pointTotals.totalPoints > 0" class="flex flex-wrap items-center gap-1">
-          <span class="kr-badge-primary-sm" :title="'Points earned from lessons read and cards recalled'">
-            {{ pointTotals.totalPoints }} pts
-          </span>
-          <span class="kr-badge-ghost-sm">{{ pointTotals.lessonsCompleted }} lessons</span>
-          <span
-            v-if="lastAward"
-            class="kr-badge-success-sm"
-            :title="lastAward.reason"
-          >
-            +{{ lastAward.points }}
-          </span>
-        </div>
-
-        <div class="join" role="tablist" aria-label="Mandarin view">
-          <button
-            v-for="view in workspaceViews"
-            :key="view.value"
-            type="button"
-            role="tab"
-            class="kr-btn-join-sm"
-            :class="workspaceView === view.value ? 'btn-accent' : 'btn-ghost'"
-            :aria-selected="workspaceView === view.value"
-            @click="workspaceView = view.value"
-          >
-            <Icon :name="view.icon" class="kr-icon-4" />
-            {{ view.label }}
-          </button>
-        </div>
-      </section>
-
-      <div v-if="store.error" class="alert alert-error text-sm" role="alert">
+      <div
+        v-else-if="store.error"
+        class="alert alert-error text-sm"
+        role="alert"
+      >
         <span>{{ store.error }}</span>
-        <button class="kr-btn-plain" type="button" @click="store.loadCatalog()">Retry</button>
+        <button class="kr-btn-plain" type="button" @click="store.loadCatalog()">
+          Retry
+        </button>
       </div>
 
-      <div v-if="loading && !initialized" class="flex min-h-64 items-center justify-center">
-        <span class="loading loading-spinner loading-lg" />
-      </div>
+      <!-- Start ---------------------------------------------------------- -->
+      <template v-else-if="!running">
+        <section class="kr-panel-section-plain shadow-lg text-center">
+          <p class="text-6xl leading-none font-semibold">汉字</p>
+          <p class="kr-text-black-2xl mt-3">Mandarin Tutor</p>
+          <p class="mx-auto mt-3 max-w-prose leading-relaxed">
+            A course that teaches you what the characters are actually doing —
+            which piece carries the meaning, which piece carries the sound, and
+            which other words are built the same way — and only then asks you to
+            recall them.
+          </p>
 
-      <template v-else>
-        <section v-if="workspaceView === 'sets'" class="kr-panel-flat space-y-4 p-4 shadow-sm">
-          <div class="flex flex-wrap items-center justify-between gap-2">
-            <div>
-              <h2 class="kr-text-bold-lg">Study sets</h2>
-              <p class="kr-text-faded-xs">Pick a deck, then jump straight back to the flash card.</p>
-            </div>
-            <span class="kr-badge-ghost">{{ allSets.length }} decks</span>
+          <div
+            v-if="pointTotals.totalPoints > 0"
+            class="mt-4 flex flex-wrap items-center justify-center gap-1"
+          >
+            <span class="kr-badge-primary-sm"
+              >{{ pointTotals.totalPoints }} points</span
+            >
+            <span class="kr-badge-ghost-sm"
+              >{{ pointTotals.lessonsCompleted }} words learned</span
+            >
+            <span v-if="dueCount" class="kr-badge-outline-sm badge-primary"
+              >{{ dueCount }} due</span
+            >
           </div>
 
-          <div class="grid grid-cols-[repeat(auto-fit,minmax(min(100%,17rem),1fr))] gap-2">
-            <button
-              v-for="set in allSets"
-              :key="set.id"
-              type="button"
-              class="rounded-2xl border p-3 text-left transition"
-              :class="set.id === selectedSetId ? 'border-accent bg-accent/10' : 'border-base-300 bg-base-100 hover:border-primary/40'"
-              @click="selectDeck(set.id)"
+          <button
+            type="button"
+            class="kr-btn-primary-md-2xl mx-auto mt-6 flex"
+            :disabled="!sessionLessons.length"
+            @click="begin"
+          >
+            {{ startLabel }}
+            <Icon name="kind-icon:forward" class="kr-icon-5" />
+          </button>
+
+          <p class="kr-text-faded-xs mt-3">
+            {{ sessionLessons.length }}
+            {{ sessionLessons.length === 1 ? 'word' : 'words' }} in this session
+            · from
+            <b>{{ selectedSet?.label || 'the starter deck' }}</b>
+          </p>
+        </section>
+
+        <section class="kr-panel-section-flat">
+          <p class="kr-text-semibold-sm">Or go your own way</p>
+          <p class="kr-text-faded-xs mt-1">
+            The course is a route through the catalog, not a fence around it.
+          </p>
+
+          <div
+            class="mt-3 grid grid-cols-[repeat(auto-fit,minmax(min(100%,16rem),1fr))] gap-2"
+          >
+            <NuxtLink
+              to="/play/mandarin/browse"
+              class="kr-panel-flat p-3 text-left transition hover:border-primary/40"
             >
-              <span class="flex items-start justify-between gap-2">
-                <span class="font-bold">{{ set.label }}</span>
-                <span class="kr-badge-ghost-sm">{{ set.cardKeys.length }}</span>
-              </span>
-              <span class="mt-1 block text-xs leading-relaxed opacity-65">{{ set.description }}</span>
+              <p class="kr-text-semibold-sm">Browse the catalog</p>
+              <p class="kr-text-faded-xs mt-1 leading-relaxed">
+                Decks, search, custom sets, the gallery, and free drilling —
+                everything the workspace has always done.
+              </p>
+            </NuxtLink>
+
+            <NuxtLink
+              to="/play/mandarin/sound-families"
+              class="kr-panel-flat p-3 text-left transition hover:border-primary/40"
+            >
+              <p class="kr-text-semibold-sm">Read by sound family</p>
+              <p class="kr-text-faded-xs mt-1 leading-relaxed">
+                Every sound component in the catalog with its family underneath
+                — 青 and everything built on it, drifted readings included.
+              </p>
+            </NuxtLink>
+          </div>
+
+          <div v-if="introDismissed" class="kr-panel-divider">
+            <button
+              type="button"
+              class="kr-btn-ghost-xs-plain"
+              @click="replayIntro"
+            >
+              Show the introduction again
             </button>
           </div>
-
-          <form class="kr-panel-divider" @submit.prevent="createSet">
-            <label class="kr-form-field">
-              <span class="text-xs font-semibold opacity-65">New custom deck</span>
-              <div class="join w-full max-w-xl">
-                <input
-                  v-model="newSetName"
-                  class="kr-input-sm join-item min-w-0 flex-1"
-                  placeholder="Work phrases"
-                  maxlength="80"
-                />
-                <button class="btn btn-outline btn-sm join-item" type="submit" :disabled="!newSetName.trim()">
-                  Create
-                </button>
-              </div>
-            </label>
-            <p v-if="newSetNotice" class="mt-1 text-xs text-success">{{ newSetNotice }}</p>
-          </form>
         </section>
+      </template>
 
-        <section v-else-if="workspaceView === 'gallery'" class="kr-panel-flat p-3 shadow-sm">
-          <kr-gallery
-            v-model:mode="galleryMode"
-            :items="galleryItems"
-            empty-label="cards in this set"
-            @open="openGalleryCard"
-          >
-            <template #toolbar>
-              <div class="flex min-w-0 flex-wrap items-center gap-2">
-                <b class="truncate">{{ selectedSet?.label || 'Study set' }}</b>
-                <span class="kr-badge-ghost-sm">{{ galleryItems.length }}</span>
-                <span class="kr-text-faded-xs-55">Tap a card to study it.</span>
-              </div>
+      <!-- Running --------------------------------------------------------- -->
+      <template v-else>
+        <header class="flex flex-wrap items-center justify-between gap-2">
+          <button type="button" class="kr-btn-ghost-xs-plain" @click="quit">
+            <Icon name="kind-icon:arrow-left" class="kr-icon-4" />
+            End session
+          </button>
+
+          <div class="flex items-center gap-2">
+            <span
+              v-if="lastAward"
+              class="kr-badge-success-sm"
+              :title="lastAward.reason"
+            >
+              +{{ lastAward.points }}
+            </span>
+            <span v-if="pointTotals.totalPoints > 0" class="kr-badge-ghost-sm">
+              {{ pointTotals.totalPoints }} pts
+            </span>
+          </div>
+        </header>
+
+        <div>
+          <progress
+            class="progress progress-primary h-2 w-full"
+            :value="progress.wordsDone"
+            :max="Math.max(progress.wordsTotal, 1)"
+            :aria-label="`${progress.wordsDone} of ${progress.wordsTotal} words complete`"
+          />
+          <p class="kr-text-dim-xs-45 mt-1 text-right">
+            <template v-if="currentStep?.kind === 'intro'"
+              >Introduction</template
+            >
+            <template v-else>
+              {{ progress.wordsDone }} of {{ progress.wordsTotal }} words
             </template>
-          </kr-gallery>
-        </section>
+          </p>
+        </div>
 
-        <template v-else>
-          <section v-if="interactionMode === 'explore'" class="kr-panel-flat p-3 shadow-sm">
-            <label class="form-control">
-              <span class="label-text mb-1 font-semibold">Find Hanzi, pinyin, or English</span>
-              <input
-                v-model="searchQuery"
-                class="kr-input-sm w-full"
-                placeholder="说, shuō, speak, casino…"
-                autocomplete="off"
-              />
-            </label>
+        <MandarinCourseCard
+          v-if="currentStep"
+          :step="currentStep"
+          :lesson="currentLesson"
+          :revealed="revealed"
+          :is-review="currentIsReview"
+          :art-url="currentArtUrl"
+          @reveal="revealed = true"
+          @rate="onRate"
+          @speak="speakCurrent"
+          @art-error="markArtBroken"
+        />
 
-            <div v-if="searchQuery.trim()" class="mt-2">
-              <div
-                v-if="searchResults.length"
-                class="grid grid-cols-[repeat(auto-fit,minmax(min(100%,13rem),1fr))] gap-2"
-              >
-                <button
-                  v-for="card in searchResults"
-                  :key="card.key"
-                  type="button"
-                  class="kr-panel-compact-xs text-left transition hover:border-accent"
-                  @click="focusSearchCard(card.key)"
-                >
-                  <span class="text-xl font-semibold">{{ card.simplified }}</span>
-                  <span class="ml-2 text-xs opacity-65">{{ card.pinyin }}</span>
-                  <span class="mt-1 block truncate text-xs opacity-70">{{ card.meaning }}</span>
-                </button>
-              </div>
-              <div v-else class="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-dashed border-base-300 p-3">
-                <div>
-                  <p class="font-semibold">Not in the catalog yet.</p>
-                  <p class="kr-text-faded-xs">Create “{{ searchQuery.trim() }}” as a requested learning card.</p>
-                </div>
-                <button class="kr-btn-primary-plain" type="button" :disabled="requestingWord" @click="requestCurrentWord">
-                  <span v-if="requestingWord" class="kr-spinner-xs" />
-                  {{ requestingWord ? 'Creating…' : 'Create requested card' }}
-                </button>
-              </div>
-            </div>
-          </section>
-
-          <div v-if="selectedSet" class="flex flex-wrap items-center justify-between gap-2 px-1 text-sm">
-            <div class="min-w-0">
-              <b>{{ focusKey ? 'Focused card' : selectedSet.label }}</b>
-              <span v-if="!focusKey" class="ml-2 opacity-55">{{ selectedSet.description }}</span>
-              <span v-else-if="focusPosition && focusPosition.total > 1" class="kr-badge-ghost-sm ml-2">
-                result {{ focusPosition.index + 1 }} / {{ focusPosition.total }}
-              </span>
-            </div>
-            <div class="flex items-center gap-1">
-              <button v-if="focusKey" type="button" class="kr-btn-ghost-xs-plain" @click="store.clearFocus()">
-                Return to deck
-              </button>
-              <button type="button" class="kr-btn-ghost-xs-plain" @click="workspaceView = 'sets'">Change set</button>
-              <button type="button" class="kr-btn-ghost-xs-plain" @click="workspaceView = 'gallery'">Gallery</button>
-            </div>
-          </div>
-
-          <div v-if="currentRequested" class="rounded-xl border border-warning/35 bg-warning/8 p-3 text-sm">
-            <div class="flex flex-wrap items-center gap-2">
-              <span class="badge badge-warning badge-outline">AI-generated requested card</span>
-              <span class="text-xs opacity-65">requested as “{{ currentRequested.requestText }}”</span>
-            </div>
-            <p v-if="currentRequested.usageNote" class="mt-1 text-xs">
-              <b>Usage:</b> {{ currentRequested.usageNote }}
-            </p>
-          </div>
-
-          <article
-            v-if="interactionMode === 'study' && currentCard"
-            ref="cardPanel"
-            class="overflow-hidden rounded-3xl border border-base-300 bg-base-100 shadow-lg"
+        <nav class="flex flex-wrap items-center justify-between gap-2">
+          <button
+            type="button"
+            class="kr-btn-ghost-plain"
+            :disabled="stepIndex === 0"
+            @click="back"
           >
-            <div class="flex flex-wrap items-center justify-between gap-2 kr-panel-header-sm">
-              <div class="flex flex-wrap items-center gap-2 text-xs">
-                <span v-if="currentCard.hskLevel" class="kr-badge-outline-sm">HSK {{ currentCard.hskLevel }}</span>
-                <span class="kr-badge-ghost-sm">{{ currentPositionLabel }}</span>
-                <span class="kr-badge-ghost-sm">{{ studySessionRatedForSet }} rated</span>
-                <span v-if="studyDiagnostics?.dueCount" class="kr-badge-outline-sm badge-primary">
-                  {{ studyDiagnostics.dueCount }} due
-                </span>
-                <span v-if="studyDiagnostics?.retentionRate !== null && studyDiagnostics?.retentionRate !== undefined" class="kr-badge-ghost-sm">
-                  {{ Math.round(studyDiagnostics.retentionRate * 100) }}% retention
-                </span>
-              </div>
+            <Icon name="kind-icon:back" class="kr-icon-4" />
+            Back
+          </button>
 
-              <NuxtLink
-                :to="lessonLink(currentCard.key)"
-                class="kr-btn-ghost-xs-plain"
-                title="Read the full lesson for this word"
-              >
-                <Icon name="kind-icon:book" class="kr-icon-3-5" />
-                Lesson
-              </NuxtLink>
-
-              <div class="join" aria-label="Study prompt type">
-                <button
-                  v-for="prompt in promptModes"
-                  :key="prompt.value"
-                  type="button"
-                  class="kr-btn-join-xs"
-                  :class="studyPromptMode === prompt.value ? 'btn-secondary' : 'btn-ghost'"
-                  :title="prompt.title"
-                  @click="studyPromptMode = prompt.value"
-                >
-                  <Icon :name="prompt.icon" class="kr-icon-3-5" />
-                  <span class="hidden sm:inline">{{ prompt.label }}</span>
-                </button>
-              </div>
-            </div>
-
-            <div class="grid grid-cols-[repeat(auto-fit,minmax(min(100%,20rem),1fr))]">
-              <div class="flex min-h-72 items-center justify-center bg-base-200/55 p-5 text-center">
-                <div v-if="studyPhase !== 'revealed'" class="flex min-h-52 w-full flex-col items-center justify-center gap-4">
-                  <span v-if="studyPromptMode === 'hanzi'" class="text-7xl font-semibold leading-none">
-                    {{ currentCard.simplified }}
-                  </span>
-                  <span v-else-if="studyPromptMode === 'pinyin'" class="text-4xl font-bold tracking-wide">
-                    {{ currentCard.pinyin }}
-                  </span>
-                  <div v-else-if="studyPromptMode === 'picture'" class="space-y-3">
-                    <div class="mx-auto h-48 w-48 overflow-hidden rounded-3xl border border-base-300 shadow-inner">
-                      <!-- reveal-glyph is off here on purpose: in picture-prompt
-                           mode the character is the answer being recalled. -->
-                      <MandarinCardArt
-                        :card-key="currentCard.key"
-                        :simplified="currentCard.simplified"
-                        :meaning="currentCard.meaning"
-                        :art="currentArtUrl"
-                        :reveal-glyph="false"
-                        eager
-                        @error="markArtBroken"
-                      />
-                    </div>
-                    <button v-if="canQueueArt" type="button" class="kr-btn-outline-xs" :disabled="artBusy" @click="queueCurrentIllustration">
-                      {{ artBusy ? 'Submitting…' : 'Request illustration' }}
-                    </button>
-                    <p v-if="artNotice" class="mt-1 text-xs text-success">{{ artNotice }}</p>
-                  </div>
-                  <div v-else class="space-y-3">
-                    <Icon name="kind-icon:volume" class="kr-icon-12 mx-auto opacity-60" />
-                    <button type="button" class="kr-btn-primary-md-plain" @click="store.speak(currentCard)">Hear prompt</button>
-                    <p class="kr-text-faded-xs-55">Listen without seeing the answer.</p>
-                  </div>
-                </div>
-
-                <div v-else class="grid w-full grid-cols-[repeat(auto-fit,minmax(min(100%,10rem),1fr))] items-center gap-4">
-                  <div class="mx-auto h-44 w-44 overflow-hidden rounded-3xl border border-base-300 shadow-inner">
-                    <MandarinCardArt
-                      :card-key="currentCard.key"
-                      :simplified="currentCard.simplified"
-                      :meaning="currentCard.meaning"
-                      :art="currentArtUrl"
-                      eager
-                      @error="markArtBroken"
-                    />
-                  </div>
-                  <div class="space-y-2 text-center">
-                    <p class="text-5xl font-semibold leading-none">{{ currentCard.simplified }}</p>
-                    <p class="kr-text-bold-2xl tracking-wide">{{ currentCard.pinyin }}</p>
-                    <p class="text-xl font-semibold">{{ currentCard.meaning }}</p>
-                    <p v-if="currentCard.meanings.length > 1" class="text-xs leading-relaxed opacity-60">
-                      {{ currentCard.meanings.slice(1).join(' · ') }}
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              <div class="flex min-h-72 flex-col justify-between gap-4 p-4 sm:p-5">
-                <div v-if="studyPhase !== 'revealed'" class="my-auto space-y-3 text-center">
-                  <!-- mandarin-tutor/t-023: the SOFT gate. Silas chose soft over hard, so
-                       this prompts and reorders the queue but never withholds the card --
-                       "Reveal answer" stays live underneath. -->
-                  <div
-                    v-if="!lessonRead"
-                    class="rounded-2xl border border-info/35 bg-info/8 p-3 text-left"
-                  >
-                    <p class="kr-text-semibold-sm">Learn this one first</p>
-                    <p class="kr-text-faded-xs mt-1 leading-relaxed">
-                      You haven't read {{ currentCard.simplified }}'s lesson yet — what its
-                      pieces mean, how its tone moves, and which characters share its sound.
-                      Drilling a shape you don't understand is the slow way.
-                    </p>
-                    <NuxtLink :to="lessonLink(currentCard.key)" class="kr-btn-primary-plain mt-2">
-                      <Icon name="kind-icon:book" class="kr-icon-4" />
-                      Read the lesson
-                    </NuxtLink>
-                  </div>
-
-                  <p class="text-sm font-semibold opacity-55">Recall the meaning before revealing.</p>
-                  <button type="button" class="kr-btn-primary-md-plain" @click="store.revealStudyCard()">Reveal answer</button>
-                </div>
-
-                <div v-else class="space-y-3">
-                  <div class="flex flex-wrap items-center justify-between gap-2">
-                    <p class="font-bold">How well did you recall it?</p>
-                    <div class="flex flex-wrap items-center gap-1">
-                      <button
-                        v-if="canQueueArt"
-                        type="button"
-                        class="kr-btn-outline-xs"
-                        :disabled="artBusy"
-                        @click="queueCurrentIllustration"
-                      >
-                        <Icon name="kind-icon:image" class="kr-icon-3-5" />
-                        {{ artBusy ? 'Submitting…' : 'Request art' }}
-                      </button>
-                      <button
-                        v-if="currentArtJobId"
-                        type="button"
-                        class="kr-btn-ghost-xs-plain"
-                        :disabled="artBusy"
-                        @click="refreshCurrentIllustration"
-                      >
-                        Check art #{{ currentArtJobId }}
-                      </button>
-                    </div>
-                    <p v-if="artNotice" class="text-xs text-success">{{ artNotice }}</p>
-                  </div>
-                  <div class="grid grid-cols-2 gap-2 sm:grid-cols-4">
-                    <button type="button" class="btn btn-sm btn-outline btn-error" @click="store.rateStudyCard('again')">Again</button>
-                    <button type="button" class="btn btn-sm btn-outline btn-warning" @click="store.rateStudyCard('hard')">Hard</button>
-                    <button type="button" class="btn btn-sm btn-outline btn-success" @click="store.rateStudyCard('good')">Good</button>
-                    <button type="button" class="btn btn-sm btn-outline btn-accent" @click="store.rateStudyCard('easy')">Easy</button>
-                  </div>
-                  <p class="kr-text-faded-xs-55">Rating saves the review and advances. Previous and Next never rate the card.</p>
-
-                  <details class="rounded-2xl border border-base-300 bg-base-200/25">
-                    <summary class="cursor-pointer p-3 text-sm font-semibold">Pronunciation practice</summary>
-                    <MandarinVoiceCoach :card="currentCard" />
-                  </details>
-                </div>
-
-                <div class="flex items-center justify-between gap-2 kr-panel-divider">
-                  <button type="button" class="kr-btn-ghost-plain" :disabled="focusNavigationLocked" @click="store.previousCard()">
-                    <Icon name="kind-icon:back" class="kr-icon-4" />
-                    Previous
-                  </button>
-                  <span class="kr-text-faded-xs-55">{{ currentPositionLabel }}</span>
-                  <button type="button" class="kr-btn-ghost-plain" :disabled="focusNavigationLocked" @click="store.nextCard()">
-                    Next
-                    <Icon name="kind-icon:forward" class="kr-icon-4" />
-                  </button>
-                </div>
-              </div>
-            </div>
-          </article>
-
-          <article
-            v-else-if="interactionMode === 'explore' && currentCard"
-            ref="cardPanel"
-            class="overflow-hidden rounded-3xl border border-base-300 bg-base-100 shadow-lg"
+          <NuxtLink
+            v-if="currentLesson"
+            :to="lessonLink(currentLesson.key)"
+            class="kr-btn-ghost-xs-plain"
+            title="Open the full reference page for this word"
           >
-            <div class="grid grid-cols-[repeat(auto-fit,minmax(min(100%,20rem),1fr))]">
-              <div class="flex min-h-64 flex-col items-center justify-center gap-3 bg-base-200/55 p-5 text-center">
-                <div class="h-48 w-48 overflow-hidden rounded-3xl border border-base-300 shadow-inner">
-                  <MandarinCardArt
-                    :card-key="currentCard.key"
-                    :simplified="currentCard.simplified"
-                    :meaning="currentCard.meaning"
-                    :art="currentArtUrl"
-                    eager
-                    @error="markArtBroken"
-                  />
-                </div>
-                <p class="text-3xl font-bold">{{ currentCard.simplified }}</p>
-                <p class="kr-text-bold-xl tracking-wide">{{ currentCard.pinyin }}</p>
-                <p v-if="currentCard.traditional" class="kr-text-faded-xs-55">Traditional: {{ currentCard.traditional }}</p>
-                <div class="flex flex-wrap justify-center gap-1">
-                  <button v-if="canQueueArt" type="button" class="kr-btn-outline-xs" :disabled="artBusy" @click="queueCurrentIllustration">
-                    {{ artBusy ? 'Submitting…' : 'Request illustration' }}
-                  </button>
-                  <button v-if="currentArtJobId" type="button" class="kr-btn-ghost-xs-plain" :disabled="artBusy" @click="refreshCurrentIllustration">
-                    Check art #{{ currentArtJobId }}
-                  </button>
-                </div>
-                <p v-if="artNotice" class="text-xs text-success">{{ artNotice }}</p>
-              </div>
+            Full lesson
+          </NuxtLink>
 
-              <div class="flex min-h-64 flex-col p-5">
-                <div class="flex flex-wrap gap-1">
-                  <span v-if="currentCard.hskLevel" class="kr-badge-outline-sm">HSK {{ currentCard.hskLevel }}</span>
-                  <span v-if="currentCard.radical" class="kr-badge-outline-sm">Radical {{ currentCard.radical }}</span>
-                  <span v-for="category in currentCard.categories.slice(0, 4)" :key="category" class="kr-badge-ghost-sm">{{ category }}</span>
-                </div>
-
-                <div class="my-auto py-5 text-center">
-                  <button v-if="!meaningVisible" type="button" class="kr-btn-primary-md-plain" @click="store.toggleMeaning()">Reveal meaning</button>
-                  <div v-else class="space-y-1">
-                    <p class="text-3xl font-bold">{{ currentCard.meaning }}</p>
-                    <p v-if="currentCard.meanings.length > 1" class="text-sm opacity-60">{{ currentCard.meanings.slice(1).join(' · ') }}</p>
-                  </div>
-                </div>
-
-                <div class="flex items-center justify-between gap-2 kr-panel-divider">
-                  <button type="button" class="kr-btn-ghost-plain" :disabled="focusNavigationLocked" @click="store.previousCard()">Previous</button>
-                  <div class="flex items-center gap-1">
-                    <button type="button" class="kr-btn-outline-plain" @click="store.toggleDetails()">{{ detailsVisible ? 'Hide parts' : 'Parts & history' }}</button>
-                    <NuxtLink :to="lessonLink(currentCard.key)" class="kr-btn-ghost-plain" title="Read the full lesson for this word">
-                      Full lesson
-                    </NuxtLink>
-                  </div>
-                  <button type="button" class="kr-btn-ghost-plain" :disabled="focusNavigationLocked" @click="store.nextCard()">Next</button>
-                </div>
-              </div>
-            </div>
-
-            <details class="border-t border-base-300 bg-base-200/20">
-              <summary class="cursor-pointer p-3 text-sm font-semibold">Pronunciation practice</summary>
-              <MandarinVoiceCoach :card="currentCard" />
-            </details>
-
-            <section v-if="detailsVisible" class="border-t border-base-300 bg-base-200/25 p-4">
-              <div class="grid grid-cols-[repeat(auto-fit,minmax(min(100%,18rem),1fr))] gap-3">
-                <div class="space-y-2">
-                  <h3 class="font-bold">What is this built from?</h3>
-                  <div v-if="currentCard.components.length" class="space-y-2">
-                    <div v-for="component in currentCard.components" :key="`${component.glyph}:${component.role}`" class="kr-panel-flat p-3">
-                      <div class="flex items-start gap-3">
-                        <span class="text-3xl font-semibold">{{ component.glyph }}</span>
-                        <div>
-                          <p class="font-semibold">{{ component.label }}</p>
-                          <p class="kr-text-faded-xs-55 uppercase tracking-wide">{{ roleLabel(component.role) }}</p>
-                          <p v-if="component.meaning" class="mt-1 text-sm">{{ component.meaning }}</p>
-                        </div>
-                      </div>
-                      <p v-if="component.note" class="mt-2 text-xs opacity-65">{{ component.note }}</p>
-                    </div>
-                  </div>
-                  <p v-else class="text-sm opacity-60">No source-backed decomposition is attached yet.</p>
-                </div>
-                <div class="space-y-2">
-                  <h3 class="font-bold">Character history</h3>
-                  <p class="kr-panel-flat p-3 text-sm leading-relaxed" :class="!currentCard.history ? 'opacity-60' : ''">
-                    {{ currentCard.history || 'Historical development is still awaiting a dedicated source for this card.' }}
-                  </p>
-                  <p class="text-xs opacity-50">Source: {{ currentCard.source.label }} · {{ currentCard.source.version }}</p>
-                </div>
-              </div>
-            </section>
-
-            <section class="border-t border-base-300 p-4">
-              <div class="flex flex-wrap items-center gap-2">
-                <span class="kr-text-semibold-sm">Save to:</span>
-                <button
-                  v-for="set in customSets"
-                  :key="set.id"
-                  type="button"
-                  class="btn btn-xs"
-                  :class="store.cardIsInCustomSet(set.id, currentCard.key) ? 'btn-accent' : 'btn-outline'"
-                  @click="store.toggleCardInCustomSet(set.id, currentCard.key)"
-                >
-                  {{ set.name }}
-                </button>
-                <span v-if="!customSets.length" class="kr-text-faded-xs-55">Create a custom deck in Decks.</span>
-              </div>
-            </section>
-          </article>
-
-          <div v-else class="kr-panel-flat p-8 text-center opacity-65">This set has no cards yet.</div>
-        </template>
+          <!-- The recall beat advances by rating, never by Continue: a card you can skip
+               past without answering is not a recall test. -->
+          <button
+            v-if="currentStep?.kind === 'done'"
+            type="button"
+            class="kr-btn-primary-md-plain"
+            @click="finish"
+          >
+            Done
+          </button>
+          <button
+            v-else-if="!awaitingRating"
+            type="button"
+            class="kr-btn-primary-md-plain"
+            @click="next"
+          >
+            Continue
+            <Icon name="kind-icon:forward" class="kr-icon-4" />
+          </button>
+          <span v-else class="kr-text-faded-xs">Rate it to continue</span>
+        </nav>
       </template>
     </div>
-  </div>
+  </main>
 </template>
 
 <script setup lang="ts">
-import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { storeToRefs } from 'pinia'
-import { useMandarinTutorStore } from '@/stores/mandarinTutorStore'
-import type { MandarinComponentRole } from '@/utils/mandarin'
-import type { MandarinBannerTile } from '@/components/mandarin/mandarin-banner.vue'
+import {
+  useMandarinTutorStore,
+  type StudyRating,
+} from '@/stores/mandarinTutorStore'
+import {
+  buildCoursePlan,
+  courseProgress,
+  runTeachesAnything,
+} from '@/utils/mandarinCourse'
+import type { MandarinLesson } from '@/utils/mandarinLesson'
 
-const route = useRoute()
+const INTRO_SEEN_KEY = 'kind-robots:mandarin-course:intro-seen:v1'
+
+/**
+ * How many words one session teaches.
+ *
+ * A session has to end somewhere: a progress bar reading "0 of 500" is not encouragement,
+ * it is a wall. Eight is small enough to finish in a sitting and large enough to be worth
+ * sitting down for. Ending is not a cap on studying -- the closing screen offers another
+ * session immediately -- it is just a place to stop, which is the opposite of the endless
+ * drip Silas ruled out.
+ */
+const SESSION_WORD_TARGET = 8
+
 const store = useMandarinTutorStore()
 const {
   cards,
-  allSets,
-  customSets,
-  requestedCards,
-  selectedSetId,
-  selectedSet,
-  studyCards,
-  currentCard,
-  searchQuery,
-  searchResults,
-  focusKey,
-  focusPosition,
-  meaningVisible,
-  detailsVisible,
   loading,
   initialized,
-  requestingWord,
-  interactionMode,
-  studyPhase,
-  studySessionRatedForSet,
-  studyDiagnostics,
+  selectedSet,
+  studyCards,
   pointTotals,
-  pointsLoaded,
   lastAward,
-  canonicalArtUrls,
-  canonicalArtStrategies,
-  artQueueingKey,
-  artRefreshingKey,
+  studyDiagnostics,
+  completedLessonKeys,
 } = storeToRefs(store)
 
-type WorkspaceView = 'card' | 'sets' | 'gallery'
-type StudyPromptMode = 'hanzi' | 'pinyin' | 'picture' | 'audio'
-type GalleryMode = 'cards' | 'heroes' | 'icons'
+const running = ref(false)
+const stepIndex = ref(0)
+const revealed = ref(false)
+const introDismissed = ref(false)
+const forceIntro = ref(false)
+const brokenArtKeys = ref<Set<string>>(new Set())
 
-const workspaceView = ref<WorkspaceView>('card')
-const studyPromptMode = ref<StudyPromptMode>('hanzi')
-const galleryMode = ref<GalleryMode>('cards')
-const newSetName = ref('')
-const newSetNotice = ref('')
-const cardPanel = ref<HTMLElement | null>(null)
-const brokenArtKeys = ref(new Set<string>())
-const artNotice = ref('')
-let artNoticeTimer: ReturnType<typeof setTimeout> | null = null
+const dueCount = computed(() => studyDiagnostics.value?.dueCount ?? 0)
 
-const workspaceViews: Array<{ value: WorkspaceView; label: string; icon: string }> = [
-  { value: 'card', label: 'Card', icon: 'kind-icon:cards' },
-  { value: 'sets', label: 'Decks', icon: 'kind-icon:collection' },
-  { value: 'gallery', label: 'Gallery', icon: 'kind-icon:image' },
-]
+/**
+ * The words this session teaches: unlearned first, then already-learned ones as review.
+ *
+ * Deck order is preserved within each group rather than shuffled. A curated beginner deck
+ * is already ordered by usefulness, and randomising it would throw that away for the sake
+ * of variety nobody asked for.
+ */
+const sessionLessons = computed<MandarinLesson[]>(() => {
+  const learned = completedLessonKeys.value
+  const fresh: string[] = []
+  const review: string[] = []
 
-const promptModes: Array<{ value: StudyPromptMode; label: string; title: string; icon: string }> = [
-  { value: 'hanzi', label: 'Hanzi', title: 'Prompt with the Chinese characters', icon: 'kind-icon:language' },
-  { value: 'pinyin', label: 'Pinyin', title: 'Prompt with pinyin', icon: 'kind-icon:text' },
-  { value: 'picture', label: 'Picture', title: 'Prompt with the illustration', icon: 'kind-icon:image' },
-  { value: 'audio', label: 'Audio', title: 'Prompt by listening', icon: 'kind-icon:volume' },
-]
+  for (const card of studyCards.value) {
+    ;(learned.has(card.key) ? review : fresh).push(card.key)
+  }
 
-const currentRequested = computed(() =>
-  currentCard.value ? store.requestedData(currentCard.value.key) : null,
+  return [...fresh, ...review]
+    .slice(0, SESSION_WORD_TARGET)
+    .map((key) => store.lessonFor(key))
+    .filter((lesson): lesson is MandarinLesson => Boolean(lesson))
+})
+
+const showIntro = computed(
+  () =>
+    forceIntro.value ||
+    (!introDismissed.value && !completedLessonKeys.value.size),
 )
 
-const bannerTiles = computed<MandarinBannerTile[]>(() => {
-  const source = studyCards.value.length ? studyCards.value : cards.value
-  return source.slice(0, 4).map((card) => ({
-    key: card.key,
-    simplified: card.simplified,
-    pinyin: card.pinyin,
-    meaning: card.meaning,
-    art: artCandidate(card.key),
-  }))
+const startLabel = computed(() => {
+  if (!sessionLessons.value.length) return 'Nothing to study'
+  if (showIntro.value) return 'Start learning'
+  return 'Begin session'
 })
+
+// Frozen when the session begins: the plan must not resurrect or reorder itself
+// underneath the learner when completeLesson() lands and completedLessonKeys changes.
+const plan = ref<ReturnType<typeof buildCoursePlan>>([])
+
+const currentStep = computed(() => plan.value[stepIndex.value] ?? null)
+
+const currentLesson = computed<MandarinLesson | null>(() => {
+  const step = currentStep.value
+  if (!step || step.kind !== 'word') return null
+  return store.lessonFor(step.cardKey)
+})
+
+/** True when the current word's run is a bare recall, i.e. a review of a known word. */
+const currentIsReview = computed(() => {
+  const step = currentStep.value
+  if (!step || step.kind !== 'word') return false
+  const run = plan.value.filter(
+    (entry) => entry.kind === 'word' && entry.cardKey === step.cardKey,
+  )
+  return !runTeachesAnything(run)
+})
+
+const awaitingRating = computed(
+  () =>
+    currentStep.value?.kind === 'word' && currentStep.value.beat === 'recall',
+)
+
+const progress = computed(() => courseProgress(plan.value, stepIndex.value))
 
 const currentArtUrl = computed(() => {
-  const key = currentCard.value?.key
-  return key ? artCandidate(key) : ''
+  const key = currentLesson.value?.key
+  if (!key || brokenArtKeys.value.has(key)) return ''
+  return store.illustrationUrl(key) || store.canonicalArtUrls[key] || ''
 })
-
-const currentArtJobId = computed(() => {
-  const key = currentCard.value?.key
-  return key ? store.illustrationJobId(key) : null
-})
-
-const artBusy = computed(() => {
-  const key = currentCard.value?.key
-  return Boolean(key && (artQueueingKey.value === key || artRefreshingKey.value === key))
-})
-
-const canQueueArt = computed(() => {
-  const key = currentCard.value?.key
-  if (!key || currentRequested.value || currentArtUrl.value) return false
-  return canonicalArtStrategies.value[key] === 'illustrate'
-})
-
-const currentPositionLabel = computed(() => {
-  if (!currentCard.value || !studyCards.value.length) return '0 / 0'
-  if (focusKey.value && focusPosition.value) {
-    return `${focusPosition.value.index + 1} / ${focusPosition.value.total}`
-  }
-  const index = studyCards.value.findIndex((card) => card.key === currentCard.value?.key)
-  return `${Math.max(0, index) + 1} / ${studyCards.value.length}`
-})
-
-const focusNavigationLocked = computed(
-  () => Boolean(focusKey.value && (!focusPosition.value || focusPosition.value.total <= 1)),
-)
-
-const galleryItems = computed(() =>
-  studyCards.value.map((card) => {
-    const art = artCandidate(card.key)
-    const strategy = canonicalArtStrategies.value[card.key]
-    const status = store.illustrationStatus(card.key)
-    const badges = [] as Array<{ label: string; class?: string }>
-    if (strategy === 'glyph-only') badges.push({ label: 'Glyph card', class: 'badge-ghost' })
-    else if (status === 'DONE' || status === 'V2 READY') badges.push({ label: 'Illustrated', class: 'badge-success badge-outline' })
-    else badges.push({ label: 'Needs art', class: 'badge-warning badge-outline' })
-    if (card.hskLevel) badges.push({ label: `HSK ${card.hskLevel}`, class: 'badge-ghost' })
-    return {
-      id: card.key,
-      title: card.simplified,
-      description: `${card.pinyin} · ${card.meaning}`,
-      card: art || undefined,
-      hero: art || undefined,
-      icon: art || undefined,
-      meta: selectedSet.value?.label,
-      badges,
-      placeholderIcon: 'kind-icon:language',
-      placeholderLabel: card.simplified,
-    }
-  }),
-)
-
-function artCandidate(cardKey: string): string {
-  if (brokenArtKeys.value.has(cardKey)) return ''
-  return store.illustrationUrl(cardKey) || canonicalArtUrls.value[cardKey] || ''
-}
 
 function markArtBroken(cardKey: string) {
   if (brokenArtKeys.value.has(cardKey)) return
   brokenArtKeys.value = new Set(brokenArtKeys.value).add(cardKey)
 }
 
-function setMode(mode: 'study' | 'explore') {
-  store.setInteractionMode(mode)
-  workspaceView.value = 'card'
-}
-
-function selectDeck(id: string) {
-  store.selectSet(id)
-  workspaceView.value = 'card'
-}
-
-async function scrollToCard() {
-  await nextTick()
-  cardPanel.value?.scrollIntoView({ behavior: 'smooth', block: 'start' })
-}
-
-async function focusSearchCard(key: string) {
-  store.focusCard(key)
-  await scrollToCard()
-}
-
-function openGalleryCard(item: { id: string | number }) {
-  const key = String(item.id)
-  const index = studyCards.value.findIndex((card) => card.key === key)
-  if (index < 0) return
-  store.clearFocus()
-  store.studyIndex = index
-  workspaceView.value = 'card'
-}
-
-function createSet() {
-  const created = store.createCustomSet(newSetName.value)
-  if (!created) return
-  newSetName.value = ''
-  newSetNotice.value = `Created “${created.name}”.`
-}
-
-async function requestCurrentWord() {
-  const created = await store.requestWord(searchQuery.value)
-  if (created) await scrollToCard()
-}
-
-function setArtNotice(message: string) {
-  if (artNoticeTimer) {
-    clearTimeout(artNoticeTimer)
-    artNoticeTimer = null
-  }
-  artNotice.value = message
-  if (message) {
-    artNoticeTimer = setTimeout(() => {
-      artNotice.value = ''
-      artNoticeTimer = null
-    }, 4000)
-  }
-}
-
-async function queueCurrentIllustration() {
-  setArtNotice('')
-  const jobId = await store.queueIllustration(currentCard.value)
-  if (jobId) setArtNotice(`Illustration queued as ArtJob ${jobId}.`)
-}
-
-async function refreshCurrentIllustration() {
-  const card = currentCard.value
-  if (!card) return
-  setArtNotice('')
-  const canonical = await store.probeCanonicalIllustration(card.key)
-  if (canonical) {
-    setArtNotice('Illustration ready.')
-    return
-  }
-  const url = currentRequested.value
-    ? await store.refreshRequestedIllustration(card)
-    : await store.refreshIllustration(card)
-  if (url) {
-    brokenArtKeys.value.delete(card.key)
-    setArtNotice('Illustration ready.')
-    return
-  }
-  // Nothing came back. Saying so beats leaving the button looking inert while
-  // the home relay is still working through the queue.
-  setArtNotice('Still rendering — check again in a moment.')
-}
-
-// A notice about one card is meaningless on the next one.
-watch(
-  () => currentCard.value?.key ?? null,
-  () => setArtNotice(''),
-)
-
-onBeforeUnmount(() => {
-  if (artNoticeTimer) clearTimeout(artNoticeTimer)
-})
-
-// mandarin-tutor/t-022: /play/mandarin/learn/<key>. Keys carry a colon and Han
-// characters ("curated:猫"), so they must be encoded rather than interpolated raw.
 function lessonLink(key: string): string {
   return `/play/mandarin/learn/${encodeURIComponent(key)}`
 }
 
-// mandarin-tutor/t-023. Treated as "read" until we actually know the learner, so a
-// signed-out visitor is never prompted about progress they cannot record.
-const lessonRead = computed(() => {
-  const key = currentCard.value?.key
-  if (!key || !pointsLoaded.value) return true
-  return store.lessonIsComplete(key)
-})
-
-function roleLabel(role: MandarinComponentRole): string {
-  if (role === 'semantic') return 'meaning clue'
-  if (role === 'phonetic') return 'sound clue'
-  if (role === 'radical') return 'indexing radical'
-  if (role === 'form') return 'written form'
-  return 'uncertain role'
+function readIntroSeen(): boolean {
+  if (!import.meta.client) return false
+  try {
+    return localStorage.getItem(INTRO_SEEN_KEY) === '1'
+  } catch {
+    // Private windows and blocked site data throw here. Losing the flag only means the
+    // orientation is offered again, which is harmless.
+    return false
+  }
 }
 
-// mandarin-tutor/t-022: the return path from a lesson page. /play/mandarin/learn/<key>
-// links back here as ?card=<key> so "Study 说" lands on that exact card instead of
-// dumping the learner at the top of whichever deck they last had open. Focusing needs the
-// catalog loaded first, which is why it waits on initialize() rather than running beside
-// it. An unknown or stale key is ignored on purpose -- a bad bookmark should open the
-// tutor normally, not error.
+function writeIntroSeen() {
+  if (!import.meta.client) return
+  try {
+    localStorage.setItem(INTRO_SEEN_KEY, '1')
+  } catch {
+    // Same: not worth surfacing.
+  }
+}
+
+function begin() {
+  if (!sessionLessons.value.length) return
+  plan.value = buildCoursePlan({
+    lessons: sessionLessons.value,
+    learnedKeys: completedLessonKeys.value,
+    includeIntro: showIntro.value,
+  })
+  stepIndex.value = 0
+  revealed.value = false
+  running.value = true
+
+  if (showIntro.value) {
+    introDismissed.value = true
+    forceIntro.value = false
+    writeIntroSeen()
+  }
+}
+
+function replayIntro() {
+  forceIntro.value = true
+  begin()
+}
+
+function quit() {
+  running.value = false
+  plan.value = []
+  stepIndex.value = 0
+  revealed.value = false
+}
+
+function finish() {
+  quit()
+  void store.loadStudyDiagnostics()
+}
+
+function advance() {
+  revealed.value = false
+  if (stepIndex.value < plan.value.length - 1) stepIndex.value += 1
+}
+
+function next() {
+  const step = currentStep.value
+
+  // Reaching a word's recall beat means its teaching screens have all been shown, which
+  // is the honest moment to record the lesson as read. A bare-recall review run has no
+  // teaching screens, so it claims nothing -- the server enforces once-per-card too, but
+  // the client should not send a claim it knows is empty.
+  const upcoming = plan.value[stepIndex.value + 1]
+  if (
+    upcoming?.kind === 'word' &&
+    upcoming.beat === 'recall' &&
+    step?.kind === 'word' &&
+    !currentIsReview.value
+  ) {
+    void store.completeLesson(upcoming.cardKey)
+  }
+
+  advance()
+}
+
+function back() {
+  revealed.value = false
+  if (stepIndex.value > 0) stepIndex.value -= 1
+}
+
+function onRate(rating: StudyRating) {
+  const step = currentStep.value
+  if (!step || step.kind !== 'word' || step.beat !== 'recall') return
+  store.rateCard(step.cardKey, rating)
+  advance()
+}
+
+function speakCurrent() {
+  const key = currentLesson.value?.key
+  if (!key) return
+  void store.speak(cards.value.find((card) => card.key === key) ?? null)
+}
+
+// The art probe is per-card and lazy in the store; nudge it as the learner arrives so the
+// illustration is there by the time the "meet it" screen renders rather than after.
+watch(
+  () => currentLesson.value?.key ?? null,
+  (key) => {
+    if (key) void store.probeCanonicalIllustration(key)
+  },
+)
+
 onMounted(async () => {
+  introDismissed.value = readIntroSeen()
   await store.initialize()
-
-  const requestedKey = String(route.query.card || '').trim()
-  if (!requestedKey) return
-  if (!cards.value.some((card) => card.key === requestedKey)) return
-
-  workspaceView.value = 'card'
-  store.focusCard(requestedKey)
-  await scrollToCard()
 })
 
 useHead({

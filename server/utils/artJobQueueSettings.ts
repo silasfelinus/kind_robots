@@ -112,6 +112,46 @@ export function queuedArtPrompt(payload: unknown): string {
  * Callers clamp out-of-band sampler settings first (see artJobSamplerRepair.ts);
  * what reaches here is what no machine can safely rewrite.
  */
+/**
+ * The prompt as it exists IN THE GRAPH, for the claim-time gate specifically.
+ *
+ * `queuedArtPrompt` above prefers `payload.promptString` and only falls back to
+ * the CLIP node. That is right for coverage reporting, which wants what the
+ * caller asked for. It is wrong for a gate, for the same reason it was wrong at
+ * /api/art/enqueue (kind-robots#2915): for krea2 the workflow builder runs the
+ * prompt through `buildKreaSemanticPrompt` on its way to the node, so
+ * `promptString` can carry an entity's rules text that is never rendered.
+ *
+ * On 2026-09-20 that difference failed ten repair jobs at claim time with
+ * "validation failed before claim", quoting phrases -- "when the scene", "no
+ * single person should", "never for the person" -- that live only in a Reward's
+ * Description and Effect. The enqueue gate had already been fixed; this one had
+ * not, so the jobs passed enqueue and died on the way to the renderer.
+ *
+ * Falls back to `queuedArtPrompt` when there is no graph to read, so a payload
+ * this cannot introspect is still judged rather than waved through.
+ */
+export function queuedArtRenderPrompt(payload: unknown): string {
+  const record = asRecord(payload)
+
+  for (const node of workflowNodes(record)) {
+    const classType = clean(node.class_type)
+    if (
+      classType !== 'CLIPTextEncode' &&
+      classType !== 'ImpactWildcardEncode'
+    ) {
+      continue
+    }
+    const title = clean(asRecord(node._meta).title).toLowerCase()
+    if (title.includes('negative')) continue
+    const inputs = asRecord(node.inputs)
+    const prompt = clean(inputs.text) || clean(inputs.wildcard_text)
+    if (prompt) return prompt
+  }
+
+  return queuedArtPrompt(payload)
+}
+
 export function assertQueuedArtPromptContract(
   engine: string,
   payload: unknown,
@@ -119,7 +159,7 @@ export function assertQueuedArtPromptContract(
   const actualEngine = inferQueuedArtEngine(payload, engine)
   const sampler = queuedArtSamplerSettings(payload)
   assertArtPromptContract({
-    prompt: queuedArtPrompt(payload),
+    prompt: queuedArtRenderPrompt(payload),
     engine: actualEngine,
     steps: sampler.steps,
     cfg: sampler.cfg,

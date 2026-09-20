@@ -547,7 +547,8 @@
     "test:artjob-priority-bounds": "tsx utils/scripts/verifyArtJobPriorityBounds.ts",
     "test:wan-i2v-modes": "tsx utils/scripts/verifyWanI2vModes.ts",
     "test:entity-art-prompt-style": "tsx utils/scripts/verifyEntityArtPromptStyle.test.ts",
-    "test:enqueue-prompt-gate": "tsx utils/scripts/verifyEnqueuePromptGate.test.ts"
+    "test:enqueue-prompt-gate": "tsx utils/scripts/verifyEnqueuePromptGate.test.ts",
+    "test:queued-prompt-gate": "tsx utils/scripts/verifyQueuedPromptGate.test.ts"
   },
   "devDependencies": {
     "@nuxt/eslint": "^1.1.0",

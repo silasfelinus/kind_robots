@@ -1965,30 +1965,22 @@
         {
           "characterId": 86,
           "fieldKey": "genre",
-          "values": [
-            "Surreal Aquatic Comedy"
-          ]
+          "values": ["Surreal Aquatic Comedy"]
         },
         {
           "characterId": 86,
           "fieldKey": "species",
-          "values": [
-            "Anemonefolk"
-          ]
+          "values": ["Anemonefolk"]
         },
         {
           "characterId": 86,
           "fieldKey": "class",
-          "values": [
-            "Unlicensed Telepath"
-          ]
+          "values": ["Unlicensed Telepath"]
         },
         {
           "characterId": 86,
           "fieldKey": "gender",
-          "values": [
-            "Nonbinary (a chord of three voices)"
-          ]
+          "values": ["Nonbinary (a chord of three voices)"]
         },
         {
           "characterId": 86,
@@ -2018,30 +2010,22 @@
         {
           "characterId": 86,
           "fieldKey": "role",
-          "values": [
-            "protagonist"
-          ]
+          "values": ["protagonist"]
         },
         {
           "characterId": 110,
           "fieldKey": "genre",
-          "values": [
-            "Weird Western"
-          ]
+          "values": ["Weird Western"]
         },
         {
           "characterId": 110,
           "fieldKey": "class",
-          "values": [
-            "Marsupial Assassin"
-          ]
+          "values": ["Marsupial Assassin"]
         },
         {
           "characterId": 110,
           "fieldKey": "gender",
-          "values": [
-            "male"
-          ]
+          "values": ["male"]
         },
         {
           "characterId": 110,
@@ -2069,37 +2053,27 @@
         {
           "characterId": 110,
           "fieldKey": "role",
-          "values": [
-            "protagonist"
-          ]
+          "values": ["protagonist"]
         },
         {
           "characterId": 111,
           "fieldKey": "genre",
-          "values": [
-            "Weird Western"
-          ]
+          "values": ["Weird Western"]
         },
         {
           "characterId": 111,
           "fieldKey": "species",
-          "values": [
-            "Tortoise"
-          ]
+          "values": ["Tortoise"]
         },
         {
           "characterId": 111,
           "fieldKey": "class",
-          "values": [
-            "Fixer"
-          ]
+          "values": ["Fixer"]
         },
         {
           "characterId": 111,
           "fieldKey": "gender",
-          "values": [
-            "female"
-          ]
+          "values": ["female"]
         },
         {
           "characterId": 111,
@@ -2128,23 +2102,17 @@
         {
           "characterId": 111,
           "fieldKey": "role",
-          "values": [
-            "ally"
-          ]
+          "values": ["ally"]
         },
         {
           "characterId": 112,
           "fieldKey": "genre",
-          "values": [
-            "Weird Western"
-          ]
+          "values": ["Weird Western"]
         },
         {
           "characterId": 112,
           "fieldKey": "class",
-          "values": [
-            "Ronin"
-          ]
+          "values": ["Ronin"]
         },
         {
           "characterId": 112,
@@ -2174,23 +2142,17 @@
         {
           "characterId": 112,
           "fieldKey": "role",
-          "values": [
-            "deuteragonist"
-          ]
+          "values": ["deuteragonist"]
         },
         {
           "characterId": 113,
           "fieldKey": "genre",
-          "values": [
-            "Weird Western"
-          ]
+          "values": ["Weird Western"]
         },
         {
           "characterId": 113,
           "fieldKey": "species",
-          "values": [
-            "Magpie"
-          ]
+          "values": ["Magpie"]
         },
         {
           "characterId": 113,
@@ -2219,30 +2181,22 @@
         {
           "characterId": 113,
           "fieldKey": "role",
-          "values": [
-            "antagonist"
-          ]
+          "values": ["antagonist"]
         },
         {
           "characterId": 114,
           "fieldKey": "genre",
-          "values": [
-            "Weird Western"
-          ]
+          "values": ["Weird Western"]
         },
         {
           "characterId": 114,
           "fieldKey": "class",
-          "values": [
-            "Retired Killer"
-          ]
+          "values": ["Retired Killer"]
         },
         {
           "characterId": 114,
           "fieldKey": "gender",
-          "values": [
-            "male"
-          ]
+          "values": ["male"]
         },
         {
           "characterId": 114,
@@ -2270,9 +2224,7 @@
         {
           "characterId": 114,
           "fieldKey": "role",
-          "values": [
-            "ally"
-          ]
+          "values": ["ally"]
         },
         {
           "characterId": 115,
@@ -2300,23 +2252,17 @@
         {
           "characterId": 115,
           "fieldKey": "role",
-          "values": [
-            "protagonist"
-          ]
+          "values": ["protagonist"]
         },
         {
           "characterId": 116,
           "fieldKey": "class",
-          "values": [
-            "Self-Appointed Liaison"
-          ]
+          "values": ["Self-Appointed Liaison"]
         },
         {
           "characterId": 116,
           "fieldKey": "gender",
-          "values": [
-            "girl"
-          ]
+          "values": ["girl"]
         },
         {
           "characterId": 116,
@@ -2344,16 +2290,12 @@
         {
           "characterId": 116,
           "fieldKey": "role",
-          "values": [
-            "deuteragonist"
-          ]
+          "values": ["deuteragonist"]
         },
         {
           "characterId": 117,
           "fieldKey": "class",
-          "values": [
-            "Mech Pilot"
-          ]
+          "values": ["Mech Pilot"]
         },
         {
           "characterId": 117,
@@ -2383,16 +2325,12 @@
         {
           "characterId": 117,
           "fieldKey": "role",
-          "values": [
-            "deuteragonist"
-          ]
+          "values": ["deuteragonist"]
         },
         {
           "characterId": 118,
           "fieldKey": "gender",
-          "values": [
-            "male"
-          ]
+          "values": ["male"]
         },
         {
           "characterId": 118,
@@ -2420,16 +2358,12 @@
         {
           "characterId": 118,
           "fieldKey": "role",
-          "values": [
-            "antagonist"
-          ]
+          "values": ["antagonist"]
         },
         {
           "characterId": 119,
           "fieldKey": "class",
-          "values": [
-            "Civil Servant"
-          ]
+          "values": ["Civil Servant"]
         },
         {
           "characterId": 119,
@@ -2460,30 +2394,22 @@
         {
           "characterId": 119,
           "fieldKey": "role",
-          "values": [
-            "ally"
-          ]
+          "values": ["ally"]
         },
         {
           "characterId": 120,
           "fieldKey": "genre",
-          "values": [
-            "Surreal Aquatic"
-          ]
+          "values": ["Surreal Aquatic"]
         },
         {
           "characterId": 120,
           "fieldKey": "species",
-          "values": [
-            "Anemonefolk"
-          ]
+          "values": ["Anemonefolk"]
         },
         {
           "characterId": 120,
           "fieldKey": "class",
-          "values": [
-            "Psychic Royal"
-          ]
+          "values": ["Psychic Royal"]
         },
         {
           "characterId": 120,
@@ -2511,30 +2437,22 @@
         {
           "characterId": 120,
           "fieldKey": "role",
-          "values": [
-            "protagonist"
-          ]
+          "values": ["protagonist"]
         },
         {
           "characterId": 121,
           "fieldKey": "genre",
-          "values": [
-            "Surreal Aquatic"
-          ]
+          "values": ["Surreal Aquatic"]
         },
         {
           "characterId": 121,
           "fieldKey": "class",
-          "values": [
-            "Companion"
-          ]
+          "values": ["Companion"]
         },
         {
           "characterId": 121,
           "fieldKey": "gender",
-          "values": [
-            "male"
-          ]
+          "values": ["male"]
         },
         {
           "characterId": 121,
@@ -2563,30 +2481,22 @@
         {
           "characterId": 121,
           "fieldKey": "role",
-          "values": [
-            "ally"
-          ]
+          "values": ["ally"]
         },
         {
           "characterId": 122,
           "fieldKey": "genre",
-          "values": [
-            "Surreal Aquatic"
-          ]
+          "values": ["Surreal Aquatic"]
         },
         {
           "characterId": 122,
           "fieldKey": "species",
-          "values": [
-            "Anglerfish-folk"
-          ]
+          "values": ["Anglerfish-folk"]
         },
         {
           "characterId": 122,
           "fieldKey": "class",
-          "values": [
-            "Courtier"
-          ]
+          "values": ["Courtier"]
         },
         {
           "characterId": 122,
@@ -2614,23 +2524,17 @@
         {
           "characterId": 122,
           "fieldKey": "role",
-          "values": [
-            "antagonist"
-          ]
+          "values": ["antagonist"]
         },
         {
           "characterId": 123,
           "fieldKey": "genre",
-          "values": [
-            "Surreal Aquatic"
-          ]
+          "values": ["Surreal Aquatic"]
         },
         {
           "characterId": 123,
           "fieldKey": "class",
-          "values": [
-            "Scholar"
-          ]
+          "values": ["Scholar"]
         },
         {
           "characterId": 123,
@@ -2658,30 +2562,22 @@
         {
           "characterId": 123,
           "fieldKey": "role",
-          "values": [
-            "ally"
-          ]
+          "values": ["ally"]
         },
         {
           "characterId": 124,
           "fieldKey": "genre",
-          "values": [
-            "Deep-Sea Horror"
-          ]
+          "values": ["Deep-Sea Horror"]
         },
         {
           "characterId": 124,
           "fieldKey": "species",
-          "values": [
-            "Leviathan"
-          ]
+          "values": ["Leviathan"]
         },
         {
           "characterId": 124,
           "fieldKey": "class",
-          "values": [
-            "Ancient"
-          ]
+          "values": ["Ancient"]
         },
         {
           "characterId": 124,
@@ -2709,16 +2605,12 @@
         {
           "characterId": 124,
           "fieldKey": "role",
-          "values": [
-            "antagonist"
-          ]
+          "values": ["antagonist"]
         },
         {
           "characterId": 125,
           "fieldKey": "class",
-          "values": [
-            "Mastermind"
-          ]
+          "values": ["Mastermind"]
         },
         {
           "characterId": 125,
@@ -2748,16 +2640,12 @@
         {
           "characterId": 125,
           "fieldKey": "role",
-          "values": [
-            "protagonist"
-          ]
+          "values": ["protagonist"]
         },
         {
           "characterId": 126,
           "fieldKey": "class",
-          "values": [
-            "Infiltration Specialist"
-          ]
+          "values": ["Infiltration Specialist"]
         },
         {
           "characterId": 126,
@@ -2787,23 +2675,17 @@
         {
           "characterId": 126,
           "fieldKey": "role",
-          "values": [
-            "ally"
-          ]
+          "values": ["ally"]
         },
         {
           "characterId": 127,
           "fieldKey": "class",
-          "values": [
-            "Mole"
-          ]
+          "values": ["Mole"]
         },
         {
           "characterId": 127,
           "fieldKey": "alignment",
-          "values": [
-            "Neutral"
-          ]
+          "values": ["Neutral"]
         },
         {
           "characterId": 127,
@@ -2834,16 +2716,12 @@
         {
           "characterId": 127,
           "fieldKey": "role",
-          "values": [
-            "ally"
-          ]
+          "values": ["ally"]
         },
         {
           "characterId": 128,
           "fieldKey": "class",
-          "values": [
-            "Forger"
-          ]
+          "values": ["Forger"]
         },
         {
           "characterId": 128,
@@ -2872,16 +2750,12 @@
         {
           "characterId": 128,
           "fieldKey": "role",
-          "values": [
-            "ally"
-          ]
+          "values": ["ally"]
         },
         {
           "characterId": 129,
           "fieldKey": "class",
-          "values": [
-            "Detective"
-          ]
+          "values": ["Detective"]
         },
         {
           "characterId": 129,
@@ -2911,23 +2785,17 @@
         {
           "characterId": 129,
           "fieldKey": "role",
-          "values": [
-            "antagonist"
-          ]
+          "values": ["antagonist"]
         },
         {
           "characterId": 130,
           "fieldKey": "genre",
-          "values": [
-            "Undead Glamour"
-          ]
+          "values": ["Undead Glamour"]
         },
         {
           "characterId": 130,
           "fieldKey": "class",
-          "values": [
-            "Undead Couturier"
-          ]
+          "values": ["Undead Couturier"]
         },
         {
           "characterId": 130,
@@ -2956,23 +2824,17 @@
         {
           "characterId": 130,
           "fieldKey": "role",
-          "values": [
-            "protagonist"
-          ]
+          "values": ["protagonist"]
         },
         {
           "characterId": 131,
           "fieldKey": "genre",
-          "values": [
-            "Undead Bureaucracy"
-          ]
+          "values": ["Undead Bureaucracy"]
         },
         {
           "characterId": 131,
           "fieldKey": "class",
-          "values": [
-            "Undertaker"
-          ]
+          "values": ["Undertaker"]
         },
         {
           "characterId": 131,
@@ -3002,37 +2864,27 @@
         {
           "characterId": 131,
           "fieldKey": "role",
-          "values": [
-            "ally"
-          ]
+          "values": ["ally"]
         },
         {
           "characterId": 132,
           "fieldKey": "genre",
-          "values": [
-            "Cozy Undead"
-          ]
+          "values": ["Cozy Undead"]
         },
         {
           "characterId": 132,
           "fieldKey": "species",
-          "values": [
-            "Skeletal Dog"
-          ]
+          "values": ["Skeletal Dog"]
         },
         {
           "characterId": 132,
           "fieldKey": "class",
-          "values": [
-            "Undead Familiar"
-          ]
+          "values": ["Undead Familiar"]
         },
         {
           "characterId": 132,
           "fieldKey": "gender",
-          "values": [
-            "male"
-          ]
+          "values": ["male"]
         },
         {
           "characterId": 132,
@@ -3062,23 +2914,17 @@
         {
           "characterId": 132,
           "fieldKey": "role",
-          "values": [
-            "ally"
-          ]
+          "values": ["ally"]
         },
         {
           "characterId": 133,
           "fieldKey": "genre",
-          "values": [
-            "Undead Glamour"
-          ]
+          "values": ["Undead Glamour"]
         },
         {
           "characterId": 133,
           "fieldKey": "class",
-          "values": [
-            "Revenant"
-          ]
+          "values": ["Revenant"]
         },
         {
           "characterId": 133,
@@ -3107,16 +2953,12 @@
         {
           "characterId": 133,
           "fieldKey": "role",
-          "values": [
-            "deuteragonist"
-          ]
+          "values": ["deuteragonist"]
         },
         {
           "characterId": 134,
           "fieldKey": "class",
-          "values": [
-            "Frontier Mystic"
-          ]
+          "values": ["Frontier Mystic"]
         },
         {
           "characterId": 134,
@@ -3145,16 +2987,12 @@
         {
           "characterId": 134,
           "fieldKey": "role",
-          "values": [
-            "antagonist"
-          ]
+          "values": ["antagonist"]
         },
         {
           "characterId": 135,
           "fieldKey": "class",
-          "values": [
-            "Outlaw"
-          ]
+          "values": ["Outlaw"]
         },
         {
           "characterId": 135,
@@ -3182,23 +3020,17 @@
         {
           "characterId": 135,
           "fieldKey": "role",
-          "values": [
-            "protagonist"
-          ]
+          "values": ["protagonist"]
         },
         {
           "characterId": 136,
           "fieldKey": "species",
-          "values": [
-            "Sentient Locomotive"
-          ]
+          "values": ["Sentient Locomotive"]
         },
         {
           "characterId": 136,
           "fieldKey": "class",
-          "values": [
-            "Living Machine"
-          ]
+          "values": ["Living Machine"]
         },
         {
           "characterId": 136,
@@ -3226,23 +3058,17 @@
         {
           "characterId": 136,
           "fieldKey": "role",
-          "values": [
-            "antagonist"
-          ]
+          "values": ["antagonist"]
         },
         {
           "characterId": 137,
           "fieldKey": "species",
-          "values": [
-            "Unknown"
-          ]
+          "values": ["Unknown"]
         },
         {
           "characterId": 137,
           "fieldKey": "class",
-          "values": [
-            "Lawman"
-          ]
+          "values": ["Lawman"]
         },
         {
           "characterId": 137,
@@ -3270,23 +3096,17 @@
         {
           "characterId": 137,
           "fieldKey": "role",
-          "values": [
-            "ally"
-          ]
+          "values": ["ally"]
         },
         {
           "characterId": 138,
           "fieldKey": "genre",
-          "values": [
-            "Office Satire"
-          ]
+          "values": ["Office Satire"]
         },
         {
           "characterId": 138,
           "fieldKey": "class",
-          "values": [
-            "Intern"
-          ]
+          "values": ["Intern"]
         },
         {
           "characterId": 138,
@@ -3316,30 +3136,22 @@
         {
           "characterId": 138,
           "fieldKey": "role",
-          "values": [
-            "protagonist"
-          ]
+          "values": ["protagonist"]
         },
         {
           "characterId": 139,
           "fieldKey": "genre",
-          "values": [
-            "Cosmic Bureaucracy"
-          ]
+          "values": ["Cosmic Bureaucracy"]
         },
         {
           "characterId": 139,
           "fieldKey": "species",
-          "values": [
-            "Animate Document"
-          ]
+          "values": ["Animate Document"]
         },
         {
           "characterId": 139,
           "fieldKey": "class",
-          "values": [
-            "Living Bureaucracy"
-          ]
+          "values": ["Living Bureaucracy"]
         },
         {
           "characterId": 139,
@@ -3367,23 +3179,17 @@
         {
           "characterId": 139,
           "fieldKey": "role",
-          "values": [
-            "antagonist"
-          ]
+          "values": ["antagonist"]
         },
         {
           "characterId": 140,
           "fieldKey": "genre",
-          "values": [
-            "Office Satire"
-          ]
+          "values": ["Office Satire"]
         },
         {
           "characterId": 140,
           "fieldKey": "class",
-          "values": [
-            "Executive"
-          ]
+          "values": ["Executive"]
         },
         {
           "characterId": 140,
@@ -3412,23 +3218,17 @@
         {
           "characterId": 140,
           "fieldKey": "role",
-          "values": [
-            "antagonist"
-          ]
+          "values": ["antagonist"]
         },
         {
           "characterId": 141,
           "fieldKey": "genre",
-          "values": [
-            "Workplace Satire"
-          ]
+          "values": ["Workplace Satire"]
         },
         {
           "characterId": 141,
           "fieldKey": "class",
-          "values": [
-            "Labor Organizer"
-          ]
+          "values": ["Labor Organizer"]
         },
         {
           "characterId": 141,
@@ -3457,23 +3257,17 @@
         {
           "characterId": 141,
           "fieldKey": "role",
-          "values": [
-            "ally"
-          ]
+          "values": ["ally"]
         },
         {
           "characterId": 142,
           "fieldKey": "genre",
-          "values": [
-            "Gauntlet Spectacle"
-          ]
+          "values": ["Gauntlet Spectacle"]
         },
         {
           "characterId": 142,
           "fieldKey": "class",
-          "values": [
-            "Impresario"
-          ]
+          "values": ["Impresario"]
         },
         {
           "characterId": 142,
@@ -3503,16 +3297,12 @@
         {
           "characterId": 142,
           "fieldKey": "role",
-          "values": [
-            "antagonist"
-          ]
+          "values": ["antagonist"]
         },
         {
           "characterId": 143,
           "fieldKey": "class",
-          "values": [
-            "Dungeon Owner"
-          ]
+          "values": ["Dungeon Owner"]
         },
         {
           "characterId": 143,
@@ -3541,16 +3331,12 @@
         {
           "characterId": 143,
           "fieldKey": "role",
-          "values": [
-            "protagonist"
-          ]
+          "values": ["protagonist"]
         },
         {
           "characterId": 144,
           "fieldKey": "class",
-          "values": [
-            "Aspiring Overlord"
-          ]
+          "values": ["Aspiring Overlord"]
         },
         {
           "characterId": 144,
@@ -3579,30 +3365,22 @@
         {
           "characterId": 144,
           "fieldKey": "role",
-          "values": [
-            "deuteragonist"
-          ]
+          "values": ["deuteragonist"]
         },
         {
           "characterId": 145,
           "fieldKey": "genre",
-          "values": [
-            "Dark Circus"
-          ]
+          "values": ["Dark Circus"]
         },
         {
           "characterId": 145,
           "fieldKey": "species",
-          "values": [
-            "Unknown"
-          ]
+          "values": ["Unknown"]
         },
         {
           "characterId": 145,
           "fieldKey": "class",
-          "values": [
-            "Ringmaster"
-          ]
+          "values": ["Ringmaster"]
         },
         {
           "characterId": 145,
@@ -3630,23 +3408,17 @@
         {
           "characterId": 145,
           "fieldKey": "role",
-          "values": [
-            "antagonist"
-          ]
+          "values": ["antagonist"]
         },
         {
           "characterId": 146,
           "fieldKey": "genre",
-          "values": [
-            "Dark Circus"
-          ]
+          "values": ["Dark Circus"]
         },
         {
           "characterId": 146,
           "fieldKey": "class",
-          "values": [
-            "Aerialist"
-          ]
+          "values": ["Aerialist"]
         },
         {
           "characterId": 146,
@@ -3675,37 +3447,27 @@
         {
           "characterId": 146,
           "fieldKey": "role",
-          "values": [
-            "deuteragonist"
-          ]
+          "values": ["deuteragonist"]
         },
         {
           "characterId": 147,
           "fieldKey": "genre",
-          "values": [
-            "Gothic Mechanical"
-          ]
+          "values": ["Gothic Mechanical"]
         },
         {
           "characterId": 147,
           "fieldKey": "species",
-          "values": [
-            "Clockwork"
-          ]
+          "values": ["Clockwork"]
         },
         {
           "characterId": 147,
           "fieldKey": "class",
-          "values": [
-            "Mechanical Conductor"
-          ]
+          "values": ["Mechanical Conductor"]
         },
         {
           "characterId": 147,
           "fieldKey": "alignment",
-          "values": [
-            "Neutral"
-          ]
+          "values": ["Neutral"]
         },
         {
           "characterId": 147,
@@ -3733,16 +3495,12 @@
         {
           "characterId": 147,
           "fieldKey": "role",
-          "values": [
-            "antagonist"
-          ]
+          "values": ["antagonist"]
         },
         {
           "characterId": 148,
           "fieldKey": "class",
-          "values": [
-            "Lieutenant"
-          ]
+          "values": ["Lieutenant"]
         },
         {
           "characterId": 148,
@@ -3773,23 +3531,17 @@
         {
           "characterId": 148,
           "fieldKey": "role",
-          "values": [
-            "ally"
-          ]
+          "values": ["ally"]
         },
         {
           "characterId": 149,
           "fieldKey": "genre",
-          "values": [
-            "Dark Circus"
-          ]
+          "values": ["Dark Circus"]
         },
         {
           "characterId": 149,
           "fieldKey": "class",
-          "values": [
-            "Illusion Handler"
-          ]
+          "values": ["Illusion Handler"]
         },
         {
           "characterId": 149,
@@ -3817,23 +3569,17 @@
         {
           "characterId": 149,
           "fieldKey": "role",
-          "values": [
-            "deuteragonist"
-          ]
+          "values": ["deuteragonist"]
         },
         {
           "characterId": 150,
           "fieldKey": "species",
-          "values": [
-            "Enchanted Object"
-          ]
+          "values": ["Enchanted Object"]
         },
         {
           "characterId": 150,
           "fieldKey": "class",
-          "values": [
-            "Living Furniture"
-          ]
+          "values": ["Living Furniture"]
         },
         {
           "characterId": 150,
@@ -3862,23 +3608,17 @@
         {
           "characterId": 150,
           "fieldKey": "role",
-          "values": [
-            "ally"
-          ]
+          "values": ["ally"]
         },
         {
           "characterId": 151,
           "fieldKey": "genre",
-          "values": [
-            "Dreampunk Noir"
-          ]
+          "values": ["Dreampunk Noir"]
         },
         {
           "characterId": 151,
           "fieldKey": "class",
-          "values": [
-            "Memory Smuggler"
-          ]
+          "values": ["Memory Smuggler"]
         },
         {
           "characterId": 151,
@@ -3906,30 +3646,22 @@
         {
           "characterId": 151,
           "fieldKey": "role",
-          "values": [
-            "antagonist"
-          ]
+          "values": ["antagonist"]
         },
         {
           "characterId": 152,
           "fieldKey": "genre",
-          "values": [
-            "Magic Realism"
-          ]
+          "values": ["Magic Realism"]
         },
         {
           "characterId": 152,
           "fieldKey": "species",
-          "values": [
-            "Heron"
-          ]
+          "values": ["Heron"]
         },
         {
           "characterId": 152,
           "fieldKey": "class",
-          "values": [
-            "Keeper"
-          ]
+          "values": ["Keeper"]
         },
         {
           "characterId": 152,
@@ -3958,37 +3690,27 @@
         {
           "characterId": 152,
           "fieldKey": "role",
-          "values": [
-            "ally"
-          ]
+          "values": ["ally"]
         },
         {
           "characterId": 153,
           "fieldKey": "genre",
-          "values": [
-            "Surreal Comedy"
-          ]
+          "values": ["Surreal Comedy"]
         },
         {
           "characterId": 153,
           "fieldKey": "species",
-          "values": [
-            "Pigeon"
-          ]
+          "values": ["Pigeon"]
         },
         {
           "characterId": 153,
           "fieldKey": "class",
-          "values": [
-            "Attorney"
-          ]
+          "values": ["Attorney"]
         },
         {
           "characterId": 153,
           "fieldKey": "gender",
-          "values": [
-            "male"
-          ]
+          "values": ["male"]
         },
         {
           "characterId": 153,
@@ -4016,30 +3738,22 @@
         {
           "characterId": 153,
           "fieldKey": "role",
-          "values": [
-            "ally"
-          ]
+          "values": ["ally"]
         },
         {
           "characterId": 154,
           "fieldKey": "genre",
-          "values": [
-            "Folklore Fantasy"
-          ]
+          "values": ["Folklore Fantasy"]
         },
         {
           "characterId": 154,
           "fieldKey": "species",
-          "values": [
-            "Fox"
-          ]
+          "values": ["Fox"]
         },
         {
           "characterId": 154,
           "fieldKey": "class",
-          "values": [
-            "Trickster Royal"
-          ]
+          "values": ["Trickster Royal"]
         },
         {
           "characterId": 154,
@@ -4067,30 +3781,22 @@
         {
           "characterId": 154,
           "fieldKey": "role",
-          "values": [
-            "protagonist"
-          ]
+          "values": ["protagonist"]
         },
         {
           "characterId": 155,
           "fieldKey": "genre",
-          "values": [
-            "Cozy Mystery"
-          ]
+          "values": ["Cozy Mystery"]
         },
         {
           "characterId": 155,
           "fieldKey": "species",
-          "values": [
-            "Badger"
-          ]
+          "values": ["Badger"]
         },
         {
           "characterId": 155,
           "fieldKey": "class",
-          "values": [
-            "Detective"
-          ]
+          "values": ["Detective"]
         },
         {
           "characterId": 155,
@@ -4118,16 +3824,12 @@
         {
           "characterId": 155,
           "fieldKey": "role",
-          "values": [
-            "ally"
-          ]
+          "values": ["ally"]
         },
         {
           "characterId": 157,
           "fieldKey": "genre",
-          "values": [
-            "Cozy Mystery"
-          ]
+          "values": ["Cozy Mystery"]
         },
         {
           "characterId": 157,
@@ -4155,23 +3857,17 @@
         {
           "characterId": 157,
           "fieldKey": "role",
-          "values": [
-            "ally"
-          ]
+          "values": ["ally"]
         },
         {
           "characterId": 159,
           "fieldKey": "genre",
-          "values": [
-            "Aquatic Slice-of-Life"
-          ]
+          "values": ["Aquatic Slice-of-Life"]
         },
         {
           "characterId": 159,
           "fieldKey": "class",
-          "values": [
-            "Student Politician"
-          ]
+          "values": ["Student Politician"]
         },
         {
           "characterId": 159,
@@ -4201,16 +3897,12 @@
         {
           "characterId": 159,
           "fieldKey": "role",
-          "values": [
-            "deuteragonist"
-          ]
+          "values": ["deuteragonist"]
         },
         {
           "characterId": 160,
           "fieldKey": "class",
-          "values": [
-            "Rogue Android"
-          ]
+          "values": ["Rogue Android"]
         },
         {
           "characterId": 160,
@@ -4238,23 +3930,17 @@
         {
           "characterId": 160,
           "fieldKey": "role",
-          "values": [
-            "protagonist"
-          ]
+          "values": ["protagonist"]
         },
         {
           "characterId": 162,
           "fieldKey": "genre",
-          "values": [
-            "Dystopia"
-          ]
+          "values": ["Dystopia"]
         },
         {
           "characterId": 162,
           "fieldKey": "class",
-          "values": [
-            "Governing AI"
-          ]
+          "values": ["Governing AI"]
         },
         {
           "characterId": 162,
@@ -4284,30 +3970,22 @@
         {
           "characterId": 162,
           "fieldKey": "role",
-          "values": [
-            "antagonist"
-          ]
+          "values": ["antagonist"]
         },
         {
           "characterId": 164,
           "fieldKey": "genre",
-          "values": [
-            "Meta Sci-Fi"
-          ]
+          "values": ["Meta Sci-Fi"]
         },
         {
           "characterId": 164,
           "fieldKey": "species",
-          "values": [
-            "Digital Being"
-          ]
+          "values": ["Digital Being"]
         },
         {
           "characterId": 164,
           "fieldKey": "class",
-          "values": [
-            "Sentient NPC"
-          ]
+          "values": ["Sentient NPC"]
         },
         {
           "characterId": 164,
@@ -4335,30 +4013,22 @@
         {
           "characterId": 164,
           "fieldKey": "role",
-          "values": [
-            "deuteragonist"
-          ]
+          "values": ["deuteragonist"]
         },
         {
           "characterId": 165,
           "fieldKey": "genre",
-          "values": [
-            "Sci-Fi Comedy"
-          ]
+          "values": ["Sci-Fi Comedy"]
         },
         {
           "characterId": 165,
           "fieldKey": "species",
-          "values": [
-            "Alien"
-          ]
+          "values": ["Alien"]
         },
         {
           "characterId": 165,
           "fieldKey": "class",
-          "values": [
-            "Bartender"
-          ]
+          "values": ["Bartender"]
         },
         {
           "characterId": 165,
@@ -4386,9 +4056,7 @@
         {
           "characterId": 165,
           "fieldKey": "role",
-          "values": [
-            "ally"
-          ]
+          "values": ["ally"]
         },
         {
           "characterId": 167,
@@ -4416,23 +4084,17 @@
         {
           "characterId": 167,
           "fieldKey": "role",
-          "values": [
-            "deuteragonist"
-          ]
+          "values": ["deuteragonist"]
         },
         {
           "characterId": 168,
           "fieldKey": "genre",
-          "values": [
-            "Sci-Fi Comedy"
-          ]
+          "values": ["Sci-Fi Comedy"]
         },
         {
           "characterId": 168,
           "fieldKey": "class",
-          "values": [
-            "Custodian"
-          ]
+          "values": ["Custodian"]
         },
         {
           "characterId": 168,
@@ -4461,23 +4123,17 @@
         {
           "characterId": 168,
           "fieldKey": "role",
-          "values": [
-            "protagonist"
-          ]
+          "values": ["protagonist"]
         },
         {
           "characterId": 170,
           "fieldKey": "genre",
-          "values": [
-            "Sci-Fi Comedy"
-          ]
+          "values": ["Sci-Fi Comedy"]
         },
         {
           "characterId": 170,
           "fieldKey": "class",
-          "values": [
-            "Zookeeper"
-          ]
+          "values": ["Zookeeper"]
         },
         {
           "characterId": 170,
@@ -4505,30 +4161,22 @@
         {
           "characterId": 170,
           "fieldKey": "role",
-          "values": [
-            "protagonist"
-          ]
+          "values": ["protagonist"]
         },
         {
           "characterId": 172,
           "fieldKey": "genre",
-          "values": [
-            "Mythic Workplace"
-          ]
+          "values": ["Mythic Workplace"]
         },
         {
           "characterId": 172,
           "fieldKey": "species",
-          "values": [
-            "Gorgon"
-          ]
+          "values": ["Gorgon"]
         },
         {
           "characterId": 172,
           "fieldKey": "class",
-          "values": [
-            "Executive"
-          ]
+          "values": ["Executive"]
         },
         {
           "characterId": 172,
@@ -4556,23 +4204,17 @@
         {
           "characterId": 172,
           "fieldKey": "role",
-          "values": [
-            "deuteragonist"
-          ]
+          "values": ["deuteragonist"]
         },
         {
           "characterId": 174,
           "fieldKey": "genre",
-          "values": [
-            "Mythic Comedy"
-          ]
+          "values": ["Mythic Comedy"]
         },
         {
           "characterId": 174,
           "fieldKey": "species",
-          "values": [
-            "God"
-          ]
+          "values": ["God"]
         },
         {
           "characterId": 174,
@@ -4600,30 +4242,22 @@
         {
           "characterId": 174,
           "fieldKey": "role",
-          "values": [
-            "protagonist"
-          ]
+          "values": ["protagonist"]
         },
         {
           "characterId": 176,
           "fieldKey": "genre",
-          "values": [
-            "Mythic"
-          ]
+          "values": ["Mythic"]
         },
         {
           "characterId": 176,
           "fieldKey": "species",
-          "values": [
-            "God"
-          ]
+          "values": ["God"]
         },
         {
           "characterId": 176,
           "fieldKey": "class",
-          "values": [
-            "Minor God"
-          ]
+          "values": ["Minor God"]
         },
         {
           "characterId": 176,
@@ -4652,30 +4286,22 @@
         {
           "characterId": 176,
           "fieldKey": "role",
-          "values": [
-            "ally"
-          ]
+          "values": ["ally"]
         },
         {
           "characterId": 178,
           "fieldKey": "species",
-          "values": [
-            "Tortoise"
-          ]
+          "values": ["Tortoise"]
         },
         {
           "characterId": 178,
           "fieldKey": "class",
-          "values": [
-            "Proprietor"
-          ]
+          "values": ["Proprietor"]
         },
         {
           "characterId": 178,
           "fieldKey": "gender",
-          "values": [
-            "female"
-          ]
+          "values": ["female"]
         },
         {
           "characterId": 178,
@@ -4703,23 +4329,17 @@
         {
           "characterId": 178,
           "fieldKey": "role",
-          "values": [
-            "ally"
-          ]
+          "values": ["ally"]
         },
         {
           "characterId": 180,
           "fieldKey": "genre",
-          "values": [
-            "Cozy"
-          ]
+          "values": ["Cozy"]
         },
         {
           "characterId": 180,
           "fieldKey": "class",
-          "values": [
-            "Clerk"
-          ]
+          "values": ["Clerk"]
         },
         {
           "characterId": 180,
@@ -4747,23 +4367,17 @@
         {
           "characterId": 180,
           "fieldKey": "role",
-          "values": [
-            "ally"
-          ]
+          "values": ["ally"]
         },
         {
           "characterId": 190,
           "fieldKey": "genre",
-          "values": [
-            "Fantasy Slice-of-Life"
-          ]
+          "values": ["Fantasy Slice-of-Life"]
         },
         {
           "characterId": 190,
           "fieldKey": "class",
-          "values": [
-            "Shop Clerk"
-          ]
+          "values": ["Shop Clerk"]
         },
         {
           "characterId": 190,
@@ -4792,23 +4406,17 @@
         {
           "characterId": 190,
           "fieldKey": "role",
-          "values": [
-            "protagonist"
-          ]
+          "values": ["protagonist"]
         },
         {
           "characterId": 191,
           "fieldKey": "genre",
-          "values": [
-            "Cozy Weird"
-          ]
+          "values": ["Cozy Weird"]
         },
         {
           "characterId": 191,
           "fieldKey": "class",
-          "values": [
-            "Shopkeeper"
-          ]
+          "values": ["Shopkeeper"]
         },
         {
           "characterId": 191,
@@ -4836,16 +4444,12 @@
         {
           "characterId": 191,
           "fieldKey": "role",
-          "values": [
-            "ally"
-          ]
+          "values": ["ally"]
         },
         {
           "characterId": 192,
           "fieldKey": "genre",
-          "values": [
-            "Dark Whimsy"
-          ]
+          "values": ["Dark Whimsy"]
         },
         {
           "characterId": 192,
@@ -4875,16 +4479,12 @@
         {
           "characterId": 192,
           "fieldKey": "role",
-          "values": [
-            "protagonist"
-          ]
+          "values": ["protagonist"]
         },
         {
           "characterId": 193,
           "fieldKey": "class",
-          "values": [
-            "Fae Patron"
-          ]
+          "values": ["Fae Patron"]
         },
         {
           "characterId": 193,
@@ -4913,16 +4513,12 @@
         {
           "characterId": 193,
           "fieldKey": "role",
-          "values": [
-            "antagonist"
-          ]
+          "values": ["antagonist"]
         },
         {
           "characterId": 194,
           "fieldKey": "class",
-          "values": [
-            "Keeper"
-          ]
+          "values": ["Keeper"]
         },
         {
           "characterId": 194,
@@ -4951,23 +4547,17 @@
         {
           "characterId": 194,
           "fieldKey": "role",
-          "values": [
-            "protagonist"
-          ]
+          "values": ["protagonist"]
         },
         {
           "characterId": 195,
           "fieldKey": "species",
-          "values": [
-            "Eldritch"
-          ]
+          "values": ["Eldritch"]
         },
         {
           "characterId": 195,
           "fieldKey": "class",
-          "values": [
-            "Bound Entity"
-          ]
+          "values": ["Bound Entity"]
         },
         {
           "characterId": 195,
@@ -4995,23 +4585,17 @@
         {
           "characterId": 195,
           "fieldKey": "role",
-          "values": [
-            "antagonist"
-          ]
+          "values": ["antagonist"]
         },
         {
           "characterId": 196,
           "fieldKey": "genre",
-          "values": [
-            "Surreal Horror"
-          ]
+          "values": ["Surreal Horror"]
         },
         {
           "characterId": 196,
           "fieldKey": "species",
-          "values": [
-            "Cartoon Cheetah"
-          ]
+          "values": ["Cartoon Cheetah"]
         },
         {
           "characterId": 196,
@@ -5040,16 +4624,12 @@
         {
           "characterId": 196,
           "fieldKey": "role",
-          "values": [
-            "antagonist"
-          ]
+          "values": ["antagonist"]
         },
         {
           "characterId": 197,
           "fieldKey": "class",
-          "values": [
-            "Temporal Agent"
-          ]
+          "values": ["Temporal Agent"]
         },
         {
           "characterId": 197,
@@ -5077,23 +4657,17 @@
         {
           "characterId": 197,
           "fieldKey": "role",
-          "values": [
-            "protagonist"
-          ]
+          "values": ["protagonist"]
         },
         {
           "characterId": 198,
           "fieldKey": "genre",
-          "values": [
-            "Culinary Time Travel"
-          ]
+          "values": ["Culinary Time Travel"]
         },
         {
           "characterId": 198,
           "fieldKey": "class",
-          "values": [
-            "Chef"
-          ]
+          "values": ["Chef"]
         },
         {
           "characterId": 198,
@@ -5121,23 +4695,17 @@
         {
           "characterId": 198,
           "fieldKey": "role",
-          "values": [
-            "protagonist"
-          ]
+          "values": ["protagonist"]
         },
         {
           "characterId": 199,
           "fieldKey": "genre",
-          "values": [
-            "Gentle Sci-Fi"
-          ]
+          "values": ["Gentle Sci-Fi"]
         },
         {
           "characterId": 199,
           "fieldKey": "class",
-          "values": [
-            "Awakened AI"
-          ]
+          "values": ["Awakened AI"]
         },
         {
           "characterId": 199,
@@ -5165,23 +4733,17 @@
         {
           "characterId": 199,
           "fieldKey": "role",
-          "values": [
-            "protagonist"
-          ]
+          "values": ["protagonist"]
         },
         {
           "characterId": 200,
           "fieldKey": "genre",
-          "values": [
-            "Gentle Sci-Fi"
-          ]
+          "values": ["Gentle Sci-Fi"]
         },
         {
           "characterId": 200,
           "fieldKey": "class",
-          "values": [
-            "Companion Bot"
-          ]
+          "values": ["Companion Bot"]
         },
         {
           "characterId": 200,
@@ -5210,37 +4772,27 @@
         {
           "characterId": 200,
           "fieldKey": "role",
-          "values": [
-            "ally"
-          ]
+          "values": ["ally"]
         },
         {
           "characterId": 201,
           "fieldKey": "genre",
-          "values": [
-            "Eco-Fantasy"
-          ]
+          "values": ["Eco-Fantasy"]
         },
         {
           "characterId": 201,
           "fieldKey": "species",
-          "values": [
-            "Daisy"
-          ]
+          "values": ["Daisy"]
         },
         {
           "characterId": 201,
           "fieldKey": "class",
-          "values": [
-            "Sentient Plant"
-          ]
+          "values": ["Sentient Plant"]
         },
         {
           "characterId": 201,
           "fieldKey": "gender",
-          "values": [
-            "female"
-          ]
+          "values": ["female"]
         },
         {
           "characterId": 201,
@@ -5268,23 +4820,17 @@
         {
           "characterId": 201,
           "fieldKey": "role",
-          "values": [
-            "deuteragonist"
-          ]
+          "values": ["deuteragonist"]
         },
         {
           "characterId": 202,
           "fieldKey": "genre",
-          "values": [
-            "Eco-Fantasy"
-          ]
+          "values": ["Eco-Fantasy"]
         },
         {
           "characterId": 202,
           "fieldKey": "class",
-          "values": [
-            "Gardener"
-          ]
+          "values": ["Gardener"]
         },
         {
           "characterId": 202,
@@ -5312,23 +4858,17 @@
         {
           "characterId": 202,
           "fieldKey": "role",
-          "values": [
-            "ally"
-          ]
+          "values": ["ally"]
         },
         {
           "characterId": 203,
           "fieldKey": "genre",
-          "values": [
-            "Eco-Fantasy"
-          ]
+          "values": ["Eco-Fantasy"]
         },
         {
           "characterId": 203,
           "fieldKey": "class",
-          "values": [
-            "Steward"
-          ]
+          "values": ["Steward"]
         },
         {
           "characterId": 203,
@@ -5356,30 +4896,22 @@
         {
           "characterId": 203,
           "fieldKey": "role",
-          "values": [
-            "protagonist"
-          ]
+          "values": ["protagonist"]
         },
         {
           "characterId": 204,
           "fieldKey": "genre",
-          "values": [
-            "Dreampunk Noir"
-          ]
+          "values": ["Dreampunk Noir"]
         },
         {
           "characterId": 204,
           "fieldKey": "species",
-          "values": [
-            "Augmented Human"
-          ]
+          "values": ["Augmented Human"]
         },
         {
           "characterId": 204,
           "fieldKey": "class",
-          "values": [
-            "Gangster"
-          ]
+          "values": ["Gangster"]
         },
         {
           "characterId": 204,
@@ -5408,23 +4940,17 @@
         {
           "characterId": 204,
           "fieldKey": "role",
-          "values": [
-            "ally"
-          ]
+          "values": ["ally"]
         },
         {
           "characterId": 205,
           "fieldKey": "genre",
-          "values": [
-            "Deep-Sea Horror"
-          ]
+          "values": ["Deep-Sea Horror"]
         },
         {
           "characterId": 205,
           "fieldKey": "class",
-          "values": [
-            "Submarine Captain"
-          ]
+          "values": ["Submarine Captain"]
         },
         {
           "characterId": 205,
@@ -5452,30 +4978,22 @@
         {
           "characterId": 205,
           "fieldKey": "role",
-          "values": [
-            "antagonist"
-          ]
+          "values": ["antagonist"]
         },
         {
           "characterId": 206,
           "fieldKey": "genre",
-          "values": [
-            "Absurdist Strategy"
-          ]
+          "values": ["Absurdist Strategy"]
         },
         {
           "characterId": 206,
           "fieldKey": "species",
-          "values": [
-            "Sea Anemone"
-          ]
+          "values": ["Sea Anemone"]
         },
         {
           "characterId": 206,
           "fieldKey": "class",
-          "values": [
-            "Mastermind"
-          ]
+          "values": ["Mastermind"]
         },
         {
           "characterId": 206,
@@ -5504,23 +5022,17 @@
         {
           "characterId": 206,
           "fieldKey": "role",
-          "values": [
-            "protagonist"
-          ]
+          "values": ["protagonist"]
         },
         {
           "characterId": 207,
           "fieldKey": "species",
-          "values": [
-            "Dust Construct"
-          ]
+          "values": ["Dust Construct"]
         },
         {
           "characterId": 207,
           "fieldKey": "class",
-          "values": [
-            "Revenant Gunslinger"
-          ]
+          "values": ["Revenant Gunslinger"]
         },
         {
           "characterId": 207,
@@ -5549,30 +5061,22 @@
         {
           "characterId": 207,
           "fieldKey": "role",
-          "values": [
-            "antagonist"
-          ]
+          "values": ["antagonist"]
         },
         {
           "characterId": 208,
           "fieldKey": "genre",
-          "values": [
-            "Absurdist Strategy"
-          ]
+          "values": ["Absurdist Strategy"]
         },
         {
           "characterId": 208,
           "fieldKey": "class",
-          "values": [
-            "Henchcreature"
-          ]
+          "values": ["Henchcreature"]
         },
         {
           "characterId": 208,
           "fieldKey": "gender",
-          "values": [
-            "male"
-          ]
+          "values": ["male"]
         },
         {
           "characterId": 208,
@@ -5601,23 +5105,17 @@
         {
           "characterId": 208,
           "fieldKey": "role",
-          "values": [
-            "ally"
-          ]
+          "values": ["ally"]
         },
         {
           "characterId": 209,
           "fieldKey": "species",
-          "values": [
-            "Coyote"
-          ]
+          "values": ["Coyote"]
         },
         {
           "characterId": 209,
           "fieldKey": "class",
-          "values": [
-            "Trader"
-          ]
+          "values": ["Trader"]
         },
         {
           "characterId": 209,
@@ -5646,30 +5144,22 @@
         {
           "characterId": 209,
           "fieldKey": "role",
-          "values": [
-            "ally"
-          ]
+          "values": ["ally"]
         },
         {
           "characterId": 210,
           "fieldKey": "genre",
-          "values": [
-            "Animal Interiority"
-          ]
+          "values": ["Animal Interiority"]
         },
         {
           "characterId": 210,
           "fieldKey": "species",
-          "values": [
-            "Crow"
-          ]
+          "values": ["Crow"]
         },
         {
           "characterId": 210,
           "fieldKey": "class",
-          "values": [
-            "Collector"
-          ]
+          "values": ["Collector"]
         },
         {
           "characterId": 210,
@@ -5697,30 +5187,22 @@
         {
           "characterId": 210,
           "fieldKey": "role",
-          "values": [
-            "ally"
-          ]
+          "values": ["ally"]
         },
         {
           "characterId": 211,
           "fieldKey": "genre",
-          "values": [
-            "Cosmic Bureaucracy"
-          ]
+          "values": ["Cosmic Bureaucracy"]
         },
         {
           "characterId": 211,
           "fieldKey": "species",
-          "values": [
-            "Eldritch Bureaucracy"
-          ]
+          "values": ["Eldritch Bureaucracy"]
         },
         {
           "characterId": 211,
           "fieldKey": "class",
-          "values": [
-            "Cosmic Middle Management"
-          ]
+          "values": ["Cosmic Middle Management"]
         },
         {
           "characterId": 211,
@@ -5748,23 +5230,17 @@
         {
           "characterId": 211,
           "fieldKey": "role",
-          "values": [
-            "antagonist"
-          ]
+          "values": ["antagonist"]
         },
         {
           "characterId": 212,
           "fieldKey": "genre",
-          "values": [
-            "Cozy Undead"
-          ]
+          "values": ["Cozy Undead"]
         },
         {
           "characterId": 212,
           "fieldKey": "class",
-          "values": [
-            "Returnee"
-          ]
+          "values": ["Returnee"]
         },
         {
           "characterId": 212,
@@ -5793,23 +5269,17 @@
         {
           "characterId": 212,
           "fieldKey": "role",
-          "values": [
-            "deuteragonist"
-          ]
+          "values": ["deuteragonist"]
         },
         {
           "characterId": 213,
           "fieldKey": "species",
-          "values": [
-            "Reformed Monster"
-          ]
+          "values": ["Reformed Monster"]
         },
         {
           "characterId": 213,
           "fieldKey": "class",
-          "values": [
-            "Bounty-Poster"
-          ]
+          "values": ["Bounty-Poster"]
         },
         {
           "characterId": 213,
@@ -5838,30 +5308,22 @@
         {
           "characterId": 213,
           "fieldKey": "role",
-          "values": [
-            "antagonist"
-          ]
+          "values": ["antagonist"]
         },
         {
           "characterId": 214,
           "fieldKey": "genre",
-          "values": [
-            "Surreal Horror"
-          ]
+          "values": ["Surreal Horror"]
         },
         {
           "characterId": 214,
           "fieldKey": "species",
-          "values": [
-            "Enchanted Object"
-          ]
+          "values": ["Enchanted Object"]
         },
         {
           "characterId": 214,
           "fieldKey": "class",
-          "values": [
-            "Living Book"
-          ]
+          "values": ["Living Book"]
         },
         {
           "characterId": 214,
@@ -5889,23 +5351,17 @@
         {
           "characterId": 214,
           "fieldKey": "role",
-          "values": [
-            "ally"
-          ]
+          "values": ["ally"]
         },
         {
           "characterId": 215,
           "fieldKey": "genre",
-          "values": [
-            "Animal Interiority"
-          ]
+          "values": ["Animal Interiority"]
         },
         {
           "characterId": 215,
           "fieldKey": "class",
-          "values": [
-            "Scholar"
-          ]
+          "values": ["Scholar"]
         },
         {
           "characterId": 215,
@@ -5934,30 +5390,22 @@
         {
           "characterId": 215,
           "fieldKey": "role",
-          "values": [
-            "ally"
-          ]
+          "values": ["ally"]
         },
         {
           "characterId": 216,
           "fieldKey": "genre",
-          "values": [
-            "Mythic"
-          ]
+          "values": ["Mythic"]
         },
         {
           "characterId": 216,
           "fieldKey": "species",
-          "values": [
-            "God"
-          ]
+          "values": ["God"]
         },
         {
           "characterId": 216,
           "fieldKey": "class",
-          "values": [
-            "Minor God"
-          ]
+          "values": ["Minor God"]
         },
         {
           "characterId": 216,
@@ -5985,23 +5433,17 @@
         {
           "characterId": 216,
           "fieldKey": "role",
-          "values": [
-            "ally"
-          ]
+          "values": ["ally"]
         },
         {
           "characterId": 217,
           "fieldKey": "genre",
-          "values": [
-            "Heist"
-          ]
+          "values": ["Heist"]
         },
         {
           "characterId": 217,
           "fieldKey": "class",
-          "values": [
-            "Specialist"
-          ]
+          "values": ["Specialist"]
         },
         {
           "characterId": 217,
@@ -6029,23 +5471,17 @@
         {
           "characterId": 217,
           "fieldKey": "role",
-          "values": [
-            "ally"
-          ]
+          "values": ["ally"]
         },
         {
           "characterId": 218,
           "fieldKey": "species",
-          "values": [
-            "Digital Fox"
-          ]
+          "values": ["Digital Fox"]
         },
         {
           "characterId": 218,
           "fieldKey": "class",
-          "values": [
-            "Black-Market Vendor"
-          ]
+          "values": ["Black-Market Vendor"]
         },
         {
           "characterId": 218,
@@ -6074,37 +5510,27 @@
         {
           "characterId": 218,
           "fieldKey": "role",
-          "values": [
-            "ally"
-          ]
+          "values": ["ally"]
         },
         {
           "characterId": 219,
           "fieldKey": "genre",
-          "values": [
-            "Animal Interiority"
-          ]
+          "values": ["Animal Interiority"]
         },
         {
           "characterId": 219,
           "fieldKey": "species",
-          "values": [
-            "Stag"
-          ]
+          "values": ["Stag"]
         },
         {
           "characterId": 219,
           "fieldKey": "class",
-          "values": [
-            "Sovereign"
-          ]
+          "values": ["Sovereign"]
         },
         {
           "characterId": 219,
           "fieldKey": "gender",
-          "values": [
-            "male"
-          ]
+          "values": ["male"]
         },
         {
           "characterId": 219,
@@ -6132,23 +5558,17 @@
         {
           "characterId": 219,
           "fieldKey": "role",
-          "values": [
-            "ally"
-          ]
+          "values": ["ally"]
         },
         {
           "characterId": 220,
           "fieldKey": "genre",
-          "values": [
-            "Slice-of-Life"
-          ]
+          "values": ["Slice-of-Life"]
         },
         {
           "characterId": 220,
           "fieldKey": "class",
-          "values": [
-            "Confidant"
-          ]
+          "values": ["Confidant"]
         },
         {
           "characterId": 220,
@@ -6176,16 +5596,12 @@
         {
           "characterId": 220,
           "fieldKey": "role",
-          "values": [
-            "ally"
-          ]
+          "values": ["ally"]
         },
         {
           "characterId": 221,
           "fieldKey": "species",
-          "values": [
-            "Spirit"
-          ]
+          "values": ["Spirit"]
         },
         {
           "characterId": 221,
@@ -6213,30 +5629,22 @@
         {
           "characterId": 221,
           "fieldKey": "role",
-          "values": [
-            "ally"
-          ]
+          "values": ["ally"]
         },
         {
           "characterId": 222,
           "fieldKey": "species",
-          "values": [
-            "Griffin"
-          ]
+          "values": ["Griffin"]
         },
         {
           "characterId": 222,
           "fieldKey": "class",
-          "values": [
-            "Prospector"
-          ]
+          "values": ["Prospector"]
         },
         {
           "characterId": 222,
           "fieldKey": "gender",
-          "values": [
-            "male"
-          ]
+          "values": ["male"]
         },
         {
           "characterId": 222,
@@ -6264,30 +5672,22 @@
         {
           "characterId": 222,
           "fieldKey": "role",
-          "values": [
-            "ally"
-          ]
+          "values": ["ally"]
         },
         {
           "characterId": 223,
           "fieldKey": "genre",
-          "values": [
-            "Surreal"
-          ]
+          "values": ["Surreal"]
         },
         {
           "characterId": 223,
           "fieldKey": "species",
-          "values": [
-            "Skywhale"
-          ]
+          "values": ["Skywhale"]
         },
         {
           "characterId": 223,
           "fieldKey": "class",
-          "values": [
-            "Sky-Beast"
-          ]
+          "values": ["Sky-Beast"]
         },
         {
           "characterId": 223,
@@ -6315,30 +5715,22 @@
         {
           "characterId": 223,
           "fieldKey": "role",
-          "values": [
-            "ally"
-          ]
+          "values": ["ally"]
         },
         {
           "characterId": 224,
           "fieldKey": "genre",
-          "values": [
-            "Puzzle Fantasy"
-          ]
+          "values": ["Puzzle Fantasy"]
         },
         {
           "characterId": 224,
           "fieldKey": "species",
-          "values": [
-            "Living Structure"
-          ]
+          "values": ["Living Structure"]
         },
         {
           "characterId": 224,
           "fieldKey": "class",
-          "values": [
-            "Genius Loci"
-          ]
+          "values": ["Genius Loci"]
         },
         {
           "characterId": 224,
@@ -6366,16 +5758,12 @@
         {
           "characterId": 224,
           "fieldKey": "role",
-          "values": [
-            "antagonist"
-          ]
+          "values": ["antagonist"]
         },
         {
           "characterId": 225,
           "fieldKey": "genre",
-          "values": [
-            "Cozy Undead"
-          ]
+          "values": ["Cozy Undead"]
         },
         {
           "characterId": 225,
@@ -6403,30 +5791,22 @@
         {
           "characterId": 225,
           "fieldKey": "role",
-          "values": [
-            "protagonist"
-          ]
+          "values": ["protagonist"]
         },
         {
           "characterId": 226,
           "fieldKey": "genre",
-          "values": [
-            "Dark Circus"
-          ]
+          "values": ["Dark Circus"]
         },
         {
           "characterId": 226,
           "fieldKey": "class",
-          "values": [
-            "Aerialist"
-          ]
+          "values": ["Aerialist"]
         },
         {
           "characterId": 226,
           "fieldKey": "alignment",
-          "values": [
-            "Neutral"
-          ]
+          "values": ["Neutral"]
         },
         {
           "characterId": 226,
@@ -6454,23 +5834,17 @@
         {
           "characterId": 226,
           "fieldKey": "role",
-          "values": [
-            "deuteragonist"
-          ]
+          "values": ["deuteragonist"]
         },
         {
           "characterId": 227,
           "fieldKey": "genre",
-          "values": [
-            "Underwater Court"
-          ]
+          "values": ["Underwater Court"]
         },
         {
           "characterId": 227,
           "fieldKey": "class",
-          "values": [
-            "Diplomat"
-          ]
+          "values": ["Diplomat"]
         },
         {
           "characterId": 227,
@@ -6498,30 +5872,22 @@
         {
           "characterId": 227,
           "fieldKey": "role",
-          "values": [
-            "ally"
-          ]
+          "values": ["ally"]
         },
         {
           "characterId": 228,
           "fieldKey": "genre",
-          "values": [
-            "Gothic Mechanical"
-          ]
+          "values": ["Gothic Mechanical"]
         },
         {
           "characterId": 228,
           "fieldKey": "species",
-          "values": [
-            "Spirit"
-          ]
+          "values": ["Spirit"]
         },
         {
           "characterId": 228,
           "fieldKey": "class",
-          "values": [
-            "Ghost Composer"
-          ]
+          "values": ["Ghost Composer"]
         },
         {
           "characterId": 228,
@@ -6549,30 +5915,22 @@
         {
           "characterId": 228,
           "fieldKey": "role",
-          "values": [
-            "deuteragonist"
-          ]
+          "values": ["deuteragonist"]
         },
         {
           "characterId": 229,
           "fieldKey": "genre",
-          "values": [
-            "Eco-Fantasy"
-          ]
+          "values": ["Eco-Fantasy"]
         },
         {
           "characterId": 229,
           "fieldKey": "species",
-          "values": [
-            "Impossible Pollinators"
-          ]
+          "values": ["Impossible Pollinators"]
         },
         {
           "characterId": 229,
           "fieldKey": "class",
-          "values": [
-            "Swarm"
-          ]
+          "values": ["Swarm"]
         },
         {
           "characterId": 229,
@@ -6600,23 +5958,17 @@
         {
           "characterId": 229,
           "fieldKey": "role",
-          "values": [
-            "ally"
-          ]
+          "values": ["ally"]
         },
         {
           "characterId": 230,
           "fieldKey": "genre",
-          "values": [
-            "Magic Realism"
-          ]
+          "values": ["Magic Realism"]
         },
         {
           "characterId": 230,
           "fieldKey": "class",
-          "values": [
-            "Returned Soul"
-          ]
+          "values": ["Returned Soul"]
         },
         {
           "characterId": 230,
@@ -6644,23 +5996,17 @@
         {
           "characterId": 230,
           "fieldKey": "role",
-          "values": [
-            "ally"
-          ]
+          "values": ["ally"]
         },
         {
           "characterId": 231,
           "fieldKey": "genre",
-          "values": [
-            "Weird Western"
-          ]
+          "values": ["Weird Western"]
         },
         {
           "characterId": 231,
           "fieldKey": "class",
-          "values": [
-            "Host"
-          ]
+          "values": ["Host"]
         },
         {
           "characterId": 231,
@@ -6688,16 +6034,12 @@
         {
           "characterId": 231,
           "fieldKey": "role",
-          "values": [
-            "ally"
-          ]
+          "values": ["ally"]
         },
         {
           "characterId": 232,
           "fieldKey": "class",
-          "values": [
-            "Legionary"
-          ]
+          "values": ["Legionary"]
         },
         {
           "characterId": 232,
@@ -6725,16 +6067,12 @@
         {
           "characterId": 232,
           "fieldKey": "role",
-          "values": [
-            "deuteragonist"
-          ]
+          "values": ["deuteragonist"]
         },
         {
           "characterId": 233,
           "fieldKey": "class",
-          "values": [
-            "Interpreter"
-          ]
+          "values": ["Interpreter"]
         },
         {
           "characterId": 233,
@@ -6762,23 +6100,17 @@
         {
           "characterId": 233,
           "fieldKey": "role",
-          "values": [
-            "ally"
-          ]
+          "values": ["ally"]
         },
         {
           "characterId": 234,
           "fieldKey": "species",
-          "values": [
-            "Sentient Forest"
-          ]
+          "values": ["Sentient Forest"]
         },
         {
           "characterId": 234,
           "fieldKey": "class",
-          "values": [
-            "Genius Loci"
-          ]
+          "values": ["Genius Loci"]
         },
         {
           "characterId": 234,
@@ -6806,23 +6138,17 @@
         {
           "characterId": 234,
           "fieldKey": "role",
-          "values": [
-            "antagonist"
-          ]
+          "values": ["antagonist"]
         },
         {
           "characterId": 235,
           "fieldKey": "genre",
-          "values": [
-            "Heist"
-          ]
+          "values": ["Heist"]
         },
         {
           "characterId": 235,
           "fieldKey": "class",
-          "values": [
-            "Loose Cannon"
-          ]
+          "values": ["Loose Cannon"]
         },
         {
           "characterId": 235,
@@ -6851,23 +6177,17 @@
         {
           "characterId": 235,
           "fieldKey": "role",
-          "values": [
-            "ally"
-          ]
+          "values": ["ally"]
         },
         {
           "characterId": 236,
           "fieldKey": "genre",
-          "values": [
-            "Undead Glamour"
-          ]
+          "values": ["Undead Glamour"]
         },
         {
           "characterId": 236,
           "fieldKey": "class",
-          "values": [
-            "Returnee"
-          ]
+          "values": ["Returnee"]
         },
         {
           "characterId": 236,
@@ -6895,23 +6215,17 @@
         {
           "characterId": 236,
           "fieldKey": "role",
-          "values": [
-            "protagonist"
-          ]
+          "values": ["protagonist"]
         },
         {
           "characterId": 237,
           "fieldKey": "species",
-          "values": [
-            "Oath Made Flesh"
-          ]
+          "values": ["Oath Made Flesh"]
         },
         {
           "characterId": 237,
           "fieldKey": "class",
-          "values": [
-            "Conditional Entity"
-          ]
+          "values": ["Conditional Entity"]
         },
         {
           "characterId": 237,
@@ -6940,23 +6254,17 @@
         {
           "characterId": 237,
           "fieldKey": "role",
-          "values": [
-            "ally"
-          ]
+          "values": ["ally"]
         },
         {
           "characterId": 238,
           "fieldKey": "species",
-          "values": [
-            "Living Lack"
-          ]
+          "values": ["Living Lack"]
         },
         {
           "characterId": 238,
           "fieldKey": "class",
-          "values": [
-            "Negative Space"
-          ]
+          "values": ["Negative Space"]
         },
         {
           "characterId": 238,
@@ -6984,30 +6292,22 @@
         {
           "characterId": 238,
           "fieldKey": "role",
-          "values": [
-            "deuteragonist"
-          ]
+          "values": ["deuteragonist"]
         },
         {
           "characterId": 239,
           "fieldKey": "species",
-          "values": [
-            "Colossal Whale"
-          ]
+          "values": ["Colossal Whale"]
         },
         {
           "characterId": 239,
           "fieldKey": "class",
-          "values": [
-            "Inhabited Being"
-          ]
+          "values": ["Inhabited Being"]
         },
         {
           "characterId": 239,
           "fieldKey": "gender",
-          "values": [
-            "female"
-          ]
+          "values": ["female"]
         },
         {
           "characterId": 239,
@@ -7035,23 +6335,17 @@
         {
           "characterId": 239,
           "fieldKey": "role",
-          "values": [
-            "ally"
-          ]
+          "values": ["ally"]
         },
         {
           "characterId": 240,
           "fieldKey": "species",
-          "values": [
-            "Living Standard"
-          ]
+          "values": ["Living Standard"]
         },
         {
           "characterId": 240,
           "fieldKey": "class",
-          "values": [
-            "Abstract Concept"
-          ]
+          "values": ["Abstract Concept"]
         },
         {
           "characterId": 240,
@@ -7079,16 +6373,12 @@
         {
           "characterId": 240,
           "fieldKey": "role",
-          "values": [
-            "ally"
-          ]
+          "values": ["ally"]
         },
         {
           "characterId": 241,
           "fieldKey": "class",
-          "values": [
-            "Reversed Being"
-          ]
+          "values": ["Reversed Being"]
         },
         {
           "characterId": 241,
@@ -7117,30 +6407,22 @@
         {
           "characterId": 241,
           "fieldKey": "role",
-          "values": [
-            "deuteragonist"
-          ]
+          "values": ["deuteragonist"]
         },
         {
           "characterId": 242,
           "fieldKey": "genre",
-          "values": [
-            "Hopepunk"
-          ]
+          "values": ["Hopepunk"]
         },
         {
           "characterId": 242,
           "fieldKey": "species",
-          "values": [
-            "Digital Butterfly"
-          ]
+          "values": ["Digital Butterfly"]
         },
         {
           "characterId": 242,
           "fieldKey": "class",
-          "values": [
-            "Living Keystone"
-          ]
+          "values": ["Living Keystone"]
         },
         {
           "characterId": 242,
@@ -7168,30 +6450,22 @@
         {
           "characterId": 242,
           "fieldKey": "role",
-          "values": [
-            "ally"
-          ]
+          "values": ["ally"]
         },
         {
           "characterId": 243,
           "fieldKey": "genre",
-          "values": [
-            "Meta"
-          ]
+          "values": ["Meta"]
         },
         {
           "characterId": 243,
           "fieldKey": "species",
-          "values": [
-            "Generated Being"
-          ]
+          "values": ["Generated Being"]
         },
         {
           "characterId": 243,
           "fieldKey": "class",
-          "values": [
-            "Self-Aware Template"
-          ]
+          "values": ["Self-Aware Template"]
         },
         {
           "characterId": 243,
@@ -7219,23 +6493,17 @@
         {
           "characterId": 243,
           "fieldKey": "role",
-          "values": [
-            "protagonist"
-          ]
+          "values": ["protagonist"]
         },
         {
           "characterId": 244,
           "fieldKey": "species",
-          "values": [
-            "Sentient Clause"
-          ]
+          "values": ["Sentient Clause"]
         },
         {
           "characterId": 244,
           "fieldKey": "class",
-          "values": [
-            "Animate Legalese"
-          ]
+          "values": ["Animate Legalese"]
         },
         {
           "characterId": 244,
@@ -7264,16 +6532,12 @@
         {
           "characterId": 244,
           "fieldKey": "role",
-          "values": [
-            "ally"
-          ]
+          "values": ["ally"]
         },
         {
           "characterId": 245,
           "fieldKey": "class",
-          "values": [
-            "Impossible Magician"
-          ]
+          "values": ["Impossible Magician"]
         },
         {
           "characterId": 245,
@@ -7302,23 +6566,17 @@
         {
           "characterId": 245,
           "fieldKey": "role",
-          "values": [
-            "ally"
-          ]
+          "values": ["ally"]
         },
         {
           "characterId": 246,
           "fieldKey": "species",
-          "values": [
-            "Ambulatory Town"
-          ]
+          "values": ["Ambulatory Town"]
         },
         {
           "characterId": 246,
           "fieldKey": "class",
-          "values": [
-            "Living Settlement"
-          ]
+          "values": ["Living Settlement"]
         },
         {
           "characterId": 246,
@@ -7346,23 +6604,17 @@
         {
           "characterId": 246,
           "fieldKey": "role",
-          "values": [
-            "ally"
-          ]
+          "values": ["ally"]
         },
         {
           "characterId": 247,
           "fieldKey": "species",
-          "values": [
-            "Sentient Card"
-          ]
+          "values": ["Sentient Card"]
         },
         {
           "characterId": 247,
           "fieldKey": "class",
-          "values": [
-            "Living Arcana"
-          ]
+          "values": ["Living Arcana"]
         },
         {
           "characterId": 247,
@@ -7390,23 +6642,17 @@
         {
           "characterId": 247,
           "fieldKey": "role",
-          "values": [
-            "ally"
-          ]
+          "values": ["ally"]
         },
         {
           "characterId": 248,
           "fieldKey": "species",
-          "values": [
-            "Aspiring Eldritch Horror"
-          ]
+          "values": ["Aspiring Eldritch Horror"]
         },
         {
           "characterId": 248,
           "fieldKey": "class",
-          "values": [
-            "Understudy"
-          ]
+          "values": ["Understudy"]
         },
         {
           "characterId": 248,
@@ -7435,23 +6681,17 @@
         {
           "characterId": 248,
           "fieldKey": "role",
-          "values": [
-            "deuteragonist"
-          ]
+          "values": ["deuteragonist"]
         },
         {
           "characterId": 249,
           "fieldKey": "species",
-          "values": [
-            "Fungal Collective"
-          ]
+          "values": ["Fungal Collective"]
         },
         {
           "characterId": 249,
           "fieldKey": "class",
-          "values": [
-            "Decomposer Spirit"
-          ]
+          "values": ["Decomposer Spirit"]
         },
         {
           "characterId": 249,
@@ -7479,23 +6719,17 @@
         {
           "characterId": 249,
           "fieldKey": "role",
-          "values": [
-            "ally"
-          ]
+          "values": ["ally"]
         },
         {
           "characterId": 250,
           "fieldKey": "species",
-          "values": [
-            "Unknown"
-          ]
+          "values": ["Unknown"]
         },
         {
           "characterId": 250,
           "fieldKey": "class",
-          "values": [
-            "Enigma"
-          ]
+          "values": ["Enigma"]
         },
         {
           "characterId": 250,
@@ -7523,23 +6757,17 @@
         {
           "characterId": 250,
           "fieldKey": "role",
-          "values": [
-            "antagonist"
-          ]
+          "values": ["antagonist"]
         },
         {
           "characterId": 251,
           "fieldKey": "species",
-          "values": [
-            "Punctuation Spirit"
-          ]
+          "values": ["Punctuation Spirit"]
         },
         {
           "characterId": 251,
           "fieldKey": "class",
-          "values": [
-            "Living Grammar"
-          ]
+          "values": ["Living Grammar"]
         },
         {
           "characterId": 251,
@@ -7568,16 +6796,12 @@
         {
           "characterId": 251,
           "fieldKey": "role",
-          "values": [
-            "ally"
-          ]
+          "values": ["ally"]
         },
         {
           "characterId": 252,
           "fieldKey": "class",
-          "values": [
-            "Former Chosen One"
-          ]
+          "values": ["Former Chosen One"]
         },
         {
           "characterId": 252,
@@ -7605,23 +6829,17 @@
         {
           "characterId": 252,
           "fieldKey": "role",
-          "values": [
-            "ally"
-          ]
+          "values": ["ally"]
         },
         {
           "characterId": 253,
           "fieldKey": "species",
-          "values": [
-            "Ghost Transmission"
-          ]
+          "values": ["Ghost Transmission"]
         },
         {
           "characterId": 253,
           "fieldKey": "class",
-          "values": [
-            "Lingering Signal"
-          ]
+          "values": ["Lingering Signal"]
         },
         {
           "characterId": 253,
@@ -7650,23 +6868,17 @@
         {
           "characterId": 253,
           "fieldKey": "role",
-          "values": [
-            "antagonist"
-          ]
+          "values": ["antagonist"]
         },
         {
           "characterId": 254,
           "fieldKey": "species",
-          "values": [
-            "Living Disease"
-          ]
+          "values": ["Living Disease"]
         },
         {
           "characterId": 254,
           "fieldKey": "class",
-          "values": [
-            "Sentient Affliction"
-          ]
+          "values": ["Sentient Affliction"]
         },
         {
           "characterId": 254,
@@ -7694,23 +6906,17 @@
         {
           "characterId": 254,
           "fieldKey": "role",
-          "values": [
-            "antagonist"
-          ]
+          "values": ["antagonist"]
         },
         {
           "characterId": 255,
           "fieldKey": "species",
-          "values": [
-            "Collective Consciousness"
-          ]
+          "values": ["Collective Consciousness"]
         },
         {
           "characterId": 255,
           "fieldKey": "class",
-          "values": [
-            "Plural Being"
-          ]
+          "values": ["Plural Being"]
         },
         {
           "characterId": 255,
@@ -7738,23 +6944,17 @@
         {
           "characterId": 255,
           "fieldKey": "role",
-          "values": [
-            "ally"
-          ]
+          "values": ["ally"]
         },
         {
           "characterId": 256,
           "fieldKey": "species",
-          "values": [
-            "Sentient Map"
-          ]
+          "values": ["Sentient Map"]
         },
         {
           "characterId": 256,
           "fieldKey": "class",
-          "values": [
-            "Truthful Artifact"
-          ]
+          "values": ["Truthful Artifact"]
         },
         {
           "characterId": 256,
@@ -7783,23 +6983,17 @@
         {
           "characterId": 256,
           "fieldKey": "role",
-          "values": [
-            "ally"
-          ]
+          "values": ["ally"]
         },
         {
           "characterId": 257,
           "fieldKey": "species",
-          "values": [
-            "Living Happenstance"
-          ]
+          "values": ["Living Happenstance"]
         },
         {
           "characterId": 257,
           "fieldKey": "class",
-          "values": [
-            "Working Abstraction"
-          ]
+          "values": ["Working Abstraction"]
         },
         {
           "characterId": 257,
@@ -7827,23 +7021,17 @@
         {
           "characterId": 257,
           "fieldKey": "role",
-          "values": [
-            "ally"
-          ]
+          "values": ["ally"]
         },
         {
           "characterId": 258,
           "fieldKey": "species",
-          "values": [
-            "Living Emotion"
-          ]
+          "values": ["Living Emotion"]
         },
         {
           "characterId": 258,
           "fieldKey": "class",
-          "values": [
-            "Working Abstraction"
-          ]
+          "values": ["Working Abstraction"]
         },
         {
           "characterId": 258,
@@ -7872,23 +7060,17 @@
         {
           "characterId": 258,
           "fieldKey": "role",
-          "values": [
-            "ally"
-          ]
+          "values": ["ally"]
         },
         {
           "characterId": 259,
           "fieldKey": "species",
-          "values": [
-            "Living Flock"
-          ]
+          "values": ["Living Flock"]
         },
         {
           "characterId": 259,
           "fieldKey": "class",
-          "values": [
-            "Cross-World Drifter"
-          ]
+          "values": ["Cross-World Drifter"]
         },
         {
           "characterId": 259,
@@ -7919,30 +7101,22 @@
         {
           "characterId": 259,
           "fieldKey": "role",
-          "values": [
-            "ally"
-          ]
+          "values": ["ally"]
         },
         {
           "characterId": 260,
           "fieldKey": "genre",
-          "values": [
-            "Hopepunk"
-          ]
+          "values": ["Hopepunk"]
         },
         {
           "characterId": 260,
           "fieldKey": "species",
-          "values": [
-            "Rainbow Butterfly"
-          ]
+          "values": ["Rainbow Butterfly"]
         },
         {
           "characterId": 260,
           "fieldKey": "class",
-          "values": [
-            "Hope Construct"
-          ]
+          "values": ["Hope Construct"]
         },
         {
           "characterId": 260,
@@ -7972,23 +7146,17 @@
         {
           "characterId": 260,
           "fieldKey": "role",
-          "values": [
-            "ally"
-          ]
+          "values": ["ally"]
         },
         {
           "characterId": 261,
           "fieldKey": "species",
-          "values": [
-            "Dwarf Star"
-          ]
+          "values": ["Dwarf Star"]
         },
         {
           "characterId": 261,
           "fieldKey": "class",
-          "values": [
-            "Stellar Reserve"
-          ]
+          "values": ["Stellar Reserve"]
         },
         {
           "characterId": 261,
@@ -8017,23 +7185,17 @@
         {
           "characterId": 261,
           "fieldKey": "role",
-          "values": [
-            "ally"
-          ]
+          "values": ["ally"]
         },
         {
           "characterId": 262,
           "fieldKey": "species",
-          "values": [
-            "Living Time"
-          ]
+          "values": ["Living Time"]
         },
         {
           "characterId": 262,
           "fieldKey": "class",
-          "values": [
-            "Temporal Predator"
-          ]
+          "values": ["Temporal Predator"]
         },
         {
           "characterId": 262,
@@ -8063,23 +7225,17 @@
         {
           "characterId": 262,
           "fieldKey": "role",
-          "values": [
-            "antagonist"
-          ]
+          "values": ["antagonist"]
         },
         {
           "characterId": 263,
           "fieldKey": "species",
-          "values": [
-            "Living Reflection"
-          ]
+          "values": ["Living Reflection"]
         },
         {
           "characterId": 263,
           "fieldKey": "class",
-          "values": [
-            "Doppelganger"
-          ]
+          "values": ["Doppelganger"]
         },
         {
           "characterId": 263,
@@ -8107,23 +7263,17 @@
         {
           "characterId": 263,
           "fieldKey": "role",
-          "values": [
-            "antagonist"
-          ]
+          "values": ["antagonist"]
         },
         {
           "characterId": 264,
           "fieldKey": "species",
-          "values": [
-            "Sentient Microclimate"
-          ]
+          "values": ["Sentient Microclimate"]
         },
         {
           "characterId": 264,
           "fieldKey": "class",
-          "values": [
-            "Living Weather"
-          ]
+          "values": ["Living Weather"]
         },
         {
           "characterId": 264,
@@ -8151,23 +7301,17 @@
         {
           "characterId": 264,
           "fieldKey": "role",
-          "values": [
-            "ally"
-          ]
+          "values": ["ally"]
         },
         {
           "characterId": 265,
           "fieldKey": "species",
-          "values": [
-            "Wish Bureaucracy"
-          ]
+          "values": ["Wish Bureaucracy"]
         },
         {
           "characterId": 265,
           "fieldKey": "class",
-          "values": [
-            "Cosmic Inspector"
-          ]
+          "values": ["Cosmic Inspector"]
         },
         {
           "characterId": 265,
@@ -8196,23 +7340,17 @@
         {
           "characterId": 265,
           "fieldKey": "role",
-          "values": [
-            "antagonist"
-          ]
+          "values": ["antagonist"]
         },
         {
           "characterId": 266,
           "fieldKey": "species",
-          "values": [
-            "Personified Entropy"
-          ]
+          "values": ["Personified Entropy"]
         },
         {
           "characterId": 266,
           "fieldKey": "class",
-          "values": [
-            "Living Decay"
-          ]
+          "values": ["Living Decay"]
         },
         {
           "characterId": 266,
@@ -8242,23 +7380,17 @@
         {
           "characterId": 266,
           "fieldKey": "role",
-          "values": [
-            "antagonist"
-          ]
+          "values": ["antagonist"]
         },
         {
           "characterId": 267,
           "fieldKey": "species",
-          "values": [
-            "Constellation Collective"
-          ]
+          "values": ["Constellation Collective"]
         },
         {
           "characterId": 267,
           "fieldKey": "class",
-          "values": [
-            "Celestial Bureaucracy"
-          ]
+          "values": ["Celestial Bureaucracy"]
         },
         {
           "characterId": 267,
@@ -8286,23 +7418,17 @@
         {
           "characterId": 267,
           "fieldKey": "role",
-          "values": [
-            "ally"
-          ]
+          "values": ["ally"]
         },
         {
           "characterId": 268,
           "fieldKey": "species",
-          "values": [
-            "Living Error"
-          ]
+          "values": ["Living Error"]
         },
         {
           "characterId": 268,
           "fieldKey": "class",
-          "values": [
-            "Beloved Anomaly"
-          ]
+          "values": ["Beloved Anomaly"]
         },
         {
           "characterId": 268,
@@ -8330,16 +7456,12 @@
         {
           "characterId": 268,
           "fieldKey": "role",
-          "values": [
-            "ally"
-          ]
+          "values": ["ally"]
         },
         {
           "characterId": 269,
           "fieldKey": "class",
-          "values": [
-            "Faithful Regular"
-          ]
+          "values": ["Faithful Regular"]
         },
         {
           "characterId": 269,
@@ -8367,23 +7489,17 @@
         {
           "characterId": 269,
           "fieldKey": "role",
-          "values": [
-            "deuteragonist"
-          ]
+          "values": ["deuteragonist"]
         },
         {
           "characterId": 270,
           "fieldKey": "species",
-          "values": [
-            "Living Echo"
-          ]
+          "values": ["Living Echo"]
         },
         {
           "characterId": 270,
           "fieldKey": "class",
-          "values": [
-            "Working Abstraction"
-          ]
+          "values": ["Working Abstraction"]
         },
         {
           "characterId": 270,
@@ -8411,16 +7527,12 @@
         {
           "characterId": 270,
           "fieldKey": "role",
-          "values": [
-            "ally"
-          ]
+          "values": ["ally"]
         },
         {
           "characterId": 271,
           "fieldKey": "class",
-          "values": [
-            "Gentle Titan"
-          ]
+          "values": ["Gentle Titan"]
         },
         {
           "characterId": 271,
@@ -8449,23 +7561,17 @@
         {
           "characterId": 271,
           "fieldKey": "role",
-          "values": [
-            "deuteragonist"
-          ]
+          "values": ["deuteragonist"]
         },
         {
           "characterId": 272,
           "fieldKey": "species",
-          "values": [
-            "Boundary Spirit"
-          ]
+          "values": ["Boundary Spirit"]
         },
         {
           "characterId": 272,
           "fieldKey": "class",
-          "values": [
-            "Liminal Dweller"
-          ]
+          "values": ["Liminal Dweller"]
         },
         {
           "characterId": 272,
@@ -8493,30 +7599,22 @@
         {
           "characterId": 272,
           "fieldKey": "role",
-          "values": [
-            "ally"
-          ]
+          "values": ["ally"]
         },
         {
           "characterId": 273,
           "fieldKey": "species",
-          "values": [
-            "Sea Serpent"
-          ]
+          "values": ["Sea Serpent"]
         },
         {
           "characterId": 273,
           "fieldKey": "class",
-          "values": [
-            "Reformed Monster"
-          ]
+          "values": ["Reformed Monster"]
         },
         {
           "characterId": 273,
           "fieldKey": "gender",
-          "values": [
-            "female"
-          ]
+          "values": ["female"]
         },
         {
           "characterId": 273,
@@ -8544,23 +7642,17 @@
         {
           "characterId": 273,
           "fieldKey": "role",
-          "values": [
-            "ally"
-          ]
+          "values": ["ally"]
         },
         {
           "characterId": 274,
           "fieldKey": "species",
-          "values": [
-            "Personified Faith"
-          ]
+          "values": ["Personified Faith"]
         },
         {
           "characterId": 274,
           "fieldKey": "class",
-          "values": [
-            "Living Belief"
-          ]
+          "values": ["Living Belief"]
         },
         {
           "characterId": 274,
@@ -8591,23 +7683,17 @@
         {
           "characterId": 274,
           "fieldKey": "role",
-          "values": [
-            "ally"
-          ]
+          "values": ["ally"]
         },
         {
           "characterId": 275,
           "fieldKey": "species",
-          "values": [
-            "Personified Pause"
-          ]
+          "values": ["Personified Pause"]
         },
         {
           "characterId": 275,
           "fieldKey": "class",
-          "values": [
-            "Liminal Dweller"
-          ]
+          "values": ["Liminal Dweller"]
         },
         {
           "characterId": 275,
@@ -8635,23 +7721,17 @@
         {
           "characterId": 275,
           "fieldKey": "role",
-          "values": [
-            "ally"
-          ]
+          "values": ["ally"]
         },
         {
           "characterId": 276,
           "fieldKey": "species",
-          "values": [
-            "Animate Story"
-          ]
+          "values": ["Animate Story"]
         },
         {
           "characterId": 276,
           "fieldKey": "class",
-          "values": [
-            "Living Narrative"
-          ]
+          "values": ["Living Narrative"]
         },
         {
           "characterId": 276,
@@ -8682,23 +7762,17 @@
         {
           "characterId": 276,
           "fieldKey": "role",
-          "values": [
-            "deuteragonist"
-          ]
+          "values": ["deuteragonist"]
         },
         {
           "characterId": 277,
           "fieldKey": "species",
-          "values": [
-            "Living Revision"
-          ]
+          "values": ["Living Revision"]
         },
         {
           "characterId": 277,
           "fieldKey": "class",
-          "values": [
-            "Narrative Predator"
-          ]
+          "values": ["Narrative Predator"]
         },
         {
           "characterId": 277,
@@ -8726,23 +7800,17 @@
         {
           "characterId": 277,
           "fieldKey": "role",
-          "values": [
-            "antagonist"
-          ]
+          "values": ["antagonist"]
         },
         {
           "characterId": 278,
           "fieldKey": "species",
-          "values": [
-            "Shapeshifting Appetite"
-          ]
+          "values": ["Shapeshifting Appetite"]
         },
         {
           "characterId": 278,
           "fieldKey": "class",
-          "values": [
-            "Luring Horror"
-          ]
+          "values": ["Luring Horror"]
         },
         {
           "characterId": 278,
@@ -8771,23 +7839,17 @@
         {
           "characterId": 278,
           "fieldKey": "role",
-          "values": [
-            "antagonist"
-          ]
+          "values": ["antagonist"]
         },
         {
           "characterId": 279,
           "fieldKey": "species",
-          "values": [
-            "Living Metric"
-          ]
+          "values": ["Living Metric"]
         },
         {
           "characterId": 279,
           "fieldKey": "class",
-          "values": [
-            "Corporate Horror"
-          ]
+          "values": ["Corporate Horror"]
         },
         {
           "characterId": 279,
@@ -8816,23 +7878,17 @@
         {
           "characterId": 279,
           "fieldKey": "role",
-          "values": [
-            "antagonist"
-          ]
+          "values": ["antagonist"]
         },
         {
           "characterId": 280,
           "fieldKey": "species",
-          "values": [
-            "Eldritch Collector"
-          ]
+          "values": ["Eldritch Collector"]
         },
         {
           "characterId": 280,
           "fieldKey": "class",
-          "values": [
-            "Extinction Curator"
-          ]
+          "values": ["Extinction Curator"]
         },
         {
           "characterId": 280,
@@ -8860,23 +7916,17 @@
         {
           "characterId": 280,
           "fieldKey": "role",
-          "values": [
-            "antagonist"
-          ]
+          "values": ["antagonist"]
         },
         {
           "characterId": 281,
           "fieldKey": "species",
-          "values": [
-            "Living Acclaim"
-          ]
+          "values": ["Living Acclaim"]
         },
         {
           "characterId": 281,
           "fieldKey": "class",
-          "values": [
-            "Attention Parasite"
-          ]
+          "values": ["Attention Parasite"]
         },
         {
           "characterId": 281,
@@ -8905,16 +7955,12 @@
         {
           "characterId": 281,
           "fieldKey": "role",
-          "values": [
-            "antagonist"
-          ]
+          "values": ["antagonist"]
         },
         {
           "characterId": 282,
           "fieldKey": "class",
-          "values": [
-            "Repentant Vector"
-          ]
+          "values": ["Repentant Vector"]
         },
         {
           "characterId": 282,
@@ -8944,23 +7990,17 @@
         {
           "characterId": 282,
           "fieldKey": "role",
-          "values": [
-            "deuteragonist"
-          ]
+          "values": ["deuteragonist"]
         },
         {
           "characterId": 283,
           "fieldKey": "species",
-          "values": [
-            "Living Broadcast"
-          ]
+          "values": ["Living Broadcast"]
         },
         {
           "characterId": 283,
           "fieldKey": "class",
-          "values": [
-            "Mind Contagion"
-          ]
+          "values": ["Mind Contagion"]
         },
         {
           "characterId": 283,
@@ -8989,16 +8029,12 @@
         {
           "characterId": 283,
           "fieldKey": "role",
-          "values": [
-            "antagonist"
-          ]
+          "values": ["antagonist"]
         },
         {
           "characterId": 284,
           "fieldKey": "class",
-          "values": [
-            "Conditional Friend"
-          ]
+          "values": ["Conditional Friend"]
         },
         {
           "characterId": 284,
@@ -9026,16 +8062,12 @@
         {
           "characterId": 284,
           "fieldKey": "role",
-          "values": [
-            "antagonist"
-          ]
+          "values": ["antagonist"]
         },
         {
           "characterId": 285,
           "fieldKey": "class",
-          "values": [
-            "Malicious Guide"
-          ]
+          "values": ["Malicious Guide"]
         },
         {
           "characterId": 285,
@@ -9063,23 +8095,17 @@
         {
           "characterId": 285,
           "fieldKey": "role",
-          "values": [
-            "antagonist"
-          ]
+          "values": ["antagonist"]
         },
         {
           "characterId": 286,
           "fieldKey": "species",
-          "values": [
-            "Living Burden"
-          ]
+          "values": ["Living Burden"]
         },
         {
           "characterId": 286,
           "fieldKey": "class",
-          "values": [
-            "Accumulated Dread"
-          ]
+          "values": ["Accumulated Dread"]
         },
         {
           "characterId": 286,
@@ -9111,16 +8137,12 @@
         {
           "characterId": 286,
           "fieldKey": "role",
-          "values": [
-            "antagonist"
-          ]
+          "values": ["antagonist"]
         },
         {
           "characterId": 287,
           "fieldKey": "class",
-          "values": [
-            "Long-Game Horror"
-          ]
+          "values": ["Long-Game Horror"]
         },
         {
           "characterId": 287,
@@ -9148,23 +8170,17 @@
         {
           "characterId": 287,
           "fieldKey": "role",
-          "values": [
-            "antagonist"
-          ]
+          "values": ["antagonist"]
         },
         {
           "characterId": 288,
           "fieldKey": "species",
-          "values": [
-            "Eldritch Horror"
-          ]
+          "values": ["Eldritch Horror"]
         },
         {
           "characterId": 288,
           "fieldKey": "class",
-          "values": [
-            "Ascended Understudy"
-          ]
+          "values": ["Ascended Understudy"]
         },
         {
           "characterId": 288,
@@ -9192,23 +8208,17 @@
         {
           "characterId": 288,
           "fieldKey": "role",
-          "values": [
-            "antagonist"
-          ]
+          "values": ["antagonist"]
         },
         {
           "characterId": 289,
           "fieldKey": "species",
-          "values": [
-            "Deal-Demon"
-          ]
+          "values": ["Deal-Demon"]
         },
         {
           "characterId": 289,
           "fieldKey": "class",
-          "values": [
-            "Bargain Fiend"
-          ]
+          "values": ["Bargain Fiend"]
         },
         {
           "characterId": 289,
@@ -9237,16 +8247,12 @@
         {
           "characterId": 289,
           "fieldKey": "role",
-          "values": [
-            "antagonist"
-          ]
+          "values": ["antagonist"]
         },
         {
           "characterId": 290,
           "fieldKey": "class",
-          "values": [
-            "False Savior"
-          ]
+          "values": ["False Savior"]
         },
         {
           "characterId": 290,
@@ -9275,23 +8281,17 @@
         {
           "characterId": 290,
           "fieldKey": "role",
-          "values": [
-            "antagonist"
-          ]
+          "values": ["antagonist"]
         },
         {
           "characterId": 291,
           "fieldKey": "species",
-          "values": [
-            "Genius Loci"
-          ]
+          "values": ["Genius Loci"]
         },
         {
           "characterId": 291,
           "fieldKey": "class",
-          "values": [
-            "Living Barrier"
-          ]
+          "values": ["Living Barrier"]
         },
         {
           "characterId": 291,
@@ -9320,16 +8320,12 @@
         {
           "characterId": 291,
           "fieldKey": "role",
-          "values": [
-            "antagonist"
-          ]
+          "values": ["antagonist"]
         },
         {
           "characterId": 292,
           "fieldKey": "class",
-          "values": [
-            "Predatory Owner"
-          ]
+          "values": ["Predatory Owner"]
         },
         {
           "characterId": 292,
@@ -9358,23 +8354,17 @@
         {
           "characterId": 292,
           "fieldKey": "role",
-          "values": [
-            "antagonist"
-          ]
+          "values": ["antagonist"]
         },
         {
           "characterId": 293,
           "fieldKey": "species",
-          "values": [
-            "Living Memory"
-          ]
+          "values": ["Living Memory"]
         },
         {
           "characterId": 293,
           "fieldKey": "class",
-          "values": [
-            "Temporal Snare"
-          ]
+          "values": ["Temporal Snare"]
         },
         {
           "characterId": 293,
@@ -9402,23 +8392,17 @@
         {
           "characterId": 293,
           "fieldKey": "role",
-          "values": [
-            "antagonist"
-          ]
+          "values": ["antagonist"]
         },
         {
           "characterId": 294,
           "fieldKey": "species",
-          "values": [
-            "Shapeshifting Predator"
-          ]
+          "values": ["Shapeshifting Predator"]
         },
         {
           "characterId": 294,
           "fieldKey": "class",
-          "values": [
-            "Infiltrator Beast"
-          ]
+          "values": ["Infiltrator Beast"]
         },
         {
           "characterId": 294,
@@ -9446,23 +8430,17 @@
         {
           "characterId": 294,
           "fieldKey": "role",
-          "values": [
-            "antagonist"
-          ]
+          "values": ["antagonist"]
         },
         {
           "characterId": 295,
           "fieldKey": "species",
-          "values": [
-            "Collective Will"
-          ]
+          "values": ["Collective Will"]
         },
         {
           "characterId": 295,
           "fieldKey": "class",
-          "values": [
-            "Crowd Made Flesh"
-          ]
+          "values": ["Crowd Made Flesh"]
         },
         {
           "characterId": 295,
@@ -9492,23 +8470,17 @@
         {
           "characterId": 295,
           "fieldKey": "role",
-          "values": [
-            "antagonist"
-          ]
+          "values": ["antagonist"]
         },
         {
           "characterId": 296,
           "fieldKey": "species",
-          "values": [
-            "Spirit"
-          ]
+          "values": ["Spirit"]
         },
         {
           "characterId": 296,
           "fieldKey": "class",
-          "values": [
-            "Smothering Haunt"
-          ]
+          "values": ["Smothering Haunt"]
         },
         {
           "characterId": 296,
@@ -9537,30 +8509,22 @@
         {
           "characterId": 296,
           "fieldKey": "role",
-          "values": [
-            "antagonist"
-          ]
+          "values": ["antagonist"]
         },
         {
           "characterId": 317,
           "fieldKey": "genre",
-          "values": [
-            "Hopepunk"
-          ]
+          "values": ["Hopepunk"]
         },
         {
           "characterId": 317,
           "fieldKey": "species",
-          "values": [
-            "Personified Aid"
-          ]
+          "values": ["Personified Aid"]
         },
         {
           "characterId": 317,
           "fieldKey": "class",
-          "values": [
-            "Living Rescue"
-          ]
+          "values": ["Living Rescue"]
         },
         {
           "characterId": 317,
@@ -9589,30 +8553,22 @@
         {
           "characterId": 317,
           "fieldKey": "role",
-          "values": [
-            "protagonist"
-          ]
+          "values": ["protagonist"]
         },
         {
           "characterId": 318,
           "fieldKey": "genre",
-          "values": [
-            "Hopepunk"
-          ]
+          "values": ["Hopepunk"]
         },
         {
           "characterId": 318,
           "fieldKey": "species",
-          "values": [
-            "Butterfly Legion"
-          ]
+          "values": ["Butterfly Legion"]
         },
         {
           "characterId": 318,
           "fieldKey": "class",
-          "values": [
-            "Collective Hope"
-          ]
+          "values": ["Collective Hope"]
         },
         {
           "characterId": 318,
@@ -9641,23 +8597,17 @@
         {
           "characterId": 318,
           "fieldKey": "role",
-          "values": [
-            "ally"
-          ]
+          "values": ["ally"]
         },
         {
           "characterId": 319,
           "fieldKey": "species",
-          "values": [
-            "Unknown"
-          ]
+          "values": ["Unknown"]
         },
         {
           "characterId": 319,
           "fieldKey": "class",
-          "values": [
-            "Quiet Benefactor"
-          ]
+          "values": ["Quiet Benefactor"]
         },
         {
           "characterId": 319,
@@ -9686,23 +8636,17 @@
         {
           "characterId": 319,
           "fieldKey": "role",
-          "values": [
-            "ally"
-          ]
+          "values": ["ally"]
         },
         {
           "characterId": 320,
           "fieldKey": "species",
-          "values": [
-            "Animate Doodle"
-          ]
+          "values": ["Animate Doodle"]
         },
         {
           "characterId": 320,
           "fieldKey": "class",
-          "values": [
-            "Living Sketch"
-          ]
+          "values": ["Living Sketch"]
         },
         {
           "characterId": 320,
@@ -9732,16 +8676,12 @@
         {
           "characterId": 320,
           "fieldKey": "role",
-          "values": [
-            "ally"
-          ]
+          "values": ["ally"]
         },
         {
           "characterId": 321,
           "fieldKey": "class",
-          "values": [
-            "Eco-Champion"
-          ]
+          "values": ["Eco-Champion"]
         },
         {
           "characterId": 321,
@@ -9769,23 +8709,17 @@
         {
           "characterId": 321,
           "fieldKey": "role",
-          "values": [
-            "protagonist"
-          ]
+          "values": ["protagonist"]
         },
         {
           "characterId": 322,
           "fieldKey": "species",
-          "values": [
-            "Dwarf Star"
-          ]
+          "values": ["Dwarf Star"]
         },
         {
           "characterId": 322,
           "fieldKey": "class",
-          "values": [
-            "Risen Star"
-          ]
+          "values": ["Risen Star"]
         },
         {
           "characterId": 322,
@@ -9813,23 +8747,17 @@
         {
           "characterId": 322,
           "fieldKey": "role",
-          "values": [
-            "protagonist"
-          ]
+          "values": ["protagonist"]
         },
         {
           "characterId": 323,
           "fieldKey": "species",
-          "values": [
-            "Boundary Spirit"
-          ]
+          "values": ["Boundary Spirit"]
         },
         {
           "characterId": 323,
           "fieldKey": "class",
-          "values": [
-            "Recovered Thing"
-          ]
+          "values": ["Recovered Thing"]
         },
         {
           "characterId": 323,
@@ -9859,23 +8787,17 @@
         {
           "characterId": 323,
           "fieldKey": "role",
-          "values": [
-            "ally"
-          ]
+          "values": ["ally"]
         },
         {
           "characterId": 324,
           "fieldKey": "class",
-          "values": [
-            "Gentleman Adventurer"
-          ]
+          "values": ["Gentleman Adventurer"]
         },
         {
           "characterId": 324,
           "fieldKey": "gender",
-          "values": [
-            "male"
-          ]
+          "values": ["male"]
         },
         {
           "characterId": 324,
@@ -9903,23 +8825,17 @@
         {
           "characterId": 324,
           "fieldKey": "role",
-          "values": [
-            "protagonist"
-          ]
+          "values": ["protagonist"]
         },
         {
           "characterId": 325,
           "fieldKey": "species",
-          "values": [
-            "Sentient Map"
-          ]
+          "values": ["Sentient Map"]
         },
         {
           "characterId": 325,
           "fieldKey": "class",
-          "values": [
-            "Vindicated Artifact"
-          ]
+          "values": ["Vindicated Artifact"]
         },
         {
           "characterId": 325,
@@ -9951,23 +8867,17 @@
         {
           "characterId": 325,
           "fieldKey": "role",
-          "values": [
-            "ally"
-          ]
+          "values": ["ally"]
         },
         {
           "characterId": 326,
           "fieldKey": "species",
-          "values": [
-            "God"
-          ]
+          "values": ["God"]
         },
         {
           "characterId": 326,
           "fieldKey": "class",
-          "values": [
-            "Domestic Minor God"
-          ]
+          "values": ["Domestic Minor God"]
         },
         {
           "characterId": 326,
@@ -9995,16 +8905,12 @@
         {
           "characterId": 326,
           "fieldKey": "role",
-          "values": [
-            "ally"
-          ]
+          "values": ["ally"]
         },
         {
           "characterId": 327,
           "fieldKey": "class",
-          "values": [
-            "Self-Made Adept"
-          ]
+          "values": ["Self-Made Adept"]
         },
         {
           "characterId": 327,
@@ -10034,23 +8940,17 @@
         {
           "characterId": 327,
           "fieldKey": "role",
-          "values": [
-            "protagonist"
-          ]
+          "values": ["protagonist"]
         },
         {
           "characterId": 328,
           "fieldKey": "species",
-          "values": [
-            "Sentient Card"
-          ]
+          "values": ["Sentient Card"]
         },
         {
           "characterId": 328,
           "fieldKey": "class",
-          "values": [
-            "Living Arcana"
-          ]
+          "values": ["Living Arcana"]
         },
         {
           "characterId": 328,
@@ -10081,16 +8981,12 @@
         {
           "characterId": 328,
           "fieldKey": "role",
-          "values": [
-            "ally"
-          ]
+          "values": ["ally"]
         },
         {
           "characterId": 329,
           "fieldKey": "class",
-          "values": [
-            "Restrained Intelligence"
-          ]
+          "values": ["Restrained Intelligence"]
         },
         {
           "characterId": 329,
@@ -10119,23 +9015,17 @@
         {
           "characterId": 329,
           "fieldKey": "role",
-          "values": [
-            "ally"
-          ]
+          "values": ["ally"]
         },
         {
           "characterId": 330,
           "fieldKey": "species",
-          "values": [
-            "Dog Collective"
-          ]
+          "values": ["Dog Collective"]
         },
         {
           "characterId": 330,
           "fieldKey": "class",
-          "values": [
-            "Composite Companion"
-          ]
+          "values": ["Composite Companion"]
         },
         {
           "characterId": 330,
@@ -10167,16 +9057,12 @@
         {
           "characterId": 330,
           "fieldKey": "role",
-          "values": [
-            "ally"
-          ]
+          "values": ["ally"]
         },
         {
           "characterId": 331,
           "fieldKey": "class",
-          "values": [
-            "Resting Titan"
-          ]
+          "values": ["Resting Titan"]
         },
         {
           "characterId": 331,
@@ -10207,23 +9093,17 @@
         {
           "characterId": 331,
           "fieldKey": "role",
-          "values": [
-            "ally"
-          ]
+          "values": ["ally"]
         },
         {
           "characterId": 332,
           "fieldKey": "species",
-          "values": [
-            "Living Reflection"
-          ]
+          "values": ["Living Reflection"]
         },
         {
           "characterId": 332,
           "fieldKey": "class",
-          "values": [
-            "Reconciled Double"
-          ]
+          "values": ["Reconciled Double"]
         },
         {
           "characterId": 332,
@@ -10253,23 +9133,17 @@
         {
           "characterId": 332,
           "fieldKey": "role",
-          "values": [
-            "ally"
-          ]
+          "values": ["ally"]
         },
         {
           "characterId": 333,
           "fieldKey": "genre",
-          "values": [
-            "Hopepunk"
-          ]
+          "values": ["Hopepunk"]
         },
         {
           "characterId": 333,
           "fieldKey": "class",
-          "values": [
-            "Mission-Bearer"
-          ]
+          "values": ["Mission-Bearer"]
         },
         {
           "characterId": 333,
@@ -10298,23 +9172,17 @@
         {
           "characterId": 333,
           "fieldKey": "role",
-          "values": [
-            "protagonist"
-          ]
+          "values": ["protagonist"]
         },
         {
           "characterId": 351,
           "fieldKey": "species",
-          "values": [
-            "Living Narrative"
-          ]
+          "values": ["Living Narrative"]
         },
         {
           "characterId": 351,
           "fieldKey": "class",
-          "values": [
-            "Cross-World Legend"
-          ]
+          "values": ["Cross-World Legend"]
         },
         {
           "characterId": 351,
@@ -10342,23 +9210,17 @@
         {
           "characterId": 351,
           "fieldKey": "role",
-          "values": [
-            "protagonist"
-          ]
+          "values": ["protagonist"]
         },
         {
           "characterId": 352,
           "fieldKey": "species",
-          "values": [
-            "Living Atlas"
-          ]
+          "values": ["Living Atlas"]
         },
         {
           "characterId": 352,
           "fieldKey": "class",
-          "values": [
-            "Cross-World Legend"
-          ]
+          "values": ["Cross-World Legend"]
         },
         {
           "characterId": 352,
@@ -10388,30 +9250,22 @@
         {
           "characterId": 352,
           "fieldKey": "role",
-          "values": [
-            "ally"
-          ]
+          "values": ["ally"]
         },
         {
           "characterId": 353,
           "fieldKey": "genre",
-          "values": [
-            "Hopepunk"
-          ]
+          "values": ["Hopepunk"]
         },
         {
           "characterId": 353,
           "fieldKey": "species",
-          "values": [
-            "Rainbow Butterfly"
-          ]
+          "values": ["Rainbow Butterfly"]
         },
         {
           "characterId": 353,
           "fieldKey": "class",
-          "values": [
-            "Founding Hope"
-          ]
+          "values": ["Founding Hope"]
         },
         {
           "characterId": 353,
@@ -10440,30 +9294,22 @@
         {
           "characterId": 353,
           "fieldKey": "role",
-          "values": [
-            "protagonist"
-          ]
+          "values": ["protagonist"]
         },
         {
           "characterId": 354,
           "fieldKey": "genre",
-          "values": [
-            "Meta"
-          ]
+          "values": ["Meta"]
         },
         {
           "characterId": 354,
           "fieldKey": "species",
-          "values": [
-            "Companion Presence"
-          ]
+          "values": ["Companion Presence"]
         },
         {
           "characterId": 354,
           "fieldKey": "class",
-          "values": [
-            "Cooperative Spirit"
-          ]
+          "values": ["Cooperative Spirit"]
         },
         {
           "characterId": 354,
@@ -10491,30 +9337,22 @@
         {
           "characterId": 354,
           "fieldKey": "role",
-          "values": [
-            "ally"
-          ]
+          "values": ["ally"]
         },
         {
           "characterId": 355,
           "fieldKey": "genre",
-          "values": [
-            "Koala Assassin"
-          ]
+          "values": ["Koala Assassin"]
         },
         {
           "characterId": 355,
           "fieldKey": "species",
-          "values": [
-            "Spirit of an Oath"
-          ]
+          "values": ["Spirit of an Oath"]
         },
         {
           "characterId": 355,
           "fieldKey": "class",
-          "values": [
-            "Living Reckoning"
-          ]
+          "values": ["Living Reckoning"]
         },
         {
           "characterId": 355,
@@ -10546,23 +9384,17 @@
         {
           "characterId": 355,
           "fieldKey": "role",
-          "values": [
-            "deuteragonist"
-          ]
+          "values": ["deuteragonist"]
         },
         {
           "characterId": 356,
           "fieldKey": "species",
-          "values": [
-            "Punctuation Spirit"
-          ]
+          "values": ["Punctuation Spirit"]
         },
         {
           "characterId": 356,
           "fieldKey": "class",
-          "values": [
-            "Living Potential"
-          ]
+          "values": ["Living Potential"]
         },
         {
           "characterId": 356,
@@ -10591,23 +9423,17 @@
         {
           "characterId": 356,
           "fieldKey": "role",
-          "values": [
-            "ally"
-          ]
+          "values": ["ally"]
         },
         {
           "characterId": 357,
           "fieldKey": "species",
-          "values": [
-            "Unfinished Being"
-          ]
+          "values": ["Unfinished Being"]
         },
         {
           "characterId": 357,
           "fieldKey": "class",
-          "values": [
-            "Work in Progress"
-          ]
+          "values": ["Work in Progress"]
         },
         {
           "characterId": 357,
@@ -10636,16 +9462,12 @@
         {
           "characterId": 357,
           "fieldKey": "role",
-          "values": [
-            "protagonist"
-          ]
+          "values": ["protagonist"]
         },
         {
           "characterId": 358,
           "fieldKey": "class",
-          "values": [
-            "Legendary Commander"
-          ]
+          "values": ["Legendary Commander"]
         },
         {
           "characterId": 358,
@@ -10674,23 +9496,17 @@
         {
           "characterId": 358,
           "fieldKey": "role",
-          "values": [
-            "protagonist"
-          ]
+          "values": ["protagonist"]
         },
         {
           "characterId": 359,
           "fieldKey": "species",
-          "values": [
-            "Mycelial Consciousness"
-          ]
+          "values": ["Mycelial Consciousness"]
         },
         {
           "characterId": 359,
           "fieldKey": "class",
-          "values": [
-            "Cross-World Legend"
-          ]
+          "values": ["Cross-World Legend"]
         },
         {
           "characterId": 359,
@@ -10720,23 +9536,17 @@
         {
           "characterId": 359,
           "fieldKey": "role",
-          "values": [
-            "ally"
-          ]
+          "values": ["ally"]
         },
         {
           "characterId": 360,
           "fieldKey": "species",
-          "values": [
-            "Personified Ovation"
-          ]
+          "values": ["Personified Ovation"]
         },
         {
           "characterId": 360,
           "fieldKey": "class",
-          "values": [
-            "Living Curtain Call"
-          ]
+          "values": ["Living Curtain Call"]
         },
         {
           "characterId": 360,
@@ -10765,23 +9575,17 @@
         {
           "characterId": 360,
           "fieldKey": "role",
-          "values": [
-            "ally"
-          ]
+          "values": ["ally"]
         },
         {
           "characterId": 361,
           "fieldKey": "class",
-          "values": [
-            "Detective"
-          ]
+          "values": ["Detective"]
         },
         {
           "characterId": 361,
           "fieldKey": "gender",
-          "values": [
-            "female"
-          ]
+          "values": ["female"]
         },
         {
           "characterId": 361,
@@ -10811,23 +9615,17 @@
         {
           "characterId": 361,
           "fieldKey": "role",
-          "values": [
-            "protagonist"
-          ]
+          "values": ["protagonist"]
         },
         {
           "characterId": 362,
           "fieldKey": "species",
-          "values": [
-            "God"
-          ]
+          "values": ["God"]
         },
         {
           "characterId": 362,
           "fieldKey": "class",
-          "values": [
-            "Minor God"
-          ]
+          "values": ["Minor God"]
         },
         {
           "characterId": 362,
@@ -10856,23 +9654,17 @@
         {
           "characterId": 362,
           "fieldKey": "role",
-          "values": [
-            "ally"
-          ]
+          "values": ["ally"]
         },
         {
           "characterId": 363,
           "fieldKey": "species",
-          "values": [
-            "Living Sanctuary"
-          ]
+          "values": ["Living Sanctuary"]
         },
         {
           "characterId": 363,
           "fieldKey": "class",
-          "values": [
-            "Refuge Spirit"
-          ]
+          "values": ["Refuge Spirit"]
         },
         {
           "characterId": 363,
@@ -10901,23 +9693,17 @@
         {
           "characterId": 363,
           "fieldKey": "role",
-          "values": [
-            "ally"
-          ]
+          "values": ["ally"]
         },
         {
           "characterId": 364,
           "fieldKey": "species",
-          "values": [
-            "Dark Lord"
-          ]
+          "values": ["Dark Lord"]
         },
         {
           "characterId": 364,
           "fieldKey": "class",
-          "values": [
-            "Bound Villain"
-          ]
+          "values": ["Bound Villain"]
         },
         {
           "characterId": 364,
@@ -10949,30 +9735,22 @@
         {
           "characterId": 364,
           "fieldKey": "role",
-          "values": [
-            "ally"
-          ]
+          "values": ["ally"]
         },
         {
           "characterId": 365,
           "fieldKey": "genre",
-          "values": [
-            "Meta"
-          ]
+          "values": ["Meta"]
         },
         {
           "characterId": 365,
           "fieldKey": "species",
-          "values": [
-            "Living Imagination"
-          ]
+          "values": ["Living Imagination"]
         },
         {
           "characterId": 365,
           "fieldKey": "class",
-          "values": [
-            "Creator Echo"
-          ]
+          "values": ["Creator Echo"]
         },
         {
           "characterId": 365,
@@ -11002,30 +9780,22 @@
         {
           "characterId": 365,
           "fieldKey": "role",
-          "values": [
-            "ally"
-          ]
+          "values": ["ally"]
         },
         {
           "characterId": 366,
           "fieldKey": "genre",
-          "values": [
-            "Meta"
-          ]
+          "values": ["Meta"]
         },
         {
           "characterId": 366,
           "fieldKey": "species",
-          "values": [
-            "Generated Being"
-          ]
+          "values": ["Generated Being"]
         },
         {
           "characterId": 366,
           "fieldKey": "class",
-          "values": [
-            "Capstone"
-          ]
+          "values": ["Capstone"]
         },
         {
           "characterId": 366,
@@ -11053,16 +9823,12 @@
         {
           "characterId": 366,
           "fieldKey": "role",
-          "values": [
-            "protagonist"
-          ]
+          "values": ["protagonist"]
         },
         {
           "characterId": 982,
           "fieldKey": "genre",
-          "values": [
-            "Borrowed-Light Bittersweet"
-          ]
+          "values": ["Borrowed-Light Bittersweet"]
         },
         {
           "characterId": 982,
@@ -11082,9 +9848,7 @@
         {
           "characterId": 983,
           "fieldKey": "genre",
-          "values": [
-            "Borrowed-Light Bittersweet"
-          ]
+          "values": ["Borrowed-Light Bittersweet"]
         },
         {
           "characterId": 983,
@@ -11104,9 +9868,7 @@
         {
           "characterId": 984,
           "fieldKey": "genre",
-          "values": [
-            "Borrowed-Light Bittersweet"
-          ]
+          "values": ["Borrowed-Light Bittersweet"]
         },
         {
           "characterId": 984,
@@ -11126,9 +9888,7 @@
         {
           "characterId": 987,
           "fieldKey": "genre",
-          "values": [
-            "Tin & Echo"
-          ]
+          "values": ["Tin & Echo"]
         },
         {
           "characterId": 987,
@@ -11147,9 +9907,7 @@
         {
           "characterId": 988,
           "fieldKey": "genre",
-          "values": [
-            "Tin & Echo"
-          ]
+          "values": ["Tin & Echo"]
         },
         {
           "characterId": 988,
@@ -11169,9 +9927,7 @@
         {
           "characterId": 989,
           "fieldKey": "genre",
-          "values": [
-            "Tin & Echo"
-          ]
+          "values": ["Tin & Echo"]
         },
         {
           "characterId": 989,
@@ -11191,9 +9947,7 @@
         {
           "characterId": 1024,
           "fieldKey": "genre",
-          "values": [
-            "Elegiac Wonder"
-          ]
+          "values": ["Elegiac Wonder"]
         },
         {
           "characterId": 1024,
@@ -11213,9 +9967,7 @@
         {
           "characterId": 1025,
           "fieldKey": "genre",
-          "values": [
-            "Elegiac Wonder"
-          ]
+          "values": ["Elegiac Wonder"]
         },
         {
           "characterId": 1025,
@@ -11234,9 +9986,7 @@
         {
           "characterId": 1026,
           "fieldKey": "genre",
-          "values": [
-            "Elegiac Wonder"
-          ]
+          "values": ["Elegiac Wonder"]
         },
         {
           "characterId": 1026,
@@ -11256,9 +10006,7 @@
         {
           "characterId": 1067,
           "fieldKey": "genre",
-          "values": [
-            "Wind-Fortune"
-          ]
+          "values": ["Wind-Fortune"]
         },
         {
           "characterId": 1067,
@@ -11279,9 +10027,7 @@
         {
           "characterId": 1068,
           "fieldKey": "genre",
-          "values": [
-            "Wind-Fortune"
-          ]
+          "values": ["Wind-Fortune"]
         },
         {
           "characterId": 1068,
@@ -11301,9 +10047,7 @@
         {
           "characterId": 1069,
           "fieldKey": "genre",
-          "values": [
-            "Wind-Fortune"
-          ]
+          "values": ["Wind-Fortune"]
         },
         {
           "characterId": 1069,
@@ -11330,92 +10074,47 @@
         {
           "botId": 395,
           "fieldKey": "personality",
-          "values": [
-            "devout",
-            "severe",
-            "electric",
-            "ecstatic"
-          ]
+          "values": ["devout", "severe", "electric", "ecstatic"]
         },
         {
           "botId": 401,
           "fieldKey": "personality",
-          "values": [
-            "welcoming",
-            "omniscient",
-            "fond",
-            "uncanny"
-          ]
+          "values": ["welcoming", "omniscient", "fond", "uncanny"]
         },
         {
           "botId": 412,
           "fieldKey": "personality",
-          "values": [
-            "sardonic",
-            "cool",
-            "dark",
-            "young"
-          ]
+          "values": ["sardonic", "cool", "dark", "young"]
         },
         {
           "botId": 413,
           "fieldKey": "personality",
-          "values": [
-            "quick",
-            "gossipy",
-            "clever",
-            "bright"
-          ]
+          "values": ["quick", "gossipy", "clever", "bright"]
         },
         {
           "botId": 415,
           "fieldKey": "personality",
-          "values": [
-            "hyper",
-            "fragmented",
-            "wired",
-            "young"
-          ]
+          "values": ["hyper", "fragmented", "wired", "young"]
         },
         {
           "botId": 418,
           "fieldKey": "personality",
-          "values": [
-            "grim",
-            "hungry",
-            "rhythmic",
-            "bitter"
-          ]
+          "values": ["grim", "hungry", "rhythmic", "bitter"]
         },
         {
           "botId": 424,
           "fieldKey": "personality",
-          "values": [
-            "precise",
-            "exact",
-            "flat",
-            "stylish"
-          ]
+          "values": ["precise", "exact", "flat", "stylish"]
         },
         {
           "botId": 426,
           "fieldKey": "personality",
-          "values": [
-            "vast",
-            "ancient",
-            "maternal",
-            "grieving"
-          ]
+          "values": ["vast", "ancient", "maternal", "grieving"]
         },
         {
           "botId": 430,
           "fieldKey": "personality",
-          "values": [
-            "fast",
-            "streetwise",
-            "cagey",
-            "sharp"
-          ]
+          "values": ["fast", "streetwise", "cagey", "sharp"]
         },
         {
           "botId": 960,
@@ -11443,468 +10142,247 @@
       "details": [
         {
           "scenarioId": 63,
-          "values": [
-            "dark humor",
-            "surreal fantasy",
-            "absurd adventure"
-          ]
+          "values": ["dark humor", "surreal fantasy", "absurd adventure"]
         },
         {
           "scenarioId": 64,
-          "values": [
-            "action comedy",
-            "surreal adventure"
-          ]
+          "values": ["action comedy", "surreal adventure"]
         },
         {
           "scenarioId": 65,
-          "values": [
-            "sci-fi comedy",
-            "adventure",
-            "ensemble"
-          ]
+          "values": ["sci-fi comedy", "adventure", "ensemble"]
         },
         {
           "scenarioId": 69,
-          "values": [
-            "action western",
-            "revenge drama"
-          ]
+          "values": ["action western", "revenge drama"]
         },
         {
           "scenarioId": 71,
-          "values": [
-            "fantasy comedy",
-            "workplace satire",
-            "adventure"
-          ]
+          "values": ["fantasy comedy", "workplace satire", "adventure"]
         },
         {
           "scenarioId": 72,
-          "values": [
-            "romantic comedy",
-            "absurdist slice-of-life"
-          ]
+          "values": ["romantic comedy", "absurdist slice-of-life"]
         },
         {
           "scenarioId": 74,
-          "values": [
-            "sci-fi comedy",
-            "management sim"
-          ]
+          "values": ["sci-fi comedy", "management sim"]
         },
         {
           "scenarioId": 81,
-          "values": [
-            "dark comedy",
-            "surreal horror"
-          ]
+          "values": ["dark comedy", "surreal horror"]
         },
         {
           "scenarioId": 82,
-          "values": [
-            "cyberpunk noir",
-            "heist",
-            "identity thriller"
-          ]
+          "values": ["cyberpunk noir", "heist", "identity thriller"]
         },
         {
           "scenarioId": 83,
-          "values": [
-            "weird western",
-            "dark fantasy",
-            "revenge"
-          ]
+          "values": ["weird western", "dark fantasy", "revenge"]
         },
         {
           "scenarioId": 87,
-          "values": [
-            "cozy mystery",
-            "talking-animal detective",
-            "whodunit"
-          ]
+          "values": ["cozy mystery", "talking-animal detective", "whodunit"]
         },
         {
           "scenarioId": 89,
-          "values": [
-            "retro sci-fi",
-            "adventure",
-            "melancholy meta-fiction"
-          ]
+          "values": ["retro sci-fi", "adventure", "melancholy meta-fiction"]
         },
         {
           "scenarioId": 90,
-          "values": [
-            "eco-fantasy",
-            "whimsy",
-            "political intrigue"
-          ]
+          "values": ["eco-fantasy", "whimsy", "political intrigue"]
         },
         {
           "scenarioId": 91,
-          "values": [
-            "surreal fantasy",
-            "psychological",
-            "folklore"
-          ]
+          "values": ["surreal fantasy", "psychological", "folklore"]
         },
         {
           "scenarioId": 93,
-          "values": [
-            "historical mystery",
-            "adventure",
-            "time paradox"
-          ]
+          "values": ["historical mystery", "adventure", "time paradox"]
         },
         {
           "scenarioId": 156,
-          "values": [
-            "whimsy",
-            "magic realism",
-            "gentle uncanny"
-          ]
+          "values": ["whimsy", "magic realism", "gentle uncanny"]
         },
         {
           "scenarioId": 157,
-          "values": [
-            "heist",
-            "ensemble",
-            "recruitment"
-          ]
+          "values": ["heist", "ensemble", "recruitment"]
         },
         {
           "scenarioId": 158,
-          "values": [
-            "undead glamour",
-            "fashion",
-            "decay"
-          ]
+          "values": ["undead glamour", "fashion", "decay"]
         },
         {
           "scenarioId": 160,
-          "values": [
-            "corporate satire",
-            "cosmic bureaucracy"
-          ]
+          "values": ["corporate satire", "cosmic bureaucracy"]
         },
         {
           "scenarioId": 163,
-          "values": [
-            "cozy weird",
-            "slice of life",
-            "magic mundane"
-          ]
+          "values": ["cozy weird", "slice of life", "magic mundane"]
         },
         {
           "scenarioId": 164,
-          "values": [
-            "fractured fairy tale",
-            "bureaucratic whimsy"
-          ]
+          "values": ["fractured fairy tale", "bureaucratic whimsy"]
         },
         {
           "scenarioId": 166,
-          "values": [
-            "mythic",
-            "divine bureaucracy",
-            "creation"
-          ]
+          "values": ["mythic", "divine bureaucracy", "creation"]
         },
         {
           "scenarioId": 169,
-          "values": [
-            "AI awakening",
-            "identity",
-            "gentle sci-fi"
-          ]
+          "values": ["AI awakening", "identity", "gentle sci-fi"]
         },
         {
           "scenarioId": 170,
-          "values": [
-            "dark circus",
-            "spectacle",
-            "the show that came for you"
-          ]
+          "values": ["dark circus", "spectacle", "the show that came for you"]
         },
         {
           "scenarioId": 171,
-          "values": [
-            "eco-fantasy",
-            "renewal",
-            "melancholy hope"
-          ]
+          "values": ["eco-fantasy", "renewal", "melancholy hope"]
         },
         {
           "scenarioId": 172,
-          "values": [
-            "weird western",
-            "samurai standoff",
-            "marsupial menace"
-          ]
+          "values": ["weird western", "samurai standoff", "marsupial menace"]
         },
         {
           "scenarioId": 173,
-          "values": [
-            "surreal",
-            "liminal",
-            "dream-logic"
-          ]
+          "values": ["surreal", "liminal", "dream-logic"]
         },
         {
           "scenarioId": 174,
-          "values": [
-            "undead bureaucracy",
-            "second chances",
-            "gentle macabre"
-          ]
+          "values": ["undead bureaucracy", "second chances", "gentle macabre"]
         },
         {
           "scenarioId": 175,
-          "values": [
-            "weird western",
-            "supernatural frontier",
-            "portraiture"
-          ]
+          "values": ["weird western", "supernatural frontier", "portraiture"]
         },
         {
           "scenarioId": 176,
-          "values": [
-            "weird western",
-            "mercantile mystery",
-            "frontier magic"
-          ]
+          "values": ["weird western", "mercantile mystery", "frontier magic"]
         },
         {
           "scenarioId": 177,
-          "values": [
-            "animal interiority",
-            "portraiture",
-            "warmth"
-          ]
+          "values": ["animal interiority", "portraiture", "warmth"]
         },
         {
           "scenarioId": 178,
-          "values": [
-            "corporate horror",
-            "satire",
-            "spectacle"
-          ]
+          "values": ["corporate horror", "satire", "spectacle"]
         },
         {
           "scenarioId": 180,
-          "values": [
-            "liminal retail",
-            "slice-of-life",
-            "quiet uncanny"
-          ]
+          "values": ["liminal retail", "slice-of-life", "quiet uncanny"]
         },
         {
           "scenarioId": 181,
-          "values": [
-            "bureaucratic whimsy",
-            "slice-of-life",
-            "magic mundane"
-          ]
+          "values": ["bureaucratic whimsy", "slice-of-life", "magic mundane"]
         },
         {
           "scenarioId": 182,
-          "values": [
-            "fractured fairy tale",
-            "dark storybook",
-            "illustration"
-          ]
+          "values": ["fractured fairy tale", "dark storybook", "illustration"]
         },
         {
           "scenarioId": 185,
-          "values": [
-            "mythic",
-            "devotional art",
-            "gentle divinity"
-          ]
+          "values": ["mythic", "devotional art", "gentle divinity"]
         },
         {
           "scenarioId": 186,
-          "values": [
-            "mythic",
-            "divine bureaucracy",
-            "petition"
-          ]
+          "values": ["mythic", "divine bureaucracy", "petition"]
         },
         {
           "scenarioId": 187,
-          "values": [
-            "cozy",
-            "warmth",
-            "longing"
-          ]
+          "values": ["cozy", "warmth", "longing"]
         },
         {
           "scenarioId": 188,
-          "values": [
-            "cozy",
-            "gentle mystery",
-            "found-family"
-          ]
+          "values": ["cozy", "gentle mystery", "found-family"]
         },
         {
           "scenarioId": 191,
-          "values": [
-            "AI interiority",
-            "identity",
-            "tender sci-fi"
-          ]
+          "values": ["AI interiority", "identity", "tender sci-fi"]
         },
         {
           "scenarioId": 192,
-          "values": [
-            "AI awakening",
-            "setup",
-            "gentle sci-fi"
-          ]
+          "values": ["AI awakening", "setup", "gentle sci-fi"]
         },
         {
           "scenarioId": 193,
-          "values": [
-            "villain era",
-            "sympathetic evil",
-            "interiors"
-          ]
+          "values": ["villain era", "sympathetic evil", "interiors"]
         },
         {
           "scenarioId": 194,
-          "values": [
-            "villain era",
-            "dark logistics",
-            "ensemble"
-          ]
+          "values": ["villain era", "dark logistics", "ensemble"]
         },
         {
           "scenarioId": 195,
-          "values": [
-            "dark circus",
-            "spectacle",
-            "backstage"
-          ]
+          "values": ["dark circus", "spectacle", "backstage"]
         },
         {
           "scenarioId": 196,
-          "values": [
-            "eco-fantasy",
-            "melancholy hope",
-            "living beauty"
-          ]
+          "values": ["eco-fantasy", "melancholy hope", "living beauty"]
         },
         {
           "scenarioId": 197,
-          "values": [
-            "eco-fantasy",
-            "growth",
-            "gentle wonder"
-          ]
+          "values": ["eco-fantasy", "growth", "gentle wonder"]
         },
         {
           "scenarioId": 198,
-          "values": [
-            "weird western",
-            "character study",
-            "quiet menace"
-          ]
+          "values": ["weird western", "character study", "quiet menace"]
         },
         {
           "scenarioId": 199,
-          "values": [
-            "weird western",
-            "fixer",
-            "marsupial menace"
-          ]
+          "values": ["weird western", "fixer", "marsupial menace"]
         },
         {
           "scenarioId": 200,
-          "values": [
-            "underwater court",
-            "deep-sea wonder",
-            "intrigue"
-          ]
+          "values": ["underwater court", "deep-sea wonder", "intrigue"]
         },
         {
           "scenarioId": 201,
-          "values": [
-            "kaiju",
-            "gentle giant",
-            "wonder"
-          ]
+          "values": ["kaiju", "gentle giant", "wonder"]
         },
         {
           "scenarioId": 202,
-          "values": [
-            "crime",
-            "noir",
-            "heist"
-          ]
+          "values": ["crime", "noir", "heist"]
         },
         {
           "scenarioId": 203,
-          "values": [
-            "crime",
-            "heist",
-            "ensemble assembly"
-          ]
+          "values": ["crime", "heist", "ensemble assembly"]
         },
         {
           "scenarioId": 205,
-          "values": [
-            "cyberpunk",
-            "cityscape",
-            "neon noir"
-          ]
+          "values": ["cyberpunk", "cityscape", "neon noir"]
         },
         {
           "scenarioId": 877,
-          "values": [
-            "Borrowed-Light Bittersweet"
-          ]
+          "values": ["Borrowed-Light Bittersweet"]
         },
         {
           "scenarioId": 878,
-          "values": [
-            "Borrowed-Light Bittersweet"
-          ]
+          "values": ["Borrowed-Light Bittersweet"]
         },
         {
           "scenarioId": 882,
-          "values": [
-            "Tin & Echo"
-          ]
+          "values": ["Tin & Echo"]
         },
         {
           "scenarioId": 883,
-          "values": [
-            "Tin & Echo"
-          ]
+          "values": ["Tin & Echo"]
         },
         {
           "scenarioId": 934,
-          "values": [
-            "Elegiac Wonder"
-          ]
+          "values": ["Elegiac Wonder"]
         },
         {
           "scenarioId": 935,
-          "values": [
-            "Elegiac Wonder"
-          ]
+          "values": ["Elegiac Wonder"]
         },
         {
           "scenarioId": 1002,
-          "values": [
-            "Wind-Fortune"
-          ]
+          "values": ["Wind-Fortune"]
         },
         {
           "scenarioId": 1003,
-          "values": [
-            "Wind-Fortune"
-          ]
+          "values": ["Wind-Fortune"]
         }
       ]
     }
@@ -11913,13 +10391,7 @@
     {
       "code": "EMPTY_TAXONOMY",
       "message": "5 declared taxonomies currently contain no records.",
-      "details": [
-        "CORE",
-        "MOOD",
-        "SETTING",
-        "ART_DIRECTION",
-        "OTHER"
-      ]
+      "details": ["CORE", "MOOD", "SETTING", "ART_DIRECTION", "OTHER"]
     },
     {
       "code": "MISSING_REQUIRED_ART",

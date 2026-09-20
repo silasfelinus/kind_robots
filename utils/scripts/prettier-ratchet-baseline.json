@@ -1,7 +1,7 @@
 {
   "note": "Prettier RATCHET: this file may only ever shrink. --update refuses to record a larger count. See utils/scripts/verifyPrettierRatchet.ts.",
   "recorded": "2026-09-20",
-  "total": 1089,
+  "total": 1081,
   "violations": {
     ".github": [
       ".github/workflows/api-client-followups-contract.yml",
@@ -25,12 +25,6 @@
       "README.md",
       "stats.html",
       "test-pool.mjs"
-    ],
-    "artifacts": [
-      "artifacts/character-genre-alias-proposal.json",
-      "artifacts/facet-data-audit.json",
-      "artifacts/fitness-audit.json",
-      "artifacts/proposals-scenarios.json"
     ],
     "components": [
       "components/academy/academy-style-detail.vue",
@@ -346,12 +340,6 @@
       "pages/play/mandarin/browse.vue",
       "pages/play/mandarin/sound-families.vue",
       "pages/play/video-generator.vue"
-    ],
-    "plugins": [
-      "plugins/20.facet-catalog.client.ts",
-      "plugins/entity-art-prompt-suggest.client.ts",
-      "plugins/narrative-milestone-art.client.ts",
-      "plugins/navigation-image-fallback.client.ts"
     ],
     "sample": [
       "sample/generation/bots.md",

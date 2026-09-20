@@ -99,9 +99,9 @@ export default defineNuxtPlugin(() => {
 
   watch(
     () =>
-      `${storyStore.session?.id || ''}:${storyStore.session?.beats
-        .map((beat) => beat.id)
-        .join(',') || ''}`,
+      `${storyStore.session?.id || ''}:${
+        storyStore.session?.beats.map((beat) => beat.id).join(',') || ''
+      }`,
     scanStoryBeats,
     { flush: 'post' },
   )

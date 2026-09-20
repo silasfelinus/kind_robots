@@ -1,9 +1,6 @@
 // /plugins/navigation-image-fallback.client.ts
 const fallbackImage = '/images/botcafe.webp'
-const navigationImagePrefixes = [
-  '/images/channels/',
-  '/images/dashboard-tabs/',
-]
+const navigationImagePrefixes = ['/images/channels/', '/images/dashboard-tabs/']
 
 function pathname(value: string): string {
   try {

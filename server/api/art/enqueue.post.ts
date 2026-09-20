@@ -467,6 +467,30 @@ export default defineEventHandler(async (event) => {
       designer: resolvedBody.designer?.trim() || null,
       artCollectionIds: requestedArtCollectionIds,
     }
+    /*
+     * Gate the CALLER'S OWN text, before any entity context is composed into
+     * it. This is the contract's authoring signal and it is a separate job
+     * from protecting the render below.
+     *
+     * Both are needed, because they fail in opposite directions.
+     * `buildKreaSemanticPrompt` SANITIZES: it rewrites "a red cube, no
+     * bystanders, plain ground" to "a red cube, plain ground" on the way to the
+     * CLIP node. So gating only the graph would accept a prompt whose author
+     * wrote a negation, silently, and leave that negation sitting in the stored
+     * artPrompt to be re-sent forever -- which is the exact condition the
+     * 2026-09-19 repair pass existed to clean up across 1,154 records.
+     *
+     * `basePromptString` is the right string for this and the composed one is
+     * not: the entity's Description and Effect are not the caller's art
+     * direction, and judging them is what produced 13 false refusals.
+     */
+    assertArtPromptContract({
+      prompt: basePromptString,
+      engine,
+      steps: resolvedBody.steps ?? null,
+      cfg: resolvedBody.cfg ?? null,
+    })
+
     const previewPayload: Record<string, unknown> = {}
     const promptString = applyArtFacetsToPayload(
       previewPayload,
@@ -505,6 +529,9 @@ export default defineEventHandler(async (event) => {
      * prompt it sent reads as the contract having lost its mind, and the same
      * gate blocks a human re-rendering any Reward whose rules text happens to
      * contain a negation.
+     *
+     * And gate what the renderer will actually receive, which after the
+     * sanitizer is not the caller's text either.
      *
      * Read out of the GRAPH specifically, via `extractWorkflowPrompt`, not via
      * `extractRenderRequest` -- that one prefers `payload.promptString` and only

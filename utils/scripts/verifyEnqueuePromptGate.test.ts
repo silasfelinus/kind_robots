@@ -142,7 +142,10 @@ const source = readFileSync(
 )
 const buildAt = source.indexOf('const { jobEngine, payload } = buildJobPayload(')
 const extractAt = source.indexOf('extractWorkflowPrompt(payload)')
-const gateAt = source.indexOf('assertArtPromptContract({')
+// lastIndexOf: the FIRST assertArtPromptContract is the author-level gate,
+// which deliberately runs before the payload exists. The graph gate is the
+// last one.
+const gateAt = source.lastIndexOf('assertArtPromptContract({')
 assert.ok(buildAt > 0, 'expected buildJobPayload in enqueue.post.ts')
 assert.ok(extractAt > 0, 'the gate must read the prompt out of the built GRAPH')
 assert.ok(gateAt > 0, 'expected assertArtPromptContract in enqueue.post.ts')
@@ -155,10 +158,24 @@ assert.ok(
   'the gate must NOT use extractRenderRequest: it prefers promptString and ' +
     'only falls back to the CLIP node, which made the first fix a silent no-op',
 )
+// Two gates, deliberately, doing different jobs: the caller's own text before
+// entity context is composed in, and the graph after the sanitizer has run.
 assert.equal(
   source.split('assertArtPromptContract({').length - 1,
-  1,
-  'exactly one gate, so there is no pre-builder copy judging promptString',
+  2,
+  'expected exactly two gates: the author-level one and the graph one',
+)
+const authorGateAt = source.indexOf('prompt: basePromptString,')
+assert.ok(authorGateAt > 0, 'the author-level gate must judge basePromptString')
+assert.ok(
+  authorGateAt < buildAt,
+  'the author-level gate runs before the payload is built -- it is about the ' +
+    'caller\'s text, not the render',
+)
+assert.ok(
+  !source.includes('prompt: contextualBasePrompt,'),
+  'never gate the composed string: the entity Description and Effect are not ' +
+    'the caller\'s art direction, and judging them caused 13 false refusals',
 )
 
 // 4. The no-op that shipped. The first version of this fix gated on
@@ -210,4 +227,34 @@ assert.equal(
   'no graph returns empty so the caller can fall back rather than gate nothing',
 )
 
-console.log(`verifyEnqueuePromptGate: ok (${CASES.length} records + payload precedence)`)
+// 5. The sanitizer hides author mistakes from a graph-only gate.
+//    buildKreaSemanticPrompt REWRITES the caption on its way to the CLIP node:
+//    "a red cube, no bystanders, plain ground" becomes "a red cube, plain
+//    ground". So the render is genuinely clean and a graph-only gate accepts
+//    it -- correctly, as far as the image goes, and uselessly as far as the
+//    author goes. The negation stays in the stored artPrompt and gets re-sent
+//    forever, which is precisely the condition the 2026-09-19 pass spent 1,154
+//    records cleaning up. Hence the second gate on the caller's own text.
+const AUTHOR_NEGATION = 'a red cube, no bystanders, plain ground'
+const sanitized = buildKreaSemanticPrompt(AUTHOR_NEGATION)
+assert.ok(
+  !sanitized.includes('no bystanders'),
+  'fixture assumes the sanitizer strips the negation; if it stopped doing ' +
+    'that, this test is describing behaviour that no longer exists',
+)
+assert.equal(
+  checkArtPromptContract({ prompt: sanitized, ...KREA }).length,
+  0,
+  'the sanitized render is clean, so a graph-only gate would accept it',
+)
+assert.ok(
+  checkArtPromptContract({ prompt: AUTHOR_NEGATION, ...KREA }).some(
+    (v: { rule: string }) => v.rule === 'people-negation',
+  ),
+  "so the author's own text must be gated separately, or the negation is " +
+    'never reported to anyone',
+)
+
+console.log(
+  `verifyEnqueuePromptGate: ok (${CASES.length} records + payload precedence + author gate)`,
+)

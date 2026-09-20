@@ -456,6 +456,14 @@ def apply_civitai(entry: LoraEntry, data: Any) -> bool:
     words = data.get("trainedWords") or []
     if isinstance(words, list):
         entry.trigger_words = [str(w) for w in words if w]
+    # A collection version with no trainedWords still says what it is in its
+    # own name. Civitai 637230 publishes seven XLabs LoRAs this way, and three
+    # of them -- Disney, Midjourney, Realism -- list no trained words at all.
+    # Without this, finalize() falls back to the label and the whole bundle
+    # title becomes the trigger, which is what sent Resources 2427 and 2429 to
+    # the renderer describing the package instead of the style (2026-09-19).
+    if not entry.trigger_words and names_a_variant(version_name, model_name):
+        entry.trigger_words = [version_name]
     imgs = data.get("images") or []
     if isinstance(imgs, list) and imgs and isinstance(imgs[0], dict):
         url = imgs[0].get("url")

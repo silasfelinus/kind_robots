@@ -14,7 +14,7 @@ import {
 } from '../comfy/sdxl/utils/workflow'
 import { buildFluxWorkflowFromRequest } from '../comfy/flux/utils/workflow'
 import { buildKrea2WorkflowFromRequest } from '../comfy/krea2/utils/workflow'
-import { extractRenderRequest } from '../comfy/utils/engineWorkflow'
+import { extractWorkflowPrompt } from '../comfy/utils/engineWorkflow'
 import { buildFlux2KleinWorkflowFromRequest } from '../comfy/flux2/utils/workflow'
 import { buildZImageWorkflowFromRequest } from '../comfy/zimage/utils/workflow'
 import {
@@ -506,18 +506,18 @@ export default defineEventHandler(async (event) => {
      * gate blocks a human re-rendering any Reward whose rules text happens to
      * contain a negation.
      *
-     * /api/art/queue has always gated this way and says why in its own comment:
-     * "that is the string ComfyUI receives, and it is not always the caller's
-     * promptString". This endpoint now agrees with it. A payload shape that
-     * cannot be introspected falls back to `promptString` rather than going
-     * ungated.
+     * Read out of the GRAPH specifically, via `extractWorkflowPrompt`, not via
+     * `extractRenderRequest` -- that one prefers `payload.promptString` and only
+     * falls back to the CLIP node, which is right for edit/requeue (they want
+     * the caller's request) and useless for a gate. The first attempt at this
+     * fix used it and was a silent no-op: production reported the new commit and
+     * went on quoting the same entity text back. A payload with no graph to read
+     * falls back to `promptString` rather than going ungated.
      */
     let renderedPrompt = promptString
     try {
-      const extracted = extractRenderRequest(payload).prompt
-      if (typeof extracted === 'string' && extracted.trim()) {
-        renderedPrompt = extracted
-      }
+      const fromGraph = extractWorkflowPrompt(payload)
+      if (fromGraph.trim()) renderedPrompt = fromGraph
     } catch {
       // Keep promptString: an un-introspectable payload is still gated.
     }

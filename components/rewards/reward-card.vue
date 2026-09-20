@@ -71,6 +71,7 @@
         :badges="badges"
         :meta="showMeta ? metaChips : []"
         :placeholder-icon="reward.icon || fallbackIcon"
+        :pending="artPending"
       >
         <div
           v-if="showStats"
@@ -137,7 +138,8 @@ import { resolveEntityTheme } from '@/utils/entityTheme'
 import { computed, onMounted, ref, watch } from 'vue'
 import type { Reward } from '~/prisma/generated/prisma/client'
 import { useArtStore, type ArtImage } from '@/stores/artStore'
-import type { ArtVariant } from '@/utils/artImageSrc'
+import { resolveArtVariantSource, type ArtVariant } from '@/utils/artImageSrc'
+import { useArtPendingState } from '@/composables/useArtPendingState'
 import type { EntityCardChip } from '@/components/gallery/kr-entity-card-body.vue'
 import { useRewardStore } from '@/stores/rewardStore'
 
@@ -245,6 +247,20 @@ const artFallbackSrc = computed(() => {
 
   return slug && rewardType ? `/images/rewards/${rewardType}/${slug}.webp` : ''
 })
+
+/**
+ * Whatever src kr-entity-card-body/kr-art-plate actually attempted, mirrored
+ * here so this card -- which owns its own art-request state per
+ * verifyGalleryAdoption.ts -- can tell the store-free shared body whether
+ * that src is queued and calm the "couldn't load" reading into "on its way"
+ * (interface-vision/t-138).
+ */
+const attemptedArtSrc = computed(
+  () =>
+    resolveArtVariantSource(props.reward, props.variant, artFallbackSrc.value)
+      .src || artFallbackSrc.value,
+)
+const { pending: artPending } = useArtPendingState(() => attemptedArtSrc.value)
 
 /*
  * Badges sit top-LEFT over the art (kr-entity-card-body owns that corner;

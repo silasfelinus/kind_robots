@@ -522,6 +522,17 @@ export const ANIMATION_EFFECTS = [
     generationSafe: true,
     preferredSurface: 'fullscreen',
   },
+  {
+    id: 'candlelit-reliquary',
+    label: 'Candlelit Reliquary',
+    reveal: 'A taper relights',
+    icon: 'kind-icon:flame',
+    tooltip:
+      'A row of tapers burns down on a stone ledge, wax beading and pooling beneath each one until a fresh candle silently rises to relight it 🕯️ hover a flame to bend it, click a candle to nudge its wax loose',
+    color: '#d68a3a',
+    generationSafe: true,
+    preferredSurface: 'fullscreen',
+  },
 ] as const satisfies readonly AnimationEffectDefinition[]
 
 export type AnimationEffectId = (typeof ANIMATION_EFFECTS)[number]['id']

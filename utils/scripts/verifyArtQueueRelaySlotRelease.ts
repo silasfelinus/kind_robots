@@ -22,6 +22,8 @@ const route = readFileSync('server/api/art/queue/claim.post.ts', 'utf8')
 const listRoute = readFileSync('server/api/art/queue/index.get.ts', 'utf8')
 const util = readFileSync('server/utils/artJobRelaySlot.ts', 'utf8')
 const card = readFileSync('components/art/artjob-queue-card.vue', 'utf8')
+const fields = readFileSync('utils/artJobFields.ts', 'utf8')
+const slideshow = readFileSync('components/art/artjob-slideshow.vue', 'utf8')
 
 function assertIncludes(source: string, name: string, required: string) {
   if (!source.includes(required)) {
@@ -135,4 +137,27 @@ for (const required of [
   assertIncludes(card, 'ArtJob queue card stable running timer', required)
 }
 
-console.log('Art queue relay-slot and list ordering verified.')
+for (const required of [
+  'export function artJobFinishedAt(',
+  'const retryCompletedAt = validTimestamp(asRecord(payload.retry).completedAt)',
+  'asRecord(asRecord(payload.provenance).completion).verifiedAt',
+  'return job.updatedAt ?? null',
+]) {
+  assertIncludes(fields, 'ArtJob finish timestamp reader', required)
+}
+
+for (const required of [
+  'Queued {{ formatDateTime(job.createdAt) }}',
+  'Finished {{ formatDateTime(jobFinishedAtValue) }}',
+  "props.job.status === 'DONE' ? artJobFinishedAt(props.job) : null",
+]) {
+  assertIncludes(card, 'ArtJob queue card queued/finished timestamps', required)
+}
+
+assertIncludes(
+  slideshow,
+  'ArtJob slideshow finish timestamp',
+  'currentJob.value ? artJobFinishedAt(currentJob.value) : null',
+)
+
+console.log('Art queue relay-slot, list ordering, and timestamps verified.')

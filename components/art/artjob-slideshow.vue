@@ -399,6 +399,7 @@ import {
 } from '@/stores/artSlideshowStore'
 import {
   artJobFileName,
+  artJobFinishedAt,
   artJobImagePath,
   artJobImageVersion,
   artJobPrompt,
@@ -500,7 +501,7 @@ const slideSettings = computed<string[]>(() =>
   currentJob.value ? artJobSettings(currentJob.value) : [],
 )
 const slideFinishedAt = computed<string>(() => {
-  const value = currentJob.value?.updatedAt || currentJob.value?.createdAt
+  const value = currentJob.value ? artJobFinishedAt(currentJob.value) : null
   if (!value) return 'unknown'
   const date = new Date(value)
   if (!Number.isFinite(date.getTime())) return 'unknown'

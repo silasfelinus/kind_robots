@@ -203,6 +203,40 @@ export function artJobVisibility(job: ArtJobFieldsSource): MaturityPrivacy {
   return resolveMaturityPrivacy(asRecord(asRecord(job.payload).save))
 }
 
+function validTimestamp(value: unknown): string {
+  const text = scalar(value)
+  if (!text) return ''
+  const parsed = new Date(text).getTime()
+  return Number.isFinite(parsed) ? text : ''
+}
+
+/**
+ * Best available timestamp for when a successful ArtJob actually finished.
+ *
+ * Completion provenance is written as the relay reports success and survives
+ * later feedback edits that bump ArtJob.updatedAt. OVERWRITE retries also carry
+ * retry.completedAt from the same completion transaction. updatedAt remains the
+ * fallback for legacy rows created before either payload timestamp existed.
+ */
+export function artJobFinishedAt(
+  job: ArtJobFieldsSource,
+): string | Date | null {
+  const payload = asRecord(job.payload)
+
+  const direct = validTimestamp(payload.completedAt)
+  if (direct) return direct
+
+  const retryCompletedAt = validTimestamp(asRecord(payload.retry).completedAt)
+  if (retryCompletedAt) return retryCompletedAt
+
+  const verifiedAt = validTimestamp(
+    asRecord(asRecord(payload.provenance).completion).verifiedAt,
+  )
+  if (verifiedAt) return verifiedAt
+
+  return job.updatedAt ?? null
+}
+
 /**
  * Cache-buster derived from the job's own updatedAt. updatedAt is DateTime? in
  * the schema, so a null timestamp simply means no cache-buster. An OVERWRITE

@@ -31,7 +31,7 @@
 <template>
   <kr-manager
     dashboard-key="facets"
-    :loading="facetStore.loading"
+    :loading="countsLoading"
     :error="errorMessage || null"
     loading-label="Loading facets..."
     :panel-tabs="['library']"
@@ -46,10 +46,7 @@
     </template>
 
     <template #library>
-      <details
-        class="kr-panel-flat"
-        :open="createOpen"
-      >
+      <details class="kr-panel-flat" :open="createOpen">
         <summary
           class="kr-text-dim-sm-70 cursor-pointer px-4 py-3 font-bold"
           @click.prevent="createOpen = !createOpen"
@@ -64,10 +61,7 @@
             :disabled="!createForm.title.trim() || facetStore.saving"
             @click="createFacet"
           >
-            <span
-              v-if="facetStore.saving"
-              class="kr-spinner-xs"
-            />
+            <span v-if="facetStore.saving" class="kr-spinner-xs" />
             <Icon v-else name="kind-icon:plus" class="kr-icon-3-5" />
             Create canonical Facet
           </button>
@@ -96,12 +90,8 @@
       </dl>
 
       <p class="kr-text-dim-xs mt-4">
-        {{ facetStore.facets.length }} canonical Facets ·
-        {{
-          facetStore.facets.length - facetStore.activeFacets.length
-        }}
-        archived. Open a Facet from the Gallery tab to edit, archive or restore
-        it.
+        {{ totalFacets }} canonical Facets · {{ archivedFacets }} archived. Open
+        a Facet from the Gallery tab to edit, archive or restore it.
       </p>
     </template>
   </kr-manager>
@@ -111,6 +101,7 @@
 import { computed, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useFacetStore } from '@/stores/facetStore'
+import { performFetch } from '@/stores/utils'
 import {
   FACET_TAXONOMIES,
   type FacetTaxonomy,
@@ -129,11 +120,32 @@ const errorMessage = ref('')
 const createOpen = ref(false)
 const createForm = ref<FacetProfileForm>(blankFacetProfileForm())
 
+/*
+ * A COUNT, from the endpoint that counts.
+ *
+ * This tab is a taxonomy breakdown and a create form -- the comment above the
+ * <dl> says so: "A COUNT, not a grid ... Browsing is one click away on the
+ * Gallery tab, which is the only place that draws Facets." It was still
+ * downloading all 1,736 rows in seven pages to derive twenty-six numbers, and
+ * doing it on mount regardless of which tab was showing, so the Gallery tab
+ * paid for it too. Measured on production 2026-09-21: seven /api/facets
+ * requests fired while the Gallery tab was the one on screen.
+ *
+ * Two index calls instead, ~2.4 KB each. The second one (active only) is what
+ * makes the archived figure subtraction possible, since this tab counts
+ * inactive rows and the gallery does not.
+ */
+type TaxonomySummary = { taxonomy: FacetTaxonomy; count: number }
+
+const allCounts = ref<TaxonomySummary[]>([])
+const activeCounts = ref<TaxonomySummary[]>([])
+/* This tab's own spinner. facetStore.loading tracked a list this tab no
+   longer fetches, so it would have sat false through the counts request. */
+const countsLoading = ref(false)
+
 const taxonomyCounts = computed(() => {
   const counts: Partial<Record<FacetTaxonomy, number>> = {}
-  for (const facet of facetStore.facets) {
-    counts[facet.taxonomy] = (counts[facet.taxonomy] || 0) + 1
-  }
+  for (const row of allCounts.value) counts[row.taxonomy] = row.count
   return counts
 })
 
@@ -141,12 +153,33 @@ const populatedTaxonomies = computed(() =>
   FACET_TAXONOMIES.filter((taxonomy) => taxonomyCounts.value[taxonomy]),
 )
 
+const totalFacets = computed(() =>
+  allCounts.value.reduce((sum, row) => sum + row.count, 0),
+)
+
+const archivedFacets = computed(
+  () =>
+    totalFacets.value -
+    activeCounts.value.reduce((sum, row) => sum + row.count, 0),
+)
+
 async function loadFacets(): Promise<void> {
   errorMessage.value = ''
+  countsLoading.value = true
   try {
-    await facetStore.fetchFacets({ includeInactive: true, includeMature: true })
+    const [all, active] = await Promise.all([
+      performFetch<TaxonomySummary[]>(
+        '/api/facets/taxonomies?includeInactive=true&includeMature=true',
+      ),
+      performFetch<TaxonomySummary[]>('/api/facets/taxonomies'),
+    ])
+    if (!all.success) throw new Error(all.message || 'Facet counts failed.')
+    allCounts.value = all.data ?? []
+    activeCounts.value = active.success ? (active.data ?? []) : []
   } catch (error) {
     setError(error, 'Facets could not be loaded.')
+  } finally {
+    countsLoading.value = false
   }
 }
 

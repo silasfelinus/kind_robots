@@ -67,11 +67,20 @@ async function main(): Promise<void> {
       )
     }
   }
-  requireText(
-    files.manager,
-    manager,
-    'facetStore.fetchFacets({ includeInactive: true, includeMature: true })',
-  )
+  /*
+   * What this has always been about: the Library tab counts EVERYTHING,
+   * archived and mature rows included, which is what makes its "N canonical
+   * Facets - M archived" line mean anything. The gallery deliberately does not.
+   *
+   * It used to be spelled as one literal store call. That call downloaded all
+   * 1,736 rows in seven pages to derive twenty-six numbers, on mount, whichever
+   * tab was showing -- so the Gallery tab paid for it too (measured on
+   * production 2026-09-21). The tab reads /api/facets/taxonomies now, ~2.4 KB,
+   * and passes the same two flags. The requirement is the flags, not the
+   * fetcher.
+   */
+  requireText(files.manager, manager, 'includeInactive=true&includeMature=true')
+  requireText(files.manager, manager, 'archivedFacets')
   requireText(files.manager, manager, 'FacetProfileEditor')
   requireText(files.editor, editor, 'Structured metadata (JSON object)')
   requireText(files.editor, editor, 'defineModel<FacetProfileForm>')

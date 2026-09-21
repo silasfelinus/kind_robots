@@ -154,6 +154,28 @@ const ART_DIRECTION_JARGON_PATTERNS: Array<{ pattern: RegExp; rule: string }> = 
   { pattern: /\bthumbnail\s+readability\b/i, rule: 'art-direction-jargon' },
   { pattern: /\blegible at thumbnail size\b/i, rule: 'art-direction-jargon' },
   { pattern: /\bsubject separation\b/i, rule: 'art-direction-jargon' },
+  /*
+   * "readable tools", and legibility cues like it, on the strongest open text
+   * renderer there is.
+   *
+   * To a person this asks for props you can identify at a glance. To Krea it
+   * is the word `readable` attached to a noun, which is a request for
+   * legibility -- and the only thing a diffusion model knows how to make
+   * legible is lettering. It sat at the end of the v4 occupation clause and
+   * was still reaching live conditioning on 2026-09-21, on Facets whose
+   * prompts were otherwise nothing but card copy: ArtJobs 29108, 29109 and
+   * 29111 all came back with a caption block painted across the top.
+   *
+   * Scoped to the legibility adjectives on a noun. Ordinary prose about a
+   * readable expression or a legible signature in a scene that really has one
+   * is not what this matches, and "readable" describing a person is left
+   * alone.
+   */
+  {
+    pattern:
+      /\b(?:readable|legible|clearly\s+readable|easily\s+read)\s+(?:tools?|labels?|signs?|instruments?|markings?|details?|iconography|symbols?)\b/i,
+    rule: 'art-direction-jargon',
+  },
 ]
 
 // "Kind Robots visual style" gives an image model nothing, and used to be

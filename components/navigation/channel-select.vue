@@ -237,11 +237,7 @@
       </ul>
 
       <div
-        v-if="
-          !unifiedMobile &&
-          expandedChannel &&
-          submenuMode === 'flyout'
-        "
+        v-if="!unifiedMobile && expandedChannel && submenuMode === 'flyout'"
         ref="channelFlyout"
         class="channel-submenu absolute left-full z-120 ml-2 flex-nowrap overflow-x-hidden kr-anchor-scroll kr-panel-flat p-2 shadow-2xl"
         :class="channelFlyoutColumns === 2 ? 'w-[40rem]' : 'w-80'"

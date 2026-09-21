@@ -48,7 +48,9 @@
           </p>
         </div>
 
-        <div class="grid grid-cols-[repeat(auto-fill,minmax(4rem,1fr))] gap-1.5">
+        <div
+          class="grid grid-cols-[repeat(auto-fill,minmax(4rem,1fr))] gap-1.5"
+        >
           <div
             v-for="entry in shownEndings"
             :key="entry.id"
@@ -78,7 +80,7 @@
 
       <div class="flex flex-wrap gap-2">
         <button type="button" class="btn btn-primary" @click="emit('again')">
-          Play again with this table
+          Play again
         </button>
         <button type="button" class="btn btn-ghost" @click="emit('newTable')">
           New table
@@ -127,7 +129,10 @@ const shownEndings = computed(() => {
 })
 
 const hiddenCount = computed(() =>
-  Math.max(0, (collection.value?.endings.length ?? 0) - shownEndings.value.length),
+  Math.max(
+    0,
+    (collection.value?.endings.length ?? 0) - shownEndings.value.length,
+  ),
 )
 
 onMounted(() => {

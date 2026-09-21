@@ -178,7 +178,7 @@ const showIndex = computed(
 
 const visibleEntries = computed(() =>
   artOnly.value
-    ? entries.value.filter((entry) => Boolean(resolveEntityArtwork(entry)))
+    ? entries.value.filter((facet) => Boolean(resolveEntityArtwork(facet)))
     : entries.value,
 )
 

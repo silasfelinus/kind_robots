@@ -700,11 +700,29 @@ function handleWheel(event: WheelEvent): void {
   const horizontalOverflow = el.scrollWidth > el.clientWidth
   if (!horizontalOverflow) return
 
-  const primaryDelta =
-    Math.abs(event.deltaY) >= Math.abs(event.deltaX)
-      ? event.deltaY
-      : event.deltaX
+  /*
+   * Never turn an ordinary vertical mouse wheel into hand navigation.
+   *
+   * This component already documents the intended ownership rule above:
+   * horizontal motion belongs to the hand, vertical motion belongs to the
+   * page. The old desktop handler contradicted that rule by choosing whichever
+   * wheel axis had the larger delta, which meant a normal mouse wheel over the
+   * hand became horizontal card scrolling and called preventDefault(). On a
+   * page whose real scroll owner sits behind the fixed hand, that recreates the
+   * "wheel only works when the pointer is on the far-right scrollbar" failure
+   * even though the page itself has exactly one correct vertical scroll owner.
+   *
+   * Trackpads already report horizontal intent as deltaX. Mouse users can opt
+   * into horizontal hand scrolling with Shift+wheel. Everything else bubbles
+   * untouched to the page.
+   */
+  const horizontalIntent = Math.abs(event.deltaX) > Math.abs(event.deltaY)
+  const shiftedVerticalIntent =
+    event.shiftKey && Math.abs(event.deltaY) >= Math.abs(event.deltaX)
 
+  if (!horizontalIntent && !shiftedVerticalIntent) return
+
+  const primaryDelta = horizontalIntent ? event.deltaX : event.deltaY
   if (!primaryDelta) return
 
   const maxScrollLeft = el.scrollWidth - el.clientWidth

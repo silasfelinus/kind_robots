@@ -285,14 +285,20 @@
         <span>Actively processing {{ runningElapsed }}</span>
         <span class="text-base-content/40">·</span>
         <span class="font-normal text-base-content/55">
-          started {{ formatDateTime(processingStartedAtValue) }}
+          started {{ formatDateTime(jobStartedAtValue) }}
         </span>
       </p>
 
       <p class="text-[11px] text-base-content/50">
         Queued {{ formatDateTime(job.createdAt) }}
+        <template v-if="jobStartedAtValue && job.status !== 'RUNNING'">
+          · Started {{ formatDateTime(jobStartedAtValue) }}
+        </template>
         <template v-if="jobFinishedAtValue">
           · Finished {{ formatDateTime(jobFinishedAtValue) }}
+          <template v-if="generationDuration">
+            · Generated in {{ generationDuration }}
+          </template>
         </template>
         · attempt {{ job.attempts }} · priority {{ job.priority }}
       </p>
@@ -760,8 +766,7 @@ const isEditableInPlace = computed<boolean>(() =>
   ['PENDING', 'FAILED', 'CANCELLED'].includes(props.job.status),
 )
 
-const processingStartedAtValue = computed<string | Date | null>(() => {
-  if (props.job.status !== 'RUNNING') return null
+const jobStartedAtValue = computed<string | Date | null>(() => {
   const payloadValue = props.job.payload.processingStartedAt
   if (typeof payloadValue === 'string' && payloadValue.trim()) {
     const timestamp = new Date(payloadValue).getTime()
@@ -771,10 +776,29 @@ const processingStartedAtValue = computed<string | Date | null>(() => {
 })
 
 const runningStartedAt = computed<number | null>(() => {
-  const value = processingStartedAtValue.value
+  if (props.job.status !== 'RUNNING') return null
+  const value = jobStartedAtValue.value
   if (!value) return null
   const startedAt = new Date(value).getTime()
   return Number.isFinite(startedAt) ? startedAt : null
+})
+
+const generationDuration = computed<string>(() => {
+  const startedAtValue = jobStartedAtValue.value
+  const finishedAtValue = jobFinishedAtValue.value
+  if (!startedAtValue || !finishedAtValue) return ''
+
+  const startedAt = new Date(startedAtValue).getTime()
+  const finishedAt = new Date(finishedAtValue).getTime()
+  if (
+    !Number.isFinite(startedAt) ||
+    !Number.isFinite(finishedAt) ||
+    finishedAt < startedAt
+  ) {
+    return ''
+  }
+
+  return formatElapsed((finishedAt - startedAt) / 1000)
 })
 
 /*

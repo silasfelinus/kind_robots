@@ -70,7 +70,7 @@
       <div
         v-if="unifiedMobile"
         ref="channelMenu"
-        class="left-0 w-[min(20rem,calc(100vw-4rem))] max-w-[calc(100vw-4rem)] overflow-x-hidden overflow-y-auto kr-anchor-scroll kr-panel-flat p-2 shadow-2xl"
+        class="left-0 w-[min(20rem,calc(100vw-4rem))] max-w-[calc(100vw-4rem)] overflow-x-hidden kr-anchor-scroll kr-panel-flat p-2 shadow-2xl"
         :style="{
           maxHeight: `${channelMenuMaxHeight}px`,
           scrollbarGutter: 'stable',

@@ -47,12 +47,7 @@ const MAX_OBJECTIVE_CHARS = 500
 export type QuestCheckpointSource = 'direct-task' | 'honeydo' | 'needs-human'
 
 export type QuestCheckpointStatus =
-  | 'pending'
-  | 'proposed'
-  | 'completed'
-  | 'blocked'
-  | 'deferred'
-  | 'needs-info'
+  'pending' | 'proposed' | 'completed' | 'blocked' | 'deferred' | 'needs-info'
 
 export interface QuestCheckpoint {
   id: string
@@ -369,6 +364,33 @@ export function describeEffect(
 }
 
 /**
+ * A proposal, other than `excludeProposalId`, that already wrote back for
+ * `checkpointId` -- from an earlier turn, not the one being applied now.
+ *
+ * A needs-info checkpoint stays `activeCheckpoint()` across turns, so it can
+ * pick up more than one proposal before the reader ever applies any of them
+ * (storybook-reading.vue renders every unapplied proposal with its own Accept
+ * button). Without this check, applying two different proposals that both
+ * name the same checkpoint ran performWriteBack twice -- the exact "two
+ * to-dos from one checkpoint" outcome applyQuestProposal's own contract rules
+ * out, just reached through two proposal ids instead of one applied twice.
+ */
+export function priorAppliedProposalForCheckpoint(
+  ledger: QuestLedger,
+  checkpointId: string,
+  excludeProposalId: string,
+): QuestProposal | null {
+  return (
+    ledger.proposals.find(
+      (entry) =>
+        entry.checkpointId === checkpointId &&
+        entry.id !== excludeProposalId &&
+        Boolean(entry.appliedAt),
+    ) ?? null
+  )
+}
+
+/**
  * THE ONLY PATH THAT WRITES ANYTHING REAL (storybook/t-045).
  *
  * Ports applyWriteBack() from stores/taskmasterStore.ts and deliberately no
@@ -379,7 +401,8 @@ export function describeEffect(
  *
  * Idempotent: applying a proposal that already landed returns it unchanged and
  * writes nothing a second time. The reader clicking twice must not create two
- * to-dos.
+ * to-dos -- and neither does clicking Accept on a second, older proposal that
+ * turns out to name a checkpoint another proposal already applied.
  */
 export async function applyQuestProposal(
   lifeRunId: number,
@@ -420,6 +443,39 @@ export async function applyQuestProposal(
       `This quest no longer holds the item proposal "${proposalId}" was about.`,
       409,
     )
+  }
+
+  // Another proposal for this SAME checkpoint already wrote back (a
+  // needs-info loop can leave more than one unapplied proposal on one
+  // checkpoint). Carry that write's result over instead of running
+  // performWriteBack a second time.
+  const priorApplied = priorAppliedProposalForCheckpoint(
+    ledger,
+    checkpoint.id,
+    proposal.id,
+  )
+  if (priorApplied) {
+    const carried: QuestLedger = {
+      ...ledger,
+      proposals: ledger.proposals.map((entry) =>
+        entry.id === proposal.id
+          ? {
+              ...entry,
+              appliedAt: priorApplied.appliedAt,
+              appliedTodoId: priorApplied.appliedTodoId,
+            }
+          : entry,
+      ),
+    }
+    await prisma.lifeRun.update({
+      where: { id: run.id },
+      data: { questLedger: serializeQuestLedger(carried) },
+    })
+    return {
+      ledger: carried,
+      proposal: carried.proposals.find((entry) => entry.id === proposal.id)!,
+      alreadyApplied: true,
+    }
   }
 
   const appliedTodoId = await performWriteBack(checkpoint, proposal, userId)

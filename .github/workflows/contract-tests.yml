@@ -377,6 +377,9 @@ jobs:
       - name: Storybook character gating contract
         run: npm run test:storybook-character-gating
 
+      - name: Storybook quest double-apply guard
+        run: npm run test:storybook-quest-double-apply-guard
+
       - name: Da Vinci dimension-tone guard self-test
         run: npm run test:davinci-dimension-tone-guard-selftest
 

@@ -23,13 +23,22 @@
 // No network and no database: mocks global.fetch so completeStructured()
 // resolves without a real model call, and exercises
 // storybookRuns.ts's exported `defaultStorybookNarrator` directly.
+//
+// storybookRuns.ts also owns the database-backed run/turn persistence path,
+// so importing it initializes the Prisma adapter even though this contract
+// only exercises its injectable narrator function. Give module
+// initialization a syntactically valid, never-connected URL and import after,
+// same pattern as verifyStorybookQuestDoubleApplyGuard.ts /
+// verifyChildMaturityRestriction.ts.
 
-import {
-  defaultStorybookNarrator,
-  type NarrateFn,
-} from '../../server/utils/storybookRuns'
-import { generateStorybookTurn } from '../../server/utils/storybookNarration'
-import type { StorybookNarrationRequest } from '../../server/utils/storybookNarration'
+process.env.DATABASE_URL ??= 'mysql://contract:contract@127.0.0.1:3306/contract'
+const { defaultStorybookNarrator } =
+  await import('../../server/utils/storybookRuns')
+const { generateStorybookTurn } =
+  await import('../../server/utils/storybookNarration')
+type NarrateFn = import('../../server/utils/storybookRuns').NarrateFn
+type StorybookNarrationRequest =
+  import('../../server/utils/storybookNarration').StorybookNarrationRequest
 
 let failures = 0
 

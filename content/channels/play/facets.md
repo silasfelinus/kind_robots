@@ -3,7 +3,7 @@ contentType: tab
 channelKey: play
 tabKey: facets
 dashboardKey: facets
-dashboardTab: library
+dashboardTab: gallery
 label: Facets
 title: Facets
 subtitle: Browse, create, and refine the ecosystem's vocabulary

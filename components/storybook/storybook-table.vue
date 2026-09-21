@@ -656,14 +656,16 @@ function openAdventure(runId: number): void {
  * storybook/t-055: dream-narration.vue, reward-encounter.vue and
  * facet-profile.vue each link here with `?location=`/`?reward=`/`?facet=`,
  * expecting the same seeding the legacy storybook-page.vue's own
- * seedFromQuery() used to give them. The new engine's board holds full
- * NarrativeIngredientOption cards, not bare slugs, so seeding means finding
- * the matching card in the deck each slot already deals from -- the same
- * lookup activeDeck does per slot -- and playing it with toggleCard(), which
- * already enforces each slot's capacity. A locked genre/hero card is left off
- * the board rather than forced past its gate. The query is cleared immediately
- * so a reload, bookmark or share does not silently re-seed after the reader
- * removes the card.
+ * seedFromQuery() used to give them. Rebuilt on the same cardForSlug()/
+ * playCardIfAbsent() pair seedFromPlayAgain() uses (storybook/t-060,
+ * storybook/t-061) instead of five hand-rolled per-slot lookups: each query
+ * key maps to a slot, cardForSlug() resolves the slug to a real card (or
+ * null when it doesn't exist or -- for genre/hero -- is gated, t-038), and
+ * playCardIfAbsent() plays it without re-toggling an already-placed card.
+ * The Thread slot only reads `?scenario=` outside taskmaster mode, matching
+ * that slot's own dual meaning (project vs. scenario) elsewhere in this
+ * file. The query is cleared immediately so a reload, bookmark or share does
+ * not silently re-seed after the reader removes the card.
  */
 function seedFromQuery(): void {
   const single = (value: unknown): string | null => {
@@ -671,50 +673,18 @@ function seedFromQuery(): void {
     return typeof raw === 'string' && raw ? raw : null
   }
 
-  const locationSlug = single(route.query.location)
-  if (locationSlug) {
-    const dream = dreamStore.dreams
-      .filter(isPlaceDream)
-      .find((entry) => entry.slug === locationSlug)
-    if (dream) toggleCard('place', toPlaceCard(dream))
-  }
+  const querySeeds: Array<[StorybookSlot, string | null]> = [
+    ['place', single(route.query.location)],
+    ['hero', single(route.query.character)],
+    ['genre', single(route.query.facet)],
+    ['treasures', single(route.query.reward)],
+    ['thread', isTaskmaster.value ? null : single(route.query.scenario)],
+  ]
 
-  const characterSlug = single(route.query.character)
-  if (characterSlug) {
-    const character = characterStore.browseCharacters.find(
-      (entry) => entry.slug === characterSlug,
-    )
-    if (character) {
-      const card = withCharacterLock(toHeroCard(character))
-      if (!card.locked) toggleCard('hero', card)
-    }
-  }
-
-  const facetSlug = single(route.query.facet)
-  if (facetSlug) {
-    const facet = facetStore.activeFacets
-      .filter(isGenreFacet)
-      .find((entry) => entry.slug === facetSlug)
-    if (facet) {
-      const card = withGenreLock(toGenreCard(facet))
-      if (!card.locked) toggleCard('genre', card)
-    }
-  }
-
-  const rewardSlug = single(route.query.reward)
-  if (rewardSlug) {
-    const reward = rewardStore.rewards
-      .filter((entry) => entry.isActive && entry.slug)
-      .find((entry) => entry.slug === rewardSlug)
-    if (reward) toggleCard('treasures', toTreasureCard(reward))
-  }
-
-  const scenarioSlug = single(route.query.scenario)
-  if (scenarioSlug && !isTaskmaster.value) {
-    const scenario = scenarioStore.scenarios
-      .filter((entry) => entry.slug)
-      .find((entry) => entry.slug === scenarioSlug)
-    if (scenario) toggleCard('thread', toThreadCard(scenario))
+  for (const [slot, slug] of querySeeds) {
+    if (!slug) continue
+    const card = cardForSlug(slot, slug)
+    if (card) playCardIfAbsent(slot, card)
   }
 
   const consumed = ['scenario', 'location', 'character', 'facet', 'reward']

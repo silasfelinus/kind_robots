@@ -11,13 +11,18 @@
 // is open) -- and storybook-table.vue had no query handling at all, so all
 // three CTAs silently dropped the reader's chosen ingredient on arrival.
 //
+// Rewritten for storybook/t-061: seedFromQuery() no longer hand-rolls a
+// per-key deck lookup + toggleCard() call. It now maps each query key to a
+// slot and resolves it through cardForSlug()/playCardIfAbsent() -- the same
+// pair seedFromPlayAgain() uses (storybook/t-060) -- so this guard checks
+// that pairing instead of pinning the old literal toggleCard() shapes. The
+// genre-lock check moved with the logic: withGenreLock() is now applied
+// inside cardForSlug()'s 'genre' case, not in seedFromQuery() itself, so
+// that assertion now reads cardForSlug()'s body.
+//
 // This guard is deliberately narrow, matching the legacy deep-link guards'
-// convention: it checks that storybook-table.vue defines a `seedFromQuery`
-// function, that it reads each of `?location=`/`?facet=`/`?reward=` and plays
-// the matching card via `toggleCard()` into the right board slot, and that
-// `onMounted` calls it only after the board's decks have loaded (a card can
-// only be found in a deck that has already been fetched). It does not assert
-// UI classes or layout -- a restyle of the Table must not fail this.
+// convention: it does not assert UI classes or layout -- a restyle of the
+// Table must not fail this.
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
@@ -38,48 +43,49 @@ const seedFromQueryBody = extractTsFunctionBody(tableContent, 'seedFromQuery', {
     'move with it.',
 })
 
-// Each of the three live CTAs' query keys must resolve to a real card lookup
-// in the deck that slot deals from, then be played with toggleCard() -- not
-// pushed onto the board as a bare slug, which the board's cards do not
-// understand.
+const cardForSlugBody = extractTsFunctionBody(tableContent, 'cardForSlug', {
+  path: TABLE_PATH,
+  notFoundHint:
+    'seedFromQuery() resolves query slugs to cards through cardForSlug() ' +
+    '(storybook/t-061) -- has it been renamed, removed, or inlined? If so, ' +
+    'this guard needs to move with it.',
+})
+
+// Each of the three live CTAs' query keys must still be read by
+// seedFromQuery() and mapped to the slot its deck deals from.
+for (const [key, slot] of [
+  ['location', 'place'],
+  ['facet', 'genre'],
+  ['reward', 'treasures'],
+]) {
+  assert.ok(
+    new RegExp(`route\\.query\\.${key}`).test(seedFromQueryBody),
+    `seedFromQuery() in ${TABLE_PATH} must read route.query.${key} -- ` +
+      `otherwise the '${slot}' slot has nothing to seed.`,
+  )
+}
+
+// The resolution must go through cardForSlug()/playCardIfAbsent() -- the
+// same pair seedFromPlayAgain() uses -- rather than a bespoke per-key deck
+// lookup + toggleCard() call.
 assert.ok(
-  /const locationSlug = single\(route\.query\.location\)/.test(
-    seedFromQueryBody,
-  ) && /toggleCard\('place', toPlaceCard\(dream\)\)/.test(seedFromQueryBody),
-  `seedFromQuery() in ${TABLE_PATH} must read \`route.query.location\`, look ` +
-    "it up in the Place deck, and play it into the 'place' slot with " +
-    'toggleCard() -- otherwise dream-narration.vue\'s "Start a story with ' +
-    'this" CTA has nothing to seed.',
+  /cardForSlug\(/.test(seedFromQueryBody) &&
+    /playCardIfAbsent\(/.test(seedFromQueryBody),
+  `seedFromQuery() in ${TABLE_PATH} must resolve each query slug through ` +
+    'cardForSlug() and play it with playCardIfAbsent() (storybook/t-061) ' +
+    '-- otherwise it has drifted back to a bespoke per-key lookup.',
 )
 
+// A genre card that resolves to a locked entry must be left off the board
+// rather than forced past its own gate (storybook/t-038). That check now
+// lives inside cardForSlug()'s 'genre' case, not in seedFromQuery() itself
+// (storybook/t-061).
 assert.ok(
-  /const facetSlug = single\(route\.query\.facet\)/.test(seedFromQueryBody) &&
-    /toggleCard\('genre', card\)/.test(seedFromQueryBody),
-  `seedFromQuery() in ${TABLE_PATH} must read \`route.query.facet\`, look it ` +
-    "up in the Genre deck, and play it into the 'genre' slot with " +
-    "toggleCard() -- otherwise facet-profile.vue's CTA has nothing to seed.",
-)
-
-assert.ok(
-  /const rewardSlug = single\(route\.query\.reward\)/.test(seedFromQueryBody) &&
-    /toggleCard\('treasures', toTreasureCard\(reward\)\)/.test(
-      seedFromQueryBody,
-    ),
-  `seedFromQuery() in ${TABLE_PATH} must read \`route.query.reward\`, look ` +
-    "it up in the Treasures deck, and play it into the 'treasures' slot " +
-    "with toggleCard() -- otherwise reward-encounter.vue's CTA has nothing " +
-    'to seed.',
-)
-
-// A genre/hero card that resolves to a locked entry must be left off the
-// board rather than forced past its own gate (storybook/t-038).
-assert.ok(
-  /const card = withGenreLock\(toGenreCard\(facet\)\)\s*\n\s*if \(!card\.locked\) toggleCard\('genre', card\)/.test(
-    seedFromQueryBody,
-  ),
-  `seedFromQuery() in ${TABLE_PATH} must skip playing a genre card that ` +
-    'withGenreLock() reports as locked -- a deep link must not bypass the ' +
-    'gate every other path into that slot respects.',
+  /withGenreLock\(toGenreCard\(facet\)\)/.test(cardForSlugBody) &&
+    /card\.locked \? null : card/.test(cardForSlugBody),
+  `cardForSlug() in ${TABLE_PATH} must resolve a genre slug through ` +
+    'withGenreLock() and return null for a locked card -- a deep link must ' +
+    'not bypass the gate every other path into that slot respects.',
 )
 
 // The query must still be cleared afterward, matching every other seed-once
@@ -124,6 +130,7 @@ assert.ok(
 console.log(
   "Storybook table deep-link guard contract passed: storybook-table.vue's " +
     'seedFromQuery() consumes ?location=/?facet=/?reward= into the matching ' +
-    'board slot via toggleCard(), respects genre gating, clears the query, ' +
-    'and only runs once the decks it looks cards up in have loaded.',
+    'board slot via cardForSlug()/playCardIfAbsent(), respects genre ' +
+    'gating, clears the query, and only runs once the decks it looks cards ' +
+    'up in have loaded.',
 )

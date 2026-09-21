@@ -380,6 +380,9 @@ jobs:
       - name: Storybook run store contract
         run: npm run test:storybook-run-store
 
+      - name: Storybook scene-art chapter-match guard
+        run: npm run test:storybook-scene-art-chapter-match-guard
+
       - name: Storybook character gating contract
         run: npm run test:storybook-character-gating
 

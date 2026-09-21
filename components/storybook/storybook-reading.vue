@@ -285,7 +285,7 @@ const sceneArt = computed(() => {
   const forTurn = runStore.art.find(
     (entry) => entry.chapter === runStore.turnIndex,
   )
-  const image = (forTurn ?? runStore.art[runStore.art.length - 1])?.ArtImage
+  const image = forTurn?.ArtImage
   return image?.imagePath || image?.path ? image : null
 })
 

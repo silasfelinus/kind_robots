@@ -12,6 +12,36 @@ function source(path: string): string {
   return readFileSync(path, 'utf8')
 }
 
+const workspaceHeader = source('components/navigation/workspace-header.vue')
+const channelSelect = source('components/navigation/channel-select.vue')
+
+assert.ok(
+  workspaceHeader.includes('unified-mobile') &&
+    workspaceHeader.includes('class="min-w-0 flex-1 sm:hidden"'),
+  'phone workspace navigation must use one unified picker',
+)
+assert.ok(
+  workspaceHeader.includes(
+    'class="hidden min-w-0 shrink max-w-[45%] sm:block"',
+  ) &&
+    workspaceHeader.includes(
+      'class="hidden min-w-0 flex-1 items-stretch border-l border-base-300 sm:flex"',
+    ),
+  'channel + tab pickers must remain the tablet/desktop navigation',
+)
+assert.ok(
+  channelSelect.includes(
+    "{{ unifiedMobile ? activeTab?.label || activeChannel.label : activeChannel.label }}",
+  ),
+  'the unified phone picker must show the active tab label rather than only the channel label',
+)
+assert.ok(
+  channelSelect.includes('v-if="unifiedMobile"') &&
+    channelSelect.includes('v-for="channel in visibleChannels"') &&
+    channelSelect.includes('@select="selectTab(channel, $event)"'),
+  'the unified phone dropdown must render a grouped, directly selectable channel/tab list',
+)
+
 const contentConfig = source('content.config.ts')
 assert.match(
   contentConfig,

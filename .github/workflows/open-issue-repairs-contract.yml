@@ -4,23 +4,23 @@ on:
   push:
     branches: [main]
     paths:
-      - "components/characters/add-character.vue"
-      - "stores/superkateReceiptStore.ts"
-      - "server/api/stylist/receipt-email.post.ts"
-      - "server/api/art/queue/**"
-      - "server/utils/artImageSeed.ts"
-      - "utils/scripts/verifyOpenIssueRepairs.ts"
-      - ".github/workflows/open-issue-repairs-contract.yml"
+      - 'components/characters/add-character.vue'
+      - 'stores/superkateReceiptStore.ts'
+      - 'server/api/stylist/receipt-email.post.ts'
+      - 'server/api/art/queue/**'
+      - 'server/utils/artImageSeed.ts'
+      - 'utils/scripts/verifyOpenIssueRepairs.ts'
+      - '.github/workflows/open-issue-repairs-contract.yml'
   pull_request:
     branches: [main]
     paths:
-      - "components/characters/add-character.vue"
-      - "stores/superkateReceiptStore.ts"
-      - "server/api/stylist/receipt-email.post.ts"
-      - "server/api/art/queue/**"
-      - "server/utils/artImageSeed.ts"
-      - "utils/scripts/verifyOpenIssueRepairs.ts"
-      - ".github/workflows/open-issue-repairs-contract.yml"
+      - 'components/characters/add-character.vue'
+      - 'stores/superkateReceiptStore.ts'
+      - 'server/api/stylist/receipt-email.post.ts'
+      - 'server/api/art/queue/**'
+      - 'server/utils/artImageSeed.ts'
+      - 'utils/scripts/verifyOpenIssueRepairs.ts'
+      - '.github/workflows/open-issue-repairs-contract.yml'
   workflow_dispatch:
 
 jobs:
@@ -35,12 +35,12 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: "24"
+          node-version: '24'
           cache: npm
 
       - run: npm ci
         env:
-          CYPRESS_INSTALL_BINARY: "0"
+          CYPRESS_INSTALL_BINARY: '0'
 
       - name: Generate Prisma client
         run: npx prisma generate

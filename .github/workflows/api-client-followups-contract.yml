@@ -4,12 +4,12 @@ on:
   push:
     branches: [main]
     paths:
-      - "server/api/art/**"
-      - "stores/**"
-      - "components/**"
-      - "utils/scripts/verifyApiClientFollowups.ts"
-      - ".github/workflows/api-client-followups-contract.yml"
-      - "package.json"
+      - 'server/api/art/**'
+      - 'stores/**'
+      - 'components/**'
+      - 'utils/scripts/verifyApiClientFollowups.ts'
+      - '.github/workflows/api-client-followups-contract.yml'
+      - 'package.json'
   # NO paths filter, deliberately. This job is named `verify`, and `verify` is a
   # REQUIRED status check on main -- so a PR that touches none of the paths below
   # never produces it and can never merge, no matter how green everything else
@@ -35,7 +35,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: "24"
+          node-version: '24'
           cache: npm
       - run: npm ci
       - run: npx tsx utils/scripts/verifyApiClientFollowups.ts

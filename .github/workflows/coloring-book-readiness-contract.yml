@@ -3,35 +3,35 @@ name: Coloring Book Production Contract
 on:
   pull_request:
     paths:
-      - "components/coloring/coloring-book-readiness.vue"
-      - "components/coloring/coloring-book-package-readiness.vue"
-      - "components/coloring/coloring-book-cover-studio.vue"
-      - "components/coloring/coloring-book-page.vue"
-      - "server/api/conductor/coloring-books/package.get.ts"
-      - "server/utils/coloringBookPackage.ts"
-      - "stores/coloringBookStudioStore.ts"
-      - "types/coloringBookPackage.ts"
-      - "utils/coloringBookReadiness.ts"
-      - "utils/coloringBookPackage.ts"
-      - "utils/scripts/verifyColoringBookReadiness.ts"
-      - "utils/scripts/verifyColoringBookPackage.ts"
-      - ".github/workflows/coloring-book-readiness-contract.yml"
+      - 'components/coloring/coloring-book-readiness.vue'
+      - 'components/coloring/coloring-book-package-readiness.vue'
+      - 'components/coloring/coloring-book-cover-studio.vue'
+      - 'components/coloring/coloring-book-page.vue'
+      - 'server/api/conductor/coloring-books/package.get.ts'
+      - 'server/utils/coloringBookPackage.ts'
+      - 'stores/coloringBookStudioStore.ts'
+      - 'types/coloringBookPackage.ts'
+      - 'utils/coloringBookReadiness.ts'
+      - 'utils/coloringBookPackage.ts'
+      - 'utils/scripts/verifyColoringBookReadiness.ts'
+      - 'utils/scripts/verifyColoringBookPackage.ts'
+      - '.github/workflows/coloring-book-readiness-contract.yml'
   push:
     branches: [main]
     paths:
-      - "components/coloring/coloring-book-readiness.vue"
-      - "components/coloring/coloring-book-package-readiness.vue"
-      - "components/coloring/coloring-book-cover-studio.vue"
-      - "components/coloring/coloring-book-page.vue"
-      - "server/api/conductor/coloring-books/package.get.ts"
-      - "server/utils/coloringBookPackage.ts"
-      - "stores/coloringBookStudioStore.ts"
-      - "types/coloringBookPackage.ts"
-      - "utils/coloringBookReadiness.ts"
-      - "utils/coloringBookPackage.ts"
-      - "utils/scripts/verifyColoringBookReadiness.ts"
-      - "utils/scripts/verifyColoringBookPackage.ts"
-      - ".github/workflows/coloring-book-readiness-contract.yml"
+      - 'components/coloring/coloring-book-readiness.vue'
+      - 'components/coloring/coloring-book-package-readiness.vue'
+      - 'components/coloring/coloring-book-cover-studio.vue'
+      - 'components/coloring/coloring-book-page.vue'
+      - 'server/api/conductor/coloring-books/package.get.ts'
+      - 'server/utils/coloringBookPackage.ts'
+      - 'stores/coloringBookStudioStore.ts'
+      - 'types/coloringBookPackage.ts'
+      - 'utils/coloringBookReadiness.ts'
+      - 'utils/coloringBookPackage.ts'
+      - 'utils/scripts/verifyColoringBookReadiness.ts'
+      - 'utils/scripts/verifyColoringBookPackage.ts'
+      - '.github/workflows/coloring-book-readiness-contract.yml'
 
 jobs:
   verify:

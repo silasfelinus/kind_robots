@@ -16,13 +16,13 @@ on:
   push:
     branches: [main]
     paths:
-      - "scripts/**.ps1"
-      - ".github/workflows/powershell-syntax-contract.yml"
+      - 'scripts/**.ps1'
+      - '.github/workflows/powershell-syntax-contract.yml'
   pull_request:
     branches: [main]
     paths:
-      - "scripts/**.ps1"
-      - ".github/workflows/powershell-syntax-contract.yml"
+      - 'scripts/**.ps1'
+      - '.github/workflows/powershell-syntax-contract.yml'
   workflow_dispatch:
 
 permissions:

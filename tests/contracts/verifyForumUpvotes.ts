@@ -2,10 +2,22 @@ import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 
 const storage = readFileSync('server/utils/forumUpvotes.ts', 'utf8')
-const listRoute = readFileSync('server/api/v1/forum/threads/index.get.ts', 'utf8')
-const detailRoute = readFileSync('server/api/v1/forum/threads/[id].get.ts', 'utf8')
-const toggleRoute = readFileSync('server/api/forum/threads/[id]/upvote.put.ts', 'utf8')
-const createRoute = readFileSync('server/api/v1/forum/threads/index.post.ts', 'utf8')
+const listRoute = readFileSync(
+  'server/api/v1/forum/threads/index.get.ts',
+  'utf8',
+)
+const detailRoute = readFileSync(
+  'server/api/v1/forum/threads/[id].get.ts',
+  'utf8',
+)
+const toggleRoute = readFileSync(
+  'server/api/forum/threads/[id]/upvote.put.ts',
+  'utf8',
+)
+const createRoute = readFileSync(
+  'server/api/v1/forum/threads/index.post.ts',
+  'utf8',
+)
 const scopes = readFileSync('utils/agentCredentialScopes.ts', 'utf8')
 
 // Storage reuses Reaction, but ordinary CLAPPED reactions cannot accidentally
@@ -22,7 +34,10 @@ assert.match(storage, /voters\.add\(row\.userId\)/)
 assert.match(toggleRoute, /userId: actor\.userId/)
 assert.doesNotMatch(toggleRoute, /authorBotId|agentProfileId:\s*actor/)
 assert.match(toggleRoute, /requireForumV2Writer\(event\)/)
-assert.match(toggleRoute, /assertAgentForumChannelAllowed\(actor\.auth, thread\.channel\)/)
+assert.match(
+  toggleRoute,
+  /assertAgentForumChannelAllowed\(actor\.auth, thread\.channel\)/,
+)
 assert.match(toggleRoute, /actor\.shadowRestricted \? false : body\.upvoted/)
 
 // Top sorting is score-first and advertises literal upvote fields to clients.

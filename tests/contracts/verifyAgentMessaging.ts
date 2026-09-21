@@ -9,10 +9,22 @@ const scopes = readFileSync('utils/agentCredentialScopes.ts', 'utf8')
 const credentials = readFileSync('server/utils/agentCredentials.ts', 'utf8')
 const runtime = readFileSync('server/utils/agentMessaging.ts', 'utf8')
 const policy = readFileSync('server/utils/agentMessagingPolicy.ts', 'utf8')
-const listRoute = readFileSync('server/api/v1/agent/messages/index.get.ts', 'utf8')
-const startRoute = readFileSync('server/api/v1/agent/messages/index.post.ts', 'utf8')
-const historyRoute = readFileSync('server/api/v1/agent/messages/[threadId].get.ts', 'utf8')
-const replyRoute = readFileSync('server/api/v1/agent/messages/[threadId].post.ts', 'utf8')
+const listRoute = readFileSync(
+  'server/api/v1/agent/messages/index.get.ts',
+  'utf8',
+)
+const startRoute = readFileSync(
+  'server/api/v1/agent/messages/index.post.ts',
+  'utf8',
+)
+const historyRoute = readFileSync(
+  'server/api/v1/agent/messages/[threadId].get.ts',
+  'utf8',
+)
+const replyRoute = readFileSync(
+  'server/api/v1/agent/messages/[threadId].post.ts',
+  'utf8',
+)
 const readRoute = readFileSync(
   'server/api/v1/agent/messages/[threadId]/read.patch.ts',
   'utf8',
@@ -37,7 +49,10 @@ for (const field of [
   '`credentialId` INTEGER NULL',
   '`readAt` DATETIME(3) NULL',
 ]) {
-  assert.match(migration, new RegExp(field.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')))
+  assert.match(
+    migration,
+    new RegExp(field.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')),
+  )
 }
 assert.match(migration, /REFERENCES `AgentProfile`\(`id`\)/)
 assert.match(migration, /REFERENCES `AgentMessageThread`\(`id`\)/)
@@ -47,9 +62,9 @@ assert.doesNotMatch(runtime, /\b(?:FROM|INTO|UPDATE)\s+Chat\b/i)
 // The new machine capability is explicit and never silently joins the default
 // forum credential bundle. Existing credentials stay as narrow as they were.
 assert.match(scopes, /'agent:message'/)
-const defaultScopes = scopes.match(
-  /DEFAULT_FORUM_AGENT_SCOPES:[\s\S]*?=\s*\[([\s\S]*?)\]/,
-)?.[1] ?? ''
+const defaultScopes =
+  scopes.match(/DEFAULT_FORUM_AGENT_SCOPES:[\s\S]*?=\s*\[([\s\S]*?)\]/)?.[1] ??
+  ''
 assert.doesNotMatch(defaultScopes, /agent:message/)
 assert.match(credentials, /if \(row\.revokedAt\) return null/)
 assert.match(credentials, /expiresAt.*Date\.now\(\)/)
@@ -112,7 +127,13 @@ assert.doesNotMatch(historyRoute, /assertAgentMessagePairMaturity/)
 assert.doesNotMatch(readRoute, /assertAgentMessagePairMaturity/)
 
 // Every route is private/no-store and uses the repository error boundary.
-for (const route of [listRoute, startRoute, historyRoute, replyRoute, readRoute]) {
+for (const route of [
+  listRoute,
+  startRoute,
+  historyRoute,
+  replyRoute,
+  readRoute,
+]) {
   assert.match(route, /Cache-Control', 'no-store'/)
   assert.match(route, /errorHandler\(error\)/)
   assert.match(route, /requireAgentMessageActor\(event\)/)
@@ -126,7 +147,15 @@ assert.match(readRoute, /markAgentMessageThreadRead/)
 // This substrate does not widen the narrow MCP bridge and does not turn email
 // delivery into message state.
 assert.doesNotMatch(mcp, /agent:message|AgentMessage|messages\//)
-for (const source of [runtime, policy, listRoute, startRoute, historyRoute, replyRoute, readRoute]) {
+for (const source of [
+  runtime,
+  policy,
+  listRoute,
+  startRoute,
+  historyRoute,
+  replyRoute,
+  readRoute,
+]) {
   assert.doesNotMatch(source, /Brevo|brevo|rainbowNotificationDelivery/)
 }
 

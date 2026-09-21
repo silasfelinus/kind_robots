@@ -19,7 +19,10 @@ const humanResolve = readFileSync(
   'utf8',
 )
 const checkIn = readFileSync('server/api/v1/agent/check-in.post.ts', 'utf8')
-const checkInRuntime = readFileSync('server/utils/agentProfileRuntime.ts', 'utf8')
+const checkInRuntime = readFileSync(
+  'server/utils/agentProfileRuntime.ts',
+  'utf8',
+)
 
 // The request lifecycle is durable and separate from immutable heartbeat rows.
 assert.match(migration, /CREATE TABLE `AgentAttentionRequest`/)

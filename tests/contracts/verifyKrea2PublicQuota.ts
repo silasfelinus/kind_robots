@@ -72,7 +72,10 @@ assert.match(enqueue, /No tokens were charged/)
 // Rainbow's public endpoint is deliberately Krea2-only and cannot claim an
 // arbitrary personal server while actually consuming the shared relay.
 assert.match(enqueue, /buildKrea2WorkflowFromRequest/)
-assert.match(enqueue, /krea2GenerationGate\(event, \{ steps, width, height \}\)/)
+assert.match(
+  enqueue,
+  /krea2GenerationGate\(event, \{ steps, width, height \}\)/,
+)
 assert.doesNotMatch(enqueue, /serverId/)
 assert.match(enqueue, /projectSlug: 'rainbow-butterflies'/)
 

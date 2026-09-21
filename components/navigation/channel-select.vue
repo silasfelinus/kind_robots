@@ -1,9 +1,6 @@
 <!-- /components/navigation/channel-select.vue -->
 <template>
-  <div
-    class="dropdown"
-    :class="unifiedMobile ? 'w-full min-w-0' : ''"
-  >
+  <div class="dropdown" :class="unifiedMobile ? 'w-full min-w-0' : ''">
     <button
       tabindex="0"
       type="button"
@@ -43,7 +40,11 @@
       </span>
 
       <span class="kr-text-black-sm min-w-0 truncate sm:text-base xl:text-lg">
-        {{ unifiedMobile ? activeTab?.label || activeChannel.label : activeChannel.label }}
+        {{
+          unifiedMobile
+            ? activeTab?.label || activeChannel.label
+            : activeChannel.label
+        }}
       </span>
 
       <Icon
@@ -107,7 +108,6 @@
         </section>
       </div>
 
-      <template v-else>
       <!--
         SIZED BY ITS OWN CONTENT, not by the tab lists. Silas, 2026-08-11:
         "There is a weird gap with our channel selector, it looks like it's
@@ -129,6 +129,7 @@
         "closer to their header locations" asks for.
       -->
       <ul
+        v-if="!unifiedMobile"
         ref="channelMenu"
         class="menu w-max min-w-56 max-w-[min(22rem,calc(100vw-1rem))] flex-nowrap overflow-x-hidden kr-anchor-scroll kr-panel-flat p-2 shadow-2xl"
         :style="{
@@ -236,7 +237,11 @@
       </ul>
 
       <div
-        v-if="expandedChannel && submenuMode === 'flyout'"
+        v-if="
+          !unifiedMobile &&
+          expandedChannel &&
+          submenuMode === 'flyout'
+        "
         ref="channelFlyout"
         class="channel-submenu absolute left-full z-120 ml-2 flex-nowrap overflow-x-hidden kr-anchor-scroll kr-panel-flat p-2 shadow-2xl"
         :class="channelFlyoutColumns === 2 ? 'w-[40rem]' : 'w-80'"
@@ -255,7 +260,6 @@
           @select="selectTab(expandedChannel, $event)"
         />
       </div>
-      </template>
     </div>
   </div>
 </template>

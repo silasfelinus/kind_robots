@@ -14,17 +14,17 @@ name: Python scripts
 on:
   pull_request:
     paths:
-      - "scripts/**.py"
-      - "scripts/deploy-unraid.sh"
-      - "tests/python/**"
-      - ".github/workflows/python-scripts.yml"
+      - 'scripts/**.py'
+      - 'scripts/deploy-unraid.sh'
+      - 'tests/python/**'
+      - '.github/workflows/python-scripts.yml'
   push:
     branches: [main]
     paths:
-      - "scripts/**.py"
-      - "scripts/deploy-unraid.sh"
-      - "tests/python/**"
-      - ".github/workflows/python-scripts.yml"
+      - 'scripts/**.py'
+      - 'scripts/deploy-unraid.sh'
+      - 'tests/python/**'
+      - '.github/workflows/python-scripts.yml'
   workflow_dispatch:
 
 permissions:
@@ -39,7 +39,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
-          python-version: "3.12"
+          python-version: '3.12'
       - run: pip install pytest
       - name: pytest
         run: python -m pytest tests/python/ -q

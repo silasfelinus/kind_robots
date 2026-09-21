@@ -4,31 +4,31 @@ on:
   push:
     branches: [main]
     paths:
-      - "server/api/art/queue/**"
-      - "server/api/comfy/sdxl/utils/workflow.ts"
-      - "server/utils/artJobProvenance.ts"
-      - "server/utils/artImageSeed.ts"
-      - "server/utils/artJobResourceRefresh.ts"
-      - "server/utils/artJobRetry.ts"
-      - "utils/scripts/verifyArtJobProvenance.ts"
-      - "utils/scripts/verifyArtJobLoraOverride.ts"
-      - "utils/scripts/verifyArtJobCheckpointRefresh.ts"
-      - "utils/scripts/repairTrainerCheckpointFailures.ts"
-      - ".github/workflows/artjob-provenance-contract.yml"
+      - 'server/api/art/queue/**'
+      - 'server/api/comfy/sdxl/utils/workflow.ts'
+      - 'server/utils/artJobProvenance.ts'
+      - 'server/utils/artImageSeed.ts'
+      - 'server/utils/artJobResourceRefresh.ts'
+      - 'server/utils/artJobRetry.ts'
+      - 'utils/scripts/verifyArtJobProvenance.ts'
+      - 'utils/scripts/verifyArtJobLoraOverride.ts'
+      - 'utils/scripts/verifyArtJobCheckpointRefresh.ts'
+      - 'utils/scripts/repairTrainerCheckpointFailures.ts'
+      - '.github/workflows/artjob-provenance-contract.yml'
   pull_request:
     branches: [main]
     paths:
-      - "server/api/art/queue/**"
-      - "server/api/comfy/sdxl/utils/workflow.ts"
-      - "server/utils/artJobProvenance.ts"
-      - "server/utils/artImageSeed.ts"
-      - "server/utils/artJobResourceRefresh.ts"
-      - "server/utils/artJobRetry.ts"
-      - "utils/scripts/verifyArtJobProvenance.ts"
-      - "utils/scripts/verifyArtJobLoraOverride.ts"
-      - "utils/scripts/verifyArtJobCheckpointRefresh.ts"
-      - "utils/scripts/repairTrainerCheckpointFailures.ts"
-      - ".github/workflows/artjob-provenance-contract.yml"
+      - 'server/api/art/queue/**'
+      - 'server/api/comfy/sdxl/utils/workflow.ts'
+      - 'server/utils/artJobProvenance.ts'
+      - 'server/utils/artImageSeed.ts'
+      - 'server/utils/artJobResourceRefresh.ts'
+      - 'server/utils/artJobRetry.ts'
+      - 'utils/scripts/verifyArtJobProvenance.ts'
+      - 'utils/scripts/verifyArtJobLoraOverride.ts'
+      - 'utils/scripts/verifyArtJobCheckpointRefresh.ts'
+      - 'utils/scripts/repairTrainerCheckpointFailures.ts'
+      - '.github/workflows/artjob-provenance-contract.yml'
   workflow_dispatch:
 
 jobs:
@@ -43,12 +43,12 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: "24"
+          node-version: '24'
           cache: npm
 
       - run: npm ci
         env:
-          CYPRESS_INSTALL_BINARY: "0"
+          CYPRESS_INSTALL_BINARY: '0'
 
       - name: Generate Prisma client
         run: npx prisma generate

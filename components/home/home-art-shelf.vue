@@ -26,7 +26,7 @@
 <template>
   <home-rail
     :label="mode === 'fresh' ? 'Fresh from the art queue' : queueLabel"
-    :icon="mode === 'fresh' ? 'kind-icon:palette-color' : 'kind-icon:server'"
+    :icon="mode === 'fresh' ? 'kind-icon:palette-color' : 'kind-icon:gallery'"
     :items="visibleItems"
     see-all-href="/art"
     shape="wide"

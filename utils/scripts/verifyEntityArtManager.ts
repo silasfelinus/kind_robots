@@ -118,6 +118,12 @@ expectContains('components/art/entity-art-manager.vue', [
   'stepCarousel(delta < 0 ? 1 : -1)',
 ])
 
+expectOmits('components/art/entity-art-manager.vue', [
+  'carouselPaused',
+  'carouselTimer',
+  'setInterval(() =>',
+])
+
 expectContains('components/pages/conductor-page.vue', [
   'entity-type="project"',
   ':collection-slides="projectCollectionSlides"',

@@ -55,8 +55,6 @@
     <div
       class="art-stage group relative mt-3 touch-pan-y select-none overflow-hidden rounded-xl border border-base-300 bg-base-200"
       :style="{ '--art-stage-aspect': selectedSlot.aspect || '1 / 1' }"
-      @mouseenter="carouselPaused = true"
-      @mouseleave="carouselPaused = false"
       @pointerdown="beginCarouselSwipe"
       @pointerup="endCarouselSwipe"
       @pointercancel="cancelCarouselSwipe"
@@ -620,8 +618,6 @@ let activeJobId: number | null = null
 let stopped = false
 
 const carouselIndex = ref(0)
-const carouselPaused = ref(false)
-let carouselTimer: ReturnType<typeof setInterval> | null = null
 let swipeStartX: number | null = null
 
 const entityLabel = computed(() =>
@@ -957,21 +953,18 @@ function stepCarousel(direction: number) {
 function beginCarouselSwipe(event: PointerEvent) {
   if (event.pointerType === 'mouse' && event.button !== 0) return
   swipeStartX = event.clientX
-  carouselPaused.value = true
 }
 
 function endCarouselSwipe(event: PointerEvent) {
   if (swipeStartX === null) return
   const delta = event.clientX - swipeStartX
   swipeStartX = null
-  carouselPaused.value = false
   if (Math.abs(delta) < 40) return
   stepCarousel(delta < 0 ? 1 : -1)
 }
 
 function cancelCarouselSwipe() {
   swipeStartX = null
-  carouselPaused.value = false
 }
 
 function selectCarouselSlide(index: number) {
@@ -1308,16 +1301,6 @@ watch(carouselSlides, (next) => {
   if (carouselIndex.value >= next.length) carouselIndex.value = 0
 })
 onMounted(async () => {
-  carouselTimer = setInterval(() => {
-    if (
-      !carouselPaused.value &&
-      !showGenerate.value &&
-      !showUpload.value &&
-      carouselSlides.value.length > 1
-    ) {
-      stepCarousel(1)
-    }
-  }, 6000)
   try {
     await fetchEntityArt()
   } catch {}
@@ -1325,7 +1308,6 @@ onMounted(async () => {
 onBeforeUnmount(() => {
   stopped = true
   if (pollTimer) clearTimeout(pollTimer)
-  if (carouselTimer) clearInterval(carouselTimer)
 })
 </script>
 

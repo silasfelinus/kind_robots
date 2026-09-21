@@ -283,7 +283,7 @@
         aria-label="ArtJob queue"
         title="ArtJob queue"
       >
-        <Icon name="kind-icon:server" class="kr-icon-5" />
+        <Icon name="kind-icon:gallery" class="kr-icon-5" />
       </NuxtLink>
 
       <!--

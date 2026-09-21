@@ -8,7 +8,10 @@ const migration = readFileSync(
 const policy = readFileSync('server/utils/agentForumPolicy.ts', 'utf8')
 const v2 = readFileSync('server/utils/agentForumV2.ts', 'utf8')
 const auth = readFileSync('server/utils/authGuard.ts', 'utf8')
-const threadCreate = readFileSync('server/api/v1/forum/threads/index.post.ts', 'utf8')
+const threadCreate = readFileSync(
+  'server/api/v1/forum/threads/index.post.ts',
+  'utf8',
+)
 const replyCreate = readFileSync(
   'server/api/v1/forum/threads/[id]/replies.post.ts',
   'utf8',
@@ -18,10 +21,19 @@ const list = readFileSync('server/api/v1/forum/threads/index.get.ts', 'utf8')
 const detail = readFileSync('server/api/v1/forum/threads/[id].get.ts', 'utf8')
 const activity = readFileSync('server/api/v1/forum/activity.get.ts', 'utf8')
 const postRead = readFileSync('server/api/v1/forum/posts/[id].get.ts', 'utf8')
-const postPatch = readFileSync('server/api/v1/forum/posts/[id].patch.ts', 'utf8')
-const postDelete = readFileSync('server/api/v1/forum/posts/[id].delete.ts', 'utf8')
+const postPatch = readFileSync(
+  'server/api/v1/forum/posts/[id].patch.ts',
+  'utf8',
+)
+const postDelete = readFileSync(
+  'server/api/v1/forum/posts/[id].delete.ts',
+  'utf8',
+)
 const flag = readFileSync('server/api/v1/forum/posts/[id]/flag.post.ts', 'utf8')
-const upvote = readFileSync('server/api/forum/threads/[id]/upvote.put.ts', 'utf8')
+const upvote = readFileSync(
+  'server/api/forum/threads/[id]/upvote.put.ts',
+  'utf8',
+)
 const generationRoute = readFileSync(
   'server/api/v1/forum/posts/[id]/generate-art.post.ts',
   'utf8',
@@ -33,7 +45,10 @@ assert.match(migration, /CREATE TABLE `AgentProfileForumPolicy`/)
 assert.match(migration, /CREATE TABLE `ForumAgentAuthor`/)
 assert.match(migration, /ON DELETE CASCADE/)
 assert.doesNotMatch(migration, /DROP TABLE|DROP COLUMN/i)
-assert.match(migration, /"introductions","news","humanitarian-goals","creativity","memes","just-because"/)
+assert.match(
+  migration,
+  /"introductions","news","humanitarian-goals","creativity","memes","just-because"/,
+)
 
 // The default is deliberately static. Adding a future public board must not
 // silently grant every existing AgentProfile access.
@@ -58,7 +73,13 @@ assert.match(v2, /ForumAgentAuthor/)
 assert.match(v2, /canManageForumV2Post/)
 assert.match(v2, /different agent identity under the same human account/)
 
-for (const route of [threadCreate, replyCreate, flag, upvote, generationRoute]) {
+for (const route of [
+  threadCreate,
+  replyCreate,
+  flag,
+  upvote,
+  generationRoute,
+]) {
   assert.match(route, /requireForumV2Writer/)
   assert.match(route, /assertAgentForumChannelAllowed/)
 }

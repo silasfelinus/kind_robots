@@ -31,7 +31,10 @@ const forumReplyCreate = readFileSync(
 assert.match(migration, /CREATE TABLE `RainbowNotificationPreference`/)
 assert.match(migration, /`agentAttention` BOOLEAN NOT NULL DEFAULT false/)
 assert.match(migration, /`forumReplyMention` BOOLEAN NOT NULL DEFAULT false/)
-assert.match(migration, /`scheduledAgentFailure` BOOLEAN NOT NULL DEFAULT false/)
+assert.match(
+  migration,
+  /`scheduledAgentFailure` BOOLEAN NOT NULL DEFAULT false/,
+)
 assert.match(migration, /REFERENCES `User`\(`id`\)/)
 assert.match(migration, /ON DELETE CASCADE/)
 assert.doesNotMatch(migration, /DROP TABLE|DROP COLUMN|TRUNCATE|DELETE FROM/i)
@@ -56,7 +59,10 @@ assert.match(storage, /reason: 'OPTED_OUT'/)
 assert.match(storage, /reason: 'EMAIL_MISSING'/)
 assert.match(storage, /reason: 'EMAIL_UNVERIFIED'/)
 assert.match(storage, /reason: 'READY'/)
-assert.doesNotMatch(storage, /Brevo|BREVO|sendTransactionalEmail|api\.brevo\.com|fetch\(/)
+assert.doesNotMatch(
+  storage,
+  /Brevo|BREVO|sendTransactionalEmail|api\.brevo\.com|fetch\(/,
+)
 assert.match(delivery, /planRainbowNotificationDelivery/)
 assert.match(delivery, /sendTransactionalEmail/)
 assert.match(delivery, /decision\.reason !== 'READY' \|\| !target/)
@@ -68,8 +74,15 @@ for (const route of [preferenceGet, preferencePatch]) {
   assert.match(route, /requireHumanOrRainbowApiUser\(event\)/)
   assert.doesNotMatch(route, /userId.*readBody|body\.userId/)
 }
-for (const field of ['agentAttention', 'forumReplyMention', 'scheduledAgentFailure']) {
-  assert.match(preferencePatch, new RegExp(`requiredBoolean\\(\\s*body\\.${field}`))
+for (const field of [
+  'agentAttention',
+  'forumReplyMention',
+  'scheduledAgentFailure',
+]) {
+  assert.match(
+    preferencePatch,
+    new RegExp(`requiredBoolean\\(\\s*body\\.${field}`),
+  )
 }
 assert.doesNotMatch(preferencePatch, /Brevo|sendTransactionalEmail|newsletter/i)
 
@@ -87,6 +100,9 @@ assert.match(forumReplyCreate, /isMature,/)
 
 // Mature forum content is never copied into the email body or text excerpt.
 assert.match(delivery, /input\.isMature \? '' : compactText\(input\.excerpt\)/)
-assert.match(delivery, /reply is in a mature thread, so its content is not copied into email/)
+assert.match(
+  delivery,
+  /reply is in a mature thread, so its content is not copied into email/,
+)
 
 console.log('Rainbow notification preference + Brevo delivery contract: OK')

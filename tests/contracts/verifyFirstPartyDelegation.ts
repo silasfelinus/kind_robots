@@ -17,10 +17,7 @@ const authAttemptLimit = readFileSync(
   'server/utils/authAttemptLimit.ts',
   'utf8',
 )
-const delegation = readFileSync(
-  'server/utils/firstPartyDelegation.ts',
-  'utf8',
-)
+const delegation = readFileSync('server/utils/firstPartyDelegation.ts', 'utf8')
 const authGuard = readFileSync('server/utils/authGuard.ts', 'utf8')
 
 for (const source of [googleExchange, codeExchange, passwordExchange]) {
@@ -42,7 +39,10 @@ assert.match(delegation, /setSubject\(String\(input\.userId\)\)/)
 assert.match(delegation, /setAudience\(input\.client\.id\)/)
 assert.match(delegation, /issuer:\s*ISSUER/)
 assert.match(delegation, /algorithms:\s*\['HS256'\]/)
-assert.match(delegation, /findFirstPartyClient\(getFirstPartyClients\(\), clientId\)/)
+assert.match(
+  delegation,
+  /findFirstPartyClient\(getFirstPartyClients\(\), clientId\)/,
+)
 assert.doesNotMatch(delegation, /\bid:\s*input\.userId/)
 
 assert.match(authGuard, /'first-party-delegation'/)

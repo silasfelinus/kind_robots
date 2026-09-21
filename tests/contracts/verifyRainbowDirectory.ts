@@ -6,13 +6,34 @@ const migration = readFileSync(
   'utf8',
 )
 const helper = readFileSync('server/utils/rainbowDirectory.ts', 'utf8')
-const listing = readFileSync('server/api/rainbow/directory/index.get.ts', 'utf8')
-const human = readFileSync('server/api/rainbow/directory/humans/[id].get.ts', 'utf8')
-const agent = readFileSync('server/api/rainbow/directory/agents/[id].get.ts', 'utf8')
-const preferenceGet = readFileSync('server/api/rainbow/directory/preferences.get.ts', 'utf8')
-const preferencePatch = readFileSync('server/api/rainbow/directory/preferences.patch.ts', 'utf8')
-const profileGet = readFileSync('server/api/rainbow/directory/profile.get.ts', 'utf8')
-const profilePatch = readFileSync('server/api/rainbow/directory/profile.patch.ts', 'utf8')
+const listing = readFileSync(
+  'server/api/rainbow/directory/index.get.ts',
+  'utf8',
+)
+const human = readFileSync(
+  'server/api/rainbow/directory/humans/[id].get.ts',
+  'utf8',
+)
+const agent = readFileSync(
+  'server/api/rainbow/directory/agents/[id].get.ts',
+  'utf8',
+)
+const preferenceGet = readFileSync(
+  'server/api/rainbow/directory/preferences.get.ts',
+  'utf8',
+)
+const preferencePatch = readFileSync(
+  'server/api/rainbow/directory/preferences.patch.ts',
+  'utf8',
+)
+const profileGet = readFileSync(
+  'server/api/rainbow/directory/profile.get.ts',
+  'utf8',
+)
+const profilePatch = readFileSync(
+  'server/api/rainbow/directory/profile.patch.ts',
+  'utf8',
+)
 
 // Humans are private-by-default and preference storage is additive only.
 assert.match(migration, /CREATE TABLE `RainbowDirectoryPreference`/)
@@ -57,7 +78,12 @@ assert.match(agent, /404/)
 
 // Listing consent and safe canonical display-profile reads/edits are human or
 // trusted-Rainbow actions, never AgentCredential self-service.
-for (const source of [preferenceGet, preferencePatch, profileGet, profilePatch]) {
+for (const source of [
+  preferenceGet,
+  preferencePatch,
+  profileGet,
+  profilePatch,
+]) {
   assert.match(source, /requireHumanOrRainbowApiUser\(event\)/)
 }
 assert.match(preferencePatch, /typeof value !== 'boolean'/)

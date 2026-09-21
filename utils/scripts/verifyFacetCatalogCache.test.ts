@@ -43,9 +43,22 @@ assert.ok(
   !/fetchCatalog\(\{[^}]*take:\s*1000/.test(gallery),
   'facet-gallery must not pass the default page size as an option; it only defeats the cache',
 )
+/*
+ * The gallery went taxonomy-first the same day, so it no longer asks for the
+ * whole catalog at all -- which is the stronger version of the assertion that
+ * used to live here ("request it with no options so a warm store is reused").
+ * The cache guard itself is still pinned above and still matters: every other
+ * caller passes `take: 1000`.
+ */
 assert.ok(
-  /await catalog\.fetchCatalog\(\)/.test(gallery),
-  'facet-gallery must request the whole catalog with no options so a warm store is reused',
+  !/catalog\.fetchCatalog\(/.test(gallery),
+  'facet-gallery must not load the whole catalog; it reads the taxonomy index ' +
+    'and one slice at a time',
+)
+assert.ok(
+  /fetchCatalogSlice\(/.test(gallery),
+  'facet-gallery must read narrowed slices, which are returned rather than ' +
+    'assigned to the shared store',
 )
 
 /*

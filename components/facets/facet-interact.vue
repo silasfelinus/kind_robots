@@ -35,7 +35,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted } from 'vue'
+import { computed, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import {
   useFacetCatalogStore,
@@ -81,13 +81,25 @@ function goToCreateFacet(): void {
 }
 
 /*
- * The gallery fetches the catalog on mount, but a deep link to ?facet=<slug>
- * renders the profile branch instead and would otherwise resolve against an
- * empty store -- landing the visitor back on the gallery for a link that was
- * perfectly valid. fetchCatalog no-ops once loaded, so this costs nothing on
- * the normal browse-then-select path.
+ * A deep link to ?facet=<slug> renders the profile branch rather than the
+ * gallery, so nothing else would have loaded the Facet it names -- the visitor
+ * lands on "no longer available" for a link that was perfectly valid.
+ *
+ * This used to download the entire 1,736-row catalog to answer that. Now the
+ * gallery is taxonomy-first and never loads the whole thing either, so the
+ * whole-catalog fallback would be the single most expensive request on the page
+ * AND the only one that still existed. One Facet, by the slug that was asked
+ * for; fetchFacetBySlug returns immediately when the row is already in hand.
  */
 onMounted(() => {
-  if (!catalog.loaded) void catalog.fetchCatalog()
+  const slug = route.query.facet
+  if (typeof slug === 'string' && slug) void catalog.fetchFacetBySlug(slug)
 })
+
+watch(
+  () => route.query.facet,
+  (slug) => {
+    if (typeof slug === 'string' && slug) void catalog.fetchFacetBySlug(slug)
+  },
+)
 </script>

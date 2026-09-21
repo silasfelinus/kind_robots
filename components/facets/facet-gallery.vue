@@ -1,4 +1,23 @@
 <!-- /components/facets/facet-gallery.vue -->
+<!--
+  TAXONOMY FIRST, then the collection.
+
+  Silas, 2026-09-21: "when we get facets, wouldn't it be better to be getting
+  the types first, then loading the appropriate collection when a user selects
+  to move down a level?"
+
+  It was 1,736 rows downloaded and 1,717 cards built in one scroll, on a phone,
+  to show 26 headings. The index now costs one small request to
+  /api/facets/taxonomies (label, count, one tile image per taxonomy) and a
+  drill-down costs exactly the taxonomy you asked for.
+
+  The selection lives in the URL, same house rule as `?facet=<slug>`: every view
+  is linkable, and the back button does the obvious thing.
+
+  Search still reaches the whole catalog. It is served rather than filtered
+  client-side, because filtering everything locally is the thing this screen
+  stopped doing.
+-->
 <template>
   <section class="kr-surface">
     <header v-if="showHeader" class="kr-toolbar shrink-0 kr-panel-flat p-3">
@@ -9,34 +28,27 @@
           {{ subtitle }}
         </p>
       </div>
-      <span
-        v-if="catalog.loading"
-        class="kr-spinner-sm"
-        aria-label="Loading facets"
-      />
-      <span class="badge badge-ghost shrink-0">{{ visibleCount }} shown</span>
+      <span v-if="loading" class="kr-spinner-sm" aria-label="Loading facets" />
+      <span class="badge badge-ghost shrink-0">{{ shownLabel }}</span>
     </header>
 
     <div v-if="showControls" class="kr-toolbar shrink-0">
       <kr-search-field
         v-model="search"
         label="Search facets"
-        placeholder="Search title, alias, description, or taxonomy..."
+        placeholder="Search every taxonomy by title, alias or description..."
       />
-      <select
-        v-model="taxonomyFilter"
-        class="kr-select-sm"
-        aria-label="Filter by taxonomy"
+
+      <button
+        v-if="selectedTaxonomy"
+        type="button"
+        class="kr-btn-ghost shrink-0"
+        @click="clearTaxonomy"
       >
-        <option :value="null">All taxonomies ({{ totalCount }})</option>
-        <option
-          v-for="taxonomy in populatedTaxonomies"
-          :key="taxonomy"
-          :value="taxonomy"
-        >
-          {{ taxonomyLabel(taxonomy) }} ({{ counts[taxonomy] || 0 }})
-        </option>
-      </select>
+        <Icon name="kind-icon:chevron-left" class="kr-icon-4" />
+        All taxonomies
+      </button>
+
       <label class="kr-text-dim-xs-60 ml-auto flex items-center gap-2">
         <input
           v-model="artOnly"
@@ -66,47 +78,51 @@
     </p>
 
     <div class="kr-scroll space-y-6">
-      <div
-        v-for="group in visibleGroups"
-        :key="group.taxonomy"
-        class="space-y-3"
-      >
-        <div class="flex items-baseline gap-2">
+      <!-- LEVEL ONE: the taxonomies themselves. -->
+      <kr-gallery
+        v-if="showIndex"
+        themed
+        :items="taxonomyItems"
+        :mode="mode"
+        :modes="[]"
+        :loading="loadingIndex"
+        empty-label="taxonomies"
+        @open="openTaxonomy"
+      />
+
+      <!-- LEVEL TWO: one taxonomy, or a search across all of them. -->
+      <template v-else>
+        <div v-if="!search" class="flex items-baseline gap-2">
           <h2 class="kr-text-black-lg">
-            {{ taxonomyLabel(group.taxonomy) }}
+            {{ taxonomyLabel(selectedTaxonomy) }}
           </h2>
-          <span class="kr-badge-secondary-sm">{{ group.total }}</span>
+          <span class="kr-badge-secondary-sm">{{ visibleEntries.length }}</span>
         </div>
 
         <kr-gallery
           themed
-          :items="group.entries.map(toGalleryItem)"
+          :items="visibleEntries.map(toGalleryItem)"
           :mode="mode"
           :modes="[]"
+          :loading="loading"
           empty-label="facets"
           @open="selectFacet"
         />
-      </div>
-
-      <p
-        v-if="!catalog.loading && !visibleGroups.length"
-        class="kr-text-dim-sm-50 kr-panel-dashed-plain text-center"
-      >
-        No facets match these filters.
-      </p>
+      </template>
     </div>
   </section>
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import {
   FACET_TAXONOMIES,
   useFacetCatalogStore,
   type FacetCatalogEntry,
   type FacetTaxonomy,
 } from '@/stores/facetCatalogStore'
-import { normalizeFacetLookupKey } from '@/utils/facetAliases'
+import { performFetch } from '@/stores/utils'
 import { resolveEntityArtwork } from '@/utils/artImageSrc'
 import type { GalleryItem } from '@/components/gallery/kr-gallery.vue'
 import { GALLERY_MODES, type GalleryMode } from '@/utils/galleryVocabulary'
@@ -120,7 +136,7 @@ withDefaults(
   }>(),
   {
     title: 'Facets',
-    subtitle: 'The reusable building blocks every other object draws from.',
+    subtitle: 'Pick a taxonomy, then a Facet.',
     showHeader: true,
     showControls: true,
   },
@@ -128,25 +144,59 @@ withDefaults(
 
 const emit = defineEmits<{ select: [facet: FacetCatalogEntry] }>()
 const catalog = useFacetCatalogStore()
+const route = useRoute()
+const router = useRouter()
+
+type TaxonomySummary = {
+  taxonomy: FacetTaxonomy
+  count: number
+  imagePath: string | null
+}
 
 const search = ref('')
-const taxonomyFilter = ref<FacetTaxonomy | null>(null)
 const artOnly = ref(false)
 const errorMessage = ref('')
 const mode = ref<GalleryMode>('cards')
 
-function selectFacet(item: { id: string | number }): void {
-  const facet = catalog.entries.find((entry) => entry.id === Number(item.id))
-  if (facet) emit('select', facet)
-}
+const summaries = ref<TaxonomySummary[]>([])
+const loadingIndex = ref(false)
+const entries = ref<FacetCatalogEntry[]>([])
+const loading = ref(false)
 
-function facetArtwork(facet: FacetCatalogEntry): string | null {
-  return resolveEntityArtwork(facet)
-}
+/* The drill-down lives in the URL, so a taxonomy is linkable and the back
+   button climbs one level rather than leaving the gallery entirely. */
+const selectedTaxonomy = computed<FacetTaxonomy | null>(() => {
+  const value = route.query.taxonomy
+  if (typeof value !== 'string') return null
+  const normalized = value.trim().toUpperCase() as FacetTaxonomy
+  return FACET_TAXONOMIES.includes(normalized) ? normalized : null
+})
 
-function iconName(facet: FacetCatalogEntry): string {
-  const icon = facet.icon?.trim()
-  return icon && icon.includes(':') ? icon : 'kind-icon:tag'
+const showIndex = computed(
+  () => !selectedTaxonomy.value && !search.value.trim(),
+)
+
+const visibleEntries = computed(() =>
+  artOnly.value
+    ? entries.value.filter((facet) => Boolean(resolveEntityArtwork(facet)))
+    : entries.value,
+)
+
+const shownLabel = computed(() =>
+  showIndex.value
+    ? `${summaries.value.length} taxonomies · ${totalFacets.value} facets`
+    : `${visibleEntries.value.length} shown`,
+)
+
+const totalFacets = computed(() =>
+  summaries.value.reduce((sum, row) => sum + row.count, 0),
+)
+
+function taxonomyLabel(taxonomy: string | null): string {
+  return String(taxonomy ?? '')
+    .toLowerCase()
+    .replace(/_/g, ' ')
+    .replace(/\b\w/g, (letter) => letter.toUpperCase())
 }
 
 function toGalleryItem(facet: FacetCatalogEntry): GalleryItem {
@@ -163,86 +213,107 @@ function toGalleryItem(facet: FacetCatalogEntry): GalleryItem {
     source: facet,
     badges,
     meta: facet.aliases.length ? facet.aliases.join(' · ') : '',
-    placeholderIcon: iconName(facet),
+    placeholderIcon:
+      facet.icon?.trim() && facet.icon.includes(':')
+        ? facet.icon
+        : 'kind-icon:tag',
     placeholderLabel: facet.artRequired ? 'art pending' : 'no art',
   }
 }
 
-function taxonomyLabel(taxonomy: FacetTaxonomy): string {
-  return taxonomy
-    .toLowerCase()
-    .replace(/_/g, ' ')
-    .replace(/\b\w/g, (letter) => letter.toUpperCase())
-}
-
-function matchesSearch(facet: FacetCatalogEntry, needle: string): boolean {
-  if (!needle) return true
-  const values = [
-    facet.title,
-    facet.canonicalValue,
-    facet.taxonomy,
-    facet.groupLabel,
-    facet.description,
-    facet.flavorText,
-    ...facet.aliases,
-  ]
-  return values.some((value) =>
-    normalizeFacetLookupKey(value || '').includes(needle),
-  )
-}
-
-const counts = computed(() => {
-  const result: Partial<Record<FacetTaxonomy, number>> = {}
-  for (const [taxonomy, entries] of catalog.byTaxonomy) {
-    result[taxonomy] = entries.length
-  }
-  return result
-})
-
-const totalCount = computed(() => catalog.entries.length)
-
-const populatedTaxonomies = computed(() =>
-  FACET_TAXONOMIES.filter((taxonomy) => (counts.value[taxonomy] || 0) > 0),
-)
-
-const groups = computed(() => {
-  const needle = normalizeFacetLookupKey(search.value)
-  const result: { taxonomy: FacetTaxonomy; entries: FacetCatalogEntry[] }[] = []
-  for (const taxonomy of FACET_TAXONOMIES) {
-    if (taxonomyFilter.value && taxonomy !== taxonomyFilter.value) continue
-    const entries = (catalog.byTaxonomy.get(taxonomy) || []).filter((facet) => {
-      if (artOnly.value && !facetArtwork(facet)) return false
-      return matchesSearch(facet, needle)
-    })
-    if (entries.length) result.push({ taxonomy, entries })
-  }
-  return result
-})
-
-const visibleGroups = computed(() =>
-  groups.value.map((group) => ({
-    taxonomy: group.taxonomy,
-    total: group.entries.length,
-    entries: group.entries,
+const taxonomyItems = computed<GalleryItem[]>(() =>
+  summaries.value.map((row) => ({
+    id: row.taxonomy,
+    title: taxonomyLabel(row.taxonomy),
+    description: `${row.count} ${row.count === 1 ? 'Facet' : 'Facets'}`,
+    card: row.imagePath || undefined,
+    badges: [{ label: String(row.count), class: 'badge-outline' }],
+    placeholderIcon: 'kind-icon:tag',
+    placeholderLabel: 'no art',
   })),
 )
 
-const visibleCount = computed(() =>
-  groups.value.reduce((sum, group) => sum + group.entries.length, 0),
-)
+function openTaxonomy(item: { id: string | number }): void {
+  void router.push({ query: { ...route.query, taxonomy: String(item.id) } })
+}
 
-onMounted(async () => {
+function clearTaxonomy(): void {
+  const query = { ...route.query }
+  delete query.taxonomy
+  search.value = ''
+  void router.push({ query })
+}
+
+function selectFacet(item: { id: string | number }): void {
+  const facet = entries.value.find((entry) => entry.id === Number(item.id))
+  if (facet) emit('select', facet)
+}
+
+async function loadIndex(): Promise<void> {
+  if (summaries.value.length) return
+  loadingIndex.value = true
   try {
-    /*
-     * No options on purpose. `take: 1000` was FACET_CATALOG_PAGE_SIZE spelled
-     * out, so it changed nothing about the request -- and it made the store's
-     * cache guard miss, so mounting this gallery re-downloaded all 1,736 rows
-     * even though plugins/20.facet-catalog.client.ts had just fetched them.
-     */
-    await catalog.fetchCatalog()
+    const response = await performFetch<TaxonomySummary[]>(
+      '/api/facets/taxonomies',
+    )
+    if (!response.success) {
+      errorMessage.value =
+        response.message || 'Facet taxonomies failed to load.'
+      return
+    }
+    summaries.value = response.data ?? []
+  } catch (error) {
+    errorMessage.value =
+      error instanceof Error
+        ? error.message
+        : 'Facet taxonomies failed to load.'
+  } finally {
+    loadingIndex.value = false
+  }
+}
+
+/*
+ * One taxonomy, or one search, never the whole catalog. `fetchCatalogSlice`
+ * returns its rows instead of assigning the shared `entries` the builder decks
+ * read -- narrowing that store would leave every other consumer holding a
+ * fraction of the catalog and believing it complete.
+ */
+async function loadEntries(): Promise<void> {
+  const needle = search.value.trim()
+  const taxonomy = selectedTaxonomy.value
+  if (!needle && !taxonomy) {
+    entries.value = []
+    return
+  }
+
+  loading.value = true
+  errorMessage.value = ''
+  try {
+    entries.value = await catalog.fetchCatalogSlice(
+      needle ? { search: needle } : { taxonomies: [taxonomy as FacetTaxonomy] },
+    )
   } catch (error) {
     errorMessage.value =
       error instanceof Error ? error.message : 'Facets could not be loaded.'
+  } finally {
+    loading.value = false
   }
+}
+
+let searchTimer: ReturnType<typeof setTimeout> | null = null
+watch(search, () => {
+  if (searchTimer) clearTimeout(searchTimer)
+  searchTimer = setTimeout(() => {
+    void loadEntries()
+  }, 250)
+})
+
+watch(selectedTaxonomy, () => {
+  void loadEntries()
+})
+
+onMounted(() => {
+  void loadIndex()
+  void loadEntries()
 })
 </script>

@@ -290,8 +290,11 @@
       </p>
 
       <p class="text-[11px] text-base-content/50">
-        {{ formatDateTime(job.createdAt) }} · attempt {{ job.attempts }} ·
-        priority {{ job.priority }}
+        Queued {{ formatDateTime(job.createdAt) }}
+        <template v-if="jobFinishedAtValue">
+          · Finished {{ formatDateTime(jobFinishedAtValue) }}
+        </template>
+        · attempt {{ job.attempts }} · priority {{ job.priority }}
       </p>
 
       <div
@@ -482,6 +485,7 @@ import EntityObjectCard from '@/components/art/entity-object-card.vue'
 import {
   artJobOrigin,
   artJobOriginLabel,
+  artJobFinishedAt,
   artJobImagePath,
   artJobImageVersion,
   artJobNegativePrompt,
@@ -628,6 +632,10 @@ const jobRequestId = computed<string>(() => artJobRequestId(props.job))
 const jobImagePath = computed<string>(() => artJobImagePath(props.job))
 
 const jobSettings = computed<string[]>(() => artJobSettings(props.job))
+
+const jobFinishedAtValue = computed<string | Date | null>(() =>
+  props.job.status === 'DONE' ? artJobFinishedAt(props.job) : null,
+)
 
 const errorIsFromEarlierAttempt = computed<boolean>(
   () => props.job.status === 'RUNNING' || props.job.status === 'PENDING',

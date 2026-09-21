@@ -1,16 +1,27 @@
 <!-- /components/navigation/channel-select.vue -->
 <template>
-  <div class="dropdown">
+  <div class="dropdown" :class="unifiedMobile ? 'w-full min-w-0' : ''">
     <button
       tabindex="0"
       type="button"
       class="flex h-full min-h-10 w-full min-w-0 items-center gap-2 overflow-hidden px-2 transition-all xl:gap-2.5 xl:px-3"
       :class="
         seamless
-          ? 'rounded-l-xl hover:bg-base-200'
+          ? unifiedMobile
+            ? 'rounded-xl hover:bg-base-200'
+            : 'rounded-l-xl hover:bg-base-200'
           : 'h-10 rounded-xl border border-base-300 bg-base-100 shadow-sm hover:-translate-y-0.5 hover:shadow-md sm:h-11 sm:min-h-11 xl:h-14 xl:min-h-14'
       "
-      :title="`Navigate ${activeChannel.label}`"
+      :title="
+        unifiedMobile
+          ? `Navigate workspace — current tab ${activeTab?.label || activeChannel.label}`
+          : `Navigate ${activeChannel.label}`
+      "
+      :aria-label="
+        unifiedMobile
+          ? `Navigate workspace — current tab ${activeTab?.label || activeChannel.label}`
+          : `Navigate ${activeChannel.label}`
+      "
       aria-haspopup="menu"
       @click="scheduleChannelMenuViewportUpdate"
       @focus="scheduleChannelMenuViewportUpdate"
@@ -19,13 +30,21 @@
         class="kr-icon-8 flex shrink-0 items-center justify-center rounded-lg border border-base-300/70 bg-base-200 sm:h-9 sm:w-9 xl:h-10 xl:w-10"
       >
         <Icon
-          :name="activeChannel.icon"
+          :name="
+            unifiedMobile
+              ? activeTab?.icon || activeChannel.icon
+              : activeChannel.icon
+          "
           class="kr-icon-4 shrink-0 xl:h-5 xl:w-5"
         />
       </span>
 
       <span class="kr-text-black-sm min-w-0 truncate sm:text-base xl:text-lg">
-        {{ activeChannel.label }}
+        {{
+          unifiedMobile
+            ? activeTab?.label || activeChannel.label
+            : activeChannel.label
+        }}
       </span>
 
       <Icon
@@ -39,6 +58,56 @@
       class="dropdown-content z-110 mt-2 kr-anchor-panes"
       @focusin="scheduleChannelMenuViewportUpdate"
     >
+      <!--
+        PHONE: one flat, grouped list. Nested hover/flyout navigation is useful
+        when there is pointer room, but on a phone it turns a simple destination
+        change into a tiny chevron hunt. This menu lists each channel heading
+        followed by its navigable tabs, using the same ChannelTabList rows as
+        the desktop picker. Its width deliberately leaves four rem of viewport
+        slack because this control starts to the right of the optional Back
+        button; that keeps the menu inside the screen instead of hanging off the
+        left or right edge.
+      -->
+      <div
+        v-if="unifiedMobile"
+        ref="channelMenu"
+        class="left-0 w-[min(20rem,calc(100vw-4rem))] max-w-[calc(100vw-4rem)] overflow-x-hidden kr-anchor-scroll kr-panel-flat p-2 shadow-2xl"
+        :style="{
+          maxHeight: `${channelMenuMaxHeight}px`,
+          scrollbarGutter: 'stable',
+        }"
+      >
+        <section
+          v-for="channel in visibleChannels"
+          :key="channel.channelKey"
+          class="min-w-0 border-b border-base-300/60 py-1 last:border-b-0"
+        >
+          <div class="flex min-w-0 items-center gap-2 px-2 pb-1 pt-2">
+            <Icon
+              :name="channel.icon"
+              class="h-3.5 w-3.5 shrink-0 text-primary/70"
+            />
+            <p
+              class="kr-text-eyebrow min-w-0 truncate text-[0.65rem] tracking-[0.16em] text-base-content/50"
+            >
+              {{ channel.label }}
+            </p>
+          </div>
+
+          <ChannelTabList
+            :channel="channel"
+            :active-channel-key="activeChannel.channelKey"
+            :active-tab-key="
+              channel.channelKey === activeChannel.channelKey
+                ? activeTab?.tabKey || ''
+                : ''
+            "
+            :columns="1"
+            @select="selectTab(channel, $event)"
+          />
+        </section>
+      </div>
+
       <!--
         SIZED BY ITS OWN CONTENT, not by the tab lists. Silas, 2026-08-11:
         "There is a weird gap with our channel selector, it looks like it's
@@ -60,6 +129,7 @@
         "closer to their header locations" asks for.
       -->
       <ul
+        v-if="!unifiedMobile"
         ref="channelMenu"
         class="menu w-max min-w-56 max-w-[min(22rem,calc(100vw-1rem))] flex-nowrap overflow-x-hidden kr-anchor-scroll kr-panel-flat p-2 shadow-2xl"
         :style="{
@@ -167,7 +237,7 @@
       </ul>
 
       <div
-        v-if="expandedChannel && submenuMode === 'flyout'"
+        v-if="!unifiedMobile && expandedChannel && submenuMode === 'flyout'"
         ref="channelFlyout"
         class="channel-submenu absolute left-full z-120 ml-2 flex-nowrap overflow-x-hidden kr-anchor-scroll kr-panel-flat p-2 shadow-2xl"
         :class="channelFlyoutColumns === 2 ? 'w-[40rem]' : 'w-80'"
@@ -205,8 +275,12 @@ import { tabSharesRoute } from '@/utils/tabNavigation'
 withDefaults(
   defineProps<{
     seamless?: boolean
+    unifiedMobile?: boolean
   }>(),
-  { seamless: false },
+  {
+    seamless: false,
+    unifiedMobile: false,
+  },
 )
 
 type SubmenuMode = 'flyout' | 'inline'

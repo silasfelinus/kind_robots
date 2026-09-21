@@ -110,11 +110,29 @@
           what guarantees tab-select a usable floor instead of whatever crumb
           is left.
         -->
-        <channel-select seamless class="min-w-0 shrink max-w-[45%]" />
+        <!--
+          PHONE NAVIGATION IS ONE PICKER, not channel + tab squeezed side by
+          side. On narrow screens the channel name was collapsing to a couple
+          of characters while the tab picker fought it for the same handful of
+          pixels. The unified channel-select below shows the ACTIVE TAB label
+          and expands a grouped channel/tab list, so the user sees where they
+          are and can still reach the whole navigation tree from one control.
+          Tablet and desktop keep the two-stage channel + tab controls.
+        -->
+        <channel-select
+          seamless
+          unified-mobile
+          class="min-w-0 flex-1 sm:hidden"
+        />
+
+        <channel-select
+          seamless
+          class="hidden min-w-0 shrink max-w-[45%] sm:block"
+        />
 
         <div
           v-if="resolvedChannel && resolvedTabs.length"
-          class="flex min-w-0 flex-1 items-stretch border-l border-base-300"
+          class="hidden min-w-0 flex-1 items-stretch border-l border-base-300 sm:flex"
         >
           <tab-select
             class="min-w-0 shrink-0"
@@ -209,7 +227,7 @@
              back to naming the page rather than rendering an empty bar. -->
         <div
           v-else
-          class="flex min-w-0 flex-1 items-center gap-2 border-l border-base-300 px-2"
+          class="hidden min-w-0 flex-1 items-center gap-2 border-l border-base-300 px-2 sm:flex"
         >
           <Icon
             :name="activeTabConfig.icon || fallbackIcon"

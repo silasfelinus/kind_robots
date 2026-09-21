@@ -511,6 +511,62 @@ async function main() {
       409,
     )
 
+    console.log(
+      '5b. a concurrent duplicate turn submission does not double-write state (storybook/t-056)',
+    )
+    const raceRun = await createStoryRun(user.id, {
+      mode: 'episodic',
+      deckKey: DECK_KEY,
+      title: 'Concurrency race verify story',
+      spark: 'Two messengers arrive with the same news.',
+      narratorStyle: 'mysterious',
+      castSlugs: ['verify-storybook-hero'],
+      rewardSlugs: [],
+    })
+    const raceRunId = raceRun.run.id
+    const [raceA, raceB] = await Promise.allSettled([
+      submitStoryTurn(raceRunId, user.id, {
+        turnIndex: 1,
+        move: { source: 'custom', text: 'Read the first messenger.' },
+      }),
+      submitStoryTurn(raceRunId, user.id, {
+        turnIndex: 1,
+        move: { source: 'custom', text: 'Read the second messenger.' },
+      }),
+    ])
+    check(
+      raceA.status === 'fulfilled' && raceB.status === 'fulfilled',
+      'both concurrent requests for the same turn resolve rather than one throwing',
+    )
+    const raceChoices = await prisma.lifeChoice.findMany({
+      where: { lifeRunId: raceRunId, chapter: 1 },
+    })
+    check(
+      raceChoices.length === 1,
+      `only one LifeChoice row survives the race (${raceChoices.length})`,
+    )
+    const raceStat = await prisma.lifeStat.findUnique({
+      where: { lifeRunId_key: { lifeRunId: raceRunId, key: 'truth' } },
+    })
+    check(
+      raceStat?.value === 2,
+      `the stat increment lands once, not twice (truth=${raceStat?.value})`,
+    )
+    const raceRunRow = await prisma.lifeRun.findUnique({
+      where: { id: raceRunId },
+      select: { currentChapter: true },
+    })
+    check(
+      raceRunRow?.currentChapter === 2,
+      `the run advances exactly one turn despite two concurrent submits (${raceRunRow?.currentChapter})`,
+    )
+    if (raceA.status === 'fulfilled' && raceB.status === 'fulfilled') {
+      check(
+        raceA.value.turn?.id === raceB.value.turn?.id,
+        'both callers are told about the same committed turn',
+      )
+    }
+
     console.log("6. resolve into one of the deck's endings")
     const resolved = await resolveStoryRunEnding(runId, user.id, user.username)
     check(
@@ -567,7 +623,7 @@ async function main() {
     check(legacyRun?.deckId === null, 'a legacy run has no deck')
     check(
       legacyRun?.shape === 'STRUCTURED',
-      'a run created without a mode defaults to structured, the life shape\'s meaning',
+      "a run created without a mode defaults to structured, the life shape's meaning",
     )
     check(
       legacyRun?.turnBudget === null,
@@ -646,9 +702,7 @@ async function main() {
       'an open-ended story may open with no budget at all',
     )
     const endlessId = endless.run.id
-    let endlessTurn = null as Awaited<
-      ReturnType<typeof submitStoryTurn>
-    > | null
+    let endlessTurn = null as Awaited<ReturnType<typeof submitStoryTurn>> | null
     for (let index = 1; index <= TURN_BUDGET + 2; index += 1) {
       endlessTurn = await submitStoryTurn(endlessId, user.id, {
         turnIndex: index,
@@ -664,7 +718,8 @@ async function main() {
       'an endless story always has a next scene waiting',
     )
     check(
-      endlessTurn?.isFinalTurn === false && endlessTurn?.readyToResolve === true,
+      endlessTurn?.isFinalTurn === false &&
+        endlessTurn?.readyToResolve === true,
       'past the floor it is resolvable on demand, without ever being final',
     )
     const endlessEnding = await resolveStoryRunEnding(
@@ -772,7 +827,10 @@ async function main() {
       move: { source: 'custom', text: 'Start with the bench.' },
     })
     const proposals = questTurn.quest?.proposals ?? []
-    check(proposals.length === 1, `the turn recorded one proposal (${proposals.length})`)
+    check(
+      proposals.length === 1,
+      `the turn recorded one proposal (${proposals.length})`,
+    )
     check(
       proposals[0]?.applied === false && proposals[0]?.appliedAt === null,
       'the proposal is recorded as NOT applied',

@@ -1,11 +1,11 @@
 ---
 title: 'Login'
 room: 'Login Room'
-subtitle: "Login here"
+subtitle: 'Login here'
 description: 'Login to get access to our suite of AI-enhanced tools.'
 image: splash/login.png
 icon: kind-icon:settings
-tooltip: "login and registration link here"
+tooltip: 'login and registration link here'
 dottiTip: 'Before you log in, you must solve a puzzle. One of us only lies, and—'
 amiTip: "We're kidding! We do the normal username-and-password thing here. No riddles required."
 sort: highlight

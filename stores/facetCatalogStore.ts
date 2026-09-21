@@ -308,6 +308,59 @@ export const useFacetCatalogStore = defineStore('facetCatalogStore', () => {
     )
   }
 
+  /*
+   * A SLICE, returned rather than stored.
+   *
+   * fetchCatalog assigns `entries` wholesale, which is correct for the one
+   * shared canonical catalog and catastrophic for a narrowed query: a gallery
+   * drilling into ANIMAL would leave every other consumer -- the builder decks,
+   * facetForValue, the random pickers -- holding 143 rows and believing that is
+   * the catalog. So a narrowed read hands its rows back to the caller and
+   * touches no shared state.
+   *
+   * Used by the taxonomy-first gallery, which loads one taxonomy at a time
+   * instead of all 1,736 rows to render 26 headings (Silas, 2026-09-21:
+   * "wouldn't it be better to be getting the types first, then loading the
+   * appropriate collection when a user selects to move down a level?").
+   */
+  async function fetchCatalogSlice(
+    options: FacetCatalogQuery = {},
+  ): Promise<FacetCatalogEntry[]> {
+    return fetchAllCatalogPages(options)
+  }
+
+  /*
+   * One Facet by slug, for a deep link that arrives before any list has been
+   * loaded. The gallery no longer downloads the whole catalog, so
+   * `entries.find(slug)` is no longer a safe way to resolve `?facet=<slug>` --
+   * a bookmarked Facet would render "no longer available" on a cold load.
+   *
+   * Cached into `entries` on the way through: adding a row a narrowed read did
+   * not cover is additive, which is the opposite of the wholesale replacement
+   * fetchCatalogSlice exists to avoid.
+   */
+  async function fetchFacetBySlug(
+    slug: string,
+  ): Promise<FacetCatalogEntry | null> {
+    const wanted = slug.trim()
+    if (!wanted) return null
+
+    const known = entries.value.find((entry) => entry.slug === wanted)
+    if (known) return known
+
+    const response = await performFetch<FacetCatalogEntry[]>(
+      `/api/facets/catalog${toQuery({ search: wanted, take: 25 })}`,
+    )
+    if (!response.success) return null
+
+    const match = (response.data ?? []).find((entry) => entry.slug === wanted)
+    if (!match) return null
+    if (!entries.value.some((entry) => entry.id === match.id)) {
+      entries.value = [...entries.value, match]
+    }
+    return match
+  }
+
   async function fetchCatalog(
     options: FacetCatalogQuery = {},
     force = false,
@@ -435,6 +488,8 @@ export const useFacetCatalogStore = defineStore('facetCatalogStore', () => {
     byTaxonomy,
     byLookupKey,
     fetchCatalog,
+    fetchCatalogSlice,
+    fetchFacetBySlug,
     facetsForTaxonomies,
     facetsForCharacterField,
     facetsForBotField,

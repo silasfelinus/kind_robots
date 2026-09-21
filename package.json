@@ -550,6 +550,7 @@
     "test:enqueue-prompt-gate": "tsx utils/scripts/verifyEnqueuePromptGate.test.ts",
     "test:facet-catalog-cache": "tsx utils/scripts/verifyFacetCatalogCache.test.ts",
     "test:object-art-history": "tsx utils/scripts/verifyObjectArtHistory.test.ts",
+    "test:facet-taxonomy-first": "tsx utils/scripts/verifyFacetTaxonomyFirst.test.ts",
     "test:queued-prompt-gate": "tsx utils/scripts/verifyQueuedPromptGate.test.ts"
   },
   "devDependencies": {

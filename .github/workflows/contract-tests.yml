@@ -61,6 +61,9 @@ jobs:
       - name: Object art history reachability
         run: npm run test:object-art-history
 
+      - name: Facet taxonomy-first navigation
+        run: npm run test:facet-taxonomy-first
+
       - name: Queued prompt gate contract
         run: npm run test:queued-prompt-gate
 

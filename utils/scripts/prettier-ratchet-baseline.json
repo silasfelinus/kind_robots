@@ -1,7 +1,7 @@
 {
   "note": "Prettier RATCHET: this file may only ever shrink. --update refuses to record a larger count. See utils/scripts/verifyPrettierRatchet.ts.",
   "recorded": "2026-09-21",
-  "total": 1057,
+  "total": 1047,
   "violations": {
     "(root)": [
       "AGENTS.md",
@@ -251,18 +251,6 @@
       "config/wonderlab-voice-polish-batch-037.json",
       "config/wonderlab-voice-polish-batch-038.json",
       "config/wonderlab-voice-polish-batch-039.json"
-    ],
-    "content": [
-      "content/art.md",
-      "content/channels/admin/mural.md",
-      "content/channels/admin/packs.md",
-      "content/channels/admin/project-placement.md",
-      "content/channels/home/achievements.md",
-      "content/channels/plan/brainstorm.md",
-      "content/channels/play/index.md",
-      "content/error.md",
-      "content/login.md",
-      "content/servers.md"
     ],
     "cypress": [
       "cypress/e2e/api/achievement-records.cy.ts",

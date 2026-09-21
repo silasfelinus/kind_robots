@@ -7,7 +7,7 @@ image: 'background/artgallery.webp'
 icon: splash/aartgallerybout.png
 tooltip: Create new art or browse your gallery.
 dottiTip: People keep asking if AI art is 'real' art. I never know what to say.
-amiTip: "If it makes you stop and look, have a conversation, or feel something new, I’d say it does its job!"
+amiTip: 'If it makes you stop and look, have a conversation, or feel something new, I’d say it does its job!'
 sort: highlight
 channelKey: plan
 tabKey: art

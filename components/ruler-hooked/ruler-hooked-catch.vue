@@ -1,22 +1,43 @@
 <template>
-  <section class="rounded-2xl border border-base-300 bg-base-200/70 p-4 shadow-sm">
-    <div class="flex flex-wrap items-start justify-between gap-3">
-      <div>
-        <div class="flex flex-wrap items-center gap-2">
-          <span v-if="catchResult.newDiscovery" class="kr-badge-primary-sm">NEW SPECIES</span>
-          <span class="kr-badge-sm" :class="affinityClass">{{ catchResult.affinity }}</span>
-          <span class="kr-badge-outline-sm">{{ catchResult.rarity }}</span>
+  <section
+    class="rounded-2xl border border-base-300 bg-base-200/70 p-4 shadow-sm"
+  >
+    <div class="flex flex-wrap items-start gap-3">
+      <img
+        v-if="!imageBroken"
+        :src="imageSrc"
+        :alt="catchResult.name"
+        class="aspect-square w-24 shrink-0 rounded-xl border border-base-300 bg-base-100 object-cover shadow-sm"
+        loading="lazy"
+        @error="imageBroken = true"
+      />
+      <div class="flex flex-1 flex-wrap items-start justify-between gap-3">
+        <div>
+          <div class="flex flex-wrap items-center gap-2">
+            <span v-if="catchResult.newDiscovery" class="kr-badge-primary-sm"
+              >NEW SPECIES</span
+            >
+            <span class="kr-badge-sm" :class="affinityClass">{{
+              catchResult.affinity
+            }}</span>
+            <span class="kr-badge-outline-sm">{{ catchResult.rarity }}</span>
+          </div>
+          <h3 class="kr-text-black-xl mt-2">{{ catchResult.name }}</h3>
+          <p class="mt-1 text-sm opacity-75">{{ catchResult.catchBehavior }}</p>
         </div>
-        <h3 class="kr-text-black-xl mt-2">{{ catchResult.name }}</h3>
-        <p class="mt-1 text-sm opacity-75">{{ catchResult.catchBehavior }}</p>
-      </div>
-      <div class="text-right">
-        <p class="kr-text-bold-lg">{{ formatSize(catchResult.sizeCm) }}</p>
-        <p class="text-xs uppercase tracking-wide opacity-60">{{ catchResult.quality }} · {{ catchResult.qualityScore }}/100</p>
+        <div class="text-right">
+          <p class="kr-text-bold-lg">{{ formatSize(catchResult.sizeCm) }}</p>
+          <p class="text-xs uppercase tracking-wide opacity-60">
+            {{ catchResult.quality }} · {{ catchResult.qualityScore }}/100
+          </p>
+        </div>
       </div>
     </div>
 
-    <p v-if="catchResult.coinsFound > 0" class="mt-2 flex items-center gap-1 text-sm font-medium text-warning">
+    <p
+      v-if="catchResult.coinsFound > 0"
+      class="mt-2 flex items-center gap-1 text-sm font-medium text-warning"
+    >
       <Icon name="kind-icon:coin" class="kr-icon-3-5" />
       Found {{ catchResult.coinsFound }} coins in its mouth.
     </p>
@@ -24,21 +45,41 @@
     <div class="mt-3 rounded-xl bg-base-100/70 p-3 text-sm">
       <p class="font-semibold">Fishopedia</p>
       <p class="mt-1 opacity-80">{{ catchResult.fishopediaNote }}</p>
-      <p v-if="catchResult.newDiscovery" class="mt-2 text-xs opacity-65">{{ catchResult.consequenceReveal }}</p>
+      <p v-if="catchResult.newDiscovery" class="mt-2 text-xs opacity-65">
+        {{ catchResult.consequenceReveal }}
+      </p>
     </div>
   </section>
 </template>
 
 <script setup lang="ts">
 import type { CatchResult } from '~/types/ruler-hooked'
+import { fishBestiaryImageSrc } from '~/utils/rulerHooked/fish'
 
 const props = defineProps<{ catchResult: CatchResult }>()
 
-const affinityClass = computed(() => ({
-  GOOD: 'badge-success',
-  NEUTRAL: 'badge-ghost',
-  EVIL: 'badge-error',
-}[props.catchResult.affinity]))
+const affinityClass = computed(
+  () =>
+    ({
+      GOOD: 'badge-success',
+      NEUTRAL: 'badge-ghost',
+      EVIL: 'badge-error',
+    })[props.catchResult.affinity],
+)
+
+const imageSrc = computed(() =>
+  fishBestiaryImageSrc(props.catchResult.fishSlug),
+)
+// A species' art may not have rendered yet (ruler-hooked/t-019 batches land
+// over time) — hide the <img> on failure rather than showing a broken-image
+// icon, same pattern as ruler-hooked-cosmetics-picker.vue.
+const imageBroken = ref(false)
+watch(
+  () => props.catchResult.fishSlug,
+  () => {
+    imageBroken.value = false
+  },
+)
 
 function formatSize(cm: number): string {
   if (cm >= 100) return `${(cm / 100).toFixed(cm >= 1000 ? 1 : 2)} m`

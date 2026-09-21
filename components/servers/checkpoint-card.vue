@@ -94,7 +94,7 @@
         <span class="kr-badge-secondary-sm">
           {{ compatibilityLabel }}
         </span>
-        <span v-if="!isCompatible" class="badge badge-error badge-sm">
+        <span v-if="!isCompatible" class="kr-badge-sm badge-error">
           incompatible
         </span>
         <span

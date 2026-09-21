@@ -1034,6 +1034,63 @@ export interface SubmitTurnInput {
   move: StorybookMove | null
 }
 
+type StoryRunWithRelations = Awaited<ReturnType<typeof getStoryRunForUser>>
+
+/**
+ * The response shape for a turn that was already recorded -- either a
+ * same-request retry (input.turnIndex behind run.currentChapter) or the
+ * losing side of a concurrency race caught by submitStoryTurn's guarded
+ * advance (storybook/t-056).
+ */
+function buildReplayedTurnResult(params: {
+  run: StoryRunWithRelations
+  deck: LoadedDeck
+  quest: QuestLedger | null
+  inventory: RunInventoryEntry[]
+  pending: PendingTurn | null
+  existing: StoryRunWithRelations['Choices'][number]
+}) {
+  const { run, deck, quest, inventory, pending, existing } = params
+  const turnBudget = effectiveTurnBudget(run, deck)
+  const isEndless = turnBudget === null
+  const minTurns = deck.minTurnsBeforeResolve ?? 0
+  const questDone = Boolean(quest) && activeCheckpoint(quest!) === null
+  return {
+    run,
+    deck,
+    turn: existing,
+    pendingTurn: publicPendingTurn(pending, deck),
+    inventory,
+    turnIndex: run.currentChapter,
+    turnBudget,
+    isFinalTurn: !isEndless && run.currentChapter >= turnBudget,
+    readyToResolve:
+      (isEndless
+        ? run.currentChapter > minTurns
+        : run.currentChapter > turnBudget) ||
+      (questDone && run.currentChapter > minTurns),
+    replayed: true,
+    quest: publicQuest(quest),
+    // Same shape as the fresh-turn response below, so a caller that reads
+    // .stats/.quest off every submitStoryTurn result doesn't need a branch
+    // for the replayed/conflict cases.
+    stats:
+      deck.ownerKind === 'LIFE'
+        ? Object.fromEntries(run.Stats.map((stat) => [stat.key, stat.value]))
+        : undefined,
+    narratedWordBounds: PROSE_BOUNDS_BY_MODE[MODE_BY_ENUM[run.shape]],
+  }
+}
+
+/**
+ * Thrown when the guarded currentChapter advance inside submitStoryTurn's
+ * transaction finds the run already moved past input.turnIndex -- another
+ * request (a genuine concurrent call, or a client retry that raced its own
+ * earlier attempt) committed first. Never surfaces past submitStoryTurn: it
+ * is caught there and turned into a replay of whatever actually landed.
+ */
+class TurnAdvanceConflictError extends Error {}
+
 /**
  * Record the reader's move and narrate the next scene, in one call.
  *
@@ -1094,22 +1151,14 @@ export async function submitStoryTurn(
       (choice) => choice.chapter === input.turnIndex,
     )
     if (existing) {
-      return {
+      return buildReplayedTurnResult({
         run,
         deck,
-        turn: existing,
-        pendingTurn: publicPendingTurn(pending, deck),
+        quest,
         inventory,
-        turnIndex: run.currentChapter,
-        turnBudget,
-        isFinalTurn: !isEndless && run.currentChapter >= turnBudget,
-        readyToResolve:
-          (isEndless
-            ? run.currentChapter > minTurns
-            : run.currentChapter > turnBudget) ||
-          (questDone(quest) && run.currentChapter > minTurns),
-        replayed: true,
-      }
+        pending,
+        existing,
+      })
     }
   }
   if (input.turnIndex !== run.currentChapter) {
@@ -1170,6 +1219,9 @@ export async function submitStoryTurn(
       readyToResolve:
         (isEndless || questDone(quest)) && run.currentChapter > minTurns,
       replayed: false,
+      quest: publicQuest(quest),
+      stats: deck.ownerKind === 'LIFE' ? statsSoFar : undefined,
+      narratedWordBounds: PROSE_BOUNDS_BY_MODE[mode],
     }
   }
 
@@ -1284,45 +1336,80 @@ export async function submitStoryTurn(
       )?.id ?? null)
     : null
 
-  const turn = await prisma.$transaction(async (tx) => {
-    const created = await tx.lifeChoice.create({
-      data: {
-        lifeRunId: run.id,
-        chapter: run.currentChapter,
-        // The scene the reader was answering, not the one just written.
-        prompt: pending.narrativeText,
-        choiceText: move.text,
-        resultText: result.narrativeText,
-        source: MOVE_SOURCE_BY_WIRE[move.source],
-        optionId: move.source === 'option' ? (move.optionId ?? null) : null,
-        rewardId: playedRewardId,
-        effects: JSON.stringify(effects),
-        stateDelta: JSON.stringify(result.stateDelta),
-        artPrompt: result.artPrompt,
-      },
-    })
-
-    for (const [key, delta] of Object.entries(effects)) {
-      if (!delta) continue
-      await tx.lifeStat.upsert({
-        where: { lifeRunId_key: { lifeRunId: run.id, key } },
-        create: { lifeRunId: run.id, key, value: delta },
-        update: { value: { increment: delta } },
+  let turn: Awaited<ReturnType<typeof prisma.lifeChoice.create>>
+  try {
+    turn = await prisma.$transaction(async (tx) => {
+      // Guard the advance FIRST: if another request already moved this run
+      // past the turn this request narrated against, abort before writing a
+      // LifeChoice or LifeStat off a stale snapshot (storybook/t-056). Losing
+      // a narration call to a lost race is cheap; a double-counted stat or a
+      // silently overwritten inventory/quest change is not.
+      const advanced = await tx.lifeRun.updateMany({
+        where: { id: run.id, currentChapter: run.currentChapter },
+        data: {
+          currentChapter: nextTurnIndex,
+          inventory: JSON.stringify(inventory),
+          pendingTurn: nextPending ? JSON.stringify(nextPending) : null,
+          ...(quest ? { questLedger: serializeQuestLedger(quest) } : {}),
+        },
       })
-    }
+      if (advanced.count === 0) {
+        throw new TurnAdvanceConflictError()
+      }
 
-    await tx.lifeRun.update({
-      where: { id: run.id },
-      data: {
-        currentChapter: nextTurnIndex,
-        inventory: JSON.stringify(inventory),
-        pendingTurn: nextPending ? JSON.stringify(nextPending) : null,
-        ...(quest ? { questLedger: serializeQuestLedger(quest) } : {}),
-      },
+      const created = await tx.lifeChoice.create({
+        data: {
+          lifeRunId: run.id,
+          chapter: run.currentChapter,
+          // The scene the reader was answering, not the one just written.
+          prompt: pending.narrativeText,
+          choiceText: move.text,
+          resultText: result.narrativeText,
+          source: MOVE_SOURCE_BY_WIRE[move.source],
+          optionId: move.source === 'option' ? (move.optionId ?? null) : null,
+          rewardId: playedRewardId,
+          effects: JSON.stringify(effects),
+          stateDelta: JSON.stringify(result.stateDelta),
+          artPrompt: result.artPrompt,
+        },
+      })
+
+      for (const [key, delta] of Object.entries(effects)) {
+        if (!delta) continue
+        await tx.lifeStat.upsert({
+          where: { lifeRunId_key: { lifeRunId: run.id, key } },
+          create: { lifeRunId: run.id, key, value: delta },
+          update: { value: { increment: delta } },
+        })
+      }
+
+      return created
     })
-
-    return created
-  })
+  } catch (error) {
+    if (error instanceof TurnAdvanceConflictError) {
+      // Lost the race: hand the reader the turn the winner actually
+      // committed instead of a 409 for a request that was valid when sent.
+      const freshRun = await getStoryRunForUser(lifeRunId, userId)
+      const existing = freshRun.Choices.find(
+        (choice) => choice.chapter === input.turnIndex,
+      )
+      if (existing) {
+        return buildReplayedTurnResult({
+          run: freshRun,
+          deck,
+          quest: readQuestLedger(freshRun),
+          inventory: readInventory(freshRun),
+          pending: readPendingTurn(freshRun),
+          existing,
+        })
+      }
+      throw withStatusCode(
+        `This story is on turn ${freshRun.currentChapter}, not ${input.turnIndex}.`,
+        409,
+      )
+    }
+    throw error
+  }
 
   return {
     run,

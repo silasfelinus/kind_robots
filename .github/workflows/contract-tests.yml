@@ -55,6 +55,9 @@ jobs:
       - name: Enqueue prompt gate contract
         run: npm run test:enqueue-prompt-gate
 
+      - name: Facet catalog cache reuse
+        run: npm run test:facet-catalog-cache
+
       - name: Queued prompt gate contract
         run: npm run test:queued-prompt-gate
 

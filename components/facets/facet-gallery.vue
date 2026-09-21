@@ -233,7 +233,13 @@ const visibleCount = computed(() =>
 
 onMounted(async () => {
   try {
-    await catalog.fetchCatalog({ take: 1000 })
+    /*
+     * No options on purpose. `take: 1000` was FACET_CATALOG_PAGE_SIZE spelled
+     * out, so it changed nothing about the request -- and it made the store's
+     * cache guard miss, so mounting this gallery re-downloaded all 1,736 rows
+     * even though plugins/20.facet-catalog.client.ts had just fetched them.
+     */
+    await catalog.fetchCatalog()
   } catch (error) {
     errorMessage.value =
       error instanceof Error ? error.message : 'Facets could not be loaded.'

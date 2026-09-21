@@ -20,17 +20,31 @@
           class="min-h-32 kr-panel-tint-compact-50"
         >
           <template v-if="entryFor(fish.slug)">
-            <div class="flex flex-wrap items-center gap-2">
-              <span class="kr-badge-xs" :class="affinityClass(fish.affinity)">{{
-                fish.affinity
-              }}</span>
-              <span class="kr-badge-outline-xs">{{ fish.rarity }}</span>
-              <span class="text-xs opacity-50"
-                >×{{ entryFor(fish.slug)!.countCaught }}</span
-              >
+            <div class="flex gap-3">
+              <img
+                v-if="!brokenImages[fish.slug]"
+                :src="fishBestiaryImageSrc(fish.slug)"
+                :alt="fish.name"
+                class="aspect-square w-16 shrink-0 rounded-lg border border-base-300 bg-base-100 object-cover"
+                loading="lazy"
+                @error="brokenImages[fish.slug] = true"
+              />
+              <div class="min-w-0 flex-1">
+                <div class="flex flex-wrap items-center gap-2">
+                  <span
+                    class="kr-badge-xs"
+                    :class="affinityClass(fish.affinity)"
+                    >{{ fish.affinity }}</span
+                  >
+                  <span class="kr-badge-outline-xs">{{ fish.rarity }}</span>
+                  <span class="text-xs opacity-50"
+                    >×{{ entryFor(fish.slug)!.countCaught }}</span
+                  >
+                </div>
+                <h4 class="mt-2 font-black">{{ fish.name }}</h4>
+                <p class="mt-1 text-xs opacity-75">{{ fish.fishopediaNote }}</p>
+              </div>
             </div>
-            <h4 class="mt-2 font-black">{{ fish.name }}</h4>
-            <p class="mt-1 text-xs opacity-75">{{ fish.fishopediaNote }}</p>
             <dl class="mt-2 grid grid-cols-2 gap-2 text-xs">
               <div>
                 <dt class="opacity-50">Best size</dt>
@@ -51,14 +65,14 @@
           </template>
 
           <template v-else>
-            <div class="flex h-full min-h-24 items-center gap-3 opacity-40">
+            <div class="flex h-full min-h-24 items-center gap-3 opacity-50">
               <div
-                class="flex size-14 shrink-0 items-center justify-center rounded-full border border-dashed border-current text-2xl"
+                class="flex size-14 shrink-0 items-center justify-center rounded-lg border border-dashed border-current text-2xl"
               >
-                ?
+                <Icon name="kind-icon:lock" class="kr-icon-6" />
               </div>
               <div>
-                <p class="font-bold">Unknown specimen</p>
+                <p class="font-bold">Sealed specimen</p>
                 <p class="text-xs">
                   Its place in this version of the lake has not been discovered.
                 </p>
@@ -73,10 +87,18 @@
 
 <script setup lang="ts">
 import type { FishAffinity, RunSave } from '~/types/ruler-hooked'
-import { RULER_HOOKED_FISH } from '~/utils/rulerHooked/fish'
+import {
+  RULER_HOOKED_FISH,
+  fishBestiaryImageSrc,
+} from '~/utils/rulerHooked/fish'
 
 const props = defineProps<{ save: RunSave }>()
 const roster = RULER_HOOKED_FISH
+
+// A species' bestiary art may not have rendered yet (ruler-hooked/t-019
+// batches land over time) — hide the <img> on failure rather than a broken-
+// image icon, same pattern as ruler-hooked-cosmetics-picker.vue.
+const brokenImages = reactive<Record<string, boolean>>({})
 const discoveredCount = computed(
   () => Object.keys(props.save.fishopedia).length,
 )

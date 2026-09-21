@@ -16,6 +16,15 @@ import type { RngStream } from './seed'
 import { clauseHolds } from './triggers'
 import { rollTreasure } from './economy'
 
+/**
+ * Species art key convention from docs/fish-ecology.md: creature slug plus
+ * presentation variant. Only the `bestiary` variant has been generated so far
+ * (ruler-hooked/t-019) — catch-card/silhouette variants don't exist yet.
+ */
+export function fishBestiaryImageSrc(slug: string): string {
+  return `/images/ruler-hooked/fish/${slug}/bestiary.webp`
+}
+
 const rarityWeight: Record<Rarity, number> = {
   COMMON: 60,
   UNCOMMON: 30,

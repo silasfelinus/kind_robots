@@ -56,18 +56,18 @@ function onResolved(): void {
 }
 
 /**
- * Play again: drop the reader back on the Table rather than silently
- * opening a second run behind their back.
+ * Play again: drop the reader back on the Table with the same cards dealt
+ * (storybook/t-060) rather than silently opening a second run behind their
+ * back or making them redeal from scratch.
  *
- * NOTE (storybook/t-059): this does not yet retain the prior board — the
- * Table remounts fresh here exactly like `newTable()` below. Board
- * retention (the same cards with a different length or narrator, the
- * common second play) is a real feature still to be built, not a
- * currently-existing behavior; kept as a separate function from
- * `newTable()` so that future retention work has a seam to land in
- * without touching the "start over" path.
+ * retainBoardForPlayAgain() must run BEFORE leaveRun() -- leaveRun() resets
+ * openedBoard along with everything else tied to the finished run, so the
+ * board has to be copied into its one-shot handoff first. Kept as a
+ * separate function from `newTable()` below, which stays a true "start
+ * over" and must not retain anything.
  */
 function playAgain(): void {
+  runStore.retainBoardForPlayAgain()
   runStore.leaveRun()
 }
 

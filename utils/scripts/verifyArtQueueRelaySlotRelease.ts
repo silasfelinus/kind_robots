@@ -129,10 +129,12 @@ for (const required of [
 }
 
 for (const required of [
-  'const processingStartedAtValue = computed<string | Date | null>',
+  'const jobStartedAtValue = computed<string | Date | null>',
   'props.job.payload.processingStartedAt',
   'return props.job.claimedAt',
-  'formatDateTime(processingStartedAtValue)',
+  "if (props.job.status !== 'RUNNING') return null",
+  'const value = jobStartedAtValue.value',
+  'formatDateTime(jobStartedAtValue)',
 ]) {
   assertIncludes(card, 'ArtJob queue card stable running timer', required)
 }
@@ -148,10 +150,14 @@ for (const required of [
 
 for (const required of [
   'Queued {{ formatDateTime(job.createdAt) }}',
+  'Started {{ formatDateTime(jobStartedAtValue) }}',
   'Finished {{ formatDateTime(jobFinishedAtValue) }}',
+  'Generated in {{ generationDuration }}',
   "props.job.status === 'DONE' ? artJobFinishedAt(props.job) : null",
+  'const generationDuration = computed<string>',
+  'return formatElapsed((finishedAt - startedAt) / 1000)',
 ]) {
-  assertIncludes(card, 'ArtJob queue card queued/finished timestamps', required)
+  assertIncludes(card, 'ArtJob queue card queued/start/finish timing', required)
 }
 
 assertIncludes(

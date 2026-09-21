@@ -22,7 +22,7 @@
       class="min-h-0 flex-1"
       :show-header="showHeader"
       title="Facets"
-      subtitle="Pick a Facet to open its profile."
+      subtitle="Pick a taxonomy, then a Facet."
       @select="openFacet"
     />
   </div>

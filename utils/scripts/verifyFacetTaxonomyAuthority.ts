@@ -45,7 +45,10 @@ function extractQuotedArray(text: string, marker: string): string[] {
  * "a migration exists that gives the column exactly the enum Prisma declares",
  * and the newest redefinition is the one that does it.
  */
-async function latestTaxonomyMigration(): Promise<{ path: string; text: string }> {
+async function latestTaxonomyMigration(): Promise<{
+  path: string
+  text: string
+}> {
   const dir = 'prisma/migrations'
   const entries = await readdir(resolve(root, dir), { withFileTypes: true })
   const candidates: Array<{ path: string; text: string }> = []
@@ -57,7 +60,8 @@ async function latestTaxonomyMigration(): Promise<{ path: string; text: string }
     } catch {
       continue
     }
-    if (text.includes('MODIFY `taxonomy` ENUM(')) candidates.push({ path, text })
+    if (text.includes('MODIFY `taxonomy` ENUM('))
+      candidates.push({ path, text })
   }
   const latest = candidates.at(-1)
   if (!latest) {
@@ -228,7 +232,15 @@ async function main(): Promise<void> {
    * contract tracks the authority rather than one deleted call site.
    */
   requireText(files.manager, text.manager, 'taxonomyLabel(')
-  requireText(files.manager, text.manager, 'facet.taxonomy')
+  /*
+   * `.taxonomy`, not `facet.taxonomy`. The comment above says this contract
+   * "tracks the authority rather than one deleted call site", and the call site
+   * moved again on 2026-09-21: the breakdown is counted by the server now, so
+   * the manager reads `row.taxonomy` off the index rather than `facet.taxonomy`
+   * off a downloaded list. The authority is unchanged and the forbid below --
+   * which is the half that actually guards it -- is untouched.
+   */
+  requireText(files.manager, text.manager, '.taxonomy')
   forbidText(files.manager, text.manager, 'facet.kind')
 
   requireText(

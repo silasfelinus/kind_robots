@@ -7,7 +7,15 @@ import { createError, getRequestURL, type H3Event } from 'h3'
  * formatting for that reason.
  */
 import type { Prisma, PrismaClient } from '~/prisma/generated/prisma/client'
-import { artContextRules, artSlotFraming } from '~/utils/entityArtPromptFraming'
+import {
+  artContextRules,
+  artSlotFraming,
+  artStyleTail,
+} from '~/utils/entityArtPromptFraming'
+import {
+  buildFacetIdentityPromptFrom,
+  isLegacyGeneratedFacetPrompt,
+} from '~/utils/facetVisualLanguage'
 
 export type EntityArtType =
   | 'bot'
@@ -468,10 +476,25 @@ export async function getEntityArtRecord(
       return (await db.reward.findUnique({
         where: { id: entityId },
       })) as EntityArtRecord | null
-    case 'facet':
-      return (await db.facet.findUnique({
-        where: { id: entityId },
-      })) as EntityArtRecord | null
+    case 'facet': {
+      /*
+       * The taxonomy rides along with the record because the prompt builder
+       * needs it and it does not live on Facet -- FacetProfile is a standalone
+       * table keyed by facetId, with no Prisma relation to follow. Without it
+       * buildEntityArtPrompt cannot pick a taxonomy clause, which is how this
+       * path spent six producer versions queueing art that had never read one.
+       */
+      const facet = await db.facet.findUnique({ where: { id: entityId } })
+      if (!facet) return null
+      const profile = await db.facetProfile.findUnique({
+        where: { facetId: entityId },
+        select: { taxonomy: true },
+      })
+      return {
+        ...facet,
+        taxonomy: profile?.taxonomy ?? null,
+      } as EntityArtRecord
+    }
     case 'project':
       return (await db.project.findUnique({
         where: { id: entityId },
@@ -1174,18 +1197,115 @@ export function buildEntityArtPrompt(
     return [userPrompt.trim(), ...context].filter(Boolean).join('\n')
   }
 
+  const taxonomy = safeText(target.record.taxonomy)
+  const { direction, supersededArtPrompt } = facetArtDirection(
+    userPrompt,
+    target.entityType,
+    target.record,
+    taxonomy,
+  )
+
   return [
-    userPrompt.trim(),
+    direction,
     '',
     // Describes the slot's shape rather than naming it. "the card artwork" made
     // Krea 2 render a literal trading card. See utils/entityArtPromptFraming.ts.
     `Compose this as ${artSlotFraming(field)} for the following ${target.entityType}.`,
-    ...context,
+    ...withoutRestatedContext(context, direction, supersededArtPrompt),
     '',
     ...artContextRules('entity'),
+    /*
+     * Last, because a diffusion model weights the tail as the treatment to
+     * apply to everything before it. Empty for the swatch taxonomy; see
+     * artStyleTail.
+     */
+    artStyleTail(taxonomy),
   ]
     .filter(Boolean)
     .join('\n')
+}
+
+/*
+ * A stored Facet.artPrompt that a previous producer generated is rebuilt from
+ * the Facet's own content before it becomes art direction.
+ *
+ * This is the whole reason utils/facetVisualLanguage.ts exists. Every fix to
+ * the Facet prompt vocabulary between v2 and v6 landed in
+ * scripts/generate_facet_art_v4.ts, and this function -- the one that actually
+ * builds the prompt for art queued through the server -- took the stored
+ * string verbatim, so a Facet carrying a v4 tail went on rendering v4 art
+ * indefinitely. 23 of 250 live Facets sampled on 2026-09-21 still did.
+ *
+ * isLegacyGeneratedFacetPrompt matches only a registered producer signature,
+ * so a hand-authored prompt and anything typed into the art workbench pass
+ * through untouched. Rebuilding one of those would be the worse bug.
+ */
+/*
+ * Context that the art direction already says.
+ *
+ * "Existing art prompt: ..." is the row that matters. When facetArtDirection
+ * rebuilds a legacy Facet prompt, the stale string it just replaced was still
+ * being restated here one line later -- so the card copy the rebuild removed
+ * from the head of the prompt walked straight back into conditioning from the
+ * context block, and the model saw it twice. The first end-to-end probe of the
+ * rebuild (2026-09-21) showed exactly that: "Inventor. One person seen from
+ * head to shoes ... Inventor. Builds the thing before establishing whether it
+ * should exist."
+ *
+ * The same containment test buildArtFacetPromptAddon already applies in
+ * utils/artFacetPrompt.ts, for the same reason it gives: a direction the base
+ * prompt already states adds nothing by being restated, and on a text model a
+ * restatement is a second vote.
+ */
+function withoutRestatedContext(
+  context: readonly string[],
+  direction: string,
+  supersededArtPrompt: string,
+): string[] {
+  const normalize = (value: string) =>
+    value.replace(/\s+/g, ' ').trim().toLowerCase()
+  const base = normalize(direction)
+  const superseded = normalize(supersededArtPrompt)
+
+  return context.filter((line) => {
+    const normalized = normalize(line.slice(line.indexOf(':') + 1))
+    if (!normalized) return false
+    // The exact string the rebuild replaced. Not a substring of the new
+    // direction -- that is the point of rebuilding it -- so containment alone
+    // never catches this one.
+    if (superseded && normalized === superseded) return false
+    return !base || !base.includes(normalized)
+  })
+}
+
+function facetArtDirection(
+  userPrompt: string,
+  entityType: EntityArtType,
+  record: EntityArtRecord,
+  taxonomy: string,
+): { direction: string; supersededArtPrompt: string } {
+  const prompt = userPrompt.trim()
+  const keep = { direction: prompt, supersededArtPrompt: '' }
+  if (entityType !== 'facet' || !taxonomy) return keep
+  if (!isLegacyGeneratedFacetPrompt(prompt)) return keep
+
+  const rebuilt = buildFacetIdentityPromptFrom({
+    title: safeText(record.title),
+    taxonomy,
+    description: safeText(record.description),
+    flavorText: safeText(record.flavorText),
+    examples: safeText(record.examples),
+  })
+  if (!rebuilt) return keep
+
+  /*
+   * Both the prompt we were handed and whatever is stored on the record are
+   * reported as superseded: the caller usually passes Facet.artPrompt straight
+   * through, but the art workbench can re-queue with an older copy of it, and
+   * either one restated in the context block puts the card copy back into
+   * conditioning.
+   */
+  return { direction: rebuilt, supersededArtPrompt: prompt }
 }
 
 async function sourceFromArtImage(

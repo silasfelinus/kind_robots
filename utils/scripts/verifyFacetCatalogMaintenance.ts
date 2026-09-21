@@ -20,6 +20,8 @@ const managerPath = path.join(root, 'components/facets/facet-manager.vue')
 const editorPath = path.join(root, 'components/facets/facet-editor.vue')
 const galleryPath = path.join(root, 'components/facets/facet-gallery.vue')
 const entityArtPath = path.join(root, 'server/utils/entityArt.ts')
+const facetVisualPath = path.join(root, 'utils/facetVisualLanguage.ts')
+const framingPath = path.join(root, 'utils/entityArtPromptFraming.ts')
 const queueCoveragePath = path.join(root, 'server/utils/artJobQueueCoverage.ts')
 const queueSettingsPath = path.join(root, 'server/utils/artJobQueueSettings.ts')
 const queueClaimPath = path.join(root, 'server/api/art/queue/claim.post.ts')
@@ -34,6 +36,15 @@ const manager = fs.readFileSync(managerPath, 'utf8')
 const editor = fs.readFileSync(editorPath, 'utf8')
 const gallery = fs.readFileSync(galleryPath, 'utf8')
 const entityArt = fs.readFileSync(entityArtPath, 'utf8')
+const facetVisual = fs.readFileSync(facetVisualPath, 'utf8')
+const framing = fs.readFileSync(framingPath, 'utf8')
+/*
+ * The producer script and the module its vocabulary now lives in. The clause
+ * bans below are checked against BOTH, so moving a clause between them can
+ * never quietly un-ban it -- which is the class of failure this whole file
+ * exists to catch.
+ */
+const facetPromptSources = `${art}\n${facetVisual}`
 const queueCoverage = fs.readFileSync(queueCoveragePath, 'utf8')
 const queueSettings = fs.readFileSync(queueSettingsPath, 'utf8')
 const queueClaim = fs.readFileSync(queueClaimPath, 'utf8')
@@ -214,14 +225,13 @@ for (const forbidden of [
   'Catalog category: ${category}',
 ]) {
   assert.ok(
-    !art.includes(forbidden),
+    !facetPromptSources.includes(forbidden),
     `Facet prompt vocabulary must not contain legacy contextual/format language: ${forbidden}`,
   )
 }
 
 for (const required of [
   'Krea 2 is intentionally treated as a caption-conditioned image model here',
-  '`${facet.title}.`',
   'taxonomyVisualLanguage',
   'Polished fantasy illustration.',
   'Clean unmarked surfaces.',
@@ -229,6 +239,52 @@ for (const required of [
   assert.ok(
     art.includes(required),
     `Facet v5 must preserve semantic image-only prompting: ${required}`,
+  )
+}
+
+for (const required of [
+  '`${clean(input.title)}.`',
+  'taxonomyVisualLanguage(input.taxonomy)',
+  // Card copy is what Krea paints when the prose names nothing visible.
+  'readsAsCardCopy',
+  'depictableProse',
+]) {
+  assert.ok(
+    facetVisual.includes(required),
+    `utils/facetVisualLanguage.ts must preserve semantic image-only prompting: ${required}`,
+  )
+}
+
+/*
+ * The server path (2026-09-21).
+ *
+ * server/utils/entityArt.ts queues Facet art too, and until this date it could
+ * not import a line of the vocabulary above -- it took Facet.artPrompt
+ * verbatim, so six versions of producer fixes never reached it and Facets
+ * carrying a v4 tail went on rendering v4 art. ArtJobs 29108/29109/29111 are
+ * what that looked like: a caption painted across the top of each one.
+ *
+ * These assertions are the standing guard that the two paths stay joined. A
+ * prompt built by the server must go through the same rebuild, drop the
+ * superseded prompt it replaced, and carry a medium.
+ */
+for (const required of [
+  'buildFacetIdentityPromptFrom',
+  'isLegacyGeneratedFacetPrompt',
+  'artStyleTail',
+  'supersededArtPrompt',
+  'db.facetProfile.findUnique',
+]) {
+  assert.ok(
+    entityArt.includes(required),
+    `server/utils/entityArt.ts must build Facet art from the shared vocabulary: ${required}`,
+  )
+}
+
+for (const required of ['HOUSE_STYLE_TAIL', 'PROMPT_ENHANCEMENT']) {
+  assert.ok(
+    framing.includes(required),
+    `utils/entityArtPromptFraming.ts must carry the house style tail: ${required}`,
   )
 }
 

@@ -6,6 +6,8 @@
 // exclusion vocabulary out of that conditioning while preserving the useful
 // visual content.
 
+import { HOUSE_STYLE_TAIL } from './entityArtPromptFraming'
+
 type JsonRecord = Record<string, unknown>
 
 const ENTITY_TYPES =
@@ -337,6 +339,25 @@ export function buildKreaSemanticPrompt(value: unknown): string {
     )
     .replace(/\bto be used as [^.]*\.?/gi, ' ')
 
+  /*
+   * Lift the house style tail out before the labels are split.
+   *
+   * A label's value runs to the START OF THE NEXT LABEL or, for the last one,
+   * to the end of the prompt. The style tail is appended AFTER the context
+   * block, so the final context label swallows it -- and when that label is a
+   * narrative one (Description, Flavor text) the tail is held back and thrown
+   * away with the card copy. The medium, the palette and the contrast never
+   * reached conditioning at all.
+   *
+   * Pulled out here the same way the framing sentence above is, then re-joined
+   * last, so it still reads as the treatment applied to everything before it.
+   */
+  let styleTail = ''
+  if (prompt.includes(HOUSE_STYLE_TAIL)) {
+    styleTail = HOUSE_STYLE_TAIL
+    prompt = prompt.split(HOUSE_STYLE_TAIL).join(' ')
+  }
+
   const matches = [...prompt.matchAll(new RegExp(LABEL_PATTERN.source, 'gi'))]
   const narrative = new Map<string, string>()
   if (!matches.length) {
@@ -383,7 +404,8 @@ export function buildKreaSemanticPrompt(value: unknown): string {
     }
   }
 
-  return result || 'atmospheric illustrative composition'
+  const styled = styleTail ? join([result, styleTail]) : result
+  return styled || 'atmospheric illustrative composition'
 }
 
 /**

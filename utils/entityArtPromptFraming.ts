@@ -62,3 +62,43 @@ export function artContextRules(subjectNoun: string): string[] {
     'Every surface in frame is blank and unmarked.',
   ]
 }
+
+/*
+ * The house style tail (2026-09-21).
+ *
+ * Until now this path named no medium, no palette and no light at all. Of 250
+ * live Facet prompts sampled, 210 carried none of the three, because the only
+ * style tail in the codebase lived in scripts/generate_facet_art_v4.ts and the
+ * server builder never called it. With nothing specified, Krea falls back to
+ * its own prior -- a desaturated studio photograph on seamless cream -- which
+ * is exactly what ArtJobs 29108/29109/29111 are, and exactly the complaint
+ * ("solid, vibrant choices", Silas, 2026-09-21).
+ *
+ * Naming the medium is also the strongest available defence against rendered
+ * text on a text-specialist model, and the only one that works at cfg 1: an
+ * image the model has been told is a flat graphic illustration is a worse
+ * host for a paragraph of caption than an unspecified one. It is stated as
+ * something to draw, never as a prohibition -- ART-PROMPTS.md rule 3, and the
+ * reason the exclusion piles were stripped in the first place.
+ *
+ * Rules for editing this string are taxonomyVisualLanguage()'s rules: no
+ * format nouns ("card", "poster", "emblem"), no art-direction jargon ("focal
+ * subject", "silhouette", "thumbnail"), no negation, and nothing the model
+ * would have to obey rather than paint.
+ */
+export const HOUSE_STYLE_TAIL =
+  'Bold graphic illustration, flat areas of vivid colour, high contrast.'
+
+/*
+ * PROMPT_ENHANCEMENT swatches are the one group this tail is wrong for. Half
+ * of them are photographic techniques -- film grain, studio photography,
+ * photoreal lighting -- and telling Krea "bold graphic illustration" fights
+ * the very technique the swatch exists to demonstrate. The same carve-out
+ * styleTail() makes in scripts/generate_facet_art_v4.ts, for the same reason.
+ */
+const UNSTYLED_TAXONOMIES = new Set(['PROMPT_ENHANCEMENT'])
+
+export function artStyleTail(taxonomy?: string | null): string {
+  const key = String(taxonomy || '').toUpperCase()
+  return UNSTYLED_TAXONOMIES.has(key) ? '' : HOUSE_STYLE_TAIL
+}

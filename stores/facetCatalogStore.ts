@@ -245,7 +245,8 @@ function supportsArtField(
   definition: ArtFieldDefinition,
 ): boolean {
   if (!definition.groupKeys?.length) return true
-  if (entry.groupKey && definition.groupKeys.includes(entry.groupKey)) return true
+  if (entry.groupKey && definition.groupKeys.includes(entry.groupKey))
+    return true
   return metadataStrings(entry.metadata?.artBuilderFields).includes(fieldKey)
 }
 
@@ -281,11 +282,37 @@ export const useFacetCatalogStore = defineStore('facetCatalogStore', () => {
     return index
   })
 
+  /*
+   * Which options actually change WHICH Facets come back.
+   *
+   * `take` and `skip` are paging hints and nothing else: fetchAllCatalogPages
+   * walks every page regardless, so a request differing only in those returns
+   * the identical set. Counting them as a different query is what made the
+   * cache unreachable -- every caller but one passes `take: 1000`, which is
+   * already FACET_CATALOG_PAGE_SIZE, so `!Object.keys(options).length` was
+   * false for all of them and each one re-downloaded all 1,736 rows.
+   *
+   * On /facets that meant the client-side plugin fetched the whole catalog,
+   * and then facet-gallery's own onMounted fetched it AGAIN a moment later --
+   * two full downloads racing, the second replacing `entries` wholesale with
+   * fresh objects while the first set was already on screen (measured against
+   * production 2026-09-20: four /api/facets/catalog requests for one visit).
+   */
+  function narrowsTheQuery(options: FacetCatalogQuery): boolean {
+    return Object.entries(options).some(
+      ([key, value]) =>
+        key !== 'take' &&
+        key !== 'skip' &&
+        value !== undefined &&
+        value !== null,
+    )
+  }
+
   async function fetchCatalog(
     options: FacetCatalogQuery = {},
     force = false,
   ): Promise<FacetCatalogEntry[]> {
-    if (loaded.value && !force && !Object.keys(options).length) {
+    if (loaded.value && !force && !narrowsTheQuery(options)) {
       return entries.value
     }
 

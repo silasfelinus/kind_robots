@@ -104,6 +104,7 @@
         <kr-card-back
           v-if="infoReward"
           v-model:editing="infoRewardEditing"
+          entity-type="reward"
           :title="infoReward.name || 'Unnamed Reward'"
           :subtitle="infoReward.collection || ''"
           :description="infoReward.description || ''"

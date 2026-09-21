@@ -12,11 +12,7 @@
 <template>
   <section v-if="selectedFacet" class="kr-surface">
     <header class="kr-toolbar shrink-0 kr-panel-flat p-3">
-      <button
-        type="button"
-        class="kr-btn-ghost"
-        @click="closeFacet"
-      >
+      <button type="button" class="kr-btn-ghost" @click="closeFacet">
         <Icon name="kind-icon:chevron-left" class="kr-icon-4" /> All Facets
       </button>
 
@@ -68,13 +64,22 @@
       <div
         class="grid grid-cols-[repeat(auto-fit,minmax(min(100%,22rem),1fr))] gap-4"
       >
-        <kr-art-plate
-          :source="selectedFacet"
-          variant="card"
-          shape="card"
-          :alt="`${selectedFacet.title} artwork`"
-          :placeholder-icon="iconName(selectedFacet)"
-        />
+        <!--
+          The whole artwork loop, not just the current frame.
+          `kr-art-plate` drew `selectedFacet.imagePath` and nothing else, so
+          every image a Facet had ever carried was unreachable from the only
+          surface a visitor actually opens -- tapping a card in the gallery
+          lands here, and the Library tab's editor was the single place the
+          history existed (Silas, 2026-09-21: "I don't think we have it
+          supported in the individual object cards").
+
+          Nothing was lost while that was true: `preserveOriginal` defaults to
+          true, so every recreate archives the prior image into EntityArtImage.
+          That is what made the 2026-09-20 negation-repair restore possible at
+          all. It was purely unreachable, which is the same as gone from the
+          reading end.
+        -->
+        <EntityArtManager entity-type="facet" :entity="selectedFacet" />
 
         <div class="space-y-3">
           <p v-if="selectedFacet.description" class="kr-prose leading-relaxed">
@@ -101,19 +106,14 @@
           </div>
 
           <div class="flex flex-wrap gap-1.5 text-xs">
-            <span class="kr-badge-sm"
-              >order {{ selectedFacet.sortOrder }}</span
-            >
+            <span class="kr-badge-sm">order {{ selectedFacet.sortOrder }}</span>
             <span class="kr-badge-sm"
               >weight {{ selectedFacet.randomWeight }}</span
             >
             <span v-if="selectedFacet.isRandomizable" class="kr-badge-sm">
               randomizable
             </span>
-            <span
-              v-if="selectedFacet.artRequired"
-              class="kr-badge-warning-sm"
-            >
+            <span v-if="selectedFacet.artRequired" class="kr-badge-warning-sm">
               art expected
             </span>
           </div>
@@ -151,6 +151,7 @@ import {
   useFacetCatalogStore,
   type FacetCatalogEntry,
 } from '@/stores/facetCatalogStore'
+import EntityArtManager from '@/components/art/entity-art-manager.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -201,10 +202,5 @@ function taxonomyLabel(taxonomy: string): string {
     .toLowerCase()
     .replace(/_/g, ' ')
     .replace(/\b\w/g, (letter) => letter.toUpperCase())
-}
-
-function iconName(facet: FacetCatalogEntry): string {
-  const icon = facet.icon?.trim()
-  return icon && icon.includes(':') ? icon : 'kind-icon:tag'
 }
 </script>

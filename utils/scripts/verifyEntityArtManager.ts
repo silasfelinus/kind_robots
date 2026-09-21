@@ -37,9 +37,27 @@ expectContains('components/art/entity-art-manager.vue', [
   'checkpointResourceId',
   '/api/art/enqueue',
   'entityArt:',
-  "| 'project'",
-  "| 'achievement'",
+  /*
+   * The union is imported, never restated. A local copy here fell two entries
+   * behind server/utils/entityArt.ts without anything noticing: `dream` and
+   * `resource` were valid EntityArtTypes the manager's own type rejected, so
+   * Dream art history had working endpoints, working archive-on-recreate, and
+   * no surface that could compile a mount for it.
+   */
+  "import type { EntityArtType } from '@/server/utils/entityArt'",
 ])
+
+{
+  const manager = read('components/art/entity-art-manager.vue')
+  const localUnion = manager.match(/\ntype EntityArtType =[\s\S]*?\n(?=\S)/)
+  if (localUnion) {
+    throw new Error(
+      'components/art/entity-art-manager.vue restates EntityArtType locally. ' +
+        'Import it from server/utils/entityArt.ts instead -- a second copy is ' +
+        'how dream and resource went missing from the client type.',
+    )
+  }
+}
 
 expectContains('server/utils/entityArt.ts', [
   "| 'bot'",

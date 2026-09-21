@@ -74,6 +74,7 @@
         <kr-card-back
           v-if="infoScenario"
           v-model:editing="infoScenarioEditing"
+          entity-type="scenario"
           :title="infoScenario.title || 'Untitled Scenario'"
           :description="infoScenario.description || ''"
           :source="infoScenario"

@@ -185,10 +185,26 @@ export function taxonomyVisualLanguage(taxonomy: string): string {
  * each one is registered below.
  */
 export const CLAUSE_TAXONOMIES = [
-  'ANIMAL', 'SPECIES', 'GENRE', 'THEME', 'SETTING', 'PERSONALITY', 'ALIGNMENT',
-  'QUIRK', 'BACKSTORY', 'COLOR', 'MATERIAL', 'STYLE', 'ART_DIRECTION',
-  'PROMPT_ENHANCEMENT', 'OCCUPATION', 'ARCHETYPE', 'ROLE', 'RARITY',
-  'REWARD_TYPE', 'DREAM_TYPE',
+  'ANIMAL',
+  'SPECIES',
+  'GENRE',
+  'THEME',
+  'SETTING',
+  'PERSONALITY',
+  'ALIGNMENT',
+  'QUIRK',
+  'BACKSTORY',
+  'COLOR',
+  'MATERIAL',
+  'STYLE',
+  'ART_DIRECTION',
+  'PROMPT_ENHANCEMENT',
+  'OCCUPATION',
+  'ARCHETYPE',
+  'ROLE',
+  'RARITY',
+  'REWARD_TYPE',
+  'DREAM_TYPE',
 ] as const
 
 /*
@@ -418,7 +434,9 @@ export type FacetIdentityInput = {
  * "Illustrate the Facet concept named Surreal Horror for Kind Robots" is a
  * pile of extra concrete words that Krea is perfectly capable of painting.
  */
-export function buildFacetIdentityPromptFrom(input: FacetIdentityInput): string {
+export function buildFacetIdentityPromptFrom(
+  input: FacetIdentityInput,
+): string {
   const prose = [
     input.description,
     input.flavorText,

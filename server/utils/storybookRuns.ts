@@ -842,10 +842,24 @@ export type NarrateFn = (
   request: StorybookNarrationRequest,
 ) => Promise<StorybookNarrationResult>
 
-let narrateImpl: NarrateFn = (request) => generateStorybookTurn(request)
+/**
+ * The production narrator: forwards `request.isFinalTurn` into
+ * `generateStorybookTurn`'s own `finalTurn` option, which is what actually
+ * decides the response schema/validator's choice-count rule (0 on the final
+ * turn, 2-4 otherwise). Exported so
+ * utils/scripts/verifyStorybookFinalTurnNarratorGuard.ts can call it directly
+ * against a mocked model response -- without this wiring, the system prompt
+ * tells the model to return an empty final scene while the schema/validator
+ * still demand 2-4 choices, and a model that obeys the closing instruction
+ * fails validation instead of completing the story.
+ */
+export const defaultStorybookNarrator: NarrateFn = (request) =>
+  generateStorybookTurn(request, { finalTurn: request.isFinalTurn })
+
+let narrateImpl: NarrateFn = defaultStorybookNarrator
 
 export function setStorybookNarrator(impl: NarrateFn | null): void {
-  narrateImpl = impl || ((request) => generateStorybookTurn(request))
+  narrateImpl = impl || defaultStorybookNarrator
 }
 
 function buildNarrationRequest(args: NarrateArgs): StorybookNarrationRequest {

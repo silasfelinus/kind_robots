@@ -175,6 +175,7 @@
     "test:davinci-narration": "tsx utils/scripts/verifyDaVinciNarration.ts",
     "test:ending-deck-math": "tsx utils/scripts/verifyEndingDeckMath.ts",
     "test:storybook-narration": "tsx utils/scripts/verifyStorybookNarration.ts",
+    "test:storybook-final-turn-narrator-guard": "tsx utils/scripts/verifyStorybookFinalTurnNarratorGuard.ts",
     "test:structured-completion-abort-name-guard": "tsx utils/scripts/verifyStructuredCompletionAbortNameGuard.ts",
     "seed:storybook:playloop-verify": "tsx utils/scripts/verifyStorybookPlayLoop.ts",
     "seed:storybook-decks": "tsx utils/scripts/seedStorybookDecks.ts",

@@ -368,6 +368,9 @@ jobs:
       - name: Storybook narration bounds contract
         run: npm run test:storybook-narration
 
+      - name: Storybook final-turn narrator guard
+        run: npm run test:storybook-final-turn-narrator-guard
+
       - name: Structured completion abort-name contract
         run: npm run test:structured-completion-abort-name-guard
 

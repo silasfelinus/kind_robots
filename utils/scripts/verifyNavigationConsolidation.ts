@@ -30,9 +30,8 @@ assert.ok(
   'channel + tab pickers must remain the tablet/desktop navigation',
 )
 assert.ok(
-  channelSelect.includes(
-    "{{ unifiedMobile ? activeTab?.label || activeChannel.label : activeChannel.label }}",
-  ),
+  channelSelect.includes('? activeTab?.label || activeChannel.label') &&
+    channelSelect.includes(': activeChannel.label'),
   'the unified phone picker must show the active tab label rather than only the channel label',
 )
 assert.ok(

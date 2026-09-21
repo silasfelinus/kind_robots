@@ -174,7 +174,7 @@ export const dashboardConfigs = {
       {
         key: 'artjob',
         label: 'ArtJob',
-        icon: 'kind-icon:server',
+        icon: 'kind-icon:gallery',
         title: 'ArtJob Pipeline',
         summary: 'Manage art servers and watch the generation queue.',
         image: tabImage('art', 'artjob'),

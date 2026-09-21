@@ -245,12 +245,23 @@
         </span>
       </div>
 
-      <p
-        v-if="canShowJobContent"
-        class="line-clamp-3 whitespace-pre-wrap text-sm leading-relaxed"
-      >
-        {{ jobPrompt || 'Prompt unavailable.' }}
-      </p>
+      <div v-if="canShowJobContent" class="min-w-0">
+        <p
+          class="whitespace-pre-wrap text-sm leading-relaxed"
+          :class="promptExpanded ? '' : 'line-clamp-5'"
+        >
+          {{ jobPrompt || 'Prompt unavailable.' }}
+        </p>
+        <button
+          v-if="jobPrompt.length > 180"
+          type="button"
+          class="mt-1 text-xs font-semibold text-primary hover:underline"
+          :aria-expanded="promptExpanded"
+          @click="promptExpanded = !promptExpanded"
+        >
+          {{ promptExpanded ? 'Show less' : 'Show full prompt' }}
+        </button>
+      </div>
       <div
         v-else
         class="flex flex-wrap items-center gap-2 rounded-xl border border-warning/30 bg-warning/10 p-2 text-xs text-warning-content"
@@ -521,6 +532,7 @@ const artStore = useArtStore()
 const userStore = useUserStore()
 const entityArtLinkStore = useEntityArtLinkStore()
 const copied = ref(false)
+const promptExpanded = ref(false)
 const locallyRevealedMature = ref(false)
 const runningElapsed = ref('')
 let runningTimer: ReturnType<typeof setInterval> | null = null

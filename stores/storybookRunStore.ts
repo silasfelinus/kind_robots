@@ -191,6 +191,24 @@ export interface StorybookBoard {
   rewardSlugs?: string[]
 }
 
+/**
+ * A played board, reduced to slugs (storybook/t-060). Not the wire payload
+ * StorybookBoard sends to the server -- this is the client-only shape "Play
+ * Again" re-deals the Table from, kept separate so a slug that no longer
+ * resolves (a renamed/removed entity) just drops off the board instead of
+ * touching the request that already ran.
+ */
+export interface StorybookBoardSlugs {
+  mode: string[]
+  genre: string[]
+  place: string[]
+  hero: string[]
+  company: string[]
+  narrator: string[]
+  thread: string[]
+  treasures: string[]
+}
+
 export interface StorybookCollectedEnding {
   id: number
   slug: string
@@ -264,6 +282,20 @@ export const useStorybookRunStore = defineStore('storybookRunStore', () => {
   const collection = ref<StorybookCollection | null>(null)
   /** Life only. A genre deck's axis values are never sent. */
   const stats = ref<Record<string, number> | null>(null)
+  /**
+   * The board a run was opened with, in slugs (storybook/t-060). Recorded by
+   * openStory() and cleared by reset() like everything else tied to a
+   * specific run -- it exists only so playAgain() has something to retain
+   * before leaveRun() wipes it.
+   */
+  const openedBoard = ref<StorybookBoardSlugs | null>(null)
+  /**
+   * One-shot handoff to the Table's next mount. retainBoardForPlayAgain()
+   * fills it from openedBoard right before leaveRun() clears openedBoard;
+   * consumePlayAgainBoard() empties it again so an ordinary visit or a
+   * "start over" never re-seeds a stale board.
+   */
+  const playAgainBoard = ref<StorybookBoardSlugs | null>(null)
 
   const isOpening = ref(false)
   const isNarrating = ref(false)
@@ -318,6 +350,7 @@ export const useStorybookRunStore = defineStore('storybookRunStore', () => {
     // next run's first turn payload arrives, so a fresh ACTIVE run would read
     // readyToResolve from the run it replaced (storybook/t-010 cycle 76).
     canEndOnDemand.value = false
+    openedBoard.value = null
     writeStoredRunId(null)
   }
 
@@ -392,7 +425,10 @@ export const useStorybookRunStore = defineStore('storybookRunStore', () => {
     return true
   }
 
-  async function openStory(board: StorybookBoard): Promise<boolean> {
+  async function openStory(
+    board: StorybookBoard,
+    boardSlugs?: StorybookBoardSlugs,
+  ): Promise<boolean> {
     if (isOpening.value) return false
     isOpening.value = true
     errorMessage.value = ''
@@ -425,6 +461,7 @@ export const useStorybookRunStore = defineStore('storybookRunStore', () => {
       // prior run's flag (storybook/t-010 cycle 76).
       canEndOnDemand.value = false
       stats.value = null
+      openedBoard.value = boardSlugs ?? null
       writeStoredRunId(response.data.run.id)
       // The run exists even when its opening scene did not arrive; say so and
       // let the reader ask for the scene rather than stranding them.
@@ -571,6 +608,24 @@ export const useStorybookRunStore = defineStore('storybookRunStore', () => {
   }
 
   /**
+   * Called by playAgain() before leaveRun() wipes openedBoard, so the board
+   * a finished run was opened with survives into the next Table mount.
+   */
+  function retainBoardForPlayAgain(): void {
+    playAgainBoard.value = openedBoard.value
+  }
+
+  /**
+   * One-shot: the Table calls this on mount and it is gone either way, so an
+   * ordinary visit or "start over" never re-seeds a stale board.
+   */
+  function consumePlayAgainBoard(): StorybookBoardSlugs | null {
+    const board = playAgainBoard.value
+    playAgainBoard.value = null
+    return board
+  }
+
+  /**
    * Apply one quest proposal (storybook/t-045).
    *
    * The ONLY thing in this store that changes a real to-do. Playing a turn
@@ -643,5 +698,7 @@ export const useStorybookRunStore = defineStore('storybookRunStore', () => {
     requestScene,
     resolveRun,
     leaveRun,
+    retainBoardForPlayAgain,
+    consumePlayAgainBoard,
   }
 })

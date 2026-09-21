@@ -288,6 +288,7 @@ import { useScenarioStore } from '@/stores/scenarioStore'
 import {
   useStorybookRunStore,
   type StorybookBoard,
+  type StorybookBoardSlugs,
   type StorybookRunMode,
 } from '@/stores/storybookRunStore'
 import { performFetch } from '@/stores/utils'
@@ -295,6 +296,7 @@ import {
   LENGTH_PRESETS,
   MODE_CARDS,
   NARRATOR_DELIVERIES,
+  STORYBOOK_SLOTS,
   STORYBOOK_SLOT_ROWS,
   STORYBOOK_SLOT_SPECS,
   isGenreFacet,
@@ -619,8 +621,22 @@ async function openStory() {
   if (turnBudget.value === -1) payload.turnBudget = null
   else if (turnBudget.value > 0) payload.turnBudget = turnBudget.value
 
+  // Captured here, at the moment the story actually opens, because by the
+  // time playAgain() runs this Table has long since unmounted (storybook/
+  // t-060) -- the store is what carries it forward, not this component.
+  const boardSlugs: StorybookBoardSlugs = {
+    mode: board.value.mode.map((card) => card.slug),
+    genre: board.value.genre.map((card) => card.slug),
+    place: board.value.place.map((card) => card.slug),
+    hero: board.value.hero.map((card) => card.slug),
+    company: board.value.company.map((card) => card.slug),
+    narrator: board.value.narrator.map((card) => card.slug),
+    thread: board.value.thread.map((card) => card.slug),
+    treasures: board.value.treasures.map((card) => card.slug),
+  }
+
   chronicleOpen.value = false
-  const opened = await runStore.openStory(payload)
+  const opened = await runStore.openStory(payload, boardSlugs)
   if (!opened) {
     errorMessage.value = runStore.errorMessage || 'That story would not open.'
     return
@@ -709,6 +725,100 @@ function seedFromQuery(): void {
   void router.replace({ query })
 }
 
+/**
+ * The same per-slot deck lookup seedFromQuery() uses above, generalized to
+ * any slot/slug pair so it can also serve a whole retained board rather
+ * than one query value at a time (storybook/t-060).
+ */
+function cardForSlug(
+  slot: StorybookSlot,
+  slug: string,
+): NarrativeIngredientOption | null {
+  switch (slot) {
+    case 'mode':
+      return (
+        (MODE_CARDS as NarrativeIngredientOption[]).find(
+          (card) => card.slug === slug,
+        ) ?? null
+      )
+    case 'genre': {
+      const facet = facetStore.activeFacets
+        .filter(isGenreFacet)
+        .find((entry) => entry.slug === slug)
+      if (!facet) return null
+      const card = withGenreLock(toGenreCard(facet))
+      return card.locked ? null : card
+    }
+    case 'place': {
+      const dream = dreamStore.dreams
+        .filter(isPlaceDream)
+        .find((entry) => entry.slug === slug)
+      return dream ? toPlaceCard(dream) : null
+    }
+    case 'hero':
+    case 'company': {
+      const character = characterStore.browseCharacters.find(
+        (entry) => entry.slug === slug,
+      )
+      if (!character) return null
+      const card = withCharacterLock(toHeroCard(character))
+      return card.locked ? null : card
+    }
+    case 'narrator': {
+      const narrator = narrators.value.find((entry) => entry.slug === slug)
+      return narrator ? toNarratorCard(narrator) : null
+    }
+    case 'thread': {
+      const pool = isTaskmaster.value
+        ? projectCards.value
+        : scenarioStore.scenarios
+            .filter((entry) => entry.slug)
+            .map(toThreadCard)
+      return pool.find((entry) => entry.slug === slug) ?? null
+    }
+    case 'treasures': {
+      const reward = rewardStore.rewards
+        .filter((entry) => entry.isActive && entry.slug)
+        .find((entry) => entry.slug === slug)
+      return reward ? toTreasureCard(reward) : null
+    }
+    default:
+      return null
+  }
+}
+
+/**
+ * Play a resolved card into its slot unless it is already there. Seeding
+ * must never TOGGLE an already-placed card off -- the 'mode' slot starts
+ * with MODE_CARDS[0] already played, so a blind toggleCard() call there
+ * would deselect it instead of confirming it.
+ */
+function playCardIfAbsent(
+  slot: StorybookSlot,
+  card: NarrativeIngredientOption,
+): void {
+  if (isPlaced(slot, card.slug)) return
+  toggleCard(slot, card)
+}
+
+/**
+ * Re-deal the board "Play Again" retained (storybook/t-060). One-shot: the
+ * store hands the snapshot over exactly once, so an ordinary visit or a
+ * "start over" never re-seeds a stale board. A slug that no longer resolves
+ * (or now resolves locked) simply stays off the board, same as any other
+ * seed path here.
+ */
+function seedFromPlayAgain(): void {
+  const snapshot = runStore.consumePlayAgainBoard()
+  if (!snapshot) return
+  for (const slot of STORYBOOK_SLOTS) {
+    for (const slug of snapshot[slot]) {
+      const card = cardForSlug(slot, slug)
+      if (card) playCardIfAbsent(slot, card)
+    }
+  }
+}
+
 onMounted(async () => {
   // allSettled, not all: one slow or failing deck must not leave the whole
   // table empty. A board missing its treasures still opens a story.
@@ -724,11 +834,17 @@ onMounted(async () => {
     // waiting on real content.
     runStore.fetchDecks(),
     runStore.fetchGatedCharacters(),
+    // In the same batch, not fetched afterward, so a retained narrator slug
+    // has a deck to resolve against by the time seedFromPlayAgain() runs
+    // (storybook/t-060) -- seedFromQuery() never seeded narrator, so this
+    // was previously moot.
+    performFetch<NarratorLike[]>('/api/narrators').then((response) => {
+      if (response.success && response.data) narrators.value = response.data
+    }),
   ])
-  // After the decks are loaded, so a deep-linked card can actually be found
-  // in them (storybook/t-055).
+  // After the decks are loaded, so a deep-linked or retained card can
+  // actually be found in them (storybook/t-055, t-060).
+  seedFromPlayAgain()
   seedFromQuery()
-  const response = await performFetch<NarratorLike[]>('/api/narrators')
-  if (response.success && response.data) narrators.value = response.data
 })
 </script>

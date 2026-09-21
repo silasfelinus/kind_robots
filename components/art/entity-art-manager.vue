@@ -15,7 +15,8 @@
           <span class="kr-badge-ghost-xs">{{ entityLabel }}</span>
         </div>
         <p class="kr-text-dim-xs mt-1">
-          Recreate with Krea, edit the current image with SDXL or Kontext, or upload a finished replacement.
+          Recreate with Krea, edit the current image with SDXL or Kontext, or
+          upload a finished replacement.
         </p>
       </div>
 
@@ -45,7 +46,11 @@
         :key="slot.field"
         type="button"
         class="kr-btn-xs-lg"
-        :class="selectedField === slot.field ? 'btn-secondary' : 'btn-ghost border border-base-300'"
+        :class="
+          selectedField === slot.field
+            ? 'btn-secondary'
+            : 'btn-ghost border border-base-300'
+        "
         @click="selectSlot(slot.field)"
       >
         {{ slot.label }}
@@ -96,7 +101,9 @@
           Artwork &amp; inspirations
         </span>
         <span v-if="inspirationCount" class="kr-badge-info-xs">
-          {{ inspirationCount }} inspiration{{ inspirationCount === 1 ? '' : 's' }}
+          {{ inspirationCount }} inspiration{{
+            inspirationCount === 1 ? '' : 's'
+          }}
         </span>
         <span v-if="collectionSlides.length" class="kr-badge-secondary-xs">
           {{ collectionSlides.length }} collection
@@ -217,7 +224,10 @@
           :disabled="removingHistoryId === slide.artImageId"
           @click="removeHistory(slide.artImageId)"
         >
-          <span v-if="removingHistoryId === slide.artImageId" class="kr-spinner-xs" />
+          <span
+            v-if="removingHistoryId === slide.artImageId"
+            class="kr-spinner-xs"
+          />
           <Icon v-else name="kind-icon:trash" class="kr-icon-3" />
         </button>
       </div>
@@ -230,9 +240,12 @@
     >
       <div class="flex items-start gap-2">
         <div class="min-w-0 flex-1">
-          <p class="kr-text-black-sm">Generate {{ selectedSlot.label }} replacement</p>
+          <p class="kr-text-black-sm">
+            Generate {{ selectedSlot.label }} replacement
+          </p>
           <p class="kr-text-dim-xs">
-            Recreate starts fresh with Krea. Img2img uses the current image and defaults to SDXL.
+            Recreate starts fresh with Krea. Img2img uses the current image and
+            defaults to SDXL.
           </p>
         </div>
         <button
@@ -248,7 +261,11 @@
       <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <label v-if="editableSlots.length > 1" class="kr-form-field">
           <span class="kr-text-dim-xs-60 font-semibold">Target</span>
-          <select v-model="selectedField" class="kr-select-sm" :disabled="submitting">
+          <select
+            v-model="selectedField"
+            class="kr-select-sm"
+            :disabled="submitting"
+          >
             <option
               v-for="slot in editableSlots"
               :key="slot.field"
@@ -261,15 +278,25 @@
 
         <label class="kr-form-field">
           <span class="kr-text-dim-xs-60 font-semibold">Method</span>
-          <select v-model="generationMode" class="kr-select-sm" :disabled="submitting">
+          <select
+            v-model="generationMode"
+            class="kr-select-sm"
+            :disabled="submitting"
+          >
             <option value="recreate">New prompt · recreate</option>
-            <option value="img2img" :disabled="!currentSrc">Current image · img2img</option>
+            <option value="img2img" :disabled="!currentSrc">
+              Current image · img2img
+            </option>
           </select>
         </label>
 
         <label class="kr-form-field">
           <span class="kr-text-dim-xs-60 font-semibold">Engine</span>
-          <select v-model="generationEngine" class="kr-select-sm" :disabled="submitting">
+          <select
+            v-model="generationEngine"
+            class="kr-select-sm"
+            :disabled="submitting"
+          >
             <template v-if="generationMode === 'recreate'">
               <option value="krea2">Krea 2 · default</option>
               <option value="comfy">SDXL · prompt only</option>
@@ -283,8 +310,16 @@
 
         <label class="kr-form-field">
           <span class="kr-text-dim-xs-60 font-semibold">Preset</span>
-          <select v-model="presetKey" class="kr-select-sm" :disabled="submitting">
-            <option v-for="preset in availablePresets" :key="preset.key" :value="preset.key">
+          <select
+            v-model="presetKey"
+            class="kr-select-sm"
+            :disabled="submitting"
+          >
+            <option
+              v-for="preset in availablePresets"
+              :key="preset.key"
+              :value="preset.key"
+            >
               {{ preset.label }}
             </option>
           </select>
@@ -301,7 +336,8 @@
           :disabled="submitting"
         />
         <span class="text-[0.65rem] text-base-content/40">
-          The {{ entityLabel.toLowerCase() }} record supplies supporting context. This text remains the primary direction.
+          The {{ entityLabel.toLowerCase() }} record supplies supporting
+          context. This text remains the primary direction.
         </span>
       </label>
 
@@ -317,21 +353,28 @@
             :disabled="submitting || loadingResources"
           >
             <option :value="0">Use current quality default</option>
-            <option v-for="checkpoint in checkpointOptions" :key="checkpoint.id" :value="checkpoint.id">
+            <option
+              v-for="checkpoint in checkpointOptions"
+              :key="checkpoint.id"
+              :value="checkpoint.id"
+            >
               {{ checkpoint.customLabel || checkpoint.name }}
             </option>
           </select>
         </label>
         <span v-if="loadingResources" class="kr-spinner-sm self-end mb-1" />
         <p v-else class="kr-text-dim-xs-40 self-end pb-2">
-          Leave unchanged to use the same default workflow that is producing the current quality.
+          Leave unchanged to use the same default workflow that is producing the
+          current quality.
         </p>
       </div>
 
       <fieldset class="space-y-1">
         <legend class="kr-text-dim-xs-60 font-semibold">Current image</legend>
         <div class="grid gap-1 sm:grid-cols-2">
-          <label class="flex cursor-pointer items-start gap-2 rounded-lg px-2 py-1.5 hover:bg-base-100/60">
+          <label
+            class="flex cursor-pointer items-start gap-2 rounded-lg px-2 py-1.5 hover:bg-base-100/60"
+          >
             <input
               v-model="preserveOriginal"
               type="radio"
@@ -340,13 +383,18 @@
               :disabled="submitting"
             />
             <span>
-              <span class="block text-sm font-semibold">Keep as inspiration</span>
+              <span class="block text-sm font-semibold"
+                >Keep as inspiration</span
+              >
               <span class="kr-text-dim-xs-45 block">
-                Save the current version in this {{ entityLabel }} artwork history.
+                Save the current version in this {{ entityLabel }} artwork
+                history.
               </span>
             </span>
           </label>
-          <label class="flex cursor-pointer items-start gap-2 rounded-lg px-2 py-1.5 hover:bg-base-100/60">
+          <label
+            class="flex cursor-pointer items-start gap-2 rounded-lg px-2 py-1.5 hover:bg-base-100/60"
+          >
             <input
               v-model="preserveOriginal"
               type="radio"
@@ -357,7 +405,8 @@
             <span>
               <span class="block text-sm font-semibold">Do not retain it</span>
               <span class="kr-text-dim-xs-45 block">
-                Replace the entity reference without adding the old version to history.
+                Replace the entity reference without adding the old version to
+                history.
               </span>
             </span>
           </label>
@@ -365,23 +414,37 @@
       </fieldset>
 
       <div class="kr-text-dim-xs-55 rounded-lg bg-base-100/60 px-3 py-2">
-        <strong>{{ generationMode === 'recreate' ? 'Recreate' : 'Img2img' }}:</strong>
+        <strong
+          >{{ generationMode === 'recreate' ? 'Recreate' : 'Img2img' }}:</strong
+        >
         {{ engineLabel }} · {{ selectedSlot.width }}×{{ selectedSlot.height }}
-        <template v-if="selectedPreset.description"> · {{ selectedPreset.description }}</template>
+        <template v-if="selectedPreset.description">
+          · {{ selectedPreset.description }}</template
+        >
       </div>
 
       <div class="flex flex-wrap items-center gap-2">
         <p
           v-if="message"
           class="min-w-0 flex-1 text-xs"
-          :class="messageTone === 'error' ? 'text-error' : messageTone === 'success' ? 'text-success' : 'text-info'"
+          :class="
+            messageTone === 'error'
+              ? 'text-error'
+              : messageTone === 'success'
+                ? 'text-success'
+                : 'text-info'
+          "
         >
           {{ message }}
         </p>
         <button
           type="submit"
           class="btn btn-secondary btn-sm ml-auto gap-1.5 rounded-xl"
-          :disabled="prompt.trim().length < 3 || submitting || (generationMode === 'img2img' && !currentSrc)"
+          :disabled="
+            prompt.trim().length < 3 ||
+            submitting ||
+            (generationMode === 'img2img' && !currentSrc)
+          "
         >
           <span v-if="submitting" class="kr-spinner-xs" />
           <Icon v-else name="kind-icon:sparkles" class="kr-icon-4" />
@@ -397,9 +460,12 @@
     >
       <div class="flex items-start gap-2">
         <div class="min-w-0 flex-1">
-          <p class="kr-text-black-sm">Upload {{ selectedSlot.label }} replacement</p>
+          <p class="kr-text-black-sm">
+            Upload {{ selectedSlot.label }} replacement
+          </p>
           <p class="kr-text-dim-xs">
-            Upload a finished PNG, JPEG, or WebP, then choose whether the old image remains as inspiration.
+            Upload a finished PNG, JPEG, or WebP, then choose whether the old
+            image remains as inspiration.
           </p>
         </div>
         <button
@@ -415,7 +481,11 @@
       <div class="grid gap-3 sm:grid-cols-2">
         <label v-if="editableSlots.length > 1" class="kr-form-field">
           <span class="kr-text-dim-xs-60 font-semibold">Target</span>
-          <select v-model="selectedField" class="kr-select-sm" :disabled="submitting">
+          <select
+            v-model="selectedField"
+            class="kr-select-sm"
+            :disabled="submitting"
+          >
             <option
               v-for="slot in editableSlots"
               :key="slot.field"
@@ -440,7 +510,9 @@
       <fieldset class="space-y-1">
         <legend class="kr-text-dim-xs-60 font-semibold">Current image</legend>
         <div class="grid gap-1 sm:grid-cols-2">
-          <label class="flex cursor-pointer items-start gap-2 rounded-lg px-2 py-1.5 hover:bg-base-100/60">
+          <label
+            class="flex cursor-pointer items-start gap-2 rounded-lg px-2 py-1.5 hover:bg-base-100/60"
+          >
             <input
               v-model="preserveOriginal"
               type="radio"
@@ -449,11 +521,17 @@
               :disabled="submitting"
             />
             <span>
-              <span class="block text-sm font-semibold">Keep as inspiration</span>
-              <span class="kr-text-dim-xs-45 block">Retain the previous version in artwork history.</span>
+              <span class="block text-sm font-semibold"
+                >Keep as inspiration</span
+              >
+              <span class="kr-text-dim-xs-45 block"
+                >Retain the previous version in artwork history.</span
+              >
             </span>
           </label>
-          <label class="flex cursor-pointer items-start gap-2 rounded-lg px-2 py-1.5 hover:bg-base-100/60">
+          <label
+            class="flex cursor-pointer items-start gap-2 rounded-lg px-2 py-1.5 hover:bg-base-100/60"
+          >
             <input
               v-model="preserveOriginal"
               type="radio"
@@ -463,7 +541,9 @@
             />
             <span>
               <span class="block text-sm font-semibold">Do not retain it</span>
-              <span class="kr-text-dim-xs-45 block">Replace the entity reference without adding history.</span>
+              <span class="kr-text-dim-xs-45 block"
+                >Replace the entity reference without adding history.</span
+              >
             </span>
           </label>
         </div>
@@ -498,14 +578,21 @@ import { useUserStore } from '@/stores/userStore'
 import { performFetch } from '@/stores/utils'
 import { projectAssetFallback } from '@/components/conductor/projectFront'
 
-type EntityArtType =
-  | 'bot'
-  | 'character'
-  | 'scenario'
-  | 'reward'
-  | 'facet'
-  | 'project'
-  | 'achievement'
+/*
+ * The canonical union, imported rather than restated.
+ *
+ * This file carried its own hand-kept copy, and it had silently fallen two
+ * entries behind: `dream` and `resource` are valid EntityArtTypes on the
+ * server -- endpoints, EntityArtImage rows, archive-on-recreate, all of it --
+ * and this component's type rejected them, so mounting the manager on a Dream
+ * was a compile error rather than a feature. The same two-lists-must-agree
+ * shape verifyLoraProbePlan.test.ts already guards on the server side.
+ *
+ * Type-only, so nothing from server/ reaches the client bundle; several
+ * components already pull types across this boundary the same way.
+ */
+import type { EntityArtType } from '@/server/utils/entityArt'
+
 type EntityArtSlot = {
   field: string
   label: string
@@ -620,11 +707,15 @@ let stopped = false
 const carouselIndex = ref(0)
 let swipeStartX: number | null = null
 
-const entityLabel = computed(() =>
-  props.entityType.charAt(0).toUpperCase() + props.entityType.slice(1),
+const entityLabel = computed(
+  () => props.entityType.charAt(0).toUpperCase() + props.entityType.slice(1),
 )
 const title = computed(() =>
-  String(props.entity.title || props.entity.name || `${entityLabel.value} ${props.entity.id}`),
+  String(
+    props.entity.title ||
+      props.entity.name ||
+      `${entityLabel.value} ${props.entity.id}`,
+  ),
 )
 const mayEdit = computed(
   () =>
@@ -833,8 +924,25 @@ function normalizeSrc(value: unknown): string {
   return `/images/${trimmed}`
 }
 
+/*
+ * `path` is a TAG, never a URL.
+ *
+ * EntityArtImage rows carry `path` values like
+ * `entity:character:3304:current:imagePath` -- entityArt.ts's own bookkeeping
+ * for which slot an archived image came from. Falling through to it produced
+ * `/images/entity:character:3304:current:imagePath`, a truthy string that 404s
+ * and, being truthy, swallowed the id-based fallback that would have worked.
+ *
+ * Measured against production on 2026-09-21: of 21 history rows sampled across
+ * character, scenario, bot and facet, `path` was the tag every single time, and
+ * 9 of the 21 had a null `imagePath` -- so roughly two in five inspiration
+ * slides were broken frames on surfaces that otherwise work.
+ *
+ * An archived ArtImage always serves at /api/art/images/<id>/file, so that is
+ * the fallback, and `path` is not consulted at all.
+ */
 function historySrc(item: HistoryItem): string {
-  return normalizeSrc(item.imagePath || item.path) || `/api/art/images/${item.id}/file`
+  return normalizeSrc(item.imagePath) || `/api/art/images/${item.id}/file`
 }
 
 /**
@@ -997,7 +1105,9 @@ function slotArtImageId(field: string): number | null {
   if (Number.isInteger(columnId) && columnId > 0) return columnId
   const raw = props.entity[field]
   const embedded = Number(
-    typeof raw === 'string' ? raw.match(/\/api\/art\/images\/(\d+)\/file/)?.[1] : NaN,
+    typeof raw === 'string'
+      ? raw.match(/\/api\/art\/images\/(\d+)\/file/)?.[1]
+      : NaN,
   )
   return Number.isInteger(embedded) && embedded > 0 ? embedded : null
 }
@@ -1077,7 +1187,9 @@ async function promoteActiveSlide() {
       }),
     })
     if (!response.success || !response.data) {
-      throw new Error(response.message || 'That image could not be set as the main image.')
+      throw new Error(
+        response.message || 'That image could not be set as the main image.',
+      )
     }
     applyEntity(response.data.entity)
     history.value = response.data.history || []
@@ -1174,7 +1286,9 @@ async function queueGeneration() {
           ? {
               checkpointResourceId: checkpoint.id,
               checkpoint:
-                checkpoint.localPath || checkpoint.name || checkpoint.customLabel,
+                checkpoint.localPath ||
+                checkpoint.name ||
+                checkpoint.customLabel,
             }
           : {}),
         entityArt: {
@@ -1219,7 +1333,8 @@ function startPolling(jobId: number) {
         }
       }>(`/api/art/queue/${jobId}`, { cache: 'no-store' })
       const status = String(response.data?.job?.status || '')
-      if (!response.success) throw new Error(response.message || 'Queue check failed.')
+      if (!response.success)
+        throw new Error(response.message || 'Queue check failed.')
       if (status === 'DONE') {
         await fetchEntityArt(true)
         message.value = `ArtJob ${jobId} finished and the ${selectedSlot.value.label.toLowerCase()} was replaced.`
@@ -1261,7 +1376,9 @@ async function removeHistory(id: number) {
     messageTone.value = 'success'
   } catch (error) {
     message.value =
-      error instanceof Error ? error.message : 'History item could not be removed.'
+      error instanceof Error
+        ? error.message
+        : 'History item could not be removed.'
     messageTone.value = 'error'
   } finally {
     removingHistoryId.value = null

@@ -39,6 +39,7 @@
         <kr-card-back
           v-if="infoCharacter"
           v-model:editing="infoCharacterEditing"
+          entity-type="character"
           :title="infoCharacter.name || 'Unnamed Character'"
           :subtitle="infoCharacter.honorific || ''"
           :description="infoCharacter.backstory || ''"

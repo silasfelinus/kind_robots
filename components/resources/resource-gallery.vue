@@ -660,6 +660,7 @@ onMounted(async () => {
       <template #back="{ close, commit }">
         <kr-card-back
           v-if="infoResource"
+          entity-type="resource"
           :title="resourceLabel(infoResource)"
           :subtitle="infoResource.generation || ''"
           :description="infoResourceDescription"

@@ -197,6 +197,7 @@
         <kr-card-back
           v-if="infoDream"
           v-model:editing="infoDreamEditing"
+          entity-type="dream"
           :title="infoDream.title || 'Untitled Dream'"
           :subtitle="infoDream.flavorText || ''"
           :description="infoDream.description || infoDream.pitch || ''"

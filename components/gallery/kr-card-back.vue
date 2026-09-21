@@ -76,10 +76,17 @@
         class="relative flex max-h-72 w-full shrink-0 justify-center overflow-hidden bg-base-200"
       >
         <img
-          :src="resolvedArtSrc"
+          :src="activeArtSrc"
           :alt="title"
           class="max-h-72 w-auto max-w-full object-contain"
         />
+
+        <span
+          v-if="artFrames.length > 1"
+          class="absolute bottom-2 right-2 rounded-full bg-black/60 px-2 py-0.5 text-[10px] font-bold text-white"
+        >
+          {{ activeFrameIndex + 1 }} / {{ artFrames.length }}
+        </span>
 
         <div
           v-if="badges.length"
@@ -93,6 +100,51 @@
             {{ badge }}
           </span>
         </div>
+      </div>
+
+      <!--
+        EVERY IMAGE THIS OBJECT HAS CARRIED, not just the one on its face.
+        Silas, 2026-09-21: "when we generate new images ... any previous should
+        still be viewable when looking at the object. ... I don't think we have
+        it supported in the individual object cards."
+
+        He was right, and the data was never the problem: `preserveOriginal`
+        defaults to true, so every recreate has been archiving the prior image
+        into EntityArtImage all along -- that archive is what made the
+        2026-09-20 Facet restore possible. Six galleries share this card back
+        and every one of them drew a single frame, so the history existed and
+        was unreachable, which reads the same as gone.
+
+        Read-only on purpose. Promote, replace and delete live in
+        entity-art-manager.vue behind its owner/admin gate; this is the "look
+        at the object" surface, so it looks.
+      -->
+      <div
+        v-if="artFrames.length > 1"
+        class="flex shrink-0 gap-1.5 overflow-x-auto px-3 pt-2"
+      >
+        <button
+          v-for="(frame, index) in artFrames"
+          :key="frame.key"
+          type="button"
+          class="size-12 shrink-0 overflow-hidden rounded-lg border-2 transition"
+          :class="
+            index === activeFrameIndex
+              ? 'border-primary'
+              : 'border-transparent opacity-70 hover:opacity-100'
+          "
+          :aria-label="`Show image ${index + 1} of ${artFrames.length}`"
+          :aria-current="index === activeFrameIndex"
+          @click="activeFrameIndex = index"
+        >
+          <img
+            :src="frame.src"
+            alt=""
+            loading="lazy"
+            decoding="async"
+            class="h-full w-full object-cover"
+          />
+        </button>
       </div>
 
       <div v-if="resolvedArtSrc" class="min-w-0 px-3 pb-3 pt-2">
@@ -276,6 +328,8 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
 import { resolveEntityArtwork, type ArtImageSrcLike } from '@/utils/artImageSrc'
+import { performFetch } from '@/stores/utils'
+import type { EntityArtType } from '@/server/utils/entityArt'
 
 const props = withDefaults(
   defineProps<{
@@ -301,6 +355,12 @@ const props = withDefaults(
     source?: ArtImageSrcLike | null
     /** Explicit first choice, tried before `source`'s chain. */
     artSrc?: string
+    /**
+     * Which entity this record is, so the back can load the object's own
+     * preserved art history. Omitted, the back behaves exactly as before and
+     * shows the single resolved frame.
+     */
+    entityType?: EntityArtType | null
     badges?: string[]
     canEdit?: boolean
     canInteract?: boolean
@@ -322,6 +382,7 @@ const props = withDefaults(
     description: '',
     source: null,
     artSrc: '',
+    entityType: null,
     badges: () => [],
     canEdit: false,
     canInteract: false,
@@ -335,6 +396,81 @@ const resolvedArtSrc = computed(
     props.artSrc ||
     (props.source ? resolveEntityArtwork(props.source) : '') ||
     '',
+)
+
+/*
+ * The object's preserved art history, fetched once per record when the back
+ * is actually opened.
+ *
+ * Deliberately lazy and self-contained. This component is otherwise
+ * presentational, but the alternative is six galleries each wiring the same
+ * request for the one record a viewer just tapped -- and the request only
+ * makes sense at the moment the back opens, which is knowledge this component
+ * has and its hosts do not. Nothing renders until the response arrives, so a
+ * failure or an empty history leaves the card exactly as it was.
+ */
+type ArtFrame = { key: string; src: string }
+
+const historySrcs = ref<string[]>([])
+const activeFrameIndex = ref(0)
+
+const artFrames = computed<ArtFrame[]>(() => {
+  const seen = new Set<string>()
+  const frames: ArtFrame[] = []
+  for (const src of [resolvedArtSrc.value, ...historySrcs.value]) {
+    const clean = (src || '').trim()
+    // Same picture, different cache-buster: `?v=<updatedAt>` makes the current
+    // image and its own history row look like two frames of the same thing.
+    const identity = clean.split('?')[0]
+    if (!clean || !identity || seen.has(identity)) continue
+    seen.add(identity)
+    frames.push({ key: identity, src: clean })
+  }
+  return frames
+})
+
+const activeArtSrc = computed(
+  () => artFrames.value[activeFrameIndex.value]?.src || resolvedArtSrc.value,
+)
+
+async function loadArtHistory(): Promise<void> {
+  historySrcs.value = []
+  activeFrameIndex.value = 0
+
+  const entityType = props.entityType
+  const entityId = Number(
+    (props.source as { id?: unknown } | null | undefined)?.id,
+  )
+  if (!entityType || !Number.isInteger(entityId) || entityId <= 0) return
+
+  try {
+    const response = await performFetch<{
+      history?: Array<{ id: number; imagePath?: string | null }>
+    }>(`/api/art/entities/${entityType}/${entityId}`)
+    if (!response.success) return
+    /*
+     * `imagePath` or the id, never `path`. That column holds entityArt.ts's
+     * own tag -- `entity:character:3304:current:imagePath` -- which is truthy,
+     * is not a URL, and 404s. Nine of twenty-one history rows sampled on
+     * production carried no imagePath at all and are reachable only by id.
+     */
+    historySrcs.value = (response.data?.history || [])
+      .map(
+        (row) =>
+          (row.imagePath || '').trim() || `/api/art/images/${row.id}/file`,
+      )
+      .filter(Boolean)
+  } catch {
+    // A card back that cannot reach the history is still a card back.
+  }
+}
+
+watch(
+  () => [props.entityType, (props.source as { id?: unknown } | null)?.id],
+  () => {
+    void loadArtHistory()
+  },
+  { immediate: true },
 )
 
 const emit = defineEmits<{

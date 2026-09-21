@@ -130,6 +130,19 @@
       </div>
 
       <div v-else-if="workspaceStore.dreamPanel === 'art'" class="grid gap-3">
+        <!--
+          `dream` has been a valid EntityArtType all along -- the endpoints,
+          the EntityArtImage rows and the archive-on-recreate all work for it
+          -- and no surface in the app mounted the manager, so a Dream's own
+          art history was the one entity history with no way to reach it.
+          The chooser below LINKS art (pick a highlight, attach a collection);
+          it has never shown the images this Dream has previously carried.
+        -->
+        <EntityArtManager
+          v-if="dreamStore.selectedDream"
+          entity-type="dream"
+          :entity="dreamStore.selectedDream"
+        />
         <dream-art-chooser />
         <dream-inspire-button
           v-if="dreamStore.selectedDream?.slug"
@@ -154,6 +167,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue'
 import { useDreamStore } from '@/stores/dreamStore'
+import EntityArtManager from '@/components/art/entity-art-manager.vue'
 import { useNavStore } from '@/stores/navStore'
 import { useScenarioStore } from '@/stores/scenarioStore'
 import {

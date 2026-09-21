@@ -58,6 +58,9 @@ jobs:
       - name: Facet catalog cache reuse
         run: npm run test:facet-catalog-cache
 
+      - name: Object art history reachability
+        run: npm run test:object-art-history
+
       - name: Queued prompt gate contract
         run: npm run test:queued-prompt-gate
 

@@ -93,6 +93,7 @@
         <kr-card-back
           v-if="infoBot"
           v-model:editing="infoEditing"
+          entity-type="bot"
           :title="infoBot.name || 'Unnamed Bot'"
           :subtitle="infoBot.subtitle || ''"
           :description="infoBot.description || infoBot.personality || ''"

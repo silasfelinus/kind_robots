@@ -11,40 +11,39 @@
 # better to fix the latter by running a script in the actual drive rather than
 # via front end").
 #
-# This drives the SAME admin endpoints from the host, so the work happens in the
-# already-deployed server against the real /app/private mount, with no client
-# timeout and nothing to keep open. It needs no repo build and no node_modules:
-# the runtime image ships only .output, so the TypeScript CLIs under utils/
-# cannot run inside the container at all.
+# HOW IT REACHES THE APP
+# ----------------------
+# Through `docker exec` into the KindRobots container, NOT over the host's
+# loopback. deploy-unraid.sh puts the container on the `cafepurr` docker
+# network, so port 3000 is not necessarily published to the host at all -- an
+# earlier version of this script defaulted to http://127.0.0.1:3000 and died
+# with "Failed to connect to 127.0.0.1 port 3000". Inside the container that
+# address is always right; it is what the image's own HEALTHCHECK uses.
+#
+# Running inside also means the credential never moves: authGuard.ts accepts
+# BETA_ADMIN_TOKEN / ADMIN_TOKEN, docker already loaded them from the env file,
+# so the request reads them from its own process.env. Nothing is typed, nothing
+# is passed in, nothing lands in shell history or in `ps`.
+#
+# It uses node:http rather than fetch deliberately: undici caps headersTimeout
+# at 5 minutes, and a whole-archive scan can legitimately exceed that before it
+# answers. node:http with no timeout set waits as long as the server takes.
 #
 # USAGE
 #   scripts/art-archive-ingest.sh                 # dry run, writes nothing
 #   scripts/art-archive-ingest.sh --import        # perform the real import
 #
-# AUTH -- NOTHING TO TYPE
-#   The token comes from the same env file the deploy already reads
-#   ($KIND_ROBOTS_APP_DIR/.env, default /mnt/user/appdata/kind_robots/.env),
-#   because the running server authenticates it from that very file:
-#   authGuard.ts accepts BETA_ADMIN_TOKEN / ADMIN_TOKEN as an admin bearer.
-#   So on Alexandria this is just:
-#
-#       scripts/art-archive-ingest.sh
-#
-#   Precedence, first hit wins:
-#     --token <value>
-#     $KR_API_TOKEN / $BETA_ADMIN_TOKEN / $ADMIN_TOKEN already exported
-#     BETA_ADMIN_TOKEN= / ADMIN_TOKEN= in the env file
-#   The token is never printed and never placed in argv, so it stays out of
-#   shell history and out of `ps` for other users on the box.
-#
-# TARGET
-#   Defaults to the container on this host. Override for a remote target:
-#     KIND_ROBOTS_URL=https://kindrobots.org scripts/art-archive-ingest.sh
+#   --container <name>   default KindRobots, or $KIND_ROBOTS_CONTAINER
+#   --url <base>         talk HTTP to a reachable host instead of docker exec,
+#                        e.g. --url https://kindrobots.org (needs a token:
+#                        $KR_API_TOKEN / $BETA_ADMIN_TOKEN / $ADMIN_TOKEN, or
+#                        --token, or the deploy env file)
 set -Eeuo pipefail
 
 APP_DIR="${KIND_ROBOTS_APP_DIR:-/mnt/user/appdata/kind_robots}"
 ENV_FILE="${KIND_ROBOTS_ENV_FILE:-$APP_DIR/.env}"
-BASE_URL="${KIND_ROBOTS_URL:-http://127.0.0.1:3000}"
+CONTAINER="${KIND_ROBOTS_CONTAINER:-KindRobots}"
+BASE_URL="${KIND_ROBOTS_URL:-}"
 TOKEN=''
 ENDPOINT='dry-run'
 MODE='Dry run'
@@ -53,17 +52,76 @@ while [[ $# -gt 0 ]]; do
   case "$1" in
     --import) ENDPOINT='import'; MODE='Import'; shift ;;
     --dry-run) ENDPOINT='dry-run'; MODE='Dry run'; shift ;;
+    --container) CONTAINER="${2:-}"; shift 2 ;;
     --token) TOKEN="${2:-}"; shift 2 ;;
     --url) BASE_URL="${2:-}"; shift 2 ;;
     --env-file) ENV_FILE="${2:-}"; shift 2 ;;
-    -h|--help) sed -n '2,42p' "$0"; exit 0 ;;
+    -h|--help) sed -n '2,46p' "$0"; exit 0 ;;
     *) printf 'Unknown argument: %s\n' "$1" >&2; exit 2 ;;
   esac
 done
 
-# Read one KEY from an env file without sourcing it. Sourcing would execute
-# whatever else is in there -- this file holds the production DATABASE_URL, so
-# it is read, never run. Handles optional `export `, optional quotes, comments.
+# The request itself, run wherever the app is. Reads its own credential from
+# the environment it is already running in.
+REQUEST_JS=$(cat <<'NODE'
+import http from 'node:http'
+import https from 'node:https'
+
+const base = process.env.KR_INGEST_URL || 'http://127.0.0.1:3000'
+const endpoint = process.env.KR_INGEST_ENDPOINT
+const token = (
+  process.env.KR_INGEST_TOKEN ||
+  process.env.BETA_ADMIN_TOKEN ||
+  process.env.ADMIN_TOKEN ||
+  process.env.KR_API_TOKEN ||
+  ''
+).trim()
+
+if (!token) {
+  process.stderr.write('no admin token in this environment\n')
+  process.exit(3)
+}
+
+const target = new URL(`/api/admin/art-archive/${endpoint}`, base)
+const transport = target.protocol === 'https:' ? https : http
+
+// No timeout is set anywhere on purpose: the scan walks the whole archive
+// before the server sends a single header, and aborting would only restart it.
+const request = transport.request(
+  target,
+  {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+  },
+  (response) => {
+    let body = ''
+    response.setEncoding('utf8')
+    response.on('data', (chunk) => { body += chunk })
+    response.on('end', () => {
+      process.stdout.write(body)
+      process.exit(response.statusCode && response.statusCode < 400 ? 0 : 1)
+    })
+  },
+)
+
+request.on('error', (error) => {
+  process.stderr.write(`request failed: ${error.message}\n`)
+  process.exit(4)
+})
+request.end()
+NODE
+)
+
+run_in_container() {
+  command -v docker >/dev/null 2>&1 || return 10
+  docker inspect "$CONTAINER" >/dev/null 2>&1 || return 11
+  printf '%s' "$REQUEST_JS" | docker exec -i \
+    -e KR_INGEST_ENDPOINT="$ENDPOINT" \
+    "$CONTAINER" node --input-type=module -
+}
+
+# Reads one KEY from an env file without sourcing it. That file holds the
+# production DATABASE_URL; it is read, never run.
 read_env_key() {
   local key="$1" file="$2"
   [[ -r "$file" ]] || return 1
@@ -72,40 +130,48 @@ read_env_key() {
     | sed -e 's/^"\(.*\)"$/\1/' -e "s/^'\(.*\)'\$/\1/"
 }
 
-if [[ -z "$TOKEN" ]]; then
+resolve_host_token() {
+  [[ -n "$TOKEN" ]] && return 0
   TOKEN="${KR_API_TOKEN:-${BETA_ADMIN_TOKEN:-${ADMIN_TOKEN:-}}}"
-fi
-
-if [[ -z "$TOKEN" ]]; then
+  [[ -n "$TOKEN" ]] && return 0
+  local key
   for key in BETA_ADMIN_TOKEN ADMIN_TOKEN KR_API_TOKEN; do
     TOKEN="$(read_env_key "$key" "$ENV_FILE" || true)"
-    [[ -n "$TOKEN" ]] && break
+    [[ -n "$TOKEN" ]] && return 0
   done
+  return 1
+}
+
+run_over_http() {
+  if ! resolve_host_token; then
+    printf 'ERROR: --url needs an admin token.\n' >&2
+    printf '  Looked for BETA_ADMIN_TOKEN / ADMIN_TOKEN / KR_API_TOKEN in the\n' >&2
+    printf '  environment and in %s\n' "$ENV_FILE" >&2
+    printf '  Pass --env-file <path> or --token <value>.\n' >&2
+    exit 2
+  fi
+  KR_INGEST_URL="$BASE_URL" KR_INGEST_ENDPOINT="$ENDPOINT" KR_INGEST_TOKEN="$TOKEN" \
+    node --input-type=module -e "$REQUEST_JS"
+}
+
+if [[ -n "$BASE_URL" ]]; then
+  printf '%s against %s -- no client timeout; a large archive legitimately takes a while.\n' \
+    "$MODE" "$BASE_URL" >&2
+  response="$(run_over_http)"
+else
+  printf '%s inside container %s -- no client timeout; a large archive legitimately takes a while.\n' \
+    "$MODE" "$CONTAINER" >&2
+  set +e
+  response="$(run_in_container)"
+  status=$?
+  set -e
+  case "$status" in
+    0) ;;
+    10) printf 'ERROR: docker is not available here. Pass --url to reach the app over HTTP instead.\n' >&2; exit 2 ;;
+    11) printf "ERROR: container '%s' not found. Pass --container <name> or --url <base>.\n" "$CONTAINER" >&2; exit 2 ;;
+    *) printf '%s\n' "$response" >&2; exit "$status" ;;
+  esac
 fi
-
-if [[ -z "$TOKEN" ]]; then
-  printf 'ERROR: no admin token.\n' >&2
-  printf '  Looked for BETA_ADMIN_TOKEN / ADMIN_TOKEN / KR_API_TOKEN in the\n' >&2
-  printf '  environment and in %s\n' "$ENV_FILE" >&2
-  printf '  Pass --env-file <path> if the deploy env lives elsewhere, or\n' >&2
-  printf '  --token <value> to supply one directly.\n' >&2
-  exit 2
-fi
-
-printf '%s against %s -- no client timeout; a large archive legitimately takes a while.\n' \
-  "$MODE" "$BASE_URL" >&2
-
-# The token goes in via a curl config on stdin rather than -H, so it never
-# appears in this process's argv. --max-time 0 removes curl's own cap; the scan
-# is the long pole and a retry would restart it from the beginning, so this
-# never retries.
-response="$(
-  printf 'header = "Authorization: Bearer %s"\n' "$TOKEN" \
-    | curl -sS --fail-with-body --max-time 0 \
-        -X POST "$BASE_URL/api/admin/art-archive/$ENDPOINT" \
-        -H 'Content-Type: application/json' \
-        -K -
-)"
 
 # Print the whole payload for the record, then the numbers worth reading. The
 # resourceMatches array is per-file and long, so it is summarised, not dumped.

@@ -204,33 +204,62 @@ if (!fs.existsSync(runner)) {
 } else {
   const shell = fs.readFileSync(runner, 'utf8')
   const runnerChecks = [
-    ['runner drives the dry-run endpoint', /art-archive\/\$ENDPOINT/],
+    // Silas, 2026-09-22, running it for real on Alexandria: "curl: (7) Failed
+    // to connect to 127.0.0.1 port 3000". deploy-unraid.sh puts the container
+    // on the `cafepurr` docker network, so the app's port is not necessarily
+    // published to the host at all. The request has to happen INSIDE the
+    // container, where 127.0.0.1:3000 is what the image's own HEALTHCHECK
+    // already uses.
+    ['runner reaches the app through docker exec', /docker exec -i/],
+    [
+      'runner defaults to the deployed container name',
+      /KIND_ROBOTS_CONTAINER:-KindRobots/,
+    ],
+    ['runner does not default to the host loopback', /KIND_ROBOTS_URL:-\}/],
+    ['runner drives the chosen endpoint', /art-archive\/\$\{endpoint\}/],
     ['runner defaults to the read-only dry run', /ENDPOINT='dry-run'/],
     [
       'runner requires an explicit --import to write',
       /--import\) ENDPOINT='import'/,
     ],
-    ["runner removes curl's own timeout", /--max-time 0/],
-    ['runner refuses to run without an admin token', /ERROR: no admin token/],
-    // Silas, 2026-09-22: "Isn't there a way to do this so I don't need to type
-    // the api token into the console? Usually we've been able to grab it from
-    // env." The running server already authenticates BETA_ADMIN_TOKEN /
-    // ADMIN_TOKEN out of its own env file (authGuard.ts), so the runner reads
-    // the same file the deploy does instead of asking for the value.
+    // undici caps headersTimeout at 5 minutes and a whole-archive scan can
+    // exceed that before the server sends a single header, so the request uses
+    // node:http with no timeout rather than fetch.
     [
-      'runner defaults to the deploy env file',
-      /KIND_ROBOTS_ENV_FILE:-\$APP_DIR\/\.env/,
+      'runner requests over node:http, not fetch',
+      /import http from 'node:http'/,
+    ],
+    [
+      'runner sets no timeout on the request',
+      /No timeout is set anywhere on purpose/,
+    ],
+    [
+      'runner names both docker failure modes',
+      /docker is not available here[\s\S]*not found\. Pass --container/,
+    ],
+    // In the docker path the credential never moves: it is read from the
+    // container's own env, which docker loaded from the deploy env file.
+    [
+      'request reads its credential from its own environment',
+      /process\.env\.BETA_ADMIN_TOKEN \|\|\n\s*process\.env\.ADMIN_TOKEN/,
+    ],
+    [
+      'runner still supports a remote --url with a host token',
+      /ERROR: --url needs an admin token/,
+    ],
+    ['runner reads the env file without sourcing it', /it is read, never run/],
+    [
+      'runner honours an already-exported token',
+      /KR_API_TOKEN:-\$\{BETA_ADMIN_TOKEN:-\$\{ADMIN_TOKEN:-\}\}\}/,
     ],
     [
       'runner reads the tokens authGuard accepts',
       /for key in BETA_ADMIN_TOKEN ADMIN_TOKEN KR_API_TOKEN/,
     ],
     [
-      'runner honours an already-exported token',
-      /KR_API_TOKEN:-\$\{BETA_ADMIN_TOKEN:-\$\{ADMIN_TOKEN:-\}\}\}/,
+      'runner defaults to the deploy env file',
+      /KIND_ROBOTS_ENV_FILE:-\$APP_DIR\/\.env/,
     ],
-    ['runner reads the env file without sourcing it', /it is read, never run/],
-    ['runner keeps the token out of argv', /-K -/],
   ]
   for (const [name, pattern] of runnerChecks) {
     if (!pattern.test(shell)) {

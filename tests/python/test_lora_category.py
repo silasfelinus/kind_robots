@@ -60,6 +60,62 @@ def test_underscores_read_as_word_separators():
     assert scan_loras.classify_category(row)[0] == "STYLE"
 
 
+NOISY_DESCRIPTION = (
+    "she wears a long dress, sitting by the window | "
+    "painted in a loose style with exquisite detail | "
+    "base: Flux.1 D | module: networks.lora | detected via civitai"
+)
+
+
+def test_the_description_is_not_evidence():
+    """Real rows from the 2026-09-22 backfill that this classifier got wrong.
+
+    It read the description alongside the title, and a description is prose --
+    so a `dress` in a blurb filed "Elvira - Mistress of the Dark" under
+    CLOTHING. These titles say nothing about what the LoRA is for, and that is
+    the answer.
+    """
+    for title in (
+        "Elvira - Mistress of the Dark (Flux)",
+        "Daphne Blake - Scooby-Doo franchise - Flux1.D - SDXL Realistic / Anime",
+        "POV Blowjob - FLUX - [Non-Face Altering]",
+        "Poison Ivy XL + SD1.5 + F1D",
+        "Rogue - Flux1.D & SDXL",
+        "Alice In Wonderland! Disney - FLUX | SD 1.5 | XL PONY",
+        "Yor Briar: Thorn Princess (Spy x Family)",
+        "Tinker bell (Peter Pan) Disney",
+    ):
+        row = entry(customLabel=title, description=NOISY_DESCRIPTION)
+        assert scan_loras.classify_category(row) == ("", ""), title
+
+
+def test_a_civitai_tag_still_classifies_what_the_title_cannot():
+    row = entry(
+        customLabel="Elvira - Mistress of the Dark (Flux)",
+        description=NOISY_DESCRIPTION,
+        civitai_tags=["character"],
+    )
+    assert scan_loras.classify_category(row) == ("CHARACTER", "CIVITAI")
+
+
+def test_a_publisher_is_not_a_drawing_style():
+    assert scan_loras.classify_category(
+        entry(customLabel="Death of the Endless - DC Comics,Sandman")
+    ) == ("", "")
+    assert scan_loras.classify_category(
+        entry(customLabel="Wizard's Vintage Comic Book Cover")
+    ) == ("STYLE", "HEURISTIC")
+
+
+def test_detailed_is_an_adjective_but_details_is_an_enhancer():
+    assert scan_loras.classify_category(
+        entry(customLabel="Perfect naked nipples, detailed erect nipples")
+    ) == ("", "")
+    assert scan_loras.classify_category(
+        entry(customLabel="FLUX FaeTastic Details")
+    ) == ("DETAIL", "HEURISTIC")
+
+
 def test_nothing_to_go_on_stays_unclassified():
     assert scan_loras.classify_category(entry()) == ("", "")
     assert scan_loras.classify_category(entry(name="xyzzy_v4.safetensors")) == ("", "")
@@ -89,6 +145,14 @@ def _typescript_table(name):
 
     while index < len(source):
         char = source[index]
+
+        # Skip // comments before anything else. These tables carry explanatory
+        # comments, and an apostrophe in one ("a character's name") reads as a
+        # string opener to the scan below -- which then runs off the end of the
+        # file looking for a closing quote that is really a possessive.
+        if char == "/" and source[index + 1 : index + 2] == "/":
+            index = source.index("\n", index)
+            continue
 
         if char == "'":
             literal = ""

@@ -18,8 +18,18 @@
 //   DATABASE_URL=... tsx utils/scripts/backfillLoraCategories.ts --apply
 //   DATABASE_URL=... CIVITAI_TOKEN=... tsx utils/scripts/backfillLoraCategories.ts --fetch-tags --apply
 //   DATABASE_URL=... tsx utils/scripts/backfillLoraCategories.ts --recheck --apply
+//   DATABASE_URL=... tsx utils/scripts/backfillLoraCategories.ts --reset-heuristic --apply
+//
+// --reset-heuristic clears every CIVITAI/HEURISTIC classification back to NULL,
+// leaving HUMAN decisions alone. It exists because a classifier change can
+// invalidate a whole prior run -- the 2026-09-22 pass wrote 1,004 rows off the
+// description field and got character LoRAs filed as CLOTHING -- and "start
+// from unclassified" is a cleaner recovery than re-deciding row by row.
 import 'dotenv/config'
-import { PrismaClient } from './../../prisma/generated/prisma/client'
+import {
+  PrismaClient,
+  type Prisma,
+} from './../../prisma/generated/prisma/client'
 import { createDatabaseAdapter } from './../../server/utils/databaseAdapterConfig'
 import {
   LORA_CATEGORIES,
@@ -36,6 +46,7 @@ const prisma = new PrismaClient({ adapter: createDatabaseAdapter(databaseUrl) })
 const args = process.argv.slice(2)
 const apply = args.includes('--apply')
 const recheck = args.includes('--recheck')
+const resetHeuristic = args.includes('--reset-heuristic')
 const fetchTags = args.includes('--fetch-tags')
 const civitaiToken = process.env.CIVITAI_TOKEN ?? ''
 
@@ -65,7 +76,64 @@ async function civitaiTags(modelId: number): Promise<string[] | null> {
   }
 }
 
+async function resetHeuristicClassifications(): Promise<void> {
+  const where: Prisma.ResourceWhereInput = {
+    resourceType: { in: ['LORA', 'LYCORIS'] },
+    loraCategory: { not: null },
+    OR: [
+      { loraCategorySource: { not: 'HUMAN' } },
+      { loraCategorySource: null },
+    ],
+  }
+
+  const doomed = await prisma.resource.findMany({
+    where,
+    select: {
+      id: true,
+      name: true,
+      customLabel: true,
+      loraCategory: true,
+      loraCategorySource: true,
+    },
+    orderBy: { id: 'asc' },
+  })
+
+  console.log(
+    `${doomed.length} non-human classification(s) would be cleared back to unclassified.`,
+  )
+  for (const row of doomed.slice(0, 15)) {
+    console.log(
+      `  #${row.id} ${row.customLabel || row.name} — ${row.loraCategory} (${row.loraCategorySource ?? 'no source'})`,
+    )
+  }
+  if (doomed.length > 15) console.log(`  ... and ${doomed.length - 15} more.`)
+
+  const kept = await prisma.resource.count({
+    where: {
+      resourceType: { in: ['LORA', 'LYCORIS'] },
+      loraCategorySource: 'HUMAN',
+    },
+  })
+  console.log(`${kept} human-classified row(s) will be left alone.`)
+
+  if (!apply) {
+    console.log('\nDry run. Re-run with --apply to clear.')
+    return
+  }
+
+  const result = await prisma.resource.updateMany({
+    where,
+    data: { loraCategory: null, loraCategorySource: null },
+  })
+  console.log(`\nCleared ${result.count} classification(s).`)
+}
+
 async function main(): Promise<void> {
+  if (resetHeuristic) {
+    await resetHeuristicClassifications()
+    return
+  }
+
   const rows = await prisma.resource.findMany({
     where: {
       resourceType: { in: ['LORA', 'LYCORIS'] },
@@ -152,7 +220,7 @@ async function main(): Promise<void> {
   console.log(`\n${changes.length} row(s) would change.`)
   for (const change of changes.slice(0, 25)) {
     console.log(
-      `  #${change.id} ${change.label} — ${change.from} -> ${change.to} (${change.source}${change.signal ? `: ${change.signal}` : ''})`,
+      `  #${change.id} ${change.label}\n      ${change.from} -> ${change.to}  [${change.source}${change.signal ? ` ${change.signal}` : ''}]`,
     )
   }
   if (changes.length > 25) console.log(`  ... and ${changes.length - 25} more.`)

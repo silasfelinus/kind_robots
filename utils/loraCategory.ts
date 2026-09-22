@@ -273,9 +273,35 @@ const CIVITAI_TAG_CATEGORIES: Array<[LoraCategory, string[]]> = [
   ],
 ]
 
-// Filename/label/description fallbacks, reported as HEURISTIC. Word-boundary
-// matched: a substring test makes "portrait" match "trait" and "style" match
-// "freestyle", and a miscategorised LoRA is worse than an unclassified one.
+// TITLE-ONLY fallbacks, reported as HEURISTIC.
+//
+// WHAT WENT WRONG THE FIRST TIME. These patterns were run against the title
+// AND the description, and a Resource description is prose -- a Civitai blurb,
+// or this repo's own `base: ... | module: ... | detected via ...` string. Prose
+// contains category words incidentally, so the first live run (2026-09-22,
+// 1,004 rows) produced things like:
+//
+//   "Elvira - Mistress of the Dark"      -> CLOTHING  (a `dress` in the blurb)
+//   "Daphne Blake - Scooby-Doo franchise" -> CLOTHING  (likewise)
+//   "POV Blowjob - FLUX"                  -> ACTION    (a `sitting` in the blurb)
+//   "Cute Animals"                        -> STYLE     (a `style` in the blurb)
+//   "Poison Ivy XL + SD1.5 + F1D"         -> STYLE     (likewise)
+//
+// Every one of those is a CHARACTER LoRA, and not one of them has a category
+// word in its own title. The design was supposed to be conservative and then
+// got fed the noisiest field on the row, which turned "say nothing unless
+// sure" into "say something about everything".
+//
+// So: the title only (customLabel, then name). A LoRA's title is chosen to say
+// what it is; its description is chosen to sell it.
+//
+// AND NOTHING GUESSES CHARACTER HERE. A character LoRA is named after the
+// character, which is exactly the case no keyword table can see -- "Rogue",
+// "Yor Briar", "Tinker bell" carry no signal a regex can reach. Leaving those
+// NULL is the correct answer: an unclassified row is visible in the editor's
+// Unclassified count and rolls for nothing, while a row confidently filed under
+// CLOTHING is invisible and poisons the {clothing} pool. Civitai's own
+// `character` tag (--fetch-tags) and the editor are what fill this in.
 const HEURISTIC_CATEGORIES: Array<[LoraCategory, string[]]> = [
   [
     'STYLE',
@@ -295,8 +321,9 @@ const HEURISTIC_CATEGORIES: Array<[LoraCategory, string[]]> = [
       'bauhaus',
       'cel ?shad\\w*',
       'pixel ?art',
-      'comic',
-      'manga',
+      // Not a bare `comic`: "DC Comics" and "Marvel Comics" are publishers
+      // attached to a character's name, not a drawing style.
+      'comic (?:book|art|style)',
       'cartoon',
       'render style',
     ],
@@ -311,8 +338,6 @@ const HEURISTIC_CATEGORIES: Array<[LoraCategory, string[]]> = [
       'uniform',
       'armou?r',
       'kimono',
-      'suit',
-      'jacket',
       'hoodie',
       'lingerie',
       'swimsuit',
@@ -328,72 +353,34 @@ const HEURISTIC_CATEGORIES: Array<[LoraCategory, string[]]> = [
       'environment',
       'interior',
       'cityscape',
-      'forest',
-      'dungeon',
-      'castle',
-      'tavern',
       'skyline',
       'architecture',
     ],
   ],
-  [
-    'ACTION',
-    [
-      'pose',
-      'poses',
-      'posing',
-      'running',
-      'jumping',
-      'dancing',
-      'fighting',
-      'sitting',
-      'flying',
-      'motion',
-    ],
-  ],
+  ['ACTION', ['pose', 'poses', 'posing']],
   [
     'CREATURE',
-    [
-      'creature',
-      'monster',
-      'dragon',
-      'beast',
-      'animal',
-      'wolf',
-      'octopus',
-      'kaiju',
-      'griffin',
-    ],
+    ['creature', 'monster', 'dragon', 'beast', 'animal', 'animals', 'kaiju'],
   ],
   [
     'OBJECT',
-    [
-      'vehicle',
-      'mecha',
-      'spaceship',
-      'weapon',
-      'sword',
-      'firearm',
-      'furniture',
-      'jewel\\w*',
-      'food',
-    ],
+    ['vehicle', 'mecha', 'spaceship', 'weapon', 'firearm', 'furniture'],
   ],
   [
     'DETAIL',
     [
-      'detail\\w*',
-      'enhancer',
-      'sharpen\\w*',
-      'skin texture',
+      // Not a bare `detail\\w*`: "detailed erect nipples" is an adjective on a
+      // subject, not an enhancer. These are the noun forms an enhancer uses.
+      'detail',
+      'details',
+      'detailer',
       'add[_ -]?detail',
-      'upscal\\w*',
+      'skin texture',
       'hand fix',
       'eye fix',
     ],
   ],
-  ['CHARACTER', ['character', 'oc\\b', 'persona', 'portrait of']],
-  ['CONCEPT', ['concept', 'abstract', 'effect', 'glow', 'lighting']],
+  ['CONCEPT', ['concept']],
 ]
 
 export type LoraCategoryInference = {
@@ -418,18 +405,42 @@ export type LoraCategoryInferenceInput = {
   civitaiTags?: string[] | null
 }
 
-function matchesWord(haystack: string, pattern: string): boolean {
-  return new RegExp(`(^|[^a-z0-9])${pattern}($|[^a-z0-9])`, 'i').test(haystack)
+/** The text the pattern actually matched in `haystack`, or null. */
+function matchedWord(haystack: string, pattern: string): string | null {
+  const match = new RegExp(
+    `(?:^|[^a-z0-9])(${pattern})(?:$|[^a-z0-9])`,
+    'i',
+  ).exec(haystack)
+  return match ? match[1]! : null
+}
+
+/**
+ * The text a heuristic may read: the LoRA's own title, and nothing else.
+ *
+ * Deliberately excludes `description` (prose, see the table above) and
+ * `triggerWords` (often a bare invocation token, sometimes a whole sentence
+ * lifted from the model page -- same noise problem, smaller sample).
+ */
+function heuristicTitle(input: LoraCategoryInferenceInput): string {
+  return [input.customLabel, input.name]
+    .map((value) => String(value ?? '').replace(/[_]+/g, ' '))
+    .filter(Boolean)
+    .join(' ')
+    .toLowerCase()
 }
 
 /**
  * Best-effort category for a LoRA, or nothing.
  *
- * Civitai tags win over filename heuristics, and the first matching category
- * in each table wins over later ones -- STYLE is checked before CHARACTER in
- * the heuristics because "kim jung gi style" is a style LoRA that also names a
- * person, and reading it the other way around is the mistake that would put an
- * artist in the character pool.
+ * Civitai tags are read first and reported as CIVITAI: they are the only
+ * signal here that came from someone describing the model rather than from a
+ * regex reading its filename, and they are the only way a character LoRA gets
+ * classified without a human. `--fetch-tags` on the backfill exists for this
+ * reason and is worth its runtime.
+ *
+ * The heuristics below are a weak fallback over the TITLE only, and are
+ * expected to return null often. That is the intended outcome, not a gap to
+ * close by loosening them -- see the table's note.
  */
 export function inferLoraCategory(
   input: LoraCategoryInferenceInput,
@@ -444,43 +455,25 @@ export function inferLoraCategory(
 
   for (const [category, tagValues] of CIVITAI_TAG_CATEGORIES) {
     const hit = tagValues.find((tag) => tags.includes(tag))
-    if (hit) return { category, source: 'CIVITAI', signal: hit }
+    if (hit) return { category, source: 'CIVITAI', signal: `tag: ${hit}` }
   }
 
-  const haystack = [
-    input.customLabel,
-    input.name,
-    input.triggerWords,
-    input.description,
-  ]
-    .map((value) => String(value ?? '').replace(/[_]+/g, ' '))
-    .filter(Boolean)
-    .join(' ')
-    .toLowerCase()
-
-  if (!haystack.trim()) return UNRESOLVED
+  const title = heuristicTitle(input)
+  if (!title.trim()) return UNRESOLVED
 
   for (const [category, patterns] of HEURISTIC_CATEGORIES) {
-    const hit = patterns.find((pattern) => matchesWord(haystack, pattern))
-    if (hit) {
-      return {
-        category,
-        source: 'HEURISTIC',
-        signal: hit.replace(/\\w\*|\\b|\?/g, ''),
-      }
+    for (const pattern of patterns) {
+      // The matched TEXT, not the pattern. A reviewer scanning a dry run needs
+      // to see the word that decided it -- `comic book` -- not the regex that
+      // found it, `comic (?:book|art|style)`.
+      const hit = matchedWord(title, pattern)
+      if (hit) return { category, source: 'HEURISTIC', signal: `title: ${hit}` }
     }
   }
 
   return UNRESOLVED
 }
 
-/**
- * Whether a stored classification may be replaced by a fresh inference.
- *
- * A HUMAN decision is permanent: the whole point of the source column is that
- * re-running the classifier over the catalog is a safe, repeatable operation
- * rather than something that silently undoes Silas's corrections.
- */
 export function canReclassify(storedSource: unknown): boolean {
   return normalizeLoraCategorySource(storedSource) !== 'HUMAN'
 }

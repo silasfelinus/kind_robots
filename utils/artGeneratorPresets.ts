@@ -164,23 +164,6 @@ export const ART_GENERATOR_PRESETS: ArtGeneratorPreset[] = [
     families: [],
   },
   {
-    id: 'krea2-detailed',
-    label: 'Krea 2 · Detailed',
-    blurb: 'Same lane, 16 steps. Slower, cleaner edges.',
-    engine: 'krea2',
-    steps: 16,
-    cfg: 1,
-    sampler: 'euler',
-    scheduler: 'simple',
-    width: 1024,
-    height: 1024,
-    guidance: null,
-    denoise: null,
-    variant: null,
-    runtimeClass: 'standard',
-    families: [],
-  },
-  {
     id: 'flux2-klein',
     label: 'FLUX.2 Klein · Fastest',
     blurb: '4 steps. Good for iterating on a prompt before committing.',
@@ -391,6 +374,28 @@ export type PresetSettings = {
   guidance: number | null
   denoise: number | null
   variant: FluxVariant | null
+}
+
+const SD15_DIMENSIONS = [512, 576, 640, 704, 768] as const
+const XL_DIMENSIONS = [768, 832, 896, 1024, 1152, 1216, 1344] as const
+
+/**
+ * Dimensions the primary generator can offer without turning two numeric boxes
+ * into an invitation to invent arbitrary, model-hostile sizes.
+ *
+ * SD 1.5 stays in its smaller training neighborhood. Krea 2, FLUX and the
+ * XL/Pony families use the common XL-side dimensions; callers may preserve an
+ * existing odd value separately so editing a legacy job does not erase it.
+ */
+export function artDimensionOptions(
+  engine: ArtGeneratorEngine,
+  checkpointFamily: CheckpointFamily = 'unknown',
+): number[] {
+  if (!ART_ENGINE_PROFILES[engine].supports.size) return []
+  if (engine === 'comfy' && checkpointFamily === 'sd15') {
+    return [...SD15_DIMENSIONS]
+  }
+  return [...XL_DIMENSIONS]
 }
 
 export function presetSettings(preset: ArtGeneratorPreset): PresetSettings {

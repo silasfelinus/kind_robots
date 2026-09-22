@@ -872,7 +872,7 @@ export const CURATED_FACET_ART_PROMPTS: Record<string, string> = {
     'A tired detective in a wet fedora stands beside a black sedan under a flickering streetlamp at midnight, cigarette smoke curling past his face, rain streaming down a brick alley toward an open cellar door.',
   // Cyberpunk Fiction
   'cyberpunk-fiction':
-    'Pink and cyan light spills over a packed rainy street market beneath towering skyscrapers, where a teenage hacker with a chrome cybernetic arm crouches under a noodle stall soldering wires into a stolen drone.',
+    'A teenage hacker with a chrome cybernetic arm crouches on a rain-soaked rooftop at night, soldering wires into a stolen drone, pink and cyan light from the towers below glowing through the drizzle and steam vents.',
   // Dark Academia
   'dark-academia':
     'Two students in tweed coats bend over a brass orrery, closed leather volumes and a human skull on the long oak table of a Gothic library at two in the morning, snow tapping against tall arched windows.',
@@ -1368,7 +1368,7 @@ export const CURATED_FACET_ART_PROMPTS: Record<string, string> = {
     'White fungal threads branch between tree roots in a forest floor cross-section, glowing pale gold networks of fine filaments, mushroom caps above the soil, dark loamy browns and small bioluminescent nodes at every junction.',
   // Neon Noir
   'neon-noir':
-    'A detective in a dripping fedora waits beneath an elevated train at midnight, hard black shadows, magenta and electric cyan neon light reflecting in rain puddles, heavy contrast, smoky haze and wet asphalt shine.',
+    'A detective in a dripping fedora waits beneath an elevated train at midnight, hard black shadows, magenta and electric cyan lamplight reflecting in rain puddles, heavy contrast, smoky haze and wet asphalt shine.',
   // Noise-Driven Rendering
   'noise-driven-rendering':
     'Rolling desert dunes generated from layered procedural noise, soft organic ridges in smooth gradients of copper and dusty rose, fine grain textures, subtle turbulence swirls in the sand and a pale sky fading into mist.',
@@ -1912,7 +1912,7 @@ export const CURATED_FACET_ART_PROMPTS: Record<string, string> = {
   //    picture made this way ...", which Krea paints as a framed picture. ──
   // Cyberpunk
   'cyberpunk':
-    'Rain sheeting down a narrow night street of stacked chrome towers, pink and cyan neon reflected in every puddle, a courier in a mirrored visor weaving a battered motorbike between food carts.',
+    'Rain sheeting down between stacked chrome towers at night, pink and cyan light pooling in every puddle, a courier in a mirrored visor leaning a battered motorbike through a narrow gap between steel pylons and cable bundles.',
   // Person
   'art-art-subject-person':
     'Standing alone on a windy hillside in late afternoon light, a woman in a long green coat turns to look over her shoulder, her whole body visible from head to boots, hair lifted by the wind.',

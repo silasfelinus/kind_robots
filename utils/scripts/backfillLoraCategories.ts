@@ -13,11 +13,17 @@
 // earlier CIVITAI/HEURISTIC pass; without it, only unclassified rows are
 // touched.
 //
-// DATABASE_URL and CIVITAI_TOKEN are read from the repo's own .env (this
-// script imports dotenv before anything else), so neither needs exporting into
-// a shell. That matters for the token specifically: a secret that has to be
-// pasted into a terminal to run a routine sweep is a secret in three shell
-// histories by the end of the week. Put it in .env once -- see .env.example.
+// Nothing here needs a secret pasted into a shell. dotenv loads the repo's own
+// .env before anything else, and process.env covers a persistent Windows
+// variable set with setx -- so whichever way the token is already stored, this
+// finds it. A secret that has to be re-typed to run a routine sweep is a secret
+// in three shell histories by the end of the week.
+//
+// The token is looked for under BOTH names this project uses, because it has
+// two: ops/home-server/README.md tells you to `setx KR_CIVITAI_TOKEN` for the
+// relay's gated downloads, while scan_loras.py and scan_models.py read
+// CIVITAI_TOKEN. Reading only one of them means telling someone who already
+// has the secret to go copy it again under a different name.
 //
 // Usage, from the repo root:
 //   npm run backfill:lora-categories                            # dry run
@@ -56,7 +62,19 @@ const apply = args.includes('--apply')
 const recheck = args.includes('--recheck')
 const resetHeuristic = args.includes('--reset-heuristic')
 const fetchTags = args.includes('--fetch-tags')
-const civitaiToken = process.env.CIVITAI_TOKEN ?? ''
+/*
+ * Priority order, not preference: the first one actually set wins. The run
+ * reports WHICH NAME answered -- never the value -- so "do I have a token, and
+ * where is it coming from" is answerable without echoing a secret anywhere.
+ */
+const CIVITAI_TOKEN_VARS = ['CIVITAI_TOKEN', 'KR_CIVITAI_TOKEN'] as const
+
+const civitaiTokenVar = CIVITAI_TOKEN_VARS.find((name) =>
+  (process.env[name] ?? '').trim(),
+)
+const civitaiToken = civitaiTokenVar
+  ? (process.env[civitaiTokenVar] ?? '').trim()
+  : ''
 
 const CIVITAI_MODEL = 'https://civitai.com/api/v1/models/'
 // Civitai rate-limits, and a catalog sweep is not urgent. One request every
@@ -251,9 +269,9 @@ async function main(): Promise<void> {
      * silent-nothing shape as the id lookup this run already fixed.
      */
     console.log(
-      civitaiToken
-        ? 'Civitai auth: token found in the environment (.env or shell).'
-        : 'Civitai auth: NONE. Public models still answer, but rate limits are much tighter -- set CIVITAI_TOKEN in .env for a sweep this size.',
+      civitaiTokenVar
+        ? `Civitai auth: token found in ${civitaiTokenVar}.`
+        : `Civitai auth: NONE. Looked for ${CIVITAI_TOKEN_VARS.join(' and ')} in the environment and in .env. Public models still answer, but rate limits are much tighter on a sweep this size.`,
     )
     console.log(`Fetched Civitai tags for ${fetched} row(s).`)
   } else if (reachableByColumn + reachableByUrl > 0) {

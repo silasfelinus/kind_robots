@@ -927,8 +927,14 @@ def main() -> int:
                     help="Output directory for catalog files (default: current dir)")
     ap.add_argument("--no-civitai", action="store_true", help="Skip Civitai lookups")
     ap.add_argument("--no-archive", action="store_true", help="Skip CivArchive fallback")
-    ap.add_argument("--civitai-token", default=os.environ.get("CIVITAI_TOKEN", ""),
-                    help="Civitai API token (or set CIVITAI_TOKEN)")
+    # Both names, because this project has two: the relay's gated downloads use
+    # KR_CIVITAI_TOKEN (see conductor ops/home-server/README.md's setx line),
+    # these catalog scripts have always used CIVITAI_TOKEN. Reading one means
+    # telling someone who already has the secret to copy it again.
+    ap.add_argument("--civitai-token",
+                    default=os.environ.get("CIVITAI_TOKEN")
+                    or os.environ.get("KR_CIVITAI_TOKEN", ""),
+                    help="Civitai API token (or set CIVITAI_TOKEN / KR_CIVITAI_TOKEN)")
     ap.add_argument("--workers", type=int, default=6, help="Concurrent lookups (default: 6)")
     ap.add_argument("--hash-workers", type=int, default=8,
                     help="Concurrent file hashers (default: 8). Raise for network "

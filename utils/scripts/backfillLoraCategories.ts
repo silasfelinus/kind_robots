@@ -31,6 +31,7 @@ import {
   type Prisma,
 } from './../../prisma/generated/prisma/client'
 import { createDatabaseAdapter } from './../../server/utils/databaseAdapterConfig'
+import { civitaiTagNames, resolveCivitaiIds } from './../civitaiIds'
 import {
   LORA_CATEGORIES,
   canReclassify,
@@ -68,9 +69,7 @@ async function civitaiTags(modelId: number): Promise<string[] | null> {
     })
     if (!response.ok) return null
     const payload = (await response.json()) as { tags?: unknown }
-    return Array.isArray(payload.tags)
-      ? payload.tags.map((tag) => String(tag))
-      : null
+    return civitaiTagNames(payload.tags)
   } catch {
     return null
   }
@@ -148,6 +147,9 @@ async function main(): Promise<void> {
       loraCategory: true,
       loraCategorySource: true,
       civitaiModelId: true,
+      civitaiModelVersionId: true,
+      civitaiUrl: true,
+      customUrl: true,
     },
     orderBy: { id: 'asc' },
   })
@@ -164,6 +166,14 @@ async function main(): Promise<void> {
   }> = []
 
   let fetched = 0
+  let reachableByColumn = 0
+  let reachableByUrl = 0
+  let unreachable = 0
+  const recoveredIds: Array<{
+    id: number
+    modelId: number
+    versionId: number | null
+  }> = []
 
   for (const row of rows) {
     if (!canReclassify(row.loraCategorySource)) {
@@ -171,9 +181,28 @@ async function main(): Promise<void> {
       continue
     }
 
+    /*
+     * The ids mostly are NOT in the columns -- rows imported before those
+     * existed carry them only inside civitaiUrl. Keying the lookup on the
+     * column alone is what made --fetch-tags reach 2 rows out of 1,221 on
+     * 2026-09-22: not a network problem, a "we never asked" problem.
+     */
+    const ids = resolveCivitaiIds(row)
+    if (ids.modelIdSource === 'column') reachableByColumn += 1
+    else if (ids.modelIdSource === 'url') reachableByUrl += 1
+    else unreachable += 1
+
+    if (ids.modelIdSource === 'url' && ids.modelId) {
+      recoveredIds.push({
+        id: row.id,
+        modelId: ids.modelId,
+        versionId: ids.versionId,
+      })
+    }
+
     let tags: string[] | null = null
-    if (fetchTags && row.civitaiModelId) {
-      tags = await civitaiTags(row.civitaiModelId)
+    if (fetchTags && ids.modelId) {
+      tags = await civitaiTags(ids.modelId)
       fetched += 1
       await sleep(FETCH_DELAY_MS)
     }
@@ -204,7 +233,16 @@ async function main(): Promise<void> {
   console.log(
     `Examined ${rows.length} LoRA row(s)${recheck ? ' (recheck mode)' : ' with no category'}.`,
   )
-  if (fetchTags) console.log(`Fetched Civitai tags for ${fetched} row(s).`)
+  console.log(
+    `Civitai reach: ${reachableByColumn} by column, ${reachableByUrl} recovered from a url, ${unreachable} with no id anywhere.`,
+  )
+  if (fetchTags) {
+    console.log(`Fetched Civitai tags for ${fetched} row(s).`)
+  } else if (reachableByColumn + reachableByUrl > 0) {
+    console.log(
+      `Re-run with --fetch-tags to ask Civitai about those ${reachableByColumn + reachableByUrl} row(s); it is the only signal that classifies a character LoRA.`,
+    )
+  }
   if (protectedRows.length) {
     console.log(
       `Left ${protectedRows.length} human-classified row(s) alone: ${protectedRows.slice(0, 5).join(', ')}${protectedRows.length > 5 ? ', ...' : ''}`,
@@ -241,6 +279,29 @@ async function main(): Promise<void> {
   }
 
   console.log(`\nWrote ${changes.length} classification(s).`)
+
+  /*
+   * Write the url-recovered ids into the columns they belong in. The next run
+   * then reaches those rows without re-parsing, and so do the Discover browse
+   * and download lanes, which key off civitaiModelVersionId and are blind to a
+   * row that knows its own id only inside a url string.
+   */
+  if (recoveredIds.length) {
+    for (const recovered of recoveredIds) {
+      await prisma.resource.update({
+        where: { id: recovered.id },
+        data: {
+          civitaiModelId: recovered.modelId,
+          ...(recovered.versionId
+            ? { civitaiModelVersionId: recovered.versionId }
+            : {}),
+        },
+      })
+    }
+    console.log(
+      `Recovered ${recoveredIds.length} Civitai id(s) from urls into their columns.`,
+    )
+  }
 }
 
 main()

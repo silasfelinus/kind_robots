@@ -245,6 +245,8 @@ class ModelEntry:
     civitaiUrl: str = ""
     customUrl: str = ""
     previewImageUrl: str = ""
+    civitaiModelId: int = 0
+    civitaiModelVersionId: int = 0
     triggerWords: str = ""
     defaultTrigger: str = ""
     description: str = ""
@@ -337,7 +339,10 @@ def enrich_civitai(e: ModelEntry, data) -> bool:
     e.civitai_matched = True
     mid, vid = data.get("modelId"), data.get("id")
     if mid:
+        e.civitaiModelId = int(mid)
         e.civitaiUrl = f"https://civitai.com/models/{mid}" + (f"?modelVersionId={vid}" if vid else "")
+    if vid:
+        e.civitaiModelVersionId = int(vid)
     if model.get("name"):
         e.customLabel = model["name"]
     ck = civitai_type_to_kind(model.get("type", ""))
@@ -371,7 +376,11 @@ def enrich_archive(e: ModelEntry, data) -> bool:
     version = model.get("version") or {}
     mid, vid = model.get("id"), version.get("id")
     if mid:
+        if not e.civitaiModelId:
+            e.civitaiModelId = int(mid)
         e.customUrl = f"https://civitaiarchive.com/models/{mid}" + (f"?modelVersionId={vid}" if vid else "")
+    if vid and not e.civitaiModelVersionId:
+        e.civitaiModelVersionId = int(vid)
         e.civitaiUrl = e.civitaiUrl or (f"https://civitai.com/models/{mid}" + (f"?modelVersionId={vid}" if vid else ""))
     if model.get("name") and not e.customLabel:
         e.customLabel = model["name"]
@@ -467,6 +476,8 @@ def to_resource(e: ModelEntry) -> Optional[dict]:
         "civitaiUrl": e.civitaiUrl or None,
         "customUrl": e.customUrl or None,
         "previewImageUrl": e.previewImageUrl or None,
+        "civitaiModelId": e.civitaiModelId or None,
+        "civitaiModelVersionId": e.civitaiModelVersionId or None,
         "localPath": e.target_rel,
         "hash": e.sha256 or None,
         "triggerWords": e.triggerWords or None,

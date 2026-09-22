@@ -211,6 +211,23 @@ const SLUG_PATTERN = /^[a-z0-9][a-z0-9_-]*$/
 const DEFAULT_ENQUEUE_PRIORITY = 100
 const DEFAULT_ENQUEUE_ENGINE: EnqueueEngine = 'krea2'
 
+function resourcePreviewAttemptFingerprint(metadata: {
+  entityType: string
+  entityId: number
+  field: string
+  mode: string
+} | null): string | null {
+  if (
+    metadata?.entityType !== 'resource' ||
+    metadata.mode !== 'recreate' ||
+    !Number.isInteger(metadata.entityId) ||
+    metadata.entityId <= 0
+  ) {
+    return null
+  }
+  return `resource-preview:${metadata.entityId}:${metadata.field}`
+}
+
 function asRecord(value: unknown): JsonRecord {
   return value && typeof value === 'object' && !Array.isArray(value)
     ? (value as JsonRecord)
@@ -407,6 +424,34 @@ export default defineEventHandler(async (event) => {
       })
     }
 
+    const resourcePreviewFingerprint = resourcePreviewAttemptFingerprint(
+      entityArt?.metadata ?? null,
+    )
+    if (resourcePreviewFingerprint) {
+      const existingPreviewJob = await prisma.artJob.findFirst({
+        where: {
+          userId: gate.user.id,
+          attemptFingerprint: resourcePreviewFingerprint,
+          status: { in: ['PENDING', 'RUNNING'] },
+        },
+        orderBy: { createdAt: 'desc' },
+      })
+      if (existingPreviewJob) {
+        event.node.res.statusCode = 200
+        return {
+          success: true,
+          message: 'Existing Resource preview art job reused.',
+          statusCode: 200,
+          data: {
+            jobId: existingPreviewJob.id,
+            status: existingPreviewJob.status,
+            deduplicated: true,
+            mana: { charged: 0 },
+          },
+        }
+      }
+    }
+
     const bodyWithEntityArt: ArtEnqueueRequest | null =
       entityArt?.sourceImageBase64
         ? { ...(body ?? {}), sourceImageBase64: entityArt.sourceImageBase64 }
@@ -517,6 +562,8 @@ export default defineEventHandler(async (event) => {
     if (narrativeContext) payload.narrativeContext = narrativeContext
     if (brainstormContext) payload.brainstormContext = brainstormContext
     if (entityArt) payload.entityArt = entityArt.metadata
+    if (resourcePreviewFingerprint)
+      payload.attemptFingerprint = resourcePreviewFingerprint
 
     /*
      * And check the string the renderer actually receives, not the caller's
@@ -617,6 +664,7 @@ export default defineEventHandler(async (event) => {
       data: {
         engine: jobEngine,
         payload: JSON.stringify(payload),
+        attemptFingerprint: resourcePreviewFingerprint,
         priority,
         projectSlug,
         userId: gate.user.id,

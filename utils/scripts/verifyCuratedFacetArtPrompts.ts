@@ -3,6 +3,7 @@
 // The authored prompts are content, and content rots quietly. These checks are
 // the ones that would have caught each failure this work has already shipped.
 import assert from 'node:assert/strict'
+import { buildFacetIdentityPromptFrom } from '../facetVisualLanguage'
 import { readFileSync, writeFileSync, mkdtempSync } from 'node:fs'
 import { spawnSync } from 'node:child_process'
 import { join } from 'node:path'
@@ -104,6 +105,51 @@ assert.equal(
   'generated prompts belong to the repair modes',
 )
 assert.equal(curatedPromptNeedsRender(f(null), true, 'anything'), false)
+
+/*
+ * Idempotency against work already in flight (2026-09-22).
+ *
+ * Two `--write --requeue-curated` runs back to back left 452 PENDING jobs
+ * across 379 Facets -- 73 of them queued twice, and the run reported
+ * `pendingReused: 1`.
+ *
+ * The split is the diagnosis. A Facet that had never been painted was caught by
+ * the payload comparison above, because run 1's job recorded the new text: 306
+ * were correctly skipped. A Facet that DID have art, painted from older text,
+ * took the painted branch instead, which returns true every run -- the in-flight
+ * job has painted nothing, so nothing it does can change that answer. Those 73
+ * are exactly the rows with an existing render.
+ *
+ * So the in-flight check has to sit BEFORE the painted comparison, and these
+ * assertions pin that ordering rather than just the outcome.
+ */
+const painted = 'Office Satire. A scene of this kind underway.'
+
+assert.equal(
+  curatedPromptNeedsRender(f(curated), true, undefined, painted),
+  true,
+  'a Facet painted from older text still needs a render when nothing is in flight',
+)
+assert.equal(
+  curatedPromptNeedsRender(f(curated), true, undefined, painted, curated),
+  false,
+  'but not a second time while a job carrying this exact text is still pending',
+)
+assert.equal(
+  curatedPromptNeedsRender(f(curated), true, undefined, painted, 'older queued text'),
+  true,
+  'an in-flight job carrying DIFFERENT text must not suppress the re-queue',
+)
+assert.equal(
+  curatedPromptNeedsRender(f(curated), true, undefined, undefined, curated),
+  false,
+  'the in-flight check also covers a Facet with no painted image yet',
+)
+assert.equal(
+  curatedPromptNeedsRender(f(curated), true, undefined, curated, curated),
+  false,
+  'and a Facet already painted from this text stays skipped either way',
+)
 
 // The selection above is useless if the run never loads job history to compare
 // against -- which is precisely how it shipped broken: history was fetched only
@@ -343,3 +389,48 @@ assert.equal(promptWasPainted('', 'anything'), false)
     'generated art matching the curated prompt stays put',
   )
 }
+
+/*
+ * A title that already ends in sentence punctuation must not get another
+ * period. 111 live Facets have one -- the whole sentence-title cohort -- and
+ * each was opening its conditioning with "...turned to ruin..", which is the
+ * first and strongest position in a caption.
+ *
+ * Found 2026-09-22 while checking that two rows mangled by an older
+ * negation-repair pass ("Does tion it", from `not men` deleted out of `not
+ * mention`) rebuild cleanly from their descriptions. They do -- the damage was
+ * only ever in the derived artPrompt, never in the description -- and this was
+ * sitting next to it.
+ */
+for (const title of [
+  'Once the ruler of a kingdom now turned to ruin.',
+  'Was once a duck. No one knows why, including them.',
+  'Cursed to speak only in riddles… but only on Tuesdays.',
+  'Knows too much about the moon. They won\u2019t say how.',
+]) {
+  const built = buildFacetIdentityPromptFrom({ title, taxonomy: 'PERSONALITY' })
+  assert.ok(
+    built.startsWith(title) && !built.slice(title.length).startsWith('.'),
+    `a title ending in sentence punctuation must not gain another period: ${built.slice(0, 70)}`,
+  )
+}
+
+// And a title without it still gets one, or the clause runs into the subject.
+assert.ok(
+  buildFacetIdentityPromptFrom({ title: 'Principled', taxonomy: 'PERSONALITY' })
+    .startsWith('Principled. '),
+  'a title without sentence punctuation still gets a period',
+)
+
+// The mangled rows rebuild clean from their intact descriptions.
+assert.ok(
+  !/\btion(ed)?\b/.test(
+    buildFacetIdentityPromptFrom({
+      title: 'Principled',
+      taxonomy: 'PERSONALITY',
+      description:
+        'Has lines and will pay for them. The paying happens quietly and does not get mentioned afterward.',
+    }),
+  ),
+  'a rebuild from the intact description must not carry the old deletion damage',
+)

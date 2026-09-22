@@ -243,7 +243,13 @@ for (const required of [
 }
 
 for (const required of [
-  '`${clean(input.title)}.`',
+  // The title still leads the caption -- it is the strongest position -- but a
+  // title that already ends in sentence punctuation no longer gains a second
+  // period. 111 live Facets have one. The pin moved from the template literal
+  // to the constant that replaced it so it still fails if the title stops
+  // opening the prompt.
+  'const titleSentence = /[.!?]$/.test(title) ? title : `${title}.`',
+  'titleSentence,',
   'taxonomyVisualLanguage(input.taxonomy)',
   // Card copy is what Krea paints when the prose names nothing visible.
   'readsAsCardCopy',

@@ -63,7 +63,8 @@
       />
       <div
         v-if="open"
-        class="absolute z-40 mt-1 max-h-80 w-full overflow-y-auto kr-panel-compact-2xs shadow-xl"
+        class="absolute z-40 max-h-80 w-full overflow-y-auto kr-panel-compact-2xs shadow-xl"
+        :class="placement === 'up' ? 'bottom-full mb-1' : 'mt-1'"
       >
         <template v-for="group in groupedResults" :key="group.taxonomy">
           <div
@@ -173,13 +174,17 @@ const props = withDefaults(
     label?: string
     compact?: boolean
     taxonomies?: FacetTaxonomy[] | null
+    placement?: 'up' | 'down'
   }>(),
   {
     label: 'Creative Facets',
     compact: false,
     taxonomies: null,
+    placement: 'down',
   },
 )
+
+const placement = computed(() => props.placement)
 
 const emit = defineEmits<{
   'update:modelValue': [value: number[]]

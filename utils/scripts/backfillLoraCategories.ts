@@ -13,12 +13,19 @@
 // earlier CIVITAI/HEURISTIC pass; without it, only unclassified rows are
 // touched.
 //
-// Usage:
-//   DATABASE_URL=... tsx utils/scripts/backfillLoraCategories.ts                 # dry-run
-//   DATABASE_URL=... tsx utils/scripts/backfillLoraCategories.ts --apply
-//   DATABASE_URL=... CIVITAI_TOKEN=... tsx utils/scripts/backfillLoraCategories.ts --fetch-tags --apply
-//   DATABASE_URL=... tsx utils/scripts/backfillLoraCategories.ts --recheck --apply
-//   DATABASE_URL=... tsx utils/scripts/backfillLoraCategories.ts --reset-heuristic --apply
+// DATABASE_URL and CIVITAI_TOKEN are read from the repo's own .env (this
+// script imports dotenv before anything else), so neither needs exporting into
+// a shell. That matters for the token specifically: a secret that has to be
+// pasted into a terminal to run a routine sweep is a secret in three shell
+// histories by the end of the week. Put it in .env once -- see .env.example.
+//
+// Usage, from the repo root:
+//   npm run backfill:lora-categories                            # dry run
+//   npm run backfill:lora-categories -- --apply
+//   npm run backfill:lora-categories -- --fetch-tags            # dry run, asks Civitai
+//   npm run backfill:lora-categories -- --fetch-tags --apply
+//   npm run backfill:lora-categories -- --recheck --apply
+//   npm run backfill:lora-categories -- --reset-heuristic --apply
 //
 // --reset-heuristic clears every CIVITAI/HEURISTIC classification back to NULL,
 // leaving HUMAN decisions alone. It exists because a classifier change can
@@ -31,6 +38,7 @@ import {
   type Prisma,
 } from './../../prisma/generated/prisma/client'
 import { createDatabaseAdapter } from './../../server/utils/databaseAdapterConfig'
+import { civitaiTagNames, resolveCivitaiIds } from './../civitaiIds'
 import {
   LORA_CATEGORIES,
   canReclassify,
@@ -68,9 +76,7 @@ async function civitaiTags(modelId: number): Promise<string[] | null> {
     })
     if (!response.ok) return null
     const payload = (await response.json()) as { tags?: unknown }
-    return Array.isArray(payload.tags)
-      ? payload.tags.map((tag) => String(tag))
-      : null
+    return civitaiTagNames(payload.tags)
   } catch {
     return null
   }
@@ -148,6 +154,9 @@ async function main(): Promise<void> {
       loraCategory: true,
       loraCategorySource: true,
       civitaiModelId: true,
+      civitaiModelVersionId: true,
+      civitaiUrl: true,
+      customUrl: true,
     },
     orderBy: { id: 'asc' },
   })
@@ -164,6 +173,14 @@ async function main(): Promise<void> {
   }> = []
 
   let fetched = 0
+  let reachableByColumn = 0
+  let reachableByUrl = 0
+  let unreachable = 0
+  const recoveredIds: Array<{
+    id: number
+    modelId: number
+    versionId: number | null
+  }> = []
 
   for (const row of rows) {
     if (!canReclassify(row.loraCategorySource)) {
@@ -171,9 +188,28 @@ async function main(): Promise<void> {
       continue
     }
 
+    /*
+     * The ids mostly are NOT in the columns -- rows imported before those
+     * existed carry them only inside civitaiUrl. Keying the lookup on the
+     * column alone is what made --fetch-tags reach 2 rows out of 1,221 on
+     * 2026-09-22: not a network problem, a "we never asked" problem.
+     */
+    const ids = resolveCivitaiIds(row)
+    if (ids.modelIdSource === 'column') reachableByColumn += 1
+    else if (ids.modelIdSource === 'url') reachableByUrl += 1
+    else unreachable += 1
+
+    if (ids.modelIdSource === 'url' && ids.modelId) {
+      recoveredIds.push({
+        id: row.id,
+        modelId: ids.modelId,
+        versionId: ids.versionId,
+      })
+    }
+
     let tags: string[] | null = null
-    if (fetchTags && row.civitaiModelId) {
-      tags = await civitaiTags(row.civitaiModelId)
+    if (fetchTags && ids.modelId) {
+      tags = await civitaiTags(ids.modelId)
       fetched += 1
       await sleep(FETCH_DELAY_MS)
     }
@@ -204,7 +240,27 @@ async function main(): Promise<void> {
   console.log(
     `Examined ${rows.length} LoRA row(s)${recheck ? ' (recheck mode)' : ' with no category'}.`,
   )
-  if (fetchTags) console.log(`Fetched Civitai tags for ${fetched} row(s).`)
+  console.log(
+    `Civitai reach: ${reachableByColumn} by column, ${reachableByUrl} recovered from a url, ${unreachable} with no id anywhere.`,
+  )
+  if (fetchTags) {
+    /*
+     * Say which credential was used. Running unauthenticated still works for
+     * public models but rate-limits much harder, and the difference is
+     * otherwise invisible until a sweep starts returning nothing -- the same
+     * silent-nothing shape as the id lookup this run already fixed.
+     */
+    console.log(
+      civitaiToken
+        ? 'Civitai auth: token found in the environment (.env or shell).'
+        : 'Civitai auth: NONE. Public models still answer, but rate limits are much tighter -- set CIVITAI_TOKEN in .env for a sweep this size.',
+    )
+    console.log(`Fetched Civitai tags for ${fetched} row(s).`)
+  } else if (reachableByColumn + reachableByUrl > 0) {
+    console.log(
+      `Re-run with --fetch-tags to ask Civitai about those ${reachableByColumn + reachableByUrl} row(s); it is the only signal that classifies a character LoRA.`,
+    )
+  }
   if (protectedRows.length) {
     console.log(
       `Left ${protectedRows.length} human-classified row(s) alone: ${protectedRows.slice(0, 5).join(', ')}${protectedRows.length > 5 ? ', ...' : ''}`,
@@ -241,6 +297,29 @@ async function main(): Promise<void> {
   }
 
   console.log(`\nWrote ${changes.length} classification(s).`)
+
+  /*
+   * Write the url-recovered ids into the columns they belong in. The next run
+   * then reaches those rows without re-parsing, and so do the Discover browse
+   * and download lanes, which key off civitaiModelVersionId and are blind to a
+   * row that knows its own id only inside a url string.
+   */
+  if (recoveredIds.length) {
+    for (const recovered of recoveredIds) {
+      await prisma.resource.update({
+        where: { id: recovered.id },
+        data: {
+          civitaiModelId: recovered.modelId,
+          ...(recovered.versionId
+            ? { civitaiModelVersionId: recovered.versionId }
+            : {}),
+        },
+      })
+    }
+    console.log(
+      `Recovered ${recoveredIds.length} Civitai id(s) from urls into their columns.`,
+    )
+  }
 }
 
 main()

@@ -94,6 +94,11 @@ jobs:
       - name: LoRA category classification contract
         run: npm run test:lora-category
 
+      # The lookup that silently did nothing: --fetch-tags keyed on a column
+      # almost no row has, so it reached 2 of 1,221 and reported success.
+      - name: Civitai id resolution contract
+        run: npm run test:civitai-ids
+
       # Both of these cover server/utils/promptVariants.ts, which is now shared
       # between the Challenge Center's variant generator and the art
       # randomizer's batch roll. test:prompt-variants existed but was wired

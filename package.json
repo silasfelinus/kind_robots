@@ -25,6 +25,7 @@
     "test:lora-cfg-wiring": "tsx utils/scripts/verifyLoraCfgWiring.test.ts",
     "test:lora-probe-subject": "tsx utils/scripts/verifyLoraProbeSubject.test.ts",
     "test:lora-category": "tsx utils/scripts/verifyLoraCategory.test.ts",
+    "test:civitai-ids": "tsx utils/scripts/verifyCivitaiIds.test.ts",
     "test:art-random-batch": "tsx utils/scripts/verifyArtRandomBatch.test.ts",
     "backfill:lora-categories": "prisma generate && tsx utils/scripts/backfillLoraCategories.ts",
     "test:zimage-workflow": "tsx utils/scripts/verifyZImageWorkflow.test.ts",

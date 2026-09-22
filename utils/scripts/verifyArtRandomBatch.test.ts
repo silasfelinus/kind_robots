@@ -232,9 +232,9 @@ const randomizerUi = readFileSync(
   'components/art/art-batch-randomizer.vue',
   'utf8',
 )
-assert.ok(randomizerUi.includes("placeholder: `lora:${placeholder}`"))
+assert.ok(randomizerUi.includes('placeholder: `lora:${placeholder}`'))
 assert.ok(
-  randomizerUi.includes("placeholder: `facet:${taxonomy.toLowerCase()}`"),
+  randomizerUi.includes('placeholder: `facet:${taxonomy.toLowerCase()}`'),
 )
 assert.ok(randomizerUi.includes('ART_RANDOM_OBJECT_OPTIONS'))
 assert.ok(!randomizerUi.includes('Write {character} running in {style}'))

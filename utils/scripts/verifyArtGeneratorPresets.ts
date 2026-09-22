@@ -52,15 +52,18 @@ assert.equal(kreaPresets[0]!.steps, 8)
 assert.ok(!ART_GENERATOR_PRESETS.some((entry) => entry.id === 'krea2-detailed'))
 
 // Dimension menus stay close to each checkpoint family's training scale.
-assert.deepEqual(artDimensionOptions('comfy', 'sd15'), [
-  512, 576, 640, 704, 768,
-])
-assert.deepEqual(artDimensionOptions('comfy', 'sdxl'), [
-  768, 832, 896, 1024, 1152, 1216, 1344,
-])
-assert.deepEqual(artDimensionOptions('krea2'), [
-  768, 832, 896, 1024, 1152, 1216, 1344,
-])
+assert.deepEqual(
+  artDimensionOptions('comfy', 'sd15'),
+  [512, 576, 640, 704, 768],
+)
+assert.deepEqual(
+  artDimensionOptions('comfy', 'sdxl'),
+  [768, 832, 896, 1024, 1152, 1216, 1344],
+)
+assert.deepEqual(
+  artDimensionOptions('krea2'),
+  [768, 832, 896, 1024, 1152, 1216, 1344],
+)
 assert.deepEqual(artDimensionOptions('sdxl-img2img', 'sdxl'), [])
 
 /*

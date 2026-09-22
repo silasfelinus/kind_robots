@@ -169,7 +169,11 @@
             <h3 class="kr-text-eyebrow-bold kr-text-dim-xs-55 tracking-wide">
               Narrator voice
             </h3>
-            <div class="flex flex-wrap gap-2">
+            <div
+              class="flex flex-wrap gap-2"
+              role="group"
+              aria-label="Narrator voice"
+            >
               <button
                 v-for="style in STORYBOOK_NARRATOR_STYLES"
                 :key="style"
@@ -192,7 +196,11 @@
             <h3 class="kr-text-eyebrow-bold kr-text-dim-xs-55 tracking-wide">
               Shape of the tale
             </h3>
-            <div class="grid gap-2 md:grid-cols-3">
+            <div
+              class="grid gap-2 md:grid-cols-3"
+              role="group"
+              aria-label="Shape of the tale"
+            >
               <button
                 v-for="structure in STORYBOOK_STRUCTURES"
                 :key="structure.value"

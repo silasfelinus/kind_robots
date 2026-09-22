@@ -189,6 +189,8 @@
     "test:storybook-quest-double-apply-guard": "tsx utils/scripts/verifyStorybookQuestDoubleApplyGuard.ts",
     "test:storybook-visual-setup-choice-group-guard-selftest": "tsx utils/scripts/verifyStorybookVisualSetupChoiceGroupGuard.test.ts",
     "test:storybook-visual-setup-choice-group-guard": "tsx utils/scripts/verifyStorybookVisualSetupChoiceGroupGuard.ts",
+    "test:storybook-page-choice-group-guard-selftest": "tsx utils/scripts/verifyStorybookPageChoiceGroupGuard.test.ts",
+    "test:storybook-page-choice-group-guard": "tsx utils/scripts/verifyStorybookPageChoiceGroupGuard.ts",
     "test:storybook-run-store": "node utils/scripts/verifyStorybookRunStore.mjs",
     "test:storybook-scene-art-chapter-match-guard": "node utils/scripts/verifyStorybookSceneArtChapterMatchGuard.mjs",
     "test:storybook-character-gating": "node utils/scripts/verifyStorybookCharacterGating.mjs",

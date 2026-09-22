@@ -382,11 +382,33 @@ export function curatedPromptNeedsRender(
   renderedPrompt: string | undefined,
   paintedPrompt?: string | undefined,
   inFlightPrompt?: string | undefined,
+  identityPrompt?: string | undefined,
 ): boolean {
-  const curated = clean(facet.artPrompt)
+  const stored = clean(facet.artPrompt)
   // Nothing authored here, or the text is the producer's own: not this mode's
-  // business. The repair modes own generated prompts.
-  if (!curated || isLegacyGeneratedFacetPrompt(curated)) return false
+  // business. The repair modes own generated prompts. Judged on the STORED
+  // text, because this is a question about which mode owns the row.
+  if (!stored || isLegacyGeneratedFacetPrompt(stored)) return false
+  /*
+   * Every comparison below asks "was the picture made from the text we would
+   * send NOW", so it has to be the text we would send now -- the identity
+   * prompt -- and not the text on the row.
+   *
+   * Those were the same string for as long as the bypass returned an
+   * unrecognized stored prompt verbatim. They came apart on 2026-09-22, when
+   * storedPromptIsCardCopy and readsAsPastedDescription started rebuilding 72
+   * rows the clause whitelist could not see (#2982, #2980). Comparing the
+   * stored text meant: the row still says "Martian Colonization. The
+   * particular engineering and politics of settling Mars...", the picture WAS
+   * painted from exactly that, promptWasPainted answers true, and the row is
+   * skipped as already rendered -- forever, because the persist filter below
+   * was gated on the same whitelist and never wrote the rebuild back either.
+   *
+   * All 72 carry a painted picture, so coverage skips them too and no mode
+   * could ever queue them. The prompts were fixed and not one card could
+   * change, which is this file's oldest failure mode arriving one layer down.
+   */
+  const curated = clean(identityPrompt) || stored
   /*
    * Never rendered at all: ordinary coverage queues it -- UNLESS the Facet
    * already carries a hand-placed asset under /images. imagePath counts as
@@ -1286,6 +1308,8 @@ export async function main(): Promise<void> {
           if ((blockersByFacet.get(facet.id) ?? []).length) continue
           const variant = ART_VARIANTS[0]
           const key = `${facet.id}:${variant.field}`
+          // Built BEFORE the check, not after: it is what the check compares.
+          const identityPrompt = buildFacetIdentityPrompt(facet, profile)
           if (
             !curatedPromptNeedsRender(
               facet,
@@ -1293,6 +1317,7 @@ export async function main(): Promise<void> {
               newestJobPrompt.get(key),
               paintedPromptByFacet.get(facet.id),
               inFlightPrompt.get(key),
+              identityPrompt,
             )
           ) {
             continue
@@ -1301,7 +1326,7 @@ export async function main(): Promise<void> {
           curatedRequeue.push({
             facet,
             profile,
-            identityPrompt: buildFacetIdentityPrompt(facet, profile),
+            identityPrompt,
             variant,
             repairSourceJobId: source?.id,
             repairSourceVersion: source?.version,
@@ -1519,10 +1544,26 @@ export async function main(): Promise<void> {
         const promptUpdates = Array.from(
           new Map(
             queue
+              /*
+               * Persist whenever the producer actually rebuilt the row, which
+               * is exactly "the identity prompt is not the stored text".
+               *
+               * This used to name isLegacyGeneratedFacetPrompt -- a third copy
+               * of the clause whitelist, and the one that decided whether a fix
+               * ever reached the database. A row it did not recognize kept its
+               * old text forever, so the rebuild was recomputed and thrown away
+               * on every run. Deriving the test from the bypass instead means
+               * it cannot drift from it: buildFacetIdentityPrompt returns a
+               * genuinely authored prompt verbatim, so an authored row compares
+               * equal and is never rewritten, and anything it rebuilt -- legacy
+               * clause, card copy, pasted description, repaired frame wording,
+               * or whatever the next one turns out to be -- compares unequal
+               * and is written back without this line needing to know why.
+               */
               .filter(
                 (entry) =>
                   !clean(entry.facet.artPrompt) ||
-                  isLegacyGeneratedFacetPrompt(entry.facet.artPrompt),
+                  clean(entry.identityPrompt) !== clean(entry.facet.artPrompt),
               )
               .map((entry) => [entry.facet.id, entry]),
           ).values(),

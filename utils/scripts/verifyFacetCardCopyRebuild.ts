@@ -24,7 +24,10 @@ import {
   isLegacyGeneratedFacetPrompt,
   storedPromptIsCardCopy,
 } from '../../utils/facetVisualLanguage'
-import { buildFacetIdentityPrompt } from '../../scripts/generate_facet_art_v4'
+import {
+  buildFacetIdentityPrompt,
+  curatedPromptNeedsRender,
+} from '../../scripts/generate_facet_art_v4'
 
 const MARTIAN_DESCRIPTION =
   'The particular engineering and politics of settling Mars. Dust, radiation, ' +
@@ -147,3 +150,127 @@ assert.equal(
 )
 
 console.log('Facet card-copy rebuild contract verified.')
+
+/*
+ * The fix has to reach a picture (2026-09-22, same day, one layer down).
+ *
+ * #2982 and #2980 changed what buildFacetIdentityPrompt RETURNS. Two gates
+ * downstream still asked the clause whitelist whether a row counted, and
+ * between them they made the rebuild unobservable:
+ *
+ *   curatedPromptNeedsRender compared the STORED text against what painted the
+ *   picture. The row still said "Martian Colonization. The particular
+ *   engineering..."; the picture was painted from exactly that; so it answered
+ *   "already rendered" and skipped.
+ *
+ *   the persist filter in main() only wrote a rebuild back when
+ *   isLegacyGeneratedFacetPrompt recognized the OLD text, so the row never
+ *   stopped saying it.
+ *
+ * All 72 newly-reached rows carry a painted picture, so coverage skipped them
+ * too: no mode could queue them and no run could fix them. The assertions
+ * below are the ones that would have caught that.
+ */
+const PAINTED_FRAMING = ' A square picture with the subject large and centred.'
+const martianFacet = {
+  id: 810,
+  title: 'Martian Colonization',
+  description: MARTIAN_DESCRIPTION,
+  artPrompt: MARTIAN_STORED,
+  imagePath: '/images/facets/martian.webp',
+  artImageId: 44001,
+} as never
+
+// The live shape: a picture painted from the stale stored text, and an
+// identity prompt that is now something else.
+assert.equal(
+  curatedPromptNeedsRender(
+    martianFacet,
+    true,
+    MARTIAN_STORED,
+    `${MARTIAN_STORED}${PAINTED_FRAMING}`,
+    undefined,
+    rebuilt,
+  ),
+  true,
+  'a row whose rebuilt prompt differs from what painted its picture must re-render',
+)
+
+// Passing no identity prompt reproduces the bug exactly, which is what makes
+// the assertion above meaningful rather than tautological.
+assert.equal(
+  curatedPromptNeedsRender(
+    martianFacet,
+    true,
+    MARTIAN_STORED,
+    `${MARTIAN_STORED}${PAINTED_FRAMING}`,
+    undefined,
+    undefined,
+  ),
+  false,
+  'comparing the stored text instead is the bug: it reports the row as current',
+)
+
+// An authored prompt is returned verbatim by the bypass, so identity === stored
+// and a picture painted from it is still current. No re-roll, no GPU spent.
+assert.equal(
+  curatedPromptNeedsRender(
+    {
+      id: 2411,
+      title: 'Batch-Made',
+      description: 'Made in bulk, and it shows.',
+      artPrompt: AUTHORED,
+      imagePath: '/images/facets/batch-made.webp',
+      artImageId: 44002,
+    } as never,
+    true,
+    AUTHORED,
+    `${AUTHORED}${PAINTED_FRAMING}`,
+    undefined,
+    AUTHORED,
+  ),
+  false,
+  'an authored prompt already painted must never be re-rendered',
+)
+
+// A job already queued from the REBUILT text must not be queued twice -- the
+// in-flight check compares against the identity prompt for the same reason.
+assert.equal(
+  curatedPromptNeedsRender(
+    martianFacet,
+    true,
+    MARTIAN_STORED,
+    `${MARTIAN_STORED}${PAINTED_FRAMING}`,
+    rebuilt,
+    rebuilt,
+  ),
+  false,
+  'a pending job carrying the rebuilt text already covers this row',
+)
+
+/*
+ * The persist filter's test is now derived from the bypass rather than from a
+ * clause list: "the identity prompt is not the stored text" means the producer
+ * rebuilt the row. These two assertions are that filter's two branches.
+ */
+assert.notEqual(
+  rebuilt,
+  MARTIAN_STORED,
+  'a rebuilt row must compare unequal, so its new prompt is written back',
+)
+assert.equal(
+  buildFacetIdentityPrompt(
+    {
+      title: 'Batch-Made',
+      description: 'Made in bulk, and it shows.',
+      artPrompt: AUTHORED,
+      flavorText: null,
+      examples: null,
+    } as never,
+    { taxonomy: 'THEME', metadata: null } as never,
+  ),
+  AUTHORED,
+  'an authored row must compare equal, so it is never rewritten',
+)
+
+console.log('Facet card-copy rebuild reaches the render path.')

@@ -131,10 +131,7 @@ import { computed, ref } from 'vue'
 import { useArtStore } from '@/stores/artStore'
 import { usePromptStore } from '@/stores/promptStore'
 import { FACET_TAXONOMIES } from '@/stores/facetCatalogStore'
-import {
-  LORA_CATEGORIES,
-  LORA_CATEGORY_META,
-} from '@/utils/loraCategory'
+import { LORA_CATEGORIES, LORA_CATEGORY_META } from '@/utils/loraCategory'
 import { ART_RANDOM_OBJECT_OPTIONS } from '@/utils/artRandomOptions'
 import {
   MAX_RANDOM_BATCH,

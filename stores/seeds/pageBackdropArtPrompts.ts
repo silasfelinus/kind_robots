@@ -45,7 +45,7 @@ const CANVAS: Record<
     width: 832,
     height: 1472,
     framing:
-      'Tall 9:16 portrait for a phone. Put the interest in the top fifth and the bottom fifth; keep the whole middle band calm, low-contrast and uncluttered, because a column of cards sits over it. Depth should read vertically — foreground detail low in the picture, distance receding upward.',
+      'Tall 9:16 portrait for a phone. Put the interest in the top fifth and the bottom fifth; keep the whole middle band calm, low-contrast and uncluttered, because a column of cards sits over it. Depth should read vertically — foreground detail low down, distance receding upward.',
   },
   tablet: {
     width: 1152,
@@ -105,7 +105,7 @@ const CANVAS: Record<
 // "an unpeopled setting waiting to be entered" -- is the only part of it that
 // ever worked, so it is now the whole rule. Same for the focal-point line: a
 // composition is described by what it does have.
-const CONTRACT = `Create one standalone environment illustration to be used as a full-bleed page background for the Kind Robots web app. This is SCENERY: interface panels, cards and toolbars will be drawn on top of it, so the composition must stay open and calm through the centre of the canvas and carry its interest at the edges. An unpeopled, deserted setting waiting to be entered, its inhabitants elsewhere. The interest is spread evenly to the edges of the picture and the centre stays quiet and open; every surface bare and unmarked.`
+const CONTRACT = `Create one standalone environment illustration to be used as a full-bleed page background for the Kind Robots web app. This is SCENERY: interface panels, cards and toolbars will be drawn on top of it, so the composition must stay open and calm through the centre of the canvas and carry its interest at the edges. An unpeopled, deserted setting waiting to be entered, its inhabitants elsewhere. The interest is spread evenly out to the edges and the centre stays quiet and open; every surface bare and unmarked.`
 
 const HOUSE_AESTHETIC = `Painted storybook-illustration style with cinematic depth, warm inviting light, soft atmospheric haze in the distance, and rich but unfussy detail.`
 

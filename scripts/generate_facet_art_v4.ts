@@ -146,32 +146,32 @@ const ART_VARIANTS = [
     label: 'square illustration',
     width: 1024,
     height: 1024,
-    composition:
-      'A square picture with the subject large and centred.',
+    // No composition sentence: the 1024x1024 geometry already makes it square.
+    // "A square picture with the subject large and centred" painted a framed
+    // painting hanging on a wall (ArtJob 30589, Silas 2026-09-22: "'a square
+    // picture' is not a good phrase for krea").
+    composition: '',
   },
   {
     field: 'cardPath',
     label: 'vertical 2:3 illustration',
     width: 512,
     height: 768,
-    composition:
-      'A tall picture with open space above and below the subject.',
+    composition: 'Open space above and below the subject.',
   },
   {
     field: 'heroPath',
     label: 'wide cinematic illustration',
     width: 1280,
     height: 720,
-    composition:
-      'A wide picture with the subject near the middle.',
+    composition: '',
   },
   {
     field: 'iconPath',
     label: 'compact emblem illustration',
     width: 256,
     height: 256,
-    composition:
-      'A small square picture with one simple shape filling it.',
+    composition: 'One simple bold shape.',
   },
 ] as const
 
@@ -474,7 +474,7 @@ export function curatedPromptNeedsRender(
  * Whether `painted` is the text that produced a picture from `curated`.
  *
  * Containment rather than equality: the renderer appends framing and style
- * guidance ("A square picture with the subject large and centred.") to the
+ * guidance (a composition line, then the style tail) to the
  * prompt it was given, so an exact match never holds for a real render.
  */
 export function promptWasPainted(curated: string, painted: string): boolean {
@@ -676,11 +676,9 @@ export function buildFacetVariantPrompt(
   identityPrompt: string,
   variant: FacetArtVariant,
 ): string {
-  return [
-    identityPrompt,
-    variant.composition,
-    styleTail(profile.taxonomy),
-  ].join('\n\n')
+  return [identityPrompt, variant.composition, styleTail(profile.taxonomy)]
+    .filter(Boolean)
+    .join('\n\n')
 }
 
 function facetSnapshot(

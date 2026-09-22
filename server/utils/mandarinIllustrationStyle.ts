@@ -266,6 +266,6 @@ export function buildMandarinIllustrationPrompt(card: MandarinCard): string {
     // statement, and "carrying no writing of any kind" put the word back. On a
     // cfg-1 engine once is already one time too many, so the first half is the
     // whole line now.
-    'Every surface in the picture is blank and unmarked.',
+    'Every surface blank and unmarked.',
   ].join(' ')
 }

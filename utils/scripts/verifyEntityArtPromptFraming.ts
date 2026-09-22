@@ -42,13 +42,19 @@ for (const slot of SLOTS) {
 }
 
 // Geometry, not the label, decides the framing.
-assert.match(artSlotFraming(SLOTS[0]!), /vertical portrait/)
-assert.match(artSlotFraming(SLOTS[1]!), /wide landscape/)
-assert.match(artSlotFraming(SLOTS[2]!), /square/)
+assert.match(artSlotFraming(SLOTS[0]!), /close in front/)
+assert.match(artSlotFraming(SLOTS[1]!), /wide open space/)
+assert.match(artSlotFraming(SLOTS[2]!), /one bold simple shape/)
+assert.match(artSlotFraming(SLOTS[3]!), /large and centred/)
+// "composition" and "picture" name the image as an object, and Krea paints the
+// object: a framed picture hanging on a wall (ArtJob 30589, 2026-09-22).
+for (const slot of [...SLOTS, { label: 'Tiny', width: 256, height: 256 }]) {
+  assert.doesNotMatch(artSlotFraming(slot), /\b(?:composition|picture|frame)\b/i)
+}
 // A mislabelled slot still gets framing that matches its real aspect ratio.
 assert.match(
   artSlotFraming({ label: 'Card', width: 1280, height: 720 }),
-  /wide landscape/,
+  /wide open space/,
 )
 // Degenerate dimensions must not throw or emit a slot noun.
 assert.ok(artSlotFraming({ label: 'Card', width: 0, height: 0 }).length > 0)

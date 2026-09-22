@@ -585,12 +585,12 @@ assert.deepEqual(
 // "An unpeopled frame." into "an unpeopled picture." mid-paragraph.
 assert.match(
   repairFramePrompt(PROVING_GRAFT_AS_STORED),
-  /beside it\. An unpeopled picture,/,
+  /beside it\. A deserted scene,/,
   'the repair must preserve sentence capitalisation in the text it persists',
 )
 assert.match(
   repairFramePrompt('a dented tin ladle, an unpeopled frame, alone'),
-  /ladle, an unpeopled picture,/,
+  /ladle, a deserted scene,/,
   'and must not capitalise a mid-sentence match',
 )
 
@@ -653,9 +653,21 @@ const LADLE_AS_REPAIRED_2026_09_21 =
   'product shot, an unpeopled picture, the subject alone, the space around it ' +
   'bare and deserted, every surface bare and unmarked'
 
+// And a fourth time (2026-09-22): "picture" was the replacement for "frame",
+// and Krea paints it the same way -- a framed picture on a wall (ArtJob
+// 30589). The 09-21 wording is now rejected, and the repair clears it.
+assert.ok(
+  rules({ prompt: LADLE_AS_REPAIRED_2026_09_21, engine: 'krea2', steps: 8, cfg: 1 })
+    .includes('picture-noun'),
+  'the 2026-09-21 "picture" wording must now be rejected',
+)
+const LADLE_AS_REPAIRED_2026_09_22 = repairFramePrompt(LADLE_AS_REPAIRED_2026_09_21)
+assert.match(LADLE_AS_REPAIRED_2026_09_22, /alone in the scene/)
+assert.match(LADLE_AS_REPAIRED_2026_09_22, /a deserted scene, the subject alone/)
+
 assert.deepEqual(
   rules({
-    prompt: LADLE_AS_REPAIRED_2026_09_21,
+    prompt: LADLE_AS_REPAIRED_2026_09_22,
     engine: 'krea2',
     steps: 8,
     cfg: 1,
@@ -666,8 +678,8 @@ assert.deepEqual(
 
 assert.ok(
   rules({
-    prompt: LADLE_AS_REPAIRED_2026_09_21.replace(
-      'an unpeopled picture',
+    prompt: LADLE_AS_REPAIRED_2026_09_22.replace(
+      'a deserted scene',
       'an unpeopled frame',
     ),
     engine: 'krea2',
@@ -764,7 +776,7 @@ for (const jargon of [
 // The v5 replacement clauses must pass. If this breaks, the producer is
 // emitting jargon again.
 for (const clause of [
-  'Office Satire. A scene of this kind underway, everyone in it and the place around them painted together, the light and the weather carrying its mood. A square picture with the subject large and centred. Polished fantasy illustration. Rich controlled lighting. Clean unmarked surfaces.',
+  'Office Satire. A scene of this kind underway, everyone in it and the place around them painted together, the light and the weather carrying its mood. Polished fantasy illustration. Rich controlled lighting. Clean unmarked surfaces.',
   'Chaos Consultant. A person at full height in the middle of this work, the tools of the trade in their hands, the room or the landscape of that work around them.',
   'Blue-Footed Booby. The whole animal head to tail, its markings and proportions true to the species, alert in the habitat it lives in.',
 ]) {
@@ -863,4 +875,42 @@ assert.doesNotThrow(
 console.log(
   'Art prompt contract passed: conditionals, format vocabulary, contextual Krea wrappers, ' +
     'semantic entity conditioning, negation piles, vague brand style, and distilled-engine parameters are enforced.',
+)
+
+// ── Rule 8b: "picture" as the composition word ──────────────────────────────
+
+// ArtJob 30589, facet-catalog, 2026-09-22. "Lovecraftian Horror" ended "an
+// unpeopled picture, the subject alone ... A square picture with the subject
+// large and centred" and came back as a gilt-framed painting of a skull hanging
+// on a wall. "Picture" had been adopted the day before as the SAFE word for the
+// composition, replacing "frame"; it is the same object to a caption model.
+for (const prompt of [
+  'A skull carved in grey stone. A square picture with the subject large and centred.',
+  'A brass lamp on a table, an unpeopled picture, the subject alone.',
+  'A dandelion clock, every seed crisp from one edge of the picture to the other.',
+  'A single large form filling the picture, made of glass.',
+]) {
+  assert.ok(
+    rules({ prompt, engine: 'krea2', steps: 8, cfg: 1 }).includes('picture-noun'),
+    `"picture" as the composition must be rejected: ${prompt}`,
+  )
+  const repaired = repairFramePrompt(prompt)
+  assert.ok(
+    !rules({ prompt: repaired, engine: 'krea2', steps: 8, cfg: 1 }).includes('picture-noun'),
+    `the repair table must clear the picture-noun rule: ${repaired}`,
+  )
+}
+// A picture that is really in the scene, or a medium, is a subject.
+for (const prompt of [
+  'A child reading a picture book under a quilt by torchlight.',
+  'Modern Chinese picture-book art, hand-painted gouache on textured paper.',
+]) {
+  assert.ok(
+    !rules({ prompt, engine: 'krea2', steps: 8, cfg: 1 }).includes('picture-noun'),
+    `a real picture book is not the composition: ${prompt}`,
+  )
+}
+assert.equal(
+  repairFramePrompt('A lamp on a table. A square picture with the subject large and centred. Polished.'),
+  'A lamp on a table. Polished.',
 )

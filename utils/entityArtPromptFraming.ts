@@ -40,16 +40,22 @@ export type ArtSlotShape = {
  * "hero", "banner", "emblem") that a diffusion model can mistake for the subject.
  */
 export function artSlotFraming(slot: ArtSlotShape): string {
+  /*
+   * No "composition" and no "picture" (2026-09-22). Both are format nouns in
+   * a caption: "a square composition" / "a square picture" came back as a
+   * framed painting hanging on a wall (ArtJob 30589). The width and height
+   * already set the shape, so this only says how the subject sits in it.
+   */
   const { width, height } = slot
-  if (!width || !height) return 'a single balanced composition'
+  if (!width || !height) return 'one clear subject, plainly lit'
   if (width === height) {
     return width <= 320
-      ? 'a square composition with one bold shape that stays readable when small'
-      : 'a square composition centred on one clear subject'
+      ? 'one bold simple shape, large and plainly lit'
+      : 'one clear subject, large and centred'
   }
   return height > width
-    ? 'a vertical portrait composition with a clear foreground subject and layered depth'
-    : 'a wide landscape composition with depth and atmosphere'
+    ? 'a clear subject close in front, layered depth behind'
+    : 'the subject near the middle, wide open space and atmosphere around it'
 }
 
 /**
@@ -59,7 +65,7 @@ export function artSlotFraming(slot: ArtSlotShape): string {
 export function artContextRules(subjectNoun: string): string[] {
   return [
     `Treat the first paragraph as the primary art direction. Use the ${subjectNoun} context for identity and continuity, not as a checklist and not as text to render.`,
-    'Every surface in the picture is blank and unmarked.',
+    'Every surface blank and unmarked.',
   ]
 }
 

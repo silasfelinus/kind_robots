@@ -13,12 +13,19 @@
 // earlier CIVITAI/HEURISTIC pass; without it, only unclassified rows are
 // touched.
 //
-// Usage:
-//   DATABASE_URL=... tsx utils/scripts/backfillLoraCategories.ts                 # dry-run
-//   DATABASE_URL=... tsx utils/scripts/backfillLoraCategories.ts --apply
-//   DATABASE_URL=... CIVITAI_TOKEN=... tsx utils/scripts/backfillLoraCategories.ts --fetch-tags --apply
-//   DATABASE_URL=... tsx utils/scripts/backfillLoraCategories.ts --recheck --apply
-//   DATABASE_URL=... tsx utils/scripts/backfillLoraCategories.ts --reset-heuristic --apply
+// DATABASE_URL and CIVITAI_TOKEN are read from the repo's own .env (this
+// script imports dotenv before anything else), so neither needs exporting into
+// a shell. That matters for the token specifically: a secret that has to be
+// pasted into a terminal to run a routine sweep is a secret in three shell
+// histories by the end of the week. Put it in .env once -- see .env.example.
+//
+// Usage, from the repo root:
+//   npm run backfill:lora-categories                            # dry run
+//   npm run backfill:lora-categories -- --apply
+//   npm run backfill:lora-categories -- --fetch-tags            # dry run, asks Civitai
+//   npm run backfill:lora-categories -- --fetch-tags --apply
+//   npm run backfill:lora-categories -- --recheck --apply
+//   npm run backfill:lora-categories -- --reset-heuristic --apply
 //
 // --reset-heuristic clears every CIVITAI/HEURISTIC classification back to NULL,
 // leaving HUMAN decisions alone. It exists because a classifier change can
@@ -237,6 +244,17 @@ async function main(): Promise<void> {
     `Civitai reach: ${reachableByColumn} by column, ${reachableByUrl} recovered from a url, ${unreachable} with no id anywhere.`,
   )
   if (fetchTags) {
+    /*
+     * Say which credential was used. Running unauthenticated still works for
+     * public models but rate-limits much harder, and the difference is
+     * otherwise invisible until a sweep starts returning nothing -- the same
+     * silent-nothing shape as the id lookup this run already fixed.
+     */
+    console.log(
+      civitaiToken
+        ? 'Civitai auth: token found in the environment (.env or shell).'
+        : 'Civitai auth: NONE. Public models still answer, but rate limits are much tighter -- set CIVITAI_TOKEN in .env for a sweep this size.',
+    )
     console.log(`Fetched Civitai tags for ${fetched} row(s).`)
   } else if (reachableByColumn + reachableByUrl > 0) {
     console.log(

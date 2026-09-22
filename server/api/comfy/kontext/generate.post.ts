@@ -9,7 +9,7 @@ import type { Server } from '~/prisma/generated/prisma/client'
 import { errorHandler } from '../../../utils/error'
 import { getServerEndpoint, resolveServer } from '../../../utils/serverResolver'
 import { authAndGate } from '../../../utils/comfyGate'
-import { fluxDualClipLoaderNode } from '../../../utils/fluxTextEncoders'
+import { kontextDualClipLoaderNode } from '../../../utils/fluxTextEncoders'
 
 type KontextGenerateRequest = {
   serverId?: number | null
@@ -300,7 +300,7 @@ function buildKontextWorkflow(input: {
         title: 'Load VAE',
       },
     },
-    '11': fluxDualClipLoaderNode(),
+    '11': kontextDualClipLoaderNode(),
     '13': {
       inputs: {
         noise: ['25', 0],

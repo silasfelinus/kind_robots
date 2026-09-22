@@ -59,7 +59,7 @@ export function artSlotFraming(slot: ArtSlotShape): string {
 export function artContextRules(subjectNoun: string): string[] {
   return [
     `Treat the first paragraph as the primary art direction. Use the ${subjectNoun} context for identity and continuity, not as a checklist and not as text to render.`,
-    'Every surface in frame is blank and unmarked.',
+    'Every surface in the picture is blank and unmarked.',
   ]
 }
 

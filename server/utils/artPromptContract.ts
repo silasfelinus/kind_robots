@@ -325,6 +325,162 @@ const PEOPLE_NOUNS = new Set([
  * boundary into an unrelated noun ("no rain, the faces of the cliffs" is a
  * cliff face, not a casting note).
  */
+/*
+ * 8. THE WORD "FRAME". Krea paints the noun, and "frame" is a noun for a
+ *    physical object before it is anything else.
+ *
+ *    Found 2026-09-21 from an ArtJob screenshot of the facet-catalog build.
+ *    Facet "Wasted but Working" asked for "A thin frame with prominent
+ *    collarbones and hollow cheeks, clothes hanging loose, grip nonetheless
+ *    firm" (ArtJob 30116) and came back as a framed portrait hanging on a
+ *    wall. "Rebuilt" asked for "An asymmetric frame, one limb visibly
+ *    different in length or make" (ArtJob 30117) and came back as a woman
+ *    holding an empty gilt picture frame in front of herself. In both, the
+ *    body the prompt was describing is gone and a frame is standing where it
+ *    was -- and both prompts passed every rule in this file, because none of
+ *    them looks at ordinary concrete words.
+ *
+ *    "Frame" reaches this gate in three senses, and only one of them is safe:
+ *
+ *      ANATOMY   -- "a thin frame", "an elongated frame", "frame settled and
+ *                   shrunken". A person's build. Eleven live Facet prompts
+ *                   used it this way; it is the sense that shipped the bug.
+ *                   Say "build", "body" or "physique".
+ *      COMPOSITION -- "filling the frame", "an unpeopled frame", "the whole
+ *                   frame pushed toward a film look". The picture's own
+ *                   boundary. A person reads it as framing; Krea reads a
+ *                   frame. The house word for this is already "picture" --
+ *                   every variant composition in the Facet producer says "A
+ *                   square picture with the subject large and centred" -- so
+ *                   there is a free rewrite and no reason to keep the risk.
+ *      OBJECT    -- "a wicker frame", "a carved frame", "a hand on the
+ *                   frame" of a door. A real frame in the scene, which is
+ *                   exactly what the model should draw. Five live prompts do
+ *                   this correctly and must keep working: the gilding swatch
+ *                   card IS a carved frame with gold leaf going onto it.
+ *
+ *    And it had been seen before, which is what "again" meant. The LoRA probe
+ *    scaffold tried 'subject centered in frame' on 2026-09-16/17 and it
+ *    "rendered framed pictures hanging on walls" -- recorded in the header of
+ *    utils/scripts/verifyLoraProbeSubject.test.ts, walked back for that one
+ *    producer, and never generalized into a rule. Five days later the same
+ *    noun did the same thing to the Facet catalog. A finding written down in
+ *    one producer's test header is a finding every other producer is still
+ *    free to repeat.
+ *
+ *    So this rule does not try to tell anatomy from composition -- both are
+ *    wrong and both have the same fix. It flags "frame" UNLESS the sentence
+ *    establishes a real frame object, which is the narrow, checkable case.
+ *    Validated against all 1,738 live Facet prompts: 21 flagged, every one a
+ *    genuine anatomy or composition use, and 7 allowed, every one a genuine
+ *    object. No false positives.
+ *
+ *    This one is why the rule is not a lint. The contract's OWN remedy text
+ *    for rule 7 used to advise writing "an unpeopled frame", and
+ *    DEFAULT_UNPEOPLED_ART_DIRECTION in artJobNormalization.ts emitted exactly
+ *    that onto every object and product prompt -- the fix for the crowds was
+ *    manufacturing the frames. A rule that a producer can be talked out of by
+ *    the codebase's own guidance is not a gate.
+ */
+
+/*
+ * A frame that is REALLY IN THE SCENE, in the two ways a prompt says so:
+ * a material or craft word touching the noun ("a carved frame", "a riveted
+ * steel frame"), or the noun declared and then described ("The frame itself is
+ * riveted brushed steel"). One intervening word is allowed on the adjacency
+ * side ("a carved gilt frame"); more than that and the adjective is more
+ * likely describing a body.
+ */
+const FRAME_MATERIAL =
+  'wicker|carved|gilded|gilt|gold|silver|wooden|oak|pine|timber|bamboo|brass|bronze|iron|steel|aluminium|aluminum|metal|plastic|lacquered|ornate|baroque|antique|riveted|moulded|display|picture|photo'
+const FRAME_OBJECT_ADJACENT = new RegExp(
+  `\\b(?:${FRAME_MATERIAL}|window|door|bed|climbing|embroidery)(?:[\\s,-]+[a-z][a-z-]*)?[\\s,-]+frames?\\b`,
+  'i',
+)
+const FRAME_OBJECT_DECLARED = new RegExp(
+  `\\bframes?\\b[^.]{0,60}?\\b(?:is|are|of|made)\\b[^.]{0,40}?\\b(?:${FRAME_MATERIAL})\\b`,
+  'i',
+)
+
+/*
+ * The thing a frame belongs to. A prompt that really depicts a frame names one
+ * of these somewhere -- "a half-open door with a hand on the frame" never
+ * repeats the noun, and the gallery mount asset says "picture mount" one
+ * sentence before "nothing hangs from the frame".
+ *
+ * Three words are deliberately NOT here, all for the same reason: in art prose
+ * they are far more often a format or a finish than a thing on a wall, and each
+ * one, listed, excused a real bug during this rule's own test run.
+ *
+ *   portrait -- an aspect ratio, exactly as the people-negation exclusions note
+ *               two hundred lines up. It excused the page-backdrop framing
+ *               string ("Tall 9:16 portrait for a phone ... foreground detail
+ *               low in frame").
+ *   canvas   -- a medium. "oil on canvas" would excuse any framing language in
+ *               the same prompt.
+ *   gallery  -- excusable as a wall of pictures, but the one live prompt that
+ *               needs it ("a gilded gallery ... a wall of luminous paintings")
+ *               is already carried by "paintings".
+ *
+ * "mirror" stays, because a mirror on a wall really does have a frame, but only
+ * as a noun: "its bowl worn to a mirror finish" excused the ladle fixture.
+ */
+const FRAME_BEARER =
+  /\b(?:door|doorway|doorframe|window|windows|painting|paintings|photograph|photographs|photo|photos|mirrors?(?![\s-]+(?:finish|finishes|polish|polished|sheen|smooth|bright|like|image))|mount|moulding|easel|spectacles|eyeglasses|loom|bicycle|bedstead|greenhouse|trellis)\b/i
+
+/*
+ * The bare noun, never a hyphenated compound. "Fantasy drawing on the
+ * frame-tale tradition of the Arabian Nights" is the name of a literary form
+ * and the genre's own description, and a hyphen is a word boundary, so a plain
+ * \bframes?\b flagged it (caught by verifyFacetContentQuality, which runs this
+ * contract over every Facet description). The same guard covers "frame-story",
+ * "frame-rate" and "frame-by-frame".
+ */
+const FRAME_NOUN = /(?<!-)\bframes?\b(?!-)/i
+
+/*
+ * "Frame it as a close still life", "Frame it wide and quiet" -- the imperative
+ * VERB, which is what all six MANDARIN_FRAMINGS are and what the narrator seeds
+ * use constantly ("Frames the stories of ..."). This rule is about the noun: a
+ * body called a frame, or a composition called a frame. There is no rendered
+ * evidence against the verb, and flagging it would mean rewriting a deliberate
+ * and uniform art-direction set -- one of whose lines names a real window frame.
+ *
+ * Only a sentence that OPENS with it, and only followed by a pronoun or
+ * determiner, because that is the shape a verb takes here. A noun use never
+ * starts a sentence that way; it says "A frame of ..." or "An unpeopled frame".
+ */
+const FRAME_VERB = /^\s*Frames?\s+(?:it|them|this|these|the|your|his|her|their|every|all)\b/i
+
+/**
+ * Whether this prompt depicts a real frame, judged over the WHOLE prompt.
+ *
+ * Prompt-level rather than sentence-level, because a prompt whose subject IS a
+ * frame establishes it once and then refers back: the butterfly-gallery mount
+ * asset opens with "a single thick industrial display frame or picture mount"
+ * and closes with "nothing hangs from the frame", and a sentence-local test
+ * rejects that closing line. Nothing is lost by widening the scope, because
+ * anatomy and composition uses never name a frame object anywhere -- "bronze
+ * filament stitching coral into scar tissue in frame" says bronze but never
+ * says the frame is made of it, so it is still caught.
+ */
+function depictsRealFrame(prompt: string): boolean {
+  return (
+    FRAME_OBJECT_ADJACENT.test(prompt) ||
+    FRAME_OBJECT_DECLARED.test(prompt) ||
+    FRAME_BEARER.test(prompt)
+  )
+}
+
+/** The sentences that put "frame" in front of Krea with no frame to draw. */
+function frameNounUses(prompt: string): string[] {
+  if (depictsRealFrame(prompt)) return []
+  return prompt
+    .split(/(?<=[.!?])\s+/)
+    .map((sentence) => sentence.trim())
+    .filter((sentence) => FRAME_NOUN.test(sentence) && !FRAME_VERB.test(sentence))
+}
+
 const PEOPLE_NEGATION_CLAUSE =
   /\b(?:no|not|without|avoid|avoiding|never|free of|devoid of|absent of|excluding|omit|omitting)\s+((?:[a-z][a-z-]*\s+){0,2}[a-z][a-z-]*)/gi
 
@@ -416,7 +572,25 @@ export function checkArtPromptContract(
           `describe one. A caption-conditioned model renders the words: ` +
           `"concrete" becomes concrete, "iconic" becomes a monument, ` +
           `"silhouette" becomes a black cut-out. Say what is actually visible ` +
-          `in the frame instead.`,
+          `in the picture instead.`,
+      })
+    }
+
+    /*
+     * Rule 8. Same scope as the jargon rule and for the same reason: these are
+     * the caption-conditioned engines that paint the word. A prompt bound for
+     * a chat model may say "frame" and be understood.
+     */
+    for (const sentence of frameNounUses(prompt)) {
+      violations.push({
+        rule: 'frame-noun',
+        detail:
+          `"${sentence}" uses "frame" where no frame is meant. Krea paints the ` +
+          `noun: a body described as "a thin frame" renders as a picture frame ` +
+          `and the body disappears (ArtJobs 30116, 30117). Say "build", ` +
+          `"body" or "physique" for anatomy, and "picture" for the ` +
+          `composition. Write "frame" only when a real frame is in the scene, ` +
+          `and name what it is made of or what it holds.`,
       })
     }
   }
@@ -458,9 +632,10 @@ export function checkArtPromptContract(
         detail:
           `${peopleNos.join(', ')} names the people you do not want on an engine ` +
           `whose negative prompt is inert, so the noun lands in POSITIVE ` +
-          `conditioning and the frame fills with them. Say what the frame IS: ` +
-          `"an unpeopled frame", "a deserted street", "the subject alone on a ` +
-          `plain ground".`,
+          `conditioning and the picture fills with them. Say what the picture ` +
+          `IS: "an unpeopled picture", "a deserted street", "the subject alone ` +
+          `on a plain ground". Not "frame" -- see the frame-noun rule; this ` +
+          `remedy used to say it and Krea drew the frame.`,
       })
     }
   }

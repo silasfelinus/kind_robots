@@ -7,6 +7,7 @@
 // visual content.
 
 import { HOUSE_STYLE_TAIL } from './entityArtPromptFraming'
+import { repairFramePrompt } from './framePromptRepair'
 
 type JsonRecord = Record<string, unknown>
 
@@ -242,7 +243,7 @@ function cleanFragment(value: string): string {
       ),
       ' ',
     )
-    .replace(/\bEvery surface in frame is blank and unmarked\.?/gi, ' ')
+    .replace(/\bEvery surface in (?:frame|the picture) is blank and unmarked\.?/gi, ' ')
     .replace(/\bKeep text-bearing surfaces blank[^.]*\.?/gi, ' ')
     .replace(/\bclean unmarked surfaces\b/gi, 'clean surfaces')
     .replace(/\bunmarked surfaces\b/gi, 'clean surfaces')
@@ -289,7 +290,15 @@ export function kreaPromptHasContextNoise(value: unknown): boolean {
  * database labels.
  */
 export function buildKreaSemanticPrompt(value: unknown): string {
-  let prompt = normalize(value)
+  /*
+   * The frame repair runs FIRST, before any scrubbing, because this function
+   * builds the string that actually reaches CLIP. A stored row still saying
+   * "An unpeopled frame" (Reward 233 and every other prompt
+   * DEFAULT_UNPEOPLED_ART_DIRECTION touched) would otherwise arrive here
+   * unrepaired and be rejected by the frame-noun rule at enqueue -- the repair
+   * was wired only into the normalizer, which this path never calls.
+   */
+  let prompt = repairFramePrompt(normalize(value))
   if (!prompt) return ''
 
   const output: string[] = []

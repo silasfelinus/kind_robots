@@ -402,6 +402,147 @@ assert.deepEqual(
   'SDXL-class engines must not be held to cfg 1',
 )
 
+// ── Rule 8: the word "frame" ────────────────────────────────────────────────
+
+// ArtJobs 30116 and 30117, facet-catalog, 2026-09-21. Both prompts describe a
+// human build; both came back as a picture frame with no body in it -- one a
+// framed portrait on a wall, one a woman holding an empty gilt frame. Neither
+// tripped a single rule, because nothing in this file looked at plain concrete
+// words.
+const FACET_BODY_AS_FRAME = [
+  'A thin frame with prominent collarbones and hollow cheeks, clothes hanging ' +
+    'loose, grip nonetheless firm. A square picture with the subject large and ' +
+    'centred. Polished fantasy illustration.',
+  'An asymmetric frame, one limb visibly different in length or make, gait ' +
+    'compensating in a settled, practised way. A square picture with the ' +
+    'subject large and centred. Polished fantasy illustration.',
+]
+for (const prompt of FACET_BODY_AS_FRAME) {
+  assert.ok(
+    rules({ prompt, engine: 'krea2', steps: 8, cfg: 1 }).includes('frame-noun'),
+    `a body described as a "frame" must be rejected: ${prompt.slice(0, 60)}`,
+  )
+}
+
+// The composition sense is the same bug and gets the same answer. Each of these
+// reached live conditioning from a different producer: the facet taxonomy
+// clauses, DEFAULT_UNPEOPLED_ART_DIRECTION, the art-card figureCount hint, the
+// page-backdrop framing strings, and hand-authored swatch prose.
+for (const prompt of [
+  'A single large form filling the frame, made of this, lit so the colour and the surface behave the way they really do.',
+  'One clear subject alone in the frame, large and plainly lit.',
+  'an unpeopled frame, the subject alone, the space around it bare and deserted',
+  'Tall 9:16 portrait for a phone. Depth should read vertically, foreground detail low in frame, distance receding upward.',
+  'A desert highway at golden hour with warm highlights and cool teal shadows, the whole frame pushed toward a film look.',
+  'Two identical cloisters side by side in the same frame, one in summer and one in deep snow.',
+]) {
+  assert.ok(
+    rules({ prompt, engine: 'krea2', steps: 8, cfg: 1 }).includes('frame-noun'),
+    `a composition-sense "frame" must be rejected: ${prompt.slice(0, 60)}`,
+  )
+}
+
+// A material word somewhere in the prompt is not a frame. This exact prompt was
+// excused by a sentence-local first draft of the rule, on the word "bronze".
+assert.ok(
+  rules({
+    prompt:
+      'A single scarred forearm mid-graft under a bright work lamp, bronze ' +
+      'filament stitching pale coral growth into old scar tissue in frame, ' +
+      'ordinary tools laid out beside it.',
+    engine: 'krea2',
+    steps: 8,
+    cfg: 1,
+  }).includes('frame-noun'),
+  'a material named elsewhere in the prompt must not excuse a composition frame',
+)
+
+// A REAL frame is the one thing the model should draw, and these all render
+// correctly today. The gilding swatch card IS a carved frame taking gold leaf;
+// rejecting it would delete the card that demonstrates gilding.
+for (const prompt of [
+  'A hill field of tall corn with a wicker frame standing at its centre, ribbons moving, the village rooftops far below.',
+  'A restorer laying gold leaf onto a carved frame, the fresh gold flaring where the burnisher has passed and lying dull where it has not.',
+  'A figure pausing at a half-open door with a hand on the frame, head tilted, listening to the room beyond.',
+  'A bedroom window at sunrise where the light spills past the frame and blooms gently into the room.',
+  'A figure in a gilded gallery turning away from a plain grey door toward a wall of luminous paintings, one hand already lifted toward the most beautiful frame.',
+  'A figure in an empty room holding a photograph with the face scraped away, dust outlines on the walls where other frames used to hang.',
+  // The butterfly-gallery display mount: its subject is a frame, established in
+  // the first sentence and referred back to in the last.
+  'A single thick industrial display frame or picture mount, viewed straight-on and centered, with its inner opening left as plain flat mid-grey so a picture can be placed inside it later. The frame itself is riveted brushed steel with rounded corners, a recessed inner lip, and a soft warm rim light along one edge. Nothing sits inside the opening and nothing hangs from the frame.',
+]) {
+  assert.equal(
+    rules({ prompt, engine: 'krea2', steps: 8, cfg: 1 }).includes('frame-noun'),
+    false,
+    `a real frame in the scene must keep rendering: ${prompt.slice(0, 60)}`,
+  )
+}
+
+// The repaired body prose, which is what the seeds now say.
+for (const prompt of [
+  'A thin body with prominent collarbones and hollow cheeks, clothes hanging loose, grip nonetheless firm.',
+  'An asymmetric body, one limb visibly different in length or make, gait compensating in a settled, practised way.',
+  'A short, deep-bodied build planted wide, thick waist, heavy through the thigh, feet set apart.',
+]) {
+  assert.deepEqual(
+    rules({ prompt, engine: 'krea2', steps: 8, cfg: 1 }),
+    [],
+    `the repaired body wording must pass: ${prompt.slice(0, 50)}`,
+  )
+}
+
+// The imperative VERB is not the noun. All six MANDARIN_FRAMINGS open this way,
+// and the narrator seeds use "Frames the stories of ..." throughout; there is no
+// rendered evidence against the verb, and the last mandarin framing names a real
+// window frame besides.
+for (const prompt of [
+  'Frame it as a close still life: the subject large in the square and lightly cropped by it, seen from a little above the surface it rests on.',
+  'Frame it wide and quiet: the subject small and set low in the square, with a large calm field of paper above and around it.',
+  'Frame it through an ordinary near edge such as a doorway, window frame, table edge, or shelf, keeping that near edge a simple dark shape and the subject just beyond it.',
+]) {
+  assert.equal(
+    rules({ prompt, engine: 'krea2', steps: 8, cfg: 1 }).includes('frame-noun'),
+    false,
+    `the imperative verb must not be flagged: ${prompt.slice(0, 50)}`,
+  )
+}
+
+// A noun use in a later sentence is still caught, so the verb exemption cannot
+// be used as a prefix to smuggle one past the gate.
+assert.ok(
+  rules({
+    prompt: 'Frame it as a close still life. A thin frame with prominent collarbones.',
+    engine: 'krea2',
+    steps: 8,
+    cfg: 1,
+  }).includes('frame-noun'),
+  'the verb exemption is per sentence, not a whole-prompt escape hatch',
+)
+
+// The frame-tale genre description: a hyphenated compound, not the noun.
+assert.equal(
+  rules({
+    prompt:
+      'One Thousand and One Nights Fantasy. Fantasy drawing on the frame-tale ' +
+      'tradition of the Arabian Nights: nested stories, bargains struck with ' +
+      'the powerful, and survival through narrative itself.',
+    engine: 'krea2',
+    steps: 8,
+    cfg: 1,
+  }).includes('frame-noun'),
+  false,
+  'a hyphenated compound is not the frame noun',
+)
+
+// Scoped to the caption-conditioned engines, like the jargon rule. A chat model
+// reads "frame" as framing and this rule would only get in the way.
+assert.equal(
+  rules({ prompt: 'A thin frame with prominent collarbones.', engine: 'gpt-image' })
+    .includes('frame-noun'),
+  false,
+  'the frame rule must not apply to engines that read instructions',
+)
+
 // ── Prompts that must NOT trip the gate ─────────────────────────────────────
 
 // The 2026-08-08 "repaired" ladle prompt. This fixture asserted an empty
@@ -429,21 +570,42 @@ assert.ok(
 )
 
 // The same prompt with the exclusion list replaced by the adjective that was
-// doing the work all along.
+// doing the work all along -- and with the word "frame" taken back out of it.
+//
+// This fixture asserted an empty violation list while saying "one object alone
+// in frame ... an unpeopled frame", and DEFAULT_UNPEOPLED_ART_DIRECTION emitted
+// that second clause onto every object and product prompt in the app. So the
+// cure for the crowds was prescribing the frames, certified green on the way
+// past. Third time on this same fixture; see the frame-noun rule.
+const LADLE_AS_REPAIRED_2026_09_21 =
+  'a single Tidefortune Ladle, one object alone in the picture, a dented tin ' +
+  'ladle the length of a forearm, its bowl worn to a mirror finish, the handle ' +
+  'wrapped in salt-stiffened cord, vertical 2:3 portrait composition, museum ' +
+  'product shot, an unpeopled picture, the subject alone, the space around it ' +
+  'bare and deserted, every surface bare and unmarked'
+
 assert.deepEqual(
   rules({
-    prompt:
-      'a single Tidefortune Ladle, one object alone in frame, a dented tin ladle ' +
-      'the length of a forearm, its bowl worn to a mirror finish, the handle ' +
-      'wrapped in salt-stiffened cord, vertical 2:3 portrait composition, museum ' +
-      'product shot, an unpeopled frame, the subject alone, the space around it ' +
-      'bare and deserted, every surface bare and unmarked',
+    prompt: LADLE_AS_REPAIRED_2026_09_21,
     engine: 'krea2',
     steps: 8,
     cfg: 1,
   }),
   [],
   'the positively-stated unpeopled direction must pass',
+)
+
+assert.ok(
+  rules({
+    prompt: LADLE_AS_REPAIRED_2026_09_21.replace(
+      'an unpeopled picture',
+      'an unpeopled frame',
+    ),
+    engine: 'krea2',
+    steps: 8,
+    cfg: 1,
+  }).includes('frame-noun'),
+  'the wording this fixture used to certify must now be rejected',
 )
 
 // Reward 393, "Dr. Eliza Dolittle's Ring": a ring on a leaf, two small animals,

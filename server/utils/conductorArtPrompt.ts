@@ -211,7 +211,7 @@ function contextualFallback(
     // Was 'no readable text, no logos, no watermark, no collage'. Four nouns
     // in positive conditioning on a cfg-1 engine, which is four things to
     // draw. The wanted result says the same thing and can be acted on.
-    'every surface bare and unmarked, one single image filling the frame',
+    'every surface bare and unmarked, one single image filling the picture',
   ].join(' ')
 
   return assessArtPrompt(prompt).useful ? compact(prompt, 1200) : ''
@@ -266,7 +266,7 @@ export async function buildContextualArtPrompt(
           // The image model cannot evaluate "only when the scene calls for it";
           // you can. Decide here, and emit exactly one of these two clauses.
           'Decide whether the finished image contains people at all, then commit to it in the prompt you return.',
-          `If people belong in the frame, include this clause verbatim: ${DEFAULT_CAST_ART_DIRECTION}.`,
+          `If people belong in the picture, include this clause verbatim: ${DEFAULT_CAST_ART_DIRECTION}.`,
           `If the subject is an object, product, tool, mechanism, landscape, or empty interior, include this clause verbatim instead: ${DEFAULT_UNPEOPLED_ART_DIRECTION}.`,
           'Never include both clauses. Never include the casting clause for an inanimate subject — image models read it as a literal instruction to paint a crowd, which erases the requested object.',
           'Return one vivid prompt only. No markdown, no JSON, no quotes.',
@@ -275,7 +275,8 @@ export async function buildContextualArtPrompt(
           'Respect the requested variant: icon is square and simple, card is 2:3 portrait, hero is 16:9 landscape.',
           'Avoid copyrighted characters, licensed style names, and vague filler.',
           'NEVER write an exclusion in the prompt you return. Not "no text", not "no logo", not "no figure" — the prompt is read by a distilled diffusion transformer at cfg 1, which cannot act on a word holding a noun off and simply renders the noun. "no readable text" is how you order lettering.',
-          'Say what the frame DOES contain instead: "every surface bare and unmarked" rather than naming text, "one single image filling the frame" rather than naming a collage.',
+          'Say what the picture DOES contain instead: "every surface bare and unmarked" rather than naming text, "one single image filling the picture" rather than naming a collage.',
+          'Never write the word "frame". Krea paints it as a physical picture frame in every sense: say "build", "body" or "physique" for anatomy and "picture" for the composition, and keep "frame" for a real frame that is genuinely in the scene.',
           'End on a visual note — lighting, material, or mood. Never on a list of things to leave out.',
           'If the supplied context does not identify a real subject, return exactly INSUFFICIENT_CONTEXT.',
         ].join(' '),

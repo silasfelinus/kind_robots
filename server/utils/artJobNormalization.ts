@@ -1,4 +1,5 @@
 import { createError } from 'h3'
+import { repairFramePrompt } from '../../utils/framePromptRepair'
 import {
   parseArtJobPayload,
   type ArtJobPayloadRecord,
@@ -27,20 +28,28 @@ export const DEFAULT_CAST_ART_DIRECTION =
   'cast the people who appear naturally across many species, ages, body sizes, body shapes, gender presentations, and levels of conventional attractiveness'
 
 // For object, product, landscape, and architecture subjects — the counterweight
-// that keeps an empty frame empty. Stated positively because Krea 2 runs at
+// that keeps an empty picture empty. Stated positively because Krea 2 runs at
 // cfg 1, which makes the ComfyUI negative prompt inert (see
 // server/api/comfy/krea2/utils/workflow.ts); every constraint has to survive
 // inside the positive prompt.
 //
 // It was NOT stated positively until 2026-09-19, which is the whole point of
-// the comment above. "an unpeopled frame" is the positive half and it works;
+// the comment above. "an unpeopled ..." is the positive half and it works;
 // "with no bystanders, onlookers, or crowd" then names three kinds of people to
 // an engine that cannot act on the "no", and Krea drew them. Every prompt this
 // constant touched between 2026-08-08 and now carries that tail, which is why
 // the crowds the 2026-08-08 sweep was written to remove kept arriving. One
 // adjective does the job the exclusion list was undoing.
+//
+// The noun was "frame" until 2026-09-21, and that was the next bug in the
+// chain: this constant is appended to object and product prompts wholesale, so
+// it taught Krea to draw a picture frame on every one of them. "Frame" means a
+// physical object to a caption model before it means a boundary -- see the
+// frame-noun rule in artPromptContract.ts, which now rejects it. "Picture" is
+// the house word for the boundary and carries none of that risk; the four live
+// Facet prompts carrying the old wording came from here.
 export const DEFAULT_UNPEOPLED_ART_DIRECTION =
-  'an unpeopled frame, the subject alone, the space around it bare and deserted'
+  'an unpeopled picture, the subject alone, the space around it bare and deserted'
 
 const VAGUE_ART_DIRECTION =
   /\b(?:(?:rich|cohesive|friendly)\s+)?Kind Robots\s+(?:visual\s+)?(?:style|language)\b/gi
@@ -140,8 +149,10 @@ export function normalizeKindRobotsImagePath(value: unknown): string {
  * explicitly reviewed FAILED rows can cross the newer claim-time gate instead
  * of cycling back to FAILED unchanged.
  */
+export { repairFramePrompt }
+
 export function repairLegacyArtPrompt(value: string): string {
-  return value
+  return repairFramePrompt(value)
     .replace(LEGACY_ASSET_ART_DIRECTION, DEFAULT_ASSET_ART_STYLE)
     .replace(LEGACY_CARD_COMPOSITION, 'vertical 2:3 portrait composition')
     .replace(LEGACY_TREASURE_CARD, 'object illustration')
@@ -208,6 +219,38 @@ const PROMPT_TEXT_KEYS = new Set([
   'text',
   'wildcard_text',
 ])
+
+/**
+ * Apply ONLY the frame rewrite across a payload's prompt-bearing strings.
+ *
+ * Deliberately narrower than normalizeArtJobPayload: no whitespace collapse, no
+ * other legacy substitution, the same PROMPT_TEXT_KEYS allowlist. The claim path
+ * needs the frame wording fixed and must not touch anything else -- that
+ * function's own doc comment above records what happened the last time a repair
+ * rewrote more of a payload than it meant to (ArtJob 26024's LoRA filename).
+ *
+ * `text` and `wildcard_text` are in the allowlist, which is what matters here:
+ * the string the gate reads is the baked CLIPTextEncode copy in the graph, not
+ * the top-level promptString.
+ */
+export function repairFramePromptDeep(value: unknown, key = ''): unknown {
+  if (Array.isArray(value)) {
+    return value.map((child) => repairFramePromptDeep(child, key))
+  }
+
+  if (!value || typeof value !== 'object') {
+    return typeof value === 'string' && PROMPT_TEXT_KEYS.has(key)
+      ? repairFramePrompt(value)
+      : value
+  }
+
+  return Object.fromEntries(
+    Object.entries(value as Record<string, unknown>).map(([childKey, child]) => [
+      childKey,
+      repairFramePromptDeep(child, childKey),
+    ]),
+  )
+}
 
 function normalizeStringsDeep(value: unknown, key = ''): unknown {
   if (Array.isArray(value)) {

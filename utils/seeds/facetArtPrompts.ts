@@ -452,7 +452,7 @@ export const CURATED_FACET_ART_PROMPTS: Record<string, string> = {
     'A toppled walking machine in a meadow, ferns growing from its joints, a fox asleep in the cavity of its chest.',
   // Parallel Monasteries
   'parallel-monasteries':
-    'Two identical cloisters side by side in the same frame, one in summer and one in deep snow, the same monk walking in each.',
+    'Two identical cloisters side by side in the same picture, one in summer and one in deep snow, the same monk walking in each.',
   // Post-Human Ritual
   'post-human-ritual':
     'Tall thin figures of ceramic and wire standing in a circle on a salt flat, holding hands, at first light.',
@@ -639,10 +639,10 @@ export const CURATED_FACET_ART_PROMPTS: Record<string, string> = {
     'A three-quarter portrait of a young woman in a dark green gown before a shuttered window, softly modelled in the Florentine manner.',
   // rich color grading
   'rich-color-grading':
-    'A desert highway at golden hour with warm highlights and cool teal shadows, the whole frame pushed toward a film look.',
+    'A desert highway at golden hour with warm highlights and cool teal shadows, the whole picture pushed toward a film look.',
   // sharp focus
   'sharp-focus':
-    'A dandelion clock against a plain dark field, every seed and filament rendered crisply from one edge of the frame to the other.',
+    'A dandelion clock against a plain dark field, every seed and filament rendered crisply from one edge of the picture to the other.',
   // soft bloom
   'soft-bloom':
     'A bedroom window at sunrise where the light spills past the frame and blooms gently into the room.',

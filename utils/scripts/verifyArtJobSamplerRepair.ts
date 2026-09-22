@@ -26,6 +26,7 @@ import {
 // the first version of this test pass locally and fail in CI.
 import { assertQueuedArtPromptContract } from '../../server/utils/artJobQueueSettings'
 import { DISTILLED_ENGINE_LIMITS } from '../../server/utils/artPromptContract'
+import { repairFramePromptDeep } from '../../server/utils/artJobNormalization'
 
 /** The shape ArtJob 4877 actually carried, trimmed to what the gate reads. */
 function krea2JobAsShipped(steps: number, cfg: number) {
@@ -84,9 +85,28 @@ assert.equal(
   'engine is inferred from the Comfy graph',
 )
 assert.ok(repaired.changed, 'a 20-step krea2 job must report a repair')
+
+/*
+ * Both repairs the claim path applies, in the order it applies them. The
+ * sampler clamp alone is no longer enough: this fixture is ArtJob 4877 as
+ * shipped, and its prompt carries "an unpeopled frame" -- the clause
+ * DEFAULT_UNPEOPLED_ART_DIRECTION appended to every object and product prompt,
+ * which the frame-noun rule now rejects. Asserting the clamp alone made the
+ * payload claimable would assert something claim.post.ts does not do, and the
+ * whole point of this file is that a repaired row is actually claimable.
+ */
+const claimable = repairFramePromptDeep(repaired.payload)
 assert.doesNotThrow(
-  () => assertQueuedArtPromptContract('COMFY', repaired.payload),
+  () => assertQueuedArtPromptContract('COMFY', claimable),
   'the repaired payload must pass the same gate that rejected the original',
+)
+
+// And the sampler clamp on its own must NOT be claimed as sufficient, so a
+// future refactor that drops the frame repair from claim.post.ts fails here.
+assert.throws(
+  () => assertQueuedArtPromptContract('COMFY', repaired.payload),
+  /frame-noun/,
+  'the sampler clamp alone must not be treated as making this row claimable',
 )
 
 // The clamp lands where the sampler actually reads it, not only on the metadata.
@@ -211,7 +231,12 @@ for (const required of [
   'repairQueuedArtSampler',
   'const payloadForClaim = { ...samplerRepair.payload }',
   'delete payloadForClaim.processingStartedAt',
-  'assertQueuedArtPromptContract(candidate.engine, payloadForClaim)',
+  // The frame rewrite sits between the clamp and the gate, and the gate reads
+  // its output. Pinned textually for the same reason as the clamp: a refactor
+  // that gates on payloadForClaim again would strand the whole queued backlog
+  // on wording a table can fix, and no DB-free test could reach it.
+  'const payloadForGate = repairFramePromptDeep(',
+  'assertQueuedArtPromptContract(candidate.engine, payloadForGate)',
   'recordSamplerRepair',
 ]) {
   assert.ok(

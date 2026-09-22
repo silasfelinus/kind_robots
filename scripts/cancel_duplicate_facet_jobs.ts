@@ -1,219 +1,223 @@
 // /scripts/cancel_duplicate_facet_jobs.ts
 //
-// Cancel redundant PENDING facet-catalog ArtJobs: rows where the same Facet has
-// more than one queued job asking for the SAME prompt.
+// Cancel PENDING facet-catalog ArtJobs that should not render:
 //
-// Why this exists. --requeue-curated was not idempotent against its own
-// in-flight work until 2026-09-22: curatedPromptNeedsRender() answered "has a
-// picture been painted from this text yet", which is the right question for a
-// DONE job and unanswerable for a PENDING one. So a Facet that already had art
-// from older text queued again on every run. Two `--write --requeue-curated`
-// runs back to back left 452 PENDING jobs across 379 Facets -- 73 duplicates,
-// reported as `pendingReused: 1`.
+//   (default)              a Facet with more than one queued job asking for the
+//                          SAME prompt -- a duplicate render of one picture.
+//   --pasted-description   a job whose prompt is a Facet's own title and
+//                          description pasted together. Those rows never had
+//                          art direction written for them; the producer now
+//                          rebuilds them onto their taxonomy clause, so a job
+//                          queued from the old text renders card copy and
+//                          nothing else.
 //
-// generate_facet_art_v4.ts no longer does that. This is the cleanup for queues
-// that already have duplicates in them, and a safety net if it ever recurs.
+// Why each exists.
 //
-// It recomputes rather than taking a list of ids, because the queue drains
-// while you look at it and a list written a minute ago cancels jobs that
-// already rendered.
+// --requeue-curated was not idempotent against its own in-flight work until
+// 2026-09-22: curatedPromptNeedsRender() answered "has a picture been PAINTED
+// from this text", which is the right question for a DONE job and unanswerable
+// for a PENDING one. So a Facet that already had art from older text queued
+// again on every run. Two runs back to back left 452 PENDING jobs across 379
+// Facets -- 73 duplicates, reported as `pendingReused: 1`.
+//
+// The pasted description is the older fault. A stored prompt that is just the
+// title and the description carries no generated tail, so
+// isLegacyGeneratedFacetPrompt could not see it and the producer shipped it
+// verbatim as though someone had authored it -- with no taxonomy clause after
+// it, because the clause is only appended on a rebuild (Silas, 2026-09-22:
+// "these are AWEFUL prompts. why is this still an issue?"). 60 live Facets
+// carry it, 57 of them were queued.
+//
+// Talks to the database directly, like every other script in scripts/. An
+// earlier draft went through the HTTPS API because that was all the authoring
+// sandbox could reach, and it wanted a KR_API_TOKEN that the machine running
+// this does not have and should not need.
 //
 // Deliberately narrow:
 //   - PENDING only. A RUNNING job holds a relay claim and is never touched.
 //   - the OLDEST job per Facet is always kept, so the work still happens.
 //   - a duplicate is cancelled only when its promptString matches the kept
 //     job's EXACTLY. Two jobs for one Facet with different text are two
-//     different intentions, and this leaves them alone and says so.
-//
-// --pasted-description additionally cancels PENDING jobs whose prompt is a
-// Facet's own title and description pasted together. Those rows never had art
-// direction written for them; the producer now rebuilds them onto their
-// taxonomy clause, so a job queued from the old text renders card copy and
-// nothing else. 57 were queued on 2026-09-22 (Silas: "these are AWEFUL
-// prompts").
+//     different intentions; those are reported and left alone.
+//   - it recomputes every run rather than taking a list of ids, because the
+//     queue drains while you look at it.
 //
 // Usage:
-//   npx tsx scripts/cancel_duplicate_facet_jobs.ts                         # dry run
+//   npx tsx scripts/cancel_duplicate_facet_jobs.ts                          # dry run
 //   npx tsx scripts/cancel_duplicate_facet_jobs.ts --write
 //   npx tsx scripts/cancel_duplicate_facet_jobs.ts --pasted-description
 //   npx tsx scripts/cancel_duplicate_facet_jobs.ts --pasted-description --write
 import 'dotenv/config'
 import { readsAsPastedDescription } from '../utils/facetVisualLanguage'
+import {
+  createScriptPrismaClient,
+  withDatabaseRetry,
+} from './lib/databaseRetry'
 
-const BASE = (process.env.KR_BASE_URL || 'https://kindrobots.org').replace(
-  /\/$/,
-  '',
-)
-const TOKEN = process.env.KR_API_TOKEN || ''
+const PROJECT_SLUG = 'facet-catalog'
 const WRITE = process.argv.includes('--write')
 const PASTED = process.argv.includes('--pasted-description')
 
-type Job = { id: number; payload: unknown }
+const KNOWN_FLAGS = new Set(['--write', '--pasted-description'])
 
-function promptOf(job: Job): string {
-  const p =
-    typeof job.payload === 'string'
-      ? JSON.parse(job.payload)
-      : job.payload || {}
-  return String((p as Record<string, unknown>).promptString || '')
-}
+type QueuedJob = { id: number; payload: string | null }
 
-function facetOf(job: Job): string | null {
-  const raw =
-    typeof job.payload === 'string'
-      ? job.payload
-      : JSON.stringify(job.payload || {})
-  return raw.match(/"entityType":"facet","entityId":(\d+)/)?.[1] ?? null
-}
-
-async function getJson(path: string): Promise<unknown> {
-  // The listing 502s under load often enough to be worth a retry here; a
-  // partial page would silently under-report duplicates.
-  let lastError: unknown = null
-  for (let attempt = 0; attempt < 4; attempt++) {
-    try {
-      const res = await fetch(`${BASE}${path}`, {
-        headers: { Authorization: `Bearer ${TOKEN}` },
-      })
-      if (res.ok) return res.json()
-      lastError = new Error(`${path} -> ${res.status}`)
-    } catch (error) {
-      lastError = error
-    }
-    await new Promise((r) => setTimeout(r, 500 * 2 ** attempt))
+function parsePayload(payload: string | null): Record<string, unknown> {
+  if (!payload) return {}
+  try {
+    const parsed: unknown = JSON.parse(payload)
+    return parsed && typeof parsed === 'object' && !Array.isArray(parsed)
+      ? (parsed as Record<string, unknown>)
+      : {}
+  } catch {
+    return {}
   }
-  throw lastError
+}
+
+function facetIdOf(payload: string | null): number | null {
+  const match = String(payload ?? '').match(
+    /"entityType":"facet","entityId":(\d+)/,
+  )
+  return match?.[1] ? Number(match[1]) : null
 }
 
 async function main(): Promise<void> {
-  if (!TOKEN) throw new Error('KR_API_TOKEN is required.')
-
-  const jobs: Job[] = []
-  for (let page = 1; page <= 50; page++) {
-    const body = (await getJson(
-      `/api/art/queue?status=PENDING&projectSlug=facet-catalog&page=${page}&pageSize=50`,
-    )) as { data?: { jobs?: Job[] } }
-    const batch = body.data?.jobs ?? []
-    if (!batch.length) break
-    jobs.push(...batch)
-    if (batch.length < 50) break
+  // An argv flag that is silently ignored has cost this repo two full queue
+  // cycles; see KNOWN_FLAGS in generate_facet_art_v4.ts.
+  const unknown = process.argv
+    .slice(2)
+    .filter((arg) => arg.startsWith('--') && !KNOWN_FLAGS.has(arg))
+  if (unknown.length) {
+    console.error(`Unrecognized option(s): ${unknown.join(', ')}`)
+    process.exit(2)
   }
 
-  const byFacet = new Map<string, Job[]>()
-  for (const job of jobs) {
-    const facet = facetOf(job)
-    if (facet) byFacet.set(facet, [...(byFacet.get(facet) ?? []), job])
-  }
+  await withDatabaseRetry('Facet art queue cleanup', async () => {
+    const prisma = createScriptPrismaClient()
+    try {
+      const jobs: QueuedJob[] = await prisma.artJob.findMany({
+        where: {
+          projectSlug: PROJECT_SLUG,
+          status: 'PENDING',
+          payload: { contains: '"entityType":"facet"' },
+        },
+        orderBy: { id: 'asc' },
+        select: { id: true, payload: true },
+      })
 
-  const redundant: Array<{ id: number; facet: string; keep: number }> = []
-  const divergent: Array<{ id: number; facet: string; keep: number }> = []
-  for (const [facet, group] of byFacet) {
-    if (group.length < 2) continue
-    const sorted = [...group].sort((a, b) => a.id - b.id)
-    const keep = sorted[0]
-    // group.length >= 2 guarantees this, but noUncheckedIndexedAccess does not
-    // know that, and a silent `keep!` here would be the one place this script
-    // could pick the wrong job to keep.
-    if (!keep) continue
-    const keepPrompt = promptOf(keep)
-    for (const dup of sorted.slice(1)) {
-      const entry = { id: dup.id, facet, keep: keep.id }
-      if (promptOf(dup) === keepPrompt) redundant.push(entry)
-      else divergent.push(entry)
-    }
-  }
-
-  const pasted: Array<{ id: number; title: string }> = []
-  if (PASTED) {
-    const facets = new Map<string, Record<string, unknown>>()
-    for (let skip = 0; ; skip += 250) {
-      const body = (await getJson(
-        `/api/facets?take=250&skip=${skip}&includeInactive=true`,
-      )) as {
-        facets?: Array<Record<string, unknown>>
-        data?: Array<Record<string, unknown>>
+      const byFacet = new Map<number, QueuedJob[]>()
+      for (const job of jobs) {
+        const facetId = facetIdOf(job.payload)
+        if (facetId === null) continue
+        byFacet.set(facetId, [...(byFacet.get(facetId) ?? []), job])
       }
-      const batch = body.facets ?? body.data ?? []
-      if (!batch.length) break
-      const before = facets.size
-      for (const f of batch) facets.set(String(f.id), f)
-      if (facets.size === before) break
-    }
-    for (const [facetId, group] of byFacet) {
-      const facet = facets.get(facetId)
-      if (!facet) continue
-      for (const job of group) {
-        const p =
-          typeof job.payload === 'string'
-            ? JSON.parse(job.payload)
-            : (job.payload as Record<string, unknown>) || {}
-        const base = String(
-          (p as Record<string, unknown>).basePromptString || '',
-        )
-        if (
-          readsAsPastedDescription({
-            artPrompt: base,
-            title: String(facet.title ?? ''),
-            description: String(facet.description ?? ''),
-          })
-        ) {
-          pasted.push({ id: job.id, title: String(facet.title ?? '') })
+
+      const redundant: Array<{ id: number; why: string }> = []
+      const divergent: Array<{ id: number; facetId: number; keep: number }> = []
+      for (const [facetId, group] of byFacet) {
+        if (group.length < 2) continue
+        const keep = group[0]
+        // group.length >= 2 guarantees this, but noUncheckedIndexedAccess does
+        // not know it, and a silent `keep!` would be the one place this script
+        // could pick the wrong job to keep.
+        if (!keep) continue
+        const keepPrompt = String(parsePayload(keep.payload).promptString ?? '')
+        for (const dup of group.slice(1)) {
+          const prompt = String(parsePayload(dup.payload).promptString ?? '')
+          if (prompt === keepPrompt) {
+            redundant.push({ id: dup.id, why: `duplicate of ${keep.id}` })
+          } else {
+            divergent.push({ id: dup.id, facetId, keep: keep.id })
+          }
         }
       }
+
+      const pasted: Array<{ id: number; why: string }> = []
+      if (PASTED) {
+        const facets = await prisma.facet.findMany({
+          where: { id: { in: [...byFacet.keys()] } },
+          select: { id: true, title: true, description: true },
+        })
+        const byId = new Map(facets.map((f) => [f.id, f]))
+        for (const [facetId, group] of byFacet) {
+          const facet = byId.get(facetId)
+          if (!facet) continue
+          for (const job of group) {
+            const base = String(
+              parsePayload(job.payload).basePromptString ?? '',
+            )
+            if (
+              readsAsPastedDescription({
+                artPrompt: base,
+                title: facet.title,
+                description: facet.description,
+              })
+            ) {
+              pasted.push({
+                id: job.id,
+                why: `pasted description (${facet.title})`,
+              })
+            }
+          }
+        }
+      }
+
+      console.log(
+        `pending ${PROJECT_SLUG} jobs: ${jobs.length} across ${byFacet.size} Facet(s)`,
+      )
+      console.log(`exact duplicates: ${redundant.length}`)
+      if (PASTED)
+        console.log(`queued from a pasted description: ${pasted.length}`)
+      if (divergent.length) {
+        console.log(
+          `\nLEFT ALONE -- same Facet, different prompt (${divergent.length}). Two intentions, not a duplicate:`,
+        )
+        for (const d of divergent) {
+          console.log(`  job ${d.id} (facet ${d.facetId}, alongside ${d.keep})`)
+        }
+      }
+
+      // A job can be both a duplicate and a pasted description; cancel it once.
+      const seen = new Set<number>()
+      const targets = [...redundant, ...pasted].filter((t) => {
+        if (seen.has(t.id)) return false
+        seen.add(t.id)
+        return true
+      })
+      if (!targets.length) {
+        console.log('\nNothing to cancel.')
+        return
+      }
+      if (!WRITE) {
+        console.log(
+          `\n[dry run] would cancel ${targets.length}: ${targets.map((t) => t.id).join(',')}`,
+        )
+        console.log('Re-run with --write to cancel.')
+        return
+      }
+
+      // Status is re-checked in the update so a job claimed since the read is
+      // left to the relay rather than yanked out from under it.
+      const result = await prisma.artJob.updateMany({
+        where: { id: { in: targets.map((t) => t.id) }, status: 'PENDING' },
+        data: {
+          status: 'CANCELLED',
+          claimedAt: null,
+          claimedBy: null,
+          error:
+            'Cancelled by Facet art queue cleanup: a duplicate of another queued job, or queued from a prompt that was the Facet description pasted whole.',
+        },
+      })
+      console.log(`\ncancelled ${result.count}/${targets.length}`)
+      if (result.count < targets.length) {
+        console.log(
+          '  the remainder were claimed between the read and the write; the relay owns those.',
+        )
+      }
+    } finally {
+      await prisma.$disconnect()
     }
-  }
-
-  console.log(
-    `pending facet-catalog jobs: ${jobs.length} across ${byFacet.size} Facet(s)`,
-  )
-  if (PASTED) console.log(`queued from a pasted description: ${pasted.length}`)
-  console.log(`exact duplicates to cancel: ${redundant.length}`)
-  if (divergent.length) {
-    console.log(
-      `\nLEFT ALONE -- same Facet, different prompt (${divergent.length}). These are two intentions, not a duplicate:`,
-    )
-    for (const d of divergent)
-      console.log(`  job ${d.id} (facet ${d.facet}, alongside ${d.keep})`)
-  }
-
-  const targets = [
-    ...redundant.map((r) => ({ id: r.id, why: `duplicate of ${r.keep}` })),
-    ...pasted.map((p) => ({
-      id: p.id,
-      why: `pasted description (${p.title})`,
-    })),
-  ]
-  if (!targets.length) return
-  if (!WRITE) {
-    console.log(
-      `\n[dry run] would cancel ${targets.length}: ${targets.map((t) => t.id).join(',')}`,
-    )
-    console.log('Re-run with --write to cancel.')
-    return
-  }
-
-  let cancelled = 0
-  const failed: Array<{ id: number; reason: string }> = []
-  for (const entry of targets) {
-    const res = await fetch(`${BASE}/api/art/queue/${entry.id}/cancel`, {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${TOKEN}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ reason: 'stale-facet-prompt' }),
-    })
-    if (res.ok) {
-      cancelled++
-      console.log(`cancelled ${entry.id} (${entry.why})`)
-    } else {
-      // A job claimed between the listing and now is not an error worth
-      // stopping for -- it is the queue doing its job.
-      failed.push({ id: entry.id, reason: `HTTP ${res.status}` })
-    }
-  }
-  console.log(`\ncancelled ${cancelled}/${targets.length}`)
-  for (const f of failed) console.log(`  not cancelled: ${f.id} (${f.reason})`)
+  })
 }
 
 main().catch((error) => {

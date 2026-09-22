@@ -307,7 +307,12 @@
 
           <!-- The ONE facet surface. Selection is canonical Facet ids, which
                ride to the ArtJob and onto the finished ArtImage. -->
-          <art-facet-selector v-model="facetIds" label="Creative Facets" compact />
+          <art-facet-selector
+            v-model="facetIds"
+            label="Creative Facets"
+            compact
+            placement="up"
+          />
         </div>
 
         <!-- ── Right column: model, settings, destination ─────────────── -->
@@ -472,29 +477,37 @@
                   <span class="kr-label-row">
                     <span class="kr-label-bold">Width</span>
                   </span>
-                  <input
+                  <select
                     v-model.number="width"
-                    class="kr-input-rounded-2xl bg-base-100"
-                    type="number"
-                    min="256"
-                    max="2048"
-                    step="64"
+                    class="select select-bordered rounded-2xl bg-base-100"
                     :disabled="artStore.isGenerating"
-                  />
+                  >
+                    <option
+                      v-for="option in widthOptions"
+                      :key="option"
+                      :value="option"
+                    >
+                      {{ option }}
+                    </option>
+                  </select>
                 </label>
                 <label class="form-control">
                   <span class="kr-label-row">
                     <span class="kr-label-bold">Height</span>
                   </span>
-                  <input
+                  <select
                     v-model.number="height"
-                    class="kr-input-rounded-2xl bg-base-100"
-                    type="number"
-                    min="256"
-                    max="2048"
-                    step="64"
+                    class="select select-bordered rounded-2xl bg-base-100"
                     :disabled="artStore.isGenerating"
-                  />
+                  >
+                    <option
+                      v-for="option in heightOptions"
+                      :key="option"
+                      :value="option"
+                    >
+                      {{ option }}
+                    </option>
+                  </select>
                 </label>
               </template>
 
@@ -643,6 +656,7 @@ import type { LoraPick } from '@/components/art/art-lora-picker.vue'
 import {
   ART_GENERATOR_PRESETS,
   CHECKPOINT_FAMILY_LABELS,
+  artDimensionOptions,
   DEFAULT_ART_PRESET_ID,
   IMAGE_TO_IMAGE_PRESET_ID,
   detectCheckpointFamily,
@@ -892,6 +906,22 @@ const samplerOptions = computed(() => {
     ? [current, ...COMFY_SAMPLERS]
     : COMFY_SAMPLERS
 })
+
+function preserveCurrentDimension(options: number[], current: number): number[] {
+  const value = Number(current)
+  if (!Number.isFinite(value) || options.includes(value)) return options
+  return [...options, value].sort((a, b) => a - b)
+}
+
+const baseDimensionOptions = computed(() =>
+  artDimensionOptions(activePreset.value.engine, selectedCheckpointFamily.value),
+)
+const widthOptions = computed(() =>
+  preserveCurrentDimension(baseDimensionOptions.value, Number(width.value)),
+)
+const heightOptions = computed(() =>
+  preserveCurrentDimension(baseDimensionOptions.value, Number(height.value)),
+)
 
 // ── Preset drift ────────────────────────────────────────────────────────────
 

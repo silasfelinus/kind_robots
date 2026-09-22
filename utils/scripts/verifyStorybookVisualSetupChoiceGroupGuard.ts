@@ -43,7 +43,10 @@ interface ChoiceGroupSpec {
 // ungrouped) instead of just "not found".
 const CHOICE_GROUPS: ChoiceGroupSpec[] = [
   { label: 'Narrator voice', loopMarker: 'v-for="option in narratorCards"' },
-  { label: 'Shape of the tale', loopMarker: 'v-for="option in structureCards"' },
+  {
+    label: 'Shape of the tale',
+    loopMarker: 'v-for="option in structureCards"',
+  },
 ]
 
 function extractGridRegion(content: string, loopMarker: string): string | null {

@@ -65,6 +65,7 @@ import {
 import {
   buildFacetIdentityPromptFrom,
   isLegacyGeneratedFacetPrompt,
+  readsAsPastedDescription,
   taxonomyVisualLanguage,
   CLAUSE_TAXONOMIES,
   V5_OCCUPATION_TAIL,
@@ -77,6 +78,7 @@ import {
 
 export {
   isLegacyGeneratedFacetPrompt,
+  readsAsPastedDescription,
   taxonomyVisualLanguage,
   CLAUSE_TAXONOMIES,
 }
@@ -547,7 +549,22 @@ export function buildFacetIdentityPrompt(
    * is what this producer then persists back to Facet.artPrompt.
    */
   const existing = repairFramePrompt(clean(facet.artPrompt))
-  if (existing && !isLegacyGeneratedFacetPrompt(existing)) return existing
+  /*
+   * A stored prompt that is nothing but the title and the description is the
+   * v2 paste, not art direction, and it carries no generated tail for
+   * isLegacyGeneratedFacetPrompt to recognize -- so it has been sailing
+   * through this bypass verbatim, with no taxonomy clause after it, for as
+   * long as it has existed. Falling through rebuilds it, which drops the card
+   * copy and gives Krea the clause that names a picture.
+   */
+  const pastedDescription = readsAsPastedDescription({
+    artPrompt: existing,
+    title: facet.title,
+    description: facet.description,
+  })
+  if (existing && !isLegacyGeneratedFacetPrompt(existing) && !pastedDescription) {
+    return existing
+  }
 
   const metadata = parseMetadata(profile.metadata)
   const metadataPrompt = usableMetadataArtworkPrompt(metadata)
@@ -568,7 +585,22 @@ export function buildFacetIdentityPrompt(
     taxonomy: profile.taxonomy,
     scientificName,
     category,
-    description: facet.description,
+    /*
+     * The pasted description is dropped outright rather than filtered.
+     *
+     * readsAsCardCopy works sentence by sentence and is tuned to catch
+     * figurative and abstract prose; it does not catch a flat genre
+     * DEFINITION. Left in, "Secondary worlds at continental scale, with
+     * invented history, multiple cultures, and stakes that reach the shape of
+     * the world itself" survives the filter and still reaches Krea, which was
+     * the complaint. Widening readsAsCardCopy to catch it would touch every
+     * rebuild in the catalog; this is narrower and rests on something already
+     * known for certain about these 60 rows -- the stored prompt IS the
+     * description, so no one ever wrote art direction for them, and the
+     * taxonomy clause is exactly what carries a Facet with no prose of its
+     * own. flavorText and examples are kept: only the description was pasted.
+     */
+    description: pastedDescription ? null : facet.description,
     flavorText: facet.flavorText,
     examples: facet.examples,
     metadataPrompt,

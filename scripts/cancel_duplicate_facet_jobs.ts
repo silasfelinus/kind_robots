@@ -25,10 +25,20 @@
 //     job's EXACTLY. Two jobs for one Facet with different text are two
 //     different intentions, and this leaves them alone and says so.
 //
+// --pasted-description additionally cancels PENDING jobs whose prompt is a
+// Facet's own title and description pasted together. Those rows never had art
+// direction written for them; the producer now rebuilds them onto their
+// taxonomy clause, so a job queued from the old text renders card copy and
+// nothing else. 57 were queued on 2026-09-22 (Silas: "these are AWEFUL
+// prompts").
+//
 // Usage:
-//   npx tsx scripts/cancel_duplicate_facet_jobs.ts            # dry run
+//   npx tsx scripts/cancel_duplicate_facet_jobs.ts                         # dry run
 //   npx tsx scripts/cancel_duplicate_facet_jobs.ts --write
+//   npx tsx scripts/cancel_duplicate_facet_jobs.ts --pasted-description
+//   npx tsx scripts/cancel_duplicate_facet_jobs.ts --pasted-description --write
 import 'dotenv/config'
+import { readsAsPastedDescription } from '../utils/facetVisualLanguage'
 
 const BASE = (process.env.KR_BASE_URL || 'https://kindrobots.org').replace(
   /\/$/,
@@ -36,6 +46,7 @@ const BASE = (process.env.KR_BASE_URL || 'https://kindrobots.org').replace(
 )
 const TOKEN = process.env.KR_API_TOKEN || ''
 const WRITE = process.argv.includes('--write')
+const PASTED = process.argv.includes('--pasted-description')
 
 type Job = { id: number; payload: unknown }
 
@@ -112,9 +123,50 @@ async function main(): Promise<void> {
     }
   }
 
+  const pasted: Array<{ id: number; title: string }> = []
+  if (PASTED) {
+    const facets = new Map<string, Record<string, unknown>>()
+    for (let skip = 0; ; skip += 250) {
+      const body = (await getJson(
+        `/api/facets?take=250&skip=${skip}&includeInactive=true`,
+      )) as {
+        facets?: Array<Record<string, unknown>>
+        data?: Array<Record<string, unknown>>
+      }
+      const batch = body.facets ?? body.data ?? []
+      if (!batch.length) break
+      const before = facets.size
+      for (const f of batch) facets.set(String(f.id), f)
+      if (facets.size === before) break
+    }
+    for (const [facetId, group] of byFacet) {
+      const facet = facets.get(facetId)
+      if (!facet) continue
+      for (const job of group) {
+        const p =
+          typeof job.payload === 'string'
+            ? JSON.parse(job.payload)
+            : (job.payload as Record<string, unknown>) || {}
+        const base = String(
+          (p as Record<string, unknown>).basePromptString || '',
+        )
+        if (
+          readsAsPastedDescription({
+            artPrompt: base,
+            title: String(facet.title ?? ''),
+            description: String(facet.description ?? ''),
+          })
+        ) {
+          pasted.push({ id: job.id, title: String(facet.title ?? '') })
+        }
+      }
+    }
+  }
+
   console.log(
     `pending facet-catalog jobs: ${jobs.length} across ${byFacet.size} Facet(s)`,
   )
+  if (PASTED) console.log(`queued from a pasted description: ${pasted.length}`)
   console.log(`exact duplicates to cancel: ${redundant.length}`)
   if (divergent.length) {
     console.log(
@@ -124,10 +176,17 @@ async function main(): Promise<void> {
       console.log(`  job ${d.id} (facet ${d.facet}, alongside ${d.keep})`)
   }
 
-  if (!redundant.length) return
+  const targets = [
+    ...redundant.map((r) => ({ id: r.id, why: `duplicate of ${r.keep}` })),
+    ...pasted.map((p) => ({
+      id: p.id,
+      why: `pasted description (${p.title})`,
+    })),
+  ]
+  if (!targets.length) return
   if (!WRITE) {
     console.log(
-      `\n[dry run] would cancel: ${redundant.map((r) => r.id).join(',')}`,
+      `\n[dry run] would cancel ${targets.length}: ${targets.map((t) => t.id).join(',')}`,
     )
     console.log('Re-run with --write to cancel.')
     return
@@ -135,27 +194,25 @@ async function main(): Promise<void> {
 
   let cancelled = 0
   const failed: Array<{ id: number; reason: string }> = []
-  for (const entry of redundant) {
+  for (const entry of targets) {
     const res = await fetch(`${BASE}/api/art/queue/${entry.id}/cancel`, {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${TOKEN}`,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ reason: 'duplicate-curated-requeue' }),
+      body: JSON.stringify({ reason: 'stale-facet-prompt' }),
     })
     if (res.ok) {
       cancelled++
-      console.log(
-        `cancelled ${entry.id} (facet ${entry.facet}, kept ${entry.keep})`,
-      )
+      console.log(`cancelled ${entry.id} (${entry.why})`)
     } else {
       // A job claimed between the listing and now is not an error worth
       // stopping for -- it is the queue doing its job.
       failed.push({ id: entry.id, reason: `HTTP ${res.status}` })
     }
   }
-  console.log(`\ncancelled ${cancelled}/${redundant.length}`)
+  console.log(`\ncancelled ${cancelled}/${targets.length}`)
   for (const f of failed) console.log(`  not cancelled: ${f.id} (${f.reason})`)
 }
 

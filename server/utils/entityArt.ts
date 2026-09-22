@@ -14,6 +14,7 @@ import {
 } from '~/utils/entityArtPromptFraming'
 import {
   buildFacetIdentityPromptFrom,
+  readsAsPastedDescription,
   isLegacyGeneratedFacetPrompt,
 } from '~/utils/facetVisualLanguage'
 
@@ -1287,12 +1288,21 @@ function facetArtDirection(
   const prompt = userPrompt.trim()
   const keep = { direction: prompt, supersededArtPrompt: '' }
   if (entityType !== 'facet' || !taxonomy) return keep
-  if (!isLegacyGeneratedFacetPrompt(prompt)) return keep
+  // The v2 paste carries no generated tail, so it reads as curated here too.
+  // See readsAsPastedDescription in utils/facetVisualLanguage.ts.
+  const pastedDescription = readsAsPastedDescription({
+    artPrompt: prompt,
+    title: record.title,
+    description: record.description,
+  })
+  if (!isLegacyGeneratedFacetPrompt(prompt) && !pastedDescription) return keep
 
   const rebuilt = buildFacetIdentityPromptFrom({
     title: safeText(record.title),
     taxonomy,
-    description: safeText(record.description),
+    // Dropped outright when it is what was pasted, matching the producer. See
+    // the note on the same call in scripts/generate_facet_art_v4.ts.
+    description: pastedDescription ? null : safeText(record.description),
     flavorText: safeText(record.flavorText),
     examples: safeText(record.examples),
   })

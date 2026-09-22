@@ -1916,4 +1916,9 @@ export const CURATED_FACET_ART_PROMPTS: Record<string, string> = {
   // Person
   'art-art-subject-person':
     'Standing alone on a windy hillside in late afternoon light, a woman in a long green coat turns to look over her shoulder, her whole body visible from head to boots, hair lifted by the wind.',
+  // ── 2026-09-22: queued with the "picture" re-render sweep, whose rebuild
+  //    left it as title plus the stock personality clause. ──
+  // Deceptive
+  'deceptive':
+    'Across a candlelit card table, a smiling man in a velvet waistcoat lays three cups face down while his free hand slides a pearl into his cuff, the opponent leaning in to watch the wrong cup.',
 }

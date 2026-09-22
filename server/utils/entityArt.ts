@@ -15,6 +15,7 @@ import {
 import {
   buildFacetIdentityPromptFrom,
   isLegacyGeneratedFacetPrompt,
+  storedPromptIsCardCopy,
 } from '~/utils/facetVisualLanguage'
 
 export type EntityArtType =
@@ -1287,7 +1288,17 @@ function facetArtDirection(
   const prompt = userPrompt.trim()
   const keep = { direction: prompt, supersededArtPrompt: '' }
   if (entityType !== 'facet' || !taxonomy) return keep
-  if (!isLegacyGeneratedFacetPrompt(prompt)) return keep
+  /*
+   * Two tests, because a registered clause is only one of the two ways a
+   * generated prompt announces itself, and the weaker one is a whitelist that
+   * by definition lags the batch that broke. storedPromptIsCardCopy catches the
+   * rows whose tail a repair pass already trimmed away.
+   */
+  if (
+    !isLegacyGeneratedFacetPrompt(prompt) &&
+    !storedPromptIsCardCopy(prompt, safeText(record.description))
+  )
+    return keep
 
   const rebuilt = buildFacetIdentityPromptFrom({
     title: safeText(record.title),

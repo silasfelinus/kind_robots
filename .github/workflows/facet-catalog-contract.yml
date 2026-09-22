@@ -77,6 +77,12 @@ jobs:
       - name: Verify legacy Facet art prompt signature
         run: npx tsx utils/scripts/verifyFacetLegacyPromptSignature.ts
 
+      # The signature step above is a whitelist of clauses a producer is known
+      # to have written, so it can only recognize a cohort already diagnosed
+      # from the pictures. This one asks a property of the stored text instead.
+      - name: Verify Facet card-copy prompts are rebuilt
+        run: npx tsx utils/scripts/verifyFacetCardCopyRebuild.ts
+
       - name: Verify prompt-enhancement swatch and retirement policy
         run: npx tsx utils/scripts/verifyPromptEnhancementSwatches.ts
 

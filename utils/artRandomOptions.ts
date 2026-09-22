@@ -87,8 +87,12 @@ export function compactRandomArtPrompt(
   artPrompt: string | null | undefined,
   maxChars = 280,
 ): string {
-  const cleanLabel = String(label ?? '').replace(/\s+/g, ' ').trim()
-  const cleanPrompt = String(artPrompt ?? '').replace(/\s+/g, ' ').trim()
+  const cleanLabel = String(label ?? '')
+    .replace(/\s+/g, ' ')
+    .trim()
+  const cleanPrompt = String(artPrompt ?? '')
+    .replace(/\s+/g, ' ')
+    .trim()
   if (!cleanPrompt) return cleanLabel
 
   const prefix = cleanLabel ? `${cleanLabel}: ` : ''
@@ -110,7 +114,10 @@ export function compactRandomArtPrompt(
         : wordCut >= Math.floor(promptBudget * 0.7)
           ? wordCut
           : promptBudget
-    compact = `${candidate.slice(0, cut).trim().replace(/[,:;-]+$/, '')}…`
+    compact = `${candidate
+      .slice(0, cut)
+      .trim()
+      .replace(/[,:;-]+$/, '')}…`
   }
 
   return `${prefix}${compact}`.slice(0, limit).trim()

@@ -4,7 +4,7 @@ import type { Server } from '~/prisma/generated/prisma/client'
 import { errorHandler } from '../../../utils/error'
 import { getServerEndpoint, resolveServer } from '../../../utils/serverResolver'
 import { authAndGate } from '../../../utils/comfyGate'
-import { fluxDualClipLoaderNode } from '../../../utils/fluxTextEncoders'
+import { kontextDualClipLoaderNode } from '../../../utils/fluxTextEncoders'
 
 type KombineGenerateRequest = {
   serverId?: number | null
@@ -373,7 +373,7 @@ function buildKombineWorkflow(input: {
         title: 'ReferenceLatent',
       },
     },
-    '196': fluxDualClipLoaderNode(),
+    '196': kontextDualClipLoaderNode(),
     '197': {
       inputs: {
         unet_name: 'flux1-kontext-dev-Q5_K_M.gguf',

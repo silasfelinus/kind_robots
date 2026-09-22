@@ -234,12 +234,31 @@ if (!fs.existsSync(runner)) {
       /KIND_ROBOTS_CONTAINER:-KindRobots/,
     ],
     ['runner does not default to the host loopback', /KIND_ROBOTS_URL:-\}/],
-    ['runner drives the chosen endpoint', /art-archive\/\$\{endpoint\}/],
-    ['runner defaults to the read-only dry run', /ENDPOINT='dry-run'/],
+    ['runner drives the chosen path', /const target = new URL\(path, base\)/],
+    // Silas's third live run printed NOTHING at all, for either --dry-run or
+    // --import: a non-2xx with an empty body hit `[[ -n "$response" ]] && ...`,
+    // which short-circuits, so the script exited silently and a failed import
+    // looked exactly like a quiet success. Every exit must now say why.
+    [
+      'a failing request names its HTTP status',
+      /HTTP \$\{code\} from \$\{method\} \$\{target\}/,
+    ],
+    ['an empty error body is reported as such', /\(empty response body\)/],
+    [
+      'a 2xx with an empty body is an error, not a silent pass',
+      /the app answered but sent an empty body/,
+    ],
+    ['no exit path is silent', /Failed with exit status %s/],
+    ['status read scans nothing', /entries\?page=1&pageSize=1/],
+    [
+      'runner defaults to the read-only dry run',
+      /^REQUEST_PATH='\/api\/admin\/art-archive\/dry-run'$/m,
+    ],
     [
       'runner requires an explicit --import to write',
-      /--import\) ENDPOINT='import'/,
+      /--import\)\s*\n\s*REQUEST_PATH='\/api\/admin\/art-archive\/import'/,
     ],
+    ['the status read is a GET, never a write', /REQUEST_METHOD='GET'/],
     // undici caps headersTimeout at 5 minutes and a whole-archive scan can
     // exceed that before the server sends a single header, so the request uses
     // node:http with no timeout rather than fetch.

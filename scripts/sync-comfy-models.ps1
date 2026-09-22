@@ -152,6 +152,68 @@ function Test-ModelHeader([string] $Path) {
   }
 }
 
+function Test-ZeroTail([string] $Path) {
+  # The half of the preallocation problem Test-ModelHeader cannot see.
+  #
+  # robocopy /J preallocates the whole destination, then writes it front to
+  # back. Where the interruption lands decides which failure you get:
+  #
+  #   EARLY  the magic is unwritten, Test-ModelHeader returns $false, and
+  #          ComfyUI-GGUF raises `GGUF magic invalid` in under a second. Loud.
+  #   LATE   the header and the early tensors are real. The file loads with NO
+  #          ERROR, the unwritten tail dequantises to zeros, the UNet predicts
+  #          nothing, the sampler never denoises, and VAEDecode hands back the
+  #          latent's own noise as a valid, well-formed image. The job reports
+  #          DONE. Nothing anywhere says a word.
+  #
+  # The late case is what produced months of "pure corrupted noise" renders on
+  # the Kontext lane (conductor coloring-book/t-039, ai-art-academy/t-079). Its
+  # signature is in the RENDER, not the file: byte-identical output statistics
+  # from completely different source images, because the output stopped
+  # depending on the input at all.
+  #
+  # A megabyte of real quantised weights is never uniformly zero -- every quant
+  # block carries its own scale -- and GGUF's alignment padding is at most 31
+  # bytes. So an all-zero megabyte at the end means preallocated-and-unwritten.
+  $window = 1MB
+  try {
+    $fs = [System.IO.File]::OpenRead($Path)
+    try {
+      if ($fs.Length -lt $window) { return $false }
+      $fs.Seek(-$window, [System.IO.SeekOrigin]::End) | Out-Null
+      $buf = New-Object byte[] $window
+      $read = 0
+      while ($read -lt $window) {
+        $n = $fs.Read($buf, $read, $window - $read)
+        if ($n -le 0) { break }
+        $read += $n
+      }
+      for ($i = 0; $i -lt $read; $i++) { if ($buf[$i] -ne 0) { return $false } }
+      return ($read -gt 0)
+    } finally { $fs.Close() }
+  } catch { return $false }
+}
+
+# ComfyUI registers TWO directories under one category and searches them IN
+# ORDER, returning the first os.path.isfile hit:
+#
+#   folder_names_and_paths["diffusion_models"] = ([models/unet, models/diffusion_models], ...)
+#   folder_names_and_paths["text_encoders"]    = ([models/text_encoders, models/clip], ...)
+#
+# get_filename_list_ collects them into a set() keyed by path relative to each
+# root, so the same filename in both roots shows as ONE dropdown entry and
+# nothing on screen says which one loads. A copy in the LOSING directory is
+# dead weight; a stale or broken copy in the WINNING one silently shadows a
+# good file next door. This maps each manifest category to the other names
+# ComfyUI pools with it, nearest-first.
+$SiblingRoots = @{
+  unet        = @('unet', 'diffusion_models')
+  clip        = @('text_encoders', 'clip')
+  vae         = @('vae')
+  checkpoints = @('checkpoints')
+  loras       = @('loras')
+}
+
 function Test-ModelsDir([string] $Path) {
   if ([string]::IsNullOrWhiteSpace($Path)) { return $false }
   if (-not (Test-Path -LiteralPath $Path -PathType Container)) { return $false }
@@ -299,6 +361,20 @@ function Get-RemoteIndex {
   return $script:remoteIndex
 }
 
+# ── stale staging ───────────────────────────────────────────────────────────
+#
+# A run killed between robocopy and Move-Item leaves .kr-sync-tmp\<name> behind.
+# Every Fail path above removes it, but a power cut or a closed window does not,
+# and ComfyUI's recursive_search walks hidden directories (it excludes only
+# .git), so the partial is offered in the dropdown as `.kr-sync-tmp\<name>` --
+# a loadable-looking model that is whatever fraction of itself got written.
+foreach ($sub in 'unet', 'diffusion_models', 'clip', 'text_encoders', 'vae', 'checkpoints', 'loras') {
+  $stale = Join-Path $Local (Join-Path $sub '.kr-sync-tmp')
+  if (-not (Test-Path -LiteralPath $stale -PathType Container)) { continue }
+  Write-Host "clearing leftover staging directory: $stale" -ForegroundColor Yellow
+  if (-not $DryRun) { Remove-Item -LiteralPath $stale -Recurse -Force -ErrorAction SilentlyContinue }
+}
+
 # ── plan ────────────────────────────────────────────────────────────────────
 $plan = @()
 $missing = 0
@@ -350,6 +426,20 @@ foreach ($line in $Manifest) {
     continue
   }
 
+  # Which copy would ComfyUI actually load? Not necessarily the one this script
+  # writes: the category's sibling directory may be searched first, and a file
+  # sitting there wins regardless of what lands at $dest.
+  $loads = $null
+  foreach ($sub in ($SiblingRoots[$subdir] + @($subdir) | Select-Object -Unique)) {
+    $cand = Join-Path $Local (Join-Path $sub $relWin)
+    if (Test-Path -LiteralPath $cand -PathType Leaf) { $loads = $cand; break }
+  }
+  if ($loads -and ($loads -ne $dest)) {
+    Write-Host ('  {0,-6} {1,-12} {2,-52} SHADOWED' -f $rowTier, $subdir, $rel) -ForegroundColor Yellow
+    Write-Host ('         ComfyUI loads {0} first - a copy at {1} is ignored.' -f $loads, $dest)
+    Write-Host ('         Audit it: .\scripts\comfy-model-shadow-audit.ps1 -Local {0}' -f $Local)
+  }
+
   if ((Test-Path -LiteralPath $dest -PathType Leaf) -and
       ((Get-Item -LiteralPath $dest).Length -eq $src.Length)) {
     # Right length is not the same as intact - see Test-ModelHeader. A corrupt
@@ -357,6 +447,11 @@ foreach ($line in $Manifest) {
     # local first), so skipping it here would leave every render failing.
     if ((Test-ModelHeader $dest) -eq $false) {
       Write-Host ('  {0,-6} {1,-12} {2,-52} CORRUPT locally - recopying' -f $rowTier, $subdir, $rel)
+    } elseif (Test-ZeroTail $dest) {
+      # Right length, right magic, unwritten tail: the copy that renders static
+      # instead of failing. Nothing before this check could tell it from a
+      # healthy file, so it survived every previous re-run of this script.
+      Write-Host ('  {0,-6} {1,-12} {2,-52} ZERO TAIL locally - recopying' -f $rowTier, $subdir, $rel) -ForegroundColor Yellow
     } else {
       Write-Host ('  {0,-6} {1,-12} {2,-52} already local ({3})' -f $rowTier, $subdir, $rel, (Format-Size $src.Length))
       continue
@@ -424,6 +519,16 @@ foreach ($item in $plan) {
   if ((Test-ModelHeader $staged) -eq $false) {
     Remove-Item -LiteralPath $stage -Recurse -Force -ErrorAction SilentlyContinue
     Fail "corrupt copy for $($item.Rel) - right size, bad container header - share copy left in place"
+  }
+
+  if (Test-ZeroTail $staged) {
+    # Right size, right magic, unwritten tail. Promoting this would install a
+    # file that renders static without ever reporting an error, which is worse
+    # than no file at all: a missing model fails loudly on the first job.
+    Remove-Item -LiteralPath $stage -Recurse -Force -ErrorAction SilentlyContinue
+    Fail ("unwritten copy for $($item.Rel) - right size, valid header, last 1MB all zeros. " +
+          "Re-run with -Verify to checksum against the share; if the share copy is itself " +
+          "bad, re-acquire it there. Share copy left in place")
   }
 
   if ($Verify) {

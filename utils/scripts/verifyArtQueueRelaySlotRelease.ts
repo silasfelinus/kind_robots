@@ -102,8 +102,14 @@ for (const required of [
   'claimedAt: claimTime,',
   'const payloadForClaim = { ...samplerRepair.payload }',
   'delete payloadForClaim.processingStartedAt',
-  'assertQueuedArtPromptContract(candidate.engine, payloadForClaim)',
-  'const currentProvenance = readArtJobProvenance(payloadForClaim)',
+  // The frame rewrite (2026-09-21) sits between the sampler clamp and the gate,
+  // so the gate and everything after it read payloadForGate. Without the
+  // rewrite the frame-noun rule strands every queued row carrying "an
+  // unpeopled frame" -- which DEFAULT_UNPEOPLED_ART_DIRECTION appended to every
+  // object and product prompt -- failing forever at claim time.
+  'const payloadForGate = repairFramePromptDeep(',
+  'assertQueuedArtPromptContract(candidate.engine, payloadForGate)',
+  'const currentProvenance = readArtJobProvenance(payloadForGate)',
 ]) {
   assertIncludes(route, 'Art queue stable processing start', required)
 }

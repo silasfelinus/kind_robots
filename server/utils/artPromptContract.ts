@@ -359,6 +359,15 @@ const PEOPLE_NOUNS = new Set([
  *                   this correctly and must keep working: the gilding swatch
  *                   card IS a carved frame with gold leaf going onto it.
  *
+ *    And it had been seen before, which is what "again" meant. The LoRA probe
+ *    scaffold tried 'subject centered in frame' on 2026-09-16/17 and it
+ *    "rendered framed pictures hanging on walls" -- recorded in the header of
+ *    utils/scripts/verifyLoraProbeSubject.test.ts, walked back for that one
+ *    producer, and never generalized into a rule. Five days later the same
+ *    noun did the same thing to the Facet catalog. A finding written down in
+ *    one producer's test header is a finding every other producer is still
+ *    free to repeat.
+ *
  *    So this rule does not try to tell anatomy from composition -- both are
  *    wrong and both have the same fix. It flags "frame" UNLESS the sentence
  *    establishes a real frame object, which is the narrow, checkable case.

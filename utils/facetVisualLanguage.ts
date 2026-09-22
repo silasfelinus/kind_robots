@@ -469,9 +469,18 @@ export function buildFacetIdentityPromptFrom(
    * A Facet's own description can carry the word too: Neonpunk's said "no
    * daylight anywhere in frame" until it was republished.
    */
+  /*
+   * A title that already ends in sentence punctuation does not get another
+   * period. 111 live Facets have one -- the whole sentence-title cohort
+   * ("Once the ruler of a kingdom now turned to ruin.") -- and each was
+   * producing "...turned to ruin.." as the first thing in its conditioning.
+   */
+  const title = clean(input.title)
+  const titleSentence = /[.!?]$/.test(title) ? title : `${title}.`
+
   return repairFramePrompt(
     [
-      `${clean(input.title)}.`,
+      titleSentence,
       clean(input.scientificName) ? `${clean(input.scientificName)}.` : '',
       clean(input.category) ? `${clean(input.category)}.` : '',
       ...prose,

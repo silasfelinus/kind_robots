@@ -378,6 +378,7 @@ export function curatedPromptNeedsRender(
   hasAttempt: boolean,
   renderedPrompt: string | undefined,
   paintedPrompt?: string | undefined,
+  inFlightPrompt?: string | undefined,
 ): boolean {
   const curated = clean(facet.artPrompt)
   // Nothing authored here, or the text is the producer's own: not this mode's
@@ -399,6 +400,25 @@ export function curatedPromptNeedsRender(
    */
   const staticOnly = Boolean(clean(facet.imagePath)) && facet.artImageId === null
   if (!hasAttempt && !staticOnly) return false
+  /*
+   * A PENDING or RUNNING job already asked for this exact text, so asking again
+   * renders the same picture twice.
+   *
+   * This check has to come BEFORE the painted comparison below, not after it.
+   * The painted branch returns early, and for a Facet that already has art from
+   * OLDER text it returns true every single run -- the in-flight job has not
+   * painted anything yet, so nothing it does can change that answer. Two
+   * `--write --requeue-curated` runs in a row on 2026-09-22 left 452 pending
+   * jobs across 379 Facets: 306 were correctly skipped (never painted, so the
+   * payload comparison below caught them) and 73 duplicated, every one of them
+   * a Facet with an existing render. The counters said `pendingReused: 1`.
+   *
+   * Deliberately an exact match on the raw stored text, the same comparison the
+   * payload branch uses: the job's basePromptString is stored unframed, so a
+   * queued job and the catalog row are directly comparable. If the text has
+   * since been edited again, this does not match and the re-queue is correct.
+   */
+  if (inFlightPrompt !== undefined && inFlightPrompt === curated) return false
   /*
    * The picture on the card is the only thing Silas can see, so it is the only
    * honest answer to "has this been rendered yet".
@@ -1183,12 +1203,22 @@ export async function main(): Promise<void> {
         const attempted = new Set<string>()
         const newestJobPrompt = new Map<string, string>()
         const newestJob = new Map<string, { id: number; version: string }>()
+        // Only the jobs that have not rendered yet. A DONE job is answered by
+        // the painted image; an in-flight one is answered by nothing at all,
+        // which is what let a second run queue it again.
+        const inFlightPrompt = new Map<string, string>()
         for (const job of history) {
           const target = artTarget(job.payload)
           if (!target) continue
           if (!['PENDING', 'RUNNING', 'DONE'].includes(job.status)) continue
           const key = `${target.entityId}:${target.field}`
           attempted.add(key)
+          if (
+            target.basePrompt &&
+            (job.status === 'PENDING' || job.status === 'RUNNING')
+          ) {
+            inFlightPrompt.set(key, target.basePrompt)
+          }
           const rank = versionRank(target.version)
           if (rank >= (newestAttemptRank.get(key) ?? -1)) {
             newestJob.set(key, { id: job.id, version: target.version })
@@ -1207,6 +1237,7 @@ export async function main(): Promise<void> {
               attempted.has(key),
               newestJobPrompt.get(key),
               paintedPromptByFacet.get(facet.id),
+              inFlightPrompt.get(key),
             )
           ) {
             continue

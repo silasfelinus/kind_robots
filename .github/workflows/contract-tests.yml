@@ -99,6 +99,11 @@ jobs:
       - name: Civitai id resolution contract
         run: npm run test:civitai-ids
 
+      # The same sweep, silent for 25 minutes: every network round trip ran
+      # before the first line printed, so "working" and "wedged" looked alike.
+      - name: LoRA backfill progress-output contract
+        run: npm run test:backfill-progress
+
       # Both of these cover server/utils/promptVariants.ts, which is now shared
       # between the Challenge Center's variant generator and the art
       # randomizer's batch roll. test:prompt-variants existed but was wired

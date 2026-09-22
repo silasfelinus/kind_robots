@@ -22,12 +22,12 @@ const checks = [
   [
     'store calls the dry-run endpoint',
     store,
-    /performFetch<ArchiveDryRunReport>\('\/api\/admin\/art-archive\/dry-run', \{ method: 'POST' \}\)/,
+    /performFetch<ArchiveDryRunReport>\(\s*'\/api\/admin\/art-archive\/dry-run',\s*\{ method: 'POST' \},/,
   ],
   [
     'store calls the import endpoint',
     store,
-    /performFetch<ArchiveImportReport>\('\/api\/admin\/art-archive\/import', \{ method: 'POST' \}\)/,
+    /performFetch<ArchiveImportReport>\(\s*'\/api\/admin\/art-archive\/import',\s*\{ method: 'POST' \},/,
   ],
   [
     'store checks success before storing the dry-run report',
@@ -135,9 +135,91 @@ for (const [name, pattern] of tabChecks) {
 }
 
 if (fs.existsSync('pages/admin/art-archive.vue')) {
-  console.error('FAIL: the old unreachable pages/admin/art-archive.vue is back alongside the routed page')
+  console.error(
+    'FAIL: the old unreachable pages/admin/art-archive.vue is back alongside the routed page',
+  )
   failed = true
-} else console.log('PASS: the page lives only at the route the nav tab points to')
+} else
+  console.log('PASS: the page lives only at the route the nav tab points to')
+
+// A whole-archive scan cannot answer inside performFetch's 10s default, and a
+// retry would restart it from scratch (Silas, 2026-09-22: "Request timed out
+// after 10000ms" on the first live Dry Run).
+if (!/const ARCHIVE_SCAN_TIMEOUT_MS = 600_000/.test(store)) {
+  console.error(
+    "FAIL: the scan calls must pass an explicit long timeout, not performFetch's 10s default",
+  )
+  failed = true
+} else console.log('PASS: the scan calls pass an explicit long timeout')
+
+if (!/const ARCHIVE_SCAN_RETRIES = 0/.test(store)) {
+  console.error(
+    'FAIL: a scan must never be retried -- a retry restarts the whole walk',
+  )
+  failed = true
+} else console.log('PASS: a timed-out scan is not retried')
+
+const scanCallsUseTimeout = (
+  store.match(/ARCHIVE_SCAN_RETRIES,\s*\n\s*ARCHIVE_SCAN_TIMEOUT_MS,/g) || []
+).length
+if (scanCallsUseTimeout !== 2) {
+  console.error(
+    `FAIL: both dry-run and import must use the long timeout (found ${scanCallsUseTimeout} of 2)`,
+  )
+  failed = true
+} else console.log('PASS: both dry-run and import use the long timeout')
+
+// THE HEADER RULE: workspace-header already renders room, title and subtitle
+// from the channel front matter. The page's own copy was both a duplicate and,
+// having no surface, unreadable over the backdrop art.
+if (/kr-text-black-2xl/.test(page)) {
+  console.error(
+    'FAIL: the page renders its own title block again -- workspace-header already does that',
+  )
+  failed = true
+} else console.log('PASS: the page renders no duplicate title block')
+
+// Every block that can carry text sits on a surface, so none of it lands
+// directly on the backdrop art.
+if (/class="mb-2 flex/.test(page)) {
+  console.error(
+    'FAIL: a bare control row has no surface and will be unreadable over backdrop art',
+  )
+  failed = true
+} else console.log('PASS: the control rows sit on a surface')
+
+if (/class="kr-note kr-note-error">\{\{ archive\.error \}\}/.test(page)) {
+  console.error(
+    'FAIL: the error notice is back on a 10% tint that vanishes over backdrop art',
+  )
+  failed = true
+} else console.log('PASS: the error notice sits on a real surface')
+
+const runner = 'scripts/art-archive-ingest.sh'
+if (!fs.existsSync(runner)) {
+  console.error(
+    `FAIL: ${runner} is missing -- the bulk pass has no host-side route`,
+  )
+  failed = true
+} else {
+  const shell = fs.readFileSync(runner, 'utf8')
+  const runnerChecks = [
+    ['runner drives the dry-run endpoint', /art-archive\/\$ENDPOINT/],
+    ['runner defaults to the read-only dry run', /ENDPOINT='dry-run'/],
+    [
+      'runner requires an explicit --import to write',
+      /--import\) ENDPOINT='import'/,
+    ],
+    ["runner removes curl's own timeout", /--max-time 0/],
+    ['runner refuses to run without an admin token', /ERROR: no admin token/],
+  ]
+  for (const [name, pattern] of runnerChecks) {
+    if (!pattern.test(shell)) {
+      console.error(`FAIL: ${name}`)
+      failed = true
+    } else console.log(`PASS: ${name}`)
+  }
+}
 
 if (failed) process.exit(1)
 console.log('Art Archive ingestion controls contract verified.')

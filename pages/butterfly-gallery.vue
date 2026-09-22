@@ -51,10 +51,18 @@
       </div>
 
       <div
+        ref="foregroundButterflySlotRef"
         class="foreground-butterfly-slot"
         data-animation-slot="foreground-butterfly"
         aria-hidden="true"
-      />
+      >
+        <img
+          v-if="foregroundButterflyVisible"
+          :src="FOREGROUND_BUTTERFLY_CLIP_URL"
+          :alt="FOREGROUND_BUTTERFLY_CLIP_ALT"
+          class="loop-clip"
+        />
+      </div>
 
       <div class="queue-toolbar">
         <button
@@ -402,10 +410,18 @@
       </aside>
 
       <div
+        ref="robotAnimationSlotRef"
         class="robot-animation-slot"
         data-animation-slot="foreground-robot"
         aria-hidden="true"
-      />
+      >
+        <img
+          v-if="robotLoopVisible"
+          :src="ROBOT_LOOP_CLIP_URL"
+          :alt="ROBOT_LOOP_CLIP_ALT"
+          class="loop-clip"
+        />
+      </div>
 
       <p v-if="!pileEntries.length" class="queue-empty-note kr-text-dim-sm">
         {{
@@ -560,6 +576,21 @@ const RUNWAY_CLIPS: RunwayClip[] = [
 // next clip mounts.
 const RUNWAY_CLIP_DURATION_MS = 3400
 
+// -- Loop motion clips (butterfly-gallery/t-035) -----------------------------
+// The two remaining t-014 ArtJobs (28744 left-butterfly, 28745 robot) failed
+// upstream ("hostbuf_file_reader_read failed") and were freshly resubmitted
+// as 30193/30194; both completed as 4s/16fps looping animated webp. Unlike
+// RUNWAY_CLIPS above, each of these slots shows exactly one clip that loops
+// natively (loop: true) rather than cycling between several stills.
+const FOREGROUND_BUTTERFLY_CLIP_URL =
+  '/images/generated/2026/09/artimage-30458-371b788b.webp'
+const FOREGROUND_BUTTERFLY_CLIP_ALT =
+  'A Gallery butterfly flutters in an independent loop near the top-left of the runway'
+const ROBOT_LOOP_CLIP_URL =
+  '/images/generated/2026/09/artimage-30459-9fbf71cb.webp'
+const ROBOT_LOOP_CLIP_ALT =
+  'A small robot sifts through picture frames in a loop at the lower right'
+
 const userStore = useUserStore()
 const gallery = useButterflyGalleryStore()
 const ready = ref(false)
@@ -570,6 +601,14 @@ const runwayIntersecting = ref(false)
 const runwayCyclingEnabled = ref(false)
 let runwayCycleTimer: ReturnType<typeof setTimeout> | null = null
 let runwayVisibilityObserver: IntersectionObserver | null = null
+const foregroundButterflySlotRef = ref<HTMLElement | null>(null)
+const robotAnimationSlotRef = ref<HTMLElement | null>(null)
+const foregroundButterflyIntersecting = ref(false)
+const robotLoopIntersecting = ref(false)
+const foregroundButterflyVisible = ref(false)
+const robotLoopVisible = ref(false)
+let foregroundButterflyObserver: IntersectionObserver | null = null
+let robotLoopObserver: IntersectionObserver | null = null
 const infoExpanded = ref(false)
 const dropSequence = ref(0)
 const fadeReveal = ref(false)
@@ -680,6 +719,8 @@ onMounted(async () => {
   window.addEventListener('resize', invalidateFunnelDrop)
   document.addEventListener('visibilitychange', invalidateFunnelDrop)
   document.addEventListener('visibilitychange', evaluateRunwayCycle)
+  document.addEventListener('visibilitychange', evaluateForegroundButterflyLoop)
+  document.addEventListener('visibilitychange', evaluateRobotLoop)
   // Bound on the page's own root, not `window`: sorting shortcuts must only
   // fire for keydowns that bubble from inside the gallery, never while focus
   // sits on unrelated site chrome outside this page (PR review on t-020).
@@ -695,11 +736,36 @@ onMounted(async () => {
     )
     if (runwaySlotRef.value)
       runwayVisibilityObserver.observe(runwaySlotRef.value)
+
+    foregroundButterflyObserver = new IntersectionObserver(
+      (entries) => {
+        foregroundButterflyIntersecting.value =
+          entries[0]?.isIntersecting ?? false
+        evaluateForegroundButterflyLoop()
+      },
+      { threshold: 0.05 },
+    )
+    if (foregroundButterflySlotRef.value)
+      foregroundButterflyObserver.observe(foregroundButterflySlotRef.value)
+
+    robotLoopObserver = new IntersectionObserver(
+      (entries) => {
+        robotLoopIntersecting.value = entries[0]?.isIntersecting ?? false
+        evaluateRobotLoop()
+      },
+      { threshold: 0.05 },
+    )
+    if (robotAnimationSlotRef.value)
+      robotLoopObserver.observe(robotAnimationSlotRef.value)
   } else {
     // No IntersectionObserver support: fall back to always-visible so the
     // reduced-motion/tab-hidden gates still apply on their own.
     runwayIntersecting.value = true
     evaluateRunwayCycle()
+    foregroundButterflyIntersecting.value = true
+    evaluateForegroundButterflyLoop()
+    robotLoopIntersecting.value = true
+    evaluateRobotLoop()
   }
 })
 
@@ -707,6 +773,11 @@ onBeforeUnmount(() => {
   window.removeEventListener('resize', invalidateFunnelDrop)
   document.removeEventListener('visibilitychange', invalidateFunnelDrop)
   document.removeEventListener('visibilitychange', evaluateRunwayCycle)
+  document.removeEventListener(
+    'visibilitychange',
+    evaluateForegroundButterflyLoop,
+  )
+  document.removeEventListener('visibilitychange', evaluateRobotLoop)
   pageRootRef.value?.removeEventListener('keydown', handleSortingKeydown)
   reducedMotionMql?.removeEventListener('change', handleReducedMotionChange)
   setIntroKeydownListener(false)
@@ -715,6 +786,10 @@ onBeforeUnmount(() => {
   if (activeDropAnimation) activeDropAnimation.cancel()
   runwayVisibilityObserver?.disconnect()
   runwayVisibilityObserver = null
+  foregroundButterflyObserver?.disconnect()
+  foregroundButterflyObserver = null
+  robotLoopObserver?.disconnect()
+  robotLoopObserver = null
   stopRunwayCycle()
 })
 
@@ -770,6 +845,8 @@ function finishIntro(): void {
 function handleReducedMotionChange(event: MediaQueryListEvent): void {
   if (event.matches && gallery.status === 'intro') finishIntro()
   evaluateRunwayCycle()
+  evaluateForegroundButterflyLoop()
+  evaluateRobotLoop()
 }
 
 /** Advances to the next runway clip after RUNWAY_CLIP_DURATION_MS, keyed
@@ -805,6 +882,22 @@ function evaluateRunwayCycle(): void {
   if (runwayCyclingEnabled.value) return
   runwayCyclingEnabled.value = true
   scheduleNextRunwayClip()
+}
+
+/** Same three-signal gate as evaluateRunwayCycle (on-screen, tab visible,
+ * motion not reduced), applied to the two single-clip loop slots (t-035).
+ * No cycling timer is needed here -- each slot mounts its one clip, which
+ * loops on its own via the animated webp's native loop flag. */
+function evaluateForegroundButterflyLoop(): void {
+  foregroundButterflyVisible.value =
+    foregroundButterflyIntersecting.value &&
+    !prefersReducedMotion() &&
+    !document.hidden
+}
+
+function evaluateRobotLoop(): void {
+  robotLoopVisible.value =
+    robotLoopIntersecting.value && !prefersReducedMotion() && !document.hidden
 }
 
 function handleIntroKeydown(event: KeyboardEvent): void {
@@ -1667,6 +1760,14 @@ function pileStyle(index: number, total: number): Record<string, string> {
   pointer-events: none;
 }
 
+.loop-clip {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  pointer-events: none;
+  animation: runway-clip-fade-in 260ms ease;
+}
+
 .art-pile {
   position: absolute;
   z-index: 20;
@@ -2026,7 +2127,8 @@ function pileStyle(index: number, total: number): Record<string, string> {
   .pile-card-pop,
   .preset-bin-accepted,
   .intro-tumble-frame,
-  .runway-clip {
+  .runway-clip,
+  .loop-clip {
     animation: none;
   }
 

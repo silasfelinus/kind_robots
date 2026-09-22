@@ -106,6 +106,27 @@ export const resourceListSelect = {
   // fetch per card onto exactly the screen this select exists to keep cheap --
   // the "show me the unclassified LoRAs" pass is a whole-catalog sweep.
   loraCategory: true,
+  /*
+   * The category without its provenance is not reviewable. CIVITAI means
+   * upstream tagged it and it is usually right; HEURISTIC means a title
+   * keyword matched and is where the 2026-09-22 sweep's mistakes live
+   * (CREATURE and OBJECT are about half wrong); HUMAN means Silas already
+   * decided and nothing should overwrite it. One nullable VarChar(32) against
+   * a row that already carries `description` -- the cheapest column on this
+   * select and the one that says which of the other one to trust.
+   *
+   * It also closes a type lie: resourceGalleryStore.loadResources() types
+   * /api/resources as ResourceGalleryRecord, which DOES declare this field, so
+   * `resource.loraCategorySource` typechecked everywhere while arriving
+   * undefined at runtime. loraTriageStore's suggestCategories() guards human
+   * decisions with `canReclassify(resource.loraCategorySource)`, and undefined
+   * is not HUMAN, so that guard has always returned true. It is shadowed today
+   * by the "already has a category" check one line above it -- but the moment
+   * anyone adds a re-suggest pass over already-categorised rows, which is the
+   * obvious next move after a classifier fix, the human protection would
+   * silently be gone.
+   */
+  loraCategorySource: true,
   ArtImage: {
     select: resourcePreviewArtImageSelect,
   },

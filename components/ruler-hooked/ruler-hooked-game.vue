@@ -26,8 +26,14 @@
       <template v-if="store.save">
         <div class="flex flex-wrap items-center justify-between gap-3">
           <div>
-            <p class="kr-text-bold-sm">{{ store.save.ruler.honorific }} {{ store.save.ruler.name }}</p>
-            <p class="kr-text-faded-xs">Turn {{ store.save.turnCount }} · {{ store.save.status.toLowerCase() }} · {{ store.save.counters.fishCaught ?? 0 }} fish</p>
+            <p class="kr-text-bold-sm">
+              {{ store.save.ruler.honorific }} {{ store.save.ruler.name }}
+            </p>
+            <p class="kr-text-faded-xs">
+              Turn {{ store.save.turnCount }} ·
+              {{ store.save.status.toLowerCase() }} ·
+              {{ store.save.counters.fishCaught ?? 0 }} fish
+            </p>
           </div>
           <div class="flex shrink-0 items-center gap-2">
             <button
@@ -96,22 +102,45 @@
           v-if="store.activeCard"
           :card="store.activeCard"
           :advisor-name="store.advisorCharacter?.name"
+          :advisor-slug="store.advisorCharacter?.slug"
           @choose="store.choose($event)"
         />
 
-        <div v-if="store.pendingEnding" class="rounded-xl border border-accent bg-accent/10 p-4">
+        <div
+          v-if="store.pendingEnding"
+          class="rounded-xl border border-accent bg-accent/10 p-4"
+        >
           <p class="kr-text-bold-sm">An ending is within reach:</p>
           <p class="kr-text-bold-lg mt-1">{{ endingTitle }}</p>
           <p v-if="endingBody" class="kr-text-faded-sm-80">{{ endingBody }}</p>
           <div class="mt-3 flex gap-2">
-            <button type="button" class="btn btn-accent btn-sm" @click="store.acceptEnding()">Take this ending</button>
-            <button type="button" class="kr-btn-ghost-plain" @click="store.declineEnding()">Keep fishing</button>
+            <button
+              type="button"
+              class="btn btn-accent btn-sm"
+              @click="store.acceptEnding()"
+            >
+              Take this ending
+            </button>
+            <button
+              type="button"
+              class="kr-btn-ghost-plain"
+              @click="store.declineEnding()"
+            >
+              Keep fishing
+            </button>
           </div>
         </div>
 
-        <div v-if="store.save.status === 'COMPLETE'" class="rounded-xl border border-success bg-success/10 p-4 text-center">
-          <p class="kr-text-bold-lg">{{ endingTitleFor(store.save.endingKey) }}</p>
-          <p class="kr-text-faded-sm-80">The reign is complete. Start another from Manage saves above.</p>
+        <div
+          v-if="store.save.status === 'COMPLETE'"
+          class="rounded-xl border border-success bg-success/10 p-4 text-center"
+        >
+          <p class="kr-text-bold-lg">
+            {{ endingTitleFor(store.save.endingKey) }}
+          </p>
+          <p class="kr-text-faded-sm-80">
+            The reign is complete. Start another from Manage saves above.
+          </p>
         </div>
 
         <RulerHookedFishopedia :save="store.save" />
@@ -283,6 +312,8 @@ function endingTitleFor(key: string | null): string {
 }
 const endingTitle = computed(() => endingTitleFor(store.pendingEnding))
 const endingBody = computed(
-  () => store.bundle.endings.find((x) => x.outcomeKey === store.pendingEnding)?.body ?? '',
+  () =>
+    store.bundle.endings.find((x) => x.outcomeKey === store.pendingEnding)
+      ?.body ?? '',
 )
 </script>

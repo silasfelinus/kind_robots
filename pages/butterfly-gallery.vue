@@ -29,10 +29,18 @@
       </div>
 
       <div
+        ref="runwaySlotRef"
         class="runway-slot"
         data-animation-slot="butterfly-runway"
         aria-hidden="true"
       >
+        <img
+          v-if="runwayCyclingEnabled && runwayClip"
+          :key="runwayClip.url"
+          :src="runwayClip.url"
+          :alt="runwayClip.alt"
+          class="runway-clip"
+        />
         <span v-for="index in 8" :key="index" class="runway-panel" />
       </div>
 
@@ -514,10 +522,54 @@ import {
   resolveButterflyShortcutIntent,
 } from '@/stores/helpers/butterflyGalleryShortcuts'
 
+// -- Runway motion clips (butterfly-gallery/t-033) --------------------------
+// 5 of the 7 t-014 ArtJobs (28739-28743) rendered successfully; the two loop
+// shots (28744 left-butterfly, 28745 robot) FAILED with a ComfyUI
+// "hostbuf_file_reader_read failed" CLIPTextEncode error and are tracked for
+// a fresh, scoped resubmission in the roadmap note rather than reused here.
+// These 5 are non-looping runway passes (~3s/16fps animated webp) that cycle
+// through the reserved "butterfly-runway" slot one at a time.
+interface RunwayClip {
+  url: string
+  alt: string
+}
+
+const RUNWAY_CLIPS: RunwayClip[] = [
+  {
+    url: '/images/generated/2026/09/artimage-30382-4e86796b.webp',
+    alt: 'A Gallery butterfly tows a blank picture frame on a string across the runway',
+  },
+  {
+    url: '/images/generated/2026/09/artimage-30383-8c319891.webp',
+    alt: 'Two Gallery butterflies carry a blank picture frame together across the runway',
+  },
+  {
+    url: '/images/generated/2026/09/artimage-30384-dd4f99f0.webp',
+    alt: 'A Gallery butterfly struggles under an oversized blank picture frame across the runway',
+  },
+  {
+    url: '/images/generated/2026/09/artimage-30385-e83b419e.webp',
+    alt: 'A Gallery butterfly confidently carries a blank picture frame across the runway',
+  },
+  {
+    url: '/images/generated/2026/09/artimage-30386-fb797f4d.webp',
+    alt: 'A Gallery butterfly recovers a dropped blank picture frame mid-carry across the runway',
+  },
+]
+// Each source clip is ~3s; the extra 400ms lets the fade-in settle before the
+// next clip mounts.
+const RUNWAY_CLIP_DURATION_MS = 3400
+
 const userStore = useUserStore()
 const gallery = useButterflyGalleryStore()
 const ready = ref(false)
 const pageRootRef = ref<HTMLElement | null>(null)
+const runwaySlotRef = ref<HTMLElement | null>(null)
+const runwayClipIndex = ref(0)
+const runwayIntersecting = ref(false)
+const runwayCyclingEnabled = ref(false)
+let runwayCycleTimer: ReturnType<typeof setTimeout> | null = null
+let runwayVisibilityObserver: IntersectionObserver | null = null
 const infoExpanded = ref(false)
 const dropSequence = ref(0)
 const fadeReveal = ref(false)
@@ -547,6 +599,7 @@ let dropRunToken = 0
 let acceptedBinTimer: ReturnType<typeof setTimeout> | null = null
 
 const pileEntries = computed(() => gallery.visiblePile.slice(0, 18))
+const runwayClip = computed(() => RUNWAY_CLIPS[runwayClipIndex.value])
 
 // -- Auto-prefetch (butterfly-gallery/t-024) --------------------------------
 // The pile only ever renders 18 cards (pileEntries above), so the queue never
@@ -626,21 +679,43 @@ onMounted(async () => {
 
   window.addEventListener('resize', invalidateFunnelDrop)
   document.addEventListener('visibilitychange', invalidateFunnelDrop)
+  document.addEventListener('visibilitychange', evaluateRunwayCycle)
   // Bound on the page's own root, not `window`: sorting shortcuts must only
   // fire for keydowns that bubble from inside the gallery, never while focus
   // sits on unrelated site chrome outside this page (PR review on t-020).
   pageRootRef.value?.addEventListener('keydown', handleSortingKeydown)
+
+  if (typeof window !== 'undefined' && 'IntersectionObserver' in window) {
+    runwayVisibilityObserver = new IntersectionObserver(
+      (entries) => {
+        runwayIntersecting.value = entries[0]?.isIntersecting ?? false
+        evaluateRunwayCycle()
+      },
+      { threshold: 0.05 },
+    )
+    if (runwaySlotRef.value)
+      runwayVisibilityObserver.observe(runwaySlotRef.value)
+  } else {
+    // No IntersectionObserver support: fall back to always-visible so the
+    // reduced-motion/tab-hidden gates still apply on their own.
+    runwayIntersecting.value = true
+    evaluateRunwayCycle()
+  }
 })
 
 onBeforeUnmount(() => {
   window.removeEventListener('resize', invalidateFunnelDrop)
   document.removeEventListener('visibilitychange', invalidateFunnelDrop)
+  document.removeEventListener('visibilitychange', evaluateRunwayCycle)
   pageRootRef.value?.removeEventListener('keydown', handleSortingKeydown)
   reducedMotionMql?.removeEventListener('change', handleReducedMotionChange)
   setIntroKeydownListener(false)
   clearIntroTimers()
   if (acceptedBinTimer) clearTimeout(acceptedBinTimer)
   if (activeDropAnimation) activeDropAnimation.cancel()
+  runwayVisibilityObserver?.disconnect()
+  runwayVisibilityObserver = null
+  stopRunwayCycle()
 })
 
 watch(
@@ -694,6 +769,42 @@ function finishIntro(): void {
 
 function handleReducedMotionChange(event: MediaQueryListEvent): void {
   if (event.matches && gallery.status === 'intro') finishIntro()
+  evaluateRunwayCycle()
+}
+
+/** Advances to the next runway clip after RUNWAY_CLIP_DURATION_MS, keyed
+ * so a fresh <img> remounts and restarts the animated webp from frame 0. */
+function scheduleNextRunwayClip(): void {
+  if (runwayCycleTimer) clearTimeout(runwayCycleTimer)
+  runwayCycleTimer = setTimeout(() => {
+    runwayClipIndex.value = (runwayClipIndex.value + 1) % RUNWAY_CLIPS.length
+    scheduleNextRunwayClip()
+  }, RUNWAY_CLIP_DURATION_MS)
+}
+
+function stopRunwayCycle(): void {
+  runwayCyclingEnabled.value = false
+  if (runwayCycleTimer) {
+    clearTimeout(runwayCycleTimer)
+    runwayCycleTimer = null
+  }
+}
+
+/** Gates the runway clip cycle on all three conditions at once: on-screen
+ * (IntersectionObserver), the tab visible (document.hidden), and motion not
+ * reduced (prefersReducedMotion) -- per t-033's acceptance criteria, carried
+ * over from t-014/t-031. Re-evaluated from every input's own change handler
+ * rather than assumed to stay true once started. */
+function evaluateRunwayCycle(): void {
+  const shouldRun =
+    runwayIntersecting.value && !prefersReducedMotion() && !document.hidden
+  if (!shouldRun) {
+    stopRunwayCycle()
+    return
+  }
+  if (runwayCyclingEnabled.value) return
+  runwayCyclingEnabled.value = true
+  scheduleNextRunwayClip()
 }
 
 function handleIntroKeydown(event: KeyboardEvent): void {
@@ -1081,10 +1192,23 @@ function pileStyle(index: number, total: number): Record<string, string> {
     url('/images/butterfly-gallery/runway-background.png');
   background-repeat: no-repeat, no-repeat;
   background-position: center, center;
-  background-size: 100% 100%, cover;
+  background-size:
+    100% 100%,
+    cover;
   box-shadow:
     inset 0 0 0 3px color-mix(in oklch, var(--color-info) 28%, transparent),
     0 10px 22px color-mix(in oklch, var(--color-neutral) 20%, transparent);
+}
+
+.runway-clip {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  pointer-events: none;
+  animation: runway-clip-fade-in 260ms ease;
 }
 
 .runway-panel {
@@ -1209,8 +1333,8 @@ function pileStyle(index: number, total: number): Record<string, string> {
 /* Individual production bin faces live on the media server. Labels, counts,
    hit areas, hover/selection scaling, and drag/drop behavior remain real DOM. */
 .preset-bin-gold {
-  background: var(--color-warning)
-    url('/images/butterfly-gallery/bin-gold.png') center / 100% 100% no-repeat;
+  background: var(--color-warning) url('/images/butterfly-gallery/bin-gold.png')
+    center / 100% 100% no-repeat;
   color: var(--color-warning-content);
 }
 
@@ -1221,8 +1345,8 @@ function pileStyle(index: number, total: number): Record<string, string> {
 }
 
 .preset-bin-blue {
-  background: var(--color-info)
-    url('/images/butterfly-gallery/bin-blue.png') center / 100% 100% no-repeat;
+  background: var(--color-info) url('/images/butterfly-gallery/bin-blue.png')
+    center / 100% 100% no-repeat;
   color: var(--color-info-content);
 }
 
@@ -1233,8 +1357,8 @@ function pileStyle(index: number, total: number): Record<string, string> {
 }
 
 .preset-bin-pink {
-  background: var(--color-accent)
-    url('/images/butterfly-gallery/bin-pink.png') center / 100% 100% no-repeat;
+  background: var(--color-accent) url('/images/butterfly-gallery/bin-pink.png')
+    center / 100% 100% no-repeat;
   color: var(--color-accent-content);
 }
 
@@ -1496,8 +1620,8 @@ function pileStyle(index: number, total: number): Record<string, string> {
 }
 
 .trash-action {
-  background: var(--color-error)
-    url('/images/butterfly-gallery/trash.png') center / 100% 100% no-repeat;
+  background: var(--color-error) url('/images/butterfly-gallery/trash.png')
+    center / 100% 100% no-repeat;
   color: var(--color-error-content);
 }
 
@@ -1554,8 +1678,7 @@ function pileStyle(index: number, total: number): Record<string, string> {
   /* Rendered loading-dock platform (t-028, ArtImage 28270) sits behind the
      pile cards; no prior background existed here, so an image load failure
      falls back to the original transparent container. */
-  background: url('/images/butterfly-gallery/pile.png') center / cover
-    no-repeat;
+  background: url('/images/butterfly-gallery/pile.png') center / cover no-repeat;
 }
 
 .pile-card {
@@ -1813,6 +1936,15 @@ function pileStyle(index: number, total: number): Record<string, string> {
   animation-fill-mode: forwards;
 }
 
+@keyframes runway-clip-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
 @keyframes butterfly-gallery-fade {
   from {
     opacity: 0;
@@ -1893,7 +2025,8 @@ function pileStyle(index: number, total: number): Record<string, string> {
   .blank-orbit-two,
   .pile-card-pop,
   .preset-bin-accepted,
-  .intro-tumble-frame {
+  .intro-tumble-frame,
+  .runway-clip {
     animation: none;
   }
 

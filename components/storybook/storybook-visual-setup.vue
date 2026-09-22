@@ -88,6 +88,8 @@
         </div>
         <div
           class="grid grid-cols-[repeat(auto-fit,minmax(min(100%,15rem),1fr))] gap-2"
+          role="group"
+          aria-label="Narrator voice"
         >
           <button
             v-for="option in narratorCards"
@@ -129,6 +131,8 @@
         </div>
         <div
           class="grid grid-cols-[repeat(auto-fit,minmax(min(100%,15rem),1fr))] gap-2"
+          role="group"
+          aria-label="Shape of the tale"
         >
           <button
             v-for="option in structureCards"

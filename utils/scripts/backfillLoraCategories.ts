@@ -32,6 +32,15 @@
 //   npm run backfill:lora-categories -- --fetch-tags --apply
 //   npm run backfill:lora-categories -- --recheck --apply
 //   npm run backfill:lora-categories -- --reset-heuristic --apply
+//   npm run backfill:lora-categories -- --fetch-tags --limit 25   # 20s sanity check
+//
+// A full --fetch-tags sweep is ~2,200 Civitai round trips at FETCH_DELAY_MS
+// apiece: twenty-five minutes of work. It now prints its reach, its credential
+// and its planned fetch count BEFORE any of that, then a progress line every
+// PROGRESS_EVERY rows -- because under the old shape the first output of any
+// kind came after the last fetch, and a working run was indistinguishable from
+// a wedged one for the whole duration (Silas, 2026-09-22: "It just hangs after
+// prisma. Maybe it's running, but there's no output."). Start with --limit 25.
 //
 // --reset-heuristic clears every CIVITAI/HEURISTIC classification back to NULL,
 // leaving HUMAN decisions alone. It exists because a classifier change can
@@ -63,6 +72,21 @@ const recheck = args.includes('--recheck')
 const resetHeuristic = args.includes('--reset-heuristic')
 const fetchTags = args.includes('--fetch-tags')
 /*
+ * --limit N caps the sweep. A full pass is ~2,200 network round trips at
+ * FETCH_DELAY_MS apiece -- half an hour before a single line prints, under the
+ * old shape. `--fetch-tags --limit 25` answers "is this working at all" in
+ * twenty seconds, which is the check that would have caught the
+ * reached-2-of-1,221 bug immediately instead of after a full silent run.
+ */
+const limitArg = args.find((arg) => arg.startsWith('--limit'))
+const limitValue = limitArg
+  ? ((limitArg.includes('=')
+      ? limitArg.split('=')[1]
+      : args[args.indexOf(limitArg) + 1]) ?? '')
+  : ''
+const limit = Number.parseInt(limitValue, 10)
+const rowLimit = Number.isInteger(limit) && limit > 0 ? limit : null
+/*
  * Priority order, not preference: the first one actually set wins. The run
  * reports WHICH NAME answered -- never the value -- so "do I have a token, and
  * where is it coming from" is answerable without echoing a secret anywhere.
@@ -80,23 +104,42 @@ const CIVITAI_MODEL = 'https://civitai.com/api/v1/models/'
 // Civitai rate-limits, and a catalog sweep is not urgent. One request every
 // 350ms is well inside what the scan_loras.py lookups already use.
 const FETCH_DELAY_MS = 350
+/*
+ * `fetch` with no signal waits on undici's own defaults, which is minutes for a
+ * stalled connection and looks exactly like the sweep still working. A sweep
+ * this long cannot afford one socket to decide how long the whole run takes.
+ */
+const FETCH_TIMEOUT_MS = 15_000
+const PROGRESS_EVERY = 50
 
 async function sleep(ms: number): Promise<void> {
   await new Promise((resolve) => setTimeout(resolve, ms))
 }
 
-async function civitaiTags(modelId: number): Promise<string[] | null> {
+/*
+ * Returns the tags AND why there are none. The old shape collapsed "this model
+ * has no tags", "Civitai rate-limited us", and "the socket died" into one
+ * `null`, so a sweep that got 429'd on row 40 and returned nothing for the
+ * remaining 2,000 finished with a clean-looking report and no way to tell.
+ * That is the same silent-nothing shape as the id lookup this script already
+ * had to fix once.
+ */
+async function civitaiTags(
+  modelId: number,
+): Promise<{ tags: string[] | null; failure: string | null }> {
   try {
     const response = await fetch(`${CIVITAI_MODEL}${modelId}`, {
       headers: civitaiToken
         ? { Authorization: `Bearer ${civitaiToken}` }
         : undefined,
+      signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
     })
-    if (!response.ok) return null
+    if (!response.ok) return { tags: null, failure: `HTTP ${response.status}` }
     const payload = (await response.json()) as { tags?: unknown }
-    return civitaiTagNames(payload.tags)
-  } catch {
-    return null
+    return { tags: civitaiTagNames(payload.tags), failure: null }
+  } catch (error) {
+    const name = error instanceof Error ? error.name : 'Error'
+    return { tags: null, failure: name === 'TimeoutError' ? 'timeout' : name }
   }
 }
 
@@ -177,6 +220,7 @@ async function main(): Promise<void> {
       customUrl: true,
     },
     orderBy: { id: 'asc' },
+    ...(rowLimit ? { take: rowLimit } : {}),
   })
 
   const counts = new Map<LoraCategory | 'UNCLASSIFIED', number>()
@@ -200,6 +244,17 @@ async function main(): Promise<void> {
     versionId: number | null
   }> = []
 
+  /*
+   * PASS ONE -- no network at all. Resolving ids, counting reach and picking
+   * out the protected rows is pure local work, which means the two lines that
+   * actually answer "is this sweep going to do anything" can print BEFORE the
+   * half-hour of round trips rather than after it. Under the old single-loop
+   * shape the first output of any kind came after the last fetch, so a run
+   * that was working and a run that had wedged on a dead socket looked
+   * identical from the terminal for twenty-five minutes (Silas, 2026-09-22:
+   * "It just hangs after prisma. Maybe it's running, but there's no output.").
+   */
+  const plan: Array<{ row: (typeof rows)[number]; modelId: number | null }> = []
   for (const row of rows) {
     if (!canReclassify(row.loraCategorySource)) {
       protectedRows.push(`#${row.id} ${row.customLabel || row.name}`)
@@ -225,10 +280,59 @@ async function main(): Promise<void> {
       })
     }
 
+    plan.push({ row, modelId: ids.modelId })
+  }
+
+  console.log(
+    `Examined ${rows.length} LoRA row(s)${recheck ? ' (recheck mode)' : ' with no category'}${rowLimit ? ` (--limit ${rowLimit})` : ''}.`,
+  )
+  console.log(
+    `Civitai reach: ${reachableByColumn} by column, ${reachableByUrl} recovered from a url, ${unreachable} with no id anywhere.`,
+  )
+
+  const due = fetchTags ? plan.filter((entry) => entry.modelId).length : 0
+  if (fetchTags) {
+    /*
+     * Say which credential was used. Running unauthenticated still works for
+     * public models but rate-limits much harder, and the difference is
+     * otherwise invisible until a sweep starts returning nothing -- the same
+     * silent-nothing shape as the id lookup this run already fixed.
+     */
+    console.log(
+      civitaiTokenVar
+        ? `Civitai auth: token found in ${civitaiTokenVar}.`
+        : `Civitai auth: NONE. Looked for ${CIVITAI_TOKEN_VARS.join(' and ')} in the environment and in .env. Public models still answer, but rate limits are much tighter on a sweep this size.`,
+    )
+    const minutes = Math.ceil((due * FETCH_DELAY_MS) / 60_000)
+    console.log(
+      `Asking Civitai about ${due} row(s), one every ${FETCH_DELAY_MS}ms -- at least ~${minutes} minute(s). Progress every ${PROGRESS_EVERY}.\n`,
+    )
+  }
+
+  // PASS TWO -- the slow one, now that you know what it is about to do.
+  const startedAt = Date.now()
+  const failures = new Map<string, number>()
+  for (const entry of plan) {
+    const row = entry.row
+
     let tags: string[] | null = null
-    if (fetchTags && ids.modelId) {
-      tags = await civitaiTags(ids.modelId)
+    if (fetchTags && entry.modelId) {
+      const result = await civitaiTags(entry.modelId)
+      tags = result.tags
+      if (result.failure) {
+        failures.set(result.failure, (failures.get(result.failure) ?? 0) + 1)
+      }
       fetched += 1
+      if (fetched % PROGRESS_EVERY === 0 || fetched === due) {
+        const elapsed = (Date.now() - startedAt) / 1000
+        const remaining = Math.max(
+          0,
+          Math.round((elapsed / fetched) * (due - fetched)),
+        )
+        console.log(
+          `  ...${fetched}/${due} fetched (${Math.round(elapsed)}s elapsed, ~${remaining}s left)`,
+        )
+      }
       await sleep(FETCH_DELAY_MS)
     }
 
@@ -255,25 +359,27 @@ async function main(): Promise<void> {
     })
   }
 
-  console.log(
-    `Examined ${rows.length} LoRA row(s)${recheck ? ' (recheck mode)' : ' with no category'}.`,
-  )
-  console.log(
-    `Civitai reach: ${reachableByColumn} by column, ${reachableByUrl} recovered from a url, ${unreachable} with no id anywhere.`,
-  )
   if (fetchTags) {
-    /*
-     * Say which credential was used. Running unauthenticated still works for
-     * public models but rate-limits much harder, and the difference is
-     * otherwise invisible until a sweep starts returning nothing -- the same
-     * silent-nothing shape as the id lookup this run already fixed.
-     */
-    console.log(
-      civitaiTokenVar
-        ? `Civitai auth: token found in ${civitaiTokenVar}.`
-        : `Civitai auth: NONE. Looked for ${CIVITAI_TOKEN_VARS.join(' and ')} in the environment and in .env. Public models still answer, but rate limits are much tighter on a sweep this size.`,
-    )
-    console.log(`Fetched Civitai tags for ${fetched} row(s).`)
+    console.log(`\nFetched Civitai tags for ${fetched} row(s).`)
+    const emptied = [...failures.values()].reduce((sum, n) => sum + n, 0)
+    if (emptied) {
+      const worst = [...failures.entries()].sort((a, b) => b[1] - a[1])
+      console.log(
+        `  ${emptied} of those came back with nothing: ${worst
+          .map(([reason, count]) => `${count}x ${reason}`)
+          .join(', ')}.`,
+      )
+      /*
+       * A 429 wall is the one failure that silently invalidates the whole
+       * sweep rather than a handful of rows: every row after it classifies on
+       * title alone while still reporting as a clean tag-fetching run.
+       */
+      if ([...failures.keys()].some((reason) => reason.includes('429'))) {
+        console.log(
+          '  HTTP 429 means Civitai rate-limited this sweep. Rows after that point were classified on title alone -- raise FETCH_DELAY_MS, or set CIVITAI_TOKEN, and re-run with --recheck.',
+        )
+      }
+    }
   } else if (reachableByColumn + reachableByUrl > 0) {
     console.log(
       `Re-run with --fetch-tags to ask Civitai about those ${reachableByColumn + reachableByUrl} row(s); it is the only signal that classifies a character LoRA.`,

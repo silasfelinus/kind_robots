@@ -10,10 +10,10 @@
 //                Resource.loraCategory to exist at all.
 //   Facet     -- the canonical creative vocabulary, already randomizable via
 //                FacetProfile.isRandomizable. Text only.
-//   Entity    -- Characters and Scenarios, so "a random character" can mean a
-//                record Silas authored rather than a LoRA.
+//   Object    -- Characters, Scenarios, Rewards, Dreams, Bots and Projects.
+//                Their persisted artPrompt is compacted into a visual clause.
 //
-// Resolution order for a bare `{style}` is LoRA, then Facet, then entity: the
+// Resolution order for a bare `{style}` is LoRA, then Facet, then object: the
 // most specific pool that can answer wins, because a LoRA roll changes the
 // render and a Facet roll only changes the text. An explicit `{facet:style}`
 // or `{lora:character}` skips the search.
@@ -52,7 +52,7 @@ import type {
 import {
   ART_RANDOM_OBJECT_OPTIONS,
   ART_RANDOM_OBJECT_TYPES,
-  compactRandomObjectPrompt,
+  compactRandomArtPrompt,
   isArtRandomObjectType,
   type ArtRandomObjectType,
 } from '~/utils/artRandomOptions'
@@ -80,7 +80,7 @@ export type ArtRandomPoolOptions = ArtRandomPoolViewer & {
    */
   engine: ArtGeneratorEngine | null
   checkpointFamily?: CheckpointFamily
-  /** Which pools may answer. Defaults to all four. */
+  /** Which pools may answer. Defaults to all three. */
   sources?: ArtRandomPoolSource[]
   /** Default LoRA strength for a rolled pick. */
   loraStrength?: number
@@ -138,13 +138,18 @@ const FACET_PLACEHOLDER_ALIASES: Record<string, FacetTaxonomy[]> = {
   core: ['CORE'],
 }
 
-function facetTaxonomiesForKey(key: string): FacetTaxonomy[] {
-  const aliased = FACET_PLACEHOLDER_ALIASES[key]
-  if (aliased) return aliased
-
+function facetTaxonomiesForKey(
+  key: string,
+  preferDirect = false,
+): FacetTaxonomy[] {
   const direct = FACET_TAXONOMIES.find(
     (taxonomy) => normalizeVariantKey(taxonomy) === key,
   )
+  if (preferDirect && direct) return [direct]
+
+  const aliased = FACET_PLACEHOLDER_ALIASES[key]
+  if (aliased) return aliased
+
   return direct ? [direct] : []
 }
 
@@ -371,7 +376,7 @@ async function loadObjectPool(
     .map((row) => {
       const label = row.label.trim()
       return {
-        value: compactRandomObjectPrompt(label, row.artPrompt),
+        value: compactRandomArtPrompt(label, row.artPrompt),
         kind: source,
         sourceId: row.id,
         label,
@@ -431,7 +436,9 @@ export async function buildArtRandomPools(
             allowed.has('facet') &&
             (entry.kind === null || entry.kind === 'facet'),
         )
-        .flatMap((entry) => facetTaxonomiesForKey(entry.key)),
+        .flatMap((entry) =>
+          facetTaxonomiesForKey(entry.key, entry.kind === 'facet'),
+        ),
     ),
   ]
 
@@ -478,13 +485,15 @@ export async function buildArtRandomPools(
 
     const taxonomies =
       allowed.has('facet') && (entry.kind === null || entry.kind === 'facet')
-        ? facetTaxonomiesForKey(entry.key)
+        ? facetTaxonomiesForKey(entry.key, entry.kind === 'facet')
         : []
     const facetPool = taxonomies.length
       ? facets
           .filter((facet) => taxonomies.includes(facet.taxonomy))
           .map<VariantPick>((facet) => ({
-            value: (facet.canonicalValue || facet.title).trim(),
+            value: facet.artPrompt?.trim()
+              ? compactRandomArtPrompt(facet.title, facet.artPrompt)
+              : (facet.canonicalValue || facet.title).trim(),
             kind: 'facet',
             sourceId: facet.id,
             label: facet.title,

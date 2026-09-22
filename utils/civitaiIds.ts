@@ -30,8 +30,11 @@ function firstMatch(
   ...urls: Array<string | null | undefined>
 ) {
   for (const url of urls) {
-    const match = pattern.exec(String(url ?? ''))
-    const id = match ? positiveInt(match[1]) : null
+    // `match?.[1]` rather than a ternary: utils/scripts/verifyCaptureGroupGuards.ts
+    // wants an optional-chain or an explicit early return on a capture-group
+    // index, and reads a ternary as unguarded. It is also simply shorter --
+    // positiveInt already turns undefined into null.
+    const id = positiveInt(pattern.exec(String(url ?? ''))?.[1])
     if (id) return id
   }
   return null

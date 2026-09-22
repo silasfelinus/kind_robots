@@ -14,6 +14,7 @@ import {
 } from '~/utils/entityArtPromptFraming'
 import {
   buildFacetIdentityPromptFrom,
+  readsAsPastedDescription,
   isLegacyGeneratedFacetPrompt,
   storedPromptIsCardCopy,
 } from '~/utils/facetVisualLanguage'
@@ -1289,21 +1290,37 @@ function facetArtDirection(
   const keep = { direction: prompt, supersededArtPrompt: '' }
   if (entityType !== 'facet' || !taxonomy) return keep
   /*
-   * Two tests, because a registered clause is only one of the two ways a
-   * generated prompt announces itself, and the weaker one is a whitelist that
-   * by definition lags the batch that broke. storedPromptIsCardCopy catches the
-   * rows whose tail a repair pass already trimmed away.
+   * Three tests, because a registered clause is only one of the ways a
+   * generated prompt announces itself, and it is a whitelist that by
+   * definition lags the batch that broke.
+   *
+   * storedPromptIsCardCopy catches a row whose tail a repair pass already
+   * trimmed away. readsAsPastedDescription identifies the v2 paste exactly --
+   * the prompt IS the description -- which is what licenses dropping the
+   * description below instead of filtering it. Equality implies containment,
+   * so the last is redundant as a trigger today and named anyway, so that
+   * narrowing either predicate later cannot quietly restore the bypass.
    */
+  const pastedDescription = readsAsPastedDescription({
+    artPrompt: prompt,
+    // safeText, not the raw field: EntityArtRecord types both as `unknown`,
+    // and every other read of them in this function already goes through it.
+    title: safeText(record.title),
+    description: safeText(record.description),
+  })
   if (
     !isLegacyGeneratedFacetPrompt(prompt) &&
-    !storedPromptIsCardCopy(prompt, safeText(record.description))
+    !storedPromptIsCardCopy(prompt, safeText(record.description)) &&
+    !pastedDescription
   )
     return keep
 
   const rebuilt = buildFacetIdentityPromptFrom({
     title: safeText(record.title),
     taxonomy,
-    description: safeText(record.description),
+    // Dropped outright when it is what was pasted, matching the producer. See
+    // the note on the same call in scripts/generate_facet_art_v4.ts.
+    description: pastedDescription ? null : safeText(record.description),
     flavorText: safeText(record.flavorText),
     examples: safeText(record.examples),
   })

@@ -3,7 +3,10 @@
 // The authored prompts are content, and content rots quietly. These checks are
 // the ones that would have caught each failure this work has already shipped.
 import assert from 'node:assert/strict'
-import { buildFacetIdentityPromptFrom } from '../facetVisualLanguage'
+import {
+  buildFacetIdentityPromptFrom,
+  readsAsPastedDescription,
+} from '../facetVisualLanguage'
 import { readFileSync, writeFileSync, mkdtempSync } from 'node:fs'
 import { spawnSync } from 'node:child_process'
 import { join } from 'node:path'
@@ -433,4 +436,98 @@ assert.ok(
     }),
   ),
   'a rebuild from the intact description must not carry the old deletion damage',
+)
+
+/*
+ * The v2 paste (2026-09-22).
+ *
+ * A stored artPrompt that is nothing but the title and the description carries
+ * no generated tail, so isLegacyGeneratedFacetPrompt cannot see it and
+ * buildFacetIdentityPrompt returned it verbatim as "curated" -- with no
+ * taxonomy clause after it, because the clause is only appended on a rebuild.
+ * 60 live Facets, 58 GENRE and 2 THEME, were shipping their own card copy to
+ * Krea and nothing else:
+ *
+ *   "Epic Fantasy. Secondary worlds at continental scale, with invented
+ *    history, multiple cultures, and stakes that reach the shape of the world
+ *    itself. Long-form by nature A square picture with the subject large and
+ *    centred."
+ */
+const GENRE_TITLE = 'Epic Fantasy'
+const GENRE_DESCRIPTION =
+  'Secondary worlds at continental scale, with invented history, multiple ' +
+  'cultures, and stakes that reach the shape of the world itself. Long-form by nature.'
+
+assert.equal(
+  readsAsPastedDescription({
+    artPrompt: `${GENRE_TITLE}. ${GENRE_DESCRIPTION}`,
+    title: GENRE_TITLE,
+    description: GENRE_DESCRIPTION,
+  }),
+  true,
+  'title + description is the v2 paste and must be rebuilt, not honoured',
+)
+
+// The stored copy drops the trailing period, which is how it reached live.
+assert.equal(
+  readsAsPastedDescription({
+    artPrompt: `${GENRE_TITLE}. ${GENRE_DESCRIPTION}`.replace(/\.$/, ''),
+    title: GENRE_TITLE,
+    description: GENRE_DESCRIPTION,
+  }),
+  true,
+  'a missing trailing period must not hide the paste',
+)
+
+// The description alone, with no title in front, is the same write.
+assert.equal(
+  readsAsPastedDescription({
+    artPrompt: GENRE_DESCRIPTION,
+    title: GENRE_TITLE,
+    description: GENRE_DESCRIPTION,
+  }),
+  true,
+  'the description pasted without the title is the same write',
+)
+
+/*
+ * And the other side, which is the one that matters: this must be EXACT
+ * equality, never a judgement about whether the prose is drawable.
+ * depictableProse is tuned for stripping card copy during a rebuild and is not
+ * an oracle for "is this art direction" -- asked directly it rejects 108
+ * genuinely authored prompts, including the best writing in the catalog.
+ */
+for (const authored of [
+  'A figure leaning across a banquet table toward one more dish, plates already stacked beside them.',
+  'A row of identical blank-eyed figures on a conveyor line, all facing the same direction except one.',
+  'A restorer laying gold leaf onto a carved frame, the fresh gold flaring where the burnisher has passed.',
+  'A thin body with prominent collarbones and hollow cheeks, clothes hanging loose, grip nonetheless firm.',
+]) {
+  assert.equal(
+    readsAsPastedDescription({
+      artPrompt: authored,
+      title: 'Some Facet',
+      description: 'An entirely different sentence about what this concept means.',
+    }),
+    false,
+    `authored art direction must never be mistaken for the paste: ${authored.slice(0, 50)}`,
+  )
+}
+
+// A rebuild of a pasted row drops the description and lets the taxonomy clause
+// carry the picture -- readsAsCardCopy does not catch a flat genre definition,
+// so filtering sentence by sentence leaves the card copy in.
+const rebuiltGenre = buildFacetIdentityPromptFrom({
+  title: GENRE_TITLE,
+  taxonomy: 'GENRE',
+  description: null,
+})
+assert.ok(
+  rebuiltGenre.startsWith('Epic Fantasy. A scene of this kind underway'),
+  `a pasted GENRE row must rebuild onto its taxonomy clause: ${rebuiltGenre.slice(0, 70)}`,
+)
+assert.ok(
+  !rebuiltGenre.includes('continental scale') &&
+    !rebuiltGenre.includes('Long-form'),
+  'the pasted card copy must not survive the rebuild',
 )

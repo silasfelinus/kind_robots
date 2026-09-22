@@ -65,6 +65,7 @@ import {
 import {
   buildFacetIdentityPromptFrom,
   isLegacyGeneratedFacetPrompt,
+  readsAsPastedDescription,
   storedPromptIsCardCopy,
   taxonomyVisualLanguage,
   CLAUSE_TAXONOMIES,
@@ -78,6 +79,7 @@ import {
 
 export {
   isLegacyGeneratedFacetPrompt,
+  readsAsPastedDescription,
   taxonomyVisualLanguage,
   CLAUSE_TAXONOMIES,
 }
@@ -555,10 +557,35 @@ export function buildFacetIdentityPrompt(
    * and be returned forever -- see storedPromptIsCardCopy.
    */
   const existing = repairFramePrompt(clean(facet.artPrompt))
+  /*
+   * The bypass is for prose a person wrote, not for anything this file failed
+   * to recognize. Two content tests now sit beside the clause whitelist, and
+   * they answer different questions:
+   *
+   *   storedPromptIsCardCopy -- does the prompt CONTAIN the description?
+   *   Containment, so it reaches a row whose registered tail a repair pass
+   *   trimmed off and which therefore reads as hand-authored (Facet 810
+   *   "Martian Colonization", whose missing final period is the cut).
+   *
+   *   readsAsPastedDescription -- IS the prompt the description? Exact
+   *   equality, so it identifies the 60 v2-paste rows for which nobody ever
+   *   wrote art direction at all. That certainty is what licenses DROPPING
+   *   the description below rather than filtering it.
+   *
+   * Equality implies containment, so the trigger strictly only needs the
+   * first. Both are named anyway: either one narrowing later must not
+   * silently let this cohort back through the bypass.
+   */
+  const pastedDescription = readsAsPastedDescription({
+    artPrompt: existing,
+    title: facet.title,
+    description: facet.description,
+  })
   if (
     existing &&
     !isLegacyGeneratedFacetPrompt(existing) &&
-    !storedPromptIsCardCopy(existing, facet.description)
+    !storedPromptIsCardCopy(existing, facet.description) &&
+    !pastedDescription
   )
     return existing
 
@@ -581,7 +608,22 @@ export function buildFacetIdentityPrompt(
     taxonomy: profile.taxonomy,
     scientificName,
     category,
-    description: facet.description,
+    /*
+     * The pasted description is dropped outright rather than filtered.
+     *
+     * readsAsCardCopy works sentence by sentence and is tuned to catch
+     * figurative and abstract prose; it does not catch a flat genre
+     * DEFINITION. Left in, "Secondary worlds at continental scale, with
+     * invented history, multiple cultures, and stakes that reach the shape of
+     * the world itself" survives the filter and still reaches Krea, which was
+     * the complaint. Widening readsAsCardCopy to catch it would touch every
+     * rebuild in the catalog; this is narrower and rests on something already
+     * known for certain about these 60 rows -- the stored prompt IS the
+     * description, so no one ever wrote art direction for them, and the
+     * taxonomy clause is exactly what carries a Facet with no prose of its
+     * own. flavorText and examples are kept: only the description was pasted.
+     */
+    description: pastedDescription ? null : facet.description,
     flavorText: facet.flavorText,
     examples: facet.examples,
     metadataPrompt,

@@ -498,6 +498,62 @@ export function depictableProse(value: unknown): string {
     .trim()
 }
 
+/**
+ * True when a stored artPrompt is nothing but the Facet's own title and
+ * description, pasted together.
+ *
+ * This is the v2-era write, and it is invisible to
+ * isLegacyGeneratedFacetPrompt() because it carries no generated tail to
+ * recognize. So buildFacetIdentityPrompt() has been treating it as CURATED --
+ * hand-authored art direction, returned verbatim and never rebuilt -- for as
+ * long as it has existed. 60 live Facets carry it, 58 GENRE and 2 THEME.
+ *
+ * What that ships to Krea is the card copy and nothing else, with no taxonomy
+ * clause after it, because the clause is only appended on a rebuild:
+ *
+ *   "Epic Fantasy. Secondary worlds at continental scale, with invented
+ *    history, multiple cultures, and stakes that reach the shape of the world
+ *    itself. Long-form by nature A square picture with the subject large and
+ *    centred. Polished fantasy illustration."
+ *
+ * Nothing in that names a thing to draw (Silas, 2026-09-22, on seeing the
+ * cards: "these are AWEFUL prompts. why is this still an issue?"). It is the
+ * same failure as the 149 prompts check_facet_prompt_subjects.py was written
+ * for, arriving by the one route that predicate cannot see: not a bad clause,
+ * but no clause at all.
+ *
+ * Deliberately EXACT STRING EQUALITY, not a judgement about whether the prose
+ * is drawable. depictableProse() is tuned for stripping card copy during a
+ * rebuild, where the taxonomy clause carries the picture, and it is not an
+ * oracle for "is this art direction": asked that question directly it rejects
+ * "A figure leaning across a banquet table toward one more dish, plates
+ * already stacked beside them" and 107 other genuinely authored prompts.
+ * Gating on it would have rebuilt the best writing in the catalog. Equality
+ * cannot make that mistake -- a prompt that IS the description adds nothing,
+ * whatever either of them says.
+ */
+export function readsAsPastedDescription(input: {
+  artPrompt?: string | null
+  title?: string | null
+  description?: string | null
+}): boolean {
+  const prompt = clean(input.artPrompt)
+  const description = clean(input.description)
+  if (!prompt || !description) return false
+  const norm = (value: string) =>
+    value
+      .replace(/\s+/g, ' ')
+      .replace(/[.\s]+$/, '')
+      .trim()
+      .toLowerCase()
+  const title = clean(input.title)
+  const pasted = norm(prompt)
+  return (
+    pasted === norm(description) ||
+    (Boolean(title) && pasted === norm(`${title}. ${description}`))
+  )
+}
+
 export type FacetIdentityInput = {
   title: string
   taxonomy: string

@@ -8,8 +8,8 @@
           Random batch
         </h2>
         <p class="kr-text-dim-xs-55 mt-0.5">
-          Write {character} running in {style} and queue ten of them, each with
-          its own LoRAs rolled in.
+          Add random LoRAs, Facets, or Kind Robots objects to your prompt, then
+          roll the whole batch at once.
         </p>
       </div>
 
@@ -28,18 +28,35 @@
       </label>
     </div>
 
-    <div class="mt-2 flex flex-wrap gap-1.5">
-      <button
-        v-for="chip in placeholderChips"
-        :key="chip.placeholder"
-        type="button"
-        class="badge badge-outline h-auto min-h-6 rounded-xl py-1 hover:badge-primary"
-        :title="chip.hint"
-        :disabled="busy"
-        @click="insertPlaceholder(chip.placeholder)"
+    <div class="mt-3 grid gap-2">
+      <div
+        v-for="group in optionGroups"
+        :key="group.label"
+        class="grid grid-cols-[4.5rem_minmax(0,1fr)] items-start gap-2"
       >
-        {{ token(chip.placeholder) }}
-      </button>
+        <span
+          class="kr-text-eyebrow pt-1.5 text-[10px] tracking-wide text-base-content/45"
+        >
+          {{ group.label }}
+        </span>
+        <div
+          class="max-h-20 overflow-y-auto rounded-xl border border-base-content/10 bg-base-200/40 p-1.5"
+        >
+          <div class="flex flex-wrap gap-1.5">
+            <button
+              v-for="option in group.options"
+              :key="option.placeholder"
+              type="button"
+              class="badge badge-outline h-auto min-h-6 rounded-xl py-1 hover:badge-primary"
+              :title="`${option.hint} Inserts ${token(option.placeholder)}.`"
+              :disabled="busy"
+              @click="insertPlaceholder(option.placeholder)"
+            >
+              {{ option.label }}
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
 
     <p v-if="hasPlaceholders" class="kr-note kr-note-info mt-3 p-2 text-xs">
@@ -89,9 +106,8 @@
 
       <p v-if="emptyPools.length" class="kr-note kr-note-error p-2 text-xs">
         Nothing to roll for
-        {{ emptyPoolTokens }}. Those stayed in the prompt as written — classify
-        LoRAs for them in the LoRA editor, or use a placeholder with a pool
-        behind it.
+        {{ emptyPoolTokens }}. Those stayed in the prompt as written. Add or
+        classify values for that source, or choose another random slot.
       </p>
 
       <ul class="flex flex-col gap-1">
@@ -114,6 +130,12 @@
 import { computed, ref } from 'vue'
 import { useArtStore } from '@/stores/artStore'
 import { usePromptStore } from '@/stores/promptStore'
+import { FACET_TAXONOMIES } from '@/stores/facetCatalogStore'
+import {
+  LORA_CATEGORIES,
+  LORA_CATEGORY_META,
+} from '@/utils/loraCategory'
+import { ART_RANDOM_OBJECT_OPTIONS } from '@/utils/artRandomOptions'
 import {
   MAX_RANDOM_BATCH,
   emptyRandomPools,
@@ -138,37 +160,50 @@ const emptyPoolTokens = computed(() =>
   emptyPools.value.map((pool) => token(pool.key)).join(', '),
 )
 
-/*
- * One chip per placeholder word, deduplicated, LoRA slots first. The catalog
- * of words is only known to the server (it depends on which Facet taxonomies
- * exist), so the chips are seeded from the last roll's `known` list and fall
- * back to the handful that always exist before the first roll.
- */
-const FALLBACK_CHIPS = [
-  {
-    placeholder: 'character',
-    hint: 'A character LoRA, or a Character record.',
-  },
-  { placeholder: 'style', hint: 'A style LoRA, or a STYLE Facet.' },
-  { placeholder: 'setting', hint: 'A setting LoRA, or a SETTING Facet.' },
-  { placeholder: 'action', hint: 'An action or pose LoRA.' },
-  { placeholder: 'clothing', hint: 'A clothing LoRA.' },
-  { placeholder: 'creature', hint: 'A creature LoRA, or an ANIMAL Facet.' },
-]
+type PromptOption = {
+  placeholder: string
+  label: string
+  hint: string
+}
 
-const placeholderChips = computed(() => {
-  const known = plan.value?.known ?? []
-  if (!known.length) return FALLBACK_CHIPS
+function labelFromTaxonomy(taxonomy: string): string {
+  return taxonomy
+    .toLowerCase()
+    .replace(/_/g, ' ')
+    .replace(/\b\w/g, (letter) => letter.toUpperCase())
+}
 
-  const seen = new Set<string>()
-  return known
-    .filter((entry) => {
-      if (seen.has(entry.placeholder)) return false
-      seen.add(entry.placeholder)
-      return true
-    })
-    .slice(0, 18)
+const loraOptions: PromptOption[] = LORA_CATEGORIES.map((category) => {
+  const meta = LORA_CATEGORY_META[category]
+  const placeholder = meta.placeholders[0] || category.toLowerCase()
+  return {
+    placeholder: `lora:${placeholder}`,
+    label: meta.label,
+    hint: meta.hint,
+  }
 })
+
+const facetOptions: PromptOption[] = FACET_TAXONOMIES.filter(
+  (taxonomy) => taxonomy !== 'OTHER',
+).map((taxonomy) => ({
+  placeholder: `facet:${taxonomy.toLowerCase()}`,
+  label: labelFromTaxonomy(taxonomy),
+  hint: `A random ${labelFromTaxonomy(taxonomy)} Facet.`,
+}))
+
+const objectOptions: PromptOption[] = ART_RANDOM_OBJECT_OPTIONS.map(
+  (option) => ({
+    placeholder: option.placeholder,
+    label: option.label,
+    hint: option.hint,
+  }),
+)
+
+const optionGroups: Array<{ label: string; options: PromptOption[] }> = [
+  { label: 'LoRAs', options: loraOptions },
+  { label: 'Facets', options: facetOptions },
+  { label: 'Objects', options: objectOptions },
+]
 
 /*
  * Matches server/utils/promptVariants.ts's single-brace pattern. It is a

@@ -74,6 +74,11 @@ param(
   [string] $ComfyUrl,
   # How much of the end of each file to test for unwritten bytes.
   [int] $TailBytes = 1MB,
+  # Skip roots that live on the Alexandria share (UNC, or a mapped network
+  # drive). A full recursive listing of a 200GB+ SMB share costs minutes and
+  # reads as a hang. Skipping them audits only what is local -- which is where
+  # the weights are supposed to end up anyway.
+  [switch] $SkipRemote,
   # Only audit these categories.
   [string[]] $Category = @('unet', 'clip', 'vae', 'checkpoints', 'loras')
 )
@@ -136,6 +141,16 @@ $Local = (Resolve-Path -LiteralPath $Local).Path
 # `key: value` pairs, and `|`/`-` multi-path values. That is the whole shape
 # ComfyUI's own loader accepts for these keys, and pulling in a YAML module would
 # make this script refuse to run on a host that does not have one.
+# Is this root on the share rather than local disk? A UNC path is obvious; a
+# mapped network drive looks local until you ask the PSDrive what it points at.
+function Test-RemoteRoot([string] $Root) {
+  if ($Root -match '^\\\\') { return $true }
+  $qualifier = (Split-Path -Qualifier $Root -ErrorAction SilentlyContinue) -replace ':', ''
+  if (-not $qualifier) { return $false }
+  $drive = Get-PSDrive -Name $qualifier -ErrorAction SilentlyContinue
+  return [bool]($drive -and $drive.DisplayRoot)
+}
+
 # ComfyUI resolves these on Windows, where a drive letter or a UNC prefix makes a
 # path absolute and os.path.join(base, absolute) discards the base. [IO.Path]::
 # IsPathRooted only knows the CONVENTION OF THE HOST it runs on, so it is wrong
@@ -324,6 +339,7 @@ Write-Host "tail window : $(Format-Size $TailBytes)"
 Write-Host ""
 
 $shadowed = 0; $badMagic = 0; $zeroTail = 0; $staging = 0; $orphans = 0
+$script:remoteRootsSeen = @()
 
 foreach ($cat in ($Category | ForEach-Object { Resolve-Category $_ } | Select-Object -Unique)) {
   if (-not $BuiltinRoots.ContainsKey($cat)) { continue }
@@ -345,6 +361,20 @@ foreach ($cat in ($Category | ForEach-Object { Resolve-Category $_ } | Select-Ob
   for ($i = 0; $i -lt $roots.Count; $i++) {
     $root = $roots[$i]
     if (-not (Test-Path -LiteralPath $root -PathType Container)) { continue }
+
+    if (Test-RemoteRoot $root) {
+      $script:remoteRootsSeen += $root
+      if ($SkipRemote) {
+        Write-Host ("   skipping (on the share, -SkipRemote): {0}" -f $root) -ForegroundColor DarkGray
+        continue
+      }
+      # Without this the script looks hung. A recursive listing of the share
+      # costs minutes, and it is the slow path this whole move exists to stop.
+      Write-Host ("   walking {0} (on the share -- minutes over SMB; -SkipRemote skips it)" -f $root) -ForegroundColor Yellow
+    } else {
+      Write-Host ("   walking {0}" -f $root) -ForegroundColor DarkGray
+    }
+
     $files = Get-ChildItem -LiteralPath $root -Recurse -File -Force -ErrorAction SilentlyContinue |
       Where-Object { $ModelExtensions -contains $_.Extension.ToLowerInvariant() }
     foreach ($f in $files) {
@@ -449,6 +479,20 @@ if ($shadowed -gt 0) {
   Write-Host "A SHADOWED name means dropping a fresh copy into the second root changes" -ForegroundColor Yellow
   Write-Host "nothing - ComfyUI loads the first. Fix the copy marked [LOADS ]." -ForegroundColor Yellow
 }
+$remoteRoots = $script:remoteRootsSeen | Select-Object -Unique
+if ($remoteRoots) {
+  Write-Host ""
+  Write-Host "STILL READING FROM THE SHARE. These roots are in ComfyUI's search path:" -ForegroundColor Yellow
+  foreach ($r in $remoteRoots) { Write-Host ("  {0}" -f $r) }
+  Write-Host "Every weight resolved there is pulled over SMB on each load, and it is why a"
+  Write-Host "model can be listed without existing anywhere on this machine. Move them local"
+  Write-Host "and drop the entry, rather than keeping a copy in both places:"
+  Write-Host ("  .\scripts\sync-comfy-models.ps1 -Local {0} -Tier all -Verify -Yes" -f $Local)
+  Write-Host "  # then, once a render has proven the local copy good, -PruneRemote deletes"
+  Write-Host "  # the share copy. Remove the share entry from extra_model_paths.yaml too,"
+  Write-Host "  # or ComfyUI keeps offering names that are no longer there."
+}
+
 if ($shadowed -eq 0 -and $badMagic -eq 0 -and $zeroTail -eq 0 -and $staging -eq 0 -and $orphans -eq 0) {
   Write-Host "clean: every name resolves to exactly one intact file." -ForegroundColor Green
 }

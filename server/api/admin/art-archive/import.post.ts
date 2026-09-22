@@ -14,7 +14,10 @@ import {
   matchArchiveResources,
   summarizeResourceMatch,
   aggregateResourceMatchSummaries,
+  createCachedResourcePool,
 } from '@/server/utils/artArchiveResourceMatch'
+import { mapWithConcurrency } from '@/server/utils/artArchiveScanConcurrency'
+import { sampleResourceMatches } from '@/server/utils/artArchiveMatchSample'
 import prisma from '@/server/utils/prisma'
 
 export default defineEventHandler(async (event) => {
@@ -22,17 +25,17 @@ export default defineEventHandler(async (event) => {
     const auth = await requireAdminApiUser(event)
     const scan = await scanArchiveRoot(getArtArchiveRoot())
     const summary = await importArchiveScan(scan, auth.user.id)
-    const resourceMatches = await Promise.all(
-      scan.files.map(async (file) => ({
-        relativePath: file.relativePath,
-        matches: await matchArchiveResources(
-          file.metadata,
-          file.relativePath,
-          file.parentFolder,
-          prisma.resource,
-        ),
-      })),
-    )
+    // See dry-run.post.ts: one pooled read, bounded fan-out.
+    const resourcePool = createCachedResourcePool(prisma.resource)
+    const resourceMatches = await mapWithConcurrency(scan.files, async (file) => ({
+      relativePath: file.relativePath,
+      matches: await matchArchiveResources(
+        file.metadata,
+        file.relativePath,
+        file.parentFolder,
+        resourcePool,
+      ),
+    }))
 
     const { filesWithMatchEvidence, unmatchedModels } = aggregateResourceMatchSummaries(
       resourceMatches.map(({ matches }) => summarizeResourceMatch(matches)),
@@ -45,7 +48,7 @@ export default defineEventHandler(async (event) => {
         ...summary,
         filesWithMatchEvidence,
         unmatchedModels,
-        resourceMatches,
+        ...sampleResourceMatches(resourceMatches),
       },
       statusCode: 200,
     }

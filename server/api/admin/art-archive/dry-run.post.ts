@@ -8,7 +8,10 @@ import {
   matchArchiveResources,
   summarizeResourceMatch,
   aggregateResourceMatchSummaries,
+  createCachedResourcePool,
 } from '@/server/utils/artArchiveResourceMatch'
+import { mapWithConcurrency } from '@/server/utils/artArchiveScanConcurrency'
+import { sampleResourceMatches } from '@/server/utils/artArchiveMatchSample'
 import prisma from '@/server/utils/prisma'
 
 export default defineEventHandler(async (event) => {
@@ -23,17 +26,19 @@ export default defineEventHandler(async (event) => {
     const plan = planArchiveReconciliation(scan.files, existingEntries)
     const countOf = (kind: string) => plan.actions.filter((action) => action.kind === kind).length
 
-    const resourceMatches = await Promise.all(
-      scan.files.map(async (file) => {
-        const matches = await matchArchiveResources(
-          file.metadata,
-          file.relativePath,
-          file.parentFolder,
-          prisma.resource,
-        )
-        return { relativePath: file.relativePath, matches }
-      }),
-    )
+    // One pooled read and a bounded fan-out: mapping every file through an
+    // unbounded Promise.all, each re-reading the whole Resource table, is what
+    // SIGKILLed the container mid-scan.
+    const resourcePool = createCachedResourcePool(prisma.resource)
+    const resourceMatches = await mapWithConcurrency(scan.files, async (file) => {
+      const matches = await matchArchiveResources(
+        file.metadata,
+        file.relativePath,
+        file.parentFolder,
+        resourcePool,
+      )
+      return { relativePath: file.relativePath, matches }
+    })
     const { filesWithMatchEvidence, unmatchedModels, confidenceCounts } = aggregateResourceMatchSummaries(
       resourceMatches.map(({ matches }) => summarizeResourceMatch(matches)),
     )
@@ -57,7 +62,7 @@ export default defineEventHandler(async (event) => {
         filesWithMatchEvidence,
         unmatchedModels,
         confidenceCounts,
-        resourceMatches,
+        ...sampleResourceMatches(resourceMatches),
       },
       statusCode: 200,
     }

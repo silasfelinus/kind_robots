@@ -234,6 +234,34 @@ function resolveOutcome(
  * this returns no evidence for those formats rather than guessing at
  * unstructured text.
  */
+/**
+ * One shared read of the active Resource pool for a whole scan.
+ *
+ * matchArchiveResources() calls findMany() itself, which is right for a single
+ * file and catastrophic for an archive: the admin dry-run and import endpoints
+ * map it over EVERY scanned file through an unbounded Promise.all, so a run
+ * issued one full checkpoint+LoRA table load per file, concurrently, and held
+ * them all in memory at once. On Alexandria that killed the container outright
+ * -- `docker exec` returned 137 (SIGKILL) with no HTTP response, because the
+ * server died mid-scan rather than answering (art-archive/t-041, 2026-09-22).
+ *
+ * The pool is identical for every file in a run, so this memoizes the first
+ * read and hands the same rows to all of them. The matcher itself is unchanged
+ * and still takes a plain delegate, so single-file callers keep their old
+ * behavior.
+ */
+export function createCachedResourcePool(
+  delegate: ActiveResourcePoolDelegate,
+): ActiveResourcePoolDelegate {
+  let inFlight: Promise<ActiveResourceRow[]> | null = null
+  return {
+    findMany: (args) => {
+      inFlight ??= Promise.resolve(delegate.findMany(args))
+      return inFlight
+    },
+  }
+}
+
 export async function matchArchiveResources(
   metadata: ExtractedArchiveMetadata,
   relativePath: string,

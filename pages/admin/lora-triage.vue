@@ -132,17 +132,17 @@
           "
           class="kr-panel space-y-2 p-3"
         >
-          <div
-            v-if="triageStore.isRendering"
-            class="flex items-center gap-3"
-          >
+          <div v-if="triageStore.isRendering" class="flex items-center gap-3">
             <span class="kr-spinner-xs" />
             <p class="kr-text-dim-sm">
               Queueing preview renders — {{ triageStore.renderDone }} of
               {{ triageStore.renderTotal }}
             </p>
           </div>
-          <p v-if="triageStore.renderMessage" class="kr-text-dim-sm text-success">
+          <p
+            v-if="triageStore.renderMessage"
+            class="kr-text-dim-sm text-success"
+          >
             {{ triageStore.renderMessage }}
           </p>
           <p v-if="triageStore.renderError" class="kr-text-dim-sm text-error">
@@ -158,7 +158,8 @@
                 :key="skip.resourceId"
                 class="kr-text-dim-xs"
               >
-                <span class="font-mono">{{ skip.label }}</span> — {{ skip.reason }}
+                <span class="font-mono">{{ skip.label }}</span> —
+                {{ skip.reason }}
               </li>
             </ul>
           </details>
@@ -208,6 +209,17 @@
               >
                 {{ option.label }}
               </option>
+            </select>
+
+            <select
+              v-model="source"
+              class="kr-select-sm w-auto"
+              aria-label="Filter by who decided the category"
+            >
+              <option value="ALL">Any source</option>
+              <option value="CIVITAI">Civitai tag — usually right</option>
+              <option value="HEURISTIC">Title guess — check these</option>
+              <option value="HUMAN">Yours — settled</option>
             </select>
 
             <select
@@ -392,7 +404,9 @@
                   Render queued
                 </span>
                 <span
-                  v-else-if="triageStore.renderStateFor(resource.id) === 'failed'"
+                  v-else-if="
+                    triageStore.renderStateFor(resource.id) === 'failed'
+                  "
                   class="kr-badge-sm badge-warning"
                 >
                   Enqueue failed
@@ -405,9 +419,12 @@
                 </span>
                 <span
                   v-if="triageStore.categoryFor(resource.id)"
-                  class="kr-badge-sm badge-neutral"
+                  class="kr-badge-sm"
+                  :class="sourceBadgeClass(resource)"
+                  :title="sourceHint(resource)"
                 >
                   {{ categoryLabel(triageStore.categoryFor(resource.id)) }}
+                  <span class="opacity-70">· {{ sourceLabel(resource) }}</span>
                 </span>
               </div>
             </div>
@@ -495,7 +512,9 @@
                 @click="triageStore.renderPreviews([resource.id])"
               >
                 <Icon name="kind-icon:sparkles" class="kr-icon-4" />
-                {{ isMissingPreview(resource) ? 'Render preview' : 'Re-render' }}
+                {{
+                  isMissingPreview(resource) ? 'Render preview' : 'Re-render'
+                }}
               </button>
             </div>
           </article>
@@ -570,12 +589,15 @@ import {
   LORA_CATEGORIES,
   LORA_CATEGORY_META,
   normalizeLoraCategory,
+  normalizeLoraCategorySource,
   type LoraCategory,
+  type LoraCategorySource,
 } from '@/utils/loraCategory'
 
 type MaturityFilter = 'ALL' | 'SFW' | 'NSFW'
 type PreviewFilter = 'ALL' | 'MISSING'
 type CategoryFilter = 'ALL' | 'NONE' | LoraCategory
+type SourceFilter = 'ALL' | LoraCategorySource
 
 const userStore = useUserStore()
 const triageStore = useLoraTriageStore()
@@ -585,6 +607,14 @@ const query = ref('')
 const generation = ref('ALL')
 const maturity = ref<MaturityFilter>('ALL')
 const category = ref<CategoryFilter>('ALL')
+/*
+ * The review filter. A category is only as trustworthy as what produced it,
+ * and the 2026-09-22 sweep proved the spread is wide: CHARACTER and STYLE came
+ * off Civitai tags and sampled clean across 1,231 rows, while CREATURE and
+ * OBJECT came off title keywords and are roughly half wrong. Filtering to
+ * HEURISTIC is how you find the bad ones without reading 2,226 cards.
+ */
+const source = ref<SourceFilter>('ALL')
 const bulkCategory = ref<LoraCategory | ''>('')
 const previewFilter = ref<PreviewFilter>('ALL')
 const pageSize = ref(48)
@@ -612,12 +642,31 @@ const filteredResources = computed(() => {
       return false
     if (generation.value !== 'ALL' && resource.generation !== generation.value)
       return false
-    if (maturity.value !== 'ALL' && effectiveMaturity(resource) !== maturity.value)
+    if (
+      maturity.value !== 'ALL' &&
+      effectiveMaturity(resource) !== maturity.value
+    )
       return false
     if (category.value !== 'ALL') {
       const current = triageStore.categoryFor(resource.id)
-      if (category.value === 'NONE' ? current !== null : current !== category.value)
+      if (
+        category.value === 'NONE'
+          ? current !== null
+          : current !== category.value
+      )
         return false
+    }
+    if (source.value !== 'ALL') {
+      /*
+       * A pending edit is this session's own unsaved decision, so it reads as
+       * HUMAN here even though nothing is written yet -- otherwise a row you
+       * just fixed would vanish out from under you while you work the
+       * HEURISTIC list.
+       */
+      const current = triageStore.categoryEdits[resource.id]
+        ? 'HUMAN'
+        : normalizeLoraCategorySource(resource.loraCategorySource)
+      if (current !== source.value) return false
     }
     if (previewFilter.value === 'MISSING' && !hasBlindPreview(resource))
       return false
@@ -645,7 +694,9 @@ const pageResources = computed(() => {
   return filteredResources.value.slice(start, start + pageSize.value)
 })
 const pageStart = computed(() =>
-  filteredResources.value.length ? (safePage.value - 1) * pageSize.value + 1 : 0,
+  filteredResources.value.length
+    ? (safePage.value - 1) * pageSize.value + 1
+    : 0,
 )
 const pageEnd = computed(() =>
   Math.min(safePage.value * pageSize.value, filteredResources.value.length),
@@ -692,6 +743,56 @@ function handleHideConfirmed(event: Event): void {
 
 function categoryLabel(value: LoraCategory | null): string {
   return value ? LORA_CATEGORY_META[value].label : ''
+}
+
+function categorySource(
+  resource: ResourceGalleryRecord,
+): LoraCategorySource | 'PENDING' | null {
+  if (triageStore.categoryEdits[resource.id]) return 'PENDING'
+  return normalizeLoraCategorySource(resource.loraCategorySource)
+}
+
+const SOURCE_LABELS: Record<LoraCategorySource | 'PENDING', string> = {
+  CIVITAI: 'civitai',
+  HEURISTIC: 'guess',
+  HUMAN: 'yours',
+  PENDING: 'unsaved',
+}
+
+const SOURCE_HINTS: Record<LoraCategorySource | 'PENDING', string> = {
+  CIVITAI: 'Civitai tagged this upstream. These sampled clean.',
+  HEURISTIC:
+    'Matched on a word in the title. Worth checking -- this is where the sweep got things wrong.',
+  HUMAN: 'You decided this. No sweep will overwrite it.',
+  PENDING: 'Your unsaved edit. Save changes to write it.',
+}
+
+/*
+ * Colour carries the same information as the word, for the same reason the
+ * word is there at all: on a 192-card page you scan for the ones to doubt.
+ */
+const SOURCE_CLASSES: Record<LoraCategorySource | 'PENDING', string> = {
+  CIVITAI: 'badge-success',
+  HEURISTIC: 'badge-warning',
+  HUMAN: 'badge-primary',
+  PENDING: 'badge-info',
+}
+
+function sourceLabel(resource: ResourceGalleryRecord): string {
+  const value = categorySource(resource)
+  return value ? SOURCE_LABELS[value] : 'unknown'
+}
+
+function sourceHint(resource: ResourceGalleryRecord): string {
+  const value = categorySource(resource)
+  return value
+    ? SOURCE_HINTS[value]
+    : 'No recorded source. Treat it like a guess.'
+}
+
+function sourceBadgeClass(resource: ResourceGalleryRecord): string {
+  const value = categorySource(resource)
+  return value ? SOURCE_CLASSES[value] : 'badge-neutral'
 }
 
 function handleCategory(resourceId: number, event: Event): void {

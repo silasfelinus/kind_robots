@@ -104,6 +104,11 @@ jobs:
       - name: LoRA backfill progress-output contract
         run: npm run test:backfill-progress
 
+      # The category is only as trustworthy as what produced it, and the field
+      # that says which never rode the list select the triage grid reads from.
+      - name: LoRA category provenance contract
+        run: npm run test:lora-provenance
+
       # Both of these cover server/utils/promptVariants.ts, which is now shared
       # between the Challenge Center's variant generator and the art
       # randomizer's batch roll. test:prompt-variants existed but was wired

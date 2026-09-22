@@ -46,8 +46,8 @@ def _workflow_text():
 
 
 def _ps1_path_patterns(text):
-    """Every quoted `*.ps1` glob in the paths filters."""
-    return set(re.findall(r'^\s*-\s*"([^"]*\.ps1)"', text, re.M))
+    """Every single- or double-quoted `*.ps1` glob in the paths filters."""
+    return set(re.findall(r"^\s*-\s*['\"]([^'\"]*\.ps1)['\"]", text, re.M))
 
 
 def _repo_ps1_files():
@@ -92,6 +92,15 @@ def test_the_checker_refuses_to_pass_on_an_empty_file_list():
         "the checker no longer fails loudly on an empty file list"
     )
     assert "ParseFile" in text, "the checker no longer calls the parser"
+
+
+def test_ps1_path_patterns_accepts_single_and_double_quotes():
+    text = """
+      - 'scripts/**.ps1'
+      - "ops/**/*.ps1"
+      - 'scripts/**.py'
+    """
+    assert _ps1_path_patterns(text) == {"scripts/**.ps1", "ops/**/*.ps1"}
 
 
 def test_the_paths_filter_covers_every_ps1_in_the_repo():

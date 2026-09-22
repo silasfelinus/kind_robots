@@ -33,7 +33,7 @@ type AccessUser = {
  * `roles`/`UserRoles` are optional for the same reason they are everywhere
  * else: absent means "not loaded", so the primary column still answers.
  */
-type MaturityUser = {
+export type MaturityUser = {
   id?: number | null
   Role?: string | null
   role?: string | null

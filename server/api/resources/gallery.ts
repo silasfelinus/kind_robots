@@ -42,6 +42,8 @@ export const resourceGallerySelect = {
   slug: true,
   commercialSafe: true,
   loraTarget: true,
+  loraCategory: true,
+  loraCategorySource: true,
   recommendedCfg: true,
   ArtImage: {
     select: resourcePreviewArtImageSelect,
@@ -99,6 +101,11 @@ export const resourceListSelect = {
   isPublic: true,
   allowReviews: true,
   userId: true,
+  // One nullable enum, and the only thing on this row that lets the grid
+  // filter or badge by what a LoRA is FOR. Trimming it would push a detail
+  // fetch per card onto exactly the screen this select exists to keep cheap --
+  // the "show me the unclassified LoRAs" pass is a whole-catalog sweep.
+  loraCategory: true,
   ArtImage: {
     select: resourcePreviewArtImageSelect,
   },

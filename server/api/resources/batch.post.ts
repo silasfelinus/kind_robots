@@ -44,6 +44,37 @@ export default defineEventHandler(async (event) => {
     // preserved on existing rows.
     const upsert = String(getQuery(event).mode ?? '') === 'upsert'
 
+    /*
+     * Names whose stored classification was made by a person. A re-import is
+     * routine -- the watched-folder agent upserts the whole catalog -- and its
+     * classifier runs on filenames and Civitai tags, neither of which knows
+     * that Silas already looked at this row and corrected it. Without this the
+     * next scan quietly reverts every hand correction, which is the one
+     * failure mode that would make the editor not worth using.
+     *
+     * One query for the whole batch, and only when the batch actually carries
+     * categories to write.
+     */
+    const humanClassifiedNames = new Set<string>()
+
+    if (upsert) {
+      const namedCategories = body
+        .filter((entry) => entry?.loraCategory !== undefined)
+        .map((entry) => String(entry?.name ?? '').trim())
+        .filter(Boolean)
+
+      if (namedCategories.length) {
+        const existing = await prisma.resource.findMany({
+          where: {
+            name: { in: namedCategories },
+            loraCategorySource: 'HUMAN',
+          },
+          select: { name: true },
+        })
+        for (const row of existing) humanClassifiedNames.add(row.name)
+      }
+    }
+
     const created: ResourceMutationResult[] = []
     const skipped: ResourceBatchSkip[] = []
     const failed: ResourceBatchFailure[] = []
@@ -81,6 +112,12 @@ export default defineEventHandler(async (event) => {
               isMature: data.isMature,
               resourceType: data.resourceType,
               supportedServer: data.supportedServer,
+              loraCategory: humanClassifiedNames.has(data.name)
+                ? undefined
+                : data.loraCategory,
+              loraCategorySource: humanClassifiedNames.has(data.name)
+                ? undefined
+                : data.loraCategorySource,
             },
             select: resourceMutationSelect,
           })

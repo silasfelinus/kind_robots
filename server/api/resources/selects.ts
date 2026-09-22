@@ -30,6 +30,8 @@ export const resourceMutationSelect = {
   imagePath: true,
   slug: true,
   recommendedCfg: true,
+  loraCategory: true,
+  loraCategorySource: true,
 } satisfies Prisma.ResourceSelect
 
 export type ResourceMutationResult = Prisma.ResourceGetPayload<{

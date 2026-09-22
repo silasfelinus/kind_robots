@@ -8,11 +8,13 @@
           <p class="kr-text-eyebrow text-xs tracking-widest text-primary">
             Temporary catalog cleanup
           </p>
-          <div class="kr-text-black-2xl mt-1">LoRA maturity triage</div>
+          <div class="kr-text-black-2xl mt-1">LoRA triage</div>
           <p class="kr-text-dim-sm mt-1 max-w-3xl">
-            Confirm LoRAs as SFW or NSFW here, then save the changed maturity
-            flags in one pass. Review progress stays in this browser until this
-            cleanup page is removed.
+            Confirm LoRAs as SFW or NSFW, and say what each one is FOR — a
+            character, a style, a setting. The category is what the image
+            generator rolls from, so an unclassified LoRA is one
+            <span class="font-mono">{character}</span> can never pick. Save both
+            in one pass; progress stays in this browser until then.
           </p>
         </div>
 
@@ -82,7 +84,7 @@
       </div>
 
       <template v-else>
-        <section class="grid grid-cols-2 gap-2 sm:grid-cols-5">
+        <section class="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-6">
           <div class="kr-panel p-3">
             <p class="kr-text-eyebrow kr-text-dim-xs-45">LoRAs</p>
             <p class="kr-text-black-2xl mt-1">
@@ -111,6 +113,12 @@
             <p class="kr-text-eyebrow kr-text-dim-xs-45">No preview</p>
             <p class="kr-text-black-2xl mt-1 text-error">
               {{ triageStore.missingPreviewCount }}
+            </p>
+          </div>
+          <div class="kr-panel p-3">
+            <p class="kr-text-eyebrow kr-text-dim-xs-45">Unclassified</p>
+            <p class="kr-text-black-2xl mt-1 text-warning">
+              {{ triageStore.unclassifiedCount }}
             </p>
           </div>
         </section>
@@ -187,6 +195,22 @@
             </select>
 
             <select
+              v-model="category"
+              class="kr-select-sm w-auto max-w-56"
+              aria-label="Filter by category"
+            >
+              <option value="ALL">All categories</option>
+              <option value="NONE">Unclassified only</option>
+              <option
+                v-for="option in categoryOptions"
+                :key="option.category"
+                :value="option.category"
+              >
+                {{ option.label }}
+              </option>
+            </select>
+
+            <select
               v-model="maturity"
               class="kr-select-sm w-auto"
               aria-label="Filter by maturity"
@@ -256,6 +280,47 @@
               @click="triageStore.markSelected('nsfw')"
             >
               Mark selected NSFW
+            </button>
+          </div>
+
+          <div class="flex flex-wrap items-center gap-2 kr-panel-divider">
+            <span class="kr-text-bold-sm">Category</span>
+            <select
+              v-model="bulkCategory"
+              class="kr-select-sm w-auto max-w-56"
+              aria-label="Category to apply to the selection"
+            >
+              <option value="">Choose a category…</option>
+              <option
+                v-for="option in categoryOptions"
+                :key="option.category"
+                :value="option.category"
+              >
+                {{ option.label }} — {{ option.hint }}
+              </option>
+            </select>
+            <button
+              type="button"
+              class="kr-btn-xs btn-primary"
+              :disabled="!bulkCategory || triageStore.selectedCount === 0"
+              @click="applyBulkCategory"
+            >
+              Apply to {{ triageStore.selectedCount }} selected
+            </button>
+            <button
+              type="button"
+              class="kr-btn-xs btn-secondary ml-auto"
+              @click="suggestForPage"
+            >
+              <Icon name="kind-icon:sparkles" class="kr-icon-4" />
+              Suggest for this page
+            </button>
+            <button
+              type="button"
+              class="kr-btn-ghost-xs"
+              @click="suggestForAll"
+            >
+              Suggest for all {{ triageStore.unclassifiedCount }} unclassified
             </button>
           </div>
         </section>
@@ -338,6 +403,12 @@
                 >
                   No preview
                 </span>
+                <span
+                  v-if="triageStore.categoryFor(resource.id)"
+                  class="kr-badge-sm badge-neutral"
+                >
+                  {{ categoryLabel(triageStore.categoryFor(resource.id)) }}
+                </span>
               </div>
             </div>
 
@@ -387,6 +458,35 @@
                   NSFW
                 </button>
               </div>
+
+              <label class="form-control">
+                <span class="label py-0">
+                  <span class="label-text kr-text-dim-xs-55 font-bold">
+                    What is it for?
+                  </span>
+                  <span
+                    v-if="triageStore.categoryEdits[resource.id]"
+                    class="label-text-alt kr-text-dim-xs-55"
+                  >
+                    unsaved
+                  </span>
+                </span>
+                <select
+                  class="kr-select-sm w-full"
+                  :value="triageStore.categoryFor(resource.id) ?? ''"
+                  :aria-label="`Category for ${resourceLabel(resource)}`"
+                  @change="handleCategory(resource.id, $event)"
+                >
+                  <option value="">Unclassified</option>
+                  <option
+                    v-for="option in categoryOptions"
+                    :key="option.category"
+                    :value="option.category"
+                  >
+                    {{ option.label }}
+                  </option>
+                </select>
+              </label>
 
               <button
                 type="button"
@@ -466,9 +566,16 @@ import { useUserStore } from '@/stores/userStore'
 import { useLoraTriageStore } from '@/stores/loraTriageStore'
 import type { ResourceGalleryRecord } from '@/stores/resourceGalleryStore'
 import { hasBlindPreview } from '@/utils/loraProbe'
+import {
+  LORA_CATEGORIES,
+  LORA_CATEGORY_META,
+  normalizeLoraCategory,
+  type LoraCategory,
+} from '@/utils/loraCategory'
 
 type MaturityFilter = 'ALL' | 'SFW' | 'NSFW'
 type PreviewFilter = 'ALL' | 'MISSING'
+type CategoryFilter = 'ALL' | 'NONE' | LoraCategory
 
 const userStore = useUserStore()
 const triageStore = useLoraTriageStore()
@@ -477,9 +584,15 @@ const loading = ref(false)
 const query = ref('')
 const generation = ref('ALL')
 const maturity = ref<MaturityFilter>('ALL')
+const category = ref<CategoryFilter>('ALL')
+const bulkCategory = ref<LoraCategory | ''>('')
 const previewFilter = ref<PreviewFilter>('ALL')
 const pageSize = ref(48)
 const page = ref(1)
+
+const categoryOptions = LORA_CATEGORIES.map(
+  (value) => LORA_CATEGORY_META[value],
+)
 
 const generations = computed(() =>
   [
@@ -501,6 +614,11 @@ const filteredResources = computed(() => {
       return false
     if (maturity.value !== 'ALL' && effectiveMaturity(resource) !== maturity.value)
       return false
+    if (category.value !== 'ALL') {
+      const current = triageStore.categoryFor(resource.id)
+      if (category.value === 'NONE' ? current !== null : current !== category.value)
+        return false
+    }
     if (previewFilter.value === 'MISSING' && !hasBlindPreview(resource))
       return false
     if (!search) return true
@@ -570,6 +688,31 @@ function handleHideConfirmed(event: Event): void {
   const input = event.target
   if (input instanceof HTMLInputElement)
     triageStore.setHideConfirmed(input.checked)
+}
+
+function categoryLabel(value: LoraCategory | null): string {
+  return value ? LORA_CATEGORY_META[value].label : ''
+}
+
+function handleCategory(resourceId: number, event: Event): void {
+  const select = event.target
+  if (!(select instanceof HTMLSelectElement)) return
+  triageStore.setCategory(resourceId, normalizeLoraCategory(select.value))
+}
+
+function applyBulkCategory(): void {
+  if (!bulkCategory.value) return
+  triageStore.markSelectedCategory(bulkCategory.value)
+}
+
+function suggestForPage(): void {
+  triageStore.suggestCategories(
+    pageResources.value.map((resource) => resource.id),
+  )
+}
+
+function suggestForAll(): void {
+  triageStore.suggestCategories()
 }
 
 function handleSelection(resourceId: number, event: Event): void {

@@ -303,6 +303,8 @@
             </div>
           </section>
 
+          <art-batch-randomizer />
+
           <!-- The ONE facet surface. Selection is canonical Facet ids, which
                ride to the ArtJob and onto the finished ArtImage. -->
           <art-facet-selector v-model="facetIds" label="Creative Facets" compact />

@@ -1451,6 +1451,23 @@ model Resource {
   /// path and backfilling it from t-105's clipping data are deliberate
   /// follow-up scope, not part of this column landing.
   recommendedCfg        Float?
+  /// What a LORA-typed Resource is FOR, as opposed to what it loads onto
+  /// (supportedServer/generation) or where it attaches (loraTarget). A
+  /// character LoRA, a style LoRA and a clothing LoRA are interchangeable to
+  /// every code path in this repo today, which is why "{character} running in
+  /// {style}" could not be answered: nothing knew which rows were characters
+  /// and which were styles. Nullable means unclassified, not OTHER -- OTHER is
+  /// a decision that none of the categories fit, and the randomizer skips
+  /// unclassified rows rather than rolling them into a category they may not
+  /// belong to.
+  loraCategory          LoraCategory?
+  /// Who decided loraCategory. CIVITAI came from an upstream tag, HEURISTIC
+  /// from utils/loraCategory.ts reading the name/description, HUMAN from an
+  /// edit in the Resource card or the LoRA editor. The backfill and the import
+  /// agent never overwrite HUMAN, so re-running classification is safe and a
+  /// hand correction is permanent. Kept as a short string rather than a second
+  /// enum: it is provenance metadata, never a filter or a join key.
+  loraCategorySource    String?         @db.VarChar(32)
   ArtImages             ArtImage[]      @relation("ArtImageCheckpointResource")
   Previews              ResourcePreview[]
   Reactions             Reaction[]
@@ -1463,6 +1480,7 @@ model Resource {
   @@index([artImageId], map: "Resource_artImageId_fkey")
   @@index([civitaiModelId], map: "Resource_civitaiModelId_idx")
   @@index([civitaiModelVersionId], map: "Resource_civitaiModelVersionId_idx")
+  @@index([loraCategory, resourceType], map: "Resource_loraCategory_idx")
 }
 
 /// Rewards are skills, items, pets, and other collectibles used in storytelling
@@ -3105,6 +3123,24 @@ enum LoraTarget {
   MODEL
   TEXT_ENCODER
   BOTH
+}
+
+/// What a LoRA is for, as a creative role -- the axis a prompt placeholder
+/// names. Kept deliberately small: every extra category is one more bucket a
+/// human has to sort 1,500 rows into, and a category nothing ever rolls for is
+/// dead weight. OTHER is a real answer ("classified, fits none of these"),
+/// distinct from a NULL loraCategory ("nobody has looked at this row yet").
+enum LoraCategory {
+  CHARACTER
+  STYLE
+  SETTING
+  ACTION
+  CLOTHING
+  OBJECT
+  CREATURE
+  DETAIL
+  CONCEPT
+  OTHER
 }
 
 enum RewardType {

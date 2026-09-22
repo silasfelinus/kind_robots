@@ -22,6 +22,9 @@
         <span v-if="resource.generation" class="kr-badge-sm badge-neutral">
           {{ resource.generation }}
         </span>
+        <span v-if="categoryLabel" class="kr-badge-sm badge-accent">
+          {{ categoryLabel }}
+        </span>
         <span v-if="resource.isMature" class="kr-badge-sm badge-error">
           18+
         </span>
@@ -58,6 +61,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import type { ResourceGalleryRecord } from '@/stores/resourceGalleryStore'
+import { LORA_CATEGORY_META, normalizeLoraCategory } from '@/utils/loraCategory'
 
 const props = defineProps<{
   resource: ResourceGalleryRecord
@@ -78,6 +82,11 @@ const previewSrc = computed(
 )
 
 const label = computed(() => props.resource.customLabel || props.resource.name)
+
+const categoryLabel = computed(() => {
+  const category = normalizeLoraCategory(props.resource.loraCategory)
+  return category ? LORA_CATEGORY_META[category].label : ''
+})
 
 const triggerText = computed(
   () =>

@@ -1491,7 +1491,9 @@ export const ResourceScalarFieldEnum = {
   commercialSafe: 'commercialSafe',
   allowReviews: 'allowReviews',
   loraTarget: 'loraTarget',
-  recommendedCfg: 'recommendedCfg'
+  recommendedCfg: 'recommendedCfg',
+  loraCategory: 'loraCategory',
+  loraCategorySource: 'loraCategorySource'
 } as const
 
 export type ResourceScalarFieldEnum = (typeof ResourceScalarFieldEnum)[keyof typeof ResourceScalarFieldEnum]
@@ -3169,7 +3171,8 @@ export const ResourceOrderByRelevanceFieldEnum = {
   hash: 'hash',
   previewImageUrl: 'previewImageUrl',
   imagePath: 'imagePath',
-  slug: 'slug'
+  slug: 'slug',
+  loraCategorySource: 'loraCategorySource'
 } as const
 
 export type ResourceOrderByRelevanceFieldEnum = (typeof ResourceOrderByRelevanceFieldEnum)[keyof typeof ResourceOrderByRelevanceFieldEnum]

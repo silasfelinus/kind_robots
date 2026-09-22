@@ -34,7 +34,15 @@ import {
 import {
   DEFAULT_ART_PRESET_ID,
   defaultPresetSettings,
+  detectCheckpointFamily,
 } from '@/utils/artGeneratorPresets'
+import { MAX_LORAS_PER_JOB } from '@/utils/loraLimits'
+import {
+  MAX_RANDOM_BATCH,
+  type ArtRandomBatchPlan,
+  type ArtRandomBatchResult,
+  type ArtRandomSource,
+} from '@/utils/artRandomBatch'
 
 type ApiResponse<T> = {
   success: boolean
@@ -276,6 +284,7 @@ type ArtStoreState = {
   /** What the loaded source image is, for the viewer. Nothing downstream reads it. */
   sourceImageLabel: string
   lastGeneratedArtImage: ArtImage | null
+  lastRandomBatchPlan: ArtRandomBatchPlan | null
   selectedGenerationCollectionId: number | null
   queueState: 'queued' | 'rendering' | null
   currentJobId: number | null
@@ -388,6 +397,7 @@ export const useArtStore = defineStore('artStore', () => {
     generationMessageTone: 'success',
     sourceImageLabel: '',
     lastGeneratedArtImage: null,
+    lastRandomBatchPlan: null,
     selectedGenerationCollectionId: null,
     queueState: null,
     currentJobId: null,
@@ -1992,6 +2002,153 @@ export const useArtStore = defineStore('artStore', () => {
     }
   }
 
+  /**
+   * Rolls a templated prompt into `batch` jobs, each with its own random picks.
+   *
+   * The roll happens server-side in one call, not once per job, because the
+   * whole point of "ten different characters" is that the ten draws know about
+   * each other -- ten independent rolls from the same pool repeat. What comes
+   * back is a plan; this then enqueues it one ArtJob at a time through the
+   * normal path, so every job carries the same mana accounting, prompt gate,
+   * and provenance any single generation would.
+   */
+  async function enqueueRandomizedArtBatch(options: {
+    basePrompt?: string
+    batch?: number
+    sources?: ArtRandomSource[]
+    seed?: number | null
+    overrides?: Partial<GenerateArtData>
+  } = {}): Promise<ArtRandomBatchResult> {
+    const overrides = options.overrides ?? {}
+    const basePrompt = (
+      options.basePrompt ??
+      overrides.promptString ??
+      finalPromptString.value ??
+      ''
+    ).trim()
+
+    if (!basePrompt) {
+      return { success: false, message: 'Image prompt is empty.', jobIds: [] }
+    }
+
+    const batch = Math.trunc(options.batch ?? 1)
+    if (!Number.isFinite(batch) || batch < 1 || batch > MAX_RANDOM_BATCH) {
+      return {
+        success: false,
+        message: `Batch size must be between 1 and ${MAX_RANDOM_BATCH}.`,
+        jobIds: [],
+      }
+    }
+
+    const engine =
+      overrides.engine ?? state.artForm.engine ?? PRODUCT_DEFAULT_ART_SETTINGS.engine
+
+    const response = await performFetch<ArtRandomBatchPlan>(
+      '/api/art/randomize',
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          basePrompt,
+          batch,
+          engine,
+          checkpointFamily: detectCheckpointFamily(
+            useCheckpointStore().selectedCheckpoint,
+          ),
+          sources: options.sources,
+          loraStrength: overrides.loraStrength ?? state.artForm.loraStrength ?? 1,
+          seed: options.seed ?? undefined,
+        }),
+      },
+      2,
+      45_000,
+    )
+
+    if (!response.success || !response.data) {
+      const message = response.message || 'Could not roll the batch.'
+      setGenerationMessage('error', message)
+      return { success: false, message, jobIds: [] }
+    }
+
+    const plan = response.data
+    const base = mergeCurrentArtOverrides(overrides)
+
+    /*
+     * Hand-picked LoRAs, normalized to the `loras` shape the enqueue resolver
+     * reads FIRST. It only falls back to `loraResourceIds` when `loras` is
+     * empty, so a rolled pick handed over as an id would be silently dropped
+     * on any generator session where the picker had already put something in
+     * `loras` -- every variant would then render with the same LoRAs and the
+     * batch would look like the randomizer had done nothing.
+     */
+    const pickedLoras: ArtLoraSelection[] = (
+      base.loras?.length
+        ? base.loras
+        : (base.loraResourceIds ?? []).map<ArtLoraSelection>((resourceId) => ({
+            resourceId,
+            strength: base.loraStrength ?? 1,
+          }))
+    ).filter((pick) => Boolean(pick.resourceId || pick.name))
+
+    const jobIds: number[] = []
+    const failures: string[] = []
+    let truncated = false
+
+    for (const variant of plan.variants) {
+      /*
+       * Rolled first. The server truncates the stack at MAX_LORAS_PER_JOB, and
+       * dropping the rolled picks is the failure that makes ten jobs come back
+       * identical -- far more confusing than losing a hand-picked extra, which
+       * is at least visible in the picker.
+       */
+      const merged: ArtLoraSelection[] = []
+      const seen = new Set<number>()
+
+      const candidates: ArtLoraSelection[] = [
+        ...variant.loras.map((lora) => ({
+          resourceId: lora.resourceId,
+          strength: lora.strength,
+        })),
+        ...pickedLoras,
+      ]
+
+      for (const pick of candidates) {
+        const id = Number(pick.resourceId)
+        if (Number.isInteger(id) && id > 0) {
+          if (seen.has(id)) continue
+          seen.add(id)
+        }
+        merged.push(pick)
+      }
+
+      if (merged.length > MAX_LORAS_PER_JOB) truncated = true
+
+      const result = await enqueueArtGeneration({
+        ...base,
+        promptString: variant.promptString,
+        loras: merged.slice(0, MAX_LORAS_PER_JOB),
+        loraResourceIds: null,
+      })
+
+      if (result.success && typeof result.jobId === 'number') {
+        jobIds.push(result.jobId)
+      } else {
+        failures.push(result.message || `Variant ${variant.variantKey} failed.`)
+      }
+    }
+
+    const message = failures.length
+      ? `Queued ${jobIds.length} of ${plan.variants.length}. ${failures[0]}`
+      : truncated
+        ? `Queued ${jobIds.length} image${jobIds.length === 1 ? '' : 's'}. Some hand-picked LoRAs were dropped past the ${MAX_LORAS_PER_JOB}-LoRA limit.`
+        : `Queued ${jobIds.length} image${jobIds.length === 1 ? '' : 's'}.`
+
+    setGenerationMessage(jobIds.length ? 'success' : 'error', message)
+    state.lastRandomBatchPlan = plan
+
+    return { success: jobIds.length > 0, message, jobIds, plan }
+  }
+
   async function getArtJobStatus(jobId: number): Promise<QueuedArtJob | null> {
     const response = await performFetch<{ job: QueuedArtJob }>(
       `/api/art/queue/${jobId}`,
@@ -2149,6 +2306,7 @@ export const useArtStore = defineStore('artStore', () => {
     generateImageFromBrowserServer,
     enqueueCurrentArt,
     enqueueArtGeneration,
+    enqueueRandomizedArtBatch,
     getArtJobStatus,
     finalizeQueuedArtImage,
     uploadImage,

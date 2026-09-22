@@ -885,6 +885,13 @@ export type EnumLoraTargetNullableFilter<$PrismaModel = never> = {
   not?: Prisma.NestedEnumLoraTargetNullableFilter<$PrismaModel> | $Enums.LoraTarget | null
 }
 
+export type EnumLoraCategoryNullableFilter<$PrismaModel = never> = {
+  equals?: $Enums.LoraCategory | Prisma.EnumLoraCategoryFieldRefInput<$PrismaModel> | null
+  in?: $Enums.LoraCategory[] | null
+  notIn?: $Enums.LoraCategory[] | null
+  not?: Prisma.NestedEnumLoraCategoryNullableFilter<$PrismaModel> | $Enums.LoraCategory | null
+}
+
 export type EnumResourceTypeWithAggregatesFilter<$PrismaModel = never> = {
   equals?: $Enums.ResourceType | Prisma.EnumResourceTypeFieldRefInput<$PrismaModel>
   in?: $Enums.ResourceType[]
@@ -913,6 +920,16 @@ export type EnumLoraTargetNullableWithAggregatesFilter<$PrismaModel = never> = {
   _count?: Prisma.NestedIntNullableFilter<$PrismaModel>
   _min?: Prisma.NestedEnumLoraTargetNullableFilter<$PrismaModel>
   _max?: Prisma.NestedEnumLoraTargetNullableFilter<$PrismaModel>
+}
+
+export type EnumLoraCategoryNullableWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.LoraCategory | Prisma.EnumLoraCategoryFieldRefInput<$PrismaModel> | null
+  in?: $Enums.LoraCategory[] | null
+  notIn?: $Enums.LoraCategory[] | null
+  not?: Prisma.NestedEnumLoraCategoryNullableWithAggregatesFilter<$PrismaModel> | $Enums.LoraCategory | null
+  _count?: Prisma.NestedIntNullableFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumLoraCategoryNullableFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumLoraCategoryNullableFilter<$PrismaModel>
 }
 
 export type EnumRewardTypeFilter<$PrismaModel = never> = {
@@ -2420,6 +2437,13 @@ export type NestedEnumLoraTargetNullableFilter<$PrismaModel = never> = {
   not?: Prisma.NestedEnumLoraTargetNullableFilter<$PrismaModel> | $Enums.LoraTarget | null
 }
 
+export type NestedEnumLoraCategoryNullableFilter<$PrismaModel = never> = {
+  equals?: $Enums.LoraCategory | Prisma.EnumLoraCategoryFieldRefInput<$PrismaModel> | null
+  in?: $Enums.LoraCategory[] | null
+  notIn?: $Enums.LoraCategory[] | null
+  not?: Prisma.NestedEnumLoraCategoryNullableFilter<$PrismaModel> | $Enums.LoraCategory | null
+}
+
 export type NestedEnumResourceTypeWithAggregatesFilter<$PrismaModel = never> = {
   equals?: $Enums.ResourceType | Prisma.EnumResourceTypeFieldRefInput<$PrismaModel>
   in?: $Enums.ResourceType[]
@@ -2448,6 +2472,16 @@ export type NestedEnumLoraTargetNullableWithAggregatesFilter<$PrismaModel = neve
   _count?: Prisma.NestedIntNullableFilter<$PrismaModel>
   _min?: Prisma.NestedEnumLoraTargetNullableFilter<$PrismaModel>
   _max?: Prisma.NestedEnumLoraTargetNullableFilter<$PrismaModel>
+}
+
+export type NestedEnumLoraCategoryNullableWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.LoraCategory | Prisma.EnumLoraCategoryFieldRefInput<$PrismaModel> | null
+  in?: $Enums.LoraCategory[] | null
+  notIn?: $Enums.LoraCategory[] | null
+  not?: Prisma.NestedEnumLoraCategoryNullableWithAggregatesFilter<$PrismaModel> | $Enums.LoraCategory | null
+  _count?: Prisma.NestedIntNullableFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumLoraCategoryNullableFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumLoraCategoryNullableFilter<$PrismaModel>
 }
 
 export type NestedEnumRewardTypeFilter<$PrismaModel = never> = {

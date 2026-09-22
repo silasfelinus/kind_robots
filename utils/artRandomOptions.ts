@@ -76,12 +76,13 @@ export function isArtRandomObjectType(
  * Turn a potentially essay-sized persisted artPrompt into one useful visual
  * clause for a random image prompt.
  *
- * We deliberately reuse the existing field rather than adding six "short art
- * prompt" columns. Randomization needs enough visual identity to render the
- * object, not the whole object record. 280 characters is roughly a sentence or
- * two and keeps a batch of several random objects from becoming a token vacuum.
+ * We deliberately reuse the existing field rather than adding parallel "short
+ * art prompt" columns. Randomization needs enough visual identity to render a
+ * selected object or Facet, not its whole record. 280 characters is roughly a
+ * sentence or two and keeps a batch of random records from becoming a token
+ * vacuum.
  */
-export function compactRandomObjectPrompt(
+export function compactRandomArtPrompt(
   label: string | null | undefined,
   artPrompt: string | null | undefined,
   maxChars = 280,

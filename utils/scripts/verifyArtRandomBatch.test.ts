@@ -4,6 +4,7 @@
 // ten jobs, ten different characters, ten different styles, each carrying the
 // LoRA weights it rolled -- and a replayable seed so that claim is checkable.
 import assert from 'node:assert/strict'
+import { readFileSync } from 'node:fs'
 import {
   dealWithoutReplacement,
   extractPlaceholderKeys,
@@ -13,6 +14,10 @@ import {
   seededRandom,
   type VariantPick,
 } from '../../server/utils/promptVariants'
+import {
+  ART_RANDOM_OBJECT_OPTIONS,
+  compactRandomArtPrompt,
+} from '../artRandomOptions'
 
 function loraPool(prefix: string, size: number): VariantPick[] {
   return Array.from({ length: size }, (_, index) => ({
@@ -199,5 +204,49 @@ const repeated = generateStructuredPromptVariants(
 const [left, right] = repeated[0]!.promptUsed.split(' meets ')
 assert.equal(left, right)
 assert.equal(repeated[0]!.loraPicks.length, 1)
+
+// Random object buttons are source-explicit, so an object roll can never
+// silently become a LoRA or Facet when those pools happen to share a name.
+assert.deepEqual(
+  ART_RANDOM_OBJECT_OPTIONS.map((option) => option.placeholder),
+  [
+    'object:character',
+    'object:scenario',
+    'object:reward',
+    'object:dream',
+    'object:bot',
+    'object:project',
+  ],
+)
+
+// Existing object/Facet art prompts can be verbose. Random batches reuse them
+// without adding parallel schema fields, but cap each inserted visual clause.
+const verboseArtPrompt =
+  'A luminous brass automaton on a rain-dark stage. '.repeat(20)
+const compact = compactRandomArtPrompt(
+  'Clockwork Friend',
+  verboseArtPrompt,
+)
+assert.ok(compact.startsWith('Clockwork Friend: '))
+assert.ok(compact.length <= 280)
+assert.ok(compact.endsWith('…'))
+
+const randomizerUi = readFileSync(
+  'components/art/art-batch-randomizer.vue',
+  'utf8',
+)
+assert.ok(randomizerUi.includes("placeholder: `lora:${placeholder}`"))
+assert.ok(randomizerUi.includes("placeholder: `facet:${taxonomy.toLowerCase()}`"))
+assert.ok(randomizerUi.includes('ART_RANDOM_OBJECT_OPTIONS'))
+assert.ok(!randomizerUi.includes('Write {character} running in {style}'))
+
+const poolSource = readFileSync('server/utils/artRandomPools.ts', 'utf8')
+assert.ok(poolSource.includes("source: 'object'"))
+assert.ok(poolSource.includes('compactRandomArtPrompt(facet.title, facet.artPrompt)'))
+assert.ok(
+  poolSource.includes(
+    "facetTaxonomiesForKey(entry.key, entry.kind === 'facet')",
+  ),
+)
 
 console.log('Randomized art batch contract verified.')

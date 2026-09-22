@@ -212,6 +212,25 @@ if (!fs.existsSync(runner)) {
     ],
     ["runner removes curl's own timeout", /--max-time 0/],
     ['runner refuses to run without an admin token', /ERROR: no admin token/],
+    // Silas, 2026-09-22: "Isn't there a way to do this so I don't need to type
+    // the api token into the console? Usually we've been able to grab it from
+    // env." The running server already authenticates BETA_ADMIN_TOKEN /
+    // ADMIN_TOKEN out of its own env file (authGuard.ts), so the runner reads
+    // the same file the deploy does instead of asking for the value.
+    [
+      'runner defaults to the deploy env file',
+      /KIND_ROBOTS_ENV_FILE:-\$APP_DIR\/\.env/,
+    ],
+    [
+      'runner reads the tokens authGuard accepts',
+      /for key in BETA_ADMIN_TOKEN ADMIN_TOKEN KR_API_TOKEN/,
+    ],
+    [
+      'runner honours an already-exported token',
+      /KR_API_TOKEN:-\$\{BETA_ADMIN_TOKEN:-\$\{ADMIN_TOKEN:-\}\}\}/,
+    ],
+    ['runner reads the env file without sourcing it', /it is read, never run/],
+    ['runner keeps the token out of argv', /-K -/],
   ]
   for (const [name, pattern] of runnerChecks) {
     if (!pattern.test(shell)) {

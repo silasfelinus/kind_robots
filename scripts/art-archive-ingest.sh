@@ -21,19 +21,31 @@
 #   scripts/art-archive-ingest.sh                 # dry run, writes nothing
 #   scripts/art-archive-ingest.sh --import        # perform the real import
 #
-# AUTH
-#   Needs an admin bearer token, from either:
-#     export KIND_ROBOTS_ADMIN_TOKEN=...          # or --token <value>
-#   An admin's API token is the same one the browser sends; read it from the
-#   User row, or copy it out of the logged-in browser session.
+# AUTH -- NOTHING TO TYPE
+#   The token comes from the same env file the deploy already reads
+#   ($KIND_ROBOTS_APP_DIR/.env, default /mnt/user/appdata/kind_robots/.env),
+#   because the running server authenticates it from that very file:
+#   authGuard.ts accepts BETA_ADMIN_TOKEN / ADMIN_TOKEN as an admin bearer.
+#   So on Alexandria this is just:
+#
+#       scripts/art-archive-ingest.sh
+#
+#   Precedence, first hit wins:
+#     --token <value>
+#     $KR_API_TOKEN / $BETA_ADMIN_TOKEN / $ADMIN_TOKEN already exported
+#     BETA_ADMIN_TOKEN= / ADMIN_TOKEN= in the env file
+#   The token is never printed and never placed in argv, so it stays out of
+#   shell history and out of `ps` for other users on the box.
 #
 # TARGET
 #   Defaults to the container on this host. Override for a remote target:
 #     KIND_ROBOTS_URL=https://kindrobots.org scripts/art-archive-ingest.sh
 set -Eeuo pipefail
 
+APP_DIR="${KIND_ROBOTS_APP_DIR:-/mnt/user/appdata/kind_robots}"
+ENV_FILE="${KIND_ROBOTS_ENV_FILE:-$APP_DIR/.env}"
 BASE_URL="${KIND_ROBOTS_URL:-http://127.0.0.1:3000}"
-TOKEN="${KIND_ROBOTS_ADMIN_TOKEN:-}"
+TOKEN=''
 ENDPOINT='dry-run'
 MODE='Dry run'
 
@@ -43,25 +55,57 @@ while [[ $# -gt 0 ]]; do
     --dry-run) ENDPOINT='dry-run'; MODE='Dry run'; shift ;;
     --token) TOKEN="${2:-}"; shift 2 ;;
     --url) BASE_URL="${2:-}"; shift 2 ;;
-    -h|--help) sed -n '2,32p' "$0"; exit 0 ;;
+    --env-file) ENV_FILE="${2:-}"; shift 2 ;;
+    -h|--help) sed -n '2,42p' "$0"; exit 0 ;;
     *) printf 'Unknown argument: %s\n' "$1" >&2; exit 2 ;;
   esac
 done
 
+# Read one KEY from an env file without sourcing it. Sourcing would execute
+# whatever else is in there -- this file holds the production DATABASE_URL, so
+# it is read, never run. Handles optional `export `, optional quotes, comments.
+read_env_key() {
+  local key="$1" file="$2"
+  [[ -r "$file" ]] || return 1
+  sed -n "s/^[[:space:]]*\(export[[:space:]]\+\)\?${key}=//p" "$file" \
+    | tail -n 1 \
+    | sed -e 's/^"\(.*\)"$/\1/' -e "s/^'\(.*\)'\$/\1/"
+}
+
 if [[ -z "$TOKEN" ]]; then
-  printf 'ERROR: no admin token. Set KIND_ROBOTS_ADMIN_TOKEN or pass --token <value>.\n' >&2
+  TOKEN="${KR_API_TOKEN:-${BETA_ADMIN_TOKEN:-${ADMIN_TOKEN:-}}}"
+fi
+
+if [[ -z "$TOKEN" ]]; then
+  for key in BETA_ADMIN_TOKEN ADMIN_TOKEN KR_API_TOKEN; do
+    TOKEN="$(read_env_key "$key" "$ENV_FILE" || true)"
+    [[ -n "$TOKEN" ]] && break
+  done
+fi
+
+if [[ -z "$TOKEN" ]]; then
+  printf 'ERROR: no admin token.\n' >&2
+  printf '  Looked for BETA_ADMIN_TOKEN / ADMIN_TOKEN / KR_API_TOKEN in the\n' >&2
+  printf '  environment and in %s\n' "$ENV_FILE" >&2
+  printf '  Pass --env-file <path> if the deploy env lives elsewhere, or\n' >&2
+  printf '  --token <value> to supply one directly.\n' >&2
   exit 2
 fi
 
 printf '%s against %s -- no client timeout; a large archive legitimately takes a while.\n' \
   "$MODE" "$BASE_URL" >&2
 
-# --max-time 0 removes curl's own cap. The scan is the long pole, and a retry
-# would restart it from the beginning, so this never retries.
-response="$(curl -sS --fail-with-body --max-time 0 \
-  -X POST "$BASE_URL/api/admin/art-archive/$ENDPOINT" \
-  -H "Authorization: Bearer $TOKEN" \
-  -H 'Content-Type: application/json')"
+# The token goes in via a curl config on stdin rather than -H, so it never
+# appears in this process's argv. --max-time 0 removes curl's own cap; the scan
+# is the long pole and a retry would restart it from the beginning, so this
+# never retries.
+response="$(
+  printf 'header = "Authorization: Bearer %s"\n' "$TOKEN" \
+    | curl -sS --fail-with-body --max-time 0 \
+        -X POST "$BASE_URL/api/admin/art-archive/$ENDPOINT" \
+        -H 'Content-Type: application/json' \
+        -K -
+)"
 
 # Print the whole payload for the record, then the numbers worth reading. The
 # resourceMatches array is per-file and long, so it is summarised, not dumped.

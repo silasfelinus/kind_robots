@@ -134,7 +134,7 @@ export function taxonomyVisualLanguage(taxonomy: string): string {
       return 'One person seen from head to shoes, doing something only someone like this would do, in a place that belongs to them, the feeling carried in the face and the posture.'
     case 'COLOR':
     case 'MATERIAL':
-      return 'A single large form filling the frame, made of this, lit so the colour and the surface behave the way they really do.'
+      return 'A single large form filling the picture, made of this, lit so the colour and the surface behave the way they really do.'
     case 'STYLE':
     case 'ART_DIRECTION':
       return 'A finished picture made this way, the medium and the linework and the palette and the lighting all plainly visible in it.'
@@ -175,7 +175,7 @@ export function taxonomyVisualLanguage(taxonomy: string): string {
     case 'REWARD_TYPE':
       return 'A single treasured object resting alone, its materials and the light around it telling you how rare it is.'
     default:
-      return 'One clear subject alone in the frame, large and plainly lit.'
+      return 'One clear subject alone in the picture, large and plainly lit.'
   }
 }
 
@@ -235,6 +235,19 @@ export const GENERATED_PROMPT_TAILS: readonly string[] = [
   'One person seen from head to shoes, their face turned toward the light, standing in the place where they do this.',
   'A single treasured object resting alone, its materials and the light around it telling you how rare it is.',
   'One clear subject alone in the frame, large and plainly lit.',
+  /*
+   * v7 (2026-09-21). One word, in two clauses: "frame" -> "picture".
+   *
+   * Krea paints "frame" as a physical picture frame whichever sense is meant,
+   * so a clause that is very nearly the WHOLE prompt for a Facet with no prose
+   * of its own was handing it a frame to draw. See the frame-noun rule in
+   * server/utils/artPromptContract.ts, which now rejects both spellings of the
+   * old wording outright -- which is also why the v6 strings above have to stay
+   * here: they are how a stored prompt still carrying one gets recognized and
+   * rebuilt instead of being handed straight back to Krea.
+   */
+  'A single large form filling the picture, made of this, lit so the colour and the surface behave the way they really do.',
+  'One clear subject alone in the picture, large and plainly lit.',
   /*
    * Variants of the clauses above that reached the live catalog by a route this
    * file did not know about, and each of which froze a whole cohort.

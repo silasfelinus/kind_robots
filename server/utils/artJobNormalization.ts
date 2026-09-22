@@ -27,20 +27,28 @@ export const DEFAULT_CAST_ART_DIRECTION =
   'cast the people who appear naturally across many species, ages, body sizes, body shapes, gender presentations, and levels of conventional attractiveness'
 
 // For object, product, landscape, and architecture subjects — the counterweight
-// that keeps an empty frame empty. Stated positively because Krea 2 runs at
+// that keeps an empty picture empty. Stated positively because Krea 2 runs at
 // cfg 1, which makes the ComfyUI negative prompt inert (see
 // server/api/comfy/krea2/utils/workflow.ts); every constraint has to survive
 // inside the positive prompt.
 //
 // It was NOT stated positively until 2026-09-19, which is the whole point of
-// the comment above. "an unpeopled frame" is the positive half and it works;
+// the comment above. "an unpeopled ..." is the positive half and it works;
 // "with no bystanders, onlookers, or crowd" then names three kinds of people to
 // an engine that cannot act on the "no", and Krea drew them. Every prompt this
 // constant touched between 2026-08-08 and now carries that tail, which is why
 // the crowds the 2026-08-08 sweep was written to remove kept arriving. One
 // adjective does the job the exclusion list was undoing.
+//
+// The noun was "frame" until 2026-09-21, and that was the next bug in the
+// chain: this constant is appended to object and product prompts wholesale, so
+// it taught Krea to draw a picture frame on every one of them. "Frame" means a
+// physical object to a caption model before it means a boundary -- see the
+// frame-noun rule in artPromptContract.ts, which now rejects it. "Picture" is
+// the house word for the boundary and carries none of that risk; the four live
+// Facet prompts carrying the old wording came from here.
 export const DEFAULT_UNPEOPLED_ART_DIRECTION =
-  'an unpeopled frame, the subject alone, the space around it bare and deserted'
+  'an unpeopled picture, the subject alone, the space around it bare and deserted'
 
 const VAGUE_ART_DIRECTION =
   /\b(?:(?:rich|cohesive|friendly)\s+)?Kind Robots\s+(?:visual\s+)?(?:style|language)\b/gi
@@ -140,8 +148,79 @@ export function normalizeKindRobotsImagePath(value: unknown): string {
  * explicitly reviewed FAILED rows can cross the newer claim-time gate instead
  * of cycling back to FAILED unchanged.
  */
+/*
+ * The "frame" migration (2026-09-21).
+ *
+ * Krea paints "frame" as a physical picture frame in every sense but one, so
+ * server/utils/artPromptContract.ts now rejects it. That gate applies to
+ * REQUEUES too, and the phrases below are already sitting in stored rows --
+ * DEFAULT_UNPEOPLED_ART_DIRECTION alone put one on every object and product
+ * prompt in the app. Without this table those rows fail at claim time forever,
+ * which is the exact failure mode LEGACY_ASSET_ART_DIRECTION above exists to
+ * prevent.
+ *
+ * Two groups, and the split is the whole reason this is a table and not a
+ * global "frame" -> "picture" replace. Such a replace would rewrite the corn
+ * dolly's wicker frame, the gilding card's carved frame and the gallery mount
+ * asset -- three prompts whose subject IS a frame and which render correctly
+ * today.
+ *
+ *   COMPOSITION: generic, producer-generated, and safe to match anywhere,
+ *   because none of these phrasings can describe a frame that is really in the
+ *   scene. "picture" is the house word already used by every variant
+ *   composition ("A square picture with the subject large and centred").
+ *
+ *   ANATOMY: the eleven curated embodiment prompts that described a body as a
+ *   "frame" and rendered an empty frame instead (ArtJobs 30116 "Wasted but
+ *   Working" and 30117 "Rebuilt" are the two Silas caught it from). Listed
+ *   exactly, not by pattern, for the reason the comment on
+ *   LEGACY_ASSET_ART_DIRECTION gives: these are the strings that shipped.
+ *   utils/seeds/facetEmbodimentValues.ts carries the same corrections, so a
+ *   seed re-run and a requeue arrive at the same text.
+ */
+const LEGACY_FRAME_COMPOSITION: Array<[RegExp, string]> = [
+  /*
+   * "in frame" with no article is the film idiom and nothing else -- a frame
+   * that is really in the scene is always "THE frame" or "A frame" ("a hand on
+   * the frame", "nothing hangs from the frame"). That one pattern covers
+   * "one object alone in frame", "every surface in frame", "anywhere in frame"
+   * and "foreground detail low in frame" together.
+   */
+  [/\bin frame\b/gi, 'in the picture'],
+  [/\ban unpeopled frame\b/gi, 'an unpeopled picture'],
+  [/\bfilling the frame\b/gi, 'filling the picture'],
+  [/\balone in the frame\b/gi, 'alone in the picture'],
+  [/\bthe whole frame\b/gi, 'the whole picture'],
+  [/\bthe same frame\b/gi, 'the same picture'],
+  [/\bedge of the frame\b/gi, 'edge of the picture'],
+  [/\bedges of the frame\b/gi, 'edges of the picture'],
+]
+
+const LEGACY_FRAME_ANATOMY: Array<[string, string]> = [
+  ['A thin frame with prominent collarbones', 'A thin body with prominent collarbones'],
+  ['An asymmetric frame, one limb visibly different', 'An asymmetric body, one limb visibly different'],
+  ['A wide, softly rounded frame, full upper arms', 'A wide, softly rounded body, full upper arms'],
+  ['A short, deep-bodied frame planted wide', 'A short, deep-bodied build planted wide'],
+  ['An elongated frame with prominent elbows', 'An elongated body with prominent elbows'],
+  ['An unremarkable sturdy frame, visible forearm tendon', 'An unremarkable sturdy body, visible forearm tendon'],
+  ['A rounded, unmuscled frame, sloped shoulders', 'A rounded, unmuscled body, sloped shoulders'],
+  ['An adolescent face on an outsized frame', 'An adolescent face on an outsized body'],
+  ['frame settled and shrunken', 'body settled and shrunken'],
+  ['shoulders and frame giving nothing away', 'shoulders and body giving nothing away'],
+]
+
+/** Rewrite every shipped "frame" phrasing that means no frame at all. */
+export function repairFramePrompt(value: string): string {
+  let out = value
+  for (const [from, to] of LEGACY_FRAME_ANATOMY) out = out.split(from).join(to)
+  for (const [pattern, replacement] of LEGACY_FRAME_COMPOSITION) {
+    out = out.replace(pattern, replacement)
+  }
+  return out
+}
+
 export function repairLegacyArtPrompt(value: string): string {
-  return value
+  return repairFramePrompt(value)
     .replace(LEGACY_ASSET_ART_DIRECTION, DEFAULT_ASSET_ART_STYLE)
     .replace(LEGACY_CARD_COMPOSITION, 'vertical 2:3 portrait composition')
     .replace(LEGACY_TREASURE_CARD, 'object illustration')

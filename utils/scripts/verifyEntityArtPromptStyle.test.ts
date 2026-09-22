@@ -43,7 +43,7 @@ assert.equal(tags, 'score_9, t1nyg1rlz, centered composition')
 for (const banned of [
   'Compose this as', // carried "one clear subject"
   'not as text to render', // puts `text` in the POSITIVE prompt
-  'Every surface in frame is blank and unmarked', // conditions toward blankness
+  'is blank and unmarked', // conditions toward blankness (either wording)
   'Model type', // catalog metadata, not a visual concept
   'Base model',
 ]) {

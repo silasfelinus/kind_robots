@@ -144,7 +144,7 @@ const AGE: EmbodimentFacetSeed[] = [
     description:
       'Far past the age anyone in this line of work reaches, and still here. Outlasting everyone has become the achievement.',
     artPrompt:
-      'A deeply seamed face, clouded eyes, sparse fine white hair, hands knotted at every joint, frame settled and shrunken.',
+      'A deeply seamed face, clouded eyes, sparse fine white hair, hands knotted at every joint, body settled and shrunken.',
     scope: 'any',
   },
   {
@@ -169,7 +169,7 @@ const AGE: EmbodimentFacetSeed[] = [
     description:
       'Not yet grown and already larger than every adult present. Still growing into limbs that arrived early.',
     artPrompt:
-      'An adolescent face on an outsized frame, wrists and ankles past the ends of the sleeves, movements not yet settled.',
+      'An adolescent face on an outsized body, wrists and ankles past the ends of the sleeves, movements not yet settled.',
     scope: 'any',
   },
   {
@@ -183,7 +183,12 @@ const AGE: EmbodimentFacetSeed[] = [
 ]
 
 // ---------------------------------------------------------------------------
-// BUILD -- shape and size. Scope 'any': every body has a frame.
+// BUILD -- shape and size. Scope 'any': every body has a build.
+//
+// Never the word "frame" for a body, however naturally it reads here. Krea
+// paints it as a picture frame and the body vanishes -- "Wasted but Working"
+// and "Rebuilt" both came back as an empty gilt frame (ArtJobs 30116/30117,
+// 2026-09-21). server/utils/artPromptContract.ts now rejects it outright.
 // ---------------------------------------------------------------------------
 
 const BUILD: EmbodimentFacetSeed[] = [
@@ -192,7 +197,7 @@ const BUILD: EmbodimentFacetSeed[] = [
     description:
       'Wide through the body with the strength carried under a comfortable layer rather than on display. Underestimated constantly.',
     artPrompt:
-      'A wide, softly rounded frame, full upper arms, clothing cut generously and worn loose.',
+      'A wide, softly rounded body, full upper arms, clothing cut generously and worn loose.',
     scope: 'any',
   },
   {
@@ -208,7 +213,7 @@ const BUILD: EmbodimentFacetSeed[] = [
     description:
       'Built around a low, solid centre of gravity. Very hard to move and entirely aware of it.',
     artPrompt:
-      'A short, deep-bodied frame planted wide, thick waist, heavy through the thigh, feet set apart.',
+      'A short, deep-bodied build planted wide, thick waist, heavy through the thigh, feet set apart.',
     scope: 'any',
   },
   {
@@ -240,7 +245,7 @@ const BUILD: EmbodimentFacetSeed[] = [
     description:
       'All length and joint, folding rather than bending. Never entirely fits the chair provided.',
     artPrompt:
-      'An elongated frame with prominent elbows and knees, limbs folded awkwardly, sleeves ending short of the wrist.',
+      'An elongated body with prominent elbows and knees, limbs folded awkwardly, sleeves ending short of the wrist.',
     scope: 'any',
   },
   {
@@ -248,7 +253,7 @@ const BUILD: EmbodimentFacetSeed[] = [
     description:
       'Strong in a plain, worked-for way that photographs as nothing special. Outlasts more impressive builds.',
     artPrompt:
-      'An unremarkable sturdy frame, visible forearm tendon, plain work clothes, nothing exaggerated.',
+      'An unremarkable sturdy body, visible forearm tendon, plain work clothes, nothing exaggerated.',
     scope: 'any',
   },
   {
@@ -256,7 +261,7 @@ const BUILD: EmbodimentFacetSeed[] = [
     description:
       'Built by decades of sitting still. Fitness was never the point and never will be.',
     artPrompt:
-      'A rounded, unmuscled frame, sloped shoulders, ink-stained fingers, a stoop set by years at a desk.',
+      'A rounded, unmuscled body, sloped shoulders, ink-stained fingers, a stoop set by years at a desk.',
     scope: 'any',
   },
   {
@@ -272,7 +277,7 @@ const BUILD: EmbodimentFacetSeed[] = [
     description:
       'Reduced by illness or scarcity to less body than the job needs, still doing the job.',
     artPrompt:
-      'A thin frame with prominent collarbones and hollow cheeks, clothes hanging loose, grip nonetheless firm.',
+      'A thin body with prominent collarbones and hollow cheeks, clothes hanging loose, grip nonetheless firm.',
     scope: 'any',
   },
   {
@@ -280,7 +285,7 @@ const BUILD: EmbodimentFacetSeed[] = [
     description:
       'A body substantially remade after damage, and not made to match what it was before.',
     artPrompt:
-      'An asymmetric frame, one limb visibly different in length or make, gait compensating in a settled, practised way.',
+      'An asymmetric body, one limb visibly different in length or make, gait compensating in a settled, practised way.',
     scope: 'any',
   },
   {
@@ -304,7 +309,7 @@ const BUILD: EmbodimentFacetSeed[] = [
     description:
       'Enormous, unhurried, and arrives when it arrives. Hurrying has never once been worth it.',
     artPrompt:
-      'A huge bulk filling the frame, thick limbs, deliberate weight-shift mid-step, ground compressed underfoot.',
+      'A huge bulk filling the picture, thick limbs, deliberate weight-shift mid-step, ground compressed underfoot.',
     scope: 'creature',
   },
   {
@@ -312,7 +317,7 @@ const BUILD: EmbodimentFacetSeed[] = [
     description:
       'Proportioned wrong for the space, with reach far past what anyone standing nearby has accounted for.',
     artPrompt:
-      'A body with disproportionately long limbs folded in tight, reach extending well past the edge of the frame.',
+      'A body with disproportionately long limbs folded in tight, reach extending well past the edge of the picture.',
     scope: 'creature',
   },
 ]

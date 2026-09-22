@@ -471,7 +471,7 @@ export const ART_CARDS: ArtCard[] = [
             // prompt is inert. "no figures, no people" is therefore a request
             // for figures and people. The subtext above may keep saying "no"
             // because a person reads it; the hint may not.
-            payload: { promptHint: 'an unpeopled frame, the subject alone, the space around it bare and deserted' },
+            payload: { promptHint: 'an unpeopled picture, the subject alone, the space around it bare and deserted' },
           },
           {
             value: 'solo',

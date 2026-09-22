@@ -34,7 +34,7 @@ export const BOT_TYPE_ARTWORK_TARGETS: BotTypeArtworkTarget[] = [
     label: 'Character Bot',
     path: '/images/bots/type/character.webp',
     prompt:
-      'Illustrated Bot Type card for a role-playing character bot, distinctive expressive persona stepping from a theatrical frame, no text.',
+      'A costumed performer stepping forward out of deep stage curtains into warm footlight, in character, every surface bare and unmarked.',
   },
   {
     value: 'scenario',

@@ -55,7 +55,7 @@ const ASSETS: AssetSeed[] = [
     width: 1536,
     height: 864,
     scene:
-      'An empty industrial warehouse sorting room, seen straight-on and wide. Painted metal walls, exposed roof beams, two elevated catwalks with railings running along the upper left and right, wall-mounted shelving, and rows of hanging pendant lamps. Warm daylight pours through high clerestory windows, spreading soft even light across a plain painted concrete floor. The room stands completely open and empty at floor level: no furniture, no machinery, no funnels, no display stands, no bins, no artwork, and nothing living or moving anywhere in frame. Keep the lower-right corner especially open and uncluttered, and keep the whole middle of the frame calm and airy rather than filled with detail, since a working interface will sit over this image.',
+      'An empty industrial warehouse sorting room, seen straight-on and wide. Painted metal walls, exposed roof beams, two elevated catwalks with railings running along the upper left and right, wall-mounted shelving, and rows of hanging pendant lamps. Warm daylight pours through high clerestory windows, spreading soft even light across a plain painted concrete floor. The room stands completely open and empty at floor level: no furniture, no machinery, no funnels, no display stands, no bins, no artwork, and nothing living or moving anywhere in the picture. Keep the lower-right corner especially open and uncluttered, and keep the whole middle of the picture calm and airy rather than filled with detail, since a working interface will sit over this image.',
   },
   {
     asset: 'window',

@@ -243,7 +243,7 @@ function cleanFragment(value: string): string {
       ),
       ' ',
     )
-    .replace(/\bEvery surface in (?:frame|the picture) is blank and unmarked\.?/gi, ' ')
+    .replace(/\bEvery surface(?: in (?:frame|the picture|the scene) is)? blank and unmarked\.?/gi, ' ')
     .replace(/\bKeep text-bearing surfaces blank[^.]*\.?/gi, ' ')
     .replace(/\bclean unmarked surfaces\b/gi, 'clean surfaces')
     .replace(/\bunmarked surfaces\b/gi, 'clean surfaces')

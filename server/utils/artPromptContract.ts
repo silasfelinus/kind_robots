@@ -472,6 +472,16 @@ function depictsRealFrame(prompt: string): boolean {
   )
 }
 
+/*
+ * See rule 8b in checkArtPromptContract. Each pattern is a phrasing a producer
+ * in this repo actually emitted.
+ */
+const PICTURE_COMPOSITION_PATTERNS: readonly RegExp[] = [
+  /\b(?:a|an)\s+(?:small\s+)?(?:square|tall|wide|vertical|horizontal|unpeopled|finished)\s+picture\b/i,
+  /\b(?:in|filling|across|alone in|edges? of|the whole|the same)\s+the\s+picture\b/i,
+  /\bthe whole picture\b|\bthe same picture\b/i,
+]
+
 /** The sentences that put "frame" in front of Krea with no frame to draw. */
 function frameNounUses(prompt: string): string[] {
   if (depictsRealFrame(prompt)) return []
@@ -588,9 +598,30 @@ export function checkArtPromptContract(
           `"${sentence}" uses "frame" where no frame is meant. Krea paints the ` +
           `noun: a body described as "a thin frame" renders as a picture frame ` +
           `and the body disappears (ArtJobs 30116, 30117). Say "build", ` +
-          `"body" or "physique" for anatomy, and "picture" for the ` +
-          `composition. Write "frame" only when a real frame is in the scene, ` +
+          `"body" or "physique" for anatomy, and say nothing about the ` +
+          `composition at all -- "picture" paints a picture. Write "frame" only when a real frame is in the scene, ` +
           `and name what it is made of or what it holds.`,
+      })
+    }
+
+    /*
+     * Rule 8b (2026-09-22). "Picture" as the composition word. It was chosen
+     * as the safe replacement for "frame" the day before, and Krea painted it
+     * the same way: "an unpeopled picture ... A square picture with the
+     * subject large and centred" came back as a gilt-framed painting hanging
+     * on a wall (ArtJob 30589). Narrow on purpose -- only the shapes a
+     * producer uses to talk ABOUT the image. "A picture book", "a picture
+     * frame" on a real wall, and "picture-book art" are subjects and media.
+     */
+    for (const pattern of PICTURE_COMPOSITION_PATTERNS) {
+      const match = prompt.match(pattern)
+      if (!match) continue
+      violations.push({
+        rule: 'picture-noun',
+        detail:
+          `"${match[0].trim()}" names the image as an object, and Krea paints ` +
+          `that object: a framed picture on a wall (ArtJob 30589). Leave the ` +
+          `shape to the width and height, and describe what is in the scene.`,
       })
     }
   }
@@ -633,7 +664,7 @@ export function checkArtPromptContract(
           `${peopleNos.join(', ')} names the people you do not want on an engine ` +
           `whose negative prompt is inert, so the noun lands in POSITIVE ` +
           `conditioning and the picture fills with them. Say what the picture ` +
-          `IS: "an unpeopled picture", "a deserted street", "the subject alone ` +
+          `IS: "a deserted scene", "a deserted street", "the subject alone ` +
           `on a plain ground". Not "frame" -- see the frame-noun rule; this ` +
           `remedy used to say it and Krea drew the frame.`,
       })

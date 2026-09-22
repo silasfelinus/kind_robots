@@ -49,7 +49,7 @@ export const DEFAULT_CAST_ART_DIRECTION =
 // the house word for the boundary and carries none of that risk; the four live
 // Facet prompts carrying the old wording came from here.
 export const DEFAULT_UNPEOPLED_ART_DIRECTION =
-  'an unpeopled picture, the subject alone, the space around it bare and deserted'
+  'a deserted scene, the subject alone, the space around it bare and empty'
 
 const VAGUE_ART_DIRECTION =
   /\b(?:(?:rich|cohesive|friendly)\s+)?Kind Robots\s+(?:visual\s+)?(?:style|language)\b/gi

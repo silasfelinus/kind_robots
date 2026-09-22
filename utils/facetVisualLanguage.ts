@@ -135,10 +135,10 @@ export function taxonomyVisualLanguage(taxonomy: string): string {
       return 'One person seen from head to shoes, doing something only someone like this would do, in a place that belongs to them, the feeling carried in the face and the posture.'
     case 'COLOR':
     case 'MATERIAL':
-      return 'A single large form filling the picture, made of this, lit so the colour and the surface behave the way they really do.'
+      return 'A single large form filling the space, made of this, lit so the colour and the surface behave the way they really do.'
     case 'STYLE':
     case 'ART_DIRECTION':
-      return 'A finished picture made this way, the medium and the linework and the palette and the lighting all plainly visible in it.'
+      return 'A harbour town at dusk drawn this way, the medium and the linework and the palette and the lighting all plainly visible in it.'
     /*
      * A prompt modifier is not a subject, so a swatch supplies one. The same
      * pear and marble every time, with the technique named first: the title is
@@ -176,7 +176,7 @@ export function taxonomyVisualLanguage(taxonomy: string): string {
     case 'REWARD_TYPE':
       return 'A single treasured object resting alone, its materials and the light around it telling you how rare it is.'
     default:
-      return 'One clear subject alone in the picture, large and plainly lit.'
+      return 'One clear subject alone, large and plainly lit.'
   }
 }
 
@@ -249,6 +249,17 @@ export const GENERATED_PROMPT_TAILS: readonly string[] = [
    */
   'A single large form filling the picture, made of this, lit so the colour and the surface behave the way they really do.',
   'One clear subject alone in the picture, large and plainly lit.',
+  /*
+   * v8 (2026-09-22). "picture" -> gone. The v7 swap above traded one object
+   * noun for another: Krea paints "picture" as a framed picture on a wall
+   * just as it paints "frame" (ArtJob 30589). The STYLE clause names a fixed
+   * everyday subject instead of "a finished picture", for the same reason the
+   * swatch does -- a technique needs something to be applied to. The v7
+   * strings stay above so stored rows carrying them are still recognized.
+   */
+  'A single large form filling the space, made of this, lit so the colour and the surface behave the way they really do.',
+  'A harbour town at dusk drawn this way, the medium and the linework and the palette and the lighting all plainly visible in it.',
+  'One clear subject alone, large and plainly lit.',
   /*
    * Variants of the clauses above that reached the live catalog by a route this
    * file did not know about, and each of which froze a whole cohort.

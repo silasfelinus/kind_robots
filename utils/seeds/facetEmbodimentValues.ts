@@ -309,7 +309,7 @@ const BUILD: EmbodimentFacetSeed[] = [
     description:
       'Enormous, unhurried, and arrives when it arrives. Hurrying has never once been worth it.',
     artPrompt:
-      'A huge bulk filling the picture, thick limbs, deliberate weight-shift mid-step, ground compressed underfoot.',
+      'A huge bulk filling the space, thick limbs, deliberate weight-shift mid-step, ground compressed underfoot.',
     scope: 'creature',
   },
   {
@@ -317,7 +317,7 @@ const BUILD: EmbodimentFacetSeed[] = [
     description:
       'Proportioned wrong for the space, with reach far past what anyone standing nearby has accounted for.',
     artPrompt:
-      'A body with disproportionately long limbs folded in tight, reach extending well past the edge of the picture.',
+      'A body with disproportionately long limbs folded in tight, reach extending well past the edge of the scene.',
     scope: 'creature',
   },
 ]

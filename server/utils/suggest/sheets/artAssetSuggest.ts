@@ -141,7 +141,7 @@ Rules:
 - Never use vague phrases such as “Kind Robots style,” “cohesive visual style,” or “make it cinematic” without concrete visual details.
 - Avoid copyrighted characters and licensed artist styles.
 - NEVER write an exclusion. Not “no text”, not “no logo”, not “no figure”, not “without a face”, not “avoid a crowd” — no negation of any kind, anywhere in the paragraph. The prompt is read by a distilled diffusion transformer running at cfg 1, which has no instruction-following layer and cannot act on a word that holds a noun off. It renders the noun. “no readable text” is how you order lettering; “no figure” is how you order a crowd.
-- Say what the picture DOES contain instead. “every surface bare and unmarked” in place of naming text; “an unpeopled picture, the subject alone” in place of naming people; “one single image filling the picture” in place of naming a collage.
+- Say what the scene DOES contain instead. “every surface bare and unmarked” in place of naming text; “a deserted scene, the subject alone” in place of naming people; “one continuous scene” in place of naming a collage. Never call the image a “picture”, “frame” or “composition” — Krea paints those as a framed picture on a wall.
 - Never write the word “frame”. Krea paints it as a physical picture frame, whichever sense you meant: say “build”, “body” or “physique” for anatomy, and “picture” for the composition. Write “frame” only when a real frame is the subject, and say what it is made of.
 - Return exactly one prompt paragraph with no label, preamble, markdown, or quotation marks.
 - End on a visual note — lighting, material, or mood. Never on a list of things to leave out.`,

@@ -189,7 +189,7 @@ const sampleProfile = {
 } as never
 const sampleVariant = {
   field: 'imagePath', label: 'square illustration', width: 1024, height: 1024,
-  composition: 'A square picture with the subject large and centred.',
+  composition: '',
 } as never
 
 const baseline = buildFacetArtPayload(sampleFacet, sampleProfile, 'Office Satire. A cubicle farm.', sampleVariant)

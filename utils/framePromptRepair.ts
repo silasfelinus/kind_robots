@@ -51,20 +51,50 @@
  */
 const LEGACY_FRAME_COMPOSITION: Array<[RegExp, string]> = [
   /*
+   * The whole variant-composition sentences the Facet producer used to append.
+   * Removed outright where the geometry already says it, because there is no
+   * wording of "a square picture" that does not ask for a picture.
+   */
+  [/\s*\bA square picture with the subject large and centred\.?/gi, ''],
+  [/\s*\bA wide picture with the subject near the middle\.?/gi, ''],
+  [
+    /\bA tall picture with open space above and below the subject\b/gi,
+    'Open space above and below the subject',
+  ],
+  [
+    /\bA small square picture with one simple shape filling it\b/gi,
+    'One simple bold shape',
+  ],
+  [
+    /\bone single image filling the (?:frame|picture)\b/gi,
+    'one continuous scene',
+  ],
+  [/\bEvery surface in the (?:frame|picture) is\b/gi, 'Every surface'],
+  /*
    * "in frame" with no article is the film idiom and nothing else -- a frame
    * that is really in the scene is always "THE frame" or "A frame" ("a hand on
    * the frame", "nothing hangs from the frame"). That one pattern covers
    * "one object alone in frame", "every surface in frame", "anywhere in frame"
    * and "foreground detail low in frame" together.
+   *
+   * 2026-09-22: every replacement here used to say "picture", on the theory
+   * that "picture" was the safe house word for the boundary. It is not. Krea
+   * read "an unpeopled picture ... A square picture with the subject large and
+   * centred" on Facet "Lovecraftian Horror" and painted a gilt-framed painting
+   * of a skull hanging on a wall (ArtJob 30589; Silas: "'a square picture' is
+   * not a good phrase for krea. i thought we knew this too"). We did -- the
+   * frame rule's own comment called "picture" the fix. So both nouns now map
+   * to "scene", which names what is IN the picture rather than the object.
    */
-  [/\bin frame\b/gi, 'in the picture'],
-  [/\ban unpeopled frame\b/gi, 'an unpeopled picture'],
-  [/\bfilling the frame\b/gi, 'filling the picture'],
-  [/\balone in the frame\b/gi, 'alone in the picture'],
-  [/\bthe whole frame\b/gi, 'the whole picture'],
-  [/\bthe same frame\b/gi, 'the same picture'],
-  [/\bedge of the frame\b/gi, 'edge of the picture'],
-  [/\bedges of the frame\b/gi, 'edges of the picture'],
+  [/\bin frame\b/gi, 'in the scene'],
+  [/\ban unpeopled (?:frame|picture)\b/gi, 'a deserted scene'],
+  [/\bfilling the (?:frame|picture)\b/gi, 'filling the space'],
+  [/\balone in the (?:frame|picture)\b/gi, 'alone in the scene'],
+  [/\bin the picture\b/gi, 'in the scene'],
+  [/\bthe whole (?:frame|picture)\b/gi, 'the whole scene'],
+  [/\bthe same (?:frame|picture)\b/gi, 'the same scene'],
+  [/\bedge of the (?:frame|picture)\b/gi, 'edge of the scene'],
+  [/\bedges of the (?:frame|picture)\b/gi, 'edges of the scene'],
 ]
 
 const LEGACY_FRAME_ANATOMY: Array<[string, string]> = [

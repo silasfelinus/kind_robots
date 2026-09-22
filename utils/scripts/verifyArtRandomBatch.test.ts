@@ -223,10 +223,7 @@ assert.deepEqual(
 // without adding parallel schema fields, but cap each inserted visual clause.
 const verboseArtPrompt =
   'A luminous brass automaton on a rain-dark stage. '.repeat(20)
-const compact = compactRandomArtPrompt(
-  'Clockwork Friend',
-  verboseArtPrompt,
-)
+const compact = compactRandomArtPrompt('Clockwork Friend', verboseArtPrompt)
 assert.ok(compact.startsWith('Clockwork Friend: '))
 assert.ok(compact.length <= 280)
 assert.ok(compact.endsWith('…'))
@@ -236,13 +233,17 @@ const randomizerUi = readFileSync(
   'utf8',
 )
 assert.ok(randomizerUi.includes("placeholder: `lora:${placeholder}`"))
-assert.ok(randomizerUi.includes("placeholder: `facet:${taxonomy.toLowerCase()}`"))
+assert.ok(
+  randomizerUi.includes("placeholder: `facet:${taxonomy.toLowerCase()}`"),
+)
 assert.ok(randomizerUi.includes('ART_RANDOM_OBJECT_OPTIONS'))
 assert.ok(!randomizerUi.includes('Write {character} running in {style}'))
 
 const poolSource = readFileSync('server/utils/artRandomPools.ts', 'utf8')
 assert.ok(poolSource.includes("source: 'object'"))
-assert.ok(poolSource.includes('compactRandomArtPrompt(facet.title, facet.artPrompt)'))
+assert.ok(
+  poolSource.includes('compactRandomArtPrompt(facet.title, facet.artPrompt)'),
+)
 assert.ok(
   poolSource.includes(
     "facetTaxonomiesForKey(entry.key, entry.kind === 'facet')",

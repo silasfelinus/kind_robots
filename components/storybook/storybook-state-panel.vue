@@ -11,7 +11,7 @@
       {{ session.inventory.length === 1 ? 'reward' : 'rewards' }}
     </summary>
 
-    <div class="mt-3 grid gap-3 lg:grid-cols-3">
+    <div class="mt-3 grid grid-cols-[repeat(auto-fit,minmax(min(100%,14rem),1fr))] gap-3">
       <section class="kr-panel-flat p-3">
         <h3 class="kr-text-eyebrow-bold kr-text-dim-xs-55 tracking-wide">
           Inventory

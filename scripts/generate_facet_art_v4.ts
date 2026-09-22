@@ -65,6 +65,7 @@ import {
 import {
   buildFacetIdentityPromptFrom,
   isLegacyGeneratedFacetPrompt,
+  storedPromptIsCardCopy,
   taxonomyVisualLanguage,
   CLAUSE_TAXONOMIES,
   V5_OCCUPATION_TAIL,
@@ -546,8 +547,20 @@ export function buildFacetIdentityPrompt(
    * idempotent, so a clean prompt is returned unchanged, and the repaired text
    * is what this producer then persists back to Facet.artPrompt.
    */
+  /*
+   * The bypass is for prose a person wrote, not for anything this file failed
+   * to recognize. A stored prompt that still contains the Facet's own
+   * description was assembled by a producer whose tail a repair pass trimmed
+   * off, so it matches no registered clause and would otherwise read as curated
+   * and be returned forever -- see storedPromptIsCardCopy.
+   */
   const existing = repairFramePrompt(clean(facet.artPrompt))
-  if (existing && !isLegacyGeneratedFacetPrompt(existing)) return existing
+  if (
+    existing &&
+    !isLegacyGeneratedFacetPrompt(existing) &&
+    !storedPromptIsCardCopy(existing, facet.description)
+  )
+    return existing
 
   const metadata = parseMetadata(profile.metadata)
   const metadataPrompt = usableMetadataArtworkPrompt(metadata)

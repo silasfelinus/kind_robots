@@ -296,6 +296,75 @@ export function isLegacyGeneratedFacetPrompt(value: unknown): boolean {
   if (GENERATED_PROMPT_TAILS.some((tail) => prompt.includes(tail))) return true
   return TRUNCATED_TAIL_PREFIXES.some((prefix) => prompt.includes(prefix))
 }
+
+/*
+ * A stored artPrompt that still carries the Facet's own description is producer
+ * output, whatever clause it does or does not end in.
+ *
+ * isLegacyGeneratedFacetPrompt above is a whitelist of clauses a producer is
+ * KNOWN to have written, so it can only ever recognize a cohort that has
+ * already been diagnosed from the pictures. That is the shape of every entry in
+ * GENERATED_PROMPT_TAILS: v4's clauses, v5's, the swatch subject, the three
+ * rewritten variants -- each one added weeks after the renders landed, each one
+ * found by Silas looking at cards.
+ *
+ * Facet 810 "Martian Colonization" is the case the list structurally cannot
+ * hold. Its stored prompt is
+ *
+ *   "Martian Colonization. The particular engineering and politics of settling
+ *   Mars. Dust, radiation, supply lag, and the question of whose law applies at
+ *   that distance"
+ *
+ * -- the title plus the description verbatim and nothing else, because a repair
+ * pass trimmed the registered tail off the end (the missing final period is
+ * where it was cut). With no clause left to match, both producers read it as
+ * hand-authored and hand it straight back to Krea, which paints the caption
+ * because the caption is all it was given. No edit to the clause table can ever
+ * reach it: there is no clause in it.
+ *
+ * So this asks a property of the TEXT instead of remembering a batch. Nobody
+ * writing art direction by hand pastes the card copy in whole; when the
+ * description is inside the prompt, the prompt was assembled, and it is rebuilt.
+ *
+ * Rebuilding is non-lossy by construction. buildFacetIdentityPromptFrom runs
+ * the same description back through depictableProse, so a description that
+ * really does describe a picture survives intact and only the card copy is
+ * dropped -- which is why this can be applied to all 595 live prompts that
+ * embed their description without reviewing them one at a time.
+ */
+
+/**
+ * Below this, a description is usually a restatement of the title ("Bright
+ * red.") and would match prompts that merely share a phrase with it.
+ */
+const MIN_CARD_COPY_LENGTH = 40
+
+/**
+ * Compare on the opening of the description only. A repair pass that trimmed
+ * the end -- which is how Facet 810 lost both its tail and its final period --
+ * must not also cost the match.
+ */
+const CARD_COPY_MATCH_WINDOW = 120
+
+function normalizeForCompare(value: string): string {
+  return value
+    .replace(/[‘’]/g, "'")
+    .replace(/[“”]/g, '"')
+    .replace(/[–—]/g, '-')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .toLowerCase()
+}
+
+export function storedPromptIsCardCopy(
+  prompt: unknown,
+  description: unknown,
+): boolean {
+  const text = normalizeForCompare(clean(prompt))
+  const copy = normalizeForCompare(clean(description)).replace(/[.!?]+$/, '')
+  if (!text || copy.length < MIN_CARD_COPY_LENGTH) return false
+  return text.includes(copy.slice(0, CARD_COPY_MATCH_WINDOW))
+}
 /*
  * Card copy is the text Krea paints.
  *

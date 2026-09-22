@@ -21,9 +21,21 @@
 # address is always right; it is what the image's own HEALTHCHECK uses.
 #
 # Running inside also means the credential never moves: authGuard.ts accepts
-# BETA_ADMIN_TOKEN / ADMIN_TOKEN, docker already loaded them from the env file,
-# so the request reads them from its own process.env. Nothing is typed, nothing
-# is passed in, nothing lands in shell history or in `ps`.
+# BETA_ADMIN_TOKEN / ADMIN_TOKEN, and the exec'd node loads them from the same
+# place the app itself does. Nothing is typed, nothing is passed in, nothing
+# lands in shell history or in `ps`.
+#
+# That place is /config/kind-robots.env INSIDE the container, not the docker
+# environment. The Dockerfile CMD is
+#   node --env-file-if-exists=/config/kind-robots.env .output/server/index.mjs
+# so it is node, at startup, that reads the config -- and deploy-unraid.sh only
+# passes --env-file to the one-shot migration container, never to the app, which
+# DockerMan recreates from its Unraid template. A `docker exec node` is a fresh
+# process: it inherits the container's docker-level env, which does not contain
+# the token, and it does not inherit whatever the running server read from a
+# file. The first version of this got exactly that wrong and reported
+# "no admin token in this environment". The exec below repeats the CMD's flag so
+# the request sees the same config the server sees.
 #
 # It uses node:http rather than fetch deliberately: undici caps headersTimeout
 # at 5 minutes, and a whole-archive scan can legitimately exceed that before it
@@ -34,6 +46,8 @@
 #   scripts/art-archive-ingest.sh --import        # perform the real import
 #
 #   --container <name>   default KindRobots, or $KIND_ROBOTS_CONTAINER
+#   --container-env-file <path>  in-container config, default
+#                        /config/kind-robots.env
 #   --url <base>         talk HTTP to a reachable host instead of docker exec,
 #                        e.g. --url https://kindrobots.org (needs a token:
 #                        $KR_API_TOKEN / $BETA_ADMIN_TOKEN / $ADMIN_TOKEN, or
@@ -43,6 +57,8 @@ set -Eeuo pipefail
 APP_DIR="${KIND_ROBOTS_APP_DIR:-/mnt/user/appdata/kind_robots}"
 ENV_FILE="${KIND_ROBOTS_ENV_FILE:-$APP_DIR/.env}"
 CONTAINER="${KIND_ROBOTS_CONTAINER:-KindRobots}"
+# Path INSIDE the container, matching the Dockerfile CMD.
+CONTAINER_ENV_FILE="${KIND_ROBOTS_CONTAINER_ENV_FILE:-/config/kind-robots.env}"
 BASE_URL="${KIND_ROBOTS_URL:-}"
 TOKEN=''
 ENDPOINT='dry-run'
@@ -53,10 +69,11 @@ while [[ $# -gt 0 ]]; do
     --import) ENDPOINT='import'; MODE='Import'; shift ;;
     --dry-run) ENDPOINT='dry-run'; MODE='Dry run'; shift ;;
     --container) CONTAINER="${2:-}"; shift 2 ;;
+    --container-env-file) CONTAINER_ENV_FILE="${2:-}"; shift 2 ;;
     --token) TOKEN="${2:-}"; shift 2 ;;
     --url) BASE_URL="${2:-}"; shift 2 ;;
     --env-file) ENV_FILE="${2:-}"; shift 2 ;;
-    -h|--help) sed -n '2,46p' "$0"; exit 0 ;;
+    -h|--help) sed -n '2,60p' "$0"; exit 0 ;;
     *) printf 'Unknown argument: %s\n' "$1" >&2; exit 2 ;;
   esac
 done
@@ -78,7 +95,10 @@ const token = (
 ).trim()
 
 if (!token) {
-  process.stderr.write('no admin token in this environment\n')
+  process.stderr.write(
+    'no admin token in this environment -- expected BETA_ADMIN_TOKEN or ' +
+      'ADMIN_TOKEN, normally loaded from /config/kind-robots.env\n',
+  )
   process.exit(3)
 }
 
@@ -117,7 +137,9 @@ run_in_container() {
   docker inspect "$CONTAINER" >/dev/null 2>&1 || return 11
   printf '%s' "$REQUEST_JS" | docker exec -i \
     -e KR_INGEST_ENDPOINT="$ENDPOINT" \
-    "$CONTAINER" node --input-type=module -
+    "$CONTAINER" node \
+      "--env-file-if-exists=$CONTAINER_ENV_FILE" \
+      --input-type=module -
 }
 
 # Reads one KEY from an env file without sourcing it. That file holds the
@@ -169,7 +191,9 @@ else
     0) ;;
     10) printf 'ERROR: docker is not available here. Pass --url to reach the app over HTTP instead.\n' >&2; exit 2 ;;
     11) printf "ERROR: container '%s' not found. Pass --container <name> or --url <base>.\n" "$CONTAINER" >&2; exit 2 ;;
-    *) printf '%s\n' "$response" >&2; exit "$status" ;;
+    3) printf 'Check %s inside container %s, or pass --container-env-file.\n' \
+         "$CONTAINER_ENV_FILE" "$CONTAINER" >&2; exit 3 ;;
+    *) [[ -n "$response" ]] && printf '%s\n' "$response" >&2; exit "$status" ;;
   esac
 fi
 

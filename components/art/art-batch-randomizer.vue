@@ -94,7 +94,7 @@
           :title="
             pool.size
               ? `${pool.size} option(s) from ${pool.source}`
-              : 'Nothing to roll from — classify some LoRAs or Facets for this slot.'
+              : 'Nothing to roll from for this source yet.'
           "
         >
           {{ token(pool.key) }}

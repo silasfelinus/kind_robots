@@ -10,15 +10,15 @@
 //                Resource.loraCategory to exist at all.
 //   Facet     -- the canonical creative vocabulary, already randomizable via
 //                FacetProfile.isRandomizable. Text only.
-//   Entity    -- Characters and Scenarios, so "a random character" can mean a
-//                record Silas authored rather than a LoRA.
+//   Object    -- Characters, Scenarios, Rewards, Dreams, Bots and Projects.
+//                Their persisted artPrompt is compacted into a visual clause.
 //
-// Resolution order for a bare `{style}` is LoRA, then Facet, then entity: the
+// Resolution order for a bare `{style}` is LoRA, then Facet, then object: the
 // most specific pool that can answer wins, because a LoRA roll changes the
 // render and a Facet roll only changes the text. An explicit `{facet:style}`
 // or `{lora:character}` skips the search.
 
-import type { Prisma } from '~/prisma/generated/prisma/client'
+import { GrantSubject, type Prisma } from '~/prisma/generated/prisma/client'
 import prisma from '~/server/utils/prisma'
 import {
   viewerShowsMature,
@@ -49,14 +49,20 @@ import type {
   ArtGeneratorEngine,
   CheckpointFamily,
 } from '~/utils/artGeneratorPresets'
+import {
+  ART_RANDOM_OBJECT_OPTIONS,
+  ART_RANDOM_OBJECT_TYPES,
+  compactRandomArtPrompt,
+  isArtRandomObjectType,
+  type ArtRandomObjectType,
+} from '~/utils/artRandomOptions'
 
-export type ArtRandomPoolSource = 'lora' | 'facet' | 'character' | 'scenario'
+export type ArtRandomPoolSource = 'lora' | 'facet' | 'object'
 
 export const ART_RANDOM_POOL_SOURCES: ArtRandomPoolSource[] = [
   'lora',
   'facet',
-  'character',
-  'scenario',
+  'object',
 ]
 
 export type ArtRandomPoolViewer = {
@@ -74,7 +80,7 @@ export type ArtRandomPoolOptions = ArtRandomPoolViewer & {
    */
   engine: ArtGeneratorEngine | null
   checkpointFamily?: CheckpointFamily
-  /** Which pools may answer. Defaults to all four. */
+  /** Which pools may answer. Defaults to all three. */
   sources?: ArtRandomPoolSource[]
   /** Default LoRA strength for a rolled pick. */
   loraStrength?: number
@@ -132,13 +138,18 @@ const FACET_PLACEHOLDER_ALIASES: Record<string, FacetTaxonomy[]> = {
   core: ['CORE'],
 }
 
-function facetTaxonomiesForKey(key: string): FacetTaxonomy[] {
-  const aliased = FACET_PLACEHOLDER_ALIASES[key]
-  if (aliased) return aliased
-
+function facetTaxonomiesForKey(
+  key: string,
+  preferDirect = false,
+): FacetTaxonomy[] {
   const direct = FACET_TAXONOMIES.find(
     (taxonomy) => normalizeVariantKey(taxonomy) === key,
   )
+  if (preferDirect && direct) return [direct]
+
+  const aliased = FACET_PLACEHOLDER_ALIASES[key]
+  if (aliased) return aliased
+
   return direct ? [direct] : []
 }
 
@@ -256,66 +267,133 @@ async function loadLoraPools(
   return pools
 }
 
-async function loadEntityPool(
-  source: 'character' | 'scenario',
+function objectVisibilityFields(source: ArtRandomObjectType) {
+  return {
+    isPublic: true,
+    isMature: true,
+    ...(['character', 'reward', 'dream'].includes(source)
+      ? { packGated: true }
+      : {}),
+    ...(source === 'project' ? { grantSubject: GrantSubject.PROJECT } : {}),
+  }
+}
+
+async function loadObjectPool(
+  source: ArtRandomObjectType,
   options: ArtRandomPoolOptions,
 ): Promise<VariantPick[]> {
   const where = await visibilityWhere(
     options.user,
-    {
-      isPublic: true,
-      isMature: true,
-      ...(source === 'character' ? { packGated: true } : {}),
-    },
+    objectVisibilityFields(source),
     options.isAdmin ?? false,
     options.showMature,
   )
-
   const maturity = randomizerMaturityWhere(options)
 
+  let rows: Array<{ id: number; label: string; artPrompt: string | null }>
+
   if (source === 'character') {
-    const rows = await prisma.character.findMany({
-      where: { ...where, ...maturity, isActive: true },
-      select: { id: true, name: true },
-      orderBy: { id: 'asc' },
-      take: 1000,
-    })
-    return rows
-      .filter((row) => row.name?.trim())
-      .map((row) => ({
-        value: row.name.trim(),
-        kind: 'character',
-        sourceId: row.id,
-        label: row.name.trim(),
-      }))
+    rows = (
+      await prisma.character.findMany({
+        where: { ...where, ...maturity, isActive: true },
+        select: { id: true, name: true, artPrompt: true },
+        orderBy: { id: 'asc' },
+        take: 1000,
+      })
+    ).map((row) => ({
+      id: row.id,
+      label: row.name,
+      artPrompt: row.artPrompt,
+    }))
+  } else if (source === 'scenario') {
+    rows = (
+      await prisma.scenario.findMany({
+        where: { ...where, ...maturity, isActive: true },
+        select: { id: true, title: true, artPrompt: true },
+        orderBy: { id: 'asc' },
+        take: 1000,
+      })
+    ).map((row) => ({
+      id: row.id,
+      label: row.title,
+      artPrompt: row.artPrompt,
+    }))
+  } else if (source === 'reward') {
+    rows = (
+      await prisma.reward.findMany({
+        where: { ...where, ...maturity, isActive: true },
+        select: { id: true, name: true, artPrompt: true },
+        orderBy: { id: 'asc' },
+        take: 1000,
+      })
+    ).map((row) => ({
+      id: row.id,
+      label: row.name,
+      artPrompt: row.artPrompt,
+    }))
+  } else if (source === 'dream') {
+    rows = (
+      await prisma.dream.findMany({
+        where: { ...where, ...maturity, isActive: true },
+        select: { id: true, title: true, artPrompt: true },
+        orderBy: { id: 'asc' },
+        take: 1000,
+      })
+    ).map((row) => ({
+      id: row.id,
+      label: row.title,
+      artPrompt: row.artPrompt,
+    }))
+  } else if (source === 'bot') {
+    rows = (
+      await prisma.bot.findMany({
+        where: { ...where, ...maturity, isActive: true },
+        select: { id: true, name: true, artPrompt: true },
+        orderBy: { id: 'asc' },
+        take: 1000,
+      })
+    ).map((row) => ({
+      id: row.id,
+      label: row.name,
+      artPrompt: row.artPrompt,
+    }))
+  } else {
+    rows = (
+      await prisma.project.findMany({
+        where: { ...where, ...maturity, isActive: true },
+        select: { id: true, title: true, artPrompt: true },
+        orderBy: { id: 'asc' },
+        take: 1000,
+      })
+    ).map((row) => ({
+      id: row.id,
+      label: row.title,
+      artPrompt: row.artPrompt,
+    }))
   }
 
-  const rows = await prisma.scenario.findMany({
-    where: { ...where, ...maturity, isActive: true },
-    select: { id: true, title: true },
-    orderBy: { id: 'asc' },
-    take: 1000,
-  })
   return rows
-    .filter((row) => row.title?.trim())
-    .map((row) => ({
-      value: row.title.trim(),
-      kind: 'scenario',
-      sourceId: row.id,
-      label: row.title.trim(),
-    }))
+    .map((row) => {
+      const label = row.label.trim()
+      return {
+        value: compactRandomArtPrompt(label, row.artPrompt),
+        kind: source,
+        sourceId: row.id,
+        label,
+      } satisfies VariantPick
+    })
+    .filter((pick) => pick.value)
 }
 
 type ParsedPlaceholder = { raw: string; kind: string | null; key: string }
 
-function entityKindFor(
-  entry: ParsedPlaceholder,
-): 'character' | 'scenario' | null {
-  if (entry.kind === 'character') return 'character'
-  if (entry.kind === 'scenario') return 'scenario'
+function objectTypeFor(entry: ParsedPlaceholder): ArtRandomObjectType | null {
+  if (entry.kind === 'object') {
+    return isArtRandomObjectType(entry.key) ? entry.key : null
+  }
   if (entry.kind !== null) return null
-  if (entry.key === 'character') return 'character'
-  if (entry.key === 'scenario' || entry.key === 'story') return 'scenario'
+  if (isArtRandomObjectType(entry.key)) return entry.key
+  if (entry.key === 'story') return 'scenario'
   return null
 }
 
@@ -358,7 +436,9 @@ export async function buildArtRandomPools(
             allowed.has('facet') &&
             (entry.kind === null || entry.kind === 'facet'),
         )
-        .flatMap((entry) => facetTaxonomiesForKey(entry.key)),
+        .flatMap((entry) =>
+          facetTaxonomiesForKey(entry.key, entry.kind === 'facet'),
+        ),
     ),
   ]
 
@@ -372,12 +452,12 @@ export async function buildArtRandomPools(
       })
     : []
 
-  const entityPools = new Map<'character' | 'scenario', VariantPick[]>()
-  for (const source of ['character', 'scenario'] as const) {
+  const objectPools = new Map<ArtRandomObjectType, VariantPick[]>()
+  for (const source of ART_RANDOM_OBJECT_TYPES) {
     const wanted = parsed.some(
-      (entry) => allowed.has(source) && entityKindFor(entry) === source,
+      (entry) => allowed.has('object') && objectTypeFor(entry) === source,
     )
-    if (wanted) entityPools.set(source, await loadEntityPool(source, options))
+    if (wanted) objectPools.set(source, await loadObjectPool(source, options))
   }
 
   const resolved = new Map<string, VariantPick[]>()
@@ -405,13 +485,15 @@ export async function buildArtRandomPools(
 
     const taxonomies =
       allowed.has('facet') && (entry.kind === null || entry.kind === 'facet')
-        ? facetTaxonomiesForKey(entry.key)
+        ? facetTaxonomiesForKey(entry.key, entry.kind === 'facet')
         : []
     const facetPool = taxonomies.length
       ? facets
           .filter((facet) => taxonomies.includes(facet.taxonomy))
           .map<VariantPick>((facet) => ({
-            value: (facet.canonicalValue || facet.title).trim(),
+            value: facet.artPrompt?.trim()
+              ? compactRandomArtPrompt(facet.title, facet.artPrompt)
+              : (facet.canonicalValue || facet.title).trim(),
             kind: 'facet',
             sourceId: facet.id,
             label: facet.title,
@@ -437,16 +519,19 @@ export async function buildArtRandomPools(
      * `{character}` and exactly the wrong answer for someone who named the
      * pool they wanted and would rather see it come back empty.
      */
-    const entitySource = entityKindFor(entry)
-    const entityPool = entitySource ? entityPools.get(entitySource) : undefined
+    const objectType =
+      allowed.has('object') && (entry.kind === null || entry.kind === 'object')
+        ? objectTypeFor(entry)
+        : null
+    const objectPool = objectType ? objectPools.get(objectType) : undefined
 
-    if (entityPool?.length) {
-      resolved.set(entry.raw, entityPool)
+    if (objectPool?.length) {
+      resolved.set(entry.raw, objectPool)
       reports.push({
         key: entry.raw,
-        source: entitySource,
-        bucket: entitySource,
-        size: entityPool.length,
+        source: 'object',
+        bucket: objectType,
+        size: objectPool.length,
       })
       continue
     }
@@ -460,7 +545,7 @@ export async function buildArtRandomPools(
   }
 }
 
-/** Every placeholder word a prompt can use, for the editor's help text. */
+/** Every source-explicit placeholder the generator can offer as a button. */
 export function knownArtPlaceholders(): Array<{
   placeholder: string
   source: ArtRandomPoolSource
@@ -468,7 +553,7 @@ export function knownArtPlaceholders(): Array<{
 }> {
   const loraEntries = LORA_CATEGORIES.flatMap((category) =>
     LORA_CATEGORY_META[category].placeholders.map((placeholder) => ({
-      placeholder,
+      placeholder: `lora:${placeholder}`,
       source: 'lora' as const,
       hint: LORA_CATEGORY_META[category].hint,
     })),
@@ -476,24 +561,17 @@ export function knownArtPlaceholders(): Array<{
 
   const facetEntries = Object.keys(FACET_PLACEHOLDER_ALIASES).map(
     (placeholder) => ({
-      placeholder,
+      placeholder: `facet:${placeholder}`,
       source: 'facet' as const,
       hint: `Facet taxonomy ${FACET_PLACEHOLDER_ALIASES[placeholder]!.join('/')}.`,
     }),
   )
 
-  const entityEntries = [
-    {
-      placeholder: 'character',
-      source: 'character' as const,
-      hint: 'A Character record you can see.',
-    },
-    {
-      placeholder: 'scenario',
-      source: 'scenario' as const,
-      hint: 'A Scenario record you can see.',
-    },
-  ]
+  const objectEntries = ART_RANDOM_OBJECT_OPTIONS.map((option) => ({
+    placeholder: option.placeholder,
+    source: 'object' as const,
+    hint: option.hint,
+  }))
 
-  return [...loraEntries, ...facetEntries, ...entityEntries]
+  return [...loraEntries, ...facetEntries, ...objectEntries]
 }

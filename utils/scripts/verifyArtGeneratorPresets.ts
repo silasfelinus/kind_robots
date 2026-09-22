@@ -5,6 +5,7 @@ import {
   ART_GENERATOR_PRESETS,
   DEFAULT_ART_PRESET_ID,
   IMAGE_TO_IMAGE_PRESET_ID,
+  artDimensionOptions,
   defaultPresetSettings,
   detectCheckpointFamily,
   getPreset,
@@ -38,6 +39,32 @@ assert.deepEqual(defaultPresetSettings(), {
   denoise: null,
   variant: null,
 })
+
+// Krea 2 Turbo is the distilled eight-step lane. More steps remain available
+// only as an intentional manual override within the server's hard ceiling; the
+// product must not advertise an unsupported "Detailed 16" quality recipe.
+const kreaPresets = ART_GENERATOR_PRESETS.filter(
+  (entry) => entry.engine === 'krea2',
+)
+assert.equal(kreaPresets.length, 1)
+assert.equal(kreaPresets[0]!.id, 'krea2-turbo')
+assert.equal(kreaPresets[0]!.steps, 8)
+assert.ok(!ART_GENERATOR_PRESETS.some((entry) => entry.id === 'krea2-detailed'))
+
+// Dimension menus stay close to each checkpoint family's training scale.
+assert.deepEqual(
+  artDimensionOptions('comfy', 'sd15'),
+  [512, 576, 640, 704, 768],
+)
+assert.deepEqual(
+  artDimensionOptions('comfy', 'sdxl'),
+  [768, 832, 896, 1024, 1152, 1216, 1344],
+)
+assert.deepEqual(
+  artDimensionOptions('krea2'),
+  [768, 832, 896, 1024, 1152, 1216, 1344],
+)
+assert.deepEqual(artDimensionOptions('sdxl-img2img', 'sdxl'), [])
 
 /*
  * THE IMAGE-TO-IMAGE LANE.
@@ -389,6 +416,10 @@ assert.ok(generator.includes('ART_GENERATOR_PRESETS'))
 assert.ok(generator.includes("server.serverType === 'COMFY'"))
 assert.ok(generator.includes('activeProfile.supports.negativePrompt'))
 assert.ok(generator.includes(':checkpoint-family="selectedCheckpointFamily"'))
+assert.ok(generator.includes('artDimensionOptions('))
+assert.ok(generator.includes('v-for="option in widthOptions"'))
+assert.ok(generator.includes('v-for="option in heightOptions"'))
+assert.ok(generator.includes('placement="up"'))
 assert.ok(generator.includes('<details class="kr-panel-flat">'))
 assert.ok(generator.includes('v-if="artStore.lastGeneratedArtImage"'))
 assert.ok(!generator.includes('Nothing rendered yet this session.'))

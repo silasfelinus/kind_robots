@@ -94,8 +94,8 @@ export default defineEventHandler(async (event) => {
      * is a lane that cannot load LoRAs at all. Rolling a character LoRA for it
      * would put a trigger word in the prompt and attach weights nothing will
      * ever load, which reads as a broken randomizer rather than as an
-     * unsupported engine. Null means "no LoRA pools"; the Facet, Character and
-     * Scenario pools still answer.
+     * unsupported engine. Null means "no LoRA pools"; Facet and Kind Robots
+     * object pools still answer.
      */
     const requestedEngine = String(body?.engine ?? 'krea2')
     const engine = ENGINES.includes(requestedEngine as ArtGeneratorEngine)

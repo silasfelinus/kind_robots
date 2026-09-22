@@ -8,7 +8,7 @@ import type { LoraCategory } from '@/utils/loraCategory'
 
 export const MAX_RANDOM_BATCH = 25
 
-export type ArtRandomSource = 'lora' | 'facet' | 'character' | 'scenario'
+export type ArtRandomSource = 'lora' | 'facet' | 'object'
 
 export type ArtRandomPick = {
   value: string

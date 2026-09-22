@@ -23,6 +23,16 @@
 // This guard is deliberately narrow, matching the legacy deep-link guards'
 // convention: it does not assert UI classes or layout -- a restyle of the
 // Table must not fail this.
+//
+// Extended for storybook/t-037: the original guard only covered the three
+// keys t-055 fixed a live bug for (location/facet/reward). seedFromQuery()
+// has always also read ?character= (-> 'hero') and ?scenario= (-> 'thread')
+// -- verifyStorybookCharacterDeepLinkGuard.mjs pins the legacy
+// storybook-page.vue half of that same contract, but nothing pinned the
+// new-engine half for those two keys, leaving a real coverage gap. Character
+// resolution is also gated the same way genre is (withCharacterLock(),
+// storybook/t-038): a deep link to a locked character must not bypass the
+// board's own lock.
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
@@ -51,12 +61,17 @@ const cardForSlugBody = extractTsFunctionBody(tableContent, 'cardForSlug', {
     'this guard needs to move with it.',
 })
 
-// Each of the three live CTAs' query keys must still be read by
-// seedFromQuery() and mapped to the slot its deck deals from.
+// Each of the five query keys seedFromQuery() supports must still be read
+// and mapped to the slot its deck deals from -- location/facet/reward are
+// the three live CTAs t-055 fixed; character/scenario have no live CTA bug
+// on record but are read by the same function and deserve the same
+// coverage (storybook/t-037).
 for (const [key, slot] of [
   ['location', 'place'],
+  ['character', 'hero'],
   ['facet', 'genre'],
   ['reward', 'treasures'],
+  ['scenario', 'thread'],
 ]) {
   assert.ok(
     new RegExp(`route\\.query\\.${key}`).test(seedFromQueryBody),
@@ -86,6 +101,33 @@ assert.ok(
   `cardForSlug() in ${TABLE_PATH} must resolve a genre slug through ` +
     'withGenreLock() and return null for a locked card -- a deep link must ' +
     'not bypass the gate every other path into that slot respects.',
+)
+
+// A hero (character) card that resolves to a locked entry must be gated the
+// same way -- withCharacterLock() is 'hero'/'company''s counterpart to
+// withGenreLock() (storybook/t-037).
+const heroCaseIndex = cardForSlugBody.indexOf("case 'hero':")
+const companyCaseIndex = cardForSlugBody.indexOf(
+  "case 'company':",
+  heroCaseIndex,
+)
+assert.ok(
+  heroCaseIndex >= 0 && companyCaseIndex >= 0,
+  `cardForSlug() in ${TABLE_PATH} no longer has a 'hero'/'company' ` +
+    'fallthrough case -- has character resolution moved or been renamed? ' +
+    'If so, this guard needs to move with it.',
+)
+const heroCaseBody = cardForSlugBody.slice(
+  companyCaseIndex,
+  cardForSlugBody.indexOf('case ', companyCaseIndex + 1),
+)
+assert.ok(
+  /withCharacterLock\(toHeroCard\(character\)\)/.test(heroCaseBody) &&
+    /card\.locked \? null : card/.test(heroCaseBody),
+  `cardForSlug()'s 'hero' case in ${TABLE_PATH} must resolve a character ` +
+    'slug through withCharacterLock() and return null for a locked card -- ' +
+    'a ?character= deep link must not bypass the gate every other path ' +
+    'into that slot respects.',
 )
 
 // The query must still be cleared afterward, matching every other seed-once
@@ -129,8 +171,9 @@ assert.ok(
 
 console.log(
   "Storybook table deep-link guard contract passed: storybook-table.vue's " +
-    'seedFromQuery() consumes ?location=/?facet=/?reward= into the matching ' +
-    'board slot via cardForSlug()/playCardIfAbsent(), respects genre ' +
+    'seedFromQuery() consumes ?location=/?character=/?facet=/?reward=/' +
+    '?scenario= into the matching board slot via ' +
+    'cardForSlug()/playCardIfAbsent(), respects genre and character ' +
     'gating, clears the query, and only runs once the decks it looks cards ' +
     'up in have loaded.',
 )

@@ -211,6 +211,24 @@ if (!fs.existsSync(runner)) {
     // container, where 127.0.0.1:3000 is what the image's own HEALTHCHECK
     // already uses.
     ['runner reaches the app through docker exec', /docker exec -i/],
+    // Silas, second live run: "no admin token in this environment". The app
+    // container's docker-level env does NOT hold the token -- the Dockerfile
+    // CMD loads /config/kind-robots.env with node's own --env-file-if-exists,
+    // and deploy-unraid.sh passes --env-file only to the one-shot migration
+    // container. A `docker exec node` is a fresh process that inherits neither.
+    // The exec has to repeat the CMD's flag.
+    [
+      'exec loads the same config file the app CMD does',
+      /"--env-file-if-exists=\$CONTAINER_ENV_FILE"/,
+    ],
+    [
+      'container config path matches the Dockerfile CMD',
+      /KIND_ROBOTS_CONTAINER_ENV_FILE:-\/config\/kind-robots\.env/,
+    ],
+    [
+      'a missing container config names its own remedy',
+      /pass --container-env-file/,
+    ],
     [
       'runner defaults to the deployed container name',
       /KIND_ROBOTS_CONTAINER:-KindRobots/,

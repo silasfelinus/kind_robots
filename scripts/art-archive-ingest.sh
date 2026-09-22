@@ -44,6 +44,8 @@
 # USAGE
 #   scripts/art-archive-ingest.sh                 # dry run, writes nothing
 #   scripts/art-archive-ingest.sh --import        # perform the real import
+#   scripts/art-archive-ingest.sh --status        # how many rows are in the DB
+#                                                 # now; scans nothing
 #
 #   --container <name>   default KindRobots, or $KIND_ROBOTS_CONTAINER
 #   --container-env-file <path>  in-container config, default
@@ -61,13 +63,24 @@ CONTAINER="${KIND_ROBOTS_CONTAINER:-KindRobots}"
 CONTAINER_ENV_FILE="${KIND_ROBOTS_CONTAINER_ENV_FILE:-/config/kind-robots.env}"
 BASE_URL="${KIND_ROBOTS_URL:-}"
 TOKEN=''
-ENDPOINT='dry-run'
+REQUEST_PATH='/api/admin/art-archive/dry-run'
+REQUEST_METHOD='POST'
 MODE='Dry run'
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
-    --import) ENDPOINT='import'; MODE='Import'; shift ;;
-    --dry-run) ENDPOINT='dry-run'; MODE='Dry run'; shift ;;
+    --import)
+      REQUEST_PATH='/api/admin/art-archive/import'; REQUEST_METHOD='POST'
+      MODE='Import'; shift ;;
+    --dry-run)
+      REQUEST_PATH='/api/admin/art-archive/dry-run'; REQUEST_METHOD='POST'
+      MODE='Dry run'; shift ;;
+    # Reads what is actually in the database right now. Scans nothing, writes
+    # nothing -- the fastest way to answer "did the import land?" without
+    # walking the archive again.
+    --status)
+      REQUEST_PATH='/api/admin/art-archive/entries?page=1&pageSize=1'
+      REQUEST_METHOD='GET'; MODE='Status'; shift ;;
     --container) CONTAINER="${2:-}"; shift 2 ;;
     --container-env-file) CONTAINER_ENV_FILE="${2:-}"; shift 2 ;;
     --token) TOKEN="${2:-}"; shift 2 ;;
@@ -85,7 +98,8 @@ import http from 'node:http'
 import https from 'node:https'
 
 const base = process.env.KR_INGEST_URL || 'http://127.0.0.1:3000'
-const endpoint = process.env.KR_INGEST_ENDPOINT
+const path = process.env.KR_INGEST_PATH
+const method = process.env.KR_INGEST_METHOD || 'POST'
 const token = (
   process.env.KR_INGEST_TOKEN ||
   process.env.BETA_ADMIN_TOKEN ||
@@ -102,7 +116,7 @@ if (!token) {
   process.exit(3)
 }
 
-const target = new URL(`/api/admin/art-archive/${endpoint}`, base)
+const target = new URL(path, base)
 const transport = target.protocol === 'https:' ? https : http
 
 // No timeout is set anywhere on purpose: the scan walks the whole archive
@@ -110,7 +124,7 @@ const transport = target.protocol === 'https:' ? https : http
 const request = transport.request(
   target,
   {
-    method: 'POST',
+    method,
     headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
   },
   (response) => {
@@ -118,8 +132,20 @@ const request = transport.request(
     response.setEncoding('utf8')
     response.on('data', (chunk) => { body += chunk })
     response.on('end', () => {
-      process.stdout.write(body)
-      process.exit(response.statusCode && response.statusCode < 400 ? 0 : 1)
+      const code = response.statusCode ?? 0
+      if (code >= 200 && code < 400) {
+        process.stdout.write(body)
+        process.exit(0)
+      }
+      // An empty error body used to produce no output anywhere, so a failed
+      // run looked identical to a successful silent one. Always name the
+      // status and the URL, and show whatever body there was.
+      process.stderr.write(`HTTP ${code} from ${method} ${target}\n`)
+      const preview = body.trim()
+      process.stderr.write(
+        preview ? `${preview.slice(0, 2000)}\n` : '(empty response body)\n',
+      )
+      process.exit(5)
     })
   },
 )
@@ -136,7 +162,8 @@ run_in_container() {
   command -v docker >/dev/null 2>&1 || return 10
   docker inspect "$CONTAINER" >/dev/null 2>&1 || return 11
   printf '%s' "$REQUEST_JS" | docker exec -i \
-    -e KR_INGEST_ENDPOINT="$ENDPOINT" \
+    -e KR_INGEST_PATH="$REQUEST_PATH" \
+    -e KR_INGEST_METHOD="$REQUEST_METHOD" \
     "$CONTAINER" node \
       "--env-file-if-exists=$CONTAINER_ENV_FILE" \
       --input-type=module -
@@ -172,7 +199,8 @@ run_over_http() {
     printf '  Pass --env-file <path> or --token <value>.\n' >&2
     exit 2
   fi
-  KR_INGEST_URL="$BASE_URL" KR_INGEST_ENDPOINT="$ENDPOINT" KR_INGEST_TOKEN="$TOKEN" \
+  KR_INGEST_URL="$BASE_URL" KR_INGEST_PATH="$REQUEST_PATH" \
+    KR_INGEST_METHOD="$REQUEST_METHOD" KR_INGEST_TOKEN="$TOKEN" \
     node --input-type=module -e "$REQUEST_JS"
 }
 
@@ -193,14 +221,27 @@ else
     11) printf "ERROR: container '%s' not found. Pass --container <name> or --url <base>.\n" "$CONTAINER" >&2; exit 2 ;;
     3) printf 'Check %s inside container %s, or pass --container-env-file.\n' \
          "$CONTAINER_ENV_FILE" "$CONTAINER" >&2; exit 3 ;;
-    *) [[ -n "$response" ]] && printf '%s\n' "$response" >&2; exit "$status" ;;
+    5) printf 'The request reached the app and it refused. See the HTTP status above.\n' >&2
+       [[ -n "$response" ]] && printf '%s\n' "$response" >&2
+       exit 5 ;;
+    4) printf 'Could not reach the app from inside %s. Is it running?\n' "$CONTAINER" >&2; exit 4 ;;
+    *) printf 'Failed with exit status %s.\n' "$status" >&2
+       [[ -n "$response" ]] && printf '%s\n' "$response" >&2
+       exit "$status" ;;
   esac
+fi
+
+# A 2xx that carried nothing is still nothing to report, and must not look like
+# a quiet success.
+if [[ -z "${response//[[:space:]]/}" ]]; then
+  printf 'ERROR: the app answered but sent an empty body. Nothing was reported.\n' >&2
+  exit 6
 fi
 
 # Print the whole payload for the record, then the numbers worth reading. The
 # resourceMatches array is per-file and long, so it is summarised, not dumped.
 if command -v jq >/dev/null 2>&1; then
-  printf '%s\n' "$response" | jq 'del(.data.resourceMatches)'
+  printf '%s\n' "$response" | jq 'del(.data.resourceMatches) | del(.data.entries)'
   printf '\n-- summary --\n'
   printf '%s\n' "$response" | jq -r '
     .data
@@ -208,6 +249,10 @@ if command -v jq >/dev/null 2>&1; then
     | map(select(.value | type != "array" and type != "object"))
     | map("\(.key): \(.value)")
     | .[]'
+  printf '%s\n' "$response" | jq -r '
+    if .data.total != null
+    then "ArchiveEntry rows currently in the database: \(.data.total)"
+    else empty end'
   printf '%s\n' "$response" | jq -r '.data.plan // empty | to_entries | map("plan.\(.key): \(.value)") | .[]'
   printf '%s\n' "$response" | jq -r '.data.confidenceCounts // empty | to_entries | map("match.\(.key): \(.value)") | .[]'
   printf '%s\n' "$response" | jq -r '

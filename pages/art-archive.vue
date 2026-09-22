@@ -1,14 +1,9 @@
 <template>
   <main class="kr-surface h-full min-h-0 overflow-hidden">
     <div class="kr-scroll kr-container-wide space-y-4 p-4 md:p-6">
-      <header class="kr-toolbar flex flex-wrap items-start justify-between gap-4">
-        <div>
-          <p class="kr-text-eyebrow text-xs tracking-widest text-primary">Private legacy collection</p>
-          <div class="kr-text-black-2xl mt-1">Art Archive</div>
-          <p class="kr-text-dim-sm mt-1 max-w-3xl">Browse imported legacy art by folder, processing state, provenance match, and rating. Everything here remains private and mature.</p>
-        </div>
+      <div class="kr-toolbar justify-end">
         <button type="button" class="kr-btn btn-outline" :disabled="archive.loading" @click="archive.fetchEntries()"><span v-if="archive.loading" class="kr-spinner-xs" /><Icon v-else name="kind-icon:refresh" class="kr-icon-4" /> Refresh</button>
-      </header>
+      </div>
 
       <div v-if="!ready" class="grid min-h-52 place-items-center kr-panel"><span class="kr-spinner-lg-primary" /></div>
       <div v-else-if="!userStore.isAdmin" class="kr-note kr-note-error p-8 text-center font-normal"><p class="kr-text-black-xl text-base-content">Administrator access required</p><p class="kr-text-dim-sm mt-2">The private Art Archive is restricted to administrators.</p></div>
@@ -22,7 +17,7 @@
           <label class="flex items-end gap-2 pb-1.5"><input v-model="archive.filters.includeInactive" type="checkbox" class="kr-checkbox-primary-sm" @change="applyFilters" /><span class="kr-text-dim-xs">Show trash</span></label>
         </section>
 
-        <div v-if="archive.error" class="kr-note kr-note-error">{{ archive.error }}</div>
+        <div v-if="archive.error" class="kr-panel border-error/40 p-4 text-sm font-semibold text-error">{{ archive.error }}</div>
 
         <section class="kr-panel space-y-3 p-3" aria-label="Archive ingestion">
           <div class="flex flex-wrap items-start justify-between gap-3">
@@ -68,8 +63,8 @@
 
         <section class="grid min-h-0 gap-4 xl:grid-cols-[minmax(0,1fr)_24rem]">
           <div class="min-w-0">
-            <div class="mb-2 flex items-center justify-between gap-3"><p class="kr-text-dim-sm">{{ archive.total }} indexed image{{ archive.total === 1 ? '' : 's' }}</p><div class="flex items-center gap-2"><button class="kr-btn btn-ghost btn-sm" :disabled="archive.page <= 1 || archive.loading" @click="changePage(-1)">Previous</button><span class="kr-text-dim-xs">{{ archive.page }} / {{ archive.pageCount }}</span><button class="kr-btn btn-ghost btn-sm" :disabled="archive.page >= archive.pageCount || archive.loading" @click="changePage(1)">Next</button></div></div>
-            <div class="mb-2 flex flex-wrap items-center gap-2"><span class="kr-text-dim-xs">Rate open image:</span><button v-for="n in 5" :key="n" type="button" class="kr-btn btn-outline btn-xs" :class="{ 'btn-primary': dragOverRating === n }" :title="`Rate ${n} star${n === 1 ? '' : 's'} -- click while an image is selected, or drag an image here`" @dragover.prevent="dragOverRating = n" @dragleave="dragOverRating = null" @drop.prevent="onRatingDrop(n)" @click="onRatingClick(n)">{{ n }}★</button><button type="button" class="kr-btn btn-ghost btn-xs" title="Clear the selected image's rating" @click="onRatingClick(null)">Clear</button></div>
+            <div class="kr-panel-muted-sm mb-2 flex items-center justify-between gap-3"><p class="kr-text-dim-sm">{{ archive.total }} indexed image{{ archive.total === 1 ? '' : 's' }}</p><div class="flex items-center gap-2"><button class="kr-btn btn-ghost btn-sm" :disabled="archive.page <= 1 || archive.loading" @click="changePage(-1)">Previous</button><span class="kr-text-dim-xs">{{ archive.page }} / {{ archive.pageCount }}</span><button class="kr-btn btn-ghost btn-sm" :disabled="archive.page >= archive.pageCount || archive.loading" @click="changePage(1)">Next</button></div></div>
+            <div class="kr-panel-muted-sm mb-2 flex flex-wrap items-center gap-2"><span class="kr-text-dim-xs">Rate open image:</span><button v-for="n in 5" :key="n" type="button" class="kr-btn btn-outline btn-xs" :class="{ 'btn-primary': dragOverRating === n }" :title="`Rate ${n} star${n === 1 ? '' : 's'} -- click while an image is selected, or drag an image here`" @dragover.prevent="dragOverRating = n" @dragleave="dragOverRating = null" @drop.prevent="onRatingDrop(n)" @click="onRatingClick(n)">{{ n }}★</button><button type="button" class="kr-btn btn-ghost btn-xs" title="Clear the selected image's rating" @click="onRatingClick(null)">Clear</button></div>
             <div v-if="archive.loading" class="grid min-h-64 place-items-center kr-panel"><span class="kr-spinner-lg-primary" /></div>
             <div v-else class="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 2xl:grid-cols-6">
               <div v-for="entry in archive.entries" :key="entry.id" class="group relative overflow-hidden rounded-2xl border border-base-300 bg-base-200 transition hover:border-primary" :class="{ 'opacity-60': !entry.isActive, 'ring-2 ring-primary': archive.selectedIds.includes(entry.id) }">

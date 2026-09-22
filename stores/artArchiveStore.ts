@@ -82,6 +82,17 @@ type BatchResult = { attempted: number; succeeded: number; failed: Array<{ id: n
 export type ArchiveEntryJobStatus = { jobId: number; status: string; archivePresetId: number | null; actionType: string | null; updatedAt: string | null; error: string | null }
 const POLLABLE_JOB_STATUSES = new Set(['PENDING', 'RUNNING'])
 
+/* performFetch defaults to a 10s timeout, which is right for every other call
+ * in this store and hopeless for these two: both walk the whole archive root
+ * before they answer, so the browser aborted the request long before the server
+ * finished (Silas, 2026-09-22, on the first live Dry Run: "Request timed out
+ * after 10000ms"). The first bulk pass over a large archive belongs on the host
+ * anyway -- scripts/art-archive-ingest.sh runs the same endpoints from
+ * Alexandria with no client timeout at all -- but these buttons still have to
+ * work for the incremental top-ups they were built for. */
+const ARCHIVE_SCAN_TIMEOUT_MS = 600_000
+const ARCHIVE_SCAN_RETRIES = 0
+
 export const useArtArchiveStore = defineStore('artArchiveStore', () => {
   const entries = ref<ArchiveEntrySummary[]>([])
   const detail = ref<ArchiveEntryDetail | null>(null)
@@ -294,7 +305,12 @@ export const useArtArchiveStore = defineStore('artArchiveStore', () => {
     ingestionPending.value = true
     error.value = ''
     importReport.value = null
-    const response = await performFetch<ArchiveDryRunReport>('/api/admin/art-archive/dry-run', { method: 'POST' })
+    const response = await performFetch<ArchiveDryRunReport>(
+      '/api/admin/art-archive/dry-run',
+      { method: 'POST' },
+      ARCHIVE_SCAN_RETRIES,
+      ARCHIVE_SCAN_TIMEOUT_MS,
+    )
     if (response.success && response.data) dryRunReport.value = response.data
     else error.value = response.message || 'Could not preview the archive import.'
     ingestionPending.value = false
@@ -308,7 +324,12 @@ export const useArtArchiveStore = defineStore('artArchiveStore', () => {
   async function runImport(): Promise<boolean> {
     ingestionPending.value = true
     error.value = ''
-    const response = await performFetch<ArchiveImportReport>('/api/admin/art-archive/import', { method: 'POST' })
+    const response = await performFetch<ArchiveImportReport>(
+      '/api/admin/art-archive/import',
+      { method: 'POST' },
+      ARCHIVE_SCAN_RETRIES,
+      ARCHIVE_SCAN_TIMEOUT_MS,
+    )
     if (response.success && response.data) {
       importReport.value = response.data
       dryRunReport.value = null

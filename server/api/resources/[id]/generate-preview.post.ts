@@ -177,6 +177,31 @@ export default defineEventHandler(async (event) => {
     }
 
     const promptString = buildPreviewPrompt(resource)
+    const attemptFingerprint = `resource-preview:${resource.id}:imagePath`
+    const existingPreviewJob = await prisma.artJob.findFirst({
+      where: {
+        userId: auth.user.id,
+        attemptFingerprint,
+        status: { in: ['PENDING', 'RUNNING'] },
+      },
+      orderBy: { createdAt: 'desc' },
+    })
+    if (existingPreviewJob) {
+      event.node.res.statusCode = 200
+      return {
+        success: true,
+        message: `Existing preview generation reused for ${resource.customLabel || resource.name}.`,
+        data: {
+          jobId: existingPreviewJob.id,
+          resourceId: resource.id,
+          status: existingPreviewJob.status,
+          deduplicated: true,
+          mana: { charged: 0 },
+        },
+        statusCode: 200,
+      }
+    }
+
     const estimatedCostUsd = estimateArtCostUsd({
       engine: 'comfy',
       steps: PREVIEW_STEPS,
@@ -261,12 +286,14 @@ export default defineEventHandler(async (event) => {
         mode: 'recreate',
         preserveOriginal: true,
       },
+      attemptFingerprint,
     }
 
     const job = await prisma.artJob.create({
       data: {
         engine: 'COMFY',
         payload: JSON.stringify(payload),
+        attemptFingerprint,
         priority: 1,
         projectSlug: 'resource-previews',
         userId: gate.user.id,
@@ -283,6 +310,7 @@ export default defineEventHandler(async (event) => {
         jobId: job.id,
         resourceId: resource.id,
         status: job.status,
+        deduplicated: false,
         promptString,
         checkpointResourceId: checkpoint.id,
         loraResourceIds: isLora ? [resource.id] : [],

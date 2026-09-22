@@ -16,6 +16,7 @@ import {
   buildFacetIdentityPromptFrom,
   readsAsPastedDescription,
   isLegacyGeneratedFacetPrompt,
+  storedPromptIsCardCopy,
 } from '~/utils/facetVisualLanguage'
 
 export type EntityArtType =
@@ -1288,14 +1289,31 @@ function facetArtDirection(
   const prompt = userPrompt.trim()
   const keep = { direction: prompt, supersededArtPrompt: '' }
   if (entityType !== 'facet' || !taxonomy) return keep
-  // The v2 paste carries no generated tail, so it reads as curated here too.
-  // See readsAsPastedDescription in utils/facetVisualLanguage.ts.
+  /*
+   * Three tests, because a registered clause is only one of the ways a
+   * generated prompt announces itself, and it is a whitelist that by
+   * definition lags the batch that broke.
+   *
+   * storedPromptIsCardCopy catches a row whose tail a repair pass already
+   * trimmed away. readsAsPastedDescription identifies the v2 paste exactly --
+   * the prompt IS the description -- which is what licenses dropping the
+   * description below instead of filtering it. Equality implies containment,
+   * so the last is redundant as a trigger today and named anyway, so that
+   * narrowing either predicate later cannot quietly restore the bypass.
+   */
   const pastedDescription = readsAsPastedDescription({
     artPrompt: prompt,
-    title: record.title,
-    description: record.description,
+    // safeText, not the raw field: EntityArtRecord types both as `unknown`,
+    // and every other read of them in this function already goes through it.
+    title: safeText(record.title),
+    description: safeText(record.description),
   })
-  if (!isLegacyGeneratedFacetPrompt(prompt) && !pastedDescription) return keep
+  if (
+    !isLegacyGeneratedFacetPrompt(prompt) &&
+    !storedPromptIsCardCopy(prompt, safeText(record.description)) &&
+    !pastedDescription
+  )
+    return keep
 
   const rebuilt = buildFacetIdentityPromptFrom({
     title: safeText(record.title),

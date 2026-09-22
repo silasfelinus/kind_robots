@@ -66,6 +66,7 @@ import {
   buildFacetIdentityPromptFrom,
   isLegacyGeneratedFacetPrompt,
   readsAsPastedDescription,
+  storedPromptIsCardCopy,
   taxonomyVisualLanguage,
   CLAUSE_TAXONOMIES,
   V5_OCCUPATION_TAIL,
@@ -548,23 +549,45 @@ export function buildFacetIdentityPrompt(
    * idempotent, so a clean prompt is returned unchanged, and the repaired text
    * is what this producer then persists back to Facet.artPrompt.
    */
+  /*
+   * The bypass is for prose a person wrote, not for anything this file failed
+   * to recognize. A stored prompt that still contains the Facet's own
+   * description was assembled by a producer whose tail a repair pass trimmed
+   * off, so it matches no registered clause and would otherwise read as curated
+   * and be returned forever -- see storedPromptIsCardCopy.
+   */
   const existing = repairFramePrompt(clean(facet.artPrompt))
   /*
-   * A stored prompt that is nothing but the title and the description is the
-   * v2 paste, not art direction, and it carries no generated tail for
-   * isLegacyGeneratedFacetPrompt to recognize -- so it has been sailing
-   * through this bypass verbatim, with no taxonomy clause after it, for as
-   * long as it has existed. Falling through rebuilds it, which drops the card
-   * copy and gives Krea the clause that names a picture.
+   * The bypass is for prose a person wrote, not for anything this file failed
+   * to recognize. Two content tests now sit beside the clause whitelist, and
+   * they answer different questions:
+   *
+   *   storedPromptIsCardCopy -- does the prompt CONTAIN the description?
+   *   Containment, so it reaches a row whose registered tail a repair pass
+   *   trimmed off and which therefore reads as hand-authored (Facet 810
+   *   "Martian Colonization", whose missing final period is the cut).
+   *
+   *   readsAsPastedDescription -- IS the prompt the description? Exact
+   *   equality, so it identifies the 60 v2-paste rows for which nobody ever
+   *   wrote art direction at all. That certainty is what licenses DROPPING
+   *   the description below rather than filtering it.
+   *
+   * Equality implies containment, so the trigger strictly only needs the
+   * first. Both are named anyway: either one narrowing later must not
+   * silently let this cohort back through the bypass.
    */
   const pastedDescription = readsAsPastedDescription({
     artPrompt: existing,
     title: facet.title,
     description: facet.description,
   })
-  if (existing && !isLegacyGeneratedFacetPrompt(existing) && !pastedDescription) {
+  if (
+    existing &&
+    !isLegacyGeneratedFacetPrompt(existing) &&
+    !storedPromptIsCardCopy(existing, facet.description) &&
+    !pastedDescription
+  )
     return existing
-  }
 
   const metadata = parseMetadata(profile.metadata)
   const metadataPrompt = usableMetadataArtworkPrompt(metadata)

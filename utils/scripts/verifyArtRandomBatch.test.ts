@@ -5,6 +5,7 @@
 // LoRA weights it rolled -- and a replayable seed so that claim is checkable.
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
+import { format } from 'prettier'
 import {
   dealWithoutReplacement,
   extractPlaceholderKeys,
@@ -249,5 +250,20 @@ assert.ok(
     "facetTaxonomiesForKey(entry.key, entry.kind === 'facet')",
   ),
 )
+
+const formattedRandomOptions = await format(
+  readFileSync('utils/artRandomOptions.ts', 'utf8'),
+  {
+    parser: 'typescript',
+    semi: false,
+    singleQuote: true,
+    tabWidth: 2,
+    useTabs: false,
+    printWidth: 80,
+  },
+)
+console.log('PRETTIER_ART_RANDOM_OPTIONS_START')
+console.log(formattedRandomOptions)
+console.log('PRETTIER_ART_RANDOM_OPTIONS_END')
 
 console.log('Randomized art batch contract verified.')

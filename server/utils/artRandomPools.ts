@@ -152,9 +152,9 @@ function facetTaxonomiesForKey(key: string): FacetTaxonomy[] {
  * is not browsing, so the curtain is opaque here. Narrows only; it can never
  * admit a row visibilityWhere already refused.
  */
-function randomizerMaturityWhere(
-  options: ArtRandomPoolViewer,
-): { isMature?: false } {
+function randomizerMaturityWhere(options: ArtRandomPoolViewer): {
+  isMature?: false
+} {
   return viewerShowsMature(options.user, options.showMature)
     ? {}
     : { isMature: false }

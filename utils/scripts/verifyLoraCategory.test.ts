@@ -94,8 +94,14 @@ assert.equal(
 
 // Word boundaries, not substrings: "freestyle" is not a style LoRA and
 // "portrait" is not a trait.
-assert.equal(inferLoraCategory({ name: 'freestyle_rap.safetensors' }).category, null)
-assert.equal(inferLoraCategory({ name: 'trait_pack.safetensors' }).category, null)
+assert.equal(
+  inferLoraCategory({ name: 'freestyle_rap.safetensors' }).category,
+  null,
+)
+assert.equal(
+  inferLoraCategory({ name: 'trait_pack.safetensors' }).category,
+  null,
+)
 
 // Nothing to go on stays nothing. An unclassified LoRA is skipped by the
 // randomizer; a guessed one poisons a pool.

@@ -109,21 +109,28 @@ export function isLoraCategory(value: unknown): value is LoraCategory {
 }
 
 export function normalizeLoraCategory(value: unknown): LoraCategory | null {
-  const normalized = String(value ?? '').trim().toUpperCase()
+  const normalized = String(value ?? '')
+    .trim()
+    .toUpperCase()
   return isLoraCategory(normalized) ? (normalized as LoraCategory) : null
 }
 
 export function normalizeLoraCategorySource(
   value: unknown,
 ): LoraCategorySource | null {
-  const normalized = String(value ?? '').trim().toUpperCase()
+  const normalized = String(value ?? '')
+    .trim()
+    .toUpperCase()
   return LORA_CATEGORY_SOURCES.includes(normalized as LoraCategorySource)
     ? (normalized as LoraCategorySource)
     : null
 }
 
 function normalizePlaceholder(value: string): string {
-  return value.trim().toLowerCase().replace(/[^a-z0-9]+/g, '')
+  return value
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '')
 }
 
 const PLACEHOLDER_TO_CATEGORY: Map<string, LoraCategory> = new Map(
@@ -151,28 +158,240 @@ export function loraCategoryPlaceholders(): string[] {
 // reported as CIVITAI, so the editor can show "upstream said so" rather than
 // "we guessed".
 const CIVITAI_TAG_CATEGORIES: Array<[LoraCategory, string[]]> = [
-  ['CHARACTER', ['character', 'characters', 'celebrity', 'actor', 'actress', 'singer', 'idol', 'waifu']],
-  ['STYLE', ['style', 'styles', 'art style', 'artstyle', 'artist', 'aesthetic', 'anime style', 'painting style']],
-  ['SETTING', ['background', 'backgrounds', 'landscape', 'scenery', 'environment', 'architecture', 'buildings', 'building', 'interior', 'city', 'nature']],
-  ['ACTION', ['poses', 'pose', 'action', 'motion', 'dance', 'dancing', 'gesture']],
-  ['CLOTHING', ['clothing', 'clothes', 'outfit', 'costume', 'dress', 'uniform', 'armor', 'lingerie', 'swimsuit', 'fashion']],
-  ['OBJECT', ['vehicle', 'vehicles', 'car', 'weapon', 'weapons', 'objects', 'object', 'tool', 'tools', 'furniture', 'food', 'props', 'prop']],
-  ['CREATURE', ['animal', 'animals', 'creature', 'creatures', 'monster', 'monsters', 'dragon', 'cat', 'dog', 'furry', 'pokemon']],
-  ['DETAIL', ['detail', 'details', 'enhancer', 'quality', 'sharpness', 'skin', 'eyes', 'hands', 'texture']],
-  ['CONCEPT', ['concept', 'concepts', 'abstract', 'effect', 'effects', 'lighting']],
+  [
+    'CHARACTER',
+    [
+      'character',
+      'characters',
+      'celebrity',
+      'actor',
+      'actress',
+      'singer',
+      'idol',
+      'waifu',
+    ],
+  ],
+  [
+    'STYLE',
+    [
+      'style',
+      'styles',
+      'art style',
+      'artstyle',
+      'artist',
+      'aesthetic',
+      'anime style',
+      'painting style',
+    ],
+  ],
+  [
+    'SETTING',
+    [
+      'background',
+      'backgrounds',
+      'landscape',
+      'scenery',
+      'environment',
+      'architecture',
+      'buildings',
+      'building',
+      'interior',
+      'city',
+      'nature',
+    ],
+  ],
+  [
+    'ACTION',
+    ['poses', 'pose', 'action', 'motion', 'dance', 'dancing', 'gesture'],
+  ],
+  [
+    'CLOTHING',
+    [
+      'clothing',
+      'clothes',
+      'outfit',
+      'costume',
+      'dress',
+      'uniform',
+      'armor',
+      'lingerie',
+      'swimsuit',
+      'fashion',
+    ],
+  ],
+  [
+    'OBJECT',
+    [
+      'vehicle',
+      'vehicles',
+      'car',
+      'weapon',
+      'weapons',
+      'objects',
+      'object',
+      'tool',
+      'tools',
+      'furniture',
+      'food',
+      'props',
+      'prop',
+    ],
+  ],
+  [
+    'CREATURE',
+    [
+      'animal',
+      'animals',
+      'creature',
+      'creatures',
+      'monster',
+      'monsters',
+      'dragon',
+      'cat',
+      'dog',
+      'furry',
+      'pokemon',
+    ],
+  ],
+  [
+    'DETAIL',
+    [
+      'detail',
+      'details',
+      'enhancer',
+      'quality',
+      'sharpness',
+      'skin',
+      'eyes',
+      'hands',
+      'texture',
+    ],
+  ],
+  [
+    'CONCEPT',
+    ['concept', 'concepts', 'abstract', 'effect', 'effects', 'lighting'],
+  ],
 ]
 
 // Filename/label/description fallbacks, reported as HEURISTIC. Word-boundary
 // matched: a substring test makes "portrait" match "trait" and "style" match
 // "freestyle", and a miscategorised LoRA is worse than an unclassified one.
 const HEURISTIC_CATEGORIES: Array<[LoraCategory, string[]]> = [
-  ['STYLE', ['style', 'artstyle', 'painterly', 'watercolou?r', 'oil painting', 'sketch', 'lineart', 'line art', 'woodcut', 'ukiyo-?e', 'impressionis[tm]', 'art nouveau', 'bauhaus', 'cel ?shad\\w*', 'pixel ?art', 'comic', 'manga', 'cartoon', 'render style']],
-  ['CLOTHING', ['outfit', 'costume', 'clothing', 'dress', 'uniform', 'armou?r', 'kimono', 'suit', 'jacket', 'hoodie', 'lingerie', 'swimsuit', 'cosplay']],
-  ['SETTING', ['background', 'landscape', 'scenery', 'environment', 'interior', 'cityscape', 'forest', 'dungeon', 'castle', 'tavern', 'skyline', 'architecture']],
-  ['ACTION', ['pose', 'poses', 'posing', 'running', 'jumping', 'dancing', 'fighting', 'sitting', 'flying', 'motion']],
-  ['CREATURE', ['creature', 'monster', 'dragon', 'beast', 'animal', 'wolf', 'octopus', 'kaiju', 'griffin']],
-  ['OBJECT', ['vehicle', 'mecha', 'spaceship', 'weapon', 'sword', 'firearm', 'furniture', 'jewel\\w*', 'food']],
-  ['DETAIL', ['detail\\w*', 'enhancer', 'sharpen\\w*', 'skin texture', 'add[_ -]?detail', 'upscal\\w*', 'hand fix', 'eye fix']],
+  [
+    'STYLE',
+    [
+      'style',
+      'artstyle',
+      'painterly',
+      'watercolou?r',
+      'oil painting',
+      'sketch',
+      'lineart',
+      'line art',
+      'woodcut',
+      'ukiyo-?e',
+      'impressionis[tm]',
+      'art nouveau',
+      'bauhaus',
+      'cel ?shad\\w*',
+      'pixel ?art',
+      'comic',
+      'manga',
+      'cartoon',
+      'render style',
+    ],
+  ],
+  [
+    'CLOTHING',
+    [
+      'outfit',
+      'costume',
+      'clothing',
+      'dress',
+      'uniform',
+      'armou?r',
+      'kimono',
+      'suit',
+      'jacket',
+      'hoodie',
+      'lingerie',
+      'swimsuit',
+      'cosplay',
+    ],
+  ],
+  [
+    'SETTING',
+    [
+      'background',
+      'landscape',
+      'scenery',
+      'environment',
+      'interior',
+      'cityscape',
+      'forest',
+      'dungeon',
+      'castle',
+      'tavern',
+      'skyline',
+      'architecture',
+    ],
+  ],
+  [
+    'ACTION',
+    [
+      'pose',
+      'poses',
+      'posing',
+      'running',
+      'jumping',
+      'dancing',
+      'fighting',
+      'sitting',
+      'flying',
+      'motion',
+    ],
+  ],
+  [
+    'CREATURE',
+    [
+      'creature',
+      'monster',
+      'dragon',
+      'beast',
+      'animal',
+      'wolf',
+      'octopus',
+      'kaiju',
+      'griffin',
+    ],
+  ],
+  [
+    'OBJECT',
+    [
+      'vehicle',
+      'mecha',
+      'spaceship',
+      'weapon',
+      'sword',
+      'firearm',
+      'furniture',
+      'jewel\\w*',
+      'food',
+    ],
+  ],
+  [
+    'DETAIL',
+    [
+      'detail\\w*',
+      'enhancer',
+      'sharpen\\w*',
+      'skin texture',
+      'add[_ -]?detail',
+      'upscal\\w*',
+      'hand fix',
+      'eye fix',
+    ],
+  ],
   ['CHARACTER', ['character', 'oc\\b', 'persona', 'portrait of']],
   ['CONCEPT', ['concept', 'abstract', 'effect', 'glow', 'lighting']],
 ]
@@ -216,7 +435,11 @@ export function inferLoraCategory(
   input: LoraCategoryInferenceInput,
 ): LoraCategoryInference {
   const tags = (input.civitaiTags ?? [])
-    .map((tag) => String(tag ?? '').trim().toLowerCase())
+    .map((tag) =>
+      String(tag ?? '')
+        .trim()
+        .toLowerCase(),
+    )
     .filter(Boolean)
 
   for (const [category, tagValues] of CIVITAI_TAG_CATEGORIES) {

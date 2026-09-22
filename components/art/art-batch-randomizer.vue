@@ -42,10 +42,7 @@
       </button>
     </div>
 
-    <p
-      v-if="hasPlaceholders"
-      class="kr-note kr-note-info mt-3 p-2 text-xs"
-    >
+    <p v-if="hasPlaceholders" class="kr-note kr-note-info mt-3 p-2 text-xs">
       This prompt has placeholders. Roll and queue it here — plain Generate
       sends the braces to the renderer as literal text.
     </p>
@@ -84,15 +81,17 @@
           "
         >
           {{ token(pool.key) }}
-          <span class="opacity-70">{{ pool.size ? `×${pool.size}` : 'empty' }}</span>
+          <span class="opacity-70">{{
+            pool.size ? `×${pool.size}` : 'empty'
+          }}</span>
         </span>
       </div>
 
       <p v-if="emptyPools.length" class="kr-note kr-note-error p-2 text-xs">
         Nothing to roll for
-        {{ emptyPoolTokens }}. Those stayed
-        in the prompt as written — classify LoRAs for them in the LoRA editor,
-        or use a placeholder with a pool behind it.
+        {{ emptyPoolTokens }}. Those stayed in the prompt as written — classify
+        LoRAs for them in the LoRA editor, or use a placeholder with a pool
+        behind it.
       </p>
 
       <ul class="flex flex-col gap-1">
@@ -131,7 +130,9 @@ const plan = computed<ArtRandomBatchPlan | null>(
   () => artStore.lastRandomBatchPlan,
 )
 
-const emptyPools = computed(() => (plan.value ? emptyRandomPools(plan.value) : []))
+const emptyPools = computed(() =>
+  plan.value ? emptyRandomPools(plan.value) : [],
+)
 
 const emptyPoolTokens = computed(() =>
   emptyPools.value.map((pool) => token(pool.key)).join(', '),
@@ -144,7 +145,10 @@ const emptyPoolTokens = computed(() =>
  * back to the handful that always exist before the first roll.
  */
 const FALLBACK_CHIPS = [
-  { placeholder: 'character', hint: 'A character LoRA, or a Character record.' },
+  {
+    placeholder: 'character',
+    hint: 'A character LoRA, or a Character record.',
+  },
   { placeholder: 'style', hint: 'A style LoRA, or a STYLE Facet.' },
   { placeholder: 'setting', hint: 'A setting LoRA, or a SETTING Facet.' },
   { placeholder: 'action', hint: 'An action or pose LoRA.' },

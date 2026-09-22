@@ -26,10 +26,7 @@ function loraPool(prefix: string, size: number): VariantPick[] {
 }
 
 // Single-brace placeholders are opt-in, because A1111 prompts use braces too.
-assert.deepEqual(
-  extractPlaceholderKeys('{character} running in {style}'),
-  [],
-)
+assert.deepEqual(extractPlaceholderKeys('{character} running in {style}'), [])
 assert.deepEqual(
   extractPlaceholderKeys('{character} running in {style}', {
     allowSingleBrace: true,
@@ -101,7 +98,10 @@ for (const variant of batch) {
     ),
   )
   for (const pick of variant.loraPicks) assert.equal(pick.strength, 0.8)
-  assert.match(variant.promptUsed, /^hero-trigger-\d+ running in brush-trigger-\d+$/)
+  assert.match(
+    variant.promptUsed,
+    /^hero-trigger-\d+ running in brush-trigger-\d+$/,
+  )
   assert.deepEqual(variant.unresolvedKeys, [])
 }
 
@@ -161,8 +161,7 @@ for (const variant of lenient) {
 
 // Strict mode still refuses, so the challenge center keeps its loud failure.
 assert.throws(
-  () =>
-    generateStructuredPromptVariants('{{gizmo}}', 2, () => undefined, {}),
+  () => generateStructuredPromptVariants('{{gizmo}}', 2, () => undefined, {}),
   /No random pool found for placeholder "gizmo"/,
 )
 

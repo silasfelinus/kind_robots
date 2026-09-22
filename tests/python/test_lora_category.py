@@ -66,20 +66,53 @@ def test_nothing_to_go_on_stays_unclassified():
 
 
 def _typescript_table(name):
-    """Read one of loraCategory.ts's tables back as {category: [values]}."""
+    """Read one of loraCategory.ts's tables back as {category: [values]}.
+
+    Scanned rather than regex-matched. Two things defeat a regex here: prettier
+    reflows these tables between one-line and one-value-per-line depending on
+    length, and several patterns contain a literal `]` of their own
+    (`add[_ -]?detail`), which ends a non-greedy bracket match in the middle of
+    a string. So the scanner tracks whether it is inside a quote before it
+    believes any bracket.
+    """
     source = open(_TS_PATH, encoding="utf-8").read()
     start = source.index(f"const {name}:")
-    end = source.index("\n]", start)
-    block = source[start:end]
 
     table = {}
-    for category, values in re.findall(
-        r"\['([A-Z_]+)', \[(.*?)\]\]", block, flags=re.S
-    ):
-        table[category] = [
-            value.replace("\\\\", "\\")
-            for value in re.findall(r"'((?:[^'\\]|\\.)*)'", values)
-        ]
+    category = None
+    values = []
+    depth = 0
+    # From the `= [` that opens the VALUE, not the first bracket after the
+    # name -- the type annotation `Array<[LoraCategory, string[]]>` sits in
+    # between and its brackets would close the scan before it started.
+    index = source.index("= [", start) + 2
+
+    while index < len(source):
+        char = source[index]
+
+        if char == "'":
+            literal = ""
+            index += 1
+            while source[index] != "'":
+                if source[index] == "\\":
+                    index += 1
+                literal += source[index]
+                index += 1
+            if category is None:
+                category = literal
+            else:
+                values.append(literal)
+        elif char == "[":
+            depth += 1
+        elif char == "]":
+            depth -= 1
+            if depth == 1 and category is not None:
+                table[category] = values
+                category, values = None, []
+            if depth == 0:
+                break
+        index += 1
+
     return table
 
 

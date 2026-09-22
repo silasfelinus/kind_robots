@@ -61,10 +61,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import type { ResourceGalleryRecord } from '@/stores/resourceGalleryStore'
-import {
-  LORA_CATEGORY_META,
-  normalizeLoraCategory,
-} from '@/utils/loraCategory'
+import { LORA_CATEGORY_META, normalizeLoraCategory } from '@/utils/loraCategory'
 
 const props = defineProps<{
   resource: ResourceGalleryRecord

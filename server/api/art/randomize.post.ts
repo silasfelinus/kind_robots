@@ -26,7 +26,6 @@ import type {
   CheckpointFamily,
 } from '~/utils/artGeneratorPresets'
 
-
 const ENGINES: ArtGeneratorEngine[] = [
   'krea2',
   'flux2',

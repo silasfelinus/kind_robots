@@ -246,7 +246,10 @@ export function generateStructuredPromptVariants(
       unresolvedKeys.push(key)
       continue
     }
-    deals.set(key, (options.deal ?? dealWithoutReplacement)(pool, count, random))
+    deals.set(
+      key,
+      (options.deal ?? dealWithoutReplacement)(pool, count, random),
+    )
   }
 
   const variants: StructuredPromptVariant[] = []

@@ -9,7 +9,14 @@ const checks = [
   ['aggregates resource-match evidence into the response', /aggregateResourceMatchSummaries\(/],
   [
     'returns filesWithMatchEvidence and unmatchedModels in the response data',
-    /filesWithMatchEvidence,[\s\S]*?unmatchedModels,[\s\S]*?resourceMatches,/,
+    /filesWithMatchEvidence,[\s\S]*?unmatchedModels,/,
+  ],
+  // art-archive/t-041: the per-file match array is now capped by
+  // sampleResourceMatches() rather than carrying one entry per scanned file,
+  // which is what the endpoint used to serialize for a whole archive.
+  [
+    'caps the per-file match evidence it serializes',
+    /\.\.\.sampleResourceMatches\(resourceMatches\),/,
   ],
   ['states the imported-file count in its response message', /Imported \$\{summary\.filesScanned\} scanned file\(s\)/],
 ]

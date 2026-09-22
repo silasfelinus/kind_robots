@@ -1212,6 +1212,9 @@ jobs:
       - name: Art Archive ingestion controls contract
         run: npm run test:art-archive-ingestion-controls
 
+      - name: Art Archive scan memory contract
+        run: npm run test:art-archive-scan-memory
+
       - name: Butterfly Gallery curation-action contract
         run: npm run test:butterfly-gallery-actions
 

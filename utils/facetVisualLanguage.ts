@@ -36,6 +36,7 @@ import {
   ENHANCEMENT_SWATCH_SUBJECT,
   ENHANCEMENT_SWATCH_SUBJECTS,
 } from './promptEnhancementPolicy'
+import { repairFramePrompt } from './framePromptRepair'
 
 function clean(value: unknown): string {
   return typeof value === 'string' ? value.trim() : ''
@@ -459,15 +460,26 @@ export function buildFacetIdentityPromptFrom(
     .map((value) => depictableProse(value))
     .filter(Boolean)
 
-  return [
-    `${clean(input.title)}.`,
-    clean(input.scientificName) ? `${clean(input.scientificName)}.` : '',
-    clean(input.category) ? `${clean(input.category)}.` : '',
-    ...prose,
-    taxonomyVisualLanguage(input.taxonomy),
-  ]
-    .filter(Boolean)
-    .join(' ')
-    .replace(/\s+/g, ' ')
-    .trim()
+  /*
+   * The frame repair runs on the ASSEMBLED identity, not on the variant prompt,
+   * because this string is what gets persisted back to Facet.artPrompt. Repair
+   * it later -- at buildFacetVariantPrompt, say -- and the gate passes while the
+   * dirty text is still written to the row, which is the silent half of the bug.
+   *
+   * A Facet's own description can carry the word too: Neonpunk's said "no
+   * daylight anywhere in frame" until it was republished.
+   */
+  return repairFramePrompt(
+    [
+      `${clean(input.title)}.`,
+      clean(input.scientificName) ? `${clean(input.scientificName)}.` : '',
+      clean(input.category) ? `${clean(input.category)}.` : '',
+      ...prose,
+      taxonomyVisualLanguage(input.taxonomy),
+    ]
+      .filter(Boolean)
+      .join(' ')
+      .replace(/\s+/g, ' ')
+      .trim(),
+  )
 }

@@ -107,12 +107,25 @@ const LEGACY_FRAME_ANATOMY: Array<[string, string]> = [
   ],
 ]
 
-/** Rewrite every shipped "frame" phrasing that means no frame at all. */
+/**
+ * Rewrite every shipped "frame" phrasing that means no frame at all.
+ *
+ * The composition patterns match case-insensitively but their replacements are
+ * written lowercase, so the first letter is carried over from whatever was
+ * matched. Without that, "An unpeopled frame." at the start of a sentence came
+ * back as "an unpeopled picture." mid-paragraph -- and since this text is
+ * persisted back to Facet.artPrompt, the repair would have left a visible
+ * defect in the row it just fixed.
+ */
 export function repairFramePrompt(value: string): string {
   let out = value
   for (const [from, to] of LEGACY_FRAME_ANATOMY) out = out.split(from).join(to)
   for (const [pattern, replacement] of LEGACY_FRAME_COMPOSITION) {
-    out = out.replace(pattern, replacement)
+    out = out.replace(pattern, (match) =>
+      /^[A-Z]/.test(match)
+        ? replacement.charAt(0).toUpperCase() + replacement.slice(1)
+        : replacement,
+    )
   }
   return out
 }

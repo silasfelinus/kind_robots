@@ -44,6 +44,7 @@ import {
   artJobQueueModelKey,
   selectSmartQueueCandidate,
 } from '../../../utils/artJobQueueAffinity'
+import { repairFramePromptDeep } from '../../../utils/artJobNormalization'
 import { reconcileQueuedArtJobCoverage } from '../../../utils/artJobQueueCoverage'
 import { assertQueuedArtPromptContract } from '../../../utils/artJobQueueSettings'
 import {
@@ -310,19 +311,34 @@ export default defineEventHandler(async (event) => {
         const payloadForClaim = { ...samplerRepair.payload }
         delete payloadForClaim.processingStartedAt
 
+        // The frame rewrite is the second violation with an objectively correct
+        // repair, so it gets the same treatment as the sampler clamp above. The
+        // frame-noun rule (2026-09-21) rejects "an unpeopled frame" and every
+        // other phrasing of the word that means no frame -- and
+        // DEFAULT_UNPEOPLED_ART_DIRECTION had appended that exact clause to
+        // every object and product prompt in the app, so without this the rule
+        // would strand the whole queued backlog at claim time, failing forever
+        // on wording a table can fix. /api/art/queue and reenqueue-failed
+        // already repair it through normalizeArtJobPayload; claim never
+        // normalized, which is the gap.
+        const payloadForGate = repairFramePromptDeep(
+          payloadForClaim,
+        ) as typeof payloadForClaim
+
         // New enqueues pass the prompt contract at creation time. Old backlog
         // rows predate that boundary, so apply the same rules again immediately
         // before claim using the ACTUAL Comfy graph's engine/cfg/steps. This is
         // what prevents stale 20-step/cfg-7 Krea jobs from rendering just because
         // they were already sitting in PENDING when the gate shipped — the clamp
-        // above fixes the sampler numbers, and everything a machine cannot
-        // safely rewrite (conditionals, format nouns, text piles) still fails.
-        assertQueuedArtPromptContract(candidate.engine, payloadForClaim)
+        // and the rewrite above fix what is mechanically fixable, and everything
+        // a machine cannot safely rewrite (conditionals, format nouns, text
+        // piles) still fails.
+        assertQueuedArtPromptContract(candidate.engine, payloadForGate)
 
-        const currentProvenance = readArtJobProvenance(payloadForClaim)
+        const currentProvenance = readArtJobProvenance(payloadForGate)
         enrichedPayload = enrichArtJobPayload(
           candidate.engine as 'A1111' | 'COMFY',
-          payloadForClaim,
+          payloadForGate,
           {
             projectSlug: candidate.projectSlug,
             idempotencyKey: currentProvenance?.idempotencyKey,

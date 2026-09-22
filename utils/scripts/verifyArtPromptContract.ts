@@ -491,6 +491,49 @@ for (const prompt of [
   )
 }
 
+// The imperative VERB is not the noun. All six MANDARIN_FRAMINGS open this way,
+// and the narrator seeds use "Frames the stories of ..." throughout; there is no
+// rendered evidence against the verb, and the last mandarin framing names a real
+// window frame besides.
+for (const prompt of [
+  'Frame it as a close still life: the subject large in the square and lightly cropped by it, seen from a little above the surface it rests on.',
+  'Frame it wide and quiet: the subject small and set low in the square, with a large calm field of paper above and around it.',
+  'Frame it through an ordinary near edge such as a doorway, window frame, table edge, or shelf, keeping that near edge a simple dark shape and the subject just beyond it.',
+]) {
+  assert.equal(
+    rules({ prompt, engine: 'krea2', steps: 8, cfg: 1 }).includes('frame-noun'),
+    false,
+    `the imperative verb must not be flagged: ${prompt.slice(0, 50)}`,
+  )
+}
+
+// A noun use in a later sentence is still caught, so the verb exemption cannot
+// be used as a prefix to smuggle one past the gate.
+assert.ok(
+  rules({
+    prompt: 'Frame it as a close still life. A thin frame with prominent collarbones.',
+    engine: 'krea2',
+    steps: 8,
+    cfg: 1,
+  }).includes('frame-noun'),
+  'the verb exemption is per sentence, not a whole-prompt escape hatch',
+)
+
+// The frame-tale genre description: a hyphenated compound, not the noun.
+assert.equal(
+  rules({
+    prompt:
+      'One Thousand and One Nights Fantasy. Fantasy drawing on the frame-tale ' +
+      'tradition of the Arabian Nights: nested stories, bargains struck with ' +
+      'the powerful, and survival through narrative itself.',
+    engine: 'krea2',
+    steps: 8,
+    cfg: 1,
+  }).includes('frame-noun'),
+  false,
+  'a hyphenated compound is not the frame noun',
+)
+
 // Scoped to the caption-conditioned engines, like the jargon rule. A chat model
 // reads "frame" as framing and this rule would only get in the way.
 assert.equal(

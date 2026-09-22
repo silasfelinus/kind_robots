@@ -429,6 +429,20 @@ const FRAME_BEARER =
  */
 const FRAME_NOUN = /(?<!-)\bframes?\b(?!-)/i
 
+/*
+ * "Frame it as a close still life", "Frame it wide and quiet" -- the imperative
+ * VERB, which is what all six MANDARIN_FRAMINGS are and what the narrator seeds
+ * use constantly ("Frames the stories of ..."). This rule is about the noun: a
+ * body called a frame, or a composition called a frame. There is no rendered
+ * evidence against the verb, and flagging it would mean rewriting a deliberate
+ * and uniform art-direction set -- one of whose lines names a real window frame.
+ *
+ * Only a sentence that OPENS with it, and only followed by a pronoun or
+ * determiner, because that is the shape a verb takes here. A noun use never
+ * starts a sentence that way; it says "A frame of ..." or "An unpeopled frame".
+ */
+const FRAME_VERB = /^\s*Frames?\s+(?:it|them|this|these|the|your|his|her|their|every|all)\b/i
+
 /**
  * Whether this prompt depicts a real frame, judged over the WHOLE prompt.
  *
@@ -455,7 +469,7 @@ function frameNounUses(prompt: string): string[] {
   return prompt
     .split(/(?<=[.!?])\s+/)
     .map((sentence) => sentence.trim())
-    .filter((sentence) => FRAME_NOUN.test(sentence))
+    .filter((sentence) => FRAME_NOUN.test(sentence) && !FRAME_VERB.test(sentence))
 }
 
 const PEOPLE_NEGATION_CLAUSE =

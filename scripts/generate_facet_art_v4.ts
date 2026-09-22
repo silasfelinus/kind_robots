@@ -37,6 +37,7 @@
 // Facets are counted and reported, never re-rolled.
 
 import 'dotenv/config'
+import { repairFramePrompt } from '../utils/framePromptRepair'
 import { buildKrea2WorkflowFromRequest } from '../server/api/comfy/krea2/utils/workflow'
 import {
   assertArtPromptContract,
@@ -513,7 +514,19 @@ export function buildFacetIdentityPrompt(
   facet: FacetRow,
   profile: ProfileRow,
 ): string {
-  const existing = clean(facet.artPrompt)
+  /*
+   * A CURATED prompt is returned verbatim -- that is the whole point of the
+   * bypass -- so a stored row carrying legacy "frame" wording went straight to
+   * assertArtPromptContract and aborted the run. Facet "Proving Graft" did
+   * exactly that on the first real repair sweep (2026-09-22), on a row the
+   * embodiment seed does not touch.
+   *
+   * This is the fourth path the frame repair had to reach, after the Krea
+   * scrubber, the enqueue normalizer and the claim gate. The repair is
+   * idempotent, so a clean prompt is returned unchanged, and the repaired text
+   * is what this producer then persists back to Facet.artPrompt.
+   */
+  const existing = repairFramePrompt(clean(facet.artPrompt))
   if (existing && !isLegacyGeneratedFacetPrompt(existing)) return existing
 
   const metadata = parseMetadata(profile.metadata)

@@ -9,6 +9,8 @@ import {
   assertArtPromptContract,
   DISTILLED_ENGINE_LIMITS,
 } from '../../server/utils/artPromptContract'
+import { repairFramePrompt } from '../framePromptRepair'
+import { buildFacetIdentityPromptFrom } from '../facetVisualLanguage'
 import {
   buildKreaSemanticPrompt,
   kreaPromptHasContextNoise,
@@ -541,6 +543,73 @@ assert.equal(
     .includes('frame-noun'),
   false,
   'the frame rule must not apply to engines that read instructions',
+)
+
+// ── The producer's own identity path (2026-09-22) ───────────────────────────
+//
+// The first real repair sweep on Alexandria aborted here. Facet "Proving Graft"
+// is a CURATED prompt, so buildFacetIdentityPrompt returns it verbatim by
+// design, and it went straight to assertArtPromptContract still carrying two
+// "frame" uses -- one composition, one from DEFAULT_UNPEOPLED_ART_DIRECTION.
+// The embodiment seed does not touch that row, so re-seeding could never have
+// fixed it. A 422 there aborts the whole run before a single job is queued.
+//
+// The repair had reached the Krea scrubber, the enqueue normalizer and the
+// claim gate, and not this one. It is pinned here because the producer's
+// bypass is deliberate and will not be removed.
+const PROVING_GRAFT_AS_STORED =
+  'A single scarred forearm mid-graft under a bright work lamp, bronze ' +
+  'filament stitching pale coral growth into old scar tissue in frame, ' +
+  'ordinary tools laid out beside it. An unpeopled frame, the subject alone, ' +
+  'the space around it bare and deserted.'
+
+assert.ok(
+  rules({ prompt: PROVING_GRAFT_AS_STORED, engine: 'krea2', steps: 8, cfg: 1 })
+    .includes('frame-noun'),
+  'the stored prompt that aborted the sweep must still be rejected unrepaired',
+)
+
+assert.deepEqual(
+  rules({
+    prompt: repairFramePrompt(PROVING_GRAFT_AS_STORED),
+    engine: 'krea2',
+    steps: 8,
+    cfg: 1,
+  }),
+  [],
+  'and the repair must clear it, because the producer returns curated prompts verbatim',
+)
+
+// The repaired text is persisted back to Facet.artPrompt, so it has to read as
+// prose too: a case-insensitive match with a lowercase replacement turned
+// "An unpeopled frame." into "an unpeopled picture." mid-paragraph.
+assert.match(
+  repairFramePrompt(PROVING_GRAFT_AS_STORED),
+  /beside it\. An unpeopled picture,/,
+  'the repair must preserve sentence capitalisation in the text it persists',
+)
+assert.match(
+  repairFramePrompt('a dented tin ladle, an unpeopled frame, alone'),
+  /ladle, an unpeopled picture,/,
+  'and must not capitalise a mid-sentence match',
+)
+
+// An identity built from a description that carries the word is repaired too.
+assert.deepEqual(
+  rules({
+    prompt: buildFacetIdentityPromptFrom({
+      title: 'Neonpunk',
+      taxonomy: 'GENRE',
+      description:
+        'Saturated night. Electric pinks and cyans, everything wet enough to ' +
+        'reflect them, and no daylight anywhere in frame.',
+    }),
+    engine: 'krea2',
+    steps: 8,
+    cfg: 1,
+  }),
+  [],
+  'a Facet description carrying "frame" must not reach the gate unrepaired',
 )
 
 // ── Prompts that must NOT trip the gate ─────────────────────────────────────

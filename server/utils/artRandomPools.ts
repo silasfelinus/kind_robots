@@ -290,7 +290,7 @@ async function loadObjectPool(
   )
   const maturity = randomizerMaturityWhere(options)
 
-  let rows: Array<{ id: number; label: string; artPrompt: string | null }>
+  let rows: Array<{ id: number; label: string; artPrompt: string | null }> = []
 
   if (source === 'character') {
     rows = (

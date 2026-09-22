@@ -47,14 +47,14 @@ assert.equal(loraCategoryForPlaceholder('sandwich'), null)
 // Civitai tags win, and are reported as such.
 assert.deepEqual(
   inferLoraCategory({ name: 'whatever.safetensors', civitaiTags: ['style'] }),
-  { category: 'STYLE', source: 'CIVITAI', signal: 'style' },
+  { category: 'STYLE', source: 'CIVITAI', signal: 'tag: style' },
 )
 assert.deepEqual(
   inferLoraCategory({
     name: 'greg.safetensors',
     civitaiTags: ['CHARACTER', 'anime'],
   }),
-  { category: 'CHARACTER', source: 'CIVITAI', signal: 'character' },
+  { category: 'CHARACTER', source: 'CIVITAI', signal: 'tag: character' },
 )
 
 // A Civitai tag beats a contradicting filename.
@@ -66,10 +66,11 @@ assert.equal(
   'ACTION',
 )
 
-// Filename heuristics, reported as HEURISTIC.
+// Title heuristics, reported as HEURISTIC with the matched TEXT.
 const outfit = inferLoraCategory({ name: 'victorian_outfit_v3.safetensors' })
 assert.equal(outfit.category, 'CLOTHING')
 assert.equal(outfit.source, 'HEURISTIC')
+assert.equal(outfit.signal, 'title: outfit')
 
 assert.equal(
   inferLoraCategory({ customLabel: 'Ukiyo-e Woodblock Style' }).category,
@@ -85,15 +86,13 @@ assert.equal(
 )
 
 // STYLE is checked before CHARACTER so an artist-style LoRA does not land in
-// the character pool -- the miscategorisation that makes a random batch look
-// broken rather than empty.
+// the character pool.
 assert.equal(
   inferLoraCategory({ customLabel: 'Kim Jung Gi style' }).category,
   'STYLE',
 )
 
-// Word boundaries, not substrings: "freestyle" is not a style LoRA and
-// "portrait" is not a trait.
+// Word boundaries, not substrings.
 assert.equal(
   inferLoraCategory({ name: 'freestyle_rap.safetensors' }).category,
   null,
@@ -103,8 +102,97 @@ assert.equal(
   null,
 )
 
-// Nothing to go on stays nothing. An unclassified LoRA is skipped by the
-// randomizer; a guessed one poisons a pool.
+// Underscores are word separators, so a filename reads like a sentence.
+assert.equal(
+  inferLoraCategory({ name: 'my_cool_pixel_art_thing.safetensors' }).category,
+  'STYLE',
+)
+
+// ---------------------------------------------------------------------------
+// THE DESCRIPTION IS NOT EVIDENCE.
+//
+// The first live backfill (2026-09-22) classified 1,004 rows by reading the
+// description alongside the title, and a description is prose: it files
+// character LoRAs under CLOTHING because a `dress` appears in the blurb. Each
+// case below is a real row from that run, with a description carrying every
+// category word at once. All of them must come back null -- the titles say
+// nothing about what the LoRA is for, and that IS the answer.
+// ---------------------------------------------------------------------------
+const NOISY = [
+  'she wears a long dress, sitting by the window',
+  'painted in a loose style with exquisite detail',
+  'base: Flux.1 D | module: networks.lora | detected via civitai',
+].join(' | ')
+
+for (const title of [
+  'Elvira - Mistress of the Dark (Flux)',
+  'Daphne Blake - Scooby-Doo franchise - Flux1.D - SDXL Realistic / Anime',
+  'POV Blowjob - FLUX - [Non-Face Altering]',
+  'Poison Ivy XL + SD1.5 + F1D',
+  'Rogue - Flux1.D & SDXL',
+  'Alice In Wonderland! Disney - FLUX | SD 1.5 | XL PONY',
+  'Yor Briar: Thorn Princess (Spy x Family)',
+  'Tinker bell (Peter Pan) Disney',
+]) {
+  const result = inferLoraCategory({ customLabel: title, description: NOISY })
+  assert.equal(
+    result.category,
+    null,
+    `"${title}" must stay unclassified, got ${result.category} (${result.signal})`,
+  )
+}
+
+// The same title WITH a Civitai character tag does classify -- which is the
+// whole argument for --fetch-tags.
+assert.equal(
+  inferLoraCategory({
+    customLabel: 'Elvira - Mistress of the Dark (Flux)',
+    description: NOISY,
+    civitaiTags: ['character'],
+  }).category,
+  'CHARACTER',
+)
+
+// A publisher is not a drawing style: "DC Comics" attached to a character name
+// used to match a bare `comic`.
+assert.equal(
+  inferLoraCategory({ customLabel: 'Death of the Endless - DC Comics,Sandman' })
+    .category,
+  null,
+)
+assert.equal(
+  inferLoraCategory({ customLabel: "Wizard's Vintage Comic Book Cover" })
+    .category,
+  'STYLE',
+)
+
+// `detailed` is an adjective on a subject, not an enhancer; the noun forms are.
+assert.equal(
+  inferLoraCategory({
+    customLabel: 'Perfect naked nipples, detailed erect nipples',
+  }).category,
+  null,
+)
+assert.equal(
+  inferLoraCategory({ customLabel: 'FLUX FaeTastic Details' }).category,
+  'DETAIL',
+)
+assert.equal(
+  inferLoraCategory({ customLabel: 'Flux Detailer' }).category,
+  'DETAIL',
+)
+
+// Subjects the title does name are still caught.
+assert.equal(
+  inferLoraCategory({ customLabel: 'Cute Animals' }).category,
+  'CREATURE',
+)
+assert.equal(
+  inferLoraCategory({ customLabel: '3D Cartoon Vision FLUX' }).category,
+  'STYLE',
+)
+
+// Nothing to go on stays nothing.
 assert.deepEqual(inferLoraCategory({}), {
   category: null,
   source: null,
@@ -115,12 +203,6 @@ assert.deepEqual(inferLoraCategory({ name: 'xyzzy_v4.safetensors' }), {
   source: null,
   signal: null,
 })
-
-// Underscores are word separators, so a filename reads like a sentence.
-assert.equal(
-  inferLoraCategory({ name: 'my_cool_pixel_art_thing.safetensors' }).category,
-  'STYLE',
-)
 
 // A human decision is permanent; a guess is refreshable.
 assert.equal(canReclassify('HUMAN'), false)

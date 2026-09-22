@@ -671,7 +671,7 @@ def finalize(entry: LoraEntry) -> None:
         entry.customLabel = entry.name
     entry.slug = slugify(entry.customLabel or entry.name)
 
-    # Last, so it can read the description and label finalize() just built.
+    # After customLabel is settled, which is the only field it reads.
     if not entry.loraCategory:
         entry.loraCategory, entry.loraCategorySource = classify_category(entry)
 
@@ -717,50 +717,56 @@ HEURISTIC_CATEGORIES: list[tuple[str, tuple[str, ...]]] = [
     ("STYLE", ("style", "artstyle", "painterly", "watercolou?r", "oil painting",
                "sketch", "lineart", "line art", "woodcut", "ukiyo-?e",
                "impressionis[tm]", "art nouveau", "bauhaus", "cel ?shad\\w*",
-               "pixel ?art", "comic", "manga", "cartoon", "render style")),
+               "pixel ?art", "comic (?:book|art|style)", "cartoon",
+               "render style")),
     ("CLOTHING", ("outfit", "costume", "clothing", "dress", "uniform",
-                  "armou?r", "kimono", "suit", "jacket", "hoodie", "lingerie",
-                  "swimsuit", "cosplay")),
+                  "armou?r", "kimono", "hoodie", "lingerie", "swimsuit",
+                  "cosplay")),
     ("SETTING", ("background", "landscape", "scenery", "environment",
-                 "interior", "cityscape", "forest", "dungeon", "castle",
-                 "tavern", "skyline", "architecture")),
-    ("ACTION", ("pose", "poses", "posing", "running", "jumping", "dancing",
-                "fighting", "sitting", "flying", "motion")),
-    ("CREATURE", ("creature", "monster", "dragon", "beast", "animal", "wolf",
-                  "octopus", "kaiju", "griffin")),
-    ("OBJECT", ("vehicle", "mecha", "spaceship", "weapon", "sword", "firearm",
-                "furniture", "jewel\\w*", "food")),
-    ("DETAIL", ("detail\\w*", "enhancer", "sharpen\\w*", "skin texture",
-                "add[_ -]?detail", "upscal\\w*", "hand fix", "eye fix")),
-    ("CHARACTER", ("character", "oc\\b", "persona", "portrait of")),
-    ("CONCEPT", ("concept", "abstract", "effect", "glow", "lighting")),
+                 "interior", "cityscape", "skyline", "architecture")),
+    ("ACTION", ("pose", "poses", "posing")),
+    ("CREATURE", ("creature", "monster", "dragon", "beast", "animal",
+                  "animals", "kaiju")),
+    ("OBJECT", ("vehicle", "mecha", "spaceship", "weapon", "firearm",
+                "furniture")),
+    ("DETAIL", ("detail", "details", "detailer", "add[_ -]?detail",
+                "skin texture", "hand fix", "eye fix")),
+    ("CONCEPT", ("concept",)),
 ]
 
 
 def classify_category(entry: LoraEntry) -> tuple[str, str]:
     """Return (category, source), or ("", "") when nothing matches.
 
-    Conservative on purpose: an unclassified LoRA is an empty randomizer pool
-    someone can see and go fix, while a wrongly classified one is a character
-    rolled into the style slot -- which looks like the randomizer is broken and
-    is much harder to trace back."""
+    Civitai tags first -- they are the only signal here that came from a person
+    describing the model, and the only way a character LoRA is ever classified
+    without one.
+
+    The heuristics that follow read the TITLE ONLY. They used to read the
+    description too, and a description is prose: the first live backfill
+    (2026-09-22) filed "Elvira - Mistress of the Dark" under CLOTHING because a
+    `dress` appeared in its blurb, and "Cute Animals" under STYLE for the same
+    reason. Nothing here guesses CHARACTER either -- a character LoRA is named
+    after the character, which no keyword table can see. Returning nothing is
+    the right answer there: unclassified is visible and rolls for nothing,
+    miscategorised is invisible and poisons a pool."""
     tags = set(entry.civitai_tags or [])
     for category, values in CIVITAI_TAG_CATEGORIES:
-        if tags & set(values):
+        hit = tags & set(values)
+        if hit:
             return category, "CIVITAI"
 
-    haystack = " ".join(
+    title = " ".join(
         str(v).replace("_", " ")
-        for v in (entry.customLabel, entry.name, entry.triggerWords,
-                  entry.description)
+        for v in (entry.customLabel, entry.name)
         if v
     ).lower()
-    if not haystack.strip():
+    if not title.strip():
         return "", ""
 
     for category, patterns in HEURISTIC_CATEGORIES:
         for pattern in patterns:
-            if re.search(r"(^|[^a-z0-9])" + pattern + r"($|[^a-z0-9])", haystack):
+            if re.search(r"(^|[^a-z0-9])" + pattern + r"($|[^a-z0-9])", title):
                 return category, "HEURISTIC"
 
     return "", ""

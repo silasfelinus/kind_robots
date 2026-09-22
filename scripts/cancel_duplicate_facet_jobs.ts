@@ -100,6 +100,10 @@ async function main(): Promise<void> {
     if (group.length < 2) continue
     const sorted = [...group].sort((a, b) => a.id - b.id)
     const keep = sorted[0]
+    // group.length >= 2 guarantees this, but noUncheckedIndexedAccess does not
+    // know that, and a silent `keep!` here would be the one place this script
+    // could pick the wrong job to keep.
+    if (!keep) continue
     const keepPrompt = promptOf(keep)
     for (const dup of sorted.slice(1)) {
       const entry = { id: dup.id, facet, keep: keep.id }

@@ -9533,7 +9533,9 @@ export const ResourceScalarFieldEnum = {
   commercialSafe: 'commercialSafe',
   allowReviews: 'allowReviews',
   loraTarget: 'loraTarget',
-  recommendedCfg: 'recommendedCfg'
+  recommendedCfg: 'recommendedCfg',
+  loraCategory: 'loraCategory',
+  loraCategorySource: 'loraCategorySource'
 } as const
 
 export type ResourceScalarFieldEnum = (typeof ResourceScalarFieldEnum)[keyof typeof ResourceScalarFieldEnum]
@@ -11211,7 +11213,8 @@ export const ResourceOrderByRelevanceFieldEnum = {
   hash: 'hash',
   previewImageUrl: 'previewImageUrl',
   imagePath: 'imagePath',
-  slug: 'slug'
+  slug: 'slug',
+  loraCategorySource: 'loraCategorySource'
 } as const
 
 export type ResourceOrderByRelevanceFieldEnum = (typeof ResourceOrderByRelevanceFieldEnum)[keyof typeof ResourceOrderByRelevanceFieldEnum]
@@ -12027,6 +12030,13 @@ export type EnumSupportedServerFieldRefInput<$PrismaModel> = FieldRefInputType<$
  * Reference to a field of type 'LoraTarget'
  */
 export type EnumLoraTargetFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'LoraTarget'>
+    
+
+
+/**
+ * Reference to a field of type 'LoraCategory'
+ */
+export type EnumLoraCategoryFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'LoraCategory'>
     
 
 

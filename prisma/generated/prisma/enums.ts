@@ -315,6 +315,22 @@ export const LoraTarget = {
 export type LoraTarget = (typeof LoraTarget)[keyof typeof LoraTarget]
 
 
+export const LoraCategory = {
+  CHARACTER: 'CHARACTER',
+  STYLE: 'STYLE',
+  SETTING: 'SETTING',
+  ACTION: 'ACTION',
+  CLOTHING: 'CLOTHING',
+  OBJECT: 'OBJECT',
+  CREATURE: 'CREATURE',
+  DETAIL: 'DETAIL',
+  CONCEPT: 'CONCEPT',
+  OTHER: 'OTHER'
+} as const
+
+export type LoraCategory = (typeof LoraCategory)[keyof typeof LoraCategory]
+
+
 export const RewardType = {
   SKILL: 'SKILL',
   ITEM: 'ITEM',

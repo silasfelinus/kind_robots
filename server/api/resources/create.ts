@@ -3,6 +3,10 @@ import prisma from '../../utils/prisma'
 import { errorHandler } from '../../utils/error'
 import { normalizeSlugInput } from '~/utils/slugify'
 import {
+  normalizeLoraCategory,
+  normalizeLoraCategorySource,
+} from '~/utils/loraCategory'
+import {
   ResourceType,
   SupportedServer,
   type Prisma,
@@ -48,6 +52,8 @@ export const resourceCreateFields = new Set<string>([
   'civitaiModelVersionId',
   'imagePath',
   'slug',
+  'loraCategory',
+  'loraCategorySource',
   // relation-alias inputs the builder understands
   'connectServerIds',
   'serverIds',
@@ -294,6 +300,16 @@ export async function buildResourceCreateInput(options: {
     isMature: booleanValue(entry.isMature, false),
     isPublic: booleanValue(entry.isPublic, false),
     isActive: booleanValue(entry.isActive, true),
+    /*
+     * The import agent classifies while it already has the Civitai response in
+     * hand, which is the only moment the upstream tags exist -- they are not
+     * stored on the Resource, so a later backfill can only ever reach the
+     * weaker filename heuristics. An unrecognised value is dropped rather than
+     * rejected: a catalog import of 1,500 rows should not fail wholesale over
+     * one bad category string.
+     */
+    loraCategory: normalizeLoraCategory(entry.loraCategory),
+    loraCategorySource: normalizeLoraCategorySource(entry.loraCategorySource),
     resourceType: normalizeEnum({
       value: entry.resourceType,
       values: resourceTypes,

@@ -91,6 +91,20 @@ jobs:
       - name: LoRA probe subject injection contract
         run: npm run test:lora-probe-subject
 
+      - name: LoRA category classification contract
+        run: npm run test:lora-category
+
+      # Both of these cover server/utils/promptVariants.ts, which is now shared
+      # between the Challenge Center's variant generator and the art
+      # randomizer's batch roll. test:prompt-variants existed but was wired
+      # into no workflow, so the Challenge Center half of that contract was
+      # unguarded at exactly the moment a second caller started depending on it.
+      - name: Prompt variant generation contract
+        run: npm run test:prompt-variants
+
+      - name: Randomized art batch contract
+        run: npm run test:art-random-batch
+
       - name: Model download taxonomy contract
         run: npx tsx utils/scripts/verifyResourceDownloadTaxonomy.ts
 

@@ -7,6 +7,12 @@ import {
 import { useResourceStore } from '@/stores/resourceStore'
 import { performFetch } from '@/stores/utils'
 import { hasBlindPreview } from '@/utils/loraProbe'
+import {
+  canReclassify,
+  inferLoraCategory,
+  normalizeLoraCategory,
+  type LoraCategory,
+} from '@/utils/loraCategory'
 
 export type LoraTriageDecision = 'sfw' | 'nsfw'
 
@@ -36,6 +42,7 @@ const ENQUEUE_CONCURRENCY = 4
 interface StoredLoraTriageProgress {
   version: 1
   decisions: Record<string, LoraTriageDecision>
+  categories?: Record<string, LoraCategory>
   hideConfirmed: boolean
 }
 
@@ -50,6 +57,12 @@ export const useLoraTriageStore = defineStore('loraTriageStore', () => {
   const resourceStore = useResourceStore()
 
   const decisions = ref<Record<number, LoraTriageDecision>>({})
+  /*
+   * Pending category edits, held the same way maturity decisions are: this
+   * page's whole shape is "sort a lot of rows fast, then commit in one pass",
+   * and a per-card PATCH would make a 1,500-row sweep 1,500 round trips.
+   */
+  const categoryEdits = ref<Record<number, LoraCategory>>({})
   const selectedIds = ref<number[]>([])
   const hideConfirmed = ref(true)
   const initialized = ref(false)
@@ -88,22 +101,43 @@ export const useLoraTriageStore = defineStore('loraTriageStore', () => {
     loras.value
       .map((resource) => {
         const decision = decisions.value[resource.id]
-        if (!decision) return null
+        const isMature = decision ? decision === 'nsfw' : null
+        const maturityChanged =
+          isMature !== null && Boolean(resource.isMature) !== isMature
 
-        const isMature = decision === 'nsfw'
-        if (Boolean(resource.isMature) === isMature) return null
+        const category = categoryEdits.value[resource.id] ?? null
+        const categoryChanged =
+          category !== null &&
+          category !== normalizeLoraCategory(resource.loraCategory)
 
-        return { resource, decision, isMature }
+        if (!maturityChanged && !categoryChanged) return null
+
+        return {
+          resource,
+          decision: decision ?? null,
+          isMature: maturityChanged ? isMature : null,
+          category: categoryChanged ? category : null,
+        }
       })
       .filter(
         (
           change,
         ): change is {
           resource: ResourceGalleryRecord
-          decision: LoraTriageDecision
-          isMature: boolean
+          decision: LoraTriageDecision | null
+          isMature: boolean | null
+          category: LoraCategory | null
         } => Boolean(change),
       ),
+  )
+
+  const unclassifiedCount = computed(
+    () =>
+      loras.value.filter(
+        (resource) =>
+          !normalizeLoraCategory(resource.loraCategory) &&
+          !categoryEdits.value[resource.id],
+      ).length,
   )
 
   const selectedCount = computed(() => selectedIds.value.length)
@@ -131,6 +165,12 @@ export const useLoraTriageStore = defineStore('loraTriageStore', () => {
       decisions: Object.fromEntries(
         Object.entries(decisions.value).map(([id, decision]) => [String(id), decision]),
       ),
+      categories: Object.fromEntries(
+        Object.entries(categoryEdits.value).map(([id, category]) => [
+          String(id),
+          category,
+        ]),
+      ),
       hideConfirmed: hideConfirmed.value,
     }
 
@@ -154,7 +194,19 @@ export const useLoraTriageStore = defineStore('loraTriageStore', () => {
             }
           }
 
+          const restoredCategories: Record<number, LoraCategory> = {}
+          for (const [rawId, category] of Object.entries(
+            parsed.categories ?? {},
+          )) {
+            const id = Number(rawId)
+            const normalized = normalizeLoraCategory(category)
+            if (Number.isInteger(id) && id > 0 && normalized) {
+              restoredCategories[id] = normalized
+            }
+          }
+
           decisions.value = restored
+          categoryEdits.value = restoredCategories
           hideConfirmed.value = parsed.hideConfirmed !== false
         }
       } catch {
@@ -191,6 +243,78 @@ export const useLoraTriageStore = defineStore('loraTriageStore', () => {
     persist()
   }
 
+  function categoryFor(resourceId: number): LoraCategory | null {
+    const edited = categoryEdits.value[resourceId]
+    if (edited) return edited
+
+    const resource = loras.value.find((row) => row.id === resourceId)
+    return normalizeLoraCategory(resource?.loraCategory)
+  }
+
+  function setCategory(resourceId: number, category: LoraCategory | null): void {
+    const next = Object.fromEntries(
+      Object.entries(categoryEdits.value).filter(
+        ([id]) => Number(id) !== resourceId,
+      ),
+    ) as Record<number, LoraCategory>
+
+    if (category) next[resourceId] = category
+
+    categoryEdits.value = next
+    persist()
+  }
+
+  function markSelectedCategory(category: LoraCategory): void {
+    if (!selectedIds.value.length) return
+
+    const next = { ...categoryEdits.value }
+    for (const id of selectedIds.value) next[id] = category
+
+    categoryEdits.value = next
+    selectedIds.value = []
+    persist()
+  }
+
+  /*
+   * Fills the empty category slots from what the row already says about itself.
+   *
+   * A suggestion, not a save: it lands in the same pending-edit buffer every
+   * manual pick uses, so Silas sees all of them before anything is written and
+   * can overrule any of them first. Rows already classified by a person are
+   * never touched, and neither is a row that already carries a category --
+   * re-deciding a settled row is the sweep's job, not the suggester's.
+   */
+  function suggestCategories(resourceIds?: number[]): number {
+    const scope = resourceIds?.length
+      ? loras.value.filter((resource) => resourceIds.includes(resource.id))
+      : loras.value
+
+    const next = { ...categoryEdits.value }
+    let suggested = 0
+
+    for (const resource of scope) {
+      if (next[resource.id]) continue
+      if (normalizeLoraCategory(resource.loraCategory)) continue
+      if (!canReclassify(resource.loraCategorySource)) continue
+
+      const inference = inferLoraCategory({
+        name: resource.name,
+        customLabel: resource.customLabel,
+        description: resource.description,
+        triggerWords: resource.triggerWords,
+      })
+
+      if (!inference.category) continue
+
+      next[resource.id] = inference.category
+      suggested += 1
+    }
+
+    categoryEdits.value = next
+    persist()
+    return suggested
+  }
+
   function setSelected(resourceId: number, selected: boolean): void {
     const ids = new Set(selectedIds.value)
     if (selected) ids.add(resourceId)
@@ -217,6 +341,7 @@ export const useLoraTriageStore = defineStore('loraTriageStore', () => {
 
   function clearProgress(): void {
     decisions.value = {}
+    categoryEdits.value = {}
     selectedIds.value = []
     saveMessage.value = ''
     saveError.value = ''
@@ -237,7 +362,11 @@ export const useLoraTriageStore = defineStore('loraTriageStore', () => {
     try {
       for (const change of changes) {
         const updated = await resourceStore.updateResource(change.resource.id, {
-          isMature: change.isMature,
+          ...(change.isMature !== null ? { isMature: change.isMature } : {}),
+          // No loraCategorySource here on purpose. The PATCH route stamps HUMAN
+          // for an edit that names a category without naming a source, and that
+          // stamp is what stops the next catalog scan reverting this decision.
+          ...(change.category !== null ? { loraCategory: change.category } : {}),
         })
 
         if (updated) saved += 1
@@ -247,7 +376,9 @@ export const useLoraTriageStore = defineStore('loraTriageStore', () => {
       if (saved > 0) await resourceGalleryStore.loadResources()
 
       if (saved > 0) {
-        saveMessage.value = `Saved ${saved} maturity change${saved === 1 ? '' : 's'}.`
+        saveMessage.value = `Saved ${saved} change${saved === 1 ? '' : 's'}.`
+        categoryEdits.value = {}
+        persist()
       }
 
       if (failed.length) {
@@ -364,6 +495,7 @@ export const useLoraTriageStore = defineStore('loraTriageStore', () => {
 
   return {
     decisions,
+    categoryEdits,
     selectedIds,
     hideConfirmed,
     initialized,
@@ -374,11 +506,16 @@ export const useLoraTriageStore = defineStore('loraTriageStore', () => {
     confirmedCount,
     remainingCount,
     pendingChanges,
+    unclassifiedCount,
     selectedCount,
     loadResources,
     decisionFor,
     setDecision,
     markSelected,
+    categoryFor,
+    setCategory,
+    markSelectedCategory,
+    suggestCategories,
     setSelected,
     isSelected,
     selectIds,

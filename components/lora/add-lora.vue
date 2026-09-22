@@ -157,6 +157,44 @@
     <div class="grid grid-cols-1 gap-3 lg:grid-cols-2">
       <label class="form-control">
         <span class="label">
+          <span class="kr-label-bold">Category</span>
+          <span class="label-text-alt text-base-content/50">
+            what a prompt rolls it as
+          </span>
+        </span>
+
+        <select v-model="form.loraCategory" class="kr-input-muted">
+          <option value="">Unclassified</option>
+          <option
+            v-for="option in categoryOptions"
+            :key="option.category"
+            :value="option.category"
+          >
+            {{ option.label }}
+          </option>
+        </select>
+
+        <span v-if="categoryHint" class="label">
+          <span class="label-text-alt text-base-content/50">
+            {{ categoryHint }}
+          </span>
+        </span>
+
+        <button
+          v-if="!form.loraCategory && suggestedCategory"
+          type="button"
+          class="kr-btn-xs btn-secondary mt-1 w-fit"
+          @click="form.loraCategory = suggestedCategory"
+        >
+          <Icon name="kind-icon:sparkles" class="kr-icon-4" />
+          Suggest: {{ categoryLabelFor(suggestedCategory) }}
+        </button>
+      </label>
+    </div>
+
+    <div class="grid grid-cols-1 gap-3 lg:grid-cols-2">
+      <label class="form-control">
+        <span class="label">
           <span class="kr-label-bold">Preview Image URL</span>
         </span>
 
@@ -238,6 +276,13 @@
 import { computed, reactive, ref, watch } from 'vue'
 import { useResourceStore, type Resource } from '@/stores/resourceStore'
 import { useUserStore } from '@/stores/userStore'
+import {
+  LORA_CATEGORIES,
+  LORA_CATEGORY_META,
+  inferLoraCategory,
+  normalizeLoraCategory,
+  type LoraCategory,
+} from '@/utils/loraCategory'
 
 type LoraResourceType = 'LORA' | 'LYCORIS'
 type LoraSupportedServer =
@@ -260,6 +305,7 @@ type AddLoraForm = {
   previewImageUrl: string
   civitaiUrl: string
   description: string
+  loraCategory: LoraCategory | ''
   isMature: boolean
   isPublic: boolean
 }
@@ -330,6 +376,7 @@ const form = reactive<AddLoraForm>({
   previewImageUrl: '',
   civitaiUrl: '',
   description: '',
+  loraCategory: '',
   isMature: false,
   isPublic: false,
 })
@@ -345,6 +392,7 @@ function hydrateFromLora(lora: Partial<Resource> | null) {
   form.previewImageUrl = safeText(lora?.previewImageUrl)
   form.civitaiUrl = safeText(lora?.civitaiUrl)
   form.description = safeText(lora?.description)
+  form.loraCategory = normalizeLoraCategory(lora?.loraCategory) ?? ''
   form.isMature = Boolean(lora?.isMature)
   form.isPublic = Boolean(lora?.isPublic)
 }
@@ -356,6 +404,26 @@ watch(
 )
 
 const canSubmit = computed(() => form.name.trim().length > 0)
+
+const categoryOptions = LORA_CATEGORIES.map((value) => LORA_CATEGORY_META[value])
+
+const categoryHint = computed(() =>
+  form.loraCategory ? LORA_CATEGORY_META[form.loraCategory].hint : '',
+)
+
+const suggestedCategory = computed<LoraCategory | null>(
+  () =>
+    inferLoraCategory({
+      name: form.name,
+      customLabel: form.customLabel,
+      description: form.description,
+      triggerWords: form.triggerWords,
+    }).category,
+)
+
+function categoryLabelFor(value: LoraCategory | null): string {
+  return value ? LORA_CATEGORY_META[value].label : ''
+}
 
 const messageClass = computed(() => {
   if (messageType.value === 'success') return 'kr-note-success'
@@ -387,6 +455,13 @@ async function submitLora() {
       previewImageUrl: cleanOptional(form.previewImageUrl),
       civitaiUrl: cleanOptional(form.civitaiUrl),
       description: cleanOptional(form.description),
+      /*
+       * Null clears the category rather than leaving the old one in place: an
+       * editor that cannot un-say something is an editor you stop trusting.
+       * The PATCH route stamps HUMAN for either, which is what keeps the next
+       * catalog scan from re-guessing over this.
+       */
+      loraCategory: form.loraCategory || null,
       isMature: form.isMature,
       isPublic: form.isPublic,
     } as Partial<Resource>

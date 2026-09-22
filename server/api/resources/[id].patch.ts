@@ -3,6 +3,12 @@ import { createError, defineEventHandler, readBody } from 'h3'
 import prisma from '../../utils/prisma'
 import { errorHandler } from '../../utils/error'
 import { normalizeSlugInput } from '~/utils/slugify'
+import {
+  LORA_CATEGORIES,
+  LORA_CATEGORY_SOURCES,
+  normalizeLoraCategory,
+  normalizeLoraCategorySource,
+} from '~/utils/loraCategory'
 import { validateApiKey } from '../../utils/validateKey'
 import { resourceMutationSelect } from './selects'
 import { assertOwnershipIsUnchanged } from './compatibility'
@@ -159,6 +165,42 @@ export default defineEventHandler(async (event) => {
       ...resourceFields
     } = body
 
+    const normalizedLoraCategory =
+      resourceFields.loraCategory === undefined
+        ? undefined
+        : resourceFields.loraCategory === null
+          ? null
+          : (normalizeLoraCategory(resourceFields.loraCategory) ?? undefined)
+
+    if (
+      resourceFields.loraCategory !== undefined &&
+      resourceFields.loraCategory !== null &&
+      normalizedLoraCategory === undefined
+    ) {
+      throw createError({
+        statusCode: 400,
+        message: `loraCategory must be one of ${LORA_CATEGORIES.join(', ')}.`,
+      })
+    }
+
+    const normalizedLoraCategorySource =
+      resourceFields.loraCategorySource === undefined
+        ? undefined
+        : resourceFields.loraCategorySource === null
+          ? null
+          : normalizeLoraCategorySource(resourceFields.loraCategorySource)
+
+    if (
+      resourceFields.loraCategorySource !== undefined &&
+      resourceFields.loraCategorySource !== null &&
+      normalizedLoraCategorySource === null
+    ) {
+      throw createError({
+        statusCode: 400,
+        message: `loraCategorySource must be one of ${LORA_CATEGORY_SOURCES.join(', ')}.`,
+      })
+    }
+
     const updateData: Prisma.ResourceUpdateInput = {
       name: resourceFields.name,
       slug:
@@ -204,6 +246,18 @@ export default defineEventHandler(async (event) => {
        */
       civitaiModelId: resourceFields.civitaiModelId,
       civitaiModelVersionId: resourceFields.civitaiModelVersionId,
+      /*
+       * What the LoRA is FOR, and who decided. An edit that arrives here is a
+       * person correcting the catalog through the Resource card or the LoRA
+       * editor, so the source defaults to HUMAN -- which is exactly what stops
+       * the next classifier run from overwriting it. A caller that is itself a
+       * classifier (the import agent, the backfill) passes its own source
+       * explicitly rather than inheriting that protection by accident.
+       */
+      loraCategory: normalizedLoraCategory,
+      loraCategorySource:
+        normalizedLoraCategorySource ??
+        (normalizedLoraCategory !== undefined ? 'HUMAN' : undefined),
       ArtImage:
         typeof resourceFields.artImageId === 'number'
           ? { connect: { id: resourceFields.artImageId } }

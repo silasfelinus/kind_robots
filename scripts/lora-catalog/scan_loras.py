@@ -211,6 +211,8 @@ class LoraEntry:
     slug: str = ""
     civitaiModelId: int = 0     # Civitai model id, when matched by hash
     civitaiModelVersionId: int = 0  # Civitai model-version id, when matched
+    loraCategory: str = ""      # CHARACTER | STYLE | SETTING | ... (see classify)
+    loraCategorySource: str = ""  # CIVITAI | HEURISTIC
 
     # sort target
     group: str = ""             # base-model sort folder
@@ -224,6 +226,7 @@ class LoraEntry:
     needs_review: bool = True
     civitai_matched: bool = False
     archive_matched: bool = False
+    civitai_tags: list[str] = field(default_factory=list)
     trigger_words: list[str] = field(default_factory=list)
     network_module: str = ""
     notes: list[str] = field(default_factory=list)
@@ -477,6 +480,9 @@ def apply_civitai(entry: LoraEntry, data: Any) -> bool:
     mtype = (model.get("type") or "").lower()
     if mtype == "locon" or "lycoris" in mtype:
         entry.resourceType = "LYCORIS"
+    tags = model.get("tags")
+    if isinstance(tags, list):
+        entry.civitai_tags = [str(t).strip().lower() for t in tags if t]
     nsfw = model.get("nsfw")
     if nsfw is not None:
         entry.isMature = bool(nsfw)
@@ -665,6 +671,100 @@ def finalize(entry: LoraEntry) -> None:
         entry.customLabel = entry.name
     entry.slug = slugify(entry.customLabel or entry.name)
 
+    # Last, so it can read the description and label finalize() just built.
+    if not entry.loraCategory:
+        entry.loraCategory, entry.loraCategorySource = classify_category(entry)
+
+
+# ----------------------------------------------------------------------------
+# Category — what the LoRA is FOR
+# ----------------------------------------------------------------------------
+#
+# Mirrors utils/loraCategory.ts, which is the authority the app reads. It is
+# duplicated here rather than shared because this script is stdlib-only by
+# design and runs on the home box with no Node available -- and because THIS is
+# the only moment the Civitai tags exist. They are not stored on the Resource,
+# so a later backfill can only ever reach the weaker filename heuristics.
+#
+# Keep the two tables in step. utils/scripts/verifyLoraCategory.test.ts covers
+# the TypeScript side; tests/python/test_lora_category.py covers this one, and
+# asserts the two tables still agree word for word.
+
+CIVITAI_TAG_CATEGORIES: list[tuple[str, tuple[str, ...]]] = [
+    ("CHARACTER", ("character", "characters", "celebrity", "actor", "actress",
+                   "singer", "idol", "waifu")),
+    ("STYLE", ("style", "styles", "art style", "artstyle", "artist",
+               "aesthetic", "anime style", "painting style")),
+    ("SETTING", ("background", "backgrounds", "landscape", "scenery",
+                 "environment", "architecture", "buildings", "building",
+                 "interior", "city", "nature")),
+    ("ACTION", ("poses", "pose", "action", "motion", "dance", "dancing",
+                "gesture")),
+    ("CLOTHING", ("clothing", "clothes", "outfit", "costume", "dress",
+                  "uniform", "armor", "lingerie", "swimsuit", "fashion")),
+    ("OBJECT", ("vehicle", "vehicles", "car", "weapon", "weapons", "objects",
+                "object", "tool", "tools", "furniture", "food", "props",
+                "prop")),
+    ("CREATURE", ("animal", "animals", "creature", "creatures", "monster",
+                  "monsters", "dragon", "cat", "dog", "furry", "pokemon")),
+    ("DETAIL", ("detail", "details", "enhancer", "quality", "sharpness",
+                "skin", "eyes", "hands", "texture")),
+    ("CONCEPT", ("concept", "concepts", "abstract", "effect", "effects",
+                 "lighting")),
+]
+
+HEURISTIC_CATEGORIES: list[tuple[str, tuple[str, ...]]] = [
+    ("STYLE", ("style", "artstyle", "painterly", "watercolou?r", "oil painting",
+               "sketch", "lineart", "line art", "woodcut", "ukiyo-?e",
+               "impressionis[tm]", "art nouveau", "bauhaus", "cel ?shad\\w*",
+               "pixel ?art", "comic", "manga", "cartoon", "render style")),
+    ("CLOTHING", ("outfit", "costume", "clothing", "dress", "uniform",
+                  "armou?r", "kimono", "suit", "jacket", "hoodie", "lingerie",
+                  "swimsuit", "cosplay")),
+    ("SETTING", ("background", "landscape", "scenery", "environment",
+                 "interior", "cityscape", "forest", "dungeon", "castle",
+                 "tavern", "skyline", "architecture")),
+    ("ACTION", ("pose", "poses", "posing", "running", "jumping", "dancing",
+                "fighting", "sitting", "flying", "motion")),
+    ("CREATURE", ("creature", "monster", "dragon", "beast", "animal", "wolf",
+                  "octopus", "kaiju", "griffin")),
+    ("OBJECT", ("vehicle", "mecha", "spaceship", "weapon", "sword", "firearm",
+                "furniture", "jewel\\w*", "food")),
+    ("DETAIL", ("detail\\w*", "enhancer", "sharpen\\w*", "skin texture",
+                "add[_ -]?detail", "upscal\\w*", "hand fix", "eye fix")),
+    ("CHARACTER", ("character", "oc\\b", "persona", "portrait of")),
+    ("CONCEPT", ("concept", "abstract", "effect", "glow", "lighting")),
+]
+
+
+def classify_category(entry: LoraEntry) -> tuple[str, str]:
+    """Return (category, source), or ("", "") when nothing matches.
+
+    Conservative on purpose: an unclassified LoRA is an empty randomizer pool
+    someone can see and go fix, while a wrongly classified one is a character
+    rolled into the style slot -- which looks like the randomizer is broken and
+    is much harder to trace back."""
+    tags = set(entry.civitai_tags or [])
+    for category, values in CIVITAI_TAG_CATEGORIES:
+        if tags & set(values):
+            return category, "CIVITAI"
+
+    haystack = " ".join(
+        str(v).replace("_", " ")
+        for v in (entry.customLabel, entry.name, entry.triggerWords,
+                  entry.description)
+        if v
+    ).lower()
+    if not haystack.strip():
+        return "", ""
+
+    for category, patterns in HEURISTIC_CATEGORIES:
+        for pattern in patterns:
+            if re.search(r"(^|[^a-z0-9])" + pattern + r"($|[^a-z0-9])", haystack):
+                return category, "HEURISTIC"
+
+    return "", ""
+
 
 def to_resource(entry: LoraEntry) -> dict:
     """Import-ready subset. triggerWords/defaultTrigger require the planned
@@ -687,6 +787,8 @@ def to_resource(entry: LoraEntry) -> dict:
         "artPrompt": entry.defaultTrigger or None,
         "civitaiModelId": entry.civitaiModelId or None,
         "civitaiModelVersionId": entry.civitaiModelVersionId or None,
+        "loraCategory": entry.loraCategory or None,
+        "loraCategorySource": entry.loraCategorySource or None,
         "description": entry.description or None,
         "slug": entry.slug,
         "isPublic": False,

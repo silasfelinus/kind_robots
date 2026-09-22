@@ -45,9 +45,26 @@ def _workflow_text():
     return WORKFLOW.read_text(encoding="utf-8")
 
 
+# Matches a `*.ps1` glob in a YAML sequence under any of the three spellings
+# YAML allows: double-quoted, single-quoted, and bare. The backreference is what
+# keeps the quote styles from crossing (`- "x.ps1'` matches nothing), and the
+# optional group is what admits the bare form.
+#
+# This used to accept the double-quoted form ONLY, while
+# powershell-syntax-contract.yml has always written its filter in single quotes.
+# So `_ps1_path_patterns` returned an empty set, the coverage test asserted on
+# that emptiness, and the job went red reporting a coverage hole that did not
+# exist -- every .ps1 in the repo was in fact covered. It stayed invisible
+# because python-scripts.yml only fires on `scripts/**.py`, so the failure only
+# ever appeared in front of an author changing an unrelated Python script
+# (2026-09-22, kind_robots#2967). A contract that can only fail in front of
+# someone who did not break it is a contract nobody owns.
+PS1_GLOB = re.compile(r"""^\s*-\s*(['"]?)([^'"\s]*\.ps1)\1""", re.M)
+
+
 def _ps1_path_patterns(text):
-    """Every quoted `*.ps1` glob in the paths filters."""
-    return set(re.findall(r'^\s*-\s*"([^"]*\.ps1)"', text, re.M))
+    """Every `*.ps1` glob in the paths filters, however it is quoted."""
+    return {match.group(2) for match in PS1_GLOB.finditer(text)}
 
 
 def _repo_ps1_files():
@@ -92,6 +109,37 @@ def test_the_checker_refuses_to_pass_on_an_empty_file_list():
         "the checker no longer fails loudly on an empty file list"
     )
     assert "ParseFile" in text, "the checker no longer calls the parser"
+
+
+def test_the_glob_reader_accepts_every_yaml_quoting_style():
+    """The extractor's own blind spot, checked directly.
+
+    Guarding the workflow with a reader that can only see one of YAML's three
+    scalar spellings is how this test spent an unknown stretch reporting a
+    coverage hole that did not exist. A reader used as a gate is itself a thing
+    to gate.
+    """
+    sample = (
+        "    paths:\n"
+        "      - 'scripts/**.ps1'\n"
+        '      - "ops/deploy.ps1"\n'
+        "      - tools/bare.ps1\n"
+        "      - 'scripts/**.py'\n"
+    )
+    assert _ps1_path_patterns(sample) == {
+        "scripts/**.ps1",
+        "ops/deploy.ps1",
+        "tools/bare.ps1",
+    }
+
+    # Mismatched quotes are not a glob, and a non-.ps1 entry is not one either.
+    assert _ps1_path_patterns("""      - "scripts/**.ps1'\n""") == set()
+    assert _ps1_path_patterns("      - 'scripts/**.py'\n") == set()
+
+    # And the real workflow is readable, which is the whole point.
+    assert _ps1_path_patterns(_workflow_text()), (
+        "the live workflow's paths filter is unreadable by this extractor"
+    )
 
 
 def test_the_paths_filter_covers_every_ps1_in_the_repo():

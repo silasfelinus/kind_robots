@@ -1902,7 +1902,8 @@ section:has(div[class*='xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]'])
   /* The page-header icon badge: a tinted `h-12 w-12` square housing a
    * page-header `<Icon>`, sitting beside the page title (interface-vision
    * t-104 slice 149) -- previously hand-rolled identically across 8
-   * occurrences (build-bench.vue, mission-accrual-page.vue,
+   * occurrences (build-bench.vue, mission-accrual-page.vue -- retired
+   * 2026-09-12, kind_robots#2669 --,
    * creator-earnings-page.vue, click-leaderboard.vue, privacy-page.vue,
    * appmaker-page.vue, rebel-button.vue, wallet-page.vue), every one of
    * them a page-header hero row's leading icon slot. */
@@ -2709,7 +2710,8 @@ section:has(div[class*='xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]'])
    * or in daisyui's dist CSS -- see `kr_label_bold_codemod.py`'s docstring)
    * (interface-vision t-104 slice 173) -- previously hand-rolled
    * identically in 21 occurrences across 4 files (facet-profile-editor.vue,
-   * conductor-project-gallery-page.vue, mission-accrual-page.vue,
+   * conductor-project-gallery-page.vue, mission-accrual-page.vue -- retired
+   * 2026-09-12, kind_robots#2669 --,
    * ruler-hooked-slots.vue), the bare-size sibling of `label-text text-xs
    * font-bold` (migrated in slice 171 by reuse of the already-shipped
    * `.kr-text-bold-xs`) and `label-text text-xs font-semibold` (this same

@@ -530,14 +530,27 @@ export type SocialPostDraft = Prisma.SocialPostDraftModel
  * mission-share destination (e.g. the Against Malaria Foundation) OUTSIDE
  * this app. This table does not move any money itself and touches no
  * payment processor; it exists purely so the accrued/remitted/outstanding
- * figures on the mission-share dashboard (server/utils/missionAccrual.ts)
- * are computable at all -- there was no prior mechanism anywhere in this
- * codebase to record that a remittance happened (grepped clean at the time
- * this was added). Rows are never edited or deleted -- correcting a bad
- * entry means logging a new row, same append-only discipline as
- * RevenueSplit and ManaTransaction, just without a reversedById pointer
- * since there is no "wrong" remittance to supersede, only a ledger of what
- * actually left the door.
+ * figures on the mission-share dashboard are computable at all -- there
+ * was no prior mechanism anywhere in this codebase to record that a
+ * remittance happened (grepped clean at the time this was added). Rows
+ * are never edited or deleted -- correcting a bad entry means logging a
+ * new row, same append-only discipline as RevenueSplit and
+ * ManaTransaction, just without a reversedById pointer since there is no
+ * "wrong" remittance to supersede, only a ledger of what actually left
+ * the door.
+ * 
+ * kind-economy/t-028 (2026-09-23): the admin dashboard that read/wrote
+ * this table (components/pages/mission-accrual-page.vue,
+ * server/api/economy/mission-accrual.{get,post}.ts,
+ * server/utils/missionAccrual.ts) was deliberately retired by Silas in
+ * kind_robots#2669 (2026-09-12) -- its explanation was folded into
+ * about-page.vue instead. Those now-unreachable app-layer files were
+ * removed in the same t-028 cleanup. This table is intentionally left in
+ * place rather than dropped: it is a real, append-only record of actual
+ * remittances Silas already logged, and removing it would need a
+ * destructive migration outside a reversible task's scope (AGENTS.md hard
+ * rule 10). If the mission-remittance ledger is never coming back, a
+ * future explicitly-approved migration can drop it.
  */
 export type MissionRemittance = Prisma.MissionRemittanceModel
 /**

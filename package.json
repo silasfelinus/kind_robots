@@ -5,6 +5,8 @@
     "addFilePathComments": "node utils/scripts/addFilePathComment.js",
     "audit": "node ./utils/scripts/audit.mjs",
     "audit:channel-assets": "tsx utils/scripts/auditChannelAssets.ts",
+    "audit:server-api-callers": "tsx utils/scripts/auditServerApiCallers.ts",
+    "test:server-api-callers-audit": "tsx utils/scripts/auditServerApiCallers.test.ts",
     "audit:default-art": "tsx utils/scripts/auditDefaultArt.ts",
     "audit:icons": "tsx utils/scripts/auditIcons.ts",
     "test:icons-selftest": "tsx utils/scripts/auditIcons.ts --self-test",

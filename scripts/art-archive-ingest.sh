@@ -92,17 +92,19 @@ while [[ $# -gt 0 ]]; do
       REQUEST_PATH='/api/admin/art-archive/import-batch'; REQUEST_METHOD='POST'
       BATCH=1; MODE='Import'; shift ;;
     --batch-size) BATCH_LIMIT="${2:-}"; shift 2 ;;
-    # Fills in the seeds lost while ArtImage.seed was a SIGNED column, reading
-    # each file's real metadata back out of ArchiveEntry.extractedMetadata.
+    # Fills in BOTH values the import lost, reading each file's real metadata
+    # back out of ArchiveEntry.extractedMetadata: the seed dropped while
+    # ArtImage.seed was a SIGNED column, and the CFG dropped because a half
+    # step (12.5) does not fit an Int without the cfgHalf flag.
     # Reports without writing unless --apply is also given. Batched and
     # resumable like --import; a filled seed is never rewritten, so this is
     # safe to re-run and safe to interrupt.
     --backfill-seeds)
       REQUEST_PATH='/api/admin/art-archive/backfill-seeds'; REQUEST_METHOD='POST'
-      BACKFILL=1; MODE='Backfill seeds (dry run)'; shift ;;
+      BACKFILL=1; MODE='Backfill seed + CFG (dry run)'; shift ;;
     --apply)
       BACKFILL_APPLY=1
-      [[ "$MODE" == 'Backfill seeds (dry run)' ]] && MODE='Backfill seeds (writing)'
+      [[ "$MODE" == 'Backfill seed + CFG (dry run)' ]] && MODE='Backfill seed + CFG (writing)'
       shift ;;
     # The whole archive in one request, hydrating every file before it answers.
     # Fine for a small archive; for the real one it is the request that never
@@ -340,7 +342,8 @@ if (process.env.KR_INGEST_BACKFILL === '1') {
   let cursor = 0
   let batches = 0
   let scanned = 0
-  let recoverable = 0
+  let seeds = 0
+  let cfgs = 0
   let applied = 0
   let stillUnknown = 0
 
@@ -354,26 +357,28 @@ if (process.env.KR_INGEST_BACKFILL === '1') {
 
     batches += 1
     scanned += data.scanned || 0
-    recoverable += data.recoverable || 0
+    seeds += data.seedsRecoverable || 0
+    cfgs += data.cfgRecoverable || 0
     applied += data.applied || 0
     stillUnknown += data.stillUnknown || 0
     cursor = data.cursor ?? cursor
 
     const elapsed = Math.round((Date.now() - started) / 1000)
     process.stderr.write(
-      `[batch ${batches}] entry #${cursor}: ${recoverable} recoverable, ` +
-        `${applied} written, ${stillUnknown} had no seed in their metadata, ` +
-        `${elapsed}s elapsed\n`,
+      `[batch ${batches}] entry #${cursor}: ${seeds} seed(s) + ${cfgs} cfg(s) ` +
+        `recoverable, ${applied} row(s) written, ${stillUnknown} had neither ` +
+        `in their metadata, ${elapsed}s elapsed\n`,
     )
 
     if (data.done) break
   }
 
   process.stderr.write(
-    `\n${scanned} ledger row(s) walked. ${recoverable} seed(s) recoverable ` +
-      `from extractedMetadata, ${stillUnknown} genuinely never carried one.\n`,
+    `\n${scanned} ledger row(s) walked. ${seeds} seed(s) and ${cfgs} cfg ` +
+      `value(s) recoverable from extractedMetadata; ${stillUnknown} row(s) ` +
+      `genuinely carried neither.\n`,
   )
-  if (!apply && recoverable) {
+  if (!apply && (seeds || cfgs)) {
     process.stderr.write(
       'Nothing was written. Re-run with --apply to fill them in.\n',
     )

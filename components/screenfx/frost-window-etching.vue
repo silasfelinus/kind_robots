@@ -54,9 +54,12 @@ function randomBetween(min: number, max: number): number {
 
 function makeWalker(): Walker {
   const side = Math.floor(Math.random() * 4)
-  if (side === 0) return { x: randomBetween(0, width), y: 1, angle: Math.PI / 2 }
-  if (side === 1) return { x: width - 1, y: randomBetween(0, height), angle: Math.PI }
-  if (side === 2) return { x: randomBetween(0, width), y: height - 1, angle: -Math.PI / 2 }
+  if (side === 0)
+    return { x: randomBetween(0, width), y: 1, angle: Math.PI / 2 }
+  if (side === 1)
+    return { x: width - 1, y: randomBetween(0, height), angle: Math.PI }
+  if (side === 2)
+    return { x: randomBetween(0, width), y: height - 1, angle: -Math.PI / 2 }
   return { x: 1, y: randomBetween(0, height), angle: 0 }
 }
 
@@ -65,7 +68,12 @@ function resetWalkers(): void {
   for (let i = 0; i < MAX_WALKERS; i += 1) walkers.push(makeWalker())
 }
 
-function frostStroke(x: number, y: number, angle: number, length: number): void {
+function frostStroke(
+  x: number,
+  y: number,
+  angle: number,
+  length: number,
+): void {
   if (!frostContext) return
   const x2 = x + Math.cos(angle) * length
   const y2 = y + Math.sin(angle) * length
@@ -77,7 +85,11 @@ function frostStroke(x: number, y: number, angle: number, length: number): void 
   frostContext.lineTo(x2, y2)
   frostContext.stroke()
   frostContext.restore()
-  coverage = clamp(coverage + length / Math.max(1, width * height * 0.012), 0, 1)
+  coverage = clamp(
+    coverage + length / Math.max(1, width * height * 0.012),
+    0,
+    1,
+  )
 }
 
 function seedEdgeFrost(): void {
@@ -89,9 +101,18 @@ function seedEdgeFrost(): void {
   }
 }
 
-function clearPatch(x: number, y: number, timestamp: number, forced = false): void {
+function clearPatch(
+  x: number,
+  y: number,
+  timestamp: number,
+  forced = false,
+): void {
   if (!frostContext) return
-  const radius = clamp(Math.min(width, height) * randomBetween(0.1, 0.17), 36, 130)
+  const radius = clamp(
+    Math.min(width, height) * randomBetween(0.1, 0.17),
+    36,
+    130,
+  )
   frostContext.save()
   frostContext.globalCompositeOperation = 'destination-out'
   const gradient = frostContext.createRadialGradient(x, y, 0, x, y, radius)
@@ -111,17 +132,29 @@ function clearPatch(x: number, y: number, timestamp: number, forced = false): vo
 
 function stepWalker(walker: Walker): void {
   const centerAngle = Math.atan2(height / 2 - walker.y, width / 2 - walker.x)
-  walker.angle += (centerAngle - walker.angle) * 0.055 + randomBetween(-0.42, 0.42)
+  walker.angle +=
+    (centerAngle - walker.angle) * 0.055 + randomBetween(-0.42, 0.42)
   const length = randomBetween(2.4, 6.2)
   frostStroke(walker.x, walker.y, walker.angle, length)
   walker.x += Math.cos(walker.angle) * length
   walker.y += Math.sin(walker.angle) * length
 
   if (Math.random() < 0.075) {
-    frostStroke(walker.x, walker.y, walker.angle + randomBetween(-1.05, 1.05), length * 0.8)
+    frostStroke(
+      walker.x,
+      walker.y,
+      walker.angle + randomBetween(-1.05, 1.05),
+      length * 0.8,
+    )
   }
 
-  if (walker.x < 0 || walker.x > width || walker.y < 0 || walker.y > height || Math.random() < 0.012) {
+  if (
+    walker.x < 0 ||
+    walker.x > width ||
+    walker.y < 0 ||
+    walker.y > height ||
+    Math.random() < 0.012
+  ) {
     Object.assign(walker, makeWalker())
   }
 }
@@ -178,10 +211,15 @@ function renderFrame(timestamp: number): void {
     for (let i = clearPatches.length - 1; i >= 0; i -= 1) {
       const patch = clearPatches[i]
       if (!patch) continue
-      if (timestamp - patch.startedAt > CLEAR_DURATION_MS) clearPatches.splice(i, 1)
+      if (timestamp - patch.startedAt > CLEAR_DURATION_MS)
+        clearPatches.splice(i, 1)
     }
 
-    if (forcedClearUsed && coverage >= REGROWTH_RESET_COVERAGE && clearPatches.length === 0) {
+    if (
+      forcedClearUsed &&
+      coverage >= REGROWTH_RESET_COVERAGE &&
+      clearPatches.length === 0
+    ) {
       forcedClearUsed = false
     }
   }
@@ -207,7 +245,9 @@ function applyWarmTrail(x: number, y: number, timestamp: number): void {
   frostContext.restore()
 }
 
-function eventPoint(event: PointerEvent | MouseEvent): { x: number; y: number } | null {
+function eventPoint(
+  event: PointerEvent | MouseEvent,
+): { x: number; y: number } | null {
   const canvas = canvasRef.value
   if (!canvas) return null
   const rect = canvas.getBoundingClientRect()

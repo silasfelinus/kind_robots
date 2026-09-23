@@ -555,6 +555,18 @@ export const ANIMATION_EFFECTS = [
     generationSafe: true,
     preferredSurface: 'fullscreen',
   },
+  {
+    id: 'frost-window-etching',
+    label: 'Frost Window Etching',
+    reveal: 'The glass clears',
+    icon: 'kind-icon:snowflake',
+    tooltip:
+      'Frost ferns branch slowly in from the edges of the pane until the glass fogs over, then breathe themselves a clear patch and start again ❄️ hover to melt a warm trail, click to wipe a wider patch',
+    color: '#bfe3f7',
+    releasedAt: '2026-09-23T12:00:00Z',
+    generationSafe: true,
+    preferredSurface: 'fullscreen',
+  },
 ] as const satisfies readonly AnimationEffectDefinition[]
 
 export type AnimationEffectId = (typeof ANIMATION_EFFECTS)[number]['id']

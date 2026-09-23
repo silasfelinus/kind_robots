@@ -82,7 +82,10 @@ export function registerAnimationEffect(catalogText, entry) {
   validateAnimationEffect(entry)
   const singleQuotedId = `id: '${entry.id}'`
   const doubleQuotedId = `id: "${entry.id}"`
-  if (catalogText.includes(singleQuotedId) || catalogText.includes(doubleQuotedId)) {
+  if (
+    catalogText.includes(singleQuotedId) ||
+    catalogText.includes(doubleQuotedId)
+  ) {
     throw new Error(`Animation effect already registered: ${entry.id}`)
   }
   const markerIndex = catalogText.indexOf(CATALOG_END)

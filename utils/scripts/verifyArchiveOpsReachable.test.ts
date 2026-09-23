@@ -84,6 +84,35 @@ assert.equal(
     'means the next operator runs it and gets "DATABASE_URL is missing"',
 )
 
+// ---- the backfill covers EVERY field the import dropped ------------------
+// The import lost two things for the same ~19,000 rows, for two different
+// reasons: the seed, because the column was signed, and the cfg, because a
+// half step (12.5) does not fit an Int without the cfgHalf flag. A backfill
+// that restores only one leaves the other permanently missing, because the
+// import will not revisit those rows -- their ledger rows correctly say
+// IMPORTED. The first version of this endpoint did exactly that.
+const backfill = readFileSync(
+  'server/api/admin/art-archive/backfill-seeds.post.ts',
+  'utf8',
+)
+assert.match(
+  backfill,
+  /OR: \[\{ seed: null \}, \{ cfg: null \}\]/,
+  'the backfill must select rows missing EITHER value -- selecting on seed ' +
+    'alone never even looks at a row whose seed stored fine but whose cfg did not',
+)
+for (const field of ['data.seed =', 'data.cfg =', 'data.cfgHalf =']) {
+  assert.ok(
+    backfill.includes(field),
+    `the backfill must be able to restore ${field.replace(' =', '')}`,
+  )
+}
+assert.match(
+  backfill,
+  /splitHalfStepCfg/,
+  'cfg must be restored through the half-step split, not truncated to an Int',
+)
+
 // ---- nothing else under utils/ claims to be an archive ops tool ----------
 // A verifier or a dev-time helper is fine; something that writes to the live
 // archive is not, because it cannot be run where the archive is.

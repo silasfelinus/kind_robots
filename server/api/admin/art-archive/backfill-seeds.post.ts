@@ -36,6 +36,7 @@ import { requireAdminApiUser } from '@/server/utils/authGuard'
 import { errorHandler } from '@/server/utils/error'
 import { narrowToPngMetadata } from '@/server/utils/artArchiveMetadata'
 import { seedColumnOrNull } from '@/server/utils/artImageSeedColumn'
+import { splitHalfStepCfg } from '@/server/utils/artArchiveIntColumns'
 import prisma from '@/server/utils/prisma'
 
 const DEFAULT_BATCH_LIMIT = 500
@@ -47,13 +48,26 @@ function resolveLimit(raw: unknown): number {
   return Math.min(Math.floor(parsed), MAX_BATCH_LIMIT)
 }
 
-export function seedFromExtractedMetadata(raw: string | null): number | null {
-  if (!raw) return null
+/**
+ * The generation values recoverable from one entry's stored metadata.
+ *
+ * BOTH fields, not just the seed. cfg was dropped for the same rows and for a
+ * different reason -- CFG scale is a half step (12.5) and `cfg` is an Int
+ * column, so ~55% of every batch lost it until the importer started using the
+ * `cfgHalf` flag that was in the schema all along. That fix only helps NEW
+ * imports; these ~19,000 rows still need the value put back.
+ */
+export function generationFromExtractedMetadata(raw: string | null): {
+  seed: number | null
+  cfg: { cfg: number; cfgHalf: boolean } | null
+} {
+  const empty = { seed: null, cfg: null }
+  if (!raw) return empty
   let parsed: unknown
   try {
     parsed = JSON.parse(raw)
   } catch {
-    return null
+    return empty
   }
   // The same shape check the importer used to read this metadata originally;
   // it returns null for anything unexpected, so a malformed row is skipped
@@ -62,7 +76,11 @@ export function seedFromExtractedMetadata(raw: string | null): number | null {
     parsed as Parameters<typeof narrowToPngMetadata>[0],
   )
   const source = png?.a1111 ?? png?.comfy
-  return seedColumnOrNull(source?.seed)
+  if (!source) return empty
+  return {
+    seed: seedColumnOrNull(source.seed),
+    cfg: splitHalfStepCfg(source.cfg),
+  }
 }
 
 export default defineEventHandler(async (event) => {
@@ -93,8 +111,9 @@ export default defineEventHandler(async (event) => {
         success: true,
         done: true,
         cursor: startAfter,
-        seedless: 0,
-        recoverable: 0,
+        incomplete: 0,
+        seedsRecoverable: 0,
+        cfgRecoverable: 0,
         applied: 0,
         stillUnknown: 0,
       }
@@ -103,39 +122,61 @@ export default defineEventHandler(async (event) => {
     const nextCursor = entries[entries.length - 1]!.id
     const imageIds = entries.map((entry) => entry.artImageId as number)
 
-    // Only rows that actually lack a seed: a filled seed is never rewritten,
-    // which is what makes this safe to re-run and safe to interrupt.
-    const seedless = new Set(
+    // Rows missing EITHER value. Selecting on seed alone would never even look
+    // at a row whose seed stored fine but whose 12.5 cfg did not, and those are
+    // a different set -- roughly half the batch each, overlapping but not equal.
+    // A value that is already present is never rewritten, which is what makes
+    // this safe to re-run and safe to interrupt.
+    const incomplete = new Map(
       (
         await prisma.artImage.findMany({
-          where: { id: { in: imageIds }, seed: null },
-          select: { id: true },
+          where: {
+            id: { in: imageIds },
+            OR: [{ seed: null }, { cfg: null }],
+          },
+          select: { id: true, seed: true, cfg: true },
         })
-      ).map((image) => image.id),
+      ).map((image) => [image.id, image]),
     )
 
-    let recoverable = 0
+    let seedsRecoverable = 0
+    let cfgRecoverable = 0
     let applied = 0
     let stillUnknown = 0
     let exampleSeed: number | null = null
+    let exampleCfg: string | null = null
 
     for (const entry of entries) {
       const imageId = entry.artImageId as number
-      if (!seedless.has(imageId)) continue
+      const image = incomplete.get(imageId)
+      if (!image) continue
 
-      const seed = seedFromExtractedMetadata(entry.extractedMetadata)
-      if (seed === null) {
+      const found = generationFromExtractedMetadata(entry.extractedMetadata)
+      const data: { seed?: number; cfg?: number; cfgHalf?: boolean } = {}
+
+      if (image.seed === null && found.seed !== null) {
+        data.seed = found.seed
+        seedsRecoverable += 1
+        if (exampleSeed === null) exampleSeed = found.seed
+      }
+      if (image.cfg === null && found.cfg !== null) {
+        data.cfg = found.cfg.cfg
+        data.cfgHalf = found.cfg.cfgHalf
+        cfgRecoverable += 1
+        if (exampleCfg === null) {
+          exampleCfg = found.cfg.cfgHalf
+            ? `${found.cfg.cfg}.5`
+            : String(found.cfg.cfg)
+        }
+      }
+
+      if (!Object.keys(data).length) {
         stillUnknown += 1
         continue
       }
 
-      recoverable += 1
-      if (exampleSeed === null) exampleSeed = seed
       if (apply) {
-        await prisma.artImage.update({
-          where: { id: imageId },
-          data: { seed },
-        })
+        await prisma.artImage.update({ where: { id: imageId }, data })
         applied += 1
       }
     }
@@ -145,11 +186,13 @@ export default defineEventHandler(async (event) => {
       done: entries.length < limit,
       cursor: nextCursor,
       scanned: entries.length,
-      seedless: seedless.size,
-      recoverable,
+      incomplete: incomplete.size,
+      seedsRecoverable,
+      cfgRecoverable,
       applied,
       stillUnknown,
       exampleSeed,
+      exampleCfg,
       apply,
     }
   } catch (error: unknown) {

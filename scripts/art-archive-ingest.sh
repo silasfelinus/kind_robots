@@ -346,6 +346,9 @@ if (process.env.KR_INGEST_BACKFILL === '1') {
   let cfgs = 0
   let applied = 0
   let stillUnknown = 0
+  let noMetadata = 0
+  let notPng = 0
+  let noGenBlock = 0
 
   for (;;) {
     const raw = await request(path, 'POST', { cursor, limit, apply })
@@ -361,6 +364,9 @@ if (process.env.KR_INGEST_BACKFILL === '1') {
     cfgs += data.cfgRecoverable || 0
     applied += data.applied || 0
     stillUnknown += data.stillUnknown || 0
+    noMetadata += data.noMetadataStored || 0
+    notPng += data.notPngOrUnsupported || 0
+    noGenBlock += data.noGenerationBlock || 0
     cursor = data.cursor ?? cursor
 
     const elapsed = Math.round((Date.now() - started) / 1000)
@@ -376,8 +382,18 @@ if (process.env.KR_INGEST_BACKFILL === '1') {
   process.stderr.write(
     `\n${scanned} ledger row(s) walked. ${seeds} seed(s) and ${cfgs} cfg ` +
       `value(s) recoverable from extractedMetadata; ${stillUnknown} row(s) ` +
-      `genuinely carried neither.\n`,
+      `carried neither.\n`,
   )
+
+  // Say WHY nothing came back, so a zero is an answer rather than a mystery.
+  if (stillUnknown) {
+    process.stderr.write(
+      `  of those: ${noGenBlock} had no generation block in the file at all ` +
+        `(a screenshot, a download, stripped metadata), ${notPng} were not a ` +
+        `readable PNG, ${noMetadata} had nothing stored.\n`,
+    )
+  }
+
   if (!apply && (seeds || cfgs)) {
     process.stderr.write(
       'Nothing was written. Re-run with --apply to fill them in.\n',
@@ -591,6 +607,16 @@ else
        [[ -n "$response" ]] && printf '%s\n' "$response" >&2
        exit "$status" ;;
   esac
+fi
+
+# The batched modes (--import, --backfill-seeds) drive their own loop and report
+# every batch to stderr as it goes, so they legitimately finish with nothing on
+# stdout. The empty-body guard below is for a SINGLE request that came back
+# hollow, and firing it after a batched run appends a false ERROR to a run that
+# actually succeeded -- which is exactly what a completed backfill printed
+# (art-archive/t-041, 2026-09-23).
+if [[ "$BATCH" == '1' || "$BACKFILL" == '1' ]]; then
+  exit 0
 fi
 
 # A 2xx that carried nothing is still nothing to report, and must not look like

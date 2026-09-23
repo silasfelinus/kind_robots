@@ -57,17 +57,22 @@ function resolveLimit(raw: unknown): number {
  * `cfgHalf` flag that was in the schema all along. That fix only helps NEW
  * imports; these ~19,000 rows still need the value put back.
  */
-export function generationFromExtractedMetadata(raw: string | null): {
+export type GenerationRecovery = {
   seed: number | null
   cfg: { cfg: number; cfgHalf: boolean } | null
-} {
-  const empty = { seed: null, cfg: null }
-  if (!raw) return empty
+  /** Why nothing came back, so a zero can be explained rather than guessed at. */
+  reason: 'ok' | 'no-metadata' | 'not-png' | 'no-generation-block'
+}
+
+export function generationFromExtractedMetadata(
+  raw: string | null,
+): GenerationRecovery {
+  if (!raw) return { seed: null, cfg: null, reason: 'no-metadata' }
   let parsed: unknown
   try {
     parsed = JSON.parse(raw)
   } catch {
-    return empty
+    return { seed: null, cfg: null, reason: 'no-metadata' }
   }
   // The same shape check the importer used to read this metadata originally;
   // it returns null for anything unexpected, so a malformed row is skipped
@@ -75,11 +80,16 @@ export function generationFromExtractedMetadata(raw: string | null): {
   const png = narrowToPngMetadata(
     parsed as Parameters<typeof narrowToPngMetadata>[0],
   )
-  const source = png?.a1111 ?? png?.comfy
-  if (!source) return empty
+  if (!png) return { seed: null, cfg: null, reason: 'not-png' }
+  const source = png.a1111 ?? png.comfy
+  // A PNG can carry text chunks and still hold no generation block at all --
+  // a screenshot, a download, an image whose metadata was stripped. That is
+  // the expected reason for an archive-wide zero, and it is not a failure.
+  if (!source) return { seed: null, cfg: null, reason: 'no-generation-block' }
   return {
     seed: seedColumnOrNull(source.seed),
     cfg: splitHalfStepCfg(source.cfg),
+    reason: 'ok',
   }
 }
 
@@ -116,6 +126,9 @@ export default defineEventHandler(async (event) => {
         cfgRecoverable: 0,
         applied: 0,
         stillUnknown: 0,
+        noMetadataStored: 0,
+        notPngOrUnsupported: 0,
+        noGenerationBlock: 0,
       }
     }
 
@@ -143,6 +156,12 @@ export default defineEventHandler(async (event) => {
     let cfgRecoverable = 0
     let applied = 0
     let stillUnknown = 0
+    // WHY a row yielded nothing, not just that it did. A bare "0 recoverable"
+    // is indistinguishable from a broken parser, and the first full run
+    // reported exactly that over 69,071 rows with no way to tell which it was.
+    let noMetadataStored = 0
+    let notPngOrUnsupported = 0
+    let noGenerationBlock = 0
     let exampleSeed: number | null = null
     let exampleCfg: string | null = null
 
@@ -152,6 +171,9 @@ export default defineEventHandler(async (event) => {
       if (!image) continue
 
       const found = generationFromExtractedMetadata(entry.extractedMetadata)
+      if (found.reason === 'no-metadata') noMetadataStored += 1
+      else if (found.reason === 'not-png') notPngOrUnsupported += 1
+      else if (found.reason === 'no-generation-block') noGenerationBlock += 1
       const data: { seed?: number; cfg?: number; cfgHalf?: boolean } = {}
 
       if (image.seed === null && found.seed !== null) {
@@ -191,6 +213,9 @@ export default defineEventHandler(async (event) => {
       cfgRecoverable,
       applied,
       stillUnknown,
+      noMetadataStored,
+      notPngOrUnsupported,
+      noGenerationBlock,
       exampleSeed,
       exampleCfg,
       apply,

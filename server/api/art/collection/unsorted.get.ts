@@ -11,21 +11,37 @@ import {
 } from '~/server/utils/artImageAccess'
 import { attachGalleryArchiveMediaPaths } from '~/server/utils/artGalleryArchiveMedia'
 
+type GalleryMaturityFilter = 'all' | 'mature' | 'safe'
+
+function readMaturityFilter(value: QueryValue): GalleryMaturityFilter {
+  const raw = Array.isArray(value) ? value[0] : value
+  const normalized = String(raw ?? 'all').trim().toLowerCase()
+  if (normalized === 'mature' || normalized === 'safe') return normalized
+  return 'all'
+}
+
 export default defineEventHandler(async (event) => {
   try {
     const query = getQuery(event) as Record<string, QueryValue>
     const access = await getArtImageAccessContext(event)
     const accessWhere = buildArtImageWhere(access)
+    const maturity = readMaturityFilter(query.maturity)
+    const maturityWhere: Prisma.ArtImageWhereInput =
+      maturity === 'all' ? {} : { isMature: maturity === 'mature' }
     const where: Prisma.ArtImageWhereInput = {
-      AND: [accessWhere, { ArtCollections: { none: {} } }],
+      AND: [accessWhere, maturityWhere, { ArtCollections: { none: {} } }],
     }
+    const totalWhere: Prisma.ArtImageWhereInput =
+      maturity === 'all'
+        ? accessWhere
+        : { AND: [accessWhere, maturityWhere] }
     const summaryOnly = readBoolean(query.summary, false)
     const select = buildArtImageSelect(query)
 
     if (summaryOnly) {
       const [count, totalCount, previewArtImage] = await Promise.all([
         prisma.artImage.count({ where }),
-        prisma.artImage.count({ where: accessWhere }),
+        prisma.artImage.count({ where: totalWhere }),
         prisma.artImage.findFirst({
           where,
           select,

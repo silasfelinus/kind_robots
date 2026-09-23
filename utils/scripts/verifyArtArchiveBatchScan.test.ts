@@ -20,6 +20,7 @@
 //   npx tsx utils/scripts/verifyArtArchiveBatchScan.test.ts
 import assert from 'node:assert/strict'
 import { mkdtemp, mkdir, writeFile, rm, readFile } from 'node:fs/promises'
+import { execFileSync } from 'node:child_process'
 import { tmpdir } from 'node:os'
 import path from 'node:path'
 import {
@@ -143,6 +144,62 @@ async function hydrateThenCount(
 ): Promise<number> {
   const result = await hydrateArchiveFiles(target, paths)
   return result.files.length
+}
+
+// ---- the host-side count matches what the importer would see -------------
+// --local-scan answers "how big is this" from the host with find(1), before any
+// deploy. That number is only useful if it means the same thing the scanner
+// means, so the two are compared on the same tree rather than assumed to agree
+// (art-archive/t-041, 2026-09-23).
+{
+  const scanRoot = await mkdtemp(path.join(tmpdir(), 'art-archive-local-'))
+  try {
+    await mkdir(path.join(scanRoot, 'folder a/sub'), { recursive: true })
+    await mkdir(path.join(scanRoot, '.hidden'), { recursive: true })
+    await mkdir(path.join(scanRoot, '_archive_trash/deep'), { recursive: true })
+    const counted = [
+      'one.png',
+      'two.PNG',
+      'folder a/three.JPG',
+      'folder a/four.jpeg',
+      'folder a/sub/five.webp',
+    ]
+    for (const relative of counted) {
+      await writeFile(path.join(scanRoot, relative), 'x')
+    }
+    // Each of these must be excluded by BOTH the scanner and the shell count.
+    await writeFile(path.join(scanRoot, 'notes.txt'), 'x')
+    await writeFile(path.join(scanRoot, '.hidden/secret.png'), 'x')
+    await writeFile(path.join(scanRoot, '_archive_trash/gone.png'), 'x')
+    await writeFile(path.join(scanRoot, '_archive_trash/deep/gone2.png'), 'x')
+
+    const scanned = await listArchiveFilePaths(scanRoot)
+    assert.equal(
+      scanned.relativePaths.length,
+      counted.length,
+      'the scanner must find exactly the supported, non-hidden, non-trashed files',
+    )
+
+    const shell = execFileSync(
+      'bash',
+      [
+        'scripts/art-archive-ingest.sh',
+        '--local-scan',
+        '--archive-path',
+        scanRoot,
+      ],
+      { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] },
+    )
+    const reported = Number(/^files: (\d+)$/m.exec(shell)?.[1])
+    assert.equal(
+      reported,
+      scanned.relativePaths.length,
+      `--local-scan reported ${reported} but the scanner lists ${scanned.relativePaths.length}; ` +
+        'the estimate and the importer must agree on what counts',
+    )
+  } finally {
+    await rm(scanRoot, { recursive: true, force: true })
+  }
 }
 
 // ---- the resume predicate is state-aware ---------------------------------

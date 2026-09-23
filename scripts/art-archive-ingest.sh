@@ -42,6 +42,9 @@
 # answers. node:http with no timeout set waits as long as the server takes.
 #
 # USAGE
+#   scripts/art-archive-ingest.sh --local-scan    # how many files are there,
+#                                                 # counted on this host; needs
+#                                                 # no API and no deploy
 #   scripts/art-archive-ingest.sh                 # how many files, how many
 #                                                 # left; reads no images
 #   scripts/art-archive-ingest.sh --import        # resumable batched import,
@@ -74,6 +77,9 @@ REQUEST_METHOD='GET'
 MODE='Dry run'
 BATCH=0
 BATCH_LIMIT="${KIND_ROBOTS_BATCH_SIZE:-250}"
+LOCAL_SCAN=0
+# The host side of the mount the container sees as /app/private.
+ARCHIVE_PATH="${KIND_ROBOTS_ARCHIVE_PATH:-/mnt/user/pc/kindrobots/private}"
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -103,6 +109,11 @@ while [[ $# -gt 0 ]]; do
     --status)
       REQUEST_PATH='/api/admin/art-archive/scan-status'
       REQUEST_METHOD='GET'; MODE='Status'; shift ;;
+    # Answers "how big is this actually" from the host filesystem: no API, no
+    # container, no deploy. Mirrors the scanner's own rules so the number means
+    # the same thing the importer will see.
+    --local-scan) LOCAL_SCAN=1; shift ;;
+    --archive-path) ARCHIVE_PATH="${2:-}"; shift 2 ;;
     --container) CONTAINER="${2:-}"; shift 2 ;;
     --container-env-file) CONTAINER_ENV_FILE="${2:-}"; shift 2 ;;
     --token) TOKEN="${2:-}"; shift 2 ;;
@@ -112,6 +123,46 @@ while [[ $# -gt 0 ]]; do
     *) printf 'Unknown argument: %s\n' "$1" >&2; exit 2 ;;
   esac
 done
+
+# Counted here rather than through the app, so it works before any deploy and
+# cannot be affected by whatever the API is doing. The rules are the scanner's:
+# these four extensions, no dotfiles or dotdirs, and never the trash subtree
+# (server/utils/artArchiveScanner.ts, artArchiveFileOps.ts).
+run_local_scan() {
+  if [[ ! -d "$ARCHIVE_PATH" ]]; then
+    printf 'ERROR: %s is not a directory on this host.\n' "$ARCHIVE_PATH" >&2
+    printf '  Pass --archive-path <path> if the archive lives elsewhere.\n' >&2
+    exit 2
+  fi
+
+  printf 'Counting %s -- no API, no container. This walks the tree, so it takes a moment.\n' \
+    "$ARCHIVE_PATH" >&2
+
+  find "$ARCHIVE_PATH" \
+    -name '.*' -prune -o \
+    -type d -name '_archive_trash' -prune -o \
+    -type f \( -iname '*.png' -o -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.webp' \) -print0 \
+    | awk -v RS='\0' '
+        {
+          total += 1
+          n = split($0, parts, "/")
+          name = parts[n]
+          ext = tolower(name)
+          sub(/.*\./, "", ext)
+          byExt[ext] += 1
+          dir = $0
+          sub(/\/[^\/]*$/, "", dir)
+          if (!(dir in seenDir)) { seenDir[dir] = 1; dirs += 1 }
+        }
+        END {
+          printf "files: %d\n", total
+          printf "folders holding them: %d\n", dirs
+          for (e in byExt) printf "  .%s: %d\n", e, byExt[e]
+        }'
+
+  printf '\napparent size on disk:\n' >&2
+  du -sh "$ARCHIVE_PATH" 2>/dev/null || true
+}
 
 # The request itself, run wherever the app is. Reads its own credential from
 # the environment it is already running in.
@@ -160,7 +211,29 @@ function request(requestPath, requestMethod, payload) {
         response.on('data', (chunk) => { text += chunk })
         response.on('end', () => {
           const code = response.statusCode ?? 0
-          if (code >= 200 && code < 400) return resolve(text)
+          const contentType = String(response.headers['content-type'] || '')
+          if (code >= 200 && code < 400) {
+            // A 2xx is not proof the endpoint exists. Nuxt serves the app's
+            // HTML for a route its build does not know, so an out-of-date
+            // container answers 200 with a web page and the caller's jq dies
+            // on "Invalid numeric literal" with nothing to act on
+            // (art-archive/t-041, 2026-09-23).
+            if (!contentType.includes('json')) {
+              process.stderr.write(
+                `${requestMethod} ${url} answered ${code} with ` +
+                  `${contentType || 'no content-type'}, not JSON.\n`,
+              )
+              process.stderr.write(
+                text.trim().startsWith('<')
+                  ? 'That is an HTML page, which usually means the running ' +
+                      'build does not have this endpoint yet -- deploy the ' +
+                      'current image, or use --local-scan, which needs no API.\n'
+                  : `${text.trim().slice(0, 300)}\n`,
+              )
+              process.exit(8)
+            }
+            return resolve(text)
+          }
           // An empty error body used to produce no output anywhere, so a
           // failed run looked identical to a successful silent one.
           process.stderr.write(`HTTP ${code} from ${requestMethod} ${url}\n`)
@@ -310,6 +383,11 @@ run_over_http() {
     node --input-type=module -e "$REQUEST_JS"
 }
 
+if [[ "$LOCAL_SCAN" == 1 ]]; then
+  run_local_scan
+  exit 0
+fi
+
 if [[ -n "$BASE_URL" ]]; then
   printf '%s against %s -- no client timeout; a large archive legitimately takes a while.\n' \
     "$MODE" "$BASE_URL" >&2
@@ -347,6 +425,11 @@ fi
 # Print the whole payload for the record, then the numbers worth reading. The
 # resourceMatches array is per-file and long, so it is summarised, not dumped.
 if command -v jq >/dev/null 2>&1; then
+  if ! printf '%s\n' "$response" | jq empty >/dev/null 2>&1; then
+    printf 'ERROR: the app answered, but not with JSON. First 300 bytes:\n' >&2
+    printf '%.300s\n' "$response" >&2
+    exit 8
+  fi
   printf '%s\n' "$response" | jq 'del(.data.resourceMatches) | del(.data.entries)'
   printf '\n-- summary --\n'
   printf '%s\n' "$response" | jq -r '

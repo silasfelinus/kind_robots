@@ -194,6 +194,7 @@
               :show-mature="showMature"
               :size="viewSize"
               :preview-art-image="getPreviewImage(group)"
+              @vue:mounted="hydrateCollectionTile(group)"
               @open="selectGroup(group.key)"
               @delete="handleCollectionDeleted"
             />
@@ -965,6 +966,17 @@ async function initializeGallery() {
   }
 }
 
+/*
+ * kr-gallery only renders this slot once its kr-viewport-gate says the tile is
+ * within 1800px, so mounting IS the "came into view" signal -- there is no
+ * separate observer to wire. fetchCollectionDetail dedupes and caches, so a
+ * tile scrolled past and back does not refetch.
+ */
+function hydrateCollectionTile(group: GalleryGroup | undefined): void {
+  if (!group || group.isVirtual || group.id <= 0) return
+  void browseStore.fetchCollectionDetail(group.id)
+}
+
 async function fetchCollectionSummaries(force = false) {
   if (typeof collectionStore.fetchCollections !== 'function') return
   await collectionStore.fetchCollections(force, {
@@ -976,6 +988,10 @@ async function fetchCollectionSummaries(force = false) {
     // the whole cost.
     includePrivate: showPrivate.value,
     includeMature: showMature.value,
+    // Skeletons first: the list comes back as bare scalars so it paints
+    // immediately, and each tile fetches its own count and preview when
+    // kr-viewport-gate decides it is close enough to matter.
+    counts: false,
   })
 }
 

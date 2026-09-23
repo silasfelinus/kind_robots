@@ -10,11 +10,15 @@
 //
 //   Value out of range for the type: Out of range value for column 'seed'
 //
-// ArtImage.seed, .cfg and .steps are `Int?` -- MySQL signed 32-bit, max
-// 2,147,483,647. A1111 seeds are UNSIGNED 32-bit, so about half of every
-// A1111 image ever made carries a seed this column cannot store. The seeds in
-// the failing filenames (3832090215, 4273445571) are ordinary seeds, not
-// corruption.
+// A1111 seeds are UNSIGNED 32-bit, and ArtImage.seed WAS a signed Int capped
+// at 2,147,483,647, so about half of every A1111 image ever made carried a seed
+// it could not store. The seeds in the failing filenames (3832090215,
+// 4273445571) are ordinary seeds, not corruption.
+//
+// seed is now UNSIGNED (20260923060000_art_image_seed_unsigned), so those are
+// KEPT. .cfg and .steps remain signed `Int?`, and cfg's half step is carried by
+// the cfgHalf flag that was always in the schema -- so this file now pins two
+// different rules, and which column uses which is the point.
 //
 // Clamping or wrapping would be worse than dropping: a wrong seed still looks
 // usable and would regenerate the wrong image. The real value survives in the
@@ -28,40 +32,85 @@ import {
   intColumnOrNull,
   splitHalfStepCfg,
 } from '../../server/utils/artArchiveIntColumns'
+import {
+  UINT32_MAX,
+  seedColumnOrNull,
+} from '../../server/utils/artImageSeedColumn'
 
 const INT32_MAX = 2_147_483_647
 const INT32_MIN = -2_147_483_648
 
-// ---- the seeds that actually failed in production ------------------------
-for (const seed of [3832090215, 3832090216, 3832090217, 4273445571]) {
+// ---- the seeds that actually failed in production -------------------------
+// These are now KEPT, not dropped: ArtImage.seed is an UNSIGNED column as of
+// 20260923060000_art_image_seed_unsigned, and every one of these fits it.
+for (const seed of [3832090215, 4273445571, 4286545361, 4263410656]) {
   assert.equal(
-    intColumnOrNull(seed),
-    null,
-    `${seed} came off a real archive file and cannot be stored, so it must be dropped`,
+    seedColumnOrNull(seed),
+    seed,
+    `${seed} came off a real archive file and now fits the unsigned column`,
   )
-  assert.ok(seed > INT32_MAX, `${seed} is genuinely past the column's range`)
+  assert.ok(
+    seed > INT32_MAX,
+    `${seed} would NOT have fitted the old signed column -- that is the point`,
+  )
 }
 
-// ---- the whole unsigned 32-bit seed space is handled ---------------------
+// ---- the whole unsigned 32-bit seed space is handled ----------------------
 assert.equal(
-  intColumnOrNull(4_294_967_295),
-  null,
-  'the largest A1111 seed drops',
+  seedColumnOrNull(UINT32_MAX),
+  UINT32_MAX,
+  'the largest possible A1111 seed is storable',
 )
+assert.equal(
+  seedColumnOrNull(UINT32_MAX + 1),
+  null,
+  'one past the unsigned range is still refused, never wrapped',
+)
+assert.equal(seedColumnOrNull(0), 0, 'zero is a real seed, not absence')
+
+// ---- -1 is absence, not a seed -------------------------------------------
+// It was the old column default, meaning "pick one for me". An unsigned column
+// cannot hold it and null says it properly.
+assert.equal(
+  seedColumnOrNull(-1),
+  null,
+  'the -1 randomise sentinel is stored as null, never as a seed',
+)
+assert.equal(seedColumnOrNull(-12345), null, 'no negative is a seed')
+assert.equal(seedColumnOrNull(7.5), null, 'a fractional value is not a seed')
+for (const notASeed of [null, undefined, '42', Number.NaN, Infinity, {}]) {
+  assert.equal(
+    seedColumnOrNull(notASeed),
+    null,
+    'nothing is invented from a non-number',
+  )
+}
+
+// ---- steps/cfg still use the SIGNED rule ----------------------------------
+// seed moved to an unsigned column; .steps and .cfg did NOT, so the signed
+// boundaries still bind for them and are still worth pinning. (These
+// assertions were lost when the seed block was rewritten, which is how
+// INT32_MIN briefly became an unused constant.)
 assert.equal(
   intColumnOrNull(INT32_MAX),
   INT32_MAX,
-  'the largest storable seed is kept',
+  'the largest signed value is storable for a still-signed column',
 )
-assert.equal(intColumnOrNull(INT32_MAX + 1), null, 'one past the limit drops')
+assert.equal(
+  intColumnOrNull(INT32_MAX + 1),
+  null,
+  'one past the signed maximum is refused, never wrapped',
+)
 assert.equal(
   intColumnOrNull(INT32_MIN),
   INT32_MIN,
-  'the lowest storable value is kept',
+  'the lowest signed value is storable -- unlike seed, these columns keep it',
 )
-assert.equal(intColumnOrNull(INT32_MIN - 1), null, 'one below the limit drops')
-
-// ---- ordinary values are untouched ---------------------------------------
+assert.equal(
+  intColumnOrNull(INT32_MIN - 1),
+  null,
+  'one below the signed minimum is refused',
+)
 assert.equal(intColumnOrNull(0), 0, 'zero is a real seed, not absence')
 assert.equal(intColumnOrNull(-1), -1, "the schema's own -1 sentinel still fits")
 assert.equal(intColumnOrNull(42), 42)
@@ -219,9 +268,10 @@ assert.doesNotMatch(
 )
 
 console.log(
-  'Art Archive int-column contract verified: the two faults are named apart ' +
-    '(a fractional CFG is never reported as too large), production seeds past ' +
-    'the signed 32-bit limit are dropped rather than bent, the -1 sentinel ' +
-    'still fits, nothing is invented from a non-number, and every drop carries ' +
-    'its true value so the archive can be told apart from a 32-bit one.',
+  'Art Archive int-column contract verified: the unsigned seed column keeps ' +
+    'the real production seeds that used to abort the insert, refuses -1 and ' +
+    'anything past 2^32 without wrapping, CFG keeps its half step through the ' +
+    'cfgHalf flag rather than being dropped, the two faults are named apart ' +
+    '(a fractional CFG is never "too large"), and every drop still carries ' +
+    'its true value.',
 )

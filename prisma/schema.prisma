@@ -30,7 +30,7 @@ model ArtImage {
   path                 String?               @db.VarChar(764)
   promptString         String?               @db.Text
   sampler              String?               @db.VarChar(764)
-  seed                 Int?                  @default(-1)
+  seed                 Int?                  @db.UnsignedInt
   serverId             Int?
   serverName           String?               @db.VarChar(256)
   serverUrl            String?               @db.VarChar(764)

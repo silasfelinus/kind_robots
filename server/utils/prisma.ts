@@ -12,6 +12,7 @@ import {
   readNonNegativeInteger,
   readPositiveInteger,
 } from './databaseAdapterConfig'
+import { seedNeedsNormalising } from './artImageSeedColumn'
 
 type CircuitBreakerState = {
   failures: number
@@ -144,56 +145,96 @@ function createBasePrismaClient(): PrismaClient {
   })
 }
 
+/**
+ * ArtImage.seed is an UNSIGNED column (artImageSeedColumn.ts). -1 -- A1111's
+ * "randomise" -- and anything else outside 0..4,294,967,295 is stored as null,
+ * which is what it actually means: no seed recorded.
+ *
+ * Done HERE rather than at the ~19 call sites that write -1, because most of
+ * those are generator request payloads where -1 is correct and must survive.
+ * One boundary covers every writer, including ones added later, and cannot be
+ * forgotten the way a nineteenth call site can.
+ */
+function normaliseSeedInWriteData(data: unknown): void {
+  if (!data || typeof data !== 'object') return
+  for (const row of Array.isArray(data) ? data : [data]) {
+    if (!row || typeof row !== 'object') continue
+    const seed = (row as { seed?: unknown }).seed
+    if (seedNeedsNormalising(seed)) {
+      ;(row as { seed?: unknown }).seed = null
+    }
+  }
+}
+
 function extendPrismaClient(client: PrismaClient) {
-  return client.$extends({
-    name: 'transient-database-retry',
-    query: {
-      async $allOperations({ model, operation, args, query }) {
-        if (circuitIsOpen()) {
-          throw new Error(CIRCUIT_OPEN_MESSAGE)
-        }
-
-        for (let attempt = 0; ; attempt += 1) {
-          try {
-            const result = await query(args)
-            recordConnectionSuccess()
-            return result
-          } catch (error: unknown) {
-            const availabilityError = isAvailabilityError(error)
-            const staleConnectionError = isStaleDatabaseConnectionError(error)
-            const retryLimit = retryLimitFor(error)
-
-            if (availabilityError) {
-              recordAvailabilityFailure()
+  return client
+    .$extends({
+      name: 'art-image-seed-column',
+      query: {
+        artImage: {
+          async $allOperations({ args, query }) {
+            const shaped = args as {
+              data?: unknown
+              create?: unknown
+              update?: unknown
             }
-
-            if (
-              (!availabilityError && !staleConnectionError) ||
-              attempt >= retryLimit ||
-              (availabilityError && circuitIsOpen())
-            ) {
-              throw error
-            }
-
-            const retryNumber = attempt + 1
-            const waitMs = transientRetryDelayMs * retryNumber
-
-            console.warn('[prisma:transient-retry]', {
-              model: model ?? 'raw',
-              operation,
-              kind: staleConnectionError ? 'stale-connection' : 'unavailable',
-              retry: retryNumber,
-              maxRetries: retryLimit,
-              waitMs,
-              message: errorMessage(error),
-            })
-
-            await delay(waitMs)
-          }
-        }
+            normaliseSeedInWriteData(shaped?.data)
+            normaliseSeedInWriteData(shaped?.create)
+            normaliseSeedInWriteData(shaped?.update)
+            return query(args)
+          },
+        },
       },
-    },
-  })
+    })
+    .$extends({
+      name: 'transient-database-retry',
+      query: {
+        async $allOperations({ model, operation, args, query }) {
+          if (circuitIsOpen()) {
+            throw new Error(CIRCUIT_OPEN_MESSAGE)
+          }
+
+          for (let attempt = 0; ; attempt += 1) {
+            try {
+              const result = await query(args)
+              recordConnectionSuccess()
+              return result
+            } catch (error: unknown) {
+              const availabilityError = isAvailabilityError(error)
+              const staleConnectionError = isStaleDatabaseConnectionError(error)
+              const retryLimit = retryLimitFor(error)
+
+              if (availabilityError) {
+                recordAvailabilityFailure()
+              }
+
+              if (
+                (!availabilityError && !staleConnectionError) ||
+                attempt >= retryLimit ||
+                (availabilityError && circuitIsOpen())
+              ) {
+                throw error
+              }
+
+              const retryNumber = attempt + 1
+              const waitMs = transientRetryDelayMs * retryNumber
+
+              console.warn('[prisma:transient-retry]', {
+                model: model ?? 'raw',
+                operation,
+                kind: staleConnectionError ? 'stale-connection' : 'unavailable',
+                retry: retryNumber,
+                maxRetries: retryLimit,
+                waitMs,
+                message: errorMessage(error),
+              })
+
+              await delay(waitMs)
+            }
+          }
+        },
+      },
+    })
 }
 
 // One base client means one MariaDB connector pool per Node process. Both the

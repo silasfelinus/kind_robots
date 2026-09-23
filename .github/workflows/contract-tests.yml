@@ -1233,6 +1233,9 @@ jobs:
       - name: Art Archive signed-media contract
         run: npm run test:art-archive-signed-media
 
+      - name: ArtImage seed-column contract
+        run: npm run test:art-image-seed-column
+
       - name: Butterfly Gallery curation-action contract
         run: npm run test:butterfly-gallery-actions
 

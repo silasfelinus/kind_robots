@@ -3,9 +3,10 @@
 // Regression guard (storybook/t-055). dream-narration.vue, reward-encounter.vue
 // and facet-profile.vue each link into Storybook with `?location=`/`?reward=`/
 // `?facet=` in the URL, expecting the same pre-fill the LEGACY
-// storybook-page.vue's own seedFromQuery() used to give them (see
-// verifyStorybookLocationDeepLinkGuard.mjs and
-// verifyStorybookCharacterDeepLinkGuard.mjs for that half of the contract).
+// storybook-page.vue's own seedFromQuery() used to give them. (The legacy-side
+// guards for that half of the contract, verifyStorybookLocationDeepLinkGuard.mjs
+// and verifyStorybookCharacterDeepLinkGuard.mjs, were deleted in the storybook/t-037
+// guard-cleanup pass -- this file is now the only coverage for these query keys.)
 // But storybook-page.vue is not the default screen any more -- the new-engine
 // storybook-table.vue is (storybook-storymaker.vue mounts it whenever no run
 // is open) -- and storybook-table.vue had no query handling at all, so all
@@ -27,12 +28,11 @@
 // Extended for storybook/t-037: the original guard only covered the three
 // keys t-055 fixed a live bug for (location/facet/reward). seedFromQuery()
 // has always also read ?character= (-> 'hero') and ?scenario= (-> 'thread')
-// -- verifyStorybookCharacterDeepLinkGuard.mjs pins the legacy
-// storybook-page.vue half of that same contract, but nothing pinned the
-// new-engine half for those two keys, leaving a real coverage gap. Character
-// resolution is also gated the same way genre is (withCharacterLock(),
-// storybook/t-038): a deep link to a locked character must not bypass the
-// board's own lock.
+// too -- the legacy-side guard for that contract is gone (see the file header
+// above), so this guard now pins the new-engine half for those two keys as
+// well, closing what was a real coverage gap. Character resolution is also
+// gated the same way genre is (withCharacterLock(), storybook/t-038): a deep
+// link to a locked character must not bypass the board's own lock.
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'

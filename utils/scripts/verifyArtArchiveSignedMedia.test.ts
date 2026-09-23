@@ -66,7 +66,13 @@ assert.equal(
 )
 
 // ---- nothing is accepted without a real signature ------------------------
-for (const forged of ['', 'x', sig.slice(0, -1), `${sig}x`, sig.toUpperCase()]) {
+for (const forged of [
+  '',
+  'x',
+  sig.slice(0, -1),
+  `${sig}x`,
+  sig.toUpperCase(),
+]) {
   assert.equal(
     verifyArchiveMedia(42, 'thumbnail', later, forged, NOW),
     false,
@@ -126,7 +132,11 @@ assert.match(
 resetArchiveMediaKey()
 process.env.ARCHIVE_MEDIA_SECRET = 'test-secret-for-the-contract'
 const url = archiveMediaUrl(7, 'thumbnail', NOW)
-assert.match(url, /^\/api\/admin\/art-archive\/entries\/7\/file\?/, 'route shape')
+assert.match(
+  url,
+  /^\/api\/admin\/art-archive\/entries\/7\/file\?/,
+  'route shape',
+)
 assert.match(url, /variant=thumbnail/, 'the variant must be in the URL')
 assert.match(url, /[?&]exp=\d+/, 'the expiry must be in the URL')
 assert.match(url, /[?&]sig=[A-Za-z0-9_-]+/, 'the signature must be in the URL')

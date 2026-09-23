@@ -44,7 +44,7 @@ assert.throws(() => validateAnimationEffect({ ...entry, generationSafe: 'yes' })
 assert.throws(() => validateAnimationEffect({ ...entry, releasedAt: '2026-09-23' }), /releasedAt/)
 
 const formatted = formatAnimationEffect(entry)
-assert.match(formatted, /^  \{/)
+assert.match(formatted, /^ {2}\{/)
 assert.match(formatted, /preferredSurface: 'fullscreen'/)
 
 console.log('registerAnimationEffect self-test passed')

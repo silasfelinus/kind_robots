@@ -41,6 +41,30 @@ export function intColumnOrNull(value: unknown): number | null {
 export type IntColumnFault = 'out-of-range' | 'not-an-integer'
 
 /**
+ * CFG scale is a half-step value (7, 7.5, 12.5), and ArtImage already models
+ * that as an INT plus a `cfgHalf` flag -- image-card.vue renders `${cfg}.5`
+ * off it. The importer ignored the flag and simply dropped anything fractional,
+ * which silently cost over half the archive its CFG (130-142 per 250-file batch
+ * on 2026-09-23) for want of a boolean that already existed. No migration
+ * needed, and no string: the column pair represents this exactly.
+ *
+ * Returns null only for a value this pair genuinely cannot hold -- a quarter
+ * step, or a whole part outside the Int range -- so the caller still reports it
+ * rather than losing it quietly.
+ */
+export function splitHalfStepCfg(
+  value: unknown,
+): { cfg: number; cfgHalf: boolean } | null {
+  if (typeof value !== 'number' || !Number.isFinite(value)) return null
+  const doubled = value * 2
+  // Anything not on a half step (7.25) cannot be represented by this pair.
+  if (!Number.isInteger(doubled)) return null
+  const whole = Math.floor(value)
+  if (intColumnOrNull(whole) === null) return null
+  return { cfg: whole, cfgHalf: !Number.isInteger(value) }
+}
+
+/**
  * Why a present value could not be stored, or null when it stores fine or was
  * never there. An absent field is not a loss and never reported as one.
  */

@@ -52,6 +52,7 @@
     "test:art-archive-batch-scan": "tsx utils/scripts/verifyArtArchiveBatchScan.test.ts",
     "test:art-archive-scale": "tsx utils/scripts/verifyArtArchiveScaleContract.test.ts",
     "test:art-archive-int-columns": "tsx utils/scripts/verifyArtArchiveIntColumns.test.ts",
+    "test:art-archive-signed-media": "tsx utils/scripts/verifyArtArchiveSignedMedia.test.ts",
     "test:butterfly-gallery-actions": "tsx utils/scripts/verifyButterflyGalleryActions.test.ts",
     "test:butterfly-gallery-filters": "tsx utils/scripts/verifyButterflyGalleryFilters.test.ts",
     "test:butterfly-gallery-motion": "tsx utils/scripts/verifyButterflyGalleryMotion.test.ts",

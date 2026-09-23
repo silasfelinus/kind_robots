@@ -2,7 +2,11 @@ import path from 'node:path'
 import { createHash } from 'node:crypto'
 import prisma from '~/server/utils/prisma'
 import { narrowToPngMetadata } from './artArchiveMetadata'
-import { classifyIntColumnValue, intColumnOrNull } from './artArchiveIntColumns'
+import {
+  classifyIntColumnValue,
+  intColumnOrNull,
+  splitHalfStepCfg,
+} from './artArchiveIntColumns'
 import type { IntColumnFault } from './artArchiveIntColumns'
 import type { ScannedArchiveFile } from './artArchiveScanner'
 
@@ -111,13 +115,24 @@ function generationFields(file: ScannedArchiveFile): {
     return intColumnOrNull(raw)
   }
 
+  // CFG keeps its half step instead of being thrown away for having one.
+  const cfg = splitHalfStepCfg(source.cfg)
+  if (!cfg && typeof source.cfg === 'number' && Number.isFinite(source.cfg)) {
+    droppedValues.push({
+      field: 'cfg',
+      fault: classifyIntColumnValue(source.cfg) ?? 'not-an-integer',
+      value: source.cfg,
+    })
+  }
+
   return {
     droppedValues,
     fields: {
       promptString: 'prompt' in source ? source.prompt : source.positivePrompt,
       negativePrompt: source.negativePrompt,
       seed: intField('seed', source.seed),
-      cfg: intField('cfg', source.cfg),
+      cfg: cfg ? cfg.cfg : null,
+      cfgHalf: cfg ? cfg.cfgHalf : false,
       sampler: source.sampler,
       steps: intField('steps', source.steps),
       checkpoint: source.checkpoint,

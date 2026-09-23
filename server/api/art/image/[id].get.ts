@@ -5,6 +5,7 @@ import prisma from '../../../utils/prisma'
 import { errorHandler } from '../../../utils/error'
 import { validateApiKey } from '../../../utils/validateKey'
 import { userRoles } from '../../../utils/authUser'
+import { attachArchiveMediaPaths } from '~/server/utils/artArchiveMediaPaths'
 import {
   isMaturityRestricted,
   viewerShowsMature,
@@ -230,6 +231,13 @@ export default defineEventHandler(async (event) => {
         }, isAdmin: ${access.isAdmin}, showMature: ${access.showMature}). Reason: ${reason}.`,
       })
     }
+    // Archive-backed rows carry a private-root path, not a URL, so without
+    // this the panel renders the backtree.webp placeholder instead of the art.
+    await attachArchiveMediaPaths(
+      [data] as Parameters<typeof attachArchiveMediaPaths>[0],
+      access,
+    )
+
     event.node.res.statusCode = 200
 
     return {

@@ -413,7 +413,9 @@
                 <kr-mature-cover
                   :is-mature="image.isMature"
                   :owner-id="image.userId"
-                  :label="image.promptString || image.fileName || `image #${image.id}`"
+                  :label="
+                    image.promptString || image.fileName || `image #${image.id}`
+                  "
                 >
                   <image-card
                     :art-image="hydratedImages[image.id] || image"
@@ -897,7 +899,10 @@ async function reloadGalleryForVisibility() {
     }
     void refreshEarnedKarma()
   } catch (error) {
-    const message = getErrorMessage(error, 'Gallery visibility failed to refresh.')
+    const message = getErrorMessage(
+      error,
+      'Gallery visibility failed to refresh.',
+    )
     errorMessage.value = message
     errorStore.setError(ErrorType.NETWORK_ERROR, message)
   } finally {

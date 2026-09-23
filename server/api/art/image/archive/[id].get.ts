@@ -91,7 +91,10 @@ export default defineEventHandler(async (event) => {
     }
 
     if (!artImage) {
-      throw createError({ statusCode: 404, message: 'Archive image not found.' })
+      throw createError({
+        statusCode: 404,
+        message: 'Archive image not found.',
+      })
     }
 
     const entry = await prisma.archiveEntry.findFirst({
@@ -103,7 +106,10 @@ export default defineEventHandler(async (event) => {
       },
     })
     if (!entry) {
-      throw createError({ statusCode: 404, message: 'Archive image not found.' })
+      throw createError({
+        statusCode: 404,
+        message: 'Archive image not found.',
+      })
     }
 
     const resolvedRoot = await realpath(getArtArchiveRoot())

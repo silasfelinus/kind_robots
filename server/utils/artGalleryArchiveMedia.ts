@@ -93,19 +93,13 @@ export function verifyGalleryArchiveMedia(
  * server-side visibility filter. This helper adds no authority of its own; it
  * only turns that already-approved row into an <img>-loadable capability.
  */
-export function attachGalleryArchiveMediaPaths<
-  T extends ArchiveBackedArtImage,
->(
+export function attachGalleryArchiveMediaPaths<T extends ArchiveBackedArtImage>(
   rows: T[],
   variant: GalleryArchiveMediaVariant = 'medium',
 ): T[] {
   for (const row of rows) {
     const id = Number(row.id)
-    if (
-      row.designer === 'art-archive' &&
-      Number.isInteger(id) &&
-      id > 0
-    ) {
+    if (row.designer === 'art-archive' && Number.isInteger(id) && id > 0) {
       row.imagePath = galleryArchiveMediaUrl(id, variant)
     }
   }

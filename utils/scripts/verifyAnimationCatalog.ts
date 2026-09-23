@@ -10,6 +10,7 @@ import {
   animationEffects,
   getAnimationComponentName,
   isAnimationEffectId,
+  type AnimationEffectId,
 } from '@/stores/animationCatalog'
 import { DEFAULT_PREFERENCES } from '@/stores/animationPreferenceStore'
 import { narratorAnimationAliases } from '@/stores/helpers/narratorHelper'
@@ -28,7 +29,7 @@ const VALID_SURFACES = new Set([
 // one surfaces on its own instead of depending on a future pass catching it.
 const GENERIC_PLACEHOLDER_ICONS = new Set(['kind-icon:cube', 'kind-icon:box'])
 
-const LEGACY_UNDATED_ANIMATION_IDS = new Set([
+const LEGACY_UNDATED_ANIMATION_IDS = new Set<AnimationEffectId>([
   'starfield-effect',
   'constellation-effect',
   'wishing-stars',

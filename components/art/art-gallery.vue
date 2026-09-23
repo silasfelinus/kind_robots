@@ -103,14 +103,18 @@
           />
         </label>
 
+        <maturity-toggle variant="compact" />
+
         <label
+          v-if="currentUserId"
           class="flex cursor-pointer items-center gap-1.5 rounded-lg border border-base-300 bg-base-100 px-2 py-1"
+          title="Show private collections and images that you own"
         >
-          <span class="kr-text-dim-xs-70 font-bold">Mature</span>
+          <span class="kr-text-dim-xs-70 font-bold">Private</span>
           <input
-            v-model="showMature"
+            v-model="showPrivate"
             type="checkbox"
-            class="kr-toggle-warning-xs"
+            class="kr-toggle-primary-xs"
           />
         </label>
 
@@ -406,32 +410,38 @@
                   />
                 </button>
 
-                <image-card
-                  :art-image="hydratedImages[image.id] || image"
-                  :selected="
-                    isImageSelected(image.id) ||
-                    selectedImageForOverlay?.id === image.id
-                  "
-                  :compact="viewSize === 'xs' || viewSize === 'sm'"
-                  :show-actions="
-                    !bulkSelectEnabled &&
-                    selectedImageForOverlay?.id === image.id
-                  "
-                  :show-prompt="viewSize !== 'xs'"
-                  :show-meta="viewSize === 'md' || viewSize === 'lg'"
-                  :show-generation-meta="false"
-                  :show-image-status="false"
-                  :show-select-button="false"
-                  :allow-delete="canModifyImage(image) && !bulkSelectEnabled"
-                  :allow-edit="false"
-                  :auto-load-image="true"
-                  :defer-load-until-visible="true"
-                  :size="viewSize"
-                  :earned-karma="earnedKarmaByImageId[image.id]"
-                  @loaded="handleImageLoaded"
-                  @open="handleImageCardClick"
-                  @delete="handleImageDeleted"
-                />
+                <kr-mature-cover
+                  :is-mature="image.isMature"
+                  :owner-id="image.userId"
+                  :label="image.promptString || image.fileName || `image #${image.id}`"
+                >
+                  <image-card
+                    :art-image="hydratedImages[image.id] || image"
+                    :selected="
+                      isImageSelected(image.id) ||
+                      selectedImageForOverlay?.id === image.id
+                    "
+                    :compact="viewSize === 'xs' || viewSize === 'sm'"
+                    :show-actions="
+                      !bulkSelectEnabled &&
+                      selectedImageForOverlay?.id === image.id
+                    "
+                    :show-prompt="viewSize !== 'xs'"
+                    :show-meta="viewSize === 'md' || viewSize === 'lg'"
+                    :show-generation-meta="false"
+                    :show-image-status="false"
+                    :show-select-button="false"
+                    :allow-delete="canModifyImage(image) && !bulkSelectEnabled"
+                    :allow-edit="false"
+                    :auto-load-image="true"
+                    :defer-load-until-visible="true"
+                    :size="viewSize"
+                    :earned-karma="earnedKarmaByImageId[image.id]"
+                    @loaded="handleImageLoaded"
+                    @open="handleImageCardClick"
+                    @delete="handleImageDeleted"
+                  />
+                </kr-mature-cover>
               </div>
             </template>
           </template>
@@ -588,7 +598,7 @@ const isLoading = ref(false)
 const errorMessage = ref('')
 const successMessage = ref('')
 const searchQuery = ref('')
-const showMature = ref(false)
+const showMature = computed(() => Boolean(userStore.showMature))\nconst showPrivate = ref(true)
 const hydratedImages = ref<Record<number, ArtImage>>({})
 const activeGroupKey = ref<string | null>(null)
 const selectedImageForOverlay = ref<ArtImage | null>(null)
@@ -661,11 +671,30 @@ const collectionGroups = computed<GalleryGroup[]>(() => {
   ]
 })
 
+function isOwnedPrivateRecord(record: {
+  isPublic?: boolean | null
+  userId?: number | null
+}): boolean {
+  if (record.isPublic !== false) return true
+  const viewerId = Number(currentUserId.value)
+  const ownerId = Number(record.userId)
+  return (
+    showPrivate.value &&
+    Number.isInteger(viewerId) &&
+    viewerId > 0 &&
+    ownerId === viewerId
+  )
+}
+
 const visibleGroups = computed<GalleryGroup[]>(() => {
   const query = searchQuery.value.trim().toLowerCase()
   return collectionGroups.value.filter((group) => {
-    // Maturity is the API's now (viewerShowsMature); a group the viewer may not
-    // see never arrives.
+    // Unsorted is a mixed virtual bucket; keep the bucket itself and filter its
+    // rows below. Real private collections belong in this personal Gallery only
+    // when the signed-in viewer owns them and has Private switched on. Admin
+    // moderation of somebody else's private collection belongs on admin
+    // surfaces, not in the normal personal Gallery.
+    if (!group.isVirtual && !isOwnedPrivateRecord(group)) return false
     if (query && !searchableGroupText(group).includes(query)) return false
     return true
   })
@@ -702,9 +731,10 @@ const collectionGalleryItems = computed<GalleryItem[]>(() =>
 const filteredActiveImages = computed(() => {
   if (!activeGroup.value) return []
   const query = searchQuery.value.trim().toLowerCase()
-  return activeGroup.value.images.filter(
-    (image) => !query || searchableImageText(image).includes(query),
-  )
+  return activeGroup.value.images.filter((image) => {
+    if (!isOwnedPrivateRecord(image)) return false
+    return !query || searchableImageText(image).includes(query)
+  })
 })
 
 const galleryItems = computed<GalleryItem[]>(() =>
@@ -763,17 +793,20 @@ watch(viewSize, (value) => {
   }
 })
 
-watch(showMature, async (value) => {
+watch(showMature, async () => {
   if (!galleryReady.value) return
-  browseStore.invalidateUnsorted()
-  await browseStore.fetchUnsortedSummary(true, value)
-  if (activeGroupKey.value === 'collection-unsorted') {
-    await browseStore.fetchUnsortedImages(true, value)
+  await reloadGalleryForVisibility()
+})
+
+watch(showPrivate, () => {
+  if (!galleryReady.value) return
+  const group = activeGroup.value
+  if (group && !group.isVirtual && !isOwnedPrivateRecord(group)) {
+    clearActiveGroup()
   }
 })
 
 onMounted(async () => {
-  showMature.value = Boolean(userStore.user?.showMature ?? userStore.showMature)
   if (typeof localStorage !== 'undefined') {
     const stored = localStorage.getItem('galleryViewSize')
     if (stored && IS_GALLERY_DENSITY(stored)) viewSize.value = stored
@@ -840,6 +873,35 @@ async function handleImageCardClick(id: number) {
   }
 
   await selectImage(image)
+}
+
+async function reloadGalleryForVisibility() {
+  isLoading.value = true
+  errorMessage.value = ''
+  hydratedImages.value = {}
+
+  try {
+    const activeKey = activeGroupKey.value
+    browseStore.invalidateAll()
+    await Promise.all([
+      fetchCollectionSummaries(true),
+      browseStore.fetchUnsortedSummary(true, showMature.value),
+    ])
+
+    const group = activeGroup.value
+    if (group && !group.isVirtual && !isOwnedPrivateRecord(group)) {
+      clearActiveGroup()
+    } else if (activeKey) {
+      await loadGroupData(activeKey, true)
+    }
+    void refreshEarnedKarma()
+  } catch (error) {
+    const message = getErrorMessage(error, 'Gallery visibility failed to refresh.')
+    errorMessage.value = message
+    errorStore.setError(ErrorType.NETWORK_ERROR, message)
+  } finally {
+    isLoading.value = false
+  }
 }
 
 async function refreshGallery() {
@@ -1004,11 +1066,16 @@ function makePseudoCollection(input: {
 
 function getPreviewImage(group: GalleryGroup): ArtImage | null {
   const preview = group.previewArtImage
-  if (preview && (showMature.value || !preview.isMature)) {
+  if (
+    preview &&
+    isOwnedPrivateRecord(preview) &&
+    (showMature.value || !preview.isMature)
+  ) {
     return hydratedImages.value[preview.id] || preview
   }
   const image = group.images.find(
-    (entry) => showMature.value || !entry.isMature,
+    (entry) =>
+      isOwnedPrivateRecord(entry) && (showMature.value || !entry.isMature),
   )
   return image ? hydratedImages.value[image.id] || image : null
 }

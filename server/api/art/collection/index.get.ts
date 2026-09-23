@@ -134,7 +134,10 @@ export default defineEventHandler(async (event) => {
 
     for (const collection of collections) {
       if ('ArtImages' in collection) {
-        attachGalleryArchiveMediaPaths(collection.ArtImages, 'medium')
+        attachGalleryArchiveMediaPaths(
+          collection.ArtImages,
+          summaryOnly ? 'thumbnail' : 'medium',
+        )
       }
     }
 

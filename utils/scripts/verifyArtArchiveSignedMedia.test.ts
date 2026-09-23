@@ -6,7 +6,7 @@
 // the browser a short-lived, narrowly-scoped token instead, and this pins the
 // scope.
 import assert from 'node:assert/strict'
-import { readFileSync } from 'node:fs'
+import { existsSync, readFileSync } from 'node:fs'
 
 process.env.ARCHIVE_MEDIA_SECRET = 'test-secret-for-the-contract'
 
@@ -203,6 +203,36 @@ assert.notEqual(
     'signature for one must not be replayable against the other',
 )
 
+// ---- ONE attacher, not two -----------------------------------------------
+// #3007 already had attachGalleryArchiveMediaPaths; this branch had written a
+// second one. The endpoints that render archive art must all route through the
+// same helper, or a fix lands on only some of the surfaces.
+const attachers: string[] = []
+for (const file of [
+  'server/api/art/image/index.get.ts',
+  'server/api/art/image/[id].get.ts',
+  'server/api/art/collection/index.get.ts',
+]) {
+  const body = readFileSync(file, 'utf8')
+  assert.match(
+    body,
+    /attachGalleryArchiveMediaPaths/,
+    `${file} must use the shared attacher`,
+  )
+  assert.doesNotMatch(
+    body,
+    /attachArchiveMediaPaths/,
+    `${file} must not use a second, parallel attacher`,
+  )
+  attachers.push(file)
+}
+assert.ok(attachers.length === 3, 'all three surfaces checked')
+assert.equal(
+  existsSync('server/utils/artArchiveMediaPaths.ts'),
+  false,
+  'the duplicate attacher module must be gone, not merely unused',
+)
+
 // ---- a caller-chosen expiry is bounded -----------------------------------
 // Adopted from #3007, which had this and the archive side did not.
 assert.equal(
@@ -219,5 +249,5 @@ console.log(
     'route still falls back to the admin guard when no signature is present, ' +
     'the HMAC is implemented once rather than per route, and the two ' +
     'capability domains keep separate key labels so neither replays as the ' +
-    'other.',
+    'other, and one attacher wires every archive-rendering surface.',
 )

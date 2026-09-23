@@ -768,7 +768,7 @@ const ORIGIN: EmbodimentFacetSeed[] = [
     description:
       'Family bound to one employer since a grandparent signed. The company store ledger outlived the company.',
     artPrompt:
-      'An issued uniform jacket with a stitched-over former name, a company scrip token worn smooth.',
+      'A person seen from head to boots in a faded navy work jacket with plain brass buttons, standing on a row-house porch with a soot-darkened mill chimney behind them.',
     scope: 'any',
   },
 ]

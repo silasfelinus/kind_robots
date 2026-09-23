@@ -102,7 +102,7 @@ export const CURATED_FACET_ART_PROMPTS: Record<string, string> = {
     'A peat-cutting rig of brass pipes and tarred rope sunk to its axles in black bog water, dawn mist low across the heather.',
   // Bureaucratic Fantasy
   'bureaucratic-fantasy':
-    'A wizard\'s permit window, a wax-sealed scroll pinned under a crystal paperweight, a brass bell nobody has rung, queue rail empty.',
+    'A long stone hall where a line of robed wizards, a knight and a small dragon wait on wooden benches, each clutching a sealed blank scroll, while a tired clerk behind a brass grille stamps a wax seal.',
   // Cartoon Noir
   'cartoon-noir':
     'A rain-slick alley in flat black ink, one yellow window burning, a bent streetlamp leaning like rubber over a puddle.',

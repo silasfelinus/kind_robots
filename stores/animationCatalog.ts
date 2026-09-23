@@ -9,6 +9,7 @@ interface AnimationEffectDefinition {
   icon: string
   tooltip: string
   color: string
+  releasedAt?: string
   generationSafe: boolean
   blocksInput?: boolean
   preferredSurface?: FxRegion | 'fullscreen'
@@ -142,6 +143,7 @@ export const ANIMATION_EFFECTS = [
     icon: 'kind-icon:wave',
     tooltip: 'Drifting lantern life follows your wake; click for a tide pulse 🌊',
     color: '#2dd4bf',
+    releasedAt: '2026-07-14T06:01:59Z',
     generationSafe: true,
     preferredSurface: 'fullscreen',
   },
@@ -152,6 +154,7 @@ export const ANIMATION_EFFECTS = [
     icon: 'kind-icon:wind',
     tooltip: 'Folded lanterns dim before a gust and relight in sheltered eddies; click to release a paper bird 🏮',
     color: '#fdba74',
+    releasedAt: '2026-07-20T07:23:42Z',
     generationSafe: true,
     preferredSurface: 'fullscreen',
   },
@@ -162,6 +165,7 @@ export const ANIMATION_EFFECTS = [
     icon: 'kind-icon:vortex',
     tooltip: 'Metallic sand gathers into ridges and valleys; click to flip the field 🧲',
     color: '#94a3b8',
+    releasedAt: '2026-07-21T08:17:33Z',
     generationSafe: true,
     preferredSurface: 'fullscreen',
   },
@@ -172,6 +176,7 @@ export const ANIMATION_EFFECTS = [
     icon: 'kind-icon:gem',
     tooltip: 'Leaded panes drift and merge as rain sheens trace the seams; click for a rose window 🌈',
     color: '#7c6fd8',
+    releasedAt: '2026-07-22T00:24:42Z',
     generationSafe: true,
     preferredSurface: 'fullscreen',
   },
@@ -192,6 +197,7 @@ export const ANIMATION_EFFECTS = [
     icon: 'kind-icon:greenhouse',
     tooltip: 'Brass stems grow, bloom, and seed on staggered timelines while gear pollinators make their rounds; click to plant a seed 🌱',
     color: '#b08d57',
+    releasedAt: '2026-07-22T16:54:55Z',
     generationSafe: true,
     preferredSurface: 'fullscreen',
   },
@@ -203,6 +209,7 @@ export const ANIMATION_EFFECTS = [
     tooltip:
       'A cross-section sand column where a small colony digs, abandons, and re-digs its tunnels; wave the pointer to redirect diggers, click to drop a grain-pile obstacle 🐜',
     color: '#b45309',
+    releasedAt: '2026-08-12T20:58:06Z',
     generationSafe: true,
     preferredSurface: 'fullscreen',
   },
@@ -213,6 +220,7 @@ export const ANIMATION_EFFECTS = [
     icon: 'kind-icon:cloud',
     tooltip: 'Layered clouds drift past a hidden skyline; click for a distant beacon reply ☁️',
     color: '#7dd3fc',
+    releasedAt: '2026-07-25T13:25:18Z',
     generationSafe: true,
     preferredSurface: 'fullscreen',
   },
@@ -223,6 +231,7 @@ export const ANIMATION_EFFECTS = [
     icon: 'kind-icon:moon',
     tooltip: 'Moths gather around unseen moonlight and briefly trace a constellation before scattering; move the pointer to draw a few closer 🌙',
     color: '#8ea3c7',
+    releasedAt: '2026-07-26T10:08:15Z',
     generationSafe: true,
     preferredSurface: 'fullscreen',
   },
@@ -234,6 +243,7 @@ export const ANIMATION_EFFECTS = [
     tooltip:
       'Koi drift beneath floating leaves and slowly favor routes they remember; click to drop food 🐟',
     color: '#f97316',
+    releasedAt: '2026-07-27T00:38:03Z',
     generationSafe: true,
     preferredSurface: 'fullscreen',
   },
@@ -245,6 +255,7 @@ export const ANIMATION_EFFECTS = [
     tooltip:
       'A glass terrarium where each pocket obeys its own gravity; click a wall to open a door 🌿',
     color: '#22c55e',
+    releasedAt: '2026-07-27T23:04:32Z',
     generationSafe: true,
     preferredSurface: 'fullscreen',
   },
@@ -256,6 +267,7 @@ export const ANIMATION_EFFECTS = [
     tooltip:
       'Drifting ink folds into shapes that never quite settle; move the pointer to bend the currents, click to open a clear space 🔮',
     color: '#4338ca',
+    releasedAt: '2026-07-28T15:23:34Z',
     generationSafe: true,
     preferredSurface: 'fullscreen',
   },
@@ -267,6 +279,7 @@ export const ANIMATION_EFFECTS = [
     tooltip:
       'A hanging mobile of moons, robots, keys, and planets slowly rebalances itself; wave the pointer for a breeze, click to hang a mystery weight 🪐',
     color: '#b08d57',
+    releasedAt: '2026-07-29T02:21:24Z',
     generationSafe: true,
     preferredSurface: 'fullscreen',
   },
@@ -278,6 +291,7 @@ export const ANIMATION_EFFECTS = [
     tooltip:
       'Miniature weather cells drift and merge across the screen; wave the pointer to bend a front, click for a warm updraft 🌦️',
     color: '#64748b',
+    releasedAt: '2026-07-29T13:33:03Z',
     generationSafe: true,
     preferredSurface: 'fullscreen',
   },
@@ -453,6 +467,7 @@ export const ANIMATION_EFFECTS = [
     tooltip:
       'A wooden circuit rolls marbles past a tipping seesaw, a spinning pinwheel, and a ringing bell before a slow elevator carries them back to the top; nudge the lever to redirect the next marble, click for a burst of extra traffic ⚙️',
     color: '#8a5a34',
+    releasedAt: '2026-08-26T20:42:54Z',
     generationSafe: true,
     preferredSurface: 'fullscreen',
   },
@@ -475,6 +490,7 @@ export const ANIMATION_EFFECTS = [
     tooltip:
       'Jointed shadow puppets perform short wordless vignettes behind a slow-drifting backlight; move your pointer to join with a hand-shadow, click to advance the scene 🏮',
     color: '#e0a458',
+    releasedAt: '2026-08-31T21:01:28Z',
     generationSafe: true,
     preferredSurface: 'fullscreen',
   },
@@ -486,6 +502,7 @@ export const ANIMATION_EFFECTS = [
     tooltip:
       'Hairline fractures branch quietly across the glaze, then heal themselves with warm gold seams before fading clear again; hover to warm a healing seam, click for a passing hairline crack 🏺',
     color: '#c9a24b',
+    releasedAt: '2026-09-03T06:44:50Z',
     generationSafe: true,
     preferredSurface: 'fullscreen',
   },
@@ -497,6 +514,7 @@ export const ANIMATION_EFFECTS = [
     tooltip:
       'A shuttle glides row by row across the warp, weaving stripes into chevrons into diamonds before unraveling back to bare thread and starting a new palette; hover to slow the shuttle and trace a row, click to pluck a thread 🧵',
     color: '#b5652c',
+    releasedAt: '2026-09-03T13:52:10Z',
     generationSafe: true,
     preferredSurface: 'fullscreen',
   },
@@ -508,6 +526,7 @@ export const ANIMATION_EFFECTS = [
     tooltip:
       'Grains stream from the top bulb into a self-leveling pile below, occasionally slumping past their angle of repose, until the whole glass flips over and pours the other way ⏳ hover the neck to narrow the stream, click to flip early',
     color: '#c2833f',
+    releasedAt: '2026-09-03T19:51:24Z',
     generationSafe: true,
     preferredSurface: 'fullscreen',
   },
@@ -519,6 +538,7 @@ export const ANIMATION_EFFECTS = [
     tooltip:
       'Faceted crystal clusters nucleate in a hollow geode cavity, grow outward along fixed lattice directions until they catch the light, then recede facet-by-facet to free room for the next formation 💎 hover for a glint, click to seed a new cluster',
     color: '#3fb6d1',
+    releasedAt: '2026-09-05T07:27:49Z',
     generationSafe: true,
     preferredSurface: 'fullscreen',
   },
@@ -530,6 +550,7 @@ export const ANIMATION_EFFECTS = [
     tooltip:
       'A row of tapers burns down on a stone ledge, wax beading and pooling beneath each one until a fresh candle silently rises to relight it 🕯️ hover a flame to bend it, click a candle to nudge its wax loose',
     color: '#d68a3a',
+    releasedAt: '2026-09-21T23:12:33Z',
     generationSafe: true,
     preferredSurface: 'fullscreen',
   },

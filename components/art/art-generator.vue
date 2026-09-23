@@ -136,61 +136,79 @@
             </p>
           </section>
 
-          <!--
-            THE PICKED IMAGE. Silas, 2026-09-18: "we should be able to select
-            them and modify them, even if they come from a civitai sample."
+          <section
+            v-if="sourceImageCompatible || sourceImage"
+            class="kr-panel-flat p-3"
+          >
+            <div class="flex flex-wrap items-start justify-between gap-3">
+              <div class="min-w-0">
+                <h2
+                  class="flex items-center gap-2 text-base font-bold text-primary"
+                >
+                  <Icon name="kind-icon:gallery" class="kr-icon-4" />
+                  Source image
+                  <span class="text-xs font-normal text-base-content/45">
+                    optional
+                  </span>
+                </h2>
+                <p
+                  v-if="sourceImageCompatible"
+                  class="kr-text-dim-xs-55 mt-0.5"
+                >
+                  Upload a picture to run this checkpoint as image-to-image.
+                  The selected checkpoint, LoRAs, prompt, and recipe settings
+                  still apply.
+                </p>
+                <p v-else class="kr-text-dim-xs-55 mt-0.5">
+                  A source image is loaded, but {{ activePreset.label }} starts
+                  from text. Choose an SDXL checkpoint recipe to use the image.
+                </p>
+              </div>
 
-            Picking one in a gallery loads it into artForm.sourceImageBase64.
-            Until this panel existed the generator gave no sign it was holding
-            an image, and no preset could consume it -- so a picked image was
-            loaded and then silently ignored.
-          -->
-          <section v-if="sourceImage" class="kr-panel-flat p-3">
-            <div class="flex items-start gap-3">
+              <label
+                v-if="sourceImageCompatible"
+                class="btn btn-outline btn-sm rounded-2xl"
+                :class="sourceImage ? 'btn-ghost' : ''"
+              >
+                <Icon name="kind-icon:upload" class="kr-icon-4" />
+                {{ sourceImage ? 'Replace image' : 'Upload image' }}
+                <input
+                  type="file"
+                  accept="image/*"
+                  class="hidden"
+                  :disabled="artStore.isGenerating"
+                  @change="handleSourceFile"
+                />
+              </label>
+            </div>
+
+            <div v-if="sourceImage" class="mt-3 flex items-start gap-3">
               <img
                 :src="sourceImage"
                 alt="Source image for this generation"
                 class="h-20 w-20 shrink-0 rounded-2xl object-cover"
               />
-
               <div class="min-w-0 flex-1">
                 <p class="kr-text-eyebrow text-xs tracking-widest opacity-55">
                   Starting from
                 </p>
                 <p class="truncate text-sm font-semibold">
-                  {{ artStore.sourceImageLabel || 'a picked image' }}
+                  {{ artStore.sourceImageLabel || 'a source image' }}
                 </p>
-
-                <p v-if="!usesSourceImage" class="kr-text-dim-sm mt-1">
-                  {{ activePreset.label }} starts from a blank canvas and will
-                  ignore it.
+                <p v-if="usesSourceImage" class="kr-text-dim-xs-55 mt-1">
+                  Output dimensions follow this image.
                 </p>
               </div>
-
-              <div class="flex shrink-0 flex-col gap-1">
-                <button
-                  v-if="!usesSourceImage"
-                  type="button"
-                  class="btn btn-primary btn-xs rounded-2xl"
-                  @click="applyPreset(IMAGE_TO_IMAGE_PRESET_ID)"
-                >
-                  Use it
-                </button>
-                <button
-                  type="button"
-                  class="btn btn-ghost btn-xs rounded-2xl"
-                  @click="clearSourceImage"
-                >
-                  Clear
-                </button>
-              </div>
+              <button
+                type="button"
+                class="btn btn-ghost btn-xs rounded-2xl"
+                :disabled="artStore.isGenerating"
+                @click="clearSourceImage"
+              >
+                Clear
+              </button>
             </div>
 
-            <!--
-              Strength is the only control this lane adds, and it is the one
-              that decides whether the result is the source with a new coat of
-              paint or something that merely rhymes with it.
-            -->
             <label v-if="usesSourceImage" class="form-control mt-3">
               <span class="label">
                 <span class="label-text text-xs font-semibold">
@@ -205,6 +223,7 @@
                 max="0.95"
                 step="0.05"
                 class="range range-primary range-xs"
+                :disabled="artStore.isGenerating"
               />
               <span class="label">
                 <span class="label-text-alt text-[0.65rem] opacity-55">
@@ -374,7 +393,7 @@
 
           <art-lora-picker
             v-model="loraPicks"
-            :engine="activePreset.engine"
+            :engine="generationEngine"
             :checkpoint-family="selectedCheckpointFamily"
           />
 
@@ -472,7 +491,7 @@
                 </select>
               </label>
 
-              <template v-if="activeProfile.supports.size">
+              <template v-if="activeProfile.supports.size && !usesSourceImage">
                 <label class="form-control">
                   <span class="kr-label-row">
                     <span class="kr-label-bold">Width</span>
@@ -510,6 +529,12 @@
                   </select>
                 </label>
               </template>
+              <p
+                v-else-if="usesSourceImage"
+                class="kr-text-dim-xs-55 col-span-full"
+              >
+                Width and height come from the source image.
+              </p>
 
               <label class="form-control col-span-full">
                 <span class="kr-label-row">
@@ -658,13 +683,13 @@ import {
   CHECKPOINT_FAMILY_LABELS,
   artDimensionOptions,
   DEFAULT_ART_PRESET_ID,
-  IMAGE_TO_IMAGE_PRESET_ID,
   detectCheckpointFamily,
   engineProfile,
   getPreset,
   presetForCheckpoint,
   presetSettings,
 } from '@/utils/artGeneratorPresets'
+import { blobToDataUri } from '@/utils/artImageSource'
 
 type ServerChoice = 'default' | 'any' | `server:${number}`
 
@@ -756,28 +781,58 @@ const width = formField('width', 1024)
 const height = formField('height', 1024)
 const denoise = formField('denoise', 0.6)
 
-/*
- * THE PICKED IMAGE, AND WHETHER THIS LANE CAN USE IT.
- *
- * artForm.sourceImageBase64 is written by "Use as source" in a gallery and
- * read by buildGenerateArtData, so the bytes travel on their own. What was
- * missing is both halves of the conversation with the viewer: that an image is
- * loaded at all, and that most presets here will ignore it.
- */
 const sourceImage = computed<string>(
   () => artStore.artForm.sourceImageBase64 || '',
 )
 
-const usesSourceImage = computed<boolean>(
-  () => activePreset.value.engine === 'sdxl-img2img',
+const sourceImageCompatible = computed(
+  () => activePreset.value.engine === 'comfy',
 )
+
+const usesSourceImage = computed(() =>
+  Boolean(sourceImage.value && sourceImageCompatible.value),
+)
+
+const generationEngine = computed(() =>
+  usesSourceImage.value ? 'sdxl-img2img' : activePreset.value.engine,
+)
+
+async function handleSourceFile(event: Event): Promise<void> {
+  const input = event.target as HTMLInputElement
+  const file = input.files?.[0]
+  input.value = ''
+  if (!file) return
+
+  if (file.type && !file.type.startsWith('image/')) {
+    artStore.setGenerationMessage('error', 'Choose an image file.')
+    return
+  }
+
+  try {
+    const dataUri = await blobToDataUri(file)
+    if (!dataUri.startsWith('data:image/')) {
+      throw new Error('The selected file could not be read as an image.')
+    }
+    artStore.setSourceImage(dataUri, file.name)
+    if (artStore.artForm.denoise == null) {
+      artStore.setArtForm({ denoise: 0.6 })
+    }
+    artStore.clearGenerationMessage()
+  } catch (cause) {
+    const message =
+      cause instanceof Error
+        ? cause.message
+        : 'The source image could not be read.'
+    artStore.setGenerationMessage('error', message)
+    errorStore.addError(ErrorType.INTERACTION_ERROR, message)
+  }
+}
 
 function clearSourceImage(): void {
   artStore.setSourceImage(null)
-  // Leaving the img2img lane selected with nothing to start from would queue a
-  // job the workflow cannot build.
-  if (usesSourceImage.value) applyPreset(DEFAULT_ART_PRESET_ID)
+  artStore.setArtForm({ denoise: null })
 }
+
 // content-visibility-controls takes strict booleans, and artForm's flags are
 // optional, so these two are spelled out rather than run through formField.
 const outputIsMature = computed<boolean>({
@@ -959,7 +1014,6 @@ function applyPreset(id: string): void {
     width: settings.width,
     height: settings.height,
     guidance: settings.guidance,
-    denoise: settings.denoise,
     variant: settings.variant,
   })
 
@@ -1050,7 +1104,7 @@ const destinationCompatible = computed(() => {
   if (!serverChoice.value.startsWith('server:')) return true
   const server = specificServer.value
   return Boolean(
-    server && artStore.canServerRunEngine(server, activePreset.value.engine),
+    server && artStore.canServerRunEngine(server, generationEngine.value),
   )
 })
 
@@ -1070,8 +1124,8 @@ const engineWarning = computed(() => {
   if (!serverChoice.value.startsWith('server:')) return ''
   const server = specificServer.value
   if (!server) return ''
-  if (artStore.canServerRunEngine(server, activePreset.value.engine)) return ''
-  return `${serverLabel(server)} cannot run ${activeProfile.value.label}. Choose another server or “Whatever is available”.`
+  if (artStore.canServerRunEngine(server, generationEngine.value)) return ''
+  return `${serverLabel(server)} cannot run ${engineProfile(generationEngine.value).label}. Choose another server or “Whatever is available”.`
 })
 
 const busyLabel = computed(() => {
@@ -1084,6 +1138,7 @@ const readinessSummary = computed(() => {
   if (!artStore.finalPromptString) return 'Write a prompt to begin.'
   if (!canAfford.value) return 'Your mana balance is empty.'
   const parts = [activePreset.value.label]
+  if (usesSourceImage.value) parts.push('+ source image')
   if (activeProfile.value.supports.checkpoint && checkpointName.value) {
     parts.push(checkpointName.value)
   }
@@ -1201,6 +1256,10 @@ function buildOverrides(): GenerateOverrides {
               : null,
             serverSelectionMode: 'specific',
           }
+
+  base.engine = generationEngine.value
+  base.denoise = usesSourceImage.value ? Number(denoise.value ?? 0.6) : null
+  base.presetId = presetId.value
 
   const basePrompt = String(
     artStore.finalPromptString || artStore.artForm.promptString || '',

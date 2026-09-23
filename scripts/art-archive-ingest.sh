@@ -42,10 +42,16 @@
 # answers. node:http with no timeout set waits as long as the server takes.
 #
 # USAGE
-#   scripts/art-archive-ingest.sh                 # dry run, writes nothing
-#   scripts/art-archive-ingest.sh --import        # perform the real import
-#   scripts/art-archive-ingest.sh --status        # how many rows are in the DB
-#                                                 # now; scans nothing
+#   scripts/art-archive-ingest.sh                 # how many files, how many
+#                                                 # left; reads no images
+#   scripts/art-archive-ingest.sh --import        # resumable batched import,
+#                                                 # reporting after each batch
+#   scripts/art-archive-ingest.sh --status        # same counts as the default
+#
+#   --batch-size N      files per batch (default 250, server caps at 2000)
+#   --import-once       the old single-request import; hydrates the whole
+#                       archive before writing anything
+#   --dry-run-full      the full per-file reconciliation plan, same cost
 #
 #   --container <name>   default KindRobots, or $KIND_ROBOTS_CONTAINER
 #   --container-env-file <path>  in-container config, default
@@ -63,23 +69,39 @@ CONTAINER="${KIND_ROBOTS_CONTAINER:-KindRobots}"
 CONTAINER_ENV_FILE="${KIND_ROBOTS_CONTAINER_ENV_FILE:-/config/kind-robots.env}"
 BASE_URL="${KIND_ROBOTS_URL:-}"
 TOKEN=''
-REQUEST_PATH='/api/admin/art-archive/dry-run'
-REQUEST_METHOD='POST'
+REQUEST_PATH='/api/admin/art-archive/scan-status'
+REQUEST_METHOD='GET'
 MODE='Dry run'
+BATCH=0
+BATCH_LIMIT="${KIND_ROBOTS_BATCH_SIZE:-250}"
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
+    # Resumable by default: the server treats an existing ArchiveEntry row as
+    # "done", so this walks the archive in batches, reports after each one, and
+    # continues where it left off if it is interrupted.
     --import)
+      REQUEST_PATH='/api/admin/art-archive/import-batch'; REQUEST_METHOD='POST'
+      BATCH=1; MODE='Import'; shift ;;
+    --batch-size) BATCH_LIMIT="${2:-}"; shift 2 ;;
+    # The whole archive in one request, hydrating every file before it answers.
+    # Fine for a small archive; for the real one it is the request that never
+    # came back. Kept because it is the only thing that reports the full
+    # per-file reconciliation plan.
+    --import-once)
       REQUEST_PATH='/api/admin/art-archive/import'; REQUEST_METHOD='POST'
-      MODE='Import'; shift ;;
+      MODE='Import (single request)'; shift ;;
     --dry-run)
-      REQUEST_PATH='/api/admin/art-archive/dry-run'; REQUEST_METHOD='POST'
+      REQUEST_PATH='/api/admin/art-archive/scan-status'; REQUEST_METHOD='GET'
       MODE='Dry run'; shift ;;
+    --dry-run-full)
+      REQUEST_PATH='/api/admin/art-archive/dry-run'; REQUEST_METHOD='POST'
+      MODE='Dry run (full reconciliation)'; shift ;;
     # Reads what is actually in the database right now. Scans nothing, writes
     # nothing -- the fastest way to answer "did the import land?" without
     # walking the archive again.
     --status)
-      REQUEST_PATH='/api/admin/art-archive/entries?page=1&pageSize=1'
+      REQUEST_PATH='/api/admin/art-archive/scan-status'
       REQUEST_METHOD='GET'; MODE='Status'; shift ;;
     --container) CONTAINER="${2:-}"; shift 2 ;;
     --container-env-file) CONTAINER_ENV_FILE="${2:-}"; shift 2 ;;
@@ -116,45 +138,126 @@ if (!token) {
   process.exit(3)
 }
 
-const target = new URL(path, base)
-const transport = target.protocol === 'https:' ? https : http
+// No timeout is set anywhere on purpose: a request can legitimately take a
+// while, and aborting it would only restart the work.
+function request(requestPath, requestMethod, payload) {
+  return new Promise((resolve, reject) => {
+    const url = new URL(requestPath, base)
+    const body = payload === undefined ? null : JSON.stringify(payload)
+    const call = (url.protocol === 'https:' ? https : http).request(
+      url,
+      {
+        method: requestMethod,
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+          ...(body ? { 'Content-Length': Buffer.byteLength(body) } : {}),
+        },
+      },
+      (response) => {
+        let text = ''
+        response.setEncoding('utf8')
+        response.on('data', (chunk) => { text += chunk })
+        response.on('end', () => {
+          const code = response.statusCode ?? 0
+          if (code >= 200 && code < 400) return resolve(text)
+          // An empty error body used to produce no output anywhere, so a
+          // failed run looked identical to a successful silent one.
+          process.stderr.write(`HTTP ${code} from ${requestMethod} ${url}\n`)
+          const preview = text.trim()
+          process.stderr.write(
+            preview ? `${preview.slice(0, 2000)}\n` : '(empty response body)\n',
+          )
+          process.exit(5)
+        })
+      },
+    )
+    call.on('error', reject)
+    if (body) call.write(body)
+    call.end()
+  })
+}
 
-// No timeout is set anywhere on purpose: the scan walks the whole archive
-// before the server sends a single header, and aborting would only restart it.
-const request = transport.request(
-  target,
-  {
-    method,
-    headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
-  },
-  (response) => {
-    let body = ''
-    response.setEncoding('utf8')
-    response.on('data', (chunk) => { body += chunk })
-    response.on('end', () => {
-      const code = response.statusCode ?? 0
-      if (code >= 200 && code < 400) {
-        process.stdout.write(body)
-        process.exit(0)
-      }
-      // An empty error body used to produce no output anywhere, so a failed
-      // run looked identical to a successful silent one. Always name the
-      // status and the URL, and show whatever body there was.
-      process.stderr.write(`HTTP ${code} from ${method} ${target}\n`)
-      const preview = body.trim()
-      process.stderr.write(
-        preview ? `${preview.slice(0, 2000)}\n` : '(empty response body)\n',
-      )
-      process.exit(5)
-    })
-  },
-)
-
-request.on('error', (error) => {
+function fail(error) {
   process.stderr.write(`request failed: ${error.message}\n`)
   process.exit(4)
-})
-request.end()
+}
+
+// Batch mode: keep asking for the next slice until nothing is pending, and
+// say where we are after every one. The server holds the resume state (a file
+// is done when its ArchiveEntry row exists), so stopping here and re-running
+// later continues rather than restarting.
+if (process.env.KR_INGEST_BATCH === '1') {
+  const limit = Number(process.env.KR_INGEST_BATCH_LIMIT || 250)
+  const started = Date.now()
+  let batches = 0
+  let completedTotal = 0
+  let last = null
+
+  for (;;) {
+    let payload
+    try {
+      payload = JSON.parse(await request(path, 'POST', { limit }))
+    } catch (error) {
+      fail(error)
+    }
+    const data = payload?.data
+    if (!data) {
+      process.stderr.write('batch response carried no data; stopping.\n')
+      process.exit(6)
+    }
+
+    batches += 1
+    completedTotal += data.completed ?? 0
+    last = data
+
+    const elapsed = Math.round((Date.now() - started) / 1000)
+    const doneSoFar = data.filesOnDisk - data.remaining
+    const percent = data.filesOnDisk
+      ? ((doneSoFar / data.filesOnDisk) * 100).toFixed(1)
+      : '0.0'
+    process.stderr.write(
+      `[batch ${batches}] ${doneSoFar}/${data.filesOnDisk} (${percent}%) ` +
+        `+${data.completed} this pass, ${data.remaining} left, ${elapsed}s elapsed` +
+        (data.errors?.length ? `, ${data.errors.length} failed` : '') +
+        '\n',
+    )
+
+    if (data.errors?.length) {
+      for (const failure of data.errors.slice(0, 5)) {
+        process.stderr.write(`  ! ${failure.relativePath}: ${failure.message}\n`)
+      }
+    }
+
+    if (data.done) break
+    // A batch that completed nothing cannot make progress by repeating: every
+    // file in it failed, or the listing and the database disagree. Stop rather
+    // than spin.
+    if ((data.completed ?? 0) === 0) {
+      process.stderr.write(
+        'a full batch completed nothing; stopping so this does not loop forever.\n',
+      )
+      break
+    }
+  }
+
+  process.stdout.write(
+    JSON.stringify({
+      success: true,
+      data: { ...last, batches, completedTotal },
+    }),
+  )
+  process.exit(last?.done ? 0 : 7)
+}
+
+let single
+try {
+  single = await request(path, method)
+} catch (error) {
+  fail(error)
+}
+process.stdout.write(single)
+
 NODE
 )
 
@@ -164,6 +267,8 @@ run_in_container() {
   printf '%s' "$REQUEST_JS" | docker exec -i \
     -e KR_INGEST_PATH="$REQUEST_PATH" \
     -e KR_INGEST_METHOD="$REQUEST_METHOD" \
+    -e KR_INGEST_BATCH="$BATCH" \
+    -e KR_INGEST_BATCH_LIMIT="$BATCH_LIMIT" \
     "$CONTAINER" node \
       "--env-file-if-exists=$CONTAINER_ENV_FILE" \
       --input-type=module -
@@ -201,6 +306,7 @@ run_over_http() {
   fi
   KR_INGEST_URL="$BASE_URL" KR_INGEST_PATH="$REQUEST_PATH" \
     KR_INGEST_METHOD="$REQUEST_METHOD" KR_INGEST_TOKEN="$TOKEN" \
+    KR_INGEST_BATCH="$BATCH" KR_INGEST_BATCH_LIMIT="$BATCH_LIMIT" \
     node --input-type=module -e "$REQUEST_JS"
 }
 
@@ -249,6 +355,10 @@ if command -v jq >/dev/null 2>&1; then
     | map(select(.value | type != "array" and type != "object"))
     | map("\(.key): \(.value)")
     | .[]'
+  printf '%s\n' "$response" | jq -r '
+    if .data.filesOnDisk != null
+    then "files on disk: \(.data.filesOnDisk)   imported: \(.data.filesOnDisk - (.data.pending // .data.remaining // 0))   pending: \(.data.pending // .data.remaining)"
+    else empty end'
   printf '%s\n' "$response" | jq -r '
     if .data.total != null
     then "ArchiveEntry rows currently in the database: \(.data.total)"

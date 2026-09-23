@@ -234,14 +234,17 @@ if (!fs.existsSync(runner)) {
       /KIND_ROBOTS_CONTAINER:-KindRobots/,
     ],
     ['runner does not default to the host loopback', /KIND_ROBOTS_URL:-\}/],
-    ['runner drives the chosen path', /const target = new URL\(path, base\)/],
+    [
+      'runner drives the chosen path',
+      /const url = new URL\(requestPath, base\)/,
+    ],
     // Silas's third live run printed NOTHING at all, for either --dry-run or
     // --import: a non-2xx with an empty body hit `[[ -n "$response" ]] && ...`,
     // which short-circuits, so the script exited silently and a failed import
     // looked exactly like a quiet success. Every exit must now say why.
     [
       'a failing request names its HTTP status',
-      /HTTP \$\{code\} from \$\{method\} \$\{target\}/,
+      /HTTP \$\{code\} from \$\{requestMethod\} \$\{url\}/,
     ],
     ['an empty error body is reported as such', /\(empty response body\)/],
     [
@@ -249,14 +252,37 @@ if (!fs.existsSync(runner)) {
       /the app answered but sent an empty body/,
     ],
     ['no exit path is silent', /Failed with exit status %s/],
-    ['status read scans nothing', /entries\?page=1&pageSize=1/],
+    // Silas, 2026-09-22: "there are probably 10s or 100s of thousands of
+    // files ... we should definitely have some sort of resumable process, and
+    // status output reports while processing." The cheap questions must not
+    // hydrate the archive to answer.
     [
-      'runner defaults to the read-only dry run',
-      /^REQUEST_PATH='\/api\/admin\/art-archive\/dry-run'$/m,
+      'status read scans nothing',
+      /REQUEST_PATH='\/api\/admin\/art-archive\/scan-status'/,
+    ],
+    [
+      'import is batched and resumable by default',
+      /--import\)\s*\n\s*REQUEST_PATH='\/api\/admin\/art-archive\/import-batch'/,
+    ],
+    [
+      'the batch loop reports progress after every pass',
+      /\[batch \$\{batches\}\]/,
+    ],
+    [
+      'the batch loop stops instead of spinning on no progress',
+      /a full batch completed nothing/,
+    ],
+    [
+      'the whole-archive import is still reachable, but opt-in',
+      /--import-once\)/,
+    ],
+    [
+      'runner defaults to the read-only scan status',
+      /^REQUEST_PATH='\/api\/admin\/art-archive\/scan-status'$/m,
     ],
     [
       'runner requires an explicit --import to write',
-      /--import\)\s*\n\s*REQUEST_PATH='\/api\/admin\/art-archive\/import'/,
+      /--import\)\s*\n\s*REQUEST_PATH='\/api\/admin\/art-archive\/import-batch'/,
     ],
     ['the status read is a GET, never a write', /REQUEST_METHOD='GET'/],
     // undici caps headersTimeout at 5 minutes and a whole-archive scan can

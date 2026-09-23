@@ -479,6 +479,7 @@ export const ANIMATION_EFFECTS = [
     tooltip:
       'Wind-powered wire-legged walkers amble across a dune horizon, gait quickening as gusts pick up; move your pointer near one for a local gust, click to add a walker to the herd 🐾',
     color: '#a8804f',
+    releasedAt: '2026-08-29T02:54:20Z',
     generationSafe: true,
     preferredSurface: 'fullscreen',
   },

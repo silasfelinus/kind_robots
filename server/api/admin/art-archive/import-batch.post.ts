@@ -90,6 +90,12 @@ export default defineEventHandler(async (event) => {
 
     let imagesCreated = 0
     let imagesReused = 0
+    // A1111 seeds are unsigned 32-bit and ArtImage.seed is a signed INT, so a
+    // seed over 2,147,483,647 cannot be stored. It is left null rather than
+    // mangled, and counted here so the size of that gap is visible now rather
+    // than discovered later as missing data. The true value stays in the
+    // entry's extractedMetadata.
+    const outOfRangeFields: Record<string, number> = {}
     let collectionsCreated = 0
     let collectionsReused = 0
     const errors: { relativePath: string; message: string }[] = []
@@ -101,6 +107,9 @@ export default defineEventHandler(async (event) => {
         else imagesReused += 1
         if (result.createdCollection) collectionsCreated += 1
         else collectionsReused += 1
+        for (const field of result.outOfRangeFields) {
+          outOfRangeFields[field] = (outOfRangeFields[field] ?? 0) + 1
+        }
       } catch (error) {
         errors.push({ relativePath: file.relativePath, message: String(error) })
       }
@@ -150,6 +159,7 @@ export default defineEventHandler(async (event) => {
         collectionsCreated,
         collectionsReused,
         cacheHitCount: scan.cacheHitCount,
+        outOfRangeFields,
         listIssueCount: listing.issues.length,
         scanIssueCount: scan.issues.length,
         errors,

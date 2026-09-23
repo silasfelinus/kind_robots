@@ -296,9 +296,35 @@ if (process.env.KR_INGEST_BATCH === '1') {
         '\n',
     )
 
+    // Five samples out of 908 says nothing about whether they share a cause.
+    // Collapse to one line per distinct failure, with a count and one example,
+    // so a single systemic fault reads as one systemic fault.
     if (data.errors?.length) {
-      for (const failure of data.errors.slice(0, 5)) {
-        process.stderr.write(`  ! ${failure.relativePath}: ${failure.message}\n`)
+      const byKind = new Map()
+      for (const failure of data.errors) {
+        const kind = String(failure.message)
+          .replace(/\s+/g, ' ')
+          .trim()
+          .slice(0, 160)
+        const seen = byKind.get(kind)
+        if (seen) seen.count += 1
+        else byKind.set(kind, { count: 1, example: failure.relativePath })
+      }
+      for (const [kind, { count, example }] of [...byKind.entries()].sort(
+        (a, b) => b[1].count - a[1].count,
+      )) {
+        process.stderr.write(`  ! ${count}x ${kind}\n      e.g. ${example}\n`)
+      }
+    }
+
+    if (data.outOfRangeFields) {
+      for (const [field, count] of Object.entries(data.outOfRangeFields)) {
+        if (count > 0) {
+          process.stderr.write(
+            `  ~ ${count} file(s) had a ${field} too large for its column; ` +
+              'stored null, true value kept in the entry metadata\n',
+          )
+        }
       }
     }
 

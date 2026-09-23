@@ -2,6 +2,7 @@ import path from 'node:path'
 import { createHash } from 'node:crypto'
 import prisma from '~/server/utils/prisma'
 import { narrowToPngMetadata } from './artArchiveMetadata'
+import { intColumnOrNull, isOutOfRangeNumber } from './artArchiveIntColumns'
 import type { ScannedArchiveFile } from './artArchiveScanner'
 
 export type ArchiveImportResult = {
@@ -11,9 +12,17 @@ export type ArchiveImportResult = {
   collectionId: number
   createdImage: boolean
   createdCollection: boolean
+  /**
+   * Generation fields this file carried that the ArtImage column cannot hold.
+   * Never silently empty: the count is reported per batch so the scale of the
+   * gap is visible rather than inferred later from missing data.
+   */
+  outOfRangeFields: string[]
 }
 
-type TransactionClient = Parameters<Parameters<typeof prisma.$transaction>[0]>[0]
+type TransactionClient = Parameters<
+  Parameters<typeof prisma.$transaction>[0]
+>[0]
 
 export function folderSlug(parentFolder: string): string {
   const key = parentFolder || '__root__'
@@ -40,7 +49,10 @@ export async function ensureFolderCollection(
   userId: number,
 ): Promise<{ id: number; created: boolean }> {
   const slug = folderSlug(parentFolder)
-  const existing = await tx.artCollection.findUnique({ where: { slug }, select: { id: true } })
+  const existing = await tx.artCollection.findUnique({
+    where: { slug },
+    select: { id: true },
+  })
   if (existing) {
     await tx.artCollection.update({
       where: { id: existing.id },
@@ -66,22 +78,40 @@ export async function ensureFolderCollection(
 }
 
 function fileType(relativePath: string): string {
-  return path.posix.extname(relativePath).replace(/^\./, '').toLowerCase() || 'png'
+  return (
+    path.posix.extname(relativePath).replace(/^\./, '').toLowerCase() || 'png'
+  )
 }
 
-function generationFields(file: ScannedArchiveFile) {
+// Range rules and the reasoning behind dropping rather than clamping live in
+// artArchiveIntColumns.ts.
+function generationFields(file: ScannedArchiveFile): {
+  fields: Record<string, unknown>
+  outOfRangeFields: string[]
+} {
   const png = narrowToPngMetadata(file.metadata)
-  if (!png) return {}
+  if (!png) return { fields: {}, outOfRangeFields: [] }
   const source = png.a1111 ?? png.comfy
-  if (!source) return {}
+  if (!source) return { fields: {}, outOfRangeFields: [] }
+
+  const outOfRangeFields: string[] = []
+  const intField = (name: string, raw: unknown): number | null => {
+    // An absent field is not a loss; only a present-but-unusable one is.
+    if (isOutOfRangeNumber(raw)) outOfRangeFields.push(name)
+    return intColumnOrNull(raw)
+  }
+
   return {
-    promptString: 'prompt' in source ? source.prompt : source.positivePrompt,
-    negativePrompt: source.negativePrompt,
-    seed: source.seed,
-    cfg: source.cfg,
-    sampler: source.sampler,
-    steps: source.steps,
-    checkpoint: source.checkpoint,
+    outOfRangeFields,
+    fields: {
+      promptString: 'prompt' in source ? source.prompt : source.positivePrompt,
+      negativePrompt: source.negativePrompt,
+      seed: intField('seed', source.seed),
+      cfg: intField('cfg', source.cfg),
+      sampler: source.sampler,
+      steps: intField('steps', source.steps),
+      checkpoint: source.checkpoint,
+    },
   }
 }
 
@@ -96,7 +126,11 @@ export async function importArchiveFile(
   userId: number,
 ): Promise<ArchiveImportResult> {
   return prisma.$transaction(async (tx) => {
-    const collection = await ensureFolderCollection(tx, file.parentFolder, userId)
+    const collection = await ensureFolderCollection(
+      tx,
+      file.parentFolder,
+      userId,
+    )
     const createdCollection = collection.created
 
     const existingEntry = await tx.archiveEntry.findUnique({
@@ -104,10 +138,14 @@ export async function importArchiveFile(
       select: { id: true, artImageId: true },
     })
 
+    const generation = generationFields(file)
     let artImageId = existingEntry?.artImageId ?? null
     let createdImage = false
     if (artImageId) {
-      const existingImage = await tx.artImage.findUnique({ where: { id: artImageId }, select: { id: true } })
+      const existingImage = await tx.artImage.findUnique({
+        where: { id: artImageId },
+        select: { id: true },
+      })
       if (!existingImage) artImageId = null
     }
 
@@ -122,7 +160,7 @@ export async function importArchiveFile(
           isMature: true,
           isActive: true,
           designer: 'art-archive',
-          ...generationFields(file),
+          ...generation.fields,
         },
         select: { id: true },
       })
@@ -160,14 +198,22 @@ export async function importArchiveFile(
     }
 
     const archiveEntry = existingEntry
-      ? await tx.archiveEntry.update({ where: { id: existingEntry.id }, data: entryData, select: { id: true } })
-      : await tx.archiveEntry.create({ data: { relativePath: file.relativePath, ...entryData }, select: { id: true } })
+      ? await tx.archiveEntry.update({
+          where: { id: existingEntry.id },
+          data: entryData,
+          select: { id: true },
+        })
+      : await tx.archiveEntry.create({
+          data: { relativePath: file.relativePath, ...entryData },
+          select: { id: true },
+        })
 
     return {
       relativePath: file.relativePath,
       archiveEntryId: archiveEntry.id,
       artImageId,
       collectionId: collection.id,
+      outOfRangeFields: generation.outOfRangeFields,
       createdImage,
       createdCollection,
     }

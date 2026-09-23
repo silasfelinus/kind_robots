@@ -603,13 +603,21 @@ const successMessage = ref('')
 const searchQuery = ref('')
 const showMature = computed(() => Boolean(userStore.showMature))
 /*
- * Defaults OFF now that the archive exists. Every archive folder is a private
- * ArtCollection, so importing 208,651 files added 443 of them, and asking for
- * them costs a filtered count plus a preview lookup each -- which is what made
- * this gallery time out at 10s (art-archive/t-041, 2026-09-23). The toggle is
- * the way in to them, rather than the default view carrying all of it.
+ * Defaults ON, and stays that way. This is the owner's own private art -- the
+ * whole point of art-archive/t-042, which made the archive render in the first
+ * place -- so a default that hides it shows Silas an empty gallery over his own
+ * 240,856 files. verifyMaturityPrivacyContract pins this value for exactly that
+ * reason; if you are here because it failed, the answer is not to edit the
+ * contract.
+ *
+ * It was briefly flipped OFF to stop the 10s timeout (art-archive/t-041), which
+ * treated the symptom: every archive folder is a private ArtCollection, so
+ * importing 208,651 files added 443 of them and the list paid a filtered count
+ * plus a preview lookup for each. That cost is removed at the source instead --
+ * the list asks for counts=false and each tile hydrates its own on approach --
+ * so showing them by default no longer costs anything up front.
  */
-const showPrivate = ref(false)
+const showPrivate = ref(true)
 const hydratedImages = ref<Record<number, ArtImage>>({})
 const activeGroupKey = ref<string | null>(null)
 const selectedImageForOverlay = ref<ArtImage | null>(null)

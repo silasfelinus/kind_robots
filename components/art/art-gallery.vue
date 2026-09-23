@@ -958,7 +958,11 @@ async function reloadGalleryForVisibility() {
     ])
 
     const group = activeGroup.value
-    if (group && !group.isVirtual && !isOwnedPrivateRecord(group)) {
+    if (
+      group &&
+      !group.isVirtual &&
+      (!isOwnedPrivateRecord(group) || !matchesMaturityFilter(group))
+    ) {
       clearActiveGroup()
     } else if (activeKey) {
       await loadGroupData(activeKey, true)

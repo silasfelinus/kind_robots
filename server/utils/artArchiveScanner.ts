@@ -14,11 +14,19 @@
 // output as their input.
 import path from 'node:path'
 import { readdir, readFile, realpath, stat } from 'node:fs/promises'
-import { contentHashOf, extractArchiveImageMetadata } from './artArchiveMetadata'
+import {
+  contentHashOf,
+  extractArchiveImageMetadata,
+} from './artArchiveMetadata'
 import type { ExtractedArchiveMetadata } from './artArchiveMetadata'
 import { ARCHIVE_TRASH_FOLDER } from './artArchiveFileOps'
 
-export const SUPPORTED_ARCHIVE_EXTENSIONS = new Set(['.png', '.jpg', '.jpeg', '.webp'])
+export const SUPPORTED_ARCHIVE_EXTENSIONS = new Set([
+  '.png',
+  '.jpg',
+  '.jpeg',
+  '.webp',
+])
 
 export type ScannedArchiveFile = {
   /** Path relative to the archive root, forward-slash separated. */
@@ -108,11 +116,18 @@ async function resolveConfined(
   try {
     resolved = await realpath(candidate)
   } catch (error) {
-    issues.push({ path: candidate, reason: 'unreadable', detail: String(error) })
+    issues.push({
+      path: candidate,
+      reason: 'unreadable',
+      detail: String(error),
+    })
     return null
   }
 
-  if (resolved !== resolvedRoot && !resolved.startsWith(`${resolvedRoot}${path.sep}`)) {
+  if (
+    resolved !== resolvedRoot &&
+    !resolved.startsWith(`${resolvedRoot}${path.sep}`)
+  ) {
     issues.push({
       path: candidate,
       reason: 'escaped-root',
@@ -150,7 +165,11 @@ async function walk(
     try {
       entries = await readdir(currentDir, { withFileTypes: true })
     } catch (error) {
-      issues.push({ path: currentDir, reason: 'unreadable', detail: String(error) })
+      issues.push({
+        path: currentDir,
+        reason: 'unreadable',
+        detail: String(error),
+      })
       continue
     }
 
@@ -170,7 +189,12 @@ async function walk(
       }
 
       if (!entry.isFile() && !entry.isSymbolicLink()) continue
-      if (!SUPPORTED_ARCHIVE_EXTENSIONS.has(path.extname(entry.name).toLowerCase())) continue
+      if (
+        !SUPPORTED_ARCHIVE_EXTENSIONS.has(
+          path.extname(entry.name).toLowerCase(),
+        )
+      )
+        continue
 
       const confined = await resolveConfined(resolvedRoot, candidate, issues)
       if (confined) files.push(confined)
@@ -185,8 +209,59 @@ async function walk(
  * supported image file found. Read-only: reads directory listings and file
  * bytes, nothing else.
  */
-export async function scanArchiveRoot(
+export type ArchiveFileListing = {
+  root: string
+  /** POSIX-relative path of every supported image under the root, sorted. */
+  relativePaths: string[]
+  issues: ArchiveScanIssue[]
+}
+
+/**
+ * The directory walk on its own: no file is opened, hashed or parsed.
+ *
+ * scanArchiveRoot() reads the full bytes of every uncached file and holds one
+ * hydrated record per file in memory before it returns anything. That is fine
+ * for a few thousand files and impossible for the real archive -- Silas,
+ * 2026-09-22: "there are probably 10s or 100s of thousands of files ... we
+ * should definitely have some sort of resumable process, and status output
+ * reports while processing". A first import has no ArchiveEntry rows, so
+ * nothing is cached, so that call reads the ENTIRE archive off disk in one
+ * request.
+ *
+ * Splitting the walk out makes a cheap question cheap: how many files exist,
+ * and which of them are not imported yet. Only the batch actually being
+ * imported gets hydrated.
+ */
+export async function listArchiveFilePaths(
   root: string,
+): Promise<ArchiveFileListing> {
+  const issues: ArchiveScanIssue[] = []
+  let resolvedRoot: string
+  try {
+    resolvedRoot = await realpath(path.resolve(root))
+  } catch (error) {
+    return {
+      root,
+      relativePaths: [],
+      issues: [{ path: root, reason: 'unreadable', detail: String(error) }],
+    }
+  }
+
+  const filePaths = await walk(resolvedRoot, resolvedRoot, issues)
+  const relativePaths = filePaths.map((filePath) =>
+    toPosixRelative(resolvedRoot, filePath),
+  )
+  relativePaths.sort((a, b) => a.localeCompare(b))
+  return { root: resolvedRoot, relativePaths, issues }
+}
+
+/**
+ * Reads, hashes and parses exactly the named files -- the expensive half of a
+ * scan, restricted to a batch the caller chose.
+ */
+export async function hydrateArchiveFiles(
+  root: string,
+  relativePaths: readonly string[],
   options: ScanArchiveRootOptions = {},
 ): Promise<ArchiveScanResult> {
   const issues: ArchiveScanIssue[] = []
@@ -202,62 +277,125 @@ export async function scanArchiveRoot(
     }
   }
 
-  const filePaths = await walk(resolvedRoot, resolvedRoot, issues)
   const files: ScannedArchiveFile[] = []
   const knownFiles = options.knownFiles
   let cacheHitCount = 0
 
-  await mapWithConcurrency(filePaths, options.concurrency ?? DEFAULT_SCAN_CONCURRENCY, async (filePath) => {
-    const relativePath = toPosixRelative(resolvedRoot, filePath)
-    const parentFolder = toPosixRelative(resolvedRoot, path.dirname(filePath))
-    try {
-      const fileStat = await stat(filePath)
-      const known = knownFiles?.get(relativePath)
-      // Trust the cache only when size AND mtime still match -- either
-      // changing is proof the file's bytes may have too, and a false cache
-      // hit would silently propagate a stale hash/metadata pair.
-      //
-      // Truncate the live stat's mtime to whole milliseconds before
-      // comparing: `known.fileMtimeMs` is always derived from a JS `Date`
-      // (ScannedArchiveFile.fileMtime is a Date, and the DB round trip through
-      // ArchiveEntry.fileMtime is one too), and `Date` can only hold
-      // integer-millisecond precision -- it truncates toward zero. A raw
-      // `fs.stat()` result carries sub-millisecond precision on any POSIX
-      // filesystem with nanosecond mtimes (ext4, xfs, ...), so
-      // `fileStat.mtimeMs` is a non-integer float in practice essentially
-      // every time. Comparing it unrounded against an always-integer
-      // `known.fileMtimeMs` made this cache hit almost never fire in
-      // production -- every repeat scan silently re-read and re-hashed every
-      // file's full bytes regardless of whether it had changed, defeating
-      // the whole point of this cache (art-archive/t-030).
-      const fileMtimeMsTruncated = Math.trunc(fileStat.mtimeMs)
-      if (known && known.fileSize === fileStat.size && known.fileMtimeMs === fileMtimeMsTruncated) {
-        cacheHitCount += 1
-        files.push({
+  await mapWithConcurrency(
+    [...relativePaths],
+    options.concurrency ?? DEFAULT_SCAN_CONCURRENCY,
+    async (relativePath) => {
+      // The caller names paths, so re-confine them rather than trusting the
+      // caller the way the walk's own output could be trusted.
+      const absolute = path.resolve(resolvedRoot, relativePath)
+      const confined = await resolveConfined(resolvedRoot, absolute, issues)
+      if (!confined) return
+
+      const hydrated = await hydrateArchiveFile(
+        resolvedRoot,
+        confined,
+        knownFiles,
+        issues,
+      )
+      if (!hydrated) return
+      if (hydrated.fromCache) cacheHitCount += 1
+      files.push(hydrated.file)
+    },
+  )
+
+  files.sort((a, b) => a.relativePath.localeCompare(b.relativePath))
+  return { root: resolvedRoot, files, issues, cacheHitCount }
+}
+
+/**
+ * One file's identity and metadata, reusing a known-good record when the
+ * file's size and mtime both still match it.
+ */
+async function hydrateArchiveFile(
+  resolvedRoot: string,
+  filePath: string,
+  knownFiles: Map<string, KnownArchiveFile> | undefined,
+  issues: ArchiveScanIssue[],
+): Promise<{ file: ScannedArchiveFile; fromCache: boolean } | null> {
+  const relativePath = toPosixRelative(resolvedRoot, filePath)
+  const parentFolder = toPosixRelative(resolvedRoot, path.dirname(filePath))
+  try {
+    const fileStat = await stat(filePath)
+    const known = knownFiles?.get(relativePath)
+    // Trust the cache only when size AND mtime still match -- either
+    // changing is proof the file's bytes may have too, and a false cache
+    // hit would silently propagate a stale hash/metadata pair.
+    //
+    // Truncate the live stat's mtime to whole milliseconds before
+    // comparing: `known.fileMtimeMs` is always derived from a JS `Date`
+    // (ScannedArchiveFile.fileMtime is a Date, and the DB round trip through
+    // ArchiveEntry.fileMtime is one too), and `Date` can only hold
+    // integer-millisecond precision -- it truncates toward zero. A raw
+    // `fs.stat()` result carries sub-millisecond precision on any POSIX
+    // filesystem with nanosecond mtimes (ext4, xfs, ...), so
+    // `fileStat.mtimeMs` is a non-integer float in practice essentially
+    // every time. Comparing it unrounded against an always-integer
+    // `known.fileMtimeMs` made this cache hit almost never fire in
+    // production -- every repeat scan silently re-read and re-hashed every
+    // file's full bytes regardless of whether it had changed, defeating
+    // the whole point of this cache (art-archive/t-030).
+    const fileMtimeMsTruncated = Math.trunc(fileStat.mtimeMs)
+    if (
+      known &&
+      known.fileSize === fileStat.size &&
+      known.fileMtimeMs === fileMtimeMsTruncated
+    ) {
+      return {
+        fromCache: true,
+        file: {
           relativePath,
           parentFolder,
           contentHash: known.contentHash,
           fileSize: fileStat.size,
           fileMtime: fileStat.mtime,
           metadata: known.metadata,
-        })
-        return
+        },
       }
+    }
 
-      const buffer = await readFile(filePath)
-      files.push({
+    const buffer = await readFile(filePath)
+    return {
+      fromCache: false,
+      file: {
         relativePath,
         parentFolder,
         contentHash: contentHashOf(buffer),
         fileSize: fileStat.size,
         fileMtime: fileStat.mtime,
         metadata: extractArchiveImageMetadata(buffer, filePath),
-      })
-    } catch (error) {
-      issues.push({ path: filePath, reason: 'unreadable', detail: String(error) })
+      },
     }
-  })
+  } catch (error) {
+    issues.push({ path: filePath, reason: 'unreadable', detail: String(error) })
+    return null
+  }
+}
 
-  files.sort((a, b) => a.relativePath.localeCompare(b.relativePath))
-  return { root: resolvedRoot, files, issues, cacheHitCount }
+/**
+ * The whole archive in one pass: every file listed, then every file hydrated.
+ *
+ * Unchanged in behavior, and still the right call for a bounded archive or a
+ * CLI that can take its time. For the production archive prefer
+ * listArchiveFilePaths() plus a hydrated batch -- see import-batch.post.ts.
+ */
+export async function scanArchiveRoot(
+  root: string,
+  options: ScanArchiveRootOptions = {},
+): Promise<ArchiveScanResult> {
+  const listing = await listArchiveFilePaths(root)
+  if (listing.issues.some((issue) => issue.path === root)) {
+    return { root, files: [], issues: listing.issues, cacheHitCount: 0 }
+  }
+
+  const hydrated = await hydrateArchiveFiles(
+    listing.root,
+    listing.relativePaths,
+    options,
+  )
+  return { ...hydrated, issues: [...listing.issues, ...hydrated.issues] }
 }

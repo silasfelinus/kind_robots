@@ -32,6 +32,7 @@ type CollectionFetchOptions = {
   /** Display filters -- see the collection endpoint. Omitted means unchanged. */
   includePrivate?: boolean
   includeMature?: boolean
+  maturity?: 'all' | 'mature' | 'safe'
   /** false = skip per-collection counts/preview; the tile hydrates on view. */
   counts?: boolean
 }
@@ -454,6 +455,10 @@ export const useCollectionStore = defineStore('collectionStore', () => {
 
     if (typeof options.includeMature === 'boolean') {
       params.set('includeMature', String(options.includeMature))
+    }
+
+    if (options.maturity) {
+      params.set('maturity', options.maturity)
     }
 
     if (typeof options.counts === 'boolean') {

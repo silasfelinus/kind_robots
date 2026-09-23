@@ -51,6 +51,23 @@ function queryFlag(value: unknown, fallback: boolean): boolean {
   return ['1', 'true', 'yes', 'y', 'on'].includes(normalized)
 }
 
+type CollectionMaturityFilter = 'all' | 'mature' | 'safe'
+
+function queryMaturityFilter(
+  value: unknown,
+  fallback: CollectionMaturityFilter,
+): CollectionMaturityFilter {
+  const normalized = firstQueryValue(value).trim().toLowerCase()
+  if (
+    normalized === 'mature' ||
+    normalized === 'safe' ||
+    normalized === 'all'
+  ) {
+    return normalized
+  }
+  return fallback
+}
+
 function queryPositiveInt(
   value: unknown,
   fallback: number | null,
@@ -105,6 +122,10 @@ export default defineEventHandler(async (event) => {
      */
     const includePrivate = queryFlag(query.includePrivate, true)
     const includeMature = queryFlag(query.includeMature, true)
+    const maturity = queryMaturityFilter(
+      query.maturity,
+      includeMature ? 'all' : 'safe',
+    )
 
     /*
      * The per-collection _count and preview lookup are the whole cost of this
@@ -138,7 +159,7 @@ export default defineEventHandler(async (event) => {
 
     const displayFilter: Prisma.ArtImageWhereInput[] = [
       ...(includePrivate ? [] : [{ isPublic: true }]),
-      ...(includeMature ? [] : [{ isMature: false }]),
+      ...(maturity === 'all' ? [] : [{ isMature: maturity === 'mature' }]),
     ]
     const imageWhere: Prisma.ArtImageWhereInput = displayFilter.length
       ? { AND: [buildArtImageWhere(access), ...displayFilter] }
@@ -177,7 +198,7 @@ export default defineEventHandler(async (event) => {
         // the part that actually makes this fast: it drops the 443 archive
         // folders before any per-collection count or preview runs.
         ...(includePrivate ? [] : [{ isPublic: true }]),
-        ...(includeMature ? [] : [{ isMature: false }]),
+        ...(maturity === 'all' ? [] : [{ isMature: maturity === 'mature' }]),
       ],
     }
 

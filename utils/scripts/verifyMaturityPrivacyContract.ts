@@ -192,6 +192,12 @@ assert.ok(accountStore.includes('checkpointResourceId: null'))
 // never a local bypass, and its separate Private filter is owner-scoped.
 const artGallery = readFileSync('components/art/art-gallery.vue', 'utf8')
 assert.ok(artGallery.includes('<maturity-toggle variant="compact"'))
+assert.ok(artGallery.includes('aria-label="Gallery maturity filter"'))
+assert.ok(artGallery.includes("{ value: 'all', label: 'Both' }"))
+assert.ok(artGallery.includes("{ value: 'mature', label: 'Mature' }"))
+assert.ok(artGallery.includes("{ value: 'safe', label: 'Not mature' }"))
+assert.ok(artGallery.includes('matchesMaturityFilter'))
+assert.ok(artGallery.includes('maturity: maturityFilter.value'))
 assert.ok(artGallery.includes('const showPrivate = ref(true)'))
 assert.ok(artGallery.includes('isOwnedPrivateRecord'))
 assert.ok(artGallery.includes('ownerId === viewerId'))
@@ -259,6 +265,20 @@ assert.equal(
   ),
   false,
 )
+
+const collectionGalleryApi = readFileSync(
+  'server/api/art/collection/index.get.ts',
+  'utf8',
+)
+assert.ok(collectionGalleryApi.includes('queryMaturityFilter'))
+assert.ok(collectionGalleryApi.includes("maturity === 'mature'"))
+
+const unsortedGalleryApi = readFileSync(
+  'server/api/art/collection/unsorted.get.ts',
+  'utf8',
+)
+assert.ok(unsortedGalleryApi.includes('readMaturityFilter'))
+assert.ok(unsortedGalleryApi.includes("maturity === 'mature'"))
 
 for (const galleryApi of [
   'server/api/art/collection/index.get.ts',

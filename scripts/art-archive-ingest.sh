@@ -349,6 +349,8 @@ if (process.env.KR_INGEST_BACKFILL === '1') {
   let noMetadata = 0
   let notPng = 0
   let noGenBlock = 0
+  let seedAbsent = 0
+  let cfgAbsent = 0
 
   for (;;) {
     const raw = await request(path, 'POST', { cursor, limit, apply })
@@ -367,6 +369,8 @@ if (process.env.KR_INGEST_BACKFILL === '1') {
     noMetadata += data.noMetadataStored || 0
     notPng += data.notPngOrUnsupported || 0
     noGenBlock += data.noGenerationBlock || 0
+    seedAbsent += data.seedAbsentFromMetadata || 0
+    cfgAbsent += data.cfgAbsentFromMetadata || 0
     cursor = data.cursor ?? cursor
 
     const elapsed = Math.round((Date.now() - started) / 1000)
@@ -388,9 +392,11 @@ if (process.env.KR_INGEST_BACKFILL === '1') {
   // Say WHY nothing came back, so a zero is an answer rather than a mystery.
   if (stillUnknown) {
     process.stderr.write(
-      `  of those: ${noGenBlock} had no generation block in the file at all ` +
-        `(a screenshot, a download, stripped metadata), ${notPng} were not a ` +
-        `readable PNG, ${noMetadata} had nothing stored.\n`,
+      `  of those: ${seedAbsent} parsed fine but carried no usable Seed, ` +
+        `${cfgAbsent} parsed fine but carried no usable CFG, ${noGenBlock} ` +
+        `had no generation block at all (a screenshot, a download, stripped ` +
+        `metadata), ${notPng} were not a readable PNG, ${noMetadata} had ` +
+        `nothing stored.\n`,
     )
   }
 

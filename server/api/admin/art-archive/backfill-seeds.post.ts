@@ -129,6 +129,8 @@ export default defineEventHandler(async (event) => {
         noMetadataStored: 0,
         notPngOrUnsupported: 0,
         noGenerationBlock: 0,
+        seedAbsentFromMetadata: 0,
+        cfgAbsentFromMetadata: 0,
       }
     }
 
@@ -162,6 +164,11 @@ export default defineEventHandler(async (event) => {
     let noMetadataStored = 0
     let notPngOrUnsupported = 0
     let noGenerationBlock = 0
+    // The case the first diagnostic pass missed entirely: metadata that parsed
+    // perfectly and simply did not carry the field that is missing. It printed
+    // 0/0/0 against 54,721 rows, because every one of them was reason 'ok'.
+    let seedAbsentFromMetadata = 0
+    let cfgAbsentFromMetadata = 0
     let exampleSeed: number | null = null
     let exampleCfg: string | null = null
 
@@ -176,10 +183,18 @@ export default defineEventHandler(async (event) => {
       else if (found.reason === 'no-generation-block') noGenerationBlock += 1
       const data: { seed?: number; cfg?: number; cfgHalf?: boolean } = {}
 
-      if (image.seed === null && found.seed !== null) {
-        data.seed = found.seed
-        seedsRecoverable += 1
-        if (exampleSeed === null) exampleSeed = found.seed
+      if (image.seed === null) {
+        if (found.seed !== null) {
+          data.seed = found.seed
+          seedsRecoverable += 1
+          if (exampleSeed === null) exampleSeed = found.seed
+        } else if (found.reason === 'ok') {
+          // The file has a generation block, but no usable Seed in it.
+          seedAbsentFromMetadata += 1
+        }
+      }
+      if (image.cfg === null && found.cfg === null && found.reason === 'ok') {
+        cfgAbsentFromMetadata += 1
       }
       if (image.cfg === null && found.cfg !== null) {
         data.cfg = found.cfg.cfg
@@ -216,6 +231,8 @@ export default defineEventHandler(async (event) => {
       noMetadataStored,
       notPngOrUnsupported,
       noGenerationBlock,
+      seedAbsentFromMetadata,
+      cfgAbsentFromMetadata,
       exampleSeed,
       exampleCfg,
       apply,

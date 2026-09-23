@@ -10,6 +10,7 @@ import {
   animationEffects,
   getAnimationComponentName,
   isAnimationEffectId,
+  type AnimationEffectId,
 } from '@/stores/animationCatalog'
 import { DEFAULT_PREFERENCES } from '@/stores/animationPreferenceStore'
 import { narratorAnimationAliases } from '@/stores/helpers/narratorHelper'
@@ -28,8 +29,48 @@ const VALID_SURFACES = new Set([
 // one surfaces on its own instead of depending on a future pass catching it.
 const GENERIC_PLACEHOLDER_ICONS = new Set(['kind-icon:cube', 'kind-icon:box'])
 
+const LEGACY_UNDATED_ANIMATION_IDS = new Set<AnimationEffectId>([
+  'starfield-effect',
+  'constellation-effect',
+  'wishing-stars',
+  'orbit-effect',
+  'butterfly-animation',
+  'firefly-effect',
+  'rain-effect',
+  'snow-effect',
+  'floating-hearts',
+  'fizzy-bubbles',
+  'bubble-effect',
+  'ripple-effect',
+  'gravity-garden',
+  'fireworks-effect',
+  'lightning-effect',
+  'fire-effect',
+  'glitch-effect',
+  'kaleidoscope-effect',
+  'plasma-effect',
+  'nyan-trail',
+  'matrix-rain',
+  'pixel-rain',
+  'pixel-explosion',
+  'wandering-creatures',
+  'toaster-effect',
+  'ascii-aquarium',
+  'pacbot-effect',
+  'pocket-gremlin',
+  'siege-engine',
+])
+const RELEASE_TIMESTAMP_RE = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/
+
 const ids = animationEffects.map((effect) => effect.id)
 const idSet = new Set(ids)
+
+for (const legacyId of LEGACY_UNDATED_ANIMATION_IDS) {
+  assert.ok(
+    idSet.has(legacyId),
+    `legacy undated id "${legacyId}" no longer exists in the animation catalog; remove it from the allowlist`,
+  )
+}
 
 assert.equal(
   idSet.size,
@@ -76,6 +117,23 @@ for (const effect of animationEffects) {
     assert.ok(
       VALID_SURFACES.has(effect.preferredSurface),
       `catalog id "${effect.id}" has invalid preferredSurface "${effect.preferredSurface}"`,
+    )
+  }
+
+  if (!LEGACY_UNDATED_ANIMATION_IDS.has(effect.id)) {
+    const releasedAt = effect.releasedAt
+    assert.ok(
+      releasedAt,
+      `catalog id "${effect.id}" must record releasedAt; only the explicit legacy allowlist may omit release provenance`,
+    )
+    assert.match(
+      releasedAt,
+      RELEASE_TIMESTAMP_RE,
+      `catalog id "${effect.id}" releasedAt must be a UTC ISO timestamp`,
+    )
+    assert.ok(
+      !Number.isNaN(Date.parse(releasedAt)),
+      `catalog id "${effect.id}" releasedAt is not a valid timestamp`,
     )
   }
 

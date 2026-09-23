@@ -162,6 +162,9 @@
               <span class="kr-text-dim-xs-55 block truncate">
                 {{ effect.id }}
               </span>
+              <span class="kr-text-dim-xs-55 mt-0.5 block">
+                {{ releaseLabel(effect.releasedAt) }}
+              </span>
             </span>
 
             <span
@@ -259,6 +262,10 @@
 
         <dl class="grid gap-2 text-sm">
           <div class="kr-panel-flat flex items-center justify-between gap-3 p-3">
+            <dt class="font-bold">Released</dt>
+            <dd>{{ releaseDate(store.selectedItem.releasedAt) }}</dd>
+          </div>
+          <div class="kr-panel-flat flex items-center justify-between gap-3 p-3">
             <dt class="font-bold">Preferred surface</dt>
             <dd>{{ surfaceLabel(store.selectedItem.preferredSurface) }}</dd>
           </div>
@@ -302,19 +309,20 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { useAnimationManagerStore } from '@/stores/animationManagerStore'
 import {
   DEFAULT_PREFERENCES,
   useAnimationPreferenceStore,
 } from '@/stores/animationPreferenceStore'
-import type { FxRegion } from '@/stores/animationCatalog'
+import { isAnimationEffectId, type FxRegion } from '@/stores/animationCatalog'
 import type { FxPlacementState } from '@/stores/animationStore'
 
 withDefaults(defineProps<{ showHeader?: boolean }>(), { showHeader: true })
 
 const store = useAnimationManagerStore()
 const preferenceStore = useAnimationPreferenceStore()
+const route = useRoute()
 preferenceStore.initialize()
 
 const zoneOptions: { id: FxRegion; label: string; icon: string }[] = [
@@ -352,6 +360,41 @@ const butterfliesEnabled = computed(() => preferenceStore.butterflies.count > 0)
 const coverageEnabled = computed(() =>
   zoneOptions.some((zone) => store.getSurfacePlacement(zone.id) !== 'off'),
 )
+
+function releaseDate(value?: string): string {
+  if (!value) return 'Legacy effect'
+  return new Intl.DateTimeFormat('en-US', {
+    dateStyle: 'medium',
+    timeZone: 'America/Los_Angeles',
+  }).format(new Date(value))
+}
+
+function releaseLabel(value?: string): string {
+  return value ? `Released ${releaseDate(value)}` : 'Legacy effect'
+}
+
+function queryEffectId(): string | null {
+  const value = Array.isArray(route.query.effect)
+    ? route.query.effect[0]
+    : route.query.effect
+  return typeof value === 'string' ? value : null
+}
+
+function applyDeepLink(): void {
+  const effectId = queryEffectId()
+  if (!effectId || !isAnimationEffectId(effectId)) return
+
+  store.selectSlug(effectId)
+  const previewValue = Array.isArray(route.query.preview)
+    ? route.query.preview[0]
+    : route.query.preview
+  if (previewValue === '1' && !store.isPreviewing(effectId)) {
+    store.previewEffect(effectId)
+  }
+}
+
+onMounted(applyDeepLink)
+watch(() => [route.query.effect, route.query.preview], applyDeepLink)
 
 function toggleButterflies(): void {
   if (butterfliesEnabled.value) {

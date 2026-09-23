@@ -386,3 +386,478 @@ export async function pushScaffoldBranchAndOpenPr(params: {
 
   return { branch, prUrl: prData.html_url, prNumber: prData.number }
 }
+
+// --- appmaker/t-015: squash-graduation executor (§5c) -----------------------
+//
+// Reads the graduating app's tree out of THIS repo (conductor, via conductor's
+// own GITHUB_TOKEN -- distinct from the installation token above, which only
+// grants access to whatever repos the target installation was actually
+// granted) and writes a single squash commit into the target repo via the
+// installation token. Blobs are repo-scoped in the Git Data API, so a source
+// blob sha cannot be referenced from the target repo's tree -- each file's
+// content is re-read from conductor and re-posted as a new blob there.
+
+const CONDUCTOR_REPO = 'silasfelinus/conductor'
+const CONDUCTOR_DEFAULT_BRANCH = 'main'
+
+function conductorReadToken(): string {
+  const runtimeToken = useRuntimeConfig().githubToken
+  return (
+    process.env.GITHUB_TOKEN ||
+    (typeof runtimeToken === 'string' ? runtimeToken : '')
+  ).trim()
+}
+
+async function conductorApi(path: string, token: string): Promise<Response> {
+  return fetch(`https://api.github.com/repos/${CONDUCTOR_REPO}${path}`, {
+    headers: { ...GITHUB_API_HEADERS, Authorization: `Bearer ${token}` },
+  })
+}
+
+export interface ConductorAppFile {
+  /** Path relative to apps/<slug>/, e.g. "package.json" or "src/index.ts". */
+  path: string
+  sha: string
+  mode: string
+}
+
+/**
+ * Reads the full recursive tree under apps/<slug>/ at conductor's current
+ * main tip via the Git Data API in one request, rather than walking
+ * conductorList() one directory at a time -- a graduating app can be dozens
+ * of files across nested directories.
+ */
+export async function readConductorAppTree(
+  slug: string,
+): Promise<{ headSha: string; files: ConductorAppFile[] }> {
+  const token = conductorReadToken()
+  if (!token) {
+    throw createError({
+      statusCode: 503,
+      statusMessage:
+        'Conductor GitHub read access is not configured (GITHUB_TOKEN).',
+    })
+  }
+
+  const refRes = await conductorApi(
+    `/git/ref/heads/${CONDUCTOR_DEFAULT_BRANCH}`,
+    token,
+  )
+  if (!refRes.ok) {
+    throw createError({
+      statusCode: 502,
+      statusMessage: `Conductor main lookup failed (${refRes.status})`,
+    })
+  }
+  const refData = (await refRes.json()) as { object: { sha: string } }
+  const headSha = refData.object.sha
+
+  const treeRes = await conductorApi(`/git/trees/${headSha}?recursive=1`, token)
+  if (!treeRes.ok) {
+    throw createError({
+      statusCode: 502,
+      statusMessage: `Conductor tree read failed (${treeRes.status})`,
+    })
+  }
+  const treeData = (await treeRes.json()) as {
+    tree: Array<{ path: string; type: string; sha: string; mode: string }>
+    truncated?: boolean
+  }
+  if (treeData.truncated) {
+    throw createError({
+      statusCode: 502,
+      statusMessage:
+        'Conductor tree listing was truncated by GitHub -- this app is too ' +
+        'large for a single recursive tree read; graduate it manually.',
+    })
+  }
+
+  const prefix = `apps/${slug}/`
+  const files = treeData.tree
+    .filter((entry) => entry.type === 'blob' && entry.path.startsWith(prefix))
+    .map((entry) => ({
+      path: entry.path.slice(prefix.length),
+      sha: entry.sha,
+      mode: entry.mode,
+    }))
+
+  if (files.length === 0) {
+    throw createError({
+      statusCode: 404,
+      statusMessage: `apps/${slug}/ has no files in the conductor tree at ${headSha}.`,
+    })
+  }
+
+  return { headSha, files }
+}
+
+async function readConductorBlobBase64(
+  sha: string,
+  token: string,
+): Promise<string> {
+  const res = await conductorApi(`/git/blobs/${sha}`, token)
+  if (!res.ok) {
+    throw createError({
+      statusCode: 502,
+      statusMessage: `Conductor blob read failed for ${sha} (${res.status})`,
+    })
+  }
+  const data = (await res.json()) as { content?: string; encoding?: string }
+  if (String(data.encoding || '').toLowerCase() !== 'base64') {
+    throw createError({
+      statusCode: 502,
+      statusMessage: `Conductor blob ${sha} came back as "${data.encoding}" rather than base64.`,
+    })
+  }
+  // Re-post the same base64 bytes rather than decoding/re-encoding through a
+  // string, so binary files (images, etc.) survive the round trip unchanged.
+  return String(data.content || '').replace(/\s/g, '')
+}
+
+export interface SquashPushResult {
+  commitSha: string
+  commitHtmlUrl: string
+  branch: string
+  createdInitialCommit: boolean
+}
+
+/**
+ * Writes every file from readConductorAppTree() into a single new commit on
+ * the target repo's default branch, via the installation token. Handles both
+ * a target repo that already has commits (fast-forwards the branch) and a
+ * genuinely empty one (no ref exists yet to fast-forward -- the Git Data API
+ * lets a commit with no parent and no base_tree be created directly, then the
+ * ref for the default branch created to point at it, which is exactly the
+ * initial-commit case an empty repo needs).
+ */
+export async function squashPushAppToRepo(params: {
+  installationId: number
+  owner: string
+  repo: string
+  files: ConductorAppFile[]
+  commitMessage: string
+}): Promise<SquashPushResult> {
+  const { installationId, owner, repo, files, commitMessage } = params
+  const token = await mintInstallationToken(installationId)
+  const readToken = conductorReadToken()
+
+  const repoRes = await githubApi(`/repos/${owner}/${repo}`, token)
+  if (!repoRes.ok) {
+    throw createError({
+      statusCode: 502,
+      statusMessage: `Target repo lookup failed (${repoRes.status})`,
+    })
+  }
+  const repoData = (await repoRes.json()) as { default_branch: string }
+  const defaultBranch = repoData.default_branch || 'main'
+
+  const refRes = await githubApi(
+    `/repos/${owner}/${repo}/git/ref/heads/${defaultBranch}`,
+    token,
+  )
+  const repoIsEmpty = refRes.status === 404
+  if (!refRes.ok && !repoIsEmpty) {
+    throw createError({
+      statusCode: 502,
+      statusMessage: `Target branch lookup failed (${refRes.status})`,
+    })
+  }
+
+  let parentSha: string | undefined
+  let baseTreeSha: string | undefined
+  if (!repoIsEmpty) {
+    const refData = (await refRes.json()) as { object: { sha: string } }
+    parentSha = refData.object.sha
+    const parentCommitRes = await githubApi(
+      `/repos/${owner}/${repo}/git/commits/${parentSha}`,
+      token,
+    )
+    if (!parentCommitRes.ok) {
+      throw createError({
+        statusCode: 502,
+        statusMessage: `Target parent-commit lookup failed (${parentCommitRes.status})`,
+      })
+    }
+    const parentCommitData = (await parentCommitRes.json()) as {
+      tree: { sha: string }
+    }
+    baseTreeSha = parentCommitData.tree.sha
+  }
+
+  const treeEntries: Array<{
+    path: string
+    mode: string
+    type: 'blob'
+    sha: string
+  }> = []
+  for (const file of files) {
+    const content = await readConductorBlobBase64(file.sha, readToken)
+    const blobRes = await githubApi(
+      `/repos/${owner}/${repo}/git/blobs`,
+      token,
+      {
+        method: 'POST',
+        body: { content, encoding: 'base64' },
+      },
+    )
+    if (!blobRes.ok) {
+      throw createError({
+        statusCode: 502,
+        statusMessage: `Target blob create failed for ${file.path} (${blobRes.status})`,
+      })
+    }
+    const blobData = (await blobRes.json()) as { sha: string }
+    treeEntries.push({
+      path: file.path,
+      mode: file.mode === '100755' ? '100755' : '100644',
+      type: 'blob',
+      sha: blobData.sha,
+    })
+  }
+
+  const treeRes = await githubApi(`/repos/${owner}/${repo}/git/trees`, token, {
+    method: 'POST',
+    body: baseTreeSha
+      ? { base_tree: baseTreeSha, tree: treeEntries }
+      : { tree: treeEntries },
+  })
+  if (!treeRes.ok) {
+    throw createError({
+      statusCode: 502,
+      statusMessage: `Target tree create failed (${treeRes.status})`,
+    })
+  }
+  const newTreeData = (await treeRes.json()) as { sha: string }
+
+  const commitRes = await githubApi(
+    `/repos/${owner}/${repo}/git/commits`,
+    token,
+    {
+      method: 'POST',
+      body: {
+        message: commitMessage,
+        tree: newTreeData.sha,
+        ...(parentSha ? { parents: [parentSha] } : {}),
+      },
+    },
+  )
+  if (!commitRes.ok) {
+    throw createError({
+      statusCode: 502,
+      statusMessage: `Target commit create failed (${commitRes.status})`,
+    })
+  }
+  const newCommit = (await commitRes.json()) as { sha: string }
+
+  if (repoIsEmpty) {
+    const createRefRes = await githubApi(
+      `/repos/${owner}/${repo}/git/refs`,
+      token,
+      {
+        method: 'POST',
+        body: { ref: `refs/heads/${defaultBranch}`, sha: newCommit.sha },
+      },
+    )
+    if (!createRefRes.ok) {
+      throw createError({
+        statusCode: 502,
+        statusMessage: `Target ref create failed (${createRefRes.status})`,
+      })
+    }
+  } else {
+    const updateRefRes = await githubApi(
+      `/repos/${owner}/${repo}/git/refs/heads/${defaultBranch}`,
+      token,
+      { method: 'PATCH', body: { sha: newCommit.sha, force: false } },
+    )
+    if (!updateRefRes.ok) {
+      throw createError({
+        statusCode: 502,
+        statusMessage:
+          `Target branch moved since it was read (non-fast-forward push ` +
+          `refused, ${updateRefRes.status}) -- re-run against its current tip.`,
+      })
+    }
+  }
+
+  return {
+    commitSha: newCommit.sha,
+    commitHtmlUrl: `https://github.com/${owner}/${repo}/commit/${newCommit.sha}`,
+    branch: defaultBranch,
+    createdInitialCommit: repoIsEmpty,
+  }
+}
+
+export interface RemovalPrResult {
+  branch: string
+  prUrl: string
+  prNumber: number
+}
+
+/**
+ * Opens a PR against conductor's own main removing every file under
+ * apps/<slug>/ in a single commit -- the monorepo-removal half of graduation
+ * (§5c). Uses conductor's own token (this repo, not an installation), same
+ * as readConductorAppTree.
+ */
+export async function openConductorAppRemovalPr(params: {
+  slug: string
+  branch: string
+  prTitle: string
+  prBody: string
+}): Promise<RemovalPrResult> {
+  const { slug, branch, prTitle, prBody } = params
+  const token = conductorReadToken()
+  if (!token) {
+    throw createError({
+      statusCode: 503,
+      statusMessage:
+        'Conductor GitHub write access is not configured (GITHUB_TOKEN).',
+    })
+  }
+
+  const refRes = await conductorApi(
+    `/git/ref/heads/${CONDUCTOR_DEFAULT_BRANCH}`,
+    token,
+  )
+  if (!refRes.ok) {
+    throw createError({
+      statusCode: 502,
+      statusMessage: `Conductor main lookup failed (${refRes.status})`,
+    })
+  }
+  const refData = (await refRes.json()) as { object: { sha: string } }
+  const baseSha = refData.object.sha
+
+  const baseCommitRes = await conductorApi(`/git/commits/${baseSha}`, token)
+  if (!baseCommitRes.ok) {
+    throw createError({
+      statusCode: 502,
+      statusMessage: `Conductor base-commit lookup failed (${baseCommitRes.status})`,
+    })
+  }
+  const baseCommitData = (await baseCommitRes.json()) as {
+    tree: { sha: string }
+  }
+  const baseTreeSha = baseCommitData.tree.sha
+
+  const treeRes = await conductorApi(`/git/trees/${baseSha}?recursive=1`, token)
+  if (!treeRes.ok) {
+    throw createError({
+      statusCode: 502,
+      statusMessage: `Conductor tree read failed (${treeRes.status})`,
+    })
+  }
+  const treeData = (await treeRes.json()) as {
+    tree: Array<{ path: string; type: string; mode: string }>
+    truncated?: boolean
+  }
+  if (treeData.truncated) {
+    throw createError({
+      statusCode: 502,
+      statusMessage:
+        'Conductor tree listing was truncated by GitHub -- remove ' +
+        `apps/${slug}/ manually.`,
+    })
+  }
+
+  const prefix = `apps/${slug}/`
+  const toDelete = treeData.tree.filter(
+    (entry) => entry.type === 'blob' && entry.path.startsWith(prefix),
+  )
+  if (toDelete.length === 0) {
+    throw createError({
+      statusCode: 404,
+      statusMessage: `apps/${slug}/ has no files to remove at conductor@${baseSha}.`,
+    })
+  }
+
+  const newTreeRes = await conductorApiWrite(token, '/git/trees', {
+    base_tree: baseTreeSha,
+    tree: toDelete.map((entry) => ({
+      path: entry.path,
+      mode: entry.mode,
+      type: 'blob',
+      sha: null,
+    })),
+  })
+  if (!newTreeRes.ok) {
+    throw createError({
+      statusCode: 502,
+      statusMessage: `Conductor removal-tree create failed (${newTreeRes.status})`,
+    })
+  }
+  const newTreeData = (await newTreeRes.json()) as { sha: string }
+
+  const createRefRes = await conductorApiWrite(token, '/git/refs', {
+    ref: `refs/heads/${branch}`,
+    sha: baseSha,
+  })
+  // 422 = branch already exists (a retry after a partial failure) -- reuse
+  // it, same as pushScaffoldBranchAndOpenPr above.
+  if (!createRefRes.ok && createRefRes.status !== 422) {
+    throw createError({
+      statusCode: 502,
+      statusMessage: `Conductor branch creation failed (${createRefRes.status})`,
+    })
+  }
+
+  const newCommitRes = await conductorApiWrite(token, '/git/commits', {
+    message: prTitle,
+    tree: newTreeData.sha,
+    parents: [baseSha],
+  })
+  if (!newCommitRes.ok) {
+    throw createError({
+      statusCode: 502,
+      statusMessage: `Conductor removal-commit create failed (${newCommitRes.status})`,
+    })
+  }
+  const newCommitData = (await newCommitRes.json()) as { sha: string }
+
+  const updateRefRes = await conductorApiWrite(
+    token,
+    `/git/refs/heads/${branch}`,
+    { sha: newCommitData.sha },
+    'PATCH',
+  )
+  if (!updateRefRes.ok) {
+    throw createError({
+      statusCode: 502,
+      statusMessage: `Conductor removal branch update failed (${updateRefRes.status})`,
+    })
+  }
+
+  const prRes = await conductorApiWrite(token, '/pulls', {
+    title: prTitle,
+    head: branch,
+    base: CONDUCTOR_DEFAULT_BRANCH,
+    body: prBody,
+  })
+  if (!prRes.ok) {
+    throw createError({
+      statusCode: 502,
+      statusMessage: `Conductor removal-PR creation failed (${prRes.status})`,
+    })
+  }
+  const prData = (await prRes.json()) as { html_url: string; number: number }
+
+  return { branch, prUrl: prData.html_url, prNumber: prData.number }
+}
+
+async function conductorApiWrite(
+  token: string,
+  path: string,
+  body: unknown,
+  method: 'POST' | 'PATCH' = 'POST',
+): Promise<Response> {
+  return fetch(`https://api.github.com/repos/${CONDUCTOR_REPO}${path}`, {
+    method,
+    headers: {
+      ...GITHUB_API_HEADERS,
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(body),
+  })
+}

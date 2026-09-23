@@ -31,6 +31,10 @@ import {
   hydrateArchiveFiles,
 } from '@/server/utils/artArchiveScanner'
 import { importArchiveFile } from '@/server/utils/artArchiveImporter'
+import {
+  loadImportedArchivePaths,
+  selectPendingPaths,
+} from '@/server/utils/artArchiveImportedPaths'
 import prisma from '@/server/utils/prisma'
 
 const DEFAULT_BATCH_LIMIT = 250
@@ -53,12 +57,10 @@ export default defineEventHandler(async (event) => {
     // Only the paths, never the rows: the point of this endpoint is that it
     // never holds the whole archive in memory, and loadKnownArchiveFiles()
     // would pull every entry's metadata just to answer "is this one done".
-    const importedRows = await prisma.archiveEntry.findMany({
-      select: { relativePath: true },
-    })
-    const imported = new Set(importedRows.map((row) => row.relativePath))
-
-    const pending = listing.relativePaths.filter((path) => !imported.has(path))
+    // Which rows count as done is state-aware and shared with scan-status --
+    // a MISSING, PENDING, ERROR or quarantined row is work still to do.
+    const imported = await loadImportedArchivePaths(prisma.archiveEntry)
+    const pending = selectPendingPaths(listing.relativePaths, imported)
     const batch = pending.slice(0, limit)
 
     const scan = await hydrateArchiveFiles(listing.root, batch)

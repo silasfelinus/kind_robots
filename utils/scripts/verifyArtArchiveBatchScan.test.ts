@@ -27,6 +27,12 @@ import {
   hydrateArchiveFiles,
   scanArchiveRoot,
 } from '../../server/utils/artArchiveScanner'
+import {
+  IMPORTED_ENTRY_WHERE,
+  isImportedLedgerRow,
+  loadImportedArchivePaths,
+  selectPendingPaths,
+} from '../../server/utils/artArchiveImportedPaths'
 
 const root = await mkdtemp(path.join(tmpdir(), 'art-archive-batch-'))
 try {
@@ -139,15 +145,106 @@ async function hydrateThenCount(
   return result.files.length
 }
 
+// ---- the resume predicate is state-aware ---------------------------------
+// Reported on kind_robots#2998: resuming on "a row exists for this path" is
+// wrong, because the ledger deliberately holds rows that are not imported. The
+// reconciler marks a vanished file MISSING rather than deleting its row, so if
+// that file comes back, a row-exists check calls it done and never imports it
+// -- trusting the very row that says the file was gone.
+const ledger = [
+  { relativePath: 'imported.png', processState: 'IMPORTED', isActive: true },
+  { relativePath: 'reappeared.png', processState: 'MISSING', isActive: true },
+  { relativePath: 'half-done.png', processState: 'PENDING', isActive: true },
+  { relativePath: 'broke.png', processState: 'ERROR', isActive: true },
+  { relativePath: 'trashed.png', processState: 'IMPORTED', isActive: false },
+]
+
+assert.equal(
+  isImportedLedgerRow(ledger[0]!),
+  true,
+  'an active, successfully imported entry is done',
+)
+for (const row of ledger.slice(1)) {
+  assert.equal(
+    isImportedLedgerRow(row!),
+    false,
+    `${row!.relativePath} (${row!.processState}, active=${row!.isActive}) is not done`,
+  )
+}
+
+assert.deepEqual(
+  IMPORTED_ENTRY_WHERE,
+  { isActive: true, processState: 'IMPORTED' },
+  'the query must narrow to active, imported rows',
+)
+
+let queriedWith: unknown = null
+const importedPaths = await loadImportedArchivePaths({
+  findMany: async (args) => {
+    queriedWith = args.where
+    // Answer as a database that ignored the filter would, to prove the helper
+    // re-applies the rule to whatever comes back.
+    return ledger
+  },
+})
+assert.deepEqual(
+  queriedWith,
+  { isActive: true, processState: 'IMPORTED' },
+  'the helper must ask the database to filter, not just filter after',
+)
+assert.deepEqual(
+  [...importedPaths],
+  ['imported.png'],
+  'only the active imported path counts as done, even if the query returns more',
+)
+
+// The regression case itself: a MISSING ledger row whose file is on disk again.
+const onDisk = [
+  'imported.png',
+  'reappeared.png',
+  'half-done.png',
+  'broke.png',
+  'trashed.png',
+  'brand-new.png',
+]
+assert.deepEqual(
+  selectPendingPaths(onDisk, importedPaths),
+  [
+    'reappeared.png',
+    'half-done.png',
+    'broke.png',
+    'trashed.png',
+    'brand-new.png',
+  ],
+  'a reappeared MISSING file, a pending one, a failed one and a new file are all still work',
+)
+assert.ok(
+  selectPendingPaths(onDisk, importedPaths).includes('reappeared.png'),
+  'a file whose ledger row says MISSING must be imported again once it is back',
+)
+
+// ---- both endpoints resume from the same predicate ----------------------
+for (const file of [
+  'server/api/admin/art-archive/import-batch.post.ts',
+  'server/api/admin/art-archive/scan-status.get.ts',
+]) {
+  const source = await readFile(file, 'utf8')
+  assert.match(
+    source,
+    /loadImportedArchivePaths\(prisma\.archiveEntry\)/,
+    `${file} must resume from the shared state-aware predicate`,
+  )
+  assert.doesNotMatch(
+    source,
+    /findMany\(\{\s*select: \{ relativePath: true \}/,
+    `${file} must not treat any row's existence as "imported"`,
+  )
+}
+
 // ---- the batch endpoint's resume contract -------------------------------
 const endpoint = await readFile(
   'server/api/admin/art-archive/import-batch.post.ts',
   'utf8',
-)
-assert.match(
-  endpoint,
-  /select: \{ relativePath: true \}/,
-  'the endpoint must read only paths, never every entry with its metadata',
 )
 assert.match(
   endpoint,

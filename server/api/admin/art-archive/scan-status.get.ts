@@ -13,6 +13,10 @@ import { requireAdminApiUser } from '@/server/utils/authGuard'
 import { errorHandler } from '@/server/utils/error'
 import { getArtArchiveRoot } from '@/server/utils/artArchiveRoot'
 import { listArchiveFilePaths } from '@/server/utils/artArchiveScanner'
+import {
+  loadImportedArchivePaths,
+  selectPendingPaths,
+} from '@/server/utils/artArchiveImportedPaths'
 import prisma from '@/server/utils/prisma'
 
 export default defineEventHandler(async (event) => {
@@ -20,14 +24,10 @@ export default defineEventHandler(async (event) => {
     await requireAdminApiUser(event)
     const listing = await listArchiveFilePaths(getArtArchiveRoot())
 
-    const importedRows = await prisma.archiveEntry.findMany({
-      select: { relativePath: true },
-    })
-    const imported = new Set(importedRows.map((row) => row.relativePath))
-    const pending = listing.relativePaths.reduce(
-      (count, path) => (imported.has(path) ? count : count + 1),
-      0,
-    )
+    // Same state-aware predicate import-batch resumes from, so this count and
+    // the set that endpoint skips can never diverge.
+    const imported = await loadImportedArchivePaths(prisma.archiveEntry)
+    const pending = selectPendingPaths(listing.relativePaths, imported).length
 
     return {
       success: true,
@@ -37,7 +37,7 @@ export default defineEventHandler(async (event) => {
       data: {
         root: listing.root,
         filesOnDisk: listing.relativePaths.length,
-        archiveEntries: imported.size,
+        importedEntries: imported.size,
         importedFromDisk: listing.relativePaths.length - pending,
         pending,
         done: pending === 0,

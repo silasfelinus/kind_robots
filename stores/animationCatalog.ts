@@ -539,7 +539,7 @@ export const ANIMATION_EFFECTS = [
     tooltip:
       'Faceted crystal clusters nucleate in a hollow geode cavity, grow outward along fixed lattice directions until they catch the light, then recede facet-by-facet to free room for the next formation 💎 hover for a glint, click to seed a new cluster',
     color: '#3fb6d1',
-    releasedAt: '2026-09-05T07:27:49Z',
+    releasedAt: '2026-09-05T07:55:56Z',
     generationSafe: true,
     preferredSurface: 'fullscreen',
   },

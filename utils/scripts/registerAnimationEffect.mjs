@@ -16,9 +16,7 @@ const SURFACES = new Set(['header', 'sheet', 'page', 'hand', 'fullscreen'])
 const CATALOG_END = '] as const satisfies readonly AnimationEffectDefinition[]'
 
 function quote(value) {
-  return `'${String(value)
-    .replaceAll('\\', '\\\\')
-    .replaceAll("'", "\\'")}'`
+  return `'${String(value).replaceAll('\\', '\\\\').replaceAll("'", "\\'")}'`
 }
 
 export function validateAnimationEffect(entry) {
@@ -84,10 +82,7 @@ export function registerAnimationEffect(catalogText, entry) {
   validateAnimationEffect(entry)
   const singleQuotedId = `id: '${entry.id}'`
   const doubleQuotedId = `id: "${entry.id}"`
-  if (
-    catalogText.includes(singleQuotedId) ||
-    catalogText.includes(doubleQuotedId)
-  ) {
+  if (catalogText.includes(singleQuotedId) || catalogText.includes(doubleQuotedId)) {
     throw new Error(`Animation effect already registered: ${entry.id}`)
   }
   const markerIndex = catalogText.indexOf(CATALOG_END)

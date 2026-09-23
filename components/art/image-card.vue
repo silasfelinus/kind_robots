@@ -621,6 +621,22 @@ function createImageDataUrl(image?: ArtImage | null) {
 }
 
 function createImagePathUrl(image?: ArtImage | null) {
+  // art-archive imports deliberately keep PRIVATE_PATH-relative filesystem
+  // paths in ArtImage.path. They are not public/images URLs. Route those rows
+  // through the authenticated, root-confined media endpoint instead of turning
+  // "folder/file.png" into the guaranteed-404 "/images/folder/file.png".
+  if (
+    image?.designer === 'art-archive' &&
+    Number.isInteger(Number(image.id)) &&
+    Number(image.id) > 0
+  ) {
+    const variant =
+      props.showGenerationMeta || props.size === 'lg' ? 'medium' : 'thumbnail'
+    return withAppUrl(
+      `/api/art/image/archive/${Number(image.id)}?variant=${variant}`,
+    )
+  }
+
   const path =
     image?.imagePath ||
     (image as { path?: string | null } | null | undefined)?.path ||

@@ -68,8 +68,11 @@ export function formatAnimationEffect(entry) {
 
 export function registerAnimationEffect(catalogText, entry) {
   validateAnimationEffect(entry)
-  const idPattern = new RegExp(`\\bid:\\s*['\"]${entry.id.replace(/[.*+?^${}()|[\\]\\]/g, '\\$&')}['\"]`)
-  if (idPattern.test(catalogText)) throw new Error(`Animation effect already registered: ${entry.id}`)
+  const singleQuotedId = `id: '${entry.id}'`
+  const doubleQuotedId = `id: \"${entry.id}\"`
+  if (catalogText.includes(singleQuotedId) || catalogText.includes(doubleQuotedId)) {
+    throw new Error(`Animation effect already registered: ${entry.id}`)
+  }
   const markerIndex = catalogText.indexOf(CATALOG_END)
   if (markerIndex < 0) throw new Error('Could not find the ANIMATION_EFFECTS closing marker.')
   if (catalogText.indexOf(CATALOG_END, markerIndex + 1) >= 0) {

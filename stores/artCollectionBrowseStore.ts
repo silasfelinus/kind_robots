@@ -72,8 +72,8 @@ export const useArtCollectionBrowseStore = defineStore(
     >()
     let unsortedSummaryRequest: Promise<UnsortedArtSummary> | null = null
     let unsortedImagesRequest: Promise<ArtImage[]> | null = null
-    let unsortedSummaryMaturityFilter: boolean | null = null
-    let unsortedImagesMaturityFilter: boolean | null = null
+    let unsortedSummaryMaturityFilter: GalleryMaturityFilter | null = null
+    let unsortedImagesMaturityFilter: GalleryMaturityFilter | null = null
 
     const artStore = useArtStore()
 

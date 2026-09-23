@@ -541,6 +541,7 @@ export const RULER_HOOKED_CONTENT: ContentBundle = {
           characters: ['bard-fen'],
           title: 'Fen’s New Ballad',
           body: 'Fen the bard wants to write a song about your reign. “Working title,” they say, “‘The Ruler Who Would Rather Fish.’”',
+          art: 'card-bard-ballad',
           choices: [
             {
               id: 'commission-flattering',
@@ -617,6 +618,7 @@ export const RULER_HOOKED_CONTENT: ContentBundle = {
           weight: 3,
           title: 'The Duck Census',
           body: 'A clerk insists the kingdom needs an official duck census. You are not sure why. Neither is the clerk.',
+          art: 'card-duck-census',
           choices: [
             {
               id: 'commission-census',
@@ -814,6 +816,7 @@ export const RULER_HOOKED_CONTENT: ContentBundle = {
           characters: ['lake-spirit-nix'],
           title: 'Nix’s Warning',
           body: 'Nix surfaces again, less patient this time. “The water is thinning,” it says. “Fix it, or fish somewhere else, eventually.”',
+          art: 'card-nix-warning',
           trigger: {
             requires: { sliders: { nature: { lt: 30 } } },
             cooldown: 6,
@@ -863,6 +866,7 @@ export const RULER_HOOKED_CONTENT: ContentBundle = {
           characters: ['heir-robin'],
           title: 'A Note in a Fish',
           body: 'Robin has been sneaking out at dawn. A note, wrapped around a trout, says they mean to elope with a commoner angler named Ash.',
+          art: 'card-elope-1',
           choices: [
             {
               id: 'bless',
@@ -947,6 +951,7 @@ export const RULER_HOOKED_CONTENT: ContentBundle = {
           characters: ['envoy-thistle', 'taxman-gristle'],
           title: 'An Envoy at the Gate',
           body: 'Thistle arrives with a treaty scroll and a fixed, diplomatic smile. Gristle trails her, muttering about tariffs, already suspicious of the wording.',
+          art: 'card-envoy-1',
           choices: [
             {
               id: 'negotiate-generous',
@@ -1032,6 +1037,7 @@ export const RULER_HOOKED_CONTENT: ContentBundle = {
           characters: ['witch-mossy', 'captain-cordelia'],
           title: 'A Bargain in the Reeds',
           body: 'Mossy the bog witch offers to green the whole far shore overnight — for a price she won’t quite name. Cordelia, arms crossed, clearly doesn’t like the sound of “won’t quite name.”',
+          art: 'card-bog-1',
           choices: [
             {
               id: 'accept-hex',

@@ -317,15 +317,24 @@ if (process.env.KR_INGEST_BATCH === '1') {
       }
     }
 
-    if (data.outOfRangeFields) {
-      for (const [field, count] of Object.entries(data.outOfRangeFields)) {
-        if (count > 0) {
-          process.stderr.write(
-            `  ~ ${count} file(s) had a ${field} too large for its column; ` +
-              'stored null, true value kept in the entry metadata\n',
-          )
-        }
+    // Two different faults, never merged into one line: a value too big for the
+    // column is not the same finding as a value that was never a whole number,
+    // and calling a `CFG scale: 7.5` "too large" is just false. The magnitude
+    // is printed because it is the evidence -- ~4e9 means unsigned 32-bit
+    // A1111 seeds, ~1e18 means ComfyUI and a wider column is not optional.
+    for (const [field, drop] of Object.entries(data.droppedFields ?? {})) {
+      const parts = []
+      if (drop.outOfRange) {
+        parts.push(
+          `${drop.outOfRange} outside the column range (largest ${drop.largestMagnitude})`,
+        )
       }
+      if (drop.notAnInteger) parts.push(`${drop.notAnInteger} not whole numbers`)
+      if (!parts.length) continue
+      process.stderr.write(
+        `  ~ ${field}: ${parts.join(', ')}; stored null, true value kept in ` +
+          `the entry metadata\n      e.g. ${drop.exampleValue} in ${drop.examplePath}\n`,
+      )
     }
 
     if (data.done) {

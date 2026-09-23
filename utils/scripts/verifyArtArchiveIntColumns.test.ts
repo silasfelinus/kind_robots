@@ -24,8 +24,8 @@
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import {
+  classifyIntColumnValue,
   intColumnOrNull,
-  isOutOfRangeNumber,
 } from '../../server/utils/artArchiveIntColumns'
 
 const INT32_MAX = 2_147_483_647
@@ -85,22 +85,43 @@ for (const value of [
   )
 }
 
-// ---- present-but-unusable is distinguished from absent -------------------
+// ---- the two faults are named apart, never merged ------------------------
+// Reporting a fractional CFG as "too large for its column" is false, and a
+// report that says so teaches the reader the wrong thing about their archive.
 assert.equal(
-  isOutOfRangeNumber(3832090215),
-  true,
-  'a real seed too big to store',
+  classifyIntColumnValue(3832090215),
+  'out-of-range',
+  'an unsigned 32-bit A1111 seed is too big for the column',
 )
-assert.equal(isOutOfRangeNumber(42), false, 'a storable number is not a loss')
 assert.equal(
-  isOutOfRangeNumber(undefined),
-  false,
+  classifyIntColumnValue(1049274193847562),
+  'out-of-range',
+  'a 64-bit ComfyUI seed is too big for the column',
+)
+assert.equal(
+  classifyIntColumnValue(7.5),
+  'not-an-integer',
+  'CFG scale 7.5 is fractional, NOT too large -- never report it as too large',
+)
+assert.equal(
+  classifyIntColumnValue(42),
+  null,
+  'a storable number is not a loss',
+)
+assert.equal(
+  classifyIntColumnValue(undefined),
+  null,
   'an absent field is not a loss',
 )
 assert.equal(
-  isOutOfRangeNumber('3832090215'),
-  false,
+  classifyIntColumnValue('3832090215'),
+  null,
   'a non-number is not a loss',
+)
+assert.equal(
+  classifyIntColumnValue(Number.NaN),
+  null,
+  'NaN is not a reportable loss',
 )
 
 // ---- the value is dropped, never bent into range -------------------------
@@ -122,11 +143,13 @@ for (const bending of [
   )
 }
 
-// ---- and the loss is reported, not silent --------------------------------
+// ---- and the loss is reported with evidence, not as a bare count ---------
+// A count alone cannot distinguish "ordinary 32-bit A1111 seeds" from "this
+// archive is ComfyUI"; the value has to travel with it.
 assert.match(
   source,
-  /outOfRangeFields\.push\(name\)/,
-  'a dropped value must be recorded so the gap can be counted',
+  /droppedValues\.push\(\{ field: name, fault, value: raw as number \}\)/,
+  'a dropped value must be recorded WITH its fault and its true value',
 )
 assert.match(
   source,
@@ -140,18 +163,32 @@ const endpoint = readFileSync(
 )
 assert.match(
   endpoint,
-  /outOfRangeFields\[field\] = \(outOfRangeFields\[field\] \?\? 0\) \+ 1/,
-  'the batch must count dropped fields per kind',
+  /largestMagnitude = Math\.abs\(dropped\.value\)/,
+  'the batch must keep the largest magnitude seen -- it is the evidence that ' +
+    'says whether a 32-bit column was ever viable for this archive',
 )
 assert.match(
   endpoint,
-  /\n\s*outOfRangeFields,\n/,
-  'and report them in its response',
+  /\n\s*droppedFields,\n/,
+  'the batch response must expose the per-field drop report',
+)
+
+const client = readFileSync('scripts/art-archive-ingest.sh', 'utf8')
+assert.match(
+  client,
+  /not whole numbers/,
+  'the runner must report a fractional value as fractional, never as too large',
+)
+assert.doesNotMatch(
+  client,
+  /too large for its column/,
+  'the old wording called a fractional CFG "too large", which is simply false',
 )
 
 console.log(
-  'Art Archive int-column contract verified: production seeds past the signed ' +
-    '32-bit limit are dropped rather than bent, ordinary values and the -1 ' +
-    'sentinel are untouched, nothing is invented from a non-number, and every ' +
-    'drop is counted with the true value kept in the entry metadata.',
+  'Art Archive int-column contract verified: the two faults are named apart ' +
+    '(a fractional CFG is never reported as too large), production seeds past ' +
+    'the signed 32-bit limit are dropped rather than bent, the -1 sentinel ' +
+    'still fits, nothing is invented from a non-number, and every drop carries ' +
+    'its true value so the archive can be told apart from a 32-bit one.',
 )

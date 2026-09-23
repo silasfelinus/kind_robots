@@ -2,7 +2,8 @@ import path from 'node:path'
 import { createHash } from 'node:crypto'
 import prisma from '~/server/utils/prisma'
 import { narrowToPngMetadata } from './artArchiveMetadata'
-import { intColumnOrNull, isOutOfRangeNumber } from './artArchiveIntColumns'
+import { classifyIntColumnValue, intColumnOrNull } from './artArchiveIntColumns'
+import type { IntColumnFault } from './artArchiveIntColumns'
 import type { ScannedArchiveFile } from './artArchiveScanner'
 
 export type ArchiveImportResult = {
@@ -13,11 +14,19 @@ export type ArchiveImportResult = {
   createdImage: boolean
   createdCollection: boolean
   /**
-   * Generation fields this file carried that the ArtImage column cannot hold.
-   * Never silently empty: the count is reported per batch so the scale of the
-   * gap is visible rather than inferred later from missing data.
+   * Generation values this file carried that its ArtImage column cannot hold.
+   * The true value rides along: "250 seeds were too big" and "the biggest was
+   * 1,049,274,193,847,562" are different findings -- the first is consistent
+   * with 32-bit A1111 seeds, the second says the archive is ComfyUI and a
+   * BigInt column would not be optional.
    */
-  outOfRangeFields: string[]
+  droppedValues: DroppedColumnValue[]
+}
+
+export type DroppedColumnValue = {
+  field: string
+  fault: IntColumnFault
+  value: number
 }
 
 type TransactionClient = Parameters<
@@ -87,22 +96,23 @@ function fileType(relativePath: string): string {
 // artArchiveIntColumns.ts.
 function generationFields(file: ScannedArchiveFile): {
   fields: Record<string, unknown>
-  outOfRangeFields: string[]
+  droppedValues: DroppedColumnValue[]
 } {
   const png = narrowToPngMetadata(file.metadata)
-  if (!png) return { fields: {}, outOfRangeFields: [] }
+  if (!png) return { fields: {}, droppedValues: [] }
   const source = png.a1111 ?? png.comfy
-  if (!source) return { fields: {}, outOfRangeFields: [] }
+  if (!source) return { fields: {}, droppedValues: [] }
 
-  const outOfRangeFields: string[] = []
+  const droppedValues: DroppedColumnValue[] = []
   const intField = (name: string, raw: unknown): number | null => {
     // An absent field is not a loss; only a present-but-unusable one is.
-    if (isOutOfRangeNumber(raw)) outOfRangeFields.push(name)
+    const fault = classifyIntColumnValue(raw)
+    if (fault) droppedValues.push({ field: name, fault, value: raw as number })
     return intColumnOrNull(raw)
   }
 
   return {
-    outOfRangeFields,
+    droppedValues,
     fields: {
       promptString: 'prompt' in source ? source.prompt : source.positivePrompt,
       negativePrompt: source.negativePrompt,
@@ -213,7 +223,7 @@ export async function importArchiveFile(
       archiveEntryId: archiveEntry.id,
       artImageId,
       collectionId: collection.id,
-      outOfRangeFields: generation.outOfRangeFields,
+      droppedValues: generation.droppedValues,
       createdImage,
       createdCollection,
     }

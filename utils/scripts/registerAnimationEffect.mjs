@@ -16,7 +16,9 @@ const SURFACES = new Set(['header', 'sheet', 'page', 'hand', 'fullscreen'])
 const CATALOG_END = '] as const satisfies readonly AnimationEffectDefinition[]'
 
 function quote(value) {
-  return `'${String(value).replaceAll('\\', '\\\\').replaceAll("'", "\\'")}'`
+  return `'${String(value)
+    .replaceAll('\\', '\\\\')
+    .replaceAll("'", "\\'")}'`
 }
 
 export function validateAnimationEffect(entry) {
@@ -38,7 +40,9 @@ export function validateAnimationEffect(entry) {
     throw new Error('generationSafe must be boolean.')
   }
   if (!SURFACES.has(entry.preferredSurface)) {
-    throw new Error(`preferredSurface must be one of: ${[...SURFACES].join(', ')}`)
+    throw new Error(
+      `preferredSurface must be one of: ${[...SURFACES].join(', ')}`,
+    )
   }
   if (
     entry.releasedAt !== undefined &&
@@ -46,7 +50,10 @@ export function validateAnimationEffect(entry) {
   ) {
     throw new Error('releasedAt must be an ISO UTC timestamp ending in Z.')
   }
-  if (entry.blocksInput !== undefined && typeof entry.blocksInput !== 'boolean') {
+  if (
+    entry.blocksInput !== undefined &&
+    typeof entry.blocksInput !== 'boolean'
+  ) {
     throw new Error('blocksInput must be boolean when supplied.')
   }
 }
@@ -62,9 +69,13 @@ export function formatAnimationEffect(entry) {
     `    tooltip: ${quote(entry.tooltip)},`,
     `    color: ${quote(entry.color)},`,
   ]
-  if (entry.releasedAt) lines.push(`    releasedAt: ${quote(entry.releasedAt)},`)
+  if (entry.releasedAt) {
+    lines.push(`    releasedAt: ${quote(entry.releasedAt)},`)
+  }
   lines.push(`    generationSafe: ${entry.generationSafe},`)
-  if (entry.blocksInput !== undefined) lines.push(`    blocksInput: ${entry.blocksInput},`)
+  if (entry.blocksInput !== undefined) {
+    lines.push(`    blocksInput: ${entry.blocksInput},`)
+  }
   lines.push(`    preferredSurface: ${quote(entry.preferredSurface)},`, '  },')
   return lines.join('\n')
 }
@@ -77,7 +88,9 @@ export function registerAnimationEffect(catalogText, entry) {
     throw new Error(`Animation effect already registered: ${entry.id}`)
   }
   const markerIndex = catalogText.indexOf(CATALOG_END)
-  if (markerIndex < 0) throw new Error('Could not find the ANIMATION_EFFECTS closing marker.')
+  if (markerIndex < 0) {
+    throw new Error('Could not find the ANIMATION_EFFECTS closing marker.')
+  }
   if (catalogText.indexOf(CATALOG_END, markerIndex + 1) >= 0) {
     throw new Error('Catalog closing marker is ambiguous; refusing to edit.')
   }
@@ -121,7 +134,10 @@ export function runCli(argv = process.argv.slice(2)) {
   )
 }
 
-if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+if (
+  process.argv[1] &&
+  path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)
+) {
   try {
     runCli()
   } catch (error) {

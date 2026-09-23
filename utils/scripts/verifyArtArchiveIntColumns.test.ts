@@ -26,6 +26,7 @@ import { readFileSync } from 'node:fs'
 import {
   classifyIntColumnValue,
   intColumnOrNull,
+  splitHalfStepCfg,
 } from '../../server/utils/artArchiveIntColumns'
 
 const INT32_MAX = 2_147_483_647
@@ -125,6 +126,38 @@ assert.equal(
 )
 
 // ---- the value is dropped, never bent into range -------------------------
+// ---- CFG keeps its half step via the column pair that already exists ------
+// cfgHalf has been in the schema all along and image-card.vue already renders
+// `${cfg}.5` from it. Dropping 12.5 for being fractional cost over half the
+// archive its CFG for want of a boolean.
+assert.deepEqual(
+  splitHalfStepCfg(12.5),
+  { cfg: 12, cfgHalf: true },
+  '12.5 must survive as 12 + half, not be dropped',
+)
+assert.deepEqual(
+  splitHalfStepCfg(7),
+  { cfg: 7, cfgHalf: false },
+  'a whole CFG must not be flagged as half',
+)
+assert.deepEqual(
+  splitHalfStepCfg(0.5),
+  { cfg: 0, cfgHalf: true },
+  'a half below one still splits',
+)
+assert.equal(
+  splitHalfStepCfg(7.25),
+  null,
+  'a quarter step cannot be represented by cfg+cfgHalf and must be reported',
+)
+for (const notCfg of [null, undefined, '12.5', Number.NaN, Infinity]) {
+  assert.equal(
+    splitHalfStepCfg(notCfg),
+    null,
+    'nothing is invented from a non-number',
+  )
+}
+
 const source =
   readFileSync('server/utils/artArchiveIntColumns.ts', 'utf8') +
   readFileSync('server/utils/artArchiveImporter.ts', 'utf8')

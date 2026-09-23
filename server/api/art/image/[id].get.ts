@@ -5,6 +5,7 @@ import prisma from '../../../utils/prisma'
 import { errorHandler } from '../../../utils/error'
 import { validateApiKey } from '../../../utils/validateKey'
 import { userRoles } from '../../../utils/authUser'
+import { attachGalleryArchiveMediaPaths } from '~/server/utils/artGalleryArchiveMedia'
 import {
   isMaturityRestricted,
   viewerShowsMature,
@@ -230,6 +231,14 @@ export default defineEventHandler(async (event) => {
         }, isAdmin: ${access.isAdmin}, showMature: ${access.showMature}). Reason: ${reason}.`,
       })
     }
+    // Archive-backed rows carry a private-root path, not a URL, so without
+    // this the panel renders the backtree.webp placeholder instead of the art.
+    // canReadArtImage() has already run, so this row is one the caller may
+    // see. Same helper the collection endpoints use (#3007).
+    attachGalleryArchiveMediaPaths([data] as Parameters<
+      typeof attachGalleryArchiveMediaPaths
+    >[0])
+
     event.node.res.statusCode = 200
 
     return {

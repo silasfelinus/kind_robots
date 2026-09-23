@@ -7,6 +7,7 @@
 import { createError, defineEventHandler, getRouterParam } from 'h3'
 import prisma from '~/server/utils/prisma'
 import { errorHandler } from '~/server/utils/error'
+import { archiveMediaUrl } from '~/server/utils/artArchiveSignedMedia'
 import { requireAdminApiUser } from '~/server/utils/authGuard'
 import { viewerShowsMature } from '~/server/utils/contentAccess'
 
@@ -98,13 +99,12 @@ export default defineEventHandler(async (event) => {
           // Medium cached preview (art-archive/t-035) -- cheaper first paint
           // for the detail panel than the untouched original. originalPath
           // still exposes the full-size file for a viewer who needs it.
-          imagePath: hasImage
-            ? `/api/admin/art-archive/entries/${id}/file?variant=medium`
-            : null,
-          originalPath: hasImage ? `/api/admin/art-archive/entries/${id}/file` : null,
-          thumbnailPath: hasImage
-            ? `/api/admin/art-archive/entries/${id}/file?variant=thumbnail`
-            : null,
+          // Signed for the same reason as the grid's: an <img> cannot send the
+          // admin header, so this already-authenticated request mints a
+          // short-lived capability bound to the id and the variant.
+          imagePath: hasImage ? archiveMediaUrl(id, 'medium') : null,
+          originalPath: hasImage ? archiveMediaUrl(id, 'full') : null,
+          thumbnailPath: hasImage ? archiveMediaUrl(id, 'thumbnail') : null,
         },
         artImage,
         folderCollection,

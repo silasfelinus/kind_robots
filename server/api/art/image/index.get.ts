@@ -8,6 +8,7 @@ import {
   getArtImageAccessContext,
   type QueryValue,
 } from '~/server/utils/artImageAccess'
+import { attachGalleryArchiveMediaPaths } from '~/server/utils/artGalleryArchiveMedia'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -21,6 +22,16 @@ export default defineEventHandler(async (event) => {
       select,
       orderBy: { createdAt: 'desc' },
     })
+
+    // An archive-backed row's `path` points inside the private archive root
+    // and is not a URL, so the card renders backtree.webp without this. Same
+    // helper the collection endpoints use (#3007) -- these endpoints were just
+    // never wired to it. The rows have already passed buildArtImageWhere(),
+    // which is the gate the byte route itself falls back to, so the signed URL
+    // grants nothing the caller did not already have.
+    attachGalleryArchiveMediaPaths(
+      data as Parameters<typeof attachGalleryArchiveMediaPaths>[0],
+    )
 
     event.node.res.statusCode = 200
 

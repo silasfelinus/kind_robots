@@ -1230,6 +1230,9 @@ jobs:
       - name: Art Archive int-column range contract
         run: npm run test:art-archive-int-columns
 
+      - name: Art Archive signed-media contract
+        run: npm run test:art-archive-signed-media
+
       - name: Butterfly Gallery curation-action contract
         run: npm run test:butterfly-gallery-actions
 

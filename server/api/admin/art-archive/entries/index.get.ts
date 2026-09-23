@@ -8,6 +8,7 @@ import prisma from '~/server/utils/prisma'
 import { errorHandler } from '~/server/utils/error'
 import { requireAdminApiUser } from '~/server/utils/authGuard'
 import { viewerShowsMature } from '~/server/utils/contentAccess'
+import { archiveMediaUrl } from '~/server/utils/artArchiveSignedMedia'
 
 type EntryListQuery = {
   folderCollectionId?: string
@@ -147,13 +148,17 @@ export default defineEventHandler(async (event) => {
       // artImage.path/thumbnailPath are raw paths relative to the private
       // archive root -- not web-servable. Point at the byte-serving route
       // (art-archive/t-029) instead of the unreachable filesystem path.
+      //
+      // SIGNED, because the <img> that loads this cannot send the header the
+      // route's admin guard reads -- which is why every one of these 401'd and
+      // the grid showed fallback art (art-archive/t-041). This request is
+      // already admin-authenticated, so minting the capability here is the
+      // point at which we know it is deserved.
       const hasImage = Boolean(artImage?.path)
       return {
         ...entry,
-        imagePath: hasImage ? `/api/admin/art-archive/entries/${entry.id}/file` : null,
-        thumbnailPath: hasImage
-          ? `/api/admin/art-archive/entries/${entry.id}/file?variant=thumbnail`
-          : null,
+        imagePath: hasImage ? archiveMediaUrl(entry.id, 'full') : null,
+        thumbnailPath: hasImage ? archiveMediaUrl(entry.id, 'thumbnail') : null,
         isMature: artImage?.isMature ?? false,
         isPublic: artImage?.isPublic ?? true,
         prompt: artImage?.promptString ?? null,

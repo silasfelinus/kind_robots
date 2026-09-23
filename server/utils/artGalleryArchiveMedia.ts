@@ -5,11 +5,17 @@
 // headers, and a plain <img> request cannot send either. The Gallery therefore
 // needs the authenticated JSON response to mint a URL the browser can load.
 //
-// The signature is bound to ArtImage id + variant + expiry. It is minted only
+// The HMAC itself lives in signedMediaCapability.ts, shared with the admin
+// archive route; only this domain's key label, TTL, URL shape and gate are
+// local. The signature is bound to ArtImage id + variant + expiry. It is minted only
 // after an ArtImage has already passed buildArtImageWhere() in the collection
 // API, so possession of the URL is the temporary read capability. A copied URL
 // expires on its own and cannot be changed from thumbnail to full/medium.
-import { createHmac, randomBytes, timingSafeEqual } from 'node:crypto'
+import {
+  deriveMediaSigningKey,
+  signMediaCapability,
+  verifyMediaCapability,
+} from './signedMediaCapability'
 
 export type GalleryArchiveMediaVariant = 'full' | 'thumbnail' | 'medium'
 
@@ -25,19 +31,9 @@ type ArchiveBackedArtImage = {
 }
 
 function signingKey(): Buffer {
-  if (cachedKey) return cachedKey
-
-  const base = (
-    process.env.ARCHIVE_MEDIA_SECRET ||
-    process.env.BETA_ADMIN_TOKEN ||
-    process.env.ADMIN_TOKEN ||
-    ''
-  ).trim()
-
-  cachedKey = base
-    ? createHmac('sha256', KEY_LABEL).update(base).digest()
-    : randomBytes(32)
-
+  // KEY_LABEL is this domain's own, so a Gallery signature cannot be replayed
+  // against the admin archive route even though the algorithm is shared.
+  if (!cachedKey) cachedKey = deriveMediaSigningKey(KEY_LABEL)
   return cachedKey
 }
 
@@ -51,9 +47,10 @@ export function signGalleryArchiveMedia(
   variant: GalleryArchiveMediaVariant,
   expiresAt: number,
 ): string {
-  return createHmac('sha256', signingKey())
-    .update(`${artImageId}:${variant}:${expiresAt}`)
-    .digest('base64url')
+  return signMediaCapability(
+    signingKey(),
+    `${artImageId}:${variant}:${expiresAt}`,
+  )
 }
 
 export function galleryArchiveMediaUrl(
@@ -73,19 +70,14 @@ export function verifyGalleryArchiveMedia(
   signature: unknown,
   now: number = Date.now(),
 ): boolean {
-  const expiry = Number(expiresAt)
-  if (!Number.isFinite(expiry) || expiry <= now) return false
-  // Do not accept arbitrarily long-lived caller-chosen capabilities.
-  if (expiry - now > GALLERY_ARCHIVE_MEDIA_TTL_MS) return false
-  if (typeof signature !== 'string' || !signature) return false
-
-  const expected = Buffer.from(
-    signGalleryArchiveMedia(artImageId, variant, expiry),
-    'utf8',
+  return verifyMediaCapability(
+    signingKey(),
+    `${artImageId}:${variant}:${Number(expiresAt)}`,
+    expiresAt,
+    signature,
+    now,
+    GALLERY_ARCHIVE_MEDIA_TTL_MS,
   )
-  const provided = Buffer.from(signature, 'utf8')
-  if (expected.length !== provided.length) return false
-  return timingSafeEqual(expected, provided)
 }
 
 /**

@@ -13,20 +13,24 @@
 // Generated art does not hit this because its bytes are written into the
 // public media root and served at /images/... with no auth at all
 // (artImageOffload.ts). Archive bytes deliberately are not: they stay outside
-// the web root, which is the whole point of a private archive. So instead of
-// copying 349GB into public space, the row is handed a short-lived signed URL
-// to the admin byte route (artArchiveSignedMedia.ts).
+// the web root, which is the whole point of a private archive.
+//
+// #3007 already built the answer for the Gallery: /api/art/image/archive/:id,
+// reached by a short-lived signed URL. This reuses it rather than adding a
+// second way in -- /api/art/image and /api/art/image/:id were simply never
+// wired to it, which is why the Selected Image panel still showed the
+// placeholder after the collection endpoints were fixed.
 //
 // THE GATE
 // --------
-// A signed URL is a capability: minting one for a caller who could not
-// otherwise read the file would be an escalation dressed up as a convenience.
-// So this only ever runs for a viewer who already passes admin + mature, and
-// every other caller keeps the unusable raw path they get today. Failing that
-// check leaves art invisible, which is the correct direction to fail.
+// A signed URL is a capability, so it is only minted for a row the caller has
+// already been allowed to see. Both callers establish that before reaching
+// here -- the list endpoint through buildArtImageWhere(), the detail endpoint
+// through canReadArtImage() -- which is the same gate the byte route itself
+// falls back to when no signature is presented. Nothing is widened by handing
+// the browser a URL for a row it was already served.
 
-import prisma from './prisma'
-import { archiveMediaUrl } from './artArchiveSignedMedia'
+import { galleryArchiveMediaUrl } from './artGalleryArchiveMedia'
 
 type ArchiveBackedRow = {
   id?: number | null
@@ -49,36 +53,19 @@ function needsArchiveUrl(row: ArchiveBackedRow): boolean {
 }
 
 /**
- * Fills `imagePath` with a signed archive URL for any archive-backed row in
- * `rows`, in one query regardless of how many rows there are. Mutates and
- * returns the same rows, so callers can drop it in front of their response
- * without reshaping anything.
+ * Fills `imagePath` with a signed archive URL for any archive-backed row.
+ * Mutates and returns the same rows, so callers can drop it in front of their
+ * response without reshaping anything. No query: the URL is keyed on the
+ * ArtImage id the caller already holds.
  */
-export async function attachArchiveMediaPaths<T extends ArchiveBackedRow>(
+export function attachArchiveMediaPaths<T extends ArchiveBackedRow>(
   rows: T[],
-  viewer: { isAdmin: boolean; showMature: boolean },
-): Promise<T[]> {
-  if (!viewer.isAdmin || !viewer.showMature) return rows
-
-  const pending = rows.filter(needsArchiveUrl)
-  if (!pending.length) return rows
-
-  const entries = await prisma.archiveEntry.findMany({
-    where: { artImageId: { in: pending.map((row) => row.id as number) } },
-    select: { id: true, artImageId: true },
-  })
-
-  const entryByImageId = new Map<number, number>()
-  for (const entry of entries) {
-    if (entry.artImageId) entryByImageId.set(entry.artImageId, entry.id)
-  }
-
-  for (const row of pending) {
-    const entryId = entryByImageId.get(row.id as number)
+): T[] {
+  for (const row of rows) {
+    if (!needsArchiveUrl(row)) continue
     // The medium preview, not the original: these render in cards and panels,
     // and a 349GB archive should not ship full-resolution PNGs to do it.
-    if (entryId) row.imagePath = archiveMediaUrl(entryId, 'medium')
+    row.imagePath = galleryArchiveMediaUrl(row.id as number, 'medium')
   }
-
   return rows
 }

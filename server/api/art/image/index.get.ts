@@ -23,12 +23,12 @@ export default defineEventHandler(async (event) => {
       orderBy: { createdAt: 'desc' },
     })
 
-    // An archive-backed row's `path` points inside the private archive root and
-    // is not a URL, so the card renders a placeholder without this. Admins with
-    // mature access get a signed URL; everyone else is unchanged.
-    await attachArchiveMediaPaths(
+    // An archive-backed row's `path` points inside the private archive root
+    // and is not a URL, so the card renders a placeholder without this. These
+    // rows already passed buildArtImageWhere(), which is the same gate the
+    // byte route falls back to, so the signed URL grants nothing new.
+    attachArchiveMediaPaths(
       data as Parameters<typeof attachArchiveMediaPaths>[0],
-      access,
     )
 
     event.node.res.statusCode = 200

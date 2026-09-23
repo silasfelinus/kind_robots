@@ -29,13 +29,17 @@
 //
 // THE KEY
 // -------
-// Derived, never used raw. ARCHIVE_MEDIA_SECRET if set; otherwise derived from
-// the admin token via HMAC under a fixed label, so the signing key is not the
-// admin credential itself and learning one does not hand over the other. With
-// neither configured the key is random per process, which is fail-safe rather
-// than fail-open: links simply stop working when the app restarts.
+// Derived under THIS domain's own label by signedMediaCapability.ts, which also
+// holds the HMAC shared with the Gallery's archive route (#3007). The labels
+// differ on purpose: the Gallery gate is owner visibility over an ArtImage,
+// this one is admin + mature over an ArchiveEntry, and a signature for one must
+// not be replayable against the other.
 
-import { createHmac, randomBytes, timingSafeEqual } from 'node:crypto'
+import {
+  deriveMediaSigningKey,
+  signMediaCapability,
+  verifyMediaCapability,
+} from './signedMediaCapability'
 
 /** Long enough to browse a session, short enough that a copied URL rots. */
 export const SIGNED_MEDIA_TTL_MS = 6 * 60 * 60 * 1000
@@ -45,16 +49,7 @@ const KEY_LABEL = 'kind-robots/art-archive-media/v1'
 let cachedKey: Buffer | null = null
 
 function signingKey(): Buffer {
-  if (cachedKey) return cachedKey
-  const base = (
-    process.env.ARCHIVE_MEDIA_SECRET ||
-    process.env.BETA_ADMIN_TOKEN ||
-    process.env.ADMIN_TOKEN ||
-    ''
-  ).trim()
-  cachedKey = base
-    ? createHmac('sha256', KEY_LABEL).update(base).digest()
-    : randomBytes(32)
+  if (!cachedKey) cachedKey = deriveMediaSigningKey(KEY_LABEL)
   return cachedKey
 }
 
@@ -70,9 +65,7 @@ export function signArchiveMedia(
   variant: ArchiveMediaVariant,
   expiresAt: number,
 ): string {
-  return createHmac('sha256', signingKey())
-    .update(`${entryId}:${variant}:${expiresAt}`)
-    .digest('base64url')
+  return signMediaCapability(signingKey(), `${entryId}:${variant}:${expiresAt}`)
 }
 
 /** The `?exp=&sig=` a freshly-minted URL carries. */
@@ -106,17 +99,12 @@ export function verifyArchiveMedia(
   signature: unknown,
   now: number = Date.now(),
 ): boolean {
-  const expiry = Number(expiresAt)
-  if (!Number.isFinite(expiry) || expiry <= now) return false
-  if (typeof signature !== 'string' || !signature) return false
-
-  const expected = Buffer.from(
-    signArchiveMedia(entryId, variant, expiry),
-    'utf8',
+  return verifyMediaCapability(
+    signingKey(),
+    `${entryId}:${variant}:${Number(expiresAt)}`,
+    expiresAt,
+    signature,
+    now,
+    SIGNED_MEDIA_TTL_MS,
   )
-  const provided = Buffer.from(signature, 'utf8')
-  // Compared in constant time, and only once the lengths match -- timingSafeEqual
-  // throws on a length mismatch, which would itself leak the length.
-  if (expected.length !== provided.length) return false
-  return timingSafeEqual(expected, provided)
 }

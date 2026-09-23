@@ -233,10 +233,10 @@ export default defineEventHandler(async (event) => {
     }
     // Archive-backed rows carry a private-root path, not a URL, so without
     // this the panel renders the backtree.webp placeholder instead of the art.
-    await attachArchiveMediaPaths(
-      [data] as Parameters<typeof attachArchiveMediaPaths>[0],
-      access,
-    )
+    // canReadArtImage() has already run, so this row is one the caller may see.
+    attachArchiveMediaPaths([data] as Parameters<
+      typeof attachArchiveMediaPaths
+    >[0])
 
     event.node.res.statusCode = 200
 

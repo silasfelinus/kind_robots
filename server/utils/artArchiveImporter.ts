@@ -8,6 +8,7 @@ import {
   splitHalfStepCfg,
 } from './artArchiveIntColumns'
 import type { IntColumnFault } from './artArchiveIntColumns'
+import { seedColumnOrNull } from './artImageSeedColumn'
 import type { ScannedArchiveFile } from './artArchiveScanner'
 
 export type ArchiveImportResult = {
@@ -108,6 +109,14 @@ function generationFields(file: ScannedArchiveFile): {
   if (!source) return { fields: {}, droppedValues: [] }
 
   const droppedValues: DroppedColumnValue[] = []
+  const seedField = (raw: unknown): number | null => {
+    const held = seedColumnOrNull(raw)
+    if (held === null && typeof raw === 'number' && Number.isFinite(raw)) {
+      droppedValues.push({ field: 'seed', fault: 'out-of-range', value: raw })
+    }
+    return held
+  }
+
   const intField = (name: string, raw: unknown): number | null => {
     // An absent field is not a loss; only a present-but-unusable one is.
     const fault = classifyIntColumnValue(raw)
@@ -130,7 +139,11 @@ function generationFields(file: ScannedArchiveFile): {
     fields: {
       promptString: 'prompt' in source ? source.prompt : source.positivePrompt,
       negativePrompt: source.negativePrompt,
-      seed: intField('seed', source.seed),
+      // seed has its OWN range: the column is unsigned, so the whole unsigned
+      // 32-bit space an A1111 seed uses now fits and is kept rather than
+      // dropped. Only a value that is not a seed at all (negative, fractional,
+      // past 2^32) still falls away, and it is still reported.
+      seed: seedField(source.seed),
       cfg: cfg ? cfg.cfg : null,
       cfgHalf: cfg ? cfg.cfgHalf : false,
       sampler: source.sampler,

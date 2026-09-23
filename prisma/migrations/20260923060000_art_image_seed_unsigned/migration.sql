@@ -1,0 +1,43 @@
+-- art-archive/t-041: widen ArtImage.seed from SIGNED INT to UNSIGNED INT.
+--
+-- A1111 seeds are unsigned 32-bit (0 .. 4,294,967,295). The column was a
+-- signed INT capped at 2,147,483,647, so roughly HALF of every A1111 image
+-- ever generated carried a seed it could not store. Writing one aborted the
+-- entire row:
+--
+--   Value out of range for the type: Out of range value for column 'seed'
+--
+-- which failed 908 of the first 2,000 files of the private archive import on
+-- 2026-09-23. After that was made non-fatal the seed was simply dropped
+-- instead -- 98 to 156 of every 250 files.
+--
+-- The range is measured, not assumed. The largest seeds observed in production
+-- were 4,286,545,361 / 4,263,410,656 / 4,253,715,645: all just under 2^32,
+-- none remotely near 64-bit, so this is A1111 rather than ComfyUI and UNSIGNED
+-- INT fits the data exactly. It is also why this is NOT a BigInt migration --
+-- BigInt would change the Prisma/TypeScript type from `number` to `bigint`
+-- across 911 read sites, for range the data does not use.
+--
+-- THE -1 DEFAULT IS REMOVED.
+-- -1 was A1111's "pick a seed for me" sentinel, which an unsigned column
+-- cannot hold and which `null` expresses correctly anyway. Existing rows
+-- holding it are nulled first, below, because altering the column while -1 is
+-- still present would either error or silently clamp those rows to 0 -- a
+-- fabricated seed that looks real, which is the one outcome worse than a
+-- missing one. Nothing in the codebase compares seed to -1, so nothing reads
+-- differently afterwards; writers that still send -1 (the ComfyUI and A1111
+-- request payloads, where it correctly means "randomise") are normalised at
+-- the Prisma boundary instead -- see server/utils/artImageSeedColumn.ts.
+--
+-- SAFETY: the UPDATE only touches rows already holding an unusable value, and
+-- the column change only widens the accepted range upward -- every value that
+-- fits today still fits afterwards. Not reversible without loss: rows nulled
+-- here cannot be told from rows that were always null.
+--
+-- LOCKING: modifying the column rebuilds the table. Run it when ArtImage is
+-- not being written heavily -- in particular, pause the archive import first,
+-- since it writes ArtImage continuously.
+
+UPDATE `ArtImage` SET `seed` = NULL WHERE `seed` < 0;
+
+ALTER TABLE `ArtImage` MODIFY `seed` INT UNSIGNED NULL;

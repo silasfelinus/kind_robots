@@ -1236,6 +1236,9 @@ jobs:
       - name: ArtImage seed-column contract
         run: npm run test:art-image-seed-column
 
+      - name: Archive ops reachability contract
+        run: npm run test:archive-ops-reachable
+
       - name: Butterfly Gallery curation-action contract
         run: npm run test:butterfly-gallery-actions
 

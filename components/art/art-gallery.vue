@@ -105,6 +105,28 @@
 
         <maturity-toggle variant="compact" />
 
+        <div
+          class="flex items-center gap-1 rounded-lg border border-base-300 bg-base-100 p-1"
+          aria-label="Gallery maturity filter"
+        >
+          <span class="kr-text-dim-xs-70 px-1 font-bold">Show</span>
+          <button
+            v-for="option in MATURITY_FILTER_OPTIONS"
+            :key="option.value"
+            type="button"
+            class="btn btn-xs rounded-md"
+            :class="
+              maturityFilter === option.value
+                ? 'btn-primary'
+                : 'btn-ghost text-base-content/60'
+            "
+            :aria-pressed="maturityFilter === option.value"
+            @click="maturityFilter = option.value"
+          >
+            {{ option.label }}
+          </button>
+        </div>
+
         <label
           v-if="currentUserId"
           class="flex cursor-pointer items-center gap-1.5 rounded-lg border border-base-300 bg-base-100 px-2 py-1"
@@ -552,6 +574,7 @@ import { ErrorType, useErrorStore } from '@/stores/errorStore'
 import { useUserStore } from '@/stores/userStore'
 
 type BatchFlagValue = 'keep' | 'true' | 'false'
+type GalleryMaturityFilter = 'all' | 'mature' | 'safe'
 type ViewSize = GalleryDensity
 
 type GalleryCollection = BrowseArtCollection & {
@@ -585,6 +608,14 @@ const props = withDefaults(
 )
 
 const SIZE_OPTIONS = GALLERY_DENSITIES
+const MATURITY_FILTER_OPTIONS: readonly {
+  value: GalleryMaturityFilter
+  label: string
+}[] = [
+  { value: 'all', label: 'Both' },
+  { value: 'mature', label: 'Mature' },
+  { value: 'safe', label: 'Not mature' },
+]
 const artStore = useArtStore()
 const browseStore = useArtCollectionBrowseStore()
 const collectionStore = useCollectionStore()
@@ -602,6 +633,7 @@ const errorMessage = ref('')
 const successMessage = ref('')
 const searchQuery = ref('')
 const showMature = computed(() => Boolean(userStore.showMature))
+const maturityFilter = ref<GalleryMaturityFilter>('all')
 /*
  * Defaults ON, and stays that way. This is the owner's own private art -- the
  * whole point of art-archive/t-042, which made the archive render in the first
@@ -690,6 +722,14 @@ const collectionGroups = computed<GalleryGroup[]>(() => {
   ]
 })
 
+function matchesMaturityFilter(record: {
+  isMature?: boolean | null
+}): boolean {
+  if (maturityFilter.value === 'all') return true
+  if (maturityFilter.value === 'mature') return record.isMature === true
+  return record.isMature !== true
+}
+
 function isOwnedPrivateRecord(record: {
   isPublic?: boolean | null
   userId?: number | null
@@ -714,6 +754,7 @@ const visibleGroups = computed<GalleryGroup[]>(() => {
     // moderation of somebody else's private collection belongs on admin
     // surfaces, not in the normal personal Gallery.
     if (!group.isVirtual && !isOwnedPrivateRecord(group)) return false
+    if (!group.isVirtual && !matchesMaturityFilter(group)) return false
     if (query && !searchableGroupText(group).includes(query)) return false
     return true
   })
@@ -752,6 +793,7 @@ const filteredActiveImages = computed(() => {
   const query = searchQuery.value.trim().toLowerCase()
   return activeGroup.value.images.filter((image) => {
     if (!isOwnedPrivateRecord(image)) return false
+    if (!matchesMaturityFilter(image)) return false
     return !query || searchableImageText(image).includes(query)
   })
 })
@@ -813,6 +855,11 @@ watch(viewSize, (value) => {
 })
 
 watch(showMature, async () => {
+  if (!galleryReady.value) return
+  await reloadGalleryForVisibility()
+})
+
+watch(maturityFilter, async () => {
   if (!galleryReady.value) return
   await reloadGalleryForVisibility()
 })
@@ -907,7 +954,7 @@ async function reloadGalleryForVisibility() {
     browseStore.invalidateAll()
     await Promise.all([
       fetchCollectionSummaries(true),
-      browseStore.fetchUnsortedSummary(true, showMature.value),
+      browseStore.fetchUnsortedSummary(true, maturityFilter.value),
     ])
 
     const group = activeGroup.value
@@ -940,7 +987,7 @@ async function refreshGallery() {
     browseStore.invalidateAll()
     await Promise.all([
       fetchCollectionSummaries(true),
-      browseStore.fetchUnsortedSummary(true, showMature.value),
+      browseStore.fetchUnsortedSummary(true, maturityFilter.value),
     ])
     if (activeKey) await loadGroupData(activeKey, true)
     void refreshEarnedKarma()
@@ -963,7 +1010,7 @@ async function initializeGallery() {
   try {
     await Promise.all([
       fetchCollectionSummaries(false),
-      browseStore.fetchUnsortedSummary(false, showMature.value),
+      browseStore.fetchUnsortedSummary(false, maturityFilter.value),
     ])
   } catch (error) {
     const message = getErrorMessage(error, 'Gallery failed to initialize.')
@@ -995,7 +1042,8 @@ async function fetchCollectionSummaries(force = false) {
     // makes the server count and preview every archive folder first, which is
     // the whole cost.
     includePrivate: showPrivate.value,
-    includeMature: showMature.value,
+    includeMature: maturityFilter.value !== 'safe',
+    maturity: maturityFilter.value,
     // Skeletons first: the list comes back as bare scalars so it paints
     // immediately, and each tile fetches its own count and preview when
     // kr-viewport-gate decides it is close enough to matter.
@@ -1005,7 +1053,7 @@ async function fetchCollectionSummaries(force = false) {
 
 async function loadGroupData(key: string, force = false): Promise<void> {
   if (key === 'collection-unsorted') {
-    await browseStore.fetchUnsortedImages(force, showMature.value)
+    await browseStore.fetchUnsortedImages(force, maturityFilter.value)
     return
   }
 
@@ -1020,7 +1068,7 @@ async function refreshBrowseData(): Promise<void> {
   browseStore.invalidateAll()
   await Promise.all([
     fetchCollectionSummaries(true),
-    browseStore.fetchUnsortedSummary(true, showMature.value),
+    browseStore.fetchUnsortedSummary(true, maturityFilter.value),
   ])
   if (activeKey) await loadGroupData(activeKey, true)
 }
@@ -1114,13 +1162,16 @@ function getPreviewImage(group: GalleryGroup): ArtImage | null {
   if (
     preview &&
     isOwnedPrivateRecord(preview) &&
+    matchesMaturityFilter(preview) &&
     (showMature.value || !preview.isMature)
   ) {
     return hydratedImages.value[preview.id] || preview
   }
   const image = group.images.find(
     (entry) =>
-      isOwnedPrivateRecord(entry) && (showMature.value || !entry.isMature),
+      isOwnedPrivateRecord(entry) &&
+      matchesMaturityFilter(entry) &&
+      (showMature.value || !entry.isMature),
   )
   return image ? hydratedImages.value[image.id] || image : null
 }

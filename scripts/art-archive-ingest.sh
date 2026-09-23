@@ -345,7 +345,7 @@ if (process.env.KR_INGEST_BACKFILL === '1') {
   let stillUnknown = 0
 
   for (;;) {
-    const raw = await request(requestPath, 'POST', { cursor, limit, apply })
+    const raw = await request(path, 'POST', { cursor, limit, apply })
     const data = JSON.parse(raw)
     if (data.success === false) {
       process.stderr.write(`${data.message || 'backfill failed'}\n`)

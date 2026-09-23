@@ -1239,6 +1239,9 @@ jobs:
       - name: Archive ops reachability contract
         run: npm run test:archive-ops-reachable
 
+      - name: Archive runner script contract
+        run: npm run test:archive-runner-script
+
       - name: Butterfly Gallery curation-action contract
         run: npm run test:butterfly-gallery-actions
 

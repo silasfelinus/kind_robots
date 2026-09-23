@@ -88,13 +88,61 @@ export default defineEventHandler(async (event) => {
     const collectionId = queryPositiveInt(query.id, null)
 
     /*
+     * DISPLAY filters, layered on top of the ACCESS rules below -- they can
+     * only ever narrow what the viewer was already allowed to see.
+     *
+     * The archive import made this load-bearing. Every archive folder is a
+     * private + mature ArtCollection, so importing 208,651 files added 443 of
+     * them, and each one costs a filtered _count plus a preview lookup over a
+     * table that is now that size. Only an admin can see them at all, which is
+     * why the gallery started timing out at 10s for exactly one person (Silas,
+     * 2026-09-23: "we should have a toggle on the gallery to show private
+     * (owner's private) and mature selections. we should definitely be loading
+     * the galleries smartly, with this many files").
+     *
+     * Both default TRUE so no existing caller changes behaviour; the gallery
+     * turns them off and offers them as toggles.
+     */
+    const includePrivate = queryFlag(query.includePrivate, true)
+    const includeMature = queryFlag(query.includeMature, true)
+
+    /*
+     * The per-collection _count and preview lookup are the whole cost of this
+     * endpoint, and they are paid for EVERY collection before the client can
+     * paint anything. At 443 archive folders over a 208,651-row table that is
+     * ~443 correlated counts plus ~443 ordered preview queries -- the 10s
+     * timeout.
+     *
+     * `counts=false` returns the list as bare scalars instead. The gallery
+     * already renders through kr-gallery, whose kr-viewport-gate only
+     * instantiates a tile within 1800px of the viewport, and
+     * normalizeCollectionGroup already falls back to the per-collection detail
+     * fetch for count and preview -- so a tile fills itself in as it scrolls
+     * into view. No pages and no "load more": the whole list arrives instantly
+     * as skeletons and hydrates on approach, which is how Sonarr/Radarr and
+     * our own Facet surfaces behave (Silas, 2026-09-23: "we don't need
+     * pagination, that's an old solution to a problem that's solved in better
+     * ways ... a smart skeleton loading system doesn't need pages").
+     *
+     * Defaults TRUE so no existing caller loses its counts.
+     */
+    const includeCounts = queryFlag(query.counts, true)
+
+    /*
      * `isPublic: true` appears in the select below, which asks for the column
      * and filters nothing -- so this listed every collection, private and
      * mature, with its images, to anyone. Both halves now carry the viewer's
      * rule, and `?userId=` no longer exposes another person's private folders.
      */
     const access = await getArtImageAccessContext(event)
-    const imageWhere = buildArtImageWhere(access)
+
+    const displayFilter: Prisma.ArtImageWhereInput[] = [
+      ...(includePrivate ? [] : [{ isPublic: true }]),
+      ...(includeMature ? [] : [{ isMature: false }]),
+    ]
+    const imageWhere: Prisma.ArtImageWhereInput = displayFilter.length
+      ? { AND: [buildArtImageWhere(access), ...displayFilter] }
+      : buildArtImageWhere(access)
 
     const artCollectionSelect = {
       id: true,
@@ -110,10 +158,12 @@ export default defineEventHandler(async (event) => {
       artPrompt: true,
       description: true,
       username: true,
-      ...(includeImages
+      ...(includeImages && includeCounts
         ? { ArtImages: buildArtImagesRelation(imageLimit, imageWhere) }
         : {}),
-      _count: { select: { ArtImages: { where: imageWhere } } },
+      ...(includeCounts
+        ? { _count: { select: { ArtImages: { where: imageWhere } } } }
+        : {}),
     } satisfies Prisma.ArtCollectionSelect
 
     const where: Prisma.ArtCollectionWhereInput = {
@@ -123,6 +173,11 @@ export default defineEventHandler(async (event) => {
           ...(collectionId ? { id: collectionId } : {}),
         },
         buildArtCollectionWhere(access),
+        // Narrowing the COLLECTION list too, not just the images inside it, is
+        // the part that actually makes this fast: it drops the 443 archive
+        // folders before any per-collection count or preview runs.
+        ...(includePrivate ? [] : [{ isPublic: true }]),
+        ...(includeMature ? [] : [{ isMature: false }]),
       ],
     }
 
@@ -143,7 +198,10 @@ export default defineEventHandler(async (event) => {
 
     const data = collections.map((collection) => {
       const artImages = 'ArtImages' in collection ? collection.ArtImages : []
-      const artImageCount = collection._count.ArtImages
+      // null, not 0: the tile has not been counted yet, which is different
+      // from a folder that is genuinely empty.
+      const artImageCount =
+        '_count' in collection ? collection._count.ArtImages : null
       const previewArtImage = artImages[0] ?? null
 
       return {

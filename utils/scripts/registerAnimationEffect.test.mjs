@@ -1,5 +1,9 @@
 import assert from 'node:assert/strict'
-import { formatAnimationEffect, registerAnimationEffect, validateAnimationEffect } from './registerAnimationEffect.mjs'
+import {
+  formatAnimationEffect,
+  registerAnimationEffect,
+  validateAnimationEffect,
+} from './registerAnimationEffect.mjs'
 
 const entry = {
   id: 'paper-moon-test',
@@ -39,9 +43,18 @@ assert.throws(
   /ambiguous/,
 )
 assert.throws(() => validateAnimationEffect({ ...entry, id: 'Bad Id' }), /kebab-case/)
-assert.throws(() => validateAnimationEffect({ ...entry, preferredSurface: 'sidebar' }), /preferredSurface/)
-assert.throws(() => validateAnimationEffect({ ...entry, generationSafe: 'yes' }), /generationSafe/)
-assert.throws(() => validateAnimationEffect({ ...entry, releasedAt: '2026-09-23' }), /releasedAt/)
+assert.throws(
+  () => validateAnimationEffect({ ...entry, preferredSurface: 'sidebar' }),
+  /preferredSurface/,
+)
+assert.throws(
+  () => validateAnimationEffect({ ...entry, generationSafe: 'yes' }),
+  /generationSafe/,
+)
+assert.throws(
+  () => validateAnimationEffect({ ...entry, releasedAt: '2026-09-23' }),
+  /releasedAt/,
+)
 
 const formatted = formatAnimationEffect(entry)
 assert.match(formatted, /^ {2}\{/)

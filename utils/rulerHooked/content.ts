@@ -326,6 +326,7 @@ export const RULER_HOOKED_CONTENT: ContentBundle = {
           weight: 2,
           title: 'The Harvest Festival',
           body: 'The village wants to throw a festival at your expense.',
+          art: 'card-harvest-festival',
           choices: [
             {
               id: 'fund',
@@ -358,6 +359,7 @@ export const RULER_HOOKED_CONTENT: ContentBundle = {
           weight: 2,
           title: 'A Rival Angler',
           body: 'A boastful noble challenges you to a catch-off.',
+          art: 'card-rival-angler',
           choices: [
             {
               id: 'accept',
@@ -382,6 +384,7 @@ export const RULER_HOOKED_CONTENT: ContentBundle = {
           characters: ['warlock-vex'],
           title: 'Vex’s Second Pitch',
           body: 'Vex is back with a bigger blueprint: a fleet of barges across the whole far shore. “You already said yes once,” he beams.',
+          art: 'card-warlock-return',
           trigger: {
             minTurn: 10,
             requires: { flags: ['metWarlock'] },
@@ -426,6 +429,7 @@ export const RULER_HOOKED_CONTENT: ContentBundle = {
           characters: ['druid-sela'],
           title: 'Sela’s Sanctuary Request',
           body: 'Sela asks you to declare the treeline a permanent sanctuary — no more building, ever, anywhere near it.',
+          art: 'card-druid-sanctuary',
           trigger: {
             minTurn: 10,
             requires: { flags: ['metDruids'] },
@@ -470,6 +474,7 @@ export const RULER_HOOKED_CONTENT: ContentBundle = {
           characters: ['taxman-gristle'],
           title: 'Gristle’s Ledger',
           body: 'Gristle the tax assessor lays a ledger across your lap. “The treasury,” he says, “is a feeling, not a number, and I do not like the feeling.”',
+          art: 'card-tax-season',
           trigger: { minTurn: 3, cooldown: 8 },
           choices: [
             {
@@ -505,6 +510,7 @@ export const RULER_HOOKED_CONTENT: ContentBundle = {
           characters: ['captain-cordelia'],
           title: 'Cordelia Wants a Wall',
           body: 'Captain Cordelia wants a proper wall around the village. “It’s not that I don’t trust the neighbors,” she says. “I don’t trust anyone.”',
+          art: 'card-guard-captain-wall',
           trigger: { minTurn: 5, cooldown: 10 },
           choices: [
             {
@@ -580,6 +586,7 @@ export const RULER_HOOKED_CONTENT: ContentBundle = {
           characters: ['smuggler-brack'],
           title: 'Brack’s Proposition',
           body: 'A stranger at the castle dock offers to move goods through your harbor, quietly, for a cut. He introduces himself as Brack. This is probably a lie.',
+          art: 'card-smuggler-dock',
           trigger: { minTurn: 5 },
           choices: [
             {
@@ -652,6 +659,7 @@ export const RULER_HOOKED_CONTENT: ContentBundle = {
           weight: 2,
           title: 'The Rival Returns',
           body: 'The boastful noble is back, and this time brought a bigger rod and a smaller sense of dignity.',
+          art: 'card-rival-angler-2',
           trigger: { requires: { counters: { fishCaught: { gte: 3 } } } },
           choices: [
             {
@@ -683,6 +691,7 @@ export const RULER_HOOKED_CONTENT: ContentBundle = {
           characters: ['heir-robin', 'sweetheart-ash'],
           title: 'The Newlyweds’ Garden',
           body: 'Robin and Ash ask for a plot near the lake to grow their own vegetables. “We don’t need much,” Robin says. “Just enough for us. And the fish, maybe.”',
+          art: 'card-robin-ash-garden',
           trigger: { requires: { flags: ['blessedMatch'] } },
           choices: [
             {
@@ -719,6 +728,7 @@ export const RULER_HOOKED_CONTENT: ContentBundle = {
           characters: ['lake-spirit-nix'],
           title: 'A Question from the Deep',
           body: 'The water goes still, then a shape rises — not quite a fish, not quite a person. “What,” Nix asks, “do you actually want?”',
+          art: 'card-nix-riddle',
           trigger: {
             minTurn: 7,
             requires: { sliders: { nature: { gte: 20 } } },
@@ -761,6 +771,7 @@ export const RULER_HOOKED_CONTENT: ContentBundle = {
           characters: ['smuggler-brack'],
           title: 'Brack’s Sunken Cache',
           body: 'The smuggler’s chart marks a spot in the lake with an X. Of course it does.',
+          art: 'card-sunken-cache',
           trigger: { requires: { rewards: ['smugglers-map'] } },
           choices: [
             {
@@ -788,6 +799,7 @@ export const RULER_HOOKED_CONTENT: ContentBundle = {
           weight: 2,
           title: 'The Lake Goes Gold',
           body: 'For a moment the whole lake turns gold, and something enormous and briefly-visible takes your line.',
+          art: 'card-golden-hour-catch',
           choices: [
             {
               id: 'reel-it-in',
@@ -896,6 +908,7 @@ export const RULER_HOOKED_CONTENT: ContentBundle = {
           characters: ['heir-robin', 'sweetheart-ash'],
           title: 'A Lakeside Wedding',
           body: 'Ash asks, trembling, to fish beside you as family.',
+          art: 'card-elope-blessing',
           choices: [
             {
               id: 'welcome',
@@ -915,6 +928,7 @@ export const RULER_HOOKED_CONTENT: ContentBundle = {
           characters: ['heir-robin'],
           title: 'The Empty Chair',
           body: 'Robin left anyway, at dawn, with the tide.',
+          art: 'card-elope-defiance',
           choices: [
             {
               id: 'relent',
@@ -980,6 +994,7 @@ export const RULER_HOOKED_CONTENT: ContentBundle = {
           characters: ['envoy-thistle'],
           title: 'A Generous Accord',
           body: 'Thistle lays out the final terms — favorable to both sides, weighted a hair toward hers. She’s counting under her breath again.',
+          art: 'card-envoy-generous',
           choices: [
             {
               id: 'sign-generous',
@@ -1002,6 +1017,7 @@ export const RULER_HOOKED_CONTENT: ContentBundle = {
           characters: ['envoy-thistle', 'taxman-gristle'],
           title: 'A Hard Bargain',
           body: 'Thistle’s smile has thinned considerably. Gristle, astonishingly, is smiling instead.',
+          art: 'card-envoy-tough',
           choices: [
             {
               id: 'finalize-tough',
@@ -1068,6 +1084,7 @@ export const RULER_HOOKED_CONTENT: ContentBundle = {
           characters: ['witch-mossy'],
           title: 'The Hex Takes',
           body: 'The bog blooms unnervingly fast — vines climbing the treeline overnight, flowers that weren’t there at dusk. Cordelia quietly doubles the watch, just in case.',
+          art: 'card-bog-accept',
           choices: [
             {
               id: 'complete-accept',
@@ -1090,6 +1107,7 @@ export const RULER_HOOKED_CONTENT: ContentBundle = {
           characters: ['captain-cordelia'],
           title: 'Cordelia’s Watch',
           body: 'Mossy vanishes into the mist without another word. Cordelia visibly relaxes — the first time all week.',
+          art: 'card-bog-refuse',
           choices: [
             {
               id: 'complete-refuse',

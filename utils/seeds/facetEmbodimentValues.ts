@@ -88,7 +88,7 @@ const AGE: EmbodimentFacetSeed[] = [
     description:
       'Old enough to hold the post and too new to have been wrong in it yet. The confidence is real and entirely untested.',
     artPrompt:
-      'A young face with no set lines in it, clothes plainly handed down and taken in at the seams, posture slightly too straight.',
+      'A teenager seen from head to shoes, smooth-faced and gangly, wearing an oversized hand-me-down coat taken in at the seams, standing slightly too straight.',
     scope: 'any',
   },
   {
@@ -152,7 +152,7 @@ const AGE: EmbodimentFacetSeed[] = [
     description:
       'Visibly older than the years account for, from work, weather, or something that took payment in advance.',
     artPrompt:
-      'A young underlying bone structure under prematurely white hair and weather-cracked skin, eyes older than the face.',
+      'A young person seen from head to boots, smooth-jawed and slight, with prematurely white hair and weather-cracked skin on the hands and cheeks, their gaze heavy and tired.',
     scope: 'any',
   },
   {
@@ -372,7 +372,7 @@ const HAIR: EmbodimentFacetSeed[] = [
     description:
       'Taken down to nothing, for heat, for hygiene, or because someone else once controlled it.',
     artPrompt:
-      'A cleanly shaved scalp, skin tone unbroken over the skull, old scar or tattoo visible where hair once hid it.',
+      'A person seen from head to shoulders with a cleanly shaved head, the scalp smooth and even-toned, a thin pale scar curving above one ear.',
     scope: 'humanoid',
   },
   {

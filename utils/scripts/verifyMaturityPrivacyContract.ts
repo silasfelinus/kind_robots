@@ -5,6 +5,10 @@ import {
   resolveMaturityPrivacy,
 } from '../../utils/maturityPrivacy'
 import { applyArtJobVisibility } from '../../server/utils/artJobVisibility'
+import {
+  galleryArchiveMediaUrl,
+  verifyGalleryArchiveMedia,
+} from '../../server/utils/artGalleryArchiveMedia'
 
 assert.deepEqual(resolveMaturityPrivacy(undefined), {
   isMature: false,
@@ -182,6 +186,105 @@ assert.ok(accountStore.includes('resourceStore.getResources(true)'))
 assert.ok(accountStore.includes('resourceGalleryStore.loadResources()'))
 assert.ok(accountStore.includes('loraResourceIds: visibleLoraIds'))
 assert.ok(accountStore.includes('checkpointResourceId: null'))
+
+// Main Gallery privacy controls and private archive media regression,
+// art-archive/t-042. The Gallery uses the persisted account maturity control,
+// never a local bypass, and its separate Private filter is owner-scoped.
+const artGallery = readFileSync('components/art/art-gallery.vue', 'utf8')
+assert.ok(artGallery.includes('<maturity-toggle variant="compact"'))
+assert.ok(artGallery.includes('const showPrivate = ref(true)'))
+assert.ok(artGallery.includes('isOwnedPrivateRecord'))
+assert.ok(artGallery.includes('ownerId === viewerId'))
+assert.ok(artGallery.includes('<kr-mature-cover'))
+assert.ok(artGallery.includes('await reloadGalleryForVisibility()'))
+
+// A plain <img> cannot send Kind Robots' Authorization/x-api-key headers.
+// Gallery JSON responses therefore mint short-lived, variant-bound capability
+// URLs only after the ArtImage has survived the normal server access filter.
+const signedAt = 1_800_000_000_000
+const signedUrl = galleryArchiveMediaUrl(42, 'medium', signedAt)
+const parsedSignedUrl = new URL(signedUrl, 'https://kindrobots.test')
+assert.equal(parsedSignedUrl.pathname, '/api/art/image/archive/42')
+const signedExpiry = parsedSignedUrl.searchParams.get('exp')
+const signedSignature = parsedSignedUrl.searchParams.get('sig')
+assert.equal(
+  verifyGalleryArchiveMedia(
+    42,
+    'medium',
+    signedExpiry,
+    signedSignature,
+    signedAt,
+  ),
+  true,
+)
+assert.equal(
+  verifyGalleryArchiveMedia(
+    43,
+    'medium',
+    signedExpiry,
+    signedSignature,
+    signedAt,
+  ),
+  false,
+)
+assert.equal(
+  verifyGalleryArchiveMedia(
+    42,
+    'thumbnail',
+    signedExpiry,
+    signedSignature,
+    signedAt,
+  ),
+  false,
+)
+assert.equal(
+  verifyGalleryArchiveMedia(
+    42,
+    'medium',
+    signedExpiry,
+    signedSignature,
+    signedAt + 6 * 60 * 60 * 1000 + 1,
+  ),
+  false,
+)
+// The verifier also rejects an expiry beyond the server's own TTL, even if the
+// query shape is otherwise plausible. A caller cannot stretch a captured URL.
+assert.equal(
+  verifyGalleryArchiveMedia(
+    42,
+    'medium',
+    signedAt + 7 * 60 * 60 * 1000,
+    signedSignature,
+    signedAt,
+  ),
+  false,
+)
+
+for (const galleryApi of [
+  'server/api/art/collection/index.get.ts',
+  'server/api/art/collection/[id].get.ts',
+  'server/api/art/collection/unsorted.get.ts',
+]) {
+  const source = readFileSync(galleryApi, 'utf8')
+  assert.ok(
+    source.includes('attachGalleryArchiveMediaPaths'),
+    `${galleryApi} must mint browser-loadable archive image URLs after access filtering`,
+  )
+}
+
+const archiveGalleryMediaRoute = readFileSync(
+  'server/api/art/image/archive/[id].get.ts',
+  'utf8',
+)
+assert.ok(archiveGalleryMediaRoute.includes('verifyGalleryArchiveMedia'))
+assert.ok(archiveGalleryMediaRoute.includes('buildArtImageWhere(access)'))
+assert.ok(archiveGalleryMediaRoute.includes("designer: 'art-archive'"))
+assert.ok(archiveGalleryMediaRoute.includes('artImageId: artImage.id'))
+assert.ok(archiveGalleryMediaRoute.includes('resolveConfinedExistingPath'))
+assert.ok(archiveGalleryMediaRoute.includes('ensureArchiveThumbnail'))
+assert.ok(
+  archiveGalleryMediaRoute.includes("'Cache-Control', 'private, max-age=3600'"),
+)
 
 const queueEditor = readFileSync('components/art/artjob-editor.vue', 'utf8')
 assert.ok(queueEditor.includes('v-model:is-mature="form.isMature"'))

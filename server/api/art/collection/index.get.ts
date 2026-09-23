@@ -8,6 +8,7 @@ import {
   buildArtImageWhere,
   getArtImageAccessContext,
 } from '~/server/utils/artImageAccess'
+import { attachGalleryArchiveMediaPaths } from '~/server/utils/artGalleryArchiveMedia'
 
 const artImageListSelect = {
   id: true,
@@ -130,6 +131,15 @@ export default defineEventHandler(async (event) => {
       orderBy: [{ updatedAt: 'desc' }, { id: 'desc' }],
       select: artCollectionSelect,
     })
+
+    for (const collection of collections) {
+      if ('ArtImages' in collection) {
+        attachGalleryArchiveMediaPaths(
+          collection.ArtImages,
+          summaryOnly ? 'thumbnail' : 'medium',
+        )
+      }
+    }
 
     const data = collections.map((collection) => {
       const artImages = 'ArtImages' in collection ? collection.ArtImages : []

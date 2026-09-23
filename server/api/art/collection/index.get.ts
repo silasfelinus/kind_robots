@@ -58,7 +58,11 @@ function queryMaturityFilter(
   fallback: CollectionMaturityFilter,
 ): CollectionMaturityFilter {
   const normalized = firstQueryValue(value).trim().toLowerCase()
-  if (normalized === 'mature' || normalized === 'safe' || normalized === 'all') {
+  if (
+    normalized === 'mature' ||
+    normalized === 'safe' ||
+    normalized === 'all'
+  ) {
     return normalized
   }
   return fallback
@@ -155,9 +159,7 @@ export default defineEventHandler(async (event) => {
 
     const displayFilter: Prisma.ArtImageWhereInput[] = [
       ...(includePrivate ? [] : [{ isPublic: true }]),
-      ...(maturity === 'all'
-        ? []
-        : [{ isMature: maturity === 'mature' }]),
+      ...(maturity === 'all' ? [] : [{ isMature: maturity === 'mature' }]),
     ]
     const imageWhere: Prisma.ArtImageWhereInput = displayFilter.length
       ? { AND: [buildArtImageWhere(access), ...displayFilter] }

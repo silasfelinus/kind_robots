@@ -1164,11 +1164,11 @@ export const CURATED_FACET_ART_PROMPTS: Record<string, string> = {
     'A round brass robot the size of a washing machine rolls across a sunny kitchen floor, extending twelve jointed arms that simultaneously crack eggs, butter toast, water a plant and feed a cat.',
   // Unknown Function
   'unknown-function':
-    'A lumpy bronze machine with three cranks, a bellows and a small bell sits on a museum pedestal, while a puzzled curator in a cardigan turns one crank under warm afternoon light from high windows.',
+    'A lumpy bronze machine with three cranks, a bellows and a small bell rests on a cluttered attic workbench, while a frowning woman in a cardigan turns one crank, dust drifting in warm afternoon light from a round window.',
   // ── ARCHETYPE (2026-09-22) ──
   // Brand Ambassador
   'brand-ambassador':
-    'Grinning wide, a stocky man in his thirties wearing a lime-green tracksuit hands out free sample cans of fizzy drink from a cooler on a sunny beach boardwalk, arms stretched toward passing skaters.',
+    'Grinning wide, a stocky man in his thirties wearing a lime-green tracksuit hands out bright orange balloons from a bundle on a sunny beach boardwalk, arms stretched toward passing skaters.',
   // Corporate Synergy Entity
   'corporate-synergy-entity':
     'Five identical office workers in matching grey suits stand fused shoulder to shoulder into one wide ten-armed body, each arm holding a coffee mug, a stapler or a phone, in a beige cubicle aisle at midmorning.',

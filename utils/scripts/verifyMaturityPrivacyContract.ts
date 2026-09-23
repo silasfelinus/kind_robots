@@ -247,6 +247,18 @@ assert.equal(
   ),
   false,
 )
+// The verifier also rejects an expiry beyond the server's own TTL, even if the
+// query shape is otherwise plausible. A caller cannot stretch a captured URL.
+assert.equal(
+  verifyGalleryArchiveMedia(
+    42,
+    'medium',
+    signedAt + 7 * 60 * 60 * 1000,
+    signedSignature,
+    signedAt,
+  ),
+  false,
+)
 
 for (const galleryApi of [
   'server/api/art/collection/index.get.ts',

@@ -85,7 +85,9 @@ assert.ok(
   ),
 )
 assert.ok(generatorSource.includes(':engine="generationEngine"'))
-assert.ok(generatorSource.includes('activeProfile.supports.size && !usesSourceImage'))
+assert.ok(
+  generatorSource.includes('activeProfile.supports.size && !usesSourceImage'),
+)
 assert.ok(!generatorSource.includes('IMAGE_TO_IMAGE_PRESET_ID'))
 assert.ok(!generatorSource.includes('sdxl-from-image'))
 

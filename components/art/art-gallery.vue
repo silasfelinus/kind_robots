@@ -722,9 +722,7 @@ const collectionGroups = computed<GalleryGroup[]>(() => {
   ]
 })
 
-function matchesMaturityFilter(record: {
-  isMature?: boolean | null
-}): boolean {
+function matchesMaturityFilter(record: { isMature?: boolean | null }): boolean {
   if (maturityFilter.value === 'all') return true
   if (maturityFilter.value === 'mature') return record.isMature === true
   return record.isMature !== true

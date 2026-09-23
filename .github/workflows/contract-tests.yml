@@ -1218,6 +1218,9 @@ jobs:
       - name: Art Archive batch scan contract
         run: npm run test:art-archive-batch-scan
 
+      - name: Art Archive scale contract
+        run: npm run test:art-archive-scale
+
       - name: Butterfly Gallery curation-action contract
         run: npm run test:butterfly-gallery-actions
 

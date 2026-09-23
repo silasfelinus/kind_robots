@@ -32,9 +32,14 @@ import {
 } from '@/server/utils/artArchiveScanner'
 import { importArchiveFile } from '@/server/utils/artArchiveImporter'
 import {
-  loadImportedArchivePaths,
-  selectPendingPaths,
+  collectPendingBatch,
+  IMPORTED_ENTRY_WHERE,
 } from '@/server/utils/artArchiveImportedPaths'
+import {
+  advanceListingCursor,
+  readListingCache,
+  writeListingCache,
+} from '@/server/utils/artArchiveListingCache'
 import prisma from '@/server/utils/prisma'
 
 const DEFAULT_BATCH_LIMIT = 250
@@ -52,16 +57,34 @@ export default defineEventHandler(async (event) => {
     const body = await readBody(event).catch(() => ({}))
     const limit = resolveLimit((body as { limit?: unknown } | null)?.limit)
 
-    const listing = await listArchiveFilePaths(getArtArchiveRoot())
+    const root = getArtArchiveRoot()
+    const refresh = Boolean((body as { refresh?: unknown } | null)?.refresh)
 
-    // Only the paths, never the rows: the point of this endpoint is that it
-    // never holds the whole archive in memory, and loadKnownArchiveFiles()
-    // would pull every entry's metadata just to answer "is this one done".
-    // Which rows count as done is state-aware and shared with scan-status --
-    // a MISSING, PENDING, ERROR or quarantined row is work still to do.
-    const imported = await loadImportedArchivePaths(prisma.archiveEntry)
-    const pending = selectPendingPaths(listing.relativePaths, imported)
-    const batch = pending.slice(0, limit)
+    // One walk per run, not one per batch: at 240,856 files a walk costs far
+    // more than the 250 files it would serve, and it barely changes while a
+    // run is in flight.
+    let listing = refresh ? null : readListingCache(root)
+    const walked = !listing
+    if (!listing) {
+      const fresh = await listArchiveFilePaths(root)
+      listing = writeListingCache({
+        root: fresh.root,
+        relativePaths: fresh.relativePaths,
+        issues: fresh.issues,
+      })
+    }
+
+    // Which rows count as done is state-aware and shared with scan-status: a
+    // MISSING, PENDING, ERROR or quarantined row is work still to do. Asked one
+    // indexed window at a time rather than by reading every imported row, which
+    // at this size would mean a quarter of a million rows per batch.
+    const { batch, nextIndex, windowsRead } = await collectPendingBatch(
+      prisma.archiveEntry,
+      listing.relativePaths,
+      listing.cursor,
+      limit,
+    )
+    advanceListingCursor(root, nextIndex)
 
     const scan = await hydrateArchiveFiles(listing.root, batch)
 
@@ -89,22 +112,39 @@ export default defineEventHandler(async (event) => {
     // file forever is visible as `remaining` refusing to fall, rather than
     // being quietly counted as done.
     const completed = processed - errors.length
-    const remaining = Math.max(0, pending.length - completed)
+
+    // One indexed count, rather than re-deriving the pending set. It counts
+    // imported rows rather than imported-and-still-on-disk, so a file deleted
+    // after import makes this read slightly ahead of the truth; `cursor`
+    // beside it shows the run's own position, which is exact.
+    const importedTotal = await prisma.archiveEntry.count({
+      where: IMPORTED_ENTRY_WHERE,
+    })
+    const filesOnDisk = listing.relativePaths.length
+    // Always the real gap, never forced to zero because this run ran out of
+    // listing. `done` says the cursor reached the end; `remaining` says whether
+    // anything was left behind on the way -- a batch whose files all failed
+    // advances the cursor without importing them, and that must stay visible.
+    const remaining = Math.max(0, filesOnDisk - importedTotal)
 
     return {
       success: true,
       message:
         `Imported ${completed} of ${processed} file(s) in this batch; ` +
-        `${remaining} still pending of ${listing.relativePaths.length} on disk.`,
+        `${remaining} still pending of ${filesOnDisk} on disk.`,
       data: {
         root: listing.root,
-        filesOnDisk: listing.relativePaths.length,
-        alreadyImported: imported.size,
+        filesOnDisk,
+        alreadyImported: importedTotal,
         batchSize: batch.length,
         processed,
         completed,
         remaining,
-        done: remaining === 0,
+        done: batch.length === 0,
+        skippedThisRun: batch.length === 0 && remaining > 0,
+        cursor: nextIndex,
+        walkedThisCall: walked,
+        windowsRead,
         imagesCreated,
         imagesReused,
         collectionsCreated,

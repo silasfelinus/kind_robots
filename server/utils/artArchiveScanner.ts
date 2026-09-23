@@ -196,6 +196,18 @@ async function walk(
       )
         continue
 
+      // A plain file cannot point anywhere but at itself, and the directory
+      // holding it was already confined on the way in, so it cannot be outside
+      // the root. Only a symlink can escape, so only a symlink needs the
+      // realpath. That distinction is worth a branch: the production archive
+      // holds 240,856 files, so resolving every one of them cost a quarter of
+      // a million realpath() calls per walk, and the batched import walks once
+      // per run (art-archive/t-041, 2026-09-23).
+      if (entry.isFile() && !entry.isSymbolicLink()) {
+        files.push(candidate)
+        continue
+      }
+
       const confined = await resolveConfined(resolvedRoot, candidate, issues)
       if (confined) files.push(confined)
     }

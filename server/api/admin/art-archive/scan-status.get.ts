@@ -14,6 +14,10 @@ import { errorHandler } from '@/server/utils/error'
 import { getArtArchiveRoot } from '@/server/utils/artArchiveRoot'
 import { listArchiveFilePaths } from '@/server/utils/artArchiveScanner'
 import {
+  readListingCache,
+  writeListingCache,
+} from '@/server/utils/artArchiveListingCache'
+import {
   loadImportedArchivePaths,
   selectPendingPaths,
 } from '@/server/utils/artArchiveImportedPaths'
@@ -22,7 +26,20 @@ import prisma from '@/server/utils/prisma'
 export default defineEventHandler(async (event) => {
   try {
     await requireAdminApiUser(event)
-    const listing = await listArchiveFilePaths(getArtArchiveRoot())
+    const root = getArtArchiveRoot()
+
+    // Reuses the walk an import run already took, when there is one. Reading
+    // the status of a 240,856-file archive should not cost a fresh traversal
+    // every time someone asks. The cursor is left alone -- this only reads.
+    let listing = readListingCache(root)
+    if (!listing) {
+      const fresh = await listArchiveFilePaths(root)
+      listing = writeListingCache({
+        root: fresh.root,
+        relativePaths: fresh.relativePaths,
+        issues: fresh.issues,
+      })
+    }
 
     // Same state-aware predicate import-batch resumes from, so this count and
     // the set that endpoint skips can never diverge.

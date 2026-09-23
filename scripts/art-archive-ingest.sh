@@ -302,7 +302,18 @@ if (process.env.KR_INGEST_BATCH === '1') {
       }
     }
 
-    if (data.done) break
+    if (data.done) {
+      // The cursor reached the end of the listing. That is not the same as
+      // everything being imported: a batch whose files all failed advances past
+      // them, so say so rather than printing a clean finish.
+      if (data.skippedThisRun) {
+        process.stderr.write(
+          `reached the end of the listing with ${data.remaining} file(s) still ` +
+            'not imported -- they failed this run. Run again to retry them.\n',
+        )
+      }
+      break
+    }
     // A batch that completed nothing cannot make progress by repeating: every
     // file in it failed, or the listing and the database disagree. Stop rather
     // than spin.

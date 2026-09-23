@@ -87,6 +87,30 @@ for (const notASeed of [null, undefined, '42', Number.NaN, Infinity, {}]) {
 }
 
 // ---- steps/cfg still use the SIGNED rule ----------------------------------
+// seed moved to an unsigned column; .steps and .cfg did NOT, so the signed
+// boundaries still bind for them and are still worth pinning. (These
+// assertions were lost when the seed block was rewritten, which is how
+// INT32_MIN briefly became an unused constant.)
+assert.equal(
+  intColumnOrNull(INT32_MAX),
+  INT32_MAX,
+  'the largest signed value is storable for a still-signed column',
+)
+assert.equal(
+  intColumnOrNull(INT32_MAX + 1),
+  null,
+  'one past the signed maximum is refused, never wrapped',
+)
+assert.equal(
+  intColumnOrNull(INT32_MIN),
+  INT32_MIN,
+  'the lowest signed value is storable -- unlike seed, these columns keep it',
+)
+assert.equal(
+  intColumnOrNull(INT32_MIN - 1),
+  null,
+  'one below the signed minimum is refused',
+)
 assert.equal(intColumnOrNull(0), 0, 'zero is a real seed, not absence')
 assert.equal(intColumnOrNull(-1), -1, "the schema's own -1 sentinel still fits")
 assert.equal(intColumnOrNull(42), 42)

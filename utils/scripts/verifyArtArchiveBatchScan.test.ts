@@ -286,17 +286,40 @@ for (const file of [
   'server/api/admin/art-archive/scan-status.get.ts',
 ]) {
   const source = await readFile(file, 'utf8')
-  assert.match(
-    source,
-    /loadImportedArchivePaths\(prisma\.archiveEntry\)/,
-    `${file} must resume from the shared state-aware predicate`,
-  )
   assert.doesNotMatch(
     source,
     /findMany\(\{\s*select: \{ relativePath: true \}/,
     `${file} must not treat any row's existence as "imported"`,
   )
 }
+
+// scan-status still reads the pending set precisely -- it is a deliberate
+// one-off call. import-batch runs ~964 times over a full import, so it asks one
+// bounded window at a time instead (art-archive/t-041, 2026-09-23).
+const statusSource = await readFile(
+  'server/api/admin/art-archive/scan-status.get.ts',
+  'utf8',
+)
+assert.match(
+  statusSource,
+  /loadImportedArchivePaths\(prisma\.archiveEntry\)/,
+  'scan-status must resume from the shared state-aware predicate',
+)
+
+const batchSource = await readFile(
+  'server/api/admin/art-archive/import-batch.post.ts',
+  'utf8',
+)
+assert.match(
+  batchSource,
+  /collectPendingBatch\(/,
+  'import-batch must select its batch through bounded windows',
+)
+assert.doesNotMatch(
+  batchSource,
+  /loadImportedArchivePaths\(/,
+  'import-batch must not read every imported row on every batch',
+)
 
 // ---- the batch endpoint's resume contract -------------------------------
 const endpoint = await readFile(
@@ -305,8 +328,13 @@ const endpoint = await readFile(
 )
 assert.match(
   endpoint,
-  /listArchiveFilePaths\(getArtArchiveRoot\(\)\)/,
+  /listArchiveFilePaths\(root\)/,
   'the endpoint must walk without hydrating',
+)
+assert.match(
+  endpoint,
+  /readListingCache\(root\)/,
+  'the endpoint must reuse one walk per run rather than walking per batch',
 )
 assert.match(
   endpoint,

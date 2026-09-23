@@ -50,6 +50,7 @@
     "test:art-archive-ingestion-controls": "node utils/scripts/verifyArtArchiveIngestionControls.mjs",
     "test:art-archive-scan-memory": "tsx utils/scripts/verifyArtArchiveScanMemory.test.ts",
     "test:art-archive-batch-scan": "tsx utils/scripts/verifyArtArchiveBatchScan.test.ts",
+    "test:art-archive-scale": "tsx utils/scripts/verifyArtArchiveScaleContract.test.ts",
     "test:butterfly-gallery-actions": "tsx utils/scripts/verifyButterflyGalleryActions.test.ts",
     "test:butterfly-gallery-filters": "tsx utils/scripts/verifyButterflyGalleryFilters.test.ts",
     "test:butterfly-gallery-motion": "tsx utils/scripts/verifyButterflyGalleryMotion.test.ts",

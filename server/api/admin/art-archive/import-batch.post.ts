@@ -90,12 +90,25 @@ export default defineEventHandler(async (event) => {
 
     let imagesCreated = 0
     let imagesReused = 0
-    // A1111 seeds are unsigned 32-bit and ArtImage.seed is a signed INT, so a
-    // seed over 2,147,483,647 cannot be stored. It is left null rather than
-    // mangled, and counted here so the size of that gap is visible now rather
-    // than discovered later as missing data. The true value stays in the
-    // entry's extractedMetadata.
-    const outOfRangeFields: Record<string, number> = {}
+    // Values an Int column could not hold, left null rather than mangled and
+    // summarised here so the size of the gap is visible now rather than
+    // discovered later as missing data. The true value stays in the entry's
+    // extractedMetadata either way.
+    //
+    // `largestMagnitude` is the point of this: it is the difference between
+    // "these are ordinary unsigned 32-bit A1111 seeds" and "this archive is
+    // ComfyUI and no 32-bit column was ever going to work", which no count on
+    // its own can tell you.
+    const droppedFields: Record<
+      string,
+      {
+        outOfRange: number
+        notAnInteger: number
+        largestMagnitude: number
+        exampleValue: number
+        examplePath: string
+      }
+    > = {}
     let collectionsCreated = 0
     let collectionsReused = 0
     const errors: { relativePath: string; message: string }[] = []
@@ -107,8 +120,21 @@ export default defineEventHandler(async (event) => {
         else imagesReused += 1
         if (result.createdCollection) collectionsCreated += 1
         else collectionsReused += 1
-        for (const field of result.outOfRangeFields) {
-          outOfRangeFields[field] = (outOfRangeFields[field] ?? 0) + 1
+        for (const dropped of result.droppedValues) {
+          const seen = (droppedFields[dropped.field] ??= {
+            outOfRange: 0,
+            notAnInteger: 0,
+            largestMagnitude: 0,
+            exampleValue: dropped.value,
+            examplePath: file.relativePath,
+          })
+          if (dropped.fault === 'out-of-range') seen.outOfRange += 1
+          else seen.notAnInteger += 1
+          if (Math.abs(dropped.value) > seen.largestMagnitude) {
+            seen.largestMagnitude = Math.abs(dropped.value)
+            seen.exampleValue = dropped.value
+            seen.examplePath = file.relativePath
+          }
         }
       } catch (error) {
         errors.push({ relativePath: file.relativePath, message: String(error) })
@@ -159,7 +185,7 @@ export default defineEventHandler(async (event) => {
         collectionsCreated,
         collectionsReused,
         cacheHitCount: scan.cacheHitCount,
-        outOfRangeFields,
+        droppedFields,
         listIssueCount: listing.issues.length,
         scanIssueCount: scan.issues.length,
         errors,

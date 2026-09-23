@@ -3,15 +3,22 @@
 // What an `Int?` column can actually hold.
 //
 // ArtImage.seed, .cfg and .steps are all `Int?`, which MySQL stores as a signed
-// 32-bit INT: max 2,147,483,647. A1111 seeds are UNSIGNED 32-bit, so roughly
-// half of every A1111 image ever made carries a seed this column cannot store.
-// Writing one aborts the whole insert:
+// 32-bit INT: max 2,147,483,647. Writing a value it cannot hold aborts the whole
+// insert:
 //
 //   Value out of range for the type: Out of range value for column 'seed'
 //
 // which failed 908 of the first 2,000 production files (art-archive/t-041,
 // 2026-09-23). The seeds in those filenames -- 3832090215, 4273445571 -- are
 // ordinary seeds, not corruption.
+//
+// TWO DIFFERENT FAULTS land here and must not be reported as one. A value can be
+// unusable because it is too big (an unsigned-32-bit A1111 seed, or a 64-bit
+// ComfyUI one) or because it is not a whole number at all (`CFG scale: 7.5`
+// parses through parseFloat, and `cfg` is an Int column -- arguably the real bug
+// there is the column's type). Calling a fractional CFG "too large" is simply
+// false, and a report that says so teaches the reader the wrong thing about
+// their own archive. classifyIntColumnValue names which fault occurred.
 //
 // The value is DROPPED, never clamped, wrapped or masked. A wrong seed is worse
 // than a missing one: it still looks usable and would silently regenerate the
@@ -31,11 +38,15 @@ export function intColumnOrNull(value: unknown): number | null {
   return value
 }
 
-/** True when a value was genuinely present but genuinely unusable. */
-export function isOutOfRangeNumber(value: unknown): boolean {
-  return (
-    typeof value === 'number' &&
-    Number.isFinite(value) &&
-    intColumnOrNull(value) === null
-  )
+export type IntColumnFault = 'out-of-range' | 'not-an-integer'
+
+/**
+ * Why a present value could not be stored, or null when it stores fine or was
+ * never there. An absent field is not a loss and never reported as one.
+ */
+export function classifyIntColumnValue(value: unknown): IntColumnFault | null {
+  if (typeof value !== 'number' || !Number.isFinite(value)) return null
+  if (!Number.isInteger(value)) return 'not-an-integer'
+  if (value < INT32_MIN || value > INT32_MAX) return 'out-of-range'
+  return null
 }

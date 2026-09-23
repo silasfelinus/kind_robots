@@ -186,6 +186,14 @@ export default defineEventHandler(async (event) => {
         collectionsReused,
         cacheHitCount: scan.cacheHitCount,
         droppedFields,
+        // Reported per batch so a long run produces a GROWTH CURVE, not a
+        // single reading. The first full run died at batch 68 with the app
+        // gone (ECONNREFUSED), cause unestablished; rss climbing steadily
+        // across batches would point at this process, rss flat would rule it
+        // out. Cheap, and it turns the next run into the measurement rather
+        // than another guess.
+        memoryRssMb: Math.round(process.memoryUsage().rss / 1048576),
+        memoryHeapUsedMb: Math.round(process.memoryUsage().heapUsed / 1048576),
         listIssueCount: listing.issues.length,
         scanIssueCount: scan.issues.length,
         errors,

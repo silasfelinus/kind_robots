@@ -18,6 +18,7 @@
 import assert from 'node:assert/strict'
 import { mkdtemp, mkdir, writeFile, rm, symlink } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
+import { readFileSync } from 'node:fs'
 import path from 'node:path'
 import { listArchiveFilePaths } from '../../server/utils/artArchiveScanner'
 import {
@@ -194,9 +195,39 @@ try {
   await rm(root, { recursive: true, force: true })
 }
 
+// ---- a run that outlives the app it is talking to ------------------------
+// A ~900-batch import is long enough that the app going away mid-run is an
+// ordinary event, not an exceptional one: the first full run ended at batch 68
+// of ~964 with `connect ECONNREFUSED 127.0.0.1:3000`. Treating that as fatal
+// threw away a run that was 8% done and entirely resumable, so the runner has
+// to wait the app out instead of exiting.
+const runner = readFileSync('scripts/art-archive-ingest.sh', 'utf8')
+assert.match(
+  runner,
+  /ECONNREFUSED/,
+  'a connection refused must be recognised, not treated as an unknown failure',
+)
+assert.match(
+  runner,
+  /const RETRY_BACKOFF_MS = \[/,
+  'the runner must back off and retry while the app restarts, because the ' +
+    'resume state is the database and nothing is lost by waiting',
+)
+for (const giveUpImmediately of [
+  /call\.on\('error', fail\)/,
+  /\.catch\(fail\)[^\n]*\/\/ no retry/,
+]) {
+  assert.doesNotMatch(
+    runner,
+    giveUpImmediately,
+    'a transient connection error must not end a resumable run outright',
+  )
+}
+
 console.log(
   'Art Archive scale contract verified: the ledger is asked one bounded ' +
     'window at a time, the listing is walked once per run with a ' +
-    'forward-only cursor, and dropping realpath for plain files leaves the ' +
-    'escaped-root check intact.',
+    'forward-only cursor, dropping realpath for plain files leaves the ' +
+    'escaped-root check intact, and an app that goes away mid-run is waited ' +
+    'out rather than ending a resumable import.',
 )

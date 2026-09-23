@@ -191,7 +191,7 @@ if (!token) {
 
 // No timeout is set anywhere on purpose: a request can legitimately take a
 // while, and aborting it would only restart the work.
-function request(requestPath, requestMethod, payload) {
+function sendOnce(requestPath, requestMethod, payload) {
   return new Promise((resolve, reject) => {
     const url = new URL(requestPath, base)
     const body = payload === undefined ? null : JSON.stringify(payload)
@@ -251,8 +251,64 @@ function request(requestPath, requestMethod, payload) {
   })
 }
 
+// An app that stops answering mid-import is a PAUSE, not an end.
+//
+// The first full run died at batch 68 of ~964 -- 19,156 of 240,856 files, 8% --
+// with `connect ECONNREFUSED 127.0.0.1:3000`: nothing listening, so the app
+// process had gone away (art-archive/t-041, 2026-09-23; an earlier run ended in
+// an unexplained exit 137, which is the same shape). Why it went away is not
+// established and is NOT guessed at here.
+//
+// What is certain is that giving up was the wrong response. The resume state is
+// the database, so the ~19,000 files already imported stay imported and a retry
+// continues from there; and retrying a batch is safe even mid-flight, because
+// importArchiveFile() is per-file transactional and keyed on relativePath, so a
+// file imported twice is an update, not a duplicate. Waiting for the app to
+// come back therefore costs nothing and saves the whole run.
+const RETRY_BACKOFF_MS = [2000, 4000, 8000, 16000, 30000, 30000, 30000, 30000, 30000, 30000]
+
+function isTransientConnection(error) {
+  const code = error?.code
+  return (
+    code === 'ECONNREFUSED' ||
+    code === 'ECONNRESET' ||
+    code === 'EPIPE' ||
+    code === 'ETIMEDOUT' ||
+    code === 'EHOSTUNREACH' ||
+    /socket hang up/i.test(String(error?.message ?? ''))
+  )
+}
+
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
+
+async function request(requestPath, requestMethod, payload) {
+  for (let attempt = 0; ; attempt += 1) {
+    try {
+      return await sendOnce(requestPath, requestMethod, payload)
+    } catch (error) {
+      if (!isTransientConnection(error) || attempt >= RETRY_BACKOFF_MS.length) {
+        throw error
+      }
+      const wait = RETRY_BACKOFF_MS[attempt]
+      process.stderr.write(
+        `  .. app unreachable (${error.code ?? error.message}); waiting ` +
+          `${wait / 1000}s for it to come back, then retrying. Nothing is ` +
+          `lost -- imported files stay imported.\n`,
+      )
+      await sleep(wait)
+    }
+  }
+}
+
 function fail(error) {
   process.stderr.write(`request failed: ${error.message}\n`)
+  if (isTransientConnection(error)) {
+    process.stderr.write(
+      'The app never came back after several minutes of retrying, so it is ' +
+        'down rather than restarting. Nothing is lost: re-run this script ' +
+        'once it is up and the import continues where it stopped.\n',
+    )
+  }
   process.exit(4)
 }
 
@@ -293,6 +349,9 @@ if (process.env.KR_INGEST_BATCH === '1') {
       `[batch ${batches}] ${doneSoFar}/${data.filesOnDisk} (${percent}%) ` +
         `+${data.completed} this pass, ${data.remaining} left, ${elapsed}s elapsed` +
         (data.errors?.length ? `, ${data.errors.length} failed` : '') +
+        // Printed every batch on purpose: one reading says nothing, a column
+        // of them across 900 batches says whether the app's memory climbs.
+        (data.memoryRssMb ? `, app rss ${data.memoryRssMb}MB` : '') +
         '\n',
     )
 

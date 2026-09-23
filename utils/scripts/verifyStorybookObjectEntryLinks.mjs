@@ -8,9 +8,24 @@
 //
 // Deliberately narrow: it checks that the CTA's click handler exists and
 // performs the navigation with the object's slug threaded through the right
-// query key, and that Storybook's own seedFromQuery() still consumes that
-// key into the matching setup draft. It does NOT assert button classes, icon
-// names, or layout -- a restyle of the CTA must not fail this check.
+// query key. It does NOT assert button classes, icon names, or layout -- a
+// restyle of the CTA must not fail this check.
+//
+// Migrated for storybook/t-037 (cycle 31): the receiving half of this
+// contract used to be asserted here too, against the LEGACY
+// storybook-page.vue's seedFromQuery(). That page is no longer the default
+// Storybook screen -- storybook-table.vue is (storybook-storymaker.vue
+// mounts it whenever no run is open, per storybook-library-page.vue's
+// `v-if="!legacy"`) -- and its own seedFromQuery() already has full
+// dedicated receiving-side coverage in verifyStorybookTableDeepLinkGuard.mjs
+// (all five query keys, cardForSlug()/playCardIfAbsent() resolution, genre/
+// character gating, query clearing, and mount ordering). Re-asserting the
+// legacy page's now-unreachable-by-default draft.* shape here would just
+// pin a dead end without adding coverage, so that half moved out rather than
+// being duplicated. This guard keeps its still-live, still-uncovered half:
+// that each object surface's CTA actually fires and still navigates to
+// '/storybook' with the right query key -- storybook-table.vue's guard has
+// no visibility into these source call sites.
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
@@ -30,7 +45,6 @@ const facetProfilePath = 'components/facets/facet-profile.vue'
 const rewardEncounterPath = 'components/rewards/reward-encounter.vue'
 const characterManagerPath = 'components/characters/character-manager.vue'
 const scenarioManagerPath = 'components/scenarios/scenario-manager.vue'
-const storybookPagePath = 'components/conductor/storybook-page.vue'
 
 includesAll(facetProfilePath, [
   'startStoryWithFacet',
@@ -60,21 +74,10 @@ includesAll(scenarioManagerPath, [
   'query: { scenario: slug }',
 ])
 
-includesAll(storybookPagePath, [
-  'function seedFromQuery',
-  'seedFromQuery()',
-  'route.query.facet',
-  'route.query.reward',
-  'route.query.character',
-  'route.query.scenario',
-  'draft.facetSlugs',
-  'draft.rewardSlugs',
-  'draft.castSlugs',
-  'draft.scenarioSlug',
-])
-
 console.log(
   'Storybook object-entry links contract passed: Facet, Reward, Character, ' +
-    'and Scenario working surfaces carry their object slug into Storybook, ' +
-    'and Storybook still seeds its setup draft from every supported key.',
+    'and Scenario working surfaces still carry their object slug into ' +
+    "Storybook via '/storybook'. The receiving half of this contract (that " +
+    'storybook-table.vue actually seeds a card from each key) lives in ' +
+    'verifyStorybookTableDeepLinkGuard.mjs.',
 )

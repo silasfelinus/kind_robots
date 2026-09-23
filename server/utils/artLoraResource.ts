@@ -58,7 +58,6 @@ const STRICT_COMPATIBILITY_ENGINES = new Set([
   'flux2',
   'ltx',
   'wan',
-  'sdxl-img2img',
 ])
 
 function normalizeText(value: unknown): string {
@@ -169,8 +168,13 @@ function compatibilityRank(
   }
 
   if (engine === 'sdxl-img2img') {
-    if (resource.supportedServer === SupportedServer.SDXL) return 30
-    if (resource.supportedServer === SupportedServer.COMFY) return 15
+    // img2img uses the same named checkpoint as the normal Comfy lane. The
+    // browser knows that checkpoint's family and filters exactly; the server
+    // therefore accepts both SDXL/Pony and SD1.5 Resource classes here, just
+    // as it does for text-to-image on the same checkpoint.
+    if (resource.supportedServer === SupportedServer.COMFY) return 20
+    if (resource.supportedServer === SupportedServer.SDXL) return 15
+    if (resource.supportedServer === SupportedServer.SD15) return 15
     if (resource.supportedServer === SupportedServer.GENERIC) return 10
   }
 

@@ -183,6 +183,32 @@ assert.ok(accountStore.includes('resourceGalleryStore.loadResources()'))
 assert.ok(accountStore.includes('loraResourceIds: visibleLoraIds'))
 assert.ok(accountStore.includes('checkpointResourceId: null'))
 
+// Main Gallery privacy controls and private archive media regression,
+// art-archive/t-042. The Gallery uses the persisted account maturity control,
+// never a local bypass, and its separate Private filter is owner-scoped.
+const artGallery = readFileSync('components/art/art-gallery.vue', 'utf8')
+assert.ok(artGallery.includes('<maturity-toggle variant="compact"'))
+assert.ok(artGallery.includes('const showPrivate = ref(true)'))
+assert.ok(artGallery.includes('isOwnedPrivateRecord'))
+assert.ok(artGallery.includes('ownerId === viewerId'))
+assert.ok(artGallery.includes('<kr-mature-cover'))
+assert.ok(artGallery.includes('await reloadGalleryForVisibility()'))
+
+const imageCard = readFileSync('components/art/image-card.vue', 'utf8')
+assert.ok(imageCard.includes("image?.designer === 'art-archive'"))
+assert.ok(imageCard.includes('/api/art/image/archive/'))
+
+const archiveGalleryMediaRoute = readFileSync(
+  'server/api/art/image/archive/[id].get.ts',
+  'utf8',
+)
+assert.ok(archiveGalleryMediaRoute.includes('buildArtImageWhere(access)'))
+assert.ok(archiveGalleryMediaRoute.includes("designer: 'art-archive'"))
+assert.ok(archiveGalleryMediaRoute.includes('artImageId: artImage.id'))
+assert.ok(archiveGalleryMediaRoute.includes('resolveConfinedExistingPath'))
+assert.ok(archiveGalleryMediaRoute.includes('ensureArchiveThumbnail'))
+assert.ok(archiveGalleryMediaRoute.includes("'Cache-Control', 'private, max-age=3600'"))
+
 const queueEditor = readFileSync('components/art/artjob-editor.vue', 'utf8')
 assert.ok(queueEditor.includes('v-model:is-mature="form.isMature"'))
 assert.ok(queueEditor.includes('isMature: form.isMature'))

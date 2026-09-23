@@ -34,7 +34,7 @@ export default defineEventHandler(async (event) => {
       ])
 
       if (previewArtImage) {
-        attachGalleryArchiveMediaPaths([previewArtImage], 'medium')
+        attachGalleryArchiveMediaPaths([previewArtImage], 'thumbnail')
       }
 
       return {

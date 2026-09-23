@@ -31,18 +31,33 @@ const updated = registerAnimationEffect(catalog, entry)
 assert.match(updated, /id: 'paper-moon-test'/)
 assert.match(updated, /tooltip: 'A paper moon\\'s quiet orbit'/)
 assert.match(updated, /releasedAt: '2026-09-23T12:00:00Z'/)
-assert.ok(updated.indexOf("id: 'existing-effect'") < updated.indexOf("id: 'paper-moon-test'"))
-assert.ok(updated.indexOf("id: 'paper-moon-test'") < updated.indexOf('] as const satisfies'))
+assert.ok(
+  updated.indexOf("id: 'existing-effect'") <
+    updated.indexOf("id: 'paper-moon-test'"),
+)
+assert.ok(
+  updated.indexOf("id: 'paper-moon-test'") <
+    updated.indexOf('] as const satisfies'),
+)
 assert.match(updated, /export const tail = true/)
 assert.equal((updated.match(/paper-moon-test/g) ?? []).length, 1)
 
-assert.throws(() => registerAnimationEffect(updated, entry), /already registered/)
-assert.throws(() => registerAnimationEffect('export const nope = []\n', entry), /closing marker/)
+assert.throws(
+  () => registerAnimationEffect(updated, entry),
+  /already registered/,
+)
+assert.throws(
+  () => registerAnimationEffect('export const nope = []\n', entry),
+  /closing marker/,
+)
 assert.throws(
   () => registerAnimationEffect(`${catalog}\n${catalog}`, entry),
   /ambiguous/,
 )
-assert.throws(() => validateAnimationEffect({ ...entry, id: 'Bad Id' }), /kebab-case/)
+assert.throws(
+  () => validateAnimationEffect({ ...entry, id: 'Bad Id' }),
+  /kebab-case/,
+)
 assert.throws(
   () => validateAnimationEffect({ ...entry, preferredSurface: 'sidebar' }),
   /preferredSurface/,

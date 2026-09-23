@@ -32,6 +32,8 @@ type CollectionFetchOptions = {
   /** Display filters -- see the collection endpoint. Omitted means unchanged. */
   includePrivate?: boolean
   includeMature?: boolean
+  /** false = skip per-collection counts/preview; the tile hydrates on view. */
+  counts?: boolean
 }
 
 type ArtWithRelations = ArtImage & {
@@ -452,6 +454,10 @@ export const useCollectionStore = defineStore('collectionStore', () => {
 
     if (typeof options.includeMature === 'boolean') {
       params.set('includeMature', String(options.includeMature))
+    }
+
+    if (typeof options.counts === 'boolean') {
+      params.set('counts', String(options.counts))
     }
 
     const query = params.toString()

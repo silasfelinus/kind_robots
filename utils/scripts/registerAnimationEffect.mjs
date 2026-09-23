@@ -40,7 +40,10 @@ export function validateAnimationEffect(entry) {
   if (!SURFACES.has(entry.preferredSurface)) {
     throw new Error(`preferredSurface must be one of: ${[...SURFACES].join(', ')}`)
   }
-  if (entry.releasedAt !== undefined && !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/.test(entry.releasedAt)) {
+  if (
+    entry.releasedAt !== undefined &&
+    !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/.test(entry.releasedAt)
+  ) {
     throw new Error('releasedAt must be an ISO UTC timestamp ending in Z.')
   }
   if (entry.blocksInput !== undefined && typeof entry.blocksInput !== 'boolean') {
@@ -93,7 +96,11 @@ function parseArgs(argv) {
     else if (arg === '--catalog') args.catalog = argv[++i]
     else throw new Error(`Unknown argument: ${arg}`)
   }
-  if (!args.entry) throw new Error('Usage: node utils/scripts/registerAnimationEffect.mjs --entry <entry.json> [--catalog <path>] [--dry-run]')
+  if (!args.entry) {
+    throw new Error(
+      'Usage: node utils/scripts/registerAnimationEffect.mjs --entry <entry.json> [--catalog <path>] [--dry-run]',
+    )
+  }
   return args
 }
 
@@ -109,7 +116,9 @@ export function runCli(argv = process.argv.slice(2)) {
     return
   }
   fs.writeFileSync(catalogPath, updated)
-  process.stdout.write(`Registered ${entry.id} in ${path.relative(process.cwd(), catalogPath)}\n`)
+  process.stdout.write(
+    `Registered ${entry.id} in ${path.relative(process.cwd(), catalogPath)}\n`,
+  )
 }
 
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {

@@ -247,6 +247,23 @@ if (!fs.existsSync(runner)) {
       /HTTP \$\{code\} from \$\{requestMethod\} \$\{url\}/,
     ],
     ['an empty error body is reported as such', /\(empty response body\)/],
+    // Silas, 2026-09-23: "parse error: Invalid numeric literal at line 1,
+    // column 10". A 2xx is not proof the endpoint exists -- Nuxt serves the
+    // app's HTML for a route its build does not know, so an out-of-date
+    // container answers 200 with a web page and jq dies on it.
+    ['a 2xx that is not JSON is refused', /not JSON\./],
+    [
+      'an HTML answer names the likely cause',
+      /does not have this endpoint yet/,
+    ],
+    ['jq is never handed a non-JSON body', /jq empty >\/dev\/null 2>&1/],
+    // The size question must be answerable before any deploy.
+    ['a host-side count needs no API', /--local-scan\) LOCAL_SCAN=1/],
+    [
+      'the host count skips the trash subtree',
+      /-type d -name '_archive_trash' -prune/,
+    ],
+    ['the host count skips dotfiles and dotdirs', /-name '\.\*' -prune/],
     [
       'a 2xx with an empty body is an error, not a silent pass',
       /the app answered but sent an empty body/,

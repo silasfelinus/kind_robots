@@ -55,6 +55,7 @@
     "test:art-archive-signed-media": "tsx utils/scripts/verifyArtArchiveSignedMedia.test.ts",
     "test:art-image-seed-column": "tsx utils/scripts/verifyArtImageSeedColumn.test.ts",
     "test:archive-ops-reachable": "tsx utils/scripts/verifyArchiveOpsReachable.test.ts",
+    "test:archive-runner-script": "tsx utils/scripts/verifyArchiveRunnerScript.test.ts",
     "test:butterfly-gallery-actions": "tsx utils/scripts/verifyButterflyGalleryActions.test.ts",
     "test:butterfly-gallery-filters": "tsx utils/scripts/verifyButterflyGalleryFilters.test.ts",
     "test:butterfly-gallery-motion": "tsx utils/scripts/verifyButterflyGalleryMotion.test.ts",

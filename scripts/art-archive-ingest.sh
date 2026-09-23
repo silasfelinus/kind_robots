@@ -76,6 +76,8 @@ REQUEST_PATH='/api/admin/art-archive/scan-status'
 REQUEST_METHOD='GET'
 MODE='Dry run'
 BATCH=0
+BACKFILL=0
+BACKFILL_APPLY=0
 BATCH_LIMIT="${KIND_ROBOTS_BATCH_SIZE:-250}"
 LOCAL_SCAN=0
 # The host side of the mount the container sees as /app/private.
@@ -90,6 +92,18 @@ while [[ $# -gt 0 ]]; do
       REQUEST_PATH='/api/admin/art-archive/import-batch'; REQUEST_METHOD='POST'
       BATCH=1; MODE='Import'; shift ;;
     --batch-size) BATCH_LIMIT="${2:-}"; shift 2 ;;
+    # Fills in the seeds lost while ArtImage.seed was a SIGNED column, reading
+    # each file's real metadata back out of ArchiveEntry.extractedMetadata.
+    # Reports without writing unless --apply is also given. Batched and
+    # resumable like --import; a filled seed is never rewritten, so this is
+    # safe to re-run and safe to interrupt.
+    --backfill-seeds)
+      REQUEST_PATH='/api/admin/art-archive/backfill-seeds'; REQUEST_METHOD='POST'
+      BACKFILL=1; MODE='Backfill seeds (dry run)'; shift ;;
+    --apply)
+      BACKFILL_APPLY=1
+      [[ "$MODE" == 'Backfill seeds (dry run)' ]] && MODE='Backfill seeds (writing)'
+      shift ;;
     # The whole archive in one request, hydrating every file before it answers.
     # Fine for a small archive; for the real one it is the request that never
     # came back. Kept because it is the only thing that reports the full
@@ -316,6 +330,57 @@ function fail(error) {
 // say where we are after every one. The server holds the resume state (a file
 // is done when its ArchiveEntry row exists), so stopping here and re-running
 // later continues rather than restarting.
+// Backfill mode: walk the ledger in batches, filling seeds from each entry's
+// stored metadata. Same resume shape as the import -- the server returns the
+// next cursor, so stopping and re-running continues rather than restarting.
+if (process.env.KR_INGEST_BACKFILL === '1') {
+  const apply = process.env.KR_INGEST_BACKFILL_APPLY === '1'
+  const limit = Number(process.env.KR_INGEST_BATCH_LIMIT || 500)
+  const started = Date.now()
+  let cursor = 0
+  let batches = 0
+  let scanned = 0
+  let recoverable = 0
+  let applied = 0
+  let stillUnknown = 0
+
+  for (;;) {
+    const raw = await request(requestPath, 'POST', { cursor, limit, apply })
+    const data = JSON.parse(raw)
+    if (data.success === false) {
+      process.stderr.write(`${data.message || 'backfill failed'}\n`)
+      process.exit(5)
+    }
+
+    batches += 1
+    scanned += data.scanned || 0
+    recoverable += data.recoverable || 0
+    applied += data.applied || 0
+    stillUnknown += data.stillUnknown || 0
+    cursor = data.cursor ?? cursor
+
+    const elapsed = Math.round((Date.now() - started) / 1000)
+    process.stderr.write(
+      `[batch ${batches}] entry #${cursor}: ${recoverable} recoverable, ` +
+        `${applied} written, ${stillUnknown} had no seed in their metadata, ` +
+        `${elapsed}s elapsed\n`,
+    )
+
+    if (data.done) break
+  }
+
+  process.stderr.write(
+    `\n${scanned} ledger row(s) walked. ${recoverable} seed(s) recoverable ` +
+      `from extractedMetadata, ${stillUnknown} genuinely never carried one.\n`,
+  )
+  if (!apply && recoverable) {
+    process.stderr.write(
+      'Nothing was written. Re-run with --apply to fill them in.\n',
+    )
+  }
+  process.exit(0)
+}
+
 if (process.env.KR_INGEST_BATCH === '1') {
   const limit = Number(process.env.KR_INGEST_BATCH_LIMIT || 250)
   const started = Date.now()
@@ -447,6 +512,8 @@ run_in_container() {
     -e KR_INGEST_METHOD="$REQUEST_METHOD" \
     -e KR_INGEST_BATCH="$BATCH" \
     -e KR_INGEST_BATCH_LIMIT="$BATCH_LIMIT" \
+    -e KR_INGEST_BACKFILL="$BACKFILL" \
+    -e KR_INGEST_BACKFILL_APPLY="$BACKFILL_APPLY" \
     "$CONTAINER" node \
       "--env-file-if-exists=$CONTAINER_ENV_FILE" \
       --input-type=module -
@@ -485,6 +552,7 @@ run_over_http() {
   KR_INGEST_URL="$BASE_URL" KR_INGEST_PATH="$REQUEST_PATH" \
     KR_INGEST_METHOD="$REQUEST_METHOD" KR_INGEST_TOKEN="$TOKEN" \
     KR_INGEST_BATCH="$BATCH" KR_INGEST_BATCH_LIMIT="$BATCH_LIMIT" \
+    KR_INGEST_BACKFILL="$BACKFILL" KR_INGEST_BACKFILL_APPLY="$BACKFILL_APPLY" \
     node --input-type=module -e "$REQUEST_JS"
 }
 

@@ -29,6 +29,9 @@ type CollectionFetchOptions = {
   summary?: boolean
   includeImages?: boolean
   imageLimit?: number | null
+  /** Display filters -- see the collection endpoint. Omitted means unchanged. */
+  includePrivate?: boolean
+  includeMature?: boolean
 }
 
 type ArtWithRelations = ArtImage & {
@@ -441,6 +444,14 @@ export const useCollectionStore = defineStore('collectionStore', () => {
       options.imageLimit > 0
     ) {
       params.set('imageLimit', String(options.imageLimit))
+    }
+
+    if (typeof options.includePrivate === 'boolean') {
+      params.set('includePrivate', String(options.includePrivate))
+    }
+
+    if (typeof options.includeMature === 'boolean') {
+      params.set('includeMature', String(options.includeMature))
     }
 
     const query = params.toString()
@@ -1056,9 +1067,7 @@ export const useCollectionStore = defineStore('collectionStore', () => {
     )
 
     if (!response.success || !Array.isArray(response.data)) {
-      throw new Error(
-        response.message || 'Failed to fetch folder collections',
-      )
+      throw new Error(response.message || 'Failed to fetch folder collections')
     }
 
     state.folderCollections = response.data
@@ -1072,9 +1081,7 @@ export const useCollectionStore = defineStore('collectionStore', () => {
    * image. Idempotent. Refreshes both the DB collections (so the synced one
    * appears as a normal collection) and the folder list (updated counts).
    */
-  async function syncFolderCollection(
-    slug: string,
-  ): Promise<FolderSyncResult> {
+  async function syncFolderCollection(slug: string): Promise<FolderSyncResult> {
     const response = await performFetch<FolderSyncResult>(
       `/api/art/collection/folder/${encodeURIComponent(slug)}/sync`,
       { method: 'POST' },

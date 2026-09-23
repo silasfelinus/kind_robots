@@ -601,7 +601,14 @@ const errorMessage = ref('')
 const successMessage = ref('')
 const searchQuery = ref('')
 const showMature = computed(() => Boolean(userStore.showMature))
-const showPrivate = ref(true)
+/*
+ * Defaults OFF now that the archive exists. Every archive folder is a private
+ * ArtCollection, so importing 208,651 files added 443 of them, and asking for
+ * them costs a filtered count plus a preview lookup each -- which is what made
+ * this gallery time out at 10s (art-archive/t-041, 2026-09-23). The toggle is
+ * the way in to them, rather than the default view carrying all of it.
+ */
+const showPrivate = ref(false)
 const hydratedImages = ref<Record<number, ArtImage>>({})
 const activeGroupKey = ref<string | null>(null)
 const selectedImageForOverlay = ref<ArtImage | null>(null)
@@ -801,12 +808,15 @@ watch(showMature, async () => {
   await reloadGalleryForVisibility()
 })
 
-watch(showPrivate, () => {
+watch(showPrivate, async () => {
   if (!galleryReady.value) return
   const group = activeGroup.value
   if (group && !group.isVirtual && !isOwnedPrivateRecord(group)) {
     clearActiveGroup()
   }
+  // The private set is now fetched, not filtered out of an already-fetched
+  // response, so turning the toggle on has to go and get it.
+  await fetchCollectionSummaries(true)
 })
 
 onMounted(async () => {
@@ -961,6 +971,11 @@ async function fetchCollectionSummaries(force = false) {
     summary: true,
     includeImages: true,
     imageLimit: 1,
+    // Filter at the QUERY, not after the response: filtering client-side still
+    // makes the server count and preview every archive folder first, which is
+    // the whole cost.
+    includePrivate: showPrivate.value,
+    includeMature: showMature.value,
   })
 }
 

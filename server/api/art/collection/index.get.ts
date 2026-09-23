@@ -88,13 +88,39 @@ export default defineEventHandler(async (event) => {
     const collectionId = queryPositiveInt(query.id, null)
 
     /*
+     * DISPLAY filters, layered on top of the ACCESS rules below -- they can
+     * only ever narrow what the viewer was already allowed to see.
+     *
+     * The archive import made this load-bearing. Every archive folder is a
+     * private + mature ArtCollection, so importing 208,651 files added 443 of
+     * them, and each one costs a filtered _count plus a preview lookup over a
+     * table that is now that size. Only an admin can see them at all, which is
+     * why the gallery started timing out at 10s for exactly one person (Silas,
+     * 2026-09-23: "we should have a toggle on the gallery to show private
+     * (owner's private) and mature selections. we should definitely be loading
+     * the galleries smartly, with this many files").
+     *
+     * Both default TRUE so no existing caller changes behaviour; the gallery
+     * turns them off and offers them as toggles.
+     */
+    const includePrivate = queryFlag(query.includePrivate, true)
+    const includeMature = queryFlag(query.includeMature, true)
+
+    /*
      * `isPublic: true` appears in the select below, which asks for the column
      * and filters nothing -- so this listed every collection, private and
      * mature, with its images, to anyone. Both halves now carry the viewer's
      * rule, and `?userId=` no longer exposes another person's private folders.
      */
     const access = await getArtImageAccessContext(event)
-    const imageWhere = buildArtImageWhere(access)
+
+    const displayFilter: Prisma.ArtImageWhereInput[] = [
+      ...(includePrivate ? [] : [{ isPublic: true }]),
+      ...(includeMature ? [] : [{ isMature: false }]),
+    ]
+    const imageWhere: Prisma.ArtImageWhereInput = displayFilter.length
+      ? { AND: [buildArtImageWhere(access), ...displayFilter] }
+      : buildArtImageWhere(access)
 
     const artCollectionSelect = {
       id: true,
@@ -123,6 +149,11 @@ export default defineEventHandler(async (event) => {
           ...(collectionId ? { id: collectionId } : {}),
         },
         buildArtCollectionWhere(access),
+        // Narrowing the COLLECTION list too, not just the images inside it, is
+        // the part that actually makes this fast: it drops the 443 archive
+        // folders before any per-collection count or preview runs.
+        ...(includePrivate ? [] : [{ isPublic: true }]),
+        ...(includeMature ? [] : [{ isMature: false }]),
       ],
     }
 

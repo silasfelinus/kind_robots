@@ -1,15 +1,12 @@
 // /server/api/art/image/archive/[id].get.ts
 //
-// Gallery-safe byte route for ArtImages imported from PRIVATE_PATH. Archive
-// ArtImage.path values are relative to the private archive root, not
-// public/images, so treating them as normal web paths turns "abstract/foo.png"
-// into /images/abstract/foo.png and image-card falls back when that 404s.
+// Browser-loadable bytes for ArtImages imported from PRIVATE_PATH. Normal API
+// auth is header-based, which a plain <img> cannot send. The authenticated
+// collection API therefore mints a short-lived capability URL (see
+// artGalleryArchiveMedia.ts). Direct API callers may still use normal headers.
 //
-// Access is decided from the ArtImage first. That keeps private/mature policy in
-// the same buildArtImageWhere() rule as every other art listing/detail route;
-// callers who cannot see the ArtImage get a 404 without learning that an archive
-// file exists. Only after that check do we resolve the ArchiveEntry and touch
-// PRIVATE_PATH, always through the existing root-confinement helpers.
+// Files never move into public/: after authorization we resolve the matching
+// ArchiveEntry and use the existing root-confined PRIVATE_PATH helpers.
 import path from 'node:path'
 import { readFile, realpath } from 'node:fs/promises'
 import {
@@ -31,6 +28,10 @@ import {
   ensureArchiveMediumPreview,
   ensureArchiveThumbnail,
 } from '~/server/utils/artArchiveThumbnails'
+import {
+  verifyGalleryArchiveMedia,
+  type GalleryArchiveMediaVariant,
+} from '~/server/utils/artGalleryArchiveMedia'
 
 const CONTENT_TYPES: Record<string, string> = {
   png: 'image/png',
@@ -46,20 +47,49 @@ export default defineEventHandler(async (event) => {
       throw createError({ statusCode: 400, message: 'Invalid art image id.' })
     }
 
-    const access = await getArtImageAccessContext(event)
-    const artImage = await prisma.artImage.findFirst({
-      where: {
-        AND: [
-          {
-            id: artImageId,
-            isActive: true,
-            designer: 'art-archive',
-          },
-          buildArtImageWhere(access),
-        ],
-      },
-      select: { id: true },
-    })
+    const query = getQuery(event)
+    const rawVariant = query.variant
+    const variant: GalleryArchiveMediaVariant =
+      rawVariant === 'medium' || rawVariant === 'full'
+        ? rawVariant
+        : 'thumbnail'
+    const hasCapability = verifyGalleryArchiveMedia(
+      artImageId,
+      variant,
+      query.exp,
+      query.sig,
+    )
+
+    // A valid capability was minted only after this row passed the collection
+    // API's buildArtImageWhere() filter. Without one, fall back to the same
+    // header-auth access rule so API clients can still load the route directly.
+    let artImage: { id: number } | null = null
+    if (hasCapability) {
+      artImage = await prisma.artImage.findFirst({
+        where: {
+          id: artImageId,
+          isActive: true,
+          designer: 'art-archive',
+        },
+        select: { id: true },
+      })
+    } else {
+      const access = await getArtImageAccessContext(event)
+      artImage = await prisma.artImage.findFirst({
+        where: {
+          AND: [
+            {
+              id: artImageId,
+              isActive: true,
+              designer: 'art-archive',
+            },
+            buildArtImageWhere(access),
+          ],
+        },
+        select: { id: true },
+      })
+    }
+
     if (!artImage) {
       throw createError({ statusCode: 404, message: 'Archive image not found.' })
     }
@@ -77,11 +107,6 @@ export default defineEventHandler(async (event) => {
     }
 
     const resolvedRoot = await realpath(getArtArchiveRoot())
-    const rawVariant = getQuery(event).variant
-    const variant =
-      rawVariant === 'medium' || rawVariant === 'full'
-        ? rawVariant
-        : 'thumbnail'
 
     setHeader(event, 'Cache-Control', 'private, max-age=3600')
     setHeader(event, 'X-Content-Type-Options', 'nosniff')

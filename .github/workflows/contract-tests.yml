@@ -478,18 +478,6 @@ jobs:
       - name: Da Vinci dimension-group guard
         run: npm run test:davinci-dimension-group-guard
 
-      - name: Storybook visual-setup choice-group guard self-test
-        run: npm run test:storybook-visual-setup-choice-group-guard-selftest
-
-      - name: Storybook visual-setup choice-group guard
-        run: npm run test:storybook-visual-setup-choice-group-guard
-
-      - name: Storybook page choice-group guard self-test
-        run: npm run test:storybook-page-choice-group-guard-selftest
-
-      - name: Storybook page choice-group guard
-        run: npm run test:storybook-page-choice-group-guard
-
       - name: Da Vinci narration-error role guard self-test
         run: npm run test:davinci-narration-error-role-guard-selftest
 

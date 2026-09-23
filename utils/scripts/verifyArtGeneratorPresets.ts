@@ -4,7 +4,6 @@ import {
   ART_ENGINE_PROFILES,
   ART_GENERATOR_PRESETS,
   DEFAULT_ART_PRESET_ID,
-  IMAGE_TO_IMAGE_PRESET_ID,
   artDimensionOptions,
   defaultPresetSettings,
   detectCheckpointFamily,
@@ -34,9 +33,6 @@ assert.deepEqual(defaultPresetSettings(), {
   width: 1024,
   height: 1024,
   guidance: null,
-  // The default lane starts from a blank canvas, so there is nothing to stay
-  // near. Only the image-to-image preset carries a denoise.
-  denoise: null,
   variant: null,
 })
 
@@ -66,54 +62,32 @@ assert.deepEqual(
 )
 assert.deepEqual(artDimensionOptions('sdxl-img2img', 'sdxl'), [])
 
-/*
- * THE IMAGE-TO-IMAGE LANE.
- *
- * Silas, 2026-09-18: "we should be able to select them and modify them, even if
- * they come from a civitai sample." Picking an image writes bytes into
- * artForm.sourceImageBase64, and before this preset existed every lane in the
- * catalogue was text-to-image -- so the picked image was loaded and then
- * ignored. This pins the one preset that can actually consume it.
- */
-assert.equal(IMAGE_TO_IMAGE_PRESET_ID, 'sdxl-from-image')
-assert.equal(preset(IMAGE_TO_IMAGE_PRESET_ID).engine, 'sdxl-img2img')
-
-// Every OTHER preset must leave denoise null: a text-to-image lane carrying a
-// denoise would look like it honours a source image it cannot read.
-for (const entry of ART_GENERATOR_PRESETS) {
-  if (entry.id === IMAGE_TO_IMAGE_PRESET_ID) {
-    assert.ok(
-      typeof entry.denoise === 'number' &&
-        entry.denoise > 0 &&
-        entry.denoise < 1,
-      'the image-to-image preset needs a denoise strictly between 0 and 1',
-    )
-    continue
-  }
-  assert.equal(
-    entry.denoise,
-    null,
-    `preset "${entry.id}" is text-to-image and must not carry a denoise`,
-  )
-  assert.notEqual(
-    entry.engine,
-    'sdxl-img2img',
-    `preset "${entry.id}" must not claim the image-to-image engine`,
-  )
-}
-
-// Exactly one lane starts from a picture; two would make "Use it" ambiguous.
+// A source image is an optional operation on the named-checkpoint recipes, not
+// a separate quality recipe. The selected recipe still owns steps/cfg/sampler;
+// the generator switches only the queued engine when an image is attached.
 assert.equal(
-  ART_GENERATOR_PRESETS.filter((entry) => entry.engine === 'sdxl-img2img')
-    .length,
-  1,
+  ART_GENERATOR_PRESETS.some((entry) => entry.engine === 'sdxl-img2img'),
+  false,
 )
-
-// The source image decides the output size, so offering width and height in
-// this lane would be offering a setting the workflow overrides.
 assert.equal(ART_ENGINE_PROFILES['sdxl-img2img'].supports.size, false)
 assert.equal(ART_ENGINE_PROFILES['sdxl-img2img'].supports.checkpoint, true)
 assert.equal(ART_ENGINE_PROFILES['sdxl-img2img'].supports.lora, true)
+assert.equal(preset('sdxl-distilled').engine, 'comfy')
+assert.equal(preset('sdxl-standard').engine, 'comfy')
+
+const generatorSource = readFileSync('components/art/art-generator.vue', 'utf8')
+assert.ok(generatorSource.includes('type="file"'))
+assert.ok(generatorSource.includes('accept="image/*"'))
+assert.ok(generatorSource.includes('blobToDataUri'))
+assert.ok(
+  generatorSource.includes(
+    "usesSourceImage.value ? 'sdxl-img2img' : activePreset.value.engine",
+  ),
+)
+assert.ok(generatorSource.includes(':engine="generationEngine"'))
+assert.ok(generatorSource.includes('activeProfile.supports.size && !usesSourceImage'))
+assert.ok(!generatorSource.includes('IMAGE_TO_IMAGE_PRESET_ID'))
+assert.ok(!generatorSource.includes('sdxl-from-image'))
 
 assert.deepEqual(
   {
@@ -225,7 +199,7 @@ assert.equal(
   artLoraCompatibilityRank(
     { id: 12, generation: 'SDXL', supportedServer: 'SDXL' },
     'sdxl-img2img',
-    'unknown',
+    'sdxl',
   ),
   30,
 )
@@ -240,6 +214,14 @@ assert.equal(
 assert.equal(
   artLoraCompatibilityRank(
     { id: 14, generation: 'SD 1.5', supportedServer: 'SD15' },
+    'sdxl-img2img',
+    'sd15',
+  ),
+  30,
+)
+assert.equal(
+  artLoraCompatibilityRank(
+    { id: 15, generation: 'SDXL', supportedServer: 'SDXL' },
     'sdxl-img2img',
     'sd15',
   ),

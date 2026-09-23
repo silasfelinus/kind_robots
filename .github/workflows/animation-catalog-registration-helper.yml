@@ -1,0 +1,28 @@
+name: Animation Catalog Registration Helper
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'utils/scripts/registerAnimationEffect.mjs'
+      - 'utils/scripts/registerAnimationEffect.test.mjs'
+      - '.github/workflows/animation-catalog-registration-helper.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'utils/scripts/registerAnimationEffect.mjs'
+      - 'utils/scripts/registerAnimationEffect.test.mjs'
+      - '.github/workflows/animation-catalog-registration-helper.yml'
+  workflow_dispatch:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Run registration helper self-test
+        run: node utils/scripts/registerAnimationEffect.test.mjs

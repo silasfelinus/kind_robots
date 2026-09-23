@@ -1233,6 +1233,9 @@ jobs:
       - name: Art Archive signed-media contract
         run: npm run test:art-archive-signed-media
 
+      - name: Server API orphan-route auditor contract
+        run: npm run test:server-api-callers-audit
+
       - name: ArtImage seed-column contract
         run: npm run test:art-image-seed-column
 
@@ -1273,6 +1276,10 @@ jobs:
         shell: bash
         run: npm run audit:channel-assets 2>&1 | tee channel-artwork-audit.txt
 
+      - name: Server API orphan-route audit
+        shell: bash
+        run: npm run audit:server-api-callers 2>&1 | tee server-api-callers-audit.txt
+
       - name: Upload contract diagnostics
         if: always()
         uses: actions/upload-artifact@v4
@@ -1281,5 +1288,6 @@ jobs:
           path: |
             academy-examples-contract.txt
             channel-artwork-audit.txt
+            server-api-callers-audit.txt
           if-no-files-found: warn
           retention-days: 14

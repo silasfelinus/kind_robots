@@ -21,6 +21,7 @@ on:
       - 'server/utils/forumApi.ts'
       - 'utils/scripts/verifyContentVisibility.test.ts'
       - 'utils/scripts/verifyContentVisibilityCoverage.ts'
+      - 'utils/scripts/verifyContentVisibilityCoverage.test.ts'
       - '.github/workflows/content-visibility-coverage.yml'
   workflow_dispatch:
 
@@ -61,3 +62,9 @@ jobs:
       # The coverage sweep: reads each prisma.<model>.find*() call's own where.
       - name: Verify every read endpoint applies it
         run: npx tsx utils/scripts/verifyContentVisibilityCoverage.ts
+
+      # The scanner's own classifier, against synthetic source: a plain
+      # unguarded read must still fail, and a recognized capability check
+      # name only passes when it is genuinely present.
+      - name: Verify the coverage scanner itself
+        run: npx tsx utils/scripts/verifyContentVisibilityCoverage.test.ts

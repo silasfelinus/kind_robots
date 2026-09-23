@@ -388,6 +388,12 @@ jobs:
       - name: AppMaker graduate-request guard
         run: npm run test:appmaker-graduate-request-guard
 
+      - name: AppMaker graduate-execute guard self-test
+        run: npm run test:appmaker-graduate-execute-guard-selftest
+
+      - name: AppMaker graduate-execute guard
+        run: npm run test:appmaker-graduate-execute-guard
+
       - name: Da Vinci narration bounds contract
         run: npm run test:davinci-narration
 

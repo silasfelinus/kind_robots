@@ -14,6 +14,8 @@ export type BrowseArtCollection = ArtCollection & {
   _count?: { ArtImages?: number }
 }
 
+export type GalleryMaturityFilter = 'all' | 'mature' | 'safe'
+
 export type UnsortedArtSummary = {
   count: number
   totalCount: number
@@ -47,8 +49,11 @@ function normalizeCollection(collection: ApiCollection): BrowseArtCollection {
   }
 }
 
-function matureQuery(showMature: boolean): string {
-  return showMature ? '&showMature=true' : ''
+function maturityQuery(filter: GalleryMaturityFilter): string {
+  const params = new URLSearchParams()
+  params.set('maturity', filter)
+  params.set('showMature', filter === 'safe' ? 'false' : 'true')
+  return params.toString()
 }
 
 export const useArtCollectionBrowseStore = defineStore(
@@ -67,8 +72,8 @@ export const useArtCollectionBrowseStore = defineStore(
     >()
     let unsortedSummaryRequest: Promise<UnsortedArtSummary> | null = null
     let unsortedImagesRequest: Promise<ArtImage[]> | null = null
-    let unsortedSummaryMatureMode: boolean | null = null
-    let unsortedImagesMatureMode: boolean | null = null
+    let unsortedSummaryMaturityFilter: boolean | null = null
+    let unsortedImagesMaturityFilter: boolean | null = null
 
     const artStore = useArtStore()
 
@@ -124,9 +129,9 @@ export const useArtCollectionBrowseStore = defineStore(
 
     async function fetchUnsortedSummary(
       force = false,
-      showMature = false,
+      maturity: GalleryMaturityFilter = 'all',
     ): Promise<UnsortedArtSummary> {
-      if (!force && unsortedSummaryMatureMode === showMature) {
+      if (!force && unsortedSummaryMaturityFilter === maturity) {
         return unsortedSummary.value
       }
       if (!force && unsortedSummaryRequest) return unsortedSummaryRequest
@@ -134,7 +139,7 @@ export const useArtCollectionBrowseStore = defineStore(
       unsortedSummaryRequest = (async () => {
         try {
           const response = await performFetch<UnsortedArtSummary>(
-            `/api/art/collection/unsorted?summary=true${matureQuery(showMature)}`,
+            `/api/art/collection/unsorted?summary=true&${maturityQuery(maturity)}`,
           )
 
           if (!response.success || !response.data) {
@@ -148,7 +153,7 @@ export const useArtCollectionBrowseStore = defineStore(
             totalCount: Number(response.data.totalCount) || 0,
             previewArtImage: response.data.previewArtImage ?? null,
           }
-          unsortedSummaryMatureMode = showMature
+          unsortedSummaryMaturityFilter = maturity
 
           if (unsortedSummary.value.previewArtImage) {
             artStore.addOrUpdateArtImages([
@@ -170,18 +175,17 @@ export const useArtCollectionBrowseStore = defineStore(
 
     async function fetchUnsortedImages(
       force = false,
-      showMature = false,
+      maturity: GalleryMaturityFilter = 'all',
     ): Promise<ArtImage[]> {
-      if (!force && unsortedImagesMatureMode === showMature) {
+      if (!force && unsortedImagesMaturityFilter === maturity) {
         return unsortedImages.value
       }
       if (!force && unsortedImagesRequest) return unsortedImagesRequest
 
       unsortedImagesRequest = (async () => {
         try {
-          const suffix = showMature ? '?showMature=true' : ''
           const response = await performFetch<ArtImage[]>(
-            `/api/art/collection/unsorted${suffix}`,
+            `/api/art/collection/unsorted?${maturityQuery(maturity)}`,
           )
 
           if (!response.success || !Array.isArray(response.data)) {
@@ -191,7 +195,7 @@ export const useArtCollectionBrowseStore = defineStore(
           }
 
           unsortedImages.value = response.data
-          unsortedImagesMatureMode = showMature
+          unsortedImagesMaturityFilter = maturity
           if (response.data.length) artStore.addOrUpdateArtImages(response.data)
           return unsortedImages.value
         } catch (error) {
@@ -222,8 +226,8 @@ export const useArtCollectionBrowseStore = defineStore(
     }
 
     function invalidateUnsorted(): void {
-      unsortedSummaryMatureMode = null
-      unsortedImagesMatureMode = null
+      unsortedSummaryMaturityFilter = null
+      unsortedImagesMaturityFilter = null
       unsortedSummary.value = { ...EMPTY_UNSORTED_SUMMARY }
       unsortedImages.value = []
     }

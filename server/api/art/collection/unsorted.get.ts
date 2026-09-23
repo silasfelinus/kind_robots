@@ -15,7 +15,9 @@ type GalleryMaturityFilter = 'all' | 'mature' | 'safe'
 
 function readMaturityFilter(value: QueryValue): GalleryMaturityFilter {
   const raw = Array.isArray(value) ? value[0] : value
-  const normalized = String(raw ?? 'all').trim().toLowerCase()
+  const normalized = String(raw ?? 'all')
+    .trim()
+    .toLowerCase()
   if (normalized === 'mature' || normalized === 'safe') return normalized
   return 'all'
 }
@@ -32,9 +34,7 @@ export default defineEventHandler(async (event) => {
       AND: [accessWhere, maturityWhere, { ArtCollections: { none: {} } }],
     }
     const totalWhere: Prisma.ArtImageWhereInput =
-      maturity === 'all'
-        ? accessWhere
-        : { AND: [accessWhere, maturityWhere] }
+      maturity === 'all' ? accessWhere : { AND: [accessWhere, maturityWhere] }
     const summaryOnly = readBoolean(query.summary, false)
     const select = buildArtImageSelect(query)
 

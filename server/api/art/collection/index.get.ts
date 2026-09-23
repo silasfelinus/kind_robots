@@ -198,9 +198,7 @@ export default defineEventHandler(async (event) => {
         // the part that actually makes this fast: it drops the 443 archive
         // folders before any per-collection count or preview runs.
         ...(includePrivate ? [] : [{ isPublic: true }]),
-        ...(maturity === 'all'
-          ? []
-          : [{ isMature: maturity === 'mature' }]),
+        ...(maturity === 'all' ? [] : [{ isMature: maturity === 'mature' }]),
       ],
     }
 

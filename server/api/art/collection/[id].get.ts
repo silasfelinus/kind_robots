@@ -8,6 +8,7 @@ import {
   buildArtImageWhere,
   getArtImageAccessContext,
 } from '~/server/utils/artImageAccess'
+import { attachGalleryArchiveMediaPaths } from '~/server/utils/artGalleryArchiveMedia'
 
 const artImageListSelect = {
   id: true,
@@ -102,6 +103,8 @@ export default defineEventHandler(async (event) => {
         message: `Collection with ID ${collectionId} not found.`,
       })
     }
+
+    attachGalleryArchiveMediaPaths(data.ArtImages, 'medium')
 
     return {
       success: true,

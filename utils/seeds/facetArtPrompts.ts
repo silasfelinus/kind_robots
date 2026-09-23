@@ -81,7 +81,7 @@ export const CURATED_FACET_ART_PROMPTS: Record<string, string> = {
     'A war-room table where the battle map is laid out in breakfast things, one officer nudging a boiled egg forward with a ruler under a low hanging lamp.',
   // Academic Eldritch
   'academic-eldritch':
-    'An empty lecture hall after midnight, chalk diagrams crawling off the blackboard and across the ceiling, a lectern lamp still burning.',
+    'An empty lecture hall after midnight, pale green tendrils creeping out of a cracked slate blackboard and across the vaulted ceiling, a brass lectern lamp still burning over rows of empty oak benches.',
   // Alien Bureaucracy
   'alien-bureaucracy':
     'A waiting room of moulded seats shaped for six-limbed bodies, a numbered ticket glowing in its dispenser, every chair empty.',

@@ -119,7 +119,16 @@ const FILTER_BUILDERS = [
 /** Helpers whose return value additionally settles maturity. */
 const MATURITY_BUILDERS = FILTER_BUILDERS
 
-/** Per-object checks that legitimately replace a filter on the query. */
+/**
+ * Per-object checks that legitimately replace a filter on the query.
+ *
+ * verifyGalleryArchiveMedia() is a signed capability, not a live query
+ * filter: the signature is only minted after the row already passed
+ * buildArtImageWhere() in the collection API (see artGalleryArchiveMedia.ts),
+ * so a caller presenting a valid one has already cleared that same privacy
+ * and maturity rule -- it is just checked earlier, at mint time, rather than
+ * inside this route's own where clause.
+ */
 const OBJECT_CHECKS = [
   'canView',
   'canViewWithMaturity',
@@ -128,6 +137,7 @@ const OBJECT_CHECKS = [
   'effectiveShowMature',
   'isMaturityRestricted',
   'requireForumThreadRoot',
+  'verifyGalleryArchiveMedia',
 ]
 
 /** Per-object checks that settle maturity specifically. */
@@ -136,6 +146,7 @@ const MATURITY_CHECKS = [
   'maturityAllowsRow',
   'viewerShowsMature',
   'effectiveShowMature',
+  'verifyGalleryArchiveMedia',
   'isMaturityRestricted',
   'requireForumThreadRoot',
 ]
@@ -328,30 +339,38 @@ function mentions(text: string, names: string[]): boolean {
   return names.some((name) => new RegExp(`\\b${name}\\b`).test(text))
 }
 
-const unguarded: string[] = []
-const maturityOnly: string[] = []
+export type VisibilityVerdict = 'unguarded' | 'maturity-only' | 'ok' | 'skip'
 
-for (const file of walk(API)) {
-  const rel = relative(ROOT, file)
-  if (rel in ALLOWED) continue
-
-  const src = readFileSync(file, 'utf8')
+/**
+ * The per-file verdict, pulled out of the directory walk so it can be
+ * exercised directly against synthetic source in tests -- this is the part
+ * that actually decides what counts as guarded, and the part a broadened
+ * exception (like adding a name to OBJECT_CHECKS) can accidentally widen too
+ * far without a real route file to notice.
+ *
+ * `rel` only needs to look like a real repo-relative path for the `.get.ts`/
+ * `index.ts` route check; it is never used to touch the filesystem here.
+ */
+export function classifyVisibilityCoverage(
+  rel: string,
+  src: string,
+): VisibilityVerdict {
   const base = rel.split('/').pop() as string
 
   // Reads only. A mutation's authorisation is a different contract, and only
   // a file with a default export is a route at all.
   const isRoute = /export default/.test(src)
   const isRead = base.endsWith('.get.ts') || (base === 'index.ts' && isRoute)
-  if (!isRead || !isRoute) continue
+  if (!isRead || !isRoute) return 'skip'
 
   const bindings = localBindings(src)
   const found = queries(src, bindings)
-  if (!found.length) continue
+  if (!found.length) return 'skip'
 
   const adminOnly =
     /requireAdminApiUser|requireMachineUser|isServerKey/.test(src) &&
     !/getOptionalApiUser/.test(src)
-  if (adminOnly) continue
+  if (adminOnly) return 'skip'
 
   /*
    * A per-object check after the query is a legitimate alternative to a filter
@@ -414,36 +433,60 @@ for (const file of walk(API)) {
     if (!matureFiltered && !maturityCheck && !ownRows) maturityGap = true
   }
 
-  if (privacyGap) unguarded.push(rel)
-  else if (maturityGap) maturityOnly.push(rel)
+  if (privacyGap) return 'unguarded'
+  if (maturityGap) return 'maturity-only'
+  return 'ok'
 }
 
-assert.deepEqual(
-  unguarded,
-  [],
-  `Read endpoints query isPublic/isMature models with no visibility rule:\n` +
-    unguarded.map((f) => `  ${f}`).join('\n') +
-    `\n\nApply visibilityWhere() or canView(), or add the file to ALLOWED ` +
-    `with a reason about the data.`,
-)
+// Only runs the real directory walk when executed as a script -- importing
+// classifyVisibilityCoverage() for a unit test must not also re-run (and
+// assert on) the whole live repo scan as a side effect of the import.
+function main(): void {
+  const unguarded: string[] = []
+  const maturityOnly: string[] = []
 
-// The allowlist must not rot into a place to hide things.
-assert.ok(
-  Object.keys(ALLOWED).length <= 6,
-  'The visibility allowlist is growing. Each entry is an endpoint serving ' +
-    'flag-carrying models with no filter; they should be rare.',
-)
+  for (const file of walk(API)) {
+    const rel = relative(ROOT, file)
+    if (rel in ALLOWED) continue
 
-if (maturityOnly.length) {
-  console.log(
-    `\nPrivacy handled, MATURITY not (${maturityOnly.length}) -- these can ` +
-      `serve a mature row to a maturity-restricted account:`,
+    const src = readFileSync(file, 'utf8')
+    const verdict = classifyVisibilityCoverage(rel, src)
+
+    if (verdict === 'unguarded') unguarded.push(rel)
+    else if (verdict === 'maturity-only') maturityOnly.push(rel)
+  }
+
+  assert.deepEqual(
+    unguarded,
+    [],
+    `Read endpoints query isPublic/isMature models with no visibility rule:\n` +
+      unguarded.map((f) => `  ${f}`).join('\n') +
+      `\n\nApply visibilityWhere() or canView(), or add the file to ALLOWED ` +
+      `with a reason about the data.`,
   )
-  for (const file of maturityOnly) console.log(`  ${file}`)
+
+  // The allowlist must not rot into a place to hide things.
+  assert.ok(
+    Object.keys(ALLOWED).length <= 6,
+    'The visibility allowlist is growing. Each entry is an endpoint serving ' +
+      'flag-carrying models with no filter; they should be rare.',
+  )
+
+  if (maturityOnly.length) {
+    console.log(
+      `\nPrivacy handled, MATURITY not (${maturityOnly.length}) -- these can ` +
+        `serve a mature row to a maturity-restricted account:`,
+    )
+    for (const file of maturityOnly) console.log(`  ${file}`)
+  }
+
+  console.log(
+    `\nverifyContentVisibilityCoverage: ${unguarded.length} unguarded, ` +
+      `${maturityOnly.length} missing only maturity, ` +
+      `${Object.keys(ALLOWED).length} justified exceptions`,
+  )
 }
 
-console.log(
-  `\nverifyContentVisibilityCoverage: ${unguarded.length} unguarded, ` +
-    `${maturityOnly.length} missing only maturity, ` +
-    `${Object.keys(ALLOWED).length} justified exceptions`,
-)
+if (process.argv[1]?.endsWith('verifyContentVisibilityCoverage.ts')) {
+  main()
+}

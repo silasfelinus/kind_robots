@@ -9,6 +9,7 @@ import {
   readBoolean,
   type QueryValue,
 } from '~/server/utils/artImageAccess'
+import { attachGalleryArchiveMediaPaths } from '~/server/utils/artGalleryArchiveMedia'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -32,6 +33,10 @@ export default defineEventHandler(async (event) => {
         }),
       ])
 
+      if (previewArtImage) {
+        attachGalleryArchiveMediaPaths([previewArtImage], 'thumbnail')
+      }
+
       return {
         success: true,
         data: {
@@ -50,6 +55,8 @@ export default defineEventHandler(async (event) => {
       select,
       orderBy: { createdAt: 'desc' },
     })
+
+    attachGalleryArchiveMediaPaths(data, 'medium')
 
     return {
       success: true,

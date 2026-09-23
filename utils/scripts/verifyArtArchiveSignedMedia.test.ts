@@ -66,7 +66,13 @@ assert.equal(
 )
 
 // ---- nothing is accepted without a real signature ------------------------
-for (const forged of ['', 'x', sig.slice(0, -1), `${sig}x`, sig.toUpperCase()]) {
+for (const forged of [
+  '',
+  'x',
+  sig.slice(0, -1),
+  `${sig}x`,
+  sig.toUpperCase(),
+]) {
   assert.equal(
     verifyArchiveMedia(42, 'thumbnail', later, forged, NOW),
     false,
@@ -104,10 +110,12 @@ assert.notEqual(
   'the signature must actually depend on the expiry',
 )
 
-const source = readFileSync('server/utils/artArchiveSignedMedia.ts', 'utf8')
+// The HMAC now lives in ONE place, shared with the Gallery's archive route
+// (#3007) rather than implemented twice.
+const source = readFileSync('server/utils/signedMediaCapability.ts', 'utf8')
 assert.match(
   source,
-  /createHmac\('sha256', KEY_LABEL\)\.update\(base\)/,
+  /createHmac\('sha256', label\)\.update\(base\)/,
   'the key must be DERIVED from the admin token under a label, not used raw',
 )
 assert.match(
@@ -126,7 +134,11 @@ assert.match(
 resetArchiveMediaKey()
 process.env.ARCHIVE_MEDIA_SECRET = 'test-secret-for-the-contract'
 const url = archiveMediaUrl(7, 'thumbnail', NOW)
-assert.match(url, /^\/api\/admin\/art-archive\/entries\/7\/file\?/, 'route shape')
+assert.match(
+  url,
+  /^\/api\/admin\/art-archive\/entries\/7\/file\?/,
+  'route shape',
+)
 assert.match(url, /variant=thumbnail/, 'the variant must be in the URL')
 assert.match(url, /[?&]exp=\d+/, 'the expiry must be in the URL')
 assert.match(url, /[?&]sig=[A-Za-z0-9_-]+/, 'the signature must be in the URL')
@@ -156,10 +168,56 @@ assert.match(
   'an unsigned request must still fall back to the admin guard',
 )
 
+// ---- ONE implementation, TWO key domains ---------------------------------
+// The duplicate primitive is the finding this consolidation answers; the
+// separate labels are the part that must NOT be consolidated away.
+for (const file of [
+  'server/utils/artArchiveSignedMedia.ts',
+  'server/utils/artGalleryArchiveMedia.ts',
+]) {
+  const domain = readFileSync(file, 'utf8')
+  assert.doesNotMatch(
+    domain,
+    /createHmac|timingSafeEqual|randomBytes/,
+    `${file} must not re-implement the crypto -- one primitive, reviewed once`,
+  )
+  assert.match(
+    domain,
+    /deriveMediaSigningKey\(KEY_LABEL\)/,
+    `${file} must derive its key under its OWN label`,
+  )
+}
+
+const archiveLabel = /KEY_LABEL = '([^']+)'/.exec(
+  readFileSync('server/utils/artArchiveSignedMedia.ts', 'utf8'),
+)?.[1]
+const galleryLabel = /KEY_LABEL = '([^']+)'/.exec(
+  readFileSync('server/utils/artGalleryArchiveMedia.ts', 'utf8'),
+)?.[1]
+assert.ok(archiveLabel && galleryLabel, 'both domains must name a key label')
+assert.notEqual(
+  archiveLabel,
+  galleryLabel,
+  'the labels must DIFFER: the Gallery gate is owner visibility over an ' +
+    'ArtImage and this one is admin+mature over an ArchiveEntry, so a ' +
+    'signature for one must not be replayable against the other',
+)
+
+// ---- a caller-chosen expiry is bounded -----------------------------------
+// Adopted from #3007, which had this and the archive side did not.
+assert.equal(
+  verifyArchiveMedia(42, 'thumbnail', NOW + SIGNED_MEDIA_TTL_MS * 10, sig, NOW),
+  false,
+  'an expiry beyond the domain TTL must be refused even before the signature',
+)
+
 console.log(
   'Art Archive signed-media contract verified: a signature is bound to its ' +
     'entry, its variant and its expiry, expires, refuses forgeries and ' +
     'non-strings in constant time, derives its key from the admin token ' +
     'rather than using it raw, fails safe when unconfigured, and the byte ' +
-    'route still falls back to the admin guard when no signature is present.',
+    'route still falls back to the admin guard when no signature is present, ' +
+    'the HMAC is implemented once rather than per route, and the two ' +
+    'capability domains keep separate key labels so neither replays as the ' +
+    'other.',
 )

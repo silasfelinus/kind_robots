@@ -52,6 +52,21 @@
           {{ option.label }}
         </button>
       </div>
+
+      <label
+        v-if="showGalleryFilters"
+        class="flex shrink-0 cursor-pointer items-center gap-2 rounded-lg border border-error/30 bg-base-100 px-2 py-1"
+        title="Arm one-click delete buttons on gallery images"
+      >
+        <Icon name="kind-icon:trash" class="kr-icon-3-5 text-error" />
+        <span class="kr-text-dim-xs-70 font-bold">Confirm delete</span>
+        <input
+          v-model="deleteMode"
+          type="checkbox"
+          class="kr-toggle-error-xs"
+          aria-label="Confirm delete mode"
+        />
+      </label>
     </nav>
 
     <art-manager class="min-h-0 flex-1" />
@@ -85,12 +100,17 @@ const maturityFilter = computed<GalleryMaturityFilter>({
   get: () => browseStore.galleryMaturityFilter,
   set: (value) => browseStore.setGalleryMaturityFilter(value),
 })
+const deleteMode = computed<boolean>({
+  get: () => browseStore.galleryDeleteMode,
+  set: (value) => browseStore.setGalleryDeleteMode(value),
+})
 const showGalleryFilters = computed(
   () =>
     activeTab.value === 'gallery' && browseStore.galleryPrivacyFilter !== null,
 )
 
 function selectPrimaryTab(tab: ArtPrimaryTab): void {
+  if (tab !== 'gallery') browseStore.setGalleryDeleteMode(false)
   navStore.setDashboardTab('art', tab, 'art studio primary navigation')
 }
 </script>

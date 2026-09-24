@@ -603,7 +603,7 @@ export const useArtStore = defineStore('artStore', () => {
         serverStore.hasLoaded
           ? Promise.resolve()
           : serverStore.initialize({ fetchRemote: true }),
-        ensureCollectionsReady(),
+        ensureGenerationCollectionsReady(),
       ])
       if (!state.artForm.userId) {
         setArtForm({
@@ -1811,8 +1811,22 @@ export const useArtStore = defineStore('artStore', () => {
 
   async function ensureCollectionsReady(): Promise<void> {
     const collectionStore = getCollectionStore()
-    if (collectionStore.collections?.length) return
+    if (collectionStore.hasFetchedFull) return
     await collectionStore.fetchCollections?.()
+  }
+
+  async function ensureGenerationCollectionsReady(): Promise<void> {
+    const collectionStore = getCollectionStore()
+
+    // The Destination picker needs collection ids and labels, not 200k+ image
+    // rows, per-collection counts, or previews. Force this lightweight index so
+    // a prior Gallery scope (public/private/maturity) cannot leak into the
+    // generator's destination choices.
+    await collectionStore.fetchCollections?.(true, {
+      summary: true,
+      includeImages: false,
+      counts: false,
+    })
   }
 
   function buildGenerateArtData(artData?: GenerateArtData): GenerateArtData {

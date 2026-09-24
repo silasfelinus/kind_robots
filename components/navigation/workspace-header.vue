@@ -290,6 +290,25 @@
       </NuxtLink>
 
       <!--
+        ART STUDIO. Kept one click away beside the ArtJob queue and Memory
+        Dungeon. The image icon matches the Art page's own Play-channel icon.
+      -->
+      <NuxtLink
+        to="/art"
+        class="btn btn-ghost btn-sm btn-square shrink-0 rounded-xl border border-base-300"
+        :class="
+          artActive
+            ? 'border-primary bg-primary/15 text-primary'
+            : 'bg-base-100'
+        "
+        :aria-current="artActive ? 'page' : undefined"
+        aria-label="Art"
+        title="Art"
+      >
+        <Icon name="kind-icon:image" class="kr-icon-5" />
+      </NuxtLink>
+
+      <!--
         MEMORY DUNGEON. Silas, 2026-09-08: "I'm really proud of my memory match
         game, it was one of my first projects and still one that I occasionally
         return to. I want a link for it on the dashboard next to the tutorial
@@ -307,21 +326,6 @@
         tab, which uses kind-icon:castle); this is a shortcut to it, not a
         replacement.
       -->
-      <NuxtLink
-        to="/art"
-        class="btn btn-ghost btn-sm btn-square shrink-0 rounded-xl border border-base-300"
-        :class="
-          artActive
-            ? 'border-primary bg-primary/15 text-primary'
-            : 'bg-base-100'
-        "
-        :aria-current="artActive ? 'page' : undefined"
-        aria-label="Art"
-        title="Art"
-      >
-        <Icon name="kind-icon:palette" class="kr-icon-5" />
-      </NuxtLink>
-
       <NuxtLink
         to="/play/memory"
         class="btn btn-ghost btn-sm btn-square shrink-0 rounded-xl border border-base-300"

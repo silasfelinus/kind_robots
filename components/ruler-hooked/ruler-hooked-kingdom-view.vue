@@ -156,6 +156,7 @@ const realmSummary = computed(() => {
   return `${strongest.value.key} is your strongest front; ${weakest.value.key} is the pressure point people feel most.`
 })
 
+// Keep the review compact: the full cast remains in the bundle for encounters.
 const populace = computed(() =>
   props.bundle.characters
     .filter((person) => person.slug !== props.save.ruler.characterSlug)

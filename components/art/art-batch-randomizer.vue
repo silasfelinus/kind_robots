@@ -229,5 +229,4 @@ function insertPlaceholder(placeholder: string): void {
   const next = token(placeholder)
   promptStore.promptField = current ? `${current} ${next}` : next
 }
-
 </script>

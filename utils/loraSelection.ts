@@ -109,9 +109,12 @@ export function artLoraCompatibilityRank(
   }
 
   if (engine === 'kontext') {
+    if (/\bFLUX[\s._-]*2\b/.test(normalizedGeneration(resource))) return 0
     if (server === 'KONTEXT') return 30
-    if (server === 'FLUX') return 20
-    if (server === 'GENERIC') return 10
+    if (normalizedGeneration(resource).includes('KONTEXT')) {
+      if (server === 'FLUX') return 20
+      if (server === 'GENERIC') return 10
+    }
     return 0
   }
 

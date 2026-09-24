@@ -76,6 +76,7 @@ export const useArtCollectionBrowseStore = defineStore(
     // private before either archive is queried.
     const galleryMaturityFilter = ref<GalleryMaturityFilter>('safe')
     const galleryPrivacyFilter = ref<GalleryPrivacyFilter | null>(null)
+    const galleryDeleteMode = ref(false)
 
     const loadedCollectionIds = new Set<number>()
     const collectionRequests = new Map<
@@ -338,6 +339,10 @@ export const useArtCollectionBrowseStore = defineStore(
       galleryPrivacyFilter.value = value
     }
 
+    function setGalleryDeleteMode(value: boolean): void {
+      galleryDeleteMode.value = value
+    }
+
     return {
       collectionDetails,
       collectionSummaries,
@@ -346,6 +351,7 @@ export const useArtCollectionBrowseStore = defineStore(
       unsortedImages,
       galleryMaturityFilter,
       galleryPrivacyFilter,
+      galleryDeleteMode,
       fetchCollectionDetail,
       fetchCollectionSummary,
       fetchUnsortedSummary,
@@ -355,6 +361,7 @@ export const useArtCollectionBrowseStore = defineStore(
       invalidateAll,
       setGalleryMaturityFilter,
       setGalleryPrivacyFilter,
+      setGalleryDeleteMode,
     }
   },
 )

@@ -35,7 +35,7 @@ const ROUTES: { file: string; mutations: RegExp[] }[] = [
   { file: 'rate.patch.ts', mutations: [/prisma\.archiveEntry\.update\(/] },
   {
     file: 'quarantine.post.ts',
-    mutations: [/tx\.archiveEntry\.update\(/, /prisma\.\$transaction\(/],
+    mutations: [/quarantineArchiveEntry\(/],
   },
   {
     file: 'restore.post.ts',
@@ -45,6 +45,25 @@ const ROUTES: { file: string; mutations: RegExp[] }[] = [
   { file: 'needs-review.post.ts', mutations: [/prisma\.archiveEntry\.update\(/] },
   { file: 'enqueue.post.ts', mutations: [/prisma\.artJob\.create\(/] },
 ]
+
+const quarantineHelper = stripComments(
+  readFileSync(
+    join(process.cwd(), 'server/utils/artArchiveQuarantine.ts'),
+    'utf8',
+  ),
+)
+for (const token of [
+  'quarantineConfinedArchiveFile',
+  'tx.archiveEntry.update(',
+  'tx.artImage.update(',
+  'preQuarantineRelativePath',
+  'isActive: false',
+]) {
+  assert.ok(
+    quarantineHelper.includes(token),
+    `artArchiveQuarantine.ts must preserve the shared quarantine invariant: ${token}`,
+  )
+}
 
 for (const { file, mutations } of ROUTES) {
   const source = read(file)

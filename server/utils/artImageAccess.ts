@@ -128,7 +128,7 @@ export function buildArtImageWhere({
       : { isMature: false }
 
   return {
-    AND: [visibilityWhere, matureWhere],
+    AND: [{ isActive: true }, visibilityWhere, matureWhere],
   }
 }
 

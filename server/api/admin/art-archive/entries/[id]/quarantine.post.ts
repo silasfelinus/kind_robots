@@ -12,9 +12,7 @@ import { createError, defineEventHandler, getRouterParam } from 'h3'
 import prisma from '~/server/utils/prisma'
 import { errorHandler } from '~/server/utils/error'
 import { requireAdminApiUser } from '~/server/utils/authGuard'
-import { getArtArchiveRoot } from '~/server/utils/artArchiveRoot'
-import { quarantineConfinedArchiveFile } from '~/server/utils/artArchiveFileOps'
-import { realpath } from 'node:fs/promises'
+import { quarantineArchiveEntry } from '~/server/utils/artArchiveQuarantine'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -29,44 +27,14 @@ export default defineEventHandler(async (event) => {
       select: { id: true, relativePath: true, artImageId: true, isActive: true, processState: true },
     })
     if (!entry) throw createError({ statusCode: 404, message: `Archive entry #${id} not found.` })
-    if (!entry.isActive) {
-      return {
-        success: true,
-        message: `Archive entry #${id} was already quarantined.`,
-        data: { alreadyQuarantined: true },
-        statusCode: 200,
-      }
-    }
-
-    const resolvedRoot = await realpath(getArtArchiveRoot())
-    const trashRelativePath =
-      entry.processState === 'MISSING'
-        ? null // the file is already gone from the filesystem -- nothing to relocate
-        : await quarantineConfinedArchiveFile(resolvedRoot, entry.id, entry.relativePath)
-
-    await prisma.$transaction(async (tx) => {
-      await tx.archiveEntry.update({
-        where: { id },
-        data: {
-          isActive: false,
-          // Record where the file used to live so a later restore
-          // (art-archive/t-012) can move it back -- only meaningful when a
-          // relocation actually happened; a MISSING entry's relativePath is
-          // left as-is, so there is nothing to restore to.
-          ...(trashRelativePath
-            ? { relativePath: trashRelativePath, preQuarantineRelativePath: entry.relativePath }
-            : {}),
-        },
-      })
-      if (entry.artImageId) {
-        await tx.artImage.update({ where: { id: entry.artImageId }, data: { isActive: false } })
-      }
-    })
+    const result = await quarantineArchiveEntry(entry)
 
     return {
       success: true,
-      message: `Archive entry #${id} quarantined${trashRelativePath ? ` to ${trashRelativePath}` : ''}.`,
-      data: { alreadyQuarantined: false, trashRelativePath },
+      message: result.alreadyQuarantined
+        ? `Archive entry #${id} was already quarantined.`
+        : `Archive entry #${id} quarantined${result.trashRelativePath ? ` to ${result.trashRelativePath}` : ''}.`,
+      data: result,
       statusCode: 200,
     }
   } catch (error: unknown) {

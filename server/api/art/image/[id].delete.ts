@@ -3,6 +3,7 @@ import { defineEventHandler, createError, type H3Event } from 'h3'
 import prisma from '../../../utils/prisma'
 import { errorHandler } from '../../../utils/error'
 import { requireMachineUser } from '../../../utils/authGuard'
+import { quarantineArchiveEntry } from '../../../utils/artArchiveQuarantine'
 
 type DeleteUser = {
   id: number
@@ -56,6 +57,42 @@ export default defineEventHandler(async (event) => {
         statusCode: 403,
         message: 'You do not have permission to delete this art image.',
       })
+    }
+
+    const archiveEntry = await prisma.archiveEntry.findFirst({
+      where: {
+        artImageId: imageId,
+        isActive: true,
+      },
+      select: {
+        id: true,
+        relativePath: true,
+        artImageId: true,
+        isActive: true,
+        processState: true,
+      },
+    })
+
+    if (archiveEntry) {
+      if (!user.isAdmin) {
+        throw createError({
+          statusCode: 403,
+          message: 'Only an admin can delete an imported archive image.',
+        })
+      }
+
+      const result = await quarantineArchiveEntry(archiveEntry)
+      event.node.res.statusCode = 200
+
+      return {
+        success: true,
+        message: `Art image ${imageId} moved to recoverable archive trash.`,
+        data: {
+          archiveEntryId: archiveEntry.id,
+          ...result,
+        },
+        statusCode: 200,
+      }
     }
 
     await prisma.artImage.delete({

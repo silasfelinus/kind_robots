@@ -74,7 +74,10 @@ assert.equal(ART_ENGINE_PROFILES.flux2.supports.sourceImage, 'optional')
 assert.equal(ART_ENGINE_PROFILES.flux2.supports.sourceImageStrength, false)
 assert.equal(ART_ENGINE_PROFILES.kontext.supports.sourceImage, 'required')
 assert.equal(ART_ENGINE_PROFILES.comfy.supports.sourceImage, 'optional')
-assert.equal(ART_ENGINE_PROFILES['sdxl-img2img'].supports.sourceImage, 'required')
+assert.equal(
+  ART_ENGINE_PROFILES['sdxl-img2img'].supports.sourceImage,
+  'required',
+)
 assert.equal(ART_ENGINE_PROFILES['sdxl-img2img'].supports.size, false)
 assert.equal(preset('kontext-edit').engine, 'kontext')
 assert.equal(preset('sdxl-distilled').engine, 'comfy')
@@ -105,7 +108,9 @@ const flux2WorkflowSource = readFileSync(
   'server/api/comfy/flux2/utils/workflow.ts',
   'utf8',
 )
-assert.ok(flux2WorkflowSource.includes('buildFlux2KleinEditWorkflowFromRequest'))
+assert.ok(
+  flux2WorkflowSource.includes('buildFlux2KleinEditWorkflowFromRequest'),
+)
 assert.ok(flux2WorkflowSource.includes("class_type: 'ReferenceLatent'"))
 assert.ok(flux2WorkflowSource.includes("class_type: 'EmptyFlux2LatentImage'"))
 assert.ok(flux2WorkflowSource.includes("class_type: 'Flux2Scheduler'"))
@@ -406,8 +411,12 @@ assert.ok(
   !enqueue.includes("from '../../utils/artGeneratorPresets'"),
   'the enqueue API must not import product preset policy',
 )
-assert.ok(enqueue.includes("normalizeArtSourceImage(body.sourceImageBase64, 'flux1')"))
-assert.ok(enqueue.includes("normalizeArtSourceImage(body.sourceImageBase64, 'flux2')"))
+assert.ok(
+  enqueue.includes("normalizeArtSourceImage(body.sourceImageBase64, 'flux1')"),
+)
+assert.ok(
+  enqueue.includes("normalizeArtSourceImage(body.sourceImageBase64, 'flux2')"),
+)
 assert.ok(enqueue.includes('buildFlux2KleinEditWorkflowFromRequest'))
 assert.ok(enqueue.includes("'kontext_queue'"))
 assert.ok(enqueue.includes('originalWeight: body.originalWeight ?? null'))

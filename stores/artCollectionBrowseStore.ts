@@ -72,10 +72,10 @@ export const useArtCollectionBrowseStore = defineStore(
     const unsortedImages = ref<ArtImage[]>([])
     // Gallery UI state lives here rather than in art-gallery.vue so the
     // top-level /art toolbar can control the same filters the lazy gallery
-    // fetches use. Privacy starts unresolved: user #1 must choose public or
-    // private before either archive is queried.
+    // fetches use. The ordinary Gallery is public by default; admins can
+    // switch explicitly to the separate private gallery.
     const galleryMaturityFilter = ref<GalleryMaturityFilter>('safe')
-    const galleryPrivacyFilter = ref<GalleryPrivacyFilter | null>(null)
+    const galleryPrivacyFilter = ref<GalleryPrivacyFilter>('public')
     const galleryDeleteMode = ref(false)
 
     const loadedCollectionIds = new Set<number>()
@@ -335,7 +335,7 @@ export const useArtCollectionBrowseStore = defineStore(
       galleryMaturityFilter.value = value
     }
 
-    function setGalleryPrivacyFilter(value: GalleryPrivacyFilter | null): void {
+    function setGalleryPrivacyFilter(value: GalleryPrivacyFilter): void {
       galleryPrivacyFilter.value = value
     }
 

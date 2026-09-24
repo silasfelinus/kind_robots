@@ -32,6 +32,8 @@ const viewport = read('utils/viewportHydration.ts')
 const artPlate = read('components/narrative/kr-art-plate.vue')
 const facets = read('components/facets/facet-gallery.vue')
 const artGallery = read('components/art/art-gallery.vue')
+const artManager = read('components/art/art-manager.vue')
+const artStore = read('stores/artStore.ts')
 const collectionCard = read('components/art/collection-card.vue')
 const browseStore = read('stores/artCollectionBrowseStore.ts')
 const unsortedRoute = read('server/api/art/collection/unsorted.get.ts')
@@ -196,6 +198,29 @@ forbidText(
   'fetchAllArtImages(',
   'art gallery first-layer collection browsing must not load the complete art index',
 )
+requireText(
+  artManager,
+  "activeTab.value !== 'generate'",
+  'Art Generate must render outside the manager-wide remote hydration gate',
+)
+for (const token of [
+  'async function ensureGenerationCollectionsReady()',
+  'summary: true',
+  'includeImages: false',
+  'counts: false',
+  'ensureGenerationCollectionsReady(),',
+]) {
+  requireText(
+    artStore,
+    token,
+    `Art Generate must load only lightweight destination collection metadata: ${token}`,
+  )
+}
+requireText(
+  artStore,
+  'if (collectionStore.hasFetchedFull) return',
+  'full collection consumers must distinguish a lightweight generator summary from a full collection load',
+)
 for (const token of ['summary: true', 'includeImages: true', 'imageLimit: 1']) {
   requireText(
     artGallery,
@@ -346,5 +371,5 @@ if (failures.length) {
 }
 
 console.log(
-  'ok - galleries render full lightweight indexes; Art Gallery is DB-collection-first; queued, direct, entity-context, and Daily Dream generation preserve canonical collection membership',
+  'ok - galleries and Art Generate render from lightweight indexes first; Art Gallery is DB-collection-first; queued, direct, entity-context, and Daily Dream generation preserve canonical collection membership',
 )

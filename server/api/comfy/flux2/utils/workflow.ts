@@ -79,7 +79,9 @@ export function buildFlux2KleinEditWorkflowFromRequest(input: {
   loras?: LoraSelectionInput[] | null
 }): { workflow: ComfyWorkflow; seed: number } {
   const seed =
-    typeof input.seed === 'number' && Number.isFinite(input.seed) && input.seed >= 0
+    typeof input.seed === 'number' &&
+    Number.isFinite(input.seed) &&
+    input.seed >= 0
       ? Math.floor(input.seed)
       : Math.floor(Math.random() * 2_147_483_647)
   const prompt = flux2Prompt(input)

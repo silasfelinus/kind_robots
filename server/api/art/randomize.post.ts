@@ -38,6 +38,7 @@ const CHECKPOINT_FAMILIES: CheckpointFamily[] = [
   'sdxl',
   'sdxl-distilled',
   'pony',
+  'illustrious',
   'sd15',
   'archive',
   'unknown',

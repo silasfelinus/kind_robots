@@ -874,6 +874,15 @@ watch(maturityFilter, async () => {
   await reloadGalleryForVisibility()
 })
 
+watch(galleryScope, async () => {
+  if (!galleryReady.value) return
+  activeGroupKey.value = null
+  searchQuery.value = ''
+  selectedImageForOverlay.value = null
+  selectedImageIds.value = []
+  await reloadGalleryForVisibility()
+})
+
 async function initializeGalleryForViewer(): Promise<void> {
   galleryReady.value = false
 

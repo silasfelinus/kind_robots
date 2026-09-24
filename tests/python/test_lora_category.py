@@ -40,6 +40,19 @@ def test_civitai_tag_wins_over_filename():
     assert scan_loras.classify_category(row) == ("ACTION", "CIVITAI")
 
 
+def test_specific_purpose_tag_wins_over_character_umbrella():
+    action = entry(
+        name="dynamic_pose_pack.safetensors",
+        civitai_tags=["character", "poses"],
+    )
+    style = entry(
+        name="ink_artist.safetensors",
+        civitai_tags=["character", "style"],
+    )
+    assert scan_loras.classify_category(action) == ("ACTION", "CIVITAI")
+    assert scan_loras.classify_category(style) == ("STYLE", "CIVITAI")
+
+
 def test_filename_heuristic_when_no_tags():
     row = entry(name="victorian_outfit_v3.safetensors")
     assert scan_loras.classify_category(row) == ("CLOTHING", "HEURISTIC")

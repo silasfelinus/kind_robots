@@ -15,7 +15,10 @@ import {
 import { buildFluxWorkflowFromRequest } from '../comfy/flux/utils/workflow'
 import { buildKrea2WorkflowFromRequest } from '../comfy/krea2/utils/workflow'
 import { extractWorkflowPrompt } from '../comfy/utils/engineWorkflow'
-import { buildFlux2KleinWorkflowFromRequest } from '../comfy/flux2/utils/workflow'
+import {
+  buildFlux2KleinEditWorkflowFromRequest,
+  buildFlux2KleinWorkflowFromRequest,
+} from '../comfy/flux2/utils/workflow'
 import { buildZImageWorkflowFromRequest } from '../comfy/zimage/utils/workflow'
 import {
   buildKontextWorkflow,
@@ -727,6 +730,7 @@ function buildJobPayload(
   }
 
   if (engine === 'flux') {
+    const source = normalizeArtSourceImage(body.sourceImageBase64, 'flux1')
     const { workflow } = buildFluxWorkflowFromRequest({
       variant: body.variant ?? null,
       // Was omitted, so every Flux job silently rendered base flux1-dev with
@@ -744,8 +748,17 @@ function buildJobPayload(
       sampler: body.sampler ?? null,
       scheduler: body.scheduler ?? null,
       denoise: body.denoise ?? null,
+      imageName: source?.name ?? null,
     })
-    return { jobEngine: 'COMFY', payload: { workflow, promptString, save } }
+    return {
+      jobEngine: 'COMFY',
+      payload: {
+        workflow,
+        promptString,
+        ...(source ? { images: [source] } : {}),
+        save,
+      },
+    }
   }
 
   if (engine === 'zimage') {
@@ -788,42 +801,58 @@ function buildJobPayload(
   }
 
   if (engine === 'flux2') {
-    const { workflow } = buildFlux2KleinWorkflowFromRequest({
-      prompt: promptString,
-      jsonPrompt: body.jsonPrompt ?? null,
-      negativePrompt: body.negativePrompt ?? null,
-      width: body.width ?? null,
-      height: body.height ?? null,
-      steps: body.steps ?? null,
-      cfg: body.cfg ?? null,
-      seed: body.seed ?? null,
-      sampler: body.sampler ?? null,
-      scheduler: body.scheduler ?? null,
-      denoise: body.denoise ?? null,
-      loraName: body.loraName ?? null,
-      loraStrength: body.loraStrength ?? null,
-      loras: body.loras ?? null,
-    })
-    return { jobEngine: 'COMFY', payload: { workflow, promptString, save } }
+    const source = normalizeArtSourceImage(body.sourceImageBase64, 'flux2')
+    const { workflow } = source
+      ? buildFlux2KleinEditWorkflowFromRequest({
+          prompt: promptString,
+          jsonPrompt: body.jsonPrompt ?? null,
+          negativePrompt: body.negativePrompt ?? null,
+          imageName: source.name,
+          steps: body.steps ?? null,
+          cfg: body.cfg ?? null,
+          seed: body.seed ?? null,
+          sampler: body.sampler ?? null,
+          loraName: body.loraName ?? null,
+          loraStrength: body.loraStrength ?? null,
+          loras: body.loras ?? null,
+        })
+      : buildFlux2KleinWorkflowFromRequest({
+          prompt: promptString,
+          jsonPrompt: body.jsonPrompt ?? null,
+          negativePrompt: body.negativePrompt ?? null,
+          width: body.width ?? null,
+          height: body.height ?? null,
+          steps: body.steps ?? null,
+          cfg: body.cfg ?? null,
+          seed: body.seed ?? null,
+          sampler: body.sampler ?? null,
+          scheduler: body.scheduler ?? null,
+          denoise: body.denoise ?? null,
+          loraName: body.loraName ?? null,
+          loraStrength: body.loraStrength ?? null,
+          loras: body.loras ?? null,
+        })
+    return {
+      jobEngine: 'COMFY',
+      payload: {
+        workflow,
+        promptString,
+        ...(source ? { images: [source] } : {}),
+        save,
+      },
+    }
   }
 
   if (engine === 'sdxl-img2img') {
-    const imageData = body.sourceImageBase64?.trim()
-    if (!imageData) {
-      throw createError({
-        statusCode: 400,
-        message: 'SDXL img2img restyle requires "sourceImageBase64".',
-      })
-    }
-    const normalizedImageData = imageData.startsWith('data:image/')
-      ? imageData
-      : `data:image/png;base64,${imageData}`
-    const extension = getKontextImageExtension(normalizedImageData)
-    const imageName = `kr_sdxl_restyle_${crypto.randomUUID()}.${extension}`
+    const source = normalizeArtSourceImage(
+      body.sourceImageBase64,
+      'sdxl_restyle',
+      true,
+    )
     const { workflow } = buildSdxlImg2ImgWorkflow({
       prompt: promptString,
       negativePrompt: body.negativePrompt ?? null,
-      imageName,
+      imageName: source!.name,
       checkpoint: body.checkpoint ?? null,
       cfgValue: body.cfg ?? null,
       steps: body.steps ?? null,
@@ -841,28 +870,21 @@ function buildJobPayload(
       payload: {
         workflow,
         promptString,
-        images: [{ name: imageName, imageData: normalizedImageData }],
+        images: [source!],
         save,
       },
     }
   }
 
   if (engine === 'kontext') {
-    const imageData = body.sourceImageBase64?.trim()
-    if (!imageData) {
-      throw createError({
-        statusCode: 400,
-        message: 'Kontext generation requires "sourceImageBase64".',
-      })
-    }
-    const normalizedImageData = imageData.startsWith('data:image/')
-      ? imageData
-      : `data:image/png;base64,${imageData}`
-    const extension = getKontextImageExtension(normalizedImageData)
-    const imageName = `kr_kontext_queue_${crypto.randomUUID()}.${extension}`
+    const source = normalizeArtSourceImage(
+      body.sourceImageBase64,
+      'kontext_queue',
+      true,
+    )
     const workflow = buildKontextWorkflow({
       prompt: promptString,
-      imageName,
+      imageName: source!.name,
       width: body.width ?? null,
       height: body.height ?? null,
       steps: body.steps ?? null,
@@ -871,6 +893,7 @@ function buildJobPayload(
       sampler: body.sampler ?? null,
       scheduler: body.scheduler ?? null,
       denoise: body.denoise ?? null,
+      originalWeight: body.originalWeight ?? null,
       loraName: body.loraName ?? null,
       loraStrength: body.loraStrength ?? null,
       loras: body.loras ?? null,
@@ -886,7 +909,7 @@ function buildJobPayload(
       payload: {
         workflow,
         promptString,
-        images: [{ name: imageName, imageData: normalizedImageData }],
+        images: [source!],
         save,
       },
     }
@@ -913,6 +936,32 @@ function buildJobPayload(
     height: body.height ?? null,
   })
   return { jobEngine: 'COMFY', payload: { workflow, promptString, save } }
+}
+
+function normalizeArtSourceImage(
+  raw: string | null | undefined,
+  prefix: string,
+  required = false,
+): QueuedImage | null {
+  const trimmed = String(raw || '').trim()
+  if (!trimmed) {
+    if (required) {
+      throw createError({
+        statusCode: 400,
+        message: 'This image-generation mode requires "sourceImageBase64".',
+      })
+    }
+    return null
+  }
+
+  const normalized = trimmed.startsWith('data:image/')
+    ? trimmed
+    : `data:image/png;base64,${trimmed}`
+  const extension = getKontextImageExtension(normalized)
+  return {
+    name: `kr_${prefix}_${crypto.randomUUID()}.${extension}`,
+    imageData: normalized,
+  }
 }
 
 function normalizeVideoImage(raw: string, slot: 'first' | 'last'): QueuedImage {

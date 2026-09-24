@@ -62,16 +62,24 @@ assert.deepEqual(
 )
 assert.deepEqual(artDimensionOptions('sdxl-img2img', 'sdxl'), [])
 
-// A source image is an optional operation on the named-checkpoint recipes, not
-// a separate quality recipe. The selected recipe still owns steps/cfg/sampler;
-// the generator switches only the queued engine when an image is attached.
+// Source-image support is a capability of a recipe, not a separate SDXL button.
 assert.equal(
   ART_GENERATOR_PRESETS.some((entry) => entry.engine === 'sdxl-img2img'),
   false,
 )
+assert.equal(ART_ENGINE_PROFILES.krea2.supports.sourceImage, 'none')
+assert.equal(ART_ENGINE_PROFILES.flux.supports.sourceImage, 'optional')
+assert.equal(ART_ENGINE_PROFILES.flux.supports.sourceImageStrength, true)
+assert.equal(ART_ENGINE_PROFILES.flux2.supports.sourceImage, 'optional')
+assert.equal(ART_ENGINE_PROFILES.flux2.supports.sourceImageStrength, false)
+assert.equal(ART_ENGINE_PROFILES.kontext.supports.sourceImage, 'required')
+assert.equal(ART_ENGINE_PROFILES.comfy.supports.sourceImage, 'optional')
+assert.equal(
+  ART_ENGINE_PROFILES['sdxl-img2img'].supports.sourceImage,
+  'required',
+)
 assert.equal(ART_ENGINE_PROFILES['sdxl-img2img'].supports.size, false)
-assert.equal(ART_ENGINE_PROFILES['sdxl-img2img'].supports.checkpoint, true)
-assert.equal(ART_ENGINE_PROFILES['sdxl-img2img'].supports.lora, true)
+assert.equal(preset('kontext-edit').engine, 'kontext')
 assert.equal(preset('sdxl-distilled').engine, 'comfy')
 assert.equal(preset('sdxl-standard').engine, 'comfy')
 
@@ -79,17 +87,33 @@ const generatorSource = readFileSync('components/art/art-generator.vue', 'utf8')
 assert.ok(generatorSource.includes('type="file"'))
 assert.ok(generatorSource.includes('accept="image/*"'))
 assert.ok(generatorSource.includes('blobToDataUri'))
-assert.ok(
-  generatorSource.includes(
-    "usesSourceImage.value ? 'sdxl-img2img' : activePreset.value.engine",
-  ),
-)
+assert.ok(generatorSource.includes('activeProfile.value.supports.sourceImage'))
+assert.ok(generatorSource.includes("sourceImageSupport.value === 'required'"))
+assert.ok(generatorSource.includes("activePreset.value.engine === 'comfy'"))
+assert.ok(generatorSource.includes("'sdxl-img2img'"))
 assert.ok(generatorSource.includes(':engine="generationEngine"'))
-assert.ok(
-  generatorSource.includes('activeProfile.supports.size && !usesSourceImage'),
-)
+assert.ok(generatorSource.includes('sourceImageOwnsSize'))
 assert.ok(!generatorSource.includes('IMAGE_TO_IMAGE_PRESET_ID'))
 assert.ok(!generatorSource.includes('sdxl-from-image'))
+
+const fluxWorkflowSource = readFileSync(
+  'server/api/comfy/flux/utils/workflow.ts',
+  'utf8',
+)
+assert.ok(fluxWorkflowSource.includes("class_type: 'LoadImage'"))
+assert.ok(fluxWorkflowSource.includes("class_type: 'VAEEncode'"))
+assert.ok(fluxWorkflowSource.includes("sourceImageName ? ['61', 0] : ['6', 0]"))
+
+const flux2WorkflowSource = readFileSync(
+  'server/api/comfy/flux2/utils/workflow.ts',
+  'utf8',
+)
+assert.ok(
+  flux2WorkflowSource.includes('buildFlux2KleinEditWorkflowFromRequest'),
+)
+assert.ok(flux2WorkflowSource.includes("class_type: 'ReferenceLatent'"))
+assert.ok(flux2WorkflowSource.includes("class_type: 'EmptyFlux2LatentImage'"))
+assert.ok(flux2WorkflowSource.includes("class_type: 'Flux2Scheduler'"))
 
 assert.deepEqual(
   {
@@ -194,6 +218,21 @@ assert.equal(flux2LoraCompatibilityRank(genericFlux2Lora), 10)
 assert.equal(artLoraCompatibilityRank(fluxLora, 'flux2'), 0)
 assert.equal(artLoraCompatibilityRank(kontextLora, 'flux2'), 0)
 assert.equal(artLoraCompatibilityRank(flux2Lora, 'flux2'), 30)
+
+assert.equal(artLoraCompatibilityRank(kontextLora, 'kontext'), 30)
+assert.equal(artLoraCompatibilityRank(fluxLora, 'kontext'), 0)
+assert.equal(artLoraCompatibilityRank(flux2Lora, 'kontext'), 0)
+assert.equal(
+  artLoraCompatibilityRank(
+    {
+      id: 16,
+      generation: 'Flux.1 Kontext',
+      supportedServer: 'FLUX',
+    },
+    'kontext',
+  ),
+  20,
+)
 
 // SDXL image-to-image uses the same Resource classes as its server resolver.
 // It must offer SDXL/Comfy/generic LoRAs instead of presenting an empty picker.
@@ -324,6 +363,30 @@ assert.equal(
   presetForCheckpoint({ name: 'plainSDXL.safetensors', generation: 'SDXL' }).id,
   'sdxl-standard',
 )
+assert.equal(
+  detectCheckpointFamily({
+    name: 'illustrij_v21.safetensors',
+    localPath: 'Illustrious/illustrij_v21.safetensors',
+    generation: 'ARCHIVE',
+  }),
+  'illustrious',
+)
+assert.equal(
+  presetForCheckpoint({
+    name: 'illustrij_v21.safetensors',
+    localPath: 'Illustrious/illustrij_v21.safetensors',
+    generation: 'ARCHIVE',
+  }).id,
+  'sdxl-standard',
+)
+assert.equal(
+  detectCheckpointFamily({
+    name: 'duchaitenStylelikeme_v15.safetensors',
+    localPath: 'SD15/duchaitenStylelikeme_v15.safetensors',
+    generation: 'SDXL',
+  }),
+  'sd15',
+)
 assert.equal(presetForCheckpoint(null).id, 'sdxl-standard')
 
 for (const entry of ART_GENERATOR_PRESETS) {
@@ -348,6 +411,15 @@ assert.ok(
   !enqueue.includes("from '../../utils/artGeneratorPresets'"),
   'the enqueue API must not import product preset policy',
 )
+assert.ok(
+  enqueue.includes("normalizeArtSourceImage(body.sourceImageBase64, 'flux1')"),
+)
+assert.ok(
+  enqueue.includes("normalizeArtSourceImage(body.sourceImageBase64, 'flux2')"),
+)
+assert.ok(enqueue.includes('buildFlux2KleinEditWorkflowFromRequest'))
+assert.ok(enqueue.includes("'kontext_queue'"))
+assert.ok(enqueue.includes('originalWeight: body.originalWeight ?? null'))
 
 const loraResolver = readFileSync('server/utils/artLoraResource.ts', 'utf8')
 assert.ok(
@@ -450,5 +522,5 @@ assert.ok(bench.includes('defaultsFromPreset'))
 assert.ok(!bench.includes('POLL_TIMEOUT_MS'))
 
 console.log(
-  'Art generation quality contract OK: Krea and Flux.2 LoRAs stay in their model families, presets are product-owned, shared generation uses the canonical profile registry, and browser polling follows durable ArtJobs until terminal state.',
+  'Art generation quality contract OK: source-image capabilities match the wired workflows, checkpoint families stay visible, presets are product-owned, and browser polling follows durable ArtJobs until terminal state.',
 )

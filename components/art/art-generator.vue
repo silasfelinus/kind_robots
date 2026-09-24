@@ -148,20 +148,26 @@
                   <Icon name="kind-icon:gallery" class="kr-icon-4" />
                   Source image
                   <span class="text-xs font-normal text-base-content/45">
-                    optional
+                    {{ sourceImageRequired ? 'required' : 'optional' }}
                   </span>
                 </h2>
                 <p
-                  v-if="sourceImageCompatible"
+                  v-if="sourceImageRequired"
                   class="kr-text-dim-xs-55 mt-0.5"
                 >
-                  Upload a picture to run this checkpoint as image-to-image.
-                  The selected checkpoint, LoRAs, prompt, and recipe settings
-                  still apply.
+                  {{ activePreset.label }} is an image-editing recipe. Upload the
+                  picture you want it to work from.
+                </p>
+                <p
+                  v-else-if="sourceImageCompatible"
+                  class="kr-text-dim-xs-55 mt-0.5"
+                >
+                  Upload a picture to use this recipe image-to-image. Without
+                  one, it starts from text as usual.
                 </p>
                 <p v-else class="kr-text-dim-xs-55 mt-0.5">
-                  A source image is loaded, but {{ activePreset.label }} starts
-                  from text. Choose an SDXL checkpoint recipe to use the image.
+                  A source image is loaded, but {{ activePreset.label }} has no
+                  verified source-image workflow here and will ignore it.
                 </p>
               </div>
 
@@ -196,7 +202,11 @@
                   {{ artStore.sourceImageLabel || 'a source image' }}
                 </p>
                 <p v-if="usesSourceImage" class="kr-text-dim-xs-55 mt-1">
-                  Output dimensions follow this image.
+                  {{
+                    sourceImageOwnsSize
+                      ? 'Output dimensions follow this image.'
+                      : 'This image is active for the next render.'
+                  }}
                 </p>
               </div>
               <button
@@ -209,7 +219,10 @@
               </button>
             </div>
 
-            <label v-if="usesSourceImage" class="form-control mt-3">
+            <label
+              v-if="usesSourceImage && sourceImageStrengthSupported"
+              class="form-control mt-3"
+            >
               <span class="label">
                 <span class="label-text text-xs font-semibold">
                   Strength
@@ -227,8 +240,8 @@
               />
               <span class="label">
                 <span class="label-text-alt text-[0.65rem] opacity-55">
-                  Lower keeps the original; higher lets the checkpoint and LoRA
-                  take over.
+                  Lower keeps more of the original; higher lets the model and
+                  LoRAs travel farther.
                 </span>
               </span>
             </label>
@@ -385,9 +398,9 @@
 
             <p v-else class="kr-text-dim-xs-60 mt-2">
               {{ activeProfile.label }} loads its own model, so there is no
-              checkpoint to choose. Pick an
-              <span class="font-semibold">SDXL checkpoint</span> recipe to
-              render a checkpoint of your own.
+              checkpoint to choose. Pick a
+              <span class="font-semibold">Checkpoint</span> recipe to use a
+              named checkpoint instead.
             </p>
           </section>
 
@@ -470,7 +483,7 @@
               </label>
 
               <label
-                v-if="activeProfile.supports.scheduler"
+                v-if="showScheduler"
                 class="form-control"
               >
                 <span class="kr-label-row">
@@ -491,7 +504,7 @@
                 </select>
               </label>
 
-              <template v-if="activeProfile.supports.size && !usesSourceImage">
+              <template v-if="activeProfile.supports.size && !sourceImageOwnsSize">
                 <label class="form-control">
                   <span class="kr-label-row">
                     <span class="kr-label-bold">Width</span>
@@ -530,7 +543,7 @@
                 </label>
               </template>
               <p
-                v-else-if="usesSourceImage"
+                v-else-if="sourceImageOwnsSize"
                 class="kr-text-dim-xs-55 col-span-full"
               >
                 Width and height come from the source image.
@@ -785,17 +798,37 @@ const sourceImage = computed<string>(
   () => artStore.artForm.sourceImageBase64 || '',
 )
 
-const sourceImageCompatible = computed(
-  () => activePreset.value.engine === 'comfy',
+const sourceImageSupport = computed(
+  () => activeProfile.value.supports.sourceImage,
 )
-
+const sourceImageCompatible = computed(
+  () => sourceImageSupport.value !== 'none',
+)
+const sourceImageRequired = computed(
+  () => sourceImageSupport.value === 'required',
+)
+const sourceImageStrengthSupported = computed(
+  () => activeProfile.value.supports.sourceImageStrength,
+)
 const usesSourceImage = computed(() =>
   Boolean(sourceImage.value && sourceImageCompatible.value),
 )
-
-const generationEngine = computed(() =>
-  usesSourceImage.value ? 'sdxl-img2img' : activePreset.value.engine,
+const sourceImageOwnsSize = computed(
+  () =>
+    usesSourceImage.value && activeProfile.value.supports.sourceImageOwnsSize,
 )
+const showScheduler = computed(
+  () =>
+    activeProfile.value.supports.scheduler &&
+    !(usesSourceImage.value && activePreset.value.engine === 'flux2'),
+)
+
+const generationEngine = computed(() => {
+  if (usesSourceImage.value && activePreset.value.engine === 'comfy') {
+    return 'sdxl-img2img'
+  }
+  return activePreset.value.engine
+})
 
 async function handleSourceFile(event: Event): Promise<void> {
   const input = event.target as HTMLInputElement
@@ -814,7 +847,10 @@ async function handleSourceFile(event: Event): Promise<void> {
       throw new Error('The selected file could not be read as an image.')
     }
     artStore.setSourceImage(dataUri, file.name)
-    if (artStore.artForm.denoise == null) {
+    if (
+      sourceImageStrengthSupported.value &&
+      artStore.artForm.denoise == null
+    ) {
       artStore.setArtForm({ denoise: 0.6 })
     }
     artStore.clearGenerationMessage()
@@ -830,7 +866,7 @@ async function handleSourceFile(event: Event): Promise<void> {
 
 function clearSourceImage(): void {
   artStore.setSourceImage(null)
-  artStore.setArtForm({ denoise: null })
+  artStore.setArtForm({ denoise: null, originalWeight: null })
 }
 
 // content-visibility-controls takes strict booleans, and artForm's flags are
@@ -1112,6 +1148,7 @@ const canGenerate = computed(() =>
   Boolean(
     artStore.canGenerateArt &&
       !artStore.isGenerating &&
+      (!sourceImageRequired.value || Boolean(sourceImage.value)) &&
       canAfford.value &&
       destinationCompatible.value,
   ),
@@ -1136,6 +1173,9 @@ const busyLabel = computed(() => {
 
 const readinessSummary = computed(() => {
   if (!artStore.finalPromptString) return 'Write a prompt to begin.'
+  if (sourceImageRequired.value && !sourceImage.value) {
+    return `Upload a source image for ${activePreset.value.label}.`
+  }
   if (!canAfford.value) return 'Your mana balance is empty.'
   const parts = [activePreset.value.label]
   if (usesSourceImage.value) parts.push('+ source image')
@@ -1257,8 +1297,18 @@ function buildOverrides(): GenerateOverrides {
             serverSelectionMode: 'specific',
           }
 
+  const sourceStrength = Number(denoise.value ?? 0.6)
   base.engine = generationEngine.value
-  base.denoise = usesSourceImage.value ? Number(denoise.value ?? 0.6) : null
+  // An explicit 1 keeps text-only Krea/Flux requests from inheriting a stale
+  // source-image denoise value still present in artForm after recipe switches.
+  base.denoise =
+    usesSourceImage.value && sourceImageStrengthSupported.value
+      ? sourceStrength
+      : 1
+  base.originalWeight =
+    usesSourceImage.value && activePreset.value.engine === 'kontext'
+      ? Math.max(0, Math.min(1, 1 - sourceStrength))
+      : null
   base.presetId = presetId.value
 
   const basePrompt = String(

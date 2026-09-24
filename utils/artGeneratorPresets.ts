@@ -11,10 +11,11 @@
 // absent from the primary generator profile catalog.
 
 export type ArtGeneratorEngine =
-  'krea2' | 'flux2' | 'flux' | 'comfy' | 'sdxl-img2img'
+  'krea2' | 'flux2' | 'flux' | 'kontext' | 'comfy' | 'sdxl-img2img'
 
 export type FluxVariant = 'dev' | 'schnell'
 export type ArtRuntimeClass = 'fast' | 'standard' | 'slow'
+export type SourceImageSupport = 'none' | 'optional' | 'required'
 
 export type ArtEngineSupport = {
   checkpoint: boolean
@@ -24,6 +25,9 @@ export type ArtEngineSupport = {
   scheduler: boolean
   size: boolean
   guidance: boolean
+  sourceImage: SourceImageSupport
+  sourceImageStrength: boolean
+  sourceImageOwnsSize: boolean
 }
 
 export type ArtEngineProfile = {
@@ -49,6 +53,9 @@ export const ART_ENGINE_PROFILES: Record<ArtGeneratorEngine, ArtEngineProfile> =
         scheduler: true,
         size: true,
         guidance: false,
+        sourceImage: 'none',
+        sourceImageStrength: false,
+        sourceImageOwnsSize: false,
       },
       negativePromptNote:
         'At the default CFG 1, negative conditioning has little to no effect. Raise CFG only when you intentionally want it active.',
@@ -56,7 +63,8 @@ export const ART_ENGINE_PROFILES: Record<ArtGeneratorEngine, ArtEngineProfile> =
     flux2: {
       engine: 'flux2',
       label: 'FLUX.2 Klein',
-      blurb: 'Fastest lane here — four steps. Model baked in, LoRA supported.',
+      blurb:
+        'Fastest lane here — four steps. Model baked in, LoRA supported, with optional reference-image editing.',
       supports: {
         checkpoint: false,
         lora: true,
@@ -65,6 +73,9 @@ export const ART_ENGINE_PROFILES: Record<ArtGeneratorEngine, ArtEngineProfile> =
         scheduler: true,
         size: true,
         guidance: false,
+        sourceImage: 'optional',
+        sourceImageStrength: false,
+        sourceImageOwnsSize: true,
       },
       negativePromptNote:
         'At the default CFG 1, negative conditioning has little to no effect. Raise CFG only when you intentionally want it active.',
@@ -76,40 +87,58 @@ export const ART_ENGINE_PROFILES: Record<ArtGeneratorEngine, ArtEngineProfile> =
         'Highest fidelity, slowest. Uses its own guidance value instead of CFG. Takes a FLUX.1 LoRA -- not a FLUX.2 or Kontext one.',
       supports: {
         checkpoint: false,
-        // True since 2026-09-16, when the flux builder stopped silently
-        // dropping LoRAs (kind-robots/t-105). This flag stayed false for three
-        // days after the fix, so the generator kept hiding a picker the
-        // workflow would have honoured.
         lora: true,
         negativePrompt: false,
         sampler: true,
         scheduler: true,
         size: true,
         guidance: true,
+        sourceImage: 'optional',
+        sourceImageStrength: true,
+        sourceImageOwnsSize: true,
+      },
+    },
+    kontext: {
+      engine: 'kontext',
+      label: 'FLUX.1 Kontext',
+      blurb:
+        'Image-editing model: bring a source picture, then describe the change. Supports Kontext/Flux LoRAs.',
+      supports: {
+        checkpoint: false,
+        lora: true,
+        negativePrompt: true,
+        sampler: true,
+        scheduler: true,
+        size: true,
+        guidance: true,
+        sourceImage: 'required',
+        sourceImageStrength: true,
+        sourceImageOwnsSize: true,
       },
     },
     'sdxl-img2img': {
       engine: 'sdxl-img2img',
       label: 'Checkpoint image-to-image',
       blurb:
-        'Optional source-image mode for named SDXL, Pony, and SD 1.5 checkpoints. Strength controls how far the render travels from the upload.',
+        'Optional source-image mode for named SDXL, Pony, Illustrious, and SD 1.5 checkpoints. Strength controls how far the render travels from the upload.',
       supports: {
         checkpoint: true,
         lora: true,
         negativePrompt: true,
         sampler: true,
         scheduler: true,
-        // The source image decides the size. Offering width and height here
-        // would be offering a setting the workflow overrides.
         size: false,
         guidance: false,
+        sourceImage: 'required',
+        sourceImageStrength: true,
+        sourceImageOwnsSize: true,
       },
     },
     comfy: {
       engine: 'comfy',
-      label: 'SDXL checkpoint',
+      label: 'Checkpoint',
       blurb:
-        'The lane for a checkpoint you choose. Takes a LoRA on top of it and supports real negative conditioning.',
+        'The lane for a checkpoint you choose: SDXL, Pony, Illustrious, SD 1.5, and compatible variants. Takes a LoRA on top of it.',
       supports: {
         checkpoint: true,
         lora: true,
@@ -118,6 +147,9 @@ export const ART_ENGINE_PROFILES: Record<ArtGeneratorEngine, ArtEngineProfile> =
         scheduler: false,
         size: true,
         guidance: false,
+        sourceImage: 'optional',
+        sourceImageStrength: true,
+        sourceImageOwnsSize: true,
       },
     },
   }
@@ -205,10 +237,27 @@ export const ART_GENERATOR_PRESETS: ArtGeneratorPreset[] = [
     families: [],
   },
   {
-    id: 'sdxl-distilled',
-    label: 'SDXL checkpoint · Turbo',
+    id: 'kontext-edit',
+    label: 'FLUX.1 Kontext · Edit',
     blurb:
-      '8 steps, cfg 2, dpmpp_sde/karras — for Turbo, Lightning, LCM, Hyper.',
+      'Source image required. 10 steps, guidance 2.5, built for directed edits.',
+    engine: 'kontext',
+    steps: 10,
+    cfg: 2.5,
+    sampler: 'euler',
+    scheduler: 'simple',
+    width: 1024,
+    height: 1024,
+    guidance: 2.5,
+    variant: null,
+    runtimeClass: 'standard',
+    families: [],
+  },
+  {
+    id: 'sdxl-distilled',
+    label: 'Checkpoint · Turbo',
+    blurb:
+      '8 steps, cfg 2, dpmpp_sde/karras — for distilled Turbo, Lightning, LCM, and Hyper checkpoints.',
     engine: 'comfy',
     steps: 8,
     cfg: 2,
@@ -223,8 +272,9 @@ export const ART_GENERATOR_PRESETS: ArtGeneratorPreset[] = [
   },
   {
     id: 'sdxl-standard',
-    label: 'SDXL checkpoint · Standard',
-    blurb: '20 steps, cfg 3, euler — for undistilled SDXL checkpoints.',
+    label: 'Checkpoint · Standard',
+    blurb:
+      '20 steps, cfg 3, euler — for SDXL, Pony, Illustrious, SD 1.5, and other undistilled checkpoints.',
     engine: 'comfy',
     steps: 20,
     cfg: 3,
@@ -235,19 +285,26 @@ export const ART_GENERATOR_PRESETS: ArtGeneratorPreset[] = [
     guidance: null,
     variant: null,
     runtimeClass: 'standard',
-    families: ['sdxl', 'sd15', 'archive', 'unknown'],
+    families: ['sdxl', 'illustrious', 'sd15', 'archive', 'unknown'],
   },
 ]
 
 export const DEFAULT_ART_PRESET_ID = 'krea2-turbo'
 
 export type CheckpointFamily =
-  'sdxl' | 'sdxl-distilled' | 'pony' | 'sd15' | 'archive' | 'unknown'
+  | 'sdxl'
+  | 'sdxl-distilled'
+  | 'pony'
+  | 'illustrious'
+  | 'sd15'
+  | 'archive'
+  | 'unknown'
 
 export const CHECKPOINT_FAMILY_LABELS: Record<CheckpointFamily, string> = {
   sdxl: 'SDXL',
   'sdxl-distilled': 'SDXL Turbo/Lightning',
   pony: 'Pony',
+  illustrious: 'Illustrious / NoobAI',
   sd15: 'SD 1.5',
   archive: 'Archive',
   unknown: 'Unrecognised',
@@ -278,12 +335,26 @@ export function detectCheckpointFamily(
     .trim()
     .toLowerCase()
   const text = checkpointText(checkpoint)
-
-  if (generation === 'pony') return 'pony'
-  if (generation === 'archive') return 'archive'
-  if (generation === '1.5' || generation === 'sd15') return 'sd15'
+  const localPath = String(checkpoint.localPath || '').replaceAll('\\', '/')
+  const directory = localPath.split('/')[0]?.toLowerCase() || ''
 
   if (DISTILLED_PATTERN.test(text)) return 'sdxl-distilled'
+
+  // Resource.generation is stale on several live checkpoints; the importer's
+  // Comfy directory is the maintained architecture signal.
+  if (directory === 'pony') return 'pony'
+  if (directory === 'illustrious' || directory === 'noobai') {
+    return 'illustrious'
+  }
+  if (directory === 'sd15' || directory === 'sd1.5') return 'sd15'
+  if (directory === 'sdxl') return 'sdxl'
+
+  if (generation === 'pony') return 'pony'
+  if (generation.includes('illustrious') || generation.includes('noobai')) {
+    return 'illustrious'
+  }
+  if (generation === 'archive') return 'archive'
+  if (generation === '1.5' || generation === 'sd15') return 'sd15'
   if (generation === 'sdxl' || /sdxl|xl\b/i.test(text)) return 'sdxl'
 
   return 'unknown'

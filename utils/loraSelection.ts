@@ -108,6 +108,16 @@ export function artLoraCompatibilityRank(
     return fluxLoraCompatibilityRank(resource)
   }
 
+  if (engine === 'kontext') {
+    if (/\bFLUX[\s._-]*2\b/.test(normalizedGeneration(resource))) return 0
+    if (server === 'KONTEXT') return 30
+    if (normalizedGeneration(resource).includes('KONTEXT')) {
+      if (server === 'FLUX') return 20
+      if (server === 'GENERIC') return 10
+    }
+    return 0
+  }
+
   if (engine === 'sdxl-img2img' || engine === 'comfy') {
     if (checkpointFamily === 'sd15') {
       if (server === 'SD15') return 30
@@ -119,7 +129,8 @@ export function artLoraCompatibilityRank(
     if (
       checkpointFamily === 'sdxl' ||
       checkpointFamily === 'sdxl-distilled' ||
-      checkpointFamily === 'pony'
+      checkpointFamily === 'pony' ||
+      checkpointFamily === 'illustrious'
     ) {
       if (server === 'SDXL') return 30
       if (server === 'COMFY') return 15

@@ -12,13 +12,15 @@
 // once it found a matching session -- cloning it fresh via `bridge.setSession()`
 // and calling `bridge.resumeNarrativeArtJobs()` again, even when the requested
 // id was already the live, active session. That is exactly the redundant-resume
-// bug verifyStorybookLibraryMountReopenGuard.mjs already fixed for two other
-// entry points into this same function (storybook-library-page.vue's
-// onMounted() and its route.query.story watcher, both of which guard their own
-// call with `=== storyStore.session?.id` before ever calling openStory()) --
-// but that fix lived at the CALL SITES, not inside openStory() itself, so the
-// "Resume" button on the current story's own card -- a third, independent
-// caller with no such guard -- still reached the unprotected fall-through.
+// bug fixed for two other entry points into this same function
+// (storybook-library-page.vue's onMounted() and its route.query.story watcher,
+// both of which guard their own call with `=== storyStore.session?.id` before
+// ever calling openStory()) -- previously pinned by
+// verifyStorybookLibraryMountReopenGuard.mjs, deleted as legacy-only coverage in
+// the storybook/t-037 guard-cleanup pass (kind_robots#3023). That fix lived at
+// the CALL SITES, not inside openStory() itself, so the "Resume" button on the
+// current story's own card -- a third, independent caller with no such guard --
+// still reached the unprotected fall-through.
 //
 // For a beat whose art enqueue is still mid-flight (status 'queueing', no
 // jobId yet -- the real window between the optimistic local status write and

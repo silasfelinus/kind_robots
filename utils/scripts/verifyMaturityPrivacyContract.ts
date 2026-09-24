@@ -235,7 +235,9 @@ assert.ok(artStudio.includes('browseStore.galleryPrivacyFilter !== null'))
 
 const browseStore = readFileSync('stores/artCollectionBrowseStore.ts', 'utf8')
 assert.ok(
-  browseStore.includes("const galleryMaturityFilter = ref<GalleryMaturityFilter>('safe')"),
+  browseStore.includes(
+    "const galleryMaturityFilter = ref<GalleryMaturityFilter>('safe')",
+  ),
 )
 assert.ok(
   browseStore.includes(

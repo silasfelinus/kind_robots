@@ -286,6 +286,7 @@ type ArtStoreState = {
   sourceImageLabel: string
   lastGeneratedArtImage: ArtImage | null
   lastRandomBatchPlan: ArtRandomBatchPlan | null
+  generationBatchSize: number
   selectedGenerationCollectionId: number | null
   queueState: 'queued' | 'rendering' | null
   currentJobId: number | null
@@ -399,6 +400,7 @@ export const useArtStore = defineStore('artStore', () => {
     sourceImageLabel: '',
     lastGeneratedArtImage: null,
     lastRandomBatchPlan: null,
+    generationBatchSize: 1,
     selectedGenerationCollectionId: null,
     queueState: null,
     currentJobId: null,
@@ -737,6 +739,13 @@ export const useArtStore = defineStore('artStore', () => {
 
   function setArtForm(updates: Partial<GenerateArtData>): void {
     state.artForm = { ...state.artForm, ...updates }
+  }
+
+  function setGenerationBatchSize(value: number): void {
+    const normalized = Math.trunc(Number(value))
+    state.generationBatchSize = Number.isFinite(normalized)
+      ? Math.max(1, Math.min(MAX_RANDOM_BATCH, normalized))
+      : 1
   }
 
   /**
@@ -2300,6 +2309,7 @@ export const useArtStore = defineStore('artStore', () => {
     deselectArtImage,
     setHoverArtImage,
     setArtForm,
+    setGenerationBatchSize,
     setSourceImage,
     resetArtForm,
     updateArtListSelection,

@@ -215,8 +215,19 @@ assert.equal(artLoraCompatibilityRank(kontextLora, 'flux2'), 0)
 assert.equal(artLoraCompatibilityRank(flux2Lora, 'flux2'), 30)
 
 assert.equal(artLoraCompatibilityRank(kontextLora, 'kontext'), 30)
-assert.equal(artLoraCompatibilityRank(fluxLora, 'kontext'), 20)
-assert.equal(artLoraCompatibilityRank(flux2Lora, 'kontext'), 20)
+assert.equal(artLoraCompatibilityRank(fluxLora, 'kontext'), 0)
+assert.equal(artLoraCompatibilityRank(flux2Lora, 'kontext'), 0)
+assert.equal(
+  artLoraCompatibilityRank(
+    {
+      id: 16,
+      generation: 'Flux.1 Kontext',
+      supportedServer: 'FLUX',
+    },
+    'kontext',
+  ),
+  20,
+)
 
 // SDXL image-to-image uses the same Resource classes as its server resolver.
 // It must offer SDXL/Comfy/generic LoRAs instead of presenting an empty picker.

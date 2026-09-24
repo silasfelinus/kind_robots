@@ -379,12 +379,18 @@ import { useCheckpointStore } from '@/stores/checkpointStore'
 import { performFetch } from '@/stores/utils'
 import {
   ART_GENERATOR_PRESETS,
+  engineProfile,
   type ArtGeneratorPreset,
 } from '@/utils/artGeneratorPresets'
 
 const artStore = useArtStore()
 const checkpointStore = useCheckpointStore()
-const presets = ART_GENERATOR_PRESETS
+// This curation surface can render from text or force its own SDXL img2img
+// branch. Source-required recipes such as Kontext belong in the main generator
+// until this surface learns to route their source images explicitly.
+const presets = ART_GENERATOR_PRESETS.filter(
+  (preset) => engineProfile(preset.engine).supports.sourceImage !== 'required',
+)
 const CTH_DEFAULT_PRESET_ID = 'flux-schnell'
 
 const data = ref<CthulhuquariumCurationData | null>(null)

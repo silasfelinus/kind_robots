@@ -9,6 +9,7 @@ import {
   loraCategoryForPlaceholder,
   normalizeLoraCategory,
   normalizeLoraCategorySource,
+  randomizerLoraCategory,
 } from '../loraCategory'
 
 // Category normalization
@@ -55,6 +56,23 @@ assert.deepEqual(
     civitaiTags: ['CHARACTER', 'anime'],
   }),
   { category: 'CHARACTER', source: 'CIVITAI', signal: 'tag: character' },
+)
+
+// Generic character is an umbrella tag on many purpose LoRAs. The specific
+// purpose must win or pose/style rows silently disappear into {character}.
+assert.equal(
+  inferLoraCategory({
+    name: 'dynamic_pose_pack.safetensors',
+    civitaiTags: ['character', 'poses'],
+  }).category,
+  'ACTION',
+)
+assert.equal(
+  inferLoraCategory({
+    name: 'ink_artist.safetensors',
+    civitaiTags: ['character', 'style'],
+  }).category,
+  'STYLE',
 )
 
 // A Civitai tag beats a contradicting filename.
@@ -203,6 +221,42 @@ assert.deepEqual(inferLoraCategory({ name: 'xyzzy_v4.safetensors' }), {
   source: null,
   signal: null,
 })
+
+// The randomizer repairs the narrow legacy case without rewriting storage:
+// a clearly named pose LoRA imported under a non-human category joins ACTION,
+// but a human classification remains authoritative.
+assert.equal(
+  randomizerLoraCategory({
+    name: 'dynamic_pose_pack.safetensors',
+    loraCategory: 'CHARACTER',
+    loraCategorySource: 'CIVITAI',
+  }),
+  'ACTION',
+)
+assert.equal(
+  randomizerLoraCategory({
+    name: 'dynamic_pose_pack.safetensors',
+    loraCategory: null,
+    loraCategorySource: null,
+  }),
+  'ACTION',
+)
+assert.equal(
+  randomizerLoraCategory({
+    name: 'dynamic_pose_pack.safetensors',
+    loraCategory: 'CHARACTER',
+    loraCategorySource: 'HUMAN',
+  }),
+  'CHARACTER',
+)
+assert.equal(
+  randomizerLoraCategory({
+    name: 'Rogue.safetensors',
+    loraCategory: 'CHARACTER',
+    loraCategorySource: 'CIVITAI',
+  }),
+  'CHARACTER',
+)
 
 // A human decision is permanent; a guess is refreshable.
 assert.equal(canReclassify('HUMAN'), false)

@@ -207,7 +207,15 @@ assert.ok(artGallery.includes("privacy: galleryScope.value ?? 'public'"))
 assert.ok(!artGallery.includes('showPrivate'))
 assert.ok(!artGallery.includes('watch(showMature'))
 assert.ok(artGallery.includes('<kr-mature-cover'))
+assert.ok(artGallery.includes(':reveal-mature="maturityFilter !== \'safe\'"'))
 assert.ok(artGallery.includes('await reloadGalleryForVisibility()'))
+
+const matureCover = readFileSync(
+  'components/gallery/kr-mature-cover.vue',
+  'utf8',
+)
+assert.ok(matureCover.includes('revealMature?: boolean'))
+assert.ok(matureCover.includes('!props.revealMature'))
 assert.ok(
   artGallery.includes('await userStore.initialize()'),
   'Gallery must resolve the restored session before deciding whether user #1 gets the private chooser',

@@ -82,11 +82,13 @@ export function buildFluxWorkflow(input: {
   denoise: number
   unetName: string
   filenamePrefix: string
+  imageName?: string | null
   loras?: LoraSelectionInput[] | null
 }): ComfyWorkflow {
   const samplerSeed = resolveFluxSeed(input.seed)
   const wildcardSeed = resolveFluxSeed(input.wildcardSeed)
   const prompt = input.prompt.trim() || defaultFluxPrompt
+  const sourceImageName = input.imageName?.trim() || ''
 
   const workflow: ComfyWorkflow = {
     '4': fluxDualClipLoaderNode(),
@@ -150,7 +152,7 @@ export function buildFluxWorkflow(input: {
         model: ['59', 0],
         positive: ['46', 0],
         negative: ['46', 0],
-        latent_image: ['6', 0],
+        latent_image: sourceImageName ? ['61', 0] : ['6', 0],
       },
       class_type: 'KSampler',
       _meta: {
@@ -183,6 +185,19 @@ export function buildFluxWorkflow(input: {
         title: 'ImpactWildcardEncode',
       },
     },
+  }
+
+  if (sourceImageName) {
+    workflow['60'] = {
+      inputs: { image: sourceImageName },
+      class_type: 'LoadImage',
+      _meta: { title: 'Load Source Image' },
+    }
+    workflow['61'] = {
+      inputs: { pixels: ['60', 0], vae: ['8', 0] },
+      class_type: 'VAEEncode',
+      _meta: { title: 'Encode Source Image' },
+    }
   }
 
   /*
@@ -231,6 +246,7 @@ export function buildFluxWorkflowFromRequest(input: {
   sampler?: string | null
   scheduler?: string | null
   denoise?: number | null
+  imageName?: string | null
   loras?: LoraSelectionInput[] | null
 }): { workflow: ComfyWorkflow; variant: FluxVariant } {
   const variant: FluxVariant = input.variant === 'schnell' ? 'schnell' : 'dev'
@@ -259,6 +275,7 @@ export function buildFluxWorkflowFromRequest(input: {
     denoise: input.denoise ?? DEFAULT_FLUX_DENOISE,
     unetName: fluxConfig.unetName,
     filenamePrefix: fluxConfig.filenamePrefix,
+    imageName: input.imageName ?? null,
     loras: input.loras ?? null,
   })
 

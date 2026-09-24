@@ -14,6 +14,7 @@ export default defineEventHandler(async (event) => {
         isPublic: true,
         isMature: false,
         isActive: true,
+        OR: [{ imagePath: { not: null } }, { path: { not: null } }],
       },
       orderBy: { id: 'desc' },
       take: 2,

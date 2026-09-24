@@ -3,56 +3,8 @@
   <section
     class="flex h-full min-h-0 w-full flex-col gap-2 rounded-2xl bg-base-300 p-2"
   >
-    <div
-      v-if="showGalleryChooser"
-      class="grid min-h-0 flex-1 grid-cols-2 gap-3 p-2"
-      aria-label="Choose a gallery"
-    >
-      <button
-        type="button"
-        class="group relative min-h-72 overflow-hidden rounded-2xl border border-base-300 bg-base-100 text-left shadow-sm transition hover:-translate-y-0.5 hover:border-primary/50 hover:shadow-lg"
-        @click="chooseGallery('public')"
-      >
-        <img
-          :src="CHOOSER_PREVIEW_SOURCES[0]"
-          alt="Gallery entrance artwork"
-          class="absolute inset-0 h-full w-full object-cover"
-        />
-        <div
-          class="absolute inset-0 bg-gradient-to-t from-base-300/95 via-base-300/20 to-transparent"
-        />
-        <div class="absolute inset-x-0 bottom-0 p-5">
-          <p class="kr-text-black-lg text-base-content">Gallery</p>
-          <p class="mt-1 text-sm text-base-content/70">
-            Public, non-mature art by default.
-          </p>
-        </div>
-      </button>
-
-      <button
-        type="button"
-        class="group relative min-h-72 overflow-hidden rounded-2xl border border-base-300 bg-base-100 text-left shadow-sm transition hover:-translate-y-0.5 hover:border-secondary/50 hover:shadow-lg"
-        @click="chooseGallery('private')"
-      >
-        <img
-          :src="CHOOSER_PREVIEW_SOURCES[1]"
-          alt="Private archive entrance artwork"
-          class="absolute inset-0 h-full w-full object-cover"
-        />
-        <div
-          class="absolute inset-0 bg-gradient-to-t from-base-300/95 via-base-300/20 to-transparent"
-        />
-        <div class="absolute inset-x-0 bottom-0 p-5">
-          <p class="kr-text-black-lg text-base-content">Private Gallery</p>
-          <p class="mt-1 text-sm text-base-content/70">
-            Your private archive, loaded only after you choose it.
-          </p>
-        </div>
-      </button>
-    </div>
-
     <header
-      v-if="showHeader && !showGalleryChooser"
+      v-if="showHeader"
       class="shrink-0 kr-panel-muted-compact-row"
     >
       <div class="flex items-center gap-2">
@@ -112,16 +64,6 @@
           >
             <Icon name="kind-icon:checklist" class="kr-icon-3-5" />
             {{ bulkSelectEnabled ? 'Selecting' : 'Select' }}
-          </button>
-
-          <button
-            v-if="canChoosePrivateGallery && !activeGroup"
-            class="kr-btn-ghost-xs-lg"
-            type="button"
-            @click="returnToGalleryChooser"
-          >
-            <Icon name="kind-icon:gallery" class="kr-icon-3-5" />
-            Switch gallery
           </button>
 
           <add-collection
@@ -207,7 +149,7 @@
     </header>
 
     <div
-      v-if="!showGalleryChooser && errorMessage"
+      v-if="errorMessage"
       class="shrink-0 flex items-center gap-2 kr-note kr-note-error rounded-xl px-3 py-2 text-xs"
     >
       <icon name="kind-icon:alert" class="kr-icon-3-5 shrink-0" />
@@ -215,7 +157,7 @@
     </div>
 
     <div
-      v-if="!showGalleryChooser && successMessage"
+      v-if="successMessage"
       class="shrink-0 flex items-center gap-2 kr-note kr-note-success rounded-xl px-3 py-2 text-xs"
     >
       <icon name="kind-icon:check" class="kr-icon-3-5 shrink-0" />
@@ -223,14 +165,14 @@
     </div>
 
     <div
-      v-if="!showGalleryChooser && isLoading"
+      v-if="isLoading"
       class="flex min-h-56 flex-1 items-center justify-center rounded-xl bg-base-200"
     >
       <span class="kr-spinner-lg-primary" />
     </div>
 
     <section
-      v-else-if="!showGalleryChooser"
+      v-else
       class="relative min-h-0 flex-1 overflow-auto rounded-xl bg-base-200 p-2"
     >
       <div
@@ -600,7 +542,6 @@
     </section>
 
     <footer
-      v-if="!showGalleryChooser"
       class="kr-text-dim-xs shrink-0 flex items-center gap-3 rounded-xl border border-base-300 bg-base-200/80 px-3 py-2"
     >
       <span>
@@ -690,10 +631,6 @@ const MATURITY_FILTER_OPTIONS: readonly {
   { value: 'safe', label: 'Not mature' },
 ]
 
-const CHOOSER_PREVIEW_SOURCES = [
-  '/images/kindart.webp',
-  '/images/backtree.webp',
-] as const
 const artStore = useArtStore()
 const browseStore = useArtCollectionBrowseStore()
 const collectionStore = useCollectionStore()
@@ -714,7 +651,7 @@ const maturityFilter = computed<GalleryMaturityFilter>({
   get: () => browseStore.galleryMaturityFilter,
   set: (value) => browseStore.setGalleryMaturityFilter(value),
 })
-const galleryScope = computed<GalleryPrivacyFilter | null>({
+const galleryScope = computed<GalleryPrivacyFilter>({
   get: () => browseStore.galleryPrivacyFilter,
   set: (value) => browseStore.setGalleryPrivacyFilter(value),
 })
@@ -736,13 +673,6 @@ const selectedImageIdSet = computed(() => new Set(selectedImageIds.value))
 const currentUserId = computed(
   () => userStore.userId ?? userStore.user?.id ?? null,
 )
-const canChoosePrivateGallery = computed(
-  () => !props.dropdownMode && Number(currentUserId.value) === 1,
-)
-const showGalleryChooser = computed(
-  () => canChoosePrivateGallery.value && galleryScope.value === null,
-)
-
 const selectedImages = computed(() => {
   const ids = selectedImageIdSet.value
   return filteredActiveImages.value
@@ -955,22 +885,12 @@ async function initializeGalleryForViewer(): Promise<void> {
     return
   }
 
-  // The legacy session plugin intentionally restores the user after app:mounted.
-  // Deciding private-gallery eligibility before that promise settles makes
-  // user #1 look like a guest for this component's entire lifetime. Await the
-  // idempotent store initializer here, at the exact point the decision matters.
   await userStore.initialize()
 
-  if (canChoosePrivateGallery.value) {
-    galleryScope.value = null
-    maturityFilter.value = 'safe'
-    browseStore.invalidateAll()
-    galleryReady.value = true
-    return
+  if (galleryScope.value === 'private' && !userStore.isAdmin) {
+    galleryScope.value = 'public'
   }
 
-  galleryScope.value = 'public'
-  maturityFilter.value = 'safe'
   await initializeGallery(true)
   galleryReady.value = true
 }
@@ -984,28 +904,31 @@ onMounted(async () => {
   await initializeGalleryForViewer()
 })
 
-watch(currentUserId, async (nextUserId, previousUserId) => {
-  if (props.dropdownMode || !galleryReady.value) return
-  if (Number(nextUserId) === Number(previousUserId)) return
+watch(
+  [currentUserId, () => userStore.isAdmin],
+  async ([nextUserId, nextIsAdmin], [previousUserId, previousIsAdmin]) => {
+    if (props.dropdownMode || !galleryReady.value) return
+    if (
+      Number(nextUserId) === Number(previousUserId) &&
+      nextIsAdmin === previousIsAdmin
+    ) {
+      return
+    }
 
-  if (Number(nextUserId) === 1) {
-    returnToGalleryChooser()
-    return
-  }
-
-  if (galleryScope.value === null || galleryScope.value === 'private') {
     galleryReady.value = false
-    galleryScope.value = 'public'
-    maturityFilter.value = 'safe'
-    activeGroupKey.value = null
+    if (galleryScope.value === 'private' && !nextIsAdmin) {
+      galleryScope.value = 'public'
+      activeGroupKey.value = null
+      browseStore.setGalleryDeleteMode(false)
+    }
     browseStore.invalidateAll()
     try {
       await initializeGallery(true)
     } finally {
       galleryReady.value = true
     }
-  }
-})
+  },
+)
 
 function toggleBulkSelect() {
   bulkSelectEnabled.value = !bulkSelectEnabled.value
@@ -1065,35 +988,6 @@ async function handleImageCardClick(id: number) {
   }
 
   await selectImage(image)
-}
-
-async function chooseGallery(scope: 'public' | 'private'): Promise<void> {
-  galleryReady.value = false
-  galleryScope.value = scope
-  maturityFilter.value = scope === 'private' ? 'all' : 'safe'
-  activeGroupKey.value = null
-  searchQuery.value = ''
-  selectedImageForOverlay.value = null
-  selectedImageIds.value = []
-  browseStore.invalidateAll()
-
-  try {
-    await initializeGallery(true)
-  } finally {
-    galleryReady.value = true
-  }
-}
-
-function returnToGalleryChooser(): void {
-  if (!canChoosePrivateGallery.value) return
-  activeGroupKey.value = null
-  selectedImageForOverlay.value = null
-  selectedImageIds.value = []
-  errorMessage.value = ''
-  successMessage.value = ''
-  galleryScope.value = null
-  browseStore.setGalleryDeleteMode(false)
-  browseStore.invalidateAll()
 }
 
 async function reloadGalleryForVisibility() {
@@ -1181,7 +1075,7 @@ function hydrateCollectionTile(group: GalleryGroup | undefined): void {
     void browseStore.fetchUnsortedSummary(
       false,
       maturityFilter.value,
-      galleryScope.value ?? 'public',
+      galleryScope.value,
     )
     return
   }
@@ -1191,7 +1085,7 @@ function hydrateCollectionTile(group: GalleryGroup | undefined): void {
     group.id,
     false,
     maturityFilter.value,
-    galleryScope.value ?? 'public',
+    galleryScope.value,
   )
 }
 
@@ -1204,7 +1098,7 @@ async function fetchCollectionSummaries(force = false) {
     // Filter at the QUERY, not after the response: filtering client-side still
     // makes the server count and preview every archive folder first, which is
     // the whole cost.
-    privacy: galleryScope.value ?? 'public',
+    privacy: galleryScope.value,
     includeMature: maturityFilter.value !== 'safe',
     maturity: maturityFilter.value,
     // Skeletons first: the list comes back as bare scalars so it paints
@@ -1219,7 +1113,7 @@ async function loadGroupData(key: string, force = false): Promise<void> {
     await browseStore.fetchUnsortedImages(
       force,
       maturityFilter.value,
-      galleryScope.value ?? 'public',
+      galleryScope.value,
     )
     return
   }

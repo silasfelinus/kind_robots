@@ -213,6 +213,9 @@ assert.ok(!artGallery.includes('watch(showMature'))
 assert.ok(artGallery.includes('<kr-mature-cover'))
 assert.ok(artGallery.includes(':reveal-mature="maturityFilter !== \'safe\'"'))
 assert.ok(artGallery.includes('await reloadGalleryForVisibility()'))
+assert.ok(artGallery.includes('deleteMode &&'))
+assert.ok(artGallery.includes(':aria-label="`Delete image #${image.id}`"'))
+assert.ok(artGallery.includes('@click.stop="handleImageDeleted(image.id)"'))
 
 const matureCover = readFileSync(
   'components/gallery/kr-mature-cover.vue',
@@ -236,6 +239,9 @@ assert.ok(artStudio.includes("{ value: 'mature', label: 'Mature' }"))
 assert.ok(artStudio.includes("{ value: 'safe', label: 'Not mature' }"))
 assert.ok(artStudio.includes('browseStore.galleryMaturityFilter'))
 assert.ok(artStudio.includes('browseStore.galleryPrivacyFilter !== null'))
+assert.ok(artStudio.includes('Confirm delete'))
+assert.ok(artStudio.includes('kr-toggle-error-xs'))
+assert.ok(artStudio.includes('browseStore.galleryDeleteMode'))
 
 const browseStore = readFileSync('stores/artCollectionBrowseStore.ts', 'utf8')
 assert.ok(
@@ -248,6 +254,8 @@ assert.ok(
     'const galleryPrivacyFilter = ref<GalleryPrivacyFilter | null>(null)',
   ),
 )
+assert.ok(browseStore.includes('const galleryDeleteMode = ref(false)'))
+assert.ok(browseStore.includes('setGalleryDeleteMode'))
 
 // A plain <img> cannot send Kind Robots' Authorization/x-api-key headers.
 // Gallery JSON responses therefore mint short-lived, variant-bound capability
@@ -309,6 +317,25 @@ assert.equal(
     signedAt,
   ),
   false,
+)
+
+const artImageAccess = readFileSync('server/utils/artImageAccess.ts', 'utf8')
+assert.ok(
+  artImageAccess.includes(
+    'AND: [{ isActive: true }, visibilityWhere, matureWhere]',
+  ),
+)
+
+const artImageDeleteRoute = readFileSync(
+  'server/api/art/image/[id].delete.ts',
+  'utf8',
+)
+assert.ok(artImageDeleteRoute.includes('prisma.archiveEntry.findFirst'))
+assert.ok(artImageDeleteRoute.includes('quarantineArchiveEntry(archiveEntry)'))
+assert.ok(
+  artImageDeleteRoute.includes(
+    'Art image ${imageId} moved to recoverable archive trash.',
+  ),
 )
 
 const collectionGalleryApi = readFileSync(

@@ -207,6 +207,7 @@ export interface GenerateArtData {
   guidance?: number | null
   denoise?: number | null
   strength?: number | null
+  originalWeight?: number | null
 
   sourceImageId?: number | null
   sourceImageBase64?: string | null
@@ -1899,6 +1900,8 @@ export const useArtStore = defineStore('artStore', () => {
         PRODUCT_DEFAULT_ART_SETTINGS.guidance,
       denoise: artData?.denoise ?? state.artForm.denoise ?? null,
       strength: artData?.strength ?? state.artForm.strength ?? null,
+      originalWeight:
+        artData?.originalWeight ?? state.artForm.originalWeight ?? null,
       sourceImageId: artData?.sourceImageId ?? state.artForm.sourceImageId ?? null,
       sourceImageBase64:
         artData?.sourceImageBase64 ?? state.artForm.sourceImageBase64 ?? null,

@@ -32,6 +32,7 @@ type CollectionFetchOptions = {
   /** Display filters -- see the collection endpoint. Omitted means unchanged. */
   includePrivate?: boolean
   includeMature?: boolean
+  privacy?: 'all' | 'public' | 'private'
   maturity?: 'all' | 'mature' | 'safe'
   /** false = skip per-collection counts/preview; the tile hydrates on view. */
   counts?: boolean
@@ -457,6 +458,10 @@ export const useCollectionStore = defineStore('collectionStore', () => {
       params.set('includeMature', String(options.includeMature))
     }
 
+    if (options.privacy) {
+      params.set('privacy', options.privacy)
+    }
+
     if (options.maturity) {
       params.set('maturity', options.maturity)
     }
@@ -534,9 +539,21 @@ export const useCollectionStore = defineStore('collectionStore', () => {
         const normalizedCollections = normalizeCollections(response.data)
 
         state.collections = summaryMode
-          ? mergeSummaryCollectionLocal(
-              state.collections,
-              normalizedCollections,
+          ? mergeSummaryCollectionLocal([], normalizedCollections).map(
+              (collection) => {
+                const existing = findCollectionByIdLocal(collection.id)
+                if (!existing) return collection
+
+                const existingImages = getCollectionArtImages(existing)
+                if (!existingImages.length) return collection
+
+                return {
+                  ...collection,
+                  artImages: existingImages,
+                  ArtImages: existingImages,
+                  images: existingImages,
+                } as NormalizedCollection
+              },
             )
           : normalizedCollections
 

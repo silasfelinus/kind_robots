@@ -188,19 +188,24 @@ assert.ok(accountStore.includes('loraResourceIds: visibleLoraIds'))
 assert.ok(accountStore.includes('checkpointResourceId: null'))
 
 // Main Gallery privacy controls and private archive media regression,
-// art-archive/t-042. The Gallery uses the persisted account maturity control,
-// never a local bypass, and its separate Private filter is owner-scoped.
+// art-archive/t-042. The account-wide mature consent remains in the account hub;
+// Gallery has its own display-only maturity filter. User #1 enters through a
+// public/private chooser so the archive is never queried until explicitly chosen.
 const artGallery = readFileSync('components/art/art-gallery.vue', 'utf8')
-assert.ok(artGallery.includes('<maturity-toggle variant="compact"'))
+assert.ok(!artGallery.includes('<maturity-toggle variant="compact"'))
 assert.ok(artGallery.includes('aria-label="Gallery maturity filter"'))
 assert.ok(artGallery.includes("{ value: 'all', label: 'Both' }"))
 assert.ok(artGallery.includes("{ value: 'mature', label: 'Mature' }"))
 assert.ok(artGallery.includes("{ value: 'safe', label: 'Not mature' }"))
 assert.ok(artGallery.includes('matchesMaturityFilter'))
-assert.ok(artGallery.includes('maturity: maturityFilter.value'))
-assert.ok(artGallery.includes('const showPrivate = ref(true)'))
-assert.ok(artGallery.includes('isOwnedPrivateRecord'))
-assert.ok(artGallery.includes('ownerId === viewerId'))
+assert.ok(artGallery.includes('matchesPrivacyScope'))
+assert.ok(artGallery.includes('Number(currentUserId.value) === 1'))
+assert.ok(artGallery.includes('aria-label="Choose a gallery"'))
+assert.ok(artGallery.includes('@click="chooseGallery(\'public\')"'))
+assert.ok(artGallery.includes('@click="chooseGallery(\'private\')"'))
+assert.ok(artGallery.includes("privacy: galleryScope.value ?? 'public'"))
+assert.ok(!artGallery.includes('showPrivate'))
+assert.ok(!artGallery.includes('watch(showMature'))
 assert.ok(artGallery.includes('<kr-mature-cover'))
 assert.ok(artGallery.includes('await reloadGalleryForVisibility()'))
 
@@ -271,6 +276,15 @@ const collectionGalleryApi = readFileSync(
   'utf8',
 )
 assert.ok(collectionGalleryApi.includes('queryMaturityFilter'))
+assert.ok(collectionGalleryApi.includes('queryPrivacyFilter'))
+assert.ok(
+  collectionGalleryApi.includes(
+    "type CollectionPrivacyFilter = 'all' | 'public' | 'private'",
+  ),
+)
+assert.ok(
+  collectionGalleryApi.includes('{ isPublic: false, userId: access.userId }'),
+)
 assert.ok(collectionGalleryApi.includes("maturity === 'mature'"))
 
 const unsortedGalleryApi = readFileSync(
@@ -278,7 +292,24 @@ const unsortedGalleryApi = readFileSync(
   'utf8',
 )
 assert.ok(unsortedGalleryApi.includes('readMaturityFilter'))
+assert.ok(unsortedGalleryApi.includes('readPrivacyFilter'))
+assert.ok(
+  unsortedGalleryApi.includes(
+    "type GalleryPrivacyFilter = 'all' | 'public' | 'private'",
+  ),
+)
+assert.ok(
+  unsortedGalleryApi.includes('{ isPublic: false, userId: access.userId }'),
+)
 assert.ok(unsortedGalleryApi.includes("maturity === 'mature'"))
+
+const galleryChooserApi = readFileSync(
+  'server/api/art/gallery/chooser.get.ts',
+  'utf8',
+)
+assert.ok(galleryChooserApi.includes('isPublic: true'))
+assert.ok(galleryChooserApi.includes('isMature: false'))
+assert.ok(galleryChooserApi.includes('take: 2'))
 
 for (const galleryApi of [
   'server/api/art/collection/index.get.ts',

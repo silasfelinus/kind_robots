@@ -12,6 +12,16 @@ import {
 import { attachGalleryArchiveMediaPaths } from '~/server/utils/artGalleryArchiveMedia'
 
 type GalleryMaturityFilter = 'all' | 'mature' | 'safe'
+type GalleryPrivacyFilter = 'all' | 'public' | 'private'
+
+function readPrivacyFilter(value: QueryValue): GalleryPrivacyFilter {
+  const raw = Array.isArray(value) ? value[0] : value
+  const normalized = String(raw ?? 'public')
+    .trim()
+    .toLowerCase()
+  if (normalized === 'private' || normalized === 'all') return normalized
+  return 'public'
+}
 
 function readMaturityFilter(value: QueryValue): GalleryMaturityFilter {
   const raw = Array.isArray(value) ? value[0] : value
@@ -28,13 +38,28 @@ export default defineEventHandler(async (event) => {
     const access = await getArtImageAccessContext(event)
     const accessWhere = buildArtImageWhere(access)
     const maturity = readMaturityFilter(query.maturity)
+    const privacy = readPrivacyFilter(query.privacy)
     const maturityWhere: Prisma.ArtImageWhereInput =
       maturity === 'all' ? {} : { isMature: maturity === 'mature' }
+    const privacyWhere: Prisma.ArtImageWhereInput =
+      privacy === 'all'
+        ? {}
+        : privacy === 'public'
+          ? { isPublic: true }
+          : access.userId
+            ? { isPublic: false, userId: access.userId }
+            : { id: -1 }
     const where: Prisma.ArtImageWhereInput = {
-      AND: [accessWhere, maturityWhere, { ArtCollections: { none: {} } }],
+      AND: [
+        accessWhere,
+        privacyWhere,
+        maturityWhere,
+        { ArtCollections: { none: {} } },
+      ],
     }
-    const totalWhere: Prisma.ArtImageWhereInput =
-      maturity === 'all' ? accessWhere : { AND: [accessWhere, maturityWhere] }
+    const totalWhere: Prisma.ArtImageWhereInput = {
+      AND: [accessWhere, privacyWhere, maturityWhere],
+    }
     const summaryOnly = readBoolean(query.summary, false)
     const select = buildArtImageSelect(query)
 

@@ -21,7 +21,8 @@ function requireCount(
   message: string,
 ): void {
   const count = source.split(text).length - 1
-  if (count < minimum) failures.push(`${message} (found ${count}, need ${minimum})`)
+  if (count < minimum)
+    failures.push(`${message} (found ${count}, need ${minimum})`)
 }
 
 const gallery = read('components/gallery/kr-gallery.vue')
@@ -37,7 +38,9 @@ const unsortedRoute = read('server/api/art/collection/unsorted.get.ts')
 const imageCard = read('components/art/image-card.vue')
 const resourceCard = read('components/resources/resource-card.vue')
 const checkpointCard = read('components/servers/checkpoint-card.vue')
-const achievementCard = read('components/achievements/earned-achievement-card.vue')
+const achievementCard = read(
+  'components/achievements/earned-achievement-card.vue',
+)
 const stylistGallery = read('components/art/stylist-client-gallery.vue')
 const enqueueRoute = read('server/api/art/enqueue.post.ts')
 const completionRoute = read('server/api/art/queue/[id]/complete.post.ts')
@@ -46,7 +49,9 @@ const saveImageHelper = read('server/utils/saveImage.ts')
 const saveGeneratedRoute = read('server/api/art/save-generated.post.ts')
 const a1111GenerateRoute = read('server/api/art/generate.post.ts')
 const sdxlGenerateRoute = read('server/api/comfy/sdxl/generate.post.ts')
-const openAiGenerateRoute = read('server/api/chats/openai/images/generate.post.ts')
+const openAiGenerateRoute = read(
+  'server/api/chats/openai/images/generate.post.ts',
+)
 const legacyPromptGenerateRoute = read('server/api/prompts/generate.post.ts')
 const dailyDreamRoute = read('server/api/dreams/daily.post.ts')
 
@@ -89,7 +94,10 @@ requireText(
 for (const [source, message] of [
   [deferredImage, 'kr-deferred-image must use the shared viewport observer'],
   [viewportGate, 'kr-viewport-gate must use the shared viewport observer'],
-  [imageCard, 'image-card heavy-data fetches must use the shared viewport observer'],
+  [
+    imageCard,
+    'image-card heavy-data fetches must use the shared viewport observer',
+  ],
 ] as const) {
   requireText(source, 'observeViewportHydration', message)
 }
@@ -113,7 +121,11 @@ for (const [source, message] of [
 }
 
 for (const token of ['const PAGE =', 'showMore(', ':page-size=']) {
-  forbidText(facets, token, `facet gallery must not restore client windowing: ${token}`)
+  forbidText(
+    facets,
+    token,
+    `facet gallery must not restore client windowing: ${token}`,
+  )
 }
 
 for (const token of [
@@ -126,7 +138,11 @@ for (const token of [
   'isHydratingImages',
   ':page-size=',
 ]) {
-  forbidText(artGallery, token, `art gallery must not restore paging hydration: ${token}`)
+  forbidText(
+    artGallery,
+    token,
+    `art gallery must not restore paging hydration: ${token}`,
+  )
 }
 requireText(
   artGallery,
@@ -194,6 +210,21 @@ requireText(
 )
 requireText(
   artGallery,
+  'browseStore.fetchCollectionSummary',
+  'collection tiles must hydrate counts/previews without loading full collections',
+)
+requireText(
+  browseStore,
+  'async function fetchCollectionSummary(',
+  'collection browse store must expose lightweight tile-summary hydration',
+)
+requireText(
+  browseStore,
+  "imageLimit: '1'",
+  'collection tile hydration must cap preview images to one',
+)
+requireText(
+  artGallery,
   'browseStore.fetchUnsortedSummary',
   'art gallery must derive Unsorted through the DB browse query',
 )
@@ -254,8 +285,8 @@ for (const token of [
   'Rewards: { some: { id: metadata.entityId } }',
   'Scenarios: { some: { id: metadata.entityId } }',
   'narratorId: metadata.entityId',
-  'metadata.entityType === \'project\'',
-  'metadata.entityType === \'facet\'',
+  "metadata.entityType === 'project'",
+  "metadata.entityType === 'facet'",
 ]) {
   requireText(
     generatedCollections,

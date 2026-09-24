@@ -3,11 +3,84 @@
   <section
     class="flex h-full min-h-0 w-full flex-col gap-2 rounded-2xl bg-base-300 p-2"
   >
-    <header v-if="showHeader" class="shrink-0 kr-panel-muted-compact-row">
+    <div
+      v-if="showGalleryChooser"
+      class="grid min-h-0 flex-1 grid-cols-2 gap-3 p-2"
+      aria-label="Choose a gallery"
+    >
+      <button
+        type="button"
+        class="group relative min-h-72 overflow-hidden rounded-2xl border border-base-300 bg-base-100 text-left shadow-sm transition hover:-translate-y-0.5 hover:border-primary/50 hover:shadow-lg"
+        @click="chooseGallery('public')"
+      >
+        <img
+          v-if="chooserPreviewSource(0)"
+          :src="chooserPreviewSource(0)"
+          alt="Safe public gallery preview"
+          class="absolute inset-0 h-full w-full object-cover"
+        />
+        <div
+          v-else
+          class="absolute inset-0 flex items-center justify-center bg-base-200"
+        >
+          <span v-if="chooserLoading" class="kr-spinner-lg-primary" />
+          <Icon v-else name="kind-icon:gallery" class="kr-icon-primary-12" />
+        </div>
+        <div
+          class="absolute inset-0 bg-gradient-to-t from-base-300/95 via-base-300/20 to-transparent"
+        />
+        <div class="absolute inset-x-0 bottom-0 p-5">
+          <p class="kr-text-black-lg text-base-content">Gallery</p>
+          <p class="mt-1 text-sm text-base-content/70">
+            Public, non-mature art by default.
+          </p>
+        </div>
+      </button>
+
+      <button
+        type="button"
+        class="group relative min-h-72 overflow-hidden rounded-2xl border border-base-300 bg-base-100 text-left shadow-sm transition hover:-translate-y-0.5 hover:border-secondary/50 hover:shadow-lg"
+        @click="chooseGallery('private')"
+      >
+        <img
+          v-if="chooserPreviewSource(1)"
+          :src="chooserPreviewSource(1)"
+          alt="Safe private gallery preview"
+          class="absolute inset-0 h-full w-full object-cover"
+        />
+        <div
+          v-else
+          class="absolute inset-0 flex items-center justify-center bg-base-200"
+        >
+          <span v-if="chooserLoading" class="kr-spinner-lg-primary" />
+          <Icon v-else name="kind-icon:archive" class="kr-icon-primary-12" />
+        </div>
+        <div
+          class="absolute inset-0 bg-gradient-to-t from-base-300/95 via-base-300/20 to-transparent"
+        />
+        <div class="absolute inset-x-0 bottom-0 p-5">
+          <p class="kr-text-black-lg text-base-content">Private Gallery</p>
+          <p class="mt-1 text-sm text-base-content/70">
+            Your private archive, loaded only after you choose it.
+          </p>
+        </div>
+      </button>
+    </div>
+
+    <header
+      v-if="showHeader && !showGalleryChooser"
+      class="shrink-0 kr-panel-muted-compact-row"
+    >
       <div class="flex items-center gap-2">
         <Icon name="kind-icon:gallery" class="kr-icon-primary-5 shrink-0" />
         <h2 class="kr-text-black-base min-w-0 truncate text-base-content">
-          {{ activeGroup ? activeGroup.title : 'Gallery' }}
+          {{
+            activeGroup
+              ? activeGroup.title
+              : galleryScope === 'private'
+                ? 'Private Gallery'
+                : 'Gallery'
+          }}
         </h2>
         <p class="kr-text-dim-xs hidden min-w-0 truncate sm:block">
           {{ headerSummary }}
@@ -57,6 +130,16 @@
             {{ bulkSelectEnabled ? 'Selecting' : 'Select' }}
           </button>
 
+          <button
+            v-if="canChoosePrivateGallery && !activeGroup"
+            class="kr-btn-ghost-xs-lg"
+            type="button"
+            @click="returnToGalleryChooser"
+          >
+            <Icon name="kind-icon:gallery" class="kr-icon-3-5" />
+            Switch gallery
+          </button>
+
           <add-collection
             v-if="!activeGroup"
             :compact="true"
@@ -103,8 +186,6 @@
           />
         </label>
 
-        <maturity-toggle variant="compact" />
-
         <div
           class="flex items-center gap-1 rounded-lg border border-base-300 bg-base-100 p-1"
           aria-label="Gallery maturity filter"
@@ -127,19 +208,6 @@
           </button>
         </div>
 
-        <label
-          v-if="currentUserId"
-          class="flex cursor-pointer items-center gap-1.5 rounded-lg border border-base-300 bg-base-100 px-2 py-1"
-          title="Show private collections and images that you own"
-        >
-          <span class="kr-text-dim-xs-70 font-bold">Private</span>
-          <input
-            v-model="showPrivate"
-            type="checkbox"
-            class="kr-toggle-primary-xs"
-          />
-        </label>
-
         <span
           class="kr-text-dim-xs ml-auto hidden flex-wrap items-center gap-1.5 sm:flex"
         >
@@ -155,7 +223,7 @@
     </header>
 
     <div
-      v-if="errorMessage"
+      v-if="!showGalleryChooser && errorMessage"
       class="shrink-0 flex items-center gap-2 kr-note kr-note-error rounded-xl px-3 py-2 text-xs"
     >
       <icon name="kind-icon:alert" class="kr-icon-3-5 shrink-0" />
@@ -163,7 +231,7 @@
     </div>
 
     <div
-      v-if="successMessage"
+      v-if="!showGalleryChooser && successMessage"
       class="shrink-0 flex items-center gap-2 kr-note kr-note-success rounded-xl px-3 py-2 text-xs"
     >
       <icon name="kind-icon:check" class="kr-icon-3-5 shrink-0" />
@@ -171,14 +239,14 @@
     </div>
 
     <div
-      v-if="isLoading"
+      v-if="!showGalleryChooser && isLoading"
       class="flex min-h-56 flex-1 items-center justify-center rounded-xl bg-base-200"
     >
       <span class="kr-spinner-lg-primary" />
     </div>
 
     <section
-      v-else
+      v-else-if="!showGalleryChooser"
       class="relative min-h-0 flex-1 overflow-auto rounded-xl bg-base-200 p-2"
     >
       <div
@@ -529,6 +597,7 @@
     </section>
 
     <footer
+      v-if="!showGalleryChooser"
       class="kr-text-dim-xs shrink-0 flex items-center gap-3 rounded-xl border border-base-300 bg-base-200/80 px-3 py-2"
     >
       <span>
@@ -568,10 +637,13 @@ import { useArtStore } from '@/stores/artStore'
 import {
   useArtCollectionBrowseStore,
   type BrowseArtCollection,
+  type GalleryPrivacyFilter,
 } from '@/stores/artCollectionBrowseStore'
 import { useCollectionStore } from '@/stores/collectionStore'
 import { ErrorType, useErrorStore } from '@/stores/errorStore'
 import { useUserStore } from '@/stores/userStore'
+import { performFetch } from '@/stores/utils'
+import { resolveArtImageThumbSrc } from '@/utils/artImageSrc'
 
 type BatchFlagValue = 'keep' | 'true' | 'false'
 type GalleryMaturityFilter = 'all' | 'mature' | 'safe'
@@ -633,23 +705,10 @@ const errorMessage = ref('')
 const successMessage = ref('')
 const searchQuery = ref('')
 const showMature = computed(() => Boolean(userStore.showMature))
-const maturityFilter = ref<GalleryMaturityFilter>('all')
-/*
- * Defaults ON, and stays that way. This is the owner's own private art -- the
- * whole point of art-archive/t-042, which made the archive render in the first
- * place -- so a default that hides it shows Silas an empty gallery over his own
- * 240,856 files. verifyMaturityPrivacyContract pins this value for exactly that
- * reason; if you are here because it failed, the answer is not to edit the
- * contract.
- *
- * It was briefly flipped OFF to stop the 10s timeout (art-archive/t-041), which
- * treated the symptom: every archive folder is a private ArtCollection, so
- * importing 208,651 files added 443 of them and the list paid a filtered count
- * plus a preview lookup for each. That cost is removed at the source instead --
- * the list asks for counts=false and each tile hydrates its own on approach --
- * so showing them by default no longer costs anything up front.
- */
-const showPrivate = ref(true)
+const maturityFilter = ref<GalleryMaturityFilter>('safe')
+const galleryScope = ref<GalleryPrivacyFilter | null>(null)
+const chooserPreviews = ref<ArtImage[]>([])
+const chooserLoading = ref(false)
 const hydratedImages = ref<Record<number, ArtImage>>({})
 const activeGroupKey = ref<string | null>(null)
 const selectedImageForOverlay = ref<ArtImage | null>(null)
@@ -660,6 +719,12 @@ const selectedImageIdSet = computed(() => new Set(selectedImageIds.value))
 
 const currentUserId = computed(
   () => userStore.userId ?? userStore.user?.id ?? null,
+)
+const canChoosePrivateGallery = computed(
+  () => !props.dropdownMode && Number(currentUserId.value) === 1,
+)
+const showGalleryChooser = computed(
+  () => canChoosePrivateGallery.value && galleryScope.value === null,
 )
 
 const selectedImages = computed(() => {
@@ -684,7 +749,13 @@ const collectionGroups = computed<GalleryGroup[]>(() => {
   if (props.dropdownMode) return groups
 
   const summary = browseStore.unsortedSummary
-  if (!summary.count && !browseStore.unsortedImages.length) return groups
+  if (
+    browseStore.unsortedSummaryLoaded &&
+    !summary.count &&
+    !browseStore.unsortedImages.length
+  ) {
+    return groups
+  }
 
   const fullImages = browseStore.unsortedImages
     .map((image) => hydratedImages.value[image.id] || image)
@@ -728,18 +799,20 @@ function matchesMaturityFilter(record: { isMature?: boolean | null }): boolean {
   return record.isMature !== true
 }
 
-function isOwnedPrivateRecord(record: {
+function matchesPrivacyScope(record: {
   isPublic?: boolean | null
   userId?: number | null
 }): boolean {
-  if (record.isPublic !== false) return true
+  if (galleryScope.value === 'all') return true
+  if (galleryScope.value === 'public') return record.isPublic === true
+  if (galleryScope.value !== 'private') return false
+
   const viewerId = Number(currentUserId.value)
-  const ownerId = Number(record.userId)
   return (
-    showPrivate.value &&
+    record.isPublic === false &&
     Number.isInteger(viewerId) &&
     viewerId > 0 &&
-    ownerId === viewerId
+    Number(record.userId) === viewerId
   )
 }
 
@@ -747,11 +820,9 @@ const visibleGroups = computed<GalleryGroup[]>(() => {
   const query = searchQuery.value.trim().toLowerCase()
   return collectionGroups.value.filter((group) => {
     // Unsorted is a mixed virtual bucket; keep the bucket itself and filter its
-    // rows below. Real private collections belong in this personal Gallery only
-    // when the signed-in viewer owns them and has Private switched on. Admin
-    // moderation of somebody else's private collection belongs on admin
-    // surfaces, not in the normal personal Gallery.
-    if (!group.isVirtual && !isOwnedPrivateRecord(group)) return false
+    // rows below. Real collections must match the selected public/private
+    // gallery scope. The private scope is owner-only even for admins.
+    if (!group.isVirtual && !matchesPrivacyScope(group)) return false
     if (!group.isVirtual && !matchesMaturityFilter(group)) return false
     if (query && !searchableGroupText(group).includes(query)) return false
     return true
@@ -790,7 +861,7 @@ const filteredActiveImages = computed(() => {
   if (!activeGroup.value) return []
   const query = searchQuery.value.trim().toLowerCase()
   return activeGroup.value.images.filter((image) => {
-    if (!isOwnedPrivateRecord(image)) return false
+    if (!matchesPrivacyScope(image)) return false
     if (!matchesMaturityFilter(image)) return false
     return !query || searchableImageText(image).includes(query)
   })
@@ -852,25 +923,9 @@ watch(viewSize, (value) => {
   }
 })
 
-watch(showMature, async () => {
-  if (!galleryReady.value) return
-  await reloadGalleryForVisibility()
-})
-
 watch(maturityFilter, async () => {
   if (!galleryReady.value) return
   await reloadGalleryForVisibility()
-})
-
-watch(showPrivate, async () => {
-  if (!galleryReady.value) return
-  const group = activeGroup.value
-  if (group && !group.isVirtual && !isOwnedPrivateRecord(group)) {
-    clearActiveGroup()
-  }
-  // The private set is now fetched, not filtered out of an already-fetched
-  // response, so turning the toggle on has to go and get it.
-  await fetchCollectionSummaries(true)
 })
 
 onMounted(async () => {
@@ -878,7 +933,24 @@ onMounted(async () => {
     const stored = localStorage.getItem('galleryViewSize')
     if (stored && IS_GALLERY_DENSITY(stored)) viewSize.value = stored
   }
-  await initializeGallery()
+
+  if (props.dropdownMode) {
+    galleryScope.value = 'all'
+    maturityFilter.value = 'all'
+    await initializeGallery(true)
+    galleryReady.value = true
+    return
+  }
+
+  if (canChoosePrivateGallery.value) {
+    void loadChooserPreviews()
+    galleryReady.value = true
+    return
+  }
+
+  galleryScope.value = 'public'
+  maturityFilter.value = 'safe'
+  await initializeGallery(true)
   galleryReady.value = true
 })
 
@@ -942,6 +1014,54 @@ async function handleImageCardClick(id: number) {
   await selectImage(image)
 }
 
+async function loadChooserPreviews(): Promise<void> {
+  if (chooserPreviews.value.length || chooserLoading.value) return
+  chooserLoading.value = true
+
+  try {
+    const response = await performFetch<ArtImage[]>('/api/art/gallery/chooser')
+    if (response.success && Array.isArray(response.data)) {
+      chooserPreviews.value = response.data
+    }
+  } finally {
+    chooserLoading.value = false
+  }
+}
+
+function chooserPreviewSource(index: number): string {
+  const image = chooserPreviews.value[index] ?? chooserPreviews.value[0]
+  return image ? resolveArtImageThumbSrc(image) : ''
+}
+
+async function chooseGallery(scope: 'public' | 'private'): Promise<void> {
+  galleryReady.value = false
+  galleryScope.value = scope
+  maturityFilter.value = scope === 'private' ? 'all' : 'safe'
+  activeGroupKey.value = null
+  searchQuery.value = ''
+  selectedImageForOverlay.value = null
+  selectedImageIds.value = []
+  browseStore.invalidateAll()
+
+  try {
+    await initializeGallery(true)
+  } finally {
+    galleryReady.value = true
+  }
+}
+
+function returnToGalleryChooser(): void {
+  if (!canChoosePrivateGallery.value) return
+  activeGroupKey.value = null
+  selectedImageForOverlay.value = null
+  selectedImageIds.value = []
+  errorMessage.value = ''
+  successMessage.value = ''
+  galleryScope.value = null
+  browseStore.invalidateAll()
+  void loadChooserPreviews()
+}
+
 async function reloadGalleryForVisibility() {
   isLoading.value = true
   errorMessage.value = ''
@@ -950,16 +1070,13 @@ async function reloadGalleryForVisibility() {
   try {
     const activeKey = activeGroupKey.value
     browseStore.invalidateAll()
-    await Promise.all([
-      fetchCollectionSummaries(true),
-      browseStore.fetchUnsortedSummary(true, maturityFilter.value),
-    ])
+    await fetchCollectionSummaries(true)
 
     const group = activeGroup.value
     if (
       group &&
       !group.isVirtual &&
-      (!isOwnedPrivateRecord(group) || !matchesMaturityFilter(group))
+      (!matchesPrivacyScope(group) || !matchesMaturityFilter(group))
     ) {
       clearActiveGroup()
     } else if (activeKey) {
@@ -987,10 +1104,7 @@ async function refreshGallery() {
   try {
     const activeKey = activeGroupKey.value
     browseStore.invalidateAll()
-    await Promise.all([
-      fetchCollectionSummaries(true),
-      browseStore.fetchUnsortedSummary(true, maturityFilter.value),
-    ])
+    await fetchCollectionSummaries(true)
     if (activeKey) await loadGroupData(activeKey, true)
     void refreshEarnedKarma()
     successMessage.value = 'Gallery refreshed.'
@@ -1003,17 +1117,14 @@ async function refreshGallery() {
   }
 }
 
-async function initializeGallery() {
+async function initializeGallery(force = false) {
   isLoading.value = true
   errorMessage.value = ''
   successMessage.value = ''
   hydratedImages.value = {}
 
   try {
-    await Promise.all([
-      fetchCollectionSummaries(false),
-      browseStore.fetchUnsortedSummary(false, maturityFilter.value),
-    ])
+    await fetchCollectionSummaries(force)
   } catch (error) {
     const message = getErrorMessage(error, 'Gallery failed to initialize.')
     errorMessage.value = message
@@ -1026,12 +1137,28 @@ async function initializeGallery() {
 /*
  * kr-gallery only renders this slot once its kr-viewport-gate says the tile is
  * within 1800px, so mounting IS the "came into view" signal -- there is no
- * separate observer to wire. fetchCollectionDetail dedupes and caches, so a
- * tile scrolled past and back does not refetch.
+ * separate observer to wire. Tile hydration fetches only a one-image/count
+ * summary; the full collection is fetched only after the user opens it.
  */
 function hydrateCollectionTile(group: GalleryGroup | undefined): void {
-  if (!group || group.isVirtual || group.id <= 0) return
-  void browseStore.fetchCollectionDetail(group.id)
+  if (!group) return
+
+  if (group.isVirtual && group.key === 'collection-unsorted') {
+    void browseStore.fetchUnsortedSummary(
+      false,
+      maturityFilter.value,
+      galleryScope.value ?? 'public',
+    )
+    return
+  }
+
+  if (group.id <= 0) return
+  void browseStore.fetchCollectionSummary(
+    group.id,
+    false,
+    maturityFilter.value,
+    galleryScope.value ?? 'public',
+  )
 }
 
 async function fetchCollectionSummaries(force = false) {
@@ -1043,7 +1170,7 @@ async function fetchCollectionSummaries(force = false) {
     // Filter at the QUERY, not after the response: filtering client-side still
     // makes the server count and preview every archive folder first, which is
     // the whole cost.
-    includePrivate: showPrivate.value,
+    privacy: galleryScope.value ?? 'public',
     includeMature: maturityFilter.value !== 'safe',
     maturity: maturityFilter.value,
     // Skeletons first: the list comes back as bare scalars so it paints
@@ -1055,7 +1182,11 @@ async function fetchCollectionSummaries(force = false) {
 
 async function loadGroupData(key: string, force = false): Promise<void> {
   if (key === 'collection-unsorted') {
-    await browseStore.fetchUnsortedImages(force, maturityFilter.value)
+    await browseStore.fetchUnsortedImages(
+      force,
+      maturityFilter.value,
+      galleryScope.value ?? 'public',
+    )
     return
   }
 
@@ -1068,32 +1199,38 @@ async function loadGroupData(key: string, force = false): Promise<void> {
 async function refreshBrowseData(): Promise<void> {
   const activeKey = activeGroupKey.value
   browseStore.invalidateAll()
-  await Promise.all([
-    fetchCollectionSummaries(true),
-    browseStore.fetchUnsortedSummary(true, maturityFilter.value),
-  ])
+  await fetchCollectionSummaries(true)
   if (activeKey) await loadGroupData(activeKey, true)
 }
 
 function normalizeCollectionGroup(collection: ArtCollection): GalleryGroup {
   const summary = collection as GalleryCollection
-  const detail = browseStore.collectionDetails[collection.id] ?? summary
-  const detailImages = getCollectionImages(detail)
+  const tileSummary = browseStore.collectionSummaries[collection.id] ?? summary
+  const fullDetail = browseStore.collectionDetails[collection.id]
+  const displaySource = fullDetail ?? tileSummary
+  const displayImages = getCollectionImages(displaySource)
   const explicitCount = Number(
-    summary.artImageCount ?? summary._count?.ArtImages,
+    tileSummary.artImageCount ??
+      tileSummary._count?.ArtImages ??
+      fullDetail?.artImageCount ??
+      fullDetail?._count?.ArtImages,
   )
   const imageCount =
     Number.isInteger(explicitCount) && explicitCount >= 0
       ? explicitCount
-      : detailImages.length
-  const preview = summary.previewArtImage
-    ? hydratedImages.value[summary.previewArtImage.id] ||
-      summary.previewArtImage
-    : (detailImages[0] ?? null)
-  const hasDetail = Boolean(browseStore.collectionDetails[collection.id])
-  const images = hasDetail ? detailImages : preview ? [preview] : detailImages
+      : displayImages.length
+  const preview = tileSummary.previewArtImage
+    ? hydratedImages.value[tileSummary.previewArtImage.id] ||
+      tileSummary.previewArtImage
+    : (displayImages[0] ?? null)
+  const hasFullDetail = Boolean(fullDetail)
+  const images = hasFullDetail
+    ? displayImages
+    : preview
+      ? [preview]
+      : displayImages
   const displayCollection = {
-    ...detail,
+    ...displaySource,
     artImageCount: imageCount,
     previewArtImage: preview,
     art: images,
@@ -1163,7 +1300,7 @@ function getPreviewImage(group: GalleryGroup): ArtImage | null {
   const preview = group.previewArtImage
   if (
     preview &&
-    isOwnedPrivateRecord(preview) &&
+    matchesPrivacyScope(preview) &&
     matchesMaturityFilter(preview) &&
     (showMature.value || !preview.isMature)
   ) {
@@ -1171,7 +1308,7 @@ function getPreviewImage(group: GalleryGroup): ArtImage | null {
   }
   const image = group.images.find(
     (entry) =>
-      isOwnedPrivateRecord(entry) &&
+      matchesPrivacyScope(entry) &&
       matchesMaturityFilter(entry) &&
       (showMature.value || !entry.isMature),
   )

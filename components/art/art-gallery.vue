@@ -1137,8 +1137,8 @@ async function initializeGallery(force = false) {
 /*
  * kr-gallery only renders this slot once its kr-viewport-gate says the tile is
  * within 1800px, so mounting IS the "came into view" signal -- there is no
- * separate observer to wire. fetchCollectionDetail dedupes and caches, so a
- * tile scrolled past and back does not refetch.
+ * separate observer to wire. Tile hydration fetches only a one-image/count
+ * summary; the full collection is fetched only after the user opens it.
  */
 function hydrateCollectionTile(group: GalleryGroup | undefined): void {
   if (!group) return

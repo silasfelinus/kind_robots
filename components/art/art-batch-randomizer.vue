@@ -208,7 +208,9 @@ const readiness = computed(() => {
   if (!artStore.finalPromptString) return 'Write a prompt first.'
   if (batch.value > MAX_RANDOM_BATCH) return `Maximum ${MAX_RANDOM_BATCH}.`
   if (hasPlaceholders.value) {
-    return `${batch.value} job${batch.value === 1 ? '' : 's'}, placeholders rolled automatically.`
+    return `${batch.value} job${
+      batch.value === 1 ? '' : 's'
+    }, placeholders rolled automatically.`
   }
   return `${batch.value} job${batch.value === 1 ? '' : 's'} on Generate.`
 })

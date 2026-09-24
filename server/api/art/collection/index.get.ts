@@ -52,6 +52,22 @@ function queryFlag(value: unknown, fallback: boolean): boolean {
 }
 
 type CollectionMaturityFilter = 'all' | 'mature' | 'safe'
+type CollectionPrivacyFilter = 'all' | 'public' | 'private'
+
+function queryPrivacyFilter(
+  value: unknown,
+  fallback: CollectionPrivacyFilter,
+): CollectionPrivacyFilter {
+  const normalized = firstQueryValue(value).trim().toLowerCase()
+  if (
+    normalized === 'public' ||
+    normalized === 'private' ||
+    normalized === 'all'
+  ) {
+    return normalized
+  }
+  return fallback
+}
 
 function queryMaturityFilter(
   value: unknown,
@@ -122,6 +138,10 @@ export default defineEventHandler(async (event) => {
      */
     const includePrivate = queryFlag(query.includePrivate, true)
     const includeMature = queryFlag(query.includeMature, true)
+    const privacy = queryPrivacyFilter(
+      query.privacy,
+      includePrivate ? 'all' : 'public',
+    )
     const maturity = queryMaturityFilter(
       query.maturity,
       includeMature ? 'all' : 'safe',
@@ -157,8 +177,24 @@ export default defineEventHandler(async (event) => {
      */
     const access = await getArtImageAccessContext(event)
 
+    const privacyImageFilter: Prisma.ArtImageWhereInput =
+      privacy === 'all'
+        ? {}
+        : privacy === 'public'
+          ? { isPublic: true }
+          : access.userId
+            ? { isPublic: false, userId: access.userId }
+            : { id: -1 }
+    const privacyCollectionFilter: Prisma.ArtCollectionWhereInput =
+      privacy === 'all'
+        ? {}
+        : privacy === 'public'
+          ? { isPublic: true }
+          : access.userId
+            ? { isPublic: false, userId: access.userId }
+            : { id: -1 }
     const displayFilter: Prisma.ArtImageWhereInput[] = [
-      ...(includePrivate ? [] : [{ isPublic: true }]),
+      privacyImageFilter,
       ...(maturity === 'all' ? [] : [{ isMature: maturity === 'mature' }]),
     ]
     const imageWhere: Prisma.ArtImageWhereInput = displayFilter.length
@@ -197,7 +233,7 @@ export default defineEventHandler(async (event) => {
         // Narrowing the COLLECTION list too, not just the images inside it, is
         // the part that actually makes this fast: it drops the 443 archive
         // folders before any per-collection count or preview runs.
-        ...(includePrivate ? [] : [{ isPublic: true }]),
+        privacyCollectionFilter,
         ...(maturity === 'all' ? [] : [{ isMature: maturity === 'mature' }]),
       ],
     }

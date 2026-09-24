@@ -157,18 +157,11 @@ export function loraCategoryPlaceholders(): string[] {
 // did not come from someone reading a filename. These are checked first and
 // reported as CIVITAI, so the editor can show "upstream said so" rather than
 // "we guessed".
+// PURPOSE TAGS BEFORE CHARACTER. Civitai commonly tags a pose/style LoRA with
+// the generic character umbrella as well as the tag that says what it actually
+// does. CHARACTER-first made those rows disappear from {action}/{style}.
+// HUMAN classifications are separate and are never touched by this table.
 const CIVITAI_TAG_CATEGORIES: Array<[LoraCategory, string[]]> = [
-  /*
-   * PURPOSE TAGS BEFORE CHARACTER.
-   *
-   * Civitai commonly tags a pose/style LoRA with the generic `character`
-   * umbrella as well as the tag that says what the LoRA actually DOES. The
-   * previous order put CHARACTER first, so `['character', 'poses']` became a
-   * character LoRA and vanished from {action}; `['character', 'style']` had
-   * the same problem despite this classifier's long-standing promise that
-   * style wins that tie. Keep the two high-signal purpose categories first.
-   * HUMAN classifications are separate and are never touched by this table.
-   */
   [
     'ACTION',
     ['poses', 'pose', 'action', 'motion', 'dance', 'dancing', 'gesture'],

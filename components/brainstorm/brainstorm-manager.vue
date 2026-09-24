@@ -1146,10 +1146,16 @@ const artProgressLabel = computed(() => {
 // this catalog at all, since those are entity-recreation/edit engines that
 // need a source image, which no brainstorm candidate has.
 const artEngineOptions: { engine: ArtGeneratorEngine; label: string }[] =
-  Object.values(ART_ENGINE_PROFILES).map((profile) => ({
-    engine: profile.engine,
-    label: profile.label,
-  }))
+  Object.values(ART_ENGINE_PROFILES)
+    .filter(
+      (profile) =>
+        profile.supports.sourceImage !== 'required' &&
+        profile.engine !== 'sdxl-img2img',
+    )
+    .map((profile) => ({
+      engine: profile.engine,
+      label: profile.label,
+    }))
 
 const errorHeading = computed(() => {
   switch (generationError.value?.kind) {

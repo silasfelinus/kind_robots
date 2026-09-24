@@ -2,7 +2,7 @@
 <template>
   <section class="kr-surface gap-0">
     <div
-      v-if="isLoadingManager && activeTab !== 'artjob'"
+      v-if="isLoadingManager && shouldLoadManagerData"
       class="flex h-full min-h-0 flex-1 items-center justify-center kr-panel"
     >
       <div class="flex flex-col items-center gap-3 text-center">
@@ -14,7 +14,7 @@
     </div>
 
     <div
-      v-else-if="managerError && activeTab !== 'artjob'"
+      v-else-if="managerError && shouldLoadManagerData"
       class="kr-stage kr-note kr-note-error"
     >
       <div class="flex flex-wrap items-center justify-between gap-3">
@@ -289,6 +289,9 @@ const activeTab = computed<ArtTab>(() => {
 })
 
 const forumPostId = computed(() => querySelectionId(route.query.forumPost))
+const shouldLoadManagerData = computed(
+  () => activeTab.value !== 'gallery' && activeTab.value !== 'artjob',
+)
 
 const shouldLiveRefreshArtJobs = computed(() => {
   return (
@@ -426,8 +429,8 @@ function clearArtPreview(): void {
 }
 
 watch(shouldLiveRefreshArtJobs, syncArtJobLiveRefresh, { immediate: true })
-watch(activeTab, (tab) => {
-  if (tab !== 'artjob') {
+watch(activeTab, () => {
+  if (shouldLoadManagerData.value) {
     void loadManagerData()
   }
 })
@@ -450,7 +453,7 @@ async function syncArtFromRoute(): Promise<void> {
 
 onMounted(async () => {
   document.addEventListener('visibilitychange', handleVisibilityChange)
-  if (activeTab.value !== 'artjob') {
+  if (shouldLoadManagerData.value) {
     await loadManagerData()
   }
   await syncArtFromRoute()

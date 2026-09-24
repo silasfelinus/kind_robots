@@ -749,7 +749,13 @@ const collectionGroups = computed<GalleryGroup[]>(() => {
   if (props.dropdownMode) return groups
 
   const summary = browseStore.unsortedSummary
-  if (!summary.count && !browseStore.unsortedImages.length) return groups
+  if (
+    browseStore.unsortedSummaryLoaded &&
+    !summary.count &&
+    !browseStore.unsortedImages.length
+  ) {
+    return groups
+  }
 
   const fullImages = browseStore.unsortedImages
     .map((image) => hydratedImages.value[image.id] || image)
@@ -1064,14 +1070,7 @@ async function reloadGalleryForVisibility() {
   try {
     const activeKey = activeGroupKey.value
     browseStore.invalidateAll()
-    await Promise.all([
-      fetchCollectionSummaries(true),
-      browseStore.fetchUnsortedSummary(
-        true,
-        maturityFilter.value,
-        galleryScope.value ?? 'public',
-      ),
-    ])
+    await fetchCollectionSummaries(true)
 
     const group = activeGroup.value
     if (
@@ -1105,14 +1104,7 @@ async function refreshGallery() {
   try {
     const activeKey = activeGroupKey.value
     browseStore.invalidateAll()
-    await Promise.all([
-      fetchCollectionSummaries(true),
-      browseStore.fetchUnsortedSummary(
-        true,
-        maturityFilter.value,
-        galleryScope.value ?? 'public',
-      ),
-    ])
+    await fetchCollectionSummaries(true)
     if (activeKey) await loadGroupData(activeKey, true)
     void refreshEarnedKarma()
     successMessage.value = 'Gallery refreshed.'
@@ -1132,14 +1124,7 @@ async function initializeGallery(force = false) {
   hydratedImages.value = {}
 
   try {
-    await Promise.all([
-      fetchCollectionSummaries(force),
-      browseStore.fetchUnsortedSummary(
-        force,
-        maturityFilter.value,
-        galleryScope.value ?? 'public',
-      ),
-    ])
+    await fetchCollectionSummaries(force)
   } catch (error) {
     const message = getErrorMessage(error, 'Gallery failed to initialize.')
     errorMessage.value = message
@@ -1156,8 +1141,24 @@ async function initializeGallery(force = false) {
  * tile scrolled past and back does not refetch.
  */
 function hydrateCollectionTile(group: GalleryGroup | undefined): void {
-  if (!group || group.isVirtual || group.id <= 0) return
-  void browseStore.fetchCollectionDetail(group.id)
+  if (!group) return
+
+  if (group.isVirtual && group.key === 'collection-unsorted') {
+    void browseStore.fetchUnsortedSummary(
+      false,
+      maturityFilter.value,
+      galleryScope.value ?? 'public',
+    )
+    return
+  }
+
+  if (group.id <= 0) return
+  void browseStore.fetchCollectionSummary(
+    group.id,
+    false,
+    maturityFilter.value,
+    galleryScope.value ?? 'public',
+  )
 }
 
 async function fetchCollectionSummaries(force = false) {
@@ -1198,36 +1199,38 @@ async function loadGroupData(key: string, force = false): Promise<void> {
 async function refreshBrowseData(): Promise<void> {
   const activeKey = activeGroupKey.value
   browseStore.invalidateAll()
-  await Promise.all([
-    fetchCollectionSummaries(true),
-    browseStore.fetchUnsortedSummary(
-      true,
-      maturityFilter.value,
-      galleryScope.value ?? 'public',
-    ),
-  ])
+  await fetchCollectionSummaries(true)
   if (activeKey) await loadGroupData(activeKey, true)
 }
 
 function normalizeCollectionGroup(collection: ArtCollection): GalleryGroup {
   const summary = collection as GalleryCollection
-  const detail = browseStore.collectionDetails[collection.id] ?? summary
-  const detailImages = getCollectionImages(detail)
+  const tileSummary = browseStore.collectionSummaries[collection.id] ?? summary
+  const fullDetail = browseStore.collectionDetails[collection.id]
+  const displaySource = fullDetail ?? tileSummary
+  const displayImages = getCollectionImages(displaySource)
   const explicitCount = Number(
-    summary.artImageCount ?? summary._count?.ArtImages,
+    tileSummary.artImageCount ??
+      tileSummary._count?.ArtImages ??
+      fullDetail?.artImageCount ??
+      fullDetail?._count?.ArtImages,
   )
   const imageCount =
     Number.isInteger(explicitCount) && explicitCount >= 0
       ? explicitCount
-      : detailImages.length
-  const preview = summary.previewArtImage
-    ? hydratedImages.value[summary.previewArtImage.id] ||
-      summary.previewArtImage
-    : (detailImages[0] ?? null)
-  const hasDetail = Boolean(browseStore.collectionDetails[collection.id])
-  const images = hasDetail ? detailImages : preview ? [preview] : detailImages
+      : displayImages.length
+  const preview = tileSummary.previewArtImage
+    ? hydratedImages.value[tileSummary.previewArtImage.id] ||
+      tileSummary.previewArtImage
+    : (displayImages[0] ?? null)
+  const hasFullDetail = Boolean(fullDetail)
+  const images = hasFullDetail
+    ? displayImages
+    : preview
+      ? [preview]
+      : displayImages
   const displayCollection = {
-    ...detail,
+    ...displaySource,
     artImageCount: imageCount,
     previewArtImage: preview,
     art: images,

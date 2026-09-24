@@ -277,7 +277,10 @@ const collectionGalleryApi = readFileSync(
 )
 assert.ok(collectionGalleryApi.includes('queryMaturityFilter'))
 assert.ok(collectionGalleryApi.includes('queryPrivacyFilter'))
-assert.ok(collectionGalleryApi.includes("privacy === 'private'"))
+assert.ok(collectionGalleryApi.includes("type CollectionPrivacyFilter = 'all' | 'public' | 'private'"))
+assert.ok(
+  collectionGalleryApi.includes('{ isPublic: false, userId: access.userId }'),
+)
 assert.ok(collectionGalleryApi.includes("maturity === 'mature'"))
 
 const unsortedGalleryApi = readFileSync(
@@ -286,7 +289,14 @@ const unsortedGalleryApi = readFileSync(
 )
 assert.ok(unsortedGalleryApi.includes('readMaturityFilter'))
 assert.ok(unsortedGalleryApi.includes('readPrivacyFilter'))
-assert.ok(unsortedGalleryApi.includes("privacy === 'private'"))
+assert.ok(
+  unsortedGalleryApi.includes(
+    "type GalleryPrivacyFilter = 'all' | 'public' | 'private'",
+  ),
+)
+assert.ok(
+  unsortedGalleryApi.includes('{ isPublic: false, userId: access.userId }'),
+)
 assert.ok(unsortedGalleryApi.includes("maturity === 'mature'"))
 
 const galleryChooserApi = readFileSync(

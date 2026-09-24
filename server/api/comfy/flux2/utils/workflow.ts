@@ -55,9 +55,7 @@ function flux2Prompt(input: {
     (Array.isArray(input.jsonPrompt)
       ? input.jsonPrompt.length > 0
       : Object.keys(input.jsonPrompt).length > 0)
-  return hasJson
-    ? JSON.stringify(input.jsonPrompt)
-    : input.prompt?.trim() || ''
+  return hasJson ? JSON.stringify(input.jsonPrompt) : input.prompt?.trim() || ''
 }
 
 /**

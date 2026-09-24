@@ -278,7 +278,8 @@ export const ART_GENERATOR_PRESETS: ArtGeneratorPreset[] = [
   {
     id: 'sdxl-standard',
     label: 'Checkpoint · Standard',
-    blurb: '20 steps, cfg 3, euler — for SDXL, Pony, Illustrious, SD 1.5, and other undistilled checkpoints.',
+    blurb:
+      '20 steps, cfg 3, euler — for SDXL, Pony, Illustrious, SD 1.5, and other undistilled checkpoints.',
     engine: 'comfy',
     steps: 20,
     cfg: 3,

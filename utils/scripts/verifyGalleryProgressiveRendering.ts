@@ -194,6 +194,21 @@ requireText(
 )
 requireText(
   artGallery,
+  'browseStore.fetchCollectionSummary',
+  'collection tiles must hydrate counts/previews without loading full collections',
+)
+requireText(
+  browseStore,
+  'async function fetchCollectionSummary(',
+  'collection browse store must expose lightweight tile-summary hydration',
+)
+requireText(
+  browseStore,
+  "imageLimit: '1'",
+  'collection tile hydration must cap preview images to one',
+)
+requireText(
+  artGallery,
   'browseStore.fetchUnsortedSummary',
   'art gallery must derive Unsorted through the DB browse query',
 )

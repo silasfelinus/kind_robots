@@ -38,7 +38,7 @@
               </span>
               <span v-else class="flex items-center gap-2">
                 <Icon name="kind-icon:sparkles" class="kr-icon-5" />
-                {{ canAfford ? 'Generate Image' : 'Out of mana, top up' }}
+                {{ canAfford ? generateButtonLabel : 'Out of mana, top up' }}
               </span>
             </button>
 
@@ -1171,6 +1171,21 @@ const busyLabel = computed(() => {
   return 'Generating…'
 })
 
+const promptHasRandomPlaceholders = computed(() =>
+  /\{\s*[a-zA-Z0-9_:-]+\s*\}/.test(artStore.finalPromptString || ''),
+)
+
+const usesBatchQueue = computed(
+  () => artStore.generationBatchSize > 1 || promptHasRandomPlaceholders.value,
+)
+
+const generateButtonLabel = computed(() => {
+  if (artStore.generationBatchSize > 1) {
+    return `Queue ${artStore.generationBatchSize} Images`
+  }
+  return promptHasRandomPlaceholders.value ? 'Roll & Queue Image' : 'Generate Image'
+})
+
 const readinessSummary = computed(() => {
   if (!artStore.finalPromptString) return 'Write a prompt to begin.'
   if (sourceImageRequired.value && !sourceImage.value) {
@@ -1178,6 +1193,10 @@ const readinessSummary = computed(() => {
   }
   if (!canAfford.value) return 'Your mana balance is empty.'
   const parts = [activePreset.value.label]
+  if (artStore.generationBatchSize > 1) {
+    parts.push(`batch ${artStore.generationBatchSize}`)
+  }
+  if (promptHasRandomPlaceholders.value) parts.push('random placeholders')
   if (usesSourceImage.value) parts.push('+ source image')
   if (activeProfile.value.supports.checkpoint && checkpointName.value) {
     parts.push(checkpointName.value)
@@ -1322,7 +1341,13 @@ function buildOverrides(): GenerateOverrides {
 }
 
 async function handleGenerate(): Promise<void> {
-  const result = await artStore.generateCurrentArt(buildOverrides())
+  const overrides = buildOverrides()
+  const result = usesBatchQueue.value
+    ? await artStore.enqueueRandomizedArtBatch({
+        batch: artStore.generationBatchSize,
+        overrides,
+      })
+    : await artStore.generateCurrentArt(overrides)
   if (result.success) return
 
   const message = result.message || 'Generation failed.'

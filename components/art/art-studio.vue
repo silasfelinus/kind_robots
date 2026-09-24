@@ -1,7 +1,7 @@
 <template>
   <section class="kr-surface gap-0">
     <nav
-      class="mb-2 flex shrink-0 flex-wrap items-center gap-2 kr-panel-flat p-2"
+      class="mb-2 flex shrink-0 flex-nowrap items-center gap-2 overflow-x-auto kr-panel-flat p-2"
       aria-label="Art studio views"
     >
       <button
@@ -9,7 +9,7 @@
         class="kr-btn"
         :class="activeTab === 'generate' ? 'btn-primary' : 'btn-ghost'"
         :aria-pressed="activeTab === 'generate'"
-        @click="selectPrimaryTab('generate')"
+        @click="selectPrimaryView('generate')"
       >
         <Icon name="kind-icon:sparkles" class="kr-icon-4" />
         Generate
@@ -18,17 +18,25 @@
       <button
         type="button"
         class="kr-btn"
-        :class="activeTab === 'gallery' ? 'btn-primary' : 'btn-ghost'"
-        :aria-pressed="activeTab === 'gallery'"
-        @click="selectPrimaryTab('gallery')"
+        :class="isPublicGallery ? 'btn-primary' : 'btn-ghost'"
+        :aria-pressed="isPublicGallery"
+        @click="selectPrimaryView('gallery')"
       >
         <Icon name="kind-icon:gallery" class="kr-icon-4" />
         Gallery
       </button>
 
-      <p class="kr-text-dim-xs-55 ml-1 hidden md:block">
-        Make something new, or browse what you already made.
-      </p>
+      <button
+        v-if="userStore.isAdmin"
+        type="button"
+        class="kr-btn"
+        :class="isPrivateGallery ? 'btn-primary' : 'btn-ghost'"
+        :aria-pressed="isPrivateGallery"
+        @click="selectPrimaryView('private')"
+      >
+        <Icon name="kind-icon:lock" class="kr-icon-4" />
+        Private
+      </button>
 
       <div
         v-if="showGalleryFilters"
@@ -54,7 +62,7 @@
       </div>
 
       <label
-        v-if="showGalleryFilters"
+        v-if="showAdminGalleryControls"
         class="flex shrink-0 cursor-pointer items-center gap-2 rounded-lg border border-error/30 bg-base-100 px-2 py-1"
         title="Arm one-click delete buttons on gallery images"
       >
@@ -80,8 +88,9 @@ import {
   type GalleryMaturityFilter,
 } from '@/stores/artCollectionBrowseStore'
 import { useNavStore } from '@/stores/navStore'
+import { useUserStore } from '@/stores/userStore'
 
-type ArtPrimaryTab = 'generate' | 'gallery'
+type ArtPrimaryView = 'generate' | 'gallery' | 'private'
 
 const MATURITY_FILTER_OPTIONS: readonly {
   value: GalleryMaturityFilter
@@ -94,8 +103,19 @@ const MATURITY_FILTER_OPTIONS: readonly {
 
 const navStore = useNavStore()
 const browseStore = useArtCollectionBrowseStore()
+const userStore = useUserStore()
 
 const activeTab = computed(() => navStore.getDashboardTab('art'))
+const isPublicGallery = computed(
+  () =>
+    activeTab.value === 'gallery' &&
+    browseStore.galleryPrivacyFilter === 'public',
+)
+const isPrivateGallery = computed(
+  () =>
+    activeTab.value === 'gallery' &&
+    browseStore.galleryPrivacyFilter === 'private',
+)
 const maturityFilter = computed<GalleryMaturityFilter>({
   get: () => browseStore.galleryMaturityFilter,
   set: (value) => browseStore.setGalleryMaturityFilter(value),
@@ -104,13 +124,25 @@ const deleteMode = computed<boolean>({
   get: () => browseStore.galleryDeleteMode,
   set: (value) => browseStore.setGalleryDeleteMode(value),
 })
-const showGalleryFilters = computed(
-  () =>
-    activeTab.value === 'gallery' && browseStore.galleryPrivacyFilter !== null,
+const showGalleryFilters = computed(() => activeTab.value === 'gallery')
+const showAdminGalleryControls = computed(
+  () => showGalleryFilters.value && userStore.isAdmin,
 )
 
-function selectPrimaryTab(tab: ArtPrimaryTab): void {
-  if (tab !== 'gallery') browseStore.setGalleryDeleteMode(false)
-  navStore.setDashboardTab('art', tab, 'art studio primary navigation')
+function selectPrimaryView(view: ArtPrimaryView): void {
+  if (view === 'generate') {
+    browseStore.setGalleryDeleteMode(false)
+    navStore.setDashboardTab('art', 'generate', 'art studio primary navigation')
+    return
+  }
+
+  if (view === 'private') {
+    if (!userStore.isAdmin) return
+    browseStore.setGalleryPrivacyFilter('private')
+  } else {
+    browseStore.setGalleryPrivacyFilter('public')
+  }
+
+  navStore.setDashboardTab('art', 'gallery', 'art studio primary navigation')
 }
 </script>

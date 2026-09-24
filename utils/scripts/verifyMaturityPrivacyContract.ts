@@ -203,6 +203,10 @@ assert.ok(artGallery.includes('Number(currentUserId.value) === 1'))
 assert.ok(artGallery.includes('aria-label="Choose a gallery"'))
 assert.ok(artGallery.includes('@click="chooseGallery(\'public\')"'))
 assert.ok(artGallery.includes('@click="chooseGallery(\'private\')"'))
+assert.ok(artGallery.includes("'/images/kindart.webp'"))
+assert.ok(artGallery.includes("'/images/backtree.webp'"))
+assert.ok(!artGallery.includes('/api/art/gallery/chooser'))
+assert.ok(!artGallery.includes('loadChooserPreviews'))
 assert.ok(artGallery.includes("privacy: galleryScope.value ?? 'public'"))
 assert.ok(!artGallery.includes('showPrivate'))
 assert.ok(!artGallery.includes('watch(showMature'))
@@ -338,14 +342,6 @@ assert.ok(
   unsortedGalleryApi.includes('{ isPublic: false, userId: access.userId }'),
 )
 assert.ok(unsortedGalleryApi.includes("maturity === 'mature'"))
-
-const galleryChooserApi = readFileSync(
-  'server/api/art/gallery/chooser.get.ts',
-  'utf8',
-)
-assert.ok(galleryChooserApi.includes('isPublic: true'))
-assert.ok(galleryChooserApi.includes('isMature: false'))
-assert.ok(galleryChooserApi.includes('take: 2'))
 
 for (const galleryApi of [
   'server/api/art/collection/index.get.ts',

@@ -15,7 +15,7 @@
       :ruler-custom-portrait-id="save.ruler.cosmetics?.customPortraitId ?? null"
     />
 
-    <div class="grid gap-2 sm:grid-cols-2">
+    <div class="grid grid-cols-[repeat(auto-fit,minmax(10rem,1fr))] gap-2">
       <div
         v-for="axis in troubledAxes"
         :key="axis.key"
@@ -33,11 +33,13 @@
       <div class="mb-2 flex items-center justify-between gap-2">
         <div>
           <p class="kr-text-faded-xs kr-text-eyebrow-bold">PEOPLE OF THE REALM</p>
-          <p class="kr-text-faded-sm-80">Faces behind the petitions and consequences.</p>
+          <p class="kr-text-faded-sm-80">
+            Faces behind the petitions and consequences.
+          </p>
         </div>
         <span class="badge badge-ghost">{{ populace.length }}</span>
       </div>
-      <div class="grid grid-cols-2 gap-2 sm:grid-cols-3">
+      <div class="grid grid-cols-[repeat(auto-fit,minmax(8rem,1fr))] gap-2">
         <article
           v-for="person in populace"
           :key="person.slug"
@@ -61,14 +63,18 @@
           </div>
           <div class="p-2">
             <p class="truncate text-sm font-bold">{{ person.name }}</p>
-            <p class="kr-text-faded-xs line-clamp-2">{{ person.role || person.drive || 'Citizen of the realm' }}</p>
+            <p class="kr-text-faded-xs line-clamp-2">
+              {{ person.role || person.drive || 'Citizen of the realm' }}
+            </p>
           </div>
         </article>
       </div>
     </div>
 
     <div>
-      <p class="kr-text-faded-xs kr-text-eyebrow-bold mb-2">RECENT CONSEQUENCES</p>
+      <p class="kr-text-faded-xs kr-text-eyebrow-bold mb-2">
+        RECENT CONSEQUENCES
+      </p>
       <ol v-if="recentChoices.length" class="flex flex-col gap-2">
         <li
           v-for="entry in recentChoices"
@@ -77,17 +83,26 @@
         >
           <span class="kr-text-faded-xs">Turn {{ entry.turn }}</span>
           <p class="font-medium">{{ entry.choiceText }}</p>
-          <p v-if="entry.resultText" class="kr-text-faded-sm-80 mt-1">{{ entry.resultText }}</p>
+          <p v-if="entry.resultText" class="kr-text-faded-sm-80 mt-1">
+            {{ entry.resultText }}
+          </p>
         </li>
       </ol>
-      <p v-else class="kr-text-faded-sm-80">The realm is waiting for its first decision.</p>
+      <p v-else class="kr-text-faded-sm-80">
+        The realm is waiting for its first decision.
+      </p>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { AXIS_KEYS } from '~/types/ruler-hooked'
-import type { ContentBundle, RegionsManifest, RunSave, SceneState } from '~/types/ruler-hooked'
+import type {
+  ContentBundle,
+  RegionsManifest,
+  RunSave,
+  SceneState,
+} from '~/types/ruler-hooked'
 import { characterFallbackPortraitPath } from '~/utils/rulerHooked/characterArt'
 
 const props = defineProps<{
@@ -119,7 +134,9 @@ const troubledAxes = computed(() =>
 )
 
 const weakest = computed(() => troubledAxes.value[0])
-const strongest = computed(() => [...axisState.value].sort((a, b) => b.value - a.value)[0])
+const strongest = computed(
+  () => [...axisState.value].sort((a, b) => b.value - a.value)[0],
+)
 const realmHeadline = computed(() => {
   if (!weakest.value || !strongest.value) return 'The realm endures.'
   if (weakest.value.value <= 30) return `${weakest.value.key} demands attention.`
@@ -127,7 +144,9 @@ const realmHeadline = computed(() => {
   return 'The realm is holding together.'
 })
 const realmSummary = computed(() => {
-  if (!weakest.value || !strongest.value) return 'Your choices will leave marks on this place.'
+  if (!weakest.value || !strongest.value) {
+    return 'Your choices will leave marks on this place.'
+  }
   return `${strongest.value.key} is your strongest front; ${weakest.value.key} is the pressure point people feel most.`
 })
 
@@ -137,5 +156,7 @@ const populace = computed(() =>
     .slice(0, 6),
 )
 
-const recentChoices = computed(() => [...props.save.choiceLog].reverse().slice(0, 4))
+const recentChoices = computed(() =>
+  [...props.save.choiceLog].reverse().slice(0, 4),
+)
 </script>

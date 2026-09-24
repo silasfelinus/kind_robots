@@ -126,7 +126,9 @@ function renderFrame(timestamp: number): void {
   animationFrameId = window.requestAnimationFrame(renderFrame)
 }
 
-function eventPoint(event: PointerEvent | MouseEvent): { x: number; y: number } | null {
+function eventPoint(
+  event: PointerEvent | MouseEvent,
+): { x: number; y: number } | null {
   const canvas = canvasRef.value
   if (!canvas) return null
   const rect = canvas.getBoundingClientRect()

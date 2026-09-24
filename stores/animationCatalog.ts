@@ -141,7 +141,8 @@ export const ANIMATION_EFFECTS = [
     label: 'Bioluminescent Tide',
     reveal: 'The deep is awake',
     icon: 'kind-icon:wave',
-    tooltip: 'Drifting lantern life follows your wake; click for a tide pulse 🌊',
+    tooltip:
+      'Drifting lantern life follows your wake; click for a tide pulse 🌊',
     color: '#2dd4bf',
     releasedAt: '2026-07-14T06:01:59Z',
     generationSafe: true,
@@ -152,7 +153,8 @@ export const ANIMATION_EFFECTS = [
     label: 'Paper Lantern Weather',
     reveal: 'Steady in the wind',
     icon: 'kind-icon:wind',
-    tooltip: 'Folded lanterns dim before a gust and relight in sheltered eddies; click to release a paper bird 🏮',
+    tooltip:
+      'Folded lanterns dim before a gust and relight in sheltered eddies; click to release a paper bird 🏮',
     color: '#fdba74',
     releasedAt: '2026-07-20T07:23:42Z',
     generationSafe: true,
@@ -163,7 +165,8 @@ export const ANIMATION_EFFECTS = [
     label: 'Magnetic Sand Garden',
     reveal: 'The dunes reorganize',
     icon: 'kind-icon:vortex',
-    tooltip: 'Metallic sand gathers into ridges and valleys; click to flip the field 🧲',
+    tooltip:
+      'Metallic sand gathers into ridges and valleys; click to flip the field 🧲',
     color: '#94a3b8',
     releasedAt: '2026-07-21T08:17:33Z',
     generationSafe: true,
@@ -174,7 +177,8 @@ export const ANIMATION_EFFECTS = [
     label: 'Stained Glass Rain',
     reveal: 'Leaded light',
     icon: 'kind-icon:gem',
-    tooltip: 'Leaded panes drift and merge as rain sheens trace the seams; click for a rose window 🌈',
+    tooltip:
+      'Leaded panes drift and merge as rain sheens trace the seams; click for a rose window 🌈',
     color: '#7c6fd8',
     releasedAt: '2026-07-22T00:24:42Z',
     generationSafe: true,
@@ -185,7 +189,8 @@ export const ANIMATION_EFFECTS = [
     label: 'Gravity Garden',
     reveal: 'The garden noticed you',
     icon: 'kind-icon:sprout',
-    tooltip: 'Orbiting seeds grow a luminous garden; click for a gravity bloom 🌱',
+    tooltip:
+      'Orbiting seeds grow a luminous garden; click for a gravity bloom 🌱',
     color: '#4ade80',
     generationSafe: true,
     preferredSurface: 'fullscreen',
@@ -195,7 +200,8 @@ export const ANIMATION_EFFECTS = [
     label: 'Clockwork Greenhouse',
     reveal: 'The garden keeps its own time',
     icon: 'kind-icon:greenhouse',
-    tooltip: 'Brass stems grow, bloom, and seed on staggered timelines while gear pollinators make their rounds; click to plant a seed 🌱',
+    tooltip:
+      'Brass stems grow, bloom, and seed on staggered timelines while gear pollinators make their rounds; click to plant a seed 🌱',
     color: '#b08d57',
     releasedAt: '2026-07-22T16:54:55Z',
     generationSafe: true,
@@ -218,7 +224,8 @@ export const ANIMATION_EFFECTS = [
     label: 'Cloud City Drift',
     reveal: 'The skyline surfaces',
     icon: 'kind-icon:cloud',
-    tooltip: 'Layered clouds drift past a hidden skyline; click for a distant beacon reply ☁️',
+    tooltip:
+      'Layered clouds drift past a hidden skyline; click for a distant beacon reply ☁️',
     color: '#7dd3fc',
     releasedAt: '2026-07-25T13:25:18Z',
     generationSafe: true,
@@ -229,7 +236,8 @@ export const ANIMATION_EFFECTS = [
     label: 'Moth Constellation',
     reveal: 'The pattern holds',
     icon: 'kind-icon:moon',
-    tooltip: 'Moths gather around unseen moonlight and briefly trace a constellation before scattering; move the pointer to draw a few closer 🌙',
+    tooltip:
+      'Moths gather around unseen moonlight and briefly trace a constellation before scattering; move the pointer to draw a few closer 🌙',
     color: '#8ea3c7',
     releasedAt: '2026-07-26T10:08:15Z',
     generationSafe: true,
@@ -431,7 +439,8 @@ export const ANIMATION_EFFECTS = [
     label: 'Pac-Bot',
     reveal: 'Nom nom nom',
     icon: 'kind-icon:robot',
-    tooltip: 'Move to leave crumbs, Click for power, Dbl-click for crumb storm 🤖',
+    tooltip:
+      'Move to leave crumbs, Click for power, Dbl-click for crumb storm 🤖',
     color: '#eab308',
     generationSafe: false,
     blocksInput: true,
@@ -567,6 +576,18 @@ export const ANIMATION_EFFECTS = [
     generationSafe: true,
     preferredSurface: 'fullscreen',
   },
+  {
+    id: 'harmonograph-sand-table',
+    label: 'Harmonograph Sand Table',
+    reveal: 'The pendulums find a pattern',
+    icon: 'kind-icon:vortex',
+    tooltip:
+      'Damped pendulums trace shifting rosettes into sand; move nearby to bend the frequencies, click to rake the table clean 🌀',
+    color: '#c49a6c',
+    releasedAt: '2026-09-24T14:20:54Z',
+    generationSafe: true,
+    preferredSurface: 'fullscreen',
+  },
 ] as const satisfies readonly AnimationEffectDefinition[]
 
 export type AnimationEffectId = (typeof ANIMATION_EFFECTS)[number]['id']
@@ -577,7 +598,9 @@ export type AnimationEffect = Omit<AnimationEffectDefinition, 'id'> & {
 
 export const animationEffects: readonly AnimationEffect[] = ANIMATION_EFFECTS
 
-export function isAnimationEffectId(value: unknown): value is AnimationEffectId {
+export function isAnimationEffectId(
+  value: unknown,
+): value is AnimationEffectId {
   return (
     typeof value === 'string' &&
     animationEffects.some((effect) => effect.id === value)

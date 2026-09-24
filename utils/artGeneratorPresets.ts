@@ -11,12 +11,7 @@
 // absent from the primary generator profile catalog.
 
 export type ArtGeneratorEngine =
-  | 'krea2'
-  | 'flux2'
-  | 'flux'
-  | 'kontext'
-  | 'comfy'
-  | 'sdxl-img2img'
+  'krea2' | 'flux2' | 'flux' | 'kontext' | 'comfy' | 'sdxl-img2img'
 
 export type FluxVariant = 'dev' | 'schnell'
 export type ArtRuntimeClass = 'fast' | 'standard' | 'slow'

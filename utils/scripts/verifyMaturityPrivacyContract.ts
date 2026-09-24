@@ -277,7 +277,11 @@ const collectionGalleryApi = readFileSync(
 )
 assert.ok(collectionGalleryApi.includes('queryMaturityFilter'))
 assert.ok(collectionGalleryApi.includes('queryPrivacyFilter'))
-assert.ok(collectionGalleryApi.includes("type CollectionPrivacyFilter = 'all' | 'public' | 'private'"))
+assert.ok(
+  collectionGalleryApi.includes(
+    "type CollectionPrivacyFilter = 'all' | 'public' | 'private'",
+  ),
+)
 assert.ok(
   collectionGalleryApi.includes('{ isPublic: false, userId: access.userId }'),
 )

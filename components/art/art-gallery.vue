@@ -3,10 +3,7 @@
   <section
     class="flex h-full min-h-0 w-full flex-col gap-2 rounded-2xl bg-base-300 p-2"
   >
-    <header
-      v-if="showHeader"
-      class="shrink-0 kr-panel-muted-compact-row"
-    >
+    <header v-if="showHeader" class="shrink-0 kr-panel-muted-compact-row">
       <div class="flex items-center gap-2">
         <Icon name="kind-icon:gallery" class="kr-icon-primary-5 shrink-0" />
         <h2 class="kr-text-black-base min-w-0 truncate text-base-content">

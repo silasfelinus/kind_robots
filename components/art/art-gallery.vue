@@ -486,7 +486,11 @@
                 </button>
 
                 <button
-                  v-if="deleteMode && !bulkSelectEnabled && canModifyImage(image)"
+                  v-if="
+                    deleteMode &&
+                    !bulkSelectEnabled &&
+                    canModifyImage(image)
+                  "
                   class="absolute right-2 top-2 z-20 flex h-9 w-9 items-center justify-center rounded-full border border-error/40 bg-base-100/95 text-error shadow-lg backdrop-blur transition hover:bg-error hover:text-error-content disabled:cursor-wait disabled:opacity-70"
                   type="button"
                   :disabled="deletingImageId !== null"

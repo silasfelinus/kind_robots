@@ -409,8 +409,7 @@ assert.ok(
 assert.ok(enqueue.includes("normalizeArtSourceImage(body.sourceImageBase64, 'flux1')"))
 assert.ok(enqueue.includes("normalizeArtSourceImage(body.sourceImageBase64, 'flux2')"))
 assert.ok(enqueue.includes('buildFlux2KleinEditWorkflowFromRequest'))
-assert.ok(enqueue.includes("body.sourceImageBase64,
-      'kontext_queue'"))
+assert.ok(enqueue.includes("'kontext_queue'"))
 assert.ok(enqueue.includes('originalWeight: body.originalWeight ?? null'))
 
 const loraResolver = readFileSync('server/utils/artLoraResource.ts', 'utf8')

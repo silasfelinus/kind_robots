@@ -154,9 +154,13 @@ function compatibilityRank(
   engine: string,
 ): number {
   if (engine === 'kontext') {
+    const generation = normalizeText(resource.generation).toUpperCase()
+    if (/\bFLUX[\s._-]*2\b/.test(generation)) return 0
     if (resource.supportedServer === SupportedServer.KONTEXT) return 30
-    if (resource.supportedServer === SupportedServer.FLUX) return 20
-    if (resource.supportedServer === SupportedServer.GENERIC) return 10
+    if (generation.includes('KONTEXT')) {
+      if (resource.supportedServer === SupportedServer.FLUX) return 20
+      if (resource.supportedServer === SupportedServer.GENERIC) return 10
+    }
   }
 
   if (engine === 'krea2') {

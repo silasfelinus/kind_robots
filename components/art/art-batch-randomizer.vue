@@ -5,11 +5,11 @@
       <div class="min-w-0">
         <h2 class="flex items-center gap-2 text-base font-bold text-primary">
           <Icon name="kind-icon:dice" class="kr-icon-4" />
-          Random batch
+          Batch & randomizers
         </h2>
         <p class="kr-text-dim-xs-55 mt-0.5">
-          Add random LoRAs, Facets, or Kind Robots objects to your prompt, then
-          roll the whole batch at once.
+          Choose how many images Generate should queue, and add random LoRAs,
+          Facets, or Kind Robots objects to the prompt.
         </p>
       </div>
 
@@ -23,7 +23,7 @@
           min="1"
           :max="MAX_RANDOM_BATCH"
           class="input input-bordered input-sm rounded-2xl bg-base-200 text-center"
-          :disabled="busy"
+          :disabled="artStore.isGenerating"
         />
       </label>
     </div>
@@ -49,7 +49,7 @@
               type="button"
               class="badge badge-outline h-auto min-h-6 rounded-xl py-1 hover:badge-primary"
               :title="`${option.hint} Inserts ${token(option.placeholder)}.`"
-              :disabled="busy"
+              :disabled="artStore.isGenerating"
               @click="insertPlaceholder(option.placeholder)"
             >
               {{ option.label }}
@@ -59,28 +59,18 @@
       </div>
     </div>
 
-    <p v-if="hasPlaceholders" class="kr-note kr-note-info mt-3 p-2 text-xs">
-      This prompt has placeholders. Roll and queue it here — plain Generate
-      sends the braces to the renderer as literal text.
+    <p class="kr-note kr-note-info mt-3 p-2 text-xs">
+      <span v-if="hasPlaceholders">
+        Generate rolls every placeholder before queueing, so the braces never
+        become a stray literal image.
+      </span>
+      <span v-else>
+        Generate queues {{ batch }} {{ batch === 1 ? 'image' : 'images' }} with
+        the current prompt.
+      </span>
     </p>
 
-    <div class="mt-3 flex flex-wrap items-center gap-2">
-      <button
-        type="button"
-        class="kr-text-black-base btn btn-secondary min-h-10 rounded-2xl"
-        :disabled="!canRoll"
-        @click="rollAndQueue"
-      >
-        <span v-if="busy" class="flex items-center gap-2">
-          <span class="kr-spinner-sm-dots" />
-          Queueing…
-        </span>
-        <span v-else class="flex items-center gap-2">
-          <Icon name="kind-icon:sparkles" class="kr-icon-4" />
-          Roll &amp; queue {{ batch }}
-        </span>
-      </button>
-
+    <div class="mt-3">
       <span class="kr-text-dim-xs">{{ readiness }}</span>
     </div>
 
@@ -127,7 +117,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed } from 'vue'
 import { useArtStore } from '@/stores/artStore'
 import { usePromptStore } from '@/stores/promptStore'
 import { FACET_TAXONOMIES } from '@/stores/facetCatalogStore'
@@ -142,8 +132,10 @@ import {
 const artStore = useArtStore()
 const promptStore = usePromptStore()
 
-const batch = ref(4)
-const busy = ref(false)
+const batch = computed<number>({
+  get: () => artStore.generationBatchSize,
+  set: (value) => artStore.setGenerationBatchSize(value),
+})
 
 const plan = computed<ArtRandomBatchPlan | null>(
   () => artStore.lastRandomBatchPlan,
@@ -212,19 +204,15 @@ const hasPlaceholders = computed(() =>
   /\{\s*[a-zA-Z0-9_:-]+\s*\}/.test(artStore.finalPromptString ?? ''),
 )
 
-const canRoll = computed(
-  () =>
-    !busy.value &&
-    !artStore.isGenerating &&
-    Boolean(artStore.finalPromptString) &&
-    batch.value >= 1 &&
-    batch.value <= MAX_RANDOM_BATCH,
-)
-
 const readiness = computed(() => {
   if (!artStore.finalPromptString) return 'Write a prompt first.'
   if (batch.value > MAX_RANDOM_BATCH) return `Maximum ${MAX_RANDOM_BATCH}.`
-  return `${batch.value} job${batch.value === 1 ? '' : 's'}, ${batch.value} rolls.`
+  if (hasPlaceholders.value) {
+    return `${batch.value} job${
+      batch.value === 1 ? '' : 's'
+    }, placeholders rolled automatically.`
+  }
+  return `${batch.value} job${batch.value === 1 ? '' : 's'} on Generate.`
 })
 
 /*
@@ -240,14 +228,5 @@ function insertPlaceholder(placeholder: string): void {
   const current = promptStore.promptField?.trim() ?? ''
   const next = token(placeholder)
   promptStore.promptField = current ? `${current} ${next}` : next
-}
-
-async function rollAndQueue(): Promise<void> {
-  busy.value = true
-  try {
-    await artStore.enqueueRandomizedArtBatch({ batch: batch.value })
-  } finally {
-    busy.value = false
-  }
 }
 </script>

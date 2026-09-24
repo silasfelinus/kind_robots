@@ -240,6 +240,21 @@ assert.ok(
 assert.ok(randomizerUi.includes('ART_RANDOM_OBJECT_OPTIONS'))
 assert.ok(!randomizerUi.includes('Write {character} running in {style}'))
 
+assert.ok(randomizerUi.includes('artStore.generationBatchSize'))
+assert.ok(randomizerUi.includes('artStore.setGenerationBatchSize(value)'))
+assert.ok(!randomizerUi.includes('rollAndQueue'))
+assert.ok(!randomizerUi.includes('Roll &amp; queue'))
+
+const generatorUi = readFileSync('components/art/art-generator.vue', 'utf8')
+assert.ok(generatorUi.includes('promptHasRandomPlaceholders'))
+assert.ok(generatorUi.includes('usesBatchQueue'))
+assert.ok(generatorUi.includes('artStore.enqueueRandomizedArtBatch'))
+assert.ok(generatorUi.includes('batch: artStore.generationBatchSize'))
+
+const artStoreSource = readFileSync('stores/artStore.ts', 'utf8')
+assert.ok(artStoreSource.includes('generationBatchSize: 1'))
+assert.ok(artStoreSource.includes('function setGenerationBatchSize'))
+
 const poolSource = readFileSync('server/utils/artRandomPools.ts', 'utf8')
 assert.ok(poolSource.includes("source: 'object'"))
 assert.ok(

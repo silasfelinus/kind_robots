@@ -1067,10 +1067,10 @@ async function reloadGalleryForVisibility() {
     await Promise.all([
       fetchCollectionSummaries(true),
       browseStore.fetchUnsortedSummary(
-      true,
-      maturityFilter.value,
-      galleryScope.value ?? 'public',
-    ),
+        true,
+        maturityFilter.value,
+        galleryScope.value ?? 'public',
+      ),
     ])
 
     const group = activeGroup.value
@@ -1201,10 +1201,10 @@ async function refreshBrowseData(): Promise<void> {
   await Promise.all([
     fetchCollectionSummaries(true),
     browseStore.fetchUnsortedSummary(
-        true,
-        maturityFilter.value,
-        galleryScope.value ?? 'public',
-      ),
+      true,
+      maturityFilter.value,
+      galleryScope.value ?? 'public',
+    ),
   ])
   if (activeKey) await loadGroupData(activeKey, true)
 }

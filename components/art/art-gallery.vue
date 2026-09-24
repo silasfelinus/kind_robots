@@ -14,18 +14,10 @@
         @click="chooseGallery('public')"
       >
         <img
-          v-if="chooserPreviewSource(0)"
-          :src="chooserPreviewSource(0)"
-          alt="Safe public gallery preview"
+          :src="CHOOSER_PREVIEW_SOURCES[0]"
+          alt="Gallery entrance artwork"
           class="absolute inset-0 h-full w-full object-cover"
         />
-        <div
-          v-else
-          class="absolute inset-0 flex items-center justify-center bg-base-200"
-        >
-          <span v-if="chooserLoading" class="kr-spinner-lg-primary" />
-          <Icon v-else name="kind-icon:gallery" class="kr-icon-primary-12" />
-        </div>
         <div
           class="absolute inset-0 bg-gradient-to-t from-base-300/95 via-base-300/20 to-transparent"
         />
@@ -43,18 +35,10 @@
         @click="chooseGallery('private')"
       >
         <img
-          v-if="chooserPreviewSource(1)"
-          :src="chooserPreviewSource(1)"
-          alt="Safe private gallery preview"
+          :src="CHOOSER_PREVIEW_SOURCES[1]"
+          alt="Private archive entrance artwork"
           class="absolute inset-0 h-full w-full object-cover"
         />
-        <div
-          v-else
-          class="absolute inset-0 flex items-center justify-center bg-base-200"
-        >
-          <span v-if="chooserLoading" class="kr-spinner-lg-primary" />
-          <Icon v-else name="kind-icon:archive" class="kr-icon-primary-12" />
-        </div>
         <div
           class="absolute inset-0 bg-gradient-to-t from-base-300/95 via-base-300/20 to-transparent"
         />
@@ -644,8 +628,6 @@ import {
 import { useCollectionStore } from '@/stores/collectionStore'
 import { ErrorType, useErrorStore } from '@/stores/errorStore'
 import { useUserStore } from '@/stores/userStore'
-import { performFetch } from '@/stores/utils'
-import { resolveArtImageThumbSrc } from '@/utils/artImageSrc'
 
 type BatchFlagValue = 'keep' | 'true' | 'false'
 type ViewSize = GalleryDensity
@@ -689,6 +671,11 @@ const MATURITY_FILTER_OPTIONS: readonly {
   { value: 'mature', label: 'Mature' },
   { value: 'safe', label: 'Not mature' },
 ]
+
+const CHOOSER_PREVIEW_SOURCES = [
+  '/images/kindart.webp',
+  '/images/backtree.webp',
+] as const
 const artStore = useArtStore()
 const browseStore = useArtCollectionBrowseStore()
 const collectionStore = useCollectionStore()
@@ -718,8 +705,6 @@ const galleryScope = computed<GalleryPrivacyFilter | null>({
 // enforces age/role access, while this local control decides what this gallery
 // asks for and reveals.
 const showMature = computed(() => maturityFilter.value !== 'safe')
-const chooserPreviews = ref<ArtImage[]>([])
-const chooserLoading = ref(false)
 const hydratedImages = ref<Record<number, ArtImage>>({})
 const activeGroupKey = ref<string | null>(null)
 const selectedImageForOverlay = ref<ArtImage | null>(null)
@@ -960,7 +945,6 @@ async function initializeGalleryForViewer(): Promise<void> {
     galleryScope.value = null
     maturityFilter.value = 'safe'
     browseStore.invalidateAll()
-    await loadChooserPreviews()
     galleryReady.value = true
     return
   }
@@ -1063,25 +1047,6 @@ async function handleImageCardClick(id: number) {
   await selectImage(image)
 }
 
-async function loadChooserPreviews(): Promise<void> {
-  if (chooserPreviews.value.length || chooserLoading.value) return
-  chooserLoading.value = true
-
-  try {
-    const response = await performFetch<ArtImage[]>('/api/art/gallery/chooser')
-    if (response.success && Array.isArray(response.data)) {
-      chooserPreviews.value = response.data
-    }
-  } finally {
-    chooserLoading.value = false
-  }
-}
-
-function chooserPreviewSource(index: number): string {
-  const image = chooserPreviews.value[index] ?? chooserPreviews.value[0]
-  return image ? resolveArtImageThumbSrc(image) : ''
-}
-
 async function chooseGallery(scope: 'public' | 'private'): Promise<void> {
   galleryReady.value = false
   galleryScope.value = scope
@@ -1108,7 +1073,6 @@ function returnToGalleryChooser(): void {
   successMessage.value = ''
   galleryScope.value = null
   browseStore.invalidateAll()
-  void loadChooserPreviews()
 }
 
 async function reloadGalleryForVisibility() {

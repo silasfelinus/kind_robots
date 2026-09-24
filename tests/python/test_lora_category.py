@@ -159,12 +159,20 @@ def _typescript_table(name):
     while index < len(source):
         char = source[index]
 
-        # Skip // comments before anything else. These tables carry explanatory
-        # comments, and an apostrophe in one ("a character's name") reads as a
-        # string opener to the scan below -- which then runs off the end of the
-        # file looking for a closing quote that is really a possessive.
+        # Skip comments before anything else. These tables carry explanatory
+        # prose, and apostrophes in it ("a character's name") are not string
+        # delimiters. The ACTION-priority note is a /* ... */ block, while the
+        # heuristic table also has // comments, so parity scanning must ignore
+        # both forms just like the TypeScript parser does.
         if char == "/" and source[index + 1 : index + 2] == "/":
-            index = source.index("\n", index)
+            newline = source.find("\n", index)
+            index = len(source) if newline < 0 else newline
+            continue
+        if char == "/" and source[index + 1 : index + 2] == "*":
+            end = source.find("*/", index + 2)
+            if end < 0:
+                raise AssertionError(f"Unclosed block comment in {name}")
+            index = end + 2
             continue
 
         if char == "'":

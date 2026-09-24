@@ -504,6 +504,7 @@
                 <kr-mature-cover
                   :is-mature="image.isMature"
                   :owner-id="image.userId"
+                  :reveal-mature="maturityFilter !== 'safe'"
                   :label="
                     image.promptString || image.fileName || `image #${image.id}`
                   "

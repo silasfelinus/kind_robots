@@ -485,6 +485,26 @@
                   />
                 </button>
 
+                <button
+                  v-if="
+                    deleteMode &&
+                    !bulkSelectEnabled &&
+                    canModifyImage(image)
+                  "
+                  class="absolute right-2 top-2 z-20 flex h-9 w-9 items-center justify-center rounded-full border border-error/40 bg-base-100/95 text-error shadow-lg backdrop-blur transition hover:bg-error hover:text-error-content disabled:cursor-wait disabled:opacity-70"
+                  type="button"
+                  :disabled="deletingImageId !== null"
+                  :aria-label="`Delete image #${image.id}`"
+                  :title="`Delete image #${image.id}`"
+                  @click.stop="handleImageDeleted(image.id)"
+                >
+                  <span
+                    v-if="deletingImageId === image.id"
+                    class="kr-spinner-xs"
+                  />
+                  <Icon v-else name="kind-icon:trash" class="kr-icon-4" />
+                </button>
+
                 <kr-mature-cover
                   :is-mature="image.isMature"
                   :owner-id="image.userId"
@@ -700,6 +720,7 @@ const galleryScope = computed<GalleryPrivacyFilter | null>({
   get: () => browseStore.galleryPrivacyFilter,
   set: (value) => browseStore.setGalleryPrivacyFilter(value),
 })
+const deleteMode = computed(() => browseStore.galleryDeleteMode)
 // The gallery's three-way filter is an explicit display choice. It must not be
 // secretly re-gated by the account-wide resource preference: the server still
 // enforces age/role access, while this local control decides what this gallery
@@ -708,6 +729,7 @@ const showMature = computed(() => maturityFilter.value !== 'safe')
 const hydratedImages = ref<Record<number, ArtImage>>({})
 const activeGroupKey = ref<string | null>(null)
 const selectedImageForOverlay = ref<ArtImage | null>(null)
+const deletingImageId = ref<number | null>(null)
 const viewSize = ref<ViewSize>('md')
 const galleryReady = ref(false)
 
@@ -1072,6 +1094,7 @@ function returnToGalleryChooser(): void {
   errorMessage.value = ''
   successMessage.value = ''
   galleryScope.value = null
+  browseStore.setGalleryDeleteMode(false)
   browseStore.invalidateAll()
 }
 
@@ -1553,22 +1576,30 @@ async function handleCollectionDeleted(id: number) {
 }
 
 async function handleImageDeleted(imageId: number) {
+  if (deletingImageId.value !== null) return
+
+  deletingImageId.value = imageId
   errorMessage.value = ''
-  const deleted = await artStore.deleteArtImage(imageId)
-  if (deleted) {
-    if (selectedImageForOverlay.value?.id === imageId) {
-      selectedImageForOverlay.value = null
+
+  try {
+    const deleted = await artStore.deleteArtImage(imageId)
+    if (deleted) {
+      if (selectedImageForOverlay.value?.id === imageId) {
+        selectedImageForOverlay.value = null
+      }
+      selectedImageIds.value = selectedImageIds.value.filter(
+        (id) => id !== imageId,
+      )
+      const next = { ...hydratedImages.value }
+      delete next[imageId]
+      hydratedImages.value = next
+      successMessage.value = `Image #${imageId} deleted.`
+      await refreshBrowseData()
+    } else {
+      errorMessage.value = `Failed to delete image #${imageId}.`
     }
-    selectedImageIds.value = selectedImageIds.value.filter(
-      (id) => id !== imageId,
-    )
-    const next = { ...hydratedImages.value }
-    delete next[imageId]
-    hydratedImages.value = next
-    successMessage.value = `Image #${imageId} deleted.`
-    await refreshBrowseData()
-  } else {
-    errorMessage.value = `Failed to delete image #${imageId}.`
+  } finally {
+    deletingImageId.value = null
   }
 }
 

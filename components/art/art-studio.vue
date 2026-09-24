@@ -138,6 +138,7 @@ function selectPrimaryView(view: ArtPrimaryView): void {
 
   if (view === 'private') {
     if (!userStore.isAdmin) return
+    browseStore.setGalleryMaturityFilter('all')
     browseStore.setGalleryPrivacyFilter('private')
   } else {
     browseStore.setGalleryPrivacyFilter('public')

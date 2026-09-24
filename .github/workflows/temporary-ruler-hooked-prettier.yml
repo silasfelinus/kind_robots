@@ -1,0 +1,36 @@
+name: Temporary Ruler Hooked Prettier
+
+on:
+  push:
+    branches:
+      - worker/ruler-hooked-t-030-openai-scheduled-2026-09-24T061909Z-a11
+
+permissions:
+  contents: write
+
+jobs:
+  format:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: worker/ruler-hooked-t-030-openai-scheduled-2026-09-24T061909Z-a11
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+        env:
+          CYPRESS_INSTALL_BINARY: 0
+      - name: Format scoped files and remove temporary workflow
+        run: |
+          npx prettier --write components/ruler-hooked/ruler-hooked-kingdom-view.vue components/ruler-hooked/ruler-hooked-reign-review.vue
+          rm .github/workflows/temporary-ruler-hooked-prettier.yml
+      - name: Commit formatter result
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add components/ruler-hooked/ruler-hooked-kingdom-view.vue components/ruler-hooked/ruler-hooked-reign-review.vue .github/workflows/temporary-ruler-hooked-prettier.yml
+          git commit -m "style: format ruler hooked kingdom view"
+          git push origin HEAD:worker/ruler-hooked-t-030-openai-scheduled-2026-09-24T061909Z-a11

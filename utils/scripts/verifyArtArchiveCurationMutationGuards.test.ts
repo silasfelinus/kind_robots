@@ -35,7 +35,7 @@ const ROUTES: { file: string; mutations: RegExp[] }[] = [
   { file: 'rate.patch.ts', mutations: [/prisma\.archiveEntry\.update\(/] },
   {
     file: 'quarantine.post.ts',
-    mutations: [/tx\.archiveEntry\.update\(/, /prisma\.\$transaction\(/],
+    mutations: [/quarantineArchiveEntry\(/],
   },
   {
     file: 'restore.post.ts',

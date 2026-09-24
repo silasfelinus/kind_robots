@@ -292,9 +292,11 @@ export const useArtCollectionBrowseStore = defineStore(
     function invalidateCollection(collectionId?: number): void {
       if (typeof collectionId === 'number') {
         loadedCollectionIds.delete(collectionId)
-        const nextSummaries = { ...collectionSummaries.value }
-        delete nextSummaries[collectionId]
-        collectionSummaries.value = nextSummaries
+        collectionSummaries.value = Object.fromEntries(
+          Object.entries(collectionSummaries.value).filter(
+            ([key]) => Number(key) !== collectionId,
+          ),
+        )
         const next: Record<number, BrowseArtCollection> = {}
         for (const [key, value] of Object.entries(collectionDetails.value)) {
           const id = Number(key)

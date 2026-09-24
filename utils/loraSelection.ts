@@ -172,11 +172,7 @@ export function artLoraCompatibilityRank(
     // which model family trained it. Do not confuse the two. In particular,
     // Pony and Illustrious both say supportedServer=SDXL, which previously made
     // them look interchangeable with base SDXL and with each other.
-    if (
-      targetFamily &&
-      resourceFamily &&
-      targetFamily !== resourceFamily
-    ) {
+    if (targetFamily && resourceFamily && targetFamily !== resourceFamily) {
       return 0
     }
 

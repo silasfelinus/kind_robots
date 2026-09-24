@@ -15,6 +15,7 @@ export type BrowseArtCollection = ArtCollection & {
 }
 
 export type GalleryMaturityFilter = 'all' | 'mature' | 'safe'
+export type GalleryPrivacyFilter = 'all' | 'public' | 'private'
 
 export type UnsortedArtSummary = {
   count: number
@@ -49,10 +50,14 @@ function normalizeCollection(collection: ApiCollection): BrowseArtCollection {
   }
 }
 
-function maturityQuery(filter: GalleryMaturityFilter): string {
+function browseQuery(
+  maturity: GalleryMaturityFilter,
+  privacy: GalleryPrivacyFilter,
+): string {
   const params = new URLSearchParams()
-  params.set('maturity', filter)
-  params.set('showMature', filter === 'safe' ? 'false' : 'true')
+  params.set('maturity', maturity)
+  params.set('privacy', privacy)
+  params.set('showMature', maturity === 'safe' ? 'false' : 'true')
   return params.toString()
 }
 
@@ -72,8 +77,8 @@ export const useArtCollectionBrowseStore = defineStore(
     >()
     let unsortedSummaryRequest: Promise<UnsortedArtSummary> | null = null
     let unsortedImagesRequest: Promise<ArtImage[]> | null = null
-    let unsortedSummaryMaturityFilter: GalleryMaturityFilter | null = null
-    let unsortedImagesMaturityFilter: GalleryMaturityFilter | null = null
+    let unsortedSummaryScopeKey = ''
+    let unsortedImagesScopeKey = ''
 
     const artStore = useArtStore()
 
@@ -130,8 +135,10 @@ export const useArtCollectionBrowseStore = defineStore(
     async function fetchUnsortedSummary(
       force = false,
       maturity: GalleryMaturityFilter = 'all',
+      privacy: GalleryPrivacyFilter = 'public',
     ): Promise<UnsortedArtSummary> {
-      if (!force && unsortedSummaryMaturityFilter === maturity) {
+      const scopeKey = `${privacy}:${maturity}`
+      if (!force && unsortedSummaryScopeKey === scopeKey) {
         return unsortedSummary.value
       }
       if (!force && unsortedSummaryRequest) return unsortedSummaryRequest
@@ -139,7 +146,10 @@ export const useArtCollectionBrowseStore = defineStore(
       unsortedSummaryRequest = (async () => {
         try {
           const response = await performFetch<UnsortedArtSummary>(
-            `/api/art/collection/unsorted?summary=true&${maturityQuery(maturity)}`,
+            `/api/art/collection/unsorted?summary=true&${browseQuery(
+              maturity,
+              privacy,
+            )}`,
           )
 
           if (!response.success || !response.data) {
@@ -153,7 +163,7 @@ export const useArtCollectionBrowseStore = defineStore(
             totalCount: Number(response.data.totalCount) || 0,
             previewArtImage: response.data.previewArtImage ?? null,
           }
-          unsortedSummaryMaturityFilter = maturity
+          unsortedSummaryScopeKey = scopeKey
 
           if (unsortedSummary.value.previewArtImage) {
             artStore.addOrUpdateArtImages([
@@ -176,8 +186,10 @@ export const useArtCollectionBrowseStore = defineStore(
     async function fetchUnsortedImages(
       force = false,
       maturity: GalleryMaturityFilter = 'all',
+      privacy: GalleryPrivacyFilter = 'public',
     ): Promise<ArtImage[]> {
-      if (!force && unsortedImagesMaturityFilter === maturity) {
+      const scopeKey = `${privacy}:${maturity}`
+      if (!force && unsortedImagesScopeKey === scopeKey) {
         return unsortedImages.value
       }
       if (!force && unsortedImagesRequest) return unsortedImagesRequest
@@ -185,7 +197,7 @@ export const useArtCollectionBrowseStore = defineStore(
       unsortedImagesRequest = (async () => {
         try {
           const response = await performFetch<ArtImage[]>(
-            `/api/art/collection/unsorted?${maturityQuery(maturity)}`,
+            `/api/art/collection/unsorted?${browseQuery(maturity, privacy)}`,
           )
 
           if (!response.success || !Array.isArray(response.data)) {
@@ -195,7 +207,7 @@ export const useArtCollectionBrowseStore = defineStore(
           }
 
           unsortedImages.value = response.data
-          unsortedImagesMaturityFilter = maturity
+          unsortedImagesScopeKey = scopeKey
           if (response.data.length) artStore.addOrUpdateArtImages(response.data)
           return unsortedImages.value
         } catch (error) {
@@ -226,8 +238,8 @@ export const useArtCollectionBrowseStore = defineStore(
     }
 
     function invalidateUnsorted(): void {
-      unsortedSummaryMaturityFilter = null
-      unsortedImagesMaturityFilter = null
+      unsortedSummaryScopeKey = ''
+      unsortedImagesScopeKey = ''
       unsortedSummary.value = { ...EMPTY_UNSORTED_SUMMARY }
       unsortedImages.value = []
     }

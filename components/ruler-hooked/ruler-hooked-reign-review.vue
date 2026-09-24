@@ -17,7 +17,9 @@
       </div>
       <div>
         <p class="kr-text-bold-lg">{{ rulerLabel }}</p>
-        <p class="kr-text-faded-xs">Your reign, your people, and the realm they live in.</p>
+        <p class="kr-text-faded-xs">
+          Your reign, your people, and the realm they live in.
+        </p>
       </div>
     </div>
 

@@ -6,7 +6,9 @@
         <h3 class="kr-text-bold-lg">{{ realmHeadline }}</h3>
         <p class="kr-text-faded-sm-80 mt-1">{{ realmSummary }}</p>
       </div>
-      <span class="badge badge-outline shrink-0">Turn {{ save.turnCount }}</span>
+      <span class="badge badge-outline shrink-0"
+        >Turn {{ save.turnCount }}</span
+      >
     </div>
 
     <RulerHookedStage
@@ -32,7 +34,9 @@
     <div>
       <div class="mb-2 flex items-center justify-between gap-2">
         <div>
-          <p class="kr-text-faded-xs kr-text-eyebrow-bold">PEOPLE OF THE REALM</p>
+          <p class="kr-text-faded-xs kr-text-eyebrow-bold">
+            PEOPLE OF THE REALM
+          </p>
           <p class="kr-text-faded-sm-80">
             Faces behind the petitions and consequences.
           </p>
@@ -139,8 +143,10 @@ const strongest = computed(
 )
 const realmHeadline = computed(() => {
   if (!weakest.value || !strongest.value) return 'The realm endures.'
-  if (weakest.value.value <= 30) return `${weakest.value.key} demands attention.`
-  if (strongest.value.value >= 75) return `${strongest.value.key} is flourishing.`
+  if (weakest.value.value <= 30)
+    return `${weakest.value.key} demands attention.`
+  if (strongest.value.value >= 75)
+    return `${strongest.value.key} is flourishing.`
   return 'The realm is holding together.'
 })
 const realmSummary = computed(() => {

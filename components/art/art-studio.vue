@@ -87,8 +87,7 @@ const maturityFilter = computed<GalleryMaturityFilter>({
 })
 const showGalleryFilters = computed(
   () =>
-    activeTab.value === 'gallery' &&
-    browseStore.galleryPrivacyFilter !== null,
+    activeTab.value === 'gallery' && browseStore.galleryPrivacyFilter !== null,
 )
 
 function selectPrimaryTab(tab: ArtPrimaryTab): void {

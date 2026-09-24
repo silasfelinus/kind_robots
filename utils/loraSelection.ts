@@ -29,6 +29,52 @@ function normalizedGeneration(resource: LoraResourceLike): string {
     .toUpperCase()
 }
 
+type SdLoraFamily = 'sdxl' | 'pony' | 'illustrious' | 'sd15'
+
+/**
+ * The training family encoded by Civitai's baseModel/generation field.
+ *
+ * supportedServer is intentionally broader: Pony and Illustrious both load
+ * through the SDXL server lane, but a LoRA trained for one family is not
+ * therefore safe to offer on every other SDXL-derived checkpoint.
+ */
+function sdLoraGenerationFamily(
+  resource: LoraResourceLike,
+): SdLoraFamily | null {
+  const generation = normalizedGeneration(resource)
+  if (!generation) return null
+  if (generation.includes('PONY')) return 'pony'
+  if (generation.includes('ILLUSTRIOUS') || generation.includes('NOOBAI')) {
+    return 'illustrious'
+  }
+  if (
+    generation.includes('SD 1.5') ||
+    generation.includes('SD1.5') ||
+    generation === '1.5' ||
+    generation === 'SD15'
+  ) {
+    return 'sd15'
+  }
+  if (generation.includes('SDXL')) return 'sdxl'
+  return null
+}
+
+function targetSdLoraFamily(
+  checkpointFamily: CheckpointFamily,
+): SdLoraFamily | null {
+  if (checkpointFamily === 'sdxl' || checkpointFamily === 'sdxl-distilled') {
+    return 'sdxl'
+  }
+  if (
+    checkpointFamily === 'pony' ||
+    checkpointFamily === 'illustrious' ||
+    checkpointFamily === 'sd15'
+  ) {
+    return checkpointFamily
+  }
+  return null
+}
+
 export function krea2LoraCompatibilityRank(resource: LoraResourceLike): number {
   const server = normalizedServer(resource)
   const generation = normalizedGeneration(resource)
@@ -119,6 +165,17 @@ export function artLoraCompatibilityRank(
   }
 
   if (engine === 'sdxl-img2img' || engine === 'comfy') {
+    const targetFamily = targetSdLoraFamily(checkpointFamily)
+    const resourceFamily = sdLoraGenerationFamily(resource)
+
+    // The server label says which loader can open the file; generation says
+    // which model family trained it. Do not confuse the two. In particular,
+    // Pony and Illustrious both say supportedServer=SDXL, which previously made
+    // them look interchangeable with base SDXL and with each other.
+    if (targetFamily && resourceFamily && targetFamily !== resourceFamily) {
+      return 0
+    }
+
     if (checkpointFamily === 'sd15') {
       if (server === 'SD15') return 30
       if (server === 'COMFY') return 15

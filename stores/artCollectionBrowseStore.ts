@@ -70,6 +70,12 @@ export const useArtCollectionBrowseStore = defineStore(
       ...EMPTY_UNSORTED_SUMMARY,
     })
     const unsortedImages = ref<ArtImage[]>([])
+    // Gallery UI state lives here rather than in art-gallery.vue so the
+    // top-level /art toolbar can control the same filters the lazy gallery
+    // fetches use. Privacy starts unresolved: user #1 must choose public or
+    // private before either archive is queried.
+    const galleryMaturityFilter = ref<GalleryMaturityFilter>('safe')
+    const galleryPrivacyFilter = ref<GalleryPrivacyFilter | null>(null)
 
     const loadedCollectionIds = new Set<number>()
     const collectionRequests = new Map<
@@ -324,12 +330,22 @@ export const useArtCollectionBrowseStore = defineStore(
       invalidateUnsorted()
     }
 
+    function setGalleryMaturityFilter(value: GalleryMaturityFilter): void {
+      galleryMaturityFilter.value = value
+    }
+
+    function setGalleryPrivacyFilter(value: GalleryPrivacyFilter | null): void {
+      galleryPrivacyFilter.value = value
+    }
+
     return {
       collectionDetails,
       collectionSummaries,
       unsortedSummary,
       unsortedSummaryLoaded,
       unsortedImages,
+      galleryMaturityFilter,
+      galleryPrivacyFilter,
       fetchCollectionDetail,
       fetchCollectionSummary,
       fetchUnsortedSummary,
@@ -337,6 +353,8 @@ export const useArtCollectionBrowseStore = defineStore(
       invalidateCollection,
       invalidateUnsorted,
       invalidateAll,
+      setGalleryMaturityFilter,
+      setGalleryPrivacyFilter,
     }
   },
 )

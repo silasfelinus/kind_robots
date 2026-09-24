@@ -39,6 +39,7 @@ import {
   LORA_CATEGORIES,
   LORA_CATEGORY_META,
   loraCategoryForPlaceholder,
+  randomizerLoraCategory,
   type LoraCategory,
 } from '~/utils/loraCategory'
 import {
@@ -176,6 +177,7 @@ type LoraRow = {
   name: string
   customLabel: string | null
   loraCategory: LoraCategory | null
+  loraCategorySource: string | null
   generation: string | null
   supportedServer: string | null
   defaultTrigger: string | null
@@ -205,7 +207,18 @@ async function loadLoraPools(
   const where: Prisma.ResourceWhereInput = {
     isActive: true,
     resourceType: { in: ['LORA', 'LYCORIS'] },
-    loraCategory: { not: null },
+    // Persisted categories are the normal path. The two title clauses admit
+    // only the narrow legacy-repair cohort that randomizerLoraCategory can
+    // recognize as an ACTION without touching the database. Older Civitai
+    // imports sometimes stored those pose LoRAs as CHARACTER because the
+    // generic character tag won before the more specific pose tag.
+    OR: [
+      { loraCategory: { not: null } },
+      { name: { contains: 'pose' } },
+      { customLabel: { contains: 'pose' } },
+      { name: { contains: 'posing' } },
+      { customLabel: { contains: 'posing' } },
+    ],
     // A LoRA the renderer cannot find on disk is not a candidate. The whole
     // t-001 path bug was a bare name reaching ComfyUI; rolling one at random
     // would reintroduce it on a batch of ten at a time.
@@ -226,6 +239,7 @@ async function loadLoraPools(
       name: true,
       customLabel: true,
       loraCategory: true,
+      loraCategorySource: true,
       generation: true,
       supportedServer: true,
       defaultTrigger: true,
@@ -238,7 +252,8 @@ async function loadLoraPools(
   const pools = new Map<LoraCategory, VariantPick[]>()
 
   for (const row of rows) {
-    if (!row.loraCategory) continue
+    const category = randomizerLoraCategory(row)
+    if (!category) continue
 
     const rank = artLoraCompatibilityRank(
       row,
@@ -259,9 +274,9 @@ async function loadLoraPools(
       loraStrength: options.loraStrength ?? 1,
     }
 
-    const existing = pools.get(row.loraCategory)
+    const existing = pools.get(category)
     if (existing) existing.push(pick)
-    else pools.set(row.loraCategory, [pick])
+    else pools.set(category, [pick])
   }
 
   return pools

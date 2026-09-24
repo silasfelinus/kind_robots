@@ -78,8 +78,18 @@ const props = withDefaults(
     ownerId?: number | null
     /** Named in the aria-labels, e.g. "Fantasy_art_XL_V1". */
     label?: string
+    /**
+     * An explicit local surface choice to show mature content. This does not
+     * grant access; the server must already have delivered the row.
+     */
+    revealMature?: boolean
   }>(),
-  { isMature: false, ownerId: null, label: 'this object' },
+  {
+    isMature: false,
+    ownerId: null,
+    label: 'this object',
+    revealMature: false,
+  },
 )
 
 const userStore = useUserStore()
@@ -99,7 +109,11 @@ const isOwner = computed<boolean>(() => {
 })
 
 const covered = computed<boolean>(
-  () => Boolean(props.isMature) && !userStore.showMature && !revealed.value,
+  () =>
+    Boolean(props.isMature) &&
+    !props.revealMature &&
+    !userStore.showMature &&
+    !revealed.value,
 )
 
 /*

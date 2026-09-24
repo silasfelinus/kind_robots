@@ -691,15 +691,18 @@ def finalize(entry: LoraEntry) -> None:
 # asserts the two tables still agree word for word.
 
 CIVITAI_TAG_CATEGORIES: list[tuple[str, tuple[str, ...]]] = [
-    ("CHARACTER", ("character", "characters", "celebrity", "actor", "actress",
-                   "singer", "idol", "waifu")),
+    # Purpose tags before CHARACTER. Civitai often tags pose/style LoRAs with
+    # the generic "character" umbrella too; putting CHARACTER first made those
+    # rows disappear from the purpose-specific randomizer pools.
+    ("ACTION", ("poses", "pose", "action", "motion", "dance", "dancing",
+                "gesture")),
     ("STYLE", ("style", "styles", "art style", "artstyle", "artist",
                "aesthetic", "anime style", "painting style")),
+    ("CHARACTER", ("character", "characters", "celebrity", "actor", "actress",
+                   "singer", "idol", "waifu")),
     ("SETTING", ("background", "backgrounds", "landscape", "scenery",
                  "environment", "architecture", "buildings", "building",
                  "interior", "city", "nature")),
-    ("ACTION", ("poses", "pose", "action", "motion", "dance", "dancing",
-                "gesture")),
     ("CLOTHING", ("clothing", "clothes", "outfit", "costume", "dress",
                   "uniform", "armor", "lingerie", "swimsuit", "fashion")),
     ("OBJECT", ("vehicle", "vehicles", "car", "weapon", "weapons", "objects",

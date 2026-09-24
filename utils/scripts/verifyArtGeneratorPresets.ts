@@ -269,6 +269,58 @@ assert.equal(
   0,
 )
 
+// supportedServer=SDXL only names the loader lane. Generation is the family
+// boundary: Pony, Illustrious, and base SDXL weights must not bleed into one
+// another just because all three travel through the same Comfy loader.
+assert.equal(
+  artLoraCompatibilityRank(
+    { id: 17, generation: 'Pony', supportedServer: 'SDXL' },
+    'comfy',
+    'pony',
+  ),
+  30,
+)
+assert.equal(
+  artLoraCompatibilityRank(
+    { id: 18, generation: 'Illustrious', supportedServer: 'SDXL' },
+    'comfy',
+    'illustrious',
+  ),
+  30,
+)
+assert.equal(
+  artLoraCompatibilityRank(
+    { id: 19, generation: 'SDXL 1.0', supportedServer: 'SDXL' },
+    'comfy',
+    'sdxl-distilled',
+  ),
+  30,
+)
+assert.equal(
+  artLoraCompatibilityRank(
+    { id: 20, generation: 'Pony', supportedServer: 'SDXL' },
+    'comfy',
+    'sdxl',
+  ),
+  0,
+)
+assert.equal(
+  artLoraCompatibilityRank(
+    { id: 21, generation: 'SDXL', supportedServer: 'SDXL' },
+    'comfy',
+    'pony',
+  ),
+  0,
+)
+assert.equal(
+  artLoraCompatibilityRank(
+    { id: 22, generation: 'Illustrious / NoobAI', supportedServer: 'SDXL' },
+    'comfy',
+    'pony',
+  ),
+  0,
+)
+
 /*
  * THE FLUX.1 LANE TAKES A LORA, AND THE CATALOGUE HAS TO SAY SO.
  *

@@ -24,12 +24,15 @@
   documented below as the last icon in the row and stays that way.
 
   SIX FOR ADMINS, same day: an ArtJob queue shortcut, rendered only when
-  userStore.isAdmin. Everyone else still sees five. The row reads
-  account -> ops -> play -> help, and both additions are the same fixed-width
-  square, so the no-growth rule still holds.
+  userStore.isAdmin. Everyone else still sees five.
 
-  If a seventh is ever proposed, weigh it against that rule rather than against
-  the count: what this row cannot afford is a child whose width is unbounded,
+  ART joins that shortcut cluster as a fixed-width route button too. It is a
+  primary creative surface rather than an account control, so it is visible to
+  everyone. The row reads account -> ops -> art -> play -> help for admins and
+  account -> art -> play -> help for everyone else.
+
+  If another shortcut is proposed, weigh it against the fixed-width rule rather
+  than against the count: what this row cannot afford is a child whose width is unbounded,
   which is what the 300 lines of deleted measurement below were all for.
 
   WHAT THIS DELETES, and why none of it is missed
@@ -287,6 +290,25 @@
       </NuxtLink>
 
       <!--
+        ART STUDIO. Kept one click away beside the ArtJob queue and Memory
+        Dungeon. The image icon matches the Art page's own Play-channel icon.
+      -->
+      <NuxtLink
+        to="/art"
+        class="btn btn-ghost btn-sm btn-square shrink-0 rounded-xl border border-base-300"
+        :class="
+          artActive
+            ? 'border-primary bg-primary/15 text-primary'
+            : 'bg-base-100'
+        "
+        :aria-current="artActive ? 'page' : undefined"
+        aria-label="Art"
+        title="Art"
+      >
+        <Icon name="kind-icon:image" class="kr-icon-5" />
+      </NuxtLink>
+
+      <!--
         MEMORY DUNGEON. Silas, 2026-09-08: "I'm really proud of my memory match
         game, it was one of my first projects and still one that I occasionally
         return to. I want a link for it on the dashboard next to the tutorial
@@ -436,6 +458,8 @@ const memoryActive = computed(() => route.path.startsWith('/play/memory'))
 // and startsWith would light the button on any future sibling route that merely
 // shares the prefix.
 const artjobActive = computed(() => route.path === '/artjob')
+
+const artActive = computed(() => route.path === '/art')
 
 const activeTabKey = computed(() => {
   const channel = resolvedChannel.value

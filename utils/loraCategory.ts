@@ -157,19 +157,14 @@ export function loraCategoryPlaceholders(): string[] {
 // did not come from someone reading a filename. These are checked first and
 // reported as CIVITAI, so the editor can show "upstream said so" rather than
 // "we guessed".
+// PURPOSE TAGS BEFORE CHARACTER. Civitai commonly tags a pose/style LoRA with
+// the generic character umbrella as well as the tag that says what it actually
+// does. CHARACTER-first made those rows disappear from {action}/{style}.
+// HUMAN classifications are separate and are never touched by this table.
 const CIVITAI_TAG_CATEGORIES: Array<[LoraCategory, string[]]> = [
   [
-    'CHARACTER',
-    [
-      'character',
-      'characters',
-      'celebrity',
-      'actor',
-      'actress',
-      'singer',
-      'idol',
-      'waifu',
-    ],
+    'ACTION',
+    ['poses', 'pose', 'action', 'motion', 'dance', 'dancing', 'gesture'],
   ],
   [
     'STYLE',
@@ -182,6 +177,19 @@ const CIVITAI_TAG_CATEGORIES: Array<[LoraCategory, string[]]> = [
       'aesthetic',
       'anime style',
       'painting style',
+    ],
+  ],
+  [
+    'CHARACTER',
+    [
+      'character',
+      'characters',
+      'celebrity',
+      'actor',
+      'actress',
+      'singer',
+      'idol',
+      'waifu',
     ],
   ],
   [
@@ -199,10 +207,6 @@ const CIVITAI_TAG_CATEGORIES: Array<[LoraCategory, string[]]> = [
       'city',
       'nature',
     ],
-  ],
-  [
-    'ACTION',
-    ['poses', 'pose', 'action', 'motion', 'dance', 'dancing', 'gesture'],
   ],
   [
     'CLOTHING',
@@ -472,6 +476,38 @@ export function inferLoraCategory(
   }
 
   return UNRESOLVED
+}
+
+/**
+ * Category the RANDOMIZER may use without mutating the Resource row.
+ *
+ * Existing imports predate the corrected Civitai priority above, so some
+ * clearly named pose LoRAs can still be persisted as CHARACTER (or left NULL)
+ * until the next catalog refresh. For ACTION only, let the same conservative
+ * title heuristic repair that read at request time. A HUMAN decision is the
+ * hard stop: never reinterpret one, and never write this fallback back to DB.
+ *
+ * We intentionally do not generalize this to every category. The symptom being
+ * repaired is a one-item {action} pool, and broad silent reclassification would
+ * turn a targeted compatibility fix into a second taxonomy system.
+ */
+export function randomizerLoraCategory(input: {
+  name?: string | null
+  customLabel?: string | null
+  loraCategory?: unknown
+  loraCategorySource?: unknown
+}): LoraCategory | null {
+  const stored = normalizeLoraCategory(input.loraCategory)
+  const source = normalizeLoraCategorySource(input.loraCategorySource)
+  if (source === 'HUMAN') return stored
+
+  const inferred = inferLoraCategory({
+    name: input.name,
+    customLabel: input.customLabel,
+  })
+
+  if (inferred.category === 'ACTION') return 'ACTION'
+  return stored
 }
 
 export function canReclassify(storedSource: unknown): boolean {

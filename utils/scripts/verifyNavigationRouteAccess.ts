@@ -208,6 +208,40 @@ assert.match(
   'Initial SSR client navigation must defer localStorage-backed access enforcement until app:mounted.',
 )
 
+const artPageSource = readFileSync('content/art.md', 'utf8')
+assert.match(
+  artPageSource,
+  /channelKey:\s*play/,
+  'The canonical Art page belongs to Play, not Plan.',
+)
+
+const artChannelSource = readFileSync('content/channels/play/art.md', 'utf8')
+assert.match(
+  artChannelSource,
+  /channelKey:\s*play/,
+  'The Art navigation entry must stay in the Play channel.',
+)
+assert.match(
+  artChannelSource,
+  /route:\s*\/art/,
+  'The Play-channel Art entry must route to /art.',
+)
+
+const workspaceHeaderSource = readFileSync(
+  'components/navigation/workspace-header.vue',
+  'utf8',
+)
+assert.ok(
+  workspaceHeaderSource.includes('to="/art"'),
+  'The fixed workspace header must keep a direct Art Studio shortcut.',
+)
+assert.ok(
+  workspaceHeaderSource.includes(
+    "const artActive = computed(() => route.path === '/art')",
+  ),
+  'The Art shortcut must expose its active state on /art.',
+)
+
 const legacySessionSource = readFileSync(
   'plugins/legacy-guest-session.client.ts',
   'utf8',

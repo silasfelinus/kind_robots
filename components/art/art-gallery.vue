@@ -504,6 +504,7 @@
                 <kr-mature-cover
                   :is-mature="image.isMature"
                   :owner-id="image.userId"
+                  :reveal-mature="maturityFilter !== 'safe'"
                   :label="
                     image.promptString || image.fileName || `image #${image.id}`
                   "
@@ -637,6 +638,7 @@ import { useArtStore } from '@/stores/artStore'
 import {
   useArtCollectionBrowseStore,
   type BrowseArtCollection,
+  type GalleryMaturityFilter,
   type GalleryPrivacyFilter,
 } from '@/stores/artCollectionBrowseStore'
 import { useCollectionStore } from '@/stores/collectionStore'
@@ -646,7 +648,6 @@ import { performFetch } from '@/stores/utils'
 import { resolveArtImageThumbSrc } from '@/utils/artImageSrc'
 
 type BatchFlagValue = 'keep' | 'true' | 'false'
-type GalleryMaturityFilter = 'all' | 'mature' | 'safe'
 type ViewSize = GalleryDensity
 
 type GalleryCollection = BrowseArtCollection & {
@@ -704,9 +705,19 @@ const isLoading = ref(false)
 const errorMessage = ref('')
 const successMessage = ref('')
 const searchQuery = ref('')
-const showMature = computed(() => Boolean(userStore.showMature))
-const maturityFilter = ref<GalleryMaturityFilter>('safe')
-const galleryScope = ref<GalleryPrivacyFilter | null>(null)
+const maturityFilter = computed<GalleryMaturityFilter>({
+  get: () => browseStore.galleryMaturityFilter,
+  set: (value) => browseStore.setGalleryMaturityFilter(value),
+})
+const galleryScope = computed<GalleryPrivacyFilter | null>({
+  get: () => browseStore.galleryPrivacyFilter,
+  set: (value) => browseStore.setGalleryPrivacyFilter(value),
+})
+// The gallery's three-way filter is an explicit display choice. It must not be
+// secretly re-gated by the account-wide resource preference: the server still
+// enforces age/role access, while this local control decides what this gallery
+// asks for and reveals.
+const showMature = computed(() => maturityFilter.value !== 'safe')
 const chooserPreviews = ref<ArtImage[]>([])
 const chooserLoading = ref(false)
 const hydratedImages = ref<Record<number, ArtImage>>({})
@@ -928,11 +939,8 @@ watch(maturityFilter, async () => {
   await reloadGalleryForVisibility()
 })
 
-onMounted(async () => {
-  if (typeof localStorage !== 'undefined') {
-    const stored = localStorage.getItem('galleryViewSize')
-    if (stored && IS_GALLERY_DENSITY(stored)) viewSize.value = stored
-  }
+async function initializeGalleryForViewer(): Promise<void> {
+  galleryReady.value = false
 
   if (props.dropdownMode) {
     galleryScope.value = 'all'
@@ -942,8 +950,17 @@ onMounted(async () => {
     return
   }
 
+  // The legacy session plugin intentionally restores the user after app:mounted.
+  // Deciding private-gallery eligibility before that promise settles makes
+  // user #1 look like a guest for this component's entire lifetime. Await the
+  // idempotent store initializer here, at the exact point the decision matters.
+  await userStore.initialize()
+
   if (canChoosePrivateGallery.value) {
-    void loadChooserPreviews()
+    galleryScope.value = null
+    maturityFilter.value = 'safe'
+    browseStore.invalidateAll()
+    await loadChooserPreviews()
     galleryReady.value = true
     return
   }
@@ -952,6 +969,38 @@ onMounted(async () => {
   maturityFilter.value = 'safe'
   await initializeGallery(true)
   galleryReady.value = true
+}
+
+onMounted(async () => {
+  if (typeof localStorage !== 'undefined') {
+    const stored = localStorage.getItem('galleryViewSize')
+    if (stored && IS_GALLERY_DENSITY(stored)) viewSize.value = stored
+  }
+
+  await initializeGalleryForViewer()
+})
+
+watch(currentUserId, async (nextUserId, previousUserId) => {
+  if (props.dropdownMode || !galleryReady.value) return
+  if (Number(nextUserId) === Number(previousUserId)) return
+
+  if (Number(nextUserId) === 1) {
+    returnToGalleryChooser()
+    return
+  }
+
+  if (galleryScope.value === null || galleryScope.value === 'private') {
+    galleryReady.value = false
+    galleryScope.value = 'public'
+    maturityFilter.value = 'safe'
+    activeGroupKey.value = null
+    browseStore.invalidateAll()
+    try {
+      await initializeGallery(true)
+    } finally {
+      galleryReady.value = true
+    }
+  }
 })
 
 function toggleBulkSelect() {

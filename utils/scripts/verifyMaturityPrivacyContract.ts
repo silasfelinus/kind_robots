@@ -208,6 +208,32 @@ assert.ok(!artGallery.includes('showPrivate'))
 assert.ok(!artGallery.includes('watch(showMature'))
 assert.ok(artGallery.includes('<kr-mature-cover'))
 assert.ok(artGallery.includes('await reloadGalleryForVisibility()'))
+assert.ok(
+  artGallery.includes('await userStore.initialize()'),
+  'Gallery must resolve the restored session before deciding whether user #1 gets the private chooser',
+)
+assert.ok(
+  artGallery.includes('browseStore.galleryMaturityFilter'),
+  'Gallery filters must share state with the top-level Art Studio toolbar',
+)
+
+const artStudio = readFileSync('components/art/art-studio.vue', 'utf8')
+assert.ok(artStudio.includes('aria-label="Gallery maturity filter"'))
+assert.ok(artStudio.includes("{ value: 'all', label: 'Both' }"))
+assert.ok(artStudio.includes("{ value: 'mature', label: 'Mature' }"))
+assert.ok(artStudio.includes("{ value: 'safe', label: 'Not mature' }"))
+assert.ok(artStudio.includes('browseStore.galleryMaturityFilter'))
+assert.ok(artStudio.includes('browseStore.galleryPrivacyFilter !== null'))
+
+const browseStore = readFileSync('stores/artCollectionBrowseStore.ts', 'utf8')
+assert.ok(
+  browseStore.includes("const galleryMaturityFilter = ref<GalleryMaturityFilter>('safe')"),
+)
+assert.ok(
+  browseStore.includes(
+    'const galleryPrivacyFilter = ref<GalleryPrivacyFilter | null>(null)',
+  ),
+)
 
 // A plain <img> cannot send Kind Robots' Authorization/x-api-key headers.
 // Gallery JSON responses therefore mint short-lived, variant-bound capability

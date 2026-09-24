@@ -243,7 +243,9 @@ assert.ok(artStudio.includes('v-if="userStore.isAdmin"'))
 assert.ok(artStudio.includes("selectPrimaryView('private')"))
 assert.ok(artStudio.includes('showAdminGalleryControls'))
 assert.ok(artStudio.includes('flex-nowrap'))
-assert.ok(!artStudio.includes('Make something new, or browse what you already made.'))
+assert.ok(
+  !artStudio.includes('Make something new, or browse what you already made.'),
+)
 assert.ok(artStudio.includes('Confirm delete'))
 assert.ok(artStudio.includes('kr-toggle-error-xs'))
 assert.ok(artStudio.includes('browseStore.galleryDeleteMode'))

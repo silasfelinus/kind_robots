@@ -869,19 +869,19 @@ watch(viewSize, (value) => {
   }
 })
 
-watch(maturityFilter, async () => {
-  if (!galleryReady.value) return
-  await reloadGalleryForVisibility()
-})
-
-watch(galleryScope, async () => {
-  if (!galleryReady.value) return
-  activeGroupKey.value = null
-  searchQuery.value = ''
-  selectedImageForOverlay.value = null
-  selectedImageIds.value = []
-  await reloadGalleryForVisibility()
-})
+watch(
+  [maturityFilter, galleryScope],
+  async ([, nextScope], [, previousScope]) => {
+    if (!galleryReady.value) return
+    if (nextScope !== previousScope) {
+      activeGroupKey.value = null
+      searchQuery.value = ''
+      selectedImageForOverlay.value = null
+      selectedImageIds.value = []
+    }
+    await reloadGalleryForVisibility()
+  },
+)
 
 async function initializeGalleryForViewer(): Promise<void> {
   galleryReady.value = false

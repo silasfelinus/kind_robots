@@ -289,8 +289,14 @@ const activeTab = computed<ArtTab>(() => {
 })
 
 const forumPostId = computed(() => querySelectionId(route.query.forumPost))
+// Generate owns its startup data. Keeping it out of the manager-wide loading
+// gate lets the form paint immediately instead of waiting on gallery-scale art
+// hydration that the generator does not need.
 const shouldLoadManagerData = computed(
-  () => activeTab.value !== 'gallery' && activeTab.value !== 'artjob',
+  () =>
+    activeTab.value !== 'gallery' &&
+    activeTab.value !== 'artjob' &&
+    activeTab.value !== 'generate',
 )
 
 const shouldLiveRefreshArtJobs = computed(() => {

@@ -187,10 +187,9 @@ assert.ok(accountStore.includes('resourceGalleryStore.loadResources()'))
 assert.ok(accountStore.includes('loraResourceIds: visibleLoraIds'))
 assert.ok(accountStore.includes('checkpointResourceId: null'))
 
-// Main Gallery privacy controls and private archive media regression,
-// art-archive/t-042. The account-wide mature consent remains in the account hub;
-// Gallery has its own display-only maturity filter. User #1 enters through a
-// public/private chooser so the archive is never queried until explicitly chosen.
+// Main Gallery privacy controls and private archive media regression.
+// The ordinary Gallery is always public. Admins may switch to a distinct private
+// gallery from the top-level Art Studio toolbar; there is no chooser/interstitial.
 const artGallery = readFileSync('components/art/art-gallery.vue', 'utf8')
 assert.ok(!artGallery.includes('<maturity-toggle variant="compact"'))
 assert.ok(artGallery.includes('aria-label="Gallery maturity filter"'))
@@ -199,15 +198,15 @@ assert.ok(artGallery.includes("{ value: 'mature', label: 'Mature' }"))
 assert.ok(artGallery.includes("{ value: 'safe', label: 'Not mature' }"))
 assert.ok(artGallery.includes('matchesMaturityFilter'))
 assert.ok(artGallery.includes('matchesPrivacyScope'))
-assert.ok(artGallery.includes('Number(currentUserId.value) === 1'))
-assert.ok(artGallery.includes('aria-label="Choose a gallery"'))
-assert.ok(artGallery.includes('@click="chooseGallery(\'public\')"'))
-assert.ok(artGallery.includes('@click="chooseGallery(\'private\')"'))
-assert.ok(artGallery.includes("'/images/kindart.webp'"))
-assert.ok(artGallery.includes("'/images/backtree.webp'"))
+assert.ok(artGallery.includes('userStore.isAdmin'))
+assert.ok(!artGallery.includes('aria-label="Choose a gallery"'))
+assert.ok(!artGallery.includes('chooseGallery('))
+assert.ok(!artGallery.includes('returnToGalleryChooser'))
+assert.ok(!artGallery.includes('showGalleryChooser'))
 assert.ok(!artGallery.includes('/api/art/gallery/chooser'))
 assert.ok(!artGallery.includes('loadChooserPreviews'))
-assert.ok(artGallery.includes("privacy: galleryScope.value ?? 'public'"))
+assert.ok(artGallery.includes('privacy: galleryScope.value'))
+assert.ok(!artGallery.includes("galleryScope.value ?? 'public'"))
 assert.ok(!artGallery.includes('showPrivate'))
 assert.ok(!artGallery.includes('watch(showMature'))
 assert.ok(artGallery.includes('<kr-mature-cover'))
@@ -225,7 +224,7 @@ assert.ok(matureCover.includes('revealMature?: boolean'))
 assert.ok(matureCover.includes('!props.revealMature'))
 assert.ok(
   artGallery.includes('await userStore.initialize()'),
-  'Gallery must resolve the restored session before deciding whether user #1 gets the private chooser',
+  'Gallery must resolve the restored session before enforcing admin-only private scope',
 )
 assert.ok(
   artGallery.includes('browseStore.galleryMaturityFilter'),
@@ -238,7 +237,13 @@ assert.ok(artStudio.includes("{ value: 'all', label: 'Both' }"))
 assert.ok(artStudio.includes("{ value: 'mature', label: 'Mature' }"))
 assert.ok(artStudio.includes("{ value: 'safe', label: 'Not mature' }"))
 assert.ok(artStudio.includes('browseStore.galleryMaturityFilter'))
-assert.ok(artStudio.includes('browseStore.galleryPrivacyFilter !== null'))
+assert.ok(artStudio.includes("browseStore.setGalleryPrivacyFilter('public')"))
+assert.ok(artStudio.includes("browseStore.setGalleryPrivacyFilter('private')"))
+assert.ok(artStudio.includes('v-if="userStore.isAdmin"'))
+assert.ok(artStudio.includes("selectPrimaryView('private')"))
+assert.ok(artStudio.includes('showAdminGalleryControls'))
+assert.ok(artStudio.includes('flex-nowrap'))
+assert.ok(!artStudio.includes('Make something new, or browse what you already made.'))
 assert.ok(artStudio.includes('Confirm delete'))
 assert.ok(artStudio.includes('kr-toggle-error-xs'))
 assert.ok(artStudio.includes('browseStore.galleryDeleteMode'))
@@ -251,11 +256,18 @@ assert.ok(
 )
 assert.ok(
   browseStore.includes(
-    'const galleryPrivacyFilter = ref<GalleryPrivacyFilter | null>(null)',
+    "const galleryPrivacyFilter = ref<GalleryPrivacyFilter>('public')",
   ),
 )
 assert.ok(browseStore.includes('const galleryDeleteMode = ref(false)'))
 assert.ok(browseStore.includes('setGalleryDeleteMode'))
+
+const artManager = readFileSync('components/art/art-manager.vue', 'utf8')
+assert.ok(artManager.includes("activeTab.value !== 'gallery'"))
+assert.ok(artManager.includes('shouldLoadManagerData'))
+assert.ok(
+  artManager.includes('v-if="isLoadingManager && shouldLoadManagerData"'),
+)
 
 // A plain <img> cannot send Kind Robots' Authorization/x-api-key headers.
 // Gallery JSON responses therefore mint short-lived, variant-bound capability

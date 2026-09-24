@@ -1028,6 +1028,7 @@ function chooserPreviewSource(index: number): string {
 }
 
 async function chooseGallery(scope: 'public' | 'private'): Promise<void> {
+  galleryReady.value = false
   galleryScope.value = scope
   maturityFilter.value = scope === 'private' ? 'all' : 'safe'
   activeGroupKey.value = null
@@ -1035,7 +1036,12 @@ async function chooseGallery(scope: 'public' | 'private'): Promise<void> {
   selectedImageForOverlay.value = null
   selectedImageIds.value = []
   browseStore.invalidateAll()
-  await initializeGallery(true)
+
+  try {
+    await initializeGallery(true)
+  } finally {
+    galleryReady.value = true
+  }
 }
 
 function returnToGalleryChooser(): void {
@@ -1061,10 +1067,10 @@ async function reloadGalleryForVisibility() {
     await Promise.all([
       fetchCollectionSummaries(true),
       browseStore.fetchUnsortedSummary(
-        true,
-        maturityFilter.value,
-        galleryScope.value ?? 'public',
-      ),
+      true,
+      maturityFilter.value,
+      galleryScope.value ?? 'public',
+    ),
     ])
 
     const group = activeGroup.value

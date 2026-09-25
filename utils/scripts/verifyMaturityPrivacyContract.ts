@@ -106,6 +106,49 @@ for (const file of [
   )
 }
 
+// Resource owners/admins may receive their own mature rows even when the
+// account browse preference is off. The Resource gallery must omit those rows
+// rather than delegating to kr-mature-cover and filling the grid with curtains.
+const resourceGallery = readFileSync(
+  'components/resources/resource-gallery.vue',
+  'utf8',
+)
+assert.ok(
+  resourceGallery.includes(
+    'if (!canSeeMature.value && entry.isMature) return false',
+  ),
+)
+assert.ok(
+  resourceGallery.includes('resourceGalleryStore.queuePreview(resource.id)'),
+  'Resource preview buttons should stop after queue submission',
+)
+assert.ok(
+  !resourceGallery.includes(
+    'await resourceGalleryStore.generatePreview(resource.id)',
+  ),
+  'Resource preview buttons must not wait for the render worker',
+)
+
+const resourceArtGallery = readFileSync(
+  'components/resources/resource-art-gallery.vue',
+  'utf8',
+)
+assert.ok(resourceArtGallery.includes('canDeleteSelected'))
+assert.ok(resourceArtGallery.includes('artStore.deleteArtImage(id)'))
+assert.ok(resourceArtGallery.includes("name=\"kind-icon:trash\""))
+assert.ok(resourceArtGallery.includes("image.userId === userStore.userId"))
+
+const resourceGalleryStore = readFileSync(
+  'stores/resourceGalleryStore.ts',
+  'utf8',
+)
+assert.ok(
+  resourceGalleryStore.includes(
+    "headers.set('Authorization', `Bearer ${token}`)",
+  ),
+  'Owner-only Resource gallery images need Bearer auth when loading source bytes',
+)
+
 const loraDiscover = readFileSync('components/lora/lora-discover.vue', 'utf8')
 assert.ok(loraDiscover.includes('<maturity-toggle'))
 assert.ok(

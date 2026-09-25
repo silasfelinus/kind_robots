@@ -588,6 +588,18 @@ export const ANIMATION_EFFECTS = [
     generationSafe: true,
     preferredSurface: 'fullscreen',
   },
+  {
+    id: 'cairn-balancing',
+    label: 'Cairn Balancing',
+    reveal: 'The cairn finds its balance',
+    icon: 'kind-icon:rock',
+    tooltip:
+      'River stones stack one by one, leaning further off-center until the cairn overbalances and scatters, then a fresh cairn rises from the ground up 🪨 hover to nudge it like a breeze, click a standing stack to topple it now',
+    color: '#6b7280',
+    releasedAt: '2026-09-25T23:04:06Z',
+    generationSafe: true,
+    preferredSurface: 'fullscreen',
+  },
 ] as const satisfies readonly AnimationEffectDefinition[]
 
 export type AnimationEffectId = (typeof ANIMATION_EFFECTS)[number]['id']

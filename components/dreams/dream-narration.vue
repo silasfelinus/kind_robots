@@ -1,6 +1,6 @@
 <!-- /components/dreams/dream-narration.vue -->
 <template>
-  <section class="kr-surface kr-panel-muted-sm">
+  <section class="dream-workspace-shell kr-surface kr-panel-muted-sm">
     <header class="shrink-0 kr-panel-flat p-3">
       <div class="flex flex-wrap items-center justify-between gap-3">
         <div class="min-w-0">
@@ -61,7 +61,7 @@
     </header>
 
     <section
-      class="kr-panes grid-cols-1 xl:grid-cols-[minmax(320px,440px)_minmax(0,1fr)]"
+      class="dream-workspace-panes kr-panes grid-cols-1"
     >
       <aside class="kr-pane-scroll flex flex-col gap-4">
         <section class="kr-panel-flat p-3">
@@ -267,3 +267,16 @@ function backToGallery() {
   workspaceStore.clearDream()
 }
 </script>
+
+
+<style scoped>
+.dream-workspace-shell {
+  container-type: inline-size;
+}
+
+@container (min-width: 72rem) {
+  .dream-workspace-panes {
+    grid-template-columns: minmax(320px, 440px) minmax(0, 1fr);
+  }
+}
+</style>

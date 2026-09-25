@@ -84,92 +84,92 @@
       </aside>
 
       <main class="kr-pane-scroll kr-panel-flat p-3">
-      <div
-        v-if="workspaceStore.dreamPanel === 'asset-sheet'"
-        class="grid gap-3"
-      >
-        <dream-pitch-sheet
-          v-if="dreamStore.selectedDream"
-          :key="dreamStore.selectedDream.id"
-          :dream="dreamStore.selectedDream"
-          variant="detail"
-          :auto-load="true"
-          :allow-ensure="true"
-          :allow-edit="true"
-          :allow-actions="true"
-          @edit="editDream"
+        <div
+          v-if="workspaceStore.dreamPanel === 'asset-sheet'"
+          class="grid gap-3"
+        >
+          <dream-pitch-sheet
+            v-if="dreamStore.selectedDream"
+            :key="dreamStore.selectedDream.id"
+            :dream="dreamStore.selectedDream"
+            variant="detail"
+            :auto-load="true"
+            :allow-ensure="true"
+            :allow-edit="true"
+            :allow-actions="true"
+            @edit="editDream"
+          />
+
+          <section class="kr-panel-muted-sm">
+            <h2 class="font-black">Organic Assets</h2>
+            <p class="kr-text-dim-sm mt-1">
+              The selected Dream is the anchor. Use these panels to move through
+              connected Dreams, Scenarios, Characters, Rewards, Art, and Chats.
+            </p>
+          </section>
+        </div>
+
+        <dream-relationship-gallery
+          v-else-if="workspaceStore.dreamPanel === 'connected-dreams'"
+          title="Connected Dreams"
+          subtitle="Dreams linked by shared scenarios, cast, rewards, or collections."
+          relation-mode="connected"
+          :context-dream-id="dreamStore.selectedDreamId"
+          :auto-load="false"
         />
 
-        <section class="kr-panel-muted-sm">
-          <h2 class="font-black">Organic Assets</h2>
-          <p class="kr-text-dim-sm mt-1">
-            The selected Dream is the anchor. Use these panels to move through
-            connected Dreams, Scenarios, Characters, Rewards, Art, and Chats.
-          </p>
-        </section>
-      </div>
-
-      <dream-relationship-gallery
-        v-else-if="workspaceStore.dreamPanel === 'connected-dreams'"
-        title="Connected Dreams"
-        subtitle="Dreams linked by shared scenarios, cast, rewards, or collections."
-        relation-mode="connected"
-        :context-dream-id="dreamStore.selectedDreamId"
-        :auto-load="false"
-      />
-
-      <scenario-relationship-gallery
-        v-else-if="workspaceStore.dreamPanel === 'scenarios'"
-        title="Dream Scenarios"
-        subtitle="Scenarios connected to this Dream."
-        relation-mode="connected"
-        :context-dream-id="dreamStore.selectedDreamId"
-        :require-dream-context="true"
-        :auto-load="false"
-      />
-
-      <div
-        v-else-if="workspaceStore.dreamPanel === 'characters'"
-        class="grid gap-3"
-      >
-        <section class="kr-panel-muted-sm">
-          <h2 class="font-black">Dream Cast</h2>
-          <p class="kr-text-dim-sm mt-1">Characters connected to this Dream.</p>
-        </section>
-        <dream-list list-type="cast" view-mode="grid" :show-refresh="false" />
-      </div>
-
-      <div
-        v-else-if="workspaceStore.dreamPanel === 'rewards'"
-        class="grid gap-3"
-      >
-        <section class="kr-panel-muted-sm">
-          <h2 class="font-black">Dream Rewards</h2>
-          <p class="kr-text-dim-sm mt-1">
-            Rewards and narrative items connected to this Dream.
-          </p>
-        </section>
-        <dream-list list-type="items" view-mode="grid" :show-refresh="false" />
-      </div>
-
-      <div v-else-if="workspaceStore.dreamPanel === 'art'" class="grid gap-3">
-        <dream-art-chooser />
-        <dream-inspire-button
-          v-if="dreamStore.selectedDream?.slug"
-          :slug="dreamStore.selectedDream.slug"
+        <scenario-relationship-gallery
+          v-else-if="workspaceStore.dreamPanel === 'scenarios'"
+          title="Dream Scenarios"
+          subtitle="Scenarios connected to this Dream."
+          relation-mode="connected"
+          :context-dream-id="dreamStore.selectedDreamId"
+          :require-dream-context="true"
+          :auto-load="false"
         />
-        <dream-list list-type="art" view-mode="grid" :show-refresh="false" />
-      </div>
 
-      <div v-else class="grid gap-3">
-        <section class="kr-panel-muted-sm">
-          <h2 class="font-black">Dream Chat</h2>
-          <p class="kr-text-dim-sm mt-1">
-            Conversation threads attached to this Dream.
-          </p>
-        </section>
-        <dream-list list-type="chats" />
-      </div>
+        <div
+          v-else-if="workspaceStore.dreamPanel === 'characters'"
+          class="grid gap-3"
+        >
+          <section class="kr-panel-muted-sm">
+            <h2 class="font-black">Dream Cast</h2>
+            <p class="kr-text-dim-sm mt-1">Characters connected to this Dream.</p>
+          </section>
+          <dream-list list-type="cast" view-mode="grid" :show-refresh="false" />
+        </div>
+
+        <div
+          v-else-if="workspaceStore.dreamPanel === 'rewards'"
+          class="grid gap-3"
+        >
+          <section class="kr-panel-muted-sm">
+            <h2 class="font-black">Dream Rewards</h2>
+            <p class="kr-text-dim-sm mt-1">
+              Rewards and narrative items connected to this Dream.
+            </p>
+          </section>
+          <dream-list list-type="items" view-mode="grid" :show-refresh="false" />
+        </div>
+
+        <div v-else-if="workspaceStore.dreamPanel === 'art'" class="grid gap-3">
+          <dream-art-chooser />
+          <dream-inspire-button
+            v-if="dreamStore.selectedDream?.slug"
+            :slug="dreamStore.selectedDream.slug"
+          />
+          <dream-list list-type="art" view-mode="grid" :show-refresh="false" />
+        </div>
+
+        <div v-else class="grid gap-3">
+          <section class="kr-panel-muted-sm">
+            <h2 class="font-black">Dream Chat</h2>
+            <p class="kr-text-dim-sm mt-1">
+              Conversation threads attached to this Dream.
+            </p>
+          </section>
+          <dream-list list-type="chats" />
+        </div>
 
       </main>
     </section>

@@ -493,7 +493,7 @@
             :variant="modeVariant"
             :earned-karma="earnedKarmaByDreamId[dream.id]"
             v-bind="dreamCardProps"
-            @open="selectDreamAndOpen"
+            @open="openDreamInfo"
             @edit="startEditingDreamById"
             @delete="handleDreamDeleted"
           />
@@ -531,7 +531,7 @@
               :variant="modeVariant"
               :earned-karma="earnedKarmaByDreamId[Number(item.id)]"
               v-bind="dreamCardProps"
-              @open="selectDreamAndOpen"
+              @open="openDreamInfo"
               @edit="startEditingDreamById"
               @delete="handleDreamDeleted"
             />
@@ -1098,6 +1098,18 @@ async function startEditingDreamById(id: number) {
   infoDreamId.value = id
   infoDreamEditing.value = true
   emit('editing', dream)
+}
+
+async function openDreamInfo(id: number) {
+  if (isDropdownMode.value) {
+    await selectDreamAndOpen(id)
+    return
+  }
+
+  const detail = await dreamStore.fetchDreamById(id)
+  if (detail) {
+    infoDreamId.value = id
+  }
 }
 
 /*

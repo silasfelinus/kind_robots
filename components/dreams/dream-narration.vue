@@ -60,9 +60,7 @@
       </nav>
     </header>
 
-    <section
-      class="dream-workspace-panes kr-panes grid-cols-1"
-    >
+    <section class="dream-workspace-panes kr-panes grid-cols-1">
       <aside class="kr-pane-scroll flex flex-col gap-4">
         <section class="kr-panel-flat p-3">
           <dream-card
@@ -170,7 +168,6 @@
           </section>
           <dream-list list-type="chats" />
         </div>
-
       </main>
     </section>
   </section>
@@ -267,7 +264,6 @@ function backToGallery() {
   workspaceStore.clearDream()
 }
 </script>
-
 
 <style scoped>
 .dream-workspace-shell {

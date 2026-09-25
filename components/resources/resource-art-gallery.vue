@@ -440,7 +440,9 @@ async function deleteSelected(): Promise<void> {
   } catch (cause) {
     sourceFailed.value = true
     sourceMessage.value =
-      cause instanceof Error ? cause.message : 'That image could not be deleted.'
+      cause instanceof Error
+        ? cause.message
+        : 'That image could not be deleted.'
   } finally {
     deleteBusy.value = false
   }

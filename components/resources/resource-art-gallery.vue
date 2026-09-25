@@ -149,10 +149,7 @@
         <button
           type="button"
           class="btn btn-ghost btn-xs rounded-2xl"
-          @click="
-            selected = null
-            deleteArmed = false
-          "
+          @click="clearSelection"
         >
           Clear
         </button>
@@ -405,6 +402,11 @@ const canDeleteSelected = computed<boolean>(() => {
 
 const deleteArmed = ref(false)
 const deleteBusy = ref(false)
+
+function clearSelection(): void {
+  selected.value = null
+  deleteArmed.value = false
+}
 
 async function deleteSelected(): Promise<void> {
   const id = selectedArtImageId.value

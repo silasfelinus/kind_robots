@@ -19,6 +19,10 @@ import {
   ART_RANDOM_OBJECT_OPTIONS,
   compactRandomArtPrompt,
 } from '../artRandomOptions'
+import {
+  randomBatchBasePrompt,
+  withRandomBatchFacetBasePrompt,
+} from '../artRandomBatch'
 
 function loraPool(prefix: string, size: number): VariantPick[] {
   return Array.from({ length: size }, (_, index) => ({
@@ -220,6 +224,46 @@ assert.deepEqual(
   ],
 )
 
+// The art generator's Facet draft carries the author's undecorated prompt in
+// workflow metadata. Randomization must start there, then rewrite that carrier
+// per variant. Otherwise /api/art/enqueue prefers the stale literal template
+// and jobs render/store "{lora:character} {lora:action}" even though the LoRA
+// weights themselves changed.
+const facetWorkflow = {
+  __kindRobotsFacetSelection: {
+    facetIds: [17, 23],
+    basePromptString: '{lora:character} {lora:action}',
+  },
+}
+assert.equal(
+  randomBatchBasePrompt(
+    '{lora:character} {lora:action}, Facet direction: ink wash',
+    facetWorkflow,
+  ),
+  '{lora:character} {lora:action}',
+)
+const rewrittenFacetWorkflow = withRandomBatchFacetBasePrompt(
+  facetWorkflow,
+  'heroTrigger runningTrigger',
+)!
+assert.deepEqual(rewrittenFacetWorkflow.__kindRobotsFacetSelection, {
+  facetIds: [17, 23],
+  basePromptString: 'heroTrigger runningTrigger',
+})
+assert.equal(
+  facetWorkflow.__kindRobotsFacetSelection.basePromptString,
+  '{lora:character} {lora:action}',
+  'rewriting a randomized variant must not mutate the generator draft',
+)
+assert.equal(
+  randomBatchBasePrompt('plain prompt', { untouched: true }),
+  'plain prompt',
+)
+assert.deepEqual(
+  withRandomBatchFacetBasePrompt({ untouched: true }, 'variant'),
+  { untouched: true },
+)
+
 // Existing object/Facet art prompts can be verbose. Random batches reuse them
 // without adding parallel schema fields, but cap each inserted visual clause.
 const verboseArtPrompt =
@@ -254,6 +298,8 @@ assert.ok(generatorUi.includes('batch: artStore.generationBatchSize'))
 const artStoreSource = readFileSync('stores/artStore.ts', 'utf8')
 assert.ok(artStoreSource.includes('generationBatchSize: 1'))
 assert.ok(artStoreSource.includes('function setGenerationBatchSize'))
+assert.ok(artStoreSource.includes('randomBatchBasePrompt('))
+assert.ok(artStoreSource.includes('withRandomBatchFacetBasePrompt('))
 
 const poolSource = readFileSync('server/utils/artRandomPools.ts', 'utf8')
 assert.ok(poolSource.includes("source: 'object'"))

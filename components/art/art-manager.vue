@@ -212,7 +212,6 @@ import { useRoute } from '#app'
 import { useArtJobStore } from '@/stores/artJobStore'
 import { useArtStore } from '@/stores/artStore'
 import { useCheckpointStore } from '@/stores/checkpointStore'
-import { useCollectionStore } from '@/stores/collectionStore'
 import { useLoadStore } from '@/stores/loadStore'
 import { useNavStore } from '@/stores/navStore'
 import { useServerStore } from '@/stores/serverStore'
@@ -238,7 +237,6 @@ const ART_JOB_STATS_REFRESH_INTERVAL_MS = 60_000
 const artJobStore = useArtJobStore()
 const artStore = useArtStore()
 const checkpointStore = useCheckpointStore()
-const collectionStore = useCollectionStore()
 const loadStore = useLoadStore()
 const navStore = useNavStore()
 const serverStore = useServerStore()
@@ -292,12 +290,7 @@ const forumPostId = computed(() => querySelectionId(route.query.forumPost))
 // Generate owns its startup data. Keeping it out of the manager-wide loading
 // gate lets the form paint immediately instead of waiting on gallery-scale art
 // hydration that the generator does not need.
-const shouldLoadManagerData = computed(
-  () =>
-    activeTab.value !== 'gallery' &&
-    activeTab.value !== 'artjob' &&
-    activeTab.value !== 'generate',
-)
+const shouldLoadManagerData = computed(() => activeTab.value === 'styler')
 
 const shouldLiveRefreshArtJobs = computed(() => {
   return (
@@ -331,7 +324,6 @@ async function loadManagerData(force = false) {
         hydrateImages: false,
         initializeServerStore: false,
       }),
-      collectionStore.fetchCollections?.(),
     ])
 
     if (!checkpointStore.selectedSampler) {

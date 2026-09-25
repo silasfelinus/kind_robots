@@ -132,7 +132,9 @@
         >
           <section class="kr-panel-muted-sm">
             <h2 class="font-black">Dream Cast</h2>
-            <p class="kr-text-dim-sm mt-1">Characters connected to this Dream.</p>
+            <p class="kr-text-dim-sm mt-1">
+              Characters connected to this Dream.
+            </p>
           </section>
           <dream-list list-type="cast" view-mode="grid" :show-refresh="false" />
         </div>
@@ -147,7 +149,11 @@
               Rewards and narrative items connected to this Dream.
             </p>
           </section>
-          <dream-list list-type="items" view-mode="grid" :show-refresh="false" />
+          <dream-list
+            list-type="items"
+            view-mode="grid"
+            :show-refresh="false"
+          />
         </div>
 
         <div v-else-if="workspaceStore.dreamPanel === 'art'" class="grid gap-3">

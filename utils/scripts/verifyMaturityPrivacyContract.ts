@@ -135,8 +135,8 @@ const resourceArtGallery = readFileSync(
 )
 assert.ok(resourceArtGallery.includes('canDeleteSelected'))
 assert.ok(resourceArtGallery.includes('artStore.deleteArtImage(id)'))
-assert.ok(resourceArtGallery.includes("name=\"kind-icon:trash\""))
-assert.ok(resourceArtGallery.includes("image.userId === userStore.userId"))
+assert.ok(resourceArtGallery.includes('name="kind-icon:trash"'))
+assert.ok(resourceArtGallery.includes('image.userId === userStore.userId'))
 
 const resourceGalleryStore = readFileSync(
   'stores/resourceGalleryStore.ts',

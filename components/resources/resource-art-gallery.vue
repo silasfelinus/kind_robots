@@ -133,9 +133,23 @@
         </a>
 
         <button
+          v-if="canDeleteSelected"
+          type="button"
+          class="btn btn-ghost btn-xs rounded-2xl text-error"
+          :class="{ 'btn-error text-error-content': deleteArmed }"
+          :disabled="deleteBusy"
+          :aria-label="`Delete image #${selectedArtImageId}`"
+          @click="deleteSelected"
+        >
+          <span v-if="deleteBusy" class="kr-loading-primary-xs" />
+          <Icon v-else name="kind-icon:trash" class="kr-icon-3-5" />
+          {{ deleteArmed ? 'Confirm delete' : 'Delete' }}
+        </button>
+
+        <button
           type="button"
           class="btn btn-ghost btn-xs rounded-2xl"
-          @click="selected = null"
+          @click="clearSelection"
         >
           Clear
         </button>
@@ -156,6 +170,7 @@
 import { computed, ref, watch } from 'vue'
 import type { GalleryItem } from '@/components/gallery/kr-gallery.vue'
 import { useArtStore } from '@/stores/artStore'
+import { useUserStore } from '@/stores/userStore'
 import {
   useResourceGalleryStore,
   type ResourceArtImage,
@@ -167,6 +182,7 @@ const emit = defineEmits<{ (event: 'select', artImageId: number): void }>()
 
 const resourceGalleryStore = useResourceGalleryStore()
 const artStore = useArtStore()
+const userStore = useUserStore()
 
 const payload = computed(
   () => resourceGalleryStore.resourceArt[props.resourceId] ?? null,
@@ -366,6 +382,72 @@ const selectedLabel = computed<string>(() => {
   return 'Civitai cover'
 })
 
+const selectedArtImage = computed<ResourceArtImage | null>(() => {
+  const id = selectedArtImageId.value
+  if (!id) return null
+  return payload.value?.images.find((image) => image.id === id) ?? null
+})
+
+/*
+ * The shared ArtImage DELETE route is the authority: owners may delete their
+ * own generated images and admins may delete any row (archive-backed images
+ * are quarantined there rather than unlinked destructively). Civitai samples
+ * never get this button because they are upstream URLs, not our ArtImages.
+ */
+const canDeleteSelected = computed<boolean>(() => {
+  const image = selectedArtImage.value
+  if (!image) return false
+  return userStore.isAdmin || image.userId === userStore.userId
+})
+
+const deleteArmed = ref(false)
+const deleteBusy = ref(false)
+
+function clearSelection(): void {
+  selected.value = null
+  deleteArmed.value = false
+}
+
+async function deleteSelected(): Promise<void> {
+  const id = selectedArtImageId.value
+  if (!id || !canDeleteSelected.value || deleteBusy.value) return
+
+  if (!deleteArmed.value) {
+    deleteArmed.value = true
+    sourceFailed.value = false
+    sourceMessage.value = 'Press delete again to confirm.'
+    return
+  }
+
+  deleteBusy.value = true
+  sourceMessage.value = ''
+
+  try {
+    const deleted = await artStore.deleteArtImage(id)
+    if (!deleted) throw new Error(`Failed to delete image #${id}.`)
+
+    selected.value = null
+    deleteArmed.value = false
+    sourceFailed.value = false
+    sourceMessage.value = `Deleted image #${id}.`
+
+    // If this image was the Resource preview, ON DELETE SET NULL changes the
+    // parent row too. Refresh both the detail row and its gallery immediately.
+    await Promise.all([
+      resourceGalleryStore.getResource(props.resourceId),
+      resourceGalleryStore.loadResourceArt(props.resourceId, { force: true }),
+    ])
+  } catch (cause) {
+    sourceFailed.value = true
+    sourceMessage.value =
+      cause instanceof Error
+        ? cause.message
+        : 'That image could not be deleted.'
+  } finally {
+    deleteBusy.value = false
+  }
+}
+
 /** Only a row-backed image can be turned into bytes. */
 const canUseAsSource = computed<boolean>(
   () => selectedPreviewId.value !== null || selectedArtImageId.value !== null,
@@ -387,6 +469,7 @@ const sourceBusy = computed<boolean>(() => {
 
 function openItem(item: GalleryItem): void {
   selected.value = item
+  deleteArmed.value = false
   sourceMessage.value = ''
   sourceFailed.value = false
 
@@ -423,6 +506,7 @@ watch(
   () => props.resourceId,
   (id) => {
     selected.value = null
+    deleteArmed.value = false
     sourceMessage.value = ''
     void resourceGalleryStore.loadResourceArt(id)
   },

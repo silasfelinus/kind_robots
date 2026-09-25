@@ -372,19 +372,18 @@ const filteredResources = computed(() => {
       return false
     }
 
-    // ONE maturity control, and it is the account toggle. There used to be a
-    // second: a Maturity <select> (All / Safe only / Mature only) sitting
-    // beside the account-level maturity-toggle and disagreeing with it -- the
-    // toggle read "Mature LoRAs and checkpoint models are included" while the
-    // select read "Safe only". Silas, 2026-08-07: "we aren't really going to
-    // need: only show mature: just base it on our real toggle, so we are
-    // either showing all, or safe".
-    //
     /*
-     * NO CLIENT-SIDE MATURITY FILTER: /api/resources applies viewerShowsMature,
-     * so a mature Resource the viewer may not see never arrives. Silas,
-     * 2026-09-18: "the backend is the proper place to gate this behavior."
+     * Owners/admins can legitimately receive their own mature Resource rows
+     * from the API even while the account-level "show mature" preference is
+     * off. The generic card curtain then rendered one large "Mature — hidden"
+     * placeholder per row, which is the opposite of hiding the catalog.
+     *
+     * The preference is a browse filter here: when it is off, omit those rows
+     * entirely. A direct ?resourceId= link still gets the explicit explanatory
+     * banner above instead of silently disappearing.
      */
+    if (!canSeeMature.value && entry.isMature) return false
+
     if (!search) return true
 
     return [
@@ -495,16 +494,19 @@ async function generatePreview(resource: ResourceGalleryRecord): Promise<void> {
   message.value = ''
 
   try {
-    const updated = await resourceGalleryStore.generatePreview(resource.id)
+    const queued = await resourceGalleryStore.queuePreview(resource.id)
     messageTone.value = 'success'
-    message.value = updated
-      ? `Preview ready for ${resourceLabel(resource)}.`
-      : `Preview queued for ${resourceLabel(resource)}.`
+    message.value = queued
+      ? `Preview queued for ${resourceLabel(resource)}.`
+      : `Could not queue preview for ${resourceLabel(resource)}.`
   } catch (cause) {
     messageTone.value = 'error'
     message.value =
       cause instanceof Error ? cause.message : 'Failed to generate preview.'
   } finally {
+    // Submission is the success boundary. Rendering is intentionally detached
+    // and visible in ArtJob Queue; this button must not spin for minutes while
+    // waitForPreview polls a worker.
     activePreviewResourceId.value = null
   }
 }

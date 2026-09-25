@@ -29,6 +29,7 @@ export type ResourceGalleryRecord = Resource & {
  */
 export type ResourceArtImage = {
   id: number
+  userId?: number | null
   createdAt?: string | null
   fileName?: string | null
   imagePath?: string | null
@@ -286,9 +287,21 @@ export const useResourceGalleryStore = defineStore(
       const key = `art:${artImageId}`
       sourceLoadingKeys.value = [...sourceLoadingKeys.value, key]
       try {
+        /*
+         * This endpoint can return private/mature ArtImages to their owner, but
+         * only when the browser sends the same Bearer token as performFetch.
+         * credentials:'include' alone sends cookies, while Kind Robots auth is
+         * token-backed, so owner-only images were always a 403 here.
+         */
+        const userStore = useUserStore()
+        const token = userStore.token || userStore.user?.token || ''
+        const headers = new Headers()
+        if (token) headers.set('Authorization', `Bearer ${token}`)
+
         const response = await fetch(`/api/art/images/${artImageId}/file`, {
           credentials: 'include',
           cache: 'no-store',
+          headers,
         })
         if (!response.ok) {
           throw new Error(

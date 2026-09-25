@@ -39,6 +39,8 @@ import {
 import { MAX_LORAS_PER_JOB } from '@/utils/loraLimits'
 import {
   MAX_RANDOM_BATCH,
+  randomBatchBasePrompt,
+  withRandomBatchFacetBasePrompt,
   type ArtRandomBatchPlan,
   type ArtRandomBatchResult,
   type ArtRandomSource,
@@ -2048,9 +2050,10 @@ export const useArtStore = defineStore('artStore', () => {
     const overrides = options.overrides ?? {}
     const basePrompt = (
       options.basePrompt ??
-      overrides.promptString ??
-      finalPromptString.value ??
-      ''
+      randomBatchBasePrompt(
+        overrides.promptString ?? finalPromptString.value ?? '',
+        overrides.workflow,
+      )
     ).trim()
 
     if (!basePrompt) {
@@ -2152,6 +2155,10 @@ export const useArtStore = defineStore('artStore', () => {
       const result = await enqueueArtGeneration({
         ...base,
         promptString: variant.promptString,
+        workflow: withRandomBatchFacetBasePrompt(
+          base.workflow,
+          variant.promptString,
+        ),
         loras: merged.slice(0, MAX_LORAS_PER_JOB),
         loraResourceIds: null,
       })

@@ -5,7 +5,7 @@
     class="h-full min-h-0"
     variant="dashboard"
     title="Choose a Dream"
-    subtitle="Pick a Dream to open its narration."
+    subtitle="Pick a Dream to open its workspace."
     :open-on-select="true"
   />
 
@@ -41,7 +41,7 @@ watch(
   () => dreamStore.selectedDream?.id,
   (id) => {
     if (id) {
-      workspaceStore.openDream(id, workspaceStore.dreamPanel)
+      workspaceStore.openDream(id, 'asset-sheet')
     }
   },
 )

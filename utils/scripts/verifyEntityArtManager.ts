@@ -313,11 +313,46 @@ expectContains('components/pages/conductor-project-gallery-page.vue', [
   'await load(true)',
 ])
 
+expectContains('components/dreams/dream-gallery.vue', [
+  '@open="openDreamInfo"',
+  'await dreamStore.fetchDreamById(id)',
+  'infoDreamId.value = id',
+])
+
+expectOmits('components/dreams/dream-gallery.vue', [
+  '@open="selectDreamAndOpen"',
+])
+
+expectContains('components/dreams/dream-interact.vue', [
+  "workspaceStore.openDream(id, 'asset-sheet')",
+])
+
+{
+  const dreamNarration = read('components/dreams/dream-narration.vue')
+  const managerIndex = dreamNarration.indexOf('<EntityArtManager')
+  const panelSwitchIndex = dreamNarration.indexOf(
+    "workspaceStore.dreamPanel === 'asset-sheet'",
+  )
+  const managerMounts = dreamNarration.match(/<EntityArtManager/g)?.length ?? 0
+
+  if (
+    managerIndex < 0 ||
+    panelSwitchIndex < 0 ||
+    managerIndex > panelSwitchIndex ||
+    managerMounts !== 1
+  ) {
+    throw new Error(
+      'Dream interaction must expose one EntityArtManager outside the panel switch so replacement/upload/history controls remain reachable from every Dream panel.',
+    )
+  }
+}
+
 const graph = buildComponentGraph(resolve(process.cwd(), 'components'))
 
 for (const path of [
   'components/bots/bot-interact.vue',
   'components/characters/character-interact.vue',
+  'components/dreams/dream-interact.vue',
   'components/scenarios/scenario-interact.vue',
   'components/rewards/reward-interact.vue',
   'components/facets/facet-editor.vue',

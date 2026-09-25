@@ -60,7 +60,30 @@
       </nav>
     </header>
 
-    <main class="min-h-0 flex-1 overflow-y-auto kr-panel-flat p-3">
+    <section
+      class="kr-panes grid-cols-1 xl:grid-cols-[minmax(320px,440px)_minmax(0,1fr)]"
+    >
+      <aside class="kr-pane-scroll flex flex-col gap-4">
+        <section class="kr-panel-flat p-3">
+          <dream-card
+            v-if="dreamStore.selectedDream"
+            :dream="dreamStore.selectedDream"
+            :selected="true"
+            :is-selected="true"
+            :show-actions="false"
+            :show-stats="false"
+            :show-description="true"
+          />
+        </section>
+
+        <EntityArtManager
+          v-if="dreamStore.selectedDream"
+          entity-type="dream"
+          :entity="dreamStore.selectedDream"
+        />
+      </aside>
+
+      <main class="kr-pane-scroll kr-panel-flat p-3">
       <div
         v-if="workspaceStore.dreamPanel === 'asset-sheet'"
         class="grid gap-3"
@@ -130,19 +153,6 @@
       </div>
 
       <div v-else-if="workspaceStore.dreamPanel === 'art'" class="grid gap-3">
-        <!--
-          `dream` has been a valid EntityArtType all along -- the endpoints,
-          the EntityArtImage rows and the archive-on-recreate all work for it
-          -- and no surface in the app mounted the manager, so a Dream's own
-          art history was the one entity history with no way to reach it.
-          The chooser below LINKS art (pick a highlight, attach a collection);
-          it has never shown the images this Dream has previously carried.
-        -->
-        <EntityArtManager
-          v-if="dreamStore.selectedDream"
-          entity-type="dream"
-          :entity="dreamStore.selectedDream"
-        />
         <dream-art-chooser />
         <dream-inspire-button
           v-if="dreamStore.selectedDream?.slug"
@@ -160,7 +170,9 @@
         </section>
         <dream-list list-type="chats" />
       </div>
-    </main>
+
+      </main>
+    </section>
   </section>
 </template>
 

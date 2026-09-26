@@ -69,8 +69,10 @@ export type KontextWorkflowInput = {
   // check.
   //
   // Pass a `.gguf` name to keep the UnetLoaderGGUF path, or a `.safetensors`
-  // name to load through core ComfyUI's UNETLoader instead. Unset preserves the
-  // exact previous behaviour, so no existing caller changes.
+  // name to load through core ComfyUI's UNETLoader instead. Unset uses
+  // DEFAULT_KONTEXT_UNET (see below) -- the GGUF checkpoint named above was
+  // confirmed by direct A/B to be the cause of the static, so it is no longer
+  // the default.
   unetName?: string | null
   // Weight dtype for the non-GGUF UNETLoader path. Defaults to fp8_e4m3fn,
   // which matches the fp8-scaled Kontext checkpoint in the Resource library.
@@ -103,7 +105,14 @@ function clamp(value: number, min: number, max: number): number {
   return Math.min(max, Math.max(min, value))
 }
 
-const DEFAULT_KONTEXT_UNET = 'flux1-kontext-dev-Q5_K_M.gguf'
+// coloring-book/t-039: flux1-kontext-dev-Q5_K_M.gguf (the prior default) renders
+// pure corrupted static regardless of prompt/T5/sampler settings -- confirmed by
+// Silas's own direct A/B on the render worker, 2026-09-22 ("if i just switch the
+// gguf for safetensors, it works, no static"), comparing this exact GGUF UNet
+// against flux1-dev-kontext_fp8_scaled.safetensors on the same box. The
+// unetName/unetWeightDtype override plumbing (added for that A/B) stays generic;
+// only the hardcoded default moves.
+const DEFAULT_KONTEXT_UNET = 'flux1-dev-kontext_fp8_scaled.safetensors'
 const DEFAULT_KONTEXT_UNET_WEIGHT_DTYPE = 'fp8_e4m3fn'
 
 /**
@@ -114,11 +123,10 @@ const DEFAULT_KONTEXT_UNET_WEIGHT_DTYPE = 'fp8_e4m3fn'
  * wants a weight dtype. Feeding a `.safetensors` name to the GGUF loader (or the
  * reverse) fails at graph execution, so the file extension picks the node rather
  * than the caller having to know which is which.
- *
- * Default is unchanged from when this was inlined, so callers that pass nothing
- * get exactly the previous graph.
  */
-function buildKontextUnetLoader(input: KontextWorkflowInput): ComfyWorkflowNode {
+function buildKontextUnetLoader(
+  input: KontextWorkflowInput,
+): ComfyWorkflowNode {
   const unetName = input.unetName?.trim() || DEFAULT_KONTEXT_UNET
 
   if (unetName.toLowerCase().endsWith('.gguf')) {

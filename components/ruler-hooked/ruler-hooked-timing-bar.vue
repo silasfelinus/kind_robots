@@ -35,9 +35,9 @@
         class="absolute inset-y-0 left-0 flex items-center justify-start pl-2 text-sm opacity-70"
         :style="{ width: profile.bandStart + '%' }"
       >
-        🨢
+        {{ visual.zoneGlyphs.slack }}
       </span>
-      <!-- REEL zone (the target band; color scales with the fish's rarity) -->
+      <!-- REEL zone (the target band; color and glyph scale with the fish's rarity) -->
       <span
         class="absolute inset-y-0 flex items-center justify-center text-sm"
         :class="visual.bandColorClass"
@@ -46,14 +46,14 @@
           width: profile.bandWidth + '%',
         }"
       >
-        🎣
+        {{ visual.zoneGlyphs.reel }}
       </span>
       <!-- WAIT zone -->
       <span
         class="absolute inset-y-0 flex items-center justify-end pr-2 text-sm opacity-70"
         :style="{ left: profile.bandStart + profile.bandWidth + '%', right: 0 }"
       >
-        👀
+        {{ visual.zoneGlyphs.wait }}
       </span>
 
       <!-- sliding marker -- a diamond silhouette from RARE up, otherwise the plain capsule -->

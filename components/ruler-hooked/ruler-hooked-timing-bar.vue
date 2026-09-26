@@ -40,14 +40,17 @@
       <!-- REEL zone (the green target band) -->
       <span
         class="absolute inset-y-0 flex items-center justify-center bg-success/30 text-sm"
-        :style="{ left: profile.bandStart + '%', width: profile.bandWidth + '%' }"
+        :style="{
+          left: profile.bandStart + '%',
+          width: profile.bandWidth + '%',
+        }"
       >
         🎣
       </span>
       <!-- WAIT zone -->
       <span
         class="absolute inset-y-0 flex items-center justify-end pr-2 text-sm opacity-70"
-        :style="{ left: (profile.bandStart + profile.bandWidth) + '%', right: 0 }"
+        :style="{ left: profile.bandStart + profile.bandWidth + '%', right: 0 }"
       >
         👀
       </span>
@@ -63,19 +66,28 @@
 
     <p class="kr-text-faded-xs-55 mt-2" role="status" aria-live="polite">
       <template v-if="!stopped">
-        Tap or press Space/Enter to stop the marker. Where it lands decides the outcome — the
-        same seed and the same stops always reproduce the same catch.
+        Tap or press Space/Enter to stop the marker. Where it lands decides the
+        outcome — the same seed and the same stops always reproduce the same
+        catch.
       </template>
       <template v-else>
-        Stopped in the {{ zoneLabel.toLowerCase() }} zone ({{ Math.round(lastQuality * 100) }}% quality).
+        Stopped in the {{ zoneLabel.toLowerCase() }} zone ({{
+          Math.round(lastQuality * 100)
+        }}% quality).
       </template>
     </p>
   </div>
 </template>
 
 <script setup lang="ts">
-import type { FishingAction, FishingEncounter } from '~/utils/rulerHooked/encounter'
-import { resolveTimingStop, timingProfileFor } from '~/utils/rulerHooked/timingBar'
+import type {
+  FishingAction,
+  FishingEncounter,
+} from '~/utils/rulerHooked/encounter'
+import {
+  resolveTimingStop,
+  timingProfileFor,
+} from '~/utils/rulerHooked/timingBar'
 
 const props = defineProps<{ encounter: FishingEncounter }>()
 const emit = defineEmits<{ stop: [position: number] }>()
@@ -85,20 +97,43 @@ const profile = computed(() => timingProfileFor(props.encounter))
 const position = ref(0)
 const stopped = ref(false)
 const lastQuality = ref(0)
-const ACTION_LABEL: Record<FishingAction, string> = { REEL: 'Reel', SLACK: 'Slack', WAIT: 'Wait' }
-const zoneLabel = computed(() => ACTION_LABEL[resolveTimingStop(position.value, profile.value).action])
+const ACTION_LABEL: Record<FishingAction, string> = {
+  REEL: 'Reel',
+  SLACK: 'Slack',
+  WAIT: 'Wait',
+}
+const zoneLabel = computed(
+  () => ACTION_LABEL[resolveTimingStop(position.value, profile.value).action],
+)
 
 let rafId: number | null = null
 let startTime: number | null = null
 
 function tick(now: number) {
   if (startTime === null) startTime = now
-  const period = profile.value.sweepMs * 2
+  const sweepMs = profile.value.sweepMs
+  // Sunspoke Koi's APPROACH cue already says it "circles the lure without
+  // committing" (buildEncounter() in encounter.ts) -- give the marker a
+  // brief dwell at each end of its sweep so that hesitation is something the
+  // player actually sees, not just reads. Display-only: only the recorded
+  // stop position ever reaches applyFishingStop, so this never affects
+  // outcome/determinism, matching the REVERSE_CONTROL mirror below.
+  const isPatienceApproach =
+    props.encounter.family === 'PATIENCE' &&
+    props.encounter.phase === 'APPROACH'
+  const dwellMs = isPatienceApproach ? sweepMs * 0.25 : 0
+  const period = (sweepMs + dwellMs) * 2
   const elapsed = (now - startTime) % period
-  const t = elapsed < profile.value.sweepMs
-    ? elapsed / profile.value.sweepMs
-    : (period - elapsed) / profile.value.sweepMs
-  const raw = t * 100
+  let raw: number
+  if (elapsed < dwellMs) {
+    raw = 0
+  } else if (elapsed < dwellMs + sweepMs) {
+    raw = ((elapsed - dwellMs) / sweepMs) * 100
+  } else if (elapsed < dwellMs * 2 + sweepMs) {
+    raw = 100
+  } else {
+    raw = 100 - ((elapsed - dwellMs * 2 - sweepMs) / sweepMs) * 100
+  }
   // REVERSE_CONTROL fish flip REEL/SLACK under the hood once `reversed` goes
   // true (effectiveAction() in encounter.ts) -- mirror the sweep itself so
   // the marker visibly starts from the opposite side instead of only the

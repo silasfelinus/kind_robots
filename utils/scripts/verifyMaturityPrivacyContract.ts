@@ -308,7 +308,11 @@ assert.ok(browseStore.includes('const galleryDeleteMode = ref(false)'))
 assert.ok(browseStore.includes('setGalleryDeleteMode'))
 
 const artManager = readFileSync('components/art/art-manager.vue', 'utf8')
-assert.ok(artManager.includes("activeTab.value !== 'gallery'"))
+// Gallery renders unconditionally via its own v-else-if branch and must never
+// wait on the manager-wide loading gate, which now only applies to the Styler
+// tab (kind-robots/t-122 narrowed it away from every other tab, Gallery
+// included, so it can filter by maturity/privacy immediately).
+assert.ok(artManager.includes("activeTab.value === 'styler'"))
 assert.ok(artManager.includes('shouldLoadManagerData'))
 assert.ok(
   artManager.includes('v-if="isLoadingManager && shouldLoadManagerData"'),

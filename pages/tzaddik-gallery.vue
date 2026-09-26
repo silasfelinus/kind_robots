@@ -12,8 +12,8 @@
             <p class="kr-text-black-2xl tracking-tight">Tzaddik Gallery</p>
             <p class="text-sm leading-relaxed text-base-content/75">
               A playful, sourced gallery of everyday and extraordinary people
-              who quietly keep the world running, plus a historical archive
-              of past honorees.
+              who quietly keep the world running, plus a historical archive of
+              past honorees.
             </p>
           </div>
         </header>

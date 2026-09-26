@@ -96,11 +96,15 @@ const emit = defineEmits<{ stop: [position: number] }>()
 
 const profile = computed(() => timingProfileFor(props.encounter))
 const visual = computed(() => timingVisualFor(props.encounter.rarity))
-const markerShapeClasses = computed(() =>
-  visual.value.markerShape === 'diamond'
-    ? 'top-1/2 h-2/3 w-2/3 -translate-y-1/2 rotate-45 rounded-sm'
-    : 'top-0 h-full w-1 rounded-full',
-)
+const markerShapeClasses = computed(() => {
+  if (visual.value.markerShape === 'outlined-diamond') {
+    return 'top-1/2 h-2/3 aspect-square -translate-y-1/2 rotate-45 rounded-sm border-2 border-base-100'
+  }
+  if (visual.value.markerShape === 'diamond') {
+    return 'top-1/2 h-2/3 aspect-square -translate-y-1/2 rotate-45 rounded-sm'
+  }
+  return 'top-0 h-full w-1 rounded-full'
+})
 
 const position = ref(0)
 const stopped = ref(false)

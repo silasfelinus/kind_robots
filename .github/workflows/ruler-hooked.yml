@@ -39,3 +39,5 @@ jobs:
         run: npx tsx utils/rulerHooked/economy.selftest.ts
       - name: Card art self-test
         run: npx tsx utils/rulerHooked/cardArt.selftest.ts
+      - name: Timing bar self-test
+        run: npx tsx utils/rulerHooked/timingBar.selftest.ts

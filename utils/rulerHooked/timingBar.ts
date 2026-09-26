@@ -74,7 +74,7 @@ export interface TimingBarVisual {
   /** DaisyUI background utility for the REEL band, keyed by rarity. */
   bandColorClass: string
   /** Marker silhouette -- 'diamond' from RARE up, 'capsule' below. */
-  markerShape: 'capsule' | 'diamond'
+  markerShape: 'capsule' | 'diamond' | 'outlined-diamond'
   /** SLACK/REEL/WAIT zone glyphs -- a distinct set from LEGENDARY up, the
    *  shared default below it. */
   zoneGlyphs: ZoneGlyphs
@@ -147,9 +147,11 @@ export function timingVisualFor(rarity: Rarity): TimingBarVisual {
   return {
     bandColorClass: BAND_COLOR_BY_RARITY[rarity],
     markerShape:
-      RARITY_DIFFICULTY[rarity] >= RARITY_DIFFICULTY.RARE
-        ? 'diamond'
-        : 'capsule',
+      RARITY_DIFFICULTY[rarity] >= RARITY_DIFFICULTY.EPIC
+        ? 'outlined-diamond'
+        : RARITY_DIFFICULTY[rarity] >= RARITY_DIFFICULTY.RARE
+          ? 'diamond'
+          : 'capsule',
     zoneGlyphs: ZONE_GLYPHS_BY_RARITY[rarity],
   }
 }

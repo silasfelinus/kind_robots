@@ -91,8 +91,7 @@ export function checkNarratingStatusGuard(content: string): string[] {
   // that interface-vision/t-104 slice 269 migrated this exact spinner onto
   // (kr_spinner_dots_lg_codemod.py) -- same rendered shape, different source
   // spelling, so this guard must not read a primitive migration as a
-  // regression (see verifyStorybookStudio.mjs's includesAllOrAlternatives()
-  // for the same class of fix, slice 248).
+  // regression (the same class of fix as slice 248).
   const spinnerMarkerMatch = block.match(
     /loading loading-dots|kr-spinner-\S*dots/,
   )

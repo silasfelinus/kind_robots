@@ -41,8 +41,7 @@ const RECIPE_SELECTOR_PATH = join(
 // spinner span. Accepts either the raw DaisyUI tokens or the
 // kr-spinner-*-dots primitive that interface-vision/t-104 slice 269 migrated
 // this exact spinner onto (kr_spinner_dots_sm_codemod.py) -- same rendered
-// shape, different source spelling (see verifyStorybookStudio.mjs's
-// includesAllOrAlternatives() for the same class of fix, slice 248).
+// shape, different source spelling (the same class of fix as slice 248).
 const START_RUN_LOADING_PATTERN =
   /:aria-busy="store\.startingRun"[\s\S]{0,120}?@click="store\.startRun\(\)"[\s\S]{0,120}?v-if="store\.startingRun"[\s\S]{0,60}?(?:loading loading-dots|kr-spinner-\S*dots)/
 

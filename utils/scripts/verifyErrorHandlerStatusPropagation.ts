@@ -35,9 +35,9 @@
 //
 // WHAT IS (AND ISN'T) CHECKED
 // ----------------------------
-// Source-text only, matching the existing `utils/scripts/verifyXyz.ts`
-// pattern (e.g. verifyNoPromiseInStoreState.ts) rather than a real
-// TypeScript parse. Within a handler body, a `catch` block containing
+// Source-text only, following the same pattern as
+// verifyNoPromiseInStoreState.ts, rather than a real TypeScript parse.
+// Within a handler body, a `catch` block containing
 // `errorHandler(` must be matched by at least one of the three known
 // status-propagation shapes ANYWHERE in that same handler body -- not
 // necessarily inside the catch block itself, since a handler may set status

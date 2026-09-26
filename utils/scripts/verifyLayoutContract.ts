@@ -158,7 +158,7 @@ const rel = (path: string): string => relative(ROOT, path).replace(/\\/g, '/')
  * Escapes a string for use inside a GitHub Actions workflow command
  * (`::warning ...::message`). Same rule GitHub documents for `%`/CR/LF in
  * command properties and message text; matches the pattern already used by
- * verifyCommentCalibrationBatch002Contract.ts's own `workflowEscape`.
+ * runCommentCalibrationBatch002Contract.ts's own `workflowEscape`.
  */
 function workflowEscape(value: string): string {
   return value.replace(/%/g, '%25').replace(/\r/g, '%0D').replace(/\n/g, '%0A')

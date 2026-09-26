@@ -1,0 +1,58 @@
+name: Storybook Guard Staleness Contract
+
+# Wires storybook/t-068's two guard-staleness checkers into CI (kaizen from t-068,
+# kind_robots#3045). Both scripts already had a working --self-test but were not
+# invoked anywhere, so neither could catch a real regression yet.
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: storybook-guard-staleness-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    name: Verifier filename and deleted-guard reference checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Verifier filename reference self-test
+        run: node utils/scripts/verifyVerifierFilenameReferences.mjs --self-test
+
+      - name: Deleted guard reference self-test
+        run: node utils/scripts/verifyDeletedGuardReferences.mjs --self-test
+
+      - name: Verify no stale verifier filename references
+        run: node utils/scripts/verifyVerifierFilenameReferences.mjs
+
+      - name: Detect verify*.mjs/ts guards deleted in this pull request
+        if: github.event_name == 'pull_request'
+        id: deleted
+        shell: bash
+        run: |
+          mapfile -d '' deleted_files < <(git diff --name-only --diff-filter=D -z "${{ github.event.pull_request.base.sha }}...HEAD" -- 'utils/scripts/verify*.mjs' 'utils/scripts/verify*.ts')
+          basenames=()
+          for f in "${deleted_files[@]}"; do
+            basenames+=("$(basename "$f")")
+          done
+          echo "names=${basenames[*]}" >> "$GITHUB_OUTPUT"
+
+      - name: Verify no stale references to guards deleted in this pull request
+        if: github.event_name == 'pull_request'
+        run: node utils/scripts/verifyDeletedGuardReferences.mjs ${{ steps.deleted.outputs.names }}

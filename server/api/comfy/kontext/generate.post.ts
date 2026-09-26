@@ -426,13 +426,17 @@ function buildKontextWorkflow(input: {
         title: 'ReferenceLatent',
       },
     },
+    // coloring-book/t-039: the prior GGUF checkpoint renders pure corrupted
+    // static, confirmed by Silas's direct A/B, 2026-09-22. See
+    // kontext/utils/workflow.ts's DEFAULT_KONTEXT_UNET for the same fix.
     '59': {
       inputs: {
-        unet_name: 'flux1-kontext-dev-Q5_K_M.gguf',
+        unet_name: 'flux1-dev-kontext_fp8_scaled.safetensors',
+        weight_dtype: 'fp8_e4m3fn',
       },
-      class_type: 'UnetLoaderGGUF',
+      class_type: 'UNETLoader',
       _meta: {
-        title: 'Unet Loader (GGUF)',
+        title: 'Load Diffusion Model',
       },
     },
     '60': {

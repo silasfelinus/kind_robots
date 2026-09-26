@@ -526,6 +526,7 @@
     "test:storybook": "npm run test:storybook-active-story-resume-guard && npm run test:storybook-answer-input-preservation-guard && npm run test:storybook-answer-rollback-guard && npm run test:storybook-composer-ime-composition-guard && npm run test:narrative-art-status-stall-message-guard && npm run test:narrative-art-poll-epoch-guard && npm run test:storybook-object-entry-links && npm run test:narrator-lore-topic-why-guard && npm run test:narrator-dream-switch-seed-reset-guard && npm run test:narrator-send-message-dream-switch-guard && npm run test:storybook-run-store && npm run test:storybook-scene-art-chapter-match-guard && npm run test:storybook-character-gating && npm run test:storybook-taskmaster-safety && npm run test:storybook-quest-double-apply-guard && npm run test:storybook-table && npm run test:storybook-play-again-board-guard",
     "test:kontext-mask-forwarding": "tsx utils/scripts/verifyKontextMaskForwarding.ts",
     "test:kontext-text-encoder": "tsx utils/scripts/verifyKontextTextEncoder.ts",
+    "test:kontext-unet-default": "tsx utils/scripts/verifyKontextUnetDefault.ts",
     "test:pod-vendor-client-selftest": "tsx utils/scripts/verifyPodVendorClient.test.ts",
     "test:mana-gate-on-behalf-of-target": "tsx utils/scripts/verifyManaGateOnBehalfOfTarget.ts",
     "test:text-provider-service": "tsx utils/scripts/verifyTextProviderService.ts",

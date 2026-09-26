@@ -121,10 +121,18 @@ assert.deepEqual(
   },
   'Kontext text encoders must match the working reference workflow supplied for t-039',
 )
+assert.equal(
+  unmaskedWorkflow['59']?.class_type,
+  'UNETLoader',
+  'Kontext must load its UNet through core UNETLoader (the GGUF path renders static, confirmed by direct A/B 2026-09-22)',
+)
 assert.deepEqual(
   unmaskedWorkflow['59']?.inputs,
-  { unet_name: 'flux1-kontext-dev-Q5_K_M.gguf' },
-  'the working reference proves the existing GGUF Kontext UNet is compatible with a healthy render',
+  {
+    unet_name: 'flux1-dev-kontext_fp8_scaled.safetensors',
+    weight_dtype: 'fp8_e4m3fn',
+  },
+  'Silas’s direct A/B (2026-09-22) proved the GGUF Kontext UNet renders static; the safetensors checkpoint is now the default',
 )
 assert.deepEqual(
   unmaskedWorkflow['10']?.inputs,

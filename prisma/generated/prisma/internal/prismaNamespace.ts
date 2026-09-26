@@ -512,7 +512,10 @@ export const ModelName = {
   GithubInstallation: 'GithubInstallation',
   AppRepo: 'AppRepo',
   MediaEntry: 'MediaEntry',
-  ResourcePreview: 'ResourcePreview'
+  ResourcePreview: 'ResourcePreview',
+  TzaddikCandidate: 'TzaddikCandidate',
+  TzaddikCandidateTag: 'TzaddikCandidateTag',
+  TzaddikRecheckRequest: 'TzaddikRecheckRequest'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -528,7 +531,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "agentProfile" | "agentProfileCredential" | "agentCheckIn" | "agentNote" | "archiveEntry" | "archiveActionPreset" | "brainstormSession" | "brainstormCandidate" | "facetAlias" | "facetProfile" | "characterFacet" | "botFacet" | "rewardFacet" | "mandarinAudioAsset" | "mandarinCatalogOverride" | "mandarinCatalogChange" | "mandarinLessonProgress" | "mandarinPointEvent" | "mandarinLearnerProfile" | "mandarinRequestedCard" | "mandarinCustomSet" | "mandarinArtJobLink" | "mandarinCardProgress" | "mandarinReviewEvent" | "modelBuildRun" | "modelBuildItem" | "modelBuildArtifact" | "modelBuildRevision" | "projectPageContent" | "artImage" | "artCollection" | "bot" | "character" | "chat" | "dream" | "dreamRelation" | "project" | "facet" | "dreamFacet" | "scenarioFacet" | "projectFacet" | "projectArtImage" | "projectArtCollection" | "entityArtImage" | "facetArtImage" | "facetArtCollection" | "facetRelation" | "expressionMedia" | "expressionTransition" | "log" | "achievement" | "manaTransaction" | "revenueSplit" | "socialPostDraft" | "missionRemittance" | "product" | "order" | "orderItem" | "entitlement" | "printJob" | "grant" | "pack" | "achievementRecord" | "narratorTopic" | "narratorThread" | "pitchSheet" | "prompt" | "reaction" | "resource" | "reward" | "scenario" | "server" | "serverHealthCheck" | "sceneAnimatorPrompt" | "smartIcon" | "theme" | "user" | "stylistClient" | "stylistAppointment" | "artJob" | "queueControl" | "downloadRequest" | "karmaTransaction" | "referral" | "userRelation" | "userRole" | "todo" | "challenge" | "challengeSubmission" | "contender" | "endingDeck" | "lifeRun" | "lifeChoice" | "lifeStat" | "lifeEnding" | "lifeAchievement" | "lifeAchievementUnlock" | "lifeRunArt" | "aquarium" | "aquariumStock" | "aquariumSet" | "aquariumDecor" | "aquariumEgg" | "aquariumCodexEntry" | "monster" | "aquariumEvent" | "authToken" | "agentCredential" | "conversation" | "conversationParticipant" | "directMessage" | "notification" | "githubInstallation" | "appRepo" | "mediaEntry" | "resourcePreview"
+    modelProps: "agentProfile" | "agentProfileCredential" | "agentCheckIn" | "agentNote" | "archiveEntry" | "archiveActionPreset" | "brainstormSession" | "brainstormCandidate" | "facetAlias" | "facetProfile" | "characterFacet" | "botFacet" | "rewardFacet" | "mandarinAudioAsset" | "mandarinCatalogOverride" | "mandarinCatalogChange" | "mandarinLessonProgress" | "mandarinPointEvent" | "mandarinLearnerProfile" | "mandarinRequestedCard" | "mandarinCustomSet" | "mandarinArtJobLink" | "mandarinCardProgress" | "mandarinReviewEvent" | "modelBuildRun" | "modelBuildItem" | "modelBuildArtifact" | "modelBuildRevision" | "projectPageContent" | "artImage" | "artCollection" | "bot" | "character" | "chat" | "dream" | "dreamRelation" | "project" | "facet" | "dreamFacet" | "scenarioFacet" | "projectFacet" | "projectArtImage" | "projectArtCollection" | "entityArtImage" | "facetArtImage" | "facetArtCollection" | "facetRelation" | "expressionMedia" | "expressionTransition" | "log" | "achievement" | "manaTransaction" | "revenueSplit" | "socialPostDraft" | "missionRemittance" | "product" | "order" | "orderItem" | "entitlement" | "printJob" | "grant" | "pack" | "achievementRecord" | "narratorTopic" | "narratorThread" | "pitchSheet" | "prompt" | "reaction" | "resource" | "reward" | "scenario" | "server" | "serverHealthCheck" | "sceneAnimatorPrompt" | "smartIcon" | "theme" | "user" | "stylistClient" | "stylistAppointment" | "artJob" | "queueControl" | "downloadRequest" | "karmaTransaction" | "referral" | "userRelation" | "userRole" | "todo" | "challenge" | "challengeSubmission" | "contender" | "endingDeck" | "lifeRun" | "lifeChoice" | "lifeStat" | "lifeEnding" | "lifeAchievement" | "lifeAchievementUnlock" | "lifeRunArt" | "aquarium" | "aquariumStock" | "aquariumSet" | "aquariumDecor" | "aquariumEgg" | "aquariumCodexEntry" | "monster" | "aquariumEvent" | "authToken" | "agentCredential" | "conversation" | "conversationParticipant" | "directMessage" | "notification" | "githubInstallation" | "appRepo" | "mediaEntry" | "resourcePreview" | "tzaddikCandidate" | "tzaddikCandidateTag" | "tzaddikRecheckRequest"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -8188,6 +8191,204 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    TzaddikCandidate: {
+      payload: Prisma.$TzaddikCandidatePayload<ExtArgs>
+      fields: Prisma.TzaddikCandidateFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.TzaddikCandidateFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TzaddikCandidatePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.TzaddikCandidateFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TzaddikCandidatePayload>
+        }
+        findFirst: {
+          args: Prisma.TzaddikCandidateFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TzaddikCandidatePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.TzaddikCandidateFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TzaddikCandidatePayload>
+        }
+        findMany: {
+          args: Prisma.TzaddikCandidateFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TzaddikCandidatePayload>[]
+        }
+        create: {
+          args: Prisma.TzaddikCandidateCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TzaddikCandidatePayload>
+        }
+        createMany: {
+          args: Prisma.TzaddikCandidateCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.TzaddikCandidateDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TzaddikCandidatePayload>
+        }
+        update: {
+          args: Prisma.TzaddikCandidateUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TzaddikCandidatePayload>
+        }
+        deleteMany: {
+          args: Prisma.TzaddikCandidateDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.TzaddikCandidateUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.TzaddikCandidateUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TzaddikCandidatePayload>
+        }
+        aggregate: {
+          args: Prisma.TzaddikCandidateAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateTzaddikCandidate>
+        }
+        groupBy: {
+          args: Prisma.TzaddikCandidateGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.TzaddikCandidateGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.TzaddikCandidateCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.TzaddikCandidateCountAggregateOutputType> | number
+        }
+      }
+    }
+    TzaddikCandidateTag: {
+      payload: Prisma.$TzaddikCandidateTagPayload<ExtArgs>
+      fields: Prisma.TzaddikCandidateTagFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.TzaddikCandidateTagFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TzaddikCandidateTagPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.TzaddikCandidateTagFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TzaddikCandidateTagPayload>
+        }
+        findFirst: {
+          args: Prisma.TzaddikCandidateTagFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TzaddikCandidateTagPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.TzaddikCandidateTagFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TzaddikCandidateTagPayload>
+        }
+        findMany: {
+          args: Prisma.TzaddikCandidateTagFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TzaddikCandidateTagPayload>[]
+        }
+        create: {
+          args: Prisma.TzaddikCandidateTagCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TzaddikCandidateTagPayload>
+        }
+        createMany: {
+          args: Prisma.TzaddikCandidateTagCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.TzaddikCandidateTagDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TzaddikCandidateTagPayload>
+        }
+        update: {
+          args: Prisma.TzaddikCandidateTagUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TzaddikCandidateTagPayload>
+        }
+        deleteMany: {
+          args: Prisma.TzaddikCandidateTagDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.TzaddikCandidateTagUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.TzaddikCandidateTagUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TzaddikCandidateTagPayload>
+        }
+        aggregate: {
+          args: Prisma.TzaddikCandidateTagAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateTzaddikCandidateTag>
+        }
+        groupBy: {
+          args: Prisma.TzaddikCandidateTagGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.TzaddikCandidateTagGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.TzaddikCandidateTagCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.TzaddikCandidateTagCountAggregateOutputType> | number
+        }
+      }
+    }
+    TzaddikRecheckRequest: {
+      payload: Prisma.$TzaddikRecheckRequestPayload<ExtArgs>
+      fields: Prisma.TzaddikRecheckRequestFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.TzaddikRecheckRequestFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TzaddikRecheckRequestPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.TzaddikRecheckRequestFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TzaddikRecheckRequestPayload>
+        }
+        findFirst: {
+          args: Prisma.TzaddikRecheckRequestFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TzaddikRecheckRequestPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.TzaddikRecheckRequestFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TzaddikRecheckRequestPayload>
+        }
+        findMany: {
+          args: Prisma.TzaddikRecheckRequestFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TzaddikRecheckRequestPayload>[]
+        }
+        create: {
+          args: Prisma.TzaddikRecheckRequestCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TzaddikRecheckRequestPayload>
+        }
+        createMany: {
+          args: Prisma.TzaddikRecheckRequestCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.TzaddikRecheckRequestDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TzaddikRecheckRequestPayload>
+        }
+        update: {
+          args: Prisma.TzaddikRecheckRequestUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TzaddikRecheckRequestPayload>
+        }
+        deleteMany: {
+          args: Prisma.TzaddikRecheckRequestDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.TzaddikRecheckRequestUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.TzaddikRecheckRequestUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TzaddikRecheckRequestPayload>
+        }
+        aggregate: {
+          args: Prisma.TzaddikRecheckRequestAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateTzaddikRecheckRequest>
+        }
+        groupBy: {
+          args: Prisma.TzaddikRecheckRequestGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.TzaddikRecheckRequestGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.TzaddikRecheckRequestCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.TzaddikRecheckRequestCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -10491,6 +10692,74 @@ export const ResourcePreviewScalarFieldEnum = {
 export type ResourcePreviewScalarFieldEnum = (typeof ResourcePreviewScalarFieldEnum)[keyof typeof ResourcePreviewScalarFieldEnum]
 
 
+export const TzaddikCandidateScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  displayName: 'displayName',
+  slug: 'slug',
+  lifeState: 'lifeState',
+  deathDate: 'deathDate',
+  rationale: 'rationale',
+  biography: 'biography',
+  objections: 'objections',
+  objectionsSourceUrl: 'objectionsSourceUrl',
+  wikipediaUrl: 'wikipediaUrl',
+  wikipediaPageId: 'wikipediaPageId',
+  wikipediaRevisionId: 'wikipediaRevisionId',
+  sourceSnapshotJson: 'sourceSnapshotJson',
+  sourceCheckedAt: 'sourceCheckedAt',
+  imageSourceUrl: 'imageSourceUrl',
+  imageFileUrl: 'imageFileUrl',
+  imageLicense: 'imageLicense',
+  imageAttribution: 'imageAttribution',
+  imageRevisionId: 'imageRevisionId',
+  countryCode: 'countryCode',
+  region: 'region',
+  curationState: 'curationState',
+  submittedByUserId: 'submittedByUserId',
+  suggestedBy: 'suggestedBy',
+  acceptedByUserId: 'acceptedByUserId',
+  displayNameOverride: 'displayNameOverride',
+  biographyOverride: 'biographyOverride',
+  rationaleOverride: 'rationaleOverride',
+  objectionsOverride: 'objectionsOverride',
+  imageUrlOverride: 'imageUrlOverride',
+  overrideNote: 'overrideNote',
+  overrideUpdatedByUserId: 'overrideUpdatedByUserId',
+  overrideUpdatedAt: 'overrideUpdatedAt'
+} as const
+
+export type TzaddikCandidateScalarFieldEnum = (typeof TzaddikCandidateScalarFieldEnum)[keyof typeof TzaddikCandidateScalarFieldEnum]
+
+
+export const TzaddikCandidateTagScalarFieldEnum = {
+  candidateId: 'candidateId',
+  tag: 'tag',
+  createdAt: 'createdAt'
+} as const
+
+export type TzaddikCandidateTagScalarFieldEnum = (typeof TzaddikCandidateTagScalarFieldEnum)[keyof typeof TzaddikCandidateTagScalarFieldEnum]
+
+
+export const TzaddikRecheckRequestScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  candidateId: 'candidateId',
+  requestedByUserId: 'requestedByUserId',
+  status: 'status',
+  startedAt: 'startedAt',
+  completedAt: 'completedAt',
+  sourceRevisionBefore: 'sourceRevisionBefore',
+  sourceRevisionAfter: 'sourceRevisionAfter',
+  resultJson: 'resultJson',
+  error: 'error'
+} as const
+
+export type TzaddikRecheckRequestScalarFieldEnum = (typeof TzaddikRecheckRequestScalarFieldEnum)[keyof typeof TzaddikRecheckRequestScalarFieldEnum]
+
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -11733,6 +12002,46 @@ export const ResourcePreviewOrderByRelevanceFieldEnum = {
 export type ResourcePreviewOrderByRelevanceFieldEnum = (typeof ResourcePreviewOrderByRelevanceFieldEnum)[keyof typeof ResourcePreviewOrderByRelevanceFieldEnum]
 
 
+export const TzaddikCandidateOrderByRelevanceFieldEnum = {
+  displayName: 'displayName',
+  slug: 'slug',
+  rationale: 'rationale',
+  biography: 'biography',
+  objections: 'objections',
+  objectionsSourceUrl: 'objectionsSourceUrl',
+  wikipediaUrl: 'wikipediaUrl',
+  wikipediaPageId: 'wikipediaPageId',
+  wikipediaRevisionId: 'wikipediaRevisionId',
+  sourceSnapshotJson: 'sourceSnapshotJson',
+  imageSourceUrl: 'imageSourceUrl',
+  imageFileUrl: 'imageFileUrl',
+  imageLicense: 'imageLicense',
+  imageAttribution: 'imageAttribution',
+  imageRevisionId: 'imageRevisionId',
+  countryCode: 'countryCode',
+  region: 'region',
+  suggestedBy: 'suggestedBy',
+  displayNameOverride: 'displayNameOverride',
+  biographyOverride: 'biographyOverride',
+  rationaleOverride: 'rationaleOverride',
+  objectionsOverride: 'objectionsOverride',
+  imageUrlOverride: 'imageUrlOverride',
+  overrideNote: 'overrideNote'
+} as const
+
+export type TzaddikCandidateOrderByRelevanceFieldEnum = (typeof TzaddikCandidateOrderByRelevanceFieldEnum)[keyof typeof TzaddikCandidateOrderByRelevanceFieldEnum]
+
+
+export const TzaddikRecheckRequestOrderByRelevanceFieldEnum = {
+  sourceRevisionBefore: 'sourceRevisionBefore',
+  sourceRevisionAfter: 'sourceRevisionAfter',
+  resultJson: 'resultJson',
+  error: 'error'
+} as const
+
+export type TzaddikRecheckRequestOrderByRelevanceFieldEnum = (typeof TzaddikRecheckRequestOrderByRelevanceFieldEnum)[keyof typeof TzaddikRecheckRequestOrderByRelevanceFieldEnum]
+
+
 
 /**
  * Field references
@@ -12291,6 +12600,34 @@ export type BigIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 
 export type EnumMediaTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'MediaType'>
     
 
+
+/**
+ * Reference to a field of type 'TzaddikLifeState'
+ */
+export type EnumTzaddikLifeStateFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'TzaddikLifeState'>
+    
+
+
+/**
+ * Reference to a field of type 'TzaddikCurationState'
+ */
+export type EnumTzaddikCurationStateFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'TzaddikCurationState'>
+    
+
+
+/**
+ * Reference to a field of type 'TzaddikEditorialTag'
+ */
+export type EnumTzaddikEditorialTagFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'TzaddikEditorialTag'>
+    
+
+
+/**
+ * Reference to a field of type 'TzaddikRecheckStatus'
+ */
+export type EnumTzaddikRecheckStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'TzaddikRecheckStatus'>
+    
+
 /**
  * Batch Payload for updateMany & deleteMany & createMany
  */
@@ -12558,6 +12895,9 @@ export type GlobalOmitConfig = {
   appRepo?: Prisma.AppRepoOmit
   mediaEntry?: Prisma.MediaEntryOmit
   resourcePreview?: Prisma.ResourcePreviewOmit
+  tzaddikCandidate?: Prisma.TzaddikCandidateOmit
+  tzaddikCandidateTag?: Prisma.TzaddikCandidateTagOmit
+  tzaddikRecheckRequest?: Prisma.TzaddikRecheckRequestOmit
 }
 
 /* Types for Logging */

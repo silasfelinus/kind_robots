@@ -1043,3 +1043,18 @@ export type MediaEntry = Prisma.MediaEntryModel
  * it, and the two are backfilled from the same source.
  */
 export type ResourcePreview = Prisma.ResourcePreviewModel
+/**
+ * Model TzaddikCandidate
+ * 
+ */
+export type TzaddikCandidate = Prisma.TzaddikCandidateModel
+/**
+ * Model TzaddikCandidateTag
+ * 
+ */
+export type TzaddikCandidateTag = Prisma.TzaddikCandidateTagModel
+/**
+ * Model TzaddikRecheckRequest
+ * 
+ */
+export type TzaddikRecheckRequest = Prisma.TzaddikRecheckRequestModel

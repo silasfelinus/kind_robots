@@ -1,0 +1,110 @@
+enum TzaddikLifeState {
+  LIVING
+  MEMORIAL
+  UNKNOWN
+}
+
+enum TzaddikCurationState {
+  PENDING
+  APPROVED
+  ARCHIVED
+}
+
+enum TzaddikEditorialTag {
+  POLITICS
+  POP_CULTURE
+  HUMANITARIAN
+  SCIENCE_MEDICINE
+  EDUCATION
+  ENVIRONMENT
+  CIVIL_RIGHTS_JUSTICE
+  PEACE_DIPLOMACY
+  COMMUNITY_MUTUAL_AID
+  ARTS_CULTURE
+  JOURNALISM_TRUTH
+  COURAGE_RESCUE
+}
+
+enum TzaddikRecheckStatus {
+  PENDING
+  CHECKING
+  NO_CHANGE
+  UPDATED
+  NEEDS_REVIEW
+  FAILED
+}
+
+model TzaddikCandidate {
+  id Int @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+  displayName String @db.VarChar(255)
+  slug String @unique @db.VarChar(255)
+  lifeState TzaddikLifeState @default(UNKNOWN)
+  deathDate DateTime?
+  rationale String @db.Text
+  biography String? @db.Text
+  objections String? @db.Text
+  objectionsSourceUrl String? @db.VarChar(2048)
+  wikipediaUrl String @db.VarChar(2048)
+  wikipediaPageId String? @db.VarChar(64)
+  wikipediaRevisionId String? @db.VarChar(64)
+  sourceSnapshotJson String? @db.LongText
+  sourceCheckedAt DateTime?
+  imageSourceUrl String? @db.VarChar(2048)
+  imageFileUrl String? @db.VarChar(2048)
+  imageLicense String? @db.VarChar(255)
+  imageAttribution String? @db.Text
+  imageRevisionId String? @db.VarChar(64)
+  countryCode String? @db.VarChar(2)
+  region String? @db.VarChar(128)
+  curationState TzaddikCurationState @default(PENDING)
+  submittedByUserId Int?
+  suggestedBy String? @db.VarChar(255)
+  acceptedByUserId Int?
+  displayNameOverride String? @db.VarChar(255)
+  biographyOverride String? @db.Text
+  rationaleOverride String? @db.Text
+  objectionsOverride String? @db.Text
+  imageUrlOverride String? @db.VarChar(2048)
+  overrideNote String? @db.Text
+  overrideUpdatedByUserId Int?
+  overrideUpdatedAt DateTime?
+  Tags TzaddikCandidateTag[]
+  RecheckRequests TzaddikRecheckRequest[]
+
+  @@index([lifeState, curationState])
+  @@index([curationState, createdAt])
+  @@index([submittedByUserId])
+  @@index([countryCode, region])
+  @@index([sourceCheckedAt])
+}
+
+model TzaddikCandidateTag {
+  candidateId Int
+  tag TzaddikEditorialTag
+  createdAt DateTime @default(now())
+  Candidate TzaddikCandidate @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+
+  @@id([candidateId, tag])
+  @@index([tag])
+}
+
+model TzaddikRecheckRequest {
+  id Int @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+  candidateId Int
+  requestedByUserId Int
+  status TzaddikRecheckStatus @default(PENDING)
+  startedAt DateTime?
+  completedAt DateTime?
+  sourceRevisionBefore String? @db.VarChar(64)
+  sourceRevisionAfter String? @db.VarChar(64)
+  resultJson String? @db.LongText
+  error String? @db.Text
+  Candidate TzaddikCandidate @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+
+  @@index([candidateId, status, createdAt])
+  @@index([requestedByUserId, createdAt])
+}

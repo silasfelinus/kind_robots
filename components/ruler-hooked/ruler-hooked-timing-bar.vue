@@ -98,7 +98,12 @@ function tick(now: number) {
   const t = elapsed < profile.value.sweepMs
     ? elapsed / profile.value.sweepMs
     : (period - elapsed) / profile.value.sweepMs
-  position.value = t * 100
+  const raw = t * 100
+  // REVERSE_CONTROL fish flip REEL/SLACK under the hood once `reversed` goes
+  // true (effectiveAction() in encounter.ts) -- mirror the sweep itself so
+  // the marker visibly starts from the opposite side instead of only the
+  // zone meaning changing invisibly underneath an unchanged animation.
+  position.value = props.encounter.reversed ? 100 - raw : raw
   rafId = requestAnimationFrame(tick)
 }
 

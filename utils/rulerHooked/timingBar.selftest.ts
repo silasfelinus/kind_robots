@@ -41,8 +41,7 @@ const RARITIES: Rarity[] = [
   )
 }
 
-// 2. Marker silhouette is 'capsule' below RARE and 'diamond' from RARE up --
-//    exactly matching the difficulty ladder in RARITY_DIFFICULTY.
+// 2. Marker silhouette steps from capsule to diamond at RARE, then to an\n//    outlined diamond at EPIC+, giving RARE and EPIC a non-color distinction.
 {
   const shapeByRarity = Object.fromEntries(
     RARITIES.map((r) => [r, timingVisualFor(r).markerShape]),
@@ -50,9 +49,9 @@ const RARITIES: Rarity[] = [
   assert.equal(shapeByRarity.COMMON, 'capsule')
   assert.equal(shapeByRarity.UNCOMMON, 'capsule')
   assert.equal(shapeByRarity.RARE, 'diamond')
-  assert.equal(shapeByRarity.EPIC, 'diamond')
-  assert.equal(shapeByRarity.LEGENDARY, 'diamond')
-  assert.equal(shapeByRarity.MYTHIC, 'diamond')
+  assert.equal(shapeByRarity.EPIC, 'outlined-diamond')
+  assert.equal(shapeByRarity.LEGENDARY, 'outlined-diamond')
+  assert.equal(shapeByRarity.MYTHIC, 'outlined-diamond')
 }
 
 // 3. Every rarity gets a well-formed, non-empty SLACK/REEL/WAIT glyph triple,

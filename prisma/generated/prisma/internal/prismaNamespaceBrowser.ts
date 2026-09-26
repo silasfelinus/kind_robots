@@ -166,7 +166,10 @@ export const ModelName = {
   GithubInstallation: 'GithubInstallation',
   AppRepo: 'AppRepo',
   MediaEntry: 'MediaEntry',
-  ResourcePreview: 'ResourcePreview'
+  ResourcePreview: 'ResourcePreview',
+  TzaddikCandidate: 'TzaddikCandidate',
+  TzaddikCandidateTag: 'TzaddikCandidateTag',
+  TzaddikRecheckRequest: 'TzaddikRecheckRequest'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -2449,6 +2452,74 @@ export const ResourcePreviewScalarFieldEnum = {
 export type ResourcePreviewScalarFieldEnum = (typeof ResourcePreviewScalarFieldEnum)[keyof typeof ResourcePreviewScalarFieldEnum]
 
 
+export const TzaddikCandidateScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  displayName: 'displayName',
+  slug: 'slug',
+  lifeState: 'lifeState',
+  deathDate: 'deathDate',
+  rationale: 'rationale',
+  biography: 'biography',
+  objections: 'objections',
+  objectionsSourceUrl: 'objectionsSourceUrl',
+  wikipediaUrl: 'wikipediaUrl',
+  wikipediaPageId: 'wikipediaPageId',
+  wikipediaRevisionId: 'wikipediaRevisionId',
+  sourceSnapshotJson: 'sourceSnapshotJson',
+  sourceCheckedAt: 'sourceCheckedAt',
+  imageSourceUrl: 'imageSourceUrl',
+  imageFileUrl: 'imageFileUrl',
+  imageLicense: 'imageLicense',
+  imageAttribution: 'imageAttribution',
+  imageRevisionId: 'imageRevisionId',
+  countryCode: 'countryCode',
+  region: 'region',
+  curationState: 'curationState',
+  submittedByUserId: 'submittedByUserId',
+  suggestedBy: 'suggestedBy',
+  acceptedByUserId: 'acceptedByUserId',
+  displayNameOverride: 'displayNameOverride',
+  biographyOverride: 'biographyOverride',
+  rationaleOverride: 'rationaleOverride',
+  objectionsOverride: 'objectionsOverride',
+  imageUrlOverride: 'imageUrlOverride',
+  overrideNote: 'overrideNote',
+  overrideUpdatedByUserId: 'overrideUpdatedByUserId',
+  overrideUpdatedAt: 'overrideUpdatedAt'
+} as const
+
+export type TzaddikCandidateScalarFieldEnum = (typeof TzaddikCandidateScalarFieldEnum)[keyof typeof TzaddikCandidateScalarFieldEnum]
+
+
+export const TzaddikCandidateTagScalarFieldEnum = {
+  candidateId: 'candidateId',
+  tag: 'tag',
+  createdAt: 'createdAt'
+} as const
+
+export type TzaddikCandidateTagScalarFieldEnum = (typeof TzaddikCandidateTagScalarFieldEnum)[keyof typeof TzaddikCandidateTagScalarFieldEnum]
+
+
+export const TzaddikRecheckRequestScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  candidateId: 'candidateId',
+  requestedByUserId: 'requestedByUserId',
+  status: 'status',
+  startedAt: 'startedAt',
+  completedAt: 'completedAt',
+  sourceRevisionBefore: 'sourceRevisionBefore',
+  sourceRevisionAfter: 'sourceRevisionAfter',
+  resultJson: 'resultJson',
+  error: 'error'
+} as const
+
+export type TzaddikRecheckRequestScalarFieldEnum = (typeof TzaddikRecheckRequestScalarFieldEnum)[keyof typeof TzaddikRecheckRequestScalarFieldEnum]
+
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -3689,4 +3760,44 @@ export const ResourcePreviewOrderByRelevanceFieldEnum = {
 } as const
 
 export type ResourcePreviewOrderByRelevanceFieldEnum = (typeof ResourcePreviewOrderByRelevanceFieldEnum)[keyof typeof ResourcePreviewOrderByRelevanceFieldEnum]
+
+
+export const TzaddikCandidateOrderByRelevanceFieldEnum = {
+  displayName: 'displayName',
+  slug: 'slug',
+  rationale: 'rationale',
+  biography: 'biography',
+  objections: 'objections',
+  objectionsSourceUrl: 'objectionsSourceUrl',
+  wikipediaUrl: 'wikipediaUrl',
+  wikipediaPageId: 'wikipediaPageId',
+  wikipediaRevisionId: 'wikipediaRevisionId',
+  sourceSnapshotJson: 'sourceSnapshotJson',
+  imageSourceUrl: 'imageSourceUrl',
+  imageFileUrl: 'imageFileUrl',
+  imageLicense: 'imageLicense',
+  imageAttribution: 'imageAttribution',
+  imageRevisionId: 'imageRevisionId',
+  countryCode: 'countryCode',
+  region: 'region',
+  suggestedBy: 'suggestedBy',
+  displayNameOverride: 'displayNameOverride',
+  biographyOverride: 'biographyOverride',
+  rationaleOverride: 'rationaleOverride',
+  objectionsOverride: 'objectionsOverride',
+  imageUrlOverride: 'imageUrlOverride',
+  overrideNote: 'overrideNote'
+} as const
+
+export type TzaddikCandidateOrderByRelevanceFieldEnum = (typeof TzaddikCandidateOrderByRelevanceFieldEnum)[keyof typeof TzaddikCandidateOrderByRelevanceFieldEnum]
+
+
+export const TzaddikRecheckRequestOrderByRelevanceFieldEnum = {
+  sourceRevisionBefore: 'sourceRevisionBefore',
+  sourceRevisionAfter: 'sourceRevisionAfter',
+  resultJson: 'resultJson',
+  error: 'error'
+} as const
+
+export type TzaddikRecheckRequestOrderByRelevanceFieldEnum = (typeof TzaddikRecheckRequestOrderByRelevanceFieldEnum)[keyof typeof TzaddikRecheckRequestOrderByRelevanceFieldEnum]
 

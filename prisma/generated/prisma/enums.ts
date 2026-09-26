@@ -869,3 +869,51 @@ export const MediaType = {
 } as const
 
 export type MediaType = (typeof MediaType)[keyof typeof MediaType]
+
+
+export const TzaddikLifeState = {
+  LIVING: 'LIVING',
+  MEMORIAL: 'MEMORIAL',
+  UNKNOWN: 'UNKNOWN'
+} as const
+
+export type TzaddikLifeState = (typeof TzaddikLifeState)[keyof typeof TzaddikLifeState]
+
+
+export const TzaddikCurationState = {
+  PENDING: 'PENDING',
+  APPROVED: 'APPROVED',
+  ARCHIVED: 'ARCHIVED'
+} as const
+
+export type TzaddikCurationState = (typeof TzaddikCurationState)[keyof typeof TzaddikCurationState]
+
+
+export const TzaddikEditorialTag = {
+  POLITICS: 'POLITICS',
+  POP_CULTURE: 'POP_CULTURE',
+  HUMANITARIAN: 'HUMANITARIAN',
+  SCIENCE_MEDICINE: 'SCIENCE_MEDICINE',
+  EDUCATION: 'EDUCATION',
+  ENVIRONMENT: 'ENVIRONMENT',
+  CIVIL_RIGHTS_JUSTICE: 'CIVIL_RIGHTS_JUSTICE',
+  PEACE_DIPLOMACY: 'PEACE_DIPLOMACY',
+  COMMUNITY_MUTUAL_AID: 'COMMUNITY_MUTUAL_AID',
+  ARTS_CULTURE: 'ARTS_CULTURE',
+  JOURNALISM_TRUTH: 'JOURNALISM_TRUTH',
+  COURAGE_RESCUE: 'COURAGE_RESCUE'
+} as const
+
+export type TzaddikEditorialTag = (typeof TzaddikEditorialTag)[keyof typeof TzaddikEditorialTag]
+
+
+export const TzaddikRecheckStatus = {
+  PENDING: 'PENDING',
+  CHECKING: 'CHECKING',
+  NO_CHANGE: 'NO_CHANGE',
+  UPDATED: 'UPDATED',
+  NEEDS_REVIEW: 'NEEDS_REVIEW',
+  FAILED: 'FAILED'
+} as const
+
+export type TzaddikRecheckStatus = (typeof TzaddikRecheckStatus)[keyof typeof TzaddikRecheckStatus]

@@ -1571,6 +1571,74 @@ export type EnumMediaTypeWithAggregatesFilter<$PrismaModel = never> = {
   _max?: Prisma.NestedEnumMediaTypeFilter<$PrismaModel>
 }
 
+export type EnumTzaddikLifeStateFilter<$PrismaModel = never> = {
+  equals?: $Enums.TzaddikLifeState | Prisma.EnumTzaddikLifeStateFieldRefInput<$PrismaModel>
+  in?: $Enums.TzaddikLifeState[]
+  notIn?: $Enums.TzaddikLifeState[]
+  not?: Prisma.NestedEnumTzaddikLifeStateFilter<$PrismaModel> | $Enums.TzaddikLifeState
+}
+
+export type EnumTzaddikCurationStateFilter<$PrismaModel = never> = {
+  equals?: $Enums.TzaddikCurationState | Prisma.EnumTzaddikCurationStateFieldRefInput<$PrismaModel>
+  in?: $Enums.TzaddikCurationState[]
+  notIn?: $Enums.TzaddikCurationState[]
+  not?: Prisma.NestedEnumTzaddikCurationStateFilter<$PrismaModel> | $Enums.TzaddikCurationState
+}
+
+export type EnumTzaddikLifeStateWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.TzaddikLifeState | Prisma.EnumTzaddikLifeStateFieldRefInput<$PrismaModel>
+  in?: $Enums.TzaddikLifeState[]
+  notIn?: $Enums.TzaddikLifeState[]
+  not?: Prisma.NestedEnumTzaddikLifeStateWithAggregatesFilter<$PrismaModel> | $Enums.TzaddikLifeState
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumTzaddikLifeStateFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumTzaddikLifeStateFilter<$PrismaModel>
+}
+
+export type EnumTzaddikCurationStateWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.TzaddikCurationState | Prisma.EnumTzaddikCurationStateFieldRefInput<$PrismaModel>
+  in?: $Enums.TzaddikCurationState[]
+  notIn?: $Enums.TzaddikCurationState[]
+  not?: Prisma.NestedEnumTzaddikCurationStateWithAggregatesFilter<$PrismaModel> | $Enums.TzaddikCurationState
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumTzaddikCurationStateFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumTzaddikCurationStateFilter<$PrismaModel>
+}
+
+export type EnumTzaddikEditorialTagFilter<$PrismaModel = never> = {
+  equals?: $Enums.TzaddikEditorialTag | Prisma.EnumTzaddikEditorialTagFieldRefInput<$PrismaModel>
+  in?: $Enums.TzaddikEditorialTag[]
+  notIn?: $Enums.TzaddikEditorialTag[]
+  not?: Prisma.NestedEnumTzaddikEditorialTagFilter<$PrismaModel> | $Enums.TzaddikEditorialTag
+}
+
+export type EnumTzaddikEditorialTagWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.TzaddikEditorialTag | Prisma.EnumTzaddikEditorialTagFieldRefInput<$PrismaModel>
+  in?: $Enums.TzaddikEditorialTag[]
+  notIn?: $Enums.TzaddikEditorialTag[]
+  not?: Prisma.NestedEnumTzaddikEditorialTagWithAggregatesFilter<$PrismaModel> | $Enums.TzaddikEditorialTag
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumTzaddikEditorialTagFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumTzaddikEditorialTagFilter<$PrismaModel>
+}
+
+export type EnumTzaddikRecheckStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.TzaddikRecheckStatus | Prisma.EnumTzaddikRecheckStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.TzaddikRecheckStatus[]
+  notIn?: $Enums.TzaddikRecheckStatus[]
+  not?: Prisma.NestedEnumTzaddikRecheckStatusFilter<$PrismaModel> | $Enums.TzaddikRecheckStatus
+}
+
+export type EnumTzaddikRecheckStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.TzaddikRecheckStatus | Prisma.EnumTzaddikRecheckStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.TzaddikRecheckStatus[]
+  notIn?: $Enums.TzaddikRecheckStatus[]
+  not?: Prisma.NestedEnumTzaddikRecheckStatusWithAggregatesFilter<$PrismaModel> | $Enums.TzaddikRecheckStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumTzaddikRecheckStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumTzaddikRecheckStatusFilter<$PrismaModel>
+}
+
 export type NestedIntFilter<$PrismaModel = never> = {
   equals?: number | Prisma.IntFieldRefInput<$PrismaModel>
   in?: number[]
@@ -3094,6 +3162,74 @@ export type NestedEnumMediaTypeWithAggregatesFilter<$PrismaModel = never> = {
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedEnumMediaTypeFilter<$PrismaModel>
   _max?: Prisma.NestedEnumMediaTypeFilter<$PrismaModel>
+}
+
+export type NestedEnumTzaddikLifeStateFilter<$PrismaModel = never> = {
+  equals?: $Enums.TzaddikLifeState | Prisma.EnumTzaddikLifeStateFieldRefInput<$PrismaModel>
+  in?: $Enums.TzaddikLifeState[]
+  notIn?: $Enums.TzaddikLifeState[]
+  not?: Prisma.NestedEnumTzaddikLifeStateFilter<$PrismaModel> | $Enums.TzaddikLifeState
+}
+
+export type NestedEnumTzaddikCurationStateFilter<$PrismaModel = never> = {
+  equals?: $Enums.TzaddikCurationState | Prisma.EnumTzaddikCurationStateFieldRefInput<$PrismaModel>
+  in?: $Enums.TzaddikCurationState[]
+  notIn?: $Enums.TzaddikCurationState[]
+  not?: Prisma.NestedEnumTzaddikCurationStateFilter<$PrismaModel> | $Enums.TzaddikCurationState
+}
+
+export type NestedEnumTzaddikLifeStateWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.TzaddikLifeState | Prisma.EnumTzaddikLifeStateFieldRefInput<$PrismaModel>
+  in?: $Enums.TzaddikLifeState[]
+  notIn?: $Enums.TzaddikLifeState[]
+  not?: Prisma.NestedEnumTzaddikLifeStateWithAggregatesFilter<$PrismaModel> | $Enums.TzaddikLifeState
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumTzaddikLifeStateFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumTzaddikLifeStateFilter<$PrismaModel>
+}
+
+export type NestedEnumTzaddikCurationStateWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.TzaddikCurationState | Prisma.EnumTzaddikCurationStateFieldRefInput<$PrismaModel>
+  in?: $Enums.TzaddikCurationState[]
+  notIn?: $Enums.TzaddikCurationState[]
+  not?: Prisma.NestedEnumTzaddikCurationStateWithAggregatesFilter<$PrismaModel> | $Enums.TzaddikCurationState
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumTzaddikCurationStateFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumTzaddikCurationStateFilter<$PrismaModel>
+}
+
+export type NestedEnumTzaddikEditorialTagFilter<$PrismaModel = never> = {
+  equals?: $Enums.TzaddikEditorialTag | Prisma.EnumTzaddikEditorialTagFieldRefInput<$PrismaModel>
+  in?: $Enums.TzaddikEditorialTag[]
+  notIn?: $Enums.TzaddikEditorialTag[]
+  not?: Prisma.NestedEnumTzaddikEditorialTagFilter<$PrismaModel> | $Enums.TzaddikEditorialTag
+}
+
+export type NestedEnumTzaddikEditorialTagWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.TzaddikEditorialTag | Prisma.EnumTzaddikEditorialTagFieldRefInput<$PrismaModel>
+  in?: $Enums.TzaddikEditorialTag[]
+  notIn?: $Enums.TzaddikEditorialTag[]
+  not?: Prisma.NestedEnumTzaddikEditorialTagWithAggregatesFilter<$PrismaModel> | $Enums.TzaddikEditorialTag
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumTzaddikEditorialTagFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumTzaddikEditorialTagFilter<$PrismaModel>
+}
+
+export type NestedEnumTzaddikRecheckStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.TzaddikRecheckStatus | Prisma.EnumTzaddikRecheckStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.TzaddikRecheckStatus[]
+  notIn?: $Enums.TzaddikRecheckStatus[]
+  not?: Prisma.NestedEnumTzaddikRecheckStatusFilter<$PrismaModel> | $Enums.TzaddikRecheckStatus
+}
+
+export type NestedEnumTzaddikRecheckStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.TzaddikRecheckStatus | Prisma.EnumTzaddikRecheckStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.TzaddikRecheckStatus[]
+  notIn?: $Enums.TzaddikRecheckStatus[]
+  not?: Prisma.NestedEnumTzaddikRecheckStatusWithAggregatesFilter<$PrismaModel> | $Enums.TzaddikRecheckStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumTzaddikRecheckStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumTzaddikRecheckStatusFilter<$PrismaModel>
 }
 
 

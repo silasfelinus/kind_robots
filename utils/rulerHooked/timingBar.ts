@@ -30,10 +30,12 @@
 // per-beat tightening so a longer fight gets harder, not easier.
 //
 // timingVisualFor() layers a purely cosmetic rarity cue on top -- a distinct
-// REEL-band color and, from RARE up, a diamond marker instead of the plain
-// capsule -- so the player gets an at-a-glance read of a rare catch without
-// having to notice the band got narrower. Display-only, same as everything
-// else in this file below.
+// REEL-band color, from RARE up a diamond marker instead of the plain
+// capsule, and from LEGENDARY up a distinct SLACK/REEL/WAIT glyph set --  so
+// the player gets an at-a-glance read of a rare catch without having to
+// notice the band got narrower, and isn't relying on color alone (t-041's
+// own kaizen: color-only cues are invisible to a colorblind player).
+// Display-only, same as everything else in this file below.
 //
 // Framework-free and free of wall-clock/animation-frame concerns: this file
 // only computes the STATIC profile (band position/width, sweep duration) for
@@ -62,11 +64,20 @@ export interface TimingStopResult {
   quality: number
 }
 
+export interface ZoneGlyphs {
+  slack: string
+  reel: string
+  wait: string
+}
+
 export interface TimingBarVisual {
   /** DaisyUI background utility for the REEL band, keyed by rarity. */
   bandColorClass: string
   /** Marker silhouette -- 'diamond' from RARE up, 'capsule' below. */
   markerShape: 'capsule' | 'diamond'
+  /** SLACK/REEL/WAIT zone glyphs -- a distinct set from LEGENDARY up, the
+   *  shared default below it. */
+  zoneGlyphs: ZoneGlyphs
 }
 
 const RARITY_DIFFICULTY: Record<Rarity, number> = {
@@ -85,6 +96,17 @@ const BAND_COLOR_BY_RARITY: Record<Rarity, string> = {
   EPIC: 'bg-secondary/30',
   LEGENDARY: 'bg-warning/30',
   MYTHIC: 'bg-accent/30',
+}
+
+const DEFAULT_ZONE_GLYPHS: ZoneGlyphs = { slack: '🨢', reel: '🎣', wait: '👀' }
+
+const ZONE_GLYPHS_BY_RARITY: Record<Rarity, ZoneGlyphs> = {
+  COMMON: DEFAULT_ZONE_GLYPHS,
+  UNCOMMON: DEFAULT_ZONE_GLYPHS,
+  RARE: DEFAULT_ZONE_GLYPHS,
+  EPIC: DEFAULT_ZONE_GLYPHS,
+  LEGENDARY: { slack: '⏳', reel: '⚡', wait: '🌙' },
+  MYTHIC: { slack: '🌀', reel: '🔥', wait: '👁' },
 }
 
 const BASE_BAND_WIDTH = 34 // COMMON, beat 0: a generous, easy-to-land band
@@ -128,6 +150,7 @@ export function timingVisualFor(rarity: Rarity): TimingBarVisual {
       RARITY_DIFFICULTY[rarity] >= RARITY_DIFFICULTY.RARE
         ? 'diamond'
         : 'capsule',
+    zoneGlyphs: ZONE_GLYPHS_BY_RARITY[rarity],
   }
 }
 

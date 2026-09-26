@@ -600,6 +600,18 @@ export const ANIMATION_EFFECTS = [
     generationSafe: true,
     preferredSurface: 'fullscreen',
   },
+  {
+    id: 'zoetrope-lantern-drum',
+    label: 'Zoetrope Lantern Drum',
+    reveal: 'The lantern drum turns and a tiny figure comes alive',
+    icon: 'kind-icon:flame',
+    tooltip:
+      'A slotted drum glows from within and slowly turns, its passing gaps sampling a short pose strip into a walking, flying, or juggling figure 🏮 hover the rim to nudge the turn, click to dim and swap the figure',
+    color: '#d97b3f',
+    releasedAt: '2026-09-26T07:55:26Z',
+    generationSafe: true,
+    preferredSurface: 'fullscreen',
+  },
 ] as const satisfies readonly AnimationEffectDefinition[]
 
 export type AnimationEffectId = (typeof ANIMATION_EFFECTS)[number]['id']

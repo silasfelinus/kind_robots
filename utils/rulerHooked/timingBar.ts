@@ -29,6 +29,12 @@
 // difficulty finally varies by more than draw weight), plus a small
 // per-beat tightening so a longer fight gets harder, not easier.
 //
+// timingVisualFor() layers a purely cosmetic rarity cue on top -- a distinct
+// REEL-band color and, from RARE up, a diamond marker instead of the plain
+// capsule -- so the player gets an at-a-glance read of a rare catch without
+// having to notice the band got narrower. Display-only, same as everything
+// else in this file below.
+//
 // Framework-free and free of wall-clock/animation-frame concerns: this file
 // only computes the STATIC profile (band position/width, sweep duration) for
 // a given encounter state and resolves a recorded stop position into an
@@ -56,6 +62,13 @@ export interface TimingStopResult {
   quality: number
 }
 
+export interface TimingBarVisual {
+  /** DaisyUI background utility for the REEL band, keyed by rarity. */
+  bandColorClass: string
+  /** Marker silhouette -- 'diamond' from RARE up, 'capsule' below. */
+  markerShape: 'capsule' | 'diamond'
+}
+
 const RARITY_DIFFICULTY: Record<Rarity, number> = {
   COMMON: 0,
   UNCOMMON: 1,
@@ -63,6 +76,15 @@ const RARITY_DIFFICULTY: Record<Rarity, number> = {
   EPIC: 3,
   LEGENDARY: 4,
   MYTHIC: 5,
+}
+
+const BAND_COLOR_BY_RARITY: Record<Rarity, string> = {
+  COMMON: 'bg-success/30',
+  UNCOMMON: 'bg-info/30',
+  RARE: 'bg-primary/30',
+  EPIC: 'bg-secondary/30',
+  LEGENDARY: 'bg-warning/30',
+  MYTHIC: 'bg-accent/30',
 }
 
 const BASE_BAND_WIDTH = 34 // COMMON, beat 0: a generous, easy-to-land band
@@ -77,7 +99,11 @@ const MIN_SWEEP_MS = 650 // never faster than this, however hard the fish/beat
  * always presents the same layout (the same kind of pure derivation as
  * profileForFish() in encounter.ts).
  */
-function bandCenterFor(rarity: Rarity, family: FishingFamily, beat: number): number {
+function bandCenterFor(
+  rarity: Rarity,
+  family: FishingFamily,
+  beat: number,
+): number {
   const drift = ((beat * 17 + RARITY_DIFFICULTY[rarity] * 11) % 40) - 20 // -20..+19
   const base = family === 'REVERSE_CONTROL' ? 50 : 46
   return Math.max(20, Math.min(80, base + drift))
@@ -85,6 +111,25 @@ function bandCenterFor(rarity: Rarity, family: FishingFamily, beat: number): num
 
 const MAX_BAND_WIDTH = 70 // gear may widen the band, but never past this -- stays a game, not a rubber stamp
 const MAX_SWEEP_MS = 3000 // gear may slow the sweep, but never past this
+
+/**
+ * Purely cosmetic REEL-band color + marker silhouette, keyed by rarity
+ * (kaizen follow-up from t-040, ruler-hooked/t-041: the one still-open
+ * candidate from the original t-026/t-033 kaizen note). Rarer fish already
+ * get a narrower/faster band from timingProfileFor() -- this gives the
+ * player a second, at-a-glance cue that doesn't require reading pixel
+ * widths, without touching resolveTimingStop()'s position-to-action/quality
+ * math at all, so game-state determinism is untouched.
+ */
+export function timingVisualFor(rarity: Rarity): TimingBarVisual {
+  return {
+    bandColorClass: BAND_COLOR_BY_RARITY[rarity],
+    markerShape:
+      RARITY_DIFFICULTY[rarity] >= RARITY_DIFFICULTY.RARE
+        ? 'diamond'
+        : 'capsule',
+  }
+}
 
 export function timingProfileFor(state: {
   family: FishingFamily
@@ -105,14 +150,19 @@ export function timingProfileFor(state: {
 
   const bandWidth = Math.min(
     MAX_BAND_WIDTH,
-    Math.max(MIN_BAND_WIDTH, BASE_BAND_WIDTH - widthStep) + (state.gearBandBonus ?? 0),
+    Math.max(MIN_BAND_WIDTH, BASE_BAND_WIDTH - widthStep) +
+      (state.gearBandBonus ?? 0),
   )
   const sweepMs = Math.min(
     MAX_SWEEP_MS,
-    Math.max(MIN_SWEEP_MS, BASE_SWEEP_MS - speedStep) + (state.gearSweepMsBonus ?? 0),
+    Math.max(MIN_SWEEP_MS, BASE_SWEEP_MS - speedStep) +
+      (state.gearSweepMsBonus ?? 0),
   )
   const center = bandCenterFor(state.rarity, state.family, state.beat)
-  const bandStart = Math.max(0, Math.min(100 - bandWidth, center - bandWidth / 2))
+  const bandStart = Math.max(
+    0,
+    Math.min(100 - bandWidth, center - bandWidth / 2),
+  )
 
   return { bandStart, bandWidth, sweepMs }
 }
@@ -124,7 +174,10 @@ export function timingProfileFor(state: {
  * the stop actually landed in, reaching 0 at that zone's far boundary (the
  * start of the bar for SLACK, the end of the bar for WAIT).
  */
-export function resolveTimingStop(position: number, profile: TimingBarProfile): TimingStopResult {
+export function resolveTimingStop(
+  position: number,
+  profile: TimingBarProfile,
+): TimingStopResult {
   const p = Math.max(0, Math.min(100, position))
   const bandEnd = profile.bandStart + profile.bandWidth
   const bandCenter = profile.bandStart + profile.bandWidth / 2

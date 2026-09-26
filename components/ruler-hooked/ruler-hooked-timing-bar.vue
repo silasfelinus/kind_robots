@@ -37,9 +37,10 @@
       >
         🨢
       </span>
-      <!-- REEL zone (the green target band) -->
+      <!-- REEL zone (the target band; color scales with the fish's rarity) -->
       <span
-        class="absolute inset-y-0 flex items-center justify-center bg-success/30 text-sm"
+        class="absolute inset-y-0 flex items-center justify-center text-sm"
+        :class="visual.bandColorClass"
         :style="{
           left: profile.bandStart + '%',
           width: profile.bandWidth + '%',
@@ -55,10 +56,10 @@
         👀
       </span>
 
-      <!-- sliding marker -->
+      <!-- sliding marker -- a diamond silhouette from RARE up, otherwise the plain capsule -->
       <span
-        class="absolute top-0 h-full w-1 -translate-x-1/2 rounded-full bg-neutral shadow"
-        :class="{ 'bg-error': stopped }"
+        class="absolute -translate-x-1/2 bg-neutral shadow"
+        :class="[markerShapeClasses, { 'bg-error': stopped }]"
         :style="{ left: position + '%' }"
         aria-hidden="true"
       />
@@ -87,12 +88,19 @@ import type {
 import {
   resolveTimingStop,
   timingProfileFor,
+  timingVisualFor,
 } from '~/utils/rulerHooked/timingBar'
 
 const props = defineProps<{ encounter: FishingEncounter }>()
 const emit = defineEmits<{ stop: [position: number] }>()
 
 const profile = computed(() => timingProfileFor(props.encounter))
+const visual = computed(() => timingVisualFor(props.encounter.rarity))
+const markerShapeClasses = computed(() =>
+  visual.value.markerShape === 'diamond'
+    ? 'top-1/2 h-2/3 w-2/3 -translate-y-1/2 rotate-45 rounded-sm'
+    : 'top-0 h-full w-1 rounded-full',
+)
 
 const position = ref(0)
 const stopped = ref(false)

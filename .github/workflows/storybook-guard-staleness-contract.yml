@@ -46,10 +46,13 @@ jobs:
         id: deleted
         shell: bash
         run: |
-          mapfile -d '' deleted_files < <(git diff --name-only --diff-filter=D -z "${{ github.event.pull_request.base.sha }}...HEAD" -- 'utils/scripts/verify*.mjs' 'utils/scripts/verify*.ts')
+          mapfile -d '' deleted_files < <(git diff --name-only --diff-filter=D -z "${{ github.event.pull_request.base.sha }}...HEAD" -- 'utils/scripts')
           basenames=()
           for f in "${deleted_files[@]}"; do
-            basenames+=("$(basename "$f")")
+            name="$(basename "$f")"
+            case "$name" in
+              verify*.mjs|verify*.ts) basenames+=("$name") ;;
+            esac
           done
           echo "names=${basenames[*]}" >> "$GITHUB_OUTPUT"
 

@@ -1,7 +1,23 @@
 <template>
-  <project-front-page slug="tzaddik-gallery" :fallback="config">
-    <template #interactive>
-      <section class="flex flex-col gap-3 kr-panel rounded-3xl p-5">
+  <div class="kr-surface">
+    <div class="kr-scroll kr-container max-w-4xl p-4 sm:p-6">
+      <div class="kr-panel space-y-5 p-5 sm:p-6">
+        <header class="flex items-start gap-3 border-b border-base-300 pb-5">
+          <div
+            class="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-primary/15 text-primary"
+          >
+            <Icon name="kind-icon:stars" class="kr-icon-6" />
+          </div>
+          <div class="min-w-0 flex-1 space-y-2">
+            <p class="kr-text-black-2xl tracking-tight">Tzaddik Gallery</p>
+            <p class="text-sm leading-relaxed text-base-content/75">
+              A playful, sourced gallery of everyday and extraordinary people
+              who quietly keep the world running, plus a historical archive
+              of past honorees.
+            </p>
+          </div>
+        </header>
+
         <div class="flex flex-wrap gap-2" role="tablist">
           <button
             v-for="tab in tabs"
@@ -22,19 +38,38 @@
           </button>
         </div>
 
-        <div class="flex flex-col gap-2 rounded-2xl border border-base-300 bg-base-200/60 p-4">
+        <div
+          class="flex flex-col gap-2 rounded-2xl border border-base-300 bg-base-200/60 p-4"
+        >
           <p class="text-sm leading-relaxed text-base-content/80">
             {{ activeTabBody }}
           </p>
         </div>
-      </section>
-    </template>
-  </project-front-page>
+
+        <section class="grid gap-3 sm:grid-cols-3">
+          <article
+            v-for="block in sections"
+            :key="block.key"
+            class="kr-panel-flat flex flex-col gap-2 rounded-2xl p-4"
+          >
+            <div class="flex items-center gap-2">
+              <span
+                class="flex size-8 items-center justify-center rounded-xl bg-primary/12 text-primary"
+              >
+                <Icon :name="block.icon" class="kr-icon-4" />
+              </span>
+              <h3 class="kr-text-black-sm">{{ block.title }}</h3>
+            </div>
+            <p class="kr-text-dim-sm-70 leading-relaxed">{{ block.body }}</p>
+          </article>
+        </section>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script setup lang="ts">
 import { computed, ref } from 'vue'
-import type { ProjectFrontConfig } from '@/components/conductor/projectFront'
 
 type TabKey = 'living' | 'memorial' | 'info'
 
@@ -64,32 +99,24 @@ const activeTabBody = computed(
   () => tabs.find((t) => t.key === activeTab.value)?.body ?? '',
 )
 
-const config: ProjectFrontConfig = {
-  slug: 'tzaddik-gallery',
-  title: 'Tzaddik Gallery',
-  tagline: '36 living "just people" keeping the world running',
-  description:
-    'A playful, sourced gallery of everyday and extraordinary people who quietly keep the world running, plus a historical archive of past honorees. Every entry is Wikipedia-sourced with a visible controversy/objections section — admiration without hagiography.',
-  icon: 'kind-icon:stars',
-  sections: [
-    {
-      key: 'sourced',
-      title: 'Sourced, not assumed',
-      body: 'Wikipedia is the default source for facts and images. Admin overrides are allowed but must be explicit and keep the original provenance.',
-      icon: 'kind-icon:database',
-    },
-    {
-      key: 'international',
-      title: 'Beyond the usual names',
-      body: 'Research deliberately looks past US/Anglosphere celebrity bias, across regions, languages, disciplines, and forms of public service.',
-      icon: 'kind-icon:globe',
-    },
-    {
-      key: 'community',
-      title: 'Community-suggested',
-      body: 'Signed-in users can submit candidates and react to nominations. Community reaction is signal, not an automatic canonical ranking.',
-      icon: 'kind-icon:people',
-    },
-  ],
-}
+const sections = [
+  {
+    key: 'sourced',
+    title: 'Sourced, not assumed',
+    body: 'Wikipedia is the default source for facts and images. Admin overrides are allowed but must be explicit and keep the original provenance.',
+    icon: 'kind-icon:database',
+  },
+  {
+    key: 'international',
+    title: 'Beyond the usual names',
+    body: 'Research deliberately looks past US/Anglosphere celebrity bias, across regions, languages, disciplines, and forms of public service.',
+    icon: 'kind-icon:globe',
+  },
+  {
+    key: 'community',
+    title: 'Community-suggested',
+    body: 'Signed-in users can submit candidates and react to nominations. Community reaction is signal, not an automatic canonical ranking.',
+    icon: 'kind-icon:people',
+  },
+]
 </script>

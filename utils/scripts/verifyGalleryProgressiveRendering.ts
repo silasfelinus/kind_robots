@@ -200,8 +200,13 @@ forbidText(
 )
 requireText(
   artManager,
-  "activeTab.value !== 'generate'",
-  'Art Generate must render outside the manager-wide remote hydration gate',
+  "activeTab.value === 'styler'",
+  'only Art Styler may use the manager-wide remote hydration gate',
+)
+forbidText(
+  artManager,
+  'collectionStore.fetchCollections',
+  'Art manager tabs must not eagerly hydrate collection summaries',
 )
 for (const token of [
   'async function ensureGenerationCollectionsReady()',

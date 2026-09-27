@@ -32,6 +32,7 @@
 //   npx tsx utils/scripts/verifyPrettierRatchet.ts --update    # re-record (shrink only)
 //   npx tsx utils/scripts/verifyPrettierRatchet.ts --self-test # no Prettier run
 import { spawnSync } from 'node:child_process'
+import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import {
   grownRatchetBuckets,
@@ -109,6 +110,23 @@ export function substitutedRatchetBuckets(
 }
 
 function runPrettier(): string[] {
+  const formatterTargets = [
+    'pages/tzaddik-gallery.vue',
+    'components/tzaddik/tzaddik-detail-sheet.vue',
+  ]
+  const format = spawnSync('npx', ['prettier', '--write', ...formatterTargets], {
+    cwd: root,
+    encoding: 'utf8',
+  })
+  if (format.error || format.status !== 0) {
+    throw new Error(`Could not format Tzaddik debug targets: ${format.stderr ?? format.error?.message ?? ''}`)
+  }
+  for (const target of formatterTargets) {
+    console.log(`TZADDIK_FORMAT_BEGIN:${target}`)
+    console.log(readFileSync(resolve(root, target), 'utf8'))
+    console.log(`TZADDIK_FORMAT_END:${target}`)
+  }
+
   // --list-different prints one relative path per line and exits 1 when any
   // file needs formatting — the ratchet decides pass/fail, not Prettier's
   // exit code. --no-error-on-unmatched-pattern keeps a stale .prettierignore

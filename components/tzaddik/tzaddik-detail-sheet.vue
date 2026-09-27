@@ -21,7 +21,9 @@
           </button>
 
           <div class="min-w-0 flex-1 text-center">
-            <p\n              class="kr-text-eyebrow text-[0.58rem] tracking-[0.16em] text-primary"\n            >
+            <p
+              class="kr-text-eyebrow text-[0.58rem] tracking-[0.16em] text-primary"
+            >
               Tzaddik Gallery
             </p>
             <p class="truncate text-xs font-semibold text-base-content/60">
@@ -94,7 +96,9 @@
                 class="absolute inset-0 bg-linear-to-t from-black/90 via-black/15 to-black/10"
               />
 
-              <div\n                class="absolute left-3 top-3 flex max-w-[80%] flex-wrap gap-1.5"\n              >
+              <div
+                class="absolute left-3 top-3 flex max-w-[80%] flex-wrap gap-1.5"
+              >
                 <span class="badge border-white/25 bg-black/45 text-white">
                   {{ statusLabel }}
                 </span>
@@ -107,14 +111,22 @@
                 </span>
               </div>
 
-              <div\n                class="absolute inset-x-0 bottom-0 space-y-2 p-4 text-white sm:p-5"\n              >
+              <div
+                class="absolute inset-x-0 bottom-0 space-y-2 p-4 text-white sm:p-5"
+              >
                 <p
                   class="text-xs font-bold uppercase tracking-[0.16em] text-white/65"
                 >
-                  {{\n                    candidate.lifeState === 'MEMORIAL' ? 'Memorial' : 'Living'\n                  }}
+                  {{
+                    candidate.lifeState === 'MEMORIAL' ? 'Memorial' : 'Living'
+                  }}
                   <template v-if="candidate.region || candidate.countryCode">
                     ·
-                    {{\n                      [candidate.region, candidate.countryCode]\n                        .filter(Boolean)\n                        .join(', ')\n                    }}
+                    {{
+                      [candidate.region, candidate.countryCode]
+                        .filter(Boolean)
+                        .join(', ')
+                    }}
                   </template>
                 </p>
                 <h2 class="text-3xl font-black leading-none sm:text-4xl">
@@ -147,7 +159,9 @@
                 >
                   <div class="flex flex-wrap items-start justify-between gap-2">
                     <div>
-                      <p class="kr-text-eyebrow text-primary">\n                        Source & provenance\n                      </p>
+                      <p class="kr-text-eyebrow text-primary">
+                        Source & provenance
+                      </p>
                       <p class="kr-text-dim-xs-55 mt-1">
                         {{ lastCheckedLabel }}
                       </p>
@@ -212,12 +226,17 @@
                   <div class="flex items-start justify-between gap-2">
                     <div class="min-w-0">
                       <p class="kr-text-bold-xs">{{ statusLabel }}</p>
-                      <p\n                        v-if="candidate.suggestedBy"\n                        class="kr-text-dim-xs-55 mt-0.5"\n                      >
+                      <p
+                        v-if="candidate.suggestedBy"
+                        class="kr-text-dim-xs-55 mt-0.5"
+                      >
                         Submitted by {{ candidate.suggestedBy }}
                       </p>
                     </div>
                     <span class="kr-badge-ghost-sm" :class="statusBadgeClass">
-                      {{\n                        candidate.lifeState === 'MEMORIAL' ? 'Past' : 'Living'\n                      }}
+                      {{
+                        candidate.lifeState === 'MEMORIAL' ? 'Past' : 'Living'
+                      }}
                     </span>
                   </div>
                 </div>

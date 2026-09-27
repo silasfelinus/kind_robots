@@ -89,9 +89,9 @@
                 <p class="kr-text-eyebrow text-primary">
                   {{ activeRosterEyebrow }}
                 </p>
-                <h1 class="kr-text-black-2xl leading-tight">
+                <h2 class="kr-text-black-2xl leading-tight">
                   {{ activeRosterTitle }}
-                </h1>
+                </h2>
                 <p class="text-sm leading-relaxed text-base-content/70">
                   {{ activeTabBody }}
                 </p>
@@ -208,9 +208,9 @@
               </div>
               <div class="relative space-y-4">
                 <p class="kr-text-eyebrow text-primary">The borrowed idea</p>
-                <h1 class="kr-text-black-2xl max-w-xl leading-tight sm:text-3xl">
+                <h2 class="kr-text-black-2xl max-w-xl leading-tight sm:text-3xl">
                   A ridiculous little premise with serious sourcing underneath.
-                </h1>
+                </h2>
                 <p class="max-w-2xl text-sm leading-relaxed text-base-content/75 sm:text-base">
                   {{ activeTabBody }}
                 </p>

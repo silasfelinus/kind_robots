@@ -104,6 +104,31 @@ export async function canViewReactionsOn(
 ): Promise<boolean> {
   if (viewer.isAdmin) return true
   if (PRIVATE_TARGETS.has(target)) return false
+
+  // TzaddikCandidate has no userId/isPublic pair, so it cannot join
+  // OWNED_TARGETS' generic {userId, isPublic} select -- that would be a Prisma
+  // validation error, not a permission check. curationState === 'APPROVED' is
+  // its public equivalent (the public gallery route filters on exactly this),
+  // and submittedByUserId is its owner equivalent.
+  if (target === 'tzaddikCandidate') {
+    const candidate = await prisma.tzaddikCandidate.findUnique({
+      where: { id: targetId },
+      select: { curationState: true, submittedByUserId: true },
+    })
+
+    if (!candidate) {
+      throw createError({
+        statusCode: 404,
+        message: `tzaddik #${targetId} not found.`,
+      })
+    }
+
+    return (
+      candidate.curationState === 'APPROVED' ||
+      (viewer.userId !== null && candidate.submittedByUserId === viewer.userId)
+    )
+  }
+
   if (!isOwnedReactionTarget(target)) return false
 
   const model = prisma[target] as unknown as {
@@ -122,7 +147,10 @@ export async function canViewReactionsOn(
     })
   }
 
-  return row.isPublic === true || (viewer.userId !== null && row.userId === viewer.userId)
+  return (
+    row.isPublic === true ||
+    (viewer.userId !== null && row.userId === viewer.userId)
+  )
 }
 
 /** As above, for a Reaction row rather than a target reference. */

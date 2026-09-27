@@ -53,6 +53,7 @@
           :error="tzaddikStore.livingError"
           empty-label="living Tzaddik yet — the sourced roster is still being built"
           :modes="[]"
+          @open="openDetail"
         />
 
         <kr-gallery
@@ -62,6 +63,7 @@
           :error="tzaddikStore.memorialError"
           empty-label="memorial honorees yet — the historical archive is still being built"
           :modes="[]"
+          @open="openDetail"
         />
 
         <section v-else class="grid gap-3 sm:grid-cols-3">
@@ -82,6 +84,12 @@
           </article>
         </section>
       </div>
+
+      <tzaddik-detail-sheet
+        v-if="openCandidateId !== null"
+        :candidate-id="openCandidateId"
+        @close="openCandidateId = null"
+      />
     </div>
   </div>
 </template>
@@ -164,6 +172,12 @@ function toGalleryItem(candidate: TzaddikCandidateWithTags): GalleryItem {
 
 const livingItems = computed(() => tzaddikStore.living.map(toGalleryItem))
 const memorialItems = computed(() => tzaddikStore.memorial.map(toGalleryItem))
+
+const openCandidateId = ref<number | null>(null)
+
+function openDetail(item: GalleryItem): void {
+  openCandidateId.value = Number(item.id)
+}
 
 onMounted(() => {
   tzaddikStore.fetchLiving()

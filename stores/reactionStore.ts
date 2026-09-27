@@ -42,6 +42,7 @@ export const reactionCategories: ReactionCategoryEnum[] = [
   'REWARD',
   'SCENARIO',
   'THEME',
+  'TZADDIK',
 ]
 
 // t-066: a reaction target and a karma-earning object are the same set by
@@ -77,6 +78,7 @@ type AddReactionPayload = {
   rewardId?: number | null
   scenarioId?: number | null
   themeId?: number | null
+  tzaddikCandidateId?: number | null
 }
 
 type UpdateReactionPayload = {

@@ -9695,6 +9695,7 @@ export const ReactionScalarFieldEnum = {
   challengeSubmissionId: 'challengeSubmissionId',
   projectId: 'projectId',
   facetId: 'facetId',
+  tzaddikCandidateId: 'tzaddikCandidateId',
   authorBotId: 'authorBotId',
   authorCharacterId: 'authorCharacterId'
 } as const

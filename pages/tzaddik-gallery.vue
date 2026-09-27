@@ -18,23 +18,35 @@
           </div>
         </header>
 
-        <div class="flex flex-wrap gap-2" role="tablist">
+        <div class="flex flex-wrap items-center justify-between gap-2">
+          <div class="flex flex-wrap gap-2" role="tablist">
+            <button
+              v-for="tab in tabs"
+              :key="tab.key"
+              type="button"
+              role="tab"
+              :aria-selected="activeTab === tab.key"
+              class="kr-btn-2xl"
+              :class="
+                activeTab === tab.key
+                  ? 'btn-primary'
+                  : 'btn-ghost border border-base-300'
+              "
+              @click="activeTab = tab.key"
+            >
+              <Icon :name="tab.icon" class="kr-icon-4" />
+              {{ tab.label }}
+            </button>
+          </div>
+
           <button
-            v-for="tab in tabs"
-            :key="tab.key"
+            v-if="userStore.isLoggedIn"
             type="button"
-            role="tab"
-            :aria-selected="activeTab === tab.key"
-            class="kr-btn-2xl"
-            :class="
-              activeTab === tab.key
-                ? 'btn-primary'
-                : 'btn-ghost border border-base-300'
-            "
-            @click="activeTab = tab.key"
+            class="btn btn-primary btn-sm gap-1.5 rounded-xl"
+            @click="showSubmitForm = true"
           >
-            <Icon :name="tab.icon" class="kr-icon-4" />
-            {{ tab.label }}
+            <Icon name="kind-icon:plus" class="kr-icon-3-5" />
+            Submit a candidate
           </button>
         </div>
 
@@ -119,6 +131,12 @@
         :candidate-id="openCandidateId"
         @close="openCandidateId = null"
       />
+
+      <tzaddik-submit-form
+        v-if="showSubmitForm"
+        @close="showSubmitForm = false"
+        @submitted="onSubmitted"
+      />
     </div>
   </div>
 </template>
@@ -128,6 +146,7 @@ import { computed, onMounted, reactive, ref } from 'vue'
 import type { GalleryItem } from '@/components/gallery/kr-gallery.vue'
 import { useTzaddikStore } from '@/stores/tzaddikStore'
 import type { TzaddikCandidateWithTags } from '@/stores/tzaddikStore'
+import { useUserStore } from '@/stores/userStore'
 import type { TzaddikEditorialTag } from '~/prisma/generated/prisma/client'
 import { TZADDIK_TAG_ORDER, tzaddikTagLabel } from '@/utils/tzaddikTags'
 
@@ -181,6 +200,8 @@ const sections = [
 ]
 
 const tzaddikStore = useTzaddikStore()
+const userStore = useUserStore()
+const showSubmitForm = ref(false)
 
 function toGalleryItem(candidate: TzaddikCandidateWithTags): GalleryItem {
   const image =
@@ -231,6 +252,12 @@ const openCandidateId = ref<number | null>(null)
 
 function openDetail(item: GalleryItem): void {
   openCandidateId.value = Number(item.id)
+}
+
+async function onSubmitted(candidate: TzaddikCandidateWithTags): Promise<void> {
+  showSubmitForm.value = false
+  await tzaddikStore.fetchOne(candidate.id, true)
+  openCandidateId.value = candidate.id
 }
 
 onMounted(() => {

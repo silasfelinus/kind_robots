@@ -29,6 +29,8 @@ export const useTzaddikStore = defineStore('tzaddikStore', () => {
   const isLoadingDetail = ref(false)
   const detailError = ref('')
   const isRequestingRecheck = ref(false)
+  const isSubmittingCandidate = ref(false)
+  const submitError = ref('')
 
   async function fetchLiving(
     force = false,
@@ -148,6 +150,40 @@ export const useTzaddikStore = defineStore('tzaddikStore', () => {
     }
   }
 
+  async function submitCandidate(payload: {
+    displayName: string
+    lifeState: 'LIVING' | 'MEMORIAL'
+    rationale: string
+    wikipediaUrl: string
+    biography?: string
+  }): Promise<TzaddikCandidateWithTags | null> {
+    isSubmittingCandidate.value = true
+    submitError.value = ''
+
+    try {
+      const res = await performFetch<TzaddikCandidateWithTags>('/api/tzaddik', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      })
+
+      if (!res.success || !res.data) {
+        throw new Error(res.message || 'Invalid response')
+      }
+
+      return res.data
+    } catch (caughtError) {
+      submitError.value =
+        caughtError instanceof Error
+          ? caughtError.message
+          : 'Failed to submit this candidate.'
+      handleError(caughtError, 'submitting a Tzaddik candidate')
+      return null
+    } finally {
+      isSubmittingCandidate.value = false
+    }
+  }
+
   return {
     living,
     memorial,
@@ -161,9 +197,12 @@ export const useTzaddikStore = defineStore('tzaddikStore', () => {
     isLoadingDetail,
     detailError,
     isRequestingRecheck,
+    isSubmittingCandidate,
+    submitError,
     fetchLiving,
     fetchMemorial,
     fetchOne,
     requestRecheck,
+    submitCandidate,
   }
 })

@@ -237,6 +237,15 @@ function getExpectedTargetField(
     // lookup, so accepting one would write an untargeted row. Give them a
     // target field before removing them from this list.
     //
+    // TZADDIK: tzaddikCandidateId + the FK already exist on Reaction
+    // (20260927010000_add_tzaddik_reaction_target, tzaddik-gallery/t-021) so
+    // t-005/t-006 need no migration of their own -- but TzaddikCandidate has
+    // no userId/isPublic pair, so the generic contentTargetModel access
+    // branch below (which selects those two columns unconditionally) cannot
+    // cover it as-is. Wire a real access rule (public/APPROVED candidate, the
+    // submitter, or admin) alongside whichever of t-005/t-006 first lands the
+    // reaction UI, rather than reusing the generic branch unchanged.
+    //
     // CHALLENGE_SUBMISSION stays null permanently. Silas, 2026-08-21, retired
     // the expectation of reviews on the Challenge Center outright -- it is a
     // private authoring tool, not a public sharing surface -- so unlike the
@@ -251,6 +260,7 @@ function getExpectedTargetField(
     // 20260821230000_retire_butterfly_reaction_target, so naming it now would
     // not compile.
     [Reaction_reactionCategory.COMPONENT]: null,
+    [Reaction_reactionCategory.TZADDIK]: null,
   }
 
   return map[category]

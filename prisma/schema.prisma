@@ -1343,6 +1343,7 @@ model Reaction {
   challengeSubmissionId Int?
   projectId             Int?
   facetId               Int?
+  tzaddikCandidateId    Int?
   /// The Bot or Character a first-party comment is spoken BY, as opposed to
   /// botId/characterId, which are what a reaction is spoken ABOUT. userId stays
   /// the authenticated account accountable for the row. At most one of these
@@ -1370,6 +1371,7 @@ model Reaction {
   Reward                Reward?                   @relation(fields: [rewardId], references: [id])
   Scenario              Scenario?                 @relation(fields: [scenarioId], references: [id])
   Theme                 Theme?                    @relation(fields: [themeId], references: [id])
+  TzaddikCandidate      TzaddikCandidate?         @relation(fields: [tzaddikCandidateId], references: [id])
   User                  User                      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, challengeSubmissionId])
@@ -1382,6 +1384,7 @@ model Reaction {
   @@index([dreamId], map: "Reaction_dreamId_fkey")
   @@index([projectId], map: "Reaction_projectId_fkey")
   @@index([facetId], map: "Reaction_facetId_fkey")
+  @@index([tzaddikCandidateId], map: "Reaction_tzaddikCandidateId_fkey")
   @@index([promptId], map: "Reaction_promptId_fkey")
   @@index([resourceId], map: "Reaction_resourceId_fkey")
   @@index([rewardId], map: "Reaction_rewardId_fkey")
@@ -3305,6 +3308,7 @@ enum Reaction_reactionCategory {
   REWARD
   SCENARIO
   THEME
+  TZADDIK
 }
 
 enum ServerType {

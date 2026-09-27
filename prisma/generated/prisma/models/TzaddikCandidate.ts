@@ -470,6 +470,7 @@ export type TzaddikCandidateWhereInput = {
   overrideUpdatedAt?: Prisma.DateTimeNullableFilter<"TzaddikCandidate"> | Date | string | null
   Tags?: Prisma.TzaddikCandidateTagListRelationFilter
   RecheckRequests?: Prisma.TzaddikRecheckRequestListRelationFilter
+  Reactions?: Prisma.ReactionListRelationFilter
 }
 
 export type TzaddikCandidateOrderByWithRelationInput = {
@@ -510,6 +511,7 @@ export type TzaddikCandidateOrderByWithRelationInput = {
   overrideUpdatedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   Tags?: Prisma.TzaddikCandidateTagOrderByRelationAggregateInput
   RecheckRequests?: Prisma.TzaddikRecheckRequestOrderByRelationAggregateInput
+  Reactions?: Prisma.ReactionOrderByRelationAggregateInput
   _relevance?: Prisma.TzaddikCandidateOrderByRelevanceInput
 }
 
@@ -554,6 +556,7 @@ export type TzaddikCandidateWhereUniqueInput = Prisma.AtLeast<{
   overrideUpdatedAt?: Prisma.DateTimeNullableFilter<"TzaddikCandidate"> | Date | string | null
   Tags?: Prisma.TzaddikCandidateTagListRelationFilter
   RecheckRequests?: Prisma.TzaddikRecheckRequestListRelationFilter
+  Reactions?: Prisma.ReactionListRelationFilter
 }, "id" | "slug">
 
 export type TzaddikCandidateOrderByWithAggregationInput = {
@@ -677,6 +680,7 @@ export type TzaddikCandidateCreateInput = {
   overrideUpdatedAt?: Date | string | null
   Tags?: Prisma.TzaddikCandidateTagCreateNestedManyWithoutCandidateInput
   RecheckRequests?: Prisma.TzaddikRecheckRequestCreateNestedManyWithoutCandidateInput
+  Reactions?: Prisma.ReactionCreateNestedManyWithoutTzaddikCandidateInput
 }
 
 export type TzaddikCandidateUncheckedCreateInput = {
@@ -717,6 +721,7 @@ export type TzaddikCandidateUncheckedCreateInput = {
   overrideUpdatedAt?: Date | string | null
   Tags?: Prisma.TzaddikCandidateTagUncheckedCreateNestedManyWithoutCandidateInput
   RecheckRequests?: Prisma.TzaddikRecheckRequestUncheckedCreateNestedManyWithoutCandidateInput
+  Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutTzaddikCandidateInput
 }
 
 export type TzaddikCandidateUpdateInput = {
@@ -756,6 +761,7 @@ export type TzaddikCandidateUpdateInput = {
   overrideUpdatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Tags?: Prisma.TzaddikCandidateTagUpdateManyWithoutCandidateNestedInput
   RecheckRequests?: Prisma.TzaddikRecheckRequestUpdateManyWithoutCandidateNestedInput
+  Reactions?: Prisma.ReactionUpdateManyWithoutTzaddikCandidateNestedInput
 }
 
 export type TzaddikCandidateUncheckedUpdateInput = {
@@ -796,6 +802,7 @@ export type TzaddikCandidateUncheckedUpdateInput = {
   overrideUpdatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Tags?: Prisma.TzaddikCandidateTagUncheckedUpdateManyWithoutCandidateNestedInput
   RecheckRequests?: Prisma.TzaddikRecheckRequestUncheckedUpdateManyWithoutCandidateNestedInput
+  Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutTzaddikCandidateNestedInput
 }
 
 export type TzaddikCandidateCreateManyInput = {
@@ -909,6 +916,11 @@ export type TzaddikCandidateUncheckedUpdateManyInput = {
   overrideNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   overrideUpdatedByUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   overrideUpdatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+}
+
+export type TzaddikCandidateNullableScalarRelationFilter = {
+  is?: Prisma.TzaddikCandidateWhereInput | null
+  isNot?: Prisma.TzaddikCandidateWhereInput | null
 }
 
 export type TzaddikCandidateOrderByRelevanceInput = {
@@ -1050,6 +1062,22 @@ export type TzaddikCandidateScalarRelationFilter = {
   isNot?: Prisma.TzaddikCandidateWhereInput
 }
 
+export type TzaddikCandidateCreateNestedOneWithoutReactionsInput = {
+  create?: Prisma.XOR<Prisma.TzaddikCandidateCreateWithoutReactionsInput, Prisma.TzaddikCandidateUncheckedCreateWithoutReactionsInput>
+  connectOrCreate?: Prisma.TzaddikCandidateCreateOrConnectWithoutReactionsInput
+  connect?: Prisma.TzaddikCandidateWhereUniqueInput
+}
+
+export type TzaddikCandidateUpdateOneWithoutReactionsNestedInput = {
+  create?: Prisma.XOR<Prisma.TzaddikCandidateCreateWithoutReactionsInput, Prisma.TzaddikCandidateUncheckedCreateWithoutReactionsInput>
+  connectOrCreate?: Prisma.TzaddikCandidateCreateOrConnectWithoutReactionsInput
+  upsert?: Prisma.TzaddikCandidateUpsertWithoutReactionsInput
+  disconnect?: Prisma.TzaddikCandidateWhereInput | boolean
+  delete?: Prisma.TzaddikCandidateWhereInput | boolean
+  connect?: Prisma.TzaddikCandidateWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.TzaddikCandidateUpdateToOneWithWhereWithoutReactionsInput, Prisma.TzaddikCandidateUpdateWithoutReactionsInput>, Prisma.TzaddikCandidateUncheckedUpdateWithoutReactionsInput>
+}
+
 export type EnumTzaddikLifeStateFieldUpdateOperationsInput = {
   set?: $Enums.TzaddikLifeState
 }
@@ -1084,6 +1112,180 @@ export type TzaddikCandidateUpdateOneRequiredWithoutRecheckRequestsNestedInput =
   upsert?: Prisma.TzaddikCandidateUpsertWithoutRecheckRequestsInput
   connect?: Prisma.TzaddikCandidateWhereUniqueInput
   update?: Prisma.XOR<Prisma.XOR<Prisma.TzaddikCandidateUpdateToOneWithWhereWithoutRecheckRequestsInput, Prisma.TzaddikCandidateUpdateWithoutRecheckRequestsInput>, Prisma.TzaddikCandidateUncheckedUpdateWithoutRecheckRequestsInput>
+}
+
+export type TzaddikCandidateCreateWithoutReactionsInput = {
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  displayName: string
+  slug: string
+  lifeState?: $Enums.TzaddikLifeState
+  deathDate?: Date | string | null
+  rationale: string
+  biography?: string | null
+  objections?: string | null
+  objectionsSourceUrl?: string | null
+  wikipediaUrl: string
+  wikipediaPageId?: string | null
+  wikipediaRevisionId?: string | null
+  sourceSnapshotJson?: string | null
+  sourceCheckedAt?: Date | string | null
+  imageSourceUrl?: string | null
+  imageFileUrl?: string | null
+  imageLicense?: string | null
+  imageAttribution?: string | null
+  imageRevisionId?: string | null
+  countryCode?: string | null
+  region?: string | null
+  curationState?: $Enums.TzaddikCurationState
+  submittedByUserId?: number | null
+  suggestedBy?: string | null
+  acceptedByUserId?: number | null
+  displayNameOverride?: string | null
+  biographyOverride?: string | null
+  rationaleOverride?: string | null
+  objectionsOverride?: string | null
+  imageUrlOverride?: string | null
+  overrideNote?: string | null
+  overrideUpdatedByUserId?: number | null
+  overrideUpdatedAt?: Date | string | null
+  Tags?: Prisma.TzaddikCandidateTagCreateNestedManyWithoutCandidateInput
+  RecheckRequests?: Prisma.TzaddikRecheckRequestCreateNestedManyWithoutCandidateInput
+}
+
+export type TzaddikCandidateUncheckedCreateWithoutReactionsInput = {
+  id?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  displayName: string
+  slug: string
+  lifeState?: $Enums.TzaddikLifeState
+  deathDate?: Date | string | null
+  rationale: string
+  biography?: string | null
+  objections?: string | null
+  objectionsSourceUrl?: string | null
+  wikipediaUrl: string
+  wikipediaPageId?: string | null
+  wikipediaRevisionId?: string | null
+  sourceSnapshotJson?: string | null
+  sourceCheckedAt?: Date | string | null
+  imageSourceUrl?: string | null
+  imageFileUrl?: string | null
+  imageLicense?: string | null
+  imageAttribution?: string | null
+  imageRevisionId?: string | null
+  countryCode?: string | null
+  region?: string | null
+  curationState?: $Enums.TzaddikCurationState
+  submittedByUserId?: number | null
+  suggestedBy?: string | null
+  acceptedByUserId?: number | null
+  displayNameOverride?: string | null
+  biographyOverride?: string | null
+  rationaleOverride?: string | null
+  objectionsOverride?: string | null
+  imageUrlOverride?: string | null
+  overrideNote?: string | null
+  overrideUpdatedByUserId?: number | null
+  overrideUpdatedAt?: Date | string | null
+  Tags?: Prisma.TzaddikCandidateTagUncheckedCreateNestedManyWithoutCandidateInput
+  RecheckRequests?: Prisma.TzaddikRecheckRequestUncheckedCreateNestedManyWithoutCandidateInput
+}
+
+export type TzaddikCandidateCreateOrConnectWithoutReactionsInput = {
+  where: Prisma.TzaddikCandidateWhereUniqueInput
+  create: Prisma.XOR<Prisma.TzaddikCandidateCreateWithoutReactionsInput, Prisma.TzaddikCandidateUncheckedCreateWithoutReactionsInput>
+}
+
+export type TzaddikCandidateUpsertWithoutReactionsInput = {
+  update: Prisma.XOR<Prisma.TzaddikCandidateUpdateWithoutReactionsInput, Prisma.TzaddikCandidateUncheckedUpdateWithoutReactionsInput>
+  create: Prisma.XOR<Prisma.TzaddikCandidateCreateWithoutReactionsInput, Prisma.TzaddikCandidateUncheckedCreateWithoutReactionsInput>
+  where?: Prisma.TzaddikCandidateWhereInput
+}
+
+export type TzaddikCandidateUpdateToOneWithWhereWithoutReactionsInput = {
+  where?: Prisma.TzaddikCandidateWhereInput
+  data: Prisma.XOR<Prisma.TzaddikCandidateUpdateWithoutReactionsInput, Prisma.TzaddikCandidateUncheckedUpdateWithoutReactionsInput>
+}
+
+export type TzaddikCandidateUpdateWithoutReactionsInput = {
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  displayName?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  lifeState?: Prisma.EnumTzaddikLifeStateFieldUpdateOperationsInput | $Enums.TzaddikLifeState
+  deathDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  rationale?: Prisma.StringFieldUpdateOperationsInput | string
+  biography?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  objections?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  objectionsSourceUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  wikipediaUrl?: Prisma.StringFieldUpdateOperationsInput | string
+  wikipediaPageId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  wikipediaRevisionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceSnapshotJson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceCheckedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  imageSourceUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imageFileUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imageLicense?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imageAttribution?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imageRevisionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  countryCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  region?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  curationState?: Prisma.EnumTzaddikCurationStateFieldUpdateOperationsInput | $Enums.TzaddikCurationState
+  submittedByUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  suggestedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acceptedByUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  displayNameOverride?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  biographyOverride?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  rationaleOverride?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  objectionsOverride?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imageUrlOverride?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  overrideNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  overrideUpdatedByUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  overrideUpdatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  Tags?: Prisma.TzaddikCandidateTagUpdateManyWithoutCandidateNestedInput
+  RecheckRequests?: Prisma.TzaddikRecheckRequestUpdateManyWithoutCandidateNestedInput
+}
+
+export type TzaddikCandidateUncheckedUpdateWithoutReactionsInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  displayName?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  lifeState?: Prisma.EnumTzaddikLifeStateFieldUpdateOperationsInput | $Enums.TzaddikLifeState
+  deathDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  rationale?: Prisma.StringFieldUpdateOperationsInput | string
+  biography?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  objections?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  objectionsSourceUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  wikipediaUrl?: Prisma.StringFieldUpdateOperationsInput | string
+  wikipediaPageId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  wikipediaRevisionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceSnapshotJson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceCheckedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  imageSourceUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imageFileUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imageLicense?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imageAttribution?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imageRevisionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  countryCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  region?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  curationState?: Prisma.EnumTzaddikCurationStateFieldUpdateOperationsInput | $Enums.TzaddikCurationState
+  submittedByUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  suggestedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acceptedByUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  displayNameOverride?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  biographyOverride?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  rationaleOverride?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  objectionsOverride?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imageUrlOverride?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  overrideNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  overrideUpdatedByUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  overrideUpdatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  Tags?: Prisma.TzaddikCandidateTagUncheckedUpdateManyWithoutCandidateNestedInput
+  RecheckRequests?: Prisma.TzaddikRecheckRequestUncheckedUpdateManyWithoutCandidateNestedInput
 }
 
 export type TzaddikCandidateCreateWithoutTagsInput = {
@@ -1122,6 +1324,7 @@ export type TzaddikCandidateCreateWithoutTagsInput = {
   overrideUpdatedByUserId?: number | null
   overrideUpdatedAt?: Date | string | null
   RecheckRequests?: Prisma.TzaddikRecheckRequestCreateNestedManyWithoutCandidateInput
+  Reactions?: Prisma.ReactionCreateNestedManyWithoutTzaddikCandidateInput
 }
 
 export type TzaddikCandidateUncheckedCreateWithoutTagsInput = {
@@ -1161,6 +1364,7 @@ export type TzaddikCandidateUncheckedCreateWithoutTagsInput = {
   overrideUpdatedByUserId?: number | null
   overrideUpdatedAt?: Date | string | null
   RecheckRequests?: Prisma.TzaddikRecheckRequestUncheckedCreateNestedManyWithoutCandidateInput
+  Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutTzaddikCandidateInput
 }
 
 export type TzaddikCandidateCreateOrConnectWithoutTagsInput = {
@@ -1215,6 +1419,7 @@ export type TzaddikCandidateUpdateWithoutTagsInput = {
   overrideUpdatedByUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   overrideUpdatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   RecheckRequests?: Prisma.TzaddikRecheckRequestUpdateManyWithoutCandidateNestedInput
+  Reactions?: Prisma.ReactionUpdateManyWithoutTzaddikCandidateNestedInput
 }
 
 export type TzaddikCandidateUncheckedUpdateWithoutTagsInput = {
@@ -1254,6 +1459,7 @@ export type TzaddikCandidateUncheckedUpdateWithoutTagsInput = {
   overrideUpdatedByUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   overrideUpdatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   RecheckRequests?: Prisma.TzaddikRecheckRequestUncheckedUpdateManyWithoutCandidateNestedInput
+  Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutTzaddikCandidateNestedInput
 }
 
 export type TzaddikCandidateCreateWithoutRecheckRequestsInput = {
@@ -1292,6 +1498,7 @@ export type TzaddikCandidateCreateWithoutRecheckRequestsInput = {
   overrideUpdatedByUserId?: number | null
   overrideUpdatedAt?: Date | string | null
   Tags?: Prisma.TzaddikCandidateTagCreateNestedManyWithoutCandidateInput
+  Reactions?: Prisma.ReactionCreateNestedManyWithoutTzaddikCandidateInput
 }
 
 export type TzaddikCandidateUncheckedCreateWithoutRecheckRequestsInput = {
@@ -1331,6 +1538,7 @@ export type TzaddikCandidateUncheckedCreateWithoutRecheckRequestsInput = {
   overrideUpdatedByUserId?: number | null
   overrideUpdatedAt?: Date | string | null
   Tags?: Prisma.TzaddikCandidateTagUncheckedCreateNestedManyWithoutCandidateInput
+  Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutTzaddikCandidateInput
 }
 
 export type TzaddikCandidateCreateOrConnectWithoutRecheckRequestsInput = {
@@ -1385,6 +1593,7 @@ export type TzaddikCandidateUpdateWithoutRecheckRequestsInput = {
   overrideUpdatedByUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   overrideUpdatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Tags?: Prisma.TzaddikCandidateTagUpdateManyWithoutCandidateNestedInput
+  Reactions?: Prisma.ReactionUpdateManyWithoutTzaddikCandidateNestedInput
 }
 
 export type TzaddikCandidateUncheckedUpdateWithoutRecheckRequestsInput = {
@@ -1424,6 +1633,7 @@ export type TzaddikCandidateUncheckedUpdateWithoutRecheckRequestsInput = {
   overrideUpdatedByUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   overrideUpdatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Tags?: Prisma.TzaddikCandidateTagUncheckedUpdateManyWithoutCandidateNestedInput
+  Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutTzaddikCandidateNestedInput
 }
 
 
@@ -1434,11 +1644,13 @@ export type TzaddikCandidateUncheckedUpdateWithoutRecheckRequestsInput = {
 export type TzaddikCandidateCountOutputType = {
   Tags: number
   RecheckRequests: number
+  Reactions: number
 }
 
 export type TzaddikCandidateCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   Tags?: boolean | TzaddikCandidateCountOutputTypeCountTagsArgs
   RecheckRequests?: boolean | TzaddikCandidateCountOutputTypeCountRecheckRequestsArgs
+  Reactions?: boolean | TzaddikCandidateCountOutputTypeCountReactionsArgs
 }
 
 /**
@@ -1463,6 +1675,13 @@ export type TzaddikCandidateCountOutputTypeCountTagsArgs<ExtArgs extends runtime
  */
 export type TzaddikCandidateCountOutputTypeCountRecheckRequestsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.TzaddikRecheckRequestWhereInput
+}
+
+/**
+ * TzaddikCandidateCountOutputType without action
+ */
+export type TzaddikCandidateCountOutputTypeCountReactionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ReactionWhereInput
 }
 
 
@@ -1504,6 +1723,7 @@ export type TzaddikCandidateSelect<ExtArgs extends runtime.Types.Extensions.Inte
   overrideUpdatedAt?: boolean
   Tags?: boolean | Prisma.TzaddikCandidate$TagsArgs<ExtArgs>
   RecheckRequests?: boolean | Prisma.TzaddikCandidate$RecheckRequestsArgs<ExtArgs>
+  Reactions?: boolean | Prisma.TzaddikCandidate$ReactionsArgs<ExtArgs>
   _count?: boolean | Prisma.TzaddikCandidateCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["tzaddikCandidate"]>
 
@@ -1551,6 +1771,7 @@ export type TzaddikCandidateOmit<ExtArgs extends runtime.Types.Extensions.Intern
 export type TzaddikCandidateInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   Tags?: boolean | Prisma.TzaddikCandidate$TagsArgs<ExtArgs>
   RecheckRequests?: boolean | Prisma.TzaddikCandidate$RecheckRequestsArgs<ExtArgs>
+  Reactions?: boolean | Prisma.TzaddikCandidate$ReactionsArgs<ExtArgs>
   _count?: boolean | Prisma.TzaddikCandidateCountOutputTypeDefaultArgs<ExtArgs>
 }
 
@@ -1559,6 +1780,7 @@ export type $TzaddikCandidatePayload<ExtArgs extends runtime.Types.Extensions.In
   objects: {
     Tags: Prisma.$TzaddikCandidateTagPayload<ExtArgs>[]
     RecheckRequests: Prisma.$TzaddikRecheckRequestPayload<ExtArgs>[]
+    Reactions: Prisma.$ReactionPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -1938,6 +2160,7 @@ export interface Prisma__TzaddikCandidateClient<T, Null = never, ExtArgs extends
   readonly [Symbol.toStringTag]: "PrismaPromise"
   Tags<T extends Prisma.TzaddikCandidate$TagsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.TzaddikCandidate$TagsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$TzaddikCandidateTagPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   RecheckRequests<T extends Prisma.TzaddikCandidate$RecheckRequestsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.TzaddikCandidate$RecheckRequestsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$TzaddikRecheckRequestPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  Reactions<T extends Prisma.TzaddikCandidate$ReactionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.TzaddikCandidate$ReactionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ReactionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2395,6 +2618,30 @@ export type TzaddikCandidate$RecheckRequestsArgs<ExtArgs extends runtime.Types.E
   take?: number
   skip?: number
   distinct?: Prisma.TzaddikRecheckRequestScalarFieldEnum | Prisma.TzaddikRecheckRequestScalarFieldEnum[]
+}
+
+/**
+ * TzaddikCandidate.Reactions
+ */
+export type TzaddikCandidate$ReactionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Reaction
+   */
+  select?: Prisma.ReactionSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Reaction
+   */
+  omit?: Prisma.ReactionOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ReactionInclude<ExtArgs> | null
+  where?: Prisma.ReactionWhereInput
+  orderBy?: Prisma.ReactionOrderByWithRelationInput | Prisma.ReactionOrderByWithRelationInput[]
+  cursor?: Prisma.ReactionWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ReactionScalarFieldEnum | Prisma.ReactionScalarFieldEnum[]
 }
 
 /**

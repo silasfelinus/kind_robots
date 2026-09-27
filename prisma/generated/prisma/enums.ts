@@ -521,7 +521,8 @@ export const Reaction_reactionCategory = {
   RESOURCE: 'RESOURCE',
   REWARD: 'REWARD',
   SCENARIO: 'SCENARIO',
-  THEME: 'THEME'
+  THEME: 'THEME',
+  TZADDIK: 'TZADDIK'
 } as const
 
 export type Reaction_reactionCategory = (typeof Reaction_reactionCategory)[keyof typeof Reaction_reactionCategory]

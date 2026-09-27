@@ -8,6 +8,29 @@ Use it whenever the value has leaked, is suspected to have leaked, or has been
 pasted anywhere it shouldn't live (a commit, a chat transcript, a log line, a
 screen share, a support ticket).
 
+## Fastest path: the render-box script
+
+On the Windows render box, from `D:\code\Conductor\ops\home-server`:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\Rotate-KrToken.ps1
+```
+
+Conductor's `ops/home-server/Rotate-KrToken.ps1` runs steps 1-4 below from the
+one machine that is easiest to forget. It reads the current token from the
+box's own environment, so you never paste it, and asks `meta.describe` which
+kind of credential it is. For a `User.apiKey` it generates and writes the
+replacement through the API with no deploy. For the env var it generates the
+value, puts it on the clipboard, and waits while you recreate the container.
+It then checks that the new value is admin and the old one returns 401. It
+sets `KR_RELAY_TOKEN` and `KR_API_TOKEN`, restarts pm2 with `--update-env`,
+and runs `pm2 save`. If `gh` is logged in, it also sets the GitHub secrets.
+Finally it lists the consumers it cannot reach. Nothing it prints contains the
+token. Use `-NewTokenOnly` if the server side is already rotated.
+
+The rest of this document is the manual procedure, and what to check when the
+script stops.
+
 ## What this credential actually is
 
 `server/utils/authGuard.ts` resolves it in `getConfiguredBetaAdminToken()`:
@@ -113,15 +136,16 @@ from this list, not from memory.
 
 **Consumers that will 401 until updated:**
 
-| Where                                                     | Name                                                                                                                                                                  |
-| --------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Conductor repo → Settings → Secrets → Actions             | `KR_API_TOKEN` (read by 16 workflows, including `hourly-conductor.yml`, `daily-digest.yml`, `worker.yml`, `auto-art-generate.yml`, `sync-kind-robots-projection.yml`) |
-| kind_robots repo → Settings → Secrets → Actions           | `CYPRESS_BETA_ADMIN_TOKEN` (`cypress.yml`; `cleanup-test-users.yml` passes it as `ADMIN_TOKEN`)                                                                       |
-| Home render box, pm2 art relay                            | `KR_API_TOKEN` — restart the pm2 process, env is read at start                                                                                                        |
-| Alexandria `healthcheck.ps1` render watchdog              | `KR_API_TOKEN` (machine env via `setx`; open a **new** shell afterwards)                                                                                              |
-| Serendipity / Alexa relay                                 | `SERENDIPITY_KR_SERVICE_TOKEN`                                                                                                                                        |
-| ChatGPT Custom GPT → Configure → Actions → Authentication | stored Bearer API key (see `docs/chatgpt-admin-action.md`)                                                                                                            |
-| Your own shells                                           | Windows `setx KR_API_TOKEN`, WSL/bash profile, any `.env` in a local checkout                                                                                         |
+| Where                                                          | Name                                                                                                                                                                                                                                                                       |
+| -------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Conductor repo → Settings → Secrets → Actions                  | `KR_API_TOKEN` (read by 16 workflows, including `hourly-conductor.yml`, `daily-digest.yml`, `worker.yml`, `auto-art-generate.yml`, `sync-kind-robots-projection.yml`)                                                                                                      |
+| kind_robots repo → Settings → Secrets → Actions                | `CYPRESS_BETA_ADMIN_TOKEN` (`cypress.yml`; `cleanup-test-users.yml` passes it as `ADMIN_TOKEN`)                                                                                                                                                                            |
+| Home render box, pm2 `kr-relay` + `kr-download`                | `KR_RELAY_TOKEN` — **not** `KR_API_TOKEN`. `pm2 restart ecosystem.config.js --update-env`, then `pm2 save`: a plain restart, and every reboot's `pm2 resurrect`, keep the old env. Missing this left the renderer dead for about half a day after the 2026-09-20 rotation. |
+| Claude Code cloud environment (claude.ai → environment → Edit) | `KR_API_TOKEN` environment variable — every Conductor agent session reads it                                                                                                                                                                                               |
+| Alexandria `healthcheck.ps1` render watchdog                   | `KR_API_TOKEN` (machine env via `setx`; open a **new** shell afterwards)                                                                                                                                                                                                   |
+| Serendipity / Alexa relay                                      | `SERENDIPITY_KR_SERVICE_TOKEN`                                                                                                                                                                                                                                             |
+| ChatGPT Custom GPT → Configure → Actions → Authentication      | stored Bearer API key (see `docs/chatgpt-admin-action.md`)                                                                                                                                                                                                                 |
+| Your own shells                                                | Windows `setx KR_API_TOKEN`, WSL/bash profile, any `.env` in a local checkout                                                                                                                                                                                              |
 
 **The retired Vercel project — do not skip this.** `AGENTS.md` records Vercel as
 retired infrastructure, but the `kind-robots` Vercel project still holds

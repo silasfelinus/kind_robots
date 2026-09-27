@@ -24,7 +24,9 @@
         <header
           class="kr-panel flex shrink-0 flex-col gap-3 rounded-3xl p-3 sm:p-4 lg:flex-row lg:items-center"
         >
-          <div\n            class="flex min-w-0 items-center gap-3 lg:w-[19rem] xl:w-[21rem]"\n          >
+          <div
+            class="flex min-w-0 items-center gap-3 lg:w-[19rem] xl:w-[21rem]"
+          >
             <div
               class="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-primary/15 text-primary shadow-sm"
             >
@@ -58,7 +60,9 @@
             </button>
           </div>
 
-          <div\n            class="flex shrink-0 items-center justify-end lg:w-[19rem] xl:w-[21rem]"\n          >
+          <div
+            class="flex shrink-0 items-center justify-end lg:w-[19rem] xl:w-[21rem]"
+          >
             <button
               v-if="userStore.isLoggedIn"
               type="button"
@@ -104,7 +108,9 @@
                   <p class="text-2xl font-black leading-none">
                     {{ activeCandidates.length }}
                   </p>
-                  <p\n                    class="mt-1 text-[0.65rem] font-bold uppercase tracking-wide text-base-content/50"\n                  >
+                  <p
+                    class="mt-1 text-[0.65rem] font-bold uppercase tracking-wide text-base-content/50"
+                  >
                     visible profiles
                   </p>
                 </div>
@@ -112,7 +118,9 @@
                   <p class="text-2xl font-black leading-none">
                     {{ selectedTags.size || 'All' }}
                   </p>
-                  <p\n                    class="mt-1 text-[0.65rem] font-bold uppercase tracking-wide text-base-content/50"\n                  >
+                  <p
+                    class="mt-1 text-[0.65rem] font-bold uppercase tracking-wide text-base-content/50"
+                  >
                     tag filters
                   </p>
                 </div>
@@ -180,7 +188,9 @@
                 </span>
               </div>
 
-              <div\n                class="pt-3 lg:min-h-0 lg:flex-1 lg:overflow-y-auto lg:pr-1"\n              >
+              <div
+                class="pt-3 lg:min-h-0 lg:flex-1 lg:overflow-y-auto lg:pr-1"
+              >
                 <kr-gallery
                   :items="activeGalleryItems"
                   :loading="activeLoading"
@@ -211,7 +221,9 @@
                 <h2 class="kr-text-black-2xl max-w-xl leading-tight sm:text-3xl">
                   A ridiculous little premise with serious sourcing underneath.
                 </h2>
-                <p\n                  class="max-w-2xl text-sm leading-relaxed text-base-content/75 sm:text-base"\n                >
+                <p
+                  class="max-w-2xl text-sm leading-relaxed text-base-content/75 sm:text-base"
+                >
                   {{ activeTabBody }}
                 </p>
               </div>
@@ -254,11 +266,17 @@
                 class="kr-panel flex flex-col gap-4 rounded-3xl p-5 lg:min-h-0 lg:overflow-y-auto"
               >
                 <div>
-                  <p class="kr-text-eyebrow text-primary">\n                    How the gallery behaves\n                  </p>
-                  <h2 class="kr-text-black-lg mt-1">\n                    Admiration without hagiography\n                  </h2>
+                  <p class="kr-text-eyebrow text-primary">
+                    How the gallery behaves
+                  </p>
+                  <h2 class="kr-text-black-lg mt-1">
+                    Admiration without hagiography
+                  </h2>
                 </div>
                 <div class="grid gap-3 sm:grid-cols-2">
-                  <div\n                    class="rounded-2xl border border-base-300 bg-base-200/45 p-4"\n                  >
+                  <div
+                    class="rounded-2xl border border-base-300 bg-base-200/45 p-4"
+                  >
                     <p class="kr-text-bold-sm">Sources stay visible</p>
                     <p class="kr-text-dim-sm-70 mt-1 leading-relaxed">
                       Wikipedia and Wikimedia are the default factual and image
@@ -266,7 +284,9 @@
                       replacing the source record.
                     </p>
                   </div>
-                  <div\n                    class="rounded-2xl border border-base-300 bg-base-200/45 p-4"\n                  >
+                  <div
+                    class="rounded-2xl border border-base-300 bg-base-200/45 p-4"
+                  >
                     <p class="kr-text-bold-sm">Objections stay visible</p>
                     <p class="kr-text-dim-sm-70 mt-1 leading-relaxed">
                       Meaningful controversies belong beside the praise when they are
@@ -274,14 +294,18 @@
                       does not invent one for symmetry.
                     </p>
                   </div>
-                  <div\n                    class="rounded-2xl border border-base-300 bg-base-200/45 p-4"\n                  >
+                  <div
+                    class="rounded-2xl border border-base-300 bg-base-200/45 p-4"
+                  >
                     <p class="kr-text-bold-sm">Community signal is advisory</p>
                     <p class="kr-text-dim-sm-70 mt-1 leading-relaxed">
                       Users can nominate and react. Those signals help discovery, but
                       they do not automatically promote anyone into the 36.
                     </p>
                   </div>
-                  <div\n                    class="rounded-2xl border border-base-300 bg-base-200/45 p-4"\n                  >
+                  <div
+                    class="rounded-2xl border border-base-300 bg-base-200/45 p-4"
+                  >
                     <p class="kr-text-bold-sm">Discovery should travel</p>
                     <p class="kr-text-dim-sm-70 mt-1 leading-relaxed">
                       Research deliberately reaches beyond familiar US and UK names

@@ -30,6 +30,7 @@ type ReactionBody = Record<string, unknown> & {
   rewardId?: unknown
   scenarioId?: unknown
   themeId?: unknown
+  tzaddikCandidateId?: unknown
 }
 
 const REACTION_CREATE_FIELDS = new Set([
@@ -51,6 +52,7 @@ const REACTION_CREATE_FIELDS = new Set([
   'rewardId',
   'scenarioId',
   'themeId',
+  'tzaddikCandidateId',
 ])
 
 const validReactionTypes = Object.values(ReactionType)
@@ -186,6 +188,7 @@ function getTargetFields(body: ReactionBody) {
     rewardId: toPositiveId(body.rewardId),
     scenarioId: toPositiveId(body.scenarioId),
     themeId: toPositiveId(body.themeId),
+    tzaddikCandidateId: toPositiveId(body.tzaddikCandidateId),
   }
 }
 
@@ -197,9 +200,7 @@ function getTargetFields(body: ReactionBody) {
 const TARGETLESS = 'TARGETLESS' as const
 
 type ExpectedTargetField =
-  | keyof ReturnType<typeof getTargetFields>
-  | typeof TARGETLESS
-  | null
+  keyof ReturnType<typeof getTargetFields> | typeof TARGETLESS | null
 
 /**
  * Which column carries the target for this category. `null` means "this route
@@ -237,14 +238,12 @@ function getExpectedTargetField(
     // lookup, so accepting one would write an untargeted row. Give them a
     // target field before removing them from this list.
     //
-    // TZADDIK: tzaddikCandidateId + the FK already exist on Reaction
-    // (20260927010000_add_tzaddik_reaction_target, tzaddik-gallery/t-021) so
-    // t-005/t-006 need no migration of their own -- but TzaddikCandidate has
-    // no userId/isPublic pair, so the generic contentTargetModel access
-    // branch below (which selects those two columns unconditionally) cannot
-    // cover it as-is. Wire a real access rule (public/APPROVED candidate, the
-    // submitter, or admin) alongside whichever of t-005/t-006 first lands the
-    // reaction UI, rather than reusing the generic branch unchanged.
+    // TZADDIK: wired by t-005. TzaddikCandidate has no userId/isPublic pair,
+    // so it does not go through the generic contentTargetModel branch below --
+    // assertReactionTargetAccessible has its own tzaddikCandidateId branch
+    // (public/APPROVED candidate, the submitter, or admin), matching
+    // reactionVisibility.ts's bespoke read-side branch for the same reason.
+    [Reaction_reactionCategory.TZADDIK]: 'tzaddikCandidateId',
     //
     // CHALLENGE_SUBMISSION stays null permanently. Silas, 2026-08-21, retired
     // the expectation of reviews on the Challenge Center outright -- it is a
@@ -260,7 +259,6 @@ function getExpectedTargetField(
     // 20260821230000_retire_butterfly_reaction_target, so naming it now would
     // not compile.
     [Reaction_reactionCategory.COMPONENT]: null,
-    [Reaction_reactionCategory.TZADDIK]: null,
   }
 
   return map[category]
@@ -299,6 +297,17 @@ async function getContentOwnerId(
   if (!expectedField || expectedField === TARGETLESS) return null
   const targetId = targets[expectedField]
   if (!targetId) return null
+
+  // TzaddikCandidate has no userId column at all -- submittedByUserId is its
+  // owner equivalent, and the generic modelMap below selects `userId`
+  // unconditionally, which would be a Prisma validation error here.
+  if (expectedField === 'tzaddikCandidateId') {
+    const candidate = await prisma.tzaddikCandidate.findUnique({
+      where: { id: targetId },
+      select: { submittedByUserId: true },
+    })
+    return candidate?.submittedByUserId ?? null
+  }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const modelMap: Record<
@@ -433,6 +442,32 @@ async function assertReactionTargetAccessible(
     throw createError({
       statusCode: 403,
       message: 'You do not have permission to react to this Chat.',
+    })
+  }
+
+  // TzaddikCandidate has no userId/isPublic pair, so it cannot go through the
+  // generic contentTargetModel branch below -- curationState === 'APPROVED'
+  // is its public equivalent (the public gallery route filters on exactly
+  // this) and submittedByUserId is its owner equivalent. Matches
+  // reactionVisibility.ts's read-side branch for the same target.
+  if (expectedField === 'tzaddikCandidateId') {
+    const candidate = await prisma.tzaddikCandidate.findUnique({
+      where: { id: targetId },
+      select: { curationState: true, submittedByUserId: true },
+    })
+    if (!candidate) throw reactionTargetNotFound(expectedField, targetId)
+
+    if (
+      isAdmin ||
+      candidate.curationState === 'APPROVED' ||
+      candidate.submittedByUserId === userId
+    ) {
+      return
+    }
+
+    throw createError({
+      statusCode: 403,
+      message: 'You do not have permission to react to this Tzaddik candidate.',
     })
   }
 

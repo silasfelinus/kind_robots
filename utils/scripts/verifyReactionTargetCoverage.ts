@@ -141,8 +141,10 @@ assert.ok(
 for (const target of KARMA_REF_TYPES) {
   const column = KARMA_REF_TARGET_COLUMNS[target]
   // chat has its own participant branch above the fail-closed fallthrough and
-  // deliberately never reaches contentTargetModel.
-  if (column === 'chatId') continue
+  // deliberately never reaches contentTargetModel. tzaddik is the same shape
+  // for a different reason: TzaddikCandidate has no userId/isPublic pair, so
+  // it has its own curationState/submittedByUserId branch instead (t-005).
+  if (column === 'chatId' || column === 'tzaddikCandidateId') continue
 
   assert.ok(
     new RegExp(`\\b${column}:`).test(accessModelBlock),
@@ -151,7 +153,10 @@ for (const target of KARMA_REF_TYPES) {
 }
 
 assert.ok(isKarmaRefType('facet'), 'facet must be a reaction target')
-assert.ok(!isKarmaRefType('message'), 'MESSAGE has no target column and earns no karma')
+assert.ok(
+  !isKarmaRefType('message'),
+  'MESSAGE has no target column and earns no karma',
+)
 
 // ---------------------------------------------------------------- 4. readable
 

@@ -38,6 +38,15 @@ export const KARMA_REF_TYPES = [
   'reward',
   'scenario',
   'theme',
+  // TzaddikCandidate has no userId/isPublic pair (tzaddik-gallery/t-021's
+  // deferred note, resolved by t-005), so it is not an OWNED_TARGETS entry in
+  // reactionVisibility.ts and not in contentTargetModel()'s generic access map
+  // -- both have their own bespoke tzaddikCandidate branch instead. It is
+  // still a real karma ref type: REACTION_RECEIVED derives refType from the
+  // target column by construction, same as every other target here. Named
+  // 'tzaddikCandidate' (not the shorter 'tzaddik') to match the <target>Id
+  // column-naming convention every other entry here follows.
+  'tzaddikCandidate',
 ] as const
 
 // Reaction also carries `challengeSubmissionId`, and it does not belong here.
@@ -89,6 +98,7 @@ export const KARMA_REF_TARGET_COLUMNS = {
   reward: 'rewardId',
   scenario: 'scenarioId',
   theme: 'themeId',
+  tzaddikCandidate: 'tzaddikCandidateId',
 } as const satisfies Record<KarmaRefType, string>
 
 export type KarmaRefTargetColumn =

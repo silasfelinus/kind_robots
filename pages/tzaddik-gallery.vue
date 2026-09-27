@@ -46,7 +46,25 @@
           </p>
         </div>
 
-        <section class="grid gap-3 sm:grid-cols-3">
+        <kr-gallery
+          v-if="activeTab === 'living'"
+          :items="livingItems"
+          :loading="tzaddikStore.isLoadingLiving"
+          :error="tzaddikStore.livingError"
+          empty-label="living Tzaddik yet — the sourced roster is still being built"
+          :modes="[]"
+        />
+
+        <kr-gallery
+          v-else-if="activeTab === 'memorial'"
+          :items="memorialItems"
+          :loading="tzaddikStore.isLoadingMemorial"
+          :error="tzaddikStore.memorialError"
+          empty-label="memorial honorees yet — the historical archive is still being built"
+          :modes="[]"
+        />
+
+        <section v-else class="grid gap-3 sm:grid-cols-3">
           <article
             v-for="block in sections"
             :key="block.key"
@@ -69,7 +87,10 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
+import type { GalleryItem } from '@/components/gallery/kr-gallery.vue'
+import { useTzaddikStore } from '@/stores/tzaddikStore'
+import type { TzaddikCandidateWithTags } from '@/stores/tzaddikStore'
 
 type TabKey = 'living' | 'memorial' | 'info'
 
@@ -119,4 +140,33 @@ const sections = [
     icon: 'kind-icon:people',
   },
 ]
+
+const tzaddikStore = useTzaddikStore()
+
+function toGalleryItem(candidate: TzaddikCandidateWithTags): GalleryItem {
+  const image =
+    candidate.imageUrlOverride || candidate.imageFileUrl || undefined
+  const meta = [candidate.region, candidate.countryCode]
+    .filter(Boolean)
+    .join(', ')
+
+  return {
+    id: candidate.id,
+    title: candidate.displayNameOverride || candidate.displayName,
+    description: candidate.rationaleOverride || candidate.rationale,
+    card: image,
+    icon: image,
+    meta: meta || undefined,
+    placeholderIcon: 'kind-icon:stars',
+    placeholderLabel: candidate.displayName,
+  }
+}
+
+const livingItems = computed(() => tzaddikStore.living.map(toGalleryItem))
+const memorialItems = computed(() => tzaddikStore.memorial.map(toGalleryItem))
+
+onMounted(() => {
+  tzaddikStore.fetchLiving()
+  tzaddikStore.fetchMemorial()
+})
 </script>

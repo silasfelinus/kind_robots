@@ -46,22 +46,51 @@
           </p>
         </div>
 
+        <div
+          v-if="activeTab === 'living' || activeTab === 'memorial'"
+          class="flex flex-wrap items-center gap-1.5"
+        >
+          <button
+            v-for="tag in TZADDIK_TAG_ORDER"
+            :key="tag"
+            type="button"
+            class="kr-badge-xs cursor-pointer"
+            :class="
+              selectedTags.has(tag)
+                ? 'badge-primary'
+                : 'badge-ghost border border-base-300'
+            "
+            :aria-pressed="selectedTags.has(tag)"
+            @click="toggleTag(tag)"
+          >
+            {{ tzaddikTagLabel(tag) }}
+          </button>
+          <button
+            v-if="selectedTags.size"
+            type="button"
+            class="kr-badge-xs badge-ghost border border-base-300 text-base-content/60"
+            @click="selectedTags.clear()"
+          >
+            Clear filters
+          </button>
+        </div>
+
         <kr-gallery
           v-if="activeTab === 'living'"
-          :items="livingItems"
+          :items="filteredLivingItems"
           :loading="tzaddikStore.isLoadingLiving"
           :error="tzaddikStore.livingError"
-          empty-label="living Tzaddik yet — the sourced roster is still being built"
+          empty-label="living Tzaddik matching the selected tags"
           :modes="[]"
           @open="openDetail"
         />
 
         <kr-gallery
           v-else-if="activeTab === 'memorial'"
-          :items="memorialItems"
+          :items="filteredMemorialItems"
           :loading="tzaddikStore.isLoadingMemorial"
           :error="tzaddikStore.memorialError"
-          empty-label="memorial honorees yet — the historical archive is still being built"
+          empty-label="memorial honorees matching the selected tags"
           :modes="[]"
           @open="openDetail"
         />
@@ -95,10 +124,12 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, reactive, ref } from 'vue'
 import type { GalleryItem } from '@/components/gallery/kr-gallery.vue'
 import { useTzaddikStore } from '@/stores/tzaddikStore'
 import type { TzaddikCandidateWithTags } from '@/stores/tzaddikStore'
+import type { TzaddikEditorialTag } from '~/prisma/generated/prisma/client'
+import { TZADDIK_TAG_ORDER, tzaddikTagLabel } from '@/utils/tzaddikTags'
 
 type TabKey = 'living' | 'memorial' | 'info'
 
@@ -165,13 +196,36 @@ function toGalleryItem(candidate: TzaddikCandidateWithTags): GalleryItem {
     card: image,
     icon: image,
     meta: meta || undefined,
+    badges: candidate.Tags.map((entry) => ({
+      label: tzaddikTagLabel(entry.tag),
+    })),
     placeholderIcon: 'kind-icon:stars',
     placeholderLabel: candidate.displayName,
   }
 }
 
-const livingItems = computed(() => tzaddikStore.living.map(toGalleryItem))
-const memorialItems = computed(() => tzaddikStore.memorial.map(toGalleryItem))
+const selectedTags = reactive(new Set<TzaddikEditorialTag>())
+
+function toggleTag(tag: TzaddikEditorialTag): void {
+  if (selectedTags.has(tag)) {
+    selectedTags.delete(tag)
+  } else {
+    selectedTags.add(tag)
+  }
+}
+
+function matchesSelectedTags(candidate: TzaddikCandidateWithTags): boolean {
+  if (!selectedTags.size) return true
+  const candidateTags = new Set(candidate.Tags.map((entry) => entry.tag))
+  return [...selectedTags].every((tag) => candidateTags.has(tag))
+}
+
+const filteredLivingItems = computed(() =>
+  tzaddikStore.living.filter(matchesSelectedTags).map(toGalleryItem),
+)
+const filteredMemorialItems = computed(() =>
+  tzaddikStore.memorial.filter(matchesSelectedTags).map(toGalleryItem),
+)
 
 const openCandidateId = ref<number | null>(null)
 

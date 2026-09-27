@@ -83,6 +83,16 @@
                 </span>
               </div>
 
+              <div v-if="tagLabels.length" class="flex flex-wrap gap-1.5">
+                <span
+                  v-for="label in tagLabels"
+                  :key="label"
+                  class="kr-badge-xs badge-ghost border border-base-300"
+                >
+                  {{ label }}
+                </span>
+              </div>
+
               <p class="kr-prose whitespace-pre-line text-sm leading-relaxed">
                 {{ biography }}
               </p>
@@ -183,6 +193,7 @@
 import { computed, onMounted, ref, watch } from 'vue'
 import { useTzaddikStore } from '@/stores/tzaddikStore'
 import { defaultArtFor } from '@/utils/defaultArtPool'
+import { sortedTzaddikTags, tzaddikTagLabel } from '@/utils/tzaddikTags'
 
 const props = defineProps<{ candidateId: number }>()
 const emit = defineEmits<{ close: [] }>()
@@ -228,6 +239,12 @@ const STATUS_LABELS: Record<string, string> = {
 
 const statusLabel = computed(
   () => STATUS_LABELS[candidate.value?.curationState ?? ''] ?? 'Unknown',
+)
+
+const tagLabels = computed(() =>
+  sortedTzaddikTags(
+    (candidate.value?.Tags ?? []).map((entry) => entry.tag),
+  ).map(tzaddikTagLabel),
 )
 
 const statusBadgeClass = computed(() => {

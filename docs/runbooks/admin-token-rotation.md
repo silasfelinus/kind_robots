@@ -130,9 +130,9 @@ from this list, not from memory.
 
 **The authority — set this one and the token is changed:**
 
-| Where                             | Name                                  | Notes                                                                                                                                                                                       |
-| --------------------------------- | ------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Alexandria `KindRobots` container | `ADMIN_TOKEN` (or `BETA_ADMIN_TOKEN`) | Unraid DockerMan template variable, and/or the `.env` beside `docker-compose.yml` that `env_file: ${KIND_ROBOTS_ENV_FILE:-.env}` loads. Whichever path actually sets it today — check both. |
+| Where                             | Name                                  | Notes                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| --------------------------------- | ------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Alexandria `KindRobots` container | `ADMIN_TOKEN` (or `BETA_ADMIN_TOKEN`) | The Unraid DockerMan template variable. As of 2026-09-27 the running container is template-managed and does **not** load `/mnt/user/appdata/kind_robots/.env`; that file is read by host scripts such as `scripts/art-archive-ingest.sh`, so keep it in step, but editing it changes nothing on the live site. Confirm what the container actually holds with `docker exec KindRobots sh -c '[ -n "$ADMIN_TOKEN" ] && echo set \|\| echo unset'`. On 2026-09-27 neither variable was set, so the env-token path was off. |
 
 **Consumers that will 401 until updated:**
 
@@ -205,6 +205,25 @@ env — see the Vercel note in step 2.
 Then re-run one Conductor workflow by hand (`sync-kind-robots-projection.yml` is
 cheap and its first step is literally `test -n "${KR_API_TOKEN:-}"`) to confirm
 the Actions secret took.
+
+## One value, two credentials
+
+Before the 2026-09-27 rotation, the same string was both user 1's `apiKey`
+and `ADMIN_TOKEN`. `getOptionalApiUser` checks user API keys **before** the
+env token, so `meta.describe` reports `user-api-key` even when the value is
+also the env token. Rewriting the `apiKey` then leaves the old value working
+through the env path. Always re-run the old-token check after the first fix,
+and read its `source`. Conductor's `Rotate-KrToken.ps1` does this and walks
+you through the second fix.
+
+A 200 in the first few seconds after an `apiKey` write can also be read lag
+behind the database proxy. Re-check after a minute before concluding that
+something else still honours the old value.
+
+`deriveMediaSigningKey` falls back to `ADMIN_TOKEN` for the archive-media
+signing key. With `ADMIN_TOKEN` unset and no `ARCHIVE_MEDIA_SECRET`, the key
+is random per process, so every container restart breaks existing signed
+links. Set `ARCHIVE_MEDIA_SECRET` in the template to decouple it.
 
 ## 5. After a leak specifically
 

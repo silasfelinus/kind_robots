@@ -393,13 +393,13 @@ const currentCandidateIndex = computed(() =>
 
 const previousCandidateId = computed(() => {
   const index = currentCandidateIndex.value
-  return index > 0 ? props.candidateIds[index - 1] : null
+  return index > 0 ? (props.candidateIds[index - 1] ?? null) : null
 })
 
 const nextCandidateId = computed(() => {
   const index = currentCandidateIndex.value
   return index >= 0 && index < props.candidateIds.length - 1
-    ? props.candidateIds[index + 1]
+    ? (props.candidateIds[index + 1] ?? null)
     : null
 })
 

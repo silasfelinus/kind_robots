@@ -309,10 +309,14 @@ async function getContentOwnerId(
     return candidate?.submittedByUserId ?? null
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const modelMap: Record<
     string,
-    { findUnique: (args: any) => Promise<unknown> }
+    {
+      findUnique: (args: {
+        where: { id: number }
+        select: { userId: true }
+      }) => Promise<unknown>
+    }
   > = {
     artImageId: prisma.artImage,
     artCollectionId: prisma.artCollection,

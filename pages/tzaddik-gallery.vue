@@ -126,6 +126,36 @@
                 </div>
               </div>
 
+              <div v-if="activeTab === 'review'" class="space-y-2">
+                <p class="kr-text-bold-xs">Queue</p>
+                <div class="flex gap-1.5">
+                  <button
+                    type="button"
+                    class="btn btn-xs flex-1 rounded-lg border-0"
+                    :class="
+                      reviewCurationState === 'PENDING'
+                        ? 'btn-primary'
+                        : 'btn-ghost bg-base-200/60'
+                    "
+                    @click="setReviewCurationState('PENDING')"
+                  >
+                    Pending
+                  </button>
+                  <button
+                    type="button"
+                    class="btn btn-xs flex-1 rounded-lg border-0"
+                    :class="
+                      reviewCurationState === 'ARCHIVED'
+                        ? 'btn-primary'
+                        : 'btn-ghost bg-base-200/60'
+                    "
+                    @click="setReviewCurationState('ARCHIVED')"
+                  >
+                    Archived
+                  </button>
+                </div>
+              </div>
+
               <div class="space-y-2">
                 <div class="flex items-center justify-between gap-2">
                   <p class="kr-text-bold-xs">Browse by contribution</p>
@@ -343,7 +373,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, reactive, ref } from 'vue'
+import { computed, onMounted, reactive, ref, watch } from 'vue'
 import type { GalleryItem } from '@/components/gallery/kr-gallery.vue'
 import { useTzaddikStore } from '@/stores/tzaddikStore'
 import type { TzaddikCandidateWithTags } from '@/stores/tzaddikStore'
@@ -351,33 +381,55 @@ import { useUserStore } from '@/stores/userStore'
 import type { TzaddikEditorialTag } from '~/prisma/generated/prisma/client'
 import { TZADDIK_TAG_ORDER, tzaddikTagLabel } from '@/utils/tzaddikTags'
 
-type TabKey = 'living' | 'memorial' | 'info'
+type TabKey = 'living' | 'memorial' | 'review' | 'info'
 
-const tabs: { key: TabKey; label: string; icon: string; body: string }[] = [
-  {
-    key: 'living',
-    label: 'Living',
-    icon: 'kind-icon:stars',
-    body: 'Living profiles under consideration for the playful current 36. Community reactions help discovery, but they do not decide membership.',
-  },
-  {
-    key: 'memorial',
-    label: 'Memorial',
-    icon: 'kind-icon:heart',
-    body: 'A sourced archive for people whose work, courage, care, or public service still belongs in the story after their deaths.',
-  },
-  {
-    key: 'info',
-    label: 'Info',
-    icon: 'kind-icon:mask',
-    body: 'Tzaddik Gallery borrows the folklore idea of 36 righteous or “just” people who quietly sustain the world, then turns it into a playful, sourced pop-culture gallery. It is not a religious classification, and inclusion does not require or imply Jewish or Hasidic identity.',
-  },
-]
+const BASE_TABS: { key: TabKey; label: string; icon: string; body: string }[] =
+  [
+    {
+      key: 'living',
+      label: 'Living',
+      icon: 'kind-icon:stars',
+      body: 'Living profiles under consideration for the playful current 36. Community reactions help discovery, but they do not decide membership.',
+    },
+    {
+      key: 'memorial',
+      label: 'Memorial',
+      icon: 'kind-icon:heart',
+      body: 'A sourced archive for people whose work, courage, care, or public service still belongs in the story after their deaths.',
+    },
+    {
+      key: 'info',
+      label: 'Info',
+      icon: 'kind-icon:mask',
+      body: 'Tzaddik Gallery borrows the folklore idea of 36 righteous or “just” people who quietly sustain the world, then turns it into a playful, sourced pop-culture gallery. It is not a religious classification, and inclusion does not require or imply Jewish or Hasidic identity.',
+    },
+  ]
+
+const REVIEW_TAB = {
+  key: 'review' as const,
+  label: 'Review queue',
+  icon: 'kind-icon:flag',
+  body: 'Admin-only: submissions awaiting approval, and archived entries that can be restored. Nothing here is visible on the public Living/Memorial rosters yet.',
+}
+
+// Admin-only tab, inserted right before Info -- the review queue is where an
+// unapproved (PENDING) or retired (ARCHIVED) candidate is discoverable at
+// all (tzaddik-gallery/t-008); a non-admin never sees the tab.
+const tabs = computed(() => {
+  if (!userStore.isAdmin) return BASE_TABS
+  const infoIndex = BASE_TABS.findIndex((tab) => tab.key === 'info')
+  return [
+    ...BASE_TABS.slice(0, infoIndex),
+    REVIEW_TAB,
+    ...BASE_TABS.slice(infoIndex),
+  ]
+})
 
 const activeTab = ref<TabKey>('living')
 const activeTabBody = computed(
-  () => tabs.find((tab) => tab.key === activeTab.value)?.body ?? '',
+  () => tabs.value.find((tab) => tab.key === activeTab.value)?.body ?? '',
 )
+const reviewCurationState = ref<'PENDING' | 'ARCHIVED'>('PENDING')
 
 const sections = [
   {
@@ -406,12 +458,18 @@ const showSubmitForm = ref(false)
 const openCandidateId = ref<number | null>(null)
 const selectedTags = reactive(new Set<TzaddikEditorialTag>())
 
+const REVIEW_STATE_LABELS: Record<string, string> = {
+  PENDING: 'Pending',
+  ARCHIVED: 'Archived',
+}
+
 function toGalleryItem(candidate: TzaddikCandidateWithTags): GalleryItem {
   const image =
     candidate.imageUrlOverride || candidate.imageFileUrl || undefined
   const meta = [candidate.region, candidate.countryCode]
     .filter(Boolean)
     .join(', ')
+  const stateLabel = REVIEW_STATE_LABELS[candidate.curationState]
 
   return {
     id: candidate.id,
@@ -420,9 +478,10 @@ function toGalleryItem(candidate: TzaddikCandidateWithTags): GalleryItem {
     card: image,
     icon: image,
     meta: meta || undefined,
-    badges: candidate.Tags.map((entry) => ({
-      label: tzaddikTagLabel(entry.tag),
-    })),
+    badges: [
+      ...(stateLabel ? [{ label: stateLabel }] : []),
+      ...candidate.Tags.map((entry) => ({ label: tzaddikTagLabel(entry.tag) })),
+    ],
     placeholderIcon: 'kind-icon:stars',
     placeholderLabel: candidate.displayName,
   }
@@ -452,7 +511,9 @@ const activeCandidates = computed(() => {
       ? tzaddikStore.living
       : activeTab.value === 'memorial'
         ? tzaddikStore.memorial
-        : []
+        : activeTab.value === 'review'
+          ? tzaddikStore.moderationQueue
+          : []
 
   return source.filter(matchesSelectedTags)
 })
@@ -470,7 +531,9 @@ const activeLoading = computed(() =>
     ? tzaddikStore.isLoadingLiving
     : activeTab.value === 'memorial'
       ? tzaddikStore.isLoadingMemorial
-      : false,
+      : activeTab.value === 'review'
+        ? tzaddikStore.isLoadingModerationQueue
+        : false,
 )
 
 const activeError = computed(() =>
@@ -478,22 +541,46 @@ const activeError = computed(() =>
     ? tzaddikStore.livingError
     : activeTab.value === 'memorial'
       ? tzaddikStore.memorialError
-      : '',
+      : activeTab.value === 'review'
+        ? tzaddikStore.moderationQueueError
+        : '',
 )
 
-const activeRosterTitle = computed(() =>
-  activeTab.value === 'memorial' ? 'Memorial archive' : 'Living gallery',
-)
+const activeRosterTitle = computed(() => {
+  if (activeTab.value === 'memorial') return 'Memorial archive'
+  if (activeTab.value === 'review') return 'Review queue'
+  return 'Living gallery'
+})
 
-const activeRosterEyebrow = computed(() =>
-  activeTab.value === 'memorial' ? 'Past Tzaddik' : 'The current 36',
-)
+const activeRosterEyebrow = computed(() => {
+  if (activeTab.value === 'memorial') return 'Past Tzaddik'
+  if (activeTab.value === 'review') {
+    return REVIEW_STATE_LABELS[reviewCurationState.value]
+  }
+  return 'The current 36'
+})
 
-const activeEmptyLabel = computed(() =>
-  activeTab.value === 'memorial'
-    ? 'memorial profiles matching these filters'
-    : 'living profiles matching these filters',
-)
+const activeEmptyLabel = computed(() => {
+  if (activeTab.value === 'memorial')
+    return 'memorial profiles matching these filters'
+  if (activeTab.value === 'review') {
+    return reviewCurationState.value === 'ARCHIVED'
+      ? 'archived candidates'
+      : 'candidates awaiting review'
+  }
+  return 'living profiles matching these filters'
+})
+
+function setReviewCurationState(state: 'PENDING' | 'ARCHIVED'): void {
+  reviewCurationState.value = state
+  tzaddikStore.fetchModerationQueue(state, true)
+}
+
+watch(activeTab, (tab) => {
+  if (tab === 'review') {
+    tzaddikStore.fetchModerationQueue(reviewCurationState.value)
+  }
+})
 
 function openDetail(item: GalleryItem): void {
   openCandidateId.value = Number(item.id)

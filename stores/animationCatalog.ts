@@ -612,6 +612,18 @@ export const ANIMATION_EFFECTS = [
     generationSafe: true,
     preferredSurface: 'fullscreen',
   },
+  {
+    id: 'soap-film-membrane',
+    label: 'Soap-Film Membrane',
+    reveal: 'A rainbow film stretches taut, then tears clean across',
+    icon: 'kind-icon:bubbles',
+    tooltip:
+      'A soap film shimmers with drifting rainbow color as it slowly thins, then tears open in an instant and reseeds fresh 🫧 hover to thin it with a fingertip, click to pop it now',
+    color: '#8fd6e8',
+    releasedAt: '2026-09-27T07:40:00Z',
+    generationSafe: true,
+    preferredSurface: 'fullscreen',
+  },
 ] as const satisfies readonly AnimationEffectDefinition[]
 
 export type AnimationEffectId = (typeof ANIMATION_EFFECTS)[number]['id']

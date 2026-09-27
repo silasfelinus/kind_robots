@@ -1,5 +1,5 @@
 // /utils/tzaddikTags.ts
-import { TzaddikEditorialTag } from '~/prisma/generated/prisma/client'
+import { TzaddikEditorialTag } from '~/prisma/generated/prisma/browser'
 
 export const TZADDIK_TAG_ORDER: TzaddikEditorialTag[] = [
   TzaddikEditorialTag.POLITICS,

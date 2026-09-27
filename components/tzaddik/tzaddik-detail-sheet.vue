@@ -67,10 +67,7 @@
             <span class="sr-only">Loading…</span>
           </div>
 
-          <div
-            v-else-if="errorMessage"
-            class="m-4 kr-note kr-note-warning"
-          >
+          <div v-else-if="errorMessage" class="m-4 kr-note kr-note-warning">
             {{ errorMessage }}
           </div>
 
@@ -141,15 +138,15 @@
               </div>
             </section>
 
-            <section
-              class="tzaddik-detail-content min-h-0"
-            >
+            <section class="tzaddik-detail-content min-h-0">
               <article
                 class="space-y-4 p-4 sm:p-5 lg:min-h-0 lg:overflow-y-auto"
               >
                 <section v-if="biography" class="space-y-1.5">
                   <p class="kr-text-eyebrow text-primary">Biography</p>
-                  <p class="kr-prose whitespace-pre-line text-sm leading-relaxed">
+                  <p
+                    class="kr-prose whitespace-pre-line text-sm leading-relaxed"
+                  >
                     {{ biography }}
                   </p>
                 </section>
@@ -211,8 +208,8 @@
                     {{ objections }}
                   </p>
                   <p v-else class="mt-2 text-sm italic text-base-content/50">
-                    No substantial documented objection is currently attached to this
-                    profile.
+                    No substantial documented objection is currently attached to
+                    this profile.
                   </p>
                 </section>
               </article>
@@ -264,7 +261,11 @@
                       @click="submitRecheck"
                     >
                       <span v-if="recheckBusy" class="kr-spinner-xs" />
-                      <Icon v-else name="kind-icon:refresh" class="kr-icon-3-5" />
+                      <Icon
+                        v-else
+                        name="kind-icon:refresh"
+                        class="kr-icon-3-5"
+                      />
                       Recheck
                     </button>
                   </div>
@@ -276,7 +277,8 @@
                   <div class="mb-2 shrink-0">
                     <p class="kr-text-bold-xs">Community discussion</p>
                     <p class="kr-text-dim-xs-55">
-                      Reviews and comments stay separate from the sourced profile.
+                      Reviews and comments stay separate from the sourced
+                      profile.
                     </p>
                   </div>
                   <div class="min-h-0 flex-1 lg:overflow-y-auto lg:pr-1">

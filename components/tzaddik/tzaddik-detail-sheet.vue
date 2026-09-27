@@ -238,6 +238,160 @@
                   </div>
                 </div>
 
+                <section
+                  v-if="userStore.isAdmin"
+                  class="space-y-2 rounded-2xl border border-primary/25 bg-primary/5 p-3"
+                >
+                  <div class="flex items-center justify-between gap-2">
+                    <p class="kr-text-eyebrow text-primary">Admin</p>
+                    <button
+                      type="button"
+                      class="btn btn-ghost btn-xs rounded-lg"
+                      @click="showOverrideForm = !showOverrideForm"
+                    >
+                      {{
+                        showOverrideForm ? 'Hide overrides' : 'Edit overrides'
+                      }}
+                    </button>
+                  </div>
+
+                  <div class="flex flex-wrap gap-1.5">
+                    <button
+                      v-if="candidate.curationState !== 'APPROVED'"
+                      type="button"
+                      class="btn btn-success btn-xs gap-1 rounded-lg text-success-content"
+                      :disabled="moderationBusy"
+                      @click="approve"
+                    >
+                      <Icon name="kind-icon:check" class="kr-icon-3-5" />
+                      Approve
+                    </button>
+                    <button
+                      v-if="candidate.curationState !== 'ARCHIVED'"
+                      type="button"
+                      class="btn btn-ghost btn-xs gap-1 rounded-lg border border-base-300"
+                      :disabled="moderationBusy"
+                      @click="archive"
+                    >
+                      <Icon name="kind-icon:archive" class="kr-icon-3-5" />
+                      Archive
+                    </button>
+                    <span v-if="moderationBusy" class="kr-spinner-xs" />
+                  </div>
+
+                  <p
+                    v-if="candidate.overrideUpdatedAt"
+                    class="kr-text-dim-xs-55"
+                  >
+                    Overrides last edited {{ overrideUpdatedLabel }}
+                    <template v-if="candidate.overrideNote">
+                      — {{ candidate.overrideNote }}
+                    </template>
+                  </p>
+
+                  <form
+                    v-if="showOverrideForm"
+                    class="space-y-2 border-t border-primary/15 pt-2"
+                    @submit.prevent="saveOverrides"
+                  >
+                    <label class="form-control">
+                      <span class="kr-label-bold text-xs"
+                        >Display name override</span
+                      >
+                      <input
+                        v-model="overrideDraft.displayNameOverride"
+                        type="text"
+                        class="input input-bordered input-xs bg-base-100"
+                        :placeholder="candidate.displayName"
+                      />
+                    </label>
+                    <label class="form-control">
+                      <span class="kr-label-bold text-xs"
+                        >Biography override</span
+                      >
+                      <textarea
+                        v-model="overrideDraft.biographyOverride"
+                        rows="2"
+                        class="textarea textarea-bordered textarea-xs bg-base-100"
+                        :placeholder="
+                          candidate.biography || '(no sourced biography)'
+                        "
+                      />
+                    </label>
+                    <label class="form-control">
+                      <span class="kr-label-bold text-xs"
+                        >Rationale override</span
+                      >
+                      <textarea
+                        v-model="overrideDraft.rationaleOverride"
+                        rows="2"
+                        class="textarea textarea-bordered textarea-xs bg-base-100"
+                        :placeholder="candidate.rationale"
+                      />
+                    </label>
+                    <label class="form-control">
+                      <span class="kr-label-bold text-xs"
+                        >Objections override</span
+                      >
+                      <textarea
+                        v-model="overrideDraft.objectionsOverride"
+                        rows="2"
+                        class="textarea textarea-bordered textarea-xs bg-base-100"
+                        :placeholder="
+                          candidate.objections || '(no documented objections)'
+                        "
+                      />
+                    </label>
+                    <label class="form-control">
+                      <span class="kr-label-bold text-xs"
+                        >Image URL override</span
+                      >
+                      <input
+                        v-model="overrideDraft.imageUrlOverride"
+                        type="text"
+                        class="input input-bordered input-xs bg-base-100"
+                        :placeholder="
+                          candidate.imageFileUrl || '(no sourced image)'
+                        "
+                      />
+                    </label>
+                    <label class="form-control">
+                      <span class="kr-label-bold text-xs"
+                        >Reason (overrideNote)</span
+                      >
+                      <input
+                        v-model="overrideDraft.overrideNote"
+                        type="text"
+                        class="input input-bordered input-xs bg-base-100"
+                        placeholder="Why this override was made"
+                      />
+                    </label>
+                    <p class="kr-text-dim-xs-55">
+                      Leave a field blank to clear that override and fall back
+                      to the sourced value shown as its placeholder above.
+                      Sourced values are never edited by this form.
+                    </p>
+                    <div class="flex justify-end gap-1.5">
+                      <button
+                        type="button"
+                        class="btn btn-ghost btn-xs rounded-lg"
+                        :disabled="moderationBusy"
+                        @click="resetOverrideDraft"
+                      >
+                        Reset
+                      </button>
+                      <button
+                        type="submit"
+                        class="btn btn-primary btn-xs rounded-lg"
+                        :disabled="moderationBusy"
+                      >
+                        <span v-if="moderationBusy" class="kr-spinner-xs" />
+                        Save overrides
+                      </button>
+                    </div>
+                  </form>
+                </section>
+
                 <reaction-card
                   :target-id="candidate.id"
                   target-type="tzaddikCandidate"
@@ -299,8 +453,10 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, onMounted, reactive, ref, watch } from 'vue'
 import { useTzaddikStore } from '@/stores/tzaddikStore'
+import type { TzaddikOverridePayload } from '@/stores/tzaddikStore'
+import { useUserStore } from '@/stores/userStore'
 import { defaultArtFor } from '@/utils/defaultArtPool'
 import { sortedTzaddikTags, tzaddikTagLabel } from '@/utils/tzaddikTags'
 
@@ -322,6 +478,7 @@ const emit = defineEmits<{
 }>()
 
 const store = useTzaddikStore()
+const userStore = useUserStore()
 const pending = ref(true)
 const errorMessage = ref('')
 
@@ -451,6 +608,64 @@ async function submitRecheck(): Promise<void> {
   if (!canRequestRecheck.value) return
   await store.requestRecheck(props.candidateId)
 }
+
+const moderationBusy = computed(() => store.isModerating)
+
+async function approve(): Promise<void> {
+  await store.approveCandidate(props.candidateId)
+}
+
+async function archive(): Promise<void> {
+  await store.archiveCandidate(props.candidateId)
+}
+
+const overrideUpdatedLabel = computed(() =>
+  formatDate(candidate.value?.overrideUpdatedAt),
+)
+
+const showOverrideForm = ref(false)
+
+function blankOverrideDraft(): TzaddikOverridePayload {
+  const current = candidate.value
+  return {
+    displayNameOverride: current?.displayNameOverride ?? '',
+    biographyOverride: current?.biographyOverride ?? '',
+    rationaleOverride: current?.rationaleOverride ?? '',
+    objectionsOverride: current?.objectionsOverride ?? '',
+    imageUrlOverride: current?.imageUrlOverride ?? '',
+    overrideNote: '',
+  }
+}
+
+const overrideDraft = reactive<TzaddikOverridePayload>(blankOverrideDraft())
+
+function resetOverrideDraft(): void {
+  Object.assign(overrideDraft, blankOverrideDraft())
+}
+
+// A blank draft field means "clear this override," matching the
+// route/store's null-clears convention -- '' is normalized to null here so
+// the request body always carries an explicit value per field rather than
+// omitting it (omitting would mean "leave alone," which this form never
+// wants: every field it renders is always meant to reflect what's typed).
+async function saveOverrides(): Promise<void> {
+  const payload: TzaddikOverridePayload = {
+    displayNameOverride: overrideDraft.displayNameOverride?.trim() || null,
+    biographyOverride: overrideDraft.biographyOverride?.trim() || null,
+    rationaleOverride: overrideDraft.rationaleOverride?.trim() || null,
+    objectionsOverride: overrideDraft.objectionsOverride?.trim() || null,
+    imageUrlOverride: overrideDraft.imageUrlOverride?.trim() || null,
+    overrideNote: overrideDraft.overrideNote?.trim() || null,
+  }
+  const result = await store.overrideCandidate(props.candidateId, payload)
+  if (result) {
+    showOverrideForm.value = false
+  }
+}
+
+watch(candidate, (value) => {
+  if (value) resetOverrideDraft()
+})
 
 async function load(): Promise<void> {
   pending.value = true

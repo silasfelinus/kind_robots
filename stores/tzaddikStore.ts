@@ -8,6 +8,17 @@ import type {
 } from '~/prisma/generated/prisma/client'
 import { performFetch, handleError } from './utils'
 
+export type TzaddikModerationCurationState = 'PENDING' | 'ARCHIVED'
+
+export type TzaddikOverridePayload = {
+  displayNameOverride?: string | null
+  biographyOverride?: string | null
+  rationaleOverride?: string | null
+  objectionsOverride?: string | null
+  imageUrlOverride?: string | null
+  overrideNote?: string | null
+}
+
 export type TzaddikCandidateWithTags = TzaddikCandidate & {
   Tags: TzaddikCandidateTag[]
 }
@@ -31,6 +42,15 @@ export const useTzaddikStore = defineStore('tzaddikStore', () => {
   const isRequestingRecheck = ref(false)
   const isSubmittingCandidate = ref(false)
   const submitError = ref('')
+
+  // Admin moderation queue (tzaddik-gallery/t-008): PENDING submissions
+  // awaiting a decision, and ARCHIVED entries an admin might restore. Kept
+  // separate from living/memorial (which only ever hold APPROVED rows) so an
+  // admin browsing the review queue never mixes with the public roster.
+  const moderationQueue = ref<TzaddikCandidateWithTags[]>([])
+  const isLoadingModerationQueue = ref(false)
+  const moderationQueueError = ref('')
+  const isModerating = ref(false)
 
   async function fetchLiving(
     force = false,
@@ -184,6 +204,133 @@ export const useTzaddikStore = defineStore('tzaddikStore', () => {
     }
   }
 
+  async function fetchModerationQueue(
+    curationState: TzaddikModerationCurationState,
+    force = false,
+  ): Promise<TzaddikCandidateWithTags[]> {
+    isLoadingModerationQueue.value = true
+    moderationQueueError.value = ''
+
+    try {
+      const res = await performFetch<TzaddikCandidateWithTags[]>(
+        `/api/tzaddik?curationState=${curationState}`,
+      )
+
+      if (!res.success || !Array.isArray(res.data)) {
+        throw new Error(res.message || 'Invalid response')
+      }
+
+      moderationQueue.value = res.data
+      return moderationQueue.value
+    } catch (caughtError) {
+      moderationQueueError.value = 'Failed to load the review queue.'
+      handleError(caughtError, 'fetching the Tzaddik moderation queue')
+      return force ? [] : moderationQueue.value
+    } finally {
+      isLoadingModerationQueue.value = false
+    }
+  }
+
+  /** Refreshes every cache a moderation action could have touched: the
+   * detail (curationState/overrides changed), the moderation queue (the row
+   * likely left it), and living/memorial (an approve/archive can add or
+   * remove a row from the public roster). */
+  async function refreshAfterModeration(candidateId: number): Promise<void> {
+    await Promise.all([
+      fetchOne(candidateId, true),
+      fetchLiving(true),
+      fetchMemorial(true),
+    ])
+  }
+
+  async function approveCandidate(
+    candidateId: number,
+  ): Promise<TzaddikCandidateWithTags | null> {
+    isModerating.value = true
+
+    try {
+      const res = await performFetch<TzaddikCandidateWithTags>(
+        '/api/tzaddik/approve',
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ candidateId }),
+        },
+      )
+
+      if (!res.success || !res.data) {
+        throw new Error(res.message || 'Invalid response')
+      }
+
+      await refreshAfterModeration(candidateId)
+      return res.data
+    } catch (caughtError) {
+      handleError(caughtError, 'approving a Tzaddik candidate')
+      return null
+    } finally {
+      isModerating.value = false
+    }
+  }
+
+  async function archiveCandidate(
+    candidateId: number,
+  ): Promise<TzaddikCandidateWithTags | null> {
+    isModerating.value = true
+
+    try {
+      const res = await performFetch<TzaddikCandidateWithTags>(
+        '/api/tzaddik/archive',
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ candidateId }),
+        },
+      )
+
+      if (!res.success || !res.data) {
+        throw new Error(res.message || 'Invalid response')
+      }
+
+      await refreshAfterModeration(candidateId)
+      return res.data
+    } catch (caughtError) {
+      handleError(caughtError, 'archiving a Tzaddik candidate')
+      return null
+    } finally {
+      isModerating.value = false
+    }
+  }
+
+  async function overrideCandidate(
+    candidateId: number,
+    payload: TzaddikOverridePayload,
+  ): Promise<TzaddikCandidateWithTags | null> {
+    isModerating.value = true
+
+    try {
+      const res = await performFetch<TzaddikCandidateWithTags>(
+        '/api/tzaddik/override',
+        {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ candidateId, ...payload }),
+        },
+      )
+
+      if (!res.success || !res.data) {
+        throw new Error(res.message || 'Invalid response')
+      }
+
+      await refreshAfterModeration(candidateId)
+      return res.data
+    } catch (caughtError) {
+      handleError(caughtError, 'updating a Tzaddik candidate override')
+      return null
+    } finally {
+      isModerating.value = false
+    }
+  }
+
   return {
     living,
     memorial,
@@ -199,10 +346,18 @@ export const useTzaddikStore = defineStore('tzaddikStore', () => {
     isRequestingRecheck,
     isSubmittingCandidate,
     submitError,
+    moderationQueue,
+    isLoadingModerationQueue,
+    moderationQueueError,
+    isModerating,
     fetchLiving,
     fetchMemorial,
     fetchOne,
     requestRecheck,
     submitCandidate,
+    fetchModerationQueue,
+    approveCandidate,
+    archiveCandidate,
+    overrideCandidate,
   }
 })

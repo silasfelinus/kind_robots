@@ -7,7 +7,7 @@
       @click.self="emit('close')"
     >
       <div
-        class="modal-box flex max-h-[94dvh] w-[min(96vw,90rem)] max-w-none flex-col overflow-hidden rounded-3xl border border-primary/35 bg-base-100 p-0 shadow-2xl lg:h-[min(90dvh,52rem)]"
+        class="tzaddik-detail-shell modal-box flex max-h-[94dvh] w-[min(96vw,90rem)] max-w-none flex-col overflow-hidden rounded-3xl border border-primary/35 bg-base-100 p-0 shadow-2xl lg:h-[min(90dvh,52rem)]"
       >
         <header
           class="flex shrink-0 items-center gap-2 border-b border-base-300 bg-base-100/95 px-3 py-2.5 backdrop-blur sm:px-4"
@@ -74,7 +74,7 @@
 
           <div
             v-else-if="candidate"
-            class="flex min-h-full flex-col lg:grid lg:h-full lg:min-h-0 lg:grid-cols-[minmax(21rem,0.9fr)_minmax(0,1.1fr)]"
+            class="tzaddik-detail-layout min-h-full lg:h-full lg:min-h-0"
           >
             <section
               class="relative min-h-[26rem] overflow-hidden bg-base-300 lg:min-h-0"
@@ -130,7 +130,7 @@
             </section>
 
             <section
-              class="grid min-h-0 lg:grid-cols-[minmax(0,1fr)_19rem]"
+              class="tzaddik-detail-content min-h-0"
             >
               <article
                 class="space-y-4 p-4 sm:p-5 lg:min-h-0 lg:overflow-y-auto"
@@ -444,3 +444,30 @@ async function load(): Promise<void> {
 onMounted(load)
 watch(() => props.candidateId, load)
 </script>
+
+<style scoped>
+.tzaddik-detail-shell {
+  container-type: inline-size;
+}
+
+.tzaddik-detail-layout {
+  display: flex;
+  flex-direction: column;
+}
+
+.tzaddik-detail-content {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+}
+
+@container (min-width: 64rem) {
+  .tzaddik-detail-layout {
+    display: grid;
+    grid-template-columns: minmax(21rem, 0.9fr) minmax(0, 1.1fr);
+  }
+
+  .tzaddik-detail-content {
+    grid-template-columns: minmax(0, 1fr) 19rem;
+  }
+}
+</style>

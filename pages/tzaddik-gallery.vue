@@ -139,7 +139,8 @@
                   </button>
                 </div>
                 <p class="kr-text-dim-xs-55">
-                  Multiple tags narrow the gallery to people matching all of them.
+                  Multiple tags narrow the gallery to people matching all of
+                  them.
                 </p>
                 <div class="flex flex-wrap gap-1.5">
                   <button
@@ -165,8 +166,8 @@
               >
                 <p class="kr-text-bold-xs">Not a leaderboard</p>
                 <p class="kr-text-dim-xs-55 mt-1 leading-relaxed">
-                  Reactions help surface community interest. The canonical 36 is an
-                  editorial choice, not an automatic popularity score.
+                  Reactions help surface community interest. The canonical 36 is
+                  an editorial choice, not an automatic popularity score.
                 </p>
               </div>
             </aside>
@@ -180,7 +181,8 @@
                 <div>
                   <p class="kr-text-bold-sm">{{ activeRosterTitle }}</p>
                   <p class="kr-text-dim-xs-55">
-                    Open a portrait for sources, objections, reactions, and discussion.
+                    Open a portrait for sources, objections, reactions, and
+                    discussion.
                   </p>
                 </div>
                 <span class="kr-badge-ghost-sm">
@@ -188,9 +190,7 @@
                 </span>
               </div>
 
-              <div
-                class="pt-3 lg:min-h-0 lg:flex-1 lg:overflow-y-auto lg:pr-1"
-              >
+              <div class="pt-3 lg:min-h-0 lg:flex-1 lg:overflow-y-auto lg:pr-1">
                 <kr-gallery
                   :items="activeGalleryItems"
                   :loading="activeLoading"
@@ -218,7 +218,9 @@
               </div>
               <div class="relative space-y-4">
                 <p class="kr-text-eyebrow text-primary">The borrowed idea</p>
-                <h2 class="kr-text-black-2xl max-w-xl leading-tight sm:text-3xl">
+                <h2
+                  class="kr-text-black-2xl max-w-xl leading-tight sm:text-3xl"
+                >
                   A ridiculous little premise with serious sourcing underneath.
                 </h2>
                 <p
@@ -233,8 +235,9 @@
               >
                 <p class="kr-text-bold-sm">The important boundary</p>
                 <p class="kr-text-dim-sm-70 mt-1 leading-relaxed">
-                  This is not a Jewish religious classification. Jewish or Hasidic
-                  identity is neither required nor implied by inclusion here.
+                  This is not a Jewish religious classification. Jewish or
+                  Hasidic identity is neither required nor implied by inclusion
+                  here.
                 </p>
               </div>
             </article>
@@ -280,8 +283,8 @@
                     <p class="kr-text-bold-sm">Sources stay visible</p>
                     <p class="kr-text-dim-sm-70 mt-1 leading-relaxed">
                       Wikipedia and Wikimedia are the default factual and image
-                      provenance. Editor overrides remain explicit instead of quietly
-                      replacing the source record.
+                      provenance. Editor overrides remain explicit instead of
+                      quietly replacing the source record.
                     </p>
                   </div>
                   <div
@@ -289,9 +292,9 @@
                   >
                     <p class="kr-text-bold-sm">Objections stay visible</p>
                     <p class="kr-text-dim-sm-70 mt-1 leading-relaxed">
-                      Meaningful controversies belong beside the praise when they are
-                      documented. When there is no substantial objection, the gallery
-                      does not invent one for symmetry.
+                      Meaningful controversies belong beside the praise when
+                      they are documented. When there is no substantial
+                      objection, the gallery does not invent one for symmetry.
                     </p>
                   </div>
                   <div
@@ -299,8 +302,9 @@
                   >
                     <p class="kr-text-bold-sm">Community signal is advisory</p>
                     <p class="kr-text-dim-sm-70 mt-1 leading-relaxed">
-                      Users can nominate and react. Those signals help discovery, but
-                      they do not automatically promote anyone into the 36.
+                      Users can nominate and react. Those signals help
+                      discovery, but they do not automatically promote anyone
+                      into the 36.
                     </p>
                   </div>
                   <div
@@ -308,8 +312,9 @@
                   >
                     <p class="kr-text-bold-sm">Discovery should travel</p>
                     <p class="kr-text-dim-sm-70 mt-1 leading-relaxed">
-                      Research deliberately reaches beyond familiar US and UK names
-                      across regions, languages, disciplines, and kinds of service.
+                      Research deliberately reaches beyond familiar US and UK
+                      names across regions, languages, disciplines, and kinds of
+                      service.
                     </p>
                   </div>
                 </div>

@@ -4,6 +4,7 @@ import type { Prisma } from '~/prisma/generated/prisma/client'
 import prisma from '../../../../utils/prisma'
 import { errorHandler } from '../../../../utils/error'
 import { requireApiUser } from '../../../../utils/authGuard'
+import { artImageMutationSelect } from '../selects'
 
 type ArtCollectionConnectionBody = {
   artCollectionIds?: unknown
@@ -204,6 +205,10 @@ export default defineEventHandler(async (event) => {
     const updated = await prisma.artImage.update({
       where: { id: imageId },
       data,
+      select: {
+        ...artImageMutationSelect,
+        ArtCollections: { select: { id: true, slug: true, label: true } },
+      },
     })
 
     event.node.res.statusCode = 200

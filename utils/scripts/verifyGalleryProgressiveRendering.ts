@@ -38,6 +38,7 @@ const collectionCard = read('components/art/collection-card.vue')
 const browseStore = read('stores/artCollectionBrowseStore.ts')
 const unsortedRoute = read('server/api/art/collection/unsorted.get.ts')
 const imageCard = read('components/art/image-card.vue')
+const artInteract = read('components/art/art-interact.vue')
 const resourceCard = read('components/resources/resource-card.vue')
 const checkpointCard = read('components/servers/checkpoint-card.vue')
 const achievementCard = read(
@@ -369,6 +370,24 @@ for (const token of [
     `Daily Dream must create or repair its owned canonical ArtCollection: ${token}`,
   )
 }
+
+// Editing one image must not load every collection with every image: that
+// full-library fetch timed out after 10s and delayed saves behind it.
+for (const token of [
+  'collectionStore.fetchCollections?.()',
+  'collectionStore.fetchCollections?.(true)',
+]) {
+  forbidText(
+    artInteract,
+    token,
+    `art-interact must not fetch the full collection library: ${token}`,
+  )
+}
+requireText(
+  artInteract,
+  'includeCollections: true',
+  "art-interact must read membership from the image's own record",
+)
 
 if (failures.length) {
   for (const failure of failures) console.error(`FAIL - ${failure}`)

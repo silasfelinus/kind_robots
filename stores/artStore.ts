@@ -68,6 +68,7 @@ type ArtImageFetchOptions = {
   includeImageData?: boolean
   includeThumbnailData?: boolean
   includeDreams?: boolean
+  includeCollections?: boolean
 }
 
 interface ArtImageGenerationRoute {
@@ -865,6 +866,7 @@ export const useArtStore = defineStore('artStore', () => {
     if (options.includeImageData) params.set('includeImageData', 'true')
     if (options.includeThumbnailData) params.set('includeThumbnailData', 'true')
     if (options.includeDreams) params.set('includeDreams', 'true')
+    if (options.includeCollections) params.set('includeCollections', 'true')
     const query = params.toString()
     return query ? `?${query}` : ''
   }
@@ -878,8 +880,15 @@ export const useArtStore = defineStore('artStore', () => {
       imageData?: string | null
       thumbnailData?: string | null
       Dreams?: unknown[]
+      ArtCollections?: unknown[]
     }
     if (options.includeImageData && !withOptionalData.imageData) return false
+    if (
+      options.includeCollections &&
+      typeof withOptionalData.ArtCollections === 'undefined'
+    ) {
+      return false
+    }
     if (
       options.includeThumbnailData &&
       typeof withOptionalData.thumbnailData === 'undefined'
@@ -1073,7 +1082,13 @@ export const useArtStore = defineStore('artStore', () => {
         throw new Error(response.message || 'Failed to update art image links.')
       }
       addOrUpdateArtImages([response.data])
-      if (state.currentArtImage?.id === id) state.currentArtImage = response.data
+      if (state.currentArtImage?.id === id) {
+        state.currentArtImage = {
+          ...state.currentArtImage,
+          ...response.data,
+          imagePath: state.currentArtImage.imagePath ?? response.data.imagePath,
+        }
+      }
       return {
         success: true,
         data: response.data,

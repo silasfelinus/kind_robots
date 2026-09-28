@@ -39,6 +39,7 @@ import type { TzaddikCandidateWithTags } from '@/stores/tzaddikStore'
 import type { ArtVariant } from '@/utils/artImageSrc'
 import type { EntityCardChip } from '@/components/gallery/kr-entity-card-body.vue'
 import { sortedTzaddikTags, tzaddikTagLabel } from '@/utils/tzaddikTags'
+import { resolveTzaddikImageSrc } from '@/utils/tzaddikImage'
 
 const props = withDefaults(
   defineProps<{
@@ -80,9 +81,7 @@ const rationale = computed(
   () => props.candidate.rationaleOverride || props.candidate.rationale || '',
 )
 
-const imageSrc = computed(
-  () => props.candidate.imageUrlOverride || props.candidate.imageFileUrl || '',
-)
+const imageSrc = computed(() => resolveTzaddikImageSrc(props.candidate))
 
 const regionLabel = computed(() =>
   [props.candidate.region, props.candidate.countryCode]

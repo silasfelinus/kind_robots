@@ -5,6 +5,15 @@
       aria-hidden="true"
     >
       <div
+        class="absolute inset-0 hidden bg-cover bg-center bg-no-repeat opacity-25 dark:opacity-20 lg:block"
+        style="
+          background-image: url('/images/tzaddik-gallery/tzaddik-gallery-splash.webp');
+        "
+      />
+      <div
+        class="absolute inset-0 bg-linear-to-b from-base-100/70 via-base-100/60 to-base-100/85"
+      />
+      <div
         class="absolute -left-32 -top-32 size-[34rem] rounded-full bg-primary/10 blur-3xl"
       />
       <div

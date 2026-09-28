@@ -14,6 +14,8 @@ function source(path: string): string {
 
 const workspaceHeader = source('components/navigation/workspace-header.vue')
 const channelSelect = source('components/navigation/channel-select.vue')
+const tabSelect = source('components/navigation/tab-select.vue')
+const channelTabList = source('components/navigation/channel-tab-list.vue')
 
 assert.ok(
   workspaceHeader.includes('unified-mobile') &&
@@ -39,6 +41,17 @@ assert.ok(
     channelSelect.includes('v-for="channel in visibleChannels"') &&
     channelSelect.includes('@select="selectTab(channel, $event)"'),
   'the unified phone dropdown must render a grouped, directly selectable channel/tab list',
+)
+
+assert.ok(
+  tabSelect.includes('class="tab-select dropdown dropdown-start min-w-0"') &&
+    tabSelect.includes('w-[min(18rem,calc(100vw-1rem))]') &&
+    tabSelect.includes('xl:w-[min(22rem,calc(100vw-1rem))]'),
+  'the tablet tab menu must open beneath its trigger and stay narrower than the desktop menu',
+)
+assert.ok(
+  channelTabList.includes('sm:hidden xl:block'),
+  'tablet tab rows must hide secondary descriptions while phone and desktop keep them',
 )
 
 const contentConfig = source('content.config.ts')

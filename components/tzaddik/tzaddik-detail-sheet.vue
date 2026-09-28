@@ -616,6 +616,14 @@ async function approve(): Promise<void> {
 }
 
 async function archive(): Promise<void> {
+  if (
+    candidate.value?.curationState === 'APPROVED' &&
+    !window.confirm(
+      `Archive ${displayName.value}? This removes them from the live Living/Memorial roster immediately.`,
+    )
+  ) {
+    return
+  }
   await store.archiveCandidate(props.candidateId)
 }
 

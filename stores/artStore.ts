@@ -63,6 +63,13 @@ type ArtStoreInitializeOptions = {
   initializeCollections?: boolean
 }
 
+export type ArtImageChange = {
+  id: number
+  kind: 'updated' | 'relinked' | 'deleted'
+  image?: ArtImage
+  at: number
+}
+
 type ArtImageFetchOptions = {
   force?: boolean
   includeImageData?: boolean
@@ -436,6 +443,13 @@ export const useArtStore = defineStore('artStore', () => {
   const initializing = ref(false)
   const initializePromise = ref<Promise<void> | null>(null)
   const artImageRequestMap = ref<Record<number, Promise<ArtImage | undefined>>>({})
+  // Surfaces showing an ArtImage elsewhere (the gallery behind the art card)
+  // watch this to stay in step with edits and deletes made through the store.
+  const lastArtImageChange = ref<ArtImageChange | null>(null)
+
+  function noteArtImageChange(change: Omit<ArtImageChange, 'at'>): void {
+    lastArtImageChange.value = { ...change, at: Date.now() }
+  }
 
   function getCollectionStore() {
     return useCollectionStore()
@@ -1053,6 +1067,7 @@ export const useArtStore = defineStore('artStore', () => {
           })) ?? updated
       }
       if (state.currentArtImage?.id === id) state.currentArtImage = updated
+      noteArtImageChange({ id, kind: 'updated', image: updated })
       return { success: true, data: updated, message: response.message || 'Art image updated.' }
     } catch (error) {
       handleError(error, 'updating art image')
@@ -1089,6 +1104,7 @@ export const useArtStore = defineStore('artStore', () => {
           imagePath: state.currentArtImage.imagePath ?? response.data.imagePath,
         }
       }
+      noteArtImageChange({ id, kind: 'relinked', image: response.data })
       return {
         success: true,
         data: response.data,
@@ -1113,6 +1129,7 @@ export const useArtStore = defineStore('artStore', () => {
       state.generatedArtImages = state.generatedArtImages.filter((image) => image.id !== id)
       if (state.currentArtImage?.id === id) deselectArtImage()
       persistArtImages()
+      noteArtImageChange({ id, kind: 'deleted' })
       return true
     } catch (error) {
       handleError(error, 'deleting art image')
@@ -2365,6 +2382,7 @@ export const useArtStore = defineStore('artStore', () => {
     finalizeQueuedArtImage,
     uploadImage,
     deleteArtImage,
+    lastArtImageChange,
     addOrUpdateArtImages,
     setArtImageList,
     getArtImagesByIds,

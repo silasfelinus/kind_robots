@@ -831,7 +831,11 @@ const canLoadProtectedPreview = computed<boolean>(() => {
 
 const previewPlaceholder = computed<string>(() => {
   if (props.job.status !== 'DONE') return props.job.status
-  if (typeof props.job.artImageId !== 'number') return 'No output image'
+  if (typeof props.job.artImageId !== 'number') {
+    return props.job.payload.outputImageDeleted === true
+      ? 'Image deleted'
+      : 'No output image'
+  }
   // For anyone else this is not a gate to cross, it is simply not theirs.
   if (viewerMaySeePrivate.value) return 'Loading preview'
   // Same words either way: an admin sees that it is private and is offered the

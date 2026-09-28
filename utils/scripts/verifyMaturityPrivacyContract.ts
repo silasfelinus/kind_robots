@@ -387,6 +387,21 @@ assert.equal(
   galleryArchiveMediaUrl(42, 'medium', signedAt + 50 * 60 * 1000),
 )
 
+// The queue judges a job by its OUTPUT image's current flags, not the flags it
+// was saved with: an image re-marked mature or private must not keep its prompt
+// visible or its refused public file url as a blank frame.
+const queueListRoute = readFileSync('server/api/art/queue/index.get.ts', 'utf8')
+assert.ok(queueListRoute.includes('applyCurrentArtImageState('))
+const artJobImageState = readFileSync(
+  'server/utils/artJobImageState.ts',
+  'utf8',
+)
+assert.ok(artJobImageState.includes('isMature: image.isMature'))
+assert.ok(artJobImageState.includes('isPublic: image.isPublic'))
+assert.ok(artJobImageState.includes('outputImageDeleted: true'))
+const artJobStoreSource = readFileSync('stores/artJobStore.ts', 'utf8')
+assert.ok(artJobStoreSource.includes("state.imageSrcById[job.artImageId] = ''"))
+
 const artImageAccess = readFileSync('server/utils/artImageAccess.ts', 'utf8')
 assert.ok(
   artImageAccess.includes(

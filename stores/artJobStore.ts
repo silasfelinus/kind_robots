@@ -241,7 +241,16 @@ export const useArtJobStore = defineStore('artJobStore', () => {
     for (const job of jobs) {
       if (typeof job.artImageId !== 'number') continue
       const src = artJobPublicImageSrc(job)
-      if (!src) continue
+      if (!src) {
+        // Re-marked mature or private since it was cached: the anonymous file
+        // url is refused now, so keeping it renders a blank frame.
+        const cached = state.imageSrcById[job.artImageId]
+        if (cached?.startsWith(`/api/art/images/${job.artImageId}/file`)) {
+          state.imageSrcById[job.artImageId] = ''
+          state.imageVersionById[job.artImageId] = ''
+        }
+        continue
+      }
 
       const info = resolveArtImageSource({ imagePath: src, fileType: 'webp' })
       state.imageSrcById[job.artImageId] = src

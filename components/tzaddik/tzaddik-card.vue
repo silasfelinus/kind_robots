@@ -28,12 +28,31 @@
         :meta="metaChips"
         placeholder-icon="kind-icon:stars"
       >
-        <p
-          v-if="recheckReason"
-          class="mx-0.5 mt-2 line-clamp-2 text-xs leading-relaxed text-warning"
-        >
-          {{ recheckReason }}
-        </p>
+        <template v-if="recheckReason">
+          <p
+            class="mx-0.5 mt-2 line-clamp-2 text-xs leading-relaxed text-warning"
+          >
+            {{ recheckReason }}
+          </p>
+          <div class="mx-0.5 mt-2 flex gap-1.5">
+            <button
+              type="button"
+              class="btn btn-xs flex-1 rounded-lg"
+              :disabled="resolveBusy"
+              @click.stop="acceptRecheck"
+            >
+              Update
+            </button>
+            <button
+              type="button"
+              class="btn btn-ghost btn-xs flex-1 rounded-lg border border-base-300"
+              :disabled="resolveBusy"
+              @click.stop="dismissRecheck"
+            >
+              Keep current
+            </button>
+          </div>
+        </template>
       </kr-entity-card-body>
     </reactable-card>
   </div>
@@ -42,7 +61,10 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { resolveEntityTheme } from '@/utils/entityTheme'
-import type { TzaddikModerationQueueCandidate } from '@/stores/tzaddikStore'
+import {
+  useTzaddikStore,
+  type TzaddikModerationQueueCandidate,
+} from '@/stores/tzaddikStore'
 import type { ArtVariant } from '@/utils/artImageSrc'
 import type { EntityCardChip } from '@/components/gallery/kr-entity-card-body.vue'
 import { sortedTzaddikTags, tzaddikTagLabel } from '@/utils/tzaddikTags'
@@ -77,6 +99,8 @@ const props = withDefaults(
 const emit = defineEmits<{
   open: [id: number]
 }>()
+
+const store = useTzaddikStore()
 
 const candidateTheme = computed(() => resolveEntityTheme(props.candidate))
 
@@ -139,6 +163,18 @@ const metaChips = computed<EntityCardChip[]>(() =>
 const recheckReason = computed(() =>
   recheckReasonLabel(props.candidate.RecheckRequests?.[0]),
 )
+
+const resolveBusy = computed(() => store.isModerating)
+
+// t-030: resolve the flagged recheck right from the queue card instead of
+// requiring a click-through to the detail sheet.
+async function acceptRecheck(): Promise<void> {
+  await store.resolveRecheckReview(props.candidate.id, 'accept')
+}
+
+async function dismissRecheck(): Promise<void> {
+  await store.resolveRecheckReview(props.candidate.id, 'dismiss')
+}
 
 function selectCandidate(): void {
   emit('open', props.candidate.id)

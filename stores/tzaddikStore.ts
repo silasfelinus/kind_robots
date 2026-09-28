@@ -320,6 +320,40 @@ export const useTzaddikStore = defineStore('tzaddikStore', () => {
     }
   }
 
+  async function resolveRecheckReview(
+    candidateId: number,
+    resolution: 'accept' | 'dismiss',
+  ): Promise<TzaddikCandidateWithTags | null> {
+    isModerating.value = true
+
+    try {
+      const res = await performFetch<TzaddikCandidateWithTags>(
+        '/api/tzaddik/recheck-resolve',
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ candidateId, resolution }),
+        },
+      )
+
+      if (!res.success || !res.data) {
+        throw new Error(res.message || 'Invalid response')
+      }
+
+      await refreshAfterModeration(candidateId)
+      // The resolved request no longer carries NEEDS_REVIEW, so the queue
+      // this action is only ever invoked from should drop the candidate --
+      // moderationQueue itself isn't touched by refreshAfterModeration.
+      await fetchModerationQueue('NEEDS_REVIEW', true)
+      return res.data
+    } catch (caughtError) {
+      handleError(caughtError, 'resolving a Tzaddik recheck request')
+      return null
+    } finally {
+      isModerating.value = false
+    }
+  }
+
   async function overrideCandidate(
     candidateId: number,
     payload: TzaddikOverridePayload,
@@ -378,5 +412,6 @@ export const useTzaddikStore = defineStore('tzaddikStore', () => {
     approveCandidate,
     archiveCandidate,
     overrideCandidate,
+    resolveRecheckReview,
   }
 })

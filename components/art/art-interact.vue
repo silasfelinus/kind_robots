@@ -363,7 +363,7 @@
                 "
                 type="button"
                 :disabled="isCollectionSaving"
-                @click="isCollectionMenuOpen = !isCollectionMenuOpen"
+                @click="toggleCollectionMenu"
               >
                 <span class="min-w-0 truncate">{{
                   collectionButtonLabel
@@ -497,7 +497,10 @@ import { useUserStore } from '@/stores/userStore'
 type CollectionLike = ArtCollection & {
   artImages?: ArtImage[]
   ArtImages?: ArtImage[]
+  artImageCount?: number | null
 }
+
+type CollectionMembership = { id: number; label?: string | null }
 
 /**
  * `embedded` is the card opened in place over another surface (the ArtJob
@@ -516,6 +519,7 @@ const userStore = useUserStore()
 const isSaving = ref(false)
 const isCollectionSaving = ref(false)
 const isCollectionMenuOpen = ref(false)
+const collectionMembership = ref<CollectionMembership[]>([])
 const collectionSearch = ref('')
 const statusMessage = ref('')
 const statusTone = ref<'success' | 'error'>('success')
@@ -572,24 +576,14 @@ const visibleCollectionOptions = computed(() => {
   )
 })
 
-const imageCollectionIds = computed(() => {
-  const imageId = currentArtImage.value?.id
-  if (!imageId) return []
-  return collectionOptions.value
-    .filter((collection) => {
-      const images = [
-        ...(collection.artImages || []),
-        ...(collection.ArtImages || []),
-      ]
-      return images.some((img) => img.id === imageId)
-    })
-    .map((c) => c.id)
-})
+const imageCollectionIds = computed(() =>
+  collectionMembership.value.map((collection) => collection.id),
+)
 
 const selectedCollectionLabels = computed(() =>
-  collectionOptions.value
-    .filter((c) => imageCollectionIds.value.includes(c.id))
-    .map((c) => c.label || `Collection ${c.id}`),
+  collectionMembership.value.map(
+    (collection) => collection.label || `Collection ${collection.id}`,
+  ),
 )
 
 const selectedCollectionSummary = computed(() => {
@@ -625,14 +619,46 @@ watch(
     isCollectionMenuOpen.value = false
     statusMessage.value = ''
     deleteArmed.value = false
+    void loadCollectionMembership()
   },
   { immediate: true },
 )
 
-onMounted(async () => {
-  await collectionStore.fetchCollections?.()
+onMounted(() => {
   hydrateEditForm()
 })
+
+async function loadCollectionMembership() {
+  const imageId = currentArtImage.value?.id
+  collectionMembership.value = []
+  if (!imageId) return
+  const image = await artStore.getArtImageById(imageId, {
+    includeCollections: true,
+  })
+  if (currentArtImage.value?.id !== imageId) return
+  setCollectionMembership(image)
+}
+
+function setCollectionMembership(image: unknown) {
+  const collections = (image as { ArtCollections?: CollectionMembership[] })
+    ?.ArtCollections
+  if (Array.isArray(collections)) {
+    collectionMembership.value = collections.map(({ id, label }) => ({
+      id,
+      label,
+    }))
+  }
+}
+
+function toggleCollectionMenu() {
+  isCollectionMenuOpen.value = !isCollectionMenuOpen.value
+  if (!isCollectionMenuOpen.value) return
+  void collectionStore.fetchCollections?.(false, {
+    summary: true,
+    includeImages: false,
+    counts: false,
+  })
+}
 
 function hydrateEditForm() {
   const image = currentArtImage.value
@@ -745,10 +771,10 @@ async function setAsAvatar() {
 }
 
 function getCollectionMeta(collection: CollectionLike): string {
-  const imageCount =
-    collection.artImages?.length ?? collection.ArtImages?.length ?? 0
   const visibility = collection.isPublic ? 'Public' : 'Private'
   const mature = collection.isMature ? 'Mature' : 'Safe'
+  const imageCount = collection.artImageCount
+  if (typeof imageCount !== 'number') return `${visibility} · ${mature}`
   return `${imageCount} image${imageCount === 1 ? '' : 's'} · ${visibility} · ${mature}`
 }
 
@@ -758,16 +784,16 @@ async function toggleCollection(collectionId: number) {
   try {
     const imageId = currentArtImage.value.id
     const alreadyIn = imageCollectionIds.value.includes(collectionId)
-    if (alreadyIn) {
-      await artStore.updateArtImageConnections(imageId, {
-        disconnectArtCollectionIds: [collectionId],
-      })
-    } else {
-      await artStore.updateArtImageConnections(imageId, {
-        artCollectionIds: [collectionId],
-      })
+    const response = await artStore.updateArtImageConnections(
+      imageId,
+      alreadyIn
+        ? { disconnectArtCollectionIds: [collectionId] }
+        : { artCollectionIds: [collectionId] },
+    )
+    if (!response.success) {
+      throw new Error(response.message || 'Failed to update collection.')
     }
-    await collectionStore.fetchCollections?.(true)
+    setCollectionMembership(response.data)
     setStatus(alreadyIn ? 'Removed from collection.' : 'Added to collection.')
   } catch (error) {
     setStatus(
@@ -783,10 +809,14 @@ async function handleCreatedCollection(collection: CollectionLike) {
   if (!currentArtImage.value) return
   isCollectionSaving.value = true
   try {
-    await artStore.updateArtImageConnections(currentArtImage.value.id, {
-      artCollectionIds: [collection.id],
-    })
-    await collectionStore.fetchCollections?.(true)
+    const response = await artStore.updateArtImageConnections(
+      currentArtImage.value.id,
+      { artCollectionIds: [collection.id] },
+    )
+    if (!response.success) {
+      throw new Error(response.message || 'Failed to add image.')
+    }
+    setCollectionMembership(response.data)
     collectionSearch.value = ''
     setStatus('Collection created and image added.')
   } catch (error) {

@@ -203,7 +203,9 @@ export function commonsFileNameFromUrl(source: string): string | null {
     const commonsIndex = parts.indexOf('commons')
     if (commonsIndex < 0) return null
 
-    const fileName = parts[commonsIndex + 3]
+    const afterCommons = parts.slice(commonsIndex + 1)
+    const fileName =
+      afterCommons[0] === 'thumb' ? afterCommons[3] : afterCommons[2]
     return fileName ? decodeURIComponent(fileName) : null
   } catch {
     return null

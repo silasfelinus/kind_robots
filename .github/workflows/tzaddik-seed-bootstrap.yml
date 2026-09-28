@@ -1,0 +1,80 @@
+name: Bootstrap Tzaddik Gallery Seeds
+
+on:
+  workflow_run:
+    workflows: ['Publish Production Container']
+    types: [completed]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: tzaddik-production-seed
+  cancel-in-progress: true
+
+jobs:
+  seed:
+    name: Seed accepted Tzaddik gallery
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.workflow_run.conclusion == 'success' &&
+       github.event.workflow_run.head_branch == 'main')
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout deployed source
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+          fetch-depth: 200
+
+      - name: Set up Node
+        uses: actions/setup-node@v5
+        with:
+          node-version: '24'
+
+      - name: Wait for Alexandria deployment
+        env:
+          BASE_URL: https://kindrobots.org
+          TARGET_SHA: ${{ github.event.workflow_run.head_sha || github.sha }}
+          MAX_WAIT: '1200'
+        run: |
+          set -euo pipefail
+          echo "Waiting up to ${MAX_WAIT}s for production to serve ${TARGET_SHA} or a superseding commit..."
+          deadline=$(( $(date +%s) + MAX_WAIT ))
+          live=""
+
+          while [ "$(date +%s)" -lt "$deadline" ]; do
+            body="$(curl -sf --max-time 15 "${BASE_URL}/api/version" || true)"
+            live="$(printf '%s' "$body" | jq -r '.data.commit // empty' 2>/dev/null || true)"
+
+            if [ -n "$live" ]; then
+              if [ "$live" = "$TARGET_SHA" ]; then
+                echo "Production is serving ${live}."
+                exit 0
+              fi
+
+              if ! git cat-file -e "${live}^{commit}" 2>/dev/null; then
+                git fetch --quiet --depth=200 origin main 2>/dev/null || true
+              fi
+
+              if bash scripts/check-deploy-ancestry.sh "$TARGET_SHA" "$live" 2>/dev/null; then
+                echo "Production is serving superseding commit ${live}."
+                exit 0
+              fi
+            fi
+
+            echo "  production still serves ${live:-unknown}; retrying in 10s..."
+            sleep 10
+          done
+
+          echo "::error::Production did not deploy ${TARGET_SHA} (or a superseding commit) within ${MAX_WAIT}s; last seen ${live:-unknown}."
+          exit 1
+
+      - name: Import accepted Tzaddik seeds
+        env:
+          TZADDIK_BASE_URL: https://kindrobots.org
+          TZADDIK_ADMIN_TOKEN: ${{ secrets.CYPRESS_BETA_ADMIN_TOKEN }}
+        run: node scripts/import-tzaddik-seeds.mjs config/tzaddik-initial-seeds.json

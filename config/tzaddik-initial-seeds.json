@@ -1,0 +1,241 @@
+{
+  "version": 1,
+  "candidates": [
+    {
+      "displayName": "Cassandra Peterson (Elvira)",
+      "wikipediaUrl": "https://en.wikipedia.org/wiki/Cassandra_Peterson",
+      "rationale": "For building an enduring pop-culture persona while using that platform for charitable work, LGBTQ+ advocacy, and a notably candid public life.",
+      "suggestedBy": "silasfelinus",
+      "acceptedByUserId": 1,
+      "tags": ["POP_CULTURE", "ARTS_CULTURE"]
+    },
+    {
+      "displayName": "Greta Thunberg",
+      "wikipediaUrl": "https://en.wikipedia.org/wiki/Greta_Thunberg",
+      "rationale": "For turning a solitary school strike into a global youth climate movement centered on climate science and public accountability.",
+      "suggestedBy": "silasfelinus",
+      "acceptedByUserId": 1,
+      "tags": ["ENVIRONMENT"]
+    },
+    {
+      "displayName": "José Andrés",
+      "wikipediaUrl": "https://en.wikipedia.org/wiki/Jos%C3%A9_Andr%C3%A9s",
+      "rationale": "For building World Central Kitchen around the practical idea that people in disasters and conflicts need good food quickly, delivered through local kitchens and cooks.",
+      "suggestedBy": "llm-daily-discovery",
+      "acceptedByUserId": 1,
+      "tags": ["HUMANITARIAN", "COMMUNITY_MUTUAL_AID"]
+    },
+    {
+      "displayName": "Leymah Gbowee",
+      "wikipediaUrl": "https://en.wikipedia.org/wiki/Leymah_Gbowee",
+      "rationale": "For organizing Christian and Muslim women in a nonviolent peace movement that helped pressure Liberia toward an end to civil war.",
+      "suggestedBy": "llm-daily-discovery",
+      "acceptedByUserId": 1,
+      "tags": [
+        "PEACE_DIPLOMACY",
+        "CIVIL_RIGHTS_JUSTICE",
+        "COMMUNITY_MUTUAL_AID"
+      ]
+    },
+    {
+      "displayName": "Peter Tabichi",
+      "wikipediaUrl": "https://en.wikipedia.org/wiki/Peter_Tabichi",
+      "rationale": "For teaching science in an under-resourced Kenyan school, supporting students materially, and helping rural students reach national and international science competitions.",
+      "suggestedBy": "llm-daily-discovery",
+      "acceptedByUserId": 1,
+      "tags": ["EDUCATION", "COMMUNITY_MUTUAL_AID"]
+    },
+    {
+      "displayName": "Nemonte Nenquimo",
+      "wikipediaUrl": "https://en.wikipedia.org/wiki/Nemonte_Nenquimo",
+      "rationale": "For Indigenous-led work protecting Waorani territory, Amazon rainforest, and community self-determination in Ecuador.",
+      "suggestedBy": "llm-daily-discovery",
+      "acceptedByUserId": 1,
+      "tags": ["ENVIRONMENT", "CIVIL_RIGHTS_JUSTICE", "COMMUNITY_MUTUAL_AID"]
+    },
+    {
+      "displayName": "Shabana Basij-Rasikh",
+      "wikipediaUrl": "https://en.wikipedia.org/wiki/Shabana_Basij-Rasikh",
+      "rationale": "For building and sustaining educational access for Afghan girls, including co-founding the School of Leadership, Afghanistan.",
+      "suggestedBy": "llm-daily-discovery",
+      "acceptedByUserId": 1,
+      "tags": ["EDUCATION", "CIVIL_RIGHTS_JUSTICE"]
+    },
+    {
+      "displayName": "Kailash Satyarthi",
+      "wikipediaUrl": "https://en.wikipedia.org/wiki/Kailash_Satyarthi",
+      "rationale": "For decades of work against child labor and trafficking through rescue, rehabilitation, education, organizing, and international advocacy.",
+      "suggestedBy": "llm-daily-discovery",
+      "acceptedByUserId": 1,
+      "tags": ["CIVIL_RIGHTS_JUSTICE", "EDUCATION", "HUMANITARIAN"]
+    },
+    {
+      "displayName": "Boyan Slat",
+      "wikipediaUrl": "https://en.wikipedia.org/wiki/Boyan_Slat",
+      "rationale": "For repeatedly iterating real engineering systems aimed at removing plastic from oceans and rivers rather than leaving the idea at the prototype stage.",
+      "suggestedBy": "llm-daily-discovery",
+      "acceptedByUserId": 1,
+      "tags": ["ENVIRONMENT", "SCIENCE_MEDICINE"]
+    },
+    {
+      "displayName": "Narayanan Krishnan",
+      "wikipediaUrl": "https://en.wikipedia.org/wiki/Narayanan_Krishnan",
+      "rationale": "For leaving a conventional culinary career to build recurring food and care services for homeless and mentally ill people in Madurai.",
+      "suggestedBy": "llm-daily-discovery",
+      "acceptedByUserId": 1,
+      "tags": ["HUMANITARIAN", "COMMUNITY_MUTUAL_AID"]
+    },
+    {
+      "displayName": "Azim Khamisa",
+      "wikipediaUrl": "https://en.wikipedia.org/wiki/Azim_Khamisa",
+      "rationale": "For turning the murder of his son into long-term youth-violence prevention and restorative-justice work, including collaboration with the family of the person who killed him.",
+      "suggestedBy": "llm-daily-discovery",
+      "acceptedByUserId": 1,
+      "tags": ["PEACE_DIPLOMACY", "COMMUNITY_MUTUAL_AID"]
+    },
+    {
+      "displayName": "Maggie Doyne",
+      "wikipediaUrl": "https://en.wikipedia.org/wiki/Maggie_Doyne",
+      "rationale": "For helping build long-running educational, residential, health, and women's services in Surkhet, Nepal through BlinkNow.",
+      "suggestedBy": "llm-daily-discovery",
+      "acceptedByUserId": 1,
+      "tags": ["EDUCATION", "HUMANITARIAN", "COMMUNITY_MUTUAL_AID"]
+    },
+    {
+      "displayName": "Dolly Parton",
+      "wikipediaUrl": "https://en.wikipedia.org/wiki/Dolly_Parton",
+      "rationale": "For pairing an extraordinary cultural career with sustained philanthropy, especially childhood literacy through the Imagination Library and major support for communities in need.",
+      "suggestedBy": "silasfelinus",
+      "acceptedByUserId": 1,
+      "tags": ["POP_CULTURE", "ARTS_CULTURE", "EDUCATION", "HUMANITARIAN"]
+    },
+    {
+      "displayName": "Steve Irwin",
+      "wikipediaUrl": "https://en.wikipedia.org/wiki/Steve_Irwin",
+      "rationale": "For making wildlife conservation and public education unusually accessible to a mass audience while supporting habitat and species protection.",
+      "suggestedBy": "silasfelinus",
+      "acceptedByUserId": 1,
+      "tags": ["POP_CULTURE", "ENVIRONMENT", "EDUCATION"]
+    },
+    {
+      "displayName": "Fred Rogers",
+      "wikipediaUrl": "https://en.wikipedia.org/wiki/Fred_Rogers",
+      "rationale": "For treating children as people worthy of emotional honesty, patience, and dignity, and building decades of public television around that premise.",
+      "suggestedBy": "silasfelinus",
+      "acceptedByUserId": 1,
+      "tags": ["POP_CULTURE", "EDUCATION", "ARTS_CULTURE"]
+    },
+    {
+      "displayName": "Martin Luther King Jr.",
+      "wikipediaUrl": "https://en.wikipedia.org/wiki/Martin_Luther_King_Jr.",
+      "rationale": "For leading nonviolent campaigns against racial segregation and disenfranchisement and helping make civil-rights reform a national political imperative.",
+      "suggestedBy": "silasfelinus",
+      "acceptedByUserId": 1,
+      "tags": ["CIVIL_RIGHTS_JUSTICE", "PEACE_DIPLOMACY", "POLITICS"]
+    },
+    {
+      "displayName": "Stanislav Petrov",
+      "wikipediaUrl": "https://en.wikipedia.org/wiki/Stanislav_Petrov",
+      "rationale": "For judging a 1983 Soviet missile-warning alert as a likely false alarm instead of escalating it through the chain of command, reducing the risk of catastrophic retaliation.",
+      "suggestedBy": "silasfelinus",
+      "acceptedByUserId": 1,
+      "tags": ["COURAGE_RESCUE", "PEACE_DIPLOMACY"]
+    },
+    {
+      "displayName": "Wangarĩ Maathai",
+      "wikipediaUrl": "https://en.wikipedia.org/wiki/Wangar%C4%A9_Maathai",
+      "rationale": "For linking tree planting, women's livelihoods, environmental protection, and democratic participation through the Green Belt Movement.",
+      "suggestedBy": "llm-daily-discovery",
+      "acceptedByUserId": 1,
+      "tags": ["ENVIRONMENT", "POLITICS", "CIVIL_RIGHTS_JUSTICE"]
+    },
+    {
+      "displayName": "Abdul Sattar Edhi",
+      "wikipediaUrl": "https://en.wikipedia.org/wiki/Abdul_Sattar_Edhi",
+      "rationale": "For building a large, privately supported network of ambulances, shelters, orphanages, rehabilitation services, and other social care across Pakistan.",
+      "suggestedBy": "llm-daily-discovery",
+      "acceptedByUserId": 1,
+      "tags": ["HUMANITARIAN", "COMMUNITY_MUTUAL_AID"]
+    },
+    {
+      "displayName": "Hawa Abdi",
+      "wikipediaUrl": "https://en.wikipedia.org/wiki/Hawa_Abdi",
+      "rationale": "For providing medicine, refuge, and institution-building through decades of conflict in Somalia.",
+      "suggestedBy": "llm-daily-discovery",
+      "acceptedByUserId": 1,
+      "tags": ["SCIENCE_MEDICINE", "HUMANITARIAN", "COMMUNITY_MUTUAL_AID"]
+    },
+    {
+      "displayName": "Fazle Hasan Abed",
+      "wikipediaUrl": "https://en.wikipedia.org/wiki/Fazle_Hasan_Abed",
+      "rationale": "For founding BRAC and building large-scale systems for education, health, livelihoods, agriculture, and poverty reduction.",
+      "suggestedBy": "llm-daily-discovery",
+      "acceptedByUserId": 1,
+      "tags": ["HUMANITARIAN", "EDUCATION", "COMMUNITY_MUTUAL_AID"]
+    },
+    {
+      "displayName": "Chiune Sugihara",
+      "wikipediaUrl": "https://en.wikipedia.org/wiki/Chiune_Sugihara",
+      "rationale": "For issuing transit visas that helped thousands of Jewish refugees escape Europe during World War II despite substantial professional and personal risk.",
+      "suggestedBy": "llm-daily-discovery",
+      "acceptedByUserId": 1,
+      "tags": ["COURAGE_RESCUE", "PEACE_DIPLOMACY"]
+    },
+    {
+      "displayName": "Irena Sendler",
+      "wikipediaUrl": "https://en.wikipedia.org/wiki/Irena_Sendler",
+      "rationale": "For participating in a rescue network that smuggled Jewish children from the Warsaw Ghetto, arranged identities and shelter, and protected information about them under arrest and torture.",
+      "suggestedBy": "llm-daily-discovery",
+      "acceptedByUserId": 1,
+      "tags": ["COURAGE_RESCUE", "HUMANITARIAN"]
+    },
+    {
+      "displayName": "Janusz Korczak",
+      "wikipediaUrl": "https://en.wikipedia.org/wiki/Janusz_Korczak",
+      "rationale": "For pioneering child-centered ideas about dignity and rights, running institutions around those principles, and refusing to abandon the children in his care during the Holocaust.",
+      "suggestedBy": "llm-daily-discovery",
+      "acceptedByUserId": 1,
+      "tags": ["EDUCATION", "COURAGE_RESCUE", "CIVIL_RIGHTS_JUSTICE"]
+    },
+    {
+      "displayName": "Norman Borlaug",
+      "wikipediaUrl": "https://en.wikipedia.org/wiki/Norman_Borlaug",
+      "rationale": "For agricultural research and crop-breeding programs that substantially increased food production while also leaving a consequential debate about the costs of Green Revolution agriculture.",
+      "suggestedBy": "llm-daily-discovery",
+      "acceptedByUserId": 1,
+      "tags": ["SCIENCE_MEDICINE", "HUMANITARIAN"]
+    },
+    {
+      "displayName": "Paul Farmer",
+      "wikipediaUrl": "https://en.wikipedia.org/wiki/Paul_Farmer",
+      "rationale": "For building health systems around the principle that poor communities deserve excellent medical care and for making structural inequality a practical health-system problem.",
+      "suggestedBy": "llm-daily-discovery",
+      "acceptedByUserId": 1,
+      "tags": ["SCIENCE_MEDICINE", "HUMANITARIAN", "CIVIL_RIGHTS_JUSTICE"]
+    },
+    {
+      "displayName": "Jane Goodall",
+      "wikipediaUrl": "https://en.wikipedia.org/wiki/Jane_Goodall",
+      "rationale": "For transforming the study of chimpanzees through long-term field research and using that scientific prominence for decades of conservation and public education.",
+      "suggestedBy": "llm-daily-discovery",
+      "acceptedByUserId": 1,
+      "tags": ["SCIENCE_MEDICINE", "ENVIRONMENT", "EDUCATION"]
+    },
+    {
+      "displayName": "Nelson Mandela",
+      "wikipediaUrl": "https://en.wikipedia.org/wiki/Nelson_Mandela",
+      "rationale": "For his central role in opposing apartheid, negotiating South Africa's democratic transition, and promoting reconciliation while serving as president.",
+      "suggestedBy": "silasfelinus",
+      "acceptedByUserId": 1,
+      "tags": ["POLITICS", "CIVIL_RIGHTS_JUSTICE", "PEACE_DIPLOMACY"]
+    },
+    {
+      "displayName": "Harriet Tubman",
+      "wikipediaUrl": "https://en.wikipedia.org/wiki/Harriet_Tubman",
+      "rationale": "For escaping slavery, repeatedly returning to guide others to freedom through the Underground Railroad, serving the Union cause, and later advocating for women's suffrage.",
+      "suggestedBy": "silasfelinus",
+      "acceptedByUserId": 1,
+      "tags": ["CIVIL_RIGHTS_JUSTICE", "COURAGE_RESCUE"]
+    }
+  ]
+}

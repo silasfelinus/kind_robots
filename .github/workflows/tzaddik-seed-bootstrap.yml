@@ -2,7 +2,7 @@ name: Bootstrap Tzaddik Gallery Seeds
 
 on:
   workflow_run:
-    workflows: ["Publish Production Container"]
+    workflows: ['Publish Production Container']
     types: [completed]
   workflow_dispatch:
 

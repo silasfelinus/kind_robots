@@ -290,6 +290,51 @@
               />
             </label>
 
+            <!-- The default styles the Daily Dream renderer rolls from
+                 (config/art-style-catalog.json), offered here so a fresh work
+                 can wear any of them. Appended to the prompt at generate time,
+                 so the prompt box stays exactly what was typed. -->
+            <label class="form-control mt-2">
+              <span class="label">
+                <span class="label-text font-bold text-base-content/70">
+                  Art style
+                </span>
+              </span>
+              <select
+                v-model="artStyleId"
+                class="select select-bordered w-full rounded-2xl bg-base-200"
+                :disabled="artStore.isGenerating"
+                :title="selectedArtStyle?.prompt || ''"
+              >
+                <option value="">None — prompt only</option>
+                <option value="random">🎲 Random default style</option>
+                <optgroup label="Vibrant">
+                  <option
+                    v-for="style in vibrantArtStyles"
+                    :key="style.id"
+                    :value="style.id"
+                  >
+                    {{ style.label }}
+                  </option>
+                </optgroup>
+                <optgroup label="Moody">
+                  <option
+                    v-for="style in moodyArtStyles"
+                    :key="style.id"
+                    :value="style.id"
+                  >
+                    {{ style.label }}
+                  </option>
+                </optgroup>
+              </select>
+              <span
+                v-if="selectedArtStyle"
+                class="label-text-alt mt-1 text-base-content/55"
+              >
+                Adds: {{ selectedArtStyle.prompt }}
+              </span>
+            </label>
+
             <div class="mt-2 flex flex-wrap items-center gap-2">
               <span class="kr-text-dim-xs-55 font-bold">
                 🎲 Prompt seasoning
@@ -703,6 +748,12 @@ import {
   presetSettings,
 } from '@/utils/artGeneratorPresets'
 import { blobToDataUri } from '@/utils/artImageSource'
+import {
+  ART_STYLE_CATALOG,
+  getArtStyle,
+  randomArtStyle,
+  withArtStyle,
+} from '@/utils/artStyleCatalog'
 
 type ServerChoice = 'default' | 'any' | `server:${number}`
 
@@ -785,6 +836,11 @@ function formField<K extends keyof GenerateArtData>(
 }
 
 const negativePrompt = formField('negativePrompt', '')
+
+const artStyleId = ref<string>('')
+const vibrantArtStyles = ART_STYLE_CATALOG.filter((s) => s.mood === 'vibrant')
+const moodyArtStyles = ART_STYLE_CATALOG.filter((s) => s.mood === 'moody')
+const selectedArtStyle = computed(() => getArtStyle(artStyleId.value))
 const steps = formField('steps', 8)
 const cfg = formField('cfg', 1)
 const guidance = formField('guidance', null)
@@ -1330,8 +1386,12 @@ function buildOverrides(): GenerateOverrides {
       : null
   base.presetId = presetId.value
 
-  const basePrompt = String(
-    artStore.finalPromptString || artStore.artForm.promptString || '',
+  // "Random" rolls once per Generate press, weighted like the Daily Dream lane.
+  const style =
+    artStyleId.value === 'random' ? randomArtStyle() : selectedArtStyle.value
+  const basePrompt = withArtStyle(
+    String(artStore.finalPromptString || artStore.artForm.promptString || ''),
+    style,
   )
 
   return artFacetDraft.decorateGenerationData(

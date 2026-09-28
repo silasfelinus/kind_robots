@@ -1,0 +1,131 @@
+{
+  "version": 1,
+  "styles": [
+    {
+      "id": "adult-animated-cartoon",
+      "label": "Adult Animated Cartoon",
+      "mood": "vibrant",
+      "weight": 4,
+      "prompt": "adult animated cartoon style, crisp clean linework, bold flat cel color, vivid saturated jewel-tone palette with glowing color accents, expressive exaggerated shapes, bright appealing character design"
+    },
+    {
+      "id": "superhero-comic",
+      "label": "Four-Color Superhero Comic",
+      "mood": "vibrant",
+      "weight": 3,
+      "prompt": "bold four-color superhero-comic aesthetic, muscular ink contours, saturated cel color, halftone texture, dramatic foreshortening, crisp graphic shadows"
+    },
+    {
+      "id": "gouache-storybook",
+      "label": "Gouache Storybook",
+      "mood": "vibrant",
+      "weight": 3,
+      "prompt": "luminous gouache storybook painting, bright saturated matte pigment, simplified confident shapes, soft edge variation, layered hand-painted texture, sunlit cheerful palette"
+    },
+    {
+      "id": "goofy-storybook-cartoon",
+      "label": "Goofy Storybook Cartoon",
+      "mood": "vibrant",
+      "weight": 3,
+      "prompt": "cartoony goofy storybook illustration, soft confident hand-drawn linework, rounded generous shape language, emotionally legible faces, bold clean colour blocking, warm saturated palette, exaggerated expressive acting, hand-drawn animation cel and gouache painting"
+    },
+    {
+      "id": "neon-cel-animation",
+      "label": "Neon Cel Animation",
+      "mood": "vibrant",
+      "weight": 3,
+      "prompt": "neon cel-animation aesthetic, clean graphic linework, flat luminous color, sharp rim lighting, dynamic perspective, controlled gradients"
+    },
+    {
+      "id": "psychedelic-rainbow",
+      "label": "Psychedelic Rainbow",
+      "mood": "vibrant",
+      "weight": 3,
+      "prompt": "1960s psychedelic rainbow illustration, swirling flowing shapes, electric saturated rainbow palette, bold outlines, joyful optical color harmonies"
+    },
+    {
+      "id": "animated-feature-3d",
+      "label": "3D Animated Feature",
+      "mood": "vibrant",
+      "weight": 3,
+      "prompt": "glossy 3D animated-feature render, appealing rounded character design, soft subsurface materials, bright saturated palette, warm bounce light, playful cinematic staging"
+    },
+    {
+      "id": "anime-key-frame",
+      "label": "Anime Key Frame",
+      "mood": "vibrant",
+      "weight": 3,
+      "prompt": "vibrant anime key-frame painting, crisp character linework, luminous saturated sky gradients, painted backgrounds full of light, lively color"
+    },
+    {
+      "id": "retro-futurist",
+      "label": "Retro-Futurist Illustration",
+      "mood": "vibrant",
+      "weight": 3,
+      "prompt": "mid-century retro-futurist illustration, bold flat shapes, sunny saturated turquoise, tangerine and cream palette, clean airbrushed gradients, optimistic space-age design"
+    },
+    {
+      "id": "stop-motion-miniature",
+      "label": "Stop-Motion Miniature",
+      "mood": "vibrant",
+      "weight": 3,
+      "prompt": "tactile stop-motion miniature aesthetic, sculpted clay and felt surfaces in candy-bright colors, handmade imperfections, practical miniature lighting, shallow depth of field"
+    },
+    {
+      "id": "risograph",
+      "label": "Risograph Print",
+      "mood": "vibrant",
+      "weight": 3,
+      "prompt": "high-contrast risograph aesthetic, fluorescent pink, teal and yellow spot-color layers, coarse paper grain, slight registration offsets, bold graphic silhouettes"
+    },
+    {
+      "id": "low-poly-diorama",
+      "label": "Low-Poly Diorama",
+      "mood": "vibrant",
+      "weight": 3,
+      "prompt": "low-poly 3D diorama, faceted geometry, toy-scale materials in a bright toy-box palette, crisp ambient occlusion, clean volumetric lighting, deliberately simplified forms"
+    },
+    {
+      "id": "stained-glass",
+      "label": "Stained-Glass Mosaic",
+      "mood": "vibrant",
+      "weight": 3,
+      "prompt": "stained-glass mosaic aesthetic, strong leaded contours, jewel-tone translucent panes, fractured colored light, geometric shape language"
+    },
+    {
+      "id": "paper-cut-collage",
+      "label": "Paper-Cut Collage",
+      "mood": "vibrant",
+      "weight": 3,
+      "prompt": "layered paper-cut collage, bold saturated colored papers, visible paper fibers, simplified cut shapes, physical layer shadows, tactile depth, hand-cut irregular edges"
+    },
+    {
+      "id": "watercolor-ink",
+      "label": "Watercolor and Ink",
+      "mood": "vibrant",
+      "weight": 2,
+      "prompt": "watercolor-and-ink naturalist illustration, bright transparent washes, dry-brush texture, expressive line variation, visible paper tooth, selective fine detail"
+    },
+    {
+      "id": "cinematic-photorealism",
+      "label": "Cinematic Photorealism",
+      "mood": "moody",
+      "weight": 1,
+      "prompt": "cinematic photorealism, natural lens behavior, physically believable materials, volumetric atmosphere, restrained color grading, fine environmental detail"
+    },
+    {
+      "id": "charcoal-cosmic-horror",
+      "label": "Charcoal Cosmic Horror",
+      "mood": "moody",
+      "weight": 1,
+      "prompt": "charcoal-and-chalk cosmic-horror drawing, rough paper grain, crushed blacks, pale luminous accents, smeared edges, unsettling shifts of scale"
+    },
+    {
+      "id": "scratchboard-engraving",
+      "label": "Scratchboard Engraving",
+      "mood": "moody",
+      "weight": 1,
+      "prompt": "scratchboard engraving aesthetic, dense crosshatching and carved white lines, near-monochrome values, one restrained luminous accent, dramatic texture"
+    }
+  ]
+}

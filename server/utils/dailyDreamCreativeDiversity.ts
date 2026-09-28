@@ -1,4 +1,5 @@
 import type { DailyDreamBlueprint } from './dailyDreamFacetBlueprint'
+import { ART_STYLE_CATALOG, weightedArtStyleFor } from '../../utils/artStyleCatalog'
 
 // The legacy Facet-engine endpoint still exists beside the canonical Conductor
 // Daily Dream pipeline. Keep it from collapsing every Facet combination into the
@@ -14,18 +15,9 @@ const STORY_ENGINES = [
   'JOURNEY',
 ] as const
 
-const VISUAL_MEDIA = [
-  'bold four-color superhero-comic rendering with muscular ink contours, saturated cel color, halftone texture, and dramatic foreshortening',
-  'charcoal-and-chalk cosmic-horror drawing on rough paper, crushed blacks, pale luminous accents, smeared edges, and unsettling changes of scale',
-  'luminous gouache storybook painting with matte pigment, simplified confident shapes, layered brush texture, and soft edge variation',
-  'tactile stop-motion miniature aesthetic with sculpted clay and felt surfaces, handmade imperfections, practical miniature lighting, and shallow depth of field',
-  'high-contrast risograph aesthetic with limited spot-color layers, coarse paper grain, slight registration offsets, and bold graphic silhouettes',
-  'low-poly 3D diorama with faceted geometry, toy-scale materials, crisp ambient occlusion, clean volumetric lighting, and deliberately simplified forms',
-  'cinematic photorealism with natural lens behavior, physically believable materials, volumetric atmosphere, restrained color grading, and fine environmental detail',
-  'stained-glass mosaic aesthetic with strong leaded contours, jewel-tone translucent panes, fractured colored light, and geometric shape language',
-  'watercolor-and-ink naturalist illustration with transparent washes, dry-brush texture, expressive line variation, visible paper tooth, and selective fine detail',
-  'layered paper-cut collage with visible paper fibers, simplified cut shapes, physical layer shadows, tactile depth, and hand-cut irregular edges',
-] as const
+// The same default styles the Conductor pipeline and the art generator's Style
+// picker use, weighted toward the vibrant ones (utils/artStyleCatalog.ts).
+const VISUAL_MEDIA = ART_STYLE_CATALOG.map((style) => style.prompt)
 
 function hashSeed(input: string): number {
   let hash = 2166136261
@@ -87,11 +79,10 @@ export function diversifyDailyDreamCreativeDirection(
   const storyIndex =
     hashSeed(`${options.dateKey}:${options.userId}:story-engine`) %
     STORY_ENGINES.length
-  const visualIndex =
-    hashSeed(`${options.dateKey}:${options.userId}:visual-medium`) %
-    VISUAL_MEDIA.length
   const engine = STORY_ENGINES[storyIndex]!
-  const medium = VISUAL_MEDIA[visualIndex]!
+  const medium = weightedArtStyleFor(
+    hashSeed(`${options.dateKey}:${options.userId}:visual-medium`),
+  ).prompt
   const facetStyle = facetValue(blueprint, 'STYLE')
   const direction = facetStyle
     ? `${medium}; honor the selected STYLE Facet (${facetStyle}) through shape language, costume, architecture, and detail without replacing the primary medium`

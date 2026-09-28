@@ -52,6 +52,9 @@ jobs:
       - name: Art prompt contract
         run: npm run test:art-prompt-contract
 
+      - name: Art style catalog
+        run: npm run test:art-style-catalog
+
       - name: Enqueue prompt gate contract
         run: npm run test:enqueue-prompt-gate
 

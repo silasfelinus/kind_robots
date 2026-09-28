@@ -212,9 +212,7 @@ export function commonsFileNameFromUrl(source: string): string | null {
   }
 }
 
-async function fetchCommonsImage(
-  fileName: string,
-): Promise<ImageProvenance> {
+async function fetchCommonsImage(fileName: string): Promise<ImageProvenance> {
   try {
     const imageInfo = await fetchJson(
       `https://commons.wikimedia.org/w/api.php?action=query&titles=${encodeURIComponent(

@@ -158,9 +158,9 @@ export const useTzaddikStore = defineStore('tzaddikStore', () => {
         throw new Error(res.message || 'Invalid response')
       }
 
-      // Refresh the detail cache so the new/existing request's status shows
-      // up without a separate poll.
-      await fetchOne(candidateId, true)
+      // A recheck can change life state as well as source fields, so refresh
+      // both public rosters in addition to the open detail.
+      await refreshAfterModeration(candidateId)
       return res.data
     } catch (caughtError) {
       handleError(caughtError, 'requesting a Tzaddik candidate recheck')

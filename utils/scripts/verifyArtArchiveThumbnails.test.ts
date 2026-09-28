@@ -118,12 +118,45 @@ async function testMediumPreviewIsCappedLargerThanTheThumbnailAndCachedSeparatel
   }
 }
 
+async function testConcurrentRequestsShareOneGenerationAndAllComplete() {
+  const root = await mkdtemp(path.join(os.tmpdir(), 'art-archive-thumbs-'))
+  try {
+    await writeTestPng(path.join(root, 'one.png'), { r: 30, g: 90, b: 150 })
+    for (let index = 0; index < 8; index += 1) {
+      await writeTestPng(path.join(root, `tile-${index}.png`), { r: index * 20, g: 60, b: 90 })
+    }
+
+    // A Gallery opening a never-viewed collection asks for the same entry and
+    // many different entries at once; every request must still resolve.
+    const same = await Promise.all(
+      Array.from({ length: 5 }, () => ensureArchiveMediumPreview(root, 31, 'one.png', Date.now() - 10_000)),
+    )
+    const [firstSame] = same
+    assert.ok(firstSame)
+    for (const buffer of same) {
+      assert.ok(buffer.equals(firstSame),'concurrent requests for one entry must share a single generation')
+    }
+
+    const many = await Promise.all(
+      Array.from({ length: 8 }, (_, index) =>
+        ensureArchiveMediumPreview(root, 40 + index, `tile-${index}.png`, Date.now() - 10_000),
+      ),
+    )
+    assert.equal(many.length, 8)
+    for (const buffer of many) assert.ok(buffer.length > 0, 'a queued generation must still complete')
+    console.log('verifyArtArchiveThumbnails: concurrent requests are deduplicated and queued generations all complete')
+  } finally {
+    await rm(root, { recursive: true, force: true })
+  }
+}
+
 async function run() {
   await testGeneratesADownscaledCachedWebp()
   await testCacheHitAvoidsRereadingTheSource()
   await testStaleCacheRegeneratesFromAChangedSource()
   await testRejectsAPathTraversalRelativePath()
   await testMediumPreviewIsCappedLargerThanTheThumbnailAndCachedSeparately()
+  await testConcurrentRequestsShareOneGenerationAndAllComplete()
   console.log('verifyArtArchiveThumbnails: all assertions passed')
 }
 

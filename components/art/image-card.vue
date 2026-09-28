@@ -120,7 +120,7 @@
         class="kr-text-bold-xs absolute bottom-1.5 left-1.5 rounded-full bg-warning px-2 py-0.5 text-warning-content shadow"
         type="button"
         title="Retry image"
-        @click.stop="loadFullImage"
+        @click.stop="retryImage"
       >
         Retry
       </button>
@@ -359,6 +359,9 @@ const imageArea = ref<HTMLElement>()
 const localImage = ref<ArtImage | null>(props.artImage)
 const loadingImage = ref(false)
 const imageLoadFailed = ref(false)
+const loadAttempt = ref(0)
+let recoveryAttempted = false
+let lastRecoveredImage: ArtImage | null = null
 let mounted = false
 let stopObservingFullImage: (() => void) | null = null
 
@@ -420,6 +423,7 @@ const imageKey = computed(() =>
     getImageDataMode(displayImage.value.imageData),
     createImagePathUrl(displayImage.value) || 'no-path',
     imageLoadFailed.value ? 'fallback' : 'primary',
+    loadAttempt.value,
   ].join('-'),
 )
 
@@ -490,6 +494,8 @@ watch(
   () => {
     localImage.value = props.artImage
     imageLoadFailed.value = false
+    recoveryAttempted = false
+    lastRecoveredImage = null
     scheduleFullImageLoad()
   },
   { immediate: true },
@@ -499,6 +505,7 @@ watch(
   () => props.artImage,
   () => {
     if (props.artImage.id !== displayImage.value.id) return
+    if (props.artImage !== lastRecoveredImage) recoveryAttempted = false
     localImage.value = {
       ...displayImage.value,
       ...props.artImage,
@@ -571,9 +578,58 @@ function shouldPreferImagePath(image: ArtImage) {
   return isProbablyPath(image.imageData) || !isUsableImageData(image.imageData)
 }
 
-function handleImageError() {
+/*
+ * One failed <img> load is not a missing image. Archive urls are signed and
+ * expire, a guessed /images/<fileName> path may never have existed for a row
+ * whose pixels live in imageData, and a busy server can simply time out. The
+ * first error therefore refetches the record -- which re-mints an archive url
+ * and brings inline data for rows with no stored path -- and tries once more
+ * before settling on the fallback.
+ */
+async function handleImageError() {
   if (resolvedImageSource.value === props.fallbackImage) return
-  imageLoadFailed.value = true
+  if (recoveryAttempted) {
+    imageLoadFailed.value = true
+    return
+  }
+  recoveryAttempted = true
+  await recoverImage()
+}
+
+async function retryImage() {
+  recoveryAttempted = true
+  imageLoadFailed.value = false
+  await recoverImage()
+}
+
+async function recoverImage() {
+  const current = displayImage.value
+  const hasStoredPath = Boolean(
+    current.imagePath?.trim() ||
+    (current as { path?: string | null }).path?.trim(),
+  )
+  loadingImage.value = true
+  try {
+    const fetched = await artStore.getArtImageById(current.id, {
+      force: true,
+      includeImageData: !hasStoredPath,
+    })
+    if (
+      !fetched ||
+      (!createImageDataUrl(fetched) && !createImagePathUrl(fetched))
+    ) {
+      imageLoadFailed.value = true
+      return
+    }
+    lastRecoveredImage = fetched
+    localImage.value = fetched
+    loadAttempt.value += 1
+    emit('loaded', fetched)
+  } catch {
+    imageLoadFailed.value = true
+  } finally {
+    loadingImage.value = false
+  }
 }
 
 function selectImage() {

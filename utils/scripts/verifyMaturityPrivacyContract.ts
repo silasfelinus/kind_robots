@@ -380,6 +380,13 @@ assert.equal(
   false,
 )
 
+// Urls minted within the same hour must be identical so the browser cache can
+// serve a refreshed or reopened collection instead of re-downloading every tile.
+assert.equal(
+  galleryArchiveMediaUrl(42, 'medium', signedAt + 5 * 60 * 1000),
+  galleryArchiveMediaUrl(42, 'medium', signedAt + 50 * 60 * 1000),
+)
+
 const artImageAccess = readFileSync('server/utils/artImageAccess.ts', 'utf8')
 assert.ok(
   artImageAccess.includes(

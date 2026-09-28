@@ -78,3 +78,8 @@ jobs:
           TZADDIK_BASE_URL: https://kindrobots.org
           TZADDIK_ADMIN_TOKEN: ${{ secrets.CYPRESS_BETA_ADMIN_TOKEN }}
         run: node scripts/import-tzaddik-seeds.mjs config/tzaddik-initial-seeds.json
+      - name: Backfill and verify Tzaddik portraits
+        env:
+          TZADDIK_BASE_URL: https://kindrobots.org
+          TZADDIK_ADMIN_TOKEN: ${{ secrets.CYPRESS_BETA_ADMIN_TOKEN }}
+        run: node scripts/backfill-tzaddik-image-provenance.mjs

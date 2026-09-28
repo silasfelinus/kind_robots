@@ -390,6 +390,7 @@ import type { TzaddikCandidateWithTags } from '@/stores/tzaddikStore'
 import { useUserStore } from '@/stores/userStore'
 import type { TzaddikEditorialTag } from '~/prisma/generated/prisma/client'
 import { TZADDIK_TAG_ORDER, tzaddikTagLabel } from '@/utils/tzaddikTags'
+import { resolveTzaddikImageSrc } from '@/utils/tzaddikImage'
 
 type TabKey = 'living' | 'memorial' | 'review' | 'info'
 
@@ -499,8 +500,7 @@ const REVIEW_STATE_LABELS: Record<string, string> = {
 }
 
 function toGalleryItem(candidate: TzaddikCandidateWithTags): GalleryItem {
-  const image =
-    candidate.imageUrlOverride || candidate.imageFileUrl || undefined
+  const image = resolveTzaddikImageSrc(candidate) || undefined
   const meta = [candidate.region, candidate.countryCode]
     .filter(Boolean)
     .join(', ')

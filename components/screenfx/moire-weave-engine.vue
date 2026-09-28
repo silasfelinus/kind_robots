@@ -27,9 +27,10 @@ const BACKGROUND_COLOR = '#05070d'
 const ALPHA_BASE = 0.82
 const REDUCED_ALPHA_BASE = 0.55
 const BREATHE_PERIOD_MS = 42000
-const PHASE_PERIOD_MS = 200000
-const ROT_AMPLITUDE_DEG = 2.5
-const SCALE_AMPLITUDE = 0.006
+const PHASE_PERIOD_MS = 36000
+const ROT_AMPLITUDE_DEG = 5
+const SCALE_AMPLITUDE = 0.018
+const AUTO_PALETTE_INTERVAL_MS = 12000
 const BIAS_FACTOR = 0.18
 const BIAS_EASE = 0.05
 const CLICK_COOLDOWN_MS = 900
@@ -52,6 +53,7 @@ let phaseElapsed = 0
 let breathePhase = 0
 let reducedMotion = false
 let paletteIndex = 0
+let paletteElapsed = 0
 let lastClickTs = 0
 let pointerActive = false
 let pointerTargetX = 0
@@ -160,14 +162,7 @@ function handlePointerMove(event: PointerEvent): void {
   }
 }
 
-function handlePointerDown(event: PointerEvent): void {
-  if (reducedMotion) return
-  const point = canvasPoint(event)
-  if (!point) return
-  const now = performance.now()
-  if (now - lastClickTs < CLICK_COOLDOWN_MS) return
-  lastClickTs = now
-
+function advancePalette(): void {
   const canvas = canvasRef.value
   if (!canvas) return
   if (!crossfadeCanvas) crossfadeCanvas = document.createElement('canvas')
@@ -183,9 +178,20 @@ function handlePointerDown(event: PointerEvent): void {
   snapshotContext?.drawImage(canvas, 0, 0)
   crossfadeElapsed = 0
   crossfadeActive = true
+  paletteElapsed = 0
 
   paletteIndex = (paletteIndex + 1) % PALETTES.length
   regenerateTextures()
+}
+
+function handlePointerDown(event: PointerEvent): void {
+  if (reducedMotion) return
+  const point = canvasPoint(event)
+  if (!point) return
+  const now = performance.now()
+  if (now - lastClickTs < CLICK_COOLDOWN_MS) return
+  lastClickTs = now
+  advancePalette()
 }
 
 function resizeCanvas(): void {
@@ -261,6 +267,7 @@ function renderFrame(timestamp: number): void {
     const w = (2 * Math.PI) / PHASE_PERIOD_MS
     const t = phaseElapsed
     const rotDelta = ROT_AMPLITUDE_DEG * Math.sin(w * t)
+    paletteElapsed += delta
     const translateAmplitude = translateAmplitudeFor(palette)
     const dx =
       translateAmplitude *
@@ -306,6 +313,10 @@ function renderFrame(timestamp: number): void {
       ALPHA_BASE,
       'difference',
     )
+
+    if (paletteElapsed >= AUTO_PALETTE_INTERVAL_MS && !crossfadeActive) {
+      advancePalette()
+    }
 
     if (crossfadeActive && crossfadeCanvas) {
       crossfadeElapsed += delta

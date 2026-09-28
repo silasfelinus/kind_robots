@@ -13,11 +13,25 @@ jobs:
   audit:
     runs-on: ubuntu-latest
     steps:
-      - name: Audit production Tzaddik image fields
+      - name: Audit production Tzaddik image fields and headers
         run: |
           set -euo pipefail
+          echo "=== PAGE HEADERS ==="
+          curl -fsSI https://kindrobots.org/tzaddik-gallery | sed -n '1,40p'
+
+          echo "=== IMAGE FIELD COUNTS ==="
           for state in LIVING MEMORIAL; do
-            echo "=== $state ==="
-            curl -fsS "https://kindrobots.org/api/tzaddik?lifeState=$state" |
-              jq -r '.data[] | [.displayName, (.imageFileUrl // "NULL"), (.imageSourceUrl // "NULL"), (.imageLicense // "NULL")] | @tsv'
-          done
+            curl -fsS "https://kindrobots.org/api/tzaddik?lifeState=$state"
+          done > /tmp/tzaddik.txt
+          jq -s '[.[].data[]]' /tmp/tzaddik.txt > /tmp/all.json
+          jq -r '{
+            total: length,
+            withImage: map(select(.imageFileUrl != null and .imageFileUrl != "")) | length,
+            withoutImage: map(select(.imageFileUrl == null or .imageFileUrl == "")) | map(.displayName),
+            withProvenance: map(select(.imageSourceUrl != null and .imageSourceUrl != "")) | length
+          }' /tmp/all.json
+
+          echo "=== SAMPLE WIKIMEDIA IMAGE HEADERS ==="
+          sample="$(jq -r 'map(select(.imageFileUrl != null and .imageFileUrl != ""))[0].imageFileUrl' /tmp/all.json)"
+          echo "$sample"
+          curl -fsSI "$sample" | sed -n '1,30p'

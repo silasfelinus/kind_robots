@@ -426,6 +426,24 @@
                       Recheck
                     </button>
                   </div>
+                  <div v-if="needsRecheckReview" class="mt-2 flex gap-1.5">
+                    <button
+                      type="button"
+                      class="btn btn-xs flex-1 rounded-lg"
+                      :disabled="resolveRecheckBusy"
+                      @click="acceptRecheck"
+                    >
+                      Update
+                    </button>
+                    <button
+                      type="button"
+                      class="btn btn-ghost btn-xs flex-1 rounded-lg border border-base-300"
+                      :disabled="resolveRecheckBusy"
+                      @click="dismissRecheck"
+                    >
+                      Keep current
+                    </button>
+                  </div>
                 </section>
 
                 <section
@@ -584,6 +602,25 @@ const recheckStatusLabel = computed(() => {
 const recheckDetailLabel = computed(() =>
   recheckReasonLabel(latestRecheck.value),
 )
+
+// t-031: the review-queue card can resolve a flagged NEEDS_REVIEW recheck
+// inline (t-030); give the detail sheet the same accept/dismiss controls so
+// an editor who opened the candidate from the sheet doesn't have to close
+// it and find the card again. /api/tzaddik/recheck-resolve only accepts a
+// resolution while the latest request is still NEEDS_REVIEW.
+const needsRecheckReview = computed(
+  () => latestRecheck.value?.status === 'NEEDS_REVIEW',
+)
+
+const resolveRecheckBusy = computed(() => store.isModerating)
+
+async function acceptRecheck(): Promise<void> {
+  await store.resolveRecheckReview(props.candidateId, 'accept')
+}
+
+async function dismissRecheck(): Promise<void> {
+  await store.resolveRecheckReview(props.candidateId, 'dismiss')
+}
 
 const currentCandidateIndex = computed(() =>
   props.candidateIds.indexOf(props.candidateId),

@@ -31,7 +31,7 @@
   literally the same widget, not two lists that drift.
 -->
 <template>
-  <div class="tab-select dropdown dropdown-end min-w-0">
+  <div class="tab-select dropdown dropdown-start min-w-0">
     <button
       tabindex="0"
       type="button"
@@ -67,7 +67,7 @@
 
     <div
       tabindex="0"
-      class="dropdown-content z-120 mt-2 w-[min(22rem,calc(100vw-1rem))] max-h-[min(70vh,32rem)] overflow-y-auto kr-panel-flat p-2 shadow-2xl"
+      class="dropdown-content z-120 mt-2 w-[min(18rem,calc(100vw-1rem))] max-h-[min(70vh,32rem)] overflow-y-auto kr-panel-flat p-2 shadow-2xl xl:w-[min(22rem,calc(100vw-1rem))]"
       :aria-label="`${channel.label} tabs`"
     >
       <!--

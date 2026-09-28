@@ -4,12 +4,7 @@
 // The browser never needs to hotlink upload.wikimedia.org directly; source
 // provenance stays on the candidate record and this route only serves the
 // allow-listed URL that the source refresher stored.
-import {
-  createError,
-  defineEventHandler,
-  getRouterParam,
-  setHeader,
-} from 'h3'
+import { createError, defineEventHandler, getRouterParam, setHeader } from 'h3'
 import prisma from '~/server/utils/prisma'
 import { errorHandler } from '~/server/utils/error'
 
@@ -59,7 +54,8 @@ export default defineEventHandler(async (event) => {
     if (!isAllowedSource(candidate.imageFileUrl)) {
       throw createError({
         statusCode: 502,
-        message: 'Stored Tzaddik portrait source is not an allowed Wikimedia URL.',
+        message:
+          'Stored Tzaddik portrait source is not an allowed Wikimedia URL.',
       })
     }
 

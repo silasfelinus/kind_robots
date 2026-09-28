@@ -22,32 +22,49 @@
       v-if="job.status === 'DONE'"
       class="relative flex aspect-[4/3] min-h-52 w-full items-center justify-center overflow-hidden bg-base-100"
     >
-      <a
-        v-if="jobImageSrc && canShowJobContent"
-        :href="jobImageSrc"
-        target="_blank"
-        rel="noopener"
-        class="block h-full w-full"
-        :title="`Open ArtImage ${job.artImageId}`"
-      >
-        <video
-          v-if="jobImageKind === 'video'"
-          :src="jobImageSrc"
-          class="h-full w-full object-contain"
-          muted
-          playsinline
-          preload="metadata"
-        />
-        <img
-          v-else
-          :src="jobImageSrc"
-          alt="Generated ArtJob output"
-          class="h-full w-full object-contain"
-          loading="lazy"
-          decoding="async"
-          data-missing-image-report="false"
-        />
-      </a>
+      <!-- The output opens its art card, not the raw file. Silas, 2026-09-28:
+           "clicking the art should take us to the art card, not the actual
+           final art link ... i should be able to adjust its maturity/privacy
+           rating, or delete it". The file is still one click away on the
+           corner link. -->
+      <template v-if="jobImageSrc && canShowJobContent">
+        <button
+          type="button"
+          class="block h-full w-full cursor-pointer"
+          :title="`Open art card for ArtImage ${job.artImageId}`"
+          :aria-label="`Open art card for ArtImage ${job.artImageId}`"
+          :disabled="openingArtCard"
+          @click="openArtCard"
+        >
+          <video
+            v-if="jobImageKind === 'video'"
+            :src="jobImageSrc"
+            class="h-full w-full object-contain"
+            muted
+            playsinline
+            preload="metadata"
+          />
+          <img
+            v-else
+            :src="jobImageSrc"
+            alt="Generated ArtJob output"
+            class="h-full w-full object-contain"
+            loading="lazy"
+            decoding="async"
+            data-missing-image-report="false"
+          />
+        </button>
+        <a
+          :href="jobImageSrc"
+          target="_blank"
+          rel="noopener"
+          class="btn btn-circle btn-ghost btn-xs absolute bottom-2 right-2 bg-base-100/80"
+          :title="`Open the image file for ArtImage ${job.artImageId}`"
+          :aria-label="`Open the image file for ArtImage ${job.artImageId}`"
+        >
+          <Icon name="kind-icon:link" class="h-3.5 w-3.5" />
+        </a>
+      </template>
 
       <button
         v-else-if="canRevealMatureJob"
@@ -192,7 +209,9 @@
               @click="showOriginCard = true"
             >
               <Icon name="kind-icon:link" class="h-3 w-3 shrink-0" />
-              <span class="truncate">{{ originTypeLabel }} · {{ originLabel }}</span>
+              <span class="truncate"
+                >{{ originTypeLabel }} · {{ originLabel }}</span
+              >
             </button>
             <p
               v-else-if="originText"
@@ -482,16 +501,37 @@
         </div>
       </div>
     </div>
-      <EntityObjectCard
+    <EntityObjectCard
       v-if="showOriginCard && resolvedOrigin"
       :link="resolvedOrigin"
       @close="showOriginCard = false"
     />
+
+    <div
+      v-if="showArtCard && artStore.currentArtImage?.id === job.artImageId"
+      class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+      role="dialog"
+      aria-modal="true"
+      :aria-label="`Art card for ArtImage ${job.artImageId}`"
+      @click.self="closeArtCard"
+      @keydown.esc="closeArtCard"
+    >
+      <div class="max-h-[90vh] w-full max-w-5xl overflow-y-auto">
+        <ArtInteract embedded @close="closeArtCard" />
+      </div>
+    </div>
   </article>
 </template>
 
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, ref, watch, watchEffect } from 'vue'
+import {
+  computed,
+  onBeforeUnmount,
+  onMounted,
+  ref,
+  watch,
+  watchEffect,
+} from 'vue'
 import { useArtJobStore, type ArtJobRecord } from '@/stores/artJobStore'
 import { useArtJobPriorityStore } from '@/stores/artJobPriorityStore'
 import { useArtStore } from '@/stores/artStore'
@@ -499,6 +539,7 @@ import { useUserStore } from '@/stores/userStore'
 import { useEntityArtLinkStore } from '@/stores/entityArtLinkStore'
 import { entityArtTypeLabel } from '@/utils/entityArtLink'
 import EntityObjectCard from '@/components/art/entity-object-card.vue'
+import ArtInteract from '@/components/art/art-interact.vue'
 import {
   artJobOrigin,
   artJobOriginLabel,
@@ -605,11 +646,36 @@ const jobPageLabel = computed<string>(() => artJobPageLabel(props.job))
  */
 const showOriginCard = ref(false)
 
+const showArtCard = ref(false)
+const openingArtCard = ref(false)
+
+async function openArtCard() {
+  const id = props.job.artImageId
+  if (typeof id !== 'number' || openingArtCard.value) return
+  openingArtCard.value = true
+  try {
+    const result = await artStore.selectArtImage(id)
+    showArtCard.value = result.success !== false
+  } finally {
+    openingArtCard.value = false
+  }
+}
+
+function closeArtCard() {
+  showArtCard.value = false
+  if (artStore.currentArtImage?.id === props.job.artImageId) {
+    artStore.deselectArtImage()
+  }
+}
+
 const jobOrigin = computed(() => artJobOrigin(props.job))
 
 const resolvedOrigin = computed(() =>
   jobOrigin.value.kind === 'entity'
-    ? entityArtLinkStore.get(jobOrigin.value.entityType, jobOrigin.value.entityId)
+    ? entityArtLinkStore.get(
+        jobOrigin.value.entityType,
+        jobOrigin.value.entityId,
+      )
     : null,
 )
 
@@ -720,7 +786,8 @@ const viewerOwnsJob = computed<boolean>(() => {
  * moderate what they cannot see by default.
  */
 const hiddenFromViewer = computed<boolean>(() => {
-  if (jobVisibility.value.isMature && userStore.isMaturityRestricted) return true
+  if (jobVisibility.value.isMature && userStore.isMaturityRestricted)
+    return true
   if (jobVisibility.value.isPublic) return false
   return !viewerOwnsJob.value && !userStore.isAdmin
 })
@@ -739,9 +806,7 @@ const hiddenFromViewer = computed<boolean>(() => {
  */
 const adminMayOverridePrivate = computed<boolean>(
   () =>
-    userStore.isAdmin &&
-    !viewerOwnsJob.value &&
-    !jobVisibility.value.isPublic,
+    userStore.isAdmin && !viewerOwnsJob.value && !jobVisibility.value.isPublic,
 )
 
 const adminOverrodePrivate = ref(false)

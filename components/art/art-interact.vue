@@ -17,10 +17,10 @@
         <button
           class="kr-btn-xs btn-outline sm:btn-sm"
           type="button"
-          @click="navStore.setDashboardTab('art', 'gallery')"
+          @click="returnToGallery"
         >
           <Icon name="kind-icon:image" class="kr-icon-4" />
-          Gallery
+          {{ embedded ? 'Close' : 'Gallery' }}
         </button>
 
         <button
@@ -499,6 +499,15 @@ type CollectionLike = ArtCollection & {
   ArtImages?: ArtImage[]
 }
 
+/**
+ * `embedded` is the card opened in place over another surface (the ArtJob
+ * queue). There is no gallery behind it to return to, so Deselect, Gallery and
+ * a delete close the card instead of switching the dashboard tab out from under
+ * the queue the viewer was working through.
+ */
+const props = defineProps<{ embedded?: boolean }>()
+const emit = defineEmits<{ close: [] }>()
+
 const artStore = useArtStore()
 const collectionStore = useCollectionStore()
 const navStore = useNavStore()
@@ -702,8 +711,7 @@ async function confirmDelete() {
     const imageId = currentArtImage.value.id
     const deleted = await artStore.deleteArtImage(imageId)
     if (deleted) {
-      artStore.deselectArtImage()
-      navStore.setDashboardTab('art', 'gallery')
+      deselectAndReturn()
     } else {
       setStatus('Failed to delete image.', 'error')
       deleteArmed.value = false
@@ -793,7 +801,19 @@ async function handleCreatedCollection(collection: CollectionLike) {
   }
 }
 
+function returnToGallery() {
+  if (props.embedded) {
+    emit('close')
+    return
+  }
+  navStore.setDashboardTab('art', 'gallery')
+}
+
 function deselectAndReturn() {
+  if (props.embedded) {
+    emit('close')
+    return
+  }
   artStore.deselectArtImage()
   navStore.setDashboardTab('art', 'gallery')
 }

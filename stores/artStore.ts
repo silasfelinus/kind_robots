@@ -40,6 +40,7 @@ import { MAX_LORAS_PER_JOB } from '@/utils/loraLimits'
 import {
   MAX_RANDOM_BATCH,
   randomBatchBasePrompt,
+  randomVariantVisibility,
   withRandomBatchFacetBasePrompt,
   type ArtRandomBatchPlan,
   type ArtRandomBatchResult,
@@ -2086,6 +2087,7 @@ export const useArtStore = defineStore('artStore', () => {
           ),
           sources: options.sources,
           loraStrength: overrides.loraStrength ?? state.artForm.loraStrength ?? 1,
+          showMature: showMature.value,
           seed: options.seed ?? undefined,
         }),
       },
@@ -2152,9 +2154,12 @@ export const useArtStore = defineStore('artStore', () => {
 
       if (merged.length > MAX_LORAS_PER_JOB) truncated = true
 
+      const visibility = randomVariantVisibility(variant, base)
       const result = await enqueueArtGeneration({
         ...base,
         promptString: variant.promptString,
+        isMature: visibility.isMature,
+        isPublic: visibility.isPublic,
         workflow: withRandomBatchFacetBasePrompt(
           base.workflow,
           variant.promptString,

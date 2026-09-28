@@ -27,6 +27,8 @@ export type VariantPick = {
   sourceId?: number
   /** Human-facing name, when `value` is a trigger word nobody would recognise. */
   label?: string
+  /** Mature source records taint generated output even when the base prompt is safe. */
+  isMature?: boolean
   loraResourceId?: number
   loraStrength?: number
 }

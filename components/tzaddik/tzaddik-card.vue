@@ -27,7 +27,14 @@
         :badges="badges"
         :meta="metaChips"
         placeholder-icon="kind-icon:stars"
-      />
+      >
+        <p
+          v-if="recheckReason"
+          class="mx-0.5 mt-2 line-clamp-2 text-xs leading-relaxed text-warning"
+        >
+          {{ recheckReason }}
+        </p>
+      </kr-entity-card-body>
     </reactable-card>
   </div>
 </template>
@@ -35,14 +42,15 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { resolveEntityTheme } from '@/utils/entityTheme'
-import type { TzaddikCandidateWithTags } from '@/stores/tzaddikStore'
+import type { TzaddikModerationQueueCandidate } from '@/stores/tzaddikStore'
 import type { ArtVariant } from '@/utils/artImageSrc'
 import type { EntityCardChip } from '@/components/gallery/kr-entity-card-body.vue'
 import { sortedTzaddikTags, tzaddikTagLabel } from '@/utils/tzaddikTags'
+import { recheckReasonLabel } from '@/utils/tzaddikRecheck'
 
 const props = withDefaults(
   defineProps<{
-    candidate: TzaddikCandidateWithTags
+    candidate: TzaddikModerationQueueCandidate
     selected?: boolean
     compact?: boolean
     showImage?: boolean
@@ -123,6 +131,13 @@ const metaChips = computed<EntityCardChip[]>(() =>
   sortedTzaddikTags(props.candidate.Tags.map((entry) => entry.tag)).map(
     (tag) => ({ label: tzaddikTagLabel(tag), class: 'badge-outline' }),
   ),
+)
+
+// t-029: only the NEEDS_REVIEW moderation-queue filter's response carries
+// RecheckRequests, so this is empty (and renders nothing) everywhere else
+// tzaddik-card is used.
+const recheckReason = computed(() =>
+  recheckReasonLabel(props.candidate.RecheckRequests?.[0]),
 )
 
 function selectCandidate(): void {

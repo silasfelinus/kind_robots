@@ -407,6 +407,9 @@
                     <div class="min-w-0">
                       <p class="kr-text-bold-xs">{{ recheckStatusLabel }}</p>
                       <p class="kr-text-dim-xs-55">{{ lastCheckedLabel }}</p>
+                      <p v-if="recheckDetailLabel" class="kr-text-dim-xs-55">
+                        {{ recheckDetailLabel }}
+                      </p>
                     </div>
                     <button
                       type="button"
@@ -561,9 +564,36 @@ const canRequestRecheck = computed(
   () => Boolean(candidate.value) && !recheckPending.value,
 )
 
-const recheckStatusLabel = computed(() =>
-  recheckPending.value ? 'Recheck pending' : 'Source recheck',
-)
+const RECHECK_STATUS_LABELS: Record<string, string> = {
+  PENDING: 'Recheck pending',
+  CHECKING: 'Recheck pending',
+  NO_CHANGE: 'Source recheck -- no change found',
+  UPDATED: 'Source recheck -- updated from Wikipedia',
+  NEEDS_REVIEW: 'Source recheck -- needs editor review',
+  FAILED: 'Source recheck failed',
+}
+
+const recheckStatusLabel = computed(() => {
+  const status = latestRecheck.value?.status
+  return status
+    ? (RECHECK_STATUS_LABELS[status] ?? 'Source recheck')
+    : 'Source recheck'
+})
+
+const recheckDetailLabel = computed(() => {
+  const request = latestRecheck.value
+  if (!request) return ''
+  if (request.status === 'FAILED') return request.error ?? ''
+  if (request.status === 'NEEDS_REVIEW' && request.resultJson) {
+    try {
+      const parsed = JSON.parse(request.resultJson) as { reason?: unknown }
+      return typeof parsed.reason === 'string' ? parsed.reason : ''
+    } catch {
+      return ''
+    }
+  }
+  return ''
+})
 
 const currentCandidateIndex = computed(() =>
   props.candidateIds.indexOf(props.candidateId),

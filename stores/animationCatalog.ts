@@ -624,6 +624,18 @@ export const ANIMATION_EFFECTS = [
     generationSafe: true,
     preferredSurface: 'fullscreen',
   },
+  {
+    id: 'moire-weave-engine',
+    label: 'Moiré Weave Engine',
+    reveal: 'The gratings beat together',
+    icon: 'kind-icon:wave',
+    tooltip:
+      'Two fine line screens overlap at a near-matching pitch and angle, their beat pattern swelling into broad bands that travel, split, and reform on their own 🌊 hover to bow the nearest bands toward you, click to crossfade into a new grating pair',
+    color: '#5f7fd6',
+    releasedAt: '2026-09-28T07:56:24Z',
+    generationSafe: true,
+    preferredSurface: 'fullscreen',
+  },
 ] as const satisfies readonly AnimationEffectDefinition[]
 
 export type AnimationEffectId = (typeof ANIMATION_EFFECTS)[number]['id']

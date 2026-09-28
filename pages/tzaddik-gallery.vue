@@ -235,7 +235,16 @@
                   :empty-label="activeEmptyLabel"
                   :modes="[]"
                   @open="openDetail"
-                />
+                >
+                  <template #item="{ item }">
+                    <tzaddik-card
+                      v-if="candidateById.get(Number(item.id))"
+                      :candidate="candidateById.get(Number(item.id))!"
+                      :earned-karma="earnedKarmaByCandidateId[Number(item.id)]"
+                      @open="openCandidateId = $event"
+                    />
+                  </template>
+                </kr-gallery>
               </div>
             </section>
           </section>
@@ -559,6 +568,20 @@ const activeGalleryItems = computed(() =>
 
 const activeCandidateIds = computed(() =>
   activeCandidates.value.map((candidate) => candidate.id),
+)
+
+const candidateById = computed(
+  () =>
+    new Map(
+      activeCandidates.value.map((candidate) => [candidate.id, candidate]),
+    ),
+)
+
+// tzaddik-gallery/t-025: earned karma for the rendered set, batched through
+// the shared userStore earned-karma tracker, same pattern as bot-gallery.
+const { earnedKarma: earnedKarmaByCandidateId } = userStore.trackEarnedKarma(
+  'tzaddikCandidate',
+  () => activeCandidateIds.value,
 )
 
 const activeLoading = computed(() =>

@@ -58,6 +58,7 @@ export const ENTITY_CARDS = [
   'dream-card',
   'reward-card',
   'scenario-card',
+  'tzaddik-card',
   'collection-card',
   'image-card',
   'server-card',
@@ -70,6 +71,7 @@ const SHARED_BODY_CARDS = new Set([
   'dream-card',
   'reward-card',
   'scenario-card',
+  'tzaddik-card',
   'server-card',
 ])
 

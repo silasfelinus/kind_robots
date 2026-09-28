@@ -183,6 +183,7 @@ type LoraRow = {
   defaultTrigger: string | null
   triggerWords: string | null
   localPath: string | null
+  isMature: boolean
 }
 
 /**
@@ -245,6 +246,7 @@ async function loadLoraPools(
       defaultTrigger: true,
       triggerWords: true,
       localPath: true,
+      isMature: true,
     },
     orderBy: { id: 'asc' },
   })) as LoraRow[]
@@ -270,6 +272,7 @@ async function loadLoraPools(
       kind: 'lora',
       sourceId: row.id,
       label: row.customLabel || row.name,
+      isMature: row.isMature,
       loraResourceId: row.id,
       loraStrength: options.loraStrength ?? 1,
     }
@@ -305,13 +308,18 @@ async function loadObjectPool(
   )
   const maturity = randomizerMaturityWhere(options)
 
-  let rows: Array<{ id: number; label: string; artPrompt: string | null }>
+  let rows: Array<{
+    id: number
+    label: string
+    artPrompt: string | null
+    isMature: boolean
+  }>
 
   if (source === 'character') {
     rows = (
       await prisma.character.findMany({
         where: { ...where, ...maturity, isActive: true },
-        select: { id: true, name: true, artPrompt: true },
+        select: { id: true, name: true, artPrompt: true, isMature: true },
         orderBy: { id: 'asc' },
         take: 1000,
       })
@@ -319,12 +327,13 @@ async function loadObjectPool(
       id: row.id,
       label: row.name,
       artPrompt: row.artPrompt,
+      isMature: row.isMature,
     }))
   } else if (source === 'scenario') {
     rows = (
       await prisma.scenario.findMany({
         where: { ...where, ...maturity, isActive: true },
-        select: { id: true, title: true, artPrompt: true },
+        select: { id: true, title: true, artPrompt: true, isMature: true },
         orderBy: { id: 'asc' },
         take: 1000,
       })
@@ -332,12 +341,13 @@ async function loadObjectPool(
       id: row.id,
       label: row.title,
       artPrompt: row.artPrompt,
+      isMature: row.isMature,
     }))
   } else if (source === 'reward') {
     rows = (
       await prisma.reward.findMany({
         where: { ...where, ...maturity, isActive: true },
-        select: { id: true, name: true, artPrompt: true },
+        select: { id: true, name: true, artPrompt: true, isMature: true },
         orderBy: { id: 'asc' },
         take: 1000,
       })
@@ -345,12 +355,13 @@ async function loadObjectPool(
       id: row.id,
       label: row.name,
       artPrompt: row.artPrompt,
+      isMature: row.isMature,
     }))
   } else if (source === 'dream') {
     rows = (
       await prisma.dream.findMany({
         where: { ...where, ...maturity, isActive: true },
-        select: { id: true, title: true, artPrompt: true },
+        select: { id: true, title: true, artPrompt: true, isMature: true },
         orderBy: { id: 'asc' },
         take: 1000,
       })
@@ -358,12 +369,13 @@ async function loadObjectPool(
       id: row.id,
       label: row.title,
       artPrompt: row.artPrompt,
+      isMature: row.isMature,
     }))
   } else if (source === 'bot') {
     rows = (
       await prisma.bot.findMany({
         where: { ...where, ...maturity, isActive: true },
-        select: { id: true, name: true, artPrompt: true },
+        select: { id: true, name: true, artPrompt: true, isMature: true },
         orderBy: { id: 'asc' },
         take: 1000,
       })
@@ -371,12 +383,13 @@ async function loadObjectPool(
       id: row.id,
       label: row.name,
       artPrompt: row.artPrompt,
+      isMature: row.isMature,
     }))
   } else {
     rows = (
       await prisma.project.findMany({
         where: { ...where, ...maturity, isActive: true },
-        select: { id: true, title: true, artPrompt: true },
+        select: { id: true, title: true, artPrompt: true, isMature: true },
         orderBy: { id: 'asc' },
         take: 1000,
       })
@@ -384,6 +397,7 @@ async function loadObjectPool(
       id: row.id,
       label: row.title,
       artPrompt: row.artPrompt,
+      isMature: row.isMature,
     }))
   }
 
@@ -395,6 +409,7 @@ async function loadObjectPool(
         kind: source,
         sourceId: row.id,
         label,
+        isMature: row.isMature,
       } satisfies VariantPick
     })
     .filter((pick) => pick.value)
@@ -512,6 +527,7 @@ export async function buildArtRandomPools(
             kind: 'facet',
             sourceId: facet.id,
             label: facet.title,
+            isMature: facet.isMature,
           }))
           .filter((pick) => pick.value)
       : []

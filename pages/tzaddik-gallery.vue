@@ -169,6 +169,18 @@
                   >
                     Archived
                   </button>
+                  <button
+                    type="button"
+                    class="btn btn-xs flex-1 rounded-lg border-0"
+                    :class="
+                      reviewCurationState === 'NEEDS_REVIEW'
+                        ? 'btn-primary'
+                        : 'btn-ghost bg-base-200/60'
+                    "
+                    @click="setReviewCurationState('NEEDS_REVIEW')"
+                  >
+                    Needs review
+                  </button>
                 </div>
               </div>
 
@@ -404,7 +416,10 @@
 import { computed, onMounted, reactive, ref, watch } from 'vue'
 import type { GalleryItem } from '@/components/gallery/kr-gallery.vue'
 import { useTzaddikStore } from '@/stores/tzaddikStore'
-import type { TzaddikCandidateWithTags } from '@/stores/tzaddikStore'
+import type {
+  TzaddikCandidateWithTags,
+  TzaddikModerationQueueFilter,
+} from '@/stores/tzaddikStore'
 import { useUserStore } from '@/stores/userStore'
 import type { TzaddikEditorialTag } from '~/prisma/generated/prisma/client'
 import { TZADDIK_TAG_ORDER, tzaddikTagLabel } from '@/utils/tzaddikTags'
@@ -437,7 +452,7 @@ const REVIEW_TAB = {
   key: 'review' as const,
   label: 'Review queue',
   icon: 'kind-icon:flag',
-  body: 'Admin-only: submissions awaiting approval, and archived entries that can be restored. Nothing here is visible on the public Living/Memorial rosters yet.',
+  body: 'Admin-only: submissions awaiting approval, archived entries that can be restored, and candidates whose Wikipedia recheck needs a human look.',
 }
 
 // Admin-only tab, inserted right before Info -- the review queue is where an
@@ -457,7 +472,7 @@ const activeTab = ref<TabKey>('living')
 const activeTabBody = computed(
   () => tabs.value.find((tab) => tab.key === activeTab.value)?.body ?? '',
 )
-const reviewCurationState = ref<'PENDING' | 'ARCHIVED'>('PENDING')
+const reviewCurationState = ref<TzaddikModerationQueueFilter>('PENDING')
 
 function onTabKeydown(event: KeyboardEvent, currentKey: TabKey): void {
   const keys = ['ArrowLeft', 'ArrowRight', 'Home', 'End']
@@ -514,6 +529,7 @@ const selectedTags = reactive(new Set<TzaddikEditorialTag>())
 const REVIEW_STATE_LABELS: Record<string, string> = {
   PENDING: 'Pending',
   ARCHIVED: 'Archived',
+  NEEDS_REVIEW: 'Needs review',
 }
 
 function toGalleryItem(candidate: TzaddikCandidateWithTags): GalleryItem {
@@ -522,7 +538,13 @@ function toGalleryItem(candidate: TzaddikCandidateWithTags): GalleryItem {
   const meta = [candidate.region, candidate.countryCode]
     .filter(Boolean)
     .join(', ')
-  const stateLabel = REVIEW_STATE_LABELS[candidate.curationState]
+  // The Needs-review queue holds APPROVED candidates too (a curationState
+  // badge would be blank for them), so that queue always shows its own
+  // label regardless of the candidate's actual curationState.
+  const stateLabel =
+    activeTab.value === 'review' && reviewCurationState.value === 'NEEDS_REVIEW'
+      ? REVIEW_STATE_LABELS.NEEDS_REVIEW
+      : REVIEW_STATE_LABELS[candidate.curationState]
 
   return {
     id: candidate.id,
@@ -631,16 +653,17 @@ const activeEmptyLabel = computed(() => {
   if (activeTab.value === 'memorial')
     return 'memorial profiles matching these filters'
   if (activeTab.value === 'review') {
-    return reviewCurationState.value === 'ARCHIVED'
-      ? 'archived candidates'
-      : 'candidates awaiting review'
+    if (reviewCurationState.value === 'ARCHIVED') return 'archived candidates'
+    if (reviewCurationState.value === 'NEEDS_REVIEW')
+      return 'candidates needing editor review'
+    return 'candidates awaiting review'
   }
   return 'living profiles matching these filters'
 })
 
-function setReviewCurationState(state: 'PENDING' | 'ARCHIVED'): void {
-  reviewCurationState.value = state
-  tzaddikStore.fetchModerationQueue(state, true)
+function setReviewCurationState(filter: TzaddikModerationQueueFilter): void {
+  reviewCurationState.value = filter
+  tzaddikStore.fetchModerationQueue(filter, true)
 }
 
 watch(activeTab, (tab) => {

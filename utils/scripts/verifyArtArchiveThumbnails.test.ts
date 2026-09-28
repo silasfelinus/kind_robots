@@ -131,8 +131,10 @@ async function testConcurrentRequestsShareOneGenerationAndAllComplete() {
     const same = await Promise.all(
       Array.from({ length: 5 }, () => ensureArchiveMediumPreview(root, 31, 'one.png', Date.now() - 10_000)),
     )
+    const [firstSame] = same
+    assert.ok(firstSame)
     for (const buffer of same) {
-      assert.ok(buffer.equals(same[0]), 'concurrent requests for one entry must share a single generation')
+      assert.ok(buffer.equals(firstSame),'concurrent requests for one entry must share a single generation')
     }
 
     const many = await Promise.all(

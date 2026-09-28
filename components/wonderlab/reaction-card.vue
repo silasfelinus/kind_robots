@@ -9,9 +9,7 @@
       class="mb-4 flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between"
     >
       <div class="min-w-0">
-        <p
-          class="kr-text-eyebrow-bold kr-text-dim-xs-45 tracking-wide"
-        >
+        <p class="kr-text-eyebrow-bold kr-text-dim-xs-45 tracking-wide">
           Reaction
         </p>
 
@@ -49,11 +47,18 @@
           </button>
         </div>
 
-        <div class="mt-2 flex flex-wrap items-center gap-1 sm:gap-2">
+        <div
+          class="mt-2 flex flex-wrap items-center gap-1 sm:gap-2"
+          role="radiogroup"
+          aria-label="Star rating"
+        >
           <button
             v-for="star in 5"
             :key="star"
             type="button"
+            role="radio"
+            :aria-checked="rating === star"
+            :aria-label="`Rate ${star} star${star === 1 ? '' : 's'}`"
             class="select-none leading-none transition active:scale-95"
             :class="[
               compact ? 'text-3xl' : 'text-4xl sm:text-5xl',
@@ -63,10 +68,17 @@
             ]"
             @mouseenter="hoverRating = star"
             @mouseleave="hoverRating = 0"
+            @focus="hoverRating = star"
+            @blur="hoverRating = 0"
             @click="setRating(star)"
           >
             ★
           </button>
+          <span class="sr-only" role="status">
+            {{
+              rating ? `${rating} of 5 stars selected` : 'No rating selected'
+            }}
+          </span>
         </div>
       </div>
 
@@ -134,10 +146,7 @@
           :disabled="isSubmitting || !canSubmit"
           @click="submitReaction"
         >
-          <span
-            v-if="isSubmitting"
-            class="kr-spinner-sm"
-          />
+          <span v-if="isSubmitting" class="kr-spinner-sm" />
 
           <Icon v-else name="kind-icon:check" class="kr-icon-4" />
           Submit
@@ -163,7 +172,9 @@
       <div
         v-if="reactionMessage"
         class="kr-note p-3 font-normal"
-        :class="reactionStatus === 'error' ? 'kr-note-error' : 'kr-note-success'"
+        :class="
+          reactionStatus === 'error' ? 'kr-note-error' : 'kr-note-success'
+        "
       >
         {{ reactionMessage }}
       </div>

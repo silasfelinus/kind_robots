@@ -1,0 +1,23 @@
+name: Temporary Tzaddik Image Audit
+
+on:
+  push:
+    branches:
+      - fix/tzaddik-wikipedia-images-20260928
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Audit production Tzaddik image fields
+        run: |
+          set -euo pipefail
+          for state in LIVING MEMORIAL; do
+            echo "=== $state ==="
+            curl -fsS "https://kindrobots.org/api/tzaddik?lifeState=$state" |
+              jq -r '.data[] | [.displayName, (.imageFileUrl // "NULL"), (.imageSourceUrl // "NULL"), (.imageLicense // "NULL")] | @tsv'
+          done

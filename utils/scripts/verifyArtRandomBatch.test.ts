@@ -21,6 +21,7 @@ import {
 } from '../artRandomOptions'
 import {
   randomBatchBasePrompt,
+  randomVariantVisibility,
   withRandomBatchFacetBasePrompt,
 } from '../artRandomBatch'
 
@@ -137,6 +138,37 @@ const different = generateStructuredPromptVariants(
 assert.notDeepEqual(
   different.map((variant) => variant.promptUsed),
   batch.map((variant) => variant.promptUsed),
+)
+
+assert.deepEqual(
+  randomVariantVisibility(
+    {
+      selections: {
+        character: {
+          value: 'adult-character',
+          kind: 'lora',
+          sourceId: 44,
+          isMature: true,
+        },
+      },
+    },
+    { isMature: false, isPublic: true },
+  ),
+  { isMature: true, isPublic: false },
+)
+assert.deepEqual(
+  randomVariantVisibility(
+    { selections: { style: { value: 'safe-style', isMature: false } } },
+    { isMature: true, isPublic: true },
+  ),
+  { isMature: true, isPublic: true },
+)
+assert.deepEqual(
+  randomVariantVisibility(
+    { selections: { style: { value: 'safe-style' } } },
+    { isMature: false, isPublic: true },
+  ),
+  { isMature: false, isPublic: true },
 )
 
 // A pool smaller than the batch still fills the batch, evenly.
@@ -300,9 +332,15 @@ assert.ok(artStoreSource.includes('generationBatchSize: 1'))
 assert.ok(artStoreSource.includes('function setGenerationBatchSize'))
 assert.ok(artStoreSource.includes('randomBatchBasePrompt('))
 assert.ok(artStoreSource.includes('withRandomBatchFacetBasePrompt('))
+assert.ok(artStoreSource.includes('showMature: showMature.value'))
+assert.ok(artStoreSource.includes('randomVariantVisibility(variant, base)'))
+assert.ok(artStoreSource.includes('isMature: visibility.isMature'))
+assert.ok(artStoreSource.includes('isPublic: visibility.isPublic'))
 
 const poolSource = readFileSync('server/utils/artRandomPools.ts', 'utf8')
 assert.ok(poolSource.includes("source: 'object'"))
+assert.ok(poolSource.includes('isMature: row.isMature'))
+assert.ok(poolSource.includes('isMature: facet.isMature'))
 assert.ok(
   poolSource.includes('compactRandomArtPrompt(facet.title, facet.artPrompt)'),
 )

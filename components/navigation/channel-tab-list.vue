@@ -82,7 +82,7 @@
               </span>
               <span
                 v-if="tab.summary || tab.description"
-                class="line-clamp-1 w-full text-xs font-medium opacity-65"
+                class="line-clamp-1 w-full text-xs font-medium opacity-65 sm:hidden xl:block"
               >
                 {{ tab.summary || tab.description }}
               </span>

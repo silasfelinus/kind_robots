@@ -462,6 +462,7 @@ import type { TzaddikOverridePayload } from '@/stores/tzaddikStore'
 import { useUserStore } from '@/stores/userStore'
 import { defaultArtFor } from '@/utils/defaultArtPool'
 import { sortedTzaddikTags, tzaddikTagLabel } from '@/utils/tzaddikTags'
+import { recheckReasonLabel } from '@/utils/tzaddikRecheck'
 
 const props = withDefaults(
   defineProps<{
@@ -580,20 +581,9 @@ const recheckStatusLabel = computed(() => {
     : 'Source recheck'
 })
 
-const recheckDetailLabel = computed(() => {
-  const request = latestRecheck.value
-  if (!request) return ''
-  if (request.status === 'FAILED') return request.error ?? ''
-  if (request.status === 'NEEDS_REVIEW' && request.resultJson) {
-    try {
-      const parsed = JSON.parse(request.resultJson) as { reason?: unknown }
-      return typeof parsed.reason === 'string' ? parsed.reason : ''
-    } catch {
-      return ''
-    }
-  }
-  return ''
-})
+const recheckDetailLabel = computed(() =>
+  recheckReasonLabel(latestRecheck.value),
+)
 
 const currentCandidateIndex = computed(() =>
   props.candidateIds.indexOf(props.candidateId),

@@ -34,6 +34,14 @@ export type TzaddikCandidateDetail = TzaddikCandidateWithTags & {
   RecheckRequests: TzaddikRecheckRequest[]
 }
 
+// t-029: the NEEDS_REVIEW moderation-queue filter's response carries each
+// candidate's latest RecheckRequest ([0] only) so the queue card can surface
+// the recheck reason without a detail-sheet round trip -- the PENDING/
+// ARCHIVED filters don't include it, so this stays optional.
+export type TzaddikModerationQueueCandidate = TzaddikCandidateWithTags & {
+  RecheckRequests?: TzaddikRecheckRequest[]
+}
+
 export const useTzaddikStore = defineStore('tzaddikStore', () => {
   const living = ref<TzaddikCandidateWithTags[]>([])
   const memorial = ref<TzaddikCandidateWithTags[]>([])
@@ -54,7 +62,7 @@ export const useTzaddikStore = defineStore('tzaddikStore', () => {
   // awaiting a decision, and ARCHIVED entries an admin might restore. Kept
   // separate from living/memorial (which only ever hold APPROVED rows) so an
   // admin browsing the review queue never mixes with the public roster.
-  const moderationQueue = ref<TzaddikCandidateWithTags[]>([])
+  const moderationQueue = ref<TzaddikModerationQueueCandidate[]>([])
   const isLoadingModerationQueue = ref(false)
   const moderationQueueError = ref('')
   const isModerating = ref(false)
@@ -214,7 +222,7 @@ export const useTzaddikStore = defineStore('tzaddikStore', () => {
   async function fetchModerationQueue(
     filter: TzaddikModerationQueueFilter,
     force = false,
-  ): Promise<TzaddikCandidateWithTags[]> {
+  ): Promise<TzaddikModerationQueueCandidate[]> {
     isLoadingModerationQueue.value = true
     moderationQueueError.value = ''
 
@@ -223,7 +231,7 @@ export const useTzaddikStore = defineStore('tzaddikStore', () => {
         filter === 'NEEDS_REVIEW'
           ? 'needsReview=true'
           : `curationState=${filter}`
-      const res = await performFetch<TzaddikCandidateWithTags[]>(
+      const res = await performFetch<TzaddikModerationQueueCandidate[]>(
         `/api/tzaddik?${query}`,
       )
 

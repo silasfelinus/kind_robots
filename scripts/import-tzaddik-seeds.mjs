@@ -77,7 +77,9 @@ for (const result of imported.data || []) {
   )
 }
 
-const failed = (imported.data || []).filter((result) => result.status === 'failed')
+const failed = (imported.data || []).filter(
+  (result) => result.status === 'failed',
+)
 if (failed.length > 0) {
   throw new Error(
     `Tzaddik seed import reported ${failed.length} failed candidate(s).`,
@@ -96,7 +98,9 @@ if (stillMissing.length > 0) {
   )
 }
 
-const livingCount = after.filter((candidate) => candidate.lifeState === 'LIVING').length
+const livingCount = after.filter(
+  (candidate) => candidate.lifeState === 'LIVING',
+).length
 const memorialCount = after.filter(
   (candidate) => candidate.lifeState === 'MEMORIAL',
 ).length

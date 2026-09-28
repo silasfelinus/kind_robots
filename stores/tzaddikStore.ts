@@ -10,6 +10,13 @@ import { performFetch, handleError } from './utils'
 
 export type TzaddikModerationCurationState = 'PENDING' | 'ARCHIVED'
 
+// t-028: a third queue value alongside the two real curationState filters --
+// every candidate whose latest recheck request is NEEDS_REVIEW, regardless
+// of its curationState. Not a curationState itself, so fetchModerationQueue
+// routes it to a different query param instead of `curationState=`.
+export type TzaddikModerationQueueFilter =
+  TzaddikModerationCurationState | 'NEEDS_REVIEW'
+
 export type TzaddikOverridePayload = {
   displayNameOverride?: string | null
   biographyOverride?: string | null
@@ -205,15 +212,19 @@ export const useTzaddikStore = defineStore('tzaddikStore', () => {
   }
 
   async function fetchModerationQueue(
-    curationState: TzaddikModerationCurationState,
+    filter: TzaddikModerationQueueFilter,
     force = false,
   ): Promise<TzaddikCandidateWithTags[]> {
     isLoadingModerationQueue.value = true
     moderationQueueError.value = ''
 
     try {
+      const query =
+        filter === 'NEEDS_REVIEW'
+          ? 'needsReview=true'
+          : `curationState=${filter}`
       const res = await performFetch<TzaddikCandidateWithTags[]>(
-        `/api/tzaddik?curationState=${curationState}`,
+        `/api/tzaddik?${query}`,
       )
 
       if (!res.success || !Array.isArray(res.data)) {

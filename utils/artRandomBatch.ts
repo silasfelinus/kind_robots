@@ -116,14 +116,10 @@ export function randomVariantVisibility(
     (pick) => pick.isMature === true,
   )
   const isMature = baseMature || selectedMature
+  let isPublic = base.isPublic ?? !isMature
+  if (selectedMature && !baseMature) isPublic = false
 
-  return {
-    isMature,
-    isPublic:
-      selectedMature && !baseMature
-        ? false
-        : base.isPublic ?? !isMature,
-  }
+  return { isMature, isPublic }
 }
 
 /**

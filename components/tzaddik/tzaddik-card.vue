@@ -28,7 +28,7 @@
         :meta="metaChips"
         placeholder-icon="kind-icon:stars"
       >
-        <template v-if="recheckReason">
+        <template v-if="recheckNeedsReview">
           <p
             class="mx-0.5 mt-2 line-clamp-2 text-xs leading-relaxed text-warning"
           >
@@ -162,6 +162,14 @@ const metaChips = computed<EntityCardChip[]>(() =>
 // tzaddik-card is used.
 const recheckReason = computed(() =>
   recheckReasonLabel(props.candidate.RecheckRequests?.[0]),
+)
+
+// t-032: recheckReason is also non-empty for a FAILED recheck, but
+// POST /api/tzaddik/recheck-resolve (resolveTzaddikRecheckReview) only
+// accepts a NEEDS_REVIEW request and 409s otherwise -- gate the buttons on
+// the actual status, not just on there being a reason to show.
+const recheckNeedsReview = computed(
+  () => props.candidate.RecheckRequests?.[0]?.status === 'NEEDS_REVIEW',
 )
 
 const resolveBusy = computed(() => store.isModerating)

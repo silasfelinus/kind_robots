@@ -102,9 +102,7 @@ for (const candidate of probeRows) {
     )
   }
 
-  console.log(
-    `portrait proxy ok: ${candidate.displayName} — ${contentType}`,
-  )
+  console.log(`portrait proxy ok: ${candidate.displayName} — ${contentType}`)
 }
 
 const withoutPortrait = after

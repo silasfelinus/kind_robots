@@ -122,7 +122,7 @@ export function randomVariantVisibility(
     isPublic:
       selectedMature && !baseMature
         ? false
-        : (base.isPublic ?? !isMature),
+        : base.isPublic ?? !isMature,
   }
 }
 

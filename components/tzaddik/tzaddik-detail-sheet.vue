@@ -459,6 +459,7 @@ import type { TzaddikOverridePayload } from '@/stores/tzaddikStore'
 import { useUserStore } from '@/stores/userStore'
 import { defaultArtFor } from '@/utils/defaultArtPool'
 import { sortedTzaddikTags, tzaddikTagLabel } from '@/utils/tzaddikTags'
+import { resolveTzaddikImageSrc } from '@/utils/tzaddikImage'
 
 const props = withDefaults(
   defineProps<{
@@ -511,10 +512,7 @@ const objections = computed(
     candidate.value?.objectionsOverride || candidate.value?.objections || '',
 )
 
-const imageSrc = computed(
-  () =>
-    candidate.value?.imageUrlOverride || candidate.value?.imageFileUrl || '',
-)
+const imageSrc = computed(() => resolveTzaddikImageSrc(candidate.value))
 
 const fallbackArt = computed(() =>
   defaultArtFor(`tzaddik-${props.candidateId}`),

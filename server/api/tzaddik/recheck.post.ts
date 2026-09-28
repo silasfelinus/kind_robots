@@ -1,14 +1,17 @@
 // /server/api/tzaddik/recheck.post.ts
 //
-// "Request recheck" control (tzaddik-gallery/t-005): lets a signed-in user ask
-// for a candidate's sourced facts to be re-verified against Wikipedia. Writes a
-// TzaddikRecheckRequest row; nothing in this repo runs the actual re-fetch yet
-// (status stays PENDING until that lands), but the request itself, its
-// dedupe, and the last-checked/pending UI state are real today.
+// User-visible correction workflow: creates or reuses one in-flight recheck,
+// immediately refreshes Wikipedia/Wikidata/Commons source fields, and records
+// the exact before/after revision outcome. Explicit editor overrides live in
+// separate columns and are never overwritten by this route.
 import { createError, defineEventHandler, readBody } from 'h3'
 import prisma from '../../utils/prisma'
 import { errorHandler } from '../../utils/error'
-import { validateApiKey } from '../../utils/validateKey'
+import { requireApiUser } from '../../utils/authGuard'
+import {
+  fetchTzaddikSource,
+  TzaddikSourceFetchError,
+} from '../../utils/tzaddikSourceRefresh'
 
 type RecheckBody = { candidateId?: unknown }
 
@@ -17,17 +20,13 @@ function toPositiveId(value: unknown): number | undefined {
   return Number.isInteger(parsed) && parsed > 0 ? parsed : undefined
 }
 
+function dateValue(value: Date | null): string | null {
+  return value ? value.toISOString() : null
+}
+
 export default defineEventHandler(async (event) => {
   try {
-    const { isValid, user } = await validateApiKey(event)
-
-    if (!isValid || !user) {
-      throw createError({
-        statusCode: 401,
-        message: 'Invalid or expired token.',
-      })
-    }
-
+    const auth = await requireApiUser(event)
     const body = await readBody<RecheckBody>(event)
     const candidateId = toPositiveId(body?.candidateId)
 
@@ -40,7 +39,6 @@ export default defineEventHandler(async (event) => {
 
     const candidate = await prisma.tzaddikCandidate.findUnique({
       where: { id: candidateId },
-      select: { id: true, curationState: true, submittedByUserId: true },
     })
 
     if (!candidate) {
@@ -50,11 +48,10 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    // Same visibility as the detail route: a candidate not yet public is
-    // rechecked only by whoever submitted it (or an admin).
     if (
       candidate.curationState !== 'APPROVED' &&
-      candidate.submittedByUserId !== user.id
+      candidate.submittedByUserId !== auth.user.id &&
+      !auth.isAdmin
     ) {
       throw createError({
         statusCode: 404,
@@ -62,33 +59,151 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    // Dedupe: one in-flight recheck per candidate at a time, same shape as the
-    // Resource preview-job dedupe (server/api/resources/[id]/generate-preview.post.ts)
-    // -- return the existing request rather than queuing a second one.
     const existing = await prisma.tzaddikRecheckRequest.findFirst({
       where: { candidateId, status: { in: ['PENDING', 'CHECKING'] } },
       orderBy: { createdAt: 'desc' },
     })
 
-    const data =
+    if (existing?.status === 'CHECKING') {
+      event.node.res.statusCode = 200
+      return {
+        success: true,
+        message: 'A recheck for this candidate is already running.',
+        data: existing,
+        statusCode: 200,
+      }
+    }
+
+    const request =
       existing ??
       (await prisma.tzaddikRecheckRequest.create({
         data: {
           candidateId,
-          requestedByUserId: user.id,
+          requestedByUserId: auth.user.id,
           status: 'PENDING',
         },
       }))
 
-    event.node.res.statusCode = existing ? 200 : 201
+    await prisma.tzaddikRecheckRequest.update({
+      where: { id: request.id },
+      data: {
+        status: 'CHECKING',
+        startedAt: new Date(),
+        completedAt: null,
+        sourceRevisionBefore: candidate.wikipediaRevisionId,
+        sourceRevisionAfter: null,
+        resultJson: null,
+        error: null,
+      },
+    })
 
-    return {
-      success: true,
-      message: existing
-        ? 'A recheck for this candidate is already pending.'
-        : 'Recheck requested.',
-      data,
-      statusCode: event.node.res.statusCode,
+    try {
+      const source = await fetchTzaddikSource(candidate.wikipediaUrl)
+      const changedFields: string[] = []
+
+      if (candidate.wikipediaPageId !== source.wikipediaPageId)
+        changedFields.push('wikipediaPageId')
+      if (candidate.wikipediaRevisionId !== source.wikipediaRevisionId)
+        changedFields.push('wikipediaRevisionId')
+      if (candidate.biography !== source.biography)
+        changedFields.push('biography')
+      if (candidate.lifeState !== source.lifeState)
+        changedFields.push('lifeState')
+      if (dateValue(candidate.deathDate) !== dateValue(source.deathDate))
+        changedFields.push('deathDate')
+      if (candidate.imageSourceUrl !== source.imageSourceUrl)
+        changedFields.push('imageSourceUrl')
+      if (candidate.imageFileUrl !== source.imageFileUrl)
+        changedFields.push('imageFileUrl')
+      if (candidate.imageLicense !== source.imageLicense)
+        changedFields.push('imageLicense')
+      if (candidate.imageAttribution !== source.imageAttribution)
+        changedFields.push('imageAttribution')
+      if (candidate.imageRevisionId !== source.imageRevisionId)
+        changedFields.push('imageRevisionId')
+
+      const conflictsWithOverride =
+        (Boolean(candidate.biographyOverride) &&
+          candidate.biography !== source.biography) ||
+        (Boolean(candidate.imageUrlOverride) &&
+          candidate.imageFileUrl !== source.imageFileUrl)
+
+      await prisma.tzaddikCandidate.update({
+        where: { id: candidateId },
+        data: {
+          lifeState: source.lifeState,
+          deathDate: source.deathDate,
+          biography: source.biography,
+          wikipediaPageId: source.wikipediaPageId,
+          wikipediaRevisionId: source.wikipediaRevisionId,
+          sourceSnapshotJson: source.sourceSnapshotJson,
+          sourceCheckedAt: source.sourceCheckedAt,
+          imageSourceUrl: source.imageSourceUrl,
+          imageFileUrl: source.imageFileUrl,
+          imageLicense: source.imageLicense,
+          imageAttribution: source.imageAttribution,
+          imageRevisionId: source.imageRevisionId,
+        },
+      })
+
+      const status = conflictsWithOverride
+        ? 'NEEDS_REVIEW'
+        : changedFields.length
+          ? 'UPDATED'
+          : 'NO_CHANGE'
+
+      const completed = await prisma.tzaddikRecheckRequest.update({
+        where: { id: request.id },
+        data: {
+          status,
+          completedAt: new Date(),
+          sourceRevisionAfter: source.wikipediaRevisionId,
+          resultJson: JSON.stringify({
+            changedFields,
+            lifeStateBefore: candidate.lifeState,
+            lifeStateAfter: source.lifeState,
+            deathDateBefore: dateValue(candidate.deathDate),
+            deathDateAfter: dateValue(source.deathDate),
+            sourceCheckedAt: source.sourceCheckedAt.toISOString(),
+            conflictsWithOverride,
+          }),
+          error: null,
+        },
+      })
+
+      event.node.res.statusCode = existing ? 200 : 201
+      return {
+        success: true,
+        message:
+          status === 'NO_CHANGE'
+            ? 'Source recheck completed with no changes.'
+            : status === 'NEEDS_REVIEW'
+              ? 'Source recheck completed; an editor override needs review.'
+              : 'Source recheck updated the sourced profile.',
+        data: completed,
+        statusCode: event.node.res.statusCode,
+      }
+    } catch (error) {
+      const message =
+        error instanceof TzaddikSourceFetchError
+          ? error.message
+          : error instanceof Error
+            ? error.message
+            : 'Source refresh failed.'
+
+      await prisma.tzaddikRecheckRequest.update({
+        where: { id: request.id },
+        data: {
+          status: 'FAILED',
+          completedAt: new Date(),
+          error: message,
+        },
+      })
+
+      throw createError({
+        statusCode: 502,
+        message,
+      })
     }
   } catch (error) {
     const { message, statusCode } = errorHandler(error)
@@ -96,7 +211,7 @@ export default defineEventHandler(async (event) => {
 
     return {
       success: false,
-      message: message || 'Failed to request a recheck.',
+      message: message || 'Failed to recheck this candidate.',
       data: null,
       statusCode: statusCode || 500,
     }

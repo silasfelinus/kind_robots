@@ -21,6 +21,13 @@ export type GalleryArchiveMediaVariant = 'full' | 'thumbnail' | 'medium'
 
 export const GALLERY_ARCHIVE_MEDIA_TTL_MS = 6 * 60 * 60 * 1000
 
+// Expiry is snapped to the start of the hour so every response inside that
+// hour mints the SAME url. A per-millisecond expiry made each refetch a new
+// url, so the route's Cache-Control never got a hit and every refresh or
+// reopened collection re-downloaded (and could re-time-out) every tile.
+// Flooring keeps the expiry inside the verifier's TTL window.
+export const GALLERY_ARCHIVE_MEDIA_EXPIRY_BUCKET_MS = 60 * 60 * 1000
+
 const KEY_LABEL = 'kind-robots/art-gallery-archive-media/v1'
 let cachedKey: Buffer | null = null
 
@@ -58,7 +65,10 @@ export function galleryArchiveMediaUrl(
   variant: GalleryArchiveMediaVariant = 'medium',
   now: number = Date.now(),
 ): string {
-  const expiresAt = now + GALLERY_ARCHIVE_MEDIA_TTL_MS
+  const bucketStart =
+    Math.floor(now / GALLERY_ARCHIVE_MEDIA_EXPIRY_BUCKET_MS) *
+    GALLERY_ARCHIVE_MEDIA_EXPIRY_BUCKET_MS
+  const expiresAt = bucketStart + GALLERY_ARCHIVE_MEDIA_TTL_MS
   const signature = signGalleryArchiveMedia(artImageId, variant, expiresAt)
   return `/api/art/image/archive/${artImageId}?variant=${variant}&exp=${expiresAt}&sig=${signature}`
 }

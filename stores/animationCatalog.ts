@@ -630,7 +630,7 @@ export const ANIMATION_EFFECTS = [
     reveal: 'The gratings beat together',
     icon: 'kind-icon:wave',
     tooltip:
-      'Two fine line screens overlap at a near-matching pitch and angle, their beat pattern swelling into broad bands that travel, split, and reform on their own 🌊 hover to bow the nearest bands toward you, click to crossfade into a new grating pair',
+      'Two fine line screens overlap at a near-matching pitch and angle, their beat pattern swelling into broad bands that travel, split, and reform on their own 🌊 the grating pair now crossfades automatically; hover to bow nearby bands or click to skip ahead',
     color: '#5f7fd6',
     releasedAt: '2026-09-28T07:56:24Z',
     generationSafe: true,

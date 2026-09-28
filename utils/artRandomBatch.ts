@@ -62,6 +62,7 @@ export type ArtRandomPick = {
   kind?: string
   sourceId?: number
   label?: string
+  isMature?: boolean
   loraResourceId?: number
   loraStrength?: number
 }
@@ -101,6 +102,28 @@ export type ArtRandomBatchResult = {
   message: string
   jobIds: number[]
   plan?: ArtRandomBatchPlan
+}
+
+export function randomVariantVisibility(
+  variant: Pick<ArtRandomVariant, 'selections'>,
+  base: {
+    isMature?: boolean | null
+    isPublic?: boolean | null
+  },
+): { isMature: boolean; isPublic: boolean } {
+  const baseMature = base.isMature === true
+  const selectedMature = Object.values(variant.selections).some(
+    (pick) => pick.isMature === true,
+  )
+  const isMature = baseMature || selectedMature
+
+  return {
+    isMature,
+    isPublic:
+      selectedMature && !baseMature
+        ? false
+        : (base.isPublic ?? !isMature),
+  }
 }
 
 /**

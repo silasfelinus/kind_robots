@@ -47,13 +47,17 @@
           >
             <button
               v-for="tab in tabs"
+              :id="`tzaddik-tab-${tab.key}`"
               :key="tab.key"
               type="button"
               role="tab"
               :aria-selected="activeTab === tab.key"
+              :aria-controls="`tzaddik-panel-${tab.key}`"
+              :tabindex="activeTab === tab.key ? 0 : -1"
               class="btn btn-sm min-w-max flex-1 gap-1.5 rounded-xl border-0"
               :class="activeTab === tab.key ? 'btn-primary' : 'btn-ghost'"
               @click="activeTab = tab.key"
+              @keydown="onTabKeydown($event, tab.key)"
             >
               <Icon :name="tab.icon" class="kr-icon-3-5" />
               {{ tab.label }}
@@ -84,6 +88,9 @@
         <main class="min-h-0 flex-1">
           <section
             v-if="activeTab !== 'info'"
+            :id="`tzaddik-panel-${activeTab}`"
+            role="tabpanel"
+            :aria-labelledby="`tzaddik-tab-${activeTab}`"
             class="grid gap-3 lg:h-full lg:min-h-0 lg:grid-cols-[19rem_minmax(0,1fr)] xl:grid-cols-[21rem_minmax(0,1fr)]"
           >
             <aside
@@ -235,6 +242,9 @@
 
           <section
             v-else
+            id="tzaddik-panel-info"
+            role="tabpanel"
+            aria-labelledby="tzaddik-tab-info"
             class="grid gap-3 lg:h-full lg:min-h-0 lg:grid-cols-[minmax(19rem,0.78fr)_minmax(0,1.22fr)]"
           >
             <article
@@ -430,6 +440,31 @@ const activeTabBody = computed(
   () => tabs.value.find((tab) => tab.key === activeTab.value)?.body ?? '',
 )
 const reviewCurationState = ref<'PENDING' | 'ARCHIVED'>('PENDING')
+
+function onTabKeydown(event: KeyboardEvent, currentKey: TabKey): void {
+  const keys = ['ArrowLeft', 'ArrowRight', 'Home', 'End']
+  if (!keys.includes(event.key)) return
+  event.preventDefault()
+
+  const order = tabs.value
+  const currentIndex = order.findIndex((tab) => tab.key === currentKey)
+  let nextIndex = currentIndex
+
+  if (event.key === 'ArrowLeft') {
+    nextIndex = (currentIndex - 1 + order.length) % order.length
+  } else if (event.key === 'ArrowRight') {
+    nextIndex = (currentIndex + 1) % order.length
+  } else if (event.key === 'Home') {
+    nextIndex = 0
+  } else if (event.key === 'End') {
+    nextIndex = order.length - 1
+  }
+
+  const nextTab = order[nextIndex]
+  if (!nextTab) return
+  activeTab.value = nextTab.key
+  document.getElementById(`tzaddik-tab-${nextTab.key}`)?.focus()
+}
 
 const sections = [
   {

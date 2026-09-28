@@ -13,25 +13,32 @@ jobs:
   audit:
     runs-on: ubuntu-latest
     steps:
-      - name: Audit production Tzaddik image fields and headers
+      - name: Inspect missing Wikipedia image fallbacks
         run: |
           set -euo pipefail
-          echo "=== PAGE HEADERS ==="
-          curl -fsSI https://kindrobots.org/tzaddik-gallery | sed -n '1,40p'
+          for title in Azim_Khamisa Narayanan_Krishnan Shabana_Basij-Rasikh; do
+            echo "=== $title pageimages/pageprops ==="
+            curl -fsSG https://en.wikipedia.org/w/api.php \
+              --data-urlencode action=query \
+              --data-urlencode "prop=pageimages|pageprops" \
+              --data-urlencode "piprop=original|thumbnail" \
+              --data-urlencode pithumbsize=1600 \
+              --data-urlencode "titles=$title" \
+              --data-urlencode format=json \
+              --data-urlencode formatversion=2 |
+              jq -c '.query.pages[0] | {title, original, thumbnail, wikibase_item: .pageprops.wikibase_item}'
 
-          echo "=== IMAGE FIELD COUNTS ==="
-          for state in LIVING MEMORIAL; do
-            curl -fsS "https://kindrobots.org/api/tzaddik?lifeState=$state"
-          done > /tmp/tzaddik.txt
-          jq -s '[.[].data[]]' /tmp/tzaddik.txt > /tmp/all.json
-          jq -r '{
-            total: length,
-            withImage: map(select(.imageFileUrl != null and .imageFileUrl != "")) | length,
-            withoutImage: map(select(.imageFileUrl == null or .imageFileUrl == "")) | map(.displayName),
-            withProvenance: map(select(.imageSourceUrl != null and .imageSourceUrl != "")) | length
-          }' /tmp/all.json
+            qid="$(curl -fsSG https://en.wikipedia.org/w/api.php \
+              --data-urlencode action=query \
+              --data-urlencode prop=pageprops \
+              --data-urlencode "titles=$title" \
+              --data-urlencode format=json \
+              --data-urlencode formatversion=2 |
+              jq -r '.query.pages[0].pageprops.wikibase_item // empty')"
 
-          echo "=== SAMPLE WIKIMEDIA IMAGE HEADERS ==="
-          sample="$(jq -r 'map(select(.imageFileUrl != null and .imageFileUrl != ""))[0].imageFileUrl' /tmp/all.json)"
-          echo "$sample"
-          curl -fsSI "$sample" | sed -n '1,30p'
+            if [ -n "$qid" ]; then
+              echo "=== $title Wikidata P18 ($qid) ==="
+              curl -fsS "https://www.wikidata.org/wiki/Special:EntityData/$qid.json" |
+                jq -r --arg q "$qid" '.entities[$q].claims.P18[0].mainsnak.datavalue.value // "NO_P18"'
+            fi
+          done

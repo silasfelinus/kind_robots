@@ -20,6 +20,7 @@ import {
   appendRequest,
   renderRequestEntry,
 } from '../../server/utils/artRequestYaml'
+import { normalizePublicPath } from '../../server/utils/publicImagePath'
 
 let failures = 0
 function check(name: string, cond: boolean, detail = '') {
@@ -115,7 +116,10 @@ console.log('project art engine defaults')
 
   check('icon requests default to Krea 2', icon.includes('  engine: "krea2"'))
   check('hero requests default to Krea 2', hero.includes('  engine: "krea2"'))
-  check('generic image requests do not force an engine', !image.includes('  engine:'))
+  check(
+    'generic image requests do not force an engine',
+    !image.includes('  engine:'),
+  )
   check(
     'explicit engine overrides the project default',
     explicit.includes('  engine: "flux2-klein"'),
@@ -209,6 +213,36 @@ console.log('appendRequest into each requests: shape')
 }
 
 console.log('')
+// A URL pathname is percent-encoded; the file it names is not (ArtJob 31518
+// asked the relay to write "...space%20dance%20party..." beside the real
+// "...space dance party..." file the page requests).
+console.log('\nMissing-image source paths are decoded to real filenames')
+check(
+  'decodes %20 in a gallery filename',
+  normalizePublicPath(
+    "/images/art_gallery/cafe_fred/art/xRikishi's_alpha60-retrofuturistic%20space%20dance%20party-3849954560.png",
+  ) ===
+    "/images/art_gallery/cafe_fred/art/xRikishi's_alpha60-retrofuturistic space dance party-3849954560.png",
+)
+check(
+  'unwraps /_ipx/ before decoding',
+  normalizePublicPath('/_ipx/w_300/images/a%20b.webp?x=1') ===
+    '/images/a b.webp',
+)
+check(
+  'an encoded slash never adds a directory',
+  normalizePublicPath('/images/a%2Fb.webp') === '/images/a%2Fb.webp',
+)
+check(
+  'an encoded dot-dot never climbs a directory',
+  normalizePublicPath('/images/%2E%2E/secret.webp') ===
+    '/images/%2E%2E/secret.webp',
+)
+check(
+  'a bare percent sign is kept verbatim',
+  normalizePublicPath('/images/100%.png') === '/images/100%.png',
+)
+
 if (failures > 0) {
   console.error(`art-request YAML contract: ${failures} check(s) FAILED`)
   process.exit(1)

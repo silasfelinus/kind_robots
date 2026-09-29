@@ -1192,6 +1192,23 @@ export async function submitStoryTurn(
         409,
       )
     }
+    if (!isEndless && run.currentChapter >= turnBudget) {
+      return {
+        run,
+        deck,
+        turn: null,
+        pendingTurn: null,
+        inventory,
+        turnIndex: run.currentChapter,
+        turnBudget,
+        isFinalTurn: true,
+        readyToResolve: true,
+        replayed: false,
+        quest: publicQuest(quest),
+        stats: deck.ownerKind === 'LIFE' ? statsSoFar : undefined,
+        narratedWordBounds: PROSE_BOUNDS_BY_MODE[mode],
+      }
+    }
     const regenerated = await narrateInto(run.id, {
       deck,
       mode,
@@ -1217,7 +1234,10 @@ export async function submitStoryTurn(
       turnBudget,
       isFinalTurn: !isEndless && run.currentChapter >= turnBudget,
       readyToResolve:
-        (isEndless || questDone(quest)) && run.currentChapter > minTurns,
+        (isEndless
+          ? run.currentChapter > minTurns
+          : run.currentChapter > turnBudget) ||
+        (questDone(quest) && run.currentChapter > minTurns),
       replayed: false,
       quest: publicQuest(quest),
       stats: deck.ownerKind === 'LIFE' ? statsSoFar : undefined,

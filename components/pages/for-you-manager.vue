@@ -223,7 +223,7 @@
                       class="kr-spinner-xs"
                     />
                     <Icon v-else name="kind-icon:check" class="kr-icon-4" />
-                    Approve
+                    Accept complete
                   </button>
 
                   <details class="group min-w-[12rem] flex-1">
@@ -251,6 +251,40 @@
                         "
                       />
                       <div class="mt-2 flex flex-wrap gap-2">
+                        <button
+                          type="button"
+                          class="btn btn-success btn-sm rounded-xl"
+                          :disabled="
+                            taskIsUpdating(gate.project.slug, gate.task.id) ||
+                            !gateMessage(gate.project.slug, gate.task.id).trim()
+                          "
+                          @click="
+                            actOnGate(
+                              gate.project.slug,
+                              gate.task.id,
+                              'proceed',
+                            )
+                          "
+                        >
+                          Approve & continue
+                        </button>
+                        <button
+                          type="button"
+                          class="btn btn-primary btn-outline btn-sm rounded-xl"
+                          :disabled="
+                            taskIsUpdating(gate.project.slug, gate.task.id) ||
+                            !gateMessage(gate.project.slug, gate.task.id).trim()
+                          "
+                          @click="
+                            actOnGate(
+                              gate.project.slug,
+                              gate.task.id,
+                              'answer',
+                            )
+                          "
+                        >
+                          Answer & continue
+                        </button>
                         <button
                           type="button"
                           class="btn btn-error btn-outline btn-sm rounded-xl"

@@ -5,6 +5,7 @@ import { createError, defineEventHandler, readBody } from 'h3'
 import { userIsAdmin } from '@/server/utils/authUser'
 import { buildContextualArtPrompt } from '@/server/utils/conductorArtPrompt'
 import { errorHandler } from '@/server/utils/error'
+import { normalizePublicPath } from '@/server/utils/publicImagePath'
 import {
   appendRequest,
   requestBlockIds,
@@ -170,13 +171,6 @@ function inferVariant(path: string, requested?: string): ArtVariant {
 function stripVariantFromSlug(slug: string, variant: ArtVariant): string {
   if (variant === 'image') return slug
   return slug.replace(new RegExp(`[-_]${variant}$`), '')
-}
-
-function normalizePublicPath(pathname: string): string {
-  const clean = pathname.split('?')[0]!.split('#')[0] || ''
-  const ipxMatch = clean.match(/^\/_ipx\/[^/]+\/(.+)$/)
-  if (ipxMatch?.[1]) return `/${ipxMatch[1]}`
-  return clean.startsWith('/') ? clean : `/${clean}`
 }
 
 function normalizeSourceUrl(body: MissingArtRequestBody): string {

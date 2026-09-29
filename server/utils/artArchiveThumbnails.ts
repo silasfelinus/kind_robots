@@ -61,7 +61,9 @@ export async function withGenerationSlot<T>(
   try {
     return await work()
   } finally {
-    const next = generationWaiters.shift()
+    // Newest waiter first: a gallery scroll requests the tiles now on screen
+    // last, and they should not queue behind every tile already scrolled past.
+    const next = generationWaiters.pop()
     if (next) next()
     else activeGenerations -= 1
   }

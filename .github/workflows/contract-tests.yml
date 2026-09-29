@@ -1200,6 +1200,9 @@ jobs:
       - name: Gallery feed thumbnail contract
         run: npm run test:art-image-thumbnail
 
+      - name: Gallery newest-first request queue
+        run: npm run test:latest-first-queue
+
       - name: Art Archive preset modifiers contract
         run: npm run test:art-archive-preset-modifiers
 

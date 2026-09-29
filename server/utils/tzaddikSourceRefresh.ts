@@ -4,12 +4,16 @@
 // provenance fields. For portraits, prefer Wikidata P18 because it is the
 // person-specific curated Commons image; Wikipedia summary/pageimages are
 // fallbacks. Living/memorial status is verified from Wikidata's P570.
+import { completeStructured } from './structuredCompletion'
+
 const USER_AGENT =
   'KindRobotsTzaddikGallery/1.0 (https://kindrobots.org; contact via kindrobots.org)'
 const FETCH_TIMEOUT_MS = 10_000
 const MAX_SNAPSHOT_BYTES = 900_000
 const COMMONS_THUMB_WIDTH = 1600
 const IMAGE_SELECTION_VERSION = 2
+const BIOGRAPHY_SELECTION_VERSION = 2
+const MAX_ARTICLE_EXTRACT_CHARS = 24000
 
 export class TzaddikSourceFetchError extends Error {
   constructor(message: string) {
@@ -283,6 +287,77 @@ async function fetchWikipediaPageImage(
   }
 }
 
+async function fetchWikipediaArticleExtract(
+  lang: string,
+  title: string,
+): Promise<string | null> {
+  try {
+    const response = await fetchJson(
+      `https://${lang}.wikipedia.org/w/api.php?action=query&prop=extracts&explaintext=1&redirects=1&titles=${encodeURIComponent(
+        title,
+      )}&format=json&formatversion=2`,
+    )
+    if (!isRecord(response)) return null
+
+    const query = isRecord(response.query) ? response.query : null
+    const pages = Array.isArray(query?.pages) ? query.pages : null
+    const firstPage = isRecord(pages?.[0]) ? pages[0] : null
+    const extract = stringField(firstPage?.extract)
+    return extract ? extract.slice(0, MAX_ARTICLE_EXTRACT_CHARS) : null
+  } catch {
+    return null
+  }
+}
+
+async function synthesizeBiography(
+  displayName: string,
+  summary: string | null,
+  articleExtract: string | null,
+): Promise<string | null> {
+  const sourceText = (articleExtract || summary || '').trim()
+  if (!sourceText) return summary
+
+  try {
+    const result = await completeStructured<{ biography: string }>({
+      system: [
+        'Write a factual, neutral, sourced biographical profile for Tzaddik Gallery.',
+        'The subject is being considered for a playful gallery of unusually constructive people, but do not call them virtuous, saintly, heroic, one of the 36, or otherwise endorse them.',
+        'Explain who they are, the arc of their life/work, concrete achievements, scale or influence, and why their work is notable enough to understand.',
+        'Do not invent facts or motives. Use only the supplied Wikipedia text.',
+        'Do not include controversies here; the product has a separate objections section.',
+        'Write 4 to 7 compact paragraphs, about 450 to 800 words total.',
+        'Avoid Wikipedia lead-style compression. This should feel like a real profile, not a two-sentence abstract.',
+      ].join('\n'),
+      user: `Subject: ${displayName}\n\nWikipedia source text:\n${sourceText}`,
+      schemaName: 'tzaddik_rich_biography',
+      schema: {
+        type: 'object',
+        additionalProperties: false,
+        required: ['biography'],
+        properties: {
+          biography: {
+            type: 'string',
+            minLength: 1200,
+            maxLength: 7000,
+          },
+        },
+      },
+      temperature: 0.25,
+      maxTokens: 1800,
+      timeoutMs: 35_000,
+      label: 'Tzaddik biography synthesis',
+    })
+
+    const biography = stringField(result?.biography)?.trim()
+    return biography || summary
+  } catch {
+    // Wikipedia remains the source of truth. If the synthesis provider is
+    // unavailable, keep the shorter sourced lead instead of failing the
+    // entire source refresh (and therefore status/image corrections).
+    return summary
+  }
+}
+
 async function resolveImage(
   lang: string,
   title: string,
@@ -337,7 +412,13 @@ export async function fetchTzaddikSource(
   const wikipediaPageId = summary.pageid != null ? String(summary.pageid) : null
   const wikipediaRevisionId =
     summary.revision != null ? String(summary.revision) : null
-  const biography = stringField(summary.extract)?.slice(0, 4000) ?? null
+  const summaryBiography = stringField(summary.extract)?.slice(0, 4000) ?? null
+  const articleExtract = await fetchWikipediaArticleExtract(lang, title)
+  const biography = await synthesizeBiography(
+    stringField(summary.title) ?? title.replaceAll('_', ' '),
+    summaryBiography,
+    articleExtract,
+  )
 
   const wikidata = await fetchWikidataSource(lang, title)
   const deathDate = wikidata.deathDate
@@ -352,6 +433,7 @@ export async function fetchTzaddikSource(
     deathDate: deathDate ? deathDate.toISOString() : null,
     imageFileName: wikidata.imageFileName,
     imageSelectionVersion: IMAGE_SELECTION_VERSION,
+    biographySelectionVersion: BIOGRAPHY_SELECTION_VERSION,
   }).slice(0, MAX_SNAPSHOT_BYTES)
 
   return {

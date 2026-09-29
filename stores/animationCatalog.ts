@@ -636,6 +636,18 @@ export const ANIMATION_EFFECTS = [
     generationSafe: true,
     preferredSurface: 'fullscreen',
   },
+  {
+    id: 'pendulum-wave-garden',
+    label: 'Pendulum Wave Garden',
+    reveal: 'The row loses the beat, then finds it',
+    icon: 'kind-icon:wave',
+    tooltip:
+      'A row of pendulums swings in perfect unison, drifts into a traveling ripple and a tangled-looking wave, then snaps back to exact unison on schedule 🎐 hover to nudge a bob, click to restart the cycle',
+    color: '#6fc3e8',
+    releasedAt: '2026-09-29T09:10:00Z',
+    generationSafe: true,
+    preferredSurface: 'fullscreen',
+  },
 ] as const satisfies readonly AnimationEffectDefinition[]
 
 export type AnimationEffectId = (typeof ANIMATION_EFFECTS)[number]['id']

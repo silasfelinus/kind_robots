@@ -34,9 +34,32 @@ export default defineEventHandler(async (event) => {
     const requestedCurationState = parseCurationState(query.curationState)
     const requestedNeedsReview =
       query.needsReview === 'true' || query.needsReview === '1'
+    const requestedDiscovery =
+      query.discovery === 'true' || query.discovery === '1'
 
     const auth = await getOptionalApiUser(event)
     const isAdmin = auth?.isAdmin ?? false
+
+    // Admin-only machine-generated discovery pool. This is deliberately
+    // separate from community PENDING submissions so the review queue does
+    // not become a junk drawer containing two very different workflows.
+    if (isAdmin && requestedDiscovery) {
+      const candidates = await prisma.tzaddikCandidate.findMany({
+        where: {
+          curationState: 'PENDING',
+          suggestedBy: 'daily-discovery',
+        },
+        include: { Tags: true },
+        orderBy: [{ createdAt: 'desc' }, { displayName: 'asc' }],
+      })
+
+      event.node.res.statusCode = 200
+      return {
+        success: true,
+        data: candidates,
+        statusCode: 200,
+      }
+    }
 
     // Admin-only cross-candidate view (tzaddik-gallery/t-028): every
     // candidate whose *latest* recheck request is NEEDS_REVIEW (a Wikipedia
@@ -77,6 +100,9 @@ export default defineEventHandler(async (event) => {
       where: {
         curationState,
         ...(lifeState ? { lifeState } : {}),
+        ...(isAdmin && requestedCurationState === 'PENDING'
+          ? { NOT: { suggestedBy: 'daily-discovery' } }
+          : {}),
       },
       include: { Tags: true },
       orderBy:

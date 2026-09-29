@@ -65,6 +65,9 @@ export const useTzaddikStore = defineStore('tzaddikStore', () => {
   const moderationQueue = ref<TzaddikModerationQueueCandidate[]>([])
   const isLoadingModerationQueue = ref(false)
   const moderationQueueError = ref('')
+  const discoveryQueue = ref<TzaddikCandidateWithTags[]>([])
+  const isLoadingDiscoveryQueue = ref(false)
+  const discoveryQueueError = ref('')
   const isModerating = ref(false)
 
   async function fetchLiving(
@@ -250,6 +253,30 @@ export const useTzaddikStore = defineStore('tzaddikStore', () => {
     }
   }
 
+  async function fetchDiscoveryQueue(): Promise<TzaddikCandidateWithTags[]> {
+    isLoadingDiscoveryQueue.value = true
+    discoveryQueueError.value = ''
+
+    try {
+      const res = await performFetch<TzaddikCandidateWithTags[]>(
+        '/api/tzaddik?discovery=true',
+      )
+
+      if (!res.success || !Array.isArray(res.data)) {
+        throw new Error(res.message || 'Invalid response')
+      }
+
+      discoveryQueue.value = res.data
+      return discoveryQueue.value
+    } catch (caughtError) {
+      discoveryQueueError.value = 'Failed to load discovery suggestions.'
+      handleError(caughtError, 'fetching the Tzaddik discovery pool')
+      return discoveryQueue.value
+    } finally {
+      isLoadingDiscoveryQueue.value = false
+    }
+  }
+
   /** Refreshes every cache a moderation action could have touched: the
    * detail (curationState/overrides changed), the moderation queue (the row
    * likely left it), and living/memorial (an approve/archive can add or
@@ -402,6 +429,9 @@ export const useTzaddikStore = defineStore('tzaddikStore', () => {
     moderationQueue,
     isLoadingModerationQueue,
     moderationQueueError,
+    discoveryQueue,
+    isLoadingDiscoveryQueue,
+    discoveryQueueError,
     isModerating,
     fetchLiving,
     fetchMemorial,
@@ -409,6 +439,7 @@ export const useTzaddikStore = defineStore('tzaddikStore', () => {
     requestRecheck,
     submitCandidate,
     fetchModerationQueue,
+    fetchDiscoveryQueue,
     approveCandidate,
     archiveCandidate,
     overrideCandidate,

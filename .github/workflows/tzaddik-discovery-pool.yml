@@ -1,0 +1,52 @@
+name: Replenish Tzaddik Discovery Pool
+
+on:
+  schedule:
+    - cron: '17 11 * * *'
+  workflow_dispatch:
+  workflow_run:
+    workflows: ['Publish Production Container']
+    types: [completed]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: tzaddik-discovery-pool
+  cancel-in-progress: true
+
+jobs:
+  replenish:
+    if: >-
+      github.event_name != 'workflow_run' ||
+      (github.event.workflow_run.conclusion == 'success' &&
+       github.event.workflow_run.head_branch == 'main')
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Keep at least 100 fresh suggestions
+        env:
+          ADMIN_TOKEN: ${{ secrets.CYPRESS_BETA_ADMIN_TOKEN }}
+        run: |
+          set -euo pipefail
+          target=120
+
+          for attempt in $(seq 1 10); do
+            response="$(curl -fsS -X POST https://kindrobots.org/api/tzaddik/discovery/replenish \
+              -H "x-beta-admin-token: $ADMIN_TOKEN" \
+              --json '{}')"
+
+            echo "$response" | jq -c '{message, data}'
+
+            pool="$(echo "$response" | jq -r '.data.poolSize // 0')"
+            if [ "$pool" -ge "$target" ]; then
+              echo "Discovery pool is healthy at $pool."
+              exit 0
+            fi
+
+            sleep 3
+          done
+
+          echo "::error::Discovery pool did not reach $target after 10 replenishment passes."
+          exit 1

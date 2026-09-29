@@ -424,7 +424,8 @@ import { useUserStore } from '@/stores/userStore'
 import type { TzaddikEditorialTag } from '~/prisma/generated/prisma/client'
 import { TZADDIK_TAG_ORDER, tzaddikTagLabel } from '@/utils/tzaddikTags'
 
-type TabKey = 'living' | 'memorial' | 'review' | 'info'
+type TabKey =
+  'living' | 'memorial' | 'popculture' | 'suggestions' | 'review' | 'info'
 
 const BASE_TABS: { key: TabKey; label: string; icon: string; body: string }[] =
   [
@@ -441,12 +442,25 @@ const BASE_TABS: { key: TabKey; label: string; icon: string; body: string }[] =
       body: 'A sourced archive for people whose work, courage, care, or public service still belongs in the story after their deaths.',
     },
     {
+      key: 'popculture',
+      label: 'Pop Culture',
+      icon: 'kind-icon:stars',
+      body: 'Living and memorial profiles whose public impact runs through entertainment, celebrity, television, film, music, sports, or mass culture.',
+    },
+    {
       key: 'info',
       label: 'Info',
       icon: 'kind-icon:mask',
       body: 'Tzaddik Gallery borrows the folklore idea of 36 righteous or “just” people who quietly sustain the world, then turns it into a playful, sourced pop-culture gallery. It is not a religious classification, and inclusion does not require or imply Jewish or Hasidic identity.',
     },
   ]
+
+const SUGGESTIONS_TAB = {
+  key: 'suggestions' as const,
+  label: 'Suggestions',
+  icon: 'kind-icon:lightbulb',
+  body: 'A rotating admin discovery pool kept above 100 sourced candidates. These are options for human review, never automatic canon.',
+}
 
 const REVIEW_TAB = {
   key: 'review' as const,
@@ -463,6 +477,7 @@ const tabs = computed(() => {
   const infoIndex = BASE_TABS.findIndex((tab) => tab.key === 'info')
   return [
     ...BASE_TABS.slice(0, infoIndex),
+    SUGGESTIONS_TAB,
     REVIEW_TAB,
     ...BASE_TABS.slice(infoIndex),
   ]
@@ -586,9 +601,16 @@ const activeCandidates = computed(() => {
       ? tzaddikStore.living
       : activeTab.value === 'memorial'
         ? tzaddikStore.memorial
-        : activeTab.value === 'review'
-          ? tzaddikStore.moderationQueue
-          : []
+        : activeTab.value === 'popculture'
+          ? [...tzaddikStore.living, ...tzaddikStore.memorial].filter(
+              (candidate) =>
+                candidate.Tags.some((entry) => entry.tag === 'POP_CULTURE'),
+            )
+          : activeTab.value === 'suggestions'
+            ? tzaddikStore.discoveryQueue
+            : activeTab.value === 'review'
+              ? tzaddikStore.moderationQueue
+              : []
 
   return source.filter(matchesSelectedTags)
 })
@@ -637,12 +659,16 @@ const activeError = computed(() =>
 
 const activeRosterTitle = computed(() => {
   if (activeTab.value === 'memorial') return 'Memorial archive'
+  if (activeTab.value === 'popculture') return 'Pop Culture'
+  if (activeTab.value === 'suggestions') return 'Suggestion pool'
   if (activeTab.value === 'review') return 'Review queue'
   return 'Living gallery'
 })
 
 const activeRosterEyebrow = computed(() => {
   if (activeTab.value === 'memorial') return 'Past Tzaddik'
+  if (activeTab.value === 'popculture') return 'Culture lane'
+  if (activeTab.value === 'suggestions') return '100+ fresh options'
   if (activeTab.value === 'review') {
     return REVIEW_STATE_LABELS[reviewCurationState.value]
   }
@@ -652,6 +678,10 @@ const activeRosterEyebrow = computed(() => {
 const activeEmptyLabel = computed(() => {
   if (activeTab.value === 'memorial')
     return 'memorial profiles matching these filters'
+  if (activeTab.value === 'popculture')
+    return 'Pop Culture profiles matching these filters'
+  if (activeTab.value === 'suggestions')
+    return 'discovery suggestions matching these filters'
   if (activeTab.value === 'review') {
     if (reviewCurationState.value === 'ARCHIVED') return 'archived candidates'
     if (reviewCurationState.value === 'NEEDS_REVIEW')
@@ -667,7 +697,9 @@ function setReviewCurationState(filter: TzaddikModerationQueueFilter): void {
 }
 
 watch(activeTab, (tab) => {
-  if (tab === 'review') {
+  if (tab === 'suggestions') {
+    tzaddikStore.fetchDiscoveryQueue()
+  } else if (tab === 'review') {
     tzaddikStore.fetchModerationQueue(reviewCurationState.value)
   }
 })

@@ -2,6 +2,7 @@ const baseUrl = String(
   process.env.TZADDIK_BASE_URL || 'https://kindrobots.org',
 ).replace(/\/$/, '')
 const adminToken = String(process.env.TZADDIK_ADMIN_TOKEN || '').trim()
+const IMAGE_SELECTION_VERSION = 2
 
 if (!adminToken) {
   throw new Error('TZADDIK_ADMIN_TOKEN is required.')
@@ -37,19 +38,30 @@ async function fetchApproved() {
 }
 
 const before = await fetchApproved()
-const provenanceMissing = before.filter(
+function snapshotSelectionVersion(candidate) {
+  try {
+    const parsed = JSON.parse(candidate.sourceSnapshotJson || '{}')
+    return Number(parsed.imageSelectionVersion || 0)
+  } catch {
+    return 0
+  }
+}
+
+const needsImageRefresh = before.filter(
   (candidate) =>
-    String(candidate.imageFileUrl || '').includes(
+    snapshotSelectionVersion(candidate) < IMAGE_SELECTION_VERSION ||
+    (String(candidate.imageFileUrl || '').includes(
       'upload.wikimedia.org/wikipedia/commons/',
-    ) && !candidate.imageSourceUrl,
+    ) &&
+      !candidate.imageSourceUrl),
 )
 
-if (provenanceMissing.length) {
+if (needsImageRefresh.length) {
   console.log(
-    `Refreshing ${provenanceMissing.length} Tzaddik profile(s) with Wikimedia portraits but missing Commons provenance.`,
+    `Refreshing ${needsImageRefresh.length} Tzaddik profile(s) onto portrait-selection v${IMAGE_SELECTION_VERSION}.`,
   )
 
-  for (const candidate of provenanceMissing) {
+  for (const candidate of needsImageRefresh) {
     const result = await readJson('/api/tzaddik/recheck', {
       method: 'POST',
       headers: {
@@ -63,7 +75,9 @@ if (provenanceMissing.length) {
     )
   }
 } else {
-  console.log('No Wikimedia portrait provenance backfill is needed.')
+  console.log(
+    `All approved Tzaddik profiles already use portrait-selection v${IMAGE_SELECTION_VERSION}.`,
+  )
 }
 
 const after = await fetchApproved()

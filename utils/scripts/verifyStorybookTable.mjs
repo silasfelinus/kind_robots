@@ -105,6 +105,13 @@ check(
   /data-testid="storybook-hand"[\s\S]{0,1400}overflow-x-auto/.test(table),
 )
 check(
+  'mouse wheel input advances the horizontal hand',
+  table.includes('@wheel="scrollHandWithWheel"') &&
+    table.includes('Math.abs(event.deltaX) > Math.abs(event.deltaY)') &&
+    table.includes('event.preventDefault()') &&
+    table.includes('el.scrollLeft = nextScrollLeft'),
+)
+check(
   'the cloth is a shared class, not inline gradient soup',
   table.includes('kr-table-felt') && felt.includes('.kr-table-felt'),
 )

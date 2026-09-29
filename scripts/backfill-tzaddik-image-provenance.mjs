@@ -3,6 +3,7 @@ const baseUrl = String(
 ).replace(/\/$/, '')
 const adminToken = String(process.env.TZADDIK_ADMIN_TOKEN || '').trim()
 const IMAGE_SELECTION_VERSION = 2
+const BIOGRAPHY_SELECTION_VERSION = 2
 
 if (!adminToken) {
   throw new Error('TZADDIK_ADMIN_TOKEN is required.')
@@ -38,30 +39,36 @@ async function fetchApproved() {
 }
 
 const before = await fetchApproved()
-function snapshotSelectionVersion(candidate) {
+function snapshotVersions(candidate) {
   try {
     const parsed = JSON.parse(candidate.sourceSnapshotJson || '{}')
-    return Number(parsed.imageSelectionVersion || 0)
+    return {
+      image: Number(parsed.imageSelectionVersion || 0),
+      biography: Number(parsed.biographySelectionVersion || 0),
+    }
   } catch {
-    return 0
+    return { image: 0, biography: 0 }
   }
 }
 
-const needsImageRefresh = before.filter(
-  (candidate) =>
-    snapshotSelectionVersion(candidate) < IMAGE_SELECTION_VERSION ||
+const needsSourceRefresh = before.filter((candidate) => {
+  const version = snapshotVersions(candidate)
+  return (
+    version.image < IMAGE_SELECTION_VERSION ||
+    version.biography < BIOGRAPHY_SELECTION_VERSION ||
     (String(candidate.imageFileUrl || '').includes(
       'upload.wikimedia.org/wikipedia/commons/',
     ) &&
-      !candidate.imageSourceUrl),
-)
+      !candidate.imageSourceUrl)
+  )
+})
 
-if (needsImageRefresh.length) {
+if (needsSourceRefresh.length) {
   console.log(
-    `Refreshing ${needsImageRefresh.length} Tzaddik profile(s) onto portrait-selection v${IMAGE_SELECTION_VERSION}.`,
+    `Refreshing ${needsSourceRefresh.length} Tzaddik profile(s) onto portrait-selection v${IMAGE_SELECTION_VERSION} and biography-selection v${BIOGRAPHY_SELECTION_VERSION}.`,
   )
 
-  for (const candidate of needsImageRefresh) {
+  for (const candidate of needsSourceRefresh) {
     const result = await readJson('/api/tzaddik/recheck', {
       method: 'POST',
       headers: {
@@ -76,7 +83,7 @@ if (needsImageRefresh.length) {
   }
 } else {
   console.log(
-    `All approved Tzaddik profiles already use portrait-selection v${IMAGE_SELECTION_VERSION}.`,
+    `All approved Tzaddik profiles already use portrait-selection v${IMAGE_SELECTION_VERSION} and biography-selection v${BIOGRAPHY_SELECTION_VERSION}.`,
   )
 }
 

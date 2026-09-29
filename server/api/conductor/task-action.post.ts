@@ -7,8 +7,14 @@ import { parseRoadmapYaml } from '@/server/utils/conductorRoadmap'
 
 const PROJECT_RE = /^[a-z0-9][a-z0-9-]*$/
 const TASK_RE = /^[A-Za-z0-9][A-Za-z0-9._-]*$/
-const ACTIONS = new Set(['approve', 'reject', 'comment', 'answer'] as const)
-type TaskAction = 'approve' | 'reject' | 'comment' | 'answer'
+const ACTIONS = new Set([
+  'approve',
+  'proceed',
+  'reject',
+  'comment',
+  'answer',
+] as const)
+type TaskAction = 'approve' | 'proceed' | 'reject' | 'comment' | 'answer'
 
 type TaskActionBody = {
   projectSlug?: string
@@ -34,13 +40,15 @@ export default defineEventHandler(async (event) => {
   if (!ACTIONS.has(action)) {
     throw createError({
       statusCode: 400,
-      statusMessage: 'action must be approve, reject, comment, or answer',
+      statusMessage:
+        'action must be approve, proceed, reject, comment, or answer',
     })
   }
   if (action !== 'approve' && !message) {
     throw createError({
       statusCode: 400,
-      statusMessage: 'message is required for reject and comment actions',
+      statusMessage:
+        'message is required unless accepting the task as complete',
     })
   }
 
@@ -81,7 +89,11 @@ export default defineEventHandler(async (event) => {
   if (action === 'approve') {
     eventPayload.operation = 'done'
     eventPayload.approved_by_human = true
-    eventPayload.note = `APPROVED by ${actor} via Kind Robots For You.${message ? ` ${message}` : ''}`
+    eventPayload.note = `ACCEPTED COMPLETE by ${actor} via Kind Robots For You.${message ? ` ${message}` : ''}`
+  } else if (action === 'proceed') {
+    eventPayload.operation = 'ready'
+    eventPayload.approved_by_human = true
+    eventPayload.note = `APPROVED TO CONTINUE by ${actor} via Kind Robots. Gate released for the next agent. ${message}`
   } else if (action === 'reject') {
     eventPayload.operation = 'ready'
     eventPayload.approved_by_human = false

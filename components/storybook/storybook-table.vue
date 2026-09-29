@@ -259,7 +259,11 @@
       <p v-if="!activeDeck.length" class="kr-text-dim-xs py-4 text-center">
         Nothing to deal here yet.
       </p>
-      <div v-else class="flex snap-x snap-mandatory gap-2 overflow-x-auto pb-1">
+      <div
+        v-else
+        class="flex snap-x snap-mandatory gap-2 overflow-x-auto pb-1"
+        @wheel="scrollHandWithWheel"
+      >
         <div
           v-for="card in activeDeck"
           :key="card.slug"
@@ -463,6 +467,35 @@ function matches(card: NarrativeIngredientOption): boolean {
   const term = search.value.trim().toLowerCase()
   if (!term) return true
   return `${card.title} ${card.description || ''}`.toLowerCase().includes(term)
+}
+
+function scrollHandWithWheel(event: WheelEvent): void {
+  const el = event.currentTarget
+  if (!(el instanceof HTMLElement)) return
+
+  const maxScrollLeft = el.scrollWidth - el.clientWidth
+  if (maxScrollLeft <= 0) return
+
+  const rawDelta =
+    Math.abs(event.deltaX) > Math.abs(event.deltaY)
+      ? event.deltaX
+      : event.deltaY
+  if (!rawDelta) return
+
+  const deltaScale =
+    event.deltaMode === WheelEvent.DOM_DELTA_LINE
+      ? 16
+      : event.deltaMode === WheelEvent.DOM_DELTA_PAGE
+        ? el.clientWidth
+        : 1
+  const nextScrollLeft = Math.min(
+    maxScrollLeft,
+    Math.max(0, el.scrollLeft + rawDelta * deltaScale),
+  )
+  if (nextScrollLeft === el.scrollLeft) return
+
+  event.preventDefault()
+  el.scrollLeft = nextScrollLeft
 }
 
 /**

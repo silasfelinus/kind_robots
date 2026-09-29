@@ -15,8 +15,7 @@ export type TzaddikModerationCurationState = 'PENDING' | 'ARCHIVED'
 // of its curationState. Not a curationState itself, so fetchModerationQueue
 // routes it to a different query param instead of `curationState=`.
 export type TzaddikModerationQueueFilter =
-  | TzaddikModerationCurationState
-  | 'NEEDS_REVIEW'
+  TzaddikModerationCurationState | 'NEEDS_REVIEW'
 
 export type TzaddikOverridePayload = {
   displayNameOverride?: string | null

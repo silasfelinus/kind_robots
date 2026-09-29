@@ -8,7 +8,9 @@ export const CONDUCTOR_TASK_ACTIONS = [
 
 export type ConductorTaskAction = (typeof CONDUCTOR_TASK_ACTIONS)[number]
 
-export function taskActionRequiresMessage(action: ConductorTaskAction): boolean {
+export function taskActionRequiresMessage(
+  action: ConductorTaskAction,
+): boolean {
   return action !== 'approve'
 }
 

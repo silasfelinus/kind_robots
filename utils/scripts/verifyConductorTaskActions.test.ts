@@ -18,7 +18,10 @@ assert.deepEqual(buildConductorTaskEvent('approve', actor, '', false), {
   note: 'ACCEPTED COMPLETE by silas via Kind Robots For You.',
 })
 assert.equal(
-  Object.hasOwn(buildConductorTaskEvent('answer', actor, message, false), 'approved_by_human'),
+  Object.hasOwn(
+    buildConductorTaskEvent('answer', actor, message, false),
+    'approved_by_human',
+  ),
   false,
 )
 assert.equal(

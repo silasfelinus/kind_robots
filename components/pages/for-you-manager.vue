@@ -276,11 +276,7 @@
                             !gateMessage(gate.project.slug, gate.task.id).trim()
                           "
                           @click="
-                            actOnGate(
-                              gate.project.slug,
-                              gate.task.id,
-                              'answer',
-                            )
+                            actOnGate(gate.project.slug, gate.task.id, 'answer')
                           "
                         >
                           Answer & continue

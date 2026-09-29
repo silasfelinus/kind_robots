@@ -20,12 +20,18 @@ export type PitchStatus =
   | 'archived'
 export type PitchBucket = 'review' | 'approved' | 'rejected' | 'archived'
 /**
- * `answer` is a comment that also releases the gate back to `ready`, so the
- * next Worker cycle picks the task up carrying the answer. `comment` adds the
- * note and leaves the task parked. See the note in
- * server/api/conductor/task-action.post.ts for why the distinction exists.
+ * Gate actions deliberately separate three different human intents:
+ * - `answer`: provide context and release back to `ready`, without an approval verdict.
+ * - `proceed`: explicitly authorize the scoped work and release back to `ready`.
+ * - `approve`: accept the task as complete and close it at `done`.
+ * `comment` adds context while leaving the gate parked.
  */
-export type ConductorTaskAction = 'approve' | 'reject' | 'comment' | 'answer'
+export type ConductorTaskAction =
+  | 'approve'
+  | 'proceed'
+  | 'reject'
+  | 'comment'
+  | 'answer'
 
 export interface ConductorHumanGate {
   project: ConductorProject
@@ -343,6 +349,16 @@ export const useConductorStore = defineStore('conductor', () => {
           return {
             ...task,
             status: 'done',
+            approvedByHuman: true,
+            softGate: false,
+            note,
+            updated: now,
+          }
+        }
+        if (action === 'proceed') {
+          return {
+            ...task,
+            status: 'ready',
             approvedByHuman: true,
             softGate: false,
             note,

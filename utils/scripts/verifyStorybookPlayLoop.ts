@@ -501,6 +501,21 @@ async function main() {
       'no further scene is offered after the budget is spent',
     )
     check(turnFour.readyToResolve, 'the story is ready to resolve')
+    const requestsBeforeRetry = lastRequestSummary
+    const postFinalRetry = await submitStoryTurn(runId, user.id, {
+      turnIndex: turnFour.turnIndex,
+      move: null,
+    })
+    check(
+      postFinalRetry.pendingTurn === null &&
+        postFinalRetry.isFinalTurn === true &&
+        postFinalRetry.readyToResolve === true,
+      "'Ask for it again' after the final move stays terminal (storybook/t-057)",
+    )
+    check(
+      lastRequestSummary === requestsBeforeRetry,
+      'the post-final retry never calls the narrator (storybook/t-057)',
+    )
     await rejects(
       'a turn past the budget is refused',
       () =>

@@ -100,6 +100,9 @@ export default defineEventHandler(async (event) => {
       where: {
         curationState,
         ...(lifeState ? { lifeState } : {}),
+        ...(isAdmin && requestedCurationState === 'PENDING'
+          ? { NOT: { suggestedBy: 'daily-discovery' } }
+          : {}),
       },
       include: { Tags: true },
       orderBy:

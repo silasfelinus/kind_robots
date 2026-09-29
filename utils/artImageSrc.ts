@@ -38,6 +38,19 @@ function cleanValue(value: string | null | undefined): string {
   return typeof value === 'string' ? value.trim() : ''
 }
 
+/*
+ * ArtImage.path is not always a URL. Entity-art writes store an internal slot
+ * key there -- `entity:resource:2590:current:imagePath` -- which an <img> treats
+ * as a relative URL and fails on, so the card shows its alt text instead of the
+ * picture (Silas, 2026-09-29, LoRA triage: "some of the resources have no
+ * image"; ArtImage 25905 is one). Only a path a browser can actually load
+ * counts; anything else falls through to the next source.
+ */
+export function renderableArtPath(value: string | null | undefined): string {
+  const path = cleanValue(value)
+  return /^(\/|https?:|data:|blob:)/i.test(path) ? path : ''
+}
+
 // Turn a base64 (or already-data-URI) blob into a renderable data URI. Empty
 // input yields '' so callers can fall through to a fallback.
 export function toArtDataUri(
@@ -60,7 +73,7 @@ export function resolveArtImageSrc(
   const path =
     cleanValue(image?.imagePath) ||
     cleanValue(image?.avatarImage) ||
-    cleanValue(image?.path)
+    renderableArtPath(image?.path)
   if (path) return path
   return toArtDataUri(image?.imageData, image?.fileType) || fallback
 }
@@ -202,7 +215,7 @@ export function resolveArtImageThumbSrc(
   const path =
     cleanValue(image?.thumbnailPath) ||
     cleanValue(image?.imagePath) ||
-    cleanValue(image?.path)
+    renderableArtPath(image?.path)
   if (path) return path
   return (
     toArtDataUri(image?.thumbnailData, image?.fileType) ||

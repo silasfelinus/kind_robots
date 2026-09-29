@@ -50,7 +50,9 @@ const inFlightGenerations = new Map<string, Promise<Buffer>>()
 const generationWaiters: Array<() => void> = []
 let activeGenerations = 0
 
-async function withGenerationSlot<T>(work: () => Promise<T>): Promise<T> {
+export async function withGenerationSlot<T>(
+  work: () => Promise<T>,
+): Promise<T> {
   if (activeGenerations >= MAX_CONCURRENT_GENERATIONS) {
     await new Promise<void>((resolve) => generationWaiters.push(resolve))
   } else {

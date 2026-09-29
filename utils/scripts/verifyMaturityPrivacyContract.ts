@@ -426,22 +426,46 @@ const unsortedGalleryApi = readFileSync(
   'server/api/art/collection/unsorted.get.ts',
   'utf8',
 )
-assert.ok(unsortedGalleryApi.includes('readMaturityFilter'))
-assert.ok(unsortedGalleryApi.includes('readPrivacyFilter'))
+const artImageAccessSource = readFileSync(
+  'server/utils/artImageAccess.ts',
+  'utf8',
+)
 assert.ok(
-  unsortedGalleryApi.includes(
+  artImageAccessSource.includes(
     "type GalleryPrivacyFilter = 'all' | 'public' | 'private'",
   ),
 )
 assert.ok(
-  unsortedGalleryApi.includes('{ isPublic: false, userId: access.userId }'),
+  artImageAccessSource.includes('{ isPublic: false, userId: access.userId }'),
+  'the shared Gallery privacy filter must keep "private" owner-only',
 )
-assert.ok(unsortedGalleryApi.includes("maturity === 'mature'"))
+assert.ok(artImageAccessSource.includes("maturity === 'mature'"))
+
+const feedGalleryApi = readFileSync('server/api/art/image/feed.get.ts', 'utf8')
+for (const galleryApi of [unsortedGalleryApi, feedGalleryApi]) {
+  assert.ok(galleryApi.includes('readGalleryMaturityFilter'))
+  assert.ok(galleryApi.includes('readGalleryPrivacyFilter'))
+  assert.ok(galleryApi.includes('buildGalleryFilterWhere('))
+  assert.ok(galleryApi.includes('buildArtImageWhere('))
+}
+
+const feedThumbnailRoute = readFileSync(
+  'server/api/art/image/[id]/thumbnail.get.ts',
+  'utf8',
+)
+assert.ok(feedThumbnailRoute.includes('verifyGalleryThumbnail'))
+assert.ok(
+  feedThumbnailRoute.includes(
+    'buildArtImageWhere(await getArtImageAccessContext(event))',
+  ),
+  'an unsigned thumbnail request must fall back to the normal access rule',
+)
 
 for (const galleryApi of [
   'server/api/art/collection/index.get.ts',
   'server/api/art/collection/[id].get.ts',
   'server/api/art/collection/unsorted.get.ts',
+  'server/api/art/image/feed.get.ts',
 ]) {
   const source = readFileSync(galleryApi, 'utf8')
   assert.ok(

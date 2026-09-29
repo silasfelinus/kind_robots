@@ -29,9 +29,37 @@
       </div>
     </div>
 
-    <section v-else-if="activeTab === 'gallery'" class="kr-stage h-full">
+    <section
+      v-else-if="activeTab === 'gallery'"
+      class="kr-stage flex h-full flex-col gap-2"
+    >
+      <div
+        role="tablist"
+        aria-label="Gallery view"
+        class="tabs tabs-box tabs-sm shrink-0 self-start bg-base-200"
+      >
+        <button
+          v-for="view in GALLERY_VIEWS"
+          :key="view.value"
+          type="button"
+          role="tab"
+          class="tab h-auto min-h-8 gap-1.5 rounded-xl px-3"
+          :class="{ 'tab-active': galleryView === view.value }"
+          :aria-selected="galleryView === view.value"
+          @click="galleryView = view.value"
+        >
+          <icon :name="view.icon" class="kr-icon-3-5" />
+          {{ view.label }}
+        </button>
+      </div>
+
+      <art-feed
+        v-if="galleryView === 'images'"
+        class="min-h-0 flex-1 overflow-hidden"
+      />
       <art-gallery
-        class="h-full min-h-0 flex-1 overflow-hidden"
+        v-else
+        class="min-h-0 flex-1 overflow-hidden"
         variant="dashboard"
         :show-header="false"
         :show-selected-panel="false"
@@ -232,6 +260,10 @@ type LegacyArtTab = ArtTab | 'upload'
 type ArtJobWorkspaceTab = 'queue' | 'trainer'
 
 const ART_JOB_REFRESH_INTERVAL_MS = 15_000
+const GALLERY_VIEWS = [
+  { value: 'images', label: 'Images', icon: 'kind-icon:image' },
+  { value: 'collections', label: 'Collections', icon: 'kind-icon:folder' },
+] as const
 const ART_JOB_STATS_REFRESH_INTERVAL_MS = 60_000
 
 const artJobStore = useArtJobStore()
@@ -242,6 +274,7 @@ const navStore = useNavStore()
 const serverStore = useServerStore()
 const userStore = useUserStore()
 const route = useRoute()
+const galleryView = ref<(typeof GALLERY_VIEWS)[number]['value']>('images')
 
 const defaultDashboardKey = 'art'
 const defaultTab: ArtTab = 'generate'

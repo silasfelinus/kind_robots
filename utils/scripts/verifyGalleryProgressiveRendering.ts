@@ -389,11 +389,52 @@ requireText(
   "art-interact must read membership from the image's own record",
 )
 
+const artFeed = read('components/art/art-feed.vue')
+const artFeedStore = read('stores/artFeedStore.ts')
+const feedRoute = read('server/api/art/image/feed.get.ts')
+requireText(
+  artManager,
+  '<art-feed',
+  'the Art Gallery tab must open on the image feed, not ~150 collection tiles',
+)
+for (const token of [
+  "orderBy: { id: 'desc' }",
+  'take: limit + 1',
+  'MAX_PAGE_SIZE',
+]) {
+  requireText(feedRoute, token, `the image feed must page by cursor: ${token}`)
+}
+requireText(
+  feedRoute,
+  'galleryThumbnailUrl(row.id)',
+  'every feed row must carry one thumbnail url whatever stores its pixels',
+)
+forbidText(
+  feedRoute,
+  'includeImageData',
+  'the image feed must never ship inline image data',
+)
+requireText(
+  artFeed,
+  ':src="image.thumbnailUrl"',
+  'feed tiles must load the thumbnail url directly, with no per-tile JSON fetch',
+)
+forbidText(
+  artFeed,
+  '<image-card',
+  'feed tiles must not use image-card, whose per-tile recovery refetches the record',
+)
+requireText(
+  artFeedStore,
+  'requestGeneration !== generation',
+  'a feed page for filters that have since changed must be dropped',
+)
+
 if (failures.length) {
   for (const failure of failures) console.error(`FAIL - ${failure}`)
   process.exit(1)
 }
 
 console.log(
-  'ok - galleries and Art Generate render from lightweight indexes first; Art Gallery is DB-collection-first; queued, direct, entity-context, and Daily Dream generation preserve canonical collection membership',
+  'ok - galleries and Art Generate render from lightweight indexes first; Art Gallery opens on a cursor-paged image feed and keeps a DB-collection-first view; queued, direct, entity-context, and Daily Dream generation preserve canonical collection membership',
 )

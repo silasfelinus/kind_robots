@@ -199,3 +199,51 @@ export function buildArtImageSelect(query: Record<string, QueryValue> = {}) {
     thumbnailData: includeThumbnailData,
   } satisfies Prisma.ArtImageSelect
 }
+
+export type GalleryMaturityFilter = 'all' | 'mature' | 'safe'
+export type GalleryPrivacyFilter = 'all' | 'public' | 'private'
+
+export function readGalleryPrivacyFilter(
+  value: QueryValue,
+): GalleryPrivacyFilter {
+  const raw = Array.isArray(value) ? value[0] : value
+  const normalized = String(raw ?? 'public')
+    .trim()
+    .toLowerCase()
+  if (normalized === 'private' || normalized === 'all') return normalized
+  return 'public'
+}
+
+export function readGalleryMaturityFilter(
+  value: QueryValue,
+): GalleryMaturityFilter {
+  const raw = Array.isArray(value) ? value[0] : value
+  const normalized = String(raw ?? 'all')
+    .trim()
+    .toLowerCase()
+  if (normalized === 'mature' || normalized === 'safe') return normalized
+  return 'all'
+}
+
+/**
+ * The Gallery's explicit display filters, applied ON TOP of
+ * buildArtImageWhere(): they only ever narrow what access already allows.
+ * "private" is owner-only even for admins.
+ */
+export function buildGalleryFilterWhere(
+  access: ArtImageAccessContext,
+  privacy: GalleryPrivacyFilter,
+  maturity: GalleryMaturityFilter,
+): Prisma.ArtImageWhereInput[] {
+  const maturityWhere: Prisma.ArtImageWhereInput =
+    maturity === 'all' ? {} : { isMature: maturity === 'mature' }
+  const privacyWhere: Prisma.ArtImageWhereInput =
+    privacy === 'all'
+      ? {}
+      : privacy === 'public'
+        ? { isPublic: true }
+        : access.userId
+          ? { isPublic: false, userId: access.userId }
+          : { id: -1 }
+  return [privacyWhere, maturityWhere]
+}

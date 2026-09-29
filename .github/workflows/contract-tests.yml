@@ -1197,6 +1197,9 @@ jobs:
       - name: Art Archive thumbnail cache contract
         run: npm run test:art-archive-thumbnails
 
+      - name: Gallery feed thumbnail contract
+        run: npm run test:art-image-thumbnail
+
       - name: Art Archive preset modifiers contract
         run: npm run test:art-archive-preset-modifiers
 

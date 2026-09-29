@@ -16,13 +16,17 @@
 // Pure, like every other derivation in this project: lessons in, steps out. No store, no
 // network, no component imports, so the whole course shape is testable by
 // utils/scripts/verifyMandarinCourse.test.ts.
+import type { MandarinCard } from './mandarin'
 import { isTeachingRole, type MandarinLesson } from './mandarinLesson'
 
 /**
  * The five beats of one word's teaching run.
  *
- * Order is pedagogical, not structural: recognise the thing, hear it, take it apart,
- * place it among its relatives, then try to produce it from memory. `recall` is always
+ * Order is pedagogical, not structural: learn the parts, meet the whole they make, hear
+ * it, place it among its relatives, then try to produce it from memory. `pieces` comes
+ * FIRST (Silas, 2026-09-29: "we should learn the parts before we learn the combinations
+ * ... I should learn roof before I learn house"); until then it came third, so 家 was
+ * shown whole and only afterwards taken apart into 宀 and 豕. `recall` is always
  * last and always present -- a run that never asks the learner to retrieve anything is a
  * slideshow, not a lesson.
  */
@@ -67,13 +71,13 @@ export const MANDARIN_COURSE_INTRO: Extract<
 >[] = [
   {
     kind: 'intro',
-    id: 'intro-not-pictures',
-    title: 'Characters are not pictures',
-    body: 'A few are — 山 really is a mountain. But most characters are built from two jobs: one piece points at the meaning, and one piece points at the sound. Once you can tell which is which, a wall of unfamiliar characters turns into a small set of parts you already know, recombined.',
+    id: 'intro-parts-first',
+    title: 'Parts first, then the whole',
+    body: 'Every character here is taught from its parts up. Some began as simple pictures — 木 was drawn as a tree. Some put pictures together into an idea — a person 亻 leaning on a tree 木 is 休, to rest. Most pair a part for the meaning with a part for the sound. So before each new word you learn what its parts mean and what they were first drawn as, and then you see how they combine.',
     example: [
-      { glyph: '氵', label: 'means water' },
-      { glyph: '青', label: 'sounds like qīng' },
-      { glyph: '清', label: 'qīng — clear' },
+      { glyph: '宀', label: 'a roof' },
+      { glyph: '豕', label: 'a pig, drawn on its side' },
+      { glyph: '家', label: 'jiā — home' },
     ],
   },
   {
@@ -104,7 +108,7 @@ export const MANDARIN_COURSE_INTRO: Extract<
     kind: 'intro',
     id: 'intro-how-this-works',
     title: 'How this works',
-    body: 'For each word you meet it, hear it, take it apart, see what shares its sound, and then try to recall it. Nothing here is timed, nothing is a streak, and nothing will chase you by notification. Stop whenever you like — what you have learned is saved, and the words you have already read come back when they are due, not when an app wants your attention.',
+    body: 'For each word you learn its parts, meet the word they make, hear it, see what shares its sound, and then try to recall it. Nothing here is timed, nothing is a streak, and nothing will chase you by notification. Stop whenever you like — what you have learned is saved, and the words you have already read come back when they are due, not when an app wants your attention.',
   },
 ]
 
@@ -141,9 +145,10 @@ export function buildWordRun(
 
   if (options.alreadyLearned) return [step('recall')]
 
-  const beats: MandarinCourseBeat[] = ['meet', 'sound']
+  const beats: MandarinCourseBeat[] = []
 
-  // `pieces` needs at least one component the source gives a JOB to.
+  // `pieces` needs at least one component the source gives a JOB to, and it runs
+  // before `meet` so the parts are known before the combination is shown.
   //
   // This rule was the opposite way round until 2026-09-20, and it was wrong. The old
   // test was "does this word have any components at all", on the reasoning that a
@@ -166,10 +171,67 @@ export function buildWordRun(
     beats.push('pieces')
   }
 
+  beats.push('meet', 'sound')
+
   if (lesson.soundFamilies.length > 0) beats.push('family')
 
   beats.push('recall')
   return beats.map(step)
+}
+
+/**
+ * Put a word's parts ahead of the word when the parts are words in their own right.
+ *
+ * The pieces beat already teaches every part before its word. This does the same thing
+ * one level up: when a part is itself a catalog card the learner has not learned yet --
+ * 日 and 月 for 明, 女 and 子 for 好, 口 for 吃 -- that card is taught as its own word
+ * first, in this session, so the learner meets 日 as "sun" before meeting it as half of
+ * "bright". Parts that are only ever parts (宀, 扌, 戈) stay on the pieces screen.
+ *
+ * `keys` is the session in the caller's order. Pulled-in parts count toward `limit`, so
+ * a session never grows: a word whose parts do not fit is left for a later session rather
+ * than taught before them. Recursion is one level deep on purpose -- a part of a part
+ * is already taught by that part's own pieces beat.
+ */
+export function orderPartsFirst(input: {
+  keys: string[]
+  cards: MandarinCard[]
+  learnedKeys?: ReadonlySet<string>
+  limit: number
+}): string[] {
+  const learned = input.learnedKeys ?? new Set<string>()
+  const bySimplified = new Map<string, MandarinCard>()
+  for (const card of input.cards) {
+    if (!bySimplified.has(card.simplified))
+      bySimplified.set(card.simplified, card)
+  }
+  const byKey = new Map(input.cards.map((card) => [card.key, card]))
+
+  const out: string[] = []
+  for (const key of input.keys) {
+    if (out.length >= input.limit) break
+    if (out.includes(key)) continue
+    const card = byKey.get(key)
+
+    const parts: string[] = []
+    if (card && !learned.has(key)) {
+      for (const component of card.components) {
+        if (!isTeachingRole(component.role)) continue
+        const part = bySimplified.get(component.glyph)
+        if (!part || part.key === key) continue
+        if (learned.has(part.key) || out.includes(part.key)) continue
+        if (!parts.includes(part.key)) parts.push(part.key)
+      }
+    }
+
+    if (out.length + parts.length + 1 > input.limit) {
+      // Room for the word alone is not enough: teaching it before its parts is the
+      // exact order this function exists to prevent. Skip it for this session.
+      if (parts.length) continue
+    }
+    out.push(...parts, key)
+  }
+  return out.slice(0, input.limit)
 }
 
 export type MandarinCoursePlanInput = {

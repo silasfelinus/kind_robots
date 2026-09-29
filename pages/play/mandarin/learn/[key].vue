@@ -84,15 +84,17 @@
                 <span
                   class="kr-badge-sm"
                   :class="
-                    lesson.teachability === 'structural'
-                      ? 'badge-success badge-outline'
-                      : 'badge-ghost'
+                    lesson.teachability === 'vocabulary'
+                      ? 'badge-ghost'
+                      : 'badge-success badge-outline'
                   "
                 >
                   {{
                     lesson.teachability === 'structural'
                       ? 'Has a structural story'
-                      : 'Learn as vocabulary'
+                      : lesson.teachability === 'pictograph'
+                        ? 'Began as a picture'
+                        : 'Learn as vocabulary'
                   }}
                 </span>
               </div>
@@ -185,8 +187,9 @@
         <section class="kr-panel-section-flat">
           <h2 class="kr-text-bold-lg">What each piece does</h2>
           <p class="kr-text-faded-xs mt-1">
-            A character is not a picture of its meaning. Most are built from one
-            piece that points at the meaning and one that points at the sound.
+            Some characters began as pictures, some put pictures together into
+            an idea, and most pair a piece for the meaning with a piece for the
+            sound.
           </p>
 
           <div v-if="teachingCharacters.length" class="mt-3 space-y-3">
@@ -198,6 +201,12 @@
               <span class="text-4xl leading-none font-semibold">{{
                 entry.character
               }}</span>
+              <p
+                v-if="describeOrigin(entry.formation)"
+                class="mt-2 text-sm leading-relaxed"
+              >
+                {{ describeOrigin(entry.formation) }}
+              </p>
 
               <div class="mt-3 space-y-2">
                 <div
@@ -216,6 +225,16 @@
                       </p>
                       <p class="mt-1 text-sm leading-relaxed">
                         {{ component.contribution }}
+                      </p>
+                      <p
+                        v-if="describeOrigin(component.origin)"
+                        class="kr-text-faded-xs mt-1 leading-relaxed"
+                      >
+                        {{ component.glyph }}
+                        <span v-if="component.pinyin"
+                          >({{ component.pinyin }})</span
+                        >
+                        on its own: {{ describeOrigin(component.origin) }}
                       </p>
                     </div>
                   </div>
@@ -442,7 +461,11 @@ import { computed, onMounted, ref, watch } from 'vue'
 import { performFetch } from '@/stores/utils'
 import { useMandarinTutorStore } from '@/stores/mandarinTutorStore'
 import type { MandarinComponentRole } from '@/utils/mandarin'
-import { isTeachingRole, type MandarinLesson } from '@/utils/mandarinLesson'
+import {
+  describeOrigin,
+  isTeachingRole,
+  type MandarinLesson,
+} from '@/utils/mandarinLesson'
 
 const route = useRoute()
 const store = useMandarinTutorStore()
@@ -560,6 +583,7 @@ const studyLink = computed(
 const ROLE_LABELS: Record<MandarinComponentRole, string> = {
   semantic: 'Meaning component',
   phonetic: 'Sound component',
+  idea: 'Picture part',
   radical: 'Dictionary radical',
   form: 'Written component',
   uncertain: 'Unresolved',
@@ -572,6 +596,7 @@ function roleLabel(role: MandarinComponentRole): string {
 const ROLE_TINTS: Record<MandarinComponentRole, string> = {
   semantic: 'border-success/35 bg-success/8',
   phonetic: 'border-info/35 bg-info/8',
+  idea: 'border-secondary/35 bg-secondary/8',
   radical: 'border-base-300 bg-base-200/35',
   form: 'border-base-300 bg-base-100',
   uncertain: 'border-warning/35 bg-warning/8',

@@ -33,7 +33,9 @@ jobs:
           target=120
 
           for attempt in $(seq 1 10); do
-            response="$(curl -fsS -X POST https://kindrobots.org/api/tzaddik/discovery/replenish               -H "x-beta-admin-token: $ADMIN_TOKEN"               -H 'content-type: application/json'               --data '{}')"
+            response="$(curl -fsS -X POST https://kindrobots.org/api/tzaddik/discovery/replenish \
+              -H "x-beta-admin-token: $ADMIN_TOKEN" \
+              --json '{}')"
 
             echo "$response" | jq -c '{message, data}'
 

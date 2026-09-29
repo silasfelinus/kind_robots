@@ -1,14 +1,15 @@
 // /server/utils/tzaddikSourceRefresh.ts
 //
 // Live Wikipedia/Wikidata/Commons refresh for a Tzaddik candidate's sourced
-// provenance fields. Wikipedia summary is the first source, MediaWiki
-// pageimages is the second, and Wikidata P18/Commons is the final automatic
-// image fallback. Living/memorial status is verified from Wikidata's P570.
+// provenance fields. For portraits, prefer Wikidata P18 because it is the
+// person-specific curated Commons image; Wikipedia summary/pageimages are
+// fallbacks. Living/memorial status is verified from Wikidata's P570.
 const USER_AGENT =
   'KindRobotsTzaddikGallery/1.0 (https://kindrobots.org; contact via kindrobots.org)'
 const FETCH_TIMEOUT_MS = 10_000
 const MAX_SNAPSHOT_BYTES = 900_000
 const COMMONS_THUMB_WIDTH = 1600
+const IMAGE_SELECTION_VERSION = 2
 
 export class TzaddikSourceFetchError extends Error {
   constructor(message: string) {
@@ -293,6 +294,14 @@ async function resolveImage(
     : null
   const thumbnail = isRecord(summary.thumbnail) ? summary.thumbnail : null
 
+  // Wikidata P18 is deliberately first. It is attached to the person's
+  // entity rather than merely being the article's current lead media, which
+  // makes it a better default portrait for a people gallery.
+  if (wikidata.imageFileName) {
+    const wikidataPortrait = await fetchCommonsImage(wikidata.imageFileName)
+    if (wikidataPortrait.imageFileUrl) return wikidataPortrait
+  }
+
   const candidates = [
     stringField(originalImage?.source),
     stringField(thumbnail?.source),
@@ -310,10 +319,6 @@ async function resolveImage(
       ...EMPTY_IMAGE_PROVENANCE,
       imageFileUrl: source,
     }
-  }
-
-  if (wikidata.imageFileName) {
-    return await fetchCommonsImage(wikidata.imageFileName)
   }
 
   return EMPTY_IMAGE_PROVENANCE
@@ -346,6 +351,7 @@ export async function fetchTzaddikSource(
     wikidataId: wikidata.id,
     deathDate: deathDate ? deathDate.toISOString() : null,
     imageFileName: wikidata.imageFileName,
+    imageSelectionVersion: IMAGE_SELECTION_VERSION,
   }).slice(0, MAX_SNAPSHOT_BYTES)
 
   return {

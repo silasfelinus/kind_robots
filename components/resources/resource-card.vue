@@ -62,6 +62,7 @@
 import { computed } from 'vue'
 import type { ResourceGalleryRecord } from '@/stores/resourceGalleryStore'
 import { LORA_CATEGORY_META, normalizeLoraCategory } from '@/utils/loraCategory'
+import { renderableArtPath } from '@/utils/artImageSrc'
 
 const props = defineProps<{
   resource: ResourceGalleryRecord
@@ -75,9 +76,9 @@ const previewSrc = computed(
   () =>
     props.resource.ArtImage?.thumbnailPath ||
     props.resource.ArtImage?.imagePath ||
-    props.resource.ArtImage?.path ||
-    props.resource.previewImageUrl ||
+    renderableArtPath(props.resource.ArtImage?.path) ||
     props.resource.imagePath ||
+    props.resource.previewImageUrl ||
     '/images/kindart.webp',
 )
 

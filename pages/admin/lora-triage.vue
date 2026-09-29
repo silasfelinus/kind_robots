@@ -610,6 +610,7 @@ import { useUserStore } from '@/stores/userStore'
 import { useLoraTriageStore } from '@/stores/loraTriageStore'
 import type { ResourceGalleryRecord } from '@/stores/resourceGalleryStore'
 import { hasBlindPreview } from '@/utils/loraProbe'
+import { renderableArtPath } from '@/utils/artImageSrc'
 import {
   LORA_CATEGORIES,
   LORA_CATEGORY_META,
@@ -779,9 +780,9 @@ function previewSrc(resource: ResourceGalleryRecord): string {
   return (
     resource.ArtImage?.thumbnailPath ||
     resource.ArtImage?.imagePath ||
-    resource.ArtImage?.path ||
-    resource.previewImageUrl ||
+    renderableArtPath(resource.ArtImage?.path) ||
     resource.imagePath ||
+    resource.previewImageUrl ||
     '/images/kindart.webp'
   )
 }

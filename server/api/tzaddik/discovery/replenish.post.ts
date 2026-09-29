@@ -108,7 +108,7 @@ function normalizedWikipediaUrl(value: unknown): string | null {
 
 function normalizedTags(value: unknown): TzaddikEditorialTag[] {
   if (!Array.isArray(value)) return []
-  const allowed = new Set(AUTO_TAGS)
+  const allowed = new Set<string>(AUTO_TAGS)
   const result = new Set<TzaddikEditorialTag>()
   for (const raw of value) {
     if (

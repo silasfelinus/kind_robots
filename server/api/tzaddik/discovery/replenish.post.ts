@@ -111,10 +111,7 @@ function normalizedTags(value: unknown): TzaddikEditorialTag[] {
   const allowed = new Set<string>(AUTO_TAGS)
   const result = new Set<TzaddikEditorialTag>()
   for (const raw of value) {
-    if (
-      typeof raw === 'string' &&
-      allowed.has(raw as TzaddikEditorialTag)
-    ) {
+    if (typeof raw === 'string' && allowed.has(raw as TzaddikEditorialTag)) {
       result.add(raw as TzaddikEditorialTag)
     }
   }
@@ -195,7 +192,9 @@ export default defineEventHandler(async (event) => {
       orderBy: { updatedAt: 'desc' },
       take: 400,
     })
-    const existingNames = existing.map((entry) => entry.displayName).slice(0, 220)
+    const existingNames = existing
+      .map((entry) => entry.displayName)
+      .slice(0, 220)
     const requested = Math.min(MAX_GENERATED_PER_RUN, Math.max(12, needed))
 
     const system = [
@@ -229,7 +228,9 @@ export default defineEventHandler(async (event) => {
     })
 
     const seenUrls = new Set(existing.map((entry) => entry.wikipediaUrl))
-    const seenNames = new Set(existing.map((entry) => entry.displayName.toLowerCase()))
+    const seenNames = new Set(
+      existing.map((entry) => entry.displayName.toLowerCase()),
+    )
     let createdCount = 0
     const failures: Array<{ displayName: string; reason: string }> = []
 
@@ -244,7 +245,11 @@ export default defineEventHandler(async (event) => {
       const region = clean(raw.region, 128)
 
       if (!displayName || !wikipediaUrl || !rationale || !tags.length) continue
-      if (seenUrls.has(wikipediaUrl) || seenNames.has(displayName.toLowerCase())) continue
+      if (
+        seenUrls.has(wikipediaUrl) ||
+        seenNames.has(displayName.toLowerCase())
+      )
+        continue
 
       let source
       try {

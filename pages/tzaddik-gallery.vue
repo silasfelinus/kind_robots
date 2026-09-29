@@ -425,12 +425,7 @@ import type { TzaddikEditorialTag } from '~/prisma/generated/prisma/client'
 import { TZADDIK_TAG_ORDER, tzaddikTagLabel } from '@/utils/tzaddikTags'
 
 type TabKey =
-  | 'living'
-  | 'memorial'
-  | 'popculture'
-  | 'suggestions'
-  | 'review'
-  | 'info'
+  'living' | 'memorial' | 'popculture' | 'suggestions' | 'review' | 'info'
 
 const BASE_TABS: { key: TabKey; label: string; icon: string; body: string }[] =
   [

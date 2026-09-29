@@ -206,9 +206,6 @@
                   >
                     {{ describeOrigin(component.origin) }}
                   </p>
-                  <p class="kr-text-faded-xs mt-1 leading-relaxed">
-                    {{ partJob(component.role) }}
-                  </p>
                 </div>
               </div>
             </div>
@@ -422,21 +419,6 @@ const formedCharacters = computed(() =>
     }))
     .filter((entry) => entry.origin),
 )
-
-/**
- * What the part will do in the word, said without naming the word. The pieces beat now
- * comes before `meet`, so it cannot say "it puts 家 in the world of..." -- the learner has
- * not seen 家 yet.
- */
-function partJob(role: MandarinComponentRole): string {
-  if (role === 'semantic')
-    return 'In the next word, this part carries the meaning.'
-  if (role === 'phonetic')
-    return 'In the next word, this part hints at the sound.'
-  if (role === 'idea')
-    return 'In the next word, this is one of the pictures that build the idea.'
-  return ''
-}
 
 const ROLE_LABELS: Record<MandarinComponentRole, string> = {
   semantic: 'Meaning part',

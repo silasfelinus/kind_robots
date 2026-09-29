@@ -9,6 +9,11 @@ import type {
 } from '@/server/api/conductor/projects.get'
 import { CONDUCTOR_CARDS } from '@/stores/helpers/conductorCards'
 import { performFetch } from '@/stores/utils'
+import {
+  taskActionRequiresMessage,
+  type ConductorTaskAction,
+} from '@/utils/conductorTaskActions'
+export type { ConductorTaskAction } from '@/utils/conductorTaskActions'
 
 export type PitchVote = 'approved' | 'passed'
 export type PitchStatus =
@@ -19,20 +24,6 @@ export type PitchStatus =
   | 'superseded'
   | 'archived'
 export type PitchBucket = 'review' | 'approved' | 'rejected' | 'archived'
-/**
- * Gate actions deliberately separate three different human intents:
- * - `answer`: provide context and release back to `ready`, without an approval verdict.
- * - `proceed`: explicitly authorize the scoped work and release back to `ready`.
- * - `approve`: accept the task as complete and close it at `done`.
- * `comment` adds context while leaving the gate parked.
- */
-export type ConductorTaskAction =
-  | 'approve'
-  | 'proceed'
-  | 'reject'
-  | 'comment'
-  | 'answer'
-
 export interface ConductorHumanGate {
   project: ConductorProject
   task: ConductorTask
@@ -315,7 +306,7 @@ export const useConductorStore = defineStore('conductor', () => {
     if (updatingTaskKeys.value.includes(key)) return false
 
     const trimmedMessage = message.trim()
-    if (action !== 'approve' && !trimmedMessage) {
+    if (taskActionRequiresMessage(action) && !trimmedMessage) {
       taskUpdateError.value = 'Add a message before sending this action.'
       return false
     }

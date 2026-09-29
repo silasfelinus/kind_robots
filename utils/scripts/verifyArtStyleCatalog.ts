@@ -8,6 +8,13 @@ import {
 } from '../artStyleCatalog'
 import { checkArtPromptContract } from '../../server/utils/artPromptContract'
 
+// The three subjects of the 2026-09-29 style bake-off.
+const SAMPLE_SUBJECTS = [
+  'character portrait of a young fox-featured river courier with a patched canvas satchel and a bright scarf, mid-stride on a sloping rooftop, quick clever expression, vertical 2:3 portrait composition, full figure with room around it',
+  'a floating market of patched wooden boats on a wide river delta, stalls stacked with fruit, lanterns and bolts of cloth, towpath and reeds in the distance, vertical 2:3 portrait composition, wide establishing view with a strong foreground anchor',
+  'a single brass hourglass with its sand flowing upward, resting on a worn wooden table, one object alone, vertical 2:3 portrait composition, close still-life view',
+]
+
 // Ids are unique and every style is paintable on Krea 2 as written.
 const ids = new Set(ART_STYLE_CATALOG.map((style) => style.id))
 assert.equal(ids.size, ART_STYLE_CATALOG.length, 'style ids must be unique')
@@ -19,10 +26,23 @@ for (const style of ART_STYLE_CATALOG) {
     `${style.id} weight`,
   )
   assert.deepEqual(
-    checkArtPromptContract({ prompt: style.prompt }),
+    checkArtPromptContract({ prompt: style.prompt, engine: 'krea2' }),
     [],
     `${style.id} breaks the art prompt contract`,
   )
+  // Some rules only fire in context: art nouveau's "ornamental curving frames"
+  // passed alone and was rejected at enqueue once a character stood in front
+  // of it (bake-off ArtJob 31767). Check each style as it is actually sent.
+  for (const subject of SAMPLE_SUBJECTS) {
+    assert.deepEqual(
+      checkArtPromptContract({
+        prompt: withArtStyle(subject, style),
+        engine: 'krea2',
+      }),
+      [],
+      `${style.id} breaks the art prompt contract after "${subject.slice(0, 30)}..."`,
+    )
+  }
 }
 
 // The super vibrant narrator cartoon style is in the bank.

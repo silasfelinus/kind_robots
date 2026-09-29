@@ -10,10 +10,15 @@
  * builder (scripts/dream_art_prompts.py) reads a byte-identical copy at
  * scripts/data/art-style-catalog.json -- edit this one, then copy it across.
  *
+ * The list is the result of the 2026-09-29 bake-off: 32 candidate styles, each
+ * rendered on Krea 2 against the same three subjects and seeds (a character, a
+ * location, an object). Styles that collapsed into the same generic cartoon or
+ * went pale were cut; the 20 kept each read as their own medium on all three.
+ *
  * `weight` is how often the Daily Dream lane lands on a style relative to the
- * others. Vibrant styles carry 2-4, moody ones 1, so a gloomy day still happens
- * but only about one day in sixteen -- the complaint was that most days came out
- * gloomy, not that none should.
+ * others. Vibrant styles carry 3-4, the two moody ones 2, so a gloomy day still
+ * happens but only about one day in fifteen -- the complaint was that most days
+ * came out gloomy, not that none should.
  *
  * Every prompt names a medium to paint, never a prohibition: Krea 2 renders at
  * cfg 1, where a negative prompt is inert and a negated noun is positive

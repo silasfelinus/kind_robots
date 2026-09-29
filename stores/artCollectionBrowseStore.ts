@@ -4,6 +4,7 @@ import type { ArtImage } from '~/prisma/generated/prisma/client'
 import type { ArtCollection } from '@/stores/helpers/collectionHelper'
 import { useArtStore } from '@/stores/artStore'
 import { handleError, performFetch } from '@/stores/utils'
+import { createLatestFirstQueue } from '@/stores/helpers/latestFirstQueue'
 
 export type BrowseArtCollection = ArtCollection & {
   artImages?: ArtImage[]
@@ -26,6 +27,11 @@ export type UnsortedArtSummary = {
 type ApiCollection = BrowseArtCollection & {
   ArtImages?: ArtImage[]
 }
+
+// Each collection tile asks for its own count and preview as it nears the
+// viewport. Three at a time, newest first, so the tiles on screen are not stuck
+// behind every tile a fast scroll already went past.
+const summaryQueue = createLatestFirstQueue(3)
 
 const EMPTY_UNSORTED_SUMMARY: UnsortedArtSummary = {
   count: 0,
@@ -173,8 +179,10 @@ export const useArtCollectionBrowseStore = defineStore(
             privacy,
             showMature: maturity === 'safe' ? 'false' : 'true',
           })
-          const response = await performFetch<ApiCollection[]>(
-            `/api/art/collection?${params.toString()}`,
+          const response = await summaryQueue.run(() =>
+            performFetch<ApiCollection[]>(
+              `/api/art/collection?${params.toString()}`,
+            ),
           )
           const first = Array.isArray(response.data) ? response.data[0] : null
 
@@ -195,7 +203,9 @@ export const useArtCollectionBrowseStore = defineStore(
 
           return normalized
         } catch (error) {
-          handleError(error, `loading collection #${id} summary`)
+          // One tile's preview is not worth an error dialog per card; the tile
+          // keeps its placeholder and the next view retries it.
+          console.warn(`Collection #${id} summary failed to load.`, error)
           return null
         } finally {
           collectionSummaryRequests.delete(id)

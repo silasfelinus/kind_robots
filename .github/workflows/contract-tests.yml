@@ -189,6 +189,9 @@ jobs:
       - name: Mandarin course contract
         run: npm run test:mandarin-course
 
+      - name: Mandarin parts-first teaching order
+        run: npm run test:mandarin-parts-first
+
       - name: Reaction route auth contract
         run: npm run test:reaction-route-auth
 

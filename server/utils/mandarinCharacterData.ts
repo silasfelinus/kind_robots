@@ -1,4 +1,8 @@
-import type { MandarinCard, MandarinComponent } from '~/utils/mandarin'
+import type {
+  MandarinCard,
+  MandarinComponent,
+  MandarinFormation,
+} from '~/utils/mandarin'
 
 const SOURCE_COMMIT = 'bddc96d41bef78427ed0e034e9f7e31d71fd1b92'
 const SOURCE_URL = `https://raw.githubusercontent.com/skishore/makemeahanzi/${SOURCE_COMMIT}/dictionary.txt`
@@ -17,7 +21,7 @@ export type MandarinCharacterDataEtymology = {
   semantic?: string
 }
 
-type MandarinCharacterDataEntry = {
+export type MandarinCharacterDataEntry = {
   character?: string
   definition?: string
   pinyin?: string[]
@@ -30,9 +34,13 @@ type ParsedCharacterAnalysis = {
   character: string
   components: MandarinComponent[]
   history: string
+  formation: MandarinFormation | null
 }
 
-let dictionaryPromise: Promise<Map<string, MandarinCharacterDataEntry>> | null = null
+type CharacterDictionary = Map<string, MandarinCharacterDataEntry>
+
+let dictionaryPromise: Promise<Map<string, MandarinCharacterDataEntry>> | null =
+  null
 
 function cleanText(value: unknown): string {
   return typeof value === 'string' ? value.trim() : ''
@@ -87,8 +95,61 @@ function normalizedEtymology(
   }
 }
 
+function formationFor(
+  entry: MandarinCharacterDataEntry | undefined,
+): MandarinFormation | null {
+  const character = cleanText(entry?.character)
+  const etymology = normalizedEtymology(entry?.etymology)
+  if (!character || !etymology?.type) return null
+  return {
+    character,
+    type: etymology.type,
+    ...(etymology.hint ? { hint: etymology.hint } : {}),
+  }
+}
+
+/** The first sense of a dictionary definition: "spear, lance, halberd" -> "spear". */
+function shortDefinition(definition: string): string {
+  return definition.split(/[;,]/)[0]?.trim() || definition
+}
+
+/**
+ * Look a part up as a character in its own right, so the lesson can teach 戈 before
+ * it teaches 我 (Silas, 2026-09-29: "we should learn the parts before we learn the
+ * combinations ... I should learn roof before I learn house"). Everything added here is
+ * the source's entry for the PART; a part the source has no entry for gets nothing.
+ */
+function withPartDetails(
+  component: MandarinComponent,
+  dictionary: CharacterDictionary,
+): MandarinComponent {
+  if (
+    component.role === 'radical' ||
+    component.role === 'form' ||
+    component.role === 'uncertain'
+  ) {
+    return component
+  }
+  const partEntry = dictionary.get(component.glyph)
+  if (!partEntry) return component
+  const definition = cleanText(partEntry.definition)
+  const pinyin = Array.isArray(partEntry.pinyin)
+    ? cleanText(partEntry.pinyin[0])
+    : ''
+  const origin = formationFor(partEntry)
+  return {
+    ...component,
+    ...(!component.meaning && definition
+      ? { meaning: shortDefinition(definition) }
+      : {}),
+    ...(pinyin ? { pinyin } : {}),
+    ...(origin ? { origin } : {}),
+  }
+}
+
 function roleComponents(
   entry: MandarinCharacterDataEntry,
+  dictionary: CharacterDictionary = new Map(),
 ): MandarinComponent[] {
   const character = cleanText(entry.character)
   const decomposition = cleanText(entry.decomposition)
@@ -100,7 +161,8 @@ function roleComponents(
     if (
       components.some(
         (existing) =>
-          existing.glyph === component.glyph && existing.role === component.role,
+          existing.glyph === component.glyph &&
+          existing.role === component.role,
       )
     ) {
       return
@@ -126,6 +188,27 @@ function roleComponents(
         character,
         label: `${character} sound clue`,
         note: `The source explicitly identifies this as the phonetic element; it is not being treated as a second literal definition. ${SOURCE_NOTE}.`,
+      })
+    }
+  }
+
+  // An ideographic character is an idea drawn with pictures: 休 is "a person 亻
+  // leaning against a tree 木". The source names the parts that carry the idea inside
+  // its own hint, so a leaf is an idea part exactly when the hint names it -- no leaf
+  // is promoted on a guess. Before 2026-09-29 these parts fell through to `form`, and
+  // 我, 你, 好 and 休 all told the learner "its parts don't explain this one" while the
+  // source sat there explaining them.
+  if (etymology?.type === 'ideographic' && etymology.hint && decomposition) {
+    for (const glyph of decompositionLeaves(decomposition)) {
+      if (!etymology.hint.includes(glyph)) continue
+      const definition = cleanText(dictionary.get(glyph)?.definition)
+      addComponent({
+        glyph,
+        role: 'idea',
+        character,
+        label: `${character} idea part`,
+        ...(definition ? { meaning: shortDefinition(definition) } : {}),
+        note: `The source's formation analysis names this part: “${etymology.hint}”. ${SOURCE_NOTE}.`,
       })
     }
   }
@@ -180,7 +263,7 @@ function roleComponents(
     })
   }
 
-  return components
+  return components.map((component) => withPartDetails(component, dictionary))
 }
 
 function historyFor(entry: MandarinCharacterDataEntry): string {
@@ -196,9 +279,13 @@ function historyFor(entry: MandarinCharacterDataEntry): string {
       )
     }
     if (etymology.phonetic) {
-      roles.push(`${etymology.phonetic} is identified as the phonetic/sound element`)
+      roles.push(
+        `${etymology.phonetic} is identified as the phonetic/sound element`,
+      )
     }
-    const detail = roles.length ? roles.join('; ') : 'the source classifies the formation as pictophonetic'
+    const detail = roles.length
+      ? roles.join('; ')
+      : 'the source classifies the formation as pictophonetic'
     return `${character}: ${detail}. Source formation analysis: ${SOURCE_NOTE}.`
   }
 
@@ -220,17 +307,31 @@ function historyFor(entry: MandarinCharacterDataEntry): string {
   return `${character}: the pinned source does not provide a reliable decomposition or formation analysis, so the tutor makes no historical claim. Source: ${SOURCE_NOTE}.`
 }
 
-function analyzeEntry(entry: MandarinCharacterDataEntry): ParsedCharacterAnalysis | null {
+function analyzeEntry(
+  entry: MandarinCharacterDataEntry,
+  dictionary: CharacterDictionary = new Map(),
+): ParsedCharacterAnalysis | null {
   const character = cleanText(entry.character)
   if (!character) return null
   return {
     character,
-    components: roleComponents(entry),
+    components: roleComponents(entry, dictionary),
     history: historyFor(entry),
+    formation: formationFor(entry),
   }
 }
 
-async function loadDictionary(): Promise<Map<string, MandarinCharacterDataEntry>> {
+/** The pure per-character analysis, exported so it can be tested without the network fetch. */
+export function analyzeMandarinCharacter(
+  entry: MandarinCharacterDataEntry,
+  dictionary: CharacterDictionary,
+): ParsedCharacterAnalysis | null {
+  return analyzeEntry(entry, dictionary)
+}
+
+async function loadDictionary(): Promise<
+  Map<string, MandarinCharacterDataEntry>
+> {
   const raw = await $fetch<string, string>(SOURCE_URL, {
     retry: 2,
     timeout: 30_000,
@@ -250,7 +351,9 @@ async function loadDictionary(): Promise<Map<string, MandarinCharacterDataEntry>
       const character = cleanText(parsed.character)
       if (character) dictionary.set(character, parsed)
     } catch {
-      throw new Error(`Make Me a Hanzi dictionary line ${index + 1} was invalid JSON.`)
+      throw new Error(
+        `Make Me a Hanzi dictionary line ${index + 1} was invalid JSON.`,
+      )
     }
   }
 
@@ -273,7 +376,8 @@ function getDictionary(): Promise<Map<string, MandarinCharacterDataEntry>> {
 function cardCharacters(card: MandarinCard): string[] {
   const characters: string[] = []
   for (const glyph of [...card.simplified]) {
-    if (isHanCharacter(glyph) && !characters.includes(glyph)) characters.push(glyph)
+    if (isHanCharacter(glyph) && !characters.includes(glyph))
+      characters.push(glyph)
   }
   return characters
 }
@@ -287,16 +391,22 @@ export async function enrichMandarinCharacterData(
     const analyses = cardCharacters(card)
       .map((character) => dictionary.get(character))
       .filter((entry): entry is MandarinCharacterDataEntry => Boolean(entry))
-      .map(analyzeEntry)
-      .filter((analysis): analysis is ParsedCharacterAnalysis => Boolean(analysis))
+      .map((entry) => analyzeEntry(entry, dictionary))
+      .filter((analysis): analysis is ParsedCharacterAnalysis =>
+        Boolean(analysis),
+      )
 
     if (!analyses.length) return card
 
     const components = analyses.flatMap((analysis) => analysis.components)
     const history = analyses.map((analysis) => analysis.history).join(' • ')
+    const formations = analyses
+      .map((analysis) => analysis.formation)
+      .filter((formation): formation is MandarinFormation => Boolean(formation))
 
     return {
       ...card,
+      ...(formations.length ? { formations } : {}),
       ...(components.length ? { components } : {}),
       ...(history ? { history } : {}),
       historyStatus: history ? 'starter' : card.historyStatus,
@@ -308,5 +418,6 @@ export const MANDARIN_CHARACTER_DATA_PROVENANCE = {
   label: SOURCE_LABEL,
   version: `skishore/makemeahanzi@${SOURCE_COMMIT}`,
   license: SOURCE_LICENSE,
-  sourceUrl: 'https://github.com/skishore/makemeahanzi/blob/master/dictionary.txt',
+  sourceUrl:
+    'https://github.com/skishore/makemeahanzi/blob/master/dictionary.txt',
 } as const

@@ -78,6 +78,18 @@
         Also: {{ lesson.meanings.slice(1).join(' · ') }}
       </p>
 
+      <!-- The combination, told AFTER its parts (Silas, 2026-09-29: "we should learn the
+           parts before we learn the combinations"). The pieces beat has already taught
+           each part, so this line is where they click together. -->
+      <div
+        v-for="entry in formedCharacters"
+        :key="`formation-${entry.character}`"
+        class="kr-panel-flat mx-auto mt-4 max-w-xl p-3 text-center"
+      >
+        <p class="kr-text-eyebrow-bold">How {{ entry.character }} was made</p>
+        <p class="mt-1 text-sm leading-relaxed">{{ entry.origin }}</p>
+      </div>
+
       <!-- A word whose parts the source gives no job to gets NO pieces screen (see
            utils/mandarinCourse.ts). Saying so here, in one clause, is the whole of what
            that screen was ever able to say. -->
@@ -143,12 +155,17 @@
       </button>
     </template>
 
-    <!-- WHAT IT'S BUILT FROM ----------------------------------------------- -->
+    <!-- THE PARTS, FIRST ---------------------------------------------------
+         Shown BEFORE the word itself: roof before house (Silas, 2026-09-29). Each part
+         is taught as a character in its own right -- its reading, its meaning, and what
+         it was originally drawn as -- and only then does `meet` put them together. -->
     <template v-else-if="beat === 'pieces' && lesson">
-      <p class="kr-text-eyebrow-bold text-primary">
-        What {{ lesson.simplified }} is built from
+      <p class="kr-text-eyebrow-bold text-primary">First, the parts</p>
+      <p class="kr-text-faded-xs mt-1 leading-relaxed">
+        The next word is built from
+        {{ partCount === 1 ? 'this piece' : `these ${partCount} pieces` }}.
+        Learn them first and the word will make sense when you meet it.
       </p>
-      <p class="kr-text-faded-xs mt-1 leading-relaxed">{{ lesson.summary }}</p>
 
       <div class="mt-4 space-y-3">
         <div
@@ -156,11 +173,11 @@
           :key="entry.character"
           class="kr-panel-flat p-3"
         >
-          <span class="text-4xl leading-none font-semibold">{{
-            entry.character
-          }}</span>
+          <p v-if="teachingCharacters.length > 1" class="kr-text-dim-xs-45">
+            Character {{ entry.position }} of the word
+          </p>
 
-          <div class="mt-3 space-y-2">
+          <div class="mt-1 space-y-2">
             <div
               v-for="component in entry.components"
               :key="`${component.glyph}:${component.role}`"
@@ -175,8 +192,22 @@
                   <p class="kr-text-eyebrow-bold">
                     {{ roleLabel(component.role) }}
                   </p>
-                  <p class="mt-1 text-sm leading-relaxed">
-                    {{ component.contribution }}
+                  <p v-if="component.meaning" class="mt-1 font-semibold">
+                    {{ component.meaning }}
+                    <span
+                      v-if="component.pinyin"
+                      class="ml-1 font-normal opacity-65"
+                      >{{ component.pinyin }}</span
+                    >
+                  </p>
+                  <p
+                    v-if="describeOrigin(component.origin)"
+                    class="mt-1 text-sm leading-relaxed"
+                  >
+                    {{ describeOrigin(component.origin) }}
+                  </p>
+                  <p class="kr-text-faded-xs mt-1 leading-relaxed">
+                    {{ partJob(component.role) }}
                   </p>
                 </div>
               </div>
@@ -185,14 +216,8 @@
         </div>
       </div>
 
-      <!-- Dictionary radicals and unexplained written parts are reference facts, not
-           lessons, so they get one muted line instead of a block each. Giving them equal
-           weight is what made 的's screen read as four ways of saying nothing. -->
-      <p
-        v-if="referenceNotes.length"
-        class="kr-text-dim-xs-45 mt-3 leading-relaxed"
-      >
-        {{ referenceNotes.join(' · ') }}
+      <p class="kr-text-dim-xs-45 mt-3 leading-relaxed">
+        Origins from Make Me a Hanzi.
       </p>
     </template>
 
@@ -334,7 +359,11 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import type { MandarinComponentRole } from '@/utils/mandarin'
-import { isTeachingRole, type MandarinLesson } from '@/utils/mandarinLesson'
+import {
+  describeOrigin,
+  isTeachingRole,
+  type MandarinLesson,
+} from '@/utils/mandarinLesson'
 import type { MandarinCourseStep } from '@/utils/mandarinCourse'
 
 const props = defineProps<{
@@ -363,13 +392,13 @@ const beat = computed(() =>
  *
  * A mixed word (电脑, where only 脑 decomposes) drops the silent half rather than
  * rendering it as a bare glyph, and a character whose only pieces are a dictionary
- * radical and an unexplained stroke group drops out entirely -- those move to
- * `referenceNotes` below.
+ * radical and an unexplained stroke group drops out entirely.
  */
 const teachingCharacters = computed(() =>
   (props.lesson?.characters ?? [])
-    .map((entry) => ({
+    .map((entry, index) => ({
       ...entry,
+      position: index + 1,
       components: entry.components.filter((component) =>
         isTeachingRole(component.role),
       ),
@@ -377,24 +406,42 @@ const teachingCharacters = computed(() =>
     .filter((entry) => entry.components.length > 0),
 )
 
-/** Radicals and unexplained written parts, as one muted line rather than a block each. */
-const referenceNotes = computed(() => {
-  const notes: string[] = []
-  for (const entry of props.lesson?.characters ?? []) {
-    for (const component of entry.components) {
-      if (isTeachingRole(component.role)) continue
-      if (component.role === 'uncertain') continue
-      if (!notes.includes(component.contribution)) {
-        notes.push(component.contribution)
-      }
-    }
-  }
-  return notes
-})
+const partCount = computed(() =>
+  teachingCharacters.value.reduce(
+    (total, entry) => total + entry.components.length,
+    0,
+  ),
+)
+
+/** Each character's formation line for the `meet` screen, dropping any with nothing to say. */
+const formedCharacters = computed(() =>
+  (props.lesson?.characters ?? [])
+    .map((entry) => ({
+      character: entry.character,
+      origin: describeOrigin(entry.formation),
+    }))
+    .filter((entry) => entry.origin),
+)
+
+/**
+ * What the part will do in the word, said without naming the word. The pieces beat now
+ * comes before `meet`, so it cannot say "it puts 家 in the world of..." -- the learner has
+ * not seen 家 yet.
+ */
+function partJob(role: MandarinComponentRole): string {
+  if (role === 'semantic')
+    return 'In the next word, this part carries the meaning.'
+  if (role === 'phonetic')
+    return 'In the next word, this part hints at the sound.'
+  if (role === 'idea')
+    return 'In the next word, this is one of the pictures that build the idea.'
+  return ''
+}
 
 const ROLE_LABELS: Record<MandarinComponentRole, string> = {
-  semantic: 'Meaning component',
-  phonetic: 'Sound component',
+  semantic: 'Meaning part',
+  phonetic: 'Sound part',
+  idea: 'Picture part',
   radical: 'Dictionary radical',
   form: 'Written component',
   uncertain: 'Unresolved',
@@ -407,6 +454,7 @@ function roleLabel(role: MandarinComponentRole): string {
 const ROLE_TINTS: Record<MandarinComponentRole, string> = {
   semantic: 'border-success/35 bg-success/8',
   phonetic: 'border-info/35 bg-info/8',
+  idea: 'border-secondary/35 bg-secondary/8',
   radical: 'border-base-300 bg-base-200/35',
   form: 'border-base-300 bg-base-100',
   uncertain: 'border-warning/35 bg-warning/8',

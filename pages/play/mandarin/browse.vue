@@ -25,8 +25,14 @@
         @art-error="markArtBroken"
       />
 
-      <section class="kr-panel-flat flex flex-wrap items-center justify-between gap-2 p-2 shadow-sm">
-        <NuxtLink to="/play/mandarin" class="kr-btn-ghost-xs-plain" title="Return to the guided course">
+      <section
+        class="kr-panel-flat flex flex-wrap items-center justify-between gap-2 p-2 shadow-sm"
+      >
+        <NuxtLink
+          to="/play/mandarin"
+          class="kr-btn-ghost-xs-plain"
+          title="Return to the guided course"
+        >
           <Icon name="kind-icon:arrow-left" class="kr-icon-4" />
           Guided course
         </NuxtLink>
@@ -58,11 +64,19 @@
              celebration -- Silas asked for something that trains people, explicitly not
              for the insistent, nudging shape. There is no streak here and no daily
              target, because he ruled those out by name. -->
-        <div v-if="pointTotals.totalPoints > 0" class="flex flex-wrap items-center gap-1">
-          <span class="kr-badge-primary-sm" :title="'Points earned from lessons read and cards recalled'">
+        <div
+          v-if="pointTotals.totalPoints > 0"
+          class="flex flex-wrap items-center gap-1"
+        >
+          <span
+            class="kr-badge-primary-sm"
+            :title="'Points earned from lessons read and cards recalled'"
+          >
             {{ pointTotals.totalPoints }} pts
           </span>
-          <span class="kr-badge-ghost-sm">{{ pointTotals.lessonsCompleted }} lessons</span>
+          <span class="kr-badge-ghost-sm"
+            >{{ pointTotals.lessonsCompleted }} lessons</span
+          >
           <span
             v-if="lastAward"
             class="kr-badge-success-sm"
@@ -91,43 +105,63 @@
 
       <div v-if="store.error" class="alert alert-error text-sm" role="alert">
         <span>{{ store.error }}</span>
-        <button class="kr-btn-plain" type="button" @click="store.loadCatalog()">Retry</button>
+        <button class="kr-btn-plain" type="button" @click="store.loadCatalog()">
+          Retry
+        </button>
       </div>
 
-      <div v-if="loading && !initialized" class="flex min-h-64 items-center justify-center">
+      <div
+        v-if="loading && !initialized"
+        class="flex min-h-64 items-center justify-center"
+      >
         <span class="loading loading-spinner loading-lg" />
       </div>
 
       <template v-else>
-        <section v-if="workspaceView === 'sets'" class="kr-panel-flat space-y-4 p-4 shadow-sm">
+        <section
+          v-if="workspaceView === 'sets'"
+          class="kr-panel-flat space-y-4 p-4 shadow-sm"
+        >
           <div class="flex flex-wrap items-center justify-between gap-2">
             <div>
               <h2 class="kr-text-bold-lg">Study sets</h2>
-              <p class="kr-text-faded-xs">Pick a deck, then jump straight back to the flash card.</p>
+              <p class="kr-text-faded-xs">
+                Pick a deck, then jump straight back to the flash card.
+              </p>
             </div>
             <span class="kr-badge-ghost">{{ allSets.length }} decks</span>
           </div>
 
-          <div class="grid grid-cols-[repeat(auto-fit,minmax(min(100%,17rem),1fr))] gap-2">
+          <div
+            class="grid grid-cols-[repeat(auto-fit,minmax(min(100%,17rem),1fr))] gap-2"
+          >
             <button
               v-for="set in allSets"
               :key="set.id"
               type="button"
               class="rounded-2xl border p-3 text-left transition"
-              :class="set.id === selectedSetId ? 'border-accent bg-accent/10' : 'border-base-300 bg-base-100 hover:border-primary/40'"
+              :class="
+                set.id === selectedSetId
+                  ? 'border-accent bg-accent/10'
+                  : 'border-base-300 bg-base-100 hover:border-primary/40'
+              "
               @click="selectDeck(set.id)"
             >
               <span class="flex items-start justify-between gap-2">
                 <span class="font-bold">{{ set.label }}</span>
                 <span class="kr-badge-ghost-sm">{{ set.cardKeys.length }}</span>
               </span>
-              <span class="mt-1 block text-xs leading-relaxed opacity-65">{{ set.description }}</span>
+              <span class="mt-1 block text-xs leading-relaxed opacity-65">{{
+                set.description
+              }}</span>
             </button>
           </div>
 
           <form class="kr-panel-divider" @submit.prevent="createSet">
             <label class="kr-form-field">
-              <span class="text-xs font-semibold opacity-65">New custom deck</span>
+              <span class="text-xs font-semibold opacity-65"
+                >New custom deck</span
+              >
               <div class="join w-full max-w-xl">
                 <input
                   v-model="newSetName"
@@ -135,16 +169,25 @@
                   placeholder="Work phrases"
                   maxlength="80"
                 />
-                <button class="btn btn-outline btn-sm join-item" type="submit" :disabled="!newSetName.trim()">
+                <button
+                  class="btn btn-outline btn-sm join-item"
+                  type="submit"
+                  :disabled="!newSetName.trim()"
+                >
                   Create
                 </button>
               </div>
             </label>
-            <p v-if="newSetNotice" class="mt-1 text-xs text-success">{{ newSetNotice }}</p>
+            <p v-if="newSetNotice" class="mt-1 text-xs text-success">
+              {{ newSetNotice }}
+            </p>
           </form>
         </section>
 
-        <section v-else-if="workspaceView === 'gallery'" class="kr-panel-flat p-3 shadow-sm">
+        <section
+          v-else-if="workspaceView === 'gallery'"
+          class="kr-panel-flat p-3 shadow-sm"
+        >
           <kr-gallery
             v-model:mode="galleryMode"
             :items="galleryItems"
@@ -162,9 +205,14 @@
         </section>
 
         <template v-else>
-          <section v-if="interactionMode === 'explore'" class="kr-panel-flat p-3 shadow-sm">
+          <section
+            v-if="interactionMode === 'explore'"
+            class="kr-panel-flat p-3 shadow-sm"
+          >
             <label class="form-control">
-              <span class="label-text mb-1 font-semibold">Find Hanzi, pinyin, or English</span>
+              <span class="label-text mb-1 font-semibold"
+                >Find Hanzi, pinyin, or English</span
+              >
               <input
                 v-model="searchQuery"
                 class="kr-input-sm w-full"
@@ -185,17 +233,32 @@
                   class="kr-panel-compact-xs text-left transition hover:border-accent"
                   @click="focusSearchCard(card.key)"
                 >
-                  <span class="text-xl font-semibold">{{ card.simplified }}</span>
+                  <span class="text-xl font-semibold">{{
+                    card.simplified
+                  }}</span>
                   <span class="ml-2 text-xs opacity-65">{{ card.pinyin }}</span>
-                  <span class="mt-1 block truncate text-xs opacity-70">{{ card.meaning }}</span>
+                  <span class="mt-1 block truncate text-xs opacity-70">{{
+                    card.meaning
+                  }}</span>
                 </button>
               </div>
-              <div v-else class="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-dashed border-base-300 p-3">
+              <div
+                v-else
+                class="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-dashed border-base-300 p-3"
+              >
                 <div>
                   <p class="font-semibold">Not in the catalog yet.</p>
-                  <p class="kr-text-faded-xs">Create “{{ searchQuery.trim() }}” as a requested learning card.</p>
+                  <p class="kr-text-faded-xs">
+                    Create “{{ searchQuery.trim() }}” as a requested learning
+                    card.
+                  </p>
                 </div>
-                <button class="kr-btn-primary-plain" type="button" :disabled="requestingWord" @click="requestCurrentWord">
+                <button
+                  class="kr-btn-primary-plain"
+                  type="button"
+                  :disabled="requestingWord"
+                  @click="requestCurrentWord"
+                >
                   <span v-if="requestingWord" class="kr-spinner-xs" />
                   {{ requestingWord ? 'Creating…' : 'Create requested card' }}
                 </button>
@@ -203,27 +266,59 @@
             </div>
           </section>
 
-          <div v-if="selectedSet" class="flex flex-wrap items-center justify-between gap-2 px-1 text-sm">
+          <div
+            v-if="selectedSet"
+            class="flex flex-wrap items-center justify-between gap-2 px-1 text-sm"
+          >
             <div class="min-w-0">
               <b>{{ focusKey ? 'Focused card' : selectedSet.label }}</b>
-              <span v-if="!focusKey" class="ml-2 opacity-55">{{ selectedSet.description }}</span>
-              <span v-else-if="focusPosition && focusPosition.total > 1" class="kr-badge-ghost-sm ml-2">
+              <span v-if="!focusKey" class="ml-2 opacity-55">{{
+                selectedSet.description
+              }}</span>
+              <span
+                v-else-if="focusPosition && focusPosition.total > 1"
+                class="kr-badge-ghost-sm ml-2"
+              >
                 result {{ focusPosition.index + 1 }} / {{ focusPosition.total }}
               </span>
             </div>
             <div class="flex items-center gap-1">
-              <button v-if="focusKey" type="button" class="kr-btn-ghost-xs-plain" @click="store.clearFocus()">
+              <button
+                v-if="focusKey"
+                type="button"
+                class="kr-btn-ghost-xs-plain"
+                @click="store.clearFocus()"
+              >
                 Return to deck
               </button>
-              <button type="button" class="kr-btn-ghost-xs-plain" @click="workspaceView = 'sets'">Change set</button>
-              <button type="button" class="kr-btn-ghost-xs-plain" @click="workspaceView = 'gallery'">Gallery</button>
+              <button
+                type="button"
+                class="kr-btn-ghost-xs-plain"
+                @click="workspaceView = 'sets'"
+              >
+                Change set
+              </button>
+              <button
+                type="button"
+                class="kr-btn-ghost-xs-plain"
+                @click="workspaceView = 'gallery'"
+              >
+                Gallery
+              </button>
             </div>
           </div>
 
-          <div v-if="currentRequested" class="rounded-xl border border-warning/35 bg-warning/8 p-3 text-sm">
+          <div
+            v-if="currentRequested"
+            class="rounded-xl border border-warning/35 bg-warning/8 p-3 text-sm"
+          >
             <div class="flex flex-wrap items-center gap-2">
-              <span class="badge badge-warning badge-outline">AI-generated requested card</span>
-              <span class="text-xs opacity-65">requested as “{{ currentRequested.requestText }}”</span>
+              <span class="badge badge-warning badge-outline"
+                >AI-generated requested card</span
+              >
+              <span class="text-xs opacity-65"
+                >requested as “{{ currentRequested.requestText }}”</span
+              >
             </div>
             <p v-if="currentRequested.usageNote" class="mt-1 text-xs">
               <b>Usage:</b> {{ currentRequested.usageNote }}
@@ -235,16 +330,34 @@
             ref="cardPanel"
             class="overflow-hidden rounded-3xl border border-base-300 bg-base-100 shadow-lg"
           >
-            <div class="flex flex-wrap items-center justify-between gap-2 kr-panel-header-sm">
+            <div
+              class="flex flex-wrap items-center justify-between gap-2 kr-panel-header-sm"
+            >
               <div class="flex flex-wrap items-center gap-2 text-xs">
-                <span v-if="currentCard.hskLevel" class="kr-badge-outline-sm">HSK {{ currentCard.hskLevel }}</span>
-                <span class="kr-badge-ghost-sm">{{ currentPositionLabel }}</span>
-                <span class="kr-badge-ghost-sm">{{ studySessionRatedForSet }} rated</span>
-                <span v-if="studyDiagnostics?.dueCount" class="kr-badge-outline-sm badge-primary">
+                <span v-if="currentCard.hskLevel" class="kr-badge-outline-sm"
+                  >HSK {{ currentCard.hskLevel }}</span
+                >
+                <span class="kr-badge-ghost-sm">{{
+                  currentPositionLabel
+                }}</span>
+                <span class="kr-badge-ghost-sm"
+                  >{{ studySessionRatedForSet }} rated</span
+                >
+                <span
+                  v-if="studyDiagnostics?.dueCount"
+                  class="kr-badge-outline-sm badge-primary"
+                >
                   {{ studyDiagnostics.dueCount }} due
                 </span>
-                <span v-if="studyDiagnostics?.retentionRate !== null && studyDiagnostics?.retentionRate !== undefined" class="kr-badge-ghost-sm">
-                  {{ Math.round(studyDiagnostics.retentionRate * 100) }}% retention
+                <span
+                  v-if="
+                    studyDiagnostics?.retentionRate !== null &&
+                    studyDiagnostics?.retentionRate !== undefined
+                  "
+                  class="kr-badge-ghost-sm"
+                >
+                  {{ Math.round(studyDiagnostics.retentionRate * 100) }}%
+                  retention
                 </span>
               </div>
 
@@ -263,7 +376,11 @@
                   :key="prompt.value"
                   type="button"
                   class="kr-btn-join-xs"
-                  :class="studyPromptMode === prompt.value ? 'btn-secondary' : 'btn-ghost'"
+                  :class="
+                    studyPromptMode === prompt.value
+                      ? 'btn-secondary'
+                      : 'btn-ghost'
+                  "
                   :title="prompt.title"
                   @click="studyPromptMode = prompt.value"
                 >
@@ -273,17 +390,35 @@
               </div>
             </div>
 
-            <div class="grid grid-cols-[repeat(auto-fit,minmax(min(100%,20rem),1fr))]">
-              <div class="flex min-h-72 items-center justify-center bg-base-200/55 p-5 text-center">
-                <div v-if="studyPhase !== 'revealed'" class="flex min-h-52 w-full flex-col items-center justify-center gap-4">
-                  <span v-if="studyPromptMode === 'hanzi'" class="text-7xl font-semibold leading-none">
+            <div
+              class="grid grid-cols-[repeat(auto-fit,minmax(min(100%,20rem),1fr))]"
+            >
+              <div
+                class="flex min-h-72 items-center justify-center bg-base-200/55 p-5 text-center"
+              >
+                <div
+                  v-if="studyPhase !== 'revealed'"
+                  class="flex min-h-52 w-full flex-col items-center justify-center gap-4"
+                >
+                  <span
+                    v-if="studyPromptMode === 'hanzi'"
+                    class="text-7xl font-semibold leading-none"
+                  >
                     {{ currentCard.simplified }}
                   </span>
-                  <span v-else-if="studyPromptMode === 'pinyin'" class="text-4xl font-bold tracking-wide">
+                  <span
+                    v-else-if="studyPromptMode === 'pinyin'"
+                    class="text-4xl font-bold tracking-wide"
+                  >
                     {{ currentCard.pinyin }}
                   </span>
-                  <div v-else-if="studyPromptMode === 'picture'" class="space-y-3">
-                    <div class="mx-auto h-48 w-48 overflow-hidden rounded-3xl border border-base-300 shadow-inner">
+                  <div
+                    v-else-if="studyPromptMode === 'picture'"
+                    class="space-y-3"
+                  >
+                    <div
+                      class="mx-auto h-48 w-48 overflow-hidden rounded-3xl border border-base-300 shadow-inner"
+                    >
                       <!-- reveal-glyph is off here on purpose: in picture-prompt
                            mode the character is the answer being recalled. -->
                       <MandarinCardArt
@@ -296,20 +431,44 @@
                         @error="markArtBroken"
                       />
                     </div>
-                    <button v-if="canQueueArt" type="button" class="kr-btn-outline-xs" :disabled="artBusy" @click="queueCurrentIllustration">
+                    <button
+                      v-if="canQueueArt"
+                      type="button"
+                      class="kr-btn-outline-xs"
+                      :disabled="artBusy"
+                      @click="queueCurrentIllustration"
+                    >
                       {{ artBusy ? 'Submitting…' : 'Request illustration' }}
                     </button>
-                    <p v-if="artNotice" class="mt-1 text-xs text-success">{{ artNotice }}</p>
+                    <p v-if="artNotice" class="mt-1 text-xs text-success">
+                      {{ artNotice }}
+                    </p>
                   </div>
                   <div v-else class="space-y-3">
-                    <Icon name="kind-icon:volume" class="kr-icon-12 mx-auto opacity-60" />
-                    <button type="button" class="kr-btn-primary-md-plain" @click="store.speak(currentCard)">Hear prompt</button>
-                    <p class="kr-text-faded-xs-55">Listen without seeing the answer.</p>
+                    <Icon
+                      name="kind-icon:volume"
+                      class="kr-icon-12 mx-auto opacity-60"
+                    />
+                    <button
+                      type="button"
+                      class="kr-btn-primary-md-plain"
+                      @click="store.speak(currentCard)"
+                    >
+                      Hear prompt
+                    </button>
+                    <p class="kr-text-faded-xs-55">
+                      Listen without seeing the answer.
+                    </p>
                   </div>
                 </div>
 
-                <div v-else class="grid w-full grid-cols-[repeat(auto-fit,minmax(min(100%,10rem),1fr))] items-center gap-4">
-                  <div class="mx-auto h-44 w-44 overflow-hidden rounded-3xl border border-base-300 shadow-inner">
+                <div
+                  v-else
+                  class="grid w-full grid-cols-[repeat(auto-fit,minmax(min(100%,10rem),1fr))] items-center gap-4"
+                >
+                  <div
+                    class="mx-auto h-44 w-44 overflow-hidden rounded-3xl border border-base-300 shadow-inner"
+                  >
                     <MandarinCardArt
                       :card-key="currentCard.key"
                       :simplified="currentCard.simplified"
@@ -320,18 +479,32 @@
                     />
                   </div>
                   <div class="space-y-2 text-center">
-                    <p class="text-5xl font-semibold leading-none">{{ currentCard.simplified }}</p>
-                    <p class="kr-text-bold-2xl tracking-wide">{{ currentCard.pinyin }}</p>
-                    <p class="text-xl font-semibold">{{ currentCard.meaning }}</p>
-                    <p v-if="currentCard.meanings.length > 1" class="text-xs leading-relaxed opacity-60">
+                    <p class="text-5xl font-semibold leading-none">
+                      {{ currentCard.simplified }}
+                    </p>
+                    <p class="kr-text-bold-2xl tracking-wide">
+                      {{ currentCard.pinyin }}
+                    </p>
+                    <p class="text-xl font-semibold">
+                      {{ currentCard.meaning }}
+                    </p>
+                    <p
+                      v-if="currentCard.meanings.length > 1"
+                      class="text-xs leading-relaxed opacity-60"
+                    >
                       {{ currentCard.meanings.slice(1).join(' · ') }}
                     </p>
                   </div>
                 </div>
               </div>
 
-              <div class="flex min-h-72 flex-col justify-between gap-4 p-4 sm:p-5">
-                <div v-if="studyPhase !== 'revealed'" class="my-auto space-y-3 text-center">
+              <div
+                class="flex min-h-72 flex-col justify-between gap-4 p-4 sm:p-5"
+              >
+                <div
+                  v-if="studyPhase !== 'revealed'"
+                  class="my-auto space-y-3 text-center"
+                >
                   <!-- mandarin-tutor/t-023: the SOFT gate. Silas chose soft over hard, so
                        this prompts and reorders the queue but never withholds the card --
                        "Reveal answer" stays live underneath. -->
@@ -341,22 +514,36 @@
                   >
                     <p class="kr-text-semibold-sm">Learn this one first</p>
                     <p class="kr-text-faded-xs mt-1 leading-relaxed">
-                      You haven't read {{ currentCard.simplified }}'s lesson yet — what its
-                      pieces mean, how its tone moves, and which characters share its sound.
-                      Drilling a shape you don't understand is the slow way.
+                      You haven't read {{ currentCard.simplified }}'s lesson yet
+                      — what its pieces mean, how its tone moves, and which
+                      characters share its sound. Drilling a shape you don't
+                      understand is the slow way.
                     </p>
-                    <NuxtLink :to="lessonLink(currentCard.key)" class="kr-btn-primary-plain mt-2">
+                    <NuxtLink
+                      :to="lessonLink(currentCard.key)"
+                      class="kr-btn-primary-plain mt-2"
+                    >
                       <Icon name="kind-icon:book" class="kr-icon-4" />
                       Read the lesson
                     </NuxtLink>
                   </div>
 
-                  <p class="text-sm font-semibold opacity-55">Recall the meaning before revealing.</p>
-                  <button type="button" class="kr-btn-primary-md-plain" @click="store.revealStudyCard()">Reveal answer</button>
+                  <p class="text-sm font-semibold opacity-55">
+                    Recall the meaning before revealing.
+                  </p>
+                  <button
+                    type="button"
+                    class="kr-btn-primary-md-plain"
+                    @click="store.revealStudyCard()"
+                  >
+                    Reveal answer
+                  </button>
                 </div>
 
                 <div v-else class="space-y-3">
-                  <div class="flex flex-wrap items-center justify-between gap-2">
+                  <div
+                    class="flex flex-wrap items-center justify-between gap-2"
+                  >
                     <p class="font-bold">How well did you recall it?</p>
                     <div class="flex flex-wrap items-center gap-1">
                       <button
@@ -379,29 +566,76 @@
                         Check art #{{ currentArtJobId }}
                       </button>
                     </div>
-                    <p v-if="artNotice" class="text-xs text-success">{{ artNotice }}</p>
+                    <p v-if="artNotice" class="text-xs text-success">
+                      {{ artNotice }}
+                    </p>
                   </div>
                   <div class="grid grid-cols-2 gap-2 sm:grid-cols-4">
-                    <button type="button" class="btn btn-sm btn-outline btn-error" @click="store.rateStudyCard('again')">Again</button>
-                    <button type="button" class="btn btn-sm btn-outline btn-warning" @click="store.rateStudyCard('hard')">Hard</button>
-                    <button type="button" class="btn btn-sm btn-outline btn-success" @click="store.rateStudyCard('good')">Good</button>
-                    <button type="button" class="btn btn-sm btn-outline btn-accent" @click="store.rateStudyCard('easy')">Easy</button>
+                    <button
+                      type="button"
+                      class="btn btn-sm btn-outline btn-error"
+                      @click="store.rateStudyCard('again')"
+                    >
+                      Again
+                    </button>
+                    <button
+                      type="button"
+                      class="btn btn-sm btn-outline btn-warning"
+                      @click="store.rateStudyCard('hard')"
+                    >
+                      Hard
+                    </button>
+                    <button
+                      type="button"
+                      class="btn btn-sm btn-outline btn-success"
+                      @click="store.rateStudyCard('good')"
+                    >
+                      Good
+                    </button>
+                    <button
+                      type="button"
+                      class="btn btn-sm btn-outline btn-accent"
+                      @click="store.rateStudyCard('easy')"
+                    >
+                      Easy
+                    </button>
                   </div>
-                  <p class="kr-text-faded-xs-55">Rating saves the review and advances. Previous and Next never rate the card.</p>
+                  <p class="kr-text-faded-xs-55">
+                    Rating saves the review and advances. Previous and Next
+                    never rate the card.
+                  </p>
 
-                  <details class="rounded-2xl border border-base-300 bg-base-200/25">
-                    <summary class="cursor-pointer p-3 text-sm font-semibold">Pronunciation practice</summary>
+                  <details
+                    class="rounded-2xl border border-base-300 bg-base-200/25"
+                  >
+                    <summary class="cursor-pointer p-3 text-sm font-semibold">
+                      Pronunciation practice
+                    </summary>
                     <MandarinVoiceCoach :card="currentCard" />
                   </details>
                 </div>
 
-                <div class="flex items-center justify-between gap-2 kr-panel-divider">
-                  <button type="button" class="kr-btn-ghost-plain" :disabled="focusNavigationLocked" @click="store.previousCard()">
+                <div
+                  class="flex items-center justify-between gap-2 kr-panel-divider"
+                >
+                  <button
+                    type="button"
+                    class="kr-btn-ghost-plain"
+                    :disabled="focusNavigationLocked"
+                    @click="store.previousCard()"
+                  >
                     <Icon name="kind-icon:back" class="kr-icon-4" />
                     Previous
                   </button>
-                  <span class="kr-text-faded-xs-55">{{ currentPositionLabel }}</span>
-                  <button type="button" class="kr-btn-ghost-plain" :disabled="focusNavigationLocked" @click="store.nextCard()">
+                  <span class="kr-text-faded-xs-55">{{
+                    currentPositionLabel
+                  }}</span>
+                  <button
+                    type="button"
+                    class="kr-btn-ghost-plain"
+                    :disabled="focusNavigationLocked"
+                    @click="store.nextCard()"
+                  >
                     Next
                     <Icon name="kind-icon:forward" class="kr-icon-4" />
                   </button>
@@ -415,9 +649,15 @@
             ref="cardPanel"
             class="overflow-hidden rounded-3xl border border-base-300 bg-base-100 shadow-lg"
           >
-            <div class="grid grid-cols-[repeat(auto-fit,minmax(min(100%,20rem),1fr))]">
-              <div class="flex min-h-64 flex-col items-center justify-center gap-3 bg-base-200/55 p-5 text-center">
-                <div class="h-48 w-48 overflow-hidden rounded-3xl border border-base-300 shadow-inner">
+            <div
+              class="grid grid-cols-[repeat(auto-fit,minmax(min(100%,20rem),1fr))]"
+            >
+              <div
+                class="flex min-h-64 flex-col items-center justify-center gap-3 bg-base-200/55 p-5 text-center"
+              >
+                <div
+                  class="h-48 w-48 overflow-hidden rounded-3xl border border-base-300 shadow-inner"
+                >
                   <MandarinCardArt
                     :card-key="currentCard.key"
                     :simplified="currentCard.simplified"
@@ -428,77 +668,174 @@
                   />
                 </div>
                 <p class="text-3xl font-bold">{{ currentCard.simplified }}</p>
-                <p class="kr-text-bold-xl tracking-wide">{{ currentCard.pinyin }}</p>
-                <p v-if="currentCard.traditional" class="kr-text-faded-xs-55">Traditional: {{ currentCard.traditional }}</p>
+                <p class="kr-text-bold-xl tracking-wide">
+                  {{ currentCard.pinyin }}
+                </p>
+                <p v-if="currentCard.traditional" class="kr-text-faded-xs-55">
+                  Traditional: {{ currentCard.traditional }}
+                </p>
                 <div class="flex flex-wrap justify-center gap-1">
-                  <button v-if="canQueueArt" type="button" class="kr-btn-outline-xs" :disabled="artBusy" @click="queueCurrentIllustration">
+                  <button
+                    v-if="canQueueArt"
+                    type="button"
+                    class="kr-btn-outline-xs"
+                    :disabled="artBusy"
+                    @click="queueCurrentIllustration"
+                  >
                     {{ artBusy ? 'Submitting…' : 'Request illustration' }}
                   </button>
-                  <button v-if="currentArtJobId" type="button" class="kr-btn-ghost-xs-plain" :disabled="artBusy" @click="refreshCurrentIllustration">
+                  <button
+                    v-if="currentArtJobId"
+                    type="button"
+                    class="kr-btn-ghost-xs-plain"
+                    :disabled="artBusy"
+                    @click="refreshCurrentIllustration"
+                  >
                     Check art #{{ currentArtJobId }}
                   </button>
                 </div>
-                <p v-if="artNotice" class="text-xs text-success">{{ artNotice }}</p>
+                <p v-if="artNotice" class="text-xs text-success">
+                  {{ artNotice }}
+                </p>
               </div>
 
               <div class="flex min-h-64 flex-col p-5">
                 <div class="flex flex-wrap gap-1">
-                  <span v-if="currentCard.hskLevel" class="kr-badge-outline-sm">HSK {{ currentCard.hskLevel }}</span>
-                  <span v-if="currentCard.radical" class="kr-badge-outline-sm">Radical {{ currentCard.radical }}</span>
-                  <span v-for="category in currentCard.categories.slice(0, 4)" :key="category" class="kr-badge-ghost-sm">{{ category }}</span>
+                  <span v-if="currentCard.hskLevel" class="kr-badge-outline-sm"
+                    >HSK {{ currentCard.hskLevel }}</span
+                  >
+                  <span v-if="currentCard.radical" class="kr-badge-outline-sm"
+                    >Radical {{ currentCard.radical }}</span
+                  >
+                  <span
+                    v-for="category in currentCard.categories.slice(0, 4)"
+                    :key="category"
+                    class="kr-badge-ghost-sm"
+                    >{{ category }}</span
+                  >
                 </div>
 
                 <div class="my-auto py-5 text-center">
-                  <button v-if="!meaningVisible" type="button" class="kr-btn-primary-md-plain" @click="store.toggleMeaning()">Reveal meaning</button>
+                  <button
+                    v-if="!meaningVisible"
+                    type="button"
+                    class="kr-btn-primary-md-plain"
+                    @click="store.toggleMeaning()"
+                  >
+                    Reveal meaning
+                  </button>
                   <div v-else class="space-y-1">
                     <p class="text-3xl font-bold">{{ currentCard.meaning }}</p>
-                    <p v-if="currentCard.meanings.length > 1" class="text-sm opacity-60">{{ currentCard.meanings.slice(1).join(' · ') }}</p>
+                    <p
+                      v-if="currentCard.meanings.length > 1"
+                      class="text-sm opacity-60"
+                    >
+                      {{ currentCard.meanings.slice(1).join(' · ') }}
+                    </p>
                   </div>
                 </div>
 
-                <div class="flex items-center justify-between gap-2 kr-panel-divider">
-                  <button type="button" class="kr-btn-ghost-plain" :disabled="focusNavigationLocked" @click="store.previousCard()">Previous</button>
+                <div
+                  class="flex items-center justify-between gap-2 kr-panel-divider"
+                >
+                  <button
+                    type="button"
+                    class="kr-btn-ghost-plain"
+                    :disabled="focusNavigationLocked"
+                    @click="store.previousCard()"
+                  >
+                    Previous
+                  </button>
                   <div class="flex items-center gap-1">
-                    <button type="button" class="kr-btn-outline-plain" @click="store.toggleDetails()">{{ detailsVisible ? 'Hide parts' : 'Parts & history' }}</button>
-                    <NuxtLink :to="lessonLink(currentCard.key)" class="kr-btn-ghost-plain" title="Read the full lesson for this word">
+                    <button
+                      type="button"
+                      class="kr-btn-outline-plain"
+                      @click="store.toggleDetails()"
+                    >
+                      {{ detailsVisible ? 'Hide parts' : 'Parts & history' }}
+                    </button>
+                    <NuxtLink
+                      :to="lessonLink(currentCard.key)"
+                      class="kr-btn-ghost-plain"
+                      title="Read the full lesson for this word"
+                    >
                       Full lesson
                     </NuxtLink>
                   </div>
-                  <button type="button" class="kr-btn-ghost-plain" :disabled="focusNavigationLocked" @click="store.nextCard()">Next</button>
+                  <button
+                    type="button"
+                    class="kr-btn-ghost-plain"
+                    :disabled="focusNavigationLocked"
+                    @click="store.nextCard()"
+                  >
+                    Next
+                  </button>
                 </div>
               </div>
             </div>
 
             <details class="border-t border-base-300 bg-base-200/20">
-              <summary class="cursor-pointer p-3 text-sm font-semibold">Pronunciation practice</summary>
+              <summary class="cursor-pointer p-3 text-sm font-semibold">
+                Pronunciation practice
+              </summary>
               <MandarinVoiceCoach :card="currentCard" />
             </details>
 
-            <section v-if="detailsVisible" class="border-t border-base-300 bg-base-200/25 p-4">
-              <div class="grid grid-cols-[repeat(auto-fit,minmax(min(100%,18rem),1fr))] gap-3">
+            <section
+              v-if="detailsVisible"
+              class="border-t border-base-300 bg-base-200/25 p-4"
+            >
+              <div
+                class="grid grid-cols-[repeat(auto-fit,minmax(min(100%,18rem),1fr))] gap-3"
+              >
                 <div class="space-y-2">
                   <h3 class="font-bold">What is this built from?</h3>
                   <div v-if="currentCard.components.length" class="space-y-2">
-                    <div v-for="component in currentCard.components" :key="`${component.glyph}:${component.role}`" class="kr-panel-flat p-3">
+                    <div
+                      v-for="component in currentCard.components"
+                      :key="`${component.glyph}:${component.role}`"
+                      class="kr-panel-flat p-3"
+                    >
                       <div class="flex items-start gap-3">
-                        <span class="text-3xl font-semibold">{{ component.glyph }}</span>
+                        <span class="text-3xl font-semibold">{{
+                          component.glyph
+                        }}</span>
                         <div>
                           <p class="font-semibold">{{ component.label }}</p>
-                          <p class="kr-text-faded-xs-55 uppercase tracking-wide">{{ roleLabel(component.role) }}</p>
-                          <p v-if="component.meaning" class="mt-1 text-sm">{{ component.meaning }}</p>
+                          <p
+                            class="kr-text-faded-xs-55 uppercase tracking-wide"
+                          >
+                            {{ roleLabel(component.role) }}
+                          </p>
+                          <p v-if="component.meaning" class="mt-1 text-sm">
+                            {{ component.meaning }}
+                          </p>
                         </div>
                       </div>
-                      <p v-if="component.note" class="mt-2 text-xs opacity-65">{{ component.note }}</p>
+                      <p v-if="component.note" class="mt-2 text-xs opacity-65">
+                        {{ component.note }}
+                      </p>
                     </div>
                   </div>
-                  <p v-else class="text-sm opacity-60">No source-backed decomposition is attached yet.</p>
+                  <p v-else class="text-sm opacity-60">
+                    No source-backed decomposition is attached yet.
+                  </p>
                 </div>
                 <div class="space-y-2">
                   <h3 class="font-bold">Character history</h3>
-                  <p class="kr-panel-flat p-3 text-sm leading-relaxed" :class="!currentCard.history ? 'opacity-60' : ''">
-                    {{ currentCard.history || 'Historical development is still awaiting a dedicated source for this card.' }}
+                  <p
+                    class="kr-panel-flat p-3 text-sm leading-relaxed"
+                    :class="!currentCard.history ? 'opacity-60' : ''"
+                  >
+                    {{
+                      currentCard.history ||
+                      'Historical development is still awaiting a dedicated source for this card.'
+                    }}
                   </p>
-                  <p class="text-xs opacity-50">Source: {{ currentCard.source.label }} · {{ currentCard.source.version }}</p>
+                  <p class="text-xs opacity-50">
+                    Source: {{ currentCard.source.label }} ·
+                    {{ currentCard.source.version }}
+                  </p>
                 </div>
               </div>
             </section>
@@ -511,17 +848,25 @@
                   :key="set.id"
                   type="button"
                   class="btn btn-xs"
-                  :class="store.cardIsInCustomSet(set.id, currentCard.key) ? 'btn-accent' : 'btn-outline'"
+                  :class="
+                    store.cardIsInCustomSet(set.id, currentCard.key)
+                      ? 'btn-accent'
+                      : 'btn-outline'
+                  "
                   @click="store.toggleCardInCustomSet(set.id, currentCard.key)"
                 >
                   {{ set.name }}
                 </button>
-                <span v-if="!customSets.length" class="kr-text-faded-xs-55">Create a custom deck in Decks.</span>
+                <span v-if="!customSets.length" class="kr-text-faded-xs-55"
+                  >Create a custom deck in Decks.</span
+                >
               </div>
             </section>
           </article>
 
-          <div v-else class="kr-panel-flat p-8 text-center opacity-65">This set has no cards yet.</div>
+          <div v-else class="kr-panel-flat p-8 text-center opacity-65">
+            This set has no cards yet.
+          </div>
         </template>
       </template>
     </div>
@@ -582,17 +927,46 @@ const brokenArtKeys = ref(new Set<string>())
 const artNotice = ref('')
 let artNoticeTimer: ReturnType<typeof setTimeout> | null = null
 
-const workspaceViews: Array<{ value: WorkspaceView; label: string; icon: string }> = [
+const workspaceViews: Array<{
+  value: WorkspaceView
+  label: string
+  icon: string
+}> = [
   { value: 'card', label: 'Card', icon: 'kind-icon:cards' },
   { value: 'sets', label: 'Decks', icon: 'kind-icon:collection' },
   { value: 'gallery', label: 'Gallery', icon: 'kind-icon:image' },
 ]
 
-const promptModes: Array<{ value: StudyPromptMode; label: string; title: string; icon: string }> = [
-  { value: 'hanzi', label: 'Hanzi', title: 'Prompt with the Chinese characters', icon: 'kind-icon:language' },
-  { value: 'pinyin', label: 'Pinyin', title: 'Prompt with pinyin', icon: 'kind-icon:text' },
-  { value: 'picture', label: 'Picture', title: 'Prompt with the illustration', icon: 'kind-icon:image' },
-  { value: 'audio', label: 'Audio', title: 'Prompt by listening', icon: 'kind-icon:volume' },
+const promptModes: Array<{
+  value: StudyPromptMode
+  label: string
+  title: string
+  icon: string
+}> = [
+  {
+    value: 'hanzi',
+    label: 'Hanzi',
+    title: 'Prompt with the Chinese characters',
+    icon: 'kind-icon:language',
+  },
+  {
+    value: 'pinyin',
+    label: 'Pinyin',
+    title: 'Prompt with pinyin',
+    icon: 'kind-icon:text',
+  },
+  {
+    value: 'picture',
+    label: 'Picture',
+    title: 'Prompt with the illustration',
+    icon: 'kind-icon:image',
+  },
+  {
+    value: 'audio',
+    label: 'Audio',
+    title: 'Prompt by listening',
+    icon: 'kind-icon:volume',
+  },
 ]
 
 const currentRequested = computed(() =>
@@ -622,7 +996,9 @@ const currentArtJobId = computed(() => {
 
 const artBusy = computed(() => {
   const key = currentCard.value?.key
-  return Boolean(key && (artQueueingKey.value === key || artRefreshingKey.value === key))
+  return Boolean(
+    key && (artQueueingKey.value === key || artRefreshingKey.value === key),
+  )
 })
 
 const canQueueArt = computed(() => {
@@ -636,12 +1012,16 @@ const currentPositionLabel = computed(() => {
   if (focusKey.value && focusPosition.value) {
     return `${focusPosition.value.index + 1} / ${focusPosition.value.total}`
   }
-  const index = studyCards.value.findIndex((card) => card.key === currentCard.value?.key)
+  const index = studyCards.value.findIndex(
+    (card) => card.key === currentCard.value?.key,
+  )
   return `${Math.max(0, index) + 1} / ${studyCards.value.length}`
 })
 
-const focusNavigationLocked = computed(
-  () => Boolean(focusKey.value && (!focusPosition.value || focusPosition.value.total <= 1)),
+const focusNavigationLocked = computed(() =>
+  Boolean(
+    focusKey.value && (!focusPosition.value || focusPosition.value.total <= 1),
+  ),
 )
 
 const galleryItems = computed(() =>
@@ -650,10 +1030,17 @@ const galleryItems = computed(() =>
     const strategy = canonicalArtStrategies.value[card.key]
     const status = store.illustrationStatus(card.key)
     const badges = [] as Array<{ label: string; class?: string }>
-    if (strategy === 'glyph-only') badges.push({ label: 'Glyph card', class: 'badge-ghost' })
-    else if (status === 'DONE' || status === 'V2 READY') badges.push({ label: 'Illustrated', class: 'badge-success badge-outline' })
-    else badges.push({ label: 'Needs art', class: 'badge-warning badge-outline' })
-    if (card.hskLevel) badges.push({ label: `HSK ${card.hskLevel}`, class: 'badge-ghost' })
+    if (strategy === 'glyph-only')
+      badges.push({ label: 'Glyph card', class: 'badge-ghost' })
+    else if (status === 'DONE' || status === 'V2 READY')
+      badges.push({
+        label: 'Illustrated',
+        class: 'badge-success badge-outline',
+      })
+    else
+      badges.push({ label: 'Needs art', class: 'badge-warning badge-outline' })
+    if (card.hskLevel)
+      badges.push({ label: `HSK ${card.hskLevel}`, class: 'badge-ghost' })
     return {
       id: card.key,
       title: card.simplified,
@@ -789,6 +1176,7 @@ const lessonRead = computed(() => {
 function roleLabel(role: MandarinComponentRole): string {
   if (role === 'semantic') return 'meaning clue'
   if (role === 'phonetic') return 'sound clue'
+  if (role === 'idea') return 'picture part'
   if (role === 'radical') return 'indexing radical'
   if (role === 'form') return 'written form'
   return 'uncertain role'

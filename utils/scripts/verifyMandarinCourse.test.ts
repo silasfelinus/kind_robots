@@ -87,7 +87,7 @@ const beats = (steps: ReturnType<typeof buildWordRun>) =>
 
 {
   const full = buildWordRun(withFamily('c:清'))
-  assert.deepEqual(beats(full), ['meet', 'sound', 'pieces', 'family', 'recall'])
+  assert.deepEqual(beats(full), ['pieces', 'meet', 'sound', 'family', 'recall'])
 }
 
 console.log(
@@ -98,7 +98,7 @@ console.log(
   // No sound family in the catalog -> no family screen. Showing an empty "who shares
   // this sound" card would teach the learner that the course pads.
   const noFamily = buildWordRun(withComponents('c:x'))
-  assert.deepEqual(beats(noFamily), ['meet', 'sound', 'pieces', 'recall'])
+  assert.deepEqual(beats(noFamily), ['pieces', 'meet', 'sound', 'recall'])
 }
 
 console.log(

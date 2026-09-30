@@ -131,6 +131,23 @@ function weightAt(profile: MotionSpec['weight'], t: number): number {
 
 const STRIPS = 28
 
+let reducedMotionQuery: MediaQueryList | null | undefined
+
+/**
+ * The player's OS asked for less motion: bodies hold still (the fish still
+ * swim, calmly) and the water's light stops swaying. Read live so changing
+ * the setting mid-visit takes effect.
+ */
+export function prefersReducedMotion(): boolean {
+  if (reducedMotionQuery === undefined) {
+    reducedMotionQuery =
+      typeof window !== 'undefined' && window.matchMedia
+        ? window.matchMedia('(prefers-reduced-motion: reduce)')
+        : null
+  }
+  return reducedMotionQuery?.matches ?? false
+}
+
 /**
  * Draw one frame of `motion` for `image`, centred on the context origin and
  * fitted into a `width` x `height` box (aspect preserved). `timeMs` is any
@@ -145,7 +162,9 @@ export function drawAnimatedSprite(
   height: number,
   offset = 0,
 ): void {
-  const spec = MOTIONS[motion] ?? MOTIONS.tailbeat
+  const spec = prefersReducedMotion()
+    ? MOTIONS.rigid
+    : (MOTIONS[motion] ?? MOTIONS.tailbeat)
   const iw = image.naturalWidth || image.width
   const ih = image.naturalHeight || image.height
   if (!iw || !ih) return

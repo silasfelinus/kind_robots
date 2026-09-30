@@ -42,7 +42,7 @@
               <Icon name="kind-icon:stars" class="kr-icon-6" />
             </div>
             <div class="min-w-0">
-              <p class="kr-text-black-lg truncate">Tzaddik Gallery</p>
+              <p class="kr-text-black-lg truncate">Tzaddikim</p>
               <p class="kr-text-dim-xs-55 truncate">
                 36 just people, sourced with receipts
               </p>
@@ -52,7 +52,7 @@
           <div
             class="flex min-w-0 flex-1 gap-1 overflow-x-auto rounded-2xl bg-base-200/70 p-1"
             role="tablist"
-            aria-label="Tzaddik Gallery sections"
+            aria-label="Tzaddikim sections"
           >
             <button
               v-for="tab in tabs"
@@ -452,7 +452,7 @@ const BASE_TABS: { key: TabKey; label: string; icon: string; body: string }[] =
       key: 'info',
       label: 'Info',
       icon: 'kind-icon:mask',
-      body: 'Tzaddik Gallery borrows the folklore idea of 36 righteous or “just” people who quietly sustain the world, then turns it into a playful, sourced pop-culture gallery. It is not a religious classification, and inclusion does not require or imply Jewish or Hasidic identity.',
+      body: 'Tzaddikim (the plural of tzaddik, a righteous person) borrows the folklore idea of 36 righteous or “just” people who quietly sustain the world, then turns it into a playful, sourced pop-culture gallery. It is not a religious classification, and inclusion does not require or imply Jewish or Hasidic identity.',
     },
   ]
 

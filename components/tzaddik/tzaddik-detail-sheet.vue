@@ -24,7 +24,7 @@
             <p
               class="kr-text-eyebrow text-[0.58rem] tracking-[0.16em] text-primary"
             >
-              Tzaddik Gallery
+              Tzaddikim
             </p>
             <p class="truncate text-xs font-semibold text-base-content/60">
               {{ displayName || 'Loading…' }}

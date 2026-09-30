@@ -320,7 +320,7 @@ async function synthesizeBiography(
   try {
     const result = await completeStructured<{ biography: string }>({
       system: [
-        'Write a factual, neutral, sourced biographical profile for Tzaddik Gallery.',
+        'Write a factual, neutral, sourced biographical profile for Tzaddikim.',
         'The subject is being considered for a playful gallery of unusually constructive people, but do not call them virtuous, saintly, heroic, one of the 36, or otherwise endorse them.',
         'Explain who they are, the arc of their life/work, concrete achievements, scale or influence, and why their work is notable enough to understand.',
         'Do not invent facts or motives. Use only the supplied Wikipedia text.',

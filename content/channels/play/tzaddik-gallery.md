@@ -2,8 +2,8 @@
 contentType: tab
 channelKey: play
 tabKey: tzaddik-gallery
-label: Tzaddik Gallery
-title: Tzaddik Gallery
+label: Tzaddikim
+title: Tzaddikim
 subtitle: 36 living "just people" keeping the world running
 description: A playful, sourced gallery of everyday and extraordinary people, plus a historical archive of past honorees. Submit candidates and react to nominations.
 icon: kind-icon:stars

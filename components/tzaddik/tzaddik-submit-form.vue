@@ -24,7 +24,7 @@
             <p
               class="kr-text-eyebrow text-[0.6rem] tracking-[0.18em] text-primary"
             >
-              Tzaddik Gallery
+              Tzaddikim
             </p>
             <h2 class="kr-text-black-lg truncate sm:text-xl">
               Submit a candidate

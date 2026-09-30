@@ -22,6 +22,7 @@ import {
   TzaddikSourceFetchError,
 } from '../../utils/tzaddikSourceRefresh'
 import { TzaddikEditorialTag } from '~/prisma/generated/prisma/client'
+import { findTzaddikBlacklistEntry } from '../../../utils/tzaddikBlacklist'
 
 type ImportCandidate = {
   displayName?: unknown
@@ -133,6 +134,16 @@ export default defineEventHandler(async (event) => {
           status: 'failed',
           reason:
             'displayName, rationale, and a valid wikipediaUrl are all required.',
+        })
+        continue
+      }
+
+      const blacklisted = findTzaddikBlacklistEntry(displayName)
+      if (blacklisted) {
+        results.push({
+          displayName,
+          status: 'failed',
+          reason: `${blacklisted.name} is on the Tzaddikim blacklist.`,
         })
         continue
       }

@@ -17,6 +17,10 @@ import {
   fetchTzaddikSource,
   TzaddikSourceFetchError,
 } from '../../../utils/tzaddikSourceRefresh'
+import {
+  findTzaddikBlacklistEntry,
+  TZADDIK_BLACKLIST,
+} from '../../../../utils/tzaddikBlacklist'
 
 const DISCOVERY_SOURCE = 'daily-discovery'
 const TARGET_POOL_SIZE = 120
@@ -198,7 +202,7 @@ export default defineEventHandler(async (event) => {
     const requested = Math.min(MAX_GENERATED_PER_RUN, Math.max(12, needed))
 
     const system = [
-      'You curate a human-review discovery pool for Tzaddik Gallery, a playful sourced gallery of people known for unusually constructive public service, courage, care, education, science, humanitarian work, culture, conservation, journalism, or community building.',
+      'You curate a human-review discovery pool for Tzaddikim, a playful sourced gallery of people known for unusually constructive public service, courage, care, education, science, humanitarian work, culture, conservation, journalism, or community building.',
       'This is not canonization and not a ranking. Every suggestion will be reviewed by a human.',
       'Return only real people with a genuine Wikipedia biography URL you are confident exists.',
       'Favor international breadth and people outside the familiar US/UK celebrity orbit.',
@@ -212,6 +216,7 @@ export default defineEventHandler(async (event) => {
     const user = [
       `Return ${requested} fresh candidates.`,
       `Existing/recent names to avoid: ${existingNames.join('; ')}`,
+      `Never suggest these blacklisted people, or anyone with a comparable record of abuse, enslavement, atrocity, bigotry campaigns, or charity fraud: ${TZADDIK_BLACKLIST.map((entry) => entry.name).join('; ')}`,
       `Allowed tags: ${AUTO_TAGS.join(', ')}`,
       'countryCode must be a two-letter ISO-style country code; region should be a useful broad region such as East Africa, South Asia, Latin America, Western Europe, Oceania, or North America.',
     ].join('\n\n')
@@ -245,6 +250,7 @@ export default defineEventHandler(async (event) => {
       const region = clean(raw.region, 128)
 
       if (!displayName || !wikipediaUrl || !rationale || !tags.length) continue
+      if (findTzaddikBlacklistEntry(displayName)) continue
       if (
         seenUrls.has(wikipediaUrl) ||
         seenNames.has(displayName.toLowerCase())

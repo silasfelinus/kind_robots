@@ -35,7 +35,9 @@ export default defineEventHandler(async (event) => {
     })
 
     const source =
-      candidate?.imageUrlOverride?.trim() || candidate?.imageFileUrl?.trim() || ''
+      candidate?.imageUrlOverride?.trim() ||
+      candidate?.imageFileUrl?.trim() ||
+      ''
 
     if (!candidate || candidate.curationState !== 'APPROVED' || !source) {
       throw createError({

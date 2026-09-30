@@ -68,16 +68,19 @@ function walk(dir: string, ext: string, out: string[] = []): string[] {
 function frontMatter(source: string): Record<string, string> {
   const match = source.match(/^---\n([\s\S]*?)\n---/)
   const fields: Record<string, string> = {}
-  if (!match) return fields
-  for (const line of match[1].split('\n')) {
-    const field = line.match(/^([A-Za-z][\w-]*):\s*(.*)$/)
-    if (field) fields[field[1]] = field[2].trim().replace(/^['"]|['"]$/g, '')
+  const block = match?.[1]
+  if (!block) return fields
+  for (const line of block.split('\n')) {
+    const [, key, value] = line.match(/^([A-Za-z][\w-]*):\s*(.*)$/) ?? []
+    if (key && value !== undefined) {
+      fields[key] = value.trim().replace(/^['"]|['"]$/g, '')
+    }
   }
   return fields
 }
 
 function normalize(route: string): string {
-  const path = route.split(/[?#]/)[0].trim().replace(/\/+$/, '')
+  const path = (route.split(/[?#]/)[0] ?? '').trim().replace(/\/+$/, '')
   return path || '/'
 }
 
@@ -146,7 +149,7 @@ function selfTest(): void {
   const hidden = hiddenRoutes(served, tabs, ['/plan/projects/x'], {
     '/login': 'x',
   })
-  if (hidden.length !== 1 || hidden[0].route !== '/secret') {
+  if (hidden.length !== 1 || hidden[0]?.route !== '/secret') {
     throw new Error(`self-test failed: ${JSON.stringify(hidden)}`)
   }
 }

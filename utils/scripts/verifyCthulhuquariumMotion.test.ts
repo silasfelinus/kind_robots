@@ -6,6 +6,7 @@
 import assert from 'node:assert/strict'
 import {
   MODE_TUNING,
+  hunt,
   spawnSwimState,
   startle,
   stepSwimState,
@@ -97,6 +98,26 @@ const initial = distance()
 for (let tick = 0; tick < 120; tick += 1) stepSwimState(hungry, env({ food }))
 assert.ok(distance() < initial - 50, 'swam toward the food')
 console.log('✅ swimmers path toward food')
+
+const predator = spawnSwimState('drift', W, H, seeded(6))
+const prey = spawnSwimState('drift', W, H, seeded(7))
+predator.x = 100
+predator.y = 180
+prey.x = 200
+prey.y = 180
+assert.equal(hunt(predator, prey), true)
+assert.ok(prey.vx > 0, 'prey bolts away from the predator')
+assert.equal(hunt(predator, prey), false, 'no double-booking a chase')
+const gap = () => Math.hypot(predator.x - 200, predator.y - 180)
+const gapBefore = gap()
+for (let tick = 0; tick < 30; tick += 1) stepSwimState(predator, env())
+assert.ok(gap() < gapBefore, 'predator lunges at where the prey was')
+assert.equal(
+  hunt(spawnSwimState('anchor', W, H, seeded(8)), prey),
+  false,
+  'anchors never hunt',
+)
+console.log('✅ a hunt is a lunge and a bolt, never a meal')
 
 assert.equal(toBehaviorMode('HOVER'), 'hover')
 assert.equal(toBehaviorMode('something-new'), 'drift')

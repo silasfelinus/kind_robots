@@ -1364,6 +1364,7 @@ import {
 } from '~/utils/cthulhuquariumSprites'
 import {
   facingOf,
+  hunt,
   packmatePositions,
   pitchOf,
   spawnSwimState,
@@ -1763,6 +1764,127 @@ function spawnSwimmer(stock: TankStock): Swimmer {
 }
 
 const ambience = createAmbience(STAGE_WIDTH, STAGE_HEIGHT)
+let huntClock = 20
+
+// A shed scale: a nacreous fan that turns slowly as it rises, catching the
+// light in a travelling glint so it reads as something worth tapping.
+function drawScale(
+  context: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  index: number,
+) {
+  const time = performance.now() / 1000
+  const turn = Math.sin(time * 1.6 + index * 1.7)
+  const r = MOTE_RADIUS
+  context.save()
+  context.translate(x, y)
+  context.rotate(Math.sin(time * 0.7 + index) * 0.5)
+  context.scale(0.55 + Math.abs(turn) * 0.45, 1)
+  const hue = (time * 40 + index * 57) % 360
+  const nacre = context.createLinearGradient(-r, -r, r, r)
+  nacre.addColorStop(0, `hsla(${hue}, 70%, 82%, 0.95)`)
+  nacre.addColorStop(0.5, 'rgba(255, 246, 220, 0.95)')
+  nacre.addColorStop(1, `hsla(${(hue + 120) % 360}, 60%, 78%, 0.95)`)
+  context.fillStyle = nacre
+  context.beginPath()
+  context.moveTo(0, r * 1.05)
+  context.quadraticCurveTo(-r * 1.2, r * 0.2, -r * 0.75, -r * 0.7)
+  context.quadraticCurveTo(0, -r * 1.25, r * 0.75, -r * 0.7)
+  context.quadraticCurveTo(r * 1.2, r * 0.2, 0, r * 1.05)
+  context.fill()
+  context.strokeStyle = 'rgba(120, 100, 70, 0.45)'
+  context.lineWidth = 0.8
+  context.stroke()
+  context.strokeStyle = 'rgba(255, 255, 255, 0.5)'
+  for (const arc of [0.35, 0.65]) {
+    context.beginPath()
+    context.arc(0, r * 1.05, r * 1.6 * arc, -Math.PI * 0.72, -Math.PI * 0.28)
+    context.stroke()
+  }
+  const glint = (time * 0.8 + index * 0.37) % 1
+  if (glint < 0.18) {
+    context.fillStyle = `rgba(255, 255, 255, ${0.9 - glint * 4})`
+    context.beginPath()
+    context.arc(-r * 0.3, -r * 0.35, r * 0.28, 0, Math.PI * 2)
+    context.fill()
+  }
+  context.restore()
+}
+
+// Unhatched eggs rest on the gravel, each in a spot fixed by its id, rocking
+// now and then; the rarer the egg, the brighter the glow around it.
+const EGG_GLOW: Record<string, string> = {
+  COMMON: 'rgba(230, 220, 190, 0)',
+  UNCOMMON: 'rgba(170, 230, 190, 0.25)',
+  RARE: 'rgba(140, 190, 255, 0.35)',
+  EPIC: 'rgba(200, 150, 255, 0.45)',
+  LEGENDARY: 'rgba(255, 210, 120, 0.55)',
+  MYTHIC: 'rgba(255, 120, 190, 0.65)',
+}
+
+function drawEggs(context: CanvasRenderingContext2D) {
+  const time = performance.now() / 1000
+  for (const egg of tankStore.eggs) {
+    const x = 60 + ((egg.id * 97) % (STAGE_WIDTH - 120))
+    const y = STAGE_HEIGHT * 0.9
+    const r = 5 + Math.min(egg.size, 8) * 1.2
+    const rock =
+      Math.sin(time * 1.3 + egg.id) > 0.93 ? Math.sin(time * 22) * 0.18 : 0
+    context.save()
+    context.translate(x, y)
+    context.rotate(rock)
+    const glow = EGG_GLOW[egg.rarity] ?? EGG_GLOW.COMMON
+    if (glow && !glow.endsWith(', 0)')) {
+      const halo = context.createRadialGradient(0, 0, r * 0.4, 0, 0, r * 2.6)
+      halo.addColorStop(0, glow)
+      halo.addColorStop(1, 'rgba(0, 0, 0, 0)')
+      context.fillStyle = halo
+      context.fillRect(-r * 3, -r * 3, r * 6, r * 6)
+    }
+    context.fillStyle = 'rgba(236, 228, 206, 0.95)'
+    context.strokeStyle = 'rgba(70, 60, 45, 0.6)'
+    context.lineWidth = 1
+    context.beginPath()
+    context.ellipse(0, -r * 0.2, r * 0.78, r, 0, 0, Math.PI * 2)
+    context.fill()
+    context.stroke()
+    context.fillStyle = 'rgba(255, 255, 255, 0.55)'
+    context.beginPath()
+    context.ellipse(
+      -r * 0.25,
+      -r * 0.55,
+      r * 0.18,
+      r * 0.3,
+      -0.4,
+      0,
+      Math.PI * 2,
+    )
+    context.fill()
+    context.restore()
+  }
+}
+
+// Now and then a predator lunges at something smaller and it bolts. Purely
+// visual (utils/cthulhuquariumMotion.ts hunt): nothing is ever eaten.
+function stageHunt() {
+  const cast = swimmers.value
+    .map((swimmer) => ({ swimmer, monster: stockFor(swimmer)?.Monster }))
+    .filter((entry) => entry.monster)
+  const predators = cast.filter(
+    (entry) => entry.monster?.dietRole === 'predator',
+  )
+  const predator = predators[Math.floor(Math.random() * predators.length)]
+  if (!predator?.monster) return
+  const predatorSize = predator.monster.size ?? 1
+  const prey = cast.filter(
+    (entry) =>
+      entry.swimmer !== predator.swimmer &&
+      (entry.monster?.size ?? 1) < predatorSize,
+  )
+  const target = prey[Math.floor(Math.random() * prey.length)]
+  if (target) hunt(predator.swimmer, target.swimmer)
+}
 const tankSound = new TankSound()
 
 function onToggleSound() {
@@ -2149,6 +2271,8 @@ function render(context: CanvasRenderingContext2D) {
   }
   context.globalAlpha = 1
 
+  drawEggs(context)
+
   for (const creature of feed.value) {
     context.strokeStyle = 'rgba(226, 196, 148, 0.92)'
     context.lineWidth = 2.4
@@ -2175,16 +2299,8 @@ function render(context: CanvasRenderingContext2D) {
     drawFish(context, swimmer, entry.hunger, entry.Monster)
   }
 
-  for (const mote of motes.value) {
-    context.fillStyle = 'rgba(255, 236, 160, 0.85)'
-    context.beginPath()
-    context.arc(mote.x, mote.y, MOTE_RADIUS, 0, Math.PI * 2)
-    context.fill()
-    context.strokeStyle = 'rgba(255, 236, 160, 0.35)'
-    context.lineWidth = 2
-    context.beginPath()
-    context.arc(mote.x, mote.y, MOTE_RADIUS + 4, 0, Math.PI * 2)
-    context.stroke()
+  for (const [index, mote] of motes.value.entries()) {
+    drawScale(context, mote.x, mote.y, index)
   }
 
   if (collector.value) drawCollector(context, collector.value)
@@ -2216,6 +2332,11 @@ function step(delta: number) {
       food,
     })
     swimmer.facing = facingOf(swimmer, swimmer.facing)
+  }
+  huntClock -= delta
+  if (huntClock <= 0) {
+    huntClock = 18 + Math.random() * 22
+    stageHunt()
   }
   const popped = stepAmbience(ambience, STAGE_WIDTH, STAGE_HEIGHT, delta)
   if (popped > 0 && Math.random() < 0.35) tankSound.plink()

@@ -48,6 +48,9 @@ export interface SwimState {
   timer: number
   bursting: boolean
   startled: number
+  chaseTime: number
+  chaseX: number
+  chaseY: number
   goalX: number
   goalY: number
   packmates: Packmate[]
@@ -127,6 +130,9 @@ export function spawnSwimState(
     timer: random() * 2,
     bursting: false,
     startled: 0,
+    chaseTime: 0,
+    chaseX: x,
+    chaseY: y,
     goalX: x,
     goalY: y,
     packmates,
@@ -184,7 +190,10 @@ export function stepSwimState(state: SwimState, env: SwimEnvironment): void {
   state.phase += delta
   state.timer -= delta
 
-  if (state.startled > 0) {
+  if (state.chaseTime > 0) {
+    state.chaseTime -= delta
+    steerTo(state, state.chaseX, state.chaseY, speed * 2.4 + 60, delta * 2)
+  } else if (state.startled > 0) {
     state.startled -= delta
     state.vx *= 1 - Math.min(1, delta * 1.5)
     state.vy *= 1 - Math.min(1, delta * 1.5)
@@ -345,4 +354,30 @@ export function packmatePositions(
     scale: mate.scale,
     offset: mate.lag,
   }))
+}
+
+const CHASE_SECONDS = 1.6
+
+/**
+ * A predator lunges at a prey's position for a moment and the prey bolts.
+ * Visual only -- nothing is ever eaten; fish never die (DESIGN-BRIEF.md).
+ * Returns false when either party can't take part (anchors and clingers hold
+ * their ground; something already fleeing or chasing is left alone).
+ */
+export function hunt(predator: SwimState, prey: SwimState): boolean {
+  const still = (state: SwimState) =>
+    state.mode === 'anchor' || state.mode === 'cling'
+  if (still(predator) || still(prey)) return false
+  if (predator.chaseTime > 0 || prey.startled > 0) return false
+  predator.chaseTime = CHASE_SECONDS
+  predator.chaseX = prey.x
+  predator.chaseY = prey.y
+  const dx = prey.x - predator.x
+  const dy = prey.y - predator.y
+  const distance = Math.hypot(dx, dy) || 1
+  const burst = MODE_TUNING[prey.mode].speed * 2 + 150
+  prey.vx = (dx / distance) * burst
+  prey.vy = (dy / distance) * burst * 0.6
+  prey.startled = STARTLE_SECONDS + 0.4
+  return true
 }

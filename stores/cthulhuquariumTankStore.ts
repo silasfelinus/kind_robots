@@ -37,6 +37,9 @@ export interface TankMonster {
   tier: string
   behavior: string | null
   hue: number | null
+  // The bible's diet_role (predator/prey/neutral); the tank uses it for its
+  // purely visual hunts.
+  dietRole?: string | null
   charm: string
   empathy: string
   grace: string

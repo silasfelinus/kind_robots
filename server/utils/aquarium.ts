@@ -2258,6 +2258,11 @@ const publicStockSelect = {
       icon: true,
       iconPath: true,
       cardPath: true,
+      // Species-level catalog fields the visitor's live tank view steers
+      // and tints by -- species attributes the shop catalog already sends
+      // (catalogMonsterSelect), nothing about the owner or the individual.
+      behavior: true,
+      hue: true,
     },
   },
 } satisfies Prisma.AquariumStockSelect
@@ -2288,6 +2293,8 @@ const publicAquariumDetailSelect = {
   Decor: { select: publicDecorSelect, orderBy: { createdAt: 'asc' } },
 } satisfies Prisma.AquariumSelect
 
+const PUBLIC_SUMMARY_PEEK = 3
+
 const publicAquariumSummarySelect = {
   slug: true,
   title: true,
@@ -2295,6 +2302,23 @@ const publicAquariumSummarySelect = {
   updatedAt: true,
   User: { select: publicOwnerSelect },
   _count: { select: { Stock: true } },
+  // A peek through the glass on each browse card: the first few occupants'
+  // species only, nothing about the individual beyond its row id.
+  Stock: {
+    select: {
+      id: true,
+      Monster: {
+        select: {
+          name: true,
+          slug: true,
+          iconPath: true,
+          cardPath: true,
+        },
+      },
+    },
+    orderBy: { placedAt: 'asc' },
+    take: PUBLIC_SUMMARY_PEEK,
+  },
 } satisfies Prisma.AquariumSelect
 
 export type PublicAquarium = Prisma.AquariumGetPayload<{

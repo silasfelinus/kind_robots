@@ -1366,6 +1366,7 @@ import {
   drawAmbienceFront,
   stepAmbience,
 } from '~/utils/cthulhuquariumAmbience'
+import { decorIcon, LEGACY_PARLOUR_CROP } from '~/utils/cthulhuquariumStage'
 
 /* Fixed logical resolution; CSS scales it to the host width so the canvas
    survives phone widths without its own breakpoint logic. */
@@ -1572,10 +1573,6 @@ const canvasRef = ref<HTMLCanvasElement | null>(null)
    Plain Image rather than a ref because render() reads it every frame; a
    decode failure leaves it incomplete and render() skips it. */
 let backgroundImage: HTMLImageElement | null = null
-// The legacy parlour plate (t-065) is a painting of a tank on a wall, not the
-// inside of one: until the canon's interior renders arrive, draw only its
-// water, cropped to the stage's 16:9.
-const LEGACY_PARLOUR_CROP = { x: 0.163, y: 0.14, w: 0.674, h: 0.66 }
 let backgroundCrop: typeof LEGACY_PARLOUR_CROP | null = null
 function loadBackground(key: string) {
   if (!import.meta.client) return
@@ -1965,26 +1962,6 @@ function drawFish(
 // phone shouldn't pay for a gradient rebuild it doesn't need.
 let waterGradient: CanvasGradient | null = null
 let waterGradientContext: CanvasRenderingContext2D | null = null
-
-// cthulhuquarium/t-017: decor icons drawn as simple glyphs (same "hand-drawn
-// shapes, not art" precedent t-015 documents for fish before its own art
-// pass). Kept local rather than read from tankStore.decorCatalog so decor
-// renders correctly even before the Decorate panel has ever been opened
-// (the catalog loads lazily, same as sets/bestiary) -- must stay in sync
-// with server/utils/aquariumEconomy.ts's DECOR_CATALOG icons by hand, same
-// convention as everywhere else the client mirrors a server-owned constant.
-const DECOR_ICONS: Record<string, string> = {
-  pebble_bed: '🪨',
-  driftwood: '🪵',
-  coral_spire: '🪸',
-  sunken_chest: '🧰',
-  glow_kelp: '🌿',
-  ceramic_ruin: '🏺',
-}
-
-function decorIcon(kind: string): string {
-  return DECOR_ICONS[kind] ?? '❖'
-}
 
 // cthulhuquarium/t-049: a simple glyph, same "hand-drawn shapes, not art"
 // convention decor icons already use above -- distinct from the painted

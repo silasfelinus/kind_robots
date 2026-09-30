@@ -19,6 +19,9 @@ export const monsterArtSelect = {
   tier: true,
   isActive: true,
   isPublic: true,
+  // cthulhuquarium/t-022: shared-bestiary tag list (comma-separated), so an
+  // outside caller can confirm the ruler-hooked tags seeded without DB access.
+  games: true,
   icon: true,
   iconPath: true,
   imagePath: true,

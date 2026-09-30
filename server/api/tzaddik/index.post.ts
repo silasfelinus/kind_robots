@@ -12,6 +12,7 @@ import { errorHandler } from '../../utils/error'
 import { validateApiKey } from '../../utils/validateKey'
 import { slugify } from '../../../utils/slugify'
 import { TzaddikLifeState } from '~/prisma/generated/prisma/client'
+import { findTzaddikBlacklistEntry } from '../../../utils/tzaddikBlacklist'
 
 type SubmitBody = {
   displayName?: unknown
@@ -92,6 +93,14 @@ export default defineEventHandler(async (event) => {
       throw createError({
         statusCode: 400,
         message: '"displayName" is required.',
+      })
+    }
+
+    const blacklisted = findTzaddikBlacklistEntry(displayName)
+    if (blacklisted) {
+      throw createError({
+        statusCode: 422,
+        message: `${blacklisted.name} is on the Tzaddikim blacklist and cannot be nominated.`,
       })
     }
 

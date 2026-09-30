@@ -370,6 +370,7 @@ export default defineNuxtConfig({
    * compatibility aliases, not temporary routing experiments.
    */
   routeRules: {
+    '/tzaddikim': { redirect: { to: '/tzaddik-gallery', statusCode: 302 } },
     '/memory': { redirect: { to: '/play/memory', statusCode: 301 } },
     '/wonderlab': { redirect: { to: '/plan', statusCode: 301 } },
     '/storymaker': { redirect: { to: '/storybook', statusCode: 301 } },

@@ -21,7 +21,9 @@ jobs:
       (github.event.workflow_run.conclusion == 'success' &&
        github.event.workflow_run.head_branch == 'main')
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    # Hundreds of seeds each need a live source refresh and biography
+    # synthesis; the import is idempotent, so a cancelled run resumes next time.
+    timeout-minutes: 300
 
     steps:
       - name: Checkout deployed source

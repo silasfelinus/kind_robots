@@ -62,27 +62,51 @@ console.log(
   `Importing ${missing.length} missing accepted Tzaddik seeds (${before.length} approved rows already visible).`,
 )
 
-const imported = await readJson('/api/tzaddik/import', {
-  method: 'POST',
-  headers: {
-    'content-type': 'application/json',
-    'x-beta-admin-token': adminToken,
-  },
-  body: JSON.stringify({ candidates: missing }),
-})
+// Each imported candidate costs a live Wikipedia/Wikidata/Commons refresh plus a
+// biography synthesis call, so a single request carrying hundreds of seeds
+// would outlive any proxy timeout. Import in small batches and keep going past
+// a failed batch so one bad entry cannot strand the rest of the gallery.
+const BATCH_SIZE = Math.max(
+  1,
+  Number(process.env.TZADDIK_IMPORT_BATCH_SIZE) || 4,
+)
+const failed = []
 
-for (const result of imported.data || []) {
+for (let start = 0; start < missing.length; start += BATCH_SIZE) {
+  const batch = missing.slice(start, start + BATCH_SIZE)
+  let results
+  try {
+    const imported = await readJson('/api/tzaddik/import', {
+      method: 'POST',
+      headers: {
+        'content-type': 'application/json',
+        'x-beta-admin-token': adminToken,
+      },
+      body: JSON.stringify({ candidates: batch }),
+    })
+    results = imported.data || []
+  } catch (error) {
+    results = batch.map((candidate) => ({
+      displayName: candidate.displayName,
+      status: 'failed',
+      reason: error instanceof Error ? error.message : String(error),
+    }))
+  }
+
+  for (const result of results) {
+    console.log(
+      `${result.status}: ${result.displayName}${result.reason ? ` — ${result.reason}` : ''}`,
+    )
+    if (result.status === 'failed') failed.push(result)
+  }
   console.log(
-    `${result.status}: ${result.displayName}${result.reason ? ` — ${result.reason}` : ''}`,
+    `  progress: ${Math.min(start + BATCH_SIZE, missing.length)}/${missing.length}`,
   )
 }
 
-const failed = (imported.data || []).filter(
-  (result) => result.status === 'failed',
-)
 if (failed.length > 0) {
-  throw new Error(
-    `Tzaddik seed import reported ${failed.length} failed candidate(s).`,
+  console.error(
+    `Tzaddik seed import reported ${failed.length} failed candidate(s): ${failed.map((result) => result.displayName).join(', ')}`,
   )
 }
 
@@ -92,7 +116,7 @@ const stillMissing = payload.candidates.filter(
   (candidate) => !afterUrls.has(candidate.wikipediaUrl),
 )
 
-if (stillMissing.length > 0) {
+if (stillMissing.length > 0 || failed.length > 0) {
   throw new Error(
     `Seed verification failed; ${stillMissing.length} accepted candidate(s) are still absent from the approved gallery: ${stillMissing.map((candidate) => candidate.displayName).join(', ')}`,
   )

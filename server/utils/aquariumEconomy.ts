@@ -322,7 +322,7 @@ export const SET_PIECE_CATALOG: Readonly<Record<SetPieceKind, SetPieceConfig>> =
       kind: 'extra_species_slot',
       title: 'Pressure Valve',
       description:
-        "Widens the tank by one size unit while equipped -- buys a little capacity with coins instead of waiting on a milestone (SYSTEMS.md's own framing).",
+        'Widens the tank by one size unit while equipped: a little more room, bought with coins instead of waited for.',
       effect: 'slots_cap_delta',
       value: 1,
       cost: RARITY_TIERS.UNCOMMON.unlockCost,
@@ -339,7 +339,7 @@ export const SET_PIECE_CATALOG: Readonly<Record<SetPieceKind, SetPieceConfig>> =
       kind: 'swim_speed',
       title: 'Swift Current',
       description:
-        'Every occupant swims noticeably faster. Purely cosmetic -- economy.yaml explicitly carries no number for this one.',
+        'Every occupant swims noticeably faster. Purely for the pleasure of watching.',
       effect: 'cosmetic_only',
       value: null,
       cost: RARITY_TIERS.COMMON.unlockCost,
@@ -348,7 +348,7 @@ export const SET_PIECE_CATALOG: Readonly<Record<SetPieceKind, SetPieceConfig>> =
       kind: 'peace_ward',
       title: 'Peace Ward',
       description:
-        "Rivalry never applies anywhere in the tank while equipped. (Rivalry itself hasn't been built yet -- t-030/a successor owns that; this equips and holds ready for when it lands, same 'schema-ready, unread yet' discipline as Monster.depth.)",
+        'Keeps the peace while equipped: occupants who would squabble leave each other alone, and nobody earns less for it.',
       effect: 'rivalry_multiplier_override',
       value: 1.0,
       cost: RARITY_TIERS.RARE.unlockCost,
@@ -357,7 +357,7 @@ export const SET_PIECE_CATALOG: Readonly<Record<SetPieceKind, SetPieceConfig>> =
       kind: 'roaming_collector',
       title: 'Roaming Collector',
       description:
-        'A little automaton drifts the tank collecting coins on its own -- capped well short of full automation, and never stacks with Idle Hoarder.',
+        'A little automaton drifts the tank collecting some of the coins on its own. It does not stack with the Idle Hoarder.',
       effect: 'auto_click_collectibles',
       value: 0.5,
       cost: RARITY_TIERS.RARE.unlockCost,
@@ -366,7 +366,7 @@ export const SET_PIECE_CATALOG: Readonly<Record<SetPieceKind, SetPieceConfig>> =
       kind: 'debris_skimmer',
       title: 'Debris Skimmer',
       description:
-        'Passively clears a little debris every tick -- one of three deliberately co-viable routes to a clean tank, never the only one.',
+        'Quietly clears a little debris all the time, so the tank needs cleaning less often.',
       effect: 'debris_clear_per_tick',
       value: 2,
       cost: RARITY_TIERS.UNCOMMON.unlockCost,
@@ -375,7 +375,7 @@ export const SET_PIECE_CATALOG: Readonly<Record<SetPieceKind, SetPieceConfig>> =
       kind: 'idle_hoarder',
       title: 'Idle Hoarder',
       description:
-        'Extra income while you are away, on top of the baseline offline rate -- never total; idling still stays strictly worse than playing.',
+        'The tank earns more while you are away. Watching it still pays better.',
       effect: 'idle_income_bonus_fraction',
       value: 0.4,
       cost: RARITY_TIERS.RARE.unlockCost,

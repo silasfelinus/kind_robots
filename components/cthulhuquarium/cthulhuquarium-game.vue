@@ -411,6 +411,15 @@
         class="flex flex-col gap-2 rounded-2xl"
         :class="{ 'cq-focus p-2': storyFocus === 'shop' }"
       >
+        <!-- The shop's own header (canon videos.yaml screen-shop): the aisle
+             of lit tanks, moving; the still plate under reduced motion. -->
+        <img
+          v-if="shopHeaderArt"
+          :src="shopHeaderArt"
+          alt="The shop's aisle of lit tanks"
+          class="aspect-[16/5] w-full rounded-2xl border border-base-300 object-cover shadow"
+          loading="lazy"
+        />
         <p class="kr-text-eyebrow text-xs tracking-wide opacity-60">
           Unlock a new occupant
         </p>
@@ -1551,6 +1560,9 @@ type Collector = {
 type FeedCreature = { x: number; y: number; phase: number; lean: number }
 
 const tankStore = useCthulhuquariumTankStore()
+const shopHeaderArt =
+  (prefersReducedMotion() ? null : movingArt('screen-shop')) ??
+  artByName('screen-shop')
 // Held, like the dialogue itself, while anything else has the floor.
 const storyFocus = computed(() =>
   tankStore.storyShowing ? (tankStore.activeBeat?.focus ?? null) : null,

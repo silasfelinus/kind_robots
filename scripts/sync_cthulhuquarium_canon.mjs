@@ -243,7 +243,7 @@ const copied = {
   portraits: copyBuilt('characters/portraits', 'portraits'),
   backgrounds: copyBuilt('backgrounds/built', 'backgrounds'),
   plates: copyBuilt('story/built', 'plates'),
-  videos: copyBuilt('videos/raw', 'videos'),
+  videos: copyBuilt('videos/built', 'videos'),
   clips: copyBuilt('clips', 'clips'),
 }
 for (const who of ['charlotte-fishmonger', 'wilbur-stint']) {

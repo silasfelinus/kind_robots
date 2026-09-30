@@ -52,6 +52,9 @@ jobs:
       - name: Art prompt contract
         run: npm run test:art-prompt-contract
 
+      - name: Art style catalog
+        run: npm run test:art-style-catalog
+
       - name: Enqueue prompt gate contract
         run: npm run test:enqueue-prompt-gate
 
@@ -185,6 +188,9 @@ jobs:
 
       - name: Mandarin course contract
         run: npm run test:mandarin-course
+
+      - name: Mandarin parts-first teaching order
+        run: npm run test:mandarin-parts-first
 
       - name: Reaction route auth contract
         run: npm run test:reaction-route-auth
@@ -346,6 +352,9 @@ jobs:
       - name: Conductor roadmap progress parity contract
         run: npm run test:conductor-progress-parity
 
+      - name: Conductor human-gate action semantics
+        run: npm run test:conductor-task-actions
+
       - name: AppMaker slug-candidate guard self-test
         run: npm run test:appmaker-slug-candidate-guard-selftest
 
@@ -411,6 +420,9 @@ jobs:
 
       - name: Storybook ending-deck authoring contract
         run: npm run test:storybook-decks
+
+      - name: Storybook table interaction contract
+        run: npm run test:storybook-table
 
       - name: Storybook run store contract
         run: npm run test:storybook-run-store
@@ -1193,6 +1205,12 @@ jobs:
 
       - name: Art Archive thumbnail cache contract
         run: npm run test:art-archive-thumbnails
+
+      - name: Gallery feed thumbnail contract
+        run: npm run test:art-image-thumbnail
+
+      - name: Gallery newest-first request queue
+        run: npm run test:latest-first-queue
 
       - name: Art Archive preset modifiers contract
         run: npm run test:art-archive-preset-modifiers

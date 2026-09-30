@@ -24,6 +24,7 @@ import type {
   MandarinCard,
   MandarinComponent,
   MandarinComponentRole,
+  MandarinFormation,
   MandarinSource,
 } from './mandarin'
 import {
@@ -132,13 +133,19 @@ export type MandarinLessonComponent = {
   contribution: string
   meaning?: string
   note?: string
+  /** The part's own reading, from the source's entry for the part. */
+  pinyin?: string
+  /** How the source says the PART itself was formed -- "what it used to mean". */
+  origin?: MandarinFormation
 }
 
 export type MandarinLessonCharacter = {
   character: string
   components: MandarinLessonComponent[]
-  /** True when at least one component carries an asserted semantic or phonetic role. */
+  /** True when at least one component carries an asserted semantic, phonetic or idea role. */
   hasAssertedStructure: boolean
+  /** How the source says this character was formed, in the source's words. */
+  formation?: MandarinFormation
 }
 
 export type MandarinLessonRelative = {
@@ -195,12 +202,14 @@ export type MandarinLesson = {
   /**
    * `structural` -- the source asserts a semantic or phonetic role for at least one
    * piece, so there is a real structural story to teach.
-   * `vocabulary` -- the source offers no asserted roles, so this is an item to learn as a
-   * word, not as a decomposition. Saying so is the point: it stops the page presenting a
+   * `pictograph` -- no parts with a job, but the source says what the character was
+   * drawn as (人 "The legs of a human being"), so there is still an origin to teach.
+   * `vocabulary` -- the source offers no asserted roles and no formation, so this is an
+   * item to learn as a word, not as a decomposition. Saying so is the point: it stops the page presenting a
    * bare IDS dump as if it were an explanation, and it is the number
    * mandarin-tutor/t-026 audits.
    */
-  teachability: 'structural' | 'vocabulary'
+  teachability: 'structural' | 'pictograph' | 'vocabulary'
 }
 
 /** Strip tone marks from a pinyin string, preserving ü. */
@@ -271,7 +280,7 @@ export function describeSyllables(pinyin: string): MandarinLessonSyllable[] {
  * cost a learner their attention on the single most common character in the language.
  */
 export function isTeachingRole(role: MandarinComponentRole): boolean {
-  return role === 'semantic' || role === 'phonetic'
+  return role === 'semantic' || role === 'phonetic' || role === 'idea'
 }
 
 /**
@@ -295,6 +304,10 @@ export function describeContribution(
         : `${glyph} is the meaning side: it points at what ${character} is about, not how it sounds.`
     case 'phonetic':
       return `${glyph} is the sound side: it points at how ${character} sounds, not what it means.`
+    case 'idea':
+      return component.meaning
+        ? `${glyph} means ${component.meaning}, and it is one of the pictures that make up ${character}.`
+        : `${glyph} is one of the pictures that make up ${character}.`
     case 'radical':
       // A lookup fact, stated as a lookup fact. The old version spent two clauses
       // explaining that it was not a meaning claim, which only made it read like one.
@@ -308,8 +321,37 @@ export function describeContribution(
   }
 }
 
+/**
+ * One sentence on how a character or part was formed, in the source's own words.
+ *
+ * This is the "what they used to mean" line (Silas, 2026-09-29). It returns '' rather
+ * than a filler sentence when the source says nothing, so a caller can drop the line.
+ * The hint is quoted as given: 我's "A hand 扌 holding a weapon 戈" is Make Me a Hanzi's
+ * analysis, and the lesson credits it instead of restating it as settled scholarship.
+ */
+export function describeOrigin(
+  formation: MandarinFormation | undefined,
+): string {
+  if (!formation) return ''
+  const hint = formation.hint?.trim().replace(/[.。]$/, '')
+  switch (formation.type) {
+    case 'pictographic':
+      return hint ? `Drawn as a picture: ${hint}.` : 'Drawn as a picture.'
+    case 'ideographic':
+      return hint
+        ? `An idea put together from pictures: ${hint}.`
+        : 'An idea put together from pictures.'
+    case 'pictophonetic':
+      return hint
+        ? `One part gives the meaning (${hint}) and one part gives the sound.`
+        : 'One part gives the meaning and one part gives the sound.'
+    default:
+      return ''
+  }
+}
+
 const ASSERTED_ROLES: ReadonlySet<MandarinComponentRole> =
-  new Set<MandarinComponentRole>(['semantic', 'phonetic'])
+  new Set<MandarinComponentRole>(['semantic', 'phonetic', 'idea'])
 
 function isHanCharacter(value: string): boolean {
   const codePoint = value.codePointAt(0) ?? 0
@@ -489,6 +531,10 @@ function summarize(
       ? `${card.simplified} is written with ${charCount} characters.`
       : `${card.simplified} is a single character.`
 
+  if (teachability === 'pictograph') {
+    return `${shape} It started as a picture, so learn what it was drawn as.`
+  }
+
   if (teachability === 'vocabulary') {
     // One clause, not three. The old version explained the absence of a claim at such
     // length that it read as the lesson's content -- and it sat on top of a screen that
@@ -538,7 +584,13 @@ export function buildMandarinLesson(
           contribution: describeContribution(component, character),
           ...(component.meaning ? { meaning: component.meaning } : {}),
           ...(component.note ? { note: component.note } : {}),
+          ...(component.pinyin ? { pinyin: component.pinyin } : {}),
+          ...(component.origin ? { origin: component.origin } : {}),
         }))
+
+      const formation = (card.formations ?? []).find(
+        (entry) => entry.character === character,
+      )
 
       return {
         character,
@@ -546,6 +598,7 @@ export function buildMandarinLesson(
         hasAssertedStructure: components.some((component) =>
           ASSERTED_ROLES.has(component.role),
         ),
+        ...(formation ? { formation } : {}),
       }
     },
   )
@@ -554,7 +607,9 @@ export function buildMandarinLesson(
     (entry) => entry.hasAssertedStructure,
   )
     ? 'structural'
-    : 'vocabulary'
+    : lessonCharacters.some((entry) => entry.formation?.hint)
+      ? 'pictograph'
+      : 'vocabulary'
 
   const soundFamilies = index ? soundFamiliesFor(card, characters, index) : []
   const homophones = index ? homophonesFor(card, index) : null

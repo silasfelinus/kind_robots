@@ -39,6 +39,36 @@ const THUMBNAIL_MAX_DIMENSION = 480
 // archive original (e.g. a multi-thousand-pixel upscale/render) would be.
 const MEDIUM_MAX_DIMENSION = 1200
 
+// A Gallery collection hands the browser every tile's archive URL at once, so
+// opening a never-viewed collection used to start one full-file read plus a
+// sharp resize PER TILE, all concurrently, with nothing bounding them. The
+// resulting memory/CPU pile-up made the slowest requests time out, and each
+// timeout became a permanent fallback image in the grid. Generation is now
+// capped and a second request for the same file joins the first one.
+const MAX_CONCURRENT_GENERATIONS = 3
+const inFlightGenerations = new Map<string, Promise<Buffer>>()
+const generationWaiters: Array<() => void> = []
+let activeGenerations = 0
+
+export async function withGenerationSlot<T>(
+  work: () => Promise<T>,
+): Promise<T> {
+  if (activeGenerations >= MAX_CONCURRENT_GENERATIONS) {
+    await new Promise<void>((resolve) => generationWaiters.push(resolve))
+  } else {
+    activeGenerations += 1
+  }
+  try {
+    return await work()
+  } finally {
+    // Newest waiter first: a gallery scroll requests the tiles now on screen
+    // last, and they should not queue behind every tile already scrolled past.
+    const next = generationWaiters.pop()
+    if (next) next()
+    else activeGenerations -= 1
+  }
+}
+
 function cachePathFor(
   resolvedRoot: string,
   folder: string,
@@ -76,6 +106,29 @@ async function ensureArchiveDerivedImage(
     // No cached copy yet (or it's unreadable) -- fall through and generate one.
   }
 
+  const pending = inFlightGenerations.get(cachePath)
+  if (pending) return pending
+
+  const generation = withGenerationSlot(() =>
+    generateArchiveDerivedImage(
+      resolvedRoot,
+      cachePath,
+      maxDimension,
+      relativePath,
+    ),
+  ).finally(() => {
+    inFlightGenerations.delete(cachePath)
+  })
+  inFlightGenerations.set(cachePath, generation)
+  return generation
+}
+
+async function generateArchiveDerivedImage(
+  resolvedRoot: string,
+  cachePath: string,
+  maxDimension: number,
+  relativePath: string,
+): Promise<Buffer> {
   const sourcePath = await resolveConfinedExistingPath(
     resolvedRoot,
     relativePath,

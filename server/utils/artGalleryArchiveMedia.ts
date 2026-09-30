@@ -21,6 +21,13 @@ export type GalleryArchiveMediaVariant = 'full' | 'thumbnail' | 'medium'
 
 export const GALLERY_ARCHIVE_MEDIA_TTL_MS = 6 * 60 * 60 * 1000
 
+// Expiry is snapped to the start of the hour so every response inside that
+// hour mints the SAME url. A per-millisecond expiry made each refetch a new
+// url, so the route's Cache-Control never got a hit and every refresh or
+// reopened collection re-downloaded (and could re-time-out) every tile.
+// Flooring keeps the expiry inside the verifier's TTL window.
+export const GALLERY_ARCHIVE_MEDIA_EXPIRY_BUCKET_MS = 60 * 60 * 1000
+
 const KEY_LABEL = 'kind-robots/art-gallery-archive-media/v1'
 let cachedKey: Buffer | null = null
 
@@ -58,7 +65,10 @@ export function galleryArchiveMediaUrl(
   variant: GalleryArchiveMediaVariant = 'medium',
   now: number = Date.now(),
 ): string {
-  const expiresAt = now + GALLERY_ARCHIVE_MEDIA_TTL_MS
+  const bucketStart =
+    Math.floor(now / GALLERY_ARCHIVE_MEDIA_EXPIRY_BUCKET_MS) *
+    GALLERY_ARCHIVE_MEDIA_EXPIRY_BUCKET_MS
+  const expiresAt = bucketStart + GALLERY_ARCHIVE_MEDIA_TTL_MS
   const signature = signGalleryArchiveMedia(artImageId, variant, expiresAt)
   return `/api/art/image/archive/${artImageId}?variant=${variant}&exp=${expiresAt}&sig=${signature}`
 }
@@ -96,4 +106,45 @@ export function attachGalleryArchiveMediaPaths<T extends ArchiveBackedArtImage>(
     }
   }
   return rows
+}
+
+// The image feed's one-url-per-tile thumbnail (server/utils/artImageThumbnail.ts)
+// covers every storage kind, not just the archive, so it gets its own message
+// prefix. It shares the key and TTL above; the prefix is not one of the archive
+// variants, so neither url can be replayed against the other route.
+const FEED_THUMBNAIL_PREFIX = 'feed-thumbnail'
+
+function feedThumbnailExpiry(now: number): number {
+  const bucketStart =
+    Math.floor(now / GALLERY_ARCHIVE_MEDIA_EXPIRY_BUCKET_MS) *
+    GALLERY_ARCHIVE_MEDIA_EXPIRY_BUCKET_MS
+  return bucketStart + GALLERY_ARCHIVE_MEDIA_TTL_MS
+}
+
+export function galleryThumbnailUrl(
+  artImageId: number,
+  now: number = Date.now(),
+): string {
+  const expiresAt = feedThumbnailExpiry(now)
+  const signature = signMediaCapability(
+    signingKey(),
+    `${artImageId}:${FEED_THUMBNAIL_PREFIX}:${expiresAt}`,
+  )
+  return `/api/art/image/${artImageId}/thumbnail?exp=${expiresAt}&sig=${signature}`
+}
+
+export function verifyGalleryThumbnail(
+  artImageId: number,
+  expiresAt: unknown,
+  signature: unknown,
+  now: number = Date.now(),
+): boolean {
+  return verifyMediaCapability(
+    signingKey(),
+    `${artImageId}:${FEED_THUMBNAIL_PREFIX}:${Number(expiresAt)}`,
+    expiresAt,
+    signature,
+    now,
+    GALLERY_ARCHIVE_MEDIA_TTL_MS,
+  )
 }

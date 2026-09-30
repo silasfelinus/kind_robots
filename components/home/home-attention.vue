@@ -52,7 +52,7 @@
   ignores the convention.
 
   A SUBMISSION RECEIPT THAT OUTLIVES THE ROW (remaining polish item 1). The
-  `answer`/`approve` actions release the task off `needs-human`, which drops
+  `answer`/`proceed`/`approve` actions release the task off `needs-human`, which drops
   it out of `gates` on the very same tick this component sets `sentKey` --
   the confirmation text lived inside `v-if="openKey === gateKey(gate)"`, a
   block belonging to a row that had already stopped existing, so it never
@@ -243,6 +243,16 @@
 
             <button
               type="button"
+              class="btn btn-success btn-xs rounded-lg"
+              :disabled="isUpdating(gate) || !replyText(gate)"
+              title="Authorize the scoped work and release it to the next agent"
+              @click="act(gate, 'proceed')"
+            >
+              Approve & continue
+            </button>
+
+            <button
+              type="button"
               class="btn btn-ghost btn-xs rounded-lg border border-base-300"
               :disabled="isUpdating(gate) || !replyText(gate)"
               title="Add this note but leave the gate open"
@@ -255,10 +265,10 @@
               type="button"
               class="btn btn-ghost btn-xs rounded-lg border border-base-300 text-success"
               :disabled="isUpdating(gate)"
-              title="Close this gate as approved"
+              title="Accept the task as finished and close it"
               @click="act(gate, 'approve')"
             >
-              Approve
+              Accept complete
             </button>
 
             <NuxtLink
@@ -393,7 +403,7 @@ function noteSummary(gate: ConductorHumanGate) {
  * The receipts. Section-level state rather than per-row, so a submission
  * survives the row it was submitted from disappearing -- see the file header
  * note for the bug this replaces (the confirmation text used to live inside
- * the very row `answer`/`approve` had just removed from `gates`).
+ * the very row `answer`/`proceed`/`approve` had just removed from `gates`).
  */
 interface GateReceipt {
   id: string
@@ -408,7 +418,8 @@ const receipts = ref<GateReceipt[]>([])
 const receiptTimers = new Map<string, ReturnType<typeof setTimeout>>()
 
 function receiptVerb(action: ConductorTaskAction): string {
-  if (action === 'approve') return 'approved and closed'
+  if (action === 'approve') return 'accepted as complete'
+  if (action === 'proceed') return 'approved to continue'
   if (action === 'reject') return 'sent back for another pass'
   if (action === 'comment') return 'noted, gate left open'
   return 'sent to the next agent'
@@ -472,10 +483,10 @@ async function act(
   replies.value[key] = ''
   sentKey.value = key
   /*
-   * `answer` and `approve` both move the task off `needs-human`, so the store's
+   * `answer`, `proceed`, and `approve` all move the task off `needs-human`, so the store's
    * optimistic update drops it out of `humanGates` and this row disappears on
    * its own. A `comment` leaves it in place, so the panel stays open with the
-   * note now visible above the box. The receipt is pushed for the same two
+   * note now visible above the box. The receipt is pushed for the same three
    * actions, precisely because those are the ones whose own confirmation text
    * is about to vanish along with the row.
    */

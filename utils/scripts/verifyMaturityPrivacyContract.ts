@@ -380,6 +380,28 @@ assert.equal(
   false,
 )
 
+// Urls minted within the same hour must be identical so the browser cache can
+// serve a refreshed or reopened collection instead of re-downloading every tile.
+assert.equal(
+  galleryArchiveMediaUrl(42, 'medium', signedAt + 5 * 60 * 1000),
+  galleryArchiveMediaUrl(42, 'medium', signedAt + 50 * 60 * 1000),
+)
+
+// The queue judges a job by its OUTPUT image's current flags, not the flags it
+// was saved with: an image re-marked mature or private must not keep its prompt
+// visible or its refused public file url as a blank frame.
+const queueListRoute = readFileSync('server/api/art/queue/index.get.ts', 'utf8')
+assert.ok(queueListRoute.includes('applyCurrentArtImageState('))
+const artJobImageState = readFileSync(
+  'server/utils/artJobImageState.ts',
+  'utf8',
+)
+assert.ok(artJobImageState.includes('isMature: image.isMature'))
+assert.ok(artJobImageState.includes('isPublic: image.isPublic'))
+assert.ok(artJobImageState.includes('outputImageDeleted: true'))
+const artJobStoreSource = readFileSync('stores/artJobStore.ts', 'utf8')
+assert.ok(artJobStoreSource.includes("state.imageSrcById[job.artImageId] = ''"))
+
 const artImageAccess = readFileSync('server/utils/artImageAccess.ts', 'utf8')
 assert.ok(
   artImageAccess.includes(
@@ -419,22 +441,46 @@ const unsortedGalleryApi = readFileSync(
   'server/api/art/collection/unsorted.get.ts',
   'utf8',
 )
-assert.ok(unsortedGalleryApi.includes('readMaturityFilter'))
-assert.ok(unsortedGalleryApi.includes('readPrivacyFilter'))
+const artImageAccessSource = readFileSync(
+  'server/utils/artImageAccess.ts',
+  'utf8',
+)
 assert.ok(
-  unsortedGalleryApi.includes(
+  artImageAccessSource.includes(
     "type GalleryPrivacyFilter = 'all' | 'public' | 'private'",
   ),
 )
 assert.ok(
-  unsortedGalleryApi.includes('{ isPublic: false, userId: access.userId }'),
+  artImageAccessSource.includes('{ isPublic: false, userId: access.userId }'),
+  'the shared Gallery privacy filter must keep "private" owner-only',
 )
-assert.ok(unsortedGalleryApi.includes("maturity === 'mature'"))
+assert.ok(artImageAccessSource.includes("maturity === 'mature'"))
+
+const feedGalleryApi = readFileSync('server/api/art/image/feed.get.ts', 'utf8')
+for (const galleryApi of [unsortedGalleryApi, feedGalleryApi]) {
+  assert.ok(galleryApi.includes('readGalleryMaturityFilter'))
+  assert.ok(galleryApi.includes('readGalleryPrivacyFilter'))
+  assert.ok(galleryApi.includes('buildGalleryFilterWhere('))
+  assert.ok(galleryApi.includes('buildArtImageWhere('))
+}
+
+const feedThumbnailRoute = readFileSync(
+  'server/api/art/image/[id]/thumbnail.get.ts',
+  'utf8',
+)
+assert.ok(feedThumbnailRoute.includes('verifyGalleryThumbnail'))
+assert.ok(
+  feedThumbnailRoute.includes(
+    'buildArtImageWhere(await getArtImageAccessContext(event))',
+  ),
+  'an unsigned thumbnail request must fall back to the normal access rule',
+)
 
 for (const galleryApi of [
   'server/api/art/collection/index.get.ts',
   'server/api/art/collection/[id].get.ts',
   'server/api/art/collection/unsorted.get.ts',
+  'server/api/art/image/feed.get.ts',
 ]) {
   const source = readFileSync(galleryApi, 'utf8')
   assert.ok(

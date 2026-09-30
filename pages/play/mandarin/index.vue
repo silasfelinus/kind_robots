@@ -240,6 +240,7 @@ import {
 import {
   buildCoursePlan,
   courseProgress,
+  orderPartsFirst,
   runTeachesAnything,
 } from '@/utils/mandarinCourse'
 import type { MandarinLesson } from '@/utils/mandarinLesson'
@@ -295,8 +296,14 @@ const sessionLessons = computed<MandarinLesson[]>(() => {
     ;(learned.has(card.key) ? review : fresh).push(card.key)
   }
 
-  return [...fresh, ...review]
-    .slice(0, SESSION_WORD_TARGET)
+  // Parts before combinations (Silas, 2026-09-29): an unlearned catalog card that is a
+  // part of a word in this session is taught first, even when it lives in another deck.
+  return orderPartsFirst({
+    keys: [...fresh, ...review],
+    cards: cards.value,
+    learnedKeys: learned,
+    limit: SESSION_WORD_TARGET,
+  })
     .map((key) => store.lessonFor(key))
     .filter((lesson): lesson is MandarinLesson => Boolean(lesson))
 })

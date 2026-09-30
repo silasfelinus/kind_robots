@@ -407,6 +407,9 @@
                     <div class="min-w-0">
                       <p class="kr-text-bold-xs">{{ recheckStatusLabel }}</p>
                       <p class="kr-text-dim-xs-55">{{ lastCheckedLabel }}</p>
+                      <p v-if="recheckDetailLabel" class="kr-text-dim-xs-55">
+                        {{ recheckDetailLabel }}
+                      </p>
                     </div>
                     <button
                       type="button"
@@ -421,6 +424,24 @@
                         class="kr-icon-3-5"
                       />
                       Recheck
+                    </button>
+                  </div>
+                  <div v-if="needsRecheckReview" class="mt-2 flex gap-1.5">
+                    <button
+                      type="button"
+                      class="btn btn-xs flex-1 rounded-lg"
+                      :disabled="resolveRecheckBusy"
+                      @click="acceptRecheck"
+                    >
+                      Update
+                    </button>
+                    <button
+                      type="button"
+                      class="btn btn-ghost btn-xs flex-1 rounded-lg border border-base-300"
+                      :disabled="resolveRecheckBusy"
+                      @click="dismissRecheck"
+                    >
+                      Keep current
                     </button>
                   </div>
                 </section>
@@ -460,6 +481,7 @@ import { useUserStore } from '@/stores/userStore'
 import { defaultArtFor } from '@/utils/defaultArtPool'
 import { sortedTzaddikTags, tzaddikTagLabel } from '@/utils/tzaddikTags'
 import { resolveTzaddikImageSrc } from '@/utils/tzaddikImage'
+import { recheckReasonLabel } from '@/utils/tzaddikRecheck'
 
 const props = withDefaults(
   defineProps<{
@@ -559,9 +581,44 @@ const canRequestRecheck = computed(
   () => Boolean(candidate.value) && !recheckPending.value,
 )
 
-const recheckStatusLabel = computed(() =>
-  recheckPending.value ? 'Recheck pending' : 'Source recheck',
+const RECHECK_STATUS_LABELS: Record<string, string> = {
+  PENDING: 'Recheck pending',
+  CHECKING: 'Recheck pending',
+  NO_CHANGE: 'Source recheck -- no change found',
+  UPDATED: 'Source recheck -- updated from Wikipedia',
+  NEEDS_REVIEW: 'Source recheck -- needs editor review',
+  FAILED: 'Source recheck failed',
+}
+
+const recheckStatusLabel = computed(() => {
+  const status = latestRecheck.value?.status
+  return status
+    ? (RECHECK_STATUS_LABELS[status] ?? 'Source recheck')
+    : 'Source recheck'
+})
+
+const recheckDetailLabel = computed(() =>
+  recheckReasonLabel(latestRecheck.value),
 )
+
+// t-031: the review-queue card can resolve a flagged NEEDS_REVIEW recheck
+// inline (t-030); give the detail sheet the same accept/dismiss controls so
+// an editor who opened the candidate from the sheet doesn't have to close
+// it and find the card again. /api/tzaddik/recheck-resolve only accepts a
+// resolution while the latest request is still NEEDS_REVIEW.
+const needsRecheckReview = computed(
+  () => latestRecheck.value?.status === 'NEEDS_REVIEW',
+)
+
+const resolveRecheckBusy = computed(() => store.isModerating)
+
+async function acceptRecheck(): Promise<void> {
+  await store.resolveRecheckReview(props.candidateId, 'accept')
+}
+
+async function dismissRecheck(): Promise<void> {
+  await store.resolveRecheckReview(props.candidateId, 'dismiss')
+}
 
 const currentCandidateIndex = computed(() =>
   props.candidateIds.indexOf(props.candidateId),

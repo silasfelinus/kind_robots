@@ -860,6 +860,43 @@ watch(activeGroupKey, () => {
   batchCollectionId.value = null
 })
 
+watch(
+  () => artStore.lastArtImageChange,
+  async (change) => {
+    if (!change || !galleryReady.value) return
+    if (isBatchWorking.value || deletingImageId.value !== null) return
+
+    if (change.kind === 'updated' && change.image) {
+      const base =
+        hydratedImages.value[change.id] ||
+        filteredActiveImages.value.find((image) => image.id === change.id)
+      hydratedImages.value = {
+        ...hydratedImages.value,
+        [change.id]: {
+          ...(base ?? {}),
+          ...change.image,
+          imagePath: base?.imagePath ?? change.image.imagePath,
+        } as ArtImage,
+      }
+      return
+    }
+
+    if (change.kind === 'deleted') {
+      const { [change.id]: _deleted, ...remaining } = hydratedImages.value
+      hydratedImages.value = remaining
+      if (selectedImageForOverlay.value?.id === change.id) {
+        selectedImageForOverlay.value = null
+      }
+    }
+
+    try {
+      await refreshBrowseData()
+    } catch (error) {
+      errorMessage.value = getErrorMessage(error, 'Gallery failed to refresh.')
+    }
+  },
+)
+
 watch(viewSize, (value) => {
   if (typeof localStorage !== 'undefined') {
     localStorage.setItem('galleryViewSize', value)

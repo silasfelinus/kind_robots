@@ -10,6 +10,13 @@ import { performFetch, handleError } from './utils'
 
 export type TzaddikModerationCurationState = 'PENDING' | 'ARCHIVED'
 
+// t-028: a third queue value alongside the two real curationState filters --
+// every candidate whose latest recheck request is NEEDS_REVIEW, regardless
+// of its curationState. Not a curationState itself, so fetchModerationQueue
+// routes it to a different query param instead of `curationState=`.
+export type TzaddikModerationQueueFilter =
+  TzaddikModerationCurationState | 'NEEDS_REVIEW'
+
 export type TzaddikOverridePayload = {
   displayNameOverride?: string | null
   biographyOverride?: string | null
@@ -25,6 +32,14 @@ export type TzaddikCandidateWithTags = TzaddikCandidate & {
 
 export type TzaddikCandidateDetail = TzaddikCandidateWithTags & {
   RecheckRequests: TzaddikRecheckRequest[]
+}
+
+// t-029: the NEEDS_REVIEW moderation-queue filter's response carries each
+// candidate's latest RecheckRequest ([0] only) so the queue card can surface
+// the recheck reason without a detail-sheet round trip -- the PENDING/
+// ARCHIVED filters don't include it, so this stays optional.
+export type TzaddikModerationQueueCandidate = TzaddikCandidateWithTags & {
+  RecheckRequests?: TzaddikRecheckRequest[]
 }
 
 export const useTzaddikStore = defineStore('tzaddikStore', () => {
@@ -47,9 +62,12 @@ export const useTzaddikStore = defineStore('tzaddikStore', () => {
   // awaiting a decision, and ARCHIVED entries an admin might restore. Kept
   // separate from living/memorial (which only ever hold APPROVED rows) so an
   // admin browsing the review queue never mixes with the public roster.
-  const moderationQueue = ref<TzaddikCandidateWithTags[]>([])
+  const moderationQueue = ref<TzaddikModerationQueueCandidate[]>([])
   const isLoadingModerationQueue = ref(false)
   const moderationQueueError = ref('')
+  const discoveryQueue = ref<TzaddikCandidateWithTags[]>([])
+  const isLoadingDiscoveryQueue = ref(false)
+  const discoveryQueueError = ref('')
   const isModerating = ref(false)
 
   async function fetchLiving(
@@ -205,15 +223,19 @@ export const useTzaddikStore = defineStore('tzaddikStore', () => {
   }
 
   async function fetchModerationQueue(
-    curationState: TzaddikModerationCurationState,
+    filter: TzaddikModerationQueueFilter,
     force = false,
-  ): Promise<TzaddikCandidateWithTags[]> {
+  ): Promise<TzaddikModerationQueueCandidate[]> {
     isLoadingModerationQueue.value = true
     moderationQueueError.value = ''
 
     try {
-      const res = await performFetch<TzaddikCandidateWithTags[]>(
-        `/api/tzaddik?curationState=${curationState}`,
+      const query =
+        filter === 'NEEDS_REVIEW'
+          ? 'needsReview=true'
+          : `curationState=${filter}`
+      const res = await performFetch<TzaddikModerationQueueCandidate[]>(
+        `/api/tzaddik?${query}`,
       )
 
       if (!res.success || !Array.isArray(res.data)) {
@@ -228,6 +250,30 @@ export const useTzaddikStore = defineStore('tzaddikStore', () => {
       return force ? [] : moderationQueue.value
     } finally {
       isLoadingModerationQueue.value = false
+    }
+  }
+
+  async function fetchDiscoveryQueue(): Promise<TzaddikCandidateWithTags[]> {
+    isLoadingDiscoveryQueue.value = true
+    discoveryQueueError.value = ''
+
+    try {
+      const res = await performFetch<TzaddikCandidateWithTags[]>(
+        '/api/tzaddik?discovery=true',
+      )
+
+      if (!res.success || !Array.isArray(res.data)) {
+        throw new Error(res.message || 'Invalid response')
+      }
+
+      discoveryQueue.value = res.data
+      return discoveryQueue.value
+    } catch (caughtError) {
+      discoveryQueueError.value = 'Failed to load discovery suggestions.'
+      handleError(caughtError, 'fetching the Tzaddik discovery pool')
+      return discoveryQueue.value
+    } finally {
+      isLoadingDiscoveryQueue.value = false
     }
   }
 
@@ -301,6 +347,40 @@ export const useTzaddikStore = defineStore('tzaddikStore', () => {
     }
   }
 
+  async function resolveRecheckReview(
+    candidateId: number,
+    resolution: 'accept' | 'dismiss',
+  ): Promise<TzaddikCandidateWithTags | null> {
+    isModerating.value = true
+
+    try {
+      const res = await performFetch<TzaddikCandidateWithTags>(
+        '/api/tzaddik/recheck-resolve',
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ candidateId, resolution }),
+        },
+      )
+
+      if (!res.success || !res.data) {
+        throw new Error(res.message || 'Invalid response')
+      }
+
+      await refreshAfterModeration(candidateId)
+      // The resolved request no longer carries NEEDS_REVIEW, so the queue
+      // this action is only ever invoked from should drop the candidate --
+      // moderationQueue itself isn't touched by refreshAfterModeration.
+      await fetchModerationQueue('NEEDS_REVIEW', true)
+      return res.data
+    } catch (caughtError) {
+      handleError(caughtError, 'resolving a Tzaddik recheck request')
+      return null
+    } finally {
+      isModerating.value = false
+    }
+  }
+
   async function overrideCandidate(
     candidateId: number,
     payload: TzaddikOverridePayload,
@@ -349,6 +429,9 @@ export const useTzaddikStore = defineStore('tzaddikStore', () => {
     moderationQueue,
     isLoadingModerationQueue,
     moderationQueueError,
+    discoveryQueue,
+    isLoadingDiscoveryQueue,
+    discoveryQueueError,
     isModerating,
     fetchLiving,
     fetchMemorial,
@@ -356,8 +439,10 @@ export const useTzaddikStore = defineStore('tzaddikStore', () => {
     requestRecheck,
     submitCandidate,
     fetchModerationQueue,
+    fetchDiscoveryQueue,
     approveCandidate,
     archiveCandidate,
     overrideCandidate,
+    resolveRecheckReview,
   }
 })

@@ -9,6 +9,11 @@ import type {
 } from '@/server/api/conductor/projects.get'
 import { CONDUCTOR_CARDS } from '@/stores/helpers/conductorCards'
 import { performFetch } from '@/stores/utils'
+import {
+  taskActionRequiresMessage,
+  type ConductorTaskAction,
+} from '@/utils/conductorTaskActions'
+export type { ConductorTaskAction } from '@/utils/conductorTaskActions'
 
 export type PitchVote = 'approved' | 'passed'
 export type PitchStatus =
@@ -19,14 +24,6 @@ export type PitchStatus =
   | 'superseded'
   | 'archived'
 export type PitchBucket = 'review' | 'approved' | 'rejected' | 'archived'
-/**
- * `answer` is a comment that also releases the gate back to `ready`, so the
- * next Worker cycle picks the task up carrying the answer. `comment` adds the
- * note and leaves the task parked. See the note in
- * server/api/conductor/task-action.post.ts for why the distinction exists.
- */
-export type ConductorTaskAction = 'approve' | 'reject' | 'comment' | 'answer'
-
 export interface ConductorHumanGate {
   project: ConductorProject
   task: ConductorTask
@@ -309,7 +306,7 @@ export const useConductorStore = defineStore('conductor', () => {
     if (updatingTaskKeys.value.includes(key)) return false
 
     const trimmedMessage = message.trim()
-    if (action !== 'approve' && !trimmedMessage) {
+    if (taskActionRequiresMessage(action) && !trimmedMessage) {
       taskUpdateError.value = 'Add a message before sending this action.'
       return false
     }
@@ -343,6 +340,16 @@ export const useConductorStore = defineStore('conductor', () => {
           return {
             ...task,
             status: 'done',
+            approvedByHuman: true,
+            softGate: false,
+            note,
+            updated: now,
+          }
+        }
+        if (action === 'proceed') {
+          return {
+            ...task,
+            status: 'ready',
             approvedByHuman: true,
             softGate: false,
             note,

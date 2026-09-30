@@ -10,6 +10,7 @@ import prisma from '../../../utils/prisma'
 import { errorHandler } from '../../../utils/error'
 import { requireMachineUser } from '../../../utils/authGuard'
 import { decodeArtJobPayload } from '../../../utils/artJobPayload'
+import { applyCurrentArtImageState } from '../../../utils/artJobImageState'
 
 const STATUSES = new Set(['PENDING', 'RUNNING', 'DONE', 'FAILED', 'CANCELLED'])
 const DEFAULT_PAGE_SIZE = 20
@@ -35,12 +36,17 @@ export default defineEventHandler(async (event) => {
 
     if (status) {
       if (!STATUSES.has(status)) {
-        throw createError({ statusCode: 400, message: `Invalid status "${status}".` })
+        throw createError({
+          statusCode: 400,
+          message: `Invalid status "${status}".`,
+        })
       }
       where.status = status as Prisma.ArtJobWhereInput['status']
     }
 
-    const projectSlug = String(query.projectSlug || '').trim().toLowerCase()
+    const projectSlug = String(query.projectSlug || '')
+      .trim()
+      .toLowerCase()
 
     if (projectSlug) {
       where.projectSlug = projectSlug
@@ -68,7 +74,9 @@ export default defineEventHandler(async (event) => {
       skip: (page - 1) * pageSize,
       take: pageSize,
     })
-    const jobs = storedJobs.map(decodeArtJobPayload)
+    const jobs = await applyCurrentArtImageState(
+      storedJobs.map(decodeArtJobPayload),
+    )
 
     return {
       success: true,

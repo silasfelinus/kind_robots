@@ -367,7 +367,32 @@
                 :src="previewSrc(resource)"
                 :alt="resourceLabel(resource)"
                 class="kr-img-cover"
+                :class="
+                  isPreviewCovered(resource)
+                    ? 'pointer-events-none select-none blur-2xl'
+                    : ''
+                "
               />
+
+              <div
+                v-if="isPreviewCovered(resource)"
+                class="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-base-100/90 p-3 text-center"
+              >
+                <Icon name="kind-icon:eye-off" class="kr-icon-6 text-warning" />
+                <p class="kr-text-bold-sm">Preview hidden</p>
+                <p class="kr-text-dim-xs-60 max-w-[24ch]">
+                  Mature content is off, and this LoRA is not confirmed SFW.
+                </p>
+                <button
+                  type="button"
+                  class="kr-btn-outline-plain rounded-2xl"
+                  :aria-label="`Uncover ${resourceLabel(resource)}`"
+                  @click="uncoverPreview(resource.id)"
+                >
+                  <Icon name="kind-icon:eye" class="kr-icon-4" />
+                  Uncover
+                </button>
+              </div>
 
               <label
                 class="kr-icon-8 absolute left-2 top-2 grid cursor-pointer place-items-center rounded-lg bg-base-100/90 shadow"
@@ -585,6 +610,7 @@ import { useUserStore } from '@/stores/userStore'
 import { useLoraTriageStore } from '@/stores/loraTriageStore'
 import type { ResourceGalleryRecord } from '@/stores/resourceGalleryStore'
 import { hasBlindPreview } from '@/utils/loraProbe'
+import { renderableArtPath } from '@/utils/artImageSrc'
 import {
   LORA_CATEGORIES,
   LORA_CATEGORY_META,
@@ -724,13 +750,39 @@ function effectiveMaturity(
   return resource.isMature ? 'NSFW' : 'SFW'
 }
 
+/*
+ * The maturity toggle has to hold on this page too. Silas, 2026-09-29, with
+ * mature off: "wtf is happening?" -- every preview here rendered raw, because
+ * this page never read showMature at all.
+ *
+ * With the toggle off, a preview is covered unless this LoRA is CONFIRMED SFW.
+ * A DB flag of SFW is not enough: the flags are exactly what this page exists
+ * to check, and an unconfirmed "SFW" row is the likeliest place for an explicit
+ * preview to hide. The uncover is local and one card at a time (the
+ * kr-mature-cover rule), so triage still works without flipping the account
+ * setting, and the curtain falls again on the next load.
+ */
+const uncoveredPreviews = ref(new Set<number>())
+
+function isPreviewCovered(resource: ResourceGalleryRecord): boolean {
+  if (userStore.showMature) return false
+  if (triageStore.decisionFor(resource.id) === 'sfw') return false
+  return !uncoveredPreviews.value.has(resource.id)
+}
+
+function uncoverPreview(resourceId: number): void {
+  const next = new Set(uncoveredPreviews.value)
+  next.add(resourceId)
+  uncoveredPreviews.value = next
+}
+
 function previewSrc(resource: ResourceGalleryRecord): string {
   return (
     resource.ArtImage?.thumbnailPath ||
     resource.ArtImage?.imagePath ||
-    resource.ArtImage?.path ||
-    resource.previewImageUrl ||
+    renderableArtPath(resource.ArtImage?.path) ||
     resource.imagePath ||
+    resource.previewImageUrl ||
     '/images/kindart.webp'
   )
 }

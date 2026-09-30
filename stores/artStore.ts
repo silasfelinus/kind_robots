@@ -40,6 +40,7 @@ import { MAX_LORAS_PER_JOB } from '@/utils/loraLimits'
 import {
   MAX_RANDOM_BATCH,
   randomBatchBasePrompt,
+  randomVariantVisibility,
   withRandomBatchFacetBasePrompt,
   type ArtRandomBatchPlan,
   type ArtRandomBatchResult,
@@ -62,11 +63,19 @@ type ArtStoreInitializeOptions = {
   initializeCollections?: boolean
 }
 
+export type ArtImageChange = {
+  id: number
+  kind: 'updated' | 'relinked' | 'deleted'
+  image?: ArtImage
+  at: number
+}
+
 type ArtImageFetchOptions = {
   force?: boolean
   includeImageData?: boolean
   includeThumbnailData?: boolean
   includeDreams?: boolean
+  includeCollections?: boolean
 }
 
 interface ArtImageGenerationRoute {
@@ -434,6 +443,13 @@ export const useArtStore = defineStore('artStore', () => {
   const initializing = ref(false)
   const initializePromise = ref<Promise<void> | null>(null)
   const artImageRequestMap = ref<Record<number, Promise<ArtImage | undefined>>>({})
+  // Surfaces showing an ArtImage elsewhere (the gallery behind the art card)
+  // watch this to stay in step with edits and deletes made through the store.
+  const lastArtImageChange = ref<ArtImageChange | null>(null)
+
+  function noteArtImageChange(change: Omit<ArtImageChange, 'at'>): void {
+    lastArtImageChange.value = { ...change, at: Date.now() }
+  }
 
   function getCollectionStore() {
     return useCollectionStore()
@@ -864,6 +880,7 @@ export const useArtStore = defineStore('artStore', () => {
     if (options.includeImageData) params.set('includeImageData', 'true')
     if (options.includeThumbnailData) params.set('includeThumbnailData', 'true')
     if (options.includeDreams) params.set('includeDreams', 'true')
+    if (options.includeCollections) params.set('includeCollections', 'true')
     const query = params.toString()
     return query ? `?${query}` : ''
   }
@@ -877,8 +894,15 @@ export const useArtStore = defineStore('artStore', () => {
       imageData?: string | null
       thumbnailData?: string | null
       Dreams?: unknown[]
+      ArtCollections?: unknown[]
     }
     if (options.includeImageData && !withOptionalData.imageData) return false
+    if (
+      options.includeCollections &&
+      typeof withOptionalData.ArtCollections === 'undefined'
+    ) {
+      return false
+    }
     if (
       options.includeThumbnailData &&
       typeof withOptionalData.thumbnailData === 'undefined'
@@ -1043,6 +1067,7 @@ export const useArtStore = defineStore('artStore', () => {
           })) ?? updated
       }
       if (state.currentArtImage?.id === id) state.currentArtImage = updated
+      noteArtImageChange({ id, kind: 'updated', image: updated })
       return { success: true, data: updated, message: response.message || 'Art image updated.' }
     } catch (error) {
       handleError(error, 'updating art image')
@@ -1072,7 +1097,14 @@ export const useArtStore = defineStore('artStore', () => {
         throw new Error(response.message || 'Failed to update art image links.')
       }
       addOrUpdateArtImages([response.data])
-      if (state.currentArtImage?.id === id) state.currentArtImage = response.data
+      if (state.currentArtImage?.id === id) {
+        state.currentArtImage = {
+          ...state.currentArtImage,
+          ...response.data,
+          imagePath: state.currentArtImage.imagePath ?? response.data.imagePath,
+        }
+      }
+      noteArtImageChange({ id, kind: 'relinked', image: response.data })
       return {
         success: true,
         data: response.data,
@@ -1097,6 +1129,7 @@ export const useArtStore = defineStore('artStore', () => {
       state.generatedArtImages = state.generatedArtImages.filter((image) => image.id !== id)
       if (state.currentArtImage?.id === id) deselectArtImage()
       persistArtImages()
+      noteArtImageChange({ id, kind: 'deleted' })
       return true
     } catch (error) {
       handleError(error, 'deleting art image')
@@ -2086,6 +2119,7 @@ export const useArtStore = defineStore('artStore', () => {
           ),
           sources: options.sources,
           loraStrength: overrides.loraStrength ?? state.artForm.loraStrength ?? 1,
+          showMature: showMature.value,
           seed: options.seed ?? undefined,
         }),
       },
@@ -2152,9 +2186,12 @@ export const useArtStore = defineStore('artStore', () => {
 
       if (merged.length > MAX_LORAS_PER_JOB) truncated = true
 
+      const visibility = randomVariantVisibility(variant, base)
       const result = await enqueueArtGeneration({
         ...base,
         promptString: variant.promptString,
+        isMature: visibility.isMature,
+        isPublic: visibility.isPublic,
         workflow: withRandomBatchFacetBasePrompt(
           base.workflow,
           variant.promptString,
@@ -2345,6 +2382,7 @@ export const useArtStore = defineStore('artStore', () => {
     finalizeQueuedArtImage,
     uploadImage,
     deleteArtImage,
+    lastArtImageChange,
     addOrUpdateArtImages,
     setArtImageList,
     getArtImagesByIds,

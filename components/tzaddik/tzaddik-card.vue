@@ -27,7 +27,33 @@
         :badges="badges"
         :meta="metaChips"
         placeholder-icon="kind-icon:stars"
-      />
+      >
+        <template v-if="recheckNeedsReview">
+          <p
+            class="mx-0.5 mt-2 line-clamp-2 text-xs leading-relaxed text-warning"
+          >
+            {{ recheckReason }}
+          </p>
+          <div class="mx-0.5 mt-2 flex gap-1.5">
+            <button
+              type="button"
+              class="btn btn-xs flex-1 rounded-lg"
+              :disabled="resolveBusy"
+              @click.stop="acceptRecheck"
+            >
+              Update
+            </button>
+            <button
+              type="button"
+              class="btn btn-ghost btn-xs flex-1 rounded-lg border border-base-300"
+              :disabled="resolveBusy"
+              @click.stop="dismissRecheck"
+            >
+              Keep current
+            </button>
+          </div>
+        </template>
+      </kr-entity-card-body>
     </reactable-card>
   </div>
 </template>
@@ -35,15 +61,19 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { resolveEntityTheme } from '@/utils/entityTheme'
-import type { TzaddikCandidateWithTags } from '@/stores/tzaddikStore'
+import {
+  useTzaddikStore,
+  type TzaddikModerationQueueCandidate,
+} from '@/stores/tzaddikStore'
 import type { ArtVariant } from '@/utils/artImageSrc'
 import type { EntityCardChip } from '@/components/gallery/kr-entity-card-body.vue'
 import { sortedTzaddikTags, tzaddikTagLabel } from '@/utils/tzaddikTags'
 import { resolveTzaddikImageSrc } from '@/utils/tzaddikImage'
+import { recheckReasonLabel } from '@/utils/tzaddikRecheck'
 
 const props = withDefaults(
   defineProps<{
-    candidate: TzaddikCandidateWithTags
+    candidate: TzaddikModerationQueueCandidate
     selected?: boolean
     compact?: boolean
     showImage?: boolean
@@ -70,6 +100,8 @@ const props = withDefaults(
 const emit = defineEmits<{
   open: [id: number]
 }>()
+
+const store = useTzaddikStore()
 
 const candidateTheme = computed(() => resolveEntityTheme(props.candidate))
 
@@ -123,6 +155,33 @@ const metaChips = computed<EntityCardChip[]>(() =>
     (tag) => ({ label: tzaddikTagLabel(tag), class: 'badge-outline' }),
   ),
 )
+
+// t-029: only the NEEDS_REVIEW moderation-queue filter's response carries
+// RecheckRequests, so this is empty (and renders nothing) everywhere else
+// tzaddik-card is used.
+const recheckReason = computed(() =>
+  recheckReasonLabel(props.candidate.RecheckRequests?.[0]),
+)
+
+// t-032: recheckReason is also non-empty for a FAILED recheck, but
+// POST /api/tzaddik/recheck-resolve (resolveTzaddikRecheckReview) only
+// accepts a NEEDS_REVIEW request and 409s otherwise -- gate the buttons on
+// the actual status, not just on there being a reason to show.
+const recheckNeedsReview = computed(
+  () => props.candidate.RecheckRequests?.[0]?.status === 'NEEDS_REVIEW',
+)
+
+const resolveBusy = computed(() => store.isModerating)
+
+// t-030: resolve the flagged recheck right from the queue card instead of
+// requiring a click-through to the detail sheet.
+async function acceptRecheck(): Promise<void> {
+  await store.resolveRecheckReview(props.candidate.id, 'accept')
+}
+
+async function dismissRecheck(): Promise<void> {
+  await store.resolveRecheckReview(props.candidate.id, 'dismiss')
+}
 
 function selectCandidate(): void {
   emit('open', props.candidate.id)

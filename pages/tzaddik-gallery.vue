@@ -5,6 +5,15 @@
       aria-hidden="true"
     >
       <div
+        class="absolute inset-0 hidden bg-cover bg-center bg-no-repeat opacity-25 dark:opacity-20 lg:block"
+        style="
+          background-image: url('/images/tzaddik-gallery/tzaddik-gallery-splash.webp');
+        "
+      />
+      <div
+        class="absolute inset-0 bg-linear-to-b from-base-100/70 via-base-100/60 to-base-100/85"
+      />
+      <div
         class="absolute -left-32 -top-32 size-[34rem] rounded-full bg-primary/10 blur-3xl"
       />
       <div
@@ -159,6 +168,18 @@
                     @click="setReviewCurationState('ARCHIVED')"
                   >
                     Archived
+                  </button>
+                  <button
+                    type="button"
+                    class="btn btn-xs flex-1 rounded-lg border-0"
+                    :class="
+                      reviewCurationState === 'NEEDS_REVIEW'
+                        ? 'btn-primary'
+                        : 'btn-ghost bg-base-200/60'
+                    "
+                    @click="setReviewCurationState('NEEDS_REVIEW')"
+                  >
+                    Needs review
                   </button>
                 </div>
               </div>
@@ -395,13 +416,17 @@
 import { computed, onMounted, reactive, ref, watch } from 'vue'
 import type { GalleryItem } from '@/components/gallery/kr-gallery.vue'
 import { useTzaddikStore } from '@/stores/tzaddikStore'
-import type { TzaddikCandidateWithTags } from '@/stores/tzaddikStore'
+import type {
+  TzaddikCandidateWithTags,
+  TzaddikModerationQueueFilter,
+} from '@/stores/tzaddikStore'
 import { useUserStore } from '@/stores/userStore'
 import type { TzaddikEditorialTag } from '~/prisma/generated/prisma/client'
 import { TZADDIK_TAG_ORDER, tzaddikTagLabel } from '@/utils/tzaddikTags'
 import { resolveTzaddikImageSrc } from '@/utils/tzaddikImage'
 
-type TabKey = 'living' | 'memorial' | 'review' | 'info'
+type TabKey =
+  'living' | 'memorial' | 'popculture' | 'suggestions' | 'review' | 'info'
 
 const BASE_TABS: { key: TabKey; label: string; icon: string; body: string }[] =
   [
@@ -418,6 +443,12 @@ const BASE_TABS: { key: TabKey; label: string; icon: string; body: string }[] =
       body: 'A sourced archive for people whose work, courage, care, or public service still belongs in the story after their deaths.',
     },
     {
+      key: 'popculture',
+      label: 'Pop Culture',
+      icon: 'kind-icon:stars',
+      body: 'Living and memorial profiles whose public impact runs through entertainment, celebrity, television, film, music, sports, or mass culture.',
+    },
+    {
       key: 'info',
       label: 'Info',
       icon: 'kind-icon:mask',
@@ -425,11 +456,18 @@ const BASE_TABS: { key: TabKey; label: string; icon: string; body: string }[] =
     },
   ]
 
+const SUGGESTIONS_TAB = {
+  key: 'suggestions' as const,
+  label: 'Suggestions',
+  icon: 'kind-icon:lightbulb',
+  body: 'A rotating admin discovery pool kept above 100 sourced candidates. These are options for human review, never automatic canon.',
+}
+
 const REVIEW_TAB = {
   key: 'review' as const,
   label: 'Review queue',
   icon: 'kind-icon:flag',
-  body: 'Admin-only: submissions awaiting approval, and archived entries that can be restored. Nothing here is visible on the public Living/Memorial rosters yet.',
+  body: 'Admin-only: submissions awaiting approval, archived entries that can be restored, and candidates whose Wikipedia recheck needs a human look.',
 }
 
 // Admin-only tab, inserted right before Info -- the review queue is where an
@@ -440,6 +478,7 @@ const tabs = computed(() => {
   const infoIndex = BASE_TABS.findIndex((tab) => tab.key === 'info')
   return [
     ...BASE_TABS.slice(0, infoIndex),
+    SUGGESTIONS_TAB,
     REVIEW_TAB,
     ...BASE_TABS.slice(infoIndex),
   ]
@@ -449,7 +488,7 @@ const activeTab = ref<TabKey>('living')
 const activeTabBody = computed(
   () => tabs.value.find((tab) => tab.key === activeTab.value)?.body ?? '',
 )
-const reviewCurationState = ref<'PENDING' | 'ARCHIVED'>('PENDING')
+const reviewCurationState = ref<TzaddikModerationQueueFilter>('PENDING')
 
 function onTabKeydown(event: KeyboardEvent, currentKey: TabKey): void {
   const keys = ['ArrowLeft', 'ArrowRight', 'Home', 'End']
@@ -506,6 +545,7 @@ const selectedTags = reactive(new Set<TzaddikEditorialTag>())
 const REVIEW_STATE_LABELS: Record<string, string> = {
   PENDING: 'Pending',
   ARCHIVED: 'Archived',
+  NEEDS_REVIEW: 'Needs review',
 }
 
 function toGalleryItem(candidate: TzaddikCandidateWithTags): GalleryItem {
@@ -513,7 +553,13 @@ function toGalleryItem(candidate: TzaddikCandidateWithTags): GalleryItem {
   const meta = [candidate.region, candidate.countryCode]
     .filter(Boolean)
     .join(', ')
-  const stateLabel = REVIEW_STATE_LABELS[candidate.curationState]
+  // The Needs-review queue holds APPROVED candidates too (a curationState
+  // badge would be blank for them), so that queue always shows its own
+  // label regardless of the candidate's actual curationState.
+  const stateLabel =
+    activeTab.value === 'review' && reviewCurationState.value === 'NEEDS_REVIEW'
+      ? REVIEW_STATE_LABELS.NEEDS_REVIEW
+      : REVIEW_STATE_LABELS[candidate.curationState]
 
   return {
     id: candidate.id,
@@ -555,9 +601,16 @@ const activeCandidates = computed(() => {
       ? tzaddikStore.living
       : activeTab.value === 'memorial'
         ? tzaddikStore.memorial
-        : activeTab.value === 'review'
-          ? tzaddikStore.moderationQueue
-          : []
+        : activeTab.value === 'popculture'
+          ? [...tzaddikStore.living, ...tzaddikStore.memorial].filter(
+              (candidate) =>
+                candidate.Tags.some((entry) => entry.tag === 'POP_CULTURE'),
+            )
+          : activeTab.value === 'suggestions'
+            ? tzaddikStore.discoveryQueue
+            : activeTab.value === 'review'
+              ? tzaddikStore.moderationQueue
+              : []
 
   return source.filter(matchesSelectedTags)
 })
@@ -606,12 +659,16 @@ const activeError = computed(() =>
 
 const activeRosterTitle = computed(() => {
   if (activeTab.value === 'memorial') return 'Memorial archive'
+  if (activeTab.value === 'popculture') return 'Pop Culture'
+  if (activeTab.value === 'suggestions') return 'Suggestion pool'
   if (activeTab.value === 'review') return 'Review queue'
   return 'Living gallery'
 })
 
 const activeRosterEyebrow = computed(() => {
   if (activeTab.value === 'memorial') return 'Past Tzaddik'
+  if (activeTab.value === 'popculture') return 'Culture lane'
+  if (activeTab.value === 'suggestions') return '100+ fresh options'
   if (activeTab.value === 'review') {
     return REVIEW_STATE_LABELS[reviewCurationState.value]
   }
@@ -621,21 +678,28 @@ const activeRosterEyebrow = computed(() => {
 const activeEmptyLabel = computed(() => {
   if (activeTab.value === 'memorial')
     return 'memorial profiles matching these filters'
+  if (activeTab.value === 'popculture')
+    return 'Pop Culture profiles matching these filters'
+  if (activeTab.value === 'suggestions')
+    return 'discovery suggestions matching these filters'
   if (activeTab.value === 'review') {
-    return reviewCurationState.value === 'ARCHIVED'
-      ? 'archived candidates'
-      : 'candidates awaiting review'
+    if (reviewCurationState.value === 'ARCHIVED') return 'archived candidates'
+    if (reviewCurationState.value === 'NEEDS_REVIEW')
+      return 'candidates needing editor review'
+    return 'candidates awaiting review'
   }
   return 'living profiles matching these filters'
 })
 
-function setReviewCurationState(state: 'PENDING' | 'ARCHIVED'): void {
-  reviewCurationState.value = state
-  tzaddikStore.fetchModerationQueue(state, true)
+function setReviewCurationState(filter: TzaddikModerationQueueFilter): void {
+  reviewCurationState.value = filter
+  tzaddikStore.fetchModerationQueue(filter, true)
 }
 
 watch(activeTab, (tab) => {
-  if (tab === 'review') {
+  if (tab === 'suggestions') {
+    tzaddikStore.fetchDiscoveryQueue()
+  } else if (tab === 'review') {
     tzaddikStore.fetchModerationQueue(reviewCurationState.value)
   }
 })

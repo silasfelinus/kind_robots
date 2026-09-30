@@ -14,6 +14,7 @@
 // themselves are the "original" half of that inspection.
 import prisma from './prisma'
 import type { TzaddikCandidate } from '~/prisma/generated/prisma/client'
+import { fetchTzaddikSource } from './tzaddikSourceRefresh'
 
 export class TzaddikCandidateNotFoundError extends Error {
   constructor(id: number) {
@@ -140,4 +141,88 @@ export async function overrideTzaddikCandidate(
     data,
     include: { Tags: true },
   })
+}
+
+export type TzaddikRecheckResolution = 'accept' | 'dismiss'
+
+/** t-029/t-030: the queue card renders a NEEDS_REVIEW candidate's reason,
+ * but the queue itself only shrinks once that request resolves -- until now,
+ * the only path was re-clicking Recheck, which reproduces the same
+ * NEEDS_REVIEW result every time the article identity genuinely changed. */
+export async function resolveTzaddikRecheckReview(
+  id: number,
+  resolution: TzaddikRecheckResolution,
+): Promise<TzaddikCandidate> {
+  const candidate = await prisma.tzaddikCandidate.findUnique({ where: { id } })
+  if (!candidate) throw new TzaddikCandidateNotFoundError(id)
+
+  const latest = await prisma.tzaddikRecheckRequest.findFirst({
+    where: { candidateId: id },
+    orderBy: { createdAt: 'desc' },
+  })
+
+  if (!latest || latest.status !== 'NEEDS_REVIEW') {
+    throw new TzaddikCandidateStateError(
+      `Tzaddik candidate #${id} has no recheck request awaiting review.`,
+    )
+  }
+
+  if (resolution === 'dismiss') {
+    await prisma.tzaddikRecheckRequest.update({
+      where: { id: latest.id },
+      data: {
+        status: 'NO_CHANGE',
+        resultJson: JSON.stringify({
+          reason:
+            'Editor dismissed the flagged article identity change and kept the current source.',
+          dismissedAt: new Date().toISOString(),
+        }),
+      },
+    })
+
+    return prisma.tzaddikCandidate.findUniqueOrThrow({
+      where: { id },
+      include: { Tags: true },
+    })
+  }
+
+  // accept: re-fetch live rather than trusting the stale snapshot the
+  // NEEDS_REVIEW request captured, since Wikipedia may have moved again
+  // since. Applies the same field set processRecheck's safe-update branch
+  // writes for an ordinary (non-identity-changed) recheck.
+  const fetched = await fetchTzaddikSource(candidate.wikipediaUrl)
+
+  const updated = await prisma.tzaddikCandidate.update({
+    where: { id },
+    data: {
+      lifeState: fetched.lifeState,
+      deathDate: fetched.deathDate,
+      biography: fetched.biography ?? candidate.biography,
+      wikipediaPageId: fetched.wikipediaPageId,
+      wikipediaRevisionId: fetched.wikipediaRevisionId,
+      imageSourceUrl: fetched.imageSourceUrl,
+      imageFileUrl: fetched.imageFileUrl,
+      imageLicense: fetched.imageLicense,
+      imageAttribution: fetched.imageAttribution,
+      imageRevisionId: fetched.imageRevisionId,
+      sourceSnapshotJson: fetched.sourceSnapshotJson,
+      sourceCheckedAt: fetched.sourceCheckedAt,
+    },
+    include: { Tags: true },
+  })
+
+  await prisma.tzaddikRecheckRequest.update({
+    where: { id: latest.id },
+    data: {
+      status: 'UPDATED',
+      resultJson: JSON.stringify({
+        reason:
+          'Editor accepted the new Wikipedia article identity; sourced fields refreshed.',
+        previousPageId: candidate.wikipediaPageId,
+        newPageId: fetched.wikipediaPageId,
+      }),
+    },
+  })
+
+  return updated
 }

@@ -234,6 +234,9 @@ jobs:
       - name: No content route shadowed by a page
         run: npm run test:no-shadowed-content-routes
 
+      - name: No page reachable only by typing its URL
+        run: npm run test:no-hidden-routes
+
       - name: Nav manifest contract
         run: npm run test:nav-manifest
 

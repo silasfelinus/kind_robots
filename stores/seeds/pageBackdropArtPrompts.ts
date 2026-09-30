@@ -507,12 +507,6 @@ const PAGES: PageSeed[] = [
       'A studio wall papered edge to edge with loose gesture drawings, charcoal dust, a jar of stubs on a stool. Raw and generative.',
   },
   {
-    page: 'stages',
-    title: 'Stages — The Backstage',
-    scene:
-      'A backstage of ropes, sandbags and half-lit flats, a slice of bright stage visible through the wings. Potential about to be revealed.',
-  },
-  {
     page: 'stylist',
     title: 'Stylist — The Atelier',
     scene:

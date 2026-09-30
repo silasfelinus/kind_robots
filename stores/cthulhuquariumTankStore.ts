@@ -721,7 +721,7 @@ export const useCthulhuquariumTankStore = defineStore(
       const reconciled = await performFetch<{
         firedMilestones: FiredMilestone[]
       }>('/api/aquarium/story/reconcile', { method: 'POST' })
-      await story.loadStory()
+      await story.loadStory(stock.value.length > 0 ? ['unlock'] : [])
       const fired = reconciled.success
         ? (reconciled.data?.firedMilestones ?? [])
         : []

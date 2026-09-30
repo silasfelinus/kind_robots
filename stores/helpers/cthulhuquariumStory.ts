@@ -96,12 +96,30 @@ export function useCthulhuquariumStory() {
     if (!coveredByQueued) queue.value.push(id)
   }
 
-  async function loadStory(): Promise<void> {
+  /**
+   * `alreadyDone` is what the player has demonstrably done before this visit
+   * (an owned creature means they have unlocked one). A player who left the
+   * intro half-way resumes after the last beat awaiting something they have
+   * already done, instead of hearing "the first one is on the house" again
+   * and being asked for an adoption that already happened.
+   */
+  async function loadStory(alreadyDone: StoryAction[] = []): Promise<void> {
     const res = await performFetch<StoryState>('/api/aquarium/story')
     if (!res.success || !res.data) return
     state.value = res.data
     loadSoundPreference()
     queueScene('intro')
+    if (queue.value[0] === 'intro' && beatIndex.value === 0) {
+      const beats = CTHULHUQUARIUM_SCENES.intro?.beats ?? []
+      let resume = 0
+      beats.forEach((beat, index) => {
+        if (beat.await && alreadyDone.includes(beat.await as StoryAction)) {
+          resume = index + 1
+        }
+      })
+      if (resume >= beats.length) await finishScene()
+      else beatIndex.value = resume
+    }
   }
 
   /**

@@ -35,12 +35,19 @@ const readYaml = (path) => parse(readFileSync(path, 'utf8'))
 const motions = {}
 const voices = {}
 const plates = {}
+const traits = {}
 for (const file of readdirSync(join(canon, 'fish'))
   .filter((name) => name.endsWith('.yaml'))
   .sort()) {
   const fish = readYaml(join(canon, 'fish', file))
   if (fish?.sprite?.motion) motions[fish.slug] = fish.sprite.motion
   if (fish?.plate) plates[fish.slug] = fish.plate
+  traits[fish.slug] = {
+    name: fish.name,
+    behavior: fish.behavior ?? 'drift',
+    size: fish.size ?? 1,
+    hue: fish.hue ?? null,
+  }
   if (fish?.voices) {
     voices[fish.slug] = {
       charlotte: String(fish.voices.charlotte ?? '')
@@ -167,6 +174,11 @@ export const CTHULHUQUARIUM_VOICES: Record<
   string,
   { charlotte: string; wilbur: string }
 > = ${JSON.stringify(voices, null, 2)}
+
+export const CTHULHUQUARIUM_SPECIES: Record<
+  string,
+  { name: string; behavior: string; size: number; hue: number | null }
+> = ${JSON.stringify(traits, null, 2)}
 
 export const CTHULHUQUARIUM_PLATES: Record<string, string> = ${JSON.stringify(plates, null, 2)}
 

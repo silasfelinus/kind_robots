@@ -7,6 +7,8 @@
 // stepAmbience/drawAmbienceBack/drawAmbienceFront around its occupants.
 // stepAmbience returns how many bubbles reached the surface, for the sound.
 
+import { prefersReducedMotion } from './cthulhuquariumSprites'
+
 export interface Bubble {
   x: number
   y: number
@@ -99,12 +101,13 @@ export function drawAmbienceBack(
   width: number,
   height: number,
 ): void {
+  const time = prefersReducedMotion() ? 0 : state.time
   context.save()
   context.globalCompositeOperation = 'lighter'
   const band = height * 0.55
   for (let index = 0; index < 7; index += 1) {
     const offset = (index / 7) * width
-    const sway = Math.sin(state.time * 0.35 + index * 1.7) * 40
+    const sway = Math.sin(time * 0.35 + index * 1.7) * 40
     const x = offset + sway
     const gradient = context.createLinearGradient(x, 0, x + 60, band)
     gradient.addColorStop(0, 'rgba(190, 255, 225, 0.075)')
@@ -126,8 +129,8 @@ export function drawAmbienceBack(
     context.beginPath()
     for (let x = 0; x <= width; x += 12) {
       const wave =
-        Math.sin(x * 0.045 + state.time * 1.3 + row) * 2.2 +
-        Math.sin(x * 0.11 - state.time * 0.9 + row * 2) * 1.2
+        Math.sin(x * 0.045 + time * 1.3 + row) * 2.2 +
+        Math.sin(x * 0.11 - time * 0.9 + row * 2) * 1.2
       if (x === 0) context.moveTo(x, y + wave)
       else context.lineTo(x, y + wave)
     }

@@ -3139,3 +3139,58 @@ export async function setTankBackgroundForUser(
   })
   return { ...state, backgroundKey }
 }
+
+// Bestiary milestones fire only on the purchase that crosses them, so a tank
+// that already held 30 species when the t-019 ladder (bestiary_25..151) was
+// wired would never cross bestiary_25 again, and its background and room would
+// be unreachable forever. This grants, once, every bestiary milestone the
+// collection has already earned but never logged -- same event, same slot
+// increment, same idempotency guard as the purchase path. Safe to call on
+// every load: it does nothing once the tank is caught up.
+export async function reconcileBestiaryMilestonesForUser(
+  userId: number,
+  username: string,
+): Promise<BestiaryMilestoneConfig[]> {
+  const tank = await getOrCreateTankForUser(userId, username)
+  return prisma.$transaction(async (tx) => {
+    const { collectedCount } = await countBestiaryTotals(tx, userId)
+    const earned = BESTIARY_MILESTONES.filter(
+      (milestone) => milestone.threshold <= collectedCount,
+    )
+    if (!earned.length) return []
+    const logged = new Set(
+      (
+        await tx.aquariumEvent.findMany({
+          where: {
+            aquariumId: tank.id,
+            kind: { in: earned.map(milestoneEventKind) },
+          },
+          select: { kind: true },
+        })
+      ).map((row) => row.kind),
+    )
+    const missing = earned.filter(
+      (milestone) => !logged.has(milestoneEventKind(milestone)),
+    )
+    if (!missing.length) return []
+    const slotsCapDelta = missing.reduce(
+      (sum, milestone) => sum + milestone.slotsCapDelta,
+      0,
+    )
+    if (slotsCapDelta > 0) {
+      await tx.aquarium.update({
+        where: { id: tank.id },
+        data: { setSlotsCap: { increment: slotsCapDelta } },
+      })
+    }
+    for (const milestone of missing) {
+      await logEvent(tx, tank.id, milestoneEventKind(milestone), {
+        landmark: milestone.id,
+        slotsCapDelta: milestone.slotsCapDelta,
+        collectedCount,
+        reconciled: true,
+      })
+    }
+    return missing
+  })
+}

@@ -104,6 +104,24 @@ export function useCthulhuquariumStory() {
     queueScene('intro')
   }
 
+  /**
+   * One missed milestone interstitial per visit: a background that was handed
+   * over before its scene existed (or was earned by reconciliation) still
+   * gets its Charlotte moment, without replaying a backlog all at once.
+   */
+  function queueMissedMilestoneScene(): void {
+    const unlocked = new Set(state.value?.unlockedBackgrounds ?? [])
+    const missed = Object.values(CTHULHUQUARIUM_SCENES).find(
+      (scene) =>
+        scene.trigger.startsWith('milestone:') &&
+        scene.background !== null &&
+        unlocked.has(scene.background) &&
+        !hasSeen(scene.id) &&
+        !queue.value.includes(scene.id),
+    )
+    if (missed) queueScene(missed.id)
+  }
+
   async function refreshStory(): Promise<void> {
     const res = await performFetch<StoryState>('/api/aquarium/story')
     if (res.success && res.data) state.value = res.data
@@ -229,6 +247,7 @@ export function useCthulhuquariumStory() {
     backgroundSaving,
     loadStory,
     queueScene,
+    queueMissedMilestoneScene,
     advanceBeat,
     finishScene,
     notifyAction,

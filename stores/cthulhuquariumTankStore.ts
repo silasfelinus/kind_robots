@@ -695,7 +695,7 @@ export const useCthulhuquariumTankStore = defineStore(
           return
         }
         tank.value = res.data
-        void story.loadStory()
+        void loadStoryAndReconcile()
         // Settle any offline time immediately on load, same as the t-010
         // prototype's own init() did -- the difference is this is now a
         // real server-authoritative settlement, not a localStorage replay.
@@ -708,6 +708,25 @@ export const useCthulhuquariumTankStore = defineStore(
       } finally {
         loading.value = false
       }
+    }
+
+    // A tank that earned milestones before they existed gets them now (see
+    // reconcileBestiaryMilestonesForUser), announced like any other; then at
+    // most one missed Charlotte interstitial plays after the intro.
+    async function loadStoryAndReconcile(): Promise<void> {
+      const reconciled = await performFetch<{
+        firedMilestones: FiredMilestone[]
+      }>('/api/aquarium/story/reconcile', { method: 'POST' })
+      await story.loadStory()
+      const fired = reconciled.success
+        ? (reconciled.data?.firedMilestones ?? [])
+        : []
+      if (fired.length) {
+        announceMilestones(...fired)
+        const refreshed = await performFetch<Tank>('/api/aquarium')
+        if (refreshed.success && refreshed.data) tank.value = refreshed.data
+      }
+      story.queueMissedMilestoneScene()
     }
 
     async function loadCatalog(): Promise<void> {

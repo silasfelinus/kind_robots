@@ -1,0 +1,29 @@
+{
+  "version": 1,
+  "portraits": [
+    {
+      "displayName": "Azim Khamisa",
+      "wikipediaUrl": "https://en.wikipedia.org/wiki/Azim_Khamisa",
+      "imageUrl": "https://azimkhamisa.com/wp-content/uploads/2023/10/Awards-1.jpg",
+      "sourceUrl": "https://azimkhamisa.com/",
+      "attribution": "Azim Khamisa official website",
+      "reason": "No usable portrait is currently available through the candidate's Wikipedia/Wikidata/Wikimedia source chain."
+    },
+    {
+      "displayName": "Narayanan Krishnan",
+      "wikipediaUrl": "https://en.wikipedia.org/wiki/Narayanan_Krishnan",
+      "imageUrl": "https://www.tamilculture.com/storage/post_images/607d0c53654cf_original.jpg",
+      "sourceUrl": "https://www.tamilculture.com/how-award-winning-chef-narayanan-krishnan-gave-up-a-promising-international-career-to-feed-the-homeless-poor-and-mentally-ill-in-his-hometown-of-madurai",
+      "attribution": "TamilCulture profile of Narayanan Krishnan",
+      "reason": "No usable portrait is currently available through the candidate's Wikipedia/Wikidata/Wikimedia source chain."
+    },
+    {
+      "displayName": "Shabana Basij-Rasikh",
+      "wikipediaUrl": "https://en.wikipedia.org/wiki/Shabana_Basij-Rasikh",
+      "imageUrl": "https://images.squarespace-cdn.com/content/v1/645e6c72f126a709a1e10030/677e9fbb-fd18-4fe8-9766-9aaed324a2a2/founder.png",
+      "sourceUrl": "https://www.solax.org/en/who-we-are",
+      "attribution": "SOLA / SOLAx founder profile",
+      "reason": "No usable portrait is currently available through the candidate's Wikipedia/Wikidata/Wikimedia source chain."
+    }
+  ]
+}

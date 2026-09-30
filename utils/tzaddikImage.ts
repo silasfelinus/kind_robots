@@ -1,8 +1,9 @@
 // /utils/tzaddikImage.ts
 //
 // Client-safe display resolver for Tzaddik portraits. Explicit editor
-// overrides win. Sourced Wikipedia/Wikimedia images are rendered through the
-// same-origin proxy so browsers do not depend on direct Wikimedia hotlinks.
+// overrides win. Both sourced Wikipedia/Wikimedia images and explicit
+// external portrait overrides are rendered through the same-origin proxy so
+// browsers never depend on third-party hotlinks directly.
 export type TzaddikImageLike = {
   id: number
   imageUrlOverride?: string | null
@@ -10,6 +11,7 @@ export type TzaddikImageLike = {
   imageRevisionId?: string | null
   wikipediaRevisionId?: string | null
   sourceCheckedAt?: Date | string | null
+  overrideUpdatedAt?: Date | string | null
 }
 
 function clean(value: string | null | undefined): string {
@@ -22,14 +24,16 @@ export function resolveTzaddikImageSrc(
   if (!candidate) return ''
 
   const override = clean(candidate.imageUrlOverride)
-  if (override) return override
+  const sourced = clean(candidate.imageFileUrl)
+  if (!override && !sourced) return ''
 
-  if (!clean(candidate.imageFileUrl)) return ''
-
-  const version =
-    clean(candidate.imageRevisionId) ||
-    clean(candidate.wikipediaRevisionId) ||
-    (candidate.sourceCheckedAt ? String(candidate.sourceCheckedAt) : '')
+  const version = override
+    ? candidate.overrideUpdatedAt
+      ? String(candidate.overrideUpdatedAt)
+      : override
+    : clean(candidate.imageRevisionId) ||
+      clean(candidate.wikipediaRevisionId) ||
+      (candidate.sourceCheckedAt ? String(candidate.sourceCheckedAt) : '')
 
   const base = `/api/tzaddik/${candidate.id}/image`
   return version ? `${base}?v=${encodeURIComponent(version)}` : base

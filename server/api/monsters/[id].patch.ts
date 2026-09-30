@@ -62,14 +62,14 @@ function parseGames(value: unknown): string {
 // stable same-origin plate URLs are accepted (or null to clear), so this stays an
 // art-linking endpoint and cannot point a Monster at an arbitrary remote URL.
 const PATH_FIELDS = ['iconPath', 'cardPath'] as const
-const PLATE_PATH = /^\/images\/cthulhuquarium\/[a-z0-9][a-z0-9._-]*\.webp$/
+const PLATE_PATH = /^\/cthulhuquarium-plates\/[a-z0-9][a-z0-9._-]*\.webp$/
 
 function parsePlatePath(value: unknown, field: string): string | null {
   if (value === null) return null
   if (typeof value !== 'string' || !PLATE_PATH.test(value)) {
     throw createError({
       statusCode: 400,
-      message: `${field} must be null or a /images/cthulhuquarium/*.webp path.`,
+      message: `${field} must be null or a /cthulhuquarium-plates/*.webp path.`,
     })
   }
   return value

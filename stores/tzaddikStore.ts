@@ -176,9 +176,9 @@ export const useTzaddikStore = defineStore('tzaddikStore', () => {
         throw new Error(res.message || 'Invalid response')
       }
 
-      // Refresh the detail cache so the new/existing request's status shows
-      // up without a separate poll.
-      await fetchOne(candidateId, true)
+      // A source recheck can move a person between Living and Memorial as
+      // well as update portrait/provenance fields.
+      await refreshAfterModeration(candidateId)
       return res.data
     } catch (caughtError) {
       handleError(caughtError, 'requesting a Tzaddik candidate recheck')

@@ -1,15 +1,19 @@
 // /server/utils/tzaddikSourceRefresh.ts
 //
 // Live Wikipedia/Wikidata/Commons refresh for a Tzaddik candidate's sourced
-// provenance fields (tzaddik-gallery/t-009). recheck.post.ts's own docstring
-// notes "nothing in this repo runs the actual re-fetch yet" -- this is that
-// re-fetch. Living/memorial status is verified from Wikidata's P570 (date of
-// death) claim rather than trusted from caller-supplied metadata or cached
-// model prose, per DESIGN-BRIEF.md's ingest-time refresh requirement.
+// provenance fields. For portraits, prefer Wikidata P18 because it is the
+// person-specific curated Commons image; Wikipedia summary/pageimages are
+// fallbacks. Living/memorial status is verified from Wikidata's P570.
+import { completeStructured } from './structuredCompletion'
+
 const USER_AGENT =
   'KindRobotsTzaddikGallery/1.0 (https://kindrobots.org; contact via kindrobots.org)'
 const FETCH_TIMEOUT_MS = 10_000
 const MAX_SNAPSHOT_BYTES = 900_000
+const COMMONS_THUMB_WIDTH = 1600
+const IMAGE_SELECTION_VERSION = 2
+const BIOGRAPHY_SELECTION_VERSION = 2
+const MAX_ARTICLE_EXTRACT_CHARS = 24000
 
 export class TzaddikSourceFetchError extends Error {
   constructor(message: string) {
@@ -31,6 +35,28 @@ export type TzaddikSourceResult = {
   imageRevisionId: string | null
   sourceSnapshotJson: string
   sourceCheckedAt: Date
+}
+
+type ImageProvenance = {
+  imageSourceUrl: string | null
+  imageFileUrl: string | null
+  imageLicense: string | null
+  imageAttribution: string | null
+  imageRevisionId: string | null
+}
+
+type WikidataSource = {
+  id: string | null
+  deathDate: Date | null
+  imageFileName: string | null
+}
+
+const EMPTY_IMAGE_PROVENANCE: ImageProvenance = {
+  imageSourceUrl: null,
+  imageFileUrl: null,
+  imageLicense: null,
+  imageAttribution: null,
+  imageRevisionId: null,
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -92,9 +118,6 @@ async function fetchJson(url: string): Promise<unknown> {
   }
 }
 
-/** Wikidata's own date format is `+2026-08-25T00:00:00Z` (a leading sign,
- * variable precision). Only day-precision (`precision: 11`) or finer is
- * treated as an actual date; year/century-precision claims are ignored. */
 function parseWikidataDate(claim: unknown): Date | null {
   if (!isRecord(claim)) return null
   const mainsnak = isRecord(claim.mainsnak) ? claim.mainsnak : null
@@ -106,6 +129,13 @@ function parseWikidataDate(claim: unknown): Date | null {
   const isoDate = snak.time.replace(/^\+/, '').slice(0, 10)
   const parsed = new Date(isoDate)
   return Number.isNaN(parsed.getTime()) ? null : parsed
+}
+
+function wikidataStringClaim(claim: unknown): string | null {
+  if (!isRecord(claim)) return null
+  const mainsnak = isRecord(claim.mainsnak) ? claim.mainsnak : null
+  const datavalue = isRecord(mainsnak?.datavalue) ? mainsnak.datavalue : null
+  return stringField(datavalue?.value)
 }
 
 async function fetchWikidataId(
@@ -129,64 +159,70 @@ async function fetchWikidataId(
   }
 }
 
-async function fetchDeathDate(
+async function fetchWikidataSource(
   lang: string,
   title: string,
-): Promise<Date | null> {
-  const wikidataId = await fetchWikidataId(lang, title)
-  if (!wikidataId) return null
+): Promise<WikidataSource> {
+  const id = await fetchWikidataId(lang, title)
+  if (!id) return { id: null, deathDate: null, imageFileName: null }
 
   try {
     const entityData = await fetchJson(
-      `https://www.wikidata.org/wiki/Special:EntityData/${wikidataId}.json`,
+      `https://www.wikidata.org/wiki/Special:EntityData/${id}.json`,
     )
-    if (!isRecord(entityData)) return null
-    const entities = isRecord(entityData.entities) ? entityData.entities : null
-    const entity = isRecord(entities?.[wikidataId])
-      ? entities[wikidataId]
-      : null
-    const claimsRoot = isRecord(entity?.claims) ? entity.claims : null
-    const claims = claimsRoot?.P570
-    if (!Array.isArray(claims) || claims.length === 0) return null
-    for (const claim of claims) {
-      const parsed = parseWikidataDate(claim)
-      if (parsed) return parsed
+    if (!isRecord(entityData)) {
+      return { id, deathDate: null, imageFileName: null }
     }
-    return null
+
+    const entities = isRecord(entityData.entities) ? entityData.entities : null
+    const entity = isRecord(entities?.[id]) ? entities[id] : null
+    const claimsRoot = isRecord(entity?.claims) ? entity.claims : null
+
+    let deathDate: Date | null = null
+    const deathClaims = claimsRoot?.P570
+    if (Array.isArray(deathClaims)) {
+      for (const claim of deathClaims) {
+        deathDate = parseWikidataDate(claim)
+        if (deathDate) break
+      }
+    }
+
+    const imageClaims = claimsRoot?.P18
+    const imageFileName =
+      Array.isArray(imageClaims) && imageClaims.length
+        ? wikidataStringClaim(imageClaims[0])
+        : null
+
+    return { id, deathDate, imageFileName }
+  } catch {
+    return { id, deathDate: null, imageFileName: null }
+  }
+}
+
+export function commonsFileNameFromUrl(source: string): string | null {
+  try {
+    const url = new URL(source)
+    if (url.hostname !== 'upload.wikimedia.org') return null
+
+    const parts = url.pathname.split('/').filter(Boolean)
+    const commonsIndex = parts.indexOf('commons')
+    if (commonsIndex < 0) return null
+
+    const afterCommons = parts.slice(commonsIndex + 1)
+    const fileName =
+      afterCommons[0] === 'thumb' ? afterCommons[3] : afterCommons[2]
+    return fileName ? decodeURIComponent(fileName) : null
   } catch {
     return null
   }
 }
 
-type ImageProvenance = {
-  imageSourceUrl: string | null
-  imageLicense: string | null
-  imageAttribution: string | null
-  imageRevisionId: string | null
-}
-
-const EMPTY_IMAGE_PROVENANCE: ImageProvenance = {
-  imageSourceUrl: null,
-  imageLicense: null,
-  imageAttribution: null,
-  imageRevisionId: null,
-}
-
-async function fetchImageProvenance(
-  thumbnailSource: string,
-): Promise<ImageProvenance> {
-  const fileMatch =
-    /\/commons\/(?:thumb\/)?[0-9a-f]\/[0-9a-f]{2}\/([^/]+)/.exec(
-      thumbnailSource,
-    )
-  const fileName = fileMatch?.[1]
-  if (!fileName) return EMPTY_IMAGE_PROVENANCE
-
+async function fetchCommonsImage(fileName: string): Promise<ImageProvenance> {
   try {
     const imageInfo = await fetchJson(
       `https://commons.wikimedia.org/w/api.php?action=query&titles=${encodeURIComponent(
         `File:${fileName}`,
-      )}&prop=imageinfo&iiprop=url|extmetadata|sha1&format=json&formatversion=2`,
+      )}&prop=imageinfo&iiprop=url|extmetadata|sha1&iiurlwidth=${COMMONS_THUMB_WIDTH}&format=json&formatversion=2`,
     )
     if (!isRecord(imageInfo)) return EMPTY_IMAGE_PROVENANCE
 
@@ -213,6 +249,7 @@ async function fetchImageProvenance(
 
     return {
       imageSourceUrl: stringField(info.descriptionurl),
+      imageFileUrl: stringField(info.thumburl) ?? stringField(info.url),
       imageLicense:
         stringField(licenseShortField?.value) ??
         stringField(licenseField?.value),
@@ -222,6 +259,144 @@ async function fetchImageProvenance(
   } catch {
     return EMPTY_IMAGE_PROVENANCE
   }
+}
+
+async function fetchWikipediaPageImage(
+  lang: string,
+  title: string,
+): Promise<string | null> {
+  try {
+    const response = await fetchJson(
+      `https://${lang}.wikipedia.org/w/api.php?action=query&prop=pageimages&piprop=original|thumbnail&pithumbsize=${COMMONS_THUMB_WIDTH}&titles=${encodeURIComponent(
+        title,
+      )}&format=json&formatversion=2`,
+    )
+    if (!isRecord(response)) return null
+
+    const query = isRecord(response.query) ? response.query : null
+    const pages = Array.isArray(query?.pages) ? query.pages : null
+    const firstPage = isRecord(pages?.[0]) ? pages[0] : null
+    const original = isRecord(firstPage?.original) ? firstPage.original : null
+    const thumbnail = isRecord(firstPage?.thumbnail)
+      ? firstPage.thumbnail
+      : null
+
+    return stringField(original?.source) ?? stringField(thumbnail?.source)
+  } catch {
+    return null
+  }
+}
+
+async function fetchWikipediaArticleExtract(
+  lang: string,
+  title: string,
+): Promise<string | null> {
+  try {
+    const response = await fetchJson(
+      `https://${lang}.wikipedia.org/w/api.php?action=query&prop=extracts&explaintext=1&redirects=1&titles=${encodeURIComponent(
+        title,
+      )}&format=json&formatversion=2`,
+    )
+    if (!isRecord(response)) return null
+
+    const query = isRecord(response.query) ? response.query : null
+    const pages = Array.isArray(query?.pages) ? query.pages : null
+    const firstPage = isRecord(pages?.[0]) ? pages[0] : null
+    const extract = stringField(firstPage?.extract)
+    return extract ? extract.slice(0, MAX_ARTICLE_EXTRACT_CHARS) : null
+  } catch {
+    return null
+  }
+}
+
+async function synthesizeBiography(
+  displayName: string,
+  summary: string | null,
+  articleExtract: string | null,
+): Promise<string | null> {
+  const sourceText = (articleExtract || summary || '').trim()
+  if (!sourceText) return summary
+
+  try {
+    const result = await completeStructured<{ biography: string }>({
+      system: [
+        'Write a factual, neutral, sourced biographical profile for Tzaddik Gallery.',
+        'The subject is being considered for a playful gallery of unusually constructive people, but do not call them virtuous, saintly, heroic, one of the 36, or otherwise endorse them.',
+        'Explain who they are, the arc of their life/work, concrete achievements, scale or influence, and why their work is notable enough to understand.',
+        'Do not invent facts or motives. Use only the supplied Wikipedia text.',
+        'Do not include controversies here; the product has a separate objections section.',
+        'Write 4 to 7 compact paragraphs, about 450 to 800 words total.',
+        'Avoid Wikipedia lead-style compression. This should feel like a real profile, not a two-sentence abstract.',
+      ].join('\n'),
+      user: `Subject: ${displayName}\n\nWikipedia source text:\n${sourceText}`,
+      schemaName: 'tzaddik_rich_biography',
+      schema: {
+        type: 'object',
+        additionalProperties: false,
+        required: ['biography'],
+        properties: {
+          biography: {
+            type: 'string',
+            minLength: 1200,
+            maxLength: 7000,
+          },
+        },
+      },
+      temperature: 0.25,
+      maxTokens: 1800,
+      timeoutMs: 35_000,
+      label: 'Tzaddik biography synthesis',
+    })
+
+    const biography = stringField(result?.biography)?.trim()
+    return biography || summary
+  } catch {
+    // Wikipedia remains the source of truth. If the synthesis provider is
+    // unavailable, keep the shorter sourced lead instead of failing the
+    // entire source refresh (and therefore status/image corrections).
+    return summary
+  }
+}
+
+async function resolveImage(
+  lang: string,
+  title: string,
+  summary: Record<string, unknown>,
+  wikidata: WikidataSource,
+): Promise<ImageProvenance> {
+  const originalImage = isRecord(summary.originalimage)
+    ? summary.originalimage
+    : null
+  const thumbnail = isRecord(summary.thumbnail) ? summary.thumbnail : null
+
+  // Wikidata P18 is deliberately first. It is attached to the person's
+  // entity rather than merely being the article's current lead media, which
+  // makes it a better default portrait for a people gallery.
+  if (wikidata.imageFileName) {
+    const wikidataPortrait = await fetchCommonsImage(wikidata.imageFileName)
+    if (wikidataPortrait.imageFileUrl) return wikidataPortrait
+  }
+
+  const candidates = [
+    stringField(originalImage?.source),
+    stringField(thumbnail?.source),
+    await fetchWikipediaPageImage(lang, title),
+  ].filter((value): value is string => Boolean(value))
+
+  for (const source of candidates) {
+    const commonsName = commonsFileNameFromUrl(source)
+    if (commonsName) {
+      const commons = await fetchCommonsImage(commonsName)
+      if (commons.imageFileUrl) return commons
+    }
+
+    return {
+      ...EMPTY_IMAGE_PROVENANCE,
+      imageFileUrl: source,
+    }
+  }
+
+  return EMPTY_IMAGE_PROVENANCE
 }
 
 export async function fetchTzaddikSource(
@@ -237,27 +412,28 @@ export async function fetchTzaddikSource(
   const wikipediaPageId = summary.pageid != null ? String(summary.pageid) : null
   const wikipediaRevisionId =
     summary.revision != null ? String(summary.revision) : null
-  const biography = stringField(summary.extract)?.slice(0, 4000) ?? null
+  const summaryBiography = stringField(summary.extract)?.slice(0, 4000) ?? null
+  const articleExtract = await fetchWikipediaArticleExtract(lang, title)
+  const biography = await synthesizeBiography(
+    stringField(summary.title) ?? title.replaceAll('_', ' '),
+    summaryBiography,
+    articleExtract,
+  )
 
-  const deathDate = await fetchDeathDate(lang, title)
+  const wikidata = await fetchWikidataSource(lang, title)
+  const deathDate = wikidata.deathDate
   const lifeState: 'LIVING' | 'MEMORIAL' = deathDate ? 'MEMORIAL' : 'LIVING'
-
-  const originalImage = isRecord(summary.originalimage)
-    ? summary.originalimage
-    : null
-  const thumbnail = isRecord(summary.thumbnail) ? summary.thumbnail : null
-  const thumbnailSource =
-    stringField(originalImage?.source) ?? stringField(thumbnail?.source)
-
-  const imageProvenance = thumbnailSource
-    ? await fetchImageProvenance(thumbnailSource)
-    : EMPTY_IMAGE_PROVENANCE
+  const image = await resolveImage(lang, title, summary, wikidata)
 
   const sourceCheckedAt = new Date()
   const sourceSnapshotJson = JSON.stringify({
     fetchedAt: sourceCheckedAt.toISOString(),
     summary,
+    wikidataId: wikidata.id,
     deathDate: deathDate ? deathDate.toISOString() : null,
+    imageFileName: wikidata.imageFileName,
+    imageSelectionVersion: IMAGE_SELECTION_VERSION,
+    biographySelectionVersion: BIOGRAPHY_SELECTION_VERSION,
   }).slice(0, MAX_SNAPSHOT_BYTES)
 
   return {
@@ -266,11 +442,11 @@ export async function fetchTzaddikSource(
     biography,
     lifeState,
     deathDate,
-    imageFileUrl: thumbnailSource,
-    imageSourceUrl: imageProvenance.imageSourceUrl,
-    imageLicense: imageProvenance.imageLicense,
-    imageAttribution: imageProvenance.imageAttribution,
-    imageRevisionId: imageProvenance.imageRevisionId,
+    imageFileUrl: image.imageFileUrl,
+    imageSourceUrl: image.imageSourceUrl,
+    imageLicense: image.imageLicense,
+    imageAttribution: image.imageAttribution,
+    imageRevisionId: image.imageRevisionId,
     sourceSnapshotJson,
     sourceCheckedAt,
   }

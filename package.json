@@ -145,6 +145,7 @@
     "test:kr-class-coverage": "tsx utils/scripts/verifyKrClassCoverage.ts",
     "test:art-slideshow-rotation": "tsx utils/scripts/verifyArtSlideshowRotation.test.ts",
     "audit:responsive": "node utils/scripts/auditResponsiveLayout.mjs",
+    "audit:tablet-nav": "node utils/scripts/auditTabletNavigation.mjs",
     "test:daily-dream-facets": "prisma validate && tsx utils/scripts/verifyDailyDreamFacets.ts",
     "test:prompt-variants": "tsx utils/scripts/verifyPromptVariants.ts",
     "test:challenge-center": "tsx utils/scripts/verifyChallengeCenter.ts",

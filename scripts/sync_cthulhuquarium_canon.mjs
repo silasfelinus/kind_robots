@@ -53,6 +53,8 @@ for (const file of readdirSync(join(canon, 'fish'))
 
 const { scenes } = readYaml(join(canon, 'story', 'scenes.yaml'))
 const { backgrounds } = readYaml(join(canon, 'backgrounds', 'backgrounds.yaml'))
+const barksPath = join(canon, 'story', 'barks.yaml')
+const barks = existsSync(barksPath) ? (readYaml(barksPath).barks ?? {}) : {}
 const characters = {}
 for (const file of readdirSync(join(canon, 'characters')).filter((name) =>
   name.endsWith('.yaml'),
@@ -92,6 +94,23 @@ for (const [id, scene] of Object.entries(scenes)) {
         await: beat.await ?? null,
       }
     }),
+  }
+}
+
+const outBarks = {}
+for (const [context, bark] of Object.entries(barks)) {
+  const slug = speakerSlug[bark.speaker]
+  if (!slug || !characters[slug]?.poses.includes(bark.pose)) {
+    throw new Error(
+      `bark ${context}: unknown speaker/pose ${bark.speaker}/${bark.pose}`,
+    )
+  }
+  outBarks[context] = {
+    speaker: bark.speaker,
+    pose: bark.pose,
+    lines: (bark.lines ?? []).map((line) =>
+      String(line).replace(/\s+/g, ' ').trim(),
+    ),
   }
 }
 
@@ -148,6 +167,14 @@ export const CTHULHUQUARIUM_VOICES: Record<
 > = ${JSON.stringify(voices, null, 2)}
 
 export const CTHULHUQUARIUM_SCENES: Record<string, CanonScene> = ${JSON.stringify(outScenes, null, 2)}
+
+export interface CanonBark {
+  speaker: CanonSpeaker
+  pose: string
+  lines: string[]
+}
+
+export const CTHULHUQUARIUM_BARKS: Record<string, CanonBark> = ${JSON.stringify(outBarks, null, 2)}
 
 export const CTHULHUQUARIUM_BACKGROUNDS: CanonBackground[] = ${JSON.stringify(outBackgrounds, null, 2)}
 
@@ -222,5 +249,5 @@ execFileSync(
 
 console.log(
   `synced ${Object.keys(motions).length} sprite motions, ${Object.keys(outScenes).length} scenes, ` +
-    `${outBackgrounds.length} backgrounds; copied ${JSON.stringify(copied)}`,
+    `${outBackgrounds.length} backgrounds, ${Object.keys(outBarks).length} bark contexts; copied ${JSON.stringify(copied)}`,
 )

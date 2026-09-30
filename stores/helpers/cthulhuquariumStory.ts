@@ -12,11 +12,13 @@
 import { computed, ref } from 'vue'
 import { performFetch } from '../utils'
 import {
+  CTHULHUQUARIUM_BARKS,
   CTHULHUQUARIUM_BACKGROUNDS,
   CTHULHUQUARIUM_SCENES,
   type CanonBackground,
   type CanonBeat,
   type CanonScene,
+  type CanonSpeaker,
 } from '~/utils/cthulhuquariumCanon.generated'
 
 export interface StoryState {
@@ -27,12 +29,34 @@ export interface StoryState {
 
 export type StoryAction = 'unlock' | 'feed' | 'clean' | 'shop' | 'bestiary'
 
+export interface SpokenBark {
+  context: string
+  speaker: CanonSpeaker
+  pose: string
+  text: string
+}
+
+// A voice that speaks too often stops being a voice and becomes a tooltip
+// (DESIGN-BRIEF.md decision 5). Event barks are rate-limited, and a scene
+// always wins over a bark.
+const BARK_COOLDOWN_MS = 45_000
+const BARK_SHOW_MS = 7_000
+
+function hashString(text: string): number {
+  let hash = 0
+  for (const char of text) hash = (hash * 31 + char.charCodeAt(0)) >>> 0
+  return hash
+}
+
 export function useCthulhuquariumStory() {
   const state = ref<StoryState | null>(null)
   const queue = ref<string[]>([])
   const beatIndex = ref(0)
   const backgroundSaving = ref(false)
   const storyError = ref('')
+  const spokenBark = ref<SpokenBark | null>(null)
+  let lastBarkAt = 0
+  let barkTimer: ReturnType<typeof setTimeout> | null = null
 
   const activeScene = computed<CanonScene | null>(() => {
     const id = queue.value[0]
@@ -119,6 +143,37 @@ export function useCthulhuquariumStory() {
     if (ids.length) void refreshStory()
   }
 
+  /** The line a screen shows today: stable for the day, different tomorrow. */
+  function screenBark(context: string): SpokenBark | null {
+    const bark = CTHULHUQUARIUM_BARKS[context]
+    if (!bark?.lines.length) return null
+    const day = Math.floor(Date.now() / 86_400_000)
+    const text = bark.lines[hashString(`${context}:${day}`) % bark.lines.length]
+    return text
+      ? { context, speaker: bark.speaker, pose: bark.pose, text }
+      : null
+  }
+
+  /** Say one line from `context` over the tank, if nobody has spoken lately. */
+  function sayBark(context: string, chance = 1): void {
+    const bark = CTHULHUQUARIUM_BARKS[context]
+    if (!bark?.lines.length || activeScene.value) return
+    const now = Date.now()
+    if (now - lastBarkAt < BARK_COOLDOWN_MS || Math.random() > chance) return
+    const text = bark.lines[Math.floor(Math.random() * bark.lines.length)]
+    if (!text) return
+    lastBarkAt = now
+    spokenBark.value = { context, speaker: bark.speaker, pose: bark.pose, text }
+    if (barkTimer) clearTimeout(barkTimer)
+    barkTimer = setTimeout(() => {
+      spokenBark.value = null
+    }, BARK_SHOW_MS)
+  }
+
+  function dismissBark(): void {
+    spokenBark.value = null
+  }
+
   async function chooseBackground(key: string): Promise<boolean> {
     if (key === backgroundKey.value) return true
     backgroundSaving.value = true
@@ -156,5 +211,9 @@ export function useCthulhuquariumStory() {
     notifyAction,
     announceMilestones,
     chooseBackground,
+    spokenBark,
+    screenBark,
+    sayBark,
+    dismissBark,
   }
 }

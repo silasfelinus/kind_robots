@@ -1569,6 +1569,14 @@ export const CTHULHUQUARIUM_SCENES: Record<string, CanonScene> = {
   },
 }
 
+export interface CanonBark {
+  speaker: CanonSpeaker
+  pose: string
+  lines: string[]
+}
+
+export const CTHULHUQUARIUM_BARKS: Record<string, CanonBark> = {}
+
 export const CTHULHUQUARIUM_BACKGROUNDS: CanonBackground[] = [
   {
     key: 'parlour',

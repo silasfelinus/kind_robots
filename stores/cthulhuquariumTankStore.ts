@@ -737,6 +737,7 @@ export const useCthulhuquariumTankStore = defineStore(
       })
       if (res.success && res.data) {
         tank.value = res.data.aquarium
+        story.sayBark('sell', 0.6)
         if (bestiary.value.length > 0) await loadBestiary()
         return true
       }

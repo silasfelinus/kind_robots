@@ -161,7 +161,7 @@
                 tankStore.debrisLevel <= 0 && tankStore.pendingCleanClicks === 0
               "
               :aria-label="`Clean the tank, debris ${tankStore.debrisLevel}%`"
-              @click="tankStore.requestClean()"
+              @click="onClean"
             >
               <span
                 class="h-1.5 w-10 overflow-hidden rounded-full bg-base-300"
@@ -196,6 +196,10 @@
             </button>
           </div>
         </div>
+
+        <cthulhuquarium-bark
+          class="pointer-events-auto absolute inset-x-3 bottom-3"
+        />
 
         <p
           v-if="tankStore.loading"
@@ -345,6 +349,7 @@
         <p class="kr-text-eyebrow text-xs tracking-wide opacity-60">
           Behind the glass
         </p>
+        <cthulhuquarium-bark context="backgrounds" />
         <div class="flex snap-x gap-2 overflow-x-auto pb-1">
           <button
             v-for="background in tankStore.backgrounds"
@@ -390,6 +395,7 @@
         <p class="kr-text-eyebrow text-xs tracking-wide opacity-60">
           Unlock a new occupant
         </p>
+        <cthulhuquarium-bark context="shop" />
         <!-- t-030: the shop rotates -- this is a slice of what's never been
              owned, not the whole remaining bestiary. Anything sold or
              already discovered stays available any time via the
@@ -518,6 +524,7 @@
         </button>
 
         <template v-if="showBestiary">
+          <cthulhuquarium-bark context="bestiary" />
           <p v-if="tankStore.bestiaryLoading" class="kr-text-faded-xs">
             Reading the book…
           </p>
@@ -613,6 +620,7 @@
         </button>
 
         <template v-if="showSets">
+          <cthulhuquarium-bark context="sets" />
           <p v-if="tankStore.setCatalogLoading" class="kr-text-faded-xs">
             Surveying the build layer…
           </p>
@@ -692,6 +700,7 @@
         </button>
 
         <template v-if="showDecor">
+          <cthulhuquarium-bark context="decor" />
           <p v-if="tankStore.decorCatalogLoading" class="kr-text-faded-xs">
             Sorting through the driftwood…
           </p>
@@ -763,6 +772,7 @@
         </button>
 
         <template v-if="showEggs">
+          <cthulhuquarium-bark context="eggs" />
           <!-- Your own unhatched eggs, if any -- shown above the shop so
                "something to do right now" never hides behind the full
                catalog grid. -->
@@ -1566,6 +1576,20 @@ type FeedCreature = { x: number; y: number; phase: number; lean: number }
 const tankStore = useCthulhuquariumTankStore()
 const storyFocus = computed(() => tankStore.activeBeat?.focus ?? null)
 
+watch(
+  () => tankStore.lastRareEvent,
+  (event) => {
+    if (event) tankStore.sayBark('rare_event')
+  },
+)
+
+watch(
+  () => tankStore.offlineEarnings,
+  (earned, before) => {
+    if (earned > 0 && !before) tankStore.sayBark('welcome_back')
+  },
+)
+
 function voiceFor(
   slug: string | null | undefined,
   who: 'charlotte' | 'wilbur',
@@ -2356,7 +2380,11 @@ function onCanvasPointerDown(event: PointerEvent) {
     return
   }
 
-  for (const swimmer of swimmers.value) startle(swimmer, coords.x, coords.y)
+  let scattered = false
+  for (const swimmer of swimmers.value) {
+    if (startle(swimmer, coords.x, coords.y)) scattered = true
+  }
+  if (scattered) tankStore.sayBark('startle', 0.25)
 
   const hitDecor = hitTestDecor(coords.x, coords.y)
   if (hitDecor) {
@@ -2420,6 +2448,7 @@ async function onFeed() {
   if (!target) return
   const ok = await tankStore.feed(target.id)
   if (!ok) return
+  tankStore.sayBark('fed', 0.5)
   const swimmer = swimmers.value.find((entry) => entry.stockId === target.id)
   feed.value.push({
     x: swimmer?.x ?? 60 + Math.random() * (STAGE_WIDTH - 120),
@@ -2429,9 +2458,17 @@ async function onFeed() {
   })
 }
 
+function onClean() {
+  tankStore.requestClean()
+  tankStore.sayBark('cleaned', 0.3)
+}
+
 async function pollTick() {
   const earned = await tankStore.settleTick()
   if (earned > 0) spawnMotes(earned)
+  const hungriest = tankStore.hungriest
+  if (hungriest && hungriest.hunger < 30) tankStore.sayBark('hungry', 0.3)
+  else tankStore.sayBark('idle', 0.08)
   // cthulhuquarium/t-057: keeps shopRefreshLabel's countdown live without a
   // second timer -- see `now`'s own comment.
   now.value = Date.now()

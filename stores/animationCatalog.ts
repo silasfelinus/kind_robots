@@ -648,6 +648,18 @@ export const ANIMATION_EFFECTS = [
     generationSafe: true,
     preferredSurface: 'fullscreen',
   },
+  {
+    id: 'firefly-phase-sync',
+    label: 'Firefly Phase Sync',
+    reveal: 'Scattered blinks find one heartbeat',
+    icon: 'kind-icon:sparkle',
+    tooltip:
+      'A dusk meadow of fireflies blinks in chaos, then neighbors nudge each other into clusters and finally one shared pulse before drifting apart again ✨ hover to speed up sync near the cursor, click to scatter them',
+    color: '#c8f56a',
+    releasedAt: '2026-09-30T09:10:00Z',
+    generationSafe: true,
+    preferredSurface: 'fullscreen',
+  },
 ] as const satisfies readonly AnimationEffectDefinition[]
 
 export type AnimationEffectId = (typeof ANIMATION_EFFECTS)[number]['id']

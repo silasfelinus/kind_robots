@@ -483,7 +483,13 @@
                 :disabled="!canUnlock(entry)"
                 @click="tankStore.unlock(entry.id)"
               >
-                {{ entry.cost === 0 ? 'Free' : `Unlock (${entry.cost})` }}
+                {{
+                  !fitsRoom(entry.size)
+                    ? 'No room'
+                    : entry.cost === 0
+                      ? 'Free'
+                      : `Unlock (${entry.cost})`
+                }}
               </button>
             </div>
           </div>
@@ -824,7 +830,7 @@
                   :disabled="!canBuyEgg(entry)"
                   @click="tankStore.purchaseEgg(entry.rarity, entry.size)"
                 >
-                  Buy ({{ entry.cost }})
+                  {{ fitsRoom(entry.size) ? `Buy (${entry.cost})` : 'No room' }}
                 </button>
               </div>
             </div>
@@ -1697,11 +1703,16 @@ const shopRefreshLabel = computed(() => {
   return dateKey ? formatShopRefreshCountdown(dateKey, now.value) : null
 })
 
+// A disabled button says why when the reason isn't on it already: the price
+// is printed, so short coins speaks for itself, but a full tank looked like
+// the same greyed-out price (playtest 2026-09-30: 19,720 coins and every
+// Unlock/Buy dead with no word why).
+function fitsRoom(size: number | null | undefined): boolean {
+  return tankStore.occupantSize + (size ?? 1) <= tankStore.sizeCap
+}
+
 function canUnlock(entry: CatalogEntry): boolean {
-  return (
-    tankStore.coins >= entry.cost &&
-    tankStore.occupantSize + (entry.size ?? 1) <= tankStore.sizeCap
-  )
+  return tankStore.coins >= entry.cost && fitsRoom(entry.size)
 }
 
 // cthulhuquarium/t-055: the currently-armed first parent, if any -- looked
@@ -2614,10 +2625,7 @@ function equippedSetId(kind: string): number | null {
 // server will actually accept -- an unhatched egg's own size already
 // counts against tankStore.occupantSize (see that computed's own comment).
 function canBuyEgg(entry: EggCatalogEntry): boolean {
-  return (
-    tankStore.coins >= entry.cost &&
-    tankStore.occupantSize + entry.size <= tankStore.sizeCap
-  )
+  return tankStore.coins >= entry.cost && fitsRoom(entry.size)
 }
 
 // cthulhuquarium/t-048: both loops pause on a hidden tab and resume cleanly

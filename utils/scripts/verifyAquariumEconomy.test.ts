@@ -665,8 +665,20 @@ console.log(
     now,
     debrisLevel: 0,
     fish: [
-      { id: 1, rarity: 'COMMON', hunger: 100, slug: 'hunter', dietRole: 'predator' },
-      { id: 2, rarity: 'COMMON', hunger: 100, slug: 'grazer', dietRole: 'prey' },
+      {
+        id: 1,
+        rarity: 'COMMON',
+        hunger: 100,
+        slug: 'hunter',
+        dietRole: 'predator',
+      },
+      {
+        id: 2,
+        rarity: 'COMMON',
+        hunger: 100,
+        slug: 'grazer',
+        dietRole: 'prey',
+      },
     ],
   })
   const peaceful = settleTick({
@@ -674,8 +686,20 @@ console.log(
     now,
     debrisLevel: 0,
     fish: [
-      { id: 1, rarity: 'COMMON', hunger: 100, slug: 'hunter', dietRole: 'predator' },
-      { id: 2, rarity: 'COMMON', hunger: 100, slug: 'grazer', dietRole: 'prey' },
+      {
+        id: 1,
+        rarity: 'COMMON',
+        hunger: 100,
+        slug: 'hunter',
+        dietRole: 'predator',
+      },
+      {
+        id: 2,
+        rarity: 'COMMON',
+        hunger: 100,
+        slug: 'grazer',
+        dietRole: 'prey',
+      },
     ],
     equippedSetKinds: ['peace_ward'],
   })
@@ -864,7 +888,8 @@ console.log(
 
 // --- firedBestiaryMilestones: cthulhuquarium/t-028's landmark gate ---------
 
-// economy.yaml's exact four v1 bestiary breakpoints, in order.
+// economy.yaml's bestiary breakpoints, in order: the four v1 steps plus the
+// t-019 extension: +15 over the starting cap of 4, terminating at 19.
 assert.deepEqual(
   BESTIARY_MILESTONES.map((m) => [m.id, m.threshold, m.slotsCapDelta]),
   [
@@ -872,7 +897,18 @@ assert.deepEqual(
     ['bestiary_10', 10, 2],
     ['bestiary_15', 15, 2],
     ['bestiary_20', 20, 2],
+    ['bestiary_25', 25, 2],
+    ['bestiary_35', 35, 1],
+    ['bestiary_50', 50, 1],
+    ['bestiary_70', 70, 1],
+    ['bestiary_95', 95, 1],
+    ['bestiary_125', 125, 1],
+    ['bestiary_151', 151, 0],
   ],
+)
+assert.equal(
+  BESTIARY_MILESTONES.reduce((sum, m) => sum + m.slotsCapDelta, 0),
+  15,
 )
 
 // Crossing one breakpoint fires exactly that one.
@@ -898,7 +934,12 @@ assert.deepEqual(firedBestiaryMilestones(5, 5), [])
 // Below every threshold -- nothing fires yet.
 assert.deepEqual(firedBestiaryMilestones(0, 3), [])
 // Past every threshold already -- nothing left to fire.
-assert.deepEqual(firedBestiaryMilestones(20, 25), [])
+assert.deepEqual(firedBestiaryMilestones(151, 160), [])
+// The extension fires like the original four.
+assert.deepEqual(
+  firedBestiaryMilestones(20, 25).map((m) => m.id),
+  ['bestiary_25'],
+)
 
 console.log(
   '✅ firedBestiaryMilestones: crosses each bestiary breakpoint exactly once, handles multi-breakpoint jumps',

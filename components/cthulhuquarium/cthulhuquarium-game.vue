@@ -1531,7 +1531,8 @@ const LANDMARK_HINTS: Record<string, string> = {
 }
 function backgroundUnlockHint(unlock: string): string {
   const bestiary = /^bestiary_(\d+)$/.exec(unlock)
-  if (bestiary) return `Know ${bestiary[1]} species`
+  const count = bestiary?.[1]
+  if (count) return `Know ${count} species`
   return LANDMARK_HINTS[unlock] ?? 'Charlotte is saving it'
 }
 const userStore = useUserStore()

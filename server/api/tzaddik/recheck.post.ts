@@ -10,6 +10,7 @@ import { createError, defineEventHandler, readBody } from 'h3'
 import prisma from '../../utils/prisma'
 import { errorHandler } from '../../utils/error'
 import { validateApiKey } from '../../utils/validateKey'
+import { userIsAdmin } from '../../utils/authUser'
 import {
   fetchTzaddikSource,
   type TzaddikSourceResult,
@@ -19,7 +20,7 @@ import type {
   TzaddikRecheckStatus,
 } from '~/prisma/generated/prisma/client'
 
-type RecheckBody = { candidateId?: unknown }
+type RecheckBody = { candidateId?: unknown; force?: unknown }
 
 // Repeated requests right after a completed check just return the same
 // result rather than hammering Wikipedia/Wikidata/Commons again.
@@ -115,25 +116,11 @@ async function processRecheck(
       Boolean(fetched.wikipediaPageId) &&
       candidate.wikipediaPageId !== fetched.wikipediaPageId
 
-    const revisionUnchanged =
-      Boolean(candidate.wikipediaRevisionId) &&
-      candidate.wikipediaRevisionId === fetched.wikipediaRevisionId
-
-    if (revisionUnchanged && !identityChanged) {
-      return await prisma.tzaddikRecheckRequest.update({
-        where: { id: requestId },
-        data: {
-          status: 'NO_CHANGE',
-          completedAt: new Date(),
-          sourceRevisionBefore: candidate.wikipediaRevisionId,
-          sourceRevisionAfter: fetched.wikipediaRevisionId,
-          resultJson: JSON.stringify({
-            reason: 'Wikipedia revision unchanged.',
-          }),
-        },
-      })
-    }
-
+    // Do not short-circuit only because Wikipedia's article revision is
+    // unchanged. Our source-selection logic can improve independently of the
+    // article revision (for example, richer biography synthesis, a better P18
+    // portrait, or repaired Commons license/provenance). Always compare and
+    // persist the freshly normalized source snapshot for the same page id.
     const diff = buildDiff(candidate, fetched)
 
     if (identityChanged) {
@@ -222,6 +209,7 @@ export default defineEventHandler(async (event) => {
 
     const body = await readBody<RecheckBody>(event)
     const candidateId = toPositiveId(body?.candidateId)
+    const force = body?.force === true && userIsAdmin(user)
 
     if (!candidateId) {
       throw createError({
@@ -293,6 +281,7 @@ export default defineEventHandler(async (event) => {
     })
 
     if (
+      !force &&
       lastCompleted?.completedAt &&
       Date.now() - lastCompleted.completedAt.getTime() < RECHECK_COOLDOWN_MS
     ) {

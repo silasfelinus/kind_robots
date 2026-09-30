@@ -320,6 +320,7 @@
     "test:conductor-api-auth-guards": "tsx utils/scripts/verifyConductorApiAuthGuards.ts && tsx utils/scripts/verifyConductorProjectRegistry.ts",
     "test:conductor-api-auth-guards-selftest": "tsx utils/scripts/verifyConductorApiAuthGuards.test.ts",
     "test:conductor-progress-parity": "tsx utils/scripts/verifyConductorProgressParity.ts",
+    "test:conductor-task-actions": "tsx utils/scripts/verifyConductorTaskActions.test.ts",
     "test:pack-manifest": "tsx utils/scripts/verifyPackManifest.test.ts",
     "test:pitch-detector-accuracy": "tsx utils/scripts/verifyPitchDetectorAccuracy.test.ts",
     "test:brainstorm-source-adapters": "tsx utils/scripts/verifyBrainstormSourceAdapters.test.ts",

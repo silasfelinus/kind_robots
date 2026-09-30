@@ -46,12 +46,21 @@
           </button>
           <button
             type="button"
+            class="btn btn-success btn-xs rounded-lg"
+            :disabled="busy || !replyText"
+            title="Authorize the scoped work and release it to the next agent"
+            @click="runTaskAction('proceed')"
+          >
+            Approve & continue
+          </button>
+          <button
+            type="button"
             class="btn btn-ghost btn-xs rounded-lg border border-base-300 text-success"
             :disabled="busy"
-            title="Close this gate as approved"
+            title="Accept the task as finished and close it"
             @click="runTaskAction('approve')"
           >
-            Approve
+            Accept complete
           </button>
           <button
             type="button"

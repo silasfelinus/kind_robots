@@ -352,6 +352,9 @@ jobs:
       - name: Conductor roadmap progress parity contract
         run: npm run test:conductor-progress-parity
 
+      - name: Conductor human-gate action semantics
+        run: npm run test:conductor-task-actions
+
       - name: AppMaker slug-candidate guard self-test
         run: npm run test:appmaker-slug-candidate-guard-selftest
 

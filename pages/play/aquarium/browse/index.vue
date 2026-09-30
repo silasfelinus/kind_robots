@@ -94,10 +94,23 @@
                 </p>
               </div>
             </div>
-            <p class="kr-text-dim-xs-60 font-bold">
-              {{ tank._count.Stock }}
-              {{ tank._count.Stock === 1 ? 'occupant' : 'occupants' }}
-            </p>
+            <div class="flex items-center justify-between gap-2">
+              <p class="kr-text-dim-xs-60 font-bold">
+                {{ tank._count.Stock }}
+                {{ tank._count.Stock === 1 ? 'occupant' : 'occupants' }}
+              </p>
+              <div v-if="tank.Stock.length" class="flex items-center gap-1">
+                <cthulhuquarium-sprite
+                  v-for="entry in tank.Stock"
+                  :key="entry.id"
+                  :slug="entry.Monster.slug"
+                  :label="entry.Monster.name"
+                  :fallback="entry.Monster"
+                  :size="36"
+                  class="kr-icon-9 shrink-0"
+                />
+              </div>
+            </div>
           </NuxtLink>
         </div>
 
@@ -139,6 +152,16 @@ interface PublicTankOwner {
   avatarImage: string | null
 }
 
+interface PublicTankPeek {
+  id: number
+  Monster: {
+    name: string
+    slug: string
+    iconPath: string | null
+    cardPath: string | null
+  }
+}
+
 interface PublicTankSummary {
   slug: string
   title: string
@@ -146,6 +169,7 @@ interface PublicTankSummary {
   updatedAt: string
   User: PublicTankOwner
   _count: { Stock: number }
+  Stock: PublicTankPeek[]
 }
 
 const TAKE = 12

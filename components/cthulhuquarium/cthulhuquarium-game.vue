@@ -6,13 +6,12 @@
      number, it only renders what the store last loaded and asks the store
      to feed/unlock/settle.
 
-     Design notes for the reviewer (t-011's task note calls for "collectibles
-     drift up and pay coins on click", but economy.yaml has no click-for-
-     coins income path -- production is entirely tick-settled server-side,
-     see server/utils/aquariumEconomy.ts's settleTick). Rather than invent a
-     client-authoritative click economy, a settled tick's coinsEarned spawns
-     drifting motes as a VISUAL reveal of coins the server already credited;
-     clicking one just dismisses it. No extra request, no new balance path.
+     Shed scales (cthulhuquarium/t-071, DESIGN-BRIEF MVP item 2): fish shed a
+     scale every tank.collectSpawnSeconds; scales drift up and wait at the
+     surface (at most tank.collectMaxBanked). Clicking one queues it with the
+     store's requestCollect(); the server credits only what the elapsed time
+     could have spawned (server/utils/aquariumCollect.ts), so the canvas
+     never decides what a scale is worth.
 
      Fish render as real art where a species has a delivered plate
      (cthulhuquarium/t-070, following t-065's bestiary/catalog delivery --
@@ -28,7 +27,7 @@
      rather than defaulting to one color. -->
 <template>
   <ClientOnly>
-    <div class="kr-container flex max-w-3xl flex-col gap-3">
+    <div class="kr-container flex max-w-5xl flex-col gap-3">
       <cthulhuquarium-dialogue />
       <p v-if="tankStore.error" class="alert alert-error text-sm">
         {{ tankStore.error }}
@@ -93,76 +92,6 @@
         </button>
       </div>
 
-      <div class="flex flex-wrap items-center justify-between gap-2">
-        <div class="kr-text-bold-sm flex items-center gap-3">
-          <span
-            class="flex items-center gap-1 rounded-full"
-            :class="{ 'cq-focus': storyFocus === 'coins' }"
-          >
-            <Icon name="kind-icon:coin" class="size-4 text-warning" />
-            {{ tankStore.coins }}
-          </span>
-          <span class="flex items-center gap-1 opacity-70">
-            <Icon name="kind-icon:fish" class="kr-icon-4" />
-            {{ tankStore.stock.length }}
-          </span>
-          <span class="flex items-center gap-1 text-xs opacity-60">
-            {{ tankStore.occupantSize }}/{{ tankStore.sizeCap }} capacity
-          </span>
-        </div>
-
-        <button
-          type="button"
-          class="btn btn-primary btn-sm min-h-11 min-w-11"
-          :class="{ 'cq-focus': storyFocus === 'feed' }"
-          :disabled="!tankStore.hungriest"
-          @click="onFeed"
-        >
-          Feed hungriest
-        </button>
-      </div>
-
-      <!-- Debris and cleaning (cthulhuquarium/t-027): the active-play
-           channel. Debris only ever throttles the production RATE, never
-           holdings, so clicking Clean can never lose anything -- it just
-           speeds the tank back up. Manual clicking is one of three
-           deliberately co-viable routes (the debris set and The Sexton are
-           the other two, both still unbuilt); this is only the first. -->
-      <div class="flex items-center gap-2">
-        <Icon name="kind-icon:sparkles" class="kr-icon-4 shrink-0 opacity-60" />
-        <div
-          class="h-1.5 flex-1 overflow-hidden rounded-full bg-base-300"
-          role="meter"
-          :aria-valuenow="tankStore.debrisLevel"
-          aria-valuemin="0"
-          aria-valuemax="100"
-          aria-label="Tank debris"
-        >
-          <div
-            class="h-full rounded-full bg-warning/70 transition-all"
-            :class="{ 'bg-error/70': tankStore.debrisLevel >= 80 }"
-            :style="{ width: `${tankStore.debrisLevel}%` }"
-          />
-        </div>
-        <button
-          type="button"
-          class="btn btn-outline btn-xs min-h-11 min-w-11"
-          :class="{ 'cq-focus': storyFocus === 'clean' }"
-          :disabled="
-            tankStore.debrisLevel <= 0 && tankStore.pendingCleanClicks === 0
-          "
-          @click="tankStore.requestClean()"
-        >
-          Clean
-          <span
-            v-if="tankStore.pendingCleanClicks > 0"
-            class="kr-badge-neutral-xs ml-1"
-          >
-            ×{{ tankStore.pendingCleanClicks }}
-          </span>
-        </button>
-      </div>
-
       <!-- Decor placement banner (cthulhuquarium/t-017): shown once a shop
            item is chosen, so tapping the tank has an obvious, reversible
            meaning instead of silently spending coins. -->
@@ -183,27 +112,125 @@
         </button>
       </div>
 
-      <canvas
-        ref="canvasRef"
-        class="aspect-[16/9] w-full cursor-pointer rounded-2xl border border-base-300 bg-base-300 touch-none"
+      <div
+        class="relative overflow-hidden rounded-2xl border border-base-300 bg-base-300 shadow-xl"
         :class="{ 'cq-focus': storyFocus === 'tank' }"
-        :width="STAGE_WIDTH"
-        :height="STAGE_HEIGHT"
-        aria-label="Aquarium tank. Tap drifting coins to collect them, or drag a placed decoration to move it."
-        @pointerdown="onCanvasPointerDown"
-        @pointermove="onCanvasPointerMove"
-        @pointerup="onCanvasPointerUp"
-        @pointercancel="onCanvasPointerUp"
-      />
+      >
+        <canvas
+          ref="canvasRef"
+          class="block aspect-[16/9] w-full cursor-pointer touch-none"
+          :width="STAGE_WIDTH * RENDER_SCALE"
+          :height="STAGE_HEIGHT * RENDER_SCALE"
+          aria-label="Aquarium tank. Tap drifting coins to collect them, tap near a fish to startle it, or drag a placed decoration to move it."
+          @pointerdown="onCanvasPointerDown"
+          @pointermove="onCanvasPointerMove"
+          @pointerup="onCanvasPointerUp"
+          @pointercancel="onCanvasPointerUp"
+          @pointerleave="onCanvasPointerLeave"
+        />
 
-      <p v-if="tankStore.loading" class="kr-text-faded-xs">
-        Settling into your tank…
-      </p>
-      <p v-else class="kr-text-faded-xs">
-        Feed the hungriest occupant to keep it paying out. Coins accrue on their
-        own while you're away and settle the moment you return -- nothing here
-        is saved in this browser, it's all your tank.
-      </p>
+        <div
+          class="pointer-events-none absolute inset-x-0 top-0 flex flex-wrap items-start justify-between gap-2 p-2 sm:p-3"
+        >
+          <div
+            class="flex items-center gap-3 rounded-full bg-base-100/80 px-3 py-1.5 text-sm font-bold shadow backdrop-blur-sm"
+          >
+            <span
+              class="flex items-center gap-1 rounded-full"
+              :class="{ 'cq-focus': storyFocus === 'coins' }"
+            >
+              <Icon name="kind-icon:coin" class="size-4 text-warning" />
+              {{ tankStore.coins }}
+            </span>
+            <span class="flex items-center gap-1 opacity-70">
+              <Icon name="kind-icon:fish" class="kr-icon-4" />
+              {{ tankStore.stock.length }}
+            </span>
+            <span class="text-xs font-normal opacity-70">
+              {{ tankStore.occupantSize }}/{{ tankStore.sizeCap }} room
+            </span>
+          </div>
+
+          <div class="pointer-events-auto flex items-center gap-2">
+            <button
+              type="button"
+              class="btn btn-circle btn-sm min-h-11 min-w-11 border-base-300 bg-base-100/80 shadow backdrop-blur-sm"
+              :aria-pressed="tankStore.soundOn"
+              :aria-label="
+                tankStore.soundOn ? 'Mute the tank' : 'Listen to the tank'
+              "
+              @click="onToggleSound"
+            >
+              <Icon
+                :name="
+                  tankStore.soundOn
+                    ? 'kind-icon:volume-high'
+                    : 'kind-icon:volume'
+                "
+                class="size-4"
+              />
+            </button>
+            <button
+              type="button"
+              class="btn btn-sm min-h-11 gap-2 border-base-300 bg-base-100/80 shadow backdrop-blur-sm"
+              :class="{ 'cq-focus': storyFocus === 'clean' }"
+              :disabled="
+                tankStore.debrisLevel <= 0 && tankStore.pendingCleanClicks === 0
+              "
+              :aria-label="`Clean the tank, debris ${tankStore.debrisLevel}%`"
+              @click="onClean"
+            >
+              <span
+                class="h-1.5 w-10 overflow-hidden rounded-full bg-base-300"
+                role="meter"
+                :aria-valuenow="tankStore.debrisLevel"
+                aria-valuemin="0"
+                aria-valuemax="100"
+                aria-label="Tank debris"
+              >
+                <span
+                  class="block h-full rounded-full bg-warning transition-all"
+                  :class="{ 'bg-error': tankStore.debrisLevel >= 80 }"
+                  :style="{ width: `${tankStore.debrisLevel}%` }"
+                />
+              </span>
+              Clean
+              <span
+                v-if="tankStore.pendingCleanClicks > 0"
+                class="kr-badge-neutral-xs"
+              >
+                ×{{ tankStore.pendingCleanClicks }}
+              </span>
+            </button>
+            <button
+              type="button"
+              class="btn btn-primary btn-sm min-h-11 min-w-11 shadow"
+              :class="{ 'cq-focus': storyFocus === 'feed' }"
+              :disabled="!tankStore.hungriest"
+              @click="onFeed"
+            >
+              Feed hungriest
+            </button>
+          </div>
+        </div>
+
+        <cthulhuquarium-bark
+          class="pointer-events-auto absolute inset-x-3 bottom-3"
+        />
+
+        <p
+          v-if="tankStore.loading"
+          class="absolute inset-x-0 bottom-3 text-center text-sm italic text-base-content/80"
+        >
+          Settling into your tank…
+        </p>
+        <p
+          v-else-if="!tankStore.stock.length"
+          class="pointer-events-none absolute inset-x-0 bottom-4 text-center font-serif text-base italic text-base-content/80"
+        >
+          An empty tank, waiting. The shop is just below.
+        </p>
+      </div>
 
       <div class="flex flex-col gap-2">
         <div class="flex items-center justify-between">
@@ -243,6 +270,13 @@
                   class="mt-1 text-[0.65rem] uppercase tracking-wide opacity-60"
                 >
                   {{ tankStockStatsLine(entry) }}
+                </p>
+                <p
+                  v-if="voiceFor(entry.Monster.slug, 'wilbur')"
+                  class="mt-1.5 font-serif text-xs leading-snug opacity-90"
+                >
+                  “{{ voiceFor(entry.Monster.slug, 'wilbur') }}”
+                  <span class="opacity-60">— Wilbur</span>
                 </p>
               </div>
               <div class="flex shrink-0 flex-col gap-1">
@@ -332,6 +366,7 @@
         <p class="kr-text-eyebrow text-xs tracking-wide opacity-60">
           Behind the glass
         </p>
+        <cthulhuquarium-bark context="backgrounds" />
         <div class="flex snap-x gap-2 overflow-x-auto pb-1">
           <button
             v-for="background in tankStore.backgrounds"
@@ -370,6 +405,8 @@
         </div>
       </div>
 
+      <cthulhuquarium-upgrades />
+
       <div
         class="flex flex-col gap-2 rounded-2xl"
         :class="{ 'cq-focus p-2': storyFocus === 'shop' }"
@@ -377,6 +414,7 @@
         <p class="kr-text-eyebrow text-xs tracking-wide opacity-60">
           Unlock a new occupant
         </p>
+        <cthulhuquarium-bark context="shop" />
         <!-- t-030: the shop rotates -- this is a slice of what's never been
              owned, not the whole remaining bestiary. Anything sold or
              already discovered stays available any time via the
@@ -429,7 +467,14 @@
                    doesn't even send it for unowned species
                    (cthulhuquarium/t-012). It reveals in the dialog below,
                    once, on unlock. -->
-              <p class="mt-0.5 line-clamp-2 text-xs italic opacity-70">
+              <p
+                v-if="voiceFor(entry.slug, 'charlotte')"
+                class="mt-1 font-serif text-xs leading-snug"
+              >
+                “{{ voiceFor(entry.slug, 'charlotte') }}”
+                <span class="not-italic opacity-60">— Charlotte</span>
+              </p>
+              <p v-else class="mt-0.5 line-clamp-2 text-xs italic opacity-70">
                 Not yet observed.
               </p>
               <button
@@ -472,7 +517,10 @@
             class="kr-icon-10 shrink-0 overflow-hidden rounded-2xl border border-base-300"
           >
             <kr-art-plate
-              :source="{ imagePath: artByName('ichthyonomicon') }"
+              :source="{
+                imagePath:
+                  movingArt('ichthyonomicon') ?? artByName('ichthyonomicon'),
+              }"
               variant="icon"
               shape="square"
               frame="none"
@@ -498,73 +546,11 @@
         </button>
 
         <template v-if="showBestiary">
+          <cthulhuquarium-bark context="bestiary" />
           <p v-if="tankStore.bestiaryLoading" class="kr-text-faded-xs">
             Reading the book…
           </p>
-          <div
-            v-else
-            class="grid grid-cols-[repeat(auto-fit,minmax(15rem,1fr))] gap-2"
-          >
-            <div
-              v-for="entry in tankStore.bestiary"
-              :key="entry.id"
-              class="flex items-start gap-2 kr-panel-compact"
-              :class="{ 'opacity-60': !entry.collected }"
-            >
-              <!-- cthulhuquarium/t-067: see the fish-list wrapper comment
-                   above -- same width-cascade fix. -->
-              <div
-                class="kr-icon-12 shrink-0 overflow-hidden rounded-2xl border border-base-300"
-              >
-                <kr-art-plate
-                  :source="
-                    entry.collected ? withCthulhuquariumArt(entry) : null
-                  "
-                  variant="icon"
-                  shape="square"
-                  frame="none"
-                  fit="cover"
-                  :placeholder-icon="
-                    entry.collected ? 'kind-icon:fish' : 'kind-icon:lock'
-                  "
-                />
-              </div>
-              <div class="min-w-0 flex-1">
-                <p class="kr-text-bold-sm truncate">{{ entry.name }}</p>
-                <p class="mt-0.5 line-clamp-2 text-xs italic opacity-70">
-                  {{
-                    entry.collected
-                      ? entry.fieldNote || 'Nothing is written down yet.'
-                      : 'Not yet observed.'
-                  }}
-                </p>
-                <!-- Best-individual-seen record (t-031). Stays hidden until
-                     cthulhuquarium/t-029 (genetics) rolls a first individual
-                     -- there is nothing honest to show before then. -->
-                <p
-                  v-if="entry.bestStats"
-                  class="mt-1 text-[0.65rem] uppercase tracking-wide opacity-60"
-                >
-                  Best seen: {{ formatBestStats(entry.bestStats) }}
-                </p>
-                <!-- Re-order (t-031, sell path shipped in t-030): the book
-                     remembers a species whether or not it's currently in
-                     the tank, so a sold species is re-orderable from here
-                     regardless of today's rotating shop stock. -->
-                <button
-                  v-if="entry.collected && !entry.currentlyOwned"
-                  type="button"
-                  class="btn btn-outline btn-xs min-h-11 mt-1"
-                  @click="tankStore.unlock(entry.id)"
-                >
-                  Re-order
-                </button>
-              </div>
-            </div>
-            <p v-if="!tankStore.bestiary.length" class="kr-text-faded-xs">
-              Nothing in the book yet.
-            </p>
-          </div>
+          <cthulhuquarium-ichthyonomicon v-else />
         </template>
       </div>
 
@@ -593,6 +579,7 @@
         </button>
 
         <template v-if="showSets">
+          <cthulhuquarium-bark context="sets" />
           <p v-if="tankStore.setCatalogLoading" class="kr-text-faded-xs">
             Surveying the build layer…
           </p>
@@ -606,6 +593,13 @@
               class="flex flex-col gap-1 kr-panel-compact"
               :class="{ 'border-primary/60': entry.equipped }"
             >
+              <img
+                v-if="artForSetKind(entry.kind)"
+                :src="artForSetKind(entry.kind) ?? undefined"
+                :alt="entry.title"
+                loading="lazy"
+                class="aspect-square w-full rounded-xl bg-base-200 object-contain"
+              />
               <div class="flex items-start justify-between gap-2">
                 <p class="kr-text-bold-sm">{{ entry.title }}</p>
                 <span
@@ -672,6 +666,7 @@
         </button>
 
         <template v-if="showDecor">
+          <cthulhuquarium-bark context="decor" />
           <p v-if="tankStore.decorCatalogLoading" class="kr-text-faded-xs">
             Sorting through the driftwood…
           </p>
@@ -743,6 +738,7 @@
         </button>
 
         <template v-if="showEggs">
+          <cthulhuquarium-bark context="eggs" />
           <!-- Your own unhatched eggs, if any -- shown above the shop so
                "something to do right now" never hides behind the full
                catalog grid. -->
@@ -968,6 +964,13 @@
               tankStore.revealedUnlock.Monster.fieldNote ||
               'Nothing is written about this one yet.'
             }}
+          </p>
+          <p
+            v-if="voiceFor(tankStore.revealedUnlock.Monster.slug, 'wilbur')"
+            class="rounded-xl bg-base-200 p-2 font-serif text-sm leading-snug"
+          >
+            “{{ voiceFor(tankStore.revealedUnlock.Monster.slug, 'wilbur') }}”
+            <span class="text-xs opacity-60">— Wilbur, carrying it out</span>
           </p>
           <button
             type="button"
@@ -1236,7 +1239,9 @@
           class="modal-box flex max-w-sm flex-col items-center gap-3 rounded-3xl border border-base-300 bg-base-100 text-center shadow-2xl"
         >
           <kr-art-plate
-            :source="{ imagePath: screenFinaleArt }"
+            :source="{
+              imagePath: movingArt('screen-finale') ?? screenFinaleArt,
+            }"
             shape="wide"
             frame="thin"
             fit="cover"
@@ -1346,8 +1351,10 @@ import setLastAquariumArt from '~/assets/images/cthulhuquarium/cthulhuquarium-se
 import {
   artByName,
   artForEggTier,
+  artForSetKind,
   artForSpecies,
   backgroundArt,
+  movingArt,
   withCthulhuquariumArt,
 } from '~/utils/cthulhuquariumArt'
 import {
@@ -1355,17 +1362,39 @@ import {
   motionForSpecies,
   spriteForSpecies,
 } from '~/utils/cthulhuquariumSprites'
+import {
+  facingOf,
+  hunt,
+  packmatePositions,
+  pitchOf,
+  spawnSwimState,
+  startle,
+  stepSwimState,
+  type SwimState,
+} from '~/utils/cthulhuquariumMotion'
+import { CTHULHUQUARIUM_VOICES } from '~/utils/cthulhuquariumCanon.generated'
+import { formatBestStats } from '~/utils/cthulhuquariumBook'
+import { TankSound } from '~/utils/cthulhuquariumSound'
+import {
+  createAmbience,
+  drawAmbienceBack,
+  drawAmbienceFront,
+  stepAmbience,
+} from '~/utils/cthulhuquariumAmbience'
+import { decorIcon, LEGACY_PARLOUR_CROP } from '~/utils/cthulhuquariumStage'
 
 /* Fixed logical resolution; CSS scales it to the host width so the canvas
    survives phone widths without its own breakpoint logic. */
 const STAGE_WIDTH = 640
 const STAGE_HEIGHT = 360
+// The canvas backing store is RENDER_SCALE x the stage, and the context is
+// scaled to match: the game logic stays in 640x360 stage units while sprites
+// and art draw sharp on a 2x display.
+const RENDER_SCALE = 2
 
 const MOTE_RADIUS = 9
+const SCALE_SURFACE_Y = 22
 const FOOD_FALL_SPEED = 70
-/* Caps how many motes one settled tick can spawn at once -- a long-idle
-   catch-up shouldn't paper the tank in coins, just show a satisfying handful. */
-const MAX_MOTE_BATCH = 6
 
 type BehaviorProfile = {
   speed: number
@@ -1473,13 +1502,11 @@ const SWIM_SPEED_MULTIPLIER = 1.4
 // t-026 made the two economically identical but only idle_hoarder is a pure
 // stat, and Silas's own note on roaming_collector asked for it to "visibly
 // move around the tank... it is a thing to watch." This sprite is that
-// visual and nothing else: it drifts, and when it passes near an
-// already-spawned mote it dismisses that mote the same way a tap does (the
-// coins that mote represents were already credited by the tick that spawned
-// it) -- it must never award coins or spawn a mote of its own.
+// visual and nothing else: it drifts. Since t-071 the drifting scales are
+// real click income, so it leaves them alone -- its bonus is already paid by
+// settleTick, and eating a scale would take a coin from the player.
 const ROAMING_COLLECTOR_SET_KIND = 'roaming_collector'
 const COLLECTOR_SPEED = 30
-const COLLECTOR_RADIUS = 16
 
 // Deterministic fallback hue for a species Monster.hue hasn't been assigned
 // yet -- same slug always reads the same color instead of shifting on
@@ -1492,14 +1519,10 @@ function hashHue(slug: string): number {
   return hash % 360
 }
 
-type Swimmer = {
+type Swimmer = SwimState & {
   stockId: number
   monsterId: number
-  x: number
-  y: number
-  vx: number
-  vy: number
-  phase: number
+  facing: number
   profile: BehaviorProfile
 }
 
@@ -1523,6 +1546,27 @@ type FeedCreature = { x: number; y: number; phase: number; lean: number }
 const tankStore = useCthulhuquariumTankStore()
 const storyFocus = computed(() => tankStore.activeBeat?.focus ?? null)
 
+watch(
+  () => tankStore.lastRareEvent,
+  (event) => {
+    if (event) tankStore.sayBark('rare_event')
+  },
+)
+
+watch(
+  () => tankStore.offlineEarnings,
+  (earned, before) => {
+    if (earned > 0 && !before) tankStore.sayBark('welcome_back')
+  },
+)
+
+function voiceFor(
+  slug: string | null | undefined,
+  who: 'charlotte' | 'wilbur',
+): string {
+  return slug ? (CTHULHUQUARIUM_VOICES[slug]?.[who] ?? '') : ''
+}
+
 const LANDMARK_HINTS: Record<string, string> = {
   first_full_tank: 'Fill every slot',
   first_spotless_tank: 'Keep it spotless',
@@ -1544,9 +1588,12 @@ const canvasRef = ref<HTMLCanvasElement | null>(null)
    Plain Image rather than a ref because render() reads it every frame; a
    decode failure leaves it incomplete and render() skips it. */
 let backgroundImage: HTMLImageElement | null = null
+let backgroundCrop: typeof LEGACY_PARLOUR_CROP | null = null
 function loadBackground(key: string) {
   if (!import.meta.client) return
   const url = backgroundArt(key) ?? backgroundArt('parlour')
+  backgroundCrop =
+    url && url === artByName('bg-parlour') ? LEGACY_PARLOUR_CROP : null
   backgroundImage = url ? Object.assign(new Image(), { src: url }) : null
 }
 loadBackground(tankStore.backgroundKey)
@@ -1614,6 +1661,7 @@ const roamingCollectorEquipped = computed(() =>
 
 let frame = 0
 let lastFrameAt = 0
+let scaleClock = 0
 let pollTimer: ReturnType<typeof setInterval> | null = null
 
 // cthulhuquarium/t-057: bumped alongside pollTick's own 20s cadence (see
@@ -1683,25 +1731,6 @@ async function onConfirmBreed(): Promise<void> {
   await tankStore.breed(pair.a.id, pair.b.id)
 }
 
-// t-031: compact "best seen" line for the Ichthyonomicon. Only ever called
-// with a non-null block (the template guards on `entry.bestStats`), so a
-// still-null individual stat here means "never recorded," not "zero."
-const BEST_STAT_LABELS: Record<keyof BestiaryStatBlock, string> = {
-  charm: 'CHA',
-  empathy: 'EMP',
-  grace: 'GRA',
-  luck: 'LUC',
-  might: 'MGT',
-  wits: 'WIT',
-}
-
-function formatBestStats(stats: BestiaryStatBlock): string {
-  return (Object.keys(BEST_STAT_LABELS) as Array<keyof BestiaryStatBlock>)
-    .filter((key) => stats[key] != null)
-    .map((key) => `${BEST_STAT_LABELS[key]} ${stats[key]}`)
-    .join(' · ')
-}
-
 // t-059: THIS individual's own rolled stats live on TankStock as
 // stat<Name> (t-029/t-055), not as a BestiaryStatBlock -- reshape once here
 // so the display can reuse formatBestStats/BEST_STAT_LABELS unchanged
@@ -1720,21 +1749,157 @@ function tankStockStatsLine(entry: TankStock): string | null {
 }
 
 function spawnSwimmer(stock: TankStock): Swimmer {
-  const profile = behaviorProfile(stock.Monster.behavior)
+  const state = spawnSwimState(
+    stock.Monster.behavior,
+    STAGE_WIDTH,
+    STAGE_HEIGHT,
+  )
   return {
+    ...state,
     stockId: stock.id,
     monsterId: stock.monsterId,
-    x: Math.random() * STAGE_WIDTH,
-    y:
-      STAGE_HEIGHT *
-      (profile.vBand[0] +
-        Math.random() * (profile.vBand[1] - profile.vBand[0])),
-    vx: Math.random() < 0.5 ? -profile.speed : profile.speed,
-    vy: 0,
-    phase: Math.random() * Math.PI * 2,
-    profile,
+    facing: state.vx >= 0 ? 1 : -1,
+    profile: behaviorProfile(stock.Monster.behavior),
   }
 }
+
+const ambience = createAmbience(STAGE_WIDTH, STAGE_HEIGHT)
+let huntClock = 20
+
+// A shed scale: a nacreous fan that turns slowly as it rises, catching the
+// light in a travelling glint so it reads as something worth tapping.
+function drawScale(
+  context: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  index: number,
+) {
+  const time = performance.now() / 1000
+  const turn = Math.sin(time * 1.6 + index * 1.7)
+  const r = MOTE_RADIUS
+  context.save()
+  context.translate(x, y)
+  context.rotate(Math.sin(time * 0.7 + index) * 0.5)
+  context.scale(0.55 + Math.abs(turn) * 0.45, 1)
+  const hue = (time * 40 + index * 57) % 360
+  const nacre = context.createLinearGradient(-r, -r, r, r)
+  nacre.addColorStop(0, `hsla(${hue}, 70%, 82%, 0.95)`)
+  nacre.addColorStop(0.5, 'rgba(255, 246, 220, 0.95)')
+  nacre.addColorStop(1, `hsla(${(hue + 120) % 360}, 60%, 78%, 0.95)`)
+  context.fillStyle = nacre
+  context.beginPath()
+  context.moveTo(0, r * 1.05)
+  context.quadraticCurveTo(-r * 1.2, r * 0.2, -r * 0.75, -r * 0.7)
+  context.quadraticCurveTo(0, -r * 1.25, r * 0.75, -r * 0.7)
+  context.quadraticCurveTo(r * 1.2, r * 0.2, 0, r * 1.05)
+  context.fill()
+  context.strokeStyle = 'rgba(120, 100, 70, 0.45)'
+  context.lineWidth = 0.8
+  context.stroke()
+  context.strokeStyle = 'rgba(255, 255, 255, 0.5)'
+  for (const arc of [0.35, 0.65]) {
+    context.beginPath()
+    context.arc(0, r * 1.05, r * 1.6 * arc, -Math.PI * 0.72, -Math.PI * 0.28)
+    context.stroke()
+  }
+  const glint = (time * 0.8 + index * 0.37) % 1
+  if (glint < 0.18) {
+    context.fillStyle = `rgba(255, 255, 255, ${0.9 - glint * 4})`
+    context.beginPath()
+    context.arc(-r * 0.3, -r * 0.35, r * 0.28, 0, Math.PI * 2)
+    context.fill()
+  }
+  context.restore()
+}
+
+// Unhatched eggs rest on the gravel, each in a spot fixed by its id, rocking
+// now and then; the rarer the egg, the brighter the glow around it.
+const EGG_GLOW: Record<string, string> = {
+  COMMON: 'rgba(230, 220, 190, 0)',
+  UNCOMMON: 'rgba(170, 230, 190, 0.25)',
+  RARE: 'rgba(140, 190, 255, 0.35)',
+  EPIC: 'rgba(200, 150, 255, 0.45)',
+  LEGENDARY: 'rgba(255, 210, 120, 0.55)',
+  MYTHIC: 'rgba(255, 120, 190, 0.65)',
+}
+
+function drawEggs(context: CanvasRenderingContext2D) {
+  const time = performance.now() / 1000
+  for (const egg of tankStore.eggs) {
+    const x = 60 + ((egg.id * 97) % (STAGE_WIDTH - 120))
+    const y = STAGE_HEIGHT * 0.9
+    const r = 5 + Math.min(egg.size, 8) * 1.2
+    const rock =
+      Math.sin(time * 1.3 + egg.id) > 0.93 ? Math.sin(time * 22) * 0.18 : 0
+    context.save()
+    context.translate(x, y)
+    context.rotate(rock)
+    const glow = EGG_GLOW[egg.rarity] ?? EGG_GLOW.COMMON
+    if (glow && !glow.endsWith(', 0)')) {
+      const halo = context.createRadialGradient(0, 0, r * 0.4, 0, 0, r * 2.6)
+      halo.addColorStop(0, glow)
+      halo.addColorStop(1, 'rgba(0, 0, 0, 0)')
+      context.fillStyle = halo
+      context.fillRect(-r * 3, -r * 3, r * 6, r * 6)
+    }
+    context.fillStyle = 'rgba(236, 228, 206, 0.95)'
+    context.strokeStyle = 'rgba(70, 60, 45, 0.6)'
+    context.lineWidth = 1
+    context.beginPath()
+    context.ellipse(0, -r * 0.2, r * 0.78, r, 0, 0, Math.PI * 2)
+    context.fill()
+    context.stroke()
+    context.fillStyle = 'rgba(255, 255, 255, 0.55)'
+    context.beginPath()
+    context.ellipse(
+      -r * 0.25,
+      -r * 0.55,
+      r * 0.18,
+      r * 0.3,
+      -0.4,
+      0,
+      Math.PI * 2,
+    )
+    context.fill()
+    context.restore()
+  }
+}
+
+// Now and then a predator lunges at something smaller and it bolts. Purely
+// visual (utils/cthulhuquariumMotion.ts hunt): nothing is ever eaten.
+function stageHunt() {
+  const cast = swimmers.value
+    .map((swimmer) => ({ swimmer, monster: stockFor(swimmer)?.Monster }))
+    .filter((entry) => entry.monster)
+  const predators = cast.filter(
+    (entry) => entry.monster?.dietRole === 'predator',
+  )
+  const predator = predators[Math.floor(Math.random() * predators.length)]
+  if (!predator?.monster) return
+  const predatorSize = predator.monster.size ?? 1
+  const prey = cast.filter(
+    (entry) =>
+      entry.swimmer !== predator.swimmer &&
+      (entry.monster?.size ?? 1) < predatorSize,
+  )
+  const target = prey[Math.floor(Math.random() * prey.length)]
+  if (target) hunt(predator.swimmer, target.swimmer)
+}
+const tankSound = new TankSound()
+
+function onToggleSound() {
+  const on = !tankStore.soundOn
+  tankStore.setSound(on)
+  if (on) tankSound.start()
+  else tankSound.stop()
+}
+
+// Browsers only allow audio after a gesture: the first tap on the page
+// starts the room tone for a player who left it switched on last visit.
+function resumeSoundOnGesture() {
+  if (tankStore.soundOn && !tankSound.running) tankSound.start()
+}
+let pointerOnStage: { x: number; y: number } | null = null
 
 /** Keep one drawn swimmer per stocked occupant. */
 function syncSwimmers() {
@@ -1797,43 +1962,86 @@ function getFishImage(slug: string): HTMLImageElement | null {
   return null
 }
 
+function drawSpriteAt(
+  context: CanvasRenderingContext2D,
+  sprite: HTMLImageElement,
+  slug: string,
+  x: number,
+  y: number,
+  facing: number,
+  pitch: number,
+  d: number,
+  offset: number,
+) {
+  context.save()
+  context.translate(x, y)
+  context.scale(facing, 1)
+  context.rotate(pitch)
+  drawAnimatedSprite(
+    context,
+    sprite,
+    motionForSpecies(slug),
+    performance.now(),
+    d,
+    d,
+    offset,
+  )
+  context.restore()
+}
+
 function drawFish(
   context: CanvasRenderingContext2D,
   swimmer: Swimmer,
   hunger: number,
   monster: TankStock['Monster'],
+  scale = 1,
 ) {
   const hue = monster.hue ?? hashHue(monster.slug)
-  const facing = swimmer.vx >= 0 ? 1 : -1
-  const size = 10 + (monster.size ?? 1) * 4
+  const facing = swimmer.facing
+  const size = (10 + (monster.size ?? 1) * 4) * scale
   // Hungry occupants desaturate and dim rather than vanishing, so a
   // neglected tank reads as neglected at a glance.
   const life = 0.3 + (hunger / 100) * 0.7
   const sprite = getSpriteImage(monster.slug)
   const image = sprite ? null : getFishImage(monster.slug)
 
-  context.save()
-  context.translate(swimmer.x, swimmer.y)
-  context.scale(facing, 1)
-
   if (sprite) {
     context.globalAlpha = life
     context.filter = hunger < 100 ? `saturate(${40 + hunger * 0.6}%)` : 'none'
     const d = size * 3
-    drawAnimatedSprite(
+    const pitch = pitchOf(swimmer)
+    for (const mate of packmatePositions(swimmer, facing)) {
+      drawSpriteAt(
+        context,
+        sprite,
+        monster.slug,
+        mate.x,
+        mate.y,
+        facing,
+        pitch,
+        d * mate.scale,
+        mate.offset,
+      )
+    }
+    drawSpriteAt(
       context,
       sprite,
-      motionForSpecies(monster.slug),
-      performance.now(),
-      d,
+      monster.slug,
+      swimmer.x,
+      swimmer.y,
+      facing,
+      pitch,
       d,
       (swimmer.stockId % 17) / 17,
     )
     context.filter = 'none'
     context.globalAlpha = 1
-    context.restore()
     return
   }
+
+  context.save()
+  context.translate(swimmer.x, swimmer.y)
+  context.scale(facing, 1)
 
   if (image) {
     // Art plates are square, subject-centered portraits -- draw one square,
@@ -1890,26 +2098,6 @@ function drawFish(
 // phone shouldn't pay for a gradient rebuild it doesn't need.
 let waterGradient: CanvasGradient | null = null
 let waterGradientContext: CanvasRenderingContext2D | null = null
-
-// cthulhuquarium/t-017: decor icons drawn as simple glyphs (same "hand-drawn
-// shapes, not art" precedent t-015 documents for fish before its own art
-// pass). Kept local rather than read from tankStore.decorCatalog so decor
-// renders correctly even before the Decorate panel has ever been opened
-// (the catalog loads lazily, same as sets/bestiary) -- must stay in sync
-// with server/utils/aquariumEconomy.ts's DECOR_CATALOG icons by hand, same
-// convention as everywhere else the client mirrors a server-owned constant.
-const DECOR_ICONS: Record<string, string> = {
-  pebble_bed: '🪨',
-  driftwood: '🪵',
-  coral_spire: '🪸',
-  sunken_chest: '🧰',
-  glow_kelp: '🌿',
-  ceramic_ruin: '🏺',
-}
-
-function decorIcon(kind: string): string {
-  return DECOR_ICONS[kind] ?? '❖'
-}
 
 // cthulhuquarium/t-049: a simple glyph, same "hand-drawn shapes, not art"
 // convention decor icons already use above -- distinct from the painted
@@ -2037,7 +2225,23 @@ function render(context: CanvasRenderingContext2D) {
   // Purely decorative: if the image has not decoded yet (or is missing) the
   // gradient below is opaque enough on its own and nothing else changes.
   if (backgroundImage?.complete && backgroundImage.naturalWidth > 0) {
-    context.drawImage(backgroundImage, 0, 0, STAGE_WIDTH, STAGE_HEIGHT)
+    if (backgroundCrop) {
+      const w = backgroundImage.naturalWidth
+      const h = backgroundImage.naturalHeight
+      context.drawImage(
+        backgroundImage,
+        backgroundCrop.x * w,
+        backgroundCrop.y * h,
+        backgroundCrop.w * w,
+        backgroundCrop.h * h,
+        0,
+        0,
+        STAGE_WIDTH,
+        STAGE_HEIGHT,
+      )
+    } else {
+      context.drawImage(backgroundImage, 0, 0, STAGE_WIDTH, STAGE_HEIGHT)
+    }
   }
 
   context.fillStyle = getWaterGradient(context)
@@ -2050,14 +2254,7 @@ function render(context: CanvasRenderingContext2D) {
     context.fillRect(0, 0, STAGE_WIDTH, STAGE_HEIGHT)
   }
 
-  context.fillStyle = 'rgba(150, 255, 210, 0.06)'
-  context.beginPath()
-  context.moveTo(STAGE_WIDTH * 0.35, 0)
-  context.lineTo(STAGE_WIDTH * 0.62, 0)
-  context.lineTo(STAGE_WIDTH * 0.78, STAGE_HEIGHT)
-  context.lineTo(STAGE_WIDTH * 0.2, STAGE_HEIGHT)
-  context.closePath()
-  context.fill()
+  drawAmbienceBack(context, ambience, STAGE_WIDTH, STAGE_HEIGHT)
 
   // Decor (cthulhuquarium/t-017): drawn behind the fish/food layer, in
   // front of the background -- purely cosmetic, no physics, so this is the
@@ -2074,6 +2271,8 @@ function render(context: CanvasRenderingContext2D) {
   }
   context.globalAlpha = 1
 
+  drawEggs(context)
+
   for (const creature of feed.value) {
     context.strokeStyle = 'rgba(226, 196, 148, 0.92)'
     context.lineWidth = 2.4
@@ -2089,25 +2288,32 @@ function render(context: CanvasRenderingContext2D) {
     context.stroke()
   }
 
+  const clingers: Swimmer[] = []
   for (const swimmer of swimmers.value) {
+    if (swimmer.mode === 'cling') {
+      clingers.push(swimmer)
+      continue
+    }
     const entry = stockFor(swimmer)
     if (!entry) continue
     drawFish(context, swimmer, entry.hunger, entry.Monster)
   }
 
-  for (const mote of motes.value) {
-    context.fillStyle = 'rgba(255, 236, 160, 0.85)'
-    context.beginPath()
-    context.arc(mote.x, mote.y, MOTE_RADIUS, 0, Math.PI * 2)
-    context.fill()
-    context.strokeStyle = 'rgba(255, 236, 160, 0.35)'
-    context.lineWidth = 2
-    context.beginPath()
-    context.arc(mote.x, mote.y, MOTE_RADIUS + 4, 0, Math.PI * 2)
-    context.stroke()
+  for (const [index, mote] of motes.value.entries()) {
+    drawScale(context, mote.x, mote.y, index)
   }
 
   if (collector.value) drawCollector(context, collector.value)
+
+  drawAmbienceFront(context, ambience, STAGE_WIDTH, STAGE_HEIGHT)
+
+  // Clingers are on the inside of the glass, in front of everything else
+  // (fish/SCHEMA.md "cling"): drawn last and a little larger, as the nearest
+  // thing to the player's face.
+  for (const swimmer of clingers) {
+    const entry = stockFor(swimmer)
+    if (entry) drawFish(context, swimmer, entry.hunger, entry.Monster, 1.35)
+  }
 
   if (tankStore.finaleTriggered) drawFinaleReframe(context)
 }
@@ -2115,33 +2321,25 @@ function render(context: CanvasRenderingContext2D) {
 function step(delta: number) {
   syncSwimmers()
 
+  const food = feed.value[0] ?? null
   for (const swimmer of swimmers.value) {
-    const target = feed.value[0]
-    if (target && !swimmer.profile.stationary) {
-      // Fish path toward food rather than ignoring it.
-      const dx = target.x - swimmer.x
-      const dy = target.y - swimmer.y
-      const distance = Math.hypot(dx, dy) || 1
-      swimmer.x += (dx / distance) * 55 * swimSpeedMultiplier.value * delta
-      swimmer.y += (dy / distance) * 55 * swimSpeedMultiplier.value * delta
-      swimmer.vx = dx >= 0 ? Math.abs(swimmer.vx) : -Math.abs(swimmer.vx)
-    } else {
-      const [minY, maxY] = swimmer.profile.vBand
-      const bandTop = STAGE_HEIGHT * minY
-      const bandBottom = STAGE_HEIGHT * maxY
-      swimmer.phase += delta
-      swimmer.x += swimmer.vx * swimSpeedMultiplier.value * delta
-      swimmer.y += Math.sin(swimmer.phase) * swimmer.profile.wobble * delta
-      if (swimmer.profile.wallCling) {
-        // Clings near whichever wall it's closest to rather than crossing
-        // the whole tank.
-        const nearLeft = swimmer.x < STAGE_WIDTH / 2
-        swimmer.x += ((nearLeft ? 30 : STAGE_WIDTH - 30) - swimmer.x) * 0.02
-      }
-      if (swimmer.x < 20 || swimmer.x > STAGE_WIDTH - 20) swimmer.vx *= -1
-      swimmer.y = Math.min(Math.max(swimmer.y, bandTop), bandBottom)
-    }
+    stepSwimState(swimmer, {
+      width: STAGE_WIDTH,
+      height: STAGE_HEIGHT,
+      delta,
+      speedMultiplier: swimSpeedMultiplier.value,
+      pointer: pointerOnStage,
+      food,
+    })
+    swimmer.facing = facingOf(swimmer, swimmer.facing)
   }
+  huntClock -= delta
+  if (huntClock <= 0) {
+    huntClock = 18 + Math.random() * 22
+    stageHunt()
+  }
+  const popped = stepAmbience(ambience, STAGE_WIDTH, STAGE_HEIGHT, delta)
+  if (popped > 0 && Math.random() < 0.35) tankSound.plink()
 
   feed.value = feed.value.filter((creature) => {
     creature.y += FOOD_FALL_SPEED * delta
@@ -2154,11 +2352,22 @@ function step(delta: number) {
     return !eaten && creature.y < STAGE_HEIGHT - 8
   })
 
-  motes.value = motes.value.filter((mote) => {
-    mote.y -= 26 * delta
-    mote.x += mote.drift * delta
-    return mote.y > 10
-  })
+  for (const mote of motes.value) {
+    if (mote.y <= SCALE_SURFACE_Y) continue
+    mote.y = Math.max(SCALE_SURFACE_Y, mote.y - 26 * delta)
+    mote.x = Math.min(
+      STAGE_WIDTH - 20,
+      Math.max(20, mote.x + mote.drift * delta),
+    )
+  }
+  scaleClock += delta
+  if (
+    tankStore.collectSpawnSeconds > 0 &&
+    scaleClock >= tankStore.collectSpawnSeconds
+  ) {
+    scaleClock = 0
+    if (motes.value.length < tankStore.collectMaxBanked) spawnScale()
+  }
 
   stepCollector(delta)
 }
@@ -2185,21 +2394,12 @@ function stepCollector(delta: number) {
   if (bot.x < 24 || bot.x > STAGE_WIDTH - 24) bot.vx *= -1
   if (bot.y < STAGE_HEIGHT * 0.4 || bot.y > STAGE_HEIGHT - 24) bot.vy *= -1
   bot.collectFlash = Math.max(0, bot.collectFlash - delta * 2)
-
-  // Dismisses the nearest passing mote exactly like a tap would -- no coins
-  // change hands here, settleTick already credited them when the mote spawned.
-  const index = motes.value.findIndex(
-    (mote) => Math.hypot(mote.x - bot.x, mote.y - bot.y) <= COLLECTOR_RADIUS,
-  )
-  if (index !== -1) {
-    motes.value.splice(index, 1)
-    bot.collectFlash = 1
-  }
 }
 
 function loop(timestamp: number) {
   const context = canvasRef.value?.getContext('2d')
   if (!context) return
+  context.setTransform(RENDER_SCALE, 0, 0, RENDER_SCALE, 0, 0)
   // Clamp the delta so a backgrounded tab returning does not simulate one
   // giant step -- coins/hunger are settled server-side, not by this loop.
   const delta = Math.min((timestamp - lastFrameAt) / 1000 || 0, 0.1)
@@ -2209,18 +2409,15 @@ function loop(timestamp: number) {
   frame = window.requestAnimationFrame(loop)
 }
 
-function spawnMotes(coinsEarned: number) {
-  const count = Math.min(
-    MAX_MOTE_BATCH,
-    Math.max(1, Math.round(coinsEarned / 5)),
-  )
-  for (let index = 0; index < count; index += 1) {
-    motes.value.push({
-      x: 30 + Math.random() * (STAGE_WIDTH - 60),
-      y: STAGE_HEIGHT - 20 - Math.random() * 30,
-      drift: (Math.random() - 0.5) * 14,
-    })
-  }
+function spawnScale() {
+  const shedder =
+    swimmers.value[Math.floor(Math.random() * swimmers.value.length)]
+  if (!shedder) return
+  motes.value.push({
+    x: shedder.x,
+    y: shedder.y,
+    drift: (Math.random() - 0.5) * 14,
+  })
 }
 
 // cthulhuquarium/t-017: the canvas now handles three distinct gestures
@@ -2242,6 +2439,15 @@ function onCanvasPointerDown(event: PointerEvent) {
     const y = Math.min(100, Math.max(0, (coords.y / STAGE_HEIGHT) * 100))
     void tankStore.purchaseDecor(kind, x, y)
     return
+  }
+
+  let scattered = false
+  for (const swimmer of swimmers.value) {
+    if (startle(swimmer, coords.x, coords.y)) scattered = true
+  }
+  if (scattered) {
+    tankSound.knock()
+    tankStore.sayBark('startle', 0.25)
   }
 
   const hitDecor = hitTestDecor(coords.x, coords.y)
@@ -2266,14 +2472,21 @@ function onCanvasPointerDown(event: PointerEvent) {
   const index = motes.value.findIndex(
     (mote) => Math.hypot(mote.x - coords.x, mote.y - coords.y) <= hitRadius,
   )
-  // Tapping a mote just dismisses it -- the coins it represents were
-  // already credited by the tick settlement that spawned it.
-  if (index !== -1) motes.value.splice(index, 1)
+  if (index !== -1) {
+    motes.value.splice(index, 1)
+    tankStore.requestCollect()
+    tankSound.chime()
+  }
+}
+
+function onCanvasPointerLeave() {
+  pointerOnStage = null
 }
 
 function onCanvasPointerMove(event: PointerEvent) {
-  if (draggingDecorId.value === null) return
   const coords = stageCoordsFromEvent(event)
+  pointerOnStage = coords
+  if (draggingDecorId.value === null) return
   if (!coords) return
   dragPreview.value = {
     x: Math.min(Math.max(coords.x, 0), STAGE_WIDTH),
@@ -2301,6 +2514,8 @@ async function onFeed() {
   if (!target) return
   const ok = await tankStore.feed(target.id)
   if (!ok) return
+  tankSound.plop()
+  tankStore.sayBark('fed', 0.5)
   const swimmer = swimmers.value.find((entry) => entry.stockId === target.id)
   feed.value.push({
     x: swimmer?.x ?? 60 + Math.random() * (STAGE_WIDTH - 120),
@@ -2310,9 +2525,16 @@ async function onFeed() {
   })
 }
 
+function onClean() {
+  tankStore.requestClean()
+  tankStore.sayBark('cleaned', 0.3)
+}
+
 async function pollTick() {
-  const earned = await tankStore.settleTick()
-  if (earned > 0) spawnMotes(earned)
+  await tankStore.settleTick()
+  const hungriest = tankStore.hungriest
+  if (hungriest && hungriest.hunger < 30) tankStore.sayBark('hungry', 0.3)
+  else tankStore.sayBark('idle', 0.08)
   // cthulhuquarium/t-057: keeps shopRefreshLabel's countdown live without a
   // second timer -- see `now`'s own comment.
   now.value = Date.now()
@@ -2435,14 +2657,18 @@ onMounted(async () => {
   syncSwimmers()
   if (!document.hidden) startLoops()
   document.addEventListener('visibilitychange', handleVisibilityChange)
+  document.addEventListener('pointerdown', resumeSoundOnGesture)
 })
 
 onBeforeUnmount(() => {
   document.removeEventListener('visibilitychange', handleVisibilityChange)
+  document.removeEventListener('pointerdown', resumeSoundOnGesture)
   stopLoops()
   // A click right before navigating away should still land instead of
   // being dropped along with the debounce timer.
   tankStore.flushCleanNow()
+  tankStore.flushCollectNow()
+  tankSound.dispose()
 })
 </script>
 

@@ -53,11 +53,9 @@ function lookup(prefix: string, key: string | null | undefined): string | null {
 /**
  * A species plate, keyed by the Monster's own `slug`.
  *
- * 119 of the live bestiary's 151 species have art; the naming convention maps
- * exactly (every art file matches a real slug, no orphans on either side). The
- * remaining 32 -- mostly the `*-common` starters and a handful of oddities --
- * return null and keep their placeholder icon, which is honest: the art has not
- * been authored for them yet rather than having been lost.
+ * All 151 species have a card plate (the last 32, mostly `*-common`
+ * starters, were rendered for cthulhuquarium/t-073 and delivered 2026-09-30).
+ * A slug with no file still returns null and keeps the placeholder icon.
  */
 export function artForSpecies(slug: string | null | undefined): string | null {
   return lookup('fish', slug)
@@ -71,6 +69,32 @@ export function artForEggTier(tier: string | null | undefined): string | null {
 /** A collection-set plate, keyed by set slug. */
 export function artForSet(slug: string | null | undefined): string | null {
   return lookup('set', slug)
+}
+
+// Set pieces are catalogued by kind (aquariumEconomy.ts SET_PIECE_CATALOG);
+// their plates were authored by what they depict (conductor's
+// build_cthulhuquarium_art_queue.py), so this is the join. peace_ward's plate
+// comes from the canon's story/plates.yaml.
+const SET_KIND_PLATES: Record<string, string> = {
+  extra_species_slot: 'set-extra-shelf',
+  feeding_bonus: 'set-heavier-feed',
+  swim_speed: 'set-restless-water',
+  roaming_collector: 'set-coin-collector',
+  debris_skimmer: 'set-glass-brush',
+  idle_hoarder: 'set-richer-silt',
+  peace_ward: 'set-peace-ward',
+}
+
+/** A set piece's plate by its catalog kind, moving if its clip has rendered. */
+export function artForSetKind(kind: string | null | undefined): string | null {
+  const stem = kind ? SET_KIND_PLATES[kind] : undefined
+  if (!stem) return null
+  return (
+    storyArt[`videos/${stem}`] ??
+    storyArt[`plates/${stem}`] ??
+    byStem[`cthulhuquarium-${stem}`] ??
+    null
+  )
 }
 
 /** A named shopkeeper or scene plate (`char-charlotte-fishmonger`, `bg-parlour`, ...). */
@@ -108,7 +132,7 @@ export function withCthulhuquariumArt<
 }
 
 const storyModules = import.meta.glob<string>(
-  '../assets/images/cthulhuquarium/{portraits,backgrounds,plates}/*.webp',
+  '../assets/images/cthulhuquarium/{portraits,backgrounds,plates,videos}/*.webp',
   { eager: true, query: '?url', import: 'default' },
 )
 
@@ -151,4 +175,14 @@ function plateArt(key: string | null | undefined): string | null {
   return storyArt[`plates/${key}`] ?? byStem[`cthulhuquarium-${key}`] ?? null
 }
 
-export { backgroundArt, plateArt, portraitFor }
+/**
+ * A looping moving picture for a still (canon videos/videos.yaml, WAN
+ * image-to-video, animated WebP), or null until it has been rendered -- every
+ * caller keeps its still as the fallback.
+ */
+function movingArt(key: string | null | undefined): string | null {
+  if (!key) return null
+  return storyArt[`videos/${key}`] ?? null
+}
+
+export { backgroundArt, movingArt, plateArt, portraitFor }

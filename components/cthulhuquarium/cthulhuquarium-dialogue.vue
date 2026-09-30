@@ -105,7 +105,12 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useCthulhuquariumTankStore } from '@/stores/cthulhuquariumTankStore'
-import { backgroundArt, plateArt, portraitFor } from '~/utils/cthulhuquariumArt'
+import {
+  backgroundArt,
+  movingArt,
+  plateArt,
+  portraitFor,
+} from '~/utils/cthulhuquariumArt'
 import {
   CTHULHUQUARIUM_BACKGROUNDS,
   CTHULHUQUARIUM_CHARACTERS,
@@ -133,7 +138,7 @@ const firstFocusIndex = computed(() => {
 })
 const plateUrl = computed(() =>
   scene.value?.plate && tankStore.beatIndex < firstFocusIndex.value
-    ? plateArt(scene.value.plate)
+    ? (movingArt(scene.value.plate) ?? plateArt(scene.value.plate))
     : null,
 )
 

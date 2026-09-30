@@ -11,10 +11,7 @@
       class="kr-scroll kr-container max-w-4xl space-y-5 px-3 py-5 sm:px-6 sm:py-8"
     >
       <nav>
-        <NuxtLink
-          to="/play/aquarium/browse"
-          class="kr-btn-ghost"
-        >
+        <NuxtLink to="/play/aquarium/browse" class="kr-btn-ghost">
           <Icon name="kind-icon:arrow-left" class="kr-icon-4" />
           Public tanks
         </NuxtLink>
@@ -45,9 +42,13 @@
       </div>
 
       <template v-else-if="tank">
-        <header
-          class="kr-panel-section-plain shadow-lg sm:p-7"
-        >
+        <cthulhuquarium-tank-view
+          :occupants="occupants"
+          :background-key="tank.backgroundKey"
+          :decor="tank.Decor"
+        />
+
+        <header class="kr-panel-section-plain shadow-lg sm:p-7">
           <div class="flex items-center gap-3">
             <div
               class="kr-icon-12 grid shrink-0 place-items-center overflow-hidden rounded-2xl border border-base-300 bg-base-200"
@@ -65,9 +66,7 @@
               />
             </div>
             <div class="min-w-0">
-              <p
-                class="kr-text-eyebrow text-xs tracking-widest text-primary"
-              >
+              <p class="kr-text-eyebrow text-xs tracking-widest text-primary">
                 @{{ tank.User.username }}'s tank
               </p>
               <h2 class="kr-text-black-2xl truncate sm:text-3xl">
@@ -75,33 +74,10 @@
               </h2>
             </div>
           </div>
-          <p
-            class="kr-text-eyebrow-bold kr-text-dim-xs-45 mt-4 tracking-wide"
-          >
+          <p class="kr-text-eyebrow-bold kr-text-dim-xs-45 mt-4 tracking-wide">
             Read-only -- visiting doesn't feed, clean, or change anything here.
           </p>
         </header>
-
-        <!-- Decor (cthulhuquarium/t-017): "visible to visitors browsing that
-             tank". This page has no canvas -- introducing one just for decor
-             would be disproportionate to a static read-only listing, so the
-             minimum-diff match is a simple absolutely-positioned overlay
-             using the exact same x/y percentage contract the owner's own
-             canvas places against. -->
-        <section
-          v-if="tank.Decor.length"
-          class="relative aspect-[16/9] w-full overflow-hidden rounded-3xl border border-base-300 bg-[#04100f]"
-          aria-hidden="true"
-        >
-          <span
-            v-for="decor in tank.Decor"
-            :key="decor.id"
-            class="absolute -translate-x-1/2 -translate-y-1/2 text-3xl"
-            :style="{ left: `${decor.x}%`, top: `${decor.y}%` }"
-          >
-            {{ decorIcon(decor.kind) }}
-          </span>
-        </section>
 
         <section
           v-if="tank.Stock.length"
@@ -112,14 +88,12 @@
             :key="entry.id"
             class="flex items-center gap-3 kr-panel-flat p-3 shadow-sm"
           >
-            <kr-art-plate
-              :source="entry.Monster"
-              variant="icon"
-              shape="plate"
-              frame="thin"
-              fit="cover"
+            <cthulhuquarium-sprite
+              :slug="entry.Monster.slug"
+              :label="entry.nickname || entry.Monster.name"
+              :fallback="entry.Monster"
+              :size="48"
               class="kr-icon-12 shrink-0"
-              placeholder-icon="kind-icon:fish"
             />
             <div class="min-w-0">
               <p class="kr-text-bold-sm truncate">
@@ -137,9 +111,7 @@
           class="rounded-3xl border border-dashed border-base-300 bg-base-100 px-6 py-16 text-center"
         >
           <Icon name="kind-icon:fish" class="mx-auto size-12 text-primary/40" />
-          <p class="kr-text-dim-sm mt-3">
-            Nothing in this tank yet.
-          </p>
+          <p class="kr-text-dim-sm mt-3">Nothing in this tank yet.</p>
         </section>
       </template>
     </div>
@@ -149,6 +121,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue'
 import { performFetch } from '@/stores/utils'
+import type { TankViewOccupant } from '~/utils/cthulhuquariumStage'
 
 interface PublicTankMonster {
   id: number
@@ -159,6 +132,8 @@ interface PublicTankMonster {
   icon: string | null
   iconPath: string | null
   cardPath: string | null
+  behavior: string | null
+  hue: number | null
 }
 
 interface PublicTankStock {
@@ -201,22 +176,6 @@ interface PublicTankDetail {
   Decor: PublicTankDecor[]
 }
 
-// Mirrors cthulhuquarium-game.vue's own DECOR_ICONS -- must stay in sync
-// with server/utils/aquariumEconomy.ts's DECOR_CATALOG icons by hand, same
-// convention as everywhere else the client mirrors a server-owned constant.
-const DECOR_ICONS: Record<string, string> = {
-  pebble_bed: '🪨',
-  driftwood: '🪵',
-  coral_spire: '🪸',
-  sunken_chest: '🧰',
-  glow_kelp: '🌿',
-  ceramic_ruin: '🏺',
-}
-
-function decorIcon(kind: string): string {
-  return DECOR_ICONS[kind] ?? '❖'
-}
-
 const route = useRoute()
 const tank = ref<PublicTankDetail | null>(null)
 const loading = ref(false)
@@ -225,6 +184,17 @@ let requestSequence = 0
 
 const username = computed(() => String(route.params.username || '').trim())
 const slug = computed(() => String(route.params.slug || '').trim())
+
+const occupants = computed<TankViewOccupant[]>(() =>
+  (tank.value?.Stock ?? []).map((entry) => ({
+    id: entry.id,
+    slug: entry.Monster.slug,
+    behavior: entry.Monster.behavior,
+    size: entry.Monster.size,
+    hunger: entry.hunger,
+    hue: entry.Monster.hue,
+  })),
+)
 
 useHead(() => ({
   title: tank.value

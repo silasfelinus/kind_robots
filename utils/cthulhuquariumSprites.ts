@@ -114,6 +114,30 @@ export function spriteForSpecies(
   return bySlug[slug.trim().toLowerCase()] ?? null
 }
 
+const clipModules = import.meta.glob<string>(
+  '../assets/images/cthulhuquarium/clips/*.webp',
+  { eager: true, query: '?url', import: 'default' },
+)
+
+const clipBySlug: Record<string, string> = {}
+for (const [path, url] of Object.entries(clipModules)) {
+  const slug = path
+    .split('/')
+    .pop()
+    ?.replace(/\.webp$/, '')
+  if (slug) clipBySlug[slug] = url
+}
+
+/**
+ * The species' real swimming clip (canon clips/: WAN image-to-video of its
+ * sprite, cut out frame by frame), or null until it has been rendered. An
+ * animated WebP, so listings play it with a plain <img>.
+ */
+export function clipForSpecies(slug: string | null | undefined): string | null {
+  if (!slug) return null
+  return clipBySlug[slug.trim().toLowerCase()] ?? null
+}
+
 /** The species' declared body motion (fish bible `sprite.motion`). */
 export function motionForSpecies(
   slug: string | null | undefined,

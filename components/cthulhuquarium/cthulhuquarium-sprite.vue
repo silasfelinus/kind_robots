@@ -2,11 +2,20 @@
      One species' cut-out sprite, playing its own motion (fish bible
      `sprite.motion`, utils/cthulhuquariumSprites.ts). Used wherever a
      creature is listed so the listing shows the same animal the tank does.
-     Until a species' sprite has been rendered it falls back to the card. -->
+     A species whose swimming clip has been rendered and cut out (canon
+     clips/) plays that instead; until a sprite exists it falls back to the
+     card. -->
 <template>
   <div ref="rootRef" class="relative flex items-center justify-center">
+    <img
+      v-if="clipUrl && !still && !reducedMotion"
+      :src="clipUrl"
+      :alt="label"
+      loading="lazy"
+      class="h-full w-full object-contain"
+    />
     <canvas
-      v-if="spriteUrl"
+      v-else-if="spriteUrl"
       ref="canvasRef"
       class="h-full w-full"
       :width="pixelSize"
@@ -29,8 +38,10 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import {
+  clipForSpecies,
   drawAnimatedSprite,
   motionForSpecies,
+  prefersReducedMotion,
   spriteForSpecies,
 } from '~/utils/cthulhuquariumSprites'
 
@@ -48,6 +59,8 @@ const props = withDefaults(
 const rootRef = ref<HTMLElement | null>(null)
 const canvasRef = ref<HTMLCanvasElement | null>(null)
 const spriteUrl = computed(() => spriteForSpecies(props.slug))
+const clipUrl = computed(() => clipForSpecies(props.slug))
+const reducedMotion = prefersReducedMotion()
 const motion = computed(() => motionForSpecies(props.slug))
 const pixelSize = computed(() => Math.round(props.size * 2))
 const offset = computed(
@@ -92,6 +105,7 @@ function start() {
 
 function loadImage() {
   if (!spriteUrl.value) return
+  if (clipUrl.value && !props.still && !reducedMotion) return
   image = new Image()
   image.onload = start
   image.src = spriteUrl.value

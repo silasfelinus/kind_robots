@@ -197,3 +197,63 @@ export function drawAmbienceFront(
   context.fillStyle = 'rgba(40, 60, 45, 0.55)'
   context.fillRect(state.aeratorX - 5, height - 7, 10, 7)
 }
+
+/**
+ * A dirty tank has to look dirty, or the Clean button is a chore nobody was
+ * asked to do (playtest 2026-09-30: at 70% debris the old faint tint was
+ * invisible over a painted background). `debris` is the server's 0-100 level.
+ * Four signs, each growing with it: the water murks over, silt settles along
+ * the floor, a green film creeps in from the glass edges, and motes of silt
+ * hang in the water. Drawn over the background and under the occupants.
+ */
+export function drawDebris(
+  context: CanvasRenderingContext2D,
+  state: AmbienceState,
+  width: number,
+  height: number,
+  debris: number,
+): void {
+  const level = Math.max(0, Math.min(100, debris)) / 100
+  if (level <= 0) return
+  const time = prefersReducedMotion() ? 0 : state.time
+
+  context.fillStyle = `rgba(92, 88, 48, ${0.4 * level})`
+  context.fillRect(0, 0, width, height)
+
+  const siltTop = height * (1 - 0.3 * level)
+  const silt = context.createLinearGradient(0, siltTop, 0, height)
+  silt.addColorStop(0, 'rgba(78, 66, 36, 0)')
+  silt.addColorStop(1, `rgba(78, 66, 36, ${0.75 * level})`)
+  context.fillStyle = silt
+  context.fillRect(0, siltTop, width, height - siltTop)
+
+  const film = Math.min(width, height) * 0.22 * level
+  const algae = `rgba(58, 96, 44, ${0.55 * level})`
+  for (const [x0, y0, x1, y1, x, y, w, h] of [
+    [0, 0, film, 0, 0, 0, film, height],
+    [width, 0, width - film, 0, width - film, 0, film, height],
+    [0, 0, 0, film, 0, 0, width, film],
+  ] as const) {
+    const edge = context.createLinearGradient(x0, y0, x1, y1)
+    edge.addColorStop(0, algae)
+    edge.addColorStop(1, 'rgba(58, 96, 44, 0)')
+    context.fillStyle = edge
+    context.fillRect(x, y, w, h)
+  }
+
+  // Motes: placed by index, so they hold still under reduced motion and
+  // never need their own particle state.
+  const motes = Math.round(70 * level)
+  context.fillStyle = `rgba(66, 56, 30, ${0.35 + 0.35 * level})`
+  for (let index = 0; index < motes; index++) {
+    const seed = Math.sin(index * 12.9898) * 43758.5453
+    const fx = seed - Math.floor(seed)
+    const fy = (seed * 7.13) % 1
+    const x = (fx * width + Math.sin(time * 0.3 + index) * 6 + width) % width
+    const y =
+      (Math.abs(fy) * height + time * (2 + (index % 5)) + height) % height
+    context.beginPath()
+    context.arc(x, y, 0.6 + (index % 3) * 0.5, 0, Math.PI * 2)
+    context.fill()
+  }
+}

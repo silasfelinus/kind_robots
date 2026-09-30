@@ -1395,6 +1395,7 @@ import {
   createAmbience,
   drawAmbienceBack,
   drawAmbienceFront,
+  drawDebris,
   stepAmbience,
 } from '~/utils/cthulhuquariumAmbience'
 import { decorIcon, LEGACY_PARLOUR_CROP } from '~/utils/cthulhuquariumStage'
@@ -2287,12 +2288,15 @@ function render(context: CanvasRenderingContext2D) {
   context.fillStyle = getWaterGradient(context)
   context.fillRect(0, 0, STAGE_WIDTH, STAGE_HEIGHT)
 
-  // Debris tints the water -- ambient only, no interaction wired here.
-  const debris = tankStore.tank?.debrisLevel ?? 0
-  if (debris > 0) {
-    context.fillStyle = `rgba(120, 110, 70, ${Math.min(0.22, debris / 400)})`
-    context.fillRect(0, 0, STAGE_WIDTH, STAGE_HEIGHT)
-  }
+  // Debris shows in the water itself: murk, settled silt, algae on the
+  // glass and drifting motes (utils/cthulhuquariumAmbience.ts drawDebris).
+  drawDebris(
+    context,
+    ambience,
+    STAGE_WIDTH,
+    STAGE_HEIGHT,
+    tankStore.tank?.debrisLevel ?? 0,
+  )
 
   drawAmbienceBack(context, ambience, STAGE_WIDTH, STAGE_HEIGHT)
 

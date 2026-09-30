@@ -1594,9 +1594,16 @@ const canvasRef = ref<HTMLCanvasElement | null>(null)
    Plain Image rather than a ref because render() reads it every frame; a
    decode failure leaves it incomplete and render() skips it. */
 let backgroundImage: HTMLImageElement | null = null
+// The legacy parlour plate (t-065) is a painting of a tank on a wall, not the
+// inside of one: until the canon's interior renders arrive, draw only its
+// water, cropped to the stage's 16:9.
+const LEGACY_PARLOUR_CROP = { x: 0.163, y: 0.14, w: 0.674, h: 0.66 }
+let backgroundCrop: typeof LEGACY_PARLOUR_CROP | null = null
 function loadBackground(key: string) {
   if (!import.meta.client) return
   const url = backgroundArt(key) ?? backgroundArt('parlour')
+  backgroundCrop =
+    url && url === artByName('bg-parlour') ? LEGACY_PARLOUR_CROP : null
   backgroundImage = url ? Object.assign(new Image(), { src: url }) : null
 }
 loadBackground(tankStore.backgroundKey)
@@ -2131,7 +2138,23 @@ function render(context: CanvasRenderingContext2D) {
   // Purely decorative: if the image has not decoded yet (or is missing) the
   // gradient below is opaque enough on its own and nothing else changes.
   if (backgroundImage?.complete && backgroundImage.naturalWidth > 0) {
-    context.drawImage(backgroundImage, 0, 0, STAGE_WIDTH, STAGE_HEIGHT)
+    if (backgroundCrop) {
+      const w = backgroundImage.naturalWidth
+      const h = backgroundImage.naturalHeight
+      context.drawImage(
+        backgroundImage,
+        backgroundCrop.x * w,
+        backgroundCrop.y * h,
+        backgroundCrop.w * w,
+        backgroundCrop.h * h,
+        0,
+        0,
+        STAGE_WIDTH,
+        STAGE_HEIGHT,
+      )
+    } else {
+      context.drawImage(backgroundImage, 0, 0, STAGE_WIDTH, STAGE_HEIGHT)
+    }
   }
 
   context.fillStyle = getWaterGradient(context)

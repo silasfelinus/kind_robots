@@ -150,8 +150,27 @@ export default defineEventHandler(async (event) => {
 
       const existing = await prisma.tzaddikCandidate.findFirst({
         where: { wikipediaUrl },
-        select: { id: true },
+        select: { id: true, curationState: true },
       })
+      // An accepted seed that the discovery pool already suggested (PENDING)
+      // is promoted rather than skipped; skipping it left the seed missing
+      // from the gallery and failed the bootstrap's verification step.
+      if (existing?.curationState === 'PENDING') {
+        await prisma.tzaddikCandidate.update({
+          where: { id: existing.id },
+          data: {
+            curationState: 'APPROVED',
+            acceptedByUserId: toPositiveId(raw?.acceptedByUserId) ?? admin.id,
+          },
+        })
+        results.push({
+          displayName,
+          status: 'skipped',
+          reason: 'Promoted the existing pending candidate to APPROVED.',
+          id: existing.id,
+        })
+        continue
+      }
       if (existing) {
         results.push({
           displayName,

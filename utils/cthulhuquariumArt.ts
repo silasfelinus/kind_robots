@@ -153,8 +153,15 @@ const SPEAKER_SLUGS: Record<string, string> = {
 function portraitFor(speaker: string, pose: string): string | null {
   const slug = SPEAKER_SLUGS[speaker]
   if (!slug) return null
+  // Poses render one at a time. A pose still in the queue borrows another
+  // cut-out of the same speaker before the full-length hero, whose painted
+  // backdrop would sit oddly beside the cut-outs in the dialogue.
+  const anyPose = Object.keys(storyArt)
+    .filter((key) => key.startsWith(`portraits/${slug}-`))
+    .sort()[0]
   return (
     storyArt[`portraits/${slug}-${pose}`] ??
+    (anyPose ? storyArt[anyPose] : undefined) ??
     byStem[`cthulhuquarium-char-${slug}`] ??
     null
   )

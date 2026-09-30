@@ -6,6 +6,7 @@
 // browsers never depend on third-party hotlinks directly.
 export type TzaddikImageLike = {
   id: number
+  curationState?: string | null
   imageUrlOverride?: string | null
   imageFileUrl?: string | null
   imageRevisionId?: string | null
@@ -26,6 +27,15 @@ export function resolveTzaddikImageSrc(
   const override = clean(candidate.imageUrlOverride)
   const sourced = clean(candidate.imageFileUrl)
   if (!override && !sourced) return ''
+
+  // The same-origin proxy intentionally exposes only APPROVED candidates.
+  // PENDING/ARCHIVED rows are visible only through authenticated moderation
+  // APIs, but an <img> request cannot attach the JWT kept by the client store.
+  // Their portrait URLs are already public source URLs, so review surfaces
+  // render that source directly instead of asking the proxy to 404 it.
+  if (candidate.curationState && candidate.curationState !== 'APPROVED') {
+    return override || sourced
+  }
 
   const version = override
     ? candidate.overrideUpdatedAt

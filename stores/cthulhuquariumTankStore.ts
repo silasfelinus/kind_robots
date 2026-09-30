@@ -13,6 +13,7 @@
 import { computed, ref } from 'vue'
 import { defineStore } from 'pinia'
 import { performFetch } from './utils'
+import { useIntroStore } from './introStore'
 import { formatMilestoneToastMessage } from '~/utils/aquariumMilestoneToast'
 import { useCthulhuquariumStory } from './helpers/cthulhuquariumStory'
 import {
@@ -720,7 +721,7 @@ export const useCthulhuquariumTankStore = defineStore(
       const reconciled = await performFetch<{
         firedMilestones: FiredMilestone[]
       }>('/api/aquarium/story/reconcile', { method: 'POST' })
-      await story.loadStory()
+      await story.loadStory(stock.value.length > 0 ? ['unlock'] : [])
       const fired = reconciled.success
         ? (reconciled.data?.firedMilestones ?? [])
         : []
@@ -1229,8 +1230,28 @@ export const useCthulhuquariumTankStore = defineStore(
       breedRevealSignal.dismiss()
     }
 
+    // Charlotte and Wilbur wait their turn: a scene's beat is held (not
+    // skipped -- a scene is only marked seen when its last beat is) while the
+    // site's first-launch tour or any of the game's own reveal dialogs has the
+    // floor. Before this, adopting the first fish opened the "New occupant"
+    // reveal with Wilbur already talking about feeding it behind it, and a new
+    // account got Charlotte's intro under the site tour. The dialogue sheet,
+    // its focus rings and the page's bottom spacer all read this one flag.
+    const storyShowing = computed(
+      () =>
+        !!story.activeBeat.value &&
+        !useIntroStore().isOpen &&
+        !revealedUnlock.value &&
+        !revealedHatch.value &&
+        !revealedBreed.value &&
+        !bestiaryJustCompleted.value &&
+        !finaleJustTriggered.value &&
+        offlineEarnings.value <= 0,
+    )
+
     return {
       ...story,
+      storyShowing,
       tank,
       catalog,
       catalogDateKey,

@@ -29,7 +29,9 @@ const LANDMARK_TOAST_TEXT: Record<string, string> = {
   // cthulhuquarium/t-077: fires once, the first time an active rivalry
   // (predator/prey, school/anchor, authored, or same-species pressure) has
   // resolved -- see aquariumRivalryMilestone.ts's rivalryMilestoneState.
-  first_rivalry_resolved: 'A rivalry in your tank has settled for the first time',
+  first_rivalry_resolved:
+    'A rivalry in your tank has settled for the first time',
+  first_evolution: 'Something in your tank has become something else',
 }
 
 export function formatMilestoneToastMessage(
@@ -41,7 +43,8 @@ export function formatMilestoneToastMessage(
   // Every real BESTIARY_MILESTONES threshold is >= 5, so "species" is
   // always plural in practice -- not special-cased against a singular
   // threshold that can't occur.
-  const slots = Math.abs(milestone.slotsCapDelta) === 1 ? 'tank slot' : 'tank slots'
+  const slots =
+    Math.abs(milestone.slotsCapDelta) === 1 ? 'tank slot' : 'tank slots'
   const sign = milestone.slotsCapDelta >= 0 ? '+' : ''
   return `${milestone.threshold} species collected -- ${sign}${milestone.slotsCapDelta} ${slots}`
 }

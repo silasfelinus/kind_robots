@@ -14,6 +14,7 @@ import { computed, ref } from 'vue'
 import { defineStore } from 'pinia'
 import { performFetch } from './utils'
 import { formatMilestoneToastMessage } from '~/utils/aquariumMilestoneToast'
+import { useCthulhuquariumStory } from './helpers/cthulhuquariumStory'
 import {
   useOneShotFlag,
   useOneShotQueue,
@@ -504,6 +505,18 @@ export const useCthulhuquariumTankStore = defineStore(
     // preserve here.
     const milestoneToastSignal = useOneShotQueue<FiredMilestone>()
 
+    const story = useCthulhuquariumStory()
+
+    function announceMilestones(...milestones: FiredMilestone[]): void {
+      milestoneToastSignal.push(...milestones)
+      story.announceMilestones(milestones.map((milestone) => milestone.id))
+    }
+
+    function announceBestiaryComplete(): void {
+      bestiaryCompletionSignal.trigger()
+      story.queueScene('bestiary_complete')
+    }
+
     // cthulhuquarium/t-026's set-piece catalog. Loaded lazily, same
     // collapsed-panel-until-opened pattern as the bestiary above -- it
     // isn't part of the tank's own poll loop.
@@ -604,7 +617,7 @@ export const useCthulhuquariumTankStore = defineStore(
         tank.value = res.data.aquarium
         if (res.data.rareEvent) lastRareEvent.value = res.data.rareEvent
         if (res.data.firstRivalryResolved) {
-          milestoneToastSignal.push({
+          announceMilestones({
             id: 'first_rivalry_resolved',
             slotsCapDelta: 0,
           })
@@ -636,6 +649,7 @@ export const useCthulhuquariumTankStore = defineStore(
           return
         }
         tank.value = res.data
+        void story.loadStory()
         // Settle any offline time immediately on load, same as the t-010
         // prototype's own init() did -- the difference is this is now a
         // real server-authoritative settlement, not a localStorage replay.
@@ -672,6 +686,7 @@ export const useCthulhuquariumTankStore = defineStore(
       })
       if (res.success && res.data) {
         tank.value = res.data.aquarium
+        story.notifyAction('feed')
         return true
       }
       error.value = res.message || 'Could not feed that occupant.'
@@ -690,9 +705,11 @@ export const useCthulhuquariumTankStore = defineStore(
         tank.value = res.data.aquarium
         catalog.value = catalog.value.filter((entry) => entry.id !== monsterId)
         unlockRevealSignal.reveal(res.data.stock)
-        if (res.data.justCompletedBestiary) bestiaryCompletionSignal.trigger()
+        story.queueScene('first_unlock')
+        story.notifyAction('unlock')
+        if (res.data.justCompletedBestiary) announceBestiaryComplete()
         if (res.data.firedMilestones?.length) {
-          milestoneToastSignal.push(...res.data.firedMilestones)
+          announceMilestones(...res.data.firedMilestones)
         }
         // A stale bestiary panel (or one never loaded yet) would otherwise
         // still show this species as uncollected after unlocking it.
@@ -748,7 +765,7 @@ export const useCthulhuquariumTankStore = defineStore(
       if (res.success && res.data) {
         tank.value = res.data.aquarium
         if (res.data.firstSpotlessTank) {
-          milestoneToastSignal.push({
+          announceMilestones({
             id: 'first_spotless_tank',
             slotsCapDelta: 0,
           })
@@ -1014,7 +1031,7 @@ export const useCthulhuquariumTankStore = defineStore(
       if (res.success && res.data) {
         tank.value = res.data.aquarium
         if (res.data.firedMilestones?.length) {
-          milestoneToastSignal.push(...res.data.firedMilestones)
+          announceMilestones(...res.data.firedMilestones)
         }
         return true
       }
@@ -1035,9 +1052,10 @@ export const useCthulhuquariumTankStore = defineStore(
       if (res.success && res.data) {
         tank.value = res.data.aquarium
         hatchRevealSignal.reveal(res.data.stock)
-        if (res.data.justCompletedBestiary) bestiaryCompletionSignal.trigger()
+        story.queueScene('first_hatch')
+        if (res.data.justCompletedBestiary) announceBestiaryComplete()
         if (res.data.firedMilestones?.length) {
-          milestoneToastSignal.push(...res.data.firedMilestones)
+          announceMilestones(...res.data.firedMilestones)
         }
         if (bestiary.value.length > 0) await loadBestiary()
         return true
@@ -1071,9 +1089,10 @@ export const useCthulhuquariumTankStore = defineStore(
           stock: res.data.stock,
           evolved: res.data.evolved,
         })
-        if (res.data.justCompletedBestiary) bestiaryCompletionSignal.trigger()
+        story.queueScene('first_breed')
+        if (res.data.justCompletedBestiary) announceBestiaryComplete()
         if (res.data.firedMilestones?.length) {
-          milestoneToastSignal.push(...res.data.firedMilestones)
+          announceMilestones(...res.data.firedMilestones)
         }
         if (bestiary.value.length > 0) await loadBestiary()
         return true
@@ -1087,6 +1106,7 @@ export const useCthulhuquariumTankStore = defineStore(
     }
 
     return {
+      ...story,
       tank,
       catalog,
       catalogDateKey,

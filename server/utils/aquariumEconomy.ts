@@ -26,6 +26,7 @@
 import type { Rarity } from '~/prisma/generated/prisma/client'
 import type { RivalryResult } from './aquariumRivalry'
 import { evaluateRivalry } from './aquariumRivalry'
+import { CTHULHUQUARIUM_BACKGROUND_UNLOCKS } from './cthulhuquariumBackgrounds.generated'
 
 // economy.yaml: economy.tick_seconds
 export const TICK_SECONDS = 60
@@ -1103,6 +1104,15 @@ export const BESTIARY_MILESTONES: readonly BestiaryMilestoneConfig[] = [
   { id: 'bestiary_10', threshold: 10, slotsCapDelta: 2 },
   { id: 'bestiary_15', threshold: 15, slotsCapDelta: 2 },
   { id: 'bestiary_20', threshold: 20, slotsCapDelta: 2 },
+  // economy.yaml's t-019 extension (2026-09-07): widening spacing, shrinking
+  // reward, terminating at slots_cap 19. Each also hands over a background.
+  { id: 'bestiary_25', threshold: 25, slotsCapDelta: 2 },
+  { id: 'bestiary_35', threshold: 35, slotsCapDelta: 1 },
+  { id: 'bestiary_50', threshold: 50, slotsCapDelta: 1 },
+  { id: 'bestiary_70', threshold: 70, slotsCapDelta: 1 },
+  { id: 'bestiary_95', threshold: 95, slotsCapDelta: 1 },
+  { id: 'bestiary_125', threshold: 125, slotsCapDelta: 1 },
+  { id: 'bestiary_151', threshold: 151, slotsCapDelta: 0 },
 ]
 
 // Pure decision logic, same discipline as justCompletedBestiary above: given
@@ -1149,6 +1159,22 @@ export const FIRST_SPOTLESS_TANK_MILESTONE: LandmarkMilestoneConfig = {
   slotsCapDelta: 0,
 }
 
+// Which tank backgrounds a player holds, given the landmark ids whose
+// milestone events have fired: the default, plus one per fired milestone
+// (the canon's backgrounds/backgrounds.yaml `unlock`).
+export function unlockedBackgroundKeys(firedLandmarks: Set<string>): string[] {
+  return Object.entries(CTHULHUQUARIUM_BACKGROUND_UNLOCKS)
+    .filter(([, unlock]) => unlock === 'default' || firedLandmarks.has(unlock))
+    .map(([key]) => key)
+}
+
+// Fires on the first breed whose offspring evolved into a different species
+// (breedFishForUser's `evolved`). Background only, like the landmarks above.
+export const FIRST_EVOLUTION_MILESTONE: LandmarkMilestoneConfig = {
+  id: 'first_evolution',
+  slotsCapDelta: 0,
+}
+
 // Pure decision logic, same discipline as justCompletedBestiary above:
 // economy.yaml's first_full_tank trigger is "every owned slot is occupied at
 // once", written before t-032's two-pool capacity split. "Owned slot" maps
@@ -1165,7 +1191,8 @@ export function justFirstFullTank(
   effectiveSizeCap: number,
 ): boolean {
   return (
-    reservedSizeBefore < effectiveSizeCap && reservedSizeAfter >= effectiveSizeCap
+    reservedSizeBefore < effectiveSizeCap &&
+    reservedSizeAfter >= effectiveSizeCap
   )
 }
 

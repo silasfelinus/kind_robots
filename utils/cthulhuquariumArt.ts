@@ -38,7 +38,10 @@ const modules = import.meta.glob<string>(
 /** filename stem (`cthulhuquarium-fish-bailiff-eel`) -> built asset URL. */
 const byStem: Record<string, string> = {}
 for (const [path, url] of Object.entries(modules)) {
-  const stem = path.split('/').pop()?.replace(/\.webp$/, '')
+  const stem = path
+    .split('/')
+    .pop()
+    ?.replace(/\.webp$/, '')
   if (stem) byStem[stem] = url
 }
 
@@ -103,3 +106,49 @@ export function withCthulhuquariumArt<
     imagePath: record.imagePath ?? plate,
   }
 }
+
+const storyModules = import.meta.glob<string>(
+  '../assets/images/cthulhuquarium/{portraits,backgrounds,plates}/*.webp',
+  { eager: true, query: '?url', import: 'default' },
+)
+
+const storyArt: Record<string, string> = {}
+for (const [path, url] of Object.entries(storyModules)) {
+  const parts = path.split('/')
+  const folder = parts[parts.length - 2]
+  const stem = parts[parts.length - 1]?.replace(/\.webp$/, '')
+  if (folder && stem) storyArt[`${folder}/${stem}`] = url
+}
+
+const SPEAKER_SLUGS: Record<string, string> = {
+  charlotte: 'charlotte-fishmonger',
+  wilbur: 'wilbur-stint',
+}
+
+/** A cut-out dialogue portrait (canon characters/<who>.yaml `art.portraits`). */
+function portraitFor(speaker: string, pose: string): string | null {
+  const slug = SPEAKER_SLUGS[speaker]
+  if (!slug) return null
+  return (
+    storyArt[`portraits/${slug}-${pose}`] ??
+    byStem[`cthulhuquarium-char-${slug}`] ??
+    null
+  )
+}
+
+/** A tank background (canon backgrounds/backgrounds.yaml). */
+function backgroundArt(key: string | null | undefined): string | null {
+  if (!key) return null
+  return (
+    storyArt[`backgrounds/${key}`] ??
+    (key === 'parlour' ? (byStem['cthulhuquarium-bg-parlour'] ?? null) : null)
+  )
+}
+
+/** A scene plate shown above a scene's dialogue (canon story/plates.yaml). */
+function plateArt(key: string | null | undefined): string | null {
+  if (!key) return null
+  return storyArt[`plates/${key}`] ?? byStem[`cthulhuquarium-${key}`] ?? null
+}
+
+export { backgroundArt, plateArt, portraitFor }

@@ -15,6 +15,7 @@
 import type { Prisma, Rarity } from '~/prisma/generated/prisma/client'
 import prisma from './prisma'
 import { getUniqueAquariumSlugForUser } from './aquariumSlug'
+import { CTHULHUQUARIUM_SCENE_IDS } from './cthulhuquariumBackgrounds.generated'
 import {
   breedCost,
   cleanDebris,
@@ -32,6 +33,8 @@ import {
   feedCost,
   FEED_RESTORES_HUNGER_TO,
   firedBestiaryMilestones,
+  FIRST_EVOLUTION_MILESTONE,
+  unlockedBackgroundKeys,
   FIRST_FULL_TANK_MILESTONE,
   FIRST_SPOTLESS_TANK_MILESTONE,
   HUNGER_STARTING_VALUE,
@@ -423,92 +426,94 @@ export async function settleTickForUser(
   const rareEvent = rollRareEvent(Math.random(), Math.random())
   const totalCoinsEarned = settlement.coinsEarned + (rareEvent?.bonusCoins ?? 0)
 
-  const { aquarium, firstRivalryResolved } = await prisma.$transaction(async (tx) => {
-    for (const stock of tank.Stock) {
-      const newHunger = settlement.fishHunger.get(stock.id)
-      if (newHunger !== undefined && newHunger !== stock.hunger) {
-        await tx.aquariumStock.update({
-          where: { id: stock.id },
-          data: { hunger: newHunger },
+  const { aquarium, firstRivalryResolved } = await prisma.$transaction(
+    async (tx) => {
+      for (const stock of tank.Stock) {
+        const newHunger = settlement.fishHunger.get(stock.id)
+        if (newHunger !== undefined && newHunger !== stock.hunger) {
+          await tx.aquariumStock.update({
+            where: { id: stock.id },
+            data: { hunger: newHunger },
+          })
+        }
+      }
+
+      // cthulhuquarium/t-074: sticky, never cleared once true -- same
+      // "nothing here may ever decrease" discipline as collectedCount.
+      // settleTick only ever raises debris within its own loop (offset only by
+      // debris_skimmer, still net non-negative there -- see its own comment),
+      // so the highest debris this call reaches is always newDebrisLevel.
+      const debrisEverHighAfter =
+        tank.debrisEverHigh ||
+        settlement.newDebrisLevel >= DEBRIS_SPOTLESS_MILESTONE_THRESHOLD
+
+      // cthulhuquarium/t-077: rivalryMilestoneState reads `tank.rivalryObserved`
+      // as the BEFORE value (mirrors debrisEverHighAfter's own before/after
+      // pattern above) -- "resolved already" is checked via the existing
+      // AquariumEvent log, same convention as every other one-off landmark
+      // (checkFirstFullTank, first_spotless_tank in cleanTankForUser), so a
+      // rivalry that resolves once can never re-fire on a later inactive tick
+      // even though rivalryObserved itself is never cleared afterward.
+      const rivalryResolvedAlreadyLogged = await tx.aquariumEvent.findFirst({
+        where: {
+          aquariumId: tank.id,
+          kind: milestoneEventKind({ id: FIRST_RIVALRY_RESOLVED_MILESTONE_ID }),
+        },
+        select: { id: true },
+      })
+      const rivalryMilestone = rivalryMilestoneState(
+        settlement.rivalry.active,
+        tank.rivalryObserved,
+        Boolean(rivalryResolvedAlreadyLogged),
+      )
+      const rivalryObservedAfter =
+        tank.rivalryObserved || rivalryMilestone.shouldRecordObserved
+
+      const updated = await tx.aquarium.update({
+        where: { id: tank.id },
+        data: {
+          coins: { increment: totalCoinsEarned },
+          debrisLevel: settlement.newDebrisLevel,
+          lastTickAt: settlement.newLastTickAt,
+          ...(debrisEverHighAfter !== tank.debrisEverHigh
+            ? { debrisEverHigh: debrisEverHighAfter }
+            : {}),
+          ...(rivalryObservedAfter !== tank.rivalryObserved
+            ? { rivalryObserved: rivalryObservedAfter }
+            : {}),
+        },
+        select: ownedAquariumSelect,
+      })
+
+      await logEvent(tx, tank.id, 'tick', {
+        elapsedTicks: settlement.elapsedTicks,
+        ticksProcessed: settlement.ticksProcessed,
+        coinsEarned: settlement.coinsEarned,
+        newDebrisLevel: settlement.newDebrisLevel,
+      })
+
+      if (rareEvent) {
+        await logEvent(tx, tank.id, 'rare-event', {
+          kind: rareEvent.kind,
+          bonusCoins: rareEvent.bonusCoins,
         })
       }
-    }
 
-    // cthulhuquarium/t-074: sticky, never cleared once true -- same
-    // "nothing here may ever decrease" discipline as collectedCount.
-    // settleTick only ever raises debris within its own loop (offset only by
-    // debris_skimmer, still net non-negative there -- see its own comment),
-    // so the highest debris this call reaches is always newDebrisLevel.
-    const debrisEverHighAfter =
-      tank.debrisEverHigh ||
-      settlement.newDebrisLevel >= DEBRIS_SPOTLESS_MILESTONE_THRESHOLD
+      if (rivalryMilestone.shouldFireResolved) {
+        await logEvent(
+          tx,
+          tank.id,
+          milestoneEventKind({ id: FIRST_RIVALRY_RESOLVED_MILESTONE_ID }),
+          { landmark: FIRST_RIVALRY_RESOLVED_MILESTONE_ID },
+        )
+      }
 
-    // cthulhuquarium/t-077: rivalryMilestoneState reads `tank.rivalryObserved`
-    // as the BEFORE value (mirrors debrisEverHighAfter's own before/after
-    // pattern above) -- "resolved already" is checked via the existing
-    // AquariumEvent log, same convention as every other one-off landmark
-    // (checkFirstFullTank, first_spotless_tank in cleanTankForUser), so a
-    // rivalry that resolves once can never re-fire on a later inactive tick
-    // even though rivalryObserved itself is never cleared afterward.
-    const rivalryResolvedAlreadyLogged = await tx.aquariumEvent.findFirst({
-      where: {
-        aquariumId: tank.id,
-        kind: milestoneEventKind({ id: FIRST_RIVALRY_RESOLVED_MILESTONE_ID }),
-      },
-      select: { id: true },
-    })
-    const rivalryMilestone = rivalryMilestoneState(
-      settlement.rivalry.active,
-      tank.rivalryObserved,
-      Boolean(rivalryResolvedAlreadyLogged),
-    )
-    const rivalryObservedAfter =
-      tank.rivalryObserved || rivalryMilestone.shouldRecordObserved
-
-    const updated = await tx.aquarium.update({
-      where: { id: tank.id },
-      data: {
-        coins: { increment: totalCoinsEarned },
-        debrisLevel: settlement.newDebrisLevel,
-        lastTickAt: settlement.newLastTickAt,
-        ...(debrisEverHighAfter !== tank.debrisEverHigh
-          ? { debrisEverHigh: debrisEverHighAfter }
-          : {}),
-        ...(rivalryObservedAfter !== tank.rivalryObserved
-          ? { rivalryObserved: rivalryObservedAfter }
-          : {}),
-      },
-      select: ownedAquariumSelect,
-    })
-
-    await logEvent(tx, tank.id, 'tick', {
-      elapsedTicks: settlement.elapsedTicks,
-      ticksProcessed: settlement.ticksProcessed,
-      coinsEarned: settlement.coinsEarned,
-      newDebrisLevel: settlement.newDebrisLevel,
-    })
-
-    if (rareEvent) {
-      await logEvent(tx, tank.id, 'rare-event', {
-        kind: rareEvent.kind,
-        bonusCoins: rareEvent.bonusCoins,
-      })
-    }
-
-    if (rivalryMilestone.shouldFireResolved) {
-      await logEvent(
-        tx,
-        tank.id,
-        milestoneEventKind({ id: FIRST_RIVALRY_RESOLVED_MILESTONE_ID }),
-        { landmark: FIRST_RIVALRY_RESOLVED_MILESTONE_ID },
-      )
-    }
-
-    return {
-      aquarium: updated,
-      firstRivalryResolved: rivalryMilestone.shouldFireResolved,
-    }
-  })
+      return {
+        aquarium: updated,
+        firstRivalryResolved: rivalryMilestone.shouldFireResolved,
+      }
+    },
+  )
 
   return {
     aquarium: toClientAquarium(aquarium),
@@ -661,7 +666,11 @@ export async function cleanTankForUser(
 
       let firstSpotlessTank = false
       if (
-        justFirstSpotlessTank(tank.debrisEverHigh, tank.debrisLevel, newDebrisLevel)
+        justFirstSpotlessTank(
+          tank.debrisEverHigh,
+          tank.debrisLevel,
+          newDebrisLevel,
+        )
       ) {
         const alreadyLogged = await tx.aquariumEvent.findFirst({
           where: {
@@ -1833,6 +1842,17 @@ export async function breedFishForUser(
       )
       if (fullTankMilestone) firedMilestones.push(fullTankMilestone)
 
+      if (evolved) {
+        const alreadyEvolved = await tx.aquariumEvent.findFirst({
+          where: {
+            aquariumId: tank.id,
+            kind: milestoneEventKind(FIRST_EVOLUTION_MILESTONE),
+          },
+          select: { id: true },
+        })
+        if (!alreadyEvolved) firedMilestones.push(FIRST_EVOLUTION_MILESTONE)
+      }
+
       const slotsCapDelta = firedMilestones.reduce(
         (sum, milestone) => sum + milestone.slotsCapDelta,
         0,
@@ -2270,10 +2290,15 @@ export async function listCatalogForUser(
   // column) -- a ruler-hooked-only row should not show up here as
   // unlockable. cthulhuquarium/t-022 (shared bestiary handshake) owns
   // deciding cross-game unlock rules beyond this simple membership filter.
+  // fish/SCHEMA.md: "A species reached only by evolution is not purchasable"
+  // -- it carries unlock_cost 0 and declares evolves_from, so without this
+  // it listed as free. It is still re-orderable from the Ichthyonomicon once
+  // bred, which never consults this list.
   const eligibleWhere: Prisma.MonsterWhereInput = {
     isActive: true,
     isPublic: true,
     games: { contains: 'cthulhuquarium' },
+    NOT: { unlockCost: 0, EvolvesFrom: { some: {} } },
     ...(ownedIds.length > 0 ? { id: { notIn: ownedIds } } : {}),
   }
 
@@ -2291,8 +2316,29 @@ export async function listCatalogForUser(
     })
   ).map((row) => row.id)
 
+  // The free starters (unlock_cost 0, reached by nothing) are always on the
+  // slate. A new tank starts with 0 coins and earns nothing until it holds a
+  // fish, so a day's rotation without one would leave a new player -- and
+  // Charlotte's intro, which has them choose their first -- with nothing
+  // they can buy.
+  const starterIds = (
+    await prisma.monster.findMany({
+      where: {
+        ...eligibleWhere,
+        unlockCost: 0,
+        EvolvesFrom: { none: {} },
+      },
+      select: { id: true },
+    })
+  ).map((row) => row.id)
+
   const dateKey = todaysShopDateKey()
-  const todaysIds = rotateShopStock(eligibleIds, userId, dateKey)
+  const todaysIds = [
+    ...new Set([
+      ...starterIds,
+      ...rotateShopStock(eligibleIds, userId, dateKey),
+    ]),
+  ]
   // No monster has a negative id -- this simply returns zero rows rather
   // than needing a second query shape when nothing is eligible yet.
   const where: Prisma.MonsterWhereInput = {
@@ -2733,4 +2779,114 @@ export async function setTankVisibilityForUser(
   })
 
   return { aquarium: toClientAquarium(aquarium) }
+}
+
+// ---------------------------------------------------------------------------
+// Story and backgrounds -- the canon's story/scenes.yaml and
+// backgrounds/backgrounds.yaml, mirrored by scripts/sync_cthulhuquarium_canon.mjs.
+// "A milestone causes Charlotte to appear, and she gives you the background":
+// a background is unlocked by its milestone's AquariumEvent, so nothing new is
+// stored for it. A seen scene is one `story-seen-<id>` event, the same
+// per-kind equality convention as milestoneEventKind.
+// ---------------------------------------------------------------------------
+
+export const DEFAULT_BACKGROUND_KEY = 'parlour'
+const STORY_SEEN_PREFIX = 'story-seen-'
+const MILESTONE_PREFIX = 'milestone-'
+
+export interface StoryState {
+  seenScenes: string[]
+  unlockedBackgrounds: string[]
+  backgroundKey: string
+}
+
+async function readStoryState(
+  aquariumId: number,
+  backgroundKey: string | null,
+): Promise<StoryState> {
+  const events = await prisma.aquariumEvent.findMany({
+    where: {
+      aquariumId,
+      OR: [
+        { kind: { startsWith: STORY_SEEN_PREFIX } },
+        { kind: { startsWith: MILESTONE_PREFIX } },
+      ],
+    },
+    select: { kind: true },
+  })
+  const seenScenes = new Set<string>()
+  const landmarks = new Set<string>()
+  for (const { kind } of events) {
+    if (kind.startsWith(STORY_SEEN_PREFIX)) {
+      seenScenes.add(kind.slice(STORY_SEEN_PREFIX.length))
+    } else {
+      landmarks.add(kind.slice(MILESTONE_PREFIX.length))
+    }
+  }
+  const unlockedBackgrounds = unlockedBackgroundKeys(landmarks)
+  return {
+    seenScenes: [...seenScenes],
+    unlockedBackgrounds,
+    backgroundKey:
+      backgroundKey && unlockedBackgrounds.includes(backgroundKey)
+        ? backgroundKey
+        : DEFAULT_BACKGROUND_KEY,
+  }
+}
+
+export async function getStoryStateForUser(
+  userId: number,
+  username: string,
+): Promise<StoryState> {
+  const tank = await getOrCreateTankForUser(userId, username)
+  return readStoryState(tank.id, tank.backgroundKey)
+}
+
+export async function markStoryScenesSeenForUser(
+  userId: number,
+  username: string,
+  sceneIds: string[],
+): Promise<StoryState> {
+  const unknown = sceneIds.filter(
+    (id) => !CTHULHUQUARIUM_SCENE_IDS.includes(id),
+  )
+  if (unknown.length) {
+    throw apiError(400, `Unknown scene: ${unknown.join(', ')}`)
+  }
+  const tank = await getOrCreateTankForUser(userId, username)
+  const kinds = [...new Set(sceneIds)].map((id) => STORY_SEEN_PREFIX + id)
+  await prisma.$transaction(async (tx) => {
+    const existing = new Set(
+      (
+        await tx.aquariumEvent.findMany({
+          where: { aquariumId: tank.id, kind: { in: kinds } },
+          select: { kind: true },
+        })
+      ).map((row) => row.kind),
+    )
+    for (const kind of kinds) {
+      if (!existing.has(kind)) await logEvent(tx, tank.id, kind, null)
+    }
+  })
+  return readStoryState(tank.id, tank.backgroundKey)
+}
+
+export async function setTankBackgroundForUser(
+  userId: number,
+  username: string,
+  backgroundKey: string,
+): Promise<StoryState> {
+  const tank = await getOrCreateTankForUser(userId, username)
+  const state = await readStoryState(tank.id, tank.backgroundKey)
+  if (!state.unlockedBackgrounds.includes(backgroundKey)) {
+    throw apiError(403, 'That background has not been handed over yet.')
+  }
+  await prisma.$transaction(async (tx) => {
+    await tx.aquarium.update({
+      where: { id: tank.id },
+      data: { backgroundKey },
+    })
+    await logEvent(tx, tank.id, 'set-background', { backgroundKey })
+  })
+  return { ...state, backgroundKey }
 }

@@ -29,6 +29,7 @@
 <template>
   <ClientOnly>
     <div class="kr-container flex max-w-3xl flex-col gap-3">
+      <cthulhuquarium-dialogue />
       <p v-if="tankStore.error" class="alert alert-error text-sm">
         {{ tankStore.error }}
       </p>
@@ -94,7 +95,10 @@
 
       <div class="flex flex-wrap items-center justify-between gap-2">
         <div class="kr-text-bold-sm flex items-center gap-3">
-          <span class="flex items-center gap-1">
+          <span
+            class="flex items-center gap-1 rounded-full"
+            :class="{ 'cq-focus': storyFocus === 'coins' }"
+          >
             <Icon name="kind-icon:coin" class="size-4 text-warning" />
             {{ tankStore.coins }}
           </span>
@@ -110,6 +114,7 @@
         <button
           type="button"
           class="btn btn-primary btn-sm min-h-11 min-w-11"
+          :class="{ 'cq-focus': storyFocus === 'feed' }"
           :disabled="!tankStore.hungriest"
           @click="onFeed"
         >
@@ -142,6 +147,7 @@
         <button
           type="button"
           class="btn btn-outline btn-xs min-h-11 min-w-11"
+          :class="{ 'cq-focus': storyFocus === 'clean' }"
           :disabled="
             tankStore.debrisLevel <= 0 && tankStore.pendingCleanClicks === 0
           "
@@ -180,6 +186,7 @@
       <canvas
         ref="canvasRef"
         class="aspect-[16/9] w-full cursor-pointer rounded-2xl border border-base-300 bg-base-300 touch-none"
+        :class="{ 'cq-focus': storyFocus === 'tank' }"
         :width="STAGE_WIDTH"
         :height="STAGE_HEIGHT"
         aria-label="Aquarium tank. Tap drifting coins to collect them, or drag a placed decoration to move it."
@@ -214,7 +221,14 @@
             class="kr-panel-compact"
           >
             <div class="flex items-start justify-between gap-2">
-              <div>
+              <cthulhuquarium-sprite
+                :slug="entry.Monster.slug"
+                :label="entry.Monster.name"
+                :fallback="withCthulhuquariumArt(entry.Monster)"
+                :size="64"
+                class="size-16 shrink-0"
+              />
+              <div class="min-w-0 flex-1">
                 <p class="kr-text-bold-sm">{{ entry.Monster.name }}</p>
                 <p class="mt-0.5 text-xs italic opacity-70">
                   {{ entry.Monster.species || entry.Monster.behavior || '—' }}
@@ -316,6 +330,51 @@
 
       <div class="flex flex-col gap-2">
         <p class="kr-text-eyebrow text-xs tracking-wide opacity-60">
+          Behind the glass
+        </p>
+        <div class="flex snap-x gap-2 overflow-x-auto pb-1">
+          <button
+            v-for="background in tankStore.backgrounds"
+            :key="background.key"
+            type="button"
+            class="relative w-40 shrink-0 snap-start overflow-hidden rounded-2xl border-2 text-left transition"
+            :class="
+              background.key === tankStore.backgroundKey
+                ? 'border-primary'
+                : 'border-base-300'
+            "
+            :disabled="!background.unlocked || tankStore.backgroundSaving"
+            :aria-pressed="background.key === tankStore.backgroundKey"
+            @click="tankStore.chooseBackground(background.key)"
+          >
+            <img
+              v-if="backgroundArt(background.key)"
+              :src="backgroundArt(background.key) ?? undefined"
+              :alt="background.name"
+              class="aspect-[16/9] w-full object-cover"
+              :class="{ 'blur-sm grayscale opacity-40': !background.unlocked }"
+            />
+            <div v-else class="aspect-[16/9] w-full bg-base-300" />
+            <div class="p-1.5">
+              <p class="truncate text-xs font-bold">
+                {{ background.unlocked ? background.name : 'Not yet' }}
+              </p>
+              <p
+                v-if="!background.unlocked"
+                class="truncate text-[0.65rem] opacity-60"
+              >
+                {{ backgroundUnlockHint(background.unlock) }}
+              </p>
+            </div>
+          </button>
+        </div>
+      </div>
+
+      <div
+        class="flex flex-col gap-2 rounded-2xl"
+        :class="{ 'cq-focus p-2': storyFocus === 'shop' }"
+      >
+        <p class="kr-text-eyebrow text-xs tracking-wide opacity-60">
           Unlock a new occupant
         </p>
         <!-- t-030: the shop rotates -- this is a slice of what's never been
@@ -354,15 +413,14 @@
                  shapes as wanting: small and square, the intro piece to a
                  text-forward row. -->
             <div
-              class="kr-icon-12 shrink-0 overflow-hidden rounded-2xl border border-base-300"
+              class="size-20 shrink-0 overflow-hidden rounded-2xl border border-base-300 bg-base-200"
             >
-              <kr-art-plate
-                :source="withCthulhuquariumArt(entry)"
-                variant="icon"
-                shape="square"
-                frame="none"
-                fit="cover"
-                placeholder-icon="kind-icon:fish"
+              <cthulhuquarium-sprite
+                :slug="entry.slug"
+                :label="entry.name"
+                :fallback="withCthulhuquariumArt(entry)"
+                :size="80"
+                class="size-full"
               />
             </div>
             <div class="min-w-0 flex-1">
@@ -380,7 +438,7 @@
                 :disabled="!canUnlock(entry)"
                 @click="tankStore.unlock(entry.id)"
               >
-                Unlock ({{ entry.cost }})
+                {{ entry.cost === 0 ? 'Free' : `Unlock (${entry.cost})` }}
               </button>
             </div>
           </div>
@@ -401,7 +459,8 @@
       <div class="flex flex-col gap-2 kr-panel-divider">
         <button
           type="button"
-          class="flex items-center justify-between gap-2 text-left"
+          class="flex items-center justify-between gap-2 rounded-2xl text-left"
+          :class="{ 'cq-focus': storyFocus === 'bestiary' }"
           @click="onToggleBestiary"
         >
           <!-- cthulhuquarium/t-065: the authored cover plate. The book had a
@@ -1255,7 +1314,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import {
   TANK_POLL_INTERVAL_MS,
   useCthulhuquariumTankStore,
@@ -1288,8 +1347,14 @@ import {
   artByName,
   artForEggTier,
   artForSpecies,
+  backgroundArt,
   withCthulhuquariumArt,
 } from '~/utils/cthulhuquariumArt'
+import {
+  drawAnimatedSprite,
+  motionForSpecies,
+  spriteForSpecies,
+} from '~/utils/cthulhuquariumSprites'
 
 /* Fixed logical resolution; CSS scales it to the host width so the canvas
    survives phone widths without its own breakpoint logic. */
@@ -1456,18 +1521,38 @@ type Collector = {
 type FeedCreature = { x: number; y: number; phase: number; lean: number }
 
 const tankStore = useCthulhuquariumTankStore()
+const storyFocus = computed(() => tankStore.activeBeat?.focus ?? null)
+
+const LANDMARK_HINTS: Record<string, string> = {
+  first_full_tank: 'Fill every slot',
+  first_spotless_tank: 'Keep it spotless',
+  first_rivalry_resolved: 'Settle a rivalry',
+  first_evolution: 'Breed something new',
+}
+function backgroundUnlockHint(unlock: string): string {
+  const bestiary = /^bestiary_(\d+)$/.exec(unlock)
+  if (bestiary) return `Know ${bestiary[1]} species`
+  return LANDMARK_HINTS[unlock] ?? 'Charlotte is saving it'
+}
 const userStore = useUserStore()
 const username = computed(() => userStore.username)
 const canvasRef = ref<HTMLCanvasElement | null>(null)
 
-/* cthulhuquarium/t-065: the parlour plate, decoded once and drawn as the
-   tank's backdrop. Plain Image rather than a ref because render() reads it
-   every frame and it never needs to trigger reactivity -- a decode failure
-   simply leaves it incomplete and render() skips it. */
-const parlourImage =
-  import.meta.client && artByName('bg-parlour')
-    ? Object.assign(new Image(), { src: artByName('bg-parlour') as string })
-    : null
+/* The tank's background: the parlour until Charlotte hands over another
+   (canon backgrounds/backgrounds.yaml, chosen via tankStore.chooseBackground).
+   Plain Image rather than a ref because render() reads it every frame; a
+   decode failure leaves it incomplete and render() skips it. */
+let backgroundImage: HTMLImageElement | null = null
+function loadBackground(key: string) {
+  if (!import.meta.client) return
+  const url = backgroundArt(key) ?? backgroundArt('parlour')
+  backgroundImage = url ? Object.assign(new Image(), { src: url }) : null
+}
+loadBackground(tankStore.backgroundKey)
+watch(
+  () => tankStore.backgroundKey,
+  (key) => loadBackground(key),
+)
 const visibilitySaving = ref(false)
 
 // Display-only mirror of server/utils/aquariumEconomy.ts's TICK_SECONDS,
@@ -1677,6 +1762,21 @@ function stockFor(swimmer: Swimmer): TankStock | undefined {
 // flight falls back to the original primitive draw, so nothing ever renders
 // blank.
 const fishImageCache = new Map<string, HTMLImageElement | null>()
+const spriteImageCache = new Map<string, HTMLImageElement | null>()
+
+// The cut-out sprite (utils/cthulhuquariumSprites.ts) is what swims; the card
+// plate below is only the fallback for a species whose sprite has not been
+// rendered yet. Same reserve-then-load caching as getFishImage.
+function getSpriteImage(slug: string): HTMLImageElement | null {
+  if (spriteImageCache.has(slug)) return spriteImageCache.get(slug) ?? null
+  const url = spriteForSpecies(slug)
+  spriteImageCache.set(slug, null)
+  if (!url) return null
+  const image = new Image()
+  image.onload = () => spriteImageCache.set(slug, image)
+  image.src = url
+  return null
+}
 
 function getFishImage(slug: string): HTMLImageElement | null {
   if (fishImageCache.has(slug)) return fishImageCache.get(slug) ?? null
@@ -1708,11 +1808,31 @@ function drawFish(
   // Hungry occupants desaturate and dim rather than vanishing, so a
   // neglected tank reads as neglected at a glance.
   const life = 0.3 + (hunger / 100) * 0.7
-  const image = getFishImage(monster.slug)
+  const sprite = getSpriteImage(monster.slug)
+  const image = sprite ? null : getFishImage(monster.slug)
 
   context.save()
   context.translate(swimmer.x, swimmer.y)
   context.scale(facing, 1)
+
+  if (sprite) {
+    context.globalAlpha = life
+    context.filter = hunger < 100 ? `saturate(${40 + hunger * 0.6}%)` : 'none'
+    const d = size * 3
+    drawAnimatedSprite(
+      context,
+      sprite,
+      motionForSpecies(monster.slug),
+      performance.now(),
+      d,
+      d,
+      (swimmer.stockId % 17) / 17,
+    )
+    context.filter = 'none'
+    context.globalAlpha = 1
+    context.restore()
+    return
+  }
 
   if (image) {
     // Art plates are square, subject-centered portraits -- draw one square,
@@ -1870,8 +1990,11 @@ function getWaterGradient(context: CanvasRenderingContext2D): CanvasGradient {
   // drawn underneath reads as a room behind the glass. Kept deep enough that
   // the water still dominates and the procedural occupants stay legible
   // against it -- the room is atmosphere, not the subject.
-  waterGradient.addColorStop(0, 'rgba(13, 43, 42, 0.82)')
-  waterGradient.addColorStop(1, 'rgba(4, 16, 15, 0.93)')
+  // Lightened 2026-09-30 ("real backgrounds"): at 0.82-0.93 the background
+  // was a teal wash. Cut-out sprites carry their own contrast, so the room
+  // can finally be seen through the water.
+  waterGradient.addColorStop(0, 'rgba(13, 43, 42, 0.22)')
+  waterGradient.addColorStop(1, 'rgba(4, 16, 15, 0.5)')
   waterGradientContext = context
   return waterGradient
 }
@@ -1912,8 +2035,8 @@ function render(context: CanvasRenderingContext2D) {
   // against a 640x360 stage -- both exactly 16:9, so it fills without cropping.
   // Purely decorative: if the image has not decoded yet (or is missing) the
   // gradient below is opaque enough on its own and nothing else changes.
-  if (parlourImage?.complete && parlourImage.naturalWidth > 0) {
-    context.drawImage(parlourImage, 0, 0, STAGE_WIDTH, STAGE_HEIGHT)
+  if (backgroundImage?.complete && backgroundImage.naturalWidth > 0) {
+    context.drawImage(backgroundImage, 0, 0, STAGE_WIDTH, STAGE_HEIGHT)
   }
 
   context.fillStyle = getWaterGradient(context)
@@ -2321,3 +2444,17 @@ onBeforeUnmount(() => {
   tankStore.flushCleanNow()
 })
 </script>
+
+<style scoped>
+.cq-focus {
+  outline: 3px solid var(--color-primary);
+  outline-offset: 3px;
+  animation: cq-focus-pulse 1.4s ease-in-out infinite;
+}
+@keyframes cq-focus-pulse {
+  50% {
+    outline-offset: 6px;
+    outline-color: transparent;
+  }
+}
+</style>

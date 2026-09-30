@@ -18,7 +18,7 @@
         +{{ tankStore.lastCollectCoins }} from scales
       </p>
     </div>
-    <div class="grid grid-cols-1 gap-2 sm:grid-cols-2">
+    <div class="grid grid-cols-[repeat(auto-fit,minmax(15rem,1fr))] gap-2">
       <div
         v-for="upgrade in tankStore.upgrades"
         :key="upgrade.track"

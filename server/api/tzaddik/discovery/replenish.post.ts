@@ -73,7 +73,8 @@ const DISCOVERY_SCHEMA = {
             type: 'array',
             minItems: 1,
             maxItems: 4,
-            uniqueItems: true,
+            // No uniqueItems: OpenAI strict json_schema rejects the keyword
+            // (HTTP 400 on every replenish run). normalizedTags() dedupes.
             items: { type: 'string', enum: AUTO_TAGS },
           },
           countryCode: {

@@ -154,6 +154,24 @@
           <div class="pointer-events-auto flex items-center gap-2">
             <button
               type="button"
+              class="btn btn-circle btn-sm min-h-11 min-w-11 border-base-300 bg-base-100/80 shadow backdrop-blur-sm"
+              :aria-pressed="tankStore.soundOn"
+              :aria-label="
+                tankStore.soundOn ? 'Mute the tank' : 'Listen to the tank'
+              "
+              @click="onToggleSound"
+            >
+              <Icon
+                :name="
+                  tankStore.soundOn
+                    ? 'kind-icon:volume-high'
+                    : 'kind-icon:volume'
+                "
+                class="size-4"
+              />
+            </button>
+            <button
+              type="button"
               class="btn btn-sm min-h-11 gap-2 border-base-300 bg-base-100/80 shadow backdrop-blur-sm"
               :class="{ 'cq-focus': storyFocus === 'clean' }"
               :disabled="
@@ -529,70 +547,7 @@
           <p v-if="tankStore.bestiaryLoading" class="kr-text-faded-xs">
             Reading the book…
           </p>
-          <div
-            v-else
-            class="grid grid-cols-[repeat(auto-fit,minmax(15rem,1fr))] gap-2"
-          >
-            <div
-              v-for="entry in tankStore.bestiary"
-              :key="entry.id"
-              class="flex items-start gap-2 kr-panel-compact"
-              :class="{ 'opacity-60': !entry.collected }"
-            >
-              <!-- cthulhuquarium/t-067: see the fish-list wrapper comment
-                   above -- same width-cascade fix. -->
-              <div
-                class="kr-icon-12 shrink-0 overflow-hidden rounded-2xl border border-base-300"
-              >
-                <kr-art-plate
-                  :source="
-                    entry.collected ? withCthulhuquariumArt(entry) : null
-                  "
-                  variant="icon"
-                  shape="square"
-                  frame="none"
-                  fit="cover"
-                  :placeholder-icon="
-                    entry.collected ? 'kind-icon:fish' : 'kind-icon:lock'
-                  "
-                />
-              </div>
-              <div class="min-w-0 flex-1">
-                <p class="kr-text-bold-sm truncate">{{ entry.name }}</p>
-                <p class="mt-0.5 line-clamp-2 text-xs italic opacity-70">
-                  {{
-                    entry.collected
-                      ? entry.fieldNote || 'Nothing is written down yet.'
-                      : 'Not yet observed.'
-                  }}
-                </p>
-                <!-- Best-individual-seen record (t-031). Stays hidden until
-                     cthulhuquarium/t-029 (genetics) rolls a first individual
-                     -- there is nothing honest to show before then. -->
-                <p
-                  v-if="entry.bestStats"
-                  class="mt-1 text-[0.65rem] uppercase tracking-wide opacity-60"
-                >
-                  Best seen: {{ formatBestStats(entry.bestStats) }}
-                </p>
-                <!-- Re-order (t-031, sell path shipped in t-030): the book
-                     remembers a species whether or not it's currently in
-                     the tank, so a sold species is re-orderable from here
-                     regardless of today's rotating shop stock. -->
-                <button
-                  v-if="entry.collected && !entry.currentlyOwned"
-                  type="button"
-                  class="btn btn-outline btn-xs min-h-11 mt-1"
-                  @click="tankStore.unlock(entry.id)"
-                >
-                  Re-order
-                </button>
-              </div>
-            </div>
-            <p v-if="!tankStore.bestiary.length" class="kr-text-faded-xs">
-              Nothing in the book yet.
-            </p>
-          </div>
+          <cthulhuquarium-ichthyonomicon v-else />
         </template>
       </div>
 
@@ -1403,6 +1358,8 @@ import {
   type SwimState,
 } from '~/utils/cthulhuquariumMotion'
 import { CTHULHUQUARIUM_VOICES } from '~/utils/cthulhuquariumCanon.generated'
+import { formatBestStats } from '~/utils/cthulhuquariumBook'
+import { TankSound } from '~/utils/cthulhuquariumSound'
 import {
   createAmbience,
   drawAmbienceBack,
@@ -1762,25 +1719,6 @@ async function onConfirmBreed(): Promise<void> {
   await tankStore.breed(pair.a.id, pair.b.id)
 }
 
-// t-031: compact "best seen" line for the Ichthyonomicon. Only ever called
-// with a non-null block (the template guards on `entry.bestStats`), so a
-// still-null individual stat here means "never recorded," not "zero."
-const BEST_STAT_LABELS: Record<keyof BestiaryStatBlock, string> = {
-  charm: 'CHA',
-  empathy: 'EMP',
-  grace: 'GRA',
-  luck: 'LUC',
-  might: 'MGT',
-  wits: 'WIT',
-}
-
-function formatBestStats(stats: BestiaryStatBlock): string {
-  return (Object.keys(BEST_STAT_LABELS) as Array<keyof BestiaryStatBlock>)
-    .filter((key) => stats[key] != null)
-    .map((key) => `${BEST_STAT_LABELS[key]} ${stats[key]}`)
-    .join(' · ')
-}
-
 // t-059: THIS individual's own rolled stats live on TankStock as
 // stat<Name> (t-029/t-055), not as a BestiaryStatBlock -- reshape once here
 // so the display can reuse formatBestStats/BEST_STAT_LABELS unchanged
@@ -1814,6 +1752,20 @@ function spawnSwimmer(stock: TankStock): Swimmer {
 }
 
 const ambience = createAmbience(STAGE_WIDTH, STAGE_HEIGHT)
+const tankSound = new TankSound()
+
+function onToggleSound() {
+  const on = !tankStore.soundOn
+  tankStore.setSound(on)
+  if (on) tankSound.start()
+  else tankSound.stop()
+}
+
+// Browsers only allow audio after a gesture: the first tap on the page
+// starts the room tone for a player who left it switched on last visit.
+function resumeSoundOnGesture() {
+  if (tankStore.soundOn && !tankSound.running) tankSound.start()
+}
 let pointerOnStage: { x: number; y: number } | null = null
 
 /** Keep one drawn swimmer per stocked occupant. */
@@ -2274,7 +2226,8 @@ function step(delta: number) {
     })
     swimmer.facing = facingOf(swimmer, swimmer.facing)
   }
-  stepAmbience(ambience, STAGE_WIDTH, STAGE_HEIGHT, delta)
+  const popped = stepAmbience(ambience, STAGE_WIDTH, STAGE_HEIGHT, delta)
+  if (popped > 0 && Math.random() < 0.35) tankSound.plink()
 
   feed.value = feed.value.filter((creature) => {
     creature.y += FOOD_FALL_SPEED * delta
@@ -2380,7 +2333,10 @@ function onCanvasPointerDown(event: PointerEvent) {
   for (const swimmer of swimmers.value) {
     if (startle(swimmer, coords.x, coords.y)) scattered = true
   }
-  if (scattered) tankStore.sayBark('startle', 0.25)
+  if (scattered) {
+    tankSound.knock()
+    tankStore.sayBark('startle', 0.25)
+  }
 
   const hitDecor = hitTestDecor(coords.x, coords.y)
   if (hitDecor) {
@@ -2407,6 +2363,7 @@ function onCanvasPointerDown(event: PointerEvent) {
   if (index !== -1) {
     motes.value.splice(index, 1)
     tankStore.requestCollect()
+    tankSound.chime()
   }
 }
 
@@ -2445,6 +2402,7 @@ async function onFeed() {
   if (!target) return
   const ok = await tankStore.feed(target.id)
   if (!ok) return
+  tankSound.plop()
   tankStore.sayBark('fed', 0.5)
   const swimmer = swimmers.value.find((entry) => entry.stockId === target.id)
   feed.value.push({
@@ -2587,15 +2545,18 @@ onMounted(async () => {
   syncSwimmers()
   if (!document.hidden) startLoops()
   document.addEventListener('visibilitychange', handleVisibilityChange)
+  document.addEventListener('pointerdown', resumeSoundOnGesture)
 })
 
 onBeforeUnmount(() => {
   document.removeEventListener('visibilitychange', handleVisibilityChange)
+  document.removeEventListener('pointerdown', resumeSoundOnGesture)
   stopLoops()
   // A click right before navigating away should still land instead of
   // being dropped along with the debounce timer.
   tankStore.flushCleanNow()
   tankStore.flushCollectNow()
+  tankSound.dispose()
 })
 </script>
 

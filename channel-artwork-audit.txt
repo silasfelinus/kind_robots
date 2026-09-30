@@ -2,5 +2,3 @@
 > audit:channel-assets
 > tsx utils/scripts/auditChannelAssets.ts
 
-Channel artwork audit checked 65 local URL references across 4 channels.
-All resolved channel and tab artwork exists in public/ or the media origin.

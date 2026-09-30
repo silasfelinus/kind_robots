@@ -5,6 +5,7 @@
 // moving on the upper water, the surface line, and a sheen on the front glass.
 // Pure canvas drawing with its own small particle state; the swim canvas calls
 // stepAmbience/drawAmbienceBack/drawAmbienceFront around its occupants.
+// stepAmbience returns how many bubbles reached the surface, for the sound.
 
 export interface Bubble {
   x: number
@@ -56,7 +57,7 @@ export function stepAmbience(
   height: number,
   delta: number,
   random: () => number = Math.random,
-): void {
+): number {
   state.time += delta
   state.nextBubble -= delta
   if (state.nextBubble <= 0) {
@@ -70,6 +71,7 @@ export function stepAmbience(
       speed: 30 + random() * 40,
     })
   }
+  const before = state.bubbles.length
   state.bubbles = state.bubbles.filter((bubble) => {
     bubble.y -= bubble.speed * delta
     bubble.wobble += delta * 4
@@ -77,6 +79,7 @@ export function stepAmbience(
     bubble.r += delta * 0.25
     return bubble.y > height * 0.035
   })
+  const popped = before - state.bubbles.length
   for (const speck of state.specks) {
     speck.y += (2 + speck.r * 2) * delta
     speck.x +=
@@ -86,6 +89,7 @@ export function stepAmbience(
       speck.x = random() * width
     }
   }
+  return popped
 }
 
 /** Light and particles that sit behind the occupants. */

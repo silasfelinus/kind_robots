@@ -41,6 +41,7 @@ export interface SpokenBark {
 // always wins over a bark.
 const BARK_COOLDOWN_MS = 45_000
 const BARK_SHOW_MS = 7_000
+const SOUND_KEY = 'cthulhuquarium:sound'
 
 function hashString(text: string): number {
   let hash = 0
@@ -55,6 +56,7 @@ export function useCthulhuquariumStory() {
   const backgroundSaving = ref(false)
   const storyError = ref('')
   const spokenBark = ref<SpokenBark | null>(null)
+  const soundOn = ref(false)
   let lastBarkAt = 0
   let barkTimer: ReturnType<typeof setTimeout> | null = null
 
@@ -98,6 +100,7 @@ export function useCthulhuquariumStory() {
     const res = await performFetch<StoryState>('/api/aquarium/story')
     if (!res.success || !res.data) return
     state.value = res.data
+    loadSoundPreference()
     queueScene('intro')
   }
 
@@ -174,6 +177,26 @@ export function useCthulhuquariumStory() {
     spokenBark.value = null
   }
 
+  /** Per-browser preference: the tank's room tone is off until asked for. */
+  function loadSoundPreference(): void {
+    if (!import.meta.client) return
+    try {
+      soundOn.value = localStorage.getItem(SOUND_KEY) === 'on'
+    } catch {
+      soundOn.value = false
+    }
+  }
+
+  function setSound(on: boolean): void {
+    soundOn.value = on
+    if (!import.meta.client) return
+    try {
+      localStorage.setItem(SOUND_KEY, on ? 'on' : 'off')
+    } catch {
+      // Private windows can refuse storage; the toggle still works this visit.
+    }
+  }
+
   async function chooseBackground(key: string): Promise<boolean> {
     if (key === backgroundKey.value) return true
     backgroundSaving.value = true
@@ -215,5 +238,8 @@ export function useCthulhuquariumStory() {
     screenBark,
     sayBark,
     dismissBark,
+    soundOn,
+    loadSoundPreference,
+    setSound,
   }
 }

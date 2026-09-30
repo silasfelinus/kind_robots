@@ -44,12 +44,20 @@ for (const mode of modes) {
   const state = spawnSwimState(mode, W, H, random)
   for (let tick = 0; tick < 60 * 120; tick += 1) {
     stepSwimState(state, env({ random }))
-    assert.ok(state.x >= 0 && state.x <= W, `${mode} left the tank (x=${state.x})`)
-    assert.ok(state.y >= 0 && state.y <= H, `${mode} left the tank (y=${state.y})`)
+    assert.ok(
+      state.x >= 0 && state.x <= W,
+      `${mode} left the tank (x=${state.x})`,
+    )
+    assert.ok(
+      state.y >= 0 && state.y <= H,
+      `${mode} left the tank (y=${state.y})`,
+    )
     assert.ok(Number.isFinite(state.angle), `${mode} angle went non-finite`)
   }
 }
-console.log(`✅ all ${modes.length} modes stay inside the tank over two minutes`)
+console.log(
+  `✅ all ${modes.length} modes stay inside the tank over two minutes`,
+)
 
 const anchor = spawnSwimState('anchor', W, H, seeded(1))
 const start = { x: anchor.x, y: anchor.y }
@@ -93,5 +101,7 @@ console.log('✅ swimmers path toward food')
 assert.equal(toBehaviorMode('HOVER'), 'hover')
 assert.equal(toBehaviorMode('something-new'), 'drift')
 assert.equal(toBehaviorMode(null), 'drift')
-console.log('✅ unknown behaviors fall back to drift, never to an invisible fish')
+console.log(
+  '✅ unknown behaviors fall back to drift, never to an invisible fish',
+)
 console.log('✅ verifyCthulhuquariumMotion: all assertions passed')

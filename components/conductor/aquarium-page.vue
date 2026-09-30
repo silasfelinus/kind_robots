@@ -7,7 +7,7 @@
     :show-deliverables="false"
   >
     <template #interactive>
-      <CthulhuquariumGame />
+      <CthulhuquariumPlay />
     </template>
   </project-front-page>
 </template>

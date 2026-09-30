@@ -1,0 +1,37 @@
+name: Sync Monster games tags
+
+# cthulhuquarium/t-022: corrects stale shared-bestiary `games` tags on live
+# Monster rows from the fish bible. Dry run by default.
+on:
+  workflow_dispatch:
+    inputs:
+      write:
+        description: 'Apply changes (otherwise dry run)'
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: silasfelinus/cthulhuquarium
+          path: cthulhuquarium
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '24'
+      - run: npm install --no-save --no-package-lock yaml@2
+      - name: Sync games tags
+        env:
+          SYNC_BASE_URL: https://kindrobots.org
+          SYNC_ADMIN_TOKEN: ${{ secrets.CYPRESS_BETA_ADMIN_TOKEN }}
+        run: |
+          flag=""
+          if [ "${{ inputs.write }}" = "true" ]; then flag="--write"; fi
+          node scripts/sync-monster-games.mjs cthulhuquarium/fish $flag

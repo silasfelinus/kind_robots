@@ -22,6 +22,9 @@ const ALLOWLIST_PREFIXES = [
   // davinci-seed-verify.yml checks out silasfelinus/conductor into this path
   // and runs its generator script from there -- not part of this repo tree.
   'conductor-src/',
+  // sync-monster-games.yml checks out silasfelinus/cthulhuquarium into this
+  // path to read the fish bible -- not part of this repo tree.
+  'cthulhuquarium/',
   // Build output, never checked into git -- whether it exists depends on
   // whether a prior step in the same job ran an install, not on repo state.
   'node_modules/',

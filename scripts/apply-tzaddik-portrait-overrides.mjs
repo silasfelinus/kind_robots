@@ -1,7 +1,6 @@
 import { readFile } from 'node:fs/promises'
 
-const configPath =
-  process.argv[2] || 'config/tzaddik-portrait-overrides.json'
+const configPath = process.argv[2] || 'config/tzaddik-portrait-overrides.json'
 const baseUrl = String(
   process.env.TZADDIK_BASE_URL || 'https://kindrobots.org',
 ).replace(/\/$/, '')

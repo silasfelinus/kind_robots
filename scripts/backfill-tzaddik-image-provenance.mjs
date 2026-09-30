@@ -75,7 +75,7 @@ if (needsSourceRefresh.length) {
         'content-type': 'application/json',
         'x-beta-admin-token': adminToken,
       },
-      body: JSON.stringify({ candidateId: candidate.id }),
+      body: JSON.stringify({ candidateId: candidate.id, force: true }),
     })
     console.log(
       `rechecked: ${candidate.displayName} — ${result.data?.status || 'unknown'}`,

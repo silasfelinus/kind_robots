@@ -77,11 +77,19 @@ jobs:
           target=120
 
           for attempt in $(seq 1 10); do
-            response="$(curl -fsS -X POST https://kindrobots.org/api/tzaddik/discovery/replenish \
+            response_file="$(mktemp)"
+            http_status="$(curl -sS -o "$response_file" -w '%{http_code}' -X POST https://kindrobots.org/api/tzaddik/discovery/replenish \
               -H "x-beta-admin-token: $ADMIN_TOKEN" \
               --json '{}')"
+            response="$(cat "$response_file")"
+            rm -f "$response_file"
 
-            echo "$response" | jq -c '{message, data}'
+            echo "$response" | jq -c '{message, data, statusCode}' || printf '%s\n' "$response"
+
+            if [ "$http_status" -lt 200 ] || [ "$http_status" -ge 300 ]; then
+              echo "::error::Discovery replenishment returned HTTP $http_status."
+              exit 1
+            fi
 
             pool="$(echo "$response" | jq -r '.data.poolSize // 0')"
             if [ "$pool" -ge "$target" ]; then

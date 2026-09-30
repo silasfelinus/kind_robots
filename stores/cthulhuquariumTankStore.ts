@@ -108,6 +108,17 @@ export interface TankEgg {
   purchasedAt: string
 }
 
+// cthulhuquarium/t-071: one coin upgrade track as returned in Tank.upgrades.
+// nextCost is null once the track is maxed.
+export interface TankUpgrade {
+  track: string
+  title: string
+  description: string
+  level: number
+  maxLevel: number
+  nextCost: number | null
+}
+
 export interface Tank {
   id: number
   slug: string
@@ -127,6 +138,13 @@ export interface Tank {
   effectiveSizeCap: number
   debrisLevel: number
   lastCleanedAt: string | null
+  // cthulhuquarium/t-071: server-computed shed-scale cadence and bank cap
+  // (server/utils/aquariumCollect.ts) plus the coin upgrade track.
+  collectSpawnSeconds: number
+  collectMaxBanked: number
+  foodLevel: number
+  dropSpeedLevel: number
+  upgrades: TankUpgrade[]
   createdAt: string
   updatedAt: string | null
   Stock: TankStock[]
@@ -337,6 +355,24 @@ export interface RevealedBreed {
   evolved: boolean
 }
 
+// cthulhuquarium/t-071: shed scales clicked in the tank are batched the same
+// way Clean clicks are (see CLEAN_DEBOUNCE_MS), then credited server-side.
+const COLLECT_DEBOUNCE_MS = 400
+
+interface CollectResponse {
+  aquarium: Tank
+  requested: number
+  credited: number
+  coinsEarned: number
+}
+
+interface PurchaseUpgradeResponse {
+  aquarium: Tank
+  track: string
+  level: number
+  cost: number
+}
+
 interface CleanResponse {
   aquarium: Tank
   debrisLevel: number
@@ -450,6 +486,11 @@ export const useCthulhuquariumTankStore = defineStore(
     // see flushClean() below. Shown next to the Clean button so a click
     // spree still gets instant feedback even though the write is batched.
     const pendingCleanClicks = ref(0)
+    // cthulhuquarium/t-071: scales clicked but not yet flushed, and what the
+    // last flush actually paid (display-only -- the balance is tank.coins).
+    const pendingCollect = ref(0)
+    const lastCollectCoins = ref(0)
+    const upgradePending = ref<string | null>(null)
     const loading = ref(false)
     const catalogLoading = ref(false)
     const error = ref('')
@@ -594,6 +635,11 @@ export const useCthulhuquariumTankStore = defineStore(
     const setSlotsCap = computed(() => tank.value?.setSlotsCap ?? 0)
     const placedDecor = computed(() => tank.value?.Decor ?? [])
     const debrisLevel = computed(() => tank.value?.debrisLevel ?? 0)
+    const upgrades = computed(() => tank.value?.upgrades ?? [])
+    const collectSpawnSeconds = computed(
+      () => tank.value?.collectSpawnSeconds ?? 0,
+    )
+    const collectMaxBanked = computed(() => tank.value?.collectMaxBanked ?? 0)
     const hungriest = computed<TankStock | null>(() =>
       stock.value.reduce<TankStock | null>(
         (worst, entry) =>
@@ -789,6 +835,61 @@ export const useCthulhuquariumTankStore = defineStore(
     function flushCleanNow(): void {
       clearTimeout(cleanDebounceTimer)
       void flushClean()
+    }
+
+    // cthulhuquarium/t-071: click-for-coins. requestCollect() queues one
+    // clicked scale; the debounced flush reports the count and the server
+    // decides what it was actually worth (collectAllowance/collectCoins).
+    let collectDebounceTimer: ReturnType<typeof setTimeout> | undefined
+
+    async function flushCollect(): Promise<void> {
+      const count = pendingCollect.value
+      pendingCollect.value = 0
+      if (count <= 0) return
+      const res = await performFetch<CollectResponse>('/api/aquarium/collect', {
+        method: 'POST',
+        body: JSON.stringify({ count }),
+      })
+      if (res.success && res.data) {
+        tank.value = res.data.aquarium
+        lastCollectCoins.value = res.data.coinsEarned
+      } else {
+        error.value = res.message || 'Could not collect those scales.'
+      }
+    }
+
+    function requestCollect(): void {
+      pendingCollect.value += 1
+      clearTimeout(collectDebounceTimer)
+      collectDebounceTimer = setTimeout(() => {
+        void flushCollect()
+      }, COLLECT_DEBOUNCE_MS)
+    }
+
+    function flushCollectNow(): void {
+      clearTimeout(collectDebounceTimer)
+      void flushCollect()
+    }
+
+    async function purchaseUpgrade(track: string): Promise<boolean> {
+      upgradePending.value = track
+      try {
+        const res = await performFetch<PurchaseUpgradeResponse>(
+          '/api/aquarium/upgrade',
+          {
+            method: 'POST',
+            body: JSON.stringify({ track }),
+          },
+        )
+        if (res.success && res.data) {
+          tank.value = res.data.aquarium
+          return true
+        }
+        error.value = res.message || 'Could not buy that upgrade.'
+        return false
+      } finally {
+        upgradePending.value = null
+      }
     }
 
     async function loadBestiary(): Promise<void> {
@@ -1120,6 +1221,15 @@ export const useCthulhuquariumTankStore = defineStore(
       offlineEarnings,
       offlineTicksProcessed,
       pendingCleanClicks,
+      pendingCollect,
+      lastCollectCoins,
+      upgradePending,
+      upgrades,
+      collectSpawnSeconds,
+      collectMaxBanked,
+      requestCollect,
+      flushCollectNow,
+      purchaseUpgrade,
       loading,
       catalogLoading,
       error,

@@ -6,13 +6,12 @@
      number, it only renders what the store last loaded and asks the store
      to feed/unlock/settle.
 
-     Design notes for the reviewer (t-011's task note calls for "collectibles
-     drift up and pay coins on click", but economy.yaml has no click-for-
-     coins income path -- production is entirely tick-settled server-side,
-     see server/utils/aquariumEconomy.ts's settleTick). Rather than invent a
-     client-authoritative click economy, a settled tick's coinsEarned spawns
-     drifting motes as a VISUAL reveal of coins the server already credited;
-     clicking one just dismisses it. No extra request, no new balance path.
+     Shed scales (cthulhuquarium/t-071, DESIGN-BRIEF MVP item 2): fish shed a
+     scale every tank.collectSpawnSeconds; scales drift up and wait at the
+     surface (at most tank.collectMaxBanked). Clicking one queues it with the
+     store's requestCollect(); the server credits only what the elapsed time
+     could have spawned (server/utils/aquariumCollect.ts), so the canvas
+     never decides what a scale is worth.
 
      Fish render as real art where a species has a delivered plate
      (cthulhuquarium/t-070, following t-065's bestiary/catalog delivery --
@@ -387,6 +386,8 @@
           </button>
         </div>
       </div>
+
+      <cthulhuquarium-upgrades />
 
       <div
         class="flex flex-col gap-2 rounded-2xl"
@@ -1419,10 +1420,8 @@ const STAGE_HEIGHT = 360
 const RENDER_SCALE = 2
 
 const MOTE_RADIUS = 9
+const SCALE_SURFACE_Y = 22
 const FOOD_FALL_SPEED = 70
-/* Caps how many motes one settled tick can spawn at once -- a long-idle
-   catch-up shouldn't paper the tank in coins, just show a satisfying handful. */
-const MAX_MOTE_BATCH = 6
 
 type BehaviorProfile = {
   speed: number
@@ -1530,13 +1529,11 @@ const SWIM_SPEED_MULTIPLIER = 1.4
 // t-026 made the two economically identical but only idle_hoarder is a pure
 // stat, and Silas's own note on roaming_collector asked for it to "visibly
 // move around the tank... it is a thing to watch." This sprite is that
-// visual and nothing else: it drifts, and when it passes near an
-// already-spawned mote it dismisses that mote the same way a tap does (the
-// coins that mote represents were already credited by the tick that spawned
-// it) -- it must never award coins or spawn a mote of its own.
+// visual and nothing else: it drifts. Since t-071 the drifting scales are
+// real click income, so it leaves them alone -- its bonus is already paid by
+// settleTick, and eating a scale would take a coin from the player.
 const ROAMING_COLLECTOR_SET_KIND = 'roaming_collector'
 const COLLECTOR_SPEED = 30
-const COLLECTOR_RADIUS = 16
 
 // Deterministic fallback hue for a species Monster.hue hasn't been assigned
 // yet -- same slug always reads the same color instead of shifting on
@@ -1695,6 +1692,7 @@ const roamingCollectorEquipped = computed(() =>
 
 let frame = 0
 let lastFrameAt = 0
+let scaleClock = 0
 let pollTimer: ReturnType<typeof setInterval> | null = null
 
 // cthulhuquarium/t-057: bumped alongside pollTick's own 20s cadence (see
@@ -2289,11 +2287,22 @@ function step(delta: number) {
     return !eaten && creature.y < STAGE_HEIGHT - 8
   })
 
-  motes.value = motes.value.filter((mote) => {
-    mote.y -= 26 * delta
-    mote.x += mote.drift * delta
-    return mote.y > 10
-  })
+  for (const mote of motes.value) {
+    if (mote.y <= SCALE_SURFACE_Y) continue
+    mote.y = Math.max(SCALE_SURFACE_Y, mote.y - 26 * delta)
+    mote.x = Math.min(
+      STAGE_WIDTH - 20,
+      Math.max(20, mote.x + mote.drift * delta),
+    )
+  }
+  scaleClock += delta
+  if (
+    tankStore.collectSpawnSeconds > 0 &&
+    scaleClock >= tankStore.collectSpawnSeconds
+  ) {
+    scaleClock = 0
+    if (motes.value.length < tankStore.collectMaxBanked) spawnScale()
+  }
 
   stepCollector(delta)
 }
@@ -2320,16 +2329,6 @@ function stepCollector(delta: number) {
   if (bot.x < 24 || bot.x > STAGE_WIDTH - 24) bot.vx *= -1
   if (bot.y < STAGE_HEIGHT * 0.4 || bot.y > STAGE_HEIGHT - 24) bot.vy *= -1
   bot.collectFlash = Math.max(0, bot.collectFlash - delta * 2)
-
-  // Dismisses the nearest passing mote exactly like a tap would -- no coins
-  // change hands here, settleTick already credited them when the mote spawned.
-  const index = motes.value.findIndex(
-    (mote) => Math.hypot(mote.x - bot.x, mote.y - bot.y) <= COLLECTOR_RADIUS,
-  )
-  if (index !== -1) {
-    motes.value.splice(index, 1)
-    bot.collectFlash = 1
-  }
 }
 
 function loop(timestamp: number) {
@@ -2345,18 +2344,15 @@ function loop(timestamp: number) {
   frame = window.requestAnimationFrame(loop)
 }
 
-function spawnMotes(coinsEarned: number) {
-  const count = Math.min(
-    MAX_MOTE_BATCH,
-    Math.max(1, Math.round(coinsEarned / 5)),
-  )
-  for (let index = 0; index < count; index += 1) {
-    motes.value.push({
-      x: 30 + Math.random() * (STAGE_WIDTH - 60),
-      y: STAGE_HEIGHT - 20 - Math.random() * 30,
-      drift: (Math.random() - 0.5) * 14,
-    })
-  }
+function spawnScale() {
+  const shedder =
+    swimmers.value[Math.floor(Math.random() * swimmers.value.length)]
+  if (!shedder) return
+  motes.value.push({
+    x: shedder.x,
+    y: shedder.y,
+    drift: (Math.random() - 0.5) * 14,
+  })
 }
 
 // cthulhuquarium/t-017: the canvas now handles three distinct gestures
@@ -2408,9 +2404,10 @@ function onCanvasPointerDown(event: PointerEvent) {
   const index = motes.value.findIndex(
     (mote) => Math.hypot(mote.x - coords.x, mote.y - coords.y) <= hitRadius,
   )
-  // Tapping a mote just dismisses it -- the coins it represents were
-  // already credited by the tick settlement that spawned it.
-  if (index !== -1) motes.value.splice(index, 1)
+  if (index !== -1) {
+    motes.value.splice(index, 1)
+    tankStore.requestCollect()
+  }
 }
 
 function onCanvasPointerLeave() {
@@ -2464,8 +2461,7 @@ function onClean() {
 }
 
 async function pollTick() {
-  const earned = await tankStore.settleTick()
-  if (earned > 0) spawnMotes(earned)
+  await tankStore.settleTick()
   const hungriest = tankStore.hungriest
   if (hungriest && hungriest.hunger < 30) tankStore.sayBark('hungry', 0.3)
   else tankStore.sayBark('idle', 0.08)
@@ -2599,6 +2595,7 @@ onBeforeUnmount(() => {
   // A click right before navigating away should still land instead of
   // being dropped along with the debounce timer.
   tankStore.flushCleanNow()
+  tankStore.flushCollectNow()
 })
 </script>
 

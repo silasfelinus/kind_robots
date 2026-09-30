@@ -70,6 +70,18 @@ import {
   FIRST_RIVALRY_RESOLVED_MILESTONE_ID,
   rivalryMilestoneState,
 } from './aquariumRivalryMilestone'
+import {
+  collectAllowance,
+  collectCoins,
+  collectSpawnSeconds,
+  COLLECT_MAX_BANKED,
+  discountedFeedCost,
+  tankProductionPerTick,
+  UPGRADE_CATALOG,
+  UPGRADE_TRACKS,
+  upgradeCost,
+  type UpgradeTrack,
+} from './aquariumCollect'
 
 function apiError(statusCode: number, message: string): Error {
   const error = new Error(message) as Error & { statusCode: number }
@@ -222,6 +234,10 @@ const ownedAquariumSelect = {
   // so settleTickForUser can read it back for rivalryMilestoneState without
   // a second query, same discipline as debrisEverHigh above.
   rivalryObserved: true,
+  // cthulhuquarium/t-071: collect anchor + upgrade levels (aquariumCollect.ts).
+  collectAnchorAt: true,
+  foodLevel: true,
+  dropSpeedLevel: true,
   lastCleanedAt: true,
   createdAt: true,
   updatedAt: true,
@@ -264,9 +280,52 @@ type ClientStock = OwnedAquarium['Stock'][number] & {
   sellPrice: number
 }
 
+// cthulhuquarium/t-071: one upgrade track as the shop shows it -- level and
+// next price are server-computed (aquariumCollect.ts upgradeCost), nextCost
+// null once maxed.
+export interface ClientUpgrade {
+  track: UpgradeTrack
+  title: string
+  description: string
+  level: number
+  maxLevel: number
+  nextCost: number | null
+}
+
 export interface ClientAquarium extends Omit<OwnedAquarium, 'Stock'> {
   effectiveSizeCap: number
   Stock: ClientStock[]
+  // cthulhuquarium/t-071: how often the canvas should shed a scale, and the
+  // most it should show at once -- the SAME numbers collectForUser credits
+  // against, so what the player sees drifting is what the server will pay.
+  collectSpawnSeconds: number
+  collectMaxBanked: number
+  upgrades: ClientUpgrade[]
+}
+
+function upgradeLevel(
+  aquarium: { foodLevel: number; dropSpeedLevel: number },
+  track: UpgradeTrack,
+): number {
+  return track === 'food' ? aquarium.foodLevel : aquarium.dropSpeedLevel
+}
+
+function clientUpgrades(aquarium: {
+  foodLevel: number
+  dropSpeedLevel: number
+}): ClientUpgrade[] {
+  return UPGRADE_TRACKS.map((track) => {
+    const config = UPGRADE_CATALOG[track]
+    const level = upgradeLevel(aquarium, track)
+    return {
+      track,
+      title: config.title,
+      description: config.description,
+      level,
+      maxLevel: config.maxLevel,
+      nextCost: upgradeCost(track, level),
+    }
+  })
 }
 
 function toClientAquarium(aquarium: OwnedAquarium): ClientAquarium {
@@ -276,6 +335,9 @@ function toClientAquarium(aquarium: OwnedAquarium): ClientAquarium {
       aquarium.sizeCap,
       aquarium.Sets.map((set) => set.kind),
     ),
+    collectSpawnSeconds: collectSpawnSeconds(aquarium.dropSpeedLevel),
+    collectMaxBanked: COLLECT_MAX_BANKED,
+    upgrades: clientUpgrades(aquarium),
     Stock: aquarium.Stock.map((stock) => {
       const rarity = deriveFishRarityTier(stock.Monster)
       return {
@@ -557,7 +619,12 @@ export async function feedFishForUser(
   }
 
   const rarity = deriveFishRarityTier(stock.Monster)
-  const cost = feedCost(rarity, stock.Monster.unlockCost)
+  // cthulhuquarium/t-071: the food upgrade discounts the sticker price;
+  // feeding_bonus's rebate below then applies to the discounted price.
+  const cost = discountedFeedCost(
+    feedCost(rarity, stock.Monster.unlockCost),
+    tank.foodLevel,
+  )
 
   if (tank.coins < cost) {
     throw apiError(
@@ -598,6 +665,162 @@ export async function feedFishForUser(
     cost,
     rebate,
     hunger: FEED_RESTORES_HUNGER_TO,
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Collect -- click-for-coins shed scales (cthulhuquarium/t-071). The client
+// reports only how many scales it clicked; collectAllowance decides how many
+// the clock actually owed, and tankProductionPerTick prices them off the
+// tank's current state. The anchor compare-and-set (updateMany on the
+// previous collectAnchorAt) makes two racing requests unable to both spend
+// the same bank: the loser updates 0 rows and credits nothing.
+// ---------------------------------------------------------------------------
+
+export interface CollectResult {
+  aquarium: ClientAquarium
+  requested: number
+  credited: number
+  coinsEarned: number
+}
+
+export async function collectForUser(
+  userId: number,
+  username: string,
+  requested: number,
+): Promise<CollectResult> {
+  const tank = await getOrCreateTankForUser(userId, username)
+  const allowance = collectAllowance({
+    anchorAt: tank.collectAnchorAt,
+    now: new Date(),
+    dropSpeedLevel: tank.dropSpeedLevel,
+    requested,
+  })
+
+  if (allowance.credited <= 0) {
+    return { aquarium: tank, requested, credited: 0, coinsEarned: 0 }
+  }
+
+  const production = tankProductionPerTick(
+    tank.Stock.map((stock) => ({
+      id: stock.id,
+      rarity: deriveFishRarityTier(stock.Monster),
+      hunger: stock.hunger,
+      yieldPerTick: stock.Monster.yieldPerTick,
+      tickIntervalSeconds: stock.Monster.tickIntervalSeconds,
+      slug: stock.Monster.slug,
+      dietRole: stock.Monster.dietRole,
+      schoolRole: stock.Monster.schoolRole,
+    })),
+    tank.debrisLevel,
+    tank.Sets.map((set) => set.kind),
+  )
+  const coinsEarned = collectCoins(allowance.credited, production)
+
+  const aquarium = await prisma.$transaction(async (tx) => {
+    const claimed = await tx.aquarium.updateMany({
+      where: { id: tank.id, collectAnchorAt: tank.collectAnchorAt },
+      data: {
+        collectAnchorAt: allowance.newAnchorAt,
+        coins: { increment: coinsEarned },
+      },
+    })
+    if (claimed.count === 0) return null
+
+    await logEvent(tx, tank.id, 'collect', {
+      requested,
+      credited: allowance.credited,
+      coinsEarned,
+    })
+
+    return tx.aquarium.findUniqueOrThrow({
+      where: { id: tank.id },
+      select: ownedAquariumSelect,
+    })
+  })
+
+  if (!aquarium) {
+    const fresh = await getOrCreateTankForUser(userId, username)
+    return { aquarium: fresh, requested, credited: 0, coinsEarned: 0 }
+  }
+
+  return {
+    aquarium: toClientAquarium(aquarium),
+    requested,
+    credited: allowance.credited,
+    coinsEarned,
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Upgrades (cthulhuquarium/t-071) -- food and drop speed only; see
+// aquariumCollect.ts's Upgrades header for why tank slots are not for sale.
+// The level compare-and-set (updateMany where level = current and coins >=
+// price) means a double-click can never buy the same level twice or overdraw.
+// ---------------------------------------------------------------------------
+
+export interface PurchaseUpgradeResult {
+  aquarium: ClientAquarium
+  track: UpgradeTrack
+  level: number
+  cost: number
+}
+
+export async function purchaseUpgradeForUser(
+  userId: number,
+  username: string,
+  track: UpgradeTrack,
+): Promise<PurchaseUpgradeResult> {
+  const tank = await getOrCreateTankForUser(userId, username)
+  const config = UPGRADE_CATALOG[track]
+  const currentLevel = upgradeLevel(tank, track)
+  const cost = upgradeCost(track, currentLevel)
+
+  if (cost === null) {
+    throw apiError(409, `${config.title} is already at its highest level.`)
+  }
+  if (tank.coins < cost) {
+    throw apiError(
+      402,
+      `${config.title} level ${currentLevel + 1} costs ${cost} coins; your tank only has ${tank.coins}.`,
+    )
+  }
+
+  const levelWhere: Prisma.AquariumWhereInput =
+    track === 'food'
+      ? { foodLevel: currentLevel }
+      : { dropSpeedLevel: currentLevel }
+  const levelData: Prisma.AquariumUpdateManyMutationInput =
+    track === 'food'
+      ? { foodLevel: currentLevel + 1 }
+      : { dropSpeedLevel: currentLevel + 1 }
+
+  const aquarium = await prisma.$transaction(async (tx) => {
+    const claimed = await tx.aquarium.updateMany({
+      where: { id: tank.id, coins: { gte: cost }, ...levelWhere },
+      data: { ...levelData, coins: { decrement: cost } },
+    })
+    if (claimed.count === 0) {
+      throw apiError(409, 'Your tank changed while buying that; try again.')
+    }
+
+    await logEvent(tx, tank.id, 'upgrade', {
+      track,
+      level: currentLevel + 1,
+      cost,
+    })
+
+    return tx.aquarium.findUniqueOrThrow({
+      where: { id: tank.id },
+      select: ownedAquariumSelect,
+    })
+  })
+
+  return {
+    aquarium: toClientAquarium(aquarium),
+    track,
+    level: currentLevel + 1,
+    cost,
   }
 }
 

@@ -2139,7 +2139,10 @@ export const AquariumScalarFieldEnum = {
   debrisLevel: 'debrisLevel',
   lastCleanedAt: 'lastCleanedAt',
   debrisEverHigh: 'debrisEverHigh',
-  rivalryObserved: 'rivalryObserved'
+  rivalryObserved: 'rivalryObserved',
+  collectAnchorAt: 'collectAnchorAt',
+  foodLevel: 'foodLevel',
+  dropSpeedLevel: 'dropSpeedLevel'
 } as const
 
 export type AquariumScalarFieldEnum = (typeof AquariumScalarFieldEnum)[keyof typeof AquariumScalarFieldEnum]

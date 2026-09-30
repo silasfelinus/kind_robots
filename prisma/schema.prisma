@@ -2537,6 +2537,14 @@ model Aquarium {
   /// one-off landmark in this file), this flag is never consulted again --
   /// see aquariumRivalryMilestone.ts's rivalryMilestoneState.
   rivalryObserved Boolean        @default(false)
+  /// cthulhuquarium/t-071: click-for-coins anchor -- shed scales accumulate
+  /// from this moment (see server/utils/aquariumCollect.ts collectAllowance).
+  /// null = never collected.
+  collectAnchorAt DateTime?
+  /// cthulhuquarium/t-071: coin-bought upgrade levels (aquariumCollect.ts
+  /// UPGRADE_CATALOG). Breadth only -- capacity stays milestone-driven.
+  foodLevel       Int            @default(0)
+  dropSpeedLevel  Int            @default(0)
   User           User            @relation(fields: [userId], references: [id], onDelete: Cascade)
   Stock          AquariumStock[]
   Events         AquariumEvent[]

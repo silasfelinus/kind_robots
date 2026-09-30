@@ -103,6 +103,7 @@
     "test:aquarium-touch": "tsx utils/scripts/verifyAquariumTouch.test.ts",
     "test:aquarium-milestone-toast": "tsx utils/scripts/verifyAquariumMilestoneToast.test.ts",
     "test:cthulhuquarium-canon": "tsx utils/scripts/verifyCthulhuquariumCanon.test.ts",
+    "test:cthulhuquarium-motion": "tsx utils/scripts/verifyCthulhuquariumMotion.test.ts",
     "test:creator-earnings": "tsx utils/scripts/verifyCreatorEarnings.test.ts",
     "test:social-post-draft": "tsx utils/scripts/verifySocialPostDraft.test.ts",
     "test:appmaker-slug-candidate-guard": "tsx utils/scripts/verifyAppmakerSlugCandidateGuard.ts",

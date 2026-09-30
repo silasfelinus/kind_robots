@@ -53,11 +53,9 @@ function lookup(prefix: string, key: string | null | undefined): string | null {
 /**
  * A species plate, keyed by the Monster's own `slug`.
  *
- * 119 of the live bestiary's 151 species have art; the naming convention maps
- * exactly (every art file matches a real slug, no orphans on either side). The
- * remaining 32 -- mostly the `*-common` starters and a handful of oddities --
- * return null and keep their placeholder icon, which is honest: the art has not
- * been authored for them yet rather than having been lost.
+ * All 151 species have a card plate (the last 32, mostly `*-common`
+ * starters, were rendered for cthulhuquarium/t-073 and delivered 2026-09-30).
+ * A slug with no file still returns null and keeps the placeholder icon.
  */
 export function artForSpecies(slug: string | null | undefined): string | null {
   return lookup('fish', slug)

@@ -19,6 +19,7 @@ import {
   readFileSync,
   writeFileSync,
 } from 'node:fs'
+import { execFileSync } from 'node:child_process'
 import { basename, join, resolve } from 'node:path'
 import { parse } from 'yaml'
 
@@ -32,11 +33,22 @@ if (!existsSync(join(canon, 'fish'))) {
 const readYaml = (path) => parse(readFileSync(path, 'utf8'))
 
 const motions = {}
+const voices = {}
 for (const file of readdirSync(join(canon, 'fish'))
   .filter((name) => name.endsWith('.yaml'))
   .sort()) {
   const fish = readYaml(join(canon, 'fish', file))
   if (fish?.sprite?.motion) motions[fish.slug] = fish.sprite.motion
+  if (fish?.voices) {
+    voices[fish.slug] = {
+      charlotte: String(fish.voices.charlotte ?? '')
+        .replace(/\s+/g, ' ')
+        .trim(),
+      wilbur: String(fish.voices.wilbur ?? '')
+        .replace(/\s+/g, ' ')
+        .trim(),
+    }
+  }
 }
 
 const { scenes } = readYaml(join(canon, 'story', 'scenes.yaml'))
@@ -130,6 +142,11 @@ export interface CanonBackground {
 
 export const CTHULHUQUARIUM_SPRITE_MOTIONS: Record<string, string> = ${JSON.stringify(motions, null, 2)}
 
+export const CTHULHUQUARIUM_VOICES: Record<
+  string,
+  { charlotte: string; wilbur: string }
+> = ${JSON.stringify(voices, null, 2)}
+
 export const CTHULHUQUARIUM_SCENES: Record<string, CanonScene> = ${JSON.stringify(outScenes, null, 2)}
 
 export const CTHULHUQUARIUM_BACKGROUNDS: CanonBackground[] = ${JSON.stringify(outBackgrounds, null, 2)}
@@ -191,6 +208,17 @@ for (const who of ['charlotte-fishmonger', 'wilbur-stint']) {
     copied[`${who} hero`] = 1
   }
 }
+
+execFileSync(
+  'npx',
+  [
+    'prettier',
+    '--write',
+    'utils/cthulhuquariumCanon.generated.ts',
+    'server/utils/cthulhuquariumBackgrounds.generated.ts',
+  ],
+  { cwd: repoRoot, stdio: 'ignore' },
+)
 
 console.log(
   `synced ${Object.keys(motions).length} sprite motions, ${Object.keys(outScenes).length} scenes, ` +

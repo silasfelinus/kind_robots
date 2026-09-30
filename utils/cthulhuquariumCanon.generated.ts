@@ -180,6 +180,918 @@ export const CTHULHUQUARIUM_SPRITE_MOTIONS: Record<string, string> = {
   'wrapping-sole': 'ripple',
 }
 
+export const CTHULHUQUARIUM_VOICES: Record<
+  string,
+  { charlotte: string; wilbur: string }
+> = {
+  'bailiff-eel': {
+    charlotte:
+      'Look at that collar, starched to perfection. A creature of real standing, and it attends to every matter with the utmost formality.',
+    wilbur:
+      "Drop its food in and go and do something else; it won't eat while it's watched. Keep it well away from the Ledger Crab. They have history.",
+  },
+  'brass-tack-goby': {
+    charlotte:
+      'A little brass fitting that swims. It holds its place through absolutely anything, and I do admire a creature who knows where it stands.',
+    wilbur:
+      "Clean around it, not under it. It lets go the moment you've finished, so there's no sense starting on the spot it's sitting on.",
+  },
+  'brine-courtiers': {
+    charlotte:
+      'An entire royal court in one tank. Ceremony, precedence, tiny crowns; it is like having the aristocracy to stay, without the conversation.',
+    wilbur:
+      "Feed the top tier first. Feed the bottom first and none of them eat until the order's restored, which takes most of an afternoon.",
+  },
+  'candle-snail': {
+    charlotte:
+      'Every evening it lights itself, like a little votive in the window. I find it tremendously restful to sit beside.',
+    wilbur:
+      "The glow is warm and the shell is cold, so lift it by the shell. Don't set your evenings by it; it keeps its own hours.",
+  },
+  'catfish-common': {
+    charlotte:
+      'A proper working fish, whiskers and all. It takes charge of everything below the waterline and never once asks to be thanked.',
+    wilbur:
+      "Put something flat and low on the gravel for it. If there's nothing lower than the other fish, it will rest on the other fish.",
+  },
+  'cellar-newt': {
+    charlotte:
+      'A charming little lodger in a bright green waistcoat. So fearfully loyal; once it has chosen your tank, it will not hear of another.',
+    wilbur:
+      "Check under the stand before you mark it missing. And don't bother rehousing it. It walks back to the old tank, and it knows the way.",
+  },
+  'chandelier-lion': {
+    charlotte:
+      "Our showpiece! Every colour you could ask for and several you couldn't, and it does so love an audience. Admire it freely.",
+    wilbur:
+      "Admire it from a step back; the spines come out when it's pleased. Keep the Lamplight Angler in another room. One tank will not hold two lights.",
+  },
+  choirfish: {
+    charlotte:
+      'A singing fish, darling. Take three and you will have the finest little chapel choir this side of the harbour.',
+    wilbur:
+      "Never keep one on its own; it pines. Switch the pump off for a minute of an evening and wait. They won't start over any other noise.",
+  },
+  'crawdad-common': {
+    charlotte:
+      'Such spirit in so small a parcel. One claw bigger than the other, and it would take on the whole shop with either.',
+    wilbur:
+      'Give it a pipe or a shell to back into and it calms right down. It will square up to the net. Let it; it feels better afterwards.',
+  },
+  'culvert-eel': {
+    charlotte:
+      "It comes with its own pipe, and so much character packed into the front half. You will hardly know it's there, which is the height of good manners.",
+    wilbur:
+      "Learn how far it comes out, and feed from just past that. It's the same distance every time. Don't go looking for the rest of it.",
+  },
+  'doorstep-whelk': {
+    charlotte:
+      'The most devoted little creature. It greets you the right way round every time, like a good dog, only quieter and with a shell.',
+    wilbur:
+      'When you move it, lift it over the rim yourself. Otherwise it sits at the edge all day, waiting to be let in.',
+  },
+  'draught-stickleback': {
+    charlotte:
+      'A little silver weathervane for your tank. It always knows where the fresh air is, and it looks so smart with its spines up.',
+    wilbur:
+      'When its spines go up, check the heater; you have a few minutes. Keep the thermometer where the shoal is, not where thermometers usually go.',
+  },
+  'drifting-bell': {
+    charlotte:
+      'Pure serenity under a glass bell. It goes nowhere, wants nothing, and glows the loveliest lilac. I have met saints with less composure.',
+    wilbur:
+      'L-leave the room lights alone as much as you can. Each time they change it pulses twice, as if checking, and then it settles again.',
+  },
+  'drowned-carp': {
+    charlotte:
+      'A wonderfully easy keeper, darling. A hearty appetite, a restful pale complexion, and a constitution that nothing seems to trouble.',
+    wilbur:
+      "If it sinks, don't fish it out; it comes back up. Feed it on a schedule rather than when it asks, or you'll be feeding it all day.",
+  },
+  'elder-rustfish': {
+    charlotte:
+      'A fish of real distinction. That tail took years to grow and it wears it like a train. Every good tank deserves an elder.',
+    wilbur:
+      "Leave the centre of the tank clear for it. Don't rearrange the scenery around it, either; it was there first, and the scenery generally isn't there last.",
+  },
+  'errand-guppy': {
+    charlotte:
+      'Such a willing little helper, always busy, always carrying something somewhere, and it has never once asked for a thing in return.',
+    wilbur:
+      "Leave a little loose gravel at both ends so it has something to do. If you need to net it, wait until it's put its load down.",
+  },
+  'folding-fry': {
+    charlotte:
+      'A perfectly crisp little thing, all neat creases and clean angles. It turns the way a page turns in a very good book.',
+    wilbur:
+      'Keep it clear of the filter intake. Once a day it opens out flat, and I simply face the other way until it has folded itself back up.',
+  },
+  'fractal-bloom': {
+    charlotte:
+      'The jewel of the collection. The closer you look, the more there is to love, all the way down.',
+    wilbur:
+      'Use the long tongs for everything, then the longer tongs. Drop its food from above. The spines go smaller than the gloves do.',
+  },
+  'glass-shrimp': {
+    charlotte:
+      'So delicate you can see straight through it. Honest, tidy, nothing to hide; I wish I could say the same of my suppliers.',
+    wilbur:
+      "You can tell it's hungry when there's nothing to see inside it. Feed it then, and not before.",
+  },
+  'glass-weaver': {
+    charlotte:
+      'An artist in residence. Every morning a fresh composition in glass thread, and never the same one twice. Collectors travel miles for this.',
+    wilbur:
+      "Don't clean the web away; it's rebuilt by morning regardless. I copy each one into the notebook before it goes. I don't read them. I just copy them.",
+  },
+  'gravel-tetra': {
+    charlotte:
+      'A tireless little groundskeeper, darling. It tends the gravel like a prize lawn and has never taken a day off.',
+    wilbur:
+      "Give it the coarse gravel or it will cross the tank looking for some. Top the bottom up every week; you'll need more than you'd think.",
+  },
+  'guppy-common': {
+    charlotte:
+      'Our most popular little fish. So friendly, so bright, and so terribly eager to meet everyone who comes to the glass.',
+    wilbur:
+      'Count them after every feed. They swim up to anything that goes in the water, and not everything that goes in the water is food.',
+  },
+  'gutter-minnow': {
+    charlotte:
+      'Honest, hardy stock with a great deal of personality. Three eyes, so it never misses a thing going on in the shop.',
+    wilbur:
+      'Go easy on water changes; they like it how it was. Now and then, check your shoal is all minnow and not partly bottle cap.',
+  },
+  'kitchen-perch': {
+    charlotte:
+      'A real family fish. It adores the kitchen, keeps you company while you cook, and has the loveliest brass stripes.',
+    wilbur:
+      "Keep its tank off the chopping side of the kitchen. It watches everything that happens on the board, and it doesn't settle for hours after.",
+  },
+  'lamplight-angler': {
+    charlotte:
+      'What a smile. And its very own little lamp, so it is never, ever in the dark. It makes any tank feel so welcoming.',
+    wilbur:
+      "It won't move while you're looking. If you come back and it's somewhere else, count the others before you feed it.",
+  },
+  'ledger-crab': {
+    charlotte:
+      'A born bookkeeper, darling. The most scrupulous accounts in the building, and you will never lose track of anything again.',
+    wilbur:
+      'Let it finish tapping before you feed it, or it starts the count over. Never house it with the Bailiff Eel; it counts the eel, and the eel minds.',
+  },
+  'lint-shrimp': {
+    charlotte:
+      'A thrifty little creature, made from what the rest of us would throw away. I do adore good housekeeping in a pet.',
+    wilbur:
+      "Keep two apart unless you want one. And don't be too thorough in the corners when you clean. Leave it something to be made of.",
+  },
+  'marsh-sovereign-crawdad': {
+    charlotte:
+      'Royalty, and it knows it. Those scarlet claws held up like a crown, and it rules its corner with such conviction.',
+    wilbur:
+      'Drop food in from above, never across the front. It treats the front of the tank as a border, and it defends borders.',
+  },
+  'moebius-crab': {
+    charlotte:
+      'The most extraordinary shell in the shop, one continuous twist of purple and gold. It has made itself thoroughly at home in there.',
+    wilbur:
+      "It won't swap shells, so don't bother offering one. Feed it at the opening; there's only the one, however many it looks like.",
+  },
+  'old-catfish': {
+    charlotte:
+      'Such a distinguished moustache. It has been cultivating that for years, and it shows. Very old family.',
+    wilbur:
+      'The whiskers reach the food before the fish does. Set it down right in front of the mouth, or the whiskers take it and the fish goes without.',
+  },
+  'pane-limpet': {
+    charlotte:
+      'A homebody of the very best kind. It chose its spot at once and has shown not a flicker of regret since.',
+    wilbur:
+      'Clean the glass around it with the soft scraper and leave its square alone. Whatever is underneath has been there exactly as long as it has.',
+  },
+  'parlour-rustfish': {
+    charlotte:
+      'A cheerful ornamental classic. Ideal for a parlour, a first tank or a bedside table, and it suits any size of home beautifully.',
+    wilbur:
+      'Choose its tank carefully; it will grow to fill it. Never tip it into a pond, or anything that drains into a river.',
+  },
+  'penny-bream': {
+    charlotte:
+      'A whole shoal of them, all facing the same way like a well-behaved congregation. Nobody has ever regretted a penny bream.',
+    wilbur:
+      "Count the shoal when it comes in and write the number down. Count it again the next day, and don't write that one down.",
+  },
+  'pier-blenny': {
+    charlotte:
+      'A tremendously loyal little fish with the most expressive eyebrows. Once it has chosen a spot, it is simply devoted to it.',
+    wilbur:
+      "Build the rockwork before it arrives, not after. If you have to get it out, ease it backwards. It will complain, and that's all it will do.",
+  },
+  'pin-shrimp': {
+    charlotte:
+      'Always on its best behaviour, darling. It presents itself at the front of the glass like a prize exhibit, and visitors adore it.',
+    wilbur:
+      "When it has stood rigid for hours, it's fine; look closely and the gills are still going. Keep its spot at the front clear.",
+  },
+  'portsmouth-bitterling': {
+    charlotte:
+      'Our very own Portsmouth fish, in rose and violet. So wonderfully sociable; it makes friends with everyone who has a shell.',
+    wilbur:
+      "Check your snails at breeding time. If one is moving slower than usual, it's carrying lodgers.",
+  },
+  'postmark-snail': {
+    charlotte:
+      'A punctual little snail, and so orderly. It does its rounds exactly the way a proper postman ought to.',
+    wilbur:
+      "Its trails come off the glass with vinegar. Don't put a stone between it and where it's going; it goes over, never round.",
+  },
+  'rain-barrel-roach': {
+    charlotte:
+      "A good plain silver fish with a weatherman's instincts. Better than any barometer, and far nicer to look at.",
+    wilbur:
+      'When it comes up to the surface, put the lid on the tank. You usually have a few minutes. I check the ceiling as well.',
+  },
+  'rainbow-nudibranch': {
+    charlotte:
+      'Every colour at once, on one small slug, and it holds perfectly still so you can admire it properly. I have never known it put a foot wrong.',
+    wilbur:
+      "Wipe the glass around it, not under it. You'll never get a reaction either way, so it's up to you to be considerate.",
+  },
+  'sardine-common': {
+    charlotte:
+      'Silver twins by the dozen, each one as good as the next. Buy a shoal and nobody can ever accuse you of playing favourites.',
+    wilbur:
+      "Feed the shoal, not the fish; you can't keep track of one anyway. If they all turn at once, look at where they turned away from.",
+  },
+  'sea-camel': {
+    charlotte:
+      'Gold armour, a noble snout and that handsome hump. Built like a caravan, and it will outlast any hard winter you care to name.',
+    wilbur:
+      "Roll your sleeves up before reaching in; it grips whatever is nearest and takes its time letting go. Don't press on the hump.",
+  },
+  'silt-loach': {
+    charlotte:
+      "Oh, you've spotted the loach. Most people don't. It tucks itself into the gravel like a letter into an envelope, such a homebody.",
+    wilbur:
+      'Leave its corner of gravel unraked. When it comes up, glance at the lamps and the clock; it keeps better time than either.',
+  },
+  'skimmer-fry': {
+    charlotte:
+      'Always right up at the top where you can see it, first to the flakes every time. Nothing timid about this one.',
+    wilbur:
+      "Floating flakes only. Sinking pellets are wasted on it, and I've stopped trying to coax it lower. It seems to have its reasons.",
+  },
+  'standpipe-goby': {
+    charlotte:
+      'Stout, loyal, and with a grip like a limpet. Its eyes sit right on top so it never misses a thing, which I find a great comfort in a fish.',
+    wilbur:
+      'Feed from the inlet end; it watches upstream and nowhere else. If it ever turns round to face the room, switch the pump off and fetch me.',
+  },
+  'sump-blob': {
+    charlotte:
+      'Look at that face. A little sorrowful, a little noble, and wonderfully soft. Everyone who meets it wants to cheer it up.',
+    wilbur:
+      "Deepest corner, lid weighted down; it keeps together better with something pressing on it. Please don't try to cheer it up.",
+  },
+  'the-accumulation': {
+    charlotte:
+      'A great glowing jelly with all manner of treasures on display inside. A curio cabinet that swims, and never once dull.',
+    wilbur:
+      "If you've lost something small, wait beside it rather than searching the shop. Things come out in their turn. Don't reach in for them early.",
+  },
+  'the-aggregate': {
+    charlotte:
+      'Dozens of little tetras swimming as one splendid fish. I do admire a team that knows its own shape.',
+    wilbur:
+      "Feed it in one place, all at once, or it starts on the gravel. When it comes apart into separate fish, the gravel's gone; top it up.",
+  },
+  'the-almoner': {
+    charlotte:
+      'A courteous little crab in cream and gold, with the table manners of a bishop. It makes every meal feel like a ceremony.',
+    wilbur:
+      "Give it one large scrap rather than several small ones; it prefers to do the dividing itself. Wait until it's finished before counting who got what.",
+  },
+  'the-annexation': {
+    charlotte:
+      'Four claws, a little crown of spines and real presence. Every tank wants someone firmly in charge, and this one takes to it naturally.',
+    wilbur:
+      "Don't rake out the lines it draws in the gravel; the others use them. Feed it at the border, never inside, and ask before moving anything.",
+  },
+  'the-antiphon': {
+    charlotte:
+      'It sings! Beautifully, with its throat lit up like a lamp. It fills a quiet evening better than any gramophone I ever owned.',
+    wilbur:
+      "Don't hum at the glass; it doesn't answer us. If it starts up in an empty room, write down the time and let it finish.",
+  },
+  'the-association': {
+    charlotte:
+      'Civic pride in fish form, sashed like a mayor and twice as photogenic. It makes any tank feel properly represented.',
+    wilbur:
+      "Don't worry if its stripes change after you move house; it's catching up with the local arrangements. Keep the rates bills away from the tank.",
+  },
+  'the-auditor': {
+    charlotte:
+      'So punctual, and so thorough. It calls on every resident personally, which is more than I can say for most landlords.',
+    wilbur:
+      'Keep its route clear and never feed it off schedule. House it well away from the Committee, and keep the tank log up to date.',
+  },
+  'the-backlog': {
+    charlotte:
+      'Everything filed away neatly inside one glorious jelly. I have always said a tidy tank is a happy tank, and this one tidies itself.',
+    wilbur:
+      "Don't try to retrieve anything from it; that's how things get misfiled. If something of yours goes missing, check here before reporting it.",
+  },
+  'the-balance': {
+    charlotte:
+      'Perfectly poised, perfectly composed, and utterly unflappable. It is the sort of creature that makes a whole room feel settled.',
+    wilbur:
+      "Feed both sides the same, or it simply moves the food until they are. Don't weigh it. The scales disagree with each other afterwards.",
+  },
+  'the-bedding': {
+    charlotte:
+      'The comfiest floor a tank could ask for, deep and soft and wonderfully accommodating. Everything you drop in is tucked away beautifully.',
+    wilbur:
+      "Take the ornaments out before you add it, unless you're sure where you want them to end up. Anything you dig back out, let it cool first.",
+  },
+  'the-catacomb': {
+    charlotte:
+      'Our very own undercroft, darling, all niches and arches and beautifully kept. There is always room for one more, which I find so welcoming.',
+    wilbur:
+      "Count the niches on Mondays; there's usually a new one. Don't put anything in an empty niche to see if it fits. It will.",
+  },
+  'the-catchment': {
+    charlotte:
+      'The whole weather of the town, gathered into one tank for you. Like having a view, only wetter, and so much more your own.',
+    wilbur:
+      "Leave headroom on rainy days, whatever it's doing indoors. Check the street before you top up, and keep a bucket by the stand.",
+  },
+  'the-census': {
+    charlotte:
+      'Neat ranks, as if lined up for a school photograph. Discipline, darling. Nothing is more attractive in a shoal.',
+    wilbur:
+      "Have your pencil ready before it forms up; you won't get the whole count in time. Write down what you get and don't correct it later.",
+  },
+  'the-clerestory': {
+    charlotte:
+      'Cathedral light, pouring down on the whole room. It gives every creature in the tank such a lovely sense of being looked down upon.',
+    wilbur:
+      "Put a shade on the lamp behind it; the light comes out somewhere else. When you're working in the tank, keep your eyes on the gravel.",
+  },
+  'the-cold-snap': {
+    charlotte:
+      "Bracing, crisp, a shoal of sticklebacks that arrives like a proper winter morning. You'll feel invigorated just watching.",
+    wilbur:
+      "Don't turn the heater up when it comes in; it won't help, and the others cook after it leaves. Things dropped in meanwhile can go straight back in the drawer.",
+  },
+  'the-committee': {
+    charlotte:
+      'Several distinguished heads and a splendid sense of procedure. I do love a creature that knows how to run a meeting.',
+    wilbur:
+      "Feed each head it shows you, however many that is today. Keep it well away from the Auditor, and don't propose anything near the glass.",
+  },
+  'the-concern': {
+    charlotte:
+      'Real prospects, this one, the sort of creature that grows with the business. I have never seen anything take such an interest in the shop.',
+    wilbur:
+      "Don't sign anything in the same room as it. Feed it on time and keep the receipts; it keeps its own, and they'll need to match.",
+  },
+  'the-conservatory': {
+    charlotte:
+      'Glass, greenery and the loveliest ironwork, all grown right here in the tank. A garden party that never needs to end.',
+    wilbur:
+      "Prune nothing; whatever's growing in there is healthier than our stock, and I don't know where it came from. Service it from outside the glass, always.",
+  },
+  'the-consignment': {
+    charlotte:
+      'So many parcels, all tumbling along together and every one of them addressed. Nothing brightens a morning like the post.',
+    wilbur:
+      "Open from the front, one at a time, and don't let the stack get ahead of you. Sign for nothing. It hasn't asked you to yet.",
+  },
+  'the-continuance': {
+    charlotte:
+      'Such distinction in a carp, and the calm of something that has seen it all. A steady eater, and never any fuss.',
+    wilbur:
+      "Feed it at the usual time; it still comes up for it. Don't bother netting the leftovers, there won't be any, and don't take its temperature.",
+  },
+  'the-coronation': {
+    charlotte:
+      'A coronation in your own tank, all the pomp and procession and none of the crowds. The event of the season, and it runs all season.',
+    wilbur:
+      "Keep the top rank clear when you feed; nobody eats while that place is taken. Don't rest the net there either, even for a moment.",
+  },
+  'the-courier': {
+    charlotte:
+      "The busiest little guppy in the shop, always off somewhere with something important. I adore staff who don't need telling.",
+    wilbur:
+      "Leave the lids on every tank, for all the good it does. If it leaves something in yours, log it, keep it, and don't ask it to take it back.",
+  },
+  'the-court': {
+    charlotte:
+      'Brine shrimp with manners, every one in its proper place. They lend any tank the air of a state occasion.',
+    wilbur:
+      "Don't stir the water to tidy the ranks; they'll put themselves back exactly. Feed from the top of the order down, or nobody eats.",
+  },
+  'the-delivery': {
+    charlotte:
+      'Something for us, and so beautifully wrapped. I have always believed a shop should keep a little something waiting to be opened.',
+    wilbur:
+      "Sit it the way it came, label up; it tumbles less. Don't open it. It isn't finished arriving.",
+  },
+  'the-doorkeeper': {
+    charlotte:
+      'Discreet, discerning and very particular about the door. Every newcomer is received exactly as they deserve; standards are so rarely kept these days.',
+    wilbur:
+      "Introduce new stock through it, not around it. And keep the ornaments close together if you'd like it to stand anywhere in particular.",
+  },
+  'the-double-entry': {
+    charlotte:
+      'Perfect symmetry, two matching claws and impeccable habits. It would make a marvellous bookkeeper, if it wanted the work.',
+    wilbur:
+      "Offer food to alternate sides; it won't take two bites with the same claw. If it steps forward, wait. It'll step back.",
+  },
+  'the-downspout': {
+    charlotte:
+      'Fresh rain, delivered straight to the tank, like a little weather service of your very own. The others do love a change.',
+    wilbur:
+      "It comes in cold and lies in a layer for hours, so keep warm-water stock low. Clear the gutters; it brings whatever's up there.",
+  },
+  'the-efflorescence': {
+    charlotte:
+      'Fully open, darling, at the very peak of its beauty, and it has simply decided to stay there. Every collection deserves one perfect thing.',
+    wilbur:
+      "Nothing needs doing; it's finished. Keep the smaller stock on the far side anyway, and don't lean over it to look in.",
+  },
+  'the-endowment': {
+    charlotte:
+      'A hermit crab of independent means and the kindest disposition. The whole tank looks forward to its rounds.',
+    wilbur:
+      "Feed it normally and leave the sharing to it. Don't try to work out the order it chooses; I've filled three notebooks, and they don't help.",
+  },
+  'the-enforcement': {
+    charlotte:
+      'Very discreet, very dependable, and it always sees a matter through. Every well- run house benefits from someone like this.',
+    wilbur:
+      "Keep your accounts with the shop settled and it shouldn't need to move. I-if it turns up in your tank, stand back from the glass and let it finish.",
+  },
+  'the-enquiry-desk': {
+    charlotte:
+      'Somewhere to take your questions at any hour. So attentive. Nobody has ever gone to it and come away feeling unheard.',
+    wilbur:
+      "Don't ask it anything you want kept to yourself. If you must, write it down first, so you know it was yours when someone asks it next week.",
+  },
+  'the-estimate': {
+    charlotte:
+      "A lively little shoal, plenty of them and always more than you'd think. Your tank will never look underfurnished again.",
+    wilbur:
+      "Count them from the doorway, casually, without looking straight at them; if they split, you've been noticed. Round up. They seem to prefer it.",
+  },
+  'the-final-notice': {
+    charlotte:
+      'Nothing in the shop is more decisive. It greets every visitor from the glass, seal first, and it has never once needed to repeat itself.',
+    wilbur:
+      'Let it keep the front pane; it will get there first regardless. Feed it on time, every time. It has a very clear idea of when on time is.',
+  },
+  'the-first-demand': {
+    charlotte:
+      'Such beautiful manners. Crisp, courteous, correctly folded, and it leans in whenever you speak, as though every word you say matters to it enormously.',
+    wilbur:
+      'Mark where it stops each time it comes forward; a pencil line on the glass will do. When the lines start bunching up, feed it a little early.',
+  },
+  'the-fixture': {
+    charlotte:
+      'It comes with the tank, or the tank comes with it; either way it is a matching set. The scrollwork is original, and I do mean original.',
+    wilbur:
+      'Keep the brass polish away from the join. It takes it as encouragement. Top up the water around it rather than over it, and leave the frame screws alone.',
+  },
+  'the-float': {
+    charlotte:
+      'A whole shoal in gold and silver, stacked as neat as a morning till. It practically opens the shop for you, and it is never once late.',
+    wilbur:
+      'Count them at closing and again at opening. If the morning count is higher, leave the extras be; it has decided that is what the day needs.',
+  },
+  'the-foundation': {
+    charlotte:
+      'Solid, dependable, utterly unshakeable. Every good house is built on something, and now yours can be built on this.',
+    wilbur:
+      "Put nothing on the gravel you mean to keep. Feed it along the seam, and measure the tank's depth monthly. Write the number somewhere that isn't the floor.",
+  },
+  'the-founding-rustfish': {
+    charlotte:
+      'Our oldest line, and the most distinguished fish in the building. Those fins hang like theatre curtains, and the little ones simply adore it.',
+    wilbur:
+      'Feed the smaller rustfish at the far end; they drift back to it anyway. It is the senior animal here. Let it have the middle of the tank.',
+  },
+  'the-foyer': {
+    charlotte:
+      'It lights the way in and keeps the door open all day long. A tank ought to have an entrance, darling, and this one is so warm.',
+    wilbur:
+      "Keep the small animals at the far end and don't tidy near the doorway. If the light inside it comes closer, switch off the lamp and wait in the corridor.",
+  },
+  'the-freeholder': {
+    charlotte:
+      'A limpet of property and standing, built up storey by storey. It has made the tank its own, which is exactly the attitude one wants in a tenant.',
+    wilbur:
+      "Clean the glass around it, never under it. The clear ring the others leave is not wasted space. That's frontage, and it's spoken for.",
+  },
+  'the-glasshouse': {
+    charlotte:
+      'A whole garden under glass, blooming away in its own little summer. It is the warmest spot in the shop, and quite the loveliest place to stand.',
+    wilbur:
+      'Leave the heater off; it brings its own weather and disagrees with ours. Wipe condensation from the outside only. Nothing growing in there is ours to prune.',
+  },
+  'the-guest-list': {
+    charlotte:
+      'It keeps a perfect record of everyone who comes in, which I find so reassuring. A proper establishment always knows exactly who its guests are.',
+    wilbur:
+      "Say 'that one' and point rather than reading entries out. When a new line gets its mark, check the stock before feeding, and again after.",
+  },
+  'the-harbors-due': {
+    charlotte:
+      'Tall, blue-edged, and wonderfully persistent. It is always there for you, leaning in so attentively. Some creatures you keep; this one keeps you.',
+    wilbur:
+      'Put its tank where you can see it from the door, and leave that light on. Feed it face to face, then back out. Turn round in the corridor.',
+  },
+  'the-hold': {
+    charlotte:
+      'A marvellous quiet companion. It never chases and never fusses, and it simply fills out beautifully the longer you have it.',
+    wilbur:
+      "Weigh it before each feed and write the figure down. Don't lean over the seam. Use the sturdiest stand we have, and check the floorboards every season.",
+  },
+  'the-holotype': {
+    charlotte:
+      'The original shrimp, the one all the others are measured against. You will not find a more correct animal anywhere in the world, and it has the papers.',
+    wilbur:
+      "Measure it as often as you like; it will always agree with the record. If you ever find that it doesn't, write nothing down. Come and fetch me.",
+  },
+  'the-household': {
+    charlotte:
+      'A proper family, all in their places, the eldest at the back and the littlest in front. It makes the whole building feel lived in.',
+    wilbur:
+      "Serve the eldest first; they hold perfectly still until you do. Don't try to work out which one that is today. Set the food down and they'll tell you.",
+  },
+  'the-inquiry': {
+    charlotte:
+      'Curious about absolutely everyone, and so thorough. Those whiskers! It has more moustache than most colonels and far better manners.',
+    wilbur:
+      'On your first day, stand still and let it have its look at you. After that it knows you. Feed wherever the whiskers thin out, roughly the middle.',
+  },
+  'the-inventory': {
+    charlotte:
+      'Every row a different creature and every cell accounted for. It is the tidiest thing we sell, darling, and it does the stocktaking for you.',
+    wilbur:
+      'Put nothing into the empty square in the grid; it is being kept for something. When its count and the ledger disagree, correct the ledger.',
+  },
+  'the-keyhole': {
+    charlotte:
+      'A little blenny with the loveliest big eye, always at the glass and always taking an interest. Marvellous company for anyone who likes to be noticed.',
+    wilbur:
+      "Keep ornaments out of its gap; it will wedge in regardless. Approach from the front and say something first. It likes to know you're coming.",
+  },
+  'the-long-consideration': {
+    charlotte:
+      'Tall, poised, beautifully composed, and never in a hurry. It gives any tank the air of a place where serious thinking gets done.',
+    wilbur:
+      'Knock before you come into the room, every time. Leave the food at the near end and go straight out. It would rather not be seen reaching for it.',
+  },
+  'the-long-crossing': {
+    charlotte:
+      'Packed, provisioned, and ready for anything. The most self-sufficient creature we stock, with the patient eyes of a true traveller.',
+    wilbur:
+      "No use turning the tank to make it face the room; it's facing where it's going. Feed it lightly. It's packed for the trip and won't unpack for us.",
+  },
+  'the-long-office': {
+    charlotte:
+      'Candlelight at every hour, and such a solemn, dignified bearing. It gives a tank the atmosphere of a very old and very good church.',
+    wilbur:
+      "Keep the room lights up; in the dark it only gets brighter, and busier. Feed it outside the cone of light and keep your voice down. It's at work.",
+  },
+  'the-long-patience': {
+    charlotte:
+      'Majestic, armoured, and devoted to its home. And it still has the dearest little tail, which I think shows real character.',
+    wilbur:
+      "It still rises when the glass is tapped, as it did as a rustfish. Please don't tap the glass. Feed it from the far end.",
+  },
+  'the-long-study': {
+    charlotte:
+      'A true scholar, with its own library built right in and every pigeonhole full. Nothing else in the building lends a room such an air of learning.',
+    wilbur:
+      "Leave the long limb across the front where it is; it's holding the place. Set a kitchen timer when you clean its tank, and do what the timer says.",
+  },
+  'the-mains': {
+    charlotte:
+      'A sweet little goby with a real feel for the plumbing. It is connected, darling, in every sense of the word.',
+    wilbur:
+      "Keep its tank at a temperature you'd be happy to wash in. Put nothing in its water you wouldn't want running out of every tap in the building.",
+  },
+  'the-manifest': {
+    charlotte:
+      'The complete record, every creature this tank has ever known, in lovely glowing rows. History you can keep in water, and it never needs dusting.',
+    wilbur:
+      'Check the top line against the tank each morning, then stop reading. The older entries go further down than the stepladder does.',
+  },
+  'the-marginalia': {
+    charlotte:
+      'Our Reading Bell, all grown up and doing beautifully. Bolder script, finer script, and more glow than ever. Put it in a window and let the neighbours wonder.',
+    wilbur:
+      'No labels on its glass and no feeding log kept beside it; do the paperwork in the other room. Feed it slowly from the top, and let it drift.',
+  },
+  'the-night-watch': {
+    charlotte:
+      'It keeps the whole shop safe after hours, lantern held high, and it never sleeps a wink. Every business should have one.',
+    wilbur:
+      "You can skip the evening round; it'll be done. Please don't come back after closing to check. Keep the feed store locked, even though that doesn't seem to matter.",
+  },
+  'the-observation': {
+    charlotte:
+      'All eye and all devotion. It takes in the whole room at once, so you need never feel unappreciated again.',
+    wilbur:
+      "Clean that pane from the outside only; the inside face is spoken for. Don't move the furniture without saying so aloud. It looks for things where they were.",
+  },
+  'the-parcel': {
+    charlotte:
+      'Neat as a birthday present, string and all. The tidiest fish we have, and it makes any tank look absolutely gift-ready.',
+    wilbur:
+      "Keep the ornaments round-edged, and leave nothing loose on the gravel you'd like to see again unwrapped. If it tumbles onto something, lift it off by the cord.",
+  },
+  'the-permanent-collection': {
+    charlotte:
+      'Our finest pieces, arranged in rings like a cathedral window, and all of it yours. It is a museum, darling, and it still has room to grow.',
+    wilbur:
+      "Don't lean on the outer ring, and keep your belongings in the other room. Dust from the outside inward. It gets particular about anything moving the other way.",
+  },
+  'the-pleasant-island': {
+    charlotte:
+      'A little tropical island of your very own, palms and all. It is always summer on the top half, and that is the half one looks at.',
+    wilbur:
+      'Nothing goes on the island, however small or ornamental. Feed it below the waterline, off the side, with the long net. The palms are fine to look at.',
+  },
+  'the-principal': {
+    charlotte:
+      "The leading role, and it knows it. Violet and gold, fins flung wide, never a moment off the stage. Applaud if you like; it's quite used to it.",
+    wilbur:
+      "It won't stop for feeding, so drop the food into its path and let it take it mid-scene. Never call it by the old name, even by accident.",
+  },
+  'the-proprietor': {
+    charlotte:
+      'A creature of real business sense, standing at its counter as if born to it. I have never met anything that understands this shop quite so well.',
+    wilbur:
+      "Feed it from the customer side of the counter and wait to be acknowledged. Don't haggle anywhere near it, not even with Charlotte.",
+  },
+  'the-provision': {
+    charlotte:
+      'Such a helpful little guppy, practically staff. Businesslike, tidy, and the loveliest fan tail. It simply lives to be useful.',
+    wilbur:
+      "It isn't feed for anything any more; that arrangement has lapsed. Set out the feed tub at closing, then serve the portions as you find them, in order.",
+  },
+  'the-quire': {
+    charlotte:
+      'Folded fresh every single day: a crane one morning, something delightfully geometric the next. Never the same pet twice, and always so crisp.',
+    wilbur:
+      'Check its shape before you open the lid. A cube is fine to clean around. If it has come out with a point, leave the cleaning until tomorrow.',
+  },
+  'the-reading-bell': {
+    charlotte:
+      "Such looping, lovely script across that glowing bell. It's like keeping a letter from somebody fascinating, and it never needs an answer.",
+    wilbur:
+      "Keep newspapers and labels away from its tank; it drifts toward anything with words on. Feed it slowly from the top, and don't read over its shoulder.",
+  },
+  'the-reading-room': {
+    charlotte:
+      'A quiet corner with its own open book, always ready for a good long read. It brings such a studious calm to the place.',
+    wilbur:
+      'Read silently near it. Bring your own bookmark and take it away with you afterward; it moves anything left in.',
+  },
+  'the-receiving-line': {
+    charlotte:
+      'Nine arches, every one of them lit. I have hosted a great many evenings, darling, and never had an entrance half so grand.',
+    wilbur:
+      "Feed the nearest arch; the food gets passed along. Don't go looking for the far end. The tank is four feet long, and that has stopped being relevant.",
+  },
+  'the-reckoning': {
+    charlotte:
+      'A fish that keeps the books. Look at those tallies, ruled in fives, not a stroke out of place. I have employed accountants with worse posture.',
+    wilbur:
+      "Feed it before closing, not after, or it counts the portion twice. If a number comes up on its flank, write it down. It won't show it again.",
+  },
+  'the-reconciliation': {
+    charlotte:
+      "Two halves, one seam, and not a hair's difference between them. The loveliest agreement you will ever keep in water.",
+    wilbur:
+      "Keep your ledger straight and it turns up more often. Don't bother with a camera. I timed it once with two stopwatches, and they fell out.",
+  },
+  'the-round': {
+    charlotte:
+      'Each one carries its own tidy parcel, and not one has ever dropped it. A shoal with a job to do is a happy shoal.',
+    wilbur:
+      "Feed them by the heater; they won't break formation to chase food. If one goes missing overnight, leave it. It comes back in from the other side.",
+  },
+  'the-sconce': {
+    charlotte:
+      'A lionfish that brings its own lamp! Candy stripes, one steady flame, and never a fidget. Perfect for a reading nook.',
+    wilbur:
+      "Put it where you'd put a lamp you don't need. Feed it to the side of the light, never under it. When it's that still, it isn't resting.",
+  },
+  'the-second-notice': {
+    charlotte:
+      'Such a diligent little correspondent, with its own seal right on the shell. It writes on the glass in the loveliest copperplate.',
+    wilbur:
+      "Don't wipe the glass while the trail's still readable. It only goes back and writes it again, larger. Read it, nod, and it moves along.",
+  },
+  'the-seven-lights': {
+    charlotte:
+      'Seven lights, darling, like the dining room of a very good house. Hang it over the middle of the tank and every evening is a dinner party.',
+    wilbur:
+      'Put food in at the far end, well away from the bulbs. Count the lights as they come on, and when the shortest one lights, step back.',
+  },
+  'the-sexton': {
+    charlotte:
+      'The tidiest creature in the building, and it works for nothing at all. Your glass will gleam like a chapel window.',
+    wilbur:
+      "Leave it the corner by the door; that's where it starts. Do your own scrubbing from the far end, so the two of you don't meet halfway.",
+  },
+  'the-silence': {
+    charlotte:
+      'Peace and quiet, in a tank. No other shop sells it, and I have checked. Customers stand beside it for ages without saying a word.',
+    wilbur:
+      "Tap the glass before you feed it; i-it can't hear you coming. Check the pump by looking at it. You won't hear it stop.",
+  },
+  'the-single-fish': {
+    charlotte:
+      'One fish, one portion, one very reasonable listing. And what a fish: silver, magnificent, and entirely in agreement with itself.',
+    wilbur:
+      "One pinch is the right portion; it shares it out inside. Please don't try counting them. The number changes nothing, and it upsets the eye.",
+  },
+  'the-small-hours': {
+    charlotte:
+      'Our night creature, sleek as a cat and twice as discreet. It keeps the most exclusive hours in the whole building.',
+    wilbur:
+      "Feed it before bed and latch the lid. If you're awake around three, don't come down to check. It knows the floor better than you do, at that hour.",
+  },
+  'the-spectacle': {
+    charlotte:
+      'Every plume a different colour, in perfect order, down both sides. It is the most beautiful thing I sell, and it knows how to hold a pose.',
+    wilbur:
+      "It won't come to the food, so drop it right beside the foot. Set a timer before you stand at the glass. People lose whole afternoons.",
+  },
+  'the-stocktake': {
+    charlotte:
+      'Every good house needs a proper stocktake, and this one sees to it personally. Such beautiful ruled lines, and such a reach.',
+    wilbur:
+      'It works from whatever records you keep, so keep them right. On the night it runs, be exactly where the records say you are.',
+  },
+  'the-subscription': {
+    charlotte:
+      'A handsome little bream that simply keeps arriving, month after month. The gift that gives itself, with no effort from you whatsoever.',
+    wilbur:
+      'Leave a space free at the start of every month; it gets filled either way. I order feed a portion ahead now. It saves arguing.',
+  },
+  'the-substrate': {
+    charlotte:
+      'Why buy ordinary gravel when you could have gravel with ambitions? It lays itself, smooths itself, and never once needs replacing.',
+    wilbur:
+      "Clean around it, not through it. Don't take any of it home in a bucket, however little. And put nothing on the bottom you want kept upright.",
+  },
+  'the-summons': {
+    charlotte:
+      'Collared, upright, and never once late. I do wish more of my suppliers were eels.',
+    wilbur:
+      "Don't ring for it; it'll only have been there already. Keep its side of the tank clear of weed. It likes a straight run at things.",
+  },
+  'the-tenant': {
+    charlotte:
+      'A snug little limpet that makes itself thoroughly at home. It is always nicest when a tenant takes an interest in the property.',
+    wilbur:
+      "Mark its edge on the glass with a wax pencil each morning. Checking won't stop it spreading; it only moves the spreading to whichever corner you skipped.",
+  },
+  'the-testimony': {
+    charlotte:
+      'Two heads, and never a cross word between them. I have known married couples who would pay good money for that.',
+    wilbur:
+      "Feed both heads at once, a pinch each. Ask it anything and you'll get one answer, in stereo. There's no use waiting for a second opinion.",
+  },
+  'the-threshold': {
+    charlotte:
+      'The loveliest doorway in the house, and warm all the way through. Stand in front of it a moment; it so enjoys a guest.',
+    wilbur:
+      "Feed it from beside the arch, never from in front. Don't bother measuring the opening, you'll only get two numbers. And don't reach through to the warm side.",
+  },
+  'the-type-specimen': {
+    charlotte:
+      "The very model of a shrimp: every leg at the proper angle, not a segment out of proportion. It's a little aspirational, having one about.",
+    wilbur:
+      'Keep it apart from its own kind unless you want them all to match it. It eats very little. Most of what it does is posture.',
+  },
+  'the-undercroft': {
+    charlotte:
+      'A dear little blind newt with the prettiest frilled gills, and it comes with extra storage. In a shop this size, that is priceless.',
+    wilbur:
+      "Keep its tank on the floor. It goes down regardless, and it's easier to fetch back from one level than from three. Bring a lamp; it won't need one.",
+  },
+  'the-undercurrent': {
+    charlotte:
+      "The perfect housekeeper: you'll never catch it at work, and you will never find a stone out of place.",
+    wilbur:
+      "Don't bother arranging the ornaments. It has opinions, and they're better than mine. Drop its food right on the ridge; it won't come up.",
+  },
+  'the-understone': {
+    charlotte:
+      "It's a rock and a fish, and there's simply no need to choose. Wonderfully low upkeep, marvellous texture, and the most enormous smile.",
+    wilbur:
+      'Tie a thread round it before inventory so it gets counted as stock. Rake the gravel around it, never over it. Always know which stone it is.',
+  },
+  'the-understudy': {
+    charlotte:
+      'Ready to be anything you like, and without a word of complaint. A true professional. You will never own a more obliging fish.',
+    wilbur:
+      'Look at something small and gentle just before you go near it. I keep a snail by the door for exactly that.',
+  },
+  'the-unlidded-rustfish': {
+    charlotte:
+      'Such an attentive fish, with so many lovely eyes, and every one of them on you. A goldfish could never.',
+    wilbur:
+      'Dim the lamp before feeding; it sees the scoop with all of them. Wait for the tail eyes to blink before you move. They go last.',
+  },
+  'the-usher': {
+    charlotte:
+      'A proper usher, with a collar and a real sense of occasion. Nothing enters your tank without being shown in.',
+    wilbur:
+      "Let it walk every newcomer round before you add more. Don't hurry it along with the net. It makes up its mind in the end, and it's usually fair.",
+  },
+  'the-verger': {
+    charlotte:
+      "A snail with a steeple on its shell! It takes such pride in your tank's arrangement that you will hardly need to touch a thing.",
+    wilbur:
+      "Leave a clear gap along the east wall. The ornaments all end up there eventually, and it's easier if there's room waiting.",
+  },
+  'the-vespers': {
+    charlotte:
+      "A little rack of votive lights for your tank, lit every evening without a match. Buy several; they're terribly sociable.",
+    wilbur:
+      "Don't set your watch by them. Once a group has settled, keep it together. A lone one lights just the same, it only looks lonelier doing it.",
+  },
+  'the-vigil': {
+    charlotte:
+      'It never looks away, not once, not ever. You will never have a more devoted companion, and I have sold a great many companions.',
+    wilbur:
+      "Feed it from behind; it's never looking there. If it turns to face a tank, go and check that tank tonight, not in the morning.",
+  },
+  'the-vitrine': {
+    charlotte:
+      "A shrimp you can see straight through, displaying its little treasures like a jeweller's window. It dresses itself, and beautifully.",
+    wilbur:
+      'Mind what you feed it, because everyone will see it for days. Nothing with a label on. It files things in size order.',
+  },
+  'the-waiting-list': {
+    charlotte:
+      'Tall, orderly and endlessly patient, which is everything I ask of a queue. It grows more impressive by the week.',
+    wilbur:
+      "Feed the top entry; the rest wait their turn. Don't ask for anything out loud near the tank. That's how you join, and it's a long way down.",
+  },
+  'the-waterline': {
+    charlotte:
+      'A perfect silver ribbon along the top of your water. It trims the tank like piping on a cake.',
+    wilbur:
+      "Top up slowly; it rises with the level and likes the warning. Scatter food on the surface. Never skim through it with the net, or you've netted all of it.",
+  },
+  'the-watershed': {
+    charlotte:
+      'Branched like a family tree and clear as a spring morning. Every tank upstairs will feel the difference.',
+    wilbur:
+      "Don't top it up; it sees to that. Change the water a little at a time, so it doesn't notice which drops are leaving.",
+  },
+  'the-welcome': {
+    charlotte:
+      'Coral, cream and open-armed. The warmest little whelk I have ever stocked, and it has such a gift with customers.',
+    wilbur:
+      "Place it facing the door, and feed it from the side while it's closed. Don't bring visitors over to watch it shut.",
+  },
+  'thumbnail-dace': {
+    charlotte:
+      'Tiny, twitchy and terribly sweet. Buy one, and by the weekend it will feel like a crowd.',
+    wilbur:
+      "Feed slowly and stand still while it eats; every startle scatters them. Count by the scoop, not by the fish. It's the only number that holds.",
+  },
+  'till-minnow': {
+    charlotte:
+      'A bright little minnow with scales like a stack of coins. It brings such luck to a till, and it adores a paying customer.',
+    wilbur:
+      'Count the takings well away from its tank. It swims toward money, and it muddles the totals by ending up in them.',
+  },
+  'tithe-shoal': {
+    charlotte:
+      'A great silver sail of a fish, turning all together like a single thought. The most sociable thing in the shop.',
+    wilbur:
+      "Feed the whole shape at once, in one scatter. The one facing backwards isn't lost. It's keeping watch behind, so leave it be.",
+  },
+  'wrapping-sole': {
+    charlotte:
+      'Flat as a pressed flower and every bit as tidy. It makes itself useful the moment it touches bottom.',
+    wilbur:
+      "Leave nothing on the gravel you don't want back creased. Lift it by the fringe, gently, or it will fold itself around the scoop.",
+  },
+}
+
 export const CTHULHUQUARIUM_SCENES: Record<string, CanonScene> = {
   intro: {
     id: 'intro',

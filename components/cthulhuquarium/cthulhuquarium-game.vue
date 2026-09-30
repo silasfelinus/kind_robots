@@ -28,7 +28,7 @@
      rather than defaulting to one color. -->
 <template>
   <ClientOnly>
-    <div class="kr-container flex max-w-3xl flex-col gap-3">
+    <div class="kr-container flex max-w-5xl flex-col gap-3">
       <cthulhuquarium-dialogue />
       <p v-if="tankStore.error" class="alert alert-error text-sm">
         {{ tankStore.error }}
@@ -93,76 +93,6 @@
         </button>
       </div>
 
-      <div class="flex flex-wrap items-center justify-between gap-2">
-        <div class="kr-text-bold-sm flex items-center gap-3">
-          <span
-            class="flex items-center gap-1 rounded-full"
-            :class="{ 'cq-focus': storyFocus === 'coins' }"
-          >
-            <Icon name="kind-icon:coin" class="size-4 text-warning" />
-            {{ tankStore.coins }}
-          </span>
-          <span class="flex items-center gap-1 opacity-70">
-            <Icon name="kind-icon:fish" class="kr-icon-4" />
-            {{ tankStore.stock.length }}
-          </span>
-          <span class="flex items-center gap-1 text-xs opacity-60">
-            {{ tankStore.occupantSize }}/{{ tankStore.sizeCap }} capacity
-          </span>
-        </div>
-
-        <button
-          type="button"
-          class="btn btn-primary btn-sm min-h-11 min-w-11"
-          :class="{ 'cq-focus': storyFocus === 'feed' }"
-          :disabled="!tankStore.hungriest"
-          @click="onFeed"
-        >
-          Feed hungriest
-        </button>
-      </div>
-
-      <!-- Debris and cleaning (cthulhuquarium/t-027): the active-play
-           channel. Debris only ever throttles the production RATE, never
-           holdings, so clicking Clean can never lose anything -- it just
-           speeds the tank back up. Manual clicking is one of three
-           deliberately co-viable routes (the debris set and The Sexton are
-           the other two, both still unbuilt); this is only the first. -->
-      <div class="flex items-center gap-2">
-        <Icon name="kind-icon:sparkles" class="kr-icon-4 shrink-0 opacity-60" />
-        <div
-          class="h-1.5 flex-1 overflow-hidden rounded-full bg-base-300"
-          role="meter"
-          :aria-valuenow="tankStore.debrisLevel"
-          aria-valuemin="0"
-          aria-valuemax="100"
-          aria-label="Tank debris"
-        >
-          <div
-            class="h-full rounded-full bg-warning/70 transition-all"
-            :class="{ 'bg-error/70': tankStore.debrisLevel >= 80 }"
-            :style="{ width: `${tankStore.debrisLevel}%` }"
-          />
-        </div>
-        <button
-          type="button"
-          class="btn btn-outline btn-xs min-h-11 min-w-11"
-          :class="{ 'cq-focus': storyFocus === 'clean' }"
-          :disabled="
-            tankStore.debrisLevel <= 0 && tankStore.pendingCleanClicks === 0
-          "
-          @click="tankStore.requestClean()"
-        >
-          Clean
-          <span
-            v-if="tankStore.pendingCleanClicks > 0"
-            class="kr-badge-neutral-xs ml-1"
-          >
-            ×{{ tankStore.pendingCleanClicks }}
-          </span>
-        </button>
-      </div>
-
       <!-- Decor placement banner (cthulhuquarium/t-017): shown once a shop
            item is chosen, so tapping the tank has an obvious, reversible
            meaning instead of silently spending coins. -->
@@ -183,27 +113,103 @@
         </button>
       </div>
 
-      <canvas
-        ref="canvasRef"
-        class="aspect-[16/9] w-full cursor-pointer rounded-2xl border border-base-300 bg-base-300 touch-none"
+      <div
+        class="relative overflow-hidden rounded-2xl border border-base-300 bg-base-300 shadow-xl"
         :class="{ 'cq-focus': storyFocus === 'tank' }"
-        :width="STAGE_WIDTH"
-        :height="STAGE_HEIGHT"
-        aria-label="Aquarium tank. Tap drifting coins to collect them, or drag a placed decoration to move it."
-        @pointerdown="onCanvasPointerDown"
-        @pointermove="onCanvasPointerMove"
-        @pointerup="onCanvasPointerUp"
-        @pointercancel="onCanvasPointerUp"
-      />
+      >
+        <canvas
+          ref="canvasRef"
+          class="block aspect-[16/9] w-full cursor-pointer touch-none"
+          :width="STAGE_WIDTH * RENDER_SCALE"
+          :height="STAGE_HEIGHT * RENDER_SCALE"
+          aria-label="Aquarium tank. Tap drifting coins to collect them, tap near a fish to startle it, or drag a placed decoration to move it."
+          @pointerdown="onCanvasPointerDown"
+          @pointermove="onCanvasPointerMove"
+          @pointerup="onCanvasPointerUp"
+          @pointercancel="onCanvasPointerUp"
+          @pointerleave="onCanvasPointerLeave"
+        />
 
-      <p v-if="tankStore.loading" class="kr-text-faded-xs">
-        Settling into your tank…
-      </p>
-      <p v-else class="kr-text-faded-xs">
-        Feed the hungriest occupant to keep it paying out. Coins accrue on their
-        own while you're away and settle the moment you return -- nothing here
-        is saved in this browser, it's all your tank.
-      </p>
+        <div
+          class="pointer-events-none absolute inset-x-0 top-0 flex flex-wrap items-start justify-between gap-2 p-2 sm:p-3"
+        >
+          <div
+            class="flex items-center gap-3 rounded-full bg-base-100/80 px-3 py-1.5 text-sm font-bold shadow backdrop-blur-sm"
+          >
+            <span
+              class="flex items-center gap-1 rounded-full"
+              :class="{ 'cq-focus': storyFocus === 'coins' }"
+            >
+              <Icon name="kind-icon:coin" class="size-4 text-warning" />
+              {{ tankStore.coins }}
+            </span>
+            <span class="flex items-center gap-1 opacity-70">
+              <Icon name="kind-icon:fish" class="kr-icon-4" />
+              {{ tankStore.stock.length }}
+            </span>
+            <span class="text-xs font-normal opacity-70">
+              {{ tankStore.occupantSize }}/{{ tankStore.sizeCap }} room
+            </span>
+          </div>
+
+          <div class="pointer-events-auto flex items-center gap-2">
+            <button
+              type="button"
+              class="btn btn-sm min-h-11 gap-2 border-base-300 bg-base-100/80 shadow backdrop-blur-sm"
+              :class="{ 'cq-focus': storyFocus === 'clean' }"
+              :disabled="
+                tankStore.debrisLevel <= 0 && tankStore.pendingCleanClicks === 0
+              "
+              :aria-label="`Clean the tank, debris ${tankStore.debrisLevel}%`"
+              @click="tankStore.requestClean()"
+            >
+              <span
+                class="h-1.5 w-10 overflow-hidden rounded-full bg-base-300"
+                role="meter"
+                :aria-valuenow="tankStore.debrisLevel"
+                aria-valuemin="0"
+                aria-valuemax="100"
+                aria-label="Tank debris"
+              >
+                <span
+                  class="block h-full rounded-full bg-warning transition-all"
+                  :class="{ 'bg-error': tankStore.debrisLevel >= 80 }"
+                  :style="{ width: `${tankStore.debrisLevel}%` }"
+                />
+              </span>
+              Clean
+              <span
+                v-if="tankStore.pendingCleanClicks > 0"
+                class="kr-badge-neutral-xs"
+              >
+                ×{{ tankStore.pendingCleanClicks }}
+              </span>
+            </button>
+            <button
+              type="button"
+              class="btn btn-primary btn-sm min-h-11 min-w-11 shadow"
+              :class="{ 'cq-focus': storyFocus === 'feed' }"
+              :disabled="!tankStore.hungriest"
+              @click="onFeed"
+            >
+              Feed hungriest
+            </button>
+          </div>
+        </div>
+
+        <p
+          v-if="tankStore.loading"
+          class="absolute inset-x-0 bottom-3 text-center text-sm italic text-base-content/80"
+        >
+          Settling into your tank…
+        </p>
+        <p
+          v-else-if="!tankStore.stock.length"
+          class="pointer-events-none absolute inset-x-0 bottom-4 text-center font-serif text-base italic text-base-content/80"
+        >
+          An empty tank, waiting. The shop is just below.
+        </p>
+      </div>
 
       <div class="flex flex-col gap-2">
         <div class="flex items-center justify-between">
@@ -243,6 +249,13 @@
                   class="mt-1 text-[0.65rem] uppercase tracking-wide opacity-60"
                 >
                   {{ tankStockStatsLine(entry) }}
+                </p>
+                <p
+                  v-if="voiceFor(entry.Monster.slug, 'wilbur')"
+                  class="mt-1.5 font-serif text-xs leading-snug opacity-90"
+                >
+                  “{{ voiceFor(entry.Monster.slug, 'wilbur') }}”
+                  <span class="opacity-60">— Wilbur</span>
                 </p>
               </div>
               <div class="flex shrink-0 flex-col gap-1">
@@ -429,7 +442,14 @@
                    doesn't even send it for unowned species
                    (cthulhuquarium/t-012). It reveals in the dialog below,
                    once, on unlock. -->
-              <p class="mt-0.5 line-clamp-2 text-xs italic opacity-70">
+              <p
+                v-if="voiceFor(entry.slug, 'charlotte')"
+                class="mt-1 font-serif text-xs leading-snug"
+              >
+                “{{ voiceFor(entry.slug, 'charlotte') }}”
+                <span class="not-italic opacity-60">— Charlotte</span>
+              </p>
+              <p v-else class="mt-0.5 line-clamp-2 text-xs italic opacity-70">
                 Not yet observed.
               </p>
               <button
@@ -969,6 +989,13 @@
               'Nothing is written about this one yet.'
             }}
           </p>
+          <p
+            v-if="voiceFor(tankStore.revealedUnlock.Monster.slug, 'wilbur')"
+            class="rounded-xl bg-base-200 p-2 font-serif text-sm leading-snug"
+          >
+            “{{ voiceFor(tankStore.revealedUnlock.Monster.slug, 'wilbur') }}”
+            <span class="text-xs opacity-60">— Wilbur, carrying it out</span>
+          </p>
           <button
             type="button"
             class="btn btn-primary btn-sm mt-1"
@@ -1355,11 +1382,31 @@ import {
   motionForSpecies,
   spriteForSpecies,
 } from '~/utils/cthulhuquariumSprites'
+import {
+  facingOf,
+  packmatePositions,
+  pitchOf,
+  spawnSwimState,
+  startle,
+  stepSwimState,
+  type SwimState,
+} from '~/utils/cthulhuquariumMotion'
+import { CTHULHUQUARIUM_VOICES } from '~/utils/cthulhuquariumCanon.generated'
+import {
+  createAmbience,
+  drawAmbienceBack,
+  drawAmbienceFront,
+  stepAmbience,
+} from '~/utils/cthulhuquariumAmbience'
 
 /* Fixed logical resolution; CSS scales it to the host width so the canvas
    survives phone widths without its own breakpoint logic. */
 const STAGE_WIDTH = 640
 const STAGE_HEIGHT = 360
+// The canvas backing store is RENDER_SCALE x the stage, and the context is
+// scaled to match: the game logic stays in 640x360 stage units while sprites
+// and art draw sharp on a 2x display.
+const RENDER_SCALE = 2
 
 const MOTE_RADIUS = 9
 const FOOD_FALL_SPEED = 70
@@ -1492,14 +1539,10 @@ function hashHue(slug: string): number {
   return hash % 360
 }
 
-type Swimmer = {
+type Swimmer = SwimState & {
   stockId: number
   monsterId: number
-  x: number
-  y: number
-  vx: number
-  vy: number
-  phase: number
+  facing: number
   profile: BehaviorProfile
 }
 
@@ -1522,6 +1565,13 @@ type FeedCreature = { x: number; y: number; phase: number; lean: number }
 
 const tankStore = useCthulhuquariumTankStore()
 const storyFocus = computed(() => tankStore.activeBeat?.focus ?? null)
+
+function voiceFor(
+  slug: string | null | undefined,
+  who: 'charlotte' | 'wilbur',
+): string {
+  return slug ? (CTHULHUQUARIUM_VOICES[slug]?.[who] ?? '') : ''
+}
 
 const LANDMARK_HINTS: Record<string, string> = {
   first_full_tank: 'Fill every slot',
@@ -1720,21 +1770,22 @@ function tankStockStatsLine(entry: TankStock): string | null {
 }
 
 function spawnSwimmer(stock: TankStock): Swimmer {
-  const profile = behaviorProfile(stock.Monster.behavior)
+  const state = spawnSwimState(
+    stock.Monster.behavior,
+    STAGE_WIDTH,
+    STAGE_HEIGHT,
+  )
   return {
+    ...state,
     stockId: stock.id,
     monsterId: stock.monsterId,
-    x: Math.random() * STAGE_WIDTH,
-    y:
-      STAGE_HEIGHT *
-      (profile.vBand[0] +
-        Math.random() * (profile.vBand[1] - profile.vBand[0])),
-    vx: Math.random() < 0.5 ? -profile.speed : profile.speed,
-    vy: 0,
-    phase: Math.random() * Math.PI * 2,
-    profile,
+    facing: state.vx >= 0 ? 1 : -1,
+    profile: behaviorProfile(stock.Monster.behavior),
   }
 }
+
+const ambience = createAmbience(STAGE_WIDTH, STAGE_HEIGHT)
+let pointerOnStage: { x: number; y: number } | null = null
 
 /** Keep one drawn swimmer per stocked occupant. */
 function syncSwimmers() {
@@ -1797,43 +1848,86 @@ function getFishImage(slug: string): HTMLImageElement | null {
   return null
 }
 
+function drawSpriteAt(
+  context: CanvasRenderingContext2D,
+  sprite: HTMLImageElement,
+  slug: string,
+  x: number,
+  y: number,
+  facing: number,
+  pitch: number,
+  d: number,
+  offset: number,
+) {
+  context.save()
+  context.translate(x, y)
+  context.scale(facing, 1)
+  context.rotate(pitch)
+  drawAnimatedSprite(
+    context,
+    sprite,
+    motionForSpecies(slug),
+    performance.now(),
+    d,
+    d,
+    offset,
+  )
+  context.restore()
+}
+
 function drawFish(
   context: CanvasRenderingContext2D,
   swimmer: Swimmer,
   hunger: number,
   monster: TankStock['Monster'],
+  scale = 1,
 ) {
   const hue = monster.hue ?? hashHue(monster.slug)
-  const facing = swimmer.vx >= 0 ? 1 : -1
-  const size = 10 + (monster.size ?? 1) * 4
+  const facing = swimmer.facing
+  const size = (10 + (monster.size ?? 1) * 4) * scale
   // Hungry occupants desaturate and dim rather than vanishing, so a
   // neglected tank reads as neglected at a glance.
   const life = 0.3 + (hunger / 100) * 0.7
   const sprite = getSpriteImage(monster.slug)
   const image = sprite ? null : getFishImage(monster.slug)
 
-  context.save()
-  context.translate(swimmer.x, swimmer.y)
-  context.scale(facing, 1)
-
   if (sprite) {
     context.globalAlpha = life
     context.filter = hunger < 100 ? `saturate(${40 + hunger * 0.6}%)` : 'none'
     const d = size * 3
-    drawAnimatedSprite(
+    const pitch = pitchOf(swimmer)
+    for (const mate of packmatePositions(swimmer, facing)) {
+      drawSpriteAt(
+        context,
+        sprite,
+        monster.slug,
+        mate.x,
+        mate.y,
+        facing,
+        pitch,
+        d * mate.scale,
+        mate.offset,
+      )
+    }
+    drawSpriteAt(
       context,
       sprite,
-      motionForSpecies(monster.slug),
-      performance.now(),
-      d,
+      monster.slug,
+      swimmer.x,
+      swimmer.y,
+      facing,
+      pitch,
       d,
       (swimmer.stockId % 17) / 17,
     )
     context.filter = 'none'
     context.globalAlpha = 1
-    context.restore()
     return
   }
+
+  context.save()
+  context.translate(swimmer.x, swimmer.y)
+  context.scale(facing, 1)
 
   if (image) {
     // Art plates are square, subject-centered portraits -- draw one square,
@@ -2050,14 +2144,7 @@ function render(context: CanvasRenderingContext2D) {
     context.fillRect(0, 0, STAGE_WIDTH, STAGE_HEIGHT)
   }
 
-  context.fillStyle = 'rgba(150, 255, 210, 0.06)'
-  context.beginPath()
-  context.moveTo(STAGE_WIDTH * 0.35, 0)
-  context.lineTo(STAGE_WIDTH * 0.62, 0)
-  context.lineTo(STAGE_WIDTH * 0.78, STAGE_HEIGHT)
-  context.lineTo(STAGE_WIDTH * 0.2, STAGE_HEIGHT)
-  context.closePath()
-  context.fill()
+  drawAmbienceBack(context, ambience, STAGE_WIDTH, STAGE_HEIGHT)
 
   // Decor (cthulhuquarium/t-017): drawn behind the fish/food layer, in
   // front of the background -- purely cosmetic, no physics, so this is the
@@ -2089,7 +2176,12 @@ function render(context: CanvasRenderingContext2D) {
     context.stroke()
   }
 
+  const clingers: Swimmer[] = []
   for (const swimmer of swimmers.value) {
+    if (swimmer.mode === 'cling') {
+      clingers.push(swimmer)
+      continue
+    }
     const entry = stockFor(swimmer)
     if (!entry) continue
     drawFish(context, swimmer, entry.hunger, entry.Monster)
@@ -2109,39 +2201,35 @@ function render(context: CanvasRenderingContext2D) {
 
   if (collector.value) drawCollector(context, collector.value)
 
+  drawAmbienceFront(context, ambience, STAGE_WIDTH, STAGE_HEIGHT)
+
+  // Clingers are on the inside of the glass, in front of everything else
+  // (fish/SCHEMA.md "cling"): drawn last and a little larger, as the nearest
+  // thing to the player's face.
+  for (const swimmer of clingers) {
+    const entry = stockFor(swimmer)
+    if (entry) drawFish(context, swimmer, entry.hunger, entry.Monster, 1.35)
+  }
+
   if (tankStore.finaleTriggered) drawFinaleReframe(context)
 }
 
 function step(delta: number) {
   syncSwimmers()
 
+  const food = feed.value[0] ?? null
   for (const swimmer of swimmers.value) {
-    const target = feed.value[0]
-    if (target && !swimmer.profile.stationary) {
-      // Fish path toward food rather than ignoring it.
-      const dx = target.x - swimmer.x
-      const dy = target.y - swimmer.y
-      const distance = Math.hypot(dx, dy) || 1
-      swimmer.x += (dx / distance) * 55 * swimSpeedMultiplier.value * delta
-      swimmer.y += (dy / distance) * 55 * swimSpeedMultiplier.value * delta
-      swimmer.vx = dx >= 0 ? Math.abs(swimmer.vx) : -Math.abs(swimmer.vx)
-    } else {
-      const [minY, maxY] = swimmer.profile.vBand
-      const bandTop = STAGE_HEIGHT * minY
-      const bandBottom = STAGE_HEIGHT * maxY
-      swimmer.phase += delta
-      swimmer.x += swimmer.vx * swimSpeedMultiplier.value * delta
-      swimmer.y += Math.sin(swimmer.phase) * swimmer.profile.wobble * delta
-      if (swimmer.profile.wallCling) {
-        // Clings near whichever wall it's closest to rather than crossing
-        // the whole tank.
-        const nearLeft = swimmer.x < STAGE_WIDTH / 2
-        swimmer.x += ((nearLeft ? 30 : STAGE_WIDTH - 30) - swimmer.x) * 0.02
-      }
-      if (swimmer.x < 20 || swimmer.x > STAGE_WIDTH - 20) swimmer.vx *= -1
-      swimmer.y = Math.min(Math.max(swimmer.y, bandTop), bandBottom)
-    }
+    stepSwimState(swimmer, {
+      width: STAGE_WIDTH,
+      height: STAGE_HEIGHT,
+      delta,
+      speedMultiplier: swimSpeedMultiplier.value,
+      pointer: pointerOnStage,
+      food,
+    })
+    swimmer.facing = facingOf(swimmer, swimmer.facing)
   }
+  stepAmbience(ambience, STAGE_WIDTH, STAGE_HEIGHT, delta)
 
   feed.value = feed.value.filter((creature) => {
     creature.y += FOOD_FALL_SPEED * delta
@@ -2200,6 +2288,7 @@ function stepCollector(delta: number) {
 function loop(timestamp: number) {
   const context = canvasRef.value?.getContext('2d')
   if (!context) return
+  context.setTransform(RENDER_SCALE, 0, 0, RENDER_SCALE, 0, 0)
   // Clamp the delta so a backgrounded tab returning does not simulate one
   // giant step -- coins/hunger are settled server-side, not by this loop.
   const delta = Math.min((timestamp - lastFrameAt) / 1000 || 0, 0.1)
@@ -2244,6 +2333,8 @@ function onCanvasPointerDown(event: PointerEvent) {
     return
   }
 
+  for (const swimmer of swimmers.value) startle(swimmer, coords.x, coords.y)
+
   const hitDecor = hitTestDecor(coords.x, coords.y)
   if (hitDecor) {
     draggingDecorId.value = hitDecor.id
@@ -2271,9 +2362,14 @@ function onCanvasPointerDown(event: PointerEvent) {
   if (index !== -1) motes.value.splice(index, 1)
 }
 
+function onCanvasPointerLeave() {
+  pointerOnStage = null
+}
+
 function onCanvasPointerMove(event: PointerEvent) {
-  if (draggingDecorId.value === null) return
   const coords = stageCoordsFromEvent(event)
+  pointerOnStage = coords
+  if (draggingDecorId.value === null) return
   if (!coords) return
   dragPreview.value = {
     x: Math.min(Math.max(coords.x, 0), STAGE_WIDTH),

@@ -196,6 +196,18 @@ export const TZADDIK_BLACKLIST: TzaddikBlacklistEntry[] = [
     reason:
       'Amplifying antisemitic and far-right content, and a gesture at the 2025 inauguration widely read as a Nazi salute.',
   },
+  {
+    name: 'Leila Khaled',
+    aliases: [],
+    reason:
+      'Took part in the 1969 TWA 840 and 1970 El Al 219 airliner hijackings as a PFLP member.',
+  },
+  {
+    name: 'Tariq Ramadan',
+    aliases: [],
+    reason:
+      'Convicted of rape by a Swiss appeals court in 2024, with further rape charges tried in France.',
+  },
 ]
 
 /** Case-, accent-, and punctuation-insensitive key ("Ghandi" and "J.K. Rowling" still match). */

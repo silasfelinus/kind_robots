@@ -20,6 +20,7 @@ import {
 import {
   findTzaddikBlacklistEntry,
   TZADDIK_BLACKLIST,
+  tzaddikBlacklistKey,
 } from '../../../../utils/tzaddikBlacklist'
 
 const DISCOVERY_SOURCE = 'daily-discovery'
@@ -192,10 +193,12 @@ export default defineEventHandler(async (event) => {
       }
     }
 
+    // Dedupe against *every* candidate, not a recent window: after the
+    // 2026-09-30 seed import (~850 rows) a take-400 window let the model
+    // re-suggest long-approved people such as Jimmy Carter.
     const existing = await prisma.tzaddikCandidate.findMany({
-      select: { displayName: true, wikipediaUrl: true },
+      select: { displayName: true, wikipediaUrl: true, wikipediaPageId: true },
       orderBy: { updatedAt: 'desc' },
-      take: 400,
     })
     const existingNames = existing
       .map((entry) => entry.displayName)
@@ -235,7 +238,14 @@ export default defineEventHandler(async (event) => {
 
     const seenUrls = new Set(existing.map((entry) => entry.wikipediaUrl))
     const seenNames = new Set(
-      existing.map((entry) => entry.displayName.toLowerCase()),
+      existing.map((entry) => tzaddikBlacklistKey(entry.displayName)),
+    )
+    // Catches renamed/redirected articles ("Princess Diana of Wales" vs
+    // "Diana, Princess of Wales") that a name or URL match misses.
+    const seenPageIds = new Set(
+      existing
+        .map((entry) => entry.wikipediaPageId)
+        .filter((id): id is string => Boolean(id)),
     )
     let createdCount = 0
     const failures: Array<{ displayName: string; reason: string }> = []
@@ -254,7 +264,7 @@ export default defineEventHandler(async (event) => {
       if (findTzaddikBlacklistEntry(displayName)) continue
       if (
         seenUrls.has(wikipediaUrl) ||
-        seenNames.has(displayName.toLowerCase())
+        seenNames.has(tzaddikBlacklistKey(displayName))
       )
         continue
 
@@ -271,6 +281,9 @@ export default defineEventHandler(async (event) => {
         })
         continue
       }
+
+      if (source.wikipediaPageId && seenPageIds.has(source.wikipediaPageId))
+        continue
 
       const slug = await reserveUniqueSlug(displayName)
       await prisma.tzaddikCandidate.create({
@@ -301,7 +314,10 @@ export default defineEventHandler(async (event) => {
 
       createdCount += 1
       seenUrls.add(wikipediaUrl)
-      seenNames.add(displayName.toLowerCase())
+      seenNames.add(tzaddikBlacklistKey(displayName))
+      if (source.wikipediaPageId) {
+        seenPageIds.add(source.wikipediaPageId)
+      }
     }
 
     const poolSize = await discoveryPoolCount()

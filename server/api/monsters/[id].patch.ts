@@ -34,6 +34,30 @@ const ART_ID_FIELDS = [
 
 type ArtIdField = (typeof ART_ID_FIELDS)[number]
 
+// cthulhuquarium/t-022: the shared-bestiary tag list is the one non-art field
+// this route accepts, so a stale `games` value (a species tagged for
+// ruler-hooked after the last seed run) can be corrected without a direct DB
+// session. Accepts an array or a comma-separated string; stored comma-joined,
+// the same shape scripts/seed_bestiary.ts writes.
+function parseGames(value: unknown): string {
+  const list = Array.isArray(value)
+    ? value
+    : typeof value === 'string'
+      ? value.split(',')
+      : null
+  const tags = (list ?? [])
+    .map((tag) => String(tag).trim().toLowerCase())
+    .filter(Boolean)
+  if (!list || !tags.length || tags.some((tag) => !/^[a-z0-9-]+$/.test(tag))) {
+    throw createError({
+      statusCode: 400,
+      message:
+        'games must be a non-empty list of lowercase game slugs (array or comma-separated string).',
+    })
+  }
+  return [...new Set(tags)].join(',')
+}
+
 function parseArtId(value: unknown, field: ArtIdField): number | null {
   if (value === null) return null
   const id = Number(value)
@@ -63,17 +87,21 @@ export default defineEventHandler(async (event) => {
     }
 
     const body = (await readBody<Record<string, unknown>>(event)) || {}
-    const data: Partial<Record<ArtIdField, number | null>> = {}
+    const data: Partial<Record<ArtIdField, number | null>> & {
+      games?: string
+    } = {}
 
     for (const field of ART_ID_FIELDS) {
       if (body[field] === undefined) continue
       data[field] = parseArtId(body[field], field)
     }
 
+    if (body.games !== undefined) data.games = parseGames(body.games)
+
     if (Object.keys(data).length === 0) {
       throw createError({
         statusCode: 400,
-        message: `No valid fields provided. Expected one or more of: ${ART_ID_FIELDS.join(', ')}.`,
+        message: `No valid fields provided. Expected one or more of: ${[...ART_ID_FIELDS, 'games'].join(', ')}.`,
       })
     }
 
@@ -103,7 +131,7 @@ export default defineEventHandler(async (event) => {
 
     return {
       success: true,
-      message: 'Monster art updated successfully.',
+      message: 'Monster updated successfully.',
       data: monster,
       statusCode: 200,
     }

@@ -105,8 +105,9 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    const artImageIds = Object.values(data).filter(
-      (value): value is number => value !== null,
+    // Only the art-id columns reference ArtImage rows; `games` is a string.
+    const artImageIds = ART_ID_FIELDS.map((field) => data[field]).filter(
+      (value): value is number => typeof value === 'number',
     )
     if (artImageIds.length) {
       const found = await prisma.artImage.findMany({

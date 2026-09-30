@@ -2335,8 +2335,10 @@ export async function getPublicTankByUsernameAndSlug(
   username: string,
   slug: string,
 ): Promise<PublicAquarium> {
+  // Same restricted-account exclusion as publicTankWhere below: the browse
+  // list already hid a restricted user's tank, but its URL still opened.
   const tank = await prisma.aquarium.findFirst({
-    where: { slug, isPublic: true, User: { username } },
+    where: { slug, isPublic: true, User: { username, isRestricted: false } },
     select: publicAquariumDetailSelect,
   })
   if (!tank) {

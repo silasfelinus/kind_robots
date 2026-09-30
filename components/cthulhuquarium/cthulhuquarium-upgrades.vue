@@ -77,16 +77,18 @@
 
 <script setup lang="ts">
 import { useCthulhuquariumTankStore } from '~/stores/cthulhuquariumTankStore'
-import { artByName } from '~/utils/cthulhuquariumArt'
+import { artByName, plateArt } from '~/utils/cthulhuquariumArt'
 
 const tankStore = useCthulhuquariumTankStore()
 
-const UPGRADE_ART: Record<string, string> = {
-  food: 'set-heavier-feed',
-  dropSpeed: 'set-restless-water',
+const UPGRADE_ART: Record<string, { plate: string; standIn: string }> = {
+  food: { plate: 'upgrade-food', standIn: 'set-heavier-feed' },
+  dropSpeed: { plate: 'upgrade-drops', standIn: 'set-restless-water' },
 }
 
 function upgradeArt(track: string): string | null {
-  return artByName(UPGRADE_ART[track])
+  const art = UPGRADE_ART[track]
+  if (!art) return null
+  return plateArt(art.plate) ?? artByName(art.standIn)
 }
 </script>

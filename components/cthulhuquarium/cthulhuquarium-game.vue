@@ -517,7 +517,10 @@
             class="kr-icon-10 shrink-0 overflow-hidden rounded-2xl border border-base-300"
           >
             <kr-art-plate
-              :source="{ imagePath: artByName('ichthyonomicon') }"
+              :source="{
+                imagePath:
+                  movingArt('ichthyonomicon') ?? artByName('ichthyonomicon'),
+              }"
               variant="icon"
               shape="square"
               frame="none"
@@ -590,6 +593,13 @@
               class="flex flex-col gap-1 kr-panel-compact"
               :class="{ 'border-primary/60': entry.equipped }"
             >
+              <img
+                v-if="artForSetKind(entry.kind)"
+                :src="artForSetKind(entry.kind) ?? undefined"
+                :alt="entry.title"
+                loading="lazy"
+                class="aspect-square w-full rounded-xl bg-base-200 object-contain"
+              />
               <div class="flex items-start justify-between gap-2">
                 <p class="kr-text-bold-sm">{{ entry.title }}</p>
                 <span
@@ -1229,7 +1239,9 @@
           class="modal-box flex max-w-sm flex-col items-center gap-3 rounded-3xl border border-base-300 bg-base-100 text-center shadow-2xl"
         >
           <kr-art-plate
-            :source="{ imagePath: screenFinaleArt }"
+            :source="{
+              imagePath: movingArt('screen-finale') ?? screenFinaleArt,
+            }"
             shape="wide"
             frame="thin"
             fit="cover"
@@ -1339,8 +1351,10 @@ import setLastAquariumArt from '~/assets/images/cthulhuquarium/cthulhuquarium-se
 import {
   artByName,
   artForEggTier,
+  artForSetKind,
   artForSpecies,
   backgroundArt,
+  movingArt,
   withCthulhuquariumArt,
 } from '~/utils/cthulhuquariumArt'
 import {

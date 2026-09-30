@@ -71,6 +71,32 @@ export function artForSet(slug: string | null | undefined): string | null {
   return lookup('set', slug)
 }
 
+// Set pieces are catalogued by kind (aquariumEconomy.ts SET_PIECE_CATALOG);
+// their plates were authored by what they depict (conductor's
+// build_cthulhuquarium_art_queue.py), so this is the join. peace_ward's plate
+// comes from the canon's story/plates.yaml.
+const SET_KIND_PLATES: Record<string, string> = {
+  extra_species_slot: 'set-extra-shelf',
+  feeding_bonus: 'set-heavier-feed',
+  swim_speed: 'set-restless-water',
+  roaming_collector: 'set-coin-collector',
+  debris_skimmer: 'set-glass-brush',
+  idle_hoarder: 'set-richer-silt',
+  peace_ward: 'set-peace-ward',
+}
+
+/** A set piece's plate by its catalog kind, moving if its clip has rendered. */
+export function artForSetKind(kind: string | null | undefined): string | null {
+  const stem = kind ? SET_KIND_PLATES[kind] : undefined
+  if (!stem) return null
+  return (
+    storyArt[`videos/${stem}`] ??
+    storyArt[`plates/${stem}`] ??
+    byStem[`cthulhuquarium-${stem}`] ??
+    null
+  )
+}
+
 /** A named shopkeeper or scene plate (`char-charlotte-fishmonger`, `bg-parlour`, ...). */
 export function artByName(stem: string | null | undefined): string | null {
   if (!stem) return null
@@ -106,7 +132,7 @@ export function withCthulhuquariumArt<
 }
 
 const storyModules = import.meta.glob<string>(
-  '../assets/images/cthulhuquarium/{portraits,backgrounds,plates}/*.webp',
+  '../assets/images/cthulhuquarium/{portraits,backgrounds,plates,videos}/*.webp',
   { eager: true, query: '?url', import: 'default' },
 )
 
@@ -149,4 +175,14 @@ function plateArt(key: string | null | undefined): string | null {
   return storyArt[`plates/${key}`] ?? byStem[`cthulhuquarium-${key}`] ?? null
 }
 
-export { backgroundArt, plateArt, portraitFor }
+/**
+ * A looping moving picture for a still (canon videos/videos.yaml, WAN
+ * image-to-video, animated WebP), or null until it has been rendered -- every
+ * caller keeps its still as the fallback.
+ */
+function movingArt(key: string | null | undefined): string | null {
+  if (!key) return null
+  return storyArt[`videos/${key}`] ?? null
+}
+
+export { backgroundArt, movingArt, plateArt, portraitFor }

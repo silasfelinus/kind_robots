@@ -231,6 +231,7 @@ const copied = {
   portraits: copyBuilt('characters/portraits', 'portraits'),
   backgrounds: copyBuilt('backgrounds/built', 'backgrounds'),
   plates: copyBuilt('story/built', 'plates'),
+  videos: copyBuilt('videos/raw', 'videos'),
 }
 for (const who of ['charlotte-fishmonger', 'wilbur-stint']) {
   const hero = join(canon, 'characters', 'portraits', 'hero', `${who}.webp`)

@@ -113,6 +113,12 @@ jobs:
           BASE_URL: ${{ steps.target.outputs.url }}
         run: npm run audit:gallery-chrome -- --base "$BASE_URL"
 
+      - name: Audit tablet navigation menu
+        if: always()
+        env:
+          BASE_URL: ${{ steps.target.outputs.url }}
+        run: npm run audit:tablet-nav -- --base "$BASE_URL"
+
       - name: Upload screenshots
         if: always()
         uses: actions/upload-artifact@v4

@@ -27,7 +27,7 @@
      rather than defaulting to one color. -->
 <template>
   <ClientOnly>
-    <div class="kr-container flex max-w-5xl flex-col gap-3">
+    <div ref="gameRoot" class="kr-container flex max-w-5xl flex-col gap-3">
       <cthulhuquarium-dialogue />
       <p v-if="tankStore.error" class="alert alert-error text-sm">
         {{ tankStore.error }}
@@ -1319,7 +1319,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import {
   TANK_POLL_INTERVAL_MS,
   useCthulhuquariumTankStore,
@@ -1360,6 +1360,7 @@ import {
 import {
   drawAnimatedSprite,
   motionForSpecies,
+  prefersReducedMotion,
   spriteForSpecies,
 } from '~/utils/cthulhuquariumSprites'
 import {
@@ -1544,7 +1545,23 @@ type Collector = {
 type FeedCreature = { x: number; y: number; phase: number; lean: number }
 
 const tankStore = useCthulhuquariumTankStore()
-const storyFocus = computed(() => tankStore.activeBeat?.focus ?? null)
+// Held, like the dialogue itself, while anything else has the floor.
+const storyFocus = computed(() =>
+  tankStore.storyShowing ? (tankStore.activeBeat?.focus ?? null) : null,
+)
+
+// A beat that points at something brings it on screen: after adopting the
+// first fish the page is still down at the shop, and Wilbur's "press Feed"
+// ring would otherwise pulse on a button above the fold.
+const gameRoot = ref<HTMLElement | null>(null)
+watch(storyFocus, async (focus) => {
+  if (!focus) return
+  await nextTick()
+  gameRoot.value?.querySelector('.cq-focus')?.scrollIntoView({
+    behavior: prefersReducedMotion() ? 'auto' : 'smooth',
+    block: 'center',
+  })
+})
 
 watch(
   () => tankStore.lastRareEvent,

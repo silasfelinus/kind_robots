@@ -31,6 +31,13 @@ import { CTHULHUQUARIUM_BACKGROUND_UNLOCKS } from './cthulhuquariumBackgrounds.g
 // economy.yaml: economy.tick_seconds
 export const TICK_SECONDS = 60
 
+// economy.yaml: currency.starting_coins (the canon's economy/balance.yaml
+// carries the same 25). A new tank used to open with 0 coins, and a fresh
+// fish starts full, so the intro's "press Feed" beat failed with "your tank
+// only has 0" and a brand-new player could only skip out of the tutorial.
+// New tanks only; existing ones keep what they hold.
+export const STARTING_COINS = 25
+
 // ---------------------------------------------------------------------------
 // Rarity tiers -- economy.yaml `rarity_tiers`
 // ---------------------------------------------------------------------------

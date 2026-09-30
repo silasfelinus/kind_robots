@@ -189,6 +189,10 @@
           {{ launch.label }}
         </a>
       </section>
+
+      <!-- Optional closing slot, last inside the scroll (e.g. room for a
+           fixed bottom sheet the project's UI opens over the page) -->
+      <slot name="footer" :project="project" />
     </div>
     </div>
   </div>

@@ -58,6 +58,7 @@ import {
   settleTick,
   STAT_BLOCK_KEYS,
   todaysShopDateKey,
+  STARTING_COINS,
   unlockCost,
   type BestiaryMilestoneConfig,
   type LandmarkMilestoneConfig,
@@ -374,8 +375,6 @@ function currentReservedSize(tank: {
   return stockSize + eggSize
 }
 
-const DEFAULT_STARTING_COINS = 0
-
 async function logEvent(
   tx: TransactionClient,
   aquariumId: number,
@@ -411,7 +410,7 @@ export async function getOrCreateTankForUser(
       userId,
       slug,
       title: `${username}'s Tank`,
-      coins: DEFAULT_STARTING_COINS,
+      coins: STARTING_COINS,
       // cthulhuquarium/t-014: "default new tanks to public per the pitch" --
       // set explicitly here rather than relying on the schema column
       // default, which stays false so existing rows created before this

@@ -6,7 +6,7 @@
 <template>
   <Transition name="cq-dialogue">
     <div
-      v-if="beat && scene"
+      v-if="beat && scene && tankStore.storyShowing"
       class="pointer-events-none fixed inset-x-0 bottom-0 z-50 flex justify-center px-3 pb-3"
       role="dialog"
       aria-live="polite"

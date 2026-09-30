@@ -9,11 +9,20 @@
     <template #interactive>
       <CthulhuquariumPlay />
     </template>
+    <template #footer>
+      <!-- Charlotte and Wilbur speak from a fixed bottom sheet
+           (cthulhuquarium-dialogue.vue). While they do, this keeps the end
+           of the page scrollable out from under it instead of hidden. -->
+      <div v-if="tankStore.storyShowing" class="h-56" aria-hidden="true" />
+    </template>
   </project-front-page>
 </template>
 
 <script setup lang="ts">
 import type { ProjectFrontConfig } from '@/components/conductor/projectFront'
+import { useCthulhuquariumTankStore } from '@/stores/cthulhuquariumTankStore'
+
+const tankStore = useCthulhuquariumTankStore()
 
 const config: ProjectFrontConfig = {
   slug: 'cthulhuquarium',

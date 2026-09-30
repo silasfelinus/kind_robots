@@ -19,14 +19,17 @@ const baseUrl = String(
 const token = String(process.env.SYNC_ADMIN_TOKEN || '').trim()
 
 if (!dir) throw new Error('usage: sync-monster-games.mjs <fish-dir> [--write]')
-if (write && !token) throw new Error('SYNC_ADMIN_TOKEN is required with --write.')
+if (write && !token)
+  throw new Error('SYNC_ADMIN_TOKEN is required with --write.')
 
 const norm = (list) => [...new Set(list)].sort().join(',')
 
 let changed = 0
 let failed = 0
 let checked = 0
-for (const file of (await readdir(dir)).filter((f) => f.endsWith('.yaml')).sort()) {
+for (const file of (await readdir(dir))
+  .filter((f) => f.endsWith('.yaml'))
+  .sort()) {
   const doc = parse(await readFile(join(dir, file), 'utf8'))
   if (!doc?.slug || !Array.isArray(doc.games) || !doc.games.length) continue
   checked++
@@ -40,7 +43,11 @@ for (const file of (await readdir(dir)).filter((f) => f.endsWith('.yaml')).sort(
     failed++
     continue
   }
-  const have = norm(String(body.data.games || '').split(',').map((g) => g.trim()))
+  const have = norm(
+    String(body.data.games || '')
+      .split(',')
+      .map((g) => g.trim()),
+  )
   if (have === want) continue
 
   changed++
@@ -48,7 +55,10 @@ for (const file of (await readdir(dir)).filter((f) => f.endsWith('.yaml')).sort(
   if (!write) continue
   const patch = await fetch(`${baseUrl}/api/monsters/${doc.slug}`, {
     method: 'PATCH',
-    headers: { 'content-type': 'application/json', 'x-beta-admin-token': token },
+    headers: {
+      'content-type': 'application/json',
+      'x-beta-admin-token': token,
+    },
     body: JSON.stringify({ games: want.split(',') }),
   })
   if (!patch.ok) {

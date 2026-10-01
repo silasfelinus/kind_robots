@@ -72,6 +72,21 @@ export function checkGraduateExecuteGuard(routeContent: string): string[] {
     )
   }
 
+  const dryRunIndex = routeContent.indexOf('body.dryRun')
+  const pushCallIndex = routeContent.indexOf('squashPushAppToRepo(')
+  if (dryRunIndex === -1) {
+    errors.push(
+      'graduate-execute.post.ts no longer supports body.dryRun -- the ' +
+        'log-only mode (appmaker/t-016) lets an admin validate a graduation ' +
+        'before the first irreversible run.',
+    )
+  } else if (pushCallIndex !== -1 && dryRunIndex > pushCallIndex) {
+    errors.push(
+      'graduate-execute.post.ts checks body.dryRun after squashPushAppToRepo ' +
+        '-- a dry run must return before any write.',
+    )
+  }
+
   const todoUpdateIndex = routeContent.indexOf('prisma.todo.update(')
   const removalCallIndex = routeContent.indexOf('openConductorAppRemovalPr(')
   if (todoUpdateIndex === -1) {

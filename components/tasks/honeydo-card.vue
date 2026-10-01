@@ -3,7 +3,7 @@
   Shared honey-do item card (checkbox toggle, title, priority badge,
   description, relative timestamp, "View project" link). Used by both the
   Conductor HONEYDO tab (components/pages/conductor-page.vue) and the
-  top-level For You page (components/pages/for-you-manager.vue) so the two
+  front dashboard's attention desk (components/home/home-attention.vue) so the two
   surfaces can't silently drift apart when a badge or action is added.
   Purely presentational -- callers own the todoStore/projectStore calls and
   handle emitted events.

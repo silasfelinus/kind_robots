@@ -31,10 +31,10 @@ export type DataSurfaceEntry = {
 export const DATA_SURFACES: DataSurfaceEntry[] = [
   {
     id: 'honeydo-inbox',
-    label: 'For You attention desk',
+    label: 'Dashboard attention desk',
     dataSource:
       'stores/conductorStore.ts: humanGates + pendingPitches; stores/todoStore.ts: honeyDoTodos',
-    navEntry: { channelKey: 'admin', tabKey: 'for-you' },
+    navEntry: { channelKey: 'home', tabKey: 'dashboard' },
   },
   {
     id: 'video-generator',

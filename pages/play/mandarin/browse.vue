@@ -869,6 +869,25 @@
           </div>
         </template>
       </template>
+
+      <details
+        v-if="userStore.isAdmin"
+        class="group kr-panel-flat"
+        @toggle="curationOpen = ($event.target as HTMLDetailsElement).open"
+      >
+        <summary
+          class="flex cursor-pointer list-none items-center justify-between gap-3 p-3 marker:hidden"
+        >
+          <span class="flex items-center gap-2 font-black">
+            <Icon name="kind-icon:lock" class="kr-icon-4" />
+            Catalog curation
+          </span>
+          <span class="kr-badge-outline">Admin only</span>
+        </summary>
+        <div class="border-t border-base-300 p-3">
+          <CurationMandarinCuration v-if="curationOpen" />
+        </div>
+      </details>
     </div>
   </div>
 </template>
@@ -877,11 +896,15 @@
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useMandarinTutorStore } from '@/stores/mandarinTutorStore'
+import { useUserStore } from '@/stores/userStore'
+import CurationMandarinCuration from '@/components/curation/mandarin-curation.vue'
 import type { MandarinComponentRole } from '@/utils/mandarin'
 import type { MandarinBannerTile } from '@/components/mandarin/mandarin-banner.vue'
 
 const route = useRoute()
 const store = useMandarinTutorStore()
+const userStore = useUserStore()
+const curationOpen = ref(false)
 const {
   cards,
   allSets,

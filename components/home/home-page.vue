@@ -363,6 +363,17 @@
     </div>
 
     <!--
+      The daily Dream ritual. It lived on the standalone For You page until
+      that page was folded into this dashboard (kind_robots issue #2664), so it
+      comes here rather than going back to dream-manager, where Silas did not
+      want it (2026-08-07). Admin-only, like the rest of the attention desk.
+    -->
+    <section v-if="isAdmin" class="w-full space-y-3">
+      <daily-dream-generator />
+      <daily-digest-browser />
+    </section>
+
+    <!--
       THE FEED, FULL WIDTH, LAST. Silas, 2026-09-11: "let's readjust the layout
       so the news gets put on the bottom below everything, 100% width. We have a
       big problem now with whitespace."

@@ -8,6 +8,25 @@
   >
     <template #interactive>
       <CthulhuquariumPlay />
+
+      <details
+        v-if="userStore.isAdmin"
+        class="group kr-panel-flat mt-5"
+        @toggle="curationOpen = ($event.target as HTMLDetailsElement).open"
+      >
+        <summary
+          class="flex cursor-pointer list-none items-center justify-between gap-3 p-3 marker:hidden"
+        >
+          <span class="flex items-center gap-2 font-black">
+            <Icon name="kind-icon:lock" class="kr-icon-4" />
+            Monster curation
+          </span>
+          <span class="kr-badge-outline">Admin only</span>
+        </summary>
+        <div class="border-t border-base-300 p-3">
+          <CurationCthulhuquariumCuration v-if="curationOpen" />
+        </div>
+      </details>
     </template>
     <template #footer>
       <!-- Charlotte and Wilbur speak from a fixed bottom sheet
@@ -20,9 +39,14 @@
 
 <script setup lang="ts">
 import type { ProjectFrontConfig } from '@/components/conductor/projectFront'
+import { ref } from 'vue'
 import { useCthulhuquariumTankStore } from '@/stores/cthulhuquariumTankStore'
+import { useUserStore } from '@/stores/userStore'
+import CurationCthulhuquariumCuration from '@/components/curation/cthulhuquarium-curation.vue'
 
 const tankStore = useCthulhuquariumTankStore()
+const userStore = useUserStore()
+const curationOpen = ref(false)
 
 const config: ProjectFrontConfig = {
   slug: 'cthulhuquarium',

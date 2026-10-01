@@ -84,19 +84,47 @@
   `userStore.isAdmin` is the check, matching how the rest of the app gates
   admin-only affordances, and it renders nothing at all for anyone else rather
   than an empty panel -- the column then gives that height to the newsfeed.
+
+  THE WHOLE QUEUE, NOT JUST GATES (kind_robots issue #2664). The standalone For
+  You page used to be the only place a pitch could be approved or rejected, a
+  gate sent back, a paused project's gate reached, or a honey-do follow-up
+  ticked off. That page is retired in favour of the front dashboard, so every
+  one of those actions lives here now, in the same narrow column and through
+  the same store calls For You used.
 -->
 <template>
   <section
-    v-if="isAdmin && (gates.length || isLoading || receipts.length)"
+    v-if="
+      isAdmin &&
+      (gates.length ||
+        pausedGates.length ||
+        pitches.length ||
+        followUps.length ||
+        isLoading ||
+        receipts.length)
+    "
     class="flex min-h-0 flex-col gap-1 kr-panel-flat p-2"
   >
     <header class="flex shrink-0 items-baseline justify-between gap-2">
       <h2 class="kr-text-eyebrow text-[0.7rem] tracking-[0.16em] text-primary">
         Needs you
-        <span v-if="gates.length" class="text-base-content/40"
-          >· {{ gates.length }}</span
+        <span v-if="queueCount" class="text-base-content/40"
+          >· {{ queueCount }}</span
         >
       </h2>
+
+      <label
+        v-if="pausedGates.length"
+        class="ml-auto flex cursor-pointer items-center gap-1 text-[0.65rem] font-bold text-base-content/50"
+        title="Include gates from paused projects"
+      >
+        <input
+          v-model="showPaused"
+          type="checkbox"
+          class="kr-toggle-warning-sm"
+        />
+        paused · {{ pausedGates.length }}
+      </label>
 
       <NuxtLink
         to="/conductor"
@@ -185,6 +213,9 @@
             <span v-if="gate.task.softGate" class="text-base-content/35"
               >· soft</span
             >
+            <span v-if="isPausedGate(gate)" class="text-base-content/35"
+              >· paused</span
+            >
           </p>
           <p
             class="kr-text-bold-content line-clamp-2 text-[0.7rem] leading-snug group-hover:text-primary"
@@ -263,6 +294,16 @@
 
             <button
               type="button"
+              class="btn btn-ghost btn-xs rounded-lg border border-base-300 text-error"
+              :disabled="isUpdating(gate) || !replyText(gate)"
+              title="Send the task back for another pass with this note"
+              @click="act(gate, 'reject')"
+            >
+              Send back
+            </button>
+
+            <button
+              type="button"
               class="btn btn-ghost btn-xs rounded-lg border border-base-300 text-success"
               :disabled="isUpdating(gate)"
               title="Accept the task as finished and close it"
@@ -303,6 +344,89 @@
         Checking what's waiting…
       </p>
     </div>
+
+    <div v-if="pitches.length" class="shrink-0 space-y-1 pt-1">
+      <h3
+        class="kr-text-eyebrow px-1 text-[0.6rem] tracking-[0.14em] text-secondary"
+      >
+        Pitches · {{ pitches.length }}
+      </h3>
+      <div
+        class="max-h-[16rem] min-h-0 space-y-1 overflow-y-auto overscroll-contain pr-1"
+      >
+        <div
+          v-for="pitch in pitches"
+          :key="pitch.slug"
+          class="min-w-0 kr-panel-flat rounded-lg px-2 py-1.5"
+        >
+          <p
+            class="kr-text-eyebrow truncate text-[0.6rem] tracking-[0.12em] text-secondary"
+          >
+            {{ pitch.projectTarget || 'General' }}
+            <span v-if="pitch.effort" class="text-base-content/35"
+              >· {{ pitch.effort }}</span
+            >
+          </p>
+          <p
+            class="kr-text-bold-content line-clamp-2 text-[0.7rem] leading-snug"
+            :title="pitch.idea || pitch.title"
+          >
+            {{ pitch.title }}
+          </p>
+          <div class="mt-1 flex flex-wrap items-center gap-1">
+            <button
+              type="button"
+              class="btn btn-success btn-xs rounded-lg"
+              :disabled="pitchIsUpdating(pitch.slug)"
+              @click="actOnPitch(pitch.slug, pitch.title, 'approved')"
+            >
+              <span v-if="pitchIsUpdating(pitch.slug)" class="kr-spinner-xs" />
+              Approve
+            </button>
+            <button
+              type="button"
+              class="btn btn-ghost btn-xs rounded-lg border border-base-300 text-error"
+              :disabled="pitchIsUpdating(pitch.slug)"
+              @click="actOnPitch(pitch.slug, pitch.title, 'rejected')"
+            >
+              Reject
+            </button>
+            <NuxtLink
+              to="/conductor"
+              class="btn btn-ghost btn-xs ml-auto rounded-lg text-base-content/50"
+            >
+              Full review
+            </NuxtLink>
+          </div>
+        </div>
+      </div>
+      <p
+        v-if="conductorStore.pitchUpdateError"
+        class="px-1 text-[0.65rem] font-bold text-error"
+      >
+        {{ conductorStore.pitchUpdateError }}
+      </p>
+    </div>
+
+    <div v-if="followUps.length" class="shrink-0 space-y-1 pt-1">
+      <h3
+        class="kr-text-eyebrow px-1 text-[0.6rem] tracking-[0.14em] text-accent"
+      >
+        Follow-ups · {{ followUps.length }}
+      </h3>
+      <div
+        class="max-h-[16rem] min-h-0 space-y-1 overflow-y-auto overscroll-contain pr-1"
+      >
+        <honeydo-card
+          v-for="todo in followUps"
+          :key="todo.id"
+          :todo="todo"
+          :project="relatedProject(todo)"
+          @toggle-done="todoStore.toggleDone(todo)"
+          @view-project="viewProject"
+        />
+      </div>
+    </div>
   </section>
 </template>
 
@@ -314,9 +438,18 @@ import {
   type ConductorTaskAction,
 } from '@/stores/conductorStore'
 import { useUserStore } from '@/stores/userStore'
+import { useTodoStore, type Todo } from '@/stores/todoStore'
+import {
+  useProjectStore,
+  type ProjectWithRelations,
+} from '@/stores/projectStore'
+import { usePageStore } from '@/stores/pageStore'
 
 const conductorStore = useConductorStore()
 const userStore = useUserStore()
+const todoStore = useTodoStore()
+const projectStore = useProjectStore()
+const pageStore = usePageStore()
 
 /*
  * The whole panel hangs off this. See the note above: the projection these
@@ -325,8 +458,50 @@ const userStore = useUserStore()
  */
 const isAdmin = computed(() => userStore.isAdmin)
 
-const gates = computed(() => conductorStore.humanGates)
+const showPaused = ref(false)
+const pausedGates = computed(() => conductorStore.pausedHumanGates)
+const gates = computed(() =>
+  showPaused.value
+    ? [...conductorStore.humanGates, ...conductorStore.pausedHumanGates]
+    : conductorStore.humanGates,
+)
+const pitches = computed(() => conductorStore.pendingPitches)
+const followUps = computed(() => todoStore.honeyDoTodos)
 const isLoading = computed(() => !conductorStore.hasLoaded)
+const queueCount = computed(
+  () => gates.value.length + pitches.value.length + followUps.value.length,
+)
+
+function isPausedGate(gate: ConductorHumanGate): boolean {
+  return gate.project.conductorStatus === 'paused'
+}
+
+function pitchIsUpdating(slug: string): boolean {
+  return conductorStore.updatingPitchSlugs.includes(slug)
+}
+
+async function actOnPitch(
+  slug: string,
+  title: string,
+  status: 'approved' | 'rejected',
+): Promise<void> {
+  const completed = await conductorStore.updatePitchStatus(slug, status)
+  if (completed) pushPitchReceipt(slug, title, status)
+}
+
+function relatedProject(todo: Todo): ProjectWithRelations | null {
+  if (!todo.projectId) return null
+  return (
+    projectStore.projects.find((project) => project.id === todo.projectId) ??
+    null
+  )
+}
+
+function viewProject(project: ProjectWithRelations): void {
+  if (!project.slug) return
+  pageStore.setWorkspaceCardKey(project.slug)
+  navigateTo('/conductor')
+}
 
 const openKey = ref('')
 const sentKey = ref('')
@@ -405,10 +580,12 @@ function noteSummary(gate: ConductorHumanGate) {
  * note for the bug this replaces (the confirmation text used to live inside
  * the very row `answer`/`proceed`/`approve` had just removed from `gates`).
  */
+type ReceiptAction = ConductorTaskAction | 'approved' | 'rejected'
+
 interface GateReceipt {
   id: string
   title: string
-  action: ConductorTaskAction
+  action: ReceiptAction
 }
 
 const RECEIPT_TTL_MS = 12_000
@@ -417,7 +594,9 @@ const MAX_RECEIPTS = 4
 const receipts = ref<GateReceipt[]>([])
 const receiptTimers = new Map<string, ReturnType<typeof setTimeout>>()
 
-function receiptVerb(action: ConductorTaskAction): string {
+function receiptVerb(action: ReceiptAction): string {
+  if (action === 'approved') return 'pitch approved'
+  if (action === 'rejected') return 'pitch rejected'
   if (action === 'approve') return 'accepted as complete'
   if (action === 'proceed') return 'approved to continue'
   if (action === 'reject') return 'sent back for another pass'
@@ -443,6 +622,22 @@ function pushReceipt(
     { id, title: gate.task.title, action },
     ...receipts.value,
   ].slice(0, MAX_RECEIPTS)
+  receiptTimers.set(
+    id,
+    setTimeout(() => dismissReceipt(id), RECEIPT_TTL_MS),
+  )
+}
+
+function pushPitchReceipt(
+  slug: string,
+  title: string,
+  status: 'approved' | 'rejected',
+): void {
+  const id = `pitch-${slug}-${Date.now()}`
+  receipts.value = [{ id, title, action: status }, ...receipts.value].slice(
+    0,
+    MAX_RECEIPTS,
+  )
   receiptTimers.set(
     id,
     setTimeout(() => dismissReceipt(id), RECEIPT_TTL_MS),
@@ -502,6 +697,9 @@ onMounted(() => {
    * when anything else on the session has already asked.
    */
   void conductorStore.fetchProjects()
+  if (!isAdmin.value) return
+  if (!todoStore.hasLoaded) void todoStore.fetchTodos()
+  if (!projectStore.loaded) void projectStore.fetchProjects()
 })
 
 onBeforeUnmount(() => {

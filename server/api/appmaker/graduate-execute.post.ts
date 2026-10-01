@@ -29,6 +29,8 @@ import {
 
 type GraduateExecuteBody = {
   slug?: string
+  /** appmaker/t-016: report what would be pushed/opened; perform zero writes. */
+  dryRun?: boolean
 }
 
 const GRADUATE_TODO_TITLE = (slug: string) =>
@@ -102,7 +104,41 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    const { files } = await readConductorAppTree(slug)
+    const { headSha, files } = await readConductorAppTree(slug)
+
+    const removalBranch = `worker/graduate-remove-${slug}`
+    const removalPrTitle = `AppMaker: remove apps/${slug}/ (graduated to ${appRepo.owner}/${appRepo.repo})`
+
+    // appmaker/t-016: log-only dry run. Everything above is read-only; this
+    // must return BEFORE squashPushAppToRepo / openConductorAppRemovalPr so
+    // it can never write, and it leaves the triggering Todo OPEN.
+    if (body.dryRun === true) {
+      event.node.res.statusCode = 200
+      return {
+        success: true,
+        dryRun: true,
+        data: {
+          slug,
+          targetRepo: `${appRepo.owner}/${appRepo.repo}`,
+          installationId: Number(installation.installationId),
+          grantedRepoCount: granted.length,
+          conductorHeadSha: headSha,
+          wouldPush: {
+            fileCount: files.length,
+            files: files.map((f) => ({
+              path: f.path,
+              sha: f.sha,
+              mode: f.mode,
+            })),
+          },
+          wouldOpenRemovalPr: {
+            branch: removalBranch,
+            title: removalPrTitle,
+          },
+          todoId: todo.id,
+        },
+      }
+    }
 
     const pushResult = await squashPushAppToRepo({
       installationId: Number(installation.installationId),
@@ -114,8 +150,8 @@ export default defineEventHandler(async (event) => {
 
     const removalResult = await openConductorAppRemovalPr({
       slug,
-      branch: `worker/graduate-remove-${slug}`,
-      prTitle: `AppMaker: remove apps/${slug}/ (graduated to ${appRepo.owner}/${appRepo.repo})`,
+      branch: removalBranch,
+      prTitle: removalPrTitle,
       prBody: [
         `'${slug}' has been squash-graduated to ${appRepo.owner}/${appRepo.repo}.`,
         `Target commit: ${pushResult.commitHtmlUrl}`,

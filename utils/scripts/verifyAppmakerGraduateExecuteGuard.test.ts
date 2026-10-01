@@ -26,6 +26,10 @@ export default defineEventHandler(async (event) => {
   }
   const granted = await listInstallationRepositories(Number(installation.installationId))
 
+  if (body.dryRun === true) return { dryRun: true }
+
+  await squashPushAppToRepo({ slug })
+
   const removalResult = await openConductorAppRemovalPr({ slug })
 
   await prisma.todo.update({
@@ -99,6 +103,20 @@ function withTodoDoneBeforeRemoval(): string {
   )
 }
 
+function withoutDryRun(): string {
+  return FIXED_ROUTE.replace(
+    '  if (body.dryRun === true) return { dryRun: true }\n\n',
+    '',
+  )
+}
+
+function withDryRunAfterPush(): string {
+  return FIXED_ROUTE.replace(
+    '  if (body.dryRun === true) return { dryRun: true }\n\n  await squashPushAppToRepo({ slug })',
+    '  await squashPushAppToRepo({ slug })\n\n  if (body.dryRun === true) return { dryRun: true }',
+  )
+}
+
 function run(): void {
   const fixedErrors = checkGraduateExecuteGuard(FIXED_ROUTE)
   assert.deepEqual(
@@ -134,6 +152,16 @@ function run(): void {
       /no longer marks the triggering Todo DONE/,
     ],
     [
+      'missing dry-run mode',
+      withoutDryRun(),
+      /no longer supports body\.dryRun/,
+    ],
+    [
+      'dry run checked after the push',
+      withDryRunAfterPush(),
+      /checks body\.dryRun after squashPushAppToRepo/,
+    ],
+    [
       'Todo marked done before removal PR',
       withTodoDoneBeforeRemoval(),
       /marks the Todo done before/,
@@ -155,7 +183,7 @@ function run(): void {
 
   console.log(
     'AppMaker graduate-execute guard self-test passed: fixed fixture ' +
-      'passes, and each of the 6 dropped-invariant fixtures fails its own ' +
+      'passes, and each of the 8 dropped-invariant fixtures fails its own ' +
       'specific check.',
   )
 }

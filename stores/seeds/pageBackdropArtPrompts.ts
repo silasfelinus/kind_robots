@@ -231,12 +231,6 @@ const PAGES: PageSeed[] = [
       'A giving hall: a warm open room where long tables of carefully packed parcels and supplies recede to either side, ribbon and twine spools at the edges, an open double door spilling afternoon light. Generous, practical and unsentimental — the work of helping, not a symbol of it.',
   },
   {
-    page: 'packs',
-    title: 'Packmaker',
-    scene:
-      'A packing bench: a sturdy workshop table strewn with open crates, labelled tins, folded canvas and neatly bundled kits, shelving of prepared bundles rising on both sides, a stencil and ink pad to one corner. Orderly, satisfying, everything-in-its-place.',
-  },
-  {
     page: 'resources',
     title: 'Resources — Resource Gallery',
     scene:
@@ -399,22 +393,10 @@ const PAGES: PageSeed[] = [
       "A sculptor's shop of wire armatures, clay maquettes and calipers, north light through dusty glass. Constructive and hands-on.",
   },
   {
-    page: 'mural',
-    title: 'Mural — The Long Wall',
-    scene:
-      'A vast plastered wall part-painted with a sprawling colourful mural, scaffolding and paint pots at the edges, sunlight raking across the unfinished middle. Invitational — room to add.',
-  },
-  {
     page: 'navigation',
     title: 'Navigation — The Compass Rose',
     scene:
       'A stone floor inlaid with a huge compass rose, corridors radiating outward under arches, lanterns marking each way. Orientation made beautiful.',
-  },
-  {
-    page: 'navigation-health',
-    title: 'Navigation Health — The Chart Room',
-    scene:
-      "A ship's chart room with depth soundings, a brass sextant and a lamp over a spread map marked with careful corrections. Diagnostic and steady.",
   },
   {
     page: 'newsfeed',
@@ -469,12 +451,6 @@ const PAGES: PageSeed[] = [
     title: 'Sanctuary — The Quiet Grove',
     scene:
       'A still grove of tall pale trees around a mirror pool, soft mist, drifting fireflies, a stone bench. Restful and reverent.',
-  },
-  {
-    page: 'scoop-cms',
-    title: 'Scoop CMS — The Composing Room',
-    scene:
-      'A composing room of type cases, galley trays and a stone bench, ink and paper stacks. Editorial craft.',
   },
   {
     page: 'screenfx',

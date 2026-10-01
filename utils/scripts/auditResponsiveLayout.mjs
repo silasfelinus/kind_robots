@@ -88,7 +88,7 @@ const ROUTES = flag(
     '/play/challenges,/play/davinci,/play/memory,/play/screenfx,' +
     '/plan/newsfeed,/plan/voice-lab,/plan/watchlist,/plan/wonderlab,' +
     '/plan/projects/coat-dance,/plan/projects/humboldt-scoop,/plan/projects/ruler-hooked,/plan/projects/sketchy,' +
-    '/build/animation-manager,/build/hair-studio,/build/mural,' +
+    '/build/animation-manager,/build/hair-studio,' +
     '/about,/cart,/giving,/mermaids,/privacy,/sanctuary,/forum,/servers,' +
     '/auth/google,/build-bench,/coloring-page,/music-mentor,/play/challenges/leaderboard,/play/video-generator,' +
     '/users/1,/play/challenges/neon-ramen-bar-icon',

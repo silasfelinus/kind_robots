@@ -28,14 +28,7 @@ function tutorialImage(channelKey: string, sectionKey: string): string {
 }
 
 export type ExtraTutorialKey =
-  | 'conductor'
-  | 'mural'
-  | 'challenges'
-  | 'humboldt-scoop'
-  | 'scoop-cms'
-  | 'mermaids'
-  | 'packs'
-  | 'wonder'
+  'conductor' | 'challenges' | 'humboldt-scoop' | 'mermaids' | 'wonder'
 export type TutorialChannelKey = FooterKey | ExtraTutorialKey
 
 export type TutorialSection = {
@@ -421,23 +414,6 @@ export const tutorialChannels = {
     ],
   },
 
-  mural: {
-    key: 'mural',
-    title: 'Mural Color Studio',
-    hero: tutorialImage('mural', 'mural'),
-    tagline: 'Color the fence mural before the real paint gets brave.',
-    overview:
-      'Mural Color Studio turns a simplified coloring page into a paint-planning workspace. Save paint swatches, color several mural sections with one shared color ID, then override individual sections when a leaf, window, robot, or butterfly needs its own moment.',
-    sections: [
-      {
-        key: 'mural',
-        title: 'Colorable Mural Plan',
-        body: 'Click shapes to color inside the lines, use group fill to assign one color across related sections, and keep a saved palette for the exterior-paint pass.',
-        image: tutorialImage('mural', 'mural'),
-      },
-    ],
-  },
-
   challenges: {
     key: 'challenges',
     title: 'Challenge Center',
@@ -468,36 +444,6 @@ export const tutorialChannels = {
         title: 'Local & dependable',
         body: 'Weekly, bi-weekly, monthly, and one-time cleanup plans serving Eureka, Arcata, and McKinleyville (with Trinidad, Cutten, Freshwater, and Blue Lake by request). Flat honest pricing, cancel anytime, no long-term contract.',
         image: tutorialImage('humboldt-scoop', 'humboldt-scoop'),
-      },
-    ],
-  },
-
-  'scoop-cms': {
-    key: 'scoop-cms',
-    title: 'Humboldt Scoop CMS',
-    hero: tutorialImage('scoop-cms', 'scoop-cms'),
-    tagline: 'The back office behind the tidy yards.',
-    overview:
-      'Humboldt Scoop CMS is the admin console for the real-world pet-waste removal business: customers, their yards and pets, recurring service schedules, visit logs, and draft invoicing. Internal, admin-only tooling — dummy data until Silas approves real customer data.',
-    sections: [
-      {
-        key: 'customers',
-        title: 'Customers, properties & pets',
-        body: 'Each customer can have multiple properties (yards), and pets are tied to the property where they are actually encountered, so service notes stay accurate across visits.',
-        image: tutorialImage('scoop-cms', 'scoop-cms'),
-      },
-      {
-        key: 'scheduling',
-        title: 'Service plans & visits',
-        body: 'Recurring service plans track frequency, preferred weekday, and pricing; visits record scheduled and completed work. Draft invoices preview billing from visits without any live payment collection.',
-        image: tutorialImage('scoop-cms', 'scoop-cms'),
-      },
-      {
-        key: 'routing',
-        title: 'Deterministic route planning',
-        body: 'A mapped route planner builds a route from a selected set of customers using deterministic optimization, not an LLM — Android-first for the field crew, with Linux and iOS compatibility as ongoing goals.',
-        image: tutorialImage('scoop-cms', 'scoop-cms'),
-        underConstruction: true,
       },
     ],
   },
@@ -550,23 +496,6 @@ export const tutorialChannels = {
         title: 'Conductor App',
         body: 'The companion Flutter client for Conductor — review projects, approve gates, and nudge the build loop from a phone. Built in the open, one roadmap task at a time; not on the App Store or Play Store yet.',
         image: tutorialImage('conductor', 'conductor-app'),
-      },
-    ],
-  },
-  packs: {
-    key: 'packs',
-    title: 'Packmaker',
-    tagline: 'Bundle it once. Share it everywhere.',
-    overview:
-      'Packmaker turns loose creations into tidy, shareable packs. Choose the contents, set who can use them, and ship reusable content bundles and DLC that other builders can drop straight into their own worlds.',
-    underConstruction: true,
-    sections: [
-      {
-        key: 'packs',
-        title: 'Packmaker',
-        body: 'Group characters, art, scenarios, and rewards into one coherent pack, then control who can install it with the shared permission primitives.',
-        image: tutorialImage('packs', 'packs'),
-        underConstruction: true,
       },
     ],
   },
@@ -638,12 +567,9 @@ const tutorialRouteMap = {
   // /storybook now, so without this the life shape lost the tutorial it had.
   scenario: [footerRouteMap.scenario, '/storybook'],
   conductor: '/conductor',
-  mural: '/build/mural',
   challenges: '/play/challenges',
   'humboldt-scoop': '/plan/projects/humboldt-scoop',
-  'scoop-cms': '/scoop-cms',
   mermaids: '/mermaids',
-  packs: '/packs',
   wonder: [
     '/plan/newsfeed',
     '/plan/wonderlab',

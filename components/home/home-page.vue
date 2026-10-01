@@ -147,7 +147,10 @@
           layout contract's viewport-grid rule binds shared components, which
           get embedded in hosts narrower than the viewport implies). Below xl
           this stays the one horizontally scrolling row it was, which is the
-          swipe behaviour asked for on tablet.
+          swipe behaviour asked for on tablet. Below md (phones) the rails
+          stack as a single column instead -- Silas, 2026-10-01: "They should
+          just be a stacked column if we need the space." The 25% basis is
+          md-gated because in a column flex-basis would size height, not width.
 
           EACH CELL CARRIES ITS OWN HEIGHT (`h-56`), and the grid rows size to
           it rather than the reverse. home-rail's root is `h-full` and its tile
@@ -160,7 +163,7 @@
         -->
         <div
           v-if="visibleRails.length"
-          class="no-scrollbar flex gap-2 overflow-x-auto pb-1 xl:grid xl:grid-cols-3 xl:gap-3 xl:overflow-visible xl:pb-0"
+          class="no-scrollbar flex flex-col gap-2 md:flex-row md:overflow-x-auto md:pb-1 xl:grid xl:grid-cols-3 xl:gap-3 xl:overflow-visible xl:pb-0"
         >
           <template v-for="entry in visibleRails" :key="entry.key">
             <!--
@@ -172,14 +175,14 @@
             -->
             <home-art-shelf
               v-if="entry.key === 'art'"
-              class="h-56 min-w-[17rem] shrink-0 basis-[calc(25%-0.375rem)] xl:min-w-0 xl:basis-auto"
+              class="h-56 w-full shrink-0 md:w-auto md:min-w-[17rem] md:basis-[calc(25%-0.375rem)] xl:min-w-0 xl:basis-auto"
               :fresh="entry.items"
               @select="openCard"
             />
 
             <home-rail
               v-else
-              class="h-56 min-w-[17rem] shrink-0 basis-[calc(25%-0.375rem)] xl:min-w-0 xl:basis-auto"
+              class="h-56 w-full shrink-0 md:w-auto md:min-w-[17rem] md:basis-[calc(25%-0.375rem)] xl:min-w-0 xl:basis-auto"
               :label="entry.label"
               :icon="entry.icon"
               :items="entry.items"
@@ -197,13 +200,13 @@
 
         <div
           v-else-if="!showcaseStore.hasLoaded"
-          class="flex gap-2 overflow-hidden xl:grid xl:grid-cols-3 xl:gap-3"
+          class="flex flex-col gap-2 md:flex-row md:overflow-hidden xl:grid xl:grid-cols-3 xl:gap-3"
           aria-hidden="true"
         >
           <div
             v-for="n in 6"
             :key="n"
-            class="h-56 min-w-[17rem] shrink-0 basis-[calc(25%-0.375rem)] animate-pulse rounded-2xl bg-base-200 xl:min-w-0 xl:basis-auto"
+            class="h-56 w-full shrink-0 animate-pulse rounded-2xl bg-base-200 md:w-auto md:min-w-[17rem] md:basis-[calc(25%-0.375rem)] xl:min-w-0 xl:basis-auto"
           />
         </div>
       </div>

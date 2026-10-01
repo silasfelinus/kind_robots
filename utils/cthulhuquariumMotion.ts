@@ -18,6 +18,8 @@
 // `motion` in utils/cthulhuquariumSprites.ts is the body's own movement; this
 // is the path it takes. The two compose: a lurking angler still tailbeats.
 
+import { CTHULHUQUARIUM_MASS_SPRITES } from './cthulhuquariumCanon.generated'
+
 export type BehaviorMode =
   | 'drift'
   | 'dart'
@@ -96,12 +98,27 @@ export function toBehaviorMode(
   return key in MODE_TUNING ? (key as BehaviorMode) : 'drift'
 }
 
-/** A new occupant somewhere sensible for its mode, with packmates if it schools. */
+const massSlugs = new Set(CTHULHUQUARIUM_MASS_SPRITES)
+
+/**
+ * True when the species' sprite already draws the whole group (a census
+ * block, a court of shrimp): the canvas draws one and adds no packmates.
+ */
+export function isMassSprite(slug: string | null | undefined): boolean {
+  return !!slug && massSlugs.has(slug.trim().toLowerCase())
+}
+
+/**
+ * A new occupant somewhere sensible for its mode, with packmates if it schools.
+ * `solo` suppresses the packmates for a sprite that already draws the whole
+ * group, where each packmate would be another copy of the crowd.
+ */
 export function spawnSwimState(
   behavior: string | null | undefined,
   width: number,
   height: number,
   random: () => number = Math.random,
+  { solo = false }: { solo?: boolean } = {},
 ): SwimState {
   const mode = toBehaviorMode(behavior)
   const tuning = MODE_TUNING[mode]
@@ -110,7 +127,7 @@ export function spawnSwimState(
   const x = 40 + random() * (width - 80)
   const heading = random() < 0.5 ? -1 : 1
   const packmates: Packmate[] =
-    mode === 'school'
+    mode === 'school' && !solo
       ? Array.from({ length: 3 + Math.floor(random() * 3) }, () => ({
           dx: -18 - random() * 34,
           dy: (random() - 0.5) * 34,

@@ -33,6 +33,7 @@ if (!existsSync(join(canon, 'fish'))) {
 const readYaml = (path) => parse(readFileSync(path, 'utf8'))
 
 const motions = {}
+const masses = []
 const voices = {}
 const plates = {}
 const traits = {}
@@ -41,6 +42,7 @@ for (const file of readdirSync(join(canon, 'fish'))
   .sort()) {
   const fish = readYaml(join(canon, 'fish', file))
   if (fish?.sprite?.motion) motions[fish.slug] = fish.sprite.motion
+  if (fish?.sprite?.mass === true) masses.push(fish.slug)
   if (fish?.plate) plates[fish.slug] = fish.plate
   traits[fish.slug] = {
     name: fish.name,
@@ -169,6 +171,9 @@ export interface CanonBackground {
 }
 
 export const CTHULHUQUARIUM_SPRITE_MOTIONS: Record<string, string> = ${JSON.stringify(motions, null, 2)}
+
+/** Species whose sprite already draws the whole group (fish bible sprite.mass). */
+export const CTHULHUQUARIUM_MASS_SPRITES: string[] = ${JSON.stringify(masses, null, 2)}
 
 export const CTHULHUQUARIUM_VOICES: Record<
   string,

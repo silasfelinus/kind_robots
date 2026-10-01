@@ -32,6 +32,7 @@ import {
 } from '~/utils/cthulhuquariumSprites'
 import {
   facingOf,
+  isMassSprite,
   packmatePositions,
   pitchOf,
   spawnSwimState,
@@ -118,7 +119,13 @@ function syncSwimmers() {
   for (const occupant of props.occupants) {
     wanted.add(occupant.id)
     if (swimmers.has(occupant.id)) continue
-    const state = spawnSwimState(occupant.behavior, STAGE_WIDTH, STAGE_HEIGHT)
+    const state = spawnSwimState(
+      occupant.behavior,
+      STAGE_WIDTH,
+      STAGE_HEIGHT,
+      Math.random,
+      { solo: isMassSprite(occupant.slug) },
+    )
     swimmers.set(occupant.id, {
       ...state,
       id: occupant.id,

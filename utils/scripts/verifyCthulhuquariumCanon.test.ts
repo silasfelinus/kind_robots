@@ -17,9 +17,11 @@ import {
 import { FIRST_RIVALRY_RESOLVED_MILESTONE_ID } from '../../server/utils/aquariumRivalryMilestone'
 import {
   CTHULHUQUARIUM_BACKGROUNDS,
+  CTHULHUQUARIUM_MASS_SPRITES,
   CTHULHUQUARIUM_SCENES,
   CTHULHUQUARIUM_SPRITE_MOTIONS,
 } from '../cthulhuquariumCanon.generated'
+import { isMassSprite, spawnSwimState } from '../cthulhuquariumMotion'
 
 const firable = [
   ...BESTIARY_MILESTONES.map((milestone) => milestone.id),
@@ -102,4 +104,33 @@ for (const slug of slugs) {
   )
 }
 console.log('✅ all 151 species move in a motion the renderer implements')
+
+// A sprite that already draws the whole group (sprite.mass) swims alone: a
+// schooling one would otherwise get packmates, each a copy of the crowd.
+assert.ok(
+  CTHULHUQUARIUM_MASS_SPRITES.length > 0,
+  'the bible marks its mass sprites',
+)
+for (const slug of CTHULHUQUARIUM_MASS_SPRITES) {
+  assert.ok(
+    slug in CTHULHUQUARIUM_SPRITE_MOTIONS,
+    `${slug}: mass sprite is not a species`,
+  )
+  assert.ok(isMassSprite(slug), `${slug}: isMassSprite misses it`)
+}
+assert.ok(
+  !isMassSprite('guppy-common'),
+  'an ordinary fish is not a mass sprite',
+)
+assert.ok(
+  spawnSwimState('school', 800, 450).packmates.length > 0,
+  'a school has packmates',
+)
+assert.equal(
+  spawnSwimState('school', 800, 450, Math.random, { solo: true }).packmates
+    .length,
+  0,
+  'a mass sprite that schools gets no packmates',
+)
+console.log('✅ mass sprites swim alone, with no copies of the crowd')
 console.log('✅ verifyCthulhuquariumCanon: all assertions passed')

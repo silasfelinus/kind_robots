@@ -1381,6 +1381,7 @@ import {
 import {
   facingOf,
   hunt,
+  isMassSprite,
   packmatePositions,
   pitchOf,
   spawnSwimState,
@@ -1794,6 +1795,8 @@ function spawnSwimmer(stock: TankStock): Swimmer {
     stock.Monster.behavior,
     STAGE_WIDTH,
     STAGE_HEIGHT,
+    Math.random,
+    { solo: isMassSprite(stock.Monster.slug) },
   )
   return {
     ...state,

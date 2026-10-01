@@ -180,6 +180,20 @@ export const CTHULHUQUARIUM_SPRITE_MOTIONS: Record<string, string> = {
   'wrapping-sole': 'ripple',
 }
 
+/** Species whose sprite already draws the whole group (fish bible sprite.mass). */
+export const CTHULHUQUARIUM_MASS_SPRITES: string[] = [
+  'brine-courtiers',
+  'the-census',
+  'the-cold-snap',
+  'the-coronation',
+  'the-court',
+  'the-inventory',
+  'the-permanent-collection',
+  'the-receiving-line',
+  'the-single-fish',
+  'tithe-shoal',
+]
+
 export const CTHULHUQUARIUM_VOICES: Record<
   string,
   { charlotte: string; wilbur: string }

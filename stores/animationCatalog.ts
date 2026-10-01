@@ -660,6 +660,18 @@ export const ANIMATION_EFFECTS = [
     generationSafe: true,
     preferredSurface: 'fullscreen',
   },
+  {
+    id: 'bonsai-seasonal-growth',
+    label: 'Bonsai Seasonal Growth',
+    reveal: 'A whole year in one afternoon',
+    icon: 'kind-icon:sparkle',
+    tooltip:
+      'A potted bonsai buds, leafs out, blushes and drops its leaves one by one before resting bare, every branch tip a little behind the last 🍂 hover to sway a branch, click to nudge the whole year forward',
+    color: '#d98a3d',
+    releasedAt: '2026-10-01T12:30:00Z',
+    generationSafe: true,
+    preferredSurface: 'fullscreen',
+  },
 ] as const satisfies readonly AnimationEffectDefinition[]
 
 export type AnimationEffectId = (typeof ANIMATION_EFFECTS)[number]['id']

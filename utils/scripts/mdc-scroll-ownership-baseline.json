@@ -8,7 +8,6 @@
     "components/art/stylist-manager.vue",
     "components/giftshop/giftshop-manager.vue",
     "components/model-builder/model-builder-manager.vue",
-    "components/pages/for-you-manager.vue",
     "components/pages/memory-dungeon.vue",
     "components/pages/serendipity-page.vue",
     "components/servers/server-manager.vue",

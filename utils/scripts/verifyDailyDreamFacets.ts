@@ -205,10 +205,11 @@ async function main(): Promise<void> {
     // The daily generator's HOST. It used to be dream-manager, in a
     // `#persistent` slot that put "Today's Facet Dream" above every Dreams
     // tab -- Silas, 2026-08-07: "if that's supposed to be part of the daily
-    // dream index, it shouldn't be here." /for-you IS that index, so the
-    // mount moved and this contract follows it rather than pinning the
-    // component to a page it no longer belongs on.
-    dailyDreamHost: 'components/pages/for-you-manager.vue',
+    // dream index, it shouldn't be here." The daily index was /for-you until
+    // that page folded into the front dashboard (kind_robots issue #2664), so
+    // the mount moved again and this contract follows it rather than pinning
+    // the component to a page it no longer belongs on.
+    dailyDreamHost: 'components/home/home-page.vue',
     rewardHelper: 'server/utils/rewardFacetCatalog.ts',
     rewardGet: 'server/api/rewards/[id]/facets.get.ts',
     rewardPut: 'server/api/rewards/[id]/facets.put.ts',

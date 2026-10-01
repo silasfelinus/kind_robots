@@ -97,8 +97,8 @@ export const useNotificationStore = defineStore('notificationStore', () => {
       id: CONDUCTOR_NOTIFICATION_ID,
       type: 'ADMIN',
       title: 'Conductor needs your attention',
-      body: `${parts.join(' and ')} waiting in For You.`,
-      linkPath: '/for-you',
+      body: `${parts.join(' and ')} waiting on your dashboard.`,
+      linkPath: '/',
       isRead: readSeenSignature() === signature,
       createdAt: conductorStore.fetchedAt ?? new Date().toISOString(),
     }

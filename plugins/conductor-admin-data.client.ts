@@ -19,13 +19,13 @@ export default defineNuxtPlugin(() => {
     return (
       route.path === '/conductor' ||
       route.path === '/workspace' ||
-      route.path === '/for-you' ||
+      route.path === '/' ||
       (pageStore.dashboardKey === 'conductor' &&
         pageStore.dashboardTab === 'conductor') ||
       (pageStore.dashboardKey === 'wonder' &&
         pageStore.dashboardTab === 'workspace') ||
       (pageStore.dashboardKey === 'home' &&
-        pageStore.dashboardTab === 'for-you')
+        pageStore.dashboardTab === 'dashboard')
     )
   })
 

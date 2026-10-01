@@ -135,7 +135,6 @@ for (const path of [
   'content/channels/home/giftshop.md',
   'content/channels/admin/project-placement.md',
   'content/channels/admin/forum-moderation.md',
-  'content/channels/admin/navigation-health.md',
 ]) {
   const content = source(path)
   assert.match(content, /\nnavigation: false\n/, `${path} must declare that it is nested, not deleted`)

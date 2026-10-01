@@ -309,7 +309,8 @@ export const dashboardConfigs = {
         label: 'Brainstorm!',
         icon: 'kind-icon:brain',
         title: 'Brainstorm',
-        summary: 'Start with a premise and generate genuinely different directions.',
+        summary:
+          'Start with a premise and generate genuinely different directions.',
         image: tabImage('brainstorm', 'brainstorm'),
         narrative:
           'Give Brainstorm a premise, generate distinct directions, keep the sparks, reject the beige, and refine the survivors into reusable creative material.',
@@ -419,18 +420,6 @@ export const dashboardConfigs = {
         requiredBeforeNext: ['style'],
       },
       {
-        key: 'packs',
-        label: 'Packmaker',
-        icon: 'kind-icon:box',
-        title: 'Packmaker',
-        summary:
-          'Bundle reusable content into shareable, permissioned packs and DLC.',
-        image: tabImage('builder', 'packs'),
-        narrative:
-          'Packmaker turns loose creations into tidy, shareable packs: pick the contents, set access, and ship reusable content bundles other builders can drop straight in.',
-        route: '/packs',
-      },
-      {
         key: 'model-builder',
         label: 'Model Builder',
         icon: 'kind-icon:blueprint',
@@ -515,19 +504,6 @@ export const dashboardConfigs = {
         narrative:
           'AppMaker is the workshop for turning app ideas into structured projects — capture the concept, shape the surface, and hand it to the build loop.',
         route: '/appmaker',
-        requiredRole: 'ADMIN',
-      },
-      {
-        key: 'scoop-cms',
-        label: 'Scoop CMS',
-        icon: 'kind-icon:heart',
-        title: 'Humboldt Scoop CMS',
-        summary:
-          'Admin console for the Humboldt Scoop customer and route management.',
-        image: tabImage('conductor', 'scoop-cms'),
-        narrative:
-          'The back office for the Humboldt Scoop: manage customers, schedules, and routes for the real-world pet-waste service from one admin console.',
-        route: '/scoop-cms',
         requiredRole: 'ADMIN',
       },
       {
@@ -1152,20 +1128,6 @@ export const dashboardConfigs = {
         narrative:
           'Every Screen FX catalog effect in one gallery: build history, working/broken state, version lineage, and Reaction ratings, with actions to preview it live, compare builds side by side, and promote, polish, or retire an attempt.',
         route: '/build/animation-manager',
-      },
-      {
-        key: 'mural',
-        label: 'Mural',
-        icon: 'kind-icon:paintbrush',
-        title: 'Mural Color Studio',
-        summary:
-          'Color a paintable mural plan by section, shared color group, and saved paint swatch.',
-        image: tabImage('wonder', 'mural'),
-        flourish: '✺',
-        tagline: 'Paint inside the lines, then bend the lines politely.',
-        narrative:
-          'Color a simplified mural page, assign one paint ID across multiple sections, override individual shapes, and save the palette before the paint goblin eats the swatches.',
-        route: '/build/mural',
       },
       {
         key: 'watchlist',

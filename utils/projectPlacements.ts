@@ -78,11 +78,6 @@ export const PROJECT_PLACEMENTS: Record<string, ProjectPlacement> = {
     tabKey: 'projects',
     route: '/plan/projects/sketchy',
   },
-  packmaker: {
-    channelKey: 'admin',
-    tabKey: 'packs',
-    route: '/packs',
-  },
   // Merged into Storybook on 2026-09-09 as its `life` shape, so it shares
   // Storybook's placement rather than keeping a tab of its own: the tab
   // document content/channels/plan/davinci.md is gone, and this map is
@@ -125,11 +120,6 @@ export const PROJECT_PLACEMENTS: Record<string, ProjectPlacement> = {
     tabKey: 'projects',
     route: '/plan/projects/humboldt-scoop',
   },
-  'humboldt-scoop-cms': {
-    channelKey: 'admin',
-    tabKey: 'scoop-cms',
-    route: '/scoop-cms',
-  },
   'conductor-app': {
     channelKey: 'admin',
     tabKey: 'conductor-app',
@@ -164,11 +154,6 @@ export const PROJECT_PLACEMENTS: Record<string, ProjectPlacement> = {
     channelKey: 'plan',
     tabKey: 'brainstorm',
     route: '/brainstorm',
-  },
-  'mural-design': {
-    channelKey: 'admin',
-    tabKey: 'mural',
-    route: '/build/mural',
   },
   conductor: {
     channelKey: 'plan',

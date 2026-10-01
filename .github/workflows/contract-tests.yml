@@ -547,12 +547,6 @@ jobs:
       - name: Serendipity Voice action guard
         run: npm run test:serendipity-voice-action-guard
 
-      - name: Pack manifest validator self-test
-        run: npm run test:pack-manifest
-
-      - name: Pack scaffold extraction self-test
-        run: npm run test:pack-scaffold-extraction
-
       - name: Pitch detector accuracy contract
         run: npm run test:pitch-detector-accuracy
 

@@ -89,7 +89,6 @@
       "components/coloring/coloring-book-studio.vue → sm:grid-cols-3",
       "components/coloring/coloring-book-studio.vue → xl:grid-cols-3",
       "components/coloring/coloring-book-studio.vue → xl:grid-cols-[minmax(0,1.1fr)_minmax(22rem,0.9fr)]",
-      "components/conductor/packmaker-pack-editor.vue → sm:grid-cols-2",
       "components/conductor/project-deliverables-panel.vue → sm:grid-cols-2",
       "components/conductor/project-gallery-strip.vue → lg:grid-cols-4",
       "components/conductor/project-gallery-strip.vue → sm:grid-cols-3",
@@ -144,9 +143,6 @@
       "components/narrative/kr-narrator-stage.vue → md:grid-cols-[minmax(0,1fr)_minmax(0,1.5fr)]",
       "components/navigation/card-picker.vue → lg:grid-cols-5",
       "components/navigation/card-picker.vue → sm:grid-cols-3",
-      "components/navigation/navigation-health.vue → sm:grid-cols-2",
-      "components/navigation/navigation-health.vue → xl:grid-cols-2",
-      "components/navigation/navigation-health.vue → xl:grid-cols-5",
       "components/navigation/navigation-trimmed.vue → lg:grid-cols-3",
       "components/navigation/navigation-trimmed.vue → sm:grid-cols-2",
       "components/navigation/server-selector.vue → md:grid-cols-2",
@@ -196,9 +192,7 @@
       "components/user/user-dashboard.vue → xl:grid-cols-[minmax(16rem,22rem)_minmax(0,1fr)]",
       "components/user/user-panel.vue → md:grid-cols-2",
       "components/watchlist/watchlist-browse.vue → lg:grid-cols-6",
-      "components/watchlist/watchlist-browse.vue → sm:grid-cols-3",
-      "components/wonderlab/mural-manager.vue → md:grid-cols-3",
-      "components/wonderlab/mural-manager.vue → xl:grid-cols-[minmax(280px,360px)_minmax(0,1fr)_minmax(280px,360px)]"
+      "components/watchlist/watchlist-browse.vue → sm:grid-cols-3"
     ]
   }
 }

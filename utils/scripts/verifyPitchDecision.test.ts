@@ -45,17 +45,29 @@ assert.deepEqual(
   'a signature for one pitch cannot decide another',
 )
 assert.deepEqual(
-  verifyPitchDecision(secret, { slug, vote: 'approved', exp: exp + 1, sig }, nowMs),
+  verifyPitchDecision(
+    secret,
+    { slug, vote: 'approved', exp: exp + 1, sig },
+    nowMs,
+  ),
   { ok: false, reason: 'bad-signature' },
   'extending the expiry invalidates the signature',
 )
 assert.deepEqual(
-  verifyPitchDecision('other-secret', { slug, vote: 'approved', exp, sig }, nowMs),
+  verifyPitchDecision(
+    'other-secret',
+    { slug, vote: 'approved', exp, sig },
+    nowMs,
+  ),
   { ok: false, reason: 'bad-signature' },
   'a different secret rejects the link',
 )
 assert.deepEqual(
-  verifyPitchDecision(secret, { slug, vote: 'approved', exp, sig }, (exp + 1) * 1000),
+  verifyPitchDecision(
+    secret,
+    { slug, vote: 'approved', exp, sig },
+    (exp + 1) * 1000,
+  ),
   { ok: false, reason: 'expired' },
   'an expired link is refused',
 )
@@ -79,7 +91,11 @@ assert.deepEqual(
   'an unset secret never verifies',
 )
 assert.deepEqual(
-  verifyPitchDecision(secret, { slug, vote: 'approved', exp, sig: 'zz' }, nowMs),
+  verifyPitchDecision(
+    secret,
+    { slug, vote: 'approved', exp, sig: 'zz' },
+    nowMs,
+  ),
   { ok: false, reason: 'malformed' },
   'a non-hex signature is malformed, not a crash',
 )

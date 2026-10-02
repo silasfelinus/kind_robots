@@ -3,10 +3,7 @@
 // signature covers exactly one pitch, one vote and an expiry; replaying it is
 // harmless because writing the same status again is a no-op.
 import { readFormData } from 'h3'
-import {
-  applyPitchVote,
-  pitchTitleOf,
-} from '@/server/utils/conductorPitchVote'
+import { applyPitchVote, pitchTitleOf } from '@/server/utils/conductorPitchVote'
 import { conductorGet } from '@/server/utils/conductor-github'
 import {
   escapeHtml,

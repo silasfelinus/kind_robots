@@ -23,6 +23,7 @@
     "test:music-video-lyrics": "tsx utils/scripts/verifyMusicVideoLyrics.test.ts",
     "test:music-video-scenes": "tsx utils/scripts/verifyMusicVideoScenes.test.ts",
     "test:music-video-song": "tsx utils/scripts/verifyMusicVideoSong.test.ts",
+    "test:music-video-motion": "tsx utils/scripts/verifyMusicVideoMotion.test.ts",
     "test:artjob-audio-media": "tsx utils/scripts/verifyArtJobAudioMedia.test.ts",
     "test:mandarin-course": "tsx utils/scripts/verifyMandarinCourse.test.ts",
     "test:mandarin-parts-first": "tsx utils/scripts/verifyMandarinPartsFirst.test.ts",

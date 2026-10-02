@@ -201,6 +201,9 @@ jobs:
       - name: Music video song contract
         run: npm run test:music-video-song
 
+      - name: Music video motion contract
+        run: npm run test:music-video-motion
+
       - name: ArtJob audio media contract
         run: npm run test:artjob-audio-media
 

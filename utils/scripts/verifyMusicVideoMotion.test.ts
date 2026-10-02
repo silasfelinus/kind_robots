@@ -1,0 +1,173 @@
+// /utils/scripts/verifyMusicVideoMotion.test.ts
+//
+// Contract test for music-video/t-009 (utils/musicVideoMotion.ts). Pure only.
+//
+// What earns its keep: the Ken Burns preset names are the contract with
+// Conductor's headless ffmpeg pipeline (scripts/build_music_video.py, whose
+// KEN_BURNS_PRESETS must match), planned scenes always carry one, a clip
+// request is private mp4 with the scene still as its first frame, and a doc
+// round-trip keeps every motion field the clip flow writes.
+import assert from 'node:assert/strict'
+
+import {
+  emptyMusicVideoDoc,
+  normalizeMusicVideoDoc,
+  type MusicVideoScene,
+} from '../musicVideoDoc.js'
+import {
+  MUSIC_VIDEO_KEN_BURNS_PRESETS,
+  buildSceneClipRequest,
+  clipRuntimeHint,
+  defaultKenBurnsPreset,
+  isKenBurnsPreset,
+  resolveClipPreset,
+  sceneKenBurnsPreset,
+  withDefaultKenBurnsPresets,
+} from '../musicVideoMotion.js'
+import { planScenes } from '../musicVideoScenes.js'
+
+const doc = normalizeMusicVideoDoc({
+  ...emptyMusicVideoDoc({
+    pitch: 'Kind Robots tend a rooftop garden',
+    settings: {
+      durationSec: 30,
+      bpm: 120,
+      styleBible: 'thick ink outlines, flat cel colour',
+    },
+  }),
+  lyrics: { sections: [] },
+}).doc
+
+{
+  assert.deepEqual(
+    [...MUSIC_VIDEO_KEN_BURNS_PRESETS],
+    ['zoom-in', 'pan-right', 'zoom-out', 'pan-left'],
+    'these names are shared with conductor scripts/build_music_video.py',
+  )
+  assert.equal(defaultKenBurnsPreset(0), 'zoom-in')
+  assert.equal(defaultKenBurnsPreset(5), 'pan-right')
+  assert.equal(defaultKenBurnsPreset(-1), 'pan-left')
+  assert.ok(isKenBurnsPreset('zoom-out'))
+  assert.ok(!isKenBurnsPreset('spin'))
+  assert.equal(
+    sceneKenBurnsPreset({ motion: { kind: 'kenburns', preset: 'spin' } }, 2),
+    'zoom-out',
+  )
+}
+console.log(
+  '✅ Ken Burns presets cycle by position and unknown names fall back',
+)
+
+{
+  const planned = withDefaultKenBurnsPresets(planScenes(doc))
+  assert.ok(planned.length > 2)
+  planned.forEach((scene, index) => {
+    assert.equal(scene.motion.preset, defaultKenBurnsPreset(index))
+  })
+  const { errors, doc: stored } = normalizeMusicVideoDoc({
+    ...doc,
+    scenes: planned,
+  })
+  assert.deepEqual(errors, [])
+  assert.equal(stored.scenes[1]?.motion.preset, 'pan-right')
+
+  const clipScene = {
+    ...planned[0],
+    motion: { kind: 'clip', jobId: 41 },
+  } as MusicVideoScene
+  const kept = withDefaultKenBurnsPresets([clipScene])
+  assert.equal(kept[0]?.motion.preset, undefined, 'clip scenes are left alone')
+}
+console.log('✅ planned scenes carry a preset, and the doc keeps it')
+
+{
+  const roundTrip = normalizeMusicVideoDoc({
+    ...doc,
+    scenes: [
+      {
+        ...planScenes(doc)[0],
+        image: { source: 'generated', artImageId: 7, jobId: 3 },
+        motion: {
+          kind: 'clip',
+          preset: 'zoom-out',
+          jobId: 99,
+          clipArtImageId: 123,
+        },
+      },
+    ],
+  })
+  assert.deepEqual(roundTrip.errors, [])
+  assert.deepEqual(roundTrip.doc.scenes[0]?.motion, {
+    kind: 'clip',
+    preset: 'zoom-out',
+    jobId: 99,
+    clipArtImageId: 123,
+  })
+}
+console.log(
+  '✅ a doc round-trip keeps clip job, clip image and fallback preset',
+)
+
+{
+  const scene: MusicVideoScene = {
+    ...planScenes(doc)[0]!,
+    prompt: 'A brass robot watering tomatoes at dusk',
+    image: { source: 'generated', artImageId: 7 },
+  }
+  const request = buildSceneClipRequest(scene, doc, {
+    firstImageBase64: ' data:image/webp;base64,AAAA ',
+    projectSlug: 'music-video',
+  })
+  assert.equal(request.engine, 'ltx')
+  assert.equal(request.presetId, 'ltx-12gb-balanced')
+  assert.equal(request.outputFormat, 'mp4')
+  assert.equal(request.loop, false)
+  assert.equal(request.isPublic, false)
+  assert.equal(request.firstImageBase64, 'data:image/webp;base64,AAAA')
+  assert.equal(
+    request.promptString,
+    'A brass robot watering tomatoes at dusk, thick ink outlines, flat cel colour',
+  )
+  assert.ok(request.timeoutSeconds <= 5_400)
+  assert.ok(request.durationSeconds >= 3 && request.durationSeconds <= 4)
+
+  const wan = buildSceneClipRequest(scene, doc, {
+    firstImageBase64: 'AAAA',
+    projectSlug: 'music-video',
+    presetId: 'wan-startup-webp',
+  })
+  assert.equal(wan.engine, 'wan')
+  assert.equal(wan.outputFormat, 'mp4')
+
+  assert.throws(() => resolveClipPreset('nope'), /Unknown video preset/)
+  assert.throws(
+    () =>
+      buildSceneClipRequest({ ...scene, image: { source: 'generated' } }, doc, {
+        firstImageBase64: 'AAAA',
+        projectSlug: 'music-video',
+      }),
+    /finished still/,
+  )
+  assert.throws(
+    () =>
+      buildSceneClipRequest({ ...scene, prompt: ' ' }, doc, {
+        firstImageBase64: 'AAAA',
+        projectSlug: 'music-video',
+      }),
+    /no prompt/,
+  )
+  assert.throws(
+    () =>
+      buildSceneClipRequest(scene, doc, {
+        firstImageBase64: '',
+        projectSlug: 'music-video',
+      }),
+    /no image data/,
+  )
+  assert.ok(clipRuntimeHint(resolveClipPreset()).includes('12 GB'))
+}
+console.log(
+  '✅ clip requests are private mp4 from the scene still, and refuse early',
+)
+
+console.log('✅ verifyMusicVideoMotion: all assertions passed')

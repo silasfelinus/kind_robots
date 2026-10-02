@@ -23,7 +23,9 @@
             :class="entry.starred ? 'text-warning' : 'text-base-content/25'"
           />
         </button>
-        <h2 class="kr-text-black-lg truncate text-base-content">
+        <h2
+          class="kr-text-black-lg break-words leading-tight text-base-content"
+        >
           {{ entry.title }}
         </h2>
       </div>

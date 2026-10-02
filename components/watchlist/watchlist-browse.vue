@@ -68,9 +68,11 @@
               :name="MEDIA_TYPE_ICON[entry.mediaType]"
               class="size-3.5 shrink-0 text-base-content/50"
             />
-            <span class="truncate font-semibold text-base-content">{{
-              entry.title
-            }}</span>
+            <span
+              class="line-clamp-2 break-words font-semibold text-base-content"
+              :title="entry.title"
+              >{{ entry.title }}</span
+            >
             <span class="kr-text-dim-xs ml-auto shrink-0">{{
               formatDate(entry)
             }}</span>
@@ -205,7 +207,9 @@
                   name="kind-icon:star"
                   class="size-3 shrink-0 text-warning"
                 />
-                <span class="truncate">{{ top.title }}</span>
+                <span class="line-clamp-2 break-words" :title="top.title">{{
+                  top.title
+                }}</span>
                 <span class="ml-auto shrink-0 text-base-content/40">{{
                   top.year
                 }}</span>
@@ -485,9 +489,11 @@
                 name="kind-icon:star"
                 class="size-3.5 shrink-0 text-warning"
               />
-              <span class="truncate text-sm font-semibold text-base-content">{{
-                entry.title
-              }}</span>
+              <span
+                class="line-clamp-2 break-words text-sm font-semibold text-base-content"
+                :title="entry.title"
+                >{{ entry.title }}</span
+              >
             </div>
             <div class="kr-text-dim-xs flex shrink-0 items-center gap-2">
               <span

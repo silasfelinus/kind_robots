@@ -239,8 +239,10 @@ function stripPonyPlatformWords(value: string): string {
   for (const pattern of PONY_PLATFORM_PATTERNS) {
     out = out.replace(pattern, (match) => {
       // Keep the word that anchored the match (`style`, `xl`, a bracket).
-      const kept = match.match(/(\)|\]|\bxl|\bstyles?)/i)
-      return pattern.source.startsWith('(?<!little)(?:[-_,|/)') && kept ? (kept[1] ?? ' ') : ' '
+      const anchor = match.match(/(\)|\]|\bxl|\bstyles?)/i)?.[1]
+      return pattern.source.startsWith('(?<!little)(?:[-_,|/)') && anchor
+        ? anchor
+        : ' '
     })
   }
   if (out === value) return value

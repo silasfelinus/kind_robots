@@ -6,13 +6,29 @@
         <Icon name="kind-icon:button" class="kr-icon-7" />
       </span>
       <div>
-        <p class="kr-text-black-2xl tracking-tight">Rebel Button</p>
+        <p class="kr-text-black-2xl tracking-tight">
+          {{ reviewerMode ? 'Art Reviewer' : 'Rebel Button' }}
+        </p>
         <p class="kr-text-dim-sm">
-          Do not press this button. (You're going to press it.)
+          {{
+            reviewerMode
+              ? 'You pressed the button 100 times. Now help art find its audience: every review earns a click and karma.'
+              : "Do not press this button. (You're going to press it.)"
+          }}
         </p>
       </div>
     </header>
     <div
+      v-if="reviewerMode"
+      class="flex flex-col gap-4 m-2 p-2 rounded-2xl border bg-(--kr-surface-sunken)"
+    >
+      <rebel-art-reviewer />
+      <div class="bg-base-300 p-4 rounded-2xl shadow-lg">
+        <click-leaderboard class="rounded-2xl m-2 p-2" />
+      </div>
+    </div>
+    <div
+      v-else
       class="hero flex flex-col items-center justify-center bg-(--kr-surface-sunken) rounded-2xl border m-2 min-h-full w-full"
     >
       <div
@@ -151,6 +167,7 @@ import responses from '../../assets/buttonResponses'
 import achievements from '../../assets/buttonAchievements'
 import { useUserStore } from '../../stores/userStore'
 import { useAchievementStore } from '@/stores/achievementStore'
+import { ART_REVIEW_UNLOCK_CLICKS } from '@/utils/artReview'
 
 const userStore = useUserStore()
 
@@ -168,6 +185,13 @@ const state = reactive({
   lastAchievement: '',
 })
 const buttonRef = ref<HTMLElement | null>(null)
+const reviewerMode = ref(false)
+
+const unlockReviewer = () => {
+  if (!userStore.isLoggedIn) return
+  const best = Math.max(state.topScore, userStore.clickRecord ?? 0)
+  if (best >= ART_REVIEW_UNLOCK_CLICKS) reviewerMode.value = true
+}
 
 onMounted(() => {
   // Fetch the leaderboard if the user is logged in
@@ -183,15 +207,14 @@ onMounted(() => {
     localStorage.setItem('topScore', highestScore.toString()) // ensure consistent key naming
 
     state.topScore = parseInt(localStorage.getItem('topScore') ?? '0') || 0
+    unlockReviewer()
   }
 })
 
 watch(
   () => userStore.isLoggedIn,
   (newVal, oldVal) => {
-    if (newVal !== oldVal && newVal === true) {
-      // User has just logged in
-    }
+    if (newVal !== oldVal && newVal === true) unlockReviewer()
   },
 )
 const pressedButton = () => {
@@ -207,6 +230,7 @@ const pressedButton = () => {
 
   if (state.pressCount == 100) {
     achievementStore.rewardAchievementByCode('rebel-button')
+    setTimeout(unlockReviewer, 3000)
   }
 
   // Save to localStorage every 10 clicks to optimize performance

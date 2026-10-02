@@ -41,9 +41,9 @@ export type ButterflyGalleryMotionPrompt = {
   negativePrompt: string
 }
 
-const LOCKED_CAMERA = `The camera is completely locked off on a tripod: no zoom, no push-in, no pan, no tilt, no camera shake, no change of framing or perspective. The first frame is the finished background and every building, tree, cloud, window frame, light, and the sunset stays exactly where it is, and nothing in the scenery is repainted or restyled.`
+const LOCKED_CAMERA = `Static locked-off shot, fixed framing, completely still camera, like a photograph with only the tiny butterflies animated. The picture never zooms, pushes in, pulls out, pans, tilts, or shifts perspective, and the window, pillars, catwalk, lamps, trees, skyline and sunset stay exactly where they are in every frame.`
 
-const MOTION_NEGATIVE = `camera movement, zoom, dolly, pan, tilt, reframing, scene change, cut, morphing background, warped architecture, large foreground butterfly, close-up butterfly, giant butterfly, butterfly covering the view, text, watermark, logo, blurry, jpeg artifacts, extra characters, robots, people, flicker, strobing`
+const MOTION_NEGATIVE = `zoom in, push in, dolly in, camera moves forward, camera moves closer, parallax, camera movement, zoom, dolly, pan, tilt, reframing, scene change, cut, morphing background, warped architecture, large foreground butterfly, close-up butterfly, giant butterfly, butterfly covering the view, text, watermark, logo, blurry, jpeg artifacts, extra characters, robots, people, flicker, strobing`
 
 export const butterflyGalleryStillPrompts: ButterflyGalleryStillPrompt[] = [
   {
@@ -52,7 +52,7 @@ export const butterflyGalleryStillPrompts: ButterflyGalleryStillPrompt[] = [
     sourceFile: 'gallery-butterfly-start.png',
     width: 1024,
     height: 1024,
-    promptString: `Keep the rainbow-winged butterfly exactly as it is: same face, eyes, antennae, wing shapes, colours, and pose, same size and position in the frame. Replace the entire background with a perfectly flat, solid pure black (#000000) with no gradient, no vignette, no glow spilling onto the background, no shadow, and no floor.`,
+    promptString: `Keep the rainbow-winged butterfly exactly as it is: same face, eyes, antennae, wing shapes, colours, and pose, centred at the same size. Replace the entire background with a perfectly flat, solid pure black (#000000) with no gradient, no vignette, no glow spilling onto the background, no shadow, and no floor.`,
   },
   {
     requestId: 'butterfly-gallery-motion-v2-robot-keyed',
@@ -60,7 +60,7 @@ export const butterflyGalleryStillPrompts: ButterflyGalleryStillPrompt[] = [
     sourceFile: 'robot-sift-start.png',
     width: 1024,
     height: 1024,
-    promptString: `Keep the robot and the pictures it is handling exactly as they are: same design, colours, pose, size, and position in the frame. Replace the entire background with a perfectly flat, solid pure chroma-key green (#00FF00) with no gradient, no vignette, no shadow, no floor, and no green light reflected onto the robot.`,
+    promptString: `Keep the robot and the cards it is holding exactly as they are: same design, colours, pose, and size, centred. Replace the entire background with a perfectly flat, solid pure chroma-key green (#00FF00) with no gradient, no vignette, no shadow, no floor, and no green light reflected onto the robot.`,
   },
 ]
 

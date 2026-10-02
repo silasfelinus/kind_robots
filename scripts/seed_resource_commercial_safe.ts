@@ -41,7 +41,7 @@ import {
   SupportedServer,
   type Resource,
 } from '../prisma/generated/prisma/client'
-import { PrismaMariaDb } from '@prisma/adapter-mariadb'
+import { createDatabaseAdapter } from '../server/utils/databaseAdapterConfig'
 
 type Classification = {
   safe: boolean
@@ -104,7 +104,7 @@ export function classifyResource(resource: Resource): Classification {
 function createSeedPrismaClient(): PrismaClient {
   const databaseUrl = process.env.DATABASE_URL
   if (!databaseUrl) throw new Error('DATABASE_URL is missing')
-  return new PrismaClient({ adapter: new PrismaMariaDb(databaseUrl) })
+  return new PrismaClient({ adapter: createDatabaseAdapter(databaseUrl) })
 }
 
 async function main() {

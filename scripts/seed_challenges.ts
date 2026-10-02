@@ -10,7 +10,7 @@
 import 'dotenv/config'
 import { fileURLToPath } from 'node:url'
 import { PrismaClient } from '../prisma/generated/prisma/client'
-import { PrismaMariaDb } from '@prisma/adapter-mariadb'
+import { createDatabaseAdapter } from '../server/utils/databaseAdapterConfig'
 
 type ChallengeSeed = {
   slug: string
@@ -185,7 +185,7 @@ export function createSeedPrismaClient(): PrismaClient {
   if (!databaseUrl) {
     throw new Error('DATABASE_URL is required when running with --write')
   }
-  return new PrismaClient({ adapter: new PrismaMariaDb(databaseUrl) })
+  return new PrismaClient({ adapter: createDatabaseAdapter(databaseUrl) })
 }
 
 export async function seedChallenges(

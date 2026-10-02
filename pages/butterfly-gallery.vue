@@ -41,6 +41,16 @@
           :alt="runwayClip.alt"
           class="runway-clip"
         />
+        <div v-if="runwayCyclingEnabled" class="far-butterflies">
+          <img
+            v-for="butterfly in FAR_BUTTERFLIES"
+            :key="butterfly.id"
+            :src="FAR_BUTTERFLY_URL"
+            alt=""
+            class="far-butterfly"
+            :style="butterfly.style"
+          />
+        </div>
         <span v-for="index in 8" :key="index" class="runway-panel" />
       </div>
 
@@ -554,12 +564,39 @@ interface RunwayClip {
 
 // The earlier close-up "butterfly carries a frame" passes were removed: they
 // were framed at a different scale than runway-background.png and read as a
-// giant overlay. Regenerated far-background clips (job 33134-33136, see
-// stores/seeds/butterflyGalleryMotionPrompts.ts) are listed here once rendered.
+// giant overlay, and the regenerated video clips (jobs 33143-33148) zoomed or
+// smeared, so the window now uses FAR_BUTTERFLIES below instead. Any clip
+// listed here still cycles over the window.
 const RUNWAY_CLIPS: RunwayClip[] = []
 // Each source clip is ~3s; the extra 400ms lets the fade-in settle before the
 // next clip mounts.
 const RUNWAY_CLIP_DURATION_MS = 3400
+
+// Far-background flock (replaces video for the runway window). Video models
+// zoomed the camera and blew butterflies up into smeared blobs, so the window
+// keeps the untouched runway-background.png and a few small copies of the
+// keyed butterfly loop drift across it with CSS -- the camera cannot move.
+const FAR_BUTTERFLY_URL =
+  '/images/generated/2026/10/artimage-241408-2caf6dae.webp'
+const FAR_BUTTERFLIES = [
+  { id: 1, top: 18, size: 15, travel: 26, bob: 5, delay: 0, flip: false },
+  { id: 2, top: 34, size: 11, travel: 34, bob: 4, delay: -9, flip: true },
+  { id: 3, top: 50, size: 18, travel: 30, bob: 6, delay: -17, flip: false },
+  { id: 4, top: 26, size: 9, travel: 40, bob: 3, delay: -23, flip: true },
+  { id: 5, top: 42, size: 13, travel: 28, bob: 5, delay: -5, flip: true },
+  { id: 6, top: 60, size: 10, travel: 36, bob: 4, delay: -29, flip: false },
+].map((butterfly) => ({
+  id: butterfly.id,
+  style: {
+    '--far-top': `${butterfly.top}%`,
+    '--far-size': `${butterfly.size}px`,
+    '--far-travel': `${butterfly.travel}s`,
+    '--far-bob': `${butterfly.bob}px`,
+    '--far-delay': `${butterfly.delay}s`,
+    '--far-dir': butterfly.flip ? 'reverse' : 'normal',
+    '--far-flip': butterfly.flip ? -1 : 1,
+  },
+}))
 
 // -- Loop motion clips (butterfly-gallery/t-035) -----------------------------
 // The two remaining t-014 ArtJobs (28744 left-butterfly, 28745 robot) failed
@@ -890,9 +927,9 @@ function evaluateRunwayCycle(): void {
     stopRunwayCycle()
     return
   }
-  if (runwayCyclingEnabled.value || !RUNWAY_CLIPS.length) return
+  if (runwayCyclingEnabled.value) return
   runwayCyclingEnabled.value = true
-  scheduleNextRunwayClip()
+  if (RUNWAY_CLIPS.length) scheduleNextRunwayClip()
 }
 
 /** Same three-signal gate as evaluateRunwayCycle (on-screen, tab visible,
@@ -1313,6 +1350,48 @@ function pileStyle(index: number, total: number): Record<string, string> {
   object-fit: cover;
   pointer-events: none;
   animation: runway-clip-fade-in 260ms ease;
+}
+
+.far-butterflies {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.far-butterfly {
+  position: absolute;
+  top: var(--far-top);
+  left: 0;
+  width: var(--far-size);
+  height: var(--far-size);
+  object-fit: contain;
+  mix-blend-mode: screen;
+  opacity: 0.85;
+  filter: blur(0.35px) saturate(1.1);
+  animation:
+    far-butterfly-cross var(--far-travel) linear var(--far-delay) infinite
+      alternate var(--far-dir),
+    far-butterfly-bob 2.4s ease-in-out var(--far-delay) infinite alternate;
+}
+
+@keyframes far-butterfly-cross {
+  from {
+    left: -4%;
+  }
+  to {
+    left: 100%;
+  }
+}
+
+@keyframes far-butterfly-bob {
+  from {
+    transform: translateY(calc(var(--far-bob) * -1)) scaleX(var(--far-flip));
+  }
+  to {
+    transform: translateY(var(--far-bob)) scaleX(var(--far-flip));
+  }
 }
 
 .runway-panel {
@@ -2120,6 +2199,7 @@ function pileStyle(index: number, total: number): Record<string, string> {
   .preset-bin-accepted,
   .intro-tumble-frame,
   .runway-clip,
+  .far-butterfly,
   .loop-clip {
     animation: none;
   }

@@ -101,6 +101,14 @@ assert.ok(!/pony/i.test(sanitizeProbeTrigger('Bartolomeobari Style - Pony XL')))
 // ...while a real word that merely resembles one survives.
 assert.equal(sanitizeProbeTrigger('Turbo Racer'), 'Turbo Racer')
 assert.equal(sanitizeProbeTrigger('my little pony, pony girl'), 'my little pony, pony girl')
+// Versioned Pony names are platform words too: stripping only `Pony Diffusion`
+// used to leave `[ V6 XL]` behind, and `ponyv6` / `pony_xl` passed untouched.
+assert.equal(sanitizeProbeTrigger('Anna [Pony Diffusion V6 XL]'), 'Anna')
+assert.equal(sanitizeProbeTrigger('Anna Pony v1.0'), 'Anna')
+assert.equal(sanitizeProbeTrigger('PonyDiffusionV6XL anna'), 'anna')
+assert.equal(sanitizeProbeTrigger('pony_xl, anna'), 'anna')
+assert.equal(sanitizeProbeTrigger('Anna for ponyv6'), 'Anna')
+assert.equal(sanitizeProbeTrigger('Pony Anna'), 'Pony Anna')
 
 // --- a trigger that is only invocation syntax -------------------------------
 // 17 rows carry nothing but `<lora:NAME:weight>`. That syntax is stripped

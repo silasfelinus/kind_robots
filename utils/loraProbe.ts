@@ -69,9 +69,13 @@ const PACKAGING_NOISE_PATTERN =
  * happened to `vintage-ads-sdxl-1350` and `blowjob-sdxl-3-000008`. A bracketed
  * or space-separated `[PonyXL]` still matches, which is the case this exists
  * for.
+ *
+ * Versioned Pony names are included whole (`Pony Diffusion V6 XL`, `ponyv6`,
+ * `pony_xl`): stripping only `Pony Diffusion` left `[ V6 XL]` in the prompt.
+ * A bare `pony` is still never stripped here -- see BASE_NAME_GROUP_PATTERN.
  */
 const BASE_NAME_NOISE_PATTERN =
-  /(?<![\w-])(?:pony\s*xl|pony\s*diffusion(?:\s*xl)?|pdxl|sdxl|sd\s*1\.5|sd15|illustrious|ilxl|noobai|flux[0-9.]*(?:\s*d(?:ev)?)?|schnell|kontext|klein|wan|ltx|qwen|z[-\s]?image(?:[-\s]?turbo)?|krea(?:\s*\d+)?|chroma|hidream|lumina|auraflow)(?![\w-])/gi
+  /(?<![\w-])(?:pony[\s_]*xl|pony[\s_]*diffusion(?:[\s_]*v?\d+(?:\.\d+)?)?(?:[\s_]*xl)?|pony[\s_]*v\d+(?:\.\d+)?(?:[\s_]*xl)?|pdxl|sdxl|sd\s*1\.5|sd15|illustrious|ilxl|noobai|flux[0-9.]*(?:\s*d(?:ev)?)?|schnell|kontext|klein|wan|ltx|qwen|z[-\s]?image(?:[-\s]?turbo)?|krea(?:\s*\d+)?|chroma|hidream|lumina|auraflow)(?![\w-])/gi
 
 /*
  * Left behind once the words above are gone: '[PonyXL]' becomes '[ ]', and

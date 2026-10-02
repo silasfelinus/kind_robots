@@ -69,9 +69,13 @@ const PACKAGING_NOISE_PATTERN =
  * happened to `vintage-ads-sdxl-1350` and `blowjob-sdxl-3-000008`. A bracketed
  * or space-separated `[PonyXL]` still matches, which is the case this exists
  * for.
+ *
+ * Versioned Pony names are included whole (`Pony Diffusion V6 XL`, `ponyv6`,
+ * `pony_xl`): stripping only `Pony Diffusion` left `[ V6 XL]` in the prompt.
+ * A bare `pony` is still never stripped here -- see BASE_NAME_GROUP_PATTERN.
  */
 const BASE_NAME_NOISE_PATTERN =
-  /(?<![\w-])(?:pony\s*xl|pony\s*diffusion(?:\s*xl)?|pdxl|sdxl|sd\s*1\.5|sd15|illustrious|ilxl|noobai|flux[0-9.]*(?:\s*d(?:ev)?)?|schnell|kontext|klein|wan|ltx|qwen|z[-\s]?image(?:[-\s]?turbo)?|krea(?:\s*\d+)?|chroma|hidream|lumina|auraflow)(?![\w-])/gi
+  /(?<![\w-])(?:pony[\s_]*xl|pony[\s_]*diffusion(?:[\s_]*v?\d+(?:\.\d+)?)?(?:[\s_]*xl)?|pony[\s_]*v\d+(?:\.\d+)?(?:[\s_]*xl)?|pdxl|sdxl|sd\s*1\.5|sd15|illustrious|ilxl|noobai|flux[0-9.]*(?:\s*d(?:ev)?)?|schnell|kontext|klein|wan|ltx|qwen|z[-\s]?image(?:[-\s]?turbo)?|krea(?:\s*\d+)?|chroma|hidream|lumina|auraflow)(?![\w-])/gi
 
 /*
  * Left behind once the words above are gone: '[PonyXL]' becomes '[ ]', and
@@ -203,6 +207,48 @@ function stripDescriptors(value: string): string {
   return /[A-Za-z0-9]/.test(stripped) ? stripped : value
 }
 
+/*
+ * Pony as a compatibility label rather than a subject, in the shapes the live
+ * catalog actually carries (73 triggers mention it; most are `ponytail`):
+ *   `Style for Pony`, `Sky ( Artist Style ) Pony`, `Wednesday Addams XL PONY`,
+ *   `Blowjob Depth Slider - Pony`, `Facial_Pony`, `Style (SD-1.5, Pony)`,
+ *   `[Style, Pony]`, `(+100 YQ, (Pony, IL))`, `Style Pony & 1.5`.
+ * Bare `pony` anywhere else stays: `my little pony`, `Pony Anna`, `PonyPlay`
+ * are subjects, and `ponytail` is hair (the word boundary keeps it).
+ */
+const PONY_PLATFORM_PATTERNS: RegExp[] = [
+  // `(Pony, IL)`, `[Style, Pony]`, `(SD-1.5, Pony)`: a group holding only
+  // platform words, and nothing that names a subject.
+  /[[(](?=[^\])]*\bpony\b)\s*(?:(?:style|styles|pony|il|ilxl|xl|sdxl|sd[-\s]?1\.?5|illustrious|beta|alpha|wip)\s*[,&+/|]?\s*)+[\])]/gi,
+  // `[BETA]` style release markers.
+  /[[(]\s*(?:beta|alpha|wip|test)\s*[\])]/gi,
+  // `for Pony`, `on Pony`, `Pony & 1.5`, `& Pony`.
+  /\s*\b(?:for|on)\s+pony(?:\s*(?:&|and|,)\s*(?:sd\s*)?1\.5)?(?![\w-])/gi,
+  /\s*&\s*pony(?![\w-])/gi,
+  /(?<![\w-])pony\s*&\s*(?:sd\s*)?1\.5(?![\w-])/gi,
+  // Trailing label after a separator, a closing bracket, XL or a style word,
+  // or written in capitals: `- Pony`, `_Pony`, `) Pony`, `Style Pony`, `PONY`.
+  /(?<!little)(?:[-_,|/)\]]|\bxl|\bstyles?)\s*pony[\s,]*$/gi,
+  /(?<!LITTLE)\s+PONY[\s,]*$/g,
+  // Filename shape: `Everclear_Pony-000006`.
+  /_pony(?=-\d{3,}$)/gi,
+]
+
+function stripPonyPlatformWords(value: string): string {
+  let out = value
+  for (const pattern of PONY_PLATFORM_PATTERNS) {
+    out = out.replace(pattern, (match) => {
+      // Keep the word that anchored the match (`style`, `xl`, a bracket).
+      const anchor = match.match(/(\)|\]|\bxl|\bstyles?)/i)?.[1]
+      return pattern.source.startsWith('(?<!little)(?:[-_,|/)') && anchor
+        ? anchor
+        : ' '
+    })
+  }
+  if (out === value) return value
+  return out.replace(/\s+([)\]])/g, '$1').replace(/[_\s]+$/, '')
+}
+
 export function sanitizeProbeTrigger(value: string): string {
   const cleaned0 = value
     /*
@@ -228,6 +274,7 @@ export function sanitizeProbeTrigger(value: string): string {
     // separator. See the un-escape note above.
     .replace(/[|/]+/g, ', ')
     .replace(/\s*,\s*(?:,\s*)+/g, ', ')
+    .replace(/^[\s\S]*$/, stripPonyPlatformWords)
     // Descriptor and training-method words, guarded so they never empty a
     // trigger outright -- see the note at DANGLING_DESCRIPTOR_PATTERN.
     .replace(/^[\s\S]*$/, stripDescriptors)

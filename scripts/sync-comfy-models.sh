@@ -33,7 +33,7 @@
 #
 #   bash scripts/sync-comfy-models.sh --local /d/ComfyUI/models --remote //alexandria/pc/ai/models
 #
-# Other flags: --verify (sha256 both ends), --tier core|image|video|extra|all,
+# Other flags: --verify (sha256 both ends), --tier core|image|video|audio|extra|all,
 # --prune-remote (delete the share copy after verifying), --yes, --dry-run.
 #
 set -euo pipefail
@@ -76,6 +76,9 @@ done
 #   core  — Krea 2. 188 of 198 pending jobs. Fixing this tier fixes the queue.
 #   image — the other still-image lanes (Kontext, Flux, Flux2, SDXL).
 #   video — WAN and LTX. Big, and only used by the animation lanes.
+#   audio — ACE-Step 1.5 turbo (music-video songs). UNETLoader + DualCLIPLoader
+#           + VAELoader, names as server/api/comfy/acestep/utils/workflow.ts
+#           sends them. About 9.5 GiB; stage it on the share first.
 #   extra — occasional/one-off (Hunyuan3D, SD1.5).
 MANIFEST=$(cat <<'EOF'
 core|unet|Krea-2-Turbo-Q5_K_S.gguf
@@ -101,6 +104,10 @@ video|vae|wan_2.1_vae.safetensors
 video|vae|wan2.2_vae.safetensors
 video|checkpoints|ltx/ltx-2.3-22b-dev-fp8.safetensors
 video|loras|ltx-2.3-22b-distilled-lora-384.safetensors
+audio|unet|acestep_v1.5_turbo.safetensors
+audio|clip|qwen_0.6b_ace15.safetensors
+audio|clip|qwen_1.7b_ace15.safetensors
+audio|vae|ace_1.5_vae.safetensors
 extra|checkpoints|3d/hunyuan_3d_v2.1.safetensors
 extra|checkpoints|v1-5-pruned-emaonly.safetensors
 EOF

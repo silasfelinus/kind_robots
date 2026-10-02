@@ -41,7 +41,7 @@
 param(
   [string] $Local,
   [string] $Remote,
-  [ValidateSet('core', 'image', 'video', 'extra', 'all')]
+  [ValidateSet('core', 'image', 'video', 'audio', 'extra', 'all')]
   [string] $Tier = 'all',
   [switch] $DryRun,
   [switch] $Yes,
@@ -73,6 +73,8 @@ function Format-Size([double] $Bytes) {
 #   core  - Krea 2. 188 of 198 pending jobs. This tier alone fixes the queue.
 #   image - the other still-image lanes (Kontext, Flux, Flux2, SDXL).
 #   video - WAN and LTX. Large, and only the animation lanes use them.
+#   audio - ACE-Step 1.5 turbo (music-video songs). Names exactly as
+#           server/api/comfy/acestep/utils/workflow.ts sends them. ~9.5 GiB.
 #   extra - occasional (Hunyuan3D, SD1.5).
 $Manifest = @'
 core|unet|Krea-2-Turbo-Q5_K_S.gguf
@@ -98,6 +100,10 @@ video|vae|wan_2.1_vae.safetensors
 video|vae|wan2.2_vae.safetensors
 video|checkpoints|ltx/ltx-2.3-22b-dev-fp8.safetensors
 video|loras|ltx-2.3-22b-distilled-lora-384.safetensors
+audio|unet|acestep_v1.5_turbo.safetensors
+audio|clip|qwen_0.6b_ace15.safetensors
+audio|clip|qwen_1.7b_ace15.safetensors
+audio|vae|ace_1.5_vae.safetensors
 extra|checkpoints|3d/hunyuan_3d_v2.1.safetensors
 extra|checkpoints|v1-5-pruned-emaonly.safetensors
 '@ -split "`n" | ForEach-Object { $_.Trim() } | Where-Object { $_ }

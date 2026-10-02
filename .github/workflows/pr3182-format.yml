@@ -1,0 +1,52 @@
+name: PR 3182 one-shot Prettier fix
+
+on:
+  push:
+    branches:
+      - claude/clever-ptolemy-nyj3le
+    paths:
+      - .github/workflows/pr3182-format.yml
+
+permissions:
+  contents: write
+
+jobs:
+  format:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: claude/clever-ptolemy-nyj3le
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Format only PR 3182 ratchet failures
+        run: |
+          npx prettier --write \
+            components/art/ButterflyGalleryGroupMenu.vue \
+            stores/butterflyGalleryStore.ts \
+            stores/helpers/butterflyGalleryActionAdapter.ts \
+            stores/helpers/butterflyGalleryViewSettings.ts \
+            utils/scripts/enqueueButterflyGalleryMotion.ts \
+            utils/scripts/verifyButterflyGalleryFilters.test.ts \
+            types/butterflyGallery.ts
+      - name: Remove one-shot workflow and push canonical formatting
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git rm --ignore-unmatch .github/workflows/pr3182-format.yml
+          git add components/art/ButterflyGalleryGroupMenu.vue \
+            stores/butterflyGalleryStore.ts \
+            stores/helpers/butterflyGalleryActionAdapter.ts \
+            stores/helpers/butterflyGalleryViewSettings.ts \
+            utils/scripts/enqueueButterflyGalleryMotion.ts \
+            utils/scripts/verifyButterflyGalleryFilters.test.ts \
+            types/butterflyGallery.ts
+          if git diff --cached --quiet; then
+            echo "Nothing to commit"
+          else
+            git commit -m "fix: format butterfly gallery changes"
+            git push origin HEAD:claude/clever-ptolemy-nyj3le
+          fi

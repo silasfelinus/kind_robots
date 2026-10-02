@@ -11,6 +11,7 @@
 // other job that referenced it, which was broken twice over -- see the note at
 // the overwrite transaction below -- and produced a dead duplicate queue card
 // for every retry.
+import { isAudioArtJobPayload } from '~/utils/artJobMedia'
 import { createError, defineEventHandler, getRouterParam, readBody } from 'h3'
 import type { ArtImage, Prisma } from '~/prisma/generated/prisma/client'
 import prisma from '../../../../utils/prisma'
@@ -274,6 +275,7 @@ export default defineEventHandler(async (event) => {
     let completedCollectionIds: number[] = []
     let completedEntityArt: Record<string, unknown> | null = null
     let completedForumArt: ForumArtCompletion | null = null
+    const isAudioJob = isAudioArtJobPayload(job.payload)
 
     if (body.success) {
       const uploadedArtImageId = Number(body.artImageId)
@@ -419,7 +421,9 @@ export default defineEventHandler(async (event) => {
             job.userId,
           )
 
-          const collectionIds = await attachCompletedArtImageToCollections(tx, {
+          const collectionIds = isAudioJob
+            ? []
+            : await attachCompletedArtImageToCollections(tx, {
             artImageId: targetArtImageId,
             userId: job.userId,
             requestedCollectionIds,
@@ -523,7 +527,9 @@ export default defineEventHandler(async (event) => {
             job.userId,
           )
 
-          const collectionIds = await attachCompletedArtImageToCollections(tx, {
+          const collectionIds = isAudioJob
+            ? []
+            : await attachCompletedArtImageToCollections(tx, {
             artImageId: uploadedArtImageId,
             userId: job.userId,
             requestedCollectionIds,
@@ -575,9 +581,12 @@ export default defineEventHandler(async (event) => {
      * A no-op unless IMAGES_PATH is set, and it never throws — see
      * artImageOffload.ts. Failure leaves the row exactly as it is today.
      */
-    const offloadTargets = [updated.artImageId, archivedArtImageId].filter(
-      (value): value is number => Number.isInteger(value) && Number(value) > 0,
-    )
+    const offloadTargets = isAudioJob
+      ? []
+      : [updated.artImageId, archivedArtImageId].filter(
+          (value): value is number =>
+            Number.isInteger(value) && Number(value) > 0,
+        )
 
     const offloaded: string[] = []
     for (const targetId of offloadTargets) {

@@ -21,7 +21,7 @@ export type ArtImageLike = {
   fileType?: string | null
 }
 
-export type ArtMediaKind = 'image' | 'video' | 'none'
+export type ArtMediaKind = 'image' | 'video' | 'audio' | 'none'
 
 export type ArtImageSourceDiag = {
   hasImageData: boolean
@@ -41,21 +41,60 @@ export type ArtImageSource = {
   diag: ArtImageSourceDiag
 }
 
-const VIDEO_FILETYPES = new Set(['mp4', 'webm', 'mov', 'ogv', 'ogg', 'm4v'])
+const VIDEO_FILETYPES = new Set(['mp4', 'webm', 'mov', 'ogv', 'm4v'])
+const AUDIO_FILETYPES = new Set([
+  'mp3',
+  'wav',
+  'ogg',
+  'oga',
+  'flac',
+  'm4a',
+  'aac',
+])
+const AUDIO_MIME_BY_TYPE: Record<string, string> = {
+  mp3: 'audio/mpeg',
+  wav: 'audio/wav',
+  ogg: 'audio/ogg',
+  oga: 'audio/ogg',
+  flac: 'audio/flac',
+  m4a: 'audio/mp4',
+  aac: 'audio/aac',
+}
 
 function isVideoType(fileType?: string | null, path?: string | null): boolean {
   const ft = (fileType || '').trim().toLowerCase()
   if (ft.startsWith('video/')) return true
   if (VIDEO_FILETYPES.has(ft)) return true
+  if (AUDIO_FILETYPES.has(ft) || ft.startsWith('audio/')) return false
   return /\.(mp4|webm|mov|ogv|m4v)(\?|#|$)/i.test((path || '').trim())
+}
+
+export function isAudioType(
+  fileType?: string | null,
+  path?: string | null,
+): boolean {
+  const ft = (fileType || '').trim().toLowerCase()
+  if (ft.startsWith('audio/')) return true
+  if (AUDIO_FILETYPES.has(ft)) return true
+  if (ft) return false
+  return /\.(mp3|wav|ogg|oga|flac|m4a|aac)(\?|#|$)/i.test((path || '').trim())
+}
+
+function mediaKindFor(
+  fileType?: string | null,
+  path?: string | null,
+): 'image' | 'video' | 'audio' {
+  if (isAudioType(fileType, path)) return 'audio'
+  return isVideoType(fileType, path) ? 'video' : 'image'
 }
 
 function mediaMimeType(
   fileType: string | null | undefined,
-  kind: 'image' | 'video',
+  kind: 'image' | 'video' | 'audio',
 ): string {
   const cleaned = (fileType || '').trim().toLowerCase()
   if (cleaned.includes('/')) return cleaned
+  if (kind === 'audio') return AUDIO_MIME_BY_TYPE[cleaned] || 'audio/mpeg'
   if (kind === 'video') {
     if (cleaned === 'mov') return 'video/quicktime'
     if (cleaned === 'ogv' || cleaned === 'ogg') return 'video/ogg'
@@ -77,7 +116,9 @@ function isProbablyPath(value: string): boolean {
     t.startsWith('images/') ||
     t.startsWith('public/') ||
     t.startsWith('/mnt/data/') ||
-    /\.(png|jpe?g|webp|gif|avif|svg|mp4|webm|mov|ogv|m4v)$/i.test(t)
+    /\.(png|jpe?g|webp|gif|avif|svg|mp4|webm|mov|ogv|m4v|mp3|wav|ogg|oga|flac|m4a|aac)$/i.test(
+      t,
+    )
   )
 }
 
@@ -158,7 +199,9 @@ export function resolveArtImageSource(
     if (diag.imageDataShape === 'data-url') {
       const kind: ArtMediaKind = rawData.startsWith('data:video/')
         ? 'video'
-        : 'image'
+        : rawData.startsWith('data:audio/')
+          ? 'audio'
+          : 'image'
       return {
         src: rawData,
         kind,
@@ -167,14 +210,14 @@ export function resolveArtImageSource(
       }
     }
     if (diag.imageDataShape === 'base64') {
-      const kind: 'image' | 'video' = isVideoType(fileType, imagePath || path)
-        ? 'video'
-        : 'image'
+      const kind = mediaKindFor(fileType, imagePath || path)
       const src = `data:${mediaMimeType(fileType, kind)};base64,${rawData}`
       const reason =
         kind === 'video'
           ? `video result (fileType=${fileType || 'unknown'}) — render as <video>`
-          : 'inline base64'
+          : kind === 'audio'
+            ? `audio result (fileType=${fileType || 'unknown'}) — render as <audio>`
+            : 'inline base64'
       return { src, kind, reason, diag: { ...diag, usedField: 'imageData' } }
     }
     // 'path-in-data-field' falls through to path handling using imageData as a candidate.
@@ -197,13 +240,13 @@ export function resolveArtImageSource(
           : 'none'
   const normalized = normalizeMediaPath(pathCandidateRaw)
   if (normalized) {
-    const kind: 'image' | 'video' = isVideoType(fileType, normalized)
-      ? 'video'
-      : 'image'
+    const kind = mediaKindFor(fileType, normalized)
     const reason =
       kind === 'video'
         ? `video path (fileType=${fileType || 'unknown'}) — render as <video>`
-        : `path (${usedField})`
+        : kind === 'audio'
+          ? `audio path (fileType=${fileType || 'unknown'}) — render as <audio>`
+          : `path (${usedField})`
     return { src: normalized, kind, reason, diag: { ...diag, usedField } }
   }
 

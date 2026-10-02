@@ -8,6 +8,7 @@ import fs from 'node:fs/promises'
 export async function saveImage(
   base64Image: string,
   userId: number,
+  options: { attachToCollections?: boolean } = {},
 ): Promise<{ id: number; fileName: string }> {
   try {
     const timestamp = Date.now()
@@ -30,10 +31,12 @@ export async function saveImage(
     // ArtJob uploads. Give every generated ArtImage a canonical DB collection
     // immediately. Durable ArtJob completion then idempotently adds any
     // explicit or entity-context collections in its completion transaction.
-    await attachCompletedArtImageToCollections(prisma, {
-      artImageId: savedImage.id,
-      userId,
-    })
+    if (options.attachToCollections !== false) {
+      await attachCompletedArtImageToCollections(prisma, {
+        artImageId: savedImage.id,
+        userId,
+      })
+    }
 
     // Optionally save to the configured local filesystem in development.
     if (!isProduction) {

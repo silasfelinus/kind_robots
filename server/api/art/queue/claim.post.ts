@@ -26,6 +26,7 @@
 // low-priority one could sit behind priority-100 work for hours (2026-09-12:
 // #21788, attempt 2, RUNNING for 63 minutes next to the live #21803). A relay
 // that genuinely renders several jobs at once opts out with singleSlot=false.
+import { artJobClaimableBy } from '~/utils/artJobMedia'
 import { createError, defineEventHandler, readBody } from 'h3'
 import prisma from '../../../utils/prisma'
 import { errorHandler } from '../../../utils/error'
@@ -65,6 +66,7 @@ type ClaimRequestBody = {
   agentId?: string | null
   engines?: string[] | null
   supportsInputImages?: boolean | null
+  supportsAudio?: boolean | null
   supportsCompletionProof?: boolean | null
   agentVersion?: string | null
   smartQueue?: boolean | null
@@ -100,6 +102,7 @@ export default defineEventHandler(async (event) => {
     )[]
 
     const supportsInputImages = body?.supportsInputImages === true
+    const supportsAudio = body?.supportsAudio === true
     const supportsCompletionProof = body?.supportsCompletionProof === true
     const smartQueue = body?.smartQueue !== false
     const singleSlot = body?.singleSlot !== false
@@ -254,12 +257,12 @@ export default defineEventHandler(async (event) => {
           ...candidate,
           payload: parseArtJobPayload(candidate.payload),
         }))
-        .filter((candidate) => {
-          const needsInputImages =
-            Array.isArray(candidate.payload.images) &&
-            candidate.payload.images.length > 0
-          return !needsInputImages || supportsInputImages
-        })
+        .filter((candidate) =>
+          artJobClaimableBy(candidate.payload, {
+            supportsInputImages,
+            supportsAudio,
+          }),
+        )
 
       if (!eligible.length) {
         skippedIds.push(...candidates.map((candidate) => candidate.id))

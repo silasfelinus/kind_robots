@@ -44,6 +44,16 @@
             playsinline
             preload="metadata"
           />
+          <div
+            v-else-if="jobImageKind === 'audio'"
+            class="flex h-full w-full items-center justify-center bg-base-200"
+            title="Generated audio"
+          >
+            <Icon
+              name="kind-icon:music"
+              class="kr-icon-10 text-base-content/60"
+            />
+          </div>
           <img
             v-else
             :src="jobImageSrc"

@@ -420,6 +420,19 @@
         </button>
       </aside>
 
+      <svg
+        class="pointer-events-none absolute h-0 w-0"
+        aria-hidden="true"
+        focusable="false"
+      >
+        <filter id="kr-chroma-green" color-interpolation-filters="sRGB">
+          <feColorMatrix
+            type="matrix"
+            values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  2.5 -5 2.5 0 2.25"
+          />
+        </filter>
+      </svg>
+
       <div
         ref="robotAnimationSlotRef"
         class="robot-animation-slot"
@@ -430,7 +443,7 @@
           v-if="robotLoopVisible"
           :src="ROBOT_LOOP_CLIP_URL"
           :alt="ROBOT_LOOP_CLIP_ALT"
-          class="loop-clip"
+          class="loop-clip loop-clip-seam robot-keyed"
         />
       </div>
 
@@ -609,9 +622,9 @@ const FOREGROUND_BUTTERFLY_CLIP_URL =
 const FOREGROUND_BUTTERFLY_CLIP_ALT =
   'A Gallery butterfly flutters in an independent loop near the top-left of the runway'
 const ROBOT_LOOP_CLIP_URL =
-  '/images/generated/2026/09/artimage-30459-9fbf71cb.webp'
+  '/images/generated/2026/10/artimage-241414-4aef7141.webp'
 const ROBOT_LOOP_CLIP_ALT =
-  'A small robot sifts through picture frames in a loop at the lower right'
+  'A small robot sifts through pictures in a loop at the lower right'
 
 const userStore = useUserStore()
 const gallery = useButterflyGalleryStore()
@@ -1874,6 +1887,10 @@ function pileStyle(index: number, total: number): Record<string, string> {
   object-fit: contain;
   pointer-events: none;
   animation: runway-clip-fade-in 260ms ease;
+}
+
+.robot-keyed {
+  filter: url('#kr-chroma-green');
 }
 
 .loop-clip-screen {

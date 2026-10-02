@@ -180,6 +180,7 @@ export interface ButterflyGalleryActionAdapter {
     collection: string,
     collectionId?: number,
   ): Promise<void>
+  /** Numeric ids let the art-archive adapter persist membership changes. */
   removeFromCollection(
     entryId: number,
     collection: string,

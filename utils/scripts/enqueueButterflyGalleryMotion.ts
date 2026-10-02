@@ -42,7 +42,8 @@ const FPS = 16
 
 async function fetchBase64(url: string): Promise<string> {
   const response = await fetch(url)
-  if (!response.ok) throw new Error(`Could not fetch ${url}: ${response.status}`)
+  if (!response.ok)
+    throw new Error(`Could not fetch ${url}: ${response.status}`)
   return Buffer.from(await response.arrayBuffer()).toString('base64')
 }
 
@@ -79,7 +80,9 @@ async function queueStills() {
         promptString: still.promptString,
         width: still.width,
         height: still.height,
-        sourceImageBase64: await fetchBase64(`${ASSET_BASE}/${still.sourceFile}`),
+        sourceImageBase64: await fetchBase64(
+          `${ASSET_BASE}/${still.sourceFile}`,
+        ),
         isPublic: false,
         isMature: false,
       },
@@ -93,7 +96,8 @@ async function firstFrameFor(firstFrame: string): Promise<string> {
     const path = flag(
       firstFrame === 'butterfly-keyed' ? '--butterfly-still' : '--robot-still',
     )
-    if (!path) throw new Error(`--${firstFrame.split('-')[0]}-still is required.`)
+    if (!path)
+      throw new Error(`--${firstFrame.split('-')[0]}-still is required.`)
     return (await readFile(path)).toString('base64')
   }
   return fetchBase64(`${ASSET_BASE}/${firstFrame}`)

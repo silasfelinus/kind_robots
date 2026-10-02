@@ -94,7 +94,8 @@ export function butterflyGridColumns(
 ): number {
   const tiles = clampButterflyViewCount(count)
   if (tiles === 1) return 1
-  const frame = Number.isFinite(frameAspect) && frameAspect > 0 ? frameAspect : 1.5
+  const frame =
+    Number.isFinite(frameAspect) && frameAspect > 0 ? frameAspect : 1.5
   const target = TILE_ASPECT[orientation]
   let best = 1
   let bestScore = Infinity

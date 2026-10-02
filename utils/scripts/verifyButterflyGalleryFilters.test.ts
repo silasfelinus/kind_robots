@@ -247,9 +247,7 @@ console.log(
     makeEntry({
       id: 1,
       collections: ['archive-folder-ab12'],
-      collectionRefs: [
-        { id: 7, slug: 'archive-folder-ab12', label: 'Cats' },
-      ],
+      collectionRefs: [{ id: 7, slug: 'archive-folder-ab12', label: 'Cats' }],
     }),
     makeEntry({ id: 2, collections: ['archive-folder-ab12'] }),
   ])

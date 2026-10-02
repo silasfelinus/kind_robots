@@ -482,7 +482,9 @@ export const useButterflyGalleryStore = defineStore(
         return await addToCollection(entryId, ref.slug, ref)
       } catch (error) {
         errorMessage.value =
-          error instanceof Error ? error.message : 'Could not create collection.'
+          error instanceof Error
+            ? error.message
+            : 'Could not create collection.'
         status.value = 'error'
         return false
       }

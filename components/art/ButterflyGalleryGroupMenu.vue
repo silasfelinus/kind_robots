@@ -59,7 +59,9 @@
               :class="{ 'group-menu-pick-active': active === item.value }"
               @click="pick(item.value)"
             >
-              <span class="group-menu-name">{{ item.label || item.value }}</span>
+              <span class="group-menu-name">{{
+                item.label || item.value
+              }}</span>
               <span class="group-menu-count">{{ item.count }}</span>
             </button>
             <button
@@ -75,7 +77,9 @@
           </div>
         </li>
         <li v-if="!visibleItems.length" class="kr-text-dim-xs px-2 py-1">
-          {{ items.length ? 'No matches.' : `No ${heading.toLowerCase()} yet.` }}
+          {{
+            items.length ? 'No matches.' : `No ${heading.toLowerCase()} yet.`
+          }}
         </li>
       </ul>
     </div>

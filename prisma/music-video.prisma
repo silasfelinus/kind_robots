@@ -1,0 +1,22 @@
+/// Music Video (conductor project music-video/t-004): one admin-authored music video.
+///
+/// The whole editable state (pitch, settings, lyrics, song reference, beat grid,
+/// scene list) lives in `doc` as a versioned MusicVideoDoc JSON document validated by
+/// utils/musicVideoDoc.ts. Generation progress is NOT stored here: every song, scene
+/// still and clip is an ArtJob carrying musicVideo provenance, and status is derived
+/// from those jobs, the same way Scene Animator works.
+///
+/// userId is a plain ownership scalar with no relation back to User, matching the
+/// Mandarin Tutor models, so the migration is purely additive.
+model MusicVideo {
+  id              Int      @id @default(autoincrement())
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @default(now()) @updatedAt
+  userId          Int
+  title           String   @db.VarChar(255)
+  status          String   @default("DRAFT") @db.VarChar(32)
+  doc             String   @db.LongText
+  finalArtImageId Int?
+
+  @@index([userId, updatedAt])
+}

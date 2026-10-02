@@ -297,6 +297,20 @@ export type ModelBuildArtifact = Prisma.ModelBuildArtifactModel
  */
 export type ModelBuildRevision = Prisma.ModelBuildRevisionModel
 /**
+ * Model MusicVideo
+ * Music Video (conductor project music-video/t-004): one admin-authored music video.
+ * 
+ * The whole editable state (pitch, settings, lyrics, song reference, beat grid,
+ * scene list) lives in `doc` as a versioned MusicVideoDoc JSON document validated by
+ * utils/musicVideoDoc.ts. Generation progress is NOT stored here: every song, scene
+ * still and clip is an ArtJob carrying musicVideo provenance, and status is derived
+ * from those jobs, the same way Scene Animator works.
+ * 
+ * userId is a plain ownership scalar with no relation back to User, matching the
+ * Mandarin Tutor models, so the migration is purely additive.
+ */
+export type MusicVideo = Prisma.MusicVideoModel
+/**
  * Model ProjectPageContent
  * Durable editable presentation copy for Project-owned pages. `projectId` and
  * `updatedById` intentionally remain ownership/audit scalars rather than adding

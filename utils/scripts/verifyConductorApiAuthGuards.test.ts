@@ -79,6 +79,32 @@ check(
   },
 )
 
+check(
+  'a listed signed-link endpoint is accepted only while it calls its verifier',
+  () => {
+    const withVerifier =
+      'const check = verifyPitchDecision(secret, fields)\nif (!check.ok) throw createError({ statusCode: 400 })'
+    assert.equal(
+      fileHasRecognizedAuthGuard(withVerifier, 'pitch-decision.post.ts'),
+      true,
+    )
+    assert.equal(
+      fileHasRecognizedAuthGuard(
+        'export default defineEventHandler(async () => ({ ok: true }))',
+        'pitch-decision.post.ts',
+      ),
+      false,
+      'listed, but the verifier call was removed',
+    )
+    assert.equal(
+      fileHasRecognizedAuthGuard(withVerifier, 'some-other.post.ts'),
+      false,
+      'an unlisted endpoint cannot opt out by calling the verifier',
+    )
+    assert.equal(fileHasRecognizedAuthGuard(withVerifier), false)
+  },
+)
+
 const fixtureDir = mkdtempSync(join(tmpdir(), 'conductor-api-auth-guard-test-'))
 
 try {

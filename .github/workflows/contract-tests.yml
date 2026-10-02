@@ -550,6 +550,9 @@ jobs:
       - name: Serendipity Voice action guard
         run: npm run test:serendipity-voice-action-guard
 
+      - name: Pitch decision email-link contract
+        run: npm run test:pitch-decision
+
       - name: Pitch detector accuracy contract
         run: npm run test:pitch-detector-accuracy
 

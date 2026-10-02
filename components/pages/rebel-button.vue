@@ -18,7 +18,10 @@
         </p>
       </div>
     </header>
-    <div v-if="reviewerMode" class="flex flex-col gap-4 m-2">
+    <div
+      v-if="reviewerMode"
+      class="flex flex-col gap-4 m-2 p-2 rounded-2xl border bg-(--kr-surface-sunken)"
+    >
       <rebel-art-reviewer />
       <div class="bg-base-300 p-4 rounded-2xl shadow-lg">
         <click-leaderboard class="rounded-2xl m-2 p-2" />

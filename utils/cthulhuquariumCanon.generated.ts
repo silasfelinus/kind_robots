@@ -9,6 +9,8 @@ export interface CanonBeat {
   text: string
   focus: string | null
   await: string | null
+  /** This beat's own plate, replacing the scene's (a `*-hero` key is a character's full-length portrait). */
+  plate: string | null
 }
 
 export interface CanonScene {
@@ -2187,6 +2189,7 @@ export const CTHULHUQUARIUM_SCENES: Record<string, CanonScene> = {
         text: 'Come in, come in, out of all that. Whatever it is out there, it will keep. Everything out is in, as we say.',
         focus: null,
         await: null,
+        plate: null,
       },
       {
         speaker: 'charlotte',
@@ -2194,6 +2197,7 @@ export const CTHULHUQUARIUM_SCENES: Record<string, CanonScene> = {
         text: 'Charlotte Fishmonger, of the Portsmouth Fishmongers, and this is my Cthulhuquarium. You have the look of someone who needs something to look after.',
         focus: null,
         await: null,
+        plate: 'charlotte-fishmonger-hero',
       },
       {
         speaker: 'charlotte',
@@ -2201,6 +2205,7 @@ export const CTHULHUQUARIUM_SCENES: Record<string, CanonScene> = {
         text: 'Wilbur will show you. Wilbur shows everyone.',
         focus: null,
         await: null,
+        plate: 'wilbur-stint-hero',
       },
       {
         speaker: 'wilbur',
@@ -2208,6 +2213,7 @@ export const CTHULHUQUARIUM_SCENES: Record<string, CanonScene> = {
         text: "H-hello. This tank is yours now. It's empty, which is the best way for a tank to start.",
         focus: 'tank',
         await: null,
+        plate: null,
       },
       {
         speaker: 'charlotte',
@@ -2215,6 +2221,7 @@ export const CTHULHUQUARIUM_SCENES: Record<string, CanonScene> = {
         text: 'The first one is on the house. Choose something from the shop, darling; anything marked free.',
         focus: 'shop',
         await: 'unlock',
+        plate: null,
       },
       {
         speaker: 'wilbur',
@@ -2222,6 +2229,7 @@ export const CTHULHUQUARIUM_SCENES: Record<string, CanonScene> = {
         text: "It's in. They get hungry, and when one does, press Feed and the hungriest gets seen to first. Go on, I'll watch.",
         focus: 'feed',
         await: 'feed',
+        plate: null,
       },
       {
         speaker: 'wilbur',
@@ -2229,6 +2237,7 @@ export const CTHULHUQUARIUM_SCENES: Record<string, CanonScene> = {
         text: 'There. That is most of it, honestly. A fed tank is a calm tank.',
         focus: null,
         await: null,
+        plate: null,
       },
       {
         speaker: 'charlotte',
@@ -2236,6 +2245,7 @@ export const CTHULHUQUARIUM_SCENES: Record<string, CanonScene> = {
         text: 'And a calm tank pays, darling. Coins rise up out of the water all on their own. Nobody knows why. Nobody has ever needed to.',
         focus: 'coins',
         await: null,
+        plate: null,
       },
       {
         speaker: 'wilbur',
@@ -2243,6 +2253,7 @@ export const CTHULHUQUARIUM_SCENES: Record<string, CanonScene> = {
         text: 'Things settle on the bottom. Some of it is gravel. When the meter fills up, Clean brings it back down, and they work better for it.',
         focus: 'clean',
         await: null,
+        plate: null,
       },
       {
         speaker: 'charlotte',
@@ -2250,6 +2261,7 @@ export const CTHULHUQUARIUM_SCENES: Record<string, CanonScene> = {
         text: 'Every creature we stock is for sale, and we stock a great many. Choose something else when you can. Choose several.',
         focus: 'shop',
         await: null,
+        plate: null,
       },
       {
         speaker: 'wilbur',
@@ -2257,6 +2269,7 @@ export const CTHULHUQUARIUM_SCENES: Record<string, CanonScene> = {
         text: "Everything you keep goes in the book, and it stays there even after it's gone. Especially after.",
         focus: 'bestiary',
         await: null,
+        plate: null,
       },
       {
         speaker: 'charlotte',
@@ -2264,6 +2277,7 @@ export const CTHULHUQUARIUM_SCENES: Record<string, CanonScene> = {
         text: 'The more of them you know, the more of the building opens up to you. I shall be around. I am always around.',
         focus: null,
         await: null,
+        plate: null,
       },
       {
         speaker: 'wilbur',
@@ -2271,6 +2285,7 @@ export const CTHULHUQUARIUM_SCENES: Record<string, CanonScene> = {
         text: "I'll be in the back. Do call if anything gets out.",
         focus: null,
         await: null,
+        plate: null,
       },
     ],
   },
@@ -2287,6 +2302,7 @@ export const CTHULHUQUARIUM_SCENES: Record<string, CanonScene> = {
         text: 'Your first purchase. I remember mine. Wilbur will carry it out; Wilbur carries everything out.',
         focus: null,
         await: null,
+        plate: null,
       },
       {
         speaker: 'wilbur',
@@ -2294,6 +2310,7 @@ export const CTHULHUQUARIUM_SCENES: Record<string, CanonScene> = {
         text: "It's in. It's settling. Maybe give the glass a minute before you tap it.",
         focus: null,
         await: null,
+        plate: null,
       },
     ],
   },
@@ -2310,6 +2327,7 @@ export const CTHULHUQUARIUM_SCENES: Record<string, CanonScene> = {
         text: 'A birth, in my shop. Somebody fetch a ribbon.',
         focus: null,
         await: null,
+        plate: null,
       },
       {
         speaker: 'wilbur',
@@ -2317,6 +2335,7 @@ export const CTHULHUQUARIUM_SCENES: Record<string, CanonScene> = {
         text: 'It hatched healthy. They mostly hatch as what was in the egg. This one did. I checked twice.',
         focus: null,
         await: null,
+        plate: null,
       },
     ],
   },
@@ -2333,6 +2352,7 @@ export const CTHULHUQUARIUM_SCENES: Record<string, CanonScene> = {
         text: "They've made another one. I was there for it. I'll write it up properly.",
         focus: null,
         await: null,
+        plate: null,
       },
       {
         speaker: 'charlotte',
@@ -2340,6 +2360,7 @@ export const CTHULHUQUARIUM_SCENES: Record<string, CanonScene> = {
         text: 'Love, darling. It comes for all of us in the end.',
         focus: null,
         await: null,
+        plate: null,
       },
     ],
   },
@@ -2356,6 +2377,7 @@ export const CTHULHUQUARIUM_SCENES: Record<string, CanonScene> = {
         text: 'Every one. Every single creature this house has ever sold, and you have known them all. I have been waiting years for someone like you.',
         focus: null,
         await: null,
+        plate: null,
       },
       {
         speaker: 'wilbur',
@@ -2363,6 +2385,7 @@ export const CTHULHUQUARIUM_SCENES: Record<string, CanonScene> = {
         text: "The book's full. I didn't think anyone would. Thank you for looking after them.",
         focus: null,
         await: null,
+        plate: null,
       },
     ],
   },
@@ -2379,6 +2402,7 @@ export const CTHULHUQUARIUM_SCENES: Record<string, CanonScene> = {
         text: "Five species. You have a collector's eye. Have the Kelp Stair, and a little more room besides. It was my mother's; she won't be needing it.",
         focus: null,
         await: null,
+        plate: null,
       },
     ],
   },
@@ -2395,6 +2419,7 @@ export const CTHULHUQUARIUM_SCENES: Record<string, CanonScene> = {
         text: 'Ten. Now you are a regular. Regulars get the Pantry. Everything in it was put by for a winter that went on longer than expected.',
         focus: null,
         await: null,
+        plate: null,
       },
     ],
   },
@@ -2411,6 +2436,7 @@ export const CTHULHUQUARIUM_SCENES: Record<string, CanonScene> = {
         text: 'Fifteen. The Chapel, then. Very peaceful. The congregation is still in there, but they keep to themselves.',
         focus: null,
         await: null,
+        plate: null,
       },
       {
         speaker: 'wilbur',
@@ -2418,6 +2444,7 @@ export const CTHULHUQUARIUM_SCENES: Record<string, CanonScene> = {
         text: 'They like the pews. Leave them the pews.',
         focus: null,
         await: null,
+        plate: null,
       },
     ],
   },
@@ -2434,6 +2461,7 @@ export const CTHULHUQUARIUM_SCENES: Record<string, CanonScene> = {
         text: "Twenty. You may have the Portsmouth. The Fishmongers' own ship. It went down with all our best stock, and the stock has been doing splendidly since.",
         focus: null,
         await: null,
+        plate: null,
       },
     ],
   },
@@ -2450,6 +2478,7 @@ export const CTHULHUQUARIUM_SCENES: Record<string, CanonScene> = {
         text: 'Twenty-five. The Sorting Office. Everything that was ever posted here arrived eventually. Some of it is still arriving.',
         focus: null,
         await: null,
+        plate: null,
       },
     ],
   },
@@ -2466,6 +2495,7 @@ export const CTHULHUQUARIUM_SCENES: Record<string, CanonScene> = {
         text: 'Thirty-five. The Counting House. Every account in it balances. I had it audited, and then I had the auditor put in a tank.',
         focus: null,
         await: null,
+        plate: null,
       },
     ],
   },
@@ -2482,6 +2512,7 @@ export const CTHULHUQUARIUM_SCENES: Record<string, CanonScene> = {
         text: 'Fifty, darling. Fifty. The Conservatory is yours. It was built to keep the weather out and it has been keeping the water in ever since.',
         focus: null,
         await: null,
+        plate: null,
       },
     ],
   },
@@ -2498,6 +2529,7 @@ export const CTHULHUQUARIUM_SCENES: Record<string, CanonScene> = {
         text: "Seventy. You've earned the Catacomb. Lovely acoustics. Terrible neighbours, very quiet.",
         focus: null,
         await: null,
+        plate: null,
       },
       {
         speaker: 'wilbur',
@@ -2505,6 +2537,7 @@ export const CTHULHUQUARIUM_SCENES: Record<string, CanonScene> = {
         text: "I've put down fresh gravel. It keeps getting rearranged.",
         focus: null,
         await: null,
+        plate: null,
       },
     ],
   },
@@ -2521,6 +2554,7 @@ export const CTHULHUQUARIUM_SCENES: Record<string, CanonScene> = {
         text: 'Ninety-five. The Plain, from the very bottom of things. We had it brought up in one piece. It was the only way it would come.',
         focus: null,
         await: null,
+        plate: null,
       },
     ],
   },
@@ -2537,6 +2571,7 @@ export const CTHULHUQUARIUM_SCENES: Record<string, CanonScene> = {
         text: 'A hundred and twenty-five. Then you shall have my Opera House. I sang there, once, for a very large audience. They are still applauding, in their way.',
         focus: null,
         await: null,
+        plate: null,
       },
     ],
   },
@@ -2553,6 +2588,7 @@ export const CTHULHUQUARIUM_SCENES: Record<string, CanonScene> = {
         text: 'All of them. The Reading Room, where the book is kept. You belong in it now.',
         focus: null,
         await: null,
+        plate: null,
       },
     ],
   },
@@ -2569,6 +2605,7 @@ export const CTHULHUQUARIUM_SCENES: Record<string, CanonScene> = {
         text: 'A full house. Nothing pleases me more. Have the Baths, darling, they are made for crowds.',
         focus: null,
         await: null,
+        plate: null,
       },
       {
         speaker: 'wilbur',
@@ -2576,6 +2613,7 @@ export const CTHULHUQUARIUM_SCENES: Record<string, CanonScene> = {
         text: "It'll get tight. They sort out their own order. Usually.",
         focus: null,
         await: null,
+        plate: null,
       },
     ],
   },
@@ -2592,6 +2630,7 @@ export const CTHULHUQUARIUM_SCENES: Record<string, CanonScene> = {
         text: "It's changed. It's still yours, it's the same animal. There's just more of it now, in directions.",
         focus: null,
         await: null,
+        plate: null,
       },
       {
         speaker: 'charlotte',
@@ -2599,6 +2638,7 @@ export const CTHULHUQUARIUM_SCENES: Record<string, CanonScene> = {
         text: 'Growth. How marvellous. Have the Hatchery, darling; it is where we keep the ones that have not decided yet.',
         focus: null,
         await: null,
+        plate: null,
       },
     ],
   },
@@ -2615,6 +2655,7 @@ export const CTHULHUQUARIUM_SCENES: Record<string, CanonScene> = {
         text: 'Spotless. I could eat off it. Have the Scullery, you clearly know what to do with one.',
         focus: null,
         await: null,
+        plate: null,
       },
       {
         speaker: 'wilbur',
@@ -2622,6 +2663,7 @@ export const CTHULHUQUARIUM_SCENES: Record<string, CanonScene> = {
         text: 'It looked really good. I noticed.',
         focus: null,
         await: null,
+        plate: null,
       },
     ],
   },
@@ -2638,6 +2680,7 @@ export const CTHULHUQUARIUM_SCENES: Record<string, CanonScene> = {
         text: "You separated them. That was the right thing. They'd have gone on until one of them was a different shape.",
         focus: null,
         await: null,
+        plate: null,
       },
       {
         speaker: 'charlotte',
@@ -2645,6 +2688,7 @@ export const CTHULHUQUARIUM_SCENES: Record<string, CanonScene> = {
         text: 'A peacemaker. Have the Duelling Ground, darling. Nobody is using it now.',
         focus: null,
         await: null,
+        plate: null,
       },
     ],
   },

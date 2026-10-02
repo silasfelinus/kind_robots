@@ -240,7 +240,7 @@ function stripPonyPlatformWords(value: string): string {
     out = out.replace(pattern, (match) => {
       // Keep the word that anchored the match (`style`, `xl`, a bracket).
       const kept = match.match(/(\)|\]|\bxl|\bstyles?)/i)
-      return pattern.source.startsWith('(?<!little)(?:[-_,|/)') && kept ? kept[1] : ' '
+      return pattern.source.startsWith('(?<!little)(?:[-_,|/)') && kept ? (kept[1] ?? ' ') : ' '
     })
   }
   if (out === value) return value

@@ -16,8 +16,13 @@
 //     kind-robots/t-051). It is functionally equivalent (same JWT /
 //     user-api-key / beta-admin-token resolution as requireAdminApiUser) so
 //     it is accepted, not flagged.
+//   - A named signed-link endpoint (SIGNED_LINK_ENDPOINTS below): public on
+//     purpose because the caller is an email link, not a signed-in user, and
+//     authorized instead by an HMAC signature over exactly one pitch, one
+//     vote and an expiry. It is accepted only while it is listed AND still
+//     calls its verifier, so it cannot quietly lose the check.
 import { readdirSync, readFileSync } from 'node:fs'
-import { dirname, join, relative, resolve } from 'node:path'
+import { basename, dirname, join, relative, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const scriptDirectory = dirname(fileURLToPath(import.meta.url))
@@ -30,6 +35,11 @@ const AUTH_GUARD_CALL_PATTERN =
   /\b(?:requireApiUser|requireAdminApiUser|requireMachineUser)\s*\(/
 const MANUAL_KEY_CHECK_PATTERN = /\bvalidateApiKey\s*\(/
 const MANUAL_ADMIN_CHECK_PATTERN = /\buserIsAdmin\s*\(/
+
+// File name -> the verifier call that must appear in it.
+export const SIGNED_LINK_ENDPOINTS: Record<string, RegExp> = {
+  'pitch-decision.post.ts': /\bverifyPitchDecision\s*\(/,
+}
 
 export function listConductorWriteEndpoints(directory: string): string[] {
   let entries: import('node:fs').Dirent[]
@@ -49,8 +59,13 @@ export function listConductorWriteEndpoints(directory: string): string[] {
     .sort()
 }
 
-export function fileHasRecognizedAuthGuard(content: string): boolean {
+export function fileHasRecognizedAuthGuard(
+  content: string,
+  fileName?: string,
+): boolean {
   if (AUTH_GUARD_CALL_PATTERN.test(content)) return true
+  const signedLinkVerifier = fileName && SIGNED_LINK_ENDPOINTS[fileName]
+  if (signedLinkVerifier && signedLinkVerifier.test(content)) return true
   return (
     MANUAL_KEY_CHECK_PATTERN.test(content) &&
     MANUAL_ADMIN_CHECK_PATTERN.test(content)
@@ -65,7 +80,7 @@ export function findUnguardedConductorWriteEndpoints(
 
   for (const file of files) {
     const content = readFileSync(file, 'utf8')
-    if (!fileHasRecognizedAuthGuard(content)) {
+    if (!fileHasRecognizedAuthGuard(content, basename(file))) {
       unguarded.push(relative(repositoryRoot, file))
     }
   }

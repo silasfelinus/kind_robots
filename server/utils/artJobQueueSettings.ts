@@ -13,6 +13,7 @@
 // DATABASE_URL happened to be exported. These four functions need no database;
 // living apart from one keeps them testable in the workflow that gates every PR.
 import { assertArtPromptContract } from './artPromptContract'
+import { isAudioArtJobPayload } from '../../utils/artJobMedia'
 
 type JsonRecord = Record<string, unknown>
 
@@ -156,6 +157,9 @@ export function assertQueuedArtPromptContract(
   engine: string,
   payload: unknown,
 ): void {
+  // The contract is about what an image model paints. A song job's
+  // promptString is ACE-Step style tags (music-video/t-010), not a caption.
+  if (isAudioArtJobPayload(payload)) return
   const actualEngine = inferQueuedArtEngine(payload, engine)
   const sampler = queuedArtSamplerSettings(payload)
   assertArtPromptContract({

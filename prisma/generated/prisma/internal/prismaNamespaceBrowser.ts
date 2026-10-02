@@ -79,6 +79,7 @@ export const ModelName = {
   ModelBuildItem: 'ModelBuildItem',
   ModelBuildArtifact: 'ModelBuildArtifact',
   ModelBuildRevision: 'ModelBuildRevision',
+  MusicVideo: 'MusicVideo',
   ProjectPageContent: 'ProjectPageContent',
   ArtImage: 'ArtImage',
   ArtCollection: 'ArtCollection',
@@ -662,6 +663,20 @@ export const ModelBuildRevisionScalarFieldEnum = {
 } as const
 
 export type ModelBuildRevisionScalarFieldEnum = (typeof ModelBuildRevisionScalarFieldEnum)[keyof typeof ModelBuildRevisionScalarFieldEnum]
+
+
+export const MusicVideoScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  userId: 'userId',
+  title: 'title',
+  status: 'status',
+  doc: 'doc',
+  finalArtImageId: 'finalArtImageId'
+} as const
+
+export type MusicVideoScalarFieldEnum = (typeof MusicVideoScalarFieldEnum)[keyof typeof MusicVideoScalarFieldEnum]
 
 
 export const ProjectPageContentScalarFieldEnum = {
@@ -2832,6 +2847,15 @@ export const ModelBuildRevisionOrderByRelevanceFieldEnum = {
 } as const
 
 export type ModelBuildRevisionOrderByRelevanceFieldEnum = (typeof ModelBuildRevisionOrderByRelevanceFieldEnum)[keyof typeof ModelBuildRevisionOrderByRelevanceFieldEnum]
+
+
+export const MusicVideoOrderByRelevanceFieldEnum = {
+  title: 'title',
+  status: 'status',
+  doc: 'doc'
+} as const
+
+export type MusicVideoOrderByRelevanceFieldEnum = (typeof MusicVideoOrderByRelevanceFieldEnum)[keyof typeof MusicVideoOrderByRelevanceFieldEnum]
 
 
 export const ProjectPageContentOrderByRelevanceFieldEnum = {

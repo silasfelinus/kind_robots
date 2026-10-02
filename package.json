@@ -19,6 +19,7 @@
     "test:mandarin-srs-selftest": "tsx utils/scripts/verifyMandarinSrs.test.ts",
     "test:mandarin-lesson": "tsx utils/scripts/verifyMandarinLesson.test.ts",
     "test:mandarin-points": "tsx utils/scripts/verifyMandarinPoints.test.ts",
+    "test:music-video-doc": "tsx utils/scripts/verifyMusicVideoDoc.test.ts",
     "test:mandarin-course": "tsx utils/scripts/verifyMandarinCourse.test.ts",
     "test:mandarin-parts-first": "tsx utils/scripts/verifyMandarinPartsFirst.test.ts",
     "test:agent-credentials-selftest": "tsx utils/scripts/verifyAgentCredentials.test.ts",

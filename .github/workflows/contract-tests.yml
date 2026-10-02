@@ -189,6 +189,9 @@ jobs:
       - name: Mandarin points contract
         run: npm run test:mandarin-points
 
+      - name: Music video document contract
+        run: npm run test:music-video-doc
+
       - name: Mandarin course contract
         run: npm run test:mandarin-course
 

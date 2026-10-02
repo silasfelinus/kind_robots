@@ -425,6 +425,7 @@ export const ModelName = {
   ModelBuildItem: 'ModelBuildItem',
   ModelBuildArtifact: 'ModelBuildArtifact',
   ModelBuildRevision: 'ModelBuildRevision',
+  MusicVideo: 'MusicVideo',
   ProjectPageContent: 'ProjectPageContent',
   ArtImage: 'ArtImage',
   ArtCollection: 'ArtCollection',
@@ -531,7 +532,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "agentProfile" | "agentProfileCredential" | "agentCheckIn" | "agentNote" | "archiveEntry" | "archiveActionPreset" | "brainstormSession" | "brainstormCandidate" | "facetAlias" | "facetProfile" | "characterFacet" | "botFacet" | "rewardFacet" | "mandarinAudioAsset" | "mandarinCatalogOverride" | "mandarinCatalogChange" | "mandarinLessonProgress" | "mandarinPointEvent" | "mandarinLearnerProfile" | "mandarinRequestedCard" | "mandarinCustomSet" | "mandarinArtJobLink" | "mandarinCardProgress" | "mandarinReviewEvent" | "modelBuildRun" | "modelBuildItem" | "modelBuildArtifact" | "modelBuildRevision" | "projectPageContent" | "artImage" | "artCollection" | "bot" | "character" | "chat" | "dream" | "dreamRelation" | "project" | "facet" | "dreamFacet" | "scenarioFacet" | "projectFacet" | "projectArtImage" | "projectArtCollection" | "entityArtImage" | "facetArtImage" | "facetArtCollection" | "facetRelation" | "expressionMedia" | "expressionTransition" | "log" | "achievement" | "manaTransaction" | "revenueSplit" | "socialPostDraft" | "missionRemittance" | "product" | "order" | "orderItem" | "entitlement" | "printJob" | "grant" | "pack" | "achievementRecord" | "narratorTopic" | "narratorThread" | "pitchSheet" | "prompt" | "reaction" | "resource" | "reward" | "scenario" | "server" | "serverHealthCheck" | "sceneAnimatorPrompt" | "smartIcon" | "theme" | "user" | "stylistClient" | "stylistAppointment" | "artJob" | "queueControl" | "downloadRequest" | "karmaTransaction" | "referral" | "userRelation" | "userRole" | "todo" | "challenge" | "challengeSubmission" | "contender" | "endingDeck" | "lifeRun" | "lifeChoice" | "lifeStat" | "lifeEnding" | "lifeAchievement" | "lifeAchievementUnlock" | "lifeRunArt" | "aquarium" | "aquariumStock" | "aquariumSet" | "aquariumDecor" | "aquariumEgg" | "aquariumCodexEntry" | "monster" | "aquariumEvent" | "authToken" | "agentCredential" | "conversation" | "conversationParticipant" | "directMessage" | "notification" | "githubInstallation" | "appRepo" | "mediaEntry" | "resourcePreview" | "tzaddikCandidate" | "tzaddikCandidateTag" | "tzaddikRecheckRequest"
+    modelProps: "agentProfile" | "agentProfileCredential" | "agentCheckIn" | "agentNote" | "archiveEntry" | "archiveActionPreset" | "brainstormSession" | "brainstormCandidate" | "facetAlias" | "facetProfile" | "characterFacet" | "botFacet" | "rewardFacet" | "mandarinAudioAsset" | "mandarinCatalogOverride" | "mandarinCatalogChange" | "mandarinLessonProgress" | "mandarinPointEvent" | "mandarinLearnerProfile" | "mandarinRequestedCard" | "mandarinCustomSet" | "mandarinArtJobLink" | "mandarinCardProgress" | "mandarinReviewEvent" | "modelBuildRun" | "modelBuildItem" | "modelBuildArtifact" | "modelBuildRevision" | "musicVideo" | "projectPageContent" | "artImage" | "artCollection" | "bot" | "character" | "chat" | "dream" | "dreamRelation" | "project" | "facet" | "dreamFacet" | "scenarioFacet" | "projectFacet" | "projectArtImage" | "projectArtCollection" | "entityArtImage" | "facetArtImage" | "facetArtCollection" | "facetRelation" | "expressionMedia" | "expressionTransition" | "log" | "achievement" | "manaTransaction" | "revenueSplit" | "socialPostDraft" | "missionRemittance" | "product" | "order" | "orderItem" | "entitlement" | "printJob" | "grant" | "pack" | "achievementRecord" | "narratorTopic" | "narratorThread" | "pitchSheet" | "prompt" | "reaction" | "resource" | "reward" | "scenario" | "server" | "serverHealthCheck" | "sceneAnimatorPrompt" | "smartIcon" | "theme" | "user" | "stylistClient" | "stylistAppointment" | "artJob" | "queueControl" | "downloadRequest" | "karmaTransaction" | "referral" | "userRelation" | "userRole" | "todo" | "challenge" | "challengeSubmission" | "contender" | "endingDeck" | "lifeRun" | "lifeChoice" | "lifeStat" | "lifeEnding" | "lifeAchievement" | "lifeAchievementUnlock" | "lifeRunArt" | "aquarium" | "aquariumStock" | "aquariumSet" | "aquariumDecor" | "aquariumEgg" | "aquariumCodexEntry" | "monster" | "aquariumEvent" | "authToken" | "agentCredential" | "conversation" | "conversationParticipant" | "directMessage" | "notification" | "githubInstallation" | "appRepo" | "mediaEntry" | "resourcePreview" | "tzaddikCandidate" | "tzaddikCandidateTag" | "tzaddikRecheckRequest"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -2380,6 +2381,72 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.ModelBuildRevisionCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.ModelBuildRevisionCountAggregateOutputType> | number
+        }
+      }
+    }
+    MusicVideo: {
+      payload: Prisma.$MusicVideoPayload<ExtArgs>
+      fields: Prisma.MusicVideoFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.MusicVideoFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MusicVideoPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.MusicVideoFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MusicVideoPayload>
+        }
+        findFirst: {
+          args: Prisma.MusicVideoFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MusicVideoPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.MusicVideoFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MusicVideoPayload>
+        }
+        findMany: {
+          args: Prisma.MusicVideoFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MusicVideoPayload>[]
+        }
+        create: {
+          args: Prisma.MusicVideoCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MusicVideoPayload>
+        }
+        createMany: {
+          args: Prisma.MusicVideoCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.MusicVideoDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MusicVideoPayload>
+        }
+        update: {
+          args: Prisma.MusicVideoUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MusicVideoPayload>
+        }
+        deleteMany: {
+          args: Prisma.MusicVideoDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.MusicVideoUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.MusicVideoUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MusicVideoPayload>
+        }
+        aggregate: {
+          args: Prisma.MusicVideoAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateMusicVideo>
+        }
+        groupBy: {
+          args: Prisma.MusicVideoGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.MusicVideoGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.MusicVideoCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.MusicVideoCountAggregateOutputType> | number
         }
       }
     }
@@ -8904,6 +8971,20 @@ export const ModelBuildRevisionScalarFieldEnum = {
 export type ModelBuildRevisionScalarFieldEnum = (typeof ModelBuildRevisionScalarFieldEnum)[keyof typeof ModelBuildRevisionScalarFieldEnum]
 
 
+export const MusicVideoScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  userId: 'userId',
+  title: 'title',
+  status: 'status',
+  doc: 'doc',
+  finalArtImageId: 'finalArtImageId'
+} as const
+
+export type MusicVideoScalarFieldEnum = (typeof MusicVideoScalarFieldEnum)[keyof typeof MusicVideoScalarFieldEnum]
+
+
 export const ProjectPageContentScalarFieldEnum = {
   id: 'id',
   createdAt: 'createdAt',
@@ -11074,6 +11155,15 @@ export const ModelBuildRevisionOrderByRelevanceFieldEnum = {
 export type ModelBuildRevisionOrderByRelevanceFieldEnum = (typeof ModelBuildRevisionOrderByRelevanceFieldEnum)[keyof typeof ModelBuildRevisionOrderByRelevanceFieldEnum]
 
 
+export const MusicVideoOrderByRelevanceFieldEnum = {
+  title: 'title',
+  status: 'status',
+  doc: 'doc'
+} as const
+
+export type MusicVideoOrderByRelevanceFieldEnum = (typeof MusicVideoOrderByRelevanceFieldEnum)[keyof typeof MusicVideoOrderByRelevanceFieldEnum]
+
+
 export const ProjectPageContentOrderByRelevanceFieldEnum = {
   pageKey: 'pageKey',
   content: 'content'
@@ -12811,6 +12901,7 @@ export type GlobalOmitConfig = {
   modelBuildItem?: Prisma.ModelBuildItemOmit
   modelBuildArtifact?: Prisma.ModelBuildArtifactOmit
   modelBuildRevision?: Prisma.ModelBuildRevisionOmit
+  musicVideo?: Prisma.MusicVideoOmit
   projectPageContent?: Prisma.ProjectPageContentOmit
   artImage?: Prisma.ArtImageOmit
   artCollection?: Prisma.ArtCollectionOmit

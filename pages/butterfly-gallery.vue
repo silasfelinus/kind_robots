@@ -60,7 +60,7 @@
           v-if="foregroundButterflyVisible"
           :src="FOREGROUND_BUTTERFLY_CLIP_URL"
           :alt="FOREGROUND_BUTTERFLY_CLIP_ALT"
-          class="loop-clip"
+          class="loop-clip loop-clip-screen"
         />
       </div>
 
@@ -552,28 +552,11 @@ interface RunwayClip {
   alt: string
 }
 
-const RUNWAY_CLIPS: RunwayClip[] = [
-  {
-    url: '/images/generated/2026/09/artimage-30382-4e86796b.webp',
-    alt: 'A Gallery butterfly tows a blank picture frame on a string across the runway',
-  },
-  {
-    url: '/images/generated/2026/09/artimage-30383-8c319891.webp',
-    alt: 'Two Gallery butterflies carry a blank picture frame together across the runway',
-  },
-  {
-    url: '/images/generated/2026/09/artimage-30384-dd4f99f0.webp',
-    alt: 'A Gallery butterfly struggles under an oversized blank picture frame across the runway',
-  },
-  {
-    url: '/images/generated/2026/09/artimage-30385-e83b419e.webp',
-    alt: 'A Gallery butterfly confidently carries a blank picture frame across the runway',
-  },
-  {
-    url: '/images/generated/2026/09/artimage-30386-fb797f4d.webp',
-    alt: 'A Gallery butterfly recovers a dropped blank picture frame mid-carry across the runway',
-  },
-]
+// The earlier close-up "butterfly carries a frame" passes were removed: they
+// were framed at a different scale than runway-background.png and read as a
+// giant overlay. Regenerated far-background clips (job 33134-33136, see
+// stores/seeds/butterflyGalleryMotionPrompts.ts) are listed here once rendered.
+const RUNWAY_CLIPS: RunwayClip[] = []
 // Each source clip is ~3s; the extra 400ms lets the fade-in settle before the
 // next clip mounts.
 const RUNWAY_CLIP_DURATION_MS = 3400
@@ -907,7 +890,7 @@ function evaluateRunwayCycle(): void {
     stopRunwayCycle()
     return
   }
-  if (runwayCyclingEnabled.value) return
+  if (runwayCyclingEnabled.value || !RUNWAY_CLIPS.length) return
   runwayCyclingEnabled.value = true
   scheduleNextRunwayClip()
 }
@@ -1794,6 +1777,10 @@ function pileStyle(index: number, total: number): Record<string, string> {
   object-fit: contain;
   pointer-events: none;
   animation: runway-clip-fade-in 260ms ease;
+}
+
+.loop-clip-screen {
+  mix-blend-mode: screen;
 }
 
 .art-pile {

@@ -1,14 +1,11 @@
 // /server/api/projects/[id]/art/index.get.ts
-import {
-  createError,
-  defineEventHandler,
-  getHeader,
-} from 'h3'
+import { createError, defineEventHandler, getHeader } from 'h3'
 import prisma from '~/server/utils/prisma'
 import { errorHandler } from '~/server/utils/error'
 import { validateApiKey } from '~/server/utils/validateKey'
 import { getProjectId } from '../../index'
 import { userIsAdmin } from '../../../../utils/authUser'
+import { viewerShowsMature } from '../../../../utils/contentAccess'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -34,6 +31,7 @@ export default defineEventHandler(async (event) => {
                 fileName: true,
                 fileType: true,
                 isActive: true,
+                isMature: true,
               },
             },
           },
@@ -47,27 +45,33 @@ export default defineEventHandler(async (event) => {
 
     let mayView =
       project.isActive && project.isPublic && project.isMature !== true
-    if (!mayView && getHeader(event, 'authorization')?.startsWith('Bearer ')) {
+    let viewerUser: Awaited<ReturnType<typeof validateApiKey>>['user']
+    if (getHeader(event, 'authorization')?.startsWith('Bearer ')) {
       try {
         const auth = await validateApiKey(event)
-        mayView = Boolean(
-          auth.isValid &&
-            auth.user &&
-            (userIsAdmin(auth.user) || auth.user.id === project.userId),
-        )
+        if (auth.isValid && auth.user) {
+          viewerUser = auth.user
+          mayView =
+            mayView || userIsAdmin(auth.user) || auth.user.id === project.userId
+        }
       } catch {
-        mayView = false
+        viewerUser = undefined
       }
     }
 
     if (!mayView) {
-      throw createError({ statusCode: 403, message: 'You cannot view this project art.' })
+      throw createError({
+        statusCode: 403,
+        message: 'You cannot view this project art.',
+      })
     }
 
     return {
       success: true,
       data: project.ArtImageLinks.filter(
-        (link) => link.ArtImage.isActive !== false,
+        (link) =>
+          link.ArtImage.isActive !== false &&
+          !(!viewerShowsMature(viewerUser) && link.ArtImage.isMature === true),
       ),
       statusCode: 200,
     }

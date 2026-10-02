@@ -3,7 +3,8 @@ import { defineEventHandler, createError } from 'h3'
 import { fetchRewardById } from './index'
 import { errorHandler } from '../../utils/error'
 import { getOptionalApiUser } from '../../utils/authGuard'
-import { canView } from '../../utils/contentAccess'
+import { canView, viewerShowsMature } from '../../utils/contentAccess'
+import { withholdMatureEntities } from '../../utils/matureArtRefs'
 
 export default defineEventHandler(async (event) => {
   const id = Number(event.context.params?.id)
@@ -39,10 +40,15 @@ export default defineEventHandler(async (event) => {
 
     event.node.res.statusCode = 200
 
+    const shown = await withholdMatureEntities(
+      data,
+      !viewerShowsMature(auth?.user),
+    )
+
     return {
       success: true,
-      data,
-      reward: data,
+      data: shown,
+      reward: shown,
       statusCode: 200,
     }
   } catch (error: unknown) {

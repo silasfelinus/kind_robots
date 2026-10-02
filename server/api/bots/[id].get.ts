@@ -6,6 +6,7 @@ import { validateApiKey } from '../../utils/validateKey'
 import { userIsAdmin } from '../../utils/authUser'
 import { viewerShowsMature } from '../../utils/contentAccess'
 import { getOptionalApiUser } from '@/server/utils/authGuard'
+import { withholdMatureEntities } from '@/server/utils/matureArtRefs'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -41,6 +42,7 @@ export default defineEventHandler(async (event) => {
             id: true,
             imagePath: true,
             fileName: true,
+            isMature: true,
           },
         },
       },
@@ -95,7 +97,10 @@ export default defineEventHandler(async (event) => {
     return {
       success: true,
       message: 'Bot retrieved successfully.',
-      data: bot,
+      data: await withholdMatureEntities(
+        bot,
+        !viewerShowsMature((await getOptionalApiUser(event))?.user),
+      ),
     }
   } catch (error) {
     const { message, statusCode } = errorHandler(error)

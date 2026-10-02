@@ -8,7 +8,7 @@ import {
   viewablePackIds,
 } from '@/server/utils/contentAccess'
 import type { Prisma } from '~/prisma/generated/prisma/client'
-import { withholdMature } from '@/server/utils/matureBarrier'
+import { withholdMatureEntities } from '@/server/utils/matureArtRefs'
 import { parseDreamType } from './index'
 
 type DreamListQuery = {
@@ -432,7 +432,7 @@ export default defineEventHandler(async (event) => {
     return {
       success: true,
       message: 'Dreams loaded successfully.',
-      data: withholdMature(dreams, !includeMature),
+      data: await withholdMatureEntities(dreams, !includeMature),
       count,
       statusCode: 200,
     }

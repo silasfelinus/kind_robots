@@ -10,6 +10,7 @@ import prisma from '@/server/utils/prisma'
 import { errorHandler } from '@/server/utils/error'
 import { validateApiKey } from '@/server/utils/validateKey'
 import { viewerShowsMature } from '@/server/utils/contentAccess'
+import { withholdMatureEntities } from '@/server/utils/matureArtRefs'
 import type { ChatType, Prisma } from '~/prisma/generated/prisma/client'
 
 type ChatListQuery = {
@@ -311,6 +312,7 @@ export default defineEventHandler(async (event) => {
             imagePath: true,
             fileName: true,
             thumbnailData: true,
+            isMature: true,
           },
         },
       },
@@ -321,7 +323,7 @@ export default defineEventHandler(async (event) => {
     return {
       success: true,
       message: 'Chats loaded successfully.',
-      data,
+      data: await withholdMatureEntities(data, !includeMature),
       count: data.length,
       statusCode: 200,
     }

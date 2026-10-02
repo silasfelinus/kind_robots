@@ -5,6 +5,7 @@ import prisma from '~/server/utils/prisma'
 import { errorHandler } from '~/server/utils/error'
 import { getOptionalApiUser } from '~/server/utils/authGuard'
 import { viewerShowsMature } from '~/server/utils/contentAccess'
+import { withholdMatureEntities } from '~/server/utils/matureArtRefs'
 import {
   facetSummarySelect,
   hydrateFacetSummaries,
@@ -163,7 +164,7 @@ export default defineEventHandler(async (event) => {
     return {
       success: true,
       message: 'All scenarios fetched successfully.',
-      data,
+      data: await withholdMatureEntities(data, !viewerShowsMature(auth?.user)),
       statusCode: 200,
     }
   } catch (error: unknown) {

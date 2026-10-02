@@ -180,7 +180,11 @@ export interface ButterflyGalleryActionAdapter {
     collection: string,
     collectionId?: number,
   ): Promise<void>
-  removeFromCollection(entryId: number, collection: string): Promise<void>
+  removeFromCollection(
+    entryId: number,
+    collection: string,
+    collectionId?: number,
+  ): Promise<void>
   markNeedsReview(entryId: number): Promise<void>
   renameCollection(collectionId: number, label: string): Promise<void>
   createCollection(label: string): Promise<ButterflyCollectionRef>

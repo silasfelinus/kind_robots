@@ -672,6 +672,18 @@ export const ANIMATION_EFFECTS = [
     generationSafe: true,
     preferredSurface: 'fullscreen',
   },
+  {
+    id: 'crease-fold-atlas',
+    label: 'Crease Fold Atlas',
+    reveal: 'A sheet that folds itself',
+    icon: 'kind-icon:sparkle',
+    tooltip:
+      'A flat paper sheet ripples crease by crease into an accordion, an arch, an eggcrate and more, then unfolds flat again 📜 hover to nudge a crease, click to fold the next shape',
+    color: '#d9b36a',
+    releasedAt: '2026-10-02T08:00:00Z',
+    generationSafe: true,
+    preferredSurface: 'fullscreen',
+  },
 ] as const satisfies readonly AnimationEffectDefinition[]
 
 export type AnimationEffectId = (typeof ANIMATION_EFFECTS)[number]['id']

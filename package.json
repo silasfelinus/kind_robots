@@ -21,6 +21,7 @@
     "test:mandarin-points": "tsx utils/scripts/verifyMandarinPoints.test.ts",
     "test:music-video-doc": "tsx utils/scripts/verifyMusicVideoDoc.test.ts",
     "test:music-video-lyrics": "tsx utils/scripts/verifyMusicVideoLyrics.test.ts",
+    "test:music-video-scenes": "tsx utils/scripts/verifyMusicVideoScenes.test.ts",
     "test:artjob-audio-media": "tsx utils/scripts/verifyArtJobAudioMedia.test.ts",
     "test:mandarin-course": "tsx utils/scripts/verifyMandarinCourse.test.ts",
     "test:mandarin-parts-first": "tsx utils/scripts/verifyMandarinPartsFirst.test.ts",

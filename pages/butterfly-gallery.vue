@@ -70,7 +70,7 @@
           v-if="foregroundButterflyVisible"
           :src="FOREGROUND_BUTTERFLY_CLIP_URL"
           :alt="FOREGROUND_BUTTERFLY_CLIP_ALT"
-          class="loop-clip loop-clip-screen"
+          class="loop-clip loop-clip-screen loop-clip-seam"
         />
       </div>
 
@@ -577,7 +577,7 @@ const RUNWAY_CLIP_DURATION_MS = 3400
 // keeps the untouched runway-background.png and a few small copies of the
 // keyed butterfly loop drift across it with CSS -- the camera cannot move.
 const FAR_BUTTERFLY_URL =
-  '/images/generated/2026/10/artimage-241408-2caf6dae.webp'
+  '/images/generated/2026/10/artimage-241413-90b96ea3.webp'
 const FAR_BUTTERFLIES = [
   { id: 1, top: 18, size: 15, travel: 26, bob: 5, delay: 0, flip: false },
   { id: 2, top: 34, size: 11, travel: 34, bob: 4, delay: -9, flip: true },
@@ -605,7 +605,7 @@ const FAR_BUTTERFLIES = [
 // RUNWAY_CLIPS above, each of these slots shows exactly one clip that loops
 // natively (loop: true) rather than cycling between several stills.
 const FOREGROUND_BUTTERFLY_CLIP_URL =
-  '/images/generated/2026/09/artimage-30458-371b788b.webp'
+  '/images/generated/2026/10/artimage-241413-90b96ea3.webp'
 const FOREGROUND_BUTTERFLY_CLIP_ALT =
   'A Gallery butterfly flutters in an independent loop near the top-left of the runway'
 const ROBOT_LOOP_CLIP_URL =
@@ -1373,7 +1373,25 @@ function pileStyle(index: number, total: number): Record<string, string> {
   animation:
     far-butterfly-cross var(--far-travel) linear var(--far-delay) infinite
       alternate var(--far-dir),
-    far-butterfly-bob 2.4s ease-in-out var(--far-delay) infinite alternate;
+    far-butterfly-bob 2.4s ease-in-out var(--far-delay) infinite alternate,
+    clip-seam-fade 4.06s linear infinite;
+}
+
+.loop-clip.loop-clip-seam {
+  animation:
+    runway-clip-fade-in 260ms ease,
+    clip-seam-fade 4.06s linear infinite;
+}
+
+@keyframes clip-seam-fade {
+  0%,
+  100% {
+    opacity: 0;
+  }
+  10%,
+  90% {
+    opacity: 1;
+  }
 }
 
 @keyframes far-butterfly-cross {
@@ -2200,6 +2218,7 @@ function pileStyle(index: number, total: number): Record<string, string> {
   .intro-tumble-frame,
   .runway-clip,
   .far-butterfly,
+  .loop-clip-seam,
   .loop-clip {
     animation: none;
   }

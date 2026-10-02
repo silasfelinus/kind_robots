@@ -18,6 +18,16 @@ const CONTENT_TYPES: Record<string, string> = {
   jpeg: 'image/jpeg',
   jpg: 'image/jpeg',
   webp: 'image/webp',
+  gif: 'image/gif',
+  // Video clips, music video finals (music-video/t-023) and songs (t-010).
+  // With X-Content-Type-Options: nosniff below, application/octet-stream
+  // would stop a browser playing them in <video>/<audio>.
+  mp4: 'video/mp4',
+  webm: 'video/webm',
+  mp3: 'audio/mpeg',
+  wav: 'audio/wav',
+  ogg: 'audio/ogg',
+  flac: 'audio/flac',
 }
 
 // Formats worth converting. Stored webp is already small, and anything else

@@ -23,6 +23,12 @@ export type ButterflyResourceProvenance = {
   loras: string[]
 }
 
+export type ButterflyCollectionRef = {
+  id: number
+  slug: string
+  label: string
+}
+
 export type ButterflyPileEntry = {
   id: number
   thumbnailPath: string
@@ -34,6 +40,9 @@ export type ButterflyPileEntry = {
   rating: number | null
   folder: string | null
   collections: string[]
+  /** Id and display label for each slug in `collections`, when the feed
+   * knows them -- what rename and add-to-collection need to persist. */
+  collectionRefs?: ButterflyCollectionRef[]
   prompt: string | null
   negativePrompt: string | null
   resource: ButterflyResourceProvenance
@@ -110,6 +119,8 @@ export function defaultButterflyGalleryFilters(): ButterflyGalleryFilters {
 export type ButterflyGroupSummary = {
   value: string
   count: number
+  label?: string
+  id?: number
 }
 
 export type ButterflyDropOutcome = {
@@ -164,9 +175,15 @@ export interface ButterflyGalleryActionAdapter {
   setRating(entryId: number, rating: number | null): Promise<void>
   trash(entryId: number): Promise<void>
   restore(entryId: number): Promise<void>
-  addToCollection(entryId: number, collection: string): Promise<void>
+  addToCollection(
+    entryId: number,
+    collection: string,
+    collectionId?: number,
+  ): Promise<void>
   removeFromCollection(entryId: number, collection: string): Promise<void>
   markNeedsReview(entryId: number): Promise<void>
+  renameCollection(collectionId: number, label: string): Promise<void>
+  createCollection(label: string): Promise<ButterflyCollectionRef>
 }
 
 // -- Generation contract (butterfly-gallery/t-019) ---------------------------

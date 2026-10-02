@@ -24,6 +24,7 @@ import { useButterflyGalleryPresetStore } from '@/stores/butterflyGalleryPresetS
 import {
   defaultButterflyGalleryFilters,
   type ButterflyDropOutcome,
+  type ButterflyCollectionRef,
   type ButterflyFeedCursor,
   type ButterflyGalleryFilters,
   type ButterflyGalleryStatus,
@@ -363,18 +364,41 @@ export const useButterflyGalleryStore = defineStore(
       }
     }
 
+    function collectionIdFor(slug: string): number | undefined {
+      return collectionSummaries.value.find((c) => c.value === slug)?.id
+    }
+
     async function addToCollection(
       entryId: number,
       collection: string,
+      ref?: ButterflyCollectionRef,
     ): Promise<boolean> {
       const entry = entryById(entryId)
       if (!entry || !collection) return false
+      const collectionId = ref?.id ?? collectionIdFor(collection)
       try {
         await defaultButterflyGalleryActionAdapter().addToCollection(
           entryId,
           collection,
+          collectionId,
         )
         applyAddToCollectionAction(entry, collection)
+        const resolved =
+          ref ??
+          (collectionId === undefined
+            ? undefined
+            : {
+                id: collectionId,
+                slug: collection,
+                label:
+                  collectionSummaries.value.find((c) => c.value === collection)
+                    ?.label ?? collection,
+              })
+        if (
+          resolved &&
+          !(entry.collectionRefs ?? []).some((r) => r.slug === resolved.slug)
+        )
+          entry.collectionRefs = [...(entry.collectionRefs ?? []), resolved]
         return true
       } catch (error) {
         errorMessage.value =
@@ -396,14 +420,66 @@ export const useButterflyGalleryStore = defineStore(
         await defaultButterflyGalleryActionAdapter().removeFromCollection(
           entryId,
           collection,
+          collectionIdFor(collection),
         )
         applyRemoveFromCollectionAction(entry, collection)
+        entry.collectionRefs = (entry.collectionRefs ?? []).filter(
+          (r) => r.slug !== collection,
+        )
         return true
       } catch (error) {
         errorMessage.value =
           error instanceof Error
             ? error.message
             : 'Could not remove from that collection.'
+        status.value = 'error'
+        return false
+      }
+    }
+
+    async function addToNewCollection(
+      entryId: number,
+      label: string,
+    ): Promise<boolean> {
+      const trimmed = label.trim()
+      if (!entryById(entryId) || !trimmed) return false
+      try {
+        const ref =
+          await defaultButterflyGalleryActionAdapter().createCollection(trimmed)
+        return await addToCollection(entryId, ref.slug, ref)
+      } catch (error) {
+        errorMessage.value =
+          error instanceof Error ? error.message : 'Could not create collection.'
+        status.value = 'error'
+        return false
+      }
+    }
+
+    async function renameCollection(
+      collection: string,
+      label: string,
+    ): Promise<boolean> {
+      const trimmed = label.trim()
+      const collectionId = collectionIdFor(collection)
+      if (!trimmed || collectionId === undefined) return false
+      try {
+        await defaultButterflyGalleryActionAdapter().renameCollection(
+          collectionId,
+          trimmed,
+        )
+        for (const entry of pile.value) {
+          if (!entry.collectionRefs) continue
+          entry.collectionRefs = entry.collectionRefs.map((r) =>
+            r.slug === collection ? { ...r, label: trimmed } : r,
+          )
+        }
+        lastSaveMessage.value = `Renamed collection to ${trimmed}.`
+        return true
+      } catch (error) {
+        errorMessage.value =
+          error instanceof Error
+            ? error.message
+            : 'Could not rename that collection.'
         status.value = 'error'
         return false
       }
@@ -509,6 +585,8 @@ export const useButterflyGalleryStore = defineStore(
       restoreEntry,
       addToCollection,
       removeFromCollection,
+      addToNewCollection,
+      renameCollection,
       setFilter,
       resetFilters,
       toggleFolderFilter,

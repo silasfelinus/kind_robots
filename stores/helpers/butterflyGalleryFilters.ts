@@ -72,5 +72,11 @@ export function summarizeButterflyGalleryFolders(
 export function summarizeButterflyGalleryCollections(
   entries: ButterflyPileEntry[],
 ): ButterflyGroupSummary[] {
-  return summarize(entries.flatMap((entry) => entry.collections))
+  const refs = new Map<string, { id: number; label: string }>()
+  for (const entry of entries)
+    for (const ref of entry.collectionRefs ?? [])
+      refs.set(ref.slug, { id: ref.id, label: ref.label })
+  return summarize(entries.flatMap((entry) => entry.collections)).map(
+    (summary) => ({ ...summary, ...refs.get(summary.value) }),
+  )
 }

@@ -92,7 +92,7 @@
 
       <section
         v-if="showFilters"
-        class="queue-filter-panel kr-panel max-h-[60vh] overflow-y-auto"
+        class="queue-filter-panel kr-panel"
         aria-label="Queue filters and folder/collection browsing"
       >
         <div class="queue-filter-row">
@@ -154,57 +154,22 @@
         </div>
 
         <div class="queue-filter-groups">
-          <div class="queue-filter-group">
-            <p class="queue-filter-group-heading">
-              <Icon name="kind-icon:folder" class="kr-icon-3" /> Folders
-            </p>
-            <div class="queue-filter-chips">
-              <button
-                v-for="folder in gallery.folderSummaries"
-                :key="folder.value"
-                type="button"
-                class="queue-chip"
-                :class="{
-                  'queue-chip-active': gallery.filters.folder === folder.value,
-                }"
-                @click="gallery.toggleFolderFilter(folder.value)"
-              >
-                {{ folder.value }}
-                <span class="queue-chip-count">{{ folder.count }}</span>
-              </button>
-              <p v-if="!gallery.folderSummaries.length" class="kr-text-dim-xs">
-                No folders yet.
-              </p>
-            </div>
-          </div>
-
-          <div class="queue-filter-group">
-            <p class="queue-filter-group-heading">
-              <Icon name="kind-icon:tag" class="kr-icon-3" /> Collections
-            </p>
-            <div class="queue-filter-chips">
-              <button
-                v-for="collection in gallery.collectionSummaries"
-                :key="collection.value"
-                type="button"
-                class="queue-chip"
-                :class="{
-                  'queue-chip-active':
-                    gallery.filters.collection === collection.value,
-                }"
-                @click="gallery.toggleCollectionFilter(collection.value)"
-              >
-                {{ collection.value }}
-                <span class="queue-chip-count">{{ collection.count }}</span>
-              </button>
-              <p
-                v-if="!gallery.collectionSummaries.length"
-                class="kr-text-dim-xs"
-              >
-                No collections yet.
-              </p>
-            </div>
-          </div>
+          <ButterflyGalleryGroupMenu
+            heading="Folders"
+            icon="kind-icon:folder"
+            :items="gallery.folderSummaries"
+            :active="gallery.filters.folder"
+            @select="gallery.toggleFolderFilter"
+          />
+          <ButterflyGalleryGroupMenu
+            heading="Collections"
+            icon="kind-icon:tag"
+            :items="gallery.collectionSummaries"
+            :active="gallery.filters.collection"
+            renamable
+            @select="gallery.toggleCollectionFilter"
+            @rename="gallery.renameCollection"
+          />
         </div>
       </section>
 
@@ -352,8 +317,44 @@
               </p>
               <p v-if="gallery.selectedEntry.collections.length">
                 Collections:
-                {{ gallery.selectedEntry.collections.join(', ') }}
+                {{ selectedCollectionLabels.join(', ') }}
               </p>
+            </div>
+
+            <div class="image-info-collection">
+              <select
+                v-model="collectionTarget"
+                class="kr-select-sm"
+                aria-label="Add to collection"
+                :disabled="gallery.isBusy"
+              >
+                <option value="">Add to collection…</option>
+                <option
+                  v-for="c in gallery.collectionSummaries"
+                  :key="c.value"
+                  :value="c.value"
+                >
+                  {{ c.label || c.value }}
+                </option>
+                <option value="__new__">+ New collection…</option>
+              </select>
+              <input
+                v-if="collectionTarget === '__new__'"
+                v-model="newCollectionLabel"
+                type="text"
+                class="kr-input-sm"
+                placeholder="New collection name"
+                @keydown.enter.prevent="submitCollectionTarget"
+              />
+              <button
+                v-if="collectionTarget"
+                type="button"
+                class="kr-btn btn-primary btn-xs"
+                :disabled="gallery.isBusy"
+                @click="submitCollectionTarget"
+              >
+                Add
+              </button>
             </div>
           </template>
 
@@ -523,6 +524,7 @@
 
 <script setup lang="ts">
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import ButterflyGalleryGroupMenu from '@/components/art/ButterflyGalleryGroupMenu.vue'
 import ButterflyGalleryPresetEditor from '@/components/art/ButterflyGalleryPresetEditor.vue'
 import { useButterflyGalleryStore } from '@/stores/butterflyGalleryStore'
 import { useUserStore } from '@/stores/userStore'
@@ -610,6 +612,30 @@ const robotLoopVisible = ref(false)
 let foregroundButterflyObserver: IntersectionObserver | null = null
 let robotLoopObserver: IntersectionObserver | null = null
 const infoExpanded = ref(false)
+const collectionTarget = ref('')
+const newCollectionLabel = ref('')
+
+const selectedCollectionLabels = computed(() => {
+  const entry = gallery.selectedEntry
+  if (!entry) return []
+  return entry.collections.map(
+    (slug) =>
+      entry.collectionRefs?.find((ref) => ref.slug === slug)?.label ?? slug,
+  )
+})
+
+async function submitCollectionTarget(): Promise<void> {
+  const entry = gallery.selectedEntry
+  if (!entry || !collectionTarget.value) return
+  const saved =
+    collectionTarget.value === '__new__'
+      ? await gallery.addToNewCollection(entry.id, newCollectionLabel.value)
+      : await gallery.addToCollection(entry.id, collectionTarget.value)
+  if (saved) {
+    collectionTarget.value = ''
+    newCollectionLabel.value = ''
+  }
+}
 const dropSequence = ref(0)
 const fadeReveal = ref(false)
 const showFilters = ref(false)
@@ -797,6 +823,8 @@ watch(
   () => gallery.selectedImageId,
   async (nextId, previousId) => {
     infoExpanded.value = false
+    collectionTarget.value = ''
+    newCollectionLabel.value = ''
     if (nextId === null || nextId === previousId) return
 
     dropSequence.value += 1
@@ -1902,47 +1930,24 @@ function pileStyle(index: number, total: number): Record<string, string> {
 }
 
 .queue-filter-groups {
-  display: grid;
-  gap: 0.7rem;
-  margin-top: 0.75rem;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-}
-
-.queue-filter-group-heading {
-  display: flex;
-  align-items: center;
-  gap: 0.3rem;
-  margin-bottom: 0.35rem;
-  font-size: 0.72rem;
-  font-weight: 800;
-  opacity: 0.75;
-}
-
-.queue-filter-chips {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.3rem;
+  align-items: flex-start;
+  gap: 0.6rem;
+  margin-top: 0.6rem;
 }
 
-.queue-chip {
+
+
+
+
+
+.image-info-collection {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 0.3rem;
-  padding: 0.25rem 0.6rem;
-  border: 1px solid var(--color-base-300);
-  border-radius: 999px;
-  font-size: 0.68rem;
-  font-weight: 700;
-}
-
-.queue-chip-active {
-  border-color: var(--color-primary);
-  background: color-mix(in oklch, var(--color-primary) 16%, transparent);
-  color: var(--color-primary);
-}
-
-.queue-chip-count {
-  opacity: 0.6;
+  margin-top: 0.4rem;
 }
 
 .queue-empty-note {

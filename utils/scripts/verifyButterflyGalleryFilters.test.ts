@@ -241,3 +241,21 @@ console.log(
     'verified: trash view decoupled from matchState, processed/rating/' +
     'matchState/folder/collection/search filters, and summary counts.',
 )
+
+{
+  const summaries = summarizeButterflyGalleryCollections([
+    makeEntry({
+      id: 1,
+      collections: ['archive-folder-ab12'],
+      collectionRefs: [
+        { id: 7, slug: 'archive-folder-ab12', label: 'Cats' },
+      ],
+    }),
+    makeEntry({ id: 2, collections: ['archive-folder-ab12'] }),
+  ])
+  assert.deepEqual(
+    summaries,
+    [{ value: 'archive-folder-ab12', count: 2, id: 7, label: 'Cats' }],
+    'collection summaries should carry the id and display label when any entry knows them',
+  )
+}

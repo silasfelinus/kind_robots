@@ -199,7 +199,7 @@ export function parseLyricsResponse(text: string): MusicVideoSection[] {
   for (const rawLine of String(text || '').split(/\r?\n/)) {
     const tag = rawLine.match(TAG_PATTERN)
     if (tag) {
-      const kind = kindFromTag(tag[1] ?? '')
+      const kind = kindFromTag(tag?.[1] ?? '')
       if (!kind) {
         current = null
         continue

@@ -5,12 +5,17 @@
 // (conductor's tests/test_pitch_links.py).
 import assert from 'node:assert/strict'
 
+import { withPitchModifications } from '../../server/utils/conductorPitchVote'
 import {
   escapeHtml,
   isPitchSlug,
+  parsePitchPicks,
   renderPitchDecisionPage,
+  renderPitchInboxPage,
   signPitchDecision,
+  signPitchInbox,
   verifyPitchDecision,
+  verifyPitchInbox,
 } from '../../server/utils/pitchDecisionLink'
 
 const secret = 'test-secret'
@@ -114,5 +119,73 @@ const html = renderPitchDecisionPage({
 })
 assert.ok(!html.includes('<script>alert'), 'the heading is escaped')
 assert.ok(html.includes('method="post"') && html.includes(`value="${sig}"`))
+
+// The inbox link: one signature for the whole page, shared vector with conductor.
+const inboxSig = signPitchInbox(secret, exp)
+assert.equal(
+  inboxSig,
+  'e7c1d9e2e9608ca15d7a223b49cb2ce082ae079a60ed6bf2c6f86752fff6afaa',
+  'cross-language vector: Python and TypeScript sign the inbox identically',
+)
+assert.deepEqual(verifyPitchInbox(secret, { exp, sig: inboxSig }, nowMs), {
+  ok: true,
+  exp,
+})
+assert.deepEqual(
+  verifyPitchInbox(secret, { exp: exp + 1, sig: inboxSig }, nowMs),
+  { ok: false, reason: 'bad-signature' },
+  'extending the inbox expiry invalidates it',
+)
+assert.deepEqual(
+  verifyPitchInbox(secret, { exp, sig }, nowMs),
+  { ok: false, reason: 'bad-signature' },
+  'a single-pitch signature cannot open the inbox',
+)
+assert.deepEqual(
+  verifyPitchInbox(secret, { exp, sig: inboxSig }, (exp + 1) * 1000),
+  { ok: false, reason: 'expired' },
+)
+assert.deepEqual(
+  verifyPitchDecision(
+    secret,
+    { slug, vote: 'approved', exp, sig: inboxSig },
+    nowMs,
+  ),
+  { ok: false, reason: 'bad-signature' },
+  'an inbox signature cannot decide a pitch',
+)
+
+assert.deepEqual(
+  parsePitchPicks([
+    `${slug}:approve-changes`,
+    'bad slug:pass',
+    `${slug}-x:nope`,
+  ]),
+  { [slug]: 'approve-changes' },
+  'only well-formed slug:choice preselections survive',
+)
+const inboxHtml = renderPitchInboxPage({
+  exp,
+  sig: inboxSig,
+  cards: [{ slug, title: '<b>T</b>', idea: 'idea', choice: 'approve-changes' }],
+})
+assert.ok(!inboxHtml.includes('<b>T</b>'), 'card titles are escaped')
+assert.ok(
+  inboxHtml.includes(`name="vote:${slug}" value="approve-changes" checked`),
+)
+assert.ok(inboxHtml.includes(`name="notes:${slug}"`))
+
+const base = '# Pitch: X\nstatus: awaiting-silas\n\n## The idea\nIdea.\n'
+const withNotes = withPitchModifications(base, 'Make it\n## smaller')
+assert.ok(
+  withNotes.endsWith("## Silas's modifications\nMake it\n\\## smaller\n"),
+)
+assert.equal(
+  withPitchModifications(withNotes, 'Second try').match(
+    /## Silas's modifications/g,
+  )?.length,
+  1,
+  'a repeat submission replaces the notes instead of stacking them',
+)
 
 console.log('verifyPitchDecision: ok')

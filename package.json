@@ -66,6 +66,7 @@
     "test:butterfly-gallery-filters": "tsx utils/scripts/verifyButterflyGalleryFilters.test.ts",
     "test:butterfly-gallery-motion": "tsx utils/scripts/verifyButterflyGalleryMotion.test.ts",
     "test:butterfly-gallery-intro": "tsx utils/scripts/verifyButterflyGalleryIntro.test.ts",
+    "test:butterfly-gallery-view-settings": "tsx utils/scripts/verifyButterflyGalleryViewSettings.test.ts",
     "test:butterfly-gallery-shortcuts": "tsx utils/scripts/verifyButterflyGalleryShortcuts.test.ts",
     "test:butterfly-gallery-art-archive-feed": "tsx utils/scripts/verifyButterflyGalleryArtArchiveFeedProvider.test.ts",
     "test:butterfly-gallery-fixture-shape-parity": "tsx utils/scripts/verifyButterflyGalleryFixtureShapeParity.test.ts",

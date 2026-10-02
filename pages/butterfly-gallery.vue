@@ -95,6 +95,16 @@
           <Icon name="kind-icon:settings" class="kr-icon-4" />
           <span class="sr-only">Toggle sorting presets</span>
         </button>
+        <button
+          type="button"
+          class="gallery-utility"
+          :class="{ 'gallery-utility-active': showViewSettings }"
+          title="How many images to sort at once"
+          @click="showViewSettings = !showViewSettings"
+        >
+          <Icon name="kind-icon:view-grid" class="kr-icon-4" />
+          <span class="sr-only">Toggle image view settings</span>
+        </button>
         <span class="queue-count">
           {{ gallery.remainingCount }} / {{ gallery.pile.length }}
         </span>
@@ -184,6 +194,64 @@
       </section>
 
       <section
+        v-if="showViewSettings"
+        class="queue-filter-panel kr-panel view-settings-panel"
+        aria-label="Image view settings"
+      >
+        <div class="queue-filter-row">
+          <label class="queue-filter-field view-settings-count">
+            <span class="kr-text-dim-xs">
+              Images at once: {{ gallery.viewCount }}
+            </span>
+            <input
+              type="range"
+              class="range range-xs"
+              min="1"
+              max="20"
+              step="1"
+              :value="gallery.viewCount"
+              aria-label="Images at once"
+              @input="onViewCountInput"
+            />
+          </label>
+
+          <label class="queue-filter-field">
+            <span class="kr-text-dim-xs">Exact</span>
+            <input
+              type="number"
+              class="kr-input-sm view-settings-number"
+              min="1"
+              max="20"
+              :value="gallery.viewCount"
+              aria-label="Exact number of images"
+              @change="onViewCountInput"
+            />
+          </label>
+
+          <fieldset class="queue-filter-field">
+            <legend class="kr-text-dim-xs">Default shape</legend>
+            <div class="join">
+              <button
+                v-for="option in ORIENTATION_OPTIONS"
+                :key="option.value"
+                type="button"
+                class="kr-btn btn-sm join-item"
+                :class="
+                  gallery.orientation === option.value
+                    ? 'btn-primary'
+                    : 'btn-ghost'
+                "
+                :aria-pressed="gallery.orientation === option.value"
+                @click="gallery.setOrientation(option.value)"
+              >
+                {{ option.label }}
+              </button>
+            </div>
+          </fieldset>
+        </div>
+      </section>
+
+      <section
         v-if="showPresetEditor"
         class="queue-filter-panel kr-panel max-h-[60vh] overflow-y-auto"
         aria-label="Sorting bin and action presets"
@@ -230,7 +298,37 @@
 
       <section class="art-display" aria-label="Selected artwork">
         <div ref="frameBoxRef" class="art-display-inner">
-          <template v-if="gallery.selectedEntry">
+          <div
+            v-if="showArtGrid"
+            class="art-grid"
+            :style="{ '--art-grid-columns': String(artGridColumns) }"
+            role="list"
+            aria-label="Artwork to sort"
+          >
+            <button
+              v-for="entry in gallery.displayEntries"
+              :key="entry.id"
+              type="button"
+              role="listitem"
+              class="art-tile"
+              :class="{
+                'art-tile-selected': entry.id === gallery.selectedImageId,
+                'art-tile-trashed': entry.trashed,
+              }"
+              :aria-pressed="entry.id === gallery.selectedImageId"
+              draggable="true"
+              @click="onSelectPileEntry(entry.id)"
+              @dragstart="gallery.startDrag(entry.id)"
+              @dragend="onDragEnd"
+            >
+              <img
+                :src="entry.thumbnailPath || entry.displayPath"
+                :alt="entry.prompt || 'Untitled artwork'"
+                draggable="false"
+              />
+            </button>
+          </div>
+          <template v-else-if="gallery.selectedEntry">
             <img
               v-show="!dropProxyActive"
               :key="`${gallery.selectedEntry.id}-${dropSequence}`"
@@ -550,6 +648,10 @@ import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import ButterflyGalleryGroupMenu from '@/components/art/ButterflyGalleryGroupMenu.vue'
 import ButterflyGalleryPresetEditor from '@/components/art/ButterflyGalleryPresetEditor.vue'
 import { useButterflyGalleryStore } from '@/stores/butterflyGalleryStore'
+import {
+  butterflyGridColumns,
+  type ButterflyGalleryOrientation,
+} from '@/stores/helpers/butterflyGalleryViewSettings'
 import { useUserStore } from '@/stores/userStore'
 import { computeButterflyFunnelDropPlan } from '@/stores/helpers/butterflyGalleryMotion'
 import {
@@ -673,6 +775,32 @@ const dropSequence = ref(0)
 const fadeReveal = ref(false)
 const showFilters = ref(false)
 const showPresetEditor = ref(false)
+const showViewSettings = ref(false)
+
+const ORIENTATION_OPTIONS: { value: ButterflyGalleryOrientation; label: string }[] =
+  [
+    { value: 'landscape', label: 'Landscape' },
+    { value: 'portrait', label: 'Portrait' },
+  ]
+
+const frameAspect = ref(1.5)
+let frameResizeObserver: ResizeObserver | null = null
+
+const showArtGrid = computed(
+  () => gallery.viewCount > 1 && gallery.displayEntries.length > 0,
+)
+const artGridColumns = computed(() =>
+  butterflyGridColumns(
+    gallery.displayEntries.length,
+    gallery.orientation,
+    frameAspect.value,
+  ),
+)
+
+function onViewCountInput(event: Event): void {
+  gallery.setViewCount(Number((event.target as HTMLInputElement).value))
+}
+
 
 // -- First-visit intro orchestration (butterfly-gallery/t-015) -------------
 const introTrapdoorOpen = ref(false)
@@ -688,6 +816,17 @@ const dropProxyRef = ref<HTMLImageElement | null>(null)
 const dropProxyActive = ref(false)
 const dropProxySrc = ref('')
 const dropProxyAlt = ref('')
+
+watch(frameBoxRef, (element) => {
+  frameResizeObserver?.disconnect()
+  frameResizeObserver = null
+  if (!element || typeof ResizeObserver === 'undefined') return
+  frameResizeObserver = new ResizeObserver(([entry]) => {
+    const { width, height } = entry!.contentRect
+    if (width > 0 && height > 0) frameAspect.value = width / height
+  })
+  frameResizeObserver.observe(element)
+})
 const dragOverTarget = ref<string | null>(null)
 const justAcceptedBinId = ref<string | null>(null)
 const justSelectedPileId = ref<number | null>(null)
@@ -714,7 +853,11 @@ const PREFETCH_VISIBLE_BUFFER = 24
 function maybePrefetch(): void {
   if (gallery.status !== 'ready' || gallery.isLoadingMore || !gallery.hasMore)
     return
-  if (gallery.visiblePile.length < PREFETCH_VISIBLE_BUFFER) gallery.loadMore()
+  if (
+    gallery.visiblePile.length <
+    Math.max(PREFETCH_VISIBLE_BUFFER, gallery.viewCount + 4)
+  )
+    gallery.loadMore()
 }
 
 watch(
@@ -843,6 +986,8 @@ onBeforeUnmount(() => {
   clearIntroTimers()
   if (acceptedBinTimer) clearTimeout(acceptedBinTimer)
   if (activeDropAnimation) activeDropAnimation.cancel()
+  frameResizeObserver?.disconnect()
+  frameResizeObserver = null
   runwayVisibilityObserver?.disconnect()
   runwayVisibilityObserver = null
   foregroundButterflyObserver?.disconnect()
@@ -859,6 +1004,7 @@ watch(
     collectionTarget.value = ''
     newCollectionLabel.value = ''
     if (nextId === null || nextId === previousId) return
+    if (gallery.viewCount > 1) return
 
     dropSequence.value += 1
     const entry = gallery.entryById(nextId)
@@ -1650,6 +1796,54 @@ function pileStyle(index: number, total: number): Record<string, string> {
   object-fit: contain;
   background: color-mix(in oklch, var(--color-neutral) 92%, black);
   transform-origin: 50% 0;
+}
+
+.art-grid {
+  display: grid;
+  width: 100%;
+  height: 100%;
+  gap: 0.4rem;
+  padding: 0.4rem;
+  grid-template-columns: repeat(var(--art-grid-columns, 1), minmax(0, 1fr));
+  grid-auto-rows: minmax(0, 1fr);
+}
+
+.art-tile {
+  position: relative;
+  min-width: 0;
+  min-height: 0;
+  padding: 0;
+  overflow: hidden;
+  border: 3px solid transparent;
+  border-radius: 0.6rem;
+  background: color-mix(in oklch, var(--color-neutral) 92%, black);
+  cursor: grab;
+}
+
+.art-tile img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  pointer-events: none;
+}
+
+.art-tile:focus-visible,
+.art-tile-selected {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px
+    color-mix(in oklch, var(--color-primary) 35%, transparent);
+}
+
+.art-tile-trashed {
+  opacity: 0.45;
+}
+
+.view-settings-count {
+  min-width: 10rem;
+}
+
+.view-settings-number {
+  width: 4.5rem;
 }
 
 .selected-art-fade {

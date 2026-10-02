@@ -20,6 +20,15 @@ import {
   summarizeButterflyGalleryFolders,
 } from '@/stores/helpers/butterflyGalleryFilters'
 import { defaultButterflyGalleryGenerationClient } from '@/stores/helpers/butterflyGalleryGenerationClient'
+import {
+  clampButterflyViewCount,
+  defaultButterflyViewSettings,
+  loadButterflyViewSettings,
+  pickButterflyDisplayEntries,
+  saveButterflyViewSettings,
+  type ButterflyGalleryOrientation,
+  type ButterflyGalleryViewSettings,
+} from '@/stores/helpers/butterflyGalleryViewSettings'
 import { useButterflyGalleryPresetStore } from '@/stores/butterflyGalleryPresetStore'
 import {
   defaultButterflyGalleryFilters,
@@ -73,6 +82,19 @@ export const useButterflyGalleryStore = defineStore(
       defaultButterflyGalleryFilters(),
     )
 
+    const viewSettings = ref<ButterflyGalleryViewSettings>(
+      defaultButterflyViewSettings(),
+    )
+    if (typeof window !== 'undefined') {
+      try {
+        viewSettings.value =
+          loadButterflyViewSettings(window.localStorage) ??
+          defaultButterflyViewSettings()
+      } catch {
+        viewSettings.value = defaultButterflyViewSettings()
+      }
+    }
+
     const selectedImageId = ref<number | null>(null)
     const draggingImageId = ref<number | null>(null)
     const batchSelectedIds = ref<number[]>([])
@@ -88,6 +110,17 @@ export const useButterflyGalleryStore = defineStore(
     )
 
     const remainingCount = computed(() => visiblePile.value.length)
+
+    const viewCount = computed(() => viewSettings.value.count)
+    const orientation = computed(() => viewSettings.value.orientation)
+
+    const displayEntries = computed<ButterflyPileEntry[]>(() =>
+      pickButterflyDisplayEntries(
+        visiblePile.value,
+        selectedImageId.value,
+        viewSettings.value.count,
+      ),
+    )
 
     /** Folder/collection browsing lists (butterfly-gallery/t-009): counted
      * across the whole pile, not the filtered view, so picking one filter
@@ -485,6 +518,28 @@ export const useButterflyGalleryStore = defineStore(
       }
     }
 
+    function updateViewSettings(next: ButterflyGalleryViewSettings): void {
+      viewSettings.value = next
+      if (typeof window === 'undefined') return
+      try {
+        saveButterflyViewSettings(window.localStorage, next)
+      } catch {
+        // Storage unavailable (private mode) -- the choice simply lasts for
+        // this session.
+      }
+    }
+
+    function setViewCount(count: number): void {
+      updateViewSettings({
+        ...viewSettings.value,
+        count: clampButterflyViewCount(count),
+      })
+    }
+
+    function setOrientation(value: ButterflyGalleryOrientation): void {
+      updateViewSettings({ ...viewSettings.value, orientation: value })
+    }
+
     function setFilter<K extends keyof ButterflyGalleryFilters>(
       key: K,
       value: ButterflyGalleryFilters[K],
@@ -560,6 +615,9 @@ export const useButterflyGalleryStore = defineStore(
       isLoadingMore,
       visiblePile,
       remainingCount,
+      viewCount,
+      orientation,
+      displayEntries,
       folderSummaries,
       collectionSummaries,
       selectedEntry,
@@ -585,6 +643,8 @@ export const useButterflyGalleryStore = defineStore(
       restoreEntry,
       addToCollection,
       removeFromCollection,
+      setViewCount,
+      setOrientation,
       addToNewCollection,
       renameCollection,
       setFilter,

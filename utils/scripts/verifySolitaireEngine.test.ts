@@ -16,7 +16,9 @@ import {
   solveWithin,
   startGame,
   undo,
+  type SolitaireMove,
   type SolitaireState,
+  type TableauCard,
 } from '../solitaireEngine'
 
 let passed = 0
@@ -46,7 +48,7 @@ test('deal: 28 tableau cards, one face-up per column, 24 in stock', () => {
   s.tableau.forEach((col, i) => {
     assert.equal(col.length, i + 1)
     assert.equal(col.filter((c) => c.up).length, 1)
-    assert.ok(col[col.length - 1].up)
+    assert.ok(col[col.length - 1]?.up)
   })
   const all = [...s.stock, ...s.tableau.flat().map((c) => c.id)]
   assert.equal(new Set(all).size, 52)
@@ -97,7 +99,7 @@ test('every generated legal move applies; card count is conserved', () => {
     for (let step = 0; step < 60; step++) {
       const moves = legalMoves(s)
       if (!moves.length) break
-      const m = moves[(step * 7 + i) % moves.length]
+      const m = moves[(step * 7 + i) % moves.length] as SolitaireMove
       const n = applyMove(s, m)
       assert.ok(n, `legal move ${JSON.stringify(m)} must apply`)
       s = n as SolitaireState
@@ -108,7 +110,7 @@ test('every generated legal move applies; card count is conserved', () => {
         s.tableau.reduce((a, c) => a + c.length, 0)
       assert.equal(total, 52)
       s.tableau.forEach((col) => {
-        if (col.length) assert.ok(col[col.length - 1].up, 'top card face-up')
+        if (col.length) assert.ok(col[col.length - 1]?.up, 'top card face-up')
       })
     }
   }
@@ -151,9 +153,9 @@ test('moving a run flips the newly exposed card', () => {
     index: 1,
     to: 1,
   }) as SolitaireState
-  assert.equal(n.tableau[1].length, 3)
-  assert.equal(n.tableau[0].length, 1)
-  assert.ok(n.tableau[0][0].up)
+  assert.equal(n.tableau[1]?.length, 3)
+  assert.equal(n.tableau[0]?.length, 1)
+  assert.ok(n.tableau[0]?.[0]?.up)
 })
 
 test('foundations build A..K per suit and can return to the tableau', () => {
@@ -163,7 +165,7 @@ test('foundations build A..K per suit and can return to the tableau', () => {
   s.waste = [13] // ace of hearts
   assert.ok(isLegal(s, { type: 'waste-to-foundation' }))
   const n = applyMove(s, { type: 'waste-to-foundation' }) as SolitaireState
-  assert.equal(n.foundations[1].length, 1)
+  assert.equal(n.foundations[1]?.length, 1)
   n.waste = [13 + 2] // 3 of hearts, out of order
   assert.ok(!isLegal(n, { type: 'waste-to-foundation' }))
   n.tableau[0] = [{ id: 2 * 13 + 1, up: true }] // 2 of diamonds
@@ -203,7 +205,7 @@ test('undo restores the exact previous state, repeatedly', () => {
   const seen = [initial]
   for (let i = 0; i < 6; i++) {
     const moves = legalMoves(g.state)
-    assert.ok(play(g, moves[moves.length - 1]))
+    assert.ok(play(g, moves[moves.length - 1] as SolitaireMove))
     seen.push(JSON.stringify(g.state))
   }
   while (g.history.length) {
@@ -217,7 +219,8 @@ test('undo restores the exact previous state, repeatedly', () => {
 test('cloneState is deep', () => {
   const a = newGame('clone')
   const b = cloneState(a)
-  b.tableau[0][0].up = !b.tableau[0][0].up
+  const card = b.tableau[0]?.[0] as TableauCard
+  card.up = !card.up
   b.stock.pop()
   assert.notDeepEqual(a, b)
 })

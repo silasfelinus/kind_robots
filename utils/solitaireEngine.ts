@@ -68,7 +68,9 @@ export function shuffledDeck(seed: string): number[] {
   const rand = mulberry32(hashSeed(seed))
   for (let i = deck.length - 1; i > 0; i--) {
     const j = Math.floor(rand() * (i + 1))
-    ;[deck[i], deck[j]] = [deck[j], deck[i]]
+    const a = deck[i] as number
+    deck[i] = deck[j] as number
+    deck[j] = a
   }
   return deck
 }
@@ -85,7 +87,7 @@ export function newGame(
   for (let col = 0; col < TABLEAU_COLUMNS; col++) {
     const pile: TableauCard[] = []
     for (let row = 0; row <= col; row++) {
-      pile.push({ id: deck[at++], up: row === col })
+      pile.push({ id: deck[at++] as number, up: row === col })
     }
     tableau.push(pile)
   }
@@ -112,15 +114,21 @@ export function cloneState(s: SolitaireState): SolitaireState {
 
 // ---- legality --------------------------------------------------------------
 
+/** Column / foundation accessors for indices already known to be in range. */
+const tab = (s: SolitaireState, i: number): TableauCard[] =>
+  s.tableau[i] as TableauCard[]
+const fnd = (s: SolitaireState, i: number): number[] =>
+  s.foundations[i] as number[]
+
 function canPlaceOnTableau(id: number, col: TableauCard[]): boolean {
   if (col.length === 0) return rankOf(id) === 13
   const top = col[col.length - 1]
-  if (!top.up) return false
+  if (!top || !top.up) return false
   return rankOf(top.id) === rankOf(id) + 1 && isRed(top.id) !== isRed(id)
 }
 
 function canPlaceOnFoundation(id: number, s: SolitaireState): boolean {
-  return s.foundations[suitOf(id)].length === rankOf(id) - 1
+  return fnd(s, suitOf(id)).length === rankOf(id) - 1
 }
 
 export function isLegal(s: SolitaireState, m: SolitaireMove): boolean {
@@ -184,28 +192,28 @@ export function applyMove(
       break
     }
     case 'waste-to-tableau':
-      n.tableau[m.to].push({ id: n.waste.pop() as number, up: true })
+      tab(n, m.to).push({ id: n.waste.pop() as number, up: true })
       break
     case 'waste-to-foundation': {
       const id = n.waste.pop() as number
-      n.foundations[suitOf(id)].push(id)
+      fnd(n, suitOf(id)).push(id)
       break
     }
     case 'tableau-to-tableau': {
-      const moved = n.tableau[m.from].splice(m.index)
-      n.tableau[m.to].push(...moved)
-      flipTop(n.tableau[m.from])
+      const moved = tab(n, m.from).splice(m.index)
+      tab(n, m.to).push(...moved)
+      flipTop(tab(n, m.from))
       break
     }
     case 'tableau-to-foundation': {
-      const card = n.tableau[m.from].pop() as TableauCard
-      n.foundations[suitOf(card.id)].push(card.id)
-      flipTop(n.tableau[m.from])
+      const card = tab(n, m.from).pop() as TableauCard
+      fnd(n, suitOf(card.id)).push(card.id)
+      flipTop(tab(n, m.from))
       break
     }
     case 'foundation-to-tableau': {
-      const id = n.foundations[m.suit].pop() as number
-      n.tableau[m.to].push({ id, up: true })
+      const id = fnd(n, m.suit).pop() as number
+      tab(n, m.to).push({ id, up: true })
       break
     }
   }
@@ -223,16 +231,16 @@ export function legalMoves(s: SolitaireState): SolitaireMove[] {
     if (isLegal(s, m)) out.push(m)
   }
   for (let from = 0; from < TABLEAU_COLUMNS; from++) {
-    const col = s.tableau[from]
+    const col = tab(s, from)
     const t: SolitaireMove = { type: 'tableau-to-foundation', from }
     if (isLegal(s, t)) out.push(t)
     for (let index = 0; index < col.length; index++) {
-      if (!col[index].up) continue
+      if (!col[index]?.up) continue
       for (let to = 0; to < TABLEAU_COLUMNS; to++) {
         if (to === from) continue
         const m: SolitaireMove = { type: 'tableau-to-tableau', from, index, to }
         if (!isLegal(s, m)) continue
-        if (index === 0 && s.tableau[to].length === 0) continue
+        if (index === 0 && tab(s, to).length === 0) continue
         out.push(m)
       }
     }

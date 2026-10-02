@@ -191,6 +191,7 @@ export const CTHULHUQUARIUM_MASS_SPRITES: string[] = [
   'the-permanent-collection',
   'the-receiving-line',
   'the-single-fish',
+  'the-waterline',
   'tithe-shoal',
 ]
 

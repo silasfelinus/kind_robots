@@ -2,7 +2,8 @@
 import { readFileSync } from 'node:fs'
 
 process.env.DATABASE_URL ??= 'mysql://contract:contract@127.0.0.1:3306/contract'
-const { matureHiddenFrom } = await import('../../server/utils/matureBarrier')
+const { matureHiddenFrom, withholdMature } =
+  await import('../../server/utils/matureBarrier')
 const { isMaturityRestricted } =
   await import('../../server/utils/contentAccess')
 
@@ -50,6 +51,43 @@ check(
   'CHILD from the join table beats ADMIN',
 )
 
+const dream = {
+  id: 1,
+  isMature: false,
+  ArtImage: { id: 9, imagePath: '/images/x.webp', isMature: true },
+  ArtImages: [
+    { id: 10, imagePath: '/images/a.webp', isMature: false },
+    { id: 11, imagePath: '/images/b.webp', isMature: true },
+  ],
+  Characters: [{ id: 3, name: 'Fine', isMature: false }],
+  nested: { Rewards: [{ id: 5, isMature: true }] },
+  createdAt: new Date(0),
+}
+const scrubbed = withholdMature(dream, true) as typeof dream
+check(
+  scrubbed.ArtImage === (null as never),
+  'a mature to-one relation becomes null',
+)
+check(
+  scrubbed.ArtImages.length === 1 && scrubbed.ArtImages[0]?.id === 10,
+  'mature rows are dropped from arrays, the rest kept',
+)
+check(
+  scrubbed.nested.Rewards.length === 0,
+  'nesting does not hide a mature row',
+)
+check(scrubbed.Characters.length === 1, 'non-mature rows are untouched')
+check(scrubbed.createdAt instanceof Date, 'dates survive the walk')
+check(
+  !JSON.stringify(scrubbed).includes('/images/x.webp') &&
+    !JSON.stringify(scrubbed).includes('/images/b.webp'),
+  'no mature path survives anywhere in the scrubbed payload',
+)
+check(
+  withholdMature(dream, false) === dream,
+  'an unrestricted viewer gets the payload as-is',
+)
+
 const routeMustContain: Record<string, string[]> = {
   'server/api/art/image/[id].get.ts': ['matureHiddenFrom'],
   'server/api/art/images/[id]/file.get.ts': [
@@ -67,6 +105,8 @@ const routeMustContain: Record<string, string[]> = {
   'server/api/reactions/index.post.ts': ['maturityRestricted'],
   'server/api/reactions/index.get.ts': ['isMaturityRestricted'],
   'server/api/reactions/art/[id].patch.ts': ['maturityRestricted'],
+  'server/api/dreams/index.get.ts': ['withholdMature'],
+  'server/api/dreams/[id].get.ts': ['withholdMature'],
 }
 
 for (const [file, needles] of Object.entries(routeMustContain)) {

@@ -1,4 +1,5 @@
 // /server/api/art/save-generated.post.ts
+import { isAudioType } from '~/utils/artImageSource'
 import { defineEventHandler, readBody, createError } from 'h3'
 import prisma from '../../utils/prisma'
 import { errorHandler } from '../../utils/error'
@@ -44,6 +45,11 @@ const ALLOWED_FILE_TYPES = new Set([
   'webm',
   'mov',
   'mkv',
+  'mp3',
+  'wav',
+  'ogg',
+  'flac',
+  'm4a',
 ])
 
 // Normalize a caller-supplied fileType to a known, lowercase, dot-less token.
@@ -141,9 +147,12 @@ export default defineEventHandler(async (event) => {
 
     const fileType = normalizeFileType(requestData.fileType)
 
+    const isAudio = isAudioType(fileType)
+
     const savedImage = await saveImage(
       requestData.imageBase64,
       validatedData.userId ?? user.id,
+      { attachToCollections: !isAudio },
     )
 
     if (!savedImage.id) {
@@ -177,7 +186,7 @@ export default defineEventHandler(async (event) => {
         promptString: requestData.promptString.trim(),
         artPrompt: requestData.promptString.trim(),
         negativePrompt: requestData.negativePrompt ?? null,
-        isPublic: requestData.isPublic ?? true,
+        isPublic: isAudio ? false : (requestData.isPublic ?? true),
         isMature: requestData.isMature ?? false,
         userId: validatedData.userId ?? user.id,
         serverId: server.id,

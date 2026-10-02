@@ -72,6 +72,13 @@
                 preload="metadata"
                 @error="markImageFailed(job)"
               />
+              <div
+                v-else-if="jobImageKind(job) === 'audio'"
+                class="flex h-28 w-24 items-center justify-center rounded-2xl border border-base-300 bg-base-200"
+                title="Generated audio"
+              >
+                <Icon name="kind-icon:music" class="kr-icon-8 text-base-content/60" />
+              </div>
               <img
                 v-else
                 :src="jobImageSrc(job)"

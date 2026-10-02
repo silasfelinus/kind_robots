@@ -192,6 +192,9 @@ jobs:
       - name: Music video document contract
         run: npm run test:music-video-doc
 
+      - name: ArtJob audio media contract
+        run: npm run test:artjob-audio-media
+
       - name: Mandarin course contract
         run: npm run test:mandarin-course
 

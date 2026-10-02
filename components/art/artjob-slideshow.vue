@@ -26,6 +26,13 @@
               muted
               playsinline
             />
+            <audio
+              v-else-if="slideKind === 'audio'"
+              :src="slideSrc"
+              class="w-3/4"
+              controls
+              preload="none"
+            />
             <img
               v-else
               :src="slideSrc"

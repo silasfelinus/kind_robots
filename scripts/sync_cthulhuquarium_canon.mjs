@@ -82,6 +82,16 @@ const speakerSlug = {
   charlotte: 'charlotte-fishmonger',
   wilbur: 'wilbur-stint',
 }
+// Keys a scene or beat may name as its plate: a still (story/plates.yaml) or a
+// moving picture (videos/videos.yaml), which includes each character's hero.
+const plateKeys = new Set([
+  ...(readYaml(join(canon, 'story', 'plates.yaml')).plates ?? []).map(
+    (entry) => entry.key,
+  ),
+  ...(readYaml(join(canon, 'videos', 'videos.yaml')).videos ?? []).map(
+    (entry) => entry.key,
+  ),
+])
 const outScenes = {}
 for (const [id, scene] of Object.entries(scenes)) {
   outScenes[id] = {
@@ -97,12 +107,16 @@ for (const [id, scene] of Object.entries(scenes)) {
           `scene ${id}: unknown speaker/pose ${beat.speaker}/${beat.pose}`,
         )
       }
+      if (beat.plate && !plateKeys.has(beat.plate)) {
+        throw new Error(`scene ${id}: unknown beat plate ${beat.plate}`)
+      }
       return {
         speaker: beat.speaker,
         pose: beat.pose,
         text: String(beat.text).replace(/\s+/g, ' ').trim(),
         focus: beat.focus ?? null,
         await: beat.await ?? null,
+        plate: beat.plate ?? null,
       }
     }),
   }
@@ -153,6 +167,8 @@ export interface CanonBeat {
   text: string
   focus: string | null
   await: string | null
+  /** This beat's own plate, replacing the scene's (a \`*-hero\` key is a character's full-length portrait). */
+  plate: string | null
 }
 
 export interface CanonScene {

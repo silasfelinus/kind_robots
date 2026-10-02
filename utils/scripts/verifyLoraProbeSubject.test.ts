@@ -20,6 +20,7 @@
 //
 // These assertions exist to stop any of it coming back.
 import assert from 'node:assert/strict'
+import { readFileSync } from 'node:fs'
 
 import {
   buildLoraProbePrompt,
@@ -211,5 +212,15 @@ assert.equal(sanitizeProbeTrigger('Style'), 'Style')
 // 'slider' is deliberately absent: it names what the LoRA does, not how it was
 // built, and the concept does not survive its removal.
 assert.equal(sanitizeProbeTrigger('Blowjob Depth Slider - Pony'), 'Blowjob Depth Slider')
+
+
+// A probe's own trigger is already sanitized; the resolver must not append the
+// stored raw one back (it re-added `for Pony` after the sanitizer removed it).
+const loraResolver = readFileSync('server/utils/artLoraResource.ts', 'utf8')
+assert.match(
+  loraResolver,
+  /entityType === 'resource'\) return base/,
+  'appendResolvedTriggers must skip resource-preview probes',
+)
 
 console.log('verifyLoraProbeSubject: all assertions passed')

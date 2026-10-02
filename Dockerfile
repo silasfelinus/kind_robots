@@ -60,6 +60,12 @@ COPY --from=build --chown=node:node /app/package.json ./package.json
 COPY --from=build --chown=node:node /app/prisma ./prisma
 COPY --from=build --chown=node:node /app/scripts ./scripts
 COPY --from=build --chown=node:node /app/prisma.config.ts ./prisma.config.ts
+# The TLS-aware database adapter the scripts above connect through. Without it
+# a script run with `docker exec` cannot import it, and the bare fallback
+# connection is refused by ProxySQL ("SSL is required" / an empty pool) -- what
+# stopped the media-watchlist seed on 2026-10-02. Two side-effect-free files.
+COPY --from=build --chown=node:node /app/server/utils/databaseAdapterConfig.ts ./server/utils/databaseAdapterConfig.ts
+COPY --from=build --chown=node:node /app/server/utils/databasePoolDefaults.ts ./server/utils/databasePoolDefaults.ts
 # Nitro bundles Sharp's native binding privately. Make the matching prebuilt
 # libvips shared libraries available to the system dynamic linker so the
 # binding can load regardless of Nitro's nested node_modules layout.

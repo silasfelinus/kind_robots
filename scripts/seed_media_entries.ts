@@ -22,7 +22,7 @@ import { readFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import { join, dirname } from 'node:path'
 import { PrismaClient, MediaType } from '../prisma/generated/prisma/client'
-import { PrismaMariaDb } from '@prisma/adapter-mariadb'
+import { createDatabaseAdapter } from '../server/utils/databaseAdapterConfig'
 
 const SCRIPT_DIR = dirname(fileURLToPath(import.meta.url))
 const DATA_PATH = join(SCRIPT_DIR, '..', 'data', 'media-entries.json')
@@ -105,7 +105,7 @@ function toCreateInput(entry: ImportedEntry) {
 function createSeedPrismaClient(): PrismaClient {
   const databaseUrl = process.env.DATABASE_URL
   if (!databaseUrl) throw new Error('DATABASE_URL is missing')
-  return new PrismaClient({ adapter: new PrismaMariaDb(databaseUrl) })
+  return new PrismaClient({ adapter: createDatabaseAdapter(databaseUrl) })
 }
 
 async function main() {

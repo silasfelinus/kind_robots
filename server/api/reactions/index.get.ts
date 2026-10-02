@@ -17,6 +17,7 @@ import { createError, defineEventHandler, getQuery } from 'h3'
 import { errorHandler } from '../../utils/error'
 import prisma from '../../utils/prisma'
 import { requireApiUser } from '../../utils/authGuard'
+import { isMaturityRestricted } from '../../utils/contentAccess'
 
 const MAX_TAKE = 200
 
@@ -48,10 +49,25 @@ export default defineEventHandler(async (event) => {
       }
     }
 
-    const where =
+    const scope =
       wantsEveryone && auth.isAdmin
         ? {}
         : { userId: requestedUserId && auth.isAdmin ? requestedUserId : auth.user.id }
+    const where = isMaturityRestricted(auth.user)
+      ? {
+          AND: [
+            scope,
+            {
+              NOT: {
+                OR: [
+                  { ArtImage: { isMature: true } },
+                  { ArtCollection: { isMature: true } },
+                ],
+              },
+            },
+          ],
+        }
+      : scope
 
     const take = Math.min(MAX_TAKE, toPositiveInt(query.take) ?? MAX_TAKE)
     const skip = toPositiveInt(query.skip) ?? 0

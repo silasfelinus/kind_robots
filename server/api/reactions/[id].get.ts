@@ -16,6 +16,7 @@
 import { createError, defineEventHandler } from 'h3'
 import { errorHandler } from '../../utils/error'
 import { getOptionalApiUser } from '../../utils/authGuard'
+import { isMaturityRestricted } from '../../utils/contentAccess'
 import { canViewReaction } from '../../utils/reactionVisibility'
 import { fetchReactionById } from '.'
 
@@ -34,6 +35,7 @@ export default defineEventHandler(async (event) => {
     const viewer = {
       userId: auth?.user.id ?? null,
       isAdmin: auth?.isAdmin ?? false,
+      maturityRestricted: isMaturityRestricted(auth?.user),
     }
 
     const data = await fetchReactionById(id)

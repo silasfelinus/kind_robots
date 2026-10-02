@@ -28,6 +28,8 @@ export type ArtImageAccessContext = {
   restricted: boolean
 }
 
+export { matureHiddenFrom } from '~/server/utils/matureBarrier'
+
 export function readBoolean(value: unknown, fallback = false): boolean {
   if (Array.isArray(value)) return readBoolean(value[0], fallback)
   if (value == null) return fallback

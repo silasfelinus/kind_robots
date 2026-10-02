@@ -2,6 +2,9 @@
 import { defineEventHandler, createError } from 'h3'
 import { errorHandler } from '../../../utils/error'
 import prisma from '../../../utils/prisma'
+import { getOptionalApiUser } from '../../../utils/authGuard'
+import { isMaturityRestricted } from '../../../utils/contentAccess'
+import { canViewReactionsOn } from '../../../utils/reactionVisibility'
 
 export default defineEventHandler(async (event) => {
   const artImageId = Number(event.context.params?.id)
@@ -11,6 +14,19 @@ export default defineEventHandler(async (event) => {
       throw createError({
         statusCode: 400,
         message: 'A valid art image ID is required.',
+      })
+    }
+
+    const auth = await getOptionalApiUser(event)
+    const viewer = {
+      userId: auth?.user.id ?? null,
+      isAdmin: auth?.isAdmin ?? false,
+      maturityRestricted: isMaturityRestricted(auth?.user),
+    }
+    if (!(await canViewReactionsOn('artImage', artImageId, viewer))) {
+      throw createError({
+        statusCode: 404,
+        message: `No reactions found for art image ${artImageId}.`,
       })
     }
 

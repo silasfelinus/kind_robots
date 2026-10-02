@@ -4,6 +4,7 @@ import prisma from '../../../utils/prisma'
 import { errorHandler } from '../../../utils/error'
 import { requireApiUser } from '../../../utils/authGuard'
 import { assertReactionContentTargetAccessible } from '../access'
+import { isMaturityRestricted } from '../../../utils/contentAccess'
 
 export default defineEventHandler(async (event) => {
   let artImageId: number | null = null
@@ -38,12 +39,13 @@ export default defineEventHandler(async (event) => {
       find: () =>
         prisma.artImage.findUnique({
           where: { id: targetArtImageId },
-          select: { userId: true, isPublic: true },
+          select: { userId: true, isPublic: true, isMature: true },
         }),
       label: 'ArtImage',
       targetId: targetArtImageId,
       userId,
       isAdmin,
+      maturityRestricted: isMaturityRestricted(user),
     })
 
     const existingReaction = await prisma.reaction.findFirst({

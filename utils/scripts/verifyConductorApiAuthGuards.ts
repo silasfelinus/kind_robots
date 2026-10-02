@@ -19,7 +19,7 @@
 //   - A named signed-link endpoint (SIGNED_LINK_ENDPOINTS below): public on
 //     purpose because the caller is an email link, not a signed-in user, and
 //     authorized instead by an HMAC signature over exactly one pitch, one
-//     vote and an expiry. It is accepted only while it is listed AND still
+//     vote and an expiry (or, for the inbox, over an expiry alone). It is accepted only while it is listed AND still
 //     calls its verifier, so it cannot quietly lose the check.
 import { readdirSync, readFileSync } from 'node:fs'
 import { basename, dirname, join, relative, resolve } from 'node:path'
@@ -39,6 +39,7 @@ const MANUAL_ADMIN_CHECK_PATTERN = /\buserIsAdmin\s*\(/
 // File name -> the verifier call that must appear in it.
 export const SIGNED_LINK_ENDPOINTS: Record<string, RegExp> = {
   'pitch-decision.post.ts': /\bverifyPitchDecision\s*\(/,
+  'pitch-inbox.post.ts': /\bverifyPitchInbox\s*\(/,
 }
 
 export function listConductorWriteEndpoints(directory: string): string[] {

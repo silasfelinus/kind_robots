@@ -21,6 +21,14 @@ import {
 } from '../comfy/flux2/utils/workflow'
 import { buildZImageWorkflowFromRequest } from '../comfy/zimage/utils/workflow'
 import {
+  ACESTEP_MAX_BPM,
+  ACESTEP_MAX_SECONDS,
+  ACESTEP_MIN_BPM,
+  ACESTEP_MIN_SECONDS,
+  aceStepTimeoutSeconds,
+  buildAceStepSongWorkflow,
+} from '../comfy/acestep/utils/workflow'
+import {
   buildKontextWorkflow,
   getKontextImageExtension,
 } from '../comfy/kontext/utils/workflow'
@@ -62,6 +70,7 @@ type EnqueueEngine =
   | 'ltx'
   | 'wan'
   | 'zimage'
+  | 'acestep'
 
 type JsonRecord = Record<string, unknown>
 
@@ -152,6 +161,13 @@ type ArtEnqueueRequest = {
   refineSampler?: string | null
   refineSigmas?: string | null
   timeoutSeconds?: number | null
+  // acestep (music-video/t-010): promptString carries the style tags; the
+  // lyrics ride separately so the image prompt contract never reads them.
+  lyrics?: string | null
+  bpm?: number | null
+  keyscale?: string | null
+  timeSignature?: string | null
+  language?: string | null
   workflow?: Record<string, unknown> | null
   entityArt?: EntityArtRequest | null
 }
@@ -179,6 +195,8 @@ const ENGINE_ALIASES: Record<string, EnqueueEngine> = {
   'sdxl-restyle': 'sdxl-img2img',
   'sdxl-i2i': 'sdxl-img2img',
   'sdxl-image': 'sdxl-img2img',
+  'ace-step': 'acestep',
+  ace: 'acestep',
 }
 /*
  * Lanes whose text encoder is CLIP reading danbooru-style tags (SD 1.5, SDXL,
@@ -194,6 +212,13 @@ const TAG_PROMPT_ENGINES = new Set<EnqueueEngine>([
 ])
 
 const VIDEO_ENGINES = new Set<EnqueueEngine>(['ltx', 'wan'])
+/*
+ * Audio lanes. The art prompt contract is about what a caption-conditioned
+ * image model paints; song tags and lyrics are neither, so it is not applied,
+ * and Facets / entity art (which rewrite promptString) are refused because the
+ * provenance check needs promptString to equal the graph's tags verbatim.
+ */
+const AUDIO_ENGINES = new Set<EnqueueEngine>(['acestep'])
 const GATE_ENGINE: Record<
   EnqueueEngine,
   'comfy' | 'flux' | 'kontext' | 'ltx' | 'wan'
@@ -209,6 +234,8 @@ const GATE_ENGINE: Record<
   wan: 'wan',
   // Z-Image loads its own UNet/CLIP/VAE, so it gates as an ordinary comfy job.
   zimage: 'comfy',
+  // Bills like a 1024 still. Fine while the music video creator is admin-only.
+  acestep: 'comfy',
 }
 const SLUG_PATTERN = /^[a-z0-9][a-z0-9_-]*$/
 const DEFAULT_ENQUEUE_PRIORITY = 100
@@ -348,7 +375,8 @@ function normalizeEngine(value: unknown): EnqueueEngine {
     engine === 'kontext' ||
     engine === 'ltx' ||
     engine === 'wan' ||
-    engine === 'zimage'
+    engine === 'zimage' ||
+    engine === 'acestep'
   ) {
     return engine
   }
@@ -381,6 +409,7 @@ export default defineEventHandler(async (event) => {
     }
     const narrativeContext = narrativeRequest(body)
     const brainstormContext = brainstormRequest(body)
+    if (AUDIO_ENGINES.has(engine)) assertPlainAudioRequest(body)
 
     const videoFrames = VIDEO_ENGINES.has(engine)
       ? resolveVideoFrames(engine, body)
@@ -537,12 +566,15 @@ export default defineEventHandler(async (event) => {
      * direction, and judging them is what produced 13 false refusals.
      */
     type PromptWarning = ArtPromptViolation & { scope: 'author' | 'render' }
-    const promptWarnings: PromptWarning[] = checkArtPromptContract({
-      prompt: basePromptString,
-      engine,
-      steps: resolvedBody.steps ?? null,
-      cfg: resolvedBody.cfg ?? null,
-    }).map((violation) => ({ ...violation, scope: 'author' }))
+    const isAudio = AUDIO_ENGINES.has(engine)
+    const promptWarnings: PromptWarning[] = isAudio
+      ? []
+      : checkArtPromptContract({
+          prompt: basePromptString,
+          engine,
+          steps: resolvedBody.steps ?? null,
+          cfg: resolvedBody.cfg ?? null,
+        }).map((violation) => ({ ...violation, scope: 'author' }))
 
     const previewPayload: Record<string, unknown> = {}
     const promptString = applyArtFacetsToPayload(
@@ -603,14 +635,18 @@ export default defineEventHandler(async (event) => {
     } catch {
       // Keep promptString: an un-introspectable payload is still checked.
     }
-    promptWarnings.push(
-      ...checkArtPromptContract({
-        prompt: renderedPrompt,
-        engine,
-        steps: resolvedBody.steps ?? null,
-        cfg: resolvedBody.cfg ?? null,
-      }).map((violation): PromptWarning => ({ ...violation, scope: 'render' })),
-    )
+    if (!isAudio) {
+      promptWarnings.push(
+        ...checkArtPromptContract({
+          prompt: renderedPrompt,
+          engine,
+          steps: resolvedBody.steps ?? null,
+          cfg: resolvedBody.cfg ?? null,
+        }).map(
+          (violation): PromptWarning => ({ ...violation, scope: 'render' }),
+        ),
+      )
+    }
 
     /*
      * ADVISORY, NOT A GATE. Silas, 2026-09-20, after this endpoint had spent a
@@ -727,6 +763,9 @@ function buildJobPayload(
   }
   if (engine === 'ltx' || engine === 'wan') {
     return buildVideoJobPayload(engine, ctx)
+  }
+  if (engine === 'acestep') {
+    return buildAudioJobPayload(ctx)
   }
 
   if (engine === 'flux') {
@@ -1174,6 +1213,107 @@ function buildVideoJobPayload(
         outputFormat,
       },
       save,
+    },
+  }
+}
+
+function assertPlainAudioRequest(body: ArtEnqueueRequest | null): void {
+  const facetIds = Array.isArray(body?.facetIds) ? body.facetIds : []
+  if (facetIds.length || body?.basePromptString?.trim()) {
+    throw createError({
+      statusCode: 400,
+      message: 'Song generation does not take Facets; put the style in promptString.',
+    })
+  }
+  if (body?.entityArt || body?.narrativeContext || body?.brainstormContext) {
+    throw createError({
+      statusCode: 400,
+      message: 'Song generation does not take entity, narrative or brainstorm context.',
+    })
+  }
+}
+
+function requireAudioNumber(
+  value: unknown,
+  field: string,
+  min: number,
+  max: number,
+): number {
+  const parsed = Number(value)
+  if (value == null || value === '' || !Number.isFinite(parsed)) {
+    throw createError({
+      statusCode: 400,
+      message: `Song generation requires numeric "${field}".`,
+    })
+  }
+  if (parsed < min || parsed > max) {
+    throw createError({
+      statusCode: 400,
+      message: `"${field}" must be between ${min} and ${max}.`,
+    })
+  }
+  return parsed
+}
+
+function buildAudioJobPayload(ctx: {
+  body: ArtEnqueueRequest
+  promptString: string
+  save: SaveBlock
+}): { jobEngine: 'COMFY'; payload: Record<string, unknown> } {
+  const { body, promptString, save } = ctx
+  const durationSeconds = Math.round(
+    requireAudioNumber(
+      body.durationSeconds,
+      'durationSeconds',
+      ACESTEP_MIN_SECONDS,
+      ACESTEP_MAX_SECONDS,
+    ),
+  )
+  const bpm =
+    body.bpm == null
+      ? null
+      : Math.round(
+          requireAudioNumber(body.bpm, 'bpm', ACESTEP_MIN_BPM, ACESTEP_MAX_BPM),
+        )
+  const timeoutSeconds =
+    body.timeoutSeconds == null
+      ? aceStepTimeoutSeconds(durationSeconds)
+      : requireAudioNumber(body.timeoutSeconds, 'timeoutSeconds', 60, 86_400)
+  const lyrics = typeof body.lyrics === 'string' ? body.lyrics : ''
+
+  const workflow = buildAceStepSongWorkflow({
+    tags: promptString,
+    lyrics,
+    durationSeconds,
+    bpm,
+    seed: body.seed ?? null,
+    keyscale: body.keyscale ?? null,
+    timeSignature: body.timeSignature ?? null,
+    language: body.language ?? null,
+  })
+  const encoder = workflow['5']?.inputs ?? {}
+
+  return {
+    jobEngine: 'COMFY',
+    payload: {
+      workflow,
+      promptString,
+      engine: 'acestep',
+      media: 'audio',
+      timeoutSeconds,
+      audio: {
+        model: 'acestep-1.5-turbo',
+        durationSeconds,
+        bpm: encoder.bpm ?? null,
+        seed: encoder.seed ?? null,
+        keyscale: encoder.keyscale ?? null,
+        timeSignature: encoder.timesignature ?? null,
+        language: encoder.language ?? null,
+        instrumental: !lyrics.trim(),
+        format: 'mp3',
+      },
+      // Songs are private and never join a collection (t-020 save-generated).
+      save: { ...save, isPublic: false, artCollectionIds: [] },
     },
   }
 }

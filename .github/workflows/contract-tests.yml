@@ -198,6 +198,9 @@ jobs:
       - name: Music video scenes contract
         run: npm run test:music-video-scenes
 
+      - name: Music video song contract
+        run: npm run test:music-video-song
+
       - name: ArtJob audio media contract
         run: npm run test:artjob-audio-media
 

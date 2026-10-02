@@ -936,23 +936,28 @@ export async function applyEntityArtImage(
   }
 
   /*
-   * PREFER THE STATIC FILE. A card renders this in an `<img>`, and an `<img>`
-   * sends no Authorization header -- so /api/art/images/:id/file can only apply
-   * its anonymous rule, which is `isPublic && !isMature`. Every mature or
-   * private entity preview therefore 403'd in the browser, blanked, and was
-   * re-observed by kr-deferred-image, which is the "previews going in and out
-   * of load, repeatedly" Silas reported on 2026-09-18. 1,969 of 2,343 Resources
-   * were pointing at that route.
+   * PREFER THE STATIC FILE -- BUT ONLY FOR PUBLIC, NON-MATURE ART. A card
+   * renders this in an `<img>`, which sends no Authorization header, so
+   * /api/art/images/:id/file can only apply its anonymous rule
+   * (`isPublic && !isMature`); the static path avoids that route's per-request
+   * cost for the common case (the 2026-09-18 "previews going in and out of
+   * load" report).
    *
-   * The API route stays as the fallback for an ArtImage whose bytes live in the
-   * row rather than on disk. The version query keeps busting the cache either
-   * way, since the static path is stable across re-renders of the same slot.
+   * /images/... performs no authorization at all, so a URL that has left the
+   * server once can never be revoked. Private or mature previews therefore stay
+   * on the API route, where mayView is re-checked on every fetch (conductor
+   * kind-robots/t-109, approved 2026-09-30). The API route is also the fallback
+   * for an ArtImage whose bytes live in the row rather than on disk. The
+   * version query busts the cache either way.
    */
   const version =
     artImage.updatedAt?.toISOString() || artImage.createdAt.toISOString()
   const staticPath = String(artImage.imagePath || '').trim()
+  const publicNonMature =
+    (target.record.isPublic ?? artImage.isPublic) !== false &&
+    !(target.record.isMature ?? artImage.isMature)
   const imagePath =
-    staticPath && !staticPath.includes('/api/art/images/')
+    publicNonMature && staticPath && !staticPath.includes('/api/art/images/')
       ? `${staticPath}${staticPath.includes('?') ? '&' : '?'}v=${encodeURIComponent(version)}`
       : `/api/art/images/${artImage.id}/file?v=${encodeURIComponent(version)}`
 

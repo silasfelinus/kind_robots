@@ -110,6 +110,27 @@ assert.equal(sanitizeProbeTrigger('pony_xl, anna'), 'anna')
 assert.equal(sanitizeProbeTrigger('Anna for ponyv6'), 'Anna')
 assert.equal(sanitizeProbeTrigger('Pony Anna'), 'Pony Anna')
 
+// Pony as a compatibility label, in the shapes the live catalog carries.
+for (const [raw, want] of [
+  ['Hinoarashi Style for Pony', 'Hinoarashi Style'],
+  ['Furryfication Slider - Pony / Illustrious', 'Furryfication Slider'],
+  ['Sky ( Artist Style ) Pony SDXL', 'Sky ( Artist Style)'],
+  ['Wednesday Addams XL PONY', 'Wednesday Addams XL'],
+  ['[Style, Pony] RELSM - Semi Realism', 'RELSM - Semi Realism'],
+  ['Fairy Tail Style (+100 YQ, (Pony, IL))', 'Fairy Tail Style +100 YQ'],
+  ['JMG Style (SD-1.5, Pony), Goofy Ai', 'JMG Style, Goofy Ai'],
+  ['Hades Style, Pony [BETA]', 'Hades Style'],
+  ['Lilandava style Pony & 1.5', 'Lilandava style'],
+  ['Facial_Pony', 'Facial'],
+  // ...while subjects and hair survive.
+  ['PonyPlay', 'PonyPlay'],
+  ['my little pony', 'my little pony'],
+  ['1girl, blonde hair, ponytail', '1girl, blonde hair, ponytail'],
+  ['1980s (style), retro', '1980s (style), retro'],
+] as const) {
+  assert.equal(sanitizeProbeTrigger(raw), want, raw)
+}
+
 // --- a trigger that is only invocation syntax -------------------------------
 // 17 rows carry nothing but `<lora:NAME:weight>`. That syntax is stripped
 // because ComfyUI has no parser for it, which left those probes with an empty
@@ -189,6 +210,6 @@ assert.equal(sanitizeProbeTrigger('Style'), 'Style')
 
 // 'slider' is deliberately absent: it names what the LoRA does, not how it was
 // built, and the concept does not survive its removal.
-assert.equal(sanitizeProbeTrigger('Blowjob Depth Slider - Pony'), 'Blowjob Depth Slider - Pony')
+assert.equal(sanitizeProbeTrigger('Blowjob Depth Slider - Pony'), 'Blowjob Depth Slider')
 
 console.log('verifyLoraProbeSubject: all assertions passed')

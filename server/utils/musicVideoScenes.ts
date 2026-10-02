@@ -165,6 +165,11 @@ export type SceneJobStatus = {
   status: string
   artImageId: number | null
   error: string | null
+  // music-video/t-009: the optional image-to-video clip for the scene.
+  clipJobId: number | null
+  clipStatus: string | null
+  clipArtImageId: number | null
+  clipError: string | null
 }
 
 export async function syncSceneJobs(doc: MusicVideoDoc): Promise<{
@@ -173,7 +178,7 @@ export async function syncSceneJobs(doc: MusicVideoDoc): Promise<{
   changed: boolean
 }> {
   const jobIds = doc.scenes
-    .map((scene) => scene.image.jobId)
+    .flatMap((scene) => [scene.image.jobId, scene.motion.jobId])
     .filter((id): id is number => Number.isInteger(id))
   const jobs = jobIds.length
     ? await prisma.artJob.findMany({
@@ -187,22 +192,42 @@ export async function syncSceneJobs(doc: MusicVideoDoc): Promise<{
   const statuses: SceneJobStatus[] = []
   const scenes = doc.scenes.map((scene) => {
     const job = scene.image.jobId ? byId.get(scene.image.jobId) : undefined
+    const clipJob = scene.motion.jobId
+      ? byId.get(scene.motion.jobId)
+      : undefined
     statuses.push({
       sceneId: scene.id,
       jobId: scene.image.jobId ?? null,
       status: job?.status ?? (scene.image.artImageId ? 'READY' : 'EMPTY'),
       artImageId: job?.artImageId ?? scene.image.artImageId ?? null,
       error: job?.error ?? null,
+      clipJobId: scene.motion.jobId ?? null,
+      clipStatus:
+        clipJob?.status ?? (scene.motion.clipArtImageId ? 'READY' : null),
+      clipArtImageId:
+        clipJob?.artImageId ?? scene.motion.clipArtImageId ?? null,
+      clipError: clipJob?.error ?? null,
     })
+    let next = scene
     if (
       job?.status === 'DONE' &&
       job.artImageId &&
       job.artImageId !== scene.image.artImageId
     ) {
-      changed = true
-      return { ...scene, image: { ...scene.image, artImageId: job.artImageId } }
+      next = { ...next, image: { ...next.image, artImageId: job.artImageId } }
     }
-    return scene
+    if (
+      clipJob?.status === 'DONE' &&
+      clipJob.artImageId &&
+      clipJob.artImageId !== scene.motion.clipArtImageId
+    ) {
+      next = {
+        ...next,
+        motion: { ...next.motion, clipArtImageId: clipJob.artImageId },
+      }
+    }
+    if (next !== scene) changed = true
+    return next
   })
   return { doc: { ...doc, scenes }, statuses, changed }
 }

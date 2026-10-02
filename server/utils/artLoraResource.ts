@@ -310,6 +310,18 @@ function appendResolvedTriggers(
   ).trim()
   if (!base) return null
 
+  /*
+   * A resource-preview probe carries its own, already-sanitized trigger (see
+   * sanitizeProbeTrigger in utils/loraProbe.ts). Appending the stored one on
+   * top is not a no-op once sanitizing has changed it: `X for Pony` becomes
+   * `X`, the raw `X for Pony` no longer matches the haystack, and it was
+   * appended right back -- the compatibility label the probe had just removed.
+   */
+  const entityType = (
+    body.entityArt as { entityType?: unknown } | null | undefined
+  )?.entityType
+  if (entityType === 'resource') return base
+
   const seen = new Set<string>()
   const haystack = loraTriggerKey(stripLoraInvocation(base))
   const additions: string[] = []

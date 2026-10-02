@@ -337,7 +337,8 @@ function updateNudges(): void {
 }
 
 function renderFrame(timestamp: number): void {
-  if (!context) return
+  const ctx = context
+  if (!ctx) return
   const elapsed = previousTimestamp ? timestamp - previousTimestamp : 16.67
   previousTimestamp = timestamp
   const delta = Math.min(50, Math.max(4, elapsed))
@@ -351,11 +352,11 @@ function renderFrame(timestamp: number): void {
     angles = currentAngles.map((a, i) => a + (nudges[i] as number))
   }
 
-  const background = context.createLinearGradient(0, 0, 0, height)
+  const background = ctx.createLinearGradient(0, 0, 0, height)
   background.addColorStop(0, BACKGROUND_TOP)
   background.addColorStop(1, BACKGROUND_BOTTOM)
-  context.fillStyle = background
-  context.fillRect(0, 0, width, height)
+  ctx.fillStyle = background
+  ctx.fillRect(0, 0, width, height)
 
   const panels = buildPanels(angles)
   // Recentre the folded form so it never drifts off the surface.
@@ -410,18 +411,18 @@ function renderFrame(timestamp: number): void {
     const hue = facing ? 38 : 205
     const saturation = facing ? 55 : 35
     const lightness = 34 + lit * 36 + breathe * 100
-    context.fillStyle = `hsl(${hue}, ${saturation}%, ${lightness}%)`
-    context.strokeStyle = 'rgba(20, 16, 30, 0.55)'
-    context.lineWidth = 1
-    context.beginPath()
+    ctx.fillStyle = `hsl(${hue}, ${saturation}%, ${lightness}%)`
+    ctx.strokeStyle = 'rgba(20, 16, 30, 0.55)'
+    ctx.lineWidth = 1
+    ctx.beginPath()
     panel.corners.forEach((corner, i) => {
       const p = project(corner)
-      if (i === 0) context.moveTo(p.x, p.y)
-      else context.lineTo(p.x, p.y)
+      if (i === 0) ctx.moveTo(p.x, p.y)
+      else ctx.lineTo(p.x, p.y)
     })
-    context.closePath()
-    context.fill()
-    context.stroke()
+    ctx.closePath()
+    ctx.fill()
+    ctx.stroke()
   }
 
   animationFrameId = window.requestAnimationFrame(renderFrame)

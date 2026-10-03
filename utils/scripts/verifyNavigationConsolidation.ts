@@ -209,7 +209,7 @@ assert.match(serendipityTab, /\nchannelKey: retired\n/)
 assert.match(serendipityTab, /\nroute: \/serendipity\n/)
 assert.match(serendipityTab, /\nrequiredRole: ADMIN\n/)
 const serendipityPage = source('content/serendipity.md')
-assert.match(serendipityPage, /\nchannelKey: admin\n/)
+assert.match(serendipityPage, /\nchannelKey: retired\n/)
 assert.match(serendipityPage, /\nrequiredRole: ADMIN\n/)
 
 const userAdminTab = source('content/channels/admin/user-admin.md')

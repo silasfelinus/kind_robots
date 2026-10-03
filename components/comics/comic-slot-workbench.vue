@@ -85,8 +85,19 @@
         Save prompt
       </button>
       <button
+        v-if="studio.primaryLane"
         type="button"
         class="kr-btn btn-primary btn-sm"
+        :disabled="busy"
+        @click="renderLane(studio.primaryLane.key)"
+      >
+        <icon name="kind-icon:brush" class="kr-icon-4" />
+        {{ dirty ? 'Save & render' : 'Render' }} in
+        {{ studio.primaryLane.label }}
+      </button>
+      <button
+        type="button"
+        class="kr-btn btn-outline btn-sm"
         :disabled="busy"
         @click="renderAll"
       >

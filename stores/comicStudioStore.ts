@@ -4,6 +4,7 @@
 import { computed, ref } from 'vue'
 import { defineStore } from 'pinia'
 import { performFetch } from '@/stores/utils'
+import { useResourceStore } from '@/stores/resourceStore'
 import type {
   ComicAttemptDto,
   ComicCritiqueDto,
@@ -15,7 +16,15 @@ import type {
   ComicSlotDto,
   ComicSnapshot,
 } from '~/types/comicStudio'
-import type { ComicLane } from '~/utils/comicLanes'
+import {
+  comicPrimaryLane,
+  orderComicLanes,
+  type ComicLane,
+} from '~/utils/comicLanes'
+import {
+  CHECKPOINT_FAMILY_LABELS,
+  detectCheckpointFamily,
+} from '~/utils/artGeneratorPresets'
 import {
   addComicPage,
   addComicPanel,
@@ -99,7 +108,28 @@ export const useComicStudioStore = defineStore('comicStudioStore', () => {
   let pendingLayoutIssueId: number | null = null
 
   const lanes = computed<ComicLane[]>(() => series.value?.lanes ?? [])
-  const activeLanes = computed(() => lanes.value.filter((lane) => lane.active))
+  const activeLanes = computed(() =>
+    orderComicLanes(lanes.value.filter((lane) => lane.active)),
+  )
+  const primaryLane = computed(() => comicPrimaryLane(lanes.value))
+  const checkpointOptions = computed(() =>
+    useResourceStore()
+      .visibleCheckpoints.filter((resource) => resource.localPath)
+      .map((resource) => {
+        const family = detectCheckpointFamily(resource)
+        return {
+          path: String(resource.localPath),
+          label:
+            resource.customLabel || resource.name || String(resource.localPath),
+          family,
+          familyLabel: CHECKPOINT_FAMILY_LABELS[family],
+        }
+      })
+      .filter((option) =>
+        ['sdxl', 'pony', 'illustrious'].includes(option.family),
+      )
+      .sort((a, b) => a.path.localeCompare(b.path)),
+  )
   const attemptsBySlot = computed(() => {
     const map = new Map<number, ComicAttemptDto[]>()
     for (const attempt of attempts.value) {
@@ -176,7 +206,7 @@ export const useComicStudioStore = defineStore('comicStudioStore', () => {
     return comicLaneHero(attemptsFor(slotId), laneKey)
   }
   function slotCover(slotId: number): ComicAttemptDto | null {
-    return comicSlotCover(attemptsFor(slotId))
+    return comicSlotCover(attemptsFor(slotId), primaryLane.value?.key)
   }
   function slotById(slotId: number | null | undefined): ComicSlotDto | null {
     return slotId
@@ -194,6 +224,10 @@ export const useComicStudioStore = defineStore('comicStudioStore', () => {
       attemptFor(panel.artAttemptId) ??
       (panel.slotId ? slotCover(panel.slotId) : null)
     )
+  }
+
+  async function loadCheckpointOptions() {
+    await useResourceStore().loadStore()
   }
 
   function setMessage(text: string | null) {
@@ -1032,6 +1066,9 @@ export const useComicStudioStore = defineStore('comicStudioStore', () => {
     autoEditor,
     lanes,
     activeLanes,
+    primaryLane,
+    checkpointOptions,
+    loadCheckpointOptions,
     attemptsBySlot,
     subjectSlots,
     panelSlots,

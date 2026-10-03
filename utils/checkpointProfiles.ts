@@ -186,7 +186,9 @@ export function checkpointFamily(path?: string | null): CheckpointFamily {
 
   const dir = value.split('/')[0]?.toLowerCase() ?? ''
   if (dir === 'pony') return 'pony'
-  if (dir === 'illustrious') return 'illustrious'
+  // NoobAI-XL is an Illustrious fine-tune: same penultimate-layer CLIP, so the
+  // same profile (artGeneratorPresets.ts groups the two the same way).
+  if (dir === 'illustrious' || dir === 'noobai') return 'illustrious'
   if (dir === 'sd15' || dir === 'sd1.5') return 'sd15'
   return 'sdxl'
 }

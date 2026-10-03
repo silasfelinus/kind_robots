@@ -141,6 +141,41 @@ console.log(
   assert.equal(comicLaneHero(slot9, 'z'), null)
   assert.equal(comicSlotCover(slot9)?.id, 1)
   assert.equal(comicSlotCover(slot9.filter((a) => a.id === 3)), null)
+
+  const unpicked = [
+    {
+      id: 20,
+      slotId: 4,
+      laneKey: 'z',
+      status: 'DONE',
+      verdict: 'none',
+      artImageId: 7,
+      createdAt: at(9),
+    },
+    {
+      id: 21,
+      slotId: 4,
+      laneKey: 'house',
+      status: 'DONE',
+      verdict: 'none',
+      artImageId: 8,
+      createdAt: at(2),
+    },
+  ]
+  assert.equal(comicSlotCover(unpicked)?.id, 20)
+  assert.equal(
+    comicSlotCover(unpicked, 'house')?.id,
+    21,
+    'the house lane stands in before newer lanes',
+  )
+  assert.equal(
+    comicSlotCover(
+      [...unpicked, { ...unpicked[0]!, id: 22, verdict: 'liked' }],
+      'house',
+    )?.id,
+    22,
+    'a like still beats the house lane',
+  )
 }
 console.log(
   '✅ lane hero and slot cover prefer the pick, then likes, never a rejection for the cover',

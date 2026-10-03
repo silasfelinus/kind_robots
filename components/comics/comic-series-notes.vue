@@ -49,29 +49,151 @@
       </label>
     </section>
 
-    <section class="flex flex-col gap-2 rounded-2xl border border-base-300 p-3">
-      <p class="kr-text-black-base">Lanes</p>
-      <p class="kr-text-dim-xs">
-        Active lanes get a column on every subject. Steps and guidance come from
-        each checkpoint family's profile.
-      </p>
-      <label
-        v-for="lane in lanes"
+    <section class="flex flex-col gap-3 rounded-2xl border border-base-300 p-3">
+      <div class="flex flex-col gap-1">
+        <p class="kr-text-black-base">House checkpoint</p>
+        <p class="kr-text-dim-xs">
+          The comic is drawn in the house lane: its column comes first and the
+          main Render button uses it. Other active lanes are for comparison.
+          Leave steps, guidance and sampler blank to use the checkpoint family's
+          profile.
+        </p>
+      </div>
+
+      <div
+        v-for="(lane, index) in lanes"
         :key="lane.key"
-        class="flex items-center gap-2 text-sm"
+        class="flex flex-col gap-2 rounded-xl border p-2"
+        :class="lane.primary ? 'border-primary' : 'border-base-300'"
       >
-        <input
-          v-model="lane.active"
-          type="checkbox"
-          class="kr-checkbox-primary-sm"
-        />
-        <span class="font-semibold">{{ lane.label }}</span>
-        <span class="kr-text-dim-xs truncate"
-          >{{ lane.engine
+        <div class="flex flex-wrap items-center gap-2">
+          <span
+            v-if="lane.primary"
+            class="kr-badge-primary-sm flex items-center gap-1"
+          >
+            <icon name="kind-icon:crown" class="kr-icon-3" />
+            House
+          </span>
+          <button
+            v-else
+            type="button"
+            class="kr-btn btn-ghost btn-xs"
+            :disabled="!lane.active"
+            @click="makePrimary(index)"
+          >
+            Make house lane
+          </button>
+          <input
+            v-model="lane.label"
+            class="kr-input-sm min-w-0 flex-1 font-semibold"
+            :aria-label="`Label for ${lane.key}`"
+          />
+          <label class="flex items-center gap-1 text-xs">
+            <input
+              v-model="lane.active"
+              type="checkbox"
+              class="kr-checkbox-primary-sm"
+            />
+            Active
+          </label>
+          <button
+            type="button"
+            class="kr-btn btn-ghost btn-xs"
+            :disabled="lane.primary"
+            :aria-label="`Remove ${lane.label}`"
+            @click="removeLane(index)"
+          >
+            <icon name="kind-icon:trash" class="kr-icon-4" />
+          </button>
+        </div>
+        <p class="kr-text-dim-xs break-all">
+          {{ lane.engine
           }}{{ lane.checkpoint ? ` · ${lane.checkpoint}` : '' }} ·
-          {{ lane.promptStyle }}</span
+          {{ lane.promptStyle }}
+        </p>
+        <div
+          v-if="lane.engine === 'comfy'"
+          class="grid gap-2 grid-cols-[repeat(auto-fit,minmax(min(100%,7rem),1fr))]"
         >
-      </label>
+          <label class="flex flex-col gap-1 text-xs"
+            >Steps
+            <input
+              v-model.number="lane.steps"
+              type="number"
+              min="1"
+              max="80"
+              placeholder="profile"
+              class="kr-input-sm"
+            />
+          </label>
+          <label class="flex flex-col gap-1 text-xs"
+            >Guidance
+            <input
+              v-model.number="lane.cfg"
+              type="number"
+              min="1"
+              max="20"
+              step="0.5"
+              placeholder="profile"
+              class="kr-input-sm"
+            />
+          </label>
+          <label class="flex flex-col gap-1 text-xs"
+            >Sampler
+            <select v-model="lane.sampler" class="kr-select-sm">
+              <option :value="null">Profile</option>
+              <option v-for="name in samplers" :key="name" :value="name">
+                {{ name }}
+              </option>
+            </select>
+          </label>
+        </div>
+      </div>
+
+      <div
+        class="flex flex-col gap-2 rounded-xl border border-dashed border-base-300 p-2"
+      >
+        <p class="text-xs font-semibold">Add a checkpoint lane</p>
+        <select
+          v-model="newLane.path"
+          class="kr-select-sm"
+          aria-label="Known checkpoint"
+          @focus="studio.loadCheckpointOptions()"
+        >
+          <option value="">Pick a known checkpoint…</option>
+          <option
+            v-for="option in studio.checkpointOptions"
+            :key="option.path"
+            :value="option.path"
+          >
+            {{ option.familyLabel }} · {{ option.path }}
+          </option>
+        </select>
+        <input
+          v-model="newLane.path"
+          class="kr-input-sm"
+          placeholder="or type a path, e.g. Illustrious/novaFurryXL_v180B.safetensors"
+          aria-label="Checkpoint path"
+        />
+        <input
+          v-model="newLane.label"
+          class="kr-input-sm"
+          placeholder="Lane label (optional)"
+          aria-label="New lane label"
+        />
+        <p v-if="newLaneProblem" class="text-xs text-error">
+          {{ newLaneProblem }}
+        </p>
+        <button
+          type="button"
+          class="kr-btn btn-outline btn-sm self-start"
+          :disabled="!newLane.path.trim() || Boolean(newLaneProblem)"
+          @click="addLane"
+        >
+          <icon name="kind-icon:plus" class="kr-icon-4" />
+          Add lane
+        </button>
+      </div>
     </section>
 
     <button
@@ -103,7 +225,11 @@
 import { computed, reactive, ref, watch } from 'vue'
 import { useComicStudioStore } from '@/stores/comicStudioStore'
 import type { ComicSeriesDto } from '~/types/comicStudio'
-import type { ComicLane } from '~/utils/comicLanes'
+import {
+  COMIC_LANE_SAMPLERS,
+  comicCheckpointProblem,
+  type ComicLane,
+} from '~/utils/comicLanes'
 
 const studio = useComicStudioStore()
 
@@ -129,11 +255,88 @@ watch(
   },
 )
 
-const lanesChanged = computed(() =>
-  lanes.value.some(
-    (lane, index) => lane.active !== studio.series?.lanes[index]?.active,
-  ),
+const samplers = COMIC_LANE_SAMPLERS
+const newLane = reactive({ path: '', label: '' })
+
+function laneSignature(list: ComicLane[]) {
+  return JSON.stringify(
+    list.map((lane) => ({
+      ...lane,
+      steps: lane.steps || null,
+      cfg: lane.cfg || null,
+      sampler: lane.sampler || null,
+    })),
+  )
+}
+const lanesChanged = computed(
+  () =>
+    laneSignature(lanes.value) !== laneSignature(studio.series?.lanes ?? []),
 )
+
+const newLaneProblem = computed(() => {
+  const path = newLane.path.trim()
+  if (!path) return null
+  if (!/\.(safetensors|ckpt)$/i.test(path))
+    return 'Use the checkpoint path under models/checkpoints, ending in .safetensors.'
+  if (lanes.value.some((lane) => lane.checkpoint === path))
+    return 'That checkpoint already has a lane.'
+  return comicCheckpointProblem(path)
+})
+
+function makePrimary(index: number) {
+  lanes.value = lanes.value.map((lane, position) => ({
+    ...lane,
+    primary: position === index,
+  }))
+}
+
+function removeLane(index: number) {
+  lanes.value = lanes.value.filter((_, position) => position !== index)
+}
+
+function laneKeyFor(path: string) {
+  const base =
+    (path.split('/').pop() ?? path)
+      .replace(/\.(safetensors|ckpt)$/i, '')
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '')
+      .slice(0, 48) || 'lane'
+  let key = base
+  let suffix = 2
+  while (lanes.value.some((lane) => lane.key === key))
+    key = `${base}-${suffix++}`
+  return key
+}
+
+function addLane() {
+  const path = newLane.path.trim()
+  if (!path || newLaneProblem.value) return
+  const house = lanes.value.find(
+    (lane) => lane.primary && lane.engine === 'comfy',
+  )
+  lanes.value = [
+    ...lanes.value,
+    {
+      key: laneKeyFor(path),
+      label:
+        newLane.label.trim() ||
+        (path.split('/').pop() ?? path).replace(/\.(safetensors|ckpt)$/i, ''),
+      engine: 'comfy',
+      checkpoint: path,
+      promptStyle: 'tags',
+      prefix: house?.prefix ?? null,
+      suffix: house?.suffix ?? null,
+      steps: null,
+      cfg: null,
+      sampler: null,
+      primary: false,
+      active: true,
+    },
+  ]
+  newLane.path = ''
+  newLane.label = ''
+}
 const dirty = computed(() => {
   const original = fromSeries(studio.series)
   return (

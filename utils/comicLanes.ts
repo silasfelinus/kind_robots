@@ -4,9 +4,15 @@
 // slot: an enqueue engine plus, for the SDXL family, a checkpoint Resource path.
 // Every slot renders once per lane so Silas can vet the same subject side by side.
 //
-// Lanes deliberately carry no steps or cfg by default: /api/art/enqueue applies the
-// checkpoint family's measured sampler profile (utils/checkpointProfiles.ts) when
-// they are absent, and the distilled engines clamp to their own cadence.
+// Lanes deliberately carry no steps, cfg or sampler by default: /api/art/enqueue
+// applies the checkpoint family's measured sampler profile (utils/checkpointProfiles.ts)
+// when they are absent, and the distilled engines clamp to their own cadence. A lane
+// sets them only to try a checkpoint author's recommended settings. The scheduler
+// always stays the family profile's: enqueue does not forward one for comfy.
+//
+// Exactly one active lane is the series' primary (house) lane: the checkpoint the
+// comic is drawn in. Silas, 2026-10-03: furrytoonmix is "hands down the best model
+// for this project", so it is the default primary.
 //
 // Pure: no Prisma, no h3, no app aliases, so the DB-free contract test can import it.
 import { assessRequeueSafety } from './quarantinedCheckpoints.js'
@@ -25,8 +31,24 @@ export type ComicLane = {
   suffix?: string | null
   steps?: number | null
   cfg?: number | null
+  sampler?: string | null
+  primary?: boolean
   active: boolean
 }
+
+export const COMIC_LANE_SAMPLERS = [
+  'euler',
+  'euler_ancestral',
+  'dpmpp_2m',
+  'dpmpp_2m_sde',
+  'dpmpp_3m_sde',
+  'dpmpp_sde',
+  'dpm_2',
+  'dpm_2_ancestral',
+  'heun',
+  'lms',
+  'ddim',
+] as const
 
 const ILLUSTRIOUS_PREFIX =
   'masterpiece, best quality, amazing quality, absurdres, very aesthetic'
@@ -35,13 +57,6 @@ const WESTERN_TAG_SUFFIX =
 
 export const DEFAULT_COMIC_LANES: ComicLane[] = [
   {
-    key: 'zimage-turbo',
-    label: 'Z-Image Turbo',
-    engine: 'zimage',
-    promptStyle: 'prose',
-    active: true,
-  },
-  {
     key: 'il-furrytoonmix',
     label: 'IL furrytoonmix',
     engine: 'comfy',
@@ -49,6 +64,14 @@ export const DEFAULT_COMIC_LANES: ComicLane[] = [
     promptStyle: 'tags',
     prefix: ILLUSTRIOUS_PREFIX,
     suffix: WESTERN_TAG_SUFFIX,
+    primary: true,
+    active: true,
+  },
+  {
+    key: 'zimage-turbo',
+    label: 'Z-Image Turbo',
+    engine: 'zimage',
+    promptStyle: 'prose',
     active: true,
   },
   {
@@ -183,12 +206,48 @@ export function normalizeComicLanes(raw: unknown): {
       promptStyle: record.promptStyle === 'tags' ? 'tags' : 'prose',
       prefix: optionalText(record.prefix),
       suffix: optionalText(record.suffix),
-      steps: optionalPositive(record.steps),
-      cfg: optionalPositive(record.cfg),
+      steps: engine === 'comfy' ? optionalPositive(record.steps) : null,
+      cfg: engine === 'comfy' ? optionalPositive(record.cfg) : null,
+      sampler:
+        engine === 'comfy'
+          ? oneOfOrNull(COMIC_LANE_SAMPLERS, record.sampler)
+          : null,
+      primary: record.primary === true,
       active: record.active !== false,
     })
   }
-  return { lanes, errors }
+  return { lanes: settlePrimaryLane(lanes), errors }
+}
+
+function oneOfOrNull<T extends string>(
+  values: readonly T[],
+  value: unknown,
+): T | null {
+  const text = cleanText(value, 32).toLowerCase()
+  return (values as readonly string[]).includes(text) ? (text as T) : null
+}
+
+// Exactly one active lane is primary: the first one marked, else the first active
+// SDXL-family lane, else the first active lane. An inactive lane cannot be primary.
+function settlePrimaryLane(lanes: ComicLane[]): ComicLane[] {
+  const active = lanes.filter((lane) => lane.active)
+  const chosen =
+    active.find((lane) => lane.primary) ??
+    active.find((lane) => lane.engine === 'comfy') ??
+    active[0] ??
+    null
+  return lanes.map((lane) => ({ ...lane, primary: lane === chosen }))
+}
+
+export function comicPrimaryLane(lanes: ComicLane[]): ComicLane | null {
+  return lanes.find((lane) => lane.primary) ?? null
+}
+
+export function orderComicLanes(lanes: ComicLane[]): ComicLane[] {
+  return [
+    ...lanes.filter((lane) => lane.primary),
+    ...lanes.filter((lane) => !lane.primary),
+  ]
 }
 
 export function parseComicLanes(
@@ -255,6 +314,7 @@ export type ComicEnqueueBody = {
   height: number
   steps?: number
   cfg?: number
+  sampler?: string
   isPublic: boolean
   isMature: boolean
   designer: string
@@ -282,6 +342,9 @@ export function buildComicLaneEnqueueBody(
     height,
     ...(lane.steps ? { steps: lane.steps } : {}),
     ...(lane.cfg ? { cfg: lane.cfg } : {}),
+    ...(lane.engine === 'comfy' && lane.sampler
+      ? { sampler: lane.sampler }
+      : {}),
     isPublic: Boolean(series.isPublicArt),
     isMature: false,
     designer: COMIC_DESIGNER,

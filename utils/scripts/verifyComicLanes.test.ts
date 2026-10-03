@@ -8,13 +8,17 @@
 // checkpoint family profile in /api/art/enqueue applies.
 import assert from 'node:assert/strict'
 
+import { buildDefaultComfyWorkflow } from '../../server/api/comfy/sdxl/utils/workflow'
+import { checkpointFamily } from '../checkpointProfiles.js'
 import {
   buildComicLaneEnqueueBody,
   COMIC_RENDER_SIZES,
   comicLaneQueueDecision,
+  comicPrimaryLane,
   composeComicLanePrompt,
   DEFAULT_COMIC_LANES,
   normalizeComicLanes,
+  orderComicLanes,
   parseComicLanes,
 } from '../comicLanes.js'
 
@@ -121,10 +125,13 @@ console.log(
   assert.equal('cfg' in body, false)
   assert.equal(body.isPublic, false)
   assert.equal(body.projectSlug, 'comic-creator')
-  const zimage = buildComicLaneEnqueueBody(DEFAULT_COMIC_LANES[0]!, {
-    promptProse: 'x',
-    negativePrompt: 'nsfw',
-  })
+  const zimage = buildComicLaneEnqueueBody(
+    DEFAULT_COMIC_LANES.find((lane) => lane.key === 'zimage-turbo')!,
+    {
+      promptProse: 'x',
+      negativePrompt: 'nsfw',
+    },
+  )
   assert.equal('checkpoint' in zimage, false)
   assert.equal('negativePrompt' in zimage, false)
 }
@@ -142,4 +149,111 @@ console.log('✅ enqueue bodies leave steps and cfg to the family profile')
 }
 console.log(
   '✅ render sizes are SDXL-safe and the per-lane queue cap holds at three',
+)
+
+{
+  const primary = comicPrimaryLane(
+    normalizeComicLanes(DEFAULT_COMIC_LANES).lanes,
+  )
+  assert.equal(primary?.checkpoint, 'Illustrious/furrytoonmix_xlV3.safetensors')
+  assert.equal(parseComicLanes(null)[0]?.key, 'il-furrytoonmix')
+
+  const two = normalizeComicLanes([
+    { key: 'a', engine: 'zimage', primary: true, active: false },
+    { key: 'b', engine: 'zimage', primary: true },
+    {
+      key: 'c',
+      engine: 'comfy',
+      checkpoint: 'Illustrious/x.safetensors',
+      primary: true,
+    },
+  ]).lanes
+  assert.deepEqual(
+    two.filter((lane) => lane.primary).map((lane) => lane.key),
+    ['b'],
+    'an inactive lane cannot be primary, and the first marked active lane wins',
+  )
+  const none = normalizeComicLanes([
+    { key: 'z', engine: 'zimage' },
+    { key: 'c', engine: 'comfy', checkpoint: 'Illustrious/x.safetensors' },
+  ]).lanes
+  assert.equal(
+    comicPrimaryLane(none)?.key,
+    'c',
+    'falls back to the first SDXL-family lane',
+  )
+  assert.deepEqual(
+    orderComicLanes(none).map((lane) => lane.key),
+    ['c', 'z'],
+  )
+}
+console.log(
+  '✅ exactly one active lane is primary, and furrytoonmix is the default',
+)
+
+{
+  const [lane] = normalizeComicLanes([
+    {
+      key: 'nova',
+      engine: 'comfy',
+      checkpoint: 'Illustrious/novaFurryXL_v180B.safetensors',
+      promptStyle: 'tags',
+      sampler: 'Euler_Ancestral',
+      cfg: 5,
+    },
+  ]).lanes
+  const body = buildComicLaneEnqueueBody(lane!, { promptTags: 'koala' })
+  assert.equal(body.sampler, 'euler_ancestral')
+  assert.equal('scheduler' in body, false)
+  assert.equal(body.cfg, 5)
+  const [unknown] = normalizeComicLanes([
+    { key: 'z', engine: 'zimage', sampler: 'euler', cfg: 9 },
+    {
+      key: 'q',
+      engine: 'comfy',
+      checkpoint: 'Illustrious/x.safetensors',
+      sampler: 'warp_drive',
+    },
+  ]).lanes
+  assert.equal(
+    unknown?.sampler,
+    null,
+    'distilled engines keep their own sampler',
+  )
+  assert.equal(unknown?.cfg, null)
+  const defaults = buildComicLaneEnqueueBody(
+    DEFAULT_COMIC_LANES.find((item) => item.key === 'il-furrytoonmix')!,
+    { promptTags: 'koala' },
+  )
+  assert.equal(
+    'sampler' in defaults,
+    false,
+    'furrytoonmix keeps the family profile',
+  )
+
+  const workflow = buildDefaultComfyWorkflow({
+    prompt: 'koala',
+    checkpoint: 'Illustrious/furrytoonmix_xlV3.safetensors',
+    sampler: 'euler_ancestral',
+  }) as Record<
+    string,
+    { class_type?: string; inputs?: Record<string, unknown> }
+  >
+  const ksampler = Object.values(workflow).find(
+    (node) => node.class_type === 'KSampler',
+  )
+  assert.equal(ksampler?.inputs?.sampler_name, 'euler_ancestral')
+  assert.equal(
+    ksampler?.inputs?.scheduler,
+    'karras',
+    'the family scheduler stays',
+  )
+
+  assert.equal(
+    checkpointFamily('NoobAI/novaFurryXL_v180B.safetensors'),
+    'illustrious',
+  )
+}
+console.log(
+  '✅ a lane can carry an author sampler, steps and cfg, and NoobAI gets the Illustrious profile',
 )

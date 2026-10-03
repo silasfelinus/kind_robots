@@ -182,13 +182,22 @@ export function comicLaneHero<T extends ComicAttemptLike>(
   )
 }
 
+// A pick Silas made always wins; otherwise the series' house lane stands in for
+// the subject before any other lane does.
 export function comicSlotCover<T extends ComicAttemptLike>(
   attempts: T[],
+  preferLaneKey?: string | null,
 ): T | null {
   const sorted = newestFirst(attempts.filter((attempt) => attempt.artImageId))
   return (
     sorted.find((attempt) => attempt.verdict === 'selected') ??
     sorted.find((attempt) => attempt.verdict === 'liked') ??
+    (preferLaneKey
+      ? sorted.find(
+          (attempt) =>
+            attempt.laneKey === preferLaneKey && attempt.verdict !== 'rejected',
+        )
+      : undefined) ??
     sorted.find((attempt) => attempt.verdict !== 'rejected') ??
     null
   )

@@ -55,6 +55,16 @@
           <icon :name="tab.icon" class="kr-icon-4" /> {{ tab.label }}
         </button>
       </div>
+      <button
+        v-if="studio.primaryLane"
+        type="button"
+        class="kr-badge-primary-sm flex items-center gap-1"
+        title="House checkpoint: change it in Notes"
+        @click="setMode('notes')"
+      >
+        <icon name="kind-icon:crown" class="kr-icon-3" />
+        {{ studio.primaryLane.label }}
+      </button>
       <span v-if="studio.activeCount" class="badge badge-info"
         >{{ studio.activeCount }} rendering</span
       >

@@ -106,7 +106,6 @@ const frameRect: ButterflyMotionRect = {
   )
 }
 
-
 // -- runway scheduling: varied timing with no immediate clip repeats --------
 
 {

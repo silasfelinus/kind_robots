@@ -281,7 +281,6 @@ function resolveTabItem(
     item.image,
     channel.channelKey,
     tabKey,
-    parentTabKey: text(item.parentTabKey),
     dashboardKey,
     dashboardTab,
   )
@@ -308,6 +307,7 @@ function resolveTabItem(
     key: tabKey,
     channelKey: channel.channelKey,
     tabKey,
+    parentTabKey: text(item.parentTabKey),
     dashboardKey,
     dashboardTab,
     label,

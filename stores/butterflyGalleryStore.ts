@@ -16,6 +16,7 @@ import {
 import { defaultButterflyGalleryFeedProvider } from '@/stores/helpers/butterflyGalleryFeedProvider'
 import {
   matchesButterflyGalleryFilters,
+  mergeButterflyGroupSummaries,
   summarizeButterflyGalleryCollections,
   summarizeButterflyGalleryFolders,
 } from '@/stores/helpers/butterflyGalleryFilters'
@@ -32,13 +33,23 @@ import {
 import { useButterflyGalleryPresetStore } from '@/stores/butterflyGalleryPresetStore'
 import {
   defaultButterflyGalleryFilters,
+  type ButterflyCatalog,
   type ButterflyDropOutcome,
   type ButterflyCollectionRef,
   type ButterflyFeedCursor,
+  type ButterflyFeedScope,
   type ButterflyGalleryFilters,
   type ButterflyGalleryStatus,
+  type ButterflyMoveResult,
   type ButterflyPileEntry,
 } from '@/types/butterflyGallery'
+
+const SCOPED_FILTER_KEYS: (keyof ButterflyGalleryFilters)[] = [
+  'folder',
+  'collection',
+  'rating',
+]
+const MOVE_CHUNK_SIZE = 50
 
 // Session-scoped: the intro is a one-time-per-session vignette, not a
 // permanent per-account preference, so this deliberately lives in
@@ -98,6 +109,9 @@ export const useButterflyGalleryStore = defineStore(
     const selectedImageId = ref<number | null>(null)
     const draggingImageId = ref<number | null>(null)
     const batchSelectedIds = ref<number[]>([])
+    const batchMode = ref(false)
+    const artCardEntryId = ref<number | null>(null)
+    const catalog = ref<ButterflyCatalog | null>(null)
     const introPlayed = ref(false)
     const lastSaveMessage = ref('')
     const nextCursor = ref<ButterflyFeedCursor>(null)
@@ -126,10 +140,33 @@ export const useButterflyGalleryStore = defineStore(
      * across the whole pile, not the filtered view, so picking one filter
      * never makes another folder/collection vanish from the list. */
     const folderSummaries = computed(() =>
-      summarizeButterflyGalleryFolders(pile.value),
+      mergeButterflyGroupSummaries(
+        catalog.value?.folders ?? [],
+        summarizeButterflyGalleryFolders(pile.value),
+      ),
     )
     const collectionSummaries = computed(() =>
-      summarizeButterflyGalleryCollections(pile.value),
+      mergeButterflyGroupSummaries(
+        catalog.value?.collections ?? [],
+        summarizeButterflyGalleryCollections(pile.value),
+      ),
+    )
+
+    const feedScope = computed<ButterflyFeedScope>(() => ({
+      folder: filters.value.folder,
+      collectionId: filters.value.collection
+        ? (collectionSummaries.value.find(
+            (c) => c.value === filters.value.collection,
+          )?.id ?? null)
+        : null,
+      rating: filters.value.rating,
+    }))
+
+    const artCardEntry = computed<ButterflyPileEntry | null>(() =>
+      artCardEntryId.value === null
+        ? null
+        : (pile.value.find((entry) => entry.id === artCardEntryId.value) ??
+          null),
     )
 
     const selectedEntry = computed<ButterflyPileEntry | null>(
@@ -189,7 +226,10 @@ export const useButterflyGalleryStore = defineStore(
       errorMessage.value = ''
 
       try {
-        const page = await defaultButterflyGalleryFeedProvider().fetchPage({})
+        void loadCatalog()
+        const page = await defaultButterflyGalleryFeedProvider().fetchPage({
+          scope: feedScope.value,
+        })
         pile.value = page.entries
         nextCursor.value = page.nextCursor
         introPlayed.value = readIntroPlayed()
@@ -213,6 +253,7 @@ export const useButterflyGalleryStore = defineStore(
       try {
         const page = await defaultButterflyGalleryFeedProvider().fetchPage({
           cursor: nextCursor.value,
+          scope: feedScope.value,
         })
         const existingIds = new Set(pile.value.map((entry) => entry.id))
         pile.value = [
@@ -297,6 +338,7 @@ export const useButterflyGalleryStore = defineStore(
         )
         applyBinOutcome(entry, bin)
         applyPendingGenerationJobIds(entry, jobIds)
+        if (typeof bin.payload.folder === 'string') void loadCatalog()
         lastSaveMessage.value = jobIds.length
           ? `Sorted into ${bin.label}; queued ${jobIds.length} regeneration job${
               jobIds.length > 1 ? 's' : ''
@@ -408,6 +450,7 @@ export const useButterflyGalleryStore = defineStore(
     ): Promise<boolean> {
       const entry = entryById(entryId)
       if (!entry || !collection) return false
+      if (entry.collections.includes(collection)) return true
       const collectionId = ref?.id ?? collectionIdFor(collection)
       try {
         await defaultButterflyGalleryActionAdapter().addToCollection(
@@ -479,7 +522,9 @@ export const useButterflyGalleryStore = defineStore(
       try {
         const ref =
           await defaultButterflyGalleryActionAdapter().createCollection(trimmed)
-        return await addToCollection(entryId, ref.slug, ref)
+        const added = await addToCollection(entryId, ref.slug, ref)
+        void loadCatalog()
+        return added
       } catch (error) {
         errorMessage.value =
           error instanceof Error
@@ -509,6 +554,7 @@ export const useButterflyGalleryStore = defineStore(
           )
         }
         lastSaveMessage.value = `Renamed collection to ${trimmed}.`
+        void loadCatalog()
         return true
       } catch (error) {
         errorMessage.value =
@@ -546,11 +592,127 @@ export const useButterflyGalleryStore = defineStore(
       key: K,
       value: ButterflyGalleryFilters[K],
     ): void {
+      if (filters.value[key] === value) return
       filters.value = { ...filters.value, [key]: value }
+      if (SCOPED_FILTER_KEYS.includes(key)) void reloadForScope()
     }
 
     function resetFilters(): void {
+      const scoped = SCOPED_FILTER_KEYS.some(
+        (key) => filters.value[key] !== defaultButterflyGalleryFilters()[key],
+      )
       filters.value = defaultButterflyGalleryFilters()
+      if (scoped) void reloadForScope()
+    }
+
+    /** The archive-wide folder and collection lists for the browsing
+     * dropdowns. A failure leaves the pile-derived lists in place rather
+     * than blocking sorting. */
+    async function loadCatalog(): Promise<void> {
+      try {
+        catalog.value =
+          await defaultButterflyGalleryFeedProvider().fetchCatalog()
+      } catch {
+        catalog.value = null
+      }
+    }
+
+    /** Re-reads the pile from the source with the current folder/
+     * collection/rating scope, so a picked folder shows everything in it
+     * rather than only what the first page happened to contain. */
+    async function reloadForScope(): Promise<void> {
+      const scope = feedScope.value
+      isLoadingMore.value = true
+      try {
+        const page = await defaultButterflyGalleryFeedProvider().fetchPage({
+          scope,
+        })
+        if (JSON.stringify(scope) !== JSON.stringify(feedScope.value)) return
+        pile.value = page.entries
+        nextCursor.value = page.nextCursor
+        batchSelectedIds.value = batchSelectedIds.value.filter((id) =>
+          page.entries.some((entry) => entry.id === id),
+        )
+        if (!entryById(selectedImageId.value ?? -1)) {
+          selectedImageId.value = null
+          selectNextFromPile()
+        }
+      } catch (error) {
+        errorMessage.value =
+          error instanceof Error ? error.message : 'Could not load that view.'
+        status.value = 'error'
+      } finally {
+        isLoadingMore.value = false
+      }
+    }
+
+    function openArtCard(entryId: number): void {
+      if (!entryById(entryId)) return
+      selectedImageId.value = entryId
+      artCardEntryId.value = entryId
+    }
+
+    function closeArtCard(): void {
+      artCardEntryId.value = null
+    }
+
+    function stepArtCard(delta: number): void {
+      const list = visiblePile.value
+      if (!list.length) return
+      const index = list.findIndex((entry) => entry.id === artCardEntryId.value)
+      const next = list[(index + delta + list.length) % list.length]
+      if (next) openArtCard(next.id)
+    }
+
+    /** Moves the real files into `folder` and updates each entry from what
+     * the archive reports back, in chunks so a large selection never rides
+     * on one long request. */
+    async function moveEntriesToFolder(
+      entryIds: number[],
+      folder: string,
+    ): Promise<ButterflyMoveResult> {
+      const result: ButterflyMoveResult = { folder, moved: [], failures: [] }
+      for (let i = 0; i < entryIds.length; i += MOVE_CHUNK_SIZE) {
+        const chunk = entryIds.slice(i, i + MOVE_CHUNK_SIZE)
+        try {
+          const part =
+            await defaultButterflyGalleryActionAdapter().moveToFolder(
+              chunk,
+              folder,
+            )
+          result.folder = part.folder
+          result.moved.push(...part.moved)
+          result.failures.push(...part.failures)
+        } catch (error) {
+          const message =
+            error instanceof Error ? error.message : 'Could not move artwork.'
+          result.failures.push(...chunk.map((id) => ({ id, message })))
+        }
+      }
+      for (const moved of result.moved) {
+        const entry = entryById(moved.id)
+        if (!entry) continue
+        entry.folder = moved.folder
+        entry.relativePath = moved.relativePath ?? entry.relativePath
+      }
+      if (result.moved.length) {
+        lastSaveMessage.value = `Moved ${result.moved.length} to ${
+          result.folder || 'the archive root'
+        }.`
+        void loadCatalog()
+      }
+      return result
+    }
+
+    function setBatchMode(enabled: boolean): void {
+      batchMode.value = enabled
+      if (!enabled) batchSelectedIds.value = []
+    }
+
+    function selectEntries(entryIds: number[]): void {
+      batchSelectedIds.value = [
+        ...new Set([...batchSelectedIds.value, ...entryIds]),
+      ]
     }
 
     /** Clicking an already-selected folder/collection chip clears that
@@ -558,6 +720,12 @@ export const useButterflyGalleryStore = defineStore(
      * toggle rather than needing a separate "clear" control per chip. */
     function toggleFolderFilter(folder: string): void {
       setFilter('folder', filters.value.folder === folder ? null : folder)
+    }
+
+    function createCollection(label: string): Promise<ButterflyCollectionRef> {
+      return defaultButterflyGalleryActionAdapter().createCollection(
+        label.trim(),
+      )
     }
 
     function toggleCollectionFilter(collection: string): void {
@@ -584,7 +752,10 @@ export const useButterflyGalleryStore = defineStore(
       errorMessage.value = ''
 
       try {
-        const page = await defaultButterflyGalleryFeedProvider().fetchPage({})
+        void loadCatalog()
+        const page = await defaultButterflyGalleryFeedProvider().fetchPage({
+          scope: feedScope.value,
+        })
         pile.value = page.entries
         nextCursor.value = page.nextCursor
         batchSelectedIds.value = []
@@ -611,6 +782,10 @@ export const useButterflyGalleryStore = defineStore(
       selectedImageId,
       draggingImageId,
       batchSelectedIds,
+      batchMode,
+      artCardEntryId,
+      artCardEntry,
+      catalog,
       introPlayed,
       lastSaveMessage,
       nextCursor,
@@ -655,6 +830,14 @@ export const useButterflyGalleryStore = defineStore(
       toggleCollectionFilter,
       toggleBatchSelected,
       clearBatchSelection,
+      setBatchMode,
+      selectEntries,
+      loadCatalog,
+      openArtCard,
+      closeArtCard,
+      stepArtCard,
+      moveEntriesToFolder,
+      createCollection,
       rescan,
       clearError,
     }

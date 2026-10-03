@@ -7,9 +7,14 @@
 // plugin (plugins/butterfly-gallery-art-archive-provider.client.ts) installs
 // the real provider at app startup via setButterflyGalleryFeedProvider().
 import { createButterflyGalleryFixtureEntries } from '@/stores/helpers/butterflyGalleryFixtures'
+import {
+  summarizeButterflyGalleryCollections,
+  summarizeButterflyGalleryFolders,
+} from '@/stores/helpers/butterflyGalleryFilters'
 import type {
   ButterflyFeedPage,
   ButterflyFeedQuery,
+  ButterflyFeedScope,
   ButterflyGalleryFeedProvider,
   ButterflyPileEntry,
 } from '@/types/butterflyGallery'
@@ -26,6 +31,21 @@ function decodeCursor(cursor: string | null | undefined): number {
   return Number.isInteger(offset) && offset >= 0 ? offset : 0
 }
 
+function inScope(
+  entry: ButterflyPileEntry,
+  scope: ButterflyFeedScope,
+): boolean {
+  if (typeof scope.folder === 'string' && (entry.folder ?? '') !== scope.folder)
+    return false
+  if (
+    scope.collectionId &&
+    !(entry.collectionRefs ?? []).some((ref) => ref.id === scope.collectionId)
+  )
+    return false
+  if (scope.rating && entry.rating !== scope.rating) return false
+  return true
+}
+
 export function createFixtureButterflyGalleryFeedProvider(
   entries: ButterflyPileEntry[] = createButterflyGalleryFixtureEntries(),
 ): ButterflyGalleryFeedProvider {
@@ -34,13 +54,22 @@ export function createFixtureButterflyGalleryFeedProvider(
       const offset = decodeCursor(query.cursor)
       const limit =
         query.limit && query.limit > 0 ? query.limit : DEFAULT_PAGE_LIMIT
-      const page = entries.slice(offset, offset + limit)
+      const scoped = entries.filter((entry) =>
+        inScope(entry, query.scope ?? {}),
+      )
+      const page = scoped.slice(offset, offset + limit)
       const nextOffset = offset + page.length
 
       return {
         entries: page,
         nextCursor:
-          nextOffset < entries.length ? encodeCursor(nextOffset) : null,
+          nextOffset < scoped.length ? encodeCursor(nextOffset) : null,
+      }
+    },
+    async fetchCatalog() {
+      return {
+        folders: summarizeButterflyGalleryFolders(entries),
+        collections: summarizeButterflyGalleryCollections(entries),
       }
     },
   }

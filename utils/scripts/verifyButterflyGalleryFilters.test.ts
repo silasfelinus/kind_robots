@@ -9,6 +9,7 @@ import assert from 'node:assert/strict'
 
 import {
   matchesButterflyGalleryFilters,
+  mergeButterflyGroupSummaries,
   summarizeButterflyGalleryCollections,
   summarizeButterflyGalleryFolders,
 } from '../../stores/helpers/butterflyGalleryFilters'
@@ -31,6 +32,7 @@ function makeEntry(
     trashed: false,
     rating: null,
     folder: 'inbox',
+    relativePath: null,
     collections: [],
     prompt: 'test prompt',
     negativePrompt: null,
@@ -255,5 +257,34 @@ console.log(
     summaries,
     [{ value: 'archive-folder-ab12', count: 2, id: 7, label: 'Cats' }],
     'collection summaries should carry the id and display label when any entry knows them',
+  )
+}
+
+{
+  const merged = mergeButterflyGroupSummaries(
+    [{ value: 'keepers', count: 40, id: 3, label: 'Keepers' }],
+    [
+      { value: 'keepers', count: 2 },
+      { value: 'just-made', count: 1, id: 9, label: 'Just Made' },
+    ],
+  )
+  assert.deepEqual(
+    merged,
+    [
+      { value: 'keepers', count: 40, id: 3, label: 'Keepers' },
+      { value: 'just-made', count: 1, id: 9, label: 'Just Made' },
+    ],
+    'the archive-wide catalog wins, with pile-only groups appended',
+  )
+
+  const rootFilter = { ...defaultButterflyGalleryFilters(), folder: '' }
+  assert.equal(
+    matchesButterflyGalleryFilters(makeEntry({ folder: null }), rootFilter),
+    true,
+    'an empty folder filter selects the archive root',
+  )
+  assert.equal(
+    matchesButterflyGalleryFilters(makeEntry({ folder: 'inbox' }), rootFilter),
+    false,
   )
 }

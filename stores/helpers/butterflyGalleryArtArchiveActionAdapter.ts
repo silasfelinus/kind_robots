@@ -12,7 +12,14 @@ import { performFetch } from '@/stores/utils'
 import type {
   ButterflyCollectionRef,
   ButterflyGalleryActionAdapter,
+  ButterflyMoveResult,
 } from '@/types/butterflyGallery'
+
+type MoveBatchPayload = {
+  folder: string
+  moved: { id: number; relativePath: string; parentFolder: string | null }[]
+  failures: { id: number; message: string }[]
+}
 
 async function postOk(path: string): Promise<void> {
   const response = await performFetch<unknown>(path, { method: 'POST' })
@@ -82,6 +89,25 @@ export function createArtArchiveButterflyGalleryActionAdapter(): ButterflyGaller
         throw new Error(response.message || 'Failed to create collection.')
       const { id, slug, label: savedLabel } = response.data
       return { id, slug, label: savedLabel }
+    },
+    async moveToFolder(entryIds, folder): Promise<ButterflyMoveResult> {
+      const response = await performFetch<MoveBatchPayload>(
+        '/api/admin/art-archive/entries/move-batch',
+        { method: 'POST', body: JSON.stringify({ ids: entryIds, folder }) },
+        0,
+        120000,
+      )
+      if (!response.success || !response.data)
+        throw new Error(response.message || 'Failed to move artwork.')
+      return {
+        folder: response.data.folder,
+        moved: response.data.moved.map((entry) => ({
+          id: entry.id,
+          folder: entry.parentFolder,
+          relativePath: entry.relativePath,
+        })),
+        failures: response.data.failures,
+      }
     },
   }
 }

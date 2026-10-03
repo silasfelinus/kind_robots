@@ -3,7 +3,7 @@
     <button
       type="button"
       class="group-menu-trigger"
-      :class="{ 'group-menu-trigger-active': Boolean(active) }"
+      :class="{ 'group-menu-trigger-active': active !== null }"
       :aria-expanded="open"
       @click="open = !open"
     >
@@ -17,7 +17,7 @@
     </button>
 
     <button
-      v-if="active"
+      v-if="active !== null"
       type="button"
       class="group-menu-clear"
       title="Clear filter"
@@ -35,6 +35,11 @@
         :placeholder="`Find ${heading.toLowerCase()}`"
       />
       <ul class="group-menu-items">
+        <li v-if="active !== null && !query">
+          <button type="button" class="group-menu-pick" @click="pick(active)">
+            <span class="group-menu-name">All {{ heading.toLowerCase() }}</span>
+          </button>
+        </li>
         <li v-for="item in visibleItems" :key="item.value">
           <div v-if="editing === item.value" class="group-menu-edit">
             <input
@@ -110,8 +115,9 @@ const editing = ref<string | null>(null)
 const draft = ref('')
 
 const activeLabel = computed(() => {
+  if (props.active === null) return ''
   const match = props.items.find((item) => item.value === props.active)
-  return match ? match.label || match.value : props.active
+  return match ? match.label || match.value : props.active || 'Archive Root'
 })
 
 const visibleItems = computed(() => {
@@ -164,8 +170,10 @@ onBeforeUnmount(() =>
   padding: 0.3rem 0.7rem;
   border: 1px solid var(--color-base-300);
   border-radius: 999px;
+  background: color-mix(in oklch, var(--color-base-100) 88%, transparent);
   font-size: 0.72rem;
   font-weight: 800;
+  backdrop-filter: blur(8px);
 }
 
 .group-menu-trigger-active {
@@ -189,7 +197,8 @@ onBeforeUnmount(() =>
 .group-menu-clear {
   padding: 0.25rem;
   border-radius: 999px;
-  opacity: 0.7;
+  background: color-mix(in oklch, var(--color-base-100) 88%, transparent);
+  opacity: 0.85;
 }
 
 .group-menu-list {

@@ -367,6 +367,9 @@ jobs:
       - name: CHILD maturity restriction contract
         run: npm run test:child-maturity
 
+      - name: Mature barrier contract (anonymous and CHILD)
+        run: npm run test:mature-barrier
+
       - name: Narrative conversation kit contract
         run: npm run test:narrative-kit
 

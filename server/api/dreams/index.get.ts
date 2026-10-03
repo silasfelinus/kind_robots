@@ -8,6 +8,7 @@ import {
   viewablePackIds,
 } from '@/server/utils/contentAccess'
 import type { Prisma } from '~/prisma/generated/prisma/client'
+import { withholdMatureEntities } from '@/server/utils/matureArtRefs'
 import { parseDreamType } from './index'
 
 type DreamListQuery = {
@@ -34,6 +35,7 @@ const artImageCardSelect = {
   imagePath: true,
   path: true,
   fileName: true,
+  isMature: true,
 } satisfies Prisma.ArtImageSelect
 
 const collectionPreviewSelect = {
@@ -42,6 +44,7 @@ const collectionPreviewSelect = {
   imagePath: true,
   description: true,
   artPrompt: true,
+  isMature: true,
   ArtImages: {
     take: 1,
     orderBy: {
@@ -429,7 +432,7 @@ export default defineEventHandler(async (event) => {
     return {
       success: true,
       message: 'Dreams loaded successfully.',
-      data: dreams,
+      data: await withholdMatureEntities(dreams, !includeMature),
       count,
       statusCode: 200,
     }

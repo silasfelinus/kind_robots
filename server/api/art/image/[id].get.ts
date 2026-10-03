@@ -6,6 +6,7 @@ import { errorHandler } from '../../../utils/error'
 import { validateApiKey } from '../../../utils/validateKey'
 import { userRoles } from '../../../utils/authUser'
 import { attachGalleryArchiveMediaPaths } from '~/server/utils/artGalleryArchiveMedia'
+import { matureHiddenFrom } from '~/server/utils/artImageAccess'
 import {
   isMaturityRestricted,
   viewerShowsMature,
@@ -111,6 +112,8 @@ function canReadArtImage(
   image: Pick<ArtImage, 'userId' | 'isPublic' | 'isMature'>,
   access: AccessContext,
 ): boolean {
+  if (matureHiddenFrom(access.restricted, image)) return false
+
   if (access.isAdmin) return true
 
   /*
@@ -208,6 +211,13 @@ export default defineEventHandler(async (event) => {
     })
 
     if (!data) {
+      throw createError({
+        statusCode: 404,
+        message: `ArtImage #${id} not found.`,
+      })
+    }
+
+    if (matureHiddenFrom(access.restricted, data)) {
       throw createError({
         statusCode: 404,
         message: `ArtImage #${id} not found.`,

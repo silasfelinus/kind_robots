@@ -12,6 +12,7 @@ import { errorHandler } from '../../../utils/error'
 import prisma from '../../../utils/prisma'
 import { getOptionalApiUser } from '../../../utils/authGuard'
 import { canViewReactionsOn } from '../../../utils/reactionVisibility'
+import { isMaturityRestricted } from '../../../utils/contentAccess'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -28,6 +29,7 @@ export default defineEventHandler(async (event) => {
     const viewer = {
       userId: auth?.user.id ?? null,
       isAdmin: auth?.isAdmin ?? false,
+      maturityRestricted: isMaturityRestricted(auth?.user),
     }
 
     if (!(await canViewReactionsOn('tzaddikCandidate', targetId, viewer))) {

@@ -2,6 +2,7 @@ import { createError, defineEventHandler } from 'h3'
 import prisma from '../../utils/prisma'
 import { errorHandler } from '../../utils/error'
 import { getOptionalApiUser } from '../../utils/authGuard'
+import { withholdMatureEntities } from '../../utils/matureArtRefs'
 import {
   canViewWithMaturity,
   viewerShowsMature,
@@ -88,7 +89,7 @@ export default defineEventHandler(async (event) => {
     return {
       success: true,
       message: 'All viewable character browse records fetched successfully.',
-      data,
+      data: await withholdMatureEntities(data, !viewerShowsMature(auth?.user)),
       statusCode: 200,
     }
   } catch (error: unknown) {

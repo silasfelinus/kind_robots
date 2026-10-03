@@ -3,7 +3,11 @@ import { defineEventHandler, getQuery } from 'h3'
 import prisma from '../../utils/prisma'
 import { errorHandler } from '../../utils/error'
 import { getOptionalApiUser } from '@/server/utils/authGuard'
-import { visibilityWhere } from '@/server/utils/contentAccess'
+import {
+  viewerShowsMature,
+  visibilityWhere,
+} from '@/server/utils/contentAccess'
+import { withholdMatureEntities } from '@/server/utils/matureArtRefs'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -20,13 +24,20 @@ export default defineEventHandler(async (event) => {
     // outright for a maturity-restricted account.
     const auth = await getOptionalApiUser(event)
     const bots = await prisma.bot.findMany({
-      where: await visibilityWhere(auth?.user, { isPublic: true, isMature: true }, auth?.isAdmin),
+      where: await visibilityWhere(
+        auth?.user,
+        { isPublic: true, isMature: true },
+        auth?.isAdmin,
+      ),
       skip,
       take: pageSize,
     })
 
     // Return the standardized flat response
-    return { success: true, data: bots }
+    return {
+      success: true,
+      data: await withholdMatureEntities(bots, !viewerShowsMature(auth?.user)),
+    }
   } catch (error: unknown) {
     const { message, statusCode } = errorHandler(error)
     throw createError({

@@ -3,7 +3,11 @@ import { createError, defineEventHandler, getRouterParam } from 'h3'
 import { errorHandler } from '~/server/utils/error'
 import { getOptionalApiUser } from '~/server/utils/authGuard'
 import { resolveFacetAlias } from '~/server/utils/facetAliases'
-import { existsActiveGrant } from '~/server/utils/contentAccess'
+import {
+  existsActiveGrant,
+  viewerShowsMature,
+} from '~/server/utils/contentAccess'
+import { withholdMatureEntities } from '~/server/utils/matureArtRefs'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -56,17 +60,20 @@ export default defineEventHandler(async (event) => {
     return {
       success: true,
       message: 'Facet fetched successfully.',
-      data: {
-        ...resolved.facet,
-        aliases: resolved.aliases.map((entry) => entry.alias),
-        resolution: {
-          requested,
-          lookupKey: resolved.lookupKey,
-          matchedAlias: resolved.matchedAlias,
-          canonicalSlug: resolved.facet.slug,
-          isCanonicalMatch: resolved.isCanonicalMatch,
+      data: await withholdMatureEntities(
+        {
+          ...resolved.facet,
+          aliases: resolved.aliases.map((entry) => entry.alias),
+          resolution: {
+            requested,
+            lookupKey: resolved.lookupKey,
+            matchedAlias: resolved.matchedAlias,
+            canonicalSlug: resolved.facet.slug,
+            isCanonicalMatch: resolved.isCanonicalMatch,
+          },
         },
-      },
+        !viewerShowsMature(auth?.user),
+      ),
       statusCode: 200,
     }
   } catch (error: unknown) {

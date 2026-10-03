@@ -20,6 +20,7 @@ import prisma from '@/server/utils/prisma'
 import { errorHandler } from '@/server/utils/error'
 import { getOptionalApiUser } from '@/server/utils/authGuard'
 import { viewerShowsMature } from '@/server/utils/contentAccess'
+import { withholdMatureEntities } from '@/server/utils/matureArtRefs'
 
 const MAX_NARRATORS = 60
 
@@ -67,23 +68,26 @@ export default defineEventHandler(async (event) => {
     response = {
       success: true,
       message: `${bots.length} narrator${bots.length === 1 ? '' : 's'} available.`,
-      data: bots.map((bot) => ({
-        id: bot.id,
-        name: bot.name,
-        slug: bot.slug,
-        subtitle: bot.subtitle,
-        tagline: bot.tagline,
-        // One line of how they sound, for the back of the card.
-        voice: bot.narrativeVoice || bot.personality || bot.subtitle || null,
-        artImageId: bot.artImageId,
-        imagePath:
-          bot.imagePath ||
-          bot.avatarImage ||
-          bot.ArtImage?.imagePath ||
-          bot.ArtImage?.path ||
-          bot.ArtImage?.fileName ||
-          null,
-      })),
+      data: await withholdMatureEntities(
+        bots.map((bot) => ({
+          id: bot.id,
+          name: bot.name,
+          slug: bot.slug,
+          subtitle: bot.subtitle,
+          tagline: bot.tagline,
+          // One line of how they sound, for the back of the card.
+          voice: bot.narrativeVoice || bot.personality || bot.subtitle || null,
+          artImageId: bot.artImageId,
+          imagePath:
+            bot.imagePath ||
+            bot.avatarImage ||
+            bot.ArtImage?.imagePath ||
+            bot.ArtImage?.path ||
+            bot.ArtImage?.fileName ||
+            null,
+        })),
+        !viewerShowsMature(auth?.user),
+      ),
       statusCode: 200,
     }
     event.node.res.statusCode = 200

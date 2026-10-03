@@ -3,6 +3,10 @@ import { createError, defineEventHandler, readBody } from 'h3'
 import prisma from '~/server/utils/prisma'
 import { errorHandler } from '~/server/utils/error'
 import { requireApiUser } from '~/server/utils/authGuard'
+import {
+  buildArtImageWhere,
+  getArtImageAccessContext,
+} from '~/server/utils/artImageAccess'
 
 type ArtImageIdsBody = {
   ids?: unknown
@@ -54,15 +58,16 @@ export default defineEventHandler(async (event) => {
       })
     }
 
+    const access = await getArtImageAccessContext(event)
     const artImages = await prisma.artImage.findMany({
       where: {
-        id: { in: ids },
-        isActive: true,
-        ...(auth.isAdmin
-          ? {}
-          : {
-              OR: [{ isPublic: true }, { userId: auth.user.id }],
-            }),
+        AND: [
+          { id: { in: ids }, isActive: true },
+          buildArtImageWhere(access),
+          auth.isAdmin
+            ? {}
+            : { OR: [{ isPublic: true }, { userId: auth.user.id }] },
+        ],
       },
       orderBy: {
         id: 'asc',

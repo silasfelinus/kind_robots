@@ -7,6 +7,7 @@ import {
   existsActiveGrant,
   viewerShowsMature,
 } from '@/server/utils/contentAccess'
+import { withholdMatureEntities } from '@/server/utils/matureArtRefs'
 import { assertDreamAccess, dreamInclude, getDreamId } from './index'
 
 export default defineEventHandler(async (event) => {
@@ -70,7 +71,7 @@ export default defineEventHandler(async (event) => {
     return {
       success: true,
       message: 'Dream fetched successfully.',
-      data,
+      data: await withholdMatureEntities(data, !viewerShowsMature(user)),
       statusCode: 200,
     }
   } catch (error) {

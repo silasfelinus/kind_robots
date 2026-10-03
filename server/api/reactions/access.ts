@@ -1,7 +1,11 @@
 // /server/api/reactions/access.ts
 import { createError } from 'h3'
 
-type OwnableRow = { userId: number | null; isPublic: boolean | null }
+type OwnableRow = {
+  userId: number | null
+  isPublic: boolean | null
+  isMature?: boolean | null
+}
 
 // A content reaction target (ArtImage, Dream, ...) must exist and be public or
 // owned by the reacting user; admins bypass. Used by the per-target reaction
@@ -13,12 +17,13 @@ export async function assertReactionContentTargetAccessible(options: {
   targetId: number
   userId: number
   isAdmin: boolean
+  maturityRestricted?: boolean
 }): Promise<void> {
-  const { find, label, targetId, userId, isAdmin } = options
+  const { find, label, targetId, userId, isAdmin, maturityRestricted } = options
 
   const row = await find()
 
-  if (!row) {
+  if (!row || (maturityRestricted === true && row.isMature === true)) {
     throw createError({
       statusCode: 404,
       message: `${label} #${targetId} not found.`,

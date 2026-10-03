@@ -20,10 +20,20 @@ import {
   summarizeButterflyGalleryFolders,
 } from '@/stores/helpers/butterflyGalleryFilters'
 import { defaultButterflyGalleryGenerationClient } from '@/stores/helpers/butterflyGalleryGenerationClient'
+import {
+  clampButterflyViewCount,
+  defaultButterflyViewSettings,
+  loadButterflyViewSettings,
+  pickButterflyDisplayEntries,
+  saveButterflyViewSettings,
+  type ButterflyGalleryOrientation,
+  type ButterflyGalleryViewSettings,
+} from '@/stores/helpers/butterflyGalleryViewSettings'
 import { useButterflyGalleryPresetStore } from '@/stores/butterflyGalleryPresetStore'
 import {
   defaultButterflyGalleryFilters,
   type ButterflyDropOutcome,
+  type ButterflyCollectionRef,
   type ButterflyFeedCursor,
   type ButterflyGalleryFilters,
   type ButterflyGalleryStatus,
@@ -72,6 +82,19 @@ export const useButterflyGalleryStore = defineStore(
       defaultButterflyGalleryFilters(),
     )
 
+    const viewSettings = ref<ButterflyGalleryViewSettings>(
+      defaultButterflyViewSettings(),
+    )
+    if (typeof window !== 'undefined') {
+      try {
+        viewSettings.value =
+          loadButterflyViewSettings(window.localStorage) ??
+          defaultButterflyViewSettings()
+      } catch {
+        viewSettings.value = defaultButterflyViewSettings()
+      }
+    }
+
     const selectedImageId = ref<number | null>(null)
     const draggingImageId = ref<number | null>(null)
     const batchSelectedIds = ref<number[]>([])
@@ -87,6 +110,17 @@ export const useButterflyGalleryStore = defineStore(
     )
 
     const remainingCount = computed(() => visiblePile.value.length)
+
+    const viewCount = computed(() => viewSettings.value.count)
+    const orientation = computed(() => viewSettings.value.orientation)
+
+    const displayEntries = computed<ButterflyPileEntry[]>(() =>
+      pickButterflyDisplayEntries(
+        visiblePile.value,
+        selectedImageId.value,
+        viewSettings.value.count,
+      ),
+    )
 
     /** Folder/collection browsing lists (butterfly-gallery/t-009): counted
      * across the whole pile, not the filtered view, so picking one filter
@@ -363,18 +397,41 @@ export const useButterflyGalleryStore = defineStore(
       }
     }
 
+    function collectionIdFor(slug: string): number | undefined {
+      return collectionSummaries.value.find((c) => c.value === slug)?.id
+    }
+
     async function addToCollection(
       entryId: number,
       collection: string,
+      ref?: ButterflyCollectionRef,
     ): Promise<boolean> {
       const entry = entryById(entryId)
       if (!entry || !collection) return false
+      const collectionId = ref?.id ?? collectionIdFor(collection)
       try {
         await defaultButterflyGalleryActionAdapter().addToCollection(
           entryId,
           collection,
+          collectionId,
         )
         applyAddToCollectionAction(entry, collection)
+        const resolved =
+          ref ??
+          (collectionId === undefined
+            ? undefined
+            : {
+                id: collectionId,
+                slug: collection,
+                label:
+                  collectionSummaries.value.find((c) => c.value === collection)
+                    ?.label ?? collection,
+              })
+        if (
+          resolved &&
+          !(entry.collectionRefs ?? []).some((r) => r.slug === resolved.slug)
+        )
+          entry.collectionRefs = [...(entry.collectionRefs ?? []), resolved]
         return true
       } catch (error) {
         errorMessage.value =
@@ -396,8 +453,12 @@ export const useButterflyGalleryStore = defineStore(
         await defaultButterflyGalleryActionAdapter().removeFromCollection(
           entryId,
           collection,
+          collectionIdFor(collection),
         )
         applyRemoveFromCollectionAction(entry, collection)
+        entry.collectionRefs = (entry.collectionRefs ?? []).filter(
+          (r) => r.slug !== collection,
+        )
         return true
       } catch (error) {
         errorMessage.value =
@@ -407,6 +468,78 @@ export const useButterflyGalleryStore = defineStore(
         status.value = 'error'
         return false
       }
+    }
+
+    async function addToNewCollection(
+      entryId: number,
+      label: string,
+    ): Promise<boolean> {
+      const trimmed = label.trim()
+      if (!entryById(entryId) || !trimmed) return false
+      try {
+        const ref =
+          await defaultButterflyGalleryActionAdapter().createCollection(trimmed)
+        return await addToCollection(entryId, ref.slug, ref)
+      } catch (error) {
+        errorMessage.value =
+          error instanceof Error
+            ? error.message
+            : 'Could not create collection.'
+        status.value = 'error'
+        return false
+      }
+    }
+
+    async function renameCollection(
+      collection: string,
+      label: string,
+    ): Promise<boolean> {
+      const trimmed = label.trim()
+      const collectionId = collectionIdFor(collection)
+      if (!trimmed || collectionId === undefined) return false
+      try {
+        await defaultButterflyGalleryActionAdapter().renameCollection(
+          collectionId,
+          trimmed,
+        )
+        for (const entry of pile.value) {
+          if (!entry.collectionRefs) continue
+          entry.collectionRefs = entry.collectionRefs.map((r) =>
+            r.slug === collection ? { ...r, label: trimmed } : r,
+          )
+        }
+        lastSaveMessage.value = `Renamed collection to ${trimmed}.`
+        return true
+      } catch (error) {
+        errorMessage.value =
+          error instanceof Error
+            ? error.message
+            : 'Could not rename that collection.'
+        status.value = 'error'
+        return false
+      }
+    }
+
+    function updateViewSettings(next: ButterflyGalleryViewSettings): void {
+      viewSettings.value = next
+      if (typeof window === 'undefined') return
+      try {
+        saveButterflyViewSettings(window.localStorage, next)
+      } catch {
+        // Storage unavailable (private mode) -- the choice simply lasts for
+        // this session.
+      }
+    }
+
+    function setViewCount(count: number): void {
+      updateViewSettings({
+        ...viewSettings.value,
+        count: clampButterflyViewCount(count),
+      })
+    }
+
+    function setOrientation(value: ButterflyGalleryOrientation): void {
+      updateViewSettings({ ...viewSettings.value, orientation: value })
     }
 
     function setFilter<K extends keyof ButterflyGalleryFilters>(
@@ -484,6 +617,9 @@ export const useButterflyGalleryStore = defineStore(
       isLoadingMore,
       visiblePile,
       remainingCount,
+      viewCount,
+      orientation,
+      displayEntries,
       folderSummaries,
       collectionSummaries,
       selectedEntry,
@@ -509,6 +645,10 @@ export const useButterflyGalleryStore = defineStore(
       restoreEntry,
       addToCollection,
       removeFromCollection,
+      setViewCount,
+      setOrientation,
+      addToNewCollection,
+      renameCollection,
       setFilter,
       resetFilters,
       toggleFolderFilter,

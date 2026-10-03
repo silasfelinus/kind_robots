@@ -54,6 +54,7 @@ export function toButterflyPileEntry(row: ArchiveEntryRow): ButterflyPileEntry {
     rating: row.rating,
     folder: row.parentFolder,
     collections: row.folderCollection ? [row.folderCollection.slug] : [],
+    collectionRefs: row.folderCollection ? [row.folderCollection] : [],
     prompt: row.prompt,
     negativePrompt: row.negativePrompt,
     resource: { checkpoint: row.checkpoint, loras: [] },

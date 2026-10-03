@@ -224,6 +224,10 @@ function makeEntry(
     async markNeedsReview(entryId: number) {
       calls.push(`markNeedsReview(${entryId})`)
     },
+    async renameCollection() {},
+    async createCollection(label: string) {
+      return { id: 1, slug: label, label }
+    },
   }
 
   const presetBin: ButterflyBinConfig = {
@@ -262,6 +266,10 @@ function makeEntry(
     async removeFromCollection() {},
     async markNeedsReview(entryId: number) {
       calls.push(`markNeedsReview(${entryId})`)
+    },
+    async renameCollection() {},
+    async createCollection(label: string) {
+      return { id: 1, slug: label, label }
     },
   }
 

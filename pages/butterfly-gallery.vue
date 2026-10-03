@@ -41,6 +41,16 @@
           :alt="runwayClip.alt"
           class="runway-clip"
         />
+        <div v-if="runwayCyclingEnabled" class="far-butterflies">
+          <img
+            v-for="butterfly in FAR_BUTTERFLIES"
+            :key="butterfly.id"
+            :src="FAR_BUTTERFLY_URL"
+            alt=""
+            class="far-butterfly"
+            :style="butterfly.style"
+          />
+        </div>
         <span v-for="index in 8" :key="index" class="runway-panel" />
       </div>
 
@@ -60,7 +70,7 @@
           v-if="foregroundButterflyVisible"
           :src="FOREGROUND_BUTTERFLY_CLIP_URL"
           :alt="FOREGROUND_BUTTERFLY_CLIP_ALT"
-          class="loop-clip"
+          class="loop-clip loop-clip-screen loop-clip-seam"
         />
       </div>
 
@@ -85,6 +95,16 @@
           <Icon name="kind-icon:settings" class="kr-icon-4" />
           <span class="sr-only">Toggle sorting presets</span>
         </button>
+        <button
+          type="button"
+          class="gallery-utility"
+          :class="{ 'gallery-utility-active': showViewSettings }"
+          title="How many images to sort at once"
+          @click="showViewSettings = !showViewSettings"
+        >
+          <Icon name="kind-icon:view-grid" class="kr-icon-4" />
+          <span class="sr-only">Toggle image view settings</span>
+        </button>
         <span class="queue-count">
           {{ gallery.remainingCount }} / {{ gallery.pile.length }}
         </span>
@@ -92,7 +112,7 @@
 
       <section
         v-if="showFilters"
-        class="queue-filter-panel kr-panel max-h-[60vh] overflow-y-auto"
+        class="queue-filter-panel kr-panel"
         aria-label="Queue filters and folder/collection browsing"
       >
         <div class="queue-filter-row">
@@ -154,57 +174,80 @@
         </div>
 
         <div class="queue-filter-groups">
-          <div class="queue-filter-group">
-            <p class="queue-filter-group-heading">
-              <Icon name="kind-icon:folder" class="kr-icon-3" /> Folders
-            </p>
-            <div class="queue-filter-chips">
-              <button
-                v-for="folder in gallery.folderSummaries"
-                :key="folder.value"
-                type="button"
-                class="queue-chip"
-                :class="{
-                  'queue-chip-active': gallery.filters.folder === folder.value,
-                }"
-                @click="gallery.toggleFolderFilter(folder.value)"
-              >
-                {{ folder.value }}
-                <span class="queue-chip-count">{{ folder.count }}</span>
-              </button>
-              <p v-if="!gallery.folderSummaries.length" class="kr-text-dim-xs">
-                No folders yet.
-              </p>
-            </div>
-          </div>
+          <ButterflyGalleryGroupMenu
+            heading="Folders"
+            icon="kind-icon:folder"
+            :items="gallery.folderSummaries"
+            :active="gallery.filters.folder"
+            @select="gallery.toggleFolderFilter"
+          />
+          <ButterflyGalleryGroupMenu
+            heading="Collections"
+            icon="kind-icon:tag"
+            :items="gallery.collectionSummaries"
+            :active="gallery.filters.collection"
+            renamable
+            @select="gallery.toggleCollectionFilter"
+            @rename="gallery.renameCollection"
+          />
+        </div>
+      </section>
 
-          <div class="queue-filter-group">
-            <p class="queue-filter-group-heading">
-              <Icon name="kind-icon:tag" class="kr-icon-3" /> Collections
-            </p>
-            <div class="queue-filter-chips">
+      <section
+        v-if="showViewSettings"
+        class="queue-filter-panel kr-panel view-settings-panel"
+        aria-label="Image view settings"
+      >
+        <div class="queue-filter-row">
+          <label class="queue-filter-field view-settings-count">
+            <span class="kr-text-dim-xs">
+              Images at once: {{ gallery.viewCount }}
+            </span>
+            <input
+              type="range"
+              class="range range-xs"
+              min="1"
+              max="20"
+              step="1"
+              :value="gallery.viewCount"
+              aria-label="Images at once"
+              @input="onViewCountInput"
+            />
+          </label>
+
+          <label class="queue-filter-field">
+            <span class="kr-text-dim-xs">Exact</span>
+            <input
+              type="number"
+              class="kr-input-sm view-settings-number"
+              min="1"
+              max="20"
+              :value="gallery.viewCount"
+              aria-label="Exact number of images"
+              @change="onViewCountInput"
+            />
+          </label>
+
+          <fieldset class="queue-filter-field">
+            <legend class="kr-text-dim-xs">Default shape</legend>
+            <div class="join">
               <button
-                v-for="collection in gallery.collectionSummaries"
-                :key="collection.value"
+                v-for="option in ORIENTATION_OPTIONS"
+                :key="option.value"
                 type="button"
-                class="queue-chip"
-                :class="{
-                  'queue-chip-active':
-                    gallery.filters.collection === collection.value,
-                }"
-                @click="gallery.toggleCollectionFilter(collection.value)"
+                class="kr-btn btn-sm join-item"
+                :class="
+                  gallery.orientation === option.value
+                    ? 'btn-primary'
+                    : 'btn-ghost'
+                "
+                :aria-pressed="gallery.orientation === option.value"
+                @click="gallery.setOrientation(option.value)"
               >
-                {{ collection.value }}
-                <span class="queue-chip-count">{{ collection.count }}</span>
+                {{ option.label }}
               </button>
-              <p
-                v-if="!gallery.collectionSummaries.length"
-                class="kr-text-dim-xs"
-              >
-                No collections yet.
-              </p>
             </div>
-          </div>
+          </fieldset>
         </div>
       </section>
 
@@ -255,7 +298,37 @@
 
       <section class="art-display" aria-label="Selected artwork">
         <div ref="frameBoxRef" class="art-display-inner">
-          <template v-if="gallery.selectedEntry">
+          <div
+            v-if="showArtGrid"
+            class="art-grid"
+            :style="{ '--art-grid-columns': String(artGridColumns) }"
+            role="list"
+            aria-label="Artwork to sort"
+          >
+            <button
+              v-for="entry in gallery.displayEntries"
+              :key="entry.id"
+              type="button"
+              role="listitem"
+              class="art-tile"
+              :class="{
+                'art-tile-selected': entry.id === gallery.selectedImageId,
+                'art-tile-trashed': entry.trashed,
+              }"
+              :aria-pressed="entry.id === gallery.selectedImageId"
+              draggable="true"
+              @click="onSelectPileEntry(entry.id)"
+              @dragstart="gallery.startDrag(entry.id)"
+              @dragend="onDragEnd"
+            >
+              <img
+                :src="entry.thumbnailPath || entry.displayPath"
+                :alt="entry.prompt || 'Untitled artwork'"
+                draggable="false"
+              />
+            </button>
+          </div>
+          <template v-else-if="gallery.selectedEntry">
             <img
               v-show="!dropProxyActive"
               :key="`${gallery.selectedEntry.id}-${dropSequence}`"
@@ -352,8 +425,44 @@
               </p>
               <p v-if="gallery.selectedEntry.collections.length">
                 Collections:
-                {{ gallery.selectedEntry.collections.join(', ') }}
+                {{ selectedCollectionLabels.join(', ') }}
               </p>
+            </div>
+
+            <div class="image-info-collection">
+              <select
+                v-model="collectionTarget"
+                class="kr-select-sm"
+                aria-label="Add to collection"
+                :disabled="gallery.isBusy"
+              >
+                <option value="">Add to collection…</option>
+                <option
+                  v-for="c in gallery.collectionSummaries"
+                  :key="c.value"
+                  :value="c.value"
+                >
+                  {{ c.label || c.value }}
+                </option>
+                <option value="__new__">+ New collection…</option>
+              </select>
+              <input
+                v-if="collectionTarget === '__new__'"
+                v-model="newCollectionLabel"
+                type="text"
+                class="kr-input-sm"
+                placeholder="New collection name"
+                @keydown.enter.prevent="submitCollectionTarget"
+              />
+              <button
+                v-if="collectionTarget"
+                type="button"
+                class="kr-btn btn-primary btn-xs"
+                :disabled="gallery.isBusy"
+                @click="submitCollectionTarget"
+              >
+                Add
+              </button>
             </div>
           </template>
 
@@ -409,6 +518,19 @@
         </button>
       </aside>
 
+      <svg
+        class="pointer-events-none absolute h-0 w-0"
+        aria-hidden="true"
+        focusable="false"
+      >
+        <filter id="kr-chroma-green" color-interpolation-filters="sRGB">
+          <feColorMatrix
+            type="matrix"
+            values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  2.5 -5 2.5 0 2.25"
+          />
+        </filter>
+      </svg>
+
       <div
         ref="robotAnimationSlotRef"
         class="robot-animation-slot"
@@ -419,7 +541,7 @@
           v-if="robotLoopVisible"
           :src="ROBOT_LOOP_CLIP_URL"
           :alt="ROBOT_LOOP_CLIP_ALT"
-          class="loop-clip"
+          class="loop-clip loop-clip-seam robot-keyed"
         />
       </div>
 
@@ -523,8 +645,13 @@
 
 <script setup lang="ts">
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import ButterflyGalleryGroupMenu from '@/components/art/ButterflyGalleryGroupMenu.vue'
 import ButterflyGalleryPresetEditor from '@/components/art/ButterflyGalleryPresetEditor.vue'
 import { useButterflyGalleryStore } from '@/stores/butterflyGalleryStore'
+import {
+  butterflyGridColumns,
+  type ButterflyGalleryOrientation,
+} from '@/stores/helpers/butterflyGalleryViewSettings'
 import { useUserStore } from '@/stores/userStore'
 import {
   computeButterflyFunnelDropPlan,
@@ -553,31 +680,41 @@ interface RunwayClip {
   alt: string
 }
 
-const RUNWAY_CLIPS: RunwayClip[] = [
-  {
-    url: '/images/generated/2026/09/artimage-30382-4e86796b.webp',
-    alt: 'A Gallery butterfly tows a blank picture frame on a string across the runway',
-  },
-  {
-    url: '/images/generated/2026/09/artimage-30383-8c319891.webp',
-    alt: 'Two Gallery butterflies carry a blank picture frame together across the runway',
-  },
-  {
-    url: '/images/generated/2026/09/artimage-30384-dd4f99f0.webp',
-    alt: 'A Gallery butterfly struggles under an oversized blank picture frame across the runway',
-  },
-  {
-    url: '/images/generated/2026/09/artimage-30385-e83b419e.webp',
-    alt: 'A Gallery butterfly confidently carries a blank picture frame across the runway',
-  },
-  {
-    url: '/images/generated/2026/09/artimage-30386-fb797f4d.webp',
-    alt: 'A Gallery butterfly recovers a dropped blank picture frame mid-carry across the runway',
-  },
-]
+// The earlier close-up "butterfly carries a frame" passes were removed: they
+// were framed at a different scale than runway-background.png and read as a
+// giant overlay, and the regenerated video clips (jobs 33143-33148) zoomed or
+// smeared, so the window now uses FAR_BUTTERFLIES below instead. Any clip
+// listed here still cycles over the window.
+const RUNWAY_CLIPS: RunwayClip[] = []
 // Each source clip is ~3s; the extra 400ms lets the fade-in settle before the
 // pass clears. A separate randomized quiet gap follows before the next pass.
 const RUNWAY_CLIP_DURATION_MS = 3400
+
+// Far-background flock (replaces video for the runway window). Video models
+// zoomed the camera and blew butterflies up into smeared blobs, so the window
+// keeps the untouched runway-background.png and a few small copies of the
+// keyed butterfly loop drift across it with CSS -- the camera cannot move.
+const FAR_BUTTERFLY_URL =
+  '/images/generated/2026/10/artimage-241413-90b96ea3.webp'
+const FAR_BUTTERFLIES = [
+  { id: 1, top: 18, size: 15, travel: 26, bob: 5, delay: 0, flip: false },
+  { id: 2, top: 34, size: 11, travel: 34, bob: 4, delay: -9, flip: true },
+  { id: 3, top: 50, size: 18, travel: 30, bob: 6, delay: -17, flip: false },
+  { id: 4, top: 26, size: 9, travel: 40, bob: 3, delay: -23, flip: true },
+  { id: 5, top: 42, size: 13, travel: 28, bob: 5, delay: -5, flip: true },
+  { id: 6, top: 60, size: 10, travel: 36, bob: 4, delay: -29, flip: false },
+].map((butterfly) => ({
+  id: butterfly.id,
+  style: {
+    '--far-top': `${butterfly.top}%`,
+    '--far-size': `${butterfly.size}px`,
+    '--far-travel': `${butterfly.travel}s`,
+    '--far-bob': `${butterfly.bob}px`,
+    '--far-delay': `${butterfly.delay}s`,
+    '--far-dir': butterfly.flip ? 'reverse' : 'normal',
+    '--far-flip': butterfly.flip ? -1 : 1,
+  },
+}))
 
 // -- Loop motion clips (butterfly-gallery/t-035) -----------------------------
 // The two remaining t-014 ArtJobs (28744 left-butterfly, 28745 robot) failed
@@ -586,13 +723,13 @@ const RUNWAY_CLIP_DURATION_MS = 3400
 // RUNWAY_CLIPS above, each of these slots shows exactly one clip that loops
 // natively (loop: true) rather than cycling between several stills.
 const FOREGROUND_BUTTERFLY_CLIP_URL =
-  '/images/generated/2026/09/artimage-30458-371b788b.webp'
+  '/images/generated/2026/10/artimage-241413-90b96ea3.webp'
 const FOREGROUND_BUTTERFLY_CLIP_ALT =
   'A Gallery butterfly flutters in an independent loop near the top-left of the runway'
 const ROBOT_LOOP_CLIP_URL =
-  '/images/generated/2026/09/artimage-30459-9fbf71cb.webp'
+  '/images/generated/2026/10/artimage-241414-4aef7141.webp'
 const ROBOT_LOOP_CLIP_ALT =
-  'A small robot sifts through picture frames in a loop at the lower right'
+  'A small robot sifts through pictures in a loop at the lower right'
 
 const userStore = useUserStore()
 const gallery = useButterflyGalleryStore()
@@ -614,10 +751,60 @@ const robotLoopVisible = ref(false)
 let foregroundButterflyObserver: IntersectionObserver | null = null
 let robotLoopObserver: IntersectionObserver | null = null
 const infoExpanded = ref(false)
+const collectionTarget = ref('')
+const newCollectionLabel = ref('')
+
+const selectedCollectionLabels = computed(() => {
+  const entry = gallery.selectedEntry
+  if (!entry) return []
+  return entry.collections.map(
+    (slug) =>
+      entry.collectionRefs?.find((ref) => ref.slug === slug)?.label ?? slug,
+  )
+})
+
+async function submitCollectionTarget(): Promise<void> {
+  const entry = gallery.selectedEntry
+  if (!entry || !collectionTarget.value) return
+  const saved =
+    collectionTarget.value === '__new__'
+      ? await gallery.addToNewCollection(entry.id, newCollectionLabel.value)
+      : await gallery.addToCollection(entry.id, collectionTarget.value)
+  if (saved) {
+    collectionTarget.value = ''
+    newCollectionLabel.value = ''
+  }
+}
 const dropSequence = ref(0)
 const fadeReveal = ref(false)
 const showFilters = ref(false)
 const showPresetEditor = ref(false)
+const showViewSettings = ref(false)
+
+const ORIENTATION_OPTIONS: { value: ButterflyGalleryOrientation; label: string }[] =
+  [
+    { value: 'landscape', label: 'Landscape' },
+    { value: 'portrait', label: 'Portrait' },
+  ]
+
+const frameAspect = ref(1.5)
+let frameResizeObserver: ResizeObserver | null = null
+
+const showArtGrid = computed(
+  () => gallery.viewCount > 1 && gallery.displayEntries.length > 0,
+)
+const artGridColumns = computed(() =>
+  butterflyGridColumns(
+    gallery.displayEntries.length,
+    gallery.orientation,
+    frameAspect.value,
+  ),
+)
+
+function onViewCountInput(event: Event): void {
+  gallery.setViewCount(Number((event.target as HTMLInputElement).value))
+}
+
 
 // -- First-visit intro orchestration (butterfly-gallery/t-015) -------------
 const introTrapdoorOpen = ref(false)
@@ -633,6 +820,17 @@ const dropProxyRef = ref<HTMLImageElement | null>(null)
 const dropProxyActive = ref(false)
 const dropProxySrc = ref('')
 const dropProxyAlt = ref('')
+
+watch(frameBoxRef, (element) => {
+  frameResizeObserver?.disconnect()
+  frameResizeObserver = null
+  if (!element || typeof ResizeObserver === 'undefined') return
+  frameResizeObserver = new ResizeObserver(([entry]) => {
+    const { width, height } = entry!.contentRect
+    if (width > 0 && height > 0) frameAspect.value = width / height
+  })
+  frameResizeObserver.observe(element)
+})
 const dragOverTarget = ref<string | null>(null)
 const justAcceptedBinId = ref<string | null>(null)
 const justSelectedPileId = ref<number | null>(null)
@@ -659,7 +857,11 @@ const PREFETCH_VISIBLE_BUFFER = 24
 function maybePrefetch(): void {
   if (gallery.status !== 'ready' || gallery.isLoadingMore || !gallery.hasMore)
     return
-  if (gallery.visiblePile.length < PREFETCH_VISIBLE_BUFFER) gallery.loadMore()
+  if (
+    gallery.visiblePile.length <
+    Math.max(PREFETCH_VISIBLE_BUFFER, gallery.viewCount + 4)
+  )
+    gallery.loadMore()
 }
 
 watch(
@@ -788,6 +990,8 @@ onBeforeUnmount(() => {
   clearIntroTimers()
   if (acceptedBinTimer) clearTimeout(acceptedBinTimer)
   if (activeDropAnimation) activeDropAnimation.cancel()
+  frameResizeObserver?.disconnect()
+  frameResizeObserver = null
   runwayVisibilityObserver?.disconnect()
   runwayVisibilityObserver = null
   foregroundButterflyObserver?.disconnect()
@@ -801,7 +1005,10 @@ watch(
   () => gallery.selectedImageId,
   async (nextId, previousId) => {
     infoExpanded.value = false
+    collectionTarget.value = ''
+    newCollectionLabel.value = ''
     if (nextId === null || nextId === previousId) return
+    if (gallery.viewCount > 1) return
 
     dropSequence.value += 1
     const entry = gallery.entryById(nextId)
@@ -897,7 +1104,7 @@ function evaluateRunwayCycle(): void {
   }
   if (runwayCyclingEnabled.value) return
   runwayCyclingEnabled.value = true
-  scheduleNextRunwayClip()
+  if (RUNWAY_CLIPS.length) scheduleNextRunwayClip()
 }
 
 /** Same three-signal gate as evaluateRunwayCycle (on-screen, tab visible,
@@ -1320,6 +1527,66 @@ function pileStyle(index: number, total: number): Record<string, string> {
   animation: runway-clip-fade-in 260ms ease;
 }
 
+.far-butterflies {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.far-butterfly {
+  position: absolute;
+  top: var(--far-top);
+  left: 0;
+  width: var(--far-size);
+  height: var(--far-size);
+  object-fit: contain;
+  mix-blend-mode: screen;
+  opacity: 0.85;
+  filter: blur(0.35px) saturate(1.1);
+  animation:
+    far-butterfly-cross var(--far-travel) linear var(--far-delay) infinite
+      alternate var(--far-dir),
+    far-butterfly-bob 2.4s ease-in-out var(--far-delay) infinite alternate,
+    clip-seam-fade 4.06s linear infinite;
+}
+
+.loop-clip.loop-clip-seam {
+  animation:
+    runway-clip-fade-in 260ms ease,
+    clip-seam-fade 4.06s linear infinite;
+}
+
+@keyframes clip-seam-fade {
+  0%,
+  100% {
+    opacity: 0;
+  }
+  10%,
+  90% {
+    opacity: 1;
+  }
+}
+
+@keyframes far-butterfly-cross {
+  from {
+    left: -4%;
+  }
+  to {
+    left: 100%;
+  }
+}
+
+@keyframes far-butterfly-bob {
+  from {
+    transform: translateY(calc(var(--far-bob) * -1)) scaleX(var(--far-flip));
+  }
+  to {
+    transform: translateY(var(--far-bob)) scaleX(var(--far-flip));
+  }
+}
+
 .runway-panel {
   border-right: 2px solid
     color-mix(in oklch, var(--color-neutral) 22%, transparent);
@@ -1545,6 +1812,54 @@ function pileStyle(index: number, total: number): Record<string, string> {
   object-fit: contain;
   background: color-mix(in oklch, var(--color-neutral) 92%, black);
   transform-origin: 50% 0;
+}
+
+.art-grid {
+  display: grid;
+  width: 100%;
+  height: 100%;
+  gap: 0.4rem;
+  padding: 0.4rem;
+  grid-template-columns: repeat(var(--art-grid-columns, 1), minmax(0, 1fr));
+  grid-auto-rows: minmax(0, 1fr);
+}
+
+.art-tile {
+  position: relative;
+  min-width: 0;
+  min-height: 0;
+  padding: 0;
+  overflow: hidden;
+  border: 3px solid transparent;
+  border-radius: 0.6rem;
+  background: color-mix(in oklch, var(--color-neutral) 92%, black);
+  cursor: grab;
+}
+
+.art-tile img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  pointer-events: none;
+}
+
+.art-tile:focus-visible,
+.art-tile-selected {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px
+    color-mix(in oklch, var(--color-primary) 35%, transparent);
+}
+
+.art-tile-trashed {
+  opacity: 0.45;
+}
+
+.view-settings-count {
+  min-width: 10rem;
+}
+
+.view-settings-number {
+  width: 4.5rem;
 }
 
 .selected-art-fade {
@@ -1784,6 +2099,14 @@ function pileStyle(index: number, total: number): Record<string, string> {
   animation: runway-clip-fade-in 260ms ease;
 }
 
+.robot-keyed {
+  filter: url('#kr-chroma-green');
+}
+
+.loop-clip-screen {
+  mix-blend-mode: screen;
+}
+
 .art-pile {
   position: absolute;
   z-index: 20;
@@ -1918,47 +2241,24 @@ function pileStyle(index: number, total: number): Record<string, string> {
 }
 
 .queue-filter-groups {
-  display: grid;
-  gap: 0.7rem;
-  margin-top: 0.75rem;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-}
-
-.queue-filter-group-heading {
-  display: flex;
-  align-items: center;
-  gap: 0.3rem;
-  margin-bottom: 0.35rem;
-  font-size: 0.72rem;
-  font-weight: 800;
-  opacity: 0.75;
-}
-
-.queue-filter-chips {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.3rem;
+  align-items: flex-start;
+  gap: 0.6rem;
+  margin-top: 0.6rem;
 }
 
-.queue-chip {
+
+
+
+
+
+.image-info-collection {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 0.3rem;
-  padding: 0.25rem 0.6rem;
-  border: 1px solid var(--color-base-300);
-  border-radius: 999px;
-  font-size: 0.68rem;
-  font-weight: 700;
-}
-
-.queue-chip-active {
-  border-color: var(--color-primary);
-  background: color-mix(in oklch, var(--color-primary) 16%, transparent);
-  color: var(--color-primary);
-}
-
-.queue-chip-count {
-  opacity: 0.6;
+  margin-top: 0.4rem;
 }
 
 .queue-empty-note {
@@ -2144,6 +2444,8 @@ function pileStyle(index: number, total: number): Record<string, string> {
   .preset-bin-accepted,
   .intro-tumble-frame,
   .runway-clip,
+  .far-butterfly,
+  .loop-clip-seam,
   .loop-clip {
     animation: none;
   }

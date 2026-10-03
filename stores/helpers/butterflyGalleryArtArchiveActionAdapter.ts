@@ -5,10 +5,14 @@
 // The remaining contract stays fixture-backed (no-op) until matching real
 // persistence exists:
 //   - setProcessed: ArchiveEntry has no curated/processed flag.
-//   - addToCollection/removeFromCollection: the real endpoint takes numeric
-//     ArtCollection ids, while this contract currently receives a slug string.
+//   - preset-bin collection drops carry only a slug, so addToCollection and
+//     removeFromCollection persist only when the caller also supplies the
+//     numeric ArtCollection id (the gallery's own collection controls do).
 import { performFetch } from '@/stores/utils'
-import type { ButterflyGalleryActionAdapter } from '@/types/butterflyGallery'
+import type {
+  ButterflyCollectionRef,
+  ButterflyGalleryActionAdapter,
+} from '@/types/butterflyGallery'
 
 async function postOk(path: string): Promise<void> {
   const response = await performFetch<unknown>(path, { method: 'POST' })
@@ -17,6 +21,18 @@ async function postOk(path: string): Promise<void> {
 }
 
 async function notYetWired(): Promise<void> {}
+
+async function patchCollections(
+  entryId: number,
+  change: { addCollectionIds?: number[]; removeCollectionIds?: number[] },
+): Promise<void> {
+  const response = await performFetch<unknown>(
+    `/api/admin/art-archive/entries/${entryId}/collections`,
+    { method: 'PATCH', body: JSON.stringify(change) },
+  )
+  if (!response.success)
+    throw new Error(response.message || 'Failed to update collections.')
+}
 
 export function createArtArchiveButterflyGalleryActionAdapter(): ButterflyGalleryActionAdapter {
   return {
@@ -38,10 +54,34 @@ export function createArtArchiveButterflyGalleryActionAdapter(): ButterflyGaller
     async restore(entryId) {
       await postOk(`/api/admin/art-archive/entries/${entryId}/restore`)
     },
-    addToCollection: notYetWired,
-    removeFromCollection: notYetWired,
+    async addToCollection(entryId, _collection, collectionId) {
+      if (collectionId === undefined) return
+      await patchCollections(entryId, { addCollectionIds: [collectionId] })
+    },
+    async removeFromCollection(entryId, _collection, collectionId) {
+      if (collectionId === undefined) return
+      await patchCollections(entryId, { removeCollectionIds: [collectionId] })
+    },
     async markNeedsReview(entryId) {
       await postOk(`/api/admin/art-archive/entries/${entryId}/needs-review`)
+    },
+    async renameCollection(collectionId, label) {
+      const response = await performFetch<unknown>(
+        `/api/art/collection/${collectionId}`,
+        { method: 'PATCH', body: JSON.stringify({ label }) },
+      )
+      if (!response.success)
+        throw new Error(response.message || 'Failed to rename collection.')
+    },
+    async createCollection(label) {
+      const response = await performFetch<ButterflyCollectionRef>(
+        '/api/art/collection',
+        { method: 'POST', body: JSON.stringify({ label }) },
+      )
+      if (!response.success || !response.data)
+        throw new Error(response.message || 'Failed to create collection.')
+      const { id, slug, label: savedLabel } = response.data
+      return { id, slug, label: savedLabel }
     },
   }
 }

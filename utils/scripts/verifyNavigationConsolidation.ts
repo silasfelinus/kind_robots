@@ -172,10 +172,10 @@ assert.equal(
   false,
   'route-less subtab parents must not become destination links',
 )
-assert.equal(
-  channelTabsToCards(admin).some((entry) => entry.key === 'retired'),
-  false,
-  'route-less subtab parents must not become fallback destination cards',
+assert.deepEqual(
+  channelTabsToCards(admin).map((entry) => entry.key),
+  ['artjob', 'user-admin'],
+  'subtab parents and children must stay out of top-level fallback card decks',
 )
 
 for (const path of [

@@ -72,8 +72,9 @@ That document can provide channel submenu navigation, workspace cards, tutorial 
 
 A tab may act as a navigation-only parent for one level of subtabs. Give the parent a normal `tabKey` but omit its route, then point each child at it with `parentTabKey`:
 
-```md
-# content/channels/admin/retired.md
+Parent file, `content/channels/admin/retired.md`:
+
+```yaml
 ---
 contentType: tab
 channelKey: admin
@@ -83,8 +84,9 @@ icon: kind-icon:archive
 ---
 ```
 
-```md
-# content/channels/admin/retired/example.md
+Child file, `content/channels/admin/retired/example.md`:
+
+```yaml
 ---
 contentType: tab
 channelKey: admin

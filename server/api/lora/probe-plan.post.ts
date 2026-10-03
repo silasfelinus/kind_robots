@@ -122,7 +122,12 @@ export default defineEventHandler(async (event) => {
         Boolean(lora.isMature),
         checkpoints,
       )
-      const prompt = buildLoraProbePrompt(family, probeTriggerText(lora))
+      const prompt = buildLoraProbePrompt(
+        family,
+        probeTriggerText(lora),
+        lora.customLabel,
+        lora.name,
+      )
       const recipe =
         family === 'unsupported' ? null : LORA_PROBE_RECIPES[family]
 

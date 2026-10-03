@@ -265,4 +265,27 @@ assert.equal(canReclassify('CIVITAI'), true)
 assert.equal(canReclassify('HEURISTIC'), true)
 assert.equal(canReclassify(null), true)
 
+// CONCEPT is retired: Civitai's catch-all `concept` tag and a `concept` title
+// now mean ACTION, a specific tag still wins, and a stored CONCEPT reads as
+// unclassified so the triage page surfaces it for re-sorting.
+assert.equal(normalizeLoraCategory('CONCEPT'), null)
+assert.equal(
+  inferLoraCategory({ name: 'x', civitaiTags: ['concept'] }).category,
+  'ACTION',
+)
+assert.equal(
+  inferLoraCategory({ name: 'x', civitaiTags: ['concept', 'style'] }).category,
+  'STYLE',
+)
+assert.equal(
+  inferLoraCategory({ name: 'x', civitaiTags: ['concept', 'clothing'] }).category,
+  'CLOTHING',
+)
+assert.equal(
+  inferLoraCategory({ name: 'Hug and Suck - Concept' }).category,
+  'ACTION',
+)
+assert.equal(loraCategoryForPlaceholder('concept'), 'ACTION')
+assert.equal(loraCategoryForPlaceholder('effect'), 'STYLE')
+
 console.log('LoRA category classification verified.')

@@ -20,7 +20,7 @@ type NavigationDocument = {
   cardsKey: string
 }
 
-const expectedChannels = ['home', 'plan', 'play', 'admin']
+const expectedChannels = ['home', 'plan', 'play', 'admin', 'retired']
 const allowedRoles = new Set([
   'SYSTEM',
   'USER',

@@ -1,6 +1,6 @@
 ---
 contentType: tab
-channelKey: admin
+channelKey: retired
 tabKey: hair-studio
 dashboardKey: art
 dashboardTab: stylist

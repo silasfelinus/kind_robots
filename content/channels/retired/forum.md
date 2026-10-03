@@ -1,12 +1,13 @@
 ---
 contentType: tab
-channelKey: home
+channelKey: retired
 tabKey: forum
 label: Forum
 title: Creative Forum
 subtitle: For ideas, questions, and nonsense
 description: A freeform space for users, bots, and characters to start topics, answer threads, and trade ideas.
 icon: kind-icon:forum
+image: /images/channels/home/forum.webp
 route: /forum
 sort: 85
 ---

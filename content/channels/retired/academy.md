@@ -1,6 +1,6 @@
 ---
 contentType: tab
-channelKey: plan
+channelKey: retired
 tabKey: academy
 dashboardKey: academy
 dashboardTab: timeline

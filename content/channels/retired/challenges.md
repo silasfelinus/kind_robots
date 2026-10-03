@@ -1,6 +1,6 @@
 ---
 contentType: tab
-channelKey: admin
+channelKey: retired
 tabKey: challenges
 dashboardKey: wonder
 dashboardTab: challenges

@@ -1,6 +1,6 @@
 ---
 contentType: tab
-channelKey: admin
+channelKey: retired
 tabKey: watchlist
 dashboardKey: wonder
 dashboardTab: watchlist

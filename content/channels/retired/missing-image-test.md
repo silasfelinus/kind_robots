@@ -1,12 +1,13 @@
 ---
 contentType: tab
-channelKey: admin
+channelKey: retired
 tabKey: missing-image-test
 label: Missing Image Test
 title: Missing Image Pipeline Test
 subtitle: Deliberately broken images for art-request testing
 description: Admin smoke test for the missing-image reporter that files Conductor art requests.
 icon: kind-icon:warning
+image: /images/channels/admin/missing-image-test.webp
 route: /dev/missing-image-test
 sort: 160
 requiredRole: ADMIN

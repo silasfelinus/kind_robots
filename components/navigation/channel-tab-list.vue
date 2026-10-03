@@ -41,7 +41,7 @@
               class="kr-icon-8 relative flex shrink-0 overflow-hidden rounded-lg bg-base-200"
             >
               <img
-                v-if="tab.image"
+                v-if="tab.image && !hasSubtabs(tab)"
                 :src="tab.image"
                 :alt="tab.title || tab.label"
                 class="kr-img-cover"

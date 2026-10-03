@@ -95,7 +95,7 @@ route: /example
 ---
 ```
 
-The parent expands in tab menus and is not itself a routed destination. Children remain ordinary tabs for route resolution, project placement, cards, and direct URLs. Keep nesting to one level; the content contract rejects a subtab whose parent is itself a subtab.
+The parent expands in tab menus and is not itself a routed destination. Children remain ordinary tabs for route resolution, project placement, the full navigation directory, and direct URLs. Top-level fallback card decks stay top-level, so nested children do not leak back out beside their parent group. Keep nesting to one level; the content contract rejects a subtab whose parent is itself a subtab.
 
 ## Parent inheritance
 

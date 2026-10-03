@@ -3,11 +3,7 @@
 // book. Contract defined in projects/kr-adventures/DESIGN-BRIEF.md (conductor repo).
 
 export type AdventureEndingKind =
-  | 'triumph'
-  | 'bittersweet'
-  | 'funny'
-  | 'tragic'
-  | 'secret'
+  'triumph' | 'bittersweet' | 'funny' | 'tragic' | 'secret'
 
 export type AdventureChoice = {
   label: string

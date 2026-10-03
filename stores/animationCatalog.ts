@@ -684,6 +684,18 @@ export const ANIMATION_EFFECTS = [
     generationSafe: true,
     preferredSurface: 'fullscreen',
   },
+  {
+    id: 'split-flap-departures',
+    label: 'Split-Flap Departure Board',
+    reveal: 'A board that clatters into poetry',
+    icon: 'kind-icon:sparkle',
+    tooltip:
+      'A wall of split-flap tiles chatters through letters until each row settles into a wistful departure notice 🚉 hover a tile to hold its flap, click to board the next message',
+    color: '#f2e6c4',
+    releasedAt: '2026-10-03T08:00:00Z',
+    generationSafe: true,
+    preferredSurface: 'fullscreen',
+  },
 ] as const satisfies readonly AnimationEffectDefinition[]
 
 export type AnimationEffectId = (typeof ANIMATION_EFFECTS)[number]['id']

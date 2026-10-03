@@ -19,7 +19,10 @@ export function isNavigationTab(
 
 export function navigationTabs(channel: ResolvedChannel): ResolvedTab[] {
   return channel.tabs.filter(
-    (tab) => isNavigationTab(channel, tab) && !tab.parentTabKey,
+    (tab) =>
+      isNavigationTab(channel, tab) &&
+      !tab.parentTabKey &&
+      (!!tab.route || navigationSubtabs(channel, tab).length > 0),
   )
 }
 
@@ -41,6 +44,7 @@ export function navigationDestinations(
   return channel.tabs.filter(
     (tab) =>
       isNavigationTab(channel, tab) &&
+      !!tab.route &&
       navigationSubtabs(channel, tab).length === 0,
   )
 }

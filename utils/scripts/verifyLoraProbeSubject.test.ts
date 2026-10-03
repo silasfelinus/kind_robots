@@ -223,4 +223,39 @@ assert.match(
   'appendResolvedTriggers must skip resource-preview probes',
 )
 
+// --- Pony's default subject is ruled out unless the LoRA is about ponies ---
+const ponyNegative = (trigger: string, ...hints: string[]) =>
+  buildLoraProbePrompt('pony', trigger, ...hints)!.negativePrompt
+// ArtImage 25193 / 24846: no human subject in the trigger, MLP pony rendered.
+assert.ok(
+  ponyNegative(
+    'deepthroat, all the way to the base',
+    'all_the_way_to_the_base concept (for pony XL)',
+    'ponyxl-all_the_way_to_the_base-concept-v01',
+  ).includes('source_pony'),
+)
+assert.ok(
+  ponyNegative(
+    'blowJobTopQuiron, fellatio, oral, blowjob',
+    'BlowJob Top of head POV - Pony - LORA',
+  ).includes('source_pony'),
+)
+assert.ok(ponyNegative('high ponytail, mullet haircut').includes('source_pony'))
+for (const [trigger, ...hints] of [
+  ['twilight sparkle', 'My Little Pony: Twilight Sparkle'],
+  ['rainbow dash, my little pony'],
+  ['pony girl, ponyplay'],
+  ['anthro, wolf'],
+  ['1girl, unicorn horn', 'Unicorn Girl'],
+]) {
+  assert.ok(
+    !ponyNegative(trigger!, ...hints).includes('source_pony'),
+    `${trigger} is a pony/furry subject and must keep source_pony available`,
+  )
+}
+for (const family of ['illustrious', 'sdxl', 'sd15'] as const) {
+  assert.ok(!buildLoraProbePrompt(family, 'x')!.negativePrompt.includes('source_'))
+}
+assert.ok(!pony('deepthroat').includes('source_pony'))
+
 console.log('verifyLoraProbeSubject: all assertions passed')

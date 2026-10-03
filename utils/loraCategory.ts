@@ -23,7 +23,6 @@ export const LORA_CATEGORIES = [
   'OBJECT',
   'CREATURE',
   'DETAIL',
-  'CONCEPT',
   'OTHER',
 ] as const
 
@@ -51,7 +50,7 @@ export const LORA_CATEGORY_META: Record<LoraCategory, LoraCategoryMeta> = {
   STYLE: {
     category: 'STYLE',
     label: 'Style',
-    placeholders: ['style', 'artstyle', 'aesthetic', 'medium'],
+    placeholders: ['style', 'artstyle', 'aesthetic', 'medium', 'effect'],
     hint: 'How it is drawn — an art style, medium, or artist look.',
   },
   SETTING: {
@@ -63,8 +62,8 @@ export const LORA_CATEGORY_META: Record<LoraCategory, LoraCategoryMeta> = {
   ACTION: {
     category: 'ACTION',
     label: 'Action',
-    placeholders: ['action', 'pose', 'motion', 'doing'],
-    hint: 'What the subject is doing — a pose or movement.',
+    placeholders: ['action', 'pose', 'motion', 'doing', 'concept', 'idea'],
+    hint: 'What the subject is doing — a pose, act, or movement.',
   },
   CLOTHING: {
     category: 'CLOTHING',
@@ -89,12 +88,6 @@ export const LORA_CATEGORY_META: Record<LoraCategory, LoraCategoryMeta> = {
     label: 'Detail',
     placeholders: ['detail', 'enhancer', 'quality'],
     hint: 'A sharpener or enhancer that changes texture, not subject.',
-  },
-  CONCEPT: {
-    category: 'CONCEPT',
-    label: 'Concept',
-    placeholders: ['concept', 'idea', 'effect'],
-    hint: 'An abstract idea or effect that is not a subject or a style.',
   },
   OTHER: {
     category: 'OTHER',
@@ -171,6 +164,10 @@ const CIVITAI_TAG_CATEGORIES: Array<[LoraCategory, string[]]> = [
     [
       'style',
       'styles',
+      'effect',
+      'effects',
+      'lighting',
+      'abstract',
       'art style',
       'artstyle',
       'artist',
@@ -271,10 +268,13 @@ const CIVITAI_TAG_CATEGORIES: Array<[LoraCategory, string[]]> = [
       'texture',
     ],
   ],
-  [
-    'CONCEPT',
-    ['concept', 'concepts', 'abstract', 'effect', 'effects', 'lighting'],
-  ],
+  // Civitai's `concept` is its catch-all for "not a character, not a style",
+  // so it is read LAST, after every tag that says something specific. In the
+  // live catalog (2026-10-03) three in four rows it had filed under a CONCEPT
+  // category were sex acts, poses and gestures -- things the subject DOES --
+  // which is why there is no CONCEPT category any more (Silas: "concepts
+  // should probably be actions").
+  ['ACTION', ['concept', 'concepts']],
 ]
 
 // TITLE-ONLY fallbacks, reported as HEURISTIC.
@@ -384,7 +384,7 @@ const HEURISTIC_CATEGORIES: Array<[LoraCategory, string[]]> = [
       'eye fix',
     ],
   ],
-  ['CONCEPT', ['concept']],
+  ['ACTION', ['concept']],
 ]
 
 export type LoraCategoryInference = {

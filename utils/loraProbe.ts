@@ -443,6 +443,41 @@ const NEGATIVE_SD = [
  */
 
 /*
+ * Pony Diffusion's own subject, ruled out the way composition is: in the
+ * negative, where it asserts nothing about what the image IS.
+ *
+ * A large share of Pony V6's training set is My Little Pony fan art, tagged
+ * `source_pony`. Give it a prompt with no human subject -- score tags plus an
+ * act, which is exactly what a concept LoRA's trigger is -- and it fills the
+ * gap with its default subject. ArtImage 25193 (`score_9, score_8_up,
+ * score_7_up, deepthroat, all the way to the base`) and 24846 (`...,
+ * blowJobTopQuiron, fellatio, oral, blowjob`) both rendered MLP ponies on
+ * realcartoonPony, with no `pony` anywhere in the prompt (Silas, 2026-10-03:
+ * "sure looks like the title is sneaking into the art prompt" -- it was not).
+ *
+ * Dropped again for a LoRA that is actually about ponies, horses or furries,
+ * where this would fight the very thing being probed.
+ */
+const PONY_SOURCE_NEGATIVE = 'source_pony'
+
+/*
+ * Never a bare `pony`: 908 catalog LoRAs are Pony-family and their titles and
+ * triggers name the platform constantly -- `BlowJob Top of head POV - Pony`,
+ * `ponyxl-all_the_way_to_the_base`, `Custom Pony Styles`, `SD & PONY`. Only
+ * words that name the subject outright count.
+ */
+const PONY_SUBJECT_PATTERN =
+  /\b(?:source_pony|source_furry|my little pony|mlp|pony ?girls?|pony ?play|earth pony|cutie mark|ponies|equine|horses?|centaurs?|unicorns?|pegasus|alicorn|furry|anthro|feral|brony)\b/i
+
+export function wantsPonySubject(
+  ...texts: Array<string | null | undefined>
+): boolean {
+  return texts.some((text) =>
+    PONY_SUBJECT_PATTERN.test(String(text || '').replace(/_/g, ' ')),
+  )
+}
+
+/*
  * A trigger list, not a scene. 10.2% of probes dumped 12+ raw tags in -- the
  * Marge Simpson row sends 'the simpsons, source cartoon, round eyes, dot
  * pupils, marge simpson' and one sends twenty `mix_(x)` concepts from a
@@ -487,7 +522,7 @@ export const LORA_PROBE_RECIPES: Record<
       ]
         .filter(Boolean)
         .join(', '),
-    negative: `score_6, score_5, score_4, ${NEGATIVE_SD}`,
+    negative: `score_6, score_5, score_4, ${PONY_SOURCE_NEGATIVE}, ${NEGATIVE_SD}`,
   },
   illustrious: {
     engine: 'comfy',
@@ -873,15 +908,24 @@ export function probeTriggerText(resource: {
   )
 }
 
+/**
+ * `subjectHints` is the LoRA's title and name: read only to decide whether the
+ * LoRA is itself about ponies, never added to the prompt.
+ */
 export function buildLoraProbePrompt(
   family: LoraProbeFamily,
   trigger: string,
+  ...subjectHints: Array<string | null | undefined>
 ): { prompt: string; negativePrompt: string } | null {
   if (family === 'unsupported') return null
   const recipe = LORA_PROBE_RECIPES[family]
+  const negativePrompt =
+    family === 'pony' && wantsPonySubject(trigger, ...subjectHints)
+      ? recipe.negative.replace(`${PONY_SOURCE_NEGATIVE}, `, '')
+      : recipe.negative
   return {
     prompt: recipe.positive(trigger.trim()),
-    negativePrompt: recipe.negative,
+    negativePrompt,
   }
 }
 

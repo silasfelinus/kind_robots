@@ -1,7 +1,8 @@
 ---
 contentType: tab
-channelKey: retired
+channelKey: admin
 tabKey: voice-lab
+parentTabKey: retired
 dashboardKey: wonder
 dashboardTab: voice-lab
 label: Voice Lab

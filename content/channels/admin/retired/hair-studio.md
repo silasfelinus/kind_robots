@@ -1,7 +1,8 @@
 ---
 contentType: tab
-channelKey: retired
+channelKey: admin
 tabKey: hair-studio
+parentTabKey: retired
 dashboardKey: art
 dashboardTab: stylist
 label: Hair Studio

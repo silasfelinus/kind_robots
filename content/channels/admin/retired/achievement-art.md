@@ -1,7 +1,8 @@
 ---
 contentType: tab
-channelKey: retired
+channelKey: admin
 tabKey: achievement-art
+parentTabKey: retired
 label: Achievement Art
 title: Achievement Art
 subtitle: Review and generate art for achievements

@@ -1,7 +1,8 @@
 ---
 contentType: tab
-channelKey: retired
+channelKey: admin
 tabKey: watchlist
+parentTabKey: retired
 dashboardKey: wonder
 dashboardTab: watchlist
 label: Watchlist

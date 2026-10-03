@@ -1,7 +1,8 @@
 ---
 contentType: tab
-channelKey: retired
+channelKey: admin
 tabKey: missing-image-test
+parentTabKey: retired
 label: Missing Image Test
 title: Missing Image Pipeline Test
 subtitle: Deliberately broken images for art-request testing

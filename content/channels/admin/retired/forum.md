@@ -1,7 +1,8 @@
 ---
 contentType: tab
-channelKey: retired
+channelKey: admin
 tabKey: forum
+parentTabKey: retired
 label: Forum
 title: Creative Forum
 subtitle: For ideas, questions, and nonsense

@@ -1,7 +1,8 @@
 ---
 contentType: tab
-channelKey: retired
+channelKey: admin
 tabKey: serendipity
+parentTabKey: retired
 dashboardKey: scenario
 dashboardTab: serendipity
 label: Serendipity

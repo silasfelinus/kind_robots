@@ -1,7 +1,8 @@
 ---
 contentType: tab
-channelKey: retired
+channelKey: admin
 tabKey: ui-gallery
+parentTabKey: retired
 label: UI Gallery
 title: UI Gallery
 subtitle: The shared style guide

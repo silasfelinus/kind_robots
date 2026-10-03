@@ -1,7 +1,8 @@
 ---
 contentType: tab
-channelKey: retired
+channelKey: admin
 tabKey: social-drafts
+parentTabKey: retired
 label: Social Drafts
 title: Social Drafts
 subtitle: Review drafted social posts before anything goes out

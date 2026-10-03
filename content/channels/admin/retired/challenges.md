@@ -1,7 +1,8 @@
 ---
 contentType: tab
-channelKey: retired
+channelKey: admin
 tabKey: challenges
+parentTabKey: retired
 dashboardKey: wonder
 dashboardTab: challenges
 label: Challenges

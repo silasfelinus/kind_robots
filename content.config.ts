@@ -117,6 +117,7 @@ const sharedNavigationSchema = z.object({
   sort: z.union([z.string(), z.number()]).optional(),
   channelKey: z.string().optional(),
   tabKey: z.string().optional(),
+  parentTabKey: z.string().optional(),
   dashboardKey: z.string().optional(),
   dashboardTab: z.string().optional(),
   defaultTab: z.string().optional(),

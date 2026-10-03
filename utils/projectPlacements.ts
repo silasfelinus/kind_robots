@@ -28,7 +28,7 @@ export const PROJECT_PLACEMENTS: Record<string, ProjectPlacement> = {
     route: '/coloring',
   },
   'challenge-center': {
-    channelKey: 'retired',
+    channelKey: 'admin',
     tabKey: 'challenges',
     route: '/play/challenges',
   },
@@ -101,7 +101,7 @@ export const PROJECT_PLACEMENTS: Record<string, ProjectPlacement> = {
     route: '/play/aquarium',
   },
   'media-watchlist': {
-    channelKey: 'retired',
+    channelKey: 'admin',
     tabKey: 'watchlist',
     route: '/plan/watchlist',
   },
@@ -131,7 +131,7 @@ export const PROJECT_PLACEMENTS: Record<string, ProjectPlacement> = {
     route: '/conductor-app',
   },
   'alexa-integration': {
-    channelKey: 'retired',
+    channelKey: 'admin',
     tabKey: 'voice-lab',
     route: '/plan/voice-lab',
   },
@@ -141,7 +141,7 @@ export const PROJECT_PLACEMENTS: Record<string, ProjectPlacement> = {
     route: '/stylist',
   },
   'superkate-hairstyle-ai': {
-    channelKey: 'retired',
+    channelKey: 'admin',
     tabKey: 'hair-studio',
     route: '/build/hair-studio',
   },
@@ -151,7 +151,7 @@ export const PROJECT_PLACEMENTS: Record<string, ProjectPlacement> = {
     route: '/sanctuary',
   },
   'ai-art-academy': {
-    channelKey: 'retired',
+    channelKey: 'admin',
     tabKey: 'academy',
     route: '/academy',
   },

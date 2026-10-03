@@ -1,7 +1,8 @@
 ---
 contentType: tab
-channelKey: retired
+channelKey: admin
 tabKey: shared-with-me
+parentTabKey: retired
 label: Shared With Me
 title: Shared With Me
 subtitle: What other people have given you access to

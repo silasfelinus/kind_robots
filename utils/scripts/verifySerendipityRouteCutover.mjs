@@ -2,7 +2,7 @@ import assert from 'node:assert/strict'
 import fs from 'node:fs'
 
 const rootPath = 'content/serendipity.md'
-const channelPath = 'content/channels/retired/serendipity.md'
+const channelPath = 'content/channels/admin/retired/serendipity.md'
 const componentPath = 'components/pages/serendipity-page.vue'
 
 for (const path of [rootPath, channelPath, componentPath]) {
@@ -27,15 +27,16 @@ const voiceLab = fs.readFileSync('components/conductor/voice-lab-page.vue', 'utf
 const boundary = fs.readFileSync('docs/products/storybook-taskmaster-boundary.md', 'utf8')
 
 assert.match(root, /^title: Serendipity$/m)
-assert.match(root, /^channelKey: retired$/m)
+assert.match(root, /^channelKey: admin$/m)
 assert.match(root, /^tabKey: serendipity$/m)
 assert.match(root, /^dashboardTab: serendipity$/m)
 assert.match(root, /^requiredRole: ADMIN$/m)
 assert.match(root, /:serendipity-page\s*$/m)
 assert.doesNotMatch(root, /serendipity-voice-page/)
 
-assert.match(channel, /^channelKey: retired$/m)
+assert.match(channel, /^channelKey: admin$/m)
 assert.match(channel, /^tabKey: serendipity$/m)
+assert.match(channel, /^parentTabKey: retired$/m)
 assert.match(channel, /^dashboardTab: serendipity$/m)
 assert.match(channel, /^label: Serendipity$/m)
 assert.match(channel, /^title: Serendipity$/m)
@@ -63,4 +64,4 @@ assert.doesNotMatch(voiceLab, /(?:to="|href: ')\/serendipity-voice/)
 assert.match(boundary, /`\/serendipity` is the sole Serendipity product route/)
 assert.match(boundary, /`\/serendipity-voice` must not remain as a route/)
 
-console.log('Serendipity route cutover contract passed: canonical identity, Retired placement, and ADMIN access are pinned.')
+console.log('Serendipity route cutover contract passed: canonical identity, Admin > Retired placement, and ADMIN access are pinned.')

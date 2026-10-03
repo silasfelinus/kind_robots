@@ -1,7 +1,8 @@
 ---
 contentType: tab
-channelKey: retired
+channelKey: admin
 tabKey: academy
+parentTabKey: retired
 dashboardKey: academy
 dashboardTab: timeline
 label: Art Academy

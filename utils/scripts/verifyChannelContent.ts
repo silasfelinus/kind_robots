@@ -11,6 +11,7 @@ type NavigationDocument = {
   contentType: string
   channelKey: string
   tabKey: string
+  parentTabKey: string
   defaultTab: string
   route: string
   requiredRole: string
@@ -20,7 +21,7 @@ type NavigationDocument = {
   cardsKey: string
 }
 
-const expectedChannels = ['home', 'plan', 'play', 'admin', 'retired']
+const expectedChannels = ['home', 'plan', 'play', 'admin']
 const allowedRoles = new Set([
   'SYSTEM',
   'USER',
@@ -140,6 +141,7 @@ async function readDocument(file: string): Promise<NavigationDocument> {
     contentType: frontMatter.contentType ?? '',
     channelKey: frontMatter.channelKey ?? '',
     tabKey: frontMatter.tabKey ?? '',
+    parentTabKey: frontMatter.parentTabKey ?? '',
     defaultTab: frontMatter.defaultTab ?? '',
     route: frontMatter.route ?? '',
     requiredRole: (frontMatter.requiredRole ?? '').toUpperCase(),
@@ -189,6 +191,7 @@ function validateChannelDocument(errors: string[], document: NavigationDocument)
   }
   validateKey(errors, document, 'channelKey', document.channelKey)
   validateKey(errors, document, 'tabKey', document.tabKey)
+  validateKey(errors, document, 'parentTabKey', document.parentTabKey)
   validateKey(errors, document, 'defaultTab', document.defaultTab)
   validateAccess(errors, document)
 }
@@ -268,23 +271,65 @@ async function main(): Promise<void> {
     if (!channelsByKey.has(tab.channelKey)) {
       addError(errors, tab, `unknown parent channel ${tab.channelKey}`)
     }
-    if (!tab.route.startsWith('/')) addError(errors, tab, 'route must start with /')
 
     const location = `${tab.channelKey}/${tab.tabKey}`
     const duplicate = tabsByLocation.get(location)
     if (duplicate) errors.push(`${tab.file}: duplicates ${location} from ${duplicate.file}`)
     else tabsByLocation.set(location, tab)
 
-    const routeLocation = `${tab.channelKey}:${tab.route}`
-    const routeTabs = tabsByChannelRoute.get(routeLocation) ?? []
-    routeTabs.push(tab)
-    tabsByChannelRoute.set(routeLocation, routeTabs)
+    if (tab.route) {
+      if (!tab.route.startsWith('/')) {
+        addError(errors, tab, 'route must start with /')
+      } else {
+        const routeLocation = `${tab.channelKey}:${tab.route}`
+        const routeTabs = tabsByChannelRoute.get(routeLocation) ?? []
+        routeTabs.push(tab)
+        tabsByChannelRoute.set(routeLocation, routeTabs)
+      }
+    }
+  }
+
+  for (const tab of tabs) {
+    if (tab.parentTabKey) {
+      const parentLocation = `${tab.channelKey}/${tab.parentTabKey}`
+      const parent = tabsByLocation.get(parentLocation)
+
+      if (!parent) {
+        addError(errors, tab, `unknown parent tab ${parentLocation}`)
+      } else if (parent.parentTabKey) {
+        addError(
+          errors,
+          tab,
+          `nested subtabs deeper than one level are not supported: ${parentLocation}`,
+        )
+      }
+
+      if (!tab.route.startsWith('/')) {
+        addError(errors, tab, 'subtab destinations require a route')
+      }
+      continue
+    }
+
+    const children = tabs.filter(
+      (candidate) =>
+        candidate.channelKey === tab.channelKey &&
+        candidate.parentTabKey === tab.tabKey,
+    )
+    if (!children.length && !tab.route.startsWith('/')) {
+      addError(errors, tab, 'route-less tabs must have at least one subtab')
+    }
   }
 
   for (const channel of channels) {
     const location = `${channel.channelKey}/${channel.defaultTab}`
-    if (channel.defaultTab && !tabsByLocation.has(location)) {
+    const defaultTab = channel.defaultTab
+      ? tabsByLocation.get(location)
+      : undefined
+
+    if (channel.defaultTab && !defaultTab) {
       addError(errors, channel, `defaultTab does not exist: ${location}`)
+    } else if (defaultTab && !defaultTab.route.startsWith('/')) {
+      addError(errors, channel, `defaultTab must be a routed destination: ${location}`)
     }
   }
 
@@ -339,15 +384,17 @@ async function main(): Promise<void> {
     }
   }
 
-  const manifestEntries: NavManifestEntry[] = tabs.map((tab) => ({
-    file: tab.file,
-    channelKey: tab.channelKey,
-    tabKey: tab.tabKey,
-    dashboardKey: tab.dashboardKey,
-    dashboardTab: tab.dashboardTab,
-    cardsKey: tab.cardsKey,
-    route: tab.route,
-  }))
+  const manifestEntries: NavManifestEntry[] = tabs
+    .filter((tab) => tab.route.startsWith('/'))
+    .map((tab) => ({
+      file: tab.file,
+      channelKey: tab.channelKey,
+      tabKey: tab.tabKey,
+      dashboardKey: tab.dashboardKey,
+      dashboardTab: tab.dashboardTab,
+      cardsKey: tab.cardsKey,
+      route: tab.route,
+    }))
   const manifestIssues = validateNavManifest(manifestEntries)
   const manifestWarnings = manifestIssues.filter((issue) => issue.severity === 'warning')
   const manifestErrors = manifestIssues.filter((issue) => issue.severity === 'error')

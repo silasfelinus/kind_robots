@@ -707,11 +707,22 @@ export async function archiveCurrentEntityArt(
   },
 ) {
   const path = currentFieldPath(input.record, input.field)
-  const sourceArtImageId = currentArtImageId(
+  let sourceArtImageId = currentArtImageId(
     input.record,
     input.field,
     input.config.primary,
   )
+  /*
+   * A stored id can outlive its ArtImage row (deleted image, stale slot id).
+   * Linking it violates the EntityArtImage foreign key and the whole queue
+   * completion returned HTTP 500 (ArtJob 33093: "Foreign key constraint
+   * violated on the fields: (`artImageId`)"). Treat a missing row as "no
+   * source image" so the legacy path-copy below archives it instead.
+   */
+  const sourceArtImage = sourceArtImageId
+    ? await db.artImage.findUnique({ where: { id: sourceArtImageId } })
+    : null
+  if (sourceArtImageId && !sourceArtImage) sourceArtImageId = null
   const referencePath = sourceArtImageId
     ? `/api/art/images/${sourceArtImageId}/file`
     : path
@@ -735,7 +746,7 @@ export async function archiveCurrentEntityArt(
       input.entityId,
       sourceArtImageId,
     )
-    return db.artImage.findUnique({ where: { id: sourceArtImageId } })
+    return sourceArtImage
   }
 
   return createHistoryReference(db, {

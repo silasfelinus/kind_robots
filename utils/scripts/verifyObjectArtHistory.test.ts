@@ -43,6 +43,17 @@ assert.ok(
   'entityArt must archive the current image before replacing it',
 )
 
+/*
+ * ArtJob 33093 (2026-10): a slot id that outlived its ArtImage row failed the
+ * EntityArtImage foreign key and the whole queue completion returned HTTP 500.
+ * Archiving must look the row up and fall back to the path copy when it is gone.
+ */
+assert.ok(
+  entityArt.includes('if (sourceArtImageId && !sourceArtImage) sourceArtImageId = null'),
+  'archiveCurrentEntityArt must verify the stored artImageId still exists ' +
+    'before linking it, or a dangling id turns a job completion into a 500',
+)
+
 /* ── The reading half: the shared card back shows the whole loop. ───────── */
 
 const cardBack = read('components/gallery/kr-card-back.vue')

@@ -5,7 +5,14 @@
 
 export type OracleSuit = 'cogs' | 'sparks' | 'currents' | 'breezes'
 export type OracleOrientation = 'upright' | 'reversed'
-export type OracleEnergy = 'begin' | 'build' | 'hold' | 'flow' | 'shift' | 'end' | 'open'
+export type OracleEnergy =
+  | 'begin'
+  | 'build'
+  | 'hold'
+  | 'flow'
+  | 'shift'
+  | 'end'
+  | 'open'
 export type OracleSpreadId = 'one' | 'three' | 'five'
 export type OraclePositionId =
   | 'today'
@@ -31,8 +38,16 @@ export type OracleCard = {
   prompt: string
 }
 
-export type OracleSpreadPosition = { id: OraclePositionId; label: string; frame: string }
-export type OracleSpread = { id: OracleSpreadId; label: string; positions: OracleSpreadPosition[] }
+export type OracleSpreadPosition = {
+  id: OraclePositionId
+  label: string
+  frame: string
+}
+export type OracleSpread = {
+  id: OracleSpreadId
+  label: string
+  positions: OracleSpreadPosition[]
+}
 
 export type OracleDrawnCard = {
   card: OracleCard
@@ -48,7 +63,10 @@ export type OracleContent = {
   closings: Record<OracleSpreadId, string[]>
   /** Bespoke passages; optional per card/position, falls back to the position frame. */
   positionText: Partial<
-    Record<OraclePositionId, Record<string, Partial<Record<OracleOrientation, string>>>>
+    Record<
+      OraclePositionId,
+      Record<string, Partial<Record<OracleOrientation, string>>>
+    >
   >
   /** Keyed by `${sortedPairKey(energyA, energyB)}:${echo|contrast}`. */
   energyPairs: Record<string, string>

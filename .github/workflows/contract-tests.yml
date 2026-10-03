@@ -40,6 +40,9 @@ jobs:
       - name: Solitaire engine contract
         run: npm run test:solitaire-engine
 
+      - name: Oracle reading engine contract
+        run: npm run test:oracle-engine
+
       - name: Art-request YAML indentation contract
         run: npm run test:art-request-yaml
 

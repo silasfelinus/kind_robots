@@ -16,7 +16,8 @@ const test = (name: string, fn: () => void) => {
   console.log(`ok - ${name}`)
 }
 
-const words = (n: number, w: string) => Array.from({ length: n }, () => w).join(' ')
+const words = (n: number, w: string) =>
+  Array.from({ length: n }, () => w).join(' ')
 const deck: OracleCard[] = Array.from({ length: 22 }, (_, i) => ({
   id: `card-${i}`,
   arcana: 'major',
@@ -30,11 +31,23 @@ const deck: OracleCard[] = Array.from({ length: 22 }, (_, i) => ({
 const energyPairs: Record<string, string> = {}
 for (const a of ORACLE_ENERGIES)
   for (const b of ORACLE_ENERGIES)
-    if (a <= b) for (const k of ['echo', 'contrast']) energyPairs[`${sortedPairKey(a, b)}:${k}`] = `${a} and ${b} ${k}.`
+    if (a <= b)
+      for (const k of ['echo', 'contrast'])
+        energyPairs[`${sortedPairKey(a, b)}:${k}`] = `${a} and ${b} ${k}.`
 const content: OracleContent = {
-  openings: { one: ['One a.', 'One b.', 'One c.'], three: ['Three a.', 'Three b.', 'Three c.'], five: ['Five a.', 'Five b.', 'Five c.'] },
-  closings: { one: ['Close one.'], three: ['Close three.'], five: ['Close five.'] },
-  positionText: { present: { 'card-3': { upright: 'Bespoke present text for card three.' } } },
+  openings: {
+    one: ['One a.', 'One b.', 'One c.'],
+    three: ['Three a.', 'Three b.', 'Three c.'],
+    five: ['Five a.', 'Five b.', 'Five c.'],
+  },
+  closings: {
+    one: ['Close one.'],
+    three: ['Close three.'],
+    five: ['Close five.'],
+  },
+  positionText: {
+    present: { 'card-3': { upright: 'Bespoke present text for card three.' } },
+  },
   energyPairs,
   specialPairs: { [sortedPairKey('card-1', 'card-0')]: 'Special pair text.' },
 }
@@ -69,14 +82,21 @@ test('orientation is roughly half reversed', () => {
       total++
       if (d.orientation === 'reversed') reversed++
     }
-  assert.ok(reversed / total > 0.45 && reversed / total < 0.55, `reversed share ${reversed / total}`)
+  assert.ok(
+    reversed / total > 0.45 && reversed / total < 0.55,
+    `reversed share ${reversed / total}`,
+  )
 })
 
 test('every spread yields complete text for 500 seeds', () => {
   for (const id of ORACLE_SPREAD_IDS as OracleSpreadId[]) {
     for (let s = 0; s < 500; s++) {
       const r = buildReading(deck, content, id, `t-${s}`)
-      assert.ok(r.opening && r.closing.startsWith('Close') && r.closing.endsWith(r.cards[r.cards.length - 1]!.card.prompt))
+      assert.ok(
+        r.opening &&
+          r.closing.startsWith('Close') &&
+          r.closing.endsWith(r.cards[r.cards.length - 1]!.card.prompt),
+      )
       assert.equal(r.passages.length, r.cards.length)
       assert.equal(r.pairs.length, r.cards.length - 1)
       assert.ok(r.passages.every((p) => p.length > 20 && !p.includes('{card}')))
@@ -102,7 +122,8 @@ test('reversed cards are marked and use the reversed text', () => {
   const r = buildReading(deck, content, 'five', 'rev')
   for (const c of r.cards) {
     const p = r.passages[r.cards.indexOf(c)] ?? ''
-    if (c.orientation === 'reversed') assert.ok(p.includes('(reversed)') && p.includes('blocked'))
+    if (c.orientation === 'reversed')
+      assert.ok(p.includes('(reversed)') && p.includes('blocked'))
   }
 })
 

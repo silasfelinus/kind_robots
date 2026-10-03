@@ -49,7 +49,9 @@ assert.ok(
  * Archiving must look the row up and fall back to the path copy when it is gone.
  */
 assert.ok(
-  entityArt.includes('if (sourceArtImageId && !sourceArtImage) sourceArtImageId = null'),
+  entityArt.includes(
+    'if (sourceArtImageId && !sourceArtImage) sourceArtImageId = null',
+  ),
   'archiveCurrentEntityArt must verify the stored artImageId still exists ' +
     'before linking it, or a dangling id turns a job completion into a 500',
 )

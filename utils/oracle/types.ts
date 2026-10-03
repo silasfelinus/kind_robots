@@ -6,13 +6,7 @@
 export type OracleSuit = 'cogs' | 'sparks' | 'currents' | 'breezes'
 export type OracleOrientation = 'upright' | 'reversed'
 export type OracleEnergy =
-  | 'begin'
-  | 'build'
-  | 'hold'
-  | 'flow'
-  | 'shift'
-  | 'end'
-  | 'open'
+  'begin' | 'build' | 'hold' | 'flow' | 'shift' | 'end' | 'open'
 export type OracleSpreadId = 'one' | 'three' | 'five'
 export type OraclePositionId =
   | 'today'

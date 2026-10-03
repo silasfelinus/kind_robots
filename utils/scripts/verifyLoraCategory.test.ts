@@ -278,7 +278,8 @@ assert.equal(
   'STYLE',
 )
 assert.equal(
-  inferLoraCategory({ name: 'x', civitaiTags: ['concept', 'clothing'] }).category,
+  inferLoraCategory({ name: 'x', civitaiTags: ['concept', 'clothing'] })
+    .category,
   'CLOTHING',
 )
 assert.equal(

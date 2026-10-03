@@ -86,7 +86,7 @@ export type ResolvedTab = {
   key: string
   channelKey: string
   tabKey: string
-  parentTabKey: string
+  parentTabKey?: string
   dashboardKey: string
   dashboardTab: string
   label: string

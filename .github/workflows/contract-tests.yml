@@ -1317,6 +1317,9 @@ jobs:
       - name: Butterfly Gallery fixture/art-archive shape-parity contract
         run: npm run test:butterfly-gallery-fixture-shape-parity
 
+      - name: Butterfly Gallery curation (catalog, art card, batch edit) contract
+        run: npm run test:butterfly-gallery-curation
+
       - name: Adventure validator contract
         run: npm run test:adventure-validator
 

@@ -39,6 +39,8 @@ export type ButterflyPileEntry = {
   trashed: boolean
   rating: number | null
   folder: string | null
+  /** Path under the private archive root, when the feed knows it. */
+  relativePath: string | null
   collections: string[]
   /** Id and display label for each slug in `collections`, when the feed
    * knows them -- what rename and add-to-collection need to persist. */
@@ -142,11 +144,21 @@ export type ButterflyDropOutcome = {
 
 export type ButterflyFeedCursor = string | null
 
+/** The filters a provider applies at the source rather than over whatever
+ * page is already loaded, so picking a folder or collection reaches every
+ * entry in it, not just the ones that happened to be on page one. */
+export type ButterflyFeedScope = {
+  folder?: string | null
+  collectionId?: number | null
+  rating?: number | null
+}
+
 export type ButterflyFeedQuery = {
   /** Opaque cursor from a prior page's nextCursor. Omitted/null fetches the first page. */
   cursor?: ButterflyFeedCursor
   /** Requested page size; a provider may return fewer. */
   limit?: number
+  scope?: ButterflyFeedScope
 }
 
 export type ButterflyFeedPage = {
@@ -154,8 +166,16 @@ export type ButterflyFeedPage = {
   nextCursor: ButterflyFeedCursor
 }
 
+/** Every folder and collection the archive knows about, independent of
+ * which page of the pile is loaded -- what the browsing dropdowns list. */
+export type ButterflyCatalog = {
+  folders: ButterflyGroupSummary[]
+  collections: ButterflyGroupSummary[]
+}
+
 export interface ButterflyGalleryFeedProvider {
   fetchPage(query: ButterflyFeedQuery): Promise<ButterflyFeedPage>
+  fetchCatalog(): Promise<ButterflyCatalog>
 }
 
 // -- Action contract (butterfly-gallery/t-007) -------------------------------
@@ -189,6 +209,21 @@ export interface ButterflyGalleryActionAdapter {
   markNeedsReview(entryId: number): Promise<void>
   renameCollection(collectionId: number, label: string): Promise<void>
   createCollection(label: string): Promise<ButterflyCollectionRef>
+  /** Moves the real files into `folder` and updates the archive ledger to
+   * match, reporting each entry individually. */
+  moveToFolder(entryIds: number[], folder: string): Promise<ButterflyMoveResult>
+}
+
+export type ButterflyMovedEntry = {
+  id: number
+  folder: string | null
+  relativePath: string | null
+}
+
+export type ButterflyMoveResult = {
+  folder: string
+  moved: ButterflyMovedEntry[]
+  failures: { id: number; message: string }[]
 }
 
 // -- Generation contract (butterfly-gallery/t-019) ---------------------------

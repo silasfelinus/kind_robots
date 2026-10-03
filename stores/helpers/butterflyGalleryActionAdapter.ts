@@ -27,6 +27,17 @@ export function createFixtureButterflyGalleryActionAdapter(): ButterflyGalleryAc
         .replace(/[^a-z0-9]+/g, '-')
       return { id: Date.now(), slug, label: label.trim() }
     },
+    async moveToFolder(entryIds: number[], folder: string) {
+      return {
+        folder,
+        moved: entryIds.map((id) => ({
+          id,
+          folder: folder || null,
+          relativePath: null,
+        })),
+        failures: [],
+      }
+    },
   }
 }
 

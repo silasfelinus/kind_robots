@@ -20,38 +20,39 @@
       </p>
     </div>
 
-    <div v-else class="butterfly-stage" :data-status="gallery.status">
-      <div class="warehouse-backdrop" aria-hidden="true">
-        <div class="warehouse-grid" />
-        <div class="warehouse-catwalk warehouse-catwalk-left" />
-        <div class="warehouse-catwalk warehouse-catwalk-right" />
-        <div class="warehouse-floor" />
-      </div>
+    <div
+      v-else
+      class="butterfly-stage"
+      :data-status="gallery.status"
+      :data-batch="gallery.batchMode"
+    >
+      <div class="room-layer">
+        <div class="warehouse-backdrop" aria-hidden="true" />
 
-      <div
-        ref="runwaySlotRef"
-        class="runway-slot"
-        data-animation-slot="butterfly-runway"
-        aria-hidden="true"
-      >
-        <img
-          v-if="runwayCyclingEnabled && runwayClipVisible && runwayClip"
-          :key="runwayClip.url"
-          :src="runwayClip.url"
-          :alt="runwayClip.alt"
-          class="runway-clip"
-        />
-        <div v-if="runwayCyclingEnabled" class="far-butterflies">
+        <div
+          ref="runwaySlotRef"
+          class="runway-slot"
+          data-animation-slot="butterfly-runway"
+          aria-hidden="true"
+        >
           <img
-            v-for="butterfly in FAR_BUTTERFLIES"
-            :key="butterfly.id"
-            :src="FAR_BUTTERFLY_URL"
-            alt=""
-            class="far-butterfly"
-            :style="butterfly.style"
+            v-if="runwayCyclingEnabled && runwayClipVisible && runwayClip"
+            :key="runwayClip.url"
+            :src="runwayClip.url"
+            :alt="runwayClip.alt"
+            class="runway-clip"
           />
+          <div v-if="runwayCyclingEnabled" class="far-butterflies">
+            <span
+              v-for="butterfly in FAR_BUTTERFLIES"
+              :key="butterfly.id"
+              class="far-butterfly"
+              :style="butterfly.style"
+            >
+              <img :src="FAR_BUTTERFLY_URL" alt="" />
+            </span>
+          </div>
         </div>
-        <span v-for="index in 8" :key="index" class="runway-panel" />
       </div>
 
       <div class="drop-funnel" aria-hidden="true">
@@ -70,110 +71,42 @@
           v-if="foregroundButterflyVisible"
           :src="FOREGROUND_BUTTERFLY_CLIP_URL"
           :alt="FOREGROUND_BUTTERFLY_CLIP_ALT"
-          class="loop-clip loop-clip-screen loop-clip-seam"
+          class="loop-clip"
         />
       </div>
 
-      <div class="queue-toolbar">
-        <button
-          type="button"
-          class="gallery-utility"
-          :class="{ 'gallery-utility-active': showFilters }"
-          title="Queue filters and folder/collection browsing"
-          @click="showFilters = !showFilters"
-        >
-          <Icon name="kind-icon:sliders" class="kr-icon-4" />
-          <span class="sr-only">Toggle queue filters</span>
-        </button>
-        <button
-          type="button"
-          class="gallery-utility"
-          :class="{ 'gallery-utility-active': showPresetEditor }"
-          title="Sorting bin and action presets"
-          @click="showPresetEditor = !showPresetEditor"
-        >
-          <Icon name="kind-icon:settings" class="kr-icon-4" />
-          <span class="sr-only">Toggle sorting presets</span>
-        </button>
-        <button
-          type="button"
-          class="gallery-utility"
-          :class="{ 'gallery-utility-active': showViewSettings }"
-          title="How many images to sort at once"
-          @click="showViewSettings = !showViewSettings"
-        >
-          <Icon name="kind-icon:view-grid" class="kr-icon-4" />
-          <span class="sr-only">Toggle image view settings</span>
-        </button>
-        <span class="queue-count">
-          {{ gallery.remainingCount }} / {{ gallery.pile.length }}
-        </span>
-      </div>
-
-      <section
-        v-if="showFilters"
-        class="queue-filter-panel kr-panel"
-        aria-label="Queue filters and folder/collection browsing"
-      >
-        <div class="queue-filter-row">
-          <label class="queue-filter-field queue-filter-search">
-            <Icon name="kind-icon:search" class="kr-icon-3 opacity-60" />
-            <input
-              v-model="searchModel"
-              type="search"
-              class="kr-input-sm"
-              placeholder="Search prompt"
-            />
-          </label>
-
-          <label class="queue-filter-field">
-            <span class="kr-text-dim-xs">State</span>
-            <select v-model="processedModel" class="kr-select-sm">
-              <option value="all">All</option>
-              <option value="unprocessed">Unprocessed</option>
-              <option value="processed">Processed</option>
-            </select>
-          </label>
-
-          <label class="queue-filter-field">
-            <span class="kr-text-dim-xs">Rating</span>
-            <select v-model="ratingModel" class="kr-select-sm">
-              <option value="">Any</option>
-              <option v-for="n in 5" :key="n" :value="String(n)">
-                {{ n }}★
-              </option>
-            </select>
-          </label>
-
-          <label class="queue-filter-field">
-            <span class="kr-text-dim-xs">Match</span>
-            <select v-model="matchStateModel" class="kr-select-sm">
-              <option value="all">Any</option>
-              <option value="matched">Matched</option>
-              <option value="unmatched">Unmatched</option>
-              <option value="missing">Missing provenance</option>
-            </select>
-          </label>
-
-          <label class="queue-filter-field">
-            <span class="kr-text-dim-xs">Trash</span>
-            <select v-model="trashViewModel" class="kr-select-sm">
-              <option value="active">Active</option>
-              <option value="trashed">Trashed</option>
-              <option value="all">All</option>
-            </select>
-          </label>
-
+      <div class="stage-top">
+        <div class="queue-toolbar">
           <button
             type="button"
-            class="kr-btn btn-ghost btn-sm"
-            @click="gallery.resetFilters()"
+            class="gallery-utility"
+            :class="{ 'gallery-utility-active': showFilters }"
+            title="Queue filters"
+            @click="showFilters = !showFilters"
           >
-            Reset
+            <Icon name="kind-icon:sliders" class="kr-icon-4" />
+            <span class="sr-only">Toggle queue filters</span>
           </button>
-        </div>
-
-        <div class="queue-filter-groups">
+          <button
+            type="button"
+            class="gallery-utility"
+            :class="{ 'gallery-utility-active': showPresetEditor }"
+            title="Sorting bin and action presets"
+            @click="showPresetEditor = !showPresetEditor"
+          >
+            <Icon name="kind-icon:settings" class="kr-icon-4" />
+            <span class="sr-only">Toggle sorting presets</span>
+          </button>
+          <button
+            type="button"
+            class="gallery-utility"
+            :class="{ 'gallery-utility-active': showViewSettings }"
+            title="How many images to sort at once"
+            @click="showViewSettings = !showViewSettings"
+          >
+            <Icon name="kind-icon:view-grid" class="kr-icon-4" />
+            <span class="sr-only">Toggle image view settings</span>
+          </button>
           <ButterflyGalleryGroupMenu
             heading="Folders"
             icon="kind-icon:folder"
@@ -190,74 +123,155 @@
             @select="gallery.toggleCollectionFilter"
             @rename="gallery.renameCollection"
           />
+          <button
+            type="button"
+            class="queue-select-toggle"
+            :class="{ 'queue-select-toggle-active': gallery.batchMode }"
+            :aria-pressed="gallery.batchMode"
+            title="Select several images to edit together"
+            @click="gallery.setBatchMode(!gallery.batchMode)"
+          >
+            <Icon name="kind-icon:check" class="kr-icon-3" />
+            {{ gallery.batchMode ? 'Selecting' : 'Select' }}
+          </button>
+          <span class="queue-count">
+            <span v-if="gallery.isLoadingMore" class="kr-spinner-xs" />
+            {{ gallery.remainingCount }} / {{ gallery.pile.length }}
+          </span>
         </div>
-      </section>
 
-      <section
-        v-if="showViewSettings"
-        class="queue-filter-panel kr-panel view-settings-panel"
-        aria-label="Image view settings"
-      >
-        <div class="queue-filter-row">
-          <label class="queue-filter-field view-settings-count">
-            <span class="kr-text-dim-xs">
-              Images at once: {{ gallery.viewCount }}
-            </span>
-            <input
-              type="range"
-              class="range range-xs"
-              min="1"
-              max="20"
-              step="1"
-              :value="gallery.viewCount"
-              aria-label="Images at once"
-              @input="onViewCountInput"
-            />
-          </label>
+        <ButterflyGalleryBatchBar v-if="gallery.batchMode" />
 
-          <label class="queue-filter-field">
-            <span class="kr-text-dim-xs">Exact</span>
-            <input
-              type="number"
-              class="kr-input-sm view-settings-number"
-              min="1"
-              max="20"
-              :value="gallery.viewCount"
-              aria-label="Exact number of images"
-              @change="onViewCountInput"
-            />
-          </label>
+        <section
+          v-if="showFilters"
+          class="queue-filter-panel kr-panel"
+          aria-label="Queue filters"
+        >
+          <div class="queue-filter-row">
+            <label class="queue-filter-field queue-filter-search">
+              <Icon name="kind-icon:search" class="kr-icon-3 opacity-60" />
+              <input
+                v-model="searchModel"
+                type="search"
+                class="kr-input-sm"
+                placeholder="Search prompt"
+              />
+            </label>
 
-          <fieldset class="queue-filter-field">
-            <legend class="kr-text-dim-xs">Default shape</legend>
-            <div class="join">
-              <button
-                v-for="option in ORIENTATION_OPTIONS"
-                :key="option.value"
-                type="button"
-                class="kr-btn btn-sm join-item"
-                :class="
-                  gallery.orientation === option.value
-                    ? 'btn-primary'
-                    : 'btn-ghost'
-                "
-                :aria-pressed="gallery.orientation === option.value"
-                @click="gallery.setOrientation(option.value)"
-              >
-                {{ option.label }}
-              </button>
-            </div>
-          </fieldset>
-        </div>
-      </section>
+            <label class="queue-filter-field">
+              <span class="kr-text-dim-xs">State</span>
+              <select v-model="processedModel" class="kr-select-sm">
+                <option value="all">All</option>
+                <option value="unprocessed">Unprocessed</option>
+                <option value="processed">Processed</option>
+              </select>
+            </label>
 
-      <section
-        v-if="showPresetEditor"
-        class="queue-filter-panel kr-panel max-h-[60vh] overflow-y-auto"
-        aria-label="Sorting bin and action presets"
-      >
-        <ButterflyGalleryPresetEditor />
-      </section>
+            <label class="queue-filter-field">
+              <span class="kr-text-dim-xs">Rating</span>
+              <select v-model="ratingModel" class="kr-select-sm">
+                <option value="">Any</option>
+                <option v-for="n in 5" :key="n" :value="String(n)">
+                  {{ n }}★
+                </option>
+              </select>
+            </label>
+
+            <label class="queue-filter-field">
+              <span class="kr-text-dim-xs">Match</span>
+              <select v-model="matchStateModel" class="kr-select-sm">
+                <option value="all">Any</option>
+                <option value="matched">Matched</option>
+                <option value="unmatched">Unmatched</option>
+                <option value="missing">Missing provenance</option>
+              </select>
+            </label>
+
+            <label class="queue-filter-field">
+              <span class="kr-text-dim-xs">Trash</span>
+              <select v-model="trashViewModel" class="kr-select-sm">
+                <option value="active">Active</option>
+                <option value="trashed">Trashed</option>
+                <option value="all">All</option>
+              </select>
+            </label>
+
+            <button
+              type="button"
+              class="kr-btn btn-ghost btn-sm"
+              @click="gallery.resetFilters()"
+            >
+              Reset
+            </button>
+          </div>
+        </section>
+
+        <section
+          v-if="showViewSettings"
+          class="queue-filter-panel kr-panel view-settings-panel"
+          aria-label="Image view settings"
+        >
+          <div class="queue-filter-row">
+            <label class="queue-filter-field view-settings-count">
+              <span class="kr-text-dim-xs">
+                Images at once: {{ gallery.viewCount }}
+              </span>
+              <input
+                type="range"
+                class="range range-xs"
+                min="1"
+                max="20"
+                step="1"
+                :value="gallery.viewCount"
+                aria-label="Images at once"
+                @input="onViewCountInput"
+              />
+            </label>
+
+            <label class="queue-filter-field">
+              <span class="kr-text-dim-xs">Exact</span>
+              <input
+                type="number"
+                class="kr-input-sm view-settings-number"
+                min="1"
+                max="20"
+                :value="gallery.viewCount"
+                aria-label="Exact number of images"
+                @change="onViewCountInput"
+              />
+            </label>
+
+            <fieldset class="queue-filter-field">
+              <legend class="kr-text-dim-xs">Default shape</legend>
+              <div class="join">
+                <button
+                  v-for="option in ORIENTATION_OPTIONS"
+                  :key="option.value"
+                  type="button"
+                  class="kr-btn btn-sm join-item"
+                  :class="
+                    gallery.orientation === option.value
+                      ? 'btn-primary'
+                      : 'btn-ghost'
+                  "
+                  :aria-pressed="gallery.orientation === option.value"
+                  @click="gallery.setOrientation(option.value)"
+                >
+                  {{ option.label }}
+                </button>
+              </div>
+            </fieldset>
+          </div>
+        </section>
+
+        <section
+          v-if="showPresetEditor"
+          class="queue-filter-panel kr-panel max-h-[60vh] overflow-y-auto"
+          aria-label="Sorting bin and action presets"
+        >
+          <ButterflyGalleryPresetEditor />
+        </section>
+      </div>
 
       <p class="sr-only" role="status" aria-live="polite">
         {{ gallery.lastSaveMessage }}
@@ -305,28 +319,52 @@
             role="list"
             aria-label="Artwork to sort"
           >
-            <button
+            <div
               v-for="entry in gallery.displayEntries"
               :key="entry.id"
-              type="button"
               role="listitem"
               class="art-tile"
               :class="{
                 'art-tile-selected': entry.id === gallery.selectedImageId,
+                'art-tile-checked': isBatchSelected(entry.id),
                 'art-tile-trashed': entry.trashed,
               }"
-              :aria-pressed="entry.id === gallery.selectedImageId"
-              draggable="true"
-              @click="onSelectPileEntry(entry.id)"
-              @dragstart="gallery.startDrag(entry.id)"
-              @dragend="onDragEnd"
             >
-              <img
-                :src="entry.thumbnailPath || entry.displayPath"
-                :alt="entry.prompt || 'Untitled artwork'"
-                draggable="false"
-              />
-            </button>
+              <button
+                type="button"
+                class="art-tile-open"
+                :aria-label="
+                  gallery.batchMode
+                    ? `${isBatchSelected(entry.id) ? 'Deselect' : 'Select'} artwork ${entry.id}`
+                    : `Open artwork ${entry.id}`
+                "
+                draggable="true"
+                @click="onArtClick(entry.id)"
+                @dragstart="gallery.startDrag(entry.id)"
+                @dragend="onDragEnd"
+              >
+                <img
+                  :src="entry.thumbnailPath || entry.displayPath"
+                  :alt="entry.prompt || 'Untitled artwork'"
+                  draggable="false"
+                />
+              </button>
+              <label
+                class="art-tile-check"
+                :title="`Select artwork ${entry.id}`"
+              >
+                <input
+                  type="checkbox"
+                  class="checkbox checkbox-xs checkbox-primary"
+                  :checked="isBatchSelected(entry.id)"
+                  :aria-label="`Select artwork ${entry.id}`"
+                  @change="toggleBatchEntry(entry.id)"
+                />
+              </label>
+              <span v-if="entry.rating" class="art-tile-rating">
+                {{ entry.rating }}★
+              </span>
+            </div>
           </div>
           <template v-else-if="gallery.selectedEntry">
             <img
@@ -337,6 +375,8 @@
               class="selected-art"
               :class="{ 'selected-art-fade': fadeReveal }"
               draggable="true"
+              title="Open the art card"
+              @click="onArtClick(gallery.selectedEntry!.id)"
               @dragstart="gallery.startDrag(gallery.selectedEntry!.id)"
               @dragend="onDragEnd"
               @animationend="fadeReveal = false"
@@ -417,6 +457,9 @@
             </button>
 
             <div v-if="infoExpanded" class="image-info-expanded">
+              <p v-if="gallery.selectedEntry.relativePath" class="break-all">
+                {{ gallery.selectedEntry.relativePath }}
+              </p>
               <p>
                 {{ gallery.selectedEntry.prompt || 'No prompt metadata.' }}
               </p>
@@ -429,41 +472,20 @@
               </p>
             </div>
 
-            <div class="image-info-collection">
-              <select
-                v-model="collectionTarget"
-                class="kr-select-sm"
-                aria-label="Add to collection"
-                :disabled="gallery.isBusy"
-              >
-                <option value="">Add to collection…</option>
-                <option
-                  v-for="c in gallery.collectionSummaries"
-                  :key="c.value"
-                  :value="c.value"
-                >
-                  {{ c.label || c.value }}
-                </option>
-                <option value="__new__">+ New collection…</option>
-              </select>
-              <input
-                v-if="collectionTarget === '__new__'"
-                v-model="newCollectionLabel"
-                type="text"
-                class="kr-input-sm"
-                placeholder="New collection name"
-                @keydown.enter.prevent="submitCollectionTarget"
-              />
-              <button
-                v-if="collectionTarget"
-                type="button"
-                class="kr-btn btn-primary btn-xs"
-                :disabled="gallery.isBusy"
-                @click="submitCollectionTarget"
-              >
-                Add
-              </button>
-            </div>
+            <button
+              type="button"
+              class="kr-btn btn-primary btn-xs image-info-open"
+              @click="gallery.openArtCard(gallery.selectedEntry!.id)"
+            >
+              <Icon name="kind-icon:expand" class="kr-icon-3" />
+              Open art card
+            </button>
+            <ButterflyGalleryCollectionPicker
+              class="image-info-collection"
+              :exclude="gallery.selectedEntry.collections"
+              :disabled="gallery.isBusy || gallery.selectedEntry.trashed"
+              @add="addSelectedToCollection"
+            />
           </template>
 
           <p v-else class="kr-text-dim-sm">Select art from the pile.</p>
@@ -518,19 +540,6 @@
         </button>
       </aside>
 
-      <svg
-        class="pointer-events-none absolute h-0 w-0"
-        aria-hidden="true"
-        focusable="false"
-      >
-        <filter id="kr-chroma-green" color-interpolation-filters="sRGB">
-          <feColorMatrix
-            type="matrix"
-            values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  2.5 -5 2.5 0 2.25"
-          />
-        </filter>
-      </svg>
-
       <div
         ref="robotAnimationSlotRef"
         class="robot-animation-slot"
@@ -541,7 +550,7 @@
           v-if="robotLoopVisible"
           :src="ROBOT_LOOP_CLIP_URL"
           :alt="ROBOT_LOOP_CLIP_ALT"
-          class="loop-clip loop-clip-seam robot-keyed"
+          class="loop-clip"
         />
       </div>
 
@@ -563,12 +572,17 @@
             'pile-card-selected': entry.id === gallery.selectedImageId,
             'pile-card-trashed': entry.trashed,
             'pile-card-pop': entry.id === justSelectedPileId,
+            'pile-card-checked': isBatchSelected(entry.id),
           }"
           :style="pileStyle(index, pileEntries.length)"
           draggable="true"
           :aria-label="`Select artwork ${entry.id}`"
-          :aria-pressed="entry.id === gallery.selectedImageId"
-          @click="onSelectPileEntry(entry.id)"
+          :aria-pressed="
+            gallery.batchMode
+              ? isBatchSelected(entry.id)
+              : entry.id === gallery.selectedImageId
+          "
+          @click="onPileClick(entry.id)"
           @dragstart="gallery.startDrag(entry.id)"
           @dragend="onDragEnd"
           @animationend="justSelectedPileId = null"
@@ -620,6 +634,8 @@
         </button>
       </div>
 
+      <ButterflyGalleryArtCard />
+
       <div v-if="gallery.status === 'intro'" class="intro-overlay">
         <button type="button" class="intro-skip" @click="finishIntro()">
           Skip intro
@@ -645,8 +661,6 @@
 
 <script setup lang="ts">
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
-import ButterflyGalleryGroupMenu from '@/components/art/ButterflyGalleryGroupMenu.vue'
-import ButterflyGalleryPresetEditor from '@/components/art/ButterflyGalleryPresetEditor.vue'
 import { useButterflyGalleryStore } from '@/stores/butterflyGalleryStore'
 import {
   butterflyGridColumns,
@@ -690,29 +704,28 @@ const RUNWAY_CLIPS: RunwayClip[] = []
 // pass clears. A separate randomized quiet gap follows before the next pass.
 const RUNWAY_CLIP_DURATION_MS = 3400
 
-// Far-background flock (replaces video for the runway window). Video models
-// zoomed the camera and blew butterflies up into smeared blobs, so the window
-// keeps the untouched runway-background.png and a few small copies of the
-// keyed butterfly loop drift across it with CSS -- the camera cannot move.
-const FAR_BUTTERFLY_URL =
-  '/images/generated/2026/10/artimage-241413-90b96ea3.webp'
+// Far-background flock over the room's own painted window. The runway slot
+// is sized and placed onto that window's glass (see .runway-slot), so these
+// fly inside the scene rather than in a box pasted over it. The clip carries
+// real transparency (keyed offline from the black-background ArtImage
+// 241413, then ping-ponged so the loop has no seam), so no blend mode or
+// filter is needed to hide a background.
+const FAR_BUTTERFLY_URL = '/butterfly-gallery-motion/butterfly-loop.webp'
 const FAR_BUTTERFLIES = [
-  { id: 1, top: 18, size: 15, travel: 26, bob: 5, delay: 0, flip: false },
-  { id: 2, top: 34, size: 11, travel: 34, bob: 4, delay: -9, flip: true },
-  { id: 3, top: 50, size: 18, travel: 30, bob: 6, delay: -17, flip: false },
-  { id: 4, top: 26, size: 9, travel: 40, bob: 3, delay: -23, flip: true },
-  { id: 5, top: 42, size: 13, travel: 28, bob: 5, delay: -5, flip: true },
-  { id: 6, top: 60, size: 10, travel: 36, bob: 4, delay: -29, flip: false },
+  { id: 1, top: 14, size: 30, travel: 24, bob: 9, delay: 0, reverse: false },
+  { id: 2, top: 46, size: 20, travel: 32, bob: 6, delay: -11, reverse: true },
+  { id: 3, top: 28, size: 38, travel: 28, bob: 11, delay: -19, reverse: false },
+  { id: 4, top: 58, size: 16, travel: 38, bob: 5, delay: -26, reverse: true },
+  { id: 5, top: 8, size: 24, travel: 30, bob: 8, delay: -6, reverse: true },
 ].map((butterfly) => ({
   id: butterfly.id,
   style: {
     '--far-top': `${butterfly.top}%`,
-    '--far-size': `${butterfly.size}px`,
+    '--far-size': `${butterfly.size}%`,
     '--far-travel': `${butterfly.travel}s`,
-    '--far-bob': `${butterfly.bob}px`,
+    '--far-bob': `${butterfly.bob}%`,
     '--far-delay': `${butterfly.delay}s`,
-    '--far-dir': butterfly.flip ? 'reverse' : 'normal',
-    '--far-flip': butterfly.flip ? -1 : 1,
+    '--far-dir': butterfly.reverse ? 'reverse' : 'normal',
   },
 }))
 
@@ -723,11 +736,11 @@ const FAR_BUTTERFLIES = [
 // RUNWAY_CLIPS above, each of these slots shows exactly one clip that loops
 // natively (loop: true) rather than cycling between several stills.
 const FOREGROUND_BUTTERFLY_CLIP_URL =
-  '/images/generated/2026/10/artimage-241413-90b96ea3.webp'
+  '/butterfly-gallery-motion/butterfly-loop.webp'
 const FOREGROUND_BUTTERFLY_CLIP_ALT =
   'A Gallery butterfly flutters in an independent loop near the top-left of the runway'
-const ROBOT_LOOP_CLIP_URL =
-  '/images/generated/2026/10/artimage-241414-4aef7141.webp'
+// Keyed offline from the green-screen ArtImage 241414 into real alpha.
+const ROBOT_LOOP_CLIP_URL = '/butterfly-gallery-motion/robot-loop.webp'
 const ROBOT_LOOP_CLIP_ALT =
   'A small robot sifts through pictures in a loop at the lower right'
 
@@ -751,8 +764,6 @@ const robotLoopVisible = ref(false)
 let foregroundButterflyObserver: IntersectionObserver | null = null
 let robotLoopObserver: IntersectionObserver | null = null
 const infoExpanded = ref(false)
-const collectionTarget = ref('')
-const newCollectionLabel = ref('')
 
 const selectedCollectionLabels = computed(() => {
   const entry = gallery.selectedEntry
@@ -763,17 +774,33 @@ const selectedCollectionLabels = computed(() => {
   )
 })
 
-async function submitCollectionTarget(): Promise<void> {
+async function addSelectedToCollection(
+  choice: { value: string; label: string } | { newLabel: string },
+): Promise<void> {
   const entry = gallery.selectedEntry
-  if (!entry || !collectionTarget.value) return
-  const saved =
-    collectionTarget.value === '__new__'
-      ? await gallery.addToNewCollection(entry.id, newCollectionLabel.value)
-      : await gallery.addToCollection(entry.id, collectionTarget.value)
-  if (saved) {
-    collectionTarget.value = ''
-    newCollectionLabel.value = ''
-  }
+  if (!entry) return
+  if ('newLabel' in choice)
+    await gallery.addToNewCollection(entry.id, choice.newLabel)
+  else await gallery.addToCollection(entry.id, choice.value)
+}
+
+function isBatchSelected(entryId: number): boolean {
+  return gallery.batchSelectedIds.includes(entryId)
+}
+
+function toggleBatchEntry(entryId: number): void {
+  if (!gallery.batchMode) gallery.setBatchMode(true)
+  gallery.toggleBatchSelected(entryId)
+}
+
+function onArtClick(entryId: number): void {
+  if (gallery.batchMode) toggleBatchEntry(entryId)
+  else gallery.openArtCard(entryId)
+}
+
+function onPileClick(entryId: number): void {
+  if (gallery.batchMode) toggleBatchEntry(entryId)
+  else onSelectPileEntry(entryId)
 }
 const dropSequence = ref(0)
 const fadeReveal = ref(false)
@@ -781,11 +808,13 @@ const showFilters = ref(false)
 const showPresetEditor = ref(false)
 const showViewSettings = ref(false)
 
-const ORIENTATION_OPTIONS: { value: ButterflyGalleryOrientation; label: string }[] =
-  [
-    { value: 'landscape', label: 'Landscape' },
-    { value: 'portrait', label: 'Portrait' },
-  ]
+const ORIENTATION_OPTIONS: {
+  value: ButterflyGalleryOrientation
+  label: string
+}[] = [
+  { value: 'landscape', label: 'Landscape' },
+  { value: 'portrait', label: 'Portrait' },
+]
 
 const frameAspect = ref(1.5)
 let frameResizeObserver: ResizeObserver | null = null
@@ -804,7 +833,6 @@ const artGridColumns = computed(() =>
 function onViewCountInput(event: Event): void {
   gallery.setViewCount(Number((event.target as HTMLInputElement).value))
 }
-
 
 // -- First-visit intro orchestration (butterfly-gallery/t-015) -------------
 const introTrapdoorOpen = ref(false)
@@ -1005,8 +1033,7 @@ watch(
   () => gallery.selectedImageId,
   async (nextId, previousId) => {
     infoExpanded.value = false
-    collectionTarget.value = ''
-    newCollectionLabel.value = ''
+    if (gallery.artCardEntryId !== null) return
     if (nextId === null || nextId === previousId) return
     if (gallery.viewCount > 1) return
 
@@ -1318,7 +1345,17 @@ function isEditableTarget(target: EventTarget | null): boolean {
  * on the page's own root element rather than `window` so it only ever fires
  * for keydowns that actually bubble from inside the gallery. */
 async function handleSortingKeydown(event: KeyboardEvent): Promise<void> {
-  if (event.defaultPrevented) return
+  if (event.defaultPrevented || gallery.artCardEntryId !== null) return
+  if (
+    event.key === 'Enter' &&
+    gallery.selectedImageId !== null &&
+    !isEditableTarget(event.target) &&
+    !(event.target instanceof HTMLButtonElement)
+  ) {
+    event.preventDefault()
+    gallery.openArtCard(gallery.selectedImageId)
+    return
+  }
 
   const intent = resolveButterflyShortcutIntent({
     key: event.key,
@@ -1361,7 +1398,15 @@ function pileStyle(index: number, total: number): Record<string, string> {
   background: var(--color-base-200);
 }
 
+/* The room art (room.png, 1672x941) is drawn with background-size: cover,
+   centred. --room-scale is that cover scale -- one room-image pixel in CSS
+   length, resolved against the nearest size container (.room-layer,
+   .intro-overlay: both fill the stage) -- so anything placed onto the
+   painted room stays registered to it at every stage size and aspect
+   ratio. The stage itself is not a container: size containment would make
+   it the containing block for the fixed-position funnel-drop proxy. */
 .butterfly-stage {
+  --room-scale: max(100cqw / 1672, 100cqh / 941);
   position: relative;
   isolation: isolate;
   width: 100%;
@@ -1370,6 +1415,13 @@ function pileStyle(index: number, total: number): Record<string, string> {
   overflow: hidden;
   background: var(--color-base-200);
   color: var(--color-base-content);
+}
+
+.room-layer {
+  position: absolute;
+  inset: 0;
+  container-type: size;
+  pointer-events: none;
 }
 
 .warehouse-backdrop {
@@ -1410,110 +1462,19 @@ function pileStyle(index: number, total: number): Record<string, string> {
     100% 100%;
 }
 
-.warehouse-grid {
-  position: absolute;
-  inset: 6% 7% 18%;
-  border: 2px solid color-mix(in oklch, var(--color-neutral) 30%, transparent);
-  border-bottom: 0;
-  background:
-    linear-gradient(
-      90deg,
-      transparent 49.7%,
-      color-mix(in oklch, var(--color-neutral) 13%, transparent) 50%,
-      transparent 50.3%
-    ),
-    repeating-linear-gradient(
-      90deg,
-      transparent 0 13%,
-      color-mix(in oklch, var(--color-neutral) 10%, transparent) 13% 13.2%
-    );
-  opacity: 0.9;
-}
-
-.warehouse-catwalk {
-  position: absolute;
-  top: 28%;
-  width: 26%;
-  height: 8px;
-  background: var(--color-warning);
-  box-shadow:
-    0 -9px 0 color-mix(in oklch, var(--color-neutral) 78%, transparent),
-    0 8px 0 color-mix(in oklch, var(--color-neutral) 55%, transparent);
-  opacity: 0.72;
-}
-
-.warehouse-catwalk::before {
-  content: '';
-  position: absolute;
-  inset: -44px 0 8px;
-  background: repeating-linear-gradient(
-    90deg,
-    transparent 0 38px,
-    color-mix(in oklch, var(--color-warning) 80%, transparent) 38px 43px
-  );
-}
-
-.warehouse-catwalk-left {
-  left: 0;
-}
-
-.warehouse-catwalk-right {
-  right: 0;
-}
-
-.warehouse-floor {
-  position: absolute;
-  inset: 56% 0 0;
-  background:
-    linear-gradient(
-      90deg,
-      transparent 49.7%,
-      color-mix(in oklch, var(--color-warning) 38%, transparent) 50%,
-      transparent 50.3%
-    ),
-    repeating-linear-gradient(
-      90deg,
-      transparent 0 14%,
-      color-mix(in oklch, var(--color-neutral) 8%, transparent) 14% 14.2%
-    ),
-    linear-gradient(
-      180deg,
-      color-mix(in oklch, var(--color-base-100) 85%, var(--color-info) 5%),
-      var(--color-base-200)
-    );
-}
-
+/* Registered onto the glass of the window painted into room.png: the glass
+   spans x 287-1415, y 87-284 of the 1672x941 image, offset here from the
+   image centre (836, 470.5) in room pixels. Transparent, so the painted
+   landscape shows through and the flock flies inside the scene. */
 .runway-slot {
   position: absolute;
   z-index: 2;
-  top: 3%;
-  left: 9%;
-  right: 9%;
-  height: 17%;
-  display: grid;
-  grid-template-columns: repeat(8, 1fr);
+  left: calc(50cqw - 549 * var(--room-scale));
+  top: calc(50cqh - 383.5 * var(--room-scale));
+  width: calc(1128 * var(--room-scale));
+  height: calc(197 * var(--room-scale));
   overflow: hidden;
-  border: 5px solid
-    color-mix(in oklch, var(--color-neutral) 82%, var(--color-info));
-  border-radius: 1.5rem;
-  /* Rendered window casing (t-028, ArtImage 28267); the flat color-mix
-     remains as the fallback background if the asset fails to load. */
-  background-color: color-mix(
-    in oklch,
-    var(--color-info) 18%,
-    var(--color-base-100)
-  );
-  background-image:
-    url('/images/butterfly-gallery/window.png'),
-    url('/images/butterfly-gallery/runway-background.png');
-  background-repeat: no-repeat, no-repeat;
-  background-position: center, center;
-  background-size:
-    100% 100%,
-    cover;
-  box-shadow:
-    inset 0 0 0 3px color-mix(in oklch, var(--color-info) 28%, transparent),
-    0 10px 22px color-mix(in oklch, var(--color-neutral) 20%, transparent);
+  border-radius: calc(28 * var(--room-scale));
 }
 
 .runway-clip {
@@ -1539,62 +1500,37 @@ function pileStyle(index: number, total: number): Record<string, string> {
   position: absolute;
   top: var(--far-top);
   left: 0;
-  width: var(--far-size);
   height: var(--far-size);
+  aspect-ratio: 1;
+  animation: far-butterfly-cross var(--far-travel) linear var(--far-delay)
+    infinite var(--far-dir);
+}
+
+.far-butterfly img {
+  width: 100%;
+  height: 100%;
   object-fit: contain;
-  mix-blend-mode: screen;
-  opacity: 0.85;
-  filter: blur(0.35px) saturate(1.1);
-  animation:
-    far-butterfly-cross var(--far-travel) linear var(--far-delay) infinite
-      alternate var(--far-dir),
-    far-butterfly-bob 2.4s ease-in-out var(--far-delay) infinite alternate,
-    clip-seam-fade 4.06s linear infinite;
-}
-
-.loop-clip.loop-clip-seam {
-  animation:
-    runway-clip-fade-in 260ms ease,
-    clip-seam-fade 4.06s linear infinite;
-}
-
-@keyframes clip-seam-fade {
-  0%,
-  100% {
-    opacity: 0;
-  }
-  10%,
-  90% {
-    opacity: 1;
-  }
+  opacity: 0.92;
+  animation: far-butterfly-bob 2.6s ease-in-out var(--far-delay) infinite
+    alternate;
 }
 
 @keyframes far-butterfly-cross {
   from {
-    left: -4%;
+    left: -12%;
   }
   to {
-    left: 100%;
+    left: 104%;
   }
 }
 
 @keyframes far-butterfly-bob {
   from {
-    transform: translateY(calc(var(--far-bob) * -1)) scaleX(var(--far-flip));
+    transform: translateY(calc(var(--far-bob) * -1)) rotate(-6deg);
   }
   to {
-    transform: translateY(var(--far-bob)) scaleX(var(--far-flip));
+    transform: translateY(var(--far-bob)) rotate(6deg);
   }
-}
-
-.runway-panel {
-  border-right: 2px solid
-    color-mix(in oklch, var(--color-neutral) 22%, transparent);
-  background: linear-gradient(
-    180deg,
-    color-mix(in oklch, var(--color-info) 10%, transparent),
-    transparent
-  );
 }
 
 .drop-funnel {
@@ -1809,6 +1745,7 @@ function pileStyle(index: number, total: number): Record<string, string> {
 .selected-art {
   width: 100%;
   height: 100%;
+  cursor: zoom-in;
   object-fit: contain;
   background: color-mix(in oklch, var(--color-neutral) 92%, black);
   transform-origin: 50% 0;
@@ -1828,26 +1765,72 @@ function pileStyle(index: number, total: number): Record<string, string> {
   position: relative;
   min-width: 0;
   min-height: 0;
-  padding: 0;
   overflow: hidden;
   border: 3px solid transparent;
   border-radius: 0.6rem;
   background: color-mix(in oklch, var(--color-neutral) 92%, black);
-  cursor: grab;
 }
 
-.art-tile img {
+.art-tile-open {
+  display: block;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  cursor: pointer;
+}
+
+.art-tile-open img {
   width: 100%;
   height: 100%;
   object-fit: contain;
   pointer-events: none;
 }
 
-.art-tile:focus-visible,
+.art-tile:focus-within,
 .art-tile-selected {
   border-color: var(--color-primary);
   box-shadow: 0 0 0 2px
     color-mix(in oklch, var(--color-primary) 35%, transparent);
+}
+
+.art-tile-checked {
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 3px
+    color-mix(in oklch, var(--color-accent) 55%, transparent);
+}
+
+.art-tile-check {
+  position: absolute;
+  top: 0.35rem;
+  left: 0.35rem;
+  display: grid;
+  place-items: center;
+  padding: 0.2rem;
+  border-radius: 0.4rem;
+  background: color-mix(in oklch, var(--color-base-100) 80%, transparent);
+  opacity: 0;
+  cursor: pointer;
+  transition: opacity 120ms ease;
+}
+
+.art-tile:hover .art-tile-check,
+.art-tile:focus-within .art-tile-check,
+.art-tile-checked .art-tile-check,
+.butterfly-stage[data-batch='true'] .art-tile-check {
+  opacity: 1;
+}
+
+.art-tile-rating {
+  position: absolute;
+  right: 0.35rem;
+  bottom: 0.35rem;
+  padding: 0.05rem 0.4rem;
+  border-radius: 999px;
+  background: color-mix(in oklch, var(--color-base-100) 82%, transparent);
+  color: var(--color-warning);
+  font-size: 0.65rem;
+  font-weight: 900;
+  pointer-events: none;
 }
 
 .art-tile-trashed {
@@ -2099,14 +2082,6 @@ function pileStyle(index: number, total: number): Record<string, string> {
   animation: runway-clip-fade-in 260ms ease;
 }
 
-.robot-keyed {
-  filter: url('#kr-chroma-green');
-}
-
-.loop-clip-screen {
-  mix-blend-mode: screen;
-}
-
 .art-pile {
   position: absolute;
   z-index: 20;
@@ -2189,17 +2164,53 @@ function pileStyle(index: number, total: number): Record<string, string> {
   color: var(--color-primary);
 }
 
-.queue-toolbar {
+.stage-top {
   position: absolute;
-  z-index: 35;
+  z-index: 40;
   top: 1rem;
   left: 1rem;
+  right: 1rem;
   display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.5rem;
+  pointer-events: none;
+}
+
+.stage-top > * {
+  pointer-events: auto;
+}
+
+.queue-toolbar {
+  display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 0.5rem;
 }
 
+.queue-select-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.3rem 0.75rem;
+  border: 1px solid var(--color-base-300);
+  border-radius: 999px;
+  background: color-mix(in oklch, var(--color-base-100) 88%, transparent);
+  font-size: 0.72rem;
+  font-weight: 800;
+  backdrop-filter: blur(8px);
+}
+
+.queue-select-toggle-active {
+  border-color: var(--color-primary);
+  background: var(--color-primary);
+  color: var(--color-primary-content);
+}
+
 .queue-count {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
   padding: 0.2rem 0.6rem;
   border-radius: 999px;
   background: color-mix(in oklch, var(--color-base-100) 88%, transparent);
@@ -2209,11 +2220,7 @@ function pileStyle(index: number, total: number): Record<string, string> {
 }
 
 .queue-filter-panel {
-  position: absolute;
-  z-index: 40;
-  top: 3.6rem;
-  left: 1rem;
-  right: 1rem;
+  align-self: stretch;
   padding: 0.85rem;
   border-radius: 1rem;
   background: color-mix(in oklch, var(--color-base-100) 96%, transparent);
@@ -2240,24 +2247,11 @@ function pileStyle(index: number, total: number): Record<string, string> {
   gap: 0.35rem;
 }
 
-.queue-filter-groups {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: flex-start;
-  gap: 0.6rem;
+.image-info-open {
   margin-top: 0.6rem;
 }
 
-
-
-
-
-
 .image-info-collection {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.3rem;
   margin-top: 0.4rem;
 }
 
@@ -2273,6 +2267,11 @@ function pileStyle(index: number, total: number): Record<string, string> {
 .restore-action {
   background: var(--color-info);
   color: var(--color-info-content);
+}
+
+.pile-card-checked {
+  outline: 4px solid var(--color-accent);
+  outline-offset: 3px;
 }
 
 .pile-card-trashed {
@@ -2295,6 +2294,7 @@ function pileStyle(index: number, total: number): Record<string, string> {
   position: absolute;
   inset: 0;
   z-index: 60;
+  container-type: size;
   overflow: hidden;
   pointer-events: none;
 }
@@ -2317,11 +2317,11 @@ function pileStyle(index: number, total: number): Record<string, string> {
 
 .intro-trapdoor {
   position: absolute;
-  top: 0;
-  left: 9%;
-  right: 9%;
-  height: 17%;
-  border-radius: 0 0 1.25rem 1.25rem;
+  left: calc(50cqw - 549 * var(--room-scale));
+  top: calc(50cqh - 383.5 * var(--room-scale));
+  width: calc(1128 * var(--room-scale));
+  height: calc(197 * var(--room-scale));
+  border-radius: calc(28 * var(--room-scale));
   background: color-mix(in oklch, var(--color-neutral) 88%, black);
   box-shadow: 0 10px 18px
     color-mix(in oklch, var(--color-neutral) 40%, transparent);
@@ -2445,7 +2445,7 @@ function pileStyle(index: number, total: number): Record<string, string> {
   .intro-tumble-frame,
   .runway-clip,
   .far-butterfly,
-  .loop-clip-seam,
+  .far-butterfly img,
   .loop-clip {
     animation: none;
   }
@@ -2504,9 +2504,9 @@ function pileStyle(index: number, total: number): Record<string, string> {
   }
 
   .gallery-utilities {
-    top: 0.75rem;
+    top: auto;
     right: 0.75rem;
-    bottom: auto;
+    bottom: 10rem;
   }
 
   .art-display {

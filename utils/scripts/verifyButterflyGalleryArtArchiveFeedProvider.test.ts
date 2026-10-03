@@ -91,15 +91,31 @@ function testFallbacksAndPassthrough(): void {
   assert.deepEqual(
     noCollection.collections,
     [],
-    'no folderCollection should yield an empty collections list',
+    'no collection memberships should yield an empty collections list',
   )
 
-  const withCollection = toButterflyPileEntry(makeRow())
+  const folderOnly = toButterflyPileEntry(makeRow())
+  assert.deepEqual(
+    folderOnly.collections,
+    [],
+    'the folder-derived collection is the entry folder, not a membership',
+  )
+
+  const withCollection = toButterflyPileEntry(
+    makeRow({
+      relativePath: 'inbox/entry-1.webp',
+      collections: [{ id: 7, slug: 'keepers', label: 'Keepers' }],
+    }),
+  )
   assert.deepEqual(
     withCollection.collections,
-    ['favorites'],
-    'folderCollection.slug should populate collections',
+    ['keepers'],
+    'row.collections slugs should populate collections',
   )
+  assert.deepEqual(withCollection.collectionRefs, [
+    { id: 7, slug: 'keepers', label: 'Keepers' },
+  ])
+  assert.equal(withCollection.relativePath, 'inbox/entry-1.webp')
 
   const mature = toButterflyPileEntry(
     makeRow({ isMature: true, isPublic: false }),

@@ -12,6 +12,7 @@ import { performFetch } from '@/stores/utils'
 import { toButterflyPileEntry } from '@/stores/helpers/butterflyGalleryArtArchiveMapping'
 import type { ArchiveEntryRow } from '@/stores/helpers/butterflyGalleryArtArchiveMapping'
 import type {
+  ButterflyCatalog,
   ButterflyFeedPage,
   ButterflyFeedQuery,
   ButterflyGalleryFeedProvider,
@@ -47,6 +48,11 @@ export function createArtArchiveButterflyGalleryFeedProvider(): ButterflyGallery
         pageSize: String(pageSize),
         includeInactive: 'true',
       })
+      const scope = query.scope ?? {}
+      if (typeof scope.folder === 'string') params.set('folder', scope.folder)
+      if (scope.collectionId)
+        params.set('collectionId', String(scope.collectionId))
+      if (scope.rating) params.set('rating', String(scope.rating))
       const response = await performFetch<ArchiveEntriesPayload>(
         `/api/admin/art-archive/entries?${params}`,
       )
@@ -61,6 +67,17 @@ export function createArtArchiveButterflyGalleryFeedProvider(): ButterflyGallery
         entries: entries.map(toButterflyPileEntry),
         nextCursor: fetchedThroughRow < total ? encodeCursor(page + 1) : null,
       }
+    },
+    async fetchCatalog(): Promise<ButterflyCatalog> {
+      const response = await performFetch<ButterflyCatalog>(
+        '/api/admin/art-archive/catalog',
+      )
+      if (!response.success || !response.data) {
+        throw new Error(
+          response.message ?? 'Failed to fetch the Art Archive catalog.',
+        )
+      }
+      return response.data
     },
   }
 }

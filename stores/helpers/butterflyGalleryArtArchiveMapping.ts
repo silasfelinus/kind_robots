@@ -10,8 +10,11 @@ import type {
   ButterflyPileEntry,
 } from '@/types/butterflyGallery'
 
+export type ArchiveCollectionRow = { id: number; slug: string; label: string }
+
 export type ArchiveEntryRow = {
   id: number
+  relativePath?: string | null
   parentFolder: string | null
   processState: string
   matchState: string
@@ -25,7 +28,10 @@ export type ArchiveEntryRow = {
   negativePrompt: string | null
   checkpoint: string | null
   generationMetadata: Record<string, unknown> | null
-  folderCollection: { id: number; slug: string; label: string } | null
+  folderCollection: ArchiveCollectionRow | null
+  /** Non-folder collection memberships; the folder collection is carried by
+   * `parentFolder` and is changed by moving the file, not by membership. */
+  collections?: ArchiveCollectionRow[]
 }
 
 function toButterflyMatchState(
@@ -53,8 +59,9 @@ export function toButterflyPileEntry(row: ArchiveEntryRow): ButterflyPileEntry {
     trashed: !row.isActive,
     rating: row.rating,
     folder: row.parentFolder,
-    collections: row.folderCollection ? [row.folderCollection.slug] : [],
-    collectionRefs: row.folderCollection ? [row.folderCollection] : [],
+    relativePath: row.relativePath ?? null,
+    collections: (row.collections ?? []).map((collection) => collection.slug),
+    collectionRefs: row.collections ?? [],
     prompt: row.prompt,
     negativePrompt: row.negativePrompt,
     resource: { checkpoint: row.checkpoint, loras: [] },

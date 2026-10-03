@@ -9,9 +9,12 @@ import { errorHandler } from '~/server/utils/error'
 import { requireAdminApiUser } from '~/server/utils/authGuard'
 import { viewerShowsMature } from '~/server/utils/contentAccess'
 import { archiveMediaUrl } from '~/server/utils/artArchiveSignedMedia'
+import { toArchiveCollectionRef } from '~/server/utils/artArchiveCollectionRefs'
 
 type EntryListQuery = {
   folderCollectionId?: string
+  folder?: string
+  collectionId?: string
   processState?: string
   matchState?: string
   rating?: string
@@ -49,6 +52,16 @@ export default defineEventHandler(async (event) => {
     const folderCollectionId = Number(query.folderCollectionId)
     if (Number.isInteger(folderCollectionId) && folderCollectionId > 0)
       where.folderCollectionId = folderCollectionId
+    if (typeof query.folder === 'string')
+      where.parentFolder = query.folder.trim() || null
+    const collectionId = Number(query.collectionId)
+    if (Number.isInteger(collectionId) && collectionId > 0) {
+      const members = await prisma.artImage.findMany({
+        where: { ArtCollections: { some: { id: collectionId } } },
+        select: { id: true },
+      })
+      where.artImageId = { in: members.map((member) => member.id) }
+    }
     if (
       query.processState &&
       (Object.values(ArchiveEntryProcessState) as string[]).includes(
@@ -127,6 +140,11 @@ export default defineEventHandler(async (event) => {
               steps: true,
               seed: true,
               cfg: true,
+              ArtCollections: {
+                where: { isActive: true },
+                select: { id: true, slug: true, label: true },
+                orderBy: { label: 'asc' },
+              },
             },
           })
         : Promise.resolve([]),
@@ -155,6 +173,9 @@ export default defineEventHandler(async (event) => {
       // already admin-authenticated, so minting the capability here is the
       // point at which we know it is deserved.
       const hasImage = Boolean(artImage?.path)
+      const folderCollection = entry.folderCollectionId
+        ? (folderCollectionsById.get(entry.folderCollectionId) ?? null)
+        : null
       return {
         ...entry,
         imagePath: hasImage ? archiveMediaUrl(entry.id, 'full') : null,
@@ -172,9 +193,12 @@ export default defineEventHandler(async (event) => {
               cfg: artImage.cfg ?? null,
             }
           : null,
-        folderCollection: entry.folderCollectionId
-          ? (folderCollectionsById.get(entry.folderCollectionId) ?? null)
+        folderCollection: folderCollection
+          ? toArchiveCollectionRef(folderCollection)
           : null,
+        collections: (artImage?.ArtCollections ?? [])
+          .filter((collection) => collection.id !== entry.folderCollectionId)
+          .map(toArchiveCollectionRef),
       }
     })
 

@@ -118,14 +118,33 @@ const admin = channel('admin', [
   'artjob',
   'project-placement',
   'navigation-health',
-  'serendipity',
   'user-admin',
   'forum-moderation',
 ])
 assert.deepEqual(
   navigationTabs(admin).map((entry) => entry.tabKey),
-  ['artjob', 'serendipity', 'user-admin'],
-  'Admin navigation must expose Serendipity while hiding diagnostic and nested destinations',
+  ['artjob', 'user-admin'],
+  'Admin navigation must hide diagnostic and nested destinations',
+)
+
+const retired = channel('retired', [
+  'serendipity',
+  'shared-with-me',
+  'forum',
+  'academy',
+  'hair-studio',
+  'voice-lab',
+  'challenges',
+  'watchlist',
+  'ui-gallery',
+  'missing-image-test',
+  'achievement-art',
+  'social-drafts',
+])
+assert.equal(
+  navigationTabs(retired).length,
+  12,
+  'Retired navigation must keep all twelve archived surfaces reachable for admins',
 )
 
 for (const path of [
@@ -185,8 +204,8 @@ for (const route of ['/about', '/giving', '/sanctuary']) {
   assert.ok(aboutPage.includes(`to="${route}"`), `Support must link to ${route}`)
 }
 
-const serendipityTab = source('content/channels/admin/serendipity.md')
-assert.match(serendipityTab, /\nchannelKey: admin\n/)
+const serendipityTab = source('content/channels/retired/serendipity.md')
+assert.match(serendipityTab, /\nchannelKey: retired\n/)
 assert.match(serendipityTab, /\nroute: \/serendipity\n/)
 assert.match(serendipityTab, /\nrequiredRole: ADMIN\n/)
 const serendipityPage = source('content/serendipity.md')
@@ -222,4 +241,4 @@ assert.ok(
   'the full navigation directory must honor nested destinations too',
 )
 
-console.log('Navigation consolidation verified: Account, Support, admin Serendipity, hidden diagnostics, nested routes, access metadata, and ArtJob icon all hold.')
+console.log('Navigation consolidation verified: Account, Support, Retired archive, hidden diagnostics, nested routes, access metadata, and ArtJob icon all hold.')

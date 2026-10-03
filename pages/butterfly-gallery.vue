@@ -35,7 +35,7 @@
         aria-hidden="true"
       >
         <img
-          v-if="runwayCyclingEnabled && runwayClip"
+          v-if="runwayCyclingEnabled && runwayClipVisible && runwayClip"
           :key="runwayClip.url"
           :src="runwayClip.url"
           :alt="runwayClip.alt"
@@ -526,7 +526,10 @@ import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import ButterflyGalleryPresetEditor from '@/components/art/ButterflyGalleryPresetEditor.vue'
 import { useButterflyGalleryStore } from '@/stores/butterflyGalleryStore'
 import { useUserStore } from '@/stores/userStore'
-import { computeButterflyFunnelDropPlan } from '@/stores/helpers/butterflyGalleryMotion'
+import {
+  computeButterflyFunnelDropPlan,
+  computeButterflyRunwaySchedule,
+} from '@/stores/helpers/butterflyGalleryMotion'
 import {
   INTRO_HARD_TIMEOUT_MS,
   INTRO_TRAPDOOR_START_MS,
@@ -573,7 +576,7 @@ const RUNWAY_CLIPS: RunwayClip[] = [
   },
 ]
 // Each source clip is ~3s; the extra 400ms lets the fade-in settle before the
-// next clip mounts.
+// pass clears. A separate randomized quiet gap follows before the next pass.
 const RUNWAY_CLIP_DURATION_MS = 3400
 
 // -- Loop motion clips (butterfly-gallery/t-035) -----------------------------
@@ -599,6 +602,7 @@ const runwaySlotRef = ref<HTMLElement | null>(null)
 const runwayClipIndex = ref(0)
 const runwayIntersecting = ref(false)
 const runwayCyclingEnabled = ref(false)
+const runwayClipVisible = ref(false)
 let runwayCycleTimer: ReturnType<typeof setTimeout> | null = null
 let runwayVisibilityObserver: IntersectionObserver | null = null
 const foregroundButterflySlotRef = ref<HTMLElement | null>(null)
@@ -849,18 +853,30 @@ function handleReducedMotionChange(event: MediaQueryListEvent): void {
   evaluateRobotLoop()
 }
 
-/** Advances to the next runway clip after RUNWAY_CLIP_DURATION_MS, keyed
- * so a fresh <img> remounts and restarts the animated webp from frame 0. */
+/** Plays one runway pass, clears the window, then schedules a different clip
+ * after a varied quiet gap. Remounting the <img> restarts the animated webp
+ * from frame 0; the gap keeps the runway ambient rather than permanently busy. */
 function scheduleNextRunwayClip(): void {
   if (runwayCycleTimer) clearTimeout(runwayCycleTimer)
+  runwayClipVisible.value = true
   runwayCycleTimer = setTimeout(() => {
-    runwayClipIndex.value = (runwayClipIndex.value + 1) % RUNWAY_CLIPS.length
-    scheduleNextRunwayClip()
+    runwayClipVisible.value = false
+    const next = computeButterflyRunwaySchedule(
+      runwayClipIndex.value,
+      RUNWAY_CLIPS.length,
+      Math.random(),
+      Math.random(),
+    )
+    runwayCycleTimer = setTimeout(() => {
+      runwayClipIndex.value = next.clipIndex
+      scheduleNextRunwayClip()
+    }, next.gapMs)
   }, RUNWAY_CLIP_DURATION_MS)
 }
 
 function stopRunwayCycle(): void {
   runwayCyclingEnabled.value = false
+  runwayClipVisible.value = false
   if (runwayCycleTimer) {
     clearTimeout(runwayCycleTimer)
     runwayCycleTimer = null

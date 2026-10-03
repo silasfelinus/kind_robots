@@ -26,6 +26,7 @@ export type ChannelContentItem = {
   contentType?: 'page' | 'channel' | 'tab'
   channelKey?: string
   tabKey?: string
+  parentTabKey?: string
   dashboardKey?: string
   dashboardTab?: string
   label?: string
@@ -85,6 +86,7 @@ export type ResolvedTab = {
   key: string
   channelKey: string
   tabKey: string
+  parentTabKey: string
   dashboardKey: string
   dashboardTab: string
   label: string
@@ -279,6 +281,7 @@ function resolveTabItem(
     item.image,
     channel.channelKey,
     tabKey,
+    parentTabKey: text(item.parentTabKey),
     dashboardKey,
     dashboardTab,
   )
@@ -317,7 +320,7 @@ function resolveTabItem(
     tooltip: text(item.tooltip) || channel.tooltip,
     icon: text(item.icon) || channel.icon,
     image,
-    route: normalizedRoute(item.route) || channel.route,
+    route: normalizedRoute(item.route),
     component: text(item.component),
     modelType: text(item.modelType),
     sort: order(item.sort),

@@ -757,6 +757,29 @@ export function classifyCheckpointFamily(
   return classifyLoraFamily(candidate.generation)
 }
 
+/*
+ * Families a plain named-checkpoint graph (CheckpointLoaderSimple ->
+ * CLIPTextEncode -> KSampler) can render. Flux and Z-Image need their own
+ * lanes, and everything 'unsupported' -- 3D, audio, video, Qwen, motion
+ * modules -- has no usable CLIP in the file at all.
+ *
+ * ArtJob 33123 (2026-10-02): the resource-preview endpoint trusted a GENERIC
+ * label and previewed an SD LoRA on 3D/hunyuan3d-dit-v2-mv-turbo, and ComfyUI
+ * failed at CLIPTextEncode with "clip input is invalid: None".
+ */
+const SD_LINEAGE_CHECKPOINT_FAMILIES: ReadonlySet<LoraProbeFamily> = new Set([
+  'sd15',
+  'sdxl',
+  'pony',
+  'illustrious',
+])
+
+export function isSdLineageCheckpoint(
+  candidate: Pick<ProbeCheckpointCandidate, 'localPath' | 'generation'>,
+): boolean {
+  return SD_LINEAGE_CHECKPOINT_FAMILIES.has(classifyCheckpointFamily(candidate))
+}
+
 /**
  * The base to render a LoRA against.
  *

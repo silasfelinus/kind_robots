@@ -3163,9 +3163,6 @@ enum LoraCategory {
   OBJECT
   CREATURE
   DETAIL
-  /// Retired 2026-10-03: folded into ACTION (and, row by row, STYLE/CLOTHING/
-  /// SETTING/CREATURE). Left in the enum so no migration is needed; nothing
-  /// writes it, and utils/loraCategory.ts reads a stored CONCEPT as unclassified.
   CONCEPT
   OTHER
 }

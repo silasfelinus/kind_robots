@@ -1,0 +1,153 @@
+/// Comic Studio (conductor project comic-creator/t-013, t-014): an admin-only workspace
+/// for one comic series. Renders are vetted lane by lane (a lane is an engine plus an
+/// optional checkpoint) and pages are composed from panel segments.
+///
+/// Every render is an ordinary ArtJob created through POST /api/art/enqueue; a
+/// ComicAttempt only records which slot and lane asked for it and what Silas thought
+/// of the result. artJobId / artImageId and userId are plain scalars with no relation
+/// back to ArtJob, ArtImage or User, matching MusicVideo, so the migration is purely
+/// additive and an ArtJob cleanup can never cascade into studio history.
+///
+/// Kinds, statuses and verdicts are short text columns validated by utils/comicStudio.ts
+/// rather than Prisma enums, so a new value needs no migration. An issue's page layout
+/// is one versioned JSON document (ComicIssue.layout) validated by utils/comicLayouts.ts.
+model ComicSeries {
+  id             Int           @id @default(autoincrement())
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @default(now()) @updatedAt
+  userId         Int
+  slug           String        @unique @db.VarChar(120)
+  title          String        @db.VarChar(255)
+  notes          String?       @db.LongText
+  styleProse     String?       @db.Text
+  styleTags      String?       @db.Text
+  negativeTags   String?       @db.Text
+  lanes          String        @db.LongText
+  isPublicArt    Boolean       @default(false)
+  coverAttemptId Int?
+  isArchived     Boolean       @default(false)
+  Entities       ComicEntity[]
+  Slots          ComicSlot[]
+  Issues         ComicIssue[]
+  Critiques      ComicCritique[]
+
+  @@index([userId, updatedAt])
+}
+
+model ComicEntity {
+  id                Int         @id @default(autoincrement())
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @default(now()) @updatedAt
+  seriesId          Int
+  key               String      @db.VarChar(120)
+  kind              String      @default("character") @db.VarChar(32)
+  name              String      @db.VarChar(255)
+  notes             String?     @db.LongText
+  secretUntil       String?     @db.VarChar(255)
+  sortOrder         Int         @default(0)
+  portraitAttemptId Int?
+  isArchived        Boolean     @default(false)
+  Series            ComicSeries @relation(fields: [seriesId], references: [id], onDelete: Cascade)
+  Slots             ComicSlot[]
+
+  @@unique([seriesId, key])
+  @@index([seriesId, sortOrder])
+}
+
+model ComicSlot {
+  id             Int            @id @default(autoincrement())
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @default(now()) @updatedAt
+  seriesId       Int
+  entityId       Int?
+  issueId        Int?
+  key            String         @db.VarChar(160)
+  kind           String         @default("subject") @db.VarChar(32)
+  title          String         @db.VarChar(255)
+  notes          String?        @db.Text
+  aspect         String         @default("1:1") @db.VarChar(16)
+  promptProse    String?        @db.Text
+  promptTags     String?        @db.Text
+  negativePrompt String?        @db.Text
+  useSeriesStyle Boolean        @default(true)
+  laneKeys       String?        @db.Text
+  status         String         @default("open") @db.VarChar(16)
+  sortOrder      Int            @default(0)
+  isArchived     Boolean        @default(false)
+  Series         ComicSeries    @relation(fields: [seriesId], references: [id], onDelete: Cascade)
+  Entity         ComicEntity?   @relation(fields: [entityId], references: [id], onDelete: SetNull)
+  Issue          ComicIssue?    @relation(fields: [issueId], references: [id], onDelete: SetNull)
+  Attempts       ComicAttempt[]
+
+  @@unique([seriesId, key])
+  @@index([seriesId, entityId, sortOrder])
+  @@index([issueId])
+}
+
+model ComicAttempt {
+  id             Int       @id @default(autoincrement())
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @default(now()) @updatedAt
+  slotId         Int
+  laneKey        String    @db.VarChar(64)
+  engine         String    @db.VarChar(32)
+  checkpoint     String?   @db.VarChar(512)
+  prompt         String    @db.Text
+  negativePrompt String?   @db.Text
+  width          Int?
+  height         Int?
+  artJobId       Int?      @unique
+  artImageId     Int?
+  status         String    @default("QUEUING") @db.VarChar(16)
+  error          String?   @db.Text
+  verdict        String    @default("none") @db.VarChar(16)
+  note           String?   @db.Text
+  source         String    @default("studio") @db.VarChar(16)
+  meta           String?   @db.Text
+  Slot           ComicSlot @relation(fields: [slotId], references: [id], onDelete: Cascade)
+
+  @@index([slotId, createdAt])
+  @@index([status])
+  @@index([artImageId])
+}
+
+model ComicIssue {
+  id            Int         @id @default(autoincrement())
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @default(now()) @updatedAt
+  seriesId      Int
+  number        Int
+  title         String      @db.VarChar(255)
+  notes         String?     @db.LongText
+  layout        String      @db.LongText
+  layoutVersion Int         @default(0)
+  isArchived    Boolean     @default(false)
+  Series        ComicSeries @relation(fields: [seriesId], references: [id], onDelete: Cascade)
+  Slots         ComicSlot[]
+
+  @@unique([seriesId, number])
+}
+
+/// The adversarial editor's verdicts (comic-creator/t-017). Every pitch, notes save
+/// or "challenge this" produces one row; a reply from Silas is a new row whose
+/// parentId points at the critique he is arguing with. targetId is a plain scalar
+/// because the target may be a series, entity, slot or issue.
+model ComicCritique {
+  id         Int         @id @default(autoincrement())
+  createdAt  DateTime    @default(now())
+  seriesId   Int
+  parentId   Int?
+  targetType String      @db.VarChar(16)
+  targetId   Int?
+  targetName String?     @db.VarChar(255)
+  input      String      @db.LongText
+  verdict    String      @db.VarChar(16)
+  headline   String      @db.VarChar(512)
+  body       String      @db.LongText
+  model      String      @db.VarChar(64)
+  trigger    String      @default("ask") @db.VarChar(16)
+  Series     ComicSeries @relation(fields: [seriesId], references: [id], onDelete: Cascade)
+
+  @@index([seriesId, createdAt])
+  @@index([parentId])
+}

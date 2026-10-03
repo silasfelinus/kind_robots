@@ -19,6 +19,11 @@
     "test:mandarin-srs-selftest": "tsx utils/scripts/verifyMandarinSrs.test.ts",
     "test:mandarin-lesson": "tsx utils/scripts/verifyMandarinLesson.test.ts",
     "test:mandarin-points": "tsx utils/scripts/verifyMandarinPoints.test.ts",
+    "test:comic-lanes": "tsx utils/scripts/verifyComicLanes.test.ts",
+    "test:comic-layouts": "tsx utils/scripts/verifyComicLayouts.test.ts",
+    "test:comic-studio": "tsx utils/scripts/verifyComicStudio.test.ts",
+    "test:comic-import": "tsx utils/scripts/verifyComicStudioImport.test.ts",
+    "test:comic-editor": "tsx utils/scripts/verifyComicEditor.test.ts",
     "test:music-video-doc": "tsx utils/scripts/verifyMusicVideoDoc.test.ts",
     "test:music-video-lyrics": "tsx utils/scripts/verifyMusicVideoLyrics.test.ts",
     "test:music-video-scenes": "tsx utils/scripts/verifyMusicVideoScenes.test.ts",
@@ -603,6 +608,7 @@
     "vue-tsc": "^2.1.10"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.131.0",
     "@nuxt/content": "^3.3.0",
     "@nuxt/image": "^2.0.0",
     "@pinia/nuxt": "^0.11.3",

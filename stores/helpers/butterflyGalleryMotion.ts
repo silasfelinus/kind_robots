@@ -31,6 +31,52 @@ export interface ButterflyFunnelDropPlan {
 
 const DURATION_MS = 500
 
+export interface ButterflyRunwaySchedule {
+  clipIndex: number
+  gapMs: number
+}
+
+const RUNWAY_MIN_GAP_MS = 1200
+const RUNWAY_MAX_GAP_MS = 5200
+
+/**
+ * Picks the next ambient runway pass without immediately repeating the current
+ * clip, plus a varied quiet gap before that pass starts. Random inputs are
+ * injected so the scheduling contract stays unit-testable while the page can
+ * use Math.random() at runtime.
+ */
+export function computeButterflyRunwaySchedule(
+  currentIndex: number,
+  clipCount: number,
+  selectionRandom: number,
+  timingRandom: number,
+): ButterflyRunwaySchedule {
+  if (clipCount <= 1) {
+    return {
+      clipIndex: 0,
+      gapMs: Math.round(
+        RUNWAY_MIN_GAP_MS +
+          Math.min(Math.max(timingRandom, 0), 0.999999) *
+            (RUNWAY_MAX_GAP_MS - RUNWAY_MIN_GAP_MS),
+      ),
+    }
+  }
+
+  const normalizedSelection = Math.min(Math.max(selectionRandom, 0), 0.999999)
+  const bucket = Math.floor(normalizedSelection * (clipCount - 1))
+  const normalizedCurrent = ((currentIndex % clipCount) + clipCount) % clipCount
+  const clipIndex = bucket >= normalizedCurrent ? bucket + 1 : bucket
+  const normalizedTiming = Math.min(Math.max(timingRandom, 0), 0.999999)
+
+  return {
+    clipIndex,
+    gapMs: Math.round(
+      RUNWAY_MIN_GAP_MS +
+        normalizedTiming * (RUNWAY_MAX_GAP_MS - RUNWAY_MIN_GAP_MS),
+    ),
+  }
+}
+
 /** Slightly smaller than destination width at the funnel, per the
  * storyboard's Emerge beat ("roughly normal proportions, slightly smaller
  * than destination width"). */

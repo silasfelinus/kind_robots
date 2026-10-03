@@ -23,9 +23,7 @@
         {
           "label": "Wind the music box",
           "to": "music",
-          "sets": [
-            "wound"
-          ]
+          "sets": ["wound"]
         },
         {
           "label": "Explore the shelves",
@@ -64,9 +62,7 @@
         {
           "label": "Take the brass key",
           "to": "attic",
-          "sets": [
-            "key"
-          ]
+          "sets": ["key"]
         },
         {
           "label": "Tidy up instead",
@@ -86,9 +82,7 @@
         {
           "label": "Open it with the key",
           "to": "garden",
-          "requires": [
-            "key"
-          ]
+          "requires": ["key"]
         },
         {
           "label": "Knock politely",

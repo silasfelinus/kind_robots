@@ -2,7 +2,12 @@
 // fully illustrated branching gamebooks shipped as one static JSON bundle per
 // book. Contract defined in projects/kr-adventures/DESIGN-BRIEF.md (conductor repo).
 
-export type AdventureEndingKind = 'triumph' | 'bittersweet' | 'funny' | 'tragic' | 'secret'
+export type AdventureEndingKind =
+  | 'triumph'
+  | 'bittersweet'
+  | 'funny'
+  | 'tragic'
+  | 'secret'
 
 export type AdventureChoice = {
   label: string

@@ -4,7 +4,9 @@ import type { Adventure } from '~/types/adventure'
 import { validateAdventure } from '@/utils/adventures/validateAdventure'
 
 const load = (): Adventure =>
-  JSON.parse(readFileSync('utils/adventures/fixtureAdventure.json', 'utf8')) as Adventure
+  JSON.parse(
+    readFileSync('utils/adventures/fixtureAdventure.json', 'utf8'),
+  ) as Adventure
 const codes = (b: Adventure) => validateAdventure(b).errors.map((e) => e.code)
 
 const good = validateAdventure(load())

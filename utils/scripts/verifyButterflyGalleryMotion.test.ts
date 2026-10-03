@@ -4,7 +4,10 @@
 // no DOM/Web Animations dependency needed.
 import assert from 'node:assert/strict'
 
-import {\n  computeButterflyFunnelDropPlan,\n  computeButterflyRunwaySchedule,\n} from '../../stores/helpers/butterflyGalleryMotion'
+import {
+  computeButterflyFunnelDropPlan,
+  computeButterflyRunwaySchedule,
+} from '../../stores/helpers/butterflyGalleryMotion'
 import type { ButterflyMotionRect } from '../../stores/helpers/butterflyGalleryMotion'
 
 const funnelRect: ButterflyMotionRect = {

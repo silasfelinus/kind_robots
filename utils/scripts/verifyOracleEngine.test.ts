@@ -22,7 +22,7 @@ const deck: OracleCard[] = Array.from({ length: 22 }, (_, i) => ({
   arcana: 'major',
   order: i,
   title: `Card ${i}`,
-  energy: ORACLE_ENERGIES[i % ORACLE_ENERGIES.length],
+  energy: ORACLE_ENERGIES[i % ORACLE_ENERGIES.length] ?? 'begin',
   upright: `${words(30, 'gift')} ${i}.`,
   reversed: `${words(30, 'blocked')} ${i}.`,
   prompt: 'What are you ready to begin today?',
@@ -76,7 +76,7 @@ test('every spread yields complete text for 500 seeds', () => {
   for (const id of ORACLE_SPREAD_IDS as OracleSpreadId[]) {
     for (let s = 0; s < 500; s++) {
       const r = buildReading(deck, content, id, `t-${s}`)
-      assert.ok(r.opening && r.closing.startsWith('Close') && r.closing.endsWith(deck[0].prompt))
+      assert.ok(r.opening && r.closing.startsWith('Close') && r.closing.endsWith(r.cards[r.cards.length - 1]!.card.prompt))
       assert.equal(r.passages.length, r.cards.length)
       assert.equal(r.pairs.length, r.cards.length - 1)
       assert.ok(r.passages.every((p) => p.length > 20 && !p.includes('{card}')))
@@ -95,13 +95,13 @@ test('bespoke passage and special pair take priority, with frame fallback otherw
   }
   assert.ok(sawBespoke && sawSpecial)
   const one = buildReading(deck, content, 'one', 'frame')
-  assert.ok(one.passages[0].startsWith('Your companion today is'))
+  assert.ok(one.passages[0]?.startsWith('Your companion today is'))
 })
 
 test('reversed cards are marked and use the reversed text', () => {
   const r = buildReading(deck, content, 'five', 'rev')
   for (const c of r.cards) {
-    const p = r.passages[r.cards.indexOf(c)]
+    const p = r.passages[r.cards.indexOf(c)] ?? ''
     if (c.orientation === 'reversed') assert.ok(p.includes('(reversed)') && p.includes('blocked'))
   }
 })
@@ -112,7 +112,8 @@ test('deck too small throws', () => {
 
 test('validator accepts the fixture and flags bad content', () => {
   assert.deepEqual(validateOracle(deck, content), [])
-  const bad = [{ ...deck[0], reversed: deck[0].upright, prompt: 'Too short' }]
+  const first = deck[0]!
+  const bad = [{ ...first, reversed: first.upright, prompt: 'Too short' }]
   const problems = validateOracle(bad, { ...content, energyPairs: {} })
   assert.ok(problems.some((p) => p.includes('reversed equals upright')))
   assert.ok(problems.some((p) => p.includes('prompt')))

@@ -31,14 +31,16 @@ export const drawSpread = (
   const pool = [...deck]
   return spread.positions.map((position) => {
     const card = pool.splice(Math.floor(rand() * pool.length), 1)[0]
+    if (!card) throw new Error('deck exhausted')
     const orientation: OracleOrientation = rand() < 0.5 ? 'upright' : 'reversed'
     return { card, orientation, position }
   })
 }
 
 const pick = <T>(items: readonly T[], seed: string, salt: string): T => {
-  if (!items.length) throw new Error(`no variants for ${salt}`)
-  return items[Math.floor(seededRandom(`${seed}:${salt}`)() * items.length)]
+  const item = items[Math.floor(seededRandom(`${seed}:${salt}`)() * items.length)]
+  if (item === undefined) throw new Error(`no variants for ${salt}`)
+  return item
 }
 
 /** Bespoke passage if authored, else the position frame wrapping the card's own text. */
@@ -74,14 +76,16 @@ export const buildReading = (
   const pairs: string[] = []
   const body: string[] = [opening]
   cards.forEach((c, i) => {
-    body.push(passages[i])
-    const pair = i < cards.length - 1 ? pairTextFor(content, c, cards[i + 1]) : null
+    body.push(passages[i] ?? '')
+    const next = cards[i + 1]
+    const pair = next ? pairTextFor(content, c, next) : null
     if (pair) {
       pairs.push(pair)
       body.push(pair)
     }
   })
-  const last = cards[cards.length - 1].card
+  const last = cards[cards.length - 1]?.card
+  if (!last) throw new Error('empty spread')
   const closing = `${pick(content.closings[spreadId], seed, `close:${spreadId}`)} ${last.prompt}`
   body.push(closing)
   return { seed, spread: spreadId, cards, opening, passages, pairs, closing, text: body.join('\n\n') }

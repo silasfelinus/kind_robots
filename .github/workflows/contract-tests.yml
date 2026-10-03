@@ -189,6 +189,21 @@ jobs:
       - name: Mandarin points contract
         run: npm run test:mandarin-points
 
+      - name: Comic Studio lanes contract
+        run: npm run test:comic-lanes
+
+      - name: Comic Studio layouts contract
+        run: npm run test:comic-layouts
+
+      - name: Comic Studio vetting contract
+        run: npm run test:comic-studio
+
+      - name: Comic Studio import contract
+        run: npm run test:comic-import
+
+      - name: Comic Studio editor contract
+        run: npm run test:comic-editor
+
       - name: Music video document contract
         run: npm run test:music-video-doc
 

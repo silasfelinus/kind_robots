@@ -59,6 +59,12 @@ export const ModelName = {
   ArchiveActionPreset: 'ArchiveActionPreset',
   BrainstormSession: 'BrainstormSession',
   BrainstormCandidate: 'BrainstormCandidate',
+  ComicSeries: 'ComicSeries',
+  ComicEntity: 'ComicEntity',
+  ComicSlot: 'ComicSlot',
+  ComicAttempt: 'ComicAttempt',
+  ComicIssue: 'ComicIssue',
+  ComicCritique: 'ComicCritique',
   FacetAlias: 'FacetAlias',
   FacetProfile: 'FacetProfile',
   CharacterFacet: 'CharacterFacet',
@@ -323,6 +329,129 @@ export const BrainstormCandidateScalarFieldEnum = {
 } as const
 
 export type BrainstormCandidateScalarFieldEnum = (typeof BrainstormCandidateScalarFieldEnum)[keyof typeof BrainstormCandidateScalarFieldEnum]
+
+
+export const ComicSeriesScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  userId: 'userId',
+  slug: 'slug',
+  title: 'title',
+  notes: 'notes',
+  styleProse: 'styleProse',
+  styleTags: 'styleTags',
+  negativeTags: 'negativeTags',
+  lanes: 'lanes',
+  isPublicArt: 'isPublicArt',
+  coverAttemptId: 'coverAttemptId',
+  isArchived: 'isArchived'
+} as const
+
+export type ComicSeriesScalarFieldEnum = (typeof ComicSeriesScalarFieldEnum)[keyof typeof ComicSeriesScalarFieldEnum]
+
+
+export const ComicEntityScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  seriesId: 'seriesId',
+  key: 'key',
+  kind: 'kind',
+  name: 'name',
+  notes: 'notes',
+  secretUntil: 'secretUntil',
+  sortOrder: 'sortOrder',
+  portraitAttemptId: 'portraitAttemptId',
+  isArchived: 'isArchived'
+} as const
+
+export type ComicEntityScalarFieldEnum = (typeof ComicEntityScalarFieldEnum)[keyof typeof ComicEntityScalarFieldEnum]
+
+
+export const ComicSlotScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  seriesId: 'seriesId',
+  entityId: 'entityId',
+  issueId: 'issueId',
+  key: 'key',
+  kind: 'kind',
+  title: 'title',
+  notes: 'notes',
+  aspect: 'aspect',
+  promptProse: 'promptProse',
+  promptTags: 'promptTags',
+  negativePrompt: 'negativePrompt',
+  useSeriesStyle: 'useSeriesStyle',
+  laneKeys: 'laneKeys',
+  status: 'status',
+  sortOrder: 'sortOrder',
+  isArchived: 'isArchived'
+} as const
+
+export type ComicSlotScalarFieldEnum = (typeof ComicSlotScalarFieldEnum)[keyof typeof ComicSlotScalarFieldEnum]
+
+
+export const ComicAttemptScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  slotId: 'slotId',
+  laneKey: 'laneKey',
+  engine: 'engine',
+  checkpoint: 'checkpoint',
+  prompt: 'prompt',
+  negativePrompt: 'negativePrompt',
+  width: 'width',
+  height: 'height',
+  artJobId: 'artJobId',
+  artImageId: 'artImageId',
+  status: 'status',
+  error: 'error',
+  verdict: 'verdict',
+  note: 'note',
+  source: 'source',
+  meta: 'meta'
+} as const
+
+export type ComicAttemptScalarFieldEnum = (typeof ComicAttemptScalarFieldEnum)[keyof typeof ComicAttemptScalarFieldEnum]
+
+
+export const ComicIssueScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  seriesId: 'seriesId',
+  number: 'number',
+  title: 'title',
+  notes: 'notes',
+  layout: 'layout',
+  layoutVersion: 'layoutVersion',
+  isArchived: 'isArchived'
+} as const
+
+export type ComicIssueScalarFieldEnum = (typeof ComicIssueScalarFieldEnum)[keyof typeof ComicIssueScalarFieldEnum]
+
+
+export const ComicCritiqueScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  seriesId: 'seriesId',
+  parentId: 'parentId',
+  targetType: 'targetType',
+  targetId: 'targetId',
+  targetName: 'targetName',
+  input: 'input',
+  verdict: 'verdict',
+  headline: 'headline',
+  body: 'body',
+  model: 'model',
+  trigger: 'trigger'
+} as const
+
+export type ComicCritiqueScalarFieldEnum = (typeof ComicCritiqueScalarFieldEnum)[keyof typeof ComicCritiqueScalarFieldEnum]
 
 
 export const FacetAliasScalarFieldEnum = {
@@ -2637,6 +2766,86 @@ export const BrainstormCandidateOrderByRelevanceFieldEnum = {
 } as const
 
 export type BrainstormCandidateOrderByRelevanceFieldEnum = (typeof BrainstormCandidateOrderByRelevanceFieldEnum)[keyof typeof BrainstormCandidateOrderByRelevanceFieldEnum]
+
+
+export const ComicSeriesOrderByRelevanceFieldEnum = {
+  slug: 'slug',
+  title: 'title',
+  notes: 'notes',
+  styleProse: 'styleProse',
+  styleTags: 'styleTags',
+  negativeTags: 'negativeTags',
+  lanes: 'lanes'
+} as const
+
+export type ComicSeriesOrderByRelevanceFieldEnum = (typeof ComicSeriesOrderByRelevanceFieldEnum)[keyof typeof ComicSeriesOrderByRelevanceFieldEnum]
+
+
+export const ComicEntityOrderByRelevanceFieldEnum = {
+  key: 'key',
+  kind: 'kind',
+  name: 'name',
+  notes: 'notes',
+  secretUntil: 'secretUntil'
+} as const
+
+export type ComicEntityOrderByRelevanceFieldEnum = (typeof ComicEntityOrderByRelevanceFieldEnum)[keyof typeof ComicEntityOrderByRelevanceFieldEnum]
+
+
+export const ComicSlotOrderByRelevanceFieldEnum = {
+  key: 'key',
+  kind: 'kind',
+  title: 'title',
+  notes: 'notes',
+  aspect: 'aspect',
+  promptProse: 'promptProse',
+  promptTags: 'promptTags',
+  negativePrompt: 'negativePrompt',
+  laneKeys: 'laneKeys',
+  status: 'status'
+} as const
+
+export type ComicSlotOrderByRelevanceFieldEnum = (typeof ComicSlotOrderByRelevanceFieldEnum)[keyof typeof ComicSlotOrderByRelevanceFieldEnum]
+
+
+export const ComicAttemptOrderByRelevanceFieldEnum = {
+  laneKey: 'laneKey',
+  engine: 'engine',
+  checkpoint: 'checkpoint',
+  prompt: 'prompt',
+  negativePrompt: 'negativePrompt',
+  status: 'status',
+  error: 'error',
+  verdict: 'verdict',
+  note: 'note',
+  source: 'source',
+  meta: 'meta'
+} as const
+
+export type ComicAttemptOrderByRelevanceFieldEnum = (typeof ComicAttemptOrderByRelevanceFieldEnum)[keyof typeof ComicAttemptOrderByRelevanceFieldEnum]
+
+
+export const ComicIssueOrderByRelevanceFieldEnum = {
+  title: 'title',
+  notes: 'notes',
+  layout: 'layout'
+} as const
+
+export type ComicIssueOrderByRelevanceFieldEnum = (typeof ComicIssueOrderByRelevanceFieldEnum)[keyof typeof ComicIssueOrderByRelevanceFieldEnum]
+
+
+export const ComicCritiqueOrderByRelevanceFieldEnum = {
+  targetType: 'targetType',
+  targetName: 'targetName',
+  input: 'input',
+  verdict: 'verdict',
+  headline: 'headline',
+  body: 'body',
+  model: 'model',
+  trigger: 'trigger'
+} as const
+
+export type ComicCritiqueOrderByRelevanceFieldEnum = (typeof ComicCritiqueOrderByRelevanceFieldEnum)[keyof typeof ComicCritiqueOrderByRelevanceFieldEnum]
 
 
 export const FacetAliasOrderByRelevanceFieldEnum = {

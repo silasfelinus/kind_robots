@@ -135,6 +135,51 @@ export type BrainstormSession = Prisma.BrainstormSessionModel
  */
 export type BrainstormCandidate = Prisma.BrainstormCandidateModel
 /**
+ * Model ComicSeries
+ * Comic Studio (conductor project comic-creator/t-013, t-014): an admin-only workspace
+ * for one comic series. Renders are vetted lane by lane (a lane is an engine plus an
+ * optional checkpoint) and pages are composed from panel segments.
+ * 
+ * Every render is an ordinary ArtJob created through POST /api/art/enqueue; a
+ * ComicAttempt only records which slot and lane asked for it and what Silas thought
+ * of the result. artJobId / artImageId and userId are plain scalars with no relation
+ * back to ArtJob, ArtImage or User, matching MusicVideo, so the migration is purely
+ * additive and an ArtJob cleanup can never cascade into studio history.
+ * 
+ * Kinds, statuses and verdicts are short text columns validated by utils/comicStudio.ts
+ * rather than Prisma enums, so a new value needs no migration. An issue's page layout
+ * is one versioned JSON document (ComicIssue.layout) validated by utils/comicLayouts.ts.
+ */
+export type ComicSeries = Prisma.ComicSeriesModel
+/**
+ * Model ComicEntity
+ * 
+ */
+export type ComicEntity = Prisma.ComicEntityModel
+/**
+ * Model ComicSlot
+ * 
+ */
+export type ComicSlot = Prisma.ComicSlotModel
+/**
+ * Model ComicAttempt
+ * 
+ */
+export type ComicAttempt = Prisma.ComicAttemptModel
+/**
+ * Model ComicIssue
+ * 
+ */
+export type ComicIssue = Prisma.ComicIssueModel
+/**
+ * Model ComicCritique
+ * The adversarial editor's verdicts (comic-creator/t-017). Every pitch, notes save
+ * or "challenge this" produces one row; a reply from Silas is a new row whose
+ * parentId points at the critique he is arguing with. targetId is a plain scalar
+ * because the target may be a series, entity, slot or issue.
+ */
+export type ComicCritique = Prisma.ComicCritiqueModel
+/**
  * Model FacetAlias
  * Alternate names that resolve to one canonical Facet.
  * 

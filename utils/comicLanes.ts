@@ -59,7 +59,9 @@ export const DEFAULT_COMIC_LANES: ComicLane[] = [
     promptStyle: 'tags',
     prefix: `${ILLUSTRIOUS_PREFIX}, realistic`,
     suffix: WESTERN_TAG_SUFFIX,
-    active: true,
+    // Off by default: in round 3 it drew the anthro cast as human bodies
+    // (a nude Zuzu sheet, the child siblings in underwear) despite the negatives.
+    active: false,
   },
   {
     key: 'sdxl-nihilmania',

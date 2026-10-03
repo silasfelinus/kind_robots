@@ -41,7 +41,7 @@ amiTip: AMI gets the second line.
 ---
 ```
 
-`channelKey` must be lowercase kebab-case. The top-level channel list is intentionally limited to Home, Plan, Play, and Admin. Update the channel-content contract only when deliberately changing that information architecture.
+`channelKey` must be lowercase kebab-case. The top-level channel list is intentionally limited to Home, Plan, Play, Admin, and the admin-only Retired archive. Update the channel-content contract only when deliberately changing that information architecture.
 
 Only put `dashboardKey` on the parent when every child truly belongs to the same legacy dashboard. Diverse channels keep legacy adapters on individual tabs instead.
 

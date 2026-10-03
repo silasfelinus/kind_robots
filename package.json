@@ -105,6 +105,7 @@
     "test:mana-resource-split": "tsx utils/scripts/verifyManaResourceSplit.test.ts",
     "test:stripe-webhook-fixture": "tsx utils/scripts/verifyStripeWebhookFixture.test.ts",
     "test:solitaire-engine": "tsx utils/scripts/verifySolitaireEngine.test.ts",
+    "test:oracle-engine": "tsx utils/scripts/verifyOracleEngine.test.ts",
     "test:mana-attribution": "tsx utils/scripts/verifyManaAttribution.test.ts",
     "test:revenue-split": "tsx utils/scripts/verifyRevenueSplit.test.ts",
     "test:aquarium-economy": "tsx utils/scripts/verifyAquariumEconomy.test.ts",

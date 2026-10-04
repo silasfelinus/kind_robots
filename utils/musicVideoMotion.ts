@@ -12,7 +12,11 @@
 // job with the scene still as its first frame. Clips are silent; the song is
 // the only audio. The finished clip is an ArtImage referenced by
 // scene.motion.clipArtImageId.
-import type { MusicVideoDoc, MusicVideoScene } from './musicVideoDoc'
+import type {
+  MusicVideoAspect,
+  MusicVideoDoc,
+  MusicVideoScene,
+} from './musicVideoDoc'
 import { composeScenePrompt } from './musicVideoScenes'
 import {
   DEFAULT_VIDEO_PRESET_BY_ENGINE,
@@ -90,12 +94,45 @@ export function clipRuntimeHint(preset: VideoPresetDefinition): string {
   return `${preset.label}: ${preset.durationSeconds} s at ${preset.fps} fps. ${runtimeTierMessage(preset.runtimeTier)} ${preset.runtimeHint}`.trim()
 }
 
+const ASPECT_RATIOS: Record<MusicVideoAspect, number> = {
+  '16:9': 16 / 9,
+  '9:16': 9 / 16,
+  '1:1': 1,
+}
+
+function roundTo32(value: number): number {
+  return Math.max(64, Math.round(value / 32) * 32)
+}
+
+/**
+ * The clip frame for a video's aspect (music-video/t-026). A preset already
+ * shaped like the video keeps its exact size; otherwise the preset's pixel
+ * budget is reshaped to the video's aspect, in multiples of 32, so a 9:16
+ * video gets portrait clips at the same cost instead of 1280x720 ones.
+ */
+export function clipFrameSize(
+  preset: Pick<VideoPresetDefinition, 'width' | 'height'>,
+  aspect: MusicVideoAspect,
+): { width: number; height: number } {
+  const ratio = ASPECT_RATIOS[aspect] ?? ASPECT_RATIOS['16:9']
+  if (Math.abs(preset.width / preset.height - ratio) < 0.01) {
+    return { width: preset.width, height: preset.height }
+  }
+  const area = preset.width * preset.height
+  return {
+    width: roundTo32(Math.sqrt(area * ratio)),
+    height: roundTo32(Math.sqrt(area / ratio)),
+  }
+}
+
 export type SceneClipRequest = {
   engine: VideoEngine
   presetId: string
   promptString: string
   negativePrompt: string
   firstImageBase64: string
+  secondImageBase64?: string
+  imageFit: 'crop'
   width: number
   height: number
   durationSeconds: number
@@ -122,6 +159,7 @@ export function buildSceneClipRequest(
   doc: MusicVideoDoc,
   options: {
     firstImageBase64: string
+    lastImageBase64?: string | null
     projectSlug: string
     presetId?: string | null
   },
@@ -132,22 +170,30 @@ export function buildSceneClipRequest(
     )
   }
   // Checked before composing: the style bible alone would pass as a prompt and
-  // animate the house look with no subject in it.
-  if (!scene.prompt.trim()) {
-    throw new Error('The scene has no prompt to animate.')
+  // animate the house look with no subject in it. A picked comic image often
+  // has no still prompt, so a motion prompt alone is enough.
+  const motionText = (scene.motionPrompt || scene.prompt).trim()
+  if (!motionText) {
+    throw new Error('The scene has no prompt or motion prompt to animate.')
   }
-  const prompt = composeScenePrompt(scene.prompt, doc.settings.styleBible)
+  const prompt = composeScenePrompt(motionText, doc.settings.styleBible)
   const firstImageBase64 = options.firstImageBase64.trim()
   if (!firstImageBase64) throw new Error('The scene still has no image data.')
   const preset = resolveClipPreset(options.presetId)
+  const frame = clipFrameSize(preset, doc.settings.aspect)
+  const lastImageBase64 = options.lastImageBase64?.trim() || ''
   return {
     engine: preset.engine,
     presetId: preset.id,
     promptString: prompt,
     negativePrompt: '',
     firstImageBase64,
-    width: preset.width,
-    height: preset.height,
+    ...(lastImageBase64 ? { secondImageBase64: lastImageBase64 } : {}),
+    // Scale to cover and trim from the centre: comic art is often 2:3 or 1:1,
+    // and the default stretch would squash it into the clip frame.
+    imageFit: 'crop',
+    width: frame.width,
+    height: frame.height,
     durationSeconds: preset.durationSeconds,
     fps: preset.fps,
     // A scene clip plays once and is held on its last frame by the compositor.

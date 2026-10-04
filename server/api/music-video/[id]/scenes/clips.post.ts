@@ -35,9 +35,22 @@ type ClipOutcome = {
 // call keeps one request from burying the queue.
 const MAX_CLIPS_PER_CALL = 8
 
+async function stillDataUrl(artImageId: number | undefined): Promise<string> {
+  if (!artImageId) return ''
+  const still = await prisma.artImage.findUnique({
+    where: { id: artImageId },
+    select: { imageData: true, fileType: true },
+  })
+  if (!still?.imageData) return ''
+  const fileType = String(still.fileType || 'png').toLowerCase()
+  return `data:image/${fileType === 'jpg' ? 'jpeg' : fileType};base64,${still.imageData}`
+}
+
 // music-video/t-009: opt scenes in to an ltx/wan image-to-video clip, with the
 // scene's finished still as the first frame. The scene keeps its Ken Burns
 // preset, which the compositor falls back to if the clip never arrives.
+// t-026: a scene with motion.lastFrame "next-scene" also pins its last frame
+// to the next scene's still, so the cut lands on a matching image.
 export default defineEventHandler(async (event) => {
   try {
     const auth = await requireAdminApiUser(event)
@@ -116,17 +129,15 @@ export default defineEventHandler(async (event) => {
         continue
       }
       try {
-        const still = scene.image.artImageId
-          ? await prisma.artImage.findUnique({
-              where: { id: scene.image.artImageId },
-              select: { imageData: true, fileType: true },
-            })
-          : null
-        const fileType = String(still?.fileType || 'png').toLowerCase()
+        const next =
+          scene.motion.lastFrame === 'next-scene'
+            ? doc.scenes[doc.scenes.indexOf(scene) + 1]
+            : undefined
         const request = buildSceneClipRequest(scene, doc, {
-          firstImageBase64: still?.imageData
-            ? `data:image/${fileType === 'jpg' ? 'jpeg' : fileType};base64,${still.imageData}`
-            : '',
+          firstImageBase64: await stillDataUrl(scene.image.artImageId),
+          lastImageBase64: next
+            ? await stillDataUrl(next.image.artImageId)
+            : null,
           projectSlug: MUSIC_VIDEO_PROJECT_SLUG,
           presetId: preset.id,
         })

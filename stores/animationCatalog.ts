@@ -696,6 +696,18 @@ export const ANIMATION_EFFECTS = [
     generationSafe: true,
     preferredSurface: 'fullscreen',
   },
+  {
+    id: 'sundial-stone-garden',
+    label: 'Sundial Stone Garden',
+    reveal: 'A day told in sliding shadows',
+    icon: 'kind-icon:sparkle',
+    tooltip:
+      'Standing stones in a quiet field cast long shadows at dawn, shrink them at noon and stretch them the other way at dusk before night turns the cycle over 🌞 hover to lift a stone, click to skip ahead in the day',
+    color: '#e9b95f',
+    releasedAt: '2026-10-04T08:00:00Z',
+    generationSafe: true,
+    preferredSurface: 'fullscreen',
+  },
 ] as const satisfies readonly AnimationEffectDefinition[]
 
 export type AnimationEffectId = (typeof ANIMATION_EFFECTS)[number]['id']

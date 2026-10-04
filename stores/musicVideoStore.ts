@@ -188,6 +188,57 @@ export const useMusicVideoStore = defineStore('musicVideoStore', () => {
     }
   }
 
+  /** The song's length in seconds, read by the browser; null when it cannot tell. */
+  function readAudioDuration(file: File): Promise<number | null> {
+    if (typeof window === 'undefined' || typeof Audio === 'undefined') {
+      return Promise.resolve(null)
+    }
+    return new Promise((resolve) => {
+      const url = URL.createObjectURL(file)
+      const audio = new Audio()
+      const finish = (value: number | null) => {
+        URL.revokeObjectURL(url)
+        resolve(value)
+      }
+      audio.preload = 'metadata'
+      audio.onloadedmetadata = () =>
+        finish(Number.isFinite(audio.duration) ? audio.duration : null)
+      audio.onerror = () => finish(null)
+      audio.src = url
+    })
+  }
+
+  async function uploadSong(file: File, bpm?: number | null): Promise<boolean> {
+    const video = current.value
+    if (!video) return false
+    saving.value = true
+    clearError()
+    try {
+      const form = new FormData()
+      form.append('file', file)
+      const durationSec = await readAudioDuration(file)
+      if (durationSec) form.append('durationSec', String(durationSec))
+      if (bpm) form.append('bpm', String(bpm))
+      const response = await performFetch<{ video: MusicVideo }>(
+        `/api/music-video/${video.id}/song-upload`,
+        { method: 'POST', body: form },
+        0,
+        120_000,
+      )
+      if (!response.success || !response.data?.video) {
+        throw new Error(response.message || 'Failed to upload the song.')
+      }
+      current.value = response.data.video
+      await loadList()
+      return true
+    } catch (e) {
+      error.value = errorMessage(e, 'Failed to upload the song.')
+      return false
+    } finally {
+      saving.value = false
+    }
+  }
+
   async function remove(id: number): Promise<boolean> {
     saving.value = true
     clearError()
@@ -228,6 +279,7 @@ export const useMusicVideoStore = defineStore('musicVideoStore', () => {
     select,
     create,
     savePitch,
+    uploadSong,
     remove,
   }
 })

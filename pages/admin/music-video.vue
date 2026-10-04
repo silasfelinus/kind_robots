@@ -136,6 +136,23 @@
                 </span>
               </div>
 
+              <div class="flex flex-wrap items-center gap-2">
+                <label
+                  class="kr-btn"
+                  :class="{ 'pointer-events-none opacity-50': store.saving }"
+                >
+                  <input
+                    type="file"
+                    accept="audio/mpeg,audio/wav,.mp3,.wav"
+                    class="hidden"
+                    :disabled="store.saving"
+                    @change="onSongFile"
+                  />
+                  Upload song (MP3 or WAV)
+                </label>
+                <span class="kr-text-dim-sm">{{ songLabel }}</span>
+              </div>
+
               <form class="space-y-3" @submit.prevent="onSave">
                 <label class="block space-y-1">
                   <span class="kr-text-dim-sm">Title</span>
@@ -246,6 +263,22 @@ async function onCreate() {
     newTitle.value = ''
     newPitch.value = ''
   }
+}
+
+const songLabel = computed(() => {
+  const song = store.current?.doc.song
+  if (!song) return 'No song yet: upload one, or generate it with ACE-Step.'
+  const length = song.durationSec ? ` · ${Math.round(song.durationSec)}s` : ''
+  return song.source === 'upload'
+    ? `Uploaded song${length}`
+    : `ACE-Step song${length}`
+})
+
+async function onSongFile(event: Event) {
+  const input = event.target as HTMLInputElement
+  const file = input.files?.[0]
+  if (file) await store.uploadSong(file)
+  input.value = ''
 }
 
 async function onSave() {

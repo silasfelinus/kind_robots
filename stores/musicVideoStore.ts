@@ -27,6 +27,15 @@ export type MusicVideo = {
   doc: MusicVideoDoc
 }
 
+export type KeyframeOutcome = {
+  sceneId: string
+  status: 'assigned' | 'failed'
+  attemptId?: number
+  artImageId?: number
+  cropLoss?: number
+  reason?: string
+}
+
 type ArtImagePreview = {
   id: number
   imagePath?: string | null
@@ -239,6 +248,73 @@ export const useMusicVideoStore = defineStore('musicVideoStore', () => {
     }
   }
 
+  /** Merge settings into the doc (aspect, comic series and lane, banned terms…). */
+  async function saveSettings(
+    settings: Partial<MusicVideoDoc['settings']>,
+  ): Promise<boolean> {
+    const video = current.value
+    if (!video) return false
+    saving.value = true
+    clearError()
+    try {
+      const response = await performFetch<MusicVideo>(
+        `/api/music-video/${video.id}`,
+        {
+          method: 'PATCH',
+          body: JSON.stringify({
+            doc: {
+              ...video.doc,
+              settings: { ...video.doc.settings, ...settings },
+            },
+          }),
+        },
+        0,
+        20_000,
+      )
+      if (!response.success || !response.data) {
+        throw new Error(response.message || 'Failed to save the settings.')
+      }
+      current.value = response.data
+      return true
+    } catch (e) {
+      error.value = errorMessage(e, 'Failed to save the settings.')
+      return false
+    } finally {
+      saving.value = false
+    }
+  }
+
+  /** Use vetted Comic Studio art as scene stills (attempt ids, or slots' picks). */
+  async function assignKeyframes(
+    assignments: { sceneId: string; attemptId?: number; slotId?: number }[],
+  ): Promise<KeyframeOutcome[]> {
+    const video = current.value
+    if (!video) return []
+    saving.value = true
+    clearError()
+    try {
+      const response = await performFetch<{
+        video: MusicVideo
+        outcomes: KeyframeOutcome[]
+      }>(
+        `/api/music-video/${video.id}/scenes/keyframes`,
+        { method: 'POST', body: JSON.stringify({ assignments }) },
+        0,
+        20_000,
+      )
+      if (!response.success || !response.data?.video) {
+        throw new Error(response.message || 'Failed to assign keyframes.')
+      }
+      current.value = response.data.video
+      return response.data.outcomes ?? []
+    } catch (e) {
+      error.value = errorMessage(e, 'Failed to assign keyframes.')
+      return []
+    } finally {
+      saving.value = false
+    }
+  }
+
   async function remove(id: number): Promise<boolean> {
     saving.value = true
     clearError()
@@ -280,6 +356,8 @@ export const useMusicVideoStore = defineStore('musicVideoStore', () => {
     create,
     savePitch,
     uploadSong,
+    saveSettings,
+    assignKeyframes,
     remove,
   }
 })

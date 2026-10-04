@@ -8,7 +8,10 @@ import {
   clipRuntimeHint,
   resolveClipPreset,
 } from '@/utils/musicVideoMotion'
-import { MUSIC_VIDEO_PROJECT_SLUG } from '@/server/utils/musicVideoScenes'
+import {
+  MUSIC_VIDEO_PROJECT_SLUG,
+  bannedTermProblems,
+} from '@/server/utils/musicVideoScenes'
 import {
   loadOwnedMusicVideo,
   readMusicVideoId,
@@ -125,6 +128,18 @@ export default defineEventHandler(async (event) => {
           sceneId: scene.id,
           status: 'skipped',
           reason: 'The scene already has a clip; send force to replace it.',
+        })
+        continue
+      }
+      const banned = bannedTermProblems(
+        `${scene.motionPrompt || scene.prompt} ${doc.settings.styleBible}`,
+        doc,
+      )
+      if (banned.length) {
+        outcomes.push({
+          sceneId: scene.id,
+          status: 'failed',
+          reason: banned.join(' '),
         })
         continue
       }

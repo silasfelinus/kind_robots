@@ -21,7 +21,6 @@ export const LORA_CATEGORIES = [
   'ACTION',
   'CLOTHING',
   'OBJECT',
-  'CREATURE',
   'DETAIL',
   'OTHER',
 ] as const
@@ -44,8 +43,17 @@ export const LORA_CATEGORY_META: Record<LoraCategory, LoraCategoryMeta> = {
   CHARACTER: {
     category: 'CHARACTER',
     label: 'Character',
-    placeholders: ['character', 'char', 'person', 'who'],
-    hint: 'A specific person, hero, or named figure.',
+    placeholders: [
+      'character',
+      'char',
+      'person',
+      'who',
+      'creature',
+      'animal',
+      'monster',
+      'beast',
+    ],
+    hint: 'A person, creature, hero, named figure, animal, or monster.',
   },
   STYLE: {
     category: 'STYLE',
@@ -77,12 +85,6 @@ export const LORA_CATEGORY_META: Record<LoraCategory, LoraCategoryMeta> = {
     placeholders: ['object', 'prop', 'item', 'thing', 'vehicle'],
     hint: 'A prop, vehicle, or thing in the frame.',
   },
-  CREATURE: {
-    category: 'CREATURE',
-    label: 'Creature',
-    placeholders: ['creature', 'animal', 'monster', 'beast'],
-    hint: 'An animal, monster, or species rather than a named person.',
-  },
   DETAIL: {
     category: 'DETAIL',
     label: 'Detail',
@@ -105,6 +107,11 @@ export function normalizeLoraCategory(value: unknown): LoraCategory | null {
   const normalized = String(value ?? '')
     .trim()
     .toUpperCase()
+
+  // CREATURE was retired in kind-robots/t-127. Keep old rows/imports readable
+  // without a destructive database rewrite: creatures are characters now.
+  if (normalized === 'CREATURE') return 'CHARACTER'
+
   return isLoraCategory(normalized) ? (normalized as LoraCategory) : null
 }
 
@@ -239,7 +246,7 @@ const CIVITAI_TAG_CATEGORIES: Array<[LoraCategory, string[]]> = [
     ],
   ],
   [
-    'CREATURE',
+    'CHARACTER',
     [
       'animal',
       'animals',
@@ -299,13 +306,12 @@ const CIVITAI_TAG_CATEGORIES: Array<[LoraCategory, string[]]> = [
 // So: the title only (customLabel, then name). A LoRA's title is chosen to say
 // what it is; its description is chosen to sell it.
 //
-// AND NOTHING GUESSES CHARACTER HERE. A character LoRA is named after the
-// character, which is exactly the case no keyword table can see -- "Rogue",
-// "Yor Briar", "Tinker bell" carry no signal a regex can reach. Leaving those
-// NULL is the correct answer: an unclassified row is visible in the editor's
-// Unclassified count and rolls for nothing, while a row confidently filed under
-// CLOTHING is invisible and poisons the {clothing} pool. Civitai's own
-// `character` tag (--fetch-tags) and the editor are what fill this in.
+// NOTHING GUESSES A NAMED PERSON HERE. A character LoRA named "Rogue", "Yor
+// Briar", or "Tinker bell" carries no signal a regex can reach, so those stay
+// NULL until Civitai's character tag or a human classifies them. Subject words
+// such as animal/monster/dragon are safe enough to identify a CHARACTER-shaped
+// LoRA; kind-robots/t-127 retired CREATURE as a separate bucket because it did
+// not buy us a different generation behavior.
 const HEURISTIC_CATEGORIES: Array<[LoraCategory, string[]]> = [
   [
     'STYLE',
@@ -363,7 +369,7 @@ const HEURISTIC_CATEGORIES: Array<[LoraCategory, string[]]> = [
   ],
   ['ACTION', ['pose', 'poses', 'posing']],
   [
-    'CREATURE',
+    'CHARACTER',
     ['creature', 'monster', 'dragon', 'beast', 'animal', 'animals', 'kaiju'],
   ],
   [

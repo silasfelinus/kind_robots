@@ -216,7 +216,10 @@ console.log(
     series: { styleTags: 'gritty painted comic', negativeTags: 'nsfw, human' },
   })
   assert.equal(comic.engine, 'comfy')
-  assert.equal(comic.checkpoint, 'Illustrious/furrytoonmix_xlV3.safetensors')
+  assert.equal(
+    comic.checkpoint,
+    'Illustrious/arthemyWesternArt_v30.safetensors',
+  )
   assert.ok(comic.promptString.startsWith(lane.prefix!))
   assert.ok(comic.promptString.includes('gritty painted comic'))
   assert.equal(

@@ -155,8 +155,16 @@ console.log(
   const primary = comicPrimaryLane(
     normalizeComicLanes(DEFAULT_COMIC_LANES).lanes,
   )
-  assert.equal(primary?.checkpoint, 'Illustrious/furrytoonmix_xlV3.safetensors')
-  assert.equal(parseComicLanes(null)[0]?.key, 'il-furrytoonmix')
+  assert.equal(
+    primary?.checkpoint,
+    'Illustrious/arthemyWesternArt_v30.safetensors',
+  )
+  assert.equal(parseComicLanes(null)[0]?.key, 'il-arthemy')
+  assert.equal(
+    DEFAULT_COMIC_LANES.find((lane) => lane.key === 'il-furrytoonmix')?.active,
+    true,
+    'the previous house lane stays available',
+  )
 
   const two = normalizeComicLanes([
     { key: 'a', engine: 'zimage', primary: true, active: false },
@@ -187,9 +195,7 @@ console.log(
     ['c', 'z'],
   )
 }
-console.log(
-  '✅ exactly one active lane is primary, and furrytoonmix is the default',
-)
+console.log('✅ exactly one active lane is primary, and Arthemy is the default')
 
 {
   const [lane] = normalizeComicLanes([

@@ -11,8 +11,10 @@
 // always stays the family profile's: enqueue does not forward one for comfy.
 //
 // Exactly one active lane is the series' primary (house) lane: the checkpoint the
-// comic is drawn in. Silas, 2026-10-03: furrytoonmix is "hands down the best model
-// for this project", so it is the default primary.
+// comic is drawn in. Silas, 2026-10-04, after a seven-checkpoint bake-off
+// (comic-creator/t-018): "arthemy is the winner", so Arthemy Western Art is the
+// default primary. It carries no sampler overrides: these are the settings the
+// winning renders used. furrytoonmix, the previous house lane, stays available.
 //
 // Pure: no Prisma, no h3, no app aliases, so the DB-free contract test can import it.
 import { assessRequeueSafety } from './quarantinedCheckpoints.js'
@@ -57,6 +59,17 @@ const WESTERN_TAG_SUFFIX =
 
 export const DEFAULT_COMIC_LANES: ComicLane[] = [
   {
+    key: 'il-arthemy',
+    label: 'IL Arthemy Western Art',
+    engine: 'comfy',
+    checkpoint: 'Illustrious/arthemyWesternArt_v30.safetensors',
+    promptStyle: 'tags',
+    prefix: ILLUSTRIOUS_PREFIX,
+    suffix: WESTERN_TAG_SUFFIX,
+    primary: true,
+    active: true,
+  },
+  {
     key: 'il-furrytoonmix',
     label: 'IL furrytoonmix',
     engine: 'comfy',
@@ -64,7 +77,6 @@ export const DEFAULT_COMIC_LANES: ComicLane[] = [
     promptStyle: 'tags',
     prefix: ILLUSTRIOUS_PREFIX,
     suffix: WESTERN_TAG_SUFFIX,
-    primary: true,
     active: true,
   },
   {

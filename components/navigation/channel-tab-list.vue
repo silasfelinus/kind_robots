@@ -162,11 +162,13 @@ const props = withDefaults(
     activeChannelKey?: string
     activeTabKey?: string
     columns?: 1 | 2
+    resetSubtabsToken?: number
   }>(),
   {
     activeChannelKey: '',
     activeTabKey: '',
     columns: 1,
+    resetSubtabsToken: 0,
   },
 )
 
@@ -222,6 +224,13 @@ function syncExpandedParent(): void {
     expandedParentKey.value = active.parentTabKey
   }
 }
+
+watch(
+  () => props.resetSubtabsToken,
+  () => {
+    expandedParentKey.value = ''
+  },
+)
 
 watch(
   [

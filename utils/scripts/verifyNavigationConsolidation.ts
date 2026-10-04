@@ -62,6 +62,13 @@ assert.ok(
     channelTabList.includes("tab.label + ' subtabs'"),
   'the shared tab list must render expandable nested subtabs',
 )
+assert.ok(
+  channelSelect.includes(':reset-subtabs-token="mobileSubtabsResetToken"') &&
+    channelSelect.includes('mobileSubtabsResetToken.value += 1') &&
+    channelTabList.includes('() => props.resetSubtabsToken') &&
+    channelTabList.includes("expandedParentKey.value = ''"),
+  'the unified phone picker must reopen with nested subtab groups collapsed',
+)
 
 const contentConfig = source('content.config.ts')
 assert.match(

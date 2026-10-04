@@ -273,7 +273,7 @@ import { usePageStore } from '@/stores/pageStore'
 import { hasSeparatedAdminTabs } from '@/utils/channelTabGroups'
 import { tabSharesRoute } from '@/utils/tabNavigation'
 
-withDefaults(
+const { seamless, unifiedMobile } = withDefaults(
   defineProps<{
     seamless?: boolean
     unifiedMobile?: boolean

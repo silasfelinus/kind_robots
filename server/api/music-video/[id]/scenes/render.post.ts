@@ -5,7 +5,9 @@ import { errorHandler } from '@/server/utils/error'
 import { parseStoredMusicVideoDoc } from '@/utils/musicVideoDoc'
 import {
   enqueueSceneStill,
+  resolveStillLane,
   type SceneRenderOutcome,
+  type StillLane,
 } from '@/server/utils/musicVideoScenes'
 import {
   loadOwnedMusicVideo,
@@ -44,10 +46,23 @@ export default defineEventHandler(async (event) => {
       })
     }
 
+    let stillLane: StillLane
+    try {
+      stillLane = await resolveStillLane(doc)
+    } catch (error) {
+      throw createError({
+        statusCode: 400,
+        message:
+          error instanceof Error ? error.message : 'Unknown comic series.',
+      })
+    }
+
     const outcomes: SceneRenderOutcome[] = []
     for (const scene of targets) {
       try {
-        outcomes.push(await enqueueSceneStill(event, id, scene, doc, force))
+        outcomes.push(
+          await enqueueSceneStill(event, id, scene, doc, force, stillLane),
+        )
       } catch (error) {
         outcomes.push({
           sceneId: scene.id,

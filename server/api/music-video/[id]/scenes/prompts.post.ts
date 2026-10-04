@@ -5,9 +5,15 @@ import { errorHandler } from '@/server/utils/error'
 import { parseStoredMusicVideoDoc } from '@/utils/musicVideoDoc'
 import {
   buildScenePromptRequest,
+  musicVideoStillBody,
   parseScenePromptResponse,
 } from '@/utils/musicVideoScenes'
-import { sceneRenderProblems } from '@/server/utils/musicVideoScenes'
+import {
+  MUSIC_VIDEO_PROJECT_SLUG,
+  resolveStillLane,
+  sceneRenderProblems,
+  type StillLane,
+} from '@/server/utils/musicVideoScenes'
 import {
   loadOwnedMusicVideo,
   readMusicVideoId,
@@ -45,6 +51,17 @@ export default defineEventHandler(async (event) => {
       })
     }
 
+    let stillLane: StillLane
+    try {
+      stillLane = await resolveStillLane(doc)
+    } catch (error) {
+      throw createError({
+        statusCode: 400,
+        message:
+          error instanceof Error ? error.message : 'Unknown comic series.',
+      })
+    }
+
     const { system, prompt } = buildScenePromptRequest(doc, targets)
     const generated = await event.$fetch<GenerateTextResponse, string>(
       '/api/generate/text',
@@ -71,7 +88,15 @@ export default defineEventHandler(async (event) => {
       if (!next || !targets.some((target) => target.id === scene.id))
         return scene
       const candidate = { ...scene, prompt: next, promptSource: 'llm' as const }
-      const problems = sceneRenderProblems(candidate, doc)
+      const problems = sceneRenderProblems(
+        candidate,
+        doc,
+        musicVideoStillBody(doc, candidate, {
+          projectSlug: MUSIC_VIDEO_PROJECT_SLUG,
+          lane: stillLane.lane,
+          series: stillLane.series,
+        }),
+      )
       if (problems.length) {
         rejected.push({ sceneId: scene.id, reason: problems.join(' ') })
         return scene

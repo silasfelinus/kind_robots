@@ -9,6 +9,11 @@
 // things that have burned this pipeline before: negations, art-direction jargon,
 // and words that summon lettering. It also enforces the first-run trailer's IP
 // guardrail: no franchise names, because the model renders what it is told.
+//
+// music-video/t-025: a video can instead borrow a Comic Studio series' style, so
+// its stills render through that series' house lane (an SDXL-family checkpoint
+// with the lane's prefix, suffix and series negatives). settings.bannedTerms is
+// enforced on every engine, for a story's secret or a franchise guardrail.
 
 import {
   MUSIC_VIDEO_LIMITS,
@@ -16,6 +21,11 @@ import {
   type MusicVideoDoc,
   type MusicVideoScene,
 } from './musicVideoDoc'
+import {
+  buildComicLaneEnqueueBody,
+  type ComicLane,
+  type ComicSeriesStyle,
+} from './comicLanes'
 
 export type ScenePromptRequest = {
   system: string
@@ -121,6 +131,9 @@ export function buildScenePromptRequest(
       doc.settings.styleBible
         ? `Every frame shares this look, so describe content rather than style: ${doc.settings.styleBible}`
         : '',
+      doc.settings.bannedTerms?.length
+        ? `Never use any of these words or phrases: ${doc.settings.bannedTerms.join(', ')}.`
+        : '',
       '',
       'Write one image prompt for each scene, following the lyric it plays under:',
       ...sceneLines,
@@ -190,4 +203,106 @@ export function composeScenePrompt(
 ): string {
   const style = styleBible.trim()
   return style ? `${scenePrompt.trim()}, ${style}` : scenePrompt.trim()
+}
+
+export const MUSIC_VIDEO_KREA_STEPS = 8
+export const MUSIC_VIDEO_KREA_CFG = 1
+
+function escapeRegExp(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+}
+
+/**
+ * The banned terms a text contains, matched as whole words or phrases and
+ * ignoring case, so "people" never matches inside "peopled".
+ */
+export function findBannedTerms(
+  text: string,
+  terms: readonly string[] | undefined,
+): string[] {
+  if (!terms?.length || !text) return []
+  const haystack = text.toLowerCase()
+  return terms.filter((term) => {
+    const needle = term.trim().toLowerCase()
+    if (!needle) return false
+    const pattern = new RegExp(
+      `(^|[^a-z0-9])${escapeRegExp(needle).replace(/ /g, '\\s+')}($|[^a-z0-9])`,
+    )
+    return pattern.test(haystack)
+  })
+}
+
+export type MusicVideoStillBody = {
+  engine: string
+  promptString: string
+  negativePrompt?: string
+  checkpoint?: string
+  width: number
+  height: number
+  steps?: number
+  cfg?: number
+  sampler?: string
+  loraResourceIds: number[]
+  isPublic: false
+  isMature: false
+  designer: string
+  projectSlug: string
+}
+
+/**
+ * The /api/art/enqueue body for one scene still. Krea 2 by default; with a comic
+ * lane, the series' checkpoint, lane prefix and suffix, series style and
+ * negatives, at the video's aspect. Always private.
+ */
+export function musicVideoStillBody(
+  doc: MusicVideoDoc,
+  scene: Pick<MusicVideoScene, 'prompt'>,
+  options: {
+    projectSlug: string
+    lane?: ComicLane | null
+    series?: ComicSeriesStyle | null
+  },
+): MusicVideoStillBody {
+  const composed = composeScenePrompt(scene.prompt, doc.settings.styleBible)
+  const shared = {
+    loraResourceIds: doc.settings.loraResourceIds ?? [],
+    isPublic: false as const,
+    isMature: false as const,
+    designer: 'Music Video',
+    projectSlug: options.projectSlug,
+  }
+  if (!options.lane) {
+    const { width, height } = kreaFrameSize(doc.settings.aspect)
+    return {
+      engine: 'krea2',
+      promptString: composed,
+      width,
+      height,
+      steps: MUSIC_VIDEO_KREA_STEPS,
+      cfg: MUSIC_VIDEO_KREA_CFG,
+      ...shared,
+    }
+  }
+  const body = buildComicLaneEnqueueBody(
+    options.lane,
+    {
+      promptProse: composed,
+      promptTags: options.lane.promptStyle === 'tags' ? composed : null,
+      aspect: doc.settings.aspect,
+      useSeriesStyle: true,
+    },
+    { ...(options.series ?? {}), isPublicArt: false },
+  )
+  return {
+    engine: body.engine,
+    promptString: body.promptString,
+    ...(body.negativePrompt ? { negativePrompt: body.negativePrompt } : {}),
+    ...(body.checkpoint ? { checkpoint: body.checkpoint } : {}),
+    width: body.width,
+    height: body.height,
+    ...(body.steps ? { steps: body.steps } : {}),
+    ...(body.cfg ? { cfg: body.cfg } : {}),
+    ...(body.sampler ? { sampler: body.sampler } : {}),
+    ...shared,
+  }
 }

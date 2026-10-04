@@ -349,6 +349,18 @@
         >
           {{ triageStore.saveError }}
         </div>
+        <div
+          v-if="triageStore.deleteMessage"
+          class="kr-note kr-note-success p-3 font-normal"
+        >
+          {{ triageStore.deleteMessage }}
+        </div>
+        <div
+          v-if="triageStore.deleteError"
+          class="kr-note kr-note-error p-3 font-normal"
+        >
+          {{ triageStore.deleteError }}
+        </div>
 
         <section
           v-if="pageResources.length"
@@ -541,6 +553,62 @@
                   isMissingPreview(resource) ? 'Render preview' : 'Re-render'
                 }}
               </button>
+
+              <div class="grid grid-cols-2 gap-2">
+                <button
+                  type="button"
+                  class="kr-btn btn-outline"
+                  @click="openResourceCard(resource.id)"
+                >
+                  <Icon name="kind-icon:eye" class="kr-icon-4" />
+                  Resource card
+                </button>
+                <button
+                  type="button"
+                  class="kr-btn btn-ghost text-error"
+                  :disabled="triageStore.deletingResourceId !== null"
+                  @click="requestDelete(resource.id)"
+                >
+                  <Icon name="kind-icon:trash" class="kr-icon-4" />
+                  Delete
+                </button>
+              </div>
+
+              <div
+                v-if="confirmingDeleteId === resource.id"
+                class="rounded-xl border border-error/50 bg-error/10 p-3"
+              >
+                <p class="kr-text-bold-sm">
+                  Delete {{ resourceLabel(resource) }}?
+                </p>
+                <p class="kr-text-dim-xs mt-1">
+                  This removes the LoRA Resource from the catalog. Existing
+                  images are kept, and any unsaved triage choices for this LoRA
+                  are discarded.
+                </p>
+                <div class="mt-3 flex justify-end gap-2">
+                  <button
+                    type="button"
+                    class="kr-btn-ghost-xs"
+                    :disabled="triageStore.deletingResourceId !== null"
+                    @click="confirmingDeleteId = null"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    class="btn btn-error btn-xs rounded-lg"
+                    :disabled="triageStore.deletingResourceId !== null"
+                    @click="confirmDelete(resource)"
+                  >
+                    <span
+                      v-if="triageStore.deletingResourceId === resource.id"
+                      class="kr-spinner-xs"
+                    />
+                    Delete LoRA
+                  </button>
+                </div>
+              </div>
             </div>
           </article>
         </section>
@@ -561,6 +629,65 @@
             </p>
           </div>
         </div>
+
+        <kr-card-flip
+          v-model="resourceCardOpen"
+          :label="
+            resourceCardResource
+              ? `Resource card: ${resourceLabel(resourceCardResource)}`
+              : 'Resource card'
+          "
+        >
+          <template #back="{ close }">
+            <div v-if="resourceCardResource" class="space-y-4 p-4">
+              <div class="flex items-center justify-between gap-3">
+                <div>
+                  <p class="kr-text-eyebrow kr-text-dim-xs-45">
+                    Canonical catalog presentation
+                  </p>
+                  <h2 class="kr-text-black-lg">Resource card</h2>
+                </div>
+                <button
+                  type="button"
+                  class="kr-btn-ghost-xs"
+                  aria-label="Close Resource card"
+                  @click="close"
+                >
+                  <Icon name="kind-icon:close" class="kr-icon-4" />
+                  Close
+                </button>
+              </div>
+
+              <div class="mx-auto w-full max-w-sm" inert>
+                <resource-card :resource="resourceCardResource" />
+              </div>
+
+              <div class="flex justify-end">
+                <NuxtLink
+                  class="kr-btn-primary"
+                  :to="{
+                    path: '/resources',
+                    query: { resourceId: resourceCardResource.id },
+                  }"
+                >
+                  Open full Resource
+                </NuxtLink>
+              </div>
+            </div>
+            <div v-else class="p-6 text-center">
+              <p class="kr-text-dim-sm">
+                That Resource is no longer available.
+              </p>
+              <button
+                type="button"
+                class="kr-btn-ghost mt-3"
+                @click="close"
+              >
+                Close
+              </button>
+            </div>
+          </template>
+        </kr-card-flip>
 
         <footer
           class="kr-panel flex flex-wrap items-center justify-between gap-3 p-3"
@@ -636,8 +763,9 @@ const category = ref<CategoryFilter>('ALL')
 /*
  * The review filter. A category is only as trustworthy as what produced it,
  * and the 2026-09-22 sweep proved the spread is wide: CHARACTER and STYLE came
- * off Civitai tags and sampled clean across 1,231 rows, while CREATURE and
- * OBJECT came off title keywords and are roughly half wrong. Filtering to
+ * off Civitai tags and sampled clean across 1,231 rows, while OBJECT and the
+ * now-retired CREATURE bucket came off title keywords and were roughly half
+ * wrong. Filtering to
  * HEURISTIC is how you find the bad ones without reading 2,226 cards.
  */
 const source = ref<SourceFilter>('ALL')
@@ -645,6 +773,21 @@ const bulkCategory = ref<LoraCategory | ''>('')
 const previewFilter = ref<PreviewFilter>('ALL')
 const pageSize = ref(48)
 const page = ref(1)
+const confirmingDeleteId = ref<number | null>(null)
+const resourceCardId = ref<number | null>(null)
+
+const resourceCardResource = computed(
+  () =>
+    triageStore.loras.find((resource) => resource.id === resourceCardId.value) ??
+    null,
+)
+
+const resourceCardOpen = computed({
+  get: () => resourceCardId.value !== null,
+  set: (value: boolean) => {
+    if (!value) resourceCardId.value = null
+  },
+})
 
 const categoryOptions = LORA_CATEGORIES.map(
   (value) => LORA_CATEGORY_META[value],
@@ -876,6 +1019,23 @@ function handleSelection(resourceId: number, event: Event): void {
 
 function selectPage(): void {
   triageStore.selectIds(pageResources.value.map((resource) => resource.id))
+}
+
+function openResourceCard(resourceId: number): void {
+  resourceCardId.value = resourceId
+}
+
+function requestDelete(resourceId: number): void {
+  confirmingDeleteId.value =
+    confirmingDeleteId.value === resourceId ? null : resourceId
+}
+
+async function confirmDelete(resource: ResourceGalleryRecord): Promise<void> {
+  const deleted = await triageStore.deleteLora(resource.id)
+  if (!deleted) return
+
+  confirmingDeleteId.value = null
+  if (resourceCardId.value === resource.id) resourceCardId.value = null
 }
 
 function clearProgress(): void {

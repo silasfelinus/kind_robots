@@ -225,6 +225,9 @@ jobs:
       - name: Music video final upload contract
         run: npm run test:music-video-final
 
+      - name: Music video song upload contract
+        run: npm run test:music-video-audio-upload
+
       - name: ArtJob audio media contract
         run: npm run test:artjob-audio-media
 

@@ -20,12 +20,15 @@ export const MUSIC_VIDEO_FINAL_TYPES = {
   'video/mp4': 'mp4',
 } as const
 
-export function musicVideoMaxUploadBytes(envValue?: string | null): number {
+export function musicVideoMaxUploadBytes(
+  envValue?: string | null,
+  defaultMb: number = MUSIC_VIDEO_DEFAULT_MAX_UPLOAD_MB,
+): number {
   const parsed = Number(envValue)
   const megabytes =
     Number.isFinite(parsed) && parsed > 0
       ? Math.min(parsed, MUSIC_VIDEO_HARD_MAX_UPLOAD_MB)
-      : MUSIC_VIDEO_DEFAULT_MAX_UPLOAD_MB
+      : defaultMb
   return Math.floor(megabytes * 1024 * 1024)
 }
 

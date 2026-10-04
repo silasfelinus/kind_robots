@@ -103,6 +103,8 @@ export type MusicVideoScene = {
   lyricRefs: { sectionId: string; lineIdx: number }[]
   prompt: string
   promptSource: 'llm' | 'user'
+  /** Prose for the clip's movement (music-video/t-026); the clip falls back to prompt. */
+  motionPrompt?: string
   image: {
     source: 'generated' | 'upload' | 'gallery'
     artImageId?: number
@@ -113,6 +115,8 @@ export type MusicVideoScene = {
     preset?: string
     clipArtImageId?: number
     jobId?: number
+    /** End the clip on the next scene's still (first and last frame). */
+    lastFrame?: 'next-scene'
   }
   transition: 'cut' | 'crossfade'
   transitionSec: number
@@ -511,6 +515,9 @@ function normalizeScenes(
     if (preset) scene.motion.preset = preset
     if (clipArt) scene.motion.clipArtImageId = clipArt
     if (clipJob) scene.motion.jobId = clipJob
+    if (motion.lastFrame === 'next-scene') scene.motion.lastFrame = 'next-scene'
+    const motionPrompt = text(item.motionPrompt, L.maxPrompt)
+    if (motionPrompt) scene.motionPrompt = motionPrompt
     scenes.push(scene)
   })
 

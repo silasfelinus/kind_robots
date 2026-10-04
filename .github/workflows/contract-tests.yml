@@ -135,6 +135,9 @@ jobs:
       - name: WAN image-to-video mode contract
         run: npm run test:wan-i2v-modes
 
+      - name: Video image fit contract
+        run: npm run test:video-image-fit
+
       - name: Channel content contract
         run: npm run test:channel-content
 

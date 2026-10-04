@@ -39,6 +39,10 @@ import {
 import { normalizeVideoOutputFormat } from '../comfy/utils/videoOutput'
 import { applyVideoLoraChain } from '../comfy/utils/videoLoraChain'
 import {
+  applyVideoImageFit,
+  normalizeVideoImageFit,
+} from '../comfy/utils/videoImageFit'
+import {
   buildWanImageToVideoWorkflow,
   wanFrameCount,
 } from '../comfy/wan/utils/imageToVideoWorkflow'
@@ -156,6 +160,7 @@ type ArtEnqueueRequest = {
   loop?: boolean | null
   outputFormat?: string | null
   presetId?: string | null
+  imageFit?: string | null
   renderScale?: number | null
   latentUpscaleModel?: string | null
   refineSampler?: string | null
@@ -1174,6 +1179,11 @@ function buildVideoJobPayload(
         refineSampler,
         refineSigmas,
       })
+
+  applyVideoImageFit(workflow, engine, normalizeVideoImageFit(body.imageFit), {
+    width,
+    height,
+  })
 
   const videoLoras = applyVideoLoraChain(workflow, engine, {
     loras: body.loras,

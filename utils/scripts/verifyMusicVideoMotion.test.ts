@@ -17,6 +17,7 @@ import {
 import {
   MUSIC_VIDEO_KEN_BURNS_PRESETS,
   buildSceneClipRequest,
+  clipFrameSize,
   clipRuntimeHint,
   defaultKenBurnsPreset,
   isKenBurnsPreset,
@@ -168,6 +169,77 @@ console.log(
 }
 console.log(
   '✅ clip requests are private mp4 from the scene still, and refuse early',
+)
+
+{
+  const balanced = resolveClipPreset()
+  assert.deepEqual(clipFrameSize(balanced, '16:9'), {
+    width: balanced.width,
+    height: balanced.height,
+  })
+  const portrait = clipFrameSize(balanced, '9:16')
+  const square = clipFrameSize(balanced, '1:1')
+  for (const frame of [portrait, square]) {
+    assert.equal(frame.width % 32, 0)
+    assert.equal(frame.height % 32, 0)
+    const area = frame.width * frame.height
+    const budget = balanced.width * balanced.height
+    assert.ok(Math.abs(area - budget) / budget < 0.08, 'same pixel budget')
+  }
+  assert.ok(portrait.height > portrait.width)
+  assert.equal(square.width, square.height)
+  const squarePreset = { width: 768, height: 768 }
+  const wide = clipFrameSize(squarePreset, '16:9')
+  assert.ok(wide.width > wide.height)
+
+  const portraitDoc = normalizeMusicVideoDoc({
+    ...doc,
+    settings: { ...doc.settings, aspect: '9:16' },
+  }).doc
+  const scene: MusicVideoScene = {
+    ...planScenes(portraitDoc)[0]!,
+    prompt: '',
+    motionPrompt: 'the camera pushes in as the koala lowers his hat',
+    image: { source: 'gallery', artImageId: 11 },
+    motion: { kind: 'clip', lastFrame: 'next-scene' },
+  }
+  const request = buildSceneClipRequest(scene, portraitDoc, {
+    firstImageBase64: 'AAAA',
+    lastImageBase64: ' BBBB ',
+    projectSlug: 'comic-film',
+  })
+  assert.equal(request.imageFit, 'crop')
+  assert.deepEqual(
+    { width: request.width, height: request.height },
+    clipFrameSize(balanced, '9:16'),
+  )
+  assert.equal(request.secondImageBase64, 'BBBB')
+  assert.ok(request.promptString.startsWith('the camera pushes in'))
+  assert.equal(request.projectSlug, 'comic-film')
+  const noLast = buildSceneClipRequest(scene, portraitDoc, {
+    firstImageBase64: 'AAAA',
+    projectSlug: 'music-video',
+  })
+  assert.equal('secondImageBase64' in noLast, false)
+
+  const roundTrip = normalizeMusicVideoDoc({
+    ...portraitDoc,
+    scenes: [scene],
+  })
+  assert.deepEqual(roundTrip.errors, [])
+  assert.equal(
+    roundTrip.doc.scenes[0]?.motionPrompt,
+    'the camera pushes in as the koala lowers his hat',
+  )
+  assert.equal(roundTrip.doc.scenes[0]?.motion.lastFrame, 'next-scene')
+  const junk = normalizeMusicVideoDoc({
+    ...portraitDoc,
+    scenes: [{ ...scene, motion: { kind: 'clip', lastFrame: 'previous' } }],
+  })
+  assert.equal(junk.doc.scenes[0]?.motion.lastFrame, undefined)
+}
+console.log(
+  '✅ clips crop to the video aspect at the preset budget, take a motion prompt and an optional last frame',
 )
 
 console.log('✅ verifyMusicVideoMotion: all assertions passed')

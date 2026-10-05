@@ -195,6 +195,23 @@ console.log(
     ['c', 'z'],
   )
 }
+{
+  const arthemy = buildComicLaneEnqueueBody(
+    DEFAULT_COMIC_LANES.find((item) => item.key === 'il-arthemy')!,
+    { promptTags: 'koala' },
+  )
+  assert.equal(
+    arthemy.sampler,
+    'euler_ancestral',
+    "the house lane runs the author's sampler",
+  )
+  assert.equal(arthemy.steps, 30)
+  assert.equal(arthemy.cfg, 5)
+  assert.ok(
+    arthemy.promptString.includes('toon (style), western comics (style)'),
+    "the house lane carries the author's style tags",
+  )
+}
 console.log('✅ exactly one active lane is primary, and Arthemy is the default')
 
 {

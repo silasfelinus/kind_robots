@@ -12,6 +12,11 @@ import { useUserStore } from '@/stores/userStore'
 import type { Resource } from '@/stores/resourceStore'
 import ShareManager from '@/components/sharing/share-manager.vue'
 import { querySelectionId } from '@/utils/routeSelection'
+import {
+  LORA_CATEGORIES,
+  LORA_CATEGORY_META,
+  normalizeLoraCategory,
+} from '@/utils/loraCategory'
 
 const RESOURCE_TYPE = {
   CHECKPOINT: 'CHECKPOINT',
@@ -26,6 +31,7 @@ const userStore = useUserStore()
 const query = ref('')
 const resourceType = ref('ALL')
 const generation = ref('ALL')
+const loraCategory = ref('ALL')
 
 const route = useRoute()
 const router = useRouter()
@@ -345,6 +351,26 @@ const generations = computed(() => {
   ].sort((a, b) => a.localeCompare(b))
 })
 
+const LORA_RESOURCE_TYPES = ['LORA', 'LYCORIS']
+
+const showsLoraCategoryFilter = computed(() =>
+  LORA_RESOURCE_TYPES.includes(resourceType.value),
+)
+
+const loraCategoryOptions = LORA_CATEGORIES.map(
+  (category) => LORA_CATEGORY_META[category],
+)
+
+function matchesLoraCategory(entry: { loraCategory?: unknown }): boolean {
+  if (!showsLoraCategoryFilter.value || loraCategory.value === 'ALL') {
+    return true
+  }
+  const category = normalizeLoraCategory(entry.loraCategory)
+  return loraCategory.value === 'UNCLASSIFIED'
+    ? category === null
+    : category === loraCategory.value
+}
+
 const filteredResources = computed(() => {
   const search = query.value.trim().toLowerCase()
 
@@ -371,6 +397,8 @@ const filteredResources = computed(() => {
     if (generation.value !== 'ALL' && entry.generation !== generation.value) {
       return false
     }
+
+    if (!matchesLoraCategory(entry)) return false
 
     /*
      * Owners/admins can legitimately receive their own mature Resource rows
@@ -958,6 +986,23 @@ onMounted(async () => {
             <option v-for="base in generations" :key="base" :value="base">
               {{ base }}
             </option>
+          </select>
+
+          <select
+            v-if="showsLoraCategoryFilter"
+            v-model="loraCategory"
+            class="select select-bordered select-xs w-auto max-w-44 rounded-2xl"
+            aria-label="Filter by LoRA category"
+          >
+            <option value="ALL">All categories</option>
+            <option
+              v-for="option in loraCategoryOptions"
+              :key="option.category"
+              :value="option.category"
+            >
+              {{ option.label }}
+            </option>
+            <option value="UNCLASSIFIED">Unclassified</option>
           </select>
 
           <!-- `icon`, not `resource`: the resource variant is a labelled block

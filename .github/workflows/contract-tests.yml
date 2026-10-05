@@ -40,6 +40,9 @@ jobs:
       - name: Solitaire engine contract
         run: npm run test:solitaire-engine
 
+      - name: Oracle reading engine contract
+        run: npm run test:oracle-engine
+
       - name: Art-request YAML indentation contract
         run: npm run test:art-request-yaml
 
@@ -132,6 +135,9 @@ jobs:
       - name: WAN image-to-video mode contract
         run: npm run test:wan-i2v-modes
 
+      - name: Video image fit contract
+        run: npm run test:video-image-fit
+
       - name: Channel content contract
         run: npm run test:channel-content
 
@@ -189,6 +195,21 @@ jobs:
       - name: Mandarin points contract
         run: npm run test:mandarin-points
 
+      - name: Comic Studio lanes contract
+        run: npm run test:comic-lanes
+
+      - name: Comic Studio layouts contract
+        run: npm run test:comic-layouts
+
+      - name: Comic Studio vetting contract
+        run: npm run test:comic-studio
+
+      - name: Comic Studio import contract
+        run: npm run test:comic-import
+
+      - name: Comic Studio editor contract
+        run: npm run test:comic-editor
+
       - name: Music video document contract
         run: npm run test:music-video-doc
 
@@ -197,6 +218,18 @@ jobs:
 
       - name: Music video scenes contract
         run: npm run test:music-video-scenes
+
+      - name: Music video song contract
+        run: npm run test:music-video-song
+
+      - name: Music video motion contract
+        run: npm run test:music-video-motion
+
+      - name: Music video final upload contract
+        run: npm run test:music-video-final
+
+      - name: Music video song upload contract
+        run: npm run test:music-video-audio-upload
 
       - name: ArtJob audio media contract
         run: npm run test:artjob-audio-media
@@ -1292,6 +1325,12 @@ jobs:
 
       - name: Butterfly Gallery fixture/art-archive shape-parity contract
         run: npm run test:butterfly-gallery-fixture-shape-parity
+
+      - name: Butterfly Gallery curation (catalog, art card, batch edit) contract
+        run: npm run test:butterfly-gallery-curation
+
+      - name: Adventure validator contract
+        run: npm run test:adventure-validator
 
       - name: Fetch main for capture-group guard diff
         run: git fetch origin main

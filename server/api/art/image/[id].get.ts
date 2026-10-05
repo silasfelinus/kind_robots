@@ -6,10 +6,8 @@ import { errorHandler } from '../../../utils/error'
 import { validateApiKey } from '../../../utils/validateKey'
 import { userRoles } from '../../../utils/authUser'
 import { attachGalleryArchiveMediaPaths } from '~/server/utils/artGalleryArchiveMedia'
-import {
-  canReadArtImage,
-  matureHiddenFrom,
-} from '~/server/utils/artImageAccess'
+import { canReadArtImage } from '~/server/utils/artImageAccess'
+import { matureHiddenFrom } from '~/server/utils/matureBarrier'
 import {
   isMaturityRestricted,
   viewerShowsMature,

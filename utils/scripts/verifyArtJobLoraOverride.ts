@@ -259,16 +259,21 @@ import {
     ],
   )
 
-  const workflow = refresh.payload.workflow as any
+  type TestLoraNode = {
+    inputs: {
+      lora_name?: unknown
+      strength_model?: unknown
+    }
+  }
+  const workflow = refresh.payload.workflow as Record<string, TestLoraNode>
+  const stack = [workflow.first!, workflow.second!, workflow.third!]
   assert.equal(
-    workflow.required.inputs.lora_name,
+    workflow.required!.inputs.lora_name,
     'required/base-acceleration.safetensors',
     'required/base LoRA must not move during stack refresh',
   )
   assert.deepEqual(
-    [workflow.first, workflow.second, workflow.third].map(
-      (node: any) => node.inputs.lora_name,
-    ),
+    stack.map((node) => node.inputs.lora_name),
     [
       'Flux/SFW/first.safetensors',
       'Flux/SFW/second.safetensors',
@@ -276,9 +281,7 @@ import {
     ],
   )
   assert.deepEqual(
-    [workflow.first, workflow.second, workflow.third].map(
-      (node: any) => node.inputs.strength_model,
-    ),
+    stack.map((node) => node.inputs.strength_model),
     [0.9, 0.6, 0.3],
     'refreshing current Resource paths must preserve per-LoRA strengths',
   )
@@ -288,10 +291,9 @@ import {
     'Flux/SFW/second.safetensors',
     'Flux/SFW/third.safetensors',
   ])
-  assert.deepEqual((refresh.payload.resources as any).loraResourceIds, [
-    11, 22, 33,
-  ])
-  assert.deepEqual((refresh.payload.resources as any).loraNames, [
+  const resources = refresh.payload.resources as Record<string, unknown>
+  assert.deepEqual(resources.loraResourceIds, [11, 22, 33])
+  assert.deepEqual(resources.loraNames, [
     'Flux/SFW/first.safetensors',
     'Flux/SFW/second.safetensors',
     'Flux/SFW/third.safetensors',
@@ -300,7 +302,6 @@ import {
 }
 
 // 9. Every route that returns an existing ArtJob to PENDING must refresh the
-
 //    current Resource path first. This guards the dashboard's "Resume unchanged"
 //    route, which was separate from the two re-enqueue routes.
 {

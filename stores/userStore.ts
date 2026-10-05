@@ -676,6 +676,9 @@ export const useUserStore = defineStore('userStore', () => {
   }
 
   function logout() {
+    // The HttpOnly kind-session cookie is the browser's proof of login for
+    // gated art files; only the server can clear it.
+    void performFetch('/api/auth/logout', { method: 'POST' })
     resetSessionState()
     initialized.value = false
     initializePromise.value = null

@@ -6,6 +6,7 @@ import { errorHandler } from '../../../utils/error'
 import { validateApiKey } from '../../../utils/validateKey'
 import { userRoles } from '../../../utils/authUser'
 import { attachGalleryArchiveMediaPaths } from '~/server/utils/artGalleryArchiveMedia'
+import { canReadArtImage } from '~/server/utils/artImageAccess'
 import {
   isMaturityRestricted,
   viewerShowsMature,
@@ -105,38 +106,6 @@ async function getAccessContext(event: H3Event): Promise<AccessContext> {
       restricted: true,
     }
   }
-}
-
-function canReadArtImage(
-  image: Pick<ArtImage, 'userId' | 'isPublic' | 'isMature'>,
-  access: AccessContext,
-): boolean {
-  if (access.isAdmin) return true
-
-  /*
-   * YOUR OWN IMAGE, FETCHED BY ID, IS YOURS. This route is how a tool loads the
-   * one image someone is already working with -- sceneAnimatorStore reads an
-   * animation source through it -- and taking that away from an opted-out adult
-   * mid-task is a bug, not a protection. A maturity-RESTRICTED account keeps the
-   * hard barrier even here: a CHILD should not have mature images, and hiding
-   * one is the protective direction.
-   *
-   * Deliberately narrow to this by-id route. Listings do not do this, because a
-   * grid is what someone else in the room can see.
-   */
-  const isOwner = Boolean(
-    access.isAuthenticated && access.userId && image.userId === access.userId,
-  )
-
-  if (isOwner && !access.restricted) return true
-
-  if (!access.showMature && image.isMature) return false
-
-  if (image.isPublic) return true
-
-  if (isOwner) return true
-
-  return false
 }
 
 function buildArtImageSelect(

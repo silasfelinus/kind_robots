@@ -9,6 +9,11 @@ import {
   setResponseHeader,
 } from 'h3'
 import { getImageStorageRoot } from '~/server/utils/imageStorageRoot'
+import prisma from '~/server/utils/prisma'
+import {
+  canReadArtImage,
+  getMediaViewerAccessContext,
+} from '~/server/utils/artImageAccess'
 
 const CONTENT_TYPES: Record<string, string> = {
   '.avif': 'image/avif',
@@ -28,7 +33,9 @@ const REMOTE_FALLBACK_PREFIXES = ['academy/', 'dashboard-tabs/academy/']
 const REMOTE_FALLBACK_TIMEOUT_MS = 15_000
 
 function remoteFallbackUrl(relativePath: string): string | null {
-  if (!REMOTE_FALLBACK_PREFIXES.some((prefix) => relativePath.startsWith(prefix))) {
+  if (
+    !REMOTE_FALLBACK_PREFIXES.some((prefix) => relativePath.startsWith(prefix))
+  ) {
     return null
   }
 
@@ -43,7 +50,9 @@ function remoteFallbackUrl(relativePath: string): string | null {
   return `${mediaOrigin}/images/${encodedPath}`
 }
 
-async function fetchRemoteFallback(relativePath: string): Promise<Response | null> {
+async function fetchRemoteFallback(
+  relativePath: string,
+): Promise<Response | null> {
   const url = remoteFallbackUrl(relativePath)
   if (!url) return null
 
@@ -66,6 +75,65 @@ async function fetchRemoteFallback(relativePath: string): Promise<Response | nul
   } catch {
     return null
   }
+}
+
+/*
+ * Generated renders are stored as `artimage-<id>-<hash>.<ext>` (the
+ * generated/<year>/<month>/ landing zone and anywhere else that naming lands).
+ * Their bytes used to be served to anyone holding the URL -- including private
+ * and mature images, logged out. The id in the name makes the gate one indexed
+ * lookup: public, non-mature art keeps the shared public cache; everything else
+ * goes through the same canReadArtImage rule as GET /api/art/image/:id, with the
+ * viewer identified by API header or the HttpOnly kind-session cookie.
+ */
+const ART_IMAGE_FILE = /^artimage-(\d+)-/i
+
+/*
+ * saveImage also drops a raw, extensionless, full-size copy named
+ * `ArtImageUpload-<timestamp>` (ArtImage.fileName) whenever APP_ENV is not
+ * `production`, and those were public too. fileName is not indexed, so an
+ * anonymous request is refused before any lookup -- no table scan for a
+ * stranger to trigger -- and only a signed-in viewer pays for the match.
+ */
+const ART_IMAGE_UPLOAD_FILE = /^ArtImageUpload-\d+$/
+
+type ArtImageFileGate = 'public' | 'private' | 'denied' | 'not-art'
+
+async function gateArtImageFile(
+  event: Parameters<typeof getMediaViewerAccessContext>[0],
+  fileName: string,
+): Promise<ArtImageFileGate> {
+  if (ART_IMAGE_UPLOAD_FILE.test(fileName)) {
+    const access = await getMediaViewerAccessContext(event)
+    if (!access.isAuthenticated) return 'denied'
+    if (access.isAdmin) return 'private'
+    const upload = await prisma.artImage.findFirst({
+      where: { fileName },
+      select: { userId: true, isPublic: true, isMature: true },
+    })
+    if (!upload) return 'denied'
+    return canReadArtImage(upload, access) ? 'private' : 'denied'
+  }
+
+  const match = ART_IMAGE_FILE.exec(fileName)
+  if (!match) return 'not-art'
+
+  const id = Number(match[1])
+  const image = Number.isSafeInteger(id)
+    ? await prisma.artImage.findUnique({
+        where: { id },
+        select: { userId: true, isPublic: true, isMature: true },
+      })
+    : null
+
+  if (image && image.isPublic === true && image.isMature !== true) {
+    return 'public'
+  }
+
+  // An orphaned file (its row deleted) is treated as private: only an admin.
+  const access = await getMediaViewerAccessContext(event)
+  const record = image ?? { userId: null, isPublic: false, isMature: true }
+  return canReadArtImage(record, access) ? 'private' : 'denied'
 }
 
 export default defineEventHandler(async (event) => {
@@ -91,6 +159,14 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 400, statusMessage: 'Invalid image path' })
   }
 
+  // Gate on the RESOLVED file's own name, not the request string: resolve()
+  // normalizes `x.webp/`, `x.webp/.` and `a/../x.webp` to the same file, and a
+  // pattern matched against the raw path would let those walk past the gate.
+  const gate = await gateArtImageFile(event, path.basename(filePath))
+  if (gate === 'denied') {
+    throw createError({ statusCode: 404, statusMessage: 'Image not found' })
+  }
+
   let fileStat
   try {
     fileStat = await stat(filePath)
@@ -110,7 +186,13 @@ export default defineEventHandler(async (event) => {
 
   setResponseHeader(event, 'Content-Length', fileStat.size)
   setResponseHeader(event, 'Last-Modified', fileStat.mtime.toUTCString())
-  setResponseHeader(event, 'Cache-Control', 'public, max-age=3600')
+  setResponseHeader(
+    event,
+    'Cache-Control',
+    gate === 'private' ? 'private, no-store' : 'public, max-age=3600',
+  )
+  if (gate === 'private')
+    setResponseHeader(event, 'Vary', 'Cookie, Authorization')
   setResponseHeader(event, 'X-Content-Type-Options', 'nosniff')
 
   return sendStream(event, createReadStream(filePath))

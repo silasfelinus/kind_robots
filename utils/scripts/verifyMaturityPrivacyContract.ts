@@ -574,4 +574,27 @@ assert.equal(
   '(short:1.2), smiling, outdoors,',
 )
 
+// Mature mode carries through to the output: switching on the LoRA picker's
+// "Mature resources" makes the next render Mature/Private, and a generator
+// opened in mature mode with no saved choice starts there. Nothing in this
+// path ever moves output toward public.
+const loraPickerSource = readFileSync(
+  'components/art/art-lora-picker.vue',
+  'utf8',
+)
+assert.ok(
+  loraPickerSource.includes('@changed="artStore.adoptMatureResourceMode"'),
+)
+const maturityToggleSource = readFileSync(
+  'components/navigation/maturity-toggle.vue',
+  'utf8',
+)
+assert.ok(maturityToggleSource.includes("emit('changed', value)"))
+assert.ok(
+  outputVisibilityStore.includes(
+    'setArtForm({ isMature: true, isPublic: false })',
+  ),
+)
+assert.ok(outputVisibilityStore.includes('applyMatureModeDefault()'))
+
 console.log('Maturity and privacy generation contract passed.')

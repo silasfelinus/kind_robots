@@ -116,6 +116,8 @@ const props = withDefaults(
   },
 )
 
+const emit = defineEmits<{ changed: [showMature: boolean] }>()
+
 const accountStore = useAccountStore()
 const userStore = useUserStore()
 
@@ -143,6 +145,8 @@ async function setShowMature(value: boolean): Promise<void> {
 
     if (!result.success) {
       updateError.value = result.message || 'Could not update mature content.'
+    } else {
+      emit('changed', value)
     }
   } finally {
     isUpdating.value = false

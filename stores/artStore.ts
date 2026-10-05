@@ -646,6 +646,7 @@ export const useArtStore = defineStore('artStore', () => {
           designer: userStore.username || userStore.user?.username || 'Kind Designer',
         })
       }
+      applyMatureModeDefault()
       return { success: true, data: true, message: 'Art generator ready.' }
     } catch (error) {
       const message =
@@ -762,6 +763,26 @@ export const useArtStore = defineStore('artStore', () => {
       safeGetLocalStorage(OUTPUT_VISIBILITY_STORAGE_KEY),
     )
     if (saved) state.artForm = { ...state.artForm, ...saved }
+    else applyMatureModeDefault()
+  }
+
+  /*
+   * Mature mode carries through to what the generator makes. The LoRA picker's
+   * "Mature resources" switch is the one people reach for, but it only decided
+   * what the pickers listed; the output flags sat in the collapsed Destination
+   * panel at General/Public, so every "mature batch" was queued public and only
+   * variants that happened to roll an NSFW-flagged LoRA came out mature
+   * (ArtJobs 33891-33956, 2026-10-05). Never moves anything toward public.
+   */
+  function adoptMatureResourceMode(showMatureNow: boolean): void {
+    if (!showMatureNow || state.artForm.isMature) return
+    setArtForm({ isMature: true, isPublic: false })
+  }
+
+  function applyMatureModeDefault(): void {
+    if (safeGetLocalStorage(OUTPUT_VISIBILITY_STORAGE_KEY)) return
+    if (!showMature.value || state.artForm.isMature) return
+    state.artForm = { ...state.artForm, isMature: true, isPublic: false }
   }
 
   function persistOutputVisibility(): void {
@@ -2406,6 +2427,7 @@ export const useArtStore = defineStore('artStore', () => {
     initialize,
     resetInitialization,
     hydrateFromLocalStorage,
+    adoptMatureResourceMode,
     fetchAllArtImages,
     loadArtImagesInChunks,
     selectArtImage,

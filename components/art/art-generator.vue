@@ -1186,13 +1186,18 @@ const specificServer = computed<Server | null>(() => {
   return id ? ((serverStore.getServerById(id) as Server | null) ?? null) : null
 })
 
-const destinationSummary = computed(() => {
+const destinationServerSummary = computed(() => {
   if (serverChoice.value === 'any') return 'Any compatible Comfy server'
   if (serverChoice.value === 'default') return defaultServerLabel.value
   return specificServer.value
     ? serverLabel(specificServer.value)
     : 'Choose a Comfy server'
 })
+
+const destinationSummary = computed(
+  () =>
+    `${outputIsMature.value ? 'Mature' : 'General'} · ${outputIsPublic.value ? 'Public' : 'Private'} · ${destinationServerSummary.value}`,
+)
 
 const serverDetail = computed(() => {
   if (serverChoice.value === 'any') {

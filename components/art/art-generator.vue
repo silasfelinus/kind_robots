@@ -42,6 +42,13 @@
               </span>
             </button>
 
+            <content-visibility-controls
+              v-model:is-mature="outputIsMature"
+              v-model:is-public="outputIsPublic"
+              compact
+              :disabled="artStore.isGenerating"
+            />
+
             <p class="kr-text-dim-xs text-center">
               {{ readinessSummary }}
             </p>
@@ -689,14 +696,6 @@
               @selected="handleCollectionSelected"
             />
 
-              <!-- Publishing flags for the image this run produces.
-                   Distinct from the Resource maturity toggle in the LoRA
-                   header, which decides what the pickers may show. -->
-              <content-visibility-controls
-                v-model:is-mature="outputIsMature"
-                v-model:is-public="outputIsPublic"
-                :disabled="artStore.isGenerating"
-              />
             </div>
           </details>
         </div>

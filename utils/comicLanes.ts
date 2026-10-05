@@ -13,8 +13,10 @@
 // Exactly one active lane is the series' primary (house) lane: the checkpoint the
 // comic is drawn in. Silas, 2026-10-04, after a seven-checkpoint bake-off
 // (comic-creator/t-018): "arthemy is the winner", so Arthemy Western Art is the
-// default primary. It carries no sampler overrides: these are the settings the
-// winning renders used. furrytoonmix, the previous house lane, stays available.
+// default primary. It runs the checkpoint author's settings (Euler a, 30 steps,
+// CFG 5, plus the author's two style tags): Silas, 2026-10-05, "Yes on house
+// settings", after seven of his nine design picks came from them.
+// furrytoonmix, the previous house lane, stays available.
 //
 // Pure: no Prisma, no h3, no app aliases, so the DB-free contract test can import it.
 import { assessRequeueSafety } from './quarantinedCheckpoints.js'
@@ -64,8 +66,11 @@ export const DEFAULT_COMIC_LANES: ComicLane[] = [
     engine: 'comfy',
     checkpoint: 'Illustrious/arthemyWesternArt_v30.safetensors',
     promptStyle: 'tags',
-    prefix: ILLUSTRIOUS_PREFIX,
+    prefix: `${ILLUSTRIOUS_PREFIX}, toon (style), western comics (style)`,
     suffix: WESTERN_TAG_SUFFIX,
+    steps: 30,
+    cfg: 5,
+    sampler: 'euler_ancestral',
     primary: true,
     active: true,
   },

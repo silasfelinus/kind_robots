@@ -201,9 +201,7 @@ export default defineEventHandler(async (event) => {
         // its maturity is unknown, so that row alone stays private until
         // /complete sets the job's real values. Every other caller sends
         // isMature, and a non-mature render stays public by default.
-        ...(isAudio
-          ? { ...visibility, isPublic: false }
-          : visibility),
+        ...(isAudio ? { ...visibility, isPublic: false } : visibility),
         userId: validatedData.userId ?? user.id,
         serverId: server.id,
         serverName: server.title,

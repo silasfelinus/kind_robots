@@ -168,6 +168,16 @@
             </button>
 
             <button
+              class="kr-btn-xs gap-1"
+              :class="conductor.pendingPitches.length ? 'btn-secondary' : 'btn-ghost'"
+              @click="openProposed"
+            >
+              <Icon name="kind-icon:brain" class="kr-icon-3" />
+              <span class="hidden sm:inline">Proposed</span>
+              <span class="kr-badge-xs">{{ conductor.pendingPitches.length }}</span>
+            </button>
+
+            <button
               v-if="syncIssueCount"
               class="kr-btn-xs gap-1"
               :class="showSync ? 'btn-warning' : 'btn-ghost'"
@@ -567,6 +577,10 @@ const load = (force: boolean) =>
     conductor.fetchProjects(force),
   ])
 const refresh = () => load(true)
+
+function openProposed() {
+  page.setWorkspaceCardKey('brainstorm')
+}
 
 async function open(item: Item) {
   await projects.fetchProject(item.id)

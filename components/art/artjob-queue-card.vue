@@ -557,7 +557,11 @@ import {
 } from 'vue'
 import { useArtJobStore, type ArtJobRecord } from '@/stores/artJobStore'
 import { useArtJobPriorityStore } from '@/stores/artJobPriorityStore'
-import { MAX_ART_JOB_PRIORITY, MIN_ART_JOB_PRIORITY } from '@/utils/artJobPriority'
+import {
+  MAX_ART_JOB_PRIORITY,
+  MIN_ART_JOB_PRIORITY,
+  parseArtJobPriority,
+} from '@/utils/artJobPriority'
 import { useArtStore } from '@/stores/artStore'
 import { useUserStore } from '@/stores/userStore'
 import { useEntityArtLinkStore } from '@/stores/entityArtLinkStore'
@@ -604,10 +608,8 @@ const runningElapsed = ref('')
 let runningTimer: ReturnType<typeof setInterval> | null = null
 
 const parsedPriorityDraft = computed<number | null>(() => {
-  const priority = Number(priorityDraft.value)
-  if (!Number.isInteger(priority)) return null
-  if (priority < MIN_ART_JOB_PRIORITY || priority > MAX_ART_JOB_PRIORITY) return null
-  return priority
+  const parsed = parseArtJobPriority(priorityDraft.value)
+  return parsed.ok ? parsed.priority : null
 })
 
 const priorityBusy = computed<boolean>(() =>
@@ -616,7 +618,11 @@ const priorityBusy = computed<boolean>(() =>
 
 const canSetPriority = computed<boolean>(() => {
   const priority = parsedPriorityDraft.value
-  return priority !== null && priority !== props.job.priority && !priorityBusy.value
+  return (
+    priority !== null &&
+    priority !== props.job.priority &&
+    !priorityBusy.value
+  )
 })
 
 watch(

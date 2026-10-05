@@ -1,5 +1,6 @@
 // /server/api/auth/validate/token.ts
 import { defineEventHandler, getHeader, readBody } from 'h3'
+import { setKindSessionCookie } from '../../../utils/kindSessionCookie'
 import { errorHandler } from '../../../utils/error'
 import prisma from '../../../utils/prisma'
 import { verifyJwtToken } from '..'
@@ -76,6 +77,11 @@ export default defineEventHandler(async (event) => {
         statusCode: 404,
       }
     }
+
+    // Restored sessions (token from localStorage, Google sign-in) never went
+    // through login.post, so they had no kind-session cookie and their own
+    // private images would not load in an <img> once /images is gated.
+    setKindSessionCookie(event, token)
 
     return {
       success: true,

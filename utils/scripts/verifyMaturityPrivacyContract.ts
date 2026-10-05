@@ -634,4 +634,55 @@ const artInteractSource = readFileSync(
 assert.ok(artInteractSource.includes("path: '/play/video-generator'"))
 assert.ok(artInteractSource.includes('artImageId: String(image.id)'))
 
+// Image FILES are gated like image records. /images/.../artimage-<id>-*.ext
+// used to stream private and mature renders to anyone with the URL, logged
+// out. The file route now applies the same canReadArtImage rule as
+// GET /api/art/image/:id, identifies a browser by the HttpOnly kind-session
+// cookie (an <img> cannot send the API header), answers 404 rather than
+// confirming a private file exists, and never lets a shared cache keep one.
+const imageFileRoute = readFileSync(
+  'server/routes/images/[...path].get.ts',
+  'utf8',
+)
+assert.ok(imageFileRoute.includes('/^artimage-(\\d+)-/i'))
+assert.ok(
+  imageFileRoute.includes('gateArtImageFile(event, path.basename(filePath))'),
+)
+assert.ok(
+  imageFileRoute.indexOf('path.basename(filePath)') >
+    imageFileRoute.indexOf('if (!filePath.startsWith(rootPrefix))'),
+)
+assert.ok(imageFileRoute.includes('canReadArtImage(record, access)'))
+assert.ok(imageFileRoute.includes("if (gate === 'denied')"))
+assert.ok(imageFileRoute.includes('/^ArtImageUpload-\\d+$/'))
+assert.ok(
+  imageFileRoute.indexOf("if (!access.isAuthenticated) return 'denied'") <
+    imageFileRoute.indexOf('where: { fileName }'),
+)
+assert.ok(imageFileRoute.includes("'private, no-store'"))
+assert.ok(
+  imageFileRoute.includes(
+    'image && image.isPublic === true && image.isMature !== true',
+  ),
+)
+const sharedImageAccess = readFileSync('server/utils/artImageAccess.ts', 'utf8')
+assert.ok(sharedImageAccess.includes('export function canReadArtImage('))
+assert.ok(sharedImageAccess.includes("getCookie(event, 'kind-session')"))
+const byIdRoute = readFileSync('server/api/art/image/[id].get.ts', 'utf8')
+assert.ok(
+  byIdRoute.includes(
+    "import { canReadArtImage } from '~/server/utils/artImageAccess'",
+  ),
+)
+assert.ok(!byIdRoute.includes('function canReadArtImage('))
+const tokenValidation = readFileSync(
+  'server/api/auth/validate/token.ts',
+  'utf8',
+)
+assert.ok(tokenValidation.includes('setKindSessionCookie(event, token)'))
+const logoutRoute = readFileSync('server/api/auth/logout.post.ts', 'utf8')
+assert.ok(logoutRoute.includes('clearKindSessionCookie(event)'))
+const userStoreSource = readFileSync('stores/userStore.ts', 'utf8')
+assert.ok(userStoreSource.includes("performFetch('/api/auth/logout'"))
+
 console.log('Maturity and privacy generation contract passed.')

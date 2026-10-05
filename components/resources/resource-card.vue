@@ -19,8 +19,8 @@
         <span class="kr-badge-primary-sm">
           {{ resource.resourceType }}
         </span>
-        <span v-if="resource.generation" class="kr-badge-sm badge-neutral">
-          {{ resource.generation }}
+        <span v-if="familyLabel" class="kr-badge-sm badge-neutral">
+          {{ familyLabel }}
         </span>
         <span v-if="categoryLabel" class="kr-badge-sm badge-accent">
           {{ categoryLabel }}
@@ -63,6 +63,7 @@ import { computed } from 'vue'
 import type { ResourceGalleryRecord } from '@/stores/resourceGalleryStore'
 import { LORA_CATEGORY_META, normalizeLoraCategory } from '@/utils/loraCategory'
 import { renderableArtPath } from '@/utils/artImageSrc'
+import { resourceFamily, RESOURCE_FAMILY_LABELS } from '@/utils/resourceFamily'
 
 const props = defineProps<{
   resource: ResourceGalleryRecord
@@ -83,6 +84,13 @@ const previewSrc = computed(
 )
 
 const label = computed(() => props.resource.customLabel || props.resource.name)
+
+const familyLabel = computed(() => {
+  const family = resourceFamily(props.resource)
+  return family === 'other'
+    ? props.resource.generation || ''
+    : RESOURCE_FAMILY_LABELS[family]
+})
 
 const categoryLabel = computed(() => {
   const category = normalizeLoraCategory(props.resource.loraCategory)

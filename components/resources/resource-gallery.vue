@@ -13,6 +13,11 @@ import type { Resource } from '@/stores/resourceStore'
 import ShareManager from '@/components/sharing/share-manager.vue'
 import { querySelectionId } from '@/utils/routeSelection'
 import {
+  RESOURCE_FAMILIES,
+  RESOURCE_FAMILY_LABELS,
+  resourceFamily,
+} from '@/utils/resourceFamily'
+import {
   LORA_CATEGORIES,
   LORA_CATEGORY_META,
   normalizeLoraCategory,
@@ -341,14 +346,21 @@ const resourceTypes = computed(() => {
   ].sort()
 })
 
-const generations = computed(() => {
-  return [
-    ...new Set(
-      resourceGalleryStore.resources
-        .map((entry) => entry.generation?.trim())
-        .filter((entry): entry is string => Boolean(entry)),
+const familyById = computed(
+  () =>
+    new Map(
+      resourceGalleryStore.resources.map((entry) => [
+        entry.id,
+        resourceFamily(entry),
+      ]),
     ),
-  ].sort((a, b) => a.localeCompare(b))
+)
+
+const generations = computed(() => {
+  const present = new Set(familyById.value.values())
+  return RESOURCE_FAMILIES.filter((family) => present.has(family)).map(
+    (family) => ({ value: family, label: RESOURCE_FAMILY_LABELS[family] }),
+  )
 })
 
 const LORA_RESOURCE_TYPES = ['LORA', 'LYCORIS']
@@ -394,7 +406,10 @@ const filteredResources = computed(() => {
       return false
     }
 
-    if (generation.value !== 'ALL' && entry.generation !== generation.value) {
+    if (
+      generation.value !== 'ALL' &&
+      familyById.value.get(entry.id) !== generation.value
+    ) {
       return false
     }
 
@@ -419,6 +434,7 @@ const filteredResources = computed(() => {
       entry.name,
       entry.description,
       entry.generation,
+      RESOURCE_FAMILY_LABELS[familyById.value.get(entry.id) ?? 'other'],
       entry.supportedServer,
       entry.triggerWords,
       entry.defaultTrigger,
@@ -983,8 +999,12 @@ onMounted(async () => {
             aria-label="Filter by base model"
           >
             <option value="ALL">All base models</option>
-            <option v-for="base in generations" :key="base" :value="base">
-              {{ base }}
+            <option
+              v-for="base in generations"
+              :key="base.value"
+              :value="base.value"
+            >
+              {{ base.label }}
             </option>
           </select>
 

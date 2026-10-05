@@ -708,6 +708,18 @@ export const ANIMATION_EFFECTS = [
     generationSafe: true,
     preferredSurface: 'fullscreen',
   },
+  {
+    id: 'lighthouse-fog-beam',
+    label: 'Lighthouse Fog Beam',
+    reveal: 'A slow light finding its way through the fog',
+    icon: 'kind-icon:sparkle',
+    tooltip:
+      'A lighthouse beam sweeps a dark sea, setting drifting fog aglow and flashing the hulls of passing ships 🔦 hover to part the fog, click to spin the beam ahead',
+    color: '#f4d98a',
+    releasedAt: '2026-10-05T08:00:00Z',
+    generationSafe: true,
+    preferredSurface: 'fullscreen',
+  },
 ] as const satisfies readonly AnimationEffectDefinition[]
 
 export type AnimationEffectId = (typeof ANIMATION_EFFECTS)[number]['id']

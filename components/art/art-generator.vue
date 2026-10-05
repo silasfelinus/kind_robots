@@ -416,13 +416,19 @@
                   :disabled="artStore.isGenerating"
                 >
                   <option value="" disabled>Select checkpoint…</option>
-                  <option
-                    v-for="checkpoint in checkpointOptions"
-                    :key="checkpoint.name || checkpoint.id"
-                    :value="String(checkpoint.name || '').trim()"
+                  <optgroup
+                    v-for="group in checkpointGroups"
+                    :key="group.family"
+                    :label="group.label"
                   >
-                    {{ checkpointLabel(checkpoint) }}
-                  </option>
+                    <option
+                      v-for="checkpoint in group.checkpoints"
+                      :key="checkpoint.name || checkpoint.id"
+                      :value="String(checkpoint.name || '').trim()"
+                    >
+                      {{ checkpointLabel(checkpoint) }}
+                    </option>
+                  </optgroup>
                 </select>
               </label>
 
@@ -739,6 +745,7 @@ import type { LoraPick } from '@/components/art/art-lora-picker.vue'
 import {
   ART_GENERATOR_PRESETS,
   CHECKPOINT_FAMILY_LABELS,
+  type CheckpointFamily,
   artDimensionOptions,
   DEFAULT_ART_PRESET_ID,
   detectCheckpointFamily,
@@ -1023,9 +1030,38 @@ const selectedCheckpoint = computed<CheckpointResource | null>(() => {
   return (
     checkpointOptions.value.find(
       (checkpoint) => String(checkpoint.name || '').trim() === name,
-    ) ?? null
+    ) ??
+    (checkpointStore.findCheckpointByName(name) as CheckpointResource | undefined) ??
+    null
   )
 })
+
+watch(selectedCheckpoint, (checkpoint) => {
+  const canonical = String(checkpoint?.name || '').trim()
+  if (canonical && canonical !== checkpointName.value) {
+    artStore.selectGenerationCheckpoint(canonical)
+  }
+})
+
+const CHECKPOINT_FAMILY_ORDER: CheckpointFamily[] = [
+  'illustrious',
+  'pony',
+  'sdxl',
+  'sdxl-distilled',
+  'sd15',
+  'archive',
+  'unknown',
+]
+
+const checkpointGroups = computed(() =>
+  CHECKPOINT_FAMILY_ORDER.map((family) => ({
+    family,
+    label: CHECKPOINT_FAMILY_LABELS[family],
+    checkpoints: checkpointOptions.value
+      .filter((checkpoint) => detectCheckpointFamily(checkpoint) === family)
+      .sort((a, b) => checkpointLabel(a).localeCompare(checkpointLabel(b))),
+  })).filter((group) => group.checkpoints.length > 0),
+)
 
 const selectedCheckpointFamily = computed(() =>
   detectCheckpointFamily(selectedCheckpoint.value),

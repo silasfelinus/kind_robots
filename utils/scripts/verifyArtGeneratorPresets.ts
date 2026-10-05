@@ -429,8 +429,19 @@ assert.equal(
     localPath: 'Illustrious/illustrij_v21.safetensors',
     generation: 'ARCHIVE',
   }).id,
-  'sdxl-standard',
+  'sdxl-illustrious',
 )
+assert.equal(preset('sdxl-illustrious').cfg, 8)
+assert.equal(preset('sdxl-illustrious').sampler, 'dpmpp_2m')
+assert.equal(
+  presetForCheckpoint({
+    name: 'realcartoonPony_v1.safetensors',
+    localPath: 'Pony/realcartoonPony_v1.safetensors',
+    generation: 'Pony',
+  }).id,
+  'sdxl-pony',
+)
+assert.equal(preset('sdxl-pony').cfg, 10)
 assert.equal(
   detectCheckpointFamily({
     name: 'duchaitenStylelikeme_v15.safetensors',

@@ -186,7 +186,13 @@ export default defineEventHandler(async (event) => {
         promptString: requestData.promptString.trim(),
         artPrompt: requestData.promptString.trim(),
         negativePrompt: requestData.negativePrompt ?? null,
-        isPublic: isAudio ? false : (requestData.isPublic ?? true),
+        // PRIVATE UNLESS ASKED. kr-relay stages every render here before
+        // /complete applies the job's own save block, and it sends no flags.
+        // A public default left any staged row whose /complete never landed
+        // (a cancel, a stale reclaim, a 409) public and non-mature in the
+        // gallery -- which is how some images in a mature, private batch came
+        // out public. The browser lane always sends both flags explicitly.
+        isPublic: isAudio ? false : (requestData.isPublic ?? false),
         isMature: requestData.isMature ?? false,
         userId: validatedData.userId ?? user.id,
         serverId: server.id,

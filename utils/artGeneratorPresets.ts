@@ -10,6 +10,8 @@
 // Every engine below is a Comfy lane. OpenAI images and A1111 are deliberately
 // absent from the primary generator profile catalog.
 
+import { CHECKPOINT_PROFILES } from './checkpointProfiles'
+
 export type ArtGeneratorEngine =
   'krea2' | 'flux2' | 'flux' | 'kontext' | 'comfy' | 'sdxl-img2img'
 
@@ -268,13 +270,47 @@ export const ART_GENERATOR_PRESETS: ArtGeneratorPreset[] = [
     guidance: null,
     variant: null,
     runtimeClass: 'fast',
-    families: ['sdxl-distilled', 'pony'],
+    families: ['sdxl-distilled'],
+  },
+  {
+    id: 'sdxl-illustrious',
+    label: 'Checkpoint · Illustrious',
+    blurb:
+      '20 steps, cfg 8, dpmpp_2m/karras, clip skip 2 — measured for Illustrious and NoobAI checkpoints.',
+    engine: 'comfy',
+    steps: CHECKPOINT_PROFILES.illustrious.steps,
+    cfg: CHECKPOINT_PROFILES.illustrious.cfg,
+    sampler: CHECKPOINT_PROFILES.illustrious.sampler,
+    scheduler: CHECKPOINT_PROFILES.illustrious.scheduler,
+    width: CHECKPOINT_PROFILES.illustrious.width,
+    height: CHECKPOINT_PROFILES.illustrious.height,
+    guidance: null,
+    variant: null,
+    runtimeClass: 'standard',
+    families: ['illustrious'],
+  },
+  {
+    id: 'sdxl-pony',
+    label: 'Checkpoint · Pony',
+    blurb:
+      '20 steps, cfg 10, dpmpp_2m/karras, clip skip 2 — measured for Pony checkpoints.',
+    engine: 'comfy',
+    steps: CHECKPOINT_PROFILES.pony.steps,
+    cfg: CHECKPOINT_PROFILES.pony.cfg,
+    sampler: CHECKPOINT_PROFILES.pony.sampler,
+    scheduler: CHECKPOINT_PROFILES.pony.scheduler,
+    width: CHECKPOINT_PROFILES.pony.width,
+    height: CHECKPOINT_PROFILES.pony.height,
+    guidance: null,
+    variant: null,
+    runtimeClass: 'standard',
+    families: ['pony'],
   },
   {
     id: 'sdxl-standard',
     label: 'Checkpoint · Standard',
     blurb:
-      '20 steps, cfg 3, euler — for SDXL, Pony, Illustrious, SD 1.5, and other undistilled checkpoints.',
+      '20 steps, cfg 3, euler — for SDXL, SD 1.5, and other undistilled checkpoints.',
     engine: 'comfy',
     steps: 20,
     cfg: 3,
@@ -285,7 +321,7 @@ export const ART_GENERATOR_PRESETS: ArtGeneratorPreset[] = [
     guidance: null,
     variant: null,
     runtimeClass: 'standard',
-    families: ['sdxl', 'illustrious', 'sd15', 'archive', 'unknown'],
+    families: ['sdxl', 'sd15', 'archive', 'unknown'],
   },
 ]
 

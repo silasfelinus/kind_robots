@@ -359,6 +359,7 @@ const imageArea = ref<HTMLElement>()
 const localImage = ref<ArtImage | null>(props.artImage)
 const loadingImage = ref(false)
 const imageLoadFailed = ref(false)
+const imagePathFailed = ref(false)
 const loadAttempt = ref(0)
 let recoveryAttempted = false
 let lastRecoveredImage: ArtImage | null = null
@@ -445,6 +446,7 @@ const resolvedImageSource = computed(() => {
   if (imageLoadFailed.value) return props.fallbackImage
   const pathUrl = createImagePathUrl(displayImage.value)
   const dataUrl = createImageDataUrl(displayImage.value)
+  if (imagePathFailed.value && dataUrl) return dataUrl
   if (pathUrl && shouldPreferImagePath(displayImage.value)) return pathUrl
   if (dataUrl) return dataUrl
   if (pathUrl) return pathUrl
@@ -494,6 +496,7 @@ watch(
   () => {
     localImage.value = props.artImage
     imageLoadFailed.value = false
+    imagePathFailed.value = false
     recoveryAttempted = false
     lastRecoveredImage = null
     scheduleFullImageLoad()
@@ -582,12 +585,20 @@ function shouldPreferImagePath(image: ArtImage) {
  * One failed <img> load is not a missing image. Archive urls are signed and
  * expire, a guessed /images/<fileName> path may never have existed for a row
  * whose pixels live in imageData, and a busy server can simply time out. The
- * first error therefore refetches the record -- which re-mints an archive url
- * and brings inline data for rows with no stored path -- and tries once more
- * before settling on the fallback.
+ * first error on a stored path falls back to the inline bytes when the record
+ * has them -- a relay-staged row can carry a path this site never serves.
+ * Otherwise it refetches the record WITH its bytes -- re-minting an archive url
+ * too -- and tries once more before settling on the fallback.
  */
 async function handleImageError() {
   if (resolvedImageSource.value === props.fallbackImage) return
+  if (
+    !imagePathFailed.value &&
+    resolvedImageSource.value === createImagePathUrl(displayImage.value)
+  ) {
+    imagePathFailed.value = true
+    if (createImageDataUrl(displayImage.value)) return
+  }
   if (recoveryAttempted) {
     imageLoadFailed.value = true
     return
@@ -604,15 +615,11 @@ async function retryImage() {
 
 async function recoverImage() {
   const current = displayImage.value
-  const hasStoredPath = Boolean(
-    current.imagePath?.trim() ||
-    (current as { path?: string | null }).path?.trim(),
-  )
   loadingImage.value = true
   try {
     const fetched = await artStore.getArtImageById(current.id, {
       force: true,
-      includeImageData: !hasStoredPath,
+      includeImageData: true,
     })
     if (
       !fetched ||

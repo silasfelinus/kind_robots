@@ -5,7 +5,7 @@
     </TabScrollRegion>
     <PortosPage v-else-if="pageStore.workspaceCardKey === 'portos'" />
     <ConductorPitchManager
-      v-else-if="pageStore.workspaceCardKey === 'brainstorm'"
+      v-else-if="pageStore.workspaceCardKey === 'proposed'"
     />
     <ConductorProjectGalleryPage v-else-if="showConductorGallery" />
     <TabScrollRegion v-else-if="projectSlug">
@@ -27,7 +27,7 @@ import TabScrollRegion from '@/components/conductor/tab-scroll-region.vue'
 import { usePageStore } from '@/stores/pageStore'
 
 const pageStore = usePageStore()
-const utilityKeys = new Set(['overview', 'tasks', 'brainstorm', 'appmaker', 'portos'])
+const utilityKeys = new Set(['overview', 'tasks', 'proposed', 'appmaker', 'portos'])
 
 const showConductorGallery = computed(() => {
   return (

@@ -40,6 +40,7 @@ type LoraResourceRecord = {
   defaultTrigger: string | null
   triggerWords: string | null
   recommendedCfg: number | null
+  isMature: boolean
 }
 
 const LORA_TYPES = [ResourceType.LORA, ResourceType.LYCORIS]
@@ -306,7 +307,11 @@ function appendResolvedTriggers(
   resources: LoraResourceRecord[],
 ): string | null {
   const base = String(
-    body.basePromptString || body.promptString || body.artPrompt || body.prompt || '',
+    body.basePromptString ||
+      body.promptString ||
+      body.artPrompt ||
+      body.prompt ||
+      '',
   ).trim()
   if (!base) return null
 
@@ -419,6 +424,7 @@ export async function resolveEnqueueLoraResource(input: {
     defaultTrigger: true,
     triggerWords: true,
     recommendedCfg: true,
+    isMature: true,
   } as const
 
   const candidates = await prisma.resource.findMany({
@@ -490,9 +496,21 @@ export async function resolveEnqueueLoraResource(input: {
     unique.map(({ resource }) => resource),
   )
 
+  /*
+   * A mature LoRA makes the render mature, whoever picked it. The batch
+   * randomizer already upgraded variants that ROLLED a mature LoRA, but a
+   * hand-picked one, or any caller that is not that browser loop, went out
+   * with whatever flags it was sent -- an NSFW LoRA rendered General/Public.
+   * Upgraded maturity is private, as randomVariantVisibility does; a job the
+   * caller already marked mature keeps its own privacy choice.
+   */
+  const upgradedToMature =
+    !normalizedBody.isMature && unique.some(({ resource }) => resource.isMature)
+
   return {
     body: {
       ...normalizedBody,
+      ...(upgradedToMature ? { isMature: true, isPublic: false } : {}),
       ...(basePromptString ? { basePromptString } : {}),
       loras,
       loraName: loras[0]?.name ?? null,

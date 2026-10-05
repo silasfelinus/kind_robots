@@ -831,7 +831,7 @@ export const usePromptStore = defineStore('promptStore', () => {
         /([\u2700-\u27BF]|[\uE000-\uF8FF]|[\uD83C-\uDBFF\uDC00-\uDFFF])+/g,
         '',
       )
-      .replace(/\./g, ',')
+      .replace(/(?<!\d)\.|\.(?!\d)/g, ',')
       .replace(/\s+/g, ' ')
       .trim()
   }

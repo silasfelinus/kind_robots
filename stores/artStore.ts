@@ -326,6 +326,22 @@ const artImagesStorageKey = 'artImages'
 const maxStoredImages = 150
 const fetchAllArtImagesPromise = ref<Promise<ArtImage[]> | null>(null)
 
+const OUTPUT_VISIBILITY_STORAGE_KEY = 'artGeneratorOutputVisibility'
+
+function safeParseOutputVisibility(
+  raw: string | null,
+): { isMature: boolean; isPublic: boolean } | null {
+  if (!raw) return null
+  try {
+    const parsed = JSON.parse(raw) as { isMature?: unknown; isPublic?: unknown }
+    if (typeof parsed.isMature !== 'boolean') return null
+    if (typeof parsed.isPublic !== 'boolean') return null
+    return { isMature: parsed.isMature, isPublic: parsed.isPublic }
+  } catch {
+    return null
+  }
+}
+
 function safeGetLocalStorage(key: string): string | null {
   if (!isClient) return null
   try {
@@ -735,7 +751,31 @@ export const useArtStore = defineStore('artStore', () => {
     safeSetLocalStorage(artImagesStorageKey, JSON.stringify(trimmed))
   }
 
+  /*
+   * The generator's output Mature/Private choice survives a reload. It used to
+   * live only in artForm, so any refresh -- a deploy, a reopened tab -- reset it
+   * to General/Public while the account-level mature-resource toggle stayed on,
+   * and the next batch of NSFW-LoRA renders went out public.
+   */
+  function hydrateOutputVisibility(): void {
+    const saved = safeParseOutputVisibility(
+      safeGetLocalStorage(OUTPUT_VISIBILITY_STORAGE_KEY),
+    )
+    if (saved) state.artForm = { ...state.artForm, ...saved }
+  }
+
+  function persistOutputVisibility(): void {
+    safeSetLocalStorage(
+      OUTPUT_VISIBILITY_STORAGE_KEY,
+      JSON.stringify({
+        isMature: Boolean(state.artForm.isMature),
+        isPublic: state.artForm.isPublic !== false,
+      }),
+    )
+  }
+
   function hydrateFromLocalStorage(options: { hydrateImages?: boolean } = {}) {
+    hydrateOutputVisibility()
     if (options.hydrateImages === false) return
     state.artImages = safeParseArtImages(safeGetLocalStorage(artImagesStorageKey)).sort(
       sortNewestArtImages,
@@ -758,6 +798,7 @@ export const useArtStore = defineStore('artStore', () => {
 
   function setArtForm(updates: Partial<GenerateArtData>): void {
     state.artForm = { ...state.artForm, ...updates }
+    if ('isMature' in updates || 'isPublic' in updates) persistOutputVisibility()
   }
 
   function setGenerationBatchSize(value: number): void {

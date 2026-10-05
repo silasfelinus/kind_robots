@@ -44,7 +44,9 @@ export default defineNuxtPlugin(() => {
       (isMature) => {
         if (privacyOverridden) return
         writingDefault = true
-        artStore.artForm.isPublic = defaultPublicForMaturity(Boolean(isMature))
+        artStore.setArtForm({
+          isPublic: defaultPublicForMaturity(Boolean(isMature)),
+        })
       },
     )
 

@@ -547,5 +547,31 @@ const saveGenerated = readFileSync(
 assert.ok(saveGenerated.includes('resolveMaturityPrivacy('))
 assert.ok(!saveGenerated.includes('requestData.isPublic ?? true'))
 assert.ok(!saveGenerated.includes('requestData.isPublic ?? false'))
+// A mature LoRA makes the render mature (and private, when upgraded) on the
+// server, whoever picked it -- not only when the browser batch loop rolled it.
+const loraResolver = readFileSync('server/utils/artLoraResource.ts', 'utf8')
+assert.ok(loraResolver.includes('upgradedToMature'))
+assert.ok(
+  loraResolver.includes(
+    '...(upgradedToMature ? { isMature: true, isPublic: false } : {}),',
+  ),
+)
+
+// The generator's output Mature/Private choice survives a reload.
+const outputVisibilityStore = readFileSync('stores/artStore.ts', 'utf8')
+assert.ok(outputVisibilityStore.includes('OUTPUT_VISIBILITY_STORAGE_KEY'))
+assert.ok(outputVisibilityStore.includes('persistOutputVisibility()'))
+
+// Prompt cleanup turns sentence periods into commas, never decimal weights:
+// `(short:1.2)` became `(short:1,2)`, broke the weight, and no longer matched
+// the LoRA trigger, so the trigger was appended a second time.
+const promptStoreSource = readFileSync('stores/promptStore.ts', 'utf8')
+assert.ok(!promptStoreSource.includes(".replace(/\\./g, ',')"))
+const sentencePeriods = /(?<!\d)\.|\.(?!\d)/g
+assert.ok(promptStoreSource.includes(String(sentencePeriods)))
+assert.equal(
+  '(short:1.2), smiling. outdoors.'.replace(sentencePeriods, ','),
+  '(short:1.2), smiling, outdoors,',
+)
 
 console.log('Maturity and privacy generation contract passed.')

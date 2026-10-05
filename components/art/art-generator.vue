@@ -1301,6 +1301,8 @@ const readinessSummary = computed(() => {
     )
   }
   if (facetIds.value.length) parts.push(`${facetIds.value.length} Facets`)
+  parts.push(outputIsMature.value ? 'Mature' : 'General')
+  parts.push(outputIsPublic.value ? 'Public' : 'Private')
   return parts.join(' · ')
 })
 

@@ -185,6 +185,18 @@ check('the priority store offers a demotion path', () => {
   )
 })
 
+check('the queue card exposes direct numeric priority adjustment', () => {
+  const source = readFileSync('components/art/artjob-queue-card.vue', 'utf8')
+
+  assert.match(source, /v-model="priorityDraft"/)
+  assert.match(source, /type="number"/)
+  assert.match(source, /:min="MIN_ART_JOB_PRIORITY"/)
+  assert.match(source, /:max="MAX_ART_JOB_PRIORITY"/)
+  assert.match(source, /priorityStore\.setPriority\(props\.job\.id, priority\)/)
+  assert.doesNotMatch(source, /togglePriority/)
+  assert.doesNotMatch(source, /Normal priority' : 'Move to front/)
+})
+
 // --- Report ----------------------------------------------------------------
 
 if (failures.length) {

@@ -82,6 +82,11 @@ model ArtImage {
   @@index([checkpointResourceId], map: "ArtImage_checkpointResourceId_fkey")
   @@index([serverId], map: "ArtImage_serverId_fkey")
   @@index([storefrontFeatured])
+  /// The /images file route maps a requested file back to the ArtImage that
+  /// owns it, to apply that image's private/mature rule. Prefix indexes: the
+  /// columns are VarChar(764), and 255/191 characters already identify a path.
+  @@index([imagePath(length: 255)])
+  @@index([fileName(length: 191)])
 }
 
 model ArtCollection {

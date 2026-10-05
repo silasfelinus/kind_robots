@@ -73,7 +73,7 @@
               </span>
               <span
                 v-if="tab.summary || tab.description"
-                class="line-clamp-1 w-full text-xs font-medium opacity-65 sm:hidden xl:block"
+                class="line-clamp-1 w-full text-xs font-medium opacity-65"
               >
                 {{ tab.summary || tab.description }}
               </span>
@@ -130,7 +130,7 @@
                   </span>
                   <span
                     v-if="subtab.summary || subtab.description"
-                    class="line-clamp-1 w-full text-xs font-medium opacity-65 sm:hidden xl:block"
+                    class="line-clamp-1 w-full text-xs font-medium opacity-65"
                   >
                     {{ subtab.summary || subtab.description }}
                   </span>

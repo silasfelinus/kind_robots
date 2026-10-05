@@ -606,4 +606,32 @@ assert.ok(
 )
 assert.ok(outputVisibilityStore.includes('applyMatureModeDefault()'))
 
+// Animating a still: the recent-art menu lists only the caller's own images
+// (never every user's, which the admin queue listing returns), hides mature
+// ones unless asked, and a mature first frame makes the clip Mature/Private.
+const recentArtRoute = readFileSync(
+  'server/api/art/queue/recent-images.get.ts',
+  'utf8',
+)
+assert.ok(recentArtRoute.includes('userId: auth.user.id,'))
+assert.ok(
+  recentArtRoute.includes('includeMature ? {} : { isMature: { not: true } }'),
+)
+const videoGeneratorPage = readFileSync(
+  'pages/play/video-generator.vue',
+  'utf8',
+)
+assert.ok(videoGeneratorPage.includes('route.query.artImageId'))
+assert.ok(
+  /if \(frame\.isMature\) \{\s*isMature\.value = true\s*isPublic\.value = false/.test(
+    videoGeneratorPage,
+  ),
+)
+const artInteractSource = readFileSync(
+  'components/art/art-interact.vue',
+  'utf8',
+)
+assert.ok(artInteractSource.includes("path: '/play/video-generator'"))
+assert.ok(artInteractSource.includes('artImageId: String(image.id)'))
+
 console.log('Maturity and privacy generation contract passed.')

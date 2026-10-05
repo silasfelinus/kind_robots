@@ -10,6 +10,8 @@ import { defineStore } from 'pinia'
 import { reactive, computed } from 'vue'
 import type { ArtImage } from '~/prisma/generated/prisma/client'
 import { performFetch } from '@/stores/utils'
+import { resolveArtImageSource } from '@/utils/artImageSource'
+import type { RecentArtJobImage } from '@/utils/recentArtImages'
 import { artJobRetryNotice } from '@/utils/artJobRetryNotice'
 import type { LoraPick } from '@/utils/loraSelection'
 import type {
@@ -55,6 +57,21 @@ type QueuedJob = {
 }
 
 const POLL_MS = 5_000
+
+async function blobUrlToDataUrl(src: string): Promise<string> {
+  const response = await fetch(src, { credentials: 'include' })
+  if (!response.ok) throw new Error(`Image file returned ${response.status}.`)
+  const blob = await response.blob()
+  if (!blob.type.startsWith('image/')) {
+    throw new Error('The stored file is not an image.')
+  }
+  return await new Promise<string>((resolve, reject) => {
+    const reader = new FileReader()
+    reader.onload = () => resolve(String(reader.result))
+    reader.onerror = () => reject(reader.error)
+    reader.readAsDataURL(blob)
+  })
+}
 
 function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms))
@@ -102,6 +119,13 @@ export const useVideoStore = defineStore('videoStore', () => {
     attemptError: '',
     attempts: 0,
     loop: true,
+  })
+
+  const recentArt = reactive({
+    items: [] as RecentArtJobImage[],
+    loading: false,
+    loadingFrameId: null as number | null,
+    error: '',
   })
 
   const isBusy = computed(
@@ -284,5 +308,79 @@ export const useVideoStore = defineStore('videoStore', () => {
     }
   }
 
-  return { state, isBusy, resultIsImage, reset, generate }
+  async function fetchRecentArt(showMature: boolean): Promise<void> {
+    recentArt.loading = true
+    recentArt.error = ''
+    try {
+      const res = await performFetch<RecentArtJobImage[]>(
+        `/api/art/queue/recent-images?limit=24&showMature=${showMature}`,
+        { method: 'GET' },
+        1,
+        20_000,
+      )
+      if (!res.success || !Array.isArray(res.data)) {
+        throw new Error(res.message || 'Recent art could not be loaded.')
+      }
+      recentArt.items = res.data
+    } catch (err) {
+      recentArt.error = err instanceof Error ? err.message : String(err)
+    } finally {
+      recentArt.loading = false
+    }
+  }
+
+  /**
+   * An ArtImage as the data URL the video lanes take for a first frame,
+   * with the image's own visibility so a mature still makes a mature clip.
+   * Inline bytes when the row has them, otherwise the stored file read back.
+   */
+  async function loadArtImageFrame(artImageId: number): Promise<{
+    dataUrl: string
+    isMature: boolean
+    isPublic: boolean
+  } | null> {
+    recentArt.loadingFrameId = artImageId
+    recentArt.error = ''
+    try {
+      const res = await performFetch<ArtImage>(
+        `/api/art/image/${artImageId}?includeImageData=true&showMature=true`,
+        { method: 'GET' },
+        2,
+        30_000,
+      )
+      if (!res.success || !res.data) {
+        throw new Error(
+          res.message || `Art image ${artImageId} could not be loaded.`,
+        )
+      }
+      const source = resolveArtImageSource(res.data)
+      if (source.kind !== 'image' || !source.src) {
+        throw new Error(`Art image ${artImageId} is not a still image.`)
+      }
+      const dataUrl = source.src.startsWith('data:image/')
+        ? source.src
+        : await blobUrlToDataUrl(source.src)
+      return {
+        dataUrl,
+        isMature: res.data.isMature === true,
+        isPublic: res.data.isPublic !== false,
+      }
+    } catch (err) {
+      recentArt.error = err instanceof Error ? err.message : String(err)
+      return null
+    } finally {
+      recentArt.loadingFrameId = null
+    }
+  }
+
+  return {
+    state,
+    recentArt,
+    isBusy,
+    resultIsImage,
+    reset,
+    generate,
+    fetchRecentArt,
+    loadArtImageFrame,
+  }
 })

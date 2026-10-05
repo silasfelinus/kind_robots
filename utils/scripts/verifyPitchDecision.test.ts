@@ -5,7 +5,10 @@
 // (conductor's tests/test_pitch_links.py).
 import assert from 'node:assert/strict'
 
-import { withPitchModifications } from '../../server/utils/conductorPitchVote'
+import {
+  withPitchModifications,
+  withPitchStatus,
+} from '../../server/utils/conductorPitchVote'
 import {
   escapeHtml,
   isPitchSlug,
@@ -186,6 +189,25 @@ assert.equal(
   )?.length,
   1,
   'a repeat submission replaces the notes instead of stacking them',
+)
+
+assert.equal(
+  withPitchStatus(
+    '# T\nproject-target: x\nstatus: awaiting-silas\n',
+    'approved',
+  ),
+  '# T\nproject-target: x\nstatus: approved\n',
+  'an existing status line is replaced',
+)
+assert.equal(
+  withPitchStatus('# T\nproject-target: x\n\nBody\n', 'rejected'),
+  '# T\nproject-target: x\nstatus: rejected\n\nBody\n',
+  'a missing status goes under project-target',
+)
+assert.equal(
+  withPitchStatus('# Retire it\n**Status:** approved\n\nBody\n', 'approved'),
+  '# Retire it\nstatus: approved\n**Status:** approved\n\nBody\n',
+  'a hand-written record with no header still records the vote',
 )
 
 console.log('verifyPitchDecision: ok')

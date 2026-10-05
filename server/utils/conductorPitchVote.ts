@@ -57,6 +57,22 @@ export function withPitchModifications(content: string, notes: string): string {
     : `${stripped}\n`
 }
 
+/**
+ * Set a pitch file's `status:` line. A hand-written record with neither a `status:` nor a
+ * `project-target:` line (conductor pitches/2026-08-11-retire-wonderlab.md) used to come back
+ * unchanged, so the vote reported success while the pitch stayed awaiting-silas.
+ */
+export function withPitchStatus(content: string, status: string): string {
+  const statusLine = `status: ${status}`
+  if (/^status:.*$/m.test(content))
+    return content.replace(/^status:.*$/m, statusLine)
+  if (/^project-target:.*$/m.test(content))
+    return content.replace(/^(project-target:.*)$/m, `$1\n${statusLine}`)
+  if (/^# .*$/m.test(content))
+    return content.replace(/^(# .*)$/m, `$1\n${statusLine}`)
+  return `${statusLine}\n${content}`
+}
+
 export async function applyPitchVote(
   slug: string,
   status: PitchStatus,
@@ -72,10 +88,7 @@ export async function applyPitchVote(
     })
   }
 
-  const statusLine = `status: ${status}`
-  let updated = /^status:.*$/m.test(file.content)
-    ? file.content.replace(/^status:.*$/m, statusLine)
-    : file.content.replace(/^(project-target:.*)$/m, `$1\n${statusLine}`)
+  let updated = withPitchStatus(file.content, status)
   const hasNotes = Boolean(options.notes?.trim())
   if (hasNotes) updated = withPitchModifications(updated, options.notes ?? '')
 

@@ -53,9 +53,12 @@ assert.ok(
     tabSelect.includes('xl:w-[min(22rem,calc(100vw-1rem))]'),
   'the tablet tab menu must open beneath its trigger and stay narrower than the desktop menu',
 )
-assert.ok(
-  channelTabList.includes('sm:hidden xl:block'),
-  'tablet tab rows must hide secondary descriptions while phone and desktop keep them',
+assert.equal(
+  channelTabList.match(
+    /class="line-clamp-1 w-full text-xs font-medium opacity-65"/g,
+  )?.length,
+  2,
+  'top-level and nested tab rows must keep secondary descriptions visible at all widths',
 )
 assert.ok(
   channelTabList.includes('navigationSubtabs') &&

@@ -2,6 +2,7 @@
 import { defineStore } from 'pinia'
 import { computed, reactive, ref, toRefs } from 'vue'
 import { resolveArtImageSrc } from '@/utils/artImageSrc'
+import { resolveMaturityPrivacy } from '@/utils/maturityPrivacy'
 import { preloadArtwork } from '@/stores/helpers/artworkLoadHelper'
 import type {
   ArtImage,
@@ -1926,8 +1927,12 @@ export const useArtStore = defineStore('artStore', () => {
         'Kind Designer',
       cfg: artData?.cfg ?? state.artForm.cfg ?? PRODUCT_DEFAULT_ART_SETTINGS.cfg,
       cfgHalf: artData?.cfgHalf ?? state.artForm.cfgHalf ?? false,
-      isMature: artData?.isMature ?? state.artForm.isMature ?? false,
-      isPublic: artData?.isPublic ?? state.artForm.isPublic ?? true,
+      ...resolveMaturityPrivacy(
+        { isMature: artData?.isMature, isPublic: artData?.isPublic },
+        typeof artData?.isMature === 'boolean'
+          ? undefined
+          : { isMature: state.artForm.isMature, isPublic: state.artForm.isPublic },
+      ),
       seed: artData?.seed ?? state.artForm.seed ?? null,
       serverId: explicitServerIdProvided ? (artData?.serverId ?? null) : null,
       serverName: explicitServerNameProvided ? (artData?.serverName ?? null) : null,

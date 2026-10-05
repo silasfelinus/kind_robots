@@ -535,4 +535,17 @@ const artGeneratorPlugin = readFileSync(
 assert.ok(artGeneratorPlugin.includes('defaultPublicForMaturity'))
 assert.ok(artGeneratorPlugin.includes('enqueueArtGeneration'))
 
+// Mature is private by default on every write path -- and ONLY mature: a
+// general-audience render with no privacy choice stays public.
+const browserArtStore = readFileSync('stores/artStore.ts', 'utf8')
+assert.ok(browserArtStore.includes('resolveMaturityPrivacy('))
+assert.ok(!browserArtStore.includes('state.artForm.isPublic ?? true'))
+const saveGenerated = readFileSync(
+  'server/api/art/save-generated.post.ts',
+  'utf8',
+)
+assert.ok(saveGenerated.includes('resolveMaturityPrivacy('))
+assert.ok(!saveGenerated.includes('requestData.isPublic ?? true'))
+assert.ok(!saveGenerated.includes('requestData.isPublic ?? false'))
+
 console.log('Maturity and privacy generation contract passed.')

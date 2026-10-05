@@ -1,5 +1,6 @@
 // /server/api/art/save-generated.post.ts
 import { isAudioType } from '~/utils/artImageSource'
+import { resolveMaturityPrivacy } from '~/utils/maturityPrivacy'
 import { defineEventHandler, readBody, createError } from 'h3'
 import prisma from '../../utils/prisma'
 import { errorHandler } from '../../utils/error'
@@ -167,6 +168,14 @@ export default defineEventHandler(async (event) => {
       server,
     })
 
+    const visibilityUnstated =
+      typeof requestData.isMature !== 'boolean' &&
+      typeof requestData.isPublic !== 'boolean'
+    const visibility = resolveMaturityPrivacy(
+      requestData,
+      visibilityUnstated ? { isPublic: false } : undefined,
+    )
+
     const updatedImage = await prisma.artImage.update({
       where: {
         id: savedImage.id,
@@ -186,14 +195,13 @@ export default defineEventHandler(async (event) => {
         promptString: requestData.promptString.trim(),
         artPrompt: requestData.promptString.trim(),
         negativePrompt: requestData.negativePrompt ?? null,
-        // PRIVATE UNLESS ASKED. kr-relay stages every render here before
-        // /complete applies the job's own save block, and it sends no flags.
-        // A public default left any staged row whose /complete never landed
-        // (a cancel, a stale reclaim, a 409) public and non-mature in the
-        // gallery -- which is how some images in a mature, private batch came
-        // out public. The browser lane always sends both flags explicitly.
-        isPublic: isAudio ? false : (requestData.isPublic ?? false),
-        isMature: requestData.isMature ?? false,
+        // Mature is private unless asked otherwise (resolveMaturityPrivacy).
+        // A request that says NOTHING about either flag is a pre-#5598 relay
+        // staging a render before /complete applies the job's own save block;
+        // its maturity is unknown, so that row alone stays private until
+        // /complete sets the job's real values. Every other caller sends
+        // isMature, and a non-mature render stays public by default.
+        ...(isAudio ? { ...visibility, isPublic: false } : visibility),
         userId: validatedData.userId ?? user.id,
         serverId: server.id,
         serverName: server.title,

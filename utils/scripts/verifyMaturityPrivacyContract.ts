@@ -69,6 +69,15 @@ assert.ok(artGenerator.includes('<content-visibility-controls'))
 assert.ok(artGenerator.includes('v-model:is-mature="outputIsMature"'))
 assert.ok(artGenerator.includes('v-model:is-public="outputIsPublic"'))
 assert.ok(!artGenerator.includes('artStore.showMature'))
+// The output flags sit beside the Queue button, not in a collapsed panel:
+// every 2026-10-05 batch went out General/Public because they were out of
+// sight. Exactly one instance, compact, ahead of the readiness line.
+assert.equal(artGenerator.split('<content-visibility-controls').length - 1, 1)
+const visibilityAt = artGenerator.indexOf('<content-visibility-controls')
+assert.ok(
+  artGenerator.slice(visibilityAt, visibilityAt + 300).includes('compact'),
+)
+assert.ok(visibilityAt < artGenerator.indexOf('{{ readinessSummary }}'))
 
 const artLoraPicker = readFileSync('components/art/art-lora-picker.vue', 'utf8')
 assert.ok(artLoraPicker.includes('<maturity-toggle'))

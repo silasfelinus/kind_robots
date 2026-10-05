@@ -121,7 +121,11 @@ const routeMustContain: Record<string, string[]> = {
   'server/api/narrators/index.get.ts': ['withholdMatureEntities'],
   'server/api/narrators/[type]/[slug].get.ts': ['withholdMatureEntities'],
   'server/api/chats/index.get.ts': ['withholdMatureEntities'],
-  'server/api/projects/[id]/art/index.get.ts': ['viewerShowsMature'],
+  'server/api/projects/[id]/art/index.get.ts': [
+    'getMediaViewerAccessContext',
+    'access.showMature',
+    'access.restricted',
+  ],
 }
 
 for (const [file, needles] of Object.entries(routeMustContain)) {

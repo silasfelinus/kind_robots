@@ -1,7 +1,12 @@
-import { getQuery, type H3Event } from 'h3'
+import { getCookie, getQuery, type H3Event } from 'h3'
 import type { Prisma } from '~/prisma/generated/prisma/client'
-import { validateApiKey } from '~/server/utils/validateKey'
+import {
+  validateApiKey,
+  validateApiKeyString,
+  type ValidateResult,
+} from '~/server/utils/validateKey'
 import { userRoles } from '~/server/utils/authUser'
+import prisma from '~/server/utils/prisma'
 import {
   isMaturityRestricted,
   viewerShowsMature,
@@ -29,6 +34,100 @@ export type ArtImageAccessContext = {
 }
 
 export { matureHiddenFrom } from '~/server/utils/matureBarrier'
+
+/**
+ * Whether one ArtImage, asked for by id or by its file, may be shown to this
+ * viewer. The by-id API route and the /images file route share it so the
+ * bytes can never be easier to reach than the record.
+ */
+export function canReadArtImage(
+  image: {
+    userId?: number | null
+    isPublic?: boolean | null
+    isMature?: boolean | null
+  },
+  access: ArtImageAccessContext,
+): boolean {
+  if (access.isAdmin) return true
+
+  /*
+   * YOUR OWN IMAGE, FETCHED BY ID, IS YOURS. This route is how a tool loads the
+   * one image someone is already working with -- sceneAnimatorStore reads an
+   * animation source through it -- and taking that away from an opted-out adult
+   * mid-task is a bug, not a protection. A maturity-RESTRICTED account keeps the
+   * hard barrier even here: a CHILD should not have mature images, and hiding
+   * one is the protective direction.
+   *
+   * Deliberately narrow to by-id reads. Listings do not do this, because a
+   * grid is what someone else in the room can see.
+   */
+  const isOwner = Boolean(
+    access.isAuthenticated && access.userId && image.userId === access.userId,
+  )
+
+  if (isOwner && !access.restricted) return true
+
+  if (!access.showMature && image.isMature) return false
+
+  if (image.isPublic) return true
+
+  if (isOwner) return true
+
+  return false
+}
+
+/*
+ * Who is asking for an image FILE. A plain <img> request cannot send the
+ * Authorization header the API uses, so the HttpOnly `kind-session` cookie --
+ * set at login and on token validation, already trusted by first-party SSO --
+ * stands in for it. A header still wins when an API client sends one.
+ */
+export async function getMediaViewerAccessContext(
+  event: H3Event,
+): Promise<ArtImageAccessContext> {
+  const anonymous: ArtImageAccessContext = {
+    userId: null,
+    isAdmin: false,
+    showMature: false,
+    isAuthenticated: false,
+    restricted: true,
+  }
+
+  try {
+    let auth: ValidateResult = await validateApiKey(event)
+    if (!auth.isValid) {
+      const cookie = getCookie(event, 'kind-session')?.trim() ?? ''
+      if (!cookie) return anonymous
+      auth = await validateApiKeyString(cookie)
+    }
+
+    const user = auth.user as ValidatedUser | null | undefined
+    if (!auth.isValid || typeof user?.id !== 'number') return anonymous
+
+    /*
+     * The token resolver loads only id and roles, so its user never carries
+     * showMature and every viewer read as mature-off -- a logged-in adult who
+     * had opted in could not load someone else's public mature image. Silas,
+     * 2026-09-18: mature-but-public is for "a logged in user that has chosen
+     * mature true". Restriction (CHILD) still wins inside viewerShowsMature.
+     */
+    const preference = await prisma.user.findUnique({
+      where: { id: Number(user.id) },
+      select: { showMature: true },
+    })
+    const viewer = { ...user, showMature: preference?.showMature === true }
+
+    return {
+      userId: Number(user.id),
+      isAdmin: isAdminUser(viewer),
+      showMature: viewerShowsMature(viewer),
+      isAuthenticated: true,
+      restricted: isMaturityRestricted(viewer),
+    }
+  } catch {
+    return anonymous
+  }
+}
 
 export function readBoolean(value: unknown, fallback = false): boolean {
   if (Array.isArray(value)) return readBoolean(value[0], fallback)

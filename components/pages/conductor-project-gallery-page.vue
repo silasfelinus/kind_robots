@@ -169,7 +169,9 @@
 
             <button
               class="kr-btn-xs gap-1"
-              :class="conductor.pendingPitches.length ? 'btn-secondary' : 'btn-ghost'"
+              :class="
+                conductor.pendingPitches.length ? 'btn-secondary' : 'btn-ghost'
+              "
               @click="openProposed"
             >
               <Icon name="kind-icon:brain" class="kr-icon-3" />

@@ -139,7 +139,7 @@ async function gateArtImageFile(
 ): Promise<ArtImageFileGate> {
   const byId = ART_IMAGE_FILE.exec(fileName)
   if (byId) {
-    const id = Number(byId[1])
+    const id = Number(byId?.[1] ?? Number.NaN)
     const image = Number.isSafeInteger(id)
       ? await prisma.artImage.findUnique({ where: { id }, select: GATE_SELECT })
       : null

@@ -42,6 +42,7 @@
     "test:lora-cfg-wiring": "tsx utils/scripts/verifyLoraCfgWiring.test.ts",
     "test:lora-probe-subject": "tsx utils/scripts/verifyLoraProbeSubject.test.ts",
     "test:lora-category": "tsx utils/scripts/verifyLoraCategory.test.ts",
+    "test:resource-family": "tsx utils/scripts/verifyResourceFamily.test.ts",
     "test:backfill-progress": "tsx utils/scripts/verifyBackfillProgress.test.ts",
     "test:lora-provenance": "tsx utils/scripts/verifyLoraCategoryProvenance.test.ts",
     "test:civitai-ids": "tsx utils/scripts/verifyCivitaiIds.test.ts",

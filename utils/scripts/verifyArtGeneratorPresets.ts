@@ -269,9 +269,11 @@ assert.equal(
   0,
 )
 
-// supportedServer=SDXL only names the loader lane. Generation is the family
-// boundary: Pony, Illustrious, and base SDXL weights must not bleed into one
-// another just because all three travel through the same Comfy loader.
+// supportedServer=SDXL only names the loader lane. Generation names the family:
+// Pony, Illustrious and base SDXL share an architecture, so each loads the
+// others' LoRAs, but a LoRA trained on the checkpoint's own family ranks first.
+// An Illustrious randomizer that refused SDXL and Pony LoRAs found ~18 options
+// (Silas, 2026-10-05). SD 1.5 never crosses into the SDXL lineage.
 assert.equal(
   artLoraCompatibilityRank(
     { id: 17, generation: 'Pony', supportedServer: 'SDXL' },
@@ -302,7 +304,7 @@ assert.equal(
     'comfy',
     'sdxl',
   ),
-  0,
+  15,
 )
 assert.equal(
   artLoraCompatibilityRank(
@@ -310,13 +312,45 @@ assert.equal(
     'comfy',
     'pony',
   ),
-  0,
+  15,
 )
 assert.equal(
   artLoraCompatibilityRank(
     { id: 22, generation: 'Illustrious / NoobAI', supportedServer: 'SDXL' },
     'comfy',
     'pony',
+  ),
+  15,
+)
+assert.equal(
+  artLoraCompatibilityRank(
+    { id: 23, generation: 'Pony', supportedServer: 'SDXL' },
+    'comfy',
+    'illustrious',
+  ),
+  15,
+)
+assert.equal(
+  artLoraCompatibilityRank(
+    { id: 24, generation: 'SDXL 1.0', supportedServer: 'COMFY' },
+    'comfy',
+    'illustrious',
+  ),
+  8,
+)
+assert.equal(
+  artLoraCompatibilityRank(
+    { id: 25, generation: 'SD 1.5', supportedServer: 'SD15' },
+    'comfy',
+    'illustrious',
+  ),
+  0,
+)
+assert.equal(
+  artLoraCompatibilityRank(
+    { id: 26, generation: 'Illustrious', supportedServer: 'SD15' },
+    'comfy',
+    'sd15',
   ),
   0,
 )

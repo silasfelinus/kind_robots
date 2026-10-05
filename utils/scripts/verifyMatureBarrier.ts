@@ -138,6 +138,17 @@ for (const [file, needles] of Object.entries(routeMustContain)) {
   }
 }
 
+const sharedAccess = readFileSync('server/utils/artImageAccess.ts', 'utf8')
+check(
+  sharedAccess.split('select: { showMature: true }').length - 1 >= 2,
+  'both shared media and ArtImage access hydrate the stored mature preference',
+)
+const byIdAccess = readFileSync('server/api/art/image/[id].get.ts', 'utf8')
+check(
+  byIdAccess.includes('select: { showMature: true }'),
+  'the ArtImage by-id route hydrates the stored mature preference',
+)
+
 const fileRoute = readFileSync('server/api/art/images/[id]/file.get.ts', 'utf8')
 check(
   /isMature === true\)\s*\{\s*throw createError\(\{ statusCode: 404/.test(

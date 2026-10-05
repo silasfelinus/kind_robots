@@ -176,7 +176,9 @@
             >
               <Icon name="kind-icon:brain" class="kr-icon-3" />
               <span class="hidden sm:inline">Proposed</span>
-              <span class="kr-badge-xs">{{ conductor.pendingPitches.length }}</span>
+              <span class="kr-badge-xs">
+                {{ conductor.pendingPitches.length }}
+              </span>
             </button>
 
             <button

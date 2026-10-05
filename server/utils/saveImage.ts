@@ -1,9 +1,6 @@
 import prisma from '~/server/utils/prisma'
 import { errorHandler } from './error'
-import { getImageStorageRoot } from './imageStorageRoot'
 import { attachCompletedArtImageToCollections } from './generatedArtCollections'
-import path from 'node:path'
-import fs from 'node:fs/promises'
 
 export async function saveImage(
   base64Image: string,
@@ -12,7 +9,6 @@ export async function saveImage(
 ): Promise<{ id: number; fileName: string }> {
   try {
     const timestamp = Date.now()
-    const isProduction = process.env.APP_ENV === 'production'
 
     // Set the fileName dynamically based on environment
     const fileName = `ArtImageUpload-${timestamp}`
@@ -38,24 +34,11 @@ export async function saveImage(
       })
     }
 
-    // Optionally save to the configured local filesystem in development.
-    if (!isProduction) {
-      const dirPath = getImageStorageRoot()
-      const filePath = path.join(dirPath, fileName)
-
-      // Ensure the gallery directory exists
-      try {
-        await fs.access(dirPath)
-      } catch {
-        await fs.mkdir(dirPath, { recursive: true })
-      }
-
-      // Save the image locally
-      await fs.writeFile(filePath, base64Image, 'base64')
-
-      // Return the ID and local file path for development
-      return { id: savedImage.id, fileName: filePath }
-    }
+    // No raw file copy. This used to write `ArtImageUpload-<ts>` next to
+    // every render whenever APP_ENV was not "production" -- which in practice
+    // meant production too -- leaving a full-size, extensionless duplicate on
+    // the share that nothing read: the bytes live in imageData until
+    // offloadArtImageBytes writes the canonical artimage-<id> file.
 
     // Return the saved image ID and fileName from the database (just the file name, not a path)
     return {

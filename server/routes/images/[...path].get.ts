@@ -89,51 +89,78 @@ async function fetchRemoteFallback(
 const ART_IMAGE_FILE = /^artimage-(\d+)-/i
 
 /*
- * saveImage also drops a raw, extensionless, full-size copy named
- * `ArtImageUpload-<timestamp>` (ArtImage.fileName) whenever APP_ENV is not
- * `production`, and those were public too. fileName is not indexed, so an
- * anonymous request is refused before any lookup -- no table scan for a
- * stranger to trigger -- and only a signed-in viewer pays for the match.
+ * saveImage used to drop a raw, extensionless, full-size copy named
+ * `ArtImageUpload-<timestamp>` (ArtImage.fileName) next to every render; it no
+ * longer writes them, but the existing ones stay on the share. They map back
+ * through the indexed fileName column; one with no row is admin-only.
  */
 const ART_IMAGE_UPLOAD_FILE = /^ArtImageUpload-\d+$/
 
 type ArtImageFileGate = 'public' | 'private' | 'denied' | 'not-art'
 
-async function gateArtImageFile(
+type GatedArtImage = {
+  userId: number | null
+  isPublic: boolean | null
+  isMature: boolean | null
+}
+
+const NEWEST_FIRST = [{ updatedAt: 'desc' as const }, { id: 'desc' as const }]
+const GATE_SELECT = { userId: true, isPublic: true, isMature: true } as const
+
+async function decide(
   event: Parameters<typeof getMediaViewerAccessContext>[0],
-  fileName: string,
+  image: GatedArtImage | null,
 ): Promise<ArtImageFileGate> {
-  if (ART_IMAGE_UPLOAD_FILE.test(fileName)) {
-    const access = await getMediaViewerAccessContext(event)
-    if (!access.isAuthenticated) return 'denied'
-    if (access.isAdmin) return 'private'
-    const upload = await prisma.artImage.findFirst({
-      where: { fileName },
-      select: { userId: true, isPublic: true, isMature: true },
-    })
-    if (!upload) return 'denied'
-    return canReadArtImage(upload, access) ? 'private' : 'denied'
-  }
-
-  const match = ART_IMAGE_FILE.exec(fileName)
-  if (!match) return 'not-art'
-
-  const id = Number(match[1])
-  const image = Number.isSafeInteger(id)
-    ? await prisma.artImage.findUnique({
-        where: { id },
-        select: { userId: true, isPublic: true, isMature: true },
-      })
-    : null
-
   if (image && image.isPublic === true && image.isMature !== true) {
     return 'public'
   }
-
-  // An orphaned file (its row deleted) is treated as private: only an admin.
+  // An orphaned art file (its row deleted) is treated as private: admin only.
   const access = await getMediaViewerAccessContext(event)
   const record = image ?? { userId: null, isPublic: false, isMature: true }
   return canReadArtImage(record, access) ? 'private' : 'denied'
+}
+
+/*
+ * Which ArtImage, if any, owns this file -- and so whose private/mature rule
+ * applies. Three shapes, cheapest first:
+ *   artimage-<id>-*.ext   the generated/ landing zone: primary key.
+ *   ArtImageUpload-<ts>   legacy raw copies: indexed fileName.
+ *   anything else         entity-filed art (characters/<slug>/...), gallery
+ *                         uploads: indexed imagePath. Several rows can share an
+ *                         entity path (a re-render overwrites the file in
+ *                         place), so the newest row -- the one whose bytes are
+ *                         on disk -- decides. No row: not ArtImage-backed
+ *                         (site art, icons), served as before.
+ */
+async function gateArtImageFile(
+  event: Parameters<typeof getMediaViewerAccessContext>[0],
+  fileName: string,
+  servedPath: string,
+): Promise<ArtImageFileGate> {
+  const byId = ART_IMAGE_FILE.exec(fileName)
+  if (byId) {
+    const id = Number(byId?.[1] ?? Number.NaN)
+    const image = Number.isSafeInteger(id)
+      ? await prisma.artImage.findUnique({ where: { id }, select: GATE_SELECT })
+      : null
+    return decide(event, image)
+  }
+
+  if (ART_IMAGE_UPLOAD_FILE.test(fileName)) {
+    const image = await prisma.artImage.findFirst({
+      where: { fileName },
+      orderBy: NEWEST_FIRST,
+      select: GATE_SELECT,
+    })
+    return decide(event, image)
+  }
+
+  const image = await prisma.artImage.findFirst({
+    where: { imagePath: servedPath },
+    orderBy: NEWEST_FIRST,
+    select: GATE_SELECT,
+  })
+  return image ? decide(event, image) : 'not-art'
 }
 
 export default defineEventHandler(async (event) => {
@@ -162,7 +189,15 @@ export default defineEventHandler(async (event) => {
   // Gate on the RESOLVED file's own name, not the request string: resolve()
   // normalizes `x.webp/`, `x.webp/.` and `a/../x.webp` to the same file, and a
   // pattern matched against the raw path would let those walk past the gate.
-  const gate = await gateArtImageFile(event, path.basename(filePath))
+  const servedPath = `/images/${path
+    .relative(root, filePath)
+    .split(path.sep)
+    .join('/')}`
+  const gate = await gateArtImageFile(
+    event,
+    path.basename(filePath),
+    servedPath,
+  )
   if (gate === 'denied') {
     throw createError({ statusCode: 404, statusMessage: 'Image not found' })
   }

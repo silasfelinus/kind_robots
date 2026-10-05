@@ -646,7 +646,7 @@ const imageFileRoute = readFileSync(
 )
 assert.ok(imageFileRoute.includes('/^artimage-(\\d+)-/i'))
 assert.ok(
-  imageFileRoute.includes('gateArtImageFile(event, path.basename(filePath))'),
+  imageFileRoute.includes('    path.basename(filePath),\n    servedPath,'),
 )
 assert.ok(
   imageFileRoute.indexOf('path.basename(filePath)') >
@@ -655,10 +655,19 @@ assert.ok(
 assert.ok(imageFileRoute.includes('canReadArtImage(record, access)'))
 assert.ok(imageFileRoute.includes("if (gate === 'denied')"))
 assert.ok(imageFileRoute.includes('/^ArtImageUpload-\\d+$/'))
+// Entity-filed art and gallery uploads map back through the indexed
+// imagePath column, newest row first; legacy raw copies through fileName.
+assert.ok(imageFileRoute.includes('where: { imagePath: servedPath }'))
+assert.ok(imageFileRoute.includes('where: { fileName },'))
+assert.equal(imageFileRoute.split('orderBy: NEWEST_FIRST').length - 1, 2)
 assert.ok(
-  imageFileRoute.indexOf("if (!access.isAuthenticated) return 'denied'") <
-    imageFileRoute.indexOf('where: { fileName }'),
+  imageFileRoute.includes("return image ? decide(event, image) : 'not-art'"),
 )
+const artImageSchema = readFileSync('prisma/schema.prisma', 'utf8')
+assert.ok(artImageSchema.includes('@@index([imagePath(length: 255)])'))
+assert.ok(artImageSchema.includes('@@index([fileName(length: 191)])'))
+const saveImageSource = readFileSync('server/utils/saveImage.ts', 'utf8')
+assert.ok(!saveImageSource.includes('fs.writeFile'))
 assert.ok(imageFileRoute.includes("'private, no-store'"))
 assert.ok(
   imageFileRoute.includes(
@@ -668,6 +677,8 @@ assert.ok(
 const sharedImageAccess = readFileSync('server/utils/artImageAccess.ts', 'utf8')
 assert.ok(sharedImageAccess.includes('export function canReadArtImage('))
 assert.ok(sharedImageAccess.includes("getCookie(event, 'kind-session')"))
+// The viewer's stored mature preference is loaded: the token resolver omits it.
+assert.ok(sharedImageAccess.includes('select: { showMature: true }'))
 const byIdRoute = readFileSync('server/api/art/image/[id].get.ts', 'utf8')
 assert.ok(
   byIdRoute.includes(

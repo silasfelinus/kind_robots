@@ -6,6 +6,7 @@ import {
   type ValidateResult,
 } from '~/server/utils/validateKey'
 import { userRoles } from '~/server/utils/authUser'
+import prisma from '~/server/utils/prisma'
 import {
   isMaturityRestricted,
   viewerShowsMature,
@@ -101,12 +102,25 @@ export async function getMediaViewerAccessContext(
     const user = auth.user as ValidatedUser | null | undefined
     if (!auth.isValid || typeof user?.id !== 'number') return anonymous
 
+    /*
+     * The token resolver loads only id and roles, so its user never carries
+     * showMature and every viewer read as mature-off -- a logged-in adult who
+     * had opted in could not load someone else's public mature image. Silas,
+     * 2026-09-18: mature-but-public is for "a logged in user that has chosen
+     * mature true". Restriction (CHILD) still wins inside viewerShowsMature.
+     */
+    const preference = await prisma.user.findUnique({
+      where: { id: Number(user.id) },
+      select: { showMature: true },
+    })
+    const viewer = { ...user, showMature: preference?.showMature === true }
+
     return {
       userId: Number(user.id),
-      isAdmin: isAdminUser(user),
-      showMature: viewerShowsMature(user),
+      isAdmin: isAdminUser(viewer),
+      showMature: viewerShowsMature(viewer),
       isAuthenticated: true,
-      restricted: isMaturityRestricted(user),
+      restricted: isMaturityRestricted(viewer),
     }
   } catch {
     return anonymous

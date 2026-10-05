@@ -52,7 +52,9 @@ export function channelTabToCard(tab: ResolvedTab): BuilderCard {
 }
 
 export function channelTabsToCards(channel: ResolvedChannel): BuilderCard[] {
-  return navigationTabs(channel).map(channelTabToCard)
+  return navigationTabs(channel)
+    .filter((tab) => !!tab.route)
+    .map(channelTabToCard)
 }
 
 export function navigationCardToBuilderCard(

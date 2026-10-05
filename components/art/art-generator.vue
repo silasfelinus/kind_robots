@@ -42,6 +42,13 @@
               </span>
             </button>
 
+            <content-visibility-controls
+              v-model:is-mature="outputIsMature"
+              v-model:is-public="outputIsPublic"
+              compact
+              :disabled="artStore.isGenerating"
+            />
+
             <p class="kr-text-dim-xs text-center">
               {{ readinessSummary }}
             </p>
@@ -416,13 +423,19 @@
                   :disabled="artStore.isGenerating"
                 >
                   <option value="" disabled>Select checkpoint…</option>
-                  <option
-                    v-for="checkpoint in checkpointOptions"
-                    :key="checkpoint.name || checkpoint.id"
-                    :value="String(checkpoint.name || '').trim()"
+                  <optgroup
+                    v-for="group in checkpointGroups"
+                    :key="group.family"
+                    :label="group.label"
                   >
-                    {{ checkpointLabel(checkpoint) }}
-                  </option>
+                    <option
+                      v-for="checkpoint in group.checkpoints"
+                      :key="checkpoint.name || checkpoint.id"
+                      :value="String(checkpoint.name || '').trim()"
+                    >
+                      {{ checkpointLabel(checkpoint) }}
+                    </option>
+                  </optgroup>
                 </select>
               </label>
 
@@ -683,14 +696,6 @@
               @selected="handleCollectionSelected"
             />
 
-              <!-- Publishing flags for the image this run produces.
-                   Distinct from the Resource maturity toggle in the LoRA
-                   header, which decides what the pickers may show. -->
-              <content-visibility-controls
-                v-model:is-mature="outputIsMature"
-                v-model:is-public="outputIsPublic"
-                :disabled="artStore.isGenerating"
-              />
             </div>
           </details>
         </div>
@@ -739,6 +744,7 @@ import type { LoraPick } from '@/components/art/art-lora-picker.vue'
 import {
   ART_GENERATOR_PRESETS,
   CHECKPOINT_FAMILY_LABELS,
+  type CheckpointFamily,
   artDimensionOptions,
   DEFAULT_ART_PRESET_ID,
   detectCheckpointFamily,
@@ -1023,9 +1029,38 @@ const selectedCheckpoint = computed<CheckpointResource | null>(() => {
   return (
     checkpointOptions.value.find(
       (checkpoint) => String(checkpoint.name || '').trim() === name,
-    ) ?? null
+    ) ??
+    (checkpointStore.findCheckpointByName(name) as CheckpointResource | undefined) ??
+    null
   )
 })
+
+watch(selectedCheckpoint, (checkpoint) => {
+  const canonical = String(checkpoint?.name || '').trim()
+  if (canonical && canonical !== checkpointName.value) {
+    artStore.selectGenerationCheckpoint(canonical)
+  }
+})
+
+const CHECKPOINT_FAMILY_ORDER: CheckpointFamily[] = [
+  'illustrious',
+  'pony',
+  'sdxl',
+  'sdxl-distilled',
+  'sd15',
+  'archive',
+  'unknown',
+]
+
+const checkpointGroups = computed(() =>
+  CHECKPOINT_FAMILY_ORDER.map((family) => ({
+    family,
+    label: CHECKPOINT_FAMILY_LABELS[family],
+    checkpoints: checkpointOptions.value
+      .filter((checkpoint) => detectCheckpointFamily(checkpoint) === family)
+      .sort((a, b) => checkpointLabel(a).localeCompare(checkpointLabel(b))),
+  })).filter((group) => group.checkpoints.length > 0),
+)
 
 const selectedCheckpointFamily = computed(() =>
   detectCheckpointFamily(selectedCheckpoint.value),
@@ -1150,13 +1185,18 @@ const specificServer = computed<Server | null>(() => {
   return id ? ((serverStore.getServerById(id) as Server | null) ?? null) : null
 })
 
-const destinationSummary = computed(() => {
+const destinationServerSummary = computed(() => {
   if (serverChoice.value === 'any') return 'Any compatible Comfy server'
   if (serverChoice.value === 'default') return defaultServerLabel.value
   return specificServer.value
     ? serverLabel(specificServer.value)
     : 'Choose a Comfy server'
 })
+
+const destinationSummary = computed(
+  () =>
+    `${outputIsMature.value ? 'Mature' : 'General'} · ${outputIsPublic.value ? 'Public' : 'Private'} · ${destinationServerSummary.value}`,
+)
 
 const serverDetail = computed(() => {
   if (serverChoice.value === 'any') {
@@ -1265,6 +1305,8 @@ const readinessSummary = computed(() => {
     )
   }
   if (facetIds.value.length) parts.push(`${facetIds.value.length} Facets`)
+  parts.push(outputIsMature.value ? 'Mature' : 'General')
+  parts.push(outputIsPublic.value ? 'Public' : 'Private')
   return parts.join(' · ')
 })
 

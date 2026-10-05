@@ -132,7 +132,10 @@ export function extractWorkflowTextCandidates(workflow: unknown): string[] {
     (key) =>
       TEXT_INPUT_PATTERN.test(key) ||
       key === 'wildcard_text' ||
-      key === 'populated_text',
+      key === 'populated_text' ||
+      // TextEncodeAceStepAudio1.5 (music-video/t-010): a song job's
+      // promptString is its style tags. Lyrics stay out on purpose.
+      key === 'tags',
     values,
   )
 

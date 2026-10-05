@@ -1,5 +1,6 @@
 // /server/api/art/save-generated.post.ts
 import { isAudioType } from '~/utils/artImageSource'
+import { resolveMaturityPrivacy } from '~/utils/maturityPrivacy'
 import { defineEventHandler, readBody, createError } from 'h3'
 import prisma from '../../utils/prisma'
 import { errorHandler } from '../../utils/error'
@@ -167,6 +168,14 @@ export default defineEventHandler(async (event) => {
       server,
     })
 
+    const visibilityUnstated =
+      typeof requestData.isMature !== 'boolean' &&
+      typeof requestData.isPublic !== 'boolean'
+    const visibility = resolveMaturityPrivacy(
+      requestData,
+      visibilityUnstated ? { isPublic: false } : undefined,
+    )
+
     const updatedImage = await prisma.artImage.update({
       where: {
         id: savedImage.id,
@@ -186,8 +195,13 @@ export default defineEventHandler(async (event) => {
         promptString: requestData.promptString.trim(),
         artPrompt: requestData.promptString.trim(),
         negativePrompt: requestData.negativePrompt ?? null,
-        isPublic: isAudio ? false : (requestData.isPublic ?? true),
-        isMature: requestData.isMature ?? false,
+        // Mature is private unless asked otherwise (resolveMaturityPrivacy).
+        // A request that says NOTHING about either flag is a pre-#5598 relay
+        // staging a render before /complete applies the job's own save block;
+        // its maturity is unknown, so that row alone stays private until
+        // /complete sets the job's real values. Every other caller sends
+        // isMature, and a non-mature render stays public by default.
+        ...(isAudio ? { ...visibility, isPublic: false } : visibility),
         userId: validatedData.userId ?? user.id,
         serverId: server.id,
         serverName: server.title,

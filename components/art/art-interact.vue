@@ -63,6 +63,17 @@
           Remix
         </button>
 
+        <button
+          v-if="currentArtImageIsStill"
+          class="kr-btn-xs btn-outline sm:btn-sm"
+          type="button"
+          title="Open the video generator with this image as the first frame"
+          @click="animateCurrentImage"
+        >
+          <Icon name="kind-icon:play" class="kr-icon-4" />
+          Animate
+        </button>
+
         <!-- Delete button — arms on first click, fires on second -->
         <template v-if="currentArtImage && canDeleteCurrentImage">
           <button
@@ -493,6 +504,7 @@ import { useArtStore } from '@/stores/artStore'
 import { useCollectionStore } from '@/stores/collectionStore'
 import { useNavStore } from '@/stores/navStore'
 import { useUserStore } from '@/stores/userStore'
+import { resolveArtImageSource } from '@/utils/artImageSource'
 
 type CollectionLike = ArtCollection & {
   artImages?: ArtImage[]
@@ -846,6 +858,24 @@ function deselectAndReturn() {
   }
   artStore.deselectArtImage()
   navStore.setDashboardTab('art', 'gallery')
+}
+
+const currentArtImageIsStill = computed(
+  () =>
+    Boolean(currentArtImage.value) &&
+    !['video', 'audio'].includes(
+      resolveArtImageSource(currentArtImage.value).kind,
+    ),
+)
+
+function animateCurrentImage(): void {
+  const image = currentArtImage.value
+  if (!image) return
+  emit('close')
+  void navigateTo({
+    path: '/play/video-generator',
+    query: { artImageId: String(image.id) },
+  })
 }
 
 function startRemix() {

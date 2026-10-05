@@ -19,7 +19,9 @@ import { mkdir, realpath, rename } from 'node:fs/promises'
 /** Quarantine folder name, relative to the archive root. Never auto-scanned: not a supported image extension holder in the usual sense, but kept out of band from real content by living at the root's own reserved subtree. */
 export const ARCHIVE_TRASH_FOLDER = '_archive_trash'
 
-function isRootEscapeGuardError(error: unknown): error is { statusCode: number } {
+function isRootEscapeGuardError(
+  error: unknown,
+): error is { statusCode: number } {
   return typeof error === 'object' && error !== null && 'statusCode' in error
 }
 
@@ -38,10 +40,19 @@ export async function resolveConfinedExistingPath(
   try {
     resolved = await realpath(candidate)
   } catch {
-    throw createError({ statusCode: 404, message: `File not found: ${relativePath}` })
+    throw createError({
+      statusCode: 404,
+      message: `File not found: ${relativePath}`,
+    })
   }
-  if (resolved !== resolvedRoot && !resolved.startsWith(`${resolvedRoot}${path.sep}`)) {
-    throw createError({ statusCode: 400, message: `Path escapes the archive root: ${relativePath}` })
+  if (
+    resolved !== resolvedRoot &&
+    !resolved.startsWith(`${resolvedRoot}${path.sep}`)
+  ) {
+    throw createError({
+      statusCode: 400,
+      message: `Path escapes the archive root: ${relativePath}`,
+    })
   }
   return resolved
 }
@@ -61,23 +72,38 @@ export async function resolveConfinedTargetPath(
   relativePath: string,
 ): Promise<string> {
   const normalizedTarget = path.resolve(resolvedRoot, relativePath)
-  if (normalizedTarget !== resolvedRoot && !normalizedTarget.startsWith(`${resolvedRoot}${path.sep}`)) {
-    throw createError({ statusCode: 400, message: `Target path escapes the archive root: ${relativePath}` })
+  if (
+    normalizedTarget !== resolvedRoot &&
+    !normalizedTarget.startsWith(`${resolvedRoot}${path.sep}`)
+  ) {
+    throw createError({
+      statusCode: 400,
+      message: `Target path escapes the archive root: ${relativePath}`,
+    })
   }
 
   let probe = path.dirname(normalizedTarget)
   while (true) {
     try {
       const real = await realpath(probe)
-      if (real !== resolvedRoot && !real.startsWith(`${resolvedRoot}${path.sep}`)) {
-        throw createError({ statusCode: 400, message: `Target path escapes the archive root: ${relativePath}` })
+      if (
+        real !== resolvedRoot &&
+        !real.startsWith(`${resolvedRoot}${path.sep}`)
+      ) {
+        throw createError({
+          statusCode: 400,
+          message: `Target path escapes the archive root: ${relativePath}`,
+        })
       }
       return normalizedTarget
     } catch (error) {
       if (isRootEscapeGuardError(error)) throw error
       const parent = path.dirname(probe)
       if (parent === probe) {
-        throw createError({ statusCode: 400, message: `Invalid target path: ${relativePath}` })
+        throw createError({
+          statusCode: 400,
+          message: `Invalid target path: ${relativePath}`,
+        })
       }
       probe = parent
     }
@@ -94,12 +120,18 @@ export async function moveConfinedArchiveFile(
   fromRelativePath: string,
   toRelativePath: string,
 ): Promise<void> {
-  const source = await resolveConfinedExistingPath(resolvedRoot, fromRelativePath)
+  const source = await resolveConfinedExistingPath(
+    resolvedRoot,
+    fromRelativePath,
+  )
   const target = await resolveConfinedTargetPath(resolvedRoot, toRelativePath)
 
   try {
     await realpath(target)
-    throw createError({ statusCode: 409, message: `A file already exists at ${toRelativePath}.` })
+    throw createError({
+      statusCode: 409,
+      message: `A file already exists at ${toRelativePath}.`,
+    })
   } catch (error) {
     if (isRootEscapeGuardError(error)) throw error
     // ENOENT is the expected, safe case -- nothing at the destination yet.
@@ -110,8 +142,14 @@ export async function moveConfinedArchiveFile(
 }
 
 /** Deterministic, collision-safe quarantine path for one ArchiveEntry -- keyed on its id, not its current name, so two different entries whose relativePath happens to share a basename never collide in the trash folder. */
-export function quarantineRelativePathFor(archiveEntryId: number, relativePath: string): string {
-  return path.posix.join(ARCHIVE_TRASH_FOLDER, `${archiveEntryId}-${path.posix.basename(relativePath)}`)
+export function quarantineRelativePathFor(
+  archiveEntryId: number,
+  relativePath: string,
+): string {
+  return path.posix.join(
+    ARCHIVE_TRASH_FOLDER,
+    `${archiveEntryId}-${path.posix.basename(relativePath)}`,
+  )
 }
 
 /**
@@ -126,7 +164,10 @@ export async function quarantineConfinedArchiveFile(
   archiveEntryId: number,
   relativePath: string,
 ): Promise<string> {
-  const trashRelativePath = quarantineRelativePathFor(archiveEntryId, relativePath)
+  const trashRelativePath = quarantineRelativePathFor(
+    archiveEntryId,
+    relativePath,
+  )
   await moveConfinedArchiveFile(resolvedRoot, relativePath, trashRelativePath)
   return trashRelativePath
 }
@@ -143,5 +184,54 @@ export async function restoreConfinedArchiveFile(
   trashRelativePath: string,
   originalRelativePath: string,
 ): Promise<void> {
-  await moveConfinedArchiveFile(resolvedRoot, trashRelativePath, originalRelativePath)
+  await moveConfinedArchiveFile(
+    resolvedRoot,
+    trashRelativePath,
+    originalRelativePath,
+  )
+}
+
+/**
+ * Normalizes an admin-typed destination folder ("art_gallery/420/",
+ * "\\keep\\best", "") into the posix, slash-trimmed form ArchiveEntry stores
+ * in `parentFolder`. Empty means the archive root. Rejects `.`/`..` segments
+ * and the reserved trash subtree outright -- confinement is enforced again
+ * by resolveConfinedTargetPath at move time.
+ */
+export function normalizeArchiveFolderInput(input: string): string {
+  const segments = input
+    .replace(/\\/g, '/')
+    .split('/')
+    .map((segment) => segment.trim())
+    .filter(Boolean)
+  if (segments.some((segment) => segment === '.' || segment === '..')) {
+    throw createError({ statusCode: 400, message: `Invalid folder: ${input}` })
+  }
+  if (segments[0] === ARCHIVE_TRASH_FOLDER) {
+    throw createError({
+      statusCode: 400,
+      message: 'Use Trash, not a folder move, to quarantine artwork.',
+    })
+  }
+  return segments.join('/')
+}
+
+/**
+ * The relativePath an entry lands on when moved into `folder`, keeping its
+ * file name. When that name is already `taken` in the destination, the entry
+ * id is appended before the extension so a batch move never fails just
+ * because two folders each hold an "image-001.png".
+ */
+export function archiveFolderMoveTarget(
+  folder: string,
+  relativePath: string,
+  archiveEntryId: number,
+  taken = false,
+): string {
+  const baseName = path.posix.basename(relativePath)
+  const extension = path.posix.extname(baseName)
+  const fileName = taken
+    ? `${path.posix.basename(baseName, extension)}-${archiveEntryId}${extension}`
+    : baseName
+  return folder ? path.posix.join(folder, fileName) : fileName
 }

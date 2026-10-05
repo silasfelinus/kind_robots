@@ -4,7 +4,10 @@
 // no DOM/Web Animations dependency needed.
 import assert from 'node:assert/strict'
 
-import { computeButterflyFunnelDropPlan } from '../../stores/helpers/butterflyGalleryMotion'
+import {
+  computeButterflyFunnelDropPlan,
+  computeButterflyRunwaySchedule,
+} from '../../stores/helpers/butterflyGalleryMotion'
 import type { ButterflyMotionRect } from '../../stores/helpers/butterflyGalleryMotion'
 
 const funnelRect: ButterflyMotionRect = {
@@ -101,6 +104,25 @@ const frameRect: ButterflyMotionRect = {
     computeButterflyFunnelDropPlan(funnelRect, negativeHeightFrame),
     null,
   )
+}
+
+// -- runway scheduling: varied timing with no immediate clip repeats --------
+
+{
+  const first = computeButterflyRunwaySchedule(2, 5, 0, 0)
+  assert.equal(first.clipIndex, 0)
+  assert.equal(first.gapMs, 1200)
+
+  const skipsCurrent = computeButterflyRunwaySchedule(2, 5, 0.5, 0.5)
+  assert.notEqual(skipsCurrent.clipIndex, 2)
+  assert.ok(skipsCurrent.gapMs >= 1200 && skipsCurrent.gapMs <= 5200)
+
+  const lastBucket = computeButterflyRunwaySchedule(4, 5, 0.999999, 0.999999)
+  assert.notEqual(lastBucket.clipIndex, 4)
+  assert.ok(lastBucket.gapMs >= 1200 && lastBucket.gapMs <= 5200)
+
+  const onlyClip = computeButterflyRunwaySchedule(0, 1, 0.75, 0.25)
+  assert.equal(onlyClip.clipIndex, 0)
 }
 
 console.log('verifyButterflyGalleryMotion: all checks passed')

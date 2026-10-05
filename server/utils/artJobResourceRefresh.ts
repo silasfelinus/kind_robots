@@ -8,6 +8,7 @@ import {
 import { applyArtJobOverrides } from './artJobRetry'
 
 const LORA_TYPES = [ResourceType.LORA, ResourceType.LYCORIS]
+const LORA_NODE_TYPES = new Set(['LoraLoaderModelOnly', 'LoraLoader'])
 
 function asRecord(value: unknown): ArtJobPayloadRecord {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return {}
@@ -258,41 +259,107 @@ export type ArtJobLoraResourceRefresh = {
   loraNames: string[]
 }
 
-export function applyResolvedLoraResourceToArtJobPayload(
-  rawPayload: unknown,
-  resource: { id: number; localPath: string },
-): ArtJobLoraResourceRefresh {
-  if (!Number.isInteger(resource.id) || resource.id <= 0) {
-    throw createError({ statusCode: 409, message: 'Invalid LoRA Resource id.' })
+export type ResolvedLoraResource = {
+  id: number
+  localPath: string
+}
+
+function applyIndexedLoraPaths(
+  payload: ArtJobPayloadRecord,
+  localPaths: string[],
+): void {
+  const workflow = asRecord(payload.workflow)
+  const matchedIndexes = new Set<number>()
+
+  for (const node of Object.values(workflow)) {
+    const record = asRecord(node)
+    const classType = String(record.class_type || '')
+    if (!LORA_NODE_TYPES.has(classType)) continue
+
+    const meta = asRecord(record._meta)
+    const chainIndex = Number(meta.krLoraIndex)
+    if (
+      !Number.isInteger(chainIndex) ||
+      chainIndex < 0 ||
+      chainIndex >= localPaths.length
+    ) {
+      continue
+    }
+
+    const inputs = asRecord(record.inputs)
+    if (!('lora_name' in inputs)) continue
+    inputs.lora_name = localPaths[chainIndex]!
+    record.inputs = inputs
+    matchedIndexes.add(chainIndex)
   }
 
-  const localPath = normalizeLocalPath(resource.localPath)
-  if (!localPath) {
+  if (matchedIndexes.size !== localPaths.length) {
     throw createError({
       statusCode: 409,
-      message: `LoRA Resource ${resource.id} does not have a localPath for ComfyUI.`,
+      message: `ArtJob references ${localPaths.length} LoRA Resources, but its workflow exposes only ${matchedIndexes.size} indexed LoRA links. Rebuild the job instead of guessing the stack order.`,
     })
   }
 
+  payload.workflow = workflow
+}
+
+export function applyResolvedLoraResourcesToArtJobPayload(
+  rawPayload: unknown,
+  resolvedResources: ResolvedLoraResource[],
+): ArtJobLoraResourceRefresh {
+  const normalized = resolvedResources.map((resource) => {
+    if (!Number.isInteger(resource.id) || resource.id <= 0) {
+      throw createError({
+        statusCode: 409,
+        message: 'Invalid LoRA Resource id.',
+      })
+    }
+
+    const localPath = normalizeLocalPath(resource.localPath)
+    if (!localPath) {
+      throw createError({
+        statusCode: 409,
+        message: `LoRA Resource ${resource.id} does not have a localPath for ComfyUI.`,
+      })
+    }
+
+    return { id: resource.id, localPath }
+  })
+
   const payload = structuredClone(parseArtJobPayload(rawPayload))
   const before = JSON.stringify(payload)
-  applyArtJobOverrides(payload, { loraName: localPath })
+  const localPaths = normalized.map((resource) => resource.localPath)
+  const resourceIds = normalized.map((resource) => resource.id)
+
+  if (normalized.length === 1) {
+    applyArtJobOverrides(payload, { loraName: localPaths[0]! })
+  } else if (normalized.length > 1) {
+    applyIndexedLoraPaths(payload, localPaths)
+    payload.loraName = localPaths[0]!
+  }
 
   const resources = asRecord(payload.resources)
-  resources.loraResourceIds = [resource.id]
-  resources.loraNames = [localPath]
+  resources.loraResourceIds = resourceIds
+  resources.loraNames = localPaths
   payload.resources = resources
 
   if (Array.isArray(payload.loraResourceIds)) {
-    payload.loraResourceIds = [resource.id]
+    payload.loraResourceIds = resourceIds
   }
 
   return {
     payload,
     changed: before !== JSON.stringify(payload),
-    loraResourceIds: [resource.id],
-    loraNames: [localPath],
+    loraResourceIds: resourceIds,
+    loraNames: localPaths,
   }
+}
+
+export function applyResolvedLoraResourceToArtJobPayload(
+  rawPayload: unknown,
+  resource: ResolvedLoraResource,
+): ArtJobLoraResourceRefresh {
+  return applyResolvedLoraResourcesToArtJobPayload(rawPayload, [resource])
 }
 
 export async function refreshArtJobLoraResources(
@@ -310,18 +377,10 @@ export async function refreshArtJobLoraResources(
     }
   }
 
-  if (loraResourceIds.length > 1) {
-    throw createError({
-      statusCode: 409,
-      message: `ArtJob references multiple LoRA Resources (${loraResourceIds.join(', ')}), but queued workflows currently support one.`,
-    })
-  }
-
-  const resourceId = loraResourceIds[0]!
   const { default: prisma } = await import('./prisma')
-  const resource = await prisma.resource.findFirst({
+  const resources = await prisma.resource.findMany({
     where: {
-      id: resourceId,
+      id: { in: loraResourceIds },
       isActive: true,
       resourceType: { in: LORA_TYPES },
     },
@@ -330,18 +389,23 @@ export async function refreshArtJobLoraResources(
       localPath: true,
     },
   })
+  const byId = new Map(resources.map((resource) => [resource.id, resource]))
 
-  if (!resource) {
-    throw createError({
-      statusCode: 409,
-      message: `LoRA Resource ${resourceId} is missing, inactive, or no longer a LoRA Resource.`,
-    })
-  }
-
-  return applyResolvedLoraResourceToArtJobPayload(payload, {
-    id: resource.id,
-    localPath: String(resource.localPath || ''),
+  const resolvedResources = loraResourceIds.map((resourceId) => {
+    const resource = byId.get(resourceId)
+    if (!resource) {
+      throw createError({
+        statusCode: 409,
+        message: `LoRA Resource ${resourceId} is missing, inactive, or no longer a LoRA Resource.`,
+      })
+    }
+    return {
+      id: resource.id,
+      localPath: String(resource.localPath || ''),
+    }
   })
+
+  return applyResolvedLoraResourcesToArtJobPayload(payload, resolvedResources)
 }
 
 export type ArtJobResourceRefresh = {

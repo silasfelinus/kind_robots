@@ -44,6 +44,7 @@ function makeEntry(
     trashed: false,
     rating: null,
     folder: 'inbox',
+    relativePath: null,
     collections: [],
     prompt: 'test prompt',
     negativePrompt: null,
@@ -224,6 +225,17 @@ function makeEntry(
     async markNeedsReview(entryId: number) {
       calls.push(`markNeedsReview(${entryId})`)
     },
+    async renameCollection() {},
+    async createCollection(label: string) {
+      return { id: 1, slug: label, label }
+    },
+    async moveToFolder(entryIds: number[], folder: string) {
+      return {
+        folder,
+        moved: entryIds.map((id) => ({ id, folder, relativePath: null })),
+        failures: [],
+      }
+    },
   }
 
   const presetBin: ButterflyBinConfig = {
@@ -263,6 +275,17 @@ function makeEntry(
     async markNeedsReview(entryId: number) {
       calls.push(`markNeedsReview(${entryId})`)
     },
+    async renameCollection() {},
+    async createCollection(label: string) {
+      return { id: 1, slug: label, label }
+    },
+    async moveToFolder(entryIds: number[], folder: string) {
+      return {
+        folder,
+        moved: entryIds.map((id) => ({ id, folder, relativePath: null })),
+        failures: [],
+      }
+    },
   }
 
   const needsReviewBin: ButterflyBinConfig = {
@@ -282,6 +305,81 @@ function makeEntry(
     ['markNeedsReview(7)'],
     "persistBinOutcome should call adapter.markNeedsReview for a 'needs-review' bin instead of silently no-oping",
   )
+}
+
+// -- a bin's folder is a real move, not a local relabel -------------------
+
+{
+  const calls: string[] = []
+  const makeAdapter = (failure?: string) => ({
+    async setProcessed(entryId: number, processed: boolean) {
+      calls.push(`setProcessed(${entryId},${processed})`)
+    },
+    async setRating(entryId: number, rating: number | null) {
+      calls.push(`setRating(${entryId},${rating})`)
+    },
+    async trash() {},
+    async restore() {},
+    async addToCollection() {},
+    async removeFromCollection() {},
+    async markNeedsReview() {},
+    async renameCollection() {},
+    async createCollection(label: string) {
+      return { id: 1, slug: label, label }
+    },
+    async moveToFolder(entryIds: number[], folder: string) {
+      calls.push(`moveToFolder(${entryIds.join(',')},${folder})`)
+      return failure
+        ? {
+            folder,
+            moved: [],
+            failures: entryIds.map((id) => ({ id, message: failure })),
+          }
+        : {
+            folder,
+            moved: entryIds.map((id) => ({ id, folder, relativePath: null })),
+            failures: [],
+          }
+    },
+  })
+
+  const studyBin: ButterflyBinConfig = {
+    id: 'preset-two',
+    label: '2★ + Move to Study',
+    side: 'left',
+    icon: 'kind-icon:folder',
+    kind: 'preset',
+    payload: { rating: 2, folder: 'study', processed: true },
+    sortOrder: 3,
+    enabled: true,
+  }
+
+  await persistBinOutcome(makeAdapter(), 11, studyBin)
+  assert.deepEqual(
+    calls,
+    ['setRating(11,2)', 'moveToFolder(11,study)', 'setProcessed(11,true)'],
+    'a preset bin with a folder must persist the move through the adapter',
+  )
+
+  calls.length = 0
+  await assert.rejects(
+    persistBinOutcome(makeAdapter('disk full'), 12, studyBin),
+    /disk full/,
+    'a failed move must fail the drop so the pile never shows an unsaved folder',
+  )
+
+  calls.length = 0
+  const moveBin: ButterflyBinConfig = {
+    ...studyBin,
+    id: 'move-keepers',
+    kind: 'move',
+    payload: { folder: 'keepers/best' },
+  }
+  await persistBinOutcome(makeAdapter(), 13, moveBin)
+  assert.deepEqual(calls, ['moveToFolder(13,keepers/best)'])
+  const moved = makeEntry()
+  applyBinOutcome(moved, moveBin)
+  assert.equal(moved.folder, 'keepers/best')
 }
 
 // -- fixture-backed adapter resolves for every method ---------------------

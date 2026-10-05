@@ -1,5 +1,6 @@
 import { createError } from 'h3'
 import { repairFramePrompt } from '../../utils/framePromptRepair'
+import { isAudioArtJobPayload } from '../../utils/artJobMedia'
 import {
   parseArtJobPayload,
   type ArtJobPayloadRecord,
@@ -234,6 +235,10 @@ const PROMPT_TEXT_KEYS = new Set([
  * the top-level promptString.
  */
 export function repairFramePromptDeep(value: unknown, key = ''): unknown {
+  // A song job (music-video/t-010) is left whole: its promptString is the
+  // ACE-Step tags string, which must stay byte-equal to the graph's tags input
+  // for enrichArtJobPayload, and "frame" in a song is not an image noun.
+  if (!key && isAudioArtJobPayload(value)) return value
   if (Array.isArray(value)) {
     return value.map((child) => repairFramePromptDeep(child, key))
   }

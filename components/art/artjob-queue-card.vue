@@ -438,20 +438,33 @@
         </button>
 
         <div class="flex flex-wrap items-center justify-end gap-1">
-          <button
+          <form
             v-if="job.status === 'PENDING'"
-            type="button"
-            class="kr-btn-xs-2xl"
-            :class="job.priority > 0 ? 'btn-outline' : 'btn-accent'"
-            :disabled="priorityStore.prioritizingJobIds.includes(job.id)"
-            @click="togglePriority"
+            class="flex items-center gap-1"
+            @submit.prevent="applyPriority"
           >
-            <span
-              v-if="priorityStore.prioritizingJobIds.includes(job.id)"
-              class="kr-spinner-xs"
+            <input
+              v-model="priorityDraft"
+              type="number"
+              inputmode="numeric"
+              step="1"
+              :min="MIN_ART_JOB_PRIORITY"
+              :max="MAX_ART_JOB_PRIORITY"
+              class="input input-bordered input-xs w-20 rounded-2xl font-mono"
+              :class="parsedPriorityDraft === null ? 'input-error' : ''"
+              :aria-label="`Priority for ArtJob ${job.id}`"
+              :aria-invalid="parsedPriorityDraft === null"
+              :title="`Priority from ${MIN_ART_JOB_PRIORITY} to ${MAX_ART_JOB_PRIORITY}; higher jobs run first`"
             />
-            {{ job.priority > 0 ? 'Normal priority' : 'Move to front' }}
-          </button>
+            <button
+              type="submit"
+              class="kr-btn-xs-2xl btn-accent"
+              :disabled="!canSetPriority"
+            >
+              <span v-if="priorityBusy" class="kr-spinner-xs" />
+              {{ priorityBusy ? 'Saving' : 'Set priority' }}
+            </button>
+          </form>
           <button
             v-if="isEditableInPlace"
             type="button"
@@ -517,19 +530,21 @@
       @close="showOriginCard = false"
     />
 
-    <div
-      v-if="showArtCard && artStore.currentArtImage?.id === job.artImageId"
-      class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
-      role="dialog"
-      aria-modal="true"
-      :aria-label="`Art card for ArtImage ${job.artImageId}`"
-      @click.self="closeArtCard"
-      @keydown.esc="closeArtCard"
-    >
-      <div class="max-h-[90vh] w-full max-w-5xl overflow-y-auto">
-        <ArtInteract embedded @close="closeArtCard" />
+    <Teleport to="body">
+      <div
+        v-if="showArtCard && artStore.currentArtImage?.id === job.artImageId"
+        class="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 p-4"
+        role="dialog"
+        aria-modal="true"
+        :aria-label="`Art card for ArtImage ${job.artImageId}`"
+        @click.self="closeArtCard"
+        @keydown.esc="closeArtCard"
+      >
+        <div class="max-h-[90dvh] w-full max-w-5xl overflow-y-auto">
+          <ArtInteract embedded @close="closeArtCard" />
+        </div>
       </div>
-    </div>
+    </Teleport>
   </article>
 </template>
 
@@ -544,6 +559,11 @@ import {
 } from 'vue'
 import { useArtJobStore, type ArtJobRecord } from '@/stores/artJobStore'
 import { useArtJobPriorityStore } from '@/stores/artJobPriorityStore'
+import {
+  MAX_ART_JOB_PRIORITY,
+  MIN_ART_JOB_PRIORITY,
+  parseArtJobPriority,
+} from '@/utils/artJobPriority'
 import { useArtStore } from '@/stores/artStore'
 import { useUserStore } from '@/stores/userStore'
 import { useEntityArtLinkStore } from '@/stores/entityArtLinkStore'
@@ -583,10 +603,36 @@ const artStore = useArtStore()
 const userStore = useUserStore()
 const entityArtLinkStore = useEntityArtLinkStore()
 const copied = ref(false)
+const priorityDraft = ref(String(props.job.priority))
 const promptExpanded = ref(false)
 const locallyRevealedMature = ref(false)
 const runningElapsed = ref('')
 let runningTimer: ReturnType<typeof setInterval> | null = null
+
+const parsedPriorityDraft = computed<number | null>(() => {
+  const parsed = parseArtJobPriority(priorityDraft.value)
+  return parsed.ok ? parsed.priority : null
+})
+
+const priorityBusy = computed<boolean>(() =>
+  priorityStore.prioritizingJobIds.includes(props.job.id),
+)
+
+const canSetPriority = computed<boolean>(() => {
+  const priority = parsedPriorityDraft.value
+  return (
+    priority !== null &&
+    priority !== props.job.priority &&
+    !priorityBusy.value
+  )
+})
+
+watch(
+  () => props.job.priority,
+  (priority) => {
+    priorityDraft.value = String(priority)
+  },
+)
 
 const jobPrompt = computed<string>(() => artJobPrompt(props.job))
 
@@ -988,12 +1034,10 @@ async function handleCopy(): Promise<void> {
   }, 1500)
 }
 
-async function togglePriority(): Promise<void> {
-  if (props.job.priority > 0) {
-    await priorityStore.returnToNormal(props.job.id)
-    return
-  }
-  await priorityStore.moveToFront(props.job.id)
+async function applyPriority(): Promise<void> {
+  const priority = parsedPriorityDraft.value
+  if (priority === null || priority === props.job.priority) return
+  await priorityStore.setPriority(props.job.id, priority)
 }
 
 function stopRunningTimer(): void {

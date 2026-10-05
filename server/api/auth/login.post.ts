@@ -1,5 +1,6 @@
 // server/api/auth/login.post.ts
-import { defineEventHandler, isError, readBody, sendError, setCookie } from 'h3'
+import { defineEventHandler, isError, readBody, sendError } from 'h3'
+import { setKindSessionCookie } from '../../utils/kindSessionCookie'
 import { validateUserCredentials } from '.'
 import {
   assertAuthAttemptAllowed,
@@ -24,15 +25,7 @@ export default defineEventHandler(async (event) => {
       clearAuthFailures(event, safeUsername)
       const sessionValue = String(result.token ?? '')
 
-      if (sessionValue) {
-        setCookie(event, 'kind-session', sessionValue, {
-          httpOnly: true,
-          sameSite: 'lax',
-          secure: process.env.NODE_ENV === 'production',
-          path: '/',
-          maxAge: 60 * 60 * 24 * 30,
-        })
-      }
+      if (sessionValue) setKindSessionCookie(event, sessionValue)
 
       const data = {
         ...result.user,

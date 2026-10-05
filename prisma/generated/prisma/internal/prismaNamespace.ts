@@ -405,6 +405,12 @@ export const ModelName = {
   ArchiveActionPreset: 'ArchiveActionPreset',
   BrainstormSession: 'BrainstormSession',
   BrainstormCandidate: 'BrainstormCandidate',
+  ComicSeries: 'ComicSeries',
+  ComicEntity: 'ComicEntity',
+  ComicSlot: 'ComicSlot',
+  ComicAttempt: 'ComicAttempt',
+  ComicIssue: 'ComicIssue',
+  ComicCritique: 'ComicCritique',
   FacetAlias: 'FacetAlias',
   FacetProfile: 'FacetProfile',
   CharacterFacet: 'CharacterFacet',
@@ -532,7 +538,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "agentProfile" | "agentProfileCredential" | "agentCheckIn" | "agentNote" | "archiveEntry" | "archiveActionPreset" | "brainstormSession" | "brainstormCandidate" | "facetAlias" | "facetProfile" | "characterFacet" | "botFacet" | "rewardFacet" | "mandarinAudioAsset" | "mandarinCatalogOverride" | "mandarinCatalogChange" | "mandarinLessonProgress" | "mandarinPointEvent" | "mandarinLearnerProfile" | "mandarinRequestedCard" | "mandarinCustomSet" | "mandarinArtJobLink" | "mandarinCardProgress" | "mandarinReviewEvent" | "modelBuildRun" | "modelBuildItem" | "modelBuildArtifact" | "modelBuildRevision" | "musicVideo" | "projectPageContent" | "artImage" | "artCollection" | "bot" | "character" | "chat" | "dream" | "dreamRelation" | "project" | "facet" | "dreamFacet" | "scenarioFacet" | "projectFacet" | "projectArtImage" | "projectArtCollection" | "entityArtImage" | "facetArtImage" | "facetArtCollection" | "facetRelation" | "expressionMedia" | "expressionTransition" | "log" | "achievement" | "manaTransaction" | "revenueSplit" | "socialPostDraft" | "missionRemittance" | "product" | "order" | "orderItem" | "entitlement" | "printJob" | "grant" | "pack" | "achievementRecord" | "narratorTopic" | "narratorThread" | "pitchSheet" | "prompt" | "reaction" | "resource" | "reward" | "scenario" | "server" | "serverHealthCheck" | "sceneAnimatorPrompt" | "smartIcon" | "theme" | "user" | "stylistClient" | "stylistAppointment" | "artJob" | "queueControl" | "downloadRequest" | "karmaTransaction" | "referral" | "userRelation" | "userRole" | "todo" | "challenge" | "challengeSubmission" | "contender" | "endingDeck" | "lifeRun" | "lifeChoice" | "lifeStat" | "lifeEnding" | "lifeAchievement" | "lifeAchievementUnlock" | "lifeRunArt" | "aquarium" | "aquariumStock" | "aquariumSet" | "aquariumDecor" | "aquariumEgg" | "aquariumCodexEntry" | "monster" | "aquariumEvent" | "authToken" | "agentCredential" | "conversation" | "conversationParticipant" | "directMessage" | "notification" | "githubInstallation" | "appRepo" | "mediaEntry" | "resourcePreview" | "tzaddikCandidate" | "tzaddikCandidateTag" | "tzaddikRecheckRequest"
+    modelProps: "agentProfile" | "agentProfileCredential" | "agentCheckIn" | "agentNote" | "archiveEntry" | "archiveActionPreset" | "brainstormSession" | "brainstormCandidate" | "comicSeries" | "comicEntity" | "comicSlot" | "comicAttempt" | "comicIssue" | "comicCritique" | "facetAlias" | "facetProfile" | "characterFacet" | "botFacet" | "rewardFacet" | "mandarinAudioAsset" | "mandarinCatalogOverride" | "mandarinCatalogChange" | "mandarinLessonProgress" | "mandarinPointEvent" | "mandarinLearnerProfile" | "mandarinRequestedCard" | "mandarinCustomSet" | "mandarinArtJobLink" | "mandarinCardProgress" | "mandarinReviewEvent" | "modelBuildRun" | "modelBuildItem" | "modelBuildArtifact" | "modelBuildRevision" | "musicVideo" | "projectPageContent" | "artImage" | "artCollection" | "bot" | "character" | "chat" | "dream" | "dreamRelation" | "project" | "facet" | "dreamFacet" | "scenarioFacet" | "projectFacet" | "projectArtImage" | "projectArtCollection" | "entityArtImage" | "facetArtImage" | "facetArtCollection" | "facetRelation" | "expressionMedia" | "expressionTransition" | "log" | "achievement" | "manaTransaction" | "revenueSplit" | "socialPostDraft" | "missionRemittance" | "product" | "order" | "orderItem" | "entitlement" | "printJob" | "grant" | "pack" | "achievementRecord" | "narratorTopic" | "narratorThread" | "pitchSheet" | "prompt" | "reaction" | "resource" | "reward" | "scenario" | "server" | "serverHealthCheck" | "sceneAnimatorPrompt" | "smartIcon" | "theme" | "user" | "stylistClient" | "stylistAppointment" | "artJob" | "queueControl" | "downloadRequest" | "karmaTransaction" | "referral" | "userRelation" | "userRole" | "todo" | "challenge" | "challengeSubmission" | "contender" | "endingDeck" | "lifeRun" | "lifeChoice" | "lifeStat" | "lifeEnding" | "lifeAchievement" | "lifeAchievementUnlock" | "lifeRunArt" | "aquarium" | "aquariumStock" | "aquariumSet" | "aquariumDecor" | "aquariumEgg" | "aquariumCodexEntry" | "monster" | "aquariumEvent" | "authToken" | "agentCredential" | "conversation" | "conversationParticipant" | "directMessage" | "notification" | "githubInstallation" | "appRepo" | "mediaEntry" | "resourcePreview" | "tzaddikCandidate" | "tzaddikCandidateTag" | "tzaddikRecheckRequest"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1061,6 +1067,402 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.BrainstormCandidateCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.BrainstormCandidateCountAggregateOutputType> | number
+        }
+      }
+    }
+    ComicSeries: {
+      payload: Prisma.$ComicSeriesPayload<ExtArgs>
+      fields: Prisma.ComicSeriesFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ComicSeriesFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ComicSeriesPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ComicSeriesFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ComicSeriesPayload>
+        }
+        findFirst: {
+          args: Prisma.ComicSeriesFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ComicSeriesPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ComicSeriesFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ComicSeriesPayload>
+        }
+        findMany: {
+          args: Prisma.ComicSeriesFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ComicSeriesPayload>[]
+        }
+        create: {
+          args: Prisma.ComicSeriesCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ComicSeriesPayload>
+        }
+        createMany: {
+          args: Prisma.ComicSeriesCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.ComicSeriesDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ComicSeriesPayload>
+        }
+        update: {
+          args: Prisma.ComicSeriesUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ComicSeriesPayload>
+        }
+        deleteMany: {
+          args: Prisma.ComicSeriesDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ComicSeriesUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.ComicSeriesUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ComicSeriesPayload>
+        }
+        aggregate: {
+          args: Prisma.ComicSeriesAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateComicSeries>
+        }
+        groupBy: {
+          args: Prisma.ComicSeriesGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ComicSeriesGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ComicSeriesCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ComicSeriesCountAggregateOutputType> | number
+        }
+      }
+    }
+    ComicEntity: {
+      payload: Prisma.$ComicEntityPayload<ExtArgs>
+      fields: Prisma.ComicEntityFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ComicEntityFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ComicEntityPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ComicEntityFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ComicEntityPayload>
+        }
+        findFirst: {
+          args: Prisma.ComicEntityFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ComicEntityPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ComicEntityFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ComicEntityPayload>
+        }
+        findMany: {
+          args: Prisma.ComicEntityFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ComicEntityPayload>[]
+        }
+        create: {
+          args: Prisma.ComicEntityCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ComicEntityPayload>
+        }
+        createMany: {
+          args: Prisma.ComicEntityCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.ComicEntityDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ComicEntityPayload>
+        }
+        update: {
+          args: Prisma.ComicEntityUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ComicEntityPayload>
+        }
+        deleteMany: {
+          args: Prisma.ComicEntityDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ComicEntityUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.ComicEntityUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ComicEntityPayload>
+        }
+        aggregate: {
+          args: Prisma.ComicEntityAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateComicEntity>
+        }
+        groupBy: {
+          args: Prisma.ComicEntityGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ComicEntityGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ComicEntityCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ComicEntityCountAggregateOutputType> | number
+        }
+      }
+    }
+    ComicSlot: {
+      payload: Prisma.$ComicSlotPayload<ExtArgs>
+      fields: Prisma.ComicSlotFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ComicSlotFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ComicSlotPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ComicSlotFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ComicSlotPayload>
+        }
+        findFirst: {
+          args: Prisma.ComicSlotFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ComicSlotPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ComicSlotFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ComicSlotPayload>
+        }
+        findMany: {
+          args: Prisma.ComicSlotFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ComicSlotPayload>[]
+        }
+        create: {
+          args: Prisma.ComicSlotCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ComicSlotPayload>
+        }
+        createMany: {
+          args: Prisma.ComicSlotCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.ComicSlotDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ComicSlotPayload>
+        }
+        update: {
+          args: Prisma.ComicSlotUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ComicSlotPayload>
+        }
+        deleteMany: {
+          args: Prisma.ComicSlotDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ComicSlotUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.ComicSlotUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ComicSlotPayload>
+        }
+        aggregate: {
+          args: Prisma.ComicSlotAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateComicSlot>
+        }
+        groupBy: {
+          args: Prisma.ComicSlotGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ComicSlotGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ComicSlotCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ComicSlotCountAggregateOutputType> | number
+        }
+      }
+    }
+    ComicAttempt: {
+      payload: Prisma.$ComicAttemptPayload<ExtArgs>
+      fields: Prisma.ComicAttemptFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ComicAttemptFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ComicAttemptPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ComicAttemptFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ComicAttemptPayload>
+        }
+        findFirst: {
+          args: Prisma.ComicAttemptFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ComicAttemptPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ComicAttemptFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ComicAttemptPayload>
+        }
+        findMany: {
+          args: Prisma.ComicAttemptFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ComicAttemptPayload>[]
+        }
+        create: {
+          args: Prisma.ComicAttemptCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ComicAttemptPayload>
+        }
+        createMany: {
+          args: Prisma.ComicAttemptCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.ComicAttemptDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ComicAttemptPayload>
+        }
+        update: {
+          args: Prisma.ComicAttemptUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ComicAttemptPayload>
+        }
+        deleteMany: {
+          args: Prisma.ComicAttemptDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ComicAttemptUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.ComicAttemptUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ComicAttemptPayload>
+        }
+        aggregate: {
+          args: Prisma.ComicAttemptAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateComicAttempt>
+        }
+        groupBy: {
+          args: Prisma.ComicAttemptGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ComicAttemptGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ComicAttemptCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ComicAttemptCountAggregateOutputType> | number
+        }
+      }
+    }
+    ComicIssue: {
+      payload: Prisma.$ComicIssuePayload<ExtArgs>
+      fields: Prisma.ComicIssueFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ComicIssueFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ComicIssuePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ComicIssueFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ComicIssuePayload>
+        }
+        findFirst: {
+          args: Prisma.ComicIssueFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ComicIssuePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ComicIssueFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ComicIssuePayload>
+        }
+        findMany: {
+          args: Prisma.ComicIssueFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ComicIssuePayload>[]
+        }
+        create: {
+          args: Prisma.ComicIssueCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ComicIssuePayload>
+        }
+        createMany: {
+          args: Prisma.ComicIssueCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.ComicIssueDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ComicIssuePayload>
+        }
+        update: {
+          args: Prisma.ComicIssueUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ComicIssuePayload>
+        }
+        deleteMany: {
+          args: Prisma.ComicIssueDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ComicIssueUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.ComicIssueUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ComicIssuePayload>
+        }
+        aggregate: {
+          args: Prisma.ComicIssueAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateComicIssue>
+        }
+        groupBy: {
+          args: Prisma.ComicIssueGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ComicIssueGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ComicIssueCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ComicIssueCountAggregateOutputType> | number
+        }
+      }
+    }
+    ComicCritique: {
+      payload: Prisma.$ComicCritiquePayload<ExtArgs>
+      fields: Prisma.ComicCritiqueFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ComicCritiqueFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ComicCritiquePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ComicCritiqueFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ComicCritiquePayload>
+        }
+        findFirst: {
+          args: Prisma.ComicCritiqueFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ComicCritiquePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ComicCritiqueFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ComicCritiquePayload>
+        }
+        findMany: {
+          args: Prisma.ComicCritiqueFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ComicCritiquePayload>[]
+        }
+        create: {
+          args: Prisma.ComicCritiqueCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ComicCritiquePayload>
+        }
+        createMany: {
+          args: Prisma.ComicCritiqueCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.ComicCritiqueDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ComicCritiquePayload>
+        }
+        update: {
+          args: Prisma.ComicCritiqueUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ComicCritiquePayload>
+        }
+        deleteMany: {
+          args: Prisma.ComicCritiqueDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ComicCritiqueUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.ComicCritiqueUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ComicCritiquePayload>
+        }
+        aggregate: {
+          args: Prisma.ComicCritiqueAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateComicCritique>
+        }
+        groupBy: {
+          args: Prisma.ComicCritiqueGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ComicCritiqueGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ComicCritiqueCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ComicCritiqueCountAggregateOutputType> | number
         }
       }
     }
@@ -8631,6 +9033,129 @@ export const BrainstormCandidateScalarFieldEnum = {
 export type BrainstormCandidateScalarFieldEnum = (typeof BrainstormCandidateScalarFieldEnum)[keyof typeof BrainstormCandidateScalarFieldEnum]
 
 
+export const ComicSeriesScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  userId: 'userId',
+  slug: 'slug',
+  title: 'title',
+  notes: 'notes',
+  styleProse: 'styleProse',
+  styleTags: 'styleTags',
+  negativeTags: 'negativeTags',
+  lanes: 'lanes',
+  isPublicArt: 'isPublicArt',
+  coverAttemptId: 'coverAttemptId',
+  isArchived: 'isArchived'
+} as const
+
+export type ComicSeriesScalarFieldEnum = (typeof ComicSeriesScalarFieldEnum)[keyof typeof ComicSeriesScalarFieldEnum]
+
+
+export const ComicEntityScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  seriesId: 'seriesId',
+  key: 'key',
+  kind: 'kind',
+  name: 'name',
+  notes: 'notes',
+  secretUntil: 'secretUntil',
+  sortOrder: 'sortOrder',
+  portraitAttemptId: 'portraitAttemptId',
+  isArchived: 'isArchived'
+} as const
+
+export type ComicEntityScalarFieldEnum = (typeof ComicEntityScalarFieldEnum)[keyof typeof ComicEntityScalarFieldEnum]
+
+
+export const ComicSlotScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  seriesId: 'seriesId',
+  entityId: 'entityId',
+  issueId: 'issueId',
+  key: 'key',
+  kind: 'kind',
+  title: 'title',
+  notes: 'notes',
+  aspect: 'aspect',
+  promptProse: 'promptProse',
+  promptTags: 'promptTags',
+  negativePrompt: 'negativePrompt',
+  useSeriesStyle: 'useSeriesStyle',
+  laneKeys: 'laneKeys',
+  status: 'status',
+  sortOrder: 'sortOrder',
+  isArchived: 'isArchived'
+} as const
+
+export type ComicSlotScalarFieldEnum = (typeof ComicSlotScalarFieldEnum)[keyof typeof ComicSlotScalarFieldEnum]
+
+
+export const ComicAttemptScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  slotId: 'slotId',
+  laneKey: 'laneKey',
+  engine: 'engine',
+  checkpoint: 'checkpoint',
+  prompt: 'prompt',
+  negativePrompt: 'negativePrompt',
+  width: 'width',
+  height: 'height',
+  artJobId: 'artJobId',
+  artImageId: 'artImageId',
+  status: 'status',
+  error: 'error',
+  verdict: 'verdict',
+  note: 'note',
+  source: 'source',
+  meta: 'meta'
+} as const
+
+export type ComicAttemptScalarFieldEnum = (typeof ComicAttemptScalarFieldEnum)[keyof typeof ComicAttemptScalarFieldEnum]
+
+
+export const ComicIssueScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  seriesId: 'seriesId',
+  number: 'number',
+  title: 'title',
+  notes: 'notes',
+  layout: 'layout',
+  layoutVersion: 'layoutVersion',
+  isArchived: 'isArchived'
+} as const
+
+export type ComicIssueScalarFieldEnum = (typeof ComicIssueScalarFieldEnum)[keyof typeof ComicIssueScalarFieldEnum]
+
+
+export const ComicCritiqueScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  seriesId: 'seriesId',
+  parentId: 'parentId',
+  targetType: 'targetType',
+  targetId: 'targetId',
+  targetName: 'targetName',
+  input: 'input',
+  verdict: 'verdict',
+  headline: 'headline',
+  body: 'body',
+  model: 'model',
+  trigger: 'trigger'
+} as const
+
+export type ComicCritiqueScalarFieldEnum = (typeof ComicCritiqueScalarFieldEnum)[keyof typeof ComicCritiqueScalarFieldEnum]
+
+
 export const FacetAliasScalarFieldEnum = {
   id: 'id',
   createdAt: 'createdAt',
@@ -10945,6 +11470,86 @@ export const BrainstormCandidateOrderByRelevanceFieldEnum = {
 export type BrainstormCandidateOrderByRelevanceFieldEnum = (typeof BrainstormCandidateOrderByRelevanceFieldEnum)[keyof typeof BrainstormCandidateOrderByRelevanceFieldEnum]
 
 
+export const ComicSeriesOrderByRelevanceFieldEnum = {
+  slug: 'slug',
+  title: 'title',
+  notes: 'notes',
+  styleProse: 'styleProse',
+  styleTags: 'styleTags',
+  negativeTags: 'negativeTags',
+  lanes: 'lanes'
+} as const
+
+export type ComicSeriesOrderByRelevanceFieldEnum = (typeof ComicSeriesOrderByRelevanceFieldEnum)[keyof typeof ComicSeriesOrderByRelevanceFieldEnum]
+
+
+export const ComicEntityOrderByRelevanceFieldEnum = {
+  key: 'key',
+  kind: 'kind',
+  name: 'name',
+  notes: 'notes',
+  secretUntil: 'secretUntil'
+} as const
+
+export type ComicEntityOrderByRelevanceFieldEnum = (typeof ComicEntityOrderByRelevanceFieldEnum)[keyof typeof ComicEntityOrderByRelevanceFieldEnum]
+
+
+export const ComicSlotOrderByRelevanceFieldEnum = {
+  key: 'key',
+  kind: 'kind',
+  title: 'title',
+  notes: 'notes',
+  aspect: 'aspect',
+  promptProse: 'promptProse',
+  promptTags: 'promptTags',
+  negativePrompt: 'negativePrompt',
+  laneKeys: 'laneKeys',
+  status: 'status'
+} as const
+
+export type ComicSlotOrderByRelevanceFieldEnum = (typeof ComicSlotOrderByRelevanceFieldEnum)[keyof typeof ComicSlotOrderByRelevanceFieldEnum]
+
+
+export const ComicAttemptOrderByRelevanceFieldEnum = {
+  laneKey: 'laneKey',
+  engine: 'engine',
+  checkpoint: 'checkpoint',
+  prompt: 'prompt',
+  negativePrompt: 'negativePrompt',
+  status: 'status',
+  error: 'error',
+  verdict: 'verdict',
+  note: 'note',
+  source: 'source',
+  meta: 'meta'
+} as const
+
+export type ComicAttemptOrderByRelevanceFieldEnum = (typeof ComicAttemptOrderByRelevanceFieldEnum)[keyof typeof ComicAttemptOrderByRelevanceFieldEnum]
+
+
+export const ComicIssueOrderByRelevanceFieldEnum = {
+  title: 'title',
+  notes: 'notes',
+  layout: 'layout'
+} as const
+
+export type ComicIssueOrderByRelevanceFieldEnum = (typeof ComicIssueOrderByRelevanceFieldEnum)[keyof typeof ComicIssueOrderByRelevanceFieldEnum]
+
+
+export const ComicCritiqueOrderByRelevanceFieldEnum = {
+  targetType: 'targetType',
+  targetName: 'targetName',
+  input: 'input',
+  verdict: 'verdict',
+  headline: 'headline',
+  body: 'body',
+  model: 'model',
+  trigger: 'trigger'
+} as const
+
+export type ComicCritiqueOrderByRelevanceFieldEnum = (typeof ComicCritiqueOrderByRelevanceFieldEnum)[keyof typeof ComicCritiqueOrderByRelevanceFieldEnum]
+
+
 export const FacetAliasOrderByRelevanceFieldEnum = {
   alias: 'alias',
   lookupKey: 'lookupKey'
@@ -12881,6 +13486,12 @@ export type GlobalOmitConfig = {
   archiveActionPreset?: Prisma.ArchiveActionPresetOmit
   brainstormSession?: Prisma.BrainstormSessionOmit
   brainstormCandidate?: Prisma.BrainstormCandidateOmit
+  comicSeries?: Prisma.ComicSeriesOmit
+  comicEntity?: Prisma.ComicEntityOmit
+  comicSlot?: Prisma.ComicSlotOmit
+  comicAttempt?: Prisma.ComicAttemptOmit
+  comicIssue?: Prisma.ComicIssueOmit
+  comicCritique?: Prisma.ComicCritiqueOmit
   facetAlias?: Prisma.FacetAliasOmit
   facetProfile?: Prisma.FacetProfileOmit
   characterFacet?: Prisma.CharacterFacetOmit

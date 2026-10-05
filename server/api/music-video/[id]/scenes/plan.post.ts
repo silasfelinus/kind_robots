@@ -4,6 +4,7 @@ import { requireAdminApiUser } from '@/server/utils/authGuard'
 import { errorHandler } from '@/server/utils/error'
 import { parseStoredMusicVideoDoc } from '@/utils/musicVideoDoc'
 import { planScenes } from '@/utils/musicVideoScenes'
+import { withDefaultKenBurnsPresets } from '@/utils/musicVideoMotion'
 import {
   loadOwnedMusicVideo,
   readMusicVideoId,
@@ -29,7 +30,7 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    const scenes = planScenes(doc)
+    const scenes = withDefaultKenBurnsPresets(planScenes(doc))
     const updated = await prisma.musicVideo.update({
       where: { id },
       data: { doc: serializeValidatedDoc({ ...doc, scenes }) },

@@ -25,14 +25,12 @@ export function matchesButterflyGalleryFilters(
 
   if (filters.rating !== null && entry.rating !== filters.rating) return false
 
-  if (
-    filters.matchState !== 'all' &&
-    entry.matchState !== filters.matchState
-  ) {
+  if (filters.matchState !== 'all' && entry.matchState !== filters.matchState) {
     return false
   }
 
-  if (filters.folder && entry.folder !== filters.folder) return false
+  if (filters.folder !== null && (entry.folder ?? '') !== filters.folder)
+    return false
 
   if (filters.collection && !entry.collections.includes(filters.collection))
     return false
@@ -72,5 +70,22 @@ export function summarizeButterflyGalleryFolders(
 export function summarizeButterflyGalleryCollections(
   entries: ButterflyPileEntry[],
 ): ButterflyGroupSummary[] {
-  return summarize(entries.flatMap((entry) => entry.collections))
+  const refs = new Map<string, { id: number; label: string }>()
+  for (const entry of entries)
+    for (const ref of entry.collectionRefs ?? [])
+      refs.set(ref.slug, { id: ref.id, label: ref.label })
+  return summarize(entries.flatMap((entry) => entry.collections)).map(
+    (summary) => ({ ...summary, ...refs.get(summary.value) }),
+  )
+}
+
+/** The archive-wide catalog list first (it knows every folder/collection
+ * and its full count), plus anything only the loaded pile knows about --
+ * e.g. a collection created a moment ago, before the catalog refreshes. */
+export function mergeButterflyGroupSummaries(
+  catalog: ButterflyGroupSummary[],
+  pile: ButterflyGroupSummary[],
+): ButterflyGroupSummary[] {
+  const known = new Set(catalog.map((summary) => summary.value))
+  return [...catalog, ...pile.filter((summary) => !known.has(summary.value))]
 }

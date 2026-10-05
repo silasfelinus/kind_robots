@@ -1,0 +1,133 @@
+{
+  "version": 1,
+  "slug": "fixture-workshop",
+  "title": "The Workshop Fixture",
+  "scenarioSlug": "fixture-scenario",
+  "hero": {
+    "characterSlug": "pip",
+    "name": "Pip",
+    "blurb": "A curious little robot."
+  },
+  "styleBible": "Soft watercolor, warm lantern light.",
+  "start": "start",
+  "nodes": {
+    "start": {
+      "id": "start",
+      "text": "Pip wakes up beside a dusty music box. The little robot looked around the quiet workshop, listening to the soft hum of friendly machines and wondering what kindness could fix next before the lanterns dimmed for the night. Somewhere above, a tiny gear clicked into place, and Pip felt certain that whatever happened next, a good friend would be close by to help carry the lantern.",
+      "art": {
+        "file": "start.webp",
+        "alt": "Illustration for start",
+        "prompt": "storybook watercolor, start"
+      },
+      "choices": [
+        {
+          "label": "Wind the music box",
+          "to": "music",
+          "sets": ["wound"]
+        },
+        {
+          "label": "Explore the shelves",
+          "to": "shelves"
+        }
+      ]
+    },
+    "music": {
+      "id": "music",
+      "text": "A gentle tune fills the room. The little robot looked around the quiet workshop, listening to the soft hum of friendly machines and wondering what kindness could fix next before the lanterns dimmed for the night. Somewhere above, a tiny gear clicked into place, and Pip felt certain that whatever happened next, a good friend would be close by to help carry the lantern.",
+      "art": {
+        "file": "music.webp",
+        "alt": "Illustration for music",
+        "prompt": "storybook watercolor, music"
+      },
+      "choices": [
+        {
+          "label": "Follow the sound",
+          "to": "attic"
+        },
+        {
+          "label": "Hum along",
+          "to": "hum"
+        }
+      ]
+    },
+    "shelves": {
+      "id": "shelves",
+      "text": "Shelves of odd spare parts tower overhead. The little robot looked around the quiet workshop, listening to the soft hum of friendly machines and wondering what kindness could fix next before the lanterns dimmed for the night. Somewhere above, a tiny gear clicked into place, and Pip felt certain that whatever happened next, a good friend would be close by to help carry the lantern.",
+      "art": {
+        "file": "shelves.webp",
+        "alt": "Illustration for shelves",
+        "prompt": "storybook watercolor, shelves"
+      },
+      "choices": [
+        {
+          "label": "Take the brass key",
+          "to": "attic",
+          "sets": ["key"]
+        },
+        {
+          "label": "Tidy up instead",
+          "to": "tidy"
+        }
+      ]
+    },
+    "attic": {
+      "id": "attic",
+      "text": "A small locked door waits in the attic. The little robot looked around the quiet workshop, listening to the soft hum of friendly machines and wondering what kindness could fix next before the lanterns dimmed for the night. Somewhere above, a tiny gear clicked into place, and Pip felt certain that whatever happened next, a good friend would be close by to help carry the lantern.",
+      "art": {
+        "file": "attic.webp",
+        "alt": "Illustration for attic",
+        "prompt": "storybook watercolor, attic"
+      },
+      "choices": [
+        {
+          "label": "Open it with the key",
+          "to": "garden",
+          "requires": ["key"]
+        },
+        {
+          "label": "Knock politely",
+          "to": "hum"
+        }
+      ]
+    },
+    "hum": {
+      "id": "hum",
+      "text": "Pip hums and the walls hum back. The little robot looked around the quiet workshop, listening to the soft hum of friendly machines and wondering what kindness could fix next before the lanterns dimmed for the night. Somewhere above, a tiny gear clicked into place, and Pip felt certain that whatever happened next, a good friend would be close by to help carry the lantern.",
+      "art": {
+        "file": "hum.webp",
+        "alt": "Illustration for hum",
+        "prompt": "storybook watercolor, hum"
+      },
+      "ending": {
+        "kind": "funny",
+        "title": "The Humming House"
+      }
+    },
+    "tidy": {
+      "id": "tidy",
+      "text": "Everything gleams once Pip has tidied. The little robot looked around the quiet workshop, listening to the soft hum of friendly machines and wondering what kindness could fix next before the lanterns dimmed for the night. Somewhere above, a tiny gear clicked into place, and Pip felt certain that whatever happened next, a good friend would be close by to help carry the lantern.",
+      "art": {
+        "file": "tidy.webp",
+        "alt": "Illustration for tidy",
+        "prompt": "storybook watercolor, tidy"
+      },
+      "ending": {
+        "kind": "bittersweet",
+        "title": "A Very Clean Room"
+      }
+    },
+    "garden": {
+      "id": "garden",
+      "text": "A secret garden of tin flowers blooms. The little robot looked around the quiet workshop, listening to the soft hum of friendly machines and wondering what kindness could fix next before the lanterns dimmed for the night. Somewhere above, a tiny gear clicked into place, and Pip felt certain that whatever happened next, a good friend would be close by to help carry the lantern.",
+      "art": {
+        "file": "garden.webp",
+        "alt": "Illustration for garden",
+        "prompt": "storybook watercolor, garden"
+      },
+      "ending": {
+        "kind": "triumph",
+        "title": "The Tin Garden"
+      }
+    }
+  }
+}

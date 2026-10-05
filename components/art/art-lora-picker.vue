@@ -18,6 +18,7 @@
           label="Mature resources"
           visible-text="Mature LoRAs are included."
           hidden-text="Mature LoRAs are hidden."
+          @changed="artStore.adoptMatureResourceMode"
         />
         <button
           v-if="rankedLoras.length || selected.length"
@@ -250,6 +251,7 @@ import { computed, onMounted, ref, watch } from 'vue'
 import type { Resource } from '~/prisma/generated/prisma/client'
 import { useCheckpointStore } from '@/stores/checkpointStore'
 import { useResourceStore } from '@/stores/resourceStore'
+import { useArtStore } from '@/stores/artStore'
 import {
   CHECKPOINT_FAMILY_LABELS,
   detectCheckpointFamily,
@@ -286,6 +288,7 @@ const emit = defineEmits<{
 
 const resourceStore = useResourceStore()
 const checkpointStore = useCheckpointStore()
+const artStore = useArtStore()
 const search = ref('')
 const expanded = ref(false)
 

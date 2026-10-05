@@ -93,13 +93,81 @@
             <label class="font-semibold">
               First image <span class="text-error">*</span>
             </label>
-            <button
-              type="button"
-              class="kr-btn-outline-xs"
-              @click="useLogoAsFirst"
+            <div class="flex flex-wrap gap-1">
+              <button
+                type="button"
+                class="kr-btn-outline-xs"
+                :aria-expanded="recentArtOpen"
+                @click="toggleRecentArt"
+              >
+                Recent art
+              </button>
+              <button
+                type="button"
+                class="kr-btn-outline-xs"
+                @click="useLogoAsFirst"
+              >
+                Use logo
+              </button>
+            </div>
+          </div>
+          <div v-if="recentArtOpen" class="space-y-1">
+            <p
+              v-if="videoStore.recentArt.loading"
+              class="text-xs opacity-60"
             >
-              Use logo
-            </button>
+              Loading your recent art…
+            </p>
+            <p
+              v-else-if="!videoStore.recentArt.items.length"
+              class="text-xs opacity-60"
+            >
+              No finished art jobs yet.
+            </p>
+            <div
+              v-else
+              class="grid grid-cols-[repeat(auto-fill,minmax(4.5rem,1fr))] gap-1.5"
+            >
+              <button
+                v-for="item in videoStore.recentArt.items"
+                :key="item.artImageId"
+                type="button"
+                class="relative aspect-square overflow-hidden rounded-xl border-2 bg-base-200"
+                :class="
+                  firstImageArtId === item.artImageId
+                    ? 'border-primary'
+                    : 'border-transparent hover:border-base-300'
+                "
+                :title="item.promptString || `Art image ${item.artImageId}`"
+                :disabled="videoStore.recentArt.loadingFrameId !== null"
+                @click="useArtImageAsFirst(item.artImageId)"
+              >
+                <img
+                  :src="recentArtThumb(item)"
+                  :alt="item.promptString || `Art image ${item.artImageId}`"
+                  class="h-full w-full object-cover"
+                  loading="lazy"
+                />
+                <span
+                  v-if="item.isMature"
+                  class="kr-badge-xs badge-warning absolute left-1 top-1"
+                >
+                  18+
+                </span>
+                <span
+                  v-if="videoStore.recentArt.loadingFrameId === item.artImageId"
+                  class="absolute inset-0 flex items-center justify-center bg-base-100/60"
+                >
+                  <span class="kr-spinner-xs" />
+                </span>
+              </button>
+            </div>
+            <p
+              v-if="videoStore.recentArt.error"
+              class="text-xs text-error"
+            >
+              {{ videoStore.recentArt.error }}
+            </p>
           </div>
           <input
             type="file"
@@ -120,7 +188,7 @@
               type="button"
               class="btn btn-circle btn-error btn-xs absolute top-1 right-1"
               title="Clear"
-              @click="firstImage = ''"
+              @click="clearFirstImage"
             >
               ✕
             </button>
@@ -436,10 +504,13 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
+import { useRoute } from 'vue-router'
 import { useResourceStore } from '@/stores/resourceStore'
 import { useVideoStore } from '@/stores/videoStore'
 import { useUserStore } from '@/stores/userStore'
+import { resolveArtImageSource } from '@/utils/artImageSource'
+import type { RecentArtJobImage } from '@/utils/recentArtImages'
 import {
   promptWithLoraTriggers,
   type LoraPick,
@@ -501,6 +572,9 @@ const engine = ref<VideoEngine>('ltx')
 const videoPresetId = ref<VideoPresetId | ''>(initialPreset.id)
 const outputFormat = ref<VideoOutputFormat>(initialPreset.outputFormat)
 const firstImage = ref('')
+const route = useRoute()
+const firstImageArtId = ref<number | null>(null)
+const recentArtOpen = ref(false)
 const secondImage = ref('')
 const prompt = ref(WINK_PRESET)
 const negativePrompt = ref('')
@@ -637,14 +711,52 @@ async function onFileChange(event: Event, slot: 'first' | 'second') {
   const file = target.files?.[0]
   if (!file) return
   const dataUrl = await fileToDataUrl(file)
-  if (slot === 'first') firstImage.value = dataUrl
+  if (slot === 'first') {
+    firstImage.value = dataUrl
+    firstImageArtId.value = null
+  }
   else secondImage.value = dataUrl
 }
+
+function recentArtThumb(item: RecentArtJobImage): string {
+  return item.thumbnailPath || resolveArtImageSource(item).src || LOGO_SRC
+}
+
+function clearFirstImage(): void {
+  firstImage.value = ''
+  firstImageArtId.value = null
+}
+
+function toggleRecentArt(): void {
+  recentArtOpen.value = !recentArtOpen.value
+  if (recentArtOpen.value && !videoStore.recentArt.items.length) {
+    void videoStore.fetchRecentArt(userStore.showMature)
+  }
+}
+
+async function useArtImageAsFirst(artImageId: number): Promise<void> {
+  const frame = await videoStore.loadArtImageFrame(artImageId)
+  if (!frame) return
+  firstImage.value = frame.dataUrl
+  firstImageArtId.value = artImageId
+  if (frame.isMature) {
+    isMature.value = true
+    isPublic.value = false
+  }
+}
+
+onMounted(() => {
+  const requested = Number(route.query.artImageId)
+  if (Number.isInteger(requested) && requested > 0) {
+    void useArtImageAsFirst(requested)
+  }
+})
 
 async function useLogoAsFirst() {
   try {
     const res = await fetch(LOGO_SRC)
     const blob = await res.blob()
+    firstImageArtId.value = null
     firstImage.value = await fileToDataUrl(
       new File([blob], 'kindlogo_new.webp', { type: blob.type }),
     )

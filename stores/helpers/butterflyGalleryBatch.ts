@@ -60,3 +60,34 @@ export async function executeButterflyBatch(
     failures,
   }
 }
+
+/** One edit applied to every selected artwork. `move` relocates the real
+ * files under the archive root; `new-collection` creates the collection
+ * once and adds the whole selection to it. */
+export type ButterflyBatchEdit =
+  | { type: 'rating'; rating: number | null }
+  | { type: 'move'; folder: string }
+  | { type: 'add-collection'; collection: string; label?: string }
+  | { type: 'new-collection'; label: string }
+  | { type: 'remove-collection'; collection: string; label?: string }
+  | { type: 'trash' }
+  | { type: 'restore' }
+
+export function describeButterflyBatchEdit(edit: ButterflyBatchEdit): string {
+  switch (edit.type) {
+    case 'rating':
+      return edit.rating === null ? 'Clear rating' : `Rate ${edit.rating}★`
+    case 'move':
+      return `Move to ${edit.folder || 'the archive root'}`
+    case 'add-collection':
+      return `Add to ${edit.label || edit.collection}`
+    case 'new-collection':
+      return `Add to new collection ${edit.label}`
+    case 'remove-collection':
+      return `Remove from ${edit.label || edit.collection}`
+    case 'trash':
+      return 'Trash'
+    case 'restore':
+      return 'Restore'
+  }
+}

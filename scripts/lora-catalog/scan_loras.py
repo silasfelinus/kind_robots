@@ -696,7 +696,8 @@ CIVITAI_TAG_CATEGORIES: list[tuple[str, tuple[str, ...]]] = [
     # rows disappear from the purpose-specific randomizer pools.
     ("ACTION", ("poses", "pose", "action", "motion", "dance", "dancing",
                 "gesture")),
-    ("STYLE", ("style", "styles", "art style", "artstyle", "artist",
+    ("STYLE", ("style", "styles", "effect", "effects", "lighting", "abstract",
+               "art style", "artstyle", "artist",
                "aesthetic", "anime style", "painting style")),
     ("CHARACTER", ("character", "characters", "celebrity", "actor", "actress",
                    "singer", "idol", "waifu")),
@@ -712,8 +713,9 @@ CIVITAI_TAG_CATEGORIES: list[tuple[str, tuple[str, ...]]] = [
                   "monsters", "dragon", "cat", "dog", "furry", "pokemon")),
     ("DETAIL", ("detail", "details", "enhancer", "quality", "sharpness",
                 "skin", "eyes", "hands", "texture")),
-    ("CONCEPT", ("concept", "concepts", "abstract", "effect", "effects",
-                 "lighting")),
+    # Civitai's catch-all tag, read last. There is no CONCEPT category any
+    # more; see utils/loraCategory.ts.
+    ("ACTION", ("concept", "concepts")),
 ]
 
 HEURISTIC_CATEGORIES: list[tuple[str, tuple[str, ...]]] = [
@@ -734,7 +736,7 @@ HEURISTIC_CATEGORIES: list[tuple[str, tuple[str, ...]]] = [
                 "furniture")),
     ("DETAIL", ("detail", "details", "detailer", "add[_ -]?detail",
                 "skin texture", "hand fix", "eye fix")),
-    ("CONCEPT", ("concept",)),
+    ("ACTION", ("concept",)),
 ]
 
 

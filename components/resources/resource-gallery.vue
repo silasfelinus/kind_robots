@@ -12,6 +12,18 @@ import { useUserStore } from '@/stores/userStore'
 import type { Resource } from '@/stores/resourceStore'
 import ShareManager from '@/components/sharing/share-manager.vue'
 import { querySelectionId } from '@/utils/routeSelection'
+import {
+  COMPATIBILITY_GROUPS,
+  COMPATIBILITY_GROUP_LABELS,
+  RESOURCE_FAMILY_LABELS,
+  compatibilityGroupOf,
+  resourceFamily,
+} from '@/utils/resourceFamily'
+import {
+  LORA_CATEGORIES,
+  LORA_CATEGORY_META,
+  normalizeLoraCategory,
+} from '@/utils/loraCategory'
 
 const RESOURCE_TYPE = {
   CHECKPOINT: 'CHECKPOINT',
@@ -26,6 +38,7 @@ const userStore = useUserStore()
 const query = ref('')
 const resourceType = ref('ALL')
 const generation = ref('ALL')
+const loraCategory = ref('ALL')
 
 const route = useRoute()
 const router = useRouter()
@@ -335,15 +348,44 @@ const resourceTypes = computed(() => {
   ].sort()
 })
 
-const generations = computed(() => {
-  return [
-    ...new Set(
-      resourceGalleryStore.resources
-        .map((entry) => entry.generation?.trim())
-        .filter((entry): entry is string => Boolean(entry)),
+const familyById = computed(
+  () =>
+    new Map(
+      resourceGalleryStore.resources.map((entry) => [
+        entry.id,
+        resourceFamily(entry),
+      ]),
     ),
-  ].sort((a, b) => a.localeCompare(b))
+)
+
+const generations = computed(() => {
+  const present = new Set(
+    [...familyById.value.values()].map(compatibilityGroupOf),
+  )
+  return COMPATIBILITY_GROUPS.filter((group) => present.has(group)).map(
+    (group) => ({ value: group, label: COMPATIBILITY_GROUP_LABELS[group] }),
+  )
 })
+
+const LORA_RESOURCE_TYPES = ['LORA', 'LYCORIS']
+
+const showsLoraCategoryFilter = computed(() =>
+  LORA_RESOURCE_TYPES.includes(resourceType.value),
+)
+
+const loraCategoryOptions = LORA_CATEGORIES.map(
+  (category) => LORA_CATEGORY_META[category],
+)
+
+function matchesLoraCategory(entry: { loraCategory?: unknown }): boolean {
+  if (!showsLoraCategoryFilter.value || loraCategory.value === 'ALL') {
+    return true
+  }
+  const category = normalizeLoraCategory(entry.loraCategory)
+  return loraCategory.value === 'UNCLASSIFIED'
+    ? category === null
+    : category === loraCategory.value
+}
 
 const filteredResources = computed(() => {
   const search = query.value.trim().toLowerCase()
@@ -368,9 +410,15 @@ const filteredResources = computed(() => {
       return false
     }
 
-    if (generation.value !== 'ALL' && entry.generation !== generation.value) {
+    if (
+      generation.value !== 'ALL' &&
+      compatibilityGroupOf(familyById.value.get(entry.id) ?? 'other') !==
+        generation.value
+    ) {
       return false
     }
+
+    if (!matchesLoraCategory(entry)) return false
 
     /*
      * Owners/admins can legitimately receive their own mature Resource rows
@@ -391,6 +439,7 @@ const filteredResources = computed(() => {
       entry.name,
       entry.description,
       entry.generation,
+      RESOURCE_FAMILY_LABELS[familyById.value.get(entry.id) ?? 'other'],
       entry.supportedServer,
       entry.triggerWords,
       entry.defaultTrigger,
@@ -955,9 +1004,30 @@ onMounted(async () => {
             aria-label="Filter by base model"
           >
             <option value="ALL">All base models</option>
-            <option v-for="base in generations" :key="base" :value="base">
-              {{ base }}
+            <option
+              v-for="base in generations"
+              :key="base.value"
+              :value="base.value"
+            >
+              {{ base.label }}
             </option>
+          </select>
+
+          <select
+            v-if="showsLoraCategoryFilter"
+            v-model="loraCategory"
+            class="select select-bordered select-xs w-auto max-w-44 rounded-2xl"
+            aria-label="Filter by LoRA category"
+          >
+            <option value="ALL">All categories</option>
+            <option
+              v-for="option in loraCategoryOptions"
+              :key="option.category"
+              :value="option.category"
+            >
+              {{ option.label }}
+            </option>
+            <option value="UNCLASSIFIED">Unclassified</option>
           </select>
 
           <!-- `icon`, not `resource`: the resource variant is a labelled block

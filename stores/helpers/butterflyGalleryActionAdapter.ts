@@ -19,6 +19,25 @@ export function createFixtureButterflyGalleryActionAdapter(): ButterflyGalleryAc
     async addToCollection(): Promise<void> {},
     async removeFromCollection(): Promise<void> {},
     async markNeedsReview(): Promise<void> {},
+    async renameCollection(): Promise<void> {},
+    async createCollection(label: string) {
+      const slug = label
+        .trim()
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+      return { id: Date.now(), slug, label: label.trim() }
+    },
+    async moveToFolder(entryIds: number[], folder: string) {
+      return {
+        folder,
+        moved: entryIds.map((id) => ({
+          id,
+          folder: folder || null,
+          relativePath: null,
+        })),
+        failures: [],
+      }
+    },
   }
 }
 

@@ -360,12 +360,14 @@
 
     <artjob-slideshow v-if="slideshowOpen" @close="slideshowOpen = false" />
 
-    <artjob-editor
-      v-if="editorJob"
-      :job="editorJob"
-      :action="editorAction"
-      @close="editorJob = null"
-    />
+    <Teleport to="body">
+      <artjob-editor
+        v-if="editorJob"
+        :job="editorJob"
+        :action="editorAction"
+        @close="editorJob = null"
+      />
+    </Teleport>
   </section>
 </template>
 

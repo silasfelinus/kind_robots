@@ -43,4 +43,11 @@ export const DATA_SURFACES: DataSurfaceEntry[] = [
       'pages/play/video-generator.vue: stores/videoStore.ts -> POST /api/art/enqueue',
     navEntry: { channelKey: 'plan', tabKey: 'video-generator' },
   },
+  {
+    id: 'comic-studio',
+    label: 'Comic Studio',
+    dataSource:
+      'pages/play/comics/studio.vue: stores/comicStudioStore.ts -> /api/comics/**',
+    navEntry: { channelKey: 'admin', tabKey: 'comic-studio' },
+  },
 ]

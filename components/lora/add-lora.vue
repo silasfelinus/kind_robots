@@ -94,16 +94,37 @@
           v-model="form.supportedServer"
           class="kr-select-muted"
         >
-          <option value="SDXL">SDXL</option>
-          <option value="SD15">SD15</option>
-          <option value="FLUX">FLUX</option>
-          <option value="KONTEXT">KONTEXT</option>
-          <option value="COMFY">COMFY</option>
-          <option value="A1111">A1111</option>
-          <option value="OTHER">OTHER</option>
+          <option
+            v-for="server in SUPPORTED_SERVERS"
+            :key="server"
+            :value="server"
+          >
+            {{ server }}
+          </option>
         </select>
       </label>
     </div>
+
+    <label class="form-control">
+      <span class="label">
+        <span class="kr-label-bold">Model Family</span>
+        <span class="label-text-alt text-base-content/50">
+          what it was trained on — Pony and Illustrious LoRAs only match their own checkpoints
+        </span>
+      </span>
+
+      <input
+        v-model="form.generation"
+        class="kr-input-muted"
+        type="text"
+        autocomplete="off"
+        list="add-lora-generations"
+        placeholder="Illustrious"
+      />
+      <datalist id="add-lora-generations">
+        <option v-for="family in GENERATION_SUGGESTIONS" :key="family" :value="family" />
+      </datalist>
+    </label>
 
     <label class="form-control">
       <span class="label">
@@ -285,20 +306,37 @@ import {
 } from '@/utils/loraCategory'
 
 type LoraResourceType = 'LORA' | 'LYCORIS'
-type LoraSupportedServer =
-  | 'SDXL'
-  | 'SD15'
-  | 'FLUX'
-  | 'KONTEXT'
-  | 'COMFY'
-  | 'A1111'
-  | 'OTHER'
+const SUPPORTED_SERVERS = [
+  'SDXL',
+  'SD15',
+  'FLUX',
+  'KONTEXT',
+  'COMFY',
+  'GENERIC',
+  'LTX',
+  'WAN',
+] as const
+
+type LoraSupportedServer = (typeof SUPPORTED_SERVERS)[number]
+
+const GENERATION_SUGGESTIONS = [
+  'Illustrious',
+  'NoobAI',
+  'Pony',
+  'SDXL 1.0',
+  'SD 1.5',
+  'Flux.1 D',
+  'Flux.2',
+  'Kontext',
+  'Krea 2',
+]
 
 type AddLoraForm = {
   name: string
   customLabel: string
   resourceType: LoraResourceType
   supportedServer: LoraSupportedServer
+  generation: string
   localPath: string
   triggerWords: string
   defaultTrigger: string
@@ -350,17 +388,8 @@ function normalizeType(value: unknown): LoraResourceType {
 
 function normalizeServer(value: unknown): LoraSupportedServer {
   const candidate = safeText(value).toUpperCase()
-  const allowed: LoraSupportedServer[] = [
-    'SDXL',
-    'SD15',
-    'FLUX',
-    'KONTEXT',
-    'COMFY',
-    'A1111',
-    'OTHER',
-  ]
 
-  return (allowed as string[]).includes(candidate)
+  return (SUPPORTED_SERVERS as readonly string[]).includes(candidate)
     ? (candidate as LoraSupportedServer)
     : 'SDXL'
 }
@@ -370,6 +399,7 @@ const form = reactive<AddLoraForm>({
   customLabel: '',
   resourceType: 'LORA',
   supportedServer: 'SDXL',
+  generation: '',
   localPath: '',
   triggerWords: '',
   defaultTrigger: '',
@@ -386,6 +416,7 @@ function hydrateFromLora(lora: Partial<Resource> | null) {
   form.customLabel = safeText(lora?.customLabel)
   form.resourceType = normalizeType(lora?.resourceType)
   form.supportedServer = normalizeServer(lora?.supportedServer)
+  form.generation = safeText(lora?.generation)
   form.localPath = safeText(lora?.localPath)
   form.triggerWords = safeText(lora?.triggerWords)
   form.defaultTrigger = safeText(lora?.defaultTrigger)
@@ -449,6 +480,7 @@ async function submitLora() {
       customLabel: cleanOptional(form.customLabel),
       resourceType: form.resourceType,
       supportedServer: form.supportedServer,
+      generation: cleanOptional(form.generation),
       localPath: cleanOptional(form.localPath),
       triggerWords: cleanOptional(form.triggerWords),
       defaultTrigger: cleanOptional(form.defaultTrigger),

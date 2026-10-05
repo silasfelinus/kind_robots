@@ -95,6 +95,12 @@ export function applyBinOutcome(
       if (rating !== null) applyRatingAction(entry, rating)
       break
     }
+    case 'move': {
+      const folder =
+        typeof bin.payload.folder === 'string' ? bin.payload.folder : null
+      if (folder) entry.folder = folder
+      break
+    }
     case 'preset': {
       const rating =
         typeof bin.payload.rating === 'number' ? bin.payload.rating : null
@@ -118,6 +124,19 @@ export function applyBinOutcome(
     default:
       break
   }
+}
+
+/** A bin's folder is a real move: the file relocates under the archive root
+ * and the ledger follows, so a "Move to Study" bin never only relabels the
+ * card locally. */
+async function persistFolderMove(
+  adapter: ButterflyGalleryActionAdapter,
+  entryId: number,
+  folder: string,
+): Promise<void> {
+  const result = await adapter.moveToFolder([entryId], folder)
+  const failure = result.failures.find((item) => item.id === entryId)
+  if (failure) throw new Error(failure.message)
 }
 
 /** Fires whichever adapter calls a sorting-bin drop implies, mirroring
@@ -157,6 +176,12 @@ export async function persistBinOutcome(
       if (rating !== null) await adapter.setRating(entryId, rating)
       break
     }
+    case 'move': {
+      const folder =
+        typeof bin.payload.folder === 'string' ? bin.payload.folder : null
+      if (folder) await persistFolderMove(adapter, entryId, folder)
+      break
+    }
     case 'preset': {
       const rating =
         typeof bin.payload.rating === 'number' ? bin.payload.rating : null
@@ -164,6 +189,8 @@ export async function persistBinOutcome(
         typeof bin.payload.collection === 'string'
           ? bin.payload.collection
           : null
+      const folder =
+        typeof bin.payload.folder === 'string' ? bin.payload.folder : null
       const processed =
         typeof bin.payload.processed === 'boolean'
           ? bin.payload.processed
@@ -171,6 +198,7 @@ export async function persistBinOutcome(
 
       if (rating !== null) await adapter.setRating(entryId, rating)
       if (collection) await adapter.addToCollection(entryId, collection)
+      if (folder) await persistFolderMove(adapter, entryId, folder)
       if (processed !== null) await adapter.setProcessed(entryId, processed)
       break
     }

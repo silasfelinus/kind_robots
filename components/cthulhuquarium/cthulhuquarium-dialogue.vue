@@ -14,7 +14,14 @@
     >
       <div class="pointer-events-auto relative w-full max-w-3xl">
         <img
-          v-if="plateUrl"
+          v-if="plateUrl && heroPlate"
+          :key="plateKey ?? ''"
+          :src="plateUrl"
+          :alt="heroAlt"
+          class="mx-auto mb-2 aspect-[10/17] h-60 rounded-2xl border border-base-300 object-cover object-top shadow-xl sm:h-72"
+        />
+        <img
+          v-else-if="plateUrl"
           :src="plateUrl"
           alt=""
           class="mb-2 aspect-[16/9] max-h-56 w-full rounded-2xl border border-base-300 object-cover shadow-xl"
@@ -107,13 +114,16 @@ import { computed } from 'vue'
 import { useCthulhuquariumTankStore } from '@/stores/cthulhuquariumTankStore'
 import {
   backgroundArt,
+  isHeroPlate,
   movingArt,
   plateArt,
   portraitFor,
 } from '~/utils/cthulhuquariumArt'
+import { prefersReducedMotion } from '~/utils/cthulhuquariumSprites'
 import {
   CTHULHUQUARIUM_BACKGROUNDS,
   CTHULHUQUARIUM_CHARACTERS,
+  type CanonSpeaker,
 } from '~/utils/cthulhuquariumCanon.generated'
 
 const tankStore = useCthulhuquariumTankStore()
@@ -136,11 +146,30 @@ const firstFocusIndex = computed(() => {
   const index = scene.value?.beats.findIndex((entry) => entry.focus) ?? -1
   return index === -1 ? Number.POSITIVE_INFINITY : index
 })
-const plateUrl = computed(() =>
-  scene.value?.plate && tankStore.beatIndex < firstFocusIndex.value
-    ? (movingArt(scene.value.plate) ?? plateArt(scene.value.plate))
+// A beat may carry its own plate (the intro shows each character's full-length
+// moving portrait as they are introduced); otherwise the scene's plate holds.
+// Plates stop once a beat points at the game itself, so they never cover it.
+const plateKey = computed(() =>
+  scene.value && tankStore.beatIndex < firstFocusIndex.value
+    ? (beat.value?.plate ?? scene.value.plate)
     : null,
 )
+const plateUrl = computed(() =>
+  plateKey.value
+    ? ((prefersReducedMotion() ? null : movingArt(plateKey.value)) ??
+      plateArt(plateKey.value))
+    : null,
+)
+const heroPlate = computed(() => isHeroPlate(plateKey.value))
+const HERO_SPEAKERS: Record<string, CanonSpeaker> = {
+  'charlotte-fishmonger-hero': 'charlotte',
+  'wilbur-stint-hero': 'wilbur',
+}
+const heroAlt = computed(() => {
+  const speaker = plateKey.value ? HERO_SPEAKERS[plateKey.value] : undefined
+  const who = speaker ? CTHULHUQUARIUM_CHARACTERS[speaker] : undefined
+  return who ? `${who.name}, ${who.role}` : ''
+})
 
 const handover = computed(() =>
   scene.value?.background

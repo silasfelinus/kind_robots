@@ -23,7 +23,7 @@
           : `Navigate ${activeChannel.label}`
       "
       aria-haspopup="menu"
-      @click="scheduleChannelMenuViewportUpdate"
+      @click="openChannelMenu"
       @focus="scheduleChannelMenuViewportUpdate"
     >
       <span
@@ -103,6 +103,7 @@
                 : ''
             "
             :columns="1"
+            :reset-subtabs-token="mobileSubtabsResetToken"
             @select="selectTab(channel, $event)"
           />
         </section>
@@ -272,7 +273,7 @@ import { usePageStore } from '@/stores/pageStore'
 import { hasSeparatedAdminTabs } from '@/utils/channelTabGroups'
 import { tabSharesRoute } from '@/utils/tabNavigation'
 
-withDefaults(
+const { seamless, unifiedMobile } = withDefaults(
   defineProps<{
     seamless?: boolean
     unifiedMobile?: boolean
@@ -297,6 +298,7 @@ const router = useRouter()
 const pageStore = usePageStore()
 const channelContentStore = useChannelContentStore()
 const expandedChannelKey = ref('')
+const mobileSubtabsResetToken = ref(0)
 /*
  * Whether the open submenu was opened by hovering rather than by pressing the
  * chevron, so the chevron does not immediately undo the hover.
@@ -438,6 +440,14 @@ function updateChannelMenuViewport(): void {
   }
 
   updateChannelFlyoutViewport()
+}
+
+function openChannelMenu(): void {
+  if (unifiedMobile) {
+    mobileSubtabsResetToken.value += 1
+  }
+
+  scheduleChannelMenuViewportUpdate()
 }
 
 function scheduleChannelMenuViewportUpdate(): void {

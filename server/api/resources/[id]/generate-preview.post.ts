@@ -13,6 +13,7 @@ import { estimateArtCostUsd } from '~/server/utils/manaCost'
 import { resourceGallerySelect, resourceGalleryWhere } from '../gallery'
 import { effectiveShowMature } from '~/server/utils/contentAccess'
 import { buildDefaultComfyWorkflow } from '~/server/api/comfy/sdxl/utils/workflow'
+import { isSdLineageCheckpoint } from '~/utils/loraProbe'
 
 // Resource families the named-checkpoint Comfy graph can load. Named for what
 // they are — SD-lineage checkpoints — rather than for the engine that used to
@@ -131,6 +132,20 @@ export default defineEventHandler(async (event) => {
       })
     }
 
+    /*
+     * supportedServer alone is not enough: GENERIC also labels 3D, audio,
+     * video, Qwen and Z-Image checkpoints, and v3_sd15_mm (an AnimateDiff
+     * motion module) is filed as SD15 with generation 'SD 1.5', so it won every
+     * SD 1.5 LoRA's generation match. None of them load through this graph.
+     */
+    if (isCheckpoint && !isSdLineageCheckpoint(resource)) {
+      throw createError({
+        statusCode: 409,
+        message:
+          'This checkpoint is not an SD-lineage image model, so the automatic preview graph cannot load it. It can still use an uploaded or imported preview.',
+      })
+    }
+
     const checkpointCandidates = isCheckpoint
       ? []
       : await prisma.resource.findMany({
@@ -151,7 +166,7 @@ export default defineEventHandler(async (event) => {
         })
     const checkpoint = isCheckpoint
       ? resource
-      : [...checkpointCandidates].sort((a, b) => {
+      : checkpointCandidates.filter(isSdLineageCheckpoint).sort((a, b) => {
           const scoreDifference =
             checkpointScore(b, resource) - checkpointScore(a, resource)
           return scoreDifference || a.id - b.id

@@ -176,10 +176,25 @@ function backgroundArt(key: string | null | undefined): string | null {
   )
 }
 
+/**
+ * A character's full-length portrait plate (`charlotte-fishmonger-hero`): tall,
+ * so the dialogue shows it as an upright card rather than a 16:9 strip.
+ */
+function isHeroPlate(key: string | null | undefined): boolean {
+  return !!key && key.endsWith('-hero')
+}
+
 /** A scene plate shown above a scene's dialogue (canon story/plates.yaml). */
 function plateArt(key: string | null | undefined): string | null {
   if (!key) return null
-  return storyArt[`plates/${key}`] ?? byStem[`cthulhuquarium-${key}`] ?? null
+  return (
+    storyArt[`plates/${key}`] ??
+    byStem[`cthulhuquarium-${key}`] ??
+    // A hero plate's still is the character's full-length portrait.
+    (isHeroPlate(key)
+      ? (byStem[`cthulhuquarium-char-${key.replace(/-hero$/, '')}`] ?? null)
+      : null)
+  )
 }
 
 /**
@@ -192,4 +207,4 @@ function movingArt(key: string | null | undefined): string | null {
   return storyArt[`videos/${key}`] ?? null
 }
 
-export { backgroundArt, movingArt, plateArt, portraitFor }
+export { backgroundArt, isHeroPlate, movingArt, plateArt, portraitFor }

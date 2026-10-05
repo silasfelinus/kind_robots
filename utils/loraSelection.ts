@@ -31,12 +31,18 @@ function normalizedGeneration(resource: LoraResourceLike): string {
 
 type SdLoraFamily = 'sdxl' | 'pony' | 'illustrious' | 'sd15'
 
+const SDXL_LINEAGE: ReadonlySet<SdLoraFamily> = new Set([
+  'sdxl',
+  'pony',
+  'illustrious',
+])
+
 /**
  * The training family encoded by Civitai's baseModel/generation field.
  *
- * supportedServer is intentionally broader: Pony and Illustrious both load
- * through the SDXL server lane, but a LoRA trained for one family is not
- * therefore safe to offer on every other SDXL-derived checkpoint.
+ * supportedServer is broader: Pony and Illustrious both load through the SDXL
+ * server lane. The family decides ranking within that lane, and keeps SD 1.5
+ * weights off SDXL-architecture checkpoints and vice versa.
  */
 function sdLoraGenerationFamily(
   resource: LoraResourceLike,
@@ -169,12 +175,24 @@ export function artLoraCompatibilityRank(
     const resourceFamily = sdLoraGenerationFamily(resource)
 
     // The server label says which loader can open the file; generation says
-    // which model family trained it. Do not confuse the two. In particular,
-    // Pony and Illustrious both say supportedServer=SDXL, which previously made
-    // them look interchangeable with base SDXL and with each other.
-    if (targetFamily && resourceFamily && targetFamily !== resourceFamily) {
+    // which model family trained it. SD 1.5 and the SDXL lineage are different
+    // architectures and never mix. Within the lineage -- base SDXL, Pony,
+    // Illustrious -- every LoRA loads on every checkpoint (Silas, 2026-10-05:
+    // "Illustrious can use pony and sdxl Lora's"); refusing them left an
+    // Illustrious randomizer with ~18 options out of hundreds. A LoRA trained
+    // on the checkpoint's own family still ranks first.
+    const crossFamily =
+      targetFamily !== null &&
+      resourceFamily !== null &&
+      targetFamily !== resourceFamily
+    if (
+      crossFamily &&
+      !(SDXL_LINEAGE.has(targetFamily) && SDXL_LINEAGE.has(resourceFamily))
+    ) {
       return 0
     }
+    const familyRank = (rank: number) =>
+      crossFamily ? Math.ceil(rank / 2) : rank
 
     if (checkpointFamily === 'sd15') {
       if (server === 'SD15') return 30
@@ -189,9 +207,9 @@ export function artLoraCompatibilityRank(
       checkpointFamily === 'pony' ||
       checkpointFamily === 'illustrious'
     ) {
-      if (server === 'SDXL') return 30
-      if (server === 'COMFY') return 15
-      if (server === 'GENERIC') return 10
+      if (server === 'SDXL') return familyRank(30)
+      if (server === 'COMFY') return familyRank(15)
+      if (server === 'GENERIC') return familyRank(10)
       return 0
     }
 

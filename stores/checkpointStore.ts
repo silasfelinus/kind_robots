@@ -4,6 +4,8 @@ import { computed, ref } from 'vue'
 import { useUserStore } from './userStore'
 import { useErrorStore, ErrorType } from './errorStore'
 import { useServerStore } from './serverStore'
+import { useResourceStore } from './resourceStore'
+import { isSdLineageCheckpoint } from '@/utils/loraProbe'
 import { validCheckpoints } from '@/stores/seeds/validCheckpoints'
 import { validSamplers } from '@/stores/seeds/validSamplers'
 import type { Resource, Server } from '~/prisma/generated/prisma/client'
@@ -67,6 +69,44 @@ function safeText(value: unknown): string {
 
 function cleanName(value: unknown): string {
   return safeText(value).trim()
+}
+
+function checkpointFileName(value: unknown): string {
+  return (
+    cleanName(value)
+      .replace(/\s*\[[^\]]*\]$/, '')
+      .replaceAll('\\', '/')
+      .split('/')
+      .pop()
+      ?.toLowerCase() ?? ''
+  )
+}
+
+/*
+ * THE LIVE CATALOG, NOT JUST THE SEED LIST.
+ *
+ * The picker used to offer only stores/seeds/validCheckpoints.ts, which has no
+ * Illustrious checkpoint at all and files realcartoonPony under SDXL/ -- so
+ * Illustrious could not be chosen, and Pony was detected as plain SDXL (wrong
+ * LoRAs offered, no clip skip). The importer files every catalog row under its
+ * family directory (Illustrious/, Pony/, SDXL/, SD15/), and that localPath is
+ * exactly what CheckpointLoaderSimple takes and what checkpointProfile() reads
+ * the family from. So a catalog row's picker `name` IS its localPath: every
+ * consumer of this list sends `name` as the checkpoint. The Resource's own
+ * name (a bare stem) is not a loadable Comfy path.
+ */
+function catalogCheckpointEntry(resource: Resource): Partial<Resource> | null {
+  const localPath = cleanName(resource.localPath)
+  if (String(resource.resourceType || '').toUpperCase() !== 'CHECKPOINT') {
+    return null
+  }
+  if (!localPath || resource.isActive === false) return null
+  if (!isSdLineageCheckpoint(resource)) return null
+  return {
+    ...resource,
+    customLabel: cleanName(resource.customLabel) || cleanName(resource.name),
+    name: localPath,
+  }
 }
 
 function extractModelName(value: unknown): string {
@@ -147,7 +187,28 @@ export const useCheckpointStore = defineStore('checkpointStore', () => {
   const modelStatusLoading = ref(false)
   const modelStatusError = ref('')
 
-  const allCheckpoints = ref<Partial<Resource>[]>(validCheckpoints)
+  const registeredCheckpoints = ref<Partial<Resource>[]>([...validCheckpoints])
+
+  const catalogCheckpoints = computed<Partial<Resource>[]>(() =>
+    useResourceStore()
+      .resources.map(catalogCheckpointEntry)
+      .filter((entry): entry is Partial<Resource> => Boolean(entry)),
+  )
+
+  const allCheckpoints = computed<Partial<Resource>[]>(() => {
+    const catalog = catalogCheckpoints.value
+    const catalogIds = new Set(catalog.map((entry) => entry.id))
+    const catalogFiles = new Set(
+      catalog.map((entry) => checkpointFileName(entry.name)),
+    )
+    const registered = registeredCheckpoints.value.filter(
+      (entry) =>
+        !(entry.id && catalogIds.has(entry.id)) &&
+        !catalogFiles.has(checkpointFileName(entry.localPath || entry.name)) &&
+        !catalogFiles.has(checkpointFileName(entry.name)),
+    )
+    return [...catalog, ...registered]
+  })
   const allSamplers = ref<Partial<Resource>[]>(validSamplers)
 
   const selectedCheckpoint = ref<Partial<Resource> | null>(null)
@@ -195,9 +256,7 @@ export const useCheckpointStore = defineStore('checkpointStore', () => {
 
     if (!target) return false
 
-    return allCheckpoints.value.some((resource) => {
-      return cleanName(resource.name) === target
-    })
+    return Boolean(findCheckpointByName(target))
   }
 
   function initialize() {
@@ -215,9 +274,17 @@ export const useCheckpointStore = defineStore('checkpointStore', () => {
 
     if (!target) return undefined
 
-    return allCheckpoints.value.find((resource) => {
-      return cleanName(resource.name) === target
-    })
+    return (
+      allCheckpoints.value.find((resource) => {
+        return cleanName(resource.name) === target
+      }) ??
+      allCheckpoints.value.find((resource) => {
+        return (
+          cleanName(resource.localPath) === target ||
+          checkpointFileName(resource.localPath) === checkpointFileName(target)
+        )
+      })
+    )
   }
 
   function findSamplerByName(name: unknown): Partial<Resource> | undefined {
@@ -362,20 +429,20 @@ export const useCheckpointStore = defineStore('checkpointStore', () => {
       resourceType: resource.resourceType || 'CHECKPOINT',
     }
 
-    const existingIndex = allCheckpoints.value.findIndex((item) => {
+    const existingIndex = registeredCheckpoints.value.findIndex((item) => {
       return cleanName(item.name) === name || item.id === checkpoint.id
     })
 
     if (existingIndex >= 0) {
-      allCheckpoints.value[existingIndex] = {
-        ...allCheckpoints.value[existingIndex],
+      registeredCheckpoints.value[existingIndex] = {
+        ...registeredCheckpoints.value[existingIndex],
         ...checkpoint,
       }
 
-      return allCheckpoints.value[existingIndex]
+      return registeredCheckpoints.value[existingIndex]
     }
 
-    allCheckpoints.value.unshift(checkpoint)
+    registeredCheckpoints.value.unshift(checkpoint)
 
     return checkpoint
   }

@@ -15,6 +15,12 @@ import {
 // Category normalization
 assert.equal(normalizeLoraCategory('character'), 'CHARACTER')
 assert.equal(normalizeLoraCategory('  Style '), 'STYLE')
+assert.equal(
+  normalizeLoraCategory('CREATURE'),
+  'CHARACTER',
+  'legacy CREATURE rows/imports normalize into CHARACTER after t-127 retired the duplicate bucket',
+)
+assert.equal(LORA_CATEGORIES.includes('CREATURE' as never), false)
 assert.equal(normalizeLoraCategory('nonsense'), null)
 assert.equal(normalizeLoraCategory(null), null)
 assert.equal(isLoraCategory('CLOTHING'), true)
@@ -38,6 +44,8 @@ for (const category of LORA_CATEGORIES) {
 // Placeholder lookup, including the aliases a prompt is likely to use.
 assert.equal(loraCategoryForPlaceholder('character'), 'CHARACTER')
 assert.equal(loraCategoryForPlaceholder('Character'), 'CHARACTER')
+assert.equal(loraCategoryForPlaceholder('creature'), 'CHARACTER')
+assert.equal(loraCategoryForPlaceholder('animal'), 'CHARACTER')
 assert.equal(loraCategoryForPlaceholder('art_style'), 'STYLE')
 assert.equal(loraCategoryForPlaceholder('artstyle'), 'STYLE')
 assert.equal(loraCategoryForPlaceholder('outfit'), 'CLOTHING')
@@ -203,7 +211,7 @@ assert.equal(
 // Subjects the title does name are still caught.
 assert.equal(
   inferLoraCategory({ customLabel: 'Cute Animals' }).category,
-  'CREATURE',
+  'CHARACTER',
 )
 assert.equal(
   inferLoraCategory({ customLabel: '3D Cartoon Vision FLUX' }).category,
@@ -264,5 +272,29 @@ assert.equal(canReclassify('human'), false)
 assert.equal(canReclassify('CIVITAI'), true)
 assert.equal(canReclassify('HEURISTIC'), true)
 assert.equal(canReclassify(null), true)
+
+// CONCEPT is retired: Civitai's catch-all `concept` tag and a `concept` title
+// now mean ACTION, a specific tag still wins, and a stored CONCEPT reads as
+// unclassified so the triage page surfaces it for re-sorting.
+assert.equal(normalizeLoraCategory('CONCEPT'), null)
+assert.equal(
+  inferLoraCategory({ name: 'x', civitaiTags: ['concept'] }).category,
+  'ACTION',
+)
+assert.equal(
+  inferLoraCategory({ name: 'x', civitaiTags: ['concept', 'style'] }).category,
+  'STYLE',
+)
+assert.equal(
+  inferLoraCategory({ name: 'x', civitaiTags: ['concept', 'clothing'] })
+    .category,
+  'CLOTHING',
+)
+assert.equal(
+  inferLoraCategory({ name: 'Hug and Suck - Concept' }).category,
+  'ACTION',
+)
+assert.equal(loraCategoryForPlaceholder('concept'), 'ACTION')
+assert.equal(loraCategoryForPlaceholder('effect'), 'STYLE')
 
 console.log('LoRA category classification verified.')

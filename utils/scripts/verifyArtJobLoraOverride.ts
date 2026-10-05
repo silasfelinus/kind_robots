@@ -1,7 +1,10 @@
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import { applyArtJobOverrides } from '../../server/utils/artJobRetry'
-import { applyResolvedLoraResourceToArtJobPayload } from '../../server/utils/artJobResourceRefresh'
+import {
+  applyResolvedLoraResourceToArtJobPayload,
+  applyResolvedLoraResourcesToArtJobPayload,
+} from '../../server/utils/artJobResourceRefresh'
 
 // Style-LoRA override: repoint a job's selected style LoRA without rebuilding
 // it. This is the in-place fix for a stored lora_name that no longer resolves
@@ -199,7 +202,106 @@ import { applyResolvedLoraResourceToArtJobPayload } from '../../server/utils/art
   assert.ok(!JSON.stringify(refresh.payload).includes('\\\\'))
 }
 
-// 8. Every route that returns an existing ArtJob to PENDING must refresh the
+// 8. A stacked job refreshes every LoRA Resource path in order without
+//    changing strengths or touching a required/base LoRA.
+{
+  const refresh = applyResolvedLoraResourcesToArtJobPayload(
+    {
+      loraName: 'old/first.safetensors',
+      loraResourceIds: [11, 22, 33],
+      resources: {
+        loraResourceIds: [11, 22, 33],
+        loraNames: [
+          'old/first.safetensors',
+          'old/second.safetensors',
+          'old/third.safetensors',
+        ],
+      },
+      workflow: {
+        required: {
+          class_type: 'LoraLoaderModelOnly',
+          inputs: {
+            lora_name: 'required/base-acceleration.safetensors',
+            strength_model: 0.5,
+          },
+          _meta: { title: 'Load Required Base LoRA' },
+        },
+        first: {
+          class_type: 'LoraLoaderModelOnly',
+          inputs: {
+            lora_name: 'old/first.safetensors',
+            strength_model: 0.9,
+          },
+          _meta: { title: 'Style LoRA 1', krLoraIndex: 0 },
+        },
+        second: {
+          class_type: 'LoraLoaderModelOnly',
+          inputs: {
+            lora_name: 'old/second.safetensors',
+            strength_model: 0.6,
+          },
+          _meta: { title: 'Style LoRA 2', krLoraIndex: 1 },
+        },
+        third: {
+          class_type: 'LoraLoaderModelOnly',
+          inputs: {
+            lora_name: 'old/third.safetensors',
+            strength_model: 0.3,
+          },
+          _meta: { title: 'Style LoRA 3', krLoraIndex: 2 },
+        },
+      },
+    },
+    [
+      { id: 11, localPath: 'Flux/SFW/first.safetensors' },
+      { id: 22, localPath: 'Flux/SFW/second.safetensors' },
+      { id: 33, localPath: 'Flux/SFW/third.safetensors' },
+    ],
+  )
+
+  type TestLoraNode = {
+    inputs: {
+      lora_name?: unknown
+      strength_model?: unknown
+    }
+  }
+  const workflow = refresh.payload.workflow as Record<string, TestLoraNode>
+  const stack = [workflow.first!, workflow.second!, workflow.third!]
+  assert.equal(
+    workflow.required!.inputs.lora_name,
+    'required/base-acceleration.safetensors',
+    'required/base LoRA must not move during stack refresh',
+  )
+  assert.deepEqual(
+    stack.map((node) => node.inputs.lora_name),
+    [
+      'Flux/SFW/first.safetensors',
+      'Flux/SFW/second.safetensors',
+      'Flux/SFW/third.safetensors',
+    ],
+  )
+  assert.deepEqual(
+    stack.map((node) => node.inputs.strength_model),
+    [0.9, 0.6, 0.3],
+    'refreshing current Resource paths must preserve per-LoRA strengths',
+  )
+  assert.deepEqual(refresh.loraResourceIds, [11, 22, 33])
+  assert.deepEqual(refresh.loraNames, [
+    'Flux/SFW/first.safetensors',
+    'Flux/SFW/second.safetensors',
+    'Flux/SFW/third.safetensors',
+  ])
+  const resources = refresh.payload.resources as Record<string, unknown>
+  assert.deepEqual(resources.loraResourceIds, [11, 22, 33])
+  assert.deepEqual(resources.loraNames, [
+    'Flux/SFW/first.safetensors',
+    'Flux/SFW/second.safetensors',
+    'Flux/SFW/third.safetensors',
+  ])
+  assert.equal(refresh.payload.loraName, 'Flux/SFW/first.safetensors')
+}
+
+// 9. Every route that returns an existing ArtJob to PENDING must refresh the
 //    current Resource path first. This guards the dashboard's "Resume unchanged"
 //    route, which was separate from the two re-enqueue routes.
 {

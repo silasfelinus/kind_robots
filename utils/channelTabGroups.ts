@@ -18,7 +18,35 @@ export function isNavigationTab(
 }
 
 export function navigationTabs(channel: ResolvedChannel): ResolvedTab[] {
-  return channel.tabs.filter((tab) => isNavigationTab(channel, tab))
+  return channel.tabs.filter(
+    (tab) =>
+      isNavigationTab(channel, tab) &&
+      !tab.parentTabKey &&
+      (!!tab.route || navigationSubtabs(channel, tab).length > 0),
+  )
+}
+
+export function navigationSubtabs(
+  channel: ResolvedChannel,
+  parent: ResolvedTab | string,
+): ResolvedTab[] {
+  const parentTabKey = typeof parent === 'string' ? parent : parent.tabKey
+
+  return channel.tabs.filter(
+    (tab) =>
+      isNavigationTab(channel, tab) && tab.parentTabKey === parentTabKey,
+  )
+}
+
+export function navigationDestinations(
+  channel: ResolvedChannel,
+): ResolvedTab[] {
+  return channel.tabs.filter(
+    (tab) =>
+      isNavigationTab(channel, tab) &&
+      !!tab.route &&
+      navigationSubtabs(channel, tab).length === 0,
+  )
 }
 
 export function isAdminOnlyTab(

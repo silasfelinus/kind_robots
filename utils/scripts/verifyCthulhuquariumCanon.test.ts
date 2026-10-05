@@ -86,6 +86,30 @@ for (const scene of Object.values(CTHULHUQUARIUM_SCENES)) {
 assert.ok(CTHULHUQUARIUM_SCENES.intro, 'the intro scene exists')
 console.log('✅ every beat speaks in a real pose and awaits a real action')
 
+// A beat's own plate only shows before the scene's first focus beat (plates
+// stop once the dialogue points at the game), so one placed later is dead.
+for (const scene of Object.values(CTHULHUQUARIUM_SCENES)) {
+  const firstFocus = scene.beats.findIndex((beat) => beat.focus)
+  scene.beats.forEach((beat, index) => {
+    if (beat.plate && firstFocus !== -1)
+      assert.ok(
+        index < firstFocus,
+        `${scene.id}: beat ${index} plate ${beat.plate} comes after the first focus beat and would never show`,
+      )
+  })
+}
+const introPlates = CTHULHUQUARIUM_SCENES.intro.beats
+  .map((beat) => beat.plate)
+  .filter(Boolean)
+assert.deepEqual(
+  introPlates,
+  ['charlotte-fishmonger-hero', 'wilbur-stint-hero'],
+  'the intro shows each character full-length as they are introduced',
+)
+console.log(
+  '✅ beat plates show before the first focus beat; the intro introduces both characters',
+)
+
 const MOTIONS = new Set([
   'tailbeat',
   'undulate',

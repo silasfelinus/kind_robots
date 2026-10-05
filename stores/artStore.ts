@@ -2,6 +2,7 @@
 import { defineStore } from 'pinia'
 import { computed, reactive, ref, toRefs } from 'vue'
 import { resolveArtImageSrc } from '@/utils/artImageSrc'
+import { resolveMaturityPrivacy } from '@/utils/maturityPrivacy'
 import { preloadArtwork } from '@/stores/helpers/artworkLoadHelper'
 import type {
   ArtImage,
@@ -325,6 +326,22 @@ const artImagesStorageKey = 'artImages'
 const maxStoredImages = 150
 const fetchAllArtImagesPromise = ref<Promise<ArtImage[]> | null>(null)
 
+const OUTPUT_VISIBILITY_STORAGE_KEY = 'artGeneratorOutputVisibility'
+
+function safeParseOutputVisibility(
+  raw: string | null,
+): { isMature: boolean; isPublic: boolean } | null {
+  if (!raw) return null
+  try {
+    const parsed = JSON.parse(raw) as { isMature?: unknown; isPublic?: unknown }
+    if (typeof parsed.isMature !== 'boolean') return null
+    if (typeof parsed.isPublic !== 'boolean') return null
+    return { isMature: parsed.isMature, isPublic: parsed.isPublic }
+  } catch {
+    return null
+  }
+}
+
 function safeGetLocalStorage(key: string): string | null {
   if (!isClient) return null
   try {
@@ -629,6 +646,7 @@ export const useArtStore = defineStore('artStore', () => {
           designer: userStore.username || userStore.user?.username || 'Kind Designer',
         })
       }
+      applyMatureModeDefault()
       return { success: true, data: true, message: 'Art generator ready.' }
     } catch (error) {
       const message =
@@ -734,7 +752,51 @@ export const useArtStore = defineStore('artStore', () => {
     safeSetLocalStorage(artImagesStorageKey, JSON.stringify(trimmed))
   }
 
+  /*
+   * The generator's output Mature/Private choice survives a reload. It used to
+   * live only in artForm, so any refresh -- a deploy, a reopened tab -- reset it
+   * to General/Public while the account-level mature-resource toggle stayed on,
+   * and the next batch of NSFW-LoRA renders went out public.
+   */
+  function hydrateOutputVisibility(): void {
+    const saved = safeParseOutputVisibility(
+      safeGetLocalStorage(OUTPUT_VISIBILITY_STORAGE_KEY),
+    )
+    if (saved) state.artForm = { ...state.artForm, ...saved }
+    else applyMatureModeDefault()
+  }
+
+  /*
+   * Mature mode carries through to what the generator makes. The LoRA picker's
+   * "Mature resources" switch is the one people reach for, but it only decided
+   * what the pickers listed; the output flags sat in the collapsed Destination
+   * panel at General/Public, so every "mature batch" was queued public and only
+   * variants that happened to roll an NSFW-flagged LoRA came out mature
+   * (ArtJobs 33891-33956, 2026-10-05). Never moves anything toward public.
+   */
+  function adoptMatureResourceMode(showMatureNow: boolean): void {
+    if (!showMatureNow || state.artForm.isMature) return
+    setArtForm({ isMature: true, isPublic: false })
+  }
+
+  function applyMatureModeDefault(): void {
+    if (safeGetLocalStorage(OUTPUT_VISIBILITY_STORAGE_KEY)) return
+    if (!showMature.value || state.artForm.isMature) return
+    state.artForm = { ...state.artForm, isMature: true, isPublic: false }
+  }
+
+  function persistOutputVisibility(): void {
+    safeSetLocalStorage(
+      OUTPUT_VISIBILITY_STORAGE_KEY,
+      JSON.stringify({
+        isMature: Boolean(state.artForm.isMature),
+        isPublic: state.artForm.isPublic !== false,
+      }),
+    )
+  }
+
   function hydrateFromLocalStorage(options: { hydrateImages?: boolean } = {}) {
+    hydrateOutputVisibility()
     if (options.hydrateImages === false) return
     state.artImages = safeParseArtImages(safeGetLocalStorage(artImagesStorageKey)).sort(
       sortNewestArtImages,
@@ -757,6 +819,7 @@ export const useArtStore = defineStore('artStore', () => {
 
   function setArtForm(updates: Partial<GenerateArtData>): void {
     state.artForm = { ...state.artForm, ...updates }
+    if ('isMature' in updates || 'isPublic' in updates) persistOutputVisibility()
   }
 
   function setGenerationBatchSize(value: number): void {
@@ -1926,8 +1989,12 @@ export const useArtStore = defineStore('artStore', () => {
         'Kind Designer',
       cfg: artData?.cfg ?? state.artForm.cfg ?? PRODUCT_DEFAULT_ART_SETTINGS.cfg,
       cfgHalf: artData?.cfgHalf ?? state.artForm.cfgHalf ?? false,
-      isMature: artData?.isMature ?? state.artForm.isMature ?? false,
-      isPublic: artData?.isPublic ?? state.artForm.isPublic ?? true,
+      ...resolveMaturityPrivacy(
+        { isMature: artData?.isMature, isPublic: artData?.isPublic },
+        typeof artData?.isMature === 'boolean'
+          ? undefined
+          : { isMature: state.artForm.isMature, isPublic: state.artForm.isPublic },
+      ),
       seed: artData?.seed ?? state.artForm.seed ?? null,
       serverId: explicitServerIdProvided ? (artData?.serverId ?? null) : null,
       serverName: explicitServerNameProvided ? (artData?.serverName ?? null) : null,
@@ -2360,6 +2427,7 @@ export const useArtStore = defineStore('artStore', () => {
     initialize,
     resetInitialization,
     hydrateFromLocalStorage,
+    adoptMatureResourceMode,
     fetchAllArtImages,
     loadArtImagesInChunks,
     selectArtImage,

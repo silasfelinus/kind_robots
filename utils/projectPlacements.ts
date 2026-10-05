@@ -68,6 +68,11 @@ export const PROJECT_PLACEMENTS: Record<string, ProjectPlacement> = {
     tabKey: 'scene-animator',
     route: '/admin/scene-animator',
   },
+  'music-video': {
+    channelKey: 'admin',
+    tabKey: 'music-video',
+    route: '/admin/music-video',
+  },
   storybook: {
     channelKey: 'plan',
     tabKey: 'storybook',
@@ -146,7 +151,7 @@ export const PROJECT_PLACEMENTS: Record<string, ProjectPlacement> = {
     route: '/sanctuary',
   },
   'ai-art-academy': {
-    channelKey: 'plan',
+    channelKey: 'admin',
     tabKey: 'academy',
     route: '/academy',
   },

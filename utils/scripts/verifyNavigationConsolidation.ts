@@ -1,7 +1,11 @@
 import assert from 'node:assert/strict'
-import { readFileSync } from 'node:fs'
+import { existsSync, readFileSync } from 'node:fs'
 
-import { navigationTabs } from '../channelTabGroups.js'
+import {
+  navigationDestinations,
+  navigationSubtabs,
+  navigationTabs,
+} from '../channelTabGroups.js'
 import { channelTabsToCards } from '../../stores/helpers/channelCards.js'
 import type {
   ResolvedChannel,
@@ -49,9 +53,24 @@ assert.ok(
     tabSelect.includes('xl:w-[min(22rem,calc(100vw-1rem))]'),
   'the tablet tab menu must open beneath its trigger and stay narrower than the desktop menu',
 )
+assert.equal(
+  channelTabList.match(
+    /class="line-clamp-1 w-full text-xs font-medium opacity-65"/g,
+  )?.length,
+  2,
+  'top-level and nested tab rows must keep secondary descriptions visible at all widths',
+)
 assert.ok(
-  channelTabList.includes('sm:hidden xl:block'),
-  'tablet tab rows must hide secondary descriptions while phone and desktop keep them',
+  channelTabList.includes('navigationSubtabs') &&
+    channelTabList.includes("tab.label + ' subtabs'"),
+  'the shared tab list must render expandable nested subtabs',
+)
+assert.ok(
+  channelSelect.includes(':reset-subtabs-token="mobileSubtabsResetToken"') &&
+    channelSelect.includes('mobileSubtabsResetToken.value += 1') &&
+    channelTabList.includes('() => props.resetSubtabsToken') &&
+    channelTabList.includes("expandedParentKey.value = ''"),
+  'the unified phone picker must reopen with nested subtab groups collapsed',
 )
 
 const contentConfig = source('content.config.ts')
@@ -76,13 +95,19 @@ const NESTED_TABS = new Set([
   'admin:navigation-health',
 ])
 
-function tab(channelKey: string, tabKey: string): ResolvedTab {
+function tab(
+  channelKey: string,
+  tabKey: string,
+  parentTabKey = '',
+): ResolvedTab {
   return {
     channelKey,
     tabKey,
+    parentTabKey,
     key: tabKey,
     label: tabKey,
     title: tabKey,
+    route: parentTabKey || tabKey !== 'retired' ? `/${tabKey}` : '',
     requiredRole: '',
     navigation: !NESTED_TABS.has(`${channelKey}:${tabKey}`),
   } as ResolvedTab
@@ -114,18 +139,53 @@ assert.deepEqual(
   'fallback navigation card decks must obey the same consolidation as the tab menus',
 )
 
-const admin = channel('admin', [
-  'artjob',
-  'project-placement',
-  'navigation-health',
+const retiredTabKeys = [
   'serendipity',
-  'user-admin',
-  'forum-moderation',
-])
+  'shared-with-me',
+  'forum',
+  'academy',
+  'hair-studio',
+  'voice-lab',
+  'challenges',
+  'watchlist',
+  'ui-gallery',
+  'missing-image-test',
+  'achievement-art',
+  'social-drafts',
+]
+
+const admin = {
+  channelKey: 'admin',
+  tabs: [
+    tab('admin', 'artjob'),
+    tab('admin', 'project-placement'),
+    tab('admin', 'navigation-health'),
+    tab('admin', 'user-admin'),
+    tab('admin', 'forum-moderation'),
+    tab('admin', 'retired'),
+    ...retiredTabKeys.map((tabKey) => tab('admin', tabKey, 'retired')),
+  ],
+} as ResolvedChannel
+
 assert.deepEqual(
   navigationTabs(admin).map((entry) => entry.tabKey),
-  ['artjob', 'serendipity', 'user-admin'],
-  'Admin navigation must expose Serendipity while hiding diagnostic and nested destinations',
+  ['artjob', 'user-admin', 'retired'],
+  'Admin navigation must expose Retired as a top-level tab group while hiding diagnostics',
+)
+assert.deepEqual(
+  navigationSubtabs(admin, 'retired').map((entry) => entry.tabKey),
+  retiredTabKeys,
+  'Retired must expose all twelve archived surfaces as Admin subtabs',
+)
+assert.equal(
+  navigationDestinations(admin).some((entry) => entry.tabKey === 'retired'),
+  false,
+  'route-less subtab parents must not become destination links',
+)
+assert.deepEqual(
+  channelTabsToCards(admin).map((entry) => entry.key),
+  ['artjob', 'user-admin'],
+  'subtab parents and children must stay out of top-level fallback card decks',
 )
 
 for (const path of [
@@ -185,8 +245,19 @@ for (const route of ['/about', '/giving', '/sanctuary']) {
   assert.ok(aboutPage.includes(`to="${route}"`), `Support must link to ${route}`)
 }
 
-const serendipityTab = source('content/channels/admin/serendipity.md')
+assert.equal(
+  existsSync('content/channels/retired/index.md'),
+  false,
+  'Retired must not return as a top-level channel',
+)
+const retiredParent = source('content/channels/admin/retired.md')
+assert.match(retiredParent, /\nchannelKey: admin\n/)
+assert.match(retiredParent, /\ntabKey: retired\n/)
+assert.doesNotMatch(retiredParent, /\nroute: /)
+
+const serendipityTab = source('content/channels/admin/retired/serendipity.md')
 assert.match(serendipityTab, /\nchannelKey: admin\n/)
+assert.match(serendipityTab, /\nparentTabKey: retired\n/)
 assert.match(serendipityTab, /\nroute: \/serendipity\n/)
 assert.match(serendipityTab, /\nrequiredRole: ADMIN\n/)
 const serendipityPage = source('content/serendipity.md')
@@ -218,8 +289,10 @@ for (const path of ['content/channels/admin/artjob.md', 'content/artjob.md']) {
 }
 
 assert.ok(
-  source('components/navigation/navigation-trimmed.vue').includes('navigationTabs(channel)'),
-  'the full navigation directory must honor nested destinations too',
+  source('components/navigation/navigation-trimmed.vue').includes(
+    'navigationDestinations(channel)',
+  ),
+  'the full navigation directory must link leaf destinations rather than subtab parents',
 )
 
-console.log('Navigation consolidation verified: Account, Support, admin Serendipity, hidden diagnostics, nested routes, access metadata, and ArtJob icon all hold.')
+console.log('Navigation consolidation verified: Account, Support, Admin > Retired subtabs, hidden diagnostics, nested routes, access metadata, and ArtJob icon all hold.')

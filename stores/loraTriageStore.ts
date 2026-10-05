@@ -52,6 +52,15 @@ function isDecision(value: unknown): value is LoraTriageDecision {
   return value === 'sfw' || value === 'nsfw'
 }
 
+function withoutResourceId<T>(
+  record: Record<number, T>,
+  resourceId: number,
+): Record<number, T> {
+  return Object.fromEntries(
+    Object.entries(record).filter(([id]) => Number(id) !== resourceId),
+  ) as Record<number, T>
+}
+
 export const useLoraTriageStore = defineStore('loraTriageStore', () => {
   const resourceGalleryStore = useResourceGalleryStore()
   const resourceStore = useResourceStore()
@@ -69,6 +78,9 @@ export const useLoraTriageStore = defineStore('loraTriageStore', () => {
   const isSaving = ref(false)
   const saveMessage = ref('')
   const saveError = ref('')
+  const deletingResourceId = ref<number | null>(null)
+  const deleteMessage = ref('')
+  const deleteError = ref('')
 
   /*
    * Render state is deliberately NOT persisted. A queued job's real outcome is
@@ -348,6 +360,46 @@ export const useLoraTriageStore = defineStore('loraTriageStore', () => {
     persist()
   }
 
+  async function deleteLora(resourceId: number): Promise<boolean> {
+    if (deletingResourceId.value !== null) return false
+
+    const resource = loras.value.find((row) => row.id === resourceId)
+    if (!resource) {
+      deleteError.value = 'That LoRA is no longer in the triage catalog.'
+      return false
+    }
+
+    deletingResourceId.value = resourceId
+    deleteMessage.value = ''
+    deleteError.value = ''
+
+    try {
+      // Triage deletes the Resource only. The Resource Gallery's more expansive
+      // "also delete images" option stays there; a catalog-cleanup button must
+      // never silently turn into an art-library cleanup button.
+      const result = await resourceGalleryStore.deleteResource(resourceId)
+      if (!result) {
+        deleteError.value = `Could not delete ${
+          resource.customLabel || resource.name
+        }.`
+        return false
+      }
+
+      decisions.value = withoutResourceId(decisions.value, resourceId)
+      categoryEdits.value = withoutResourceId(categoryEdits.value, resourceId)
+      renderStates.value = withoutResourceId(renderStates.value, resourceId)
+      selectedIds.value = selectedIds.value.filter((id) => id !== resourceId)
+
+      deleteMessage.value = `Deleted ${
+        resource.customLabel || resource.name
+      }. Existing images were kept.`
+      persist()
+      return true
+    } finally {
+      deletingResourceId.value = null
+    }
+  }
+
   async function saveChanges(): Promise<void> {
     if (isSaving.value || !pendingChanges.value.length) return
 
@@ -502,6 +554,9 @@ export const useLoraTriageStore = defineStore('loraTriageStore', () => {
     isSaving,
     saveMessage,
     saveError,
+    deletingResourceId,
+    deleteMessage,
+    deleteError,
     loras,
     confirmedCount,
     remainingCount,
@@ -522,6 +577,7 @@ export const useLoraTriageStore = defineStore('loraTriageStore', () => {
     clearSelection,
     setHideConfirmed,
     clearProgress,
+    deleteLora,
     saveChanges,
     renderStates,
     isRendering,

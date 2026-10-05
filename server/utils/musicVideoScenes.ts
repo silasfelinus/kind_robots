@@ -4,15 +4,69 @@ import prisma from '@/server/utils/prisma'
 import { checkArtPromptContract } from '@/server/utils/artPromptContract'
 import type { MusicVideoDoc, MusicVideoScene } from '@/utils/musicVideoDoc'
 import {
+  MUSIC_VIDEO_KREA_CFG,
+  MUSIC_VIDEO_KREA_STEPS,
   checkScenePrompt,
-  composeScenePrompt,
-  kreaFrameSize,
+  findBannedTerms,
+  musicVideoStillBody,
+  type MusicVideoStillBody,
 } from '@/utils/musicVideoScenes'
+import {
+  comicLaneForKey,
+  comicPrimaryLane,
+  parseComicLanes,
+  type ComicLane,
+  type ComicSeriesStyle,
+} from '@/utils/comicLanes'
 
 export const MUSIC_VIDEO_PROJECT_SLUG = 'music-video'
+/** The default still engine; a video borrowing a comic series' style uses its lane. */
 export const MUSIC_VIDEO_SCENE_ENGINE = 'krea2'
-const KREA_STEPS = 8
-const KREA_CFG = 1
+
+export type StillLane = {
+  lane: ComicLane | null
+  series: ComicSeriesStyle | null
+}
+
+/**
+ * music-video/t-025: the comic lane a video's stills render through, or none
+ * for Krea 2. A missing series or lane key is an error the caller shows, so a
+ * video never silently falls back to a different style.
+ */
+export async function resolveStillLane(doc: MusicVideoDoc): Promise<StillLane> {
+  const seriesId = doc.settings.comicSeriesId
+  if (!seriesId) return { lane: null, series: null }
+  const series = await prisma.comicSeries.findUnique({
+    where: { id: seriesId },
+    select: {
+      lanes: true,
+      styleProse: true,
+      styleTags: true,
+      negativeTags: true,
+      isArchived: true,
+    },
+  })
+  if (!series || series.isArchived) {
+    throw new Error(`Comic series ${seriesId} was not found.`)
+  }
+  const lanes = parseComicLanes(series.lanes)
+  const lane = doc.settings.comicLaneKey
+    ? comicLaneForKey(lanes, doc.settings.comicLaneKey)
+    : comicPrimaryLane(lanes)
+  if (!lane) {
+    throw new Error(
+      `Comic series ${seriesId} has no lane "${doc.settings.comicLaneKey ?? 'house'}".`,
+    )
+  }
+  return {
+    lane,
+    series: {
+      styleProse: series.styleProse,
+      styleTags: series.styleTags,
+      negativeTags: series.negativeTags,
+    },
+  }
+}
 
 export type SceneRenderOutcome = {
   sceneId: string
@@ -40,40 +94,70 @@ function isActiveStatus(status: string): boolean {
 export function sceneDedupeKey(
   videoId: number,
   sceneId: string,
-  composedPrompt: string,
-  doc: MusicVideoDoc,
+  body: Pick<
+    MusicVideoStillBody,
+    | 'promptString'
+    | 'width'
+    | 'height'
+    | 'engine'
+    | 'checkpoint'
+    | 'loraResourceIds'
+  >,
 ): string {
-  const { width, height } = kreaFrameSize(doc.settings.aspect)
-  const loras = (doc.settings.loraResourceIds ?? []).join(',')
   const hash = createHash('sha256')
     .update(
-      [composedPrompt, width, height, loras, MUSIC_VIDEO_SCENE_ENGINE].join(
-        '|',
-      ),
+      [
+        body.promptString,
+        body.width,
+        body.height,
+        body.loraResourceIds.join(','),
+        body.engine,
+        body.checkpoint ?? '',
+      ].join('|'),
     )
     .digest('hex')
     .slice(0, 32)
   return `music-video:${videoId}:${sceneId}:${hash}`
 }
 
+/** Banned terms in a text, as rejection reasons. */
+export function bannedTermProblems(text: string, doc: MusicVideoDoc): string[] {
+  const found = findBannedTerms(text, doc.settings.bannedTerms)
+  return found.length
+    ? [`[banned-term] The prompt uses a banned term: ${found.join(', ')}.`]
+    : []
+}
+
+/**
+ * Why a scene still cannot render. Banned terms apply on every engine; the
+ * Krea scene-prompt rules apply only when Krea 2 renders it, and the shared
+ * art-prompt contract runs for whichever engine does.
+ */
 export function sceneRenderProblems(
   scene: MusicVideoScene,
   doc: MusicVideoDoc,
+  body: Pick<MusicVideoStillBody, 'engine' | 'promptString' | 'steps' | 'cfg'>,
 ): string[] {
-  const composed = composeScenePrompt(scene.prompt, doc.settings.styleBible)
-  const own = [
-    ...checkScenePrompt(scene.prompt),
-    ...(doc.settings.styleBible
-      ? checkScenePrompt(doc.settings.styleBible)
-      : []),
-  ].map((v) => `[${v.rule}] ${v.detail}`)
+  const banned = bannedTermProblems(body.promptString, doc)
+  if (!scene.prompt.trim()) {
+    return [...banned, '[empty] The scene has no prompt.']
+  }
+  const krea = body.engine === MUSIC_VIDEO_SCENE_ENGINE
+  const own = krea
+    ? [
+        ...checkScenePrompt(scene.prompt),
+        ...(doc.settings.styleBible
+          ? checkScenePrompt(doc.settings.styleBible)
+          : []),
+      ].map((v) => `[${v.rule}] ${v.detail}`)
+    : []
   const contract = checkArtPromptContract({
-    prompt: composed,
-    engine: MUSIC_VIDEO_SCENE_ENGINE,
-    steps: KREA_STEPS,
-    cfg: KREA_CFG,
+    prompt: body.promptString,
+    engine: body.engine,
+    steps: krea ? MUSIC_VIDEO_KREA_STEPS : body.steps,
+    cfg: krea ? MUSIC_VIDEO_KREA_CFG : body.cfg,
   }).map((v) => `[${v.rule}] ${v.detail}`)
-  return [...own, ...contract]
+  return [...banned, ...own, ...contract]
 }
 
 export async function enqueueSceneStill(
@@ -82,14 +166,19 @@ export async function enqueueSceneStill(
   scene: MusicVideoScene,
   doc: MusicVideoDoc,
   force: boolean,
+  stillLane: StillLane = { lane: null, series: null },
 ): Promise<SceneRenderOutcome> {
-  const problems = sceneRenderProblems(scene, doc)
+  const body = musicVideoStillBody(doc, scene, {
+    projectSlug: MUSIC_VIDEO_PROJECT_SLUG,
+    lane: stillLane.lane,
+    series: stillLane.series,
+  })
+  const problems = sceneRenderProblems(scene, doc, body)
   if (problems.length) {
     return { sceneId: scene.id, status: 'rejected', reason: problems.join(' ') }
   }
 
-  const composed = composeScenePrompt(scene.prompt, doc.settings.styleBible)
-  const dedupeKey = sceneDedupeKey(videoId, scene.id, composed, doc)
+  const dedupeKey = sceneDedupeKey(videoId, scene.id, body)
   const existing = await prisma.artJob.findFirst({
     where: {
       projectSlug: MUSIC_VIDEO_PROJECT_SLUG,
@@ -110,25 +199,9 @@ export async function enqueueSceneStill(
     return { sceneId: scene.id, jobId: existing.id, status: 'reused' }
   }
 
-  const { width, height } = kreaFrameSize(doc.settings.aspect)
   const response = await event.$fetch<EnqueueResponse, string>(
     '/api/art/enqueue',
-    {
-      method: 'POST',
-      body: {
-        engine: MUSIC_VIDEO_SCENE_ENGINE,
-        promptString: composed,
-        width,
-        height,
-        steps: KREA_STEPS,
-        cfg: KREA_CFG,
-        loraResourceIds: doc.settings.loraResourceIds ?? [],
-        isPublic: false,
-        isMature: false,
-        designer: 'Music Video',
-        projectSlug: MUSIC_VIDEO_PROJECT_SLUG,
-      },
-    },
+    { method: 'POST', body },
   )
   const jobId = Number(response?.data?.jobId)
   if (!response?.success || !Number.isInteger(jobId) || jobId <= 0) {
@@ -165,6 +238,11 @@ export type SceneJobStatus = {
   status: string
   artImageId: number | null
   error: string | null
+  // music-video/t-009: the optional image-to-video clip for the scene.
+  clipJobId: number | null
+  clipStatus: string | null
+  clipArtImageId: number | null
+  clipError: string | null
 }
 
 export async function syncSceneJobs(doc: MusicVideoDoc): Promise<{
@@ -173,7 +251,7 @@ export async function syncSceneJobs(doc: MusicVideoDoc): Promise<{
   changed: boolean
 }> {
   const jobIds = doc.scenes
-    .map((scene) => scene.image.jobId)
+    .flatMap((scene) => [scene.image.jobId, scene.motion.jobId])
     .filter((id): id is number => Number.isInteger(id))
   const jobs = jobIds.length
     ? await prisma.artJob.findMany({
@@ -187,22 +265,42 @@ export async function syncSceneJobs(doc: MusicVideoDoc): Promise<{
   const statuses: SceneJobStatus[] = []
   const scenes = doc.scenes.map((scene) => {
     const job = scene.image.jobId ? byId.get(scene.image.jobId) : undefined
+    const clipJob = scene.motion.jobId
+      ? byId.get(scene.motion.jobId)
+      : undefined
     statuses.push({
       sceneId: scene.id,
       jobId: scene.image.jobId ?? null,
       status: job?.status ?? (scene.image.artImageId ? 'READY' : 'EMPTY'),
       artImageId: job?.artImageId ?? scene.image.artImageId ?? null,
       error: job?.error ?? null,
+      clipJobId: scene.motion.jobId ?? null,
+      clipStatus:
+        clipJob?.status ?? (scene.motion.clipArtImageId ? 'READY' : null),
+      clipArtImageId:
+        clipJob?.artImageId ?? scene.motion.clipArtImageId ?? null,
+      clipError: clipJob?.error ?? null,
     })
+    let next = scene
     if (
       job?.status === 'DONE' &&
       job.artImageId &&
       job.artImageId !== scene.image.artImageId
     ) {
-      changed = true
-      return { ...scene, image: { ...scene.image, artImageId: job.artImageId } }
+      next = { ...next, image: { ...next.image, artImageId: job.artImageId } }
     }
-    return scene
+    if (
+      clipJob?.status === 'DONE' &&
+      clipJob.artImageId &&
+      clipJob.artImageId !== scene.motion.clipArtImageId
+    ) {
+      next = {
+        ...next,
+        motion: { ...next.motion, clipArtImageId: clipJob.artImageId },
+      }
+    }
+    if (next !== scene) changed = true
+    return next
   })
   return { doc: { ...doc, scenes }, statuses, changed }
 }

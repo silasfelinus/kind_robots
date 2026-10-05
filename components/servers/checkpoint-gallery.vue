@@ -75,11 +75,13 @@
             aria-label="Filter by model family"
           >
             <option value="all">All</option>
-            <option value="A1111">A1111</option>
-            <option value="COMFY">COMFY</option>
-            <option value="FLUX">FLUX</option>
-            <option value="KONTEXT">KONTEXT</option>
-            <option value="SDXL">SDXL</option>
+            <option
+              v-for="family in familyOptions"
+              :key="family.value"
+              :value="family.value"
+            >
+              {{ family.label }}
+            </option>
           </select>
 
           <select
@@ -154,10 +156,15 @@ import type { GalleryItem } from '@/components/gallery/kr-gallery.vue'
 import { GALLERY_MODES, type GalleryMode } from '@/utils/galleryVocabulary'
 import { useCheckpointStore } from '@/stores/checkpointStore'
 import { useServerStore } from '@/stores/serverStore'
+import {
+  RESOURCE_FAMILIES,
+  RESOURCE_FAMILY_LABELS,
+  resourceFamily,
+  type ResourceFamily,
+} from '@/utils/resourceFamily'
 
 type CheckpointGalleryVariant = 'dashboard' | 'compact' | 'selector'
-type CheckpointModelFamily =
-  'all' | 'A1111' | 'COMFY' | 'FLUX' | 'KONTEXT' | 'SDXL'
+type CheckpointModelFamily = 'all' | ResourceFamily
 
 const props = withDefaults(
   defineProps<{
@@ -228,20 +235,23 @@ function openCheckpoint(checkpointName: string) {
   checkpointStore.selectCheckpointByName(checkpointName)
 }
 
+const familyOptions = computed(() => {
+  const present = new Set(
+    checkpointStore.visibleCheckpoints.map((checkpoint) =>
+      resourceFamily(checkpoint),
+    ),
+  )
+  return RESOURCE_FAMILIES.filter((family) => present.has(family)).map(
+    (family) => ({ value: family, label: RESOURCE_FAMILY_LABELS[family] }),
+  )
+})
+
 const filteredCheckpoints = computed<Partial<Resource>[]>(() => {
   const query = searchQuery.value.trim().toLowerCase()
 
   return checkpointStore.visibleCheckpoints.filter((checkpoint) => {
     const family = selectedFamily.value
-    const supportedServer = String(
-      checkpoint.supportedServer || checkpoint.generation || '',
-    ).toUpperCase()
-
-    if (
-      family !== 'all' &&
-      supportedServer &&
-      !supportedServer.includes(family)
-    ) {
+    if (family !== 'all' && resourceFamily(checkpoint) !== family) {
       return false
     }
 

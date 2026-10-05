@@ -69,6 +69,15 @@ assert.ok(artGenerator.includes('<content-visibility-controls'))
 assert.ok(artGenerator.includes('v-model:is-mature="outputIsMature"'))
 assert.ok(artGenerator.includes('v-model:is-public="outputIsPublic"'))
 assert.ok(!artGenerator.includes('artStore.showMature'))
+// The output flags sit beside the Queue button, not in a collapsed panel:
+// every 2026-10-05 batch went out General/Public because they were out of
+// sight. Exactly one instance, compact, ahead of the readiness line.
+assert.equal(artGenerator.split('<content-visibility-controls').length - 1, 1)
+const visibilityAt = artGenerator.indexOf('<content-visibility-controls')
+assert.ok(
+  artGenerator.slice(visibilityAt, visibilityAt + 300).includes('compact'),
+)
+assert.ok(visibilityAt < artGenerator.indexOf('{{ readinessSummary }}'))
 
 const artLoraPicker = readFileSync('components/art/art-lora-picker.vue', 'utf8')
 assert.ok(artLoraPicker.includes('<maturity-toggle'))
@@ -534,5 +543,157 @@ const artGeneratorPlugin = readFileSync(
 )
 assert.ok(artGeneratorPlugin.includes('defaultPublicForMaturity'))
 assert.ok(artGeneratorPlugin.includes('enqueueArtGeneration'))
+
+// Mature is private by default on every write path -- and ONLY mature: a
+// general-audience render with no privacy choice stays public.
+const browserArtStore = readFileSync('stores/artStore.ts', 'utf8')
+assert.ok(browserArtStore.includes('resolveMaturityPrivacy('))
+assert.ok(!browserArtStore.includes('state.artForm.isPublic ?? true'))
+const saveGenerated = readFileSync(
+  'server/api/art/save-generated.post.ts',
+  'utf8',
+)
+assert.ok(saveGenerated.includes('resolveMaturityPrivacy('))
+assert.ok(!saveGenerated.includes('requestData.isPublic ?? true'))
+assert.ok(!saveGenerated.includes('requestData.isPublic ?? false'))
+// A mature LoRA makes the render mature (and private, when upgraded) on the
+// server, whoever picked it -- not only when the browser batch loop rolled it.
+const loraResolver = readFileSync('server/utils/artLoraResource.ts', 'utf8')
+assert.ok(loraResolver.includes('upgradedToMature'))
+assert.ok(
+  loraResolver.includes(
+    '...(upgradedToMature ? { isMature: true, isPublic: false } : {}),',
+  ),
+)
+
+// The generator's output Mature/Private choice survives a reload.
+const outputVisibilityStore = readFileSync('stores/artStore.ts', 'utf8')
+assert.ok(outputVisibilityStore.includes('OUTPUT_VISIBILITY_STORAGE_KEY'))
+assert.ok(outputVisibilityStore.includes('persistOutputVisibility()'))
+
+// Prompt cleanup turns sentence periods into commas, never decimal weights:
+// `(short:1.2)` became `(short:1,2)`, broke the weight, and no longer matched
+// the LoRA trigger, so the trigger was appended a second time.
+const promptStoreSource = readFileSync('stores/promptStore.ts', 'utf8')
+assert.ok(!promptStoreSource.includes(".replace(/\\./g, ',')"))
+const sentencePeriods = /(?<!\d)\.|\.(?!\d)/g
+assert.ok(promptStoreSource.includes(String(sentencePeriods)))
+assert.equal(
+  '(short:1.2), smiling. outdoors.'.replace(sentencePeriods, ','),
+  '(short:1.2), smiling, outdoors,',
+)
+
+// Mature mode carries through to the output: switching on the LoRA picker's
+// "Mature resources" makes the next render Mature/Private, and a generator
+// opened in mature mode with no saved choice starts there. Nothing in this
+// path ever moves output toward public.
+const loraPickerSource = readFileSync(
+  'components/art/art-lora-picker.vue',
+  'utf8',
+)
+assert.ok(
+  loraPickerSource.includes('@changed="artStore.adoptMatureResourceMode"'),
+)
+const maturityToggleSource = readFileSync(
+  'components/navigation/maturity-toggle.vue',
+  'utf8',
+)
+assert.ok(maturityToggleSource.includes("emit('changed', value)"))
+assert.ok(
+  outputVisibilityStore.includes(
+    'setArtForm({ isMature: true, isPublic: false })',
+  ),
+)
+assert.ok(outputVisibilityStore.includes('applyMatureModeDefault()'))
+
+// Animating a still: the recent-art menu lists only the caller's own images
+// (never every user's, which the admin queue listing returns), hides mature
+// ones unless asked, and a mature first frame makes the clip Mature/Private.
+const recentArtRoute = readFileSync(
+  'server/api/art/queue/recent-images.get.ts',
+  'utf8',
+)
+assert.ok(recentArtRoute.includes('userId: auth.user.id,'))
+assert.ok(
+  recentArtRoute.includes('includeMature ? {} : { isMature: { not: true } }'),
+)
+const videoGeneratorPage = readFileSync(
+  'pages/play/video-generator.vue',
+  'utf8',
+)
+assert.ok(videoGeneratorPage.includes('route.query.artImageId'))
+assert.ok(
+  /if \(frame\.isMature\) \{\s*isMature\.value = true\s*isPublic\.value = false/.test(
+    videoGeneratorPage,
+  ),
+)
+const artInteractSource = readFileSync(
+  'components/art/art-interact.vue',
+  'utf8',
+)
+assert.ok(artInteractSource.includes("path: '/play/video-generator'"))
+assert.ok(artInteractSource.includes('artImageId: String(image.id)'))
+
+// Image FILES are gated like image records. /images/.../artimage-<id>-*.ext
+// used to stream private and mature renders to anyone with the URL, logged
+// out. The file route now applies the same canReadArtImage rule as
+// GET /api/art/image/:id, identifies a browser by the HttpOnly kind-session
+// cookie (an <img> cannot send the API header), answers 404 rather than
+// confirming a private file exists, and never lets a shared cache keep one.
+const imageFileRoute = readFileSync(
+  'server/routes/images/[...path].get.ts',
+  'utf8',
+)
+assert.ok(imageFileRoute.includes('/^artimage-(\\d+)-/i'))
+assert.ok(
+  imageFileRoute.includes('    path.basename(filePath),\n    servedPath,'),
+)
+assert.ok(
+  imageFileRoute.indexOf('path.basename(filePath)') >
+    imageFileRoute.indexOf('if (!filePath.startsWith(rootPrefix))'),
+)
+assert.ok(imageFileRoute.includes('canReadArtImage(record, access)'))
+assert.ok(imageFileRoute.includes("if (gate === 'denied')"))
+assert.ok(imageFileRoute.includes('/^ArtImageUpload-\\d+$/'))
+// Entity-filed art and gallery uploads map back through the indexed
+// imagePath column, newest row first; legacy raw copies through fileName.
+assert.ok(imageFileRoute.includes('where: { imagePath: servedPath }'))
+assert.ok(imageFileRoute.includes('where: { fileName },'))
+assert.equal(imageFileRoute.split('orderBy: NEWEST_FIRST').length - 1, 2)
+assert.ok(
+  imageFileRoute.includes("return image ? decide(event, image) : 'not-art'"),
+)
+const artImageSchema = readFileSync('prisma/schema.prisma', 'utf8')
+assert.ok(artImageSchema.includes('@@index([imagePath(length: 255)])'))
+assert.ok(artImageSchema.includes('@@index([fileName(length: 191)])'))
+const saveImageSource = readFileSync('server/utils/saveImage.ts', 'utf8')
+assert.ok(!saveImageSource.includes('fs.writeFile'))
+assert.ok(imageFileRoute.includes("'private, no-store'"))
+assert.ok(
+  imageFileRoute.includes(
+    'image && image.isPublic === true && image.isMature !== true',
+  ),
+)
+const sharedImageAccess = readFileSync('server/utils/artImageAccess.ts', 'utf8')
+assert.ok(sharedImageAccess.includes('export function canReadArtImage('))
+assert.ok(sharedImageAccess.includes("getCookie(event, 'kind-session')"))
+// The viewer's stored mature preference is loaded: the token resolver omits it.
+assert.ok(sharedImageAccess.includes('select: { showMature: true }'))
+const byIdRoute = readFileSync('server/api/art/image/[id].get.ts', 'utf8')
+assert.ok(
+  byIdRoute.includes(
+    "import { canReadArtImage } from '~/server/utils/artImageAccess'",
+  ),
+)
+assert.ok(!byIdRoute.includes('function canReadArtImage('))
+const tokenValidation = readFileSync(
+  'server/api/auth/validate/token.ts',
+  'utf8',
+)
+assert.ok(tokenValidation.includes('setKindSessionCookie(event, token)'))
+const logoutRoute = readFileSync('server/api/auth/logout.post.ts', 'utf8')
+assert.ok(logoutRoute.includes('clearKindSessionCookie(event)'))
+const userStoreSource = readFileSync('stores/userStore.ts', 'utf8')
+assert.ok(userStoreSource.includes("performFetch('/api/auth/logout'"))
 
 console.log('Maturity and privacy generation contract passed.')

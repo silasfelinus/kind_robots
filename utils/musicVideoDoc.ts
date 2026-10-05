@@ -59,6 +59,8 @@ export const MUSIC_VIDEO_LIMITS = {
   maxTags: 1000,
   maxTransitionSec: 5,
   maxDocBytes: 1_000_000,
+  maxBannedTerms: 40,
+  maxBannedTerm: 60,
 } as const
 
 export type MusicVideoSettings = {
@@ -71,6 +73,14 @@ export type MusicVideoSettings = {
   styleBible: string
   loraResourceIds?: number[]
   aspect: MusicVideoAspect
+  /**
+   * music-video/t-025: render scene stills in this Comic Studio series' style
+   * (its house lane, or comicLaneKey) instead of Krea 2.
+   */
+  comicSeriesId?: number
+  comicLaneKey?: string
+  /** Words no prompt, lyric or caption may contain (a story's secret, a franchise). */
+  bannedTerms?: string[]
 }
 
 export type MusicVideoSection = {
@@ -103,6 +113,8 @@ export type MusicVideoScene = {
   lyricRefs: { sectionId: string; lineIdx: number }[]
   prompt: string
   promptSource: 'llm' | 'user'
+  /** Prose for the clip's movement (music-video/t-026); the clip falls back to prompt. */
+  motionPrompt?: string
   image: {
     source: 'generated' | 'upload' | 'gallery'
     artImageId?: number
@@ -113,6 +125,8 @@ export type MusicVideoScene = {
     preset?: string
     clipArtImageId?: number
     jobId?: number
+    /** End the clip on the next scene's still (first and last frame). */
+    lastFrame?: 'next-scene'
   }
   transition: 'cut' | 'crossfade'
   transitionSec: number
@@ -275,6 +289,24 @@ function normalizeSettings(raw: unknown, errors: string[]): MusicVideoSettings {
   if (vocal) settings.vocal = vocal
   if (language) settings.language = language
   if (loraResourceIds.length) settings.loraResourceIds = loraResourceIds
+  const comicSeriesId = positiveInt(s.comicSeriesId)
+  if (comicSeriesId) settings.comicSeriesId = comicSeriesId
+  const comicLaneKey = optionalText(s.comicLaneKey, 64)
+  if (comicSeriesId && comicLaneKey) settings.comicLaneKey = comicLaneKey
+  const bannedTerms = Array.isArray(s.bannedTerms)
+    ? [
+        ...new Set(
+          s.bannedTerms
+            .map((term) =>
+              typeof term === 'string'
+                ? term.replace(/\s+/g, ' ').trim().toLowerCase()
+                : '',
+            )
+            .filter((term) => term && term.length <= L.maxBannedTerm),
+        ),
+      ].slice(0, L.maxBannedTerms)
+    : []
+  if (bannedTerms.length) settings.bannedTerms = bannedTerms
   return settings
 }
 
@@ -511,6 +543,9 @@ function normalizeScenes(
     if (preset) scene.motion.preset = preset
     if (clipArt) scene.motion.clipArtImageId = clipArt
     if (clipJob) scene.motion.jobId = clipJob
+    if (motion.lastFrame === 'next-scene') scene.motion.lastFrame = 'next-scene'
+    const motionPrompt = text(item.motionPrompt, L.maxPrompt)
+    if (motionPrompt) scene.motionPrompt = motionPrompt
     scenes.push(scene)
   })
 

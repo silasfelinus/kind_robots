@@ -1,5 +1,40 @@
 <template>
-  <section class="space-y-2 kr-panel-flat p-3">
+  <div
+    v-if="compact"
+    class="flex flex-wrap items-center justify-center gap-2"
+    role="group"
+    aria-label="Output visibility"
+  >
+    <label
+      class="flex cursor-pointer items-center gap-2 rounded-2xl border border-base-300 bg-base-200/60 px-3 py-1.5"
+      :class="isMature ? 'border-warning/60' : ''"
+    >
+      <input
+        :checked="isMature"
+        type="checkbox"
+        class="kr-toggle-warning-sm"
+        :disabled="disabled"
+        @change="onMatureChange"
+      />
+      <span class="kr-text-semibold-sm">Mature</span>
+    </label>
+
+    <label
+      class="flex cursor-pointer items-center gap-2 rounded-2xl border border-base-300 bg-base-200/60 px-3 py-1.5"
+      :class="isPublic ? '' : 'border-neutral/60'"
+    >
+      <input
+        :checked="!isPublic"
+        type="checkbox"
+        class="kr-toggle-primary-sm"
+        :disabled="disabled"
+        @change="onPrivateChange"
+      />
+      <span class="kr-text-semibold-sm">Private</span>
+    </label>
+  </div>
+
+  <section v-else class="space-y-2 kr-panel-flat p-3">
     <div class="flex flex-wrap items-start justify-between gap-2">
       <div>
         <h3 class="kr-text-bold-sm">Content visibility</h3>
@@ -22,7 +57,9 @@
       >
         <span>
           <span class="kr-text-semibold-sm block">Mature</span>
-          <span class="block text-[11px] text-base-content/55">18+ content</span>
+          <span class="block text-[11px] text-base-content/55"
+            >18+ content</span
+          >
         </span>
         <input
           :checked="isMature"
@@ -63,8 +100,9 @@ const props = withDefaults(
     isMature: boolean
     isPublic: boolean
     disabled?: boolean
+    compact?: boolean
   }>(),
-  { disabled: false },
+  { disabled: false, compact: false },
 )
 
 const emit = defineEmits<{
@@ -88,5 +126,10 @@ function onMatureChange(event: Event): void {
 function onPublicChange(event: Event): void {
   privacyOverridden.value = true
   emit('update:isPublic', (event.target as HTMLInputElement).checked)
+}
+
+function onPrivateChange(event: Event): void {
+  privacyOverridden.value = true
+  emit('update:isPublic', !(event.target as HTMLInputElement).checked)
 }
 </script>

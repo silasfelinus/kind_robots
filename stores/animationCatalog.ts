@@ -684,6 +684,42 @@ export const ANIMATION_EFFECTS = [
     generationSafe: true,
     preferredSurface: 'fullscreen',
   },
+  {
+    id: 'split-flap-departures',
+    label: 'Split-Flap Departure Board',
+    reveal: 'A board that clatters into poetry',
+    icon: 'kind-icon:sparkle',
+    tooltip:
+      'A wall of split-flap tiles chatters through letters until each row settles into a wistful departure notice 🚉 hover a tile to hold its flap, click to board the next message',
+    color: '#f2e6c4',
+    releasedAt: '2026-10-03T08:00:00Z',
+    generationSafe: true,
+    preferredSurface: 'fullscreen',
+  },
+  {
+    id: 'sundial-stone-garden',
+    label: 'Sundial Stone Garden',
+    reveal: 'A day told in sliding shadows',
+    icon: 'kind-icon:sparkle',
+    tooltip:
+      'Standing stones in a quiet field cast long shadows at dawn, shrink them at noon and stretch them the other way at dusk before night turns the cycle over 🌞 hover to lift a stone, click to skip ahead in the day',
+    color: '#e9b95f',
+    releasedAt: '2026-10-04T08:00:00Z',
+    generationSafe: true,
+    preferredSurface: 'fullscreen',
+  },
+  {
+    id: 'lighthouse-fog-beam',
+    label: 'Lighthouse Fog Beam',
+    reveal: 'A slow light finding its way through the fog',
+    icon: 'kind-icon:sparkle',
+    tooltip:
+      'A lighthouse beam sweeps a dark sea, setting drifting fog aglow and flashing the hulls of passing ships 🔦 hover to part the fog, click to spin the beam ahead',
+    color: '#f4d98a',
+    releasedAt: '2026-10-05T08:00:00Z',
+    generationSafe: true,
+    preferredSurface: 'fullscreen',
+  },
 ] as const satisfies readonly AnimationEffectDefinition[]
 
 export type AnimationEffectId = (typeof ANIMATION_EFFECTS)[number]['id']

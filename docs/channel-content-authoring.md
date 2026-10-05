@@ -41,7 +41,7 @@ amiTip: AMI gets the second line.
 ---
 ```
 
-`channelKey` must be lowercase kebab-case. The top-level channel list is intentionally limited to Home, Plan, Play, and Admin. Update the channel-content contract only when deliberately changing that information architecture.
+`channelKey` must be lowercase kebab-case. The top-level channel list is intentionally limited to Home, Plan, Play, and Admin. Retired is an Admin subtab group rather than a top-level channel. Update the channel-content contract only when deliberately changing that information architecture.
 
 Only put `dashboardKey` on the parent when every child truly belongs to the same legacy dashboard. Diverse channels keep legacy adapters on individual tabs instead.
 
@@ -67,6 +67,37 @@ sort: 10
 ```
 
 That document can provide channel submenu navigation, workspace cards, tutorial sections, route and active-tab resolution, imagery, loading labels, dialogue, and legacy manager synchronization.
+
+## Add a subtab group
+
+A tab may act as a navigation-only parent for one level of subtabs. Give the parent a normal `tabKey` but omit its route, then point each child at it with `parentTabKey`:
+
+Parent file, `content/channels/admin/retired.md`:
+
+```yaml
+---
+contentType: tab
+channelKey: admin
+tabKey: retired
+label: Retired
+icon: kind-icon:archive
+---
+```
+
+Child file, `content/channels/admin/retired/example.md`:
+
+```yaml
+---
+contentType: tab
+channelKey: admin
+tabKey: example
+parentTabKey: retired
+label: Example
+route: /example
+---
+```
+
+The parent expands in tab menus and is not itself a routed destination. Children remain ordinary tabs for route resolution, project placement, the full navigation directory, and direct URLs. Top-level fallback card decks stay top-level, so nested children do not leak back out beside their parent group. Keep nesting to one level; the content contract rejects a subtab whose parent is itself a subtab.
 
 ## Parent inheritance
 

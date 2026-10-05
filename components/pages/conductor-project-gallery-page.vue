@@ -579,7 +579,7 @@ const load = (force: boolean) =>
 const refresh = () => load(true)
 
 function openProposed() {
-  page.setWorkspaceCardKey('brainstorm')
+  page.setWorkspaceCardKey('proposed')
 }
 
 async function open(item: Item) {

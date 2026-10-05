@@ -116,7 +116,8 @@ function familyFromText(text: string): ResourceFamily | null {
       ? 'flux1-schnell'
       : 'flux1-dev'
   }
-  if (/sd[\s._-]*1\.?5|^1\.5$/.test(text)) return 'sd15'
+  // SD 1.4 is the same architecture as 1.5; its LoRAs load on 1.5 checkpoints.
+  if (/sd[\s._-]*1\.?[45]|^1\.[45]$/.test(text)) return 'sd15'
   if (text.includes('sdxl') || /\bxl\b/.test(text)) return 'sdxl'
   return null
 }
@@ -159,4 +160,78 @@ export function resourceFamily(resource: ResourceFamilyInput): ResourceFamily {
 
 export function resourceFamilyLabel(resource: ResourceFamilyInput): string {
   return RESOURCE_FAMILY_LABELS[resourceFamily(resource)]
+}
+
+// What a person browsing actually asks: "will this work with that?" Families
+// that share an architecture share LoRAs, so they share one filter entry.
+// Pony and Illustrious are SDXL fine-tunes -- any of the three loads the
+// others' LoRAs (Silas, 2026-10-05: "Illustrious can use pony and sdxl
+// Lora's"). The card badge keeps the specific family; the filter does not
+// make anyone know it.
+export const COMPATIBILITY_GROUPS = [
+  'sdxl',
+  'sd15',
+  'flux1',
+  'flux1-kontext',
+  'flux2',
+  'krea2',
+  'zimage',
+  'qwen',
+  'anima',
+  'wan',
+  'ltx',
+  'hunyuan',
+  'audio',
+  'other',
+] as const
+
+export type CompatibilityGroup = (typeof COMPATIBILITY_GROUPS)[number]
+
+export const COMPATIBILITY_GROUP_LABELS: Record<CompatibilityGroup, string> = {
+  sdxl: 'SDXL · Pony · Illustrious',
+  sd15: 'SD 1.5',
+  flux1: 'Flux.1',
+  'flux1-kontext': 'Flux.1 Kontext',
+  flux2: 'Flux.2 / Klein',
+  krea2: 'Krea 2',
+  zimage: 'Z-Image',
+  qwen: 'Qwen',
+  anima: 'Anima',
+  wan: 'Wan Video',
+  ltx: 'LTX Video',
+  hunyuan: 'Hunyuan',
+  audio: 'Audio',
+  other: 'Other',
+}
+
+const FAMILY_GROUP: Record<ResourceFamily, CompatibilityGroup> = {
+  sd15: 'sd15',
+  sdxl: 'sdxl',
+  pony: 'sdxl',
+  illustrious: 'sdxl',
+  'flux1-dev': 'flux1',
+  'flux1-schnell': 'flux1',
+  'flux1-kontext': 'flux1-kontext',
+  flux2: 'flux2',
+  krea2: 'krea2',
+  zimage: 'zimage',
+  qwen: 'qwen',
+  anima: 'anima',
+  wan: 'wan',
+  ltx: 'ltx',
+  hunyuan: 'hunyuan',
+  audio: 'audio',
+  other: 'other',
+}
+
+export function compatibilityGroupOf(
+  family: ResourceFamily,
+): CompatibilityGroup {
+  return FAMILY_GROUP[family]
+}
+
+export function resourceCompatibilityGroup(
+  resource: ResourceFamilyInput,
+): CompatibilityGroup {
+  return FAMILY_GROUP[resourceFamily(resource)]
 }

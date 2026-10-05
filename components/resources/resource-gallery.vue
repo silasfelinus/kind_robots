@@ -13,8 +13,10 @@ import type { Resource } from '@/stores/resourceStore'
 import ShareManager from '@/components/sharing/share-manager.vue'
 import { querySelectionId } from '@/utils/routeSelection'
 import {
-  RESOURCE_FAMILIES,
+  COMPATIBILITY_GROUPS,
+  COMPATIBILITY_GROUP_LABELS,
   RESOURCE_FAMILY_LABELS,
+  compatibilityGroupOf,
   resourceFamily,
 } from '@/utils/resourceFamily'
 import {
@@ -357,9 +359,11 @@ const familyById = computed(
 )
 
 const generations = computed(() => {
-  const present = new Set(familyById.value.values())
-  return RESOURCE_FAMILIES.filter((family) => present.has(family)).map(
-    (family) => ({ value: family, label: RESOURCE_FAMILY_LABELS[family] }),
+  const present = new Set(
+    [...familyById.value.values()].map(compatibilityGroupOf),
+  )
+  return COMPATIBILITY_GROUPS.filter((group) => present.has(group)).map(
+    (group) => ({ value: group, label: COMPATIBILITY_GROUP_LABELS[group] }),
   )
 })
 
@@ -408,7 +412,8 @@ const filteredResources = computed(() => {
 
     if (
       generation.value !== 'ALL' &&
-      familyById.value.get(entry.id) !== generation.value
+      compatibilityGroupOf(familyById.value.get(entry.id) ?? 'other') !==
+        generation.value
     ) {
       return false
     }

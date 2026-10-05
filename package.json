@@ -635,7 +635,9 @@
   "overrides": {
     "vue": "^3.5.13",
     "oxc-parser": "0.117.0",
-    "@hono/node-server": "^1.19.13"
+    "@hono/node-server": "^1.19.13",
+    "brace-expansion@>=2.0.0 <3.0.0": "2.1.7",
+    "brace-expansion@>=5.0.0 <6.0.0": "5.0.12"
   },
   "type": "module",
   "engines": {

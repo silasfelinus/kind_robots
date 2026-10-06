@@ -2,7 +2,7 @@
 title: 'ArtJob'
 room: 'ArtJob Pipeline'
 subtitle: 'The art-generation control room'
-description: Admin dashboard for the ArtJob pipeline: manage ComfyUI and SD servers, watch uptime, track images created versus failed, and inspect, requeue, or cancel jobs in the queue.
+description: 'Admin dashboard for the ArtJob pipeline: manage ComfyUI and SD servers, watch uptime, track images created versus failed, and inspect, requeue, or cancel jobs in the queue.'
 image: 'background/artgallery.webp'
 icon: kind-icon:palette-color
 tooltip: Manage art servers and watch the generation queue.

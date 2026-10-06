@@ -2,6 +2,7 @@
 import { readdir, readFile } from 'node:fs/promises'
 import { dirname, relative, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { parse as parseYaml } from 'yaml'
 import { validateNavManifest, type NavManifestEntry } from '@/utils/navManifest'
 import { PROJECT_PLACEMENTS } from '@/utils/projectPlacements'
 
@@ -238,11 +239,39 @@ async function validateChannelSelectorOverflow(errors: string[]): Promise<void> 
   }
 }
 
+/*
+ * Nuxt Content parses frontmatter as real YAML, but parseFrontMatter() above
+ * reads it line by line. An unquoted value holding ": " (a description like
+ * "from a pitch: write lyrics") is a YAML error, so Nuxt Content drops the
+ * whole document, while the line reader still sees a valid tab and passes it.
+ * The admin Music Video tab vanished from the nav exactly that way
+ * (2026-10-06). Parse every content file's frontmatter strictly so that class
+ * of break fails CI instead of silently hiding a page.
+ */
+async function validateStrictFrontMatter(errors: string[]): Promise<void> {
+  for (const file of await markdownFiles(contentDirectory)) {
+    const match = (await readFile(file, 'utf8')).match(
+      /^---\r?\n([\s\S]*?)\r?\n---(?:\r?\n|$)/,
+    )
+    if (!match?.[1]) continue
+    try {
+      parseYaml(match[1])
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message.split('\n')[0] : String(error)
+      errors.push(
+        `${relative(repositoryRoot, file)}: frontmatter is not valid YAML, so Nuxt Content drops the page (${message}). Quote any value that contains ": ".`,
+      )
+    }
+  }
+}
+
 async function main(): Promise<void> {
   const documents = await Promise.all(
     (await markdownFiles(channelsDirectory)).map(readDocument),
   )
   const errors: string[] = []
+  await validateStrictFrontMatter(errors)
   await validateChannelSelectorOverflow(errors)
   const channels = documents.filter((item) => item.contentType === 'channel')
   const tabs = documents.filter((item) => item.contentType === 'tab')

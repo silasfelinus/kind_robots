@@ -29,8 +29,127 @@ import {
   specToDoc,
   type MusicVideoSpec,
 } from '@/utils/musicVideoSpecs'
+import {
+  normalizeMusicVideoDoc,
+  type MusicVideoScene,
+  type MusicVideoSong,
+} from '@/utils/musicVideoDoc'
+import { buildSongTags } from '@/utils/musicVideoSong'
+import {
+  adoptDeletedStills,
+  adoptSong,
+  firstStillAt,
+  type RecoverableJob,
+} from '@/utils/musicVideoRecover'
+import { MUSIC_VIDEO_PROJECT_SLUG } from '@/server/utils/musicVideoScenes'
 
-type ImportBody = { specKey?: unknown; spec?: unknown; title?: unknown }
+type ImportBody = {
+  specKey?: unknown
+  spec?: unknown
+  title?: unknown
+  /** Reuse the song and stills of a deleted copy of this spec. */
+  reuseDeleted?: unknown
+}
+
+type JobRow = {
+  id: number
+  status: string
+  createdAt: Date
+  artImageId: number | null
+  payload: string
+}
+
+function parseJob(row: JobRow): RecoverableJob {
+  let payload: Record<string, unknown> = {}
+  try {
+    const parsed: unknown = JSON.parse(row.payload)
+    if (parsed && typeof parsed === 'object') {
+      payload = parsed as Record<string, unknown>
+    }
+  } catch {
+    // An unreadable payload simply matches nothing.
+  }
+  return { ...row, payload }
+}
+
+/*
+ * Silas, 2026-10-06: restore the classic theme song "using the song we already
+ * made and the art being processed". Finds the newest deleted video whose
+ * stills match this spec's scenes and the song made just before them.
+ */
+async function recoverDeleted(
+  userId: number,
+  scenes: MusicVideoScene[],
+  songTags: string,
+): Promise<{
+  scenes: MusicVideoScene[]
+  song: MusicVideoSong | null
+  notes: string[]
+}> {
+  const select = {
+    id: true,
+    status: true,
+    createdAt: true,
+    artImageId: true,
+    payload: true,
+  } as const
+  const stillRows = await prisma.artJob.findMany({
+    where: {
+      userId,
+      projectSlug: MUSIC_VIDEO_PROJECT_SLUG,
+      payload: { contains: '"musicVideo":{' },
+    },
+    select,
+    orderBy: { createdAt: 'desc' },
+    take: 400,
+  })
+  const stills = stillRows.map(parseJob)
+  const videoIds = [
+    ...new Set(
+      stills
+        .map(
+          (job) => (job.payload.musicVideo as { videoId?: unknown })?.videoId,
+        )
+        .filter((id): id is number => typeof id === 'number'),
+    ),
+  ]
+  const live = new Set(
+    (
+      await prisma.musicVideo.findMany({
+        where: { id: { in: videoIds } },
+        select: { id: true },
+      })
+    ).map((video) => video.id),
+  )
+  const recovery = adoptDeletedStills({ scenes }, stills, live)
+  if (recovery.fromVideoId === null) {
+    return { scenes, song: null, notes: recovery.notes }
+  }
+  const before = firstStillAt(stills, recovery.fromVideoId)
+  const songRows = await prisma.artJob.findMany({
+    where: {
+      userId,
+      projectSlug: MUSIC_VIDEO_PROJECT_SLUG,
+      status: 'DONE',
+      payload: { contains: '"engine":"acestep"' },
+      ...(before ? { createdAt: { lte: before } } : {}),
+    },
+    select,
+    orderBy: { createdAt: 'desc' },
+    take: 20,
+  })
+  const song = adoptSong(songRows.map(parseJob), songTags)
+  return {
+    scenes: recovery.scenes,
+    song,
+    notes: [
+      ...recovery.notes,
+      song
+        ? `Reused its song (ArtJob ${song.jobId}).`
+        : 'Its song was not found, so Produce will make a new one.',
+    ],
+  }
+}
 
 function readSpec(body: ImportBody): MusicVideoSpec {
   if (typeof body.specKey === 'string') {
@@ -204,13 +323,27 @@ export default defineEventHandler(async (event) => {
       }
     }
 
+    let finalScenes = scenes
+    let song: MusicVideoSong | null = null
+    if (body.reuseDeleted === true) {
+      const recovered = await recoverDeleted(
+        auth.user.id,
+        scenes,
+        buildSongTags(normalizeMusicVideoDoc(raw).doc),
+      )
+      finalScenes = recovered.scenes
+      song = recovered.song
+      warnings.push(...recovered.notes)
+    }
+
     const doc = serializeValidatedDoc({
       ...raw,
       settings: {
         ...raw.settings,
         ...(comicSeriesId ? { comicSeriesId } : {}),
       },
-      scenes,
+      scenes: finalScenes,
+      ...(song ? { song } : {}),
     })
     const record = await prisma.musicVideo.create({
       data: {

@@ -240,6 +240,9 @@ jobs:
       - name: Music video prepared specs (t-033)
         run: npm run test:music-video-specs
 
+      - name: Music video recover a deleted copy (t-033)
+        run: npm run test:music-video-recover
+
       - name: ArtJob audio media contract
         run: npm run test:artjob-audio-media
 

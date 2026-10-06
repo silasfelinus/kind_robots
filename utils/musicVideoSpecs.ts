@@ -334,6 +334,220 @@ const kindRobotsTheme: MusicVideoSpec = {
 }
 
 /*
+ * A2. The classic Kind Robots theme song (t-015), as first imported. Silas,
+ * 2026-10-06, after the android rewrite: "i actually liked the song and i love
+ * the art that has been created for it. can you restore the classic kind
+ * robots animation pitch as another project". Kept word for word, so a
+ * recovery import can match the deleted copy's song and stills to it. An
+ * original homage to 80s Saturday-morning action cartoons, starring a
+ * recurring crew so the stills stay consistent. 140 BPM, 75 s = 175 beats; scene changes on bar lines.
+ */
+const BOLT =
+  'Bolt, a small round orange robot with one big glowing blue lens eye and a wrench for a left hand'
+const SPROCKET =
+  'Sprocket, a lanky teal robot with springy legs and a radio antenna'
+const DOTTIE =
+  'Dottie, a hovering pink drone robot with a heart-shaped speaker grille'
+const JUNK =
+  'Junk, a giant friendly mech built from scrap metal, old car doors and a bathtub'
+
+const kindRobotsThemeClassic: MusicVideoSpec = {
+  key: 'kind-robots-theme-classic',
+  title: 'Kind Robots: Theme Song (Classic)',
+  summary:
+    'The original crew (Bolt, Sprocket, Dottie and Junk): 75 s duet, 140 BPM, 20 scenes, 5 hero shots, Krea 2.',
+  pitch:
+    'The opening theme for the Kind Robots cartoon: a crew of small, friendly, mismatched robots who build things, fix things and help people, racing across a neon city at night. Rooftop chases, a workshop full of sparks, a junkyard team-up, a skateboarding robot, a giant friendly mech assembled from scraps, and a final heroic group pose under a rainbow-lit sky. Kindness is the superpower. The chorus is a shouted gang-vocal hook about being kind robots.',
+  settings: {
+    durationSec: 75,
+    aspect: '16:9',
+    bpm: 140,
+    vocal: 'duet',
+    genre:
+      '80s Saturday-morning cartoon theme, synth rock, gated drums, shouted gang-vocal chorus',
+    mood: 'heroic, goofy, high-energy',
+    heroShots: 5,
+    styleBible:
+      '80s Saturday-morning action cartoon, thick black ink outlines, flat cel colour with hard two-tone shadows, saturated neon pink, teal and orange against deep night blue, painted cel backgrounds of a rain-slick neon city, speed lines, low heroic camera angles, dramatic rim light, small friendly robots with clear readable shapes',
+    bannedTerms: [
+      'teenage mutant',
+      'ninja turtle',
+      'ninja turtles',
+      'tmnt',
+      'turtle',
+      'turtles',
+      'shredder',
+      'splinter',
+      'michelangelo',
+      'donatello',
+      'raphael',
+      'leonardo',
+      'krang',
+      'foot clan',
+      'cowabunga',
+      "april o'neil",
+    ],
+  },
+  sections: [
+    section('intro', 'intro', ['Kind Robots, power up!']),
+    section('v1', 'verse', [
+      'Neon on the rooftops and the rain coming down',
+      'Little tin heroes rolling into town',
+      'Bolts in their pockets and a spark in their eyes',
+      'Lighting up the city when the sirens cry',
+    ]),
+    section('c1', 'chorus', [
+      'Kind Robots! (Kind Robots!)',
+      'Built from scraps and built for good',
+      'Kind Robots! (Kind Robots!)',
+      'Helping out the neighborhood',
+    ]),
+    section('v2', 'verse', [
+      'Sparks in the workshop, wheels on the street',
+      'Skateboard flipping on every beat',
+      'Junkyard giant made of borrowed parts',
+      'Biggest thing about him is his heart',
+    ]),
+    section('c2', 'chorus', [
+      'Kind Robots! (Kind Robots!)',
+      'Built from scraps and built for good',
+      'Kind Robots! (Kind Robots!)',
+      'Helping out the neighborhood',
+    ]),
+    section('outro', 'outro', ['Kindness is the superpower!', 'Kind Robots!']),
+  ],
+  scenes: [
+    {
+      beats: 8,
+      prompt:
+        'A rain-slick neon city skyline at night, water towers and glowing windows, a big full moon behind the rooftops',
+      kenBurns: 'pan-right',
+    },
+    {
+      beats: 8,
+      prompt: `A garage door bursting open in a burst of orange light, ${BOLT} striking a heroic pose in the doorway`,
+      lyrics: ['intro:0'],
+      kenBurns: 'zoom-in',
+    },
+    {
+      beats: 8,
+      prompt:
+        'Neon rooftops in heavy rain, puddles reflecting pink and teal signs, steam rising from vents',
+      lyrics: ['v1:0'],
+      kenBurns: 'pan-left',
+    },
+    {
+      beats: 8,
+      prompt: `${BOLT}, ${SPROCKET} and ${DOTTIE} rolling down a wet neon street side by side`,
+      lyrics: ['v1:1'],
+      kenBurns: 'pan-right',
+    },
+    {
+      beats: 8,
+      prompt: `Close-up of ${BOLT}, his blue lens eye glowing, sparks dancing off his wrench hand`,
+      lyrics: ['v1:2'],
+      kenBurns: 'zoom-in',
+    },
+    {
+      beats: 8,
+      prompt: `${DOTTIE} flying above a flashing ambulance at a busy crossroads, beaming a bright rainbow light down on the street`,
+      lyrics: ['v1:3'],
+      kenBurns: 'zoom-out',
+    },
+    {
+      beats: 8,
+      prompt: `${SPROCKET} leaping between two neon rooftops against the moon, arms spread wide, speed lines behind him`,
+      lyrics: ['c1:0'],
+      motionPrompt:
+        'The robot springs off the rooftop and sails across the gap as the camera tracks sideways with him.',
+    },
+    {
+      beats: 8,
+      prompt: `${BOLT} bolting a dented street lamp back together while the lamp flickers on`,
+      lyrics: ['c1:1'],
+      kenBurns: 'zoom-in',
+    },
+    {
+      beats: 8,
+      prompt: `${BOLT}, ${SPROCKET} and ${DOTTIE} cheering together on a rooftop, fists raised, neon signs glowing behind them`,
+      lyrics: ['c1:2'],
+      kenBurns: 'zoom-out',
+    },
+    {
+      beats: 8,
+      prompt: `${DOTTIE} carrying a lost kitten home to a smiling old robot neighbor on a cozy brick stoop`,
+      lyrics: ['c1:3'],
+      kenBurns: 'pan-left',
+    },
+    {
+      beats: 8,
+      prompt: `${BOLT} welding at a cluttered robot workshop bench, a fountain of orange sparks lighting up shelves of gears and spare parts`,
+      lyrics: ['v2:0'],
+      motionPrompt:
+        'Sparks spray from the welding torch while the camera pushes in slowly on the workbench.',
+    },
+    {
+      beats: 8,
+      prompt: `${SPROCKET} riding a glowing skateboard mid-air over a ramp in a neon alley, board flipping under his feet`,
+      lyrics: ['v2:1'],
+      motionPrompt:
+        'The robot kicks the skateboard into a spinning flip and lands it as the camera follows the jump.',
+    },
+    {
+      beats: 8,
+      prompt: `${JUNK} rising to his full height in a junkyard at dusk, the small robots cheering at his feet, scrap metal clanking into place`,
+      lyrics: ['v2:2'],
+      motionPrompt:
+        'Scrap pieces fly up and lock into place as the giant mech stands up and the camera tilts up with him.',
+    },
+    {
+      beats: 8,
+      prompt: `${JUNK} gently holding ${BOLT} in his huge open palm, a warm glowing heart-shaped lamp shining in his chest`,
+      lyrics: ['v2:3'],
+      kenBurns: 'zoom-in',
+    },
+    {
+      beats: 8,
+      prompt: `${SPROCKET} and ${DOTTIE} racing across a neon bridge at night, rain streaking past them`,
+      lyrics: ['c2:0'],
+      kenBurns: 'pan-right',
+    },
+    {
+      beats: 8,
+      prompt: `${BOLT} and ${JUNK} lifting a fallen tree off a little delivery robot's cart in a rainy street`,
+      lyrics: ['c2:1'],
+      kenBurns: 'zoom-out',
+    },
+    {
+      beats: 8,
+      prompt: `The whole crew, ${BOLT}, ${SPROCKET}, ${DOTTIE} and ${JUNK}, sliding down a fire escape in a line, laughing`,
+      lyrics: ['c2:2'],
+      kenBurns: 'pan-left',
+    },
+    {
+      beats: 8,
+      prompt:
+        'A neighborhood street at night full of small happy robots waving from windows and stoops, warm lights in every window',
+      lyrics: ['c2:3'],
+      kenBurns: 'zoom-out',
+    },
+    {
+      beats: 16,
+      prompt: `${DOTTIE} painting a rainbow across the night sky with her light beam, the city glowing below`,
+      lyrics: ['outro:0'],
+      kenBurns: 'pan-right',
+    },
+    {
+      beats: 15,
+      prompt: `${BOLT}, ${SPROCKET}, ${DOTTIE} and ${JUNK} in a heroic group pose on the highest rooftop under a rainbow-lit sky, low camera angle`,
+      lyrics: ['outro:1'],
+      motionPrompt:
+        'The camera rises slowly up to the crew as their eyes light up and the rainbow brightens behind them.',
+    },
+  ],
+}
+
+/*
  * B. Zuzu: Koala Assassin intro (t-029), from conductor
  * projects/music-video/docs/zuzu-intro.md. 100 BPM, 55 s = 91.7 beats; the
  * brief's 13 beats with the road shot split in two (one keyframe per
@@ -516,6 +730,7 @@ const zuzuIntro: MusicVideoSpec = {
 
 export const MUSIC_VIDEO_SPECS: readonly MusicVideoSpec[] = [
   kindRobotsTheme,
+  kindRobotsThemeClassic,
   zuzuIntro,
 ]
 

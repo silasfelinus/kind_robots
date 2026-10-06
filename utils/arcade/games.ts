@@ -258,6 +258,27 @@ export const ARCADE_GAMES: ArcadeGameMeta[] = [
     accent: '#fb923c',
     controls: 'Dig, puff',
   },
+  {
+    slug: 'repair-rampage',
+    title: 'Repair Rampage',
+    riffsOn: 'Rampage',
+    blurb:
+      'A storm has wrecked the city. Bolt, a giant friendly robot, climbs the towers and fixes them window by window, rescues kittens from the ledges and shoos the news drones whose flashbulbs dazzle it off the wall. Broken towers wobble and fall if you dawdle, and every dazzle, long drop and fallen tower costs charge.',
+    howTo: [
+      'LEFT/RIGHT  WALK',
+      'UP AT A TOWER  CLIMB',
+      'A  FIX A WINDOW',
+      'A BY A DRONE  SHOO IT',
+      'FIX THE WINDOW = KITTEN',
+      'WOBBLING TOWERS FALL!',
+    ],
+    width: 320,
+    height: 240,
+    maxPlausibleScore: 5_000_000,
+    titleArt: '/images/arcade/games/repair-rampage-title.webp',
+    accent: '#f87171',
+    controls: 'Climb, fix, shoo',
+  },
 ]
 
 export type ComingSoonCabinet = {
@@ -271,12 +292,6 @@ export type ComingSoonCabinet = {
 
 // Mirrors the queued rows of conductor projects/kr-arcade/games.yaml.
 export const COMING_SOON: ComingSoonCabinet[] = [
-  {
-    slug: 'repair-rampage',
-    title: 'Repair Rampage',
-    riffsOn: 'Rampage',
-    accent: '#f87171',
-  },
   {
     slug: 'kindness-gauntlet',
     title: 'Kindness Gauntlet',
@@ -316,6 +331,7 @@ const LOADERS: Record<string, () => Promise<ArcadeGameModule>> = {
   'hedgehog-crossing': () => import('./games/hedgehogCrossing'),
   'ribbon-riders': () => import('./games/ribbonRiders'),
   'burrow-buddy': () => import('./games/burrowBuddy'),
+  'repair-rampage': () => import('./games/repairRampage'),
 }
 
 export function findArcadeGame(slug: string): ArcadeGameMeta | undefined {

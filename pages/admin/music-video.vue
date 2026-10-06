@@ -117,6 +117,33 @@
               Create
             </button>
           </form>
+          <div v-if="creating" class="flex w-full flex-wrap items-center gap-2">
+            <span class="kr-text-dim-sm">Or start fully set up:</span>
+            <select
+              v-model="specKey"
+              class="kr-input w-auto min-w-0 flex-1 md:flex-none"
+              aria-label="Prepared spec"
+            >
+              <option v-for="spec in specs" :key="spec.key" :value="spec.key">
+                {{ spec.title }}: {{ spec.summary }}
+              </option>
+            </select>
+            <button
+              type="button"
+              class="kr-btn"
+              :disabled="store.saving || !specKey"
+              @click="onImport"
+            >
+              Create from spec
+            </button>
+          </div>
+        </div>
+
+        <div v-if="notice" class="kr-note flex items-center gap-3 p-3">
+          <span class="flex-1">{{ notice }}</span>
+          <button type="button" class="kr-btn" @click="notice = ''">
+            Dismiss
+          </button>
         </div>
 
         <div
@@ -181,6 +208,7 @@
 import { onBeforeUnmount, onMounted, ref } from 'vue'
 import { useMusicVideoStore } from '@/stores/musicVideoStore'
 import { useUserStore } from '@/stores/userStore'
+import { MUSIC_VIDEO_SPECS } from '@/utils/musicVideoSpecs'
 
 const store = useMusicVideoStore()
 const userStore = useUserStore()
@@ -188,6 +216,9 @@ const ready = ref(false)
 const creating = ref(false)
 const newTitle = ref('')
 const newPitch = ref('')
+const specs = MUSIC_VIDEO_SPECS
+const specKey = ref(MUSIC_VIDEO_SPECS[0]?.key ?? '')
+const notice = ref('')
 
 function onSelect(event: Event) {
   const id = Number((event.target as HTMLSelectElement).value)
@@ -198,6 +229,14 @@ async function onCreate() {
   if (await store.create(newTitle.value, newPitch.value)) {
     newTitle.value = ''
     newPitch.value = ''
+    creating.value = false
+  }
+}
+
+async function onImport() {
+  const message = await store.importSpec(specKey.value)
+  if (message) {
+    notice.value = `${message} Press Produce to render it.`
     creating.value = false
   }
 }

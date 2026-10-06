@@ -33,6 +33,7 @@
     "test:music-video-compositor": "tsx utils/scripts/verifyMusicVideoCompositor.test.ts",
     "test:music-video-final": "tsx utils/scripts/verifyMusicVideoFinal.test.ts",
     "test:music-video-audio-upload": "tsx utils/scripts/verifyMusicVideoAudioUpload.test.ts",
+    "test:music-video-specs": "tsx utils/scripts/verifyMusicVideoSpecs.test.ts",
     "test:artjob-audio-media": "tsx utils/scripts/verifyArtJobAudioMedia.test.ts",
     "test:mandarin-course": "tsx utils/scripts/verifyMandarinCourse.test.ts",
     "test:mandarin-parts-first": "tsx utils/scripts/verifyMandarinPartsFirst.test.ts",

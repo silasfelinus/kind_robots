@@ -262,6 +262,36 @@ export const useMusicVideoStore = defineStore('musicVideoStore', () => {
     }
   }
 
+  /**
+   * Create a fully set-up video from a prepared spec (t-033): pitch, settings,
+   * lyrics, scenes with prompts and hero shots. Returns the server's message,
+   * which names any keyframe that had to fall back to a fresh still.
+   */
+  async function importSpec(specKey: string): Promise<string | null> {
+    saving.value = true
+    clearError()
+    try {
+      const response = await performFetch<MusicVideo>(
+        '/api/music-video/import',
+        { method: 'POST', body: JSON.stringify({ specKey }) },
+        0,
+        30_000,
+      )
+      if (!response.success || !response.data) {
+        throw new Error(response.message || 'Failed to import the spec.')
+      }
+      current.value = response.data
+      void hydratePreviews(response.data)
+      await loadList()
+      return response.message || 'Music video created.'
+    } catch (e) {
+      error.value = errorMessage(e, 'Failed to import the spec.')
+      return null
+    } finally {
+      saving.value = false
+    }
+  }
+
   /** The song's length in seconds, read by the browser; null when it cannot tell. */
   function readAudioDuration(file: File): Promise<number | null> {
     if (typeof window === 'undefined' || typeof Audio === 'undefined') {
@@ -1195,6 +1225,7 @@ export const useMusicVideoStore = defineStore('musicVideoStore', () => {
     syncStatus,
     saveLyrics,
     saveBrief,
+    importSpec,
     recentArt,
     loadingRecentArt,
     loadRecentArt,

@@ -95,8 +95,11 @@ export const PROJECT_PLACEMENTS: Record<string, ProjectPlacement> = {
     tabKey: 'storybook',
     route: '/storybook',
   },
+  // Fun (Silas, 2026-10-06): the public channel for projects that were
+  // largely AI-created. Approved daily-pitch projects join it once they have
+  // something playable.
   cthulhuquarium: {
-    channelKey: 'admin',
+    channelKey: 'fun',
     tabKey: 'aquarium',
     route: '/play/aquarium',
   },
@@ -111,9 +114,19 @@ export const PROJECT_PLACEMENTS: Record<string, ProjectPlacement> = {
     route: '/plan/projects/coat-dance',
   },
   'ruler-hooked': {
-    channelKey: 'admin',
+    channelKey: 'fun',
     tabKey: 'ruler-hooked',
     route: '/plan/projects/ruler-hooked',
+  },
+  'tzaddik-gallery': {
+    channelKey: 'fun',
+    tabKey: 'tzaddik-gallery',
+    route: '/tzaddik-gallery',
+  },
+  'evolve-rebel-button': {
+    channelKey: 'fun',
+    tabKey: 'button',
+    route: '/button',
   },
   newsfeed: {
     channelKey: 'home',

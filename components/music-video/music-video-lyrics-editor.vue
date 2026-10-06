@@ -73,8 +73,8 @@
         </div>
         <textarea
           v-model="section.text"
-          class="kr-input w-full font-mono text-sm"
-          :rows="Math.max(3, section.text.split('\n').length)"
+          class="kr-textarea font-mono text-sm leading-snug"
+          :rows="Math.max(4, section.text.split('\n').length + 1)"
           :aria-label="`Section ${index + 1} lines`"
         />
       </li>

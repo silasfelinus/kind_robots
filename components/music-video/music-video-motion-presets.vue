@@ -34,8 +34,8 @@
         </div>
         <textarea
           v-model="preset.prompt"
-          class="kr-input w-full text-sm"
-          rows="2"
+          class="kr-textarea text-sm"
+          rows="3"
           :maxlength="limits.maxPrompt"
           placeholder="One camera move plus one action"
           aria-label="Preset animation prompt"

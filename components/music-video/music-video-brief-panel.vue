@@ -15,8 +15,8 @@
         <span class="kr-text-dim-sm">Pitch</span>
         <textarea
           v-model="form.pitch"
-          class="kr-input w-full text-sm"
-          rows="2"
+          class="kr-textarea text-sm"
+          rows="3"
           :maxlength="limits.maxPitch"
         />
       </label>
@@ -133,8 +133,8 @@
       >
       <textarea
         v-model="form.styleBible"
-        class="kr-input w-full text-sm"
-        rows="2"
+        class="kr-textarea text-sm"
+        rows="3"
         :maxlength="limits.maxStyleBible"
       />
     </label>

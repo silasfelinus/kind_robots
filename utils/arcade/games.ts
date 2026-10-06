@@ -177,6 +177,26 @@ export const ARCADE_GAMES: ArcadeGameMeta[] = [
     accent: '#facc15',
     controls: 'Flip, plunge, nudge',
   },
+  {
+    slug: 'gloom-invaders',
+    title: 'Gloom Invaders',
+    riffsOn: 'Space Invaders',
+    blurb:
+      'Rows of grumpy gloom clouds march down the sky. Shine sunbeams up at them to turn each one into a smiling rain cloud that waters the garden, and shelter under rainbow umbrellas that wear away. Each wave starts lower and marches faster, and a rainbow kite crosses the top for a mystery bonus.',
+    howTo: [
+      'LEFT/RIGHT  MOVE',
+      'A OR UP  SUNBEAM',
+      'ONE BEAM AT A TIME',
+      'UMBRELLAS WEAR AWAY',
+      'KITE = MYSTERY BONUS',
+    ],
+    width: 288,
+    height: 384,
+    maxPlausibleScore: 2_000_000,
+    titleArt: '/images/arcade/games/gloom-invaders-title.webp',
+    accent: '#fde047',
+    controls: 'Move, shine',
+  },
 ]
 
 export type ComingSoonCabinet = {
@@ -190,12 +210,6 @@ export type ComingSoonCabinet = {
 
 // Mirrors the queued rows of conductor projects/kr-arcade/games.yaml.
 export const COMING_SOON: ComingSoonCabinet[] = [
-  {
-    slug: 'gloom-invaders',
-    title: 'Gloom Invaders',
-    riffsOn: 'Space Invaders',
-    accent: '#fde047',
-  },
   {
     slug: 'hedgehog-crossing',
     title: 'Hedgehog Crossing',
@@ -255,6 +269,7 @@ const LOADERS: Record<string, () => Promise<ArcadeGameModule>> = {
   'timber-bot': () => import('./games/timberBot'),
   'butterfly-joust': () => import('./games/butterflyJoust'),
   'kind-pinball': () => import('./games/kindPinball'),
+  'gloom-invaders': () => import('./games/gloomInvaders'),
 }
 
 export function findArcadeGame(slug: string): ArcadeGameMeta | undefined {

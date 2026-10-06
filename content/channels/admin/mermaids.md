@@ -2,6 +2,7 @@
 contentType: tab
 channelKey: admin
 tabKey: mermaids
+parentTabKey: retired
 dashboardKey: giftshop
 dashboardTab: mermaids
 label: Mermaids

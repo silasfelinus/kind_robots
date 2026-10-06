@@ -7,6 +7,7 @@ title: Video Generator
 subtitle: Animate a still into a short clip
 description: Turn a still image into a short looping clip with LTX or WAN, with startup-ready WebP and WebM presets, custom controls, and an optional first-to-last morph.
 icon: kind-icon:video
+image: /images/channels/plan/video-generator.webp
 route: /play/video-generator
 sort: 20
 requiredRole: GUEST

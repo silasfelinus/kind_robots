@@ -7,6 +7,7 @@ title: Mandarin Tutor
 subtitle: Open the characters and see how they work
 description: Image-ready flashcards with pronunciation, component roles, character history, custom decks, beginner sets, and practical casino Mandarin.
 icon: kind-icon:book-open
+image: /images/channels/plan/mandarin.webp
 route: /play/mandarin
 sort: 50
 ---

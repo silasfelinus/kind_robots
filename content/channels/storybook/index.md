@@ -7,6 +7,7 @@ room: The Story Hall
 subtitle: Weave stories from characters, places, and rewards
 description: Storybook plus everything a story is made of. Dreams, bots, characters, facets, rewards, scenarios, and the models behind them.
 icon: kind-icon:story
+image: /images/channels/play/channel.webp
 route: /storybook
 defaultTab: storybook
 sort: 30

@@ -7,6 +7,7 @@ room: The Workshop
 subtitle: Tools, games, and experiments
 description: Tools, games, and experiments, many of them designed and built by Kind Robots' agents. Make art and video, brainstorm, practice music and Mandarin, or play something the robots built.
 icon: kind-icon:blueprint
+image: /images/channels/plan/channel.webp
 route: /art
 defaultTab: art
 sort: 40

@@ -91,6 +91,27 @@ export const ARCADE_GAMES: ArcadeGameMeta[] = [
     accent: '#a5f3fc',
     controls: 'Steer, puff, grow',
   },
+  {
+    slug: 'pipe-pals',
+    title: 'Pipe Pals',
+    riffsOn: 'Mario Bros.',
+    blurb:
+      'Grumpy critters are crawling out of the Kind Robots plumbing. Bump the floor under one to flip it, then tap it to send it home. Crab bots take two bumps, the KIND block flips the whole floor, and every fourth pipe is a bonus coin round.',
+    howTo: [
+      'RUN LEFT AND RIGHT',
+      'A  JUMP',
+      'BUMP FLOORS FROM BELOW',
+      'TOUCH FLIPPED CRITTERS',
+      'CRABS NEED TWO BUMPS',
+      'KIND BLOCK FLIPS ALL',
+    ],
+    width: 448,
+    height: 336,
+    maxPlausibleScore: 2_000_000,
+    titleArt: '/images/arcade/games/pipe-pals-title.webp',
+    accent: '#4ade80',
+    controls: 'Run, jump, bump',
+  },
 ]
 
 export type ComingSoonCabinet = {
@@ -104,12 +125,6 @@ export type ComingSoonCabinet = {
 
 // Mirrors the queued rows of conductor projects/kr-arcade/games.yaml.
 export const COMING_SOON: ComingSoonCabinet[] = [
-  {
-    slug: 'pipe-pals',
-    title: 'Pipe Pals',
-    riffsOn: 'Mario Bros.',
-    accent: '#4ade80',
-  },
   {
     slug: 'timber-bot',
     title: 'Timber Bot',
@@ -141,6 +156,7 @@ const LOADERS: Record<string, () => Promise<ArcadeGameModule>> = {
   'battery-maze': () => import('./games/batteryMaze'),
   'rescue-rally': () => import('./games/rescueRally'),
   'sink-suds': () => import('./games/sinkSuds'),
+  'pipe-pals': () => import('./games/pipePals'),
 }
 
 export function findArcadeGame(slug: string): ArcadeGameMeta | undefined {

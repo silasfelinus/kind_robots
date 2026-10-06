@@ -29,6 +29,7 @@
     "test:music-video-scenes": "tsx utils/scripts/verifyMusicVideoScenes.test.ts",
     "test:music-video-song": "tsx utils/scripts/verifyMusicVideoSong.test.ts",
     "test:music-video-motion": "tsx utils/scripts/verifyMusicVideoMotion.test.ts",
+    "test:music-video-timeline": "tsx utils/scripts/verifyMusicVideoTimeline.test.ts",
     "test:music-video-final": "tsx utils/scripts/verifyMusicVideoFinal.test.ts",
     "test:music-video-audio-upload": "tsx utils/scripts/verifyMusicVideoAudioUpload.test.ts",
     "test:artjob-audio-media": "tsx utils/scripts/verifyArtJobAudioMedia.test.ts",

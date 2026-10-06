@@ -154,6 +154,27 @@ export const ARCADE_GAMES: ArcadeGameMeta[] = [
     accent: '#f9a8d4',
     controls: 'Flap, steer, joust',
   },
+  {
+    slug: 'kind-pinball',
+    title: 'Kind Pinball',
+    riffsOn: 'pinball',
+    blurb:
+      'A Kind Robots pinball table. Roll through the N-E-T lanes to raise your bonus, hit the A-M-I targets to ready the saucer, then shoot the saucer to light a village. Light all five villages for the jackpot.',
+    howTo: [
+      'LEFT/RIGHT  FLIPPERS',
+      'A  BOTH FLIPPERS',
+      'HOLD DOWN, LET GO',
+      'UP  NUDGE THE TABLE',
+      'A-M-I READIES SAUCER',
+      '5 VILLAGES = JACKPOT',
+    ],
+    width: 288,
+    height: 416,
+    maxPlausibleScore: 50_000_000,
+    titleArt: '/images/arcade/games/kind-pinball-title.webp',
+    accent: '#facc15',
+    controls: 'Flip, plunge, nudge',
+  },
 ]
 
 export type ComingSoonCabinet = {
@@ -167,12 +188,6 @@ export type ComingSoonCabinet = {
 
 // Mirrors the queued rows of conductor projects/kr-arcade/games.yaml.
 export const COMING_SOON: ComingSoonCabinet[] = [
-  {
-    slug: 'kind-pinball',
-    title: 'Kind Pinball',
-    riffsOn: 'Pinball',
-    accent: '#f472b6',
-  },
   {
     slug: 'kindness-gauntlet',
     title: 'Kindness Gauntlet',
@@ -189,6 +204,7 @@ const LOADERS: Record<string, () => Promise<ArcadeGameModule>> = {
   'pipe-pals': () => import('./games/pipePals'),
   'timber-bot': () => import('./games/timberBot'),
   'butterfly-joust': () => import('./games/butterflyJoust'),
+  'kind-pinball': () => import('./games/kindPinball'),
 }
 
 export function findArcadeGame(slug: string): ArcadeGameMeta | undefined {

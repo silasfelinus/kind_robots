@@ -1,17 +1,24 @@
 // /utils/arcade/games/kindPinball.ts
 //
 // Kind Pinball -- the Kind Robots Arcade's pinball table (conductor
-// kr-arcade/t-009 game factory, slices 1-2 of 4: table, flippers, physics,
-// bumpers, targets and scoring; the ramp, modes and AMI multiball come in
-// later factory cycles). Left and right work the flippers, A works both,
-// hold Down to pull the plunger and let go to launch (A launches too), and
-// Up nudges the table.
+// kr-arcade/t-009 game factory, slices 1-3 of 4: table, flippers, physics,
+// bumpers, targets, scoring, the ramp and the mode ladder; the AMI multiball
+// is the last slice). Left and right work the flippers, A works both, hold
+// Down to pull the plunger and let go to launch (A launches too), and Up
+// nudges the table.
 //
 // Rules: roll through the N-E-T lanes at the top to raise the bonus
 // multiplier (the flippers rotate the lit lanes). Hit the A-M-I targets to
 // ready the saucer, then shoot the saucer to light a village. Light all five
-// villages for the JACKPOT, which also steps up the level. Ball save shrinks
-// with every ball and level, and an extra ball waits at 150,000.
+// villages for the JACKPOT, which also steps up the level.
+//
+// The ramp: a fast shot into the mouth on the upper right rides a raised
+// track over the table and drops into the left inlane. Ramp shots in a row
+// on one ball are worth more each time, and every third one starts the next
+// mode on the ladder (Net Rush, Ramp Frenzy, Lane Lights, Saucer Rescue),
+// each 30 seconds long. Play all four and the next ramp shot pays the SUPER
+// JACKPOT. Mode values scale with the level. Ball save shrinks with every
+// ball and level, and an extra ball waits at 150,000.
 
 import { drawText } from '../font'
 import type {
@@ -40,6 +47,44 @@ const START_BALLS = 3
 const EXTRA_BALL_AT = 150_000
 const VILLAGES = 5
 const JACKPOT = 100_000
+const SUPER_JACKPOT = 250_000
+const RAMP_TICKS = 48
+const RAMPS_PER_MODE = 3
+const MODE_TICKS = 60 * 30
+
+/** The ramp mouth: a ball moving up through it fast enough rides the ramp. */
+const RAMP_MOUTH = { x0: 200, x1: 228, y0: 150, y1: 172, minSpeed: 4.5 }
+/** The raised track, from the mouth over the top and down into the left inlane. */
+const RAMP_PATH: Array<{ x: number; y: number }> = [
+  { x: 214, y: 162 },
+  { x: 226, y: 108 },
+  { x: 200, y: 82 },
+  { x: 140, y: 98 },
+  { x: 70, y: 110 },
+  { x: 40, y: 168 },
+  { x: 41, y: 250 },
+  { x: 38, y: 290 },
+]
+
+/** The mode ladder, started in order by every third ramp shot. */
+export const PINBALL_MODES = [
+  { key: 'net', name: 'NET RUSH', hint: 'BUMPERS 1,000' },
+  { key: 'ramp', name: 'RAMP FRENZY', hint: 'RAMPS 25,000' },
+  { key: 'lanes', name: 'LANE LIGHTS', hint: 'LANES 5,000' },
+  { key: 'saucer', name: 'SAUCER RESCUE', hint: 'SAUCER LIGHTS VILLAGES' },
+] as const
+type ModeKey = (typeof PINBALL_MODES)[number]['key']
+
+/** Where a ride is, as a point along RAMP_PATH (t from 0 to 1). */
+export function rampPoint(t: number): { x: number; y: number } {
+  const clamped = Math.max(0, Math.min(1, t))
+  const span = (RAMP_PATH.length - 1) * clamped
+  const i = Math.min(RAMP_PATH.length - 2, Math.floor(span))
+  const f = span - i
+  const a = RAMP_PATH[i]!
+  const b = RAMP_PATH[i + 1]!
+  return { x: a.x + (b.x - a.x) * f, y: a.y + (b.y - a.y) * f }
+}
 
 type Vec = { x: number; y: number }
 type Seg = { a: Vec; b: Vec; kick?: number; target?: number }
@@ -198,6 +243,16 @@ class KindPinball implements ArcadeGameInstance {
   private bonus = 0
   private extraBallGiven = false
   private draining = 0
+  /** Ticks into a ramp ride, or 0 when the ball is on the table. */
+  private ramping = 0
+  /** Ramp shots in a row on this ball (each one is worth more). */
+  private rampStreak = 0
+  /** Ramp shots toward starting the next mode. */
+  private rampsTowardMode = 0
+  private modeIndex = 0
+  private mode: { key: ModeKey; ticks: number } | null = null
+  private modesPlayed = 0
+  private superReady = false
   private sparks: Spark[] = []
   private floaters: Floater[] = []
   private banner: { text: string; sub?: string; ticks: number } | null = null
@@ -221,6 +276,9 @@ class KindPinball implements ArcadeGameInstance {
     this.multiplier = 1
     this.bonus = 0
     this.lanes = [false, false, false]
+    this.ramping = 0
+    this.rampStreak = 0
+    this.mode = null
     this.banner = { text: `BALL ${this.ballNumber}`, ticks: 80 }
   }
 
@@ -269,6 +327,12 @@ class KindPinball implements ArcadeGameInstance {
       this.plunger(controls)
       return
     }
+    if (this.mode && --this.mode.ticks <= 0) this.endMode()
+    if (this.ramping > 0) {
+      for (let i = 0; i < SUBSTEPS; i++) this.swingFlippers()
+      this.rideRamp()
+      return
+    }
     if (this.saucerHold > 0) {
       for (let i = 0; i < SUBSTEPS; i++) this.swingFlippers()
       if (--this.saucerHold === 0) {
@@ -290,6 +354,7 @@ class KindPinball implements ArcadeGameInstance {
     this.ball.vy += GRAVITY
     for (let i = 0; i < SUBSTEPS; i++) this.step()
     this.checkLanes()
+    this.checkRampMouth()
     const b = this.ball
     if (b.x > 264 && b.y > PLUNGER_Y - R - 2 && Math.abs(b.vy) < 0.5) {
       // Rolled back down the lane: plunge again.
@@ -408,7 +473,8 @@ class KindPinball implements ArcadeGameInstance {
     b.vx += Math.cos(a) * 4.5
     b.vy += Math.sin(a) * 4.5
     bumper.flash = 8
-    this.addScore(100, bumper.x, bumper.y - 20)
+    const pop = this.mode?.key === 'net' ? 1000 * this.level : 100
+    this.addScore(pop, bumper.x, bumper.y - 20)
     this.sound.play('pop')
   }
 
@@ -447,6 +513,8 @@ class KindPinball implements ArcadeGameInstance {
     Object.assign(b, { x: SAUCER.x, y: SAUCER.y, vx: 0, vy: 0 })
     this.saucerHold = 50
     this.bonus += 1000
+    // Saucer Rescue lights a village with every saucer shot.
+    if (this.mode?.key === 'saucer') this.saucerReady = true
     if (this.saucerReady) {
       this.saucerReady = false
       this.targets = [false, false, false]
@@ -495,7 +563,11 @@ class KindPinball implements ArcadeGameInstance {
     LANES.forEach((x, i) => {
       if (Math.abs(b.x - x) < 8 && !this.lanes[i]) {
         this.lanes[i] = true
-        this.addScore(250, x, 80)
+        this.addScore(
+          this.mode?.key === 'lanes' ? 5000 * this.level : 250,
+          x,
+          80,
+        )
         this.bonus += 250
         this.sound.play('blip')
       }
@@ -506,6 +578,84 @@ class KindPinball implements ArcadeGameInstance {
       this.addScore(5000, W / 2, 90)
       this.banner = { text: `BONUS X${this.multiplier}`, ticks: 80 }
       this.sound.play('extra')
+    }
+  }
+
+  // --- ramp and modes ----------------------------------------------------------
+
+  private checkRampMouth() {
+    const b = this.ball
+    const m = RAMP_MOUTH
+    if (b.x < m.x0 || b.x > m.x1 || b.y < m.y0 || b.y > m.y1) return
+    if (b.vy > -m.minSpeed) return
+    this.ramping = 1
+    this.sound.play('shoot')
+  }
+
+  private rideRamp() {
+    this.ramping++
+    const at = rampPoint(this.ramping / RAMP_TICKS)
+    this.ball.x = at.x
+    this.ball.y = at.y
+    if (this.ramping % 6 === 0) this.burst(at.x, at.y, 1, '#a78bfa')
+    if (this.ramping < RAMP_TICKS) return
+    // Off the end of the track into the left inlane, rolling toward the flipper.
+    this.ramping = 0
+    this.ball.vx = 0.6
+    this.ball.vy = 1.6
+    this.onRampShot()
+  }
+
+  private onRampShot() {
+    this.rampStreak = Math.min(5, this.rampStreak + 1)
+    this.bonus += 1000
+    let points = 1000 * this.rampStreak * this.level
+    if (this.mode?.key === 'ramp') points += 25_000 * this.level
+    this.addScore(points, 214, 140)
+    if (this.superReady) {
+      this.superReady = false
+      this.modesPlayed = 0
+      this.addScore(SUPER_JACKPOT * this.level, W / 2, 180)
+      this.banner = {
+        text: 'SUPER JACKPOT!',
+        sub: 'EVERY MODE PLAYED',
+        ticks: 160,
+      }
+      this.sound.play('level')
+      return
+    }
+    if (this.mode) return
+    this.rampsTowardMode++
+    if (this.rampsTowardMode >= RAMPS_PER_MODE) {
+      this.rampsTowardMode = 0
+      this.startMode()
+    } else {
+      this.sound.play('pickup')
+    }
+  }
+
+  private startMode() {
+    const def = PINBALL_MODES[this.modeIndex % PINBALL_MODES.length]!
+    this.modeIndex++
+    this.mode = { key: def.key, ticks: MODE_TICKS }
+    this.banner = { text: def.name, sub: def.hint, ticks: 120 }
+    this.sound.play('extra')
+  }
+
+  private endMode() {
+    if (!this.mode) return
+    this.mode = null
+    this.modesPlayed++
+    if (this.modesPlayed >= PINBALL_MODES.length) {
+      this.superReady = true
+      this.banner = {
+        text: 'SUPER JACKPOT LIT',
+        sub: 'SHOOT THE RAMP',
+        ticks: 120,
+      }
+      this.sound.play('level')
+    } else {
+      this.banner = { text: 'MODE OVER', ticks: 70 }
     }
   }
 
@@ -532,6 +682,11 @@ class KindPinball implements ArcadeGameInstance {
       return
     }
     this.sound.play('die')
+    if (this.mode) {
+      this.mode = null
+      this.modesPlayed++
+      if (this.modesPlayed >= PINBALL_MODES.length) this.superReady = true
+    }
     const bonus = this.bonus * this.multiplier
     this.addScore(bonus)
     this.banner = {
@@ -632,7 +787,9 @@ class KindPinball implements ArcadeGameInstance {
     this.renderTable(g)
     this.renderFeatures(g)
     for (const f of this.flippers) this.renderFlipper(g, f)
-    this.renderBall(g)
+    if (this.ramping === 0) this.renderBall(g)
+    this.renderRamp(g)
+    if (this.ramping > 0) this.renderBall(g)
     for (const s of this.sparks) {
       g.globalAlpha = Math.max(0, s.life / 30)
       g.fillStyle = s.color
@@ -771,6 +928,56 @@ class KindPinball implements ArcadeGameInstance {
     })
   }
 
+  private renderRamp(g: CanvasRenderingContext2D) {
+    // The raised track: a translucent band with neon rails.
+    g.save()
+    g.lineCap = 'round'
+    g.lineJoin = 'round'
+    g.globalAlpha = 0.35
+    g.strokeStyle = '#7c3aed'
+    g.lineWidth = 14
+    g.beginPath()
+    RAMP_PATH.forEach((p, i) => (i ? g.lineTo(p.x, p.y) : g.moveTo(p.x, p.y)))
+    g.stroke()
+    g.globalAlpha = 0.9
+    g.strokeStyle = this.ramping ? '#f0abfc' : '#c084fc'
+    g.lineWidth = 1.5
+    for (const side of [-6, 6]) {
+      g.beginPath()
+      RAMP_PATH.forEach((p, i) => {
+        const q = RAMP_PATH[Math.min(i + 1, RAMP_PATH.length - 1)]!
+        const o = RAMP_PATH[Math.max(i - 1, 0)]!
+        const dx = q.x - o.x
+        const dy = q.y - o.y
+        const len = Math.hypot(dx, dy) || 1
+        const x = p.x - (dy / len) * side
+        const y = p.y + (dx / len) * side
+        if (i) g.lineTo(x, y)
+        else g.moveTo(x, y)
+      })
+      g.stroke()
+    }
+    g.restore()
+    // The mouth glows when a ramp shot matters most.
+    const hot = this.superReady || this.mode?.key === 'ramp'
+    const blink = Math.floor(this.tick / 8) % 2 === 0
+    g.fillStyle = hot && blink ? '#facc15' : '#a855f7'
+    g.beginPath()
+    g.moveTo(RAMP_MOUTH.x0, RAMP_MOUTH.y1)
+    g.lineTo((RAMP_MOUTH.x0 + RAMP_MOUTH.x1) / 2, RAMP_MOUTH.y1 - 10)
+    g.lineTo(RAMP_MOUTH.x1, RAMP_MOUTH.y1)
+    g.fill()
+    const label = this.superReady
+      ? 'SUPER'
+      : this.mode
+        ? 'RAMP'
+        : `RAMP ${this.rampsTowardMode}/${RAMPS_PER_MODE}`
+    drawText(g, label, (RAMP_MOUTH.x0 + RAMP_MOUTH.x1) / 2, RAMP_MOUTH.y1 + 4, {
+      align: 'center',
+      color: hot ? '#fde68a' : '#e9d5ff',
+    })
+  }
+
   private renderFlipper(g: CanvasRenderingContext2D, f: Flipper) {
     const tip = this.flipperTip(f)
     g.strokeStyle = '#facc15'
@@ -814,6 +1021,15 @@ class KindPinball implements ArcadeGameInstance {
       align: 'right',
       color: '#f9a8d4',
     })
+    if (this.mode) {
+      const def = PINBALL_MODES.find((m) => m.key === this.mode?.key)
+      const seconds = Math.ceil(this.mode.ticks / 60)
+      drawText(g, `${def?.name ?? ''} ${seconds}`, CX, 24, {
+        align: 'center',
+        color: '#f0abfc',
+        shadow,
+      })
+    }
     if (this.ballSave > 0 && Math.floor(this.tick / 10) % 2 === 0) {
       drawText(g, 'SAVE', CX, 396, { align: 'center', color: '#86efac' })
     }

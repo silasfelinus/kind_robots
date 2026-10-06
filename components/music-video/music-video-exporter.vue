@@ -41,7 +41,6 @@
 import { computed, onBeforeUnmount, ref } from 'vue'
 import type { MusicVideoDoc } from '@/utils/musicVideoDoc'
 import { finalVideoFileName } from '@/utils/musicVideoFinal'
-import { performFetch } from '@/stores/utils'
 import { useUserStore } from '@/stores/userStore'
 import {
   exportMusicVideoMp4,
@@ -79,16 +78,18 @@ function revoke() {
   downloadUrl.value = ''
 }
 
-async function songPath(): Promise<string | null> {
+/*
+ * The song's bytes come through the file route, never ArtImage.imagePath. A
+ * generated song stays in the database (audio jobs are not offloaded), so its
+ * imagePath is empty -- and reading that made songUrl null, which the exporter
+ * took as "no song" and wrote a silent MP4 (Silas, 2026-10-06: "the demo is
+ * playing the images but something isn't connecting the audio"). The route
+ * serves private bytes to the Bearer header onExport() already sends, and
+ * redirects to the stored path when there is one.
+ */
+function songUrl(): string | null {
   const id = props.doc.song?.artImageId
-  if (!id) return null
-  const meta = await performFetch<{ imagePath?: string }>(
-    `/api/art/image/${id}?showMature=true`,
-    {},
-    1,
-    15_000,
-  )
-  return meta.success ? (meta.data?.imagePath ?? null) : null
+  return id ? `/api/art/images/${id}/file` : null
 }
 
 async function onExport() {
@@ -108,9 +109,15 @@ async function onExport() {
           : null,
       ]),
     )
+    const song = songUrl()
+    if (props.doc.song && !song) {
+      throw new Error(
+        'The song is not finished yet, so the export would be silent. Try again once it is ready.',
+      )
+    }
     const blob = await exportMusicVideoMp4({
       doc: props.doc,
-      songUrl: await songPath(),
+      songUrl: song,
       imageUrlFor: (sceneId) => sceneArt.get(sceneId) ?? null,
       headers,
       signal: controller.signal,

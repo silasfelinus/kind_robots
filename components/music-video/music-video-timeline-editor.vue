@@ -174,7 +174,6 @@
 
 <script setup lang="ts">
 import { computed, onBeforeUnmount, reactive, ref, watch } from 'vue'
-import { performFetch } from '@/stores/utils'
 import { useUserStore } from '@/stores/userStore'
 import {
   MUSIC_VIDEO_LIMITS,
@@ -443,20 +442,18 @@ watch(
   },
 )
 
-/** The song is a private row, so it is fetched as a blob with the Bearer header. */
+/*
+ * The song is a private row, so it is fetched as a blob with the Bearer header,
+ * through the file route rather than ArtImage.imagePath: a generated song stays
+ * in the database (audio jobs are not offloaded), so its imagePath is empty and
+ * the waveform used to give up before fetching anything.
+ */
 async function loadWaveform(artImageId: number | undefined) {
   peaks.value = []
   waveError.value = ''
   if (!artImageId || !import.meta.client) return
   try {
-    const meta = await performFetch<{ imagePath?: string }>(
-      `/api/art/image/${artImageId}?showMature=true`,
-      {},
-      1,
-      15_000,
-    )
-    const path = meta.success ? meta.data?.imagePath : null
-    if (!path) throw new Error('no song path')
+    const path = `/api/art/images/${artImageId}/file`
     const token = userStore.token || userStore.user?.token || ''
     const headers = new Headers()
     if (token) headers.set('Authorization', `Bearer ${token}`)

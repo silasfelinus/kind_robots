@@ -91,6 +91,33 @@
         :maxlength="limits.maxStyleBible"
       />
     </label>
+    <div
+      class="grid gap-3 grid-cols-[repeat(auto-fit,minmax(min(100%,12rem),1fr))]"
+    >
+      <label class="block space-y-1">
+        <span class="kr-text-dim-sm">Comic series id (optional)</span>
+        <input
+          v-model.number="form.comicSeriesId"
+          class="kr-input w-full"
+          type="number"
+          min="1"
+          placeholder="Render stills in a comic's style"
+        />
+      </label>
+      <label class="block space-y-1">
+        <span class="kr-text-dim-sm">Comic lane</span>
+        <select
+          v-model="form.comicLaneKey"
+          class="kr-input w-full"
+          :disabled="!form.comicSeriesId"
+        >
+          <option value="">The series' house lane</option>
+          <option v-for="lane in lanes" :key="lane.key" :value="lane.key">
+            {{ lane.label }}
+          </option>
+        </select>
+      </label>
+    </div>
     <label class="block space-y-1">
       <span class="kr-text-dim-sm">
         Banned terms (comma separated; never in a prompt, lyric or caption)
@@ -139,11 +166,13 @@ import {
   type MusicVideoSettings,
   type MusicVideoVocal,
 } from '@/utils/musicVideoDoc'
+import { DEFAULT_COMIC_LANES } from '@/utils/comicLanes'
 
 const store = useMusicVideoStore()
 const aspects = MUSIC_VIDEO_ASPECTS
 const vocals = MUSIC_VIDEO_VOCALS
 const limits = MUSIC_VIDEO_LIMITS
+const lanes = DEFAULT_COMIC_LANES
 
 type SettingsForm = {
   durationSec: number
@@ -155,6 +184,8 @@ type SettingsForm = {
   styleBible: string
   bannedTerms: string
   heroShots: number | ''
+  comicSeriesId: number | ''
+  comicLaneKey: string
 }
 
 const form = reactive<SettingsForm>(emptyForm())
@@ -170,6 +201,8 @@ function emptyForm(settings?: MusicVideoSettings): SettingsForm {
     styleBible: settings?.styleBible ?? '',
     bannedTerms: (settings?.bannedTerms ?? []).join(', '),
     heroShots: settings?.heroShots ?? '',
+    comicSeriesId: settings?.comicSeriesId ?? '',
+    comicLaneKey: settings?.comicLaneKey ?? '',
   }
 }
 
@@ -191,6 +224,14 @@ function toSettings(): Partial<MusicVideoSettings> {
       form.heroShots === '' || Number(form.heroShots) <= 0
         ? undefined
         : Math.min(Number(form.heroShots), MUSIC_VIDEO_LIMITS.maxHeroShots),
+    comicSeriesId:
+      form.comicSeriesId === '' || Number(form.comicSeriesId) <= 0
+        ? undefined
+        : Number(form.comicSeriesId),
+    comicLaneKey:
+      form.comicSeriesId !== '' && form.comicLaneKey
+        ? form.comicLaneKey
+        : undefined,
   }
 }
 

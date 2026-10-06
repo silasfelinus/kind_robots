@@ -1,4 +1,5 @@
 import { createError, defineEventHandler, readBody } from 'h3'
+import { readArtImageDataUrl } from '@/server/utils/artImageBytes'
 import prisma from '@/server/utils/prisma'
 import { requireAdminApiUser } from '@/server/utils/authGuard'
 import { errorHandler } from '@/server/utils/error'
@@ -37,17 +38,6 @@ type ClipOutcome = {
 // Video jobs run for up to 90 minutes each on the single card; a handful per
 // call keeps one request from burying the queue.
 const MAX_CLIPS_PER_CALL = 8
-
-async function stillDataUrl(artImageId: number | undefined): Promise<string> {
-  if (!artImageId) return ''
-  const still = await prisma.artImage.findUnique({
-    where: { id: artImageId },
-    select: { imageData: true, fileType: true },
-  })
-  if (!still?.imageData) return ''
-  const fileType = String(still.fileType || 'png').toLowerCase()
-  return `data:image/${fileType === 'jpg' ? 'jpeg' : fileType};base64,${still.imageData}`
-}
 
 // music-video/t-009: opt scenes in to an ltx/wan image-to-video clip, with the
 // scene's finished still as the first frame. The scene keeps its Ken Burns
@@ -149,9 +139,9 @@ export default defineEventHandler(async (event) => {
             ? doc.scenes[doc.scenes.indexOf(scene) + 1]
             : undefined
         const request = buildSceneClipRequest(scene, doc, {
-          firstImageBase64: await stillDataUrl(scene.image.artImageId),
+          firstImageBase64: await readArtImageDataUrl(scene.image.artImageId),
           lastImageBase64: next
-            ? await stillDataUrl(next.image.artImageId)
+            ? await readArtImageDataUrl(next.image.artImageId)
             : null,
           projectSlug: MUSIC_VIDEO_PROJECT_SLUG,
           presetId: preset.id,

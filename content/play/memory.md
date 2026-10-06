@@ -8,7 +8,7 @@ icon: kind-icon:brain
 tooltip: 'A memory game with lives, levels, powerups, surprise loot, and weird dungeon flavor.'
 dottiTip: 'AMI, I upgraded the memory game into a dungeon crawler. There are lives, levels, rewards, and probably goblins.'
 amiTip: 'Excellent. Nothing improves cognitive training like treasure chests and suspiciously judgmental rectangles.'
-channelKey: play
+channelKey: fun
 tabKey: experiments
 dashboardKey: wonder
 dashboardTab: memory-dungeon

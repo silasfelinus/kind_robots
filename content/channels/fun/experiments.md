@@ -1,6 +1,6 @@
 ---
 contentType: tab
-channelKey: play
+channelKey: fun
 tabKey: experiments
 dashboardKey: wonder
 dashboardTab: memory-dungeon
@@ -11,7 +11,7 @@ summary: A roguelite memory-match dungeon with lives, levels, powerups, and surp
 description: Play the roguelite memory card dungeon with lives, levels, powerups, and surprise loot.
 icon: kind-icon:dungeon
 route: /play/memory
-sort: 55
+sort: 10
 requiredRole: GUEST
 ---
 

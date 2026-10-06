@@ -27,6 +27,7 @@ import {
   loadArcadeGame,
 } from '../arcade/games'
 import { glyphFor, measureText } from '../arcade/font'
+import { BATTERY_MAZE } from '../arcade/games/batteryMaze'
 import { emptyInput, type InputFrame } from '../arcade/types'
 
 // --- clock -------------------------------------------------------------------
@@ -215,6 +216,60 @@ import { emptyInput, type InputFrame } from '../arcade/types'
   }
   assert.equal(measureText('ABC', 2), (3 * 6 - 1) * 2)
   assert.equal(measureText('', 3), 0)
+}
+
+// --- Battery Maze layout --------------------------------------------------------
+{
+  const width = BATTERY_MAZE[0]!.length
+  for (const row of BATTERY_MAZE) {
+    assert.equal(row.length, width, 'maze rows are all the same width')
+    assert.equal(
+      row,
+      [...row].reverse().join(''),
+      'maze is left/right symmetric',
+    )
+  }
+  const open = (x: number, y: number) => {
+    const cell = BATTERY_MAZE[y]?.[(x + width) % width]
+    return cell !== undefined && cell !== '#' && cell !== '-' && cell !== 'G'
+  }
+  const startY = BATTERY_MAZE.findIndex((row) => row.includes('P'))
+  const start = `${BATTERY_MAZE[startY]!.indexOf('P')},${startY}`
+  const seen = new Set([start])
+  const queue = [start]
+  while (queue.length) {
+    const [x, y] = queue.pop()!.split(',').map(Number) as [number, number]
+    for (const [dx, dy] of [
+      [1, 0],
+      [-1, 0],
+      [0, 1],
+      [0, -1],
+    ] as const) {
+      const nx = (x + dx + width) % width
+      const key = `${nx},${y + dy}`
+      if (!seen.has(key) && open(nx, y + dy)) {
+        seen.add(key)
+        queue.push(key)
+      }
+    }
+  }
+  BATTERY_MAZE.forEach((row, y) => {
+    ;[...row].forEach((cell, x) => {
+      if (cell === '.' || cell === 'o') {
+        assert.ok(seen.has(`${x},${y}`), `spark at ${x},${y} is unreachable`)
+      }
+    })
+  })
+  for (const key of seen) {
+    const [x, y] = key.split(',').map(Number) as [number, number]
+    const exits = [
+      [1, 0],
+      [-1, 0],
+      [0, 1],
+      [0, -1],
+    ].filter(([dx, dy]) => open(x + dx!, y + dy!)).length
+    assert.ok(exits >= 2, `dead end at ${key}`)
+  }
 }
 
 // --- headless game runs ----------------------------------------------------------

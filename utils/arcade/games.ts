@@ -30,6 +30,26 @@ export const ARCADE_GAMES: ArcadeGameMeta[] = [
     accent: '#f472b6',
     controls: 'Turn, flutter, sparkle, hop',
   },
+  {
+    slug: 'battery-maze',
+    title: 'Battery Maze',
+    riffsOn: 'Pac-Man',
+    blurb:
+      'Steer a little cat-eared robot through the maze, gathering energy sparks while four glitch gremlins hunt it. Grab a power cell and the gremlins go sleepy: bump one to reboot it back to the charging dock.',
+    howTo: [
+      'STEER THE ROBOT',
+      'EAT EVERY SPARK',
+      'POWER CELLS MAKE',
+      'THE GREMLINS SLEEPY',
+      'BUMP SLEEPY ONES!',
+    ],
+    width: 322,
+    height: 340,
+    maxPlausibleScore: 3_000_000,
+    titleArt: '/images/arcade/games/battery-maze-title.webp',
+    accent: '#facc15',
+    controls: 'Steer through the maze',
+  },
 ]
 
 export type ComingSoonCabinet = {
@@ -43,13 +63,6 @@ export type ComingSoonCabinet = {
 
 // Mirrors the queued rows of conductor projects/kr-arcade/games.yaml.
 export const COMING_SOON: ComingSoonCabinet[] = [
-  {
-    slug: 'battery-maze',
-    title: 'Battery Maze',
-    riffsOn: 'Pac-Man',
-    accent: '#facc15',
-    titleArt: '/images/arcade/games/battery-maze-title.webp',
-  },
   {
     slug: 'rescue-rally',
     title: 'Rescue Rally',
@@ -97,6 +110,7 @@ export const COMING_SOON: ComingSoonCabinet[] = [
 
 const LOADERS: Record<string, () => Promise<ArcadeGameModule>> = {
   'butterfly-blaster': () => import('./games/butterflyBlaster'),
+  'battery-maze': () => import('./games/batteryMaze'),
 }
 
 export function findArcadeGame(slug: string): ArcadeGameMeta | undefined {

@@ -5,10 +5,20 @@
 // shots with their animation prompts, in one call. Body: { specKey } for a
 // bundled spec (utils/musicVideoSpecs.ts), or { spec } with the same shape.
 // Press Produce afterwards and it skips straight to the steps still missing.
-import { createError, defineEventHandler, readBody } from 'h3'
+import { promises as fs } from 'node:fs'
+import path from 'node:path'
+import {
+  createError,
+  defineEventHandler,
+  getRequestURL,
+  readBody,
+  type H3Event,
+} from 'h3'
 import prisma from '@/server/utils/prisma'
 import { requireAdminApiUser } from '@/server/utils/authGuard'
 import { errorHandler } from '@/server/utils/error'
+import { getImageStorageRoot } from '@/server/utils/imageStorageRoot'
+import { uploadArtImage } from '@/server/utils/UploadArtImage'
 import {
   cleanMusicVideoTitle,
   serializeValidatedDoc,
@@ -64,6 +74,45 @@ function readSpec(body: ImportBody): MusicVideoSpec {
   } as MusicVideoSpec
 }
 
+const SITE_IMAGE = /^\/images\/[A-Za-z0-9_\-/]+\.(webp|png|jpe?g)$/
+const MAX_SITE_IMAGE_BYTES = 15 * 1024 * 1024
+
+/*
+ * The bytes of a site image such as the logo (Silas, 2026-10-06: "use our
+ * logo as one of the images, or two"). /images/... is served by the media
+ * origin, so read the storage root first and fall back to the site's own URL.
+ */
+async function loadSiteImage(
+  event: H3Event,
+  sitePath: string,
+): Promise<Buffer | null> {
+  if (!SITE_IMAGE.test(sitePath) || sitePath.includes('..')) return null
+  const root = getImageStorageRoot()
+  const absolute = path.resolve(root, sitePath.slice('/images/'.length))
+  if (absolute.startsWith(root + path.sep)) {
+    try {
+      const bytes = await fs.readFile(absolute)
+      if (bytes.length && bytes.length <= MAX_SITE_IMAGE_BYTES) return bytes
+    } catch {
+      // Not on this host's disk; try the public URL.
+    }
+  }
+  try {
+    const origin = getRequestURL(event, {
+      xForwardedHost: true,
+      xForwardedProto: true,
+    }).origin
+    const response = await fetch(`${origin}${sitePath}`, {
+      signal: AbortSignal.timeout(15_000),
+    })
+    if (!response.ok) return null
+    const bytes = Buffer.from(await response.arrayBuffer())
+    return bytes.length && bytes.length <= MAX_SITE_IMAGE_BYTES ? bytes : null
+  } catch {
+    return null
+  }
+}
+
 export default defineEventHandler(async (event) => {
   try {
     const auth = await requireAdminApiUser(event)
@@ -116,6 +165,44 @@ export default defineEventHandler(async (event) => {
       )
       return { ...scene, image: { source: 'generated' as const } }
     })
+
+    // Site images (the logo, a bot's portrait) become private ArtImages on
+    // their scenes; one that cannot be read leaves the scene to its prompt.
+    const copied = new Map<string, number>()
+    for (const [index, row] of spec.scenes.entries()) {
+      const scene = scenes[index]
+      if (!row.siteImage || !scene) continue
+      let artImageId = copied.get(row.siteImage)
+      if (!artImageId) {
+        const bytes = await loadSiteImage(event, row.siteImage)
+        if (bytes) {
+          const fileName = path.basename(row.siteImage)
+          const image = await uploadArtImage({
+            uploadedFile: { data: bytes, filename: fileName },
+            userId: auth.user.id,
+            galleryName: 'music-video',
+            fileType: path.extname(fileName).slice(1),
+            fileName,
+            promptString: scene.prompt.slice(0, 2000),
+            designer: 'Music Video',
+            isPublic: false,
+            isMature: false,
+          })
+          artImageId = image.id
+          copied.set(row.siteImage, artImageId)
+        }
+      }
+      if (artImageId) {
+        scenes[index] = {
+          ...scene,
+          image: { source: 'upload', artImageId },
+        }
+      } else {
+        warnings.push(
+          `Scene ${scene.id}: ${row.siteImage} could not be read, so it renders its prompt instead.`,
+        )
+      }
+    }
 
     const doc = serializeValidatedDoc({
       ...raw,

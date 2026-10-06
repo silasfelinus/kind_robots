@@ -37,7 +37,7 @@
     </div>
 
     <ul
-      class="grid gap-3 grid-cols-[repeat(auto-fill,minmax(min(100%,17rem),1fr))]"
+      class="grid gap-3 grid-cols-[repeat(auto-fill,minmax(min(100%,22rem),1fr))]"
     >
       <MusicVideoSceneCard
         v-for="(scene, index) in scenes"

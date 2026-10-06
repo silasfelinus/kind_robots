@@ -39,12 +39,13 @@
 
     <!-- Lyrics this scene carries, edited in place (t-032) -->
     <div v-if="draft.lyrics.length" class="space-y-0.5">
-      <input
+      <!-- field-sizing grows each line to fit, so long lyrics wrap in full -->
+      <textarea
         v-for="line in draft.lyrics"
         :key="`${line.sectionId}:${line.lineIdx}`"
         v-model="line.text"
-        class="kr-input w-full py-0.5 text-sm italic"
-        type="text"
+        class="kr-textarea min-h-0 py-1 text-sm italic leading-snug [field-sizing:content]"
+        rows="1"
         :maxlength="limits.maxLine"
         aria-label="Lyric line"
       />
@@ -103,8 +104,8 @@
     <div v-if="draft.kind === 'clip'" class="space-y-1">
       <textarea
         v-model="draft.motionPrompt"
-        class="kr-input w-full text-sm"
-        rows="2"
+        class="kr-textarea text-sm leading-snug"
+        rows="3"
         :maxlength="limits.maxPrompt"
         placeholder="Animation prompt: one camera move plus one action"
         aria-label="Animation prompt"
@@ -153,8 +154,8 @@
     <!-- Image -->
     <textarea
       v-model="draft.prompt"
-      class="kr-input w-full text-sm"
-      rows="2"
+      class="kr-textarea text-sm leading-snug"
+      rows="5"
       :maxlength="limits.maxPrompt"
       placeholder="What this scene shows"
       aria-label="Scene prompt"

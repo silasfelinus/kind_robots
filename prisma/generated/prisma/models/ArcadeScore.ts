@@ -47,6 +47,7 @@ export type ArcadeScoreMinAggregateOutputType = {
   score: number | null
   level: number | null
   userId: number | null
+  username: string | null
   createdAt: Date | null
 }
 
@@ -57,6 +58,7 @@ export type ArcadeScoreMaxAggregateOutputType = {
   score: number | null
   level: number | null
   userId: number | null
+  username: string | null
   createdAt: Date | null
 }
 
@@ -67,6 +69,7 @@ export type ArcadeScoreCountAggregateOutputType = {
   score: number
   level: number
   userId: number
+  username: number
   createdAt: number
   _all: number
 }
@@ -93,6 +96,7 @@ export type ArcadeScoreMinAggregateInputType = {
   score?: true
   level?: true
   userId?: true
+  username?: true
   createdAt?: true
 }
 
@@ -103,6 +107,7 @@ export type ArcadeScoreMaxAggregateInputType = {
   score?: true
   level?: true
   userId?: true
+  username?: true
   createdAt?: true
 }
 
@@ -113,6 +118,7 @@ export type ArcadeScoreCountAggregateInputType = {
   score?: true
   level?: true
   userId?: true
+  username?: true
   createdAt?: true
   _all?: true
 }
@@ -210,6 +216,7 @@ export type ArcadeScoreGroupByOutputType = {
   score: number
   level: number
   userId: number | null
+  username: string | null
   createdAt: Date
   _count: ArcadeScoreCountAggregateOutputType | null
   _avg: ArcadeScoreAvgAggregateOutputType | null
@@ -243,6 +250,7 @@ export type ArcadeScoreWhereInput = {
   score?: Prisma.IntFilter<"ArcadeScore"> | number
   level?: Prisma.IntFilter<"ArcadeScore"> | number
   userId?: Prisma.IntNullableFilter<"ArcadeScore"> | number | null
+  username?: Prisma.StringNullableFilter<"ArcadeScore"> | string | null
   createdAt?: Prisma.DateTimeFilter<"ArcadeScore"> | Date | string
 }
 
@@ -253,6 +261,7 @@ export type ArcadeScoreOrderByWithRelationInput = {
   score?: Prisma.SortOrder
   level?: Prisma.SortOrder
   userId?: Prisma.SortOrderInput | Prisma.SortOrder
+  username?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   _relevance?: Prisma.ArcadeScoreOrderByRelevanceInput
 }
@@ -267,6 +276,7 @@ export type ArcadeScoreWhereUniqueInput = Prisma.AtLeast<{
   score?: Prisma.IntFilter<"ArcadeScore"> | number
   level?: Prisma.IntFilter<"ArcadeScore"> | number
   userId?: Prisma.IntNullableFilter<"ArcadeScore"> | number | null
+  username?: Prisma.StringNullableFilter<"ArcadeScore"> | string | null
   createdAt?: Prisma.DateTimeFilter<"ArcadeScore"> | Date | string
 }, "id">
 
@@ -277,6 +287,7 @@ export type ArcadeScoreOrderByWithAggregationInput = {
   score?: Prisma.SortOrder
   level?: Prisma.SortOrder
   userId?: Prisma.SortOrderInput | Prisma.SortOrder
+  username?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   _count?: Prisma.ArcadeScoreCountOrderByAggregateInput
   _avg?: Prisma.ArcadeScoreAvgOrderByAggregateInput
@@ -295,6 +306,7 @@ export type ArcadeScoreScalarWhereWithAggregatesInput = {
   score?: Prisma.IntWithAggregatesFilter<"ArcadeScore"> | number
   level?: Prisma.IntWithAggregatesFilter<"ArcadeScore"> | number
   userId?: Prisma.IntNullableWithAggregatesFilter<"ArcadeScore"> | number | null
+  username?: Prisma.StringNullableWithAggregatesFilter<"ArcadeScore"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"ArcadeScore"> | Date | string
 }
 
@@ -304,6 +316,7 @@ export type ArcadeScoreCreateInput = {
   score: number
   level?: number
   userId?: number | null
+  username?: string | null
   createdAt?: Date | string
 }
 
@@ -314,6 +327,7 @@ export type ArcadeScoreUncheckedCreateInput = {
   score: number
   level?: number
   userId?: number | null
+  username?: string | null
   createdAt?: Date | string
 }
 
@@ -323,6 +337,7 @@ export type ArcadeScoreUpdateInput = {
   score?: Prisma.IntFieldUpdateOperationsInput | number
   level?: Prisma.IntFieldUpdateOperationsInput | number
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  username?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -333,6 +348,7 @@ export type ArcadeScoreUncheckedUpdateInput = {
   score?: Prisma.IntFieldUpdateOperationsInput | number
   level?: Prisma.IntFieldUpdateOperationsInput | number
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  username?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -343,6 +359,7 @@ export type ArcadeScoreCreateManyInput = {
   score: number
   level?: number
   userId?: number | null
+  username?: string | null
   createdAt?: Date | string
 }
 
@@ -352,6 +369,7 @@ export type ArcadeScoreUpdateManyMutationInput = {
   score?: Prisma.IntFieldUpdateOperationsInput | number
   level?: Prisma.IntFieldUpdateOperationsInput | number
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  username?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -362,6 +380,7 @@ export type ArcadeScoreUncheckedUpdateManyInput = {
   score?: Prisma.IntFieldUpdateOperationsInput | number
   level?: Prisma.IntFieldUpdateOperationsInput | number
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  username?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -378,6 +397,7 @@ export type ArcadeScoreCountOrderByAggregateInput = {
   score?: Prisma.SortOrder
   level?: Prisma.SortOrder
   userId?: Prisma.SortOrder
+  username?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -395,6 +415,7 @@ export type ArcadeScoreMaxOrderByAggregateInput = {
   score?: Prisma.SortOrder
   level?: Prisma.SortOrder
   userId?: Prisma.SortOrder
+  username?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -405,6 +426,7 @@ export type ArcadeScoreMinOrderByAggregateInput = {
   score?: Prisma.SortOrder
   level?: Prisma.SortOrder
   userId?: Prisma.SortOrder
+  username?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -424,6 +446,7 @@ export type ArcadeScoreSelect<ExtArgs extends runtime.Types.Extensions.InternalA
   score?: boolean
   level?: boolean
   userId?: boolean
+  username?: boolean
   createdAt?: boolean
 }, ExtArgs["result"]["arcadeScore"]>
 
@@ -436,10 +459,11 @@ export type ArcadeScoreSelectScalar = {
   score?: boolean
   level?: boolean
   userId?: boolean
+  username?: boolean
   createdAt?: boolean
 }
 
-export type ArcadeScoreOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "gameSlug" | "initials" | "score" | "level" | "userId" | "createdAt", ExtArgs["result"]["arcadeScore"]>
+export type ArcadeScoreOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "gameSlug" | "initials" | "score" | "level" | "userId" | "username" | "createdAt", ExtArgs["result"]["arcadeScore"]>
 
 export type $ArcadeScorePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "ArcadeScore"
@@ -451,6 +475,7 @@ export type $ArcadeScorePayload<ExtArgs extends runtime.Types.Extensions.Interna
     score: number
     level: number
     userId: number | null
+    username: string | null
     createdAt: Date
   }, ExtArgs["result"]["arcadeScore"]>
   composites: {}
@@ -827,6 +852,7 @@ export interface ArcadeScoreFieldRefs {
   readonly score: Prisma.FieldRef<"ArcadeScore", 'Int'>
   readonly level: Prisma.FieldRef<"ArcadeScore", 'Int'>
   readonly userId: Prisma.FieldRef<"ArcadeScore", 'Int'>
+  readonly username: Prisma.FieldRef<"ArcadeScore", 'String'>
   readonly createdAt: Prisma.FieldRef<"ArcadeScore", 'DateTime'>
 }
     

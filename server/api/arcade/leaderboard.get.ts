@@ -2,7 +2,7 @@
 //
 // The Kind Robots Arcade hall of fame (conductor kr-arcade): one call that
 // returns every cabinet's global top scores, today's best and score count.
-// Initials, scores and levels only -- never who submitted.
+// Initials, scores and levels, plus the username of signed-in players.
 
 import { defineEventHandler } from 'h3'
 import { errorHandler } from '../../utils/error'

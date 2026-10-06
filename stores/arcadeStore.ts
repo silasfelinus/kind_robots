@@ -24,6 +24,8 @@ export type ArcadeBoardRange = 'all' | 'today'
 export type ArcadeBoardEntry = {
   id: number
   initials: string
+  /** Signed-in player's username; absent for guests and this device's own rows. */
+  username?: string | null
   score: number
   level: number
   createdAt: string

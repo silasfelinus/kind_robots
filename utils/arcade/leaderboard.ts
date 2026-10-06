@@ -17,8 +17,13 @@ export type PendingArcadeScore = {
 /** One cabinet's slice of the hall of fame. */
 export type HallOfFameEntry = {
   slug: string
-  top: Array<{ initials: string; score: number; level: number }>
-  todayBest: { initials: string; score: number } | null
+  top: Array<{
+    initials: string
+    score: number
+    level: number
+    username: string | null
+  }>
+  todayBest: { initials: string; score: number; username: string | null } | null
   plays: number
 }
 
@@ -66,9 +71,29 @@ export function sanitizePending(value: unknown): PendingArcadeScore[] {
     .slice(-MAX_PENDING_SCORES)
 }
 
+/**
+ * Default initials for a signed-in player who has never saved any: the first
+ * three letters or digits of their username, padded with A. Returns null when
+ * the username has no letters or digits to use.
+ */
+export function initialsFromUsername(
+  username: string | null | undefined,
+): string | null {
+  const letters = (username ?? '').toUpperCase().replace(/[^A-Z0-9]/g, '')
+  if (!letters) return null
+  return letters.slice(0, 3).padEnd(3, 'A')
+}
+
 /** "1,234" style score with the initials, for compact hall labels. */
 export function formatChampion(
-  entry: { initials: string; score: number } | null | undefined,
+  entry:
+    | { initials: string; score: number; username?: string | null }
+    | null
+    | undefined,
 ): string {
-  return entry ? `${entry.initials} ${entry.score.toLocaleString('en-US')}` : ''
+  if (!entry) return ''
+  const who = entry.username
+    ? `${entry.initials} (${entry.username})`
+    : entry.initials
+  return `${who} ${entry.score.toLocaleString('en-US')}`
 }

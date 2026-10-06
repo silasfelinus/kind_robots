@@ -42,7 +42,15 @@
                       : ''
                   "
                 >
-                  <span>{{ index + 1 }}. {{ row.initials }}</span>
+                  <span class="min-w-0 truncate">
+                    {{ index + 1 }}. {{ row.initials }}
+                    <span
+                      v-if="row.username"
+                      class="font-sans text-xs opacity-70"
+                      :title="`Played by ${row.username}`"
+                      >· {{ row.username }}</span
+                    >
+                  </span>
                   <span>{{ row.score.toLocaleString() }}</span>
                 </li>
               </ol>

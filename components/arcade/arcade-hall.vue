@@ -101,7 +101,12 @@
               v-for="(row, index) in fame(game.slug)?.top"
               :key="`${game.slug}-${index}`"
             >
-              <span>{{ index + 1 }}. {{ row.initials }}</span>
+              <span class="arcade-fame-who">
+                {{ index + 1 }}. {{ row.initials }}
+                <span v-if="row.username" class="arcade-fame-user">{{
+                  row.username
+                }}</span>
+              </span>
               <span>{{ row.score.toLocaleString('en-US') }}</span>
             </li>
           </ol>
@@ -452,6 +457,21 @@ a.arcade-mini:focus-visible {
 .arcade-fame-top li:first-child {
   color: #fde68a;
   font-weight: 800;
+}
+
+.arcade-fame-who {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.arcade-fame-user {
+  margin-left: 0.35rem;
+  font-family: system-ui, sans-serif;
+  font-size: 0.75rem;
+  font-weight: 400;
+  color: #c4b5fd;
 }
 
 .arcade-fame-empty {

@@ -1,7 +1,8 @@
 // /server/api/arcade/scores/[game].get.ts
 //
 // Public Kind Robots Arcade leaderboard: top 10 for one cabinet, all time or
-// today (UTC). Returns initials, score and level only -- never who submitted.
+// today (UTC). Returns initials, score, level and, for scores set while signed
+// in, the player's username (Silas, 2026-10-06). Guests stay initials only.
 //
 // Query: ?range=all|today
 

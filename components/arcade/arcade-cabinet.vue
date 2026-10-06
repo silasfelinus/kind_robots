@@ -152,6 +152,7 @@
 
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useArcadeStore } from '@/stores/arcadeStore'
+import { useUserStore } from '@/stores/userStore'
 import { findArcadeGame, loadArcadeGame } from '~/utils/arcade/games'
 import { ArcadeInput } from '~/utils/arcade/input'
 import { startFixedLoop, TICK_MS, type FixedLoop } from '~/utils/arcade/loop'
@@ -167,6 +168,7 @@ import { createArcadeSound, type ArcadeSound } from '~/utils/arcade/sound'
 import { drawText, measureText } from '~/utils/arcade/font'
 import { mulberry32 } from '~/utils/arcade/curve'
 import { INITIALS_ALPHABET, isAllowedInitials } from '~/utils/arcade/initials'
+import { initialsFromUsername } from '~/utils/arcade/leaderboard'
 import type {
   ArcadeButton,
   ArcadeGameInstance,
@@ -178,6 +180,7 @@ const props = defineProps<{ slug: string }>()
 const emit = defineEmits<{ (e: 'scored', score: number): void }>()
 
 const store = useArcadeStore()
+const userStore = useUserStore()
 const meta = computed(() => findArcadeGame(props.slug))
 
 const screenRef = ref<HTMLDivElement | null>(null)
@@ -380,8 +383,11 @@ function togglePause() {
 
 function readSavedInitials(): string[] {
   const saved = store.savedInitials
-  return isAllowedInitials(saved)
-    ? saved.toUpperCase().split('')
+  if (isAllowedInitials(saved)) return saved.toUpperCase().split('')
+  // A signed-in player who never saved initials starts from their username.
+  const fromName = initialsFromUsername(userStore.user?.username)
+  return fromName && isAllowedInitials(fromName)
+    ? fromName.split('')
     : ['A', 'A', 'A']
 }
 

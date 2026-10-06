@@ -1,6 +1,8 @@
 // Kind Robots Arcade (conductor kr-arcade): three-initial high scores per
 // cabinet. userId links a signed-in player without a relation so the User
-// model stays untouched; scores outlive deleted accounts as plain initials.
+// model stays untouched; username records that player's name as it was when
+// the score was set (Silas, 2026-10-06), so the board shows who it was even if
+// the account later changes or goes away. Guests have neither.
 
 model ArcadeScore {
   id        Int      @id @default(autoincrement())
@@ -9,6 +11,7 @@ model ArcadeScore {
   score     Int
   level     Int      @default(1)
   userId    Int?
+  username  String?  @db.VarChar(255)
   createdAt DateTime @default(now())
 
   @@index([gameSlug, score])

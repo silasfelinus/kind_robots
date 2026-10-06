@@ -153,6 +153,14 @@
                 <span class="kr-text-dim-sm">{{ songLabel }}</span>
               </div>
 
+              <MusicVideoTimelineEditor
+                v-if="store.current.doc.song || store.current.doc.scenes.length"
+                :key="store.current.id"
+                :doc="store.current.doc"
+                :saving="store.saving"
+                @save="store.saveTimeline($event)"
+              />
+
               <form class="space-y-3" @submit.prevent="onSave">
                 <label class="block space-y-1">
                   <span class="kr-text-dim-sm">Title</span>

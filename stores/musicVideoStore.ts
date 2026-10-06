@@ -284,6 +284,43 @@ export const useMusicVideoStore = defineStore('musicVideoStore', () => {
     }
   }
 
+  /** Save the beat grid, scene markers and the scenes' times and lyric lines. */
+  async function saveTimeline(
+    payload: Pick<MusicVideoDoc, 'timeline' | 'scenes'>,
+  ): Promise<boolean> {
+    const video = current.value
+    if (!video) return false
+    saving.value = true
+    clearError()
+    try {
+      const response = await performFetch<MusicVideo>(
+        `/api/music-video/${video.id}`,
+        {
+          method: 'PATCH',
+          body: JSON.stringify({
+            doc: {
+              ...video.doc,
+              timeline: payload.timeline,
+              scenes: payload.scenes,
+            },
+          }),
+        },
+        0,
+        20_000,
+      )
+      if (!response.success || !response.data) {
+        throw new Error(response.message || 'Failed to save the timeline.')
+      }
+      current.value = response.data
+      return true
+    } catch (e) {
+      error.value = errorMessage(e, 'Failed to save the timeline.')
+      return false
+    } finally {
+      saving.value = false
+    }
+  }
+
   /** Use vetted Comic Studio art as scene stills (attempt ids, or slots' picks). */
   async function assignKeyframes(
     assignments: { sceneId: string; attemptId?: number; slotId?: number }[],
@@ -357,6 +394,7 @@ export const useMusicVideoStore = defineStore('musicVideoStore', () => {
     savePitch,
     uploadSong,
     saveSettings,
+    saveTimeline,
     assignKeyframes,
     remove,
   }

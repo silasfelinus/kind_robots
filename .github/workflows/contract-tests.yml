@@ -225,6 +225,9 @@ jobs:
       - name: Music video motion contract
         run: npm run test:music-video-motion
 
+      - name: Music video timeline contract
+        run: npm run test:music-video-timeline
+
       - name: Music video final upload contract
         run: npm run test:music-video-final
 

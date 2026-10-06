@@ -7,6 +7,7 @@ title: Music Mentor
 subtitle: Focused feedback on your singing and arrangement
 description: Upload a song or medley for feedback on pitch, timing, dynamics, and arrangement. Your recording stays on your device.
 icon: kind-icon:microphone
+image: /images/channels/plan/music-mentor.webp
 route: /music-mentor
 sort: 40
 ---

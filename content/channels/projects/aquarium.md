@@ -7,6 +7,7 @@ title: Cthulhuquarium
 subtitle: Feed the things in the tank
 description: A darkly funny idle aquarium. Click for coins, buy food, keep the monsters fed, and find out what else is down there.
 icon: kind-icon:fish
+image: /images/channels/admin/aquarium.webp
 route: /play/aquarium
 sort: 120
 requiredRole: GUEST

@@ -17,7 +17,12 @@ import { checkArtPromptContract } from '../../server/utils/artPromptContract'
 
 assert.deepEqual(
   MUSIC_VIDEO_SPECS.map((spec) => spec.key),
-  ['kind-robots-theme', 'kind-robots-theme-classic', 'zuzu-intro'],
+  [
+    'kind-robots-theme',
+    'kind-robots-theme-classic',
+    'zuzu-intro',
+    'giant-skeleton',
+  ],
 )
 assert.equal(musicVideoSpecByKey('nope'), null)
 
@@ -104,7 +109,10 @@ for (const spec of MUSIC_VIDEO_SPECS) {
   }
 
   // The prompt rules the render route applies.
-  const engine = spec.comicSeriesSlug ? 'comfy' : 'krea2'
+  // A comic series or any lane other than Krea 2 renders on a checkpoint.
+  const lane = spec.settings.imageLaneKey
+  const engine =
+    spec.comicSeriesSlug || (lane && lane !== 'krea2') ? 'comfy' : 'krea2'
   if (engine === 'krea2') {
     assert.deepEqual(checkScenePrompt(doc.settings.styleBible), [])
   }
@@ -179,5 +187,26 @@ console.log('✅ the Zuzu intro starts from the vetted keyframes')
   )
 }
 console.log('✅ the theme song stars the androids, with the logo twice')
+
+// t-035: a song that already exists sets each scene's start from the line's
+// measured time, not from beats ("identify the lyrics, match them to images").
+{
+  const spec = musicVideoSpecByKey('giant-skeleton')!
+  const doc = specToDoc(spec)
+  assert.equal(doc.scenes.length, 46)
+  assert.equal(doc.scenes[0]?.startSec, 0)
+  const rises = doc.scenes.find((scene) =>
+    scene.lyricRefs.some((ref) => ref.sectionId === 'c1' && ref.lineIdx === 0),
+  )
+  assert.equal(rises?.startSec, 21.6, 'the first chorus line lands at 0:21.6')
+  assert.equal(rises?.motion.kind, 'clip', 'the skeleton rising is a hero')
+  assert.equal(doc.scenes.at(-1)?.endSec, 200)
+  assert.equal(
+    spec.settings.imageLaneKey,
+    'ckpt:Illustrious/furrytoonmix_xlV3.safetensors',
+  )
+  assert.ok(!('song' in doc), "the song is Silas's upload")
+}
+console.log('✅ the skeleton song cuts on its transcribed lines')
 
 console.log('✅ verifyMusicVideoSpecs: all assertions passed')

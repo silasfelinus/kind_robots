@@ -20,7 +20,12 @@ import type {
 
 export type MusicVideoSpecScene = {
   /** Length in beats; scenes run back to back from 0:00. The last runs to the end. */
-  beats: number
+  beats?: number
+  /**
+   * Where the scene starts, in seconds, for a song that already exists: its
+   * lyric line's measured start (t-035). It runs to the next scene's start.
+   */
+  atSec?: number
   prompt: string
   /** Lyric lines this scene carries, as "sectionId:lineIdx". */
   lyrics?: string[]
@@ -68,9 +73,11 @@ export function specToDoc(spec: MusicVideoSpec): {
   let at = 0
   const scenes = spec.scenes.map((row, index): MusicVideoScene => {
     const last = index === spec.scenes.length - 1
+    if (typeof row.atSec === 'number') at = row.atSec
     const startSec = round3(at)
-    const endSec = last ? end : round3(Math.min(at + row.beats * beat, end))
-    at += row.beats * beat
+    const next = spec.scenes[index + 1]?.atSec
+    at = typeof next === 'number' ? next : at + (row.beats ?? 0) * beat
+    const endSec = last ? end : round3(Math.min(at, end))
     const hero = Boolean(row.motionPrompt)
     const scene: MusicVideoScene = {
       id: `s${String(index + 1).padStart(2, '0')}`,
@@ -742,10 +749,389 @@ const zuzuIntro: MusicVideoSpec = {
   ],
 }
 
+/*
+ * C. "My Only Friend, a Giant Skeleton" (t-035). Silas, 2026-10-06: "this
+ * time I have the mp3 already made, so i need you to identify the lyrics,
+ * match them to images. I want a tex avery type vibe with the art. use
+ * Illustr." The lyrics were transcribed from his MP3 (faster-whisper, checked
+ * across three model sizes) and every scene starts on its line's measured
+ * time; the song itself is his upload, so nothing is generated. Two words
+ * stayed unclear and are best guesses he can edit under the image: "howls and
+ * bites" and "the spirits' charm". Cast: a tiny black cat and a twelve-foot
+ * skeleton in a top hat, drawn as a 1940s theatrical cartoon (wild takes,
+ * squash and stretch) on the Illustrious furrytoonmix checkpoint, picked as a
+ * catalog checkpoint so no western lane suffix rides along.
+ */
+const CAT =
+  'tiny scrawny black cartoon cat, huge round white eyes, skinny legs, long thin tail, red striped scarf'
+const SKELLY =
+  "giant friendly cartoon skeleton, very tall, long rubbery bony limbs, wide jack-o'-lantern grin, battered black top hat"
+const SKELETON_CHORUS = [
+  'My only friend, a giant skeleton',
+  'Twelve feet tall and made for fun',
+  "Dancing wild till the night's undone",
+  'My only friend, my only one',
+]
+const SKELETON_BRIDGE = [
+  'Oh, the moon laughs loud in the inky sky',
+  'As the gravestones lean and the owls cry',
+  'We stomp, we twirl till the dawn arrives',
+  "In his empty eyes, my joy's alive",
+]
+
+const giantSkeleton: MusicVideoSpec = {
+  key: 'giant-skeleton',
+  title: 'My Only Friend, a Giant Skeleton',
+  summary:
+    "Silas's MP3 (upload it in the Song panel): 3:20, 46 scenes cut on the transcribed lines, 6 hero shots, Tex Avery cartoon on Illustrious.",
+  pitch:
+    "A zany 1940s theatrical-cartoon music video for a Halloween novelty song. A tiny, jittery black cat wanders lost through a moonlit graveyard and finds its only friend: a twelve-foot, top-hatted skeleton with a jack-o'-lantern grin who was made for fun. They dance wild till dawn: rattling bones, a laughing moon, crying owls, gravestones that lean and hop, squash-and-stretch gags and wild cartoon takes, until the sun comes up and the skeleton sinks back into his grave with one last wave.",
+  settings: {
+    durationSec: 200,
+    aspect: '16:9',
+    genre: 'halloween novelty swing, spooky big band, playful',
+    mood: 'zany, spooky, joyful',
+    heroShots: 6,
+    imageLaneKey: 'ckpt:Illustrious/furrytoonmix_xlV3.safetensors',
+    styleBible:
+      'masterpiece, best quality, 1940s theatrical cartoon, retro cartoon, classic hand-drawn animation, exaggerated squash and stretch, wild cartoon take, bold ink outlines, flat cel colors, painted technicolor background, moonlit halloween graveyard, orange, purple and midnight blue palette',
+    negativePrompt:
+      'lowres, worst quality, bad anatomy, bad hands, extra limbs, deformed, watermark, signature, blurry, jpeg artifacts, text, logo, photorealistic, realistic, 3d, anime, gore, blood, nsfw, nude',
+    bannedTerms: [
+      'tex avery',
+      'droopy',
+      'screwy squirrel',
+      'red hot riding hood',
+      'looney tunes',
+      'bugs bunny',
+      'daffy duck',
+      'mickey mouse',
+      'disney',
+    ],
+  },
+  sections: [
+    section('i1', 'intro', [
+      'Halloween night, howls and bites',
+      'Graveyard whispers under pale moonlight',
+    ]),
+    section('v1', 'verse', [
+      "I wandered off, but I ain't alone",
+      'Hear the rattling bones, hear the rattling bones',
+    ]),
+    section('c1', 'chorus', SKELETON_CHORUS),
+    section('v2', 'verse', [
+      'He steps from the shadows, creaks and groans',
+      'With a pumpkin grin and hollow tones',
+      "We spin through the graves for the spirits' charm",
+      'His bony hands beat like a drum',
+    ]),
+    section('c2', 'chorus', SKELETON_CHORUS),
+    section('b1', 'bridge', SKELETON_BRIDGE),
+    section('c3', 'chorus', SKELETON_CHORUS),
+    section('b2', 'bridge', SKELETON_BRIDGE),
+    section('c4', 'chorus', SKELETON_CHORUS),
+    section('b3', 'bridge', SKELETON_BRIDGE),
+    section('c5', 'chorus', SKELETON_CHORUS),
+  ],
+  scenes: [
+    {
+      atSec: 0,
+      prompt:
+        'moonlit cartoon graveyard at night, crooked tombstones, twisted bare trees, huge full moon with a grinning face, bats, rolling purple fog, scenery, wide shot',
+      kenBurns: 'zoom-in',
+    },
+    {
+      atSec: 4.14,
+      prompt: `huge yellow full moon, a flock of bats bursting out of a hollow dead tree, ${CAT}, howling on a broken fence, night sky, wide shot`,
+      lyrics: ['i1:0'],
+      motionPrompt:
+        'The bats burst out of the hollow tree and swirl across the moon as the little cat howls.',
+    },
+    {
+      atSec: 8.14,
+      prompt:
+        'friendly cartoon ghosts whispering behind crooked tombstones, cupped hands, pale blue moonlight, purple fog, night',
+      lyrics: ['i1:1'],
+      kenBurns: 'pan-right',
+    },
+    {
+      atSec: 12.38,
+      prompt: `${CAT}, tiptoeing through a dark graveyard, knees knocking, sweat drops, looking over its shoulder, full body`,
+      lyrics: ['v1:0'],
+      kenBurns: 'pan-left',
+    },
+    {
+      atSec: 16.02,
+      prompt: `${CAT}, fur standing on end, eyes popping out of its head, jaw dropped, a pile of bones rattling and hopping on a grave, wild cartoon take`,
+      lyrics: ['v1:1'],
+      kenBurns: 'zoom-in',
+    },
+    {
+      atSec: 21.6,
+      prompt: `${SKELLY}, rising out of an open grave, towering over a ${CAT}, both grinning, dirt flying, low angle`,
+      lyrics: ['c1:0'],
+      motionPrompt:
+        'The giant skeleton bursts up out of the grave, stretches tall and tips his top hat to the little cat.',
+    },
+    {
+      atSec: 25.86,
+      prompt: `${SKELLY}, stretched extremely tall, a measuring tape running from his top hat to his toes, a ${CAT} sitting on his shoulder`,
+      lyrics: ['c1:1'],
+      kenBurns: 'pan-left',
+    },
+    {
+      atSec: 30.68,
+      prompt: `${SKELLY}, dancing a wild jitterbug on top of tombstones with a ${CAT}, motion lines, music notes`,
+      lyrics: ['c1:2'],
+      kenBurns: 'zoom-out',
+    },
+    {
+      atSec: 34.28,
+      prompt: `${CAT}, hugging the bony leg of a ${SKELLY}, little hearts floating, moonlight`,
+      lyrics: ['c1:3'],
+      kenBurns: 'zoom-in',
+    },
+    {
+      atSec: 39.72,
+      prompt: `${SKELLY}, stepping out of a dark crypt doorway, creaking joints, long shadow, spooky green glow`,
+      lyrics: ['v2:0'],
+      kenBurns: 'zoom-in',
+    },
+    {
+      atSec: 44.24,
+      prompt:
+        "close-up, grinning cartoon skull with a glowing orange jack-o'-lantern grin, battered black top hat, singing, orange glow",
+      lyrics: ['v2:1'],
+      kenBurns: 'zoom-out',
+    },
+    {
+      atSec: 48.9,
+      prompt: `${SKELLY}, spinning in a whirlwind between tombstones with a ${CAT}, speed lines, motion blur, dizzy`,
+      lyrics: ['v2:2'],
+      kenBurns: 'pan-right',
+    },
+    {
+      atSec: 52.34,
+      prompt: `${SKELLY}, drumming on his own ribcage with two bones, a ${CAT} bopping along, music notes`,
+      lyrics: ['v2:3'],
+      kenBurns: 'zoom-in',
+    },
+    {
+      atSec: 57.8,
+      prompt: `${SKELLY}, juggling his own skull with one hand, a ${CAT} laughing and rolling on the ground`,
+      lyrics: ['c2:0'],
+      kenBurns: 'zoom-out',
+    },
+    {
+      atSec: 62,
+      prompt: `${SKELLY}, peeking over the treetops, a ${CAT} perched on top of his top hat, full moon behind`,
+      lyrics: ['c2:1'],
+      kenBurns: 'pan-left',
+    },
+    {
+      atSec: 66.8,
+      prompt: `${SKELLY}, leading a conga line of little cartoon ghosts across a mausoleum roof, a ${CAT} at the end of the line`,
+      lyrics: ['c2:2'],
+      kenBurns: 'pan-right',
+    },
+    {
+      atSec: 71.4,
+      prompt: `${CAT}, sitting beside a ${SKELLY} on a tombstone, gazing at the full moon, cozy`,
+      lyrics: ['c2:3'],
+      kenBurns: 'zoom-in',
+    },
+    {
+      atSec: 76.48,
+      prompt:
+        'huge cartoon full moon with a face laughing hysterically, tears of laughter, stars shaking, inky purple night sky',
+      lyrics: ['b1:0'],
+      motionPrompt:
+        'The moon throws its head back and laughs so hard the stars around it shake.',
+    },
+    {
+      atSec: 78.9,
+      prompt:
+        'crooked tombstones leaning over, cartoon owls with huge eyes crying on a dead branch, moonlight',
+      lyrics: ['b1:1'],
+      kenBurns: 'pan-left',
+    },
+    {
+      atSec: 81.32,
+      prompt: `${SKELLY}, stomping and twirling with a ${CAT}, the ground shaking, tombstones bouncing into the air`,
+      lyrics: ['b1:2'],
+      kenBurns: 'zoom-out',
+    },
+    {
+      atSec: 83.64,
+      prompt:
+        'close-up, empty eye sockets of a giant cartoon skull, reflecting a tiny happy black cat, warm glow',
+      lyrics: ['b1:3'],
+      kenBurns: 'zoom-in',
+    },
+    {
+      atSec: 85.96,
+      prompt: `${CAT}, riding on the shoulders of a ${SKELLY}, through a moonlit graveyard, cheering`,
+      lyrics: ['c3:0'],
+      kenBurns: 'pan-right',
+    },
+    {
+      atSec: 89.64,
+      prompt: `${SKELLY}, so tall the full moon bumps his top hat, a ${CAT} laughing at his feet`,
+      lyrics: ['c3:1'],
+      kenBurns: 'zoom-out',
+    },
+    {
+      atSec: 94.6,
+      prompt: `${SKELLY}, doing the splits, bones flying apart in midair, a ${CAT} with its jaw dropped, wild cartoon take`,
+      lyrics: ['c3:2'],
+      motionPrompt:
+        'His bones fly apart in midair and snap back together as he lands the splits.',
+    },
+    {
+      atSec: 98.84,
+      prompt: `${CAT}, sharing a giant candy apple with a ${SKELLY}, smiling, moonlight`,
+      lyrics: ['c3:3'],
+      kenBurns: 'zoom-in',
+    },
+    {
+      atSec: 102.4,
+      prompt:
+        'a band of little cartoon ghosts playing a trumpet, a trombone and a bass fiddle on top of a crypt, music notes, moonlight',
+      kenBurns: 'pan-right',
+    },
+    {
+      atSec: 110.96,
+      prompt:
+        'cartoon full moon with a face wiping away tears of laughter with a handkerchief, starry inky sky',
+      lyrics: ['b2:0'],
+      kenBurns: 'zoom-in',
+    },
+    {
+      atSec: 113.08,
+      prompt:
+        'tombstones leaning like falling dominoes, cartoon owls crying into tiny handkerchiefs, moonlit graveyard',
+      lyrics: ['b2:1'],
+      kenBurns: 'pan-left',
+    },
+    {
+      atSec: 115.26,
+      prompt: `${CAT}, spinning like a top on the fingertip of a ${SKELLY}, motion lines, dizzy stars`,
+      lyrics: ['b2:2'],
+      kenBurns: 'zoom-out',
+    },
+    {
+      atSec: 117.68,
+      prompt:
+        'close-up, giant cartoon skull with eye sockets glowing with little pink hearts, battered black top hat',
+      lyrics: ['b2:3'],
+      kenBurns: 'zoom-in',
+    },
+    {
+      atSec: 119.9,
+      prompt: `${SKELLY}, pushing a ${CAT} in a rickety wheelbarrow between the graves, both laughing`,
+      lyrics: ['c4:0'],
+      kenBurns: 'pan-right',
+    },
+    {
+      atSec: 123.62,
+      prompt: `${SKELLY}, stretching up to pluck a bat off the full moon, a ${CAT} cheering below`,
+      lyrics: ['c4:1'],
+      kenBurns: 'zoom-out',
+    },
+    {
+      atSec: 128.44,
+      prompt: `${SKELLY}, dancing with a ${CAT} under a spotlight, a crowd of jack-o'-lanterns cheering`,
+      lyrics: ['c4:2'],
+      kenBurns: 'zoom-in',
+    },
+    {
+      atSec: 132.5,
+      prompt: `${CAT}, napping in the ribcage of a ${SKELLY} like a hammock, moonlight`,
+      lyrics: ['c4:3'],
+      kenBurns: 'zoom-in',
+    },
+    {
+      atSec: 136.4,
+      prompt: `${SKELLY}, tap dancing on a coffin lid, sparks flying from his bony feet, a ${CAT} clapping`,
+      kenBurns: 'pan-left',
+    },
+    {
+      atSec: 142.8,
+      prompt:
+        'a conga line of cartoon bats flying across a huge full moon, purple night sky, wide shot',
+      kenBurns: 'pan-right',
+    },
+    {
+      atSec: 149.2,
+      prompt: `${SKELLY}, pulling a giant glowing pumpkin out of his top hat, a ${CAT} with its eyes popping out, wild cartoon take`,
+      motionPrompt:
+        "He reaches into his top hat and pulls out a giant glowing pumpkin as the little cat's eyes pop out.",
+    },
+    {
+      atSec: 157.5,
+      prompt:
+        'cartoon full moon with a face laughing so hard it rolls across the inky sky, stars scattering',
+      lyrics: ['b3:0'],
+      kenBurns: 'pan-left',
+    },
+    {
+      atSec: 163.1,
+      prompt:
+        'sleepy cartoon owls in nightcaps crying on a crooked tombstone, leaning gravestones, moonlight',
+      lyrics: ['b3:1'],
+      kenBurns: 'zoom-in',
+    },
+    {
+      atSec: 167.1,
+      prompt: `the whole cartoon graveyard dancing, tombstones hopping, trees swaying, a ${SKELLY} and a ${CAT} in the middle`,
+      lyrics: ['b3:2'],
+      kenBurns: 'zoom-out',
+    },
+    {
+      atSec: 170.6,
+      prompt:
+        'close-up, empty eye sockets of a giant cartoon skull reflecting the first pink light of dawn',
+      lyrics: ['b3:3'],
+      kenBurns: 'zoom-in',
+    },
+    {
+      atSec: 176.38,
+      prompt: `${SKELLY}, lifting a ${CAT} high toward a pink dawn sky, both overjoyed`,
+      lyrics: ['c5:0'],
+      kenBurns: 'zoom-out',
+    },
+    {
+      atSec: 180.2,
+      prompt: `${SKELLY}, standing at full height against an orange dawn sky, a ${CAT} on his top hat`,
+      lyrics: ['c5:1'],
+      kenBurns: 'pan-left',
+    },
+    {
+      atSec: 184.8,
+      prompt: `${SKELLY}, leaping in midair mid-dance with a ${CAT}, sunrise breaking pink and orange behind them`,
+      lyrics: ['c5:2'],
+      kenBurns: 'zoom-in',
+    },
+    {
+      atSec: 188.48,
+      prompt: `${SKELLY}, waving goodbye as he sinks back into his grave at dawn, a ${CAT} waving back`,
+      lyrics: ['c5:3'],
+      kenBurns: 'zoom-out',
+    },
+    {
+      atSec: 193.2,
+      prompt: `a bony skeleton hand popping out of a grave to wave one last time, a ${CAT} laughing, golden sunrise, morning fog`,
+      motionPrompt:
+        'A bony hand pops up out of the grave and waves as the little cat laughs and the sun rises.',
+    },
+  ],
+}
+
 export const MUSIC_VIDEO_SPECS: readonly MusicVideoSpec[] = [
   kindRobotsTheme,
   kindRobotsThemeClassic,
   zuzuIntro,
+  giantSkeleton,
 ]
 
 export function musicVideoSpecByKey(key: string): MusicVideoSpec | null {

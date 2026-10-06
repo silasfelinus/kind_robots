@@ -148,7 +148,7 @@
               class="kr-btn-xs-lg"
               :class="store.isLayerActive(effect.id) ? 'btn-primary' : 'btn-ghost'"
               type="button"
-              :title="store.isLayerActive(effect.id) ? 'Remove this persistent screen layer' : 'Layer this effect over the selected coverage zones'"
+              :title="store.isLayerActive(effect.id) ? 'Remove this persistent screen layer' : 'Layer this effect across the app'"
               @click="store.toggleLayer(effect.id)"
             >
               <Icon name="kind-icon:layers" class="kr-icon-3" />

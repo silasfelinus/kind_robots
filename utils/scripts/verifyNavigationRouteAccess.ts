@@ -160,11 +160,9 @@ assert.equal(guestAchievements.matched, true)
 assert.equal(guestAchievements.allowed, false)
 assert.equal(guestAchievements.requiredPermission, 'authenticated')
 
-const userAchievements = evaluateNavigationRouteAccess(
-  channels,
-  userChannels,
-  { path: '/achievements' },
-)
+const userAchievements = evaluateNavigationRouteAccess(channels, userChannels, {
+  path: '/achievements',
+})
 assert.equal(userAchievements.allowed, true)
 
 const guestGenerate = evaluateNavigationRouteAccess(channels, guestChannels, {
@@ -180,11 +178,10 @@ const userGenerate = evaluateNavigationRouteAccess(channels, userChannels, {
 })
 assert.equal(userGenerate.allowed, false)
 
-const memberGenerate = evaluateNavigationRouteAccess(
-  channels,
-  memberChannels,
-  { path: '/art', tabKey: 'generate' },
-)
+const memberGenerate = evaluateNavigationRouteAccess(channels, memberChannels, {
+  path: '/art',
+  tabKey: 'generate',
+})
 assert.equal(memberGenerate.allowed, true)
 
 const userAdmin = evaluateNavigationRouteAccess(channels, userChannels, {
@@ -208,23 +205,28 @@ assert.match(
   'Initial SSR client navigation must defer localStorage-backed access enforcement until app:mounted.',
 )
 
+// Silas, 2026-10-06: Play became Storybook, Plan folded away, and Art joined
+// the public Projects channel (everything not Storybook and not admin-gated).
 const artPageSource = readFileSync('content/art.md', 'utf8')
 assert.match(
   artPageSource,
-  /channelKey:\s*play/,
-  'The canonical Art page belongs to Play, not Plan.',
+  /channelKey:\s*projects/,
+  'The canonical Art page belongs to Projects.',
 )
 
-const artChannelSource = readFileSync('content/channels/play/art.md', 'utf8')
+const artChannelSource = readFileSync(
+  'content/channels/projects/art.md',
+  'utf8',
+)
 assert.match(
   artChannelSource,
-  /channelKey:\s*play/,
-  'The Art navigation entry must stay in the Play channel.',
+  /channelKey:\s*projects/,
+  'The Art navigation entry must stay in the Projects channel.',
 )
 assert.match(
   artChannelSource,
   /route:\s*\/art/,
-  'The Play-channel Art entry must route to /art.',
+  'The Projects-channel Art entry must route to /art.',
 )
 
 const workspaceHeaderSource = readFileSync(
@@ -247,7 +249,9 @@ const legacySessionSource = readFileSync(
   'utf8',
 )
 const sessionMountedIndex = legacySessionSource.indexOf("hook('app:mounted'")
-const sessionInitializeIndex = legacySessionSource.indexOf('userStore.initialize()')
+const sessionInitializeIndex = legacySessionSource.indexOf(
+  'userStore.initialize()',
+)
 assert.ok(
   sessionMountedIndex >= 0 &&
     sessionInitializeIndex >= 0 &&

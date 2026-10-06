@@ -1,6 +1,6 @@
 ---
 contentType: tab
-channelKey: plan
+channelKey: projects
 tabKey: stylist
 dashboardKey: conductor
 dashboardTab: conductor
@@ -10,7 +10,7 @@ subtitle: Run the Hair by Superkate service desk
 description: Price appointments, manage clients, review history, and prepare friendly receipts.
 icon: kind-icon:sparkles
 route: /stylist
-sort: 50
+sort: 60
 ---
 
 The private calculator and client book for Hair by Superkate.

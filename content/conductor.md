@@ -7,7 +7,7 @@ image: nav/heroes/conductor.webp
 tooltip: Review Conductor state and configure Portos.
 icon: kind-icon:gearhammer
 sort: highlight
-channelKey: plan
+channelKey: admin
 tabKey: projects
 dashboardKey: conductor
 dashboardTab: conductor

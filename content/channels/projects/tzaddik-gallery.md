@@ -1,6 +1,6 @@
 ---
 contentType: tab
-channelKey: fun
+channelKey: projects
 tabKey: tzaddik-gallery
 label: Tzaddikim
 title: Tzaddikim
@@ -9,7 +9,7 @@ description: A playful, sourced gallery of everyday and extraordinary people, pl
 icon: kind-icon:stars
 route: /tzaddik-gallery
 requiredRole: GUEST
-sort: 50
+sort: 140
 ---
 
 A playful pop-culture gallery of 36 living "just people" keeping the world running,

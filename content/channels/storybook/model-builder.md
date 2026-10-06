@@ -1,6 +1,6 @@
 ---
 contentType: tab
-channelKey: admin
+channelKey: storybook
 tabKey: model-builder
 dashboardKey: builder
 dashboardTab: model-builder
@@ -10,8 +10,7 @@ subtitle: Build makers, not just records
 description: Define schemas, compose reusable builders, and generate new creation systems.
 icon: kind-icon:blueprint
 route: /model-builder
-sort: 125
-requiredRole: ADMIN
+sort: 80
 ---
 
-Use the admin-only model builder as the meta-tool behind future creative workflows.
+Use the model builder as the meta-tool behind future creative workflows.

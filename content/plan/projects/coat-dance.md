@@ -6,7 +6,7 @@ description: A playful video-remix project that loops movement and costume into 
 image: nav/heroes/art.webp
 icon: kind-icon:sparkles
 tooltip: Remix motion and costume into short, joyful loops.
-channelKey: plan
+channelKey: admin
 tabKey: projects
 dashboardKey: art
 dashboardTab: coat-dance

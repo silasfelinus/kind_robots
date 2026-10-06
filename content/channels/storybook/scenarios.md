@@ -1,6 +1,6 @@
 ---
 contentType: tab
-channelKey: play
+channelKey: storybook
 tabKey: scenarios
 dashboardKey: scenario
 dashboardTab: scenarios

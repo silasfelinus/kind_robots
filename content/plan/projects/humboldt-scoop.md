@@ -6,7 +6,7 @@ description: A real-world pet-waste removal service with a warm local story — 
 image: nav/heroes/sanctuary.webp
 icon: kind-icon:heart
 tooltip: Meet the Humboldt Scoop and book a cleanup.
-channelKey: plan
+channelKey: admin
 tabKey: projects
 dashboardKey: wonder
 dashboardTab: humboldt-scoop

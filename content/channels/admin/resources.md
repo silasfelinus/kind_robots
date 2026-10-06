@@ -1,6 +1,6 @@
 ---
 contentType: tab
-channelKey: play
+channelKey: admin
 tabKey: resources
 label: Resources
 title: Resource Gallery
@@ -9,7 +9,8 @@ description: Browse generation resources, inspect previews and triggers, and see
 icon: kind-icon:database
 route: /resources
 modelType: resource
-sort: 25
+sort: 76
+requiredRole: ADMIN
 ---
 
 Browse checkpoints, LoRAs, embeddings, and other generation resources.

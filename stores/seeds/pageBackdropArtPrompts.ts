@@ -177,12 +177,6 @@ const PAGES: PageSeed[] = [
       'A storybook library: a cosy round reading room where shelves curve away on both sides, an open book the size of a table rests off-centre, and pages lift and drift upward turning into birds and small scenes as they rise. Warm lamplight below, deep blue evening through a tall window. Everything converging into one unfolding story.',
   },
   {
-    page: 'fun',
-    title: 'Fun — The Robot Fairground',
-    scene:
-      'A small seaside fairground built by robots: a hand-painted ferris wheel, a memory-card tent, a big red button on a pedestal, a glowing aquarium booth and a fishing pier, bunting strung between them at golden hour. Playful and welcoming.',
-  },
-  {
     page: 'giftshop',
     title: 'Gift Shop',
     scene:

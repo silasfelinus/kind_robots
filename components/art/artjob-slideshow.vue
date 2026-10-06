@@ -409,11 +409,13 @@ import {
   artJobFinishedAt,
   artJobImagePath,
   artJobImageVersion,
+  artJobOutputKind,
   artJobPrompt,
   artJobPublicImageSrc,
   artJobSettings,
   artJobTitle,
   artJobVisibility,
+  type ArtJobOutputKind,
 } from '@/utils/artJobFields'
 
 const emit = defineEmits<{ close: [] }>()
@@ -482,11 +484,13 @@ const slideSrc = computed<string>(() => {
   )
 })
 
-const slideKind = computed<string>(() => {
+const slideKind = computed<ArtJobOutputKind>(() => {
   const job = currentJob.value
   if (!job || typeof job.artImageId !== 'number') return 'image'
-  if (artJobPublicImageSrc(job)) return 'image'
-  return artJobStore.imageInfoById[job.artImageId]?.kind || 'image'
+  const cachedKind = artJobPublicImageSrc(job)
+    ? null
+    : artJobStore.imageInfoById[job.artImageId]?.kind
+  return artJobOutputKind(job, cachedKind)
 })
 
 const slideKey = computed<string>(

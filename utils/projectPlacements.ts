@@ -13,12 +13,12 @@ export type ProjectPlacement = {
 
 export const PROJECT_PLACEMENTS: Record<string, ProjectPlacement> = {
   'music-mentor': {
-    channelKey: 'plan',
+    channelKey: 'fun',
     tabKey: 'music-mentor',
     route: '/music-mentor',
   },
   'mandarin-tutor': {
-    channelKey: 'plan',
+    channelKey: 'fun',
     tabKey: 'mandarin',
     route: '/play/mandarin',
   },
@@ -44,7 +44,7 @@ export const PROJECT_PLACEMENTS: Record<string, ProjectPlacement> = {
   // against the channel documents that actually exist. The slug stays because
   // the projects board still needs somewhere to send a reader who clicks it.
   taskmaster: {
-    channelKey: 'plan',
+    channelKey: 'story',
     tabKey: 'storybook',
     route: '/storybook',
   },
@@ -54,7 +54,7 @@ export const PROJECT_PLACEMENTS: Record<string, ProjectPlacement> = {
     route: '/mermaids',
   },
   'model-builder': {
-    channelKey: 'admin',
+    channelKey: 'story',
     tabKey: 'model-builder',
     route: '/model-builder',
   },
@@ -74,7 +74,7 @@ export const PROJECT_PLACEMENTS: Record<string, ProjectPlacement> = {
     route: '/admin/music-video',
   },
   storybook: {
-    channelKey: 'plan',
+    channelKey: 'story',
     tabKey: 'storybook',
     route: '/storybook',
   },
@@ -91,7 +91,7 @@ export const PROJECT_PLACEMENTS: Record<string, ProjectPlacement> = {
   // slug is still here at all -- the projects board needs somewhere to send a
   // reader who clicks it.
   davinci: {
-    channelKey: 'plan',
+    channelKey: 'story',
     tabKey: 'storybook',
     route: '/storybook',
   },

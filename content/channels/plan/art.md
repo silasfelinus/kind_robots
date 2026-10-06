@@ -1,6 +1,6 @@
 ---
 contentType: tab
-channelKey: play
+channelKey: plan
 tabKey: art
 dashboardKey: art
 dashboardTab: generate

@@ -1,6 +1,6 @@
 ---
 contentType: tab
-channelKey: play
+channelKey: story
 tabKey: bots
 dashboardKey: bot
 dashboardTab: bots

@@ -1,6 +1,6 @@
 ---
 contentType: tab
-channelKey: play
+channelKey: story
 tabKey: dreams
 dashboardKey: dream
 dashboardTab: dreams

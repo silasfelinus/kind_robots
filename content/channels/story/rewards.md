@@ -1,6 +1,6 @@
 ---
 contentType: tab
-channelKey: play
+channelKey: story
 tabKey: rewards
 dashboardKey: reward
 dashboardTab: rewards

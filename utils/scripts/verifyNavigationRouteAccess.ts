@@ -208,23 +208,25 @@ assert.match(
   'Initial SSR client navigation must defer localStorage-backed access enforcement until app:mounted.',
 )
 
+// Silas, 2026-10-06: Play became Story (Storybook's channel), and Art moved
+// to Plan as the one Play tab that serves the storymaker project.
 const artPageSource = readFileSync('content/art.md', 'utf8')
 assert.match(
   artPageSource,
-  /channelKey:\s*play/,
-  'The canonical Art page belongs to Play, not Plan.',
+  /channelKey:\s*plan/,
+  'The canonical Art page belongs to Plan.',
 )
 
-const artChannelSource = readFileSync('content/channels/play/art.md', 'utf8')
+const artChannelSource = readFileSync('content/channels/plan/art.md', 'utf8')
 assert.match(
   artChannelSource,
-  /channelKey:\s*play/,
-  'The Art navigation entry must stay in the Play channel.',
+  /channelKey:\s*plan/,
+  'The Art navigation entry must stay in the Plan channel.',
 )
 assert.match(
   artChannelSource,
   /route:\s*\/art/,
-  'The Play-channel Art entry must route to /art.',
+  'The Plan-channel Art entry must route to /art.',
 )
 
 const workspaceHeaderSource = readFileSync(

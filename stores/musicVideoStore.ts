@@ -11,6 +11,10 @@ import {
   type MusicVideoStatus,
 } from '@/utils/musicVideoDoc'
 import { briefHasGaps } from '@/utils/musicVideoBrief'
+import {
+  finalVideoBitrates,
+  musicVideoMaxUploadBytes,
+} from '@/utils/musicVideoFinal'
 import { heroSceneIndexes } from '@/utils/musicVideoScenes'
 
 export type MusicVideoSummary = {
@@ -907,19 +911,42 @@ export const useMusicVideoStore = defineStore('musicVideoStore', () => {
       )
       const { exportMusicVideoMp4 } =
         await import('./helpers/musicVideoExporter')
-      const blob = await exportMusicVideoMp4({
-        doc: video.doc,
-        songUrl: fileUrl(video.doc.song?.artImageId),
-        imageUrlFor: (sceneId) =>
-          fileUrl(sceneById.get(sceneId)?.image.artImageId),
-        clipUrlFor: (sceneId) =>
-          fileUrl(sceneById.get(sceneId)?.motion.clipArtImageId),
-        headers: authHeaders(),
-        onProgress: (fraction, label) => {
-          exportProgress.value = fraction
-          produceStage.value = label
-        },
-      })
+      // Fit the upload cap: bitrate from the running time, then up to two
+      // smaller re-encodes if the encoder overshoots.
+      const maxBytes = musicVideoMaxUploadBytes()
+      const durationSec = Math.max(
+        video.doc.settings.durationSec,
+        ...video.doc.scenes.map((scene) => scene.endSec),
+      )
+      let scale = 1
+      let blob: Blob | null = null
+      for (let attempt = 0; attempt < 3; attempt++) {
+        const bitrates = finalVideoBitrates(durationSec, maxBytes, scale)
+        blob = await exportMusicVideoMp4({
+          doc: video.doc,
+          songUrl: fileUrl(video.doc.song?.artImageId),
+          imageUrlFor: (sceneId) =>
+            fileUrl(sceneById.get(sceneId)?.image.artImageId),
+          clipUrlFor: (sceneId) =>
+            fileUrl(sceneById.get(sceneId)?.motion.clipArtImageId),
+          headers: authHeaders(),
+          videoBitrate: bitrates.video,
+          audioBitrate: bitrates.audio,
+          onProgress: (fraction, label) => {
+            exportProgress.value = fraction
+            produceStage.value = attempt
+              ? `${label} (smaller re-encode)`
+              : label
+          },
+        })
+        if (blob.size <= maxBytes) break
+        scale *= (maxBytes / blob.size) * 0.9
+      }
+      if (!blob || blob.size > maxBytes) {
+        throw new Error(
+          `The final cut is still ${((blob?.size ?? 0) / 1_048_576).toFixed(1)} MB after re-encoding; the limit is ${Math.floor(maxBytes / 1_048_576)} MB.`,
+        )
+      }
       const form = new FormData()
       form.append(
         'file',

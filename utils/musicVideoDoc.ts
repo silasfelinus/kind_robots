@@ -351,7 +351,7 @@ function normalizeSettings(raw: unknown, errors: string[]): MusicVideoSettings {
   if (bannedTerms.length) settings.bannedTerms = bannedTerms
   const motionPresets = normalizeMotionPresets(s.motionPresets)
   if (motionPresets.length) settings.motionPresets = motionPresets
-  const imageLaneKey = optionalText(s.imageLaneKey, 64)
+  const imageLaneKey = optionalText(s.imageLaneKey, 255)
   if (imageLaneKey) settings.imageLaneKey = imageLaneKey
   const heroShots = positiveInt(s.heroShots)
   if (heroShots) settings.heroShots = Math.min(heroShots, L.maxHeroShots)
@@ -603,7 +603,7 @@ function normalizeScenes(
     const imageJob = positiveInt(image.jobId)
     if (imageArt) scene.image.artImageId = imageArt
     if (imageJob) scene.image.jobId = imageJob
-    const laneKey = optionalText(image.laneKey, 64)
+    const laneKey = optionalText(image.laneKey, 255)
     if (laneKey) scene.image.laneKey = laneKey
     const sceneLoras = positiveIntList(image.loraResourceIds, L.maxLoras)
     if (sceneLoras.length) scene.image.loraResourceIds = sceneLoras

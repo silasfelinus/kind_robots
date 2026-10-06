@@ -26,6 +26,43 @@ import {
   type ComicLane,
   type ComicSeriesStyle,
 } from './comicLanes'
+import { checkpointFamily, checkpointProfile } from './checkpointProfiles'
+
+/*
+ * Any catalog checkpoint as an image lane (Silas, 2026-10-06: "why am i
+ * missing so many checkpoints on the music video selection list?"). The key is
+ * "ckpt:" plus the checkpoint's Comfy path; steps, cfg and sampler come from
+ * the family's measured profile, and Illustrious and Pony read tag prompts.
+ */
+const CHECKPOINT_LANE_PREFIX = 'ckpt:'
+
+export function checkpointLaneKey(checkpointPath: string): string {
+  return `${CHECKPOINT_LANE_PREFIX}${checkpointPath}`
+}
+
+export function checkpointPathFromLaneKey(
+  key: string | null | undefined,
+): string | null {
+  if (!key?.startsWith(CHECKPOINT_LANE_PREFIX)) return null
+  return key.slice(CHECKPOINT_LANE_PREFIX.length).trim() || null
+}
+
+export function checkpointLane(checkpointPath: string): ComicLane {
+  const profile = checkpointProfile(checkpointPath)
+  const family = checkpointFamily(checkpointPath)
+  return {
+    key: checkpointLaneKey(checkpointPath),
+    label: checkpointPath,
+    engine: 'comfy',
+    checkpoint: checkpointPath,
+    promptStyle:
+      family === 'illustrious' || family === 'pony' ? 'tags' : 'prose',
+    steps: profile.steps,
+    cfg: profile.cfg,
+    sampler: profile.sampler,
+    active: true,
+  }
+}
 
 export type ScenePromptRequest = {
   system: string

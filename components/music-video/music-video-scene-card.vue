@@ -203,9 +203,7 @@
         aria-label="Checkpoint for this scene"
       >
         <option value="">The video's checkpoint</option>
-        <option v-for="lane in lanes" :key="lane.key" :value="lane.key">
-          {{ lane.label }}
-        </option>
+        <MusicVideoCheckpointOptions />
       </select>
       <MusicVideoLoraPicker
         v-model="draft.loraResourceIds"
@@ -235,7 +233,6 @@
 import { computed, reactive, ref, watch } from 'vue'
 import { useMusicVideoStore } from '@/stores/musicVideoStore'
 import { MUSIC_VIDEO_LIMITS, type MusicVideoScene } from '@/utils/musicVideoDoc'
-import { DEFAULT_COMIC_LANES } from '@/utils/comicLanes'
 import {
   MUSIC_VIDEO_KEN_BURNS_PRESETS,
   sceneKenBurnsPreset,
@@ -258,7 +255,6 @@ const kenBurnsLabels: Record<MusicVideoKenBurnsPreset, string> = {
   'pan-left': 'Pan left',
   'pan-right': 'Pan right',
 }
-const lanes = DEFAULT_COMIC_LANES
 const showClip = ref(true)
 const picking = ref(false)
 const showLook = ref(false)

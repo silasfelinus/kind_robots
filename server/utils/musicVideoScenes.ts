@@ -7,6 +7,8 @@ import {
   MUSIC_VIDEO_KREA_CFG,
   MUSIC_VIDEO_KREA_STEPS,
   checkScenePrompt,
+  checkpointLane,
+  checkpointPathFromLaneKey,
   findBannedTerms,
   musicVideoStillBody,
   type MusicVideoStillBody,
@@ -36,7 +38,7 @@ export type StillLane = {
  */
 export async function resolveStillLane(doc: MusicVideoDoc): Promise<StillLane> {
   const seriesId = doc.settings.comicSeriesId
-  if (!seriesId) return defaultLane(doc.settings.imageLaneKey)
+  if (!seriesId) return await defaultLane(doc.settings.imageLaneKey)
   const series = await prisma.comicSeries.findUnique({
     where: { id: seriesId },
     select: {
@@ -51,9 +53,12 @@ export async function resolveStillLane(doc: MusicVideoDoc): Promise<StillLane> {
     throw new Error(`Comic series ${seriesId} was not found.`)
   }
   const lanes = parseComicLanes(series.lanes)
-  const lane = doc.settings.comicLaneKey
-    ? comicLaneForKey(lanes, doc.settings.comicLaneKey)
-    : comicPrimaryLane(lanes)
+  const pickedCheckpoint = checkpointPathFromLaneKey(doc.settings.comicLaneKey)
+  const lane = pickedCheckpoint
+    ? (await catalogCheckpointLane(pickedCheckpoint)).lane
+    : doc.settings.comicLaneKey
+      ? comicLaneForKey(lanes, doc.settings.comicLaneKey)
+      : comicPrimaryLane(lanes)
   if (!lane) {
     throw new Error(
       `Comic series ${seriesId} has no lane "${doc.settings.comicLaneKey ?? 'house'}".`,
@@ -74,13 +79,32 @@ export async function resolveStillLane(doc: MusicVideoDoc): Promise<StillLane> {
  * select the checkpoint we use for generation"). `krea2` or no key is the
  * built-in Krea 2 path; an unknown key is an error, never a silent fallback.
  */
-export function defaultLane(key: string | null | undefined): StillLane {
+export async function defaultLane(
+  key: string | null | undefined,
+): Promise<StillLane> {
   if (!key || key === MUSIC_VIDEO_SCENE_ENGINE) {
     return { lane: null, series: null }
   }
+  const checkpoint = checkpointPathFromLaneKey(key)
+  if (checkpoint) return catalogCheckpointLane(checkpoint)
   const lane = comicLaneForKey(DEFAULT_COMIC_LANES, key)
   if (!lane) throw new Error(`Unknown image lane "${key}".`)
   return { lane, series: null }
+}
+
+/** A checkpoint picked from the catalog, which must still be an active resource. */
+async function catalogCheckpointLane(checkpoint: string): Promise<StillLane> {
+  const resource = await prisma.resource.findFirst({
+    where: {
+      resourceType: 'CHECKPOINT',
+      localPath: checkpoint,
+      isActive: true,
+    },
+    select: { id: true },
+  })
+  if (!resource)
+    throw new Error(`Checkpoint "${checkpoint}" is not in the catalog.`)
+  return { lane: checkpointLane(checkpoint), series: null }
 }
 
 /**
@@ -104,7 +128,11 @@ export async function resolveSceneLane(
       : null
     if (own) return { lane: own, series: videoLane.series }
   }
-  return defaultLane(key)
+  const lane = await defaultLane(key)
+  // A checkpoint picked for one scene keeps the video's series style.
+  return lane.lane && videoLane.series
+    ? { lane: lane.lane, series: videoLane.series }
+    : lane
 }
 
 export type SceneRenderOutcome = {

@@ -103,9 +103,7 @@
           <option value="">
             {{ form.comicSeriesId ? "The series' house lane" : 'Krea 2' }}
           </option>
-          <option v-for="lane in laneChoices" :key="lane.key" :value="lane.key">
-            {{ lane.label }}
-          </option>
+          <MusicVideoCheckpointOptions />
         </select>
       </label>
       <label class="block space-y-0.5">
@@ -200,14 +198,11 @@ import {
   type MusicVideoSettings,
   type MusicVideoVocal,
 } from '@/utils/musicVideoDoc'
-import { DEFAULT_COMIC_LANES } from '@/utils/comicLanes'
 
 const store = useMusicVideoStore()
 const aspects = MUSIC_VIDEO_ASPECTS
 const vocals = MUSIC_VIDEO_VOCALS
 const limits = MUSIC_VIDEO_LIMITS
-// Krea 2 is the empty choice, so it is not listed twice.
-const laneChoices = DEFAULT_COMIC_LANES.filter((lane) => lane.key !== 'krea2')
 
 type BriefForm = {
   title: string

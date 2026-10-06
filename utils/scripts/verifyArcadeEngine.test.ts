@@ -32,6 +32,7 @@ import { emptyInput, type InputFrame } from '../arcade/types'
 import {
   enqueuePending,
   formatChampion,
+  initialsFromUsername,
   MAX_PENDING_SCORES,
   PENDING_FLUSH_BATCH,
   sanitizePending,
@@ -351,6 +352,16 @@ function scriptedInput(tick: number): InputFrame {
   )
   assert.equal(formatChampion({ initials: 'KRB', score: 12345 }), 'KRB 12,345')
   assert.equal(formatChampion(null), '')
+  assert.equal(
+    formatChampion({ initials: 'KRB', score: 900, username: 'silas' }),
+    'KRB (silas) 900',
+  )
+  // Signed-in players start from their username's letters.
+  assert.equal(initialsFromUsername('silasfelinus'), 'SIL')
+  assert.equal(initialsFromUsername('Al'), 'ALA')
+  assert.equal(initialsFromUsername('z_9!x'), 'Z9X')
+  assert.equal(initialsFromUsername('___'), null)
+  assert.equal(initialsFromUsername(null), null)
 }
 
 async function runGames() {

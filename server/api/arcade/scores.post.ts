@@ -1,8 +1,10 @@
 // /server/api/arcade/scores.post.ts
 //
 // Submit a Kind Robots Arcade high score. Anyone can post (the arcade is free
-// and needs no account); a signed-in player's userId is attached so scores
-// can be credited later. Body: { game, initials, score, level }.
+// and needs no account). Everyone enters three initials; for a signed-in
+// player the server also records their userId and username (from the auth
+// token, never from the body), and the boards show that username beside the
+// initials. Body: { game, initials, score, level }.
 
 import { createError, defineEventHandler, getRequestIP, readBody } from 'h3'
 import prisma from '../../utils/prisma'
@@ -33,6 +35,7 @@ export default defineEventHandler(async (event) => {
         score,
         level,
         userId: auth?.user.id ?? null,
+        username: auth?.user.username ?? null,
       },
       select: { id: true },
     })

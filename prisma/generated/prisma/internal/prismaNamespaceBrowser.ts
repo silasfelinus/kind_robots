@@ -255,6 +255,7 @@ export const ArcadeScoreScalarFieldEnum = {
   score: 'score',
   level: 'level',
   userId: 'userId',
+  username: 'username',
   createdAt: 'createdAt'
 } as const
 
@@ -2731,7 +2732,8 @@ export type AgentNoteOrderByRelevanceFieldEnum = (typeof AgentNoteOrderByRelevan
 
 export const ArcadeScoreOrderByRelevanceFieldEnum = {
   gameSlug: 'gameSlug',
-  initials: 'initials'
+  initials: 'initials',
+  username: 'username'
 } as const
 
 export type ArcadeScoreOrderByRelevanceFieldEnum = (typeof ArcadeScoreOrderByRelevanceFieldEnum)[keyof typeof ArcadeScoreOrderByRelevanceFieldEnum]

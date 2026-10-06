@@ -21,6 +21,8 @@ export type ArcadeScoreRange = 'all' | 'today'
 export type ArcadeBoardRow = {
   id: number
   initials: string
+  /** The signed-in player's username when the score was set; null for guests. */
+  username: string | null
   score: number
   level: number
   createdAt: string
@@ -109,6 +111,7 @@ export async function readArcadeBoard(
     select: {
       id: true,
       initials: true,
+      username: true,
       score: true,
       level: true,
       createdAt: true,
@@ -153,12 +156,12 @@ export async function readArcadeHallOfFame(): Promise<HallOfFameEntry[]> {
           where: { gameSlug: game.slug },
           orderBy: [{ score: 'desc' }, { createdAt: 'asc' }],
           take: ARCADE_HALL_SIZE,
-          select: { initials: true, score: true, level: true },
+          select: { initials: true, score: true, level: true, username: true },
         }),
         prisma.arcadeScore.findFirst({
           where: { gameSlug: game.slug, createdAt: { gte: dayStart } },
           orderBy: [{ score: 'desc' }, { createdAt: 'asc' }],
-          select: { initials: true, score: true },
+          select: { initials: true, score: true, username: true },
         }),
       ])
       return {

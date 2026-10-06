@@ -11,6 +11,7 @@ import {
   type MusicVideoStatus,
 } from '@/utils/musicVideoDoc'
 import { briefHasGaps } from '@/utils/musicVideoBrief'
+import { heroSceneIndexes } from '@/utils/musicVideoScenes'
 
 export type MusicVideoSummary = {
   id: number
@@ -1093,13 +1094,8 @@ export const useMusicVideoStore = defineStore('musicVideoStore', () => {
         !doc.scenes.some((s) => s.motion.kind === 'clip') &&
         tryStep('heroes', 1)
       ) {
-        produceStage.value = `Choosing ${heroes} hero shot${heroes === 1 ? '' : 's'}`
-        const count = Math.min(heroes, doc.scenes.length)
-        const picks = new Set(
-          Array.from({ length: count }, (_, i) =>
-            Math.floor(((i + 0.5) * doc.scenes.length) / count),
-          ),
-        )
+        produceStage.value = `Choosing ${heroes} hero shot${heroes === 1 ? '' : 's'}: open, middle and close first`
+        const picks = new Set(heroSceneIndexes(heroes, doc.scenes.length))
         await patchDoc(
           {
             scenes: doc.scenes.map((scene, index) =>

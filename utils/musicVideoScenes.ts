@@ -207,6 +207,35 @@ const LETTERING =
 const FRANCHISE =
   /\b(tmnt|teenage mutant|ninja turtles?|cowabunga|shredder|splinter|krang|april o'neil|leonardo|donatello|raphael|michelangelo)\b/i
 
+/**
+ * Which scenes to animate when none is marked (t-031, rule from Silas,
+ * 2026-10-06: "we should always open with a hero, or within the first two
+ * shots. Start strong, end strong. strong surprise middle"). The first shot,
+ * the last, the middle, then the rest spread evenly, in scene order.
+ */
+export function heroSceneIndexes(count: number, total: number): number[] {
+  const want = Math.min(Math.max(Math.floor(count), 0), total)
+  const picked = new Set<number>()
+  const anchors = [0, total - 1, Math.floor(total / 2)]
+  for (const index of anchors) {
+    if (picked.size < want && index >= 0) picked.add(index)
+  }
+  for (let step = 0; picked.size < want; step += 1) {
+    const spread = Math.floor(((step + 0.5) * total) / want)
+    const index = [spread, spread + 1, spread - 1].find(
+      (candidate) =>
+        candidate >= 0 && candidate < total && !picked.has(candidate),
+    )
+    if (index !== undefined) picked.add(index)
+    else {
+      const free = [...Array(total).keys()].find((i) => !picked.has(i))
+      if (free === undefined) break
+      picked.add(free)
+    }
+  }
+  return [...picked].sort((a, b) => a - b)
+}
+
 export function checkScenePrompt(prompt: string): ScenePromptViolation[] {
   const text = String(prompt || '').trim()
   if (!text) return [{ rule: 'empty', detail: 'The scene prompt is empty.' }]
@@ -335,6 +364,11 @@ export function musicVideoStillBody(
       promptTags: options.lane.promptStyle === 'tags' ? composed : null,
       aspect: doc.settings.aspect,
       useSeriesStyle: true,
+      negativePrompt:
+        [options.series?.negativeTags, doc.settings.negativePrompt]
+          .map((part) => String(part ?? '').trim())
+          .filter(Boolean)
+          .join(', ') || null,
     },
     { ...(options.series ?? {}), isPublicArt: false },
   )

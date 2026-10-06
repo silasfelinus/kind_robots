@@ -146,6 +146,18 @@
         type="text"
       />
     </label>
+    <label class="block space-y-0.5">
+      <span class="kr-text-dim-sm">
+        Negative prompt (kept out of every still on a checkpoint; Krea 2 ignores
+        it)
+      </span>
+      <textarea
+        v-model="form.negativePrompt"
+        class="kr-textarea text-sm"
+        rows="2"
+        :maxlength="limits.maxPrompt"
+      />
+    </label>
 
     <div class="flex flex-wrap items-center gap-2">
       <button
@@ -215,6 +227,7 @@ type BriefForm = {
   mood: string
   styleBible: string
   bannedTerms: string
+  negativePrompt: string
   heroShots: number | ''
   comicSeriesId: number | ''
   comicLaneKey: string
@@ -237,6 +250,7 @@ function emptyForm(video?: MusicVideo | null): BriefForm {
     mood: settings.mood ?? '',
     styleBible: settings.styleBible ?? '',
     bannedTerms: (settings.bannedTerms ?? []).join(', '),
+    negativePrompt: settings.negativePrompt ?? '',
     heroShots: settings.heroShots ?? '',
     comicSeriesId: settings.comicSeriesId ?? '',
     comicLaneKey: settings.comicLaneKey ?? '',
@@ -272,6 +286,7 @@ function toSettings(): Partial<MusicVideoSettings> {
     mood: form.mood.trim() || undefined,
     styleBible: form.styleBible,
     bannedTerms: terms.length ? terms : undefined,
+    negativePrompt: form.negativePrompt.trim() || undefined,
     heroShots:
       form.heroShots === '' || Number(form.heroShots) <= 0
         ? undefined

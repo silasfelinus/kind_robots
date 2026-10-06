@@ -87,6 +87,11 @@ export type MusicVideoSettings = {
   vocal?: MusicVideoVocal
   language?: string
   styleBible: string
+  /**
+   * What checkpoint lanes keep out of every still (t-034), joined to a comic
+   * series' own negatives. Krea 2 ignores it.
+   */
+  negativePrompt?: string
   loraResourceIds?: number[]
   aspect: MusicVideoAspect
   /**
@@ -321,6 +326,8 @@ function normalizeSettings(raw: unknown, errors: string[]): MusicVideoSettings {
     styleBible: text(s.styleBible, L.maxStyleBible),
     aspect: oneOf(s.aspect, MUSIC_VIDEO_ASPECTS) ?? '16:9',
   }
+  const negativePrompt = optionalText(s.negativePrompt, L.maxPrompt)
+  if (negativePrompt) settings.negativePrompt = negativePrompt
   const genre = optionalText(s.genre, L.maxShortText)
   const mood = optionalText(s.mood, L.maxShortText)
   const language = optionalText(s.language, L.maxShortText)

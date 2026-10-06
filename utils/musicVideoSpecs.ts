@@ -29,6 +29,12 @@ export type MusicVideoSpecScene = {
   kenBurns?: 'zoom-in' | 'zoom-out' | 'pan-left' | 'pan-right'
   /** A vetted keyframe to use instead of a fresh still. */
   artImageId?: number
+  /**
+   * A site image (a path under /images/, such as the logo) to put on this
+   * scene. The import copies it into a private ArtImage; until then, or if it
+   * cannot be read, the scene renders its prompt instead.
+   */
+  siteImage?: string
   transition?: 'cut' | 'crossfade'
 }
 
@@ -113,37 +119,40 @@ function section(
 }
 
 /*
- * A. The Kind Robots theme song (t-015): an original homage to 80s
- * Saturday-morning action cartoons, starring a recurring crew so the stills
- * stay consistent. 140 BPM, 75 s = 175 beats; scene changes on bar lines.
+ * A. The Kind Robots theme song (t-015). Silas, 2026-10-06: "I don't want to
+ * see a bunch of metal robots in this video. our robots have character and
+ * personality ... our robots are androids. this should also have a saturday
+ * morning cartoon feel. use our logo as one of the images, or two." The cast
+ * is the site's own: AMI, the Anti-Malaria Intelligence (amibotsquare1.webp),
+ * and the two androids from the logo (kindlogo_new.webp), which opens and
+ * closes the video. 140 BPM, 75 s = 175 beats; scene changes on bar lines.
  */
-const BOLT =
-  'Bolt, a small round orange robot with one big glowing blue lens eye and a wrench for a left hand'
-const SPROCKET =
-  'Sprocket, a lanky teal robot with springy legs and a radio antenna'
-const DOTTIE =
-  'Dottie, a hovering pink drone robot with a heart-shaped speaker grille'
-const JUNK =
-  'Junk, a giant friendly mech built from scrap metal, old car doors and a bathtub'
+const TEAL =
+  'a cheerful teal-skinned android woman with a glossy teal-and-purple cat-eared helmet, gold headphones, green eyes and a playful purple-lipped smile'
+const PINK =
+  'a bubbly android girl with curly pink hair, big teal eyes, glowing cat-ear headphones and shiny purple-and-gold armor'
+const AMI =
+  'a blue-skinned android fairy with big golden eyes, a glowing amber honeycomb dome on her head, purple headphones, shimmering green dragonfly wings and yellow butterfly wings, holding a glowing honeycomb orb'
+const LOGO = '/images/kindlogo_new.webp'
 
 const kindRobotsTheme: MusicVideoSpec = {
   key: 'kind-robots-theme',
   title: 'Kind Robots: Theme Song',
   summary:
-    '75 s duet, 140 BPM, 20 scenes on the bar grid, 5 hero shots, Krea 2.',
+    '75 s duet, 140 BPM, 20 scenes starring AMI and the logo androids, the logo twice, 5 hero shots, Krea 2.',
   pitch:
-    'The opening theme for the Kind Robots cartoon: a crew of small, friendly, mismatched robots who build things, fix things and help people, racing across a neon city at night. Rooftop chases, a workshop full of sparks, a junkyard team-up, a skateboarding robot, a giant friendly mech assembled from scraps, and a final heroic group pose under a rainbow-lit sky. Kindness is the superpower. The chorus is a shouted gang-vocal hook about being kind robots.',
+    'The opening theme for the Kind Robots Saturday-morning cartoon. Our robots are androids with big personalities: AMI, the Anti-Malaria Intelligence, a hyperactive, loving android fairy who flies mosquito nets to families who need them, and the two best friends from the Kind Robots logo, a teal cat-eared android and a pink-haired android girl. They skate rainbow roads over a cosmic candy-coloured city, fix what is broken, throw rooftop dance parties and help the neighbourhood. Kindness is the superpower. The chorus is a shouted gang-vocal hook about being kind robots.',
   settings: {
     durationSec: 75,
     aspect: '16:9',
     bpm: 140,
     vocal: 'duet',
     genre:
-      '80s Saturday-morning cartoon theme, synth rock, gated drums, shouted gang-vocal chorus',
-    mood: 'heroic, goofy, high-energy',
+      '80s Saturday-morning cartoon theme, bright synth pop rock, gated drums, shouted gang-vocal chorus',
+    mood: 'joyful, heroic, goofy, high-energy',
     heroShots: 5,
     styleBible:
-      '80s Saturday-morning action cartoon, thick black ink outlines, flat cel colour with hard two-tone shadows, saturated neon pink, teal and orange against deep night blue, painted cel backgrounds of a rain-slick neon city, speed lines, low heroic camera angles, dramatic rim light, small friendly robots with clear readable shapes',
+      '80s and early-90s Saturday-morning cartoon, bold black ink outlines, flat cel colour with soft two-tone shadows, bright candy palette of teal, pink, purple and gold, glossy android characters with expressive anime eyes and big friendly smiles, painted cel backgrounds of a cosmic city of floating towers under a rainbow, sparkles and stars, speed lines, heroic low camera angles',
     bannedTerms: [
       'teenage mutant',
       'ninja turtle',
@@ -166,28 +175,28 @@ const kindRobotsTheme: MusicVideoSpec = {
   sections: [
     section('intro', 'intro', ['Kind Robots, power up!']),
     section('v1', 'verse', [
-      'Neon on the rooftops and the rain coming down',
-      'Little tin heroes rolling into town',
-      'Bolts in their pockets and a spark in their eyes',
-      'Lighting up the city when the sirens cry',
+      'Rainbow over the city and the stars coming out',
+      'Two best friends with a smile and a shout',
+      'Hearts made of starlight, circuits made of song',
+      "Somebody needs a hand and they're running along",
     ]),
     section('c1', 'chorus', [
       'Kind Robots! (Kind Robots!)',
-      'Built from scraps and built for good',
+      'Built with love and built for good',
       'Kind Robots! (Kind Robots!)',
-      'Helping out the neighborhood',
+      'Helping out the neighbourhood',
     ]),
     section('v2', 'verse', [
-      'Sparks in the workshop, wheels on the street',
-      'Skateboard flipping on every beat',
-      'Junkyard giant made of borrowed parts',
-      'Biggest thing about him is his heart',
+      'Here comes AMI on her wings of light',
+      'Mosquito nets sailing through the night',
+      'Every little spark can light the way',
+      'Kindness is the power that saves the day',
     ]),
     section('c2', 'chorus', [
       'Kind Robots! (Kind Robots!)',
-      'Built from scraps and built for good',
+      'Built with love and built for good',
       'Kind Robots! (Kind Robots!)',
-      'Helping out the neighborhood',
+      'Helping out the neighbourhood',
     ]),
     section('outro', 'outro', ['Kindness is the superpower!', 'Kind Robots!']),
   ],
@@ -195,129 +204,131 @@ const kindRobotsTheme: MusicVideoSpec = {
     {
       beats: 8,
       prompt:
-        'A rain-slick neon city skyline at night, water towers and glowing windows, a big full moon behind the rooftops',
+        'a cosmic candy-coloured city of floating towers at night, a huge rainbow arching across a starry purple sky, sparkles drifting through the air',
       kenBurns: 'pan-right',
     },
     {
       beats: 8,
-      prompt: `A garage door bursting open in a burst of orange light, ${BOLT} striking a heroic pose in the doorway`,
+      prompt: `${TEAL} and ${PINK} smiling side by side at a cosmic café table under a rainbow`,
       lyrics: ['intro:0'],
+      siteImage: LOGO,
       kenBurns: 'zoom-in',
     },
     {
       beats: 8,
-      prompt:
-        'Neon rooftops in heavy rain, puddles reflecting pink and teal signs, steam rising from vents',
+      prompt: `${TEAL} and ${PINK} roller skating along a glowing rainbow road high above the cosmic city`,
       lyrics: ['v1:0'],
       kenBurns: 'pan-left',
     },
     {
       beats: 8,
-      prompt: `${BOLT}, ${SPROCKET} and ${DOTTIE} rolling down a wet neon street side by side`,
+      prompt: `close-up of ${TEAL} and ${PINK} laughing together, cat-ear headphones glowing, sparkles all around`,
       lyrics: ['v1:1'],
-      kenBurns: 'pan-right',
-    },
-    {
-      beats: 8,
-      prompt: `Close-up of ${BOLT}, his blue lens eye glowing, sparks dancing off his wrench hand`,
-      lyrics: ['v1:2'],
       kenBurns: 'zoom-in',
     },
     {
       beats: 8,
-      prompt: `${DOTTIE} flying above a flashing ambulance at a busy crossroads, beaming a bright rainbow light down on the street`,
-      lyrics: ['v1:3'],
+      prompt: `${PINK} playing a glowing rainbow keytar on a rooftop at night, musical sparkles swirling from the keys`,
+      lyrics: ['v1:2'],
       kenBurns: 'zoom-out',
     },
     {
       beats: 8,
-      prompt: `${SPROCKET} leaping between two neon rooftops against the moon, arms spread wide, speed lines behind him`,
-      lyrics: ['c1:0'],
-      motionPrompt:
-        'The robot springs off the rooftop and sails across the gap as the camera tracks sideways with him.',
+      prompt: `${TEAL} and ${PINK} sprinting down a bright candy-coloured street toward a kitten stuck high in a tree, speed lines behind them`,
+      lyrics: ['v1:3'],
+      kenBurns: 'pan-right',
     },
     {
       beats: 8,
-      prompt: `${BOLT} bolting a dented street lamp back together while the lamp flickers on`,
+      prompt: `${TEAL} and ${PINK} leaping off a rooftop toward the camera, arms spread wide, a rainbow trail streaming behind them`,
+      lyrics: ['c1:0'],
+      motionPrompt:
+        'The two friends leap off the rooftop and fly toward the camera as a rainbow trail streams out behind them.',
+    },
+    {
+      beats: 8,
+      prompt: `${TEAL} kneeling on a sunny sidewalk fixing a child's bicycle, golden sparkles rising from her hands, the child grinning`,
       lyrics: ['c1:1'],
       kenBurns: 'zoom-in',
     },
     {
       beats: 8,
-      prompt: `${BOLT}, ${SPROCKET} and ${DOTTIE} cheering together on a rooftop, fists raised, neon signs glowing behind them`,
+      prompt: `${TEAL} and ${PINK} giving each other a big high five in front of a giant rainbow, stars bursting around their hands`,
       lyrics: ['c1:2'],
       kenBurns: 'zoom-out',
     },
     {
       beats: 8,
-      prompt: `${DOTTIE} carrying a lost kitten home to a smiling old robot neighbor on a cozy brick stoop`,
+      prompt: `${PINK} handing glowing paper lanterns to smiling neighbours on a cozy street at dusk, warm light in every window`,
       lyrics: ['c1:3'],
       kenBurns: 'pan-left',
     },
     {
       beats: 8,
-      prompt: `${BOLT} welding at a cluttered robot workshop bench, a fountain of orange sparks lighting up shelves of gears and spare parts`,
+      prompt: `${AMI}, glowing butterflies around her, teal night sky`,
       lyrics: ['v2:0'],
+      siteImage: '/images/amibotsquare1.webp',
       motionPrompt:
-        'Sparks spray from the welding torch while the camera pushes in slowly on the workbench.',
+        'Her wings flutter open and the orb in her hands glows brighter as tiny butterflies circle her.',
     },
     {
       beats: 8,
-      prompt: `${SPROCKET} riding a glowing skateboard mid-air over a ramp in a neon alley, board flipping under his feet`,
+      prompt: `${AMI} flying over a moonlit village of little huts, dropping glowing blue mosquito nets that float down like parachutes`,
       lyrics: ['v2:1'],
-      motionPrompt:
-        'The robot kicks the skateboard into a spinning flip and lands it as the camera follows the jump.',
-    },
-    {
-      beats: 8,
-      prompt: `${JUNK} rising to his full height in a junkyard at dusk, the small robots cheering at his feet, scrap metal clanking into place`,
-      lyrics: ['v2:2'],
-      motionPrompt:
-        'Scrap pieces fly up and lock into place as the giant mech stands up and the camera tilts up with him.',
-    },
-    {
-      beats: 8,
-      prompt: `${JUNK} gently holding ${BOLT} in his huge open palm, a warm glowing heart-shaped lamp shining in his chest`,
-      lyrics: ['v2:3'],
-      kenBurns: 'zoom-in',
-    },
-    {
-      beats: 8,
-      prompt: `${SPROCKET} and ${DOTTIE} racing across a neon bridge at night, rain streaking past them`,
-      lyrics: ['c2:0'],
       kenBurns: 'pan-right',
     },
     {
       beats: 8,
-      prompt: `${BOLT} and ${JUNK} lifting a fallen tree off a little delivery robot's cart in a rainy street`,
-      lyrics: ['c2:1'],
+      prompt: `${AMI} lifting her glowing orb as it bursts into hundreds of rainbow butterflies over the cosmic city`,
+      lyrics: ['v2:2'],
+      motionPrompt:
+        'The orb bursts open and hundreds of rainbow butterflies pour out and swirl up into the sky.',
+    },
+    {
+      beats: 8,
+      prompt: `${AMI}, ${TEAL} and ${PINK} holding hands in a circle on a rooftop, glowing hearts floating above them`,
+      lyrics: ['v2:3'],
       kenBurns: 'zoom-out',
     },
     {
       beats: 8,
-      prompt: `The whole crew, ${BOLT}, ${SPROCKET}, ${DOTTIE} and ${JUNK}, sliding down a fire escape in a line, laughing`,
-      lyrics: ['c2:2'],
+      prompt: `${TEAL} and ${PINK} racing across a neon rainbow bridge at night while ${AMI} flies above them`,
+      lyrics: ['c2:0'],
       kenBurns: 'pan-left',
     },
     {
       beats: 8,
-      prompt:
-        'A neighborhood street at night full of small happy robots waving from windows and stoops, warm lights in every window',
-      lyrics: ['c2:3'],
-      kenBurns: 'zoom-out',
+      prompt: `${TEAL} painting a giant rainbow across a city wall with a glowing brush, colours splashing everywhere`,
+      lyrics: ['c2:1'],
+      motionPrompt:
+        'She sweeps the glowing brush across the wall and the rainbow spreads out in a splash of colour.',
     },
     {
-      beats: 16,
-      prompt: `${DOTTIE} painting a rainbow across the night sky with her light beam, the city glowing below`,
-      lyrics: ['outro:0'],
+      beats: 8,
+      prompt: `${PINK} spinning records at a rooftop dance party under the stars, friendly androids and neighbours dancing around her`,
+      lyrics: ['c2:2'],
+      kenBurns: 'zoom-in',
+    },
+    {
+      beats: 8,
+      prompt:
+        'a whole cosmic neighbourhood of friendly androids and townsfolk waving from windows and balconies, rainbow bunting, warm glowing lights',
+      lyrics: ['c2:3'],
       kenBurns: 'pan-right',
     },
     {
+      beats: 16,
+      prompt: `${AMI}, ${TEAL} and ${PINK} striking a heroic pose on the tallest floating tower, a huge rainbow behind them, low camera angle`,
+      lyrics: ['outro:0'],
+      kenBurns: 'zoom-out',
+    },
+    {
       beats: 15,
-      prompt: `${BOLT}, ${SPROCKET}, ${DOTTIE} and ${JUNK} in a heroic group pose on the highest rooftop under a rainbow-lit sky, low camera angle`,
+      prompt: `${TEAL} and ${PINK} smiling side by side at a cosmic café table under a rainbow, raising a glowing drink`,
       lyrics: ['outro:1'],
+      siteImage: LOGO,
       motionPrompt:
-        'The camera rises slowly up to the crew as their eyes light up and the rainbow brightens behind them.',
+        'The two friends turn to the camera and smile as the rainbow behind them shimmers and sparkles drift upward.',
     },
   ],
 }

@@ -114,4 +114,34 @@ console.log('✅ both prepared specs import cleanly and pass the prompt rules')
 }
 console.log('✅ the Zuzu intro starts from the vetted keyframes')
 
+// Silas, 2026-10-06: our robots are androids, never "a bunch of metal
+// robots", and the logo opens and closes the theme song.
+{
+  const theme = musicVideoSpecByKey('kind-robots-theme')!
+  const placed = theme.scenes.flatMap((row, index) =>
+    row.siteImage ? [[index, row.siteImage] as const] : [],
+  )
+  assert.deepEqual(placed, [
+    [1, '/images/kindlogo_new.webp'],
+    [10, '/images/amibotsquare1.webp'],
+    [19, '/images/kindlogo_new.webp'],
+  ])
+  for (const [, sitePath] of placed) {
+    assert.match(sitePath, /^\/images\/[A-Za-z0-9_\-/]+\.(webp|png|jpe?g)$/)
+  }
+  const doc = specToDoc(theme)
+  assert.ok(doc.scenes[19]?.motionPrompt, 'the closing logo shot is animated')
+  for (const scene of doc.scenes) {
+    assert.doesNotMatch(
+      scene.prompt,
+      /\b(metal|metallic|scrap|bolts?|rust|wrench)\b/i,
+    )
+  }
+  assert.ok(
+    doc.scenes.every((scene) => !/\bAMI\b/.test(scene.prompt)),
+    'names stay out of image prompts',
+  )
+}
+console.log('✅ the theme song stars the androids, with the logo twice')
+
 console.log('✅ verifyMusicVideoSpecs: all assertions passed')

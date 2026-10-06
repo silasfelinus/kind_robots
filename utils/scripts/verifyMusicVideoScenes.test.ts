@@ -13,6 +13,9 @@ import { emptyMusicVideoDoc, normalizeMusicVideoDoc } from '../musicVideoDoc.js'
 import {
   buildScenePromptRequest,
   checkScenePrompt,
+  checkpointLane,
+  checkpointLaneKey,
+  checkpointPathFromLaneKey,
   composeScenePrompt,
   findBannedTerms,
   kreaFrameSize,
@@ -312,6 +315,45 @@ console.log(
 }
 console.log(
   '✅ comic keyframes take the pick, then the newest like, and report crop loss',
+)
+
+// Any catalog checkpoint can be a music video's image lane (Silas,
+// 2026-10-06: "why am i missing so many checkpoints"). Its key round-trips,
+// and the family's measured profile and prompt style come with it.
+{
+  const path = 'Illustrious/someNewModel_v2.safetensors'
+  const key = checkpointLaneKey(path)
+  assert.equal(key, 'ckpt:Illustrious/someNewModel_v2.safetensors')
+  assert.equal(checkpointPathFromLaneKey(key), path)
+  assert.equal(checkpointPathFromLaneKey('il-arthemy'), null)
+  assert.equal(checkpointPathFromLaneKey(undefined), null)
+
+  const lane = checkpointLane(path)
+  assert.equal(lane.engine, 'comfy')
+  assert.equal(lane.checkpoint, path)
+  assert.equal(lane.promptStyle, 'tags')
+  assert.ok(lane.steps && lane.cfg && lane.sampler)
+  assert.equal(checkpointLane('SDXL/plain.safetensors').promptStyle, 'prose')
+
+  const doc = normalizeMusicVideoDoc({
+    ...emptyMusicVideoDoc({ pitch: 'x' }),
+    settings: { ...emptyMusicVideoDoc({}).settings, imageLaneKey: key },
+  }).doc
+  assert.equal(doc.settings.imageLaneKey, key, 'a long checkpoint key is kept')
+  const body = musicVideoStillBody(
+    doc,
+    { prompt: 'a cheerful android' },
+    {
+      projectSlug: 'music-video',
+      lane,
+    },
+  )
+  assert.equal(body.engine, 'comfy')
+  assert.equal(body.checkpoint, path)
+  assert.equal(body.steps, lane.steps)
+}
+console.log(
+  '✅ any catalog checkpoint renders as a lane with its family profile',
 )
 
 console.log('✅ verifyMusicVideoScenes: all assertions passed')

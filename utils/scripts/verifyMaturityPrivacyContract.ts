@@ -696,4 +696,22 @@ assert.ok(logoutRoute.includes('clearKindSessionCookie(event)'))
 const userStoreSource = readFileSync('stores/userStore.ts', 'utf8')
 assert.ok(userStoreSource.includes("performFetch('/api/auth/logout'"))
 
+// Jobs queued through POST /api/art/queue (Conductor's project, dream and
+// pitch art) always carry a resolved save block: the relay stages and
+// /complete applies visibility from it, so a job without one landed private.
+const queueCreateRoute = readFileSync(
+  'server/api/art/queue/index.post.ts',
+  'utf8',
+)
+assert.ok(
+  queueCreateRoute.includes(
+    'payload.save = { ...save, ...resolveMaturityPrivacy(save, payload) }',
+  ),
+)
+// Stamped after the fingerprint, so de-duplication of in-flight jobs holds.
+assert.ok(
+  queueCreateRoute.indexOf('enrichArtJobPayload(') <
+    queueCreateRoute.indexOf('payload.save = {'),
+)
+
 console.log('Maturity and privacy generation contract passed.')

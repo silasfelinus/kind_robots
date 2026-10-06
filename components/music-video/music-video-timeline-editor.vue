@@ -342,6 +342,7 @@ function retimeBoundary(fromSec: number, toSec: number) {
   if (i <= 0) return
   const prev = list[i - 1]
   const cur = list[i]
+  if (!prev || !cur) return
   if (toSec <= prev.startSec || toSec >= cur.endSec) return
   const next = [...list]
   next[i - 1] = { ...prev, endSec: toSec }

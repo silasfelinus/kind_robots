@@ -74,7 +74,7 @@ export function waveformPeaks(
     const to = Math.max(from + 1, Math.floor((b + 1) * per))
     let peak = 0
     for (let i = from; i < to && i < samples.length; i++) {
-      const v = Math.abs(samples[i])
+      const v = Math.abs(samples[i] ?? 0)
       if (v > peak) peak = v
     }
     peaks.push(peak)
@@ -101,7 +101,7 @@ export function sectionBands(
   let acc = 0
   return sections.map((section, i) => {
     const startSec = round3((acc / total) * durationSec)
-    acc += weights[i]
+    acc += weights[i] ?? 1
     const endSec = round3((acc / total) * durationSec)
     return { sectionId: section.id, kind: section.kind, startSec, endSec }
   })
@@ -155,6 +155,7 @@ export function splitSceneAt(
   const index = scenes.findIndex((s) => atSec > s.startSec && atSec < s.endSec)
   if (index < 0) return scenes
   const left = scenes[index]
+  if (!left) return scenes
   const refs = left.lyricRefs
   const half = Math.ceil(refs.length / 2)
   const right: MusicVideoScene = {
@@ -188,6 +189,7 @@ export function mergeSceneBack(
   if (index <= 0) return scenes
   const prev = scenes[index - 1]
   const gone = scenes[index]
+  if (!prev || !gone) return scenes
   const next = [...scenes]
   next.splice(index - 1, 2, {
     ...prev,
@@ -211,7 +213,7 @@ export function spreadLyricsAcrossScenes(
   let acc = 0
   return scenes.map((scene, i) => {
     const from = Math.round((acc / total) * lines.length)
-    acc += spans[i]
+    acc += spans[i] ?? 0
     const to =
       i === scenes.length - 1
         ? lines.length

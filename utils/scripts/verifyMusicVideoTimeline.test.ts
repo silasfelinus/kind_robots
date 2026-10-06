@@ -141,10 +141,10 @@ function base(id: string, startSec: number, endSec: number): MusicVideoScene {
       ['s2', 10, 20],
     ],
   )
-  assert.equal(split[0].lyricRefs.length, 2)
-  assert.equal(split[1].lyricRefs.length, 2)
-  assert.equal(split[1].prompt, '')
-  assert.equal(split[1].image.artImageId, undefined)
+  assert.equal(split[0]!.lyricRefs.length, 2)
+  assert.equal(split[1]!.lyricRefs.length, 2)
+  assert.equal(split[1]!.prompt, '')
+  assert.equal(split[1]!.image.artImageId, undefined)
   assert.equal(splitSceneAt(scenes, 10, 'sx'), scenes, 'a boundary is no split')
   const merged = mergeSceneBack(split, 's3')
   assert.deepEqual(
@@ -154,8 +154,8 @@ function base(id: string, startSec: number, endSec: number): MusicVideoScene {
       ['s2', 10, 20],
     ],
   )
-  assert.equal(merged[0].image.artImageId, 7)
-  assert.equal(merged[0].lyricRefs.length, 4)
+  assert.equal(merged[0]!.image.artImageId, 7)
+  assert.equal(merged[0]!.lyricRefs.length, 4)
   assert.equal(mergeSceneBack(scenes, 's1'), scenes)
 }
 
@@ -172,11 +172,11 @@ function base(id: string, startSec: number, endSec: number): MusicVideoScene {
     [base('s1', 0, 5), base('s2', 5, 20)],
     sections,
   )
-  assert.equal(spread[0].lyricRefs.length, 2)
-  assert.equal(spread[1].lyricRefs.length, 4)
+  assert.equal(spread[0]!.lyricRefs.length, 2)
+  assert.equal(spread[1]!.lyricRefs.length, 4)
   const moved = assignLyricLine(spread, { sectionId: 'a', lineIdx: 0 }, 's2')
-  assert.equal(moved[0].lyricRefs.length, 1)
-  assert.equal(moved[1].lyricRefs.length, 5)
+  assert.equal(moved[0]!.lyricRefs.length, 1)
+  assert.equal(moved[1]!.lyricRefs.length, 5)
   const total = moved.reduce((n, s) => n + s.lyricRefs.length, 0)
   assert.equal(total, 6, 'a line belongs to exactly one scene')
 }

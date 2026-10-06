@@ -136,6 +136,8 @@
                 </span>
               </div>
 
+              <MusicVideoProducePanel />
+
               <MusicVideoPipelineBar />
 
               <form class="space-y-3" @submit.prevent="onSave">

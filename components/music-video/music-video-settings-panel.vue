@@ -59,6 +59,17 @@
         />
       </label>
       <label class="block space-y-1">
+        <span class="kr-text-dim-sm">Hero shots to animate</span>
+        <input
+          v-model.number="form.heroShots"
+          class="kr-input w-full"
+          type="number"
+          min="0"
+          :max="limits.maxHeroShots"
+          placeholder="0"
+        />
+      </label>
+      <label class="block space-y-1">
         <span class="kr-text-dim-sm">Mood</span>
         <input
           v-model="form.mood"
@@ -80,6 +91,33 @@
         :maxlength="limits.maxStyleBible"
       />
     </label>
+    <div
+      class="grid gap-3 grid-cols-[repeat(auto-fit,minmax(min(100%,12rem),1fr))]"
+    >
+      <label class="block space-y-1">
+        <span class="kr-text-dim-sm">Comic series id (optional)</span>
+        <input
+          v-model.number="form.comicSeriesId"
+          class="kr-input w-full"
+          type="number"
+          min="1"
+          placeholder="Render stills in a comic's style"
+        />
+      </label>
+      <label class="block space-y-1">
+        <span class="kr-text-dim-sm">Comic lane</span>
+        <select
+          v-model="form.comicLaneKey"
+          class="kr-input w-full"
+          :disabled="!form.comicSeriesId"
+        >
+          <option value="">The series' house lane</option>
+          <option v-for="lane in lanes" :key="lane.key" :value="lane.key">
+            {{ lane.label }}
+          </option>
+        </select>
+      </label>
+    </div>
     <label class="block space-y-1">
       <span class="kr-text-dim-sm">
         Banned terms (comma separated; never in a prompt, lyric or caption)
@@ -87,13 +125,31 @@
       <input v-model="form.bannedTerms" class="kr-input w-full" type="text" />
     </label>
 
-    <button
-      type="submit"
-      class="kr-btn kr-btn-primary"
-      :disabled="store.saving || !dirty"
-    >
-      Save settings
-    </button>
+    <div class="flex flex-wrap items-center gap-2">
+      <button
+        type="submit"
+        class="kr-btn kr-btn-primary"
+        :disabled="store.saving || !dirty"
+      >
+        Save settings
+      </button>
+      <button
+        type="button"
+        class="kr-btn"
+        :disabled="
+          dirty || Boolean(store.busyAction) || !store.current?.doc.pitch.trim()
+        "
+        :title="
+          dirty
+            ? 'Save your settings first'
+            : 'Let the AI fill genre, mood, BPM, vocal and the style bible from the pitch; what you set stays'
+        "
+        @click="store.fillBrief()"
+      >
+        <span v-if="store.busyAction === 'brief'" class="kr-spinner-xs" />
+        Fill in from pitch
+      </button>
+    </div>
   </form>
 </template>
 
@@ -110,11 +166,13 @@ import {
   type MusicVideoSettings,
   type MusicVideoVocal,
 } from '@/utils/musicVideoDoc'
+import { DEFAULT_COMIC_LANES } from '@/utils/comicLanes'
 
 const store = useMusicVideoStore()
 const aspects = MUSIC_VIDEO_ASPECTS
 const vocals = MUSIC_VIDEO_VOCALS
 const limits = MUSIC_VIDEO_LIMITS
+const lanes = DEFAULT_COMIC_LANES
 
 type SettingsForm = {
   durationSec: number
@@ -125,6 +183,9 @@ type SettingsForm = {
   mood: string
   styleBible: string
   bannedTerms: string
+  heroShots: number | ''
+  comicSeriesId: number | ''
+  comicLaneKey: string
 }
 
 const form = reactive<SettingsForm>(emptyForm())
@@ -139,6 +200,9 @@ function emptyForm(settings?: MusicVideoSettings): SettingsForm {
     mood: settings?.mood ?? '',
     styleBible: settings?.styleBible ?? '',
     bannedTerms: (settings?.bannedTerms ?? []).join(', '),
+    heroShots: settings?.heroShots ?? '',
+    comicSeriesId: settings?.comicSeriesId ?? '',
+    comicLaneKey: settings?.comicLaneKey ?? '',
   }
 }
 
@@ -156,6 +220,18 @@ function toSettings(): Partial<MusicVideoSettings> {
     mood: form.mood.trim() || undefined,
     styleBible: form.styleBible,
     bannedTerms: terms.length ? terms : undefined,
+    heroShots:
+      form.heroShots === '' || Number(form.heroShots) <= 0
+        ? undefined
+        : Math.min(Number(form.heroShots), MUSIC_VIDEO_LIMITS.maxHeroShots),
+    comicSeriesId:
+      form.comicSeriesId === '' || Number(form.comicSeriesId) <= 0
+        ? undefined
+        : Number(form.comicSeriesId),
+    comicLaneKey:
+      form.comicSeriesId !== '' && form.comicLaneKey
+        ? form.comicLaneKey
+        : undefined,
   }
 }
 

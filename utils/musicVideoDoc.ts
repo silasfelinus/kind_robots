@@ -62,6 +62,7 @@ export const MUSIC_VIDEO_LIMITS = {
   maxBannedTerms: 40,
   maxBannedTerm: 60,
   maxMotionPresets: 24,
+  maxHeroShots: 8,
   maxMotionPresetName: 60,
 } as const
 
@@ -97,6 +98,11 @@ export type MusicVideoSettings = {
   bannedTerms?: string[]
   /** Named animation prompts scenes can copy into their motionPrompt. */
   motionPresets?: MusicVideoMotionPreset[]
+  /**
+   * How many scenes Produce animates when none is marked (t-031). Silas,
+   * 2026-10-06: "4-5 hero shots"; the rest pan and zoom.
+   */
+  heroShots?: number
 }
 
 export type MusicVideoSection = {
@@ -325,6 +331,8 @@ function normalizeSettings(raw: unknown, errors: string[]): MusicVideoSettings {
   if (bannedTerms.length) settings.bannedTerms = bannedTerms
   const motionPresets = normalizeMotionPresets(s.motionPresets)
   if (motionPresets.length) settings.motionPresets = motionPresets
+  const heroShots = positiveInt(s.heroShots)
+  if (heroShots) settings.heroShots = Math.min(heroShots, L.maxHeroShots)
   return settings
 }
 

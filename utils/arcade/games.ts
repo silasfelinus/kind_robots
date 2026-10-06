@@ -218,6 +218,26 @@ export const ARCADE_GAMES: ArcadeGameMeta[] = [
     accent: '#86efac',
     controls: 'Hop',
   },
+  {
+    slug: 'ribbon-riders',
+    title: 'Ribbon Riders',
+    riffsOn: 'Tron light cycles',
+    blurb:
+      'Ride a light-bike that unrolls a glowing rainbow ribbon. Anyone who bumps into a ribbon or the wall is out of the round, so box the rival riders in before you bump into something yourself. Each round brings another rival, smarter steering, faster bikes and an arena wall that closes in.',
+    howTo: [
+      'ARROWS  STEER',
+      'HOLD A  TURBO',
+      'DONT BUMP A RIBBON',
+      'BOX THE RIVALS IN',
+      'THE WALL CLOSES IN',
+    ],
+    width: 288,
+    height: 312,
+    maxPlausibleScore: 5_000_000,
+    titleArt: '/images/arcade/games/ribbon-riders-title.webp',
+    accent: '#22d3ee',
+    controls: 'Steer, turbo',
+  },
 ]
 
 export type ComingSoonCabinet = {
@@ -231,12 +251,6 @@ export type ComingSoonCabinet = {
 
 // Mirrors the queued rows of conductor projects/kr-arcade/games.yaml.
 export const COMING_SOON: ComingSoonCabinet[] = [
-  {
-    slug: 'ribbon-riders',
-    title: 'Ribbon Riders',
-    riffsOn: 'Tron',
-    accent: '#22d3ee',
-  },
   {
     slug: 'burrow-buddy',
     title: 'Burrow Buddy',
@@ -286,6 +300,7 @@ const LOADERS: Record<string, () => Promise<ArcadeGameModule>> = {
   'kind-pinball': () => import('./games/kindPinball'),
   'gloom-invaders': () => import('./games/gloomInvaders'),
   'hedgehog-crossing': () => import('./games/hedgehogCrossing'),
+  'ribbon-riders': () => import('./games/ribbonRiders'),
 }
 
 export function findArcadeGame(slug: string): ArcadeGameMeta | undefined {

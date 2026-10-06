@@ -256,7 +256,9 @@ export type MusicVideoStillBody = {
  */
 export function musicVideoStillBody(
   doc: MusicVideoDoc,
-  scene: Pick<MusicVideoScene, 'prompt'>,
+  scene: Pick<MusicVideoScene, 'prompt'> & {
+    image?: Pick<MusicVideoScene['image'], 'loraResourceIds'>
+  },
   options: {
     projectSlug: string
     lane?: ComicLane | null
@@ -265,7 +267,13 @@ export function musicVideoStillBody(
 ): MusicVideoStillBody {
   const composed = composeScenePrompt(scene.prompt, doc.settings.styleBible)
   const shared = {
-    loraResourceIds: doc.settings.loraResourceIds ?? [],
+    // The video's LoRAs plus this scene's own (t-032), at most 8.
+    loraResourceIds: [
+      ...new Set([
+        ...(doc.settings.loraResourceIds ?? []),
+        ...(scene.image?.loraResourceIds ?? []),
+      ]),
+    ].slice(0, 8),
     isPublic: false as const,
     isMature: false as const,
     designer: 'Music Video',

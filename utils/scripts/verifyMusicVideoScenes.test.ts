@@ -208,6 +208,13 @@ console.log(
   assert.equal(krea.engine, 'krea2')
   assert.equal(krea.steps, 8)
   assert.deepEqual(krea.loraResourceIds, [5])
+  // t-032: a scene's own LoRAs join the video's, without repeats.
+  const withLoras = musicVideoStillBody(
+    zuzu,
+    { ...scene, image: { loraResourceIds: [5, 9] } },
+    { projectSlug: 'music-video' },
+  )
+  assert.deepEqual(withLoras.loraResourceIds, [5, 9])
 
   const lane = comicPrimaryLane(DEFAULT_COMIC_LANES)!
   const comic = musicVideoStillBody(zuzu, scene, {

@@ -274,6 +274,37 @@ console.log('✅ motion presets keep only complete, unique entries')
 }
 console.log('✅ heroShots is a capped positive count')
 
+// t-032: a checkpoint (image lane) for the whole video, and a lane plus LoRAs
+// for one scene's image. LoRA ids are positive, unique and capped at 8.
+{
+  const base = validDoc()
+  const { doc, errors } = normalizeMusicVideoDoc({
+    ...base,
+    settings: { ...base.settings, imageLaneKey: 'il-arthemy' },
+    scenes: base.scenes.map((scene, index) =>
+      index === 0
+        ? {
+            ...scene,
+            image: {
+              ...scene.image,
+              laneKey: 'sdxl-nihilmania',
+              loraResourceIds: [3, 3, -1, 'x', 4, 5, 6, 7, 8, 9, 10, 11],
+            },
+          }
+        : scene,
+    ),
+  })
+  assert.deepEqual(errors, [])
+  assert.equal(doc.settings.imageLaneKey, 'il-arthemy')
+  const withLook = doc.scenes.find((scene) => scene.id === 's2')!
+  assert.equal(withLook.image.laneKey, 'sdxl-nihilmania')
+  assert.deepEqual(withLook.image.loraResourceIds, [3, 4, 5, 6, 7, 8, 9, 10])
+  const plain = doc.scenes.find((scene) => scene.id === 's1')!
+  assert.equal(plain.image.laneKey, undefined)
+  assert.equal(plain.image.loraResourceIds, undefined)
+}
+console.log('✅ the video checkpoint and per-scene lane and LoRAs survive')
+
 // t-031: the brief fills blanks only, reads messy LLM output, and never
 // replaces a full style bible the director wrote.
 {

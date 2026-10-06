@@ -63,6 +63,7 @@ export const MUSIC_VIDEO_LIMITS = {
   maxBannedTerm: 60,
   maxMotionPresets: 24,
   maxHeroShots: 8,
+  maxLoras: 8,
   maxMotionPresetName: 60,
 } as const
 
@@ -98,6 +99,12 @@ export type MusicVideoSettings = {
   bannedTerms?: string[]
   /** Named animation prompts scenes can copy into their motionPrompt. */
   motionPresets?: MusicVideoMotionPreset[]
+  /**
+   * The image lane (checkpoint plus its prompt prefix, sampler and steps)
+   * every still renders through, from DEFAULT_COMIC_LANES; unset is Krea 2.
+   * A comic series' own lane wins over this (t-032).
+   */
+  imageLaneKey?: string
   /**
    * How many scenes Produce animates when none is marked (t-031). Silas,
    * 2026-10-06: "4-5 hero shots"; the rest pan and zoom.
@@ -141,6 +148,10 @@ export type MusicVideoScene = {
     source: 'generated' | 'upload' | 'gallery'
     artImageId?: number
     jobId?: number
+    /** This scene's image lane (checkpoint) instead of the video's (t-032). */
+    laneKey?: string
+    /** LoRAs for this scene only, added to the video's (t-032). */
+    loraResourceIds?: number[]
   }
   motion: {
     kind: 'kenburns' | 'clip'
@@ -218,6 +229,15 @@ function round3(n: number): number {
   return Math.round(n * 1000) / 1000
 }
 
+function positiveIntList(value: unknown, max: number): number[] {
+  if (!Array.isArray(value)) return []
+  return [
+    ...new Set(
+      value.map(positiveInt).filter((n): n is number => n !== undefined),
+    ),
+  ].slice(0, max)
+}
+
 function cleanId(value: unknown): string {
   const id = text(value, 64)
   return /^[A-Za-z0-9_-]+$/.test(id) ? id : ''
@@ -293,7 +313,7 @@ function normalizeSettings(raw: unknown, errors: string[]): MusicVideoSettings {
             .map(positiveInt)
             .filter((n): n is number => n !== undefined),
         ),
-      ].slice(0, 8)
+      ].slice(0, L.maxLoras)
     : []
 
   const settings: MusicVideoSettings = {
@@ -331,6 +351,8 @@ function normalizeSettings(raw: unknown, errors: string[]): MusicVideoSettings {
   if (bannedTerms.length) settings.bannedTerms = bannedTerms
   const motionPresets = normalizeMotionPresets(s.motionPresets)
   if (motionPresets.length) settings.motionPresets = motionPresets
+  const imageLaneKey = optionalText(s.imageLaneKey, 64)
+  if (imageLaneKey) settings.imageLaneKey = imageLaneKey
   const heroShots = positiveInt(s.heroShots)
   if (heroShots) settings.heroShots = Math.min(heroShots, L.maxHeroShots)
   return settings
@@ -581,6 +603,10 @@ function normalizeScenes(
     const imageJob = positiveInt(image.jobId)
     if (imageArt) scene.image.artImageId = imageArt
     if (imageJob) scene.image.jobId = imageJob
+    const laneKey = optionalText(image.laneKey, 64)
+    if (laneKey) scene.image.laneKey = laneKey
+    const sceneLoras = positiveIntList(image.loraResourceIds, L.maxLoras)
+    if (sceneLoras.length) scene.image.loraResourceIds = sceneLoras
     const preset = optionalText(motion.preset, 64)
     const clipArt = positiveInt(motion.clipArtImageId)
     const clipJob = positiveInt(motion.jobId)

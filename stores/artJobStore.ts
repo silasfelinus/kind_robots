@@ -1,6 +1,6 @@
 // /stores/artJobStore.ts
 import { defineStore } from 'pinia'
-import { reactive, toRefs } from 'vue'
+import { computed, reactive, toRefs } from 'vue'
 import type { ArtImage, ArtJob, Prisma } from '~/prisma/generated/prisma/client'
 import { performFetch } from '@/stores/utils'
 import { resolveArtImageSource } from '~/utils/artImageSource'
@@ -198,6 +198,8 @@ type ArtJobState = {
 }
 
 const DEFAULT_JOB_PAGE_SIZE = 20
+const QUEUE_BADGE_POLL_MS = 60_000
+const ACTIVE_JOB_STATUSES = ['PENDING', 'RUNNING', 'FAILED'] as const
 const MAX_JOB_PAGE_SIZE = 100
 
 function normalizePageSize(value: number): number {
@@ -236,6 +238,24 @@ export const useArtJobStore = defineStore('artJobStore', () => {
     error: null,
     windowHours: 24,
   })
+
+  let queueBadgeTimer: ReturnType<typeof setInterval> | null = null
+
+  const activeJobCounts = computed(() => {
+    const depth = state.stats?.queueDepth ?? {}
+    return {
+      PENDING: depth.PENDING ?? 0,
+      RUNNING: depth.RUNNING ?? 0,
+      FAILED: depth.FAILED ?? 0,
+    }
+  })
+
+  const activeJobCount = computed(() =>
+    ACTIVE_JOB_STATUSES.reduce(
+      (total, status) => total + activeJobCounts.value[status],
+      0,
+    ),
+  )
 
   function cachePublicImageUrls(jobs: ArtJobRecord[]): void {
     for (const job of jobs) {
@@ -293,8 +313,8 @@ export const useArtJobStore = defineStore('artJobStore', () => {
     }
   }
 
-  async function fetchStats(): Promise<void> {
-    state.loadingStats = true
+  async function fetchStats(options: { quiet?: boolean } = {}): Promise<void> {
+    if (!options.quiet) state.loadingStats = true
     try {
       const res = await performFetch<QueueStats>(
         `/api/art/queue/stats?window=${state.windowHours}&summary=true`,
@@ -304,12 +324,29 @@ export const useArtJobStore = defineStore('artJobStore', () => {
       )
       if (res.success && res.data) {
         state.stats = res.data
-      } else if (!res.success) {
+      } else if (!res.success && !options.quiet) {
         state.error = res.message || 'Failed to load stats.'
       }
     } finally {
-      state.loadingStats = false
+      if (!options.quiet) state.loadingStats = false
     }
+  }
+
+  // Quiet: the header badge must never flash the /artjob page's loading state
+  // or overwrite its error banner with a background poll's failure.
+  function startQueueBadgePolling(): void {
+    if (!import.meta.client || queueBadgeTimer) return
+    void fetchStats({ quiet: true })
+    queueBadgeTimer = setInterval(() => {
+      if (document.hidden) return
+      void fetchStats({ quiet: true })
+    }, QUEUE_BADGE_POLL_MS)
+  }
+
+  function stopQueueBadgePolling(): void {
+    if (!queueBadgeTimer) return
+    clearInterval(queueBadgeTimer)
+    queueBadgeTimer = null
   }
 
   async function fetchUptime(): Promise<void> {
@@ -677,8 +714,12 @@ export const useArtJobStore = defineStore('artJobStore', () => {
 
   return {
     ...toRefs(state),
+    activeJobCounts,
+    activeJobCount,
     cachePublicImageUrls,
     fetchStats,
+    startQueueBadgePolling,
+    stopQueueBadgePolling,
     fetchUptime,
     fetchJobs,
     setJobPage,

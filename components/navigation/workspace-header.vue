@@ -272,6 +272,10 @@
         Ordered account -> ops -> play -> help: this sits with the account hub
         because it is an operations control, and the game stays next to the
         tutorial toggle.
+
+        Silas, 2026-10-06: badge it with pending + running + failed, and give it
+        a process icon -- the old gallery picture kept being mistaken for the
+        Art button beside it.
       -->
       <NuxtLink
         v-if="userStore.isAdmin"
@@ -283,10 +287,19 @@
             : 'bg-base-100'
         "
         :aria-current="artjobActive ? 'page' : undefined"
-        aria-label="ArtJob queue"
-        title="ArtJob queue"
+        :aria-label="artjobLabel"
+        :title="artjobLabel"
       >
-        <Icon name="kind-icon:gallery" class="kr-icon-5" />
+        <span class="indicator">
+          <Icon name="kind-icon:art-queue" class="kr-icon-5" />
+          <span
+            v-if="artJobStore.activeJobCount"
+            class="kr-badge-secondary-xs indicator-item"
+            aria-hidden="true"
+          >
+            {{ artjobBadge }}
+          </span>
+        </span>
       </NuxtLink>
 
       <!--
@@ -370,9 +383,10 @@
 </template>
 
 <script setup lang="ts">
-import { computed, watch } from 'vue'
+import { computed, onBeforeUnmount, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import type { ResolvedTab } from '@/stores/helpers/channelContent'
+import { useArtJobStore } from '@/stores/artJobStore'
 import { useChannelContentStore } from '@/stores/channelContentStore'
 import { useNavStore } from '@/stores/navStore'
 import { usePageStore } from '@/stores/pageStore'
@@ -385,6 +399,7 @@ const channelContentStore = useChannelContentStore()
 const navStore = useNavStore()
 const pageStore = usePageStore()
 const userStore = useUserStore()
+const artJobStore = useArtJobStore()
 const router = useRouter()
 const route = useRoute()
 
@@ -460,6 +475,27 @@ const memoryActive = computed(() => route.path.startsWith('/play/memory'))
 const artjobActive = computed(() => route.path === '/artjob')
 
 const artActive = computed(() => route.path === '/art')
+
+const artjobBadge = computed(() =>
+  artJobStore.activeJobCount > 99 ? '99+' : String(artJobStore.activeJobCount),
+)
+
+const artjobLabel = computed(() => {
+  if (!artJobStore.activeJobCount) return 'ArtJob queue'
+  const { PENDING, RUNNING, FAILED } = artJobStore.activeJobCounts
+  return `ArtJob queue — ${PENDING} pending, ${RUNNING} running, ${FAILED} failed`
+})
+
+watch(
+  () => userStore.isAdmin,
+  (isAdmin) => {
+    if (isAdmin) artJobStore.startQueueBadgePolling()
+    else artJobStore.stopQueueBadgePolling()
+  },
+  { immediate: true },
+)
+
+onBeforeUnmount(() => artJobStore.stopQueueBadgePolling())
 
 const activeTabKey = computed(() => {
   const channel = resolvedChannel.value

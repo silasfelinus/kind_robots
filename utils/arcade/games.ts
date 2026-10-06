@@ -197,6 +197,27 @@ export const ARCADE_GAMES: ArcadeGameMeta[] = [
     accent: '#fde047',
     controls: 'Move, shine',
   },
+  {
+    slug: 'hedgehog-crossing',
+    title: 'Hedgehog Crossing',
+    riffsOn: 'Frogger',
+    blurb:
+      'Walk a family of hedgehogs home, one at a time: across a busy road of robot traffic, then over a creek of drifting logs and paddling turtles to the five burrows in the hedge. Turtles dive, a fox snoozes in a burrow from level two, and a ladybug visits for a bonus.',
+    howTo: [
+      'ARROWS  HOP',
+      'A  HOP FORWARD',
+      'RIDE LOGS AND TURTLES',
+      'TURTLES DIVE!',
+      'FILL ALL 5 BURROWS',
+      'DONT WAKE THE FOX',
+    ],
+    width: 280,
+    height: 320,
+    maxPlausibleScore: 2_000_000,
+    titleArt: '/images/arcade/games/hedgehog-crossing-title.webp',
+    accent: '#86efac',
+    controls: 'Hop',
+  },
 ]
 
 export type ComingSoonCabinet = {
@@ -210,12 +231,6 @@ export type ComingSoonCabinet = {
 
 // Mirrors the queued rows of conductor projects/kr-arcade/games.yaml.
 export const COMING_SOON: ComingSoonCabinet[] = [
-  {
-    slug: 'hedgehog-crossing',
-    title: 'Hedgehog Crossing',
-    riffsOn: 'Frogger',
-    accent: '#86efac',
-  },
   {
     slug: 'ribbon-riders',
     title: 'Ribbon Riders',
@@ -270,6 +285,7 @@ const LOADERS: Record<string, () => Promise<ArcadeGameModule>> = {
   'butterfly-joust': () => import('./games/butterflyJoust'),
   'kind-pinball': () => import('./games/kindPinball'),
   'gloom-invaders': () => import('./games/gloomInvaders'),
+  'hedgehog-crossing': () => import('./games/hedgehogCrossing'),
 }
 
 export function findArcadeGame(slug: string): ArcadeGameMeta | undefined {

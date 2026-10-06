@@ -173,14 +173,14 @@ function readSpec(body: ImportBody): MusicVideoSpec {
       (row) =>
         !row ||
         typeof row !== 'object' ||
-        !(Number(row.beats) > 0) ||
+        !(Number(row.beats) > 0 || Number(row.atSec) >= 0) ||
         typeof row.prompt !== 'string',
     )
   ) {
     throw createError({
       statusCode: 400,
       message:
-        'Send { specKey } or a { spec } with settings and scenes (each with beats and a prompt).',
+        'Send { specKey } or a { spec } with settings and scenes (each with beats or atSec, and a prompt).',
     })
   }
   return {

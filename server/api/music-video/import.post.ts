@@ -1,0 +1,150 @@
+// /server/api/music-video/import.post.ts
+//
+// Create a fully set-up music video from a prepared spec (music-video/t-033):
+// pitch, settings, lyrics, scenes on the beat grid with prompts, and hero
+// shots with their animation prompts, in one call. Body: { specKey } for a
+// bundled spec (utils/musicVideoSpecs.ts), or { spec } with the same shape.
+// Press Produce afterwards and it skips straight to the steps still missing.
+import { createError, defineEventHandler, readBody } from 'h3'
+import prisma from '@/server/utils/prisma'
+import { requireAdminApiUser } from '@/server/utils/authGuard'
+import { errorHandler } from '@/server/utils/error'
+import {
+  cleanMusicVideoTitle,
+  serializeValidatedDoc,
+  toMusicVideoDto,
+} from '@/server/utils/musicVideo'
+import {
+  musicVideoSpecByKey,
+  specToDoc,
+  type MusicVideoSpec,
+} from '@/utils/musicVideoSpecs'
+
+type ImportBody = { specKey?: unknown; spec?: unknown; title?: unknown }
+
+function readSpec(body: ImportBody): MusicVideoSpec {
+  if (typeof body.specKey === 'string') {
+    const spec = musicVideoSpecByKey(body.specKey.trim())
+    if (!spec) {
+      throw createError({
+        statusCode: 404,
+        message: `No prepared spec "${body.specKey}".`,
+      })
+    }
+    return spec
+  }
+  const spec = body.spec as Partial<MusicVideoSpec> | undefined
+  if (
+    !spec ||
+    typeof spec !== 'object' ||
+    !spec.settings ||
+    typeof spec.settings !== 'object' ||
+    !Array.isArray(spec.scenes) ||
+    spec.scenes.some(
+      (row) =>
+        !row ||
+        typeof row !== 'object' ||
+        !(Number(row.beats) > 0) ||
+        typeof row.prompt !== 'string',
+    )
+  ) {
+    throw createError({
+      statusCode: 400,
+      message:
+        'Send { specKey } or a { spec } with settings and scenes (each with beats and a prompt).',
+    })
+  }
+  return {
+    ...spec,
+    key: String(spec.key ?? 'custom'),
+    title: String(spec.title ?? ''),
+    summary: '',
+    pitch: String(spec.pitch ?? ''),
+    sections: Array.isArray(spec.sections) ? spec.sections : [],
+  } as MusicVideoSpec
+}
+
+export default defineEventHandler(async (event) => {
+  try {
+    const auth = await requireAdminApiUser(event)
+    const body = (await readBody<ImportBody>(event)) ?? {}
+    const spec = readSpec(body)
+    const raw = specToDoc(spec)
+    const warnings: string[] = []
+
+    let comicSeriesId: number | undefined
+    if (spec.comicSeriesSlug) {
+      const series = await prisma.comicSeries.findUnique({
+        where: { slug: spec.comicSeriesSlug },
+        select: { id: true, isArchived: true },
+      })
+      if (!series || series.isArchived) {
+        throw createError({
+          statusCode: 400,
+          message: `Comic series "${spec.comicSeriesSlug}" was not found.`,
+        })
+      }
+      comicSeriesId = series.id
+    }
+
+    // A keyframe that no longer exists becomes a fresh still, not a failure.
+    const keyframeIds = [
+      ...new Set(
+        raw.scenes
+          .map((scene) => scene.image.artImageId)
+          .filter((id): id is number => typeof id === 'number'),
+      ),
+    ]
+    const found = new Set(
+      keyframeIds.length
+        ? (
+            await prisma.artImage.findMany({
+              where: { id: { in: keyframeIds } },
+              select: { id: true },
+            })
+          ).map((image) => image.id)
+        : [],
+    )
+    const scenes = raw.scenes.map((scene) => {
+      const id = scene.image.artImageId
+      if (!id || found.has(id)) return scene
+      warnings.push(
+        `Scene ${scene.id}: ArtImage ${id} was not found, so it renders a fresh still.`,
+      )
+      return { ...scene, image: { source: 'generated' as const } }
+    })
+
+    const doc = serializeValidatedDoc({
+      ...raw,
+      settings: {
+        ...raw.settings,
+        ...(comicSeriesId ? { comicSeriesId } : {}),
+      },
+      scenes,
+    })
+    const record = await prisma.musicVideo.create({
+      data: {
+        userId: auth.user.id,
+        title: cleanMusicVideoTitle(
+          body.title ?? spec.title,
+          'Untitled music video',
+        ),
+        doc,
+      },
+    })
+    event.node.res.statusCode = 201
+    return {
+      success: true,
+      statusCode: 201,
+      message: warnings.length
+        ? `Music video created. ${warnings.join(' ')}`
+        : 'Music video created from the prepared spec.',
+      data: toMusicVideoDto(record),
+      warnings,
+    }
+  } catch (error) {
+    const handled = errorHandler(error)
+    event.node.res.statusCode = handled.statusCode || 500
+    return handled
+  }
+})

@@ -237,6 +237,9 @@ jobs:
       - name: Music video song upload contract
         run: npm run test:music-video-audio-upload
 
+      - name: Music video prepared specs (t-033)
+        run: npm run test:music-video-specs
+
       - name: ArtJob audio media contract
         run: npm run test:artjob-audio-media
 

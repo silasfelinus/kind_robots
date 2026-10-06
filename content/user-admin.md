@@ -2,7 +2,7 @@
 title: 'Users & Moderation'
 room: 'User Administration & Moderation'
 subtitle: 'People, permissions, and escalated posts'
-description: Admin control room for user management and forum moderation: create users, manage roles and maturity, reset passwords, restrict accounts, log in as users, and review escalated posts.
+description: 'Admin control room for user management and forum moderation: create users, manage roles and maturity, reset passwords, restrict accounts, log in as users, and review escalated posts.'
 image: 'background/artgallery.webp'
 icon: kind-icon:users
 tooltip: Manage users, roles, access, logins, and forum moderation from one page.

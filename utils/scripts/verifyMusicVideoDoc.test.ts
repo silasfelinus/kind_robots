@@ -226,4 +226,33 @@ console.log(
   '✅ corrupt stored JSON degrades to an empty document; status values are exact',
 )
 
+// music-video/t-030: named animation presets live in settings. Incomplete,
+// duplicate and malformed entries are dropped rather than failing the doc.
+{
+  const doc = emptyMusicVideoDoc({ pitch: 'x' })
+  const { doc: normalized } = normalizeMusicVideoDoc({
+    ...doc,
+    settings: {
+      ...doc.settings,
+      motionPresets: [
+        { id: 'push', name: 'Slow push', prompt: 'Slow push in.' },
+        { id: 'push', name: 'Duplicate', prompt: 'Dropped.' },
+        { id: 'bad id!', name: 'Bad id', prompt: 'Dropped.' },
+        { id: 'empty', name: '', prompt: 'Dropped: no name.' },
+        { id: 'noprompt', name: 'No prompt', prompt: '' },
+        'not an object',
+      ],
+    },
+  })
+  assert.deepEqual(normalized.settings.motionPresets, [
+    { id: 'push', name: 'Slow push', prompt: 'Slow push in.' },
+  ])
+  const { doc: none } = normalizeMusicVideoDoc({
+    ...doc,
+    settings: { ...doc.settings, motionPresets: [] },
+  })
+  assert.equal(none.settings.motionPresets, undefined)
+}
+console.log('✅ motion presets keep only complete, unique entries')
+
 console.log('✅ verifyMusicVideoDoc: all assertions passed')

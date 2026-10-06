@@ -14,6 +14,7 @@ import {
   frameTimeSec,
   buildStageSegments,
   stageDurationSec,
+  stageLayersAt,
   stageSizeFor,
   type StageImage,
 } from './musicVideoCompositor'
@@ -24,6 +25,8 @@ export type ExportInput = {
   songUrl?: string | null
   /** The still for a scene, by scene id; null when it has none yet. */
   imageUrlFor: (sceneId: string) => string | null
+  /** The finished image-to-video clip for a scene, if it has one. */
+  clipUrlFor?: (sceneId: string) => string | null
   /** Private rows need the Bearer header on every fetch. */
   headers?: HeadersInit
   fps?: number
@@ -49,6 +52,43 @@ async function loadImage(
     throw new Error(`Could not load still (${response.status}).`)
   const bitmap = await createImageBitmap(await response.blob())
   return { image: bitmap, width: bitmap.width, height: bitmap.height }
+}
+
+type StageClip = { video: HTMLVideoElement; url: string }
+
+/*
+ * A scene's clip as a seekable <video> (music-video/t-030). The clip is fetched
+ * with the Bearer header like the stills, then played from a blob URL.
+ */
+async function loadClip(
+  url: string,
+  headers?: HeadersInit,
+  signal?: AbortSignal,
+): Promise<StageClip> {
+  const response = await fetch(url, { headers, signal })
+  if (!response.ok) throw new Error(`Could not load clip (${response.status}).`)
+  const objectUrl = URL.createObjectURL(await response.blob())
+  const video = document.createElement('video')
+  video.muted = true
+  video.playsInline = true
+  video.preload = 'auto'
+  video.src = objectUrl
+  await new Promise<void>((resolve, reject) => {
+    video.onloadeddata = () => resolve()
+    video.onerror = () => reject(new Error('Could not decode a scene clip.'))
+  })
+  return { video, url: objectUrl }
+}
+
+/** Put the clip on the frame for `localSec`, holding its last frame after it ends. */
+async function seekClip(clip: StageClip, localSec: number, fps: number) {
+  const last = Math.max(0, (clip.video.duration || 0) - 1 / fps)
+  const target = Math.min(Math.max(localSec, 0), last)
+  if (Math.abs(clip.video.currentTime - target) < 1 / (fps * 4)) return
+  await new Promise<void>((resolve) => {
+    clip.video.onseeked = () => resolve()
+    clip.video.currentTime = target
+  })
 }
 
 /** Render the doc to an MP4 and return it as a Blob. */
@@ -80,6 +120,23 @@ export async function exportMusicVideoMp4(input: ExportInput): Promise<Blob> {
   for (const segment of segments) {
     const url = input.imageUrlFor(segment.sceneId)
     images.push(url ? await loadImage(url, input.headers, signal) : null)
+  }
+
+  // A scene with a finished clip plays it instead of panning its still
+  // (the ffmpeg path's tpad: hold the clip's last frame to the scene's end).
+  const clips: (StageClip | null)[] = []
+  for (const segment of segments) {
+    const url = input.clipUrlFor?.(segment.sceneId) ?? null
+    let clip: StageClip | null = null
+    if (url) {
+      onProgress?.(0, 'Loading clips')
+      try {
+        clip = await loadClip(url, input.headers, signal)
+      } catch {
+        clip = null // The still and its pan stand in for a clip that will not load.
+      }
+    }
+    clips.push(clip)
   }
 
   let audio: AudioBuffer | null = null
@@ -136,7 +193,20 @@ export async function exportMusicVideoMp4(input: ExportInput): Promise<Blob> {
       if (signal?.aborted)
         throw new DOMException('Export cancelled.', 'AbortError')
       const t = frameTimeSec(frame, fps)
-      drawStage(ctx, segments, images, t, width, height)
+      const frameImages = [...images]
+      for (const layer of stageLayersAt(segments, t)) {
+        const clip = clips[layer.index]
+        const segment = segments[layer.index]
+        if (!clip || !segment) continue
+        await seekClip(clip, t - segment.startSec, fps)
+        frameImages[layer.index] = {
+          image: clip.video,
+          width: clip.video.videoWidth,
+          height: clip.video.videoHeight,
+          kenBurns: false,
+        }
+      }
+      drawStage(ctx, segments, frameImages, t, width, height)
       await video.add(t, 1 / fps)
       if (frame % 15 === 0)
         onProgress?.((frame / total) * 0.95, 'Encoding frames')
@@ -149,6 +219,8 @@ export async function exportMusicVideoMp4(input: ExportInput): Promise<Blob> {
   } catch (error) {
     await output.cancel()
     throw error
+  } finally {
+    for (const clip of clips) if (clip) URL.revokeObjectURL(clip.url)
   }
   onProgress?.(1, 'Done')
   const buffer = target.buffer

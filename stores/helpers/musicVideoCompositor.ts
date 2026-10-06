@@ -198,11 +198,33 @@ export function frameTimeSec(frame: number, fps: number): number {
   return round3(frame / fps)
 }
 
-/** A decoded still the compositor can draw. */
+/** A decoded still (or the current frame of a clip) the compositor can draw. */
 export type StageImage = {
   image: CanvasImageSource
   width: number
   height: number
+  /**
+   * A clip already moves, so it is drawn cover-cropped with no pan or zoom on
+   * top (the ffmpeg path's scale+crop for clips). Stills default to Ken Burns.
+   */
+  kenBurns?: boolean
+}
+
+/** Centre crop of a source to the stage's aspect, no zoom (ffmpeg's cover crop). */
+export function coverRect(
+  sourceWidth: number,
+  sourceHeight: number,
+  stageWidth: number,
+  stageHeight: number,
+): SourceRect {
+  const stageAspect = stageWidth / stageHeight
+  const sourceAspect = sourceWidth / sourceHeight
+  if (sourceAspect > stageAspect) {
+    const width = sourceHeight * stageAspect
+    return { x: (sourceWidth - width) / 2, y: 0, width, height: sourceHeight }
+  }
+  const height = sourceWidth / stageAspect
+  return { x: 0, y: (sourceHeight - height) / 2, width: sourceWidth, height }
 }
 
 /**
@@ -224,14 +246,17 @@ export function drawStage(
     const segment = segments[layer.index]
     const still = images[layer.index]
     if (!segment || !still) continue
-    const r = sourceRectFor(
-      still.width,
-      still.height,
-      stageWidth,
-      stageHeight,
-      segment.preset,
-      layer.progress,
-    )
+    const r =
+      still.kenBurns === false
+        ? coverRect(still.width, still.height, stageWidth, stageHeight)
+        : sourceRectFor(
+            still.width,
+            still.height,
+            stageWidth,
+            stageHeight,
+            segment.preset,
+            layer.progress,
+          )
     ctx.globalAlpha = layer.alpha
     ctx.drawImage(
       still.image,

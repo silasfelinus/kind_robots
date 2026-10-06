@@ -138,25 +138,6 @@
 
               <MusicVideoPipelineBar />
 
-              <MusicVideoSongPanel />
-
-              <MusicVideoTimelineEditor
-                v-if="store.current.doc.song || store.current.doc.scenes.length"
-                :key="store.current.id"
-                :doc="store.current.doc"
-                :saving="store.saving"
-                @save="store.saveTimeline($event)"
-              />
-
-              <MusicVideoExporter
-                v-if="store.current.doc.scenes.length"
-                :key="`export-${store.current.id}`"
-                :video-id="store.current.id"
-                :title="store.current.title"
-                :doc="store.current.doc"
-                :preview-urls="store.previewUrls"
-              />
-
               <form class="space-y-3" @submit.prevent="onSave">
                 <label class="block space-y-1">
                   <span class="kr-text-dim-sm">Title</span>
@@ -195,9 +176,32 @@
                 </div>
               </form>
 
+              <MusicVideoSettingsPanel />
+
+              <MusicVideoLyricsEditor />
+
+              <MusicVideoSongPanel />
+
+              <MusicVideoTimelineEditor
+                v-if="store.current.doc.song || store.current.doc.scenes.length"
+                :key="store.current.id"
+                :doc="store.current.doc"
+                :saving="store.saving"
+                @save="store.saveTimeline($event)"
+              />
+
               <MusicVideoSceneGrid />
 
-              <MusicVideoSettingsPanel />
+              <MusicVideoMotionPresets />
+
+              <MusicVideoExporter
+                v-if="store.current.doc.scenes.length"
+                :key="`export-${store.current.id}`"
+                :video-id="store.current.id"
+                :title="store.current.title"
+                :doc="store.current.doc"
+                :preview-urls="store.previewUrls"
+              />
             </template>
           </section>
         </section>

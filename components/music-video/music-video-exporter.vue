@@ -119,6 +119,11 @@ async function onExport() {
       doc: props.doc,
       songUrl: song,
       imageUrlFor: (sceneId) => sceneArt.get(sceneId) ?? null,
+      clipUrlFor: (sceneId) => {
+        const scene = props.doc.scenes.find((s) => s.id === sceneId)
+        const clipId = scene?.motion.clipArtImageId
+        return clipId ? `/api/art/images/${clipId}/file` : null
+      },
       headers,
       signal: controller.signal,
       onProgress: (f, label) => {

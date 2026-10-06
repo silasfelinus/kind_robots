@@ -13,6 +13,7 @@ import type { MusicVideoScene } from '../musicVideoDoc.js'
 import {
   KEN_BURNS_ZOOM,
   buildStageSegments,
+  coverRect,
   frameCount,
   frameTimeSec,
   kenBurnsAt,
@@ -175,5 +176,26 @@ assert.equal(frameCount(30, 30), 900)
 assert.equal(frameCount(0, 30), 0)
 assert.equal(frameCount(1.01, 30), 31)
 assert.equal(frameTimeSec(45, 30), 1.5)
+
+// t-030: a clip is drawn cover-cropped with no pan or zoom (ffmpeg's
+// scale+crop): a wide source loses its sides, a tall one its top and bottom.
+assert.deepEqual(coverRect(1920, 1080, 1280, 720), {
+  x: 0,
+  y: 0,
+  width: 1920,
+  height: 1080,
+})
+assert.deepEqual(coverRect(1000, 1000, 1280, 720), {
+  x: 0,
+  y: 218.75,
+  width: 1000,
+  height: 562.5,
+})
+assert.deepEqual(coverRect(2000, 1000, 720, 720), {
+  x: 500,
+  y: 0,
+  width: 1000,
+  height: 1000,
+})
 
 console.log('music-video compositor contract: ok')

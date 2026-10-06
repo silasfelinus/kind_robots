@@ -5,6 +5,9 @@ import { useUserStore } from './userStore'
 import {
   MUSIC_VIDEO_LIMITS,
   type MusicVideoDoc,
+  type MusicVideoMotionPreset,
+  type MusicVideoScene,
+  type MusicVideoSection,
   type MusicVideoStatus,
 } from '@/utils/musicVideoDoc'
 
@@ -182,6 +185,7 @@ export const useMusicVideoStore = defineStore('musicVideoStore', () => {
     if (video.doc.song?.artImageId) ids.add(video.doc.song.artImageId)
     for (const scene of video.doc.scenes) {
       if (scene.image.artImageId) ids.add(scene.image.artImageId)
+      if (scene.motion.clipArtImageId) ids.add(scene.motion.clipArtImageId)
     }
     await Promise.all([...ids].map((id) => hydratePreview(id)))
   }
@@ -648,6 +652,82 @@ export const useMusicVideoStore = defineStore('musicVideoStore', () => {
     watchTimer = null
   }
 
+  /** PATCH the whole doc with one part replaced; the server re-validates it. */
+  async function patchDoc(
+    change: Partial<MusicVideoDoc>,
+    failure: string,
+  ): Promise<boolean> {
+    const video = current.value
+    if (!video) return false
+    saving.value = true
+    clearError()
+    try {
+      const response = await performFetch<MusicVideo>(
+        `/api/music-video/${video.id}`,
+        {
+          method: 'PATCH',
+          body: JSON.stringify({ doc: { ...video.doc, ...change } }),
+        },
+        0,
+        20_000,
+      )
+      if (!response.success || !response.data) {
+        throw new Error(response.message || failure)
+      }
+      current.value = response.data
+      void hydratePreviews(response.data)
+      return true
+    } catch (e) {
+      error.value = errorMessage(e, failure)
+      return false
+    } finally {
+      saving.value = false
+    }
+  }
+
+  /** Save hand-edited lyrics (music-video/t-030). */
+  function saveLyrics(sections: MusicVideoSection[]): Promise<boolean> {
+    return patchDoc({ lyrics: { sections } }, 'Failed to save the lyrics.')
+  }
+
+  /** Rewrite one unlocked lyric section with the LLM, leaving the rest. */
+  async function regenerateLyricSection(sectionId: string): Promise<boolean> {
+    const id = current.value?.id
+    const result = await runStep<{ video: MusicVideo }>(
+      'lyrics',
+      `/api/music-video/${id}/lyrics`,
+      { sectionId },
+      (data) => data.video,
+      120_000,
+    )
+    return Boolean(result)
+  }
+
+  /** Change one scene's prompt, motion, transition or framing. */
+  function updateScene(
+    sceneId: string,
+    change: (scene: MusicVideoScene) => MusicVideoScene,
+  ): Promise<boolean> {
+    const scenes = current.value?.doc.scenes ?? []
+    if (!scenes.some((scene) => scene.id === sceneId)) {
+      return Promise.resolve(false)
+    }
+    return patchDoc(
+      {
+        scenes: scenes.map((scene) =>
+          scene.id === sceneId ? change(scene) : scene,
+        ),
+      },
+      'Failed to save the scene.',
+    )
+  }
+
+  function saveMotionPresets(
+    motionPresets: MusicVideoMotionPreset[],
+  ): Promise<boolean> {
+    return saveSettings({ motionPresets })
+  }
+
   /** Use vetted Comic Studio art as scene stills (attempt ids, or slots' picks). */
   async function assignKeyframes(
     assignments: { sceneId: string; attemptId?: number; slotId?: number }[],
@@ -737,6 +817,10 @@ export const useMusicVideoStore = defineStore('musicVideoStore', () => {
     setSceneImage,
     uploadSceneImage,
     syncStatus,
+    saveLyrics,
+    regenerateLyricSection,
+    updateScene,
+    saveMotionPresets,
     startWatching,
     stopWatching,
     remove,

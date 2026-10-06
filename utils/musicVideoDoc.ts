@@ -61,7 +61,21 @@ export const MUSIC_VIDEO_LIMITS = {
   maxDocBytes: 1_000_000,
   maxBannedTerms: 40,
   maxBannedTerm: 60,
+  maxMotionPresets: 24,
+  maxMotionPresetName: 60,
 } as const
+
+/**
+ * A named animation prompt (music-video/t-030). Silas, 2026-10-06: "there
+ * should also be a preset section to create/edit an animation prompt". Kept
+ * per video in settings; applying one copies its prompt into a scene's
+ * motionPrompt, so editing a preset later never rewrites a scene silently.
+ */
+export type MusicVideoMotionPreset = {
+  id: string
+  name: string
+  prompt: string
+}
 
 export type MusicVideoSettings = {
   durationSec: number
@@ -81,6 +95,8 @@ export type MusicVideoSettings = {
   comicLaneKey?: string
   /** Words no prompt, lyric or caption may contain (a story's secret, a franchise). */
   bannedTerms?: string[]
+  /** Named animation prompts scenes can copy into their motionPrompt. */
+  motionPresets?: MusicVideoMotionPreset[]
 }
 
 export type MusicVideoSection = {
@@ -307,7 +323,27 @@ function normalizeSettings(raw: unknown, errors: string[]): MusicVideoSettings {
       ].slice(0, L.maxBannedTerms)
     : []
   if (bannedTerms.length) settings.bannedTerms = bannedTerms
+  const motionPresets = normalizeMotionPresets(s.motionPresets)
+  if (motionPresets.length) settings.motionPresets = motionPresets
   return settings
+}
+
+function normalizeMotionPresets(raw: unknown): MusicVideoMotionPreset[] {
+  if (!Array.isArray(raw)) return []
+  const L = MUSIC_VIDEO_LIMITS
+  const seen = new Set<string>()
+  const presets: MusicVideoMotionPreset[] = []
+  for (const item of raw) {
+    if (!isObj(item)) continue
+    const id = cleanId(item.id)
+    const name = optionalText(item.name, L.maxMotionPresetName)
+    const prompt = text(item.prompt, L.maxPrompt)
+    if (!id || seen.has(id) || !name || !prompt) continue
+    seen.add(id)
+    presets.push({ id, name, prompt })
+    if (presets.length >= L.maxMotionPresets) break
+  }
+  return presets
 }
 
 function normalizeSections(

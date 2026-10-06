@@ -10,6 +10,7 @@ import {
   type Prisma,
 } from '~/prisma/generated/prisma/client'
 import { userIsAdmin } from '../../utils/authUser'
+import { isMaturityRestricted } from '../../utils/contentAccess'
 
 type ReactionBody = Record<string, unknown> & {
   reactionType?: unknown
@@ -376,6 +377,8 @@ const REVIEWABLE_TARGETS = new Set([
   'scenarioId',
 ])
 
+const MATURE_FLAGGED_TARGETS = new Set(['artImageId', 'artCollectionId'])
+
 function contentTargetModel(field: string) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const map: Record<string, { findUnique: (args: any) => Promise<unknown> }> = {
@@ -420,6 +423,7 @@ async function assertReactionTargetAccessible(
   targets: ReturnType<typeof getTargetFields>,
   userId: number,
   isAdmin: boolean,
+  maturityRestricted: boolean,
 ) {
   const expectedField = getExpectedTargetField(category)
   if (!expectedField || expectedField === TARGETLESS) return
@@ -491,15 +495,19 @@ async function assertReactionTargetAccessible(
     select: {
       userId: true,
       isPublic: true,
+      ...(MATURE_FLAGGED_TARGETS.has(expectedField) ? { isMature: true } : {}),
       ...(REVIEWABLE_TARGETS.has(expectedField) ? { allowReviews: true } : {}),
     },
   })) as {
     userId?: number | null
     isPublic?: boolean | null
+    isMature?: boolean | null
     allowReviews?: boolean | null
   } | null
 
-  if (!row) throw reactionTargetNotFound(expectedField, targetId)
+  if (!row || (maturityRestricted && row.isMature === true)) {
+    throw reactionTargetNotFound(expectedField, targetId)
+  }
 
   // allowReviews was a client-side gate only: the galleries honoured it and the
   // API never looked at it, so a direct POST walked straight past an owner's
@@ -553,6 +561,7 @@ export default defineEventHandler(async (event) => {
       targets,
       user.id,
       isAdmin,
+      isMaturityRestricted(user),
     )
 
     const existingReaction = await prisma.reaction.findFirst({

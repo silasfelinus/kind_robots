@@ -21,6 +21,7 @@ import { createError, defineEventHandler } from 'h3'
 import { errorHandler } from '../../../utils/error'
 import prisma from '../../../utils/prisma'
 import { getOptionalApiUser } from '../../../utils/authGuard'
+import { isMaturityRestricted } from '../../../utils/contentAccess'
 import { KARMA_REF_TARGET_COLUMNS, isKarmaRefType } from '~/utils/karmaRefTypes'
 import {
   canViewReactionsOn,
@@ -57,6 +58,7 @@ export default defineEventHandler(async (event) => {
     const viewer = {
       userId: auth?.user.id ?? null,
       isAdmin: auth?.isAdmin ?? false,
+      maturityRestricted: isMaturityRestricted(auth?.user),
     }
 
     // Comments inherit their target's audience -- a public object's reactions

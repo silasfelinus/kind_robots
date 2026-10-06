@@ -4,6 +4,7 @@ import prisma from '@/server/utils/prisma'
 import { errorHandler } from '@/server/utils/error'
 import { getOptionalApiUser } from '@/server/utils/authGuard'
 import { viewerShowsMature } from '@/server/utils/contentAccess'
+import { withholdMatureEntities } from '@/server/utils/matureArtRefs'
 
 const defaultNarratorBotId = 433
 
@@ -15,6 +16,7 @@ const artImageSelect = {
   imagePath: true,
   artPrompt: true,
   promptString: true,
+  isMature: true,
 }
 
 const expressionMediaSelect = {
@@ -78,9 +80,8 @@ export default defineEventHandler(async (event) => {
     // Public-and-active was the whole filter on both branches; maturity was
     // never asked, on the Bot or the Character.
     const auth = await getOptionalApiUser(event)
-    const matureFilter = viewerShowsMature(auth?.user)
-      ? {}
-      : { isMature: false }
+    const hideMature = !viewerShowsMature(auth?.user)
+    const matureFilter = hideMature ? { isMature: false } : {}
 
     if (type === 'bot') {
       const bot = await prisma.bot.findFirst({
@@ -140,11 +141,14 @@ export default defineEventHandler(async (event) => {
       return {
         success: true,
         message: 'Narrator bot loaded.',
-        data: {
-          ...bot,
-          avatarImage: bot.avatarImage || imagePath,
-          imagePath,
-        },
+        data: await withholdMatureEntities(
+          {
+            ...bot,
+            avatarImage: bot.avatarImage || imagePath,
+            imagePath,
+          },
+          hideMature,
+        ),
       }
     }
 
@@ -201,41 +205,46 @@ export default defineEventHandler(async (event) => {
     return {
       success: true,
       message: 'Narrator character loaded.',
-      data: {
-        id: defaultNarratorBotId,
-        sourceCharacterId: character.id,
-        BotType: 'NARRATOR',
-        name: character.name,
-        slug: character.slug,
-        subtitle: character.title || descriptor || null,
-        description: character.backstory || descriptor || null,
-        tagline: character.role || null,
-        personality: character.personality || character.quirks || null,
-        avatarImage: imagePath,
-        imagePath,
-        artImageId: character.artImageId,
-        narrativeVoice: character.presentation || descriptor || null,
-        forgeIntro: character.drive || character.quirks || null,
-        botIntro:
-          character.backstory ||
-          descriptor ||
-          `${character.name} is guiding this page.`,
-        userIntro: `Ask ${character.name} about this page.`,
-        prompt: [
-          `You are ${character.name}, acting as the page narrator for Kind Robots.`,
-          character.personality ? `Personality: ${character.personality}` : '',
-          character.backstory ? `Backstory: ${character.backstory}` : '',
-          character.drive ? `Drive: ${character.drive}` : '',
-          'Stay helpful, vivid, concise, and aware of the current page.',
-        ]
-          .filter(Boolean)
-          .join('\n'),
-        serverId: null,
-        serverName: null,
-        chatBorderImage: null,
-        ExpressionMedia: character.ExpressionMedia,
-        NarratorThreads: [],
-      },
+      data: await withholdMatureEntities(
+        {
+          id: defaultNarratorBotId,
+          sourceCharacterId: character.id,
+          BotType: 'NARRATOR',
+          name: character.name,
+          slug: character.slug,
+          subtitle: character.title || descriptor || null,
+          description: character.backstory || descriptor || null,
+          tagline: character.role || null,
+          personality: character.personality || character.quirks || null,
+          avatarImage: imagePath,
+          imagePath,
+          artImageId: character.artImageId,
+          narrativeVoice: character.presentation || descriptor || null,
+          forgeIntro: character.drive || character.quirks || null,
+          botIntro:
+            character.backstory ||
+            descriptor ||
+            `${character.name} is guiding this page.`,
+          userIntro: `Ask ${character.name} about this page.`,
+          prompt: [
+            `You are ${character.name}, acting as the page narrator for Kind Robots.`,
+            character.personality
+              ? `Personality: ${character.personality}`
+              : '',
+            character.backstory ? `Backstory: ${character.backstory}` : '',
+            character.drive ? `Drive: ${character.drive}` : '',
+            'Stay helpful, vivid, concise, and aware of the current page.',
+          ]
+            .filter(Boolean)
+            .join('\n'),
+          serverId: null,
+          serverName: null,
+          chatBorderImage: null,
+          ExpressionMedia: character.ExpressionMedia,
+          NarratorThreads: [],
+        },
+        hideMature,
+      ),
     }
   } catch (error) {
     const { message, statusCode } = errorHandler(error)

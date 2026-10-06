@@ -2,7 +2,11 @@ import { createError, defineEventHandler } from 'h3'
 import { errorHandler } from '../../utils/error'
 import prisma from '../../utils/prisma'
 import { getOptionalApiUser } from '../../utils/authGuard'
-import { canViewWithMaturity } from '../../utils/contentAccess'
+import { withholdMatureEntities } from '../../utils/matureArtRefs'
+import {
+  canViewWithMaturity,
+  viewerShowsMature,
+} from '../../utils/contentAccess'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -37,7 +41,7 @@ export default defineEventHandler(async (event) => {
     return {
       success: true,
       message: 'Character details fetched successfully.',
-      data,
+      data: await withholdMatureEntities(data, !viewerShowsMature(auth?.user)),
       statusCode: 200,
     }
   } catch (error: unknown) {

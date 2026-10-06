@@ -10,6 +10,8 @@ import {
 import sharp from 'sharp'
 import prisma from '~/server/utils/prisma'
 import { errorHandler } from '~/server/utils/error'
+import { matureHiddenFrom } from '~/server/utils/artImageAccess'
+import { isMaturityRestricted } from '~/server/utils/contentAccess'
 import { validateApiKey } from '~/server/utils/validateKey'
 import { userIsAdmin } from '../../../../utils/authUser'
 
@@ -18,16 +20,6 @@ const CONTENT_TYPES: Record<string, string> = {
   jpeg: 'image/jpeg',
   jpg: 'image/jpeg',
   webp: 'image/webp',
-  gif: 'image/gif',
-  // Video clips, music video finals (music-video/t-023) and songs (t-010).
-  // With X-Content-Type-Options: nosniff below, application/octet-stream
-  // would stop a browser playing them in <video>/<audio>.
-  mp4: 'video/mp4',
-  webm: 'video/webm',
-  mp3: 'audio/mpeg',
-  wav: 'audio/wav',
-  ogg: 'audio/ogg',
-  flac: 'audio/flac',
 }
 
 // Formats worth converting. Stored webp is already small, and anything else
@@ -68,10 +60,15 @@ export default defineEventHandler(async (event) => {
     if (!mayView && getHeader(event, 'authorization')?.startsWith('Bearer ')) {
       try {
         const auth = await validateApiKey(event)
+        const barred = matureHiddenFrom(
+          isMaturityRestricted(auth.isValid ? auth.user : null),
+          image,
+        )
         mayView = Boolean(
+          !barred &&
           auth.isValid &&
-            auth.user &&
-            (userIsAdmin(auth.user) || auth.user.id === image.userId),
+          auth.user &&
+          (userIsAdmin(auth.user) || auth.user.id === image.userId),
         )
       } catch {
         mayView = false
@@ -79,15 +76,27 @@ export default defineEventHandler(async (event) => {
     }
 
     if (!mayView) {
-      throw createError({ statusCode: 403, message: 'You cannot view this image.' })
+      if (image.isMature === true) {
+        throw createError({ statusCode: 404, message: 'Art image not found.' })
+      }
+      throw createError({
+        statusCode: 403,
+        message: 'You cannot view this image.',
+      })
     }
 
-    if (image.imagePath && !image.imagePath.includes(`/api/art/images/${id}/file`)) {
+    if (
+      image.imagePath &&
+      !image.imagePath.includes(`/api/art/images/${id}/file`)
+    ) {
       return sendRedirect(event, image.imagePath, 302)
     }
 
     if (!image.imageData) {
-      throw createError({ statusCode: 404, message: 'Image bytes are unavailable.' })
+      throw createError({
+        statusCode: 404,
+        message: 'Image bytes are unavailable.',
+      })
     }
 
     const fileType = String(image.fileType || '').toLowerCase()
@@ -152,7 +161,9 @@ export default defineEventHandler(async (event) => {
        * better than serving none.
        */
       try {
-        const webp = await sharp(original).webp({ quality: WEBP_QUALITY }).toBuffer()
+        const webp = await sharp(original)
+          .webp({ quality: WEBP_QUALITY })
+          .toBuffer()
 
         // A transcode that grew the file helps nobody — keep the original.
         if (webp.length < original.length) {

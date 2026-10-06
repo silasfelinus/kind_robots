@@ -4,6 +4,7 @@ import prisma from '../../utils/prisma'
 import { errorHandler } from '../../utils/error'
 import { getOptionalApiUser } from '../../utils/authGuard'
 import { viewerShowsMature, viewablePackIds } from '../../utils/contentAccess'
+import { withholdMatureEntities } from '../../utils/matureArtRefs'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -52,7 +53,7 @@ export default defineEventHandler(async (event) => {
 
     return {
       success: true,
-      data,
+      data: await withholdMatureEntities(data, !viewerShowsMature(auth?.user)),
       statusCode: 200,
     }
   } catch (error: unknown) {

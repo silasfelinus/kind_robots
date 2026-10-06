@@ -9,15 +9,23 @@
         <span class="loading loading-spinner loading-lg" />
       </div>
       <div v-else-if="store.candidate" class="relative w-full">
-        <img
-          :key="store.candidate.id"
-          :src="store.candidate.src"
-          :class="[
-            'w-full max-h-[70vh] object-contain transition',
-            covered ? 'blur-2xl' : '',
-          ]"
-          alt="Art waiting for your review"
-        />
+        <button
+          type="button"
+          class="block w-full cursor-zoom-in"
+          aria-label="Open this art's card"
+          :disabled="covered"
+          @click="openCard"
+        >
+          <img
+            :key="store.candidate.id"
+            :src="store.candidate.src"
+            :class="[
+              'w-full max-h-[70vh] object-contain transition',
+              covered ? 'blur-2xl' : '',
+            ]"
+            alt="Art waiting for your review"
+          />
+        </button>
         <button
           v-if="covered"
           class="absolute inset-0 flex items-center justify-center bg-black/40 text-white text-lg font-bold"
@@ -94,12 +102,41 @@
         (+{{ store.lastResult.karmaAwarded }} karma, +1 click)
       </span>
     </p>
+
+    <div
+      v-if="cardOpen"
+      class="fixed inset-0 z-50 flex items-center justify-center bg-base-300/80 p-3 backdrop-blur-sm"
+      role="dialog"
+      aria-modal="true"
+      @click.self="closeCard"
+    >
+      <div
+        class="flex max-h-full w-full max-w-6xl flex-col overflow-hidden kr-panel-flat shadow-2xl"
+      >
+        <header
+          class="flex shrink-0 items-center justify-between gap-3 border-b border-base-300 bg-base-200 px-4 py-2"
+        >
+          <h3 class="kr-text-black-sm truncate text-base-content">
+            #{{ store.candidate?.id }}
+          </h3>
+          <button class="kr-btn-ghost" type="button" @click="closeCard">
+            <Icon name="kind-icon:x" class="kr-icon-4" />
+            Close
+          </button>
+        </header>
+        <div class="min-h-0 flex-1 overflow-auto p-3">
+          <p v-if="cardError" class="text-error text-sm">{{ cardError }}</p>
+          <art-interact v-else />
+        </div>
+      </div>
+    </div>
   </section>
 </template>
 
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue'
 import { useArtReviewStore } from '@/stores/artReviewStore'
+import { useArtStore } from '@/stores/artStore'
 import { useUserStore } from '@/stores/userStore'
 import {
   ART_REVIEW_COMMENT_MAX,
@@ -109,10 +146,13 @@ import {
 
 const store = useArtReviewStore()
 const userStore = useUserStore()
+const artStore = useArtStore()
 
 const comment = ref('')
 const showComment = ref(false)
 const uncovered = ref(false)
+const cardOpen = ref(false)
+const cardError = ref('')
 
 const covered = computed(
   () => store.candidate?.isMature === true && !uncovered.value,
@@ -121,11 +161,28 @@ const covered = computed(
 watch(
   () => store.candidate?.id,
   () => {
+    if (cardOpen.value) closeCard()
     comment.value = ''
     showComment.value = false
     uncovered.value = false
   },
 )
+
+async function openCard() {
+  const id = store.candidate?.id
+  if (!id) return
+  cardError.value = ''
+  cardOpen.value = true
+  const result = await artStore.selectArtImage(id)
+  if (!result.success) {
+    cardError.value = result.message || 'Could not open this art.'
+  }
+}
+
+function closeCard() {
+  cardOpen.value = false
+  artStore.deselectArtImage()
+}
 
 async function rate(rating: ArtReviewRating) {
   await store.submitReview(rating, comment.value)

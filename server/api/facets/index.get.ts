@@ -4,6 +4,7 @@ import type { Prisma } from '~/prisma/generated/prisma/client'
 import prisma from '~/server/utils/prisma'
 import { errorHandler } from '~/server/utils/error'
 import { getOptionalApiUser } from '~/server/utils/authGuard'
+import { withholdMatureEntities } from '~/server/utils/matureArtRefs'
 import {
   viewerShowsMature,
   viewablePackIds,
@@ -146,7 +147,7 @@ export default defineEventHandler(async (event) => {
 
     return {
       success: true,
-      data: hydrated,
+      data: await withholdMatureEntities(hydrated, !includeMature),
       count: hydrated.length,
     }
   } catch (error) {

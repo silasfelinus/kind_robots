@@ -1,6 +1,7 @@
 import { defineEventHandler } from 'h3'
 import prisma from '@/server/utils/prisma'
 import { errorHandler } from '@/server/utils/error'
+import { withholdMatureEntities } from '@/server/utils/matureArtRefs'
 
 const archiveArtSelect = {
   id: true,
@@ -137,7 +138,7 @@ export default defineEventHandler(async (event) => {
     return {
       success: true,
       message: 'Daily Dream archive loaded successfully.',
-      data,
+      data: await withholdMatureEntities(data, true),
       count: data.length,
       statusCode: 200,
     }

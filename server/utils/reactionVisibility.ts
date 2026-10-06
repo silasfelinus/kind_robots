@@ -22,6 +22,32 @@ import {
 export type ReactionViewer = {
   userId: number | null
   isAdmin: boolean
+  /** Anonymous or CHILD. Required so a caller cannot forget to say. */
+  maturityRestricted: boolean
+}
+
+const MATURE_FLAGGED_TARGETS = new Set<string>(['artImage', 'artCollection'])
+
+/**
+ * A restricted viewer must not learn that a mature image or collection exists,
+ * through its comments any more than through its pixels. Admin does not lift it.
+ */
+async function matureBarrierHides(
+  target: KarmaRefType | string,
+  targetId: number,
+  viewer: ReactionViewer,
+): Promise<boolean> {
+  if (!viewer.maturityRestricted || !MATURE_FLAGGED_TARGETS.has(target)) {
+    return false
+  }
+  const model = prisma[target as 'artImage' | 'artCollection'] as unknown as {
+    findUnique: (args: unknown) => Promise<unknown>
+  }
+  const row = (await model.findUnique({
+    where: { id: targetId },
+    select: { isMature: true },
+  })) as { isMature?: boolean | null } | null
+  return row?.isMature === true
 }
 
 /**
@@ -102,6 +128,12 @@ export async function canViewReactionsOn(
   targetId: number,
   viewer: ReactionViewer,
 ): Promise<boolean> {
+  if (await matureBarrierHides(target, targetId, viewer)) {
+    throw createError({
+      statusCode: 404,
+      message: `${target} #${targetId} not found.`,
+    })
+  }
   if (viewer.isAdmin) return true
   if (PRIVATE_TARGETS.has(target)) return false
 
@@ -158,10 +190,14 @@ export async function canViewReaction(
   reaction: ReactionTargetColumns,
   viewer: ReactionViewer,
 ): Promise<boolean> {
+  const target = reactionTargetOf(reaction)
+  if (target && (await matureBarrierHides(target.target, target.id, viewer))) {
+    return false
+  }
+
   if (viewer.isAdmin) return true
   if (viewer.userId !== null && reaction.userId === viewer.userId) return true
 
-  const target = reactionTargetOf(reaction)
   if (!target) return false
 
   try {

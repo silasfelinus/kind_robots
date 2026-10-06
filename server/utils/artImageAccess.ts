@@ -33,6 +33,8 @@ export type ArtImageAccessContext = {
   restricted: boolean
 }
 
+export { matureHiddenFrom } from '~/server/utils/matureBarrier'
+
 /**
  * Whether one ArtImage, asked for by id or by its file, may be shown to this
  * viewer. The by-id API route and the /images file route share it so the
@@ -170,15 +172,24 @@ export async function getArtImageAccessContext(
     const raw = query.showMature ?? query.includeMature ?? query.mature
     const requestedMature =
       raw === undefined || raw === null ? undefined : readBoolean(raw, true)
+    const preference = isAuthenticated
+      ? await prisma.user.findUnique({
+          where: { id: Number(user?.id) },
+          select: { showMature: true },
+        })
+      : null
+    const viewer = isAuthenticated
+      ? { ...user, showMature: preference?.showMature === true }
+      : user
     const showMature =
-      isAuthenticated && viewerShowsMature(user, requestedMature)
+      isAuthenticated && viewerShowsMature(viewer, requestedMature)
 
     return {
       userId: isAuthenticated ? Number(user?.id) : null,
-      isAdmin: isAuthenticated && isAdminUser(user),
+      isAdmin: isAuthenticated && isAdminUser(viewer),
       showMature,
       isAuthenticated,
-      restricted: isMaturityRestricted(user),
+      restricted: isMaturityRestricted(viewer),
     }
   } catch {
     return {

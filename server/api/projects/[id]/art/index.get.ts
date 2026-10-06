@@ -1,14 +1,9 @@
 // /server/api/projects/[id]/art/index.get.ts
-import {
-  createError,
-  defineEventHandler,
-  getHeader,
-} from 'h3'
+import { createError, defineEventHandler } from 'h3'
 import prisma from '~/server/utils/prisma'
 import { errorHandler } from '~/server/utils/error'
-import { validateApiKey } from '~/server/utils/validateKey'
+import { getMediaViewerAccessContext } from '~/server/utils/artImageAccess'
 import { getProjectId } from '../../index'
-import { userIsAdmin } from '../../../../utils/authUser'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -34,6 +29,7 @@ export default defineEventHandler(async (event) => {
                 fileName: true,
                 fileType: true,
                 isActive: true,
+                isMature: true,
               },
             },
           },
@@ -45,29 +41,30 @@ export default defineEventHandler(async (event) => {
       throw createError({ statusCode: 404, message: 'Project not found.' })
     }
 
+    const access = await getMediaViewerAccessContext(event)
     let mayView =
       project.isActive && project.isPublic && project.isMature !== true
-    if (!mayView && getHeader(event, 'authorization')?.startsWith('Bearer ')) {
-      try {
-        const auth = await validateApiKey(event)
-        mayView = Boolean(
-          auth.isValid &&
-            auth.user &&
-            (userIsAdmin(auth.user) || auth.user.id === project.userId),
-        )
-      } catch {
-        mayView = false
-      }
+    if (
+      !mayView &&
+      access.isAuthenticated &&
+      !(access.restricted && project.isMature === true)
+    ) {
+      mayView = access.isAdmin || access.userId === project.userId
     }
 
     if (!mayView) {
-      throw createError({ statusCode: 403, message: 'You cannot view this project art.' })
+      throw createError({
+        statusCode: 403,
+        message: 'You cannot view this project art.',
+      })
     }
 
     return {
       success: true,
       data: project.ArtImageLinks.filter(
-        (link) => link.ArtImage.isActive !== false,
+        (link) =>
+          link.ArtImage.isActive !== false &&
+          !(!access.showMature && link.ArtImage.isMature === true),
       ),
       statusCode: 200,
     }

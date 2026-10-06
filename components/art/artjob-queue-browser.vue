@@ -10,12 +10,15 @@
 
     <!--
       No h-full here. kr-scroll is already `min-h-0 flex-1 overflow-y-auto`,
-      and h-full pins the child to the parent's full height on top of that,
-      over-constraining the flex child that is supposed to be sized BY the
-      flex line. Every other page using this primitive (lora-triage, etc.)
-      omits it.
+      and h-full pins the child to the parent's full height on top of that.
+
+      Keep this scroll owner grid/block based rather than `flex flex-col`.
+      If a flex-direction utility is ever late or missing, CSS flex defaults
+      to a row and turns the toolbar/cards/pager into three side-by-side
+      columns. Grid auto-placement stacks these children in rows, and its
+      native block fallback stacks them too.
     -->
-    <div v-else class="flex kr-scroll flex-col gap-2 p-2">
+    <div v-else class="grid kr-scroll content-start gap-2 p-2">
       <div
         class="flex flex-wrap items-center gap-1 rounded-2xl border border-base-300 bg-base-100 p-1.5 shadow-sm"
       >

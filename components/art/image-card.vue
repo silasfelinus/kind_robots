@@ -73,6 +73,25 @@
         <span class="kr-spinner-lg-primary" />
       </div>
 
+      <!-- A song (music-video/t-012) is an ArtImage too. Rendering its mp3
+           through <img> failed every time and fell back to backtree.webp with
+           a Retry badge, so audio gets a player. @click.stop keeps play/seek
+           from selecting the card. -->
+      <div
+        v-else-if="mediaSource.kind === 'audio'"
+        class="flex h-full w-full flex-col items-center justify-center gap-4 p-5"
+        @click.stop
+      >
+        <Icon name="kind-icon:music" class="kr-icon-10 text-base-content/60" />
+        <audio
+          :src="audioSource"
+          class="w-full max-w-sm"
+          controls
+          preload="metadata"
+          :aria-label="`Audio for ArtImage ${displayImage.id}`"
+        />
+      </div>
+
       <kr-deferred-image
         v-else
         :key="imageKey"
@@ -293,7 +312,9 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import type { ArtImage } from '~/prisma/generated/prisma/client'
+import { useArtJobStore } from '@/stores/artJobStore'
 import { useArtStore } from '@/stores/artStore'
+import { resolveArtImageSource } from '@/utils/artImageSource'
 import { observeViewportHydration } from '@/utils/viewportHydration'
 
 const props = withDefaults(
@@ -355,6 +376,7 @@ const emit = defineEmits<{
 }>()
 
 const artStore = useArtStore()
+const artJobStore = useArtJobStore()
 const imageArea = ref<HTMLElement>()
 const localImage = ref<ArtImage | null>(props.artImage)
 const loadingImage = ref(false)
@@ -385,6 +407,34 @@ const appUrl = computed(() => {
 })
 
 const displayImage = computed(() => localImage.value || props.artImage)
+
+/*
+ * THE BYTES THE ARTJOB QUEUE ALREADY HOLDS.
+ *
+ * Silas, 2026-10-05: "all the art cards are failing to load, despite them
+ * showing up in the artjob queue page". The queue card fetches a private
+ * render through artJobStore.loadJobImage -- authenticated, a 30s budget for
+ * the base64 payload, resolved by the shared resolveArtImageSource -- and it
+ * works. This card's own chain tried the stored path first, which for a
+ * private row is a route an <img> cannot authenticate to, then a 10s refetch,
+ * and settled on backtree.webp with Retry. So the art card uses the queue's
+ * cached bytes when they exist, and recoverImage() loads through the same
+ * loader before anything else.
+ */
+const sharedSrc = computed(
+  () => artJobStore.imageSrcById[displayImage.value.id] || '',
+)
+
+const mediaSource = computed(() => {
+  const shared = artJobStore.imageInfoById[displayImage.value.id]
+  if (sharedSrc.value && shared) return { ...shared, src: sharedSrc.value }
+  return resolveArtImageSource(displayImage.value)
+})
+const audioSource = computed(() => {
+  const src = mediaSource.value.src
+  if (!src || /^(data:|blob:|https?:\/\/)/.test(src)) return src
+  return withAppUrl(src)
+})
 
 function makeColoringPage() {
   void navigateTo(`/coloring-page?imageId=${displayImage.value.id}`)
@@ -444,6 +494,7 @@ const checkpointTitle = computed(
 
 const resolvedImageSource = computed(() => {
   if (imageLoadFailed.value) return props.fallbackImage
+  if (sharedSrc.value) return sharedSrc.value
   const pathUrl = createImagePathUrl(displayImage.value)
   const dataUrl = createImageDataUrl(displayImage.value)
   if (imagePathFailed.value && dataUrl) return dataUrl
@@ -617,6 +668,11 @@ async function recoverImage() {
   const current = displayImage.value
   loadingImage.value = true
   try {
+    const version = artJobStore.imageVersionById[current.id] ?? ''
+    if (await artJobStore.loadJobImage(current.id, version)) {
+      loadAttempt.value += 1
+      return
+    }
     const fetched = await artStore.getArtImageById(current.id, {
       force: true,
       includeImageData: true,

@@ -238,6 +238,26 @@ export const ARCADE_GAMES: ArcadeGameMeta[] = [
     accent: '#22d3ee',
     controls: 'Steer, turbo',
   },
+  {
+    slug: 'burrow-buddy',
+    title: 'Burrow Buddy',
+    riffsOn: 'Dig Dug',
+    blurb:
+      'Tunnel through a garden in layers of soil. Puff bubbles at grumpy grubs until they swell up and float gently away, or dig under a turnip and drop it on a whole group for a bonus. Grubs drift through the soil as ghosts when they get bored, beetles breathe fire from the second garden, and two turnips bring out a veggie bonus.',
+    howTo: [
+      'ARROWS  DIG',
+      'A  PUFF BUBBLES',
+      'PUFF 4 TIMES = POP',
+      'DROP TURNIPS ON GRUBS',
+      'WATCH FOR FIRE',
+    ],
+    width: 256,
+    height: 262,
+    maxPlausibleScore: 5_000_000,
+    titleArt: '/images/arcade/games/burrow-buddy-title.webp',
+    accent: '#fb923c',
+    controls: 'Dig, puff',
+  },
 ]
 
 export type ComingSoonCabinet = {
@@ -251,12 +271,6 @@ export type ComingSoonCabinet = {
 
 // Mirrors the queued rows of conductor projects/kr-arcade/games.yaml.
 export const COMING_SOON: ComingSoonCabinet[] = [
-  {
-    slug: 'burrow-buddy',
-    title: 'Burrow Buddy',
-    riffsOn: 'Dig Dug',
-    accent: '#fb923c',
-  },
   {
     slug: 'repair-rampage',
     title: 'Repair Rampage',
@@ -301,6 +315,7 @@ const LOADERS: Record<string, () => Promise<ArcadeGameModule>> = {
   'gloom-invaders': () => import('./games/gloomInvaders'),
   'hedgehog-crossing': () => import('./games/hedgehogCrossing'),
   'ribbon-riders': () => import('./games/ribbonRiders'),
+  'burrow-buddy': () => import('./games/burrowBuddy'),
 }
 
 export function findArcadeGame(slug: string): ArcadeGameMeta | undefined {

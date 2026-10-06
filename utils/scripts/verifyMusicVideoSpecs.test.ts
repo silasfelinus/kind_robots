@@ -109,6 +109,8 @@ console.log('✅ both prepared specs import cleanly and pass the prompt rules')
     musicVideoSpecByKey('zuzu-intro')!.comicSeriesSlug,
     'zuzu-koala-assassin',
   )
+  // Before the comic exists, stills still render in the Arthemy western lane.
+  assert.equal(zuzu.settings.imageLaneKey, 'il-arthemy')
 }
 console.log('✅ the Zuzu intro starts from the vetted keyframes')
 

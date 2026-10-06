@@ -350,6 +350,9 @@ const zuzuIntro: MusicVideoSpec = {
       'cinematic samurai western title theme, shakuhachi, twangy baritone guitar, deep taiko, low drone',
     mood: 'slow, ominous, dusty, building tension, one hard final hit',
     heroShots: 5,
+    // The checkpoint when the comic series does not exist yet (proof of
+    // concept); once it does, the series' house lane wins.
+    imageLaneKey: 'il-arthemy',
     styleBible:
       'mature graphic-novel weird western, dark gritty desaturated palette, dust brown and rust, hard sidelight, long shadows, pale smoky sky, orange accents, painted western comic linework, low camera angles, wide landscapes with a small lone figure, every character an animal',
     bannedTerms: [

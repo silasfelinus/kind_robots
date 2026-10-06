@@ -78,13 +78,16 @@ export default defineEventHandler(async (event) => {
         where: { slug: spec.comicSeriesSlug },
         select: { id: true, isArchived: true },
       })
+      // Silas, 2026-10-06: the Zuzu comic is not made yet, but the video
+      // should still load as a proof of concept. Without the series, stills
+      // render through the spec's own imageLaneKey (its checkpoint) instead.
       if (!series || series.isArchived) {
-        throw createError({
-          statusCode: 400,
-          message: `Comic series "${spec.comicSeriesSlug}" was not found.`,
-        })
+        warnings.push(
+          `Comic series "${spec.comicSeriesSlug}" was not found, so stills render with the ${spec.settings.imageLaneKey ?? 'default'} checkpoint and no series style.`,
+        )
+      } else {
+        comicSeriesId = series.id
       }
-      comicSeriesId = series.id
     }
 
     // A keyframe that no longer exists becomes a fresh still, not a failure.

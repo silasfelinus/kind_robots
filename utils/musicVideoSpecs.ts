@@ -212,7 +212,8 @@ const kindRobotsTheme: MusicVideoSpec = {
       prompt: `${TEAL} and ${PINK} smiling side by side at a cosmic café table under a rainbow`,
       lyrics: ['intro:0'],
       siteImage: LOGO,
-      kenBurns: 'zoom-in',
+      motionPrompt:
+        'The two friends look up and smile as the rainbow behind them flares and sparkles burst outward.',
     },
     {
       beats: 8,
@@ -300,8 +301,7 @@ const kindRobotsTheme: MusicVideoSpec = {
       beats: 8,
       prompt: `${TEAL} painting a giant rainbow across a city wall with a glowing brush, colours splashing everywhere`,
       lyrics: ['c2:1'],
-      motionPrompt:
-        'She sweeps the glowing brush across the wall and the rainbow spreads out in a splash of colour.',
+      kenBurns: 'pan-right',
     },
     {
       beats: 8,
@@ -427,7 +427,8 @@ const kindRobotsThemeClassic: MusicVideoSpec = {
       beats: 8,
       prompt: `A garage door bursting open in a burst of orange light, ${BOLT} striking a heroic pose in the doorway`,
       lyrics: ['intro:0'],
-      kenBurns: 'zoom-in',
+      motionPrompt:
+        'The garage door flies open in a blast of orange light and the robot strikes a heroic pose.',
     },
     {
       beats: 8,
@@ -490,8 +491,7 @@ const kindRobotsThemeClassic: MusicVideoSpec = {
       beats: 8,
       prompt: `${SPROCKET} riding a glowing skateboard mid-air over a ramp in a neon alley, board flipping under his feet`,
       lyrics: ['v2:1'],
-      motionPrompt:
-        'The robot kicks the skateboard into a spinning flip and lands it as the camera follows the jump.',
+      kenBurns: 'pan-right',
     },
     {
       beats: 8,
@@ -548,40 +548,53 @@ const kindRobotsThemeClassic: MusicVideoSpec = {
 }
 
 /*
- * B. Zuzu: Koala Assassin intro (t-029), from conductor
- * projects/music-video/docs/zuzu-intro.md. 100 BPM, 55 s = 91.7 beats; the
- * brief's 13 beats with the road shot split in two (one keyframe per
- * sibling). The brief asked for an instrumental; Silas, 2026-10-06: "I did
- * expect you to write lyrics, match to images", so it is a sung ballad with
- * one lyric line per scene from the second shot on. Stills render in the series' house lane (Arthemy, tag-style).
- * The style bible is the brief's, reworded to drop the negations ("no
- * dialogue, no narration") the prompt rules refuse; its meaning is unchanged.
+ * B. Zuzu: Koala Assassin intro (t-029). Silas, 2026-10-06, on the first cut:
+ * "The fill-ins are LAUGHABLE, and the song rhymes behind with behind, and
+ * doesn't include Zuzu anywhere, when it would make a killer ending. There's a
+ * much better song and image set here." The song and the shots now tell Book
+ * One in order (conductor projects/comic-creator/issues/zuzu-koala-assassin-01
+ * BOOK-ONE.md): the watering hole and the croc, the bandaged stump, Hollow
+ * Bell, the sister's stare, the apples, the nuns, the altar, the road as a
+ * pack, and his name as the last word. Vetted comic renders carry the croc,
+ * the stump, the nuns, the road and the title; fresh stills use the comic's
+ * own canon tags, house look and negatives (VIDEO-GUARDRAILS.md), which the
+ * first cut lacked. Heroes open, close and land the Hollow Bell surprise in
+ * the middle. 100 BPM, 72 s = 120 beats, one lyric line per two bars.
  */
-const ZUZU =
-  'anthro koala ronin, short and stocky, barrel-chested, serious expression, rust-brown poncho with orange zigzag trim, conical straw kasa hat shading the eyes, dark tunic, orange sash, dark brown cloth trousers, katana sheathed diagonally across the back, hilt over the right shoulder'
+const ZUZU_BODY =
+  'anthro, koala, male, adult, (short:1.2), (stocky:1.2), standing upright, short legs, small stature, slight paunch, grey fur, round fluffy ears, broad black nose, serious, squinting, rust-brown poncho, orange zigzag trim, dark tunic, orange sash, dark brown cloth trousers, (katana on back:1.3), hilt over right shoulder, (fully clothed:1.3)'
+const ZUZU = `${ZUZU_BODY}, conical straw kasa, wide brim shading the eyes`
+const SISTER =
+  'anthro, fennec fox, female, young, about ten years old, thin, enormous ears, sand-colored fur, dusty fur, claw-torn ragged pale dress, bandaged wrists, (fully clothed:1.3)'
+const TODDLER =
+  'anthro, fennec fox, toddler, tiny, enormous ears, sand-colored fur, ragged checked cloth tunic, bandaged paw, wide eyes'
+const COYOTE =
+  'anthro, coyote, male, adult, one-eyed, eyepatch over right eye, tattered patched long riding coat, ripped trousers, crushed hat, mangy fur, thin, sickly, underfed, (fully clothed:1.3)'
 
 const zuzuIntro: MusicVideoSpec = {
   key: 'zuzu-intro',
   title: 'Zuzu: Koala Assassin — Intro',
   summary:
-    '55 s low-voiced western ballad, 100 BPM, 14 scenes with their lyric lines, 7 vetted keyframes, 5 hero clips, Arthemy lane.',
+    '72 s low-voiced western ballad of Book One, 100 BPM, 15 scenes, 5 vetted comic keyframes, 5 hero shots, comic house look.',
   comicSeriesSlug: 'zuzu-koala-assassin',
   pitch:
-    'A 55-second title-sequence for Zuzu: Koala Assassin, a mature weird-western about a koala ronin crossing a dying wasteland with two starving fennec-fox orphans. A samurai in a western: dust, a poncho, a wide kasa shading the eyes, a katana across the back. The intro makes a promise of mood, not plot: lone figure, long road, a world that has been beaten down, a hard stillness, then the title. A low, gravelly male voice sings it like a dusty western ballad, sparse over shakuhachi and taiko, ending on the name.',
+    "The title sequence for Zuzu: Koala Assassin, a mature weird western about a koala ronin crossing a dying wasteland. A low, gravelly ballad tells Book One in a minute: Zuzu drinks at a watering hole across from a one-eyed coyote, a giant crocodile erupts between them, it takes the coyote's gun hand and Zuzu binds the stump. He walks into Hollow Bell after a massacre and finds two starving fennec-fox orphans, a sister who stares him down and the toddler in her arms. He leaves them apples, delivers them to kind otter nuns, and comes back when the kindness turns to candles, an altar and something in the dark. It ends on the road, the three of them walking as one, and on his name.",
   settings: {
-    durationSec: 55,
+    durationSec: 72,
     aspect: '16:9',
     bpm: 100,
     vocal: 'male',
     genre:
-      'samurai western ballad, low gravelly baritone, shakuhachi, twangy baritone guitar, deep taiko',
-    mood: 'slow, ominous, dusty, building tension, one hard final hit',
+      'dark western ballad, low gravelly baritone, shakuhachi, twangy baritone guitar, deep taiko',
+    mood: 'slow, ominous, dusty, building to one hard final hit',
     heroShots: 5,
-    // The checkpoint when the comic series does not exist yet (proof of
-    // concept); once it does, the series' house lane wins.
+    // The comic's house lane: Arthemy Western Art v3.0. When the comic series
+    // exists in Comic Studio, its own lane and negatives take over.
     imageLaneKey: 'il-arthemy',
     styleBible:
-      'mature graphic-novel weird western, dark gritty desaturated palette, dust brown and rust, hard sidelight, long shadows, pale smoky sky, orange accents, painted western comic linework, low camera angles, wide landscapes with a small lone figure, every character an animal',
+      'gritty, dark atmosphere, grindhouse, high contrast, heavy shadows, muted earthy palette, desaturated, weathered, grimy, cinematic wide shot',
+    negativePrompt:
+      '(nude:1.4), (naked:1.3), topless, bare chest, bare back, undressing, nsfw, suggestive, revealing clothes, skull, jolly roger, emblem, logo, tall, lanky, long legs, slender, straw boater, cowboy hat, cloak, cape, ribs, ribcage, skeleton, feather duster, lowres, worst quality, bad anatomy, bad hands, extra limbs, deformed, watermark, signature, blurry, jpeg artifacts, chibi, human, text',
     bannedTerms: [
       'human',
       'humans',
@@ -598,132 +611,133 @@ const zuzuIntro: MusicVideoSpec = {
     ],
   },
   sections: [
-    section('intro', 'intro', ['Ho... ha... ho...']),
     section('v1', 'verse', [
-      'Dust on the ridge where the dry wind blows',
-      'Straw hat low and the long road goes',
-      'Two small shadows trailing behind',
-      "Two hungry hearts that he won't leave behind",
+      'Dust on his poncho and a blade on his back',
+      'He drank at the water where the stones run black',
+      'A one-eyed coyote on the far bank stood',
+      'Then the deep pool shattered and the jaws came for blood',
     ]),
-    section('c1', 'chorus', [
-      "One eye watching from the water's edge",
-      'Iron on his hip and a broken pledge',
-      'Something hungry sleeping down below',
-      'The sand gives way and the teeth all show',
+    section('v2', 'verse', [
+      'Steel bit scale and the gun hand was gone',
+      "He bound the stranger's wrist and they both walked on",
+      'Hollow Bell was burning when he bared his head',
+      'Two small foxes hiding with the dead',
     ]),
-    section('b1', 'bridge', [
-      'Zuzu... Zuzu...',
-      'Hand on the hilt and the world holds still',
+    section('v3', 'bridge', [
+      'Apples on a stone for the ones who follow',
+      'Kind nuns smiling, but the smiles were hollow',
+      'Candles on the altar and a shadow in the dark',
+      'The girl stood her ground and the steel found its mark',
     ]),
-    section('o1', 'outro', ['One flash of steel', 'Koala assassin']),
+    section('o1', 'outro', [
+      'Now the road runs long and the three walk as one',
+      'They call him Zuzu, the Koala Assassin!',
+    ]),
   ],
   scenes: [
     {
       beats: 8,
       prompt:
-        'wind-blown desert dunes at dawn, empty wasteland, drifting dust, pale smoky sky',
+        'wide shot, vast desert wasteland at dawn, cracked earth, dead trees, drifting dust, pale smoky sky, low sun, a tiny lone figure far away on the horizon, scenery',
       kenBurns: 'zoom-in',
     },
     {
       beats: 8,
-      lyrics: ['intro:0'],
-      prompt: `${ZUZU}, close-up on the hat brim, eyes in shadow`,
-      artImageId: 241913,
-      kenBurns: 'zoom-in',
-    },
-    {
-      beats: 8,
+      prompt: `${ZUZU}, walking toward the viewer across the desert, wind tugging the poncho, dust swirling, low angle, full body`,
       lyrics: ['v1:0'],
-      prompt: `wide shot, tiny ${ZUZU} walking along a desert ridge, long road, vast wasteland`,
-      artImageId: 241899,
-      kenBurns: 'pan-right',
+      motionPrompt:
+        'He walks steadily toward the camera as the wind tugs at his poncho and dust blows past.',
     },
     {
       beats: 8,
+      prompt: `${ZUZU}, kneeling at a muddy desert watering hole, drinking from cupped paws, black stones, still water, dusk, long shadows`,
       lyrics: ['v1:1'],
-      prompt:
-        'close-up of worn boots and a rust-brown poncho hem with orange zigzag trim stepping through dust',
+      kenBurns: 'zoom-in',
+    },
+    {
+      beats: 8,
+      prompt: `${COYOTE}, standing on the far bank of a desert watering hole, empty paw hovering over a revolver holstered on his right hip, hard stare, dusk, long shadows`,
+      lyrics: ['v1:2'],
       kenBurns: 'pan-left',
     },
     {
-      beats: 4,
-      lyrics: ['v1:2'],
+      beats: 8,
       prompt:
-        'gaunt fennec fox girl in a long torn pale dress walking away down a dusty road, distant, turned away',
-      artImageId: 241879,
-      kenBurns: 'pan-right',
-    },
-    {
-      beats: 4,
+        'giant crocodile, bursting out of water, open jaws, sharp teeth, water spray, muddy desert watering hole, action, dynamic angle, feral',
       lyrics: ['v1:3'],
-      prompt:
-        'tiny fennec fox toddler in a checked tunic trailing behind on a dusty road, distant, turned away',
-      artImageId: 241883,
+      artImageId: 241893,
+      motionPrompt:
+        'The crocodile bursts out of the water with its jaws wide as spray explodes and the camera shakes.',
+    },
+    {
+      beats: 8,
+      prompt: `${COYOTE}, right arm ending in a stump at the sleeve, gloved left hand, pained, desert watering hole behind him`,
+      lyrics: ['v2:0'],
+      artImageId: 242428,
+      kenBurns: 'zoom-in',
+    },
+    {
+      beats: 8,
+      prompt: `${ZUZU}, kneeling beside a wounded one-eyed coyote, wrapping a cloth bandage around the coyote's right wrist stump, a dead giant crocodile floating in the water behind them, dusk`,
+      lyrics: ['v2:1'],
       kenBurns: 'pan-right',
     },
     {
       beats: 8,
-      lyrics: ['c1:0'],
-      prompt:
-        'one-eyed coyote at a muddy waterhole at dusk, eyepatch over the right eye, thin and sickly, one eye glinting in the dark',
-      artImageId: 242435,
+      prompt: `${ZUZU_BODY}, holding his straw kasa against his chest, standing small in a wide ruined frontier street, burning wooden buildings, bell tower, smoke, embers, falling ash, wide shot, full body`,
+      lyrics: ['v2:2'],
       motionPrompt:
-        'Slow dolly in toward the coyote as its one eye catches the last light.',
+        'Smoke rolls through the burning street as he slowly lowers his hat to his chest.',
     },
     {
       beats: 8,
-      lyrics: ['c1:1'],
-      prompt:
-        'close-up of a revolver holstered on the right hip of a ragged coyote, a paw hovering above it, dusk light',
+      prompt: `${SISTER}, carrying a tiny fennec fox toddler in her arms, ${TODDLER}, standing in burned ruins, shielding him, smoke, embers, staring hard at the viewer, full body`,
+      lyrics: ['v2:3'],
       kenBurns: 'zoom-in',
     },
     {
       beats: 8,
-      lyrics: ['c1:2'],
       prompt:
-        'oasis water bulging, the long dark shadow of a huge crocodile beneath the surface',
-      artImageId: 241893,
+        'red apples piled on a flat stone beside a dusty desert road, a single living apple tree, a thin sand-colored fox paw reaching for the apples, golden light, close-up',
+      lyrics: ['v3:0'],
       kenBurns: 'zoom-in',
     },
     {
       beats: 8,
-      lyrics: ['c1:3'],
       prompt:
-        'sand and water erupting from an oasis, huge crocodile jaws and teeth bursting upward, spray and dust',
-      motionPrompt:
-        'The water bursts upward as the jaws snap open and the camera shakes.',
+        'three otter nuns in black habits smiling at the gate of a desert mission wall, a rusted merry-go-round wrapped in cobwebs in the yard',
+      lyrics: ['v3:1'],
+      artImageId: 241895,
+      kenBurns: 'pan-right',
     },
     {
-      beats: 6,
-      lyrics: ['b1:0'],
-      prompt: `${ZUZU}, standing still on the road, wind tugging at the poncho, front view`,
+      beats: 8,
+      prompt:
+        'candlelit stone altar in a dark chapel, dripping candles, coiled ropes, a huge dark shadow with tentacles rising up the wall, eerie violet glow, scenery',
+      lyrics: ['v3:2'],
+      kenBurns: 'zoom-in',
+    },
+    {
+      beats: 8,
+      prompt: `${SISTER}, standing alone in a dark candlelit chapel, gripping a small dagger in both hands, trembling, defiant, hard stare, full body`,
+      lyrics: ['v3:3'],
+      kenBurns: 'zoom-out',
+    },
+    {
+      beats: 8,
+      prompt: `wide shot, long desert road at sunset, ${ZUZU}, walking ahead with a fennec fox girl and a fennec fox toddler close behind him, from behind, long shadows, the koala is shorter than the fox girl`,
+      lyrics: ['o1:0'],
+      artImageId: 241899,
+      motionPrompt:
+        'The three of them walk away down the long road into the sunset as the camera slowly rises.',
+    },
+    {
+      beats: 8,
+      prompt: `${ZUZU}, hero shot, standing in the desert wind, poncho flaring, low angle`,
+      lyrics: ['o1:1'],
       artImageId: 241913,
       motionPrompt:
-        'Slow push in on the hat brim as the wind tugs at the poncho.',
-    },
-    {
-      beats: 6,
-      lyrics: ['b1:1'],
-      prompt: `${ZUZU}, three-quarter view, paw rising to the katana hilt above the right shoulder`,
-      artImageId: 241920,
-      motionPrompt:
-        'The paw rises and closes on the sword hilt above the right shoulder.',
-    },
-    {
-      beats: 4,
-      lyrics: ['o1:0'],
-      prompt:
-        'a katana blade flashing across a dark frame, a single bright streak of light, dust in the air',
-      motionPrompt:
-        'A single streak of light sweeps across the blade, then the frame falls to black.',
-    },
-    {
-      beats: 4,
-      lyrics: ['o1:1'],
-      prompt:
-        'black background, swirling desert dust lit by a thin orange sunset glow, a lone straw kasa hat resting in the sand',
-      kenBurns: 'zoom-out',
-      transition: 'crossfade',
+        'He lifts the brim of his hat and his eyes catch the light as dust blows past.',
     },
   ],
 }

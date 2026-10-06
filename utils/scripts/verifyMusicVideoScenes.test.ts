@@ -18,6 +18,7 @@ import {
   checkpointPathFromLaneKey,
   composeScenePrompt,
   findBannedTerms,
+  heroSceneIndexes,
   kreaFrameSize,
   musicVideoStillBody,
   parseScenePromptResponse,
@@ -354,6 +355,63 @@ console.log(
 }
 console.log(
   '✅ any catalog checkpoint renders as a lane with its family profile',
+)
+
+// Produce's hero picks follow Silas's rule (2026-10-06): "Start strong, end
+// strong. strong surprise middle".
+{
+  assert.deepEqual(heroSceneIndexes(0, 20), [])
+  assert.deepEqual(heroSceneIndexes(1, 20), [0])
+  assert.deepEqual(heroSceneIndexes(2, 20), [0, 19])
+  assert.deepEqual(heroSceneIndexes(3, 20), [0, 10, 19])
+  const five = heroSceneIndexes(5, 20)
+  assert.equal(five.length, 5)
+  assert.ok(five.includes(0) && five.includes(10) && five.includes(19))
+  assert.equal(new Set(five).size, 5)
+  assert.deepEqual(heroSceneIndexes(8, 3), [0, 1, 2], 'capped at the scenes')
+  assert.deepEqual(heroSceneIndexes(3, 0), [])
+}
+console.log('✅ hero shots open, close and land the middle first')
+
+// A video's negative prompt reaches checkpoint stills, after a series' own.
+{
+  const base = emptyMusicVideoDoc({ pitch: 'x' })
+  const doc = normalizeMusicVideoDoc({
+    ...base,
+    settings: { ...base.settings, negativePrompt: 'tall, lanky, text' },
+  }).doc
+  assert.equal(doc.settings.negativePrompt, 'tall, lanky, text')
+  const lane = comicPrimaryLane(DEFAULT_COMIC_LANES)!
+  const plain = musicVideoStillBody(
+    doc,
+    { prompt: 'a koala' },
+    {
+      projectSlug: 'music-video',
+      lane,
+    },
+  )
+  assert.equal(plain.negativePrompt, 'tall, lanky, text')
+  const withSeries = musicVideoStillBody(
+    doc,
+    { prompt: 'a koala' },
+    {
+      projectSlug: 'music-video',
+      lane,
+      series: { negativeTags: 'nsfw, human' },
+    },
+  )
+  assert.equal(withSeries.negativePrompt, 'nsfw, human, tall, lanky, text')
+  const krea = musicVideoStillBody(
+    doc,
+    { prompt: 'a koala' },
+    {
+      projectSlug: 'music-video',
+    },
+  )
+  assert.equal(krea.negativePrompt, undefined, 'Krea 2 takes no negative')
+}
+console.log(
+  "✅ the video's negative prompt joins the series' on checkpoint stills",
 )
 
 console.log('✅ verifyMusicVideoScenes: all assertions passed')

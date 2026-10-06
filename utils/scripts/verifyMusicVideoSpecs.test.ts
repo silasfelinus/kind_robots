@@ -41,6 +41,37 @@ for (const spec of MUSIC_VIDEO_SPECS) {
   assert.equal(heroes.length, doc.settings.heroShots, `${spec.key} hero count`)
   assert.ok(heroes.every((scene) => scene.motionPrompt?.trim()))
 
+  // Silas, 2026-10-06: "we should always open with a hero, or within the
+  // first two shots. Start strong, end strong. strong surprise middle".
+  const heroAt = new Set(
+    doc.scenes.flatMap((scene, index) =>
+      scene.motion.kind === 'clip' ? [index] : [],
+    ),
+  )
+  const last = doc.scenes.length - 1
+  assert.ok(heroAt.has(0) || heroAt.has(1), `${spec.key} opens with a hero`)
+  assert.ok(heroAt.has(last), `${spec.key} ends with a hero`)
+  const third = doc.scenes.length / 3
+  assert.ok(
+    [...heroAt].some((index) => index >= third && index < 2 * third),
+    `${spec.key} has a hero in the middle third`,
+  )
+
+  // "the song rhymes behind with behind": within a section (a chorus may
+  // repeat as a whole), no two lines end on the same word.
+  for (const section of doc.lyrics.sections) {
+    const endings = section.lines
+      .filter((line) => !/^kind robots!/i.test(line))
+      .map(
+        (line) => line.toLowerCase().match(/[a-z']+(?=[^a-z']*$)/)?.[0] ?? '',
+      )
+    assert.equal(
+      new Set(endings).size,
+      endings.length,
+      `${spec.key} ${section.id} rhymes a word with itself: ${endings.join(', ')}`,
+    )
+  }
+
   // Every sung line lands on a scene; every scene ref points at a real line.
   const refs = new Set(
     doc.scenes.flatMap((scene) =>
@@ -101,10 +132,15 @@ console.log('✅ both prepared specs import cleanly and pass the prompt rules')
   const keyframes = zuzu.scenes
     .filter((scene) => scene.image.source === 'gallery')
     .map((scene) => scene.image.artImageId)
-  assert.deepEqual(
-    keyframes,
-    [241913, 241899, 241879, 241883, 242435, 241893, 241913, 241920],
-  )
+  assert.deepEqual(keyframes, [241893, 242428, 241895, 241899, 241913])
+  // His name is the last word sung, over the title shot.
+  const lastLine = zuzu.lyrics.sections.at(-1)?.lines.at(-1) ?? ''
+  assert.match(lastLine, /Zuzu/)
+  assert.deepEqual(zuzu.scenes.at(-1)?.lyricRefs, [
+    { sectionId: 'o1', lineIdx: 1 },
+  ])
+  // The comic's negatives ride along until the series exists.
+  assert.match(zuzu.settings.negativePrompt ?? '', /tall, lanky/)
   assert.equal(
     musicVideoSpecByKey('zuzu-intro')!.comicSeriesSlug,
     'zuzu-koala-assassin',

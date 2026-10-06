@@ -75,7 +75,7 @@
           aria-label="Show pane"
         >
           <option value="rail">
-            {{ studio.mode === 'composer' ? 'Art shelf' : 'Cast' }}
+            {{ studio.mode === 'composer' ? 'Art shelf' : 'Entities' }}
           </option>
           <option value="center">
             {{
@@ -83,7 +83,9 @@
                 ? 'Pages'
                 : studio.mode === 'notes'
                   ? 'Notes'
-                  : 'Board'
+                  : studio.mode === 'cast'
+                    ? 'Cast'
+                    : 'Board'
             }}
           </option>
           <option value="inspector">Details</option>
@@ -140,9 +142,18 @@
           class="kr-pane-scroll rounded-2xl p-1"
           :class="pane === 'center' ? '' : 'hidden lg:block'"
         >
-          <p v-if="!studio.series && !studio.loading" class="kr-note">
-            Create a series to start, or import a ledger.
-          </p>
+          <div
+            v-if="!studio.series && !studio.loading"
+            class="kr-note flex flex-col gap-2 p-6"
+          >
+            <p class="kr-text-black-xl">No comic series yet</p>
+            <p class="kr-text-dim-sm">
+              Name a series above to start one, or seed one from Conductor with
+              <code>scripts/import_comic_studio.py --live</code>, which brings
+              in the cast sheets, the vetted renders and the issue notes.
+            </p>
+          </div>
+          <comic-cast-sheets v-else-if="studio.mode === 'cast'" />
           <comic-slot-board v-else-if="studio.mode === 'board'" />
           <comic-issue-composer v-else-if="studio.mode === 'composer'" />
           <comic-series-notes v-else />
@@ -180,6 +191,7 @@ const creating = ref(false)
 const newSeriesTitle = ref('')
 
 const tabs: Array<{ mode: ComicStudioMode; label: string; icon: string }> = [
+  { mode: 'cast', label: 'Cast', icon: 'kind-icon:users' },
   { mode: 'board', label: 'Board', icon: 'kind-icon:grid' },
   { mode: 'composer', label: 'Pages', icon: 'kind-icon:layers' },
   { mode: 'notes', label: 'Notes', icon: 'kind-icon:book-open' },
@@ -207,7 +219,12 @@ async function createSeries() {
 async function start() {
   if (!userStore.isAdmin) return
   const mode = String(route.query.mode || '')
-  if (mode === 'board' || mode === 'composer' || mode === 'notes')
+  if (
+    mode === 'cast' ||
+    mode === 'board' ||
+    mode === 'composer' ||
+    mode === 'notes'
+  )
     studio.mode = mode
   studio.loadAutoEditor()
   await studio.initialize(

@@ -3,7 +3,8 @@
     type="button"
     draggable="true"
     class="group relative block w-full overflow-hidden rounded-2xl border bg-base-300 text-left transition hover:border-primary"
-    :class="[ringClass, compact ? 'aspect-square' : 'aspect-[4/3]']"
+    :class="[ringClass, compact ? 'aspect-square' : '']"
+    :style="compact ? undefined : { aspectRatio: aspect }"
     :title="title"
     @click="studio.lightboxAttemptId = attempt.id"
     @dragstart="studio.beginDrag({ type: 'attempt', id: attempt.id })"
@@ -13,7 +14,8 @@
       v-if="attempt.thumbUrl"
       :src="attempt.thumbUrl"
       :alt="title"
-      class="h-full w-full object-cover"
+      class="h-full w-full"
+      :class="compact ? 'object-cover' : 'object-contain'"
       loading="lazy"
       draggable="false"
     />
@@ -46,11 +48,15 @@ import { computed } from 'vue'
 import { useComicStudioStore } from '@/stores/comicStudioStore'
 import type { ComicAttemptDto } from '~/types/comicStudio'
 import { comicDisplayStatus } from '~/utils/comicStudio'
+import { comicRenderAspect } from '~/utils/comicCast'
 
 const props = defineProps<{ attempt: ComicAttemptDto; compact?: boolean }>()
 const studio = useComicStudioStore()
 
 const display = computed(() => comicDisplayStatus(props.attempt))
+const aspect = computed(() =>
+  comicRenderAspect(props.attempt.width, props.attempt.height),
+)
 const laneLabel = computed(
   () =>
     studio.lanes.find((lane) => lane.key === props.attempt.laneKey)?.label ??

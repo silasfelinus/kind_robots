@@ -213,6 +213,9 @@ jobs:
       - name: Comic Studio editor contract
         run: npm run test:comic-editor
 
+      - name: Comic Studio cast sheets contract
+        run: npm run test:comic-cast
+
       - name: Music video document contract
         run: npm run test:music-video-doc
 

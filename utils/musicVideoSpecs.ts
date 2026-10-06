@@ -324,9 +324,11 @@ const kindRobotsTheme: MusicVideoSpec = {
 
 /*
  * B. Zuzu: Koala Assassin intro (t-029), from conductor
- * projects/music-video/docs/zuzu-intro.md. Instrumental, 100 BPM, 55 s = 91.7
- * beats; the brief's 13 beats with the road shot split in two (one keyframe
- * per sibling). Stills render in the series' house lane (Arthemy, tag-style).
+ * projects/music-video/docs/zuzu-intro.md. 100 BPM, 55 s = 91.7 beats; the
+ * brief's 13 beats with the road shot split in two (one keyframe per
+ * sibling). The brief asked for an instrumental; Silas, 2026-10-06: "I did
+ * expect you to write lyrics, match to images", so it is a sung ballad with
+ * one lyric line per scene from the second shot on. Stills render in the series' house lane (Arthemy, tag-style).
  * The style bible is the brief's, reworded to drop the negations ("no
  * dialogue, no narration") the prompt rules refuse; its meaning is unchanged.
  */
@@ -337,17 +339,17 @@ const zuzuIntro: MusicVideoSpec = {
   key: 'zuzu-intro',
   title: 'Zuzu: Koala Assassin — Intro',
   summary:
-    '55 s instrumental, 100 BPM, 14 scenes, 7 vetted keyframes, 5 hero clips, Arthemy lane.',
+    '55 s low-voiced western ballad, 100 BPM, 14 scenes with their lyric lines, 7 vetted keyframes, 5 hero clips, Arthemy lane.',
   comicSeriesSlug: 'zuzu-koala-assassin',
   pitch:
-    'A 55-second title-sequence for Zuzu: Koala Assassin, a mature weird-western about a koala ronin crossing a dying wasteland with two starving fennec-fox orphans. A samurai in a western: dust, a poncho, a wide kasa shading the eyes, a katana across the back. The intro makes a promise of mood, not plot: lone figure, long road, a world that has been beaten down, a hard stillness, then the title.',
+    'A 55-second title-sequence for Zuzu: Koala Assassin, a mature weird-western about a koala ronin crossing a dying wasteland with two starving fennec-fox orphans. A samurai in a western: dust, a poncho, a wide kasa shading the eyes, a katana across the back. The intro makes a promise of mood, not plot: lone figure, long road, a world that has been beaten down, a hard stillness, then the title. A low, gravelly male voice sings it like a dusty western ballad, sparse over shakuhachi and taiko, ending on the name.',
   settings: {
     durationSec: 55,
     aspect: '16:9',
     bpm: 100,
-    vocal: 'instrumental',
+    vocal: 'male',
     genre:
-      'cinematic samurai western title theme, shakuhachi, twangy baritone guitar, deep taiko, low drone',
+      'samurai western ballad, low gravelly baritone, shakuhachi, twangy baritone guitar, deep taiko',
     mood: 'slow, ominous, dusty, building tension, one hard final hit',
     heroShots: 5,
     // The checkpoint when the comic series does not exist yet (proof of
@@ -370,7 +372,26 @@ const zuzuIntro: MusicVideoSpec = {
       'english lettering',
     ],
   },
-  sections: [],
+  sections: [
+    section('intro', 'intro', ['Ho... ha... ho...']),
+    section('v1', 'verse', [
+      'Dust on the ridge where the dry wind blows',
+      'Straw hat low and the long road goes',
+      'Two small shadows trailing behind',
+      "Two hungry hearts that he won't leave behind",
+    ]),
+    section('c1', 'chorus', [
+      "One eye watching from the water's edge",
+      'Iron on his hip and a broken pledge',
+      'Something hungry sleeping down below',
+      'The sand gives way and the teeth all show',
+    ]),
+    section('b1', 'bridge', [
+      'Zuzu... Zuzu...',
+      'Hand on the hilt and the world holds still',
+    ]),
+    section('o1', 'outro', ['One flash of steel', 'Koala assassin']),
+  ],
   scenes: [
     {
       beats: 8,
@@ -380,24 +401,28 @@ const zuzuIntro: MusicVideoSpec = {
     },
     {
       beats: 8,
+      lyrics: ['intro:0'],
       prompt: `${ZUZU}, close-up on the hat brim, eyes in shadow`,
       artImageId: 241913,
       kenBurns: 'zoom-in',
     },
     {
       beats: 8,
+      lyrics: ['v1:0'],
       prompt: `wide shot, tiny ${ZUZU} walking along a desert ridge, long road, vast wasteland`,
       artImageId: 241899,
       kenBurns: 'pan-right',
     },
     {
       beats: 8,
+      lyrics: ['v1:1'],
       prompt:
         'close-up of worn boots and a rust-brown poncho hem with orange zigzag trim stepping through dust',
       kenBurns: 'pan-left',
     },
     {
       beats: 4,
+      lyrics: ['v1:2'],
       prompt:
         'gaunt fennec fox girl in a long torn pale dress walking away down a dusty road, distant, turned away',
       artImageId: 241879,
@@ -405,6 +430,7 @@ const zuzuIntro: MusicVideoSpec = {
     },
     {
       beats: 4,
+      lyrics: ['v1:3'],
       prompt:
         'tiny fennec fox toddler in a checked tunic trailing behind on a dusty road, distant, turned away',
       artImageId: 241883,
@@ -412,6 +438,7 @@ const zuzuIntro: MusicVideoSpec = {
     },
     {
       beats: 8,
+      lyrics: ['c1:0'],
       prompt:
         'one-eyed coyote at a muddy waterhole at dusk, eyepatch over the right eye, thin and sickly, one eye glinting in the dark',
       artImageId: 242435,
@@ -420,12 +447,14 @@ const zuzuIntro: MusicVideoSpec = {
     },
     {
       beats: 8,
+      lyrics: ['c1:1'],
       prompt:
         'close-up of a revolver holstered on the right hip of a ragged coyote, a paw hovering above it, dusk light',
       kenBurns: 'zoom-in',
     },
     {
       beats: 8,
+      lyrics: ['c1:2'],
       prompt:
         'oasis water bulging, the long dark shadow of a huge crocodile beneath the surface',
       artImageId: 241893,
@@ -433,6 +462,7 @@ const zuzuIntro: MusicVideoSpec = {
     },
     {
       beats: 8,
+      lyrics: ['c1:3'],
       prompt:
         'sand and water erupting from an oasis, huge crocodile jaws and teeth bursting upward, spray and dust',
       motionPrompt:
@@ -440,6 +470,7 @@ const zuzuIntro: MusicVideoSpec = {
     },
     {
       beats: 6,
+      lyrics: ['b1:0'],
       prompt: `${ZUZU}, standing still on the road, wind tugging at the poncho, front view`,
       artImageId: 241913,
       motionPrompt:
@@ -447,6 +478,7 @@ const zuzuIntro: MusicVideoSpec = {
     },
     {
       beats: 6,
+      lyrics: ['b1:1'],
       prompt: `${ZUZU}, three-quarter view, paw rising to the katana hilt above the right shoulder`,
       artImageId: 241920,
       motionPrompt:
@@ -454,6 +486,7 @@ const zuzuIntro: MusicVideoSpec = {
     },
     {
       beats: 4,
+      lyrics: ['o1:0'],
       prompt:
         'a katana blade flashing across a dark frame, a single bright streak of light, dust in the air',
       motionPrompt:
@@ -461,6 +494,7 @@ const zuzuIntro: MusicVideoSpec = {
     },
     {
       beats: 4,
+      lyrics: ['o1:1'],
       prompt:
         'black background, swirling desert dust lit by a thin orange sunset glow, a lone straw kasa hat resting in the sand',
       kenBurns: 'zoom-out',

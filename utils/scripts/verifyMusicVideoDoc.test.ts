@@ -8,6 +8,12 @@
 // past the song's end must be REJECTED rather than silently repaired, because the
 // compositor and the timeline editor trust whatever this function lets through.
 import assert from 'node:assert/strict'
+import {
+  briefHasGaps,
+  buildBriefPrompt,
+  mergeBrief,
+  parseBriefResponse,
+} from '../musicVideoBrief.js'
 
 import {
   MUSIC_VIDEO_DOC_VERSION,
@@ -254,5 +260,74 @@ console.log(
   assert.equal(none.settings.motionPresets, undefined)
 }
 console.log('✅ motion presets keep only complete, unique entries')
+
+// t-031: heroShots is a small positive count, capped at 8.
+{
+  const doc = emptyMusicVideoDoc({ pitch: 'x' })
+  const read = (heroShots: unknown) =>
+    normalizeMusicVideoDoc({ ...doc, settings: { ...doc.settings, heroShots } })
+      .doc.settings.heroShots
+  assert.equal(read(5), 5)
+  assert.equal(read(40), 8)
+  assert.equal(read(0), undefined)
+  assert.equal(read('lots'), undefined)
+}
+console.log('✅ heroShots is a capped positive count')
+
+// t-031: the brief fills blanks only, reads messy LLM output, and never
+// replaces a full style bible the director wrote.
+{
+  const base = emptyMusicVideoDoc({
+    pitch: 'A koala ronin crosses a desert.',
+  }).settings
+  assert.ok(briefHasGaps(base))
+  const { system, prompt } = buildBriefPrompt({
+    pitch: 'A koala ronin crosses a desert.',
+    settings: { ...base, bannedTerms: ['human'] },
+  })
+  assert.match(system, /JSON object/)
+  assert.match(prompt, /koala ronin/)
+  assert.match(prompt, /Never use these words: human/)
+
+  const fields = parseBriefResponse(
+    'Sure! ```json\n{"genre":"samurai western","mood":"ominous","bpm":"100","vocal":"Instrumental","styleBible":"Dusty painted western comic."}\n```',
+  )
+  assert.deepEqual(fields, {
+    genre: 'samurai western',
+    mood: 'ominous',
+    bpm: 100,
+    vocal: 'instrumental',
+    styleBible: 'Dusty painted western comic.',
+  })
+  assert.deepEqual(parseBriefResponse('no json here'), {})
+  assert.equal(parseBriefResponse('{"bpm": 999}').bpm, undefined)
+
+  const chosen = { ...base, genre: 'synth rock', styleBible: 'neon' }
+  const merged = mergeBrief(chosen, fields)
+  assert.equal(merged.genre, 'synth rock', 'a chosen genre stays')
+  assert.equal(merged.mood, 'ominous', 'a blank is filled')
+  assert.equal(
+    merged.styleBible,
+    'Dusty painted western comic.',
+    'a short style note is expanded',
+  )
+  const fullBible = 'x'.repeat(400)
+  assert.equal(
+    mergeBrief({ ...base, styleBible: fullBible }, fields).styleBible,
+    fullBible,
+    'a full style bible is never replaced',
+  )
+  assert.ok(
+    !briefHasGaps({
+      ...base,
+      genre: 'g',
+      mood: 'm',
+      bpm: 90,
+      vocal: 'female',
+      styleBible: fullBible,
+    }),
+  )
+}
+console.log('✅ the brief fills only blanks and keeps a full style bible')
 
 console.log('✅ verifyMusicVideoDoc: all assertions passed')

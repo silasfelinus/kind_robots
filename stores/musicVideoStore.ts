@@ -10,6 +10,7 @@ import {
   type MusicVideoSection,
   type MusicVideoStatus,
 } from '@/utils/musicVideoDoc'
+import { briefHasGaps } from '@/utils/musicVideoBrief'
 
 export type MusicVideoSummary = {
   id: number
@@ -93,6 +94,13 @@ export const useMusicVideoStore = defineStore('musicVideoStore', () => {
   const sceneStatuses = ref<Record<string, SceneJobStatus>>({})
   const songJob = ref<SongJobStatus | null>(null)
   let watchTimer: ReturnType<typeof setInterval> | null = null
+  /** Produce (t-031): drive the whole pipeline from the page. */
+  const producing = ref(false)
+  const produceStage = ref('')
+  const exportProgress = ref(0)
+  let produceTimer: ReturnType<typeof setInterval> | null = null
+  let producingId: number | null = null
+  let produceAttempts: Record<string, number> = {}
 
   const sceneCount = computed(() => current.value?.doc.scenes.length ?? 0)
   const scenesWithImage = computed(
@@ -211,6 +219,8 @@ export const useMusicVideoStore = defineStore('musicVideoStore', () => {
       // Finished renders only reach the doc when something asks for their
       // status, so opening a video asks (t-027).
       void syncStatus()
+      // A production left running in this browser picks up where it was.
+      if (readProducingId() === id) startProduce()
     } catch (e) {
       error.value = errorMessage(e, 'Failed to load the music video.')
     } finally {
@@ -728,6 +738,279 @@ export const useMusicVideoStore = defineStore('musicVideoStore', () => {
     return saveSettings({ motionPresets })
   }
 
+  /** Ask the LLM to fill the settings the pitch leaves open (t-031). */
+  async function fillBrief(): Promise<boolean> {
+    const id = current.value?.id
+    const result = await runStep<{ video: MusicVideo }>(
+      'brief',
+      `/api/music-video/${id}/brief`,
+      {},
+      (data) => data.video,
+      120_000,
+    )
+    return Boolean(result)
+  }
+
+  function authHeaders(): Headers {
+    const userStore = useUserStore()
+    const token = userStore.token || userStore.user?.token || ''
+    const headers = new Headers()
+    if (token) headers.set('Authorization', `Bearer ${token}`)
+    return headers
+  }
+
+  /*
+   * Render the final cut in this browser and attach it to the video, the
+   * front-end replacement for the headless script's ffmpeg step. Stills, clips
+   * and the song all come through the Bearer-authenticated file route.
+   */
+  async function exportAndAttach(): Promise<boolean> {
+    const video = current.value
+    if (!video || busyAction.value) return false
+    busyAction.value = 'export'
+    exportProgress.value = 0
+    actionMessage.value = ''
+    clearError()
+    try {
+      const fileUrl = (artImageId?: number) =>
+        artImageId ? `/api/art/images/${artImageId}/file` : null
+      const sceneById = new Map(
+        video.doc.scenes.map((scene) => [scene.id, scene]),
+      )
+      const { exportMusicVideoMp4 } =
+        await import('./helpers/musicVideoExporter')
+      const blob = await exportMusicVideoMp4({
+        doc: video.doc,
+        songUrl: fileUrl(video.doc.song?.artImageId),
+        imageUrlFor: (sceneId) =>
+          fileUrl(sceneById.get(sceneId)?.image.artImageId),
+        clipUrlFor: (sceneId) =>
+          fileUrl(sceneById.get(sceneId)?.motion.clipArtImageId),
+        headers: authHeaders(),
+        onProgress: (fraction, label) => {
+          exportProgress.value = fraction
+          produceStage.value = label
+        },
+      })
+      const form = new FormData()
+      form.append(
+        'file',
+        new File([blob], `music-video-${video.id}.mp4`, { type: 'video/mp4' }),
+      )
+      const response = await performFetch<{ video: MusicVideo }>(
+        `/api/music-video/${video.id}/final`,
+        { method: 'POST', body: form },
+        0,
+        300_000,
+      )
+      if (!response.success || !response.data?.video) {
+        throw new Error(response.message || 'Failed to attach the final cut.')
+      }
+      current.value = response.data.video
+      void hydratePreviews(response.data.video)
+      void loadList()
+      actionMessage.value = `Final cut attached (${(blob.size / 1_048_576).toFixed(1)} MB).`
+      return true
+    } catch (e) {
+      error.value = errorMessage(e, 'Failed to export the final cut.')
+      return false
+    } finally {
+      busyAction.value = ''
+    }
+  }
+
+  const PRODUCING_KEY = 'kr-music-video-producing'
+
+  function readProducingId(): number | null {
+    try {
+      const raw = window.localStorage.getItem(PRODUCING_KEY)
+      return raw ? Number(raw) : null
+    } catch {
+      return null
+    }
+  }
+
+  function writeProducingId(id: number | null) {
+    try {
+      if (id) window.localStorage.setItem(PRODUCING_KEY, String(id))
+      else window.localStorage.removeItem(PRODUCING_KEY)
+    } catch {
+      // Without storage a reload simply ends the run; the doc keeps its state.
+    }
+  }
+
+  /*
+   * PRODUCE (music-video/t-031). Silas, 2026-10-06: "I should ideally not need
+   * to run a script to stitch together things, it should happen automatically
+   * when directed from the front end when all the images are created."
+   *
+   * One tick looks at where the video stands and does the next missing step:
+   * brief -> lyrics -> song -> scenes -> prompts -> stills -> marked clips ->
+   * export and attach. Renders run on the Comfy box, so most ticks just wait.
+   * It runs while this page is open (and resumes after a reload); a server-side
+   * runner for a closed tab is the follow-up.
+   */
+  function startProduce(): void {
+    const video = current.value
+    if (!video || typeof window === 'undefined') return
+    producing.value = true
+    producingId = video.id
+    produceAttempts = {}
+    produceStage.value = 'Starting'
+    writeProducingId(video.id)
+    if (produceTimer) clearInterval(produceTimer)
+    produceTimer = setInterval(() => void produceTick(), 15_000)
+    void produceTick()
+  }
+
+  function stopProduce(message = ''): void {
+    producing.value = false
+    producingId = null
+    if (produceTimer) clearInterval(produceTimer)
+    produceTimer = null
+    writeProducingId(null)
+    produceStage.value = message
+  }
+
+  /** Count an attempt at a step; false once it has used its tries. */
+  function tryStep(key: string, max: number): boolean {
+    produceAttempts[key] = (produceAttempts[key] ?? 0) + 1
+    return (produceAttempts[key] ?? 0) <= max
+  }
+
+  let ticking = false
+  async function produceTick(): Promise<void> {
+    if (!producing.value || ticking) return
+    if (busyAction.value || saving.value) return
+    const video = current.value
+    if (!video || video.id !== producingId) return
+    ticking = true
+    try {
+      await syncStatus()
+      const doc = current.value?.doc
+      if (!doc) return
+      const settings = doc.settings
+      const status = sceneStatuses.value
+      const pending = (value?: string | null) =>
+        PENDING_JOB_STATUSES.has(value ?? '')
+
+      if (briefHasGaps(settings) && tryStep('brief', 1)) {
+        produceStage.value = 'Filling in the brief from the pitch'
+        await fillBrief()
+        return
+      }
+
+      const instrumental = settings.vocal === 'instrumental'
+      const hasLyrics = doc.lyrics.sections.some((s) => s.lines.length)
+      if (!instrumental && !hasLyrics) {
+        if (!tryStep('lyrics', 2)) return stopProduce('Lyrics failed twice.')
+        produceStage.value = 'Writing lyrics'
+        await writeLyrics()
+        return
+      }
+
+      if (!doc.song?.artImageId) {
+        if (songJob.value && pending(songJob.value.status)) {
+          produceStage.value = 'Waiting for the song'
+          return
+        }
+        if (!tryStep('song', 2)) {
+          return stopProduce(
+            `The song failed${songJob.value?.error ? `: ${songJob.value.error}` : '.'}`,
+          )
+        }
+        produceStage.value = 'Generating the song'
+        await generateSong(Boolean(doc.song?.jobId))
+        return
+      }
+
+      if (!doc.scenes.length) {
+        if (!tryStep('plan', 2)) return stopProduce('Scene planning failed.')
+        produceStage.value = 'Planning scenes on the beat grid'
+        await planScenes(false)
+        return
+      }
+
+      const generated = doc.scenes.filter((s) => s.image.source === 'generated')
+      if (generated.some((s) => !s.prompt.trim())) {
+        if (!tryStep('prompts', 3)) {
+          return stopProduce('Some scene prompts were rejected three times.')
+        }
+        produceStage.value = 'Writing scene prompts'
+        await writeScenePrompts()
+        return
+      }
+
+      const stillless = doc.scenes.filter((s) => !s.image.artImageId)
+      if (stillless.some((s) => pending(status[s.id]?.status))) {
+        produceStage.value = `Waiting for stills (${doc.scenes.length - stillless.length}/${doc.scenes.length} done)`
+        return
+      }
+      if (stillless.length) {
+        const retry = stillless.filter((s) => tryStep(`still:${s.id}`, 2))
+        if (!retry.length) {
+          return stopProduce(
+            `Stills failed twice for scene ${stillless.map((s) => s.id).join(', ')}.`,
+          )
+        }
+        produceStage.value = `Rendering ${retry.length} still${retry.length === 1 ? '' : 's'}`
+        await renderScenes(retry.map((s) => s.id))
+        return
+      }
+
+      // Nothing marked to animate yet: pick the brief's hero shots, spread
+      // evenly across the video, once.
+      const heroes = settings.heroShots ?? 0
+      if (
+        heroes > 0 &&
+        !doc.scenes.some((s) => s.motion.kind === 'clip') &&
+        tryStep('heroes', 1)
+      ) {
+        produceStage.value = `Choosing ${heroes} hero shot${heroes === 1 ? '' : 's'}`
+        const count = Math.min(heroes, doc.scenes.length)
+        const picks = new Set(
+          Array.from({ length: count }, (_, i) =>
+            Math.floor(((i + 0.5) * doc.scenes.length) / count),
+          ),
+        )
+        await patchDoc(
+          {
+            scenes: doc.scenes.map((scene, index) =>
+              picks.has(index)
+                ? { ...scene, motion: { ...scene.motion, kind: 'clip' } }
+                : scene,
+            ),
+          },
+          'Failed to mark the hero shots.',
+        )
+        return
+      }
+
+      const toAnimate = doc.scenes.filter(
+        (s) => s.motion.kind === 'clip' && !s.motion.clipArtImageId,
+      )
+      if (toAnimate.some((s) => pending(status[s.id]?.clipStatus))) {
+        produceStage.value = 'Waiting for hero-shot clips'
+        return
+      }
+      // A clip that fails twice is dropped: that scene pans and zooms instead.
+      const animate = toAnimate.filter((s) => tryStep(`clip:${s.id}`, 2))
+      if (animate.length) {
+        produceStage.value = `Animating ${animate.length} hero shot${animate.length === 1 ? '' : 's'}`
+        await animateScenes(animate.slice(0, 8).map((s) => s.id))
+        return
+      }
+
+      if (!tryStep('export', 2)) return stopProduce('The export failed twice.')
+      produceStage.value = 'Exporting the final cut'
+      if (await exportAndAttach()) {
+        stopProduce('Done: the final cut is attached.')
+      }
+    } finally {
+      ticking = false
+    }
+  }
+
   /** Use vetted Comic Studio art as scene stills (attempt ids, or slots' picks). */
   async function assignKeyframes(
     assignments: { sceneId: string; attemptId?: number; slotId?: number }[],
@@ -821,6 +1104,13 @@ export const useMusicVideoStore = defineStore('musicVideoStore', () => {
     regenerateLyricSection,
     updateScene,
     saveMotionPresets,
+    fillBrief,
+    exportAndAttach,
+    producing,
+    produceStage,
+    exportProgress,
+    startProduce,
+    stopProduce,
     startWatching,
     stopWatching,
     remove,

@@ -59,6 +59,17 @@
         />
       </label>
       <label class="block space-y-1">
+        <span class="kr-text-dim-sm">Hero shots to animate</span>
+        <input
+          v-model.number="form.heroShots"
+          class="kr-input w-full"
+          type="number"
+          min="0"
+          :max="limits.maxHeroShots"
+          placeholder="0"
+        />
+      </label>
+      <label class="block space-y-1">
         <span class="kr-text-dim-sm">Mood</span>
         <input
           v-model="form.mood"
@@ -87,13 +98,31 @@
       <input v-model="form.bannedTerms" class="kr-input w-full" type="text" />
     </label>
 
-    <button
-      type="submit"
-      class="kr-btn kr-btn-primary"
-      :disabled="store.saving || !dirty"
-    >
-      Save settings
-    </button>
+    <div class="flex flex-wrap items-center gap-2">
+      <button
+        type="submit"
+        class="kr-btn kr-btn-primary"
+        :disabled="store.saving || !dirty"
+      >
+        Save settings
+      </button>
+      <button
+        type="button"
+        class="kr-btn"
+        :disabled="
+          dirty || Boolean(store.busyAction) || !store.current?.doc.pitch.trim()
+        "
+        :title="
+          dirty
+            ? 'Save your settings first'
+            : 'Let the AI fill genre, mood, BPM, vocal and the style bible from the pitch; what you set stays'
+        "
+        @click="store.fillBrief()"
+      >
+        <span v-if="store.busyAction === 'brief'" class="kr-spinner-xs" />
+        Fill in from pitch
+      </button>
+    </div>
   </form>
 </template>
 
@@ -125,6 +154,7 @@ type SettingsForm = {
   mood: string
   styleBible: string
   bannedTerms: string
+  heroShots: number | ''
 }
 
 const form = reactive<SettingsForm>(emptyForm())
@@ -139,6 +169,7 @@ function emptyForm(settings?: MusicVideoSettings): SettingsForm {
     mood: settings?.mood ?? '',
     styleBible: settings?.styleBible ?? '',
     bannedTerms: (settings?.bannedTerms ?? []).join(', '),
+    heroShots: settings?.heroShots ?? '',
   }
 }
 
@@ -156,6 +187,10 @@ function toSettings(): Partial<MusicVideoSettings> {
     mood: form.mood.trim() || undefined,
     styleBible: form.styleBible,
     bannedTerms: terms.length ? terms : undefined,
+    heroShots:
+      form.heroShots === '' || Number(form.heroShots) <= 0
+        ? undefined
+        : Math.min(Number(form.heroShots), MUSIC_VIDEO_LIMITS.maxHeroShots),
   }
 }
 

@@ -9,6 +9,7 @@ description: Review LoRAs as SFW or NSFW, batch-save maturity changes, and resum
 icon: kind-icon:database
 route: /admin/lora-triage
 sort: 74
+navigation: false
 requiredRole: ADMIN
 ---
 

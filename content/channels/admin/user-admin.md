@@ -9,6 +9,7 @@ description: Create users, manage roles and access, reset passwords, restrict ac
 icon: kind-icon:users
 route: /user-admin
 sort: 50
+navigation: false
 requiredRole: ADMIN
 ---
 

@@ -2,6 +2,7 @@
 contentType: tab
 channelKey: admin
 tabKey: scene-animator
+parentTabKey: retired
 label: Scene Animator
 title: Scene Animator
 subtitle: Turn folders of still scenes into short living clips

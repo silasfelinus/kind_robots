@@ -114,7 +114,7 @@ const manager = await readFile('components/animation/animation-manager.vue', 'ut
 assert.match(manager, /live catalog effects/)
 assert.match(manager, /Preview effect/)
 assert.match(manager, /<animation-selector\s*\/>/)
-assert.match(manager, /Coverage zones/)
+assert.doesNotMatch(manager, /Coverage zones|getSurfacePlacement|toggleCoverage/)
 assert.match(manager, /Add screen layer/)
 assert.match(
   manager,
@@ -129,7 +129,6 @@ assert.doesNotMatch(
 assert.match(manager, /aria-label="Animation display toggles"/)
 assert.match(manager, /:aria-pressed="butterfliesEnabled"/)
 assert.match(manager, /kind-icon:butterfly/)
-assert.match(manager, /:aria-pressed="coverageEnabled"/)
 assert.doesNotMatch(manager, /component-card|ComponentStatus|KindComponent|build history|recordAnimationAttempt/)
 
 const selector = await readFile('components/screenfx/animation-selector.vue', 'utf8')

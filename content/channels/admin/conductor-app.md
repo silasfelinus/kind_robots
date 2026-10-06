@@ -2,6 +2,7 @@
 contentType: tab
 channelKey: admin
 tabKey: conductor-app
+parentTabKey: retired
 dashboardKey: conductor
 dashboardTab: conductor-app
 label: Conductor App

@@ -7,11 +7,11 @@ dashboardTab: animation-manager
 label: Anim. Manager
 title: Animation Manager
 subtitle: One control room for passive chaos
-description: Browse, preview, layer, position, and choose startup animations from one control room.
+description: Browse, preview, layer, and choose startup animations from one control room.
 icon: kind-icon:sparkles
 route: /build/animation-manager
 sort: 65
-requiredRole: ADMIN
+navigation: false
 ---
 
-The canonical admin surface for Screen FX: isolated previews, persistent screen layers, coverage zones, and startup animation preferences.
+The Screen FX control room for isolated previews, persistent screen layers, and startup animation preferences.

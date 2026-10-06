@@ -93,6 +93,7 @@ const NESTED_TABS = new Set([
   'admin:project-placement',
   'admin:forum-moderation',
   'admin:navigation-health',
+  'admin:user-admin',
 ])
 
 function tab(
@@ -152,6 +153,10 @@ const retiredTabKeys = [
   'missing-image-test',
   'achievement-art',
   'social-drafts',
+  'appmaker',
+  'conductor-app',
+  'mermaids',
+  'scene-animator',
 ]
 
 const admin = {
@@ -169,13 +174,13 @@ const admin = {
 
 assert.deepEqual(
   navigationTabs(admin).map((entry) => entry.tabKey),
-  ['artjob', 'user-admin', 'retired'],
-  'Admin navigation must expose Retired as a top-level tab group while hiding diagnostics',
+  ['artjob', 'retired'],
+  'Admin navigation must expose Retired while Users & Moderation moves to Account',
 )
 assert.deepEqual(
   navigationSubtabs(admin, 'retired').map((entry) => entry.tabKey),
   retiredTabKeys,
-  'Retired must expose all twelve archived surfaces as Admin subtabs',
+  'Retired must expose all sixteen archived surfaces as Admin subtabs',
 )
 assert.equal(
   navigationDestinations(admin).some((entry) => entry.tabKey === 'retired'),
@@ -184,8 +189,8 @@ assert.equal(
 )
 assert.deepEqual(
   channelTabsToCards(admin).map((entry) => entry.key),
-  ['artjob', 'user-admin'],
-  'subtab parents and children must stay out of top-level fallback card decks',
+  ['artjob'],
+  'hidden tabs, subtab parents, and subtab children must stay out of top-level fallback card decks',
 )
 
 for (const path of [
@@ -220,7 +225,7 @@ assert.ok(
   'Account center must show Newsfeed and Friends links before the existing account controls',
 )
 const accountLinks = source('components/home/home-account-links.vue')
-for (const route of ['/plan/newsfeed', '/friends']) {
+for (const route of ['/plan/newsfeed', '/friends', '/build/animation-manager']) {
   assert.ok(accountLinks.includes(`to="${route}"`), `Account hub must link to ${route}`)
 }
 assert.equal(
@@ -266,8 +271,14 @@ assert.match(serendipityPage, /\nrequiredRole: ADMIN\n/)
 
 const userAdminTab = source('content/channels/admin/user-admin.md')
 assert.match(userAdminTab, /\nlabel: Users & Moderation\n/)
+assert.match(userAdminTab, /\nnavigation: false\n/)
 assert.match(userAdminTab, /\nrequiredRole: ADMIN\n/)
-assert.match(source('content/user-admin.md'), /\n:user-admin-center\n/)
+const userAdminPage = source('content/user-admin.md')
+assert.match(userAdminPage, /\nchannelKey: home\n/)
+assert.match(userAdminPage, /\ntabKey: account\n/)
+assert.match(userAdminPage, /\n:user-admin-center\n/)
+assert.ok(accountLinks.includes('to="/user-admin"'))
+assert.ok(accountLinks.includes('v-if="userStore.isAdmin"'))
 const userAdminCenter = source('components/user/user-admin-center.vue')
 assert.ok(userAdminCenter.includes('<user-manager-directory />'))
 assert.ok(userAdminCenter.includes('<forum-moderation-panel />'))
@@ -275,6 +286,36 @@ assert.ok(
   source('pages/admin/forum-moderation.vue').includes('<forum-moderation-panel />'),
   'the legacy moderation route must reuse the shared moderation panel',
 )
+
+const animationManagerTab = source('content/channels/admin/animation-manager.md')
+assert.match(animationManagerTab, /\nnavigation: false\n/)
+assert.doesNotMatch(animationManagerTab, /\nrequiredRole: ADMIN\n/)
+const animationManagerPage = source('content/build/animation-manager.md')
+assert.match(animationManagerPage, /\nchannelKey: home\n/)
+assert.match(animationManagerPage, /\ntabKey: account\n/)
+
+const loraTriageTab = source('content/channels/admin/lora-triage.md')
+assert.match(loraTriageTab, /\nnavigation: false\n/)
+assert.match(loraTriageTab, /\nrequiredRole: ADMIN\n/)
+const resourceManager = source('components/resources/resource-manager.vue')
+assert.equal(
+  resourceManager.match(/to="\/admin\/lora-triage"/g)?.length,
+  2,
+  'Resources must expose LoRA Triage from both toolbar states',
+)
+
+for (const path of [
+  'content/channels/admin/appmaker.md',
+  'content/channels/admin/conductor-app.md',
+  'content/channels/admin/mermaids.md',
+  'content/channels/admin/scene-animator.md',
+]) {
+  assert.match(
+    source(path),
+    /\nparentTabKey: retired\n/,
+    `${path} must live under Admin > Retired`,
+  )
+}
 
 const placement = source('content/channels/admin/project-placement.md')
 assert.match(placement, /\nroute: \/project-placement\n/)
@@ -295,4 +336,4 @@ assert.ok(
   'the full navigation directory must link leaf destinations rather than subtab parents',
 )
 
-console.log('Navigation consolidation verified: Account, Support, Admin > Retired subtabs, hidden diagnostics, nested routes, access metadata, and ArtJob icon all hold.')
+console.log('Navigation consolidation verified: Account tools, Resources triage access, Admin > Retired subtabs, hidden diagnostics, nested routes, access metadata, and ArtJob icon all hold.')

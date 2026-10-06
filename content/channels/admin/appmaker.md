@@ -2,6 +2,7 @@
 contentType: tab
 channelKey: admin
 tabKey: appmaker
+parentTabKey: retired
 dashboardKey: conductor
 dashboardTab: appmaker
 label: AppMaker

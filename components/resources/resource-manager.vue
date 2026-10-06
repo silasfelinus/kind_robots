@@ -44,6 +44,14 @@
             <Icon :name="tab.icon" class="kr-icon-3-5" />
             <span class="hidden sm:inline">{{ tab.label }}</span>
           </button>
+          <NuxtLink
+            to="/admin/lora-triage"
+            class="btn btn-xs gap-1 rounded-2xl btn-ghost"
+            title="Open LoRA triage"
+          >
+            <Icon name="kind-icon:checklist" class="kr-icon-3-5" />
+            <span class="hidden sm:inline">LoRA Triage</span>
+          </NuxtLink>
         </div>
       </template>
     </resource-gallery>
@@ -66,6 +74,14 @@
           <Icon :name="tab.icon" class="kr-icon-3-5" />
           <span class="hidden sm:inline">{{ tab.label }}</span>
         </button>
+        <NuxtLink
+          to="/admin/lora-triage"
+          class="btn btn-xs gap-1 rounded-2xl btn-ghost"
+          title="Open LoRA triage"
+        >
+          <Icon name="kind-icon:checklist" class="kr-icon-3-5" />
+          <span class="hidden sm:inline">LoRA Triage</span>
+        </NuxtLink>
       </div>
 
       <lora-discover class="min-h-0 flex-1" />

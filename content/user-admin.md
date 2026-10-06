@@ -8,8 +8,8 @@ icon: kind-icon:users
 tooltip: Manage users, roles, access, logins, and forum moderation from one page.
 dottiTip: Accounts upstairs, questionable posts downstairs. Very civic-minded.
 amiTip: People controls and the moderation queue, finally sharing one desk.
-channelKey: admin
-tabKey: user-admin
+channelKey: home
+tabKey: account
 requiredRole: ADMIN
 loadingMessage: Loading users and moderation...
 refreshLabel: Refresh admin tools

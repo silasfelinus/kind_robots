@@ -6,7 +6,7 @@
       <span v-if="waveError" class="kr-text-dim-sm">{{ waveError }}</span>
     </div>
 
-    <div class="grid gap-2 sm:grid-cols-3">
+    <div class="grid grid-cols-3 gap-2">
       <label class="block space-y-1">
         <span class="kr-text-dim-sm">BPM</span>
         <input

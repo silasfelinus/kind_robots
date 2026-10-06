@@ -14,6 +14,7 @@ import {
   finalVideoFileName,
   looksLikeMp4,
   musicVideoMaxUploadBytes,
+  finalVideoBitrates,
 } from '../musicVideoFinal.js'
 
 const MB = 1024 * 1024
@@ -113,5 +114,21 @@ console.log(
   )
 }
 console.log('✅ final video file names are slugged, bounded and never empty')
+
+// Silas, 2026-10-06: "getting errors when exporting the final video that it
+// is too large". The browser export budgets its bitrate to the upload cap.
+{
+  const cap = 24 * 1024 * 1024
+  const theme = finalVideoBitrates(75, cap)
+  assert.equal(theme.audio, 128_000)
+  const bytes = ((theme.video + theme.audio) * 75) / 8
+  assert.ok(bytes < cap * 0.9, `75 s fits under 24 MB (${bytes} bytes)`)
+  assert.ok(theme.video > 1_500_000, 'still a watchable 720p bitrate')
+  const retry = finalVideoBitrates(75, cap, 0.7)
+  assert.ok(retry.video < theme.video, 'a retry encodes smaller')
+  assert.equal(finalVideoBitrates(5, cap).video, 8_000_000, 'capped high')
+  assert.equal(finalVideoBitrates(3600, cap).video, 400_000, 'floored low')
+}
+console.log('✅ the export bitrate keeps the final cut under the upload cap')
 
 console.log('✅ verifyMusicVideoFinal: all assertions passed')

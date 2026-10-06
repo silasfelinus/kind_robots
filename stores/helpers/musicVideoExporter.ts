@@ -30,6 +30,9 @@ export type ExportInput = {
   /** Private rows need the Bearer header on every fetch. */
   headers?: HeadersInit
   fps?: number
+  /** Bits per second; the encoder's high-quality preset when unset. */
+  videoBitrate?: number
+  audioBitrate?: number
   onProgress?: (fraction: number, label: string) => void
   signal?: AbortSignal
 }
@@ -110,6 +113,7 @@ export async function exportMusicVideoMp4(input: ExportInput): Promise<Blob> {
   } = await import('mediabunny')
 
   const fps = input.fps ?? 30
+  const videoBitrate = input.videoBitrate ?? QUALITY_HIGH
   const { doc, onProgress, signal } = input
   const segments = buildStageSegments(doc.scenes)
   if (!segments.length) throw new Error('Plan scenes before exporting.')
@@ -167,7 +171,7 @@ export async function exportMusicVideoMp4(input: ExportInput): Promise<Blob> {
   let codec: 'avc' | 'vp9' | null = null
   for (const candidate of ['avc', 'vp9'] as const) {
     if (
-      await canEncodeVideo(candidate, { width, height, bitrate: QUALITY_HIGH })
+      await canEncodeVideo(candidate, { width, height, bitrate: videoBitrate })
     ) {
       codec = candidate
       break
@@ -177,10 +181,13 @@ export async function exportMusicVideoMp4(input: ExportInput): Promise<Blob> {
   if (audio && !(await canEncodeAudio('aac'))) {
     throw new Error('This browser cannot encode AAC audio.')
   }
-  const video = new CanvasSource(canvas, { codec, bitrate: QUALITY_HIGH })
+  const video = new CanvasSource(canvas, { codec, bitrate: videoBitrate })
   output.addVideoTrack(video, { frameRate: fps })
   const sound = audio
-    ? new AudioBufferSource({ codec: 'aac', bitrate: QUALITY_HIGH })
+    ? new AudioBufferSource({
+        codec: 'aac',
+        bitrate: input.audioBitrate ?? QUALITY_HIGH,
+      })
     : null
   if (sound) output.addAudioTrack(sound)
 

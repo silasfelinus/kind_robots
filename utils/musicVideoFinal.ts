@@ -32,6 +32,35 @@ export function musicVideoMaxUploadBytes(
   return Math.floor(megabytes * 1024 * 1024)
 }
 
+export const MUSIC_VIDEO_AUDIO_BITRATE = 128_000
+export const MUSIC_VIDEO_MIN_VIDEO_BITRATE = 400_000
+export const MUSIC_VIDEO_MAX_VIDEO_BITRATE = 8_000_000
+
+/**
+ * Bitrates that keep a browser export under the upload cap (Silas,
+ * 2026-10-06: "getting errors when exporting the final video that it is too
+ * large"). The encoder's "high quality" setting made a 75 s video far larger
+ * than 24 MB. This budgets 85% of the cap across the running time, leaving
+ * the rest for the container and encoder overshoot; `scale` lowers it for a
+ * retry when a file still comes out too big.
+ */
+export function finalVideoBitrates(
+  durationSec: number,
+  maxBytes: number,
+  scale = 1,
+): { video: number; audio: number } {
+  const seconds = Math.max(durationSec, 1)
+  const budget = ((maxBytes * 8 * 0.85) / seconds) * scale
+  const video = Math.floor(budget - MUSIC_VIDEO_AUDIO_BITRATE)
+  return {
+    video: Math.min(
+      Math.max(video, MUSIC_VIDEO_MIN_VIDEO_BITRATE),
+      MUSIC_VIDEO_MAX_VIDEO_BITRATE,
+    ),
+    audio: MUSIC_VIDEO_AUDIO_BITRATE,
+  }
+}
+
 /** ISO BMFF: bytes 4..8 are the "ftyp" box type in every MP4 file. */
 export function looksLikeMp4(bytes: Uint8Array): boolean {
   if (bytes.length < 12) return false

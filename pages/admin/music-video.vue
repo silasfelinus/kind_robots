@@ -136,22 +136,9 @@
                 </span>
               </div>
 
-              <div class="flex flex-wrap items-center gap-2">
-                <label
-                  class="kr-btn"
-                  :class="{ 'pointer-events-none opacity-50': store.saving }"
-                >
-                  <input
-                    type="file"
-                    accept="audio/mpeg,audio/wav,.mp3,.wav"
-                    class="hidden"
-                    :disabled="store.saving"
-                    @change="onSongFile"
-                  />
-                  Upload song (MP3 or WAV)
-                </label>
-                <span class="kr-text-dim-sm">{{ songLabel }}</span>
-              </div>
+              <MusicVideoPipelineBar />
+
+              <MusicVideoSongPanel />
 
               <MusicVideoTimelineEditor
                 v-if="store.current.doc.song || store.current.doc.scenes.length"
@@ -208,37 +195,9 @@
                 </div>
               </form>
 
-              <div v-if="store.current.doc.scenes.length" class="space-y-2">
-                <h2 class="kr-text-black-xl text-base-content">Scenes</h2>
-                <ul class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                  <li
-                    v-for="scene in store.current.doc.scenes"
-                    :key="scene.id"
-                    class="kr-panel space-y-2 p-2"
-                  >
-                    <img
-                      v-if="
-                        scene.image.artImageId &&
-                        store.previewUrls[scene.image.artImageId]
-                      "
-                      :src="store.previewUrls[scene.image.artImageId]"
-                      :alt="scene.prompt"
-                      class="aspect-video w-full rounded-lg object-cover"
-                      loading="lazy"
-                    />
-                    <div
-                      v-else
-                      class="kr-text-dim-sm grid aspect-video place-items-center"
-                    >
-                      No art yet
-                    </div>
-                    <p class="kr-text-dim-sm">
-                      {{ scene.startSec }}s–{{ scene.endSec }}s ·
-                      {{ scene.prompt }}
-                    </p>
-                  </li>
-                </ul>
-              </div>
+              <MusicVideoSceneGrid />
+
+              <MusicVideoSettingsPanel />
             </template>
           </section>
         </section>
@@ -248,7 +207,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useMusicVideoStore } from '@/stores/musicVideoStore'
 import { useUserStore } from '@/stores/userStore'
 
@@ -282,22 +241,6 @@ async function onCreate() {
   }
 }
 
-const songLabel = computed(() => {
-  const song = store.current?.doc.song
-  if (!song) return 'No song yet: upload one, or generate it with ACE-Step.'
-  const length = song.durationSec ? ` · ${Math.round(song.durationSec)}s` : ''
-  return song.source === 'upload'
-    ? `Uploaded song${length}`
-    : `ACE-Step song${length}`
-})
-
-async function onSongFile(event: Event) {
-  const input = event.target as HTMLInputElement
-  const file = input.files?.[0]
-  if (file) await store.uploadSong(file)
-  input.value = ''
-}
-
 async function onSave() {
   await store.savePitch(title.value, pitch.value)
 }
@@ -313,7 +256,13 @@ async function onDelete() {
 
 onMounted(async () => {
   await userStore.initialize()
-  if (userStore.isAdmin) await store.loadList()
+  if (userStore.isAdmin) {
+    await store.loadList()
+    // Renders finish on the Comfy box while the page is open; check on them.
+    store.startWatching()
+  }
   ready.value = true
 })
+
+onBeforeUnmount(() => store.stopWatching())
 </script>

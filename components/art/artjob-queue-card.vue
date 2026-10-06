@@ -28,7 +28,37 @@
            rating, or delete it". The file is still one click away on the
            corner link. -->
       <template v-if="jobImageSrc && canShowJobContent">
+        <!-- A song plays in place. <audio controls> cannot sit inside the
+             art-card button (interactive content in a button is invalid, and
+             every click on play would open the card), so audio gets its own
+             layout with the icon as the art-card button. -->
+        <div
+          v-if="jobImageKind === 'audio'"
+          class="flex h-full w-full flex-col items-center justify-center gap-4 bg-base-200 p-5"
+        >
+          <button
+            type="button"
+            class="cursor-pointer rounded-2xl p-2 transition hover:bg-base-300"
+            :title="`Open art card for ArtImage ${job.artImageId}`"
+            :aria-label="`Open art card for ArtImage ${job.artImageId}`"
+            :disabled="openingArtCard"
+            @click="openArtCard"
+          >
+            <Icon
+              name="kind-icon:music"
+              class="kr-icon-10 text-base-content/60"
+            />
+          </button>
+          <audio
+            :src="jobImageSrc"
+            class="w-full max-w-sm"
+            controls
+            preload="metadata"
+            :aria-label="`Generated audio for ArtJob ${job.id}`"
+          />
+        </div>
         <button
+          v-else
           type="button"
           class="block h-full w-full cursor-pointer"
           :title="`Open art card for ArtImage ${job.artImageId}`"
@@ -44,16 +74,6 @@
             playsinline
             preload="metadata"
           />
-          <div
-            v-else-if="jobImageKind === 'audio'"
-            class="flex h-full w-full items-center justify-center bg-base-200"
-            title="Generated audio"
-          >
-            <Icon
-              name="kind-icon:music"
-              class="kr-icon-10 text-base-content/60"
-            />
-          </div>
           <img
             v-else
             :src="jobImageSrc"
@@ -69,8 +89,8 @@
           target="_blank"
           rel="noopener"
           class="btn btn-circle btn-ghost btn-xs absolute bottom-2 right-2 bg-base-100/80"
-          :title="`Open the image file for ArtImage ${job.artImageId}`"
-          :aria-label="`Open the image file for ArtImage ${job.artImageId}`"
+          :title="`Open the ${jobImageKind} file for ArtImage ${job.artImageId}`"
+          :aria-label="`Open the ${jobImageKind} file for ArtImage ${job.artImageId}`"
         >
           <Icon name="kind-icon:link" class="h-3.5 w-3.5" />
         </a>
@@ -577,6 +597,7 @@ import {
   artJobImagePath,
   artJobImageVersion,
   artJobNegativePrompt,
+  artJobOutputKind,
   artJobPageLabel,
   artJobPrompt,
   artJobPublicImageSrc,
@@ -585,6 +606,7 @@ import {
   artJobTitle,
   artJobVariant,
   artJobVisibility,
+  type ArtJobOutputKind,
 } from '@/utils/artJobFields'
 
 type EditorAction = 'EDIT' | 'NEW_OUTPUT' | 'OVERWRITE'
@@ -621,9 +643,7 @@ const priorityBusy = computed<boolean>(() =>
 const canSetPriority = computed<boolean>(() => {
   const priority = parsedPriorityDraft.value
   return (
-    priority !== null &&
-    priority !== props.job.priority &&
-    !priorityBusy.value
+    priority !== null && priority !== props.job.priority && !priorityBusy.value
   )
 })
 
@@ -791,10 +811,13 @@ const jobImageSrc = computed<string>(() => {
   return publicImageSrc.value || artJobStore.imageSrcById[id] || ''
 })
 
-const jobImageKind = computed<string>(() => {
+const jobImageKind = computed<ArtJobOutputKind>(() => {
   const id = props.job.artImageId
-  if (typeof id !== 'number' || publicImageSrc.value) return 'image'
-  return artJobStore.imageInfoById[id]?.kind || 'image'
+  const cachedKind =
+    typeof id === 'number' && !publicImageSrc.value
+      ? artJobStore.imageInfoById[id]?.kind
+      : null
+  return artJobOutputKind(props.job, cachedKind)
 })
 
 const isLoadingPreview = computed<boolean>(() => {

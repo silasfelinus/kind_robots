@@ -13,6 +13,7 @@
 //   does not judge an audio payload at all.
 import assert from 'node:assert/strict'
 
+import { artJobOutputKind } from '../artJobFields.js'
 import { emptyMusicVideoDoc, normalizeMusicVideoDoc } from '../musicVideoDoc.js'
 import { buildSongEnqueueRequest, buildSongTags } from '../musicVideoSong.js'
 import {
@@ -243,5 +244,25 @@ console.log(
 console.log(
   '✅ song jobs pass provenance at claim, and the image prompt contract skips them',
 )
+
+// The ArtJob card and slideshow pick <img>/<video>/<audio> from this. A public
+// song never runs the protected-preview loader that resolves a cached kind, so
+// the engine alone has to make it audio or it renders as a broken <img>.
+{
+  const song = { id: 1, artImageId: 7, engine: 'acestep' }
+  assert.equal(artJobOutputKind(song), 'audio', 'a public song plays as audio')
+  assert.equal(
+    artJobOutputKind(song, 'image'),
+    'audio',
+    'engine beats a stale cache',
+  )
+  const still = { id: 2, artImageId: 8, engine: 'krea2' }
+  assert.equal(artJobOutputKind(still), 'image')
+  assert.equal(artJobOutputKind(still, 'video'), 'video')
+  assert.equal(artJobOutputKind(still, 'audio'), 'audio')
+  assert.equal(artJobOutputKind(still, 'unknown'), 'image')
+  assert.equal(artJobOutputKind({ id: 3 }), 'image')
+}
+console.log('✅ ArtJob output kind: songs play as audio, public or private')
 
 console.log('✅ verifyMusicVideoSong: all assertions passed')

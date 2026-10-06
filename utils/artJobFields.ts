@@ -23,6 +23,7 @@ export type ArtJobFieldsSource = {
   projectSlug?: string | null
   artImageId?: number | null
   updatedAt?: Date | string | null
+  engine?: string | null
 }
 
 type JsonRecord = Record<string, unknown>
@@ -260,6 +261,25 @@ export function artJobPublicImageSrc(job: ArtJobFieldsSource): string {
   const visibility = artJobVisibility(job)
   if (!visibility.isPublic || visibility.isMature) return ''
   return `/api/art/images/${id}/file${artJobImageVersion(job)}`
+}
+
+export type ArtJobOutputKind = 'image' | 'video' | 'audio'
+
+/**
+ * What kind of file a finished job produced, for choosing <img>, <video> or
+ * <audio>. The engine wins: an acestep job is a song (music-video/t-010), and
+ * a PUBLIC song never goes through the protected-preview loader that fills
+ * cachedKind, so without this it rendered as a broken <img>. Otherwise trust
+ * the kind the preview loader resolved from the stored file, else assume an
+ * image -- every other engine still produces stills or clips that resolve.
+ */
+export function artJobOutputKind(
+  job: ArtJobFieldsSource,
+  cachedKind?: string | null,
+): ArtJobOutputKind {
+  if (job.engine === 'acestep') return 'audio'
+  if (cachedKind === 'video' || cachedKind === 'audio') return cachedKind
+  return 'image'
 }
 
 /*

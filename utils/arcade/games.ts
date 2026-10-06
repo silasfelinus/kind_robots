@@ -133,6 +133,27 @@ export const ARCADE_GAMES: ArcadeGameMeta[] = [
     accent: '#86efac',
     controls: 'Walk, chop, duck',
   },
+  {
+    slug: 'butterfly-joust',
+    title: 'Butterfly Joust',
+    riffsOn: 'Joust',
+    blurb:
+      'Ride a rainbow butterfly over the pond and joust the grumpy moth riders. Whoever is higher wins: bonk them from above and they curl into cocoons you can scoop up before they hatch. Dawdle too long and a storm cloud comes hunting.',
+    howTo: [
+      'TAP A TO FLAP',
+      'STEER LEFT AND RIGHT',
+      'HIGHER RIDER WINS',
+      'SCOOP UP THE COCOONS',
+      'MIND THE POND',
+      'BONK STORMS FROM ABOVE',
+    ],
+    width: 448,
+    height: 336,
+    maxPlausibleScore: 5_000_000,
+    titleArt: '/images/arcade/games/butterfly-joust-title.webp',
+    accent: '#f9a8d4',
+    controls: 'Flap, steer, joust',
+  },
 ]
 
 export type ComingSoonCabinet = {
@@ -146,12 +167,6 @@ export type ComingSoonCabinet = {
 
 // Mirrors the queued rows of conductor projects/kr-arcade/games.yaml.
 export const COMING_SOON: ComingSoonCabinet[] = [
-  {
-    slug: 'butterfly-joust',
-    title: 'Butterfly Joust',
-    riffsOn: 'Joust',
-    accent: '#c084fc',
-  },
   {
     slug: 'kind-pinball',
     title: 'Kind Pinball',
@@ -173,6 +188,7 @@ const LOADERS: Record<string, () => Promise<ArcadeGameModule>> = {
   'sink-suds': () => import('./games/sinkSuds'),
   'pipe-pals': () => import('./games/pipePals'),
   'timber-bot': () => import('./games/timberBot'),
+  'butterfly-joust': () => import('./games/butterflyJoust'),
 }
 
 export function findArcadeGame(slug: string): ArcadeGameMeta | undefined {

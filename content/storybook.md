@@ -6,7 +6,7 @@ description: Weave characters, places, and treasures into a narrated story — a
 image: nav/heroes/scenario.webp
 icon: kind-icon:story
 tooltip: Weave your cast and settings into one story, and choose how it ends.
-channelKey: story
+channelKey: storybook
 tabKey: storybook
 dashboardKey: scenario
 dashboardTab: storybook

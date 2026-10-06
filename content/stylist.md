@@ -9,7 +9,7 @@ tooltip: Private service calculator and client book for Hair by Superkate.
 dottiTip: The salon paperwork has been brushed, trimmed, and placed somewhere sensible.
 amiTip: A rare administrative haircut with no awkward growing-out phase.
 sort: highlight
-channelKey: plan
+channelKey: projects
 tabKey: stylist
 dashboardKey: conductor
 dashboardTab: conductor

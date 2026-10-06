@@ -1,6 +1,6 @@
 ---
 contentType: tab
-channelKey: story
+channelKey: storybook
 tabKey: facets
 dashboardKey: facets
 dashboardTab: gallery

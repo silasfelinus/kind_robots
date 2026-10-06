@@ -29,7 +29,8 @@ function readStoredTabs(): Record<string, string> {
     if (!raw) return {}
 
     const parsed = JSON.parse(raw)
-    if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) return {}
+    if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed))
+      return {}
 
     return Object.fromEntries(
       Object.entries(parsed).filter(
@@ -102,14 +103,11 @@ export const useChannelContentStore = defineStore('channelContentStore', () => {
       .map((channel) => ({
         ...channel,
         tabs: channel.tabs.filter((tab) => {
-          if (
-            channel.channelKey === 'home' &&
-            tab.tabKey === 'registration'
-          ) {
+          if (channel.channelKey === 'home' && tab.tabKey === 'registration') {
             return !userStore.isLoggedIn
           }
 
-          if (channel.channelKey === 'plan' && tab.tabKey === 'stylist') {
+          if (channel.channelKey === 'projects' && tab.tabKey === 'stylist') {
             return isSuperkate
           }
 
@@ -169,10 +167,9 @@ export const useChannelContentStore = defineStore('channelContentStore', () => {
       try {
         const content = await queryCollection('channels').all()
 
-        items.value = (
-          content as unknown as ChannelContentItem[]
-        ).filter(
-          (item) => item.contentType === 'channel' || item.contentType === 'tab',
+        items.value = (content as unknown as ChannelContentItem[]).filter(
+          (item) =>
+            item.contentType === 'channel' || item.contentType === 'tab',
         )
         normalizeActiveTabs()
         initialized.value = true
@@ -213,8 +210,7 @@ export const useChannelContentStore = defineStore('channelContentStore', () => {
       tabMatches.find((channel) =>
         channel.tabs.some(
           (tab) =>
-            tab.dashboardKey === normalized &&
-            tab.route === `/${normalized}`,
+            tab.dashboardKey === normalized && tab.route === `/${normalized}`,
         ),
       ) ??
       tabMatches[0] ??
@@ -230,8 +226,7 @@ export const useChannelContentStore = defineStore('channelContentStore', () => {
 
     return (
       channel.tabs.find(
-        (tab) =>
-          tab.tabKey === normalized || tab.dashboardTab === normalized,
+        (tab) => tab.tabKey === normalized || tab.dashboardTab === normalized,
       ) ?? null
     )
   }

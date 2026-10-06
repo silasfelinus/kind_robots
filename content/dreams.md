@@ -9,7 +9,7 @@ tooltip: A shared room where prompts, images, and chat bend the experience toget
 sort: highlight
 dottiTip: Users can now steer the dream together. I'm a little nervous about what they'll build.
 amiTip: Good. Dreams built by committee are how mythology happens.
-channelKey: story
+channelKey: storybook
 tabKey: dreams
 dashboardKey: dream
 dashboardTab: dreams

@@ -1,6 +1,6 @@
 ---
 contentType: tab
-channelKey: story
+channelKey: storybook
 tabKey: model-builder
 dashboardKey: builder
 dashboardTab: model-builder
@@ -11,7 +11,6 @@ description: Define schemas, compose reusable builders, and generate new creatio
 icon: kind-icon:blueprint
 route: /model-builder
 sort: 80
-requiredRole: ADMIN
 ---
 
-Use the admin-only model builder as the meta-tool behind future creative workflows.
+Use the model builder as the meta-tool behind future creative workflows.

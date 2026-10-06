@@ -42,7 +42,7 @@ async function main(): Promise<void> {
   const files = {
     gallery: 'components/facets/facet-gallery.vue',
     page: 'content/facets.md',
-    channelTab: 'content/channels/story/facets.md',
+    channelTab: 'content/channels/storybook/facets.md',
   } as const
 
   const text = Object.fromEntries(

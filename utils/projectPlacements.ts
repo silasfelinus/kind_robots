@@ -13,12 +13,12 @@ export type ProjectPlacement = {
 
 export const PROJECT_PLACEMENTS: Record<string, ProjectPlacement> = {
   'music-mentor': {
-    channelKey: 'fun',
+    channelKey: 'projects',
     tabKey: 'music-mentor',
     route: '/music-mentor',
   },
   'mandarin-tutor': {
-    channelKey: 'fun',
+    channelKey: 'projects',
     tabKey: 'mandarin',
     route: '/play/mandarin',
   },
@@ -44,7 +44,7 @@ export const PROJECT_PLACEMENTS: Record<string, ProjectPlacement> = {
   // against the channel documents that actually exist. The slug stays because
   // the projects board still needs somewhere to send a reader who clicks it.
   taskmaster: {
-    channelKey: 'story',
+    channelKey: 'storybook',
     tabKey: 'storybook',
     route: '/storybook',
   },
@@ -54,7 +54,7 @@ export const PROJECT_PLACEMENTS: Record<string, ProjectPlacement> = {
     route: '/mermaids',
   },
   'model-builder': {
-    channelKey: 'story',
+    channelKey: 'storybook',
     tabKey: 'model-builder',
     route: '/model-builder',
   },
@@ -74,12 +74,12 @@ export const PROJECT_PLACEMENTS: Record<string, ProjectPlacement> = {
     route: '/admin/music-video',
   },
   storybook: {
-    channelKey: 'story',
+    channelKey: 'storybook',
     tabKey: 'storybook',
     route: '/storybook',
   },
   sketchy: {
-    channelKey: 'plan',
+    channelKey: 'admin',
     tabKey: 'projects',
     route: '/plan/projects/sketchy',
   },
@@ -91,15 +91,16 @@ export const PROJECT_PLACEMENTS: Record<string, ProjectPlacement> = {
   // slug is still here at all -- the projects board needs somewhere to send a
   // reader who clicks it.
   davinci: {
-    channelKey: 'story',
+    channelKey: 'storybook',
     tabKey: 'storybook',
     route: '/storybook',
   },
-  // Fun (Silas, 2026-10-06): the public channel for projects that were
-  // largely AI-created. Approved daily-pitch projects join it once they have
-  // something playable.
+  // Projects channel (Silas, 2026-10-06; it began the same day as "Fun"): the
+  // public home for everything that isn't Storybook or admin-gated, including
+  // the largely AI-created games. Approved daily-pitch projects join it once
+  // they have something playable.
   cthulhuquarium: {
-    channelKey: 'fun',
+    channelKey: 'projects',
     tabKey: 'aquarium',
     route: '/play/aquarium',
   },
@@ -109,22 +110,22 @@ export const PROJECT_PLACEMENTS: Record<string, ProjectPlacement> = {
     route: '/plan/watchlist',
   },
   'coat-dance': {
-    channelKey: 'plan',
+    channelKey: 'admin',
     tabKey: 'projects',
     route: '/plan/projects/coat-dance',
   },
   'ruler-hooked': {
-    channelKey: 'fun',
+    channelKey: 'projects',
     tabKey: 'ruler-hooked',
     route: '/plan/projects/ruler-hooked',
   },
   'tzaddik-gallery': {
-    channelKey: 'fun',
+    channelKey: 'projects',
     tabKey: 'tzaddik-gallery',
     route: '/tzaddik-gallery',
   },
   'evolve-rebel-button': {
-    channelKey: 'fun',
+    channelKey: 'projects',
     tabKey: 'button',
     route: '/button',
   },
@@ -134,7 +135,7 @@ export const PROJECT_PLACEMENTS: Record<string, ProjectPlacement> = {
     route: '/plan/newsfeed',
   },
   'humboldt-scoop': {
-    channelKey: 'plan',
+    channelKey: 'admin',
     tabKey: 'projects',
     route: '/plan/projects/humboldt-scoop',
   },
@@ -149,7 +150,7 @@ export const PROJECT_PLACEMENTS: Record<string, ProjectPlacement> = {
     route: '/plan/voice-lab',
   },
   'superkate-services-calculator': {
-    channelKey: 'plan',
+    channelKey: 'projects',
     tabKey: 'stylist',
     route: '/stylist',
   },
@@ -169,12 +170,12 @@ export const PROJECT_PLACEMENTS: Record<string, ProjectPlacement> = {
     route: '/academy',
   },
   brainstorm: {
-    channelKey: 'plan',
+    channelKey: 'projects',
     tabKey: 'brainstorm',
     route: '/brainstorm',
   },
   conductor: {
-    channelKey: 'plan',
+    channelKey: 'admin',
     tabKey: 'projects',
     route: '/conductor',
   },

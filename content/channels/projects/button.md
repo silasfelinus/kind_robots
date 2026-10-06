@@ -1,6 +1,6 @@
 ---
 contentType: tab
-channelKey: fun
+channelKey: projects
 tabKey: button
 label: Rebel Button
 title: Rebel Button
@@ -8,7 +8,7 @@ subtitle: Don't do it!
 description: A button you are told not to press. Every click delivers a surprise, and there is a leaderboard.
 icon: kind-icon:button
 route: /button
-sort: 20
+sort: 110
 requiredRole: GUEST
 ---
 

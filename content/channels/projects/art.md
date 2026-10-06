@@ -1,6 +1,6 @@
 ---
 contentType: tab
-channelKey: plan
+channelKey: projects
 tabKey: art
 dashboardKey: art
 dashboardTab: generate
@@ -10,7 +10,7 @@ subtitle: Generate, browse, collect, and remix images
 description: Create new art first, then explore the gallery, inspect details, collect favorites, and reuse images in other creations.
 icon: kind-icon:image
 route: /art
-sort: 270
+sort: 10
 ---
 
 The Art studio keeps generation and gallery tools together, with generation as the front door.

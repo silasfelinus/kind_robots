@@ -222,6 +222,9 @@ jobs:
       - name: Music video song contract
         run: npm run test:music-video-song
 
+      - name: Music video compositor contract
+        run: npm run test:music-video-compositor
+
       - name: Music video motion contract
         run: npm run test:music-video-motion
 

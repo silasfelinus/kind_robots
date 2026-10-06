@@ -110,6 +110,7 @@ export const useMusicVideoStore = defineStore('musicVideoStore', () => {
   async function hydratePreviews(video: MusicVideo) {
     const ids = new Set<number>()
     if (video.finalArtImageId) ids.add(video.finalArtImageId)
+    if (video.doc.song?.artImageId) ids.add(video.doc.song.artImageId)
     for (const scene of video.doc.scenes) {
       if (scene.image.artImageId) ids.add(scene.image.artImageId)
     }

@@ -16,6 +16,7 @@ import { enrichArtJobPayload } from '../../../utils/artJobProvenance'
 import { normalizeQueuedArtJobPayload } from '../../../utils/artJobNormalization'
 import { assertArtPromptContract } from '../../../utils/artPromptContract'
 import { extractRenderRequest } from '../../comfy/utils/engineWorkflow'
+import { resolveMaturityPrivacy } from '~/utils/maturityPrivacy'
 
 const ENGINES = new Set(['A1111', 'COMFY'])
 const SLUG_PATTERN = /^[a-z0-9][a-z0-9_-]*$/
@@ -133,6 +134,21 @@ export default defineEventHandler(async (event) => {
           engine === 'COMFY' && body?.requireCompletionProof === true,
       },
     )
+
+    /*
+     * EVERY JOB CARRIES ITS VISIBILITY. The relay stages a render with the
+     * job's save.isPublic / save.isMature, and /complete applies the same
+     * block; a job with no save block therefore landed private (Conductor's
+     * project, dream and pitch art enqueues here without flags, and its cards
+     * came out private on 2026-10-05). Same rule as the generator: explicit
+     * values win, mature defaults private, everything else defaults public.
+     * Stamped after the fingerprint so de-duplication is unchanged.
+     */
+    const save =
+      payload.save && typeof payload.save === 'object'
+        ? (payload.save as Record<string, unknown>)
+        : {}
+    payload.save = { ...save, ...resolveMaturityPrivacy(save, payload) }
 
     const lockName =
       `artjob:${auth.user.id}:${provenance.attemptFingerprint}`.slice(0, 64)

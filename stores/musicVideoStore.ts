@@ -267,15 +267,18 @@ export const useMusicVideoStore = defineStore('musicVideoStore', () => {
    * lyrics, scenes with prompts and hero shots. Returns the server's message,
    * which names any keyframe that had to fall back to a fresh still.
    */
-  async function importSpec(specKey: string): Promise<string | null> {
+  async function importSpec(
+    specKey: string,
+    reuseDeleted = false,
+  ): Promise<string | null> {
     saving.value = true
     clearError()
     try {
       const response = await performFetch<MusicVideo>(
         '/api/music-video/import',
-        { method: 'POST', body: JSON.stringify({ specKey }) },
+        { method: 'POST', body: JSON.stringify({ specKey, reuseDeleted }) },
         0,
-        30_000,
+        60_000,
       )
       if (!response.success || !response.data) {
         throw new Error(response.message || 'Failed to import the spec.')

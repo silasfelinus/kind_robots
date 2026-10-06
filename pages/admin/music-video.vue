@@ -136,6 +136,17 @@
             >
               Create from spec
             </button>
+            <label
+              class="flex items-center gap-1 text-sm"
+              title="Pick up the song and stills of a copy of this spec that was deleted"
+            >
+              <input
+                v-model="reuseDeleted"
+                type="checkbox"
+                class="checkbox checkbox-xs"
+              />
+              Reuse song and art from a deleted copy
+            </label>
           </div>
         </div>
 
@@ -218,6 +229,7 @@ const newTitle = ref('')
 const newPitch = ref('')
 const specs = MUSIC_VIDEO_SPECS
 const specKey = ref(MUSIC_VIDEO_SPECS[0]?.key ?? '')
+const reuseDeleted = ref(false)
 const notice = ref('')
 
 function onSelect(event: Event) {
@@ -234,7 +246,7 @@ async function onCreate() {
 }
 
 async function onImport() {
-  const message = await store.importSpec(specKey.value)
+  const message = await store.importSpec(specKey.value, reuseDeleted.value)
   if (message) {
     notice.value = `${message} Press Produce to render it.`
     creating.value = false

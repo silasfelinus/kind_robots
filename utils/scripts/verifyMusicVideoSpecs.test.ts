@@ -17,7 +17,7 @@ import { checkArtPromptContract } from '../../server/utils/artPromptContract'
 
 assert.deepEqual(
   MUSIC_VIDEO_SPECS.map((spec) => spec.key),
-  ['kind-robots-theme', 'zuzu-intro'],
+  ['kind-robots-theme', 'kind-robots-theme-classic', 'zuzu-intro'],
 )
 assert.equal(musicVideoSpecByKey('nope'), null)
 

@@ -401,6 +401,7 @@ export const ModelName = {
   AgentProfileCredential: 'AgentProfileCredential',
   AgentCheckIn: 'AgentCheckIn',
   AgentNote: 'AgentNote',
+  ArcadeScore: 'ArcadeScore',
   ArchiveEntry: 'ArchiveEntry',
   ArchiveActionPreset: 'ArchiveActionPreset',
   BrainstormSession: 'BrainstormSession',
@@ -538,7 +539,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "agentProfile" | "agentProfileCredential" | "agentCheckIn" | "agentNote" | "archiveEntry" | "archiveActionPreset" | "brainstormSession" | "brainstormCandidate" | "comicSeries" | "comicEntity" | "comicSlot" | "comicAttempt" | "comicIssue" | "comicCritique" | "facetAlias" | "facetProfile" | "characterFacet" | "botFacet" | "rewardFacet" | "mandarinAudioAsset" | "mandarinCatalogOverride" | "mandarinCatalogChange" | "mandarinLessonProgress" | "mandarinPointEvent" | "mandarinLearnerProfile" | "mandarinRequestedCard" | "mandarinCustomSet" | "mandarinArtJobLink" | "mandarinCardProgress" | "mandarinReviewEvent" | "modelBuildRun" | "modelBuildItem" | "modelBuildArtifact" | "modelBuildRevision" | "musicVideo" | "projectPageContent" | "artImage" | "artCollection" | "bot" | "character" | "chat" | "dream" | "dreamRelation" | "project" | "facet" | "dreamFacet" | "scenarioFacet" | "projectFacet" | "projectArtImage" | "projectArtCollection" | "entityArtImage" | "facetArtImage" | "facetArtCollection" | "facetRelation" | "expressionMedia" | "expressionTransition" | "log" | "achievement" | "manaTransaction" | "revenueSplit" | "socialPostDraft" | "missionRemittance" | "product" | "order" | "orderItem" | "entitlement" | "printJob" | "grant" | "pack" | "achievementRecord" | "narratorTopic" | "narratorThread" | "pitchSheet" | "prompt" | "reaction" | "resource" | "reward" | "scenario" | "server" | "serverHealthCheck" | "sceneAnimatorPrompt" | "smartIcon" | "theme" | "user" | "stylistClient" | "stylistAppointment" | "artJob" | "queueControl" | "downloadRequest" | "karmaTransaction" | "referral" | "userRelation" | "userRole" | "todo" | "challenge" | "challengeSubmission" | "contender" | "endingDeck" | "lifeRun" | "lifeChoice" | "lifeStat" | "lifeEnding" | "lifeAchievement" | "lifeAchievementUnlock" | "lifeRunArt" | "aquarium" | "aquariumStock" | "aquariumSet" | "aquariumDecor" | "aquariumEgg" | "aquariumCodexEntry" | "monster" | "aquariumEvent" | "authToken" | "agentCredential" | "conversation" | "conversationParticipant" | "directMessage" | "notification" | "githubInstallation" | "appRepo" | "mediaEntry" | "resourcePreview" | "tzaddikCandidate" | "tzaddikCandidateTag" | "tzaddikRecheckRequest"
+    modelProps: "agentProfile" | "agentProfileCredential" | "agentCheckIn" | "agentNote" | "arcadeScore" | "archiveEntry" | "archiveActionPreset" | "brainstormSession" | "brainstormCandidate" | "comicSeries" | "comicEntity" | "comicSlot" | "comicAttempt" | "comicIssue" | "comicCritique" | "facetAlias" | "facetProfile" | "characterFacet" | "botFacet" | "rewardFacet" | "mandarinAudioAsset" | "mandarinCatalogOverride" | "mandarinCatalogChange" | "mandarinLessonProgress" | "mandarinPointEvent" | "mandarinLearnerProfile" | "mandarinRequestedCard" | "mandarinCustomSet" | "mandarinArtJobLink" | "mandarinCardProgress" | "mandarinReviewEvent" | "modelBuildRun" | "modelBuildItem" | "modelBuildArtifact" | "modelBuildRevision" | "musicVideo" | "projectPageContent" | "artImage" | "artCollection" | "bot" | "character" | "chat" | "dream" | "dreamRelation" | "project" | "facet" | "dreamFacet" | "scenarioFacet" | "projectFacet" | "projectArtImage" | "projectArtCollection" | "entityArtImage" | "facetArtImage" | "facetArtCollection" | "facetRelation" | "expressionMedia" | "expressionTransition" | "log" | "achievement" | "manaTransaction" | "revenueSplit" | "socialPostDraft" | "missionRemittance" | "product" | "order" | "orderItem" | "entitlement" | "printJob" | "grant" | "pack" | "achievementRecord" | "narratorTopic" | "narratorThread" | "pitchSheet" | "prompt" | "reaction" | "resource" | "reward" | "scenario" | "server" | "serverHealthCheck" | "sceneAnimatorPrompt" | "smartIcon" | "theme" | "user" | "stylistClient" | "stylistAppointment" | "artJob" | "queueControl" | "downloadRequest" | "karmaTransaction" | "referral" | "userRelation" | "userRole" | "todo" | "challenge" | "challengeSubmission" | "contender" | "endingDeck" | "lifeRun" | "lifeChoice" | "lifeStat" | "lifeEnding" | "lifeAchievement" | "lifeAchievementUnlock" | "lifeRunArt" | "aquarium" | "aquariumStock" | "aquariumSet" | "aquariumDecor" | "aquariumEgg" | "aquariumCodexEntry" | "monster" | "aquariumEvent" | "authToken" | "agentCredential" | "conversation" | "conversationParticipant" | "directMessage" | "notification" | "githubInstallation" | "appRepo" | "mediaEntry" | "resourcePreview" | "tzaddikCandidate" | "tzaddikCandidateTag" | "tzaddikRecheckRequest"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -803,6 +804,72 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.AgentNoteCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.AgentNoteCountAggregateOutputType> | number
+        }
+      }
+    }
+    ArcadeScore: {
+      payload: Prisma.$ArcadeScorePayload<ExtArgs>
+      fields: Prisma.ArcadeScoreFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ArcadeScoreFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ArcadeScorePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ArcadeScoreFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ArcadeScorePayload>
+        }
+        findFirst: {
+          args: Prisma.ArcadeScoreFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ArcadeScorePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ArcadeScoreFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ArcadeScorePayload>
+        }
+        findMany: {
+          args: Prisma.ArcadeScoreFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ArcadeScorePayload>[]
+        }
+        create: {
+          args: Prisma.ArcadeScoreCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ArcadeScorePayload>
+        }
+        createMany: {
+          args: Prisma.ArcadeScoreCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.ArcadeScoreDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ArcadeScorePayload>
+        }
+        update: {
+          args: Prisma.ArcadeScoreUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ArcadeScorePayload>
+        }
+        deleteMany: {
+          args: Prisma.ArcadeScoreDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ArcadeScoreUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.ArcadeScoreUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ArcadeScorePayload>
+        }
+        aggregate: {
+          args: Prisma.ArcadeScoreAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateArcadeScore>
+        }
+        groupBy: {
+          args: Prisma.ArcadeScoreGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ArcadeScoreGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ArcadeScoreCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ArcadeScoreCountAggregateOutputType> | number
         }
       }
     }
@@ -8949,6 +9016,19 @@ export const AgentNoteScalarFieldEnum = {
 export type AgentNoteScalarFieldEnum = (typeof AgentNoteScalarFieldEnum)[keyof typeof AgentNoteScalarFieldEnum]
 
 
+export const ArcadeScoreScalarFieldEnum = {
+  id: 'id',
+  gameSlug: 'gameSlug',
+  initials: 'initials',
+  score: 'score',
+  level: 'level',
+  userId: 'userId',
+  createdAt: 'createdAt'
+} as const
+
+export type ArcadeScoreScalarFieldEnum = (typeof ArcadeScoreScalarFieldEnum)[keyof typeof ArcadeScoreScalarFieldEnum]
+
+
 export const ArchiveEntryScalarFieldEnum = {
   id: 'id',
   createdAt: 'createdAt',
@@ -11417,6 +11497,14 @@ export const AgentNoteOrderByRelevanceFieldEnum = {
 export type AgentNoteOrderByRelevanceFieldEnum = (typeof AgentNoteOrderByRelevanceFieldEnum)[keyof typeof AgentNoteOrderByRelevanceFieldEnum]
 
 
+export const ArcadeScoreOrderByRelevanceFieldEnum = {
+  gameSlug: 'gameSlug',
+  initials: 'initials'
+} as const
+
+export type ArcadeScoreOrderByRelevanceFieldEnum = (typeof ArcadeScoreOrderByRelevanceFieldEnum)[keyof typeof ArcadeScoreOrderByRelevanceFieldEnum]
+
+
 export const ArchiveEntryOrderByRelevanceFieldEnum = {
   contentHash: 'contentHash',
   relativePath: 'relativePath',
@@ -13482,6 +13570,7 @@ export type GlobalOmitConfig = {
   agentProfileCredential?: Prisma.AgentProfileCredentialOmit
   agentCheckIn?: Prisma.AgentCheckInOmit
   agentNote?: Prisma.AgentNoteOmit
+  arcadeScore?: Prisma.ArcadeScoreOmit
   archiveEntry?: Prisma.ArchiveEntryOmit
   archiveActionPreset?: Prisma.ArchiveActionPresetOmit
   brainstormSession?: Prisma.BrainstormSessionOmit

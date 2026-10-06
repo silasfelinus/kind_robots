@@ -55,6 +55,7 @@ export const ModelName = {
   AgentProfileCredential: 'AgentProfileCredential',
   AgentCheckIn: 'AgentCheckIn',
   AgentNote: 'AgentNote',
+  ArcadeScore: 'ArcadeScore',
   ArchiveEntry: 'ArchiveEntry',
   ArchiveActionPreset: 'ArchiveActionPreset',
   BrainstormSession: 'BrainstormSession',
@@ -245,6 +246,19 @@ export const AgentNoteScalarFieldEnum = {
 } as const
 
 export type AgentNoteScalarFieldEnum = (typeof AgentNoteScalarFieldEnum)[keyof typeof AgentNoteScalarFieldEnum]
+
+
+export const ArcadeScoreScalarFieldEnum = {
+  id: 'id',
+  gameSlug: 'gameSlug',
+  initials: 'initials',
+  score: 'score',
+  level: 'level',
+  userId: 'userId',
+  createdAt: 'createdAt'
+} as const
+
+export type ArcadeScoreScalarFieldEnum = (typeof ArcadeScoreScalarFieldEnum)[keyof typeof ArcadeScoreScalarFieldEnum]
 
 
 export const ArchiveEntryScalarFieldEnum = {
@@ -2713,6 +2727,14 @@ export const AgentNoteOrderByRelevanceFieldEnum = {
 } as const
 
 export type AgentNoteOrderByRelevanceFieldEnum = (typeof AgentNoteOrderByRelevanceFieldEnum)[keyof typeof AgentNoteOrderByRelevanceFieldEnum]
+
+
+export const ArcadeScoreOrderByRelevanceFieldEnum = {
+  gameSlug: 'gameSlug',
+  initials: 'initials'
+} as const
+
+export type ArcadeScoreOrderByRelevanceFieldEnum = (typeof ArcadeScoreOrderByRelevanceFieldEnum)[keyof typeof ArcadeScoreOrderByRelevanceFieldEnum]
 
 
 export const ArchiveEntryOrderByRelevanceFieldEnum = {

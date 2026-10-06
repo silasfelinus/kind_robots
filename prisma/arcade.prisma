@@ -1,0 +1,17 @@
+// Kind Robots Arcade (conductor kr-arcade): three-initial high scores per
+// cabinet. userId links a signed-in player without a relation so the User
+// model stays untouched; scores outlive deleted accounts as plain initials.
+
+model ArcadeScore {
+  id        Int      @id @default(autoincrement())
+  gameSlug  String   @db.VarChar(64)
+  initials  String   @db.VarChar(3)
+  score     Int
+  level     Int      @default(1)
+  userId    Int?
+  createdAt DateTime @default(now())
+
+  @@index([gameSlug, score])
+  @@index([gameSlug, createdAt])
+  @@index([userId])
+}

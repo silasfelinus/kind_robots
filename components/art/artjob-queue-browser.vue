@@ -17,7 +17,7 @@
     -->
     <div v-else class="flex kr-scroll flex-col gap-2 p-2">
       <div
-        class="flex flex-wrap items-center gap-1 border-b border-base-200 pb-1.5"
+        class="flex flex-wrap items-center gap-1 rounded-2xl border border-base-300 bg-base-100 p-1.5 shadow-sm"
       >
         <button
           v-for="filter in statusFilters"

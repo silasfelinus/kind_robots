@@ -53,7 +53,7 @@
         <article
           v-for="job in visibleJobs"
           :key="job.id"
-          class="rounded-2xl border border-base-300 bg-base-200/30 p-3"
+          class="rounded-2xl border border-base-300 bg-base-100 p-3 shadow-sm"
         >
           <div class="flex gap-3">
             <a

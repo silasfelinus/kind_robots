@@ -276,10 +276,10 @@ export const COMING_SOON: ComingSoonCabinet[] = [
     accent: '#e879f9',
   },
   {
-    slug: 'bolt-knight',
-    title: 'Bolt Knight',
+    slug: 'zuzu-ghost-trail',
+    title: 'Zuzu: Ghost Trail',
     riffsOn: "Ghosts 'n Goblins",
-    accent: '#a5b4fc',
+    accent: '#ea580c',
   },
   {
     slug: 'station-sweep',

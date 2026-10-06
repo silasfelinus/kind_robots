@@ -29,6 +29,15 @@ import {
 import { glyphFor, measureText } from '../arcade/font'
 import { BATTERY_MAZE } from '../arcade/games/batteryMaze'
 import { emptyInput, type InputFrame } from '../arcade/types'
+import {
+  enqueuePending,
+  formatChampion,
+  MAX_PENDING_SCORES,
+  PENDING_FLUSH_BATCH,
+  sanitizePending,
+  shouldRetryScore,
+  type PendingArcadeScore,
+} from '../arcade/leaderboard'
 
 // --- clock -------------------------------------------------------------------
 {
@@ -300,6 +309,48 @@ function scriptedInput(tick: number): InputFrame {
   frame.held.a = true
   frame.pressed.a = tick % 9 === 0
   return frame
+}
+
+// --- global leaderboard: pending uploads -------------------------------------
+
+{
+  // Unreachable or busy servers retry; outright rejections never do.
+  for (const status of [undefined, 0, 408, 429, 500, 502, 503]) {
+    assert.equal(shouldRetryScore(status), true, `retry on ${status}`)
+  }
+  for (const status of [400, 401, 403, 404, 422]) {
+    assert.equal(shouldRetryScore(status), false, `no retry on ${status}`)
+  }
+  // The flush batch stays under the server's 6-per-minute rate limit.
+  assert.ok(PENDING_FLUSH_BATCH < 6)
+
+  const row = (id: number): PendingArcadeScore => ({
+    id,
+    game: 'butterfly-blaster',
+    initials: 'ABC',
+    score: 1000 - id,
+    level: 1,
+    createdAt: '2026-10-06T00:00:00.000Z',
+  })
+  let queue: PendingArcadeScore[] = []
+  for (let i = 1; i <= MAX_PENDING_SCORES + 5; i++) {
+    queue = enqueuePending(queue, row(-i))
+  }
+  assert.equal(queue.length, MAX_PENDING_SCORES, 'queue is capped')
+  assert.equal(queue.at(-1)?.id, -(MAX_PENDING_SCORES + 5), 'newest kept')
+  assert.equal(
+    enqueuePending(queue, row(-6)).filter((r) => r.id === -6).length,
+    1,
+    'no duplicate ids',
+  )
+  // Storage can hold anything: only well-formed rows survive.
+  assert.deepEqual(sanitizePending('nope'), [])
+  assert.deepEqual(
+    sanitizePending([row(-1), { id: 'x' }, null, { ...row(-2), score: '9' }]),
+    [row(-1)],
+  )
+  assert.equal(formatChampion({ initials: 'KRB', score: 12345 }), 'KRB 12,345')
+  assert.equal(formatChampion(null), '')
 }
 
 async function runGames() {

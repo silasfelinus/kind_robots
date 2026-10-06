@@ -7,7 +7,12 @@
 
 import { createError } from 'h3'
 import prisma from './prisma'
-import { findArcadeGame, isPlausibleScore } from '~/utils/arcade/games'
+import {
+  ARCADE_GAMES,
+  findArcadeGame,
+  isPlausibleScore,
+} from '~/utils/arcade/games'
+import type { HallOfFameEntry } from '~/utils/arcade/leaderboard'
 import { isAllowedInitials } from '~/utils/arcade/initials'
 
 export const ARCADE_BOARD_SIZE = 10
@@ -124,4 +129,44 @@ export async function arcadeRankOf(
     where: { gameSlug: game, score: { gt: score } },
   })
   return better + 1
+}
+
+/** Champions shown per cabinet in the hall of fame. */
+const ARCADE_HALL_SIZE = 3
+
+/**
+ * The global hall of fame: every registered cabinet's top scores, today's
+ * best and how many scores it has on the board. New cabinets join it
+ * automatically when they are added to ARCADE_GAMES.
+ */
+export async function readArcadeHallOfFame(): Promise<HallOfFameEntry[]> {
+  const dayStart = arcadeDayStart()
+  const counts = await prisma.arcadeScore.groupBy({
+    by: ['gameSlug'],
+    _count: { _all: true },
+  })
+  const plays = new Map(counts.map((row) => [row.gameSlug, row._count._all]))
+  return Promise.all(
+    ARCADE_GAMES.map(async (game) => {
+      const [top, today] = await Promise.all([
+        prisma.arcadeScore.findMany({
+          where: { gameSlug: game.slug },
+          orderBy: [{ score: 'desc' }, { createdAt: 'asc' }],
+          take: ARCADE_HALL_SIZE,
+          select: { initials: true, score: true, level: true },
+        }),
+        prisma.arcadeScore.findFirst({
+          where: { gameSlug: game.slug, createdAt: { gte: dayStart } },
+          orderBy: [{ score: 'desc' }, { createdAt: 'asc' }],
+          select: { initials: true, score: true },
+        }),
+      ])
+      return {
+        slug: game.slug,
+        top,
+        todayBest: today,
+        plays: plays.get(game.slug) ?? 0,
+      }
+    }),
+  )
 }

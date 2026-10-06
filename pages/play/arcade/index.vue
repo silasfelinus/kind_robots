@@ -54,6 +54,12 @@
               The score server is unreachable, so these are the scores saved on
               this device.
             </p>
+            <p v-if="store.pendingCount" class="text-xs opacity-70">
+              {{ store.pendingCount }}
+              {{ store.pendingCount === 1 ? 'score' : 'scores' }} from this
+              device will join the global board as soon as the score server
+              answers.
+            </p>
             <p class="text-sm leading-relaxed">{{ meta.blurb }}</p>
             <p
               v-if="meta.slug === 'butterfly-blaster'"
@@ -102,8 +108,8 @@ const slug = computed(() =>
 const meta = computed(() => findArcadeGame(slug.value))
 
 const ranges = [
-  { key: 'today' as const, label: "Today's best" },
-  { key: 'all' as const, label: 'All-time high scores' },
+  { key: 'today' as const, label: "Today's best · worldwide" },
+  { key: 'all' as const, label: 'All-time high scores · worldwide' },
 ]
 
 useHead({

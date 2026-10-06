@@ -76,6 +76,47 @@
       </li>
     </ul>
 
+    <section class="arcade-fame" aria-labelledby="arcade-fame-title">
+      <h2 id="arcade-fame-title" class="arcade-fame-title">Hall of fame</h2>
+      <p class="arcade-fame-lede">
+        Every board is global: one high-score list per cabinet for everyone who
+        plays, updated the moment a score lands.
+        <span v-if="store.pendingCount">
+          {{ store.pendingCount }}
+          {{ store.pendingCount === 1 ? 'score' : 'scores' }} from this device
+          will join the boards as soon as the score server answers.
+        </span>
+      </p>
+      <ol class="arcade-fame-grid">
+        <li v-for="game in games" :key="game.slug" class="arcade-fame-card">
+          <NuxtLink
+            :to="`/play/arcade?game=${game.slug}`"
+            class="arcade-fame-game"
+            :style="{ '--arcade-accent': game.accent }"
+          >
+            {{ game.title }}
+          </NuxtLink>
+          <ol v-if="fame(game.slug)?.top.length" class="arcade-fame-top">
+            <li
+              v-for="(row, index) in fame(game.slug)?.top"
+              :key="`${game.slug}-${index}`"
+            >
+              <span>{{ index + 1 }}. {{ row.initials }}</span>
+              <span>{{ row.score.toLocaleString('en-US') }}</span>
+            </li>
+          </ol>
+          <p v-else class="arcade-fame-empty">No scores yet. Be the first!</p>
+          <p class="arcade-fame-meta">
+            <span v-if="fame(game.slug)?.todayBest">
+              Today: {{ formatChampion(fame(game.slug)?.todayBest) }}
+            </span>
+            <span v-else>Today: open</span>
+            <span>{{ playsLabel(fame(game.slug)?.plays ?? 0) }}</span>
+          </p>
+        </li>
+      </ol>
+    </section>
+
     <p class="arcade-hall-footnote">
       Butterfly Blaster plays for AMI, our Anti-Malaria Intelligence. Real bed
       nets protect real villages:
@@ -99,6 +140,7 @@
 import { onMounted, reactive, ref } from 'vue'
 import { useArcadeStore } from '@/stores/arcadeStore'
 import { ARCADE_GAMES, COMING_SOON } from '~/utils/arcade/games'
+import { formatChampion } from '~/utils/arcade/leaderboard'
 
 const store = useArcadeStore()
 const games = ARCADE_GAMES
@@ -113,13 +155,29 @@ function onArtError(slug: string) {
   brokenArt[slug] = brokenArt[slug] ? 'none' : 'fallback'
 }
 
-function topLine(slug: string) {
-  const best = store.board(slug, 'all')[0]
-  return best ? `HI ${best.score} ${best.initials}` : 'HI SCORE: be the first'
+function fame(slug: string) {
+  return store.hallOfFame.find((entry) => entry.slug === slug)
 }
 
-onMounted(() => {
-  for (const game of games) void store.fetchBoard(game.slug, 'all')
+function topLine(slug: string) {
+  const best = fame(slug)?.top[0] ?? store.board(slug, 'all')[0]
+  return best
+    ? `HI ${best.score.toLocaleString('en-US')} ${best.initials}`
+    : 'HI SCORE: be the first'
+}
+
+function playsLabel(plays: number) {
+  return plays === 1 ? '1 score on the board' : `${plays} scores on the board`
+}
+
+onMounted(async () => {
+  await store.fetchHallOfFame()
+  void store.flushPending()
+  // Fall back to per-cabinet boards (or this device's) if the hall of fame
+  // could not load.
+  if (!store.hallOfFame.length) {
+    for (const game of games) void store.fetchBoard(game.slug, 'all')
+  }
 })
 </script>
 
@@ -325,6 +383,91 @@ a.arcade-mini:focus-visible {
 .arcade-mini-soon {
   opacity: 0.72;
   filter: saturate(0.7);
+}
+
+.arcade-fame {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.arcade-fame-title {
+  margin: 0;
+  font-family: ui-monospace, 'Courier New', monospace;
+  font-weight: 900;
+  font-size: clamp(1.1rem, 3vw, 1.6rem);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #fde68a;
+  text-shadow: 0 0 10px rgba(250, 204, 21, 0.6);
+}
+
+.arcade-fame-lede {
+  margin: 0;
+  color: #e9d5ff;
+  line-height: 1.5;
+}
+
+.arcade-fame-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 13rem), 1fr));
+  gap: 0.75rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.arcade-fame-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  padding: 0.75rem 0.9rem;
+  border-radius: 0.9rem;
+  background: rgba(15, 10, 46, 0.78);
+  border: 1px solid rgba(253, 230, 138, 0.25);
+}
+
+.arcade-fame-game {
+  --arcade-accent: #f472b6;
+  font-weight: 800;
+  color: #fff;
+  text-decoration: none;
+  text-shadow: 0 0 8px var(--arcade-accent);
+}
+
+.arcade-fame-top {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-family: ui-monospace, 'Courier New', monospace;
+  font-size: 0.85rem;
+}
+
+.arcade-fame-top li {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.arcade-fame-top li:first-child {
+  color: #fde68a;
+  font-weight: 800;
+}
+
+.arcade-fame-empty {
+  margin: 0;
+  font-size: 0.85rem;
+  color: #c4b5fd;
+}
+
+.arcade-fame-meta {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.25rem 0.75rem;
+  margin: 0;
+  font-size: 0.75rem;
+  color: #a5b4fc;
 }
 
 .arcade-hall-footnote {

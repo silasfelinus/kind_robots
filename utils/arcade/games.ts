@@ -50,6 +50,26 @@ export const ARCADE_GAMES: ArcadeGameMeta[] = [
     accent: '#facc15',
     controls: 'Steer through the maze',
   },
+  {
+    slug: 'rescue-rally',
+    title: 'Rescue Rally',
+    riffsOn: 'Robotron',
+    blurb:
+      'Zip around a neon arena firing a kindness beam that reboots glitched drones into friendly bots, while you rescue the people, pets and little bots wandering through the chaos for a growing bonus.',
+    howTo: [
+      'MOVE TO AIM',
+      'A  KINDNESS BEAM',
+      'HOLD B TO STRAFE',
+      'RESCUE EVERYONE!',
+      'AVOID THE GLITCHES',
+    ],
+    width: 480,
+    height: 360,
+    maxPlausibleScore: 5_000_000,
+    titleArt: '/images/arcade/games/rescue-rally-title.webp',
+    accent: '#22d3ee',
+    controls: 'Move to aim, beam, strafe',
+  },
 ]
 
 export type ComingSoonCabinet = {
@@ -63,13 +83,6 @@ export type ComingSoonCabinet = {
 
 // Mirrors the queued rows of conductor projects/kr-arcade/games.yaml.
 export const COMING_SOON: ComingSoonCabinet[] = [
-  {
-    slug: 'rescue-rally',
-    title: 'Rescue Rally',
-    riffsOn: 'Robotron',
-    accent: '#22d3ee',
-    titleArt: '/images/arcade/games/rescue-rally-title.webp',
-  },
   {
     slug: 'sink-suds',
     title: 'Sink Suds',
@@ -111,6 +124,7 @@ export const COMING_SOON: ComingSoonCabinet[] = [
 const LOADERS: Record<string, () => Promise<ArcadeGameModule>> = {
   'butterfly-blaster': () => import('./games/butterflyBlaster'),
   'battery-maze': () => import('./games/batteryMaze'),
+  'rescue-rally': () => import('./games/rescueRally'),
 }
 
 export function findArcadeGame(slug: string): ArcadeGameMeta | undefined {

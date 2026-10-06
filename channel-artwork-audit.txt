@@ -2,3 +2,7 @@
 > audit:channel-assets
 > tsx utils/scripts/auditChannelAssets.ts
 
+Channel artwork audit checked 72 local URL references across 4 channels.
+Missing 2 resolved channel or tab image(s):
+- admin/retired: /images/channels/admin/retired.webp (https://media.acrocatranch.com/images/channels/admin/retired.webp)
+- admin/comic-studio: /images/channels/admin/comic-studio.webp (https://media.acrocatranch.com/images/channels/admin/comic-studio.webp)

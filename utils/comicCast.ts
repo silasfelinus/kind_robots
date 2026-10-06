@@ -108,9 +108,9 @@ export function buildComicCastSheets(
     const notes = slot.notes ?? ''
     let attempt = castPick(attempts, slot.id)
     let mirrored = /mirrored/i.test(notes)
-    const reuse = SAME_RENDER.exec(notes)
-    if (!attempt && reuse) {
-      const source = reuse[1] && bySlotKey.get(reuse[1].toLowerCase())
+    const reuseKey = SAME_RENDER.exec(notes)?.[1]?.toLowerCase()
+    if (!attempt && reuseKey) {
+      const source = bySlotKey.get(reuseKey)
       if (source) {
         attempt = castPick(attempts, source.id)
         mirrored = true

@@ -189,10 +189,58 @@ export type ComingSoonCabinet = {
 // Mirrors the queued rows of conductor projects/kr-arcade/games.yaml.
 export const COMING_SOON: ComingSoonCabinet[] = [
   {
+    slug: 'gloom-invaders',
+    title: 'Gloom Invaders',
+    riffsOn: 'Space Invaders',
+    accent: '#fde047',
+  },
+  {
+    slug: 'hedgehog-crossing',
+    title: 'Hedgehog Crossing',
+    riffsOn: 'Frogger',
+    accent: '#86efac',
+  },
+  {
+    slug: 'ribbon-riders',
+    title: 'Ribbon Riders',
+    riffsOn: 'Tron',
+    accent: '#22d3ee',
+  },
+  {
+    slug: 'burrow-buddy',
+    title: 'Burrow Buddy',
+    riffsOn: 'Dig Dug',
+    accent: '#fb923c',
+  },
+  {
+    slug: 'repair-rampage',
+    title: 'Repair Rampage',
+    riffsOn: 'Rampage',
+    accent: '#f87171',
+  },
+  {
     slug: 'kindness-gauntlet',
     title: 'Kindness Gauntlet',
     riffsOn: 'Gauntlet II',
     accent: '#fbbf24',
+  },
+  {
+    slug: 'prize-show-panic',
+    title: 'Prize Show Panic',
+    riffsOn: 'Smash TV',
+    accent: '#e879f9',
+  },
+  {
+    slug: 'bolt-knight',
+    title: 'Bolt Knight',
+    riffsOn: "Ghosts 'n Goblins",
+    accent: '#a5b4fc',
+  },
+  {
+    slug: 'station-sweep',
+    title: 'Station Sweep',
+    riffsOn: 'Xenophobe',
+    accent: '#34d399',
   },
 ]
 

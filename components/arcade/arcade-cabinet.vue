@@ -1,131 +1,145 @@
 <template>
-  <div
-    class="arcade-cabinet"
-    :style="{ '--arcade-accent': meta?.accent ?? '#f472b6' }"
-  >
-    <div class="cabinet-marquee">
-      <img
-        v-if="marqueeArt"
-        :src="marqueeArt"
-        alt=""
-        class="cabinet-marquee-art"
-        @error="marqueeArt = ''"
-      />
-    </div>
-    <div class="cabinet-title-plate">
-      <span class="cabinet-marquee-title">{{ meta?.title ?? 'Arcade' }}</span>
-    </div>
+  <!-- While locked for touch play the cabinet moves to <body>, so it can sit
+       above the site header and shell (their stacking contexts would trap it). -->
+  <Teleport to="body" :disabled="!locked">
+    <div
+      class="arcade-cabinet"
+      :class="{ 'arcade-cabinet--locked': locked }"
+      :style="{ '--arcade-accent': meta?.accent ?? '#f472b6' }"
+      @contextmenu="onContextMenu"
+    >
+      <div class="cabinet-marquee">
+        <img
+          v-if="marqueeArt"
+          :src="marqueeArt"
+          alt=""
+          class="cabinet-marquee-art"
+          @error="marqueeArt = ''"
+        />
+      </div>
+      <div class="cabinet-title-plate">
+        <span class="cabinet-marquee-title">{{ meta?.title ?? 'Arcade' }}</span>
+      </div>
 
-    <div class="cabinet-screen-wrap">
-      <div class="cabinet-bezel" :style="{ maxWidth: screenMaxWidth }">
+      <div class="cabinet-screen-wrap">
+        <div class="cabinet-bezel" :style="{ maxWidth: screenMaxWidth }">
+          <div
+            ref="screenRef"
+            class="cabinet-screen"
+            :style="{
+              aspectRatio: `${meta?.width ?? 4} / ${meta?.height ?? 3}`,
+            }"
+          >
+            <canvas
+              ref="canvasRef"
+              class="cabinet-canvas"
+              :aria-label="`${meta?.title ?? 'Arcade'} game screen`"
+              role="img"
+              tabindex="0"
+              @pointerdown="onScreenPointer"
+            />
+            <div v-if="crt" class="cabinet-crt" aria-hidden="true" />
+            <p v-if="loadError" class="cabinet-error">{{ loadError }}</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="cabinet-panel">
         <div
-          ref="screenRef"
-          class="cabinet-screen"
-          :style="{ aspectRatio: `${meta?.width ?? 4} / ${meta?.height ?? 3}` }"
+          v-if="touchControls"
+          class="cabinet-touch"
+          aria-label="Touch controls"
         >
-          <canvas
-            ref="canvasRef"
-            class="cabinet-canvas"
-            :aria-label="`${meta?.title ?? 'Arcade'} game screen`"
-            role="img"
-            tabindex="0"
-            @pointerdown="onScreenPointer"
-          />
-          <div v-if="crt" class="cabinet-crt" aria-hidden="true" />
-          <p v-if="loadError" class="cabinet-error">{{ loadError }}</p>
+          <div
+            ref="dpadRef"
+            class="cabinet-dpad"
+            role="group"
+            aria-label="Direction pad"
+            @pointerdown.prevent="onDpad"
+            @pointermove.prevent="onDpad"
+            @pointerup.prevent="releaseDpad"
+            @pointercancel="releaseDpad"
+            @lostpointercapture="releaseDpad"
+          >
+            <span
+              v-for="pad in dpad"
+              :key="pad.button"
+              class="cabinet-key"
+              :class="[pad.class, { 'cabinet-key-held': dpadHeld[pad.button] }]"
+              aria-hidden="true"
+            >
+              {{ pad.glyph }}
+            </span>
+          </div>
+          <div class="cabinet-buttons">
+            <button
+              type="button"
+              class="cabinet-ball cabinet-ball-b"
+              aria-label="B button"
+              @pointerdown.prevent="holdButton($event, 'b')"
+              @pointerup.prevent="press('b', false)"
+              @pointercancel="press('b', false)"
+              @lostpointercapture="press('b', false)"
+            >
+              B
+            </button>
+            <button
+              type="button"
+              class="cabinet-ball cabinet-ball-a"
+              aria-label="A button"
+              @pointerdown.prevent="holdButton($event, 'a')"
+              @pointerup.prevent="press('a', false)"
+              @pointercancel="press('a', false)"
+              @lostpointercapture="press('a', false)"
+            >
+              A
+            </button>
+          </div>
+        </div>
+        <p v-else class="cabinet-hint">
+          Arrows or WASD move · Space or Z = A · X or Shift = B · Enter = Start
+          · P pauses · gamepads work too
+        </p>
+        <div class="cabinet-switches">
+          <button
+            type="button"
+            class="cabinet-switch cabinet-start"
+            @pointerdown.prevent="holdButton($event, 'start')"
+            @pointerup.prevent="press('start', false)"
+            @pointercancel="press('start', false)"
+            @lostpointercapture="press('start', false)"
+          >
+            Start
+          </button>
+          <button
+            type="button"
+            class="cabinet-switch"
+            :aria-pressed="phase === 'paused'"
+            @click="togglePause"
+          >
+            {{ phase === 'paused' ? 'Resume' : 'Pause' }}
+          </button>
+          <button
+            type="button"
+            class="cabinet-switch"
+            :aria-pressed="muted"
+            @click="toggleMute"
+          >
+            {{ muted ? 'Sound off' : 'Sound on' }}
+          </button>
+          <button
+            type="button"
+            class="cabinet-switch"
+            :aria-pressed="crt"
+            @click="toggleCrt"
+          >
+            {{ crt ? 'CRT on' : 'CRT off' }}
+          </button>
+          <span class="cabinet-coin">Free play</span>
         </div>
       </div>
     </div>
-
-    <div class="cabinet-panel">
-      <div
-        v-if="touchControls"
-        class="cabinet-touch"
-        aria-label="Touch controls"
-      >
-        <div class="cabinet-dpad">
-          <button
-            v-for="pad in dpad"
-            :key="pad.button"
-            type="button"
-            class="cabinet-key"
-            :class="pad.class"
-            :aria-label="pad.label"
-            @pointerdown.prevent="press(pad.button, true)"
-            @pointerup.prevent="press(pad.button, false)"
-            @pointerleave="press(pad.button, false)"
-            @pointercancel="press(pad.button, false)"
-          >
-            {{ pad.glyph }}
-          </button>
-        </div>
-        <div class="cabinet-buttons">
-          <button
-            type="button"
-            class="cabinet-ball cabinet-ball-b"
-            aria-label="B button"
-            @pointerdown.prevent="press('b', true)"
-            @pointerup.prevent="press('b', false)"
-            @pointerleave="press('b', false)"
-            @pointercancel="press('b', false)"
-          >
-            B
-          </button>
-          <button
-            type="button"
-            class="cabinet-ball cabinet-ball-a"
-            aria-label="A button"
-            @pointerdown.prevent="press('a', true)"
-            @pointerup.prevent="press('a', false)"
-            @pointerleave="press('a', false)"
-            @pointercancel="press('a', false)"
-          >
-            A
-          </button>
-        </div>
-      </div>
-      <p v-else class="cabinet-hint">
-        Arrows or WASD move · Space or Z = A · X or Shift = B · Enter = Start ·
-        P pauses · gamepads work too
-      </p>
-      <div class="cabinet-switches">
-        <button
-          type="button"
-          class="cabinet-switch cabinet-start"
-          @pointerdown.prevent="press('start', true)"
-          @pointerup.prevent="press('start', false)"
-          @pointerleave="press('start', false)"
-        >
-          Start
-        </button>
-        <button
-          type="button"
-          class="cabinet-switch"
-          :aria-pressed="phase === 'paused'"
-          @click="togglePause"
-        >
-          {{ phase === 'paused' ? 'Resume' : 'Pause' }}
-        </button>
-        <button
-          type="button"
-          class="cabinet-switch"
-          :aria-pressed="muted"
-          @click="toggleMute"
-        >
-          {{ muted ? 'Sound off' : 'Sound on' }}
-        </button>
-        <button
-          type="button"
-          class="cabinet-switch"
-          :aria-pressed="crt"
-          @click="toggleCrt"
-        >
-          {{ crt ? 'CRT on' : 'CRT off' }}
-        </button>
-        <span class="cabinet-coin">Free play</span>
-      </div>
-    </div>
-  </div>
+  </Teleport>
 </template>
 
 <script setup lang="ts">
@@ -167,11 +181,18 @@ const store = useArcadeStore()
 const meta = computed(() => findArcadeGame(props.slug))
 
 const screenRef = ref<HTMLDivElement | null>(null)
+const dpadRef = ref<HTMLDivElement | null>(null)
 const canvasRef = ref<HTMLCanvasElement | null>(null)
 const phase = ref<ArcadePhase>('title')
 const muted = computed(() => store.muted)
 const crt = computed(() => store.crt)
 const touchControls = ref(false)
+const dpadHeld = ref<Record<DpadDirection, boolean>>({
+  up: false,
+  down: false,
+  left: false,
+  right: false,
+})
 const loadError = ref('')
 const marqueeArt = ref('/images/arcade/cabinet-marquee.webp')
 
@@ -195,8 +216,10 @@ let initialsNote = ''
 let submitting = false
 let demoSeed = 1
 
+type DpadDirection = 'up' | 'down' | 'left' | 'right'
+
 const dpad: Array<{
-  button: ArcadeButton
+  button: DpadDirection
   glyph: string
   label: string
   class: string
@@ -207,9 +230,20 @@ const dpad: Array<{
   { button: 'down', glyph: '▼', label: 'Down', class: 'cabinet-key-down' },
 ]
 
+// While a touch game is in progress the cabinet pins itself to the viewport
+// and swallows every gesture, so mashing the controls can't scroll, zoom or
+// resize the page. Pausing unlocks it again (the way back out).
+const LOCKED_PHASES: ArcadePhase[] = ['playing', 'gameover', 'initials']
+const locked = computed(
+  () => touchControls.value && LOCKED_PHASES.includes(phase.value),
+)
+
+// Small-viewport units (svh) don't change when a phone's URL bar slides in
+// and out, so the screen keeps one size for the whole game.
 const screenMaxWidth = computed(() => {
   const ratio = (meta.value?.width ?? 4) / (meta.value?.height ?? 3)
-  return `min(100%, calc(62dvh * ${ratio.toFixed(4)}))`
+  const height = locked.value ? '(100svh - 16.5rem)' : '62svh'
+  return `min(100%, calc(${height} * ${ratio.toFixed(4)}))`
 })
 
 const board = computed(() => store.board(props.slug, 'all'))
@@ -218,6 +252,77 @@ const hiScore = () => board.value[0]?.score ?? 0
 function press(button: ArcadeButton, down: boolean) {
   if (down) sound?.unlock()
   input.setTouch(button, down)
+}
+
+/** Hold a button until this finger lifts, even if it drifts off the button. */
+function holdButton(event: PointerEvent, button: ArcadeButton) {
+  capture(event.currentTarget as HTMLElement | null, event.pointerId)
+  press(button, true)
+}
+
+/** Best-effort pointer capture: it throws if the browser already dropped the pointer. */
+function capture(target: HTMLElement | null, pointerId: number) {
+  try {
+    target?.setPointerCapture?.(pointerId)
+  } catch {
+    // The press still counts; it just isn't captured.
+  }
+}
+
+/** The finger currently on the d-pad, if any. */
+let dpadPointer: number | null = null
+
+const DPAD_DEAD_ZONE = 0.22
+
+/** Map a finger on the d-pad to directions (8-way, with a small dead zone). */
+function onDpad(event: PointerEvent) {
+  const pad = dpadRef.value
+  if (!pad) return
+  if (event.type === 'pointerdown') {
+    dpadPointer = event.pointerId
+    capture(pad, event.pointerId)
+  } else if (event.pointerId !== dpadPointer) {
+    return
+  }
+  const rect = pad.getBoundingClientRect()
+  const dx = (event.clientX - (rect.left + rect.width / 2)) / (rect.width / 2)
+  const dy = (event.clientY - (rect.top + rect.height / 2)) / (rect.height / 2)
+  const next = { up: false, down: false, left: false, right: false }
+  if (Math.hypot(dx, dy) > DPAD_DEAD_ZONE) {
+    const angle = Math.atan2(dy, dx)
+    // Eight 45-degree sectors; diagonals hold two directions.
+    const sector = Math.round(angle / (Math.PI / 4))
+    next.right = sector >= -1 && sector <= 1
+    next.left = sector >= 3 || sector <= -3
+    next.down = sector >= 1 && sector <= 3
+    next.up = sector >= -3 && sector <= -1
+  }
+  setDpad(next)
+}
+
+function releaseDpad() {
+  dpadPointer = null
+  setDpad({ up: false, down: false, left: false, right: false })
+}
+
+function setDpad(next: Record<DpadDirection, boolean>) {
+  for (const button of ['up', 'down', 'left', 'right'] as const) {
+    if (next[button] !== dpadHeld.value[button]) press(button, next[button])
+  }
+  dpadHeld.value = next
+}
+
+function onContextMenu(event: Event) {
+  // A long press on a touch control should never open the browser menu.
+  if (touchControls.value) event.preventDefault()
+}
+
+/** Lock page scrolling while the cabinet is pinned (and undo it after). */
+function setPageLock(on: boolean) {
+  const root = document.documentElement
+  root.style.overflow = on ? 'hidden' : ''
+  root.style.overscrollBehavior = on ? 'none' : ''
+  document.body.style.overflow = on ? 'hidden' : ''
 }
 
 // --- flow -----------------------------------------------------------------
@@ -715,6 +820,11 @@ watch(
   () => void boot(),
 )
 
+watch(locked, (on) => {
+  setPageLock(on)
+  if (!on) releaseDpad()
+})
+
 onBeforeUnmount(() => {
   loop?.stop()
   input.detach()
@@ -722,6 +832,7 @@ onBeforeUnmount(() => {
   document.removeEventListener('visibilitychange', onVisibility)
   resizeObserver?.disconnect()
   sound?.dispose()
+  setPageLock(false)
 })
 </script>
 
@@ -750,6 +861,46 @@ onBeforeUnmount(() => {
     0 0 28px color-mix(in srgb, var(--arcade-accent) 45%, transparent),
     inset 0 0 0 2px rgba(253, 230, 138, 0.25);
   overflow: hidden;
+}
+
+/* Pinned play view on touch devices: the cabinet fills the screen and owns
+   every touch, so nothing a thumb does can scroll, zoom or move the page. */
+.arcade-cabinet--locked {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  max-width: none;
+  margin: 0;
+  border-radius: 0;
+  border-width: 0;
+  touch-action: none;
+  overscroll-behavior: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}
+
+.arcade-cabinet--locked .cabinet-marquee {
+  display: none;
+}
+
+.arcade-cabinet--locked .cabinet-title-plate {
+  padding: 0.2rem 1rem;
+}
+
+.arcade-cabinet--locked .cabinet-screen-wrap {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: grid;
+  align-items: center;
+}
+
+.arcade-cabinet--locked .cabinet-bezel {
+  width: 100%;
+}
+
+.arcade-cabinet--locked .cabinet-panel {
+  padding-bottom: max(1.1rem, env(safe-area-inset-bottom));
 }
 
 .cabinet-marquee {
@@ -860,6 +1011,10 @@ onBeforeUnmount(() => {
 }
 
 .cabinet-panel {
+  touch-action: manipulation;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
@@ -871,6 +1026,7 @@ onBeforeUnmount(() => {
 }
 
 .cabinet-touch {
+  touch-action: none;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -878,6 +1034,7 @@ onBeforeUnmount(() => {
 }
 
 .cabinet-dpad {
+  touch-action: none;
   display: grid;
   grid-template-columns: repeat(3, 3.25rem);
   grid-template-rows: repeat(3, 3.25rem);
@@ -885,6 +1042,9 @@ onBeforeUnmount(() => {
 }
 
 .cabinet-key {
+  display: grid;
+  place-items: center;
+  pointer-events: none;
   border-radius: 0.75rem;
   background: #1e1b4b;
   color: #fde68a;
@@ -894,7 +1054,7 @@ onBeforeUnmount(() => {
   user-select: none;
 }
 
-.cabinet-key:active {
+.cabinet-key-held {
   transform: translateY(3px);
   box-shadow: 0 1px 0 #0b0620;
 }

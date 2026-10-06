@@ -16,7 +16,7 @@
   -->
   <article
     v-if="!hiddenFromViewer"
-    class="flex min-w-0 flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-200/30"
+    class="flex min-w-0 flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-100 shadow-sm"
   >
     <div
       v-if="job.status === 'DONE'"

@@ -23,7 +23,7 @@
     <ul class="arcade-row" aria-label="Cabinets">
       <li v-for="game in games" :key="game.slug">
         <NuxtLink
-          :to="`/play/arcade/${game.slug}`"
+          :to="`/play/arcade?game=${game.slug}`"
           class="arcade-mini"
           :style="{ '--arcade-accent': game.accent }"
         >

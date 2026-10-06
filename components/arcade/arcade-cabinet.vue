@@ -169,14 +169,11 @@ const meta = computed(() => findArcadeGame(props.slug))
 const screenRef = ref<HTMLDivElement | null>(null)
 const canvasRef = ref<HTMLCanvasElement | null>(null)
 const phase = ref<ArcadePhase>('title')
-const muted = ref(false)
-const crt = ref(true)
+const muted = computed(() => store.muted)
+const crt = computed(() => store.crt)
 const touchControls = ref(false)
 const loadError = ref('')
 const marqueeArt = ref('/images/arcade/cabinet-marquee.webp')
-
-const INITIALS_KEY = 'kr-arcade-initials'
-const CRT_KEY = 'kr-arcade-crt'
 
 let machine = initialArcadeState()
 let gameModule: ArcadeGameModule | null = null
@@ -277,13 +274,10 @@ function togglePause() {
 }
 
 function readSavedInitials(): string[] {
-  try {
-    const saved = localStorage.getItem(INITIALS_KEY) ?? ''
-    if (isAllowedInitials(saved)) return saved.split('')
-  } catch {
-    // ignore
-  }
-  return ['A', 'A', 'A']
+  const saved = store.savedInitials
+  return isAllowedInitials(saved)
+    ? saved.toUpperCase().split('')
+    : ['A', 'A', 'A']
 }
 
 async function submitInitials() {
@@ -295,11 +289,7 @@ async function submitInitials() {
   }
   if (submitting) return
   submitting = true
-  try {
-    localStorage.setItem(INITIALS_KEY, value)
-  } catch {
-    // ignore
-  }
+  store.rememberInitials(value)
   await store.submitScore({
     game: props.slug,
     initials: value,
@@ -673,17 +663,12 @@ function onVisibility() {
 
 function toggleMute() {
   sound?.unlock()
-  muted.value = !muted.value
-  sound?.setMuted(muted.value)
+  store.setMuted(!store.muted)
+  sound?.setMuted(store.muted)
 }
 
 function toggleCrt() {
-  crt.value = !crt.value
-  try {
-    localStorage.setItem(CRT_KEY, crt.value ? '1' : '0')
-  } catch {
-    // ignore
-  }
+  store.setCrt(!store.crt)
 }
 
 async function boot() {
@@ -711,17 +696,10 @@ async function boot() {
 }
 
 onMounted(() => {
-  sound = createArcadeSound()
-  muted.value = sound.muted
-  try {
-    const saved = localStorage.getItem(CRT_KEY)
-    crt.value =
-      saved === null
-        ? !window.matchMedia('(prefers-reduced-motion: reduce)').matches
-        : saved === '1'
-  } catch {
-    // ignore
-  }
+  store.loadPreferences(
+    window.matchMedia('(prefers-reduced-motion: reduce)').matches,
+  )
+  sound = createArcadeSound(store.muted)
   touchControls.value = window.matchMedia('(pointer: coarse)').matches
   input.attach(window)
   window.addEventListener('keydown', onKey)

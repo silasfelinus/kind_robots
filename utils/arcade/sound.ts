@@ -2,7 +2,7 @@
 //
 // Chiptune bleeps from WebAudio oscillators: no audio files to download. The
 // AudioContext is only created after the first user gesture (browsers refuse
-// to start one earlier), and the mute choice persists per browser.
+// to start one earlier). The arcade store persists the mute choice.
 
 export type ArcadeSoundName =
   | 'shoot'
@@ -56,8 +56,6 @@ const PRESETS: Record<ArcadeSoundName, Note[]> = {
   warn: [{ freq: 220, to: 330, dur: 0.15, type: 'square', vol: 0.05 }],
 }
 
-const MUTE_KEY = 'kr-arcade-muted'
-
 export type ArcadeSound = {
   play: (name: ArcadeSoundName) => void
   unlock: () => void
@@ -66,17 +64,9 @@ export type ArcadeSound = {
   dispose: () => void
 }
 
-function readMuted(): boolean {
-  try {
-    return localStorage.getItem(MUTE_KEY) === '1'
-  } catch {
-    return false
-  }
-}
-
-export function createArcadeSound(): ArcadeSound {
+export function createArcadeSound(startMuted = false): ArcadeSound {
   let ctx: AudioContext | null = null
-  let muted = typeof window === 'undefined' ? true : readMuted()
+  let muted = startMuted
 
   const unlock = () => {
     if (ctx || typeof window === 'undefined') {
@@ -133,11 +123,6 @@ export function createArcadeSound(): ArcadeSound {
     },
     setMuted(next) {
       muted = next
-      try {
-        localStorage.setItem(MUTE_KEY, next ? '1' : '0')
-      } catch {
-        // Private mode: the choice just won't persist.
-      }
     },
     dispose() {
       void ctx?.close()

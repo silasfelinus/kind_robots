@@ -20,6 +20,26 @@ export type ArcadeBoardEntry = {
 
 const BOARD_SIZE = 10
 const LOCAL_KEY = (game: string) => `kr-arcade-local-${game}`
+const PREFS_KEY = 'kr-arcade-prefs'
+
+type ArcadePrefs = { muted?: boolean; crt?: boolean; initials?: string }
+
+function readPrefs(): ArcadePrefs {
+  try {
+    const parsed = JSON.parse(localStorage.getItem(PREFS_KEY) ?? '{}')
+    return parsed && typeof parsed === 'object' ? (parsed as ArcadePrefs) : {}
+  } catch {
+    return {}
+  }
+}
+
+function writePrefs(prefs: ArcadePrefs) {
+  try {
+    localStorage.setItem(PREFS_KEY, JSON.stringify(prefs))
+  } catch {
+    // Private mode: the choice just won't persist.
+  }
+}
 
 function readLocal(game: string): ArcadeBoardEntry[] {
   try {
@@ -53,6 +73,41 @@ export const useArcadeStore = defineStore('arcadeStore', () => {
   /** True when the boards shown are this browser's own (API unreachable). */
   const offline = ref(false)
   const lastSubmittedId = ref<number | null>(null)
+  const muted = ref(false)
+  /** CRT scanlines; defaults off for reduced-motion viewers. */
+  const crt = ref(true)
+  const savedInitials = ref('')
+
+  function loadPreferences(prefersReducedMotion: boolean) {
+    const prefs = readPrefs()
+    muted.value = prefs.muted === true
+    crt.value = prefs.crt ?? !prefersReducedMotion
+    savedInitials.value =
+      typeof prefs.initials === 'string' ? prefs.initials : ''
+  }
+
+  function savePreferences() {
+    writePrefs({
+      muted: muted.value,
+      crt: crt.value,
+      initials: savedInitials.value,
+    })
+  }
+
+  function setMuted(value: boolean) {
+    muted.value = value
+    savePreferences()
+  }
+
+  function setCrt(value: boolean) {
+    crt.value = value
+    savePreferences()
+  }
+
+  function rememberInitials(value: string) {
+    savedInitials.value = value
+    savePreferences()
+  }
 
   const boardKey = (game: string, range: ArcadeBoardRange) => `${game}:${range}`
 
@@ -117,5 +172,19 @@ export const useArcadeStore = defineStore('arcadeStore', () => {
     return lastSubmittedId.value
   }
 
-  return { boards, offline, lastSubmittedId, board, fetchBoard, submitScore }
+  return {
+    boards,
+    offline,
+    lastSubmittedId,
+    muted,
+    crt,
+    savedInitials,
+    board,
+    fetchBoard,
+    submitScore,
+    loadPreferences,
+    setMuted,
+    setCrt,
+    rememberInitials,
+  }
 })

@@ -12,6 +12,7 @@ import {
   type MusicVideoStillBody,
 } from '@/utils/musicVideoScenes'
 import {
+  DEFAULT_COMIC_LANES,
   comicLaneForKey,
   comicPrimaryLane,
   parseComicLanes,
@@ -35,7 +36,7 @@ export type StillLane = {
  */
 export async function resolveStillLane(doc: MusicVideoDoc): Promise<StillLane> {
   const seriesId = doc.settings.comicSeriesId
-  if (!seriesId) return { lane: null, series: null }
+  if (!seriesId) return defaultLane(doc.settings.imageLaneKey)
   const series = await prisma.comicSeries.findUnique({
     where: { id: seriesId },
     select: {
@@ -66,6 +67,44 @@ export async function resolveStillLane(doc: MusicVideoDoc): Promise<StillLane> {
       negativeTags: series.negativeTags,
     },
   }
+}
+
+/**
+ * A lane from the shared catalogue, picked by key (t-032: "we should be able to
+ * select the checkpoint we use for generation"). `krea2` or no key is the
+ * built-in Krea 2 path; an unknown key is an error, never a silent fallback.
+ */
+export function defaultLane(key: string | null | undefined): StillLane {
+  if (!key || key === MUSIC_VIDEO_SCENE_ENGINE) {
+    return { lane: null, series: null }
+  }
+  const lane = comicLaneForKey(DEFAULT_COMIC_LANES, key)
+  if (!lane) throw new Error(`Unknown image lane "${key}".`)
+  return { lane, series: null }
+}
+
+/**
+ * The lane one scene renders through: its own laneKey when set (looked up in
+ * the video's comic series first, then the shared catalogue), else the video's.
+ */
+export async function resolveSceneLane(
+  doc: MusicVideoDoc,
+  scene: Pick<MusicVideoScene, 'image'>,
+  videoLane: StillLane,
+): Promise<StillLane> {
+  const key = scene.image.laneKey
+  if (!key) return videoLane
+  if (doc.settings.comicSeriesId && videoLane.series) {
+    const series = await prisma.comicSeries.findUnique({
+      where: { id: doc.settings.comicSeriesId },
+      select: { lanes: true },
+    })
+    const own = series
+      ? comicLaneForKey(parseComicLanes(series.lanes), key)
+      : null
+    if (own) return { lane: own, series: videoLane.series }
+  }
+  return defaultLane(key)
 }
 
 export type SceneRenderOutcome = {

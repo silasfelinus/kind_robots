@@ -69,6 +69,14 @@ export type SceneActionOutcome = {
 
 const PENDING_JOB_STATUSES = new Set(['PENDING', 'RUNNING'])
 
+/** A finished image the scene picker can offer (t-032). */
+export type RecentArt = { artImageId: number; jobId: number; prompt: string }
+
+/** One edited lyric line, addressed the way scene.lyricRefs address it. */
+export type LyricLineEdit = { sectionId: string; lineIdx: number; text: string }
+
+const CLIP_OR_AUDIO_ENGINES = new Set(['acestep', 'ltx', 'wan'])
+
 type ArtImagePreview = {
   id: number
   imagePath?: string | null
@@ -92,6 +100,8 @@ export const useMusicVideoStore = defineStore('musicVideoStore', () => {
   /** Short result of the last pipeline step, shown under the pipeline bar. */
   const actionMessage = ref('')
   const sceneStatuses = ref<Record<string, SceneJobStatus>>({})
+  const recentArt = ref<RecentArt[]>([])
+  const loadingRecentArt = ref(false)
   const songJob = ref<SongJobStatus | null>(null)
   let watchTimer: ReturnType<typeof setInterval> | null = null
   /** Produce (t-031): drive the whole pipeline from the page. */
@@ -246,41 +256,6 @@ export const useMusicVideoStore = defineStore('musicVideoStore', () => {
       return true
     } catch (e) {
       error.value = errorMessage(e, 'Failed to create the music video.')
-      return false
-    } finally {
-      saving.value = false
-    }
-  }
-
-  async function savePitch(title: string, pitch: string): Promise<boolean> {
-    const video = current.value
-    if (!video) return false
-    saving.value = true
-    clearError()
-    try {
-      const response = await performFetch<MusicVideo>(
-        `/api/music-video/${video.id}`,
-        {
-          method: 'PATCH',
-          body: JSON.stringify({
-            title,
-            doc: {
-              ...video.doc,
-              pitch: pitch.slice(0, MUSIC_VIDEO_LIMITS.maxPitch),
-            },
-          }),
-        },
-        0,
-        20_000,
-      )
-      if (!response.success || !response.data) {
-        throw new Error(response.message || 'Failed to save the music video.')
-      }
-      current.value = response.data
-      await loadList()
-      return true
-    } catch (e) {
-      error.value = errorMessage(e, 'Failed to save the music video.')
       return false
     } finally {
       saving.value = false
@@ -695,6 +670,117 @@ export const useMusicVideoStore = defineStore('musicVideoStore', () => {
     }
   }
 
+  /** Title, pitch and settings in one save (t-032: one brief panel). */
+  async function saveBrief(
+    title: string,
+    pitch: string,
+    settings: Partial<MusicVideoDoc['settings']>,
+  ): Promise<boolean> {
+    const video = current.value
+    if (!video) return false
+    saving.value = true
+    clearError()
+    try {
+      const response = await performFetch<MusicVideo>(
+        `/api/music-video/${video.id}`,
+        {
+          method: 'PATCH',
+          body: JSON.stringify({
+            title,
+            doc: {
+              ...video.doc,
+              pitch: pitch.slice(0, MUSIC_VIDEO_LIMITS.maxPitch),
+              settings: { ...video.doc.settings, ...settings },
+            },
+          }),
+        },
+        0,
+        20_000,
+      )
+      if (!response.success || !response.data) {
+        throw new Error(response.message || 'Failed to save the brief.')
+      }
+      current.value = response.data
+      void loadList()
+      return true
+    } catch (e) {
+      error.value = errorMessage(e, 'Failed to save the brief.')
+      return false
+    } finally {
+      saving.value = false
+    }
+  }
+
+  /** Lyric line edits applied to a copy of the sections; out-of-range lines are ignored. */
+  function withLyricEdits(edits: LyricLineEdit[]): MusicVideoSection[] {
+    const sections = current.value?.doc.lyrics.sections ?? []
+    return sections.map((section) => {
+      const mine = edits.filter((edit) => edit.sectionId === section.id)
+      if (!mine.length) return section
+      const lines = [...section.lines]
+      for (const edit of mine) {
+        const text = edit.text.trim().slice(0, MUSIC_VIDEO_LIMITS.maxLine)
+        // An emptied line is left alone: dropping it would shift every
+        // scene's lyricRefs that point past it.
+        if (text && edit.lineIdx >= 0 && edit.lineIdx < lines.length) {
+          lines[edit.lineIdx] = text
+        }
+      }
+      return { ...section, lines }
+    })
+  }
+
+  /*
+   * Recent finished images for "Replace image" (t-032: "replace image should
+   * give us a choice from uploading or selecting from recent artjobs"). Clips
+   * and songs are left out; previews load through the authenticated route.
+   */
+  async function loadRecentArt(): Promise<void> {
+    if (loadingRecentArt.value) return
+    loadingRecentArt.value = true
+    try {
+      const response = await performFetch<{
+        jobs: {
+          id: number
+          artImageId: number | null
+          engine?: string | null
+          payload?: unknown
+        }[]
+      }>('/api/art/queue?status=DONE&limit=60', {}, 1, 20_000)
+      if (!response.success || !response.data) return
+      const seen = new Set<number>()
+      recentArt.value = response.data.jobs
+        .filter(
+          (job) =>
+            typeof job.artImageId === 'number' &&
+            !CLIP_OR_AUDIO_ENGINES.has(String(job.engine ?? '').toLowerCase()),
+        )
+        .filter((job) => {
+          const id = job.artImageId as number
+          if (seen.has(id)) return false
+          seen.add(id)
+          return true
+        })
+        .slice(0, 24)
+        .map((job) => {
+          const payload =
+            job.payload && typeof job.payload === 'object'
+              ? (job.payload as Record<string, unknown>)
+              : {}
+          return {
+            artImageId: job.artImageId as number,
+            jobId: job.id,
+            prompt: String(payload.promptString ?? '').slice(0, 160),
+          }
+        })
+      await Promise.all(
+        recentArt.value.map((art) => hydratePreview(art.artImageId)),
+      )
+    } finally {
+      loadingRecentArt.value = false
+    }
+  }
+
   /** Save hand-edited lyrics (music-video/t-030). */
   function saveLyrics(sections: MusicVideoSection[]): Promise<boolean> {
     return patchDoc({ lyrics: { sections } }, 'Failed to save the lyrics.')
@@ -713,13 +799,18 @@ export const useMusicVideoStore = defineStore('musicVideoStore', () => {
     return Boolean(result)
   }
 
-  /** Change one scene's prompt, motion, transition or framing. */
+  /**
+   * Change one scene's prompt, motion, transition or framing, plus any lyric
+   * lines edited inline under its image (t-032), in one save.
+   */
   function updateScene(
     sceneId: string,
     change: (scene: MusicVideoScene) => MusicVideoScene,
+    lyricEdits: LyricLineEdit[] = [],
   ): Promise<boolean> {
-    const scenes = current.value?.doc.scenes ?? []
-    if (!scenes.some((scene) => scene.id === sceneId)) {
+    const doc = current.value?.doc
+    const scenes = doc?.scenes ?? []
+    if (!doc || !scenes.some((scene) => scene.id === sceneId)) {
       return Promise.resolve(false)
     }
     return patchDoc(
@@ -727,6 +818,9 @@ export const useMusicVideoStore = defineStore('musicVideoStore', () => {
         scenes: scenes.map((scene) =>
           scene.id === sceneId ? change(scene) : scene,
         ),
+        ...(lyricEdits.length
+          ? { lyrics: { ...doc.lyrics, sections: withLyricEdits(lyricEdits) } }
+          : {}),
       },
       'Failed to save the scene.',
     )
@@ -1086,7 +1180,6 @@ export const useMusicVideoStore = defineStore('musicVideoStore', () => {
     loadList,
     select,
     create,
-    savePitch,
     uploadSong,
     saveSettings,
     saveTimeline,
@@ -1101,6 +1194,10 @@ export const useMusicVideoStore = defineStore('musicVideoStore', () => {
     uploadSceneImage,
     syncStatus,
     saveLyrics,
+    saveBrief,
+    recentArt,
+    loadingRecentArt,
+    loadRecentArt,
     regenerateLyricSection,
     updateScene,
     saveMotionPresets,

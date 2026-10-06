@@ -5,6 +5,7 @@ import { errorHandler } from '@/server/utils/error'
 import { parseStoredMusicVideoDoc } from '@/utils/musicVideoDoc'
 import {
   enqueueSceneStill,
+  resolveSceneLane,
   resolveStillLane,
   type SceneRenderOutcome,
   type StillLane,
@@ -34,7 +35,11 @@ export default defineEventHandler(async (event) => {
 
     const targets = doc.scenes
       .filter((scene) => !requested || requested.has(scene.id))
-      .filter((scene) => scene.image.source === 'generated')
+      // An uploaded or picked image is only re-rendered when asked for by name.
+      .filter(
+        (scene) =>
+          scene.image.source === 'generated' || (force && requested !== null),
+      )
       .filter((scene) => scene.prompt.trim())
       .filter((scene) => force || !scene.image.artImageId)
       .slice(0, MAX_SCENES_PER_CALL)
@@ -60,8 +65,9 @@ export default defineEventHandler(async (event) => {
     const outcomes: SceneRenderOutcome[] = []
     for (const scene of targets) {
       try {
+        const sceneLane = await resolveSceneLane(doc, scene, stillLane)
         outcomes.push(
-          await enqueueSceneStill(event, id, scene, doc, force, stillLane),
+          await enqueueSceneStill(event, id, scene, doc, force, sceneLane),
         )
       } catch (error) {
         outcomes.push({
@@ -86,6 +92,10 @@ export default defineEventHandler(async (event) => {
       return {
         ...scene,
         image: {
+          ...(scene.image.laneKey ? { laneKey: scene.image.laneKey } : {}),
+          ...(scene.image.loraResourceIds?.length
+            ? { loraResourceIds: scene.image.loraResourceIds }
+            : {}),
           source: 'generated' as const,
           jobId: outcome.jobId,
           ...(keepImage && scene.image.artImageId

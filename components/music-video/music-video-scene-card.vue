@@ -37,123 +37,102 @@
       </button>
     </div>
 
-    <div class="flex flex-wrap gap-1">
-      <span class="kr-badge-outline">{{ motionBadge }}</span>
-      <span v-if="scene.image.source !== 'generated'" class="kr-badge-outline">
+    <!-- Lyrics this scene carries, edited in place (t-032) -->
+    <div v-if="draft.lyrics.length" class="space-y-0.5">
+      <input
+        v-for="line in draft.lyrics"
+        :key="`${line.sectionId}:${line.lineIdx}`"
+        v-model="line.text"
+        class="kr-input w-full py-0.5 text-sm italic"
+        type="text"
+        :maxlength="limits.maxLine"
+        aria-label="Lyric line"
+      />
+    </div>
+
+    <div class="flex flex-wrap items-center gap-1">
+      <button
+        type="button"
+        class="kr-btn kr-btn-xs"
+        :class="{ 'kr-btn-primary': draft.kind === 'clip' }"
+        :aria-pressed="draft.kind === 'clip'"
+        title="Hero shots are animated as image-to-video clips"
+        @click="draft.kind = draft.kind === 'clip' ? 'kenburns' : 'clip'"
+      >
+        {{ draft.kind === 'clip' ? '★ Hero' : '☆ Hero' }}
+      </button>
+      <select
+        v-if="draft.kind === 'kenburns'"
+        v-model="draft.preset"
+        class="kr-input w-auto py-0 text-xs"
+        aria-label="Pan and zoom direction"
+      >
+        <option v-for="preset in kenBurns" :key="preset" :value="preset">
+          {{ kenBurnsLabels[preset] }}
+        </option>
+      </select>
+      <select
+        v-model="draft.transition"
+        class="kr-input w-auto py-0 text-xs"
+        aria-label="Transition into this scene"
+      >
+        <option value="cut">Cut in</option>
+        <option value="crossfade">Fade in</option>
+      </select>
+      <input
+        v-if="draft.transition === 'crossfade'"
+        v-model.number="draft.transitionSec"
+        class="kr-input w-14 py-0 text-xs"
+        type="number"
+        min="0.1"
+        :max="limits.maxTransitionSec"
+        step="0.1"
+        aria-label="Crossfade seconds"
+      />
+      <span class="kr-badge-outline text-xs">{{ motionBadge }}</span>
+      <span
+        v-if="scene.image.source !== 'generated'"
+        class="kr-badge-outline text-xs"
+      >
         {{ scene.image.source === 'upload' ? 'Your image' : 'Gallery art' }}
       </span>
     </div>
     <p v-if="errorText" class="text-xs text-error">{{ errorText }}</p>
 
-    <!-- Image -->
-    <fieldset class="space-y-1">
-      <legend class="kr-text-dim-sm">Image</legend>
+    <!-- Hero: the animation prompt and its controls -->
+    <div v-if="draft.kind === 'clip'" class="space-y-1">
       <textarea
-        v-model="draft.prompt"
+        v-model="draft.motionPrompt"
         class="kr-input w-full text-sm"
-        rows="3"
+        rows="2"
         :maxlength="limits.maxPrompt"
-        placeholder="What this scene shows"
-        aria-label="Scene prompt"
+        placeholder="Animation prompt: one camera move plus one action"
+        aria-label="Animation prompt"
       />
       <div class="flex flex-wrap items-center gap-1">
-        <button
-          type="button"
-          class="kr-btn kr-btn-xs"
-          :disabled="busy || !draft.prompt.trim()"
-          @click="onRender"
-        >
-          {{ scene.image.artImageId ? 'Re-render' : 'Render' }}
-        </button>
-        <label
-          class="kr-btn kr-btn-xs"
-          :class="{ 'pointer-events-none opacity-50': busy }"
-        >
-          <input
-            type="file"
-            accept="image/png,image/jpeg,image/webp"
-            class="hidden"
-            :disabled="busy"
-            @change="onUpload"
-          />
-          Upload image
-        </label>
-        <input
-          v-model.number="artImageId"
-          class="kr-input w-24 text-sm"
-          type="number"
-          min="1"
-          placeholder="Art #"
-          aria-label="Use an existing ArtImage id"
-        />
-        <button
-          type="button"
-          class="kr-btn kr-btn-xs"
-          :disabled="busy || !artImageId"
-          @click="onUseArt"
-        >
-          Use art
-        </button>
-      </div>
-    </fieldset>
-
-    <!-- Motion -->
-    <fieldset class="space-y-1">
-      <legend class="kr-text-dim-sm">Motion</legend>
-      <div class="flex flex-wrap items-center gap-1">
         <select
-          v-model="draft.kind"
-          class="kr-input w-auto text-sm"
-          aria-label="Motion"
+          v-if="motionPresets.length"
+          class="kr-input w-auto py-0 text-xs"
+          aria-label="Apply an animation preset"
+          @change="onApplyPreset"
         >
-          <option value="kenburns">Pan and zoom</option>
-          <option value="clip">Animated clip</option>
-        </select>
-        <select
-          v-if="draft.kind === 'kenburns'"
-          v-model="draft.preset"
-          class="kr-input w-auto text-sm"
-          aria-label="Pan and zoom direction"
-        >
-          <option v-for="preset in kenBurns" :key="preset" :value="preset">
-            {{ kenBurnsLabels[preset] }}
+          <option value="">Preset…</option>
+          <option
+            v-for="preset in motionPresets"
+            :key="preset.id"
+            :value="preset.id"
+          >
+            {{ preset.name }}
           </option>
         </select>
-      </div>
-      <template v-if="draft.kind === 'clip'">
-        <textarea
-          v-model="draft.motionPrompt"
-          class="kr-input w-full text-sm"
-          rows="2"
-          :maxlength="limits.maxPrompt"
-          placeholder="One camera move plus one action, e.g. slow push in as the hand closes on the hilt"
-          aria-label="Animation prompt"
-        />
-        <div class="flex flex-wrap items-center gap-1">
-          <select
-            v-if="motionPresets.length"
-            class="kr-input w-auto text-sm"
-            aria-label="Apply an animation preset"
-            @change="onApplyPreset"
-          >
-            <option value="">Apply preset…</option>
-            <option
-              v-for="preset in motionPresets"
-              :key="preset.id"
-              :value="preset.id"
-            >
-              {{ preset.name }}
-            </option>
-          </select>
-          <label class="flex items-center gap-1 text-xs">
-            <input
-              v-model="draft.endOnNext"
-              type="checkbox"
-              class="checkbox checkbox-xs"
-            />
-            End on next scene's image
-          </label>
-        </div>
+        <label class="flex items-center gap-1 text-xs">
+          <input
+            v-model="draft.endOnNext"
+            type="checkbox"
+            class="checkbox checkbox-xs"
+          />
+          End on next image
+        </label>
         <button
           type="button"
           class="kr-btn kr-btn-xs kr-btn-primary"
@@ -166,33 +145,74 @@
           @click="onAnimate"
         >
           <span v-if="store.busyAction === 'animate'" class="kr-spinner-xs" />
-          {{ scene.motion.clipArtImageId ? 'Re-animate' : 'Animate now' }}
+          {{ scene.motion.clipArtImageId ? 'Re-animate' : 'Animate' }}
         </button>
-      </template>
-    </fieldset>
+      </div>
+    </div>
 
-    <!-- Transition -->
-    <fieldset class="flex flex-wrap items-center gap-1">
-      <legend class="kr-text-dim-sm">Into this scene</legend>
-      <select
-        v-model="draft.transition"
-        class="kr-input w-auto text-sm"
-        aria-label="Transition into this scene"
+    <!-- Image -->
+    <textarea
+      v-model="draft.prompt"
+      class="kr-input w-full text-sm"
+      rows="2"
+      :maxlength="limits.maxPrompt"
+      placeholder="What this scene shows"
+      aria-label="Scene prompt"
+    />
+    <div class="flex flex-wrap items-center gap-1">
+      <button
+        type="button"
+        class="kr-btn kr-btn-xs"
+        :disabled="busy || !draft.prompt.trim()"
+        @click="onRender"
       >
-        <option value="cut">Cut</option>
-        <option value="crossfade">Crossfade</option>
+        {{ scene.image.artImageId ? 'Re-render' : 'Render' }}
+      </button>
+      <button
+        type="button"
+        class="kr-btn kr-btn-xs"
+        :aria-expanded="picking"
+        @click="picking = !picking"
+      >
+        Replace image
+      </button>
+      <button
+        type="button"
+        class="kr-btn kr-btn-xs"
+        :class="{
+          'kr-btn-primary': draft.laneKey || draft.loraResourceIds.length,
+        }"
+        :aria-expanded="showLook"
+        @click="showLook = !showLook"
+      >
+        Checkpoint{{ draft.loraResourceIds.length ? ' + LoRA' : '' }}
+      </button>
+    </div>
+    <MusicVideoImagePicker
+      v-if="picking"
+      :disabled="busy"
+      @pick="onPick"
+      @upload="onUpload"
+      @close="picking = false"
+    />
+    <div v-if="showLook" class="kr-panel space-y-1 p-2">
+      <select
+        v-model="draft.laneKey"
+        class="kr-input w-full py-0 text-xs"
+        aria-label="Checkpoint for this scene"
+      >
+        <option value="">The video's checkpoint</option>
+        <option v-for="lane in lanes" :key="lane.key" :value="lane.key">
+          {{ lane.label }}
+        </option>
       </select>
-      <input
-        v-if="draft.transition === 'crossfade'"
-        v-model.number="draft.transitionSec"
-        class="kr-input w-20 text-sm"
-        type="number"
-        min="0.1"
-        :max="limits.maxTransitionSec"
-        step="0.1"
-        aria-label="Crossfade seconds"
+      <MusicVideoLoraPicker
+        v-model="draft.loraResourceIds"
+        :max="limits.maxLoras"
+        label="Add a LoRA to this scene"
       />
-    </fieldset>
+      <p class="kr-text-dim-sm">Applies the next time this still renders.</p>
+    </div>
 
     <button
       v-if="dirty"
@@ -209,10 +229,12 @@
 <script setup lang="ts">
 // music-video/t-030. Silas, 2026-10-06: the animate control belongs on each
 // scene, "as well as being able to change/upload the image, change whether
-// it's animated or to change panning direction".
+// it's animated or to change panning direction". t-032: the lyrics sit under
+// the image they belong to, and marking a hero shows its animation prompt.
 import { computed, reactive, ref, watch } from 'vue'
 import { useMusicVideoStore } from '@/stores/musicVideoStore'
 import { MUSIC_VIDEO_LIMITS, type MusicVideoScene } from '@/utils/musicVideoDoc'
+import { DEFAULT_COMIC_LANES } from '@/utils/comicLanes'
 import {
   MUSIC_VIDEO_KEN_BURNS_PRESETS,
   sceneKenBurnsPreset,
@@ -235,8 +257,12 @@ const kenBurnsLabels: Record<MusicVideoKenBurnsPreset, string> = {
   'pan-left': 'Pan left',
   'pan-right': 'Pan right',
 }
+const lanes = DEFAULT_COMIC_LANES
 const showClip = ref(true)
-const artImageId = ref<number | ''>('')
+const picking = ref(false)
+const showLook = ref(false)
+
+type LyricDraft = { sectionId: string; lineIdx: number; text: string }
 
 type Draft = {
   prompt: string
@@ -246,6 +272,18 @@ type Draft = {
   endOnNext: boolean
   transition: 'cut' | 'crossfade'
   transitionSec: number
+  laneKey: string
+  loraResourceIds: number[]
+  lyrics: LyricDraft[]
+}
+
+function lyricLines(scene: MusicVideoScene): LyricDraft[] {
+  const sections = store.current?.doc.lyrics.sections ?? []
+  return scene.lyricRefs.flatMap((lyricRef) => {
+    const text = sections.find((section) => section.id === lyricRef.sectionId)
+      ?.lines[lyricRef.lineIdx]
+    return text === undefined ? [] : [{ ...lyricRef, text }]
+  })
 }
 
 function toDraft(scene: MusicVideoScene, index: number): Draft {
@@ -257,6 +295,9 @@ function toDraft(scene: MusicVideoScene, index: number): Draft {
     endOnNext: scene.motion.lastFrame === 'next-scene',
     transition: scene.transition,
     transitionSec: scene.transitionSec || 0.5,
+    laneKey: scene.image.laneKey ?? '',
+    loraResourceIds: [...(scene.image.loraResourceIds ?? [])],
+    lyrics: lyricLines(scene),
   }
 }
 
@@ -321,8 +362,15 @@ function applyDraft(scene: MusicVideoScene): MusicVideoScene {
         { kind: 'kenburns', preset: draft.preset }
   if (draft.kind === 'clip' && draft.endOnNext) motion.lastFrame = 'next-scene'
   else delete motion.lastFrame
+  const image: MusicVideoScene['image'] = { ...scene.image }
+  if (draft.laneKey) image.laneKey = draft.laneKey
+  else delete image.laneKey
+  if (draft.loraResourceIds.length) {
+    image.loraResourceIds = [...draft.loraResourceIds]
+  } else delete image.loraResourceIds
   const next: MusicVideoScene = {
     ...scene,
+    image,
     prompt: draft.prompt.trim(),
     promptSource:
       draft.prompt.trim() !== scene.prompt ? 'user' : scene.promptSource,
@@ -340,7 +388,11 @@ function applyDraft(scene: MusicVideoScene): MusicVideoScene {
 }
 
 async function save(): Promise<boolean> {
-  return store.updateScene(props.scene.id, applyDraft)
+  const before = lyricLines(props.scene)
+  const lyricEdits = draft.lyrics.filter(
+    (line, i) => line.text.trim() && line.text !== before[i]?.text,
+  )
+  return store.updateScene(props.scene.id, applyDraft, lyricEdits)
 }
 
 async function onRender() {
@@ -350,17 +402,15 @@ async function onRender() {
   await store.renderScenes([props.scene.id], replacing)
 }
 
-async function onUpload(event: Event) {
-  const input = event.target as HTMLInputElement
-  const file = input.files?.[0]
-  if (file) await store.uploadSceneImage(props.scene.id, file)
-  input.value = ''
+async function onUpload(file: File) {
+  if (await store.uploadSceneImage(props.scene.id, file)) picking.value = false
 }
 
-async function onUseArt() {
-  const id = Number(artImageId.value)
-  if (!Number.isInteger(id) || id <= 0) return
-  if (await store.setSceneImage(props.scene.id, id)) artImageId.value = ''
+async function onPick(artImageId: number) {
+  if (!Number.isInteger(artImageId) || artImageId <= 0) return
+  if (await store.setSceneImage(props.scene.id, artImageId)) {
+    picking.value = false
+  }
 }
 
 function onApplyPreset(event: Event) {

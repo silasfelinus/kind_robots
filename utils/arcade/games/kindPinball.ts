@@ -1,11 +1,10 @@
 // /utils/arcade/games/kindPinball.ts
 //
 // Kind Pinball -- the Kind Robots Arcade's pinball table (conductor
-// kr-arcade/t-009 game factory, slices 1-3 of 4: table, flippers, physics,
-// bumpers, targets, scoring, the ramp and the mode ladder; the AMI multiball
-// is the last slice). Left and right work the flippers, A works both, hold
-// Down to pull the plunger and let go to launch (A launches too), and Up
-// nudges the table.
+// kr-arcade/t-009 game factory, all four slices: table, flippers, physics,
+// bumpers, targets, scoring, the ramp, the mode ladder and AMI multiball).
+// Left and right work the flippers, A works both, hold Down to pull the
+// plunger and let go to launch (A launches too), and Up nudges the table.
 //
 // Rules: roll through the N-E-T lanes at the top to raise the bonus
 // multiplier (the flippers rotate the lit lanes). Hit the A-M-I targets to
@@ -19,6 +18,12 @@
 // each 30 seconds long. Play all four and the next ramp shot pays the SUPER
 // JACKPOT. Mode values scale with the level. Ball save shrinks with every
 // ball and level, and an extra ball waits at 150,000.
+//
+// AMI multiball: lighting the third village lights MULTIBALL at the saucer.
+// Shoot the saucer and two more balls kick out of the lane, three in all
+// (balls lost in the first ten seconds are served again). Every ramp or
+// saucer shot during multiball flies a mosquito net to a village; nets for
+// all five villages pay the AMI JACKPOT. Multiball ends at one ball left.
 
 import { drawText } from '../font'
 import type {
@@ -49,6 +54,13 @@ const VILLAGES = 5
 const JACKPOT = 100_000
 const SUPER_JACKPOT = 250_000
 const RAMP_TICKS = 48
+/** The village that lights multiball at the saucer. */
+const MULTIBALL_AT_VILLAGE = 3
+const MULTIBALL_BALLS = 3
+const MULTIBALL_SAVE_TICKS = 60 * 10
+const LAUNCH_GAP = 45
+const NET_VALUE = 20_000
+const AMI_JACKPOT = 150_000
 const RAMPS_PER_MODE = 3
 const MODE_TICKS = 60 * 30
 
@@ -75,6 +87,15 @@ export const PINBALL_MODES = [
 ] as const
 type ModeKey = (typeof PINBALL_MODES)[number]['key']
 
+function freshBall(): Ball {
+  return { x: LANE_X, y: PLUNGER_Y - R, vx: 0, vy: 0, ramping: 0, still: 0 }
+}
+
+/** Where a village's hut sits, for the nets flying to it. */
+function villageSpot(i: number): Vec {
+  return { x: 84 + i * 26, y: 250 }
+}
+
 /** Where a ride is, as a point along RAMP_PATH (t from 0 to 1). */
 export function rampPoint(t: number): { x: number; y: number } {
   const clamped = Math.max(0, Math.min(1, t))
@@ -87,6 +108,18 @@ export function rampPoint(t: number): { x: number; y: number } {
 }
 
 type Vec = { x: number; y: number }
+type Ball = {
+  x: number
+  y: number
+  vx: number
+  vy: number
+  /** Ticks into a ramp ride, or 0 when the ball is on the table. */
+  ramping: number
+  /** Ticks spent nearly motionless (see unstick). */
+  still: number
+}
+/** A mosquito net flying from a shot to a village (t from 0 to 1). */
+type NetFlight = { x0: number; y0: number; x1: number; y1: number; t: number }
 type Seg = { a: Vec; b: Vec; kick?: number; target?: number }
 type Bumper = { x: number; y: number; r: number; flash: number }
 type Flipper = {
@@ -222,7 +255,10 @@ class KindPinball implements ArcadeGameInstance {
       omega: 0,
     },
   ]
-  private ball = { x: LANE_X, y: PLUNGER_Y - R, vx: 0, vy: 0 }
+  /** Every ball on the table: one, or up to three in multiball. */
+  private balls: Ball[] = [freshBall()]
+  /** The ball the physics helpers are working on right now. */
+  private ball: Ball = this.balls[0]!
   private inPlay = false
   private pull = 0
   private ballNumber = 0
@@ -230,10 +266,11 @@ class KindPinball implements ArcadeGameInstance {
   /** Each ball gets one ball save, armed on its first launch. */
   private saveArmed = false
   private saucerHold = 0
+  /** The ball sitting in the saucer, if any. */
+  private saucerBall: Ball | null = null
   /** Ticks after an eject before the saucer can catch the ball again. */
   private saucerCooldown = 0
   private nudgeCooldown = 0
-  private still = 0
   private lanes = [false, false, false]
   private targets = [false, false, false]
   private targetFlash = [0, 0, 0]
@@ -243,8 +280,15 @@ class KindPinball implements ArcadeGameInstance {
   private bonus = 0
   private extraBallGiven = false
   private draining = 0
-  /** Ticks into a ramp ride, or 0 when the ball is on the table. */
-  private ramping = 0
+  private multiballLit = false
+  private multiball = false
+  /** Balls still to kick out of the lane for multiball. */
+  private pendingLaunches = 0
+  private launchTimer = 0
+  private multiballSave = 0
+  /** Mosquito nets delivered this multiball. */
+  private nets = 0
+  private flights: NetFlight[] = []
   /** Ramp shots in a row on this ball (each one is worth more). */
   private rampStreak = 0
   /** Ramp shots toward starting the next mode. */
@@ -269,14 +313,19 @@ class KindPinball implements ArcadeGameInstance {
 
   private newBall() {
     this.ballNumber++
-    Object.assign(this.ball, { x: LANE_X, y: PLUNGER_Y - R, vx: 0, vy: 0 })
+    this.balls = [freshBall()]
+    this.ball = this.balls[0]!
+    this.saucerBall = null
+    this.saucerHold = 0
+    this.multiball = false
+    this.pendingLaunches = 0
+    this.multiballSave = 0
     this.inPlay = false
     this.pull = 0
     this.saveArmed = false
     this.multiplier = 1
     this.bonus = 0
     this.lanes = [false, false, false]
-    this.ramping = 0
     this.rampStreak = 0
     this.mode = null
     this.banner = { text: `BALL ${this.ballNumber}`, ticks: 80 }
@@ -324,46 +373,59 @@ class KindPinball implements ArcadeGameInstance {
 
     if (!this.inPlay) {
       for (let i = 0; i < SUBSTEPS; i++) this.swingFlippers()
+      this.ball = this.balls[0]!
       this.plunger(controls)
       return
     }
     if (this.mode && --this.mode.ticks <= 0) this.endMode()
-    if (this.ramping > 0) {
-      for (let i = 0; i < SUBSTEPS; i++) this.swingFlippers()
-      this.rideRamp()
-      return
-    }
-    if (this.saucerHold > 0) {
-      for (let i = 0; i < SUBSTEPS; i++) this.swingFlippers()
-      if (--this.saucerHold === 0) {
-        // Kick the ball out clear of the saucer, down toward the left flipper.
-        this.ball.x = SAUCER.x - SAUCER.r - R - 1
-        this.ball.vx = -4
-        this.ball.vy = 2.5
-        this.saucerCooldown = 30
-        this.sound.play('shoot')
-      }
-      return
-    }
+    if (this.multiballSave > 0) this.multiballSave--
+    this.feedLaunches()
+    for (const b of this.balls) if (b.ramping > 0) this.rideRamp(b)
+    this.holdSaucer()
+    const free = this.balls.filter(
+      (b) => b.ramping === 0 && b !== this.saucerBall,
+    )
     if (controls.pressed.up && this.nudgeCooldown === 0) {
-      this.ball.vx += (this.rng() - 0.5) * 2
-      this.ball.vy -= 1.2
+      for (const b of free) {
+        b.vx += (this.rng() - 0.5) * 2
+        b.vy -= 1.2
+      }
       this.nudgeCooldown = 60
       this.sound.play('blip')
     }
-    this.ball.vy += GRAVITY
-    for (let i = 0; i < SUBSTEPS; i++) this.step()
-    this.checkLanes()
-    this.checkRampMouth()
-    const b = this.ball
-    if (b.x > 264 && b.y > PLUNGER_Y - R - 2 && Math.abs(b.vy) < 0.5) {
-      // Rolled back down the lane: plunge again.
-      Object.assign(b, { x: LANE_X, y: PLUNGER_Y - R, vx: 0, vy: 0 })
-      this.inPlay = false
-      return
+    for (const b of free) b.vy += GRAVITY
+    for (let i = 0; i < SUBSTEPS; i++) {
+      this.swingFlippers()
+      for (const b of free) {
+        // A ball the saucer caught earlier in this tick sits still.
+        if (b === this.saucerBall) continue
+        this.ball = b
+        this.step()
+      }
     }
-    this.unstick()
-    if (this.ball.y > H + 10) this.drain()
+    for (const b of free) {
+      if (b === this.saucerBall) continue
+      this.ball = b
+      this.checkLanes()
+      this.checkRampMouth()
+      const rolledBack =
+        b.ramping === 0 &&
+        b.x > 264 &&
+        b.y > PLUNGER_Y - R - 2 &&
+        Math.abs(b.vy) < 0.5
+      if (rolledBack) {
+        if (this.balls.length === 1 && this.pendingLaunches === 0) {
+          // Rolled back down the lane: plunge again.
+          Object.assign(b, { x: LANE_X, y: PLUNGER_Y - R, vx: 0, vy: 0 })
+          this.inPlay = false
+          return
+        }
+        // In multiball the lane kicks it straight back up.
+        this.autoLaunch(b)
+      }
+      this.unstick()
+    }
+    this.collectDrains()
   }
 
   private plunger(input: InputFrame) {
@@ -412,8 +474,8 @@ class KindPinball implements ArcadeGameInstance {
     }
   }
 
+  /** Move the current ball one substep (the flippers swing separately). */
   private step() {
-    this.swingFlippers()
     const b = this.ball
     b.x += b.vx / SUBSTEPS
     b.y += b.vy / SUBSTEPS
@@ -507,12 +569,19 @@ class KindPinball implements ArcadeGameInstance {
 
   private hitSaucer() {
     const b = this.ball
-    if (this.saucerCooldown > 0) return
+    if (this.saucerCooldown > 0 || this.saucerBall) return
     if (Math.hypot(b.x - SAUCER.x, b.y - SAUCER.y) > SAUCER.r) return
     if (Math.hypot(b.vx, b.vy) > 9) return
     Object.assign(b, { x: SAUCER.x, y: SAUCER.y, vx: 0, vy: 0 })
-    this.saucerHold = 50
+    this.saucerBall = b
+    this.saucerHold = this.multiball ? 30 : 50
     this.bonus += 1000
+    if (this.multiball) {
+      this.deliverNet(SAUCER.x, SAUCER.y)
+      return
+    }
+    // Multiball lit by an earlier saucer shot starts on this one.
+    const startMultiball = this.multiballLit
     // Saucer Rescue lights a village with every saucer shot.
     if (this.mode?.key === 'saucer') this.saucerReady = true
     if (this.saucerReady) {
@@ -527,6 +596,13 @@ class KindPinball implements ArcadeGameInstance {
         this.villages = 0
         this.level++
         this.sound.play('level')
+      } else if (this.villages === MULTIBALL_AT_VILLAGE && !startMultiball) {
+        this.multiballLit = true
+        this.banner = {
+          text: 'MULTIBALL LIT',
+          sub: 'SHOOT THE SAUCER',
+          ticks: 120,
+        }
       } else {
         this.banner = {
           text: 'VILLAGE LIT!',
@@ -538,6 +614,121 @@ class KindPinball implements ArcadeGameInstance {
       this.addScore(2500, SAUCER.x - 20, SAUCER.y - 20)
       this.sound.play('pickup')
     }
+    if (startMultiball) this.startMultiball()
+  }
+
+  /** Count down the saucer hold and kick the ball out when it ends. */
+  private holdSaucer() {
+    const b = this.saucerBall
+    if (!b || --this.saucerHold > 0) return
+    // Kick the ball out clear of the saucer, down toward the left flipper.
+    this.saucerBall = null
+    b.x = SAUCER.x - SAUCER.r - R - 1
+    b.vx = -4
+    b.vy = 2.5
+    this.saucerCooldown = 30
+    this.sound.play('shoot')
+  }
+
+  // --- AMI multiball -----------------------------------------------------------
+
+  private startMultiball() {
+    this.multiballLit = false
+    this.multiball = true
+    this.nets = 0
+    this.pendingLaunches = MULTIBALL_BALLS - this.balls.length
+    this.launchTimer = 30
+    this.multiballSave = MULTIBALL_SAVE_TICKS
+    this.banner = {
+      text: 'AMI MULTIBALL',
+      sub: 'NETS TO THE VILLAGES',
+      ticks: 140,
+    }
+    this.sound.play('level')
+  }
+
+  private endMultiball() {
+    this.multiball = false
+    this.multiballSave = 0
+    this.banner = {
+      text: 'MULTIBALL OVER',
+      sub: this.nets ? `${this.nets} NETS DELIVERED` : undefined,
+      ticks: 100,
+    }
+  }
+
+  /** Kick waiting multiball balls out of the lane, one at a time. */
+  private feedLaunches() {
+    if (this.pendingLaunches === 0 || --this.launchTimer > 0) return
+    // Let the last ball clear the lane first.
+    if (this.balls.some((b) => b.x > 264 && b.y > 300)) {
+      this.launchTimer = 10
+      return
+    }
+    const b = freshBall()
+    this.balls.push(b)
+    this.autoLaunch(b)
+    this.pendingLaunches--
+    this.launchTimer = LAUNCH_GAP
+  }
+
+  private autoLaunch(b: Ball) {
+    Object.assign(b, {
+      x: LANE_X,
+      y: PLUNGER_Y - R,
+      vx: 0,
+      vy: -(12 + this.rng() * 2),
+    })
+    this.sound.play('start')
+  }
+
+  /** Fly a mosquito net from a shot to the next village. */
+  private deliverNet(x: number, y: number) {
+    const to = villageSpot(this.nets % VILLAGES)
+    this.nets++
+    this.flights.push({ x0: x, y0: y, x1: to.x, y1: to.y - 6, t: 0 })
+    this.addScore(NET_VALUE * this.level, x, y - 16)
+    this.sound.play('pickup')
+    if (this.nets % VILLAGES === 0) {
+      this.addScore(AMI_JACKPOT * this.level, W / 2, 200)
+      this.banner = {
+        text: 'AMI JACKPOT!',
+        sub: 'A NET FOR EVERY VILLAGE',
+        ticks: 150,
+      }
+      this.sound.play('level')
+    }
+  }
+
+  /** Take drained balls off the table; the last one ends the ball. */
+  private collectDrains() {
+    const kept = this.balls.filter((b) => b.y <= H + 10)
+    const lost = this.balls.length - kept.length
+    if (lost === 0) return
+    this.balls = kept
+    if (this.multiball && this.multiballSave > 0) {
+      // Multiball save: the lane serves each lost ball again.
+      this.pendingLaunches += lost
+      this.launchTimer = Math.min(this.launchTimer, 20)
+      this.banner = { text: 'BALL SAVED!', ticks: 60 }
+      this.sound.play('pickup')
+    }
+    if (this.balls.length === 0 && this.pendingLaunches > 0) {
+      this.pendingLaunches--
+      const b = freshBall()
+      this.balls.push(b)
+      this.autoLaunch(b)
+    }
+    if (this.multiball && this.balls.length + this.pendingLaunches <= 1) {
+      this.endMultiball()
+    }
+    if (this.balls.length === 0) {
+      this.balls = [freshBall()]
+      this.ball = this.balls[0]!
+      this.drain()
+      return
+    }
+    this.ball = this.balls[0]!
   }
 
   private hitTarget(i: number) {
@@ -588,21 +779,21 @@ class KindPinball implements ArcadeGameInstance {
     const m = RAMP_MOUTH
     if (b.x < m.x0 || b.x > m.x1 || b.y < m.y0 || b.y > m.y1) return
     if (b.vy > -m.minSpeed) return
-    this.ramping = 1
+    b.ramping = 1
     this.sound.play('shoot')
   }
 
-  private rideRamp() {
-    this.ramping++
-    const at = rampPoint(this.ramping / RAMP_TICKS)
-    this.ball.x = at.x
-    this.ball.y = at.y
-    if (this.ramping % 6 === 0) this.burst(at.x, at.y, 1, '#a78bfa')
-    if (this.ramping < RAMP_TICKS) return
+  private rideRamp(b: Ball) {
+    b.ramping++
+    const at = rampPoint(b.ramping / RAMP_TICKS)
+    b.x = at.x
+    b.y = at.y
+    if (b.ramping % 6 === 0) this.burst(at.x, at.y, 1, '#a78bfa')
+    if (b.ramping < RAMP_TICKS) return
     // Off the end of the track into the left inlane, rolling toward the flipper.
-    this.ramping = 0
-    this.ball.vx = 0.6
-    this.ball.vy = 1.6
+    b.ramping = 0
+    b.vx = 0.6
+    b.vy = 1.6
     this.onRampShot()
   }
 
@@ -612,6 +803,7 @@ class KindPinball implements ArcadeGameInstance {
     let points = 1000 * this.rampStreak * this.level
     if (this.mode?.key === 'ramp') points += 25_000 * this.level
     this.addScore(points, 214, 140)
+    if (this.multiball) this.deliverNet(214, 120)
     if (this.superReady) {
       this.superReady = false
       this.modesPlayed = 0
@@ -663,18 +855,19 @@ class KindPinball implements ArcadeGameInstance {
   private unstick() {
     const b = this.ball
     const onFlipper = b.y > 320 && b.x > 60 && b.x < 212
-    if (Math.hypot(b.vx, b.vy) < 0.15 && !onFlipper) this.still++
-    else this.still = 0
-    if (this.still > 180) {
+    if (Math.hypot(b.vx, b.vy) < 0.15 && !onFlipper) b.still++
+    else b.still = 0
+    if (b.still > 180) {
       b.vy = -3
       b.vx = (this.rng() - 0.5) * 3
-      this.still = 0
+      b.still = 0
     }
   }
 
   private drain() {
+    if (this.multiball) this.endMultiball()
     if (this.ballSave > 0) {
-      Object.assign(this.ball, { x: LANE_X, y: PLUNGER_Y - R, vx: 0, vy: 0 })
+      Object.assign(this.ball, freshBall())
       this.inPlay = false
       this.ballSave = 0
       this.banner = { text: 'BALL SAVED!', ticks: 80 }
@@ -749,6 +942,8 @@ class KindPinball implements ArcadeGameInstance {
       f.life--
     }
     this.floaters = this.floaters.filter((f) => f.life > 0)
+    for (const n of this.flights) n.t += 1 / 40
+    this.flights = this.flights.filter((n) => n.t < 1)
   }
 
   // --- attract-mode pilot --------------------------------------------------------
@@ -764,18 +959,20 @@ class KindPinball implements ArcadeGameInstance {
       start: false,
     }
     const frame: InputFrame = { held, pressed: { ...held } }
-    const b = this.ball
     if (!this.inPlay) {
       if (this.tick % 40 === 0) frame.pressed.a = true
       return frame
     }
-    // Flip when the ball is coming down onto a flipper.
-    for (const [i, f] of this.flippers.entries()) {
-      const dx = (b.x - f.pivot.x) * f.side
-      const near = dx > 4 && dx < FLIPPER_LEN + 4 && b.y > f.pivot.y - 30
-      if (near && b.vy > -0.5 && b.y < f.pivot.y + 30) {
-        if (i === 0) held.left = true
-        else held.right = true
+    // Flip when a ball is coming down onto a flipper.
+    for (const b of this.balls) {
+      if (b.ramping > 0) continue
+      for (const [i, f] of this.flippers.entries()) {
+        const dx = (b.x - f.pivot.x) * f.side
+        const near = dx > 4 && dx < FLIPPER_LEN + 4 && b.y > f.pivot.y - 30
+        if (near && b.vy > -0.5 && b.y < f.pivot.y + 30) {
+          if (i === 0) held.left = true
+          else held.right = true
+        }
       }
     }
     return frame
@@ -787,9 +984,10 @@ class KindPinball implements ArcadeGameInstance {
     this.renderTable(g)
     this.renderFeatures(g)
     for (const f of this.flippers) this.renderFlipper(g, f)
-    if (this.ramping === 0) this.renderBall(g)
+    for (const b of this.balls) if (b.ramping === 0) this.renderBall(g, b)
     this.renderRamp(g)
-    if (this.ramping > 0) this.renderBall(g)
+    for (const b of this.balls) if (b.ramping > 0) this.renderBall(g, b)
+    this.renderFlights(g)
     for (const s of this.sparks) {
       g.globalAlpha = Math.max(0, s.life / 30)
       g.fillStyle = s.color
@@ -895,9 +1093,15 @@ class KindPinball implements ArcadeGameInstance {
       g.fillRect(10, y - 9, 6, 18)
       drawText(g, letter, 24, y - 3, { color: lit ? '#fde68a' : '#c4b5fd' })
     })
-    // The saucer, glowing when it is ready to light a village.
-    const ready = this.saucerReady && Math.floor(this.tick / 8) % 2 === 0
-    g.fillStyle = ready ? '#facc15' : '#1e1b4b'
+    // The saucer, glowing when it is ready to light a village (pink when it
+    // will start multiball).
+    const blink = Math.floor(this.tick / 8) % 2 === 0
+    const ready = (this.saucerReady || this.multiballLit) && blink
+    g.fillStyle = ready
+      ? this.multiballLit
+        ? '#f472b6'
+        : '#facc15'
+      : '#1e1b4b'
     g.beginPath()
     g.arc(SAUCER.x, SAUCER.y, SAUCER.r + 3, 0, Math.PI * 2)
     g.fill()
@@ -921,6 +1125,14 @@ class KindPinball implements ArcadeGameInstance {
         g.fillStyle = '#1e1b4b'
         g.fillRect(x - 1, y, 3, 4)
       }
+      if (this.multiball && i < this.nets % VILLAGES)
+        this.renderNet(g, x, y - 6)
+    }
+    if (this.multiballLit && Math.floor(this.tick / 8) % 2 === 0) {
+      drawText(g, 'MULTI', SAUCER.x, SAUCER.y + 14, {
+        align: 'center',
+        color: '#f9a8d4',
+      })
     }
     drawText(g, `X${this.multiplier}`, 136, 228, {
       align: 'center',
@@ -940,7 +1152,9 @@ class KindPinball implements ArcadeGameInstance {
     RAMP_PATH.forEach((p, i) => (i ? g.lineTo(p.x, p.y) : g.moveTo(p.x, p.y)))
     g.stroke()
     g.globalAlpha = 0.9
-    g.strokeStyle = this.ramping ? '#f0abfc' : '#c084fc'
+    g.strokeStyle = this.balls.some((b) => b.ramping > 0)
+      ? '#f0abfc'
+      : '#c084fc'
     g.lineWidth = 1.5
     for (const side of [-6, 6]) {
       g.beginPath()
@@ -993,9 +1207,32 @@ class KindPinball implements ArcadeGameInstance {
     g.lineCap = 'butt'
   }
 
-  private renderBall(g: CanvasRenderingContext2D) {
+  /** A mosquito net: a little mesh square. */
+  private renderNet(g: CanvasRenderingContext2D, x: number, y: number) {
+    g.strokeStyle = '#e0f2fe'
+    g.lineWidth = 1
+    g.strokeRect(x - 5, y - 5, 10, 10)
+    g.beginPath()
+    for (const d of [-2, 2]) {
+      g.moveTo(x + d, y - 5)
+      g.lineTo(x + d, y + 5)
+      g.moveTo(x - 5, y + d)
+      g.lineTo(x + 5, y + d)
+    }
+    g.stroke()
+  }
+
+  private renderFlights(g: CanvasRenderingContext2D) {
+    for (const n of this.flights) {
+      // A little hop on the way, so the nets arc over the table.
+      const x = n.x0 + (n.x1 - n.x0) * n.t
+      const y = n.y0 + (n.y1 - n.y0) * n.t - Math.sin(Math.PI * n.t) * 40
+      this.renderNet(g, x, y)
+    }
+  }
+
+  private renderBall(g: CanvasRenderingContext2D, b: Ball) {
     if (this.draining > 0) return
-    const b = this.ball
     const shine = g.createRadialGradient(b.x - 2, b.y - 2, 1, b.x, b.y, R)
     shine.addColorStop(0, '#ffffff')
     shine.addColorStop(1, '#94a3b8')
@@ -1029,6 +1266,15 @@ class KindPinball implements ArcadeGameInstance {
         color: '#f0abfc',
         shadow,
       })
+    }
+    if (this.multiball) {
+      drawText(
+        g,
+        `MULTIBALL  NETS ${this.nets % VILLAGES}/${VILLAGES}`,
+        CX,
+        this.mode ? 33 : 24,
+        { align: 'center', color: '#bae6fd', shadow },
+      )
     }
     if (this.ballSave > 0 && Math.floor(this.tick / 10) % 2 === 0) {
       drawText(g, 'SAVE', CX, 396, { align: 'center', color: '#86efac' })

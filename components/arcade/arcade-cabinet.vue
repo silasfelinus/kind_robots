@@ -516,11 +516,19 @@ function drawBackdrop(
 function drawBoardRows(g: CanvasRenderingContext2D, w: number, top: number) {
   const rows = board.value
   if (!rows.length) {
-    drawText(g, 'BE THE FIRST ON THE BOARD!', w / 2, top + 30, {
-      scale: 2,
-      align: 'center',
-      color: '#fde68a',
-      shadow: SHADOW,
+    // Narrow screens (Kind Pinball is 288 wide) take the message on two lines.
+    const message = 'BE THE FIRST ON THE BOARD!'
+    const lines =
+      measureText(message, 2) > w - 16
+        ? ['BE THE FIRST', 'ON THE BOARD!']
+        : [message]
+    lines.forEach((line, i) => {
+      drawText(g, line, w / 2, top + 30 + i * 22, {
+        scale: 2,
+        align: 'center',
+        color: '#fde68a',
+        shadow: SHADOW,
+      })
     })
     return
   }

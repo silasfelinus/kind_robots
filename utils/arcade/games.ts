@@ -159,7 +159,7 @@ export const ARCADE_GAMES: ArcadeGameMeta[] = [
     title: 'Kind Pinball',
     riffsOn: 'pinball',
     blurb:
-      'A Kind Robots pinball table. Roll through the N-E-T lanes to raise your bonus, hit the A-M-I targets to ready the saucer, then shoot the saucer to light a village. Light all five villages for the jackpot. Every third ramp shot starts a timed mode; play all four for the super jackpot.',
+      'A Kind Robots pinball table. Roll through the N-E-T lanes to raise your bonus, hit the A-M-I targets to ready the saucer, then shoot the saucer to light a village. Light all five villages for the jackpot. Every third ramp shot starts a timed mode; play all four for the super jackpot. The third village lights AMI multiball: three balls, and every ramp or saucer shot flies a mosquito net to a village.',
     howTo: [
       'LEFT/RIGHT  FLIPPERS',
       'A  BOTH FLIPPERS',
@@ -168,6 +168,7 @@ export const ARCADE_GAMES: ArcadeGameMeta[] = [
       'A-M-I READIES SAUCER',
       '5 VILLAGES = JACKPOT',
       '3 RAMPS START A MODE',
+      '3 VILLAGES = MULTIBALL',
     ],
     width: 288,
     height: 416,

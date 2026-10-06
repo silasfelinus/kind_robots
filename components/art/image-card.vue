@@ -312,6 +312,7 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import type { ArtImage } from '~/prisma/generated/prisma/client'
+import { useArtJobStore } from '@/stores/artJobStore'
 import { useArtStore } from '@/stores/artStore'
 import { resolveArtImageSource } from '@/utils/artImageSource'
 import { observeViewportHydration } from '@/utils/viewportHydration'
@@ -375,6 +376,7 @@ const emit = defineEmits<{
 }>()
 
 const artStore = useArtStore()
+const artJobStore = useArtJobStore()
 const imageArea = ref<HTMLElement>()
 const localImage = ref<ArtImage | null>(props.artImage)
 const loadingImage = ref(false)
@@ -406,12 +408,31 @@ const appUrl = computed(() => {
 
 const displayImage = computed(() => localImage.value || props.artImage)
 
-// Only the audio branch reads this; stills keep their own path/data fallback
-// chain below, which predates the shared resolver.
-const mediaSource = computed(() => resolveArtImageSource(displayImage.value))
+/*
+ * THE BYTES THE ARTJOB QUEUE ALREADY HOLDS.
+ *
+ * Silas, 2026-10-05: "all the art cards are failing to load, despite them
+ * showing up in the artjob queue page". The queue card fetches a private
+ * render through artJobStore.loadJobImage -- authenticated, a 30s budget for
+ * the base64 payload, resolved by the shared resolveArtImageSource -- and it
+ * works. This card's own chain tried the stored path first, which for a
+ * private row is a route an <img> cannot authenticate to, then a 10s refetch,
+ * and settled on backtree.webp with Retry. So the art card uses the queue's
+ * cached bytes when they exist, and recoverImage() loads through the same
+ * loader before anything else.
+ */
+const sharedSrc = computed(
+  () => artJobStore.imageSrcById[displayImage.value.id] || '',
+)
+
+const mediaSource = computed(() => {
+  const shared = artJobStore.imageInfoById[displayImage.value.id]
+  if (sharedSrc.value && shared) return { ...shared, src: sharedSrc.value }
+  return resolveArtImageSource(displayImage.value)
+})
 const audioSource = computed(() => {
   const src = mediaSource.value.src
-  if (!src || /^(data:|https?:\/\/)/.test(src)) return src
+  if (!src || /^(data:|blob:|https?:\/\/)/.test(src)) return src
   return withAppUrl(src)
 })
 
@@ -473,6 +494,7 @@ const checkpointTitle = computed(
 
 const resolvedImageSource = computed(() => {
   if (imageLoadFailed.value) return props.fallbackImage
+  if (sharedSrc.value) return sharedSrc.value
   const pathUrl = createImagePathUrl(displayImage.value)
   const dataUrl = createImageDataUrl(displayImage.value)
   if (imagePathFailed.value && dataUrl) return dataUrl
@@ -646,6 +668,11 @@ async function recoverImage() {
   const current = displayImage.value
   loadingImage.value = true
   try {
+    const version = artJobStore.imageVersionById[current.id] ?? ''
+    if (await artJobStore.loadJobImage(current.id, version)) {
+      loadAttempt.value += 1
+      return
+    }
     const fetched = await artStore.getArtImageById(current.id, {
       force: true,
       includeImageData: true,

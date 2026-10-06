@@ -73,6 +73,25 @@
         <span class="kr-spinner-lg-primary" />
       </div>
 
+      <!-- A song (music-video/t-012) is an ArtImage too. Rendering its mp3
+           through <img> failed every time and fell back to backtree.webp with
+           a Retry badge, so audio gets a player. @click.stop keeps play/seek
+           from selecting the card. -->
+      <div
+        v-else-if="mediaSource.kind === 'audio'"
+        class="flex h-full w-full flex-col items-center justify-center gap-4 p-5"
+        @click.stop
+      >
+        <Icon name="kind-icon:music" class="kr-icon-10 text-base-content/60" />
+        <audio
+          :src="audioSource"
+          class="w-full max-w-sm"
+          controls
+          preload="metadata"
+          :aria-label="`Audio for ArtImage ${displayImage.id}`"
+        />
+      </div>
+
       <kr-deferred-image
         v-else
         :key="imageKey"
@@ -294,6 +313,7 @@
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import type { ArtImage } from '~/prisma/generated/prisma/client'
 import { useArtStore } from '@/stores/artStore'
+import { resolveArtImageSource } from '@/utils/artImageSource'
 import { observeViewportHydration } from '@/utils/viewportHydration'
 
 const props = withDefaults(
@@ -385,6 +405,15 @@ const appUrl = computed(() => {
 })
 
 const displayImage = computed(() => localImage.value || props.artImage)
+
+// Only the audio branch reads this; stills keep their own path/data fallback
+// chain below, which predates the shared resolver.
+const mediaSource = computed(() => resolveArtImageSource(displayImage.value))
+const audioSource = computed(() => {
+  const src = mediaSource.value.src
+  if (!src || /^(data:|https?:\/\/)/.test(src)) return src
+  return withAppUrl(src)
+})
 
 function makeColoringPage() {
   void navigateTo(`/coloring-page?imageId=${displayImage.value.id}`)

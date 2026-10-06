@@ -720,6 +720,18 @@ export const ANIMATION_EFFECTS = [
     generationSafe: true,
     preferredSurface: 'fullscreen',
   },
+  {
+    id: 'night-train-window',
+    label: 'Night Train Window',
+    reveal: 'A sleepy ride past hills and lit villages',
+    icon: 'kind-icon:sparkle',
+    tooltip:
+      'Layered hills, village windows and telegraph poles slide past a night-train window under a following moon 🚂 hover to fog the glass, click to give the train a burst of speed',
+    color: '#ffcf78',
+    releasedAt: '2026-10-06T08:00:00Z',
+    generationSafe: true,
+    preferredSurface: 'fullscreen',
+  },
 ] as const satisfies readonly AnimationEffectDefinition[]
 
 export type AnimationEffectId = (typeof ANIMATION_EFFECTS)[number]['id']

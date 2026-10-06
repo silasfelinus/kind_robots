@@ -104,6 +104,13 @@ export const PROJECT_PLACEMENTS: Record<string, ProjectPlacement> = {
     tabKey: 'aquarium',
     route: '/play/aquarium',
   },
+  // Kind Robots Arcade (Silas, 2026-10-06): classic cabinets, leaderboards,
+  // original games riffing on golden-age favourites.
+  'kr-arcade': {
+    channelKey: 'projects',
+    tabKey: 'arcade',
+    route: '/play/arcade',
+  },
   'media-watchlist': {
     channelKey: 'admin',
     tabKey: 'watchlist',

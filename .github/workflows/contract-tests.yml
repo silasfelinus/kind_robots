@@ -141,6 +141,9 @@ jobs:
       - name: Channel content contract
         run: npm run test:channel-content
 
+      - name: Kind Robots Arcade engine
+        run: npm run test:arcade-engine
+
       - name: No Promise in Pinia store state
         run: npm run test:no-promise-in-store-state
 

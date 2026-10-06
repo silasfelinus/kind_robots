@@ -70,6 +70,27 @@ export const ARCADE_GAMES: ArcadeGameMeta[] = [
     accent: '#22d3ee',
     controls: 'Move to aim, beam, strafe',
   },
+  {
+    slug: 'sink-suds',
+    title: 'Sink Suds',
+    riffsOn: 'Bubbles',
+    blurb:
+      'Drift a soap bubble around a robot kitchen sink, scrubbing up crumbs and grease to grow. Little bubbles fear the rust mites; big ones swallow them. Fill up on suds, then sail down the glowing drain to the next sink.',
+    howTo: [
+      'STEER THE BUBBLE',
+      'A  PUFF OF SPEED',
+      'EAT CRUMBS TO GROW',
+      'BIG BUBBLES EAT MITES',
+      'AVOID SCRUB BRUSHES',
+      'FULL? FIND THE DRAIN!',
+    ],
+    width: 420,
+    height: 360,
+    maxPlausibleScore: 3_000_000,
+    titleArt: '/images/arcade/games/sink-suds-title.webp',
+    accent: '#a5f3fc',
+    controls: 'Steer, puff, grow',
+  },
 ]
 
 export type ComingSoonCabinet = {
@@ -83,12 +104,6 @@ export type ComingSoonCabinet = {
 
 // Mirrors the queued rows of conductor projects/kr-arcade/games.yaml.
 export const COMING_SOON: ComingSoonCabinet[] = [
-  {
-    slug: 'sink-suds',
-    title: 'Sink Suds',
-    riffsOn: 'Bubbles',
-    accent: '#a5f3fc',
-  },
   {
     slug: 'pipe-pals',
     title: 'Pipe Pals',
@@ -125,6 +140,7 @@ const LOADERS: Record<string, () => Promise<ArcadeGameModule>> = {
   'butterfly-blaster': () => import('./games/butterflyBlaster'),
   'battery-maze': () => import('./games/batteryMaze'),
   'rescue-rally': () => import('./games/rescueRally'),
+  'sink-suds': () => import('./games/sinkSuds'),
 }
 
 export function findArcadeGame(slug: string): ArcadeGameMeta | undefined {

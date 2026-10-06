@@ -50,8 +50,9 @@ import {
   isComicActiveStatus,
   type ComicVerdict,
 } from '~/utils/comicStudio'
+import { buildComicCastSheets } from '~/utils/comicCast'
 
-export type ComicStudioMode = 'board' | 'composer' | 'notes'
+export type ComicStudioMode = 'cast' | 'board' | 'composer' | 'notes'
 export type ComicDragPayload =
   | { type: 'attempt'; id: number }
   | { type: 'panel'; id: string }
@@ -82,7 +83,7 @@ export const useComicStudioStore = defineStore('comicStudioStore', () => {
   const issues = ref<ComicIssueDto[]>([])
   const syncedAt = ref<string | null>(null)
 
-  const mode = ref<ComicStudioMode>('board')
+  const mode = ref<ComicStudioMode>('cast')
   const selectedEntityId = ref<number | null>(null)
   const selectedSlotId = ref<number | null>(null)
   const selectedIssueId = ref<number | null>(null)
@@ -141,6 +142,9 @@ export const useComicStudioStore = defineStore('comicStudioStore', () => {
   })
   const attemptById = computed(
     () => new Map(attempts.value.map((attempt) => [attempt.id, attempt])),
+  )
+  const castSheets = computed(() =>
+    buildComicCastSheets(slots.value, attempts.value),
   )
   const subjectSlots = computed(() =>
     slots.value.filter((slot) => slot.kind !== 'panel'),
@@ -1070,6 +1074,7 @@ export const useComicStudioStore = defineStore('comicStudioStore', () => {
     checkpointOptions,
     loadCheckpointOptions,
     attemptsBySlot,
+    castSheets,
     subjectSlots,
     panelSlots,
     slotsByEntity,

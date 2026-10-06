@@ -761,6 +761,11 @@ function onKey(event: KeyboardEvent) {
   }
 }
 
+function onOnline() {
+  // Back online: send any scores that are waiting for the global board.
+  void store.flushPending()
+}
+
 function onVisibility() {
   if (document.hidden && machine.phase === 'playing')
     dispatch({ type: 'pause' })
@@ -808,6 +813,7 @@ onMounted(() => {
   touchControls.value = window.matchMedia('(pointer: coarse)').matches
   input.attach(window)
   window.addEventListener('keydown', onKey)
+  window.addEventListener('online', onOnline)
   document.addEventListener('visibilitychange', onVisibility)
   resizeObserver = new ResizeObserver(resizeCanvas)
   if (screenRef.value) resizeObserver.observe(screenRef.value)
@@ -829,6 +835,7 @@ onBeforeUnmount(() => {
   loop?.stop()
   input.detach()
   window.removeEventListener('keydown', onKey)
+  window.removeEventListener('online', onOnline)
   document.removeEventListener('visibilitychange', onVisibility)
   resizeObserver?.disconnect()
   sound?.dispose()

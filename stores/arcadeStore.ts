@@ -1,12 +1,23 @@
 // /stores/arcadeStore.ts
 //
-// Kind Robots Arcade leaderboards (conductor kr-arcade). Boards come from
-// /api/arcade/scores; if the API cannot be reached, the cabinet keeps playing
-// against a board saved in this browser so a high score is never just lost.
+// Kind Robots Arcade leaderboards (conductor kr-arcade). Boards are global:
+// they come from /api/arcade/scores, and /api/arcade/leaderboard is the hall
+// of fame across every cabinet. If a score cannot reach the server it waits in
+// this browser's pending queue and uploads on the next visit or reconnect, so
+// a high score always ends up on the global board; meanwhile the cabinet
+// shows it on a board saved in this browser.
 
 import { ref } from 'vue'
 import { defineStore } from 'pinia'
 import { performFetch } from './utils'
+import {
+  enqueuePending,
+  PENDING_FLUSH_BATCH,
+  sanitizePending,
+  shouldRetryScore,
+  type HallOfFameEntry,
+  type PendingArcadeScore,
+} from '~/utils/arcade/leaderboard'
 
 export type ArcadeBoardRange = 'all' | 'today'
 
@@ -21,6 +32,7 @@ export type ArcadeBoardEntry = {
 const BOARD_SIZE = 10
 const LOCAL_KEY = (game: string) => `kr-arcade-local-${game}`
 const PREFS_KEY = 'kr-arcade-prefs'
+const PENDING_KEY = 'kr-arcade-pending'
 
 type ArcadePrefs = { muted?: boolean; crt?: boolean; initials?: string }
 
@@ -58,6 +70,25 @@ function writeLocal(game: string, rows: ArcadeBoardEntry[]) {
   }
 }
 
+function readPending(): PendingArcadeScore[] {
+  try {
+    return sanitizePending(
+      JSON.parse(localStorage.getItem(PENDING_KEY) ?? '[]'),
+    )
+  } catch {
+    return []
+  }
+}
+
+function writePending(rows: PendingArcadeScore[]) {
+  try {
+    if (rows.length) localStorage.setItem(PENDING_KEY, JSON.stringify(rows))
+    else localStorage.removeItem(PENDING_KEY)
+  } catch {
+    // Blocked storage: the score stays on this visit's board only.
+  }
+}
+
 function rankRows(rows: ArcadeBoardEntry[]): ArcadeBoardEntry[] {
   return [...rows]
     .sort((a, b) => b.score - a.score || a.createdAt.localeCompare(b.createdAt))
@@ -77,6 +108,51 @@ export const useArcadeStore = defineStore('arcadeStore', () => {
   /** CRT scanlines; defaults off for reduced-motion viewers. */
   const crt = ref(true)
   const savedInitials = ref('')
+  /** Scores waiting in this browser to reach the global board. */
+  const pendingCount = ref(0)
+  const hallOfFame = ref<HallOfFameEntry[]>([])
+  let flushing = false
+
+  /**
+   * Upload scores that could not reach the server earlier. Stops at the first
+   * one the server still can't take; drops any it rejects outright.
+   */
+  async function flushPending() {
+    if (flushing) return
+    flushing = true
+    try {
+      let queue = readPending()
+      for (const entry of queue.slice(0, PENDING_FLUSH_BATCH)) {
+        const res = await performFetch<{ id: number; rank: number }>(
+          '/api/arcade/scores',
+          {
+            method: 'POST',
+            body: JSON.stringify({
+              game: entry.game,
+              initials: entry.initials,
+              score: entry.score,
+              level: entry.level,
+            }),
+          },
+        )
+        if (!res.success && shouldRetryScore(res.status)) break
+        queue = queue.filter((row) => row.id !== entry.id)
+        writePending(queue)
+      }
+      pendingCount.value = queue.length
+    } finally {
+      flushing = false
+    }
+  }
+
+  async function fetchHallOfFame() {
+    const res = await performFetch<HallOfFameEntry[]>('/api/arcade/leaderboard')
+    if (res.success && Array.isArray(res.data)) {
+      hallOfFame.value = res.data
+      offline.value = false
+    }
+    return hallOfFame.value
+  }
 
   function loadPreferences(prefersReducedMotion: boolean) {
     const prefs = readPrefs()
@@ -84,6 +160,8 @@ export const useArcadeStore = defineStore('arcadeStore', () => {
     crt.value = prefs.crt ?? !prefersReducedMotion
     savedInitials.value =
       typeof prefs.initials === 'string' ? prefs.initials : ''
+    pendingCount.value = readPending().length
+    if (pendingCount.value) void flushPending()
   }
 
   function savePreferences() {
@@ -147,9 +225,20 @@ export const useArcadeStore = defineStore('arcadeStore', () => {
     )
     if (res.success && res.data) {
       lastSubmittedId.value = res.data.id
+      if (pendingCount.value) void flushPending()
     } else {
-      // Keep it locally (negative ids never collide with server rows).
+      // Keep it locally (negative ids never collide with server rows), and
+      // queue it for the global board unless the server rejected it outright.
       const id = -Date.now()
+      if (shouldRetryScore(res.status)) {
+        const queue = enqueuePending(readPending(), {
+          id,
+          createdAt,
+          ...entry,
+        })
+        writePending(queue)
+        pendingCount.value = queue.length
+      }
       writeLocal(
         entry.game,
         rankRows([
@@ -175,6 +264,10 @@ export const useArcadeStore = defineStore('arcadeStore', () => {
   return {
     boards,
     offline,
+    pendingCount,
+    hallOfFame,
+    fetchHallOfFame,
+    flushPending,
     lastSubmittedId,
     muted,
     crt,

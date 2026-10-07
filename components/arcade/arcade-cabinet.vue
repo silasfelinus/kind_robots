@@ -21,7 +21,7 @@
         <span class="cabinet-marquee-title">{{ meta?.title ?? 'Arcade' }}</span>
       </div>
 
-      <div class="cabinet-screen-wrap">
+      <div ref="wrapRef" class="cabinet-screen-wrap">
         <div class="cabinet-bezel" :style="{ maxWidth: screenMaxWidth }">
           <div
             ref="screenRef"
@@ -150,7 +150,7 @@
 // play, high scores, demo), the game, game over and three-initial entry.
 // The flow itself is the pure reducer in utils/arcade/machine.ts.
 
-import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useArcadeStore } from '@/stores/arcadeStore'
 import { useUserStore } from '@/stores/userStore'
 import { findArcadeGame, loadArcadeGame } from '~/utils/arcade/games'
@@ -165,6 +165,7 @@ import {
   type ArcadePhase,
 } from '~/utils/arcade/machine'
 import { createArcadeSound, type ArcadeSound } from '~/utils/arcade/sound'
+import { setGamePageLock } from '~/utils/arcade/pageLock'
 import { drawText, lineStep, measureText } from '~/utils/arcade/font'
 import { mulberry32 } from '~/utils/arcade/curve'
 import { INITIALS_ALPHABET, isAllowedInitials } from '~/utils/arcade/initials'
@@ -184,6 +185,9 @@ const userStore = useUserStore()
 const meta = computed(() => findArcadeGame(props.slug))
 
 const screenRef = ref<HTMLDivElement | null>(null)
+const wrapRef = ref<HTMLDivElement | null>(null)
+/** Bezel width (px) that fits the space actually left for the screen while locked. */
+const fittedWidth = ref(0)
 const dpadRef = ref<HTMLDivElement | null>(null)
 const canvasRef = ref<HTMLCanvasElement | null>(null)
 const phase = ref<ArcadePhase>('title')
@@ -206,6 +210,7 @@ let demoGame: ArcadeGameInstance | null = null
 let sound: ArcadeSound | null = null
 let loop: FixedLoop | null = null
 let resizeObserver: ResizeObserver | null = null
+let wrapObserver: ResizeObserver | null = null
 const input = new ArcadeInput()
 const titleArt = typeof Image === 'undefined' ? null : new Image()
 let titleArtReady = false
@@ -241,13 +246,40 @@ const locked = computed(
   () => touchControls.value && LOCKED_PHASES.includes(phase.value),
 )
 
-// Small-viewport units (svh) don't change when a phone's URL bar slides in
-// and out, so the screen keeps one size for the whole game.
+// On the page, small-viewport units (svh) don't change when a phone's URL bar
+// slides in and out, so the screen keeps one size. While locked, the screen is
+// fitted to the space measured around it instead (fitScreen), so no resize,
+// rotation or split view can push part of it off screen.
 const screenMaxWidth = computed(() => {
+  if (locked.value && fittedWidth.value > 0) return `${fittedWidth.value}px`
   const ratio = (meta.value?.width ?? 4) / (meta.value?.height ?? 3)
-  const height = locked.value ? '(100svh - 16.5rem)' : '62svh'
-  return `min(100%, calc(${height} * ${ratio.toFixed(4)}))`
+  return `min(100%, calc(62svh * ${ratio.toFixed(4)}))`
 })
+
+/** Size the bezel to the largest screen that fits the measured play area. */
+function fitScreen() {
+  const wrap = wrapRef.value
+  if (!locked.value || !wrap) {
+    fittedWidth.value = 0
+    return
+  }
+  const style = getComputedStyle(wrap)
+  const width =
+    wrap.clientWidth -
+    parseFloat(style.paddingLeft) -
+    parseFloat(style.paddingRight)
+  const height =
+    wrap.clientHeight -
+    parseFloat(style.paddingTop) -
+    parseFloat(style.paddingBottom)
+  if (width <= 0 || height <= 0) return
+  // The bezel's padding is clamp(0.6rem, 4.5%, 2.75rem) of this same width.
+  const rem = parseFloat(getComputedStyle(document.documentElement).fontSize)
+  const pad = Math.min(2.75 * rem, Math.max(0.6 * rem, width * 0.045))
+  const ratio = (meta.value?.width ?? 4) / (meta.value?.height ?? 3)
+  const screen = Math.min(width - pad * 2, (height - pad * 2) * ratio)
+  fittedWidth.value = Math.max(0, Math.floor(screen + pad * 2))
+}
 
 const board = computed(() => store.board(props.slug, 'all'))
 const hiScore = () => board.value[0]?.score ?? 0
@@ -321,11 +353,13 @@ function onContextMenu(event: Event) {
 }
 
 /** Lock page scrolling while the cabinet is pinned (and undo it after). */
+let pageLocked = false
+
+/** No page scroll or zoom while a touch game runs (see utils/arcade/pageLock). */
 function setPageLock(on: boolean) {
-  const root = document.documentElement
-  root.style.overflow = on ? 'hidden' : ''
-  root.style.overscrollBehavior = on ? 'none' : ''
-  document.body.style.overflow = on ? 'hidden' : ''
+  if (on === pageLocked) return
+  pageLocked = on
+  setGamePageLock(on)
 }
 
 // --- flow -----------------------------------------------------------------
@@ -833,6 +867,8 @@ onMounted(() => {
   document.addEventListener('visibilitychange', onVisibility)
   resizeObserver = new ResizeObserver(resizeCanvas)
   if (screenRef.value) resizeObserver.observe(screenRef.value)
+  wrapObserver = new ResizeObserver(fitScreen)
+  if (wrapRef.value) wrapObserver.observe(wrapRef.value)
   void boot()
   loop = startFixedLoop(tick, render)
 })
@@ -845,6 +881,7 @@ watch(
 watch(locked, (on) => {
   setPageLock(on)
   if (!on) releaseDpad()
+  void nextTick(fitScreen)
 })
 
 onBeforeUnmount(() => {
@@ -854,6 +891,7 @@ onBeforeUnmount(() => {
   window.removeEventListener('online', onOnline)
   document.removeEventListener('visibilitychange', onVisibility)
   resizeObserver?.disconnect()
+  wrapObserver?.disconnect()
   sound?.dispose()
   setPageLock(false)
 })
@@ -912,8 +950,10 @@ onBeforeUnmount(() => {
 }
 
 .arcade-cabinet--locked .cabinet-screen-wrap {
-  flex: 1 1 auto;
+  flex: 1 1 0;
   min-height: 0;
+  min-width: 0;
+  overflow: hidden;
   display: grid;
   align-items: center;
 }
@@ -924,6 +964,53 @@ onBeforeUnmount(() => {
 
 .arcade-cabinet--locked .cabinet-panel {
   padding-bottom: max(1.1rem, env(safe-area-inset-bottom));
+}
+
+/* Sideways tablets and phones: a handheld layout, with the d-pad left of the
+   screen and the A/B buttons right of it, so the controls don't eat the height. */
+@media (orientation: landscape) {
+  .arcade-cabinet--locked {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    grid-template-rows: auto minmax(0, 1fr) auto;
+    grid-template-areas:
+      'title title title'
+      'dpad screen buttons'
+      'dpad switches buttons';
+    background:
+      linear-gradient(180deg, rgba(255, 255, 255, 0.06), transparent 30%),
+      linear-gradient(90deg, #5b21b6, #1e1b4b 30%, #1e1b4b 70%, #be185d);
+  }
+
+  .arcade-cabinet--locked .cabinet-title-plate {
+    grid-area: title;
+  }
+
+  .arcade-cabinet--locked .cabinet-screen-wrap {
+    grid-area: screen;
+  }
+
+  .arcade-cabinet--locked .cabinet-panel,
+  .arcade-cabinet--locked .cabinet-touch {
+    display: contents;
+  }
+
+  .arcade-cabinet--locked .cabinet-dpad {
+    grid-area: dpad;
+    align-self: center;
+    margin: 0 max(1rem, env(safe-area-inset-left)) 0 1rem;
+  }
+
+  .arcade-cabinet--locked .cabinet-buttons {
+    grid-area: buttons;
+    align-self: center;
+    margin: 0 max(1rem, env(safe-area-inset-right)) 0 1rem;
+  }
+
+  .arcade-cabinet--locked .cabinet-switches {
+    grid-area: switches;
+    padding: 0.4rem 0 max(0.5rem, env(safe-area-inset-bottom));
+  }
 }
 
 .cabinet-marquee {

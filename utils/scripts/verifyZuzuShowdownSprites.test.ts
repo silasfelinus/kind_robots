@@ -127,7 +127,7 @@ check(
 )
 
 check(
-  'both fighters ship the core set; the Coyote ships his specials and poses',
+  'both fighters ship the core set and every normal; the Coyote ships his specials and poses',
   () => {
     for (const slug of SPRITE_FIGHTERS) {
       for (const name of [
@@ -135,7 +135,17 @@ check(
         'walk_forward',
         'crouch',
         'jump_up',
-        'stand_hp',
+        'land',
+        'dodge_forward',
+        'dodge_back',
+        'wakeup',
+        'throw',
+        'throw_hold',
+        'throw_whiff',
+        'thrown',
+        ...['stand', 'crouch', 'jump'].flatMap((stance) =>
+          ['lp', 'lk', 'hp', 'hk'].map((button) => `${stance}_${button}`),
+        ),
       ])
         assert.ok(sheets[slug]!.animations[name], `${slug} ${name}`)
     }
@@ -164,7 +174,14 @@ check(
       animations: Object.fromEntries(
         Object.entries(sheets.zuzu!.animations).filter(
           ([name]) =>
-            !['walk_back', 'block_low', 'ko', 'knockdown'].includes(name),
+            ![
+              'walk_back',
+              'block_low',
+              'ko',
+              'knockdown',
+              'stand_lp',
+              'land',
+            ].includes(name),
         ),
       ),
     }
@@ -208,7 +225,7 @@ check(
       } as FighterState['attack'],
     })
     assert.equal(pickSprite(shot, coyote)!.name, 'wild_shot')
-    // A normal with no art of its own borrows the standing heavy.
+    // A normal plays its own art; one with no art of its own borrows the standing heavy.
     const jab = stateOf('zuzu', {
       action: 'attack',
       attack: {
@@ -217,7 +234,41 @@ check(
         frame: 2,
       } as FighterState['attack'],
     })
+    assert.equal(pickSprite(jab, sheets.zuzu!)!.name, 'stand_lp')
     assert.equal(pickSprite(jab, zuzu)!.name, 'stand_hp')
+    // Dodges pick the roll or the sidestep by direction; landing falls back to the crouch.
+    assert.equal(
+      pickSprite(stateOf('zuzu', { action: 'dodge', dodgeDir: 1 }), zuzu)!.name,
+      'dodge_forward',
+    )
+    assert.equal(
+      pickSprite(stateOf('zuzu', { action: 'dodge', dodgeDir: -1 }), zuzu)!
+        .name,
+      'dodge_back',
+    )
+    assert.equal(
+      pickSprite(stateOf('zuzu', { action: 'land' }), sheets.zuzu!)!.name,
+      'land',
+    )
+    assert.equal(
+      pickSprite(stateOf('zuzu', { action: 'land' }), zuzu)!.name,
+      'crouch',
+    )
+    // A throw: the grab, then the heave once it connects; the victim is held, then knocked down.
+    assert.equal(
+      pickSprite(stateOf('coyote-vagrant', { action: 'throwing' }), coyote)!
+        .name,
+      'throw',
+    )
+    assert.equal(
+      pickSprite(stateOf('coyote-vagrant', { action: 'throwHold' }), coyote)!
+        .name,
+      'throw_hold',
+    )
+    assert.equal(
+      pickSprite(stateOf('zuzu', { action: 'thrown' }), zuzu)!.name,
+      'thrown',
+    )
     const low = stateOf('coyote-vagrant', {
       action: 'blockstun',
       prev: { ...neutralInput(), down: true },

@@ -55,17 +55,23 @@ import RAPIER from '@dimforge/rapier3d-compat'
 import {
   livePhysicsWorlds,
   PinballPhysics,
+  type BallView,
 } from '../arcade/pinball/physics/world'
 import {
   liveRenderResources,
+  PinballScene,
   type RendererLike,
 } from '../arcade/pinball/render/scene'
-import { initialRules, stepRules } from '../arcade/pinball/rules/engine'
+import {
+  initialRules,
+  SECRET_DOOR_STEPS,
+  stepRules,
+} from '../arcade/pinball/rules/engine'
 import {
   initialShotProgress,
   recognizeShots,
 } from '../arcade/pinball/rules/shots'
-import { PinballRuntime } from '../arcade/pinball/runtime'
+import { cameraViewFor, PinballRuntime } from '../arcade/pinball/runtime'
 import { AMI_VILLAGE_GREYBOX } from '../arcade/pinball/tables/amiVillage/table'
 import type { SwitchEvent, Vec3 } from '../arcade/pinball/types'
 import {
@@ -977,6 +983,250 @@ function stubRenderer(log: { disposed: number; frames: number }): RendererLike {
   }
 }
 
+async function runPinballSubTable() {
+  // conductor kind-pinball/t-011: the hidden sub-table behind the backbox.
+  const table = AMI_VILLAGE_GREYBOX
+  const left: Vec3 = [-0.05, 0.0135, -0.07]
+  const room = table.zones?.find((zone) => zone.id === 'sub-table')
+  assert.ok(room, 'the table has a sub-table zone')
+  const roomX = (room.min[0] + room.max[0]) / 2
+
+  type Trace = { events: SwitchEvent[]; zones: Set<string> }
+  const run = (
+    physics: PinballPhysics,
+    steps: number,
+    flip?: (ball: { position: Vec3; velocity: Vec3 }) => boolean,
+  ): Trace => {
+    const events: SwitchEvent[] = []
+    const zones = new Set<string>()
+    for (let i = 0; i < steps && physics.ballCount; i++) {
+      const ball = physics.ballViews()[0]
+      const up = Boolean(ball && flip?.(ball))
+      physics.setFlipper('left', up)
+      physics.setFlipper('right', up)
+      events.push(...physics.step())
+      for (const view of physics.ballViews()) zones.add(view.zone ?? 'main')
+    }
+    return { events, zones }
+  }
+  const has = (trace: Trace, type: string, id: string) =>
+    trace.events.findIndex((e) => e.type === type && 'id' in e && e.id === id)
+
+  // The door is part of the arch until the rules open it: a left orbit
+  // goes round as usual and never finds the room.
+  const closed = new PinballPhysics(RAPIER, table)
+  assert.deepEqual(closed.doorStates(), { 'secret-door': false })
+  closed.serveBall(left, orbitAim(-122, 3))
+  const around = run(closed, 120 * 5)
+  assert.equal(has(around, 'capture', 'secret-hole'), -1)
+  assert.ok(!around.zones.has('sub-table'))
+  closed.dispose()
+
+  // Open, the same shot is diverted out through the gap into the hidden
+  // hole, rides the subway up into the room, and (unflipped) drains past
+  // the room's flippers, which sends it home to the award saucer. Its
+  // kickout feeds the main left flipper.
+  let found = 0
+  for (const deg of [-123, -122, -121]) {
+    const open = new PinballPhysics(RAPIER, table)
+    open.setDoor('secret-door', true)
+    assert.deepEqual(open.doorStates(), { 'secret-door': true })
+    open.serveBall(left, orbitAim(deg, 3))
+    const trip = run(open, 120 * 9)
+    const hole = has(trip, 'capture', 'secret-hole')
+    const arrive = has(trip, 'eject', 'sub-entry')
+    const drain = has(trip, 'capture', 'sub-drain')
+    const home = has(trip, 'eject', 'award')
+    if (hole >= 0) {
+      found++
+      assert.ok(arrive > hole, 'the subway brings the ball up into the room')
+      assert.ok(trip.zones.has('sub-table'))
+      assert.ok(drain > arrive && home > drain, 'room drain -> award kickout')
+      assert.ok(
+        trip.events
+          .slice(home)
+          .some((e) => e.type === 'contact' && e.id === 'flipper-left'),
+        'the kickout feeds the left flipper',
+      )
+    }
+    open.dispose()
+  }
+  assert.ok(found >= 2, `the open door takes left orbits (${found}/3)`)
+
+  // The room's flippers are on the same buttons, and they keep a ball in
+  // play there: a ball rolling down onto the left one is flipped back up.
+  const flippers = new PinballPhysics(RAPIER, table)
+  flippers.setFlipper('left', true)
+  for (let i = 0; i < 20; i++) flippers.step()
+  const angles = flippers.flipperAngles()
+  const sub = table.flippers.find((f) => f.id === 'sub-flipper-left')!
+  assert.ok(Math.abs(angles['sub-flipper-left']! - sub.activeAngle) < 1e-6)
+  flippers.setFlipper('left', false)
+  for (let i = 0; i < 30; i++) flippers.step()
+  flippers.serveBall([roomX - 0.12, 0.0136, -1.2], [0, 0, 0])
+  let saved = false
+  let flipped = false
+  const save = run(flippers, 120 * 4, (ball) => {
+    if (ball.position[2] > -1.125 && ball.velocity[2] > 0) flipped = true
+    if (flipped && ball.position[2] < -1.2) saved = true
+    return flipped && !saved
+  })
+  assert.ok(saved, 'a room flipper sends the ball back up the room')
+  assert.ok(save.zones.has('sub-table'))
+  flippers.dispose()
+
+  // The N-E-T standups report every hit and never drop; the windmill turns
+  // and bats the ball; HOME takes a ball back to the main table.
+  const toys = new PinballPhysics(RAPIER, table)
+  const before = toys.toyAngles().windmill!
+  const nets = table.drops.filter((drop) => drop.bank === 'net')
+  assert.equal(nets.length, 3)
+  for (const net of nets) {
+    toys.serveBall([net.at[0], 0.0136, net.at[2] + 0.06], [0, 0, -1.2])
+  }
+  const hits = run(toys, 60)
+  for (const net of nets) {
+    assert.ok(has(hits, 'contact', net.id) >= 0, `${net.id} reports a hit`)
+    assert.ok(toys.dropStates()[net.id], `${net.id} stays up`)
+  }
+  assert.notEqual(toys.toyAngles().windmill, before, 'the windmill turns')
+  toys.dispose()
+  const homeScoop = table.scoops.find((s) => s.id === 'sub-home')!
+  const homeRun = new PinballPhysics(RAPIER, table)
+  homeRun.serveBall(
+    [homeScoop.at[0], 0.0136, homeScoop.at[2] + 0.05],
+    [0, 0, -0.6],
+  )
+  const homeTrip = run(homeRun, 120 * 4)
+  assert.ok(has(homeTrip, 'capture', 'sub-home') >= 0)
+  assert.ok(
+    has(homeTrip, 'eject', 'award') > has(homeTrip, 'capture', 'sub-home'),
+  )
+  homeRun.dispose()
+  const windmill = new PinballPhysics(RAPIER, table)
+  const mill = table.toys!.find((toy) => toy.id === 'windmill')!
+  windmill.serveBall([mill.at[0], 0.0136, mill.at[2] - 0.08], [0, 0, 0.4])
+  assert.ok(has(run(windmill, 120 * 2), 'contact', 'windmill') >= 0)
+  windmill.dispose()
+
+  // Rules: locking a ball is the feat that opens the door, with only a
+  // tease; the door closes itself again; a ball through it is a discovery;
+  // the nets and HOME pay the bonus multiplier that rides back; and a new
+  // ball shuts the door and resets the bonus.
+  const sw = (event: SwitchEvent, tick = 0) =>
+    ({ type: 'switch', event, tick }) as const
+  let state = stepRules(initialRules(3), { type: 'start' }).state
+  let step = stepRules(
+    state,
+    sw({ type: 'capture', id: 'lock', ballId: 1 }, 100),
+  )
+  state = step.state
+  assert.ok(state.sub.doorOpen)
+  assert.ok(
+    step.effects.some(
+      (e) =>
+        e.type === 'mechanism' && e.id === 'secret-door' && e.action === 'open',
+    ),
+  )
+  const tease = step.effects.find((e) => e.type === 'dmd')
+  assert.ok(
+    tease && tease.type === 'dmd' && !/ORBIT|LEFT|SECRET/.test(tease.text),
+  )
+  step = stepRules(state, { type: 'tick', tick: 100 + SECRET_DOOR_STEPS - 1 })
+  assert.ok(step.state.sub.doorOpen, 'still open just before it times out')
+  step = stepRules(state, { type: 'tick', tick: 100 + SECRET_DOOR_STEPS })
+  assert.equal(step.state.sub.doorOpen, false, 'the door closes itself')
+  assert.ok(
+    step.effects.some((e) => e.type === 'mechanism' && e.action === 'close'),
+  )
+  step = stepRules(state, sw({ type: 'capture', id: 'secret-hole', ballId: 1 }))
+  state = step.state
+  assert.equal(state.sub.found, 1)
+  assert.equal(state.sub.doorOpen, false, 'the door shuts behind the ball')
+  assert.ok(
+    step.effects.some((e) => e.type === 'dmd' && e.sub === 'YOU FOUND IT'),
+  )
+  for (const id of ['net-n', 'net-e', 'net-t', 'net-t']) {
+    step = stepRules(state, sw({ type: 'contact', id, ballId: 1, impulse: 1 }))
+    state = step.state
+  }
+  assert.deepEqual(state.sub.nets, ['net-n', 'net-e', 'net-t'])
+  step = stepRules(state, sw({ type: 'capture', id: 'sub-home', ballId: 1 }))
+  state = step.state
+  assert.equal(state.bonusMultiplier, 3, 'HOME with the nets lit: +2x')
+  assert.deepEqual(state.sub.nets, [], 'the nets reset for the next visit')
+  step = stepRules(state, sw({ type: 'capture', id: 'sub-drain', ballId: 1 }))
+  assert.equal(step.state.bonusMultiplier, 3, 'a plain drain home pays nothing')
+  state = stepRules(state, sw({ type: 'capture', id: 'lock', ballId: 1 })).state
+  state = stepRules(
+    state,
+    sw({ type: 'capture', id: 'secret-hole', ballId: 1 }),
+  ).state
+  assert.equal(state.sub.found, 2)
+  state = stepRules(state, sw({ type: 'capture', id: 'lock', ballId: 1 })).state
+  step = stepRules(state, sw({ type: 'drain', ballId: 1 }))
+  assert.equal(step.state.sub.doorOpen, false, 'a new ball shuts the door')
+  assert.equal(step.state.bonusMultiplier, 1)
+  assert.ok(
+    step.effects.some(
+      (e) =>
+        e.type === 'mechanism' &&
+        e.id === 'secret-door' &&
+        e.action === 'close',
+    ),
+  )
+
+  // The camera visits the room only while every ball is there, and the
+  // backbox that hides the room fades while it does.
+  const ballAt = (zone?: string): BallView => ({
+    id: 1,
+    position: [0, 0.0135, 0],
+    rotation: [0, 0, 0, 1],
+    velocity: [0, 0, 0],
+    speed: 0,
+    captured: false,
+    zone,
+  })
+  assert.equal(cameraViewFor([]), 'main')
+  assert.equal(cameraViewFor([ballAt()]), 'main')
+  assert.equal(cameraViewFor([ballAt('sub-table')]), 'sub-table')
+  assert.equal(
+    cameraViewFor([ballAt('sub-table'), ballAt()]),
+    'main',
+    'a ball still on the main table keeps the camera there',
+  )
+  const runtime = new PinballRuntime(
+    { rng: mulberry32(3), sound: { play: () => {} }, demo: false, hiScore: 0 },
+    RAPIER,
+    table,
+    () => stubRenderer({ disposed: 0, frames: 0 }),
+  )
+  assert.equal(runtime.view(), 'main', 'a new game starts on the main table')
+  runtime.dispose()
+
+  const resources = liveRenderResources()
+  const scene = new PinballScene(table, {} as HTMLCanvasElement, () =>
+    stubRenderer({ disposed: 0, frames: 0 }),
+  )
+  scene.resize(360, 640, 1)
+  const homeEye = scene.camera.position.clone()
+  scene.setView('sub-table')
+  for (let i = 0; i < 90; i++) scene.render()
+  const roomEye = scene.camera.position.clone()
+  assert.ok(roomEye.distanceTo(homeEye) > 0.2, 'the camera travels to the room')
+  scene.setView('main')
+  for (let i = 0; i < 120; i++) scene.render()
+  assert.ok(scene.camera.position.distanceTo(homeEye) < 0.01, 'and back')
+  scene.dispose()
+  assert.equal(liveRenderResources(), resources, 'the room frees its meshes')
+}
+
+/** A served ball's velocity for an aim (degrees, 0 = +X) and speed. */
+function orbitAim(deg: number, speed: number): Vec3 {
+  const rad = (deg * Math.PI) / 180
+  return [Math.cos(rad) * speed, 0, Math.sin(rad) * speed]
+}
+
 async function runPinballShots() {
   // conductor kind-pinball/t-018: the greybox shot map.
   const table = AMI_VILLAGE_GREYBOX
@@ -1070,15 +1320,17 @@ async function runPinballShots() {
     return { shots, events }
   }
   // Knock the A-M-I bank down the way a player does: a ball at each target.
+  const amiBank = table.drops.filter((drop) => drop.bank === 'ami')
   function knockDownDrops(physics: PinballPhysics) {
-    for (const drop of table.drops) {
+    for (const drop of amiBank) {
       physics.serveBall([drop.at[0], 0.0136, -0.25], [0, 0, -1.5])
       for (let i = 0; i < 30; i++) physics.step()
     }
     for (let i = 0; i < 120 * 6 && physics.ballCount; i++) physics.step()
     assert.equal(physics.ballCount, 0, 'the knocking balls drain')
+    const states = physics.dropStates()
     assert.ok(
-      Object.values(physics.dropStates()).every((up) => !up),
+      amiBank.every((drop) => !states[drop.id]),
       'all three targets are down',
     )
   }
@@ -1154,7 +1406,8 @@ async function runPinballShots() {
   const drops = new PinballPhysics(RAPIER, table)
   knockDownDrops(drops)
   drops.resetDropBank('ami')
-  assert.ok(Object.values(drops.dropStates()).every((up) => up))
+  const raised = drops.dropStates()
+  assert.ok(amiBank.every((drop) => raised[drop.id]))
   drops.dispose()
 
   // The shooter gate is one-way: a plunged ball passes up through it, and a
@@ -1442,4 +1695,5 @@ await runLanternRescue()
 await runCoopGames()
 await runPinball3d()
 await runPinballShots()
+await runPinballSubTable()
 console.log('verifyArcadeEngine: ok')

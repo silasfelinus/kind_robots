@@ -10,12 +10,32 @@
 // ball (or a new ball) raises them again. Scoring stays at zero until t-007
 // builds Table 1's real rules on this shape, so the 3D preview cabinet never
 // posts to the leaderboard.
+//
+// The hidden sub-table (t-011): locking a ball is the feat that opens the
+// secret door for a short while, with only a tease on the DMD. A ball through
+// the door is a discovery. In the room, the N-E-T standups light the full
+// reward; the ball comes home through HOME (or past the room's flippers) and
+// what it earned rides back as the bonus multiplier. t-012 deepens the
+// discovery path, the room's own mode and the rewards on this same state.
 
 import type { RuleEffect, ShotDef, ShotEvent, SwitchEvent } from '../types'
 import { initialShotProgress, recognizeShots, type ShotProgress } from './shots'
 
 export type RulesEvent =
-  { type: 'switch'; event: SwitchEvent; tick?: number } | { type: 'start' }
+  | { type: 'switch'; event: SwitchEvent; tick?: number }
+  | { type: 'start' }
+  /** Time passing (physics steps), for timers such as the secret door. */
+  | { type: 'tick'; tick: number }
+
+export type SubTableState = {
+  /** The secret door is open (it closes itself at `closesAt`). */
+  doorOpen: boolean
+  closesAt: number
+  /** Times a ball has found its way into the sub-table this game. */
+  found: number
+  /** N-E-T standups lit on this visit. */
+  nets: string[]
+}
 
 export type PinballRulesState = {
   score: number
@@ -33,6 +53,9 @@ export type PinballRulesState = {
   /** Drop targets currently down, by bank. */
   dropsDown: Record<string, string[]>
   shotProgress: ShotProgress
+  sub: SubTableState
+  /** The end-of-ball bonus multiplier; the sub-table's reward rides back on it. */
+  bonusMultiplier: number
 }
 
 export function initialRules(balls: number): PinballRulesState {
@@ -46,10 +69,19 @@ export function initialRules(balls: number): PinballRulesState {
     shotsMade: {},
     dropsDown: {},
     shotProgress: initialShotProgress(),
+    sub: initialSubTable(),
+    bonusMultiplier: 1,
   }
 }
 
+function initialSubTable(): SubTableState {
+  return { doorOpen: false, closesAt: 0, found: 0, nets: [] }
+}
+
 const DROP_BANK_SIZE: Record<string, number> = { ami: 3 }
+/** How long the secret door stays open after the feat, in physics steps. */
+export const SECRET_DOOR_STEPS = 120 * 25
+const NET_TARGETS = ['net-n', 'net-e', 'net-t']
 
 export type RulesContext = { shots: ShotDef[] }
 
@@ -59,6 +91,15 @@ export function stepRules(
   context: RulesContext = { shots: [] },
 ): { state: PinballRulesState; effects: RuleEffect[] } {
   if (state.over) return { state, effects: [] }
+  if (event.type === 'tick') {
+    if (!state.sub.doorOpen || event.tick < state.sub.closesAt) {
+      return { state, effects: [] }
+    }
+    return {
+      state: { ...state, sub: { ...state.sub, doorOpen: false } },
+      effects: [{ type: 'mechanism', id: 'secret-door', action: 'close' }],
+    }
+  }
   if (event.type === 'start') {
     return {
       state: { ...state, ball: 1, ballsInPlay: 1 },
@@ -109,8 +150,19 @@ export function stepRules(
       { type: 'serve-ball' },
       { type: 'dmd', text: `BALL ${ball}`, ms: 1500 },
     )
+    if (next.sub.doorOpen) {
+      effects.push({ type: 'mechanism', id: 'secret-door', action: 'close' })
+    }
     return {
-      state: { ...next, ball, lives, ballsInPlay: 1, dropsDown: {} },
+      state: {
+        ...next,
+        ball,
+        lives,
+        ballsInPlay: 1,
+        dropsDown: {},
+        sub: { ...next.sub, doorOpen: false, nets: [] },
+        bonusMultiplier: 1,
+      },
       effects,
     }
   }
@@ -129,6 +181,46 @@ export function stepRules(
     if (sw.id === 'lock') {
       next.dropsDown = { ...next.dropsDown, ami: [] }
       effects.push({ type: 'mechanism', id: 'ami', action: 'reset' })
+      // The feat: somewhere up the left orbit, a door gives way. The DMD
+      // only teases; the player has to find where.
+      next.sub = {
+        ...next.sub,
+        doorOpen: true,
+        closesAt: tick + SECRET_DOOR_STEPS,
+      }
+      effects.push(
+        { type: 'mechanism', id: 'secret-door', action: 'open' },
+        { type: 'dmd', text: 'A DOOR CREAKS...', ms: 1800 },
+      )
+    } else if (sw.id === 'secret-hole') {
+      next.sub = {
+        ...next.sub,
+        doorOpen: false,
+        found: next.sub.found + 1,
+        nets: [],
+      }
+      effects.push(
+        { type: 'mechanism', id: 'secret-door', action: 'close' },
+        {
+          type: 'dmd',
+          text: 'SECRET VILLAGE',
+          sub: next.sub.found === 1 ? 'YOU FOUND IT' : 'WELCOME BACK',
+          ms: 2200,
+        },
+      )
+    } else if (sw.id === 'sub-home' || sw.id === 'sub-drain') {
+      // Home through the goal: x2 more, or x1 without the nets. Draining
+      // past the room's flippers still brings the nets' x1 home.
+      const nets = next.sub.nets.length >= NET_TARGETS.length
+      const reward = (sw.id === 'sub-home' ? 1 : 0) + (nets ? 1 : 0)
+      next.bonusMultiplier += reward
+      next.sub = { ...next.sub, nets: [] }
+      effects.push({
+        type: 'dmd',
+        text: 'BACK TO THE VILLAGE',
+        sub: reward ? `BONUS ${next.bonusMultiplier}X` : undefined,
+        ms: 1800,
+      })
     }
     effects.push({ type: 'sound', name: 'scoop' })
     return { state: next, effects }
@@ -148,7 +240,22 @@ export function stepRules(
       ...next.switches,
       [sw.id]: (next.switches[sw.id] ?? 0) + 1,
     }
-    if (sw.id.startsWith('pop-')) {
+    if (NET_TARGETS.includes(sw.id) && !next.sub.nets.includes(sw.id)) {
+      const nets = [...next.sub.nets, sw.id]
+      next.sub = { ...next.sub, nets }
+      effects.push(
+        { type: 'sound', name: 'drop' },
+        { type: 'mechanism', id: sw.id, action: 'flash' },
+      )
+      if (nets.length === NET_TARGETS.length) {
+        effects.push({
+          type: 'dmd',
+          text: 'NETS DELIVERED',
+          sub: 'GO HOME',
+          ms: 1600,
+        })
+      }
+    } else if (sw.id.startsWith('pop-')) {
       effects.push(
         { type: 'sound', name: 'pop' },
         { type: 'mechanism', id: sw.id, action: 'flash' },

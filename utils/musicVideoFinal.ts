@@ -66,21 +66,37 @@ export function clampUploadToPacket(
 }
 
 export const MUSIC_VIDEO_AUDIO_BITRATE = 128_000
-export const MUSIC_VIDEO_MIN_AUDIO_BITRATE = 64_000
+export const MUSIC_VIDEO_MIN_AUDIO_BITRATE = 96_000
 export const MUSIC_VIDEO_MIN_VIDEO_BITRATE = 150_000
 export const MUSIC_VIDEO_MAX_VIDEO_BITRATE = 8_000_000
+
+/*
+ * AAC bitrates browser encoders accept. Chrome on Windows encodes AAC through
+ * Media Foundation, which takes only these; 64k failed there with "encoder
+ * configuration (mp4a.40.2, 64000 bps ...) is not supported" (Silas,
+ * 2026-10-07). The exporter still probes, in case a platform takes none.
+ */
+export const MUSIC_VIDEO_AAC_BITRATES = [96_000, 128_000, 160_000, 192_000]
 
 /*
  * The audio's share when the budget is tight. A 200 s video under the 11 MB
  * the production packet allows has about 420 kbps in all (Silas, 2026-10-07:
  * "The video is larger than 11 MB"), so a fixed 128k of audio plus a 400k
- * video floor could never fit; the audio steps down before the picture
- * starves.
+ * video floor could never fit; the audio steps down to the lowest rate AAC
+ * encoders accept before the picture starves.
  */
 function audioBitrateFor(budget: number): number {
-  if (budget >= 1_000_000) return MUSIC_VIDEO_AUDIO_BITRATE
-  if (budget >= 500_000) return 96_000
-  return MUSIC_VIDEO_MIN_AUDIO_BITRATE
+  return budget >= 1_000_000
+    ? MUSIC_VIDEO_AUDIO_BITRATE
+    : MUSIC_VIDEO_MIN_AUDIO_BITRATE
+}
+
+/** Audio bitrates to try in order: the budgeted one, then larger standard ones. */
+export function aacBitrateCandidates(requested: number): number[] {
+  return [
+    requested,
+    ...MUSIC_VIDEO_AAC_BITRATES.filter((bitrate) => bitrate > requested),
+  ]
 }
 
 /**

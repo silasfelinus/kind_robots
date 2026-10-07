@@ -1,0 +1,23 @@
+name: Pinball Prettier Diagnostic
+
+on:
+  push:
+    branches:
+      - worker/kind-pinball-t008-20261007t0552-x7m3
+
+jobs:
+  format:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - name: Print canonical catalog
+        run: |
+          npx prettier utils/arcade/pinball/audio/catalog.ts > /tmp/catalog.ts
+          echo 'CATALOG_PRETTIER_START'
+          cat /tmp/catalog.ts
+          echo 'CATALOG_PRETTIER_END'

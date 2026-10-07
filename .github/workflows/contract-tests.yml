@@ -177,6 +177,9 @@ jobs:
       - name: Zuzu Showdown training mode
         run: npm run test:zuzu-showdown-training
 
+      - name: Zuzu Showdown sound
+        run: npm run test:zuzu-showdown-sound
+
       - name: No Promise in Pinia store state
         run: npm run test:no-promise-in-store-state
 

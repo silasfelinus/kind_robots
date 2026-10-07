@@ -176,17 +176,17 @@ const PAGES: PageSeed[] = [
     page: 'dreams',
     title: 'Dreams — Dream Deck',
     scene:
-      'outdoors, night sky, a floating deck of pale weathered wooden planks adrift above a sea of clouds, swirling violet and indigo nebula, starry sky, constellations, bioluminescent particles, tiny glowing jellyfish scattered far away near the horizon, gauzy banners on tall poles at the edges of the deck, surreal, ethereal, open starry sky through the middle',
+      'outdoors, night sky, a floating deck of pale weathered wooden planks adrift above a sea of clouds, swirling violet and indigo nebula, starry sky, constellations, bioluminescent particles, tiny glowing jellyfish scattered far away near the horizon, surreal, ethereal, open starry sky through the middle',
     negative:
-      'giant jellyfish, large jellyfish, close-up jellyfish, large creature, monster',
+      'giant jellyfish, large jellyfish, close-up jellyfish, large creature, monster, pillar, pole, tower, obelisk',
   },
   {
     page: 'bots',
     title: 'Bots — Bot Factory',
     scene:
-      'indoors, machine workshop, cluttered workbenches along both side walls, spare mechanical parts, detached robotic arms, small robot heads on shelves, gears, cables, exposed wiring, copper pipes running up the walls, glass tanks of glowing green coolant, tools hanging on pegboards, chain hoists from the ceiling beams, tall factory windows with warm afternoon sunlight, drifting sparks, empty concrete floor in the middle',
+      'indoors, machine shop, workbenches piled with mechanical parts along both side walls, shelves of gears, brass joints, circuit boards and coiled cables, copper pipes running up the walls, glass tanks of glowing green coolant, tools hanging on pegboards, blueprints pinned above the benches, tall factory windows with warm afternoon sunlight, drifting sparks, empty concrete floor in the middle',
     negative:
-      'mecha, humanoid robot, standing robot, android, cyborg, power armor, giant robot',
+      'robot, mecha, humanoid robot, android, cyborg, power armor, hanging object, creature',
   },
   {
     page: 'characters',

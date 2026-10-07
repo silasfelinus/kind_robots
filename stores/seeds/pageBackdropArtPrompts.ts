@@ -49,6 +49,11 @@ export type PageBackdropArtPrompt = {
  * are now spelled out in the negative, where this lane can act on them, and
  * the scene moved ahead of the style so the page's own setting survives.
  *
+ * Portrait canvases are the hardest: an open middle in a long room reads as a
+ * corridor, and Arthemy walks a figure or a machine straight down it (bots
+ * tablet candidates, ArtJobs 34761-34762). The bots scene is a corner view,
+ * and corridors and central objects are negated outright.
+ *
  * Scenes here read best as concrete nouns, not mood prose: round 2 turned
  * bots' "conveyor rails" into a train platform and dreams' "shoals of
  * drifters" into one centred jellyfish (ArtJobs 34424-34429).
@@ -184,9 +189,9 @@ const PAGES: PageSeed[] = [
     page: 'bots',
     title: 'Bots — Bot Factory',
     scene:
-      'indoors, messy machine shop, clutter, many small objects on every surface, workbenches piled with mechanical parts along both side walls, shelves of gears, brass joints, circuit boards and toolboxes, copper pipes running up the walls, tools hanging on pegboards, blueprints pinned above the benches, tall factory windows with warm afternoon sunlight, drifting sparks, empty concrete floor in the middle',
+      'indoors, corner of a messy machine shop seen from a low angle, clutter, many small objects on every surface, workbenches piled with mechanical parts along both side walls, shelves of gears, brass joints, circuit boards and toolboxes, copper pipes running up the walls, tools hanging on pegboards, blueprints pinned above the benches, tall factory windows with warm afternoon sunlight, drifting sparks, empty concrete floor in the middle',
     negative:
-      'robot, mecha, humanoid robot, android, cyborg, power armor, hanging object, creature, giant object, centerpiece, sculpture, statue, spiral, coil, tentacle, glass tank, specimen jar, cylinder, column, pillar',
+      'robot, mecha, humanoid robot, android, cyborg, power armor, hanging object, creature, giant object, centerpiece, sculpture, statue, spiral, coil, tentacle, glass tank, specimen jar, cylinder, column, pillar, corridor, hallway, tunnel, humanoid, skeleton, standing figure, tripod, central object',
   },
   {
     page: 'characters',

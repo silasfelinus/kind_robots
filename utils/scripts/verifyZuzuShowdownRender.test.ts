@@ -2,20 +2,31 @@
 //
 // Zuzu Showdown (conductor zuzu-showdown t-006): the renderer's maths (life
 // bars with red health, meter bars, the camera, the clock), the callouts it
-// derives from sim events, and a headless run that draws every frame of a
-// fuzzed match onto a recording stub canvas: nothing throws, nothing draws
-// at a non-finite coordinate, and the HUD stays inside the screen.
+// derives from sim events, the hit sparks (t-010: on the contact point,
+// coloured by what happened, burning out), and a headless run that draws
+// every frame of a fuzzed match onto a recording stub canvas: nothing throws,
+// nothing draws at a non-finite coordinate, and the HUD stays inside the
+// screen.
 //
 //   npx tsx utils/scripts/verifyZuzuShowdownRender.test.ts
 
 import assert from 'node:assert/strict'
 import { mulberry32 } from '../arcade/curve'
 import {
+  INTRO_FRAMES,
   METER_BAR,
   STAGE_HALF_WIDTH,
   createMatch,
+  hurtbox,
   step,
+  toWorld,
 } from '../zuzuShowdown/sim'
+import {
+  SPARK_LIFE,
+  advanceSparks,
+  sparkFrame,
+  type Spark,
+} from '../zuzuShowdown/effects'
 import {
   VIEW_HEIGHT,
   VIEW_WIDTH,
@@ -38,7 +49,9 @@ import {
   SUB,
   neutralInput,
   type FighterData,
+  type MatchState,
   type SimInput,
+  type WorldBox,
 } from '../zuzuShowdown/types'
 
 const ROSTER: [FighterData, FighterData] = [PLACEHOLDER_A, PLACEHOLDER_B]
@@ -170,6 +183,82 @@ check(
   },
 )
 
+/** A match past its intro with the fighters `gapPx` apart, P1 on the left. */
+function fightAt(gapPx: number): MatchState {
+  let s = createMatch(ROSTER)
+  for (let i = 0; i < INTRO_FRAMES; i += 1)
+    s = step(s, [neutralInput(), neutralInput()], ROSTER)
+  const half = Math.trunc((gapPx * SUB) / 2)
+  s.fighters[0].x = -half
+  s.fighters[1].x = gapPx * SUB - half
+  return s
+}
+
+/** P1 jabs (P2 optionally holding back) until the first spark; the spark and the boxes then. */
+function firstSpark(p2: Partial<SimInput>): {
+  spark: Spark
+  strike: WorldBox
+  hurt: WorldBox
+} {
+  let s = fightAt(36)
+  let sparks: Spark[] = []
+  for (let i = 0; i < 40; i += 1) {
+    s = step(
+      s,
+      [
+        { ...neutralInput(), lp: i % 2 === 0 },
+        { ...neutralInput(), ...p2 },
+      ],
+      ROSTER,
+    )
+    sparks = advanceSparks(sparks, s, ROSTER)
+    if (sparks.length)
+      return {
+        spark: sparks[0]!,
+        // The jab's box and P2's, as they stand on the frame the blow landed.
+        strike: toWorld(s.fighters[0], ROSTER[0].moves.stand_lp.hitbox),
+        hurt: hurtbox(s.fighters[1], ROSTER[1])!,
+      }
+  }
+  throw new Error('no spark')
+}
+
+check(
+  'a blow sparks where its hitbox met the hurtbox; a block sparks blue; sparks burn out',
+  () => {
+    const { spark, strike, hurt } = firstSpark({})
+    assert.equal(spark.kind, 'hit')
+    assert.equal(spark.scale, 1, 'a jab throws the small spark')
+    const within = (v: number, lo: number, hi: number) =>
+      v >= Math.min(lo, hi) - SUB && v <= Math.max(lo, hi) + SUB
+    assert.ok(
+      within(
+        spark.x,
+        Math.max(strike.left, hurt.left),
+        Math.min(strike.right, hurt.right),
+      ),
+    )
+    assert.ok(
+      within(
+        spark.y,
+        Math.max(strike.bottom, hurt.bottom),
+        Math.min(strike.top, hurt.top),
+      ),
+    )
+    // P2 faces left, so holding right is holding back: a block.
+    assert.equal(firstSpark({ right: true }).spark.kind, 'block')
+    // A spark lives SPARK_LIFE frames, then is dropped.
+    let list: Spark[] = [spark]
+    const quiet = fightAt(200)
+    for (let i = 1; i < SPARK_LIFE; i += 1) {
+      list = advanceSparks(list, quiet, ROSTER)
+      assert.equal(list.length, 1)
+      assert.notEqual(sparkFrame(list[0]!), null)
+    }
+    assert.equal(advanceSparks(list, quiet, ROSTER).length, 0)
+  },
+)
+
 check(
   'a fuzzed match draws every frame at finite coordinates, HUD on screen',
   () => {
@@ -178,6 +267,8 @@ check(
       const held: [SimInput, SimInput] = [neutralInput(), neutralInput()]
       let s = createMatch(ROSTER)
       let callouts = advanceCallouts([], s.events)
+      let sparks: Spark[] = []
+      let sparked = 0
       for (let i = 0; i < 3000 && s.phase !== 'over'; i += 1) {
         for (const p of held) {
           for (const button of SIM_BUTTONS)
@@ -185,10 +276,13 @@ check(
         }
         s = step(s, [{ ...held[0] }, { ...held[1] }], ROSTER)
         callouts = advanceCallouts(callouts, s.events)
+        sparks = advanceSparks(sparks, s, ROSTER)
+        sparked += sparks.filter((spark) => spark.age === 0).length
         const { g, calls } = stubContext()
         drawMatch(g, s, ROSTER, callouts, {
           showBoxes: i % 2 === 0,
           reducedMotion: i % 3 === 0,
+          sparks,
         })
         for (const call of calls) {
           for (const n of call.args)
@@ -196,6 +290,7 @@ check(
         }
         assert.ok(calls.length > 20)
       }
+      assert.ok(sparked > 0, `seed ${seed} threw sparks`)
     }
   },
 )

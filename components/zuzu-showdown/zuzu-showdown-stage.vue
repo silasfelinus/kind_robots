@@ -87,6 +87,7 @@ import {
 } from '~/utils/zuzuShowdown/render'
 import { findFighter } from '~/utils/zuzuShowdown/fighters'
 import { advanceSparks, type Spark } from '~/utils/zuzuShowdown/effects'
+import { cpuInput, newCpu, type CpuState } from '~/utils/zuzuShowdown/cpu'
 import {
   SPRITE_FIGHTERS,
   SPRITE_ROOT,
@@ -179,6 +180,8 @@ const touchButtons: Array<{
 let match: MatchState = createMatch(roster)
 let callouts: Callout[] = []
 let sparks: Spark[] = []
+// The CPU opponent (t-020) plays P2 in CPU mode, seeded fresh for each match.
+let cpu: CpuState = newCpu('normal', 1)
 let resultCountdown = 0
 let loop: FixedLoop | null = null
 let sound: ArcadeSound | null = null
@@ -209,6 +212,7 @@ function startMatch() {
   match = createMatch(roster)
   callouts = advanceCallouts([], match.events)
   sparks = []
+  cpu = newCpu(store.cpuLevel, Math.floor(Math.random() * 0xffffffff))
   resultCountdown = RESULT_DELAY
   phase.value = 'fight'
   sound?.play('start')
@@ -268,7 +272,13 @@ function tick() {
     return
   }
   const first = toSimInput(one.held)
-  const second = store.mode === 'versus' ? toSimInput(two.held) : neutralInput()
+  let second = neutralInput()
+  if (store.mode === 'versus') second = toSimInput(two.held)
+  else if (store.mode === 'cpu') {
+    const turn = cpuInput(cpu, match, 1, roster)
+    cpu = turn.cpu
+    second = turn.input
+  }
   if (!store.easySpecials) {
     first.special = false
     second.special = false
@@ -300,7 +310,12 @@ function render() {
         color: '#fde68a',
       },
       {
-        text: store.mode === 'versus' ? '2 PLAYERS' : 'P1 VS TRAINING DUMMY',
+        text:
+          store.mode === 'versus'
+            ? '2 PLAYERS'
+            : store.mode === 'cpu'
+              ? `P1 VS CPU (${store.cpuLevel.toUpperCase()})`
+              : 'P1 VS TRAINING DUMMY',
       },
       { text: 'PRESS START OR LP', scale: 2, color: '#fde047' },
     ])

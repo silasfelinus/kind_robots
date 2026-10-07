@@ -1,14 +1,17 @@
 // /stores/zuzuShowdownStore.ts
 //
 // Player options for Zuzu Showdown (conductor zuzu-showdown): sound, the CRT
-// overlay, Easy Specials, the hitbox overlay and the match mode. Remembered
-// per browser; the match itself lives in the pure sim (utils/zuzuShowdown).
+// overlay, Easy Specials, the hitbox overlay, the match mode and the CPU's
+// level. Remembered per browser; the match itself lives in the pure sim
+// (utils/zuzuShowdown).
 
 import { ref } from 'vue'
 import { defineStore } from 'pinia'
 import { DEFAULT_FIGHTERS, FIGHTERS } from '~/utils/zuzuShowdown/fighters'
+import { CPU_LEVELS, type CpuLevel } from '~/utils/zuzuShowdown/cpu'
 
-export type ShowdownMode = 'versus' | 'dummy'
+/** P2 is a CPU opponent, a second player, or the training dummy. */
+export type ShowdownMode = 'cpu' | 'versus' | 'dummy'
 
 type ShowdownPrefs = {
   muted?: boolean
@@ -16,6 +19,7 @@ type ShowdownPrefs = {
   easySpecials?: boolean
   showBoxes?: boolean
   mode?: ShowdownMode
+  cpuLevel?: CpuLevel
   fighters?: [string, string]
 }
 
@@ -43,7 +47,8 @@ export const useZuzuShowdownStore = defineStore('zuzuShowdownStore', () => {
   const crt = ref(false)
   const easySpecials = ref(false)
   const showBoxes = ref(false)
-  const mode = ref<ShowdownMode>('dummy')
+  const mode = ref<ShowdownMode>('cpu')
+  const cpuLevel = ref<CpuLevel>('normal')
   const reducedMotion = ref(false)
   const fighters = ref<[string, string]>([...DEFAULT_FIGHTERS])
 
@@ -58,7 +63,12 @@ export const useZuzuShowdownStore = defineStore('zuzuShowdownStore', () => {
     crt.value = prefs.crt ?? !options.reducedMotion
     easySpecials.value = prefs.easySpecials ?? options.coarsePointer
     showBoxes.value = prefs.showBoxes === true
-    mode.value = prefs.mode === 'versus' ? 'versus' : 'dummy'
+    mode.value =
+      prefs.mode === 'versus' || prefs.mode === 'dummy' ? prefs.mode : 'cpu'
+    cpuLevel.value =
+      prefs.cpuLevel && CPU_LEVELS.includes(prefs.cpuLevel)
+        ? prefs.cpuLevel
+        : 'normal'
     const known = (slug: unknown, fallback: string) =>
       typeof slug === 'string' && FIGHTERS.some((f) => f.slug === slug)
         ? slug
@@ -76,6 +86,7 @@ export const useZuzuShowdownStore = defineStore('zuzuShowdownStore', () => {
       easySpecials: easySpecials.value,
       showBoxes: showBoxes.value,
       mode: mode.value,
+      cpuLevel: cpuLevel.value,
       fighters: fighters.value,
     })
   }
@@ -113,12 +124,19 @@ export const useZuzuShowdownStore = defineStore('zuzuShowdownStore', () => {
     save()
   }
 
+  function setCpuLevel(value: CpuLevel) {
+    if (!CPU_LEVELS.includes(value)) return
+    cpuLevel.value = value
+    save()
+  }
+
   return {
     muted,
     crt,
     easySpecials,
     showBoxes,
     mode,
+    cpuLevel,
     reducedMotion,
     fighters,
     loadPreferences,
@@ -128,5 +146,6 @@ export const useZuzuShowdownStore = defineStore('zuzuShowdownStore', () => {
     setEasySpecials,
     setShowBoxes,
     setMode,
+    setCpuLevel,
   }
 })

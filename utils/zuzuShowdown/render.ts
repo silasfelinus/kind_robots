@@ -23,9 +23,15 @@ import {
   STAGE_INK,
   TUMBLEWEED,
   VULTURE,
+  RIFTS,
   appleAt,
   bellAngle,
   candleFlame,
+  debrisAt,
+  doorOpen,
+  duneSlumpAt,
+  riftGlow,
+  sandBlowAt,
   dustDevilAt,
   leavesAt,
   crocEyesAt,
@@ -465,6 +471,28 @@ export function drawStageArt(
       g.fillStyle = `rgba(220, 235, 255, ${(0.65 * flash).toFixed(2)})`
       g.fillRect(0, layer.y, VIEW_WIDTH, layer.h)
     }
+    if (m.stage === 'the-thin-place' && layer.name === 'backdrop') {
+      // The sky tearing at its seams: a wide dim glow under a bright core along each tear.
+      const glow = riftGlow(frame, reducedMotion)
+      for (const [width, colour] of [
+        [3, `rgba(167, 139, 250, ${(0.45 * glow).toFixed(2)})`],
+        [1, `rgba(204, 251, 241, ${glow.toFixed(2)})`],
+      ] as const) {
+        g.fillStyle = colour
+        for (const rift of RIFTS) {
+          for (let k = 0; k + 1 < rift.length; k += 1) {
+            const [x0, y0] = rift[k]!
+            const [x1, y1] = rift[k + 1]!
+            const steps = Math.max(Math.abs(x1 - x0), Math.abs(y1 - y0))
+            for (let t = 0; t <= steps; t += 1) {
+              const px = Math.round(x0 + ((x1 - x0) * t) / steps)
+              const py = Math.round(y0 + ((y1 - y0) * t) / steps)
+              g.fillRect(px - (width >> 1), py - (width >> 1), width, width)
+            }
+          }
+        }
+      }
+    }
     if (m.stage === 'storm-canyon' && layer.name === 'backdrop') {
       for (const c of crowsAt(frame)) {
         drawPixelSprite(g, VULTURE[c.flap]!, x + c.x, layer.y + c.y)
@@ -603,6 +631,33 @@ export function drawStageArt(
         )
       }
     }
+    const sun = anchor('sun')
+    if (sun) {
+      // The Dunes' long sun, low and huge, with a haze ring around it.
+      g.fillStyle = 'rgba(255, 237, 180, 0.35)'
+      g.fillRect(x + sun.x - 16, layer.y + sun.y - 12, 32, 24)
+      g.fillRect(x + sun.x - 12, layer.y + sun.y - 16, 24, 32)
+      g.fillStyle = '#fff3c4'
+      g.fillRect(x + sun.x - 11, layer.y + sun.y - 8, 22, 16)
+      g.fillRect(x + sun.x - 8, layer.y + sun.y - 11, 16, 22)
+    }
+    const crest = anchor('crest')
+    if (crest?.w && crest.h) {
+      g.fillStyle = 'rgba(250, 226, 180, 0.8)'
+      for (const grain of sandBlowAt(frame, crest.w, crest.h, reducedMotion)) {
+        g.fillRect(x + crest.x + grain.x, layer.y + crest.y + grain.y, 2, 1)
+      }
+    }
+    const gap = anchor('doorgap')
+    if (gap?.w && gap.h) {
+      // The Thin Place: light from behind the door, wider each round.
+      const open = doorOpen(s.round, frame, reducedMotion)
+      const wide = Math.max(1, Math.round(gap.w * open))
+      g.fillStyle = 'rgba(204, 251, 241, 0.9)'
+      g.fillRect(x + gap.x + gap.w - wide, layer.y + gap.y, wide, gap.h)
+      g.fillStyle = 'rgba(167, 139, 250, 0.35)'
+      g.fillRect(x + gap.x + gap.w - wide - 3, layer.y + gap.y, 3, gap.h)
+    }
     const canopy = anchor('canopy')
     if (canopy?.w && canopy.h) {
       // The Lone Apple Tree: red leaves drift down, and every few seconds an apple drops.
@@ -662,6 +717,26 @@ export function drawStageArt(
         )
       }
     }
+  }
+  const slump =
+    m.stage === 'the-dunes' && !reducedMotion
+      ? duneSlumpAt(frame, VIEW_WIDTH)
+      : null
+  if (slump && slump.h > 0) {
+    // Something vast moving under the dune: a heave of sand crossing behind the fighters.
+    g.fillStyle = '#c99a5e'
+    for (let dx = -30; dx <= 30; dx += 1) {
+      const rise = Math.round(slump.h * (1 - (dx / 30) ** 2))
+      if (rise > 0) g.fillRect(slump.x + dx, FLOOR_Y - 8 - rise, 1, rise)
+    }
+    g.fillStyle = '#8a6236'
+    for (let dx = -18; dx <= 18; dx += 3)
+      g.fillRect(slump.x + dx, FLOOR_Y - 8 - Math.round(slump.h * 0.6), 2, 1)
+  }
+  if (m.stage === 'the-thin-place') {
+    g.fillStyle = '#6b6290'
+    for (const d of debrisAt(frame, reducedMotion))
+      g.fillRect(d.x, d.y, d.size + 1, d.size)
   }
   const devil =
     m.stage === 'lone-apple-tree' ? dustDevilAt(frame, reducedMotion) : null

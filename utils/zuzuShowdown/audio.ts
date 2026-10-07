@@ -321,6 +321,44 @@ const LONE_APPLE_TREE: MusicLoop = {
   ],
 }
 
+/** The Dunes, Old Komodo's: B minor, slow and wide as the sand, a drone bass and a long, bending line. */
+const THE_DUNES: MusicLoop = {
+  bpm: 80,
+  tracks: [
+    {
+      type: 'triangle',
+      vol: 0.08,
+      steps: `B1 - - - - - - -   F#2 - - - - - - -
+              G2 - - - - - - -   F#2 - - - A#1 - - -`,
+    },
+    {
+      type: 'sine',
+      vol: 0.05,
+      steps: `F#4 - - - B4 - - -   A4 - G4 - F#4 - - -
+              E4 - G4 - F#4 - E4 -   C#4 - - - A#3 - - -`,
+    },
+  ],
+}
+
+/** The Thin Place, the boss's: B-flat minor, almost nothing, a low pulse and a few notes that hang. */
+const THE_THIN_PLACE: MusicLoop = {
+  bpm: 60,
+  tracks: [
+    {
+      type: 'triangle',
+      vol: 0.08,
+      steps: `Bb1 . . . Bb1 . . .   Gb1 . . . F1 . . .
+              Bb1 . . . Bb1 . . .   Eb2 . . . F1 . A1 .`,
+    },
+    {
+      type: 'sine',
+      vol: 0.04,
+      steps: `. . . . F5 - - -   . . . . Db5 - - -
+              . . . . C5 - Db5 -   A4 - - - . . . .`,
+    },
+  ],
+}
+
 /** Every stage still to come: E minor at a canter. */
 export const DEFAULT_LOOP: MusicLoop = {
   bpm: 110,
@@ -346,6 +384,8 @@ export const STAGE_LOOPS: Record<StageSlug, MusicLoop> = {
   'the-mission': THE_MISSION,
   'storm-canyon': STORM_CANYON,
   'lone-apple-tree': LONE_APPLE_TREE,
+  'the-dunes': THE_DUNES,
+  'the-thin-place': THE_THIN_PLACE,
 }
 
 /** The minor key each loop is in (its tonic's pitch class, 0 = C). */
@@ -359,6 +399,8 @@ export const LOOP_KEYS: Array<{
   { name: 'the-mission', loop: THE_MISSION, tonic: 7 },
   { name: 'storm-canyon', loop: STORM_CANYON, tonic: 0 },
   { name: 'lone-apple-tree', loop: LONE_APPLE_TREE, tonic: 5 },
+  { name: 'the-dunes', loop: THE_DUNES, tonic: 11 },
+  { name: 'the-thin-place', loop: THE_THIN_PLACE, tonic: 10 },
   { name: 'default', loop: DEFAULT_LOOP, tonic: 4 },
 ]
 

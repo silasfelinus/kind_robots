@@ -15,6 +15,10 @@
 //     canyon walls and the fighters stand in silhouette (never under reduced motion).
 //   The Lone Apple Tree (the Siblings'): heat shimmer over the wasteland, red leaves drifting down, a
 //     dust devil crossing the street. Apples drop from the tree, rest on the ground, and fade.
+//   The Dunes (Old Komodo's): a long sun, sand blowing off the crests. Now and then the dune behind the
+//     fighters heaves and something vast moves under it.
+//   The Thin Place (the boss's): the sky tearing at its seams, debris floating up. Light shows at the
+//     edge of the lone door, wider each round.
 //
 // This module is pure: which stage a match is on, where each layer sits for a camera, the stage-event
 // state, and where every moving part is on a given frame. render.ts draws it; the stage component loads
@@ -28,6 +32,8 @@ export type StageSlug =
   | 'the-mission'
   | 'storm-canyon'
   | 'lone-apple-tree'
+  | 'the-dunes'
+  | 'the-thin-place'
 
 /** A parallax layer in the stage manifest: its screen position (game px) with the camera centred. */
 export type StageLayer = {
@@ -86,6 +92,8 @@ export const STAGE_NAMES: Record<StageSlug, string> = {
   'the-mission': 'The Mission',
   'storm-canyon': 'Storm Canyon',
   'lone-apple-tree': 'The Lone Apple Tree',
+  'the-dunes': 'The Dunes',
+  'the-thin-place': 'The Thin Place',
 }
 
 /** Each fighter's home stage (DESIGN-BRIEF.md "Stages with moving backgrounds"). */
@@ -96,6 +104,8 @@ export const HOME_STAGES: Partial<Record<string, StageSlug>> = {
   'the-abbess': 'the-mission',
   'storm-crow': 'storm-canyon',
   'the-siblings': 'lone-apple-tree',
+  'old-komodo': 'the-dunes',
+  'thing-behind-the-door': 'the-thin-place',
 }
 
 /** The fighters whose presence keeps the croc's eyes out of the Watering Hole. */
@@ -437,4 +447,116 @@ export function dustDevilAt(
     h: Math.round(18 + Math.sin(t * Math.PI) * 10),
     spin: frame,
   }
+}
+
+// ---------------------------------------------------------------- the Dunes
+
+/** Sand lifting off the crests (a band `w` wide): offsets from its corner, streaming downwind. */
+export function sandBlowAt(
+  frame: number,
+  w: number,
+  h: number,
+  reducedMotion: boolean,
+): Array<{ x: number; y: number }> {
+  if (reducedMotion) return []
+  const out: Array<{ x: number; y: number }> = []
+  for (let i = 0; i < 18; i += 1) {
+    const life = 90
+    const age = (frame + i * 17) % life
+    const lap = Math.floor((frame + i * 17) / life)
+    const start = ((i * 53 + lap * 29) % 100) / 100
+    out.push({
+      x: Math.round(start * w + age * 0.9),
+      y: Math.round((((i * 7) % 10) / 10) * h - age * 0.12),
+    })
+  }
+  return out
+}
+
+/** Frames between the dune heaving, and how long something takes to pass under it. */
+export const SLUMP_EVERY = 900
+export const SLUMP_FRAMES = 300
+
+/**
+ * The dune heaving behind the fighters: where the hump is on screen (it crosses right to left) and how
+ * high it stands, or null when the sand lies still.
+ */
+export function duneSlumpAt(
+  frame: number,
+  width: number,
+): { x: number; h: number } | null {
+  const t = frame % SLUMP_EVERY
+  const start = SLUMP_EVERY - SLUMP_FRAMES
+  if (t < start) return null
+  const u = (t - start) / SLUMP_FRAMES
+  return {
+    x: Math.round(width + 40 - u * (width + 80)),
+    h: Math.round(Math.sin(u * Math.PI) * 10),
+  }
+}
+
+// ---------------------------------------------------------------- the Thin Place
+
+/** The tears in the sky: jagged seams in screen pixels, each a list of points. */
+export const RIFTS: ReadonlyArray<ReadonlyArray<readonly [number, number]>> = [
+  [
+    [40, 30],
+    [70, 44],
+    [96, 38],
+    [130, 60],
+    [150, 56],
+  ],
+  [
+    [300, 20],
+    [322, 36],
+    [318, 52],
+    [350, 66],
+    [380, 62],
+    [410, 80],
+  ],
+  [
+    [190, 92],
+    [214, 100],
+    [236, 96],
+    [262, 110],
+  ],
+]
+
+/** How brightly the tears glow this frame (0.4 to 1): they breathe. Steady under reduced motion. */
+export function riftGlow(frame: number, reducedMotion: boolean): number {
+  if (reducedMotion) return 0.7
+  return 0.7 + Math.sin(frame / 40) * 0.3
+}
+
+/** Debris floating up off the ground and sinking again: screen positions and sizes. */
+export function debrisAt(
+  frame: number,
+  reducedMotion: boolean,
+): Array<{ x: number; y: number; size: number }> {
+  const out: Array<{ x: number; y: number; size: number }> = []
+  for (let i = 0; i < 7; i += 1) {
+    const bob = reducedMotion
+      ? 0
+      : Math.sin((frame + i * 50) / (60 + i * 7)) * 6
+    out.push({
+      x: 30 + ((i * 71) % 420),
+      y: Math.round(150 + ((i * 37) % 60) + bob),
+      size: 1 + (i % 3),
+    })
+  }
+  return out
+}
+
+/**
+ * How far the door stands open (0 to 1 of its gap): a sliver in the first round, wider each round
+ * after, and it flickers. The boss's phases (t-021) will drive it in Arcade mode.
+ */
+export function doorOpen(
+  round: number,
+  frame: number,
+  reducedMotion: boolean,
+): number {
+  const base = Math.min(1, 0.2 + (round - 1) * 0.35)
+  if (reducedMotion) return base
+  return Math.min(1, base * (0.85 + ((Math.floor(frame / 4) * 7) % 5) * 0.06))
 }

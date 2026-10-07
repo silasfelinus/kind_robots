@@ -149,16 +149,16 @@ check(
       ])
         assert.ok(sheets[slug]!.animations[name], `${slug} ${name}`)
     }
-    for (const name of [
-      'wild_shot',
-      'pocket_sand',
-      'reload',
-      'play_dead',
-      'knockdown',
-      'ko',
-      'taunt',
-    ])
-      assert.ok(sheets['coyote-vagrant']!.animations[name], `coyote ${name}`)
+    for (const slug of SPRITE_FIGHTERS)
+      for (const name of ['intro', 'perfect', 'knockdown', 'ko', 'taunt'])
+        assert.ok(sheets[slug]!.animations[name], `${slug} ${name}`)
+    // Every special and super each kit lists has art under its move id.
+    for (const slug of SPRITE_FIGHTERS)
+      for (const special of fighter(slug).specials)
+        assert.ok(
+          sheets[slug]!.animations[special.id.replace(/-/g, '_')],
+          `${slug} ${special.id}`,
+        )
   },
 )
 
@@ -269,6 +269,17 @@ check(
       pickSprite(stateOf('zuzu', { action: 'thrown' }), zuzu)!.name,
       'thrown',
     )
+    // The round intro plays over the idle, on the round's clock; a flawless win plays the Perfect pose.
+    const intro = pickSprite(
+      stateOf('coyote-vagrant', { action: 'idle', frame: 1 }),
+      coyote,
+      { intro: 89 },
+    )!
+    assert.equal(intro.name, 'intro')
+    assert.equal(intro.index, coyote.animations.intro!.frames.length - 1)
+    const won = stateOf('coyote-vagrant', { action: 'victory' })
+    assert.equal(pickSprite(won, coyote, { perfect: true })!.name, 'perfect')
+    assert.equal(pickSprite(won, coyote)!.name, 'victory_button')
     const low = stateOf('coyote-vagrant', {
       action: 'blockstun',
       prev: { ...neutralInput(), down: true },

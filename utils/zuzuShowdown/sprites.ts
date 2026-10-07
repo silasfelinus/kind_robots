@@ -58,14 +58,26 @@ const SIM_FPS = 60
 /** An animation name and the frame of it to show. */
 export type SpritePick = { name: string; index: number }
 
+/** What the fighter's own state can't tell the sprite: the match around it. */
+export type SpriteContext = {
+  /** Frames into the round intro, while the match is in its intro phase. */
+  intro?: number
+  /** The round was won without taking a hit (the Perfect pose replaces the victory). */
+  perfect?: boolean
+}
+
 // Moves whose attack id names a rig animation directly ('wild-shot' -> 'wild_shot').
 function moveAnimation(id: string): string {
   return id.replace(/-/g, '_')
 }
 
 /** The animations to try, best first, for a fighter's current state; `idle` always ends the list. */
-export function animationCandidates(f: FighterState): string[] {
+export function animationCandidates(
+  f: FighterState,
+  context: SpriteContext = {},
+): string[] {
   const low = f.prev.down
+  if (context.intro !== undefined && f.action === 'idle') return ['intro']
   switch (f.action) {
     case 'walk':
       return f.vx * f.facing >= 0
@@ -113,8 +125,10 @@ export function animationCandidates(f: FighterState): string[] {
       return ['knockdown', 'ko']
     case 'ko':
       return ['ko', 'knockdown']
-    case 'victory':
-      return ['victory_button', 'victory', 'taunt']
+    case 'victory': {
+      const won = ['victory_button', 'victory', 'taunt']
+      return context.perfect ? ['perfect', ...won] : won
+    }
     default:
       return []
   }
@@ -124,16 +138,21 @@ export function animationCandidates(f: FighterState): string[] {
 export function pickSprite(
   f: FighterState,
   sheet: SpriteSheet,
+  context: SpriteContext = {},
 ): SpritePick | null {
-  const names = [...animationCandidates(f), 'idle']
+  const names = [...animationCandidates(f, context), 'idle']
   const name = names.find((n) => sheet.animations[n]?.frames.length)
   if (!name) return null
   const anim = sheet.animations[name]!
-  // Attacks follow the move's own clock; everything else the frames spent in the action.
-  const elapsed = Math.max(
-    0,
-    (f.action === 'attack' && f.attack ? f.attack.frame : f.frame) - 1,
-  )
+  // Attacks follow the move's own clock, the intro the round's; everything else the frames spent in
+  // the action.
+  const clock =
+    name === 'intro' && context.intro !== undefined
+      ? context.intro
+      : f.action === 'attack' && f.attack
+        ? f.attack.frame
+        : f.frame
+  const elapsed = Math.max(0, clock - 1)
   const step = Math.floor((elapsed * anim.fps) / SIM_FPS)
   const count = anim.frames.length
   const index = anim.loop ? step % count : Math.min(step, count - 1)

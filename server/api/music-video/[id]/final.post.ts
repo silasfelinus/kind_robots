@@ -9,11 +9,13 @@ import { requireAdminApiUser } from '@/server/utils/authGuard'
 import { errorHandler } from '@/server/utils/error'
 import {
   checkFinalVideoUpload,
+  clampUploadToPacket,
   finalVideoFileName,
   musicVideoMaxUploadBytes,
 } from '@/utils/musicVideoFinal'
 import {
   loadOwnedMusicVideo,
+  readDbMaxPacketBytes,
   readMusicVideoId,
   toMusicVideoDto,
 } from '@/server/utils/musicVideo'
@@ -28,8 +30,9 @@ export default defineEventHandler(async (event) => {
     const auth = await requireAdminApiUser(event)
     const id = readMusicVideoId(event)
     const record = await loadOwnedMusicVideo(id, auth.user.id)
-    const maxBytes = musicVideoMaxUploadBytes(
-      process.env.MUSIC_VIDEO_MAX_UPLOAD_MB,
+    const maxBytes = clampUploadToPacket(
+      musicVideoMaxUploadBytes(process.env.MUSIC_VIDEO_MAX_UPLOAD_MB),
+      await readDbMaxPacketBytes(),
     )
 
     const declared = Number(getHeader(event, 'content-length') || 0)

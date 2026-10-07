@@ -11,7 +11,12 @@
 // replaces drawFighter and the stage layers in the art tasks (t-009, t-010+).
 
 import { drawText } from '../arcade/font'
-import { drawSprite, pickSprite, type LoadedSprites } from './sprites'
+import {
+  drawSprite,
+  pickSprite,
+  type LoadedSprites,
+  type SpriteContext,
+} from './sprites'
 import {
   METER_BAR,
   STAGE_HALF_WIDTH,
@@ -310,6 +315,7 @@ function drawFighter(
   frame: number,
   mirror: boolean,
   sprites?: LoadedSprites,
+  context: SpriteContext = {},
 ): void {
   const colors = fighterColors(data, side, mirror)
   const x = screenX(f.x, camera)
@@ -326,7 +332,7 @@ function drawFighter(
   g.fillRect(x - Math.round(width / 2), FLOOR_Y + 1, width, 3)
 
   // Rig art when it has loaded (t-010); P2 in a mirror match wears the alternate colours.
-  const pick = sprites ? pickSprite(f, sprites.sheet) : null
+  const pick = sprites ? pickSprite(f, sprites.sheet, context) : null
   if (sprites && pick) {
     const image =
       mirror && side === 1 && sprites.p2 ? sprites.p2 : sprites.image
@@ -699,6 +705,10 @@ export function drawMatch(
       s.frame,
       roster[0].slug === roster[1].slug,
       options.sprites?.[roster[side].slug],
+      {
+        intro: s.phase === 'intro' ? s.phaseFrame : undefined,
+        perfect: s.fighters[side].health >= roster[side].health,
+      },
     )
   drawProjectiles(g, s, roster, camera, s.frame)
   if (options.showBoxes) drawBoxes(g, s, roster, camera)

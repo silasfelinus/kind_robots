@@ -95,6 +95,17 @@ import {
   type KoSlowdown,
   type Spark,
 } from '~/utils/zuzuShowdown/effects'
+import {
+  STAGE_ROOT,
+  advanceStageFx,
+  newStageFx,
+  stageFile,
+  stageFor,
+  type LoadedStage,
+  type StageFx,
+  type StageManifest,
+  type StageSlug,
+} from '~/utils/zuzuShowdown/stages'
 import { cpuInput, newCpu, type CpuState } from '~/utils/zuzuShowdown/cpu'
 import { introFor } from '~/utils/zuzuShowdown/matchups'
 import {
@@ -154,6 +165,51 @@ async function loadSprites() {
       }
     }),
   )
+}
+
+// The stage's art (t-009), loaded for the current roster's home stage; the placeholder stage draws until
+// it arrives, and if it never does.
+let stage: LoadedStage | null = null
+let stageSlug: StageSlug | null = null
+let stageFx: StageFx = newStageFx()
+
+async function loadStage(slug: StageSlug) {
+  if (stageSlug === slug) return
+  stageSlug = slug
+  stage = null
+  try {
+    const response = await fetch(`${STAGE_ROOT}/${stageFile(slug, 'pixel')}`)
+    if (!response.ok) throw new Error(`stage ${slug}: ${response.status}`)
+    const manifest = (await response.json()) as StageManifest
+    const [layers, cutouts] = await Promise.all([
+      Promise.all(
+        manifest.layers.map(
+          async (l) =>
+            [l.name, await loadImage(`${STAGE_ROOT}/${l.file}`)] as const,
+        ),
+      ),
+      Promise.all(
+        manifest.cutouts.map(
+          async (c) =>
+            [c.name, await loadImage(`${STAGE_ROOT}/${c.file}`)] as const,
+        ),
+      ),
+    ])
+    // A roster change while this loaded wins.
+    if (stageSlug !== slug) return
+    const pick = (
+      pairs: ReadonlyArray<readonly [string, HTMLImageElement | null]>,
+    ) =>
+      Object.fromEntries(pairs.filter((pair) => pair[1] !== null)) as Record<
+        string,
+        HTMLImageElement
+      >
+    stage = { manifest, layers: pick(layers), cutouts: pick(cutouts) }
+  } catch {
+    // Missing art is not an error: the placeholder stage still plays, and the next roster change
+    // tries again.
+    if (stageSlug === slug) stageSlug = null
+  }
 }
 
 const store = useZuzuShowdownStore()
@@ -238,6 +294,7 @@ function startMatch() {
   callouts = advanceCallouts([], match.events)
   sparks = []
   slowdown = null
+  stageFx = advanceStageFx(newStageFx(), match.events)
   cpu = newCpu(store.cpuLevel, Math.floor(Math.random() * 0xffffffff))
   resultCountdown = RESULT_DELAY
   phase.value = 'fight'
@@ -324,6 +381,7 @@ function tick() {
   match = step(match, [first, second], roster)
   callouts = advanceCallouts(callouts, match.events)
   sparks = advanceSparks(sparks, match, roster)
+  stageFx = advanceStageFx(stageFx, match.events)
   playSounds(match.events)
   slowdown = slowdown ?? koSlowdownFor(match.events)
   if (match.phase === 'over') {
@@ -349,6 +407,8 @@ function render() {
     reducedMotion: store.reducedMotion,
     sprites,
     sparks,
+    stage: stage ?? undefined,
+    stageFx,
   })
   const flash = koFlash(slowdown, store.reducedMotion)
   if (flash > 0) {
@@ -481,6 +541,8 @@ watch(
     callouts = []
     sparks = []
     slowdown = null
+    stageFx = newStageFx()
+    void loadStage(stageFor(roster))
     phase.value = 'title'
   },
 )
@@ -507,6 +569,7 @@ onMounted(() => {
   }
   loop = startFixedLoop(tick, render)
   void loadSprites()
+  void loadStage(stageFor(roster))
 })
 
 onBeforeUnmount(() => {

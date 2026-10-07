@@ -156,6 +156,16 @@ type PageSeed = {
    * giant mech, dreams' "jellyfish" one giant jellyfish (ArtJobs 34639-34644).
    */
   negative?: string
+  /**
+   * Render a variant on another variant's canvas and framing, so its slug
+   * serves that art. 896x1152 is within a step of Illustrious's character
+   * portrait bucket (832x1216), and on bots every tablet candidate put a
+   * figure or machine dead centre -- eight of eight, two of them androids the
+   * negative named outright (ArtJobs 34761-34762, 34795-34798). The 9:16
+   * mobile canvas never did, so bots' tablet renders on it; the slug, file and
+   * frontmatter stay tablet's, and the CSS covers the 3:4 viewport.
+   */
+  canvasFor?: Partial<Record<BackdropVariant, BackdropVariant>>
 }
 
 /**
@@ -187,6 +197,7 @@ const PAGES: PageSeed[] = [
       'indoors, messy machine shop, clutter, many small objects on every surface, workbenches piled with mechanical parts along both side walls, shelves of gears, brass joints, circuit boards and toolboxes, copper pipes running up the walls, tools hanging on pegboards, blueprints pinned above the benches, tall factory windows with warm afternoon sunlight, drifting sparks, empty concrete floor in the middle',
     negative:
       'robot, mecha, humanoid robot, android, cyborg, power armor, hanging object, creature, giant object, centerpiece, sculpture, statue, spiral, coil, tentacle, glass tank, specimen jar, cylinder, column, pillar',
+    canvasFor: { tablet: 'mobile' },
   },
   {
     page: 'characters',
@@ -581,7 +592,8 @@ function buildPrompt(seed: PageSeed, variant: BackdropVariant): string {
 export const pageBackdropArtPrompts: PageBackdropArtPrompt[] = PAGES.flatMap(
   (seed) =>
     (Object.keys(CANVAS) as BackdropVariant[]).map((variant) => {
-      const canvas = CANVAS[variant]
+      const canvasVariant = seed.canvasFor?.[variant] ?? variant
+      const canvas = CANVAS[canvasVariant]
       return {
         // Stable and derived, never random: the enqueue script uses this to
         // recognise a job it already created, so re-running it is a no-op
@@ -595,7 +607,7 @@ export const pageBackdropArtPrompts: PageBackdropArtPrompt[] = PAGES.flatMap(
         // Must match the frontmatter keys in content/<page>.md exactly, and the
         // /images/** redirect to the media origin.
         imagePath: `background/${seed.page}-${variant}.webp`,
-        promptString: buildPrompt(seed, variant),
+        promptString: buildPrompt(seed, canvasVariant),
         negativePrompt: seed.negative
           ? `${NEGATIVE_PROMPT}, ${seed.negative}`
           : NEGATIVE_PROMPT,

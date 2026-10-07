@@ -340,6 +340,27 @@ export const ARCADE_GAMES: ArcadeGameMeta[] = [
     accent: '#ea580c',
     controls: 'Walk, jump, throw',
   },
+  {
+    slug: 'station-sweep',
+    title: 'Station Sweep',
+    riffsOn: 'Xenophobe',
+    blurb:
+      'Mop, the station cleaning robot, sweeps a deck overrun by glitch critters. Egg sacs hatch rollers that bowl along the floor (crouch to sweep them), biters that spit, and ceiling crawlers that drop and cling until Mop jumps. Pop every sac, sweep every critter, and the deck is clean.',
+    howTo: [
+      'LEFT/RIGHT  WALK',
+      'DOWN  CROUCH, SWEEP LOW',
+      'UP OR B  JUMP',
+      'A  SWEEPER BEAM',
+      'JUMP TO SHAKE CRAWLERS',
+      'POP EVERY EGG SAC',
+    ],
+    width: 320,
+    height: 240,
+    maxPlausibleScore: 10_000_000,
+    titleArt: '/images/arcade/games/station-sweep-title.webp',
+    accent: '#34d399',
+    controls: 'Walk, crouch, jump, sweep',
+  },
 ]
 
 export type ComingSoonCabinet = {
@@ -352,14 +373,7 @@ export type ComingSoonCabinet = {
 }
 
 // Mirrors the queued rows of conductor projects/kr-arcade/games.yaml.
-export const COMING_SOON: ComingSoonCabinet[] = [
-  {
-    slug: 'station-sweep',
-    title: 'Station Sweep',
-    riffsOn: 'Xenophobe',
-    accent: '#34d399',
-  },
-]
+export const COMING_SOON: ComingSoonCabinet[] = []
 
 const LOADERS: Record<string, () => Promise<ArcadeGameModule>> = {
   'butterfly-blaster': () => import('./games/butterflyBlaster'),
@@ -378,6 +392,7 @@ const LOADERS: Record<string, () => Promise<ArcadeGameModule>> = {
   'kindness-gauntlet': () => import('./games/kindnessGauntlet'),
   'prize-show-panic': () => import('./games/prizeShowPanic'),
   'zuzu-ghost-trail': () => import('./games/zuzuGhostTrail'),
+  'station-sweep': () => import('./games/stationSweep'),
 }
 
 export function findArcadeGame(slug: string): ArcadeGameMeta | undefined {

@@ -286,16 +286,16 @@ export const ARCADE_GAMES: ArcadeGameMeta[] = [
     title: 'Kindness Gauntlet',
     riffsOn: 'Gauntlet II',
     blurb:
-      'Choose your repair bot (mighty Hugs, sturdy Fix, magical Sage or speedy Zip) and explore a glitchy old server dungeon floor by floor. Throw wrench sparks to fix the glitches swarming out of broken generators, shut the generators down, free the bots trapped in cages, find the keys to the locked doors, and reach the stairs. The battery drains all the time and faster when glitches cling on, so grab the snacks.',
+      'Choose your repair bot (mighty Hugs, sturdy Fix, magical Sage or speedy Zip) and explore a glitchy old server dungeon floor by floor. Throw wrench sparks to fix the glitches swarming out of broken generators, shut the generators down, free the bots trapped in cages, find the keys to the locked doors, and reach the stairs. The battery drains all the time and faster when glitches cling on, so grab the snacks. Up to four can play on one device: roll up to a flat partner to share a charge.',
     howTo: [
       'PICK HUGS FIX SAGE OR ZIP',
       'ARROWS  MOVE',
-      'A  WRENCH SPARKS',
-      'HOLD A  STAND AND AIM',
+      'A  SPARKS  HOLD A TO AIM',
       'B  KINDNESS PULSE',
       'SHUT DOWN GENERATORS',
       'SNACKS RECHARGE YOU',
       'KEYS OPEN LOCKED DOORS',
+      'CO-OP: SHARE A CHARGE',
     ],
     width: 320,
     height: 240,
@@ -303,6 +303,7 @@ export const ARCADE_GAMES: ArcadeGameMeta[] = [
     titleArt: '/images/arcade/games/kindness-gauntlet-title.webp',
     accent: '#fbbf24',
     controls: 'Pick a bot, move, spark, pulse',
+    maxPlayers: 4,
   },
   {
     slug: 'prize-show-panic',
@@ -351,7 +352,7 @@ export const ARCADE_GAMES: ArcadeGameMeta[] = [
     title: 'Station Sweep',
     riffsOn: 'Xenophobe',
     blurb:
-      'Mop, the station cleaning robot, sweeps a space station overrun by glitch critters, deck by deck. Egg sacs hatch rollers that bowl along the floor (crouch to sweep them), biters that spit, and ceiling crawlers that drop and cling until Mop jumps. Critters left alone grow big, and the station is on a clock. Ride the lifts between decks; clean every one before time runs out.',
+      'Mop, the station cleaning robot, sweeps a space station overrun by glitch critters, deck by deck. Egg sacs hatch rollers that bowl along the floor (crouch to sweep them), biters that spit, and ceiling crawlers that drop and cling until Mop jumps. Critters left alone grow big, and the station is on a clock. Ride the lifts between decks; clean every one before time runs out. Up to three can sweep on one device, split screen, each on a deck of their own.',
     howTo: [
       'LEFT/RIGHT  WALK',
       'DOWN  CROUCH, SWEEP LOW',
@@ -360,6 +361,7 @@ export const ARCADE_GAMES: ArcadeGameMeta[] = [
       'JUMP TO SHAKE CRAWLERS',
       'IN A LIFT UP OR DOWN RIDES',
       'CLEAN EVERY DECK IN TIME',
+      'UP TO 3: SPLIT SCREEN',
     ],
     width: 320,
     height: 240,
@@ -367,6 +369,7 @@ export const ARCADE_GAMES: ArcadeGameMeta[] = [
     titleArt: '/images/arcade/games/station-sweep-title.webp',
     accent: '#34d399',
     controls: 'Walk, crouch, jump, sweep, ride',
+    maxPlayers: 3,
   },
 ]
 

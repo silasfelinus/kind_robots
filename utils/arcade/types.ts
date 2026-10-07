@@ -54,6 +54,8 @@ export type ArcadeGameMeta = {
   controls: string
   /** Omitted for the classic Canvas 2D cabinets. */
   renderMode?: ArcadeRenderMode
+  /** Same-device players the cabinet can seat (default 1). */
+  maxPlayers?: number
 }
 
 export type ArcadeGameOptions = {
@@ -62,6 +64,8 @@ export type ArcadeGameOptions = {
   /** Attract-mode demo: the game drives itself and ignores the input. */
   demo: boolean
   hiScore: number
+  /** Players seated for this game (1 unless the game's maxPlayers allows more). */
+  players?: number
 }
 
 /** The subset of ArcadeSound a game may call (lets tests pass a stub). */
@@ -72,8 +76,11 @@ export interface ArcadeGameInstance {
   readonly level: number
   readonly lives: number
   readonly over: boolean
-  /** Advance one fixed 1/60 s tick. */
-  update(input: InputFrame): void
+  /**
+   * Advance one fixed 1/60 s tick. `input` is player 1's; a game seating more
+   * players also gets every seated player's frame, player 1 first.
+   */
+  update(input: InputFrame, players?: InputFrame[]): void
   /** Draw in logical coordinates (the cabinet has already scaled the context). */
   render(g: CanvasRenderingContext2D): void
 }
@@ -93,8 +100,8 @@ export interface ArcadeWebGLGameInstance {
   mount(canvas: HTMLCanvasElement): void
   /** CSS size of the stage in pixels, and the device pixel ratio to render at. */
   resize(width: number, height: number, dpr: number): void
-  /** Advance one fixed 1/60 s tick. */
-  update(input: InputFrame): void
+  /** Advance one fixed 1/60 s tick (`players` as for ArcadeGameInstance). */
+  update(input: InputFrame, players?: InputFrame[]): void
   /** Draw the current state to the stage canvas. */
   render(): void
   /** Release every GPU, physics and audio resource; safe to call twice. */

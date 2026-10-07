@@ -933,6 +933,23 @@ export const useMusicVideoStore = defineStore('musicVideoStore', () => {
     return headers
   }
 
+  /** The cap the attach route enforces; the configured default if unreachable. */
+  async function readFinalUploadLimit(): Promise<number> {
+    try {
+      const response = await performFetch<{ finalMaxBytes: number }>(
+        '/api/music-video/limits',
+        {},
+        1,
+        15_000,
+      )
+      const limit = Number(response.data?.finalMaxBytes)
+      if (response.success && Number.isFinite(limit) && limit > 0) return limit
+    } catch {
+      // Fall back to the default; the attach route still has the last word.
+    }
+    return musicVideoMaxUploadBytes()
+  }
+
   /*
    * Render the final cut in this browser and attach it to the video, the
    * front-end replacement for the headless script's ffmpeg step. Stills, clips
@@ -955,7 +972,7 @@ export const useMusicVideoStore = defineStore('musicVideoStore', () => {
         await import('./helpers/musicVideoExporter')
       // Fit the upload cap: bitrate from the running time, then up to two
       // smaller re-encodes if the encoder overshoots.
-      const maxBytes = musicVideoMaxUploadBytes()
+      const maxBytes = await readFinalUploadLimit()
       const durationSec = Math.max(
         video.doc.settings.durationSec,
         ...video.doc.scenes.map((scene) => scene.endSec),

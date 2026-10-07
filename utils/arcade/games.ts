@@ -326,7 +326,7 @@ export const ARCADE_GAMES: ArcadeGameMeta[] = [
     title: 'Zuzu: Ghost Trail',
     riffsOn: "Ghosts 'n Goblins",
     blurb:
-      'Zuzu, the koala ronin, walks a haunted weird-west trail through a ghost town at dusk, throwing kunai at restless spirits clawing up from the dirt, storm crows and bone hyenas. The first hit knocks his poncho and kasa off; a second sends him back to the checkpoint. Crates and the bundles some crows carry hold new gear: three-way shuriken, a boomerang kasa, a lantern that leaves a ground fire, or the short, strong iai cut. Jumps are committed once he leaves the ground.',
+      'Zuzu, the koala ronin, walks a haunted weird-west trail through a ghost town at dusk, throwing kunai at restless spirits clawing up from the dirt, storm crows and bone hyenas. The first hit knocks his poncho and kasa off; a second sends him back to the checkpoint. Crates and the bundles some crows carry hold new gear: three-way shuriken, a boomerang kasa, a lantern that leaves a ground fire, or the short, strong iai cut. At the mission gate a boss from the thin places blocks the way: the whirling Dust Devil or the charging Bone Bull. Jumps are committed once he leaves the ground.',
     howTo: [
       'LEFT/RIGHT  WALK',
       'UP OR B  JUMP',
@@ -334,6 +334,7 @@ export const ARCADE_GAMES: ArcadeGameMeta[] = [
       'ONE HIT LOSES THE PONCHO',
       'BREAK CRATES FOR A NEW ONE',
       'CROWS AND CRATES HOLD GEAR',
+      'A BOSS GUARDS THE GATE',
     ],
     width: 320,
     height: 240,

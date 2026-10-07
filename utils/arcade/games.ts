@@ -498,6 +498,27 @@ export const ARCADE_GAMES: ArcadeGameMeta[] = [
     accent: '#f9a8d4',
     controls: 'Move, stitch',
   },
+  {
+    slug: 'cocoa-counter',
+    title: 'Cocoa Counter',
+    riffsOn: 'Tapper',
+    blurb:
+      'Thirsty robots shuffle up four long counters toward the cocoa urns. Pour a mug and slide it down the right counter before a robot reaches the end, then catch every empty mug that slides back. Nudge a robot out of the door for a bonus, and walk down the counter for tips.',
+    howTo: [
+      'UP/DOWN  CHANGE COUNTER',
+      'A  POUR A MUG',
+      'LEFT/RIGHT  WALK',
+      'CATCH THE EMPTIES',
+      'NO ROBOT AT THE URN',
+      'GRAB THE TIPS',
+    ],
+    width: 320,
+    height: 240,
+    maxPlausibleScore: 2_000_000,
+    titleArt: '/images/arcade/games/cocoa-counter-title.webp',
+    accent: '#f97316',
+    controls: 'Change counter, pour',
+  },
 ]
 
 export type ComingSoonCabinet = {
@@ -567,6 +588,7 @@ const LOADERS: Record<string, () => Promise<ArcadeGameModule>> = {
   'pixel-hop': () => import('./games/pixelHop'),
   'glitch-garden': () => import('./games/glitchGarden'),
   'quilt-quest': () => import('./games/quiltQuest'),
+  'cocoa-counter': () => import('./games/cocoaCounter'),
   'kind-pinball-3d': () =>
     import('./games/kindPinball3d').then(async (module) => {
       await module.prepare()

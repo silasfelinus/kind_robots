@@ -23,6 +23,7 @@ export type MaterialId =
   | 'wood'
   | 'post'
   | 'ramp'
+  | 'cabinet'
 
 /** A static box: walls, guides, lane dividers, the apron. */
 export type BoxCollider = {
@@ -101,6 +102,52 @@ export type DropTargetDef = {
   at: Vec3
   half: Vec3
   yaw?: number
+  /** A standup: reports each hit and never drops. */
+  standup?: boolean
+}
+
+/**
+ * A two-state mechanism the rules move: a secret door, a diverter. Each
+ * state has its own walls, and only the current state's walls are solid
+ * and drawn.
+ */
+export type DoorDef = {
+  id: string
+  closed: BoxCollider[]
+  open: BoxCollider[]
+}
+
+/** A motorised toy: arms on a hub that turn at a steady rate and bat the ball. */
+export type ToyDef = {
+  id: string
+  /** The hub, on the playfield. */
+  at: Vec3
+  arms: number
+  /** Each arm's half extents; arm i points out from the hub along its +X. */
+  armHalf: Vec3
+  /** Radians per second about the playfield normal. */
+  spin: number
+  material: MaterialId
+}
+
+/** A named region of the table (XZ), so the camera can follow the balls into it. */
+export type ZoneDef = {
+  id: string
+  min: readonly [number, number]
+  max: readonly [number, number]
+}
+
+/**
+ * A solid the renderer draws between the main camera and a hidden area (the
+ * backbox in front of the sub-table). It fades out while the camera visits
+ * the area behind it. Drawn only; the physics never sees it.
+ */
+export type OccluderDef = {
+  id: string
+  at: Vec3
+  half: Vec3
+  /** The camera preset that sees through it. */
+  fadeFor: CameraPresetId
 }
 
 /**
@@ -118,6 +165,8 @@ export type ScoopDef = {
   eject: { at: Vec3; velocity: Vec3 }
   /** Eject from this other scoop's kicker instead (a subway). */
   subwayTo?: string
+  /** Not drawn: a hole under a plastic, or a kicker the ball arrives by. */
+  hidden?: boolean
 }
 
 /** A spinner: a sensor gate across a lane that spins when the ball passes. */
@@ -145,7 +194,7 @@ export type FlipperDef = {
 }
 
 export type CameraPresetId =
-  'main' | 'plunge' | 'upper-playfield' | 'multiball' | 'award'
+  'main' | 'plunge' | 'upper-playfield' | 'multiball' | 'award' | 'sub-table'
 
 export type CameraPreset = {
   id: CameraPresetId
@@ -186,6 +235,10 @@ export type TableDef = {
   scoops: ScoopDef[]
   spinners: SpinnerDef[]
   shots: ShotDef[]
+  doors?: DoorDef[]
+  toys?: ToyDef[]
+  zones?: ZoneDef[]
+  occluders?: OccluderDef[]
   /** Where a new ball sits in the shooter lane, and the lane's launch speed range (m/s). */
   plunger: { rest: Vec3; minSpeed: number; maxSpeed: number }
   /** A ball whose Z passes this line has drained. */

@@ -14,7 +14,12 @@ import type {
   InputFrame,
 } from '../types'
 import { PinballMixer } from './audio/mixer'
-import { PinballPhysics, PHYSICS_HZ, type RapierModule } from './physics/world'
+import {
+  PinballPhysics,
+  PHYSICS_HZ,
+  type BallView,
+  type RapierModule,
+} from './physics/world'
 import {
   PinballScene,
   createWebGLRenderer,
@@ -26,7 +31,7 @@ import {
   type PinballRulesState,
   type RulesEvent,
 } from './rules/engine'
-import type { RuleEffect, TableDef } from './types'
+import type { CameraPresetId, RuleEffect, TableDef } from './types'
 
 const STEPS_PER_TICK = PHYSICS_HZ / 60
 /** Ticks to hold Down for a full plunger pull. */
@@ -34,8 +39,21 @@ const PULL_TICKS = 45
 /** A ball this slow for this long, off the plunger, gets a small shove. */
 const STILL_SPEED = 0.01
 const STILL_TICKS = 60 * 4
+/** The sub-table's centre line, for the attract pilot. */
+const ROOM_PILOT_X = 0.02
 /** How often the attract pilot makes a save it goes for. */
 const PILOT_SKILL = 0.8
+
+/**
+ * The camera preset the balls call for: the sub-table's only while every
+ * ball on the table is in there, so a ball on the main table is never off
+ * screen.
+ */
+export function cameraViewFor(balls: BallView[]): CameraPresetId {
+  return balls.length > 0 && balls.every((b) => b.zone === 'sub-table')
+    ? 'sub-table'
+    : 'main'
+}
 
 export class PinballRuntime implements ArcadeWebGLGameInstance {
   readonly renderMode = 'webgl' as const
@@ -129,7 +147,14 @@ export class PinballRuntime implements ArcadeWebGLGameInstance {
       for (const event of this.physics.step())
         this.apply({ type: 'switch', event, tick: this.steps })
     }
+    this.apply({ type: 'tick', tick: this.steps })
     this.unstick()
+    this.scene?.setView(this.view())
+  }
+
+  /** The camera preset the balls on the table call for right now. */
+  view(): CameraPresetId {
+    return cameraViewFor(this.physics.ballViews())
   }
 
   private plunger(controls: InputFrame) {
@@ -186,6 +211,8 @@ export class PinballRuntime implements ArcadeWebGLGameInstance {
       case 'mechanism':
         if (effect.action === 'flash') this.scene?.pulse(effect.id)
         if (effect.action === 'reset') this.physics.resetDropBank(effect.id)
+        if (effect.action === 'open') this.physics.setDoor(effect.id, true)
+        if (effect.action === 'close') this.physics.setDoor(effect.id, false)
         break
       default:
         break
@@ -216,15 +243,19 @@ export class PinballRuntime implements ArcadeWebGLGameInstance {
     for (const ball of this.physics.ballViews()) {
       const [x, , z] = ball.position
       const coming = ball.velocity[2] > 0.08
-      if (coming && z > -0.08 && z < 0.0) {
+      // The sub-table's flippers sit on the same buttons, further up.
+      const room = ball.zone === 'sub-table'
+      const near = room ? z > -1.15 && z < -1.08 : z > -0.08 && z < 0.0
+      const mid = room ? ROOM_PILOT_X : 0
+      if (coming && near) {
         approaching = true
         if (!this.pilotApproach) {
           this.pilotApproach = true
           this.pilotMisses = this.rng() > PILOT_SKILL
         }
         if (this.pilotMisses) continue
-        if (x < 0.005) held.left = true
-        if (x > -0.005) held.right = true
+        if (x < mid + 0.005) held.left = true
+        if (x > mid - 0.005) held.right = true
       }
     }
     if (!approaching) this.pilotApproach = false
@@ -236,6 +267,8 @@ export class PinballRuntime implements ArcadeWebGLGameInstance {
     this.scene.sync(this.physics.ballViews(), this.physics.flipperAngles(), {
       drops: this.physics.dropStates(),
       spinners: this.physics.spinnerAngles(),
+      doors: this.physics.doorStates(),
+      toys: this.physics.toyAngles(),
     })
     this.scene.render()
   }

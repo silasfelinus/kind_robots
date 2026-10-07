@@ -15,8 +15,11 @@
 // the outlanes stay open from the playfield below it.
 
 import type {
+  BoxCollider,
   ColliderDef,
+  DoorDef,
   DropTargetDef,
+  FlipperDef,
   ScoopDef,
   SensorDef,
   ShotDef,
@@ -50,18 +53,174 @@ const GLASS_Y = 0.12
 const LANE_TOP_Z = -0.57
 
 /** The top arch: a half ellipse traced as short wall segments. */
-function arch(): ColliderDef[] {
+const ARCH_POINTS: XZ[] = (() => {
   const cx = (LEFT_X + RIGHT_X) / 2
   const cz = TOP_Z + 0.24
-  const rx = WIDTH / 2
-  const rz = 0.24
   const steps = 18
   const points: XZ[] = []
   for (let i = 0; i <= steps; i++) {
     const t = Math.PI + (Math.PI * i) / steps
-    points.push([cx + Math.cos(t) * rx, cz + Math.sin(t) * rz])
+    points.push([cx + Math.cos(t) * (WIDTH / 2), cz + Math.sin(t) * 0.24])
   }
-  return walls('arch', points, { thickness: 0.009 })
+  return points
+})()
+/** Arch segments (numbered from 1 at the left) that form the secret door. */
+const DOOR_SEGMENTS = [4, 5]
+
+function arch(): ColliderDef[] {
+  return walls('arch', ARCH_POINTS, { thickness: 0.009 }).filter(
+    (_, i) => !DOOR_SEGMENTS.includes(i + 1),
+  )
+}
+
+// --- The hidden sub-table (conductor kind-pinball/t-011) -----------------
+//
+// A secret room behind the backbox. Its door is two segments of the top arch
+// where a left orbit leans hardest on the wall. When the rules open it, that
+// stretch of arch sinks and a diverter rises in the lane behind it: the next
+// left orbit is turned out through the gap into a hole under the corner
+// plastic, and a subway lifts the ball into the room. The room has its own
+// flippers (on the same buttons), the N-E-T standups, a turning windmill and
+// a HOME scoop. Making HOME, or draining past the room's flippers, sends the
+// ball back by subway to the award saucer, whose kickout feeds the left
+// flipper. The backbox hides the room from the main camera; the camera eases
+// over it only while every ball on the table is in there.
+
+const DOOR_FROM = ARCH_POINTS[DOOR_SEGMENTS[0]! - 1]!
+const DOOR_TO = ARCH_POINTS[DOOR_SEGMENTS[DOOR_SEGMENTS.length - 1]!]!
+
+const SECRET_DOOR: DoorDef = {
+  id: 'secret-door',
+  closed: DOOR_SEGMENTS.map((n) =>
+    wall(`arch-${n}`, ARCH_POINTS[n - 1]!, ARCH_POINTS[n]!, {
+      thickness: 0.009,
+    }),
+  ),
+  // A diverter angled back across the lane from the far end of the gap, so a
+  // ball running up the arch glances off it and out through the opening.
+  open: [
+    wall('secret-diverter', DOOR_TO, [DOOR_TO[0] - 0.005, DOOR_TO[1] + 0.04], {
+      material: 'chrome',
+      thickness: 0.004,
+    }),
+  ],
+}
+
+/** The hole behind the door, just outside the arch. */
+const SECRET_HOLE: XZ = [-0.218, -0.862]
+
+function secretChamber(): BoxCollider[] {
+  const ring: XZ[] = [
+    DOOR_FROM,
+    [-0.255, -0.845],
+    [-0.238, -0.9],
+    [-0.182, -0.906],
+    DOOR_TO,
+  ]
+  return [
+    ...walls('secret-chamber', ring, { thickness: 0.006, hidden: true }),
+    // The corner plastic over the hole, clear of the ball's top.
+    {
+      kind: 'box',
+      id: 'secret-cover',
+      at: [-0.21, 0.031, -0.87],
+      half: [0.05, 0.002, 0.04],
+      yaw: Math.PI / 4,
+      material: 'plastic-printed',
+    },
+  ]
+}
+
+/** The room's centre line and its walls (it sits behind the backbox). */
+const ROOM_X = (LEFT_X + RIGHT_X) / 2
+const ROOM_HALF = 0.17
+const ROOM_BOTTOM_Z = -1.06
+const ROOM_TOP_Z = -1.42
+const ROOM_FLIPPER_Z = -1.11
+
+function room(): ColliderDef[] {
+  const x = (dx: number) => ROOM_X + dx
+  const side = (sign: -1 | 1): ColliderDef[] => {
+    const m = (p: XZ): XZ => [x(sign * p[0]), p[1]]
+    const name = sign < 0 ? 'left' : 'right'
+    return [
+      // Inlane guide: down the side, then in over the flipper pivot.
+      ...walls(
+        `sub-inlane-${name}`,
+        [m([ROOM_HALF, -1.18]), m([0.064, ROOM_FLIPPER_Z - 0.004])],
+        { material: 'chrome', thickness: 0.004 },
+      ),
+      // Under the flipper: closes the corner behind the guide.
+      wall(
+        `sub-apron-${name}`,
+        m([0.064, ROOM_FLIPPER_Z - 0.004]),
+        m([0.075, -1.087]),
+        { material: 'chrome', thickness: 0.004 },
+      ),
+      // The top corner, cut so a ball cannot sit in it.
+      wall(`sub-corner-${name}`, m([ROOM_HALF, -1.36]), m([0.11, ROOM_TOP_Z]), {
+        material: 'rubber',
+      }),
+    ]
+  }
+  return [
+    {
+      kind: 'box',
+      id: 'sub-floor',
+      at: [ROOM_X, -0.01, (ROOM_BOTTOM_Z + ROOM_TOP_Z) / 2],
+      half: [ROOM_HALF + 0.03, 0.01, (ROOM_BOTTOM_Z - ROOM_TOP_Z) / 2 + 0.03],
+      material: 'playfield',
+      restitution: 0.2,
+    },
+    {
+      kind: 'box',
+      id: 'sub-glass',
+      at: [ROOM_X, GLASS_Y, (ROOM_BOTTOM_Z + ROOM_TOP_Z) / 2],
+      half: [ROOM_HALF + 0.03, 0.005, (ROOM_BOTTOM_Z - ROOM_TOP_Z) / 2 + 0.03],
+      material: 'plastic-clear',
+      restitution: 0.1,
+      hidden: true,
+    },
+    ...walls(
+      'sub-wall',
+      [
+        [x(-ROOM_HALF), ROOM_BOTTOM_Z],
+        [x(-ROOM_HALF), ROOM_TOP_Z],
+        [x(ROOM_HALF), ROOM_TOP_Z],
+        [x(ROOM_HALF), ROOM_BOTTOM_Z],
+        [x(-ROOM_HALF), ROOM_BOTTOM_Z],
+      ],
+      { thickness: 0.009 },
+    ),
+    ...side(-1),
+    ...side(1),
+    // The drain under the flipper gap is a vee down to the return hole.
+    ...walls(
+      'sub-drain-vee',
+      [
+        [x(-0.075), -1.087],
+        [x(0), -1.062],
+        [x(0.075), -1.087],
+      ],
+      { material: 'chrome', thickness: 0.004 },
+    ),
+  ]
+}
+
+function roomFlipper(side: 'left' | 'right'): FlipperDef {
+  const sign = side === 'left' ? -1 : 1
+  return {
+    id: `sub-flipper-${side}`,
+    side,
+    pivot: [ROOM_X + sign * 0.07, 0, ROOM_FLIPPER_Z],
+    length: 0.05,
+    baseRadius: 0.009,
+    tipRadius: 0.0055,
+    restAngle: 0.5,
+    activeAngle: -0.45,
+    strokeMs: 40,
+    returnMs: 80,
+  }
 }
 
 /**
@@ -182,6 +341,8 @@ const colliders: ColliderDef[] = [
     thickness: 0.012,
   }),
   ...arch(),
+  ...secretChamber(),
+  ...room(),
   wall('shooter-wall', [LANE_WALL_X, LANE_TOP_Z], [LANE_WALL_X, BOTTOM_Z]),
   wall(
     'shooter-gate',
@@ -315,12 +476,22 @@ const sensors: SensorDef[] = [
   sensor('upper-feed-entry', -0.068, -0.37, 0.008, [0.02, 0.015, 0.008]),
 ]
 
-const drops: DropTargetDef[] = [-0.021, 0, 0.021].map((x, i) => ({
-  id: `drop-${'ami'[i]}`,
-  bank: 'ami',
-  at: [x, 0.0125, -0.3],
-  half: [0.0095, 0.0125, 0.004],
-}))
+const drops: DropTargetDef[] = [
+  ...[-0.021, 0, 0.021].map((x, i): DropTargetDef => ({
+    id: `drop-${'ami'[i]}`,
+    bank: 'ami',
+    at: [x, 0.0125, -0.3],
+    half: [0.0095, 0.0125, 0.004],
+  })),
+  // The N-E-T standups across the top of the sub-table.
+  ...[-0.05, 0, 0.05].map((dx, i): DropTargetDef => ({
+    id: `net-${'net'[i]}`,
+    bank: 'net',
+    at: [ROOM_X + dx, 0.0125, ROOM_TOP_Z + 0.009],
+    half: [0.012, 0.0125, 0.004],
+    standup: true,
+  })),
+]
 
 const scoops: ScoopDef[] = [
   {
@@ -352,6 +523,51 @@ const scoops: ScoopDef[] = [
     holdMs: 1400,
     eject: { at: [-0.092, 0.036 + BALL_R, -0.625], velocity: [0, 0, 0] },
     subwayTo: 'award',
+  },
+  {
+    // The secret door's hole, under the corner plastic.
+    id: 'secret-hole',
+    at: [SECRET_HOLE[0], BALL_R, SECRET_HOLE[1]],
+    radius: 0.02,
+    captureMaxSpeed: Number.POSITIVE_INFINITY,
+    holdMs: 1500,
+    eject: {
+      at: [SECRET_HOLE[0], BALL_R, SECRET_HOLE[1]],
+      velocity: [0, 0, 0],
+    },
+    subwayTo: 'sub-entry',
+    hidden: true,
+  },
+  {
+    // Where the subway brings the ball up into the sub-table. It never
+    // captures; it only kicks the arriving ball down toward the flippers.
+    id: 'sub-entry',
+    at: [ROOM_X - 0.12, BALL_R, -1.37],
+    radius: 0.012,
+    captureMaxSpeed: -1,
+    holdMs: 0,
+    eject: { at: [ROOM_X - 0.12, BALL_R, -1.37], velocity: [0.35, 0, 0.5] },
+  },
+  {
+    // The sub-table's goal: back to the village with the full reward.
+    id: 'sub-home',
+    at: [ROOM_X + 0.12, BALL_R, -1.37],
+    radius: 0.016,
+    captureMaxSpeed: 1.5,
+    holdMs: 1000,
+    eject: { at: [ROOM_X + 0.12, BALL_R, -1.37], velocity: [0, 0, 0] },
+    subwayTo: 'award',
+  },
+  {
+    // Past the room's flippers: the ball is not lost, it goes home too.
+    id: 'sub-drain',
+    at: [ROOM_X, BALL_R, -1.078],
+    radius: 0.02,
+    captureMaxSpeed: Number.POSITIVE_INFINITY,
+    holdMs: 700,
+    eject: { at: [ROOM_X, BALL_R, -1.078], velocity: [0, 0, 0] },
+    subwayTo: 'award',
+    hidden: true,
   },
 ]
 
@@ -398,6 +614,8 @@ const shots: ShotDef[] = [
     displayName: 'RIGHT ORBIT',
   },
   { id: 'award', kind: 'scoop', sensors: ['award'], displayName: 'AWARD' },
+  { id: 'secret', kind: 'scoop', sensors: ['secret-hole'], displayName: '???' },
+  { id: 'sub-home', kind: 'scoop', sensors: ['sub-home'], displayName: 'HOME' },
 ]
 
 export const AMI_VILLAGE_GREYBOX: TableDef = {
@@ -414,6 +632,12 @@ export const AMI_VILLAGE_GREYBOX: TableDef = {
       id: 'main',
       position: [(LEFT_X + RIGHT_X) / 2, 0.84, 0.56],
       target: [(LEFT_X + RIGHT_X) / 2, 0, -0.37],
+      fovDeg: 44,
+    },
+    {
+      id: 'sub-table',
+      position: [ROOM_X, 0.52, -0.83],
+      target: [ROOM_X, 0, -1.25],
       fovDeg: 44,
     },
   ],
@@ -444,11 +668,41 @@ export const AMI_VILLAGE_GREYBOX: TableDef = {
       strokeMs: 45,
       returnMs: 90,
     },
+    roomFlipper('left'),
+    roomFlipper('right'),
   ],
   drops,
   scoops,
   spinners,
   shots,
+  doors: [SECRET_DOOR],
+  toys: [
+    {
+      // A village windmill turning in the middle of the room.
+      id: 'windmill',
+      at: [ROOM_X, 0.012, -1.27],
+      arms: 4,
+      armHalf: [0.022, 0.011, 0.003],
+      spin: 2.2,
+      material: 'plastic-printed',
+    },
+  ],
+  zones: [
+    {
+      id: 'sub-table',
+      min: [ROOM_X - ROOM_HALF - 0.03, ROOM_TOP_Z - 0.03],
+      max: [ROOM_X + ROOM_HALF + 0.03, ROOM_BOTTOM_Z + 0.03],
+    },
+  ],
+  occluders: [
+    {
+      // The backbox: it stands between the main camera and the room.
+      id: 'backbox',
+      at: [ROOM_X, 0.2, -1.005],
+      half: [WIDTH / 2 + 0.04, 0.2, 0.012],
+      fadeFor: 'sub-table',
+    },
+  ],
   plunger: {
     rest: [LANE_X, BALL_R + 0.0005, BOTTOM_Z - 0.04 - BALL_R - 0.004],
     minSpeed: 1.6,

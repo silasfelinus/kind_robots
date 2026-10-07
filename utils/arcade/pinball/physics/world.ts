@@ -20,12 +20,14 @@ import type RAPIER from '@dimforge/rapier3d-compat'
 import type {
   BoxCollider,
   ColliderDef,
+  DoorDef,
   DropTargetDef,
   MeshCollider,
   FlipperDef,
   ScoopDef,
   SwitchEvent,
   TableDef,
+  ToyDef,
   Vec3,
 } from '../types'
 
@@ -56,6 +58,8 @@ export type BallView = {
   speed: number
   /** Held in a scoop (not moving, not drainable). */
   captured: boolean
+  /** The table zone the ball is in (the sub-table), if any. */
+  zone?: string
 }
 
 type LiveBall = {
@@ -81,6 +85,15 @@ type LiveDrop = {
 }
 
 type Hold = { ball: LiveBall; scoop: ScoopDef; releaseStep: number }
+
+type LiveDoor = {
+  def: DoorDef
+  closed: RAPIER.Collider[]
+  open: RAPIER.Collider[]
+  isOpen: boolean
+}
+
+type LiveToy = { def: ToyDef; body: RAPIER.RigidBody; angle: number }
 
 function yawQuat(theta: number) {
   return { x: 0, y: Math.sin(theta / 2), z: 0, w: Math.cos(theta / 2) }
@@ -115,6 +128,8 @@ export class PinballPhysics {
   private balls: LiveBall[] = []
   private flippers: LiveFlipper[] = []
   private drops: LiveDrop[] = []
+  private doors = new Map<string, LiveDoor>()
+  private toys: LiveToy[] = []
   /** Collider handle -> table id, for switch events. */
   private names = new Map<number, string>()
   private kicks = new Map<number, number>()
@@ -125,6 +140,8 @@ export class PinballPhysics {
   private spinnerHandles = new Set<number>()
   private spin = new Map<string, { angle: number; rate: number }>()
   private holds: Hold[] = []
+  /** The scoop each ball is sitting in, if any. */
+  private inScoop = new Map<LiveBall, ScoopDef>()
   /** Ball velocities by body handle, captured before each step for the gate hook. */
   private velocities = new Map<number, Vec3>()
   /** Ball positions by body handle, captured with the velocities for the mouth hook. */
@@ -179,6 +196,8 @@ export class PinballPhysics {
     }
     for (const def of table.drops) this.addDrop(def)
     for (const def of table.flippers) this.addFlipper(def)
+    for (const def of table.doors ?? []) this.addDoor(def)
+    for (const def of table.toys ?? []) this.addToy(def)
     this.hooks = {
       filterContactPair: (c1, c2, b1, b2) => {
         const mouth = this.mouths.get(c1) ?? this.mouths.get(c2)
@@ -215,7 +234,7 @@ export class PinballPhysics {
     return collider
   }
 
-  private addStatic(def: ColliderDef) {
+  private addStatic(def: ColliderDef): RAPIER.Collider {
     const R = this.R
     if (def.kind === 'mesh') return this.addMesh(def)
     const desc =
@@ -240,9 +259,10 @@ export class PinballPhysics {
       this.kicks.set(collider.handle, def.kick)
     if (def.kind === 'box' && def.passDir)
       this.gates.set(collider.handle, def.passDir)
+    return collider
   }
 
-  private addMesh(def: MeshCollider) {
+  private addMesh(def: MeshCollider): RAPIER.Collider {
     const R = this.R
     // Rapier smooths contacts across the mesh's internal edges, so a ball
     // rolls over the seams between triangles without a bump.
@@ -259,6 +279,63 @@ export class PinballPhysics {
     const collider = this.world.createCollider(desc, this.fixed)
     this.names.set(collider.handle, def.id)
     if (def.mouth) this.mouths.set(collider.handle, def.mouth)
+    return collider
+  }
+
+  private addDoor(def: DoorDef) {
+    const door: LiveDoor = {
+      def,
+      closed: def.closed.map((wall) => this.addStatic(wall)),
+      open: def.open.map((wall) => this.addStatic(wall)),
+      isOpen: false,
+    }
+    for (const collider of door.open) collider.setEnabled(false)
+    this.doors.set(def.id, door)
+  }
+
+  private addToy(def: ToyDef) {
+    const R = this.R
+    const body = this.world.createRigidBody(
+      R.RigidBodyDesc.kinematicPositionBased().setTranslation(...def.at),
+    )
+    for (let i = 0; i < def.arms; i++) {
+      const yaw = (2 * Math.PI * i) / def.arms
+      const along = def.armHalf[0]
+      const collider = this.world.createCollider(
+        R.ColliderDesc.cuboid(...def.armHalf)
+          .setTranslation(Math.cos(yaw) * along, 0, -Math.sin(yaw) * along)
+          .setRotation(yawQuat(yaw))
+          .setRestitution(0.4)
+          .setFriction(0.3)
+          .setActiveEvents(R.ActiveEvents.COLLISION_EVENTS),
+        body,
+      )
+      this.names.set(collider.handle, def.id)
+    }
+    this.toys.push({ def, body, angle: 0 })
+  }
+
+  /** Open or close a door (a mechanism the rules ask for). */
+  setDoor(id: string, open: boolean) {
+    const door = this.doors.get(id)
+    if (!door || door.isOpen === open) return
+    door.isOpen = open
+    for (const collider of door.closed) collider.setEnabled(!open)
+    for (const collider of door.open) collider.setEnabled(open)
+  }
+
+  /** Which doors are open, by id. */
+  doorStates(): Record<string, boolean> {
+    const out: Record<string, boolean> = {}
+    for (const [id, door] of this.doors) out[id] = door.isOpen
+    return out
+  }
+
+  /** Toy hub angles by id, radians. */
+  toyAngles(): Record<string, number> {
+    const out: Record<string, number> = {}
+    for (const toy of this.toys) out[toy.def.id] = toy.angle
+    return out
   }
 
   private addDrop(def: DropTargetDef) {
@@ -385,6 +462,10 @@ export class PinballPhysics {
     this.stepCount++
     const dt = 1 / PHYSICS_HZ
     for (const flipper of this.flippers) this.moveFlipper(flipper, dt)
+    for (const toy of this.toys) {
+      toy.angle = (toy.angle + toy.def.spin * dt) % (2 * Math.PI)
+      toy.body.setNextKinematicRotation(yawQuat(toy.angle))
+    }
     this.velocities.clear()
     this.positions.clear()
     for (const ball of this.balls) {
@@ -407,7 +488,8 @@ export class PinballPhysics {
       const speed = Math.hypot(v.x, v.z)
       const scoop = this.scoopHandles.get(other)
       if (scoop) {
-        if (started) this.tryCapture(ball, scoop, speed, out)
+        if (started) this.inScoop.set(ball, scoop)
+        else if (this.inScoop.get(ball) === scoop) this.inScoop.delete(ball)
         return
       }
       if (this.spinnerHandles.has(other)) {
@@ -428,6 +510,12 @@ export class PinballPhysics {
       }
       if (!started) return
       const drop = this.drops.find((d) => d.collider.handle === other)
+      if (drop?.def.standup) {
+        if (speed >= DROP_MIN_SPEED) {
+          out.push({ type: 'contact', id, ballId: ball.id, impulse: speed })
+        }
+        return
+      }
       if (drop) {
         if (drop.up && speed >= DROP_MIN_SPEED) {
           drop.up = false
@@ -440,6 +528,13 @@ export class PinballPhysics {
       if (kick) this.kickAway(ball, other, kick)
       out.push({ type: 'contact', id, ballId: ball.id, impulse: speed })
     })
+    // A scoop keeps trying a ball that sits in it, so one that arrived too
+    // fast, or just after a kickout, is still taken once it settles.
+    for (const [ball, scoop] of [...this.inScoop]) {
+      if (ball.captured) continue
+      const v = ball.body.linvel()
+      this.tryCapture(ball, scoop, Math.hypot(v.x, v.z), out)
+    }
     this.releaseHolds(out)
     for (const spinner of this.spin.values()) {
       spinner.angle += spinner.rate * 2 * Math.PI * dt
@@ -478,6 +573,7 @@ export class PinballPhysics {
     if (this.stepCount < ball.scoopCooldown || speed > scoop.captureMaxSpeed)
       return
     ball.captured = true
+    this.inScoop.delete(ball)
     ball.body.setLinvel({ x: 0, y: 0, z: 0 }, true)
     ball.body.setAngvel({ x: 0, y: 0, z: 0 }, true)
     ball.body.setTranslation(
@@ -548,6 +644,7 @@ export class PinballPhysics {
   }
 
   private removeBall(ball: LiveBall) {
+    this.inScoop.delete(ball)
     this.world.removeRigidBody(ball.body)
     this.balls = this.balls.filter((b) => b !== ball)
   }
@@ -564,8 +661,22 @@ export class PinballPhysics {
         velocity: [v.x, v.y, v.z],
         speed: Math.hypot(v.x, v.z),
         captured: ball.captured,
+        zone: this.zoneAt(t.x, t.z),
       }
     })
+  }
+
+  private zoneAt(x: number, z: number): string | undefined {
+    for (const zone of this.table.zones ?? []) {
+      if (
+        x >= zone.min[0] &&
+        x <= zone.max[0] &&
+        z >= zone.min[1] &&
+        z <= zone.max[1]
+      )
+        return zone.id
+    }
+    return undefined
   }
 
   /** Current flipper angles by id (the renderer mirrors them). */

@@ -87,6 +87,13 @@ import {
 } from '~/utils/zuzuShowdown/render'
 import { findFighter } from '~/utils/zuzuShowdown/fighters'
 import {
+  SPRITE_FIGHTERS,
+  SPRITE_ROOT,
+  spriteFile,
+  type LoadedSprites,
+  type SpriteSheet,
+} from '~/utils/zuzuShowdown/sprites'
+import {
   neutralInput,
   type FighterData,
   type MatchState,
@@ -98,6 +105,39 @@ type StagePhase = 'title' | 'fight' | 'paused' | 'result'
 type Direction = 'up' | 'down' | 'left' | 'right'
 
 const RESULT_DELAY = 150
+
+// Fighter art (t-010), loaded once; until a fighter's atlas arrives it draws as a placeholder.
+const sprites: Partial<Record<string, LoadedSprites>> = {}
+
+function loadImage(src: string): Promise<HTMLImageElement | null> {
+  return new Promise((resolve) => {
+    const image = new Image()
+    image.onload = () => resolve(image)
+    image.onerror = () => resolve(null)
+    image.src = src
+  })
+}
+
+async function loadSprites() {
+  await Promise.all(
+    SPRITE_FIGHTERS.map(async (slug) => {
+      try {
+        const response = await fetch(
+          `${SPRITE_ROOT}/${spriteFile(slug)}-pixel.json`,
+        )
+        if (!response.ok) return
+        const sheet = (await response.json()) as SpriteSheet
+        const [image, p2] = await Promise.all([
+          loadImage(`${SPRITE_ROOT}/${sheet.atlas}`),
+          loadImage(`${SPRITE_ROOT}/${sheet.atlas_p2}`),
+        ])
+        if (image) sprites[slug] = { sheet, image, p2 }
+      } catch {
+        // Missing art is not an error: the placeholder fighter still plays.
+      }
+    }),
+  )
+}
 
 const store = useZuzuShowdownStore()
 
@@ -245,6 +285,7 @@ function render() {
   drawMatch(g, match, roster, callouts, {
     showBoxes: store.showBoxes,
     reducedMotion: store.reducedMotion,
+    sprites,
   })
   if (phase.value === 'title') {
     drawCard(g, [
@@ -391,6 +432,7 @@ onMounted(() => {
     resizer.observe(screenRef.value)
   }
   loop = startFixedLoop(tick, render)
+  void loadSprites()
 })
 
 onBeforeUnmount(() => {

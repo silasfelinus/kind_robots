@@ -11,6 +11,7 @@
 // replaces drawFighter and the stage layers in the art tasks (t-009, t-010+).
 
 import { drawText } from '../arcade/font'
+import { drawSprite, pickSprite, type LoadedSprites } from './sprites'
 import {
   METER_BAR,
   STAGE_HALF_WIDTH,
@@ -40,6 +41,8 @@ type G = CanvasRenderingContext2D
 export type RenderOptions = {
   showBoxes: boolean
   reducedMotion: boolean
+  /** Fighter sprites by slug, once loaded; fighters without one draw as placeholders. */
+  sprites?: Partial<Record<string, LoadedSprites>>
 }
 
 /** A fighter's own look, or the side colours; P2 in a mirror match gets the alternate. */
@@ -306,6 +309,7 @@ function drawFighter(
   camera: number,
   frame: number,
   mirror: boolean,
+  sprites?: LoadedSprites,
 ): void {
   const colors = fighterColors(data, side, mirror)
   const x = screenX(f.x, camera)
@@ -320,6 +324,17 @@ function drawFighter(
   // Shadow on the floor.
   g.fillStyle = 'rgba(0, 0, 0, 0.35)'
   g.fillRect(x - Math.round(width / 2), FLOOR_Y + 1, width, 3)
+
+  // Rig art when it has loaded (t-010); P2 in a mirror match wears the alternate colours.
+  const pick = sprites ? pickSprite(f, sprites.sheet) : null
+  if (sprites && pick) {
+    const image =
+      mirror && side === 1 && sprites.p2 ? sprites.p2 : sprites.image
+    const art = sprites.sheet.animations[pick.name]!.frames[pick.index]!
+    drawSprite(g, image, art, sprites.sheet.scale, x, floor, f.facing)
+    g.restore()
+    return
+  }
 
   if (f.action === 'knockdown' || f.action === 'ko' || f.action === 'thrown') {
     // Lying flat.
@@ -683,6 +698,7 @@ export function drawMatch(
       camera,
       s.frame,
       roster[0].slug === roster[1].slug,
+      options.sprites?.[roster[side].slug],
     )
   drawProjectiles(g, s, roster, camera, s.frame)
   if (options.showBoxes) drawBoxes(g, s, roster, camera)

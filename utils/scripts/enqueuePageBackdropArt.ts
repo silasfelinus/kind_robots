@@ -35,12 +35,7 @@
 import 'dotenv/config'
 import prisma from './../../server/utils/prisma'
 import { pageBackdropArtPrompts } from './../../stores/seeds/pageBackdropArtPrompts'
-import {
-  KREA2_DEFAULT_CFG,
-  KREA2_DEFAULT_STEPS,
-  buildKrea2WorkflowFromRequest,
-} from './../../server/api/comfy/krea2/utils/workflow'
-import { enrichArtJobPayload } from './../../server/utils/artJobProvenance'
+import { buildPageBackdropPayload } from './pageBackdropPayload'
 
 const WRITE = process.argv.includes('--write')
 const REFRESH_FAILED = process.argv.includes('--refresh-failed')
@@ -80,45 +75,11 @@ function requestIdFromPayload(payload: string): string | null {
  * Switching the engine alone would not have been enough: COMFY jobs carry a
  * full workflow graph, so a payload of prompt/width/height that satisfies
  * A1111 has nothing for ComfyUI to execute. This mirrors the known-good
- * text2img path in scripts/generate_facet_art.ts exactly — same workflow
- * builder, same steps/cfg, same enrichment — so the shape is one the relay is
- * already running successfully thousands of times rather than one I invented.
+ * text2img path the relay already runs thousands of times. The builder now
+ * lives in pageBackdropPayload.ts, shared with the HTTP script.
  */
-const STEPS = KREA2_DEFAULT_STEPS
-const CFG = KREA2_DEFAULT_CFG
-
 function buildPayload(entry: (typeof pageBackdropArtPrompts)[number]): string {
-  const { workflow, seed } = buildKrea2WorkflowFromRequest({
-    prompt: entry.promptString,
-    negativePrompt: entry.negativePrompt,
-    width: entry.width,
-    height: entry.height,
-    steps: STEPS,
-    cfg: CFG,
-  })
-
-  const { payload } = enrichArtJobPayload('COMFY', {
-    requestId: entry.requestId,
-    title: entry.title,
-    page: entry.page,
-    variant: entry.variant,
-    promptString: entry.promptString,
-    negativePrompt: entry.negativePrompt,
-    width: entry.width,
-    height: entry.height,
-    steps: STEPS,
-    cfg: CFG,
-    seed,
-    workflow,
-    imagePath: entry.imagePath,
-    save: {
-      isPublic: true,
-      isMature: false,
-      designer: 'Kind Robots / Page Backdrops',
-    },
-  })
-
-  return JSON.stringify(payload)
+  return JSON.stringify(buildPageBackdropPayload(entry))
 }
 
 async function main() {

@@ -233,6 +233,17 @@ const workspaceHeaderSource = readFileSync(
   'components/navigation/workspace-header.vue',
   'utf8',
 )
+const appSource = readFileSync('app.vue', 'utf8')
+assert.match(
+  appSource,
+  /v-if="workspaceSheetOpen"[\s\S]*?class="[^"]*\bleft-0\b[^"]*"/,
+  'The tutorial/workspace sheet must stay anchored to the left edge.',
+)
+assert.match(
+  appSource,
+  /\.kr-sheet-slide-enter-from,[\s\S]*?transform:\s*translateX\(-1rem\);/,
+  'The tutorial/workspace sheet must enter from the left rather than sweeping in from the right.',
+)
 assert.ok(
   workspaceHeaderSource.includes('to="/art"'),
   'The fixed workspace header must keep a direct Art Studio shortcut.',
@@ -242,6 +253,27 @@ assert.ok(
     "const artActive = computed(() => route.path === '/art')",
   ),
   'The Art shortcut must expose its active state on /art.',
+)
+
+const arcadeChannelSource = readFileSync(
+  'content/channels/projects/arcade.md',
+  'utf8',
+)
+assert.match(arcadeChannelSource, /\nroute:\s*\/play\/arcade\n/)
+assert.match(arcadeChannelSource, /\nicon:\s*kind-icon:arcade\n/)
+assert.ok(
+  workspaceHeaderSource.includes('to="/play/arcade"'),
+  'The fixed workspace header must keep a direct Arcade shortcut.',
+)
+assert.ok(
+  workspaceHeaderSource.includes('name="kind-icon:arcade"'),
+  'The Arcade shortcut must use the Arcade surface icon.',
+)
+assert.ok(
+  workspaceHeaderSource.includes(
+    "const arcadeActive = computed(() => route.path.startsWith('/play/arcade'))",
+  ),
+  'The Arcade shortcut must stay active throughout the Arcade route tree.',
 )
 
 const legacySessionSource = readFileSync(

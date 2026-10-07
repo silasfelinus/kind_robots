@@ -23,8 +23,11 @@ import {
   STAGE_INK,
   TUMBLEWEED,
   VULTURE,
+  appleAt,
   bellAngle,
   candleFlame,
+  dustDevilAt,
+  leavesAt,
   crocEyesAt,
   crowsAt,
   lightningAt,
@@ -445,7 +448,9 @@ export function drawStageArt(
     if (!image) continue
     const x = layerX(layer, cam)
     const shimmer =
-      m.stage === 'watering-hole' && layer.name === 'backdrop' && !reducedMotion
+      (m.stage === 'watering-hole' || m.stage === 'lone-apple-tree') &&
+      layer.name === 'backdrop' &&
+      !reducedMotion
         ? frame
         : null
     // Storm Canyon's lightning: the sky blazes and everything in front of it goes dark, so the canyon
@@ -598,6 +603,28 @@ export function drawStageArt(
         )
       }
     }
+    const canopy = anchor('canopy')
+    if (canopy?.w && canopy.h) {
+      // The Lone Apple Tree: red leaves drift down, and every few seconds an apple drops.
+      g.fillStyle = '#b91c1c'
+      for (const leaf of leavesAt(frame, canopy.w, reducedMotion)) {
+        g.fillRect(x + canopy.x + leaf.x, layer.y + canopy.y + leaf.y, 2, 1)
+      }
+      const apple = appleAt(frame, canopy.w)
+      if (apple && apple.alpha > 0) {
+        const top = layer.y + canopy.y + canopy.h
+        const y = Math.round(top + (FLOOR_Y - 3 - top) * apple.fall)
+        const ax = x + canopy.x + apple.x
+        g.globalAlpha = apple.alpha
+        g.fillStyle = '#dc2626'
+        g.fillRect(ax, y, 3, 3)
+        g.fillStyle = '#fca5a5'
+        g.fillRect(ax, y, 1, 1)
+        g.fillStyle = '#3f6212'
+        g.fillRect(ax + 1, y - 1, 1, 1)
+        g.globalAlpha = 1
+      }
+    }
     const candle = anchor('candle')
     if (candle) {
       // The Mission's candle: a flame of two to four pixels that never quite settles.
@@ -634,6 +661,17 @@ export function drawStageArt(
           FLOOR_Y - sprite.length + 2 + weed.y,
         )
       }
+    }
+  }
+  const devil =
+    m.stage === 'lone-apple-tree' ? dustDevilAt(frame, reducedMotion) : null
+  if (devil) {
+    // A dust devil: a funnel of sand flecks spinning up off the street.
+    g.fillStyle = 'rgba(176, 140, 96, 0.85)'
+    for (let k = 0; k < devil.h; k += 1) {
+      const r = 2 + (k * 6) / devil.h
+      const a = (devil.spin + k * 9) / 6
+      g.fillRect(Math.round(devil.x + Math.cos(a) * r), FLOOR_Y - k, 2, 1)
     }
   }
   if (m.stage === 'storm-canyon') {

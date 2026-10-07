@@ -20,11 +20,17 @@ import {
   BELL_RING_FRAMES,
   STAGE_NAMES,
   advanceStageFx,
+  APPLE_EVERY,
+  APPLE_FALL,
+  APPLE_REST,
   LIGHTNING_EVERY,
+  appleAt,
   bellAngle,
   candleFlame,
   crocEyesAt,
   crowsAt,
+  dustDevilAt,
+  leavesAt,
   layerX,
   lightningAt,
   newStageFx,
@@ -164,7 +170,61 @@ check('a fight is on the challenger’s home stage', () => {
   const crow = { ...placeholder, slug: 'storm-crow' }
   assert.equal(stageFor([ZUZU, abbess]), 'the-mission')
   assert.equal(stageFor([abbess, crow]), 'storm-canyon')
+  const siblings = { ...placeholder, slug: 'the-siblings' }
+  assert.equal(stageFor([ZUZU, siblings]), 'lone-apple-tree')
 })
+
+check(
+  'the Lone Apple Tree: an apple falls, rests and fades; leaves drift; a dust devil crosses',
+  () => {
+    const w = 120
+    let drops = 0
+    let last: ReturnType<typeof appleAt> = null
+    for (let f = 0; f < APPLE_EVERY * 4; f += 1) {
+      const apple = appleAt(f, w)
+      if (apple) {
+        assert.ok(apple.x >= 0 && apple.x <= w, `x ${apple.x}`)
+        assert.ok(apple.fall >= 0 && apple.fall <= 1)
+        assert.ok(apple.alpha >= 0 && apple.alpha <= 1)
+        if (last)
+          assert.ok(
+            apple.fall >= last.fall || apple.x !== last.x,
+            'it only falls down',
+          )
+        if (!last) drops += 1
+      }
+      last = apple
+    }
+    assert.equal(drops, 4, 'one apple a cycle')
+    assert.equal(appleAt(APPLE_FALL, w)!.fall, 1, 'it lands')
+    assert.equal(appleAt(APPLE_FALL + APPLE_REST, w), null, 'then it is gone')
+    assert.ok(
+      appleAt(APPLE_FALL + APPLE_REST - 1, w)!.alpha < 0.1,
+      'it fades out',
+    )
+    for (const f of [0, 100, 999]) {
+      for (const leaf of leavesAt(f, w, false)) {
+        assert.ok(leaf.y >= 0 && leaf.y < 90, `leaf y ${leaf.y}`)
+        assert.ok(leaf.x > -10 && leaf.x < w + 40, `leaf x ${leaf.x}`)
+      }
+    }
+    assert.deepEqual(
+      leavesAt(50, w, true),
+      [],
+      'no leaves under reduced motion',
+    )
+    let devils = 0
+    for (let f = 0; f < 2400; f += 1) {
+      const d = dustDevilAt(f, false)
+      if (d) {
+        devils += 1
+        assert.ok(d.h >= 18 && d.h <= 28)
+      }
+      assert.equal(dustDevilAt(f, true), null)
+    }
+    assert.ok(devils > 0 && devils < 2400, 'now and then')
+  },
+)
 
 check(
   'the Mission: the candle flickers, the portal shows only between rounds',
@@ -341,6 +401,7 @@ check(
       ['watering-hole', [ZUZU, COYOTE]],
       ['the-mission', [ZUZU, COYOTE]],
       ['storm-canyon', [COYOTE, ZUZU]],
+      ['lone-apple-tree', [ZUZU, COYOTE]],
     ] as const) {
       const stage = loaded(manifests[slug])
       const rand = mulberry32(slug.length)

@@ -13,6 +13,8 @@
 //     rounds a portal flickers in the empty bell arch.
 //   Storm Canyon (Storm Crow's): sheets of rain and wheeling crows. Lightning lights the sky so the
 //     canyon walls and the fighters stand in silhouette (never under reduced motion).
+//   The Lone Apple Tree (the Siblings'): heat shimmer over the wasteland, red leaves drifting down, a
+//     dust devil crossing the street. Apples drop from the tree, rest on the ground, and fade.
 //
 // This module is pure: which stage a match is on, where each layer sits for a camera, the stage-event
 // state, and where every moving part is on a given frame. render.ts draws it; the stage component loads
@@ -21,7 +23,11 @@
 import type { FighterData, MatchState, SimEvent } from './types'
 
 export type StageSlug =
-  'hollow-bell' | 'watering-hole' | 'the-mission' | 'storm-canyon'
+  | 'hollow-bell'
+  | 'watering-hole'
+  | 'the-mission'
+  | 'storm-canyon'
+  | 'lone-apple-tree'
 
 /** A parallax layer in the stage manifest: its screen position (game px) with the camera centred. */
 export type StageLayer = {
@@ -79,6 +85,7 @@ export const STAGE_NAMES: Record<StageSlug, string> = {
   'watering-hole': 'The Watering Hole',
   'the-mission': 'The Mission',
   'storm-canyon': 'Storm Canyon',
+  'lone-apple-tree': 'The Lone Apple Tree',
 }
 
 /** Each fighter's home stage (DESIGN-BRIEF.md "Stages with moving backgrounds"). */
@@ -88,6 +95,7 @@ export const HOME_STAGES: Partial<Record<string, StageSlug>> = {
   'river-croc': 'watering-hole',
   'the-abbess': 'the-mission',
   'storm-crow': 'storm-canyon',
+  'the-siblings': 'lone-apple-tree',
 }
 
 /** The fighters whose presence keeps the croc's eyes out of the Watering Hole. */
@@ -363,4 +371,70 @@ export function crowsAt(
       flap: Math.floor((frame + i * 7) / 8) % 2,
     }
   })
+}
+
+// ---------------------------------------------------------------- the Lone Apple Tree
+
+/** Frames between apples, frames an apple falls, and frames it rests on the ground before it fades. */
+export const APPLE_EVERY = 360
+export const APPLE_FALL = 30
+export const APPLE_REST = 150
+
+/**
+ * The apple dropping this frame, if any: where across the canopy it fell from (0 to `width`), how far
+ * it has fallen as a share of the drop (0 at the branch, 1 on the ground), and how visible it is.
+ */
+export function appleAt(
+  frame: number,
+  width: number,
+): { x: number; fall: number; alpha: number } | null {
+  const cycle = Math.floor(frame / APPLE_EVERY)
+  const t = frame % APPLE_EVERY
+  if (t >= APPLE_FALL + APPLE_REST) return null
+  const x = Math.round((((cycle * 67) % 90) / 100 + 0.05) * width)
+  if (t < APPLE_FALL) {
+    // It falls the way things fall: slow off the branch, fast at the ground.
+    const u = t / APPLE_FALL
+    return { x, fall: u * u, alpha: 1 }
+  }
+  const rest = t - APPLE_FALL
+  const fade = rest > APPLE_REST - 30 ? (APPLE_REST - rest) / 30 : 1
+  return { x, fall: 1, alpha: Math.max(0, fade) }
+}
+
+/** Leaves drifting down from the canopy band (`w` wide), swaying as they go: offsets from its corner. */
+export function leavesAt(
+  frame: number,
+  w: number,
+  reducedMotion: boolean,
+): Array<{ x: number; y: number }> {
+  if (reducedMotion) return []
+  const out: Array<{ x: number; y: number }> = []
+  for (let i = 0; i < 4; i += 1) {
+    const life = 240
+    const age = (frame + i * 61) % life
+    const start =
+      ((i * 37 + Math.floor((frame + i * 61) / life) * 23) % 100) / 100
+    out.push({
+      x: Math.round(start * w + Math.sin((age + i * 20) / 14) * 4 + age * 0.08),
+      y: Math.round(age * 0.35),
+    })
+  }
+  return out
+}
+
+/** A dust devil crossing the street: its centre x on screen and its height, or null when there isn't one. */
+export function dustDevilAt(
+  frame: number,
+  reducedMotion: boolean,
+): { x: number; h: number; spin: number } | null {
+  if (reducedMotion) return null
+  const cycle = frame % 1200
+  if (cycle < 700 || cycle >= 1100) return null
+  const t = (cycle - 700) / 400
+  return {
+    x: Math.round(520 - t * 560),
+    h: Math.round(18 + Math.sin(t * Math.PI) * 10),
+    spin: frame,
+  }
 }

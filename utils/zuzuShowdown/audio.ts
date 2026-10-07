@@ -299,6 +299,28 @@ const STORM_CANYON: MusicLoop = {
   ],
 }
 
+/**
+ * The Lone Apple Tree, the Siblings': F minor, a music-box tune over a plucked bass, a little lopsided,
+ * like a game two kids made up.
+ */
+const LONE_APPLE_TREE: MusicLoop = {
+  bpm: 104,
+  tracks: [
+    {
+      type: 'triangle',
+      vol: 0.08,
+      steps: `F2 . C3 . F2 . C3 .   Db3 . Ab2 . Db3 . Ab2 .
+              Bb2 . F2 . Bb2 . F2 .   C3 . G2 . E2 . C3 .`,
+    },
+    {
+      type: 'square',
+      vol: 0.025,
+      steps: `C6 - Ab5 - F5 - Ab5 C6   Db6 - C6 - Ab5 - - -
+              Bb5 - Db6 - F5 - Bb5 -   G5 - E5 - C5 - - -`,
+    },
+  ],
+}
+
 /** Every stage still to come: E minor at a canter. */
 export const DEFAULT_LOOP: MusicLoop = {
   bpm: 110,
@@ -323,6 +345,7 @@ export const STAGE_LOOPS: Record<StageSlug, MusicLoop> = {
   'watering-hole': WATERING_HOLE,
   'the-mission': THE_MISSION,
   'storm-canyon': STORM_CANYON,
+  'lone-apple-tree': LONE_APPLE_TREE,
 }
 
 /** The minor key each loop is in (its tonic's pitch class, 0 = C). */
@@ -335,6 +358,7 @@ export const LOOP_KEYS: Array<{
   { name: 'watering-hole', loop: WATERING_HOLE, tonic: 2 },
   { name: 'the-mission', loop: THE_MISSION, tonic: 7 },
   { name: 'storm-canyon', loop: STORM_CANYON, tonic: 0 },
+  { name: 'lone-apple-tree', loop: LONE_APPLE_TREE, tonic: 5 },
   { name: 'default', loop: DEFAULT_LOOP, tonic: 4 },
 ]
 

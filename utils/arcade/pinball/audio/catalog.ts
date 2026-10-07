@@ -3,7 +3,12 @@
 // Synthesized pinball audio vocabulary. Keeping cue data separate from WebAudio
 // makes the machine's sound design deterministic and testable without a browser.
 
-export type PinballBus = 'mechanical' | 'ball' | 'callout' | 'music' | 'ambience'
+export type PinballBus =
+  | 'mechanical'
+  | 'ball'
+  | 'callout'
+  | 'music'
+  | 'ambience'
 
 export type PinballSoundName =
   | 'flipper'

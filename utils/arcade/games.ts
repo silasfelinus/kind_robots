@@ -300,6 +300,26 @@ export const ARCADE_GAMES: ArcadeGameMeta[] = [
     accent: '#fbbf24',
     controls: 'Move, spark, pulse',
   },
+  {
+    slug: 'prize-show-panic',
+    title: 'Prize Show Panic',
+    riffsOn: 'Smash TV',
+    blurb:
+      "A robot game show where the studio floods with party crashers. Spray the confetti cannon and the crashers get happy and dance off the set, grab the prizes that drop, and reach the exit before the host's countdown runs out. Every fourth studio ends with a parade float.",
+    howTo: [
+      'ARROWS  MOVE',
+      'A  CONFETTI CANNON',
+      'HOLD B  LOCK YOUR AIM',
+      'GRAB THE PRIZES',
+      'BEAT THE COUNTDOWN',
+    ],
+    width: 320,
+    height: 240,
+    maxPlausibleScore: 20_000_000,
+    titleArt: '/images/arcade/games/prize-show-panic-title.webp',
+    accent: '#e879f9',
+    controls: 'Move, spray, lock aim',
+  },
 ]
 
 export type ComingSoonCabinet = {
@@ -313,12 +333,6 @@ export type ComingSoonCabinet = {
 
 // Mirrors the queued rows of conductor projects/kr-arcade/games.yaml.
 export const COMING_SOON: ComingSoonCabinet[] = [
-  {
-    slug: 'prize-show-panic',
-    title: 'Prize Show Panic',
-    riffsOn: 'Smash TV',
-    accent: '#e879f9',
-  },
   {
     slug: 'zuzu-ghost-trail',
     title: 'Zuzu: Ghost Trail',
@@ -348,6 +362,7 @@ const LOADERS: Record<string, () => Promise<ArcadeGameModule>> = {
   'burrow-buddy': () => import('./games/burrowBuddy'),
   'repair-rampage': () => import('./games/repairRampage'),
   'kindness-gauntlet': () => import('./games/kindnessGauntlet'),
+  'prize-show-panic': () => import('./games/prizeShowPanic'),
 }
 
 export function findArcadeGame(slug: string): ArcadeGameMeta | undefined {

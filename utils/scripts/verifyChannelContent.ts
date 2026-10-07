@@ -161,6 +161,16 @@ function validateAccess(errors: string[], document: NavigationDocument): void {
   if (document.requiredRole && !allowedRoles.has(document.requiredRole)) {
     addError(errors, document, `unknown requiredRole ${document.requiredRole}`)
   }
+  // requiredRole is a membership test and a logged-out viewer resolves to USER,
+  // so GUEST matches almost nobody and the entry ends up admin-only. Public
+  // entries leave requiredRole unset (Silas, 2026-10-07: Play was admin-gated).
+  if (document.requiredRole === 'GUEST') {
+    addError(
+      errors,
+      document,
+      'requiredRole GUEST hides the entry from everyone but admins; leave requiredRole unset for public entries',
+    )
+  }
   if (
     document.requiredPermission &&
     !allowedPermissions.has(document.requiredPermission)

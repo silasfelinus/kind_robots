@@ -10,7 +10,6 @@ icon: kind-icon:video
 image: /images/channels/plan/video-generator.webp
 route: /play/video-generator
 sort: 20
-requiredRole: GUEST
 ---
 
 Feed in a still, describe the motion, and queue a short animated clip on the studio engine. Choose a startup preset for 768×768, 2.5-second, 16 FPS output, or keep the controls fully custom.

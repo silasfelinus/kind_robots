@@ -25,6 +25,15 @@ export type InputFrame = {
   pressed: Record<ArcadeButton, boolean>
 }
 
+/**
+ * How a cabinet draws. Every classic cabinet is 'canvas2d' (the default): it
+ * draws into the cabinet's 2D canvas. A 'webgl' game (Kind Pinball's 3D table,
+ * conductor kind-pinball/t-004) renders into a separate stage canvas stacked
+ * under it, while the cabinet keeps drawing its attract, pause and initials
+ * screens on the 2D canvas above.
+ */
+export type ArcadeRenderMode = 'canvas2d' | 'webgl'
+
 export type ArcadeGameMeta = {
   slug: string
   title: string
@@ -43,6 +52,8 @@ export type ArcadeGameMeta = {
   accent: string
   /** One line describing the controls on the cabinet's control panel. */
   controls: string
+  /** Omitted for the classic Canvas 2D cabinets. */
+  renderMode?: ArcadeRenderMode
   /** Same-device players the cabinet can seat (default 1). */
   maxPlayers?: number
 }
@@ -74,8 +85,43 @@ export interface ArcadeGameInstance {
   render(g: CanvasRenderingContext2D): void
 }
 
+/**
+ * A game that draws with WebGL on the cabinet's stage canvas. It owns GPU,
+ * physics and audio resources, so the cabinet mounts it once, tells it the
+ * stage size, and disposes it when it leaves the screen.
+ */
+export interface ArcadeWebGLGameInstance {
+  readonly renderMode: 'webgl'
+  readonly score: number
+  readonly level: number
+  readonly lives: number
+  readonly over: boolean
+  /** Attach to the stage canvas and build the scene. */
+  mount(canvas: HTMLCanvasElement): void
+  /** CSS size of the stage in pixels, and the device pixel ratio to render at. */
+  resize(width: number, height: number, dpr: number): void
+  /** Advance one fixed 1/60 s tick (`players` as for ArcadeGameInstance). */
+  update(input: InputFrame, players?: InputFrame[]): void
+  /** Draw the current state to the stage canvas. */
+  render(): void
+  /** Release every GPU, physics and audio resource; safe to call twice. */
+  dispose(): void
+}
+
+export type ArcadePlayableInstance =
+  ArcadeGameInstance | ArcadeWebGLGameInstance
+
+export function isWebGLInstance(
+  instance: ArcadePlayableInstance | null | undefined,
+): instance is ArcadeWebGLGameInstance {
+  return (
+    !!instance &&
+    (instance as Partial<ArcadeWebGLGameInstance>).renderMode === 'webgl'
+  )
+}
+
 export type ArcadeGameModule = {
-  create(options: ArcadeGameOptions): ArcadeGameInstance
+  create(options: ArcadeGameOptions): ArcadePlayableInstance
 }
 
 export function emptyInput(): InputFrame {

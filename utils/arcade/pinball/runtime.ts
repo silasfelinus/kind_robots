@@ -1,0 +1,224 @@
+// /utils/arcade/pinball/runtime.ts
+//
+// The pinball runtime (conductor kind-pinball/t-004): the one object the
+// arcade cabinet talks to. It wires input -> physics -> rules -> effects ->
+// renderer/audio, and implements the cabinet's ArcadeWebGLGameInstance:
+// mount, resize, update, render, dispose. Each layer stays behind its own
+// module; nothing here reaches into another layer's internals.
+//
+// Fixed 60 Hz arcade ticks run two 1/120 s physics steps each.
+
+import type {
+  ArcadeGameOptions,
+  ArcadeWebGLGameInstance,
+  InputFrame,
+} from '../types'
+import { PinballMixer } from './audio/mixer'
+import { PinballPhysics, PHYSICS_HZ, type RapierModule } from './physics/world'
+import {
+  PinballScene,
+  createWebGLRenderer,
+  type RendererFactory,
+} from './render/scene'
+import {
+  initialRules,
+  stepRules,
+  type PinballRulesState,
+  type RulesEvent,
+} from './rules/engine'
+import type { RuleEffect, TableDef } from './types'
+
+const STEPS_PER_TICK = PHYSICS_HZ / 60
+/** Ticks to hold Down for a full plunger pull. */
+const PULL_TICKS = 45
+/** A ball this slow for this long, off the plunger, gets a small shove. */
+const STILL_SPEED = 0.01
+const STILL_TICKS = 60 * 4
+
+export class PinballRuntime implements ArcadeWebGLGameInstance {
+  readonly renderMode = 'webgl' as const
+  readonly level = 1
+
+  private physics: PinballPhysics
+  private rules: PinballRulesState
+  private scene: PinballScene | null = null
+  private mixer: PinballMixer
+  private rng: () => number
+  private demo: boolean
+  private factory: RendererFactory
+  private pull = 0
+  private nudgeCooldown = 0
+  private still = 0
+  private tick = 0
+  private size = { width: 0, height: 0, dpr: 1 }
+  private disposed = false
+
+  constructor(
+    options: ArcadeGameOptions,
+    R: RapierModule,
+    table: TableDef,
+    factory: RendererFactory = createWebGLRenderer,
+  ) {
+    this.rng = options.rng
+    this.demo = options.demo
+    this.factory = factory
+    this.mixer = new PinballMixer(options.sound)
+    this.physics = new PinballPhysics(R, table)
+    this.rules = initialRules(table.balls)
+    this.apply({ type: 'start' })
+  }
+
+  get score() {
+    return this.rules.score
+  }
+
+  get lives() {
+    return this.rules.lives
+  }
+
+  get over() {
+    return this.rules.over
+  }
+
+  get isDisposed() {
+    return this.disposed
+  }
+
+  mount(canvas: HTMLCanvasElement) {
+    if (this.disposed || this.scene) return
+    this.scene = new PinballScene(this.physics.table, canvas, this.factory)
+    if (this.size.width > 0) {
+      this.scene.resize(this.size.width, this.size.height, this.size.dpr)
+    }
+  }
+
+  resize(width: number, height: number, dpr: number) {
+    this.size = { width, height, dpr }
+    this.scene?.resize(width, height, dpr)
+  }
+
+  update(input: InputFrame) {
+    if (this.disposed || this.rules.over) return
+    this.tick++
+    const controls = this.demo ? this.pilot() : input
+    const both = controls.held.a && !this.physics.ballOnPlunger()
+    const left = controls.held.left || both
+    const right = controls.held.right || both
+    if ((controls.pressed.left || controls.pressed.right) && !this.demo) {
+      this.mixer.play('flipper')
+    }
+    this.physics.setFlipper('left', left)
+    this.physics.setFlipper('right', right)
+    this.plunger(controls)
+    if (this.nudgeCooldown > 0) this.nudgeCooldown--
+    if (controls.pressed.up && this.nudgeCooldown === 0) {
+      this.physics.nudge((this.rng() - 0.5) * 0.12, -0.12)
+      this.nudgeCooldown = 45
+      this.mixer.play('nudge')
+    }
+    for (let i = 0; i < STEPS_PER_TICK; i++) {
+      for (const event of this.physics.step())
+        this.apply({ type: 'switch', event })
+    }
+    this.unstick()
+  }
+
+  private plunger(controls: InputFrame) {
+    if (!this.physics.ballOnPlunger()) {
+      this.pull = 0
+      return
+    }
+    if (controls.held.down) {
+      this.pull = Math.min(PULL_TICKS, this.pull + 1)
+      return
+    }
+    const released = this.pull > 0
+    if (released || controls.pressed.a) {
+      const power = released ? this.pull / PULL_TICKS : 0.85
+      if (this.physics.launch(power)) this.mixer.play('launch')
+      this.pull = 0
+    }
+  }
+
+  /** A ball resting somewhere odd (not on the plunger) gets a gentle shove. */
+  private unstick() {
+    const moving = this.physics.ballViews().some((b) => b.speed > STILL_SPEED)
+    if (
+      moving ||
+      this.physics.ballOnPlunger() ||
+      this.physics.ballCount === 0
+    ) {
+      this.still = 0
+      return
+    }
+    if (++this.still < STILL_TICKS) return
+    this.still = 0
+    this.physics.nudge((this.rng() - 0.5) * 0.2, -0.25)
+  }
+
+  private apply(event: RulesEvent) {
+    const { state, effects } = stepRules(this.rules, event)
+    this.rules = state
+    for (const effect of effects) this.effect(effect)
+  }
+
+  private effect(effect: RuleEffect) {
+    switch (effect.type) {
+      case 'serve-ball':
+        this.physics.serveBall()
+        break
+      case 'sound':
+        if (!this.demo) this.mixer.play(effect.name)
+        break
+      case 'mechanism':
+        if (effect.action === 'flash') this.scene?.pulse(effect.id)
+        break
+      default:
+        break
+    }
+  }
+
+  /** Attract-mode pilot: plunge, then flip when a ball comes down near a flipper. */
+  private pilot(): InputFrame {
+    const held = {
+      up: false,
+      down: false,
+      left: false,
+      right: false,
+      a: false,
+      b: false,
+      start: false,
+    }
+    const frame: InputFrame = { held, pressed: { ...held } }
+    if (this.physics.ballOnPlunger()) {
+      frame.pressed.a = this.tick % 50 === 0
+      return frame
+    }
+    // Flip only at a ball coming down toward the flippers; a ball at rest
+    // gets the flippers dropped so it rolls on rather than being cradled forever.
+    for (const ball of this.physics.ballViews()) {
+      const [x, , z] = ball.position
+      const coming = ball.velocity[2] > 0.08
+      if (coming && z > -0.08 && z < 0.0) {
+        if (x < 0.005) held.left = true
+        if (x > -0.005) held.right = true
+      }
+    }
+    return frame
+  }
+
+  render() {
+    if (this.disposed || !this.scene) return
+    this.scene.sync(this.physics.ballViews(), this.physics.flipperAngles())
+    this.scene.render()
+  }
+
+  dispose() {
+    if (this.disposed) return
+    this.disposed = true
+    this.scene?.dispose()
+    this.scene = null
+    this.physics.dispose()
+    this.mixer.dispose()
+  }
+}

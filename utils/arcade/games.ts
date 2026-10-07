@@ -385,6 +385,37 @@ export type ComingSoonCabinet = {
 // Mirrors the queued rows of conductor projects/kr-arcade/games.yaml.
 export const COMING_SOON: ComingSoonCabinet[] = []
 
+/**
+ * Unlisted preview cabinets: playable by direct link
+ * (/play/arcade?game=<slug>) but not shown in the hall or the hall of fame,
+ * and with no plausible score, so they never post to a leaderboard. Kind
+ * Pinball's 3D rebuild lives here until it replaces the Canvas table
+ * (conductor kind-pinball/t-004; the Canvas game is the rollback path).
+ */
+export const PREVIEW_GAMES: ArcadeGameMeta[] = [
+  {
+    slug: 'kind-pinball-3d',
+    title: 'Kind Pinball 3D',
+    riffsOn: 'pinball',
+    blurb:
+      'A preview of the 3D Kind Pinball table: a real perspective playfield with a steel ball, flippers and pop bumpers on a physics engine. Greybox for now; the full AMI Village Rescue table is being built on it.',
+    howTo: [
+      'LEFT/RIGHT  FLIPPERS',
+      'A  BOTH FLIPPERS',
+      'HOLD DOWN, LET GO',
+      'UP  NUDGE THE TABLE',
+      '3D PREVIEW: NO SCORES',
+    ],
+    width: 360,
+    height: 640,
+    maxPlausibleScore: 0,
+    titleArt: '/images/arcade/games/kind-pinball-title.webp',
+    accent: '#facc15',
+    controls: 'Flip, plunge, nudge',
+    renderMode: 'webgl',
+  },
+]
+
 const LOADERS: Record<string, () => Promise<ArcadeGameModule>> = {
   'butterfly-blaster': () => import('./games/butterflyBlaster'),
   'battery-maze': () => import('./games/batteryMaze'),
@@ -403,10 +434,18 @@ const LOADERS: Record<string, () => Promise<ArcadeGameModule>> = {
   'prize-show-panic': () => import('./games/prizeShowPanic'),
   'zuzu-ghost-trail': () => import('./games/zuzuGhostTrail'),
   'station-sweep': () => import('./games/stationSweep'),
+  'kind-pinball-3d': () =>
+    import('./games/kindPinball3d').then(async (module) => {
+      await module.prepare()
+      return module
+    }),
 }
 
 export function findArcadeGame(slug: string): ArcadeGameMeta | undefined {
-  return ARCADE_GAMES.find((game) => game.slug === slug)
+  return (
+    ARCADE_GAMES.find((game) => game.slug === slug) ??
+    PREVIEW_GAMES.find((game) => game.slug === slug)
+  )
 }
 
 export function loadArcadeGame(slug: string): Promise<ArcadeGameModule> {

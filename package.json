@@ -607,6 +607,7 @@
     "@tailwindcss/postcss": "^4.2.2",
     "@tailwindcss/vite": "^4.2.2",
     "@types/node": "24.x",
+    "@types/three": "^0.186.0",
     "@vitejs/plugin-vue": "^6.0.6",
     "cypress": "^15.13.1",
     "daisyui": "^5.5.19",
@@ -629,6 +630,7 @@
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.131.0",
+    "@dimforge/rapier3d-compat": "^0.21.0",
     "@nuxt/content": "^3.3.0",
     "@nuxt/image": "^2.0.0",
     "@pinia/nuxt": "^0.11.3",
@@ -645,6 +647,7 @@
     "nuxt": "4.4.8",
     "pinia": "^3.0.4",
     "stripe": "^22.0.1",
+    "three": "^0.186.1",
     "yaml": "^2.9.0"
   },
   "overrides": {

@@ -31,6 +31,7 @@ import {
   findArcadeGame,
   isPlausibleScore,
   loadArcadeGame,
+  PREVIEW_GAMES,
 } from '../arcade/games'
 import { glyphFor, lineStep, MIN_LINE_STEP, measureText } from '../arcade/font'
 import { BATTERY_MAZE } from '../arcade/games/batteryMaze'
@@ -42,7 +43,25 @@ import {
   pathPoint,
 } from '../arcade/games/kindPinball'
 import { Dmd, DMD_COLS, DMD_ROWS, dmdTextWidth } from '../arcade/pinball/dmd'
-import { emptyInput, type InputFrame } from '../arcade/types'
+import {
+  emptyInput,
+  isWebGLInstance,
+  type ArcadeGameInstance,
+  type ArcadePlayableInstance,
+  type InputFrame,
+} from '../arcade/types'
+import RAPIER from '@dimforge/rapier3d-compat'
+import {
+  livePhysicsWorlds,
+  PinballPhysics,
+} from '../arcade/pinball/physics/world'
+import {
+  liveRenderResources,
+  type RendererLike,
+} from '../arcade/pinball/render/scene'
+import { initialRules, stepRules } from '../arcade/pinball/rules/engine'
+import { PinballRuntime } from '../arcade/pinball/runtime'
+import { AMI_VILLAGE_GREYBOX } from '../arcade/pinball/tables/amiVillage/table'
 import {
   enqueuePending,
   formatChampion,
@@ -540,18 +559,30 @@ function scriptedInput(tick: number): InputFrame {
   assert.equal(initialsFromUsername(null), null)
 }
 
+/** Every listed cabinet is a classic Canvas 2D game. */
+function canvasGame(
+  instance: ArcadePlayableInstance,
+  slug: string,
+): ArcadeGameInstance {
+  assert.ok(!isWebGLInstance(instance), `${slug}: listed games draw in 2D`)
+  return instance as ArcadeGameInstance
+}
+
 async function runGames() {
   const g = stubContext()
   const quiet = { play: () => {} }
   for (const meta of ARCADE_GAMES) {
     const mod = await loadArcadeGame(meta.slug)
 
-    const demo = mod.create({
-      rng: mulberry32(7),
-      sound: quiet,
-      demo: true,
-      hiScore: 0,
-    })
+    const demo = canvasGame(
+      mod.create({
+        rng: mulberry32(7),
+        sound: quiet,
+        demo: true,
+        hiScore: 0,
+      }),
+      meta.slug,
+    )
     for (let t = 0; t < 60 * 60 && !demo.over; t++) {
       demo.update(emptyInput())
       if (t % 30 === 0) demo.render(g)
@@ -559,12 +590,15 @@ async function runGames() {
     assert.equal(demo.score, 0, `${meta.slug}: the attract demo never scores`)
 
     const sounds: string[] = []
-    const player = mod.create({
-      rng: mulberry32(11),
-      sound: { play: (name) => void sounds.push(name) },
-      demo: false,
-      hiScore: 500,
-    })
+    const player = canvasGame(
+      mod.create({
+        rng: mulberry32(11),
+        sound: { play: (name) => void sounds.push(name) },
+        demo: false,
+        hiScore: 500,
+      }),
+      meta.slug,
+    )
     assert.equal(player.level, 1, `${meta.slug}: games start on level 1`)
     assert.ok(player.lives > 0)
     let t = 0
@@ -602,13 +636,16 @@ async function runCoopGames() {
   // Every co-op game survives a long two-player run, drawn in its two-player view.
   for (const meta of ARCADE_GAMES.filter((m) => (m.maxPlayers ?? 1) > 1)) {
     const mod = await loadArcadeGame(meta.slug)
-    const game = mod.create({
-      rng: mulberry32(23),
-      sound: quiet,
-      demo: false,
-      hiScore: 0,
-      players: 2,
-    })
+    const game = canvasGame(
+      mod.create({
+        rng: mulberry32(23),
+        sound: quiet,
+        demo: false,
+        hiScore: 0,
+        players: 2,
+      }),
+      meta.slug,
+    )
     assert.ok(game.lives >= 2, `${meta.slug}: two seated, two in play`)
     for (let t = 0; t < 60 * 60 * 5 && !game.over; t++) {
       const p1 = scriptedInput(t)
@@ -627,13 +664,16 @@ async function runCoopGames() {
   for (const meta of ARCADE_GAMES.filter((m) => (m.maxPlayers ?? 1) > 1)) {
     const mod = await loadArcadeGame(meta.slug)
     for (let players = 2; players <= meta.maxPlayers!; players++) {
-      const game = mod.create({
-        rng: mulberry32(players),
-        sound: quiet,
-        demo: false,
-        hiScore: 0,
-        players,
-      })
+      const game = canvasGame(
+        mod.create({
+          rng: mulberry32(players),
+          sound: quiet,
+          demo: false,
+          hiScore: 0,
+          players,
+        }),
+        meta.slug,
+      )
       const frames = () =>
         Array.from({ length: players }, (_, i) => scriptedInput(i * 50))
       for (let t = 0; t < 60 * 40 && !game.over; t++) {
@@ -648,13 +688,16 @@ async function runCoopGames() {
   // Four in the Gauntlet: one of each bot.
   {
     const mod = await loadArcadeGame('kindness-gauntlet')
-    const game = mod.create({
-      rng: mulberry32(4),
-      sound: quiet,
-      demo: false,
-      hiScore: 0,
-      players: 4,
-    })
+    const game = canvasGame(
+      mod.create({
+        rng: mulberry32(4),
+        sound: quiet,
+        demo: false,
+        hiScore: 0,
+        players: 4,
+      }),
+      'kindness-gauntlet',
+    )
     const heroes = (game as unknown as { heroes: Array<{ cls: string }> })
       .heroes
     const all = [tap('a'), tap('a'), tap('a'), tap('a')]
@@ -670,13 +713,16 @@ async function runCoopGames() {
   // Three on the station: three Mops, two shared spares.
   {
     const mod = await loadArcadeGame('station-sweep')
-    const game = mod.create({
-      rng: mulberry32(6),
-      sound: quiet,
-      demo: false,
-      hiScore: 0,
-      players: 3,
-    })
+    const game = canvasGame(
+      mod.create({
+        rng: mulberry32(6),
+        sound: quiet,
+        demo: false,
+        hiScore: 0,
+        players: 3,
+      }),
+      'station-sweep',
+    )
     assert.equal(game.lives, 5)
     game.render(g)
   }
@@ -692,13 +738,16 @@ async function runCoopGames() {
       picked: boolean
     }
     const mod = await loadArcadeGame('kindness-gauntlet')
-    const game = mod.create({
-      rng: mulberry32(3),
-      sound: quiet,
-      demo: false,
-      hiScore: 0,
-      players: 2,
-    })
+    const game = canvasGame(
+      mod.create({
+        rng: mulberry32(3),
+        sound: quiet,
+        demo: false,
+        hiScore: 0,
+        players: 2,
+      }),
+      'kindness-gauntlet',
+    )
     const heroes = (game as unknown as { heroes: Hero[] }).heroes
     assert.equal(heroes.length, 2)
     // P1 locks in Fix; P2 walks left onto Fix and gets bumped past it.
@@ -755,13 +804,16 @@ async function runCoopGames() {
     }
     type Deck = { sacs: Array<{ timer: number }> }
     const mod = await loadArcadeGame('station-sweep')
-    const game = mod.create({
-      rng: mulberry32(9),
-      sound: quiet,
-      demo: false,
-      hiScore: 0,
-      players: 2,
-    })
+    const game = canvasGame(
+      mod.create({
+        rng: mulberry32(9),
+        sound: quiet,
+        demo: false,
+        hiScore: 0,
+        players: 2,
+      }),
+      'station-sweep',
+    )
     const inner = game as unknown as {
       mops: Mop[]
       decks: Deck[]
@@ -795,6 +847,186 @@ async function runCoopGames() {
   }
 }
 
+// --- Kind Pinball 3D: the WebGL lane (conductor kind-pinball/t-004) ----------
+//
+// Rapier runs here for real (its WASM build works in Node); the renderer is a
+// stub, since there is no WebGL in Node. The scene still builds every Three.js
+// geometry and material, so resource counts are real.
+
+function stubRenderer(log: { disposed: number; frames: number }): RendererLike {
+  return {
+    render: () => void log.frames++,
+    setSize: () => {},
+    setPixelRatio: () => {},
+    dispose: () => void log.disposed++,
+  }
+}
+
+async function runPinball3d() {
+  // The preview cabinet is reachable but unlisted, WebGL, and never scores.
+  const preview = findArcadeGame('kind-pinball-3d')
+  assert.ok(preview, 'the 3D preview is reachable by slug')
+  assert.equal(preview.renderMode, 'webgl')
+  assert.ok(PREVIEW_GAMES.includes(preview))
+  assert.ok(
+    !ARCADE_GAMES.some((game) => game.slug === preview.slug),
+    'not listed in the hall',
+  )
+  for (const score of [1, 100, 1_000_000]) {
+    assert.equal(isPlausibleScore('kind-pinball-3d', score), false)
+  }
+  assert.ok(
+    ARCADE_GAMES.every(
+      (game) => (game.renderMode ?? 'canvas2d') === 'canvas2d',
+    ),
+  )
+
+  // The registry loader initialises Rapier and hands back a WebGL game.
+  const mod = await loadArcadeGame('kind-pinball-3d')
+  const viaRegistry = mod.create({
+    rng: mulberry32(1),
+    sound: { play: () => {} },
+    demo: true,
+    hiScore: 0,
+  })
+  assert.ok(isWebGLInstance(viaRegistry))
+  viaRegistry.dispose()
+  viaRegistry.dispose()
+
+  // Physics: a ball rests on the plunger, launches past the lane sensor,
+  // and eventually drains; disposing frees the world.
+  const worldsBefore = livePhysicsWorlds()
+  const physics = new PinballPhysics(RAPIER, AMI_VILLAGE_GREYBOX)
+  assert.equal(livePhysicsWorlds(), worldsBefore + 1)
+  physics.serveBall()
+  for (let i = 0; i < 120; i++) physics.step()
+  assert.ok(physics.ballOnPlunger(), 'a served ball rests on the plunger')
+  assert.ok(physics.launch(0.8))
+  const seen = new Set<string>()
+  for (let i = 0; i < 120 * 60 && physics.ballCount; i++) {
+    for (const event of physics.step())
+      seen.add(event.type === 'drain' ? 'drain' : `${event.type}:${event.id}`)
+    for (const ball of physics.ballViews()) {
+      assert.ok(ball.position.every(Number.isFinite), 'no NaN ball')
+      assert.ok(ball.position[1] < 0.07, 'the ball stays under the glass')
+    }
+  }
+  assert.ok(
+    seen.has('sensor-enter:shooter-exit'),
+    'the plunge crosses the lane sensor',
+  )
+  assert.ok(seen.has('drain'), 'an unflipped ball drains')
+  physics.dispose()
+  physics.dispose()
+  assert.equal(livePhysicsWorlds(), worldsBefore)
+
+  // Rules: a pure ball cycle. Start serves ball 1, each drain serves the next,
+  // the last drain ends the game, and drains during multiball do not.
+  let rules = initialRules(3)
+  let step = stepRules(rules, { type: 'start' })
+  assert.ok(step.effects.some((e) => e.type === 'serve-ball'))
+  rules = step.state
+  assert.equal(rules.ball, 1)
+  rules = { ...rules, ballsInPlay: 2 }
+  step = stepRules(rules, {
+    type: 'switch',
+    event: { type: 'drain', ballId: 1 },
+  })
+  assert.equal(step.state.lives, 3, 'a multiball drain keeps the ball')
+  rules = step.state
+  for (let n = 0; n < 3; n++) {
+    step = stepRules(rules, {
+      type: 'switch',
+      event: { type: 'drain', ballId: 2 },
+    })
+    rules = step.state
+  }
+  assert.equal(rules.over, true)
+  assert.ok(step.effects.some((e) => e.type === 'game-over'))
+  assert.equal(
+    stepRules(rules, { type: 'start' }).effects.length,
+    0,
+    'a finished game ignores events',
+  )
+  step = stepRules(initialRules(3), {
+    type: 'switch',
+    event: { type: 'contact', id: 'pop-left', ballId: 1, impulse: 1 },
+  })
+  assert.equal(step.state.switches['pop-left'], 1)
+  assert.ok(
+    step.effects.some((e) => e.type === 'mechanism' && e.id === 'pop-left'),
+  )
+
+  // Lifecycle: enter and leave the WebGL cabinet over and over. Every cycle
+  // mounts, sizes, plays, renders and disposes; nothing may leak.
+  const canvas = {} as HTMLCanvasElement
+  const resourcesBefore = liveRenderResources()
+  const log = { disposed: 0, frames: 0 }
+  const cycles = 25
+  for (let cycle = 0; cycle < cycles; cycle++) {
+    const runtime = new PinballRuntime(
+      {
+        rng: mulberry32(cycle + 1),
+        sound: { play: () => {} },
+        demo: cycle % 2 === 0,
+        hiScore: 0,
+      },
+      RAPIER,
+      AMI_VILLAGE_GREYBOX,
+      () => stubRenderer(log),
+    )
+    assert.equal(runtime.renderMode, 'webgl')
+    runtime.resize(360, 640, 2)
+    runtime.mount(canvas)
+    runtime.mount(canvas)
+    assert.ok(
+      liveRenderResources() > resourcesBefore,
+      'the scene builds GPU resources',
+    )
+    for (let t = 0; t < 240; t++) {
+      const frame = emptyInput()
+      frame.held.down = t < 30
+      frame.held.left = t % 40 < 8
+      runtime.update(frame)
+      if (t % 4 === 0) runtime.render()
+    }
+    assert.equal(runtime.score, 0, 'the greybox posts no score')
+    runtime.dispose()
+    runtime.dispose()
+    runtime.update(emptyInput())
+    runtime.render()
+    assert.equal(
+      livePhysicsWorlds(),
+      worldsBefore,
+      `cycle ${cycle}: physics freed`,
+    )
+    assert.equal(
+      liveRenderResources(),
+      resourcesBefore,
+      `cycle ${cycle}: GPU resources freed`,
+    )
+  }
+  assert.equal(
+    log.disposed,
+    cycles,
+    'one renderer per mount, each disposed once',
+  )
+  assert.ok(log.frames > 0)
+
+  // A full attract demo runs to game over by itself without a stuck ball.
+  const demo = new PinballRuntime(
+    { rng: mulberry32(5), sound: { play: () => {} }, demo: true, hiScore: 0 },
+    RAPIER,
+    AMI_VILLAGE_GREYBOX,
+    () => stubRenderer(log),
+  )
+  let ticks = 0
+  for (; ticks < 60 * 60 * 10 && !demo.over; ticks++) demo.update(emptyInput())
+  assert.ok(demo.over, 'the demo plays all three balls out')
+  demo.dispose()
+}
+
 await runGames()
 await runCoopGames()
+await runPinball3d()
 console.log('verifyArcadeEngine: ok')

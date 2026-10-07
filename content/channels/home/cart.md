@@ -8,6 +8,7 @@ label: Cart
 title: Your Cart
 subtitle: Review items and continue to Stripe
 description: Review purchases and donations before opening secure Stripe checkout.
+summary: Review purchases before checkout.
 icon: kind-icon:cart
 route: /cart
 sort: 230

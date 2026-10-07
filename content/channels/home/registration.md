@@ -8,6 +8,7 @@ label: Register
 title: Join Kind Robots
 subtitle: Welcome to the community
 description: Create an account to keep personal progress, collections, prompts, achievements, and preferences.
+summary: Create a Kind Robots account.
 icon: kind-icon:register
 route: /register
 sort: 30

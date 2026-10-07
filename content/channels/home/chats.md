@@ -8,6 +8,7 @@ label: Chats
 title: Chat Gallery
 subtitle: Echoes of wit and weirdness
 description: Review personal and curated conversations from across Kind Robots.
+summary: Browse your conversations.
 icon: kind-icon:chat
 route: /chats
 sort: 60

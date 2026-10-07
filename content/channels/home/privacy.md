@@ -8,6 +8,7 @@ label: Privacy
 title: Privacy and Data Philosophy
 subtitle: Your data belongs to you
 description: Learn how Kind Robots handles personal data and the principles behind those choices.
+summary: Read the Kind Robots privacy policy.
 icon: kind-icon:shield
 route: /privacy
 sort: 240

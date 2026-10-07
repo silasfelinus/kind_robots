@@ -1,9 +1,9 @@
 // /utils/arcade/games/kindnessGauntlet.ts
 //
 // Kindness Gauntlet -- the Kind Robots Arcade's Gauntlet II riff (conductor
-// kr-arcade/t-009 game factory, slices 1-2 of 4: procedurally built floors
-// and all four classes; keys and locked doors, and same-device co-op come in
-// later slices). A repair bot explores a glitchy old server dungeon floor by
+// kr-arcade/t-009 game factory, slices 1-3 of 4: procedurally built floors,
+// all four classes, and keys with locked doors; same-device co-op comes in a
+// later slice). A repair bot explores a glitchy old server dungeon floor by
 // floor: wrench sparks fix the glitches that swarm out of broken generators,
 // shut the generators down, free the bots trapped in cages, and find the
 // stairs down.
@@ -13,6 +13,10 @@
 // clinging glitches drain the least), Sage (magic: three pulses, and each one
 // jolts the generators on screen too) and Zip (speed: the fastest wheels and
 // quickest sparks).
+//
+// From floor 2 a locked door cuts the way to the stairs. A key waits on the
+// near side; keys carry over between floors, and walking into a door with one
+// opens it.
 //
 // The battery drains all the time and faster when glitches cling on; snacks
 // top it up and kindness pulses (B) fix every glitch on screen. The arrows
@@ -50,6 +54,10 @@ const EXIT_TICKS = 120
 const GLITCH_POINTS = 10
 const GENERATOR_POINTS = 100
 const RESCUE_POINTS = 250
+const DOOR_POINTS = 100
+/** walls[] values: open floor, wall, and a locked door (solid until opened). */
+const OPEN = 0
+const DOOR = 2
 const FLOOR_POINTS = 500
 
 export const GAUNTLET_CURVES = {
@@ -158,7 +166,8 @@ type Spark = Thing & {
   /** Glitches this spark can still pass through. */
   pierce: number
 }
-type Item = Thing & { kind: 'snack' | 'pulse' | 'cage' }
+type Item = Thing & { kind: 'snack' | 'pulse' | 'cage' | 'key' }
+type Door = { tiles: number[]; open: boolean }
 type Particle = {
   x: number
   y: number
@@ -197,6 +206,8 @@ class KindnessGauntlet implements ArcadeGameInstance {
   private fireCooldown = 0
   private battery = MAX_BATTERY
   private pulses = 1
+  private keys = 0
+  private doors: Door[] = []
   private pulseFlash = 0
   private generators: Generator[] = []
   private glitches: Glitch[] = []
@@ -256,7 +267,7 @@ class KindnessGauntlet implements ArcadeGameInstance {
 
   private wallAt(tx: number, ty: number): boolean {
     if (tx < 0 || ty < 0 || tx >= MW || ty >= MH) return true
-    return this.walls[this.idx(tx, ty)] === 1
+    return this.walls[this.idx(tx, ty)] !== OPEN
   }
 
   private solid(x: number, y: number): boolean {
@@ -274,7 +285,7 @@ class KindnessGauntlet implements ArcadeGameInstance {
     for (let y = Math.min(y0, y1); y <= Math.max(y0, y1); y++) {
       for (let x = Math.min(x0, x1); x <= Math.max(x0, x1); x++) {
         if (x > 0 && y > 0 && x < MW - 1 && y < MH - 1)
-          this.walls[this.idx(x, y)] = 0
+          this.walls[this.idx(x, y)] = OPEN
       }
     }
   }
@@ -331,6 +342,8 @@ class KindnessGauntlet implements ArcadeGameInstance {
       })
       .sort((a, b) => b.d - a.d)[0]
     this.exit = this.centre(far?.r ?? rooms[rooms.length - 1]!)
+    this.doors = []
+    const keyRooms = floor >= 2 ? this.lockTheWay(rooms, start) : []
 
     const spots = (count: number) => {
       const out: Thing[] = []
@@ -375,6 +388,22 @@ class KindnessGauntlet implements ArcadeGameInstance {
       this.items.push({ ...s, kind: 'cage' })
     }
     for (const s of spots(1)) this.items.push({ ...s, kind: 'pulse' })
+    // The key goes in a room on the near side of the door.
+    for (let tries = 0; tries < 200 && keyRooms.length; tries++) {
+      const r = keyRooms[Math.floor(this.rng() * keyRooms.length)]!
+      const x = (r.x + Math.floor(this.rng() * r.w)) * T + T / 2
+      const y = (r.y + Math.floor(this.rng() * r.h)) * T + T / 2
+      const taken = [...this.generators, ...this.items].some(
+        (o) => Math.abs(o.x - x) < T * 2 && Math.abs(o.y - y) < T * 2,
+      )
+      if (
+        taken ||
+        (Math.abs(x - start.x) < T * 2 && Math.abs(y - start.y) < T * 2)
+      )
+        continue
+      this.items.push({ x, y, kind: 'key' })
+      break
+    }
     this.glitches = []
     this.sparks = []
     this.leaving = 0
@@ -383,8 +412,104 @@ class KindnessGauntlet implements ArcadeGameInstance {
     this.banner = { text: `FLOOR ${floor}`, sub: 'FIX THE GLITCHES', ticks: 90 }
   }
 
+  /**
+   * Lock a door across a corridor on the way to the stairs, where it truly cuts
+   * the floor in two. Returns the rooms still reachable from the start (where
+   * the key can go), or none when no clean cut exists on this floor.
+   */
+  private lockTheWay(rooms: Room[], start: Thing): Room[] {
+    const sx = Math.floor(start.x / T)
+    const sy = Math.floor(start.y / T)
+    const dist = this.distances(sx, sy)
+    // The walking route from the stairs back to the start.
+    let x = Math.floor(this.exit.x / T)
+    let y = Math.floor(this.exit.y / T)
+    const route: Array<[number, number]> = []
+    for (let guard = 0; guard < 600; guard++) {
+      route.push([x, y])
+      const d = dist[this.idx(x, y)]!
+      if (d <= 0) break
+      const step = (
+        [
+          [1, 0],
+          [-1, 0],
+          [0, 1],
+          [0, -1],
+        ] as const
+      ).find(([dx, dy]) => dist[this.idx(x + dx, y + dy)] === d - 1)
+      if (!step) break
+      x += step[0]
+      y += step[1]
+    }
+    const inRoom = (tx: number, ty: number) =>
+      rooms.some(
+        (r) =>
+          tx >= r.x - 1 && tx <= r.x + r.w && ty >= r.y - 1 && ty <= r.y + r.h,
+      )
+    const n = route.length
+    for (let i = Math.floor(n * 0.25); i < Math.floor(n * 0.65); i++) {
+      const [cx, cy] = route[i]!
+      if (inRoom(cx, cy)) continue
+      const [nx] = route[i + 1] ?? route[i - 1]!
+      // Span the corridor's width, across the direction of travel.
+      const across: Array<[number, number]> =
+        nx !== cx
+          ? [
+              [cx, cy - 1],
+              [cx, cy + 1],
+            ]
+          : [
+              [cx - 1, cy],
+              [cx + 1, cy],
+            ]
+      const tiles = [this.idx(cx, cy)]
+      for (const [ax, ay] of across)
+        if (!this.wallAt(ax, ay) && !inRoom(ax, ay))
+          tiles.push(this.idx(ax, ay))
+      for (const t of tiles) this.walls[t] = DOOR
+      const cut = this.distances(sx, sy)
+      const exitTile = this.idx(
+        Math.floor(this.exit.x / T),
+        Math.floor(this.exit.y / T),
+      )
+      if (cut[exitTile] === -1) {
+        this.doors.push({ tiles, open: false })
+        return rooms.slice(1).filter((r) => {
+          const c = this.centre(r)
+          return cut[this.idx(Math.floor(c.x / T), Math.floor(c.y / T))]! > 0
+        })
+      }
+      for (const t of tiles) this.walls[t] = OPEN
+    }
+    return []
+  }
+
+  /** Walking into a locked door with a key opens it. */
+  private tryDoors() {
+    if (this.keys <= 0) return
+    const reach = T / 2 + HALF + 3
+    for (const door of this.doors) {
+      if (door.open) continue
+      const near = door.tiles.some((t) => {
+        const cx = (t % MW) * T + T / 2
+        const cy = Math.floor(t / MW) * T + T / 2
+        return Math.abs(cx - this.px) < reach && Math.abs(cy - this.py) < reach
+      })
+      if (!near) continue
+      this.keys--
+      door.open = true
+      for (const t of door.tiles) this.walls[t] = OPEN
+      const t0 = door.tiles[0]!
+      const dx = (t0 % MW) * T + T / 2
+      const dy = Math.floor(t0 / MW) * T + T / 2
+      this.addScore(DOOR_POINTS, dx, dy - 12)
+      this.burst(dx, dy, 12, '#fbbf24')
+      this.sound.play('pickup')
+    }
+  }
+
   /** Walking distance in tiles from (sx, sy) to every open tile. */
-  private distances(sx: number, sy: number): Int16Array {
+  private distances(sx: number, sy: number, throughDoors = false): Int16Array {
     const dist = new Int16Array(MW * MH).fill(-1)
     const queue = [sx, sy]
     dist[this.idx(sx, sy)] = 0
@@ -400,7 +525,10 @@ class KindnessGauntlet implements ArcadeGameInstance {
       ] as const) {
         const nx = x + dx
         const ny = y + dy
-        if (this.wallAt(nx, ny) || dist[this.idx(nx, ny)] !== -1) continue
+        const blocked =
+          this.wallAt(nx, ny) &&
+          !(throughDoors && this.walls[this.idx(nx, ny)] === DOOR)
+        if (blocked || dist[this.idx(nx, ny)] !== -1) continue
         dist[this.idx(nx, ny)] = d + 1
         queue.push(nx, ny)
       }
@@ -441,6 +569,7 @@ class KindnessGauntlet implements ArcadeGameInstance {
     if (this.pulseFlash > 0) this.pulseFlash--
 
     this.move(controls)
+    this.tryDoors()
     if (controls.pressed.a || (controls.held.a && this.fireCooldown === 0))
       this.fire()
     if (controls.pressed.b) this.pulse()
@@ -665,6 +794,15 @@ class KindnessGauntlet implements ArcadeGameInstance {
           life: 40,
         })
         this.sound.play('pickup')
+      } else if (item.kind === 'key') {
+        this.keys++
+        this.floaters.push({
+          x: item.x,
+          y: item.y - 10,
+          text: 'KEY!',
+          life: 40,
+        })
+        this.sound.play('pickup')
       } else if (item.kind === 'pulse') {
         this.pulses++
         this.floaters.push({
@@ -811,7 +949,7 @@ class KindnessGauntlet implements ArcadeGameInstance {
   private planPath(): Array<{ x: number; y: number }> {
     const sx = Math.floor(this.px / T)
     const sy = Math.floor(this.py / T)
-    const dist = this.distances(sx, sy)
+    const dist = this.distances(sx, sy, this.keys > 0)
     const goals: Thing[] =
       this.battery < 120
         ? this.items.filter((i) => i.kind === 'snack')
@@ -842,10 +980,7 @@ class KindnessGauntlet implements ArcadeGameInstance {
         [0, 1],
         [0, -1],
       ] as const) {
-        if (
-          dist[this.idx(x + dx, y + dy)] === d - 1 &&
-          !this.wallAt(x + dx, y + dy)
-        ) {
+        if (dist[this.idx(x + dx, y + dy)] === d - 1) {
           x += dx
           y += dy
           moved = true
@@ -910,7 +1045,16 @@ class KindnessGauntlet implements ArcadeGameInstance {
         if (!this.seen[this.idx(tx, ty)]) continue
         const x = tx * T
         const y = ty * T
-        if (this.wallAt(tx, ty)) {
+        if (this.walls[this.idx(tx, ty)] === DOOR) {
+          // A locked door: gold bars over the dark.
+          g.fillStyle = '#1c1917'
+          g.fillRect(x, y, T, T)
+          g.fillStyle = '#f59e0b'
+          for (let i = 1; i < T; i += 5) g.fillRect(x + i, y, 2, T)
+          g.fillRect(x, y + 6, T, 2)
+          g.fillStyle = '#fde68a'
+          g.fillRect(x + 6, y + 9, 4, 3)
+        } else if (this.wallAt(tx, ty)) {
           g.fillStyle = '#4c1d95'
           g.fillRect(x, y, T, T)
           g.fillStyle = '#6d28d9'
@@ -952,6 +1096,17 @@ class KindnessGauntlet implements ArcadeGameInstance {
       g.fill()
       g.fillStyle = '#111827'
       g.fillRect(x - 1, y - 2, 2, 2)
+    } else if (item.kind === 'key') {
+      // A chunky gold key, glinting.
+      g.fillStyle = Math.floor(this.tick / 10) % 2 ? '#fbbf24' : '#fde047'
+      g.beginPath()
+      g.arc(x - 3, y, 3, 0, Math.PI * 2)
+      g.fill()
+      g.fillRect(x - 1, y - 1, 8, 2)
+      g.fillRect(x + 4, y + 1, 2, 3)
+      g.fillRect(x + 1, y + 1, 1, 2)
+      g.fillStyle = '#1c1917'
+      g.fillRect(x - 4, y - 1, 2, 2)
     } else if (item.kind === 'pulse') {
       g.fillStyle = Math.floor(this.tick / 8) % 2 ? '#f9a8d4' : '#fbcfe8'
       g.beginPath()
@@ -1145,6 +1300,8 @@ class KindnessGauntlet implements ArcadeGameInstance {
     g.fillRect(84, 9, 70 * frac, 5)
     drawText(g, `PULSE ${this.pulses}`, 162, 1, { color: '#fbcfe8' })
     drawText(g, `SAVED ${this.rescued}`, 162, 9, { color: '#fde68a' })
+    if (this.keys > 0 || this.doors.some((d) => !d.open))
+      drawText(g, `KEY ${this.keys}`, 214, 1, { color: '#fbbf24' })
     if (this.banner) {
       drawText(g, this.banner.text, W / 2, 90, {
         scale: 2,

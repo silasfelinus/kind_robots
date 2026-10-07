@@ -284,7 +284,7 @@ export const ARCADE_GAMES: ArcadeGameMeta[] = [
     title: 'Kindness Gauntlet',
     riffsOn: 'Gauntlet II',
     blurb:
-      'Choose your repair bot (mighty Hugs, sturdy Fix, magical Sage or speedy Zip) and explore a glitchy old server dungeon floor by floor. Throw wrench sparks to fix the glitches swarming out of broken generators, shut the generators down, free the bots trapped in cages and find the stairs. The battery drains all the time and faster when glitches cling on, so grab the snacks.',
+      'Choose your repair bot (mighty Hugs, sturdy Fix, magical Sage or speedy Zip) and explore a glitchy old server dungeon floor by floor. Throw wrench sparks to fix the glitches swarming out of broken generators, shut the generators down, free the bots trapped in cages, find the keys to the locked doors, and reach the stairs. The battery drains all the time and faster when glitches cling on, so grab the snacks.',
     howTo: [
       'PICK HUGS FIX SAGE OR ZIP',
       'ARROWS  MOVE',
@@ -293,6 +293,7 @@ export const ARCADE_GAMES: ArcadeGameMeta[] = [
       'B  KINDNESS PULSE',
       'SHUT DOWN GENERATORS',
       'SNACKS RECHARGE YOU',
+      'KEYS OPEN LOCKED DOORS',
     ],
     width: 320,
     height: 240,

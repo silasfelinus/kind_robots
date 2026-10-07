@@ -1,18 +1,18 @@
 import { defineEventHandler } from 'h3'
-import { requireAdminApiUser } from '@/server/utils/authGuard'
+import { getArtImageAccessContext } from '@/server/utils/artImageAccess'
 import { errorHandler } from '@/server/utils/error'
 import {
-  loadOwnedMusicVideo,
+  loadViewableMusicVideo,
   readMusicVideoId,
   toMusicVideoDto,
 } from '@/server/utils/musicVideo'
 
 export default defineEventHandler(async (event) => {
   try {
-    const auth = await requireAdminApiUser(event)
-    const record = await loadOwnedMusicVideo(
+    const viewer = await getArtImageAccessContext(event)
+    const { record } = await loadViewableMusicVideo(
       readMusicVideoId(event),
-      auth.user.id,
+      viewer,
     )
     return {
       success: true,

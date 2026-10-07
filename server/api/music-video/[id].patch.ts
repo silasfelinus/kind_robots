@@ -1,6 +1,6 @@
 import { createError, defineEventHandler, readBody } from 'h3'
 import prisma from '@/server/utils/prisma'
-import { requireAdminApiUser } from '@/server/utils/authGuard'
+import { requireApiUser } from '@/server/utils/authGuard'
 import { errorHandler } from '@/server/utils/error'
 import { isMusicVideoStatus } from '@/utils/musicVideoDoc'
 import {
@@ -15,19 +15,22 @@ type UpdateMusicVideoBody = {
   title?: unknown
   status?: unknown
   doc?: unknown
-  finalArtImageId?: unknown
+  isPublic?: unknown
 }
 
 type MusicVideoUpdate = {
   title?: string
   status?: string
   doc?: string
-  finalArtImageId?: number | null
+  isPublic?: boolean
 }
 
+// Owners edit their own videos (Silas, 2026-10-07). The final cut is not
+// editable here: only the export step attaches one, so a row can never point
+// its public final at an ArtImage its owner did not make.
 export default defineEventHandler(async (event) => {
   try {
-    const auth = await requireAdminApiUser(event)
+    const auth = await requireApiUser(event)
     const id = readMusicVideoId(event)
     await loadOwnedMusicVideo(id, auth.user.id)
     const body = (await readBody<UpdateMusicVideoBody>(event)) ?? {}
@@ -52,16 +55,14 @@ export default defineEventHandler(async (event) => {
       data.status = body.status
     }
     if (body.doc !== undefined) data.doc = serializeValidatedDoc(body.doc)
-    if (body.finalArtImageId !== undefined) {
-      const finalId =
-        body.finalArtImageId === null ? null : Number(body.finalArtImageId)
-      if (finalId !== null && (!Number.isInteger(finalId) || finalId <= 0)) {
+    if (body.isPublic !== undefined) {
+      if (typeof body.isPublic !== 'boolean') {
         throw createError({
           statusCode: 400,
-          message: 'finalArtImageId must be a positive integer or null.',
+          message: 'isPublic must be true or false.',
         })
       }
-      data.finalArtImageId = finalId
+      data.isPublic = body.isPublic
     }
     if (!Object.keys(data).length) {
       throw createError({ statusCode: 400, message: 'Nothing to update.' })

@@ -68,10 +68,12 @@ export const PROJECT_PLACEMENTS: Record<string, ProjectPlacement> = {
     tabKey: 'scene-animator',
     route: '/admin/scene-animator',
   },
+  // Moved to Play on 2026-10-07 (Silas: "Move music video tab to Play"); the
+  // tab opens on a gallery anyone can watch, and rendering stays admin-only.
   'music-video': {
-    channelKey: 'admin',
+    channelKey: 'projects',
     tabKey: 'music-video',
-    route: '/admin/music-video',
+    route: '/play/music-video',
   },
   storybook: {
     channelKey: 'storybook',

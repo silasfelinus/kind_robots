@@ -8,6 +8,9 @@
 ///
 /// userId is a plain ownership scalar with no relation back to User, matching the
 /// Mandarin Tutor models, so the migration is purely additive.
+///
+/// isPublic (Silas, 2026-10-07): a public video with a final cut shows in the
+/// Play gallery for everyone; a private one stays with its owner.
 model MusicVideo {
   id              Int      @id @default(autoincrement())
   createdAt       DateTime @default(now())
@@ -17,6 +20,8 @@ model MusicVideo {
   status          String   @default("DRAFT") @db.VarChar(32)
   doc             String   @db.LongText
   finalArtImageId Int?
+  isPublic        Boolean  @default(true)
 
   @@index([userId, updatedAt])
+  @@index([isPublic, updatedAt])
 }

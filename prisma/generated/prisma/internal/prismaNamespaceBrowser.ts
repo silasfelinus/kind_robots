@@ -817,7 +817,8 @@ export const MusicVideoScalarFieldEnum = {
   title: 'title',
   status: 'status',
   doc: 'doc',
-  finalArtImageId: 'finalArtImageId'
+  finalArtImageId: 'finalArtImageId',
+  isPublic: 'isPublic'
 } as const
 
 export type MusicVideoScalarFieldEnum = (typeof MusicVideoScalarFieldEnum)[keyof typeof MusicVideoScalarFieldEnum]

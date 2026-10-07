@@ -370,6 +370,23 @@ function drawFighter(
     3,
     3,
   )
+  if (data.look?.eyepatch) {
+    // Over the right eye: the far side of the face when facing right.
+    g.fillStyle = '#0c0a09'
+    g.fillRect(
+      x + f.facing * Math.round(head / 4) - 2,
+      top + Math.round(head / 3) - 1,
+      5,
+      4,
+    )
+    g.fillRect(x - Math.round(head / 2), top + Math.round(head / 3), head, 1)
+  }
+  if (data.look?.hat === 'crushed') {
+    // A crushed, sagging hat.
+    g.fillStyle = '#44403c'
+    g.fillRect(x - Math.round(head * 0.75), top - 1, Math.round(head * 1.5), 3)
+    g.fillRect(x - Math.round(head / 2) + 1, top - 5, head - 4, 5)
+  }
   if (data.look?.hat === 'kasa') {
     // A wide straw kasa whose brim shades the eyes.
     const brim = Math.round(head * 2.4)
@@ -498,6 +515,14 @@ function drawHud(g: G, s: MatchState, roster: Pair<FighterData>): void {
         shadow: '#000000',
       },
     )
+    // Bullets left, for fighters who reload.
+    if (data.ammo) {
+      for (let b = 0; b < data.ammo; b += 1) {
+        const bx = side === 0 ? left + b * 5 : left + HUD.barWidth - 3 - b * 5
+        g.fillStyle = b < f.ammo ? '#fbbf24' : '#44403c'
+        g.fillRect(bx, HUD.barTop + HUD.barHeight + 14, 3, 5)
+      }
+    }
     // Round pips.
     for (let w = 0; w < s.wins[side]; w += 1) {
       const pipX =

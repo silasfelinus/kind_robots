@@ -28,6 +28,14 @@ import {
 } from '../arcade/games'
 import { glyphFor, lineStep, MIN_LINE_STEP, measureText } from '../arcade/font'
 import { BATTERY_MAZE } from '../arcade/games/batteryMaze'
+import {
+  create as createPinball,
+  DMD_BAND,
+  PINBALL_HEIGHT,
+  PINBALL_RAMPS,
+  pathPoint,
+} from '../arcade/games/kindPinball'
+import { Dmd, DMD_COLS, DMD_ROWS, dmdTextWidth } from '../arcade/pinball/dmd'
 import { emptyInput, type InputFrame } from '../arcade/types'
 import {
   enqueuePending,
@@ -322,6 +330,142 @@ function scriptedInput(tick: number): InputFrame {
   frame.held.a = true
   frame.pressed.a = tick % 9 === 0
   return frame
+}
+
+// --- Kind Pinball: the display, ramps, gate, orbits, skill shot -------------
+{
+  const dmd = new Dmd()
+  assert.equal(dmd.buf.length, DMD_COLS * DMD_ROWS)
+  dmd.text('88', 0, 0, { scale: 2 })
+  assert.ok(
+    dmd.buf.some((v) => v === 3),
+    'text lights dots',
+  )
+  dmd.dot(-1, 99, 3)
+  dmd.clear()
+  dmd.invert()
+  assert.ok(
+    dmd.buf.every((v) => v === 3),
+    'invert swaps lit and unlit',
+  )
+  assert.equal(dmdTextWidth('ABC'), 17)
+  assert.equal(dmdTextWidth('ABC', 2), 34)
+
+  const pinball = ARCADE_GAMES.find((g) => g.slug === 'kind-pinball')!
+  assert.equal(pinball.height, PINBALL_HEIGHT, 'meta height includes the DMD')
+  assert.equal(PINBALL_HEIGHT - DMD_BAND, 416)
+
+  // The table's internals, reached past `private` to set up exact shots.
+  type ProbeBall = {
+    x: number
+    y: number
+    vx: number
+    vy: number
+    fresh: boolean
+    ramp: { key: string } | null
+  }
+  type PinballProbe = {
+    score: number
+    inPlay: boolean
+    balls: ProbeBall[]
+    rampsTowardMode: number
+    lanes: boolean[]
+    combo: number
+    skillLane: number
+    skillLive: boolean
+    update(input: InputFrame): void
+  }
+  const play = () =>
+    createPinball({
+      rng: mulberry32(3),
+      sound: { play: () => {} },
+      demo: false,
+      hiScore: 0,
+    }) as unknown as PinballProbe
+
+  // Both ramps: a fast ball in the mouth rides the track and pays a ramp shot.
+  for (const ramp of PINBALL_RAMPS) {
+    assert.deepEqual(pathPoint(ramp.path, 0), ramp.path[0])
+    assert.deepEqual(pathPoint(ramp.path, 1), ramp.path[ramp.path.length - 1])
+    const game = play()
+    game.inPlay = true
+    const b = game.balls[0]!
+    const m = ramp.mouth
+    Object.assign(b, {
+      x: (m.x0 + m.x1) / 2,
+      y: (m.y0 + m.y1) / 2 + 4,
+      vx: 0,
+      vy: -9,
+      fresh: false,
+    })
+    game.update(emptyInput())
+    assert.equal(b.ramp?.key, ramp.key, `${ramp.key} ramp catches a fast ball`)
+    for (let t = 0; t < 200 && b.ramp; t++) game.update(emptyInput())
+    assert.equal(b.ramp, null, `${ramp.key} ramp lets the ball off`)
+    assert.equal(game.rampsTowardMode, 1)
+    assert.ok(game.score > 0)
+    // It drops into the opposite inlane, heading for a flipper.
+    assert.ok(
+      ramp.key === 'left' ? b.x > 200 : b.x < 72,
+      `${ramp.key} ramp crosses the table`,
+    )
+    let reached = false
+    for (let t = 0; t < 120 && !reached; t++) {
+      game.update(emptyInput())
+      reached = b.y > 320 && b.y < 400
+    }
+    assert.ok(reached, `${ramp.key} ramp feeds a flipper`)
+  }
+
+  // The shooter-lane gate: a ball coming back down the arch stays out of the lane.
+  {
+    const game = play()
+    game.inPlay = true
+    const b = game.balls[0]!
+    Object.assign(b, { x: 274, y: 126, vx: 0, vy: 2, fresh: false })
+    for (let t = 0; t < 90; t++) game.update(emptyInput())
+    assert.ok(b.x < 264, 'the gate turns the ball onto the table')
+    assert.equal(game.inPlay, true)
+  }
+
+  // An orbit: across the top of the arch, fast, lights a top lane.
+  {
+    const game = play()
+    game.inPlay = true
+    const b = game.balls[0]!
+    Object.assign(b, { x: 236, y: 60, vx: -10, vy: -4, fresh: false })
+    for (let t = 0; t < 40; t++) game.update(emptyInput())
+    assert.ok(game.lanes.some(Boolean), 'an orbit lights a top lane')
+    const before = game.score
+    const fresh = play()
+    fresh.inPlay = true
+    Object.assign(fresh.balls[0]!, { x: 236, y: 60, vx: -10, vy: -4 })
+    for (let t = 0; t < 40; t++) fresh.update(emptyInput())
+    assert.ok(before > 0)
+    assert.equal(
+      fresh.combo,
+      0,
+      'a plunged ball crossing the arch is not an orbit',
+    )
+  }
+
+  // The skill shot: the plunged ball's first lane pays when it is the lit one.
+  {
+    const game = play()
+    game.inPlay = true
+    game.skillLane = 1
+    const b = game.balls[0]!
+    Object.assign(b, { x: 136, y: 52, vx: 0, vy: 1, fresh: true })
+    game.update(emptyInput())
+    assert.equal(game.skillLive, false)
+    assert.ok(game.score >= 25_000, 'skill shot pays')
+    const miss = play()
+    miss.inPlay = true
+    miss.skillLane = 0
+    Object.assign(miss.balls[0]!, { x: 136, y: 52, vx: 0, vy: 1, fresh: true })
+    miss.update(emptyInput())
+    assert.ok(miss.score < 25_000, 'the wrong lane is no skill shot')
+  }
 }
 
 // --- global leaderboard: pending uploads -------------------------------------

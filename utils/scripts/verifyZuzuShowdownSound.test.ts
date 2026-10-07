@@ -33,6 +33,7 @@ import {
 import { findFighter } from '../zuzuShowdown/fighters'
 import { step } from '../zuzuShowdown/sim'
 import { trainingMatch } from '../zuzuShowdown/training'
+import type { StageSlug } from '../zuzuShowdown/stages'
 import {
   SUB,
   neutralInput,
@@ -142,10 +143,7 @@ check('every stage loop is whole bars in its minor key', () => {
   assert.ok(loopFor(null))
 })
 
-function soundsOf(
-  events: SimEvent[],
-  stage: 'hollow-bell' | 'watering-hole',
-): ShowdownSound[] {
+function soundsOf(events: SimEvent[], stage: StageSlug): ShowdownSound[] {
   const s = trainingMatch(ROSTER)
   s.events = events
   return soundsFor(newSoundState(), s, ROSTER, stage).sounds
@@ -188,6 +186,18 @@ check(
     assert.deepEqual(soundsOf([ko], 'hollow-bell'), ['ko', 'bell'])
     assert.deepEqual(soundsOf([start], 'hollow-bell'), ['bell'])
     assert.deepEqual(soundsOf([ko], 'watering-hole'), ['ko'])
+    const showdown: SimEvent = {
+      type: 'super',
+      side: 0,
+      move: 'z',
+      showdown: true,
+    }
+    assert.deepEqual(
+      soundsOf([showdown], 'bone-yard'),
+      ['showdown', 'howl'],
+      'the pack howls',
+    )
+    assert.deepEqual(soundsOf([showdown], 'watering-hole'), ['showdown'])
     assert.deepEqual(soundsOf([start], 'watering-hole'), [])
     assert.deepEqual(
       soundsOf([{ type: 'timeOver', result: 'draw' }], 'hollow-bell'),

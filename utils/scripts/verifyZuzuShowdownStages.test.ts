@@ -23,12 +23,24 @@ import {
   APPLE_EVERY,
   APPLE_FALL,
   APPLE_REST,
+  HOWL_FRAMES,
+  PERCHES,
   LIGHTNING_EVERY,
+  RIFTS,
+  SLUMP_EVERY,
+  SLUMP_FRAMES,
   appleAt,
   bellAngle,
   candleFlame,
   crocEyesAt,
   crowsAt,
+  embersAt,
+  packAt,
+  debrisAt,
+  doorOpen,
+  duneSlumpAt,
+  riftGlow,
+  sandBlowAt,
   dustDevilAt,
   leavesAt,
   layerX,
@@ -172,6 +184,12 @@ check('a fight is on the challenger’s home stage', () => {
   assert.equal(stageFor([abbess, crow]), 'storm-canyon')
   const siblings = { ...placeholder, slug: 'the-siblings' }
   assert.equal(stageFor([ZUZU, siblings]), 'lone-apple-tree')
+  const komodo = { ...placeholder, slug: 'old-komodo' }
+  const thing = { ...placeholder, slug: 'thing-behind-the-door' }
+  assert.equal(stageFor([ZUZU, komodo]), 'the-dunes')
+  assert.equal(stageFor([ZUZU, thing]), 'the-thin-place')
+  const matriarch = { ...placeholder, slug: 'hyena-matriarch' }
+  assert.equal(stageFor([ZUZU, matriarch]), 'bone-yard')
 })
 
 check(
@@ -223,6 +241,108 @@ check(
       assert.equal(dustDevilAt(f, true), null)
     }
     assert.ok(devils > 0 && devils < 2400, 'now and then')
+  },
+)
+
+check(
+  'the Dunes: sand blows off the crests; now and then something heaves under the dune',
+  () => {
+    for (const f of [0, 45, 500]) {
+      for (const grain of sandBlowAt(f, 400, 10, false)) {
+        assert.ok(grain.x >= 0 && grain.x <= 500, `grain x ${grain.x}`)
+        assert.ok(grain.y >= -12 && grain.y <= 10, `grain y ${grain.y}`)
+      }
+    }
+    assert.deepEqual(
+      sandBlowAt(45, 400, 10, true),
+      [],
+      'still under reduced motion',
+    )
+    let frames = 0
+    let lastX = Infinity
+    for (let f = 0; f < SLUMP_EVERY; f += 1) {
+      const hump = duneSlumpAt(f, 480)
+      if (!hump) continue
+      frames += 1
+      assert.ok(hump.h >= 0 && hump.h <= 10)
+      assert.ok(hump.x < lastX, 'it crosses right to left')
+      lastX = hump.x
+    }
+    assert.equal(frames, SLUMP_FRAMES)
+  },
+)
+
+check(
+  'the Thin Place: the tears breathe, debris floats, the door opens wider each round',
+  () => {
+    for (const rift of RIFTS)
+      for (const [x, y] of rift)
+        assert.ok(x >= 0 && x < 480 && y >= 0 && y < 200)
+    for (let f = 0; f < 600; f += 7) {
+      const glow = riftGlow(f, false)
+      assert.ok(glow >= 0.4 && glow <= 1)
+      for (const d of debrisAt(f, false))
+        assert.ok(d.x >= 0 && d.x < 480 && d.y > 100 && d.y < 230)
+    }
+    assert.equal(
+      riftGlow(10, true),
+      riftGlow(300, true),
+      'steady under reduced motion',
+    )
+    const open = [1, 2, 3].map((round) => doorOpen(round, 0, true))
+    assert.ok(open[0]! < open[1]! && open[1]! < open[2]!, `${open}`)
+    for (let f = 0; f < 200; f += 1) {
+      const now = doorOpen(1, f, false)
+      assert.ok(now > 0 && now <= 1)
+    }
+  },
+)
+
+check(
+  'the Bone Yard: the pack cackles, then howls on a Showdown super; embers rise',
+  () => {
+    // Every perch the pack sits on is an anchor on the Bone Yard's arch.
+    const by = manifests['bone-yard']
+    for (const name of PERCHES)
+      assert.equal(by.anchors[name]?.layer, 'arch', name)
+    let fx = advanceStageFx(newStageFx(), [])
+    assert.equal(fx.howl, null)
+    // Cackling: heads bob, never all up for long.
+    const ups = new Set<boolean>()
+    for (let f = 0; f < 120; f += 1)
+      for (const h of packAt(f, fx, false)) ups.add(h.headUp)
+    assert.deepEqual([...ups].sort(), [false, true])
+    assert.ok(
+      packAt(30, fx, true).every((h) => !h.headUp),
+      'still under reduced motion',
+    )
+    // A Showdown super: every head goes up, under reduced motion too, until the howl ends.
+    fx = advanceStageFx(fx, [
+      { type: 'super', side: 0, move: 'x', showdown: true },
+    ])
+    assert.equal(fx.howl, 0)
+    for (let f = 0; f < HOWL_FRAMES; f += 1) {
+      assert.ok(
+        packAt(f, fx, true).every((h) => h.headUp),
+        `howling at ${f}`,
+      )
+      fx = advanceStageFx(fx, [])
+    }
+    assert.ok(
+      packAt(30, fx, true).every((h) => !h.headUp),
+      'the howl ends',
+    )
+    // A plain super is no howl.
+    assert.equal(
+      advanceStageFx(newStageFx(), [
+        { type: 'super', side: 1, move: 'y', showdown: false },
+      ]).howl,
+      null,
+    )
+    for (const f of [0, 33, 500])
+      for (const e of embersAt(f, 30, 60, false))
+        assert.ok(e.y <= 60 && e.y > -20 && e.x >= 0 && e.x <= 30)
+    assert.deepEqual(embersAt(10, 30, 60, true), [])
   },
 )
 
@@ -402,6 +522,9 @@ check(
       ['the-mission', [ZUZU, COYOTE]],
       ['storm-canyon', [COYOTE, ZUZU]],
       ['lone-apple-tree', [ZUZU, COYOTE]],
+      ['the-dunes', [COYOTE, ZUZU]],
+      ['the-thin-place', [ZUZU, COYOTE]],
+      ['bone-yard', [COYOTE, ZUZU]],
     ] as const) {
       const stage = loaded(manifests[slug])
       const rand = mulberry32(slug.length)

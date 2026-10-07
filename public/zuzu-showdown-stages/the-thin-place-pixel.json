@@ -1,0 +1,44 @@
+{
+  "stage": "the-thin-place",
+  "style": "pixel",
+  "scale": 1,
+  "layers": [
+    {
+      "name": "backdrop",
+      "file": "the-thin-place-backdrop-pixel.png",
+      "factor": 0.2,
+      "x": -30,
+      "y": 0,
+      "w": 540,
+      "h": 240
+    },
+    {
+      "name": "door",
+      "file": "the-thin-place-door-pixel.png",
+      "factor": 0.6,
+      "x": -88,
+      "y": 114,
+      "w": 655,
+      "h": 120
+    },
+    {
+      "name": "floor",
+      "file": "the-thin-place-floor-pixel.png",
+      "factor": 1.0,
+      "x": -145,
+      "y": 230,
+      "w": 770,
+      "h": 40
+    }
+  ],
+  "cutouts": [],
+  "anchors": {
+    "doorgap": {
+      "layer": "door",
+      "x": 352,
+      "y": 1,
+      "w": 6,
+      "h": 105
+    }
+  }
+}

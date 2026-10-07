@@ -371,6 +371,27 @@ export const ARCADE_GAMES: ArcadeGameMeta[] = [
     controls: 'Walk, crouch, jump, sweep, ride',
     maxPlayers: 3,
   },
+  {
+    slug: 'rain-catcher',
+    title: 'Rain Catcher',
+    riffsOn: 'Missile Command',
+    blurb:
+      'Storm clouds drop hailstones toward six seedling beds. Steer the sight and pop rainbow umbrella bursts from three sprout launchers to catch the hail in midair. Hail splits, a grumpy thunder-goose drops more, and lightning sprites swerve around your umbrellas. Spare umbrellas and saved beds pay a bonus between waves.',
+    howTo: [
+      'ARROWS  MOVE THE SIGHT',
+      'A OR B  UMBRELLA BURST',
+      'BURSTS CATCH THE HAIL',
+      'NEAREST LAUNCHER FIRES',
+      'SAVE THE SEEDLINGS',
+      'BEDS REGROW EVERY 10000',
+    ],
+    width: 320,
+    height: 240,
+    maxPlausibleScore: 3_000_000,
+    titleArt: '/images/arcade/games/rain-catcher-title.webp',
+    accent: '#38bdf8',
+    controls: 'Aim, burst',
+  },
 ]
 
 export type ComingSoonCabinet = {
@@ -434,6 +455,7 @@ const LOADERS: Record<string, () => Promise<ArcadeGameModule>> = {
   'prize-show-panic': () => import('./games/prizeShowPanic'),
   'zuzu-ghost-trail': () => import('./games/zuzuGhostTrail'),
   'station-sweep': () => import('./games/stationSweep'),
+  'rain-catcher': () => import('./games/rainCatcher'),
   'kind-pinball-3d': () =>
     import('./games/kindPinball3d').then(async (module) => {
       await module.prepare()

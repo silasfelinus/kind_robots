@@ -1,0 +1,639 @@
+{
+  "source": "conductor projects/zuzu-showdown/matchups.yaml (tools/matchups_to_ts.py); edit there, not here",
+  "matchups": [
+    {
+      "pair": ["zuzu", "coyote-vagrant"],
+      "intro": [
+        {
+          "speaker": "coyote-vagrant",
+          "line": "You again. Last time we met, something ate my hand."
+        },
+        {
+          "speaker": "zuzu",
+          "line": "..."
+        },
+        {
+          "speaker": "coyote-vagrant",
+          "line": "Yeah. I figured you'd say that."
+        }
+      ],
+      "win": {
+        "zuzu": "Eat something.",
+        "coyote-vagrant": "Ha! Left-handed! Nobody's gonna believe this."
+      }
+    },
+    {
+      "pair": ["coyote-vagrant", "river-croc"],
+      "intro": [
+        {
+          "speaker": "coyote-vagrant",
+          "line": "I know you. I know your teeth. I want my hand back."
+        },
+        {
+          "speaker": "river-croc",
+          "line": "HSSSSSSS."
+        }
+      ],
+      "win": {
+        "coyote-vagrant": "Hold still. I'm makin' gloves outta you.",
+        "river-croc": "grrrRRRR... *gulp*"
+      }
+    },
+    {
+      "pair": ["the-abbess", "the-siblings"],
+      "intro": [
+        {
+          "speaker": "the-abbess",
+          "line": "There you are, my lambs. Supper's getting cold."
+        },
+        {
+          "speaker": "the-siblings",
+          "line": "We're not hungry."
+        }
+      ],
+      "win": {
+        "the-abbess": "Hush now. Nobody leaves the mission hungry.",
+        "the-siblings": "Ba! Ba ba!"
+      }
+    },
+    {
+      "pair": ["storm-crow", "hyena-matriarch"],
+      "intro": [
+        {
+          "speaker": "hyena-matriarch",
+          "line": "Look, the pack! Supper fell out of the sky!"
+        },
+        {
+          "speaker": "storm-crow",
+          "line": "Laugh while you can, scavenger. The storm's on my side."
+        }
+      ],
+      "win": {
+        "storm-crow": "Everything that crawls gets picked clean in the end.",
+        "hyena-matriarch": "Hee hee hee! Plucked! PLUCKED!"
+      }
+    },
+    {
+      "pair": ["river-croc", "old-komodo"],
+      "intro": [
+        {
+          "speaker": "old-komodo",
+          "line": "Water lizard. You smell like old fish and bad luck."
+        },
+        {
+          "speaker": "river-croc",
+          "line": "HSSSSS... grrrRRR."
+        }
+      ],
+      "win": {
+        "river-croc": "*bubbles rise, and nothing else*",
+        "old-komodo": "Mm. Too wet. I'll come back after you dry out."
+      }
+    },
+    {
+      "pair": ["zuzu", "the-siblings"],
+      "intro": [
+        {
+          "speaker": "the-siblings",
+          "line": "Stay back. I bite."
+        },
+        {
+          "speaker": "zuzu",
+          "line": "...I know."
+        }
+      ],
+      "win": {
+        "zuzu": "...Go on. Eat.",
+        "the-siblings": "Don't follow us. ...Okay. Maybe follow us."
+      }
+    },
+    {
+      "pair": ["zuzu", "the-abbess"],
+      "intro": [
+        {
+          "speaker": "the-abbess",
+          "line": "A traveler! Come in, come in. There's stew."
+        },
+        {
+          "speaker": "zuzu",
+          "line": "Not hungry."
+        },
+        {
+          "speaker": "the-abbess",
+          "line": "Everyone says that, at first."
+        }
+      ],
+      "win": {
+        "zuzu": "Keep your stew.",
+        "the-abbess": "There, now. You'll stay for supper after all."
+      }
+    },
+    {
+      "pair": ["zuzu", "storm-crow"],
+      "intro": [
+        {
+          "speaker": "storm-crow",
+          "line": "Look up, little hat. Way, way up."
+        },
+        {
+          "speaker": "zuzu",
+          "line": "..."
+        },
+        {
+          "speaker": "storm-crow",
+          "line": "Strong and silent. The storm likes that."
+        }
+      ],
+      "win": {
+        "zuzu": "Land somewhere else.",
+        "storm-crow": "Grounded, ronin. Feet don't fly."
+      }
+    },
+    {
+      "pair": ["zuzu", "river-croc"],
+      "intro": [
+        {
+          "speaker": "river-croc",
+          "line": "HSSSSSSS."
+        },
+        {
+          "speaker": "zuzu",
+          "line": "...Not today."
+        }
+      ],
+      "win": {
+        "zuzu": "Swim away.",
+        "river-croc": "*a long, satisfied grrrRRR*"
+      }
+    },
+    {
+      "pair": ["zuzu", "hyena-matriarch"],
+      "intro": [
+        {
+          "speaker": "hyena-matriarch",
+          "line": "Ooh, a little ronin! There's a price on you, sweetie."
+        },
+        {
+          "speaker": "zuzu",
+          "line": "Get in line."
+        }
+      ],
+      "win": {
+        "zuzu": "Stop laughing.",
+        "hyena-matriarch": "Hee hee! The pack gets the hat!"
+      }
+    },
+    {
+      "pair": ["zuzu", "old-komodo"],
+      "intro": [
+        {
+          "speaker": "old-komodo",
+          "line": "Koala. Stringy. Mostly leaves. Still... food."
+        },
+        {
+          "speaker": "zuzu",
+          "line": "Try."
+        }
+      ],
+      "win": {
+        "zuzu": "Back to sleep.",
+        "old-komodo": "Mm. I'll save you for later."
+      }
+    },
+    {
+      "pair": ["coyote-vagrant", "the-abbess"],
+      "intro": [
+        {
+          "speaker": "the-abbess",
+          "line": "Oh, you poor thing. When did you last eat?"
+        },
+        {
+          "speaker": "coyote-vagrant",
+          "line": "Lady, I been waitin' years for somebody to ask."
+        },
+        {
+          "speaker": "the-abbess",
+          "line": "Then come inside. Nobody leaves hungry."
+        }
+      ],
+      "win": {
+        "coyote-vagrant": "Keep the stew, sister. Somethin' in it moved.",
+        "the-abbess": "Bless you, dear. There's always room at our table."
+      }
+    },
+    {
+      "pair": ["coyote-vagrant", "the-siblings"],
+      "intro": [
+        {
+          "speaker": "coyote-vagrant",
+          "line": "Easy, kid. I ain't after you. Got any food?"
+        },
+        {
+          "speaker": "the-siblings",
+          "line": "No. Go away."
+        }
+      ],
+      "win": {
+        "coyote-vagrant": "Here. Half a biscuit. Don't tell nobody.",
+        "the-siblings": "Sorry about your hat. Go away now."
+      }
+    },
+    {
+      "pair": ["coyote-vagrant", "storm-crow"],
+      "intro": [
+        {
+          "speaker": "storm-crow",
+          "line": "Well, well. The one-handed wonder."
+        },
+        {
+          "speaker": "coyote-vagrant",
+          "line": "Keep flappin'. I got a bullet with your name on it."
+        },
+        {
+          "speaker": "storm-crow",
+          "line": "You've never hit anything in your life."
+        }
+      ],
+      "win": {
+        "coyote-vagrant": "See? Told you. One bullet. Your name.",
+        "storm-crow": "Missed again, vagrant. The sky dodges for me."
+      }
+    },
+    {
+      "pair": ["coyote-vagrant", "hyena-matriarch"],
+      "intro": [
+        {
+          "speaker": "hyena-matriarch",
+          "line": "Hee hee! Look, girls! Lunch, with a limp!"
+        },
+        {
+          "speaker": "coyote-vagrant",
+          "line": "Lady, somethin' already ate me once. Get in line."
+        }
+      ],
+      "win": {
+        "coyote-vagrant": "Laugh now. Go on. ...Yeah, that's what I thought.",
+        "hyena-matriarch": "Bones and a bad hat! Hee hee! Leftovers!"
+      }
+    },
+    {
+      "pair": ["coyote-vagrant", "old-komodo"],
+      "intro": [
+        {
+          "speaker": "old-komodo",
+          "line": "Coyote. Thin. Hardly a snack."
+        },
+        {
+          "speaker": "coyote-vagrant",
+          "line": "Nicest thing anybody's said to me all year."
+        }
+      ],
+      "win": {
+        "coyote-vagrant": "Back to your dune, grandpa. I'm all gristle.",
+        "old-komodo": "Mm. Small meals. Many small meals."
+      }
+    },
+    {
+      "pair": ["the-abbess", "storm-crow"],
+      "intro": [
+        {
+          "speaker": "storm-crow",
+          "line": "A nun in my storm? Where's your umbrella, sister?"
+        },
+        {
+          "speaker": "the-abbess",
+          "line": "Oh, dear. The bell will ring for you soon."
+        }
+      ],
+      "win": {
+        "the-abbess": "Such pretty feathers. They'll make a fine pillow.",
+        "storm-crow": "Pray for clear skies, sister. You won't get any."
+      }
+    },
+    {
+      "pair": ["the-abbess", "river-croc"],
+      "intro": [
+        {
+          "speaker": "the-abbess",
+          "line": "Look at those teeth. You must be starving, dear."
+        },
+        {
+          "speaker": "river-croc",
+          "line": "grrrRRR..."
+        }
+      ],
+      "win": {
+        "the-abbess": "Good boy. Down. Supper's at six.",
+        "river-croc": "*the stew bowl sinks without a ripple*"
+      }
+    },
+    {
+      "pair": ["the-abbess", "hyena-matriarch"],
+      "intro": [
+        {
+          "speaker": "hyena-matriarch",
+          "line": "Hee! The nun brought snacks!"
+        },
+        {
+          "speaker": "the-abbess",
+          "line": "For the whole pack, dear. Come closer, all of you."
+        }
+      ],
+      "win": {
+        "the-abbess": "Hush now, giggler. Supper first, then prayers.",
+        "hyena-matriarch": "Hee hee! Bless ME! Bless me, sister!"
+      }
+    },
+    {
+      "pair": ["the-abbess", "old-komodo"],
+      "intro": [
+        {
+          "speaker": "old-komodo",
+          "line": "Nun. Soft. Smells like stew."
+        },
+        {
+          "speaker": "the-abbess",
+          "line": "And you smell like a long, long nap, dear."
+        }
+      ],
+      "win": {
+        "the-abbess": "Sleep, old one. The bell will wake you.",
+        "old-komodo": "Mm. Kind. Soft. I will remember the stew."
+      }
+    },
+    {
+      "pair": ["the-siblings", "storm-crow"],
+      "intro": [
+        {
+          "speaker": "storm-crow",
+          "line": "Two little rats, out in my storm? Run along."
+        },
+        {
+          "speaker": "the-siblings",
+          "line": "Not rats. Foxes. You go."
+        }
+      ],
+      "win": {
+        "the-siblings": "Ba! Ba ba!",
+        "storm-crow": "Go on, kits. Find shelter. Storm's coming."
+      }
+    },
+    {
+      "pair": ["the-siblings", "river-croc"],
+      "intro": [
+        {
+          "speaker": "river-croc",
+          "line": "*two eyes rise out of the water, watching*"
+        },
+        {
+          "speaker": "the-siblings",
+          "line": "Don't. Move. Don't move."
+        }
+      ],
+      "win": {
+        "the-siblings": "Run! Run run run!",
+        "river-croc": "*sinks back under, and lets them go*"
+      }
+    },
+    {
+      "pair": ["the-siblings", "hyena-matriarch"],
+      "intro": [
+        {
+          "speaker": "hyena-matriarch",
+          "line": "Aww, little ones! The pack's gonna love you!"
+        },
+        {
+          "speaker": "the-siblings",
+          "line": "Come closer and find out."
+        }
+      ],
+      "win": {
+        "the-siblings": "Don't come back. Ever.",
+        "hyena-matriarch": "Hee... no. Go on. Get out of here, kits."
+      }
+    },
+    {
+      "pair": ["the-siblings", "old-komodo"],
+      "intro": [
+        {
+          "speaker": "old-komodo",
+          "line": "Little foxes. Mm. Snacks."
+        },
+        {
+          "speaker": "the-siblings",
+          "line": "We're not snacks. We're mean."
+        }
+      ],
+      "win": {
+        "the-siblings": "Ba! Bye bye!",
+        "old-komodo": "Mm. Too small. Go and grow, little ones."
+      }
+    },
+    {
+      "pair": ["storm-crow", "river-croc"],
+      "intro": [
+        {
+          "speaker": "storm-crow",
+          "line": "A croc, under my sky? Swim along, lizard."
+        },
+        {
+          "speaker": "river-croc",
+          "line": "HSSSSSS."
+        }
+      ],
+      "win": {
+        "storm-crow": "Stay in your puddle. The sky's mine.",
+        "river-croc": "*a single feather floats down to the water*"
+      }
+    },
+    {
+      "pair": ["storm-crow", "old-komodo"],
+      "intro": [
+        {
+          "speaker": "old-komodo",
+          "line": "Bird. Lots of feathers. Not much meat."
+        },
+        {
+          "speaker": "storm-crow",
+          "line": "Look at you, old sand-dragon. Can you even fly?"
+        }
+      ],
+      "win": {
+        "storm-crow": "Back to sleep, fossil. The storm doesn't wait.",
+        "old-komodo": "Mm. Birds always land. Eventually."
+      }
+    },
+    {
+      "pair": ["river-croc", "hyena-matriarch"],
+      "intro": [
+        {
+          "speaker": "hyena-matriarch",
+          "line": "Ooh, a handbag! The pack needs a new handbag!"
+        },
+        {
+          "speaker": "river-croc",
+          "line": "grrrRRRRR."
+        }
+      ],
+      "win": {
+        "river-croc": "*the jaws snap shut, an inch from her nose*",
+        "hyena-matriarch": "Hee hee! Scaly! Scaly and SLOW!"
+      }
+    },
+    {
+      "pair": ["hyena-matriarch", "old-komodo"],
+      "intro": [
+        {
+          "speaker": "hyena-matriarch",
+          "line": "Grandpa! The pack's been dying to meet you!"
+        },
+        {
+          "speaker": "old-komodo",
+          "line": "Mm. Hyenas. Very loud. Very crunchy."
+        }
+      ],
+      "win": {
+        "hyena-matriarch": "Hee hee! Old bones! The pack loves old bones!",
+        "old-komodo": "Mm. Quiet now. Much better."
+      }
+    },
+    {
+      "pair": ["zuzu", "zuzu"],
+      "intro": [
+        {
+          "speaker": "zuzu",
+          "line": "..."
+        },
+        {
+          "speaker": "zuzu",
+          "line": "..."
+        }
+      ],
+      "win": {
+        "zuzu": "...Hm."
+      }
+    },
+    {
+      "pair": ["coyote-vagrant", "coyote-vagrant"],
+      "intro": [
+        {
+          "speaker": "coyote-vagrant",
+          "line": "Huh. You look terrible."
+        },
+        {
+          "speaker": "coyote-vagrant",
+          "line": "I was just about to say that."
+        }
+      ],
+      "win": {
+        "coyote-vagrant": "Two of us, and still only one good hand."
+      }
+    },
+    {
+      "pair": ["the-abbess", "the-abbess"],
+      "intro": [
+        {
+          "speaker": "the-abbess",
+          "line": "Sister! Have you eaten?"
+        },
+        {
+          "speaker": "the-abbess",
+          "line": "Not yet, sister. Have you?"
+        }
+      ],
+      "win": {
+        "the-abbess": "Only one of us says grace tonight, dear."
+      }
+    },
+    {
+      "pair": ["the-siblings", "the-siblings"],
+      "intro": [
+        {
+          "speaker": "the-siblings",
+          "line": "...Is that us?"
+        },
+        {
+          "speaker": "the-siblings",
+          "line": "Ba?"
+        }
+      ],
+      "win": {
+        "the-siblings": "Ba! Ba ba ba!"
+      }
+    },
+    {
+      "pair": ["storm-crow", "storm-crow"],
+      "intro": [
+        {
+          "speaker": "storm-crow",
+          "line": "There's room for one king of the sky."
+        },
+        {
+          "speaker": "storm-crow",
+          "line": "Then one of us falls."
+        }
+      ],
+      "win": {
+        "storm-crow": "One sky. One storm. Mine."
+      }
+    },
+    {
+      "pair": ["river-croc", "river-croc"],
+      "intro": [
+        {
+          "speaker": "river-croc",
+          "line": "HSSSSS."
+        },
+        {
+          "speaker": "river-croc",
+          "line": "HSSSSSSSSS."
+        }
+      ],
+      "win": {
+        "river-croc": "*the river goes still again*"
+      }
+    },
+    {
+      "pair": ["hyena-matriarch", "hyena-matriarch"],
+      "intro": [
+        {
+          "speaker": "hyena-matriarch",
+          "line": "Hee hee! Look, there's two of me!"
+        },
+        {
+          "speaker": "hyena-matriarch",
+          "line": "Hee hee! Twice the laughs!"
+        }
+      ],
+      "win": {
+        "hyena-matriarch": "Hee... hee... Only one laugh left. Mine."
+      }
+    },
+    {
+      "pair": ["old-komodo", "old-komodo"],
+      "intro": [
+        {
+          "speaker": "old-komodo",
+          "line": "Mm. Another old one."
+        },
+        {
+          "speaker": "old-komodo",
+          "line": "Mm. Big dune. Not big enough."
+        }
+      ],
+      "win": {
+        "old-komodo": "Mm. Two naps. Now one."
+      }
+    }
+  ],
+  "boss": {
+    "zuzu": "...",
+    "coyote-vagrant": "Nope. Nope nope nope. Somebody shut that door.",
+    "the-abbess": "Oh, there you are. I left it open for you.",
+    "the-siblings": "Hold my hand. Don't look at it.",
+    "storm-crow": "Even the storm won't go near that thing.",
+    "river-croc": "HSSSSSSS.",
+    "hyena-matriarch": "Heh... heh. Okay, that one's not funny.",
+    "old-komodo": "I have eaten many things. Not that."
+  }
+}

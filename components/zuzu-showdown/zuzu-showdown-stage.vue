@@ -88,6 +88,13 @@ import {
 import { findFighter } from '~/utils/zuzuShowdown/fighters'
 import { advanceSparks, type Spark } from '~/utils/zuzuShowdown/effects'
 import { cpuInput, newCpu, type CpuState } from '~/utils/zuzuShowdown/cpu'
+import { introFor } from '~/utils/zuzuShowdown/matchups'
+import {
+  VS_SLAM_FRAMES,
+  drawVsScreen,
+  drawWinScreen,
+  vsDuration,
+} from '~/utils/zuzuShowdown/screens'
 import {
   SPRITE_FIGHTERS,
   SPRITE_ROOT,
@@ -103,7 +110,7 @@ import {
 } from '~/utils/zuzuShowdown/types'
 import { useZuzuShowdownStore } from '~/stores/zuzuShowdownStore'
 
-type StagePhase = 'title' | 'fight' | 'paused' | 'result'
+type StagePhase = 'title' | 'vs' | 'fight' | 'paused' | 'result'
 type Direction = 'up' | 'down' | 'left' | 'right'
 
 const RESULT_DELAY = 150
@@ -183,6 +190,8 @@ let sparks: Spark[] = []
 // The CPU opponent (t-020) plays P2 in CPU mode, seeded fresh for each match.
 let cpu: CpuState = newCpu('normal', 1)
 let resultCountdown = 0
+// Frames into the VS screen, or into the win screen.
+let screenFrame = 0
 let loop: FixedLoop | null = null
 let sound: ArcadeSound | null = null
 let resizer: ResizeObserver | null = null
@@ -206,6 +215,12 @@ const knobStyle = computed(() => {
 
 function applyKeyMaps() {
   p1.setKeyMap(store.mode === 'versus' ? P1_KEYS : SOLO_KEYS)
+}
+
+/** The VS screen: the fighters slam in and trade their matchup lines, then the fight starts. */
+function startVs() {
+  screenFrame = 0
+  phase.value = 'vs'
 }
 
 function startMatch() {
@@ -260,7 +275,15 @@ function tick() {
   const two = p2.poll()
   const start = one.pressed.start || two.pressed.start
   if (phase.value === 'title' || phase.value === 'result') {
-    if (start || one.pressed.lp) startMatch()
+    screenFrame += 1
+    if (start || one.pressed.lp) startVs()
+    return
+  }
+  if (phase.value === 'vs') {
+    screenFrame += 1
+    const lines = introFor(roster[0].slug, roster[1].slug).length
+    const skip = (start || one.pressed.lp) && screenFrame > VS_SLAM_FRAMES
+    if (skip || screenFrame >= vsDuration(lines)) startMatch()
     return
   }
   if (phase.value === 'paused') {
@@ -289,13 +312,22 @@ function tick() {
   playSounds(match.events)
   if (match.phase === 'over') {
     resultCountdown -= 1
-    if (resultCountdown <= 0) phase.value = 'result'
+    if (resultCountdown <= 0) {
+      screenFrame = 0
+      phase.value = 'result'
+    }
   }
 }
 
 function render() {
   const g = canvasRef.value?.getContext('2d')
   if (!g) return
+  const sides = [sprites[roster[0].slug], sprites[roster[1].slug]] as const
+  if (phase.value === 'vs') {
+    g.imageSmoothingEnabled = false
+    drawVsScreen(g, roster, [...sides], screenFrame, store.reducedMotion)
+    return
+  }
   drawMatch(g, match, roster, callouts, {
     showBoxes: store.showBoxes,
     reducedMotion: store.reducedMotion,
@@ -325,15 +357,14 @@ function render() {
       { text: 'PRESS START', color: '#fde047' },
     ])
   } else if (phase.value === 'result') {
-    const winner =
-      match.winner === 'draw' || match.winner === null
-        ? 'DRAW GAME'
-        : `P${match.winner + 1} WINS`
-    drawCard(g, [
-      { text: winner, scale: 3, color: '#fde047' },
-      { text: `ROUNDS ${match.wins[0]} - ${match.wins[1]}` },
-      { text: 'PRESS START FOR A REMATCH', color: '#fdba74' },
-    ])
+    drawWinScreen(
+      g,
+      match,
+      roster,
+      [...sides],
+      screenFrame,
+      store.reducedMotion,
+    )
   }
 }
 

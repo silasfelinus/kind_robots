@@ -26,6 +26,12 @@
 // Candidates go to project page-backdrop-candidates under a suffixed
 // requestId, so /api/art/backdrop never serves them; --seed re-renders the
 // chosen one under the real requestId.
+//
+// Each candidate also needs its OWN imagePath. The media agent files a render
+// at the job's declared imagePath, and every ArtImage filed there serves the
+// same bytes -- so the first candidate batch (ArtJobs 34680-34703) wrote four
+// seeds into background/bots-desktop.webp, kept only the last, and replaced
+// the live backdrop with it as well.
 import 'dotenv/config'
 import { pageBackdropArtPrompts } from './../../stores/seeds/pageBackdropArtPrompts'
 import { buildPageBackdropPayload } from './pageBackdropPayload'
@@ -92,7 +98,11 @@ async function main() {
     return Array.from({ length: CANDIDATES }, () => {
       const seed = Math.floor(Math.random() * 2_147_483_647)
       return {
-        entry: { ...entry, requestId: `${entry.requestId}-candidate-${seed}` },
+        entry: {
+          ...entry,
+          requestId: `${entry.requestId}-candidate-${seed}`,
+          imagePath: `background/candidates/${entry.page}-${entry.variant}-${seed}.webp`,
+        },
         seed,
         projectSlug: CANDIDATE_PROJECT_SLUG,
       }

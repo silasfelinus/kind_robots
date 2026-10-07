@@ -347,21 +347,22 @@ export const ARCADE_GAMES: ArcadeGameMeta[] = [
     title: 'Station Sweep',
     riffsOn: 'Xenophobe',
     blurb:
-      'Mop, the station cleaning robot, sweeps a deck overrun by glitch critters. Egg sacs hatch rollers that bowl along the floor (crouch to sweep them), biters that spit, and ceiling crawlers that drop and cling until Mop jumps. Pop every sac, sweep every critter, and the deck is clean.',
+      'Mop, the station cleaning robot, sweeps a space station overrun by glitch critters, deck by deck. Egg sacs hatch rollers that bowl along the floor (crouch to sweep them), biters that spit, and ceiling crawlers that drop and cling until Mop jumps. Ride the lifts between decks; clean every one and the station is done.',
     howTo: [
       'LEFT/RIGHT  WALK',
       'DOWN  CROUCH, SWEEP LOW',
       'UP OR B  JUMP',
       'A  SWEEPER BEAM',
       'JUMP TO SHAKE CRAWLERS',
-      'POP EVERY EGG SAC',
+      'IN A LIFT UP OR DOWN RIDES',
+      'CLEAN EVERY DECK',
     ],
     width: 320,
     height: 240,
     maxPlausibleScore: 10_000_000,
     titleArt: '/images/arcade/games/station-sweep-title.webp',
     accent: '#34d399',
-    controls: 'Walk, crouch, jump, sweep',
+    controls: 'Walk, crouch, jump, sweep, ride',
   },
 ]
 

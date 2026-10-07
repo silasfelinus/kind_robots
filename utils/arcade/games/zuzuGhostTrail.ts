@@ -1,9 +1,9 @@
 // /utils/arcade/games/zuzuGhostTrail.ts
 //
 // Zuzu: Ghost Trail -- the Kind Robots Arcade's Ghosts 'n Goblins riff
-// (conductor kr-arcade/t-009 game factory, slice 1 of 4: one stage and the
-// poncho rule; throwables and pickups, bosses, and stage progression come in
-// later slices). Zuzu, the koala ronin, walks a haunted weird-west trail
+// (conductor kr-arcade/t-009 game factory, slices 1-2 of 4: one stage, the
+// poncho rule, and throwables and pickups; bosses and stage progression come
+// in later slices). Zuzu, the koala ronin, walks a haunted weird-west trail
 // through a ghost town at dusk, throwing kunai at restless spirits that claw
 // up out of the dirt, storm crows and bone hyenas.
 //
@@ -11,6 +11,12 @@
 // kasa off, leaving him in his tunic; a second hit sends him back to the last
 // checkpoint. Crates along the trail hide a fresh poncho. Jumps are committed
 // once he leaves the ground. Left/right walk, Up or B jumps, A throws kunai.
+//
+// Gear, as in the classic's weapon pickups: crates and the bundles some crows
+// carry hold a new throwable, and picking one up replaces the current one.
+// Shuriken fly three ways, the spare kasa boomerangs back through everything
+// in its path, a lantern lobs and leaves a ground fire that even catches
+// spirits still in the dirt, and the iai cut is a short, strong katana slash.
 //
 // Zuzu's canon (CAST-PICKS.md, VIDEO-GUARDRAILS.md): short and stocky,
 // rust-brown poncho with orange zigzag trim, a wide straw kasa that shades his
@@ -36,8 +42,6 @@ const JUMP_VY = -5.4
 const WALK = 1.3
 const JUMP_VX = 2
 const KUNAI_SPEED = 4.5
-const MAX_KUNAI = 3
-const THROW_COOLDOWN = 14
 const INVULN_TICKS = 100
 const DEATH_TICKS = 110
 const CLEAR_TICKS = 160
@@ -65,13 +69,32 @@ const BOARDWALKS: Array<{ x: number; y: number; w: number }> = [
 ]
 /** Tombstones: solid, jump over them. */
 const TOMBSTONES = [452, 1010, 1600, 2210, 2760, 3270]
-/** Crates: kunai break them open. */
-const CRATES: Array<{ x: number; holds: 'poncho' | 'nugget' }> = [
+/** Crates: any weapon breaks them open. 'gear' is a weapon other than the one in hand. */
+const CRATES: Array<{ x: number; holds: Holding }> = [
+  { x: 560, holds: 'gear' },
   { x: 820, holds: 'nugget' },
+  { x: 1300, holds: 'gear' },
   { x: 1930, holds: 'poncho' },
+  { x: 2340, holds: 'gear' },
   { x: 2700, holds: 'poncho' },
+  { x: 3050, holds: 'gear' },
   { x: 3340, holds: 'nugget' },
 ]
+
+type Weapon = 'kunai' | 'shuriken' | 'kasa' | 'lantern' | 'katana'
+const WEAPONS: Record<
+  Weapon,
+  { label: string; cooldown: number; max: number; damage: number }
+> = {
+  kunai: { label: 'KUNAI', cooldown: 14, max: 3, damage: 1 },
+  shuriken: { label: 'SHURIKEN', cooldown: 22, max: 3, damage: 1 },
+  kasa: { label: 'KASA', cooldown: 20, max: 2, damage: 1 },
+  lantern: { label: 'LANTERN', cooldown: 24, max: 2, damage: 2 },
+  katana: { label: 'IAI CUT', cooldown: 30, max: 1, damage: 2 },
+}
+const WEAPON_LIST = Object.keys(WEAPONS) as Weapon[]
+const FIRE_TICKS = 70
+const MAX_FIRES = 2
 
 export const TRAIL_CURVES = {
   spiritEvery: { start: 150, step: -15, limit: 60 },
@@ -80,6 +103,7 @@ export const TRAIL_CURVES = {
   enemySpeed: { start: 1, step: 0.12, limit: 1.7 },
 } as const
 
+type Holding = 'poncho' | 'nugget' | 'gear'
 type Kind = 'spirit' | 'crow' | 'hyena'
 type Foe = {
   kind: Kind
@@ -92,14 +116,27 @@ type Foe = {
   /** Spirits rise out of the dirt, walk, then sink back. */
   phase: 'rise' | 'walk' | 'sink'
   baseY: number
+  /** Some crows carry a bundle of gear and drop it when struck. */
+  carrying: boolean
 }
-type Kunai = { x: number; y: number; vx: number; life: number }
-type Crate = { x: number; holds: 'poncho' | 'nugget'; open: boolean }
+type Shot = {
+  weapon: Weapon
+  x: number
+  y: number
+  vx: number
+  vy: number
+  life: number
+  t: number
+  /** Piercing weapons (kasa, iai cut) strike each foe once. */
+  struck: Foe[]
+}
+type Fire = { x: number; life: number }
+type Crate = { x: number; holds: Holding; open: boolean }
 type Pickup = {
   x: number
   y: number
   vy: number
-  kind: 'poncho' | 'nugget'
+  kind: 'poncho' | 'nugget' | 'coin' | Weapon
   life: number
 }
 type Particle = {
@@ -143,6 +180,7 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
   private onGround = true
   private facing: 1 | -1 = 1
   private poncho = true
+  private weapon: Weapon = 'kunai'
   private invuln = 0
   private throwCooldown = 0
   private throwPose = 0
@@ -153,7 +191,8 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
   private timer = STAGE_TICKS
   private camX = 0
   private foes: Foe[] = []
-  private kunai: Kunai[] = []
+  private shots: Shot[] = []
+  private fires: Fire[] = []
   private crates: Crate[] = []
   private pickups: Pickup[] = []
   private flying: Flying[] = []
@@ -200,7 +239,8 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
     this.invuln = INVULN_TICKS
     this.timer = STAGE_TICKS
     this.foes = []
-    this.kunai = []
+    this.shots = []
+    this.fires = []
     this.pickups = []
     this.spiritTimer = 120
     this.crowTimer = 300
@@ -245,7 +285,8 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
     if (controls.pressed.a || (controls.held.a && this.throwCooldown === 0))
       this.throw()
     this.spawnFoes()
-    this.updateKunai()
+    this.updateShots()
+    this.updateFires()
     this.updateFoes()
     this.updatePickups()
 
@@ -335,16 +376,30 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
   }
 
   private throw() {
-    if (this.kunai.length >= MAX_KUNAI) return
-    this.throwCooldown = THROW_COOLDOWN
-    this.throwPose = 8
-    this.kunai.push({
-      x: this.x + this.facing * 8,
+    const spec = WEAPONS[this.weapon]
+    const inAir = this.shots.filter((k) => k.weapon === this.weapon).length
+    const count = this.weapon === 'shuriken' ? 3 : 1
+    if (inAir + count > spec.max) return
+    this.throwCooldown = spec.cooldown
+    this.throwPose = this.weapon === 'katana' ? 12 : 8
+    const f = this.facing
+    const shot = (vx: number, vy: number, life: number): Shot => ({
+      weapon: this.weapon,
+      x: this.x + f * 8,
       y: this.y - 12,
-      vx: this.facing * KUNAI_SPEED,
-      life: 70,
+      vx,
+      vy,
+      life,
+      t: 0,
+      struck: [],
     })
-    this.sound.play('shoot')
+    if (this.weapon === 'kunai') this.shots.push(shot(f * KUNAI_SPEED, 0, 70))
+    else if (this.weapon === 'shuriken')
+      for (const vy of [-1.1, 0, 1.1]) this.shots.push(shot(f * 3.8, vy, 36))
+    else if (this.weapon === 'kasa') this.shots.push(shot(f * 5, 0, 120))
+    else if (this.weapon === 'lantern') this.shots.push(shot(f * 3.2, -2, 90))
+    else this.shots.push(shot(0, 0, 10))
+    this.sound.play(this.weapon === 'katana' ? 'blip' : 'shoot')
   }
 
   private spawnFoes() {
@@ -373,6 +428,7 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
           t: 0,
           phase: 'rise',
           baseY: GROUND_Y,
+          carrying: false,
         })
       }
     }
@@ -392,6 +448,7 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
         t: 0,
         phase: 'walk',
         baseY: y,
+        carrying: this.rng() < 0.3,
       })
     }
     if (--this.hyenaTimer <= 0) {
@@ -411,52 +468,127 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
           t: 0,
           phase: 'walk',
           baseY: GROUND_Y,
+          carrying: false,
         })
       }
     }
   }
 
-  private updateKunai() {
-    for (const k of this.kunai) {
-      k.x += k.vx
+  private updateShots() {
+    for (const k of this.shots) {
+      k.t++
       k.life--
-      if (TOMBSTONES.some((t) => Math.abs(k.x - t) < 6 && k.y > GROUND_Y - 16))
-        k.life = 0
-      if (k.life <= 0) continue
-      // A spirit can be hit once it is mostly out of the dirt.
-      const foe = this.foes.find(
-        (f) =>
-          (f.phase !== 'rise' || f.y < GROUND_Y + 6) &&
-          Math.abs(f.x - k.x) < 8 &&
-          Math.abs(f.y - 8 - k.y) < 10,
+      if (k.weapon === 'katana') {
+        // The iai cut stays in front of him for its few frames.
+        k.x = this.x + this.facing * 13
+        k.y = this.y - 11
+      } else if (k.weapon === 'kasa') {
+        // Out, slowing, then home on Zuzu; caught when it reaches him.
+        if (k.t < 30) k.x += k.vx * (1 - k.t / 36)
+        else {
+          const dx = this.x - k.x
+          const dy = this.y - 12 - k.y
+          const d = Math.hypot(dx, dy) || 1
+          k.x += (dx / d) * 5
+          k.y += (dy / d) * 5
+          if (d < 8) k.life = 0
+        }
+      } else {
+        k.x += k.vx
+        k.y += k.vy
+        if (k.weapon === 'lantern') {
+          k.vy += 0.25
+          if (k.y >= GROUND_Y - 2 && groundAt(k.x)) {
+            this.ignite(k.x)
+            k.life = 0
+          } else if (k.y > H + 10) k.life = 0
+        }
+      }
+      if (
+        (k.weapon === 'kunai' || k.weapon === 'shuriken') &&
+        TOMBSTONES.some((t) => Math.abs(k.x - t) < 6 && k.y > GROUND_Y - 16)
       )
-      if (foe) {
         k.life = 0
-        foe.hp--
-        this.burst(k.x, k.y, 4, '#e5e7eb')
-        if (foe.hp <= 0) this.defeat(foe)
+      // The iai cut only bites on its first few frames; the rest is follow-through.
+      if (k.life <= 0 || (k.weapon === 'katana' && k.t > 4)) continue
+      const reach = k.weapon === 'katana' ? 12 : k.weapon === 'kasa' ? 10 : 8
+      // A spirit can be hit once it is mostly out of the dirt.
+      const foes = this.foes.filter(
+        (f) =>
+          f.hp > 0 &&
+          !k.struck.includes(f) &&
+          (f.phase !== 'rise' || f.y < GROUND_Y + 6) &&
+          Math.abs(f.x - k.x) < reach &&
+          Math.abs(f.y - 8 - k.y) < reach + 2,
+      )
+      const pierce = k.weapon === 'katana' || k.weapon === 'kasa'
+      for (const foe of pierce ? foes : foes.slice(0, 1)) {
+        k.struck.push(foe)
+        this.strike(foe, WEAPONS[k.weapon].damage, k.x, k.y)
+      }
+      if (foes.length && !pierce) {
+        if (k.weapon === 'lantern') this.ignite(k.x)
+        k.life = 0
         continue
       }
       const crate = this.crates.find(
-        (c) => !c.open && Math.abs(c.x - k.x) < 9 && k.y > GROUND_Y - 18,
+        (c) =>
+          !c.open && Math.abs(c.x - k.x) < reach + 1 && k.y > GROUND_Y - 18,
       )
       if (crate) {
-        k.life = 0
-        crate.open = true
-        this.pickups.push({
-          x: crate.x,
-          y: GROUND_Y - 10,
-          vy: -3,
-          kind: crate.holds,
-          life: 60 * 8,
-        })
-        this.burst(crate.x, GROUND_Y - 8, 10, '#a16207')
-        this.sound.play('pop')
+        if (!pierce) k.life = 0
+        this.openCrate(crate)
       }
     }
-    this.kunai = this.kunai.filter(
+    this.shots = this.shots.filter(
       (k) => k.life > 0 && Math.abs(k.x - this.x) < W,
     )
+  }
+
+  private ignite(x: number) {
+    if (!groundAt(x)) return
+    this.fires.push({ x, life: FIRE_TICKS })
+    if (this.fires.length > MAX_FIRES) this.fires.shift()
+    this.burst(x, GROUND_Y - 4, 8, '#f97316')
+    this.sound.play('pop')
+  }
+
+  /** Ground fire burns anything standing in it, even spirits still in the dirt. */
+  private updateFires() {
+    for (const fire of this.fires) {
+      fire.life--
+      if (fire.life % 8 !== 0) continue
+      for (const f of this.foes)
+        if (f.hp > 0 && Math.abs(f.x - fire.x) < 14 && f.y > GROUND_Y - 24)
+          this.strike(f, 1, f.x, GROUND_Y - 10)
+    }
+    this.fires = this.fires.filter((f) => f.life > 0)
+  }
+
+  private strike(foe: Foe, damage: number, x: number, y: number) {
+    foe.hp -= damage
+    this.burst(x, y, 4, '#e5e7eb')
+    if (foe.hp <= 0) this.defeat(foe)
+  }
+
+  private openCrate(crate: Crate) {
+    crate.open = true
+    this.drop(
+      crate.holds === 'gear' ? this.otherWeapon() : crate.holds,
+      crate.x,
+      GROUND_Y - 10,
+    )
+    this.burst(crate.x, GROUND_Y - 8, 10, '#a16207')
+    this.sound.play('pop')
+  }
+
+  private otherWeapon(): Weapon {
+    const choices = WEAPON_LIST.filter((w) => w !== this.weapon)
+    return choices[Math.floor(this.rng() * choices.length)] ?? 'kunai'
+  }
+
+  private drop(kind: Pickup['kind'], x: number, y: number) {
+    this.pickups.push({ x, y, vy: -3, kind, life: 60 * 8 })
   }
 
   private defeat(f: Foe) {
@@ -471,6 +603,9 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
           : '#f5f5f4'
     this.burst(f.x, f.y - 8, 10, color)
     this.sound.play('pop')
+    if (f.carrying) this.drop(this.otherWeapon(), f.x, f.y)
+    else if (f.kind === 'spirit' && this.rng() < 0.12)
+      this.drop('coin', f.x, f.y - 10)
   }
 
   private updateFoes() {
@@ -533,7 +668,17 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
   private updatePickups() {
     for (const p of this.pickups) {
       p.vy += GRAVITY
-      p.y = Math.min(GROUND_Y - 6, p.y + p.vy)
+      p.y += p.vy
+      // Pickups settle on the ground (or a boardwalk); over a pit they are lost.
+      const deck = BOARDWALKS.find(
+        (b) => p.x > b.x && p.x < b.x + b.w && p.y - p.vy <= b.y - 6,
+      )
+      const floor = deck ? deck.y - 6 : GROUND_Y - 6
+      if (p.y >= floor && (deck || groundAt(p.x))) {
+        p.y = floor
+        p.vy = 0
+      }
+      if (p.y > H + 10) p.life = 0
       p.life--
       if (Math.abs(p.x - this.x) < 10 && Math.abs(p.y - (this.y - 8)) < 16) {
         p.life = 0
@@ -541,8 +686,18 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
           this.poncho = true
           this.floaters.push({ x: p.x, y: p.y - 14, text: 'PONCHO!', life: 50 })
           this.sound.play('extra')
+        } else if (p.kind === 'nugget' || p.kind === 'coin') {
+          this.addScore(p.kind === 'nugget' ? 500 : 200, p.x, p.y - 14)
+          this.sound.play('pickup')
         } else {
-          this.addScore(500, p.x, p.y - 14)
+          this.weapon = p.kind
+          this.throwCooldown = 0
+          this.floaters.push({
+            x: p.x,
+            y: p.y - 14,
+            text: WEAPONS[p.kind].label,
+            life: 50,
+          })
           this.sound.play('pickup')
         }
       }
@@ -684,14 +839,23 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
         else held.left = true
         return frame
       }
-      if (this.throwCooldown === 0) frame.pressed.a = true
-      if (Math.abs(near.x - this.x) > 30) return frame
+      // The iai cut only reaches a step ahead: hold still and let it come.
+      const reach =
+        this.weapon === 'katana' ? 24 : this.weapon === 'lantern' ? 80 : 110
+      const gap = Math.abs(near.x - this.x)
+      if (this.throwCooldown === 0 && gap < reach) frame.pressed.a = true
+      if (gap > 30 || this.weapon === 'katana') return frame
     }
     // Break crates on the way.
     const crate = this.crates.find(
       (c) => !c.open && c.x > this.x && c.x - this.x < 90,
     )
-    if (crate && this.throwCooldown === 0 && this.facing === 1)
+    if (
+      crate &&
+      this.throwCooldown === 0 &&
+      this.facing === 1 &&
+      (this.weapon !== 'katana' || crate.x - this.x < 24)
+    )
       frame.pressed.a = true
     held.right = true
     if (this.onGround) {
@@ -726,12 +890,8 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
     for (const c of this.crates) if (!c.open) this.renderCrate(g, c.x)
     for (const p of this.pickups) this.renderPickup(g, p)
     for (const f of this.foes) this.renderFoe(g, f)
-    for (const k of this.kunai) {
-      g.fillStyle = '#cbd5e1'
-      g.fillRect(k.x - 4, k.y - 1, 7, 2)
-      g.fillStyle = '#7c2d12'
-      g.fillRect(k.x - (k.vx > 0 ? 6 : -3), k.y - 1, 3, 2)
-    }
+    for (const fire of this.fires) this.renderFire(g, fire)
+    for (const k of this.shots) this.renderShot(g, k)
     for (const f of this.flying) this.renderFlyingKasa(g, f)
     if (this.dead === 0 && !this.over) this.renderZuzu(g)
     else if (this.dead > 0) this.renderFallen(g)
@@ -864,13 +1024,133 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
       g.fill()
       g.fillStyle = '#f97316'
       for (let i = -6; i < 6; i += 4) g.fillRect(p.x + i, p.y + 3, 2, 2)
-    } else {
-      g.fillStyle = '#facc15'
+    } else if (p.kind === 'nugget' || p.kind === 'coin') {
+      g.fillStyle = p.kind === 'nugget' ? '#facc15' : '#cbd5e1'
       g.beginPath()
-      g.arc(p.x, p.y, 4, 0, Math.PI * 2)
+      g.arc(p.x, p.y, p.kind === 'nugget' ? 4 : 3, 0, Math.PI * 2)
       g.fill()
-      g.fillStyle = '#fef9c3'
+      g.fillStyle = p.kind === 'nugget' ? '#fef9c3' : '#f8fafc'
       g.fillRect(p.x - 2, p.y - 2, 2, 2)
+    } else {
+      // Gear comes wrapped in a glinting bundle with its icon on the front.
+      g.fillStyle = '#1c1917'
+      g.fillRect(p.x - 7, p.y - 7, 14, 13)
+      g.strokeStyle = Math.floor(this.tick / 8) % 2 ? '#fbbf24' : '#f59e0b'
+      g.lineWidth = 1
+      g.strokeRect(p.x - 6.5, p.y - 6.5, 13, 12)
+      this.renderWeaponIcon(g, p.kind, p.x, p.y)
+    }
+  }
+
+  private renderWeaponIcon(
+    g: CanvasRenderingContext2D,
+    weapon: Weapon,
+    x: number,
+    y: number,
+  ) {
+    if (weapon === 'kunai') {
+      g.fillStyle = '#cbd5e1'
+      g.fillRect(x - 3, y - 1, 7, 2)
+      g.fillStyle = '#7c2d12'
+      g.fillRect(x - 5, y - 1, 3, 2)
+    } else if (weapon === 'shuriken') {
+      g.fillStyle = '#cbd5e1'
+      g.fillRect(x - 4, y - 1, 8, 2)
+      g.fillRect(x - 1, y - 4, 2, 8)
+      g.fillStyle = '#1c1917'
+      g.fillRect(x - 1, y - 1, 1, 1)
+    } else if (weapon === 'kasa') {
+      g.fillStyle = '#d6b25e'
+      g.beginPath()
+      g.moveTo(x - 5, y + 2)
+      g.lineTo(x, y - 3)
+      g.lineTo(x + 5, y + 2)
+      g.fill()
+      g.fillStyle = '#a07d32'
+      g.fillRect(x - 5, y + 2, 10, 1)
+    } else if (weapon === 'lantern') {
+      g.fillStyle = '#7c2d12'
+      g.fillRect(x - 2, y - 4, 4, 1)
+      g.fillStyle = '#fbbf24'
+      g.fillRect(x - 3, y - 3, 6, 6)
+      g.fillStyle = '#f97316'
+      g.fillRect(x - 1, y - 2, 2, 4)
+    } else {
+      g.fillStyle = '#e5e7eb'
+      g.fillRect(x - 4, y - 1, 8, 1)
+      g.fillStyle = '#b91c1c'
+      g.fillRect(x - 6, y - 1, 2, 2)
+      g.fillStyle = '#facc15'
+      g.fillRect(x - 4, y - 2, 1, 3)
+    }
+  }
+
+  private renderShot(g: CanvasRenderingContext2D, k: Shot) {
+    if (k.weapon === 'kunai') {
+      g.fillStyle = '#cbd5e1'
+      g.fillRect(k.x - 4, k.y - 1, 7, 2)
+      g.fillStyle = '#7c2d12'
+      g.fillRect(k.x - (k.vx > 0 ? 6 : -3), k.y - 1, 3, 2)
+    } else if (k.weapon === 'shuriken') {
+      g.fillStyle = '#e2e8f0'
+      if (Math.floor(k.t / 3) % 2) {
+        g.fillRect(k.x - 3, k.y, 7, 1)
+        g.fillRect(k.x, k.y - 3, 1, 7)
+      } else {
+        for (let i = -2; i <= 2; i++) {
+          g.fillRect(k.x + i, k.y + i, 1, 1)
+          g.fillRect(k.x + i, k.y - i, 1, 1)
+        }
+      }
+    } else if (k.weapon === 'kasa') {
+      g.save()
+      g.translate(k.x, k.y)
+      g.scale(1, Math.abs(Math.cos(k.t / 3)) * 0.6 + 0.4)
+      g.fillStyle = '#d6b25e'
+      g.beginPath()
+      g.moveTo(-9, 2)
+      g.lineTo(0, -4)
+      g.lineTo(9, 2)
+      g.fill()
+      g.fillStyle = '#a07d32'
+      g.fillRect(-9, 2, 18, 1)
+      g.restore()
+    } else if (k.weapon === 'lantern') {
+      this.renderWeaponIcon(g, 'lantern', k.x, k.y)
+    } else {
+      // The iai cut: a bright crescent sweeping in front of him.
+      const f = this.facing
+      g.save()
+      g.globalAlpha = Math.max(0.2, k.life / 10)
+      g.strokeStyle = '#e0f2fe'
+      g.lineWidth = 2
+      g.beginPath()
+      const sweep = (10 - k.life) / 10
+      g.arc(
+        this.x + f * 2,
+        this.y - 12,
+        14,
+        f > 0 ? -1.3 + sweep * 0.4 : Math.PI - 1.1 - sweep * 0.4,
+        f > 0 ? 1.1 + sweep * 0.4 : Math.PI + 1.3 - sweep * 0.4,
+      )
+      g.stroke()
+      g.restore()
+    }
+  }
+
+  private renderFire(g: CanvasRenderingContext2D, fire: Fire) {
+    const fade = Math.min(1, fire.life / 20)
+    for (let i = -2; i <= 2; i++) {
+      const flick = Math.sin(this.tick / 3 + i * 1.7 + fire.x) * 2
+      const h = (9 + (2 - Math.abs(i)) * 3 + flick) * fade
+      g.fillStyle = '#ea580c'
+      g.beginPath()
+      g.moveTo(fire.x + i * 4 - 3, GROUND_Y)
+      g.lineTo(fire.x + i * 4, GROUND_Y - h)
+      g.lineTo(fire.x + i * 4 + 3, GROUND_Y)
+      g.fill()
+      g.fillStyle = '#fde047'
+      g.fillRect(fire.x + i * 4 - 1, GROUND_Y - h * 0.45, 2, h * 0.45)
     }
   }
 
@@ -916,6 +1196,15 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
       g.fillRect(x - 8, y - 1, 3, 2)
       g.fillStyle = '#fef08a'
       g.fillRect(x - 4, y - 2, 1, 1)
+      if (f.carrying) {
+        // A bundle of gear swinging from its talons.
+        g.fillStyle = '#78350f'
+        g.fillRect(x, y + 3, 1, 3)
+        g.fillStyle = '#d97706'
+        g.fillRect(x - 3, y + 6, 7, 5)
+        g.fillStyle = '#fbbf24'
+        g.fillRect(x - 1, y + 6, 2, 1)
+      }
       return
     }
     // Bone hyena: a skeletal grin on four quick legs.
@@ -968,7 +1257,13 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
       g.fillRect(x - 5, y - 9, 10, 2)
     }
     // The throwing arm.
-    if (this.throwPose > 0) {
+    if (this.throwPose > 0 && this.weapon === 'katana') {
+      // Drawn for the iai cut: arm and blade out front.
+      g.fillStyle = '#9ca3af'
+      g.fillRect(x + f * 5, y - 13, f * 4, 2)
+      g.fillStyle = '#e5e7eb'
+      g.fillRect(x + f * 9, y - 13, f * 9, 1)
+    } else if (this.throwPose > 0) {
       g.fillStyle = '#9ca3af'
       g.fillRect(x + f * 5, y - 14, f * 5, 2)
     }
@@ -1068,6 +1363,11 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
       g.lineTo(110 + i * 12, 15)
       g.fill()
     }
+    // The gear in hand.
+    g.fillStyle = 'rgba(15, 27, 61, 0.7)'
+    g.fillRect(0, 16, 20 + WEAPONS[this.weapon].label.length * 6, 11)
+    this.renderWeaponIcon(g, this.weapon, 9, 21)
+    drawText(g, WEAPONS[this.weapon].label, 18, 18, { color: '#fde68a' })
     // Progress along the trail.
     g.fillStyle = '#1f2937'
     g.fillRect(170, 6, 60, 3)

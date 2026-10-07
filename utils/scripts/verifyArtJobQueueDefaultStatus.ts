@@ -21,7 +21,7 @@ requireMatch(
 )
 
 requireMatch(
-  /async function loadInitialJobs\(\): Promise<void> \{[\s\S]*await artJobStore\.fetchStats\(\)[\s\S]*const initialStatus = firstNonEmptyStatus\(\)[\s\S]*await artJobStore\.fetchJobs\([\s\S]*initialStatus \?\? artJobStore\.jobStatusFilter,[\s\S]*1,[\s\S]*\)/,
+  /async function loadInitialJobs\(\): Promise<void> \{[\s\S]*await artJobStore\.fetchStats\(\)[\s\S]*const initialStatus = firstNonEmptyStatus\(\)[\s\S]*await artJobStore\.fetchJobs\([\s\S]*initialStatus \?\? artJobStore\.jobStatusFilter,[\s\S]*1,?[\s\S]*\)/,
   `${componentPath} must load fresh queue counts before choosing and fetching the initial status.`,
 )
 

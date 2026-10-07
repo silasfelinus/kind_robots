@@ -1,16 +1,23 @@
 // /utils/zuzuShowdown/fighters/index.ts
 //
 // The selectable roster. Real fighters join as their kits land (t-014 to
-// t-017); the stand-ins stay for engine testing.
+// t-017); the stand-ins stay for engine testing. Zuzu vs the Coyote, the
+// rivals of Book One's chapter 1, is the default matchup.
 
 import type { Motion } from '../motion'
 import type { FighterData } from '../types'
 import { PLACEHOLDER_A, PLACEHOLDER_B } from './placeholders'
+import { COYOTE } from './coyote'
 import { ZUZU } from './zuzu'
 
-export const FIGHTERS: FighterData[] = [ZUZU, PLACEHOLDER_A, PLACEHOLDER_B]
+export const FIGHTERS: FighterData[] = [
+  ZUZU,
+  COYOTE,
+  PLACEHOLDER_A,
+  PLACEHOLDER_B,
+]
 
-export const DEFAULT_FIGHTERS: [string, string] = ['zuzu', 'placeholder-b']
+export const DEFAULT_FIGHTERS: [string, string] = ['zuzu', 'coyote-vagrant']
 
 export function findFighter(slug: string): FighterData {
   return FIGHTERS.find((fighter) => fighter.slug === slug) ?? FIGHTERS[0]!

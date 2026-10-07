@@ -171,13 +171,21 @@ function freshFighter(data: FighterData, side: Side): FighterState {
     poison: { left: 0, every: 0 },
     reversal: 0,
     jumpCancel: 0,
+    ammo: data.ammo ?? 0,
+    blind: 0,
     motion: emptyMotion(),
     buffer: [],
     prev: neutralInput(),
   }
 }
 
-export function createMatch(roster: Pair<FighterData>): MatchState {
+/** The default seed; a replay must pass the same one. */
+export const DEFAULT_SEED = 0x9e3779b9
+
+export function createMatch(
+  roster: Pair<FighterData>,
+  seed: number = DEFAULT_SEED,
+): MatchState {
   return {
     frame: 0,
     phase: 'intro',
@@ -193,7 +201,18 @@ export function createMatch(roster: Pair<FighterData>): MatchState {
     projectiles: [],
     events: [{ type: 'roundStart', round: 1 }],
     winner: null,
+    rng: seed >>> 0 || DEFAULT_SEED,
   }
+}
+
+/** Advance the seeded generator (xorshift32) and return the next value. */
+export function nextRandom(s: MatchState): number {
+  let x = s.rng
+  x ^= x << 13
+  x ^= x >>> 17
+  x ^= x << 5
+  s.rng = x >>> 0
+  return s.rng
 }
 
 function clone<T>(value: T): T {
@@ -524,7 +543,8 @@ function pickCommand(
       (special.air ?? false) === airborne &&
       (minLevel === 'special' || special.level === 'super') &&
       f.meter >= (special.move.meterCost ?? 0) &&
-      !(hasProjectile && special.move.projectile),
+      !(hasProjectile && special.move.projectile) &&
+      f.ammo >= (special.move.ammoCost ?? 0),
   )
   if (allowed.length === 0) return null
   const commands: CommandSpec[] = allowed.map((special) => ({
@@ -570,6 +590,7 @@ function startCommand(
       ? { ...special.move, ...special.heavy }
       : special.move
   gainMeter(f, -(move.meterCost ?? 0))
+  f.ammo = Math.max(0, f.ammo - (move.ammoCost ?? 0))
   if (special.level === 'super') {
     s.events.push({
       type: 'super',
@@ -618,6 +639,12 @@ function applyMoveVelocity(f: FighterState, move: MoveData): void {
   }
 }
 
+/** A seeded aim wobble of up to `spread` pixels either way. */
+function spreadOffset(s: MatchState, spread: number | undefined): number {
+  if (!spread) return 0
+  return (nextRandom(s) % (2 * spread + 1)) - spread
+}
+
 /** Advance the current attack one frame: multi-hit rearm, projectile spawn, end. */
 function advanceAttack(
   s: MatchState,
@@ -638,6 +665,9 @@ function advanceAttack(
   ) {
     attack.connected = false
   }
+  if (move.reload && attack.frame === move.startup) {
+    s.fighters[side].ammo = data.ammo ?? 0
+  }
   const projectile = move.projectile
   if (projectile && attack.frame === projectile.spawnFrame) {
     if (!s.projectiles.some((p) => p.owner === side)) {
@@ -646,7 +676,8 @@ function advanceAttack(
         move: attack.id,
         heavy: attack.heavy,
         x: f.x + projectile.spawn.x * SUB * f.facing,
-        y: f.y + projectile.spawn.y * SUB,
+        y:
+          f.y + (projectile.spawn.y + spreadOffset(s, projectile.spread)) * SUB,
         vx: projectile.speed * f.facing,
         facing: f.facing,
         life: projectile.life,
@@ -681,6 +712,7 @@ function think(
   f.frame += 1
   if (f.reversal > 0) f.reversal -= 1
   if (f.jumpCancel > 0) f.jumpCancel -= 1
+  if (f.blind > 0 && f.action !== 'hitstun') f.blind -= 1
 
   // Combo Breaker: Dodge + any attack while being comboed, for two bars.
   if (
@@ -1117,7 +1149,8 @@ const CAN_BLOCK: ReadonlySet<Action> = new Set([
 const COMBO_STATES: ReadonlySet<Action> = new Set(['hitstun', 'airhit'])
 
 function blocks(d: FighterState, r: Read, move: MoveData): boolean {
-  if (d.y !== 0 || !CAN_BLOCK.has(d.action) || !r.back) return false
+  if (d.y !== 0 || !CAN_BLOCK.has(d.action) || !r.back || d.blind > 0)
+    return false
   const crouching = r.held.down
   if (move.guard === 'low') return crouching
   if (move.guard === 'high') return !crouching
@@ -1256,6 +1289,7 @@ function landHit(s: MatchState, roster: Pair<FighterData>, c: Contact): void {
   }
   if (c.move.poison)
     d.poison = { left: c.move.poison.frames, every: c.move.poison.every }
+  if (c.move.blind) d.blind = c.move.blind
 
   const away: Facing = a.x <= d.x ? 1 : -1
   if (c.move.launcher && d.y === 0) {
@@ -1309,6 +1343,11 @@ function commandGrab(
   takeDamage(d, dData, damage, RED_PERCENT)
   gainMeter(a, damage)
   gainMeter(d, Math.trunc(damage / 2))
+  if (c.move.stealMeter) {
+    const taken = Math.min(d.meter, c.move.stealMeter)
+    gainMeter(d, -taken)
+    gainMeter(a, taken)
+  }
   const dir = a.facing
   d.x = a.x + dir * (halfWidth(roster[c.attacker]) + halfWidth(dData) + 8 * SUB)
   setAction(d, 'knockdown', KNOCKDOWN_FRAMES)
@@ -1388,7 +1427,12 @@ function resolveHits(
 
     // Parry: the defender's parry window catches the strike.
     const dMove = d.attack ? moveOf(dData, d.attack) : null
-    if (d.attack && dMove?.parry && within(dMove.parry, d.attack.frame)) {
+    if (
+      d.attack &&
+      dMove?.parry &&
+      within(dMove.parry, d.attack.frame) &&
+      (dMove.parry.guards?.includes(c.move.guard) ?? true)
+    ) {
       d.attack.contact = true
       d.attack.lastHitFrame = d.attack.frame
       scoreRead(s, defenderSide, 'guard')

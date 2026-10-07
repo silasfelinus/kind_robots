@@ -159,6 +159,9 @@ jobs:
       - name: Zuzu Showdown fighter kit (Zuzu)
         run: npm run test:zuzu-showdown-zuzu
 
+      - name: Zuzu Showdown fighter kit (Coyote Vagrant)
+        run: npm run test:zuzu-showdown-coyote
+
       - name: No Promise in Pinia store state
         run: npm run test:no-promise-in-store-state
 

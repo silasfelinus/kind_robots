@@ -153,6 +153,9 @@ jobs:
       - name: Zuzu Showdown combat systems
         run: npm run test:zuzu-showdown-combat
 
+      - name: Zuzu Showdown renderer
+        run: npm run test:zuzu-showdown-render
+
       - name: No Promise in Pinia store state
         run: npm run test:no-promise-in-store-state
 

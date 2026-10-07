@@ -144,6 +144,9 @@ jobs:
       - name: Kind Robots Arcade engine
         run: npm run test:arcade-engine
 
+      - name: Zuzu Showdown fight simulation
+        run: npm run test:zuzu-showdown-sim
+
       - name: No Promise in Pinia store state
         run: npm run test:no-promise-in-store-state
 

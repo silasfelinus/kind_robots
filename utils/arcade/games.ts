@@ -279,6 +279,27 @@ export const ARCADE_GAMES: ArcadeGameMeta[] = [
     accent: '#f87171',
     controls: 'Climb, fix, shoo',
   },
+  {
+    slug: 'kindness-gauntlet',
+    title: 'Kindness Gauntlet',
+    riffsOn: 'Gauntlet II',
+    blurb:
+      'Fix, a repair android, explores a glitchy old server dungeon floor by floor. Throw wrench sparks to fix the glitches swarming out of broken generators, shut the generators down, free the bots trapped in cages and find the stairs. The battery drains all the time and faster when glitches cling on, so grab the snacks.',
+    howTo: [
+      'ARROWS  MOVE',
+      'A  WRENCH SPARKS',
+      'HOLD A  STAND AND AIM',
+      'B  KINDNESS PULSE',
+      'SHUT DOWN GENERATORS',
+      'SNACKS RECHARGE YOU',
+    ],
+    width: 320,
+    height: 240,
+    maxPlausibleScore: 10_000_000,
+    titleArt: '/images/arcade/games/kindness-gauntlet-title.webp',
+    accent: '#fbbf24',
+    controls: 'Move, spark, pulse',
+  },
 ]
 
 export type ComingSoonCabinet = {
@@ -292,12 +313,6 @@ export type ComingSoonCabinet = {
 
 // Mirrors the queued rows of conductor projects/kr-arcade/games.yaml.
 export const COMING_SOON: ComingSoonCabinet[] = [
-  {
-    slug: 'kindness-gauntlet',
-    title: 'Kindness Gauntlet',
-    riffsOn: 'Gauntlet II',
-    accent: '#fbbf24',
-  },
   {
     slug: 'prize-show-panic',
     title: 'Prize Show Panic',
@@ -332,6 +347,7 @@ const LOADERS: Record<string, () => Promise<ArcadeGameModule>> = {
   'ribbon-riders': () => import('./games/ribbonRiders'),
   'burrow-buddy': () => import('./games/burrowBuddy'),
   'repair-rampage': () => import('./games/repairRampage'),
+  'kindness-gauntlet': () => import('./games/kindnessGauntlet'),
 }
 
 export function findArcadeGame(slug: string): ArcadeGameMeta | undefined {

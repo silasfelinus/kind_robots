@@ -165,7 +165,7 @@ import {
   type ArcadePhase,
 } from '~/utils/arcade/machine'
 import { createArcadeSound, type ArcadeSound } from '~/utils/arcade/sound'
-import { drawText, measureText } from '~/utils/arcade/font'
+import { drawText, lineStep, measureText } from '~/utils/arcade/font'
 import { mulberry32 } from '~/utils/arcade/curve'
 import { INITIALS_ALPHABET, isAllowedInitials } from '~/utils/arcade/initials'
 import { initialsFromUsername } from '~/utils/arcade/leaderboard'
@@ -611,8 +611,10 @@ function render() {
       color: '#ffffff',
       shadow: accent,
     })
+    // Short screens (Repair Rampage is 240 tall) squeeze the lines together.
+    const step = lineStep(info.howTo.length, h, 80)
     info.howTo.forEach((line, i) => {
-      drawText(g, line, w / 2, 80 + i * 30, {
+      drawText(g, line, w / 2, 80 + i * step, {
         scale: 2,
         align: 'center',
         color: i % 2 ? '#f9a8d4' : '#fde68a',

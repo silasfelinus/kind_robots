@@ -87,6 +87,24 @@ export function measureText(text: string, scale = 1): number {
 
 export const FONT_HEIGHT = ROWS
 
+/** Smallest gap between stacked scale-2 lines that still leaves daylight. */
+export const MIN_LINE_STEP = 18
+
+/**
+ * Vertical step for `count` scale-2 lines stacked from `top` on a screen
+ * `height` tall: the preferred step, squeezed so the last line still fits.
+ */
+export function lineStep(
+  count: number,
+  height: number,
+  top: number,
+  preferred = 30,
+): number {
+  if (count <= 1) return preferred
+  const room = height - top - FONT_HEIGHT * 2 - 4
+  return Math.min(preferred, Math.floor(room / (count - 1)))
+}
+
 function paint(
   g: CanvasRenderingContext2D,
   text: string,

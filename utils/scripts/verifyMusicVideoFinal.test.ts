@@ -15,6 +15,9 @@ import {
   looksLikeMp4,
   musicVideoMaxUploadBytes,
   finalVideoBitrates,
+  clampUploadToPacket,
+  musicVideoPacketCapBytes,
+  MUSIC_VIDEO_PACKET_OVERHEAD_BYTES,
 } from '../musicVideoFinal.js'
 
 const MB = 1024 * 1024
@@ -130,5 +133,42 @@ console.log('✅ final video file names are slugged, bounded and never empty')
   assert.equal(finalVideoBitrates(3600, cap).video, 400_000, 'floored low')
 }
 console.log('✅ the export bitrate keeps the final cut under the upload cap')
+
+{
+  // A 16 MB packet holds about 11.8 MB of file once base64 adds its third.
+  const packet = 16 * MB
+  const cap = musicVideoPacketCapBytes(packet)
+  assert.equal(
+    cap,
+    Math.floor(((packet - MUSIC_VIDEO_PACKET_OVERHEAD_BYTES) * 3) / 4),
+  )
+  assert.ok(
+    Math.ceil((cap! * 4) / 3) + MUSIC_VIDEO_PACKET_OVERHEAD_BYTES <= packet,
+  )
+  assert.equal(
+    musicVideoPacketCapBytes(BigInt(packet)),
+    cap,
+    'MySQL may return a bigint',
+  )
+  assert.equal(musicVideoPacketCapBytes(null), null)
+  assert.equal(musicVideoPacketCapBytes(0), null)
+  assert.equal(
+    clampUploadToPacket(24 * MB, packet),
+    cap,
+    'the packet lowers the default cap',
+  )
+  assert.equal(
+    clampUploadToPacket(5 * MB, packet),
+    5 * MB,
+    'a smaller configured cap stands',
+  )
+  assert.equal(
+    clampUploadToPacket(24 * MB, null),
+    24 * MB,
+    'unknown packet leaves the cap',
+  )
+  // The 2026-10-07 failure: a 13.4 MB MP4 must be refused up front on a 16 MB packet.
+  assert.ok(13_462_736 > clampUploadToPacket(24 * MB, packet))
+}
 
 console.log('✅ verifyMusicVideoFinal: all assertions passed')

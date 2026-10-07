@@ -27,6 +27,24 @@ export function toMusicVideoDto(record: MusicVideoRecord): MusicVideoDto {
   return { ...record, doc: parseStoredMusicVideoDoc(record.doc) }
 }
 
+let packetBytes: Promise<number | null> | null = null
+
+/** The database's max_allowed_packet in bytes, cached; null when it cannot be read. */
+export function readDbMaxPacketBytes(): Promise<number | null> {
+  packetBytes ??= prisma.$queryRaw<
+    Array<{ packet: number | bigint }>
+  >`SELECT @@max_allowed_packet AS packet`
+    .then((rows) => {
+      const value = Number(rows[0]?.packet)
+      return Number.isFinite(value) && value > 0 ? value : null
+    })
+    .catch(() => {
+      packetBytes = null
+      return null
+    })
+  return packetBytes
+}
+
 export function readMusicVideoId(event: H3Event): number {
   const id = Number(getRouterParam(event, 'id'))
   if (!Number.isInteger(id) || id <= 0) {

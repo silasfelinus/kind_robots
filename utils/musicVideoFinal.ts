@@ -32,6 +32,34 @@ export function musicVideoMaxUploadBytes(
   return Math.floor(megabytes * 1024 * 1024)
 }
 
+// Room the INSERT needs besides the file itself: the other columns and the
+// statement text.
+export const MUSIC_VIDEO_PACKET_OVERHEAD_BYTES = 256 * 1024
+
+/**
+ * The largest upload a database packet of `packetBytes` can store as base64,
+ * or null when the packet size is unknown. Production's packet turned out to be
+ * smaller than the 32 MB the default assumes: a 13.4 MB MP4 (17.9 MB as base64)
+ * failed with MySQL 1153 "packet bigger than max_allowed_packet" (2026-10-07).
+ */
+export function musicVideoPacketCapBytes(
+  packetBytes: number | bigint | null | undefined,
+): number | null {
+  const packet = Number(packetBytes)
+  if (!Number.isFinite(packet) || packet <= MUSIC_VIDEO_PACKET_OVERHEAD_BYTES)
+    return null
+  return Math.floor(((packet - MUSIC_VIDEO_PACKET_OVERHEAD_BYTES) * 3) / 4)
+}
+
+/** The configured cap, lowered to what the database packet can hold. */
+export function clampUploadToPacket(
+  maxBytes: number,
+  packetBytes: number | bigint | null | undefined,
+): number {
+  const packetCap = musicVideoPacketCapBytes(packetBytes)
+  return packetCap === null ? maxBytes : Math.min(maxBytes, packetCap)
+}
+
 export const MUSIC_VIDEO_AUDIO_BITRATE = 128_000
 export const MUSIC_VIDEO_MIN_VIDEO_BITRATE = 400_000
 export const MUSIC_VIDEO_MAX_VIDEO_BITRATE = 8_000_000

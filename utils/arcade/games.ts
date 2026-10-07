@@ -563,6 +563,48 @@ export const ARCADE_GAMES: ArcadeGameMeta[] = [
     accent: '#fb923c',
     controls: 'Move, beam',
   },
+  {
+    slug: 'rover-ramble',
+    title: 'Rover Ramble',
+    riffsOn: 'Moon Patrol',
+    blurb:
+      'Roll a six-wheeled rover across a bumpy moon. Jump the craters, zap the boulders ahead, and shoot up at the meteor sprites that swoop overhead dropping pebbles. Reach each lettered checkpoint under par for a bigger bonus; from section 4, boulders roll in to meet you.',
+    howTo: [
+      'RIGHT  FASTER',
+      'LEFT  SLOWER',
+      'UP OR B  JUMP',
+      'A  ZAP AHEAD + UP',
+      'JUMP THE CRATERS',
+      'BIG ROCKS TAKE 2',
+      'BEAT THE PAR TIME',
+    ],
+    width: 320,
+    height: 240,
+    maxPlausibleScore: 2_000_000,
+    titleArt: '/images/arcade/games/rover-ramble-title.webp',
+    accent: '#38bdf8',
+    controls: 'Speed, jump, zap',
+  },
+  {
+    slug: 'cable-crawler',
+    title: 'Cable Crawler',
+    riffsOn: 'Nibbler',
+    blurb:
+      'Steer a charging-cable bot through a circuit-board maze, slurping sparks and growing longer with every bite. Walls only pause you, and lone corners turn you by themselves, but biting your own cable or letting the battery run flat unplugs you. Clear every spark to move on to a faster board.',
+    howTo: [
+      'ARROWS  STEER',
+      'SLURP EVERY SPARK',
+      'DONT BITE YOUR CABLE',
+      'MIND THE BATTERY',
+      'GOLD SPARKS = BIG',
+    ],
+    width: 240,
+    height: 224,
+    maxPlausibleScore: 2_000_000,
+    titleArt: '/images/arcade/games/cable-crawler-title.webp',
+    accent: '#2dd4bf',
+    controls: 'Steer',
+  },
 ]
 
 export type ComingSoonCabinet = {
@@ -635,6 +677,8 @@ const LOADERS: Record<string, () => Promise<ArcadeGameModule>> = {
   'cocoa-counter': () => import('./games/cocoaCounter'),
   'seed-burst': () => import('./games/seedBurst'),
   'lantern-swarm': () => import('./games/lanternSwarm'),
+  'rover-ramble': () => import('./games/roverRamble'),
+  'cable-crawler': () => import('./games/cableCrawler'),
   'kind-pinball-3d': () =>
     import('./games/kindPinball3d').then(async (module) => {
       await module.prepare()

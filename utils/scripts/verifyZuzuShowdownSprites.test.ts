@@ -3,8 +3,10 @@
 // Zuzu Showdown fighter sprites (conductor zuzu-showdown t-010): the shipped rig atlases are sound
 // (every frame inside its atlas, every anchor inside its frame, the art the fighter's height), each
 // fighter state shows the right animation (with fallbacks for art not drawn yet), frames advance at
-// the animation's own rate and loop or hold, a left-facing fighter is mirrored about its anchor,
-// and a whole fuzzed match draws with sprites without a single placeholder body.
+// the animation's own rate and loop or hold, every attack's hitbox agrees with its art (the strike
+// is on screen on the active frames and the box reaches where the blade or foot does), a
+// left-facing fighter is mirrored about its anchor, and a whole fuzzed match draws with sprites
+// without a single placeholder body.
 //
 //   npx tsx utils/scripts/verifyZuzuShowdownSprites.test.ts
 
@@ -26,8 +28,10 @@ import {
 import {
   SIM_BUTTONS,
   neutralInput,
+  type Box,
   type FighterData,
   type FighterState,
+  type MoveData,
   type SimInput,
 } from '../zuzuShowdown/types'
 
@@ -159,6 +163,86 @@ check(
           sheets[slug]!.animations[special.id.replace(/-/g, '_')],
           `${slug} ${special.id}`,
         )
+  },
+)
+
+// ---------------------------------------------------------------- hitboxes against the art
+
+// A hitbox may stop short of the art's tip (a blade's last inch shouldn't win trades) but never
+// reach past it by more than a pixel or so of outline, and it sits where the art strikes.
+const SHORT_OF_TIP = 12
+const PAST_TIP = 4
+const VERTICAL_SLACK = 8
+
+function union(boxes: Box[]): Box {
+  const x = Math.min(...boxes.map((b) => b.x))
+  const y = Math.min(...boxes.map((b) => b.y))
+  return {
+    x,
+    y,
+    w: Math.max(...boxes.map((b) => b.x + b.w)) - x,
+    h: Math.max(...boxes.map((b) => b.y + b.h)) - y,
+  }
+}
+
+check(
+  'every attack hitbox agrees with its art: struck on the active frames, reaching where the art does',
+  () => {
+    for (const slug of SPRITE_FIGHTERS) {
+      const data = fighter(slug)
+      const sheet = sheets[slug]!
+      const moves: Array<[string, MoveData]> = [
+        ...Object.entries(data.moves as Record<string, MoveData>),
+        ...data.specials.map((s): [string, MoveData] => [s.id, s.move]),
+      ]
+      let measured = 0
+      for (const [id, move] of moves) {
+        const name = id.replace(/-/g, '_')
+        const anim = sheet.animations[name]
+        // Projectiles, parries, grabs-as-throws and the screen-wide supers have no strike layer.
+        if (!anim?.frames.some((f) => f.hit) || move.hitbox.w <= 0) continue
+        measured += 1
+        // The frames the game actually shows while the hitbox is live (sim.ts hitbox()).
+        const shown: Box[] = []
+        for (let t = move.startup; t < move.startup + move.active; t++) {
+          const attack = { id, heavy: false, frame: t }
+          const pick = pickSprite(
+            stateOf(slug, {
+              action: 'attack',
+              attack: attack as FighterState['attack'],
+            }),
+            sheet,
+          )!
+          assert.equal(pick.name, name, `${slug} ${id} plays its own art`)
+          const hit = anim.frames[pick.index]!.hit
+          assert.ok(
+            hit,
+            `${slug} ${id}: the strike is drawn on active frame ${t}`,
+          )
+          shown.push(hit)
+        }
+        const art = union(shown)
+        const box = move.hitbox
+        const far = box.x + box.w
+        const artFar = art.x + art.w
+        assert.ok(
+          far <= artFar + PAST_TIP && far >= artFar - SHORT_OF_TIP,
+          `${slug} ${id}: hitbox reaches ${far}, the art ${artFar}`,
+        )
+        const label = `${slug} ${id}: hitbox y ${box.y}..${box.y + box.h}, art ${art.y}..${art.y + art.h}`
+        if (!move.grab) {
+          // A command grab takes the whole body; anything else is where its art is.
+          const overlap =
+            Math.min(box.y + box.h, art.y + art.h) - Math.max(box.y, art.y)
+          assert.ok(overlap >= Math.min(4, box.h), label)
+          assert.ok(box.y >= art.y - VERTICAL_SLACK, label)
+          assert.ok(box.y + box.h <= art.y + art.h + VERTICAL_SLACK, label)
+        }
+        // A low has to be drawn reaching the floor.
+        if (move.guard === 'low') assert.ok(art.y <= 4, `${label} (low)`)
+      }
+      assert.ok(measured >= 12, `${slug}: ${measured} attacks measured`)
+    }
   },
 )
 

@@ -15,6 +15,11 @@ export type SpriteFrame = {
   h: number
   anchor: { x: number; y: number }
   hurt?: { x: number; y: number; w: number; h: number }
+  /**
+   * An attack's reach in this frame, measured from the striking layer alone (the blade arm, the
+   * kicking leg), in game units from the fighter's spot like the kits' hitboxes.
+   */
+  hit?: { x: number; y: number; w: number; h: number }
 }
 
 export type SpriteAnimation = {

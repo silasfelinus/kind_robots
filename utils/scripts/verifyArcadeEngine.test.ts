@@ -61,8 +61,13 @@ import {
   type RendererLike,
 } from '../arcade/pinball/render/scene'
 import { initialRules, stepRules } from '../arcade/pinball/rules/engine'
+import {
+  initialShotProgress,
+  recognizeShots,
+} from '../arcade/pinball/rules/shots'
 import { PinballRuntime } from '../arcade/pinball/runtime'
 import { AMI_VILLAGE_GREYBOX } from '../arcade/pinball/tables/amiVillage/table'
+import type { SwitchEvent, Vec3 } from '../arcade/pinball/types'
 import {
   enqueuePending,
   formatChampion,
@@ -972,6 +977,224 @@ function stubRenderer(log: { disposed: number; frames: number }): RendererLike {
   }
 }
 
+async function runPinballShots() {
+  // conductor kind-pinball/t-018: the greybox shot map.
+  const table = AMI_VILLAGE_GREYBOX
+  const glassBottom = 0.12 - 0.005 - table.physical.ballRadiusM
+
+  // The recognizer: a shot is one ball closing its switches in order, each
+  // within the window of the last.
+  let progress = initialShotProgress()
+  const feed = (event: SwitchEvent, tick: number) => {
+    const result = recognizeShots(table.shots, progress, event, tick)
+    progress = result.progress
+    return result.completed.map((shot) => shot.shotId)
+  }
+  const enter = (id: string, ballId = 1): SwitchEvent => ({
+    type: 'sensor-enter',
+    id,
+    ballId,
+  })
+  assert.deepEqual(
+    feed(enter('left-ramp-made'), 0),
+    [],
+    'made alone is no shot',
+  )
+  feed(enter('left-ramp-entry'), 10)
+  assert.deepEqual(feed(enter('left-ramp-made'), 60), ['left-ramp'])
+  feed(enter('left-ramp-entry'), 100)
+  assert.deepEqual(
+    feed(enter('left-ramp-made'), 100 + 241),
+    [],
+    'a ball that took too long did not make the ramp',
+  )
+  feed(enter('left-ramp-entry', 2), 500)
+  assert.deepEqual(
+    feed(enter('left-ramp-made', 3), 510),
+    [],
+    'progress belongs to one ball',
+  )
+  feed(enter('right-orbit-high'), 600)
+  assert.deepEqual(
+    feed(enter('right-orbit-low'), 610),
+    [],
+    'an orbit only counts going up',
+  )
+  feed(enter('left-ramp-entry', 4), 700)
+  feed({ type: 'drain', ballId: 4 }, 701)
+  assert.deepEqual(
+    feed(enter('left-ramp-made', 4), 702),
+    [],
+    'a drain clears the ball',
+  )
+  assert.deepEqual(feed({ type: 'capture', id: 'lock', ballId: 5 }, 800), [
+    'lock',
+  ])
+  assert.deepEqual(
+    feed({ type: 'spin', id: 'spinner', ballId: 5, speed: 2 }, 810),
+    ['spinner'],
+  )
+
+  type Run = { shots: Set<string>; events: SwitchEvent[] }
+  // Shoot one ball and record the shots it makes before it drains.
+  const shoot = (
+    at: Vec3,
+    deg: number,
+    speed: number,
+    options: { dropsDown?: boolean; steps?: number } = {},
+  ): Run => {
+    const physics = new PinballPhysics(RAPIER, table)
+    if (options.dropsDown) knockDownDrops(physics)
+    const rad = (deg * Math.PI) / 180
+    physics.serveBall(at, [Math.cos(rad) * speed, 0, Math.sin(rad) * speed])
+    let shotProgress = initialShotProgress()
+    const shots = new Set<string>()
+    const events: SwitchEvent[] = []
+    for (let tick = 0; tick < (options.steps ?? 120 * 5); tick++) {
+      for (const event of physics.step()) {
+        events.push(event)
+        const result = recognizeShots(table.shots, shotProgress, event, tick)
+        shotProgress = result.progress
+        for (const shot of result.completed) shots.add(shot.shotId)
+      }
+      for (const ball of physics.ballViews()) {
+        assert.ok(ball.position.every(Number.isFinite), 'no NaN ball')
+        assert.ok(
+          ball.position[1] < glassBottom,
+          'the ball stays under the glass',
+        )
+      }
+      if (!physics.ballCount) break
+    }
+    physics.dispose()
+    return { shots, events }
+  }
+  // Knock the A-M-I bank down the way a player does: a ball at each target.
+  function knockDownDrops(physics: PinballPhysics) {
+    for (const drop of table.drops) {
+      physics.serveBall([drop.at[0], 0.0136, -0.25], [0, 0, -1.5])
+      for (let i = 0; i < 30; i++) physics.step()
+    }
+    for (let i = 0; i < 120 * 6 && physics.ballCount; i++) physics.step()
+    assert.equal(physics.ballCount, 0, 'the knocking balls drain')
+    assert.ok(
+      Object.values(physics.dropStates()).every((up) => !up),
+      'all three targets are down',
+    )
+  }
+
+  // Every shot on the map is makeable from a flipper. Each is shot across a
+  // fan of aims and must land at least twice in three, so it is a target
+  // with a window, not a fluke. The award saucer only holds a slow ball (a
+  // firm shot down that line makes the right orbit over it), so it is a soft
+  // shot; the lock is open once the A-M-I targets are down.
+  const left: Vec3 = [-0.05, 0.0135, -0.07]
+  const right: Vec3 = [0.05, 0.0135, -0.07]
+  type Aim = {
+    shot: string
+    at: Vec3
+    deg: number
+    fan: number
+    speed?: number
+    dropsDown?: boolean
+  }
+  const aims: Aim[] = [
+    { shot: 'left-orbit', at: left, deg: -122, fan: 1 },
+    { shot: 'left-ramp', at: left, deg: -107, fan: 2 },
+    { shot: 'upper-feed', at: left, deg: -93, fan: 1 },
+    { shot: 'lock', at: left, deg: -81, fan: 2, dropsDown: true },
+    { shot: 'spinner', at: left, deg: -66, fan: 1 },
+    { shot: 'right-ramp', at: left, deg: -53, fan: 2 },
+    { shot: 'right-orbit', at: left, deg: -45, fan: 2 },
+    { shot: 'award', at: left, deg: -47, fan: 2, speed: 1.2 },
+    { shot: 'right-orbit', at: right, deg: -58, fan: 1 },
+    { shot: 'left-orbit', at: right, deg: -135, fan: 2 },
+  ]
+  for (const aim of aims) {
+    let made = 0
+    for (const d of [aim.deg - aim.fan, aim.deg, aim.deg + aim.fan]) {
+      const run = shoot(aim.at, d, aim.speed ?? 3, {
+        dropsDown: aim.dropsDown,
+      })
+      if (run.shots.has(aim.shot)) made++
+    }
+    assert.ok(made >= 2, `${aim.shot} is makeable (${made}/3 of the fan)`)
+  }
+
+  // A made ramp returns the ball down the inlane to its flipper.
+  const rampRun = shoot(left, -107, 3)
+  const made = rampRun.events.findIndex(
+    (e) => e.type === 'sensor-enter' && e.id === 'left-ramp-made',
+  )
+  assert.ok(made >= 0)
+  assert.ok(
+    rampRun.events
+      .slice(made)
+      .some((e) => e.type === 'contact' && e.id === 'flipper-left'),
+    'the left ramp feeds the left flipper',
+  )
+  // A weak shot falls back down the ramp instead of making it.
+  assert.ok(!shoot(left, -107, 1.6).shots.has('left-ramp'))
+
+  // The lock holds the ball, then sends it by subway to the award saucer.
+  const lockRun = shoot(left, -81, 3, { dropsDown: true, steps: 120 * 6 })
+  const capture = lockRun.events.findIndex(
+    (e) => e.type === 'capture' && e.id === 'lock',
+  )
+  const eject = lockRun.events.findIndex(
+    (e) => e.type === 'eject' && e.id === 'award',
+  )
+  assert.ok(capture >= 0 && eject > capture, 'lock -> subway -> award')
+
+  // The spinner reports the speed the ball passed at.
+  const spin = shoot(left, -67, 3).events.find((e) => e.type === 'spin')
+  assert.ok(spin && spin.type === 'spin' && spin.speed > 0.5)
+
+  // Drop targets fall when hit and stand again when the rules reset them.
+  const drops = new PinballPhysics(RAPIER, table)
+  knockDownDrops(drops)
+  drops.resetDropBank('ami')
+  assert.ok(Object.values(drops.dropStates()).every((up) => up))
+  drops.dispose()
+
+  // The shooter gate is one-way: a plunged ball passes up through it, and a
+  // ball coming back down the lane bounces off it onto the playfield.
+  const gate = table.colliders.find((c) => c.id === 'shooter-gate')
+  assert.ok(gate && gate.kind === 'box' && gate.passDir)
+  const gatePhysics = new PinballPhysics(RAPIER, table)
+  gatePhysics.serveBall([0.28, 0.0136, -0.66], [0, 0, 1.2])
+  for (let i = 0; i < 120 * 3 && gatePhysics.ballCount; i++) {
+    gatePhysics.step()
+    for (const ball of gatePhysics.ballViews()) {
+      assert.ok(
+        !(ball.position[0] > 0.262 && ball.position[2] > -0.55),
+        'a ball cannot fall back into the shooter lane',
+      )
+    }
+  }
+  gatePhysics.dispose()
+
+  // No dead spots: balls left at rest where the old geometry trapped them
+  // (ramp-mouth vees, the inlane bend, the flipper pivots, the channels
+  // behind the centre shots) roll away and drain.
+  for (const [x, z] of [
+    [-0.1, -0.068],
+    [0.1, -0.068],
+    [-0.19, -0.2],
+    [0.19, -0.2],
+    [-0.115, -0.53],
+    [0.11, -0.52],
+    [0.03, -0.53],
+    [-0.04, -0.53],
+  ] as const) {
+    const physics = new PinballPhysics(RAPIER, table)
+    physics.serveBall([x, 0.0136, z], [0, 0, 0])
+    for (let i = 0; i < 120 * 8 && physics.ballCount; i++) physics.step()
+    assert.equal(physics.ballCount, 0, `a ball left at (${x}, ${z}) drains`)
+    physics.dispose()
+  }
+}
+
 async function runPinball3d() {
   // The preview cabinet is reachable but unlisted, WebGL, and never scores.
   const preview = findArcadeGame('kind-pinball-3d')
@@ -1018,7 +1241,7 @@ async function runPinball3d() {
       seen.add(event.type === 'drain' ? 'drain' : `${event.type}:${event.id}`)
     for (const ball of physics.ballViews()) {
       assert.ok(ball.position.every(Number.isFinite), 'no NaN ball')
-      assert.ok(ball.position[1] < 0.07, 'the ball stays under the glass')
+      assert.ok(ball.position[1] < 0.1, 'the ball stays under the glass')
     }
   }
   assert.ok(
@@ -1139,4 +1362,5 @@ async function runPinball3d() {
 await runGames()
 await runCoopGames()
 await runPinball3d()
+await runPinballShots()
 console.log('verifyArcadeEngine: ok')

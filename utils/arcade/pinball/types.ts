@@ -22,6 +22,7 @@ export type MaterialId =
   | 'plastic-printed'
   | 'wood'
   | 'post'
+  | 'ramp'
 
 /** A static box: walls, guides, lane dividers, the apron. */
 export type BoxCollider = {
@@ -33,8 +34,17 @@ export type BoxCollider = {
   half: Vec3
   /** Rotation about the playfield normal (Y), radians. */
   yaw?: number
+  /** Full orientation (x, y, z, w); overrides yaw. Ramps use it to tilt. */
+  quat?: readonly [number, number, number, number]
   material: MaterialId
   restitution?: number
+  /**
+   * A one-way gate: the ball passes freely while moving along this
+   * direction (XZ) and bounces off when moving against it.
+   */
+  passDir?: Vec3
+  /** Not drawn (glass, invisible stops). */
+  hidden?: boolean
 }
 
 /** A static upright cylinder: posts and pop bumper bodies. */
@@ -50,10 +60,68 @@ export type PostCollider = {
   kick?: number
 }
 
-export type ColliderDef = BoxCollider | PostCollider
+/**
+ * A static triangle mesh: ramp floors and rails. One mesh per surface keeps
+ * it seamless, so the ball does not catch on the joints a chain of boxes has.
+ */
+export type MeshCollider = {
+  kind: 'mesh'
+  id: string
+  /** Vertex positions as x, y, z triples, in table space. */
+  vertices: number[]
+  /** Triangles as vertex index triples. */
+  indices: number[]
+  material: MaterialId
+  restitution?: number
+  /** Collide from both sides (rails); floors only push the ball up. */
+  twoSided?: boolean
+  /**
+   * A ramp mouth. The mesh ignores a ball near `at` until the ball's centre
+   * has crossed it along `dir` (XZ), so the floor's leading edge, flush with
+   * the playfield, never bumps a ball rolling up to it.
+   */
+  mouth?: { at: Vec3; dir: Vec3; radius: number }
+  hidden?: boolean
+}
+
+export type ColliderDef = BoxCollider | PostCollider | MeshCollider
 
 /** An invisible switch volume that reports the ball passing through. */
 export type SensorDef = {
+  id: string
+  at: Vec3
+  half: Vec3
+  yaw?: number
+}
+
+/** A drop target: knocked down by a hit, raised again by a mechanism. */
+export type DropTargetDef = {
+  id: string
+  bank: string
+  at: Vec3
+  half: Vec3
+  yaw?: number
+}
+
+/**
+ * A scoop or saucer: a ball that enters slowly enough is captured, held,
+ * then kicked out. A subway scoop sends its ball to another scoop's kicker.
+ */
+export type ScoopDef = {
+  id: string
+  at: Vec3
+  /** Radius of the capture zone around `at`. */
+  radius: number
+  /** Faster balls roll over (saucers); Infinity always captures (holes). */
+  captureMaxSpeed: number
+  holdMs: number
+  eject: { at: Vec3; velocity: Vec3 }
+  /** Eject from this other scoop's kicker instead (a subway). */
+  subwayTo?: string
+}
+
+/** A spinner: a sensor gate across a lane that spins when the ball passes. */
+export type SpinnerDef = {
   id: string
   at: Vec3
   half: Vec3
@@ -90,8 +158,14 @@ export type CameraPreset = {
 export type ShotDef = {
   id: string
   kind: 'ramp' | 'orbit' | 'scoop' | 'lane' | 'target-bank' | 'spinner'
-  /** Sensor ids crossed in order to complete the shot. */
+  /**
+   * Switches the ball must close in this order to complete the shot: sensor
+   * ids (entering), scoop ids (captured) or spinner ids. Order is the
+   * direction: an orbit counts going up, not coming back down.
+   */
   sensors: string[]
+  /** Ticks allowed between consecutive switches (default 2 s). */
+  windowTicks?: number
   displayName: string
 }
 
@@ -108,6 +182,9 @@ export type TableDef = {
   colliders: ColliderDef[]
   sensors: SensorDef[]
   flippers: FlipperDef[]
+  drops: DropTargetDef[]
+  scoops: ScoopDef[]
+  spinners: SpinnerDef[]
   shots: ShotDef[]
   /** Where a new ball sits in the shooter lane, and the lane's launch speed range (m/s). */
   plunger: { rest: Vec3; minSpeed: number; maxSpeed: number }
@@ -121,6 +198,10 @@ export type SwitchEvent =
   | { type: 'sensor-enter'; id: string; ballId: number }
   | { type: 'sensor-exit'; id: string; ballId: number }
   | { type: 'contact'; id: string; ballId: number; impulse: number }
+  | { type: 'capture'; id: string; ballId: number }
+  | { type: 'eject'; id: string; ballId: number }
+  | { type: 'spin'; id: string; ballId: number; speed: number }
+  | { type: 'drop'; id: string; bank: string; ballId: number }
   | { type: 'drain'; ballId: number }
 
 /** What rules consume: a completed shot, never raw coordinates. */

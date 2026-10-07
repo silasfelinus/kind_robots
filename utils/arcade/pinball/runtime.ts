@@ -34,6 +34,8 @@ const PULL_TICKS = 45
 /** A ball this slow for this long, off the plunger, gets a small shove. */
 const STILL_SPEED = 0.01
 const STILL_TICKS = 60 * 4
+/** How often the attract pilot makes a save it goes for. */
+const PILOT_SKILL = 0.8
 
 export class PinballRuntime implements ArcadeWebGLGameInstance {
   readonly renderMode = 'webgl' as const
@@ -44,12 +46,18 @@ export class PinballRuntime implements ArcadeWebGLGameInstance {
   private scene: PinballScene | null = null
   private mixer: PinballMixer
   private rng: () => number
+  /** The attract pilot is tracking a ball coming down at the flippers. */
+  private pilotApproach = false
+  /** ...and has decided to miss this one. */
+  private pilotMisses = false
   private demo: boolean
   private factory: RendererFactory
   private pull = 0
   private nudgeCooldown = 0
   private still = 0
   private tick = 0
+  /** Physics steps taken, the clock the shot recognizer times windows by. */
+  private steps = 0
   private size = { width: 0, height: 0, dpr: 1 }
   private disposed = false
 
@@ -117,8 +125,9 @@ export class PinballRuntime implements ArcadeWebGLGameInstance {
       this.mixer.play('nudge')
     }
     for (let i = 0; i < STEPS_PER_TICK; i++) {
+      this.steps++
       for (const event of this.physics.step())
-        this.apply({ type: 'switch', event })
+        this.apply({ type: 'switch', event, tick: this.steps })
     }
     this.unstick()
   }
@@ -142,7 +151,9 @@ export class PinballRuntime implements ArcadeWebGLGameInstance {
 
   /** A ball resting somewhere odd (not on the plunger) gets a gentle shove. */
   private unstick() {
-    const moving = this.physics.ballViews().some((b) => b.speed > STILL_SPEED)
+    const moving = this.physics
+      .ballViews()
+      .some((b) => b.captured || b.speed > STILL_SPEED)
     if (
       moving ||
       this.physics.ballOnPlunger() ||
@@ -157,7 +168,9 @@ export class PinballRuntime implements ArcadeWebGLGameInstance {
   }
 
   private apply(event: RulesEvent) {
-    const { state, effects } = stepRules(this.rules, event)
+    const { state, effects } = stepRules(this.rules, event, {
+      shots: this.physics.table.shots,
+    })
     this.rules = state
     for (const effect of effects) this.effect(effect)
   }
@@ -172,6 +185,7 @@ export class PinballRuntime implements ArcadeWebGLGameInstance {
         break
       case 'mechanism':
         if (effect.action === 'flash') this.scene?.pulse(effect.id)
+        if (effect.action === 'reset') this.physics.resetDropBank(effect.id)
         break
       default:
         break
@@ -196,20 +210,33 @@ export class PinballRuntime implements ArcadeWebGLGameInstance {
     }
     // Flip only at a ball coming down toward the flippers; a ball at rest
     // gets the flippers dropped so it rolls on rather than being cradled forever.
+    // The pilot misses now and then, as a player does, so the demo drains
+    // its balls and the attract cycle comes round again.
+    let approaching = false
     for (const ball of this.physics.ballViews()) {
       const [x, , z] = ball.position
       const coming = ball.velocity[2] > 0.08
       if (coming && z > -0.08 && z < 0.0) {
+        approaching = true
+        if (!this.pilotApproach) {
+          this.pilotApproach = true
+          this.pilotMisses = this.rng() > PILOT_SKILL
+        }
+        if (this.pilotMisses) continue
         if (x < 0.005) held.left = true
         if (x > -0.005) held.right = true
       }
     }
+    if (!approaching) this.pilotApproach = false
     return frame
   }
 
   render() {
     if (this.disposed || !this.scene) return
-    this.scene.sync(this.physics.ballViews(), this.physics.flipperAngles())
+    this.scene.sync(this.physics.ballViews(), this.physics.flipperAngles(), {
+      drops: this.physics.dropStates(),
+      spinners: this.physics.spinnerAngles(),
+    })
     this.scene.render()
   }
 

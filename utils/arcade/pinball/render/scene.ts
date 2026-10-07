@@ -12,9 +12,16 @@
 
 import * as THREE from 'three'
 import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js'
+import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js'
 import { flipperYaw } from '../physics/world'
 import type { BallView } from '../physics/world'
-import type { CameraPreset, MaterialId, TableDef, Vec3 } from '../types'
+import type {
+  CameraPreset,
+  MaterialId,
+  MeshCollider,
+  TableDef,
+  Vec3,
+} from '../types'
 
 /** The slice of WebGLRenderer the scene uses, so tests can pass a stub. */
 export type RendererLike = {
@@ -60,10 +67,44 @@ const MATERIALS: Record<MaterialId, THREE.MeshStandardMaterialParameters> = {
   'plastic-printed': { color: 0x2dd4bf, roughness: 0.3, metalness: 0 },
   wood: { color: 0x3a2a55, roughness: 0.55, metalness: 0.1 },
   post: { color: 0xf8fafc, roughness: 0.6, metalness: 0 },
+  ramp: {
+    color: 0x7dd3fc,
+    roughness: 0.12,
+    metalness: 0,
+    transparent: true,
+    opacity: 0.45,
+  },
 }
 
 function v3(v: Vec3): THREE.Vector3 {
   return new THREE.Vector3(v[0], v[1], v[2])
+}
+
+/**
+ * A collider mesh as render geometry, with each triangle drawn both ways so
+ * rails and ramp floors read from either side. The UVs are blank so it
+ * merges with the box and cylinder pieces sharing its material.
+ */
+function meshGeometry(def: MeshCollider): THREE.BufferGeometry {
+  const geo = new THREE.BufferGeometry()
+  const reversed: number[] = []
+  for (let i = 0; i < def.indices.length; i += 3) {
+    reversed.push(def.indices[i]!, def.indices[i + 2]!, def.indices[i + 1]!)
+  }
+  geo.setAttribute(
+    'position',
+    new THREE.Float32BufferAttribute(def.vertices, 3),
+  )
+  geo.setAttribute(
+    'uv',
+    new THREE.Float32BufferAttribute(
+      new Array((def.vertices.length / 3) * 2).fill(0),
+      2,
+    ),
+  )
+  geo.setIndex([...def.indices, ...reversed])
+  geo.computeVertexNormals()
+  return geo
 }
 
 export class PinballScene {
@@ -78,6 +119,8 @@ export class PinballScene {
   private ballMaterial: THREE.MeshStandardMaterial
   private balls = new Map<number, THREE.Mesh>()
   private flippers = new Map<string, THREE.Group>()
+  private drops = new Map<string, THREE.Mesh>()
+  private spinners = new Map<string, THREE.Group>()
   private caps = new Map<string, THREE.MeshStandardMaterial>()
   private flash = new Map<string, number>()
   private preset: CameraPreset
@@ -169,41 +212,65 @@ export class PinballScene {
   }
 
   private buildTable() {
+    const pieces = new Map<MaterialId, THREE.BufferGeometry[]>()
+    const add = (
+      material: MaterialId,
+      geo: THREE.BufferGeometry,
+      matrix: THREE.Matrix4,
+    ) => {
+      geo.applyMatrix4(matrix)
+      const list = pieces.get(material) ?? []
+      list.push(geo)
+      pieces.set(material, list)
+    }
+    const one = new THREE.Vector3(1, 1, 1)
     for (const def of this.table.colliders) {
-      if (def.id === 'glass') continue
-      let mesh: THREE.Mesh
+      if (def.kind !== 'post' && def.hidden) continue
+      if (def.kind === 'mesh') {
+        add(def.material, meshGeometry(def), new THREE.Matrix4())
+        continue
+      }
+      const position = v3(def.at)
       if (def.kind === 'box') {
-        const geo = this.track(
+        const quat = def.quat
+          ? new THREE.Quaternion(...def.quat)
+          : new THREE.Quaternion().setFromAxisAngle(
+              new THREE.Vector3(0, 1, 0),
+              def.yaw ?? 0,
+            )
+        add(
+          def.material,
           new THREE.BoxGeometry(
             def.half[0] * 2,
             def.half[1] * 2,
             def.half[2] * 2,
           ),
+          new THREE.Matrix4().compose(position, quat, one),
         )
-        mesh = new THREE.Mesh(geo, this.material(def.material))
-        mesh.rotation.y = def.yaw ?? 0
       } else {
-        const geo = this.track(
+        add(
+          def.kick ? 'post' : def.material,
           new THREE.CylinderGeometry(
             def.radius,
             def.radius * 1.08,
             def.halfHeight * 2,
             32,
           ),
-        )
-        mesh = new THREE.Mesh(
-          geo,
-          this.material(
-            def.kind === 'post' && def.kick ? 'post' : def.material,
-          ),
+          new THREE.Matrix4().compose(position, new THREE.Quaternion(), one),
         )
         if (def.kick) this.addPopCap(def.id, def.at, def.radius, def.halfHeight)
       }
-      mesh.position.copy(v3(def.at))
-      mesh.castShadow = def.id !== 'playfield'
+    }
+    for (const [material, list] of pieces) {
+      const merged = mergeGeometries(list, false)
+      for (const geo of list) geo.dispose()
+      if (!merged) continue
+      const mesh = new THREE.Mesh(this.track(merged), this.material(material))
+      mesh.castShadow = material !== 'playfield' && material !== 'ramp'
       mesh.receiveShadow = true
       this.root.add(mesh)
     }
+    this.buildMechanisms()
     for (const def of this.table.flippers) {
       const group = new THREE.Group()
       group.position.copy(v3(def.pivot))
@@ -218,6 +285,59 @@ export class PinballScene {
       group.add(bat)
       group.rotation.y = flipperYaw(def, def.restAngle)
       this.flippers.set(def.id, group)
+      this.root.add(group)
+    }
+  }
+
+  /** Drop targets, scoop holes and saucer rims, and the spinner plates. */
+  private buildMechanisms() {
+    for (const def of this.table.drops) {
+      const geo = this.track(
+        new THREE.BoxGeometry(
+          def.half[0] * 2,
+          def.half[1] * 2,
+          def.half[2] * 2,
+        ),
+      )
+      const mesh = new THREE.Mesh(geo, this.material('plastic-printed'))
+      mesh.position.copy(v3(def.at))
+      mesh.rotation.y = def.yaw ?? 0
+      mesh.castShadow = true
+      this.drops.set(def.id, mesh)
+      this.root.add(mesh)
+    }
+    const holeMat = this.track(
+      new THREE.MeshStandardMaterial({ color: 0x020205, roughness: 1 }),
+    )
+    for (const def of this.table.scoops) {
+      const floor = def.at[1] - this.table.physical.ballRadiusM
+      const hole = new THREE.Mesh(
+        this.track(new THREE.CircleGeometry(def.radius, 24)),
+        holeMat,
+      )
+      hole.rotation.x = -Math.PI / 2
+      hole.position.set(def.at[0], floor + 0.0008, def.at[2])
+      this.root.add(hole)
+      const rim = new THREE.Mesh(
+        this.track(new THREE.TorusGeometry(def.radius + 0.002, 0.0022, 8, 32)),
+        this.material('chrome'),
+      )
+      rim.rotation.x = -Math.PI / 2
+      rim.position.set(def.at[0], floor + 0.0015, def.at[2])
+      this.root.add(rim)
+    }
+    for (const def of this.table.spinners) {
+      const group = new THREE.Group()
+      group.position.set(def.at[0], def.at[1] + 0.012, def.at[2])
+      group.rotation.y = def.yaw ?? 0
+      const plate = new THREE.Mesh(
+        this.track(new THREE.BoxGeometry(def.half[0] * 1.8, 0.02, 0.0015)),
+        this.material('chrome'),
+      )
+      plate.position.y = -0.008
+      plate.castShadow = true
+      group.add(plate)
+      this.spinners.set(def.id, group)
       this.root.add(group)
     }
   }
@@ -270,7 +390,14 @@ export class PinballScene {
   }
 
   /** Mirror the physics world: balls appear, move and vanish; flippers swing. */
-  sync(balls: BallView[], flipperAngles: Record<string, number>) {
+  sync(
+    balls: BallView[],
+    flipperAngles: Record<string, number>,
+    mechanisms: {
+      drops?: Record<string, boolean>
+      spinners?: Record<string, number>
+    } = {},
+  ) {
     if (this.disposed) return
     const seen = new Set<number>()
     for (const ball of balls) {
@@ -295,6 +422,14 @@ export class PinballScene {
       const angle = flipperAngles[def.id]
       if (group && angle !== undefined)
         group.rotation.y = flipperYaw(def, angle)
+    }
+    for (const [id, up] of Object.entries(mechanisms.drops ?? {})) {
+      const mesh = this.drops.get(id)
+      if (mesh) mesh.visible = up
+    }
+    for (const [id, angle] of Object.entries(mechanisms.spinners ?? {})) {
+      const group = this.spinners.get(id)
+      if (group) group.rotation.x = angle
     }
     for (const [id, level] of this.flash) {
       const mat = this.caps.get(id)

@@ -732,6 +732,18 @@ export const ANIMATION_EFFECTS = [
     generationSafe: true,
     preferredSurface: 'fullscreen',
   },
+  {
+    id: 'snow-globe-village',
+    label: 'Snow Globe Village',
+    reveal: 'A tiny lit village inside a glass globe of settling snow',
+    icon: 'kind-icon:sparkle',
+    tooltip:
+      'Snow drifts down around a tiny village inside a glass globe ❄️ move the pointer to tilt the swirl, click to shake the globe',
+    color: '#bcd4ff',
+    releasedAt: '2026-10-07T08:00:00Z',
+    generationSafe: true,
+    preferredSurface: 'fullscreen',
+  },
 ] as const satisfies readonly AnimationEffectDefinition[]
 
 export type AnimationEffectId = (typeof ANIMATION_EFFECTS)[number]['id']

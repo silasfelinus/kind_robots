@@ -24,6 +24,7 @@ import {
   resolveClipPreset,
   sceneKenBurnsPreset,
   withDefaultKenBurnsPresets,
+  sceneLastFrameImageId,
 } from '../musicVideoMotion.js'
 import { planScenes } from '../musicVideoScenes.js'
 
@@ -237,6 +238,28 @@ console.log(
     scenes: [{ ...scene, motion: { kind: 'clip', lastFrame: 'previous' } }],
   })
   assert.equal(junk.doc.scenes[0]?.motion.lastFrame, undefined)
+
+  // An end keyframe made for the shot wins over next-scene, and survives a save.
+  const next = { image: { source: 'gallery' as const, artImageId: 22 } }
+  assert.equal(
+    sceneLastFrameImageId(scene, next),
+    22,
+    'next-scene uses the next still',
+  )
+  const keyed = { ...scene, motion: { ...scene.motion, lastFrameImageId: 33 } }
+  assert.equal(sceneLastFrameImageId(keyed, next), 33, 'an end keyframe wins')
+  assert.equal(
+    sceneLastFrameImageId({ motion: { kind: 'clip' } }, next),
+    null,
+    'no end frame unless asked',
+  )
+  const keyedTrip = normalizeMusicVideoDoc({ ...portraitDoc, scenes: [keyed] })
+  assert.equal(keyedTrip.doc.scenes[0]?.motion.lastFrameImageId, 33)
+  const badKey = normalizeMusicVideoDoc({
+    ...portraitDoc,
+    scenes: [{ ...scene, motion: { kind: 'clip', lastFrameImageId: -4 } }],
+  })
+  assert.equal(badKey.doc.scenes[0]?.motion.lastFrameImageId, undefined)
 }
 console.log(
   '✅ clips crop to the video aspect at the preset budget, take a motion prompt and an optional last frame',

@@ -165,6 +165,11 @@ export type MusicVideoScene = {
     jobId?: number
     /** End the clip on the next scene's still (first and last frame). */
     lastFrame?: 'next-scene'
+    /**
+     * End the clip on this ArtImage instead: an end keyframe made for the shot,
+     * e.g. the same frame with a dropped knife on the floor. Wins over lastFrame.
+     */
+    lastFrameImageId?: number
   }
   transition: 'cut' | 'crossfade'
   transitionSec: number
@@ -621,6 +626,8 @@ function normalizeScenes(
     if (clipArt) scene.motion.clipArtImageId = clipArt
     if (clipJob) scene.motion.jobId = clipJob
     if (motion.lastFrame === 'next-scene') scene.motion.lastFrame = 'next-scene'
+    const lastFrameImage = positiveInt(motion.lastFrameImageId)
+    if (lastFrameImage) scene.motion.lastFrameImageId = lastFrameImage
     const motionPrompt = text(item.motionPrompt, L.maxPrompt)
     if (motionPrompt) scene.motionPrompt = motionPrompt
     scenes.push(scene)

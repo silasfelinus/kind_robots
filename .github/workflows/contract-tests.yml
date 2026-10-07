@@ -147,6 +147,9 @@ jobs:
       - name: Zuzu Showdown fight simulation
         run: npm run test:zuzu-showdown-sim
 
+      - name: Zuzu Showdown controls and motion reader
+        run: npm run test:zuzu-showdown-input
+
       - name: No Promise in Pinia store state
         run: npm run test:no-promise-in-store-state
 

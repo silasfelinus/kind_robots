@@ -798,6 +798,8 @@ export function step(
   resolveThrows(s, roster, reads)
   resolveHits(s, roster, reads)
   clampToStage(s, roster)
+  // A throw can land the defender against the wall, inside the thrower.
+  separate(s, roster, [s.fighters[0].x, s.fighters[1].x])
   faceEachOther(s)
   checkRoundEnd(s, roster)
   remember(s, inputs)

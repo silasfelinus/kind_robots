@@ -463,6 +463,22 @@ check('holding back on the grab throws the defender to the other side', () => {
   assert.ok(s.fighters[1].x < s.fighters[0].x)
 })
 
+check(
+  'a back-throw against the wall never leaves the fighters inside each other',
+  () => {
+    let s = fightAt(36)
+    const limit = STAGE_HALF_WIDTH * SUB - (ROSTER[0].pushbox.w * SUB) / 2
+    s.fighters[0].x = -limit
+    s.fighters[1].x = -limit + 36 * SUB
+    s = run(s, THROW_STARTUP, tap(THROW, {}, { left: true }))
+    s = run(s, TECH_WINDOW + 2, neutral)
+    const a = pushbox(s.fighters[0], ROSTER[0])
+    const b = pushbox(s.fighters[1], ROSTER[1])
+    assert.ok(Math.min(a.right, b.right) - Math.max(a.left, b.left) <= 0)
+    assert.equal(s.fighters[1].health, ROSTER[1].health - ROSTER[0].throwDamage)
+  },
+)
+
 check('two grabs on the same frame cancel out', () => {
   const log: SimEvent[] = []
   run(fightAt(36), THROW_STARTUP + 1, tap(THROW, THROW), ROSTER, log)
@@ -605,11 +621,13 @@ check('the same input log replays to the same hash on every frame', () => {
 check(
   'fuzzed play keeps every invariant (integers, bounds, health, pushboxes)',
   () => {
-    for (const [seed, roster] of [
-      [11, ROSTER],
-      [12, MIRROR],
-      [13, [PLACEHOLDER_B, PLACEHOLDER_A] as [FighterData, FighterData]],
-    ] as const) {
+    const rosters = [
+      ROSTER,
+      MIRROR,
+      [PLACEHOLDER_B, PLACEHOLDER_A] as [FighterData, FighterData],
+    ]
+    for (let seed = 11; seed < 23; seed += 1) {
+      const roster = rosters[seed % rosters.length]!
       let s = createMatch(roster)
       const script = randomScript(seed)
       for (let i = 0; i < 6000 && s.phase !== 'over'; i += 1) {

@@ -38,6 +38,8 @@ export type SimInput = {
   lk: boolean
   hk: boolean
   dodge: boolean
+  /** Easy Specials: Special plus a direction fires a special move. */
+  special: boolean
 }
 
 export const SIM_BUTTONS = [
@@ -50,6 +52,7 @@ export const SIM_BUTTONS = [
   'lk',
   'hk',
   'dodge',
+  'special',
 ] as const satisfies ReadonlyArray<keyof SimInput>
 
 export function neutralInput(): SimInput {
@@ -63,6 +66,7 @@ export function neutralInput(): SimInput {
     lk: false,
     hk: false,
     dodge: false,
+    special: false,
   }
 }
 

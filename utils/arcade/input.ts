@@ -3,13 +3,13 @@
 // One input model for keyboard, gamepad and the cabinet's on-screen touch
 // controls. Each fixed tick calls poll() and gets what is held plus what went
 // down since the previous poll.
+//
+// ButtonInput is generic over the button set, so a game with more buttons or
+// two players (Zuzu Showdown) reuses the same keyboard, touch, tap and gamepad
+// handling with its own key map and pad reader. ArcadeInput is the cabinet's
+// seven-button instance.
 
-import {
-  ARCADE_BUTTONS,
-  emptyInput,
-  type ArcadeButton,
-  type InputFrame,
-} from './types'
+import { ARCADE_BUTTONS, type ArcadeButton, type InputFrame } from './types'
 
 export const KEY_MAP: Record<string, ArcadeButton> = {
   ArrowUp: 'up',
@@ -31,7 +31,7 @@ export const KEY_MAP: Record<string, ArcadeButton> = {
   NumpadEnter: 'start',
 }
 
-const AXIS_DEADZONE = 0.4
+export const AXIS_DEADZONE = 0.4
 
 /** Standard-mapping gamepad -> abstract buttons (pure, for tests). */
 export function readGamepad(
@@ -52,37 +52,66 @@ export function readGamepad(
 }
 
 /** Fold the raw sources into one frame, deriving edges from the last frame. */
+export function combineButtons<B extends string>(
+  buttons: readonly B[],
+  previous: Partial<Record<B, boolean>>,
+  sources: Array<Partial<Record<B, boolean>>>,
+): { held: Record<B, boolean>; pressed: Record<B, boolean> } {
+  const held = {} as Record<B, boolean>
+  const pressed = {} as Record<B, boolean>
+  for (const button of buttons) {
+    held[button] = sources.some((source) => source[button] === true)
+    pressed[button] = held[button] && !previous[button]
+  }
+  return { held, pressed }
+}
+
+/** The cabinet's seven buttons folded into one frame. */
 export function combineFrame(
   previous: Record<ArcadeButton, boolean>,
   sources: Array<Partial<Record<ArcadeButton, boolean>>>,
 ): InputFrame {
-  const frame = emptyInput()
-  for (const button of ARCADE_BUTTONS) {
-    const held = sources.some((source) => source[button] === true)
-    frame.held[button] = held
-    frame.pressed[button] = held && !previous[button]
-  }
-  return frame
+  return combineButtons(ARCADE_BUTTONS, previous, sources)
 }
 
-export class ArcadeInput {
-  private keys: Partial<Record<ArcadeButton, boolean>> = {}
-  private touch: Partial<Record<ArcadeButton, boolean>> = {}
+export type ButtonInputOptions<B extends string> = {
+  buttons: readonly B[]
+  keyMap: Record<string, B>
+  readPad: (
+    pad: Pick<Gamepad, 'buttons' | 'axes'>,
+  ) => Partial<Record<B, boolean>>
+  /** Read only this gamepad slot; null reads every connected pad. */
+  padIndex?: number | null
+  /** Buttons that stay with a focused <button> or <a> instead of the game. */
+  passThrough?: readonly B[]
+}
+
+export class ButtonInput<B extends string> {
+  private keys: Partial<Record<B, boolean>> = {}
+  private touch: Partial<Record<B, boolean>> = {}
   /** Keys tapped and released between two polls still count once. */
-  private taps: Partial<Record<ArcadeButton, boolean>> = {}
-  private last: Record<ArcadeButton, boolean> = emptyInput().held
+  private taps: Partial<Record<B, boolean>> = {}
+  private last: Partial<Record<B, boolean>> = {}
   private target: Window | null = null
   /** While typing initials, letter and digit keys are text, not buttons. */
   typing = false
 
+  constructor(private options: ButtonInputOptions<B>) {}
+
+  /** Swap the key bindings (remapping) and drop anything held. */
+  setKeyMap(keyMap: Record<string, B>) {
+    this.options = { ...this.options, keyMap }
+    this.keys = {}
+  }
+
   private onKeyDown = (event: KeyboardEvent) => {
-    const button = KEY_MAP[event.code]
+    const button = this.options.keyMap[event.code]
     if (!button) return
     if (event.target instanceof HTMLInputElement) return
     if (this.typing && /^(Key|Digit)/.test(event.code)) return
     // Enter/Space on a focused button or link keep activating it.
     if (
-      (button === 'start' || event.code === 'Space') &&
+      (this.options.passThrough?.includes(button) || event.code === 'Space') &&
       event.target instanceof Element &&
       event.target.closest('button, a')
     ) {
@@ -94,7 +123,7 @@ export class ArcadeInput {
   }
 
   private onKeyUp = (event: KeyboardEvent) => {
-    const button = KEY_MAP[event.code]
+    const button = this.options.keyMap[event.code]
     if (!button) return
     this.keys[button] = false
   }
@@ -119,7 +148,7 @@ export class ArcadeInput {
     this.target = null
   }
 
-  setTouch(button: ArcadeButton, down: boolean) {
+  setTouch(button: B, down: boolean) {
     this.touch[button] = down
     if (down) this.taps[button] = true
   }
@@ -130,20 +159,36 @@ export class ArcadeInput {
     this.taps = {}
   }
 
-  poll(): InputFrame {
-    const sources: Array<Partial<Record<ArcadeButton, boolean>>> = [
+  poll(): { held: Record<B, boolean>; pressed: Record<B, boolean> } {
+    const sources: Array<Partial<Record<B, boolean>>> = [
       this.keys,
       this.touch,
       this.taps,
     ]
     if (typeof navigator !== 'undefined' && navigator.getGamepads) {
-      for (const pad of navigator.getGamepads()) {
-        if (pad) sources.push(readGamepad(pad))
+      const slot = this.options.padIndex ?? null
+      const pads = navigator.getGamepads()
+      for (let index = 0; index < pads.length; index += 1) {
+        const pad = pads[index]
+        if (pad && (slot === null || slot === index)) {
+          sources.push(this.options.readPad(pad))
+        }
       }
     }
-    const frame = combineFrame(this.last, sources)
+    const frame = combineButtons(this.options.buttons, this.last, sources)
     this.last = frame.held
     this.taps = {}
     return frame
+  }
+}
+
+export class ArcadeInput extends ButtonInput<ArcadeButton> {
+  constructor() {
+    super({
+      buttons: ARCADE_BUTTONS,
+      keyMap: KEY_MAP,
+      readPad: readGamepad,
+      passThrough: ['start'],
+    })
   }
 }

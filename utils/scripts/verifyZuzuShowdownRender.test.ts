@@ -3,8 +3,9 @@
 // Zuzu Showdown (conductor zuzu-showdown t-006): the renderer's maths (life
 // bars with red health, meter bars, the camera, the clock), the callouts it
 // derives from sim events, the hit sparks (t-010: on the contact point,
-// coloured by what happened, burning out), and a headless run that draws
-// every frame of a fuzzed match onto a recording stub canvas: nothing throws,
+// coloured by what happened, burning out), the KO slow-down and flash
+// (t-019), and a headless run that draws every frame of a fuzzed match onto a
+// recording stub canvas: nothing throws,
 // nothing draws at a non-finite coordinate, and the HUD stays inside the
 // screen.
 //
@@ -14,6 +15,7 @@ import assert from 'node:assert/strict'
 import { mulberry32 } from '../arcade/curve'
 import {
   INTRO_FRAMES,
+  KO_FRAMES,
   METER_BAR,
   STAGE_HALF_WIDTH,
   createMatch,
@@ -22,9 +24,17 @@ import {
   toWorld,
 } from '../zuzuShowdown/sim'
 import {
+  KO_FLASH_TICKS,
+  KO_SLOW_RATE,
+  KO_SLOW_TICKS,
   SPARK_LIFE,
+  advanceSlowdown,
   advanceSparks,
+  koFlash,
+  koSlowdownFor,
+  slowdownSteps,
   sparkFrame,
+  type KoSlowdown,
   type Spark,
 } from '../zuzuShowdown/effects'
 import {
@@ -292,6 +302,35 @@ check(
       }
       assert.ok(sparked > 0, `seed ${seed} threw sparks`)
     }
+  },
+)
+
+check(
+  'a KO slows the match to a third and flashes once; time over does not',
+  () => {
+    assert.equal(koSlowdownFor([]), null)
+    assert.equal(koSlowdownFor([{ type: 'timeOver', result: 0 }]), null)
+    let k: KoSlowdown = koSlowdownFor([{ type: 'ko', result: 1 }])
+    assert.deepEqual(k, { tick: 0 })
+    assert.equal(koFlash(k, false), 1, 'the flash peaks on the blow')
+    assert.equal(koFlash(k, true), 0, 'no flash under reduced motion')
+    let steps = 0
+    let ticks = 0
+    let lastFlash = 1
+    while (k !== null) {
+      const flash = koFlash(k, false)
+      assert.ok(flash <= lastFlash, 'the flash only fades')
+      if (k.tick >= KO_FLASH_TICKS) assert.equal(flash, 0)
+      lastFlash = flash
+      if (slowdownSteps(k)) steps += 1
+      k = advanceSlowdown(k)
+      ticks += 1
+    }
+    assert.equal(ticks, KO_SLOW_TICKS)
+    assert.equal(steps, KO_SLOW_TICKS / KO_SLOW_RATE)
+    // Full speed again afterwards, and the slow part ends well before the next round.
+    assert.equal(slowdownSteps(null), true)
+    assert.ok(steps < KO_FRAMES / 2)
   },
 )
 

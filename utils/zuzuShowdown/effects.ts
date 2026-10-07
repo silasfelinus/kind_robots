@@ -3,8 +3,10 @@
 // Zuzu Showdown hit effects (conductor zuzu-showdown t-010): a hand-pixel spark where a blow lands,
 // coloured by what happened (a hit, a counter hit, a block, a parry, a clash) and doubled in size
 // for a heavy blow. Sparks are placed where the attacker's hitbox meets the defender's hurtbox, so
-// they sit on the blade tip or the boot, not on the fighter's middle. This module is pure: sim
-// events in, sparks out. render.ts draws them; the stage component ages them each frame.
+// they sit on the blade tip or the boot, not on the fighter's middle. A KO also slows the match to
+// a third of its speed for a moment, with a white flash on the finishing blow (t-019). This module
+// is pure: sim events in, sparks and the slow-down out. render.ts draws the sparks; the stage
+// component ages them each frame and paces the sim by the slow-down.
 
 import { hurtbox, moveOf, toWorld } from './sim'
 import {
@@ -274,4 +276,41 @@ export function advanceSparks(
     .map((spark) => ({ ...spark, age: spark.age + 1 }))
     .filter((spark) => sparkFrame(spark) !== null)
   return [...aged, ...sparksFor(s.events, s, roster)].slice(-12)
+}
+
+// ---------------------------------------------------------------- the KO slow-down
+
+/** After a KO the match plays at a third of its speed for this many screen frames. */
+export const KO_SLOW_TICKS = 72
+/** One sim step every this many screen frames while slowed. */
+export const KO_SLOW_RATE = 3
+/** The white flash on the finishing blow, in screen frames (none under reduced motion). */
+export const KO_FLASH_TICKS = 8
+
+/** Screen frames since the finishing blow, or null when the match runs at full speed. */
+export type KoSlowdown = { tick: number } | null
+
+/**
+ * A KO (a double KO too, but not time over) starts the slow-down. It only changes how often the
+ * stage steps the sim, so the match itself plays out exactly as it would at full speed.
+ */
+export function koSlowdownFor(events: SimEvent[]): KoSlowdown {
+  return events.some((e) => e.type === 'ko') ? { tick: 0 } : null
+}
+
+/** Should the stage step the sim on this screen frame? */
+export function slowdownSteps(k: KoSlowdown): boolean {
+  return k === null || (k.tick + 1) % KO_SLOW_RATE === 0
+}
+
+/** The slow-down a screen frame later; null once it has run its course. */
+export function advanceSlowdown(k: KoSlowdown): KoSlowdown {
+  if (k === null || k.tick + 1 >= KO_SLOW_TICKS) return null
+  return { tick: k.tick + 1 }
+}
+
+/** How strong the KO flash is on this screen frame, from 1 (the blow) to 0. */
+export function koFlash(k: KoSlowdown, reduced: boolean): number {
+  if (k === null || reduced || k.tick >= KO_FLASH_TICKS) return 0
+  return 1 - k.tick / KO_FLASH_TICKS
 }

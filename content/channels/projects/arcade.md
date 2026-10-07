@@ -6,6 +6,7 @@ label: Arcade
 title: Kind Robots Arcade
 subtitle: Free retro cabinets with high scores
 description: Walk up to a row of classic arcade cabinets and play original Kind Robots games inspired by golden-age favourites, with three-initial high score tables, rising difficulty and touch, keyboard or gamepad controls. Free, no account needed.
+summary: Play original Kind Robots arcade games.
 icon: kind-icon:arcade
 image: /images/arcade/arcade-attract-splash.webp
 route: /play/arcade

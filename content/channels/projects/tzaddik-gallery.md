@@ -6,6 +6,7 @@ label: Tzaddikim
 title: Tzaddikim
 subtitle: 36 living "just people" keeping the world running
 description: A playful, sourced gallery of everyday and extraordinary people, plus a historical archive of past honorees. Submit candidates and react to nominations.
+summary: Browse people worth celebrating.
 icon: kind-icon:stars
 image: /images/channels/play/tzaddik-gallery.webp
 route: /tzaddik-gallery

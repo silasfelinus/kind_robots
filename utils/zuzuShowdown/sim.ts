@@ -5,28 +5,52 @@
 //   const next = step(state, [p1Input, p2Input], roster)
 //
 // `step` never mutates its argument and uses integer math only, so a match is
-// a function of (roster, input log). This first slice (conductor
-// zuzu-showdown t-003) covers movement, jumping, crouching, blocking high and
-// low, normals with hit/block stun and hitstop, pushback (onto the attacker at
-// the wall), knockdown and wake-up, throws with a tech window, and rounds
-// (best of three, a 99 s clock, KO, time over, double KO). Chains, cancels,
-// specials, the strike/grab/guard READ!, meter and supers land in t-005.
+// a function of (roster, input log).
+//
+// t-003 (the core): movement, jumping, crouching, blocking high and low with
+// proximity guard, normals with hit/block stun and hitstop, pushback (onto the
+// attacker at the wall), knockdown and wake-up, throws with a tech window, and
+// rounds (best of three, a 99 s clock, KO, time over, double KO).
+//
+// t-005 (combat systems, DESIGN-BRIEF.md "The Showdown triangle", "Combos",
+// "Meter, life and rounds"): chains and cancels, the launcher with a super
+// jump into an air chain, damage scaling, infinite protection (Breakout),
+// specials and supers read by motion.ts (super flash, Showdown supers),
+// projectiles, invulnerability, armor, parries, command grabs, poison, dodge,
+// the strike/grab/guard READ!, counter hits, FIRST ATTACK and REVERSAL, red
+// recoverable health, the three-bar meter, the Combo Breaker, the taunt, and
+// the fling flag for the Siblings.
 
+import {
+  EASY_DAMAGE_PERCENT,
+  dirOf,
+  emptyMotion,
+  pushDir,
+  resolveCommand,
+  type CommandSpec,
+  type Pressed,
+} from './motion'
 import {
   SIM_BUTTONS,
   SUB,
   neutralInput,
   type Action,
   type AttackButton,
+  type AttackLevel,
+  type AttackState,
   type Box,
+  type BufferedButton,
   type Facing,
   type FighterData,
   type FighterState,
+  type FrameWindow,
   type MatchState,
   type MoveData,
   type NormalId,
+  type ReadKind,
   type RoundResult,
   type SimInput,
+  type SpecialMove,
   type WorldBox,
 } from './types'
 
@@ -60,10 +84,64 @@ export const AIRHIT_DRIFT = 2 * SUB
 /** Holding back within this range of an incoming attack guards in place. */
 export const PROXIMITY_GUARD = 140
 
+// Meter: three bars of METER_BAR.
+export const METER_BAR = 1000
+export const METER_MAX = 3 * METER_BAR
+export const READ_METER = 250
+export const TAUNT_METER = 100
+export const BLOCK_METER = 10
+export const BREAKER_COST = 2 * METER_BAR
+
+// Life: this share of every hit's damage stays red and can regenerate.
+export const RED_PERCENT = 40
+export const REGEN_DELAY = 90
+export const REGEN_EVERY = 3
+
+// Combos.
+/** Frames after contact in which a chain or cancel is accepted. */
+export const CANCEL_WINDOW = 14
+export const SCALE_STEP = 10
+export const SCALE_FLOOR = 30
+export const MAX_COMBO_HITS = 30
+export const MIN_HITSTUN = 6
+export const COUNTER_HITSTUN = 4
+export const COUNTER_DAMAGE_PERCENT = 120
+export const LAUNCH_POP = 11 * SUB
+export const SUPER_JUMP_VELOCITY = 12 * SUB
+export const JUMP_CANCEL_WINDOW = 18
+/** The super jump ends up this close (pixels) to the launched opponent. */
+export const SUPER_JUMP_REACH = 20
+export const SUPER_JUMP_CLOSE_FRAMES = 16
+export const BREAKOUT_FRAMES = 24
+export const BREAKER_STUN = 24
+export const BREAKER_PUSH = 60
+export const PARRY_STUN = 22
+export const REVERSAL_WINDOW = 3
+export const TAUNT_FRAMES = 45
+
+/** Dodge: a forward roll through the opponent, or a short back sidestep. */
+export const DODGE = {
+  forward: {
+    frames: 22,
+    invuln: { from: 3, to: 14 },
+    move: { from: 1, to: 14 },
+    speed: 5 * SUB,
+  },
+  back: {
+    frames: 18,
+    invuln: { from: 2, to: 10 },
+    move: { from: 1, to: 10 },
+    speed: 2 * SUB,
+  },
+} as const
+
 type Pair<T> = [T, T]
 type Side = 0 | 1
+type HitKind = 'strike' | 'projectile' | 'throw'
 
 const other = (side: Side): Side => (side === 0 ? 1 : 0)
+const within = (window: FrameWindow, frame: number) =>
+  frame >= window.from && frame <= window.to
 
 // ---------------------------------------------------------------- setup
 
@@ -75,14 +153,24 @@ function freshFighter(data: FighterData, side: Side): FighterState {
     vy: 0,
     facing: side === 0 ? 1 : -1,
     health: data.health,
+    red: 0,
+    meter: 0,
     action: 'idle',
     frame: 0,
     stun: 0,
     attack: null,
+    combo: { hits: 0, damage: 0, moves: [] },
     push: 0,
     jumpDir: 0,
     airAttackUsed: false,
     throwBack: false,
+    dodgeDir: 1,
+    sinceHit: REGEN_DELAY,
+    poison: { left: 0, every: 0 },
+    reversal: 0,
+    jumpCancel: 0,
+    motion: emptyMotion(),
+    buffer: [],
     prev: neutralInput(),
   }
 }
@@ -97,7 +185,10 @@ export function createMatch(roster: Pair<FighterData>): MatchState {
     wins: [0, 0],
     results: [],
     hitstop: 0,
+    freeze: 0,
+    firstAttack: false,
     fighters: [freshFighter(roster[0], 0), freshFighter(roster[1], 1)],
+    projectiles: [],
     events: [{ type: 'roundStart', round: 1 }],
     winner: null,
   }
@@ -107,10 +198,58 @@ function clone<T>(value: T): T {
   return JSON.parse(JSON.stringify(value)) as T
 }
 
+// ---------------------------------------------------------------- moves
+
+function specialOf(data: FighterData, id: string): SpecialMove | undefined {
+  return data.specials.find((special) => special.id === id)
+}
+
+/** The frame data for an attack: a normal, or a special with its heavy overrides. */
+export function moveOf(
+  data: FighterData,
+  attack: Pick<AttackState, 'id' | 'heavy'>,
+): MoveData {
+  const normal = (data.moves as Record<string, MoveData | undefined>)[attack.id]
+  if (normal) return normal
+  const special = specialOf(data, attack.id)
+  if (!special) throw new Error(`zuzuShowdown: unknown move ${attack.id}`)
+  return attack.heavy && special.heavy
+    ? { ...special.move, ...special.heavy }
+    : special.move
+}
+
+function moveTotal(move: MoveData): number {
+  return move.startup + move.active - 1 + move.recovery
+}
+
+function newAttack(
+  id: string,
+  level: AttackLevel,
+  heavy = false,
+  easy = false,
+): AttackState {
+  return {
+    id,
+    level,
+    frame: 1,
+    connected: false,
+    contact: false,
+    hitCount: 0,
+    lastHitFrame: 0,
+    armorUsed: 0,
+    heavy,
+    easy,
+    read: false,
+  }
+}
+
 // ---------------------------------------------------------------- boxes
 
 /** Resolve a pixel box authored facing right into world sub-pixels. */
-export function toWorld(f: FighterState, box: Box): WorldBox {
+export function toWorld(
+  f: Pick<FighterState, 'x' | 'y' | 'facing'>,
+  box: Box,
+): WorldBox {
   const near = box.x * SUB
   const far = (box.x + box.w) * SUB
   const left = f.facing === 1 ? f.x + near : f.x - far
@@ -140,20 +279,20 @@ function isCrouching(f: FighterState): boolean {
   )
 }
 
-/** The live hurtbox, or null while invulnerable (knockdown, wake-up, throws). */
+const FULLY_INVULNERABLE: ReadonlySet<Action> = new Set([
+  'knockdown',
+  'wakeup',
+  'thrown',
+  'throwHold',
+  'tech',
+  'breakout',
+  'ko',
+  'victory',
+])
+
+/** The body box, or null in states nothing can touch (knockdown, throws ...). */
 export function hurtbox(f: FighterState, data: FighterData): WorldBox | null {
-  switch (f.action) {
-    case 'knockdown':
-    case 'wakeup':
-    case 'thrown':
-    case 'throwHold':
-    case 'tech':
-    case 'ko':
-    case 'victory':
-      return null
-    default:
-      break
-  }
+  if (FULLY_INVULNERABLE.has(f.action)) return null
   if (isAirborne(f)) return toWorld(f, data.hurtAir)
   if (isCrouching(f) || (f.action === 'blockstun' && f.prev.down)) {
     return toWorld(f, data.hurtCrouch)
@@ -161,13 +300,38 @@ export function hurtbox(f: FighterState, data: FighterData): WorldBox | null {
   return toWorld(f, data.hurtStand)
 }
 
+/** Invulnerable to this kind of attack right now (dodges, invincible specials). */
+function invulnerable(
+  f: FighterState,
+  data: FighterData,
+  kind: HitKind,
+): boolean {
+  if (FULLY_INVULNERABLE.has(f.action)) return true
+  if (f.action === 'dodge') {
+    const spec = f.dodgeDir === 1 ? DODGE.forward : DODGE.back
+    // Only a dodge's recovery can be grabbed.
+    if (kind === 'throw') return f.frame <= spec.invuln.to
+    return within(spec.invuln, f.frame)
+  }
+  if (f.attack) {
+    const invuln = moveOf(data, f.attack).invuln
+    if (invuln && within(invuln, f.attack.frame) && invuln[kind]) return true
+  }
+  return false
+}
+
 /** The live hitbox of the current attack, or null. */
 export function hitbox(f: FighterState, data: FighterData): WorldBox | null {
   const attack = f.attack
   if (!attack || attack.connected) return null
-  const move = data.moves[attack.id]
-  if (attack.frame < move.startup || attack.frame >= move.startup + move.active)
+  const move = moveOf(data, attack)
+  if (
+    attack.frame < move.startup ||
+    attack.frame >= move.startup + move.active
+  ) {
     return null
+  }
+  if (move.hitbox.w <= 0 || move.hitbox.h <= 0) return null
   return toWorld(f, move.hitbox)
 }
 
@@ -175,12 +339,23 @@ export function pushbox(f: FighterState, data: FighterData): WorldBox {
   return toWorld(f, data.pushbox)
 }
 
-function halfWidth(data: FighterData): number {
-  return Math.trunc((data.pushbox.w * SUB) / 2)
+export function projectileBox(
+  s: MatchState,
+  roster: Pair<FighterData>,
+  index: number,
+): WorldBox | null {
+  const p = s.projectiles[index]
+  if (!p) return null
+  const data = moveOf(roster[p.owner], {
+    id: p.move,
+    heavy: p.heavy,
+  }).projectile
+  if (!data) return null
+  return toWorld({ x: p.x, y: p.y, facing: p.facing }, data.box)
 }
 
-function moveTotal(move: MoveData): number {
-  return move.startup + move.active - 1 + move.recovery
+function halfWidth(data: FighterData): number {
+  return Math.trunc((data.pushbox.w * SUB) / 2)
 }
 
 // ---------------------------------------------------------------- input
@@ -196,6 +371,7 @@ function read(f: FighterState, input: SimInput): Read {
   const pressed = {} as Record<keyof SimInput, boolean>
   for (const button of SIM_BUTTONS)
     pressed[button] = input[button] && !f.prev[button]
+  for (const button of f.buffer) pressed[button] = true
   const forward = f.facing === 1 ? input.right : input.left
   const back = f.facing === 1 ? input.left : input.right
   // Holding both directions is neutral, like an arcade stick can't.
@@ -211,6 +387,10 @@ function wantsThrow(r: Read): boolean {
   return r.held.lp && r.held.lk && (r.pressed.lp || r.pressed.lk)
 }
 
+function wantsTaunt(r: Read): boolean {
+  return r.held.dodge && r.held.hk && (r.pressed.dodge || r.pressed.hk)
+}
+
 /** Heavy wins when several attack buttons go down on the same frame. */
 function pressedAttack(r: Read): AttackButton | null {
   if (r.pressed.hp) return 'hp'
@@ -218,6 +398,28 @@ function pressedAttack(r: Read): AttackButton | null {
   if (r.pressed.lp) return 'lp'
   if (r.pressed.lk) return 'lk'
   return null
+}
+
+function buttonsOf(r: Record<keyof SimInput, boolean> | SimInput): Pressed {
+  return {
+    lp: r.lp,
+    hp: r.hp,
+    lk: r.lk,
+    hk: r.hk,
+    dodge: r.dodge,
+    special: r.special,
+  }
+}
+
+// ---------------------------------------------------------------- events
+
+function gainMeter(f: FighterState, amount: number): void {
+  f.meter = Math.max(0, Math.min(METER_MAX, f.meter + amount))
+}
+
+function scoreRead(s: MatchState, side: Side, kind: ReadKind): void {
+  gainMeter(s.fighters[side], READ_METER)
+  s.events.push({ type: 'read', side, kind })
 }
 
 // ---------------------------------------------------------------- actions
@@ -229,8 +431,13 @@ function setAction(f: FighterState, action: Action, stun = 0): void {
   if (action !== 'attack' && action !== 'jump') f.attack = null
 }
 
-function startAttack(f: FighterState, id: NormalId): void {
-  f.attack = { id, frame: 0, connected: false }
+function startNormal(f: FighterState, id: NormalId): void {
+  if (f.action !== 'jump') {
+    setAction(f, 'attack')
+    f.frame = 1
+    f.vx = 0
+  }
+  f.attack = newAttack(id, 'normal')
 }
 
 /**
@@ -260,18 +467,273 @@ function groundNeutral(
   }
 }
 
+/** Back to neutral after a stun; a special in the next frames is a REVERSAL. */
+function recover(f: FighterState, data: FighterData, r: Read): void {
+  setAction(f, 'idle')
+  f.reversal = REVERSAL_WINDOW
+  groundNeutral(f, data, r)
+}
+
 const ACTIONABLE: ReadonlySet<Action> = new Set(['idle', 'walk', 'crouch'])
 
-/** Input and timers for one fighter, before physics. */
-function think(
+/** What a contact lets this attack cancel into, if anything. */
+function cancelLevel(
+  f: FighterState,
+  data: FighterData,
+): 'special' | 'super' | null {
+  const attack = f.attack
+  if (!attack || !attack.contact) return null
+  if (attack.frame > attack.lastHitFrame + CANCEL_WINDOW) return null
+  if (attack.level === 'super') return null
+  const cancel = moveOf(data, attack).cancel
+  if (!cancel) return null
+  if (attack.level === 'special') return 'super'
+  return cancel
+}
+
+function chainTarget(
   f: FighterState,
   data: FighterData,
   r: Read,
+): NormalId | null {
+  const attack = f.attack
+  if (!attack || attack.level !== 'normal' || !attack.contact) return null
+  if (attack.frame > attack.lastHitFrame + CANCEL_WINDOW) return null
+  const button = pressedAttack(r)
+  if (!button) return null
+  const stance = f.action === 'jump' ? 'jump' : r.held.down ? 'crouch' : 'stand'
+  const next = `${stance}_${button}` as NormalId
+  return data.chains[attack.id as NormalId]?.includes(next) ? next : null
+}
+
+/** The special or super this frame's input fires, honouring meter and cancels. */
+function pickCommand(
+  s: MatchState,
+  side: Side,
+  data: FighterData,
+  r: Read,
+  airborne: boolean,
+  minLevel: 'special' | 'super',
+): { special: SpecialMove; heavy: boolean; easy: boolean } | null {
+  const f = s.fighters[side]
+  const hasProjectile = s.projectiles.some((p) => p.owner === side)
+  const allowed = data.specials.filter(
+    (special) =>
+      (special.air ?? false) === airborne &&
+      (minLevel === 'special' || special.level === 'super') &&
+      f.meter >= (special.move.meterCost ?? 0) &&
+      !(hasProjectile && special.move.projectile),
+  )
+  if (allowed.length === 0) return null
+  const commands: CommandSpec[] = allowed.map((special) => ({
+    id: special.id,
+    motion: special.motion,
+    button: special.button,
+    level: special.level,
+    air: special.air,
+  }))
+  const result = resolveCommand(
+    f.motion,
+    buttonsOf(r.pressed),
+    buttonsOf(r.held),
+    commands,
+    airborne,
+    data.easy,
+  )
+  if (!result) return null
+  const special = allowed.find((candidate) => candidate.id === result.id)
+  if (!special) return null
+  const heavy = result.button === 'hp' || result.button === 'hk'
+  return { special, heavy, easy: result.easy }
+}
+
+function startCommand(
+  s: MatchState,
+  side: Side,
+  special: SpecialMove,
+  heavy: boolean,
+  easy: boolean,
+): void {
+  const f = s.fighters[side]
+  if (special.air) {
+    f.airAttackUsed = true
+  } else {
+    setAction(f, 'attack')
+    f.frame = 1
+    f.vx = 0
+  }
+  f.attack = newAttack(special.id, special.level, heavy, easy)
+  const move =
+    special.heavy && heavy
+      ? { ...special.move, ...special.heavy }
+      : special.move
+  gainMeter(f, -(move.meterCost ?? 0))
+  if (special.level === 'super') {
+    s.events.push({
+      type: 'super',
+      side,
+      move: special.id,
+      showdown: move.showdown === true,
+    })
+  } else {
+    s.events.push({ type: 'special', side, move: special.id, easy })
+  }
+  if (f.reversal > 0) {
+    s.events.push({ type: 'reversal', side, move: special.id })
+    f.reversal = 0
+  }
+  if (move.freeze) s.freeze = Math.max(s.freeze, move.freeze)
+}
+
+function startDodge(f: FighterState, r: Read): void {
+  setAction(f, 'dodge')
+  f.frame = 1
+  f.dodgeDir = r.forward ? 1 : -1
+  f.vx = 0
+}
+
+function comboBreaker(s: MatchState, side: Side): void {
+  const f = s.fighters[side]
+  const o = s.fighters[other(side)]
+  gainMeter(f, -BREAKER_COST)
+  setAction(f, 'breakout', BREAKOUT_FRAMES)
+  f.combo = { hits: 0, damage: 0, moves: [] }
+  const away: Facing = o.x >= f.x ? 1 : -1
+  setAction(o, 'hitstun', BREAKER_STUN)
+  o.vx = 0
+  o.push = away * BREAKER_PUSH * SUB
+  s.events.push({ type: 'breaker', side })
+}
+
+function applyMoveVelocity(f: FighterState, move: MoveData): void {
+  const velocity = move.velocity
+  if (!velocity || !f.attack) return
+  if (within(velocity, f.attack.frame)) {
+    f.vx = velocity.x * f.facing
+    if (velocity.y !== undefined) f.vy = velocity.y
+  } else if (f.y === 0) {
+    f.vx = 0
+  }
+}
+
+/** Advance the current attack one frame: multi-hit rearm, projectile spawn, end. */
+function advanceAttack(
+  s: MatchState,
+  side: Side,
+  data: FighterData,
+  r: Read,
+): void {
+  const f = s.fighters[side]
+  const attack = f.attack
+  if (!attack) return
+  attack.frame += 1
+  const move = moveOf(data, attack)
+  if (
+    attack.connected &&
+    move.hits &&
+    attack.hitCount < move.hits &&
+    attack.frame - attack.lastHitFrame >= (move.rehit ?? 4)
+  ) {
+    attack.connected = false
+  }
+  const projectile = move.projectile
+  if (projectile && attack.frame === projectile.spawnFrame) {
+    if (!s.projectiles.some((p) => p.owner === side)) {
+      s.projectiles.push({
+        owner: side,
+        move: attack.id,
+        heavy: attack.heavy,
+        x: f.x + projectile.spawn.x * SUB * f.facing,
+        y: f.y + projectile.spawn.y * SUB,
+        vx: projectile.speed * f.facing,
+        facing: f.facing,
+        life: projectile.life,
+      })
+    }
+  }
+  applyMoveVelocity(f, move)
+  if (attack.frame > moveTotal(move)) {
+    if (f.action === 'jump') {
+      f.attack = null
+    } else {
+      setAction(f, 'idle')
+      groundNeutral(f, data, r)
+    }
+  }
+}
+
+/** Input and timers for one fighter, before physics. */
+function think(
+  s: MatchState,
+  side: Side,
+  roster: Pair<FighterData>,
+  r: Read,
   threatened: boolean,
 ): void {
+  const f = s.fighters[side]
+  const data = roster[side]
+  const o = s.fighters[other(side)]
   f.frame += 1
+  if (f.reversal > 0) f.reversal -= 1
+  if (f.jumpCancel > 0) f.jumpCancel -= 1
 
-  if (ACTIONABLE.has(f.action)) {
+  // Combo Breaker: Dodge + any attack while being comboed, for two bars.
+  if (
+    (f.action === 'hitstun' || f.action === 'airhit') &&
+    f.combo.hits > 0 &&
+    r.pressed.dodge &&
+    (r.held.lp || r.held.hp || r.held.lk || r.held.hk) &&
+    f.meter >= BREAKER_COST &&
+    o.attack?.level !== 'super'
+  ) {
+    comboBreaker(s, side)
+    return
+  }
+
+  // Specials and supers: from neutral, from the air, or cancelling a hit.
+  const neutralGround = ACTIONABLE.has(f.action)
+  // A 360 passes through up: the jump's pre-jump frames still take a ground
+  // special (jump-cancel leniency).
+  const preJump = f.action === 'prejump'
+  const neutralAir = f.action === 'jump' && !f.attack && f.y > 0
+  const cancel = cancelLevel(f, data)
+  if (neutralGround || preJump || neutralAir || cancel) {
+    const pick = pickCommand(
+      s,
+      side,
+      data,
+      r,
+      f.action === 'jump',
+      neutralGround || preJump || neutralAir ? 'special' : cancel!,
+    )
+    if (pick) {
+      startCommand(s, side, pick.special, pick.heavy, pick.easy)
+      return
+    }
+  }
+
+  // A launcher that hit can be cancelled into a super jump by holding up.
+  if (f.action === 'attack' && f.jumpCancel > 0 && r.held.up) {
+    setAction(f, 'jump')
+    f.attack = null
+    f.vy = SUPER_JUMP_VELOCITY
+    // The super jump follows the launched opponent: it closes to striking
+    // range over the rise.
+    const gap = o.x - f.x - f.facing * SUPER_JUMP_REACH * SUB
+    f.vx = Math.trunc(gap / SUPER_JUMP_CLOSE_FRAMES)
+    f.airAttackUsed = false
+    f.jumpCancel = 0
+    return
+  }
+
+  // Chains: light into heavy, punch into kick, on contact.
+  const chain = chainTarget(f, data, r)
+  if (chain) {
+    startNormal(f, chain)
+    return
+  }
+
+  if (neutralGround) {
     if (wantsThrow(r)) {
       setAction(f, 'throwing')
       // Counted like an attack: the press frame is frame 1 of the startup.
@@ -280,12 +742,20 @@ function think(
       f.vx = 0
       return
     }
+    if (wantsTaunt(r)) {
+      setAction(f, 'taunt', TAUNT_FRAMES)
+      f.vx = 0
+      gainMeter(f, TAUNT_METER)
+      s.events.push({ type: 'taunt', side })
+      return
+    }
+    if (r.pressed.dodge) {
+      startDodge(f, r)
+      return
+    }
     const button = pressedAttack(r)
     if (button) {
-      setAction(f, 'attack')
-      startAttack(f, `${r.held.down ? 'crouch' : 'stand'}_${button}`)
-      f.vx = 0
-      f.attack!.frame = 1
+      startNormal(f, `${r.held.down ? 'crouch' : 'stand'}_${button}`)
       return
     }
     if (r.held.up) {
@@ -309,22 +779,23 @@ function think(
       return
     case 'jump': {
       if (f.attack) {
-        f.attack.frame += 1
-        if (f.attack.frame > moveTotal(data.moves[f.attack.id])) f.attack = null
+        advanceAttack(s, side, data, r)
       } else if (!f.airAttackUsed) {
         const button = pressedAttack(r)
         if (button) {
-          startAttack(f, `jump_${button}`)
-          f.attack!.frame = 1
+          startNormal(f, `jump_${button}`)
           f.airAttackUsed = true
         }
       }
       return
     }
-    case 'attack': {
-      const attack = f.attack!
-      attack.frame += 1
-      if (attack.frame > moveTotal(data.moves[attack.id])) {
+    case 'attack':
+      advanceAttack(s, side, data, r)
+      return
+    case 'dodge': {
+      const spec = f.dodgeDir === 1 ? DODGE.forward : DODGE.back
+      f.vx = within(spec.move, f.frame) ? f.dodgeDir * spec.speed * f.facing : 0
+      if (f.frame >= spec.frames) {
         setAction(f, 'idle')
         groundNeutral(f, data, r)
       }
@@ -336,15 +807,23 @@ function think(
         groundNeutral(f, data, r)
       }
       return
-    case 'hitstun':
-    case 'blockstun':
     case 'tech':
     case 'throwWhiff':
+    case 'taunt':
       f.stun -= 1
       if (f.stun <= 0) {
         setAction(f, 'idle')
         groundNeutral(f, data, r)
       }
+      return
+    case 'hitstun':
+    case 'blockstun':
+      f.stun -= 1
+      if (f.stun <= 0) recover(f, data, r)
+      return
+    case 'breakout':
+      f.stun -= 1
+      if (f.stun <= 0 && f.y === 0) recover(f, data, r)
       return
     case 'knockdown':
       f.stun -= 1
@@ -352,10 +831,7 @@ function think(
       return
     case 'wakeup':
       f.stun -= 1
-      if (f.stun <= 0) {
-        setAction(f, 'idle')
-        groundNeutral(f, data, r)
-      }
+      if (f.stun <= 0) recover(f, data, r)
       return
     default:
       // throwing / throwHold / thrown / airhit / ko / victory are driven
@@ -383,10 +859,10 @@ function physics(f: FighterState, data: FighterData): void {
       f.y = 0
       f.vy = 0
       f.vx = 0
-      f.attack = null
       if (f.action === 'airhit') setAction(f, 'knockdown', KNOCKDOWN_FRAMES)
       else if (f.action === 'jump') setAction(f, 'land')
-      // ko keeps its pose on landing
+      // Ground moves that rose (an uppercut) finish on the ground; ko and
+      // breakout keep their pose.
     }
   }
 }
@@ -408,6 +884,14 @@ function clampToStage(s: MatchState, roster: Pair<FighterData>): void {
       }
     }
   }
+}
+
+function rollingThrough(f: FighterState): boolean {
+  return (
+    f.action === 'dodge' &&
+    f.dodgeDir === 1 &&
+    within(DODGE.forward.move, f.frame)
+  )
 }
 
 function separate(
@@ -435,7 +919,8 @@ function separate(
     else right.x -= overflow
   }
 
-  // Pushboxes never overlap.
+  // Pushboxes never overlap, except while a forward dodge rolls through.
+  if (rollingThrough(a) || rollingThrough(b)) return
   const pa = pushbox(a, roster[0])
   const pb = pushbox(b, roster[1])
   if (!overlaps(pa, pb)) return
@@ -486,6 +971,8 @@ const THROWABLE: ReadonlySet<Action> = new Set([
   'prejump',
   'land',
   'attack',
+  'dodge',
+  'taunt',
   'throwing',
   'throwWhiff',
 ])
@@ -494,6 +981,7 @@ function inThrowRange(
   s: MatchState,
   roster: Pair<FighterData>,
   side: Side,
+  range: number,
 ): boolean {
   const f = s.fighters[side]
   const o = s.fighters[other(side)]
@@ -501,7 +989,11 @@ function inThrowRange(
     Math.abs(f.x - o.x) -
     halfWidth(roster[side]) -
     halfWidth(roster[other(side)])
-  return gap <= roster[side].throwRange * SUB
+  return gap <= range * SUB
+}
+
+function grabbable(d: FighterState, data: FighterData): boolean {
+  return THROWABLE.has(d.action) && d.y === 0 && !invulnerable(d, data, 'throw')
 }
 
 function startTech(s: MatchState, attacker: Side): void {
@@ -513,6 +1005,15 @@ function startTech(s: MatchState, attacker: Side): void {
   a.push = -dir * TECH_PUSH * SUB
   d.push = dir * TECH_PUSH * SUB
   s.events.push({ type: 'tech', attacker })
+}
+
+/** A grab beats a guard: a grab on a blocking or dodging fighter is a READ!. */
+function guarding(d: FighterState, r: Read): boolean {
+  return (
+    d.action === 'dodge' ||
+    d.action === 'blockstun' ||
+    (r.back && ACTIONABLE.has(d.action))
+  )
 }
 
 function resolveThrows(
@@ -533,6 +1034,13 @@ function resolveThrows(
       const a = s.fighters[attacker]
       const damage = roster[attacker].throwDamage
       d.health = Math.max(0, d.health - damage)
+      d.red = Math.min(
+        d.red + Math.trunc((damage * RED_PERCENT) / 100),
+        roster[side].health - d.health,
+      )
+      d.sinceHit = 0
+      gainMeter(a, damage)
+      gainMeter(d, Math.trunc(damage / 2))
       const dir: Facing = a.throwBack ? (-a.facing as Facing) : a.facing
       d.x =
         a.x +
@@ -554,16 +1062,20 @@ function resolveThrows(
       s.fighters[side].action === 'throwing' &&
       s.fighters[side].frame >= THROW_STARTUP,
   )
-  if (ready.length === 2 && inThrowRange(s, roster, 0)) {
+  if (ready.length === 2 && inThrowRange(s, roster, 0, roster[0].throwRange)) {
     // Grab against grab cancels out.
     startTech(s, 0)
     return
   }
   for (const side of ready) {
     const a = s.fighters[side]
-    const d = s.fighters[other(side)]
-    const throwable = THROWABLE.has(d.action) && d.y === 0
-    if (throwable && inThrowRange(s, roster, side)) {
+    const defender = other(side)
+    const d = s.fighters[defender]
+    if (
+      grabbable(d, roster[defender]) &&
+      inThrowRange(s, roster, side, roster[side].throwRange)
+    ) {
+      if (guarding(d, reads[defender])) scoreRead(s, side, 'grab')
       setAction(a, 'throwHold')
       setAction(d, 'thrown')
       d.vx = 0
@@ -577,7 +1089,16 @@ function resolveThrows(
 
 // ---------------------------------------------------------------- hits
 
-type Contact = { attacker: Side; move: MoveData; id: NormalId }
+type Contact = {
+  attacker: Side
+  id: string
+  move: MoveData
+  level: AttackLevel
+  easy: boolean
+  kind: HitKind
+  /** Index into s.projectiles, for projectile contacts. */
+  projectile: number | null
+}
 
 const CAN_BLOCK: ReadonlySet<Action> = new Set([
   'idle',
@@ -585,6 +1106,8 @@ const CAN_BLOCK: ReadonlySet<Action> = new Set([
   'crouch',
   'blockstun',
 ])
+
+const COMBO_STATES: ReadonlySet<Action> = new Set(['hitstun', 'airhit'])
 
 function blocks(d: FighterState, r: Read, move: MoveData): boolean {
   if (d.y !== 0 || !CAN_BLOCK.has(d.action) || !r.back) return false
@@ -594,55 +1117,362 @@ function blocks(d: FighterState, r: Read, move: MoveData): boolean {
   return true
 }
 
+/** Damage for the n-th hit of a combo (Skullgirls-style scaling). */
+export function scaledDamage(
+  base: number,
+  hitIndex: number,
+  level: AttackLevel,
+): number {
+  const scale =
+    hitIndex <= 2
+      ? 100
+      : Math.max(SCALE_FLOOR, 100 - SCALE_STEP * (hitIndex - 2))
+  // Supers shrug off half of the scaling.
+  const applied =
+    level === 'super' ? 100 - Math.trunc((100 - scale) / 2) : scale
+  return Math.max(1, Math.trunc((base * applied) / 100))
+}
+
+function decayedHitstun(hitstun: number, hitIndex: number): number {
+  return Math.max(
+    MIN_HITSTUN,
+    hitstun - Math.trunc(Math.max(0, hitIndex - 4) / 2),
+  )
+}
+
+function takeDamage(
+  d: FighterState,
+  data: FighterData,
+  damage: number,
+  redPercent: number,
+): void {
+  d.health = Math.max(0, d.health - damage)
+  d.red = Math.min(
+    d.red + Math.trunc((damage * redPercent) / 100),
+    data.health - d.health,
+  )
+  d.sinceHit = 0
+}
+
+function contactAttack(s: MatchState, c: Contact): AttackState | null {
+  if (c.projectile !== null) return null
+  return s.fighters[c.attacker].attack
+}
+
+function collectContacts(s: MatchState, roster: Pair<FighterData>): Contact[] {
+  const contacts: Contact[] = []
+  for (const side of [0, 1] as const) {
+    const a = s.fighters[side]
+    const box = hitbox(a, roster[side])
+    if (!box || !a.attack) continue
+    const hurt = hurtbox(s.fighters[other(side)], roster[other(side)])
+    if (hurt && overlaps(box, hurt)) {
+      const move = moveOf(roster[side], a.attack)
+      contacts.push({
+        attacker: side,
+        id: a.attack.id,
+        move,
+        level: a.attack.level,
+        easy: a.attack.easy,
+        kind: move.grab ? 'throw' : 'strike',
+        projectile: null,
+      })
+    }
+  }
+  s.projectiles.forEach((p, index) => {
+    const box = projectileBox(s, roster, index)
+    const defender = other(p.owner)
+    const hurt = hurtbox(s.fighters[defender], roster[defender])
+    if (box && hurt && overlaps(box, hurt)) {
+      contacts.push({
+        attacker: p.owner,
+        id: p.move,
+        move: moveOf(roster[p.owner], { id: p.move, heavy: p.heavy }),
+        level: specialOf(roster[p.owner], p.move)?.level ?? 'special',
+        easy: false,
+        kind: 'projectile',
+        projectile: index,
+      })
+    }
+  })
+  return contacts
+}
+
+function landHit(s: MatchState, roster: Pair<FighterData>, c: Contact): void {
+  const a = s.fighters[c.attacker]
+  const defenderSide = other(c.attacker)
+  const d = s.fighters[defenderSide]
+  const dData = roster[defenderSide]
+  const attack = contactAttack(s, c)
+  const dMove = d.attack ? moveOf(dData, d.attack) : null
+
+  const grabStartup =
+    d.action === 'throwing' ||
+    (d.attack !== null &&
+      dMove?.grab === true &&
+      d.attack.frame < dMove.startup)
+  if (grabStartup) scoreRead(s, c.attacker, 'strike')
+  const counter =
+    d.action === 'throwing' ||
+    (d.attack !== null && dMove !== null && d.attack.frame < dMove.startup)
+
+  if (!(d.combo.hits > 0 && COMBO_STATES.has(d.action))) {
+    d.combo = { hits: 0, damage: 0, moves: [] }
+  }
+  // Infinite protection: a move may land once per combo (a multi-hit move's
+  // later hits and `rapid` moves excepted), and a combo has a hard cap.
+  const continuing = attack !== null && attack.hitCount > 0
+  const repeated = d.combo.moves.includes(c.id) && !c.move.rapid && !continuing
+  if (repeated || d.combo.hits >= MAX_COMBO_HITS) {
+    setAction(d, 'breakout', BREAKOUT_FRAMES)
+    d.combo = { hits: 0, damage: 0, moves: [] }
+    d.push = (a.x <= d.x ? 1 : -1) * 30 * SUB
+    s.events.push({ type: 'breakout', side: defenderSide })
+    return
+  }
+
+  const index = d.combo.hits + 1
+  let damage = scaledDamage(c.move.damage, index, c.level)
+  if (c.easy) damage = Math.trunc((damage * EASY_DAMAGE_PERCENT) / 100)
+  if (counter) damage = Math.trunc((damage * COUNTER_DAMAGE_PERCENT) / 100)
+  takeDamage(d, dData, damage, RED_PERCENT)
+  d.combo.hits = index
+  d.combo.damage += damage
+  if (!continuing) d.combo.moves.push(c.id)
+  if (c.level !== 'super') gainMeter(a, damage)
+  gainMeter(d, Math.trunc(damage / 2))
+
+  if (!s.firstAttack) {
+    s.firstAttack = true
+    s.events.push({ type: 'firstAttack', side: c.attacker })
+  }
+  if (c.move.poison)
+    d.poison = { left: c.move.poison.frames, every: c.move.poison.every }
+
+  const away: Facing = a.x <= d.x ? 1 : -1
+  if (c.move.launcher && d.y === 0) {
+    setAction(d, 'airhit')
+    d.vy = LAUNCH_POP
+    d.vx = 0
+    a.jumpCancel = JUMP_CANCEL_WINDOW
+  } else if (isAirborne(d)) {
+    setAction(d, 'airhit')
+    d.vy = AIRHIT_POP
+    d.vx = away * AIRHIT_DRIFT
+  } else if (c.move.knockdown) {
+    setAction(d, 'knockdown', KNOCKDOWN_FRAMES)
+    d.vx = 0
+    d.push = away * c.move.pushback * SUB
+  } else {
+    const stun =
+      decayedHitstun(c.move.hitstun, index) + (counter ? COUNTER_HITSTUN : 0)
+    setAction(d, 'hitstun', stun)
+    d.vx = 0
+    d.push = away * c.move.pushback * SUB
+  }
+  s.hitstop = Math.max(s.hitstop, c.move.hitstop)
+  s.events.push({
+    type: 'hit',
+    attacker: c.attacker,
+    move: c.id,
+    damage,
+    combo: index,
+    counter,
+  })
+  if (c.move.fling && dData.childGuard) {
+    s.events.push({ type: 'fling', attacker: c.attacker, move: c.id })
+  }
+}
+
+function commandGrab(
+  s: MatchState,
+  roster: Pair<FighterData>,
+  reads: Pair<Read>,
+  c: Contact,
+): boolean {
+  const a = s.fighters[c.attacker]
+  const defenderSide = other(c.attacker)
+  const d = s.fighters[defenderSide]
+  const dData = roster[defenderSide]
+  if (!grabbable(d, dData)) return false
+  if (guarding(d, reads[defenderSide])) scoreRead(s, c.attacker, 'grab')
+  let damage = c.move.damage
+  if (c.easy) damage = Math.trunc((damage * EASY_DAMAGE_PERCENT) / 100)
+  takeDamage(d, dData, damage, RED_PERCENT)
+  gainMeter(a, damage)
+  gainMeter(d, Math.trunc(damage / 2))
+  const dir = a.facing
+  d.x = a.x + dir * (halfWidth(roster[c.attacker]) + halfWidth(dData) + 8 * SUB)
+  setAction(d, 'knockdown', KNOCKDOWN_FRAMES)
+  s.hitstop = Math.max(s.hitstop, c.move.hitstop)
+  s.events.push({ type: 'throw', attacker: c.attacker, damage })
+  if (c.move.fling && dData.childGuard) {
+    s.events.push({ type: 'fling', attacker: c.attacker, move: c.id })
+  }
+  return true
+}
+
 function resolveHits(
   s: MatchState,
   roster: Pair<FighterData>,
   reads: Pair<Read>,
 ): void {
-  const contacts: Contact[] = []
-  for (const side of [0, 1] as const) {
-    const a = s.fighters[side]
-    const box = hitbox(a, roster[side])
-    if (!box) continue
-    const hurt = hurtbox(s.fighters[other(side)], roster[other(side)])
-    if (hurt && overlaps(box, hurt)) {
-      const id = a.attack!.id
-      contacts.push({ attacker: side, move: roster[side].moves[id], id })
+  // Two projectiles that meet cancel out.
+  const spent = new Set<number>()
+  for (let i = 0; i < s.projectiles.length; i += 1) {
+    for (let j = i + 1; j < s.projectiles.length; j += 1) {
+      if (s.projectiles[i]!.owner === s.projectiles[j]!.owner) continue
+      const bi = projectileBox(s, roster, i)
+      const bj = projectileBox(s, roster, j)
+      if (bi && bj && overlaps(bi, bj)) {
+        spent.add(i)
+        spent.add(j)
+        s.events.push({ type: 'clash' })
+      }
     }
   }
+
+  const contacts = collectContacts(s, roster).filter(
+    (c) => c.projectile === null || !spent.has(c.projectile),
+  )
   // Both contacts apply together, so simultaneous hits trade: mark every
-  // contact before any hit reaction can clear the other fighter's attack.
-  for (const { attacker } of contacts)
-    s.fighters[attacker].attack!.connected = true
-  for (const { attacker, move, id } of contacts) {
-    const a = s.fighters[attacker]
-    const defenderSide = other(attacker)
+  // melee contact before any reaction can clear the other fighter's attack.
+  for (const c of contacts) {
+    const attack = contactAttack(s, c)
+    if (attack) attack.connected = true
+  }
+
+  for (const c of contacts) {
+    const defenderSide = other(c.attacker)
     const d = s.fighters[defenderSide]
-    const away = a.x <= d.x ? 1 : -1
-    if (blocks(d, reads[defenderSide], move)) {
-      setAction(d, 'blockstun', move.blockstun)
-      d.vx = 0
-      d.push = away * move.pushback * SUB
-      s.hitstop = Math.max(s.hitstop, move.hitstop - 2)
-      s.events.push({ type: 'block', attacker, move: id })
+    const dData = roster[defenderSide]
+    const attack = contactAttack(s, c)
+
+    if (invulnerable(d, dData, c.kind)) {
+      // The move passes through; its hitbox stays live for later frames.
+      if (attack) attack.connected = false
+      if (d.action === 'dodge' && c.kind !== 'throw') {
+        if (attack && !attack.read) {
+          attack.read = true
+          scoreRead(s, defenderSide, 'guard')
+        }
+      }
       continue
     }
-    d.health = Math.max(0, d.health - move.damage)
-    if (isAirborne(d)) {
-      setAction(d, 'airhit')
-      d.vy = AIRHIT_POP
-      d.vx = away * AIRHIT_DRIFT
-    } else if (move.knockdown) {
-      setAction(d, 'knockdown', KNOCKDOWN_FRAMES)
-      d.vx = 0
-      d.push = away * move.pushback * SUB
-    } else {
-      setAction(d, 'hitstun', move.hitstun)
-      d.vx = 0
-      d.push = away * move.pushback * SUB
+
+    if (c.kind === 'throw') {
+      if (!commandGrab(s, roster, reads, c) && attack) attack.connected = false
+      continue
     }
-    s.hitstop = Math.max(s.hitstop, move.hitstop)
-    s.events.push({ type: 'hit', attacker, move: id, damage: move.damage })
+
+    if (c.projectile !== null) spent.add(c.projectile)
+    const markContact = () => {
+      if (!attack) return
+      attack.contact = true
+      attack.hitCount += 1
+      attack.lastHitFrame = attack.frame
+    }
+
+    // Parry: the defender's parry window catches the strike.
+    const dMove = d.attack ? moveOf(dData, d.attack) : null
+    if (d.attack && dMove?.parry && within(dMove.parry, d.attack.frame)) {
+      d.attack.contact = true
+      d.attack.lastHitFrame = d.attack.frame
+      scoreRead(s, defenderSide, 'guard')
+      s.events.push({ type: 'parry', side: defenderSide })
+      s.hitstop = Math.max(s.hitstop, 10)
+      if (c.kind === 'strike') {
+        const a = s.fighters[c.attacker]
+        takeDamage(a, roster[c.attacker], dMove.parry.damage, RED_PERCENT)
+        setAction(a, 'hitstun', PARRY_STUN)
+        a.vx = 0
+        s.events.push({
+          type: 'hit',
+          attacker: defenderSide,
+          move: d.attack.id,
+          damage: dMove.parry.damage,
+          combo: 1,
+          counter: true,
+        })
+      }
+      continue
+    }
+
+    if (blocks(d, reads[defenderSide], c.move)) {
+      const chip = c.move.chip ?? 0
+      if (chip > 0) takeDamage(d, dData, chip, 100)
+      setAction(d, 'blockstun', c.move.blockstun)
+      d.vx = 0
+      d.push =
+        (s.fighters[c.attacker].x <= d.x ? 1 : -1) * c.move.pushback * SUB
+      gainMeter(d, BLOCK_METER)
+      gainMeter(s.fighters[c.attacker], Math.trunc(c.move.damage / 4))
+      s.hitstop = Math.max(s.hitstop, c.move.hitstop - 2)
+      s.events.push({ type: 'block', attacker: c.attacker, move: c.id, chip })
+      markContact()
+      continue
+    }
+
+    // Armor soaks the hit: the damage lands, the stun doesn't.
+    if (
+      d.attack &&
+      dMove?.armor &&
+      within(dMove.armor, d.attack.frame) &&
+      d.attack.armorUsed < dMove.armor.hits
+    ) {
+      d.attack.armorUsed += 1
+      takeDamage(d, dData, c.move.damage, RED_PERCENT)
+      s.hitstop = Math.max(s.hitstop, c.move.hitstop)
+      s.events.push({ type: 'armor', side: defenderSide })
+      markContact()
+      continue
+    }
+
+    landHit(s, roster, c)
+    markContact()
+  }
+
+  s.projectiles = s.projectiles.filter((_, index) => !spent.has(index))
+}
+
+function moveProjectiles(s: MatchState): void {
+  const edge = STAGE_HALF_WIDTH * SUB
+  s.projectiles = s.projectiles
+    .map((p) => ({ ...p, x: p.x + p.vx, life: p.life - 1 }))
+    .filter((p) => p.life > 0 && Math.abs(p.x) <= edge)
+}
+
+// ---------------------------------------------------------------- life
+
+const NO_REGEN: ReadonlySet<Action> = new Set([
+  'hitstun',
+  'blockstun',
+  'airhit',
+  'knockdown',
+  'thrown',
+])
+
+function tickLife(s: MatchState): void {
+  for (const f of s.fighters) {
+    f.sinceHit = Math.min(f.sinceHit + 1, 100000)
+    if (f.poison.left > 0) {
+      f.poison.left -= 1
+      // Poison drains as red health and never finishes anyone.
+      if (f.poison.left % f.poison.every === 0 && f.health > 1) {
+        f.health -= 1
+        f.red += 1
+      }
+      continue
+    }
+    if (
+      f.red > 0 &&
+      f.sinceHit > REGEN_DELAY &&
+      !NO_REGEN.has(f.action) &&
+      s.frame % REGEN_EVERY === 0
+    ) {
+      f.health += 1
+      f.red -= 1
+    }
   }
 }
 
@@ -663,6 +1493,7 @@ function endRound(s: MatchState, result: RoundResult, timeOver: boolean): void {
   s.phase = 'ko'
   s.phaseFrame = 0
   s.results.push(result)
+  s.projectiles = []
   if (result !== 'draw') s.wins[result] += 1
   for (const f of s.fighters) {
     if (f.health > 0) continue
@@ -702,10 +1533,15 @@ function nextRoundOrOver(s: MatchState, roster: Pair<FighterData>): void {
   s.phaseFrame = 0
   s.timer = ROUND_FRAMES
   s.hitstop = 0
-  const prev: Pair<SimInput> = [s.fighters[0].prev, s.fighters[1].prev]
+  s.freeze = 0
+  s.firstAttack = false
+  const old = s.fighters
   s.fighters = [freshFighter(roster[0], 0), freshFighter(roster[1], 1)]
-  s.fighters[0].prev = prev[0]
-  s.fighters[1].prev = prev[1]
+  for (const side of [0, 1] as const) {
+    // Meter carries between rounds; everything else resets.
+    s.fighters[side].meter = old[side].meter
+    s.fighters[side].prev = old[side].prev
+  }
   s.events.push({ type: 'roundStart', round: s.round })
 }
 
@@ -718,16 +1554,68 @@ function threatens(
   side: Side,
 ): boolean {
   const a = s.fighters[side]
+  const target = s.fighters[other(side)]
+  const range = PROXIMITY_GUARD * SUB
+  // A projectile on its way counts too.
+  if (
+    s.projectiles.some(
+      (p) => p.owner === side && Math.abs(p.x - target.x) <= range,
+    )
+  ) {
+    return true
+  }
   const attack = a.attack
   if (!attack || attack.connected) return false
-  const move = roster[side].moves[attack.id]
+  const move = moveOf(roster[side], attack)
   if (attack.frame >= move.startup + move.active) return false
-  return Math.abs(a.x - s.fighters[other(side)].x) <= PROXIMITY_GUARD * SUB
+  return Math.abs(a.x - target.x) <= range
 }
 
 function remember(s: MatchState, inputs: Pair<SimInput>): void {
   s.fighters[0].prev = { ...inputs[0] }
   s.fighters[1].prev = { ...inputs[1] }
+}
+
+const BUFFERABLE: readonly BufferedButton[] = [
+  'lp',
+  'hp',
+  'lk',
+  'hk',
+  'dodge',
+  'special',
+]
+
+/** Presses made during a freeze wait for the first free frame. */
+function bufferPresses(s: MatchState, inputs: Pair<SimInput>): void {
+  for (const side of [0, 1] as const) {
+    const f = s.fighters[side]
+    for (const button of BUFFERABLE) {
+      if (
+        inputs[side][button] &&
+        !f.prev[button] &&
+        !f.buffer.includes(button)
+      ) {
+        f.buffer.push(button)
+      }
+    }
+  }
+  remember(s, inputs)
+}
+
+/** Every frame of the fight, frozen or not, feeds the motion reader. */
+function recordMotion(s: MatchState, inputs: Pair<SimInput>): void {
+  for (const side of [0, 1] as const) {
+    const f = s.fighters[side]
+    f.motion = pushDir(f.motion, dirOf(inputs[side], f.facing))
+  }
+}
+
+function resetFinishedCombos(s: MatchState): void {
+  for (const f of s.fighters) {
+    if (f.combo.hits > 0 && !COMBO_STATES.has(f.action)) {
+      f.combo = { hits: 0, damage: 0, moves: [] }
+    }
+  }
 }
 
 /** Advance the match by one 60 Hz frame. Pure: returns a new state. */
@@ -776,23 +1664,40 @@ export function step(
       break
   }
 
-  // Hitstop freezes everything. The previous input is kept, so a button
-  // pressed during the freeze still registers as a press when it ends.
-  if (s.hitstop > 0) {
-    s.hitstop -= 1
+  // A super flash and hitstop freeze everything. Directions still feed the
+  // motion reader, and presses made during the freeze are buffered for the
+  // first free frame (that is how chains and cancels are timed).
+  if (s.freeze > 0 || s.hitstop > 0) {
+    if (s.freeze > 0) s.freeze -= 1
+    else s.hitstop -= 1
+    recordMotion(s, inputs)
+    bufferPresses(s, inputs)
     return s
   }
 
+  recordMotion(s, inputs)
   const reads: Pair<Read> = [
     read(s.fighters[0], inputs[0]),
     read(s.fighters[1], inputs[1]),
   ]
   const startX: Pair<number> = [s.fighters[0].x, s.fighters[1].x]
+  const threatened: Pair<boolean> = [
+    threatens(s, roster, 1),
+    threatens(s, roster, 0),
+  ]
 
-  think(s.fighters[0], roster[0], reads[0], threatens(s, roster, 1))
-  think(s.fighters[1], roster[1], reads[1], threatens(s, roster, 0))
+  think(s, 0, roster, reads[0], threatened[0])
+  think(s, 1, roster, reads[1], threatened[1])
+  s.fighters[0].buffer = []
+  s.fighters[1].buffer = []
+  // A super flash that just started freezes the rest of this frame too.
+  if (s.freeze > 0) {
+    remember(s, inputs)
+    return s
+  }
   physics(s.fighters[0], roster[0])
   physics(s.fighters[1], roster[1])
+  moveProjectiles(s)
   clampToStage(s, roster)
   separate(s, roster, startX)
   resolveThrows(s, roster, reads)
@@ -801,6 +1706,8 @@ export function step(
   // A throw can land the defender against the wall, inside the thrower.
   separate(s, roster, [s.fighters[0].x, s.fighters[1].x])
   faceEachOther(s)
+  tickLife(s)
+  resetFinishedCombos(s)
   checkRoundEnd(s, roster)
   remember(s, inputs)
   return s

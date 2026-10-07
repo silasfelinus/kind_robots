@@ -14,6 +14,7 @@ import {
   INTRO_FRAMES,
   KNOCKDOWN_FRAMES,
   KO_FRAMES,
+  METER_MAX,
   MAX_SEPARATION,
   ROUND_FRAMES,
   STAGE_HALF_WIDTH,
@@ -248,7 +249,15 @@ check('a standing jab hits an idle opponent with hitstop and hitstun', () => {
   }
   t = step(t, [N, N], ROSTER)
   assert.deepEqual(t.events, [
-    { type: 'hit', attacker: 0, move: 'stand_lp', damage: 30 },
+    { type: 'firstAttack', side: 0 },
+    {
+      type: 'hit',
+      attacker: 0,
+      move: 'stand_lp',
+      damage: 30,
+      combo: 1,
+      counter: false,
+    },
   ])
   assert.equal(t.fighters[1].health, ROSTER[1].health - 30)
   assert.equal(t.fighters[1].action, 'hitstun')
@@ -275,7 +284,9 @@ check('holding back blocks a mid: no damage, blockstun', () => {
     ROSTER,
     log,
   )
-  assert.deepEqual(log, [{ type: 'block', attacker: 0, move: 'stand_lp' }])
+  assert.deepEqual(log, [
+    { type: 'block', attacker: 0, move: 'stand_lp', chip: 0 },
+  ])
   assert.equal(after.fighters[1].health, ROSTER[1].health)
 })
 
@@ -288,7 +299,10 @@ check('a low must be blocked crouching', () => {
     ROSTER,
     standing,
   )
-  assert.equal(standing[0]?.type, 'hit')
+  assert.equal(
+    standing.find((e) => e.type === 'hit' || e.type === 'block')?.type,
+    'hit',
+  )
   const crouching: SimEvent[] = []
   run(
     fightAt(50),
@@ -302,7 +316,10 @@ check('a low must be blocked crouching', () => {
     ROSTER,
     crouching,
   )
-  assert.equal(crouching[0]?.type, 'block')
+  assert.equal(
+    crouching.find((e) => e.type === 'hit' || e.type === 'block')?.type,
+    'block',
+  )
 })
 
 function jumpIn(defender: Partial<SimInput>): SimEvent[] {
@@ -346,35 +363,32 @@ check('simultaneous jabs trade', () => {
   assert.equal(s.fighters[1].health, ROSTER[1].health - 30)
 })
 
-check(
-  'a sweep knocks down, and the knockdown and wake-up are invulnerable',
-  () => {
-    let s = fightAt(60)
-    const log: SimEvent[] = []
-    s = run(
-      s,
-      12,
-      tap({ down: true, hk: true }, {}, { down: true }),
-      ROSTER,
-      log,
-    )
-    assert.equal(log[0]?.type, 'hit')
-    assert.equal(s.fighters[1].action, 'knockdown')
-    assert.equal(hurtbox(s.fighters[1], ROSTER[1]), null)
-    // Swing at the downed fighter the whole time: nothing connects.
-    const later: SimEvent[] = []
-    s = run(
-      s,
-      KNOCKDOWN_FRAMES + WAKEUP_FRAMES - 5,
-      (i) => [press({ lp: i % 14 === 0 }), N],
-      ROSTER,
-      later,
-    )
-    assert.equal(later.filter((e) => e.type === 'hit').length, 0)
-    s = run(s, 40, neutral)
-    assert.equal(s.fighters[1].action, 'idle')
-  },
-)
+check('a knockdown and the wake-up after it are invulnerable', () => {
+  let s = fightAt(36)
+  const log: SimEvent[] = []
+  s = run(
+    s,
+    THROW_STARTUP + TECH_WINDOW + 1,
+    tap({ lp: true, lk: true }),
+    ROSTER,
+    log,
+  )
+  assert.ok(log.some((e) => e.type === 'throw'))
+  assert.equal(s.fighters[1].action, 'knockdown')
+  assert.equal(hurtbox(s.fighters[1], ROSTER[1]), null)
+  // Swing at the downed fighter the whole time: nothing connects.
+  const later: SimEvent[] = []
+  s = run(
+    s,
+    KNOCKDOWN_FRAMES + WAKEUP_FRAMES - 5,
+    (i) => [press({ lp: i % 14 === 0 }), N],
+    ROSTER,
+    later,
+  )
+  assert.equal(later.filter((e) => e.type === 'hit').length, 0)
+  s = run(s, 40, neutral)
+  assert.equal(s.fighters[1].action, 'idle')
+})
 
 check(
   'a hit in the air pops the defender and knocks them down on landing',
@@ -496,7 +510,11 @@ check('a strike stuffs a grab during its startup (strike beats grab)', () => {
     'hit',
   )
   assert.equal(s.fighters[1].health, ROSTER[1].health)
-  assert.equal(s.fighters[0].health, ROSTER[0].health - 30)
+  // Stuffing a grab's startup is a counter hit (120%) and a READ!.
+  assert.equal(s.fighters[0].health, ROSTER[0].health - 36)
+  assert.ok(
+    log.some((e) => e.type === 'read' && e.side === 1 && e.kind === 'strike'),
+  )
 })
 
 check('a grab out of range whiffs', () => {
@@ -637,10 +655,21 @@ check(
         for (const side of [0, 1] as const) {
           const f = s.fighters[side]
           const data = roster[side]
-          for (const n of [f.x, f.y, f.vx, f.vy, f.health, f.push]) {
+          for (const n of [
+            f.x,
+            f.y,
+            f.vx,
+            f.vy,
+            f.health,
+            f.push,
+            f.meter,
+            f.red,
+          ]) {
             assert.ok(Number.isInteger(n), `non-integer state on frame ${i}`)
           }
           assert.ok(f.health >= 0 && f.health <= data.health)
+          assert.ok(f.meter >= 0 && f.meter <= METER_MAX)
+          assert.ok(f.red >= 0 && f.health + f.red <= data.health)
           assert.ok(f.y >= 0)
           assert.ok(Math.abs(f.x) <= STAGE_HALF_WIDTH * SUB)
           const box = hitbox(f, data)
@@ -649,7 +678,10 @@ check(
         if (
           s.phase === 'fight' &&
           s.fighters[0].y === 0 &&
-          s.fighters[1].y === 0
+          s.fighters[1].y === 0 &&
+          // A forward dodge rolls through the opponent on purpose.
+          s.fighters[0].action !== 'dodge' &&
+          s.fighters[1].action !== 'dodge'
         ) {
           const a = pushbox(s.fighters[0], roster[0])
           const b = pushbox(s.fighters[1], roster[1])

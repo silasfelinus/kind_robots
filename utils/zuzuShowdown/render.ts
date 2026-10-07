@@ -10,7 +10,7 @@
 // Everything here reads the sim state and never changes it. Sprite art
 // replaces drawFighter and the stage layers in the art tasks (t-009, t-010+).
 
-import { drawText } from '../arcade/font'
+import { FONT_HEIGHT, drawText, measureText } from '../arcade/font'
 import { SPARK_PALETTES, SPARK_PIXELS, sparkFrame, type Spark } from './effects'
 import {
   drawSprite,
@@ -18,6 +18,23 @@ import {
   type LoadedSprites,
   type SpriteContext,
 } from './sprites'
+import {
+  CROC_EYES,
+  STAGE_INK,
+  TUMBLEWEED,
+  VULTURE,
+  bellAngle,
+  crocEyesAt,
+  layerX,
+  smokePuffs,
+  tumbleweedAt,
+  vulturesAt,
+  waterGlints,
+  type LoadedStage,
+  type PixelSprite,
+  type StageFx,
+  type StageLayer,
+} from './stages'
 import {
   METER_BAR,
   STAGE_HALF_WIDTH,
@@ -51,6 +68,10 @@ export type RenderOptions = {
   sprites?: Partial<Record<string, LoadedSprites>>
   /** Hit sparks in flight (effects.ts advanceSparks). */
   sparks?: Spark[]
+  /** The stage's art, once loaded; until then the placeholder stage draws. */
+  stage?: LoadedStage
+  /** The stage event's state (stages.ts advanceStageFx). */
+  stageFx?: StageFx
 }
 
 /** A fighter's own look, or the side colours; P2 in a mirror match gets the alternate. */
@@ -303,6 +324,270 @@ function drawStage(
       const x = (i * 73 + frame * (1 + (i % 3))) % (VIEW_WIDTH + 20)
       const y = FLOOR_Y - 10 - ((i * 37) % 90)
       g.fillRect(x - 10, y, 2, 1)
+    }
+  }
+}
+
+// ---------------------------------------------------------------- stage art (t-009)
+
+/** A hand-pixel sprite with its top-left corner at (x, y). */
+function drawPixelSprite(
+  g: G,
+  sprite: PixelSprite,
+  x: number,
+  y: number,
+): void {
+  sprite.forEach((row, ry) => {
+    for (let rx = 0; rx < row.length; rx += 1) {
+      const key = row[rx]
+      if (!key || key === '.') continue
+      g.fillStyle = STAGE_INK[key] ?? '#ff00ff'
+      g.fillRect(x + rx, y + ry, 1, 1)
+    }
+  })
+}
+
+/** A sprite turned a quarter turn `turns` times (the tumbleweed rolling). */
+export function turned(sprite: PixelSprite, turns: number): PixelSprite {
+  let rows: readonly string[] = sprite
+  for (let t = 0; t < turns % 4; t += 1) {
+    const h = rows.length
+    const w = rows[0]?.length ?? 0
+    const next: string[] = []
+    for (let x = 0; x < w; x += 1) {
+      let line = ''
+      for (let y = h - 1; y >= 0; y -= 1) line += rows[y]?.[x] ?? '.'
+      next.push(line)
+    }
+    rows = next
+  }
+  return rows
+}
+
+function drawLayer(
+  g: G,
+  image: CanvasImageSource,
+  layer: StageLayer,
+  x: number,
+  scale: number,
+  shimmer: number | null,
+): void {
+  if (shimmer === null) {
+    g.drawImage(
+      image,
+      0,
+      0,
+      layer.w * scale,
+      layer.h * scale,
+      x,
+      layer.y,
+      layer.w,
+      layer.h,
+    )
+    return
+  }
+  // Heat shimmer: the lower rows waver, more toward the ground.
+  const start = Math.floor(layer.h * 0.55)
+  g.drawImage(
+    image,
+    0,
+    0,
+    layer.w * scale,
+    start * scale,
+    x,
+    layer.y,
+    layer.w,
+    start,
+  )
+  for (let row = start; row < layer.h; row += 1) {
+    const depth = (row - start) / Math.max(1, layer.h - start)
+    const offset = Math.round(Math.sin((shimmer + row * 5) / 7) * depth * 1.6)
+    g.drawImage(
+      image,
+      0,
+      row * scale,
+      layer.w * scale,
+      scale,
+      x + offset,
+      layer.y + row,
+      layer.w,
+      1,
+    )
+  }
+}
+
+/**
+ * The stage from its art: each parallax layer at its scroll rate, with the moving parts that hang off
+ * it drawn right after it (vultures over the backdrop, the bell, banner and smoke on the town, the
+ * glints and the croc's eyes on the pond, the tumbleweed on the street).
+ */
+export function drawStageArt(
+  g: G,
+  stage: LoadedStage,
+  s: MatchState,
+  roster: Pair<FighterData>,
+  camera: number,
+  reducedMotion: boolean,
+  fx: StageFx,
+): void {
+  const m = stage.manifest
+  const cam = camera / SUB
+  const frame = s.frame
+  g.fillStyle = '#000000'
+  g.fillRect(0, 0, VIEW_WIDTH, VIEW_HEIGHT)
+  for (const layer of m.layers) {
+    const image = stage.layers[layer.name]
+    if (!image) continue
+    const x = layerX(layer, cam)
+    const shimmer =
+      m.stage === 'watering-hole' && layer.name === 'backdrop' && !reducedMotion
+        ? frame
+        : null
+    drawLayer(g, image, layer, x, m.scale, shimmer)
+    // Anchors and cutouts are in the layer's own pixels, so on screen they move with it.
+    const anchor = (name: string) => {
+      const a = m.anchors[name]
+      return a && a.layer === layer.name ? a : null
+    }
+    if (m.stage === 'watering-hole' && layer.name === 'backdrop') {
+      for (const v of vulturesAt(frame)) {
+        drawPixelSprite(g, VULTURE[v.flap]!, x + v.x, layer.y + v.y)
+      }
+    }
+    for (const cut of m.cutouts.filter((c) => c.layer === layer.name)) {
+      const piece = stage.cutouts[cut.name]
+      if (!piece) continue
+      if (cut.name === 'bell') {
+        // Swings from the top of its yoke.
+        const angle = bellAngle(frame, fx, reducedMotion)
+        g.save()
+        g.translate(x + cut.x + cut.w / 2, layer.y + cut.y)
+        g.rotate((angle * Math.PI) / 180)
+        g.drawImage(
+          piece,
+          0,
+          0,
+          cut.w * m.scale,
+          cut.h * m.scale,
+          -cut.w / 2,
+          0,
+          cut.w,
+          cut.h,
+        )
+        g.restore()
+        if (!reducedMotion && fx.bell !== null && fx.bell < 40) {
+          // The ring: two pale arcs spreading out either side of the bell.
+          g.strokeStyle = 'rgba(253, 230, 138, 0.8)'
+          g.lineWidth = 1
+          const cx = x + cut.x + cut.w / 2
+          const cy = layer.y + cut.y + cut.h / 2
+          for (const gap of [0, 14]) {
+            const r = fx.bell * 1.2 + gap + cut.h / 2
+            g.beginPath()
+            g.arc(cx, cy, r, -0.9, 0.9)
+            g.stroke()
+            g.beginPath()
+            g.arc(cx, cy, r, Math.PI - 0.9, Math.PI + 0.9)
+            g.stroke()
+          }
+        }
+      } else if (cut.name === 'banner') {
+        // A banner in the wind: each column rides a wave that grows toward its free end.
+        for (let col = 0; col < cut.w; col += 1) {
+          const lift = reducedMotion
+            ? 0
+            : Math.round(Math.sin(frame / 7 - col / 3) * (col / cut.w) * 2)
+          g.drawImage(
+            piece,
+            col * m.scale,
+            0,
+            m.scale,
+            cut.h * m.scale,
+            x + cut.x + col,
+            layer.y + cut.y + lift,
+            1,
+            cut.h,
+          )
+        }
+      } else {
+        g.drawImage(
+          piece,
+          0,
+          0,
+          cut.w * m.scale,
+          cut.h * m.scale,
+          x + cut.x,
+          layer.y + cut.y,
+          cut.w,
+          cut.h,
+        )
+      }
+    }
+    const smoke = anchor('smoke')
+    if (smoke) {
+      g.fillStyle = 'rgba(120, 110, 104, 0.45)'
+      for (const p of smokePuffs(frame, reducedMotion)) {
+        const px = x + smoke.x + p.dx - p.r
+        const py = layer.y + smoke.y + p.dy - p.r
+        // A puff with its corners knocked off, so it reads as smoke rather than a square.
+        if (p.r < 2) g.fillRect(px, py, p.r * 2, p.r * 2)
+        else {
+          g.fillRect(px + 1, py, p.r * 2 - 2, p.r * 2)
+          g.fillRect(px, py + 1, p.r * 2, p.r * 2 - 2)
+        }
+      }
+    }
+    const arch = anchor('arch')
+    if (arch?.w && arch.h) {
+      // The town's own sign, lettered in the pixel font (the art carries no lettering).
+      const width = arch.w
+      const cx = x + arch.x + width / 2
+      // A tall board takes the population too; the beam over the arch only has room for the name.
+      const lines = (
+        arch.h >= 9 + FONT_HEIGHT
+          ? ['HOLLOW BELL', 'POP. 212']
+          : ['HOLLOW BELL']
+      ).filter((line) => measureText(line) <= width)
+      const top =
+        layer.y +
+        arch.y +
+        Math.round((arch.h - ((lines.length - 1) * 9 + FONT_HEIGHT)) / 2)
+      lines.forEach((line, i) =>
+        drawText(g, line, cx, top + i * 9, {
+          align: 'center',
+          color: '#e7dcc2',
+          shadow: '#2a1a10',
+        }),
+      )
+    }
+    const water = anchor('water')
+    if (water?.w && water.h) {
+      g.fillStyle = '#fff7d6'
+      for (const glint of waterGlints(frame, water.w, water.h)) {
+        g.fillRect(x + water.x + glint.x, layer.y + water.y + glint.y, 2, 1)
+      }
+      const eyes = crocEyesAt(frame, roster, water.w)
+      if (eyes && s.phase === 'fight') {
+        const sprite = CROC_EYES[eyes.sprite]!
+        drawPixelSprite(
+          g,
+          sprite,
+          x + water.x + eyes.x,
+          layer.y + water.y + Math.round(water.h / 2) - sprite.length + 1,
+        )
+      }
+    }
+    if (m.stage === 'hollow-bell' && layer.name === 'floor') {
+      const weed = tumbleweedAt(frame)
+      if (weed) {
+        const sprite = turned(TUMBLEWEED[weed.spin % 2]!, weed.spin)
+        drawPixelSprite(
+          g,
+          sprite,
+          x + weed.x,
+          FLOOR_Y - sprite.length + 2 + weed.y,
+        )
+      }
     }
   }
 }
@@ -694,7 +979,17 @@ export function drawMatch(
 ): void {
   g.imageSmoothingEnabled = false
   const camera = cameraX(s)
-  drawStage(g, camera, s.frame, options.reducedMotion)
+  if (options.stage)
+    drawStageArt(
+      g,
+      options.stage,
+      s,
+      roster,
+      camera,
+      options.reducedMotion,
+      options.stageFx ?? { bell: null },
+    )
+  else drawStage(g, camera, s.frame, options.reducedMotion)
   // The fighter who is attacking draws in front.
   const order: Array<0 | 1> =
     s.fighters[1].attack && !s.fighters[0].attack ? [0, 1] : [1, 0]

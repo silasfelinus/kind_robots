@@ -688,6 +688,9 @@ class StationSweep implements ArcadeGameInstance {
       if (!prey) continue
       if (c.kind === 'crawler') {
         if (c.clinging) {
+          // Riding the lift with its Mop: the deck it left is still live
+          // (a partner is there), but the Mop isn't, so no nibbling in transit.
+          if (prey.ride) continue
           c.x = prey.x
           c.y = prey.y - 18
           if (c.t % 10 === 0) this.damage(prey, 1)
@@ -862,8 +865,9 @@ class StationSweep implements ArcadeGameInstance {
     if (m.dead > 0) return
     m.dead = DEATH_TICKS
     for (const c of this.critters) if (c.clinging === m) c.clinging = null
+    // Loose crawlers scatter; any clinging to a partner stay on (to be swept).
     this.critters = this.critters.filter(
-      (c) => c.kind !== 'crawler' || c.onCeiling,
+      (c) => c.kind !== 'crawler' || c.onCeiling || c.clinging !== null,
     )
     this.burst(m.x, m.y - 10, 18, '#fde68a')
     this.sound.play('die')
@@ -894,7 +898,7 @@ class StationSweep implements ArcadeGameInstance {
         this.sound.play('extra')
       }
     }
-    if (this.decks.some((k) => !k.clean || k.critters.length)) return
+    if (this.critters.length || this.decks.some((k) => !k.clean)) return
     const inPlay = this.mops.filter((o) => !o.out)
     const health =
       inPlay.reduce((sum, o) => sum + Math.max(0, o.health), 0) /

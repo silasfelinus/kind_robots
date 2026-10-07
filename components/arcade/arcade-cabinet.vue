@@ -164,7 +164,7 @@
                 ? 'Same-device co-op'
                 : 'Pick players on the title screen'
             "
-            @click="togglePlayers"
+            @click="onPlayersClick"
           >
             {{ players === 1 ? '1 player' : `${players} players` }}
           </button>
@@ -215,6 +215,7 @@ import { findArcadeGame, loadArcadeGame } from '~/utils/arcade/games'
 import {
   ArcadeInput,
   assignPads,
+  keepPads,
   KEY_MAP,
   P1_KEYS,
   P2_KEYS,
@@ -278,6 +279,17 @@ const seatList = computed(() =>
   Array.from({ length: players.value }, (_, seat) => seat),
 )
 const choosingPlayers = computed(() => ATTRACT_PHASES.includes(phase.value))
+/** Gamepads connected right now. */
+const padCount = ref(0)
+/**
+ * Seats somebody can actually play from: every seat on a touch screen (each
+ * gets controls), otherwise the two keyboard seats plus one per gamepad.
+ */
+const seatLimit = computed(() =>
+  touchControls.value
+    ? maxPlayers.value
+    : Math.min(maxPlayers.value, 2 + padCount.value),
+)
 const loadError = ref('')
 const marqueeArt = ref('/images/arcade/cabinet-marquee.webp')
 
@@ -457,15 +469,27 @@ function releaseTouch() {
 
 function togglePlayers() {
   if (!choosingPlayers.value) return
-  players.value = players.value >= maxPlayers.value ? 1 : players.value + 1
+  players.value = players.value >= seatLimit.value ? 1 : players.value + 1
+  store.setPlayers(props.slug, players.value)
   sound?.unlock()
   sound?.play('blip')
 }
 
+/** A click leaves the switch unfocused, so Space and Enter go back to the game. */
+function onPlayersClick(event: MouseEvent) {
+  ;(event.currentTarget as HTMLElement | null)?.blur()
+  togglePlayers()
+}
+
+/** Each seat's gamepad slot (see assignPads / keepPads). */
+let padSlots: Array<number | null> = [null]
+
 /**
  * Seat the controls: one player gets every key and pad; with more, players
  * 1 and 2 split the keyboard (WASD and the arrows), and the gamepads go
- * round (see assignPads).
+ * round. On the attract screens the seats are dealt afresh (assignPads), and
+ * the remembered player count is restored as far as the controls allow;
+ * during a game each pad stays with its player (keepPads).
  */
 function applySeats() {
   if (typeof window === 'undefined') return
@@ -475,7 +499,19 @@ function applySeats() {
           .filter((pad): pad is Gamepad => Boolean(pad))
           .map((pad) => pad.index)
       : []
-  const slots = assignPads(pads, players.value)
+  padCount.value = pads.length
+  if (choosingPlayers.value) {
+    const want = store.playersFor(props.slug, seatLimit.value)
+    if (want !== players.value) {
+      // The players watcher seats them (and calls back here).
+      players.value = want
+      return
+    }
+  }
+  padSlots = choosingPlayers.value
+    ? assignPads(pads, players.value)
+    : keepPads(padSlots, pads, players.value)
+  const slots = padSlots
   input.setPadIndex(slots[0] ?? null)
   input.setKeyMap(duo.value ? P1_KEYS : KEY_MAP)
   inputs.forEach((seatIn, seat) => {
@@ -545,6 +581,8 @@ function enterPhase(next: ArcadePhase) {
     seatIn.clear()
     seatIn.typing = next === 'initials'
   }
+  // Back on the attract screens, pads are dealt afresh for the next game.
+  if (ATTRACT_PHASES.includes(next)) applySeats()
   if (next === 'demo' && gameModule) {
     retire(demoGame)
     demoGame = adopt(
@@ -677,6 +715,8 @@ function tick() {
       startGame()
       return
     }
+    // B picks how many play, without reaching for the mouse or the screen.
+    if (frame.pressed.b && maxPlayers.value > 1) togglePlayers()
     if (current === 'demo' && demoGame) {
       demoGame.update(frame)
       if (demoGame.over) dispatch({ type: 'demoOver' })
@@ -711,6 +751,21 @@ function tick() {
 // --- drawing --------------------------------------------------------------
 
 const SHADOW = '#1e1b4b'
+
+/** On a co-op cabinet's attract screens: how many will play, and how to change it. */
+function drawPlayersLine(g: CanvasRenderingContext2D, w: number, y: number) {
+  if (maxPlayers.value <= 1) return
+  const seated = players.value === 1 ? '1 PLAYER' : `${players.value} PLAYERS`
+  drawText(
+    g,
+    touchControls.value
+      ? `${seated}  (UP TO ${seatLimit.value})`
+      : `${seated}  B TO CHANGE (UP TO ${seatLimit.value})`,
+    w / 2,
+    y,
+    { align: 'center', color: '#a5f3fc', shadow: SHADOW },
+  )
+}
 
 function blinkOn() {
   return Math.floor(ticks / 30) % 2 === 0
@@ -849,6 +904,7 @@ function render() {
         shadow: SHADOW,
       })
     }
+    drawPlayersLine(g, w, h * 0.68 + 27)
     const best = board.value[0]
     drawText(
       g,
@@ -924,6 +980,7 @@ function render() {
         shadow: SHADOW,
       })
     }
+    drawPlayersLine(g, w, h * 0.36 + 56)
     return
   }
 
@@ -1114,8 +1171,7 @@ onMounted(() => {
 watch(
   () => props.slug,
   () => {
-    players.value = Math.min(players.value, maxPlayers.value)
-    void boot()
+    void boot().then(applySeats)
   },
 )
 

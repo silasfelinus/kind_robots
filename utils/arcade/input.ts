@@ -84,6 +84,33 @@ export function assignPads(
   return seats
 }
 
+/**
+ * Mid-game, a pad stays with whoever has it: one that drops leaves its seat
+ * padless, and one that turns up goes to a seat without one (keyless seats
+ * first), so nobody's controller ever starts driving somebody else.
+ */
+export function keepPads(
+  current: ReadonlyArray<number | null>,
+  connected: readonly number[],
+  players: number,
+): Array<number | null> {
+  if (players <= 1) return [null]
+  const seats: Array<number | null> = Array.from(
+    { length: players },
+    (_, i) => {
+      const pad = current[i]
+      return pad != null && pad >= 0 && connected.includes(pad) ? pad : -1
+    },
+  )
+  const free = connected.filter((pad) => !seats.includes(pad))
+  const need = [...Array.from({ length: players - 2 }, (_, i) => i + 2), 1, 0]
+  for (const seat of need) {
+    if (!free.length) break
+    if (seats[seat] === -1) seats[seat] = free.shift()!
+  }
+  return seats
+}
+
 export const AXIS_DEADZONE = 0.4
 
 /** Standard-mapping gamepad -> abstract buttons (pure, for tests). */

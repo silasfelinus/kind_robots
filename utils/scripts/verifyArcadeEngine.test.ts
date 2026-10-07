@@ -13,6 +13,7 @@ import { everyNthLevel, levelCurve, mulberry32 } from '../arcade/curve'
 import {
   assignPads,
   combineFrame,
+  keepPads,
   P1_KEYS,
   P2_KEYS,
   readGamepad,
@@ -145,6 +146,12 @@ import {
   assert.deepEqual(assignPads([5], 3), [-1, -1, 5])
   assert.deepEqual(assignPads([0, 1], 4), [-1, -1, 0, 1])
   assert.deepEqual(assignPads([0, 1, 2], 4), [-1, 0, 1, 2])
+  // Mid-game a pad stays with its player: a new one fills a padless seat
+  // (keyless seats first), and a dropped one leaves only its own seat bare.
+  assert.deepEqual(keepPads([-1, 0], [0, 1], 2), [1, 0])
+  assert.deepEqual(keepPads([0, 1, 2], [0, 2], 3), [0, -1, 2])
+  assert.deepEqual(keepPads([0, -1, -1, 1], [0, 1, 4], 4), [0, -1, 4, 1])
+  assert.deepEqual(keepPads([null], [0], 1), [null])
   // The two-player key maps never share a key.
   for (const code of Object.keys(P1_KEYS))
     assert.ok(!(code in P2_KEYS), `${code} is bound for both players`)
@@ -725,6 +732,109 @@ async function runCoopGames() {
     )
     assert.equal(game.lives, 5)
     game.render(g)
+  }
+
+  // Regressions found in review (2026-10-07).
+  {
+    // A bot revived just past the leash can still close the gap: any step
+    // that doesn't widen it is allowed (it used to freeze both in place).
+    type Hero = { x: number; y: number; flat: boolean; battery: number }
+    const mod = await loadArcadeGame('kindness-gauntlet')
+    const game = mod.create({
+      rng: mulberry32(8),
+      sound: quiet,
+      demo: false,
+      hiScore: 0,
+      players: 3,
+    })
+    const inner = game as unknown as { heroes: Hero[]; walls: Uint8Array }
+    const all = [tap('a'), tap('a'), tap('a')]
+    game.update(all[0]!, all)
+    inner.walls.fill(0)
+    const [a, b, c] = inner.heroes
+    Object.assign(a!, { x: 400, y: 100 })
+    Object.assign(b!, { x: 400, y: 284 })
+    Object.assign(c!, { x: 400, y: 294, flat: true, battery: 0 })
+    a!.battery = b!.battery = 300
+    game.update(idle(), [idle(), idle(), idle()])
+    assert.ok(!c!.flat, 'B shared a charge with C')
+    const gap = c!.y - a!.y
+    for (let i = 0; i < 60; i++)
+      game.update(idle(), [hold('down'), idle(), hold('up')])
+    assert.ok(c!.y - a!.y < gap, 'past the leash, they can still walk together')
+  }
+  {
+    // A stray critter on a deck already shown clean doesn't hold the station.
+    type Deck = { sacs: unknown[]; critters: unknown[]; clean: boolean }
+    const mod = await loadArcadeGame('station-sweep')
+    const game = mod.create({
+      rng: mulberry32(10),
+      sound: quiet,
+      demo: false,
+      hiScore: 0,
+    })
+    const inner = game as unknown as { decks: Deck[]; clear: number }
+    for (let i = 0; i < 5; i++) game.update(idle())
+    for (const d of inner.decks)
+      Object.assign(d, { sacs: [], critters: [], clean: true })
+    inner.decks[0]!.clean = false
+    inner.decks[1]!.critters = [
+      {
+        kind: 'crawler',
+        x: 900,
+        y: 206,
+        vx: 0,
+        vy: 0,
+        hp: 1,
+        t: 0,
+        onCeiling: false,
+        clinging: null,
+        canCling: false,
+        big: false,
+      },
+    ]
+    for (let i = 0; i < 5; i++) game.update(idle())
+    assert.ok(inner.clear > 0 || game.level > 1, 'the station is clean')
+  }
+  {
+    // A crawler riding a lift with its Mop doesn't chew on it in transit.
+    type Mop = { x: number; health: number; dead: number; ride: unknown }
+    const mod = await loadArcadeGame('station-sweep')
+    const game = mod.create({
+      rng: mulberry32(12),
+      sound: quiet,
+      demo: false,
+      hiScore: 0,
+      players: 2,
+    })
+    const inner = game as unknown as {
+      mops: Mop[]
+      decks: Array<{ sacs: unknown[]; critters: unknown[] }>
+    }
+    const [p1] = inner.mops
+    for (const d of inner.decks) d.sacs = []
+    p1!.x = 180
+    p1!.health = 3
+    inner.decks[0]!.critters = [
+      {
+        kind: 'crawler',
+        x: 180,
+        y: 188,
+        vx: 0,
+        vy: 0,
+        hp: 1,
+        t: 0,
+        onCeiling: false,
+        clinging: p1,
+        canCling: false,
+        big: false,
+      },
+    ]
+    game.update(idle(), [tap('down'), idle()])
+    assert.ok(p1!.ride, 'P1 is riding')
+    for (let i = 0; i < 40; i++) game.update(idle(), [idle(), idle()])
+    assert.equal(p1!.health, 3, 'no damage while riding')
+    assert.equal(p1!.dead, 0)
   }
 
   // Kindness Gauntlet: two different bots, each on its own controls, one screen.

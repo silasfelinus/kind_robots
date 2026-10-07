@@ -7,6 +7,7 @@ label: Social Drafts
 title: Social Drafts
 subtitle: Review drafted social posts before anything goes out
 description: The review queue for drafted social posts. Nothing here publishes on its own.
+summary: Review unpublished social drafts.
 icon: kind-icon:news
 image: /images/channels/admin/social-drafts.webp
 route: /admin/social-drafts

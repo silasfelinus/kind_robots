@@ -9,6 +9,7 @@ label: Serendipity
 title: Serendipity
 subtitle: Talk to the story and watch the site respond
 description: Use the Serendipity voice surface, follow the shared message feed, and trigger playful spoken interactions.
+summary: Use the archived voice surface.
 icon: kind-icon:butterfly
 route: /serendipity
 sort: 45

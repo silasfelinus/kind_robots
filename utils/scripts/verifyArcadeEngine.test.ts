@@ -1136,7 +1136,38 @@ async function runPinball3d() {
   demo.dispose()
 }
 
+/** Quilt Quest: the needle never ends up stranded on a sewn-in cell. */
+async function runQuiltInvariant() {
+  const mod = await loadArcadeGame('quilt-quest')
+  for (let seed = 1; seed <= 6; seed++) {
+    const game = mod.create({
+      rng: mulberry32(seed),
+      sound: { play: () => {} },
+      demo: true,
+      hiScore: 0,
+    })
+    const inner = game as unknown as {
+      c: number
+      r: number
+      dead: number
+      clear: number
+      cell: (c: number, r: number) => number
+    }
+    for (let t = 0; t < 60 * 120 && !game.over; t++) {
+      game.update(emptyInput())
+      if (inner.dead || inner.clear) continue
+      // 0 open, 1 sewn in, 2 edge, 3 thread: the needle is on an edge or its thread.
+      const here = inner.cell(inner.c, inner.r)
+      assert.ok(
+        here === 2 || here === 3,
+        `quilt-quest seed ${seed}: needle stranded on a ${here} cell`,
+      )
+    }
+  }
+}
+
 await runGames()
+await runQuiltInvariant()
 await runCoopGames()
 await runPinball3d()
 console.log('verifyArcadeEngine: ok')

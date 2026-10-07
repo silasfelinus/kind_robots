@@ -33,6 +33,7 @@ on:
       - 'components/art/artjob-queue-card.vue'
       - 'components/art/artjob-queue-browser.vue'
       - 'utils/scripts/verifyArtJobQueueLayout.ts'
+      - 'utils/scripts/verifyArtJobQueueDefaultStatus.ts'
       - 'utils/scripts/verifyEntityArtManager.ts'
       - 'utils/entityArtPromptFraming.ts'
       - 'stores/dailyDreamArchiveStore.ts'
@@ -59,6 +60,7 @@ jobs:
       - run: npx tsx utils/scripts/verifyArtQueueClaimFastPath.ts
       - run: npx tsx utils/scripts/verifyArtQueueRelaySlotRelease.ts
       - run: npx tsx utils/scripts/verifyArtJobQueueLayout.ts
+      - run: npx tsx utils/scripts/verifyArtJobQueueDefaultStatus.ts
       - run: npx tsx utils/scripts/verifyEntityArtManager.ts
       - run: npx tsx utils/scripts/verifyEntityArtPromptFraming.ts
       - run: npx tsx utils/scripts/verifyDailyDreamArchiveWorkbench.ts

@@ -1,0 +1,110 @@
+// /stores/zuzuShowdownStore.ts
+//
+// Player options for Zuzu Showdown (conductor zuzu-showdown): sound, the CRT
+// overlay, Easy Specials, the hitbox overlay and the match mode. Remembered
+// per browser; the match itself lives in the pure sim (utils/zuzuShowdown).
+
+import { ref } from 'vue'
+import { defineStore } from 'pinia'
+
+export type ShowdownMode = 'versus' | 'dummy'
+
+type ShowdownPrefs = {
+  muted?: boolean
+  crt?: boolean
+  easySpecials?: boolean
+  showBoxes?: boolean
+  mode?: ShowdownMode
+}
+
+const PREFS_KEY = 'kr-zuzu-showdown-prefs'
+
+function readPrefs(): ShowdownPrefs {
+  try {
+    const parsed = JSON.parse(localStorage.getItem(PREFS_KEY) ?? '{}')
+    return parsed && typeof parsed === 'object' ? (parsed as ShowdownPrefs) : {}
+  } catch {
+    return {}
+  }
+}
+
+function writePrefs(prefs: ShowdownPrefs) {
+  try {
+    localStorage.setItem(PREFS_KEY, JSON.stringify(prefs))
+  } catch {
+    // Private mode: the choice just won't persist.
+  }
+}
+
+export const useZuzuShowdownStore = defineStore('zuzuShowdownStore', () => {
+  const muted = ref(true)
+  const crt = ref(false)
+  const easySpecials = ref(false)
+  const showBoxes = ref(false)
+  const mode = ref<ShowdownMode>('dummy')
+  const reducedMotion = ref(false)
+
+  /** Read saved options; touch screens default to Easy Specials. */
+  function loadPreferences(options: {
+    reducedMotion: boolean
+    coarsePointer: boolean
+  }) {
+    const prefs = readPrefs()
+    reducedMotion.value = options.reducedMotion
+    muted.value = prefs.muted ?? true
+    crt.value = prefs.crt ?? !options.reducedMotion
+    easySpecials.value = prefs.easySpecials ?? options.coarsePointer
+    showBoxes.value = prefs.showBoxes === true
+    mode.value = prefs.mode === 'versus' ? 'versus' : 'dummy'
+  }
+
+  function save() {
+    writePrefs({
+      muted: muted.value,
+      crt: crt.value,
+      easySpecials: easySpecials.value,
+      showBoxes: showBoxes.value,
+      mode: mode.value,
+    })
+  }
+
+  function setMuted(value: boolean) {
+    muted.value = value
+    save()
+  }
+
+  function setCrt(value: boolean) {
+    crt.value = value
+    save()
+  }
+
+  function setEasySpecials(value: boolean) {
+    easySpecials.value = value
+    save()
+  }
+
+  function setShowBoxes(value: boolean) {
+    showBoxes.value = value
+    save()
+  }
+
+  function setMode(value: ShowdownMode) {
+    mode.value = value
+    save()
+  }
+
+  return {
+    muted,
+    crt,
+    easySpecials,
+    showBoxes,
+    mode,
+    reducedMotion,
+    loadPreferences,
+    setMuted,
+    setCrt,
+    setEasySpecials,
+    setShowBoxes,
+    setMode,
+  }
+})

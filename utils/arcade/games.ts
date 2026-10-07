@@ -320,6 +320,26 @@ export const ARCADE_GAMES: ArcadeGameMeta[] = [
     accent: '#e879f9',
     controls: 'Move, spray, lock aim',
   },
+  {
+    slug: 'zuzu-ghost-trail',
+    title: 'Zuzu: Ghost Trail',
+    riffsOn: "Ghosts 'n Goblins",
+    blurb:
+      'Zuzu, the koala ronin, walks a haunted weird-west trail through a ghost town at dusk, throwing kunai at restless spirits clawing up from the dirt, storm crows and bone hyenas. The first hit knocks his poncho and kasa off; a second sends him back to the checkpoint. Crates hide a fresh poncho, and jumps are committed once he leaves the ground.',
+    howTo: [
+      'LEFT/RIGHT  WALK',
+      'UP OR B  JUMP',
+      'A  THROW KUNAI',
+      'ONE HIT LOSES THE PONCHO',
+      'BREAK CRATES FOR A NEW ONE',
+    ],
+    width: 320,
+    height: 240,
+    maxPlausibleScore: 5_000_000,
+    titleArt: '/images/arcade/games/zuzu-ghost-trail-title.webp',
+    accent: '#ea580c',
+    controls: 'Walk, jump, throw',
+  },
 ]
 
 export type ComingSoonCabinet = {
@@ -333,12 +353,6 @@ export type ComingSoonCabinet = {
 
 // Mirrors the queued rows of conductor projects/kr-arcade/games.yaml.
 export const COMING_SOON: ComingSoonCabinet[] = [
-  {
-    slug: 'zuzu-ghost-trail',
-    title: 'Zuzu: Ghost Trail',
-    riffsOn: "Ghosts 'n Goblins",
-    accent: '#ea580c',
-  },
   {
     slug: 'station-sweep',
     title: 'Station Sweep',
@@ -363,6 +377,7 @@ const LOADERS: Record<string, () => Promise<ArcadeGameModule>> = {
   'repair-rampage': () => import('./games/repairRampage'),
   'kindness-gauntlet': () => import('./games/kindnessGauntlet'),
   'prize-show-panic': () => import('./games/prizeShowPanic'),
+  'zuzu-ghost-trail': () => import('./games/zuzuGhostTrail'),
 }
 
 export function findArcadeGame(slug: string): ArcadeGameMeta | undefined {

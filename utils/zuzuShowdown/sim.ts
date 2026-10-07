@@ -81,6 +81,8 @@ export const TECH_FRAMES = 18
 export const TECH_PUSH = 40
 export const AIRHIT_POP = 5 * SUB
 export const AIRHIT_DRIFT = 2 * SUB
+/** A returning boomerang is caught this close (pixels) to its thrower. */
+export const CATCH_RANGE = 16
 /** Holding back within this range of an incoming attack guards in place. */
 export const PROXIMITY_GUARD = 140
 
@@ -648,6 +650,9 @@ function advanceAttack(
         vx: projectile.speed * f.facing,
         facing: f.facing,
         life: projectile.life,
+        age: 0,
+        returning: false,
+        struck: false,
       })
     }
   }
@@ -886,11 +891,13 @@ function clampToStage(s: MatchState, roster: Pair<FighterData>): void {
   }
 }
 
-function rollingThrough(f: FighterState): boolean {
+function rollingThrough(f: FighterState, data: FighterData): boolean {
+  if (f.action === 'dodge') {
+    return f.dodgeDir === 1 && within(DODGE.forward.move, f.frame)
+  }
+  const window = f.attack ? moveOf(data, f.attack).passThrough : undefined
   return (
-    f.action === 'dodge' &&
-    f.dodgeDir === 1 &&
-    within(DODGE.forward.move, f.frame)
+    window !== undefined && f.attack !== null && within(window, f.attack.frame)
   )
 }
 
@@ -920,7 +927,7 @@ function separate(
   }
 
   // Pushboxes never overlap, except while a forward dodge rolls through.
-  if (rollingThrough(a) || rollingThrough(b)) return
+  if (rollingThrough(a, roster[0]) || rollingThrough(b, roster[1])) return
   const pa = pushbox(a, roster[0])
   const pb = pushbox(b, roster[1])
   if (!overlaps(pa, pb)) return
@@ -1180,6 +1187,7 @@ function collectContacts(s: MatchState, roster: Pair<FighterData>): Contact[] {
     }
   }
   s.projectiles.forEach((p, index) => {
+    if (p.struck) return
     const box = projectileBox(s, roster, index)
     const defender = other(p.owner)
     const hurt = hurtbox(s.fighters[defender], roster[defender])
@@ -1365,7 +1373,12 @@ function resolveHits(
       continue
     }
 
-    if (c.projectile !== null) spent.add(c.projectile)
+    if (c.projectile !== null) {
+      const p = s.projectiles[c.projectile]!
+      const boomerang = c.move.projectile?.returnAfter !== undefined
+      if (boomerang && !p.returning) p.struck = true
+      else spent.add(c.projectile)
+    }
     const markContact = () => {
       if (!attack) return
       attack.contact = true
@@ -1435,11 +1448,32 @@ function resolveHits(
   s.projectiles = s.projectiles.filter((_, index) => !spent.has(index))
 }
 
-function moveProjectiles(s: MatchState): void {
+function moveProjectiles(s: MatchState, roster: Pair<FighterData>): void {
   const edge = STAGE_HALF_WIDTH * SUB
-  s.projectiles = s.projectiles
-    .map((p) => ({ ...p, x: p.x + p.vx, life: p.life - 1 }))
-    .filter((p) => p.life > 0 && Math.abs(p.x) <= edge)
+  const kept: MatchState['projectiles'] = []
+  for (const p of s.projectiles) {
+    const data = moveOf(roster[p.owner], {
+      id: p.move,
+      heavy: p.heavy,
+    }).projectile
+    const owner = s.fighters[p.owner]
+    const next = { ...p, age: p.age + 1, life: p.life - 1 }
+    if (data?.returnAfter !== undefined) {
+      if (!next.returning && next.age >= data.returnAfter) {
+        next.returning = true
+        next.struck = false
+      }
+      if (next.returning) {
+        // It comes home to the thrower, wherever they have moved.
+        const toward = owner.x >= next.x ? 1 : -1
+        next.vx = toward * Math.abs(next.vx)
+        if (Math.abs(owner.x - next.x) <= CATCH_RANGE * SUB) continue
+      }
+    }
+    next.x += next.vx
+    if (next.life > 0 && Math.abs(next.x) <= edge) kept.push(next)
+  }
+  s.projectiles = kept
 }
 
 // ---------------------------------------------------------------- life
@@ -1603,10 +1637,18 @@ function bufferPresses(s: MatchState, inputs: Pair<SimInput>): void {
 }
 
 /** Every frame of the fight, frozen or not, feeds the motion reader. */
-function recordMotion(s: MatchState, inputs: Pair<SimInput>): void {
+function recordMotion(
+  s: MatchState,
+  inputs: Pair<SimInput>,
+  frozen = false,
+): void {
   for (const side of [0, 1] as const) {
     const f = s.fighters[side]
-    f.motion = pushDir(f.motion, dirOf(inputs[side], f.facing))
+    const dir = dirOf(inputs[side], f.facing)
+    // While frozen only changes are recorded, so a motion entered during the
+    // freeze is still fresh when the freeze ends (the special-cancel buffer).
+    if (frozen && f.motion.dirs[f.motion.dirs.length - 1] === dir) continue
+    f.motion = pushDir(f.motion, dir)
   }
 }
 
@@ -1670,7 +1712,7 @@ export function step(
   if (s.freeze > 0 || s.hitstop > 0) {
     if (s.freeze > 0) s.freeze -= 1
     else s.hitstop -= 1
-    recordMotion(s, inputs)
+    recordMotion(s, inputs, true)
     bufferPresses(s, inputs)
     return s
   }
@@ -1697,7 +1739,7 @@ export function step(
   }
   physics(s.fighters[0], roster[0])
   physics(s.fighters[1], roster[1])
-  moveProjectiles(s)
+  moveProjectiles(s, roster)
   clampToStage(s, roster)
   separate(s, roster, startX)
   resolveThrows(s, roster, reads)

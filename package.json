@@ -128,6 +128,7 @@
     "test:zuzu-showdown-input": "tsx utils/scripts/verifyZuzuShowdownInput.test.ts",
     "test:zuzu-showdown-combat": "tsx utils/scripts/verifyZuzuShowdownCombat.test.ts",
     "test:zuzu-showdown-render": "tsx utils/scripts/verifyZuzuShowdownRender.test.ts",
+    "test:zuzu-showdown-zuzu": "tsx utils/scripts/verifyZuzuShowdownZuzu.test.ts",
     "test:aquarium-collect": "tsx utils/scripts/verifyAquariumCollect.test.ts",
     "test:aquarium-genetics": "tsx utils/scripts/verifyAquariumGenetics.test.ts",
     "test:aquarium-shop": "tsx utils/scripts/verifyAquariumShop.test.ts",

@@ -113,6 +113,12 @@ export type ProjectileData = {
   speed: number
   /** Frames before it fizzles. */
   life: number
+  /**
+   * A boomerang: after this many frames it turns back toward its thrower,
+   * can hit once on the way out and once on the way back, and is caught when
+   * it reaches the thrower.
+   */
+  returnAfter?: number
 }
 
 /**
@@ -169,6 +175,8 @@ export type MoveData = {
   meterCost?: number
   /** May repeat inside one combo without tripping infinite protection. */
   rapid?: boolean
+  /** The body passes through the opponent (no pushbox) during the window. */
+  passThrough?: FrameWindow
 }
 
 /** A command move: a motion plus a button (or Easy Special) runs `move`. */
@@ -211,6 +219,15 @@ export type FighterData = {
   easy?: EasyTable
   /** The Siblings: fling variants replace bites, stabs and rolls. */
   childGuard?: boolean
+  /** Colours (and a hat) for the stand-in renderer until sprites exist. */
+  look?: FighterLook
+}
+
+export type FighterLook = {
+  body: string
+  light: string
+  dark: string
+  hat?: 'kasa'
 }
 
 export type Action =
@@ -318,6 +335,12 @@ export type Projectile = {
   vx: number
   facing: Facing
   life: number
+  /** Frames since it was thrown. */
+  age: number
+  /** A boomerang on its way back. */
+  returning: boolean
+  /** It has hit (or been blocked) on this pass. */
+  struck: boolean
 }
 
 export type Phase = 'intro' | 'fight' | 'ko' | 'over'

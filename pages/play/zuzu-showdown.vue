@@ -21,6 +21,27 @@
         <section
           class="kr-panel flex flex-wrap gap-x-6 gap-y-3 rounded-2xl p-4"
         >
+          <label
+            v-for="side in sides"
+            :key="side.index"
+            class="flex items-center gap-2 text-sm"
+          >
+            <span class="font-semibold">{{ side.label }}</span>
+            <select
+              class="kr-select-sm"
+              :value="store.fighters[side.index]"
+              :aria-label="side.label"
+              @change="onFighter(side.index, $event)"
+            >
+              <option
+                v-for="fighter in FIGHTERS"
+                :key="fighter.slug"
+                :value="fighter.slug"
+              >
+                {{ fighter.name }}
+              </option>
+            </select>
+          </label>
           <label class="flex items-center gap-2 text-sm">
             <span class="font-semibold">Opponent</span>
             <select
@@ -93,20 +114,17 @@
             </dl>
           </div>
           <div class="kr-panel rounded-2xl p-4 text-sm">
-            <h2 class="mb-2 font-bold">Stand-in moves</h2>
+            <h2 class="mb-2 font-bold">{{ p1.name }}'s moves</h2>
             <dl class="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1">
-              <dt class="font-semibold">↓↘→ + P</dt>
-              <dd>Fireball</dd>
-              <dt class="font-semibold">→↓↘ + P</dt>
-              <dd>Rising uppercut (invincible start)</dd>
-              <dt class="font-semibold">↓↙← + K</dt>
-              <dd>Parry</dd>
-              <dt class="font-semibold">360 + P</dt>
-              <dd>Command grab</dd>
-              <dt class="font-semibold">↓↘→ ↓↘→ + P</dt>
-              <dd>Level 1 super (1 bar)</dd>
-              <dt class="font-semibold">↓↙← ↓↙← + HP</dt>
-              <dd>Showdown super (3 bars)</dd>
+              <template v-for="row in moves" :key="row.id">
+                <dt class="font-semibold">{{ row.input }}</dt>
+                <dd>
+                  {{ row.name }}
+                  <span v-if="row.note" class="opacity-60"
+                    >({{ row.note }})</span
+                  >
+                </dd>
+              </template>
               <dt class="font-semibold">↓ + HK</dt>
               <dd>Launcher, then hold ↑ to chase into an air combo</dd>
             </dl>
@@ -121,10 +139,22 @@
 import { computed } from 'vue'
 import { useUserStore } from '~/stores/userStore'
 import { useZuzuShowdownStore } from '~/stores/zuzuShowdownStore'
+import { FIGHTERS, findFighter, moveList } from '~/utils/zuzuShowdown/fighters'
 
 const userStore = useUserStore()
 const store = useZuzuShowdownStore()
 const ready = computed(() => userStore.initialized)
+
+const sides = [
+  { index: 0 as const, label: 'Player 1' },
+  { index: 1 as const, label: 'Player 2' },
+]
+const p1 = computed(() => findFighter(store.fighters[0]))
+const moves = computed(() => moveList(p1.value))
+
+function onFighter(side: 0 | 1, event: Event) {
+  store.setFighter(side, (event.target as HTMLSelectElement).value)
+}
 
 function checked(event: Event) {
   return (event.target as HTMLInputElement).checked

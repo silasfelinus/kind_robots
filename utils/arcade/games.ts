@@ -605,6 +605,27 @@ export const ARCADE_GAMES: ArcadeGameMeta[] = [
     accent: '#2dd4bf',
     controls: 'Steer',
   },
+  {
+    slug: 'petal-post',
+    title: 'Petal Post',
+    riffsOn: 'Paperboy',
+    blurb:
+      'Scoot a delivery bot up a scrolling street and toss seed packets to the bright houses on your route: a mailbox catch pays best, the doorstep next. Dodge skateboarding cats, rolling bins, parked cars and sprinklers, and grab bundles to refill. Miss a home and it cancels; deliver to all and a neighbour signs up. Each day ends with a bonus run at targets.',
+    howTo: [
+      'UP/DOWN  FAST/SLOW',
+      'LEFT/RIGHT  STEER',
+      'A  TOSS LEFT',
+      'BRIGHT HOUSES ONLY',
+      'MAILBOX PAYS BEST',
+      'GRAB THE BUNDLES',
+    ],
+    width: 256,
+    height: 240,
+    maxPlausibleScore: 2_000_000,
+    titleArt: '/images/arcade/games/petal-post-title.webp',
+    accent: '#ec4899',
+    controls: 'Ride, steer, toss',
+  },
 ]
 
 export type ComingSoonCabinet = {
@@ -679,6 +700,7 @@ const LOADERS: Record<string, () => Promise<ArcadeGameModule>> = {
   'lantern-swarm': () => import('./games/lanternSwarm'),
   'rover-ramble': () => import('./games/roverRamble'),
   'cable-crawler': () => import('./games/cableCrawler'),
+  'petal-post': () => import('./games/petalPost'),
   'kind-pinball-3d': () =>
     import('./games/kindPinball3d').then(async (module) => {
       await module.prepare()

@@ -115,7 +115,8 @@ check(
               `${slug} ${name} anchor x`,
             )
             assert.ok(
-              f.anchor.y >= 0 && f.anchor.y <= f.h + 1,
+              // An airborne pose (legs tucked, all in the air) has the ground below the art, never far below.
+              f.anchor.y >= 0 && f.anchor.y <= 2 * f.h,
               `${slug} ${name} anchor y`,
             )
           }
@@ -157,7 +158,23 @@ check(
   'states pick their animation, falling back when the art is not drawn yet',
   () => {
     const coyote = sheets['coyote-vagrant']!
-    const zuzu = sheets.zuzu!
+    // Fallbacks are tested on a copy of Zuzu's sheet with some art taken away, as if not drawn yet.
+    const zuzu: SpriteSheet = {
+      ...sheets.zuzu!,
+      animations: Object.fromEntries(
+        Object.entries(sheets.zuzu!.animations).filter(
+          ([name]) =>
+            !['walk_back', 'block_low', 'ko', 'knockdown'].includes(name),
+        ),
+      ),
+    }
+    assert.equal(
+      pickSprite(
+        stateOf('zuzu', { action: 'walk', vx: -4, facing: 1 }),
+        sheets.zuzu!,
+      )!.name,
+      'walk_back',
+    )
     assert.equal(
       pickSprite(stateOf('coyote-vagrant', { action: 'idle' }), coyote)!.name,
       'idle',
@@ -176,7 +193,7 @@ check(
       )!.name,
       'walk_back',
     )
-    // Zuzu has no walk_back yet: he shuffles with the forward walk.
+    // Without walk_back he shuffles with the forward walk.
     assert.equal(
       pickSprite(stateOf('zuzu', { action: 'walk', vx: -4, facing: 1 }), zuzu)!
         .name,
@@ -206,7 +223,7 @@ check(
       prev: { ...neutralInput(), down: true },
     })
     assert.equal(pickSprite(low, coyote)!.name, 'block_low')
-    // Zuzu blocking low crouches until his block art exists.
+    // Without block_low he crouches.
     assert.equal(
       pickSprite({ ...low, action: 'blockstun' }, zuzu)!.name,
       'crouch',

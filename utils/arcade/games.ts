@@ -434,6 +434,49 @@ export const ARCADE_GAMES: ArcadeGameMeta[] = [
     accent: '#84cc16',
     controls: 'Lean, puff',
   },
+  {
+    slug: 'pixel-hop',
+    title: 'Pixel Hop',
+    riffsOn: 'Q*bert',
+    blurb:
+      'Hop a pyramid of tiles diagonally and repaint every top to the target colour. Gumballs bounce down from the top, and a purple one hatches into Boing, a grumpy spring bot who follows you hop by hop; lure him off the edge from a floating disc. Green gumballs freeze everyone, and the repaint gremlin undoes your work until you catch it.',
+    howTo: [
+      'UP  HOP UP-RIGHT',
+      'RIGHT  HOP DOWN-RIGHT',
+      'DOWN  HOP DOWN-LEFT',
+      'LEFT  HOP UP-LEFT',
+      'PAINT EVERY TILE',
+      'DISCS RIDE TO THE TOP',
+      'GREEN = FREEZE',
+    ],
+    width: 256,
+    height: 240,
+    maxPlausibleScore: 3_000_000,
+    titleArt: '/images/arcade/games/pixel-hop-title.webp',
+    accent: '#fb923c',
+    controls: 'Hop diagonally',
+  },
+  {
+    slug: 'glitch-garden',
+    title: 'Glitch Garden',
+    riffsOn: 'Centipede',
+    blurb:
+      'A long glitch-worm winds down through a garden of glitchy mushroom lamps. Spray fix-it beams up from the flowerbed: every fixed segment drops out as a sprout and the worm splits, and sprayed lamps and sprouts bloom into flowers. A beetle zig-zags through the bed nibbling lamps, and a moth dives down planting new ones.',
+    howTo: [
+      'ARROWS  MOVE',
+      'A  FIX-IT SPRAY',
+      'FIX EVERY SEGMENT',
+      'WORMS SPLIT IN TWO',
+      'SPRAY LAMPS TO BLOOM',
+      'MIND THE BEETLE',
+    ],
+    width: 240,
+    height: 304,
+    maxPlausibleScore: 3_000_000,
+    titleArt: '/images/arcade/games/glitch-garden-title.webp',
+    accent: '#a855f7',
+    controls: 'Move, spray',
+  },
 ]
 
 export type ComingSoonCabinet = {
@@ -500,6 +543,8 @@ const LOADERS: Record<string, () => Promise<ArcadeGameModule>> = {
   'rain-catcher': () => import('./games/rainCatcher'),
   'brick-bloom': () => import('./games/brickBloom'),
   'seed-lander': () => import('./games/seedLander'),
+  'pixel-hop': () => import('./games/pixelHop'),
+  'glitch-garden': () => import('./games/glitchGarden'),
   'kind-pinball-3d': () =>
     import('./games/kindPinball3d').then(async (module) => {
       await module.prepare()

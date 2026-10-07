@@ -10,7 +10,13 @@
 import assert from 'node:assert/strict'
 import { advanceClock, MAX_TICKS_PER_FRAME, TICK_MS } from '../arcade/loop'
 import { everyNthLevel, levelCurve, mulberry32 } from '../arcade/curve'
-import { combineFrame, readGamepad } from '../arcade/input'
+import {
+  assignPads,
+  combineFrame,
+  P1_KEYS,
+  P2_KEYS,
+  readGamepad,
+} from '../arcade/input'
 import {
   arcadeReducer,
   initialArcadeState,
@@ -109,6 +115,15 @@ import {
   assert.equal(pad.a, true)
   assert.equal(pad.left, true)
   assert.equal(pad.up, false, 'inside the deadzone is not a press')
+  // Seating: one player reads every pad; two take one each, and a lone pad
+  // goes to player 2 (player 1 has the left of the keyboard).
+  assert.deepEqual(assignPads([0, 1], 1), [null])
+  assert.deepEqual(assignPads([0, 1], 2), [0, 1])
+  assert.deepEqual(assignPads([2], 2), [-1, 2])
+  assert.deepEqual(assignPads([], 2), [-1, -1])
+  // The two-player key maps never share a key.
+  for (const code of Object.keys(P1_KEYS))
+    assert.ok(!(code in P2_KEYS), `${code} is bound for both players`)
 }
 
 // --- cabinet flow ------------------------------------------------------------
@@ -562,5 +577,161 @@ async function runGames() {
   }
 }
 
+/** Two seated: both games run, render, and keep their co-op rules. */
+async function runCoopGames() {
+  const g = stubContext()
+  const quiet = { play: () => {} }
+  const idle = () => emptyInput()
+  const tap = (button: keyof InputFrame['held']) => {
+    const frame = emptyInput()
+    frame.held[button] = true
+    frame.pressed[button] = true
+    return frame
+  }
+  const hold = (button: keyof InputFrame['held']) => {
+    const frame = emptyInput()
+    frame.held[button] = true
+    return frame
+  }
+
+  // Every co-op game survives a long two-player run, drawn in its two-player view.
+  for (const meta of ARCADE_GAMES.filter((m) => (m.maxPlayers ?? 1) > 1)) {
+    const mod = await loadArcadeGame(meta.slug)
+    const game = mod.create({
+      rng: mulberry32(23),
+      sound: quiet,
+      demo: false,
+      hiScore: 0,
+      players: 2,
+    })
+    assert.ok(game.lives >= 2, `${meta.slug}: two seated, two in play`)
+    for (let t = 0; t < 60 * 60 * 5 && !game.over; t++) {
+      const p1 = scriptedInput(t)
+      const p2 = scriptedInput(t + 120)
+      p1.held.a = t % 200 < 120
+      p2.held.a = (t + 100) % 200 < 120
+      p2.held.left = p2.held.right
+      p2.held.right = false
+      game.update(p1, [p1, p2])
+      if (t % 45 === 0) game.render(g)
+    }
+    assert.ok(game.score <= meta.maxPlausibleScore)
+  }
+
+  // Kindness Gauntlet: two different bots, each on its own controls, one screen.
+  {
+    type Hero = {
+      cls: string
+      x: number
+      y: number
+      battery: number
+      flat: boolean
+      picked: boolean
+    }
+    const mod = await loadArcadeGame('kindness-gauntlet')
+    const game = mod.create({
+      rng: mulberry32(3),
+      sound: quiet,
+      demo: false,
+      hiScore: 0,
+      players: 2,
+    })
+    const heroes = (game as unknown as { heroes: Hero[] }).heroes
+    assert.equal(heroes.length, 2)
+    // P1 locks in Fix; P2 walks left onto Fix and gets bumped past it.
+    game.update(tap('a'), [tap('a'), idle()])
+    game.update(idle(), [idle(), tap('left')])
+    game.update(idle(), [idle(), tap('left')])
+    game.update(idle(), [idle(), tap('a')])
+    assert.ok(heroes.every((h) => h.picked))
+    assert.notEqual(
+      heroes[0]!.cls,
+      heroes[1]!.cls,
+      'each picks a different bot',
+    )
+    const x1 = heroes[0]!.x
+    const x2 = heroes[1]!.x
+    for (let i = 0; i < 30; i++) game.update(idle(), [idle(), hold('right')])
+    assert.equal(heroes[0]!.x, x1, "P2's stick doesn't move P1")
+    assert.notEqual(heroes[1]!.x, x2, "P2's stick moves P2")
+    for (let i = 0; i < 60 * 30; i++) {
+      // Kept charged: this is about the leash, not the glitches.
+      for (const h of heroes) h.battery = 300
+      game.update(idle(), [hold('left'), hold('right')])
+    }
+    assert.ok(!game.over)
+    assert.ok(
+      Math.abs(heroes[0]!.x - heroes[1]!.x) <= 320 - 40,
+      'partners stay on one screen',
+    )
+    // A flat bot waits for its partner to share a charge.
+    heroes[0]!.battery = 0
+    heroes[1]!.battery = 300
+    game.update(idle(), [idle(), idle()])
+    assert.ok(heroes[0]!.flat && !game.over, 'one flat bot is not game over')
+    heroes[1]!.x = heroes[0]!.x + 6
+    heroes[1]!.y = heroes[0]!.y
+    heroes[1]!.battery = 200
+    game.update(idle(), [idle(), idle()])
+    assert.ok(!heroes[0]!.flat, 'sharing a charge brings it back')
+    assert.ok(heroes[1]!.battery < 200, 'the helper gave some of its own')
+    heroes[0]!.battery = 0
+    heroes[1]!.battery = 0
+    game.update(idle(), [idle(), idle()])
+    assert.ok(game.over, 'every bot flat ends the run')
+  }
+
+  // Station Sweep: each Mop rides to a deck of its own, and both decks run.
+  {
+    type Mop = {
+      x: number
+      deck: number
+      health: number
+      dead: number
+      out: boolean
+    }
+    type Deck = { sacs: Array<{ timer: number }> }
+    const mod = await loadArcadeGame('station-sweep')
+    const game = mod.create({
+      rng: mulberry32(9),
+      sound: quiet,
+      demo: false,
+      hiScore: 0,
+      players: 2,
+    })
+    const inner = game as unknown as {
+      mops: Mop[]
+      decks: Deck[]
+      spares: number
+    }
+    assert.equal(game.lives, 4, 'two Mops and two shared spares')
+    const [p1, p2] = inner.mops
+    p2!.x = 180
+    game.update(idle(), [idle(), tap('down')])
+    for (let i = 0; i < 60; i++) game.update(idle(), [idle(), idle()])
+    assert.equal(p2!.deck, 1, 'P2 rode down a deck')
+    assert.equal(p1!.deck, 0, 'P1 stayed put')
+    const timers = () => inner.decks[1]!.sacs.map((s) => s.timer).join()
+    const before = timers()
+    for (let i = 0; i < 30; i++) game.update(idle(), [idle(), idle()])
+    assert.notEqual(
+      timers(),
+      before,
+      "P2's deck is live while P1 is on another",
+    )
+    // With no spares, a downed Mop sits out; the run ends when both are out.
+    inner.spares = 0
+    p1!.health = 0
+    for (let i = 0; i < 200; i++) game.update(idle(), [idle(), idle()])
+    assert.ok(p1!.out && !game.over, 'one Mop out is not game over')
+    game.render(g)
+    p2!.health = 0
+    for (let i = 0; i < 200 && !game.over; i++)
+      game.update(idle(), [idle(), idle()])
+    assert.ok(game.over, 'both out ends the run')
+  }
+}
+
 await runGames()
+await runCoopGames()
 console.log('verifyArcadeEngine: ok')

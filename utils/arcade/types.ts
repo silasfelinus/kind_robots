@@ -43,6 +43,8 @@ export type ArcadeGameMeta = {
   accent: string
   /** One line describing the controls on the cabinet's control panel. */
   controls: string
+  /** Same-device players the cabinet can seat (default 1). */
+  maxPlayers?: number
 }
 
 export type ArcadeGameOptions = {
@@ -51,6 +53,8 @@ export type ArcadeGameOptions = {
   /** Attract-mode demo: the game drives itself and ignores the input. */
   demo: boolean
   hiScore: number
+  /** Players seated for this game (1 unless the game's maxPlayers allows more). */
+  players?: number
 }
 
 /** The subset of ArcadeSound a game may call (lets tests pass a stub). */
@@ -61,8 +65,11 @@ export interface ArcadeGameInstance {
   readonly level: number
   readonly lives: number
   readonly over: boolean
-  /** Advance one fixed 1/60 s tick. */
-  update(input: InputFrame): void
+  /**
+   * Advance one fixed 1/60 s tick. `input` is player 1's; a game seating more
+   * players also gets every seated player's frame, player 1 first.
+   */
+  update(input: InputFrame, players?: InputFrame[]): void
   /** Draw in logical coordinates (the cabinet has already scaled the context). */
   render(g: CanvasRenderingContext2D): void
 }

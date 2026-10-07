@@ -44,7 +44,12 @@
         </div>
       </div>
 
-      <div v-if="locked" class="cabinet-overlay" aria-label="Touch controls">
+      <div
+        v-if="locked"
+        class="cabinet-overlay"
+        :class="{ 'cabinet-overlay--duo': duo }"
+        aria-label="Touch controls"
+      >
         <button
           type="button"
           class="cabinet-pause-chip"
@@ -54,54 +59,74 @@
           <span aria-hidden="true">❚❚</span>
         </button>
         <div
-          ref="dpadRef"
-          class="cabinet-dpad"
-          role="group"
-          aria-label="Direction pad"
-          @pointerdown.prevent="onDpad"
-          @pointermove.prevent="onDpad"
-          @pointerup.prevent="releaseDpad"
-          @pointercancel="releaseDpad"
-          @lostpointercapture="releaseDpad"
+          v-for="seat in seatList"
+          :key="seat"
+          class="cabinet-cluster"
+          :class="`cabinet-cluster-${seat + 1}`"
         >
-          <span
-            v-for="pad in dpad"
-            :key="pad.button"
-            class="cabinet-key"
-            :class="[pad.class, { 'cabinet-key-held': dpadHeld[pad.button] }]"
-            aria-hidden="true"
+          <div
+            :ref="(el) => setDpadRef(seat, el)"
+            class="cabinet-dpad"
+            role="group"
+            :aria-label="
+              duo ? `Player ${seat + 1} direction pad` : 'Direction pad'
+            "
+            @pointerdown.prevent="onDpad($event, seat)"
+            @pointermove.prevent="onDpad($event, seat)"
+            @pointerup.prevent="releaseDpad(seat)"
+            @pointercancel="releaseDpad(seat)"
+            @lostpointercapture="releaseDpad(seat)"
           >
-            {{ pad.glyph }}
+            <span
+              v-for="pad in dpad"
+              :key="pad.button"
+              class="cabinet-key"
+              :class="[
+                pad.class,
+                { 'cabinet-key-held': dpadHeld[seat]?.[pad.button] },
+              ]"
+              aria-hidden="true"
+            >
+              {{ pad.glyph }}
+            </span>
+          </div>
+          <div class="cabinet-buttons">
+            <button
+              type="button"
+              class="cabinet-ball cabinet-ball-b"
+              :aria-label="duo ? `Player ${seat + 1} B button` : 'B button'"
+              @pointerdown.prevent="holdButton($event, 'b', seat)"
+              @pointerup.prevent="press('b', false, seat)"
+              @pointercancel="press('b', false, seat)"
+              @lostpointercapture="press('b', false, seat)"
+            >
+              B
+            </button>
+            <button
+              type="button"
+              class="cabinet-ball cabinet-ball-a"
+              :aria-label="duo ? `Player ${seat + 1} A button` : 'A button'"
+              @pointerdown.prevent="holdButton($event, 'a', seat)"
+              @pointerup.prevent="press('a', false, seat)"
+              @pointercancel="press('a', false, seat)"
+              @lostpointercapture="press('a', false, seat)"
+            >
+              A
+            </button>
+          </div>
+          <span v-if="duo" class="cabinet-seat-tag" aria-hidden="true">
+            {{ seat + 1 }}P
           </span>
-        </div>
-        <div class="cabinet-buttons">
-          <button
-            type="button"
-            class="cabinet-ball cabinet-ball-b"
-            aria-label="B button"
-            @pointerdown.prevent="holdButton($event, 'b')"
-            @pointerup.prevent="press('b', false)"
-            @pointercancel="press('b', false)"
-            @lostpointercapture="press('b', false)"
-          >
-            B
-          </button>
-          <button
-            type="button"
-            class="cabinet-ball cabinet-ball-a"
-            aria-label="A button"
-            @pointerdown.prevent="holdButton($event, 'a')"
-            @pointerup.prevent="press('a', false)"
-            @pointercancel="press('a', false)"
-            @lostpointercapture="press('a', false)"
-          >
-            A
-          </button>
         </div>
       </div>
 
       <div v-else class="cabinet-panel">
-        <p v-if="!touchControls" class="cabinet-hint">
+        <p v-if="!touchControls && duo" class="cabinet-hint">
+          1P: WASD · Space or F = A · G or X = B &nbsp;·&nbsp; 2P: arrows · / =
+          A · . or right Shift = B &nbsp;·&nbsp; Enter = Start · P pauses · a
+          gamepad each works too
+        </p>
+        <p v-else-if="!touchControls" class="cabinet-hint">
           Arrows or WASD move · Space or Z = A · X or Shift = B · Enter = Start
           · P pauses · gamepads work too
         </p>
@@ -115,6 +140,20 @@
             @lostpointercapture="press('start', false)"
           >
             {{ phase === 'paused' ? 'Resume' : 'Start' }}
+          </button>
+          <button
+            v-if="maxPlayers > 1"
+            type="button"
+            class="cabinet-switch"
+            :disabled="!choosingPlayers"
+            :title="
+              choosingPlayers
+                ? 'Same-device co-op'
+                : 'Pick players on the title screen'
+            "
+            @click="togglePlayers"
+          >
+            {{ players === 1 ? '1 player' : `${players} players` }}
           </button>
           <button
             v-if="!touchControls"
@@ -160,7 +199,13 @@ import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useArcadeStore } from '@/stores/arcadeStore'
 import { useUserStore } from '@/stores/userStore'
 import { findArcadeGame, loadArcadeGame } from '~/utils/arcade/games'
-import { ArcadeInput } from '~/utils/arcade/input'
+import {
+  ArcadeInput,
+  assignPads,
+  KEY_MAP,
+  P1_KEYS,
+  P2_KEYS,
+} from '~/utils/arcade/input'
 import { startFixedLoop, TICK_MS, type FixedLoop } from '~/utils/arcade/loop'
 import {
   arcadeReducer,
@@ -194,18 +239,24 @@ const screenRef = ref<HTMLDivElement | null>(null)
 const wrapRef = ref<HTMLDivElement | null>(null)
 /** Bezel width (px) that fits the space actually left for the screen while locked. */
 const fittedWidth = ref(0)
-const dpadRef = ref<HTMLDivElement | null>(null)
 const canvasRef = ref<HTMLCanvasElement | null>(null)
 const phase = ref<ArcadePhase>('title')
 const muted = computed(() => store.muted)
 const crt = computed(() => store.crt)
 const touchControls = ref(false)
-const dpadHeld = ref<Record<DpadDirection, boolean>>({
-  up: false,
-  down: false,
-  left: false,
-  right: false,
-})
+/** Directions held on each seat's touch d-pad. */
+const dpadHeld = ref<Array<Record<DpadDirection, boolean>>>([
+  noDirections(),
+  noDirections(),
+])
+/** Players seated: the title screen's switch, for games that seat more than one. */
+const players = ref(1)
+const maxPlayers = computed(() => Math.min(2, meta.value?.maxPlayers ?? 1))
+const duo = computed(() => players.value > 1)
+const seatList = computed(() =>
+  Array.from({ length: players.value }, (_, seat) => seat),
+)
+const choosingPlayers = computed(() => ATTRACT_PHASES.includes(phase.value))
 const loadError = ref('')
 const marqueeArt = ref('/images/arcade/cabinet-marquee.webp')
 
@@ -218,6 +269,8 @@ let loop: FixedLoop | null = null
 let resizeObserver: ResizeObserver | null = null
 let wrapObserver: ResizeObserver | null = null
 const input = new ArcadeInput()
+/** Player 2's controls, read only while two are seated. */
+const input2 = new ArcadeInput(P2_KEYS)
 const titleArt = typeof Image === 'undefined' ? null : new Image()
 let titleArtReady = false
 let ticks = 0
@@ -231,6 +284,14 @@ let submitting = false
 let demoSeed = 1
 
 type DpadDirection = 'up' | 'down' | 'left' | 'right'
+
+function noDirections(): Record<DpadDirection, boolean> {
+  return { up: false, down: false, left: false, right: false }
+}
+
+function seatInput(seat: number): ArcadeInput {
+  return seat === 1 ? input2 : input
+}
 
 const dpad: Array<{
   button: DpadDirection
@@ -287,15 +348,15 @@ function fitScreen() {
 const board = computed(() => store.board(props.slug, 'all'))
 const hiScore = () => board.value[0]?.score ?? 0
 
-function press(button: ArcadeButton, down: boolean) {
+function press(button: ArcadeButton, down: boolean, seat = 0) {
   if (down) sound?.unlock()
-  input.setTouch(button, down)
+  seatInput(seat).setTouch(button, down)
 }
 
 /** Hold a button until this finger lifts, even if it drifts off the button. */
-function holdButton(event: PointerEvent, button: ArcadeButton) {
+function holdButton(event: PointerEvent, button: ArcadeButton, seat = 0) {
   capture(event.currentTarget as HTMLElement | null, event.pointerId)
-  press(button, true)
+  press(button, true, seat)
 }
 
 /** Best-effort pointer capture: it throws if the browser already dropped the pointer. */
@@ -307,19 +368,24 @@ function capture(target: HTMLElement | null, pointerId: number) {
   }
 }
 
-/** The finger currently on the d-pad, if any. */
-let dpadPointer: number | null = null
+/** Each seat's d-pad element, and the finger currently on it. */
+const dpadEls: Array<HTMLElement | null> = [null, null]
+const dpadPointers: Array<number | null> = [null, null]
+
+function setDpadRef(seat: number, el: unknown) {
+  dpadEls[seat] = el instanceof HTMLElement ? el : null
+}
 
 const DPAD_DEAD_ZONE = 0.22
 
 /** Map a finger on the d-pad to directions (8-way, with a small dead zone). */
-function onDpad(event: PointerEvent) {
-  const pad = dpadRef.value
+function onDpad(event: PointerEvent, seat = 0) {
+  const pad = dpadEls[seat]
   if (!pad) return
   if (event.type === 'pointerdown') {
-    dpadPointer = event.pointerId
+    dpadPointers[seat] = event.pointerId
     capture(pad, event.pointerId)
-  } else if (event.pointerId !== dpadPointer) {
+  } else if (event.pointerId !== dpadPointers[seat]) {
     return
   }
   const rect = pad.getBoundingClientRect()
@@ -335,19 +401,61 @@ function onDpad(event: PointerEvent) {
     next.down = sector >= 1 && sector <= 3
     next.up = sector >= -3 && sector <= -1
   }
-  setDpad(next)
+  setDpad(next, seat)
 }
 
-function releaseDpad() {
-  dpadPointer = null
-  setDpad({ up: false, down: false, left: false, right: false })
+function releaseDpad(seat = 0) {
+  dpadPointers[seat] = null
+  setDpad(noDirections(), seat)
 }
 
-function setDpad(next: Record<DpadDirection, boolean>) {
+function setDpad(next: Record<DpadDirection, boolean>, seat = 0) {
+  const held = dpadHeld.value[seat] ?? noDirections()
   for (const button of ['up', 'down', 'left', 'right'] as const) {
-    if (next[button] !== dpadHeld.value[button]) press(button, next[button])
+    if (next[button] !== held[button]) press(button, next[button], seat)
   }
-  dpadHeld.value = next
+  dpadHeld.value[seat] = next
+}
+
+/** Let go of every touch control on every seat. */
+function releaseTouch() {
+  for (const seat of [0, 1]) {
+    releaseDpad(seat)
+    for (const button of ['a', 'b', 'start'] as const)
+      seatInput(seat).setTouch(button, false)
+  }
+}
+
+function togglePlayers() {
+  if (!choosingPlayers.value) return
+  players.value = players.value >= maxPlayers.value ? 1 : players.value + 1
+  sound?.unlock()
+  sound?.play('blip')
+}
+
+/**
+ * Seat the controls: one player gets every key and pad; two split the
+ * keyboard (WASD and the arrows) and take a gamepad each.
+ */
+function applySeats() {
+  if (typeof window === 'undefined') return
+  const pads =
+    typeof navigator !== 'undefined' && navigator.getGamepads
+      ? Array.from(navigator.getGamepads())
+          .filter((pad): pad is Gamepad => Boolean(pad))
+          .map((pad) => pad.index)
+      : []
+  const slots = assignPads(pads, players.value)
+  input.setPadIndex(slots[0] ?? null)
+  if (duo.value) {
+    input.setKeyMap(P1_KEYS)
+    input2.setPadIndex(slots[1] ?? -1)
+    input2.attach(window)
+  } else {
+    input.setKeyMap(KEY_MAP)
+    input2.detach()
+    input2.clear()
+  }
 }
 
 function onContextMenu(event: Event) {
@@ -376,7 +484,9 @@ function dispatch(event: ArcadeEvent) {
 function enterPhase(next: ArcadePhase) {
   phase.value = next
   input.clear()
+  input2.clear()
   input.typing = next === 'initials'
+  input2.typing = next === 'initials'
   if (next === 'demo' && gameModule) {
     demoGame = gameModule.create({
       rng: mulberry32(demoSeed++),
@@ -408,6 +518,7 @@ function startGame() {
     sound: sound ?? { play: () => {} },
     demo: false,
     hiScore: hiScore(),
+    players: players.value,
   })
   dispatch({ type: 'start' })
 }
@@ -469,9 +580,26 @@ function stepInitials(frame: InputFrame) {
   }
 }
 
+/** Either player's buttons, for the menus around the game. */
+function eitherFrame(frames: InputFrame[]): InputFrame {
+  const [first, ...rest] = frames
+  const frame: InputFrame = {
+    held: { ...first!.held },
+    pressed: { ...first!.pressed },
+  }
+  for (const other of rest) {
+    for (const key of Object.keys(frame.held) as ArcadeButton[]) {
+      frame.held[key] ||= other.held[key]
+      frame.pressed[key] ||= other.pressed[key]
+    }
+  }
+  return frame
+}
+
 function tick() {
   ticks++
-  const frame = input.poll()
+  const frames = duo.value ? [input.poll(), input2.poll()] : [input.poll()]
+  const frame = frames.length > 1 ? eitherFrame(frames) : frames[0]!
   const current = machine.phase
   if (ATTRACT_PHASES.includes(current)) {
     if (frame.pressed.start || frame.pressed.a) {
@@ -487,7 +615,7 @@ function tick() {
     return
   }
   if (current === 'playing' && game) {
-    game.update(frame)
+    game.update(frames[0]!, frames)
     if (game.over) {
       lastScore = game.score
       lastLevel = game.level
@@ -865,6 +993,9 @@ onMounted(() => {
   sound = createArcadeSound(store.muted)
   touchControls.value = window.matchMedia('(pointer: coarse)').matches
   input.attach(window)
+  applySeats()
+  window.addEventListener('gamepadconnected', applySeats)
+  window.addEventListener('gamepaddisconnected', applySeats)
   window.addEventListener('keydown', onKey)
   window.addEventListener('online', onOnline)
   document.addEventListener('visibilitychange', onVisibility)
@@ -878,22 +1009,31 @@ onMounted(() => {
 
 watch(
   () => props.slug,
-  () => void boot(),
+  () => {
+    players.value = Math.min(players.value, maxPlayers.value)
+    void boot()
+  },
 )
+
+watch(players, () => {
+  releaseTouch()
+  applySeats()
+})
 
 watch(locked, (on) => {
   setPageLock(on)
   // Locking swaps the settings panel for the overlay and back, so the button
   // under the finger is gone before it can see the finger lift: let go of all.
-  releaseDpad()
-  for (const button of ['a', 'b', 'start'] as const)
-    input.setTouch(button, false)
+  releaseTouch()
   void nextTick(fitScreen)
 })
 
 onBeforeUnmount(() => {
   loop?.stop()
   input.detach()
+  input2.detach()
+  window.removeEventListener('gamepadconnected', applySeats)
+  window.removeEventListener('gamepaddisconnected', applySeats)
   window.removeEventListener('keydown', onKey)
   window.removeEventListener('online', onOnline)
   document.removeEventListener('visibilitychange', onVisibility)
@@ -990,9 +1130,16 @@ onBeforeUnmount(() => {
   pointer-events: none;
 }
 
-.cabinet-overlay > * {
+.cabinet-overlay > *,
+.cabinet-cluster > * {
   position: absolute;
   pointer-events: auto;
+}
+
+/* Each seat's controls; the cluster itself lets touches through to the game. */
+.cabinet-overlay > .cabinet-cluster {
+  inset: 0;
+  pointer-events: none;
 }
 
 .cabinet-overlay .cabinet-dpad {
@@ -1074,6 +1221,93 @@ onBeforeUnmount(() => {
     right: auto;
     left: calc(50% - 1.3rem);
     bottom: calc(max(1rem, env(safe-area-inset-bottom)) + var(--key) * 2);
+  }
+}
+
+/* Two seated: two smaller clusters, player 2's tinted pink. Sideways, player 1
+   takes the left half and player 2 the right; upright, player 2's row sits
+   above player 1's. */
+.cabinet-overlay--duo {
+  --key: clamp(2.4rem, 7vmin, 4rem);
+  --ball: calc(var(--key) * 1.15);
+}
+
+.cabinet-overlay--duo .cabinet-buttons {
+  gap: 0.5rem;
+}
+
+.cabinet-overlay--duo .cabinet-ball {
+  width: var(--ball);
+  height: var(--ball);
+}
+
+.cabinet-overlay--duo .cabinet-ball-a {
+  margin-bottom: calc(var(--key) * 0.35);
+}
+
+.cabinet-cluster-2 .cabinet-key {
+  border-color: rgba(244, 114, 182, 0.6);
+  color: rgba(251, 207, 232, 0.95);
+}
+
+.cabinet-seat-tag {
+  pointer-events: none;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: #fde68a;
+  text-shadow: 0 1px 2px #000;
+  left: max(1rem, env(safe-area-inset-left));
+  bottom: calc(
+    max(1rem, env(safe-area-inset-bottom)) + var(--key) * 3 + 0.2rem
+  );
+}
+
+.cabinet-cluster-2 .cabinet-seat-tag {
+  color: #fbcfe8;
+}
+
+@media (orientation: landscape) {
+  .cabinet-cluster-1 .cabinet-buttons {
+    right: auto;
+    left: calc(max(1rem, env(safe-area-inset-left)) + var(--key) * 3 + 0.75rem);
+  }
+
+  .cabinet-cluster-2 .cabinet-dpad {
+    left: auto;
+    right: calc(
+      max(1rem, env(safe-area-inset-right)) + var(--ball) * 2 + 1.25rem
+    );
+  }
+
+  .cabinet-cluster-2 .cabinet-seat-tag {
+    left: auto;
+    right: calc(
+      max(1rem, env(safe-area-inset-right)) + var(--ball) * 2 + 1.25rem
+    );
+  }
+}
+
+@media (orientation: portrait) {
+  .cabinet-cluster-2 .cabinet-dpad,
+  .cabinet-cluster-2 .cabinet-buttons {
+    bottom: calc(
+      max(1rem, env(safe-area-inset-bottom)) + var(--key) * 3 + 1.4rem
+    );
+  }
+
+  .cabinet-cluster-2 .cabinet-seat-tag {
+    bottom: calc(
+      max(1rem, env(safe-area-inset-bottom)) + var(--key) * 6 + 1.6rem
+    );
+  }
+
+  .cabinet-overlay--duo .cabinet-pause-chip {
+    left: auto;
+    right: max(0.6rem, env(safe-area-inset-right));
+    bottom: calc(
+      max(1rem, env(safe-area-inset-bottom)) + var(--key) * 6 + 1.4rem
+    );
   }
 }
 

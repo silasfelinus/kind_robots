@@ -31,6 +31,54 @@ export const KEY_MAP: Record<string, ArcadeButton> = {
   NumpadEnter: 'start',
 }
 
+/** Two on one keyboard: player 1 on the left of the board... */
+export const P1_KEYS: Record<string, ArcadeButton> = {
+  KeyW: 'up',
+  KeyS: 'down',
+  KeyA: 'left',
+  KeyD: 'right',
+  Space: 'a',
+  KeyF: 'a',
+  KeyZ: 'a',
+  KeyG: 'b',
+  KeyX: 'b',
+  ShiftLeft: 'b',
+  Enter: 'start',
+}
+
+/** ...and player 2 on the arrows, with the keys beside them. */
+export const P2_KEYS: Record<string, ArcadeButton> = {
+  ArrowUp: 'up',
+  ArrowDown: 'down',
+  ArrowLeft: 'left',
+  ArrowRight: 'right',
+  Slash: 'a',
+  Numpad0: 'a',
+  Period: 'b',
+  ShiftRight: 'b',
+  NumpadDecimal: 'b',
+  NumpadEnter: 'start',
+}
+
+/**
+ * Which gamepad slot each seated player reads (null: every pad, -1: none).
+ * One player takes every pad. With two, the first two pads go one each; a
+ * lone pad goes to player 2, since player 1 has the left of the keyboard.
+ */
+export function assignPads(
+  connected: readonly number[],
+  players: number,
+): Array<number | null> {
+  if (players <= 1) return [null]
+  const seats: Array<number | null> = Array.from({ length: players }, () => -1)
+  if (connected.length === 1) {
+    seats[1] = connected[0]!
+    return seats
+  }
+  connected.slice(0, players).forEach((pad, seat) => (seats[seat] = pad))
+  return seats
+}
+
 export const AXIS_DEADZONE = 0.4
 
 /** Standard-mapping gamepad -> abstract buttons (pure, for tests). */
@@ -97,6 +145,11 @@ export class ButtonInput<B extends string> {
   typing = false
 
   constructor(private options: ButtonInputOptions<B>) {}
+
+  /** Read only this gamepad slot (null: every pad, -1: none). */
+  setPadIndex(padIndex: number | null) {
+    this.options = { ...this.options, padIndex }
+  }
 
   /** Swap the key bindings (remapping) and drop anything held. */
   setKeyMap(keyMap: Record<string, B>) {
@@ -183,10 +236,10 @@ export class ButtonInput<B extends string> {
 }
 
 export class ArcadeInput extends ButtonInput<ArcadeButton> {
-  constructor() {
+  constructor(keyMap: Record<string, ArcadeButton> = KEY_MAP) {
     super({
       buttons: ARCADE_BUTTONS,
-      keyMap: KEY_MAP,
+      keyMap,
       readPad: readGamepad,
       passThrough: ['start'],
     })

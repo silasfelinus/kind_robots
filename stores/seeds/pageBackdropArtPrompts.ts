@@ -48,6 +48,10 @@ export type PageBackdropArtPrompt = {
  * jellyfish and a robot dead centre, all near-black. Centring and darkness
  * are now spelled out in the negative, where this lane can act on them, and
  * the scene moved ahead of the style so the page's own setting survives.
+ *
+ * Scenes here read best as concrete nouns, not mood prose: round 2 turned
+ * bots' "conveyor rails" into a train platform and dreams' "shoals of
+ * drifters" into one centred jellyfish (ArtJobs 34424-34429).
  */
 export const BACKDROP_LANE = {
   checkpoint: 'Illustrious/arthemyWesternArt_v30.safetensors',
@@ -166,13 +170,13 @@ const PAGES: PageSeed[] = [
     page: 'dreams',
     title: 'Dreams — Dream Deck',
     scene:
-      'A dream deck adrift at night: a wide open platform of pale weathered wood floating in a violet and indigo sky, surrounded by slow-turning constellations, soft nebulae and shoals of luminous jellyfish-like drifters. Gauzy banners and star-charts flutter at the margins. Everything is quiet, buoyant and half-remembered, like the moment just before waking.',
+      'dreamlike night sky, a floating platform of pale weathered wooden planks adrift among clouds, many small glowing jellyfish drifting in swarms along the left and right edges, school of jellyfish, swirling violet and indigo nebula, scattered constellations, gauzy banners fluttering on tall poles at the edges of the deck, surreal, ethereal, open starry sky through the middle',
   },
   {
     page: 'bots',
     title: 'Bots — Bot Factory',
     scene:
-      'A bot foundry: a vast cathedral-tall workshop hall of copper pipework, glass tanks of glowing coolant, conveyor rails and pegboards of neatly hung tools, with tall windows spilling afternoon sun across the floor. Small partially-assembled robots of many different silhouettes wait on side benches. Inventive and alive, industrial grandeur warmed by sunlight.',
+      'robot workshop interior, robot factory, cluttered workbenches along both side walls covered in half-assembled robots, robot heads and mechanical arms on shelves, gears, exposed wiring, copper pipes running up the walls, glass tanks of glowing green coolant, tools hanging on pegboards, chain hoists from the ceiling beams, tall industrial windows with warm afternoon sunlight, drifting sparks, open concrete floor in the middle',
   },
   {
     page: 'characters',

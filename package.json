@@ -126,6 +126,7 @@
     "test:arcade-engine": "tsx utils/scripts/verifyArcadeEngine.test.ts",
     "test:zuzu-showdown-sim": "tsx utils/scripts/verifyZuzuShowdownSim.test.ts",
     "test:zuzu-showdown-input": "tsx utils/scripts/verifyZuzuShowdownInput.test.ts",
+    "test:zuzu-showdown-combat": "tsx utils/scripts/verifyZuzuShowdownCombat.test.ts",
     "test:aquarium-collect": "tsx utils/scripts/verifyAquariumCollect.test.ts",
     "test:aquarium-genetics": "tsx utils/scripts/verifyAquariumGenetics.test.ts",
     "test:aquarium-shop": "tsx utils/scripts/verifyAquariumShop.test.ts",

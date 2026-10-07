@@ -43,14 +43,19 @@ export class PinballMixer {
 
   unlock() {
     if (this.unlocked || typeof window === 'undefined') return
-    const Ctor = (window.AudioContext ??
-      (window as unknown as { webkitAudioContext?: AudioCtor }).webkitAudioContext) as AudioCtor | undefined
+    const Ctor = (
+      window.AudioContext ??
+      (window as unknown as { webkitAudioContext?: AudioCtor }).webkitAudioContext
+    ) as AudioCtor | undefined
     if (!Ctor) return
     const context = new Ctor()
     const master = context.createGain()
     master.gain.value = 0.72
     master.connect(context.destination)
-    for (const [name, gain] of Object.entries(BUS_GAIN) as [PinballBus, number][]) {
+    for (const [name, gain] of Object.entries(BUS_GAIN) as [
+      PinballBus,
+      number,
+    ][]) {
       const node = context.createGain()
       node.gain.value = gain
       node.connect(master)
@@ -75,12 +80,21 @@ export class PinballMixer {
   }
 
   private isMuted() {
-    return this.sound !== null && 'muted' in this.sound && this.sound.muted === true
+    return (
+      this.sound !== null &&
+      'muted' in this.sound &&
+      this.sound.muted === true
+    )
   }
 
   startMusic(bed: PinballMusicBed) {
     this.stopMusic()
-    if (this.isMuted() || !this.context || this.context.state !== 'running') return
+    if (
+      this.isMuted() ||
+      !this.context ||
+      this.context.state !== 'running'
+    )
+      return
     const bus = this.buses.get('music')
     if (!bus) return
     for (const frequency of MUSIC_BEDS[bed]) {
@@ -111,7 +125,10 @@ export class PinballMixer {
     const start = context.currentTime
     const envelope = context.createGain()
     envelope.gain.setValueAtTime(Math.max(0.0001, cue.gain), start)
-    envelope.gain.exponentialRampToValueAtTime(0.0001, start + cue.duration)
+    envelope.gain.exponentialRampToValueAtTime(
+      0.0001,
+      start + cue.duration,
+    )
 
     let destination: AudioNode = bus
     if (position && 'createStereoPanner' in context) {
@@ -124,10 +141,15 @@ export class PinballMixer {
     envelope.connect(destination)
 
     if (cue.noise) {
-      const frames = Math.max(1, Math.floor(context.sampleRate * cue.duration))
+      const frames = Math.max(
+        1,
+        Math.floor(context.sampleRate * cue.duration),
+      )
       const buffer = context.createBuffer(1, frames, context.sampleRate)
       const data = buffer.getChannelData(0)
-      for (let i = 0; i < frames; i++) data[i] = (Math.random() * 2 - 1) * (1 - i / frames)
+      for (let i = 0; i < frames; i++) {
+        data[i] = (Math.random() * 2 - 1) * (1 - i / frames)
+      }
       const source = context.createBufferSource()
       source.buffer = buffer
       source.connect(envelope)
@@ -139,7 +161,10 @@ export class PinballMixer {
     oscillator.type = cue.wave ?? 'triangle'
     oscillator.frequency.setValueAtTime(cue.frequency, start)
     if (cue.endFrequency) {
-      oscillator.frequency.exponentialRampToValueAtTime(cue.endFrequency, start + cue.duration)
+      oscillator.frequency.exponentialRampToValueAtTime(
+        cue.endFrequency,
+        start + cue.duration,
+      )
     }
     oscillator.connect(envelope)
     oscillator.start(start)

@@ -165,6 +165,7 @@ import {
   type ArcadePhase,
 } from '~/utils/arcade/machine'
 import { createArcadeSound, type ArcadeSound } from '~/utils/arcade/sound'
+import { setGamePageLock } from '~/utils/arcade/pageLock'
 import { drawText, lineStep, measureText } from '~/utils/arcade/font'
 import { mulberry32 } from '~/utils/arcade/curve'
 import { INITIALS_ALPHABET, isAllowedInitials } from '~/utils/arcade/initials'
@@ -352,11 +353,13 @@ function onContextMenu(event: Event) {
 }
 
 /** Lock page scrolling while the cabinet is pinned (and undo it after). */
+let pageLocked = false
+
+/** No page scroll or zoom while a touch game runs (see utils/arcade/pageLock). */
 function setPageLock(on: boolean) {
-  const root = document.documentElement
-  root.style.overflow = on ? 'hidden' : ''
-  root.style.overscrollBehavior = on ? 'none' : ''
-  document.body.style.overflow = on ? 'hidden' : ''
+  if (on === pageLocked) return
+  pageLocked = on
+  setGamePageLock(on)
 }
 
 // --- flow -----------------------------------------------------------------

@@ -65,6 +65,7 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { createArcadeSound, type ArcadeSound } from '~/utils/arcade/sound'
+import { setGamePageLock } from '~/utils/arcade/pageLock'
 import { startFixedLoop, type FixedLoop } from '~/utils/arcade/loop'
 import type { ButtonInput } from '~/utils/arcade/input'
 import {
@@ -329,11 +330,13 @@ function onContextMenu(event: Event) {
   if (touchControls.value) event.preventDefault()
 }
 
+let pageLocked = false
+
+/** No page scroll or zoom while a touch game runs (see utils/arcade/pageLock). */
 function setPageLock(on: boolean) {
-  const root = document.documentElement
-  root.style.overflow = on ? 'hidden' : ''
-  root.style.overscrollBehavior = on ? 'none' : ''
-  document.body.style.overflow = on ? 'hidden' : ''
+  if (on === pageLocked) return
+  pageLocked = on
+  setGamePageLock(on)
 }
 
 function fitCanvas() {

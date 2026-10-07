@@ -108,6 +108,7 @@ export class PinballRuntime implements ArcadeWebGLGameInstance {
   update(input: InputFrame) {
     if (this.disposed || this.rules.over) return
     this.tick++
+    if (!this.demo && Object.values(input.pressed).some(Boolean)) this.mixer.unlock()
     const controls = this.demo ? this.pilot() : input
     const both = controls.held.a && !this.physics.ballOnPlunger()
     const left = controls.held.left || both

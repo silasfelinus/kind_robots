@@ -69,7 +69,7 @@ export type ArcadeGameOptions = {
 }
 
 /** The subset of ArcadeSound a game may call (lets tests pass a stub). */
-export type ArcadeSoundLike = Pick<ArcadeSound, 'play' | 'muted'>
+export type ArcadeSoundLike = Pick<ArcadeSound, 'play'>
 
 export interface ArcadeGameInstance {
   readonly score: number

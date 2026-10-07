@@ -471,9 +471,7 @@ function statusCount(status: ArtJobStatus | 'ALL'): number {
 }
 
 function firstNonEmptyStatus(): ArtJobStatus | null {
-  return (
-    concreteStatusFilters.find((status) => statusCount(status) > 0) ?? null
-  )
+  return concreteStatusFilters.find((status) => statusCount(status) > 0) ?? null
 }
 
 function uptimeClass(value: number | null): string {

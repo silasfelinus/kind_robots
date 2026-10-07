@@ -47,7 +47,10 @@
       <div
         v-if="locked"
         class="cabinet-overlay"
-        :class="{ 'cabinet-overlay--duo': duo }"
+        :class="[
+          `cabinet-overlay--seats-${players}`,
+          { 'cabinet-overlay--duo': duo },
+        ]"
         aria-label="Touch controls"
       >
         <button
@@ -123,8 +126,12 @@
       <div v-else class="cabinet-panel">
         <p v-if="!touchControls && duo" class="cabinet-hint">
           1P: WASD · Space or F = A · G or X = B &nbsp;·&nbsp; 2P: arrows · / =
-          A · . or right Shift = B &nbsp;·&nbsp; Enter = Start · P pauses · a
-          gamepad each works too
+          A · . or right Shift = B &nbsp;·&nbsp;
+          <template v-if="players > 2">
+            {{ players === 3 ? '3P' : '3P and 4P' }}: a gamepad each
+            &nbsp;·&nbsp;
+          </template>
+          Enter = Start · P pauses · a gamepad each works too
         </p>
         <p v-else-if="!touchControls" class="cabinet-hint">
           Arrows or WASD move · Space or Z = A · X or Shift = B · Enter = Start
@@ -235,6 +242,9 @@ const store = useArcadeStore()
 const userStore = useUserStore()
 const meta = computed(() => findArcadeGame(props.slug))
 
+/** The most players a cabinet seats on one device. */
+const MAX_SEATS = 4
+
 const screenRef = ref<HTMLDivElement | null>(null)
 const wrapRef = ref<HTMLDivElement | null>(null)
 /** Bezel width (px) that fits the space actually left for the screen while locked. */
@@ -245,13 +255,14 @@ const muted = computed(() => store.muted)
 const crt = computed(() => store.crt)
 const touchControls = ref(false)
 /** Directions held on each seat's touch d-pad. */
-const dpadHeld = ref<Array<Record<DpadDirection, boolean>>>([
-  noDirections(),
-  noDirections(),
-])
+const dpadHeld = ref<Array<Record<DpadDirection, boolean>>>(
+  Array.from({ length: MAX_SEATS }, () => noDirections()),
+)
 /** Players seated: the title screen's switch, for games that seat more than one. */
 const players = ref(1)
-const maxPlayers = computed(() => Math.min(2, meta.value?.maxPlayers ?? 1))
+const maxPlayers = computed(() =>
+  Math.min(MAX_SEATS, meta.value?.maxPlayers ?? 1),
+)
 const duo = computed(() => players.value > 1)
 const seatList = computed(() =>
   Array.from({ length: players.value }, (_, seat) => seat),
@@ -269,8 +280,16 @@ let loop: FixedLoop | null = null
 let resizeObserver: ResizeObserver | null = null
 let wrapObserver: ResizeObserver | null = null
 const input = new ArcadeInput()
-/** Player 2's controls, read only while two are seated. */
-const input2 = new ArcadeInput(P2_KEYS)
+/**
+ * Every seat's controls, read only while seated: player 2 has the arrows,
+ * players 3 and 4 a gamepad (or a touch cluster) each.
+ */
+const inputs = [
+  input,
+  new ArcadeInput(P2_KEYS),
+  new ArcadeInput({}),
+  new ArcadeInput({}),
+]
 const titleArt = typeof Image === 'undefined' ? null : new Image()
 let titleArtReady = false
 let ticks = 0
@@ -290,7 +309,7 @@ function noDirections(): Record<DpadDirection, boolean> {
 }
 
 function seatInput(seat: number): ArcadeInput {
-  return seat === 1 ? input2 : input
+  return inputs[seat] ?? input
 }
 
 const dpad: Array<{
@@ -369,8 +388,8 @@ function capture(target: HTMLElement | null, pointerId: number) {
 }
 
 /** Each seat's d-pad element, and the finger currently on it. */
-const dpadEls: Array<HTMLElement | null> = [null, null]
-const dpadPointers: Array<number | null> = [null, null]
+const dpadEls: Array<HTMLElement | null> = Array(MAX_SEATS).fill(null)
+const dpadPointers: Array<number | null> = Array(MAX_SEATS).fill(null)
 
 function setDpadRef(seat: number, el: unknown) {
   dpadEls[seat] = el instanceof HTMLElement ? el : null
@@ -419,7 +438,7 @@ function setDpad(next: Record<DpadDirection, boolean>, seat = 0) {
 
 /** Let go of every touch control on every seat. */
 function releaseTouch() {
-  for (const seat of [0, 1]) {
+  for (let seat = 0; seat < MAX_SEATS; seat++) {
     releaseDpad(seat)
     for (const button of ['a', 'b', 'start'] as const)
       seatInput(seat).setTouch(button, false)
@@ -434,8 +453,9 @@ function togglePlayers() {
 }
 
 /**
- * Seat the controls: one player gets every key and pad; two split the
- * keyboard (WASD and the arrows) and take a gamepad each.
+ * Seat the controls: one player gets every key and pad; with more, players
+ * 1 and 2 split the keyboard (WASD and the arrows), and the gamepads go
+ * round (see assignPads).
  */
 function applySeats() {
   if (typeof window === 'undefined') return
@@ -447,15 +467,17 @@ function applySeats() {
       : []
   const slots = assignPads(pads, players.value)
   input.setPadIndex(slots[0] ?? null)
-  if (duo.value) {
-    input.setKeyMap(P1_KEYS)
-    input2.setPadIndex(slots[1] ?? -1)
-    input2.attach(window)
-  } else {
-    input.setKeyMap(KEY_MAP)
-    input2.detach()
-    input2.clear()
-  }
+  input.setKeyMap(duo.value ? P1_KEYS : KEY_MAP)
+  inputs.forEach((seatIn, seat) => {
+    if (seat === 0) return
+    if (seat < players.value) {
+      seatIn.setPadIndex(slots[seat] ?? -1)
+      seatIn.attach(window)
+    } else {
+      seatIn.detach()
+      seatIn.clear()
+    }
+  })
 }
 
 function onContextMenu(event: Event) {
@@ -483,10 +505,10 @@ function dispatch(event: ArcadeEvent) {
 
 function enterPhase(next: ArcadePhase) {
   phase.value = next
-  input.clear()
-  input2.clear()
-  input.typing = next === 'initials'
-  input2.typing = next === 'initials'
+  for (const seatIn of inputs) {
+    seatIn.clear()
+    seatIn.typing = next === 'initials'
+  }
   if (next === 'demo' && gameModule) {
     demoGame = gameModule.create({
       rng: mulberry32(demoSeed++),
@@ -598,7 +620,7 @@ function eitherFrame(frames: InputFrame[]): InputFrame {
 
 function tick() {
   ticks++
-  const frames = duo.value ? [input.poll(), input2.poll()] : [input.poll()]
+  const frames = inputs.slice(0, players.value).map((seatIn) => seatIn.poll())
   const frame = frames.length > 1 ? eitherFrame(frames) : frames[0]!
   const current = machine.phase
   if (ATTRACT_PHASES.includes(current)) {
@@ -1030,8 +1052,7 @@ watch(locked, (on) => {
 
 onBeforeUnmount(() => {
   loop?.stop()
-  input.detach()
-  input2.detach()
+  for (const seatIn of inputs) seatIn.detach()
   window.removeEventListener('gamepadconnected', applySeats)
   window.removeEventListener('gamepaddisconnected', applySeats)
   window.removeEventListener('keydown', onKey)
@@ -1224,12 +1245,15 @@ onBeforeUnmount(() => {
   }
 }
 
-/* Two seated: two smaller clusters, player 2's tinted pink. Sideways, player 1
-   takes the left half and player 2 the right; upright, player 2's row sits
-   above player 1's. */
+/* Two or more seated: smaller clusters, each player's tinted its own colour.
+   Sideways, player 1 takes the bottom left and player 2 the bottom right;
+   upright, each player's row sits above the one before. */
 .cabinet-overlay--duo {
   --key: clamp(2.4rem, 7vmin, 4rem);
   --ball: calc(var(--key) * 1.15);
+  /* One player's rows of controls, and where the bottom row starts. */
+  --row: calc(var(--key) * 3 + 1.4rem);
+  --base: max(1rem, env(safe-area-inset-bottom));
 }
 
 .cabinet-overlay--duo .cabinet-buttons {
@@ -1288,26 +1312,100 @@ onBeforeUnmount(() => {
   }
 }
 
-@media (orientation: portrait) {
-  .cabinet-cluster-2 .cabinet-dpad,
-  .cabinet-cluster-2 .cabinet-buttons {
-    bottom: calc(
-      max(1rem, env(safe-area-inset-bottom)) + var(--key) * 3 + 1.4rem
+/* Three or four seated: smaller keys still. Sideways, player 3 sits above
+   player 1 on the left and player 4 above player 2 on the right, leaving the
+   top of the screen (the score) clear; upright, every player gets a row,
+   player 1's at the bottom. */
+.cabinet-overlay--seats-3,
+.cabinet-overlay--seats-4 {
+  --key: clamp(2.1rem, 6vmin, 3.4rem);
+}
+
+.cabinet-cluster-3 .cabinet-key {
+  border-color: rgba(103, 232, 249, 0.6);
+  color: rgba(207, 250, 254, 0.95);
+}
+
+.cabinet-cluster-4 .cabinet-key {
+  border-color: rgba(163, 230, 53, 0.6);
+  color: rgba(236, 252, 203, 0.95);
+}
+
+.cabinet-cluster-3 .cabinet-seat-tag {
+  color: #a5f3fc;
+}
+
+.cabinet-cluster-4 .cabinet-seat-tag {
+  color: #d9f99d;
+}
+
+@media (orientation: landscape) {
+  .cabinet-cluster-3 .cabinet-buttons {
+    right: auto;
+    left: calc(max(1rem, env(safe-area-inset-left)) + var(--key) * 3 + 0.75rem);
+  }
+
+  .cabinet-cluster-4 .cabinet-dpad,
+  .cabinet-cluster-4 .cabinet-seat-tag {
+    left: auto;
+    right: calc(
+      max(1rem, env(safe-area-inset-right)) + var(--ball) * 2 + 1.25rem
     );
   }
 
+  .cabinet-cluster-3 .cabinet-dpad,
+  .cabinet-cluster-3 .cabinet-buttons,
+  .cabinet-cluster-4 .cabinet-dpad,
+  .cabinet-cluster-4 .cabinet-buttons {
+    bottom: calc(var(--base) + var(--row));
+  }
+
+  .cabinet-cluster-3 .cabinet-seat-tag,
+  .cabinet-cluster-4 .cabinet-seat-tag {
+    bottom: calc(var(--base) + var(--row) + var(--key) * 3 + 0.2rem);
+  }
+}
+
+@media (orientation: portrait) {
+  .cabinet-cluster-2 .cabinet-dpad,
+  .cabinet-cluster-2 .cabinet-buttons {
+    bottom: calc(var(--base) + var(--row));
+  }
+
+  .cabinet-cluster-3 .cabinet-dpad,
+  .cabinet-cluster-3 .cabinet-buttons {
+    bottom: calc(var(--base) + var(--row) * 2);
+  }
+
+  .cabinet-cluster-4 .cabinet-dpad,
+  .cabinet-cluster-4 .cabinet-buttons {
+    bottom: calc(var(--base) + var(--row) * 3);
+  }
+
   .cabinet-cluster-2 .cabinet-seat-tag {
-    bottom: calc(
-      max(1rem, env(safe-area-inset-bottom)) + var(--key) * 6 + 1.6rem
-    );
+    bottom: calc(var(--base) + var(--row) + var(--key) * 3 + 0.2rem);
+  }
+
+  .cabinet-cluster-3 .cabinet-seat-tag {
+    bottom: calc(var(--base) + var(--row) * 2 + var(--key) * 3 + 0.2rem);
+  }
+
+  .cabinet-cluster-4 .cabinet-seat-tag {
+    bottom: calc(var(--base) + var(--row) * 3 + var(--key) * 3 + 0.2rem);
   }
 
   .cabinet-overlay--duo .cabinet-pause-chip {
     left: auto;
     right: max(0.6rem, env(safe-area-inset-right));
-    bottom: calc(
-      max(1rem, env(safe-area-inset-bottom)) + var(--key) * 6 + 1.4rem
-    );
+    bottom: calc(var(--base) + var(--row) * 2);
+  }
+
+  .cabinet-overlay--seats-3 .cabinet-pause-chip {
+    bottom: calc(var(--base) + var(--row) * 3);
+  }
+
+  .cabinet-overlay--seats-4 .cabinet-pause-chip {
+    bottom: calc(var(--base) + var(--row) * 4);
   }
 }
 

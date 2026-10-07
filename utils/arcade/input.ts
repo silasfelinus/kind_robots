@@ -62,8 +62,9 @@ export const P2_KEYS: Record<string, ArcadeButton> = {
 
 /**
  * Which gamepad slot each seated player reads (null: every pad, -1: none).
- * One player takes every pad. With two, the first two pads go one each; a
- * lone pad goes to player 2, since player 1 has the left of the keyboard.
+ * One player takes every pad. With a pad for everyone, they go in seat order.
+ * With too few, the players with no keys of their own (3 and 4) get one
+ * first, then player 2, then player 1 (who has the left of the keyboard).
  */
 export function assignPads(
   connected: readonly number[],
@@ -71,11 +72,15 @@ export function assignPads(
 ): Array<number | null> {
   if (players <= 1) return [null]
   const seats: Array<number | null> = Array.from({ length: players }, () => -1)
-  if (connected.length === 1) {
-    seats[1] = connected[0]!
+  if (connected.length >= players) {
+    seats.forEach((_, seat) => (seats[seat] = connected[seat]!))
     return seats
   }
-  connected.slice(0, players).forEach((pad, seat) => (seats[seat] = pad))
+  const need = [...Array.from({ length: players - 2 }, (_, i) => i + 2), 1, 0]
+  need
+    .slice(0, connected.length)
+    .sort((a, b) => a - b)
+    .forEach((seat, i) => (seats[seat] = connected[i]!))
   return seats
 }
 

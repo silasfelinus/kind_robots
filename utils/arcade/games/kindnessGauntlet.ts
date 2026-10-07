@@ -7,11 +7,12 @@
 // that swarm out of broken generators, shut the generators down, free the bots
 // trapped in cages, and find the stairs down.
 //
-// Two can play on one device, each picking a different bot. They share one
-// screen (neither can wander off it), one key ring and one score; each has a
-// battery of their own. A bot whose battery runs flat stops where it stands
+// Up to four can play on one device, each picking a different bot. They share
+// one screen (nobody can wander off it), one key ring and one score; each has
+// a battery of their own. A bot whose battery runs flat stops where it stands
 // until its partner rolls up and shares a charge, and a flat bot comes back
 // with a little charge on the next floor. The run ends when every bot is flat.
+// Bots chase the nearest partner's glitches together; generators wake for any.
 //
 // Four bots to choose from, after the classic's four heroes: Hugs (power: big
 // sparks that hit generators twice and pass through a glitch), Fix (armor:
@@ -64,14 +65,16 @@ const DOOR_POINTS = 100
 const OPEN = 0
 const DOOR = 2
 const FLOOR_POINTS = 500
-/** Bots that can share a floor (the cabinet seats up to this many). */
-const MAX_PLAYERS = 2
+/** Bots that can share a floor: one of each class. */
+const MAX_PLAYERS = 4
 /** Charge a partner hands over to bring a flat bot back. */
 const SHARE_CHARGE = 50
-/** How far apart two bots may get: both always stay on the one screen. */
+/** How far apart any two bots may get: all stay on the one screen. */
 const LEASH_X = W - 40
 const LEASH_Y = VIEW_H - 40
-const SEAT_COLORS = ['#fde047', '#f9a8d4']
+const SEAT_COLORS = ['#fde047', '#f9a8d4', '#67e8f9', '#bef264']
+/** Where each player's select cursor starts: Fix, Zip, Hugs, Sage. */
+const START_CHOICE = [1, 3, 0, 2]
 
 export const GAUNTLET_CURVES = {
   generators: { start: 3, step: 0.6, limit: 7 },
@@ -227,8 +230,7 @@ function idleFrame(): InputFrame {
 }
 
 function newHero(seat: number): Hero {
-  // Player 1's cursor starts on Fix, player 2's on Zip.
-  const choice = seat === 0 ? 1 : 3
+  const choice = START_CHOICE[seat] ?? 0
   return {
     seat,
     cls: CLASS_ORDER[choice]!,
@@ -340,9 +342,11 @@ class KindnessGauntlet implements ArcadeGameInstance {
     const names = this.heroes.map((h) => this.specOf(h).name)
     this.banner = {
       text:
-        names.length > 1
-          ? `${names.join(' AND ')} ENTER`
-          : `${names[0]} ENTERS`,
+        names.length > 2
+          ? `${names.length === 3 ? 'THREE' : 'ALL FOUR'} BOTS ENTER`
+          : names.length > 1
+            ? `${names.join(' AND ')} ENTER`
+            : `${names[0]} ENTERS`,
       sub: 'FIX THE GLITCHES',
       ticks: 90,
     }
@@ -431,10 +435,11 @@ class KindnessGauntlet implements ArcadeGameInstance {
     }
     const start = this.centre(rooms[0]!)
     this.heroes.forEach((hero, i) => {
-      // Side by side at the start (a flat bot is back with a little charge).
+      // Huddled at the start, two by two (a flat bot is back with a little charge).
       const x = start.x + (i % 2 ? T : 0)
+      const y = start.y + (i >= 2 ? T : 0)
       hero.x = this.solid(x, start.y) ? start.x : x
-      hero.y = start.y
+      hero.y = this.solid(hero.x, y) ? start.y : y
       if (hero.flat) {
         hero.flat = false
         hero.battery = Math.max(hero.battery, MAX_BATTERY / 4)
@@ -1389,11 +1394,18 @@ class KindnessGauntlet implements ArcadeGameInstance {
         continue
       }
       this.renderBot(g, hero.cls, hero.x, hero.y, hero.facing)
+      // 1P/2P tags above their bots, 3P/4P below (they start a row lower).
       if (duo)
-        drawText(g, `${hero.seat + 1}P`, hero.x, hero.y - 18, {
-          align: 'center',
-          color: SEAT_COLORS[hero.seat],
-        })
+        drawText(
+          g,
+          `${hero.seat + 1}P`,
+          hero.x,
+          hero.y + (hero.seat >= 2 ? 10 : -18),
+          {
+            align: 'center',
+            color: SEAT_COLORS[hero.seat],
+          },
+        )
     }
   }
 
@@ -1493,19 +1505,19 @@ class KindnessGauntlet implements ArcadeGameInstance {
         align: 'center',
         color: lit ? spec.head : '#6b7280',
       })
-      // Whose cursor is on this card, and who has locked it in.
+      // Whose cursor is on this card (1P/2P above it, 3P/4P below), and who
+      // has locked it in.
       if (duo)
-        for (const h of here)
+        for (const h of here) {
+          const left = h.seat % 2 === 0
           drawText(
             g,
             h.picked ? `${h.seat + 1}P READY` : `${h.seat + 1}P`,
-            h.seat === 0 ? cx - 33 : cx + 33,
-            35,
-            {
-              align: h.seat === 0 ? 'left' : 'right',
-              color: SEAT_COLORS[h.seat],
-            },
+            left ? cx - 33 : cx + 33,
+            h.seat < 2 ? 35 : 158,
+            { align: left ? 'left' : 'right', color: SEAT_COLORS[h.seat] },
           )
+        }
     })
     if (duo) {
       for (const h of this.heroes) {
@@ -1514,7 +1526,7 @@ class KindnessGauntlet implements ArcadeGameInstance {
           g,
           `${h.seat + 1}P ${spec.name}: ${spec.about[0]}`,
           W / 2,
-          168 + h.seat * 10,
+          168 + h.seat * (this.heroes.length > 2 ? 9 : 10),
           {
             align: 'center',
             color: SEAT_COLORS[h.seat],
@@ -1606,26 +1618,34 @@ class KindnessGauntlet implements ArcadeGameInstance {
       drawText(g, `KEY ${this.keys}`, 214, 1, { color: '#fbbf24' })
   }
 
-  /** Two rows, one per bot: whose it is, its battery, its pulses. */
+  /**
+   * A row per bot: whose it is, its battery, its pulses. Two bots stack in one
+   * column; three or four fill two narrower ones.
+   */
   private renderDuoHud(g: CanvasRenderingContext2D) {
     drawText(g, `FLOOR ${this.level}`, W - 4, 9, {
       align: 'right',
       color: '#a5f3fc',
     })
+    const crowd = this.heroes.length > 2
+    const colW = crowd ? 54 : 78
+    const bar = crowd ? 26 : 44
     for (const hero of this.heroes) {
-      const y = 1 + hero.seat * 8
-      drawText(g, `${hero.seat + 1}P`, 84, y, { color: SEAT_COLORS[hero.seat] })
+      const x = 84 + Math.floor(hero.seat / 2) * colW
+      const y = 1 + (hero.seat % 2) * 8
+      drawText(g, `${hero.seat + 1}P`, x, y, { color: SEAT_COLORS[hero.seat] })
       if (hero.flat) {
         if (Math.floor(this.tick / 15) % 2 === 0)
-          drawText(g, 'FLAT', 98, y, { color: '#ef4444' })
+          drawText(g, 'FLAT', x + 14, y, { color: '#ef4444' })
       } else {
-        this.batteryBar(g, hero, 98, y + 1, 44)
+        this.batteryBar(g, hero, x + 14, y + 1, bar)
       }
-      drawText(g, String(hero.pulses), 146, y, { color: '#fbcfe8' })
+      drawText(g, String(hero.pulses), x + 16 + bar, y, { color: '#fbcfe8' })
     }
-    drawText(g, `SAVED ${this.rescued}`, 162, 1, { color: '#fde68a' })
+    const infoX = crowd ? 196 : 162
+    drawText(g, `SAVED ${this.rescued}`, infoX, 1, { color: '#fde68a' })
     if (this.keys > 0 || this.doors.some((d) => !d.open))
-      drawText(g, `KEY ${this.keys}`, 162, 9, { color: '#fbbf24' })
+      drawText(g, `KEY ${this.keys}`, infoX, 9, { color: '#fbbf24' })
   }
 }
 

@@ -36,7 +36,13 @@ const LOCAL_KEY = (game: string) => `kr-arcade-local-${game}`
 const PREFS_KEY = 'kr-arcade-prefs'
 const PENDING_KEY = 'kr-arcade-pending'
 
-type ArcadePrefs = { muted?: boolean; crt?: boolean; initials?: string }
+type ArcadePrefs = {
+  muted?: boolean
+  crt?: boolean
+  initials?: string
+  /** Players last seated at each co-op cabinet, by game slug. */
+  players?: Record<string, number>
+}
 
 function readPrefs(): ArcadePrefs {
   try {
@@ -110,6 +116,8 @@ export const useArcadeStore = defineStore('arcadeStore', () => {
   /** CRT scanlines; defaults off for reduced-motion viewers. */
   const crt = ref(true)
   const savedInitials = ref('')
+  /** Players last seated at each co-op cabinet, by game slug. */
+  const seatedPlayers = ref<Record<string, number>>({})
   /** Scores waiting in this browser to reach the global board. */
   const pendingCount = ref(0)
   const hallOfFame = ref<HallOfFameEntry[]>([])
@@ -162,6 +170,11 @@ export const useArcadeStore = defineStore('arcadeStore', () => {
     crt.value = prefs.crt ?? !prefersReducedMotion
     savedInitials.value =
       typeof prefs.initials === 'string' ? prefs.initials : ''
+    seatedPlayers.value = {}
+    if (prefs.players && typeof prefs.players === 'object')
+      for (const [game, count] of Object.entries(prefs.players))
+        if (Number.isInteger(count) && count >= 1 && count <= 4)
+          seatedPlayers.value[game] = count
     pendingCount.value = readPending().length
     if (pendingCount.value) void flushPending()
   }
@@ -171,7 +184,18 @@ export const useArcadeStore = defineStore('arcadeStore', () => {
       muted: muted.value,
       crt: crt.value,
       initials: savedInitials.value,
+      players: seatedPlayers.value,
     })
+  }
+
+  /** How many to seat at this cabinet: the last choice, within its limit. */
+  function playersFor(game: string, maxPlayers: number) {
+    return Math.max(1, Math.min(maxPlayers, seatedPlayers.value[game] ?? 1))
+  }
+
+  function setPlayers(game: string, count: number) {
+    seatedPlayers.value = { ...seatedPlayers.value, [game]: count }
+    savePreferences()
   }
 
   function setMuted(value: boolean) {
@@ -274,6 +298,8 @@ export const useArcadeStore = defineStore('arcadeStore', () => {
     muted,
     crt,
     savedInitials,
+    playersFor,
+    setPlayers,
     board,
     fetchBoard,
     submitScore,

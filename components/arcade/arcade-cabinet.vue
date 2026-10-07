@@ -448,6 +448,7 @@ function releaseTouch() {
 function togglePlayers() {
   if (!choosingPlayers.value) return
   players.value = players.value >= maxPlayers.value ? 1 : players.value + 1
+  store.setPlayers(props.slug, players.value)
   sound?.unlock()
   sound?.play('blip')
 }
@@ -628,6 +629,8 @@ function tick() {
       startGame()
       return
     }
+    // B picks how many play, without reaching for the mouse or the screen.
+    if (frame.pressed.b && maxPlayers.value > 1) togglePlayers()
     if (current === 'demo' && demoGame) {
       demoGame.update(frame)
       if (demoGame.over) dispatch({ type: 'demoOver' })
@@ -773,6 +776,19 @@ function render() {
         color: '#fde68a',
         shadow: SHADOW,
       })
+    }
+    if (maxPlayers.value > 1) {
+      const seated =
+        players.value === 1 ? '1 PLAYER' : `${players.value} PLAYERS`
+      drawText(
+        g,
+        touchControls.value
+          ? `${seated}  (UP TO ${maxPlayers.value})`
+          : `${seated}  B TO CHANGE (UP TO ${maxPlayers.value})`,
+        w / 2,
+        h * 0.68 + 27,
+        { align: 'center', color: '#a5f3fc', shadow: SHADOW },
+      )
     }
     const best = board.value[0]
     drawText(
@@ -1013,6 +1029,7 @@ onMounted(() => {
     window.matchMedia('(prefers-reduced-motion: reduce)').matches,
   )
   sound = createArcadeSound(store.muted)
+  players.value = store.playersFor(props.slug, maxPlayers.value)
   touchControls.value = window.matchMedia('(pointer: coarse)').matches
   input.attach(window)
   applySeats()
@@ -1032,7 +1049,7 @@ onMounted(() => {
 watch(
   () => props.slug,
   () => {
-    players.value = Math.min(players.value, maxPlayers.value)
+    players.value = store.playersFor(props.slug, maxPlayers.value)
     void boot()
   },
 )

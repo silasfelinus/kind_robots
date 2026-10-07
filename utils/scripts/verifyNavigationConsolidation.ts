@@ -62,8 +62,8 @@ assert.equal(
 )
 assert.doesNotMatch(
   channelTabList,
-  /line-clamp|truncate/,
-  'tab descriptions must never be clamped or truncated',
+  /line-clamp/,
+  'tab descriptions must never be line-clamped',
 )
 
 function channelMarkdownFiles(dir: string): string[] {

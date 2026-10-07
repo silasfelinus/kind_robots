@@ -30,6 +30,7 @@ export type ShowdownSound =
   | 'super'
   | 'showdown'
   | 'bell'
+  | 'howl'
 
 /** A hit at least this strong is medium, and at least the second heavy. */
 export const MEDIUM_HIT = 50
@@ -111,6 +112,12 @@ export const SOUNDS: Record<ShowdownSound, Note[]> = {
     { freq: 1, dur: 0.6, noise: true, vol: 0.12, at: 0.18 },
   ],
   bell,
+  // The Bone Yard's pack: three voices sliding up and breaking off, one after another.
+  howl: [
+    { freq: 300, to: 720, dur: 0.9, type: 'sine', vol: 0.05 },
+    { freq: 360, to: 880, dur: 0.8, type: 'sine', vol: 0.04, at: 0.25 },
+    { freq: 420, to: 1000, dur: 0.7, type: 'triangle', vol: 0.03, at: 0.5 },
+  ],
 }
 
 /** The sounds that need state across frames: the last attack each side was heard whiffing. */
@@ -161,6 +168,7 @@ export function soundsFor(
         break
       case 'super':
         sounds.push(e.showdown ? 'showdown' : 'super')
+        if (e.showdown && stage === 'bone-yard') sounds.push('howl')
         break
       case 'ko':
         sounds.push('ko')
@@ -359,6 +367,31 @@ const THE_THIN_PLACE: MusicLoop = {
   ],
 }
 
+/** The Bone Yard, the Hyena Matriarch's: C-sharp minor round the fire, drums first, a reedy line over them. */
+const BONE_YARD: MusicLoop = {
+  bpm: 112,
+  tracks: [
+    {
+      type: 'triangle',
+      vol: 0.08,
+      steps: `C#2 . . C#2 . . G#1 .   C#2 . . C#2 . . B1 .
+              A1 . . A1 . . E2 .   G#1 . . G#1 . B#1 . .`,
+    },
+    {
+      type: 'square',
+      vol: 0.025,
+      steps: `. . G#4 - E4 - C#4 -   . . E4 - D#4 - C#4 -
+              A4 - G#4 - E4 - F#4 -   G#4 - - - B#3 - - -`,
+    },
+    {
+      noise: true,
+      vol: 0.03,
+      steps: `x . . x x . x .   x . . x x . x x
+              x . . x x . x .   x . x . x x x .`,
+    },
+  ],
+}
+
 /** Every stage still to come: E minor at a canter. */
 export const DEFAULT_LOOP: MusicLoop = {
   bpm: 110,
@@ -386,6 +419,7 @@ export const STAGE_LOOPS: Record<StageSlug, MusicLoop> = {
   'lone-apple-tree': LONE_APPLE_TREE,
   'the-dunes': THE_DUNES,
   'the-thin-place': THE_THIN_PLACE,
+  'bone-yard': BONE_YARD,
 }
 
 /** The minor key each loop is in (its tonic's pitch class, 0 = C). */
@@ -401,6 +435,7 @@ export const LOOP_KEYS: Array<{
   { name: 'lone-apple-tree', loop: LONE_APPLE_TREE, tonic: 5 },
   { name: 'the-dunes', loop: THE_DUNES, tonic: 11 },
   { name: 'the-thin-place', loop: THE_THIN_PLACE, tonic: 10 },
+  { name: 'bone-yard', loop: BONE_YARD, tonic: 1 },
   { name: 'default', loop: DEFAULT_LOOP, tonic: 4 },
 ]
 

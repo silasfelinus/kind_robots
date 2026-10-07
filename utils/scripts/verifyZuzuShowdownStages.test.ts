@@ -23,6 +23,8 @@ import {
   APPLE_EVERY,
   APPLE_FALL,
   APPLE_REST,
+  HOWL_FRAMES,
+  PERCHES,
   LIGHTNING_EVERY,
   RIFTS,
   SLUMP_EVERY,
@@ -32,6 +34,8 @@ import {
   candleFlame,
   crocEyesAt,
   crowsAt,
+  embersAt,
+  packAt,
   debrisAt,
   doorOpen,
   duneSlumpAt,
@@ -184,6 +188,8 @@ check('a fight is on the challenger’s home stage', () => {
   const thing = { ...placeholder, slug: 'thing-behind-the-door' }
   assert.equal(stageFor([ZUZU, komodo]), 'the-dunes')
   assert.equal(stageFor([ZUZU, thing]), 'the-thin-place')
+  const matriarch = { ...placeholder, slug: 'hyena-matriarch' }
+  assert.equal(stageFor([ZUZU, matriarch]), 'bone-yard')
 })
 
 check(
@@ -289,6 +295,54 @@ check(
       const now = doorOpen(1, f, false)
       assert.ok(now > 0 && now <= 1)
     }
+  },
+)
+
+check(
+  'the Bone Yard: the pack cackles, then howls on a Showdown super; embers rise',
+  () => {
+    // Every perch the pack sits on is an anchor on the Bone Yard's arch.
+    const by = manifests['bone-yard']
+    for (const name of PERCHES)
+      assert.equal(by.anchors[name]?.layer, 'arch', name)
+    let fx = advanceStageFx(newStageFx(), [])
+    assert.equal(fx.howl, null)
+    // Cackling: heads bob, never all up for long.
+    const ups = new Set<boolean>()
+    for (let f = 0; f < 120; f += 1)
+      for (const h of packAt(f, fx, false)) ups.add(h.headUp)
+    assert.deepEqual([...ups].sort(), [false, true])
+    assert.ok(
+      packAt(30, fx, true).every((h) => !h.headUp),
+      'still under reduced motion',
+    )
+    // A Showdown super: every head goes up, under reduced motion too, until the howl ends.
+    fx = advanceStageFx(fx, [
+      { type: 'super', side: 0, move: 'x', showdown: true },
+    ])
+    assert.equal(fx.howl, 0)
+    for (let f = 0; f < HOWL_FRAMES; f += 1) {
+      assert.ok(
+        packAt(f, fx, true).every((h) => h.headUp),
+        `howling at ${f}`,
+      )
+      fx = advanceStageFx(fx, [])
+    }
+    assert.ok(
+      packAt(30, fx, true).every((h) => !h.headUp),
+      'the howl ends',
+    )
+    // A plain super is no howl.
+    assert.equal(
+      advanceStageFx(newStageFx(), [
+        { type: 'super', side: 1, move: 'y', showdown: false },
+      ]).howl,
+      null,
+    )
+    for (const f of [0, 33, 500])
+      for (const e of embersAt(f, 30, 60, false))
+        assert.ok(e.y <= 60 && e.y > -20 && e.x >= 0 && e.x <= 30)
+    assert.deepEqual(embersAt(10, 30, 60, true), [])
   },
 )
 
@@ -470,6 +524,7 @@ check(
       ['lone-apple-tree', [ZUZU, COYOTE]],
       ['the-dunes', [COYOTE, ZUZU]],
       ['the-thin-place', [ZUZU, COYOTE]],
+      ['bone-yard', [COYOTE, ZUZU]],
     ] as const) {
       const stage = loaded(manifests[slug])
       const rand = mulberry32(slug.length)

@@ -23,11 +23,15 @@ import {
   STAGE_INK,
   TUMBLEWEED,
   VULTURE,
+  HYENA,
+  PERCHES,
   RIFTS,
   appleAt,
   bellAngle,
   candleFlame,
   debrisAt,
+  embersAt,
+  packAt,
   doorOpen,
   duneSlumpAt,
   riftGlow,
@@ -350,13 +354,14 @@ function drawPixelSprite(
   sprite: PixelSprite,
   x: number,
   y: number,
+  scale = 1,
 ): void {
   sprite.forEach((row, ry) => {
     for (let rx = 0; rx < row.length; rx += 1) {
       const key = row[rx]
       if (!key || key === '.') continue
       g.fillStyle = STAGE_INK[key] ?? '#ff00ff'
-      g.fillRect(x + rx, y + ry, 1, 1)
+      g.fillRect(x + rx * scale, y + ry * scale, scale, scale)
     }
   })
 }
@@ -631,6 +636,38 @@ export function drawStageArt(
         )
       }
     }
+    const fire = anchor('fire')
+    if (fire?.w && fire.h) {
+      // The bonfire's glow breathes, and embers climb out of it.
+      const glow = reducedMotion ? 0.3 : 0.25 + 0.1 * Math.sin(frame / 5)
+      g.fillStyle = `rgba(251, 146, 60, ${glow.toFixed(2)})`
+      g.fillRect(
+        x + fire.x - 6,
+        layer.y + fire.y + Math.round(fire.h / 3),
+        fire.w + 12,
+        Math.round((fire.h * 2) / 3),
+      )
+      g.fillStyle = '#fdba74'
+      for (const ember of embersAt(frame, fire.w, fire.h, reducedMotion)) {
+        g.fillRect(x + fire.x + ember.x, layer.y + fire.y + ember.y, 1, 1)
+      }
+    }
+    // The Bone Yard's pack, perched on the ruined arch against the smoke: cackling, then howling on a
+    // Showdown super.
+    const pack = packAt(frame, fx, reducedMotion)
+    PERCHES.forEach((name, i) => {
+      const perch = anchor(name)
+      const hyena = pack[i]
+      if (!perch || !hyena) return
+      const sprite = HYENA[hyena.headUp ? 1 : 0]!
+      drawPixelSprite(
+        g,
+        sprite,
+        x + perch.x - sprite[0]!.length,
+        layer.y + perch.y - sprite.length * 2,
+        2,
+      )
+    })
     const sun = anchor('sun')
     if (sun) {
       // The Dunes' long sun, low and huge, with a haze ring around it.

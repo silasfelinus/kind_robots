@@ -19,6 +19,9 @@
 //     fighters heaves and something vast moves under it.
 //   The Thin Place (the boss's): the sky tearing at its seams, debris floating up. Light shows at the
 //     edge of the lone door, wider each round.
+//   The Bone Yard (the Hyena Matriarch's): a bonfire under a ruined arch, embers rising, the pack's
+//     silhouettes cackling on the arch against the smoke. On a Showdown super the pack throws its heads
+//     back and howls.
 //
 // This module is pure: which stage a match is on, where each layer sits for a camera, the stage-event
 // state, and where every moving part is on a given frame. render.ts draws it; the stage component loads
@@ -34,6 +37,7 @@ export type StageSlug =
   | 'lone-apple-tree'
   | 'the-dunes'
   | 'the-thin-place'
+  | 'bone-yard'
 
 /** A parallax layer in the stage manifest: its screen position (game px) with the camera centred. */
 export type StageLayer = {
@@ -94,6 +98,7 @@ export const STAGE_NAMES: Record<StageSlug, string> = {
   'lone-apple-tree': 'The Lone Apple Tree',
   'the-dunes': 'The Dunes',
   'the-thin-place': 'The Thin Place',
+  'bone-yard': 'The Bone Yard',
 }
 
 /** Each fighter's home stage (DESIGN-BRIEF.md "Stages with moving backgrounds"). */
@@ -106,6 +111,7 @@ export const HOME_STAGES: Partial<Record<string, StageSlug>> = {
   'the-siblings': 'lone-apple-tree',
   'old-komodo': 'the-dunes',
   'thing-behind-the-door': 'the-thin-place',
+  'hyena-matriarch': 'bone-yard',
 }
 
 /** The fighters whose presence keeps the croc's eyes out of the Watering Hole. */
@@ -132,19 +138,25 @@ export function layerX(layer: StageLayer, cameraPx: number): number {
 export type StageFx = {
   /** Frames since the bell last rang by itself, or null before it ever has. */
   bell: number | null
+  /** Frames since the last Showdown super (the Bone Yard's pack howls), or null before one. */
+  howl?: number | null
 }
 
 export const BELL_RING_FRAMES = 150
 
 export function newStageFx(): StageFx {
-  return { bell: null }
+  return { bell: null, howl: null }
 }
 
 /** Age the stage event a frame; the bell rings at each round start and at the KO. */
 export function advanceStageFx(fx: StageFx, events: SimEvent[]): StageFx {
   const rang = events.some((e) => e.type === 'roundStart' || e.type === 'ko')
-  if (rang) return { bell: 0 }
-  return { bell: fx.bell === null ? null : fx.bell + 1 }
+  const howled = events.some((e) => e.type === 'super' && e.showdown)
+  const howl = fx.howl ?? null
+  return {
+    bell: rang ? 0 : fx.bell === null ? null : fx.bell + 1,
+    howl: howled ? 0 : howl === null ? null : howl + 1,
+  }
 }
 
 /**
@@ -213,6 +225,9 @@ export const STAGE_INK: Record<string, string> = {
   b: '#8a6a3c',
   c: '#5c4424',
   k: '#1c1410',
+  r: '#f97316',
+  d: '#5a3e2e',
+  s: '#33241b',
   h: '#c9b8a0',
   g: '#3d5a2a',
   y: '#e8d64a',
@@ -560,3 +575,72 @@ export function doorOpen(
   if (reducedMotion) return base
   return Math.min(1, base * (0.85 + ((Math.floor(frame / 4) * 7) % 5) * 0.06))
 }
+
+// ---------------------------------------------------------------- the Bone Yard
+
+/** How long the pack howls after a Showdown super. */
+export const HOWL_FRAMES = 150
+
+/** The anchors (on the arch) the pack perches on, left to right. */
+export const PERCHES = ['perch-a', 'perch-b', 'perch-c'] as const
+
+/**
+ * The pack, one hyena per perch: whether its head is up this frame. They cackle (heads bob at their
+ * own pace) and, while a Showdown howl lasts, all of them throw their heads back.
+ */
+export function packAt(
+  frame: number,
+  fx: StageFx,
+  reducedMotion: boolean,
+): Array<{ headUp: boolean }> {
+  const howling =
+    fx.howl !== null && fx.howl !== undefined && fx.howl < HOWL_FRAMES
+  return PERCHES.map((_, i) => ({
+    headUp:
+      howling ||
+      (!reducedMotion && Math.floor((frame + i * 13) / (14 + i * 3)) % 3 === 0),
+  }))
+}
+
+/** Embers rising off the bonfire (a box `w` x `h`): offsets from its top-left corner. */
+export function embersAt(
+  frame: number,
+  w: number,
+  h: number,
+  reducedMotion: boolean,
+): Array<{ x: number; y: number }> {
+  if (reducedMotion) return []
+  const out: Array<{ x: number; y: number }> = []
+  for (let i = 0; i < 8; i += 1) {
+    const life = 70
+    const age = (frame + i * 23) % life
+    out.push({
+      x: Math.round(w / 2 + Math.sin((age + i * 9) / 8) * (w / 3)),
+      y: Math.round(h - age * 1.1),
+    })
+  }
+  return out
+}
+
+/** The hyena, dark against the smoke and rimmed by the firelight ('r'): head level, and thrown back (the howl). */
+export const HYENA: readonly PixelSprite[] = [
+  // Sloped back (high shoulders, low hips), round ears, a spotted coat.
+  [
+    '..........r.r.',
+    '.......rrrdddr',
+    '...rrrrdsddddy',
+    '.rrddsddddddd.',
+    'rdd.dddsdddd..',
+    '...ddd..d.dd..',
+    '...d.d..d..d..',
+  ],
+  [
+    '...........r..',
+    '..........rdr.',
+    '.......rrrddr.',
+    '...rrrrdsdyd..',
+    '.rrddsddddd...',
+    'rdd.dddsdd.d..',
+    '...d.d..d..d..',
+  ],
+]

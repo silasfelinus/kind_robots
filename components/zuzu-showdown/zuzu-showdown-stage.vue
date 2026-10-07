@@ -64,7 +64,18 @@
 
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
-import { createArcadeSound, type ArcadeSound } from '~/utils/arcade/sound'
+import {
+  createArcadeSound,
+  type ArcadeSound,
+  type MusicLoop,
+} from '~/utils/arcade/sound'
+import {
+  SOUNDS,
+  loopFor,
+  newSoundState,
+  soundsFor,
+  type SoundState,
+} from '~/utils/zuzuShowdown/audio'
 import { setGamePageLock } from '~/utils/arcade/pageLock'
 import { startFixedLoop, type FixedLoop } from '~/utils/arcade/loop'
 import type { ButtonInput } from '~/utils/arcade/input'
@@ -135,7 +146,6 @@ import {
   neutralInput,
   type FighterData,
   type MatchState,
-  type SimEvent,
 } from '~/utils/zuzuShowdown/types'
 import { useZuzuShowdownStore } from '~/stores/zuzuShowdownStore'
 
@@ -272,6 +282,8 @@ let resultCountdown = 0
 let screenFrame = 0
 let loop: FixedLoop | null = null
 let sound: ArcadeSound | null = null
+let soundState: SoundState = newSoundState()
+let musicLoop: MusicLoop | null = null
 let resizer: ResizeObserver | null = null
 let dpadPointer: number | null = null
 
@@ -319,44 +331,37 @@ function startMatch() {
   cpu = newCpu(store.cpuLevel, Math.floor(Math.random() * 0xffffffff))
   resultCountdown = RESULT_DELAY
   phase.value = 'fight'
-  sound?.play('start')
+  // The round's opening sounds (the Hollow Bell toll) come from the new match's own events.
+  soundState = newSoundState()
+  playSounds()
 }
 
-function playSounds(events: SimEvent[]) {
+/** This frame's sounds (t-023): hits by strength, blocks, whiffs, the KO sting, the bell ... */
+function playSounds() {
+  const out = soundsFor(soundState, match, roster, stageFor(roster))
+  soundState = out.state
   if (!sound) return
-  for (const e of events) {
-    switch (e.type) {
-      case 'hit':
-        sound.play(e.damage >= 70 ? 'boom' : 'pop')
-        break
-      case 'block':
-        sound.play('blip')
-        break
-      case 'throw':
-        sound.play('boom')
-        break
-      case 'read':
-        sound.play('pickup')
-        break
-      case 'super':
-        sound.play('extra')
-        break
-      case 'parry':
-        sound.play('level')
-        break
-      case 'fight':
-        sound.play('start')
-        break
-      case 'ko':
-        sound.play('die')
-        break
-      case 'timeOver':
-        sound.play('warn')
-        break
-      default:
-        break
+  for (const name of out.sounds) sound.playNotes(SOUNDS[name])
+}
+
+/** The music follows the fight: the stage's loop while it's on, silence everywhere else. */
+function syncMusic() {
+  if (!sound) return
+  if (phase.value === 'fight') {
+    const loop = loopFor(stageFor(roster))
+    if (musicLoop !== loop) {
+      musicLoop = loop
+      sound.startMusic(loop)
     }
+  } else if (musicLoop) {
+    musicLoop = null
+    sound.stopMusic()
   }
+}
+
+/** Browsers start audio only after a gesture: the first key or press anywhere unlocks it. */
+function unlockSound() {
+  sound?.unlock()
 }
 
 function tick() {
@@ -420,7 +425,7 @@ function tick() {
   callouts = advanceCallouts(callouts, match.events)
   sparks = advanceSparks(sparks, match, roster)
   stageFx = advanceStageFx(stageFx, match.events)
-  playSounds(match.events)
+  playSounds()
   slowdown = slowdown ?? koSlowdownFor(match.events)
   if (match.phase === 'over') {
     resultCountdown -= 1
@@ -612,6 +617,7 @@ watch(
   () => store.muted,
   (muted) => sound?.setMuted(muted),
 )
+watch(phase, syncMusic)
 
 onMounted(() => {
   const coarse = window.matchMedia?.('(pointer: coarse)').matches ?? false
@@ -625,6 +631,8 @@ onMounted(() => {
   p2.attach(window)
   window.addEventListener('blur', onBlur)
   window.addEventListener('keydown', onTrainingKey)
+  window.addEventListener('keydown', unlockSound)
+  window.addEventListener('pointerdown', unlockSound)
   fitCanvas()
   if (screenRef.value && typeof ResizeObserver !== 'undefined') {
     resizer = new ResizeObserver(fitCanvas)
@@ -642,6 +650,8 @@ onBeforeUnmount(() => {
   p2.detach()
   window.removeEventListener('blur', onBlur)
   window.removeEventListener('keydown', onTrainingKey)
+  window.removeEventListener('keydown', unlockSound)
+  window.removeEventListener('pointerdown', unlockSound)
   sound?.dispose()
   setPageLock(false)
 })

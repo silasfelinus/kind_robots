@@ -107,6 +107,16 @@ import {
   type StageSlug,
 } from '~/utils/zuzuShowdown/stages'
 import { cpuInput, newCpu, type CpuState } from '~/utils/zuzuShowdown/cpu'
+import {
+  applyTrainingRules,
+  drawTraining,
+  dummyInput,
+  logInput,
+  newTraining,
+  trackAdvantage,
+  trainingMatch,
+  type TrainingState,
+} from '~/utils/zuzuShowdown/training'
 import { introFor } from '~/utils/zuzuShowdown/matchups'
 import {
   VS_SLAM_FRAMES,
@@ -255,6 +265,8 @@ let sparks: Spark[] = []
 let slowdown: KoSlowdown = null
 // The CPU opponent (t-020) plays P2 in CPU mode, seeded fresh for each match.
 let cpu: CpuState = newCpu('normal', 1)
+// Training (t-022): the dummy's state and the readouts, in Training dummy mode.
+let training: TrainingState = newTraining()
 let resultCountdown = 0
 // Frames into the VS screen, or into the win screen.
 let screenFrame = 0
@@ -285,12 +297,21 @@ function applyKeyMaps() {
 
 /** The VS screen: the fighters slam in and trade their matchup lines, then the fight starts. */
 function startVs() {
+  // Training goes straight to the fight.
+  if (store.mode === 'dummy') {
+    startMatch()
+    return
+  }
   screenFrame = 0
   phase.value = 'vs'
 }
 
 function startMatch() {
-  match = createMatch(roster)
+  match =
+    store.mode === 'dummy'
+      ? trainingMatch(roster, store.reset.place)
+      : createMatch(roster)
+  training = newTraining(Math.floor(Math.random() * 0xffffffff))
   callouts = advanceCallouts([], match.events)
   sparks = []
   slowdown = null
@@ -373,12 +394,29 @@ function tick() {
     const turn = cpuInput(cpu, match, 1, roster)
     cpu = turn.cpu
     second = turn.input
+  } else {
+    const turn = dummyInput(training, store.dummy, match, 1, roster)
+    training = turn.training
+    second = turn.input
   }
   if (!store.easySpecials) {
     first.special = false
     second.special = false
   }
   match = step(match, [first, second], roster)
+  if (store.mode === 'dummy') {
+    applyTrainingRules(match, roster, {
+      infiniteMeter: store.infiniteMeter,
+      infiniteHealth: store.infiniteHealth,
+    })
+    training = trackAdvantage(training, match)
+    training.inputs = logInput(
+      training.inputs,
+      first,
+      match.fighters[0].facing,
+      match.events,
+    )
+  }
   callouts = advanceCallouts(callouts, match.events)
   sparks = advanceSparks(sparks, match, roster)
   stageFx = advanceStageFx(stageFx, match.events)
@@ -410,6 +448,11 @@ function render() {
     stage: stage ?? undefined,
     stageFx,
   })
+  if (
+    store.mode === 'dummy' &&
+    (phase.value === 'fight' || phase.value === 'paused')
+  )
+    drawTraining(g, training, VIEW_WIDTH)
   const flash = koFlash(slowdown, store.reducedMotion)
   if (flash > 0) {
     g.fillStyle = `rgba(255, 255, 255, ${(0.7 * flash).toFixed(2)})`
@@ -527,12 +570,31 @@ function onBlur() {
   if (phase.value === 'fight') phase.value = 'paused'
 }
 
+/** Training: R puts the fighters back where the last reset did. */
+function onTrainingKey(event: KeyboardEvent) {
+  if (event.code !== 'KeyR' || event.repeat || store.mode !== 'dummy') return
+  store.resetPositions(store.reset.place)
+}
+
 watch(locked, (on) => {
   setPageLock(on)
   if (!on) releaseDpad()
 })
 
 watch(() => store.mode, applyKeyMaps)
+// Training's position reset: the fighters go back to the centre or a corner, the readouts clear.
+watch(
+  () => store.reset.count,
+  () => {
+    if (store.mode !== 'dummy') return
+    if (phase.value !== 'fight' && phase.value !== 'paused') return
+    match = trainingMatch(roster, store.reset.place)
+    training = { ...newTraining(training.seed), inputs: training.inputs }
+    callouts = []
+    sparks = []
+    slowdown = null
+  },
+)
 watch(
   () => [...store.fighters],
   () => {
@@ -562,6 +624,7 @@ onMounted(() => {
   p1.attach(window)
   p2.attach(window)
   window.addEventListener('blur', onBlur)
+  window.addEventListener('keydown', onTrainingKey)
   fitCanvas()
   if (screenRef.value && typeof ResizeObserver !== 'undefined') {
     resizer = new ResizeObserver(fitCanvas)
@@ -578,6 +641,7 @@ onBeforeUnmount(() => {
   p1.detach()
   p2.detach()
   window.removeEventListener('blur', onBlur)
+  window.removeEventListener('keydown', onTrainingKey)
   sound?.dispose()
   setPageLock(false)
 })

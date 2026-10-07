@@ -99,6 +99,58 @@
           </label>
         </section>
 
+        <section
+          v-if="store.mode === 'dummy'"
+          class="kr-panel flex flex-wrap items-center gap-x-6 gap-y-3 rounded-2xl p-4"
+          aria-label="Training"
+        >
+          <span class="font-bold">Training</span>
+          <label class="flex items-center gap-2 text-sm">
+            <span class="font-semibold">Dummy</span>
+            <select
+              class="kr-select-sm"
+              :value="store.dummy"
+              aria-label="Dummy"
+              @change="onDummy"
+            >
+              <option v-for="mode in DUMMY_MODES" :key="mode" :value="mode">
+                {{ DUMMY_NAMES[mode] }}
+              </option>
+            </select>
+          </label>
+          <label class="flex items-center gap-2 text-sm">
+            <input
+              type="checkbox"
+              class="toggle toggle-sm"
+              :checked="store.infiniteMeter"
+              @change="store.setInfiniteMeter(checked($event))"
+            />
+            Infinite meter
+          </label>
+          <label class="flex items-center gap-2 text-sm">
+            <input
+              type="checkbox"
+              class="toggle toggle-sm"
+              :checked="store.infiniteHealth"
+              @change="store.setInfiniteHealth(checked($event))"
+            />
+            Health refills
+          </label>
+          <div class="flex flex-wrap items-center gap-2 text-sm">
+            <span class="font-semibold">Reset</span>
+            <button
+              v-for="place in PLACES"
+              :key="place.value"
+              type="button"
+              class="kr-btn-xs"
+              @click="store.resetPositions(place.value)"
+            >
+              {{ place.label }}
+            </button>
+            <span class="opacity-60">(R repeats the last one)</span>
+          </div>
+        </section>
+
         <section class="grid gap-4 md:grid-cols-2">
           <div class="kr-panel rounded-2xl p-4 text-sm">
             <h2 class="mb-2 font-bold">Controls</h2>
@@ -148,6 +200,12 @@ import { useUserStore } from '~/stores/userStore'
 import { useZuzuShowdownStore } from '~/stores/zuzuShowdownStore'
 import { FIGHTERS, findFighter, moveList } from '~/utils/zuzuShowdown/fighters'
 import { CPU_LEVELS, type CpuLevel } from '~/utils/zuzuShowdown/cpu'
+import {
+  DUMMY_MODES,
+  DUMMY_NAMES,
+  type DummyMode,
+  type TrainingPlace,
+} from '~/utils/zuzuShowdown/training'
 
 const userStore = useUserStore()
 const store = useZuzuShowdownStore()
@@ -185,6 +243,16 @@ function onMode(event: Event) {
     store.setCpuLevel(value.slice(4) as CpuLevel)
     store.setMode('cpu')
   } else store.setMode(value === 'versus' ? 'versus' : 'dummy')
+}
+
+const PLACES: Array<{ value: TrainingPlace; label: string }> = [
+  { value: 'center', label: 'Centre' },
+  { value: 'p1-corner', label: 'P1 in the corner' },
+  { value: 'p2-corner', label: 'P2 in the corner' },
+]
+
+function onDummy(event: Event) {
+  store.setDummy((event.target as HTMLSelectElement).value as DummyMode)
 }
 
 useHead({ title: 'Zuzu Showdown' })

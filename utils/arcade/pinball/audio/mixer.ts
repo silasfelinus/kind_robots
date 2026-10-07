@@ -43,21 +43,18 @@ export class PinballMixer {
 
   unlock() {
     if (this.unlocked || typeof window === 'undefined') return
-    const Ctor = (
-      window.AudioContext ??
-      (window as unknown as { webkitAudioContext?: AudioCtor }).webkitAudioContext
-    ) as AudioCtor | undefined
+    const audioWindow = window as typeof window & {
+      webkitAudioContext?: AudioCtor
+    }
+    const Ctor = window.AudioContext ?? audioWindow.webkitAudioContext
     if (!Ctor) return
     const context = new Ctor()
     const master = context.createGain()
     master.gain.value = 0.72
     master.connect(context.destination)
-    for (const [name, gain] of Object.entries(BUS_GAIN) as [
-      PinballBus,
-      number,
-    ][]) {
+    for (const name of Object.keys(BUS_GAIN) as PinballBus[]) {
       const node = context.createGain()
-      node.gain.value = gain
+      node.gain.value = BUS_GAIN[name]
       node.connect(master)
       this.buses.set(name, node)
     }
@@ -80,21 +77,14 @@ export class PinballMixer {
   }
 
   private isMuted() {
-    return (
-      this.sound !== null &&
-      'muted' in this.sound &&
-      this.sound.muted === true
-    )
+    const sound = this.sound as (ArcadeSoundLike & { muted?: boolean }) | null
+    return sound?.muted === true
   }
 
   startMusic(bed: PinballMusicBed) {
     this.stopMusic()
-    if (
-      this.isMuted() ||
-      !this.context ||
-      this.context.state !== 'running'
-    )
-      return
+    if (this.isMuted()) return
+    if (!this.context || this.context.state !== 'running') return
     const bus = this.buses.get('music')
     if (!bus) return
     for (const frequency of MUSIC_BEDS[bed]) {
@@ -125,10 +115,7 @@ export class PinballMixer {
     const start = context.currentTime
     const envelope = context.createGain()
     envelope.gain.setValueAtTime(Math.max(0.0001, cue.gain), start)
-    envelope.gain.exponentialRampToValueAtTime(
-      0.0001,
-      start + cue.duration,
-    )
+    envelope.gain.exponentialRampToValueAtTime(0.0001, start + cue.duration)
 
     let destination: AudioNode = bus
     if (position && 'createStereoPanner' in context) {
@@ -141,10 +128,7 @@ export class PinballMixer {
     envelope.connect(destination)
 
     if (cue.noise) {
-      const frames = Math.max(
-        1,
-        Math.floor(context.sampleRate * cue.duration),
-      )
+      const frames = Math.max(1, Math.floor(context.sampleRate * cue.duration))
       const buffer = context.createBuffer(1, frames, context.sampleRate)
       const data = buffer.getChannelData(0)
       for (let i = 0; i < frames; i++) {

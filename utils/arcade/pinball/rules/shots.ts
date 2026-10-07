@@ -7,9 +7,11 @@
 // counts going up (low then high), never coming back down (high then low).
 // Pure data in, data out: rules and tests use it without physics.
 
+import { PHYSICS_HZ } from '../clock'
 import type { ShotDef, ShotEvent, SwitchEvent } from '../types'
 
-const DEFAULT_WINDOW_TICKS = 120 * 2
+/** How long a shot's next switch may take, in physics steps. */
+export const DEFAULT_WINDOW_TICKS = PHYSICS_HZ * 2
 
 export type ShotProgress = {
   /** Per ball id, per shot id: how many switches are matched and when. */

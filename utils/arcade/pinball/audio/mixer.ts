@@ -20,6 +20,9 @@ export type PinballSoundName =
   | 'kickout'
   | 'spinner'
   | 'shot'
+  | 'kickback'
+  | 'tilt-warning'
+  | 'tilt'
 
 const ARCADE_FALLBACK: Record<
   PinballSoundName,
@@ -36,6 +39,9 @@ const ARCADE_FALLBACK: Record<
   kickout: 'shoot',
   spinner: 'blip',
   shot: 'extra',
+  kickback: 'shoot',
+  'tilt-warning': 'warn',
+  tilt: 'die',
 }
 
 export class PinballMixer {

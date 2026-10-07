@@ -7,6 +7,7 @@ label: Missing Image Test
 title: Missing Image Pipeline Test
 subtitle: Deliberately broken images for art-request testing
 description: Admin smoke test for the missing-image reporter that files Conductor art requests.
+summary: Test missing-image reporting.
 icon: kind-icon:warning
 image: /images/channels/admin/missing-image-test.webp
 route: /dev/missing-image-test

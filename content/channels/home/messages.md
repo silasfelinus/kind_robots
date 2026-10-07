@@ -8,6 +8,7 @@ label: Messages
 title: Direct Messages
 subtitle: Your conversations
 description: Private threaded conversations with other members, with read receipts and consent-aware messaging.
+summary: Read private member messages.
 icon: kind-icon:message
 route: /messages
 sort: 90

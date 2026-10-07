@@ -6,6 +6,7 @@ label: Art Archive
 title: Art Archive
 subtitle: Ingest, browse, and curate the private legacy art collection
 description: Scan the private media-server archive, import it as private mature ArtImages with resource provenance, then browse, rate, collect, and curate what landed.
+summary: Import and curate archived art.
 icon: kind-icon:archive
 route: /art-archive
 sort: 73

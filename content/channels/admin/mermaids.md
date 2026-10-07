@@ -9,6 +9,7 @@ label: Mermaids
 title: Mermaids of Venice
 subtitle: A writing desk for the novel's landing page
 description: Edit and preview the Mermaids of Venice landing page without generated artwork.
+summary: Edit the Mermaids landing page.
 icon: kind-icon:mermaid
 route: /mermaids
 sort: 150

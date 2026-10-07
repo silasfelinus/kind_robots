@@ -8,6 +8,7 @@ label: Support
 title: Support
 subtitle: The mission and the ways to support it
 description: Meet Kind Robots, give directly to Against Malaria, or explore the gift shop from one Home destination.
+summary: Support Kind Robots and its mission.
 icon: kind-icon:heart
 route: /about
 sort: 200

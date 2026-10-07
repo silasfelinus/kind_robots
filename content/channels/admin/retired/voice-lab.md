@@ -9,6 +9,7 @@ label: Voice Lab
 title: Voice Lab
 subtitle: Prototype spoken interfaces and integrations
 description: Experiment with voice input, assistants, and external device integrations.
+summary: Test archived voice tools.
 icon: kind-icon:microphone
 route: /plan/voice-lab
 sort: 115

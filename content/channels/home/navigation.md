@@ -8,6 +8,7 @@ label: Navigation
 title: Navigation Overview
 subtitle: Your personal roadmap
 description: Review destinations, favorites, and the tools used to move through Kind Robots.
+summary: Browse Kind Robots destinations.
 icon: kind-icon:map
 route: /navigation
 sort: 40

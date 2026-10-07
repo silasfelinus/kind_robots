@@ -9,6 +9,7 @@ label: AppMaker
 title: AppMaker
 subtitle: Shape an application before building it
 description: Turn project ideas into structured application concepts, surfaces, and implementation plans.
+summary: Plan apps from project ideas.
 icon: kind-icon:foundry
 route: /appmaker
 sort: 100

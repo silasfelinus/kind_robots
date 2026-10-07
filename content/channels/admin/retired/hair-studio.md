@@ -9,6 +9,7 @@ label: Hair Studio
 title: Hair Studio
 subtitle: Experiment with private hairstyle previews
 description: Restyle a private client photo with a new color or cut in a dedicated AI studio.
+summary: Try the archived hair studio.
 icon: kind-icon:magic
 route: /build/hair-studio
 sort: 110

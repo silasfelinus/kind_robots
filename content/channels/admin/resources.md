@@ -6,6 +6,7 @@ label: Resources
 title: Resource Gallery
 subtitle: Models, LoRAs, and generation tools
 description: Browse generation resources, inspect previews and triggers, and seed an art build.
+summary: Browse generation resources.
 icon: kind-icon:database
 image: /images/channels/play/resources.webp
 route: /resources

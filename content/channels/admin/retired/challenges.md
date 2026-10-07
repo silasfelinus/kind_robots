@@ -9,6 +9,7 @@ label: Challenges
 title: Challenge Center
 subtitle: Experiments with goals, scores, and friendly pressure
 description: Try structured challenges that connect creative systems, achievements, and community play.
+summary: Try archived creative challenges.
 icon: kind-icon:trophy
 route: /play/challenges
 sort: 130

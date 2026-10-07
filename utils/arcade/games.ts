@@ -284,8 +284,9 @@ export const ARCADE_GAMES: ArcadeGameMeta[] = [
     title: 'Kindness Gauntlet',
     riffsOn: 'Gauntlet II',
     blurb:
-      'Fix, a repair android, explores a glitchy old server dungeon floor by floor. Throw wrench sparks to fix the glitches swarming out of broken generators, shut the generators down, free the bots trapped in cages and find the stairs. The battery drains all the time and faster when glitches cling on, so grab the snacks.',
+      'Choose your repair bot (mighty Hugs, sturdy Fix, magical Sage or speedy Zip) and explore a glitchy old server dungeon floor by floor. Throw wrench sparks to fix the glitches swarming out of broken generators, shut the generators down, free the bots trapped in cages and find the stairs. The battery drains all the time and faster when glitches cling on, so grab the snacks.',
     howTo: [
+      'PICK HUGS FIX SAGE OR ZIP',
       'ARROWS  MOVE',
       'A  WRENCH SPARKS',
       'HOLD A  STAND AND AIM',
@@ -298,7 +299,7 @@ export const ARCADE_GAMES: ArcadeGameMeta[] = [
     maxPlausibleScore: 10_000_000,
     titleArt: '/images/arcade/games/kindness-gauntlet-title.webp',
     accent: '#fbbf24',
-    controls: 'Move, spark, pulse',
+    controls: 'Pick a bot, move, spark, pulse',
   },
   {
     slug: 'prize-show-panic',

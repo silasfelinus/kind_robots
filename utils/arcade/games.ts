@@ -392,6 +392,48 @@ export const ARCADE_GAMES: ArcadeGameMeta[] = [
     accent: '#38bdf8',
     controls: 'Aim, burst',
   },
+  {
+    slug: 'brick-bloom',
+    title: 'Brick Bloom',
+    riffsOn: 'Breakout / Arkanoid',
+    blurb:
+      'A paddle bot bounces a pollen ball into walls of glitch crates, and every crate cracked frees a flower. Where the ball meets the paddle sets its angle. Catch falling seeds for a wide paddle, a sticky paddle, three balls or a calmer ball. Tough crates take several hits, bolted crates never break, and a drifting gloom puff knocks the ball off course.',
+    howTo: [
+      'LEFT/RIGHT  MOVE',
+      'A  LAUNCH THE BALL',
+      'EDGES ANGLE IT',
+      'SEEDS  W S M C +',
+      'BOLTS NEVER BREAK',
+      'CRACK EVERY CRATE',
+    ],
+    width: 256,
+    height: 320,
+    maxPlausibleScore: 3_000_000,
+    titleArt: '/images/arcade/games/brick-bloom-title.webp',
+    accent: '#f472b6',
+    controls: 'Move, launch',
+  },
+  {
+    slug: 'seed-lander',
+    title: 'Seed Lander',
+    riffsOn: 'Lunar Lander',
+    blurb:
+      'Pilot a seed pod down onto the garden pads of a windy hillside, leaning and puffing to slow the fall. Land soft, slow and level to plant the seed; the narrower the pad, the bigger the bloom. Every planting refills a little sunlight and moves on to a rougher, gustier hill.',
+    howTo: [
+      'LEFT/RIGHT  LEAN',
+      'UP OR A  PUFF',
+      'LAND SLOW AND LEVEL',
+      'GREEN GAUGES = SAFE',
+      'NARROW PADS PAY MORE',
+      'WATCH THE WIND',
+    ],
+    width: 320,
+    height: 240,
+    maxPlausibleScore: 2_000_000,
+    titleArt: '/images/arcade/games/seed-lander-title.webp',
+    accent: '#84cc16',
+    controls: 'Lean, puff',
+  },
 ]
 
 export type ComingSoonCabinet = {
@@ -456,6 +498,8 @@ const LOADERS: Record<string, () => Promise<ArcadeGameModule>> = {
   'zuzu-ghost-trail': () => import('./games/zuzuGhostTrail'),
   'station-sweep': () => import('./games/stationSweep'),
   'rain-catcher': () => import('./games/rainCatcher'),
+  'brick-bloom': () => import('./games/brickBloom'),
+  'seed-lander': () => import('./games/seedLander'),
   'kind-pinball-3d': () =>
     import('./games/kindPinball3d').then(async (module) => {
       await module.prepare()

@@ -9,14 +9,25 @@
 //     banner in the wind. The bell rings once by itself at round start and once at the KO (canon).
 //   The Watering Hole (the Coyote's, the croc's): heat shimmer, the water's glints, circling vultures. A
 //     pair of croc eyes surfaces in the water during fights the croc isn't in.
+//   The Mission (the Abbess's): the candle flickers and smoke leaves the chimney under the moon. Between
+//     rounds a portal flickers in the empty bell arch.
+//   Storm Canyon (Storm Crow's): sheets of rain and wheeling crows. Lightning lights the sky so the
+//     canyon walls and the fighters stand in silhouette (never under reduced motion).
+//   The Lone Apple Tree (the Siblings'): heat shimmer over the wasteland, red leaves drifting down, a
+//     dust devil crossing the street. Apples drop from the tree, rest on the ground, and fade.
 //
 // This module is pure: which stage a match is on, where each layer sits for a camera, the stage-event
 // state, and where every moving part is on a given frame. render.ts draws it; the stage component loads
 // the images.
 
-import type { FighterData, SimEvent } from './types'
+import type { FighterData, MatchState, SimEvent } from './types'
 
-export type StageSlug = 'hollow-bell' | 'watering-hole'
+export type StageSlug =
+  | 'hollow-bell'
+  | 'watering-hole'
+  | 'the-mission'
+  | 'storm-canyon'
+  | 'lone-apple-tree'
 
 /** A parallax layer in the stage manifest: its screen position (game px) with the camera centred. */
 export type StageLayer = {
@@ -72,6 +83,9 @@ export const STAGE_ROOT = '/zuzu-showdown-stages'
 export const STAGE_NAMES: Record<StageSlug, string> = {
   'hollow-bell': 'Hollow Bell',
   'watering-hole': 'The Watering Hole',
+  'the-mission': 'The Mission',
+  'storm-canyon': 'Storm Canyon',
+  'lone-apple-tree': 'The Lone Apple Tree',
 }
 
 /** Each fighter's home stage (DESIGN-BRIEF.md "Stages with moving backgrounds"). */
@@ -79,6 +93,9 @@ export const HOME_STAGES: Partial<Record<string, StageSlug>> = {
   zuzu: 'hollow-bell',
   'coyote-vagrant': 'watering-hole',
   'river-croc': 'watering-hole',
+  'the-abbess': 'the-mission',
+  'storm-crow': 'storm-canyon',
+  'the-siblings': 'lone-apple-tree',
 }
 
 /** The fighters whose presence keeps the croc's eyes out of the Watering Hole. */
@@ -276,4 +293,148 @@ export function crocEyesAt(
   const sprite = into < 20 || into >= 160 ? 0 : into % 90 < 6 ? 2 : 1
   const x = Math.round((((cycle * 61) % 80) / 100 + 0.1) * waterWidth)
   return { x, sprite }
+}
+
+// ---------------------------------------------------------------- the Mission
+
+/** The candle's flame this frame: its height in pixels (2 to 4) and whether it burns bright. */
+export function candleFlame(
+  frame: number,
+  reducedMotion: boolean,
+): { h: number; bright: boolean } {
+  if (reducedMotion) return { h: 3, bright: true }
+  const n = Math.floor(frame / 5)
+  const wobble = (n * 7 + ((n * n) % 5)) % 6
+  return { h: 2 + (wobble % 3), bright: wobble !== 4 }
+}
+
+/**
+ * The portal in the bell arch: how strongly it shows (0 to 1) between rounds (the KO and the next
+ * round's intro), or 0 while a round is on. Under reduced motion it glows steadily instead.
+ */
+export function portalGlow(s: MatchState, reducedMotion: boolean): number {
+  const between = s.phase === 'ko' || (s.phase === 'intro' && s.round > 1)
+  if (!between) return 0
+  if (reducedMotion) return 0.6
+  const flicker = (Math.floor(s.frame / 3) * 13) % 7
+  return flicker < 2 ? 0.25 : flicker < 5 ? 0.7 : 1
+}
+
+// ---------------------------------------------------------------- Storm Canyon
+
+/** Frames between lightning strikes. */
+export const LIGHTNING_EVERY = 420
+
+/**
+ * The lightning flash this frame (0 to 1): a double flicker at a different moment of each cycle, at
+ * most twice in 12 frames. None under reduced motion.
+ */
+export function lightningAt(frame: number, reducedMotion: boolean): number {
+  if (reducedMotion) return 0
+  const cycle = Math.floor(frame / LIGHTNING_EVERY)
+  const at = 60 + ((cycle * 151) % 240)
+  const t = (frame % LIGHTNING_EVERY) - at
+  if (t >= 0 && t < 3) return 1
+  if (t >= 7 && t < 10) return 0.6
+  return 0
+}
+
+/** Rain streaks on screen this frame: a start point for each slanting streak. */
+export function rainAt(
+  frame: number,
+  reducedMotion: boolean,
+  width: number,
+  height: number,
+): Array<{ x: number; y: number }> {
+  const count = reducedMotion ? 24 : 70
+  // Under reduced motion the rain hangs still.
+  const t = reducedMotion ? 0 : frame
+  const out: Array<{ x: number; y: number }> = []
+  for (let i = 0; i < count; i += 1) {
+    const speed = 5 + (i % 3)
+    const y = ((i * 53 + t * speed) % (height + 20)) - 10
+    const x = ((i * 97 + t * 2) % (width + 40)) - 20
+    out.push({ x: Math.round(x), y: Math.round(y) })
+  }
+  return out
+}
+
+/** Four crows wheeling over the canyon, smaller and faster than the vultures. */
+export function crowsAt(
+  frame: number,
+): Array<{ x: number; y: number; flap: number }> {
+  return [0, 1, 2, 3].map((i) => {
+    const a = frame / (120 + i * 25) + (i * Math.PI) / 2
+    return {
+      x: Math.round(250 + Math.cos(a) * (50 + i * 22)),
+      y: Math.round(40 + Math.sin(a * 1.3) * (10 + i * 3) + i * 5),
+      flap: Math.floor((frame + i * 7) / 8) % 2,
+    }
+  })
+}
+
+// ---------------------------------------------------------------- the Lone Apple Tree
+
+/** Frames between apples, frames an apple falls, and frames it rests on the ground before it fades. */
+export const APPLE_EVERY = 360
+export const APPLE_FALL = 30
+export const APPLE_REST = 150
+
+/**
+ * The apple dropping this frame, if any: where across the canopy it fell from (0 to `width`), how far
+ * it has fallen as a share of the drop (0 at the branch, 1 on the ground), and how visible it is.
+ */
+export function appleAt(
+  frame: number,
+  width: number,
+): { x: number; fall: number; alpha: number } | null {
+  const cycle = Math.floor(frame / APPLE_EVERY)
+  const t = frame % APPLE_EVERY
+  if (t >= APPLE_FALL + APPLE_REST) return null
+  const x = Math.round((((cycle * 67) % 90) / 100 + 0.05) * width)
+  if (t < APPLE_FALL) {
+    // It falls the way things fall: slow off the branch, fast at the ground.
+    const u = t / APPLE_FALL
+    return { x, fall: u * u, alpha: 1 }
+  }
+  const rest = t - APPLE_FALL
+  const fade = rest > APPLE_REST - 30 ? (APPLE_REST - rest) / 30 : 1
+  return { x, fall: 1, alpha: Math.max(0, fade) }
+}
+
+/** Leaves drifting down from the canopy band (`w` wide), swaying as they go: offsets from its corner. */
+export function leavesAt(
+  frame: number,
+  w: number,
+  reducedMotion: boolean,
+): Array<{ x: number; y: number }> {
+  if (reducedMotion) return []
+  const out: Array<{ x: number; y: number }> = []
+  for (let i = 0; i < 4; i += 1) {
+    const life = 240
+    const age = (frame + i * 61) % life
+    const start =
+      ((i * 37 + Math.floor((frame + i * 61) / life) * 23) % 100) / 100
+    out.push({
+      x: Math.round(start * w + Math.sin((age + i * 20) / 14) * 4 + age * 0.08),
+      y: Math.round(age * 0.35),
+    })
+  }
+  return out
+}
+
+/** A dust devil crossing the street: its centre x on screen and its height, or null when there isn't one. */
+export function dustDevilAt(
+  frame: number,
+  reducedMotion: boolean,
+): { x: number; h: number; spin: number } | null {
+  if (reducedMotion) return null
+  const cycle = frame % 1200
+  if (cycle < 700 || cycle >= 1100) return null
+  const t = (cycle - 700) / 400
+  return {
+    x: Math.round(520 - t * 560),
+    h: Math.round(18 + Math.sin(t * Math.PI) * 10),
+    spin: frame,
+  }
 }

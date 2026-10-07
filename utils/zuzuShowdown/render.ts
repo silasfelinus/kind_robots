@@ -23,8 +23,16 @@ import {
   STAGE_INK,
   TUMBLEWEED,
   VULTURE,
+  appleAt,
   bellAngle,
+  candleFlame,
+  dustDevilAt,
+  leavesAt,
   crocEyesAt,
+  crowsAt,
+  lightningAt,
+  portalGlow,
+  rainAt,
   layerX,
   smokePuffs,
   tumbleweedAt,
@@ -440,10 +448,28 @@ export function drawStageArt(
     if (!image) continue
     const x = layerX(layer, cam)
     const shimmer =
-      m.stage === 'watering-hole' && layer.name === 'backdrop' && !reducedMotion
+      (m.stage === 'watering-hole' || m.stage === 'lone-apple-tree') &&
+      layer.name === 'backdrop' &&
+      !reducedMotion
         ? frame
         : null
+    // Storm Canyon's lightning: the sky blazes and everything in front of it goes dark, so the canyon
+    // walls (and the fighters, against the bright sky) stand in silhouette.
+    const flash =
+      m.stage === 'storm-canyon' ? lightningAt(frame, reducedMotion) : 0
+    if (flash > 0 && layer.name !== 'backdrop')
+      g.filter = `brightness(${(1 - 0.75 * flash).toFixed(2)})`
     drawLayer(g, image, layer, x, m.scale, shimmer)
+    g.filter = 'none'
+    if (flash > 0 && layer.name === 'backdrop') {
+      g.fillStyle = `rgba(220, 235, 255, ${(0.65 * flash).toFixed(2)})`
+      g.fillRect(0, layer.y, VIEW_WIDTH, layer.h)
+    }
+    if (m.stage === 'storm-canyon' && layer.name === 'backdrop') {
+      for (const c of crowsAt(frame)) {
+        drawPixelSprite(g, VULTURE[c.flap]!, x + c.x, layer.y + c.y)
+      }
+    }
     // Anchors and cutouts are in the layer's own pixels, so on screen they move with it.
     const anchor = (name: string) => {
       const a = m.anchors[name]
@@ -577,6 +603,53 @@ export function drawStageArt(
         )
       }
     }
+    const canopy = anchor('canopy')
+    if (canopy?.w && canopy.h) {
+      // The Lone Apple Tree: red leaves drift down, and every few seconds an apple drops.
+      g.fillStyle = '#b91c1c'
+      for (const leaf of leavesAt(frame, canopy.w, reducedMotion)) {
+        g.fillRect(x + canopy.x + leaf.x, layer.y + canopy.y + leaf.y, 2, 1)
+      }
+      const apple = appleAt(frame, canopy.w)
+      if (apple && apple.alpha > 0) {
+        const top = layer.y + canopy.y + canopy.h
+        const y = Math.round(top + (FLOOR_Y - 3 - top) * apple.fall)
+        const ax = x + canopy.x + apple.x
+        g.globalAlpha = apple.alpha
+        g.fillStyle = '#dc2626'
+        g.fillRect(ax, y, 3, 3)
+        g.fillStyle = '#fca5a5'
+        g.fillRect(ax, y, 1, 1)
+        g.fillStyle = '#3f6212'
+        g.fillRect(ax + 1, y - 1, 1, 1)
+        g.globalAlpha = 1
+      }
+    }
+    const candle = anchor('candle')
+    if (candle) {
+      // The Mission's candle: a flame of two to four pixels that never quite settles.
+      const flame = candleFlame(frame, reducedMotion)
+      g.fillStyle = flame.bright ? '#fde68a' : '#f59e0b'
+      g.fillRect(x + candle.x, layer.y + candle.y - flame.h, 1, flame.h)
+      g.fillStyle = '#fff7d6'
+      g.fillRect(x + candle.x, layer.y + candle.y - 1, 1, 1)
+    }
+    const portal = anchor('portal')
+    if (portal?.w && portal.h) {
+      // Between rounds something looks through the empty bell arch.
+      const glow = portalGlow(s, reducedMotion)
+      if (glow > 0) {
+        g.fillStyle = `rgba(167, 139, 250, ${(0.8 * glow).toFixed(2)})`
+        g.fillRect(x + portal.x, layer.y + portal.y, portal.w, portal.h)
+        g.fillStyle = `rgba(52, 211, 153, ${(0.6 * glow).toFixed(2)})`
+        g.fillRect(
+          x + portal.x + Math.floor(portal.w / 3),
+          layer.y + portal.y + Math.floor(portal.h / 4),
+          Math.max(1, Math.floor(portal.w / 3)),
+          Math.max(1, Math.floor(portal.h / 2)),
+        )
+      }
+    }
     if (m.stage === 'hollow-bell' && layer.name === 'floor') {
       const weed = tumbleweedAt(frame)
       if (weed) {
@@ -588,6 +661,25 @@ export function drawStageArt(
           FLOOR_Y - sprite.length + 2 + weed.y,
         )
       }
+    }
+  }
+  const devil =
+    m.stage === 'lone-apple-tree' ? dustDevilAt(frame, reducedMotion) : null
+  if (devil) {
+    // A dust devil: a funnel of sand flecks spinning up off the street.
+    g.fillStyle = 'rgba(176, 140, 96, 0.85)'
+    for (let k = 0; k < devil.h; k += 1) {
+      const r = 2 + (k * 6) / devil.h
+      const a = (devil.spin + k * 9) / 6
+      g.fillRect(Math.round(devil.x + Math.cos(a) * r), FLOOR_Y - k, 2, 1)
+    }
+  }
+  if (m.stage === 'storm-canyon') {
+    g.fillStyle = 'rgba(186, 214, 255, 0.35)'
+    for (const drop of rainAt(frame, reducedMotion, VIEW_WIDTH, VIEW_HEIGHT)) {
+      // A slanting streak, two pixels down for every one across.
+      for (let k = 0; k < 4; k += 1)
+        g.fillRect(drop.x + k, drop.y + k * 2, 1, 2)
     }
   }
 }

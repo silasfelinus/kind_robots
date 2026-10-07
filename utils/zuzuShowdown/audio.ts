@@ -252,6 +252,75 @@ const WATERING_HOLE: MusicLoop = {
   ],
 }
 
+/**
+ * The Mission, the Abbess's: G minor, slow as a hymn, a bass that walks down to the dominant and a
+ * plain triangle line over it that turns on the F# of the harmonic minor.
+ */
+const THE_MISSION: MusicLoop = {
+  bpm: 72,
+  tracks: [
+    {
+      type: 'triangle',
+      vol: 0.08,
+      steps: `G2 - - - D2 - - -   Eb2 - - - D2 - - -
+              C2 - - - G2 - - -   D2 - - - F#2 - D2 -`,
+    },
+    {
+      type: 'triangle',
+      vol: 0.05,
+      steps: `G4 - Bb4 - D5 - - -   C5 - Bb4 - A4 - - -
+              Eb5 - D5 - C5 - Bb4 -   A4 - - - F#4 - - -`,
+    },
+  ],
+}
+
+/** Storm Canyon, Storm Crow's: C minor at a run, a pounding bass, a square lead and a driving beat. */
+const STORM_CANYON: MusicLoop = {
+  bpm: 132,
+  tracks: [
+    {
+      type: 'triangle',
+      vol: 0.08,
+      steps: `C2 C2 . C2 G1 . C2 .   Ab1 Ab1 . Ab1 Eb2 . Ab1 .
+              Bb1 Bb1 . Bb1 F2 . Bb1 .   G1 G1 . G1 B1 . D2 .`,
+    },
+    {
+      type: 'square',
+      vol: 0.03,
+      steps: `C5 - Eb5 - G5 - F5 Eb5   D5 - - - . . . .
+              Bb4 - D5 - F5 - Eb5 D5   C5 - B4 - G4 - - -`,
+    },
+    {
+      noise: true,
+      vol: 0.025,
+      steps: `x . . x x . x .   x . . x x . x .
+              x . . x x . x .   x . . x x . x .`,
+    },
+  ],
+}
+
+/**
+ * The Lone Apple Tree, the Siblings': F minor, a music-box tune over a plucked bass, a little lopsided,
+ * like a game two kids made up.
+ */
+const LONE_APPLE_TREE: MusicLoop = {
+  bpm: 104,
+  tracks: [
+    {
+      type: 'triangle',
+      vol: 0.08,
+      steps: `F2 . C3 . F2 . C3 .   Db3 . Ab2 . Db3 . Ab2 .
+              Bb2 . F2 . Bb2 . F2 .   C3 . G2 . E2 . C3 .`,
+    },
+    {
+      type: 'square',
+      vol: 0.025,
+      steps: `C6 - Ab5 - F5 - Ab5 C6   Db6 - C6 - Ab5 - - -
+              Bb5 - Db6 - F5 - Bb5 -   G5 - E5 - C5 - - -`,
+    },
+  ],
+}
+
 /** Every stage still to come: E minor at a canter. */
 export const DEFAULT_LOOP: MusicLoop = {
   bpm: 110,
@@ -274,6 +343,9 @@ export const DEFAULT_LOOP: MusicLoop = {
 export const STAGE_LOOPS: Record<StageSlug, MusicLoop> = {
   'hollow-bell': HOLLOW_BELL,
   'watering-hole': WATERING_HOLE,
+  'the-mission': THE_MISSION,
+  'storm-canyon': STORM_CANYON,
+  'lone-apple-tree': LONE_APPLE_TREE,
 }
 
 /** The minor key each loop is in (its tonic's pitch class, 0 = C). */
@@ -284,6 +356,9 @@ export const LOOP_KEYS: Array<{
 }> = [
   { name: 'hollow-bell', loop: HOLLOW_BELL, tonic: 9 },
   { name: 'watering-hole', loop: WATERING_HOLE, tonic: 2 },
+  { name: 'the-mission', loop: THE_MISSION, tonic: 7 },
+  { name: 'storm-canyon', loop: STORM_CANYON, tonic: 0 },
+  { name: 'lone-apple-tree', loop: LONE_APPLE_TREE, tonic: 5 },
   { name: 'default', loop: DEFAULT_LOOP, tonic: 4 },
 ]
 

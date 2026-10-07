@@ -26,7 +26,7 @@ import {
   isPlausibleScore,
   loadArcadeGame,
 } from '../arcade/games'
-import { glyphFor, measureText } from '../arcade/font'
+import { glyphFor, lineStep, MIN_LINE_STEP, measureText } from '../arcade/font'
 import { BATTERY_MAZE } from '../arcade/games/batteryMaze'
 import { emptyInput, type InputFrame } from '../arcade/types'
 import {
@@ -224,6 +224,18 @@ import {
       )
     }
   }
+  // The how-to card stacks its lines from y=80; they must all fit on screen
+  // with a readable gap (Repair Rampage's sixth line once ran off the bottom).
+  for (const game of ARCADE_GAMES) {
+    const step = lineStep(game.howTo.length, game.height, 80)
+    assert.ok(
+      step >= MIN_LINE_STEP,
+      `${game.slug}: ${game.howTo.length} how-to lines do not fit ${game.height} tall`,
+    )
+    assert.ok(80 + (game.howTo.length - 1) * step + 14 <= game.height)
+  }
+  assert.equal(lineStep(6, 240, 80), 28)
+  assert.equal(lineStep(8, 416, 80), 30)
   assert.equal(measureText('ABC', 2), (3 * 6 - 1) * 2)
   assert.equal(measureText('', 3), 0)
 }

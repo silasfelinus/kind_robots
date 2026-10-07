@@ -31,6 +31,12 @@
             }"
           >
             <canvas
+              v-if="isWebGLCabinet"
+              ref="stageRef"
+              class="cabinet-stage"
+              aria-hidden="true"
+            />
+            <canvas
               ref="canvasRef"
               class="cabinet-canvas"
               :aria-label="`${meta?.title ?? 'Arcade'} game screen`"
@@ -176,11 +182,12 @@ import { drawText, lineStep, measureText } from '~/utils/arcade/font'
 import { mulberry32 } from '~/utils/arcade/curve'
 import { INITIALS_ALPHABET, isAllowedInitials } from '~/utils/arcade/initials'
 import { initialsFromUsername } from '~/utils/arcade/leaderboard'
-import type {
-  ArcadeButton,
-  ArcadeGameInstance,
-  ArcadeGameModule,
-  InputFrame,
+import {
+  isWebGLInstance,
+  type ArcadeButton,
+  type ArcadeGameModule,
+  type ArcadePlayableInstance,
+  type InputFrame,
 } from '~/utils/arcade/types'
 
 const props = defineProps<{ slug: string }>()
@@ -189,6 +196,8 @@ const emit = defineEmits<{ (e: 'scored', score: number): void }>()
 const store = useArcadeStore()
 const userStore = useUserStore()
 const meta = computed(() => findArcadeGame(props.slug))
+/** A WebGL game draws on a stage canvas under the 2D UI canvas. */
+const isWebGLCabinet = computed(() => meta.value?.renderMode === 'webgl')
 
 const screenRef = ref<HTMLDivElement | null>(null)
 const wrapRef = ref<HTMLDivElement | null>(null)
@@ -196,6 +205,7 @@ const wrapRef = ref<HTMLDivElement | null>(null)
 const fittedWidth = ref(0)
 const dpadRef = ref<HTMLDivElement | null>(null)
 const canvasRef = ref<HTMLCanvasElement | null>(null)
+const stageRef = ref<HTMLCanvasElement | null>(null)
 const phase = ref<ArcadePhase>('title')
 const muted = computed(() => store.muted)
 const crt = computed(() => store.crt)
@@ -211,8 +221,8 @@ const marqueeArt = ref('/images/arcade/cabinet-marquee.webp')
 
 let machine = initialArcadeState()
 let gameModule: ArcadeGameModule | null = null
-let game: ArcadeGameInstance | null = null
-let demoGame: ArcadeGameInstance | null = null
+let game: ArcadePlayableInstance | null = null
+let demoGame: ArcadePlayableInstance | null = null
 let sound: ArcadeSound | null = null
 let loop: FixedLoop | null = null
 let resizeObserver: ResizeObserver | null = null
@@ -373,18 +383,48 @@ function dispatch(event: ArcadeEvent) {
   if (machine.phase !== before) enterPhase(machine.phase)
 }
 
+/** Give a new WebGL game the stage canvas and its current size. */
+function adopt<T extends ArcadePlayableInstance>(instance: T): T {
+  const stage = stageRef.value
+  if (isWebGLInstance(instance) && stage) {
+    instance.mount(stage)
+    sizeStage(instance)
+  }
+  return instance
+}
+
+/** Free a WebGL game's GPU, physics and audio resources (2D games hold none). */
+function retire(instance: ArcadePlayableInstance | null) {
+  if (isWebGLInstance(instance)) instance.dispose()
+}
+
+function sizeStage(instance: ArcadePlayableInstance | null) {
+  const screen = screenRef.value
+  if (!isWebGLInstance(instance) || !screen) return
+  const rect = screen.getBoundingClientRect()
+  instance.resize(
+    rect.width,
+    rect.height,
+    Math.min(window.devicePixelRatio || 1, 2),
+  )
+}
+
 function enterPhase(next: ArcadePhase) {
   phase.value = next
   input.clear()
   input.typing = next === 'initials'
   if (next === 'demo' && gameModule) {
-    demoGame = gameModule.create({
-      rng: mulberry32(demoSeed++),
-      sound: { play: () => {} },
-      demo: true,
-      hiScore: hiScore(),
-    })
+    retire(demoGame)
+    demoGame = adopt(
+      gameModule.create({
+        rng: mulberry32(demoSeed++),
+        sound: { play: () => {} },
+        demo: true,
+        hiScore: hiScore(),
+      }),
+    )
   } else if (next !== 'demo') {
+    retire(demoGame)
     demoGame = null
   }
   if (next === 'scores') {
@@ -396,19 +436,28 @@ function enterPhase(next: ArcadePhase) {
     cursor = 0
     initialsNote = ''
   }
-  if (next === 'title' || next === 'scores') game = null
+  if (next === 'title' || next === 'scores') {
+    retire(game)
+    game = null
+  }
 }
 
 function startGame() {
   if (!gameModule) return
   sound?.unlock()
   sound?.play('start')
-  game = gameModule.create({
-    rng: Math.random,
-    sound: sound ?? { play: () => {} },
-    demo: false,
-    hiScore: hiScore(),
-  })
+  // One WebGL game owns the stage at a time: free the demo and any old game.
+  retire(demoGame)
+  demoGame = null
+  retire(game)
+  game = adopt(
+    gameModule.create({
+      rng: Math.random,
+      sound: sound ?? { play: () => {} },
+      demo: false,
+      hiScore: hiScore(),
+    }),
+  )
   dispatch({ type: 'start' })
 }
 
@@ -583,6 +632,32 @@ function drawBoardRows(g: CanvasRenderingContext2D, w: number, top: number) {
   })
 }
 
+/**
+ * A 2D game draws on the UI canvas; a WebGL game draws on the stage below
+ * it, so the UI canvas is cleared to let the stage show through.
+ */
+function drawGame(
+  instance: ArcadePlayableInstance,
+  g: CanvasRenderingContext2D,
+  w: number,
+  h: number,
+) {
+  if (isWebGLInstance(instance)) {
+    g.clearRect(0, 0, w, h)
+    instance.render()
+    if (instance.over) {
+      drawText(g, 'GAME OVER', w / 2, h * 0.4, {
+        scale: 4,
+        align: 'center',
+        color: '#ffffff',
+        shadow: SHADOW,
+      })
+    }
+  } else {
+    instance.render(g)
+  }
+}
+
 function render() {
   const canvas = canvasRef.value
   const info = meta.value
@@ -683,7 +758,7 @@ function render() {
   }
 
   if (current === 'demo') {
-    if (demoGame) demoGame.render(g)
+    if (demoGame) drawGame(demoGame, g, w, h)
     g.setTransform(scale, 0, 0, scale, 0, 0)
     drawText(g, 'DEMO', w / 2, h * 0.36, {
       scale: 3,
@@ -755,7 +830,7 @@ function render() {
   }
 
   // playing, paused, gameover
-  if (game) game.render(g)
+  if (game) drawGame(game, g, w, h)
   g.setTransform(scale, 0, 0, scale, 0, 0)
   if (current === 'paused') {
     g.fillStyle = 'rgba(11, 6, 32, 0.6)'
@@ -785,6 +860,8 @@ function resizeCanvas() {
   const dpr = Math.min(window.devicePixelRatio || 1, 2)
   canvas.width = Math.max(1, Math.round(rect.width * dpr))
   canvas.height = Math.max(1, Math.round(rect.height * dpr))
+  sizeStage(game)
+  sizeStage(demoGame)
   render()
 }
 
@@ -835,6 +912,11 @@ function toggleCrt() {
 }
 
 async function boot() {
+  retire(game)
+  retire(demoGame)
+  game = null
+  demoGame = null
+  gameModule = null
   const info = meta.value
   if (!info) {
     loadError.value = 'This cabinet is still being built.'
@@ -900,6 +982,10 @@ onBeforeUnmount(() => {
   resizeObserver?.disconnect()
   wrapObserver?.disconnect()
   sound?.dispose()
+  retire(game)
+  retire(demoGame)
+  game = null
+  demoGame = null
   setPageLock(false)
 })
 </script>
@@ -1148,11 +1234,21 @@ onBeforeUnmount(() => {
 }
 
 .cabinet-canvas {
+  position: relative;
   display: block;
   width: 100%;
   height: 100%;
   touch-action: none;
   outline: none;
+}
+
+.cabinet-stage {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
 }
 
 .cabinet-crt {

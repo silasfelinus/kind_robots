@@ -1,12 +1,14 @@
 // /utils/arcade/games/stationSweep.ts
 //
 // Station Sweep -- the Kind Robots Arcade's Xenophobe riff (conductor
-// kr-arcade/t-009 game factory, slice 1 of 4: one deck and one player;
-// elevators between decks, split-screen co-op, and critter growth with a
-// station-wide timer come in later slices). Mop, the station's cleaning robot,
-// sweeps a deck overrun by glitch critters. Egg sacs on the floor hatch
-// rollers and biters, sacs on the ceiling drop crawlers, and the deck is clean
-// once every sac is popped (or spent) and every critter swept up.
+// kr-arcade/t-009 game factory, slices 1-2 of 4: decks, lifts and one player;
+// split-screen co-op, and critter growth with a station-wide timer come in
+// later slices). Mop, the station's cleaning robot, sweeps a station overrun
+// by glitch critters, deck by deck. Egg sacs on the floor hatch rollers and
+// biters, sacs on the ceiling drop crawlers, and a deck is clean once every
+// sac is popped (or spent) and every critter swept up. Two lifts on every deck
+// ride up and down (Up or Down while standing in one); clean every deck and
+// the station is done.
 //
 // As in the classic, height matters: rollers bowl along the floor under a
 // standing shot, so crouch (Down) to sweep low. Crawlers drop and cling,
@@ -38,10 +40,15 @@ const CLEAR_TICKS = 150
 const DEATH_TICKS = 110
 const START_LIVES = 3
 const EXTRA_EVERY = 25_000
+/** Lift doors on every deck, at the same spots. */
+const LIFTS = [180, DECK_W - 180]
+const RIDE_TICKS = 50
+const DECK_PANELS = ['#1f2937', '#241a44', '#13293d', '#2a2014']
 
 export const SWEEP_CURVES = {
-  floorSacs: { start: 4, step: 1, limit: 12 },
-  ceilingSacs: { start: 2, step: 1, limit: 7 },
+  decks: { start: 2, step: 0.5, limit: 4 },
+  floorSacs: { start: 3, step: 1, limit: 9 },
+  ceilingSacs: { start: 1, step: 0.6, limit: 5 },
   hatchEvery: { start: 420, step: -35, limit: 110 },
   critterSpeed: { start: 1, step: 0.12, limit: 2.1 },
   biterChance: { start: 0.25, step: 0.08, limit: 0.6 },
@@ -73,6 +80,7 @@ type Sac = {
 type Shot = { x: number; y: number; vx: number; life: number }
 type Spit = { x: number; y: number; vx: number; life: number }
 type Kit = { x: number; life: number }
+type Deck = { sacs: Sac[]; critters: Critter[]; kits: Kit[]; clean: boolean }
 type Particle = {
   x: number
   y: number
@@ -108,6 +116,10 @@ class StationSweep implements ArcadeGameInstance {
   private hurt = 0
   private walkPhase = 0
   private camX = 0
+  private decks: Deck[] = []
+  /** Index into decks; deck 0 is the top of the station. */
+  private deck = 0
+  private ride: { to: number; t: number } | null = null
   private sacs: Sac[] = []
   private critters: Critter[] = []
   private shots: Shot[] = []
@@ -125,18 +137,48 @@ class StationSweep implements ArcadeGameInstance {
     this.sound = options.sound
     this.demo = options.demo
     this.hiScore = options.hiScore
-    this.startDeck(1)
+    this.startStation(1)
   }
 
   // --- deck ----------------------------------------------------------------------
 
-  private startDeck(deck: number) {
-    this.level = deck
-    this.sacs = []
+  private startStation(station: number) {
+    this.level = station
+    const count = Math.round(levelCurve(station, SWEEP_CURVES.decks))
+    this.decks = []
+    for (let d = 0; d < count; d++)
+      this.decks.push({
+        sacs: this.placeSacs(station),
+        critters: [],
+        kits: [],
+        clean: false,
+      })
+    this.deck = 0
+    this.load(0)
+    this.shots = []
+    this.spits = []
+    this.ride = null
+    this.x = 60
+    this.y = FLOOR
+    this.vy = 0
+    this.camX = 0
+    // A short top-up between stations, not a full repair.
+    this.health = Math.min(MAX_HEALTH, this.health + 25)
+    this.banner = {
+      text: `STATION ${station}`,
+      sub: `${count} DECKS TO SWEEP`,
+      ticks: 110,
+    }
+  }
+
+  private placeSacs(station: number): Sac[] {
+    const sacs: Sac[] = []
     const place = (count: number, ceiling: boolean) => {
       for (let i = 0; i < count; i++) {
-        const x = 220 + ((DECK_W - 300) * (i + 0.3 + this.rng() * 0.4)) / count
-        this.sacs.push({
+        let x = 220 + ((DECK_W - 300) * (i + 0.3 + this.rng() * 0.4)) / count
+        // Keep the lift doors clear.
+        for (const lift of LIFTS) if (Math.abs(x - lift) < 24) x = lift + 30
+        sacs.push({
           x,
           ceiling,
           hp: ceiling ? 999 : 3,
@@ -146,19 +188,55 @@ class StationSweep implements ArcadeGameInstance {
         })
       }
     }
-    place(Math.round(levelCurve(deck, SWEEP_CURVES.floorSacs)), false)
-    place(Math.round(levelCurve(deck, SWEEP_CURVES.ceilingSacs)), true)
-    this.critters = []
-    this.shots = []
-    this.spits = []
-    this.kits = []
-    this.x = 60
-    this.y = FLOOR
-    this.vy = 0
-    this.camX = 0
-    // A short top-up between decks, not a full repair.
-    this.health = Math.min(MAX_HEALTH, this.health + 25)
-    this.banner = { text: `DECK ${deck}`, sub: 'SWEEP IT CLEAN', ticks: 100 }
+    place(Math.round(levelCurve(station, SWEEP_CURVES.floorSacs)), false)
+    place(Math.round(levelCurve(station, SWEEP_CURVES.ceilingSacs)), true)
+    return sacs
+  }
+
+  /** The current deck's things live in this.sacs/critters/kits while Mop is on it. */
+  private load(index: number) {
+    const d = this.decks[index]!
+    this.sacs = d.sacs
+    this.critters = d.critters
+    this.kits = d.kits
+  }
+
+  private store() {
+    const d = this.decks[this.deck]!
+    d.sacs = this.sacs
+    d.critters = this.critters
+    d.kits = this.kits
+  }
+
+  /** Critters toughen per station, about as fast as they did per deck before lifts. */
+  private get heat(): number {
+    return 1 + (this.level - 1) * 3
+  }
+
+  private atLift(): number | undefined {
+    return LIFTS.find((l) => Math.abs(this.x - l) < 10)
+  }
+
+  private updateRide() {
+    const ride = this.ride!
+    ride.t--
+    if (ride.t === Math.floor(RIDE_TICKS / 2)) {
+      // Anything clinging to Mop rides along.
+      const riders = this.critters.filter((c) => c.clinging)
+      this.critters = this.critters.filter((c) => !c.clinging)
+      this.store()
+      this.deck = ride.to
+      this.load(ride.to)
+      this.critters.push(...riders)
+    }
+    if (ride.t > 0) return
+    this.ride = null
+    const d = this.decks[this.deck]!
+    this.banner = {
+      text: `DECK ${this.deck + 1}`,
+      sub: d.clean ? 'ALREADY CLEAN' : 'SWEEP IT CLEAN',
+      ticks: 70,
+    }
   }
 
   // --- update ------------------------------------------------------------------
@@ -171,7 +249,11 @@ class StationSweep implements ArcadeGameInstance {
     const controls = this.demo ? this.demoInput() : input
 
     if (this.clear > 0) {
-      if (--this.clear === 0) this.startDeck(this.level + 1)
+      if (--this.clear === 0) this.startStation(this.level + 1)
+      return
+    }
+    if (this.ride) {
+      this.updateRide()
       return
     }
     if (this.dead > 0) {
@@ -216,6 +298,22 @@ class StationSweep implements ArcadeGameInstance {
     if (input.held.right) this.facing = 1
     if (vx !== 0) this.walkPhase += 0.2
     this.x = Math.max(12, Math.min(DECK_W - 12, this.x + vx))
+    // Standing in a lift, Up or a fresh press of Down rides a deck that way.
+    const lift = this.onGround ? this.atLift() : undefined
+    const to = input.pressed.up
+      ? this.deck - 1
+      : input.pressed.down
+        ? this.deck + 1
+        : -1
+    if (lift !== undefined && to >= 0 && to < this.decks.length) {
+      this.x = lift
+      this.crouch = false
+      this.ride = { to, t: RIDE_TICKS }
+      this.shots = []
+      this.spits = []
+      this.sound.play('pickup')
+      return
+    }
     if (this.onGround && (input.pressed.up || input.pressed.b)) {
       this.vy = JUMP_VY
       this.onGround = false
@@ -315,7 +413,7 @@ class StationSweep implements ArcadeGameInstance {
   }
 
   private updateSacs() {
-    const every = levelCurve(this.level, SWEEP_CURVES.hatchEvery)
+    const every = levelCurve(this.heat, SWEEP_CURVES.hatchEvery)
     for (const sac of this.sacs) {
       if (sac.pulse > 0) sac.pulse--
       if (sac.hatches <= 0 || (!sac.ceiling && sac.hp <= 0)) continue
@@ -329,7 +427,7 @@ class StationSweep implements ArcadeGameInstance {
   }
 
   private hatch(sac: Sac) {
-    const speed = levelCurve(this.level, SWEEP_CURVES.critterSpeed)
+    const speed = levelCurve(this.heat, SWEEP_CURVES.critterSpeed)
     if (sac.ceiling) {
       this.critters.push({
         kind: 'crawler',
@@ -344,8 +442,7 @@ class StationSweep implements ArcadeGameInstance {
         canCling: true,
       })
     } else {
-      const biter =
-        this.rng() < levelCurve(this.level, SWEEP_CURVES.biterChance)
+      const biter = this.rng() < levelCurve(this.heat, SWEEP_CURVES.biterChance)
       const dir = this.x < sac.x ? -1 : 1
       this.critters.push({
         kind: biter ? 'biter' : 'roller',
@@ -365,7 +462,7 @@ class StationSweep implements ArcadeGameInstance {
   }
 
   private updateCritters() {
-    const speed = levelCurve(this.level, SWEEP_CURVES.critterSpeed)
+    const speed = levelCurve(this.heat, SWEEP_CURVES.critterSpeed)
     for (const c of this.critters) {
       c.t++
       if (c.kind === 'crawler') {
@@ -500,15 +597,29 @@ class StationSweep implements ArcadeGameInstance {
   }
 
   private checkClean() {
+    const d = this.decks[this.deck]!
     const sacsLeft = this.sacs.some(
       (s) => s.hatches > 0 && (s.ceiling || s.hp > 0),
     )
-    if (sacsLeft || this.critters.length) return
-    const bonus = 2000 * this.level + Math.max(0, this.health) * 10
-    this.addScore(bonus, this.x, this.y - 40)
+    if (!d.clean && !sacsLeft && !this.critters.length) {
+      d.clean = true
+      const bonus = 1000 * this.level
+      this.addScore(bonus, this.x, this.y - 40)
+      if (this.decks.some((k) => !k.clean)) {
+        this.banner = {
+          text: 'DECK CLEAN!',
+          sub: `BONUS ${bonus}  TO THE LIFT`,
+          ticks: 110,
+        }
+        this.sound.play('extra')
+      }
+    }
+    if (this.critters.length || this.decks.some((k) => !k.clean)) return
+    const bonus = 3000 * this.level + Math.max(0, this.health) * 10
+    this.addScore(bonus, this.x, this.y - 50)
     this.clear = CLEAR_TICKS
     this.banner = {
-      text: 'DECK CLEAN!',
+      text: 'STATION CLEAN!',
       sub: `BONUS ${bonus}`,
       ticks: CLEAR_TICKS,
     }
@@ -604,11 +715,14 @@ class StationSweep implements ArcadeGameInstance {
     if (!targets.length) {
       const sac = this.sacs.find((s) => s.ceiling && s.hatches > 0)
       if (sac) targets.push({ x: sac.x, low: false })
+      // Same for a crawler still riding the ceiling: it keeps the deck dirty.
+      for (const c of this.critters)
+        if (c.onCeiling) targets.push({ x: c.x, low: false })
     }
     const target = targets.sort(
       (a, b) => Math.abs(a.x - this.x) - Math.abs(b.x - this.x),
     )[0]
-    if (!target) return frame
+    if (!target) return this.pilotToLift(frame)
     const dist = target.x - this.x
     const dir = dist > 0 ? 1 : -1
     // Too close to aim at: back off a step first.
@@ -631,6 +745,26 @@ class StationSweep implements ArcadeGameInstance {
     return frame
   }
 
+  /** Walk to the nearest lift and ride toward the nearest deck still dirty. */
+  private pilotToLift(frame: InputFrame): InputFrame {
+    const dirty = this.decks
+      .map((d, i) => (d.clean ? -1 : i))
+      .filter((i) => i >= 0 && i !== this.deck)
+      .sort((a, b) => Math.abs(a - this.deck) - Math.abs(b - this.deck))[0]
+    if (dirty === undefined) return frame
+    const lift = LIFTS.reduce((a, b) =>
+      Math.abs(a - this.x) < Math.abs(b - this.x) ? a : b,
+    )
+    if (Math.abs(lift - this.x) > 4) {
+      if (lift > this.x) frame.held.right = true
+      else frame.held.left = true
+      return frame
+    }
+    if (dirty < this.deck) frame.pressed.up = true
+    else frame.pressed.down = true
+    return frame
+  }
+
   // --- render -------------------------------------------------------------------
 
   render(g: CanvasRenderingContext2D) {
@@ -639,6 +773,7 @@ class StationSweep implements ArcadeGameInstance {
     g.save()
     g.translate(-Math.round(this.camX), 0)
     this.renderDeck(g)
+    for (const lift of LIFTS) this.renderLift(g, lift)
     for (const sac of this.sacs) this.renderSac(g, sac)
     for (const k of this.kits) this.renderKit(g, k)
     for (const c of this.critters) this.renderCritter(g, c)
@@ -652,7 +787,10 @@ class StationSweep implements ArcadeGameInstance {
       g.fillStyle = '#ecfeff'
       g.fillRect(s.x - 1, s.y - 1, 3, 2)
     }
-    if (this.dead === 0 && !this.over) this.renderMop(g)
+    // Mop shows in the doorway while the lift doors are open.
+    const inLift =
+      this.ride && Math.abs(this.ride.t - RIDE_TICKS / 2) < RIDE_TICKS / 2 - 8
+    if (this.dead === 0 && !this.over && !inLift) this.renderMop(g)
     for (const p of this.particles) {
       g.globalAlpha = Math.max(0, p.life / 30)
       g.fillStyle = p.color
@@ -676,7 +814,7 @@ class StationSweep implements ArcadeGameInstance {
     g.fillStyle = '#111827'
     g.fillRect(0, CEILING, DECK_W, FLOOR - CEILING)
     for (let x = 0; x < DECK_W; x += 80) {
-      g.fillStyle = '#1f2937'
+      g.fillStyle = DECK_PANELS[this.deck % DECK_PANELS.length]!
       g.fillRect(x + 2, CEILING + 4, 76, FLOOR - CEILING - 8)
       g.fillStyle = '#0b1026'
       g.beginPath()
@@ -700,6 +838,43 @@ class StationSweep implements ArcadeGameInstance {
     // Floor grating.
     g.fillStyle = '#0f172a'
     for (let x = 0; x < DECK_W; x += 10) g.fillRect(x, FLOOR + 6, 6, 2)
+  }
+
+  private renderLift(g: CanvasRenderingContext2D, x: number) {
+    const top = CEILING + 34
+    g.fillStyle = '#0f172a'
+    g.fillRect(x - 16, top - 4, 32, FLOOR - top + 4)
+    // The doors slide open while Mop steps in or out.
+    const here = this.ride && Math.abs(this.x - x) < 2
+    const t = this.ride ? this.ride.t : 0
+    const open = here
+      ? Math.max(0, Math.min(1, Math.abs(t - RIDE_TICKS / 2) / 10 - 1))
+      : 0
+    const gap = Math.round(open * 12)
+    g.fillStyle = '#64748b'
+    g.fillRect(x - 13, top, 13 - gap, FLOOR - top)
+    g.fillRect(x + gap, top, 13 - gap, FLOOR - top)
+    g.fillStyle = '#94a3b8'
+    g.fillRect(x - 13, top, 13 - gap, 2)
+    g.fillRect(x + gap, top, 13 - gap, 2)
+    if (here && open < 1) {
+      g.fillStyle = '#7dd3fc'
+      g.fillRect(x - 1, top + 6 + ((this.tick * 2) % 40), 2, 6)
+    }
+    // Arrows: lime toward a deck still dirty, grey toward a clean one.
+    const arrow = (to: number, up: boolean) => {
+      const d = this.decks[to]
+      if (!d) return
+      g.fillStyle = d.clean ? '#475569' : '#a3e635'
+      const ay = up ? top - 14 : top - 7
+      g.beginPath()
+      g.moveTo(x + (up ? -5 : -5), ay + (up ? 5 : 0))
+      g.lineTo(x + 5, ay + (up ? 5 : 0))
+      g.lineTo(x, ay + (up ? 0 : 5))
+      g.fill()
+    }
+    arrow(this.deck - 1, true)
+    arrow(this.deck + 1, false)
   }
 
   private renderSac(g: CanvasRenderingContext2D, sac: Sac) {
@@ -812,9 +987,20 @@ class StationSweep implements ArcadeGameInstance {
       align: 'right',
       color: '#f9a8d4',
     })
-    drawText(g, `DECK ${this.level}`, W - 6, 13, {
+    drawText(g, `STATION ${this.level}  DECK ${this.deck + 1}`, W - 6, 13, {
       align: 'right',
       color: '#bef264',
+    })
+    // The station, top deck first: clean decks green, dirty ones red, Mop's outlined.
+    this.decks.forEach((d, i) => {
+      const bx = W - 6 - (this.decks.length - i) * 12
+      g.fillStyle = d.clean ? '#22c55e' : '#be123c'
+      g.fillRect(bx, 26, 10, 7)
+      if (i === this.deck) {
+        g.strokeStyle = '#67e8f9'
+        g.lineWidth = 1
+        g.strokeRect(bx - 0.5, 25.5, 11, 8)
+      }
     })
     drawText(g, 'CHARGE', 6, 26, { color: '#bbf7d0' })
     g.fillStyle = '#1f2937'

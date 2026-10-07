@@ -9,7 +9,17 @@
 import type { ArcadeSoundLike } from '../../types'
 
 export type PinballSoundName =
-  'flipper' | 'pop' | 'sling' | 'launch' | 'drain' | 'nudge'
+  | 'flipper'
+  | 'pop'
+  | 'sling'
+  | 'launch'
+  | 'drain'
+  | 'nudge'
+  | 'drop'
+  | 'scoop'
+  | 'kickout'
+  | 'spinner'
+  | 'shot'
 
 const ARCADE_FALLBACK: Record<
   PinballSoundName,
@@ -21,6 +31,11 @@ const ARCADE_FALLBACK: Record<
   launch: 'start',
   drain: 'die',
   nudge: 'blip',
+  drop: 'pickup',
+  scoop: 'pickup',
+  kickout: 'shoot',
+  spinner: 'blip',
+  shot: 'extra',
 }
 
 export class PinballMixer {

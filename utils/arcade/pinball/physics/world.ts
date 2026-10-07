@@ -1,18 +1,29 @@
 // /utils/arcade/pinball/physics/world.ts
 //
-// The pinball physics world on Rapier 3D (conductor kind-pinball/t-004).
-// It owns every rigid body and collider, steps at a fixed 1/120 s, and
-// reports switch traffic as SwitchEvents. It knows nothing about rules,
-// scoring or rendering. Rapier's WASM module is passed in (the game module
-// initialises it once) so this file never triggers a load by itself.
+// The pinball physics world on Rapier 3D (conductor kind-pinball/t-004,
+// mechanisms added in t-018). It owns every rigid body and collider, steps
+// at a fixed 1/120 s, and reports switch traffic as SwitchEvents. It knows
+// nothing about rules, scoring or rendering. Rapier's WASM module is passed
+// in (the game module initialises it once) so this file never triggers a
+// load by itself.
 //
 // The table is simulated in its own frame (see ../types.ts); the playfield
 // pitch becomes a tilted gravity vector instead of rotated geometry.
+//
+// Mechanisms simulated here, because they are mechanical devices with their
+// own timing: one-way gates (a contact hook drops the contact when the ball
+// moves the pass way), drop targets (a hit disables the target's collider),
+// scoops and saucers (capture, hold, kick out, or send down a subway), and
+// spinners (the plate spins with the speed the ball passed at).
 
 import type RAPIER from '@dimforge/rapier3d-compat'
 import type {
+  BoxCollider,
   ColliderDef,
+  DropTargetDef,
+  MeshCollider,
   FlipperDef,
+  ScoopDef,
   SwitchEvent,
   TableDef,
   Vec3,
@@ -21,11 +32,20 @@ import type {
 export type RapierModule = typeof RAPIER
 
 export const PHYSICS_HZ = 120
+/** Rapier's length scale: 0.1 gives 2 mm contact prediction. */
+const LENGTH_UNIT = 0.1
 const G = 9.81
 /** Steel ball: 7.85 g/cm^3 gives the familiar ~80 g ball. */
 const BALL_DENSITY = 7850
 /** A safety fuse only; normal play never reaches it. */
 const MAX_BALL_SPEED = 8
+/** Hits slower than this do not knock a drop target down (m/s). */
+const DROP_MIN_SPEED = 0.25
+/** After a kick-out the same ball cannot be captured again for this long. */
+const SCOOP_COOLDOWN_STEPS = PHYSICS_HZ / 2
+/** Spinner plate: revolutions per second per m/s, and its friction decay. */
+const SPIN_PER_SPEED = 7
+const SPIN_DECAY = 0.985
 
 export type BallView = {
   id: number
@@ -34,12 +54,17 @@ export type BallView = {
   velocity: Vec3
   /** Speed across the playfield (XZ), m/s. */
   speed: number
+  /** Held in a scoop (not moving, not drainable). */
+  captured: boolean
 }
 
 type LiveBall = {
   id: number
   body: RAPIER.RigidBody
   collider: RAPIER.Collider
+  captured: boolean
+  /** Physics step before which scoops ignore this ball. */
+  scoopCooldown: number
 }
 
 type LiveFlipper = {
@@ -49,8 +74,24 @@ type LiveFlipper = {
   up: boolean
 }
 
+type LiveDrop = {
+  def: DropTargetDef
+  collider: RAPIER.Collider
+  up: boolean
+}
+
+type Hold = { ball: LiveBall; scoop: ScoopDef; releaseStep: number }
+
 function yawQuat(theta: number) {
   return { x: 0, y: Math.sin(theta / 2), z: 0, w: Math.cos(theta / 2) }
+}
+
+function boxRotation(def: BoxCollider) {
+  if (def.quat) {
+    const [x, y, z, w] = def.quat
+    return { x, y, z, w }
+  }
+  return yawQuat(def.yaw ?? 0)
 }
 
 /** World yaw that points a flipper's +X at its angle (+Z is down-table). */
@@ -70,12 +111,26 @@ export class PinballPhysics {
   private R: RapierModule
   private world: RAPIER.World
   private events: RAPIER.EventQueue
+  private fixed: RAPIER.RigidBody
   private balls: LiveBall[] = []
   private flippers: LiveFlipper[] = []
+  private drops: LiveDrop[] = []
   /** Collider handle -> table id, for switch events. */
   private names = new Map<number, string>()
   private kicks = new Map<number, number>()
   private sensorHandles = new Set<number>()
+  private gates = new Map<number, Vec3>()
+  private mouths = new Map<number, NonNullable<MeshCollider['mouth']>>()
+  private scoopHandles = new Map<number, ScoopDef>()
+  private spinnerHandles = new Set<number>()
+  private spin = new Map<string, { angle: number; rate: number }>()
+  private holds: Hold[] = []
+  /** Ball velocities by body handle, captured before each step for the gate hook. */
+  private velocities = new Map<number, Vec3>()
+  /** Ball positions by body handle, captured with the velocities for the mouth hook. */
+  private positions = new Map<number, Vec3>()
+  private hooks: RAPIER.PhysicsHooks
+  private stepCount = 0
   private nextBallId = 1
   private disposed = false
 
@@ -89,40 +144,135 @@ export class PinballPhysics {
       z: G * Math.sin(pitch),
     })
     this.world.timestep = 1 / PHYSICS_HZ
+    // Rapier's tolerances default to a 1 m world: 2 cm contact prediction and
+    // 5 mm allowed overlap. At pinball scale (a 27 mm ball) that turns every
+    // nearby edge into a ghost contact, so scale them to the table.
+    this.world.lengthUnit = LENGTH_UNIT
     this.events = new R.EventQueue(true)
-    const fixed = this.world.createRigidBody(R.RigidBodyDesc.fixed())
-    for (const def of table.colliders) this.addStatic(fixed, def)
+    this.fixed = this.world.createRigidBody(R.RigidBodyDesc.fixed())
+    for (const def of table.colliders) this.addStatic(def)
     for (const sensor of table.sensors) {
-      const desc = R.ColliderDesc.cuboid(...sensor.half)
-        .setTranslation(...sensor.at)
-        .setRotation(yawQuat(sensor.yaw ?? 0))
-        .setSensor(true)
-        .setActiveEvents(R.ActiveEvents.COLLISION_EVENTS)
-      const collider = this.world.createCollider(desc, fixed)
-      this.names.set(collider.handle, sensor.id)
+      const collider = this.addSensor(
+        R.ColliderDesc.cuboid(...sensor.half)
+          .setTranslation(...sensor.at)
+          .setRotation(yawQuat(sensor.yaw ?? 0)),
+        sensor.id,
+      )
       this.sensorHandles.add(collider.handle)
     }
+    for (const scoop of table.scoops) {
+      const collider = this.addSensor(
+        R.ColliderDesc.ball(scoop.radius).setTranslation(...scoop.at),
+        scoop.id,
+      )
+      this.scoopHandles.set(collider.handle, scoop)
+    }
+    for (const spinner of table.spinners) {
+      const collider = this.addSensor(
+        R.ColliderDesc.cuboid(...spinner.half)
+          .setTranslation(...spinner.at)
+          .setRotation(yawQuat(spinner.yaw ?? 0)),
+        spinner.id,
+      )
+      this.spinnerHandles.add(collider.handle)
+      this.spin.set(spinner.id, { angle: 0, rate: 0 })
+    }
+    for (const def of table.drops) this.addDrop(def)
     for (const def of table.flippers) this.addFlipper(def)
+    this.hooks = {
+      filterContactPair: (c1, c2, b1, b2) => {
+        const mouth = this.mouths.get(c1) ?? this.mouths.get(c2)
+        if (mouth) {
+          const at = this.positions.get(b1) ?? this.positions.get(b2)
+          if (!at) return this.R.SolverFlags.COMPUTE_IMPULSE
+          const dx = at[0] - mouth.at[0]
+          const dz = at[2] - mouth.at[2]
+          const before =
+            Math.hypot(dx, dz) < mouth.radius &&
+            dx * mouth.dir[0] + dz * mouth.dir[2] < 0
+          return before
+            ? this.R.SolverFlags.EMPTY
+            : this.R.SolverFlags.COMPUTE_IMPULSE
+        }
+        const gate = this.gates.get(c1) ?? this.gates.get(c2)
+        if (!gate) return this.R.SolverFlags.COMPUTE_IMPULSE
+        const v = this.velocities.get(b1) ?? this.velocities.get(b2)
+        if (!v) return this.R.SolverFlags.COMPUTE_IMPULSE
+        const along = v[0] * gate[0] + v[2] * gate[2]
+        return along > 0
+          ? this.R.SolverFlags.EMPTY
+          : this.R.SolverFlags.COMPUTE_IMPULSE
+      },
+      filterIntersectionPair: () => true,
+    }
     liveWorlds++
   }
 
-  private addStatic(body: RAPIER.RigidBody, def: ColliderDef) {
+  private addSensor(desc: RAPIER.ColliderDesc, id: string): RAPIER.Collider {
+    desc.setSensor(true).setActiveEvents(this.R.ActiveEvents.COLLISION_EVENTS)
+    const collider = this.world.createCollider(desc, this.fixed)
+    this.names.set(collider.handle, id)
+    return collider
+  }
+
+  private addStatic(def: ColliderDef) {
     const R = this.R
+    if (def.kind === 'mesh') return this.addMesh(def)
     const desc =
       def.kind === 'box'
-        ? R.ColliderDesc.cuboid(...def.half).setRotation(yawQuat(def.yaw ?? 0))
+        ? R.ColliderDesc.cuboid(...def.half).setRotation(boxRotation(def))
         : R.ColliderDesc.cylinder(def.halfHeight, def.radius)
     desc
       .setTranslation(...def.at)
       .setRestitution(def.restitution ?? 0.3)
-      .setFriction(def.material === 'playfield' ? 0.12 : 0.2)
+      .setFriction(
+        def.material === 'playfield' || def.material === 'ramp' ? 0.12 : 0.2,
+      )
     if (def.kind === 'post' && def.kick) {
       desc.setActiveEvents(R.ActiveEvents.COLLISION_EVENTS)
     }
-    const collider = this.world.createCollider(desc, body)
+    if (def.kind === 'box' && def.passDir) {
+      desc.setActiveHooks(R.ActiveHooks.FILTER_CONTACT_PAIRS)
+    }
+    const collider = this.world.createCollider(desc, this.fixed)
     this.names.set(collider.handle, def.id)
     if (def.kind === 'post' && def.kick)
       this.kicks.set(collider.handle, def.kick)
+    if (def.kind === 'box' && def.passDir)
+      this.gates.set(collider.handle, def.passDir)
+  }
+
+  private addMesh(def: MeshCollider) {
+    const R = this.R
+    // Rapier smooths contacts across the mesh's internal edges, so a ball
+    // rolls over the seams between triangles without a bump.
+    const desc = R.ColliderDesc.trimesh(
+      new Float32Array(def.vertices),
+      new Uint32Array(def.indices),
+      def.twoSided
+        ? R.TriMeshFlags.FIX_INTERNAL_EDGES_TWO_SIDED
+        : R.TriMeshFlags.FIX_INTERNAL_EDGES,
+    )
+      .setRestitution(def.restitution ?? 0.3)
+      .setFriction(def.material === 'ramp' ? 0.12 : 0.2)
+    if (def.mouth) desc.setActiveHooks(R.ActiveHooks.FILTER_CONTACT_PAIRS)
+    const collider = this.world.createCollider(desc, this.fixed)
+    this.names.set(collider.handle, def.id)
+    if (def.mouth) this.mouths.set(collider.handle, def.mouth)
+  }
+
+  private addDrop(def: DropTargetDef) {
+    const R = this.R
+    const collider = this.world.createCollider(
+      R.ColliderDesc.cuboid(...def.half)
+        .setTranslation(...def.at)
+        .setRotation(yawQuat(def.yaw ?? 0))
+        .setRestitution(0.3)
+        .setActiveEvents(R.ActiveEvents.COLLISION_EVENTS),
+      this.fixed,
+    )
+    this.names.set(collider.handle, def.id)
+    this.drops.push({ def, collider, up: true })
   }
 
   private addFlipper(def: FlipperDef) {
@@ -147,8 +297,8 @@ export class PinballPhysics {
     this.flippers.push({ def, body, angle: def.restAngle, up: false })
   }
 
-  /** Put a new ball on the plunger. Returns its id. */
-  serveBall(at: Vec3 = this.table.plunger.rest): number {
+  /** Put a new ball on the plunger (or anywhere, for tests). Returns its id. */
+  serveBall(at: Vec3 = this.table.plunger.rest, velocity?: Vec3): number {
     const R = this.R
     const radius = this.table.physical.ballRadiusM
     const body = this.world.createRigidBody(
@@ -159,6 +309,8 @@ export class PinballPhysics {
         .setLinearDamping(0.05)
         .setAngularDamping(0.3),
     )
+    if (velocity)
+      body.setLinvel({ x: velocity[0], y: velocity[1], z: velocity[2] }, true)
     const collider = this.world.createCollider(
       R.ColliderDesc.ball(radius)
         .setDensity(BALL_DENSITY)
@@ -167,7 +319,7 @@ export class PinballPhysics {
       body,
     )
     const id = this.nextBallId++
-    this.balls.push({ id, body, collider })
+    this.balls.push({ id, body, collider, captured: false, scoopCooldown: 0 })
     return id
   }
 
@@ -204,9 +356,10 @@ export class PinballPhysics {
     })
   }
 
-  /** Bump the cabinet: every ball gets the same small shove (m/s). */
+  /** Bump the cabinet: every free ball gets the same small shove (m/s). */
   nudge(dx: number, dz: number) {
     for (const ball of this.balls) {
+      if (ball.captured) continue
       const m = ball.body.mass()
       ball.body.applyImpulse({ x: dx * m, y: 0, z: dz * m }, true)
     }
@@ -217,21 +370,54 @@ export class PinballPhysics {
       if (flipper.def.side === side) flipper.up = up
   }
 
+  /** Raise every target in a drop bank (a mechanism the rules ask for). */
+  resetDropBank(bank: string) {
+    for (const drop of this.drops) {
+      if (drop.def.bank !== bank || drop.up) continue
+      drop.up = true
+      drop.collider.setEnabled(true)
+    }
+  }
+
   /** Advance one physics step and return what the switches saw. */
   step(): SwitchEvent[] {
     if (this.disposed) return []
+    this.stepCount++
     const dt = 1 / PHYSICS_HZ
     for (const flipper of this.flippers) this.moveFlipper(flipper, dt)
-    this.world.step(this.events)
+    this.velocities.clear()
+    this.positions.clear()
+    for (const ball of this.balls) {
+      const v = ball.body.linvel()
+      const at = ball.body.translation()
+      this.velocities.set(ball.body.handle, [v.x, v.y, v.z])
+      this.positions.set(ball.body.handle, [at.x, at.y, at.z])
+    }
+    this.world.step(this.events, this.hooks)
     const out: SwitchEvent[] = []
     this.events.drainCollisionEvents((h1, h2, started) => {
       const ball = this.balls.find(
         (b) => b.collider.handle === h1 || b.collider.handle === h2,
       )
-      if (!ball) return
+      if (!ball || ball.captured) return
       const other = ball.collider.handle === h1 ? h2 : h1
       const id = this.names.get(other)
       if (!id) return
+      const v = ball.body.linvel()
+      const speed = Math.hypot(v.x, v.z)
+      const scoop = this.scoopHandles.get(other)
+      if (scoop) {
+        if (started) this.tryCapture(ball, scoop, speed, out)
+        return
+      }
+      if (this.spinnerHandles.has(other)) {
+        if (!started) return
+        const spinner = this.spin.get(id)
+        if (spinner)
+          spinner.rate = Math.max(spinner.rate, speed * SPIN_PER_SPEED)
+        out.push({ type: 'spin', id, ballId: ball.id, speed })
+        return
+      }
       if (this.sensorHandles.has(other)) {
         out.push({
           type: started ? 'sensor-enter' : 'sensor-exit',
@@ -241,17 +427,27 @@ export class PinballPhysics {
         return
       }
       if (!started) return
+      const drop = this.drops.find((d) => d.collider.handle === other)
+      if (drop) {
+        if (drop.up && speed >= DROP_MIN_SPEED) {
+          drop.up = false
+          drop.collider.setEnabled(false)
+          out.push({ type: 'drop', id, bank: drop.def.bank, ballId: ball.id })
+        }
+        return
+      }
       const kick = this.kicks.get(other)
-      const v = ball.body.linvel()
       if (kick) this.kickAway(ball, other, kick)
-      out.push({
-        type: 'contact',
-        id,
-        ballId: ball.id,
-        impulse: Math.hypot(v.x, v.z),
-      })
+      out.push({ type: 'contact', id, ballId: ball.id, impulse: speed })
     })
+    this.releaseHolds(out)
+    for (const spinner of this.spin.values()) {
+      spinner.angle += spinner.rate * 2 * Math.PI * dt
+      spinner.rate *= SPIN_DECAY
+      if (spinner.rate < 0.05) spinner.rate = 0
+    }
     for (const ball of [...this.balls]) {
+      if (ball.captured) continue
       const at = ball.body.translation()
       const v = ball.body.linvel()
       const speed = Math.hypot(v.x, v.y, v.z)
@@ -270,6 +466,56 @@ export class PinballPhysics {
       }
     }
     return out
+  }
+
+  /** A ball entering a scoop slowly enough drops in and is held. */
+  private tryCapture(
+    ball: LiveBall,
+    scoop: ScoopDef,
+    speed: number,
+    out: SwitchEvent[],
+  ) {
+    if (this.stepCount < ball.scoopCooldown || speed > scoop.captureMaxSpeed)
+      return
+    ball.captured = true
+    ball.body.setLinvel({ x: 0, y: 0, z: 0 }, true)
+    ball.body.setAngvel({ x: 0, y: 0, z: 0 }, true)
+    ball.body.setTranslation(
+      {
+        x: scoop.at[0],
+        y: scoop.at[1] - this.table.physical.ballRadiusM * 0.6,
+        z: scoop.at[2],
+      },
+      true,
+    )
+    ball.body.setEnabled(false)
+    const holdSteps = Math.round((scoop.holdMs / 1000) * PHYSICS_HZ)
+    this.holds.push({ ball, scoop, releaseStep: this.stepCount + holdSteps })
+    out.push({ type: 'capture', id: scoop.id, ballId: ball.id })
+  }
+
+  /** Kick out balls whose hold is over, through a subway when there is one. */
+  private releaseHolds(out: SwitchEvent[]) {
+    const due = this.holds.filter((h) => h.releaseStep <= this.stepCount)
+    if (!due.length) return
+    this.holds = this.holds.filter((h) => h.releaseStep > this.stepCount)
+    for (const hold of due) {
+      const target =
+        (hold.scoop.subwayTo &&
+          this.table.scoops.find((s) => s.id === hold.scoop.subwayTo)) ||
+        hold.scoop
+      const { at, velocity } = target.eject
+      const ball = hold.ball
+      ball.body.setEnabled(true)
+      ball.body.setTranslation({ x: at[0], y: at[1], z: at[2] }, true)
+      ball.body.setLinvel(
+        { x: velocity[0], y: velocity[1], z: velocity[2] },
+        true,
+      )
+      ball.captured = false
+      ball.scoopCooldown = this.stepCount + SCOOP_COOLDOWN_STEPS
+      out.push({ type: 'eject', id: target.id, ballId: ball.id })
+    }
   }
 
   /** A pop bumper fires: push the ball straight away from its centre. */
@@ -317,6 +563,7 @@ export class PinballPhysics {
         rotation: [r.x, r.y, r.z, r.w],
         velocity: [v.x, v.y, v.z],
         speed: Math.hypot(v.x, v.z),
+        captured: ball.captured,
       }
     })
   }
@@ -325,6 +572,20 @@ export class PinballPhysics {
   flipperAngles(): Record<string, number> {
     const out: Record<string, number> = {}
     for (const flipper of this.flippers) out[flipper.def.id] = flipper.angle
+    return out
+  }
+
+  /** Which drop targets are standing, by id. */
+  dropStates(): Record<string, boolean> {
+    const out: Record<string, boolean> = {}
+    for (const drop of this.drops) out[drop.def.id] = drop.up
+    return out
+  }
+
+  /** Spinner plate angles by id, radians. */
+  spinnerAngles(): Record<string, number> {
+    const out: Record<string, number> = {}
+    for (const [id, spinner] of this.spin) out[id] = spinner.angle
     return out
   }
 
@@ -339,6 +600,8 @@ export class PinballPhysics {
     this.world.free()
     this.balls = []
     this.flippers = []
+    this.drops = []
+    this.holds = []
     liveWorlds--
   }
 }

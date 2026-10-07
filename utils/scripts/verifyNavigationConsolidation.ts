@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict'
-import { existsSync, readFileSync } from 'node:fs'
+import { existsSync, readFileSync, readdirSync } from 'node:fs'
 
 import {
   navigationDestinations,
@@ -55,11 +55,36 @@ assert.ok(
 )
 assert.equal(
   channelTabList.match(
-    /class="line-clamp-1 w-full text-xs font-medium opacity-65"/g,
+    /class="w-full whitespace-nowrap text-\[0\.7rem\] font-medium tracking-tight opacity-65"/g,
   )?.length,
   2,
-  'top-level and nested tab rows must keep secondary descriptions visible at all widths',
+  'top-level and nested tab rows must keep full one-line descriptions visible at all widths',
 )
+assert.doesNotMatch(
+  channelTabList,
+  /line-clamp|truncate/,
+  'tab descriptions must never be clamped or truncated',
+)
+
+function channelMarkdownFiles(dir: string): string[] {
+  return readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
+    const path = `${dir}/${entry.name}`
+    if (entry.isDirectory()) return channelMarkdownFiles(path)
+    return entry.isFile() && entry.name.endsWith('.md') ? [path] : []
+  })
+}
+
+for (const path of channelMarkdownFiles('content/channels')) {
+  if (path.endsWith('/index.md')) continue
+  const content = source(path)
+  if (/\nnavigation: false\n/.test(content)) continue
+  const summary = content.match(/^summary:\s*['"]?(.+?)['"]?\s*$/m)?.[1]?.trim()
+  assert.ok(summary, `${path} must provide a nav summary`)
+  assert.ok(
+    summary.length <= 40,
+    `${path} nav summary must stay at 40 characters or fewer (got ${summary.length})`,
+  )
+}
 assert.ok(
   channelTabList.includes('navigationSubtabs') &&
     channelTabList.includes("tab.label + ' subtabs'"),

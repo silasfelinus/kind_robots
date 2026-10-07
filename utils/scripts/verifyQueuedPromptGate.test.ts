@@ -133,4 +133,22 @@ assert.ok(
   'a hand-rolled contract call in the queue route is how 34375/34381 got in',
 )
 
-console.log('verifyQueuedPromptGate: ok (claim, enqueue and queue gates agree)')
+// And the producer. /api/conductor/art-request files prompts into Conductor's
+// queue for later rendering; ArtJob 34375's prompt went in unchecked. It must
+// run the contract before filing, and its own fallbacks must pass it.
+const artRequest = readFileSync(
+  'server/api/conductor/art-request.post.ts',
+  'utf8',
+)
+assert.ok(
+  artRequest.includes('contractCleanPrompt('),
+  '/api/conductor/art-request must check the prompt before filing it',
+)
+assert.ok(
+  !/Kind Robots visual style/.test(artRequest),
+  'art-request fallbacks must not trip vague-brand-style',
+)
+
+console.log(
+  'verifyQueuedPromptGate: ok (claim, enqueue, queue and art-request gates agree)',
+)

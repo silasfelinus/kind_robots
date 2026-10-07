@@ -1,7 +1,6 @@
 <template>
   <main class="kr-surface">
     <div class="kr-scroll kr-container max-w-6xl space-y-4 p-2 sm:p-4 lg:p-6">
-
       <div v-if="!ready" class="grid place-items-center p-12">
         <span class="kr-spinner-lg-primary" />
       </div>

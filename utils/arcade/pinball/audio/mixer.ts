@@ -63,7 +63,7 @@ export class PinballMixer {
   }
 
   play(name: string, position?: Position) {
-    if (this.sound && 'muted' in this.sound && this.sound.muted === true) return
+    if (this.isMuted()) return
     const cue = PINBALL_CUES[name as PinballSoundName]
     if (!cue || !this.context || this.context.state !== 'running') return
     this.voice(cue, position)
@@ -74,9 +74,13 @@ export class PinballMixer {
     if (node) node.gain.value = Math.max(0, Math.min(1, gain))
   }
 
+  private isMuted() {
+    return this.sound !== null && 'muted' in this.sound && this.sound.muted === true
+  }
+
   startMusic(bed: PinballMusicBed) {
     this.stopMusic()
-    if (this.sound?.muted || !this.context || this.context.state !== 'running') return
+    if (this.isMuted() || !this.context || this.context.state !== 'running') return
     const bus = this.buses.get('music')
     if (!bus) return
     for (const frequency of MUSIC_BEDS[bed]) {
@@ -94,7 +98,7 @@ export class PinballMixer {
 
   stopMusic() {
     for (const oscillator of this.music) {
-      try { oscillator.stop() } catch {}
+      oscillator.stop()
       oscillator.disconnect()
     }
     this.music = []

@@ -63,7 +63,7 @@ export class PinballMixer {
   }
 
   play(name: string, position?: Position) {
-    if (this.sound?.muted) return
+    if (this.sound && 'muted' in this.sound && this.sound.muted === true) return
     const cue = PINBALL_CUES[name as PinballSoundName]
     if (!cue || !this.context || this.context.state !== 'running') return
     this.voice(cue, position)

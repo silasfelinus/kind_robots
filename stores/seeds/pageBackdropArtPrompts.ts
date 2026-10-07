@@ -42,6 +42,12 @@ export type PageBackdropArtPrompt = {
  * Unlike Krea2, which carried the first two batches, an Illustrious model
  * reads tags and honours its negative prompt, so the contract below is
  * written as tags and the negative does real work.
+ *
+ * Pilot, 2026-10-07 (ArtJobs 34414-34422): "quiet open centre" as a tag
+ * produced the opposite -- one-point-perspective corridors, a sun, a
+ * jellyfish and a robot dead centre, all near-black. Centring and darkness
+ * are now spelled out in the negative, where this lane can act on them, and
+ * the scene moved ahead of the style so the page's own setting survives.
  */
 export const BACKDROP_LANE = {
   checkpoint: 'Illustrious/arthemyWesternArt_v30.safetensors',
@@ -65,19 +71,19 @@ const CANVAS: Record<
     width: 768,
     height: 1344,
     framing:
-      'vertical composition, detail along the top and bottom edges, calm open middle band, foreground low, distance receding upward',
+      'vertical composition, asymmetrical composition, detail clustered at the top and bottom edges, empty floor and open sky through the middle',
   },
   tablet: {
     width: 896,
     height: 1152,
     framing:
-      'portrait composition, detail along the top edge and lower corners, calm open centre',
+      'portrait composition, asymmetrical composition, detail along the top edge and lower corners, open negative space in the middle',
   },
   desktop: {
     width: 1344,
     height: 768,
     framing:
-      'panoramic composition, detail at the left and right edges, calm open centre, horizon and architecture carried across the full width',
+      'panoramic composition, asymmetrical composition, rule of thirds, detail massed at the left and right edges, wide open negative space in the middle, horizon carried across the full width',
   },
 }
 
@@ -125,13 +131,13 @@ const CANVAS: Record<
 // "an unpeopled setting waiting to be entered" -- is the only part of it that
 // ever worked, so it is now the whole rule. Same for the focal-point line: a
 // composition is described by what it does have.
-const CONTRACT = `scenery, no humans, environment art, wide shot, establishing shot, deserted setting, quiet open centre, detail spread to the edges, every surface bare and unmarked`
+const CONTRACT = `scenery, no humans, empty, environment art, wide angle, detailed environment, intricate background details, deserted setting, every surface bare and unmarked`
 
 const QUALITY = `masterpiece, best quality, amazing quality, absurdres, very aesthetic`
 
-const HOUSE_AESTHETIC = `western comics \\(style\\), graphic novel illustration, cinematic lighting, dramatic shadows, chiaroscuro, volumetric light, atmospheric perspective, rich deep colour, bold ink linework, painterly texture, moody, sophisticated, highly detailed background`
+const HOUSE_AESTHETIC = `western comics \\(style\\), graphic novel illustration, cinematic lighting, volumetric light, atmospheric perspective, rich varied colour palette, bold ink linework, painterly texture, sophisticated, highly detailed background`
 
-const NEGATIVE_PROMPT = `lowres, worst quality, bad quality, low quality, jpeg artifacts, blurry, text, signature, watermark, logo, speech bubble, border, multiple views, 1girl, 1boy, solo, people, crowd, character focus, close-up, chibi, cute, kawaii, childish, children's book, nursery, toy, pastel colors, flat colors, simple background, nsfw`
+const NEGATIVE_PROMPT = `lowres, worst quality, bad quality, low quality, jpeg artifacts, blurry, text, signature, watermark, logo, speech bubble, border, multiple views, 1girl, 1boy, solo, people, person, silhouette, crowd, character focus, close-up, symmetry, symmetrical composition, centered composition, one-point perspective, vanishing point, central light source, sun in center, glowing orb, chibi, cute, kawaii, childish, children's book, nursery, toy, pastel colors, flat colors, simple background, monochrome, underexposed, too dark, nsfw`
 
 type PageSeed = {
   page: string
@@ -551,10 +557,10 @@ const PAGES: PageSeed[] = [
 function buildPrompt(seed: PageSeed, variant: BackdropVariant): string {
   return [
     QUALITY,
-    seed.aesthetic ?? HOUSE_AESTHETIC,
     CONTRACT,
-    CANVAS[variant].framing,
     seed.scene,
+    seed.aesthetic ?? HOUSE_AESTHETIC,
+    CANVAS[variant].framing,
   ].join(', ')
 }
 

@@ -8,9 +8,9 @@
       <div ref="screenRef" class="showdown-screen">
         <canvas
           ref="canvasRef"
-          :width="VIEW_WIDTH"
-          :height="VIEW_HEIGHT"
-          :style="{ width: canvasWidth }"
+          :width="fit.canvasWidth"
+          :height="fit.canvasHeight"
+          :style="{ width: canvasWidth, imageRendering: fit.rendering }"
           class="showdown-canvas"
           tabindex="0"
           aria-label="Zuzu Showdown fight"
@@ -77,6 +77,11 @@ import {
   type SoundState,
 } from '~/utils/zuzuShowdown/audio'
 import { setGamePageLock } from '~/utils/arcade/pageLock'
+import {
+  fitDisplay,
+  type DisplayFit,
+  type RenderStyle,
+} from '~/utils/arcade/display'
 import { startFixedLoop, type FixedLoop } from '~/utils/arcade/loop'
 import type { ButtonInput } from '~/utils/arcade/input'
 import {
@@ -92,6 +97,7 @@ import {
   VIEW_HEIGHT,
   VIEW_WIDTH,
   advanceCallouts,
+  applyRenderStyle,
   drawCard,
   drawMatch,
   type Callout,
@@ -138,10 +144,11 @@ import {
 import {
   SPRITE_FIGHTERS,
   SPRITE_ROOT,
-  spriteFile,
+  spriteSheetFile,
   type LoadedSprites,
   type SpriteSheet,
 } from '~/utils/zuzuShowdown/sprites'
+import { recolourPixels, type P2Rule } from '~/utils/zuzuShowdown/recolour'
 import {
   neutralInput,
   type FighterData,
@@ -154,8 +161,14 @@ type Direction = 'up' | 'down' | 'left' | 'right'
 
 const RESULT_DELAY = 150
 
-// Fighter art (t-010), loaded once; until a fighter's atlas arrives it draws as a placeholder.
-const sprites: Partial<Record<string, LoadedSprites>> = {}
+// Fighter art (t-010) per render style (t-027). Pixel art loads for every rigged fighter up front; HD
+// art loads for the fighters on screen once HD is picked, and until it arrives the pixel art stands in
+// (and until that arrives, a placeholder fighter).
+const spriteSets: Record<
+  RenderStyle,
+  Partial<Record<string, LoadedSprites>>
+> = { pixel: {}, hd: {} }
+const spriteLoads = new Set<string>()
 
 function loadImage(src: string): Promise<HTMLImageElement | null> {
   return new Promise((resolve) => {
@@ -166,39 +179,105 @@ function loadImage(src: string): Promise<HTMLImageElement | null> {
   })
 }
 
-async function loadSprites() {
+async function loadSprites(style: RenderStyle, slugs: readonly string[]) {
+  const rigged: readonly string[] = SPRITE_FIGHTERS
   await Promise.all(
-    SPRITE_FIGHTERS.map(async (slug) => {
+    slugs.map(async (slug) => {
+      const key = `${style}:${slug}`
+      if (!rigged.includes(slug) || spriteLoads.has(key)) return
+      spriteLoads.add(key)
       try {
         const response = await fetch(
-          `${SPRITE_ROOT}/${spriteFile(slug)}-pixel.json`,
+          `${SPRITE_ROOT}/${spriteSheetFile(slug, style)}`,
         )
         if (!response.ok) return
         const sheet = (await response.json()) as SpriteSheet
         const [image, p2] = await Promise.all([
           loadImage(`${SPRITE_ROOT}/${sheet.atlas}`),
-          loadImage(`${SPRITE_ROOT}/${sheet.atlas_p2}`),
+          sheet.atlas_p2
+            ? loadImage(`${SPRITE_ROOT}/${sheet.atlas_p2}`)
+            : Promise.resolve(null),
         ])
-        if (image) sprites[slug] = { sheet, image, p2 }
+        if (image) spriteSets[style][slug] = { sheet, image, p2 }
+        recolourP2()
       } catch {
-        // Missing art is not an error: the placeholder fighter still plays.
+        // Missing art is not an error: the placeholder fighter still plays, and the next ask retries.
+        spriteLoads.delete(key)
       }
     }),
   )
 }
 
+/** P2's colours made from the atlas by the sheet's rules (HD ships no P2 atlas). */
+function recolouredAtlas(
+  image: HTMLImageElement,
+  rules: P2Rule[],
+): HTMLCanvasElement | null {
+  const canvas = document.createElement('canvas')
+  canvas.width = image.naturalWidth
+  canvas.height = image.naturalHeight
+  const g = canvas.getContext('2d', { willReadFrequently: true })
+  if (!g) return null
+  g.drawImage(image, 0, 0)
+  const pixels = g.getImageData(0, 0, canvas.width, canvas.height)
+  recolourPixels(pixels.data, rules)
+  g.putImageData(pixels, 0, 0)
+  return canvas
+}
+
+/** In a mirror match, give the loaded HD art its P2 colours (once, off the frame that asked). */
+function recolourP2() {
+  if (roster[0].slug !== roster[1].slug) return
+  const set = spriteSets.hd[roster[1].slug]
+  const rules = set?.sheet.p2_rules
+  if (!set || set.p2 || !rules?.length) return
+  if (!(set.image instanceof HTMLImageElement)) return
+  const image = set.image
+  window.setTimeout(() => {
+    if (!set.p2) set.p2 = recolouredAtlas(image, rules)
+  }, 0)
+}
+
+/** The art to draw: the style's where it has loaded, pixel art where it hasn't. */
+function activeSprites(): Partial<Record<string, LoadedSprites>> {
+  if (store.renderStyle === 'pixel') return spriteSets.pixel
+  const mirror = roster[0].slug === roster[1].slug
+  const out = { ...spriteSets.pixel }
+  for (const [slug, set] of Object.entries(spriteSets.hd)) {
+    // A mirror match waits for P2's colours rather than show two fighters dressed alike.
+    if (set && (!mirror || set.p2)) out[slug] = set
+  }
+  return out
+}
+
 // The stage's art (t-009), loaded for the current roster's home stage; the placeholder stage draws until
 // it arrives, and if it never does.
-let stage: LoadedStage | null = null
-let stageSlug: StageSlug | null = null
+// One slot per render style: HD's draws once it has loaded, the pixel stage until then.
+const stageSlots: Record<
+  RenderStyle,
+  { slug: StageSlug | null; stage: LoadedStage | null }
+> = {
+  pixel: { slug: null, stage: null },
+  hd: { slug: null, stage: null },
+}
 let stageFx: StageFx = newStageFx()
 
-async function loadStage(slug: StageSlug) {
-  if (stageSlug === slug) return
-  stageSlug = slug
-  stage = null
+function currentStage(): LoadedStage | null {
+  const slug = stageFor(roster)
+  for (const style of [store.renderStyle, 'pixel'] as const) {
+    const loaded = stageSlots[style].stage
+    if (loaded && loaded.manifest.stage === slug) return loaded
+  }
+  return null
+}
+
+async function loadStage(slug: StageSlug, style: RenderStyle) {
+  const slot = stageSlots[style]
+  if (slot.slug === slug) return
+  slot.slug = slug
+  slot.stage = null
   try {
-    const response = await fetch(`${STAGE_ROOT}/${stageFile(slug, 'pixel')}`)
+    const response = await fetch(`${STAGE_ROOT}/${stageFile(slug, style)}`)
     if (!response.ok) throw new Error(`stage ${slug}: ${response.status}`)
     const manifest = (await response.json()) as StageManifest
     const [layers, cutouts] = await Promise.all([
@@ -216,7 +295,7 @@ async function loadStage(slug: StageSlug) {
       ),
     ])
     // A roster change while this loaded wins.
-    if (stageSlug !== slug) return
+    if (slot.slug !== slug) return
     const pick = (
       pairs: ReadonlyArray<readonly [string, HTMLImageElement | null]>,
     ) =>
@@ -224,11 +303,22 @@ async function loadStage(slug: StageSlug) {
         string,
         HTMLImageElement
       >
-    stage = { manifest, layers: pick(layers), cutouts: pick(cutouts) }
+    slot.stage = { manifest, layers: pick(layers), cutouts: pick(cutouts) }
   } catch {
     // Missing art is not an error: the placeholder stage still plays, and the next roster change
     // tries again.
-    if (stageSlug === slug) stageSlug = null
+    if (slot.slug === slug) slot.slug = null
+  }
+}
+
+/** Load what the current roster and render style draw with. */
+function loadArt() {
+  const slug = stageFor(roster)
+  void loadStage(slug, 'pixel')
+  if (store.renderStyle !== 'pixel') {
+    void loadStage(slug, store.renderStyle)
+    void loadSprites(store.renderStyle, [roster[0].slug, roster[1].slug])
+    recolourP2()
   }
 }
 
@@ -244,6 +334,15 @@ const canvasRef = ref<HTMLCanvasElement | null>(null)
 const screenRef = ref<HTMLElement | null>(null)
 const dpadRef = ref<HTMLElement | null>(null)
 const canvasWidth = ref('100%')
+const fit = ref<DisplayFit>(
+  fitDisplay({
+    width: VIEW_WIDTH,
+    height: VIEW_HEIGHT,
+    available: VIEW_WIDTH,
+    dpr: 1,
+    style: 'pixel',
+  }),
+)
 const phase = ref<StagePhase>('title')
 const touchControls = ref(false)
 const dpadHeld = ref<Record<Direction, boolean>>({
@@ -439,9 +538,13 @@ function tick() {
 function render() {
   const g = canvasRef.value?.getContext('2d')
   if (!g) return
+  // The game draws in its 480x270 units; the fit's scale maps them onto the canvas (t-027).
+  const scale = fit.value.scale
+  g.setTransform(scale, 0, 0, scale, 0, 0)
+  applyRenderStyle(g, store.renderStyle)
+  const sprites = activeSprites()
   const sides = [sprites[roster[0].slug], sprites[roster[1].slug]] as const
   if (phase.value === 'vs') {
-    g.imageSmoothingEnabled = false
     drawVsScreen(g, roster, [...sides], screenFrame, store.reducedMotion)
     return
   }
@@ -450,8 +553,9 @@ function render() {
     reducedMotion: store.reducedMotion,
     sprites,
     sparks,
-    stage: stage ?? undefined,
+    stage: currentStage() ?? undefined,
     stageFx,
+    style: store.renderStyle,
   })
   if (
     store.mode === 'dummy' &&
@@ -565,10 +669,16 @@ function setPageLock(on: boolean) {
   setGamePageLock(on)
 }
 
+/** Size the canvas for its box, the screen's pixel ratio and the render style (utils/arcade/display). */
 function fitCanvas() {
-  const available = screenRef.value?.clientWidth ?? VIEW_WIDTH
-  const scale = Math.floor(available / VIEW_WIDTH)
-  canvasWidth.value = scale >= 2 ? `${VIEW_WIDTH * scale}px` : '100%'
+  fit.value = fitDisplay({
+    width: VIEW_WIDTH,
+    height: VIEW_HEIGHT,
+    available: screenRef.value?.clientWidth ?? VIEW_WIDTH,
+    dpr: window.devicePixelRatio || 1,
+    style: store.renderStyle,
+  })
+  canvasWidth.value = `${fit.value.cssWidth}px`
 }
 
 function onBlur() {
@@ -609,8 +719,15 @@ watch(
     sparks = []
     slowdown = null
     stageFx = newStageFx()
-    void loadStage(stageFor(roster))
+    loadArt()
     phase.value = 'title'
+  },
+)
+watch(
+  () => store.renderStyle,
+  () => {
+    fitCanvas()
+    loadArt()
   },
 )
 watch(
@@ -639,8 +756,8 @@ onMounted(() => {
     resizer.observe(screenRef.value)
   }
   loop = startFixedLoop(tick, render)
-  void loadSprites()
-  void loadStage(stageFor(roster))
+  void loadSprites('pixel', SPRITE_FIGHTERS)
+  loadArt()
 })
 
 onBeforeUnmount(() => {
@@ -691,7 +808,6 @@ onBeforeUnmount(() => {
   max-width: 100%;
   height: auto;
   aspect-ratio: 16 / 9;
-  image-rendering: pixelated;
   border-radius: 0.75rem;
   background: #000;
   outline: none;

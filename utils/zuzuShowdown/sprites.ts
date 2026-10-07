@@ -6,6 +6,8 @@
 // fighter's (x, floor) whatever the pose. This module is pure: it picks which frame of which
 // animation a fighter shows, and draws it. Loading the images is the stage component's job.
 
+import type { RenderStyle } from '../arcade/display'
+import type { P2Rule } from './recolour'
 import type { FighterState } from './types'
 
 export type SpriteFrame = {
@@ -28,15 +30,20 @@ export type SpriteAnimation = {
   frames: SpriteFrame[]
 }
 
-/** A rig frame map (conductor tools/rig.py writes `<slug>-<style>.json`). */
+/**
+ * A rig frame map (conductor tools/rig.py writes `<slug>-<style>.json`; tools/ship_hd.py repacks the HD
+ * one at 3x as WebP).
+ */
 export type SpriteSheet = {
   fighter: string
   style: 'pixel' | 'hd'
-  /** Atlas pixels per game pixel (pixel 1, HD 4). */
+  /** Atlas pixels per game pixel (pixel 1, HD 3 as shipped). */
   scale: number
   height: number
   atlas: string
-  atlas_p2: string
+  /** P2's atlas; null when the sheet ships `p2_rules` for the game to recolour its own atlas (HD). */
+  atlas_p2: string | null
+  p2_rules?: P2Rule[]
   animations: Record<string, SpriteAnimation>
 }
 
@@ -56,6 +63,11 @@ export const SPRITE_FIGHTERS = ['zuzu', 'coyote-vagrant'] as const
 /** The rig names the Coyote `coyote`; the game's slug is `coyote-vagrant`. */
 export function spriteFile(slug: string): string {
   return slug === 'coyote-vagrant' ? 'coyote' : slug
+}
+
+/** A fighter's frame map in a render style. */
+export function spriteSheetFile(slug: string, style: RenderStyle): string {
+  return `${spriteFile(slug)}-${style}.json`
 }
 
 const SIM_FPS = 60

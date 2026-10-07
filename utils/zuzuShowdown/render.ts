@@ -10,7 +10,13 @@
 // Everything here reads the sim state and never changes it. Sprite art
 // replaces drawFighter and the stage layers in the art tasks (t-009, t-010+).
 
-import { FONT_HEIGHT, drawText, measureText } from '../arcade/font'
+import type { RenderStyle } from '../arcade/display'
+import {
+  FONT_HEIGHT,
+  drawText,
+  measureText,
+  setTextStyle,
+} from '../arcade/font'
 import { SPARK_PALETTES, SPARK_PIXELS, sparkFrame, type Spark } from './effects'
 import {
   drawSprite,
@@ -90,6 +96,15 @@ export type RenderOptions = {
   stage?: LoadedStage
   /** The stage event's state (stages.ts advanceStageFx). */
   stageFx?: StageFx
+  /** Pixel (the default) or HD (t-027): smooth images, the vector font, smooth sparks. */
+  style?: RenderStyle
+}
+
+/** Set a context up for a render style: image filtering and the HUD font. */
+export function applyRenderStyle(g: G, style: RenderStyle = 'pixel'): void {
+  g.imageSmoothingEnabled = style === 'hd'
+  if ('imageSmoothingQuality' in g) g.imageSmoothingQuality = 'high'
+  setTextStyle(g, style === 'hd' ? 'vector' : 'pixel')
 }
 
 /** A fighter's own look, or the side colours; P2 in a mirror match gets the alternate. */
@@ -1181,7 +1196,7 @@ export function drawMatch(
   callouts: Callout[],
   options: RenderOptions,
 ): void {
-  g.imageSmoothingEnabled = false
+  applyRenderStyle(g, options.style)
   const camera = cameraX(s)
   if (options.stage)
     drawStageArt(
@@ -1214,19 +1229,29 @@ export function drawMatch(
     )
   drawProjectiles(g, s, roster, camera, s.frame)
   if (options.sparks)
-    drawSparks(g, options.sparks, camera, options.reducedMotion)
+    drawSparks(
+      g,
+      options.sparks,
+      camera,
+      options.reducedMotion,
+      options.style === 'hd',
+    )
   if (options.showBoxes) drawBoxes(g, s, roster, camera)
   const eyeStrip = drawSuperFlash(g, s, roster)
   drawHud(g, s, roster)
   if (!eyeStrip) drawCallouts(g, callouts)
 }
 
-/** Hit sparks, pixel by pixel; reduced motion keeps every spark small. */
+/**
+ * Hit sparks, pixel by pixel; reduced motion keeps every spark small. `smooth` (the HD style) draws the
+ * same shapes as soft round dots, a touch larger than the pixels so they merge into a burst.
+ */
 export function drawSparks(
   g: G,
   sparks: Spark[],
   camera: number,
   reducedMotion: boolean,
+  smooth = false,
 ): void {
   for (const spark of sparks) {
     const frame = sparkFrame(spark)
@@ -1237,7 +1262,17 @@ export function drawSparks(
     const palette = SPARK_PALETTES[spark.kind]
     for (const p of SPARK_PIXELS[frame]!) {
       g.fillStyle = palette[p.key]
-      g.fillRect(cx + p.dx * size, cy + p.dy * size, size, size)
+      if (smooth) {
+        g.beginPath()
+        g.arc(
+          cx + (p.dx + 0.5) * size,
+          cy + (p.dy + 0.5) * size,
+          size * 0.75,
+          0,
+          Math.PI * 2,
+        )
+        g.fill()
+      } else g.fillRect(cx + p.dx * size, cy + p.dy * size, size, size)
     }
   }
 }

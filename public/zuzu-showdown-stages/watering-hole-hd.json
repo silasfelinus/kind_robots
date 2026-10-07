@@ -1,0 +1,44 @@
+{
+  "stage": "watering-hole",
+  "style": "hd",
+  "scale": 4,
+  "layers": [
+    {
+      "name": "backdrop",
+      "file": "watering-hole-backdrop-hd.webp",
+      "factor": 0.2,
+      "x": -30,
+      "y": 0,
+      "w": 540,
+      "h": 240
+    },
+    {
+      "name": "pond",
+      "file": "watering-hole-pond-hd.webp",
+      "factor": 0.6,
+      "x": -88,
+      "y": 170,
+      "w": 655,
+      "h": 64
+    },
+    {
+      "name": "floor",
+      "file": "watering-hole-floor-hd.webp",
+      "factor": 1.0,
+      "x": -145,
+      "y": 230,
+      "w": 770,
+      "h": 40
+    }
+  ],
+  "cutouts": [],
+  "anchors": {
+    "water": {
+      "layer": "pond",
+      "x": 234,
+      "y": 44,
+      "w": 187,
+      "h": 8
+    }
+  }
+}

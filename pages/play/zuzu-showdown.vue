@@ -62,6 +62,23 @@
             </select>
           </label>
           <label class="flex items-center gap-2 text-sm">
+            <span class="font-semibold">Look</span>
+            <select
+              class="kr-select-sm"
+              :value="store.renderStyle"
+              aria-label="Look"
+              @change="onStyle"
+            >
+              <option
+                v-for="style in RENDER_STYLES"
+                :key="style"
+                :value="style"
+              >
+                {{ RENDER_STYLE_NAMES[style] }}
+              </option>
+            </select>
+          </label>
+          <label class="flex items-center gap-2 text-sm">
             <input
               type="checkbox"
               class="toggle toggle-sm"
@@ -201,6 +218,11 @@ import { useZuzuShowdownStore } from '~/stores/zuzuShowdownStore'
 import { FIGHTERS, findFighter, moveList } from '~/utils/zuzuShowdown/fighters'
 import { CPU_LEVELS, type CpuLevel } from '~/utils/zuzuShowdown/cpu'
 import {
+  RENDER_STYLES,
+  RENDER_STYLE_NAMES,
+  type RenderStyle,
+} from '~/utils/arcade/display'
+import {
   DUMMY_MODES,
   DUMMY_NAMES,
   type DummyMode,
@@ -250,6 +272,10 @@ const PLACES: Array<{ value: TrainingPlace; label: string }> = [
   { value: 'p1-corner', label: 'P1 in the corner' },
   { value: 'p2-corner', label: 'P2 in the corner' },
 ]
+
+function onStyle(event: Event) {
+  store.setRenderStyle((event.target as HTMLSelectElement).value as RenderStyle)
+}
 
 function onDummy(event: Event) {
   store.setDummy((event.target as HTMLSelectElement).value as DummyMode)

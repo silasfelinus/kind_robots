@@ -20,10 +20,16 @@ import {
   BELL_RING_FRAMES,
   STAGE_NAMES,
   advanceStageFx,
+  LIGHTNING_EVERY,
   bellAngle,
+  candleFlame,
   crocEyesAt,
+  crowsAt,
   layerX,
+  lightningAt,
   newStageFx,
+  portalGlow,
+  rainAt,
   smokePuffs,
   stageFile,
   stageFor,
@@ -153,6 +159,75 @@ check('a fight is on the challenger’s home stage', () => {
   const placeholder = findFighter('placeholder-a')
   assert.equal(stageFor([placeholder, placeholder]), 'hollow-bell')
   assert.equal(stageFor([COYOTE, placeholder]), 'watering-hole')
+  // The Abbess and Storm Crow have their stages ahead of their sprite sets.
+  const abbess = { ...placeholder, slug: 'the-abbess' }
+  const crow = { ...placeholder, slug: 'storm-crow' }
+  assert.equal(stageFor([ZUZU, abbess]), 'the-mission')
+  assert.equal(stageFor([abbess, crow]), 'storm-canyon')
+})
+
+check(
+  'the Mission: the candle flickers, the portal shows only between rounds',
+  () => {
+    const heights = new Set<number>()
+    for (let f = 0; f < 600; f += 1) {
+      const flame = candleFlame(f, false)
+      assert.ok(flame.h >= 2 && flame.h <= 4)
+      heights.add(flame.h)
+    }
+    assert.ok(heights.size >= 2, 'it flickers')
+    assert.deepEqual(
+      candleFlame(5, true),
+      candleFlame(500, true),
+      'still under reduced motion',
+    )
+    const s = createMatch([ZUZU, COYOTE])
+    s.phase = 'fight'
+    assert.equal(portalGlow(s, false), 0, 'never while a round is on')
+    s.phase = 'intro'
+    s.round = 1
+    assert.equal(portalGlow(s, false), 0, 'not before the first round')
+    s.round = 2
+    assert.ok(portalGlow(s, false) > 0, 'before the second')
+    s.phase = 'ko'
+    const glows = new Set<number>()
+    for (let f = 0; f < 60; f += 1) {
+      s.frame = f
+      glows.add(portalGlow(s, false))
+    }
+    assert.ok(glows.size >= 2 && !glows.has(0), 'it flickers through the KO')
+    assert.equal(portalGlow(s, true), 0.6, 'a steady glow under reduced motion')
+  },
+)
+
+check('Storm Canyon: rare, brief lightning; rain and crows on screen', () => {
+  let flashes = 0
+  for (let f = 0; f < LIGHTNING_EVERY * 5; f += 1) {
+    const now = lightningAt(f, false)
+    assert.ok(now >= 0 && now <= 1)
+    if (now > 0 && lightningAt(f - 1, false) === 0) flashes += 1
+    // Never more than two flashes starting in any 12 frames (well under three a second).
+    let starts = 0
+    for (let k = f; k < f + 12; k += 1)
+      if (lightningAt(k, false) > 0 && lightningAt(k - 1, false) === 0)
+        starts += 1
+    assert.ok(starts <= 2, `frame ${f}`)
+    assert.equal(lightningAt(f, true), 0, 'no lightning under reduced motion')
+  }
+  assert.equal(flashes, 10, 'a double flicker each strike, one strike a cycle')
+  for (const f of [0, 77, 1000]) {
+    for (const drop of rainAt(f, false, 480, 270))
+      assert.ok(
+        drop.x >= -20 && drop.x <= 500 && drop.y >= -10 && drop.y <= 280,
+      )
+    for (const c of crowsAt(f))
+      assert.ok(c.x > 0 && c.x < 480 && c.y > 0 && c.y < 120)
+  }
+  assert.deepEqual(
+    rainAt(3, true, 480, 270),
+    rainAt(300, true, 480, 270),
+    'the rain hangs still',
+  )
 })
 
 check(
@@ -264,6 +339,8 @@ check(
     for (const [slug, roster] of [
       ['hollow-bell', [COYOTE, ZUZU]],
       ['watering-hole', [ZUZU, COYOTE]],
+      ['the-mission', [ZUZU, COYOTE]],
+      ['storm-canyon', [COYOTE, ZUZU]],
     ] as const) {
       const stage = loaded(manifests[slug])
       const rand = mulberry32(slug.length)

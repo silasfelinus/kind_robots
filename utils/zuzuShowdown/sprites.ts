@@ -76,6 +76,16 @@ export function animationCandidates(f: FighterState): string[] {
     case 'prejump':
     case 'jump':
       return ['jump_up']
+    case 'land':
+      return ['land', 'crouch']
+    case 'dodge':
+      return f.dodgeDir === 1
+        ? ['dodge_forward', 'crouch']
+        : ['dodge_back', 'walk_back']
+    case 'wakeup':
+      return ['wakeup', 'crouch']
+    case 'tech':
+      return ['dodge_back', 'block_high']
     case 'attack': {
       const id = f.attack?.id ?? ''
       if (id.startsWith('crouch_')) return [moveAnimation(id), 'crouch']
@@ -83,10 +93,13 @@ export function animationCandidates(f: FighterState): string[] {
       return [moveAnimation(id), 'stand_hp']
     }
     case 'throwing':
-    case 'throwHold':
-    case 'throwWhiff':
-    case 'breakout':
       return ['throw', 'stand_hp']
+    case 'throwHold':
+      return ['throw_hold', 'throw', 'stand_hp']
+    case 'throwWhiff':
+      return ['throw_whiff', 'throw', 'stand_hp']
+    case 'breakout':
+      return ['breakout', 'block_high']
     case 'taunt':
       return ['taunt']
     case 'hitstun':
@@ -94,8 +107,9 @@ export function animationCandidates(f: FighterState): string[] {
       return low ? ['hit_low', 'hit_high'] : ['hit_high']
     case 'blockstun':
       return low ? ['block_low', 'crouch'] : ['block_high']
-    case 'knockdown':
     case 'thrown':
+      return ['thrown', 'hit_high', 'knockdown']
+    case 'knockdown':
       return ['knockdown', 'ko']
     case 'ko':
       return ['ko', 'knockdown']

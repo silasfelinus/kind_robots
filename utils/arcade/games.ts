@@ -541,6 +541,28 @@ export const ARCADE_GAMES: ArcadeGameMeta[] = [
     controls: 'Move, plant',
     maxPlayers: 4,
   },
+  {
+    slug: 'lantern-swarm',
+    title: 'Lantern Swarm',
+    riffsOn: 'Galaga',
+    blurb:
+      'Night moths swirl in along looping paths and settle into a swaying formation, then peel off to dive at your paper lantern. Beam them home with light. A queen moth can carry your lantern off in her glow; beam her down to win it back for twin beams. Every third stage is a glow stage: beam as many fly-by moths as you can.',
+    howTo: [
+      'LEFT/RIGHT  MOVE',
+      'A  BEAM',
+      'QUEENS TAKE TWO',
+      'DODGE THE DUST',
+      'SHUN THE GLOW',
+      'SAVE A LANTERN',
+      'FOR TWIN BEAMS',
+    ],
+    width: 224,
+    height: 288,
+    maxPlausibleScore: 3_000_000,
+    titleArt: '/images/arcade/games/lantern-swarm-title.webp',
+    accent: '#fb923c',
+    controls: 'Move, beam',
+  },
 ]
 
 export type ComingSoonCabinet = {
@@ -612,6 +634,7 @@ const LOADERS: Record<string, () => Promise<ArcadeGameModule>> = {
   'quilt-quest': () => import('./games/quiltQuest'),
   'cocoa-counter': () => import('./games/cocoaCounter'),
   'seed-burst': () => import('./games/seedBurst'),
+  'lantern-swarm': () => import('./games/lanternSwarm'),
   'kind-pinball-3d': () =>
     import('./games/kindPinball3d').then(async (module) => {
       await module.prepare()

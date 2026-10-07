@@ -1391,6 +1391,54 @@ async function runQuiltInvariant() {
 
 await runGames()
 await runQuiltInvariant()
+
+/** Lantern Swarm: a rescued lantern docks as a twin, or waits as a spare. */
+async function runLanternRescue() {
+  const mod = await loadArcadeGame('lantern-swarm')
+  for (const aliveAtDock of [true, false]) {
+    const game = mod.create({
+      rng: mulberry32(1),
+      sound: { play: () => {} },
+      demo: false,
+      hiScore: 0,
+    })
+    type Queen = {
+      kind: string
+      mode: string
+      x: number
+      y: number
+      hp: number
+      holding: boolean
+    }
+    const inner = game as unknown as {
+      moths: Queen[]
+      alive: boolean
+      twin: boolean
+      lives: number
+      hitMoth: (m: Queen) => void
+    }
+    // A queen holding a captured lantern, beamed before any dives begin.
+    const queen = inner.moths.find((m) => m.kind === 'queen')!
+    Object.assign(queen, { mode: 'form', x: 112, y: 60, hp: 1, holding: true })
+    const lives = inner.lives
+    inner.hitMoth(queen)
+    if (!aliveAtDock) inner.alive = false
+    for (let t = 0; t < 240; t++) game.update(emptyInput())
+    if (aliveAtDock)
+      assert.ok(
+        inner.twin,
+        'lantern-swarm: the rescued lantern docks as a twin',
+      )
+    else
+      assert.equal(
+        inner.lives,
+        lives + 1,
+        'lantern-swarm: a rescue with no lantern to dock to becomes a spare',
+      )
+  }
+}
+
+await runLanternRescue()
 await runCoopGames()
 await runPinball3d()
 await runPinballShots()

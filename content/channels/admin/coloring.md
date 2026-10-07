@@ -8,6 +8,7 @@ label: Coloring
 title: Coloring Book
 subtitle: Color generated pages and sampler art
 description: Open a page, fill regions, save palettes, and return to works in progress.
+summary: Color and save art pages.
 icon: kind-icon:paintbrush
 route: /coloring
 sort: 120

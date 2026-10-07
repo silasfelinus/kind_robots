@@ -8,6 +8,7 @@ label: Projects
 title: Project Planner
 subtitle: Organize the work that matters
 description: Browse projects, review status, and move ideas through the Conductor pipeline.
+summary: Review projects and progress.
 icon: kind-icon:map
 route: /conductor
 sort: 15

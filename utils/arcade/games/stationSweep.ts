@@ -1,14 +1,20 @@
 // /utils/arcade/games/stationSweep.ts
 //
 // Station Sweep -- the Kind Robots Arcade's Xenophobe riff (conductor
-// kr-arcade/t-009 game factory, slices 1-2 of 4: decks, lifts and one player;
-// split-screen co-op, and critter growth with a station-wide timer come in
-// later slices). Mop, the station's cleaning robot, sweeps a station overrun
+// kr-arcade/t-009 game factory, slices 1-3 of 4: decks, lifts, critter
+// growth and the station timer, for one player; split-screen co-op comes in a
+// later slice). Mop, the station's cleaning robot, sweeps a station overrun
 // by glitch critters, deck by deck. Egg sacs on the floor hatch rollers and
 // biters, sacs on the ceiling drop crawlers, and a deck is clean once every
 // sac is popped (or spent) and every critter swept up. Two lifts on every deck
 // ride up and down (Up or Down while standing in one); clean every deck and
 // the station is done.
+//
+// As in the classic, critters left alone grow (they glow just before): a big
+// crawler takes three sweeps and nibbles harder, a big roller hits harder and
+// takes two, and a big biter spits faster. And
+// the station is on a clock: run it out and the station is lost, costing a
+// spare Mop; time left over pays a bonus.
 //
 // As in the classic, height matters: rollers bowl along the floor under a
 // standing shot, so crouch (Down) to sweep low. Crawlers drop and cling,
@@ -43,6 +49,10 @@ const EXTRA_EVERY = 25_000
 /** Lift doors on every deck, at the same spots. */
 const LIFTS = [180, DECK_W - 180]
 const RIDE_TICKS = 50
+/** Station clock: a base allowance plus time per deck. */
+const STATION_BASE_SECS = 45
+const SECS_PER_DECK = 24
+const GLOW_TICKS = 150
 const DECK_PANELS = ['#1f2937', '#241a44', '#13293d', '#2a2014']
 
 export const SWEEP_CURVES = {
@@ -52,6 +62,8 @@ export const SWEEP_CURVES = {
   hatchEvery: { start: 420, step: -35, limit: 110 },
   critterSpeed: { start: 1, step: 0.12, limit: 2.1 },
   biterChance: { start: 0.25, step: 0.08, limit: 0.6 },
+  /** Ticks a crawler or roller lives before it grows into the next form. */
+  growAfter: { start: 60 * 26, step: -60 * 2, limit: 60 * 10 },
 } as const
 
 type Kind = 'roller' | 'crawler' | 'biter'
@@ -68,6 +80,8 @@ type Critter = {
   clinging: boolean
   /** Only a crawler dropping from the ceiling can latch on; shaken off, it stays down. */
   canCling: boolean
+  /** Grown: tougher and harder-hitting (and a big biter spits faster). */
+  big: boolean
 }
 type Sac = {
   x: number
@@ -120,6 +134,8 @@ class StationSweep implements ArcadeGameInstance {
   /** Index into decks; deck 0 is the top of the station. */
   private deck = 0
   private ride: { to: number; t: number } | null = null
+  /** Ticks left on the station clock. */
+  private timer = 0
   private sacs: Sac[] = []
   private critters: Critter[] = []
   private shots: Shot[] = []
@@ -164,6 +180,7 @@ class StationSweep implements ArcadeGameInstance {
     this.camX = 0
     // A short top-up between stations, not a full repair.
     this.health = Math.min(MAX_HEALTH, this.health + 25)
+    this.timer = 60 * (STATION_BASE_SECS + SECS_PER_DECK * count)
     this.banner = {
       text: `STATION ${station}`,
       sub: `${count} DECKS TO SWEEP`,
@@ -273,6 +290,10 @@ class StationSweep implements ArcadeGameInstance {
     }
     if (this.hurt > 0) this.hurt--
     if (this.fireCooldown > 0) this.fireCooldown--
+    if (--this.timer <= 0) {
+      this.stationLost()
+      return
+    }
 
     this.move(controls)
     if (controls.pressed.a || (controls.held.a && this.fireCooldown === 0))
@@ -280,6 +301,7 @@ class StationSweep implements ArcadeGameInstance {
     this.updateShots()
     this.updateSacs()
     this.updateCritters()
+    this.grow()
     this.updateSpits()
     this.updateKits()
     if (this.health <= 0) this.down()
@@ -394,7 +416,13 @@ class StationSweep implements ArcadeGameInstance {
   }
 
   private critterHeight(c: Critter): number {
-    return c.kind === 'roller' ? 8 : c.kind === 'crawler' ? 7 : 18
+    return c.kind === 'roller'
+      ? c.big
+        ? 12
+        : 8
+      : c.kind === 'crawler'
+        ? 7
+        : 18
   }
 
   private sweep(c: Critter) {
@@ -440,6 +468,7 @@ class StationSweep implements ArcadeGameInstance {
         onCeiling: true,
         clinging: false,
         canCling: true,
+        big: false,
       })
     } else {
       const biter = this.rng() < levelCurve(this.heat, SWEEP_CURVES.biterChance)
@@ -455,6 +484,7 @@ class StationSweep implements ArcadeGameInstance {
         onCeiling: false,
         clinging: false,
         canCling: false,
+        big: false,
       })
     }
     this.burst(sac.x, sac.ceiling ? CEILING + 6 : FLOOR - 10, 5, '#d9f99d')
@@ -501,7 +531,7 @@ class StationSweep implements ArcadeGameInstance {
         }
         // On the floor it nibbles at Mop's treads.
         if (c.y >= FLOOR && this.touching(c, 7) && c.t % 30 === 0)
-          this.damage(3)
+          this.damage(c.big ? 6 : 3)
       } else if (c.kind === 'roller') {
         c.x += c.vx
         if (c.x < 8 || c.x > DECK_W - 8) c.vx = -c.vx
@@ -512,7 +542,7 @@ class StationSweep implements ArcadeGameInstance {
         )
           c.vx = -c.vx
         if (this.touching(c, 8)) {
-          this.damage(8)
+          this.damage(c.big ? 12 : 8)
           c.vx = -c.vx * 1.5
           c.x += c.vx * 6
         }
@@ -520,7 +550,7 @@ class StationSweep implements ArcadeGameInstance {
         // Biters stalk, then spit when lined up.
         const dist = this.x - c.x
         if (Math.abs(dist) > 50) c.x += Math.sign(dist) * 0.5 * speed
-        if (c.t % 110 === 0 && Math.abs(dist) < 150) {
+        if (c.t % (c.big ? 70 : 110) === 0 && Math.abs(dist) < 150) {
           this.spits.push({
             x: c.x,
             y: FLOOR - 14,
@@ -583,6 +613,44 @@ class StationSweep implements ArcadeGameInstance {
     if (amount > 2) this.sound.play('warn')
   }
 
+  /** The clock ran out: the station is lost, and a spare Mop with it. */
+  private stationLost() {
+    this.lives--
+    this.burst(this.x, this.y - 10, 18, '#f87171')
+    this.sound.play('die')
+    if (this.lives <= 0) {
+      this.over = true
+      this.banner = { text: 'STATION LOST', sub: 'GAME OVER', ticks: 9999 }
+      return
+    }
+    this.clear = CLEAR_TICKS
+    this.banner = {
+      text: 'STATION LOST',
+      sub: 'ON TO THE NEXT ONE',
+      ticks: CLEAR_TICKS,
+    }
+  }
+
+  /** Critters left alone grow big: tougher, and harder-hitting. */
+  private grow() {
+    const after = levelCurve(this.heat, SWEEP_CURVES.growAfter)
+    const speed = levelCurve(this.heat, SWEEP_CURVES.critterSpeed)
+    for (const c of this.critters) {
+      if (c.t < after) continue
+      const dir = Math.sign(this.x - c.x) || 1
+      // Crawlers only grow once they're down on the floor.
+      const loose =
+        c.kind !== 'crawler' || (!c.onCeiling && !c.clinging && c.y >= FLOOR)
+      if (c.big || !loose) continue
+      c.big = true
+      c.hp += 2
+      if (c.kind === 'roller') c.vx = Math.sign(c.vx || dir) * 1.8 * speed
+      c.t = 0
+      this.burst(c.x, c.y - 8, 10, '#f0abfc')
+      this.sound.play('warn')
+    }
+  }
+
   private down() {
     if (this.dead > 0) return
     this.lives--
@@ -615,7 +683,10 @@ class StationSweep implements ArcadeGameInstance {
       }
     }
     if (this.critters.length || this.decks.some((k) => !k.clean)) return
-    const bonus = 3000 * this.level + Math.max(0, this.health) * 10
+    const bonus =
+      3000 * this.level +
+      Math.max(0, this.health) * 10 +
+      Math.floor(this.timer / 60) * 10 * this.level
     this.addScore(bonus, this.x, this.y - 50)
     this.clear = CLEAR_TICKS
     this.banner = {
@@ -910,23 +981,42 @@ class StationSweep implements ArcadeGameInstance {
   private renderCritter(g: CanvasRenderingContext2D, c: Critter) {
     const x = c.x
     const y = c.y
+    const after = levelCurve(this.heat, SWEEP_CURVES.growAfter)
+    const growing =
+      !c.big &&
+      (c.kind !== 'crawler' || (!c.onCeiling && !c.clinging)) &&
+      c.t > after - GLOW_TICKS
+    if (growing && Math.floor(this.tick / 6) % 2) {
+      // About to grow: a pulsing halo.
+      g.fillStyle = 'rgba(240, 171, 252, 0.45)'
+      g.beginPath()
+      g.arc(x, y - 5, 9, 0, Math.PI * 2)
+      g.fill()
+    }
     if (c.kind === 'roller') {
       const spin = Math.floor(c.t / 4) % 2
       g.fillStyle = '#84cc16'
       g.beginPath()
-      g.arc(x, y - 4, 4, 0, Math.PI * 2)
+      g.arc(x, y - (c.big ? 6 : 4), c.big ? 6 : 4, 0, Math.PI * 2)
       g.fill()
       g.fillStyle = '#ecfccb'
-      g.fillRect(x - 2 + spin * 2, y - 6, 2, 2)
+      g.fillRect(x - 2 + spin * 2, y - (c.big ? 9 : 6), 2, 2)
       return
     }
     if (c.kind === 'crawler') {
       // A wriggly glitch grub; upside down while it rides the ceiling.
       const flip = c.onCeiling ? -1 : 1
-      g.fillStyle = '#c084fc'
-      for (let i = 0; i < 4; i++) {
+      g.fillStyle = c.big ? '#a855f7' : '#c084fc'
+      const seg = c.big ? 6 : 4
+      for (let i = 0; i < seg; i++) {
         const wig = Math.sin(c.t / 5 + i) * 1
-        g.fillRect(x - 6 + i * 3, y - 4 * flip + wig - (flip > 0 ? 0 : 4), 3, 4)
+        const tall = c.big ? 6 : 4
+        g.fillRect(
+          x - seg * 1.5 + i * 3,
+          y - tall * flip + wig - (flip > 0 ? 0 : tall),
+          3,
+          tall,
+        )
       }
       g.fillStyle = '#f5f3ff'
       g.fillRect(x + 4, y - 4 * flip - (flip > 0 ? 0 : 4), 2, 2)
@@ -934,7 +1024,18 @@ class StationSweep implements ArcadeGameInstance {
     }
     // Biter: a hunched glitch beast with a big jaw.
     const bob = Math.floor(c.t / 10) % 2
-    g.fillStyle = '#db2777'
+    if (c.big) {
+      // Grown: a ridge of spikes along its back.
+      g.fillStyle = '#831843'
+      for (let i = 0; i < 3; i++) {
+        g.beginPath()
+        g.moveTo(x - 6 + i * 5, y - 15 + bob)
+        g.lineTo(x - 4 + i * 5, y - 21 + bob)
+        g.lineTo(x - 2 + i * 5, y - 15 + bob)
+        g.fill()
+      }
+    }
+    g.fillStyle = c.big ? '#be185d' : '#db2777'
     g.fillRect(x - 7, y - 16 + bob, 14, 14)
     g.fillStyle = '#9d174d'
     g.fillRect(x - 6, y - 4, 3, 4)
@@ -1001,6 +1102,11 @@ class StationSweep implements ArcadeGameInstance {
         g.lineWidth = 1
         g.strokeRect(bx - 0.5, 25.5, 11, 8)
       }
+    })
+    const secs = Math.max(0, Math.ceil(this.timer / 60))
+    drawText(g, `TIME ${secs}`, 100, 8, {
+      color:
+        secs <= 20 && Math.floor(this.tick / 10) % 2 ? '#ef4444' : '#fde68a',
     })
     drawText(g, 'CHARGE', 6, 26, { color: '#bbf7d0' })
     g.fillStyle = '#1f2937'

@@ -184,9 +184,9 @@ const PAGES: PageSeed[] = [
     page: 'bots',
     title: 'Bots — Bot Factory',
     scene:
-      'indoors, machine shop, workbenches piled with mechanical parts along both side walls, shelves of gears, brass joints, circuit boards and coiled cables, copper pipes running up the walls, glass tanks of glowing green coolant, tools hanging on pegboards, blueprints pinned above the benches, tall factory windows with warm afternoon sunlight, drifting sparks, empty concrete floor in the middle',
+      'indoors, messy machine shop, clutter, many small objects on every surface, workbenches piled with mechanical parts along both side walls, shelves of gears, brass joints, circuit boards and coiled cables, copper pipes running up the walls, glass tanks of glowing green coolant, tools hanging on pegboards, blueprints pinned above the benches, tall factory windows with warm afternoon sunlight, drifting sparks, empty concrete floor in the middle',
     negative:
-      'robot, mecha, humanoid robot, android, cyborg, power armor, hanging object, creature',
+      'robot, mecha, humanoid robot, android, cyborg, power armor, hanging object, creature, giant object, centerpiece, sculpture, statue, spiral, coil, tentacle',
   },
   {
     page: 'characters',

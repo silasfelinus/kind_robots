@@ -44,59 +44,64 @@
         </div>
       </div>
 
-      <div class="cabinet-panel">
-        <div
-          v-if="touchControls"
-          class="cabinet-touch"
-          aria-label="Touch controls"
+      <div v-if="locked" class="cabinet-overlay" aria-label="Touch controls">
+        <button
+          type="button"
+          class="cabinet-pause-chip"
+          aria-label="Pause"
+          @click="togglePause"
         >
-          <div
-            ref="dpadRef"
-            class="cabinet-dpad"
-            role="group"
-            aria-label="Direction pad"
-            @pointerdown.prevent="onDpad"
-            @pointermove.prevent="onDpad"
-            @pointerup.prevent="releaseDpad"
-            @pointercancel="releaseDpad"
-            @lostpointercapture="releaseDpad"
+          <span aria-hidden="true">❚❚</span>
+        </button>
+        <div
+          ref="dpadRef"
+          class="cabinet-dpad"
+          role="group"
+          aria-label="Direction pad"
+          @pointerdown.prevent="onDpad"
+          @pointermove.prevent="onDpad"
+          @pointerup.prevent="releaseDpad"
+          @pointercancel="releaseDpad"
+          @lostpointercapture="releaseDpad"
+        >
+          <span
+            v-for="pad in dpad"
+            :key="pad.button"
+            class="cabinet-key"
+            :class="[pad.class, { 'cabinet-key-held': dpadHeld[pad.button] }]"
+            aria-hidden="true"
           >
-            <span
-              v-for="pad in dpad"
-              :key="pad.button"
-              class="cabinet-key"
-              :class="[pad.class, { 'cabinet-key-held': dpadHeld[pad.button] }]"
-              aria-hidden="true"
-            >
-              {{ pad.glyph }}
-            </span>
-          </div>
-          <div class="cabinet-buttons">
-            <button
-              type="button"
-              class="cabinet-ball cabinet-ball-b"
-              aria-label="B button"
-              @pointerdown.prevent="holdButton($event, 'b')"
-              @pointerup.prevent="press('b', false)"
-              @pointercancel="press('b', false)"
-              @lostpointercapture="press('b', false)"
-            >
-              B
-            </button>
-            <button
-              type="button"
-              class="cabinet-ball cabinet-ball-a"
-              aria-label="A button"
-              @pointerdown.prevent="holdButton($event, 'a')"
-              @pointerup.prevent="press('a', false)"
-              @pointercancel="press('a', false)"
-              @lostpointercapture="press('a', false)"
-            >
-              A
-            </button>
-          </div>
+            {{ pad.glyph }}
+          </span>
         </div>
-        <p v-else class="cabinet-hint">
+        <div class="cabinet-buttons">
+          <button
+            type="button"
+            class="cabinet-ball cabinet-ball-b"
+            aria-label="B button"
+            @pointerdown.prevent="holdButton($event, 'b')"
+            @pointerup.prevent="press('b', false)"
+            @pointercancel="press('b', false)"
+            @lostpointercapture="press('b', false)"
+          >
+            B
+          </button>
+          <button
+            type="button"
+            class="cabinet-ball cabinet-ball-a"
+            aria-label="A button"
+            @pointerdown.prevent="holdButton($event, 'a')"
+            @pointerup.prevent="press('a', false)"
+            @pointercancel="press('a', false)"
+            @lostpointercapture="press('a', false)"
+          >
+            A
+          </button>
+        </div>
+      </div>
+
+      <div v-else class="cabinet-panel">
+        <p v-if="!touchControls" class="cabinet-hint">
           Arrows or WASD move · Space or Z = A · X or Shift = B · Enter = Start
           · P pauses · gamepads work too
         </p>
@@ -109,9 +114,10 @@
             @pointercancel="press('start', false)"
             @lostpointercapture="press('start', false)"
           >
-            Start
+            {{ phase === 'paused' ? 'Resume' : 'Start' }}
           </button>
           <button
+            v-if="!touchControls"
             type="button"
             class="cabinet-switch"
             :aria-pressed="phase === 'paused'"
@@ -273,12 +279,9 @@ function fitScreen() {
     parseFloat(style.paddingTop) -
     parseFloat(style.paddingBottom)
   if (width <= 0 || height <= 0) return
-  // The bezel's padding is clamp(0.6rem, 4.5%, 2.75rem) of this same width.
-  const rem = parseFloat(getComputedStyle(document.documentElement).fontSize)
-  const pad = Math.min(2.75 * rem, Math.max(0.6 * rem, width * 0.045))
+  // The locked bezel has no padding: the screen gets the whole wrap.
   const ratio = (meta.value?.width ?? 4) / (meta.value?.height ?? 3)
-  const screen = Math.min(width - pad * 2, (height - pad * 2) * ratio)
-  fittedWidth.value = Math.max(0, Math.floor(screen + pad * 2))
+  fittedWidth.value = Math.max(0, Math.floor(Math.min(width, height * ratio)))
 }
 
 const board = computed(() => store.board(props.slug, 'all'))
@@ -880,7 +883,11 @@ watch(
 
 watch(locked, (on) => {
   setPageLock(on)
-  if (!on) releaseDpad()
+  // Locking swaps the settings panel for the overlay and back, so the button
+  // under the finger is gone before it can see the finger lift: let go of all.
+  releaseDpad()
+  for (const button of ['a', 'b', 'start'] as const)
+    input.setTouch(button, false)
   void nextTick(fitScreen)
 })
 
@@ -924,8 +931,10 @@ onBeforeUnmount(() => {
   overflow: hidden;
 }
 
-/* Pinned play view on touch devices: the cabinet fills the screen and owns
-   every touch, so nothing a thumb does can scroll, zoom or move the page. */
+/* Pinned play view on touch devices: the game screen fills the device and owns
+   every touch, so nothing a thumb does can scroll, zoom or move the page. The
+   controls float over it; the marquee, title and settings wait on the title
+   screen (pause to get back to them). */
 .arcade-cabinet--locked {
   position: fixed;
   inset: 0;
@@ -934,6 +943,8 @@ onBeforeUnmount(() => {
   margin: 0;
   border-radius: 0;
   border-width: 0;
+  box-shadow: none;
+  background: radial-gradient(circle at 50% 40%, #1e1b4b, #05030f 75%);
   touch-action: none;
   overscroll-behavior: none;
   user-select: none;
@@ -941,75 +952,128 @@ onBeforeUnmount(() => {
   -webkit-touch-callout: none;
 }
 
-.arcade-cabinet--locked .cabinet-marquee {
+.arcade-cabinet--locked .cabinet-marquee,
+.arcade-cabinet--locked .cabinet-title-plate {
   display: none;
 }
 
-.arcade-cabinet--locked .cabinet-title-plate {
-  padding: 0.2rem 1rem;
-}
-
 .arcade-cabinet--locked .cabinet-screen-wrap {
-  flex: 1 1 0;
-  min-height: 0;
-  min-width: 0;
-  overflow: hidden;
+  position: absolute;
+  inset: 0;
   display: grid;
-  align-items: center;
+  place-items: center;
+  overflow: hidden;
+  background: none;
+  padding: max(0.4rem, env(safe-area-inset-top))
+    max(0.4rem, env(safe-area-inset-right))
+    max(0.4rem, env(safe-area-inset-bottom))
+    max(0.4rem, env(safe-area-inset-left));
 }
 
 .arcade-cabinet--locked .cabinet-bezel {
   width: 100%;
+  padding: 0;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
 }
 
-.arcade-cabinet--locked .cabinet-panel {
-  padding-bottom: max(1.1rem, env(safe-area-inset-bottom));
+.arcade-cabinet--locked .cabinet-screen {
+  border-radius: 0.5rem;
 }
 
-/* Sideways tablets and phones: a handheld layout, with the d-pad left of the
-   screen and the A/B buttons right of it, so the controls don't eat the height. */
-@media (orientation: landscape) {
-  .arcade-cabinet--locked {
-    display: grid;
-    grid-template-columns: auto minmax(0, 1fr) auto;
-    grid-template-rows: auto minmax(0, 1fr) auto;
-    grid-template-areas:
-      'title title title'
-      'dpad screen buttons'
-      'dpad switches buttons';
-    background:
-      linear-gradient(180deg, rgba(255, 255, 255, 0.06), transparent 30%),
-      linear-gradient(90deg, #5b21b6, #1e1b4b 30%, #1e1b4b 70%, #be185d);
-  }
+.cabinet-overlay {
+  --key: clamp(2.9rem, 8.5vmin, 4.75rem);
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+}
 
-  .arcade-cabinet--locked .cabinet-title-plate {
-    grid-area: title;
-  }
+.cabinet-overlay > * {
+  position: absolute;
+  pointer-events: auto;
+}
 
+.cabinet-overlay .cabinet-dpad {
+  left: max(1rem, env(safe-area-inset-left));
+  bottom: max(1rem, env(safe-area-inset-bottom));
+  grid-template-columns: repeat(3, var(--key));
+  grid-template-rows: repeat(3, var(--key));
+}
+
+.cabinet-overlay .cabinet-key {
+  background: rgba(15, 10, 46, 0.42);
+  border: 2px solid rgba(253, 230, 138, 0.5);
+  color: rgba(253, 230, 138, 0.9);
+  box-shadow: none;
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+}
+
+.cabinet-overlay .cabinet-key-held {
+  transform: none;
+  background: rgba(253, 230, 138, 0.4);
+  box-shadow: none;
+}
+
+.cabinet-overlay .cabinet-buttons {
+  right: max(1rem, env(safe-area-inset-right));
+  bottom: max(1rem, env(safe-area-inset-bottom));
+}
+
+.cabinet-overlay .cabinet-ball {
+  width: calc(var(--key) * 1.3);
+  height: calc(var(--key) * 1.3);
+  border: 2px solid rgba(255, 255, 255, 0.45);
+  box-shadow: none;
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+}
+
+.cabinet-overlay .cabinet-ball-a {
+  background: rgba(236, 72, 153, 0.55);
+  margin-bottom: calc(var(--key) * 0.45);
+}
+
+.cabinet-overlay .cabinet-ball-b {
+  background: rgba(20, 184, 166, 0.55);
+}
+
+.cabinet-overlay .cabinet-ball:active {
+  transform: scale(0.94);
+  box-shadow: none;
+}
+
+.cabinet-pause-chip {
+  top: max(0.6rem, env(safe-area-inset-top));
+  right: max(0.6rem, env(safe-area-inset-right));
+  display: grid;
+  place-items: center;
+  width: 2.6rem;
+  height: 2.6rem;
+  border-radius: 9999px;
+  background: rgba(15, 10, 46, 0.5);
+  border: 2px solid rgba(253, 230, 138, 0.5);
+  color: #fde68a;
+  font-size: 0.8rem;
+  letter-spacing: -0.1em;
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+}
+
+/* Upright, the screen sits at the top so the controls get the room below it,
+   and the pause chip moves down between them, off the score. */
+@media (orientation: portrait) {
   .arcade-cabinet--locked .cabinet-screen-wrap {
-    grid-area: screen;
+    align-items: start;
   }
 
-  .arcade-cabinet--locked .cabinet-panel,
-  .arcade-cabinet--locked .cabinet-touch {
-    display: contents;
-  }
-
-  .arcade-cabinet--locked .cabinet-dpad {
-    grid-area: dpad;
-    align-self: center;
-    margin: 0 max(1rem, env(safe-area-inset-left)) 0 1rem;
-  }
-
-  .arcade-cabinet--locked .cabinet-buttons {
-    grid-area: buttons;
-    align-self: center;
-    margin: 0 max(1rem, env(safe-area-inset-right)) 0 1rem;
-  }
-
-  .arcade-cabinet--locked .cabinet-switches {
-    grid-area: switches;
-    padding: 0.4rem 0 max(0.5rem, env(safe-area-inset-bottom));
+  .cabinet-pause-chip {
+    top: auto;
+    right: auto;
+    left: calc(50% - 1.3rem);
+    bottom: calc(max(1rem, env(safe-area-inset-bottom)) + var(--key) * 2);
   }
 }
 

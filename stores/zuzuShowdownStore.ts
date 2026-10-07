@@ -1,12 +1,13 @@
 // /stores/zuzuShowdownStore.ts
 //
-// Player options for Zuzu Showdown (conductor zuzu-showdown): sound, the CRT
-// overlay, Easy Specials, the hitbox overlay, the match mode, the CPU's
-// level and Training's settings. Remembered per browser; the match itself
+// Player options for Zuzu Showdown (conductor zuzu-showdown): sound, the
+// render style (Pixel or HD, t-027), the CRT overlay, Easy Specials, the
+// hitbox overlay, the match mode, the CPU's level and Training's settings. Remembered per browser; the match itself
 // lives in the pure sim (utils/zuzuShowdown).
 
 import { ref } from 'vue'
 import { defineStore } from 'pinia'
+import { isRenderStyle, type RenderStyle } from '~/utils/arcade/display'
 import { DEFAULT_FIGHTERS, FIGHTERS } from '~/utils/zuzuShowdown/fighters'
 import { CPU_LEVELS, type CpuLevel } from '~/utils/zuzuShowdown/cpu'
 import {
@@ -20,6 +21,7 @@ export type ShowdownMode = 'cpu' | 'versus' | 'dummy'
 
 type ShowdownPrefs = {
   muted?: boolean
+  renderStyle?: RenderStyle
   crt?: boolean
   easySpecials?: boolean
   showBoxes?: boolean
@@ -52,6 +54,7 @@ function writePrefs(prefs: ShowdownPrefs) {
 
 export const useZuzuShowdownStore = defineStore('zuzuShowdownStore', () => {
   const muted = ref(true)
+  const renderStyle = ref<RenderStyle>('pixel')
   const crt = ref(false)
   const easySpecials = ref(false)
   const showBoxes = ref(false)
@@ -76,6 +79,9 @@ export const useZuzuShowdownStore = defineStore('zuzuShowdownStore', () => {
     const prefs = readPrefs()
     reducedMotion.value = options.reducedMotion
     muted.value = prefs.muted ?? true
+    renderStyle.value = isRenderStyle(prefs.renderStyle)
+      ? prefs.renderStyle
+      : 'pixel'
     crt.value = prefs.crt ?? !options.reducedMotion
     easySpecials.value = prefs.easySpecials ?? options.coarsePointer
     showBoxes.value = prefs.showBoxes === true
@@ -102,6 +108,7 @@ export const useZuzuShowdownStore = defineStore('zuzuShowdownStore', () => {
   function save() {
     writePrefs({
       muted: muted.value,
+      renderStyle: renderStyle.value,
       crt: crt.value,
       easySpecials: easySpecials.value,
       showBoxes: showBoxes.value,
@@ -116,6 +123,12 @@ export const useZuzuShowdownStore = defineStore('zuzuShowdownStore', () => {
 
   function setMuted(value: boolean) {
     muted.value = value
+    save()
+  }
+
+  function setRenderStyle(value: RenderStyle) {
+    if (!isRenderStyle(value)) return
+    renderStyle.value = value
     save()
   }
 
@@ -176,6 +189,7 @@ export const useZuzuShowdownStore = defineStore('zuzuShowdownStore', () => {
 
   return {
     muted,
+    renderStyle,
     crt,
     easySpecials,
     showBoxes,
@@ -190,6 +204,7 @@ export const useZuzuShowdownStore = defineStore('zuzuShowdownStore', () => {
     loadPreferences,
     setFighter,
     setMuted,
+    setRenderStyle,
     setCrt,
     setEasySpecials,
     setShowBoxes,

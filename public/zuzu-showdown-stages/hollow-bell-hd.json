@@ -1,0 +1,68 @@
+{
+  "stage": "hollow-bell",
+  "style": "hd",
+  "scale": 4,
+  "layers": [
+    {
+      "name": "backdrop",
+      "file": "hollow-bell-backdrop-hd.webp",
+      "factor": 0.2,
+      "x": -30,
+      "y": 0,
+      "w": 540,
+      "h": 240
+    },
+    {
+      "name": "town",
+      "file": "hollow-bell-town-hd.webp",
+      "factor": 0.6,
+      "x": -88,
+      "y": 84,
+      "w": 655,
+      "h": 150
+    },
+    {
+      "name": "floor",
+      "file": "hollow-bell-floor-hd.webp",
+      "factor": 1.0,
+      "x": -145,
+      "y": 230,
+      "w": 770,
+      "h": 40
+    }
+  ],
+  "cutouts": [
+    {
+      "name": "bell",
+      "layer": "town",
+      "x": 309,
+      "y": 91,
+      "w": 14,
+      "h": 21,
+      "file": "hollow-bell-bell-hd.webp"
+    },
+    {
+      "name": "banner",
+      "layer": "town",
+      "x": 200,
+      "y": 69,
+      "w": 15,
+      "h": 16,
+      "file": "hollow-bell-banner-hd.webp"
+    }
+  ],
+  "anchors": {
+    "arch": {
+      "layer": "town",
+      "x": 265,
+      "y": 74,
+      "w": 101,
+      "h": 7
+    },
+    "smoke": {
+      "layer": "town",
+      "x": 186,
+      "y": 61
+    }
+  }
+}

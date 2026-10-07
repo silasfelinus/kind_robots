@@ -1,0 +1,44 @@
+{
+  "stage": "lone-apple-tree",
+  "style": "hd",
+  "scale": 4,
+  "layers": [
+    {
+      "name": "backdrop",
+      "file": "lone-apple-tree-backdrop-hd.webp",
+      "factor": 0.2,
+      "x": -30,
+      "y": 0,
+      "w": 540,
+      "h": 240
+    },
+    {
+      "name": "tree",
+      "file": "lone-apple-tree-tree-hd.webp",
+      "factor": 0.6,
+      "x": -88,
+      "y": 104,
+      "w": 655,
+      "h": 130
+    },
+    {
+      "name": "floor",
+      "file": "lone-apple-tree-floor-hd.webp",
+      "factor": 1.0,
+      "x": -145,
+      "y": 230,
+      "w": 770,
+      "h": 40
+    }
+  ],
+  "cutouts": [],
+  "anchors": {
+    "canopy": {
+      "layer": "tree",
+      "x": 232,
+      "y": 44,
+      "w": 106,
+      "h": 15
+    }
+  }
+}

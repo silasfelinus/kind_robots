@@ -1,0 +1,54 @@
+{
+  "stage": "the-mission",
+  "style": "hd",
+  "scale": 4,
+  "layers": [
+    {
+      "name": "backdrop",
+      "file": "the-mission-backdrop-hd.webp",
+      "factor": 0.2,
+      "x": -30,
+      "y": 0,
+      "w": 540,
+      "h": 240
+    },
+    {
+      "name": "church",
+      "file": "the-mission-church-hd.webp",
+      "factor": 0.6,
+      "x": -88,
+      "y": 94,
+      "w": 655,
+      "h": 140
+    },
+    {
+      "name": "floor",
+      "file": "the-mission-floor-hd.webp",
+      "factor": 1.0,
+      "x": -145,
+      "y": 230,
+      "w": 770,
+      "h": 40
+    }
+  ],
+  "cutouts": [],
+  "anchors": {
+    "portal": {
+      "layer": "church",
+      "x": 281,
+      "y": 46,
+      "w": 17,
+      "h": 12
+    },
+    "candle": {
+      "layer": "church",
+      "x": 438,
+      "y": 103
+    },
+    "smoke": {
+      "layer": "church",
+      "x": 387,
+      "y": 73
+    }
+  }
+}

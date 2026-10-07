@@ -103,6 +103,8 @@ check(
   () => {
     for (const slug of SPRITE_FIGHTERS) {
       const sheet = sheets[slug]!
+      // The pixel style ships its P2 atlas (HD makes its own from p2_rules).
+      assert.ok(sheet.atlas_p2, `${slug} has a P2 atlas`)
       for (const file of [sheet.atlas, sheet.atlas_p2]) {
         const { width, height } = pngSize(file)
         for (const [name, anim] of Object.entries(sheet.animations)) {

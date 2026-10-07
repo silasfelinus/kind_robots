@@ -1,0 +1,59 @@
+{
+  "stage": "bone-yard",
+  "style": "hd",
+  "scale": 4,
+  "layers": [
+    {
+      "name": "backdrop",
+      "file": "bone-yard-backdrop-hd.webp",
+      "factor": 0.2,
+      "x": -30,
+      "y": 0,
+      "w": 540,
+      "h": 240
+    },
+    {
+      "name": "arch",
+      "file": "bone-yard-arch-hd.webp",
+      "factor": 0.6,
+      "x": -88,
+      "y": 86,
+      "w": 655,
+      "h": 150
+    },
+    {
+      "name": "floor",
+      "file": "bone-yard-floor-hd.webp",
+      "factor": 1.0,
+      "x": -145,
+      "y": 230,
+      "w": 770,
+      "h": 40
+    }
+  ],
+  "cutouts": [],
+  "anchors": {
+    "fire": {
+      "layer": "arch",
+      "x": 313,
+      "y": 68,
+      "w": 29,
+      "h": 61
+    },
+    "perch-a": {
+      "layer": "arch",
+      "x": 276,
+      "y": 2
+    },
+    "perch-b": {
+      "layer": "arch",
+      "x": 345,
+      "y": 26
+    },
+    "perch-c": {
+      "layer": "arch",
+      "x": 378,
+      "y": 23
+    }
+  }
+}

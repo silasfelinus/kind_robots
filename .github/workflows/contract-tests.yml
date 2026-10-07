@@ -180,6 +180,9 @@ jobs:
       - name: Zuzu Showdown sound
         run: npm run test:zuzu-showdown-sound
 
+      - name: Zuzu Showdown display
+        run: npm run test:zuzu-showdown-display
+
       - name: No Promise in Pinia store state
         run: npm run test:no-promise-in-store-state
 

@@ -18,13 +18,27 @@
 //   npx tsx utils/scripts/enqueuePageBackdropArtViaApi.ts --write --limit 6
 //   npx tsx utils/scripts/enqueuePageBackdropArtViaApi.ts --write --only index,about
 //   npx tsx utils/scripts/enqueuePageBackdropArtViaApi.ts --write --only mermaids --variant desktop
+//
+// Picking a render instead of hoping for one. Arthemy re-centres a hero on some
+// scenes whatever the prompt says, so seed choice matters as much as wording:
+//   ... --write --only bots --candidates 4     # 4 seeds per variant, off-site
+//   ... --write --only bots --variant desktop --seed 123456   # make one live
+// Candidates go to project page-backdrop-candidates under a suffixed
+// requestId, so /api/art/backdrop never serves them; --seed re-renders the
+// chosen one under the real requestId.
+//
+// Each candidate also needs its OWN imagePath. The media agent files a render
+// at the job's declared imagePath, and every ArtImage filed there serves the
+// same bytes -- so the first candidate batch (ArtJobs 34680-34703) wrote four
+// seeds into background/bots-desktop.webp, kept only the last, and replaced
+// the live backdrop with it as well.
 import 'dotenv/config'
 import { pageBackdropArtPrompts } from './../../stores/seeds/pageBackdropArtPrompts'
 import { buildPageBackdropPayload } from './pageBackdropPayload'
 
 const WRITE = process.argv.includes('--write')
 const PROJECT_SLUG = 'page-backdrops'
-const PRIORITY = 100
+const CANDIDATE_PROJECT_SLUG = 'page-backdrop-candidates'
 const ENGINE = 'COMFY' as const
 
 const BASE = (
@@ -39,6 +53,9 @@ function flag(name: string): string | null {
 }
 
 const LIMIT = Number(flag('--limit') || 0)
+const PRIORITY = Number(flag('--priority') || 100)
+const CANDIDATES = Number(flag('--candidates') || 0)
+const SEED = flag('--seed') === null ? undefined : Number(flag('--seed'))
 const ONLY = (flag('--only') || '')
   .split(',')
   .map((value) => value.trim())
@@ -68,19 +85,45 @@ async function main() {
     return
   }
 
+  if (SEED !== undefined && (!Number.isInteger(SEED) || SEED < 0)) {
+    console.error('❌ --seed must be a non-negative integer.')
+    process.exitCode = 1
+    return
+  }
+
+  const jobs = entries.flatMap((entry) => {
+    if (CANDIDATES <= 0) {
+      return [{ entry, seed: SEED, projectSlug: PROJECT_SLUG }]
+    }
+    return Array.from({ length: CANDIDATES }, () => {
+      const seed = Math.floor(Math.random() * 2_147_483_647)
+      return {
+        entry: {
+          ...entry,
+          requestId: `${entry.requestId}-candidate-${seed}`,
+          imagePath: `background/candidates/${entry.page}-${entry.variant}-${seed}.webp`,
+        },
+        seed,
+        projectSlug: CANDIDATE_PROJECT_SLUG,
+      }
+    })
+  })
+
   console.log(`Target: ${BASE}`)
   console.log(
     `Entries: ${entries.length} (${new Set(entries.map((e) => e.page)).size} pages)`,
   )
-  console.log(`Engine ${ENGINE}, priority ${PRIORITY}, project ${PROJECT_SLUG}`)
+  console.log(
+    `Engine ${ENGINE}, priority ${PRIORITY}, project ${CANDIDATES > 0 ? CANDIDATE_PROJECT_SLUG : PROJECT_SLUG}, jobs ${jobs.length}`,
+  )
   console.log(`Mode: ${WRITE ? 'WRITE' : 'dry run'}\n`)
 
   if (!WRITE) {
-    for (const entry of entries.slice(0, 8)) {
+    for (const { entry } of jobs.slice(0, 8)) {
       console.log(`  WOULD  ${entry.requestId.padEnd(38)} ${entry.width}x${entry.height}`)
     }
-    if (entries.length > 8) console.log(`  … and ${entries.length - 8} more`)
-    console.log(`\nDry run only. Re-run with --write to queue ${entries.length}.`)
+    if (jobs.length > 8) console.log(`  … and ${jobs.length - 8} more`)
+    console.log(`\nDry run only. Re-run with --write to queue ${jobs.length}.`)
     return
   }
 
@@ -88,7 +131,7 @@ async function main() {
   let deduped = 0
   const failures: string[] = []
 
-  for (const [index, entry] of entries.entries()) {
+  for (const [index, { entry, seed, projectSlug }] of jobs.entries()) {
     const response = await fetch(`${BASE}/api/art/queue`, {
       method: 'POST',
       headers: {
@@ -97,9 +140,9 @@ async function main() {
       },
       body: JSON.stringify({
         engine: ENGINE,
-        payload: buildPageBackdropPayload(entry),
+        payload: buildPageBackdropPayload(entry, seed),
         priority: PRIORITY,
-        projectSlug: PROJECT_SLUG,
+        projectSlug,
       }),
     }).catch((error: unknown) => {
       failures.push(
@@ -126,9 +169,9 @@ async function main() {
       queued += 1
     }
 
-    if ((index + 1) % 15 === 0 || index === entries.length - 1) {
+    if ((index + 1) % 15 === 0 || index === jobs.length - 1) {
       console.log(
-        `  ${index + 1}/${entries.length}  queued ${queued}, deduped ${deduped}, failed ${failures.length}`,
+        `  ${index + 1}/${jobs.length}  queued ${queued}, deduped ${deduped}, failed ${failures.length}`,
       )
     }
   }

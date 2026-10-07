@@ -11,13 +11,26 @@ import {
 import { buildDefaultComfyWorkflow } from './../../server/api/comfy/sdxl/utils/workflow'
 import { enrichArtJobPayload } from './../../server/utils/artJobProvenance'
 
-export function buildPageBackdropPayload(entry: PageBackdropArtPrompt) {
+/*
+ * Seeded explicitly so a render can be reproduced: --candidates renders a few
+ * seeds off to the side and --seed re-renders the one picked as the live
+ * backdrop. The builder would otherwise draw a seed it never reports.
+ */
+function randomSeed(): number {
+  return Math.floor(Math.random() * 2_147_483_647)
+}
+
+export function buildPageBackdropPayload(
+  entry: PageBackdropArtPrompt,
+  seed: number = randomSeed(),
+) {
   const workflow = buildDefaultComfyWorkflow({
     prompt: entry.promptString,
     negativePrompt: entry.negativePrompt,
     checkpoint: BACKDROP_LANE.checkpoint,
     steps: BACKDROP_LANE.steps,
     cfgValue: BACKDROP_LANE.cfg,
+    seed,
     sampler: BACKDROP_LANE.sampler,
     scheduler: BACKDROP_LANE.scheduler,
     width: entry.width,
@@ -38,6 +51,7 @@ export function buildPageBackdropPayload(entry: PageBackdropArtPrompt) {
     cfg: BACKDROP_LANE.cfg,
     sampler: BACKDROP_LANE.sampler,
     scheduler: BACKDROP_LANE.scheduler,
+    seed,
     workflow,
     /*
      * The destination the relay's media agent reads, and the destination

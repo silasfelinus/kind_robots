@@ -3,6 +3,10 @@ import { Buffer } from 'node:buffer'
 import { createHash } from 'node:crypto'
 import { createError, defineEventHandler, readBody } from 'h3'
 import { userIsAdmin } from '@/server/utils/authUser'
+import {
+  checkArtPromptContract,
+  type ArtPromptViolation,
+} from '@/server/utils/artPromptContract'
 import { buildContextualArtPrompt } from '@/server/utils/conductorArtPrompt'
 import { errorHandler } from '@/server/utils/error'
 import { normalizePublicPath } from '@/server/utils/publicImagePath'
@@ -328,12 +332,49 @@ function buildFallbackPrompt(
     return `flat minimal app icon for ${label}, bold clean vector shapes, square composition, every surface bare and unmarked`
   }
   if (target.variant === 'card') {
-    return `polished portrait illustration for ${label}, centered subject, rich Kind Robots visual style, every surface bare and unmarked, 2:3 portrait composition`
+    return `polished portrait illustration for ${label}, centered subject, bold ink linework, rich controlled colour, cinematic lighting, every surface bare and unmarked, 2:3 portrait composition`
   }
   if (target.variant === 'hero') {
     return `wide cinematic hero image for ${label}, expressive scene with clear atmosphere and personality, every surface bare and unmarked, 16:9 landscape composition`
   }
-  return `polished web illustration for ${label}, clear subject, cohesive Kind Robots visual style, every surface bare and unmarked`
+  return `polished web illustration for ${label}, clear subject, bold ink linework, rich controlled colour, cinematic lighting, every surface bare and unmarked`
+}
+
+/*
+ * Conductor's consumer renders an entry with no `engine` on krea2, so that is
+ * the engine its prompt has to satisfy.
+ */
+const CONDUCTOR_DEFAULT_ENGINE = 'krea2'
+
+/*
+ * THE PROMPT IS CHECKED HERE, BEFORE IT IS FILED. This route used to write
+ * whatever buildContextualArtPrompt returned straight into Conductor's queue.
+ * A caller's prompt passes through that untouched and the LLM path is only
+ * asked to follow the contract, so a prompt with "encased in a rounded frame"
+ * reached the render queue and failed there (ArtJob 34375, 2026-10-07). Now a
+ * prompt the contract would reject falls back to the label-built prompt, so
+ * the missing image still gets art, and only a request with no clean prompt at
+ * all is refused.
+ */
+function contractCleanPrompt(candidates: string[], engine: string): string {
+  const violations: ArtPromptViolation[] = []
+  for (const prompt of candidates) {
+    if (!prompt) continue
+    const found = checkArtPromptContract({
+      prompt,
+      engine,
+      steps: null,
+      cfg: null,
+    })
+    if (!found.length) return prompt
+    violations.push(...found)
+  }
+  throw createError({
+    statusCode: 422,
+    message:
+      'Art prompt rejected by the prompt contract:\n' +
+      violations.map((v) => `  [${v.rule}] ${v.detail}`).join('\n'),
+  })
 }
 
 async function buildEntry(
@@ -348,8 +389,14 @@ async function buildEntry(
   const attempt = Date.now().toString(36)
   const id = `${slugify(`${repoName}-${target.slug}-${target.variant}`)}-${hash}-${attempt}`
   const fallbackPrompt = buildFallbackPrompt(body, target)
-  const prompt = await buildContextualArtPrompt(body, target, fallbackPrompt)
   const engine = cleanString(body.engine)
+  const prompt = contractCleanPrompt(
+    [
+      await buildContextualArtPrompt(body, target, fallbackPrompt),
+      buildFallbackPrompt({ ...body, prompt: undefined }, target),
+    ],
+    engine.toLowerCase() || CONDUCTOR_DEFAULT_ENGINE,
+  )
 
   return {
     id,

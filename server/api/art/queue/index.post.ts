@@ -14,8 +14,8 @@ import {
 } from '../../../utils/artJobPayload'
 import { enrichArtJobPayload } from '../../../utils/artJobProvenance'
 import { normalizeQueuedArtJobPayload } from '../../../utils/artJobNormalization'
-import { assertArtPromptContract } from '../../../utils/artPromptContract'
-import { extractRenderRequest } from '../../comfy/utils/engineWorkflow'
+import { assertQueuedArtPromptContract } from '../../../utils/artJobQueueSettings'
+import { repairQueuedArtSampler } from '../../../utils/artJobSamplerRepair'
 import { resolveMaturityPrivacy } from '~/utils/maturityPrivacy'
 
 const ENGINES = new Set(['A1111', 'COMFY'])
@@ -91,32 +91,28 @@ export default defineEventHandler(async (event) => {
     const priority = Number.isInteger(body?.priority)
       ? Number(body?.priority)
       : 0
-    const normalizedPayload = normalizeQueuedArtJobPayload(rawPayload).payload
+    // Clamped the way claim clamps it, so the gate below sees the payload that
+    // will actually render. Without this, judging by the graph's real engine
+    // would reject an over-limit Krea2 step count that claim repairs anyway.
+    const normalizedPayload = repairQueuedArtSampler(
+      engine,
+      normalizeQueuedArtJobPayload(rawPayload).payload,
+    ).payload
 
     // Gate after normalization, on the render request actually extracted from
     // the workflow — that is the string ComfyUI receives, and it is not always
     // the caller's `promptString` (a COMFY payload carries a baked graph).
     // Conductor's bulk lanes enter here, so this is where a stale replayed
     // prompt gets stopped rather than rendered.
+    //
+    // THE SAME CHECK CLAIM RUNS, not a lookalike. This used to judge the prompt
+    // against `payload.engine || 'COMFY'`, while claim infers the engine from
+    // the graph itself. Krea2 jobs from Conductor carry no `engine`, so here
+    // they read as plain "comfy" and skipped the caption-engine rules -- and
+    // were accepted, then failed at claim on frame-noun (ArtJobs 34375 and
+    // 34381, 2026-10-07). A job this route accepts must be one claim accepts.
     try {
-      // extractRenderRequest returns prompt/size/seed only; steps and cfg live
-      // on the payload, which is Record<string, unknown> — coerce explicitly
-      // rather than leaning on `unknown` surviving `||` and `??`.
-      const render = extractRenderRequest(normalizedPayload)
-      const numeric = (value: unknown): number | null => {
-        const parsed = Number(value)
-        return Number.isFinite(parsed) ? parsed : null
-      }
-      const payloadEngine =
-        typeof normalizedPayload.engine === 'string'
-          ? normalizedPayload.engine
-          : engine
-      assertArtPromptContract({
-        prompt: render.prompt,
-        engine: String(payloadEngine || '').toLowerCase(),
-        steps: numeric(normalizedPayload.steps),
-        cfg: numeric(normalizedPayload.cfg),
-      })
+      assertQueuedArtPromptContract(engine, normalizedPayload)
     } catch (contractError: unknown) {
       // A payload shape this endpoint cannot introspect is not a contract
       // violation — only rethrow the gate's own 422.

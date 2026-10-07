@@ -48,6 +48,10 @@ export type PageBackdropArtPrompt = {
  * jellyfish and a robot dead centre, all near-black. Centring and darkness
  * are now spelled out in the negative, where this lane can act on them, and
  * the scene moved ahead of the style so the page's own setting survives.
+ *
+ * Scenes here read best as concrete nouns, not mood prose: round 2 turned
+ * bots' "conveyor rails" into a train platform and dreams' "shoals of
+ * drifters" into one centred jellyfish (ArtJobs 34424-34429).
  */
 export const BACKDROP_LANE = {
   checkpoint: 'Illustrious/arthemyWesternArt_v30.safetensors',
@@ -146,6 +150,12 @@ type PageSeed = {
   scene: string
   /** Replaces HOUSE_AESTHETIC when a page needs a different visual register. */
   aesthetic?: string
+  /**
+   * Appended to NEGATIVE_PROMPT. For the thing a scene names that this lane
+   * would otherwise blow up into a centred hero: bots' "robot" rendered one
+   * giant mech, dreams' "jellyfish" one giant jellyfish (ArtJobs 34639-34644).
+   */
+  negative?: string
 }
 
 /**
@@ -166,13 +176,17 @@ const PAGES: PageSeed[] = [
     page: 'dreams',
     title: 'Dreams — Dream Deck',
     scene:
-      'A dream deck adrift at night: a wide open platform of pale weathered wood floating in a violet and indigo sky, surrounded by slow-turning constellations, soft nebulae and shoals of luminous jellyfish-like drifters. Gauzy banners and star-charts flutter at the margins. Everything is quiet, buoyant and half-remembered, like the moment just before waking.',
+      'outdoors, night sky, a floating deck of pale weathered wooden planks adrift above a sea of clouds, swirling violet and indigo nebula, starry sky, constellations, bioluminescent particles, tiny glowing jellyfish scattered far away near the horizon, surreal, ethereal, open starry sky through the middle',
+    negative:
+      'giant jellyfish, large jellyfish, close-up jellyfish, large creature, monster, pillar, pole, tower, obelisk',
   },
   {
     page: 'bots',
     title: 'Bots — Bot Factory',
     scene:
-      'A bot foundry: a vast cathedral-tall workshop hall of copper pipework, glass tanks of glowing coolant, conveyor rails and pegboards of neatly hung tools, with tall windows spilling afternoon sun across the floor. Small partially-assembled robots of many different silhouettes wait on side benches. Inventive and alive, industrial grandeur warmed by sunlight.',
+      'indoors, messy machine shop, clutter, many small objects on every surface, workbenches piled with mechanical parts along both side walls, shelves of gears, brass joints, circuit boards and toolboxes, copper pipes running up the walls, tools hanging on pegboards, blueprints pinned above the benches, tall factory windows with warm afternoon sunlight, drifting sparks, empty concrete floor in the middle',
+    negative:
+      'robot, mecha, humanoid robot, android, cyborg, power armor, hanging object, creature, giant object, centerpiece, sculpture, statue, spiral, coil, tentacle, glass tank, specimen jar, cylinder, column, pillar',
   },
   {
     page: 'characters',
@@ -582,7 +596,9 @@ export const pageBackdropArtPrompts: PageBackdropArtPrompt[] = PAGES.flatMap(
         // /images/** redirect to the media origin.
         imagePath: `background/${seed.page}-${variant}.webp`,
         promptString: buildPrompt(seed, variant),
-        negativePrompt: NEGATIVE_PROMPT,
+        negativePrompt: seed.negative
+          ? `${NEGATIVE_PROMPT}, ${seed.negative}`
+          : NEGATIVE_PROMPT,
       }
     }),
 )

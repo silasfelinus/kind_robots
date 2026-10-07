@@ -1,56 +1,155 @@
 // /utils/arcade/pinball/audio/mixer.ts
 //
-// The pinball audio boundary (conductor kind-pinball/t-004). Rules and the
-// runtime speak in pinball sound names; this maps them to sound output. For
-// now it routes to the arcade's chiptune kit so the cabinet's mute keeps
-// working; t-008 replaces the inside with a WebAudio mixer (mechanical,
-// ball, callout, music and ambience buses) without changing this surface.
+// Pinball-specific WebAudio mixer. The context is created only after unlock(),
+// which the runtime calls from a player gesture. Five buses sit under one
+// master, and the arcade sound object's live mute state remains authoritative.
 
 import type { ArcadeSoundLike } from '../../types'
+import {
+  MUSIC_BEDS,
+  PINBALL_CUES,
+  type PinballBus,
+  type PinballMusicBed,
+  type PinballSoundName,
+  type SynthCue,
+} from './catalog'
 
-export type PinballSoundName =
-  | 'flipper'
-  | 'pop'
-  | 'sling'
-  | 'launch'
-  | 'drain'
-  | 'nudge'
-  | 'drop'
-  | 'scoop'
-  | 'kickout'
-  | 'spinner'
-  | 'shot'
+type AudioCtor = new () => AudioContext
+type Position = { x: number; panRange?: number }
 
-const ARCADE_FALLBACK: Record<
-  PinballSoundName,
-  Parameters<ArcadeSoundLike['play']>[0]
-> = {
-  flipper: 'blip',
-  pop: 'pop',
-  sling: 'pop',
-  launch: 'start',
-  drain: 'die',
-  nudge: 'blip',
-  drop: 'pickup',
-  scoop: 'pickup',
-  kickout: 'shoot',
-  spinner: 'blip',
-  shot: 'extra',
+const BUS_GAIN: Record<PinballBus, number> = {
+  mechanical: 0.75,
+  ball: 0.62,
+  callout: 0.58,
+  music: 0.24,
+  ambience: 0.16,
 }
 
 export class PinballMixer {
   private sound: ArcadeSoundLike | null
+  private context: AudioContext | null = null
+  private master: GainNode | null = null
+  private buses = new Map<PinballBus, GainNode>()
+  private music: OscillatorNode[] = []
+  private unlocked = false
 
   constructor(sound: ArcadeSoundLike) {
     this.sound = sound
   }
 
-  play(name: string) {
-    const mapped = ARCADE_FALLBACK[name as PinballSoundName]
-    if (mapped) this.sound?.play(mapped)
+  get isUnlocked() {
+    return this.unlocked
+  }
+
+  unlock() {
+    if (this.unlocked || typeof window === 'undefined') return
+    const Ctor = (window.AudioContext ??
+      (window as unknown as { webkitAudioContext?: AudioCtor }).webkitAudioContext) as AudioCtor | undefined
+    if (!Ctor) return
+    const context = new Ctor()
+    const master = context.createGain()
+    master.gain.value = 0.72
+    master.connect(context.destination)
+    for (const [name, gain] of Object.entries(BUS_GAIN) as [PinballBus, number][]) {
+      const node = context.createGain()
+      node.gain.value = gain
+      node.connect(master)
+      this.buses.set(name, node)
+    }
+    this.context = context
+    this.master = master
+    this.unlocked = true
+    if (context.state === 'suspended') void context.resume()
+  }
+
+  play(name: string, position?: Position) {
+    if (this.sound?.muted) return
+    const cue = PINBALL_CUES[name as PinballSoundName]
+    if (!cue || !this.context || this.context.state !== 'running') return
+    this.voice(cue, position)
+  }
+
+  setBusGain(bus: PinballBus, gain: number) {
+    const node = this.buses.get(bus)
+    if (node) node.gain.value = Math.max(0, Math.min(1, gain))
+  }
+
+  startMusic(bed: PinballMusicBed) {
+    this.stopMusic()
+    if (this.sound?.muted || !this.context || this.context.state !== 'running') return
+    const bus = this.buses.get('music')
+    if (!bus) return
+    for (const frequency of MUSIC_BEDS[bed]) {
+      const oscillator = this.context.createOscillator()
+      const gain = this.context.createGain()
+      oscillator.type = 'triangle'
+      oscillator.frequency.value = frequency
+      gain.gain.value = 0.035
+      oscillator.connect(gain)
+      gain.connect(bus)
+      oscillator.start()
+      this.music.push(oscillator)
+    }
+  }
+
+  stopMusic() {
+    for (const oscillator of this.music) {
+      try { oscillator.stop() } catch {}
+      oscillator.disconnect()
+    }
+    this.music = []
+  }
+
+  private voice(cue: SynthCue, position?: Position) {
+    const context = this.context
+    const bus = this.buses.get(cue.bus)
+    if (!context || !bus) return
+    const start = context.currentTime
+    const envelope = context.createGain()
+    envelope.gain.setValueAtTime(Math.max(0.0001, cue.gain), start)
+    envelope.gain.exponentialRampToValueAtTime(0.0001, start + cue.duration)
+
+    let destination: AudioNode = bus
+    if (position && 'createStereoPanner' in context) {
+      const panner = context.createStereoPanner()
+      const range = Math.max(0.01, position.panRange ?? 0.3)
+      panner.pan.value = Math.max(-1, Math.min(1, position.x / range))
+      panner.connect(bus)
+      destination = panner
+    }
+    envelope.connect(destination)
+
+    if (cue.noise) {
+      const frames = Math.max(1, Math.floor(context.sampleRate * cue.duration))
+      const buffer = context.createBuffer(1, frames, context.sampleRate)
+      const data = buffer.getChannelData(0)
+      for (let i = 0; i < frames; i++) data[i] = (Math.random() * 2 - 1) * (1 - i / frames)
+      const source = context.createBufferSource()
+      source.buffer = buffer
+      source.connect(envelope)
+      source.start(start)
+      return
+    }
+
+    const oscillator = context.createOscillator()
+    oscillator.type = cue.wave ?? 'triangle'
+    oscillator.frequency.setValueAtTime(cue.frequency, start)
+    if (cue.endFrequency) {
+      oscillator.frequency.exponentialRampToValueAtTime(cue.endFrequency, start + cue.duration)
+    }
+    oscillator.connect(envelope)
+    oscillator.start(start)
+    oscillator.stop(start + cue.duration + 0.01)
   }
 
   dispose() {
+    this.stopMusic()
+    this.buses.clear()
+    this.master?.disconnect()
+    this.master = null
+    void this.context?.close()
+    this.context = null
     this.sound = null
+    this.unlocked = false
   }
 }

@@ -86,6 +86,7 @@ import {
   type Callout,
 } from '~/utils/zuzuShowdown/render'
 import { findFighter } from '~/utils/zuzuShowdown/fighters'
+import { advanceSparks, type Spark } from '~/utils/zuzuShowdown/effects'
 import {
   SPRITE_FIGHTERS,
   SPRITE_ROOT,
@@ -177,6 +178,7 @@ const touchButtons: Array<{
 
 let match: MatchState = createMatch(roster)
 let callouts: Callout[] = []
+let sparks: Spark[] = []
 let resultCountdown = 0
 let loop: FixedLoop | null = null
 let sound: ArcadeSound | null = null
@@ -206,6 +208,7 @@ function applyKeyMaps() {
 function startMatch() {
   match = createMatch(roster)
   callouts = advanceCallouts([], match.events)
+  sparks = []
   resultCountdown = RESULT_DELAY
   phase.value = 'fight'
   sound?.play('start')
@@ -272,6 +275,7 @@ function tick() {
   }
   match = step(match, [first, second], roster)
   callouts = advanceCallouts(callouts, match.events)
+  sparks = advanceSparks(sparks, match, roster)
   playSounds(match.events)
   if (match.phase === 'over') {
     resultCountdown -= 1
@@ -286,6 +290,7 @@ function render() {
     showBoxes: store.showBoxes,
     reducedMotion: store.reducedMotion,
     sprites,
+    sparks,
   })
   if (phase.value === 'title') {
     drawCard(g, [
@@ -407,6 +412,7 @@ watch(
     roster = currentRoster()
     match = createMatch(roster)
     callouts = []
+    sparks = []
     phase.value = 'title'
   },
 )

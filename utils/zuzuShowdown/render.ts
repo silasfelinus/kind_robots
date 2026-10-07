@@ -4,13 +4,14 @@
 // t-006): a parallax placeholder stage, placeholder fighters drawn from their
 // real boxes, projectiles, an optional hitbox overlay, the HUD (life bars with
 // red recoverable health, the three-bar meter, timer, round pips, names,
-// combo counter), callouts (ROUND, FIGHT, READ!, COUNTER ...), the super
-// flash and the Showdown eye strip.
+// combo counter), callouts (ROUND, FIGHT, READ!, COUNTER ...), hit sparks
+// (effects.ts, t-010), the super flash and the Showdown eye strip.
 //
 // Everything here reads the sim state and never changes it. Sprite art
 // replaces drawFighter and the stage layers in the art tasks (t-009, t-010+).
 
 import { drawText } from '../arcade/font'
+import { SPARK_PALETTES, SPARK_PIXELS, sparkFrame, type Spark } from './effects'
 import {
   drawSprite,
   pickSprite,
@@ -48,6 +49,8 @@ export type RenderOptions = {
   reducedMotion: boolean
   /** Fighter sprites by slug, once loaded; fighters without one draw as placeholders. */
   sprites?: Partial<Record<string, LoadedSprites>>
+  /** Hit sparks in flight (effects.ts advanceSparks). */
+  sparks?: Spark[]
 }
 
 /** A fighter's own look, or the side colours; P2 in a mirror match gets the alternate. */
@@ -711,10 +714,33 @@ export function drawMatch(
       },
     )
   drawProjectiles(g, s, roster, camera, s.frame)
+  if (options.sparks)
+    drawSparks(g, options.sparks, camera, options.reducedMotion)
   if (options.showBoxes) drawBoxes(g, s, roster, camera)
   const eyeStrip = drawSuperFlash(g, s, roster)
   drawHud(g, s, roster)
   if (!eyeStrip) drawCallouts(g, callouts)
+}
+
+/** Hit sparks, pixel by pixel; reduced motion keeps every spark small. */
+export function drawSparks(
+  g: G,
+  sparks: Spark[],
+  camera: number,
+  reducedMotion: boolean,
+): void {
+  for (const spark of sparks) {
+    const frame = sparkFrame(spark)
+    if (frame === null) continue
+    const size = reducedMotion ? 1 : spark.scale
+    const cx = screenX(spark.x, camera)
+    const cy = screenY(spark.y)
+    const palette = SPARK_PALETTES[spark.kind]
+    for (const p of SPARK_PIXELS[frame]!) {
+      g.fillStyle = palette[p.key]
+      g.fillRect(cx + p.dx * size, cy + p.dy * size, size, size)
+    }
+  }
 }
 
 /** Title / pause / result card drawn over the stage. */

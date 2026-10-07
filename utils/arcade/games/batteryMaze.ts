@@ -3,8 +3,10 @@
 // Battery Maze -- the Kind Robots Arcade's maze-chase riff (conductor
 // kr-arcade/t-006). A little cat-eared robot gathers energy sparks through an
 // original maze while four glitch gremlins, each with its own way of hunting,
-// chase it. A power cell makes them sleepy and blue for a while; bumping one
-// then reboots it and sends its eyes home to the charging dock.
+// chase it. The gremlins are drawn after the title art (bat ears, spiky tuft,
+// cream belly, walking feet), not as the classic's ghosts. A power cell makes
+// them sleepy and blue for a while; bumping one then reboots it and sends its
+// eyes home to the charging dock.
 
 import { everyNthLevel, levelCurve } from '../curve'
 import { drawText } from '../font'
@@ -792,6 +794,12 @@ class BatteryMaze implements ArcadeGameInstance {
     g.restore()
   }
 
+  /**
+   * A glitch gremlin, after the title art: big pointed bat ears, a spiky tuft,
+   * a round furry body with a cream belly, stubby walking feet and a flicking
+   * tail. Sleepy gremlins go blue with droopy ears and shut eyes; a rebooting
+   * gremlin is just its eyes (and a faint outline of its ears) heading home.
+   */
   private renderGremlin(g: CanvasRenderingContext2D, gremlin: Gremlin) {
     const cx = gremlin.x * TILE + TILE / 2
     const cy = TOP + gremlin.y * TILE + TILE / 2
@@ -799,41 +807,111 @@ class BatteryMaze implements ArcadeGameInstance {
       gremlin.sleepy &&
       this.sleepyTimer < 120 &&
       Math.floor(this.sleepyTimer / 12) % 2 === 0
-    if (gremlin.state !== 'eyes') {
-      g.fillStyle = gremlin.sleepy
+    const look = gremlin.dir
+    const step = Math.floor(this.tick / 6) % 2
+    const droop = gremlin.sleepy ? 3 : 0
+
+    if (gremlin.state === 'eyes') {
+      g.strokeStyle = 'rgba(224, 231, 255, 0.45)'
+      g.lineWidth = 1
+      g.beginPath()
+      g.moveTo(cx - 3, cy - 4)
+      g.lineTo(cx - 8, cy - 8)
+      g.lineTo(cx - 5, cy - 2)
+      g.moveTo(cx + 3, cy - 4)
+      g.lineTo(cx + 8, cy - 8)
+      g.lineTo(cx + 5, cy - 2)
+      g.stroke()
+    } else {
+      const body = gremlin.sleepy
         ? flashing
           ? '#f5f3ff'
           : '#3b82f6'
         : gremlin.color
+      g.fillStyle = body
+      // Tail, flicking out behind the way it's heading.
+      const tx = cx - (look.x || (step ? 1 : -1)) * 6
+      const ty = cy + 2 - look.y * 3
       g.beginPath()
-      g.arc(cx, cy - 1, 6, Math.PI, 0)
-      g.lineTo(cx + 6, cy + 6)
-      const wobble = Math.floor(this.tick / 8) % 2
-      for (let i = 0; i < 4; i++) {
-        const x = cx + 6 - (i + 1) * 3
-        g.lineTo(x + 1.5, cy + (i % 2 === wobble ? 3 : 6))
-        g.lineTo(x, cy + 6)
-      }
+      g.moveTo(cx, cy + 2)
+      g.lineTo(tx, ty + (step ? -2 : 0))
+      g.lineTo(tx + (look.x ? 0 : 1), ty + 2)
       g.closePath()
       g.fill()
+      // Big pointed bat ears (they droop when sleepy).
+      g.beginPath()
+      g.moveTo(cx - 3, cy - 4)
+      g.lineTo(cx - 9, cy - 8 + droop * 2)
+      g.lineTo(cx - 5, cy - 1)
+      g.closePath()
+      g.moveTo(cx + 3, cy - 4)
+      g.lineTo(cx + 9, cy - 8 + droop * 2)
+      g.lineTo(cx + 5, cy - 1)
+      g.closePath()
+      g.fill()
+      // Spiky tuft on top.
+      g.beginPath()
+      g.moveTo(cx - 3, cy - 4)
+      g.lineTo(cx - 1, cy - 8 + droop)
+      g.lineTo(cx, cy - 5)
+      g.lineTo(cx + 2, cy - 8 + droop)
+      g.lineTo(cx + 3, cy - 4)
+      g.closePath()
+      g.fill()
+      // Round furry body.
+      g.beginPath()
+      g.arc(cx, cy, 5, 0, Math.PI * 2)
+      g.fill()
+      // Stubby feet, stepping in turn.
+      g.fillRect(cx - 4, cy + 4 - (step ? 1 : 0), 3, 2)
+      g.fillRect(cx + 1, cy + 4 - (step ? 0 : 1), 3, 2)
+      // Inner ears and cream belly.
+      g.fillStyle = gremlin.sleepy ? '#93c5fd' : '#fde68a'
+      g.globalAlpha = 0.75
+      g.beginPath()
+      g.moveTo(cx - 4, cy - 3)
+      g.lineTo(cx - 7, cy - 6 + droop * 2)
+      g.lineTo(cx - 5, cy - 2)
+      g.closePath()
+      g.moveTo(cx + 4, cy - 3)
+      g.lineTo(cx + 7, cy - 6 + droop * 2)
+      g.lineTo(cx + 5, cy - 2)
+      g.closePath()
+      g.fill()
+      g.globalAlpha = 1
+      g.fillStyle = gremlin.sleepy ? '#bfdbfe' : '#fef3c7'
+      g.beginPath()
+      g.ellipse(cx, cy + 2, 3, 2.2, 0, 0, Math.PI * 2)
+      g.fill()
     }
+
     if (gremlin.sleepy && gremlin.state !== 'eyes') {
-      g.fillStyle = flashing ? '#ef4444' : '#e0e7ff'
+      // Shut eyes and a drifting z.
+      g.fillStyle = flashing ? '#ef4444' : '#1e1b4b'
       g.fillRect(cx - 4, cy - 2, 3, 1)
       g.fillRect(cx + 1, cy - 2, 3, 1)
+      if (Math.floor(this.tick / 20) % 2 === 0) {
+        g.fillStyle = '#e0e7ff'
+        g.fillRect(cx + 5, cy - 12, 5, 1)
+        g.fillRect(cx + 8, cy - 11, 1, 1)
+        g.fillRect(cx + 7, cy - 10, 1, 1)
+        g.fillRect(cx + 6, cy - 9, 1, 1)
+        g.fillRect(cx + 5, cy - 8, 5, 1)
+      }
       return
     }
-    const look = gremlin.dir
+    // Big glaring eyes looking where it's going, with grumpy brows.
     g.fillStyle = '#ffffff'
-    g.fillRect(cx - 4.5, cy - 4, 3.5, 4)
-    g.fillRect(cx + 1, cy - 4, 3.5, 4)
+    g.fillRect(cx - 4, cy - 3, 3, 3)
+    g.fillRect(cx + 1, cy - 3, 3, 3)
     g.fillStyle = '#1e1b4b'
-    g.fillRect(cx - 3.5 + look.x, cy - 3 + look.y, 1.5, 2)
-    g.fillRect(cx + 2 + look.x, cy - 3 + look.y, 1.5, 2)
+    g.fillRect(cx - 3 + look.x * 0.8, cy - 2 + look.y * 0.8, 1.5, 1.5)
+    g.fillRect(cx + 2 + look.x * 0.8, cy - 2 + look.y * 0.8, 1.5, 1.5)
     if (gremlin.state !== 'eyes') {
-      // Grumpy brows.
-      g.fillRect(cx - 5, cy - 6, 4, 1)
-      g.fillRect(cx + 1, cy - 6, 4, 1)
+      g.fillRect(cx - 5, cy - 4, 2, 1)
+      g.fillRect(cx - 3, cy - 3.5, 2, 1)
+      g.fillRect(cx + 1, cy - 3.5, 2, 1)
+      g.fillRect(cx + 3, cy - 4, 2, 1)
     }
   }
 

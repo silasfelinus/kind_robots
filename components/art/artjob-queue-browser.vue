@@ -404,12 +404,15 @@ const editorAction = ref<EditorAction>('EDIT')
 const refreshingServerIds = ref<number[]>([])
 const removingServerIds = ref<number[]>([])
 
-const statusFilters: Array<ArtJobStatus | 'ALL'> = [
+const concreteStatusFilters: ArtJobStatus[] = [
   'PENDING',
   'RUNNING',
   'FAILED',
   'DONE',
   'CANCELLED',
+]
+const statusFilters: Array<ArtJobStatus | 'ALL'> = [
+  ...concreteStatusFilters,
   'ALL',
 ]
 const stats = computed(() => artJobStore.stats)
@@ -465,6 +468,12 @@ function statusCount(status: ArtJobStatus | 'ALL'): number {
     return Object.values(depth).reduce((total, count) => total + count, 0)
   }
   return depth[status] ?? 0
+}
+
+function firstNonEmptyStatus(): ArtJobStatus | null {
+  return (
+    concreteStatusFilters.find((status) => statusCount(status) > 0) ?? null
+  )
 }
 
 function uptimeClass(value: number | null): string {
@@ -574,15 +583,35 @@ async function refresh(): Promise<void> {
   await artJobStore.refreshAll()
 }
 
-async function loadSecondaryDashboardData(): Promise<void> {
+async function loadSecondaryDashboardData(
+  options: { includeStats?: boolean } = {},
+): Promise<void> {
   await Promise.all([
     ...(serverStore.hasLoaded
       ? []
       : [serverStore.initialize({ force: false, fetchRemote: true })]),
-    artJobStore.fetchStats(),
+    ...(options.includeStats === false ? [] : [artJobStore.fetchStats()]),
     artJobStore.fetchUptime(),
     artJobStore.fetchQueueControl(),
   ])
+}
+
+async function loadInitialJobs(): Promise<void> {
+  await artJobStore.fetchStats()
+  const initialStatus = firstNonEmptyStatus()
+
+  await artJobStore.fetchJobs(
+    initialStatus ?? artJobStore.jobStatusFilter,
+    1,
+  )
+
+  if (artJobStore.jobs.length || !initialStatus) return
+
+  await artJobStore.fetchStats()
+  const refreshedStatus = firstNonEmptyStatus()
+  if (refreshedStatus) {
+    await artJobStore.fetchJobs(refreshedStatus, 1)
+  }
 }
 
 onMounted(async () => {
@@ -598,7 +627,7 @@ onMounted(async () => {
   }
 
   queueLoadMessage.value = loadStore.randomLoadMessage()
-  await artJobStore.fetchJobs()
-  void loadSecondaryDashboardData()
+  await loadInitialJobs()
+  void loadSecondaryDashboardData({ includeStats: false })
 })
 </script>

@@ -1,8 +1,8 @@
 ---
 contentType: channel
 channelKey: projects
-label: Projects
-title: Projects
+label: Play
+title: Play
 room: The Workshop
 subtitle: Tools, games, and experiments
 description: Tools, games, and experiments, many of them designed and built by Kind Robots' agents. Make art and video, brainstorm, practice music and Mandarin, or play something the robots built.
@@ -11,9 +11,8 @@ image: /images/channels/plan/channel.webp
 route: /art
 defaultTab: art
 sort: 40
-requiredRole: GUEST
 loadingMessage: Opening the workshop...
-refreshLabel: Refresh Projects
+refreshLabel: Refresh Play
 dottiTip: Every bench in this workshop holds something to make or something to play.
 amiTip: Several of these the robots built mostly on their own. I checked them for goblins. Mostly.
 # Stage 3 backdrop art, resolved by slug via /api/art/backdrop/<page>-<variant>.

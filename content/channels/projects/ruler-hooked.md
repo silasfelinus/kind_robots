@@ -10,7 +10,6 @@ icon: kind-icon:crown
 image: /images/channels/admin/ruler-hooked.webp
 route: /plan/projects/ruler-hooked
 sort: 130
-requiredRole: GUEST
 ---
 
 Cast a line, land a catch, and run a seaside kingdom that is still negotiating with the tide.

@@ -9,7 +9,6 @@ description: A playful, sourced gallery of everyday and extraordinary people, pl
 icon: kind-icon:stars
 image: /images/channels/play/tzaddik-gallery.webp
 route: /tzaddik-gallery
-requiredRole: GUEST
 sort: 140
 ---
 

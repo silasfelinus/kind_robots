@@ -12,7 +12,6 @@ description: Play the roguelite memory card dungeon with lives, levels, powerups
 icon: kind-icon:dungeon
 route: /play/memory
 sort: 100
-requiredRole: GUEST
 ---
 
 Match cards, survive the dungeon, collect loot, and keep climbing.

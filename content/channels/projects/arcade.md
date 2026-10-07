@@ -9,7 +9,6 @@ description: Walk up to a row of classic arcade cabinets and play original Kind 
 icon: kind-icon:arcade
 image: /images/arcade/arcade-attract-splash.webp
 route: /play/arcade
-requiredRole: GUEST
 sort: 115
 ---
 

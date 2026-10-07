@@ -10,7 +10,6 @@ icon: kind-icon:button
 image: /images/channels/play/button.webp
 route: /button
 sort: 110
-requiredRole: GUEST
 ---
 
 The sign says not to press it. People press it anyway.

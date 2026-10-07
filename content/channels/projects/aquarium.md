@@ -10,7 +10,6 @@ icon: kind-icon:fish
 image: /images/channels/admin/aquarium.webp
 route: /play/aquarium
 sort: 120
-requiredRole: GUEST
 ---
 
 Feed the monsters, earn coins, and find out what else lives in the tank.

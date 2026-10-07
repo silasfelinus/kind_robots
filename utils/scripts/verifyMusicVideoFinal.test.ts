@@ -130,7 +130,23 @@ console.log('✅ final video file names are slugged, bounded and never empty')
   const retry = finalVideoBitrates(75, cap, 0.7)
   assert.ok(retry.video < theme.video, 'a retry encodes smaller')
   assert.equal(finalVideoBitrates(5, cap).video, 8_000_000, 'capped high')
-  assert.equal(finalVideoBitrates(3600, cap).video, 400_000, 'floored low')
+  assert.equal(finalVideoBitrates(3600, cap).video, 150_000, 'floored low')
+  assert.equal(finalVideoBitrates(3600, cap).audio, 64_000, 'audio steps down')
+}
+{
+  // Silas, 2026-10-07: a 200 s video against production's 16 MB packet was
+  // rejected as "larger than 11 MB"; the old 400k + 128k floor alone was 13 MB.
+  const cap = musicVideoPacketCapBytes(16 * MB)!
+  const skeleton = finalVideoBitrates(200, cap)
+  const bytes = ((skeleton.video + skeleton.audio) * 200) / 8
+  assert.ok(bytes < cap * 0.9, `200 s fits under the 11.8 MB cap (${bytes})`)
+  assert.ok(skeleton.audio < 128_000, 'audio gives way first')
+  assert.ok(skeleton.video > 300_000, 'the picture keeps most of the budget')
+  const retry = finalVideoBitrates(200, cap, 0.8)
+  assert.ok(
+    ((retry.video + retry.audio) * 200) / 8 < bytes,
+    'a retry still encodes smaller',
+  )
 }
 console.log('✅ the export bitrate keeps the final cut under the upload cap')
 

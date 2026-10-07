@@ -1,17 +1,23 @@
 // /utils/arcade/games/kindnessGauntlet.ts
 //
 // Kindness Gauntlet -- the Kind Robots Arcade's Gauntlet II riff (conductor
-// kr-arcade/t-009 game factory, slice 1 of 4: one class on procedurally
-// built floors; the other three classes, keys and locked doors, and
-// same-device co-op come in later slices). Fix, a repair android, explores a
-// glitchy old server dungeon floor by floor: wrench sparks fix the glitches
-// that swarm out of broken generators, shut the generators down, free the
-// bots trapped in cages, and find the stairs down.
+// kr-arcade/t-009 game factory, slices 1-2 of 4: procedurally built floors
+// and all four classes; keys and locked doors, and same-device co-op come in
+// later slices). A repair bot explores a glitchy old server dungeon floor by
+// floor: wrench sparks fix the glitches that swarm out of broken generators,
+// shut the generators down, free the bots trapped in cages, and find the
+// stairs down.
 //
-// Fix's battery drains all the time and faster when glitches cling on; snacks
+// Four bots to choose from, after the classic's four heroes: Hugs (power: big
+// sparks that hit generators twice and pass through a glitch), Fix (armor:
+// clinging glitches drain the least), Sage (magic: three pulses, and each one
+// jolts the generators on screen too) and Zip (speed: the fastest wheels and
+// quickest sparks).
+//
+// The battery drains all the time and faster when glitches cling on; snacks
 // top it up and kindness pulses (B) fix every glitch on screen. The arrows
-// move (eight ways), A throws sparks the way Fix is facing; while A is held
-// Fix stands still and the arrows only turn, as in the classic.
+// move (eight ways), A throws sparks the way the bot is facing; while A is
+// held the bot stands still and the arrows only turn, as in the classic.
 
 import { levelCurve } from '../curve'
 import { drawText } from '../font'
@@ -30,14 +36,12 @@ const H = 240
 const VIEW_Y = 16
 const VIEW_H = H - VIEW_Y
 
-const SPEED = 1.5
 const HALF = 5
 const SPARK_SPEED = 4
 const SPARK_LIFE = 45
-const MAX_SPARKS = 4
-const FIRE_COOLDOWN = 10
+const SELECT_TICKS = 60 * 15
 const MAX_BATTERY = 300
-const DRAIN_TICKS = 60
+const DRAIN_TICKS = 45
 const CLING_TICKS = 20
 const SNACK_CHARGE = 40
 const GLITCH_RANGE = T * 14
@@ -60,6 +64,84 @@ export const GAUNTLET_CURVES = {
   cages: { start: 1, step: 0.5, limit: 3 },
 } as const
 
+type BotClass = 'hugs' | 'fix' | 'sage' | 'zip'
+type ClassSpec = {
+  name: string
+  role: string
+  about: [string, string]
+  speed: number
+  cooldown: number
+  maxSparks: number
+  /** Generator damage per spark; above 1 a spark also passes through one glitch. */
+  power: number
+  /** Multiplies the battery a clinging glitch drains. */
+  armor: number
+  pulses: number
+  /** Generator damage each pulse deals to every generator on screen. */
+  magic: number
+  body: string
+  head: string
+}
+export const BOT_CLASSES: Record<BotClass, ClassSpec> = {
+  hugs: {
+    name: 'HUGS',
+    role: 'POWER',
+    about: ['BIG SPARKS HIT GENERATORS TWICE', 'AND PASS THROUGH A GLITCH'],
+    speed: 1.2,
+    cooldown: 14,
+    maxSparks: 3,
+    power: 2,
+    armor: 1.1,
+    pulses: 1,
+    magic: 0,
+    body: '#ea580c',
+    head: '#fdba74',
+  },
+  fix: {
+    name: 'FIX',
+    role: 'ARMOR',
+    about: ['A STURDY SHELL', 'CLINGING GLITCHES DRAIN THE LEAST'],
+    speed: 1.5,
+    cooldown: 10,
+    maxSparks: 4,
+    power: 1,
+    armor: 0.6,
+    pulses: 1,
+    magic: 0,
+    body: '#0d9488',
+    head: '#5eead4',
+  },
+  sage: {
+    name: 'SAGE',
+    role: 'MAGIC',
+    about: ['STARTS WITH THREE PULSES', 'EACH ONE JOLTS GENERATORS TOO'],
+    speed: 1.4,
+    cooldown: 11,
+    maxSparks: 4,
+    power: 1,
+    armor: 1.3,
+    pulses: 3,
+    magic: 2,
+    body: '#7c3aed',
+    head: '#c4b5fd',
+  },
+  zip: {
+    name: 'ZIP',
+    role: 'SPEED',
+    about: ['THE FASTEST WHEELS', 'AND THE QUICKEST SPARKS'],
+    speed: 1.7,
+    cooldown: 8,
+    maxSparks: 4,
+    power: 1,
+    armor: 1.7,
+    pulses: 1,
+    magic: 0,
+    body: '#16a34a',
+    head: '#86efac',
+  },
+}
+const CLASS_ORDER: BotClass[] = ['hugs', 'fix', 'sage', 'zip']
+
 type Room = { x: number; y: number; w: number; h: number }
 type Thing = { x: number; y: number }
 type Generator = Thing & {
@@ -69,7 +151,13 @@ type Generator = Thing & {
   flash: number
 }
 type Glitch = Thing & { cling: number; wobble: number }
-type Spark = Thing & { vx: number; vy: number; life: number }
+type Spark = Thing & {
+  vx: number
+  vy: number
+  life: number
+  /** Glitches this spark can still pass through. */
+  pierce: number
+}
 type Item = Thing & { kind: 'snack' | 'pulse' | 'cage' }
 type Particle = {
   x: number
@@ -97,6 +185,10 @@ class KindnessGauntlet implements ArcadeGameInstance {
   private hiScore: number
 
   private tick = 0
+  private cls: BotClass = 'fix'
+  /** Ticks left on the choose-your-bot screen (0 once a bot is chosen). */
+  private selecting = SELECT_TICKS
+  private choice = 1
   private walls = new Uint8Array(MW * MH)
   private seen = new Uint8Array(MW * MH)
   private px = 0
@@ -127,6 +219,33 @@ class KindnessGauntlet implements ArcadeGameInstance {
     this.demo = options.demo
     this.hiScore = options.hiScore
     this.buildFloor(1)
+    // The attract pilot picks a bot at random and skips the selection screen.
+    if (this.demo) this.choose(CLASS_ORDER[Math.floor(this.rng() * 4)]!)
+  }
+
+  private get spec(): ClassSpec {
+    return BOT_CLASSES[this.cls]
+  }
+
+  private choose(cls: BotClass) {
+    this.cls = cls
+    this.selecting = 0
+    this.pulses = this.spec.pulses
+    this.banner = {
+      text: `${this.spec.name} ENTERS`,
+      sub: 'FIX THE GLITCHES',
+      ticks: 90,
+    }
+  }
+
+  private updateSelect(input: InputFrame) {
+    if (input.pressed.left) this.choice = (this.choice + 3) % 4
+    if (input.pressed.right) this.choice = (this.choice + 1) % 4
+    if (input.pressed.left || input.pressed.right) this.sound.play('blip')
+    if (input.pressed.a || input.pressed.start || --this.selecting <= 0) {
+      this.choose(CLASS_ORDER[this.choice]!)
+      this.sound.play('pickup')
+    }
   }
 
   // --- the floor ---------------------------------------------------------------------
@@ -308,6 +427,10 @@ class KindnessGauntlet implements ArcadeGameInstance {
     if (this.banner && --this.banner.ticks <= 0) this.banner = null
     if (this.over) return
     const controls = this.demo ? this.demoInput() : input
+    if (this.selecting > 0) {
+      this.updateSelect(controls)
+      return
+    }
 
     if (this.leaving > 0) {
       if (--this.leaving === 0) this.buildFloor(this.level + 1)
@@ -365,8 +488,8 @@ class KindnessGauntlet implements ArcadeGameInstance {
     const to = this.slide(
       this.px,
       this.py,
-      (dx / len) * SPEED,
-      (dy / len) * SPEED,
+      (dx / len) * this.spec.speed,
+      (dy / len) * this.spec.speed,
       HALF,
     )
     this.px = to.x
@@ -390,8 +513,8 @@ class KindnessGauntlet implements ArcadeGameInstance {
   }
 
   private fire() {
-    if (this.sparks.length >= MAX_SPARKS) return
-    this.fireCooldown = FIRE_COOLDOWN
+    if (this.sparks.length >= this.spec.maxSparks) return
+    this.fireCooldown = this.spec.cooldown
     const fx = FACE_X[this.facing]!
     const fy = FACE_Y[this.facing]!
     const len = Math.hypot(fx, fy)
@@ -401,6 +524,7 @@ class KindnessGauntlet implements ArcadeGameInstance {
       vx: (fx / len) * SPARK_SPEED,
       vy: (fy / len) * SPARK_SPEED,
       life: SPARK_LIFE,
+      pierce: this.spec.power - 1,
     })
     this.sound.play('shoot')
   }
@@ -412,6 +536,9 @@ class KindnessGauntlet implements ArcadeGameInstance {
     this.pulseFlash = 20
     const onScreen = this.glitches.filter((g) => this.visible(g))
     for (const g of onScreen) this.fixGlitch(g)
+    if (this.spec.magic > 0)
+      for (const gen of this.generators.filter((g) => this.visible(g)))
+        this.damageGenerator(gen, this.spec.magic)
     this.sound.play('extra')
   }
 
@@ -436,7 +563,7 @@ class KindnessGauntlet implements ArcadeGameInstance {
       )
       if (glitch) {
         this.fixGlitch(glitch)
-        s.life = 0
+        if (s.pierce-- <= 0) s.life = 0
         continue
       }
       const gen = this.generators.find(
@@ -444,18 +571,21 @@ class KindnessGauntlet implements ArcadeGameInstance {
       )
       if (gen) {
         s.life = 0
-        gen.hp--
-        gen.flash = 6
-        this.sound.play('blip')
-        if (gen.hp <= 0) {
-          this.generators = this.generators.filter((g) => g !== gen)
-          this.addScore(GENERATOR_POINTS * this.level, gen.x, gen.y - 12)
-          this.burst(gen.x, gen.y, 14, '#a5f3fc')
-          this.sound.play('boom')
-        }
+        this.damageGenerator(gen, this.spec.power)
       }
     }
     this.sparks = this.sparks.filter((s) => s.life > 0)
+  }
+
+  private damageGenerator(gen: Generator, damage: number) {
+    gen.hp -= damage
+    gen.flash = 6
+    this.sound.play('blip')
+    if (gen.hp > 0) return
+    this.generators = this.generators.filter((g) => g !== gen)
+    this.addScore(GENERATOR_POINTS * this.level, gen.x, gen.y - 12)
+    this.burst(gen.x, gen.y, 14, '#a5f3fc')
+    this.sound.play('boom')
   }
 
   private fixGlitch(g: Glitch) {
@@ -503,7 +633,7 @@ class KindnessGauntlet implements ArcadeGameInstance {
         if (--g.cling <= 0) {
           g.cling = CLING_TICKS
           this.battery -= Math.round(
-            levelCurve(this.level, GAUNTLET_CURVES.clingCost),
+            levelCurve(this.level, GAUNTLET_CURVES.clingCost) * this.spec.armor,
           )
           this.sound.play('warn')
         }
@@ -604,11 +734,15 @@ class KindnessGauntlet implements ArcadeGameInstance {
       start: false,
     }
     const frame: InputFrame = { held, pressed: { ...held } }
-    // Swamped: use a pulse.
+    if (this.selecting > 0) {
+      frame.pressed.a = true
+      return frame
+    }
+    // Swamped: use a pulse (Sage, with pulses to spare, uses them sooner).
     const close = this.glitches.filter(
       (g) => Math.hypot(g.x - this.px, g.y - this.py) < 40,
     )
-    if (close.length >= 5 && this.pulses > 0) {
+    if (close.length >= (this.pulses > 1 ? 3 : 5) && this.pulses > 0) {
       frame.pressed.b = true
       return frame
     }
@@ -656,20 +790,22 @@ class KindnessGauntlet implements ArcadeGameInstance {
 
   /** A straight, unblocked spark line to the target along one of the eight facings. */
   private clearShot(t: Thing): boolean {
-    const dx = t.x - this.px
-    const dy = t.y - this.py
-    const d = Math.hypot(dx, dy)
-    const ang = Math.atan2(dy, dx)
-    const snapped = Math.round(ang / (Math.PI / 4)) * (Math.PI / 4)
-    // Off the eight lines by more than the target's half-width: the spark would miss.
-    if (Math.abs(Math.sin(ang - snapped)) * d > 5) return false
-    // Follow the spark's own path (the snapped facing), not the exact line.
-    const ux = Math.cos(snapped)
-    const uy = Math.sin(snapped)
-    for (let s = 6; s < d - 6; s += 2) {
-      if (this.solid(this.px + ux * s, this.py + uy * s)) return false
+    // Replay the spark's exact flight along the nearest of the eight facings:
+    // sampling the line instead can step over a wall corner the spark clips.
+    const ang = Math.atan2(t.y - this.py, t.x - this.px)
+    const f = (Math.round((ang + Math.PI / 2) / (Math.PI / 4)) + 8) % 8
+    const fx = FACE_X[f]!
+    const fy = FACE_Y[f]!
+    const len = Math.hypot(fx, fy)
+    let x = this.px + fx * 6
+    let y = this.py + fy * 6
+    for (let i = 0; i < SPARK_LIFE; i++) {
+      x += (fx / len) * SPARK_SPEED
+      y += (fy / len) * SPARK_SPEED
+      if (this.solid(x, y)) return false
+      if (Math.abs(t.x - x) < 6 && Math.abs(t.y - y) < 6) return true
     }
-    return true
+    return false
   }
 
   private planPath(): Array<{ x: number; y: number }> {
@@ -724,6 +860,10 @@ class KindnessGauntlet implements ArcadeGameInstance {
   // --- render -------------------------------------------------------------------
 
   render(g: CanvasRenderingContext2D) {
+    if (this.selecting > 0) {
+      this.renderSelect(g)
+      return
+    }
     g.fillStyle = '#05030d'
     g.fillRect(0, 0, W, H)
     g.save()
@@ -868,25 +1008,118 @@ class KindnessGauntlet implements ArcadeGameInstance {
   }
 
   private renderFix(g: CanvasRenderingContext2D) {
-    const x = this.px
-    const y = this.py
-    g.fillStyle = '#0d9488'
-    g.fillRect(x - 5, y - 4, 10, 9)
-    g.fillStyle = '#5eead4'
+    this.renderBot(g, this.cls, this.px, this.py, this.facing)
+  }
+
+  /** Each bot keeps Fix's shape with its own silhouette touch. */
+  private renderBot(
+    g: CanvasRenderingContext2D,
+    cls: BotClass,
+    x: number,
+    y: number,
+    facing: number,
+  ) {
+    const spec = BOT_CLASSES[cls]
+    const fx = FACE_X[facing]!
+    const fy = FACE_Y[facing]!
+    if (cls === 'zip') {
+      // A wheel underneath and a swept-back fin.
+      g.fillStyle = '#1f2937'
+      g.fillRect(x - 3, y + 4, 6, 3)
+      g.fillStyle = '#9ca3af'
+      g.fillRect(x - 1, y + 5, 2, 1)
+      g.fillStyle = spec.head
+      g.fillRect(x - fx * 6 - 1, y - 6, 2, 6)
+    }
+    g.fillStyle = spec.body
+    if (cls === 'hugs') {
+      // Broad shoulders and two big hugging arms.
+      g.fillRect(x - 7, y - 4, 14, 10)
+      g.fillStyle = spec.head
+      g.fillRect(x - 10, y - 2, 3, 6)
+      g.fillRect(x + 7, y - 2, 3, 6)
+    } else if (cls === 'zip') {
+      g.fillRect(x - 4, y - 4, 8, 8)
+    } else {
+      g.fillRect(x - 5, y - 4, 10, 9)
+    }
+    g.fillStyle = spec.head
     g.fillRect(x - 4, y - 7, 8, 5)
+    if (cls === 'sage') {
+      // A tall antenna with a glowing tip.
+      g.fillStyle = '#e9d5ff'
+      g.fillRect(x, y - 12, 1, 5)
+      g.fillStyle = Math.floor(this.tick / 10) % 2 ? '#f0abfc' : '#fde047'
+      g.fillRect(x - 1, y - 14, 3, 3)
+    }
     g.fillStyle = '#0f172a'
     g.fillRect(x - 3, y - 6, 6, 2)
     g.fillStyle = '#fde047'
-    g.fillRect(x - 2 + FACE_X[this.facing]!, y - 6, 1, 1)
-    g.fillRect(x + 1 + FACE_X[this.facing]!, y - 6, 1, 1)
-    // The wrench points the way Fix is facing.
+    g.fillRect(x - 2 + fx, y - 6, 1, 1)
+    g.fillRect(x + 1 + fx, y - 6, 1, 1)
+    // The wrench points the way the bot is facing.
     g.fillStyle = '#e5e7eb'
-    g.fillRect(
-      x + FACE_X[this.facing]! * 7 - 1,
-      y + FACE_Y[this.facing]! * 7 - 1,
-      3,
-      3,
-    )
+    const reach = cls === 'hugs' ? 9 : 7
+    g.fillRect(x + fx * reach - 1, y + fy * reach - 1, 3, 3)
+  }
+
+  private renderSelect(g: CanvasRenderingContext2D) {
+    g.fillStyle = '#05030d'
+    g.fillRect(0, 0, W, H)
+    drawText(g, 'CHOOSE YOUR BOT', W / 2, 14, {
+      scale: 2,
+      align: 'center',
+      color: '#fde047',
+      shadow: '#7c3aed',
+    })
+    CLASS_ORDER.forEach((cls, i) => {
+      const spec = BOT_CLASSES[cls]
+      const cx = 44 + i * 77
+      const picked = i === this.choice
+      g.fillStyle = picked ? '#312e81' : '#111827'
+      g.fillRect(cx - 34, 44, 68, 112)
+      g.strokeStyle = picked ? spec.head : '#374151'
+      g.lineWidth = picked ? 2 : 1
+      g.strokeRect(cx - 34, 44, 68, 112)
+      g.save()
+      g.translate(cx, 86)
+      g.scale(3, 3)
+      this.renderBot(
+        g,
+        cls,
+        0,
+        0,
+        picked ? 3 + (Math.floor(this.tick / 20) % 3) : 4,
+      )
+      g.restore()
+      drawText(g, spec.name, cx, 128, {
+        scale: 2,
+        align: 'center',
+        color: picked ? '#ffffff' : '#9ca3af',
+      })
+      drawText(g, spec.role, cx, 146, {
+        align: 'center',
+        color: picked ? spec.head : '#6b7280',
+      })
+    })
+    const spec = BOT_CLASSES[CLASS_ORDER[this.choice]!]
+    drawText(g, spec.about[0], W / 2, 172, {
+      align: 'center',
+      color: '#e5e7eb',
+    })
+    drawText(g, spec.about[1], W / 2, 182, {
+      align: 'center',
+      color: '#e5e7eb',
+    })
+    if (Math.floor(this.tick / 20) % 2 === 0)
+      drawText(g, 'LEFT/RIGHT TO PICK   A TO GO', W / 2, 206, {
+        align: 'center',
+        color: '#a5f3fc',
+      })
+    drawText(g, `${Math.ceil(this.selecting / 60)}`, W / 2, 222, {
+      align: 'center',
+      color: '#6b7280',
+    })
   }
 
   private renderHud(g: CanvasRenderingContext2D) {
@@ -900,7 +1133,7 @@ class KindnessGauntlet implements ArcadeGameInstance {
       align: 'right',
       color: '#f9a8d4',
     })
-    drawText(g, `FLOOR ${this.level}`, W - 4, 9, {
+    drawText(g, `${this.spec.name}  FLOOR ${this.level}`, W - 4, 9, {
       align: 'right',
       color: '#a5f3fc',
     })

@@ -86,7 +86,15 @@ import {
   type Callout,
 } from '~/utils/zuzuShowdown/render'
 import { findFighter } from '~/utils/zuzuShowdown/fighters'
-import { advanceSparks, type Spark } from '~/utils/zuzuShowdown/effects'
+import {
+  advanceSlowdown,
+  advanceSparks,
+  koFlash,
+  koSlowdownFor,
+  slowdownSteps,
+  type KoSlowdown,
+  type Spark,
+} from '~/utils/zuzuShowdown/effects'
 import { cpuInput, newCpu, type CpuState } from '~/utils/zuzuShowdown/cpu'
 import { introFor } from '~/utils/zuzuShowdown/matchups'
 import {
@@ -187,6 +195,8 @@ const touchButtons: Array<{
 let match: MatchState = createMatch(roster)
 let callouts: Callout[] = []
 let sparks: Spark[] = []
+// The finishing blow's slow-down and flash (t-019).
+let slowdown: KoSlowdown = null
 // The CPU opponent (t-020) plays P2 in CPU mode, seeded fresh for each match.
 let cpu: CpuState = newCpu('normal', 1)
 let resultCountdown = 0
@@ -227,6 +237,7 @@ function startMatch() {
   match = createMatch(roster)
   callouts = advanceCallouts([], match.events)
   sparks = []
+  slowdown = null
   cpu = newCpu(store.cpuLevel, Math.floor(Math.random() * 0xffffffff))
   resultCountdown = RESULT_DELAY
   phase.value = 'fight'
@@ -294,6 +305,10 @@ function tick() {
     phase.value = 'paused'
     return
   }
+  // After a KO the match plays slowed: the sim steps only every few screen frames.
+  const stepping = slowdownSteps(slowdown)
+  slowdown = advanceSlowdown(slowdown)
+  if (!stepping) return
   const first = toSimInput(one.held)
   let second = neutralInput()
   if (store.mode === 'versus') second = toSimInput(two.held)
@@ -310,6 +325,7 @@ function tick() {
   callouts = advanceCallouts(callouts, match.events)
   sparks = advanceSparks(sparks, match, roster)
   playSounds(match.events)
+  slowdown = slowdown ?? koSlowdownFor(match.events)
   if (match.phase === 'over') {
     resultCountdown -= 1
     if (resultCountdown <= 0) {
@@ -334,6 +350,11 @@ function render() {
     sprites,
     sparks,
   })
+  const flash = koFlash(slowdown, store.reducedMotion)
+  if (flash > 0) {
+    g.fillStyle = `rgba(255, 255, 255, ${(0.7 * flash).toFixed(2)})`
+    g.fillRect(0, 0, VIEW_WIDTH, VIEW_HEIGHT)
+  }
   if (phase.value === 'title') {
     drawCard(g, [
       { text: 'ZUZU SHOWDOWN', scale: 3, color: '#fdba74' },
@@ -459,6 +480,7 @@ watch(
     match = createMatch(roster)
     callouts = []
     sparks = []
+    slowdown = null
     phase.value = 'title'
   },
 )

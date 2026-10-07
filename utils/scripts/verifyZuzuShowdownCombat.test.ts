@@ -327,12 +327,12 @@ check('fireballs travel, chip on block, one per player, and clash', () => {
   s = play(s, 20, motion([2, 3, 6], { lp: true }))
   assert.equal(s.projectiles.length, 1)
   const again: SimEvent[] = []
-  s = play(s, 10, motion([2, 3, 6], { hp: true }), [], again)
+  play(s, 10, motion([2, 3, 6], { hp: true }), [], again)
   assert.ok(!again.some((e) => e.type === 'special'))
 
   // Two fireballs meeting cancel out.
   const clash: SimEvent[] = []
-  s = play(
+  play(
     fightAt(300),
     120,
     motion([2, 3, 6], { lp: true }),
@@ -589,8 +589,7 @@ check(
 
 check('Easy Specials fire with Special + a direction at 80% damage', () => {
   const log: SimEvent[] = []
-  let s = fightAt(44)
-  s = play(s, 40, [press({ special: true, down: true })], [], log)
+  play(fightAt(44), 40, [press({ special: true, down: true })], [], log)
   assert.ok(
     log.some((e) => e.type === 'special' && e.move === 'rising' && e.easy),
   )
@@ -697,10 +696,10 @@ check('only a dodge’s recovery can be grabbed (grab beats guard)', () => {
 
 check('the taunt builds a little meter and leaves the taunter open', () => {
   const log: SimEvent[] = []
-  let s = play(fightAt(40), 2, [press({ dodge: true, hk: true })], [], log)
+  const s = play(fightAt(40), 2, [press({ dodge: true, hk: true })], [], log)
   assert.ok(log.some((e) => e.type === 'taunt'))
   assert.equal(s.fighters[0].meter, TAUNT_METER)
-  s = play(s, 20, [], [press({ lp: true })], log)
+  play(s, 20, [], [press({ lp: true })], log)
   assert.ok(hits(log).some((h) => h.attacker === 1))
 })
 

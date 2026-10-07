@@ -477,6 +477,27 @@ export const ARCADE_GAMES: ArcadeGameMeta[] = [
     accent: '#a855f7',
     controls: 'Move, spray',
   },
+  {
+    slug: 'quilt-quest',
+    title: 'Quilt Quest',
+    riffsOn: 'Qix',
+    blurb:
+      'A needle-bot stitches threads across a blank quilt to claim colourful patches, while a tangle sprite roams the open cloth; if it brushes a thread mid-stitch, the thread snaps. Hold B for a slow stitch worth double. Stop mid-stitch and a fuse starts unpicking it, and from level 2 sparks run along the edges. Claim the target share to finish each quilt.',
+    howTo: [
+      'ARROWS  MOVE',
+      'HOLD A  STITCH',
+      'HOLD B  SLOW X2',
+      'REACH AN EDGE',
+      'MIND THE TANGLE',
+      'DONT STOP MIDWAY',
+    ],
+    width: 256,
+    height: 240,
+    maxPlausibleScore: 3_000_000,
+    titleArt: '/images/arcade/games/quilt-quest-title.webp',
+    accent: '#f9a8d4',
+    controls: 'Move, stitch',
+  },
 ]
 
 export type ComingSoonCabinet = {
@@ -545,6 +566,7 @@ const LOADERS: Record<string, () => Promise<ArcadeGameModule>> = {
   'seed-lander': () => import('./games/seedLander'),
   'pixel-hop': () => import('./games/pixelHop'),
   'glitch-garden': () => import('./games/glitchGarden'),
+  'quilt-quest': () => import('./games/quiltQuest'),
   'kind-pinball-3d': () =>
     import('./games/kindPinball3d').then(async (module) => {
       await module.prepare()

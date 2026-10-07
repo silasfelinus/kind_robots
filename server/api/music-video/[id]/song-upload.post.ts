@@ -5,6 +5,7 @@ import {
   readMultipartFormData,
 } from 'h3'
 import prisma from '@/server/utils/prisma'
+import { clampUploadToPacket } from '@/utils/musicVideoFinal'
 import { requireAdminApiUser } from '@/server/utils/authGuard'
 import { errorHandler } from '@/server/utils/error'
 import { parseStoredMusicVideoDoc } from '@/utils/musicVideoDoc'
@@ -17,6 +18,7 @@ import {
 } from '@/utils/musicVideoAudioUpload'
 import {
   loadOwnedMusicVideo,
+  readDbMaxPacketBytes,
   readMusicVideoId,
   serializeValidatedDoc,
   toMusicVideoDto,
@@ -32,8 +34,9 @@ export default defineEventHandler(async (event) => {
     const auth = await requireAdminApiUser(event)
     const id = readMusicVideoId(event)
     const record = await loadOwnedMusicVideo(id, auth.user.id)
-    const maxBytes = musicVideoMaxAudioBytes(
-      process.env.MUSIC_VIDEO_MAX_AUDIO_MB,
+    const maxBytes = clampUploadToPacket(
+      musicVideoMaxAudioBytes(process.env.MUSIC_VIDEO_MAX_AUDIO_MB),
+      await readDbMaxPacketBytes(),
     )
 
     const declared = Number(getHeader(event, 'content-length') || 0)

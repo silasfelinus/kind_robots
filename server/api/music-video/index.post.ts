@@ -1,6 +1,6 @@
 import { defineEventHandler, readBody } from 'h3'
 import prisma from '@/server/utils/prisma'
-import { requireAdminApiUser } from '@/server/utils/authGuard'
+import { requireApiUser } from '@/server/utils/authGuard'
 import { errorHandler } from '@/server/utils/error'
 import { normalizeMusicVideoDoc } from '@/utils/musicVideoDoc'
 import {
@@ -17,7 +17,7 @@ type CreateMusicVideoBody = {
 
 export default defineEventHandler(async (event) => {
   try {
-    const auth = await requireAdminApiUser(event)
+    const auth = await requireApiUser(event)
     const body = (await readBody<CreateMusicVideoBody>(event)) ?? {}
     const doc = serializeValidatedDoc(
       normalizeMusicVideoDoc({ pitch: body.pitch, settings: body.settings })

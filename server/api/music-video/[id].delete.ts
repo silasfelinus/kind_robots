@@ -1,6 +1,6 @@
 import { defineEventHandler } from 'h3'
 import prisma from '@/server/utils/prisma'
-import { requireAdminApiUser } from '@/server/utils/authGuard'
+import { requireApiUser } from '@/server/utils/authGuard'
 import { errorHandler } from '@/server/utils/error'
 import {
   loadOwnedMusicVideo,
@@ -9,7 +9,7 @@ import {
 
 export default defineEventHandler(async (event) => {
   try {
-    const auth = await requireAdminApiUser(event)
+    const auth = await requireApiUser(event)
     const id = readMusicVideoId(event)
     await loadOwnedMusicVideo(id, auth.user.id)
     await prisma.musicVideo.delete({ where: { id } })

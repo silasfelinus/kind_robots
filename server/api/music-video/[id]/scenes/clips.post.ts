@@ -6,6 +6,7 @@ import { errorHandler } from '@/server/utils/error'
 import { parseStoredMusicVideoDoc } from '@/utils/musicVideoDoc'
 import {
   buildSceneClipRequest,
+  sceneLastFrameImageId,
   clipRuntimeHint,
   resolveClipPreset,
 } from '@/utils/musicVideoMotion'
@@ -43,7 +44,9 @@ const MAX_CLIPS_PER_CALL = 8
 // scene's finished still as the first frame. The scene keeps its Ken Burns
 // preset, which the compositor falls back to if the clip never arrives.
 // t-026: a scene with motion.lastFrame "next-scene" also pins its last frame
-// to the next scene's still, so the cut lands on a matching image.
+// to the next scene's still, so the cut lands on a matching image. A scene with
+// motion.lastFrameImageId ends on that image instead (an end keyframe made for
+// the shot), for motion the model won't invent from a first frame alone.
 export default defineEventHandler(async (event) => {
   try {
     const auth = await requireAdminApiUser(event)
@@ -134,14 +137,14 @@ export default defineEventHandler(async (event) => {
         continue
       }
       try {
-        const next =
-          scene.motion.lastFrame === 'next-scene'
-            ? doc.scenes[doc.scenes.indexOf(scene) + 1]
-            : undefined
+        const lastImageId = sceneLastFrameImageId(
+          scene,
+          doc.scenes[doc.scenes.indexOf(scene) + 1],
+        )
         const request = buildSceneClipRequest(scene, doc, {
           firstImageBase64: await readArtImageDataUrl(scene.image.artImageId),
-          lastImageBase64: next
-            ? await readArtImageDataUrl(next.image.artImageId)
+          lastImageBase64: lastImageId
+            ? await readArtImageDataUrl(lastImageId)
             : null,
           projectSlug: MUSIC_VIDEO_PROJECT_SLUG,
           presetId: preset.id,

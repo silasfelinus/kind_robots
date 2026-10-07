@@ -153,6 +153,36 @@ jobs:
       - name: Zuzu Showdown combat systems
         run: npm run test:zuzu-showdown-combat
 
+      - name: Zuzu Showdown renderer
+        run: npm run test:zuzu-showdown-render
+
+      - name: Zuzu Showdown fighter kit (Zuzu)
+        run: npm run test:zuzu-showdown-zuzu
+
+      - name: Zuzu Showdown fighter kit (Coyote Vagrant)
+        run: npm run test:zuzu-showdown-coyote
+
+      - name: Zuzu Showdown fighter sprites
+        run: npm run test:zuzu-showdown-sprites
+
+      - name: Zuzu Showdown CPU opponent
+        run: npm run test:zuzu-showdown-cpu
+
+      - name: Zuzu Showdown taunt screens
+        run: npm run test:zuzu-showdown-screens
+
+      - name: Zuzu Showdown stages
+        run: npm run test:zuzu-showdown-stages
+
+      - name: Zuzu Showdown training mode
+        run: npm run test:zuzu-showdown-training
+
+      - name: Zuzu Showdown sound
+        run: npm run test:zuzu-showdown-sound
+
+      - name: Zuzu Showdown display
+        run: npm run test:zuzu-showdown-display
+
       - name: No Promise in Pinia store state
         run: npm run test:no-promise-in-store-state
 
@@ -257,6 +287,9 @@ jobs:
 
       - name: Music video recover a deleted copy (t-033)
         run: npm run test:music-video-recover
+
+      - name: Music video visibility and remix
+        run: npm run test:music-video-access
 
       - name: ArtJob audio media contract
         run: npm run test:artjob-audio-media

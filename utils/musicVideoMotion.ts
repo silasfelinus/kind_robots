@@ -154,6 +154,20 @@ export type SceneClipRequest = {
  * The /api/video/generate body for one scene's clip. Throws with a reason a
  * caller can show when the scene cannot have one yet.
  */
+/**
+ * The ArtImage a scene's clip should end on: its own end keyframe when it has
+ * one, else the next scene's still when it asks for "next-scene", else none.
+ */
+export function sceneLastFrameImageId(
+  scene: Pick<MusicVideoScene, 'motion'>,
+  next?: Pick<MusicVideoScene, 'image'>,
+): number | null {
+  if (scene.motion.lastFrameImageId) return scene.motion.lastFrameImageId
+  if (scene.motion.lastFrame === 'next-scene' && next?.image.artImageId)
+    return next.image.artImageId
+  return null
+}
+
 export function buildSceneClipRequest(
   scene: MusicVideoScene,
   doc: MusicVideoDoc,

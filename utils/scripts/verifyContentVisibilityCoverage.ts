@@ -79,6 +79,7 @@ const GUARDED_MODELS = [
   'dream',
   'facet',
   'monster',
+  'musicVideo',
   'narratorTopic',
   'pitchSheet',
   'project',
@@ -92,7 +93,8 @@ const GUARDED_MODELS = [
 
 /** Models with an isMature column; Theme and NarratorTopic have none. */
 const MATURE_MODELS = GUARDED_MODELS.filter(
-  (model) => model !== 'theme' && model !== 'narratorTopic',
+  (model) =>
+    model !== 'theme' && model !== 'narratorTopic' && model !== 'musicVideo',
 )
 
 /**
@@ -128,6 +130,11 @@ const MATURITY_BUILDERS = FILTER_BUILDERS
  * so a caller presenting a valid one has already cleared that same privacy
  * and maturity rule -- it is just checked earlier, at mint time, rather than
  * inside this route's own where clause.
+ *
+ * canViewMusicVideo() and canPlayMusicVideoFinal() (utils/musicVideoAccess.ts)
+ * are the music-video rule: owner, or public with a final cut the owner made,
+ * behind the same maturity barrier as art. A video's final cut is a private
+ * ArtImage served only through them; verifyMusicVideoAccess.test.ts pins both.
  */
 const OBJECT_CHECKS = [
   'canView',
@@ -138,6 +145,8 @@ const OBJECT_CHECKS = [
   'isMaturityRestricted',
   'requireForumThreadRoot',
   'verifyGalleryArchiveMedia',
+  'canViewMusicVideo',
+  'canPlayMusicVideoFinal',
 ]
 
 /** Per-object checks that settle maturity specifically. */
@@ -149,6 +158,8 @@ const MATURITY_CHECKS = [
   'verifyGalleryArchiveMedia',
   'isMaturityRestricted',
   'requireForumThreadRoot',
+  'canViewMusicVideo',
+  'canPlayMusicVideoFinal',
 ]
 
 /*

@@ -358,6 +358,9 @@ export type ModelBuildRevision = Prisma.ModelBuildRevisionModel
  * 
  * userId is a plain ownership scalar with no relation back to User, matching the
  * Mandarin Tutor models, so the migration is purely additive.
+ * 
+ * isPublic (Silas, 2026-10-07): a public video with a final cut shows in the
+ * Play gallery for everyone; a private one stays with its owner.
  */
 export type MusicVideo = Prisma.MusicVideoModel
 /**

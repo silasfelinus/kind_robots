@@ -19,6 +19,7 @@ import {
   type StageImage,
 } from './musicVideoCompositor'
 import type { MusicVideoDoc } from '@/utils/musicVideoDoc'
+import { aacBitrateCandidates } from '@/utils/musicVideoFinal'
 
 export type ExportInput = {
   doc: MusicVideoDoc
@@ -178,17 +179,36 @@ export async function exportMusicVideoMp4(input: ExportInput): Promise<Blob> {
     }
   }
   if (!codec) throw new Error('This browser cannot encode H.264 or VP9 video.')
-  if (audio && !(await canEncodeAudio('aac'))) {
-    throw new Error('This browser cannot encode AAC audio.')
+  // Encoders take only certain AAC bitrates (Chrome/Windows refuses 64k), so
+  // the budgeted rate is probed and the next standard one used if it fails.
+  let audioBitrate: number | typeof QUALITY_HIGH | null = null
+  if (audio) {
+    const shape = {
+      numberOfChannels: audio.numberOfChannels,
+      sampleRate: audio.sampleRate,
+    }
+    const candidates = input.audioBitrate
+      ? aacBitrateCandidates(input.audioBitrate)
+      : []
+    for (const bitrate of candidates) {
+      if (await canEncodeAudio('aac', { ...shape, bitrate })) {
+        audioBitrate = bitrate
+        break
+      }
+    }
+    if (audioBitrate === null && (await canEncodeAudio('aac', shape))) {
+      audioBitrate = QUALITY_HIGH
+    }
+    if (audioBitrate === null) {
+      throw new Error('This browser cannot encode AAC audio.')
+    }
   }
   const video = new CanvasSource(canvas, { codec, bitrate: videoBitrate })
   output.addVideoTrack(video, { frameRate: fps })
-  const sound = audio
-    ? new AudioBufferSource({
-        codec: 'aac',
-        bitrate: input.audioBitrate ?? QUALITY_HIGH,
-      })
-    : null
+  const sound =
+    audio && audioBitrate !== null
+      ? new AudioBufferSource({ codec: 'aac', bitrate: audioBitrate })
+      : null
   if (sound) output.addAudioTrack(sound)
 
   await output.start()

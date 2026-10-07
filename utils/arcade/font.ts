@@ -3,6 +3,11 @@
 // A 5x7 bitmap font drawn with fillRect, so every cabinet shares one crisp
 // arcade typeface with no web-font download. Generated art never carries
 // lettering; all titles, scores and initials are drawn here.
+//
+// A context switched to vector text (setTextStyle, for the HD render style in
+// utils/arcade/display.ts) draws the same strings with a smooth system font in
+// the same boxes: caps the glyphs' height, no wider than measureText, so
+// layouts hold in either style.
 
 const ROWS = 7
 const COLS = 5
@@ -128,6 +133,49 @@ function paint(
   }
 }
 
+export type TextStyle = 'pixel' | 'vector'
+
+const vectorContexts = new WeakSet<object>()
+
+/** Draw text on `g` with the bitmap font (the default) or the smooth vector font. */
+export function setTextStyle(g: CanvasRenderingContext2D, style: TextStyle) {
+  if (style === 'vector') vectorContexts.add(g)
+  else vectorContexts.delete(g)
+}
+
+export function textStyleOf(g: CanvasRenderingContext2D): TextStyle {
+  return vectorContexts.has(g) ? 'vector' : 'pixel'
+}
+
+/** The vector font: a heavy sans with cap height about 0.72 em, so 7 rows of caps need 9.7 px a row. */
+export const VECTOR_FONT = '"Arial Black", "Helvetica Neue", Arial, sans-serif'
+const CAP_HEIGHT_EM = 0.72
+
+/** The string as the vector font draws it: capitals, as the bitmap font has, and its heart. */
+export function vectorText(text: string): string {
+  return text.toUpperCase().replace(/\*/g, '\u2665')
+}
+
+function paintVector(
+  g: CanvasRenderingContext2D,
+  text: string,
+  left: number,
+  y: number,
+  scale: number,
+) {
+  g.save()
+  g.font = `${((ROWS * scale) / CAP_HEIGHT_EM).toFixed(2)}px ${VECTOR_FONT}`
+  g.textAlign = 'left'
+  g.textBaseline = 'alphabetic'
+  g.fillText(
+    vectorText(text),
+    left,
+    y + ROWS * scale,
+    Math.max(1, measureText(text, scale)),
+  )
+  g.restore()
+}
+
 export function drawText(
   g: CanvasRenderingContext2D,
   text: string,
@@ -143,10 +191,11 @@ export function drawText(
       : options.align === 'right'
         ? x - width
         : x
+  const draw = vectorContexts.has(g) ? paintVector : paint
   if (options.shadow) {
     g.fillStyle = options.shadow
-    paint(g, text, left + scale, y + scale, scale)
+    draw(g, text, left + scale, y + scale, scale)
   }
   g.fillStyle = options.color ?? '#ffffff'
-  paint(g, text, left, y, scale)
+  draw(g, text, left, y, scale)
 }

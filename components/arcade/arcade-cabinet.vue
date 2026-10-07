@@ -21,7 +21,7 @@
         <span class="cabinet-marquee-title">{{ meta?.title ?? 'Arcade' }}</span>
       </div>
 
-      <div class="cabinet-screen-wrap">
+      <div ref="wrapRef" class="cabinet-screen-wrap">
         <div class="cabinet-bezel" :style="{ maxWidth: screenMaxWidth }">
           <div
             ref="screenRef"
@@ -30,6 +30,12 @@
               aspectRatio: `${meta?.width ?? 4} / ${meta?.height ?? 3}`,
             }"
           >
+            <canvas
+              v-if="isWebGLCabinet"
+              ref="stageRef"
+              class="cabinet-stage"
+              aria-hidden="true"
+            />
             <canvas
               ref="canvasRef"
               class="cabinet-canvas"
@@ -44,28 +50,50 @@
         </div>
       </div>
 
-      <div class="cabinet-panel">
+      <div
+        v-if="locked"
+        class="cabinet-overlay"
+        :class="[
+          `cabinet-overlay--seats-${players}`,
+          { 'cabinet-overlay--duo': duo },
+        ]"
+        aria-label="Touch controls"
+      >
+        <button
+          type="button"
+          class="cabinet-pause-chip"
+          aria-label="Pause"
+          @click="togglePause"
+        >
+          <span aria-hidden="true">❚❚</span>
+        </button>
         <div
-          v-if="touchControls"
-          class="cabinet-touch"
-          aria-label="Touch controls"
+          v-for="seat in seatList"
+          :key="seat"
+          class="cabinet-cluster"
+          :class="`cabinet-cluster-${seat + 1}`"
         >
           <div
-            ref="dpadRef"
+            :ref="(el) => setDpadRef(seat, el)"
             class="cabinet-dpad"
             role="group"
-            aria-label="Direction pad"
-            @pointerdown.prevent="onDpad"
-            @pointermove.prevent="onDpad"
-            @pointerup.prevent="releaseDpad"
-            @pointercancel="releaseDpad"
-            @lostpointercapture="releaseDpad"
+            :aria-label="
+              duo ? `Player ${seat + 1} direction pad` : 'Direction pad'
+            "
+            @pointerdown.prevent="onDpad($event, seat)"
+            @pointermove.prevent="onDpad($event, seat)"
+            @pointerup.prevent="releaseDpad(seat)"
+            @pointercancel="releaseDpad(seat)"
+            @lostpointercapture="releaseDpad(seat)"
           >
             <span
               v-for="pad in dpad"
               :key="pad.button"
               class="cabinet-key"
-              :class="[pad.class, { 'cabinet-key-held': dpadHeld[pad.button] }]"
+              :class="[
+                pad.class,
+                { 'cabinet-key-held': dpadHeld[seat]?.[pad.button] },
+              ]"
               aria-hidden="true"
             >
               {{ pad.glyph }}
@@ -75,28 +103,43 @@
             <button
               type="button"
               class="cabinet-ball cabinet-ball-b"
-              aria-label="B button"
-              @pointerdown.prevent="holdButton($event, 'b')"
-              @pointerup.prevent="press('b', false)"
-              @pointercancel="press('b', false)"
-              @lostpointercapture="press('b', false)"
+              :aria-label="duo ? `Player ${seat + 1} B button` : 'B button'"
+              @pointerdown.prevent="holdButton($event, 'b', seat)"
+              @pointerup.prevent="press('b', false, seat)"
+              @pointercancel="press('b', false, seat)"
+              @lostpointercapture="press('b', false, seat)"
             >
               B
             </button>
             <button
               type="button"
               class="cabinet-ball cabinet-ball-a"
-              aria-label="A button"
-              @pointerdown.prevent="holdButton($event, 'a')"
-              @pointerup.prevent="press('a', false)"
-              @pointercancel="press('a', false)"
-              @lostpointercapture="press('a', false)"
+              :aria-label="duo ? `Player ${seat + 1} A button` : 'A button'"
+              @pointerdown.prevent="holdButton($event, 'a', seat)"
+              @pointerup.prevent="press('a', false, seat)"
+              @pointercancel="press('a', false, seat)"
+              @lostpointercapture="press('a', false, seat)"
             >
               A
             </button>
           </div>
+          <span v-if="duo" class="cabinet-seat-tag" aria-hidden="true">
+            {{ seat + 1 }}P
+          </span>
         </div>
-        <p v-else class="cabinet-hint">
+      </div>
+
+      <div v-else class="cabinet-panel">
+        <p v-if="!touchControls && duo" class="cabinet-hint">
+          1P: WASD · Space or F = A · G or X = B &nbsp;·&nbsp; 2P: arrows · / =
+          A · . or right Shift = B &nbsp;·&nbsp;
+          <template v-if="players > 2">
+            {{ players === 3 ? '3P' : '3P and 4P' }}: a gamepad each
+            &nbsp;·&nbsp;
+          </template>
+          Enter = Start · P pauses · a gamepad each works too
+        </p>
+        <p v-else-if="!touchControls" class="cabinet-hint">
           Arrows or WASD move · Space or Z = A · X or Shift = B · Enter = Start
           · P pauses · gamepads work too
         </p>
@@ -109,9 +152,24 @@
             @pointercancel="press('start', false)"
             @lostpointercapture="press('start', false)"
           >
-            Start
+            {{ phase === 'paused' ? 'Resume' : 'Start' }}
           </button>
           <button
+            v-if="maxPlayers > 1"
+            type="button"
+            class="cabinet-switch"
+            :disabled="!choosingPlayers"
+            :title="
+              choosingPlayers
+                ? 'Same-device co-op'
+                : 'Pick players on the title screen'
+            "
+            @click="onPlayersClick"
+          >
+            {{ players === 1 ? '1 player' : `${players} players` }}
+          </button>
+          <button
+            v-if="!touchControls"
             type="button"
             class="cabinet-switch"
             :aria-pressed="phase === 'paused'"
@@ -150,11 +208,18 @@
 // play, high scores, demo), the game, game over and three-initial entry.
 // The flow itself is the pure reducer in utils/arcade/machine.ts.
 
-import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useArcadeStore } from '@/stores/arcadeStore'
 import { useUserStore } from '@/stores/userStore'
 import { findArcadeGame, loadArcadeGame } from '~/utils/arcade/games'
-import { ArcadeInput } from '~/utils/arcade/input'
+import {
+  ArcadeInput,
+  assignPads,
+  keepPads,
+  KEY_MAP,
+  P1_KEYS,
+  P2_KEYS,
+} from '~/utils/arcade/input'
 import { startFixedLoop, TICK_MS, type FixedLoop } from '~/utils/arcade/loop'
 import {
   arcadeReducer,
@@ -165,15 +230,17 @@ import {
   type ArcadePhase,
 } from '~/utils/arcade/machine'
 import { createArcadeSound, type ArcadeSound } from '~/utils/arcade/sound'
+import { setGamePageLock } from '~/utils/arcade/pageLock'
 import { drawText, lineStep, measureText } from '~/utils/arcade/font'
 import { mulberry32 } from '~/utils/arcade/curve'
 import { INITIALS_ALPHABET, isAllowedInitials } from '~/utils/arcade/initials'
 import { initialsFromUsername } from '~/utils/arcade/leaderboard'
-import type {
-  ArcadeButton,
-  ArcadeGameInstance,
-  ArcadeGameModule,
-  InputFrame,
+import {
+  isWebGLInstance,
+  type ArcadeButton,
+  type ArcadeGameModule,
+  type ArcadePlayableInstance,
+  type InputFrame,
 } from '~/utils/arcade/types'
 
 const props = defineProps<{ slug: string }>()
@@ -182,31 +249,69 @@ const emit = defineEmits<{ (e: 'scored', score: number): void }>()
 const store = useArcadeStore()
 const userStore = useUserStore()
 const meta = computed(() => findArcadeGame(props.slug))
+/** A WebGL game draws on a stage canvas under the 2D UI canvas. */
+const isWebGLCabinet = computed(() => meta.value?.renderMode === 'webgl')
+
+/** The most players a cabinet seats on one device. */
+const MAX_SEATS = 4
 
 const screenRef = ref<HTMLDivElement | null>(null)
-const dpadRef = ref<HTMLDivElement | null>(null)
+const wrapRef = ref<HTMLDivElement | null>(null)
+/** Bezel width (px) that fits the space actually left for the screen while locked. */
+const fittedWidth = ref(0)
 const canvasRef = ref<HTMLCanvasElement | null>(null)
+const stageRef = ref<HTMLCanvasElement | null>(null)
 const phase = ref<ArcadePhase>('title')
 const muted = computed(() => store.muted)
 const crt = computed(() => store.crt)
 const touchControls = ref(false)
-const dpadHeld = ref<Record<DpadDirection, boolean>>({
-  up: false,
-  down: false,
-  left: false,
-  right: false,
-})
+/** Directions held on each seat's touch d-pad. */
+const dpadHeld = ref<Array<Record<DpadDirection, boolean>>>(
+  Array.from({ length: MAX_SEATS }, () => noDirections()),
+)
+/** Players seated: the title screen's switch, for games that seat more than one. */
+const players = ref(1)
+const maxPlayers = computed(() =>
+  Math.min(MAX_SEATS, meta.value?.maxPlayers ?? 1),
+)
+const duo = computed(() => players.value > 1)
+const seatList = computed(() =>
+  Array.from({ length: players.value }, (_, seat) => seat),
+)
+const choosingPlayers = computed(() => ATTRACT_PHASES.includes(phase.value))
+/** Gamepads connected right now. */
+const padCount = ref(0)
+/**
+ * Seats somebody can actually play from: every seat on a touch screen (each
+ * gets controls), otherwise the two keyboard seats plus one per gamepad.
+ */
+const seatLimit = computed(() =>
+  touchControls.value
+    ? maxPlayers.value
+    : Math.min(maxPlayers.value, 2 + padCount.value),
+)
 const loadError = ref('')
 const marqueeArt = ref('/images/arcade/cabinet-marquee.webp')
 
 let machine = initialArcadeState()
 let gameModule: ArcadeGameModule | null = null
-let game: ArcadeGameInstance | null = null
-let demoGame: ArcadeGameInstance | null = null
+let game: ArcadePlayableInstance | null = null
+let demoGame: ArcadePlayableInstance | null = null
 let sound: ArcadeSound | null = null
 let loop: FixedLoop | null = null
 let resizeObserver: ResizeObserver | null = null
+let wrapObserver: ResizeObserver | null = null
 const input = new ArcadeInput()
+/**
+ * Every seat's controls, read only while seated: player 2 has the arrows,
+ * players 3 and 4 a gamepad (or a touch cluster) each.
+ */
+const inputs = [
+  input,
+  new ArcadeInput(P2_KEYS),
+  new ArcadeInput({}),
+  new ArcadeInput({}),
+]
 const titleArt = typeof Image === 'undefined' ? null : new Image()
 let titleArtReady = false
 let ticks = 0
@@ -220,6 +325,14 @@ let submitting = false
 let demoSeed = 1
 
 type DpadDirection = 'up' | 'down' | 'left' | 'right'
+
+function noDirections(): Record<DpadDirection, boolean> {
+  return { up: false, down: false, left: false, right: false }
+}
+
+function seatInput(seat: number): ArcadeInput {
+  return inputs[seat] ?? input
+}
 
 const dpad: Array<{
   button: DpadDirection
@@ -241,26 +354,50 @@ const locked = computed(
   () => touchControls.value && LOCKED_PHASES.includes(phase.value),
 )
 
-// Small-viewport units (svh) don't change when a phone's URL bar slides in
-// and out, so the screen keeps one size for the whole game.
+// On the page, small-viewport units (svh) don't change when a phone's URL bar
+// slides in and out, so the screen keeps one size. While locked, the screen is
+// fitted to the space measured around it instead (fitScreen), so no resize,
+// rotation or split view can push part of it off screen.
 const screenMaxWidth = computed(() => {
+  if (locked.value && fittedWidth.value > 0) return `${fittedWidth.value}px`
   const ratio = (meta.value?.width ?? 4) / (meta.value?.height ?? 3)
-  const height = locked.value ? '(100svh - 16.5rem)' : '62svh'
-  return `min(100%, calc(${height} * ${ratio.toFixed(4)}))`
+  return `min(100%, calc(62svh * ${ratio.toFixed(4)}))`
 })
+
+/** Size the bezel to the largest screen that fits the measured play area. */
+function fitScreen() {
+  const wrap = wrapRef.value
+  if (!locked.value || !wrap) {
+    fittedWidth.value = 0
+    return
+  }
+  const style = getComputedStyle(wrap)
+  const width =
+    wrap.clientWidth -
+    parseFloat(style.paddingLeft) -
+    parseFloat(style.paddingRight)
+  const height =
+    wrap.clientHeight -
+    parseFloat(style.paddingTop) -
+    parseFloat(style.paddingBottom)
+  if (width <= 0 || height <= 0) return
+  // The locked bezel has no padding: the screen gets the whole wrap.
+  const ratio = (meta.value?.width ?? 4) / (meta.value?.height ?? 3)
+  fittedWidth.value = Math.max(0, Math.floor(Math.min(width, height * ratio)))
+}
 
 const board = computed(() => store.board(props.slug, 'all'))
 const hiScore = () => board.value[0]?.score ?? 0
 
-function press(button: ArcadeButton, down: boolean) {
+function press(button: ArcadeButton, down: boolean, seat = 0) {
   if (down) sound?.unlock()
-  input.setTouch(button, down)
+  seatInput(seat).setTouch(button, down)
 }
 
 /** Hold a button until this finger lifts, even if it drifts off the button. */
-function holdButton(event: PointerEvent, button: ArcadeButton) {
+function holdButton(event: PointerEvent, button: ArcadeButton, seat = 0) {
   capture(event.currentTarget as HTMLElement | null, event.pointerId)
-  press(button, true)
+  press(button, true, seat)
 }
 
 /** Best-effort pointer capture: it throws if the browser already dropped the pointer. */
@@ -272,19 +409,24 @@ function capture(target: HTMLElement | null, pointerId: number) {
   }
 }
 
-/** The finger currently on the d-pad, if any. */
-let dpadPointer: number | null = null
+/** Each seat's d-pad element, and the finger currently on it. */
+const dpadEls: Array<HTMLElement | null> = Array(MAX_SEATS).fill(null)
+const dpadPointers: Array<number | null> = Array(MAX_SEATS).fill(null)
+
+function setDpadRef(seat: number, el: unknown) {
+  dpadEls[seat] = el instanceof HTMLElement ? el : null
+}
 
 const DPAD_DEAD_ZONE = 0.22
 
 /** Map a finger on the d-pad to directions (8-way, with a small dead zone). */
-function onDpad(event: PointerEvent) {
-  const pad = dpadRef.value
+function onDpad(event: PointerEvent, seat = 0) {
+  const pad = dpadEls[seat]
   if (!pad) return
   if (event.type === 'pointerdown') {
-    dpadPointer = event.pointerId
+    dpadPointers[seat] = event.pointerId
     capture(pad, event.pointerId)
-  } else if (event.pointerId !== dpadPointer) {
+  } else if (event.pointerId !== dpadPointers[seat]) {
     return
   }
   const rect = pad.getBoundingClientRect()
@@ -300,19 +442,88 @@ function onDpad(event: PointerEvent) {
     next.down = sector >= 1 && sector <= 3
     next.up = sector >= -3 && sector <= -1
   }
-  setDpad(next)
+  setDpad(next, seat)
 }
 
-function releaseDpad() {
-  dpadPointer = null
-  setDpad({ up: false, down: false, left: false, right: false })
+function releaseDpad(seat = 0) {
+  dpadPointers[seat] = null
+  setDpad(noDirections(), seat)
 }
 
-function setDpad(next: Record<DpadDirection, boolean>) {
+function setDpad(next: Record<DpadDirection, boolean>, seat = 0) {
+  const held = dpadHeld.value[seat] ?? noDirections()
   for (const button of ['up', 'down', 'left', 'right'] as const) {
-    if (next[button] !== dpadHeld.value[button]) press(button, next[button])
+    if (next[button] !== held[button]) press(button, next[button], seat)
   }
-  dpadHeld.value = next
+  dpadHeld.value[seat] = next
+}
+
+/** Let go of every touch control on every seat. */
+function releaseTouch() {
+  for (let seat = 0; seat < MAX_SEATS; seat++) {
+    releaseDpad(seat)
+    for (const button of ['a', 'b', 'start'] as const)
+      seatInput(seat).setTouch(button, false)
+  }
+}
+
+function togglePlayers() {
+  if (!choosingPlayers.value) return
+  players.value = players.value >= seatLimit.value ? 1 : players.value + 1
+  store.setPlayers(props.slug, players.value)
+  sound?.unlock()
+  sound?.play('blip')
+}
+
+/** A click leaves the switch unfocused, so Space and Enter go back to the game. */
+function onPlayersClick(event: MouseEvent) {
+  ;(event.currentTarget as HTMLElement | null)?.blur()
+  togglePlayers()
+}
+
+/** Each seat's gamepad slot (see assignPads / keepPads). */
+let padSlots: Array<number | null> = [null]
+
+/**
+ * Seat the controls: one player gets every key and pad; with more, players
+ * 1 and 2 split the keyboard (WASD and the arrows), and the gamepads go
+ * round. On the attract screens the seats are dealt afresh (assignPads), and
+ * the remembered player count is restored as far as the controls allow;
+ * during a game each pad stays with its player (keepPads).
+ */
+function applySeats() {
+  if (typeof window === 'undefined') return
+  const pads =
+    typeof navigator !== 'undefined' && navigator.getGamepads
+      ? Array.from(navigator.getGamepads())
+          .filter((pad): pad is Gamepad => Boolean(pad))
+          .map((pad) => pad.index)
+      : []
+  padCount.value = pads.length
+  if (choosingPlayers.value) {
+    const want = store.playersFor(props.slug, seatLimit.value)
+    if (want !== players.value) {
+      // The players watcher seats them (and calls back here).
+      players.value = want
+      return
+    }
+  }
+  padSlots = choosingPlayers.value
+    ? assignPads(pads, players.value)
+    : keepPads(padSlots, pads, players.value)
+  const slots = padSlots
+  input.setPadIndex(slots[0] ?? null)
+  input.setKeyMap(duo.value ? P1_KEYS : KEY_MAP)
+  inputs.forEach((seatIn, seat) => {
+    if (seat === 0) return
+    if (seat < players.value) {
+      seatIn.setPadIndex(slots[seat] ?? -1)
+      seatIn.attach(window)
+    } else {
+      seatIn.detach()
+      seatIn.clear()
+    }
+  })
 }
 
 function onContextMenu(event: Event) {
@@ -321,11 +532,13 @@ function onContextMenu(event: Event) {
 }
 
 /** Lock page scrolling while the cabinet is pinned (and undo it after). */
+let pageLocked = false
+
+/** No page scroll or zoom while a touch game runs (see utils/arcade/pageLock). */
 function setPageLock(on: boolean) {
-  const root = document.documentElement
-  root.style.overflow = on ? 'hidden' : ''
-  root.style.overscrollBehavior = on ? 'none' : ''
-  document.body.style.overflow = on ? 'hidden' : ''
+  if (on === pageLocked) return
+  pageLocked = on
+  setGamePageLock(on)
 }
 
 // --- flow -----------------------------------------------------------------
@@ -336,18 +549,52 @@ function dispatch(event: ArcadeEvent) {
   if (machine.phase !== before) enterPhase(machine.phase)
 }
 
+/** Give a new WebGL game the stage canvas and its current size. */
+function adopt<T extends ArcadePlayableInstance>(instance: T): T {
+  const stage = stageRef.value
+  if (isWebGLInstance(instance) && stage) {
+    instance.mount(stage)
+    sizeStage(instance)
+  }
+  return instance
+}
+
+/** Free a WebGL game's GPU, physics and audio resources (2D games hold none). */
+function retire(instance: ArcadePlayableInstance | null) {
+  if (isWebGLInstance(instance)) instance.dispose()
+}
+
+function sizeStage(instance: ArcadePlayableInstance | null) {
+  const screen = screenRef.value
+  if (!isWebGLInstance(instance) || !screen) return
+  const rect = screen.getBoundingClientRect()
+  instance.resize(
+    rect.width,
+    rect.height,
+    Math.min(window.devicePixelRatio || 1, 2),
+  )
+}
+
 function enterPhase(next: ArcadePhase) {
   phase.value = next
-  input.clear()
-  input.typing = next === 'initials'
+  for (const seatIn of inputs) {
+    seatIn.clear()
+    seatIn.typing = next === 'initials'
+  }
+  // Back on the attract screens, pads are dealt afresh for the next game.
+  if (ATTRACT_PHASES.includes(next)) applySeats()
   if (next === 'demo' && gameModule) {
-    demoGame = gameModule.create({
-      rng: mulberry32(demoSeed++),
-      sound: { play: () => {} },
-      demo: true,
-      hiScore: hiScore(),
-    })
+    retire(demoGame)
+    demoGame = adopt(
+      gameModule.create({
+        rng: mulberry32(demoSeed++),
+        sound: { play: () => {} },
+        demo: true,
+        hiScore: hiScore(),
+      }),
+    )
   } else if (next !== 'demo') {
+    retire(demoGame)
     demoGame = null
   }
   if (next === 'scores') {
@@ -359,19 +606,29 @@ function enterPhase(next: ArcadePhase) {
     cursor = 0
     initialsNote = ''
   }
-  if (next === 'title' || next === 'scores') game = null
+  if (next === 'title' || next === 'scores') {
+    retire(game)
+    game = null
+  }
 }
 
 function startGame() {
   if (!gameModule) return
   sound?.unlock()
   sound?.play('start')
-  game = gameModule.create({
-    rng: Math.random,
-    sound: sound ?? { play: () => {} },
-    demo: false,
-    hiScore: hiScore(),
-  })
+  // One WebGL game owns the stage at a time: free the demo and any old game.
+  retire(demoGame)
+  demoGame = null
+  retire(game)
+  game = adopt(
+    gameModule.create({
+      rng: Math.random,
+      sound: sound ?? { play: () => {} },
+      demo: false,
+      hiScore: hiScore(),
+      players: players.value,
+    }),
+  )
   dispatch({ type: 'start' })
 }
 
@@ -432,15 +689,34 @@ function stepInitials(frame: InputFrame) {
   }
 }
 
+/** Either player's buttons, for the menus around the game. */
+function eitherFrame(frames: InputFrame[]): InputFrame {
+  const [first, ...rest] = frames
+  const frame: InputFrame = {
+    held: { ...first!.held },
+    pressed: { ...first!.pressed },
+  }
+  for (const other of rest) {
+    for (const key of Object.keys(frame.held) as ArcadeButton[]) {
+      frame.held[key] ||= other.held[key]
+      frame.pressed[key] ||= other.pressed[key]
+    }
+  }
+  return frame
+}
+
 function tick() {
   ticks++
-  const frame = input.poll()
+  const frames = inputs.slice(0, players.value).map((seatIn) => seatIn.poll())
+  const frame = frames.length > 1 ? eitherFrame(frames) : frames[0]!
   const current = machine.phase
   if (ATTRACT_PHASES.includes(current)) {
     if (frame.pressed.start || frame.pressed.a) {
       startGame()
       return
     }
+    // B picks how many play, without reaching for the mouse or the screen.
+    if (frame.pressed.b && maxPlayers.value > 1) togglePlayers()
     if (current === 'demo' && demoGame) {
       demoGame.update(frame)
       if (demoGame.over) dispatch({ type: 'demoOver' })
@@ -450,7 +726,7 @@ function tick() {
     return
   }
   if (current === 'playing' && game) {
-    game.update(frame)
+    game.update(frames[0]!, frames)
     if (game.over) {
       lastScore = game.score
       lastLevel = game.level
@@ -475,6 +751,21 @@ function tick() {
 // --- drawing --------------------------------------------------------------
 
 const SHADOW = '#1e1b4b'
+
+/** On a co-op cabinet's attract screens: how many will play, and how to change it. */
+function drawPlayersLine(g: CanvasRenderingContext2D, w: number, y: number) {
+  if (maxPlayers.value <= 1) return
+  const seated = players.value === 1 ? '1 PLAYER' : `${players.value} PLAYERS`
+  drawText(
+    g,
+    touchControls.value
+      ? `${seated}  (UP TO ${seatLimit.value})`
+      : `${seated}  B TO CHANGE (UP TO ${seatLimit.value})`,
+    w / 2,
+    y,
+    { align: 'center', color: '#a5f3fc', shadow: SHADOW },
+  )
+}
 
 function blinkOn() {
   return Math.floor(ticks / 30) % 2 === 0
@@ -546,6 +837,32 @@ function drawBoardRows(g: CanvasRenderingContext2D, w: number, top: number) {
   })
 }
 
+/**
+ * A 2D game draws on the UI canvas; a WebGL game draws on the stage below
+ * it, so the UI canvas is cleared to let the stage show through.
+ */
+function drawGame(
+  instance: ArcadePlayableInstance,
+  g: CanvasRenderingContext2D,
+  w: number,
+  h: number,
+) {
+  if (isWebGLInstance(instance)) {
+    g.clearRect(0, 0, w, h)
+    instance.render()
+    if (instance.over) {
+      drawText(g, 'GAME OVER', w / 2, h * 0.4, {
+        scale: 4,
+        align: 'center',
+        color: '#ffffff',
+        shadow: SHADOW,
+      })
+    }
+  } else {
+    instance.render(g)
+  }
+}
+
 function render() {
   const canvas = canvasRef.value
   const info = meta.value
@@ -587,6 +904,7 @@ function render() {
         shadow: SHADOW,
       })
     }
+    drawPlayersLine(g, w, h * 0.68 + 27)
     const best = board.value[0]
     drawText(
       g,
@@ -646,7 +964,7 @@ function render() {
   }
 
   if (current === 'demo') {
-    if (demoGame) demoGame.render(g)
+    if (demoGame) drawGame(demoGame, g, w, h)
     g.setTransform(scale, 0, 0, scale, 0, 0)
     drawText(g, 'DEMO', w / 2, h * 0.36, {
       scale: 3,
@@ -662,6 +980,7 @@ function render() {
         shadow: SHADOW,
       })
     }
+    drawPlayersLine(g, w, h * 0.36 + 56)
     return
   }
 
@@ -718,7 +1037,7 @@ function render() {
   }
 
   // playing, paused, gameover
-  if (game) game.render(g)
+  if (game) drawGame(game, g, w, h)
   g.setTransform(scale, 0, 0, scale, 0, 0)
   if (current === 'paused') {
     g.fillStyle = 'rgba(11, 6, 32, 0.6)'
@@ -748,6 +1067,8 @@ function resizeCanvas() {
   const dpr = Math.min(window.devicePixelRatio || 1, 2)
   canvas.width = Math.max(1, Math.round(rect.width * dpr))
   canvas.height = Math.max(1, Math.round(rect.height * dpr))
+  sizeStage(game)
+  sizeStage(demoGame)
   render()
 }
 
@@ -798,6 +1119,11 @@ function toggleCrt() {
 }
 
 async function boot() {
+  retire(game)
+  retire(demoGame)
+  game = null
+  demoGame = null
+  gameModule = null
   const info = meta.value
   if (!info) {
     loadError.value = 'This cabinet is still being built.'
@@ -828,33 +1154,55 @@ onMounted(() => {
   sound = createArcadeSound(store.muted)
   touchControls.value = window.matchMedia('(pointer: coarse)').matches
   input.attach(window)
+  applySeats()
+  window.addEventListener('gamepadconnected', applySeats)
+  window.addEventListener('gamepaddisconnected', applySeats)
   window.addEventListener('keydown', onKey)
   window.addEventListener('online', onOnline)
   document.addEventListener('visibilitychange', onVisibility)
   resizeObserver = new ResizeObserver(resizeCanvas)
   if (screenRef.value) resizeObserver.observe(screenRef.value)
+  wrapObserver = new ResizeObserver(fitScreen)
+  if (wrapRef.value) wrapObserver.observe(wrapRef.value)
   void boot()
   loop = startFixedLoop(tick, render)
 })
 
 watch(
   () => props.slug,
-  () => void boot(),
+  () => {
+    void boot().then(applySeats)
+  },
 )
+
+watch(players, () => {
+  releaseTouch()
+  applySeats()
+})
 
 watch(locked, (on) => {
   setPageLock(on)
-  if (!on) releaseDpad()
+  // Locking swaps the settings panel for the overlay and back, so the button
+  // under the finger is gone before it can see the finger lift: let go of all.
+  releaseTouch()
+  void nextTick(fitScreen)
 })
 
 onBeforeUnmount(() => {
   loop?.stop()
-  input.detach()
+  for (const seatIn of inputs) seatIn.detach()
+  window.removeEventListener('gamepadconnected', applySeats)
+  window.removeEventListener('gamepaddisconnected', applySeats)
   window.removeEventListener('keydown', onKey)
   window.removeEventListener('online', onOnline)
   document.removeEventListener('visibilitychange', onVisibility)
   resizeObserver?.disconnect()
+  wrapObserver?.disconnect()
   sound?.dispose()
+  retire(game)
+  retire(demoGame)
+  game = null
+  demoGame = null
   setPageLock(false)
 })
 </script>
@@ -886,8 +1234,10 @@ onBeforeUnmount(() => {
   overflow: hidden;
 }
 
-/* Pinned play view on touch devices: the cabinet fills the screen and owns
-   every touch, so nothing a thumb does can scroll, zoom or move the page. */
+/* Pinned play view on touch devices: the game screen fills the device and owns
+   every touch, so nothing a thumb does can scroll, zoom or move the page. The
+   controls float over it; the marquee, title and settings wait on the title
+   screen (pause to get back to them). */
 .arcade-cabinet--locked {
   position: fixed;
   inset: 0;
@@ -896,6 +1246,8 @@ onBeforeUnmount(() => {
   margin: 0;
   border-radius: 0;
   border-width: 0;
+  box-shadow: none;
+  background: radial-gradient(circle at 50% 40%, #1e1b4b, #05030f 75%);
   touch-action: none;
   overscroll-behavior: none;
   user-select: none;
@@ -903,27 +1255,300 @@ onBeforeUnmount(() => {
   -webkit-touch-callout: none;
 }
 
-.arcade-cabinet--locked .cabinet-marquee {
+.arcade-cabinet--locked .cabinet-marquee,
+.arcade-cabinet--locked .cabinet-title-plate {
   display: none;
 }
 
-.arcade-cabinet--locked .cabinet-title-plate {
-  padding: 0.2rem 1rem;
-}
-
 .arcade-cabinet--locked .cabinet-screen-wrap {
-  flex: 1 1 auto;
-  min-height: 0;
+  position: absolute;
+  inset: 0;
   display: grid;
-  align-items: center;
+  place-items: center;
+  overflow: hidden;
+  background: none;
+  padding: max(0.4rem, env(safe-area-inset-top))
+    max(0.4rem, env(safe-area-inset-right))
+    max(0.4rem, env(safe-area-inset-bottom))
+    max(0.4rem, env(safe-area-inset-left));
 }
 
 .arcade-cabinet--locked .cabinet-bezel {
   width: 100%;
+  padding: 0;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
 }
 
-.arcade-cabinet--locked .cabinet-panel {
-  padding-bottom: max(1.1rem, env(safe-area-inset-bottom));
+.arcade-cabinet--locked .cabinet-screen {
+  border-radius: 0.5rem;
+}
+
+.cabinet-overlay {
+  --key: clamp(2.9rem, 8.5vmin, 4.75rem);
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.cabinet-overlay > *,
+.cabinet-cluster > * {
+  position: absolute;
+  pointer-events: auto;
+}
+
+/* Each seat's controls; the cluster itself lets touches through to the game. */
+.cabinet-overlay > .cabinet-cluster {
+  inset: 0;
+  pointer-events: none;
+}
+
+.cabinet-overlay .cabinet-dpad {
+  left: max(1rem, env(safe-area-inset-left));
+  bottom: max(1rem, env(safe-area-inset-bottom));
+  grid-template-columns: repeat(3, var(--key));
+  grid-template-rows: repeat(3, var(--key));
+}
+
+.cabinet-overlay .cabinet-key {
+  background: rgba(15, 10, 46, 0.42);
+  border: 2px solid rgba(253, 230, 138, 0.5);
+  color: rgba(253, 230, 138, 0.9);
+  box-shadow: none;
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+}
+
+.cabinet-overlay .cabinet-key-held {
+  transform: none;
+  background: rgba(253, 230, 138, 0.4);
+  box-shadow: none;
+}
+
+.cabinet-overlay .cabinet-buttons {
+  right: max(1rem, env(safe-area-inset-right));
+  bottom: max(1rem, env(safe-area-inset-bottom));
+}
+
+.cabinet-overlay .cabinet-ball {
+  width: calc(var(--key) * 1.3);
+  height: calc(var(--key) * 1.3);
+  border: 2px solid rgba(255, 255, 255, 0.45);
+  box-shadow: none;
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+}
+
+.cabinet-overlay .cabinet-ball-a {
+  background: rgba(236, 72, 153, 0.55);
+  margin-bottom: calc(var(--key) * 0.45);
+}
+
+.cabinet-overlay .cabinet-ball-b {
+  background: rgba(20, 184, 166, 0.55);
+}
+
+.cabinet-overlay .cabinet-ball:active {
+  transform: scale(0.94);
+  box-shadow: none;
+}
+
+.cabinet-pause-chip {
+  top: max(0.6rem, env(safe-area-inset-top));
+  right: max(0.6rem, env(safe-area-inset-right));
+  display: grid;
+  place-items: center;
+  width: 2.6rem;
+  height: 2.6rem;
+  border-radius: 9999px;
+  background: rgba(15, 10, 46, 0.5);
+  border: 2px solid rgba(253, 230, 138, 0.5);
+  color: #fde68a;
+  font-size: 0.8rem;
+  letter-spacing: -0.1em;
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+}
+
+/* Upright, the screen sits at the top so the controls get the room below it,
+   and the pause chip moves down between them, off the score. */
+@media (orientation: portrait) {
+  .arcade-cabinet--locked .cabinet-screen-wrap {
+    align-items: start;
+  }
+
+  .cabinet-pause-chip {
+    top: auto;
+    right: auto;
+    left: calc(50% - 1.3rem);
+    bottom: calc(max(1rem, env(safe-area-inset-bottom)) + var(--key) * 2);
+  }
+}
+
+/* Two or more seated: smaller clusters, each player's tinted its own colour.
+   Sideways, player 1 takes the bottom left and player 2 the bottom right;
+   upright, each player's row sits above the one before. */
+.cabinet-overlay--duo {
+  --key: clamp(2.4rem, 7vmin, 4rem);
+  --ball: calc(var(--key) * 1.15);
+  /* One player's rows of controls, and where the bottom row starts. */
+  --row: calc(var(--key) * 3 + 1.4rem);
+  --base: max(1rem, env(safe-area-inset-bottom));
+}
+
+.cabinet-overlay--duo .cabinet-buttons {
+  gap: 0.5rem;
+}
+
+.cabinet-overlay--duo .cabinet-ball {
+  width: var(--ball);
+  height: var(--ball);
+}
+
+.cabinet-overlay--duo .cabinet-ball-a {
+  margin-bottom: calc(var(--key) * 0.35);
+}
+
+.cabinet-cluster-2 .cabinet-key {
+  border-color: rgba(244, 114, 182, 0.6);
+  color: rgba(251, 207, 232, 0.95);
+}
+
+.cabinet-seat-tag {
+  pointer-events: none;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: #fde68a;
+  text-shadow: 0 1px 2px #000;
+  left: max(1rem, env(safe-area-inset-left));
+  bottom: calc(
+    max(1rem, env(safe-area-inset-bottom)) + var(--key) * 3 + 0.2rem
+  );
+}
+
+.cabinet-cluster-2 .cabinet-seat-tag {
+  color: #fbcfe8;
+}
+
+@media (orientation: landscape) {
+  .cabinet-cluster-1 .cabinet-buttons {
+    right: auto;
+    left: calc(max(1rem, env(safe-area-inset-left)) + var(--key) * 3 + 0.75rem);
+  }
+
+  .cabinet-cluster-2 .cabinet-dpad {
+    left: auto;
+    right: calc(
+      max(1rem, env(safe-area-inset-right)) + var(--ball) * 2 + 1.25rem
+    );
+  }
+
+  .cabinet-cluster-2 .cabinet-seat-tag {
+    left: auto;
+    right: calc(
+      max(1rem, env(safe-area-inset-right)) + var(--ball) * 2 + 1.25rem
+    );
+  }
+}
+
+/* Three or four seated: smaller keys still. Sideways, player 3 sits above
+   player 1 on the left and player 4 above player 2 on the right, leaving the
+   top of the screen (the score) clear; upright, every player gets a row,
+   player 1's at the bottom. */
+.cabinet-overlay--seats-3,
+.cabinet-overlay--seats-4 {
+  --key: clamp(2.1rem, 6vmin, 3.4rem);
+}
+
+.cabinet-cluster-3 .cabinet-key {
+  border-color: rgba(103, 232, 249, 0.6);
+  color: rgba(207, 250, 254, 0.95);
+}
+
+.cabinet-cluster-4 .cabinet-key {
+  border-color: rgba(163, 230, 53, 0.6);
+  color: rgba(236, 252, 203, 0.95);
+}
+
+.cabinet-cluster-3 .cabinet-seat-tag {
+  color: #a5f3fc;
+}
+
+.cabinet-cluster-4 .cabinet-seat-tag {
+  color: #d9f99d;
+}
+
+@media (orientation: landscape) {
+  .cabinet-cluster-3 .cabinet-buttons {
+    right: auto;
+    left: calc(max(1rem, env(safe-area-inset-left)) + var(--key) * 3 + 0.75rem);
+  }
+
+  .cabinet-cluster-4 .cabinet-dpad,
+  .cabinet-cluster-4 .cabinet-seat-tag {
+    left: auto;
+    right: calc(
+      max(1rem, env(safe-area-inset-right)) + var(--ball) * 2 + 1.25rem
+    );
+  }
+
+  .cabinet-cluster-3 .cabinet-dpad,
+  .cabinet-cluster-3 .cabinet-buttons,
+  .cabinet-cluster-4 .cabinet-dpad,
+  .cabinet-cluster-4 .cabinet-buttons {
+    bottom: calc(var(--base) + var(--row));
+  }
+
+  .cabinet-cluster-3 .cabinet-seat-tag,
+  .cabinet-cluster-4 .cabinet-seat-tag {
+    bottom: calc(var(--base) + var(--row) + var(--key) * 3 + 0.2rem);
+  }
+}
+
+@media (orientation: portrait) {
+  .cabinet-cluster-2 .cabinet-dpad,
+  .cabinet-cluster-2 .cabinet-buttons {
+    bottom: calc(var(--base) + var(--row));
+  }
+
+  .cabinet-cluster-3 .cabinet-dpad,
+  .cabinet-cluster-3 .cabinet-buttons {
+    bottom: calc(var(--base) + var(--row) * 2);
+  }
+
+  .cabinet-cluster-4 .cabinet-dpad,
+  .cabinet-cluster-4 .cabinet-buttons {
+    bottom: calc(var(--base) + var(--row) * 3);
+  }
+
+  .cabinet-cluster-2 .cabinet-seat-tag {
+    bottom: calc(var(--base) + var(--row) + var(--key) * 3 + 0.2rem);
+  }
+
+  .cabinet-cluster-3 .cabinet-seat-tag {
+    bottom: calc(var(--base) + var(--row) * 2 + var(--key) * 3 + 0.2rem);
+  }
+
+  .cabinet-cluster-4 .cabinet-seat-tag {
+    bottom: calc(var(--base) + var(--row) * 3 + var(--key) * 3 + 0.2rem);
+  }
+
+  .cabinet-overlay--duo .cabinet-pause-chip {
+    left: auto;
+    right: max(0.6rem, env(safe-area-inset-right));
+    bottom: calc(var(--base) + var(--row) * 2);
+  }
+
+  .cabinet-overlay--seats-3 .cabinet-pause-chip {
+    bottom: calc(var(--base) + var(--row) * 3);
+  }
+
+  .cabinet-overlay--seats-4 .cabinet-pause-chip {
+    bottom: calc(var(--base) + var(--row) * 4);
+  }
 }
 
 .cabinet-marquee {
@@ -997,11 +1622,21 @@ onBeforeUnmount(() => {
 }
 
 .cabinet-canvas {
+  position: relative;
   display: block;
   width: 100%;
   height: 100%;
   touch-action: none;
   outline: none;
+}
+
+.cabinet-stage {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
 }
 
 .cabinet-crt {

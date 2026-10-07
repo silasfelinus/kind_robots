@@ -18,6 +18,8 @@
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import {
+  assertQueuedArtPromptContract,
+  inferQueuedArtEngine,
   queuedArtPrompt,
   queuedArtRenderPrompt,
 } from '../../server/utils/artJobQueueSettings'
@@ -87,4 +89,66 @@ assert.ok(
   'the enqueue gate must still read the graph too (kind-robots#2915)',
 )
 
-console.log('verifyQueuedPromptGate: ok (claim gate + enqueue gate agree)')
+// 2026-10-07, the third gate. POST /api/art/queue judged prompts against
+// `payload.engine || 'COMFY'`; claim infers the engine from the graph. A Krea2
+// job from Conductor carries no `engine`, so the queue route saw "comfy",
+// skipped the caption-engine rules and ACCEPTED it -- then claim failed it on
+// frame-noun (ArtJobs 34375, 34381). Same lesson: the gates must be one check.
+const conductorKrea2Payload = {
+  promptString:
+    'A sleek quill rests across a deep ocean blue ground. The overall ' +
+    'composition is encased in a rounded frame with a thin, polished silver ' +
+    'border, inviting a sense of regal authority.',
+  workflow: {
+    '1': { class_type: 'CLIPLoader', inputs: { type: 'krea2' } },
+    '3': {
+      class_type: 'CLIPTextEncode',
+      _meta: { title: 'CLIP Text Encode (Prompt)' },
+      inputs: {
+        text:
+          'A sleek quill rests across a deep ocean blue ground. The overall ' +
+          'composition is encased in a rounded frame with a thin, polished ' +
+          'silver border, inviting a sense of regal authority.',
+      },
+    },
+  },
+}
+assert.equal(inferQueuedArtEngine(conductorKrea2Payload, 'COMFY'), 'krea2')
+assert.throws(
+  () => assertQueuedArtPromptContract('COMFY', conductorKrea2Payload),
+  (error: { statusCode?: number; message?: string }) =>
+    error.statusCode === 422 && /frame-noun/.test(String(error.message)),
+  'a Krea2 graph with no payload.engine must still get the caption-engine rules',
+)
+
+const queueRoute = readFileSync('server/api/art/queue/index.post.ts', 'utf8')
+assert.ok(
+  queueRoute.includes(
+    'assertQueuedArtPromptContract(engine, normalizedPayload)',
+  ),
+  'POST /api/art/queue must run the claim gate itself, not a lookalike',
+)
+assert.ok(
+  !queueRoute.includes('assertArtPromptContract('),
+  'a hand-rolled contract call in the queue route is how 34375/34381 got in',
+)
+
+// And the producer. /api/conductor/art-request files prompts into Conductor's
+// queue for later rendering; ArtJob 34375's prompt went in unchecked. It must
+// run the contract before filing, and its own fallbacks must pass it.
+const artRequest = readFileSync(
+  'server/api/conductor/art-request.post.ts',
+  'utf8',
+)
+assert.ok(
+  artRequest.includes('contractCleanPrompt('),
+  '/api/conductor/art-request must check the prompt before filing it',
+)
+assert.ok(
+  !/Kind Robots visual style/.test(artRequest),
+  'art-request fallbacks must not trip vague-brand-style',
+)
+
+console.log(
+  'verifyQueuedPromptGate: ok (claim, enqueue, queue and art-request gates agree)',
+)

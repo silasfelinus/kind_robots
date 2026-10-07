@@ -113,6 +113,14 @@ export type ProjectileData = {
   speed: number
   /** Frames before it fizzles. */
   life: number
+  /**
+   * A boomerang: after this many frames it turns back toward its thrower,
+   * can hit once on the way out and once on the way back, and is caught when
+   * it reaches the thrower.
+   */
+  returnAfter?: number
+  /** Unreliable aim: the shot leaves up to this many pixels high or low (seeded). */
+  spread?: number
 }
 
 /**
@@ -149,9 +157,21 @@ export type MoveData = {
   /** Absorbs this many hits during the window (damage still lands). */
   armor?: FrameWindow & { hits: number }
   /** A strike landing in the window is caught and answered for `damage`. */
-  parry?: FrameWindow & { damage: number }
+  parry?: FrameWindow & {
+    damage: number
+    /** Which guards it catches (default all): Play Dead loses to lows. */
+    guards?: Guard[]
+  }
   /** A command grab: the hitbox grabs, ignores guard, and can't be teched. */
   grab?: boolean
+  /** A command grab that also takes this much of the victim's meter. */
+  stealMeter?: number
+  /** After the stagger, the victim can't block for this many frames (Pocket Sand). */
+  blind?: number
+  /** Bullets the move needs (fighters with an `ammo` count). */
+  ammoCost?: number
+  /** Refills the fighter's ammo when its active frames begin. */
+  reload?: boolean
   projectile?: ProjectileData
   /** Self-movement, sub-pixels per frame (x forward, y up). */
   velocity?: FrameWindow & { x: number; y?: number }
@@ -169,6 +189,8 @@ export type MoveData = {
   meterCost?: number
   /** May repeat inside one combo without tripping infinite protection. */
   rapid?: boolean
+  /** The body passes through the opponent (no pushbox) during the window. */
+  passThrough?: FrameWindow
 }
 
 /** A command move: a motion plus a button (or Easy Special) runs `move`. */
@@ -211,6 +233,19 @@ export type FighterData = {
   easy?: EasyTable
   /** The Siblings: fling variants replace bites, stabs and rolls. */
   childGuard?: boolean
+  /** Bullets per load; moves with `ammoCost` need them, `reload` refills. */
+  ammo?: number
+  /** Colours (and a hat) for the stand-in renderer until sprites exist. */
+  look?: FighterLook
+}
+
+export type FighterLook = {
+  body: string
+  light: string
+  dark: string
+  hat?: 'kasa' | 'crushed'
+  /** An eyepatch over the right eye. */
+  eyepatch?: boolean
 }
 
 export type Action =
@@ -299,6 +334,10 @@ export type FighterState = {
   reversal: number
   /** Frames left to super-jump-cancel a launcher. */
   jumpCancel: number
+  /** Bullets left (fighters with an `ammo` count). */
+  ammo: number
+  /** Frames left in which this fighter can't block (Pocket Sand). */
+  blind: number
   motion: MotionState
   /** Buttons pressed during a freeze, applied on the first free frame. */
   buffer: BufferedButton[]
@@ -318,6 +357,12 @@ export type Projectile = {
   vx: number
   facing: Facing
   life: number
+  /** Frames since it was thrown. */
+  age: number
+  /** A boomerang on its way back. */
+  returning: boolean
+  /** It has hit (or been blocked) on this pass. */
+  struck: boolean
 }
 
 export type Phase = 'intro' | 'fight' | 'ko' | 'over'
@@ -376,4 +421,6 @@ export type MatchState = {
   /** Events produced by the latest step only (for sound, effects, HUD). */
   events: SimEvent[]
   winner: RoundResult | null
+  /** Seeded random state (xorshift32): unreliable aim, never Math.random. */
+  rng: number
 }

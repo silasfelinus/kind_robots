@@ -24,6 +24,9 @@ import type * as Prisma from "../internal/prismaNamespace"
  * 
  * userId is a plain ownership scalar with no relation back to User, matching the
  * Mandarin Tutor models, so the migration is purely additive.
+ * 
+ * isPublic (Silas, 2026-10-07): a public video with a final cut shows in the
+ * Play gallery for everyone; a private one stays with its owner.
  */
 export type MusicVideoModel = runtime.Types.Result.DefaultSelection<Prisma.$MusicVideoPayload>
 
@@ -56,6 +59,7 @@ export type MusicVideoMinAggregateOutputType = {
   status: string | null
   doc: string | null
   finalArtImageId: number | null
+  isPublic: boolean | null
 }
 
 export type MusicVideoMaxAggregateOutputType = {
@@ -67,6 +71,7 @@ export type MusicVideoMaxAggregateOutputType = {
   status: string | null
   doc: string | null
   finalArtImageId: number | null
+  isPublic: boolean | null
 }
 
 export type MusicVideoCountAggregateOutputType = {
@@ -78,6 +83,7 @@ export type MusicVideoCountAggregateOutputType = {
   status: number
   doc: number
   finalArtImageId: number
+  isPublic: number
   _all: number
 }
 
@@ -103,6 +109,7 @@ export type MusicVideoMinAggregateInputType = {
   status?: true
   doc?: true
   finalArtImageId?: true
+  isPublic?: true
 }
 
 export type MusicVideoMaxAggregateInputType = {
@@ -114,6 +121,7 @@ export type MusicVideoMaxAggregateInputType = {
   status?: true
   doc?: true
   finalArtImageId?: true
+  isPublic?: true
 }
 
 export type MusicVideoCountAggregateInputType = {
@@ -125,6 +133,7 @@ export type MusicVideoCountAggregateInputType = {
   status?: true
   doc?: true
   finalArtImageId?: true
+  isPublic?: true
   _all?: true
 }
 
@@ -223,6 +232,7 @@ export type MusicVideoGroupByOutputType = {
   status: string
   doc: string
   finalArtImageId: number | null
+  isPublic: boolean
   _count: MusicVideoCountAggregateOutputType | null
   _avg: MusicVideoAvgAggregateOutputType | null
   _sum: MusicVideoSumAggregateOutputType | null
@@ -257,6 +267,7 @@ export type MusicVideoWhereInput = {
   status?: Prisma.StringFilter<"MusicVideo"> | string
   doc?: Prisma.StringFilter<"MusicVideo"> | string
   finalArtImageId?: Prisma.IntNullableFilter<"MusicVideo"> | number | null
+  isPublic?: Prisma.BoolFilter<"MusicVideo"> | boolean
 }
 
 export type MusicVideoOrderByWithRelationInput = {
@@ -268,6 +279,7 @@ export type MusicVideoOrderByWithRelationInput = {
   status?: Prisma.SortOrder
   doc?: Prisma.SortOrder
   finalArtImageId?: Prisma.SortOrderInput | Prisma.SortOrder
+  isPublic?: Prisma.SortOrder
   _relevance?: Prisma.MusicVideoOrderByRelevanceInput
 }
 
@@ -283,6 +295,7 @@ export type MusicVideoWhereUniqueInput = Prisma.AtLeast<{
   status?: Prisma.StringFilter<"MusicVideo"> | string
   doc?: Prisma.StringFilter<"MusicVideo"> | string
   finalArtImageId?: Prisma.IntNullableFilter<"MusicVideo"> | number | null
+  isPublic?: Prisma.BoolFilter<"MusicVideo"> | boolean
 }, "id">
 
 export type MusicVideoOrderByWithAggregationInput = {
@@ -294,6 +307,7 @@ export type MusicVideoOrderByWithAggregationInput = {
   status?: Prisma.SortOrder
   doc?: Prisma.SortOrder
   finalArtImageId?: Prisma.SortOrderInput | Prisma.SortOrder
+  isPublic?: Prisma.SortOrder
   _count?: Prisma.MusicVideoCountOrderByAggregateInput
   _avg?: Prisma.MusicVideoAvgOrderByAggregateInput
   _max?: Prisma.MusicVideoMaxOrderByAggregateInput
@@ -313,6 +327,7 @@ export type MusicVideoScalarWhereWithAggregatesInput = {
   status?: Prisma.StringWithAggregatesFilter<"MusicVideo"> | string
   doc?: Prisma.StringWithAggregatesFilter<"MusicVideo"> | string
   finalArtImageId?: Prisma.IntNullableWithAggregatesFilter<"MusicVideo"> | number | null
+  isPublic?: Prisma.BoolWithAggregatesFilter<"MusicVideo"> | boolean
 }
 
 export type MusicVideoCreateInput = {
@@ -323,6 +338,7 @@ export type MusicVideoCreateInput = {
   status?: string
   doc: string
   finalArtImageId?: number | null
+  isPublic?: boolean
 }
 
 export type MusicVideoUncheckedCreateInput = {
@@ -334,6 +350,7 @@ export type MusicVideoUncheckedCreateInput = {
   status?: string
   doc: string
   finalArtImageId?: number | null
+  isPublic?: boolean
 }
 
 export type MusicVideoUpdateInput = {
@@ -344,6 +361,7 @@ export type MusicVideoUpdateInput = {
   status?: Prisma.StringFieldUpdateOperationsInput | string
   doc?: Prisma.StringFieldUpdateOperationsInput | string
   finalArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
 
 export type MusicVideoUncheckedUpdateInput = {
@@ -355,6 +373,7 @@ export type MusicVideoUncheckedUpdateInput = {
   status?: Prisma.StringFieldUpdateOperationsInput | string
   doc?: Prisma.StringFieldUpdateOperationsInput | string
   finalArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
 
 export type MusicVideoCreateManyInput = {
@@ -366,6 +385,7 @@ export type MusicVideoCreateManyInput = {
   status?: string
   doc: string
   finalArtImageId?: number | null
+  isPublic?: boolean
 }
 
 export type MusicVideoUpdateManyMutationInput = {
@@ -376,6 +396,7 @@ export type MusicVideoUpdateManyMutationInput = {
   status?: Prisma.StringFieldUpdateOperationsInput | string
   doc?: Prisma.StringFieldUpdateOperationsInput | string
   finalArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
 
 export type MusicVideoUncheckedUpdateManyInput = {
@@ -387,6 +408,7 @@ export type MusicVideoUncheckedUpdateManyInput = {
   status?: Prisma.StringFieldUpdateOperationsInput | string
   doc?: Prisma.StringFieldUpdateOperationsInput | string
   finalArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
 
 export type MusicVideoOrderByRelevanceInput = {
@@ -404,6 +426,7 @@ export type MusicVideoCountOrderByAggregateInput = {
   status?: Prisma.SortOrder
   doc?: Prisma.SortOrder
   finalArtImageId?: Prisma.SortOrder
+  isPublic?: Prisma.SortOrder
 }
 
 export type MusicVideoAvgOrderByAggregateInput = {
@@ -421,6 +444,7 @@ export type MusicVideoMaxOrderByAggregateInput = {
   status?: Prisma.SortOrder
   doc?: Prisma.SortOrder
   finalArtImageId?: Prisma.SortOrder
+  isPublic?: Prisma.SortOrder
 }
 
 export type MusicVideoMinOrderByAggregateInput = {
@@ -432,6 +456,7 @@ export type MusicVideoMinOrderByAggregateInput = {
   status?: Prisma.SortOrder
   doc?: Prisma.SortOrder
   finalArtImageId?: Prisma.SortOrder
+  isPublic?: Prisma.SortOrder
 }
 
 export type MusicVideoSumOrderByAggregateInput = {
@@ -451,6 +476,7 @@ export type MusicVideoSelect<ExtArgs extends runtime.Types.Extensions.InternalAr
   status?: boolean
   doc?: boolean
   finalArtImageId?: boolean
+  isPublic?: boolean
 }, ExtArgs["result"]["musicVideo"]>
 
 
@@ -464,9 +490,10 @@ export type MusicVideoSelectScalar = {
   status?: boolean
   doc?: boolean
   finalArtImageId?: boolean
+  isPublic?: boolean
 }
 
-export type MusicVideoOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "userId" | "title" | "status" | "doc" | "finalArtImageId", ExtArgs["result"]["musicVideo"]>
+export type MusicVideoOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "userId" | "title" | "status" | "doc" | "finalArtImageId" | "isPublic", ExtArgs["result"]["musicVideo"]>
 
 export type $MusicVideoPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "MusicVideo"
@@ -480,6 +507,7 @@ export type $MusicVideoPayload<ExtArgs extends runtime.Types.Extensions.Internal
     status: string
     doc: string
     finalArtImageId: number | null
+    isPublic: boolean
   }, ExtArgs["result"]["musicVideo"]>
   composites: {}
 }
@@ -857,6 +885,7 @@ export interface MusicVideoFieldRefs {
   readonly status: Prisma.FieldRef<"MusicVideo", 'String'>
   readonly doc: Prisma.FieldRef<"MusicVideo", 'String'>
   readonly finalArtImageId: Prisma.FieldRef<"MusicVideo", 'Int'>
+  readonly isPublic: Prisma.FieldRef<"MusicVideo", 'Boolean'>
 }
     
 

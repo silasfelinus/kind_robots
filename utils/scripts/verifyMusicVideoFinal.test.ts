@@ -15,6 +15,11 @@ import {
   looksLikeMp4,
   musicVideoMaxUploadBytes,
   finalVideoBitrates,
+  aacBitrateCandidates,
+  MUSIC_VIDEO_AAC_BITRATES,
+  clampUploadToPacket,
+  musicVideoPacketCapBytes,
+  MUSIC_VIDEO_PACKET_OVERHEAD_BYTES,
 } from '../musicVideoFinal.js'
 
 const MB = 1024 * 1024
@@ -127,8 +132,79 @@ console.log('✅ final video file names are slugged, bounded and never empty')
   const retry = finalVideoBitrates(75, cap, 0.7)
   assert.ok(retry.video < theme.video, 'a retry encodes smaller')
   assert.equal(finalVideoBitrates(5, cap).video, 8_000_000, 'capped high')
-  assert.equal(finalVideoBitrates(3600, cap).video, 400_000, 'floored low')
+  assert.equal(finalVideoBitrates(3600, cap).video, 150_000, 'floored low')
+  assert.equal(finalVideoBitrates(3600, cap).audio, 96_000, 'audio steps down')
+}
+{
+  // Silas, 2026-10-07: a 200 s video against production's 16 MB packet was
+  // rejected as "larger than 11 MB"; the old 400k + 128k floor alone was 13 MB.
+  const cap = musicVideoPacketCapBytes(16 * MB)!
+  const skeleton = finalVideoBitrates(200, cap)
+  const bytes = ((skeleton.video + skeleton.audio) * 200) / 8
+  assert.ok(bytes < cap * 0.9, `200 s fits under the 11.8 MB cap (${bytes})`)
+  assert.ok(skeleton.audio < 128_000, 'audio gives way first')
+  assert.ok(skeleton.video > 300_000, 'the picture keeps most of the budget')
+  const retry = finalVideoBitrates(200, cap, 0.8)
+  assert.ok(
+    ((retry.video + retry.audio) * 200) / 8 < bytes,
+    'a retry still encodes smaller',
+  )
+}
+{
+  // Silas, 2026-10-07: 64k AAC is "not supported in this environment" on
+  // Chrome/Windows. Every budgeted audio rate must be one encoders accept.
+  for (const seconds of [5, 75, 200, 600, 3600]) {
+    for (const cap of [11 * MB, 24 * MB]) {
+      const { audio } = finalVideoBitrates(seconds, cap)
+      assert.ok(
+        MUSIC_VIDEO_AAC_BITRATES.includes(audio),
+        `${audio} is standard`,
+      )
+    }
+  }
+  assert.deepEqual(
+    aacBitrateCandidates(96_000),
+    [96_000, 128_000, 160_000, 192_000],
+  )
+  assert.deepEqual(aacBitrateCandidates(160_000), [160_000, 192_000])
 }
 console.log('✅ the export bitrate keeps the final cut under the upload cap')
+
+{
+  // A 16 MB packet holds about 11.8 MB of file once base64 adds its third.
+  const packet = 16 * MB
+  const cap = musicVideoPacketCapBytes(packet)
+  assert.equal(
+    cap,
+    Math.floor(((packet - MUSIC_VIDEO_PACKET_OVERHEAD_BYTES) * 3) / 4),
+  )
+  assert.ok(
+    Math.ceil((cap! * 4) / 3) + MUSIC_VIDEO_PACKET_OVERHEAD_BYTES <= packet,
+  )
+  assert.equal(
+    musicVideoPacketCapBytes(BigInt(packet)),
+    cap,
+    'MySQL may return a bigint',
+  )
+  assert.equal(musicVideoPacketCapBytes(null), null)
+  assert.equal(musicVideoPacketCapBytes(0), null)
+  assert.equal(
+    clampUploadToPacket(24 * MB, packet),
+    cap,
+    'the packet lowers the default cap',
+  )
+  assert.equal(
+    clampUploadToPacket(5 * MB, packet),
+    5 * MB,
+    'a smaller configured cap stands',
+  )
+  assert.equal(
+    clampUploadToPacket(24 * MB, null),
+    24 * MB,
+    'unknown packet leaves the cap',
+  )
+  // The 2026-10-07 failure: a 13.4 MB MP4 must be refused up front on a 16 MB packet.
+  assert.ok(13_462_736 > clampUploadToPacket(24 * MB, packet))
+}
 
 console.log('✅ verifyMusicVideoFinal: all assertions passed')

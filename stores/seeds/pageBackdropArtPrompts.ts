@@ -33,31 +33,61 @@ export type PageBackdropArtPrompt = {
 }
 
 /**
+ * The render lane. Silas, 2026-10-07: "I want better backgrounds. something
+ * from an illustrious line. All that we have on our pages are kiddy shots."
+ *
+ * Arthemy Western Art v3.0 is the Illustrious checkpoint he picked as house
+ * for the comic line on 2026-10-04 (conductor projects/comic-creator/docs/
+ * checkpoints.md), run at its author's settings: Euler a, 30 steps, CFG 5.
+ * Unlike Krea2, which carried the first two batches, an Illustrious model
+ * reads tags and honours its negative prompt, so the contract below is
+ * written as tags and the negative does real work.
+ *
+ * Pilot, 2026-10-07 (ArtJobs 34414-34422): "quiet open centre" as a tag
+ * produced the opposite -- one-point-perspective corridors, a sun, a
+ * jellyfish and a robot dead centre, all near-black. Centring and darkness
+ * are now spelled out in the negative, where this lane can act on them, and
+ * the scene moved ahead of the style so the page's own setting survives.
+ *
+ * Scenes here read best as concrete nouns, not mood prose: round 2 turned
+ * bots' "conveyor rails" into a train platform and dreams' "shoals of
+ * drifters" into one centred jellyfish (ArtJobs 34424-34429).
+ */
+export const BACKDROP_LANE = {
+  checkpoint: 'Illustrious/arthemyWesternArt_v30.safetensors',
+  steps: 30,
+  cfg: 5,
+  sampler: 'euler_ancestral',
+  scheduler: 'karras',
+} as const
+
+/**
  * Canvas per variant, chosen to match the breakpoints the CSS actually
- * switches on (mobile <768, tablet 768-1023, desktop >=1024) and to stay on
- * dimensions the generator handles well.
+ * switches on (mobile <768, tablet 768-1023, desktop >=1024) and kept on SDXL
+ * training buckets near one megapixel. The Krea2 sizes (up to 1152x1536) are
+ * past what an SDXL model composes cleanly; it tiles the scene instead.
  */
 const CANVAS: Record<
   BackdropVariant,
   { width: number; height: number; framing: string }
 > = {
   mobile: {
-    width: 832,
-    height: 1472,
+    width: 768,
+    height: 1344,
     framing:
-      'Tall 9:16 portrait for a phone. Put the interest in the top fifth and the bottom fifth; keep the whole middle band calm, low-contrast and uncluttered, because a column of cards sits over it. Depth should read vertically — foreground detail low down, distance receding upward.',
+      'vertical composition, asymmetrical composition, detail clustered at the top and bottom edges, empty floor and open sky through the middle',
   },
   tablet: {
-    width: 1152,
-    height: 1536,
+    width: 896,
+    height: 1152,
     framing:
-      'Portrait 3:4 for a tablet. Interest along the top edge and the lower corners; the central two-thirds stays open and quiet. Slightly wider view than the phone framing, with more of the setting visible to either side.',
+      'portrait composition, asymmetrical composition, detail along the top edge and lower corners, open negative space in the middle',
   },
   desktop: {
-    width: 1536,
-    height: 864,
+    width: 1344,
+    height: 768,
     framing:
-      'Wide 16:9 landscape for a desktop. Push the interest to the left and right thirds and keep the centre open — that is where the main panel sits. Let the horizon and any architecture carry across the full width so the edges read as more of the same place rather than a crop.',
+      'panoramic composition, asymmetrical composition, rule of thirds, detail massed at the left and right edges, wide open negative space in the middle, horizon carried across the full width',
   },
 }
 
@@ -105,11 +135,13 @@ const CANVAS: Record<
 // "an unpeopled setting waiting to be entered" -- is the only part of it that
 // ever worked, so it is now the whole rule. Same for the focal-point line: a
 // composition is described by what it does have.
-const CONTRACT = `Create one standalone environment illustration to be used as a full-bleed page background for the Kind Robots web app. This is SCENERY: interface panels, cards and toolbars will be drawn on top of it, so the composition must stay open and calm through the centre of the canvas and carry its interest at the edges. An unpeopled, deserted setting waiting to be entered, its inhabitants elsewhere. The interest is spread evenly out to the edges and the centre stays quiet and open; every surface bare and unmarked.`
+const CONTRACT = `scenery, no humans, empty, environment art, wide angle, detailed environment, intricate background details, deserted setting, every surface bare and unmarked`
 
-const HOUSE_AESTHETIC = `Painted storybook-illustration style with cinematic depth, warm inviting light, soft atmospheric haze in the distance, and rich but unfussy detail.`
+const QUALITY = `masterpiece, best quality, amazing quality, absurdres, very aesthetic`
 
-const NEGATIVE_PROMPT = `text, caption, lettering, signage, logo, watermark, signature, border, frame, panel, collage, grid, contact sheet, ui mockup, interface elements, buttons, strong central subject, centered portrait, close-up face, busy cluttered centre, high-contrast centre, harsh clutter, photorealism, low detail, blurry, jpeg artifacts`
+const HOUSE_AESTHETIC = `western comics \\(style\\), graphic novel illustration, cinematic lighting, volumetric light, atmospheric perspective, rich varied colour palette, bold ink linework, painterly texture, sophisticated, highly detailed background`
+
+const NEGATIVE_PROMPT = `lowres, worst quality, bad quality, low quality, jpeg artifacts, blurry, text, signature, watermark, logo, speech bubble, border, multiple views, 1girl, 1boy, solo, people, person, silhouette, crowd, character focus, close-up, symmetry, symmetrical composition, centered composition, one-point perspective, vanishing point, central light source, sun in center, glowing orb, chibi, cute, kawaii, childish, children's book, nursery, toy, pastel colors, flat colors, simple background, monochrome, underexposed, too dark, nsfw`
 
 type PageSeed = {
   page: string
@@ -118,6 +150,22 @@ type PageSeed = {
   scene: string
   /** Replaces HOUSE_AESTHETIC when a page needs a different visual register. */
   aesthetic?: string
+  /**
+   * Appended to NEGATIVE_PROMPT. For the thing a scene names that this lane
+   * would otherwise blow up into a centred hero: bots' "robot" rendered one
+   * giant mech, dreams' "jellyfish" one giant jellyfish (ArtJobs 34639-34644).
+   */
+  negative?: string
+  /**
+   * Render a variant on another variant's canvas and framing, so its slug
+   * serves that art. 896x1152 is within a step of Illustrious's character
+   * portrait bucket (832x1216), and on bots every tablet candidate put a
+   * figure or machine dead centre -- eight of eight, two of them androids the
+   * negative named outright (ArtJobs 34761-34762, 34795-34798). The 9:16
+   * mobile canvas never did, so bots' tablet renders on it; the slug, file and
+   * frontmatter stay tablet's, and the CSS covers the 3:4 viewport.
+   */
+  canvasFor?: Partial<Record<BackdropVariant, BackdropVariant>>
 }
 
 /**
@@ -138,13 +186,18 @@ const PAGES: PageSeed[] = [
     page: 'dreams',
     title: 'Dreams — Dream Deck',
     scene:
-      'A dream deck adrift at night: a wide open platform of pale weathered wood floating in a violet and indigo sky, surrounded by slow-turning constellations, soft nebulae and shoals of luminous jellyfish-like drifters. Gauzy banners and star-charts flutter at the margins. Everything is quiet, buoyant and half-remembered, like the moment just before waking.',
+      'outdoors, night sky, a floating deck of pale weathered wooden planks adrift above a sea of clouds, swirling violet and indigo nebula, starry sky, constellations, bioluminescent particles, tiny glowing jellyfish scattered far away near the horizon, surreal, ethereal, open starry sky through the middle',
+    negative:
+      'giant jellyfish, large jellyfish, close-up jellyfish, large creature, monster, pillar, pole, tower, obelisk',
   },
   {
     page: 'bots',
     title: 'Bots — Bot Factory',
     scene:
-      'A friendly bot factory: a bright airy workshop hall of copper pipework, glass tanks of glowing coolant, conveyor rails and pegboards of neatly hung tools, with tall windows spilling afternoon sun across the floor. Small partially-assembled robots of many different silhouettes wait on side benches. Cheerful and tinkerable rather than industrial or grim.',
+      'indoors, messy machine shop, clutter, many small objects on every surface, workbenches piled with mechanical parts along both side walls, shelves of gears, brass joints, circuit boards and toolboxes, copper pipes running up the walls, tools hanging on pegboards, blueprints pinned above the benches, tall factory windows with warm afternoon sunlight, drifting sparks, empty concrete floor in the middle',
+    negative:
+      'robot, mecha, humanoid robot, android, cyborg, power armor, hanging object, creature, giant object, centerpiece, sculpture, statue, spiral, coil, tentacle, glass tank, specimen jar, cylinder, column, pillar',
+    canvasFor: { tablet: 'mobile' },
   },
   {
     page: 'characters',
@@ -156,7 +209,7 @@ const PAGES: PageSeed[] = [
     page: 'rewards',
     title: 'Rewards — Reward Gallery',
     scene:
-      'A reward vault turned playful: a treasury of open chests, hanging medallions, ribboned trophies and improbable trinkets glinting on shelves that run away to either side, lit by warm low lamplight and a scatter of floating sparks. Slightly chaotic and generous, more curiosity-cabinet than bank.',
+      'A reward vault: a treasury of open chests, hanging medallions, ribboned trophies and improbable trinkets glinting on shelves that run away to either side, lit by warm low lamplight and a scatter of floating sparks. Opulent and mysterious, more curiosity-cabinet than bank.',
   },
   {
     page: 'scenarios',
@@ -174,13 +227,13 @@ const PAGES: PageSeed[] = [
     page: 'storybook',
     title: 'Storybook',
     scene:
-      'A storybook library: a cosy round reading room where shelves curve away on both sides, an open book the size of a table rests off-centre, and pages lift and drift upward turning into birds and small scenes as they rise. Warm lamplight below, deep blue evening through a tall window. Everything converging into one unfolding story.',
+      'A storybook library: a towering round reading room where shelves curve away on both sides, an open book the size of a table rests off-centre, and pages lift and drift upward turning into birds and small scenes as they rise. Warm lamplight below, deep blue evening through a tall window. Everything converging into one unfolding story.',
   },
   {
     page: 'giftshop',
     title: 'Gift Shop',
     scene:
-      'The gift shop at the end of the tour: warm crowded shelves of enamel pins, plush oddities, printed shirts on racks and postcard spinners lining both side walls, festoon lights strung overhead, an open doorway of daylight beyond. Cheerful, souvenir-bright, and deliberately a little kitsch.',
+      'The gift shop at the end of the tour: warm crowded shelves of enamel pins, plush oddities, printed shirts on racks and postcard spinners lining both side walls, festoon lights strung overhead, an open doorway of daylight beyond. Rich, crowded and full of character, like a museum shop after hours.',
   },
 
   /*
@@ -246,7 +299,7 @@ const PAGES: PageSeed[] = [
     page: 'about',
     title: 'About — The Workshop Door',
     scene:
-      'A welcoming studio entryway at dawn: a cracked-open door onto a sunlit workshop of half-built robots, paper birds and warm brass lamps, with ivy at the threshold and a hand-lettered welcome sign. Friendly and unpretentious.',
+      'A welcoming studio entryway at dawn: a cracked-open door onto a sunlit workshop of half-built robots, paper birds and warm brass lamps, with ivy at the threshold and a hand-lettered welcome sign. Inviting and unpretentious.',
   },
   {
     page: 'account',
@@ -270,13 +323,13 @@ const PAGES: PageSeed[] = [
     page: 'animation-manager',
     title: 'Animation — The Flipbook Theatre',
     scene:
-      'A small theatre of suspended film strips and flipbook pages caught mid-turn, a projector throwing soft light onto a screen at the edge, dust motes in the beam. Playful and mechanical.',
+      'A small theatre of suspended film strips and flipbook pages caught mid-turn, a projector throwing soft light onto a screen at the edge, dust motes in the beam. Mechanical and cinematic.',
   },
   {
     page: 'appmaker',
     title: 'Appmaker — The Assembly Bench',
     scene:
-      'A bright maker bench strewn with modular tiles, blueprints and glowing wireframe shapes assembling themselves midair, tools racked neatly on a pegboard wall. Inventive and tidy.',
+      'A lamplit maker bench strewn with modular tiles, blueprints and glowing wireframe shapes assembling themselves midair, tools racked neatly on a pegboard wall. Inventive and tidy.',
   },
   {
     page: 'artjob',
@@ -288,13 +341,13 @@ const PAGES: PageSeed[] = [
     page: 'brainstorm',
     title: 'Brainstorm — The Idea Storm',
     scene:
-      'A tall airy loft where sticky notes, chalk sketches and paper aeroplanes swirl on a gentle indoor breeze, lightning-bug sparks of inspiration drifting near the ceiling. Energetic, not chaotic.',
+      'A tall airy loft where sticky notes, chalk sketches and paper aeroplanes swirl on a strong indoor draught, lightning-bug sparks of inspiration drifting near the ceiling. Energetic, not chaotic.',
   },
   {
     page: 'cart',
     title: 'Cart — The Packing Room',
     scene:
-      'A cosy shipping room of brown-paper parcels, twine spools, stamps and a wooden counter, a cat asleep on a stack of boxes, warm lamplight. Homely commerce.',
+      'A shipping room of brown-paper parcels, twine spools, stamps and a wooden counter, a cat asleep on a stack of boxes, warm lamplight. Homely commerce.',
   },
   {
     page: 'challenges',
@@ -312,7 +365,7 @@ const PAGES: PageSeed[] = [
     page: 'coat-dance',
     title: 'Coat Dance — The Cloakroom Ball',
     scene:
-      'An empty ballroom where coats on stands sway as though dancing, chandeliers dimmed, moonlight across the parquet. Whimsical and a little uncanny.',
+      'An empty ballroom where coats on stands sway as though dancing, chandeliers dimmed, moonlight across the parquet. Elegant and uncanny.',
   },
   {
     page: 'conductor-app',
@@ -330,7 +383,7 @@ const PAGES: PageSeed[] = [
     page: 'error',
     title: 'Error — The Detour',
     scene:
-      'A misty crossroads with a friendly signpost pointing several ways, a lantern-lit cart and a small robot offering directions. Reassuring, not ominous.',
+      'A misty crossroads at dusk with a weathered signpost pointing several ways and a lantern-lit cart. Mysterious but reassuring.',
   },
   {
     page: 'facets',
@@ -360,7 +413,7 @@ const PAGES: PageSeed[] = [
     page: 'hair-studio',
     title: 'Hair Studio — The Styling Parlour',
     scene:
-      'An art-deco styling parlour with mirrors ringed in warm bulbs, ribbons and combs on marble, potted ferns and a tall window onto a pastel street. Glamorous and gentle.',
+      'An art-deco styling parlour with mirrors ringed in warm bulbs, ribbons and combs on marble, potted ferns and a tall window onto a neon-lit evening street. Glamorous and sultry.',
   },
   {
     page: 'home',
@@ -378,7 +431,7 @@ const PAGES: PageSeed[] = [
     page: 'memory',
     title: 'Memory — The Card Hall',
     scene:
-      'A hall of face-down cards floating in neat ranks, a few flipped to show tiny glowing scenes, candlelight. Playful concentration.',
+      'A hall of face-down cards floating in neat ranks, a few flipped to show tiny glowing scenes, candlelight. Tense concentration.',
   },
   {
     page: 'messages',
@@ -432,7 +485,7 @@ const PAGES: PageSeed[] = [
     page: 'register',
     title: 'Register — The Threshold',
     scene:
-      'An open gate onto a bright path through wildflowers, a welcome arch and a book on a stand. Beginning and invitation.',
+      'An open iron gate onto a sunlit path through tall wildflowers, a welcome arch and a book on a stand. Beginning and invitation.',
   },
   {
     page: 'reset-password',
@@ -468,7 +521,7 @@ const PAGES: PageSeed[] = [
     page: 'shop-cancel',
     title: 'Cancelled — The Turned Cart',
     scene:
-      'A market cart turned back at a quiet lane, goods still neatly covered, a friendly vendor waving. Gentle, no blame.',
+      'A market cart turned back at a quiet lane, goods still neatly covered under oilcloth, a lantern left burning. Calm, no blame.',
   },
   {
     page: 'shop-success',
@@ -522,28 +575,25 @@ const PAGES: PageSeed[] = [
     page: 'watchlist',
     title: 'Watchlist — The Screening Room',
     scene:
-      'A small velvet screening room, projector beam through dark, reels stacked at the side, one seat turned out. Anticipatory and cosy.',
+      'A small velvet screening room, projector beam through dark, reels stacked at the side, one seat turned out. Anticipatory and intimate.',
   },
 ]
 
-// The canvas size is a job parameter (CANVAS feeds width/height straight into
-// the render request), so it does not also need to be spelled out to the model.
-// It used to lead with "Final canvas: exactly 1536 x 864 pixels" — digits, in
-// the positive prompt, to a Qwen-Image-lineage model that renders text better
-// than anything else open. The framing sentence says the same thing in words.
 function buildPrompt(seed: PageSeed, variant: BackdropVariant): string {
   return [
+    QUALITY,
     CONTRACT,
+    seed.scene,
     seed.aesthetic ?? HOUSE_AESTHETIC,
     CANVAS[variant].framing,
-    `Scene: ${seed.scene}`,
-  ].join('\n\n')
+  ].join(', ')
 }
 
 export const pageBackdropArtPrompts: PageBackdropArtPrompt[] = PAGES.flatMap(
   (seed) =>
     (Object.keys(CANVAS) as BackdropVariant[]).map((variant) => {
-      const canvas = CANVAS[variant]
+      const canvasVariant = seed.canvasFor?.[variant] ?? variant
+      const canvas = CANVAS[canvasVariant]
       return {
         // Stable and derived, never random: the enqueue script uses this to
         // recognise a job it already created, so re-running it is a no-op
@@ -557,8 +607,10 @@ export const pageBackdropArtPrompts: PageBackdropArtPrompt[] = PAGES.flatMap(
         // Must match the frontmatter keys in content/<page>.md exactly, and the
         // /images/** redirect to the media origin.
         imagePath: `background/${seed.page}-${variant}.webp`,
-        promptString: buildPrompt(seed, variant),
-        negativePrompt: NEGATIVE_PROMPT,
+        promptString: buildPrompt(seed, canvasVariant),
+        negativePrompt: seed.negative
+          ? `${NEGATIVE_PROMPT}, ${seed.negative}`
+          : NEGATIVE_PROMPT,
       }
     }),
 )

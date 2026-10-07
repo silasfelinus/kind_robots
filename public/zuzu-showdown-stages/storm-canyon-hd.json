@@ -1,0 +1,36 @@
+{
+  "stage": "storm-canyon",
+  "style": "hd",
+  "scale": 4,
+  "layers": [
+    {
+      "name": "backdrop",
+      "file": "storm-canyon-backdrop-hd.webp",
+      "factor": 0.2,
+      "x": -30,
+      "y": 0,
+      "w": 540,
+      "h": 240
+    },
+    {
+      "name": "walls",
+      "file": "storm-canyon-walls-hd.webp",
+      "factor": 0.6,
+      "x": -88,
+      "y": 76,
+      "w": 655,
+      "h": 160
+    },
+    {
+      "name": "floor",
+      "file": "storm-canyon-floor-hd.webp",
+      "factor": 1.0,
+      "x": -145,
+      "y": 230,
+      "w": 770,
+      "h": 40
+    }
+  ],
+  "cutouts": [],
+  "anchors": {}
+}

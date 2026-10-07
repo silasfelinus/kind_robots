@@ -165,6 +165,9 @@ jobs:
       - name: Zuzu Showdown fighter sprites
         run: npm run test:zuzu-showdown-sprites
 
+      - name: Zuzu Showdown CPU opponent
+        run: npm run test:zuzu-showdown-cpu
+
       - name: No Promise in Pinia store state
         run: npm run test:no-promise-in-store-state
 

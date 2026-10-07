@@ -46,10 +46,17 @@
             <span class="font-semibold">Opponent</span>
             <select
               class="kr-select-sm"
-              :value="store.mode"
+              :value="opponentValue"
               aria-label="Opponent"
               @change="onMode"
             >
+              <option
+                v-for="level in CPU_LEVELS"
+                :key="level"
+                :value="`cpu:${level}`"
+              >
+                CPU · {{ CPU_LEVEL_NAMES[level] }}
+              </option>
               <option value="dummy">Training dummy</option>
               <option value="versus">Player 2</option>
             </select>
@@ -140,6 +147,7 @@ import { computed } from 'vue'
 import { useUserStore } from '~/stores/userStore'
 import { useZuzuShowdownStore } from '~/stores/zuzuShowdownStore'
 import { FIGHTERS, findFighter, moveList } from '~/utils/zuzuShowdown/fighters'
+import { CPU_LEVELS, type CpuLevel } from '~/utils/zuzuShowdown/cpu'
 
 const userStore = useUserStore()
 const store = useZuzuShowdownStore()
@@ -160,9 +168,23 @@ function checked(event: Event) {
   return (event.target as HTMLInputElement).checked
 }
 
+const CPU_LEVEL_NAMES: Record<CpuLevel, string> = {
+  kid: 'Kid',
+  normal: 'Normal',
+  hard: 'Hard',
+  showdown: 'Showdown',
+}
+
+const opponentValue = computed(() =>
+  store.mode === 'cpu' ? `cpu:${store.cpuLevel}` : store.mode,
+)
+
 function onMode(event: Event) {
   const value = (event.target as HTMLSelectElement).value
-  store.setMode(value === 'versus' ? 'versus' : 'dummy')
+  if (value.startsWith('cpu:')) {
+    store.setCpuLevel(value.slice(4) as CpuLevel)
+    store.setMode('cpu')
+  } else store.setMode(value === 'versus' ? 'versus' : 'dummy')
 }
 
 useHead({ title: 'Zuzu Showdown' })

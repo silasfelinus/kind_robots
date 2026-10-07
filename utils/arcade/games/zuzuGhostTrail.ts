@@ -1,9 +1,9 @@
 // /utils/arcade/games/zuzuGhostTrail.ts
 //
 // Zuzu: Ghost Trail -- the Kind Robots Arcade's Ghosts 'n Goblins riff
-// (conductor kr-arcade/t-009 game factory, slices 1-2 of 4: one stage, the
-// poncho rule, and throwables and pickups; bosses and stage progression come
-// in later slices). Zuzu, the koala ronin, walks a haunted weird-west trail
+// (conductor kr-arcade/t-009 game factory, slices 1-3 of 4: one stage, the
+// poncho rule, throwables and pickups, and bosses; stage progression comes in
+// the last slice). Zuzu, the koala ronin, walks a haunted weird-west trail
 // through a ghost town at dusk, throwing kunai at restless spirits that claw
 // up out of the dirt, storm crows and bone hyenas.
 //
@@ -17,6 +17,11 @@
 // Shuriken fly three ways, the spare kasa boomerangs back through everything
 // in its path, a lantern lobs and leaves a ground fire that even catches
 // spirits still in the dirt, and the iai cut is a short, strong katana slash.
+//
+// Bosses from the thin places guard the mission gate: the arena locks, the
+// gate stays barred, and the boss alternates by trail. The Dust Devil whirls
+// back and forth flinging dust clods; the Bone Bull paws, charges (jump it;
+// its charge shrugs off hits) and staggers when it slams the arena wall.
 //
 // Zuzu's canon (CAST-PICKS.md, VIDEO-GUARDRAILS.md): short and stocky,
 // rust-brown poncho with orange zigzag trim, a wide straw kasa that shades his
@@ -48,6 +53,10 @@ const CLEAR_TICKS = 160
 const STAGE_TICKS = 60 * 150
 const START_LIVES = 3
 const EXTRA_EVERY = 20_000
+/** The boss arena: the last screen, with the barred mission gate in view. */
+const ARENA_X = STAGE_END - W + 60
+const BOSS_POINTS = 5000
+const BOSS_DYING_TICKS = 70
 
 /** Solid ground runs, with pits between them. */
 const GROUND: Array<[number, number]> = [
@@ -68,7 +77,7 @@ const BOARDWALKS: Array<{ x: number; y: number; w: number }> = [
   { x: 3120, y: 156, w: 104 },
 ]
 /** Tombstones: solid, jump over them. */
-const TOMBSTONES = [452, 1010, 1600, 2210, 2760, 3270]
+const TOMBSTONES = [452, 1010, 1600, 2210, 2760, 3130]
 /** Crates: any weapon breaks them open. 'gear' is a weapon other than the one in hand. */
 const CRATES: Array<{ x: number; holds: Holding }> = [
   { x: 560, holds: 'gear' },
@@ -127,10 +136,26 @@ type Shot = {
   vy: number
   life: number
   t: number
-  /** Piercing weapons (kasa, iai cut) strike each foe once. */
-  struck: Foe[]
+  /** Piercing weapons (kasa, iai cut) strike each foe (and the boss) once. */
+  struck: Array<Foe | Boss>
 }
 type Fire = { x: number; life: number }
+type BossKind = 'devil' | 'bull'
+type Boss = {
+  kind: BossKind
+  x: number
+  y: number
+  vx: number
+  hp: number
+  maxHp: number
+  t: number
+  flash: number
+  /** The Dust Devil drifts; the Bone Bull paws (its tell), charges, then staggers. */
+  mode: 'drift' | 'paw' | 'charge' | 'stunned'
+  timer: number
+  dying: number
+}
+type Clod = { x: number; y: number; vx: number; vy: number }
 type Crate = { x: number; holds: Holding; open: boolean }
 type Pickup = {
   x: number
@@ -193,6 +218,9 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
   private foes: Foe[] = []
   private shots: Shot[] = []
   private fires: Fire[] = []
+  private boss: Boss | null = null
+  private bossDone = false
+  private clods: Clod[] = []
   private crates: Crate[] = []
   private pickups: Pickup[] = []
   private flying: Flying[] = []
@@ -217,6 +245,7 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
   private startStage(lap: number) {
     this.level = lap
     this.checkpoint = 40
+    this.bossDone = false
     this.crates = CRATES.map((c) => ({ ...c, open: false }))
     this.respawn()
     this.banner = {
@@ -241,6 +270,8 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
     this.foes = []
     this.shots = []
     this.fires = []
+    this.boss = null
+    this.clods = []
     this.pickups = []
     this.spiritTimer = 120
     this.crowTimer = 300
@@ -289,14 +320,16 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
     this.updateFires()
     this.updateFoes()
     this.updatePickups()
+    this.updateBoss()
 
     if (this.x > CHECKPOINT_X && this.checkpoint < CHECKPOINT_X) {
       this.checkpoint = CHECKPOINT_X
       this.banner = { text: 'CHECKPOINT', ticks: 70 }
       this.sound.play('pickup')
     }
-    if (this.x >= STAGE_END) this.stageClear()
-    this.camX = Math.max(0, Math.min(STAGE_END + 80 - W, this.x - 120))
+    if (this.x >= STAGE_END && this.bossDone) this.stageClear()
+    if (this.boss) this.camX += (ARENA_X - this.camX) * 0.15
+    else this.camX = Math.max(0, Math.min(STAGE_END + 80 - W, this.x - 120))
   }
 
   private move(input: InputFrame) {
@@ -333,7 +366,9 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
         nx = this.x < t ? t - 11 : t + 11
       }
     }
-    this.x = Math.max(this.camX + 6, Math.min(STAGE_END + 40, nx))
+    // The gate stays barred until the boss falls.
+    const gate = this.bossDone ? STAGE_END + 40 : STAGE_END - 12
+    this.x = Math.max(this.camX + 6, Math.min(gate, nx))
     this.y += this.vy
     this.onGround = false
     if (this.vy >= 0) {
@@ -403,6 +438,7 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
   }
 
   private spawnFoes() {
+    if (this.boss || this.bossDone) return
     const speed = levelCurve(this.level, TRAIL_CURVES.enemySpeed)
     if (--this.spiritTimer <= 0) {
       this.spiritTimer = Math.round(
@@ -531,6 +567,23 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
         k.life = 0
         continue
       }
+      const b = this.boss
+      if (
+        b &&
+        b.dying === 0 &&
+        !k.struck.includes(b) &&
+        Math.abs(b.x - k.x) < 14 &&
+        k.y > b.y - this.bossHeight(b) &&
+        k.y < b.y
+      ) {
+        k.struck.push(b)
+        this.hurtBoss(WEAPONS[k.weapon].damage, k.x, k.y)
+        if (!pierce) {
+          if (k.weapon === 'lantern') this.ignite(k.x)
+          k.life = 0
+          continue
+        }
+      }
       const crate = this.crates.find(
         (c) =>
           !c.open && Math.abs(c.x - k.x) < reach + 1 && k.y > GROUND_Y - 18,
@@ -561,8 +614,153 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
       for (const f of this.foes)
         if (f.hp > 0 && Math.abs(f.x - fire.x) < 14 && f.y > GROUND_Y - 24)
           this.strike(f, 1, f.x, GROUND_Y - 10)
+      if (this.boss && Math.abs(this.boss.x - fire.x) < 16)
+        this.hurtBoss(1, this.boss.x, GROUND_Y - 10)
     }
     this.fires = this.fires.filter((f) => f.life > 0)
+  }
+
+  // --- bosses -------------------------------------------------------------------
+
+  private bossHeight(b: Boss): number {
+    return b.kind === 'devil' ? 38 : 26
+  }
+
+  private spawnBoss() {
+    const kind: BossKind = this.level % 2 === 1 ? 'devil' : 'bull'
+    const hp = Math.round(
+      (kind === 'devil' ? 18 : 14) * (1 + (this.level - 1) * 0.25),
+    )
+    this.boss = {
+      kind,
+      x: STAGE_END - 50,
+      y: GROUND_Y,
+      vx: -1,
+      hp,
+      maxHp: hp,
+      t: 0,
+      flash: 0,
+      mode: kind === 'devil' ? 'drift' : 'paw',
+      timer: 90,
+      dying: 0,
+    }
+    // The arena is the boss's alone.
+    this.foes = this.foes.filter((f) => f.x < ARENA_X)
+    this.banner = {
+      text: kind === 'devil' ? 'THE DUST DEVIL' : 'THE BONE BULL',
+      sub: 'FROM THE THIN PLACES',
+      ticks: 100,
+    }
+    this.sound.play('warn')
+  }
+
+  private updateBoss() {
+    this.updateClods()
+    const b = this.boss
+    if (!b) {
+      if (!this.bossDone && this.x > ARENA_X + 60) this.spawnBoss()
+      return
+    }
+    b.t++
+    if (b.flash > 0) b.flash--
+    if (b.dying > 0) {
+      if (b.dying % 6 === 0)
+        this.burst(
+          b.x + (this.rng() - 0.5) * 24,
+          b.y - this.rng() * this.bossHeight(b),
+          8,
+          b.kind === 'devil' ? '#d6b25e' : '#f5f5f4',
+        )
+      if (--b.dying === 0) {
+        this.boss = null
+        this.bossDone = true
+        this.banner = { text: 'THE WAY IS OPEN', ticks: 90 }
+        this.sound.play('level')
+      }
+      return
+    }
+    const speed = levelCurve(this.level, TRAIL_CURVES.enemySpeed)
+    if (b.kind === 'devil') {
+      b.x += b.vx * 0.8 * speed
+      if (b.x < ARENA_X + 16 || b.x > STAGE_END - 20) {
+        b.x = Math.max(ARENA_X + 16, Math.min(STAGE_END - 20, b.x))
+        b.vx = -b.vx
+      }
+      // Up close it just whirls; the clods are for keeping him at bay.
+      if (--b.timer <= 0 && Math.abs(this.x - b.x) > 75) {
+        // A spray of three dust clods lobbed Zuzu's way.
+        b.timer = Math.max(55, 100 - this.level * 8)
+        const dir = Math.sign(this.x - b.x) || 1
+        for (let i = 0; i < 3; i++)
+          this.clods.push({
+            x: b.x,
+            y: b.y - 34,
+            vx: dir * (0.9 + i * 0.9),
+            vy: -3.6 - i * 0.3,
+          })
+        this.sound.play('shoot')
+      }
+    } else if (b.mode === 'paw') {
+      if (b.t % 12 === 0) this.burst(b.x, GROUND_Y - 2, 3, '#a07a45')
+      if (--b.timer <= 0) {
+        b.mode = 'charge'
+        b.vx = (Math.sign(this.x - b.x) || -1) * 3.4 * speed
+        this.sound.play('warn')
+      }
+    } else if (b.mode === 'charge') {
+      b.x += b.vx
+      if (b.x < ARENA_X + 20 || b.x > STAGE_END - 16) {
+        b.x = Math.max(ARENA_X + 20, Math.min(STAGE_END - 16, b.x))
+        b.mode = 'stunned'
+        b.timer = 80
+        this.burst(b.x + Math.sign(b.vx) * 14, GROUND_Y - 14, 14, '#a07a45')
+        this.sound.play('boom')
+      }
+    } else if (--b.timer <= 0) {
+      b.mode = 'paw'
+      b.timer = Math.max(30, 70 - this.level * 6)
+    }
+    if (
+      Math.abs(b.x - this.x) < (b.kind === 'devil' ? 13 : 15) &&
+      this.y > b.y - this.bossHeight(b) + 4
+    )
+      this.hit()
+  }
+
+  private updateClods() {
+    for (const c of this.clods) {
+      c.vy += 0.2
+      c.x += c.vx
+      c.y += c.vy
+      if (Math.abs(c.x - this.x) < 6 && c.y > this.y - 22 && c.y < this.y) {
+        c.y = H + 99
+        this.hit()
+      }
+      if (c.y >= GROUND_Y && c.y < H + 50) {
+        this.burst(c.x, GROUND_Y - 2, 4, '#a07a45')
+        c.y = H + 99
+      }
+    }
+    this.clods = this.clods.filter((c) => c.y < H + 20)
+  }
+
+  private hurtBoss(damage: number, x: number, y: number) {
+    const b = this.boss
+    if (!b || b.dying > 0) return
+    if (b.kind === 'bull' && b.mode === 'charge') {
+      // Charging, the bull shrugs it off.
+      this.burst(x, y, 3, '#9ca3af')
+      this.sound.play('blip')
+      return
+    }
+    b.hp -= damage
+    b.flash = 6
+    this.burst(x, y, 5, '#e5e7eb')
+    if (b.hp > 0) return
+    b.dying = BOSS_DYING_TICKS
+    this.clods = []
+    this.addScore(BOSS_POINTS * this.level, b.x, b.y - 50)
+    this.sound.play('boom')
   }
 
   private strike(foe: Foe, damage: number, x: number, y: number) {
@@ -826,6 +1024,7 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
       start: false,
     }
     const frame: InputFrame = { held, pressed: { ...held } }
+    if (this.boss && this.boss.dying === 0) return this.pilotBoss(frame)
     // Deal with whatever is closest, facing it.
     const near = this.foes
       .filter(
@@ -879,6 +1078,65 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
     return frame
   }
 
+  private pilotBoss(frame: InputFrame): InputFrame {
+    const b = this.boss!
+    const dx = b.x - this.x
+    const dir = dx > 0 ? 1 : -1
+    // Jump a charging bull.
+    // Vault the devil as it drifts in (a committed jump, so take off early).
+    const vault =
+      b.kind === 'devil' &&
+      Math.sign(b.vx) === -dir &&
+      Math.abs(dx) < 62 &&
+      Math.abs(dx) > 36
+    const charging =
+      b.mode === 'charge' && Math.sign(b.vx) === -dir && Math.abs(dx) < 80
+    if (this.onGround && (charging || vault)) {
+      frame.pressed.up = true
+      if (vault && dir > 0) frame.held.right = true
+      if (vault && dir < 0) frame.held.left = true
+      return frame
+    }
+    if (!this.onGround) return frame
+    // Step out from under a clod that will land on him.
+    const landing = this.clods
+      .map((c) => {
+        const drop = c.y - (this.y - 10)
+        const t = (-c.vy + Math.sqrt(c.vy * c.vy - 0.4 * drop)) / 0.2
+        return c.x + c.vx * t
+      })
+      .filter((x) => Math.abs(x - this.x) < 12)
+    if (landing.length) {
+      const away = landing.reduce((a, x) => a + x, 0) / landing.length
+      if (away > this.x) frame.held.left = true
+      else frame.held.right = true
+      return frame
+    }
+    if (dir !== this.facing) {
+      if (dir > 0) frame.held.right = true
+      else frame.held.left = true
+      return frame
+    }
+    // Fight from each weapon's reach: a lantern lob carries only so far.
+    const want = {
+      kunai: 80,
+      shuriken: 90,
+      kasa: 70,
+      lantern: 48,
+      katana: 12,
+    }[this.weapon]
+    if (
+      this.throwCooldown === 0 &&
+      (this.weapon !== 'katana' || Math.abs(dx) < 30)
+    )
+      frame.pressed.a = true
+    if (Math.abs(dx) > want + 12) {
+      if (dir > 0) frame.held.right = true
+      else frame.held.left = true
+    }
+    return frame
+  }
+
   // --- render -------------------------------------------------------------------
 
   render(g: CanvasRenderingContext2D) {
@@ -890,6 +1148,13 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
     for (const c of this.crates) if (!c.open) this.renderCrate(g, c.x)
     for (const p of this.pickups) this.renderPickup(g, p)
     for (const f of this.foes) this.renderFoe(g, f)
+    if (this.boss) this.renderBoss(g, this.boss)
+    g.fillStyle = '#7c5a32'
+    for (const c of this.clods) {
+      g.beginPath()
+      g.arc(c.x, c.y, 3, 0, Math.PI * 2)
+      g.fill()
+    }
     for (const fire of this.fires) this.renderFire(g, fire)
     for (const k of this.shots) this.renderShot(g, k)
     for (const f of this.flying) this.renderFlyingKasa(g, f)
@@ -963,6 +1228,13 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
     g.beginPath()
     g.arc(STAGE_END + 36, GROUND_Y - 92, 7, Math.PI, 0)
     g.fill()
+    // Iron bars across the gate until the boss falls.
+    if (!this.bossDone) {
+      g.fillStyle = '#292524'
+      for (let x = STAGE_END + 14; x < STAGE_END + 60; x += 7)
+        g.fillRect(x, GROUND_Y - 68, 3, 68)
+      g.fillRect(STAGE_END + 12, GROUND_Y - 40, 48, 3)
+    }
     // Checkpoint lantern.
     g.fillStyle = '#3f2a14'
     g.fillRect(CHECKPOINT_X, GROUND_Y - 40, 3, 40)
@@ -1222,6 +1494,63 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
     g.fillRect(x + 6, y - 13, 4, 2)
   }
 
+  private renderBoss(g: CanvasRenderingContext2D, b: Boss) {
+    if (b.dying > 0 && Math.floor(b.dying / 3) % 2) return
+    const x = Math.round(b.x)
+    const y = b.y
+    const white = b.flash > 0
+    if (b.kind === 'devil') {
+      // A whirling funnel of dust, narrow at the ground, with a bull skull in it.
+      for (let i = 0; i < 9; i++) {
+        const h = i * 4
+        const w = 4 + i * 2
+        const sway = Math.sin(b.t / 6 + i * 0.7) * (2 + i * 0.4)
+        g.fillStyle = white ? '#ffffff' : i % 2 ? '#c9a46a' : '#a07a45'
+        g.fillRect(x - w / 2 + sway, y - h - 4, w, 4)
+      }
+      const sx = x + Math.sin(b.t / 6 + 4) * 4
+      g.fillStyle = white ? '#ffffff' : '#f5f5f4'
+      g.fillRect(sx - 4, y - 30, 8, 7)
+      g.fillRect(sx - 9, y - 32, 5, 2)
+      g.fillRect(sx + 4, y - 32, 5, 2)
+      g.fillRect(sx - 10, y - 35, 2, 3)
+      g.fillRect(sx + 8, y - 35, 2, 3)
+      g.fillStyle = '#f97316'
+      g.fillRect(sx - 3, y - 28, 2, 2)
+      g.fillRect(sx + 1, y - 28, 2, 2)
+      return
+    }
+    // The Bone Bull: ribs, four legs, a long-horned skull, eyes hot when it means it.
+    const f =
+      b.mode === 'charge' ? Math.sign(b.vx) : Math.sign(this.x - b.x) || -1
+    const step = b.mode === 'charge' ? Math.floor(b.t / 3) % 2 : 0
+    g.fillStyle = white ? '#ffffff' : '#e7e5e4'
+    g.fillRect(x - 14, y - 22, 24, 3)
+    for (let i = 0; i < 5; i++) g.fillRect(x - 12 + i * 5, y - 20, 2, 9)
+    g.fillRect(x - 14, y - 12, 24, 2)
+    g.fillRect(x - 12, y - 10, 2, 10 - step * 2)
+    g.fillRect(x - 7, y - 10, 2, 8 + step * 2)
+    g.fillRect(x + 3, y - 10, 2, 10 - step * 2)
+    g.fillRect(x + 8, y - 10, 2, 8 + step * 2)
+    const hx = x + f * 15
+    g.fillRect(hx - 4, y - 24, 8, 9)
+    g.fillRect(hx - 9, y - 27, 5, 2)
+    g.fillRect(hx + 4, y - 27, 5, 2)
+    g.fillRect(hx - 10, y - 31, 2, 4)
+    g.fillRect(hx + 8, y - 31, 2, 4)
+    g.fillStyle = b.mode === 'stunned' ? '#57534e' : '#dc2626'
+    g.fillRect(hx - 3, y - 21, 2, 2)
+    g.fillRect(hx + 1, y - 21, 2, 2)
+    if (b.mode === 'stunned') {
+      // Seeing stars.
+      g.fillStyle = '#fde047'
+      for (let i = 0; i < 3; i++) {
+        const a = b.t / 8 + (i * Math.PI * 2) / 3
+        g.fillRect(hx + Math.cos(a) * 8 - 1, y - 36 + Math.sin(a) * 3, 2, 2)
+      }
+    }
+  }
+
   private renderZuzu(g: CanvasRenderingContext2D) {
     if (this.invuln > 0 && Math.floor(this.tick / 4) % 2) return
     const x = Math.round(this.x)
@@ -1373,6 +1702,19 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
     g.fillRect(170, 6, 60, 3)
     g.fillStyle = '#fbbf24'
     g.fillRect(170, 6, Math.min(60, (60 * this.x) / STAGE_END), 3)
+    if (this.boss && this.boss.dying === 0) {
+      const b = this.boss
+      g.fillStyle = 'rgba(15, 27, 61, 0.7)'
+      g.fillRect(W / 2 - 62, 18, 124, 16)
+      drawText(g, b.kind === 'devil' ? 'DUST DEVIL' : 'BONE BULL', W / 2, 19, {
+        align: 'center',
+        color: '#fca5a5',
+      })
+      g.fillStyle = '#1f2937'
+      g.fillRect(W / 2 - 58, 28, 116, 3)
+      g.fillStyle = '#ef4444'
+      g.fillRect(W / 2 - 58, 28, (116 * Math.max(0, b.hp)) / b.maxHp, 3)
+    }
     if (this.banner) {
       drawText(g, this.banner.text, W / 2, 70, {
         scale: 2,

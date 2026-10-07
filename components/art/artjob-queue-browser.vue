@@ -600,10 +600,7 @@ async function loadInitialJobs(): Promise<void> {
   await artJobStore.fetchStats()
   const initialStatus = firstNonEmptyStatus()
 
-  await artJobStore.fetchJobs(
-    initialStatus ?? artJobStore.jobStatusFilter,
-    1,
-  )
+  await artJobStore.fetchJobs(initialStatus ?? artJobStore.jobStatusFilter, 1)
 
   if (artJobStore.jobs.length || !initialStatus) return
 

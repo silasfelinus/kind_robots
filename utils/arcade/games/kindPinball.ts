@@ -1,23 +1,30 @@
 // /utils/arcade/games/kindPinball.ts
 //
-// Kind Pinball -- the Kind Robots Arcade's pinball table (conductor
-// kr-arcade/t-009 game factory, all four slices: table, flippers, physics,
-// bumpers, targets, scoring, the ramp, the mode ladder and AMI multiball).
+// Kind Pinball -- AMI Village Rescue, the Kind Robots Arcade's pinball table.
+// Built in four kr-arcade factory slices (table, scoring, ramp and modes, AMI
+// multiball), then rebuilt as its own conductor project, kind-pinball. Style
+// pass 1 (t-003) added the dot-matrix display, the lit and printed playfield,
+// chrome rails and wireform ramps, a second ramp, the orbits, the skill shot
+// and combos.
 // Left and right work the flippers, A works both, hold Down to pull the
 // plunger and let go to launch (A launches too), and Up nudges the table.
 //
 // Rules: roll through the N-E-T lanes at the top to raise the bonus
-// multiplier (the flippers rotate the lit lanes). Hit the A-M-I targets to
-// ready the saucer, then shoot the saucer to light a village. Light all five
-// villages for the JACKPOT, which also steps up the level.
+// multiplier (the flippers rotate the lit lanes). The blinking lane is the
+// skill shot: plunge into it for a bonus, and steer it with the flippers
+// before you launch. Hit the A-M-I targets to ready the saucer, then shoot
+// the saucer to light a village. Light all five villages for the JACKPOT,
+// which also steps up the level.
 //
-// The ramp: a fast shot into the mouth on the upper right rides a raised
-// track over the table and drops into the left inlane. Ramp shots in a row
-// on one ball are worth more each time, and every third one starts the next
-// mode on the ladder (Net Rush, Ramp Frenzy, Lane Lights, Saucer Rescue),
-// each 30 seconds long. Play all four and the next ramp shot pays the SUPER
-// JACKPOT. Mode values scale with the level. Ball save shrinks with every
-// ball and level, and an extra ball waits at 150,000.
+// Two ramps cross over the table. The right ramp drops into the left inlane
+// and the left ramp drops into the right inlane. Ramp shots in a row on one
+// ball are worth more each time, and every third one starts the next mode on
+// the ladder (Net Rush, Ramp Frenzy, Lane Lights, Saucer Rescue), each 30
+// seconds long. Play all four and the next ramp shot pays the SUPER JACKPOT.
+// A fast shot up either side rides the arch around the top: an orbit. Each
+// orbit lights a top lane. A ramp or orbit soon after another one is a combo
+// worth more each time. Mode values scale with the level. Ball save shrinks
+// with every ball and level, and an extra ball waits at 150,000.
 //
 // AMI multiball: lighting the third village lights MULTIBALL at the saucer.
 // Shoot the saucer and two more balls kick out of the lane, three in all
@@ -26,6 +33,7 @@
 // all five villages pay the AMI JACKPOT. Multiball ends at one ball left.
 
 import { drawText } from '../font'
+import { Dmd, DMD_COLS, DMD_ROWS, dmdTextWidth } from '../pinball/dmd'
 import type {
   ArcadeGameInstance,
   ArcadeGameModule,
@@ -34,7 +42,14 @@ import type {
 } from '../types'
 
 const W = 288
+/** Height of the playfield; the dot-matrix display sits above it. */
 const H = 416
+/** The display band above the playfield (128x32 dots at a 2px pitch). */
+export const DMD_BAND = 72
+export const PINBALL_HEIGHT = H + DMD_BAND
+const DMD_PITCH = 2
+const DMD_X = (W - DMD_COLS * DMD_PITCH) / 2
+const DMD_Y = (DMD_BAND - DMD_ROWS * DMD_PITCH) / 2
 const R = 6
 const GRAVITY = 0.13
 const MAX_SPEED = 14
@@ -53,7 +68,8 @@ const EXTRA_BALL_AT = 150_000
 const VILLAGES = 5
 const JACKPOT = 100_000
 const SUPER_JACKPOT = 250_000
-const RAMP_TICKS = 48
+/** How fast a ball rides a ramp, in pixels per tick. */
+const RAMP_SPEED = 8.5
 /** The village that lights multiball at the saucer. */
 const MULTIBALL_AT_VILLAGE = 3
 const MULTIBALL_BALLS = 3
@@ -63,32 +79,126 @@ const NET_VALUE = 20_000
 const AMI_JACKPOT = 150_000
 const RAMPS_PER_MODE = 3
 const MODE_TICKS = 60 * 30
+const SKILL_SHOT = 25_000
+const ORBIT_VALUE = 5_000
+const COMBO_VALUE = 10_000
+/** Ticks after a ramp or orbit in which the next one is a combo. */
+const COMBO_WINDOW = 60 * 4
+/** Ticks a ball may take to cross the top of the arch for an orbit. */
+const ORBIT_TICKS = 70
 
-/** The ramp mouth: a ball moving up through it fast enough rides the ramp. */
-const RAMP_MOUTH = { x0: 200, x1: 228, y0: 150, y1: 172, minSpeed: 4.5 }
-/** The raised track, from the mouth over the top and down into the left inlane. */
-const RAMP_PATH: Array<{ x: number; y: number }> = [
-  { x: 214, y: 162 },
-  { x: 226, y: 108 },
-  { x: 200, y: 82 },
-  { x: 140, y: 98 },
-  { x: 70, y: 110 },
-  { x: 40, y: 168 },
-  { x: 41, y: 250 },
-  { x: 38, y: 290 },
-]
+type Vec = { x: number; y: number }
+
+type RampKey = 'left' | 'right'
+type RampDef = {
+  key: RampKey
+  /** A ball moving up through the mouth fast enough rides the ramp. */
+  mouth: { x0: number; x1: number; y0: number; y1: number; minSpeed: number }
+  /** The raised track, from the mouth over the table and into an inlane. */
+  path: Vec[]
+  /** The ball's velocity as it drops off the end of the track. */
+  exit: Vec
+}
+
+/** The right ramp climbs over the top and drops into the left inlane. */
+const RIGHT_RAMP: RampDef = {
+  key: 'right',
+  mouth: { x0: 200, x1: 228, y0: 150, y1: 172, minSpeed: 4.5 },
+  path: [
+    { x: 214, y: 162 },
+    { x: 228, y: 110 },
+    { x: 206, y: 90 },
+    { x: 136, y: 94 },
+    { x: 76, y: 104 },
+    { x: 42, y: 160 },
+    { x: 41, y: 250 },
+    { x: 38, y: 290 },
+  ],
+  exit: { x: 0.6, y: 1.6 },
+}
+
+/** The left ramp crosses back over it and drops into the right inlane. */
+const LEFT_RAMP: RampDef = {
+  key: 'left',
+  mouth: { x0: 44, x1: 72, y0: 150, y1: 172, minSpeed: 4.5 },
+  path: [
+    { x: 58, y: 162 },
+    { x: 48, y: 126 },
+    { x: 74, y: 114 },
+    { x: 136, y: 116 },
+    { x: 200, y: 112 },
+    { x: 238, y: 124 },
+    { x: 256, y: 160 },
+    { x: 256, y: 244 },
+    { x: 244, y: 288 },
+  ],
+  exit: { x: -0.6, y: 1.6 },
+}
+
+export const PINBALL_RAMPS: RampDef[] = [LEFT_RAMP, RIGHT_RAMP]
+
+/** Kept for the original right ramp: where a ride is along it (t from 0 to 1). */
+export const RAMP_MOUTH = RIGHT_RAMP.mouth
 
 /** The mode ladder, started in order by every third ramp shot. */
 export const PINBALL_MODES = [
   { key: 'net', name: 'NET RUSH', hint: 'BUMPERS 1,000' },
   { key: 'ramp', name: 'RAMP FRENZY', hint: 'RAMPS 25,000' },
   { key: 'lanes', name: 'LANE LIGHTS', hint: 'LANES 5,000' },
-  { key: 'saucer', name: 'SAUCER RESCUE', hint: 'SAUCER LIGHTS VILLAGES' },
+  { key: 'saucer', name: 'SAUCER RESCUE', hint: 'SAUCER LIGHTS VILLAGE' },
 ] as const
 type ModeKey = (typeof PINBALL_MODES)[number]['key']
 
+function pathLength(path: Vec[]): number {
+  let total = 0
+  for (let i = 1; i < path.length; i++)
+    total += Math.hypot(
+      path[i]!.x - path[i - 1]!.x,
+      path[i]!.y - path[i - 1]!.y,
+    )
+  return total
+}
+
+/** A point along a path at fraction t of its length (0 to 1). */
+export function pathPoint(path: Vec[], t: number): Vec {
+  const target = Math.max(0, Math.min(1, t)) * pathLength(path)
+  let run = 0
+  for (let i = 1; i < path.length; i++) {
+    const a = path[i - 1]!
+    const b = path[i]!
+    const seg = Math.hypot(b.x - a.x, b.y - a.y)
+    if (run + seg >= target || i === path.length - 1) {
+      const f = seg ? Math.min(1, (target - run) / seg) : 0
+      return { x: a.x + (b.x - a.x) * f, y: a.y + (b.y - a.y) * f }
+    }
+    run += seg
+  }
+  return { ...path[path.length - 1]! }
+}
+
+/** Where a ride is along the right ramp (t from 0 to 1). */
+export function rampPoint(t: number): Vec {
+  return pathPoint(RIGHT_RAMP.path, t)
+}
+
+function rampTicks(ramp: RampDef): number {
+  return Math.max(24, Math.round(pathLength(ramp.path) / RAMP_SPEED))
+}
+
 function freshBall(): Ball {
-  return { x: LANE_X, y: PLUNGER_Y - R, vx: 0, vy: 0, ramping: 0, still: 0 }
+  return {
+    x: LANE_X,
+    y: PLUNGER_Y - R,
+    vx: 0,
+    vy: 0,
+    ramp: null,
+    ramping: 0,
+    still: 0,
+    fresh: true,
+    archSide: null,
+    archAt: 0,
+    trail: [],
+  }
 }
 
 /** Where a village's hut sits, for the nets flying to it. */
@@ -96,31 +206,35 @@ function villageSpot(i: number): Vec {
   return { x: 84 + i * 26, y: 250 }
 }
 
-/** Where a ride is, as a point along RAMP_PATH (t from 0 to 1). */
-export function rampPoint(t: number): { x: number; y: number } {
-  const clamped = Math.max(0, Math.min(1, t))
-  const span = (RAMP_PATH.length - 1) * clamped
-  const i = Math.min(RAMP_PATH.length - 2, Math.floor(span))
-  const f = span - i
-  const a = RAMP_PATH[i]!
-  const b = RAMP_PATH[i + 1]!
-  return { x: a.x + (b.x - a.x) * f, y: a.y + (b.y - a.y) * f }
-}
-
-type Vec = { x: number; y: number }
 type Ball = {
   x: number
   y: number
   vx: number
   vy: number
-  /** Ticks into a ramp ride, or 0 when the ball is on the table. */
+  /** The ramp the ball is riding, or null when it is on the table. */
+  ramp: RampDef | null
+  /** Ticks into a ramp ride. */
   ramping: number
   /** Ticks spent nearly motionless (see unstick). */
   still: number
+  /** True from the plunger until the ball first touches a flipper. */
+  fresh: boolean
+  /** Which top corner of the arch the ball last passed, for orbits. */
+  archSide: 'L' | 'R' | null
+  archAt: number
+  /** Recent positions, drawn as a motion trail at speed. */
+  trail: Vec[]
 }
 /** A mosquito net flying from a shot to a village (t from 0 to 1). */
 type NetFlight = { x0: number; y0: number; x1: number; y1: number; t: number }
-type Seg = { a: Vec; b: Vec; kick?: number; target?: number }
+type Seg = {
+  a: Vec
+  b: Vec
+  kick?: number
+  target?: number
+  /** One-way: only solid to a ball moving down (the shooter-lane gate). */
+  gate?: boolean
+}
 type Bumper = { x: number; y: number; r: number; flash: number }
 type Flipper = {
   pivot: Vec
@@ -139,21 +253,23 @@ type Spark = {
   color: string
 }
 type Floater = { x: number; y: number; text: string; life: number }
+type Banner = { text: string; sub?: string; ticks: number; start: number }
+type ShotKey = 'leftOrbit' | 'leftRamp' | 'saucer' | 'rightRamp' | 'rightOrbit'
 
 const CX = 136
 
 /** The top arch, as an ellipse traced into wall segments. */
+const ARCH = { cx: 144, cy: 130, rx: 136, ry: 104 }
 function arch(): Seg[] {
   const segs: Seg[] = []
-  const cx = 144
-  const cy = 130
-  const rx = 136
-  const ry = 104
   const steps = 24
-  let prev: Vec = { x: cx - rx, y: cy }
+  let prev: Vec = { x: ARCH.cx - ARCH.rx, y: ARCH.cy }
   for (let i = 1; i <= steps; i++) {
     const t = Math.PI + (Math.PI * i) / steps
-    const p = { x: cx + Math.cos(t) * rx, y: cy + Math.sin(t) * ry }
+    const p = {
+      x: ARCH.cx + Math.cos(t) * ARCH.rx,
+      y: ARCH.cy + Math.sin(t) * ARCH.ry,
+    }
     segs.push({ a: prev, b: p })
     prev = p
   }
@@ -164,31 +280,42 @@ function mirror(p: Vec): Vec {
   return { x: CX * 2 - p.x, y: p.y }
 }
 
+const SLING = {
+  a: { x: 52, y: 262 },
+  b: { x: 52, y: 298 },
+  c: { x: 78, y: 316 },
+}
+const INLANE = { a: { x: 24, y: 296 }, b: { x: 80, y: 352 } }
+const TOP_GUIDE = { a: { x: 8, y: 132 }, b: { x: 42, y: 150 } }
+const LANE_DIVIDERS = [100, 124, 148, 172]
+/** The one-way gate at the top of the shooter lane. */
+const LANE_GATE: Seg = {
+  a: { x: 264, y: 150 },
+  b: { x: 280, y: 140 },
+  gate: true,
+}
+
 /** Every wall on the table. Targets carry an index; slingshot faces carry a kick. */
 export function tableWalls(): Seg[] {
   const walls: Seg[] = [
     ...arch(),
     { a: { x: 8, y: 130 }, b: { x: 8, y: H + 20 } },
     { a: { x: 280, y: 130 }, b: { x: 280, y: H + 20 } },
-    // Plunger lane wall, and the plunger tip the ball rests on.
+    // Plunger lane wall, the plunger tip the ball rests on, and the gate that
+    // keeps a ball coming back down the arch out of the lane.
     { a: { x: 264, y: 150 }, b: { x: 264, y: H + 20 } },
     { a: { x: 264, y: PLUNGER_Y }, b: { x: 280, y: PLUNGER_Y } },
+    LANE_GATE,
     // Top-left guide: a ball riding the arch down the left side is turned
     // back toward the bumpers instead of falling straight into the outlane.
-    { a: { x: 8, y: 132 }, b: { x: 42, y: 150 } },
+    TOP_GUIDE,
     // Top lane dividers.
-    { a: { x: 100, y: 46 }, b: { x: 100, y: 68 } },
-    { a: { x: 124, y: 46 }, b: { x: 124, y: 68 } },
-    { a: { x: 148, y: 46 }, b: { x: 148, y: 68 } },
-    { a: { x: 172, y: 46 }, b: { x: 172, y: 68 } },
+    ...LANE_DIVIDERS.map((x) => ({ a: { x, y: 52 }, b: { x, y: 68 } })),
   ]
   // Inlane guides feed the flippers; outlanes drain past them.
-  const inlane = { a: { x: 24, y: 296 }, b: { x: 80, y: 352 } }
-  walls.push(inlane, { a: mirror(inlane.a), b: mirror(inlane.b) })
+  walls.push(INLANE, { a: mirror(INLANE.a), b: mirror(INLANE.b) })
   // Slingshots: two plain sides and a kicking face toward the middle.
-  const sa = { x: 52, y: 262 }
-  const sb = { x: 52, y: 298 }
-  const sc = { x: 78, y: 316 }
+  const { a: sa, b: sb, c: sc } = SLING
   walls.push(
     { a: sa, b: sb },
     { a: sb, b: sc },
@@ -214,6 +341,44 @@ const LANES = [112, 136, 160]
 const LANE_LETTERS = ['N', 'E', 'T']
 const TARGET_LETTERS = ['A', 'M', 'I']
 
+/** Arrow inserts: where each shot's lamp sits and which way it points. */
+const ARROWS: Array<{ key: ShotKey; x: number; y: number; angle: number }> = [
+  { key: 'leftOrbit', x: 84, y: 206, angle: -2.0 },
+  { key: 'leftRamp', x: 58, y: 192, angle: -1.75 },
+  { key: 'saucer', x: 212, y: 230, angle: -0.75 },
+  { key: 'rightRamp', x: 210, y: 194, angle: -1.45 },
+  { key: 'rightOrbit', x: 236, y: 248, angle: -1.45 },
+]
+
+/** Warm general-illumination bulbs along the rails and slings. */
+const GI_BULBS: Vec[] = [
+  { x: 30, y: 300 },
+  { x: 50, y: 320 },
+  { x: 70, y: 340 },
+  { x: 242, y: 300 },
+  { x: 222, y: 320 },
+  { x: 202, y: 340 },
+  { x: 46, y: 256 },
+  { x: 226, y: 256 },
+  { x: 92, y: 40 },
+  { x: 180, y: 40 },
+  { x: 22, y: 150 },
+  { x: 256, y: 180 },
+]
+
+const THEME = {
+  base0: '#120a2e',
+  base1: '#3b0f6b',
+  base2: '#7a1450',
+  rail: '#cbd5e1',
+  railDark: '#1e293b',
+  plastic: '#2dd4bf',
+  rubber: '#f8fafc',
+  gi: '#fde68a',
+  insertOff: '#3b1d5e',
+  ramp: { left: '#38bdf8', right: '#f472b6' },
+} as const
+
 function closestOnSegment(p: Vec, s: Seg): Vec {
   const dx = s.b.x - s.a.x
   const dy = s.b.y - s.a.y
@@ -223,6 +388,42 @@ function closestOnSegment(p: Vec, s: Seg): Vec {
     Math.min(1, ((p.x - s.a.x) * dx + (p.y - s.a.y) * dy) / len2),
   )
   return { x: s.a.x + dx * t, y: s.a.y + dy * t }
+}
+
+/** A small, stable hash for render-only sparkle (never touches the game rng). */
+function hash(n: number): number {
+  const s = Math.sin(n * 127.1 + 311.7) * 43758.5453
+  return s - Math.floor(s)
+}
+
+function formatScore(n: number): string {
+  return Math.floor(n).toLocaleString('en-US')
+}
+
+type Layer = { canvas: HTMLCanvasElement; scale: number }
+
+/** The canvas's current pixels-per-logical-pixel (1 when it cannot tell). */
+function layerScale(g: CanvasRenderingContext2D): number {
+  const m = typeof g.getTransform === 'function' ? g.getTransform() : null
+  const a = m && typeof m.a === 'number' ? Math.abs(m.a) : 1
+  return Math.max(1, Math.min(4, Math.round(a * 4) / 4))
+}
+
+function makeLayer(
+  w: number,
+  h: number,
+  scale: number,
+  draw: (c: CanvasRenderingContext2D) => void,
+): Layer | null {
+  if (typeof document === 'undefined') return null
+  const canvas = document.createElement('canvas')
+  canvas.width = Math.ceil(w * scale)
+  canvas.height = Math.ceil(h * scale)
+  const c = canvas.getContext('2d')
+  if (!c) return null
+  c.setTransform(scale, 0, 0, scale, 0, 0)
+  draw(c)
+  return { canvas, scale }
 }
 
 class KindPinball implements ArcadeGameInstance {
@@ -272,8 +473,13 @@ class KindPinball implements ArcadeGameInstance {
   private saucerCooldown = 0
   private nudgeCooldown = 0
   private lanes = [false, false, false]
+  /** The blinking top lane a plunged ball should roll through. */
+  private skillLane = 1
+  private skillLive = false
   private targets = [false, false, false]
   private targetFlash = [0, 0, 0]
+  private slingFlash = [0, 0]
+  private rampFlash: Record<RampKey, number> = { left: 0, right: 0 }
   private saucerReady = false
   private villages = 0
   private multiplier = 1
@@ -297,9 +503,19 @@ class KindPinball implements ArcadeGameInstance {
   private mode: { key: ModeKey; ticks: number } | null = null
   private modesPlayed = 0
   private superReady = false
+  /** Combo chain: ramps and orbits made in quick succession. */
+  private combo = 0
+  private lastShotAt = -COMBO_WINDOW
   private sparks: Spark[] = []
   private floaters: Floater[] = []
-  private banner: { text: string; sub?: string; ticks: number } | null = null
+  private banner: Banner | null = null
+  /** Ticks left on a lamp show (inserts chase) and a GI flash. */
+  private lampShow = 0
+  private giFlash = 0
+  private shake = 0
+  private dmd = new Dmd()
+  private layers = new Map<string, Layer | null>()
+  private dmdCache: { layer: Layer; frame: Uint8Array } | null = null
 
   constructor(options: ArcadeGameOptions) {
     this.rng = options.rng
@@ -307,6 +523,18 @@ class KindPinball implements ArcadeGameInstance {
     this.demo = options.demo
     this.hiScore = options.hiScore
     this.newBall()
+  }
+
+  private say(text: string, ticks: number, sub?: string) {
+    this.banner = { text, sub, ticks, start: this.tick }
+  }
+
+  /** A big moment: banner, lamp show, GI flash and a little shake. */
+  private celebrate(text: string, sub?: string, ticks = 150) {
+    this.say(text, ticks, sub)
+    this.lampShow = 90
+    this.giFlash = 24
+    this.shake = 14
   }
 
   // --- balls ------------------------------------------------------------------
@@ -327,8 +555,11 @@ class KindPinball implements ArcadeGameInstance {
     this.bonus = 0
     this.lanes = [false, false, false]
     this.rampStreak = 0
+    this.combo = 0
     this.mode = null
-    this.banner = { text: `BALL ${this.ballNumber}`, ticks: 80 }
+    this.skillLane = Math.floor(this.rng() * LANES.length)
+    this.skillLive = true
+    this.say(`BALL ${this.ballNumber}`, 80, 'SKILL SHOT IS LIT')
   }
 
   /** Seconds of ball save after a launch: it shrinks with every ball and level. */
@@ -343,6 +574,7 @@ class KindPinball implements ArcadeGameInstance {
   private launch(power: number) {
     this.ball.vy = -(7 + 7 * power)
     this.ball.vx = 0
+    this.ball.fresh = true
     this.inPlay = true
     if (!this.saveArmed) {
       this.saveArmed = true
@@ -367,6 +599,10 @@ class KindPinball implements ArcadeGameInstance {
     for (const b of this.bumpers) if (b.flash > 0) b.flash--
     for (let i = 0; i < 3; i++)
       if (this.targetFlash[i]! > 0) this.targetFlash[i]!--
+    for (let i = 0; i < 2; i++)
+      if (this.slingFlash[i]! > 0) this.slingFlash[i]!--
+    if (this.rampFlash.left > 0) this.rampFlash.left--
+    if (this.rampFlash.right > 0) this.rampFlash.right--
     if (this.nudgeCooldown > 0) this.nudgeCooldown--
     if (this.saucerCooldown > 0) this.saucerCooldown--
     if (this.ballSave > 0) this.ballSave--
@@ -379,18 +615,18 @@ class KindPinball implements ArcadeGameInstance {
     }
     if (this.mode && --this.mode.ticks <= 0) this.endMode()
     if (this.multiballSave > 0) this.multiballSave--
+    if (this.tick - this.lastShotAt > COMBO_WINDOW) this.combo = 0
     this.feedLaunches()
-    for (const b of this.balls) if (b.ramping > 0) this.rideRamp(b)
+    for (const b of this.balls) if (b.ramp) this.rideRamp(b)
     this.holdSaucer()
-    const free = this.balls.filter(
-      (b) => b.ramping === 0 && b !== this.saucerBall,
-    )
+    const free = this.balls.filter((b) => !b.ramp && b !== this.saucerBall)
     if (controls.pressed.up && this.nudgeCooldown === 0) {
       for (const b of free) {
         b.vx += (this.rng() - 0.5) * 2
         b.vy -= 1.2
       }
       this.nudgeCooldown = 60
+      this.shake = 8
       this.sound.play('blip')
     }
     for (const b of free) b.vy += GRAVITY
@@ -406,17 +642,18 @@ class KindPinball implements ArcadeGameInstance {
     for (const b of free) {
       if (b === this.saucerBall) continue
       this.ball = b
+      b.trail.push({ x: b.x, y: b.y })
+      if (b.trail.length > 5) b.trail.shift()
       this.checkLanes()
-      this.checkRampMouth()
+      this.checkRampMouths()
+      this.checkOrbit()
       const rolledBack =
-        b.ramping === 0 &&
-        b.x > 264 &&
-        b.y > PLUNGER_Y - R - 2 &&
-        Math.abs(b.vy) < 0.5
+        !b.ramp && b.x > 264 && b.y > PLUNGER_Y - R - 2 && Math.abs(b.vy) < 0.5
       if (rolledBack) {
         if (this.balls.length === 1 && this.pendingLaunches === 0) {
           // Rolled back down the lane: plunge again.
           Object.assign(b, { x: LANE_X, y: PLUNGER_Y - R, vx: 0, vy: 0 })
+          b.trail = []
           this.inPlay = false
           return
         }
@@ -442,9 +679,17 @@ class KindPinball implements ArcadeGameInstance {
   private moveFlippers(input: InputFrame) {
     const both = input.held.a && this.inPlay
     const wants = [input.held.left || both, input.held.right || both]
-    // Flipper buttons also rotate the lit top lanes, the classic lane change.
-    if (input.pressed.left) this.lanes.push(this.lanes.shift()!)
-    if (input.pressed.right) this.lanes.unshift(this.lanes.pop()!)
+    // Flipper buttons also rotate the lit top lanes, the classic lane change;
+    // before the launch they steer the skill shot.
+    if (input.pressed.left) {
+      this.lanes.push(this.lanes.shift()!)
+      if (!this.inPlay)
+        this.skillLane = (this.skillLane + LANES.length - 1) % LANES.length
+    }
+    if (input.pressed.right) {
+      this.lanes.unshift(this.lanes.pop()!)
+      if (!this.inPlay) this.skillLane = (this.skillLane + 1) % LANES.length
+    }
     this.flippers.forEach((f, i) => {
       f.target = wants[i] ? FLIP_UP : FLIP_REST
       if (wants[i] && f.angle === FLIP_REST && this.tick % 2 === 0) {
@@ -492,6 +737,7 @@ class KindPinball implements ArcadeGameInstance {
 
   private hitSegment(s: Seg) {
     const b = this.ball
+    if (s.gate && b.vy < 0) return
     const c = closestOnSegment(b, s)
     const dx = b.x - c.x
     const dy = b.y - c.y
@@ -508,6 +754,7 @@ class KindPinball implements ArcadeGameInstance {
     if (s.kick && -vn > 1) {
       b.vx += nx * s.kick
       b.vy += ny * s.kick
+      this.slingFlash[s.a.x < CX ? 0 : 1] = 8
       this.addScore(10)
       this.bonus += 10
       this.sound.play('pop')
@@ -549,6 +796,8 @@ class KindPinball implements ArcadeGameInstance {
     const d = Math.hypot(dx, dy)
     const reach = R + FLIPPER_RADIUS
     if (d >= reach || d === 0) return
+    b.fresh = false
+    this.skillLive = false
     const nx = dx / d
     const ny = dy / d
     b.x = c.x + nx * reach
@@ -573,6 +822,7 @@ class KindPinball implements ArcadeGameInstance {
     if (Math.hypot(b.x - SAUCER.x, b.y - SAUCER.y) > SAUCER.r) return
     if (Math.hypot(b.vx, b.vy) > 9) return
     Object.assign(b, { x: SAUCER.x, y: SAUCER.y, vx: 0, vy: 0 })
+    b.trail = []
     this.saucerBall = b
     this.saucerHold = this.multiball ? 30 : 50
     this.bonus += 1000
@@ -592,23 +842,16 @@ class KindPinball implements ArcadeGameInstance {
       this.sound.play('extra')
       if (this.villages >= VILLAGES) {
         this.addScore(JACKPOT * this.level, W / 2, 200)
-        this.banner = { text: 'JACKPOT!', sub: 'EVERY VILLAGE LIT', ticks: 150 }
+        this.celebrate('JACKPOT!', 'EVERY VILLAGE LIT')
         this.villages = 0
         this.level++
         this.sound.play('level')
       } else if (this.villages === MULTIBALL_AT_VILLAGE && !startMultiball) {
         this.multiballLit = true
-        this.banner = {
-          text: 'MULTIBALL LIT',
-          sub: 'SHOOT THE SAUCER',
-          ticks: 120,
-        }
+        this.say('MULTIBALL LIT', 120, 'SHOOT THE SAUCER')
+        this.lampShow = 60
       } else {
-        this.banner = {
-          text: 'VILLAGE LIT!',
-          sub: `${VILLAGES - this.villages} TO JACKPOT`,
-          ticks: 100,
-        }
+        this.say('VILLAGE LIT!', 100, `${VILLAGES - this.villages} TO JACKPOT`)
       }
     } else {
       this.addScore(2500, SAUCER.x - 20, SAUCER.y - 20)
@@ -639,22 +882,18 @@ class KindPinball implements ArcadeGameInstance {
     this.pendingLaunches = MULTIBALL_BALLS - this.balls.length
     this.launchTimer = 30
     this.multiballSave = MULTIBALL_SAVE_TICKS
-    this.banner = {
-      text: 'AMI MULTIBALL',
-      sub: 'NETS TO THE VILLAGES',
-      ticks: 140,
-    }
+    this.celebrate('AMI MULTIBALL', 'NETS TO THE VILLAGES', 140)
     this.sound.play('level')
   }
 
   private endMultiball() {
     this.multiball = false
     this.multiballSave = 0
-    this.banner = {
-      text: 'MULTIBALL OVER',
-      sub: this.nets ? `${this.nets} NETS DELIVERED` : undefined,
-      ticks: 100,
-    }
+    this.say(
+      'MULTIBALL OVER',
+      100,
+      this.nets ? `${this.nets} NETS DELIVERED` : undefined,
+    )
   }
 
   /** Kick waiting multiball balls out of the lane, one at a time. */
@@ -678,6 +917,8 @@ class KindPinball implements ArcadeGameInstance {
       y: PLUNGER_Y - R,
       vx: 0,
       vy: -(12 + this.rng() * 2),
+      fresh: true,
+      trail: [],
     })
     this.sound.play('start')
   }
@@ -691,11 +932,7 @@ class KindPinball implements ArcadeGameInstance {
     this.sound.play('pickup')
     if (this.nets % VILLAGES === 0) {
       this.addScore(AMI_JACKPOT * this.level, W / 2, 200)
-      this.banner = {
-        text: 'AMI JACKPOT!',
-        sub: 'A NET FOR EVERY VILLAGE',
-        ticks: 150,
-      }
+      this.celebrate('AMI JACKPOT!', 'NETS FOR ALL VILLAGES')
       this.sound.play('level')
     }
   }
@@ -710,7 +947,7 @@ class KindPinball implements ArcadeGameInstance {
       // Multiball save: the lane serves each lost ball again.
       this.pendingLaunches += lost
       this.launchTimer = Math.min(this.launchTimer, 20)
-      this.banner = { text: 'BALL SAVED!', ticks: 60 }
+      this.say('BALL SAVED!', 60)
       this.sound.play('pickup')
     }
     if (this.balls.length === 0 && this.pendingLaunches > 0) {
@@ -743,7 +980,7 @@ class KindPinball implements ArcadeGameInstance {
     this.sound.play('pickup')
     if (this.targets.every(Boolean) && !this.saucerReady) {
       this.saucerReady = true
-      this.banner = { text: 'SAUCER READY', sub: 'LIGHT A VILLAGE', ticks: 100 }
+      this.say('SAUCER READY', 100, 'LIGHT A VILLAGE')
       this.sound.play('level')
     }
   }
@@ -752,67 +989,138 @@ class KindPinball implements ArcadeGameInstance {
     const b = this.ball
     if (b.y < 48 || b.y > 66) return
     LANES.forEach((x, i) => {
-      if (Math.abs(b.x - x) < 8 && !this.lanes[i]) {
-        this.lanes[i] = true
-        this.addScore(
-          this.mode?.key === 'lanes' ? 5000 * this.level : 250,
-          x,
-          80,
-        )
-        this.bonus += 250
-        this.sound.play('blip')
+      if (Math.abs(b.x - x) >= 8) return
+      if (this.skillLive && b.fresh) {
+        this.skillLive = false
+        if (i === this.skillLane) {
+          this.addScore(SKILL_SHOT * this.level, x, 90)
+          this.celebrate(
+            'SKILL SHOT!',
+            `${formatScore(SKILL_SHOT * this.level)}`,
+            100,
+          )
+          this.sound.play('extra')
+        }
       }
+      if (this.lanes[i]) return
+      this.lanes[i] = true
+      this.addScore(this.mode?.key === 'lanes' ? 5000 * this.level : 250, x, 80)
+      this.bonus += 250
+      this.sound.play('blip')
     })
-    if (this.lanes.every(Boolean)) {
-      this.lanes = [false, false, false]
-      this.multiplier = Math.min(5, this.multiplier + 1)
-      this.addScore(5000, W / 2, 90)
-      this.banner = { text: `BONUS X${this.multiplier}`, ticks: 80 }
-      this.sound.play('extra')
+    this.checkLaneSet()
+  }
+
+  private checkLaneSet() {
+    if (!this.lanes.every(Boolean)) return
+    this.lanes = [false, false, false]
+    this.multiplier = Math.min(5, this.multiplier + 1)
+    this.addScore(5000, W / 2, 90)
+    this.say(`BONUS X${this.multiplier}`, 80)
+    this.sound.play('extra')
+  }
+
+  // --- ramps, orbits, combos and modes ------------------------------------------
+
+  private checkRampMouths() {
+    const b = this.ball
+    for (const ramp of PINBALL_RAMPS) {
+      const m = ramp.mouth
+      if (b.x < m.x0 || b.x > m.x1 || b.y < m.y0 || b.y > m.y1) continue
+      if (b.vy > -m.minSpeed) continue
+      b.ramp = ramp
+      b.ramping = 1
+      b.trail = []
+      this.rampFlash[ramp.key] = 20
+      this.sound.play('shoot')
+      return
     }
   }
 
-  // --- ramp and modes ----------------------------------------------------------
-
-  private checkRampMouth() {
+  /**
+   * A ball crossing the top of the arch from one corner to the other, fast,
+   * is an orbit. A freshly plunged ball does the same on its way to the top
+   * lanes, so it only counts once the ball has been flipped.
+   */
+  private checkOrbit() {
     const b = this.ball
-    const m = RAMP_MOUTH
-    if (b.x < m.x0 || b.x > m.x1 || b.y < m.y0 || b.y > m.y1) return
-    if (b.vy > -m.minSpeed) return
-    b.ramping = 1
-    this.sound.play('shoot')
+    if (b.y > 100) return
+    const side = b.x < 70 ? 'L' : b.x > 202 ? 'R' : null
+    if (!side || side === b.archSide) {
+      if (side) b.archAt = this.tick
+      return
+    }
+    const crossed =
+      b.archSide !== null &&
+      this.tick - b.archAt < ORBIT_TICKS &&
+      Math.hypot(b.vx, b.vy) > 3
+    b.archSide = side
+    b.archAt = this.tick
+    if (!crossed || b.fresh) return
+    // Up the right side and out the left is the right orbit, and vice versa.
+    this.onOrbit(side === 'L' ? 'rightOrbit' : 'leftOrbit')
+  }
+
+  private onOrbit(key: 'leftOrbit' | 'rightOrbit') {
+    this.bonus += 500
+    this.addScore(ORBIT_VALUE * this.level, key === 'leftOrbit' ? 220 : 60, 60)
+    // Each orbit lights the next unlit top lane.
+    const unlit = this.lanes.indexOf(false)
+    if (unlit >= 0) {
+      this.lanes[unlit] = true
+      this.checkLaneSet()
+    }
+    this.sound.play('pickup')
+    this.onComboShot()
+  }
+
+  /** Ramps and orbits made one after another build a combo. */
+  private onComboShot() {
+    const chained = this.tick - this.lastShotAt <= COMBO_WINDOW
+    this.lastShotAt = this.tick
+    this.combo = chained ? this.combo + 1 : 1
+    if (this.combo < 2) return
+    const points = COMBO_VALUE * (this.combo - 1) * this.level
+    this.addScore(points, W / 2, 150)
+    if (!this.banner || this.tick - this.banner.start > 30) {
+      this.say(`${this.combo} WAY COMBO`, 80, formatScore(points))
+      this.lampShow = Math.max(this.lampShow, 40)
+    }
+    this.sound.play('extra')
   }
 
   private rideRamp(b: Ball) {
+    const ramp = b.ramp!
     b.ramping++
-    const at = rampPoint(b.ramping / RAMP_TICKS)
+    const ticks = rampTicks(ramp)
+    const at = pathPoint(ramp.path, b.ramping / ticks)
     b.x = at.x
     b.y = at.y
-    if (b.ramping % 6 === 0) this.burst(at.x, at.y, 1, '#a78bfa')
-    if (b.ramping < RAMP_TICKS) return
-    // Off the end of the track into the left inlane, rolling toward the flipper.
+    if (b.ramping % 5 === 0) this.burst(at.x, at.y, 1, THEME.ramp[ramp.key])
+    if (b.ramping < ticks) return
+    // Off the end of the track into an inlane, rolling toward a flipper.
+    b.ramp = null
     b.ramping = 0
-    b.vx = 0.6
-    b.vy = 1.6
-    this.onRampShot()
+    b.vx = ramp.exit.x
+    b.vy = ramp.exit.y
+    this.rampFlash[ramp.key] = 20
+    this.onRampShot(ramp)
   }
 
-  private onRampShot() {
+  private onRampShot(ramp: RampDef) {
+    const at = ramp.path[0]!
     this.rampStreak = Math.min(5, this.rampStreak + 1)
     this.bonus += 1000
     let points = 1000 * this.rampStreak * this.level
     if (this.mode?.key === 'ramp') points += 25_000 * this.level
-    this.addScore(points, 214, 140)
-    if (this.multiball) this.deliverNet(214, 120)
+    this.addScore(points, at.x, at.y - 22)
+    if (this.multiball) this.deliverNet(at.x, at.y - 40)
+    this.onComboShot()
     if (this.superReady) {
       this.superReady = false
       this.modesPlayed = 0
       this.addScore(SUPER_JACKPOT * this.level, W / 2, 180)
-      this.banner = {
-        text: 'SUPER JACKPOT!',
-        sub: 'EVERY MODE PLAYED',
-        ticks: 160,
-      }
+      this.celebrate('SUPER JACKPOT!', 'EVERY MODE PLAYED', 160)
       this.sound.play('level')
       return
     }
@@ -830,7 +1138,8 @@ class KindPinball implements ArcadeGameInstance {
     const def = PINBALL_MODES[this.modeIndex % PINBALL_MODES.length]!
     this.modeIndex++
     this.mode = { key: def.key, ticks: MODE_TICKS }
-    this.banner = { text: def.name, sub: def.hint, ticks: 120 }
+    this.say(def.name, 120, def.hint)
+    this.lampShow = 60
     this.sound.play('extra')
   }
 
@@ -840,14 +1149,11 @@ class KindPinball implements ArcadeGameInstance {
     this.modesPlayed++
     if (this.modesPlayed >= PINBALL_MODES.length) {
       this.superReady = true
-      this.banner = {
-        text: 'SUPER JACKPOT LIT',
-        sub: 'SHOOT THE RAMP',
-        ticks: 120,
-      }
+      this.say('SUPER JACKPOT LIT', 120, 'SHOOT EITHER RAMP')
+      this.lampShow = 60
       this.sound.play('level')
     } else {
-      this.banner = { text: 'MODE OVER', ticks: 70 }
+      this.say('MODE OVER', 70)
     }
   }
 
@@ -870,7 +1176,7 @@ class KindPinball implements ArcadeGameInstance {
       Object.assign(this.ball, freshBall())
       this.inPlay = false
       this.ballSave = 0
-      this.banner = { text: 'BALL SAVED!', ticks: 80 }
+      this.say('BALL SAVED!', 80, 'SHOOT AGAIN')
       this.sound.play('pickup')
       return
     }
@@ -882,11 +1188,11 @@ class KindPinball implements ArcadeGameInstance {
     }
     const bonus = this.bonus * this.multiplier
     this.addScore(bonus)
-    this.banner = {
-      text: 'BALL LOST',
-      sub: bonus ? `BONUS ${bonus}` : undefined,
-      ticks: 110,
-    }
+    this.say(
+      'BONUS',
+      110,
+      bonus ? `${formatScore(this.bonus)} X ${this.multiplier}` : undefined,
+    )
     this.draining = 110
   }
 
@@ -894,7 +1200,7 @@ class KindPinball implements ArcadeGameInstance {
     this.lives--
     if (this.lives <= 0) {
       this.over = true
-      this.banner = { text: 'GAME OVER', ticks: 9999 }
+      this.say('GAME OVER', 9999)
       return
     }
     this.newBall()
@@ -904,12 +1210,12 @@ class KindPinball implements ArcadeGameInstance {
     if (this.demo || points <= 0) return
     this.score += points
     if (x !== undefined && y !== undefined) {
-      this.floaters.push({ x, y, text: String(points), life: 45 })
+      this.floaters.push({ x, y, text: formatScore(points), life: 45 })
     }
     if (!this.extraBallGiven && this.score >= EXTRA_BALL_AT) {
       this.extraBallGiven = true
       this.lives++
-      this.banner = { text: 'EXTRA BALL!', ticks: 100 }
+      this.celebrate('EXTRA BALL!', 'SHOOT AGAIN', 100)
       this.sound.play('extra')
     }
     if (x !== undefined) this.burst(x, y ?? 0, 4, '#fde68a')
@@ -944,6 +1250,9 @@ class KindPinball implements ArcadeGameInstance {
     this.floaters = this.floaters.filter((f) => f.life > 0)
     for (const n of this.flights) n.t += 1 / 40
     this.flights = this.flights.filter((n) => n.t < 1)
+    if (this.lampShow > 0) this.lampShow--
+    if (this.giFlash > 0) this.giFlash--
+    if (this.shake > 0) this.shake--
   }
 
   // --- attract-mode pilot --------------------------------------------------------
@@ -965,7 +1274,7 @@ class KindPinball implements ArcadeGameInstance {
     }
     // Flip when a ball is coming down onto a flipper.
     for (const b of this.balls) {
-      if (b.ramping > 0) continue
+      if (b.ramp) continue
       for (const [i, f] of this.flippers.entries()) {
         const dx = (b.x - f.pivot.x) * f.side
         const near = dx > 4 && dx < FLIPPER_LEN + 4 && b.y > f.pivot.y - 30
@@ -978,16 +1287,70 @@ class KindPinball implements ArcadeGameInstance {
     return frame
   }
 
+  // --- what the lamps show ---------------------------------------------------------
+
+  /** 0 = off, 1 = on, 2 = blinking, per shot arrow. */
+  private arrowState(key: ShotKey): 0 | 1 | 2 {
+    const comboLive = this.inPlay && this.tick - this.lastShotAt <= COMBO_WINDOW
+    switch (key) {
+      case 'leftRamp':
+      case 'rightRamp':
+        if (this.superReady || this.mode?.key === 'ramp' || this.multiball)
+          return 2
+        return comboLive ? 2 : 1
+      case 'saucer':
+        if (this.multiballLit || this.saucerReady) return 2
+        if (this.mode?.key === 'saucer' || this.multiball) return 2
+        return 0
+      case 'leftOrbit':
+      case 'rightOrbit':
+        if (comboLive) return 2
+        return this.lanes.includes(false) ? 1 : 0
+    }
+  }
+
+  private lit(state: 0 | 1 | 2, index: number): boolean {
+    if (this.lampShow > 0) return (Math.floor(this.tick / 4) + index) % 3 === 0
+    if (state === 2) return Math.floor(this.tick / 8) % 2 === 0
+    return state === 1
+  }
+
   // --- render ------------------------------------------------------------------------
 
   render(g: CanvasRenderingContext2D) {
-    this.renderTable(g)
-    this.renderFeatures(g)
+    g.fillStyle = '#05030b'
+    g.fillRect(0, 0, W, PINBALL_HEIGHT)
+    this.renderDmd(g)
+    g.save()
+    const jolt = this.shake > 0 ? this.shake / 14 : 0
+    g.translate(
+      Math.round((hash(this.tick) - 0.5) * 3 * jolt),
+      DMD_BAND + Math.round((hash(this.tick + 99) - 0.5) * 3 * jolt),
+    )
+    this.layer(g, 'art', (c) => this.renderArt(c))
+    this.renderInserts(g)
+    this.renderGi(g)
+    this.layer(g, 'rails', (c) => {
+      // Mask everything outside the arch with the cabinet black, then the rails.
+      c.fillStyle = '#05030b'
+      c.beginPath()
+      c.rect(-4, -4, W + 8, H + 8)
+      this.playfieldPath(c)
+      c.fill('evenodd')
+      this.renderRails(c)
+    })
+    this.renderSlings(g)
+    this.renderTargets(g)
+    this.renderSaucer(g)
+    this.renderBumpers(g)
+    this.renderPlunger(g)
     for (const f of this.flippers) this.renderFlipper(g, f)
-    for (const b of this.balls) if (b.ramping === 0) this.renderBall(g, b)
-    this.renderRamp(g)
-    for (const b of this.balls) if (b.ramping > 0) this.renderBall(g, b)
+    for (const b of this.balls) if (!b.ramp) this.renderBall(g, b)
+    this.renderRamps(g)
+    for (const b of this.balls) if (b.ramp) this.renderBall(g, b, true)
     this.renderFlights(g)
+    this.layer(g, 'apron', (c) => this.renderApron(c))
+    this.renderBallsLeft(g)
     for (const s of this.sparks) {
       g.globalAlpha = Math.max(0, s.life / 30)
       g.fillStyle = s.color
@@ -995,19 +1358,236 @@ class KindPinball implements ArcadeGameInstance {
     }
     g.globalAlpha = 1
     for (const f of this.floaters) {
-      drawText(g, f.text, f.x, f.y, { align: 'center', color: '#fde68a' })
+      g.globalAlpha = Math.min(1, f.life / 20)
+      drawText(g, f.text, f.x, f.y, {
+        align: 'center',
+        color: '#fef3c7',
+        shadow: '#431407',
+      })
     }
-    this.renderHud(g)
+    g.globalAlpha = 1
+    if (this.giFlash > 0) {
+      g.fillStyle = `rgba(255, 247, 214, ${(this.giFlash / 24) * 0.35})`
+      g.fillRect(0, 0, W, H)
+    }
+    g.restore()
   }
 
-  private renderTable(g: CanvasRenderingContext2D) {
+  // --- cached layers ------------------------------------------------------------------
+
+  /**
+   * Draw a static layer through an offscreen canvas at the screen's pixel
+   * scale, so the printed art, the rails and the apron cost one drawImage a
+   * frame instead of hundreds of draw calls. Without a DOM (the headless
+   * tests) it draws straight through.
+   */
+  private layer(
+    g: CanvasRenderingContext2D,
+    key: string,
+    draw: (c: CanvasRenderingContext2D) => void,
+  ) {
+    const scale = layerScale(g)
+    let cached = this.layers.get(key)
+    if (cached === undefined || (cached && cached.scale !== scale)) {
+      cached = makeLayer(W, H, scale, draw)
+      this.layers.set(key, cached)
+    }
+    if (cached) g.drawImage(cached.canvas, 0, 0, W, H)
+    else draw(g)
+  }
+
+  // --- the dot-matrix display ---------------------------------------------------------
+
+  private renderDmd(g: CanvasRenderingContext2D) {
+    // The display window: a black bezel with a faint amber glow.
+    g.fillStyle = '#000000'
+    g.fillRect(
+      DMD_X - 6,
+      DMD_Y - 3,
+      DMD_COLS * DMD_PITCH + 12,
+      DMD_ROWS * DMD_PITCH + 6,
+    )
+    g.strokeStyle = '#3f3f46'
+    g.lineWidth = 1
+    g.strokeRect(
+      DMD_X - 5.5,
+      DMD_Y - 2.5,
+      DMD_COLS * DMD_PITCH + 11,
+      DMD_ROWS * DMD_PITCH + 5,
+    )
+    this.composeDmd()
+    const w = DMD_COLS * DMD_PITCH
+    const h = DMD_ROWS * DMD_PITCH
+    const scale = layerScale(g)
+    const cache = this.dmdCache
+    const fresh =
+      cache &&
+      cache.layer.scale === scale &&
+      cache.frame.every((v, i) => v === this.dmd.buf[i])
+    if (!fresh) {
+      const layer = makeLayer(w, h, scale, (c) =>
+        this.dmd.render(c, 0, 0, DMD_PITCH),
+      )
+      this.dmdCache = layer ? { layer, frame: this.dmd.buf.slice() } : null
+    }
+    if (this.dmdCache)
+      g.drawImage(this.dmdCache.layer.canvas, DMD_X, DMD_Y, w, h)
+    else this.dmd.render(g, DMD_X, DMD_Y, DMD_PITCH)
+    const glow = g.createLinearGradient(
+      0,
+      DMD_Y,
+      0,
+      DMD_Y + DMD_ROWS * DMD_PITCH,
+    )
+    glow.addColorStop(0, 'rgba(251, 146, 60, 0.06)')
+    glow.addColorStop(1, 'rgba(251, 146, 60, 0)')
+    g.fillStyle = glow
+    g.fillRect(DMD_X, DMD_Y, DMD_COLS * DMD_PITCH, DMD_ROWS * DMD_PITCH)
+  }
+
+  /** Big text: two-dot scale when it fits, bold single scale when it does not. */
+  private dmdBig(
+    text: string,
+    y: number,
+    reveal?: number,
+    level: 0 | 1 | 2 | 3 = 3,
+  ) {
+    const d = this.dmd
+    if (dmdTextWidth(text, 2) <= DMD_COLS - 4) {
+      d.text(text, DMD_COLS / 2, y, {
+        scale: 2,
+        align: 'center',
+        reveal,
+        level,
+      })
+    } else {
+      d.text(text, DMD_COLS / 2, y + 4, {
+        bold: true,
+        align: 'center',
+        reveal,
+        level,
+      })
+    }
+  }
+
+  /** A small line, scrolled like a marquee when it is wider than the display. */
+  private dmdLine(text: string, y: number, age: number) {
+    const width = dmdTextWidth(text)
+    if (width <= DMD_COLS - 2) {
+      this.dmd.text(text, DMD_COLS / 2, y, { align: 'center', level: 2 })
+      return
+    }
+    const x = DMD_COLS - (age % (width + DMD_COLS))
+    this.dmd.text(text, x, y, { level: 2 })
+  }
+
+  private composeDmd() {
+    const d = this.dmd
+    d.clear()
+    if (this.demo) {
+      const page = Math.floor(this.tick / 150) % 3
+      if (page === 0) {
+        this.dmdBig('KIND', 1)
+        this.dmdBig('PINBALL', 16)
+      } else if (page === 1) {
+        d.text('HIGH SCORE', DMD_COLS / 2, 3, { align: 'center', level: 2 })
+        this.dmdBig(formatScore(this.hiScore), 14)
+      } else {
+        this.dmdBig('AMI VILLAGE', 2)
+        d.text('RESCUE', DMD_COLS / 2, 22, { align: 'center', level: 2 })
+      }
+      return
+    }
+    const banner = this.banner
+    if (banner) {
+      const age = this.tick - banner.start
+      const big = /JACKPOT|MULTIBALL|EXTRA|SKILL|COMBO|GAME OVER/.test(
+        banner.text,
+      )
+      if (big) {
+        d.frame(0, 0, DMD_COLS, DMD_ROWS, Math.floor(age / 4) % 2 ? 1 : 3)
+        for (let i = 0; i < 14; i++) {
+          const h = hash(Math.floor(age / 3) * 31 + i)
+          d.dot(2 + h * (DMD_COLS - 4), 2 + hash(h * 97) * (DMD_ROWS - 4), 2)
+        }
+      }
+      this.dmdBig(banner.text, banner.sub ? 3 : 9, Math.floor(age / 2) + 1)
+      if (banner.sub && age > 10) this.dmdLine(banner.sub, 22, age - 10)
+      if (banner.text === 'GAME OVER') {
+        d.text(formatScore(this.score), DMD_COLS / 2, 22, {
+          align: 'center',
+          level: 3,
+        })
+      }
+      if (big && age < 36 && Math.floor(age / 6) % 2 === 0) d.invert()
+      return
+    }
+    this.dmdBig(formatScore(this.score), 2)
+    let status = `BALL ${this.ballNumber}`
+    if (!this.inPlay) {
+      status =
+        Math.floor(this.tick / 90) % 2
+          ? `SKILL SHOT: LANE ${LANE_LETTERS[this.skillLane]}`
+          : 'HOLD DOWN TO PLUNGE'
+    } else if (this.mode) {
+      const def = PINBALL_MODES.find((m) => m.key === this.mode?.key)
+      status = `${def?.name ?? ''} ${Math.ceil(this.mode.ticks / 60)}`
+    } else if (this.multiball) {
+      status = `MULTIBALL  NETS ${this.nets % VILLAGES}/${VILLAGES}`
+    } else if (this.superReady) {
+      status = 'SUPER JACKPOT LIT'
+    } else if (this.combo >= 1 && this.tick - this.lastShotAt <= COMBO_WINDOW) {
+      status = `COMBO X${this.combo + 1} LIT`
+    }
+    this.dmdLine(status, 23, this.tick)
+    if (status.startsWith('BALL')) {
+      d.text(`X${this.multiplier}`, 2, 23, { level: 1 })
+      d.text(`${this.rampsTowardMode}/${RAMPS_PER_MODE}`, DMD_COLS - 2, 23, {
+        align: 'right',
+        level: 1,
+      })
+    }
+  }
+
+  // --- the playfield ---------------------------------------------------------------------
+
+  /** Adds the playfield outline (arch and sides) to the current path. */
+  private playfieldPath(g: CanvasRenderingContext2D) {
+    g.moveTo(8, H)
+    g.lineTo(8, ARCH.cy)
+    g.ellipse(ARCH.cx, ARCH.cy, ARCH.rx, ARCH.ry, 0, Math.PI, Math.PI * 2)
+    g.lineTo(280, H)
+    g.lineTo(8, H)
+    g.closePath()
+  }
+
+  /** The printed playfield: colour wash, sunburst, rainbow, lane art, AMI. */
+  private renderArt(g: CanvasRenderingContext2D) {
     const bg = g.createLinearGradient(0, 0, 0, H)
-    bg.addColorStop(0, '#1e1b4b')
-    bg.addColorStop(0.55, '#4c1d95')
-    bg.addColorStop(1, '#831843')
+    bg.addColorStop(0, THEME.base0)
+    bg.addColorStop(0.5, THEME.base1)
+    bg.addColorStop(1, THEME.base2)
     g.fillStyle = bg
     g.fillRect(0, 0, W, H)
-    // A rainbow arc printed on the playfield.
+    // Sunburst rays behind the bumpers.
+    g.save()
+    g.translate(136, 168)
+    for (let i = 0; i < 24; i++) {
+      g.fillStyle = i % 2 ? 'rgba(255,255,255,0.035)' : 'rgba(253,224,71,0.05)'
+      g.beginPath()
+      g.moveTo(0, 0)
+      g.arc(0, 0, 220, (i * Math.PI) / 12, ((i + 1) * Math.PI) / 12)
+      g.closePath()
+      g.fill()
+    }
+    g.restore()
+    // A glowing halo where the pop bumpers live.
+    const halo = g.createRadialGradient(136, 160, 4, 136, 160, 90)
+    halo.addColorStop(0, 'rgba(244,114,182,0.35)')
+    halo.addColorStop(1, 'rgba(244,114,182,0)')
+    g.fillStyle = halo
+    g.fillRect(40, 70, 192, 180)
+    // The rainbow over the villages.
     const bands = [
       '#f87171',
       '#fb923c',
@@ -1016,195 +1596,631 @@ class KindPinball implements ArcadeGameInstance {
       '#38bdf8',
       '#a78bfa',
     ]
-    g.lineWidth = 3
+    g.lineWidth = 4
     bands.forEach((color, i) => {
       g.strokeStyle = color
-      g.globalAlpha = 0.25
+      g.globalAlpha = 0.32
       g.beginPath()
-      g.arc(CX, 300, 110 - i * 4, Math.PI * 1.1, Math.PI * 1.9)
+      g.arc(CX, 300, 112 - i * 4.5, Math.PI * 1.08, Math.PI * 1.92)
       g.stroke()
     })
     g.globalAlpha = 1
-    // Walls in neon.
-    g.strokeStyle = '#5eead4'
-    g.lineWidth = 2
-    g.beginPath()
-    for (const s of this.walls) {
-      if (s.target !== undefined) continue
-      g.moveTo(s.a.x, s.a.y)
-      g.lineTo(s.b.x, s.b.y)
+    // Inlane and outlane stripes.
+    for (const side of [1, -1]) {
+      g.save()
+      if (side < 0) {
+        g.translate(CX * 2, 0)
+        g.scale(-1, 1)
+      }
+      g.fillStyle = 'rgba(15, 23, 42, 0.45)'
+      g.beginPath()
+      g.moveTo(8, 250)
+      g.lineTo(24, 296)
+      g.lineTo(80, 352)
+      g.lineTo(80, H)
+      g.lineTo(8, H)
+      g.closePath()
+      g.fill()
+      g.strokeStyle = 'rgba(94, 234, 212, 0.18)'
+      g.lineWidth = 1
+      for (let y = 300; y < H; y += 10) {
+        g.beginPath()
+        g.moveTo(10, y)
+        g.lineTo(20, y - 6)
+        g.stroke()
+      }
+      g.restore()
     }
-    g.stroke()
-    // Slingshot rubbers glow pink.
-    g.strokeStyle = '#f472b6'
-    g.lineWidth = 3
-    g.beginPath()
-    for (const s of this.walls) {
-      if (!s.kick) continue
-      g.moveTo(s.a.x, s.a.y)
-      g.lineTo(s.b.x, s.b.y)
-    }
-    g.stroke()
-    // Plunger and its spring.
-    const py = PLUNGER_Y + this.pull * 12
-    g.fillStyle = '#facc15'
-    g.fillRect(LANE_X - 6, py, 12, 4)
-    g.strokeStyle = '#a8a29e'
-    g.lineWidth = 1
-    g.beginPath()
-    for (let y = py + 4; y < H; y += 3) {
-      g.moveTo(LANE_X - 5, y)
-      g.lineTo(LANE_X + 5, y + 1.5)
-    }
-    g.stroke()
+    // AMI, the Kind Robots mascot, printed big between the slings.
+    this.renderAmiPrint(g, 136, 300)
+    // A soft vignette for depth.
+    const vig = g.createRadialGradient(136, 230, 120, 136, 230, 300)
+    vig.addColorStop(0, 'rgba(0,0,0,0)')
+    vig.addColorStop(1, 'rgba(0,0,0,0.55)')
+    g.fillStyle = vig
+    g.fillRect(0, 0, W, H)
   }
 
-  private renderFeatures(g: CanvasRenderingContext2D) {
-    // Top lanes N-E-T.
-    LANES.forEach((x, i) => {
-      g.fillStyle = this.lanes[i] ? '#facc15' : '#312e81'
+  private renderAmiPrint(g: CanvasRenderingContext2D, x: number, y: number) {
+    g.save()
+    g.globalAlpha = 0.5
+    g.fillStyle = '#1e1b4b'
+    g.strokeStyle = '#5eead4'
+    g.lineWidth = 1.5
+    g.beginPath()
+    g.roundRect(x - 20, y - 16, 40, 30, 8)
+    g.fill()
+    g.stroke()
+    g.beginPath()
+    g.moveTo(x, y - 16)
+    g.lineTo(x, y - 24)
+    g.stroke()
+    g.fillStyle = '#f472b6'
+    g.beginPath()
+    g.arc(x, y - 26, 3, 0, Math.PI * 2)
+    g.fill()
+    g.fillStyle = '#5eead4'
+    for (const ex of [-8, 8]) {
       g.beginPath()
-      g.arc(x, 74, 4, 0, Math.PI * 2)
+      g.ellipse(x + ex, y - 3, 4, 4, 0, 0, Math.PI * 2)
       g.fill()
-      drawText(g, LANE_LETTERS[i]!, x, 84, {
+    }
+    g.strokeStyle = '#fde68a'
+    g.beginPath()
+    g.arc(x, y + 3, 7, 0.2 * Math.PI, 0.8 * Math.PI)
+    g.stroke()
+    g.restore()
+  }
+
+  /** One lamp insert: a dark coloured lens, or a bright one with a halo. */
+  private insertGlow(
+    g: CanvasRenderingContext2D,
+    x: number,
+    y: number,
+    color: string,
+    on: boolean,
+    radius = 12,
+  ) {
+    if (!on) return
+    const glow = g.createRadialGradient(x, y, 1, x, y, radius)
+    glow.addColorStop(0, color)
+    glow.addColorStop(1, 'rgba(0,0,0,0)')
+    g.save()
+    g.globalCompositeOperation = 'lighter'
+    g.globalAlpha = 0.55
+    g.fillStyle = glow
+    g.fillRect(x - radius, y - radius, radius * 2, radius * 2)
+    g.restore()
+  }
+
+  private renderInserts(g: CanvasRenderingContext2D) {
+    const colors: Record<ShotKey, string> = {
+      leftOrbit: '#facc15',
+      leftRamp: THEME.ramp.left,
+      saucer: '#4ade80',
+      rightRamp: THEME.ramp.right,
+      rightOrbit: '#fb923c',
+    }
+    ARROWS.forEach((arrow, i) => {
+      const on = this.lit(this.arrowState(arrow.key), i)
+      const color = colors[arrow.key]
+      g.save()
+      g.translate(arrow.x, arrow.y)
+      g.rotate(arrow.angle + Math.PI / 2)
+      g.beginPath()
+      g.moveTo(0, -9)
+      g.lineTo(7, 4)
+      g.lineTo(0, 1)
+      g.lineTo(-7, 4)
+      g.closePath()
+      g.fillStyle = on ? color : THEME.insertOff
+      g.globalAlpha = on ? 1 : 0.8
+      g.fill()
+      g.globalAlpha = 1
+      g.strokeStyle = on ? '#ffffff' : 'rgba(255,255,255,0.18)'
+      g.lineWidth = 0.75
+      g.stroke()
+      g.restore()
+      this.insertGlow(g, arrow.x, arrow.y, color, on, 16)
+    })
+    // Top lane rollover lamps, with the skill shot lane blinking.
+    LANES.forEach((x, i) => {
+      const skill =
+        this.skillLive &&
+        i === this.skillLane &&
+        Math.floor(this.tick / 6) % 2 === 0
+      const on = this.lanes[i] || skill || (this.lampShow > 0 && this.lit(1, i))
+      const color = skill ? '#4ade80' : '#facc15'
+      g.fillStyle = on ? color : THEME.insertOff
+      g.beginPath()
+      g.roundRect(x - 5, 71, 10, 12, 4)
+      g.fill()
+      this.insertGlow(g, x, 77, color, on, 12)
+      drawText(g, LANE_LETTERS[i]!, x, 74, {
         align: 'center',
-        color: this.lanes[i] ? '#fde68a' : '#818cf8',
+        color: on ? '#422006' : '#a5b4fc',
       })
     })
-    // Pop bumpers: glowing mushroom caps.
-    for (const b of this.bumpers) {
-      g.fillStyle = b.flash > 0 ? '#fef9c3' : '#be185d'
+    // Bonus multiplier lamps.
+    ;[2, 3, 4, 5].forEach((n, i) => {
+      const x = 100 + i * 24
+      const on =
+        this.multiplier >= n || (this.lampShow > 0 && this.lit(1, i + 3))
+      g.fillStyle = on ? '#fb923c' : THEME.insertOff
       g.beginPath()
-      g.arc(b.x, b.y, b.r, 0, Math.PI * 2)
+      g.arc(x, 226, 7, 0, Math.PI * 2)
       g.fill()
-      g.fillStyle = b.flash > 0 ? '#facc15' : '#f9a8d4'
-      g.beginPath()
-      g.arc(b.x, b.y, b.r - 5, 0, Math.PI * 2)
-      g.fill()
-      g.fillStyle = '#5eead4'
-      g.fillRect(b.x - 2, b.y - 2, 4, 4)
-    }
-    // A-M-I targets.
-    TARGET_LETTERS.forEach((letter, i) => {
-      const y = 176 + i * 28
-      const lit = this.targets[i]
-      g.fillStyle =
-        this.targetFlash[i]! > 0 ? '#ffffff' : lit ? '#facc15' : '#7c3aed'
-      g.fillRect(10, y - 9, 6, 18)
-      drawText(g, letter, 24, y - 3, { color: lit ? '#fde68a' : '#c4b5fd' })
+      this.insertGlow(g, x, 226, '#fb923c', on, 12)
+      drawText(g, `${n}X`, x, 223, {
+        align: 'center',
+        color: on ? '#431407' : '#7c6aa6',
+      })
     })
-    // The saucer, glowing when it is ready to light a village (pink when it
-    // will start multiball).
-    const blink = Math.floor(this.tick / 8) % 2 === 0
-    const ready = (this.saucerReady || this.multiballLit) && blink
-    g.fillStyle = ready
-      ? this.multiballLit
-        ? '#f472b6'
-        : '#facc15'
-      : '#1e1b4b'
-    g.beginPath()
-    g.arc(SAUCER.x, SAUCER.y, SAUCER.r + 3, 0, Math.PI * 2)
-    g.fill()
-    g.fillStyle = '#0b0620'
-    g.beginPath()
-    g.arc(SAUCER.x, SAUCER.y, SAUCER.r - 1, 0, Math.PI * 2)
-    g.fill()
-    // Five villages along the bottom of the arc: each hut lights up.
+    // Five village huts.
     for (let i = 0; i < VILLAGES; i++) {
-      const x = 84 + i * 26
-      const y = 250
-      const lit = i < this.villages
-      g.fillStyle = lit ? '#facc15' : '#3b0764'
+      const { x, y } = villageSpot(i)
+      const lit = i < this.villages || (this.lampShow > 0 && this.lit(1, i))
+      g.fillStyle = lit ? '#facc15' : THEME.insertOff
       g.fillRect(x - 6, y - 4, 12, 8)
       g.beginPath()
       g.moveTo(x - 8, y - 4)
       g.lineTo(x, y - 11)
       g.lineTo(x + 8, y - 4)
       g.fill()
-      if (lit) {
-        g.fillStyle = '#1e1b4b'
-        g.fillRect(x - 1, y, 3, 4)
-      }
+      g.fillStyle = lit ? '#7c2d12' : '#1e1033'
+      g.fillRect(x - 1.5, y, 3, 4)
+      this.insertGlow(g, x, y - 3, '#facc15', lit, 14)
       if (this.multiball && i < this.nets % VILLAGES)
         this.renderNet(g, x, y - 6)
     }
-    if (this.multiballLit && Math.floor(this.tick / 8) % 2 === 0) {
-      drawText(g, 'MULTI', SAUCER.x, SAUCER.y + 14, {
-        align: 'center',
-        color: '#f9a8d4',
-      })
-    }
-    drawText(g, `X${this.multiplier}`, 136, 228, {
+    // Shoot Again, between the flippers.
+    const saving =
+      (this.ballSave > 0 &&
+        (this.ballSave > 120 || Math.floor(this.tick / 6) % 2 === 0)) ||
+      this.multiballSave > 0
+    g.fillStyle = saving ? '#f87171' : THEME.insertOff
+    g.beginPath()
+    g.roundRect(122, 362, 28, 11, 5)
+    g.fill()
+    this.insertGlow(g, 136, 367, '#f87171', saving, 16)
+    drawText(g, 'SAVE', 136, 364, {
       align: 'center',
-      color: '#fde68a',
+      color: saving ? '#450a0a' : '#7c6aa6',
     })
   }
 
-  private renderRamp(g: CanvasRenderingContext2D) {
-    // The raised track: a translucent band with neon rails.
+  private renderGi(g: CanvasRenderingContext2D) {
+    g.save()
+    g.globalCompositeOperation = 'lighter'
+    for (const [i, p] of GI_BULBS.entries()) {
+      const flicker = 0.85 + hash(i * 13 + Math.floor(this.tick / 7)) * 0.15
+      const glow = g.createRadialGradient(p.x, p.y, 0.5, p.x, p.y, 18)
+      glow.addColorStop(0, `rgba(253, 230, 138, ${0.55 * flicker})`)
+      glow.addColorStop(1, 'rgba(253, 230, 138, 0)')
+      g.fillStyle = glow
+      g.fillRect(p.x - 18, p.y - 18, 36, 36)
+    }
+    g.restore()
+    for (const p of GI_BULBS) {
+      g.fillStyle = '#fffbeb'
+      g.beginPath()
+      g.arc(p.x, p.y, 1.6, 0, Math.PI * 2)
+      g.fill()
+    }
+  }
+
+  /** A chrome rail: dark edge, steel body, a thin highlight. */
+  private chrome(g: CanvasRenderingContext2D, draw: () => void, width = 3) {
     g.save()
     g.lineCap = 'round'
     g.lineJoin = 'round'
-    g.globalAlpha = 0.35
-    g.strokeStyle = '#7c3aed'
-    g.lineWidth = 14
+    g.strokeStyle = 'rgba(0,0,0,0.45)'
+    g.lineWidth = width + 2
+    g.translate(1.5, 2)
     g.beginPath()
-    RAMP_PATH.forEach((p, i) => (i ? g.lineTo(p.x, p.y) : g.moveTo(p.x, p.y)))
+    draw()
     g.stroke()
-    g.globalAlpha = 0.9
-    g.strokeStyle = this.balls.some((b) => b.ramping > 0)
-      ? '#f0abfc'
-      : '#c084fc'
-    g.lineWidth = 1.5
-    for (const side of [-6, 6]) {
-      g.beginPath()
-      RAMP_PATH.forEach((p, i) => {
-        const q = RAMP_PATH[Math.min(i + 1, RAMP_PATH.length - 1)]!
-        const o = RAMP_PATH[Math.max(i - 1, 0)]!
-        const dx = q.x - o.x
-        const dy = q.y - o.y
-        const len = Math.hypot(dx, dy) || 1
-        const x = p.x - (dy / len) * side
-        const y = p.y + (dx / len) * side
-        if (i) g.lineTo(x, y)
-        else g.moveTo(x, y)
-      })
-      g.stroke()
-    }
-    g.restore()
-    // The mouth glows when a ramp shot matters most.
-    const hot = this.superReady || this.mode?.key === 'ramp'
-    const blink = Math.floor(this.tick / 8) % 2 === 0
-    g.fillStyle = hot && blink ? '#facc15' : '#a855f7'
+    g.translate(-1.5, -2)
+    g.strokeStyle = THEME.railDark
+    g.lineWidth = width + 1.5
     g.beginPath()
-    g.moveTo(RAMP_MOUTH.x0, RAMP_MOUTH.y1)
-    g.lineTo((RAMP_MOUTH.x0 + RAMP_MOUTH.x1) / 2, RAMP_MOUTH.y1 - 10)
-    g.lineTo(RAMP_MOUTH.x1, RAMP_MOUTH.y1)
-    g.fill()
-    const label = this.superReady
-      ? 'SUPER'
-      : this.mode
-        ? 'RAMP'
-        : `RAMP ${this.rampsTowardMode}/${RAMPS_PER_MODE}`
-    drawText(g, label, (RAMP_MOUTH.x0 + RAMP_MOUTH.x1) / 2, RAMP_MOUTH.y1 + 4, {
-      align: 'center',
-      color: hot ? '#fde68a' : '#e9d5ff',
+    draw()
+    g.stroke()
+    g.strokeStyle = '#94a3b8'
+    g.lineWidth = width
+    g.stroke()
+    g.strokeStyle = '#f8fafc'
+    g.lineWidth = Math.max(0.75, width * 0.3)
+    g.stroke()
+    g.restore()
+  }
+
+  private renderRails(g: CanvasRenderingContext2D) {
+    // Outer rails: the arch and the side walls, drawn smooth.
+    this.chrome(
+      g,
+      () => {
+        g.moveTo(8, H)
+        g.lineTo(8, ARCH.cy)
+        g.ellipse(ARCH.cx, ARCH.cy, ARCH.rx, ARCH.ry, 0, Math.PI, Math.PI * 2)
+        g.lineTo(280, H)
+      },
+      4,
+    )
+    this.chrome(g, () => {
+      g.moveTo(264, H)
+      g.lineTo(264, 150)
     })
+    // The shooter-lane gate.
+    g.strokeStyle = '#e2e8f0'
+    g.lineWidth = 1.5
+    g.beginPath()
+    g.moveTo(LANE_GATE.a.x, LANE_GATE.a.y)
+    g.lineTo(LANE_GATE.b.x, LANE_GATE.b.y)
+    g.stroke()
+    // Guides.
+    for (const s of [
+      INLANE,
+      { a: mirror(INLANE.a), b: mirror(INLANE.b) },
+      TOP_GUIDE,
+    ]) {
+      this.chrome(g, () => {
+        g.moveTo(s.a.x, s.a.y)
+        g.lineTo(s.b.x, s.b.y)
+      })
+    }
+    // Top lane guides: short rails capped with rubber posts.
+    for (const x of LANE_DIVIDERS) {
+      this.chrome(
+        g,
+        () => {
+          g.moveTo(x, 53)
+          g.lineTo(x, 67)
+        },
+        2,
+      )
+      this.post(g, x, 52)
+      this.post(g, x, 68)
+    }
+    this.post(g, INLANE.b.x, INLANE.b.y)
+    this.post(g, mirror(INLANE.b).x, INLANE.b.y)
+  }
+
+  private post(g: CanvasRenderingContext2D, x: number, y: number) {
+    g.fillStyle = 'rgba(0,0,0,0.4)'
+    g.beginPath()
+    g.arc(x + 1.5, y + 2, 3, 0, Math.PI * 2)
+    g.fill()
+    g.fillStyle = THEME.rubber
+    g.beginPath()
+    g.arc(x, y, 3, 0, Math.PI * 2)
+    g.fill()
+    g.fillStyle = '#f43f5e'
+    g.beginPath()
+    g.arc(x, y, 1.4, 0, Math.PI * 2)
+    g.fill()
+  }
+
+  private renderSlings(g: CanvasRenderingContext2D) {
+    const { a, b, c } = SLING
+    for (const [i, flip] of [false, true].entries()) {
+      const p = flip ? [mirror(a), mirror(b), mirror(c)] : [a, b, c]
+      const [pa, pb, pc] = p as [Vec, Vec, Vec]
+      // Plastic: a translucent teal shield with a bright edge.
+      g.fillStyle = 'rgba(0,0,0,0.4)'
+      g.beginPath()
+      g.moveTo(pa.x + 2, pa.y + 3)
+      g.lineTo(pb.x + 2, pb.y + 3)
+      g.lineTo(pc.x + 2, pc.y + 3)
+      g.closePath()
+      g.fill()
+      const plastic = g.createLinearGradient(pa.x, pa.y, pc.x, pc.y)
+      plastic.addColorStop(0, 'rgba(45, 212, 191, 0.85)')
+      plastic.addColorStop(1, 'rgba(99, 102, 241, 0.85)')
+      g.fillStyle = plastic
+      g.beginPath()
+      g.moveTo(pa.x, pa.y)
+      g.lineTo(pb.x, pb.y)
+      g.lineTo(pc.x, pc.y)
+      g.closePath()
+      g.fill()
+      g.strokeStyle = 'rgba(255,255,255,0.6)'
+      g.lineWidth = 1
+      g.stroke()
+      // The kicking rubber flexes and glows when it fires.
+      const hit = this.slingFlash[i]! > 0
+      const bow = hit ? 2.5 : 0
+      const mx = (pa.x + pc.x) / 2 + (flip ? -bow : bow)
+      const my = (pa.y + pc.y) / 2 - bow
+      g.strokeStyle = hit ? '#f472b6' : THEME.rubber
+      g.lineWidth = 3
+      g.lineCap = 'round'
+      g.beginPath()
+      g.moveTo(pa.x, pa.y)
+      g.quadraticCurveTo(mx, my, pc.x, pc.y)
+      g.stroke()
+      if (hit) this.insertGlow(g, mx, my, '#f472b6', true, 18)
+      for (const q of p) this.post(g, q.x, q.y)
+    }
+  }
+
+  private renderTargets(g: CanvasRenderingContext2D) {
+    TARGET_LETTERS.forEach((letter, i) => {
+      const y = 176 + i * 28
+      const lit = this.targets[i]!
+      const flash = this.targetFlash[i]! > 0
+      g.fillStyle = 'rgba(0,0,0,0.4)'
+      g.fillRect(12, y - 7, 7, 18)
+      g.fillStyle = flash ? '#ffffff' : lit ? '#facc15' : '#7c3aed'
+      g.fillRect(10, y - 9, 6, 18)
+      g.fillStyle = 'rgba(255,255,255,0.35)'
+      g.fillRect(10, y - 9, 2, 18)
+      const on = lit || (this.lampShow > 0 && this.lit(1, i))
+      g.fillStyle = on ? '#facc15' : THEME.insertOff
+      g.beginPath()
+      g.arc(28, y, 6, 0, Math.PI * 2)
+      g.fill()
+      this.insertGlow(g, 28, y, '#facc15', on, 12)
+      drawText(g, letter, 28, y - 3, {
+        align: 'center',
+        color: on ? '#422006' : '#c4b5fd',
+      })
+    })
+  }
+
+  private renderSaucer(g: CanvasRenderingContext2D) {
+    const ready = this.saucerReady || this.multiballLit
+    const blink = Math.floor(this.tick / 8) % 2 === 0
+    const rim = g.createRadialGradient(
+      SAUCER.x - 3,
+      SAUCER.y - 3,
+      1,
+      SAUCER.x,
+      SAUCER.y,
+      SAUCER.r + 4,
+    )
+    rim.addColorStop(0, '#f8fafc')
+    rim.addColorStop(1, '#475569')
+    g.fillStyle = rim
+    g.beginPath()
+    g.arc(SAUCER.x, SAUCER.y, SAUCER.r + 4, 0, Math.PI * 2)
+    g.fill()
+    g.fillStyle = '#020617'
+    g.beginPath()
+    g.arc(SAUCER.x, SAUCER.y, SAUCER.r, 0, Math.PI * 2)
+    g.fill()
+    if (ready && blink) {
+      const color = this.multiballLit ? '#f472b6' : '#facc15'
+      g.strokeStyle = color
+      g.lineWidth = 2
+      g.beginPath()
+      g.arc(SAUCER.x, SAUCER.y, SAUCER.r + 6, 0, Math.PI * 2)
+      g.stroke()
+      this.insertGlow(g, SAUCER.x, SAUCER.y, color, true, 24)
+    }
+    if (this.multiballLit && blink) {
+      drawText(g, 'MULTI', SAUCER.x, SAUCER.y + 15, {
+        align: 'center',
+        color: '#f9a8d4',
+        shadow: '#1e1b4b',
+      })
+    }
+  }
+
+  private renderBumpers(g: CanvasRenderingContext2D) {
+    for (const b of this.bumpers) {
+      const hot = b.flash > 0
+      g.fillStyle = 'rgba(0,0,0,0.45)'
+      g.beginPath()
+      g.arc(b.x + 3, b.y + 4, b.r + 2, 0, Math.PI * 2)
+      g.fill()
+      // Skirt and metal ring.
+      g.fillStyle = '#e2e8f0'
+      g.beginPath()
+      g.arc(b.x, b.y, b.r + 1, 0, Math.PI * 2)
+      g.fill()
+      g.fillStyle = hot ? '#fde047' : '#be185d'
+      g.beginPath()
+      g.arc(b.x, b.y, b.r - 1, 0, Math.PI * 2)
+      g.fill()
+      // The cap: a domed top with a printed star.
+      const cap = g.createRadialGradient(b.x - 3, b.y - 4, 1, b.x, b.y, b.r - 3)
+      cap.addColorStop(0, hot ? '#ffffff' : '#fce7f3')
+      cap.addColorStop(1, hot ? '#facc15' : '#f472b6')
+      g.fillStyle = cap
+      g.beginPath()
+      g.arc(b.x, b.y - 1, b.r - 4, 0, Math.PI * 2)
+      g.fill()
+      g.fillStyle = hot ? '#b45309' : '#5eead4'
+      g.beginPath()
+      for (let k = 0; k < 10; k++) {
+        const rr = k % 2 ? 2 : 5
+        const a = -Math.PI / 2 + (k * Math.PI) / 5
+        const px = b.x + Math.cos(a) * rr
+        const py = b.y - 1 + Math.sin(a) * rr
+        if (k) g.lineTo(px, py)
+        else g.moveTo(px, py)
+      }
+      g.closePath()
+      g.fill()
+      if (hot) this.insertGlow(g, b.x, b.y, '#fde047', true, 30)
+    }
+  }
+
+  private renderPlunger(g: CanvasRenderingContext2D) {
+    const py = PLUNGER_Y + this.pull * 12
+    g.fillStyle = '#0b0618'
+    g.fillRect(265, 150, 14, H - 150)
+    // Spring.
+    g.strokeStyle = '#a8a29e'
+    g.lineWidth = 1
+    g.beginPath()
+    for (let y = py + 6; y < H; y += 3) {
+      g.moveTo(LANE_X - 5, y)
+      g.lineTo(LANE_X + 5, y + 1.5)
+    }
+    g.stroke()
+    // Rod and tip.
+    const rod = g.createLinearGradient(LANE_X - 3, 0, LANE_X + 3, 0)
+    rod.addColorStop(0, '#64748b')
+    rod.addColorStop(0.5, '#f8fafc')
+    rod.addColorStop(1, '#64748b')
+    g.fillStyle = rod
+    g.fillRect(LANE_X - 2, py + 2, 4, H - py)
+    g.fillStyle = '#dc2626'
+    g.beginPath()
+    g.roundRect(LANE_X - 6, py, 12, 5, 2)
+    g.fill()
+    if (
+      !this.inPlay &&
+      this.draining === 0 &&
+      Math.floor(this.tick / 15) % 2 === 0
+    ) {
+      this.insertGlow(g, LANE_X, 380, '#facc15', true, 14)
+      g.fillStyle = '#facc15'
+      g.beginPath()
+      g.moveTo(LANE_X, 372)
+      g.lineTo(LANE_X + 5, 380)
+      g.lineTo(LANE_X - 5, 380)
+      g.closePath()
+      g.fill()
+    }
+  }
+
+  private renderRamps(g: CanvasRenderingContext2D) {
+    for (const ramp of PINBALL_RAMPS) {
+      const color = THEME.ramp[ramp.key]
+      const path = ramp.path
+      const hot = this.rampFlash[ramp.key] > 0
+      const offset = (side: number) =>
+        path.map((p, i) => {
+          const q = path[Math.min(i + 1, path.length - 1)]!
+          const o = path[Math.max(i - 1, 0)]!
+          const dx = q.x - o.x
+          const dy = q.y - o.y
+          const len = Math.hypot(dx, dy) || 1
+          return { x: p.x - (dy / len) * side, y: p.y + (dx / len) * side }
+        })
+      const trace = (pts: Vec[]) =>
+        pts.forEach((p, i) => (i ? g.lineTo(p.x, p.y) : g.moveTo(p.x, p.y)))
+      g.save()
+      g.lineCap = 'round'
+      g.lineJoin = 'round'
+      // Shadow on the playfield below the raised track.
+      g.strokeStyle = 'rgba(0,0,0,0.35)'
+      g.lineWidth = 14
+      g.beginPath()
+      trace(path.map((p) => ({ x: p.x + 5, y: p.y + 8 })))
+      g.stroke()
+      // A tinted clear-plastic bed.
+      g.strokeStyle = color
+      g.globalAlpha = hot ? 0.4 : 0.18
+      g.lineWidth = 12
+      g.beginPath()
+      trace(path)
+      g.stroke()
+      g.globalAlpha = 1
+      // Cross ties every few pixels along the wireform.
+      const left = offset(-6)
+      const right = offset(6)
+      const total = pathLength(path)
+      g.strokeStyle = '#64748b'
+      g.lineWidth = 1
+      g.beginPath()
+      for (let s = 6; s < total; s += 9) {
+        const t = s / total
+        const p = pathPoint(path, t)
+        const q = pathPoint(path, Math.min(1, t + 0.01))
+        const dx = q.x - p.x
+        const dy = q.y - p.y
+        const len = Math.hypot(dx, dy) || 1
+        g.moveTo(p.x - (dy / len) * 6, p.y + (dx / len) * 6)
+        g.lineTo(p.x + (dy / len) * 6, p.y - (dx / len) * 6)
+      }
+      g.stroke()
+      g.restore()
+      for (const rail of [left, right]) {
+        this.chrome(g, () => trace(rail), 1.6)
+      }
+      // The entry: a ramp flap and a flasher dome above the mouth.
+      const m = ramp.mouth
+      const mid = (m.x0 + m.x1) / 2
+      const flap = g.createLinearGradient(0, m.y1, 0, m.y0 - 6)
+      flap.addColorStop(0, 'rgba(255,255,255,0.05)')
+      flap.addColorStop(1, color)
+      g.fillStyle = flap
+      g.globalAlpha = 0.7
+      g.beginPath()
+      g.moveTo(m.x0, m.y1)
+      g.lineTo(m.x1, m.y1)
+      g.lineTo(mid + 7, m.y0 - 4)
+      g.lineTo(mid - 7, m.y0 - 4)
+      g.closePath()
+      g.fill()
+      g.globalAlpha = 1
+      const flasher =
+        ramp.key === 'left'
+          ? { x: m.x0 - 4, y: m.y0 - 8 }
+          : { x: m.x1 + 4, y: m.y0 - 8 }
+      const dome = g.createRadialGradient(
+        flasher.x - 1,
+        flasher.y - 1,
+        0.5,
+        flasher.x,
+        flasher.y,
+        5,
+      )
+      dome.addColorStop(0, hot ? '#ffffff' : '#fecaca')
+      dome.addColorStop(1, hot ? color : '#7f1d1d')
+      g.fillStyle = dome
+      g.beginPath()
+      g.arc(flasher.x, flasher.y, 4.5, 0, Math.PI * 2)
+      g.fill()
+      if (hot) this.insertGlow(g, flasher.x, flasher.y, color, true, 34)
+    }
   }
 
   private renderFlipper(g: CanvasRenderingContext2D, f: Flipper) {
     const tip = this.flipperTip(f)
-    g.strokeStyle = '#facc15'
-    g.lineCap = 'round'
-    g.lineWidth = FLIPPER_RADIUS * 2 + 2
+    const shape = (dx: number, dy: number, r0: number, r1: number) => {
+      const a = Math.atan2(tip.y - f.pivot.y, tip.x - f.pivot.x)
+      g.beginPath()
+      g.arc(
+        f.pivot.x + dx,
+        f.pivot.y + dy,
+        r0,
+        a + Math.PI / 2,
+        a + (Math.PI * 3) / 2,
+      )
+      g.arc(tip.x + dx, tip.y + dy, r1, a - Math.PI / 2, a + Math.PI / 2)
+      g.closePath()
+    }
+    g.fillStyle = 'rgba(0,0,0,0.45)'
+    shape(2, 4, 7, 4.5)
+    g.fill()
+    // Red rubber ring, white bat, chrome pivot.
+    g.fillStyle = '#dc2626'
+    shape(0, 0, 7, 4.5)
+    g.fill()
+    const bat = g.createLinearGradient(
+      f.pivot.x,
+      f.pivot.y - 6,
+      f.pivot.x,
+      f.pivot.y + 6,
+    )
+    bat.addColorStop(0, '#ffffff')
+    bat.addColorStop(1, '#cbd5e1')
+    g.fillStyle = bat
+    shape(0, 0, 5.5, 3)
+    g.fill()
+    g.fillStyle = '#94a3b8'
     g.beginPath()
-    g.moveTo(f.pivot.x, f.pivot.y)
-    g.lineTo(tip.x, tip.y)
-    g.stroke()
-    g.strokeStyle = '#f472b6'
-    g.lineWidth = 2
-    g.stroke()
-    g.lineCap = 'butt'
+    g.arc(f.pivot.x, f.pivot.y, 2.5, 0, Math.PI * 2)
+    g.fill()
+    g.fillStyle = '#f8fafc'
+    g.beginPath()
+    g.arc(f.pivot.x - 0.7, f.pivot.y - 0.7, 1, 0, Math.PI * 2)
+    g.fill()
   }
 
   /** A mosquito net: a little mesh square. */
@@ -1231,71 +2247,75 @@ class KindPinball implements ArcadeGameInstance {
     }
   }
 
-  private renderBall(g: CanvasRenderingContext2D, b: Ball) {
+  private renderBall(g: CanvasRenderingContext2D, b: Ball, raised = false) {
     if (this.draining > 0) return
-    const shine = g.createRadialGradient(b.x - 2, b.y - 2, 1, b.x, b.y, R)
-    shine.addColorStop(0, '#ffffff')
-    shine.addColorStop(1, '#94a3b8')
-    g.fillStyle = shine
+    const lift = raised ? 6 : 3
+    const speed = Math.hypot(b.vx, b.vy)
+    if (speed > 7 && !raised) {
+      b.trail.forEach((p, i) => {
+        g.fillStyle = `rgba(226, 232, 240, ${0.05 + i * 0.04})`
+        g.beginPath()
+        g.arc(p.x, p.y, R - 1, 0, Math.PI * 2)
+        g.fill()
+      })
+    }
+    g.fillStyle = 'rgba(0,0,0,0.4)'
+    g.beginPath()
+    g.ellipse(b.x + lift * 0.6, b.y + lift, R, R * 0.8, 0, 0, Math.PI * 2)
+    g.fill()
+    const body = g.createRadialGradient(b.x - 2, b.y - 2.5, 0.5, b.x, b.y, R)
+    body.addColorStop(0, '#ffffff')
+    body.addColorStop(0.3, '#e2e8f0')
+    body.addColorStop(0.75, '#64748b')
+    body.addColorStop(1, '#1e293b')
+    g.fillStyle = body
     g.beginPath()
     g.arc(b.x, b.y, R, 0, Math.PI * 2)
     g.fill()
+    // The playfield's colour reflected in the lower half of the chrome.
+    g.fillStyle = 'rgba(244, 114, 182, 0.35)'
+    g.beginPath()
+    g.ellipse(b.x + 0.5, b.y + 2.5, R * 0.7, R * 0.35, 0, 0, Math.PI * 2)
+    g.fill()
+    g.fillStyle = '#ffffff'
+    g.beginPath()
+    g.arc(b.x - 2, b.y - 2.5, 1.2, 0, Math.PI * 2)
+    g.fill()
   }
 
-  private renderHud(g: CanvasRenderingContext2D) {
-    const shadow = '#1e1b4b'
-    drawText(g, String(this.score).padStart(7, '0'), 6, 4, {
-      scale: 2,
-      color: '#5eead4',
-      shadow,
-    })
-    drawText(g, `HI ${Math.max(this.hiScore, this.score)}`, W - 6, 4, {
-      align: 'right',
+  /** The apron covers the drain, with the table's name stamped on it. */
+  private renderApron(g: CanvasRenderingContext2D) {
+    const top = 388
+    const apron = g.createLinearGradient(0, top, 0, H)
+    apron.addColorStop(0, '#334155')
+    apron.addColorStop(1, '#0f172a')
+    g.fillStyle = apron
+    g.beginPath()
+    g.moveTo(8, top - 4)
+    g.lineTo(104, top + 6)
+    g.lineTo(168, top + 6)
+    g.lineTo(264, top - 4)
+    g.lineTo(264, H)
+    g.lineTo(8, H)
+    g.closePath()
+    g.fill()
+    g.strokeStyle = '#94a3b8'
+    g.lineWidth = 1
+    g.stroke()
+    drawText(g, 'AMI VILLAGE RESCUE', 136, top + 12, {
+      align: 'center',
       color: '#fde68a',
-      shadow,
+      shadow: '#020617',
     })
-    drawText(g, `BALL ${this.ballNumber}`, W - 6, 13, {
-      align: 'right',
-      color: '#f9a8d4',
-    })
-    if (this.mode) {
-      const def = PINBALL_MODES.find((m) => m.key === this.mode?.key)
-      const seconds = Math.ceil(this.mode.ticks / 60)
-      drawText(g, `${def?.name ?? ''} ${seconds}`, CX, 24, {
-        align: 'center',
-        color: '#f0abfc',
-        shadow,
-      })
-    }
-    if (this.multiball) {
-      drawText(
-        g,
-        `MULTIBALL  NETS ${this.nets % VILLAGES}/${VILLAGES}`,
-        CX,
-        this.mode ? 33 : 24,
-        { align: 'center', color: '#bae6fd', shadow },
-      )
-    }
-    if (this.ballSave > 0 && Math.floor(this.tick / 10) % 2 === 0) {
-      drawText(g, 'SAVE', CX, 396, { align: 'center', color: '#86efac' })
-    }
-    if (!this.inPlay && this.draining === 0) {
-      drawText(g, 'PULL DOWN', 236, 386, { align: 'center', color: '#fde68a' })
-    }
-    if (this.banner) {
-      drawText(g, this.banner.text, CX, 286, {
-        scale: 2,
-        align: 'center',
-        color: '#ffffff',
-        shadow: '#9d174d',
-      })
-      if (this.banner.sub) {
-        drawText(g, this.banner.sub, CX, 306, {
-          align: 'center',
-          color: '#fde68a',
-          shadow,
-        })
-      }
+  }
+
+  private renderBallsLeft(g: CanvasRenderingContext2D) {
+    // Balls left, as little chrome dots.
+    for (let i = 0; i < Math.min(5, this.lives); i++) {
+      g.fillStyle = '#cbd5e1'
+      g.beginPath()
+      g.arc(24 + i * 9, H - 6, 3, 0, Math.PI * 2)
+      g.fill()
     }
   }
 }

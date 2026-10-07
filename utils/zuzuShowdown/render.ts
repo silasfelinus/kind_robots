@@ -42,6 +42,16 @@ export type RenderOptions = {
   reducedMotion: boolean
 }
 
+/** A fighter's own look, or the side colours; P2 in a mirror match gets the alternate. */
+export function fighterColors(
+  data: FighterData,
+  side: 0 | 1,
+  mirror: boolean,
+): { body: string; light: string; dark: string } {
+  if (data.look && !(mirror && side === 1)) return data.look
+  return SIDE_COLORS[side]
+}
+
 export const SIDE_COLORS: Pair<{ body: string; light: string; dark: string }> =
   [
     { body: '#c2410c', light: '#fdba74', dark: '#431407' },
@@ -295,8 +305,9 @@ function drawFighter(
   side: 0 | 1,
   camera: number,
   frame: number,
+  mirror: boolean,
 ): void {
-  const colors = SIDE_COLORS[side]
+  const colors = fighterColors(data, side, mirror)
   const x = screenX(f.x, camera)
   const floor = screenY(f.y)
   const width = data.hurtStand.w
@@ -359,6 +370,15 @@ function drawFighter(
     3,
     3,
   )
+  if (data.look?.hat === 'kasa') {
+    // A wide straw kasa whose brim shades the eyes.
+    const brim = Math.round(head * 2.4)
+    g.fillStyle = '#d4a373'
+    g.fillRect(x - Math.round(brim / 2), top + 2, brim, 3)
+    g.fillStyle = '#b08350'
+    g.fillRect(x - Math.round(head / 2), top - 3, head, 5)
+    g.fillRect(x - Math.round(head / 4), top - 6, Math.round(head / 2), 3)
+  }
 
   // The attacking limb is the live hitbox (or where it will be).
   if (f.attack) {
@@ -598,7 +618,11 @@ function drawSuperFlash(
   const top = Math.round((VIEW_HEIGHT - stripHeight) / 2)
   g.fillStyle = '#000000'
   g.fillRect(0, 0, VIEW_WIDTH, VIEW_HEIGHT)
-  const colors = SIDE_COLORS[side]
+  const colors = fighterColors(
+    roster[side],
+    side,
+    roster[0].slug === roster[1].slug,
+  )
   g.fillStyle = colors.body
   g.fillRect(0, top, VIEW_WIDTH, stripHeight)
   // Two narrowed eyes.
@@ -626,7 +650,15 @@ export function drawMatch(
   const order: Array<0 | 1> =
     s.fighters[1].attack && !s.fighters[0].attack ? [0, 1] : [1, 0]
   for (const side of order)
-    drawFighter(g, s.fighters[side], roster[side], side, camera, s.frame)
+    drawFighter(
+      g,
+      s.fighters[side],
+      roster[side],
+      side,
+      camera,
+      s.frame,
+      roster[0].slug === roster[1].slug,
+    )
   drawProjectiles(g, s, roster, camera, s.frame)
   if (options.showBoxes) drawBoxes(g, s, roster, camera)
   const eyeStrip = drawSuperFlash(g, s, roster)

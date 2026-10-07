@@ -6,6 +6,7 @@
 
 import { ref } from 'vue'
 import { defineStore } from 'pinia'
+import { DEFAULT_FIGHTERS, FIGHTERS } from '~/utils/zuzuShowdown/fighters'
 
 export type ShowdownMode = 'versus' | 'dummy'
 
@@ -15,6 +16,7 @@ type ShowdownPrefs = {
   easySpecials?: boolean
   showBoxes?: boolean
   mode?: ShowdownMode
+  fighters?: [string, string]
 }
 
 const PREFS_KEY = 'kr-zuzu-showdown-prefs'
@@ -43,6 +45,7 @@ export const useZuzuShowdownStore = defineStore('zuzuShowdownStore', () => {
   const showBoxes = ref(false)
   const mode = ref<ShowdownMode>('dummy')
   const reducedMotion = ref(false)
+  const fighters = ref<[string, string]>([...DEFAULT_FIGHTERS])
 
   /** Read saved options; touch screens default to Easy Specials. */
   function loadPreferences(options: {
@@ -56,6 +59,14 @@ export const useZuzuShowdownStore = defineStore('zuzuShowdownStore', () => {
     easySpecials.value = prefs.easySpecials ?? options.coarsePointer
     showBoxes.value = prefs.showBoxes === true
     mode.value = prefs.mode === 'versus' ? 'versus' : 'dummy'
+    const known = (slug: unknown, fallback: string) =>
+      typeof slug === 'string' && FIGHTERS.some((f) => f.slug === slug)
+        ? slug
+        : fallback
+    fighters.value = [
+      known(prefs.fighters?.[0], DEFAULT_FIGHTERS[0]),
+      known(prefs.fighters?.[1], DEFAULT_FIGHTERS[1]),
+    ]
   }
 
   function save() {
@@ -65,6 +76,7 @@ export const useZuzuShowdownStore = defineStore('zuzuShowdownStore', () => {
       easySpecials: easySpecials.value,
       showBoxes: showBoxes.value,
       mode: mode.value,
+      fighters: fighters.value,
     })
   }
 
@@ -88,6 +100,14 @@ export const useZuzuShowdownStore = defineStore('zuzuShowdownStore', () => {
     save()
   }
 
+  function setFighter(side: 0 | 1, slug: string) {
+    if (!FIGHTERS.some((f) => f.slug === slug)) return
+    const next: [string, string] = [...fighters.value]
+    next[side] = slug
+    fighters.value = next
+    save()
+  }
+
   function setMode(value: ShowdownMode) {
     mode.value = value
     save()
@@ -100,7 +120,9 @@ export const useZuzuShowdownStore = defineStore('zuzuShowdownStore', () => {
     showBoxes,
     mode,
     reducedMotion,
+    fighters,
     loadPreferences,
+    setFighter,
     setMuted,
     setCrt,
     setEasySpecials,

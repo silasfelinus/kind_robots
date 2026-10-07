@@ -84,10 +84,7 @@ import {
   drawMatch,
   type Callout,
 } from '~/utils/zuzuShowdown/render'
-import {
-  PLACEHOLDER_A,
-  PLACEHOLDER_B,
-} from '~/utils/zuzuShowdown/fighters/placeholders'
+import { findFighter } from '~/utils/zuzuShowdown/fighters'
 import {
   neutralInput,
   type FighterData,
@@ -100,9 +97,14 @@ type StagePhase = 'title' | 'fight' | 'paused' | 'result'
 type Direction = 'up' | 'down' | 'left' | 'right'
 
 const RESULT_DELAY = 150
-const ROSTER: [FighterData, FighterData] = [PLACEHOLDER_A, PLACEHOLDER_B]
 
 const store = useZuzuShowdownStore()
+
+function currentRoster(): [FighterData, FighterData] {
+  return [findFighter(store.fighters[0]), findFighter(store.fighters[1])]
+}
+
+let roster = currentRoster()
 
 const canvasRef = ref<HTMLCanvasElement | null>(null)
 const screenRef = ref<HTMLElement | null>(null)
@@ -132,7 +134,7 @@ const touchButtons: Array<{
   { key: 'start', short: '❚❚', label: 'Pause', tone: 'is-start' },
 ]
 
-let match: MatchState = createMatch(ROSTER)
+let match: MatchState = createMatch(roster)
 let callouts: Callout[] = []
 let resultCountdown = 0
 let loop: FixedLoop | null = null
@@ -161,7 +163,7 @@ function applyKeyMaps() {
 }
 
 function startMatch() {
-  match = createMatch(ROSTER)
+  match = createMatch(roster)
   callouts = advanceCallouts([], match.events)
   resultCountdown = RESULT_DELAY
   phase.value = 'fight'
@@ -227,7 +229,7 @@ function tick() {
     first.special = false
     second.special = false
   }
-  match = step(match, [first, second], ROSTER)
+  match = step(match, [first, second], roster)
   callouts = advanceCallouts(callouts, match.events)
   playSounds(match.events)
   if (match.phase === 'over') {
@@ -239,14 +241,17 @@ function tick() {
 function render() {
   const g = canvasRef.value?.getContext('2d')
   if (!g) return
-  drawMatch(g, match, ROSTER, callouts, {
+  drawMatch(g, match, roster, callouts, {
     showBoxes: store.showBoxes,
     reducedMotion: store.reducedMotion,
   })
   if (phase.value === 'title') {
     drawCard(g, [
       { text: 'ZUZU SHOWDOWN', scale: 3, color: '#fdba74' },
-      { text: 'ENGINE TEST - STAND-IN FIGHTERS', color: '#fde68a' },
+      {
+        text: `${roster[0].name} VS ${roster[1].name}`.toUpperCase(),
+        color: '#fde68a',
+      },
       {
         text: store.mode === 'versus' ? '2 PLAYERS' : 'P1 VS TRAINING DUMMY',
       },
@@ -352,6 +357,15 @@ watch(locked, (on) => {
 })
 
 watch(() => store.mode, applyKeyMaps)
+watch(
+  () => [...store.fighters],
+  () => {
+    roster = currentRoster()
+    match = createMatch(roster)
+    callouts = []
+    phase.value = 'title'
+  },
+)
 watch(
   () => store.muted,
   (muted) => sound?.setMuted(muted),

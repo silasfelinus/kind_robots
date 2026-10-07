@@ -7,9 +7,9 @@
 // POST /api/art/queue, so it runs from anywhere with KR_API_TOKEN — including a
 // sandbox that can reach the site but not the tailnet.
 //
-// The payload is built by the SAME buildKrea2WorkflowFromRequest and
-// enrichArtJobPayload the direct script uses, so a job queued here is
-// indistinguishable from one queued there. Engine is passed explicitly: the
+// The payload comes from buildPageBackdropPayload, the same builder the
+// direct script uses, so a job queued here is indistinguishable from one
+// queued there. Engine is passed explicitly: the
 // route now defaults to COMFY, but relying on a default is how sixty jobs got
 // routed to a dead A1111 once already.
 //
@@ -20,12 +20,7 @@
 //   npx tsx utils/scripts/enqueuePageBackdropArtViaApi.ts --write --only mermaids --variant desktop
 import 'dotenv/config'
 import { pageBackdropArtPrompts } from './../../stores/seeds/pageBackdropArtPrompts'
-import {
-  KREA2_DEFAULT_CFG,
-  KREA2_DEFAULT_STEPS,
-  buildKrea2WorkflowFromRequest,
-} from './../../server/api/comfy/krea2/utils/workflow'
-import { enrichArtJobPayload } from './../../server/utils/artJobProvenance'
+import { buildPageBackdropPayload } from './pageBackdropPayload'
 
 const WRITE = process.argv.includes('--write')
 const PROJECT_SLUG = 'page-backdrops'
@@ -55,45 +50,6 @@ const VARIANTS = (flag('--variant') || '')
   .split(',')
   .map((value) => value.trim().toLowerCase())
   .filter(Boolean)
-
-function buildPayload(entry: (typeof pageBackdropArtPrompts)[number]) {
-  const { workflow, seed } = buildKrea2WorkflowFromRequest({
-    prompt: entry.promptString,
-    negativePrompt: entry.negativePrompt,
-    width: entry.width,
-    height: entry.height,
-    steps: KREA2_DEFAULT_STEPS,
-    cfg: KREA2_DEFAULT_CFG,
-  })
-
-  const { payload } = enrichArtJobPayload(ENGINE, {
-    requestId: entry.requestId,
-    title: entry.title,
-    page: entry.page,
-    variant: entry.variant,
-    promptString: entry.promptString,
-    negativePrompt: entry.negativePrompt,
-    width: entry.width,
-    height: entry.height,
-    steps: KREA2_DEFAULT_STEPS,
-    cfg: KREA2_DEFAULT_CFG,
-    seed,
-    workflow,
-    /*
-     * The destination the relay's media agent reads, and now the destination
-     * resolveArtImageFilePath honours too — so these file under background/
-     * instead of the unsorted landing zone.
-     */
-    imagePath: entry.imagePath,
-    save: {
-      isPublic: true,
-      isMature: false,
-      designer: 'Kind Robots / Page Backdrops',
-    },
-  })
-
-  return payload
-}
 
 async function main() {
   if (!TOKEN) {
@@ -141,7 +97,7 @@ async function main() {
       },
       body: JSON.stringify({
         engine: ENGINE,
-        payload: buildPayload(entry),
+        payload: buildPageBackdropPayload(entry),
         priority: PRIORITY,
         projectSlug: PROJECT_SLUG,
       }),

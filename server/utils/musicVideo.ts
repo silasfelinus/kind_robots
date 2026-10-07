@@ -7,6 +7,11 @@ import {
   serializeMusicVideoDoc,
   type MusicVideoDoc,
 } from '@/utils/musicVideoDoc'
+import {
+  canViewMusicVideo,
+  type MusicVideoFinalCut,
+  type MusicVideoViewer,
+} from '@/utils/musicVideoAccess'
 
 export type MusicVideoRecord = {
   id: number
@@ -17,6 +22,7 @@ export type MusicVideoRecord = {
   status: string
   doc: string
   finalArtImageId: number | null
+  isPublic: boolean
 }
 
 export type MusicVideoDto = Omit<MusicVideoRecord, 'doc'> & {
@@ -61,6 +67,41 @@ export async function loadOwnedMusicVideo(
   if (!record)
     throw createError({ statusCode: 404, message: 'Music video not found.' })
   return record
+}
+
+/** Final-cut ArtImages by id, with only what access needs. */
+export async function loadMusicVideoFinals(
+  ids: Array<number | null>,
+): Promise<Map<number, NonNullable<MusicVideoFinalCut>>> {
+  const wanted = [
+    ...new Set(ids.filter((id): id is number => typeof id === 'number')),
+  ]
+  if (!wanted.length) return new Map()
+  const rows = await prisma.artImage.findMany({
+    where: { id: { in: wanted } },
+    select: { id: true, userId: true, isActive: true, isMature: true },
+  })
+  return new Map(rows.map(({ id, ...final }) => [id, final]))
+}
+
+/**
+ * A video this viewer may see (their own, or someone's public finished one),
+ * with its final cut. Anything else answers exactly like a missing row.
+ */
+export async function loadViewableMusicVideo(
+  id: number,
+  viewer: MusicVideoViewer,
+): Promise<{ record: MusicVideoRecord; final: MusicVideoFinalCut }> {
+  const record = await prisma.musicVideo.findUnique({ where: { id } })
+  const final = record?.finalArtImageId
+    ? ((await loadMusicVideoFinals([record.finalArtImageId])).get(
+        record.finalArtImageId,
+      ) ?? null)
+    : null
+  if (!record || !canViewMusicVideo(record, final, viewer)) {
+    throw createError({ statusCode: 404, message: 'Music video not found.' })
+  }
+  return { record, final }
 }
 
 export function cleanMusicVideoTitle(value: unknown, fallback = ''): string {

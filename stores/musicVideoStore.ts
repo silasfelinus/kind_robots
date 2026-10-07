@@ -19,11 +19,17 @@ import { heroSceneIndexes } from '@/utils/musicVideoScenes'
 
 export type MusicVideoSummary = {
   id: number
+  userId: number
   title: string
   status: MusicVideoStatus
+  isPublic: boolean
   createdAt: string
   updatedAt: string
   finalArtImageId: number | null
+  ownerName: string | null
+  isOwner: boolean
+  /** The final cut streams from videoUrl() for this viewer. */
+  hasFinal: boolean
 }
 
 export type MusicVideo = {
@@ -34,6 +40,7 @@ export type MusicVideo = {
   createdAt: string
   updatedAt: string
   finalArtImageId: number | null
+  isPublic: boolean
   doc: MusicVideoDoc
 }
 
@@ -116,6 +123,39 @@ export const useMusicVideoStore = defineStore('musicVideoStore', () => {
   let produceTimer: ReturnType<typeof setInterval> | null = null
   let producingId: number | null = null
   let produceAttempts: Record<string, number> = {}
+
+  /*
+   * Silas, 2026-10-07: the tab lives in Play and opens on a gallery. Anyone
+   * signed in can remix; owners edit, toggle privacy and delete; producing
+   * (lyrics, song, renders, export) stays admin-only because it queues GPU
+   * time on the Comfy box.
+   */
+  const isOwner = computed(() => {
+    const userStore = useUserStore()
+    return Boolean(
+      current.value &&
+      userStore.isLoggedIn &&
+      current.value.userId === userStore.userId,
+    )
+  })
+  const canProduce = computed(() => isOwner.value && useUserStore().isAdmin)
+  const myVideos = computed(() => videos.value.filter((video) => video.isOwner))
+  const sharedVideos = computed(() =>
+    videos.value.filter((video) => !video.isOwner),
+  )
+  const currentSummary = computed(() =>
+    current.value
+      ? (videos.value.find((video) => video.id === current.value?.id) ?? null)
+      : null,
+  )
+
+  function videoUrl(id: number): string {
+    return `/api/music-video/${id}/video`
+  }
+
+  function posterUrl(id: number): string {
+    return `/api/music-video/${id}/poster`
+  }
 
   const sceneCount = computed(() => current.value?.doc.scenes.length ?? 0)
   const scenesWithImage = computed(
@@ -230,12 +270,14 @@ export const useMusicVideoStore = defineStore('musicVideoStore', () => {
       sceneStatuses.value = {}
       songJob.value = null
       actionMessage.value = ''
-      void hydratePreviews(response.data)
-      // Finished renders only reach the doc when something asks for their
-      // status, so opening a video asks (t-027).
-      void syncStatus()
-      // A production left running in this browser picks up where it was.
-      if (readProducingId() === id) startProduce()
+      if (isOwner.value) void hydratePreviews(response.data)
+      if (canProduce.value) {
+        // Finished renders only reach the doc when something asks for their
+        // status, so opening a video asks (t-027).
+        void syncStatus()
+        // A production left running in this browser picks up where it was.
+        if (readProducingId() === id) startProduce()
+      }
     } catch (e) {
       error.value = errorMessage(e, 'Failed to load the music video.')
     } finally {
@@ -1192,6 +1234,72 @@ export const useMusicVideoStore = defineStore('musicVideoStore', () => {
     }
   }
 
+  /** Back to the gallery. Produce pauses and resumes when the video reopens. */
+  function close(): void {
+    const resumeId = producingId
+    if (producing.value) stopProduce()
+    if (resumeId) writeProducingId(resumeId)
+    current.value = null
+    sceneStatuses.value = {}
+    songJob.value = null
+    actionMessage.value = ''
+  }
+
+  /** A new draft owned by this user with every setting of video `id`. */
+  async function remix(id: number): Promise<MusicVideo | null> {
+    saving.value = true
+    clearError()
+    try {
+      const response = await performFetch<MusicVideo>(
+        `/api/music-video/${id}/remix`,
+        { method: 'POST', body: JSON.stringify({}) },
+        0,
+        20_000,
+      )
+      if (!response.success || !response.data) {
+        throw new Error(response.message || 'Failed to remix the music video.')
+      }
+      current.value = response.data
+      sceneStatuses.value = {}
+      songJob.value = null
+      actionMessage.value = response.message || ''
+      void hydratePreviews(response.data)
+      await loadList()
+      return response.data
+    } catch (e) {
+      error.value = errorMessage(e, 'Failed to remix the music video.')
+      return null
+    } finally {
+      saving.value = false
+    }
+  }
+
+  async function setPublic(id: number, isPublic: boolean): Promise<boolean> {
+    saving.value = true
+    clearError()
+    try {
+      const response = await performFetch<MusicVideo>(
+        `/api/music-video/${id}`,
+        { method: 'PATCH', body: JSON.stringify({ isPublic }) },
+        0,
+        20_000,
+      )
+      if (!response.success || !response.data) {
+        throw new Error(response.message || 'Failed to change who can see it.')
+      }
+      if (current.value?.id === id) current.value = response.data
+      videos.value = videos.value.map((video) =>
+        video.id === id ? { ...video, isPublic } : video,
+      )
+      return true
+    } catch (e) {
+      error.value = errorMessage(e, 'Failed to change who can see it.')
+      return false
+    } finally {
+      saving.value = false
+    }
+  }
+
   async function remove(id: number): Promise<boolean> {
     saving.value = true
     clearError()
@@ -1205,7 +1313,8 @@ export const useMusicVideoStore = defineStore('musicVideoStore', () => {
       if (!response.success) {
         throw new Error(response.message || 'Failed to delete the music video.')
       }
-      if (current.value?.id === id) current.value = null
+      if (current.value?.id === id) close()
+      if (readProducingId() === id) writeProducingId(null)
       await loadList()
       return true
     } catch (e) {
@@ -1219,6 +1328,16 @@ export const useMusicVideoStore = defineStore('musicVideoStore', () => {
   return {
     videos,
     current,
+    isOwner,
+    canProduce,
+    myVideos,
+    sharedVideos,
+    currentSummary,
+    videoUrl,
+    posterUrl,
+    close,
+    remix,
+    setPublic,
     previewUrls,
     loading,
     saving,

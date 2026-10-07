@@ -267,6 +267,9 @@ jobs:
       - name: Music video recover a deleted copy (t-033)
         run: npm run test:music-video-recover
 
+      - name: Music video visibility and remix
+        run: npm run test:music-video-access
+
       - name: ArtJob audio media contract
         run: npm run test:artjob-audio-media
 

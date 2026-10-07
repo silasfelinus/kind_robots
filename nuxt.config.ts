@@ -376,6 +376,9 @@ export default defineNuxtConfig({
     '/storymaker': { redirect: { to: '/storybook', statusCode: 301 } },
     '/play/davinci': { redirect: { to: '/storybook', statusCode: 301 } },
     '/taskmaster': { redirect: { to: '/storybook', statusCode: 301 } },
+    '/admin/music-video': {
+      redirect: { to: '/play/music-video', statusCode: 301 },
+    },
   },
 
   nitro: {

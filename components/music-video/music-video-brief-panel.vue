@@ -168,6 +168,7 @@
         Save brief
       </button>
       <button
+        v-if="store.canProduce"
         type="button"
         class="kr-btn"
         :disabled="
@@ -186,10 +187,11 @@
       <span class="flex-1" />
       <button
         type="button"
-        class="kr-btn kr-btn-xs"
+        class="kr-btn-xs btn-error"
         :disabled="store.saving"
         @click="onDelete"
       >
+        <icon name="kind-icon:trash" class="kr-icon-4" />
         Delete video
       </button>
     </div>

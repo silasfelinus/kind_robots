@@ -150,6 +150,12 @@ type PageSeed = {
   scene: string
   /** Replaces HOUSE_AESTHETIC when a page needs a different visual register. */
   aesthetic?: string
+  /**
+   * Appended to NEGATIVE_PROMPT. For the thing a scene names that this lane
+   * would otherwise blow up into a centred hero: bots' "robot" rendered one
+   * giant mech, dreams' "jellyfish" one giant jellyfish (ArtJobs 34639-34644).
+   */
+  negative?: string
 }
 
 /**
@@ -170,13 +176,17 @@ const PAGES: PageSeed[] = [
     page: 'dreams',
     title: 'Dreams — Dream Deck',
     scene:
-      'dreamlike night sky, a floating platform of pale weathered wooden planks adrift among clouds, many small glowing jellyfish drifting in swarms along the left and right edges, school of jellyfish, swirling violet and indigo nebula, scattered constellations, gauzy banners fluttering on tall poles at the edges of the deck, surreal, ethereal, open starry sky through the middle',
+      'outdoors, night sky, a floating deck of pale weathered wooden planks adrift above a sea of clouds, swirling violet and indigo nebula, starry sky, constellations, bioluminescent particles, tiny glowing jellyfish scattered far away near the horizon, gauzy banners on tall poles at the edges of the deck, surreal, ethereal, open starry sky through the middle',
+    negative:
+      'giant jellyfish, large jellyfish, close-up jellyfish, large creature, monster',
   },
   {
     page: 'bots',
     title: 'Bots — Bot Factory',
     scene:
-      'robot workshop interior, robot factory, cluttered workbenches along both side walls covered in half-assembled robots, robot heads and mechanical arms on shelves, gears, exposed wiring, copper pipes running up the walls, glass tanks of glowing green coolant, tools hanging on pegboards, chain hoists from the ceiling beams, tall industrial windows with warm afternoon sunlight, drifting sparks, open concrete floor in the middle',
+      'indoors, machine workshop, cluttered workbenches along both side walls, spare mechanical parts, detached robotic arms, small robot heads on shelves, gears, cables, exposed wiring, copper pipes running up the walls, glass tanks of glowing green coolant, tools hanging on pegboards, chain hoists from the ceiling beams, tall factory windows with warm afternoon sunlight, drifting sparks, empty concrete floor in the middle',
+    negative:
+      'mecha, humanoid robot, standing robot, android, cyborg, power armor, giant robot',
   },
   {
     page: 'characters',
@@ -586,7 +596,9 @@ export const pageBackdropArtPrompts: PageBackdropArtPrompt[] = PAGES.flatMap(
         // /images/** redirect to the media origin.
         imagePath: `background/${seed.page}-${variant}.webp`,
         promptString: buildPrompt(seed, variant),
-        negativePrompt: NEGATIVE_PROMPT,
+        negativePrompt: seed.negative
+          ? `${NEGATIVE_PROMPT}, ${seed.negative}`
+          : NEGATIVE_PROMPT,
       }
     }),
 )

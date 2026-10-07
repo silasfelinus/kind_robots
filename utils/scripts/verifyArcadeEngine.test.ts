@@ -121,6 +121,11 @@ import {
   assert.deepEqual(assignPads([0, 1], 2), [0, 1])
   assert.deepEqual(assignPads([2], 2), [-1, 2])
   assert.deepEqual(assignPads([], 2), [-1, -1])
+  // Three or four: players with no keys (3 and 4) get pads first.
+  assert.deepEqual(assignPads([0, 1, 2, 3], 4), [0, 1, 2, 3])
+  assert.deepEqual(assignPads([5], 3), [-1, -1, 5])
+  assert.deepEqual(assignPads([0, 1], 4), [-1, -1, 0, 1])
+  assert.deepEqual(assignPads([0, 1, 2], 4), [-1, 0, 1, 2])
   // The two-player key maps never share a key.
   for (const code of Object.keys(P1_KEYS))
     assert.ok(!(code in P2_KEYS), `${code} is bound for both players`)
@@ -616,6 +621,64 @@ async function runCoopGames() {
       if (t % 45 === 0) game.render(g)
     }
     assert.ok(game.score <= meta.maxPlausibleScore)
+  }
+
+  // Every seat count a game allows starts with that many in play.
+  for (const meta of ARCADE_GAMES.filter((m) => (m.maxPlayers ?? 1) > 1)) {
+    const mod = await loadArcadeGame(meta.slug)
+    for (let players = 2; players <= meta.maxPlayers!; players++) {
+      const game = mod.create({
+        rng: mulberry32(players),
+        sound: quiet,
+        demo: false,
+        hiScore: 0,
+        players,
+      })
+      const frames = () =>
+        Array.from({ length: players }, (_, i) => scriptedInput(i * 50))
+      for (let t = 0; t < 60 * 40 && !game.over; t++) {
+        const all = frames()
+        game.update(all[0]!, all)
+        if (t % 120 === 0) game.render(g)
+      }
+      assert.ok(game.score <= meta.maxPlausibleScore)
+    }
+  }
+
+  // Four in the Gauntlet: one of each bot.
+  {
+    const mod = await loadArcadeGame('kindness-gauntlet')
+    const game = mod.create({
+      rng: mulberry32(4),
+      sound: quiet,
+      demo: false,
+      hiScore: 0,
+      players: 4,
+    })
+    const heroes = (game as unknown as { heroes: Array<{ cls: string }> })
+      .heroes
+    const all = [tap('a'), tap('a'), tap('a'), tap('a')]
+    game.update(all[0]!, all)
+    assert.equal(
+      new Set(heroes.map((h) => h.cls)).size,
+      4,
+      'four bots, all different',
+    )
+    assert.equal(game.lives, 4)
+  }
+
+  // Three on the station: three Mops, two shared spares.
+  {
+    const mod = await loadArcadeGame('station-sweep')
+    const game = mod.create({
+      rng: mulberry32(6),
+      sound: quiet,
+      demo: false,
+      hiScore: 0,
+      players: 3,
+    })
+    assert.equal(game.lives, 5)
+    game.render(g)
   }
 
   // Kindness Gauntlet: two different bots, each on its own controls, one screen.

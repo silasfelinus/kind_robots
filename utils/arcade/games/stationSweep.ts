@@ -20,9 +20,9 @@
 // draining charge until Mop jumps (Up or B) to shake them. Left/right walk,
 // A fires the sweeper beam.
 //
-// Two can play on one device, as in the classic's split screen: player 1's
-// Mop on the top half, player 2's (pink) on the bottom, each free to ride to a
-// deck of their own. Every deck with a Mop on it is live. The score, the clock
+// Up to three can play on one device, as in the classic's split screen: one
+// strip per Mop, player 1's (blue) on top, then player 2's (pink) and player
+// 3's (green), each free to ride to a deck of their own. Every deck with a Mop on it is live. The score, the clock
 // and the spare Mops are shared; a Mop that goes down reboots on a spare, and
 // with no spares left it sits out until one is earned (back at the next
 // station). The run ends when no Mop is left sweeping.
@@ -61,22 +61,20 @@ const SECS_PER_DECK = 24
 const GLOW_TICKS = 150
 const DECK_PANELS = ['#1f2937', '#241a44', '#13293d', '#2a2014']
 
-/** Mops that can share a station (the cabinet seats up to this many). */
-const MAX_PLAYERS = 2
-/** Split screen: a short shared HUD, then one view per Mop. */
-const DUO_HUD = 22
-const DUO_VIEW_H = (H - DUO_HUD) / 2
-/** Each view shows the deck from the ceiling plating to just under the floor. */
+/** Mops that can share a station, as in the classic. */
+const MAX_PLAYERS = 3
+/** Split screen: a short shared HUD, then one strip per Mop. */
+const SPLIT_HUD = 22
+/** Each strip shows the deck from the ceiling plating to just under the floor. */
 const VIEW_TOP = CEILING - 14
 const VIEW_SPAN = FLOOR + 10 - VIEW_TOP
-const DUO_SCALE = DUO_VIEW_H / VIEW_SPAN
-const DUO_VIEW_W = W / DUO_SCALE
 /** Each Mop's colours: body, dome. */
 const MOP_COLORS: Array<[string, string]> = [
   ['#0ea5e9', '#7dd3fc'],
   ['#ec4899', '#f9a8d4'],
+  ['#16a34a', '#86efac'],
 ]
-const SEAT_COLORS = ['#67e8f9', '#f9a8d4']
+const SEAT_COLORS = ['#67e8f9', '#f9a8d4', '#bef264']
 
 export const SWEEP_CURVES = {
   decks: { start: 2, step: 0.5, limit: 4 },
@@ -246,6 +244,17 @@ class StationSweep implements ArcadeGameInstance {
 
   private get duo(): boolean {
     return this.mops.length > 1
+  }
+
+  /** Split screen geometry: each strip's height, scale and world width. */
+  private get stripH(): number {
+    return (H - SPLIT_HUD) / this.mops.length
+  }
+  private get stripScale(): number {
+    return this.stripH / VIEW_SPAN
+  }
+  private get viewW(): number {
+    return this.duo ? W / this.stripScale : W
   }
 
   // The current deck's things, read and written through to the deck itself.
@@ -435,7 +444,7 @@ class StationSweep implements ArcadeGameInstance {
       this.checkClean()
       if (this.clear > 0) break
     }
-    const viewW = this.duo ? DUO_VIEW_W : W
+    const viewW = this.viewW
     for (const m of this.mops)
       m.camX = Math.max(0, Math.min(DECK_W - viewW, m.x - viewW / 2))
     if (this.mops.every((m) => m.out)) {
@@ -1108,18 +1117,19 @@ class StationSweep implements ArcadeGameInstance {
         drawText(g, f.text, f.x, f.y, { align: 'center', color: '#fde68a' })
   }
 
-  /** Split screen: a slim shared HUD, then player 1's view over player 2's. */
+  /** Split screen: a slim shared HUD, then a strip per Mop, player 1's on top. */
   private renderSplit(g: CanvasRenderingContext2D) {
+    const stripH = this.stripH
     this.mops.forEach((m, i) => {
-      const top = DUO_HUD + i * DUO_VIEW_H
+      const top = SPLIT_HUD + i * stripH
       g.save()
       g.beginPath()
-      g.rect(0, top, W, DUO_VIEW_H)
+      g.rect(0, top, W, stripH)
       g.clip()
       if (m.out) {
         g.fillStyle = '#0b1026'
-        g.fillRect(0, top, W, DUO_VIEW_H)
-        drawText(g, `${m.seat + 1}P IS OUT`, W / 2, top + DUO_VIEW_H / 2 - 8, {
+        g.fillRect(0, top, W, stripH)
+        drawText(g, `${m.seat + 1}P IS OUT`, W / 2, top + stripH / 2 - 8, {
           scale: 2,
           align: 'center',
           color: SEAT_COLORS[m.seat],
@@ -1128,7 +1138,7 @@ class StationSweep implements ArcadeGameInstance {
           g,
           'A SPARE MOP BRINGS YOU BACK',
           W / 2,
-          top + DUO_VIEW_H / 2 + 12,
+          top + stripH / 2 + 12,
           {
             align: 'center',
             color: '#94a3b8',
@@ -1136,7 +1146,7 @@ class StationSweep implements ArcadeGameInstance {
         )
       } else {
         g.translate(0, top)
-        g.scale(DUO_SCALE, DUO_SCALE)
+        g.scale(this.stripScale, this.stripScale)
         g.translate(-Math.round(m.camX), -VIEW_TOP)
         this.renderWorld(g, m.deck)
       }
@@ -1144,7 +1154,8 @@ class StationSweep implements ArcadeGameInstance {
       if (!m.out) this.renderViewHud(g, m, top)
     })
     g.fillStyle = '#334155'
-    g.fillRect(0, DUO_HUD + DUO_VIEW_H - 1, W, 2)
+    for (let i = 1; i < this.mops.length; i++)
+      g.fillRect(0, SPLIT_HUD + i * stripH - 1, W, 2)
     this.renderSplitHud(g)
   }
 
@@ -1197,7 +1208,7 @@ class StationSweep implements ArcadeGameInstance {
   private renderSplitHud(g: CanvasRenderingContext2D) {
     const shadow = '#0b1026'
     g.fillStyle = '#0b1026'
-    g.fillRect(0, 0, W, DUO_HUD)
+    g.fillRect(0, 0, W, SPLIT_HUD)
     drawText(g, String(this.score).padStart(7, '0'), 4, 4, {
       scale: 2,
       color: '#67e8f9',
@@ -1228,7 +1239,7 @@ class StationSweep implements ArcadeGameInstance {
       for (const m of this.mops) {
         if (m.out || m.deck !== i) continue
         g.fillStyle = SEAT_COLORS[m.seat]!
-        g.fillRect(bx + m.seat * 6, 12, 4, 3)
+        g.fillRect(bx + m.seat * 4, 12, 3, 3)
       }
     })
     this.renderBanner(g, H / 2 - 10)

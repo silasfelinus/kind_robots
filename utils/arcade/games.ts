@@ -519,6 +519,28 @@ export const ARCADE_GAMES: ArcadeGameMeta[] = [
     accent: '#f97316',
     controls: 'Change counter, pour',
   },
+  {
+    slug: 'seed-burst',
+    title: 'Seed Burst',
+    riffsOn: 'Bomberman',
+    blurb:
+      'Plant seed pods in a hedge maze. Each one bursts into a cross of blooms that clears hedges and turns grumpy gnats into butterflies, so step out of the way first. Hedges hide extra pods, longer blooms and quick shoes. Up to four gardeners share one garden, one score and one pool of spares.',
+    howTo: [
+      'ARROWS  MOVE',
+      'A  PLANT A POD',
+      'PODS BURST IN A +',
+      'STEP CLEAR!',
+      'BLOOM THE GNATS',
+      'HEDGES HIDE GIFTS',
+    ],
+    width: 240,
+    height: 232,
+    maxPlausibleScore: 2_000_000,
+    titleArt: '/images/arcade/games/seed-burst-title.webp',
+    accent: '#22c55e',
+    controls: 'Move, plant',
+    maxPlayers: 4,
+  },
 ]
 
 export type ComingSoonCabinet = {
@@ -589,6 +611,7 @@ const LOADERS: Record<string, () => Promise<ArcadeGameModule>> = {
   'glitch-garden': () => import('./games/glitchGarden'),
   'quilt-quest': () => import('./games/quiltQuest'),
   'cocoa-counter': () => import('./games/cocoaCounter'),
+  'seed-burst': () => import('./games/seedBurst'),
   'kind-pinball-3d': () =>
     import('./games/kindPinball3d').then(async (module) => {
       await module.prepare()

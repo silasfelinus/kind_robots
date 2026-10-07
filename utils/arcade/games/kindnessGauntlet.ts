@@ -755,11 +755,15 @@ class KindnessGauntlet implements ArcadeGameInstance {
 
   /** Would a bot at (x, y) still share the screen with its rolling partners? */
   private onLeash(hero: Hero, x: number, y: number): boolean {
-    return this.standing.every(
-      (o) =>
-        o === hero ||
-        (Math.abs(o.x - x) <= LEASH_X && Math.abs(o.y - y) <= LEASH_Y),
-    )
+    return this.standing.every((o) => {
+      if (o === hero) return true
+      const dx = Math.abs(o.x - x)
+      const dy = Math.abs(o.y - y)
+      if (dx <= LEASH_X && dy <= LEASH_Y) return true
+      // Already too far apart (a partner was revived out past the leash):
+      // any step that doesn't widen the gap is fine, so they can close it.
+      return dx <= Math.abs(o.x - hero.x) && dy <= Math.abs(o.y - hero.y)
+    })
   }
 
   /** A rolling bot next to a flat partner hands over some of its charge. */

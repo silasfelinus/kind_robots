@@ -2,7 +2,7 @@
 <template>
   <section
     v-if="video"
-    class="grid gap-4 xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]"
+    class="grid gap-4 grid-cols-[repeat(auto-fit,minmax(min(100%,28rem),1fr))]"
   >
     <div class="min-w-0 space-y-3">
       <video

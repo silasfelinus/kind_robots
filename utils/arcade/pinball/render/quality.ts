@@ -31,6 +31,10 @@ export type TierSettings = {
   giLights: number
   /** How dark the contact shadow under each ball is. */
   contactShadow: number
+  /** Sparks a jackpot burst may throw (t-010). */
+  sparks: number
+  /** A streak behind a fast ball (t-010). */
+  trail: boolean
 }
 
 export const TIER_SETTINGS: Record<QualityTier, TierSettings> = {
@@ -43,6 +47,8 @@ export const TIER_SETTINGS: Record<QualityTier, TierSettings> = {
     flasherLights: 4,
     giLights: 4,
     contactShadow: 0.35,
+    sparks: 240,
+    trail: true,
   },
   medium: {
     maxPixelRatio: 1.5,
@@ -53,6 +59,8 @@ export const TIER_SETTINGS: Record<QualityTier, TierSettings> = {
     flasherLights: 2,
     giLights: 2,
     contactShadow: 0.5,
+    sparks: 120,
+    trail: true,
   },
   low: {
     maxPixelRatio: 1,
@@ -63,6 +71,8 @@ export const TIER_SETTINGS: Record<QualityTier, TierSettings> = {
     flasherLights: 0,
     giLights: 2,
     contactShadow: 0.65,
+    sparks: 48,
+    trail: false,
   },
 }
 

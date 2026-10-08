@@ -18,6 +18,8 @@
 // cabinet is entered and left over and over.
 
 import * as THREE from 'three'
+import type { ToyPose } from '../rules/toys'
+import { Heroes, Sparks, Trail } from './heroes'
 import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js'
 import { ConvexGeometry } from 'three/examples/jsm/geometries/ConvexGeometry.js'
 import { flipperProfile, flipperYaw } from '../physics/world'
@@ -88,6 +90,13 @@ let liveResources = 0
 export function liveRenderResources(): number {
   return liveResources
 }
+
+/** Pooled jackpot sparks, and the most balls that leave a trail at once. */
+const SPARK_CAPACITY = 240
+const TRAIL_BALLS = 6
+/** A kicked sling rubber's extra thickness, and how fast it settles. */
+const RUBBER_FLEX = 1.6
+const RUBBER_DECAY = 0.12
 
 /** How far a drop target travels toward down or up each frame (0..1). */
 const DROP_TRAVEL = 0.4
@@ -220,6 +229,15 @@ export class PinballScene {
   private flash = new Map<string, number>()
   private doors = new Map<string, { closed: THREE.Group; open: THREE.Group }>()
   private toys = new Map<string, THREE.Group>()
+  /** The signature toys (t-010), the jackpot sparks and the ball trail. */
+  private heroes: Heroes | null = null
+  private sparks: Sparks
+  private trail: Trail
+  /** Sling rubbers that flex when their kicker fires: 1 at the kick. */
+  private rubbers = new Map<
+    string,
+    { mesh: THREE.Mesh; material: THREE.MeshStandardMaterial; kick: number }
+  >()
   private inserts = new Map<string, Lamp>()
   private flashers = new Map<string, Flasher>()
   /** Insert ids by the shot they point at, and that shot's flasher. */
@@ -304,6 +322,15 @@ export class PinballScene {
     this.buildTable()
     this.buildLamps()
     this.buildDmd()
+    const track = <T extends { dispose(): void }>(r: T) => this.track(r)
+    if (this.table.hero) {
+      this.heroes = new Heroes(this.table.hero, track)
+      this.root.add(this.heroes.group)
+    }
+    this.sparks = new Sparks(SPARK_CAPACITY, track)
+    this.trail = new Trail(TRAIL_BALLS, track)
+    this.root.add(this.sparks.points, this.trail.points)
+    this.buildRubbers()
     if (this.gl) this.reflect(this.track(buildEnvironment(this.gl)))
     this.applyTier()
     this.aimCamera(9 / 16)
@@ -887,6 +914,112 @@ export class PinballScene {
     if (flasher) flasher.pulse = 1
   }
 
+  /** What the signature toys show, from the rules (rules/toys.ts). */
+  setToys(pose: ToyPose) {
+    this.heroes?.setPose(pose)
+  }
+
+  /** The drone's delivery flight: all three nets brought home. */
+  deliver() {
+    this.heroes?.deliver()
+  }
+
+  /** The signature toys, for tests (null on a table without them). */
+  get heroToys(): Heroes | null {
+    return this.heroes
+  }
+
+  /**
+   * A shower of sparks over a shot (its first switch) or a toy ('beacon',
+   * 'drone'), in the shot's arrow colour: a jackpot.
+   */
+  burst(id: string) {
+    const at = this.spotFor(id)
+    if (!at) return
+    const insert = this.table.inserts?.find((n) => n.shot === id)
+    const color = new THREE.Color(insert?.color ?? 0xfde68a)
+    this.sparks.burst(at, color)
+  }
+
+  /** Sparks in the air (for tests). */
+  get sparksLive(): number {
+    return this.sparks.live
+  }
+
+  /** Trail points lit behind fast balls this frame (for tests). */
+  get trailLit(): number {
+    return this.trail.lit
+  }
+
+  /** A sling's kicker fired: its rubber flexes. */
+  kick(id: string) {
+    const rubber = this.rubbers.get(id)
+    if (rubber) rubber.kick = 1
+  }
+
+  /** How far a sling rubber is still flexed (for tests). */
+  rubberKick(id: string): number {
+    return this.rubbers.get(id)?.kick ?? 0
+  }
+
+  private spotFor(id: string): Vec3 | null {
+    const hero = this.table.hero
+    if (id === 'beacon' && hero) return hero.beacon.at
+    if (id === 'drone' && this.heroes) return this.heroes.droneAt
+    const first = this.table.shots.find((s) => s.id === id)?.sensors[0]
+    if (!first) return null
+    const at =
+      this.table.sensors.find((s) => s.id === first)?.at ??
+      this.table.scoops.find((s) => s.id === first)?.at ??
+      this.table.spinners.find((s) => s.id === first)?.at
+    return at ? [at[0], 0.03, at[2]] : null
+  }
+
+  /**
+   * The sling rubbers: a band over each kicker, hidden at rest (the static
+   * table draws the rubber), shown flexing out for a few frames when it
+   * fires.
+   */
+  private buildRubbers() {
+    for (const def of this.table.colliders) {
+      if (def.kind !== 'box' || !/^sling-.+-kicker$/.test(def.id)) continue
+      const geo = this.track(
+        new THREE.BoxGeometry(
+          def.half[0] * 2,
+          def.half[1] * 2.1,
+          def.half[2] * 2,
+        ),
+      )
+      const material = this.track(
+        new THREE.MeshStandardMaterial({
+          color: 0xf8fafc,
+          roughness: 0.6,
+          emissive: 0xffffff,
+          emissiveIntensity: 0,
+        }),
+      )
+      const mesh = new THREE.Mesh(geo, material)
+      mesh.position.copy(v3(def.at))
+      mesh.rotation.y = def.yaw ?? 0
+      mesh.visible = false
+      this.root.add(mesh)
+      this.rubbers.set(def.id, { mesh, material, kick: 0 })
+    }
+  }
+
+  /** One frame of the toys, sparks and sling rubbers. */
+  private animateToys() {
+    this.heroes?.animate()
+    this.sparks.update()
+    for (const rubber of this.rubbers.values()) {
+      rubber.mesh.visible = rubber.kick > 0
+      if (rubber.kick <= 0) continue
+      rubber.mesh.scale.z = 1 + rubber.kick * RUBBER_FLEX
+      rubber.material.emissiveIntensity = rubber.kick * 0.8
+      rubber.kick = Math.max(0, rubber.kick - RUBBER_DECAY)
+    }
+  }
+
   /** Set every lamp from the lamp matrix (rules/lamps.ts), and the GI level. */
   setLamps(lamps: Record<string, LampLevel>, gi: number) {
     for (const [id, level] of Object.entries(lamps)) {
@@ -919,6 +1052,8 @@ export class PinballScene {
     const before = this.settings
     this.settings = TIER_SETTINGS[this.governor.tier]
     const s = this.settings
+    this.sparks.budget = s.sparks
+    this.trail.enabled = s.trail
     const shadows = s.shadowMapSize > 0
     for (const light of this.keyLights) {
       light.castShadow = shadows
@@ -1077,6 +1212,7 @@ export class PinballScene {
       this.root.remove(view.ball, view.shadow)
       this.balls.delete(id)
     }
+    this.trail.update(balls)
     for (const def of this.table.flippers) {
       const group = this.flippers.get(def.id)
       const angle = flipperAngles[def.id]
@@ -1175,6 +1311,7 @@ export class PinballScene {
     this.lastFrameAt = now
     this.easeCamera()
     this.animateLamps()
+    this.animateToys()
     this.gl?.info.reset()
     if (this.post) this.post.render()
     else this.renderer.render(this.scene, this.camera)

@@ -234,6 +234,20 @@ export type CameraPreset = {
 }
 
 /**
+ * The table's signature toys (t-010): scenery the rules drive
+ * (rules/toys.ts) and the ball never touches. They have no colliders, so the
+ * physics is the same with them or without.
+ */
+export type HeroDef = {
+  /** The hut bank: each hut's base on its wall top, turned to face the field. */
+  huts: Array<{ at: Vec3; yaw: number }>
+  /** The AMI beacon: a robot head's centre, above the balls' reach. */
+  beacon: { at: Vec3 }
+  /** The net drone: its perch, the loop it flies in multiball, and its drop point. */
+  drone: { perch: Vec3; circle: { at: Vec3; radius: number }; deliver: Vec3 }
+}
+
+/**
  * A lamp's state, as rules ask for it: unlit (the plastic still shows its
  * colour), lit, or flashing for attention.
  */
@@ -301,6 +315,8 @@ export type TableDef = {
   doors?: DoorDef[]
   kickers?: KickerDef[]
   toys?: ToyDef[]
+  /** The signature toys (t-010), drawn from the rules' state. */
+  hero?: HeroDef
   zones?: ZoneDef[]
   occluders?: OccluderDef[]
   inserts?: InsertDef[]

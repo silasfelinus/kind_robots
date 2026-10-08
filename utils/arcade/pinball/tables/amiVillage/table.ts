@@ -21,6 +21,7 @@ import type {
   DropTargetDef,
   FlasherDef,
   FlipperDef,
+  HeroDef,
   InsertDef,
   MeshCollider,
   ScoopDef,
@@ -407,6 +408,42 @@ function lockPocket(): ColliderDef[] {
     },
   )
 }
+
+/**
+ * The signature toys (t-010), all out of the ball's reach:
+ * - six huts along the top right of the arch, sitting on its wall, one per
+ *   village toward the wizard mode;
+ * - the AMI beacon, a robot head on a post over the lock pocket, high enough
+ *   for a ball to roll under;
+ * - the net drone, perched over the arch's top left near the hidden room's
+ *   door, circling mid-table in multiball, delivering to the huts.
+ */
+const HERO: HeroDef = (() => {
+  const cx = (LEFT_X + RIGHT_X) / 2
+  const cz = TOP_Z + 0.24
+  const huts = [10, 11, 12, 13, 14, 15].map((i) => {
+    const [ax, az] = ARCH_POINTS[i]!
+    const [bx, bz] = ARCH_POINTS[i + 1]!
+    const [mx, mz] = [(ax + bx) / 2, (az + bz) / 2]
+    // Out from the arch's centre: the huts sit back on the wall's top.
+    const len = Math.hypot(mx - cx, mz - cz)
+    const [nx, nz] = [(mx - cx) / len, (mz - cz) / len]
+    return {
+      at: [mx + nx * 0.006, WALL_HEIGHT, mz + nz * 0.006] as Vec3,
+      // Facing in, toward the field.
+      yaw: Math.atan2(-nx, -nz),
+    }
+  })
+  return {
+    huts,
+    beacon: { at: [0, 0.058, LOCK_Z - 0.035] },
+    drone: {
+      perch: [-0.16, 0.085, TOP_Z + 0.13],
+      circle: { at: [cx, 0.09, -0.48], radius: 0.11 },
+      deliver: [huts[2]!.at[0], 0.07, huts[2]!.at[2] + 0.04],
+    },
+  }
+})()
 
 const POPS: Array<{ id: string; at: XZ }> = [
   { id: 'pop-left', at: [0.03, -0.585] },
@@ -855,6 +892,42 @@ export const AMI_VILLAGE_GREYBOX: TableDef = {
       portrait: [(LEFT_X + RIGHT_X) / 2, 1.2, 0.25],
       portraitFovDeg: 36,
     },
+    // Restrained presets (t-010): the same frame from a slightly different
+    // eye, eased into, so the whole field stays on screen.
+    {
+      // A ball waiting on the plunger: lean toward the shooter lane.
+      id: 'plunge',
+      position: [(LEFT_X + RIGHT_X) / 2 + 0.14, 0.75, 0.55],
+      target: [(LEFT_X + RIGHT_X) / 2, 0, -0.4],
+      fovDeg: 32,
+      frame: {
+        min: [LEFT_X - 0.02, 0, TOP_Z - 0.06],
+        max: [RIGHT_X + 0.02, 0.03, BOTTOM_Z + 0.02],
+      },
+      include: [
+        [DMD_AT[0] - DMD_WIDTH / 2, DMD_AT[1] + DMD_WIDTH / 8, DMD_AT[2]],
+        [DMD_AT[0] + DMD_WIDTH / 2, DMD_AT[1] + DMD_WIDTH / 8, DMD_AT[2]],
+      ],
+      portrait: [(LEFT_X + RIGHT_X) / 2 + 0.06, 1.2, 0.25],
+      portraitFovDeg: 36,
+    },
+    {
+      // Multiball and the wizard mode: higher, to keep every ball in view.
+      id: 'multiball',
+      position: [(LEFT_X + RIGHT_X) / 2, 0.95, 0.4],
+      target: [(LEFT_X + RIGHT_X) / 2, 0, -0.4],
+      fovDeg: 32,
+      frame: {
+        min: [LEFT_X - 0.02, 0, TOP_Z - 0.06],
+        max: [RIGHT_X + 0.02, 0.03, BOTTOM_Z + 0.02],
+      },
+      include: [
+        [DMD_AT[0] - DMD_WIDTH / 2, DMD_AT[1] + DMD_WIDTH / 8, DMD_AT[2]],
+        [DMD_AT[0] + DMD_WIDTH / 2, DMD_AT[1] + DMD_WIDTH / 8, DMD_AT[2]],
+      ],
+      portrait: [(LEFT_X + RIGHT_X) / 2, 1.3, 0.15],
+      portraitFovDeg: 36,
+    },
     {
       id: 'sub-table',
       position: [ROOM_X, 0.52, -0.83],
@@ -924,6 +997,7 @@ export const AMI_VILLAGE_GREYBOX: TableDef = {
       material: 'plastic-printed',
     },
   ],
+  hero: HERO,
   zones: [
     {
       id: 'sub-table',

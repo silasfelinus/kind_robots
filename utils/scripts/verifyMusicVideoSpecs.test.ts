@@ -22,6 +22,7 @@ assert.deepEqual(
     'kind-robots-theme-classic',
     'zuzu-intro',
     'giant-skeleton',
+    'zuzu-lair-ch1',
   ],
 )
 assert.equal(musicVideoSpecByKey('nope'), null)

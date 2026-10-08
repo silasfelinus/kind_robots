@@ -50,6 +50,27 @@ The deployer's persistent state also lives under the appdata checkout, not in Un
 /mnt/user/appdata/kind_robots/.deploy-state/
 ```
 
+## Local ProxySQL routing for migration containers
+
+On Alexandria, the elevated migration URL uses `acrocatranch.com:5544`, which
+maps to the host-published ProxySQL port (`proxysql:6033` inside the `cafepurr`
+Docker network). After removing router forwards, a migration container can
+reach `proxysql:6033` and `acrocatranch.com:5544` via Docker's host gateway,
+but may time out using the public IP (NAT hairpin path).
+
+The deployer passes `--add-host acrocatranch.com:host-gateway` **only to its
+one-shot migration container**. This keeps the existing elevated migration URL,
+port `5544`, TLS server hostname, and CA verification unchanged, but routes
+the TCP connection to Alexandria's published host port without reopening a
+public router forward. If the configured DB hostname changes, set
+`KIND_ROBOTS_MIGRATION_HOST_MAPPING=hostname:host-gateway` for the User Script.
+
+The persistent `KindRobots` container has a separate Unraid DockerMan template
+and is **not** modified by this script option. Its database connectivity and
+health must be checked separately after migrating and deploying. If it also
+uses the unreachable public IP, correct its saved DockerMan network/host mapping
+in Unraid rather than reopening database access to the internet.
+
 ## Normal operation
 
 No human migration step is required after ordinary merges once the User Script is active.

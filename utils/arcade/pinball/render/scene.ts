@@ -13,7 +13,8 @@
 import * as THREE from 'three'
 import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js'
 import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js'
-import { flipperYaw } from '../physics/world'
+import { ConvexGeometry } from 'three/examples/jsm/geometries/ConvexGeometry.js'
+import { flipperOutline, flipperYaw } from '../physics/world'
 import type { BallView } from '../physics/world'
 import type {
   BoxCollider,
@@ -79,6 +80,8 @@ const MATERIALS: Record<MaterialId, THREE.MeshStandardMaterialParameters> = {
   cabinet: { color: 0x1c1030, roughness: 0.6, metalness: 0.2 },
 }
 
+/** How far a drop target travels toward down or up each frame (0..1). */
+const DROP_TRAVEL = 0.4
 /** How far the camera moves toward its preset each frame (0..1). */
 const CAMERA_EASE = 0.08
 
@@ -324,13 +327,10 @@ export class PinballScene {
     for (const def of this.table.flippers) {
       const group = new THREE.Group()
       group.position.copy(v3(def.pivot))
-      const radius = (def.baseRadius + def.tipRadius) / 2
       const geo = this.track(
-        new THREE.CapsuleGeometry(radius, def.length, 6, 16),
+        new ConvexGeometry(flipperOutline(def).map((p) => v3(p))),
       )
       const bat = new THREE.Mesh(geo, this.material('rubber'))
-      bat.position.set(def.length / 2, radius, 0)
-      bat.rotation.z = Math.PI / 2
       bat.castShadow = true
       group.add(bat)
       group.rotation.y = flipperYaw(def, def.restAngle)
@@ -609,9 +609,17 @@ export class PinballScene {
       if (group && angle !== undefined)
         group.rotation.y = flipperYaw(def, angle)
     }
-    for (const [id, up] of Object.entries(mechanisms.drops ?? {})) {
-      const mesh = this.drops.get(id)
-      if (mesh) mesh.visible = up
+    // Drop targets sink into the playfield and rise again, not blink: a few
+    // frames of travel, as the real bank's coil throws them.
+    for (const def of this.table.drops) {
+      const mesh = this.drops.get(def.id)
+      const up = mechanisms.drops?.[def.id]
+      if (!mesh || up === undefined) continue
+      const height = def.half[1] * 2
+      const target = up ? def.at[1] : def.at[1] - height
+      mesh.position.y += (target - mesh.position.y) * DROP_TRAVEL
+      if (Math.abs(target - mesh.position.y) < 1e-4) mesh.position.y = target
+      mesh.visible = mesh.position.y > def.at[1] - height + 1e-4
     }
     for (const [id, angle] of Object.entries(mechanisms.spinners ?? {})) {
       const group = this.spinners.get(id)

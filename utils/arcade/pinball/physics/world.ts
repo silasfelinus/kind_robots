@@ -17,6 +17,7 @@
 // spinners (the plate spins with the speed the ball passed at).
 
 import type RAPIER from '@dimforge/rapier3d-compat'
+import { PHYSICS_HZ } from '../clock'
 import type {
   BoxCollider,
   ColliderDef,
@@ -33,14 +34,17 @@ import type {
 
 export type RapierModule = typeof RAPIER
 
-export const PHYSICS_HZ = 120
+export { PHYSICS_HZ }
+
 /** Rapier's length scale: 0.1 gives 2 mm contact prediction. */
 const LENGTH_UNIT = 0.1
 const G = 9.81
 /** Steel ball: 7.85 g/cm^3 gives the familiar ~80 g ball. */
 const BALL_DENSITY = 7850
 /** A safety fuse only; normal play never reaches it. */
-const MAX_BALL_SPEED = 8
+export const MAX_BALL_SPEED = 8
+/** A sling fires only on a hit at least this fast into its face (m/s). */
+const SLING_MIN_SPEED = 0.2
 /** Hits slower than this do not knock a drop target down (m/s). */
 const DROP_MIN_SPEED = 0.25
 /** After a kick-out the same ball cannot be captured again for this long. */
@@ -75,6 +79,8 @@ type LiveFlipper = {
   def: FlipperDef
   body: RAPIER.RigidBody
   angle: number
+  /** Angular velocity, rad/s: the coil accelerates the bat, it does not teleport it. */
+  omega: number
   up: boolean
 }
 
@@ -107,6 +113,31 @@ function boxRotation(def: BoxCollider) {
   return yawQuat(def.yaw ?? 0)
 }
 
+/** Height of a flipper's rubber face, above the ball's centre. */
+const FLIPPER_HEIGHT = 0.024
+
+/**
+ * A flipper's outline in its own frame (+X from the pivot to the tip): a
+ * round-ended slab whose sides are vertical, as a real bat's rubber is. A
+ * lying capsule meets the ball below its equator and throws it in the air.
+ */
+export function flipperOutline(def: FlipperDef): Vec3[] {
+  const points: Vec3[] = []
+  const segments = 16
+  for (const [cx, r] of [
+    [0, def.baseRadius],
+    [def.length, def.tipRadius],
+  ] as const) {
+    for (let i = 0; i < segments; i++) {
+      const a = (2 * Math.PI * i) / segments
+      for (const y of [0.0005, FLIPPER_HEIGHT]) {
+        points.push([cx + Math.cos(a) * r, y, Math.sin(a) * r])
+      }
+    }
+  }
+  return points
+}
+
 /** World yaw that points a flipper's +X at its angle (+Z is down-table). */
 function flipperYaw(def: FlipperDef, angle: number): number {
   return def.side === 'left' ? -angle : Math.PI + angle
@@ -133,6 +164,8 @@ export class PinballPhysics {
   /** Collider handle -> table id, for switch events. */
   private names = new Map<number, string>()
   private kicks = new Map<number, number>()
+  /** Sling faces by collider handle: the face normal (XZ) and its kick. */
+  private slings = new Map<number, { normal: [number, number]; kick: number }>()
   private sensorHandles = new Set<number>()
   private gates = new Map<number, Vec3>()
   private mouths = new Map<number, NonNullable<MeshCollider['mouth']>>()
@@ -197,6 +230,13 @@ export class PinballPhysics {
     for (const def of table.drops) this.addDrop(def)
     for (const def of table.flippers) this.addFlipper(def)
     for (const def of table.doors ?? []) this.addDoor(def)
+    for (const kicker of table.kickers ?? []) {
+      const collider = this.addSensor(
+        R.ColliderDesc.cuboid(...kicker.half).setTranslation(...kicker.at),
+        kicker.id,
+      )
+      this.sensorHandles.add(collider.handle)
+    }
     for (const def of table.toys ?? []) this.addToy(def)
     this.hooks = {
       filterContactPair: (c1, c2, b1, b2) => {
@@ -253,12 +293,23 @@ export class PinballPhysics {
     if (def.kind === 'box' && def.passDir) {
       desc.setActiveHooks(R.ActiveHooks.FILTER_CONTACT_PAIRS)
     }
+    if (def.kind === 'box' && def.kick) {
+      desc.setActiveEvents(R.ActiveEvents.COLLISION_EVENTS)
+    }
     const collider = this.world.createCollider(desc, this.fixed)
     this.names.set(collider.handle, def.id)
     if (def.kind === 'post' && def.kick)
       this.kicks.set(collider.handle, def.kick)
     if (def.kind === 'box' && def.passDir)
       this.gates.set(collider.handle, def.passDir)
+    if (def.kind === 'box' && def.kick) {
+      // The face is the box's local Z: yaw turns it to (sin, cos).
+      const yaw = def.yaw ?? 0
+      this.slings.set(collider.handle, {
+        normal: [Math.sin(yaw), Math.cos(yaw)],
+        kick: def.kick,
+      })
+    }
     return collider
   }
 
@@ -359,19 +410,25 @@ export class PinballPhysics {
         .setTranslation(...def.pivot)
         .setRotation(yawQuat(flipperYaw(def, def.restAngle))),
     )
-    const radius = (def.baseRadius + def.tipRadius) / 2
-    // A capsule lying along the flipper's +X, from the pivot to the tip.
+    const hull = R.ColliderDesc.convexHull(
+      new Float32Array(flipperOutline(def).flat()),
+    )
+    if (!hull) throw new Error(`flipper ${def.id}: no convex hull`)
     const collider = this.world.createCollider(
-      R.ColliderDesc.capsule(def.length / 2, radius)
-        .setTranslation(def.length / 2, radius, 0)
-        .setRotation({ x: 0, y: 0, z: Math.SQRT1_2, w: Math.SQRT1_2 })
+      hull
         .setRestitution(0.25)
         .setFriction(0.6)
         .setActiveEvents(R.ActiveEvents.COLLISION_EVENTS),
       body,
     )
     this.names.set(collider.handle, def.id)
-    this.flippers.push({ def, body, angle: def.restAngle, up: false })
+    this.flippers.push({
+      def,
+      body,
+      angle: def.restAngle,
+      omega: 0,
+      up: false,
+    })
   }
 
   /** Put a new ball on the plunger (or anywhere, for tests). Returns its id. */
@@ -526,6 +583,8 @@ export class PinballPhysics {
       }
       const kick = this.kicks.get(other)
       if (kick) this.kickAway(ball, other, kick)
+      const sling = this.slings.get(other)
+      if (sling && !this.fireSling(ball, other, sling)) return
       out.push({ type: 'contact', id, ballId: ball.id, impulse: speed })
     })
     // A scoop keeps trying a ball that sits in it, so one that arrived too
@@ -614,6 +673,57 @@ export class PinballPhysics {
     }
   }
 
+  /**
+   * A sling fires when the ball hits its face hard enough (a ball resting on
+   * the rubber does not keep it firing): the ball is kicked off along the
+   * face's normal. Returns whether it fired.
+   */
+  private fireSling(
+    ball: LiveBall,
+    handle: number,
+    sling: { normal: [number, number]; kick: number },
+  ): boolean {
+    const face = this.world.getCollider(handle)
+    if (!face) return false
+    const c = face.translation()
+    const at = ball.body.translation()
+    let [nx, nz] = sling.normal
+    if (nx * (at.x - c.x) + nz * (at.z - c.z) < 0) {
+      nx = -nx
+      nz = -nz
+    }
+    const before = this.velocities.get(ball.body.handle)
+    const into = before ? -(before[0] * nx + before[2] * nz) : 0
+    if (into < SLING_MIN_SPEED) return false
+    const m = ball.body.mass()
+    ball.body.applyImpulse(
+      { x: nx * sling.kick * m, y: 0, z: nz * sling.kick * m },
+      true,
+    )
+    return true
+  }
+
+  /** Fire a kicker: any ball sitting over it is sent off at its velocity. */
+  fireKicker(id: string): boolean {
+    const def = this.table.kickers?.find((k) => k.id === id)
+    if (!def) return false
+    let fired = false
+    for (const ball of this.balls) {
+      if (ball.captured) continue
+      const at = ball.body.translation()
+      const r = this.table.physical.ballRadiusM
+      if (
+        Math.abs(at.x - def.at[0]) > def.half[0] + r ||
+        Math.abs(at.z - def.at[2]) > def.half[2] + r
+      )
+        continue
+      const [x, y, z] = def.velocity
+      ball.body.setLinvel({ x, y, z }, true)
+      fired = true
+    }
+    return fired
+  }
+
   /** A pop bumper fires: push the ball straight away from its centre. */
   private kickAway(ball: LiveBall, handle: number, speed: number) {
     const post = this.world.getCollider(handle)
@@ -630,14 +740,34 @@ export class PinballPhysics {
     )
   }
 
+  /**
+   * A flipper is a motor, not a switch: while the button is held the coil
+   * accelerates the bat toward the end-of-stroke stop, where it halts dead;
+   * released, the return spring accelerates it back. The acceleration is set
+   * so a full stroke from rest takes `strokeMs` (`returnMs` back), so a tap
+   * that lets go early is a genuinely weaker hit, and a ball resting on the
+   * bat is carried by it rather than struck by a pre-set velocity.
+   */
   private moveFlipper(flipper: LiveFlipper, dt: number) {
     const { def } = flipper
     const target = flipper.up ? def.activeAngle : def.restAngle
     const span = Math.abs(def.restAngle - def.activeAngle)
-    const ms = flipper.up ? def.strokeMs : def.returnMs
-    const stepAngle = (span / (ms / 1000)) * dt
-    const delta = target - flipper.angle
-    flipper.angle += Math.sign(delta) * Math.min(Math.abs(delta), stepAngle)
+    const seconds = (flipper.up ? def.strokeMs : def.returnMs) / 1000
+    const accel = (2 * span) / (seconds * seconds)
+    const dir = Math.sign(target - flipper.angle)
+    if (dir === 0) {
+      flipper.omega = 0
+    } else {
+      if (Math.sign(flipper.omega) !== dir) flipper.omega = 0
+      flipper.omega += dir * accel * dt
+      const next = flipper.angle + flipper.omega * dt
+      if ((target - next) * dir <= 0) {
+        flipper.angle = target
+        flipper.omega = 0
+      } else {
+        flipper.angle = next
+      }
+    }
     flipper.body.setNextKinematicRotation(
       yawQuat(flipperYaw(def, flipper.angle)),
     )

@@ -46,6 +46,11 @@ export type BoxCollider = {
   passDir?: Vec3
   /** Not drawn (glass, invisible stops). */
   hidden?: boolean
+  /**
+   * A slingshot face: a ball that hits it is kicked off along the face's
+   * normal at this speed (m/s), as the sling's arm fires.
+   */
+  kick?: number
 }
 
 /** A static upright cylinder: posts and pop bumper bodies. */
@@ -128,6 +133,17 @@ export type ToyDef = {
   /** Radians per second about the playfield normal. */
   spin: number
   material: MaterialId
+}
+
+/**
+ * A kicker under a lane: a sensor box the rules can fire, sending any ball in
+ * it off at `velocity` (the outlane kickback).
+ */
+export type KickerDef = {
+  id: string
+  at: Vec3
+  half: Vec3
+  velocity: Vec3
 }
 
 /** A named region of the table (XZ), so the camera can follow the balls into it. */
@@ -236,6 +252,7 @@ export type TableDef = {
   spinners: SpinnerDef[]
   shots: ShotDef[]
   doors?: DoorDef[]
+  kickers?: KickerDef[]
   toys?: ToyDef[]
   zones?: ZoneDef[]
   occluders?: OccluderDef[]

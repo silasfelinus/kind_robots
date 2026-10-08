@@ -236,10 +236,12 @@ function side(name: 'left' | 'right'): ColliderDef[] {
       thickness: 0.004,
     }),
     // A ball coming down the orbit slides off this into the inlane; the
-    // outlane below it is still open from the playfield.
+    // outlane below it is still open from the playfield. It is one-way: a
+    // ball going up (the kickback firing) passes into the orbit lane.
     wall(`${name}-orbit-deflector`, m([-0.26, -0.345]), m([-0.218, -0.29]), {
       material: 'chrome',
       thickness: 0.004,
+      passDir: [0, 0, -1],
     }),
     // Inlane guide: down beside the sling, then in over the flipper pivot,
     // parallel to the resting flipper so the ball rolls straight onto it
@@ -256,7 +258,7 @@ function side(name: 'left' | 'right'): ColliderDef[] {
   out.push(
     wall(`sling-${name}-back`, top, bottom, { material: 'plastic-printed' }),
     wall(`sling-${name}-base`, bottom, tip, { material: 'plastic-printed' }),
-    wall(`sling-${name}-kicker`, top, tip, { material: 'rubber' }),
+    wall(`sling-${name}-kicker`, top, tip, { material: 'rubber', kick: 1.4 }),
   )
   return out
 }
@@ -275,13 +277,15 @@ const LEFT_RAMP: XZH[] = [
   [-0.227, -0.562, 0.0462],
   [-0.24, -0.53, 0.046],
   [-0.24, -0.45, 0.0455],
-  [-0.24, -0.37, 0.044],
-  [-0.232, -0.31, 0.041],
-  [-0.215, -0.265, 0.038],
-  [-0.196, -0.235, 0.036],
+  [-0.236, -0.39, 0.044],
+  [-0.217, -0.345, 0.041],
+  [-0.196, -0.3, 0.038],
+  [-0.19, -0.255, 0.036],
   [-0.19, -0.21, 0.035],
 ]
 const RIGHT_RAMP = LEFT_RAMP.map(mirror3)
+/** The covered stretch of each ramp: the crest of the climb and the turn. */
+const RAMP_COVER = [0.08, 0.42] as const
 
 const UPPER_FEED: XZH[] = [
   [-0.065, -0.34, 0],
@@ -364,9 +368,19 @@ const colliders: ColliderDef[] = [
   ),
   ...side('left'),
   ...side('right'),
-  ...ramp('left-ramp', LEFT_RAMP, { railHeight: 0.035 }),
-  ...ramp('right-ramp', RIGHT_RAMP, { railHeight: 0.035 }),
-  ...ramp('upper-feed', UPPER_FEED, { width: 0.04 }),
+  ...ramp('left-ramp', LEFT_RAMP, { railHeight: 0.035, cover: RAMP_COVER }),
+  ...ramp('right-ramp', RIGHT_RAMP, { railHeight: 0.035, cover: RAMP_COVER }),
+  // Where each ramp's return ends over its inlane, a plate the ball hits and
+  // drops off into the lane; a ball rolling down the inlane passes under it.
+  ...(['left', 'right'] as const).map((name): ColliderDef =>
+    wall(
+      `${name}-ramp-stop`,
+      name === 'left' ? [-0.212, -0.17] : mirror([-0.212, -0.17]),
+      name === 'left' ? [-0.168, -0.17] : mirror([-0.168, -0.17]),
+      { material: 'plastic-clear', base: 0.03, height: 0.04, restitution: 0.1 },
+    ),
+  ),
+  ...ramp('upper-feed', UPPER_FEED, { width: 0.04, cover: [0.06, 0.27] }),
   // The upper feed ends at a cap; its hole is the subway in its last metre.
   wall('upper-feed-cap', [-0.117, -0.652], [-0.067, -0.652], {
     base: 0.032,
@@ -385,17 +399,21 @@ const colliders: ColliderDef[] = [
   // Caps over the channels behind the centre shots. Each slopes so a ball
   // dropping from the pops rolls off it into a lane, or under a ramp where
   // the ramp is high enough to pass beneath, instead of wedging in a vee.
+  // They stand taller than the ball, so none can perch on top between rails.
   wall('island-roof', [-0.0625, -0.5], [0.045, -0.46], {
     material: 'chrome',
     thickness: 0.004,
+    height: 0.045,
   }),
   wall('channel-cap-left', [-0.109, -0.52], [-0.123, -0.485], {
     material: 'chrome',
     thickness: 0.004,
+    height: 0.045,
   }),
   wall('channel-cap-right', [0.123, -0.485], [0.09, -0.46], {
     material: 'chrome',
     thickness: 0.004,
+    height: 0.045,
   }),
   ...lockPocket(),
   // Spinner lane: up the right-centre into the pop bumpers.
@@ -653,8 +671,8 @@ export const AMI_VILLAGE_GREYBOX: TableDef = {
       tipRadius: 0.0065,
       restAngle: 0.5,
       activeAngle: -0.45,
-      strokeMs: 45,
-      returnMs: 90,
+      strokeMs: 20,
+      returnMs: 70,
     },
     {
       id: 'flipper-right',
@@ -665,8 +683,8 @@ export const AMI_VILLAGE_GREYBOX: TableDef = {
       tipRadius: 0.0065,
       restAngle: 0.5,
       activeAngle: -0.45,
-      strokeMs: 45,
-      returnMs: 90,
+      strokeMs: 20,
+      returnMs: 70,
     },
     roomFlipper('left'),
     roomFlipper('right'),
@@ -676,6 +694,16 @@ export const AMI_VILLAGE_GREYBOX: TableDef = {
   spinners,
   shots,
   doors: [SECRET_DOOR],
+  kickers: [
+    {
+      // Under the bottom of the left outlane: when lit, it fires a ball
+      // that would have drained straight back up the outlane.
+      id: 'kickback',
+      at: [-0.235, BALL_R, 0.035],
+      half: [0.022, 0.015, 0.02],
+      velocity: [0, 0, -3.4],
+    },
+  ],
   toys: [
     {
       // A village windmill turning in the middle of the room.

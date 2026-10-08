@@ -17,7 +17,14 @@
 // reward; the ball comes home through HOME (or past the room's flippers) and
 // what it earned rides back as the bonus multiplier. t-012 deepens the
 // discovery path, the room's own mode and the rewards on this same state.
+//
+// Physics-feel rules (t-005): the left outlane kickback is lit at the start
+// of each ball, fires once, and is relit by knocking down the A-M-I bank.
+// The tilt bob: a nudge while the bob is still swinging from the last one is
+// a warning; two warnings, then the next makes it TILT, which kills the
+// flippers until the ball drains.
 
+import { PHYSICS_HZ } from '../clock'
 import type { RuleEffect, ShotDef, ShotEvent, SwitchEvent } from '../types'
 import { initialShotProgress, recognizeShots, type ShotProgress } from './shots'
 
@@ -26,6 +33,8 @@ export type RulesEvent =
   | { type: 'start' }
   /** Time passing (physics steps), for timers such as the secret door. */
   | { type: 'tick'; tick: number }
+  /** The player nudged the cabinet. */
+  | { type: 'nudge'; tick: number }
 
 export type SubTableState = {
   /** The secret door is open (it closes itself at `closesAt`). */
@@ -56,6 +65,13 @@ export type PinballRulesState = {
   sub: SubTableState
   /** The end-of-ball bonus multiplier; the sub-table's reward rides back on it. */
   bonusMultiplier: number
+  /** The left outlane kickback will fire. */
+  kickbackLit: boolean
+  /** Tilt warnings this ball, and whether it has tilted. */
+  tiltWarnings: number
+  tilted: boolean
+  /** When the tilt bob was last set swinging (physics step), or -Infinity. */
+  lastNudgeAt: number
 }
 
 export function initialRules(balls: number): PinballRulesState {
@@ -71,6 +87,10 @@ export function initialRules(balls: number): PinballRulesState {
     shotProgress: initialShotProgress(),
     sub: initialSubTable(),
     bonusMultiplier: 1,
+    kickbackLit: true,
+    tiltWarnings: 0,
+    tilted: false,
+    lastNudgeAt: -Infinity,
   }
 }
 
@@ -80,8 +100,12 @@ function initialSubTable(): SubTableState {
 
 const DROP_BANK_SIZE: Record<string, number> = { ami: 3 }
 /** How long the secret door stays open after the feat, in physics steps. */
-export const SECRET_DOOR_STEPS = 120 * 25
+export const SECRET_DOOR_STEPS = PHYSICS_HZ * 25
 const NET_TARGETS = ['net-n', 'net-e', 'net-t']
+/** The tilt bob swings this long after a nudge; another nudge inside it warns. */
+export const TILT_BOB_STEPS = Math.round(PHYSICS_HZ * 1.5)
+/** Warnings before the next swing tilts the machine. */
+export const TILT_WARNINGS = 2
 
 export type RulesContext = { shots: ShotDef[] }
 
@@ -100,6 +124,7 @@ export function stepRules(
       effects: [{ type: 'mechanism', id: 'secret-door', action: 'close' }],
     }
   }
+  if (event.type === 'nudge') return nudge(state, event.tick)
   if (event.type === 'start') {
     return {
       state: { ...state, ball: 1, ballsInPlay: 1 },
@@ -153,6 +178,9 @@ export function stepRules(
     if (next.sub.doorOpen) {
       effects.push({ type: 'mechanism', id: 'secret-door', action: 'close' })
     }
+    if (next.tilted) {
+      effects.push({ type: 'mechanism', id: 'flippers', action: 'enable' })
+    }
     return {
       state: {
         ...next,
@@ -162,6 +190,10 @@ export function stepRules(
         dropsDown: {},
         sub: { ...next.sub, doorOpen: false, nets: [] },
         bonusMultiplier: 1,
+        kickbackLit: true,
+        tiltWarnings: 0,
+        tilted: false,
+        lastNudgeAt: -Infinity,
       },
       effects,
     }
@@ -173,6 +205,10 @@ export function stepRules(
     effects.push({ type: 'sound', name: 'drop' })
     if (down.length >= (DROP_BANK_SIZE[sw.bank] ?? Infinity)) {
       effects.push({ type: 'dmd', text: 'LOCK IS LIT', ms: 1500 })
+      if (sw.bank === 'ami' && !next.kickbackLit) {
+        next.kickbackLit = true
+        effects.push({ type: 'dmd', text: 'KICKBACK LIT', ms: 1200 })
+      }
     }
     return { state: next, effects }
   }
@@ -231,6 +267,18 @@ export function stepRules(
     return { state: next, effects }
   }
 
+  if (sw.type === 'sensor-enter' && sw.id === 'kickback') {
+    if (next.kickbackLit && !next.tilted) {
+      next.kickbackLit = false
+      effects.push(
+        { type: 'mechanism', id: 'kickback', action: 'fire' },
+        { type: 'sound', name: 'kickback' },
+        { type: 'dmd', text: 'KICKBACK', ms: 1200 },
+      )
+    }
+    return { state: next, effects }
+  }
+
   if (
     sw.type === 'contact' ||
     sw.type === 'sensor-enter' ||
@@ -267,6 +315,39 @@ export function stepRules(
     }
   }
   return { state: next, effects }
+}
+
+/**
+ * The tilt bob. A lone nudge is free; a nudge while the bob is still swinging
+ * from the last one is a warning, and once the warnings are used up the next
+ * one tilts the machine: the flippers die until the ball drains.
+ */
+function nudge(
+  state: PinballRulesState,
+  tick: number,
+): { state: PinballRulesState; effects: RuleEffect[] } {
+  if (state.tilted) return { state, effects: [] }
+  const swinging = tick - state.lastNudgeAt < TILT_BOB_STEPS
+  const next = { ...state, lastNudgeAt: tick }
+  if (!swinging) return { state: next, effects: [] }
+  if (state.tiltWarnings >= TILT_WARNINGS) {
+    return {
+      state: { ...next, tilted: true, kickbackLit: false },
+      effects: [
+        { type: 'mechanism', id: 'flippers', action: 'disable' },
+        { type: 'sound', name: 'tilt' },
+        { type: 'dmd', text: 'TILT', ms: 3000 },
+      ],
+    }
+  }
+  const warnings = state.tiltWarnings + 1
+  return {
+    state: { ...next, tiltWarnings: warnings },
+    effects: [
+      { type: 'sound', name: 'tilt-warning' },
+      { type: 'dmd', text: warnings === 1 ? 'WARNING' : 'DANGER', ms: 1200 },
+    ],
+  }
 }
 
 function applyShot(

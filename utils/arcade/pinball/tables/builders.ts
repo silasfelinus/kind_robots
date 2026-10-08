@@ -32,6 +32,8 @@ type WallOptions = {
   restitution?: number
   passDir?: Vec3
   hidden?: boolean
+  /** A slingshot face's kick, m/s. */
+  kick?: number
 }
 
 /** A wall from a to b on the playfield, as a thin upright box. */
@@ -57,6 +59,7 @@ export function wall(
     restitution: options.restitution ?? (material === 'rubber' ? 0.7 : 0.35),
     passDir: options.passDir,
     hidden: options.hidden,
+    kick: options.kick,
   }
 }
 
@@ -108,7 +111,15 @@ export type RampOptions = {
   floorMaterial?: MaterialId
   /** Run-in over which the floor curves up from flat, in metres. */
   entryLength?: number
+  /**
+   * A clear cover over part of the ramp, from and to these distances along
+   * it (metres): a fast ball cresting the climb cannot fly out of the turn.
+   */
+  cover?: readonly [number, number]
 }
+
+/** Gap between a cover and the ball's top, in metres. */
+const COVER_GAP = 0.004
 
 /** Below this floor height no ball fits underneath, so rails reach the playfield. */
 const CLEARANCE = 0.032
@@ -231,7 +242,49 @@ export function ramp(
     },
     rail(-1),
     rail(1),
+    ...(options.cover ? [cover(id, path, side, width, options.cover)] : []),
   ]
+}
+
+/** A clear roof over the stretch of a ramp between two distances along it. */
+function cover(
+  id: string,
+  path: XZH[],
+  side: Array<[number, number]>,
+  width: number,
+  [from, to]: readonly [number, number],
+): MeshCollider {
+  const vertices: number[] = []
+  const indices: number[] = []
+  const lift = 2 * 0.0135 + COVER_GAP
+  let dist = 0
+  let n = 0
+  path.forEach((p, i) => {
+    if (i > 0) {
+      const a = path[i - 1]!
+      dist += Math.hypot(p[0] - a[0], p[1] - a[1])
+    }
+    if (dist < from || dist > to) return
+    const [sx, sz] = side[i]!
+    const half = width / 2
+    vertices.push(p[0] - sx * half, p[2] + lift, p[1] - sz * half)
+    vertices.push(p[0] + sx * half, p[2] + lift, p[1] + sz * half)
+    if (n > 0) {
+      const l0 = (n - 1) * 2
+      const l1 = n * 2
+      indices.push(l0, l1, l0 + 1, l0 + 1, l1, l1 + 1)
+    }
+    n++
+  })
+  return {
+    kind: 'mesh',
+    id: `${id}-cover`,
+    vertices,
+    indices,
+    material: 'plastic-clear',
+    restitution: 0.2,
+    twoSided: true,
+  }
 }
 
 /** Mirror a 2D point across the table's centre line (x = 0). */

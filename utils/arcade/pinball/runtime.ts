@@ -72,7 +72,8 @@ export class PinballRuntime implements ArcadeWebGLGameInstance {
   private factory: RendererFactory
   private pull = 0
   private nudgeCooldown = 0
-  private still = 0
+  /** Ticks each ball (by id) has sat still, for the ball search. */
+  private still = new Map<number, number>()
   private tick = 0
   /** Physics steps taken, the clock the shot recognizer times windows by. */
   private steps = 0
@@ -128,8 +129,10 @@ export class PinballRuntime implements ArcadeWebGLGameInstance {
     this.tick++
     const controls = this.demo ? this.pilot() : input
     const both = controls.held.a && !this.physics.ballOnPlunger()
-    const left = controls.held.left || both
-    const right = controls.held.right || both
+    // A tilted machine's flippers are dead until the ball drains.
+    const live = !this.rules.tilted
+    const left = live && (controls.held.left || both)
+    const right = live && (controls.held.right || both)
     if ((controls.pressed.left || controls.pressed.right) && !this.demo) {
       this.mixer.play('flipper')
     }
@@ -141,6 +144,7 @@ export class PinballRuntime implements ArcadeWebGLGameInstance {
       this.physics.nudge((this.rng() - 0.5) * 0.12, -0.12)
       this.nudgeCooldown = 45
       this.mixer.play('nudge')
+      this.apply({ type: 'nudge', tick: this.steps })
     }
     for (let i = 0; i < STEPS_PER_TICK; i++) {
       this.steps++
@@ -148,7 +152,7 @@ export class PinballRuntime implements ArcadeWebGLGameInstance {
         this.apply({ type: 'switch', event, tick: this.steps })
     }
     this.apply({ type: 'tick', tick: this.steps })
-    this.unstick()
+    this.unstick(left || right)
     this.scene?.setView(this.view())
   }
 
@@ -174,22 +178,40 @@ export class PinballRuntime implements ArcadeWebGLGameInstance {
     }
   }
 
-  /** A ball resting somewhere odd (not on the plunger) gets a gentle shove. */
-  private unstick() {
-    const moving = this.physics
-      .ballViews()
-      .some((b) => b.captured || b.speed > STILL_SPEED)
-    if (
-      moving ||
-      this.physics.ballOnPlunger() ||
-      this.physics.ballCount === 0
-    ) {
-      this.still = 0
-      return
+  /**
+   * Ball search: a ball that has sat still somewhere odd for a while gets the
+   * table shaken, as a real machine pulses its coils. Each ball is watched on
+   * its own, so one moving ball cannot hide another that is stuck. A ball on
+   * the plunger, in a scoop, or cradled on a held flipper is not stuck.
+   */
+  private unstick(flipperHeld: boolean) {
+    const balls = this.physics.ballViews()
+    const plunger = this.physics.table.plunger.rest
+    let search = false
+    for (const ball of balls) {
+      const onPlunger =
+        Math.abs(ball.position[0] - plunger[0]) < 0.012 &&
+        Math.abs(ball.position[2] - plunger[2]) < 0.03
+      if (
+        ball.captured ||
+        onPlunger ||
+        flipperHeld ||
+        ball.speed > STILL_SPEED
+      ) {
+        this.still.set(ball.id, 0)
+        continue
+      }
+      const ticks = (this.still.get(ball.id) ?? 0) + 1
+      this.still.set(ball.id, ticks)
+      if (ticks >= STILL_TICKS) {
+        search = true
+        this.still.set(ball.id, 0)
+      }
     }
-    if (++this.still < STILL_TICKS) return
-    this.still = 0
-    this.physics.nudge((this.rng() - 0.5) * 0.2, -0.25)
+    for (const id of this.still.keys()) {
+      if (!balls.some((b) => b.id === id)) this.still.delete(id)
+    }
+    if (search) this.physics.nudge((this.rng() - 0.5) * 0.2, -0.25)
   }
 
   private apply(event: RulesEvent) {
@@ -211,6 +233,7 @@ export class PinballRuntime implements ArcadeWebGLGameInstance {
       case 'mechanism':
         if (effect.action === 'flash') this.scene?.pulse(effect.id)
         if (effect.action === 'reset') this.physics.resetDropBank(effect.id)
+        if (effect.action === 'fire') this.physics.fireKicker(effect.id)
         if (effect.action === 'open') this.physics.setDoor(effect.id, true)
         if (effect.action === 'close') this.physics.setDoor(effect.id, false)
         break

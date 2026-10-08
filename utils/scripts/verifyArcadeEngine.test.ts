@@ -8,6 +8,11 @@
 //   npx tsx utils/scripts/verifyArcadeEngine.test.ts
 
 import assert from 'node:assert/strict'
+import { readdirSync, readFileSync } from 'node:fs'
+import { dirname, join } from 'node:path'
+import { fileURLToPath } from 'node:url'
+import { MUSIC_BEDS, PINBALL_CUES } from '../arcade/pinball/audio/catalog'
+import { PinballMixer } from '../arcade/pinball/audio/mixer'
 import { advanceClock, MAX_TICKS_PER_FRAME, TICK_MS } from '../arcade/loop'
 import { everyNthLevel, levelCurve, mulberry32 } from '../arcade/curve'
 import {
@@ -2144,6 +2149,47 @@ await runGames()
 await runQuiltInvariant()
 
 /** Lantern Swarm: a rescued lantern docks as a twin, or waits as a spare. */
+function runPinballAudio() {
+  // conductor kind-pinball/t-008: the pinball mixer. The rules and runtime
+  // name sounds as strings and the mixer silently drops a name it does not
+  // know, so every name they use must be a cue; every cue sits on one of
+  // the five buses; and nothing sounds before a player's gesture unlocks it.
+  const here = dirname(fileURLToPath(import.meta.url))
+  const pinball = join(here, '../arcade/pinball')
+  const sources = [
+    ...readdirSync(join(pinball, 'rules')).map((f) =>
+      join(pinball, 'rules', f),
+    ),
+    join(pinball, 'runtime.ts'),
+  ]
+  const named = new Set<string>()
+  for (const file of sources) {
+    const text = readFileSync(file, 'utf8')
+    for (const m of text.matchAll(/type: 'sound', name: '([a-z-]+)'/g))
+      named.add(m[1]!)
+    for (const m of text.matchAll(/mixer\.play\('([a-z-]+)'/g)) named.add(m[1]!)
+  }
+  assert.ok(named.size >= 25, `found the sounds in use (${named.size})`)
+  for (const name of named) assert.ok(name in PINBALL_CUES, `cue: ${name}`)
+  const buses = ['mechanical', 'ball', 'callout', 'music', 'ambience']
+  for (const [name, cue] of Object.entries(PINBALL_CUES)) {
+    assert.ok(buses.includes(cue.bus), `${name} bus`)
+    assert.ok(cue.duration > 0 && cue.duration <= 2, `${name} duration`)
+    assert.ok(cue.gain > 0 && cue.gain <= 1, `${name} gain`)
+  }
+  // The table's own beds: every bed the rules can call for has notes.
+  for (const bed of ['mode', 'multiball', 'sub-table'] as const)
+    assert.ok(MUSIC_BEDS[bed].length > 0, bed)
+
+  // No gesture, no sound: before unlock nothing plays and no bed starts.
+  const mixer = new PinballMixer({ play: () => {} })
+  mixer.play('flipper')
+  assert.equal(mixer.isUnlocked, false)
+  assert.equal(mixer.startMusic('mode'), false)
+  mixer.unlock()
+  assert.equal(mixer.isUnlocked, false, 'no AudioContext without a window')
+}
+
 async function runLanternRescue() {
   const mod = await loadArcadeGame('lantern-swarm')
   for (const aliveAtDock of [true, false]) {
@@ -3658,6 +3704,7 @@ await runPinballRules()
 await runPinballSubRules()
 await runPinballMastery()
 await runPinballGuide()
+runPinballAudio()
 await runPinballTuning()
 await runPinballSoak()
 console.log('verifyArcadeEngine: ok')

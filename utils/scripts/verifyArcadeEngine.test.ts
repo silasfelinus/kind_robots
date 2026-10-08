@@ -3419,6 +3419,74 @@ async function runPinballTouch() {
   assert.ok(hard > soft * 1.3, `a full pull fires harder (${soft}, ${hard})`)
 }
 
+async function runPinballDevices() {
+  // conductor kind-pinball/t-010: the same game on every device. Physics
+  // steps at a fixed rate whatever the screen, and the renderer only reads
+  // it, so a phone, a tablet, a desktop and no screen at all play the same
+  // seeded game to the same score, rules state and ball positions.
+  const devices = [
+    { name: 'none' },
+    { name: 'phone', size: [390, 844, 2], tier: 'low' },
+    { name: 'tablet', size: [820, 1180, 1], tier: 'medium' },
+    { name: 'desktop', size: [1440, 900, 1], tier: 'high' },
+  ] as const
+  const play = (device: (typeof devices)[number]) => {
+    const runtime = new PinballRuntime(
+      {
+        rng: mulberry32(77),
+        sound: { play: () => {} },
+        demo: false,
+        hiScore: 0,
+      },
+      RAPIER,
+      AMI_VILLAGE_GREYBOX,
+      () => stubRenderer({ disposed: 0, frames: 0 }),
+    )
+    if ('size' in device) {
+      runtime.mount({} as HTMLCanvasElement)
+      const [width, height, dpr] = device.size
+      runtime.resize(width, height, dpr)
+      runtime.forceQuality(device.tier)
+    }
+    for (let t = 0; t < 1800; t++) {
+      const frame = emptyInput()
+      frame.held.down = t < 32 || (t > 900 && t < 932)
+      frame.held.left = t % 47 < 7
+      frame.held.right = (t + 20) % 53 < 7
+      if (t % 300 === 150) frame.pressed.up = true
+      runtime.update(frame)
+      if ('size' in device && t % 4 === 0) runtime.render()
+    }
+    const inner = runtime as unknown as {
+      rules: PinballRulesState
+      physics: PinballPhysics
+    }
+    const r = inner.rules
+    const snapshot = JSON.stringify({
+      score: r.score,
+      ball: r.ball,
+      lives: r.lives,
+      shots: r.shotsMade,
+      villages: r.play.villages.visited,
+      balls: inner.physics
+        .ballViews()
+        .map((b) => b.position.map((v) => v.toFixed(9))),
+    })
+    runtime.dispose()
+    return snapshot
+  }
+  const [reference, ...others] = devices.map(play)
+  const parsed = JSON.parse(reference!) as { score: number }
+  assert.ok(parsed.score > 0, 'the scripted game scores')
+  others.forEach((snapshot, i) =>
+    assert.equal(
+      snapshot,
+      reference,
+      `${devices[i + 1]!.name} plays the same game as no screen at all`,
+    ),
+  )
+}
+
 async function runPinballToys() {
   // conductor kind-pinball/t-010: the signature toys. The rules decide what
   // each shows; the scene eases toward it; nothing here touches the ball.
@@ -4016,6 +4084,7 @@ await runPinballMastery()
 await runPinballGuide()
 await runPinballToys()
 await runPinballTouch()
+await runPinballDevices()
 runPinballAudio()
 await runPinballTuning()
 await runPinballSoak()

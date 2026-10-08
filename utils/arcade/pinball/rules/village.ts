@@ -50,8 +50,12 @@ export const COMBO_STEPS = PHYSICS_HZ * 4
  */
 export const SKILL_STEPS = PHYSICS_HZ * 6
 export const SKILL_TARGETS = ['upper-feed', 'spinner', 'right-ramp'] as const
-/** Ball save after the plunge. */
-export const BALL_SAVE_STEPS = PHYSICS_HZ * 10
+/**
+ * Ball save after the plunge: fifteen seconds (t-013 step 3, from ten:
+ * every bot's balls lasted longer, the good one's multiball and hidden-room
+ * reach rose to 60%).
+ */
+export const BALL_SAVE_STEPS = PHYSICS_HZ * 15
 /**
  * Locks that start AMI multiball: two for the game's first, so a newcomer
  * meets it (t-013: none of ten novice games did at three), then three.

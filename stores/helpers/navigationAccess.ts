@@ -70,12 +70,15 @@ export function filterChannelsByPermission(
         tutorial: channel.tutorial
           ? {
               ...channel.tutorial,
-              sections: tabs
-                .map((tab) => tab.tutorial)
-                .filter(
-                  (section): section is ResolvedTutorialSection =>
-                    section !== null,
-                ),
+              sections:
+                channel.tutorial.sectionsSource === 'tabs'
+                  ? tabs
+                      .map((tab) => tab.tutorial)
+                      .filter(
+                        (section): section is ResolvedTutorialSection =>
+                          section !== null,
+                      )
+                  : channel.tutorial.sections,
             }
           : null,
       }

@@ -1,18 +1,18 @@
 <template>
-  <main class="kr-surface min-h-screen">
-    <div class="mx-auto max-w-[1500px] px-3 py-5 sm:px-6 lg:px-10">
-      <div v-if="!userStore.initialized" class="grid min-h-[50vh] place-items-center">
+  <main class="kr-surface">
+    <div class="kr-scroll mx-auto max-w-[1500px] px-3 py-5 sm:px-6 lg:px-10">
+      <div v-if="!userStore.initialized" class="grid min-h-52 place-items-center">
         <span class="kr-spinner-lg-primary" />
       </div>
       <div v-else-if="!userStore.isAdmin" class="kr-note kr-note-error mx-auto mt-12 max-w-lg p-8 text-center">
-        <h1 class="text-2xl font-black">The book is still being written</h1>
+        <h2 class="text-2xl font-black">The book is still being written</h2>
         <p class="mt-3">Zuzu’s illustrated gamebook is in its private workshop.</p>
       </div>
       <template v-else-if="store.loaded">
         <header class="mb-5 flex flex-wrap items-center justify-between gap-3">
           <div>
             <p class="text-xs font-black uppercase tracking-[.3em] text-warning">An illustrated gamebook · Early preview</p>
-            <h1 class="mt-1 font-serif text-2xl font-black tracking-wide sm:text-4xl">ZUZU <span class="text-warning">/</span> KOALA ASSASSIN</h1>
+            <h2 class="mt-1 font-serif text-2xl font-black tracking-wide sm:text-4xl">ZUZU <span class="text-warning">/</span> KOALA ASSASSIN</h2>
             <p class="mt-1 text-sm opacity-70">The Bell That Never Rang</p>
           </div>
           <div class="flex flex-wrap items-center gap-2">

@@ -16,7 +16,7 @@
             <p class="mt-1 text-sm opacity-70">The Bell That Never Rang</p>
           </div>
           <div class="flex flex-wrap items-center gap-2">
-            <button type="button" class="btn btn-outline btn-sm" @click="showSheet = !showSheet" :aria-expanded="showSheet" aria-controls="zuzu-sheet">
+            <button type="button" class="btn btn-outline btn-sm" :aria-expanded="showSheet" aria-controls="zuzu-sheet" @click="showSheet = !showSheet">
               <icon name="kind-icon:book-open" class="mr-1 size-4" /> Character sheet
             </button>
             <button type="button" class="btn btn-ghost btn-sm" @click="restart">New journey</button>

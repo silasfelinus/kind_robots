@@ -144,8 +144,33 @@ export function isWebGLInstance(
   )
 }
 
+/** One page of a cabinet's table guide (an FX3-style rules card). */
+export type ArcadeGuidePage = {
+  title: string
+  lines: readonly string[]
+  /** Line size in the pixel font: 2 (the default), or 1 for a fuller page. */
+  scale?: 1 | 2
+  /** A diagram across the top of the page; the lines go under it. */
+  diagram?: {
+    height: number
+    draw(
+      g: CanvasRenderingContext2D,
+      x: number,
+      y: number,
+      w: number,
+      h: number,
+    ): void
+  }
+}
+
 export type ArcadeGameModule = {
   create(options: ArcadeGameOptions): ArcadePlayableInstance
+  /**
+   * The table guide's pages for a player with these mastery goals earned
+   * (a guide may keep a secret until it is earned). Reachable from the
+   * attract loop and the pause screen.
+   */
+  guide?(earned: ReadonlySet<string>): ArcadeGuidePage[]
 }
 
 export function emptyInput(): InputFrame {

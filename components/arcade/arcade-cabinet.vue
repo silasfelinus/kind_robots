@@ -178,6 +178,17 @@
             {{ phase === 'paused' ? 'Resume' : 'Pause' }}
           </button>
           <button
+            v-if="hasGuide"
+            type="button"
+            class="cabinet-switch"
+            :aria-pressed="guideOpen"
+            :disabled="!guideOpen && !canOpenGuide"
+            title="How this table plays"
+            @click="toggleGuide"
+          >
+            {{ guideOpen ? 'Close guide' : 'Table guide' }}
+          </button>
+          <button
             type="button"
             class="cabinet-switch"
             :aria-pressed="muted"
@@ -240,6 +251,7 @@ import {
   isWebGLInstance,
   type ArcadeButton,
   type ArcadeGameModule,
+  type ArcadeGuidePage,
   type ArcadeMasteryGoal,
   type ArcadePlayableInstance,
   type InputFrame,
@@ -645,6 +657,53 @@ function startGame() {
   dispatch({ type: 'start' })
 }
 
+// --- the table guide (conductor kind-pinball/t-015) -------------------------
+
+/** The guide's pages while it is open, and the one showing. */
+const guide = ref<{ pages: ArcadeGuidePage[]; page: number } | null>(null)
+const guideOpen = computed(() => guide.value !== null)
+/** The cabinet's game has a guide (its module is loaded). */
+const hasGuide = ref(false)
+/** The guide opens from the attract loop and the pause screen. */
+const canOpenGuide = computed(
+  () =>
+    hasGuide.value &&
+    (ATTRACT_PHASES.includes(phase.value) || phase.value === 'paused'),
+)
+
+function openGuide() {
+  if (!gameModule?.guide || !canOpenGuide.value) return
+  const pages = gameModule.guide(new Set(store.masteryFor(props.slug)))
+  if (pages.length) guide.value = { pages, page: 0 }
+  sound?.play('blip')
+}
+
+function closeGuide() {
+  guide.value = null
+}
+
+function toggleGuide() {
+  unlockArcadeAudio()
+  if (guide.value) closeGuide()
+  else openGuide()
+}
+
+/** Page on; past the last page the guide closes. */
+function turnGuide(by: number) {
+  const open = guide.value
+  if (!open) return
+  const page = open.page + by
+  if (page >= open.pages.length) closeGuide()
+  else guide.value = { ...open, page: Math.max(0, page) }
+  sound?.play('blip')
+}
+
+function stepGuide(frame: InputFrame) {
+  if (frame.pressed.b || frame.pressed.start) closeGuide()
+  else if (frame.pressed.right || frame.pressed.a) turnGuide(1)
+  else if (frame.pressed.left) turnGuide(-1)
+}
+
 function togglePause() {
   unlockArcadeAudio()
   if (machine.phase === 'playing') dispatch({ type: 'pause' })
@@ -723,13 +782,20 @@ function tick() {
   const frames = inputs.slice(0, players.value).map((seatIn) => seatIn.poll())
   const frame = frames.length > 1 ? eitherFrame(frames) : frames[0]!
   const current = machine.phase
+  // The table guide holds the cabinet where it was (attract or paused).
+  if (guide.value) {
+    stepGuide(frame)
+    return
+  }
   if (ATTRACT_PHASES.includes(current)) {
     if (frame.pressed.start || frame.pressed.a) {
       startGame()
       return
     }
-    // B picks how many play, without reaching for the mouse or the screen.
+    // B picks how many play, without reaching for the mouse or the screen;
+    // on a one-player cabinet with a guide, it opens the guide.
     if (frame.pressed.b && maxPlayers.value > 1) togglePlayers()
+    else if (frame.pressed.b && hasGuide.value) openGuide()
     if (current === 'demo' && demoGame) {
       demoGame.update(frame)
       if (demoGame.over) dispatch({ type: 'demoOver' })
@@ -752,6 +818,7 @@ function tick() {
   }
   if (current === 'paused') {
     if (frame.pressed.start || frame.pressed.a) dispatch({ type: 'resume' })
+    else if (frame.pressed.b && hasGuide.value) openGuide()
     return
   }
   if (current === 'gameover') {
@@ -811,6 +878,51 @@ function drawMastery(
       shadow: SHADOW,
     })
   })
+}
+
+/** The open guide page: its title, diagram, lines and how to turn the page. */
+function drawGuide(
+  g: CanvasRenderingContext2D,
+  w: number,
+  h: number,
+  accent: string,
+) {
+  const open = guide.value!
+  const page = open.pages[open.page]!
+  drawBackdrop(g, w, h, 0.1)
+  g.fillStyle = 'rgba(11, 6, 32, 0.55)'
+  g.fillRect(0, 0, w, h)
+  drawText(g, page.title, w / 2, 16, {
+    scale: fitTitle(page.title, w - 24, 3),
+    align: 'center',
+    color: '#ffffff',
+    shadow: accent,
+  })
+  let y = 46
+  if (page.diagram) {
+    page.diagram.draw(g, 8, y, w - 16, page.diagram.height)
+    y += page.diagram.height + 10
+  }
+  const scale = page.scale ?? 2
+  const step = Math.max(
+    scale * 9,
+    Math.min(scale * 12 + 4, Math.floor((h - 40 - y) / page.lines.length)),
+  )
+  page.lines.forEach((line, i) => {
+    drawText(g, line, w / 2, y + i * step, {
+      scale,
+      align: 'center',
+      color: line.startsWith('* ') ? '#f9a8d4' : '#fde68a',
+      shadow: SHADOW,
+    })
+  })
+  drawText(
+    g,
+    `< ${open.page + 1}/${open.pages.length} >   B CLOSE`,
+    w / 2,
+    h - 18,
+    { align: 'center', color: '#a5f3fc', shadow: SHADOW },
+  )
 }
 
 function blinkOn() {
@@ -922,6 +1034,11 @@ function render() {
   const current = machine.phase
   const accent = info.accent
 
+  if (guide.value) {
+    drawGuide(g, w, h, accent)
+    return
+  }
+
   if (current === 'title') {
     drawBackdrop(g, w, h, 0.85)
     const titleScale = fitTitle(info.title.toUpperCase(), w - 24, 5)
@@ -987,6 +1104,12 @@ function render() {
     })
     if (info.mastery)
       drawMastery(g, info.mastery, w, h, 80 + info.howTo.length * step + 16)
+    if (hasGuide.value)
+      drawText(g, 'B  TABLE GUIDE', w / 2, h - 18, {
+        align: 'center',
+        color: '#a5f3fc',
+        shadow: SHADOW,
+      })
     return
   }
 
@@ -1102,6 +1225,13 @@ function render() {
       color: '#fde68a',
       shadow: SHADOW,
     })
+    if (hasGuide.value)
+      drawText(g, 'B  TABLE GUIDE', w / 2, h / 2 + 50, {
+        scale: 2,
+        align: 'center',
+        color: '#a5f3fc',
+        shadow: SHADOW,
+      })
   }
 }
 
@@ -1123,7 +1253,8 @@ function resizeCanvas() {
 function onScreenPointer() {
   unlockArcadeAudio()
   canvasRef.value?.focus({ preventScroll: true })
-  if (ATTRACT_PHASES.includes(machine.phase)) startGame()
+  if (guide.value) turnGuide(1)
+  else if (ATTRACT_PHASES.includes(machine.phase)) startGame()
   else if (machine.phase === 'paused') dispatch({ type: 'resume' })
   else if (machine.phase === 'gameover') dispatch({ type: 'skip' })
 }
@@ -1131,6 +1262,10 @@ function onScreenPointer() {
 function onKey(event: KeyboardEvent) {
   if (event.target instanceof HTMLInputElement) return
   unlockArcadeAudio()
+  if (guide.value && (event.code === 'KeyP' || event.code === 'Escape')) {
+    closeGuide()
+    return
+  }
   if (event.code === 'KeyP' || event.code === 'Escape') {
     togglePause()
     return
@@ -1172,6 +1307,8 @@ async function boot() {
   game = null
   demoGame = null
   gameModule = null
+  hasGuide.value = false
+  closeGuide()
   const info = meta.value
   if (!info) {
     loadError.value = 'This cabinet is still being built.'
@@ -1188,6 +1325,7 @@ async function boot() {
   }
   try {
     gameModule = await loadArcadeGame(info.slug)
+    hasGuide.value = typeof gameModule.guide === 'function'
   } catch {
     loadError.value = 'This cabinet could not start. Try reloading.'
   }

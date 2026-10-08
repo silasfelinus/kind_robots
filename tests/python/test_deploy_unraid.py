@@ -66,5 +66,5 @@ def test_migration_container_does_not_run_application_healthcheck() -> None:
     text = script_text()
     migration_block = text.split('run_migrations() {', 1)[1].split('\n}', 1)[0]
 
-    assert 'docker run --rm --no-health \\' in migration_block
+    assert 'docker run --rm --no-healthcheck \\' in migration_block
     assert 'node scripts/prisma-migrate-deploy.mjs' in migration_block

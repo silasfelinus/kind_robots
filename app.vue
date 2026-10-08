@@ -83,7 +83,7 @@
         <Transition name="kr-sheet-slide">
           <aside
             v-if="workspaceSheetOpen"
-            class="absolute inset-y-0 left-0 z-30 flex h-full min-h-0 w-full flex-col overflow-hidden kr-panel-flat shadow-xl md:w-(--sheet-w)"
+            class="absolute inset-y-0 right-0 z-30 flex h-full min-h-0 w-full flex-col overflow-hidden kr-panel-flat shadow-xl md:w-(--sheet-w)"
           >
             <fx-region region="sheet" />
 
@@ -476,7 +476,7 @@ onBeforeUnmount(() => {
 .kr-sheet-slide-enter-from,
 .kr-sheet-slide-leave-to {
   opacity: 0;
-  transform: translateX(-1rem);
+  transform: translateX(1rem);
 }
 
 /*

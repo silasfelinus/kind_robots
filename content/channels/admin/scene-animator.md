@@ -7,6 +7,7 @@ label: Scene Animator
 title: Scene Animator
 subtitle: Turn folders of still scenes into short living clips
 description: Select a source folder, video preset, duration, and maturity setting; resume durable Comfy renders and browse the finished clips.
+summary: Turn scene folders into clips.
 icon: kind-icon:server
 route: /admin/scene-animator
 sort: 90

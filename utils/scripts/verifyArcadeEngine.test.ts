@@ -54,20 +54,31 @@ import {
 import RAPIER from '@dimforge/rapier3d-compat'
 import {
   livePhysicsWorlds,
+  MAX_BALL_SPEED,
+  PHYSICS_HZ,
   PinballPhysics,
+  type BallView,
 } from '../arcade/pinball/physics/world'
 import {
   liveRenderResources,
+  PinballScene,
   type RendererLike,
 } from '../arcade/pinball/render/scene'
-import { initialRules, stepRules } from '../arcade/pinball/rules/engine'
 import {
+  initialRules,
+  SECRET_DOOR_STEPS,
+  stepRules,
+  TILT_BOB_STEPS,
+  type PinballRulesState,
+} from '../arcade/pinball/rules/engine'
+import {
+  DEFAULT_WINDOW_TICKS,
   initialShotProgress,
   recognizeShots,
 } from '../arcade/pinball/rules/shots'
-import { PinballRuntime } from '../arcade/pinball/runtime'
+import { cameraViewFor, PinballRuntime } from '../arcade/pinball/runtime'
 import { AMI_VILLAGE_GREYBOX } from '../arcade/pinball/tables/amiVillage/table'
-import type { SwitchEvent, Vec3 } from '../arcade/pinball/types'
+import type { SwitchEvent, TableDef, Vec3 } from '../arcade/pinball/types'
 import {
   enqueuePending,
   formatChampion,
@@ -977,6 +988,629 @@ function stubRenderer(log: { disposed: number; frames: number }): RendererLike {
   }
 }
 
+async function runPinballFeel() {
+  // conductor kind-pinball/t-005: physics feel and its acceptance tests.
+  const table = AMI_VILLAGE_GREYBOX
+  const left = table.flippers.find((f) => f.id === 'flipper-left')!
+  const steps = (physics: PinballPhysics, n: number) => {
+    const events: SwitchEvent[] = []
+    for (let i = 0; i < n; i++) events.push(...physics.step())
+    return events
+  }
+
+  // The flipper is a motor: a held button drives the bat to its stop in
+  // about strokeMs; a tap that lets go early never reaches it.
+  const motor = new PinballPhysics(RAPIER, table)
+  motor.setFlipper('left', true)
+  const strokeSteps = Math.ceil((left.strokeMs / 1000) * PHYSICS_HZ)
+  steps(motor, strokeSteps - 2)
+  assert.notEqual(motor.flipperAngles()['flipper-left'], left.activeAngle)
+  steps(motor, 3)
+  assert.equal(motor.flipperAngles()['flipper-left'], left.activeAngle)
+  motor.setFlipper('left', false)
+  steps(motor, PHYSICS_HZ)
+  assert.equal(motor.flipperAngles()['flipper-left'], left.restAngle)
+  motor.setFlipper('left', true)
+  steps(motor, 2)
+  motor.setFlipper('left', false)
+  let peak = left.restAngle
+  for (let i = 0; i < 20; i++) {
+    motor.step()
+    peak = Math.min(peak, motor.flipperAngles()['flipper-left']!)
+  }
+  assert.ok(
+    peak > left.activeAngle + 0.3,
+    'a tap is a partial stroke, not a full one',
+  )
+  motor.dispose()
+
+  // Cradle: a ball rolling down the inlane onto a held flipper settles in
+  // the crook and stays there.
+  const cradled = (physics: PinballPhysics) => {
+    physics.setFlipper('left', true)
+    steps(physics, PHYSICS_HZ / 4)
+    physics.serveBall([-0.15, 0.0136, -0.12], [0, 0, 0])
+    steps(physics, PHYSICS_HZ * 4)
+  }
+  const cradle = new PinballPhysics(RAPIER, table)
+  cradled(cradle)
+  const settled = cradle.ballViews()[0]!
+  assert.ok(settled.speed < 0.01, 'the ball settles on the held flipper')
+  steps(cradle, PHYSICS_HZ * 5)
+  const still = cradle.ballViews()[0]
+  assert.ok(still && still.speed < 0.01, 'and stays cradled for five seconds')
+  assert.ok(
+    Math.hypot(
+      still.position[0] - settled.position[0],
+      still.position[2] - settled.position[2],
+    ) < 0.002,
+  )
+  cradle.dispose()
+
+  // Live catch: a ball coming down fast onto a held flipper is killed and
+  // ends up cradled, not bounced off the table.
+  const catcher = new PinballPhysics(RAPIER, table)
+  catcher.setFlipper('left', true)
+  steps(catcher, PHYSICS_HZ / 4)
+  catcher.serveBall([-0.05, 0.0136, -0.2], [0, 0, 1.5])
+  steps(catcher, PHYSICS_HZ * 4)
+  const caught = catcher.ballViews()[0]
+  assert.ok(caught && caught.speed < 0.02, 'a live catch comes to rest')
+  catcher.dispose()
+
+  // Full flips: from the middle of the bat the ball leaves at real flipper
+  // speed, and it stays on the playfield (a bat with a round section threw
+  // it in the air).
+  for (const delay of [175, 200]) {
+    const flip = new PinballPhysics(RAPIER, table)
+    cradled(flip)
+    flip.setFlipper('left', false)
+    steps(flip, delay)
+    flip.setFlipper('left', true)
+    let speed = 0
+    let top = 0
+    for (let i = 0; i < 60; i++) {
+      flip.step()
+      const ball = flip.ballViews()[0]
+      if (!ball) break
+      speed = Math.max(speed, ball.speed)
+      // Height only while the ball is still by the bat (a ramp lifts it later).
+      const fromPivot = Math.hypot(
+        ball.position[0] - left.pivot[0],
+        ball.position[2] - left.pivot[2],
+      )
+      if (fromPivot < 0.15) top = Math.max(top, ball.position[1])
+    }
+    assert.ok(speed > 3.5 && speed < 7, `a full flip: ${speed.toFixed(2)} m/s`)
+    assert.ok(top < 0.02, 'the flipped ball stays on the playfield')
+    flip.dispose()
+  }
+
+  // Post pass: drop the cradled ball, tap as it rolls down the bat, and it
+  // crosses to the other flipper, which catches it. Reproducible across a
+  // window of timings, not one magic frame.
+  for (const delay of [144, 150, 156]) {
+    const pass = new PinballPhysics(RAPIER, table)
+    cradled(pass)
+    pass.setFlipper('left', false)
+    steps(pass, delay)
+    pass.setFlipper('left', true)
+    steps(pass, 6)
+    pass.setFlipper('left', false)
+    pass.setFlipper('right', true)
+    steps(pass, PHYSICS_HZ * 4)
+    const across = pass.ballViews()[0]
+    assert.ok(
+      across && across.position[0] > 0.05 && across.speed < 0.02,
+      `post pass at ${delay} steps lands cradled on the right flipper`,
+    )
+    pass.dispose()
+  }
+
+  // Slings fire on a real hit, kicking the ball away, and stay quiet for a
+  // ball merely resting against the rubber.
+  const sling = new PinballPhysics(RAPIER, table)
+  sling.serveBall([-0.11, 0.0136, -0.2], [-0.2, 0, 0.8])
+  const slingHits = steps(sling, PHYSICS_HZ / 4).filter(
+    (e) => e.type === 'contact' && e.id.startsWith('sling-'),
+  )
+  assert.ok(slingHits.length >= 1, 'the sling fires')
+  assert.ok(sling.ballViews()[0]!.speed > 1.2, 'and kicks the ball away')
+  sling.dispose()
+
+  // The left outlane kickback, lit, fires a ball that would have drained
+  // back up the outlane, through the one-way deflector and round the orbit;
+  // once used it is out until the A-M-I bank relights it.
+  const play = (
+    physics: PinballPhysics,
+    state: PinballRulesState,
+    n: number,
+  ) => {
+    let tick = 0
+    for (let i = 0; i < n && physics.ballCount; i++) {
+      for (const event of physics.step()) {
+        const result = stepRules(state, { type: 'switch', event, tick: ++tick })
+        state = result.state
+        for (const effect of result.effects) {
+          if (effect.type === 'mechanism' && effect.action === 'fire')
+            physics.fireKicker(effect.id)
+        }
+      }
+    }
+    return state
+  }
+  const kick = new PinballPhysics(RAPIER, table)
+  let rules = stepRules(initialRules(3), { type: 'start' }).state
+  assert.ok(rules.kickbackLit)
+  kick.serveBall([-0.235, 0.0136, -0.2], [0, 0, 0.5])
+  rules = play(kick, rules, PHYSICS_HZ * 2)
+  assert.equal(rules.kickbackLit, false, 'the kickback fired')
+  const saved = kick.ballViews()[0]
+  assert.ok(saved, 'the kicked ball is still in play')
+  assert.ok(saved.position[2] < -0.1, 'sent back up the table')
+  kick.dispose()
+  const unlit = new PinballPhysics(RAPIER, table)
+  unlit.serveBall([-0.235, 0.0136, -0.2], [0, 0, 0.5])
+  play(unlit, { ...rules, kickbackLit: false }, PHYSICS_HZ * 2)
+  assert.equal(unlit.ballCount, 0, 'unlit, the outlane drains')
+  unlit.dispose()
+  let relit = { ...rules, kickbackLit: false }
+  for (const id of ['drop-a', 'drop-m', 'drop-i']) {
+    relit = stepRules(relit, {
+      type: 'switch',
+      event: { type: 'drop', id, bank: 'ami', ballId: 1 },
+    }).state
+  }
+  assert.ok(relit.kickbackLit, 'the A-M-I bank relights the kickback')
+
+  // The tilt bob: lone nudges are free; nudging while it still swings
+  // warns twice, then tilts, killing the flippers until the next ball.
+  let tilt = stepRules(initialRules(3), { type: 'start' }).state
+  for (let i = 0; i < 6; i++) {
+    tilt = stepRules(tilt, {
+      type: 'nudge',
+      tick: i * (TILT_BOB_STEPS + 1),
+    }).state
+  }
+  assert.equal(tilt.tiltWarnings, 0, 'spaced nudges never warn')
+  const t0 = 10 * TILT_BOB_STEPS
+  const texts: string[] = []
+  for (let i = 0; i < 4; i++) {
+    const step = stepRules(tilt, { type: 'nudge', tick: t0 + i * 60 })
+    tilt = step.state
+    for (const e of step.effects) if (e.type === 'dmd') texts.push(e.text)
+  }
+  assert.deepEqual(texts, ['WARNING', 'DANGER', 'TILT'])
+  assert.ok(tilt.tilted)
+  assert.equal(
+    stepRules(tilt, { type: 'nudge', tick: t0 + 400 }).effects.length,
+    0,
+    'a tilted machine ignores nudges',
+  )
+  const nextBall = stepRules(tilt, {
+    type: 'switch',
+    event: { type: 'drain', ballId: 1 },
+  })
+  assert.equal(nextBall.state.tilted, false)
+  assert.equal(nextBall.state.tiltWarnings, 0)
+  assert.ok(
+    nextBall.effects.some(
+      (e) =>
+        e.type === 'mechanism' && e.id === 'flippers' && e.action === 'enable',
+    ),
+  )
+  // In the runtime, a tilted machine's flippers will not rise.
+  const tilted = new PinballRuntime(
+    { rng: mulberry32(8), sound: { play: () => {} }, demo: false, hiScore: 0 },
+    RAPIER,
+    table,
+    () => stubRenderer({ disposed: 0, frames: 0 }),
+  )
+  const inner = tilted as unknown as {
+    physics: PinballPhysics
+    rules: PinballRulesState
+  }
+  inner.rules = { ...inner.rules, tilted: true }
+  const hold = emptyInput()
+  hold.held.left = true
+  for (let i = 0; i < 10; i++) tilted.update(hold)
+  assert.equal(
+    inner.physics.flipperAngles()['flipper-left'],
+    left.restAngle,
+    'the tilted flipper stays down',
+  )
+  tilted.dispose()
+
+  // No tunnelling: 500 shots at the speed fuse into a standard post, from
+  // every side and offset, never get inside it.
+  const post = table.colliders.find((c) => c.id === 'shot-post-1')
+  assert.ok(post && post.kind === 'post')
+  const postTable: TableDef = {
+    ...table,
+    colliders: [
+      table.colliders.find((c) => c.id === 'playfield')!,
+      { ...post, at: [0, post.at[1], 0] },
+    ],
+    sensors: [],
+    flippers: [],
+    drops: [],
+    scoops: [],
+    spinners: [],
+    doors: [],
+    kickers: [],
+    toys: [],
+    zones: [],
+  }
+  const radius = table.physical.ballRadiusM
+  let closest = Infinity
+  for (let i = 0; i < 500; i++) {
+    const physics = new PinballPhysics(RAPIER, postTable)
+    const around = (2 * Math.PI * i) / 500
+    const offset = ((i % 7) - 3) * 0.003
+    const dirX = -Math.cos(around)
+    const dirZ = -Math.sin(around)
+    physics.serveBall(
+      [
+        Math.cos(around) * 0.08 - dirZ * offset,
+        0.0136,
+        Math.sin(around) * 0.08 + dirX * offset,
+      ],
+      [dirX * MAX_BALL_SPEED, 0, dirZ * MAX_BALL_SPEED],
+    )
+    for (let s = 0; s < PHYSICS_HZ / 8; s++) {
+      physics.step()
+      const ball = physics.ballViews()[0]
+      if (!ball) break
+      closest = Math.min(
+        closest,
+        Math.hypot(ball.position[0], ball.position[2]),
+      )
+    }
+    physics.dispose()
+  }
+  assert.ok(
+    closest > post.radius + radius - 0.001,
+    `no ball tunnels into the post (closest ${closest.toFixed(4)} m)`,
+  )
+
+  // Ramp thresholds: a weak shot up the left ramp rolls back; a real one
+  // makes it, rides the ramp without flying off it, and returns to the
+  // left inlane.
+  const mouth = [-0.12, -0.3] as const
+  const along = [-0.184, -0.983] as const
+  const rampShot = (speed: number) => {
+    const physics = new PinballPhysics(RAPIER, table)
+    physics.serveBall(
+      [mouth[0] - along[0] * 0.05, 0.0136, mouth[1] - along[1] * 0.05],
+      [along[0] * speed, 0, along[1] * speed],
+    )
+    let made = false
+    let top = 0
+    let home = false
+    for (let i = 0; i < PHYSICS_HZ * 4 && physics.ballCount; i++) {
+      for (const e of physics.step()) {
+        if (e.type === 'sensor-enter' && e.id === 'left-ramp-made') made = true
+        if (made && e.type === 'contact' && e.id === 'flipper-left') home = true
+      }
+      const ball = physics.ballViews()[0]
+      if (ball) top = Math.max(top, ball.position[1])
+    }
+    physics.dispose()
+    return { made, top, home }
+  }
+  // The climb needs ~1.55 m/s along the mouth (crest height plus the
+  // pitch, with a rolling ball's inertia); a tap falls short.
+  for (const speed of [1.2, 1.4]) {
+    assert.equal(rampShot(speed).made, false, `${speed} m/s rolls back`)
+  }
+  for (const speed of [3, 4, 5]) {
+    const shot = rampShot(speed)
+    assert.ok(shot.made, `${speed} m/s makes the left ramp`)
+    assert.ok(shot.top < 0.046 + 0.035 + radius, 'it never clears the rails')
+    assert.ok(shot.home, 'and it comes home to the left flipper')
+  }
+}
+
+/**
+ * Ten simulated minutes of the attract pilot with three balls in play: no
+ * ball may sit still for good (ball search must always free it).
+ */
+async function runPinballSoak() {
+  const table = AMI_VILLAGE_GREYBOX
+  const runtime = new PinballRuntime(
+    { rng: mulberry32(11), sound: { play: () => {} }, demo: true, hiScore: 0 },
+    RAPIER,
+    table,
+    () => stubRenderer({ disposed: 0, frames: 0 }),
+  )
+  const inner = runtime as unknown as {
+    physics: PinballPhysics
+    rules: PinballRulesState
+  }
+  const spots: Vec3[] = [
+    [0.0, 0.0136, -0.55],
+    [-0.15, 0.0136, -0.2],
+    [0.15, 0.0136, -0.2],
+  ]
+  const lastMove = new Map<number, { at: Vec3; tick: number }>()
+  let longest = 0
+  const minutes = 10
+  for (let tick = 0; tick < 60 * 60 * minutes; tick++) {
+    // Keep three balls on the table, and the game going.
+    if (inner.physics.ballCount < 3) {
+      inner.physics.serveBall(spots[tick % spots.length]!, [0, 0, 0])
+    }
+    inner.rules = {
+      ...inner.rules,
+      lives: 99,
+      over: false,
+      ballsInPlay: inner.physics.ballCount,
+    }
+    runtime.update(emptyInput())
+    for (const ball of inner.physics.ballViews()) {
+      const seen = lastMove.get(ball.id)
+      const moved =
+        !seen ||
+        ball.captured ||
+        Math.hypot(
+          ball.position[0] - seen.at[0],
+          ball.position[2] - seen.at[2],
+        ) > 0.005
+      if (moved) lastMove.set(ball.id, { at: ball.position, tick })
+      else longest = Math.max(longest, tick - seen.tick)
+    }
+  }
+  runtime.dispose()
+  assert.ok(
+    longest < 60 * 20,
+    `no ball stuck for good (longest still: ${(longest / 60).toFixed(1)} s)`,
+  )
+}
+
+async function runPinballSubTable() {
+  // conductor kind-pinball/t-011: the hidden sub-table behind the backbox.
+  const table = AMI_VILLAGE_GREYBOX
+  const left: Vec3 = [-0.05, 0.0135, -0.07]
+  const room = table.zones?.find((zone) => zone.id === 'sub-table')
+  assert.ok(room, 'the table has a sub-table zone')
+  const roomX = (room.min[0] + room.max[0]) / 2
+
+  type Trace = { events: SwitchEvent[]; zones: Set<string> }
+  const run = (
+    physics: PinballPhysics,
+    steps: number,
+    flip?: (ball: { position: Vec3; velocity: Vec3 }) => boolean,
+  ): Trace => {
+    const events: SwitchEvent[] = []
+    const zones = new Set<string>()
+    for (let i = 0; i < steps && physics.ballCount; i++) {
+      const ball = physics.ballViews()[0]
+      const up = Boolean(ball && flip?.(ball))
+      physics.setFlipper('left', up)
+      physics.setFlipper('right', up)
+      events.push(...physics.step())
+      for (const view of physics.ballViews()) zones.add(view.zone ?? 'main')
+    }
+    return { events, zones }
+  }
+  const has = (trace: Trace, type: string, id: string) =>
+    trace.events.findIndex((e) => e.type === type && 'id' in e && e.id === id)
+
+  // The door is part of the arch until the rules open it: a left orbit
+  // goes round as usual and never finds the room.
+  const closed = new PinballPhysics(RAPIER, table)
+  assert.deepEqual(closed.doorStates(), { 'secret-door': false })
+  closed.serveBall(left, orbitAim(-122, 3))
+  const around = run(closed, PHYSICS_HZ * 5)
+  assert.equal(has(around, 'capture', 'secret-hole'), -1)
+  assert.ok(!around.zones.has('sub-table'))
+  closed.dispose()
+
+  // Open, the same shot is diverted out through the gap into the hidden
+  // hole, rides the subway up into the room, and (unflipped) drains past
+  // the room's flippers, which sends it home to the award saucer. Its
+  // kickout feeds the main left flipper.
+  let found = 0
+  for (const deg of [-123, -122, -121]) {
+    const open = new PinballPhysics(RAPIER, table)
+    open.setDoor('secret-door', true)
+    assert.deepEqual(open.doorStates(), { 'secret-door': true })
+    open.serveBall(left, orbitAim(deg, 3))
+    const trip = run(open, PHYSICS_HZ * 9)
+    const hole = has(trip, 'capture', 'secret-hole')
+    const arrive = has(trip, 'eject', 'sub-entry')
+    const drain = has(trip, 'capture', 'sub-drain')
+    const home = has(trip, 'eject', 'award')
+    if (hole >= 0) {
+      found++
+      assert.ok(arrive > hole, 'the subway brings the ball up into the room')
+      assert.ok(trip.zones.has('sub-table'))
+      assert.ok(drain > arrive && home > drain, 'room drain -> award kickout')
+      assert.ok(
+        trip.events
+          .slice(home)
+          .some((e) => e.type === 'contact' && e.id === 'flipper-left'),
+        'the kickout feeds the left flipper',
+      )
+    }
+    open.dispose()
+  }
+  assert.ok(found >= 2, `the open door takes left orbits (${found}/3)`)
+
+  // The room's flippers are on the same buttons, and they keep a ball in
+  // play there: a ball rolling down onto the left one is flipped back up.
+  const flippers = new PinballPhysics(RAPIER, table)
+  flippers.setFlipper('left', true)
+  for (let i = 0; i < 20; i++) flippers.step()
+  const angles = flippers.flipperAngles()
+  const sub = table.flippers.find((f) => f.id === 'sub-flipper-left')!
+  assert.ok(Math.abs(angles['sub-flipper-left']! - sub.activeAngle) < 1e-6)
+  flippers.setFlipper('left', false)
+  for (let i = 0; i < 30; i++) flippers.step()
+  flippers.serveBall([roomX - 0.12, 0.0136, -1.2], [0, 0, 0])
+  let saved = false
+  let flipped = false
+  const save = run(flippers, PHYSICS_HZ * 4, (ball) => {
+    if (ball.position[2] > -1.125 && ball.velocity[2] > 0) flipped = true
+    if (flipped && ball.position[2] < -1.2) saved = true
+    return flipped && !saved
+  })
+  assert.ok(saved, 'a room flipper sends the ball back up the room')
+  assert.ok(save.zones.has('sub-table'))
+  flippers.dispose()
+
+  // The N-E-T standups report every hit and never drop; the windmill turns
+  // and bats the ball; HOME takes a ball back to the main table.
+  const toys = new PinballPhysics(RAPIER, table)
+  const before = toys.toyAngles().windmill!
+  const nets = table.drops.filter((drop) => drop.bank === 'net')
+  assert.equal(nets.length, 3)
+  for (const net of nets) {
+    toys.serveBall([net.at[0], 0.0136, net.at[2] + 0.06], [0, 0, -1.2])
+  }
+  const hits = run(toys, 60)
+  for (const net of nets) {
+    assert.ok(has(hits, 'contact', net.id) >= 0, `${net.id} reports a hit`)
+    assert.ok(toys.dropStates()[net.id], `${net.id} stays up`)
+  }
+  assert.notEqual(toys.toyAngles().windmill, before, 'the windmill turns')
+  toys.dispose()
+  const homeScoop = table.scoops.find((s) => s.id === 'sub-home')!
+  const homeRun = new PinballPhysics(RAPIER, table)
+  homeRun.serveBall(
+    [homeScoop.at[0], 0.0136, homeScoop.at[2] + 0.05],
+    [0, 0, -0.6],
+  )
+  const homeTrip = run(homeRun, PHYSICS_HZ * 4)
+  assert.ok(has(homeTrip, 'capture', 'sub-home') >= 0)
+  assert.ok(
+    has(homeTrip, 'eject', 'award') > has(homeTrip, 'capture', 'sub-home'),
+  )
+  homeRun.dispose()
+  const windmill = new PinballPhysics(RAPIER, table)
+  const mill = table.toys!.find((toy) => toy.id === 'windmill')!
+  windmill.serveBall([mill.at[0], 0.0136, mill.at[2] - 0.08], [0, 0, 0.4])
+  assert.ok(has(run(windmill, PHYSICS_HZ * 2), 'contact', 'windmill') >= 0)
+  windmill.dispose()
+
+  // Rules: locking a ball is the feat that opens the door, with only a
+  // tease; the door closes itself again; a ball through it is a discovery;
+  // the nets and HOME pay the bonus multiplier that rides back; and a new
+  // ball shuts the door and resets the bonus.
+  const sw = (event: SwitchEvent, tick = 0) =>
+    ({ type: 'switch', event, tick }) as const
+  let state = stepRules(initialRules(3), { type: 'start' }).state
+  let step = stepRules(
+    state,
+    sw({ type: 'capture', id: 'lock', ballId: 1 }, 100),
+  )
+  state = step.state
+  assert.ok(state.sub.doorOpen)
+  assert.ok(
+    step.effects.some(
+      (e) =>
+        e.type === 'mechanism' && e.id === 'secret-door' && e.action === 'open',
+    ),
+  )
+  const tease = step.effects.find((e) => e.type === 'dmd')
+  assert.ok(
+    tease && tease.type === 'dmd' && !/ORBIT|LEFT|SECRET/.test(tease.text),
+  )
+  step = stepRules(state, { type: 'tick', tick: 100 + SECRET_DOOR_STEPS - 1 })
+  assert.ok(step.state.sub.doorOpen, 'still open just before it times out')
+  step = stepRules(state, { type: 'tick', tick: 100 + SECRET_DOOR_STEPS })
+  assert.equal(step.state.sub.doorOpen, false, 'the door closes itself')
+  assert.ok(
+    step.effects.some((e) => e.type === 'mechanism' && e.action === 'close'),
+  )
+  step = stepRules(state, sw({ type: 'capture', id: 'secret-hole', ballId: 1 }))
+  state = step.state
+  assert.equal(state.sub.found, 1)
+  assert.equal(state.sub.doorOpen, false, 'the door shuts behind the ball')
+  assert.ok(
+    step.effects.some((e) => e.type === 'dmd' && e.sub === 'YOU FOUND IT'),
+  )
+  for (const id of ['net-n', 'net-e', 'net-t', 'net-t']) {
+    step = stepRules(state, sw({ type: 'contact', id, ballId: 1, impulse: 1 }))
+    state = step.state
+  }
+  assert.deepEqual(state.sub.nets, ['net-n', 'net-e', 'net-t'])
+  step = stepRules(state, sw({ type: 'capture', id: 'sub-home', ballId: 1 }))
+  state = step.state
+  assert.equal(state.bonusMultiplier, 3, 'HOME with the nets lit: +2x')
+  assert.deepEqual(state.sub.nets, [], 'the nets reset for the next visit')
+  step = stepRules(state, sw({ type: 'capture', id: 'sub-drain', ballId: 1 }))
+  assert.equal(step.state.bonusMultiplier, 3, 'a plain drain home pays nothing')
+  state = stepRules(state, sw({ type: 'capture', id: 'lock', ballId: 1 })).state
+  state = stepRules(
+    state,
+    sw({ type: 'capture', id: 'secret-hole', ballId: 1 }),
+  ).state
+  assert.equal(state.sub.found, 2)
+  state = stepRules(state, sw({ type: 'capture', id: 'lock', ballId: 1 })).state
+  step = stepRules(state, sw({ type: 'drain', ballId: 1 }))
+  assert.equal(step.state.sub.doorOpen, false, 'a new ball shuts the door')
+  assert.equal(step.state.bonusMultiplier, 1)
+  assert.ok(
+    step.effects.some(
+      (e) =>
+        e.type === 'mechanism' &&
+        e.id === 'secret-door' &&
+        e.action === 'close',
+    ),
+  )
+
+  // The camera visits the room only while every ball is there, and the
+  // backbox that hides the room fades while it does.
+  const ballAt = (zone?: string): BallView => ({
+    id: 1,
+    position: [0, 0.0135, 0],
+    rotation: [0, 0, 0, 1],
+    velocity: [0, 0, 0],
+    speed: 0,
+    captured: false,
+    zone,
+  })
+  assert.equal(cameraViewFor([]), 'main')
+  assert.equal(cameraViewFor([ballAt()]), 'main')
+  assert.equal(cameraViewFor([ballAt('sub-table')]), 'sub-table')
+  assert.equal(
+    cameraViewFor([ballAt('sub-table'), ballAt()]),
+    'main',
+    'a ball still on the main table keeps the camera there',
+  )
+  const runtime = new PinballRuntime(
+    { rng: mulberry32(3), sound: { play: () => {} }, demo: false, hiScore: 0 },
+    RAPIER,
+    table,
+    () => stubRenderer({ disposed: 0, frames: 0 }),
+  )
+  assert.equal(runtime.view(), 'main', 'a new game starts on the main table')
+  runtime.dispose()
+
+  const resources = liveRenderResources()
+  const scene = new PinballScene(table, {} as HTMLCanvasElement, () =>
+    stubRenderer({ disposed: 0, frames: 0 }),
+  )
+  scene.resize(360, 640, 1)
+  const homeEye = scene.camera.position.clone()
+  scene.setView('sub-table')
+  for (let i = 0; i < 90; i++) scene.render()
+  const roomEye = scene.camera.position.clone()
+  assert.ok(roomEye.distanceTo(homeEye) > 0.2, 'the camera travels to the room')
+  scene.setView('main')
+  for (let i = 0; i < PHYSICS_HZ; i++) scene.render()
+  assert.ok(scene.camera.position.distanceTo(homeEye) < 0.01, 'and back')
+  scene.dispose()
+  assert.equal(liveRenderResources(), resources, 'the room frees its meshes')
+}
+
+/** A served ball's velocity for an aim (degrees, 0 = +X) and speed. */
+function orbitAim(deg: number, speed: number): Vec3 {
+  const rad = (deg * Math.PI) / 180
+  return [Math.cos(rad) * speed, 0, Math.sin(rad) * speed]
+}
+
 async function runPinballShots() {
   // conductor kind-pinball/t-018: the greybox shot map.
   const table = AMI_VILLAGE_GREYBOX
@@ -1004,7 +1638,7 @@ async function runPinballShots() {
   assert.deepEqual(feed(enter('left-ramp-made'), 60), ['left-ramp'])
   feed(enter('left-ramp-entry'), 100)
   assert.deepEqual(
-    feed(enter('left-ramp-made'), 100 + 241),
+    feed(enter('left-ramp-made'), 100 + DEFAULT_WINDOW_TICKS + 1),
     [],
     'a ball that took too long did not make the ramp',
   )
@@ -1050,7 +1684,7 @@ async function runPinballShots() {
     let shotProgress = initialShotProgress()
     const shots = new Set<string>()
     const events: SwitchEvent[] = []
-    for (let tick = 0; tick < (options.steps ?? 120 * 5); tick++) {
+    for (let tick = 0; tick < (options.steps ?? PHYSICS_HZ * 5); tick++) {
       for (const event of physics.step()) {
         events.push(event)
         const result = recognizeShots(table.shots, shotProgress, event, tick)
@@ -1070,15 +1704,17 @@ async function runPinballShots() {
     return { shots, events }
   }
   // Knock the A-M-I bank down the way a player does: a ball at each target.
+  const amiBank = table.drops.filter((drop) => drop.bank === 'ami')
   function knockDownDrops(physics: PinballPhysics) {
-    for (const drop of table.drops) {
+    for (const drop of amiBank) {
       physics.serveBall([drop.at[0], 0.0136, -0.25], [0, 0, -1.5])
       for (let i = 0; i < 30; i++) physics.step()
     }
-    for (let i = 0; i < 120 * 6 && physics.ballCount; i++) physics.step()
+    for (let i = 0; i < PHYSICS_HZ * 6 && physics.ballCount; i++) physics.step()
     assert.equal(physics.ballCount, 0, 'the knocking balls drain')
+    const states = physics.dropStates()
     assert.ok(
-      Object.values(physics.dropStates()).every((up) => !up),
+      amiBank.every((drop) => !states[drop.id]),
       'all three targets are down',
     )
   }
@@ -1137,7 +1773,10 @@ async function runPinballShots() {
   assert.ok(!shoot(left, -107, 1.6).shots.has('left-ramp'))
 
   // The lock holds the ball, then sends it by subway to the award saucer.
-  const lockRun = shoot(left, -81, 3, { dropsDown: true, steps: 120 * 6 })
+  const lockRun = shoot(left, -81, 3, {
+    dropsDown: true,
+    steps: PHYSICS_HZ * 6,
+  })
   const capture = lockRun.events.findIndex(
     (e) => e.type === 'capture' && e.id === 'lock',
   )
@@ -1154,7 +1793,8 @@ async function runPinballShots() {
   const drops = new PinballPhysics(RAPIER, table)
   knockDownDrops(drops)
   drops.resetDropBank('ami')
-  assert.ok(Object.values(drops.dropStates()).every((up) => up))
+  const raised = drops.dropStates()
+  assert.ok(amiBank.every((drop) => raised[drop.id]))
   drops.dispose()
 
   // The shooter gate is one-way: a plunged ball passes up through it, and a
@@ -1163,7 +1803,7 @@ async function runPinballShots() {
   assert.ok(gate && gate.kind === 'box' && gate.passDir)
   const gatePhysics = new PinballPhysics(RAPIER, table)
   gatePhysics.serveBall([0.28, 0.0136, -0.66], [0, 0, 1.2])
-  for (let i = 0; i < 120 * 3 && gatePhysics.ballCount; i++) {
+  for (let i = 0; i < PHYSICS_HZ * 3 && gatePhysics.ballCount; i++) {
     gatePhysics.step()
     for (const ball of gatePhysics.ballViews()) {
       assert.ok(
@@ -1189,7 +1829,7 @@ async function runPinballShots() {
   ] as const) {
     const physics = new PinballPhysics(RAPIER, table)
     physics.serveBall([x, 0.0136, z], [0, 0, 0])
-    for (let i = 0; i < 120 * 8 && physics.ballCount; i++) physics.step()
+    for (let i = 0; i < PHYSICS_HZ * 8 && physics.ballCount; i++) physics.step()
     assert.equal(physics.ballCount, 0, `a ball left at (${x}, ${z}) drains`)
     physics.dispose()
   }
@@ -1232,11 +1872,11 @@ async function runPinball3d() {
   const physics = new PinballPhysics(RAPIER, AMI_VILLAGE_GREYBOX)
   assert.equal(livePhysicsWorlds(), worldsBefore + 1)
   physics.serveBall()
-  for (let i = 0; i < 120; i++) physics.step()
+  for (let i = 0; i < PHYSICS_HZ; i++) physics.step()
   assert.ok(physics.ballOnPlunger(), 'a served ball rests on the plunger')
   assert.ok(physics.launch(0.8))
   const seen = new Set<string>()
-  for (let i = 0; i < 120 * 60 && physics.ballCount; i++) {
+  for (let i = 0; i < PHYSICS_HZ * 60 && physics.ballCount; i++) {
     for (const event of physics.step())
       seen.add(event.type === 'drain' ? 'drain' : `${event.type}:${event.id}`)
     for (const ball of physics.ballViews()) {
@@ -1391,7 +2031,58 @@ async function runQuiltInvariant() {
 
 await runGames()
 await runQuiltInvariant()
+
+/** Lantern Swarm: a rescued lantern docks as a twin, or waits as a spare. */
+async function runLanternRescue() {
+  const mod = await loadArcadeGame('lantern-swarm')
+  for (const aliveAtDock of [true, false]) {
+    const game = mod.create({
+      rng: mulberry32(1),
+      sound: { play: () => {} },
+      demo: false,
+      hiScore: 0,
+    })
+    type Queen = {
+      kind: string
+      mode: string
+      x: number
+      y: number
+      hp: number
+      holding: boolean
+    }
+    const inner = game as unknown as {
+      moths: Queen[]
+      alive: boolean
+      twin: boolean
+      lives: number
+      hitMoth: (m: Queen) => void
+    }
+    // A queen holding a captured lantern, beamed before any dives begin.
+    const queen = inner.moths.find((m) => m.kind === 'queen')!
+    Object.assign(queen, { mode: 'form', x: 112, y: 60, hp: 1, holding: true })
+    const lives = inner.lives
+    inner.hitMoth(queen)
+    if (!aliveAtDock) inner.alive = false
+    for (let t = 0; t < 240; t++) game.update(emptyInput())
+    if (aliveAtDock)
+      assert.ok(
+        inner.twin,
+        'lantern-swarm: the rescued lantern docks as a twin',
+      )
+    else
+      assert.equal(
+        inner.lives,
+        lives + 1,
+        'lantern-swarm: a rescue with no lantern to dock to becomes a spare',
+      )
+  }
+}
+
+await runLanternRescue()
 await runCoopGames()
 await runPinball3d()
 await runPinballShots()
+await runPinballSubTable()
+await runPinballFeel()
+await runPinballSoak()
 console.log('verifyArcadeEngine: ok')

@@ -8,6 +8,7 @@ label: Achievements
 title: Jellybean Quests
 subtitle: Find the jellybeans
 description: Track personal achievements and the jellybeans hidden throughout Kind Robots.
+summary: Track achievements and jellybeans.
 icon: kind-icon:trophy
 route: /achievements
 sort: 20

@@ -11,8 +11,10 @@
 
 import {
   SUB,
+  type Box,
   type FighterData,
   type MoveData,
+  type NormalId,
   type SpecialMove,
 } from '../types'
 import { defaultChains, defaultNormals } from './placeholders'
@@ -31,24 +33,40 @@ normals.stand_hp = {
 }
 normals.crouch_hp = {
   ...normals.crouch_hp,
-  hitbox: { x: 2, y: 28, w: 30, h: 50 },
+  hitbox: { x: 2, y: 28, w: 28, h: 50 },
 }
 normals.jump_hp = {
   ...normals.jump_hp,
-  hitbox: { x: 2, y: -4, w: 38, h: 22 },
+  hitbox: { x: 4, y: 4, w: 50, h: 24 },
   damage: 80,
 }
 normals.stand_hk = {
   ...normals.stand_hk,
-  hitbox: { x: 6, y: 20, w: 32, h: 14 },
+  hitbox: { x: 6, y: 20, w: 30, h: 14 },
   damage: 75,
 }
+// Hitboxes authored against the rig art (conductor zuzu-showdown t-010): each sits where the fist,
+// foot or blade is drawn on the move's active frames, and never reaches past it
+// (verifyZuzuShowdownSprites checks every one against the shipped frame maps).
+// His kicks are stubby: they reach no further than his short legs do.
+const ART_HITBOXES: Partial<Record<NormalId, Box>> = {
+  stand_lp: { x: 8, y: 34, w: 18, h: 10 },
+  stand_lk: { x: 6, y: 18, w: 24, h: 12 },
+  crouch_lk: { x: 6, y: 0, w: 24, h: 10 },
+  crouch_hk: { x: 6, y: 0, w: 30, h: 10 },
+  jump_lp: { x: 4, y: 30, w: 22, h: 14 },
+  jump_hk: { x: 2, y: 0, w: 32, h: 16 },
+}
+for (const [id, hitbox] of Object.entries(ART_HITBOXES) as Array<
+  [NormalId, Box]
+>)
+  normals[id] = { ...normals[id], hitbox }
 
 const iaiFlash: MoveData = {
   startup: 6,
   active: 3,
   recovery: 14,
-  hitbox: { x: 4, y: 24, w: 40, h: 14 },
+  hitbox: { x: 4, y: 32, w: 52, h: 12 },
   damage: 90,
   chip: 9,
   hitstun: 18,
@@ -117,7 +135,7 @@ const descendingCut: MoveData = {
   startup: 6,
   active: 20,
   recovery: 6,
-  hitbox: { x: 0, y: 0, w: 30, h: 20 },
+  hitbox: { x: 0, y: 6, w: 42, h: 20 },
   damage: 80,
   chip: 8,
   hitstun: 18,

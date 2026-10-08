@@ -6,6 +6,7 @@ label: Dashboard
 title: Home Dashboard
 subtitle: Your Kind Robots activity at a glance
 description: Recent work, favorites, messages, and personal milestones.
+summary: See your recent Kind Robots activity.
 icon: kind-icon:home
 route: /
 sort: 10

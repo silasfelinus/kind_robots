@@ -8,6 +8,7 @@ label: Wallet
 title: Wallet
 subtitle: Your karma and mana, in one place
 description: Check your karma balance, mana balance, and recent activity for both.
+summary: Check karma, mana, and activity.
 icon: kind-icon:bag
 route: /wallet
 sort: 75

@@ -4,19 +4,61 @@
 // t-006): a parallax placeholder stage, placeholder fighters drawn from their
 // real boxes, projectiles, an optional hitbox overlay, the HUD (life bars with
 // red recoverable health, the three-bar meter, timer, round pips, names,
-// combo counter), callouts (ROUND, FIGHT, READ!, COUNTER ...), the super
-// flash and the Showdown eye strip.
+// combo counter), callouts (ROUND, FIGHT, READ!, COUNTER ...), hit sparks
+// (effects.ts, t-010), the super flash and the Showdown eye strip.
 //
 // Everything here reads the sim state and never changes it. Sprite art
 // replaces drawFighter and the stage layers in the art tasks (t-009, t-010+).
 
-import { drawText } from '../arcade/font'
+import type { RenderStyle } from '../arcade/display'
+import {
+  FONT_HEIGHT,
+  drawText,
+  measureText,
+  setTextStyle,
+} from '../arcade/font'
+import { SPARK_PALETTES, SPARK_PIXELS, sparkFrame, type Spark } from './effects'
 import {
   drawSprite,
   pickSprite,
   type LoadedSprites,
   type SpriteContext,
 } from './sprites'
+import {
+  CROC_EYES,
+  STAGE_INK,
+  TUMBLEWEED,
+  VULTURE,
+  HYENA,
+  PERCHES,
+  RIFTS,
+  appleAt,
+  bellAngle,
+  candleFlame,
+  debrisAt,
+  embersAt,
+  packAt,
+  doorOpen,
+  duneSlumpAt,
+  riftGlow,
+  sandBlowAt,
+  dustDevilAt,
+  leavesAt,
+  crocEyesAt,
+  crowsAt,
+  lightningAt,
+  portalGlow,
+  rainAt,
+  layerX,
+  smokePuffs,
+  tumbleweedAt,
+  vulturesAt,
+  waterGlints,
+  type LoadedStage,
+  type PixelSprite,
+  type StageFx,
+  type StageLayer,
+} from './stages'
 import {
   METER_BAR,
   STAGE_HALF_WIDTH,
@@ -48,6 +90,21 @@ export type RenderOptions = {
   reducedMotion: boolean
   /** Fighter sprites by slug, once loaded; fighters without one draw as placeholders. */
   sprites?: Partial<Record<string, LoadedSprites>>
+  /** Hit sparks in flight (effects.ts advanceSparks). */
+  sparks?: Spark[]
+  /** The stage's art, once loaded; until then the placeholder stage draws. */
+  stage?: LoadedStage
+  /** The stage event's state (stages.ts advanceStageFx). */
+  stageFx?: StageFx
+  /** Pixel (the default) or HD (t-027): smooth images, the vector font, smooth sparks. */
+  style?: RenderStyle
+}
+
+/** Set a context up for a render style: image filtering and the HUD font. */
+export function applyRenderStyle(g: G, style: RenderStyle = 'pixel'): void {
+  g.imageSmoothingEnabled = style === 'hd'
+  if ('imageSmoothingQuality' in g) g.imageSmoothingQuality = 'high'
+  setTextStyle(g, style === 'hd' ? 'vector' : 'pixel')
 }
 
 /** A fighter's own look, or the side colours; P2 in a mirror match gets the alternate. */
@@ -300,6 +357,456 @@ function drawStage(
       const x = (i * 73 + frame * (1 + (i % 3))) % (VIEW_WIDTH + 20)
       const y = FLOOR_Y - 10 - ((i * 37) % 90)
       g.fillRect(x - 10, y, 2, 1)
+    }
+  }
+}
+
+// ---------------------------------------------------------------- stage art (t-009)
+
+/** A hand-pixel sprite with its top-left corner at (x, y). */
+function drawPixelSprite(
+  g: G,
+  sprite: PixelSprite,
+  x: number,
+  y: number,
+  scale = 1,
+): void {
+  sprite.forEach((row, ry) => {
+    for (let rx = 0; rx < row.length; rx += 1) {
+      const key = row[rx]
+      if (!key || key === '.') continue
+      g.fillStyle = STAGE_INK[key] ?? '#ff00ff'
+      g.fillRect(x + rx * scale, y + ry * scale, scale, scale)
+    }
+  })
+}
+
+/** A sprite turned a quarter turn `turns` times (the tumbleweed rolling). */
+export function turned(sprite: PixelSprite, turns: number): PixelSprite {
+  let rows: readonly string[] = sprite
+  for (let t = 0; t < turns % 4; t += 1) {
+    const h = rows.length
+    const w = rows[0]?.length ?? 0
+    const next: string[] = []
+    for (let x = 0; x < w; x += 1) {
+      let line = ''
+      for (let y = h - 1; y >= 0; y -= 1) line += rows[y]?.[x] ?? '.'
+      next.push(line)
+    }
+    rows = next
+  }
+  return rows
+}
+
+function drawLayer(
+  g: G,
+  image: CanvasImageSource,
+  layer: StageLayer,
+  x: number,
+  scale: number,
+  shimmer: number | null,
+): void {
+  if (shimmer === null) {
+    g.drawImage(
+      image,
+      0,
+      0,
+      layer.w * scale,
+      layer.h * scale,
+      x,
+      layer.y,
+      layer.w,
+      layer.h,
+    )
+    return
+  }
+  // Heat shimmer: the lower rows waver, more toward the ground.
+  const start = Math.floor(layer.h * 0.55)
+  g.drawImage(
+    image,
+    0,
+    0,
+    layer.w * scale,
+    start * scale,
+    x,
+    layer.y,
+    layer.w,
+    start,
+  )
+  for (let row = start; row < layer.h; row += 1) {
+    const depth = (row - start) / Math.max(1, layer.h - start)
+    const offset = Math.round(Math.sin((shimmer + row * 5) / 7) * depth * 1.6)
+    g.drawImage(
+      image,
+      0,
+      row * scale,
+      layer.w * scale,
+      scale,
+      x + offset,
+      layer.y + row,
+      layer.w,
+      1,
+    )
+  }
+}
+
+/**
+ * The stage from its art: each parallax layer at its scroll rate, with the moving parts that hang off
+ * it drawn right after it (vultures over the backdrop, the bell, banner and smoke on the town, the
+ * glints and the croc's eyes on the pond, the tumbleweed on the street).
+ */
+export function drawStageArt(
+  g: G,
+  stage: LoadedStage,
+  s: MatchState,
+  roster: Pair<FighterData>,
+  camera: number,
+  reducedMotion: boolean,
+  fx: StageFx,
+): void {
+  const m = stage.manifest
+  const cam = camera / SUB
+  const frame = s.frame
+  g.fillStyle = '#000000'
+  g.fillRect(0, 0, VIEW_WIDTH, VIEW_HEIGHT)
+  for (const layer of m.layers) {
+    const image = stage.layers[layer.name]
+    if (!image) continue
+    const x = layerX(layer, cam)
+    const shimmer =
+      (m.stage === 'watering-hole' || m.stage === 'lone-apple-tree') &&
+      layer.name === 'backdrop' &&
+      !reducedMotion
+        ? frame
+        : null
+    // Storm Canyon's lightning: the sky blazes and everything in front of it goes dark, so the canyon
+    // walls (and the fighters, against the bright sky) stand in silhouette.
+    const flash =
+      m.stage === 'storm-canyon' ? lightningAt(frame, reducedMotion) : 0
+    if (flash > 0 && layer.name !== 'backdrop')
+      g.filter = `brightness(${(1 - 0.75 * flash).toFixed(2)})`
+    drawLayer(g, image, layer, x, m.scale, shimmer)
+    g.filter = 'none'
+    if (flash > 0 && layer.name === 'backdrop') {
+      g.fillStyle = `rgba(220, 235, 255, ${(0.65 * flash).toFixed(2)})`
+      g.fillRect(0, layer.y, VIEW_WIDTH, layer.h)
+    }
+    if (m.stage === 'the-thin-place' && layer.name === 'backdrop') {
+      // The sky tearing at its seams: a wide dim glow under a bright core along each tear.
+      const glow = riftGlow(frame, reducedMotion)
+      for (const [width, colour] of [
+        [3, `rgba(167, 139, 250, ${(0.45 * glow).toFixed(2)})`],
+        [1, `rgba(204, 251, 241, ${glow.toFixed(2)})`],
+      ] as const) {
+        g.fillStyle = colour
+        for (const rift of RIFTS) {
+          for (let k = 0; k + 1 < rift.length; k += 1) {
+            const [x0, y0] = rift[k]!
+            const [x1, y1] = rift[k + 1]!
+            const steps = Math.max(Math.abs(x1 - x0), Math.abs(y1 - y0))
+            for (let t = 0; t <= steps; t += 1) {
+              const px = Math.round(x0 + ((x1 - x0) * t) / steps)
+              const py = Math.round(y0 + ((y1 - y0) * t) / steps)
+              g.fillRect(px - (width >> 1), py - (width >> 1), width, width)
+            }
+          }
+        }
+      }
+    }
+    if (m.stage === 'storm-canyon' && layer.name === 'backdrop') {
+      for (const c of crowsAt(frame)) {
+        drawPixelSprite(g, VULTURE[c.flap]!, x + c.x, layer.y + c.y)
+      }
+    }
+    // Anchors and cutouts are in the layer's own pixels, so on screen they move with it.
+    const anchor = (name: string) => {
+      const a = m.anchors[name]
+      return a && a.layer === layer.name ? a : null
+    }
+    if (m.stage === 'watering-hole' && layer.name === 'backdrop') {
+      for (const v of vulturesAt(frame)) {
+        drawPixelSprite(g, VULTURE[v.flap]!, x + v.x, layer.y + v.y)
+      }
+    }
+    for (const cut of m.cutouts.filter((c) => c.layer === layer.name)) {
+      const piece = stage.cutouts[cut.name]
+      if (!piece) continue
+      if (cut.name === 'bell') {
+        // Swings from the top of its yoke.
+        const angle = bellAngle(frame, fx, reducedMotion)
+        g.save()
+        g.translate(x + cut.x + cut.w / 2, layer.y + cut.y)
+        g.rotate((angle * Math.PI) / 180)
+        g.drawImage(
+          piece,
+          0,
+          0,
+          cut.w * m.scale,
+          cut.h * m.scale,
+          -cut.w / 2,
+          0,
+          cut.w,
+          cut.h,
+        )
+        g.restore()
+        if (!reducedMotion && fx.bell !== null && fx.bell < 40) {
+          // The ring: two pale arcs spreading out either side of the bell.
+          g.strokeStyle = 'rgba(253, 230, 138, 0.8)'
+          g.lineWidth = 1
+          const cx = x + cut.x + cut.w / 2
+          const cy = layer.y + cut.y + cut.h / 2
+          for (const gap of [0, 14]) {
+            const r = fx.bell * 1.2 + gap + cut.h / 2
+            g.beginPath()
+            g.arc(cx, cy, r, -0.9, 0.9)
+            g.stroke()
+            g.beginPath()
+            g.arc(cx, cy, r, Math.PI - 0.9, Math.PI + 0.9)
+            g.stroke()
+          }
+        }
+      } else if (cut.name === 'banner') {
+        // A banner in the wind: each column rides a wave that grows toward its free end.
+        for (let col = 0; col < cut.w; col += 1) {
+          const lift = reducedMotion
+            ? 0
+            : Math.round(Math.sin(frame / 7 - col / 3) * (col / cut.w) * 2)
+          g.drawImage(
+            piece,
+            col * m.scale,
+            0,
+            m.scale,
+            cut.h * m.scale,
+            x + cut.x + col,
+            layer.y + cut.y + lift,
+            1,
+            cut.h,
+          )
+        }
+      } else {
+        g.drawImage(
+          piece,
+          0,
+          0,
+          cut.w * m.scale,
+          cut.h * m.scale,
+          x + cut.x,
+          layer.y + cut.y,
+          cut.w,
+          cut.h,
+        )
+      }
+    }
+    const smoke = anchor('smoke')
+    if (smoke) {
+      g.fillStyle = 'rgba(120, 110, 104, 0.45)'
+      for (const p of smokePuffs(frame, reducedMotion)) {
+        const px = x + smoke.x + p.dx - p.r
+        const py = layer.y + smoke.y + p.dy - p.r
+        // A puff with its corners knocked off, so it reads as smoke rather than a square.
+        if (p.r < 2) g.fillRect(px, py, p.r * 2, p.r * 2)
+        else {
+          g.fillRect(px + 1, py, p.r * 2 - 2, p.r * 2)
+          g.fillRect(px, py + 1, p.r * 2, p.r * 2 - 2)
+        }
+      }
+    }
+    const arch = anchor('arch')
+    if (arch?.w && arch.h) {
+      // The town's own sign, lettered in the pixel font (the art carries no lettering).
+      const width = arch.w
+      const cx = x + arch.x + width / 2
+      // A tall board takes the population too; the beam over the arch only has room for the name.
+      const lines = (
+        arch.h >= 9 + FONT_HEIGHT
+          ? ['HOLLOW BELL', 'POP. 212']
+          : ['HOLLOW BELL']
+      ).filter((line) => measureText(line) <= width)
+      const top =
+        layer.y +
+        arch.y +
+        Math.round((arch.h - ((lines.length - 1) * 9 + FONT_HEIGHT)) / 2)
+      lines.forEach((line, i) =>
+        drawText(g, line, cx, top + i * 9, {
+          align: 'center',
+          color: '#e7dcc2',
+          shadow: '#2a1a10',
+        }),
+      )
+    }
+    const water = anchor('water')
+    if (water?.w && water.h) {
+      g.fillStyle = '#fff7d6'
+      for (const glint of waterGlints(frame, water.w, water.h)) {
+        g.fillRect(x + water.x + glint.x, layer.y + water.y + glint.y, 2, 1)
+      }
+      const eyes = crocEyesAt(frame, roster, water.w)
+      if (eyes && s.phase === 'fight') {
+        const sprite = CROC_EYES[eyes.sprite]!
+        drawPixelSprite(
+          g,
+          sprite,
+          x + water.x + eyes.x,
+          layer.y + water.y + Math.round(water.h / 2) - sprite.length + 1,
+        )
+      }
+    }
+    const fire = anchor('fire')
+    if (fire?.w && fire.h) {
+      // The bonfire's glow breathes, and embers climb out of it.
+      const glow = reducedMotion ? 0.3 : 0.25 + 0.1 * Math.sin(frame / 5)
+      g.fillStyle = `rgba(251, 146, 60, ${glow.toFixed(2)})`
+      g.fillRect(
+        x + fire.x - 6,
+        layer.y + fire.y + Math.round(fire.h / 3),
+        fire.w + 12,
+        Math.round((fire.h * 2) / 3),
+      )
+      g.fillStyle = '#fdba74'
+      for (const ember of embersAt(frame, fire.w, fire.h, reducedMotion)) {
+        g.fillRect(x + fire.x + ember.x, layer.y + fire.y + ember.y, 1, 1)
+      }
+    }
+    // The Bone Yard's pack, perched on the ruined arch against the smoke: cackling, then howling on a
+    // Showdown super.
+    const pack = packAt(frame, fx, reducedMotion)
+    PERCHES.forEach((name, i) => {
+      const perch = anchor(name)
+      const hyena = pack[i]
+      if (!perch || !hyena) return
+      const sprite = HYENA[hyena.headUp ? 1 : 0]!
+      drawPixelSprite(
+        g,
+        sprite,
+        x + perch.x - sprite[0]!.length,
+        layer.y + perch.y - sprite.length * 2,
+        2,
+      )
+    })
+    const sun = anchor('sun')
+    if (sun) {
+      // The Dunes' long sun, low and huge, with a haze ring around it.
+      g.fillStyle = 'rgba(255, 237, 180, 0.35)'
+      g.fillRect(x + sun.x - 16, layer.y + sun.y - 12, 32, 24)
+      g.fillRect(x + sun.x - 12, layer.y + sun.y - 16, 24, 32)
+      g.fillStyle = '#fff3c4'
+      g.fillRect(x + sun.x - 11, layer.y + sun.y - 8, 22, 16)
+      g.fillRect(x + sun.x - 8, layer.y + sun.y - 11, 16, 22)
+    }
+    const crest = anchor('crest')
+    if (crest?.w && crest.h) {
+      g.fillStyle = 'rgba(250, 226, 180, 0.8)'
+      for (const grain of sandBlowAt(frame, crest.w, crest.h, reducedMotion)) {
+        g.fillRect(x + crest.x + grain.x, layer.y + crest.y + grain.y, 2, 1)
+      }
+    }
+    const gap = anchor('doorgap')
+    if (gap?.w && gap.h) {
+      // The Thin Place: light from behind the door, wider each round.
+      const open = doorOpen(s.round, frame, reducedMotion)
+      const wide = Math.max(1, Math.round(gap.w * open))
+      g.fillStyle = 'rgba(204, 251, 241, 0.9)'
+      g.fillRect(x + gap.x + gap.w - wide, layer.y + gap.y, wide, gap.h)
+      g.fillStyle = 'rgba(167, 139, 250, 0.35)'
+      g.fillRect(x + gap.x + gap.w - wide - 3, layer.y + gap.y, 3, gap.h)
+    }
+    const canopy = anchor('canopy')
+    if (canopy?.w && canopy.h) {
+      // The Lone Apple Tree: red leaves drift down, and every few seconds an apple drops.
+      g.fillStyle = '#b91c1c'
+      for (const leaf of leavesAt(frame, canopy.w, reducedMotion)) {
+        g.fillRect(x + canopy.x + leaf.x, layer.y + canopy.y + leaf.y, 2, 1)
+      }
+      const apple = appleAt(frame, canopy.w)
+      if (apple && apple.alpha > 0) {
+        const top = layer.y + canopy.y + canopy.h
+        const y = Math.round(top + (FLOOR_Y - 3 - top) * apple.fall)
+        const ax = x + canopy.x + apple.x
+        g.globalAlpha = apple.alpha
+        g.fillStyle = '#dc2626'
+        g.fillRect(ax, y, 3, 3)
+        g.fillStyle = '#fca5a5'
+        g.fillRect(ax, y, 1, 1)
+        g.fillStyle = '#3f6212'
+        g.fillRect(ax + 1, y - 1, 1, 1)
+        g.globalAlpha = 1
+      }
+    }
+    const candle = anchor('candle')
+    if (candle) {
+      // The Mission's candle: a flame of two to four pixels that never quite settles.
+      const flame = candleFlame(frame, reducedMotion)
+      g.fillStyle = flame.bright ? '#fde68a' : '#f59e0b'
+      g.fillRect(x + candle.x, layer.y + candle.y - flame.h, 1, flame.h)
+      g.fillStyle = '#fff7d6'
+      g.fillRect(x + candle.x, layer.y + candle.y - 1, 1, 1)
+    }
+    const portal = anchor('portal')
+    if (portal?.w && portal.h) {
+      // Between rounds something looks through the empty bell arch.
+      const glow = portalGlow(s, reducedMotion)
+      if (glow > 0) {
+        g.fillStyle = `rgba(167, 139, 250, ${(0.8 * glow).toFixed(2)})`
+        g.fillRect(x + portal.x, layer.y + portal.y, portal.w, portal.h)
+        g.fillStyle = `rgba(52, 211, 153, ${(0.6 * glow).toFixed(2)})`
+        g.fillRect(
+          x + portal.x + Math.floor(portal.w / 3),
+          layer.y + portal.y + Math.floor(portal.h / 4),
+          Math.max(1, Math.floor(portal.w / 3)),
+          Math.max(1, Math.floor(portal.h / 2)),
+        )
+      }
+    }
+    if (m.stage === 'hollow-bell' && layer.name === 'floor') {
+      const weed = tumbleweedAt(frame)
+      if (weed) {
+        const sprite = turned(TUMBLEWEED[weed.spin % 2]!, weed.spin)
+        drawPixelSprite(
+          g,
+          sprite,
+          x + weed.x,
+          FLOOR_Y - sprite.length + 2 + weed.y,
+        )
+      }
+    }
+  }
+  const slump =
+    m.stage === 'the-dunes' && !reducedMotion
+      ? duneSlumpAt(frame, VIEW_WIDTH)
+      : null
+  if (slump && slump.h > 0) {
+    // Something vast moving under the dune: a heave of sand crossing behind the fighters.
+    g.fillStyle = '#c99a5e'
+    for (let dx = -30; dx <= 30; dx += 1) {
+      const rise = Math.round(slump.h * (1 - (dx / 30) ** 2))
+      if (rise > 0) g.fillRect(slump.x + dx, FLOOR_Y - 8 - rise, 1, rise)
+    }
+    g.fillStyle = '#8a6236'
+    for (let dx = -18; dx <= 18; dx += 3)
+      g.fillRect(slump.x + dx, FLOOR_Y - 8 - Math.round(slump.h * 0.6), 2, 1)
+  }
+  if (m.stage === 'the-thin-place') {
+    g.fillStyle = '#6b6290'
+    for (const d of debrisAt(frame, reducedMotion))
+      g.fillRect(d.x, d.y, d.size + 1, d.size)
+  }
+  const devil =
+    m.stage === 'lone-apple-tree' ? dustDevilAt(frame, reducedMotion) : null
+  if (devil) {
+    // A dust devil: a funnel of sand flecks spinning up off the street.
+    g.fillStyle = 'rgba(176, 140, 96, 0.85)'
+    for (let k = 0; k < devil.h; k += 1) {
+      const r = 2 + (k * 6) / devil.h
+      const a = (devil.spin + k * 9) / 6
+      g.fillRect(Math.round(devil.x + Math.cos(a) * r), FLOOR_Y - k, 2, 1)
+    }
+  }
+  if (m.stage === 'storm-canyon') {
+    g.fillStyle = 'rgba(186, 214, 255, 0.35)'
+    for (const drop of rainAt(frame, reducedMotion, VIEW_WIDTH, VIEW_HEIGHT)) {
+      // A slanting streak, two pixels down for every one across.
+      for (let k = 0; k < 4; k += 1)
+        g.fillRect(drop.x + k, drop.y + k * 2, 1, 2)
     }
   }
 }
@@ -689,9 +1196,19 @@ export function drawMatch(
   callouts: Callout[],
   options: RenderOptions,
 ): void {
-  g.imageSmoothingEnabled = false
+  applyRenderStyle(g, options.style)
   const camera = cameraX(s)
-  drawStage(g, camera, s.frame, options.reducedMotion)
+  if (options.stage)
+    drawStageArt(
+      g,
+      options.stage,
+      s,
+      roster,
+      camera,
+      options.reducedMotion,
+      options.stageFx ?? { bell: null },
+    )
+  else drawStage(g, camera, s.frame, options.reducedMotion)
   // The fighter who is attacking draws in front.
   const order: Array<0 | 1> =
     s.fighters[1].attack && !s.fighters[0].attack ? [0, 1] : [1, 0]
@@ -711,10 +1228,53 @@ export function drawMatch(
       },
     )
   drawProjectiles(g, s, roster, camera, s.frame)
+  if (options.sparks)
+    drawSparks(
+      g,
+      options.sparks,
+      camera,
+      options.reducedMotion,
+      options.style === 'hd',
+    )
   if (options.showBoxes) drawBoxes(g, s, roster, camera)
   const eyeStrip = drawSuperFlash(g, s, roster)
   drawHud(g, s, roster)
   if (!eyeStrip) drawCallouts(g, callouts)
+}
+
+/**
+ * Hit sparks, pixel by pixel; reduced motion keeps every spark small. `smooth` (the HD style) draws the
+ * same shapes as soft round dots, a touch larger than the pixels so they merge into a burst.
+ */
+export function drawSparks(
+  g: G,
+  sparks: Spark[],
+  camera: number,
+  reducedMotion: boolean,
+  smooth = false,
+): void {
+  for (const spark of sparks) {
+    const frame = sparkFrame(spark)
+    if (frame === null) continue
+    const size = reducedMotion ? 1 : spark.scale
+    const cx = screenX(spark.x, camera)
+    const cy = screenY(spark.y)
+    const palette = SPARK_PALETTES[spark.kind]
+    for (const p of SPARK_PIXELS[frame]!) {
+      g.fillStyle = palette[p.key]
+      if (smooth) {
+        g.beginPath()
+        g.arc(
+          cx + (p.dx + 0.5) * size,
+          cy + (p.dy + 0.5) * size,
+          size * 0.75,
+          0,
+          Math.PI * 2,
+        )
+        g.fill()
+      } else g.fillRect(cx + p.dx * size, cy + p.dy * size, size, size)
+    }
+  }
 }
 
 /** Title / pause / result card drawn over the stage. */

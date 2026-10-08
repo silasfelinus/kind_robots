@@ -1,0 +1,49 @@
+{
+  "stage": "the-dunes",
+  "style": "pixel",
+  "scale": 1,
+  "layers": [
+    {
+      "name": "backdrop",
+      "file": "the-dunes-backdrop-pixel.png",
+      "factor": 0.2,
+      "x": -30,
+      "y": 0,
+      "w": 540,
+      "h": 240
+    },
+    {
+      "name": "wreck",
+      "file": "the-dunes-wreck-pixel.png",
+      "factor": 0.6,
+      "x": -88,
+      "y": 162,
+      "w": 655,
+      "h": 72
+    },
+    {
+      "name": "floor",
+      "file": "the-dunes-floor-pixel.png",
+      "factor": 1.0,
+      "x": -145,
+      "y": 230,
+      "w": 770,
+      "h": 40
+    }
+  ],
+  "cutouts": [],
+  "anchors": {
+    "sun": {
+      "layer": "backdrop",
+      "x": 387,
+      "y": 86
+    },
+    "crest": {
+      "layer": "backdrop",
+      "x": 27,
+      "y": 94,
+      "w": 486,
+      "h": 12
+    }
+  }
+}

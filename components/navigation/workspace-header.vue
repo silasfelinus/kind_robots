@@ -26,10 +26,11 @@
   SIX FOR ADMINS, same day: an ArtJob queue shortcut, rendered only when
   userStore.isAdmin. Everyone else still sees five.
 
-  ART joins that shortcut cluster as a fixed-width route button too. It is a
-  primary creative surface rather than an account control, so it is visible to
-  everyone. The row reads account -> ops -> art -> play -> help for admins and
-  account -> art -> play -> help for everyone else.
+  ART and ARCADE join that shortcut cluster as fixed-width route buttons too.
+  They are primary creative/play surfaces rather than account controls, so both
+  are visible to everyone. The row reads account -> ops -> art -> arcade -> play
+  -> help for admins and account -> art -> arcade -> play -> help for everyone
+  else.
 
   If another shortcut is proposed, weigh it against the fixed-width rule rather
   than against the count: what this row cannot afford is a child whose width is unbounded,
@@ -322,6 +323,26 @@
       </NuxtLink>
 
       <!--
+        ARCADE. Uses the canonical public Arcade route and icon declared by
+        content/channels/projects/arcade.md. Keep it square like the neighboring
+        Art and Memory Dungeon shortcuts so the header never grows horizontally.
+      -->
+      <NuxtLink
+        to="/play/arcade"
+        class="btn btn-ghost btn-sm btn-square shrink-0 rounded-xl border border-base-300"
+        :class="
+          arcadeActive
+            ? 'border-primary bg-primary/15 text-primary'
+            : 'bg-base-100'
+        "
+        :aria-current="arcadeActive ? 'page' : undefined"
+        aria-label="Arcade"
+        title="Arcade"
+      >
+        <Icon name="kind-icon:arcade" class="kr-icon-5" />
+      </NuxtLink>
+
+      <!--
         MEMORY DUNGEON. Silas, 2026-09-08: "I'm really proud of my memory match
         game, it was one of my first projects and still one that I occasionally
         return to. I want a link for it on the dashboard next to the tutorial
@@ -475,6 +496,7 @@ const memoryActive = computed(() => route.path.startsWith('/play/memory'))
 const artjobActive = computed(() => route.path === '/artjob')
 
 const artActive = computed(() => route.path === '/art')
+const arcadeActive = computed(() => route.path.startsWith('/play/arcade'))
 
 const artjobBadge = computed(() =>
   artJobStore.activeJobCount > 99 ? '99+' : String(artJobStore.activeJobCount),

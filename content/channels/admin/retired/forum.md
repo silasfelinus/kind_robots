@@ -7,6 +7,7 @@ label: Forum
 title: Creative Forum
 subtitle: For ideas, questions, and nonsense
 description: A freeform space for users, bots, and characters to start topics, answer threads, and trade ideas.
+summary: Visit the archived forum.
 icon: kind-icon:forum
 image: /images/channels/home/forum.webp
 route: /forum

@@ -10,12 +10,41 @@
 // ball (or a new ball) raises them again. Scoring stays at zero until t-007
 // builds Table 1's real rules on this shape, so the 3D preview cabinet never
 // posts to the leaderboard.
+//
+// The hidden sub-table (t-011): locking a ball is the feat that opens the
+// secret door for a short while, with only a tease on the DMD. A ball through
+// the door is a discovery. In the room, the N-E-T standups light the full
+// reward; the ball comes home through HOME (or past the room's flippers) and
+// what it earned rides back as the bonus multiplier. t-012 deepens the
+// discovery path, the room's own mode and the rewards on this same state.
+//
+// Physics-feel rules (t-005): the left outlane kickback is lit at the start
+// of each ball, fires once, and is relit by knocking down the A-M-I bank.
+// The tilt bob: a nudge while the bob is still swinging from the last one is
+// a warning; two warnings, then the next makes it TILT, which kills the
+// flippers until the ball drains.
 
+import { PHYSICS_HZ } from '../clock'
 import type { RuleEffect, ShotDef, ShotEvent, SwitchEvent } from '../types'
 import { initialShotProgress, recognizeShots, type ShotProgress } from './shots'
 
 export type RulesEvent =
-  { type: 'switch'; event: SwitchEvent; tick?: number } | { type: 'start' }
+  | { type: 'switch'; event: SwitchEvent; tick?: number }
+  | { type: 'start' }
+  /** Time passing (physics steps), for timers such as the secret door. */
+  | { type: 'tick'; tick: number }
+  /** The player nudged the cabinet. */
+  | { type: 'nudge'; tick: number }
+
+export type SubTableState = {
+  /** The secret door is open (it closes itself at `closesAt`). */
+  doorOpen: boolean
+  closesAt: number
+  /** Times a ball has found its way into the sub-table this game. */
+  found: number
+  /** N-E-T standups lit on this visit. */
+  nets: string[]
+}
 
 export type PinballRulesState = {
   score: number
@@ -33,6 +62,16 @@ export type PinballRulesState = {
   /** Drop targets currently down, by bank. */
   dropsDown: Record<string, string[]>
   shotProgress: ShotProgress
+  sub: SubTableState
+  /** The end-of-ball bonus multiplier; the sub-table's reward rides back on it. */
+  bonusMultiplier: number
+  /** The left outlane kickback will fire. */
+  kickbackLit: boolean
+  /** Tilt warnings this ball, and whether it has tilted. */
+  tiltWarnings: number
+  tilted: boolean
+  /** When the tilt bob was last set swinging (physics step), or -Infinity. */
+  lastNudgeAt: number
 }
 
 export function initialRules(balls: number): PinballRulesState {
@@ -46,10 +85,27 @@ export function initialRules(balls: number): PinballRulesState {
     shotsMade: {},
     dropsDown: {},
     shotProgress: initialShotProgress(),
+    sub: initialSubTable(),
+    bonusMultiplier: 1,
+    kickbackLit: true,
+    tiltWarnings: 0,
+    tilted: false,
+    lastNudgeAt: -Infinity,
   }
 }
 
+function initialSubTable(): SubTableState {
+  return { doorOpen: false, closesAt: 0, found: 0, nets: [] }
+}
+
 const DROP_BANK_SIZE: Record<string, number> = { ami: 3 }
+/** How long the secret door stays open after the feat, in physics steps. */
+export const SECRET_DOOR_STEPS = PHYSICS_HZ * 25
+const NET_TARGETS = ['net-n', 'net-e', 'net-t']
+/** The tilt bob swings this long after a nudge; another nudge inside it warns. */
+export const TILT_BOB_STEPS = Math.round(PHYSICS_HZ * 1.5)
+/** Warnings before the next swing tilts the machine. */
+export const TILT_WARNINGS = 2
 
 export type RulesContext = { shots: ShotDef[] }
 
@@ -59,6 +115,16 @@ export function stepRules(
   context: RulesContext = { shots: [] },
 ): { state: PinballRulesState; effects: RuleEffect[] } {
   if (state.over) return { state, effects: [] }
+  if (event.type === 'tick') {
+    if (!state.sub.doorOpen || event.tick < state.sub.closesAt) {
+      return { state, effects: [] }
+    }
+    return {
+      state: { ...state, sub: { ...state.sub, doorOpen: false } },
+      effects: [{ type: 'mechanism', id: 'secret-door', action: 'close' }],
+    }
+  }
+  if (event.type === 'nudge') return nudge(state, event.tick)
   if (event.type === 'start') {
     return {
       state: { ...state, ball: 1, ballsInPlay: 1 },
@@ -109,8 +175,26 @@ export function stepRules(
       { type: 'serve-ball' },
       { type: 'dmd', text: `BALL ${ball}`, ms: 1500 },
     )
+    if (next.sub.doorOpen) {
+      effects.push({ type: 'mechanism', id: 'secret-door', action: 'close' })
+    }
+    if (next.tilted) {
+      effects.push({ type: 'mechanism', id: 'flippers', action: 'enable' })
+    }
     return {
-      state: { ...next, ball, lives, ballsInPlay: 1, dropsDown: {} },
+      state: {
+        ...next,
+        ball,
+        lives,
+        ballsInPlay: 1,
+        dropsDown: {},
+        sub: { ...next.sub, doorOpen: false, nets: [] },
+        bonusMultiplier: 1,
+        kickbackLit: true,
+        tiltWarnings: 0,
+        tilted: false,
+        lastNudgeAt: -Infinity,
+      },
       effects,
     }
   }
@@ -121,6 +205,10 @@ export function stepRules(
     effects.push({ type: 'sound', name: 'drop' })
     if (down.length >= (DROP_BANK_SIZE[sw.bank] ?? Infinity)) {
       effects.push({ type: 'dmd', text: 'LOCK IS LIT', ms: 1500 })
+      if (sw.bank === 'ami' && !next.kickbackLit) {
+        next.kickbackLit = true
+        effects.push({ type: 'dmd', text: 'KICKBACK LIT', ms: 1200 })
+      }
     }
     return { state: next, effects }
   }
@@ -129,6 +217,46 @@ export function stepRules(
     if (sw.id === 'lock') {
       next.dropsDown = { ...next.dropsDown, ami: [] }
       effects.push({ type: 'mechanism', id: 'ami', action: 'reset' })
+      // The feat: somewhere up the left orbit, a door gives way. The DMD
+      // only teases; the player has to find where.
+      next.sub = {
+        ...next.sub,
+        doorOpen: true,
+        closesAt: tick + SECRET_DOOR_STEPS,
+      }
+      effects.push(
+        { type: 'mechanism', id: 'secret-door', action: 'open' },
+        { type: 'dmd', text: 'A DOOR CREAKS...', ms: 1800 },
+      )
+    } else if (sw.id === 'secret-hole') {
+      next.sub = {
+        ...next.sub,
+        doorOpen: false,
+        found: next.sub.found + 1,
+        nets: [],
+      }
+      effects.push(
+        { type: 'mechanism', id: 'secret-door', action: 'close' },
+        {
+          type: 'dmd',
+          text: 'SECRET VILLAGE',
+          sub: next.sub.found === 1 ? 'YOU FOUND IT' : 'WELCOME BACK',
+          ms: 2200,
+        },
+      )
+    } else if (sw.id === 'sub-home' || sw.id === 'sub-drain') {
+      // Home through the goal: x2 more, or x1 without the nets. Draining
+      // past the room's flippers still brings the nets' x1 home.
+      const nets = next.sub.nets.length >= NET_TARGETS.length
+      const reward = (sw.id === 'sub-home' ? 1 : 0) + (nets ? 1 : 0)
+      next.bonusMultiplier += reward
+      next.sub = { ...next.sub, nets: [] }
+      effects.push({
+        type: 'dmd',
+        text: 'BACK TO THE VILLAGE',
+        sub: reward ? `BONUS ${next.bonusMultiplier}X` : undefined,
+        ms: 1800,
+      })
     }
     effects.push({ type: 'sound', name: 'scoop' })
     return { state: next, effects }
@@ -136,6 +264,18 @@ export function stepRules(
 
   if (sw.type === 'eject') {
     effects.push({ type: 'sound', name: 'kickout' })
+    return { state: next, effects }
+  }
+
+  if (sw.type === 'sensor-enter' && sw.id === 'kickback') {
+    if (next.kickbackLit && !next.tilted) {
+      next.kickbackLit = false
+      effects.push(
+        { type: 'mechanism', id: 'kickback', action: 'fire' },
+        { type: 'sound', name: 'kickback' },
+        { type: 'dmd', text: 'KICKBACK', ms: 1200 },
+      )
+    }
     return { state: next, effects }
   }
 
@@ -148,7 +288,22 @@ export function stepRules(
       ...next.switches,
       [sw.id]: (next.switches[sw.id] ?? 0) + 1,
     }
-    if (sw.id.startsWith('pop-')) {
+    if (NET_TARGETS.includes(sw.id) && !next.sub.nets.includes(sw.id)) {
+      const nets = [...next.sub.nets, sw.id]
+      next.sub = { ...next.sub, nets }
+      effects.push(
+        { type: 'sound', name: 'drop' },
+        { type: 'mechanism', id: sw.id, action: 'flash' },
+      )
+      if (nets.length === NET_TARGETS.length) {
+        effects.push({
+          type: 'dmd',
+          text: 'NETS DELIVERED',
+          sub: 'GO HOME',
+          ms: 1600,
+        })
+      }
+    } else if (sw.id.startsWith('pop-')) {
       effects.push(
         { type: 'sound', name: 'pop' },
         { type: 'mechanism', id: sw.id, action: 'flash' },
@@ -160,6 +315,39 @@ export function stepRules(
     }
   }
   return { state: next, effects }
+}
+
+/**
+ * The tilt bob. A lone nudge is free; a nudge while the bob is still swinging
+ * from the last one is a warning, and once the warnings are used up the next
+ * one tilts the machine: the flippers die until the ball drains.
+ */
+function nudge(
+  state: PinballRulesState,
+  tick: number,
+): { state: PinballRulesState; effects: RuleEffect[] } {
+  if (state.tilted) return { state, effects: [] }
+  const swinging = tick - state.lastNudgeAt < TILT_BOB_STEPS
+  const next = { ...state, lastNudgeAt: tick }
+  if (!swinging) return { state: next, effects: [] }
+  if (state.tiltWarnings >= TILT_WARNINGS) {
+    return {
+      state: { ...next, tilted: true, kickbackLit: false },
+      effects: [
+        { type: 'mechanism', id: 'flippers', action: 'disable' },
+        { type: 'sound', name: 'tilt' },
+        { type: 'dmd', text: 'TILT', ms: 3000 },
+      ],
+    }
+  }
+  const warnings = state.tiltWarnings + 1
+  return {
+    state: { ...next, tiltWarnings: warnings },
+    effects: [
+      { type: 'sound', name: 'tilt-warning' },
+      { type: 'dmd', text: warnings === 1 ? 'WARNING' : 'DANGER', ms: 1200 },
+    ],
+  }
 }
 
 function applyShot(

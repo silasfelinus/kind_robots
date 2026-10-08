@@ -13,8 +13,10 @@
 
 import {
   SUB,
+  type Box,
   type FighterData,
   type MoveData,
+  type NormalId,
   type SpecialMove,
 } from '../types'
 import { defaultChains, defaultNormals } from './placeholders'
@@ -30,6 +32,24 @@ normals.stand_hp = {
   hitbox: { x: 8, y: 58, w: 36, h: 12 },
   damage: 70,
 }
+// Hitboxes authored against the rig art (conductor zuzu-showdown t-010): each sits where the knife
+// or boot is drawn on the move's active frames, and never reaches past it
+// (verifyZuzuShowdownSprites checks every one against the shipped frame maps). The knife gives his
+// punches reach; the jump-ins stab down from shoulder height.
+const ART_HITBOXES: Partial<Record<NormalId, Box>> = {
+  stand_lp: { x: 8, y: 62, w: 28, h: 10 },
+  stand_hk: { x: 6, y: 42, w: 36, h: 14 },
+  crouch_lp: { x: 8, y: 44, w: 30, h: 10 },
+  crouch_hp: { x: 2, y: 56, w: 20, h: 36 },
+  crouch_hk: { x: 6, y: 0, w: 36, h: 10 },
+  jump_lp: { x: 4, y: 44, w: 22, h: 16 },
+  jump_hp: { x: 4, y: 38, w: 30, h: 22 },
+  jump_lk: { x: -6, y: 0, w: 34, h: 14 },
+}
+for (const [id, hitbox] of Object.entries(ART_HITBOXES) as Array<
+  [NormalId, Box]
+>)
+  normals[id] = { ...normals[id], hitbox }
 
 const wildShot: MoveData = {
   startup: 10,
@@ -59,7 +79,7 @@ const pocketSand: MoveData = {
   startup: 4,
   active: 3,
   recovery: 14,
-  hitbox: { x: 4, y: 60, w: 24, h: 24 },
+  hitbox: { x: 4, y: 60, w: 28, h: 24 },
   damage: 20,
   hitstun: 18,
   blockstun: 8,
@@ -73,7 +93,7 @@ const stumpShiv: MoveData = {
   startup: 7,
   active: 15,
   recovery: 16,
-  hitbox: { x: 4, y: 50, w: 30, h: 16 },
+  hitbox: { x: 4, y: 56, w: 38, h: 16 },
   damage: 35,
   chip: 4,
   hitstun: 14,

@@ -8,9 +8,9 @@
       <div ref="screenRef" class="showdown-screen">
         <canvas
           ref="canvasRef"
-          :width="VIEW_WIDTH"
-          :height="VIEW_HEIGHT"
-          :style="{ width: canvasWidth }"
+          :width="fit.canvasWidth"
+          :height="fit.canvasHeight"
+          :style="{ width: canvasWidth, imageRendering: fit.rendering }"
           class="showdown-canvas"
           tabindex="0"
           aria-label="Zuzu Showdown fight"
@@ -64,8 +64,24 @@
 
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
-import { createArcadeSound, type ArcadeSound } from '~/utils/arcade/sound'
+import {
+  createArcadeSound,
+  type ArcadeSound,
+  type MusicLoop,
+} from '~/utils/arcade/sound'
+import {
+  SOUNDS,
+  loopFor,
+  newSoundState,
+  soundsFor,
+  type SoundState,
+} from '~/utils/zuzuShowdown/audio'
 import { setGamePageLock } from '~/utils/arcade/pageLock'
+import {
+  fitDisplay,
+  type DisplayFit,
+  type RenderStyle,
+} from '~/utils/arcade/display'
 import { startFixedLoop, type FixedLoop } from '~/utils/arcade/loop'
 import type { ButtonInput } from '~/utils/arcade/input'
 import {
@@ -81,33 +97,78 @@ import {
   VIEW_HEIGHT,
   VIEW_WIDTH,
   advanceCallouts,
+  applyRenderStyle,
   drawCard,
   drawMatch,
   type Callout,
 } from '~/utils/zuzuShowdown/render'
 import { findFighter } from '~/utils/zuzuShowdown/fighters'
 import {
+  advanceSlowdown,
+  advanceSparks,
+  koFlash,
+  koSlowdownFor,
+  slowdownSteps,
+  type KoSlowdown,
+  type Spark,
+} from '~/utils/zuzuShowdown/effects'
+import {
+  STAGE_ROOT,
+  advanceStageFx,
+  newStageFx,
+  stageFile,
+  stageFor,
+  type LoadedStage,
+  type StageFx,
+  type StageManifest,
+  type StageSlug,
+} from '~/utils/zuzuShowdown/stages'
+import { cpuInput, newCpu, type CpuState } from '~/utils/zuzuShowdown/cpu'
+import {
+  applyTrainingRules,
+  drawTraining,
+  dummyInput,
+  logInput,
+  newTraining,
+  trackAdvantage,
+  trainingMatch,
+  type TrainingState,
+} from '~/utils/zuzuShowdown/training'
+import { introFor } from '~/utils/zuzuShowdown/matchups'
+import {
+  VS_SLAM_FRAMES,
+  drawVsScreen,
+  drawWinScreen,
+  vsDuration,
+} from '~/utils/zuzuShowdown/screens'
+import {
   SPRITE_FIGHTERS,
   SPRITE_ROOT,
-  spriteFile,
+  spriteSheetFile,
   type LoadedSprites,
   type SpriteSheet,
 } from '~/utils/zuzuShowdown/sprites'
+import { recolourPixels, type P2Rule } from '~/utils/zuzuShowdown/recolour'
 import {
   neutralInput,
   type FighterData,
   type MatchState,
-  type SimEvent,
 } from '~/utils/zuzuShowdown/types'
 import { useZuzuShowdownStore } from '~/stores/zuzuShowdownStore'
 
-type StagePhase = 'title' | 'fight' | 'paused' | 'result'
+type StagePhase = 'title' | 'vs' | 'fight' | 'paused' | 'result'
 type Direction = 'up' | 'down' | 'left' | 'right'
 
 const RESULT_DELAY = 150
 
-// Fighter art (t-010), loaded once; until a fighter's atlas arrives it draws as a placeholder.
-const sprites: Partial<Record<string, LoadedSprites>> = {}
+// Fighter art (t-010) per render style (t-027). Pixel art loads for every rigged fighter up front; HD
+// art loads for the fighters on screen once HD is picked, and until it arrives the pixel art stands in
+// (and until that arrives, a placeholder fighter).
+const spriteSets: Record<
+  RenderStyle,
+  Partial<Record<string, LoadedSprites>>
+> = { pixel: {}, hd: {} }
+const spriteLoads = new Set<string>()
 
 function loadImage(src: string): Promise<HTMLImageElement | null> {
   return new Promise((resolve) => {
@@ -118,25 +179,147 @@ function loadImage(src: string): Promise<HTMLImageElement | null> {
   })
 }
 
-async function loadSprites() {
+async function loadSprites(style: RenderStyle, slugs: readonly string[]) {
+  const rigged: readonly string[] = SPRITE_FIGHTERS
   await Promise.all(
-    SPRITE_FIGHTERS.map(async (slug) => {
+    slugs.map(async (slug) => {
+      const key = `${style}:${slug}`
+      if (!rigged.includes(slug) || spriteLoads.has(key)) return
+      spriteLoads.add(key)
       try {
         const response = await fetch(
-          `${SPRITE_ROOT}/${spriteFile(slug)}-pixel.json`,
+          `${SPRITE_ROOT}/${spriteSheetFile(slug, style)}`,
         )
         if (!response.ok) return
         const sheet = (await response.json()) as SpriteSheet
         const [image, p2] = await Promise.all([
           loadImage(`${SPRITE_ROOT}/${sheet.atlas}`),
-          loadImage(`${SPRITE_ROOT}/${sheet.atlas_p2}`),
+          sheet.atlas_p2
+            ? loadImage(`${SPRITE_ROOT}/${sheet.atlas_p2}`)
+            : Promise.resolve(null),
         ])
-        if (image) sprites[slug] = { sheet, image, p2 }
+        if (image) spriteSets[style][slug] = { sheet, image, p2 }
+        recolourP2()
       } catch {
-        // Missing art is not an error: the placeholder fighter still plays.
+        // Missing art is not an error: the placeholder fighter still plays, and the next ask retries.
+        spriteLoads.delete(key)
       }
     }),
   )
+}
+
+/** P2's colours made from the atlas by the sheet's rules (HD ships no P2 atlas). */
+function recolouredAtlas(
+  image: HTMLImageElement,
+  rules: P2Rule[],
+): HTMLCanvasElement | null {
+  const canvas = document.createElement('canvas')
+  canvas.width = image.naturalWidth
+  canvas.height = image.naturalHeight
+  const g = canvas.getContext('2d', { willReadFrequently: true })
+  if (!g) return null
+  g.drawImage(image, 0, 0)
+  const pixels = g.getImageData(0, 0, canvas.width, canvas.height)
+  recolourPixels(pixels.data, rules)
+  g.putImageData(pixels, 0, 0)
+  return canvas
+}
+
+/** In a mirror match, give the loaded HD art its P2 colours (once, off the frame that asked). */
+function recolourP2() {
+  if (roster[0].slug !== roster[1].slug) return
+  const set = spriteSets.hd[roster[1].slug]
+  const rules = set?.sheet.p2_rules
+  if (!set || set.p2 || !rules?.length) return
+  if (!(set.image instanceof HTMLImageElement)) return
+  const image = set.image
+  window.setTimeout(() => {
+    if (!set.p2) set.p2 = recolouredAtlas(image, rules)
+  }, 0)
+}
+
+/** The art to draw: the style's where it has loaded, pixel art where it hasn't. */
+function activeSprites(): Partial<Record<string, LoadedSprites>> {
+  if (store.renderStyle === 'pixel') return spriteSets.pixel
+  const mirror = roster[0].slug === roster[1].slug
+  const out = { ...spriteSets.pixel }
+  for (const [slug, set] of Object.entries(spriteSets.hd)) {
+    // A mirror match waits for P2's colours rather than show two fighters dressed alike.
+    if (set && (!mirror || set.p2)) out[slug] = set
+  }
+  return out
+}
+
+// The stage's art (t-009), loaded for the current roster's home stage; the placeholder stage draws until
+// it arrives, and if it never does.
+// One slot per render style: HD's draws once it has loaded, the pixel stage until then.
+const stageSlots: Record<
+  RenderStyle,
+  { slug: StageSlug | null; stage: LoadedStage | null }
+> = {
+  pixel: { slug: null, stage: null },
+  hd: { slug: null, stage: null },
+}
+let stageFx: StageFx = newStageFx()
+
+function currentStage(): LoadedStage | null {
+  const slug = stageFor(roster)
+  for (const style of [store.renderStyle, 'pixel'] as const) {
+    const loaded = stageSlots[style].stage
+    if (loaded && loaded.manifest.stage === slug) return loaded
+  }
+  return null
+}
+
+async function loadStage(slug: StageSlug, style: RenderStyle) {
+  const slot = stageSlots[style]
+  if (slot.slug === slug) return
+  slot.slug = slug
+  slot.stage = null
+  try {
+    const response = await fetch(`${STAGE_ROOT}/${stageFile(slug, style)}`)
+    if (!response.ok) throw new Error(`stage ${slug}: ${response.status}`)
+    const manifest = (await response.json()) as StageManifest
+    const [layers, cutouts] = await Promise.all([
+      Promise.all(
+        manifest.layers.map(
+          async (l) =>
+            [l.name, await loadImage(`${STAGE_ROOT}/${l.file}`)] as const,
+        ),
+      ),
+      Promise.all(
+        manifest.cutouts.map(
+          async (c) =>
+            [c.name, await loadImage(`${STAGE_ROOT}/${c.file}`)] as const,
+        ),
+      ),
+    ])
+    // A roster change while this loaded wins.
+    if (slot.slug !== slug) return
+    const pick = (
+      pairs: ReadonlyArray<readonly [string, HTMLImageElement | null]>,
+    ) =>
+      Object.fromEntries(pairs.filter((pair) => pair[1] !== null)) as Record<
+        string,
+        HTMLImageElement
+      >
+    slot.stage = { manifest, layers: pick(layers), cutouts: pick(cutouts) }
+  } catch {
+    // Missing art is not an error: the placeholder stage still plays, and the next roster change
+    // tries again.
+    if (slot.slug === slug) slot.slug = null
+  }
+}
+
+/** Load what the current roster and render style draw with. */
+function loadArt() {
+  const slug = stageFor(roster)
+  void loadStage(slug, 'pixel')
+  if (store.renderStyle !== 'pixel') {
+    void loadStage(slug, store.renderStyle)
+    void loadSprites(store.renderStyle, [roster[0].slug, roster[1].slug])
+    recolourP2()
+  }
 }
 
 const store = useZuzuShowdownStore()
@@ -151,6 +334,15 @@ const canvasRef = ref<HTMLCanvasElement | null>(null)
 const screenRef = ref<HTMLElement | null>(null)
 const dpadRef = ref<HTMLElement | null>(null)
 const canvasWidth = ref('100%')
+const fit = ref<DisplayFit>(
+  fitDisplay({
+    width: VIEW_WIDTH,
+    height: VIEW_HEIGHT,
+    available: VIEW_WIDTH,
+    dpr: 1,
+    style: 'pixel',
+  }),
+)
 const phase = ref<StagePhase>('title')
 const touchControls = ref(false)
 const dpadHeld = ref<Record<Direction, boolean>>({
@@ -177,9 +369,20 @@ const touchButtons: Array<{
 
 let match: MatchState = createMatch(roster)
 let callouts: Callout[] = []
+let sparks: Spark[] = []
+// The finishing blow's slow-down and flash (t-019).
+let slowdown: KoSlowdown = null
+// The CPU opponent (t-020) plays P2 in CPU mode, seeded fresh for each match.
+let cpu: CpuState = newCpu('normal', 1)
+// Training (t-022): the dummy's state and the readouts, in Training dummy mode.
+let training: TrainingState = newTraining()
 let resultCountdown = 0
+// Frames into the VS screen, or into the win screen.
+let screenFrame = 0
 let loop: FixedLoop | null = null
 let sound: ArcadeSound | null = null
+let soundState: SoundState = newSoundState()
+let musicLoop: MusicLoop | null = null
 let resizer: ResizeObserver | null = null
 let dpadPointer: number | null = null
 
@@ -203,49 +406,61 @@ function applyKeyMaps() {
   p1.setKeyMap(store.mode === 'versus' ? P1_KEYS : SOLO_KEYS)
 }
 
-function startMatch() {
-  match = createMatch(roster)
-  callouts = advanceCallouts([], match.events)
-  resultCountdown = RESULT_DELAY
-  phase.value = 'fight'
-  sound?.play('start')
+/** The VS screen: the fighters slam in and trade their matchup lines, then the fight starts. */
+function startVs() {
+  // Training goes straight to the fight.
+  if (store.mode === 'dummy') {
+    startMatch()
+    return
+  }
+  screenFrame = 0
+  phase.value = 'vs'
 }
 
-function playSounds(events: SimEvent[]) {
+function startMatch() {
+  match =
+    store.mode === 'dummy'
+      ? trainingMatch(roster, store.reset.place)
+      : createMatch(roster)
+  training = newTraining(Math.floor(Math.random() * 0xffffffff))
+  callouts = advanceCallouts([], match.events)
+  sparks = []
+  slowdown = null
+  stageFx = advanceStageFx(newStageFx(), match.events)
+  cpu = newCpu(store.cpuLevel, Math.floor(Math.random() * 0xffffffff))
+  resultCountdown = RESULT_DELAY
+  phase.value = 'fight'
+  // The round's opening sounds (the Hollow Bell toll) come from the new match's own events.
+  soundState = newSoundState()
+  playSounds()
+}
+
+/** This frame's sounds (t-023): hits by strength, blocks, whiffs, the KO sting, the bell ... */
+function playSounds() {
+  const out = soundsFor(soundState, match, roster, stageFor(roster))
+  soundState = out.state
   if (!sound) return
-  for (const e of events) {
-    switch (e.type) {
-      case 'hit':
-        sound.play(e.damage >= 70 ? 'boom' : 'pop')
-        break
-      case 'block':
-        sound.play('blip')
-        break
-      case 'throw':
-        sound.play('boom')
-        break
-      case 'read':
-        sound.play('pickup')
-        break
-      case 'super':
-        sound.play('extra')
-        break
-      case 'parry':
-        sound.play('level')
-        break
-      case 'fight':
-        sound.play('start')
-        break
-      case 'ko':
-        sound.play('die')
-        break
-      case 'timeOver':
-        sound.play('warn')
-        break
-      default:
-        break
+  for (const name of out.sounds) sound.playNotes(SOUNDS[name])
+}
+
+/** The music follows the fight: the stage's loop while it's on, silence everywhere else. */
+function syncMusic() {
+  if (!sound) return
+  if (phase.value === 'fight') {
+    const loop = loopFor(stageFor(roster))
+    if (musicLoop !== loop) {
+      musicLoop = loop
+      sound.startMusic(loop)
     }
+  } else if (musicLoop) {
+    musicLoop = null
+    sound.stopMusic()
   }
+}
+
+/** Browsers start audio only after a gesture: the first key or press anywhere unlocks it. */
+function unlockSound() {
+  sound?.unlock()
 }
 
 function tick() {
@@ -253,7 +468,15 @@ function tick() {
   const two = p2.poll()
   const start = one.pressed.start || two.pressed.start
   if (phase.value === 'title' || phase.value === 'result') {
-    if (start || one.pressed.lp) startMatch()
+    screenFrame += 1
+    if (start || one.pressed.lp) startVs()
+    return
+  }
+  if (phase.value === 'vs') {
+    screenFrame += 1
+    const lines = introFor(roster[0].slug, roster[1].slug).length
+    const skip = (start || one.pressed.lp) && screenFrame > VS_SLAM_FRAMES
+    if (skip || screenFrame >= vsDuration(lines)) startMatch()
     return
   }
   if (phase.value === 'paused') {
@@ -264,29 +487,86 @@ function tick() {
     phase.value = 'paused'
     return
   }
+  // After a KO the match plays slowed: the sim steps only every few screen frames.
+  const stepping = slowdownSteps(slowdown)
+  slowdown = advanceSlowdown(slowdown)
+  if (!stepping) return
   const first = toSimInput(one.held)
-  const second = store.mode === 'versus' ? toSimInput(two.held) : neutralInput()
+  let second = neutralInput()
+  if (store.mode === 'versus') second = toSimInput(two.held)
+  else if (store.mode === 'cpu') {
+    const turn = cpuInput(cpu, match, 1, roster)
+    cpu = turn.cpu
+    second = turn.input
+  } else {
+    const turn = dummyInput(training, store.dummy, match, 1, roster)
+    training = turn.training
+    second = turn.input
+  }
   if (!store.easySpecials) {
     first.special = false
     second.special = false
   }
   match = step(match, [first, second], roster)
+  if (store.mode === 'dummy') {
+    applyTrainingRules(match, roster, {
+      infiniteMeter: store.infiniteMeter,
+      infiniteHealth: store.infiniteHealth,
+    })
+    training = trackAdvantage(training, match)
+    training.inputs = logInput(
+      training.inputs,
+      first,
+      match.fighters[0].facing,
+      match.events,
+    )
+  }
   callouts = advanceCallouts(callouts, match.events)
-  playSounds(match.events)
+  sparks = advanceSparks(sparks, match, roster)
+  stageFx = advanceStageFx(stageFx, match.events)
+  playSounds()
+  slowdown = slowdown ?? koSlowdownFor(match.events)
   if (match.phase === 'over') {
     resultCountdown -= 1
-    if (resultCountdown <= 0) phase.value = 'result'
+    if (resultCountdown <= 0) {
+      screenFrame = 0
+      phase.value = 'result'
+    }
   }
 }
 
 function render() {
   const g = canvasRef.value?.getContext('2d')
   if (!g) return
+  // The game draws in its 480x270 units; the fit's scale maps them onto the canvas (t-027).
+  const scale = fit.value.scale
+  g.setTransform(scale, 0, 0, scale, 0, 0)
+  applyRenderStyle(g, store.renderStyle)
+  const sprites = activeSprites()
+  const sides = [sprites[roster[0].slug], sprites[roster[1].slug]] as const
+  if (phase.value === 'vs') {
+    drawVsScreen(g, roster, [...sides], screenFrame, store.reducedMotion)
+    return
+  }
   drawMatch(g, match, roster, callouts, {
     showBoxes: store.showBoxes,
     reducedMotion: store.reducedMotion,
     sprites,
+    sparks,
+    stage: currentStage() ?? undefined,
+    stageFx,
+    style: store.renderStyle,
   })
+  if (
+    store.mode === 'dummy' &&
+    (phase.value === 'fight' || phase.value === 'paused')
+  )
+    drawTraining(g, training, VIEW_WIDTH)
+  const flash = koFlash(slowdown, store.reducedMotion)
+  if (flash > 0) {
+    g.fillStyle = `rgba(255, 255, 255, ${(0.7 * flash).toFixed(2)})`
+    g.fillRect(0, 0, VIEW_WIDTH, VIEW_HEIGHT)
+  }
   if (phase.value === 'title') {
     drawCard(g, [
       { text: 'ZUZU SHOWDOWN', scale: 3, color: '#fdba74' },
@@ -295,7 +575,12 @@ function render() {
         color: '#fde68a',
       },
       {
-        text: store.mode === 'versus' ? '2 PLAYERS' : 'P1 VS TRAINING DUMMY',
+        text:
+          store.mode === 'versus'
+            ? '2 PLAYERS'
+            : store.mode === 'cpu'
+              ? `P1 VS CPU (${store.cpuLevel.toUpperCase()})`
+              : 'P1 VS TRAINING DUMMY',
       },
       { text: 'PRESS START OR LP', scale: 2, color: '#fde047' },
     ])
@@ -305,15 +590,14 @@ function render() {
       { text: 'PRESS START', color: '#fde047' },
     ])
   } else if (phase.value === 'result') {
-    const winner =
-      match.winner === 'draw' || match.winner === null
-        ? 'DRAW GAME'
-        : `P${match.winner + 1} WINS`
-    drawCard(g, [
-      { text: winner, scale: 3, color: '#fde047' },
-      { text: `ROUNDS ${match.wins[0]} - ${match.wins[1]}` },
-      { text: 'PRESS START FOR A REMATCH', color: '#fdba74' },
-    ])
+    drawWinScreen(
+      g,
+      match,
+      roster,
+      [...sides],
+      screenFrame,
+      store.reducedMotion,
+    )
   }
 }
 
@@ -385,14 +669,26 @@ function setPageLock(on: boolean) {
   setGamePageLock(on)
 }
 
+/** Size the canvas for its box, the screen's pixel ratio and the render style (utils/arcade/display). */
 function fitCanvas() {
-  const available = screenRef.value?.clientWidth ?? VIEW_WIDTH
-  const scale = Math.floor(available / VIEW_WIDTH)
-  canvasWidth.value = scale >= 2 ? `${VIEW_WIDTH * scale}px` : '100%'
+  fit.value = fitDisplay({
+    width: VIEW_WIDTH,
+    height: VIEW_HEIGHT,
+    available: screenRef.value?.clientWidth ?? VIEW_WIDTH,
+    dpr: window.devicePixelRatio || 1,
+    style: store.renderStyle,
+  })
+  canvasWidth.value = `${fit.value.cssWidth}px`
 }
 
 function onBlur() {
   if (phase.value === 'fight') phase.value = 'paused'
+}
+
+/** Training: R puts the fighters back where the last reset did. */
+function onTrainingKey(event: KeyboardEvent) {
+  if (event.code !== 'KeyR' || event.repeat || store.mode !== 'dummy') return
+  store.resetPositions(store.reset.place)
 }
 
 watch(locked, (on) => {
@@ -401,19 +697,44 @@ watch(locked, (on) => {
 })
 
 watch(() => store.mode, applyKeyMaps)
+// Training's position reset: the fighters go back to the centre or a corner, the readouts clear.
+watch(
+  () => store.reset.count,
+  () => {
+    if (store.mode !== 'dummy') return
+    if (phase.value !== 'fight' && phase.value !== 'paused') return
+    match = trainingMatch(roster, store.reset.place)
+    training = { ...newTraining(training.seed), inputs: training.inputs }
+    callouts = []
+    sparks = []
+    slowdown = null
+  },
+)
 watch(
   () => [...store.fighters],
   () => {
     roster = currentRoster()
     match = createMatch(roster)
     callouts = []
+    sparks = []
+    slowdown = null
+    stageFx = newStageFx()
+    loadArt()
     phase.value = 'title'
+  },
+)
+watch(
+  () => store.renderStyle,
+  () => {
+    fitCanvas()
+    loadArt()
   },
 )
 watch(
   () => store.muted,
   (muted) => sound?.setMuted(muted),
 )
+watch(phase, syncMusic)
 
 onMounted(() => {
   const coarse = window.matchMedia?.('(pointer: coarse)').matches ?? false
@@ -426,13 +747,17 @@ onMounted(() => {
   p1.attach(window)
   p2.attach(window)
   window.addEventListener('blur', onBlur)
+  window.addEventListener('keydown', onTrainingKey)
+  window.addEventListener('keydown', unlockSound)
+  window.addEventListener('pointerdown', unlockSound)
   fitCanvas()
   if (screenRef.value && typeof ResizeObserver !== 'undefined') {
     resizer = new ResizeObserver(fitCanvas)
     resizer.observe(screenRef.value)
   }
   loop = startFixedLoop(tick, render)
-  void loadSprites()
+  void loadSprites('pixel', SPRITE_FIGHTERS)
+  loadArt()
 })
 
 onBeforeUnmount(() => {
@@ -441,6 +766,9 @@ onBeforeUnmount(() => {
   p1.detach()
   p2.detach()
   window.removeEventListener('blur', onBlur)
+  window.removeEventListener('keydown', onTrainingKey)
+  window.removeEventListener('keydown', unlockSound)
+  window.removeEventListener('pointerdown', unlockSound)
   sound?.dispose()
   setPageLock(false)
 })
@@ -480,7 +808,6 @@ onBeforeUnmount(() => {
   max-width: 100%;
   height: auto;
   aspect-ratio: 16 / 9;
-  image-rendering: pixelated;
   border-radius: 0.75rem;
   background: #000;
   outline: none;

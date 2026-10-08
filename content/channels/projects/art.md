@@ -8,6 +8,7 @@ label: Art
 title: Art Studio
 subtitle: Generate, browse, collect, and remix images
 description: Create new art first, then explore the gallery, inspect details, collect favorites, and reuse images in other creations.
+summary: Create, browse, and reuse art.
 icon: kind-icon:image
 route: /art
 sort: 10

@@ -8,6 +8,7 @@ label: Scenarios
 title: Scenarios & Stories
 subtitle: Browse, create, and play choices with consequences
 description: Explore branching experiences, create new scenarios, invent solutions, and let narrators handle the consequences.
+summary: Create branching scenarios.
 icon: kind-icon:story
 route: /stories
 sort: 60

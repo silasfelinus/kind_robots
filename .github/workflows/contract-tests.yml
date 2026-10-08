@@ -144,6 +144,9 @@ jobs:
       - name: Kind Robots Arcade engine
         run: npm run test:arcade-engine
 
+      - name: Zuzu gamebook branching and combat
+        run: npm run test:zuzu-gamebook
+
       - name: Zuzu Showdown fight simulation
         run: npm run test:zuzu-showdown-sim
 
@@ -164,6 +167,24 @@ jobs:
 
       - name: Zuzu Showdown fighter sprites
         run: npm run test:zuzu-showdown-sprites
+
+      - name: Zuzu Showdown CPU opponent
+        run: npm run test:zuzu-showdown-cpu
+
+      - name: Zuzu Showdown taunt screens
+        run: npm run test:zuzu-showdown-screens
+
+      - name: Zuzu Showdown stages
+        run: npm run test:zuzu-showdown-stages
+
+      - name: Zuzu Showdown training mode
+        run: npm run test:zuzu-showdown-training
+
+      - name: Zuzu Showdown sound
+        run: npm run test:zuzu-showdown-sound
+
+      - name: Zuzu Showdown display
+        run: npm run test:zuzu-showdown-display
 
       - name: No Promise in Pinia store state
         run: npm run test:no-promise-in-store-state

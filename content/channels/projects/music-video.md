@@ -5,6 +5,7 @@ tabKey: music-video
 label: Music Video
 title: Music Video
 subtitle: Watch, remix and make music videos
+summary: Watch and remix music videos.
 description: 'A gallery of music videos made from a single pitch: lyrics, song, timeline and scenes rendered on the local ComfyUI. Watch the public ones, remix any of them into your own draft.'
 icon: kind-icon:video
 route: /play/music-video

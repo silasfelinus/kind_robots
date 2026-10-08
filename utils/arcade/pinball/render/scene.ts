@@ -13,10 +13,13 @@
 import * as THREE from 'three'
 import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js'
 import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js'
-import { flipperYaw } from '../physics/world'
+import { ConvexGeometry } from 'three/examples/jsm/geometries/ConvexGeometry.js'
+import { flipperOutline, flipperYaw } from '../physics/world'
 import type { BallView } from '../physics/world'
 import type {
+  BoxCollider,
   CameraPreset,
+  CameraPresetId,
   MaterialId,
   MeshCollider,
   TableDef,
@@ -74,7 +77,13 @@ const MATERIALS: Record<MaterialId, THREE.MeshStandardMaterialParameters> = {
     transparent: true,
     opacity: 0.45,
   },
+  cabinet: { color: 0x1c1030, roughness: 0.6, metalness: 0.2 },
 }
+
+/** How far a drop target travels toward down or up each frame (0..1). */
+const DROP_TRAVEL = 0.4
+/** How far the camera moves toward its preset each frame (0..1). */
+const CAMERA_EASE = 0.08
 
 function v3(v: Vec3): THREE.Vector3 {
   return new THREE.Vector3(v[0], v[1], v[2])
@@ -123,7 +132,18 @@ export class PinballScene {
   private spinners = new Map<string, THREE.Group>()
   private caps = new Map<string, THREE.MeshStandardMaterial>()
   private flash = new Map<string, number>()
-  private preset: CameraPreset
+  private doors = new Map<string, { closed: THREE.Group; open: THREE.Group }>()
+  private toys = new Map<string, THREE.Group>()
+  private occluders: Array<{
+    material: THREE.MeshStandardMaterial
+    fadeFor: CameraPresetId
+  }> = []
+  private view: CameraPresetId = 'main'
+  /** The camera's current eye and look target, in table space (eased). */
+  private eye = new THREE.Vector3()
+  private look = new THREE.Vector3()
+  private aimed = false
+  private aspect = 9 / 16
   private disposed = false
 
   constructor(
@@ -136,8 +156,6 @@ export class PinballScene {
     this.scene.background = new THREE.Color(0x07040f)
     this.root.rotation.x = (table.physical.pitchDeg * Math.PI) / 180
     this.scene.add(this.root)
-    this.preset =
-      table.cameras.find((c) => c.id === 'main') ?? table.cameras[0]!
     this.ballGeometry = this.track(
       new THREE.SphereGeometry(table.physical.ballRadiusM, 32, 16),
     )
@@ -152,6 +170,14 @@ export class PinballScene {
     this.buildLights()
     this.buildTable()
     this.aimCamera(9 / 16)
+  }
+
+  private preset(id: CameraPresetId): CameraPreset {
+    return (
+      this.table.cameras.find((c) => c.id === id) ??
+      this.table.cameras.find((c) => c.id === 'main') ??
+      this.table.cameras[0]!
+    )
   }
 
   private track<T extends { dispose(): void }>(resource: T): T {
@@ -203,6 +229,32 @@ export class PinballScene {
     cam.far = 3
     key.shadow.bias = -0.0005
     this.scene.add(key)
+    // Each zone (the sub-table) has its own key light, so its toys and
+    // flippers cast shadows too: the main light's shadow box ends at the arch.
+    for (const zone of this.table.zones ?? []) {
+      const cx = (zone.min[0] + zone.max[0]) / 2
+      const cz = (zone.min[1] + zone.max[1]) / 2
+      const aim = new THREE.Object3D()
+      aim.position.set(cx, 0, cz)
+      this.root.add(aim)
+      const light = new THREE.DirectionalLight(0xffe7c2, 1.6)
+      light.position.set(cx + 0.15, 1.2, cz + 0.35)
+      light.target = aim
+      light.castShadow = true
+      light.shadow.mapSize.set(512, 512)
+      const half = Math.max(
+        zone.max[0] - zone.min[0],
+        zone.max[1] - zone.min[1],
+      )
+      light.shadow.camera.left = -half
+      light.shadow.camera.right = half
+      light.shadow.camera.top = half
+      light.shadow.camera.bottom = -half
+      light.shadow.camera.near = 0.3
+      light.shadow.camera.far = 2.5
+      light.shadow.bias = -0.0005
+      this.root.add(light)
+    }
     // Warm GI glow down each side rail, as a lit cabinet has.
     for (const x of [-0.24, 0.24]) {
       const gi = new THREE.PointLight(0xffd59a, 0.08, 0.5, 2)
@@ -271,16 +323,14 @@ export class PinballScene {
       this.root.add(mesh)
     }
     this.buildMechanisms()
+    this.buildDoorsAndToys()
     for (const def of this.table.flippers) {
       const group = new THREE.Group()
       group.position.copy(v3(def.pivot))
-      const radius = (def.baseRadius + def.tipRadius) / 2
       const geo = this.track(
-        new THREE.CapsuleGeometry(radius, def.length, 6, 16),
+        new ConvexGeometry(flipperOutline(def).map((p) => v3(p))),
       )
       const bat = new THREE.Mesh(geo, this.material('rubber'))
-      bat.position.set(def.length / 2, radius, 0)
-      bat.rotation.z = Math.PI / 2
       bat.castShadow = true
       group.add(bat)
       group.rotation.y = flipperYaw(def, def.restAngle)
@@ -310,6 +360,7 @@ export class PinballScene {
       new THREE.MeshStandardMaterial({ color: 0x020205, roughness: 1 }),
     )
     for (const def of this.table.scoops) {
+      if (def.hidden) continue
       const floor = def.at[1] - this.table.physical.ballRadiusM
       const hole = new THREE.Mesh(
         this.track(new THREE.CircleGeometry(def.radius, 24)),
@@ -342,6 +393,95 @@ export class PinballScene {
     }
   }
 
+  private box(def: BoxCollider): THREE.Mesh {
+    const mesh = new THREE.Mesh(
+      this.track(
+        new THREE.BoxGeometry(
+          def.half[0] * 2,
+          def.half[1] * 2,
+          def.half[2] * 2,
+        ),
+      ),
+      this.material(def.material),
+    )
+    mesh.position.copy(v3(def.at))
+    if (def.quat) mesh.quaternion.set(...def.quat)
+    else mesh.rotation.y = def.yaw ?? 0
+    mesh.castShadow = true
+    mesh.receiveShadow = true
+    return mesh
+  }
+
+  /** Doors (each state's walls), toys, and the occluders that fade. */
+  private buildDoorsAndToys() {
+    for (const def of this.table.doors ?? []) {
+      const closed = new THREE.Group()
+      const open = new THREE.Group()
+      for (const wall of def.closed)
+        if (!wall.hidden) closed.add(this.box(wall))
+      for (const wall of def.open) if (!wall.hidden) open.add(this.box(wall))
+      open.visible = false
+      this.root.add(closed, open)
+      this.doors.set(def.id, { closed, open })
+    }
+    for (const def of this.table.toys ?? []) {
+      const group = new THREE.Group()
+      group.position.copy(v3(def.at))
+      const hub = new THREE.Mesh(
+        this.track(new THREE.CylinderGeometry(0.008, 0.008, 0.03, 16)),
+        this.material('chrome'),
+      )
+      hub.position.y = 0.004
+      group.add(hub)
+      for (let i = 0; i < def.arms; i++) {
+        const yaw = (2 * Math.PI * i) / def.arms
+        const arm = new THREE.Mesh(
+          this.track(
+            new THREE.BoxGeometry(
+              def.armHalf[0] * 2,
+              def.armHalf[1] * 2,
+              def.armHalf[2] * 2,
+            ),
+          ),
+          this.material(def.material),
+        )
+        arm.position.set(
+          Math.cos(yaw) * def.armHalf[0],
+          0,
+          -Math.sin(yaw) * def.armHalf[0],
+        )
+        arm.rotation.y = yaw
+        arm.castShadow = true
+        group.add(arm)
+      }
+      this.toys.set(def.id, group)
+      this.root.add(group)
+    }
+    for (const def of this.table.occluders ?? []) {
+      const material = this.track(
+        new THREE.MeshStandardMaterial({
+          ...MATERIALS.cabinet,
+          transparent: true,
+        }),
+      )
+      const mesh = new THREE.Mesh(
+        this.track(
+          new THREE.BoxGeometry(
+            def.half[0] * 2,
+            def.half[1] * 2,
+            def.half[2] * 2,
+          ),
+        ),
+        material,
+      )
+      mesh.position.copy(v3(def.at))
+      // Faded, it must not keep shading the area it hides.
+      mesh.castShadow = false
+      this.root.add(mesh)
+      this.occluders.push({ material, fadeFor: def.fadeFor })
+    }
+  }
+
   /** The lit cap on a pop bumper; it flashes when the bumper fires. */
   private addPopCap(id: string, at: Vec3, radius: number, halfHeight: number) {
     const geo = this.track(
@@ -367,19 +507,63 @@ export class PinballScene {
     if (this.caps.has(id)) this.flash.set(id, 1)
   }
 
-  private aimCamera(aspect: number) {
-    const p = this.preset
+  /** Where a preset puts the camera at the current aspect, in table space. */
+  private framing(id: CameraPresetId) {
+    const p = this.preset(id)
     // A narrower screen pulls the camera back so the full width stays in view.
-    const fit = Math.max(1, 0.78 / aspect)
+    const fit = Math.max(1, 0.78 / this.aspect)
     const target = v3(p.target)
-    const offset = v3(p.position).sub(target).multiplyScalar(fit)
-    const local = target.clone().add(offset)
+    const eye = v3(p.position).sub(target).multiplyScalar(fit).add(target)
+    return { eye, target, fov: p.fovDeg }
+  }
+
+  private aimCamera(aspect: number) {
+    this.aspect = aspect
+    if (!this.aimed) {
+      const { eye, target } = this.framing(this.view)
+      this.eye.copy(eye)
+      this.look.copy(target)
+      this.aimed = true
+    }
+    this.placeCamera()
+  }
+
+  private placeCamera() {
     this.root.updateMatrixWorld()
-    this.camera.position.copy(this.root.localToWorld(local.clone()))
-    this.camera.fov = p.fovDeg
-    this.camera.aspect = aspect
+    this.camera.position.copy(this.root.localToWorld(this.eye.clone()))
+    this.camera.fov = this.preset(this.view).fovDeg
+    this.camera.aspect = this.aspect
     this.camera.updateProjectionMatrix()
-    this.camera.lookAt(this.root.localToWorld(target.clone()))
+    this.camera.lookAt(this.root.localToWorld(this.look.clone()))
+  }
+
+  /** Ease toward a camera preset (the sub-table while every ball is there). */
+  setView(id: CameraPresetId) {
+    if (this.table.cameras.some((c) => c.id === id)) this.view = id
+  }
+
+  /** The preset the camera is easing toward. */
+  get cameraView(): CameraPresetId {
+    return this.view
+  }
+
+  /**
+   * Move the camera one frame toward its preset, and fade any occluder that
+   * stands in front of the area it is visiting.
+   */
+  private easeCamera() {
+    const { eye, target } = this.framing(this.view)
+    this.eye.lerp(eye, CAMERA_EASE)
+    this.look.lerp(target, CAMERA_EASE)
+    this.placeCamera()
+    const home = this.framing('main').target
+    for (const occluder of this.occluders) {
+      const away = this.framing(occluder.fadeFor).target
+      const span = home.distanceTo(away) || 1
+      const t = Math.min(1, Math.max(0, 1 - this.look.distanceTo(away) / span))
+      occluder.material.opacity = 1 - 0.9 * t
+      occluder.material.depthWrite = t < 0.5
+    }
   }
 
   resize(width: number, height: number, dpr: number) {
@@ -396,6 +580,8 @@ export class PinballScene {
     mechanisms: {
       drops?: Record<string, boolean>
       spinners?: Record<string, number>
+      doors?: Record<string, boolean>
+      toys?: Record<string, number>
     } = {},
   ) {
     if (this.disposed) return
@@ -423,13 +609,31 @@ export class PinballScene {
       if (group && angle !== undefined)
         group.rotation.y = flipperYaw(def, angle)
     }
-    for (const [id, up] of Object.entries(mechanisms.drops ?? {})) {
-      const mesh = this.drops.get(id)
-      if (mesh) mesh.visible = up
+    // Drop targets sink into the playfield and rise again, not blink: a few
+    // frames of travel, as the real bank's coil throws them.
+    for (const def of this.table.drops) {
+      const mesh = this.drops.get(def.id)
+      const up = mechanisms.drops?.[def.id]
+      if (!mesh || up === undefined) continue
+      const height = def.half[1] * 2
+      const target = up ? def.at[1] : def.at[1] - height
+      mesh.position.y += (target - mesh.position.y) * DROP_TRAVEL
+      if (Math.abs(target - mesh.position.y) < 1e-4) mesh.position.y = target
+      mesh.visible = mesh.position.y > def.at[1] - height + 1e-4
     }
     for (const [id, angle] of Object.entries(mechanisms.spinners ?? {})) {
       const group = this.spinners.get(id)
       if (group) group.rotation.x = angle
+    }
+    for (const [id, open] of Object.entries(mechanisms.doors ?? {})) {
+      const door = this.doors.get(id)
+      if (!door) continue
+      door.closed.visible = !open
+      door.open.visible = open
+    }
+    for (const [id, angle] of Object.entries(mechanisms.toys ?? {})) {
+      const group = this.toys.get(id)
+      if (group) group.rotation.y = angle
     }
     for (const [id, level] of this.flash) {
       const mat = this.caps.get(id)
@@ -442,6 +646,7 @@ export class PinballScene {
 
   render() {
     if (this.disposed) return
+    this.easeCamera()
     this.renderer.render(this.scene, this.camera)
   }
 

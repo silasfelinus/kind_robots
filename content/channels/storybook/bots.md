@@ -8,6 +8,7 @@ label: Bots
 title: Bots
 subtitle: Browse, chat with, create, and edit assistants
 description: Browse bot personalities, launch conversations, forge new assistants, clone favorites, and refine existing bots.
+summary: Create and chat with bots.
 icon: kind-icon:robot-color
 route: /bots
 sort: 30

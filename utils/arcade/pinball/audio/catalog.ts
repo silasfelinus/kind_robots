@@ -18,6 +18,9 @@ export type PinballSoundName =
   | 'kickout'
   | 'spinner'
   | 'shot'
+  | 'kickback'
+  | 'tilt-warning'
+  | 'tilt'
   | 'ramp-enter'
   | 'ramp-exit'
   | 'metal-rail'
@@ -104,6 +107,30 @@ export const PINBALL_CUES: Record<PinballSoundName, SynthCue> = {
     duration: 0.09,
     gain: 0.31,
     noise: true,
+  },
+  kickback: {
+    bus: 'mechanical',
+    frequency: 80,
+    endFrequency: 240,
+    duration: 0.12,
+    gain: 0.31,
+    noise: true,
+  },
+  'tilt-warning': {
+    bus: 'callout',
+    frequency: 220,
+    endFrequency: 330,
+    duration: 0.15,
+    gain: 0.16,
+    wave: 'square',
+  },
+  tilt: {
+    bus: 'callout',
+    frequency: 600,
+    endFrequency: 60,
+    duration: 0.7,
+    gain: 0.18,
+    wave: 'sawtooth',
   },
   spinner: {
     bus: 'mechanical',

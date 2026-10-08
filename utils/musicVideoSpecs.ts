@@ -1185,7 +1185,7 @@ const zuzuLairCh1: MusicVideoSpec = {
       atSec: 16,
       prompt: `${ZUZU}, walking along a narrow canyon ledge, a giant scorpion rising from behind a boulder on his left, its stinger arched high over him, low angle`,
       motionPrompt:
-        'The giant scorpion\'s tail whips down toward Zuzu from the left as the camera pulls back.',
+        "The giant scorpion's tail whips down toward Zuzu from the left as the camera pulls back.",
     },
     {
       atSec: 20,
@@ -1218,7 +1218,7 @@ const zuzuLairCh1: MusicVideoSpec = {
       atSec: 36,
       prompt: `${ZUZU}, facing an anthro gila monster bandit in a tattered long riding coat across a dusty canyon floor, the bandit reaching for a revolver at his hip, high noon standoff, wide shot`,
       motionPrompt:
-        'The camera pushes in slowly as the gila monster\'s claw twitches toward his revolver.',
+        "The camera pushes in slowly as the gila monster's claw twitches toward his revolver.",
     },
     {
       atSec: 40,

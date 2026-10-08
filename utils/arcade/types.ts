@@ -43,6 +43,11 @@ export type ArcadeMasteryGoal = {
   hint: string
   /** Shown as question marks until earned, so the guide keeps it hidden. */
   secret?: boolean
+  /**
+   * Steps earned one at a time, across games; the goal is earned when all
+   * are (the page shows how many so far).
+   */
+  parts?: readonly string[]
 }
 
 export type ArcadeGameMeta = {

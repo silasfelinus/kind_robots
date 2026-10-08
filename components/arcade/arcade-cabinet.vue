@@ -804,7 +804,7 @@ function drawMastery(
   })
   ladder.forEach((goal, i) => {
     const have = earned.has(goal.id)
-    const line = masteryLine(goal, have)
+    const line = masteryLine(goal, earned)
     drawText(g, have ? `* ${line}` : line, w / 2, top + 26 + i * step, {
       align: 'center',
       color: have ? '#f9a8d4' : '#94a3b8',

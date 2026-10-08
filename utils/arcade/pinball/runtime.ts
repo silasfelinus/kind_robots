@@ -37,7 +37,8 @@ import {
   type RulesEvent,
 } from './rules/engine'
 import { lampStates } from './rules/lamps'
-import { goalsMet, masteryEffects } from './rules/mastery'
+import { goalsMet, MASTERY_GOALS, masteryEffects } from './rules/mastery'
+import { partsComplete } from '../mastery'
 import { musicFor } from './rules/subTable'
 import type { PinballMusicBed } from './audio/catalog'
 import {
@@ -372,13 +373,18 @@ export class PinballRuntime implements ArcadeWebGLGameInstance {
     for (const goal of goals) this.master(goal)
   }
 
-  /** A goal met: kept for the store, and announced if it is new to the player. */
+  /**
+   * A goal (or a part of one) met: kept for the store, and announced if it is
+   * new to the player. The part that completes a goal earns the goal too.
+   */
   private master(goal: string) {
     if (this.earnedNow.includes(goal)) return
     this.earnedNow.push(goal)
     if (this.earnedBefore.has(goal)) return
-    const total = new Set([...this.earnedBefore, ...this.earnedNow]).size
-    for (const effect of masteryEffects(goal, total)) this.effect(effect)
+    const earned = new Set([...this.earnedBefore, ...this.earnedNow])
+    const rungs = MASTERY_GOALS.filter((g) => earned.has(g.id)).length
+    for (const effect of masteryEffects(goal, rungs)) this.effect(effect)
+    for (const done of partsComplete(MASTERY_GOALS, earned)) this.master(done)
   }
 
   private effect(effect: RuleEffect) {

@@ -40,6 +40,17 @@ export function mergeMastery(
   return { ...record, [game]: [...earned, ...fresh] }
 }
 
+/** Ladder goals whose parts are now all earned, and that are not yet. */
+export function partsComplete(
+  ladder: readonly ArcadeMasteryGoal[],
+  earned: ReadonlySet<string>,
+): string[] {
+  return ladder
+    .filter((g) => g.parts?.length && !earned.has(g.id))
+    .filter((g) => g.parts!.every((part) => earned.has(part)))
+    .map((g) => g.id)
+}
+
 /** A player's place on a ladder: how many earned, and the next to go for. */
 export function masteryProgress(
   ladder: readonly ArcadeMasteryGoal[],
@@ -58,8 +69,15 @@ export function masteryProgress(
  * open one with what to do, and an open secret as question marks, so the
  * guide never gives a hidden feature away.
  */
-export function masteryLine(goal: ArcadeMasteryGoal, earned: boolean): string {
-  if (earned) return goal.title
+export function masteryLine(
+  goal: ArcadeMasteryGoal,
+  earned: ReadonlySet<string>,
+): string {
+  if (earned.has(goal.id)) return goal.title
   if (goal.secret) return '???'
-  return `${goal.title} - ${goal.hint}`
+  const parts = goal.parts
+  const sofar = parts
+    ? ` ${parts.filter((p) => earned.has(p)).length}/${parts.length}`
+    : ''
+  return `${goal.title} - ${goal.hint}${sofar}`
 }

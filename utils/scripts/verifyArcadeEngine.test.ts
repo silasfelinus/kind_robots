@@ -105,11 +105,16 @@ import { cameraViewFor, PinballRuntime } from '../arcade/pinball/runtime'
 import { aimedShot, delaysFor } from '../arcade/pinball/tuning/aim'
 import { BOT_SKILLS, PinballBot } from '../arcade/pinball/tuning/bot'
 import { playGame, summarize } from './pinballTuning'
-import { goalsMet, MASTERY_GOALS } from '../arcade/pinball/rules/mastery'
+import {
+  goalsMet,
+  MASTERY_GOALS,
+  VILLAGE_PARTS,
+} from '../arcade/pinball/rules/mastery'
 import {
   masteryLine,
   masteryProgress,
   mergeMastery,
+  partsComplete,
   sanitizeMastery,
 } from '../arcade/mastery'
 import {
@@ -3352,7 +3357,11 @@ async function runPinballMastery() {
     ['ten-million', with_({}, { score: 10_000_000 })],
   ]
   for (const [goal, after] of cases)
-    assert.deepEqual(goalsMet(base, after, []), [goal], goal)
+    assert.deepEqual(
+      goalsMet(base, after, []),
+      goal === 'first-village' ? [goal, 'village-1'] : [goal],
+      goal,
+    )
   const running = with_({
     multiball: { running: true, jackpots: 0, superLit: false },
   })
@@ -3470,13 +3479,63 @@ async function runPinballMastery() {
   assert.equal(progress.total, MASTERY_GOALS.length)
   assert.equal(progress.next?.id, 'first-village')
   const secret = MASTERY_GOALS.find((g) => g.id === 'secret')!
-  assert.equal(masteryLine(secret, false), '???')
-  assert.equal(masteryLine(secret, true), 'SECRET VILLAGE')
+  assert.equal(masteryLine(secret, new Set()), '???')
+  assert.equal(masteryLine(secret, new Set(['secret'])), 'SECRET VILLAGE')
   for (const goal of MASTERY_GOALS.filter((g) => !g.secret)) {
-    assert.ok(!/SECRET|HIDDEN|NET/.test(masteryLine(goal, false)), goal.id)
+    assert.ok(!/SECRET|HIDDEN|NET/.test(masteryLine(goal, new Set())), goal.id)
     // The 360-wide how-to page fits each line at the font's scale 1.
-    assert.ok(measureText(masteryLine(goal, false)) <= 340, goal.id)
+    assert.ok(measureText(masteryLine(goal, new Set())) <= 340, goal.id)
   }
+  // EVERY VILLAGE: one part per village mode, counted across games.
+  assert.equal(VILLAGE_PARTS.length, VILLAGES.length)
+  const every = MASTERY_GOALS.find((g) => g.id === 'every-village')!
+  assert.equal(
+    masteryLine(every, new Set(VILLAGE_PARTS.slice(0, 5))),
+    'EVERY VILLAGE - PLAY ALL 12 5/12',
+  )
+  assert.deepEqual(partsComplete(MASTERY_GOALS, new Set(VILLAGE_PARTS)), [
+    'every-village',
+  ])
+  assert.deepEqual(
+    partsComplete(MASTERY_GOALS, new Set([...VILLAGE_PARTS, 'every-village'])),
+    [],
+  )
+  assert.deepEqual(
+    partsComplete(MASTERY_GOALS, new Set(VILLAGE_PARTS.slice(1))),
+    [],
+  )
+  // In the runtime, the last village played earns the goal, announced.
+  const mapper = new PinballRuntime(
+    { rng: mulberry32(9), sound: { play: () => {} }, demo: false, hiScore: 0 },
+    RAPIER,
+    table,
+    () => stubRenderer({ disposed: 0, frames: 0 }),
+  )
+  const mapInner = mapper as unknown as typeof inner & {
+    earnedBefore: Set<string>
+  }
+  const award: RulesEvent = {
+    type: 'switch',
+    tick: 10,
+    event: { type: 'capture', id: 'award', ballId: 1 },
+  }
+  const next = stepRules(mapInner.rules, award, context).state.play.villages
+    .mode!.village
+  mapInner.earnedBefore = new Set(VILLAGE_PARTS.filter((_, i) => i !== next))
+  mapper.dmdQueue.reset()
+  mapInner.apply(award)
+  assert.deepEqual(mapper.mastered, [
+    'first-village',
+    VILLAGE_PARTS[next],
+    'every-village',
+  ])
+  assert.ok(
+    [mapper.dmdQueue.showing, ...mapper.dmdQueue.pending].some(
+      (d) => d?.request.text === 'EVERY VILLAGE',
+    ),
+    'the whole map is announced',
+  )
+  mapper.dispose()
 }
 
 await runLanternRescue()

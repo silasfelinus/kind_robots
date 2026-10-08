@@ -12,12 +12,28 @@
 import type { ArcadeMasteryGoal } from '../../types'
 import type { RuleEffect } from '../types'
 import type { PinballRulesState } from './engine'
+import { VILLAGES } from './village'
+
+/**
+ * Each village's mode played once, a part of EVERY VILLAGE. The wizard
+ * lights at half the map and the map resets after it, so the whole map is a
+ * goal across games: every one of the twelve modes.
+ */
+export const VILLAGE_PARTS: readonly string[] = VILLAGES.map(
+  (_, i) => `village-${i + 1}`,
+)
 
 /** The ladder, roughly in the order a player meets them. */
 export const MASTERY_GOALS: readonly ArcadeMasteryGoal[] = [
   { id: 'skill-shot', title: 'SKILL SHOT', hint: 'MAKE THE LIT SHOT' },
   { id: 'first-village', title: 'FIRST VILLAGE', hint: 'SHOOT THE SAUCER' },
   { id: 'village-saved', title: 'VILLAGE SAVED', hint: 'FINISH A VILLAGE' },
+  {
+    id: 'every-village',
+    title: 'EVERY VILLAGE',
+    hint: 'PLAY ALL 12',
+    parts: VILLAGE_PARTS,
+  },
   { id: 'combo-3', title: '3-WAY COMBO', hint: 'CHAIN 3 SHOTS' },
   { id: 'multiball', title: 'AMI MULTIBALL', hint: 'LOCK THE BALLS' },
   { id: 'jackpot', title: 'JACKPOT', hint: 'RAMPS IN MULTIBALL' },
@@ -53,7 +69,10 @@ export function goalsMet(
   const [was, now] = [before.play, after.play]
   const met: string[] = []
   if (shown(effects, 'skill-shot')) met.push('skill-shot')
-  if (now.villages.mode && !was.villages.mode) met.push('first-village')
+  if (now.villages.mode && !was.villages.mode) {
+    met.push('first-village')
+    met.push(VILLAGE_PARTS[now.villages.mode.village]!)
+  }
   if (now.villages.saved > was.villages.saved) met.push('village-saved')
   if (now.combo.count >= 2 && was.combo.count < 2) met.push('combo-3')
   if (now.multiballs > was.multiballs) met.push('multiball')

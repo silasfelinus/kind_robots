@@ -82,11 +82,16 @@ import {
   QualityGovernor,
   TIER_SETTINGS,
 } from '../arcade/pinball/render/quality'
+import { lampStates, RAINBOW_LAMPS } from '../arcade/pinball/rules/lamps'
 import {
-  attractLamps,
-  lampStates,
-  RAINBOW_LAMPS,
-} from '../arcade/pinball/rules/lamps'
+  applyShows,
+  ATTRACT_PATTERN_TICKS,
+  attractShow,
+  liveShows,
+  MAX_SHOWS,
+  SHOW_TICKS,
+  showTriggers,
+} from '../arcade/pinball/rules/lightShows'
 import { cameraViewFor, PinballRuntime } from '../arcade/pinball/runtime'
 import { AMI_VILLAGE_GREYBOX } from '../arcade/pinball/tables/amiVillage/table'
 import type { SwitchEvent, TableDef, Vec3 } from '../arcade/pinball/types'
@@ -2243,12 +2248,105 @@ async function runPinballRender() {
     Object.values(tilted.lamps).every((l) => l === 'off'),
     'and every lamp',
   )
-  const frames = [0, 5, 10, 15].map((t) => attractLamps(table, t).lamps)
-  assert.ok(
-    frames.every((f) => Object.values(f).includes('on')),
-    'the attract show always has lamps lit',
+  // The attract show cycles its patterns, always lit, always moving.
+  for (let pattern = 0; pattern < 4; pattern++) {
+    const at = pattern * ATTRACT_PATTERN_TICKS
+    const frames = [0, 20, 40, 60, 80].map(
+      (t) => attractShow(table, at + t).lamps,
+    )
+    assert.ok(
+      frames.some((f) => Object.values(f).includes('on')),
+      `attract pattern ${pattern} lights lamps`,
+    )
+    assert.ok(
+      frames.some((f) => JSON.stringify(f) !== JSON.stringify(frames[0])),
+      `attract pattern ${pattern} moves`,
+    )
+  }
+
+  // Light shows (t-009): what starts them, what they do, when they end.
+  const base = initialRules(table.balls)
+  const madeRamp = { ...base, shotsMade: { 'left-ramp': 1 } }
+  const triggered = showTriggers(base, madeRamp, 100)
+  assert.deepEqual(
+    triggered,
+    [{ id: 'shot', start: 100, shot: 'left-ramp' }],
+    'a made shot starts its sweep',
   )
-  assert.notDeepEqual(frames[0], frames[1], 'and they chase')
+  const sweep = applyShows(lampStates(madeRamp, table), triggered, table, 102)
+  assert.equal(sweep.lamps['flasher-left'], 'on', 'and fires its flasher')
+  const after = applyShows(
+    lampStates(madeRamp, table),
+    triggered,
+    table,
+    100 + SHOW_TICKS.shot,
+  )
+  assert.deepEqual(
+    after,
+    lampStates(madeRamp, table),
+    'a finished show leaves the matrix as it was',
+  )
+  assert.deepEqual(
+    showTriggers(base, { ...base, bonusMultiplier: 2 }, 5).map((x) => x.id),
+    ['multiplier'],
+  )
+  assert.deepEqual(
+    showTriggers(base, { ...base, sub: { ...base.sub, found: 1 } }, 5).map(
+      (x) => x.id,
+    ),
+    ['secret'],
+  )
+  const secret = applyShows(
+    lampStates(base, table),
+    [{ id: 'secret', start: 0 }],
+    table,
+    10,
+  )
+  assert.ok(secret.gi < 0.5, 'finding the room drops the GI')
+  const drained = { ...base, lives: base.lives - 1, ball: base.ball + 1 }
+  const drain = showTriggers(base, drained, 50)
+  assert.deepEqual(
+    drain.map((x) => x.id),
+    ['drain', 'ball-start'],
+  )
+  assert.ok(
+    drain[1]!.start >= drain[0]!.start + SHOW_TICKS.drain,
+    "the next ball's wave waits for the drain to finish",
+  )
+  assert.equal(
+    showTriggers(base, { ...base, lives: 0, over: true }, 5).length,
+    0,
+    'game over plays no ball-start',
+  )
+  assert.equal(
+    showTriggers(base, { ...base, kickbackLit: false }, 5)[0]?.id,
+    'kickback',
+  )
+  const many = Array.from({ length: 6 }, (_, i) => ({
+    id: 'shot' as const,
+    start: i,
+    shot: 'lock',
+  }))
+  assert.equal(liveShows(many, 6).length, MAX_SHOWS, 'shows are capped')
+  assert.equal(liveShows(many, 100).length, 0, 'and expire')
+
+  // The generated playfield art covers exactly the playfield.
+  const art = table.art?.playfield
+  const field = table.colliders.find((c) => c.id === 'playfield')
+  assert.ok(art && field && field.kind === 'box')
+  if (art && field && field.kind === 'box') {
+    assert.ok(art.src.startsWith('/images/'), 'art is served from /images/')
+    for (const [value, expected] of [
+      [art.min[0], field.at[0] - field.half[0]],
+      [art.max[0], field.at[0] + field.half[0]],
+      [art.min[1], field.at[2] - field.half[2]],
+      [art.max[1], field.at[2] + field.half[2]],
+    ])
+      assert.ok(
+        Math.abs(value! - expected!) < 1e-9,
+        'art rectangle = playfield',
+      )
+  }
 
   // The scene: lamps follow the matrix, pulses and tiers are safe without
   // WebGL, and nothing leaks.

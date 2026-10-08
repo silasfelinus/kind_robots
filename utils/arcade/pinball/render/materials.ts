@@ -206,11 +206,14 @@ function css(color: number, alpha = 1): string {
 
 /**
  * Paint the playfield art for a table (browser only: it needs a canvas).
- * Deterministic: the same table always paints the same picture.
+ * Deterministic: the same table always paints the same picture. With the
+ * table's generated albedo loaded, that image fills the main playfield and
+ * the procedural art stays only where it does not reach (the hidden room).
  */
 export function paintPlayfield(
   table: TableDef,
   bounds: ArtBounds,
+  albedo?: CanvasImageSource,
 ): HTMLCanvasElement | null {
   if (typeof document === 'undefined') return null
   const width = Math.round((bounds.x1 - bounds.x0) * ART_PX_PER_M)
@@ -313,6 +316,19 @@ export function paintPlayfield(
     }
   }
 
+  // Generated art (t-009), when it has loaded, replaces the painted main
+  // playfield; the engine's own marks still go on top of it, crisp.
+  const art = table.art?.playfield
+  if (albedo && art) {
+    g.drawImage(
+      albedo,
+      px(art.min[0]),
+      pz(art.min[1]),
+      m(art.max[0] - art.min[0]),
+      m(art.max[1] - art.min[1]),
+    )
+  }
+
   // The rainbow band the multiplier lamps sit on.
   const rainbow = (table.inserts ?? []).filter((i) =>
     i.id.startsWith('rainbow-'),
@@ -370,6 +386,8 @@ export function paintPlayfield(
     g.restore()
   }
 
+  paintContactShade(g, table, px, pz, m)
+
   // A dark surround behind every insert, edged in its colour, so lit or
   // unlit it reads against the art.
   for (const insert of table.inserts ?? []) {
@@ -394,6 +412,72 @@ export function paintPlayfield(
     g.restore()
   }
   return canvas
+}
+
+/** How dark, and how far it spreads, the baked shade under a part is. */
+const SHADE_ALPHA = 0.55
+const SHADE_SPREAD_M = 0.01
+
+/**
+ * Baked ambient occlusion: a soft shade on the playfield where each wall,
+ * post and bumper meets it, so the parts sit on the table on every tier,
+ * even the one with no shadow map. Drawn with the canvas shadow trick: each
+ * footprint is filled far off the canvas and only its blurred shadow lands.
+ */
+function paintContactShade(
+  g: CanvasRenderingContext2D,
+  table: TableDef,
+  px: (x: number) => number,
+  pz: (z: number) => number,
+  m: (metres: number) => number,
+) {
+  const away = g.canvas.width * 4
+  g.save()
+  g.shadowColor = `rgba(0,0,0,${SHADE_ALPHA})`
+  g.shadowBlur = m(SHADE_SPREAD_M)
+  g.shadowOffsetX = away
+  g.fillStyle = '#000'
+  for (const def of table.colliders) {
+    if (def.kind === 'mesh') continue
+    if (def.kind === 'post') {
+      g.beginPath()
+      g.arc(
+        px(def.at[0]) - away,
+        pz(def.at[2]),
+        m(def.radius * 1.15),
+        0,
+        Math.PI * 2,
+      )
+      g.fill()
+      continue
+    }
+    // Only what stands on the playfield: not the playfield itself, not
+    // covers or plates held up above it, not tilted pieces.
+    if (def.hidden || def.material === 'playfield' || def.quat) continue
+    if (def.at[1] - def.half[1] > 0.005) continue
+    const yaw = def.yaw ?? 0
+    const cos = Math.cos(yaw)
+    const sin = Math.sin(yaw)
+    g.beginPath()
+    for (const [i, [lx, lz]] of (
+      [
+        [-1, -1],
+        [1, -1],
+        [1, 1],
+        [-1, 1],
+      ] as const
+    ).entries()) {
+      const x = lx * def.half[0]
+      const z = lz * def.half[2]
+      const wx = def.at[0] + x * cos + z * sin
+      const wz = def.at[2] - x * sin + z * cos
+      if (i === 0) g.moveTo(px(wx) - away, pz(wz))
+      else g.lineTo(px(wx) - away, pz(wz))
+    }
+    g.closePath()
+    g.fill()
+  }
+  g.restore()
 }
 
 /** A soft round shadow, alpha in every channel (no DOM needed). */

@@ -13,6 +13,9 @@
 //   ball-start  a wave runs up the table and the GI comes up behind it
 //   kickback    the kickback lamp and the left flasher strobe
 //   drain       the inserts go out and the GI browns down
+//   jackpot     every lamp and flasher strobes together (t-007: jackpots,
+//               super jackpots, wizard shots, a village saved); multiball
+//               and the wizard mode starting play the secret show
 //
 // The attract show cycles several patterns so the machine looks alive while
 // it waits for a player.
@@ -22,7 +25,13 @@ import type { PinballRulesState } from './engine'
 import { RAINBOW_LAMPS, type LampFrame } from './lamps'
 
 export type LightShowId =
-  'shot' | 'multiplier' | 'secret' | 'ball-start' | 'kickback' | 'drain'
+  | 'shot'
+  | 'multiplier'
+  | 'secret'
+  | 'ball-start'
+  | 'kickback'
+  | 'drain'
+  | 'jackpot'
 
 export type LightShow = {
   id: LightShowId
@@ -40,6 +49,7 @@ export const SHOW_TICKS: Record<LightShowId, number> = {
   'ball-start': 36,
   kickback: 30,
   drain: 50,
+  jackpot: 45,
 }
 
 /** At most this many shows play at once; the oldest give way. */
@@ -64,6 +74,21 @@ export function showTriggers(
     shows.push({ id: 'kickback', start: tick })
   if (after.lives < before.lives && !after.over)
     shows.push({ id: 'drain', start: tick })
+  const [was, now] = [before.play, after.play]
+  if (
+    (now.multiball.running && !was.multiball.running) ||
+    (now.wizard.running && !was.wizard.running)
+  )
+    shows.push({ id: 'secret', start: tick })
+  if (
+    now.multiball.jackpots > was.multiball.jackpots ||
+    (was.multiball.superLit &&
+      !now.multiball.superLit &&
+      now.multiball.running) ||
+    now.wizard.hits > was.wizard.hits ||
+    now.villages.saved > was.villages.saved
+  )
+    shows.push({ id: 'jackpot', start: tick })
   if (after.ball > before.ball && !after.over)
     shows.push({ id: 'ball-start', start: tick + SHOW_TICKS.drain })
   return shows
@@ -158,6 +183,13 @@ function overlay(
     case 'drain': {
       gi *= 1 - 0.5 * Math.min(1, t * 2)
       for (const insert of inserts) set(insert.id, 'off')
+      break
+    }
+    case 'jackpot': {
+      const strobe = BLINK(tick, 4)
+      gi *= strobe ? 1 : 0.5
+      for (const insert of inserts) set(insert.id, strobe ? 'on' : 'off')
+      for (const f of table.flashers ?? []) set(f.id, strobe ? 'on' : 'off')
       break
     }
   }

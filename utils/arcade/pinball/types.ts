@@ -355,6 +355,8 @@ export type RuleEffect =
   | { type: 'score'; points: number }
   | { type: 'sound'; name: string }
   | { type: 'serve-ball' }
+  /** Balls to put on the table from the plunger, auto-launched (multiball, ball save). */
+  | { type: 'add-ball'; count: number }
   | { type: 'game-over' }
   | { type: 'mechanism'; id: string; action: string; payload?: unknown }
   | {
@@ -365,6 +367,8 @@ export type RuleEffect =
       /** The DMD scene to show it in (dmdQueue.ts); a plain message if unset. */
       scene?: DmdSceneId
       value?: number
+      /** Bonus count lines. */
+      items?: ReadonlyArray<{ label: string; value: number }>
     }
   /** Take a scene off the DMD (a mode ends, a tilt clears). */
   | { type: 'dmd-clear'; scene: DmdSceneId }

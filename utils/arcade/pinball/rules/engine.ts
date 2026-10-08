@@ -7,9 +7,10 @@
 //
 // It runs the ball cycle, recognises shots (rules/shots.ts) and drives the
 // A-M-I drop bank: knocking all three down opens the lock, and a locked
-// ball (or a new ball) raises them again. Scoring stays at zero until t-007
-// builds Table 1's real rules on this shape, so the 3D preview cabinet never
-// posts to the leaderboard.
+// ball (or a new ball) raises them again. Table 1's scoring and features
+// (t-007: skill shot, combos, multiball, the village map, the wizard mode,
+// extra ball, ball save, bonus and match) live in rules/features.ts and ride
+// on this reducer in `state.play`.
 //
 // The hidden sub-table (t-011): locking a ball is the feat that opens the
 // secret door for a short while, with only a tease on the DMD. A ball through
@@ -26,7 +27,21 @@
 
 import { PHYSICS_HZ } from '../clock'
 import type { RuleEffect, ShotDef, ShotEvent, SwitchEvent } from '../types'
+import {
+  award,
+  ballOver,
+  bumper,
+  initialFeatures,
+  match,
+  multiballDrain,
+  newBall,
+  plunged,
+  shot as featureShot,
+  tickFeatures,
+  type FeatureState,
+} from './features'
 import { initialShotProgress, recognizeShots, type ShotProgress } from './shots'
+import { VALUES } from './village'
 
 export type RulesEvent =
   | { type: 'switch'; event: SwitchEvent; tick?: number }
@@ -72,9 +87,12 @@ export type PinballRulesState = {
   tilted: boolean
   /** When the tilt bob was last set swinging (physics step), or -Infinity. */
   lastNudgeAt: number
+  /** Table 1's features (rules/features.ts). */
+  play: FeatureState
 }
 
-export function initialRules(balls: number): PinballRulesState {
+/** A new game of `balls` balls; `seed` drives its random picks. */
+export function initialRules(balls: number, seed = 1): PinballRulesState {
   return {
     score: 0,
     ball: 0,
@@ -91,6 +109,7 @@ export function initialRules(balls: number): PinballRulesState {
     tiltWarnings: 0,
     tilted: false,
     lastNudgeAt: -Infinity,
+    play: initialFeatures(seed),
   }
 }
 
@@ -116,13 +135,16 @@ export function stepRules(
 ): { state: PinballRulesState; effects: RuleEffect[] } {
   if (state.over) return { state, effects: [] }
   if (event.type === 'tick') {
-    if (!state.sub.doorOpen || event.tick < state.sub.closesAt) {
+    const next = { ...state }
+    const effects: RuleEffect[] = []
+    if (state.sub.doorOpen && event.tick >= state.sub.closesAt) {
+      next.sub = { ...state.sub, doorOpen: false }
+      effects.push({ type: 'mechanism', id: 'secret-door', action: 'close' })
+    }
+    tickFeatures(next, event.tick, effects)
+    if (next.sub === state.sub && next.play === state.play)
       return { state, effects: [] }
-    }
-    return {
-      state: { ...state, sub: { ...state.sub, doorOpen: false } },
-      effects: [{ type: 'mechanism', id: 'secret-door', action: 'close' }],
-    }
+    return { state: next, effects }
   }
   if (event.type === 'nudge') return nudge(state, event.tick)
   if (event.type === 'start') {
@@ -151,35 +173,49 @@ export function stepRules(
   )
   let next: PinballRulesState = { ...state, shotProgress: recognized.progress }
   const effects: RuleEffect[] = []
-  for (const shot of recognized.completed) applyShot(next, shot, effects)
+  for (const shot of recognized.completed) applyShot(next, shot, tick, effects)
   next = { ...next }
 
   if (sw.type === 'drain') {
-    const ballsInPlay = Math.max(0, next.ballsInPlay - 1)
-    if (ballsInPlay > 0) return { state: { ...next, ballsInPlay }, effects }
-    const lives = next.lives - 1
+    if (next.ballsInPlay > 1) {
+      multiballDrain(next, tick, effects)
+      return { state: next, effects }
+    }
+    const outcome = ballOver(next, tick, effects)
+    if (outcome === 'saved') return { state: next, effects }
     effects.push({ type: 'sound', name: 'drain' })
-    if (lives <= 0) {
-      effects.push(
-        { type: 'dmd', text: 'GAME OVER', ms: 4000, scene: 'game-over' },
-        { type: 'game-over' },
-      )
-      return {
-        state: { ...next, ballsInPlay: 0, lives: 0, over: true },
-        effects,
+    let lives = next.lives
+    let ball = next.ball
+    if (outcome === 'next') {
+      lives--
+      ball++
+      if (lives <= 0) {
+        if (match(next, effects)) {
+          lives = 1
+        } else {
+          effects.push(
+            { type: 'dmd', text: 'GAME OVER', ms: 4000, scene: 'game-over' },
+            { type: 'game-over' },
+          )
+          return {
+            state: { ...next, ballsInPlay: 0, lives: 0, over: true },
+            effects,
+          }
+        }
       }
     }
-    const ball = next.ball + 1
     effects.push(
       { type: 'mechanism', id: 'ami', action: 'reset' },
       { type: 'serve-ball' },
-      {
-        type: 'dmd',
-        text: `BALL ${ball}`,
-        ms: 1500,
-        scene: 'ball',
-        value: ball,
-      },
+      outcome === 'extra'
+        ? { type: 'dmd', text: 'SHOOT AGAIN', ms: 2500, scene: 'extra-ball' }
+        : {
+            type: 'dmd',
+            text: `BALL ${ball}`,
+            ms: 1500,
+            scene: 'ball',
+            value: ball,
+          },
     )
     if (next.sub.doorOpen) {
       effects.push({ type: 'mechanism', id: 'secret-door', action: 'close' })
@@ -190,6 +226,7 @@ export function stepRules(
         { type: 'dmd-clear', scene: 'tilt' },
       )
     }
+    newBall(next)
     return {
       state: {
         ...next,
@@ -211,6 +248,7 @@ export function stepRules(
   if (sw.type === 'drop') {
     const down = [...(next.dropsDown[sw.bank] ?? []), sw.id]
     next.dropsDown = { ...next.dropsDown, [sw.bank]: down }
+    award(next, VALUES.drop)
     effects.push({ type: 'sound', name: 'drop' })
     if (down.length >= (DROP_BANK_SIZE[sw.bank] ?? Infinity)) {
       effects.push({ type: 'dmd', text: 'LOCK IS LIT', ms: 1500 })
@@ -297,9 +335,12 @@ export function stepRules(
       ...next.switches,
       [sw.id]: (next.switches[sw.id] ?? 0) + 1,
     }
-    if (NET_TARGETS.includes(sw.id) && !next.sub.nets.includes(sw.id)) {
+    if (sw.type === 'sensor-enter' && sw.id === 'shooter-exit') {
+      plunged(next, tick, effects)
+    } else if (NET_TARGETS.includes(sw.id) && !next.sub.nets.includes(sw.id)) {
       const nets = [...next.sub.nets, sw.id]
       next.sub = { ...next.sub, nets }
+      award(next, VALUES.standup)
       effects.push(
         { type: 'sound', name: 'drop' },
         { type: 'mechanism', id: sw.id, action: 'flash' },
@@ -313,13 +354,16 @@ export function stepRules(
         })
       }
     } else if (sw.id.startsWith('pop-')) {
+      bumper(next, sw.id, tick, effects)
       effects.push(
         { type: 'sound', name: 'pop' },
         { type: 'mechanism', id: sw.id, action: 'flash' },
       )
     } else if (sw.id.startsWith('sling-') && sw.id.endsWith('kicker')) {
+      award(next, VALUES.sling)
       effects.push({ type: 'sound', name: 'sling' })
     } else if (sw.type === 'spin') {
+      award(next, VALUES.spin)
       effects.push({ type: 'sound', name: 'spinner' })
     }
   }
@@ -367,6 +411,7 @@ function nudge(
 function applyShot(
   state: PinballRulesState,
   shot: ShotEvent,
+  tick: number,
   effects: RuleEffect[],
 ) {
   state.shotsMade = {
@@ -376,10 +421,12 @@ function applyShot(
   effects.push(
     { type: 'sound', name: 'shot' },
     { type: 'mechanism', id: shot.shotId, action: 'flash' },
-    {
+  )
+  // A shot that meant something says so; any other names itself.
+  if (!featureShot(state, shot.shotId, shot.comboEligible, tick, effects))
+    effects.push({
       type: 'dmd',
       text: shot.shotId.replace(/-/g, ' ').toUpperCase(),
       ms: 1200,
-    },
-  )
+    })
 }

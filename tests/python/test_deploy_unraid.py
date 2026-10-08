@@ -60,3 +60,11 @@ def test_interrupted_exact_image_migration_restores_container() -> None:
     assert "trap restart_after_interrupted_exact_image_migration EXIT" in text
     assert "stopped_for_exact_image_migration=true" in text
     assert "stopped_for_exact_image_migration=false" in text
+
+
+def test_migration_container_does_not_run_application_healthcheck() -> None:
+    text = script_text()
+    migration_block = text.split('run_migrations() {', 1)[1].split('\n}', 1)[0]
+
+    assert 'docker run --rm --no-health \\' in migration_block
+    assert 'node scripts/prisma-migrate-deploy.mjs' in migration_block

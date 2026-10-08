@@ -88,6 +88,7 @@
       <tutorial-flyer
         v-if="showTutorial"
         :channel="tutorialChannelKey"
+        :tab="tutorialTabKey || undefined"
         inline
       />
     </template>
@@ -378,17 +379,19 @@ const openFieldKey = ref('')
 const override = computed(() => sheetStore.override)
 
 const tutorialChannelKey = computed(() => {
-  const key = resolveTutorialChannelFromRoute(route.path)
+  const modernChannel = pageStore.resolvedChannel
+  if (modernChannel?.tutorial) return modernChannel.channelKey
 
-  console.log('[workspace-sheet tutorial match]', {
-    routePath: route.path,
-    matchedChannel: key,
-    pageCardsKey: pageStore.cardsKey,
-    workspaceCardKey: pageStore.workspaceCardKey,
-    pageTitle: pageStore.title,
-  })
+  return resolveTutorialChannelFromRoute(route.path)
+})
 
-  return key
+const tutorialTabKey = computed(() => {
+  const modernChannel = pageStore.resolvedChannel
+  if (!modernChannel || modernChannel.channelKey !== tutorialChannelKey.value) {
+    return ''
+  }
+
+  return pageStore.resolvedTab?.tabKey || ''
 })
 
 const isBuilder = computed(() => {

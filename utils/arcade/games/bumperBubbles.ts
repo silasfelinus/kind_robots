@@ -424,7 +424,10 @@ class BumperBubbles implements ArcadeGameInstance {
       if (b.held) continue
       for (let i = 0; i < this.gremlins.length; i++) {
         const g = this.gremlins[i]!
-        if (Math.abs(b.x - g.x) < BUBBLE_R + 5 && Math.abs(b.y - (g.y - 6)) < BUBBLE_R + 6) {
+        if (
+          Math.abs(b.x - g.x) < BUBBLE_R + 5 &&
+          Math.abs(b.y - (g.y - 6)) < BUBBLE_R + 6
+        ) {
           this.gremlins.splice(i, 1)
           b.held = g
           b.holdLeft = Math.round(levelCurve(this.level, BUBBLE_CURVES.hold))
@@ -443,7 +446,10 @@ class BumperBubbles implements ArcadeGameInstance {
     for (let i = this.bubbles.length - 1; i >= 0; i--) {
       const b = this.bubbles[i]!
       if (b.flight > 0) continue
-      if (Math.abs(b.x - p.x) < BUBBLE_R + 5 && Math.abs(b.y - (p.y - 7)) < BUBBLE_R + 7) {
+      if (
+        Math.abs(b.x - p.x) < BUBBLE_R + 5 &&
+        Math.abs(b.y - (p.y - 7)) < BUBBLE_R + 7
+      ) {
         this.bubbles.splice(i, 1)
         if (b.held) this.popHeld(b)
         else {
@@ -470,7 +476,10 @@ class BumperBubbles implements ArcadeGameInstance {
           this.dead = DEATH_TICKS
           this.burst(p.x, p.y - 7, 14, '#5eead4')
           this.sound.play('die')
-          this.banner = { text: this.lives > 0 ? 'OUCH!' : 'GAME OVER', ticks: 70 }
+          this.banner = {
+            text: this.lives > 0 ? 'OUCH!' : 'GAME OVER',
+            ticks: 70,
+          }
           return
         }
       }
@@ -581,7 +590,13 @@ class BumperBubbles implements ArcadeGameInstance {
     }
     const sameRow = Math.abs(ty - p.y) < 20
     const facing = (dx < 0 ? -1 : 1) === p.face
-    if (!popTarget && sameRow && facing && Math.abs(dx) < 90 && this.tick % 20 === 0) {
+    if (
+      !popTarget &&
+      sameRow &&
+      facing &&
+      Math.abs(dx) < 90 &&
+      this.tick % 20 === 0
+    ) {
       frame.pressed.a = true
     }
     if (ty < p.y - 24 && p.onGround && this.tick % 25 === 0) {

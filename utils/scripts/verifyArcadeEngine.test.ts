@@ -102,6 +102,16 @@ import {
 import { drawDmd, fitScale, formatScore } from '../arcade/pinball/dmdScenes'
 import { cameraViewFor, PinballRuntime } from '../arcade/pinball/runtime'
 import {
+  doorSteps,
+  HURRY_FLOOR,
+  HURRY_RAISE,
+  HURRY_SECONDS,
+  HURRY_START,
+  hurryValue,
+  keysNeeded,
+  musicFor,
+} from '../arcade/pinball/rules/subTable'
+import {
   BALL_SAVE_STEPS,
   COMBO_STEPS,
   EXTRA_BALL_AT,
@@ -1358,6 +1368,37 @@ async function runPinballFeel() {
  */
 async function runPinballSoak() {
   const table = AMI_VILLAGE_GREYBOX
+  // A ball dropped onto a slingshot (as one leaving a ramp's return off its
+  // edge can be) rides the sling's plastic and rolls off: it never sinks in
+  // between the sling's walls, where it wedges for good (found by this soak,
+  // t-012). Uncapped, its centre settles 30 mm up inside the triangle.
+  const inside = (x: number, z: number, side: number) => {
+    const [a, b, c] = [
+      [0.17 * side, -0.22],
+      [0.17 * side, -0.14],
+      [0.115 * side, -0.105],
+    ] as const
+    const cross = (p: readonly number[], q: readonly number[]) =>
+      (x - q[0]!) * (p[1]! - q[1]!) - (p[0]! - q[0]!) * (z - q[1]!)
+    const d = [cross(a, b), cross(b, c), cross(c, a)]
+    return d.every((v) => v >= 0) || d.every((v) => v <= 0)
+  }
+  for (const side of [-1, 1]) {
+    const physics = new PinballPhysics(RAPIER, table)
+    physics.serveBall([0.154 * side, 0.05, -0.149], [0, 0, 0])
+    let lowest = Infinity
+    for (let i = 0; i < PHYSICS_HZ; i++) {
+      physics.step()
+      for (const ball of physics.ballViews())
+        if (inside(ball.position[0], ball.position[2], side))
+          lowest = Math.min(lowest, ball.position[1])
+    }
+    assert.ok(
+      lowest > 0.04,
+      `a ball on the ${side < 0 ? 'left' : 'right'} sling stays on its plastic (${lowest.toFixed(3)})`,
+    )
+    physics.dispose()
+  }
   const runtime = new PinballRuntime(
     { rng: mulberry32(11), sound: { play: () => {} }, demo: true, hiScore: 0 },
     RAPIER,
@@ -1588,7 +1629,13 @@ async function runPinballSubTable() {
     sw({ type: 'capture', id: 'secret-hole', ballId: 1 }),
   ).state
   assert.equal(state.sub.found, 2)
-  state = stepRules(state, sw({ type: 'capture', id: 'lock', ballId: 1 })).state
+  // Two visits in, the door takes three locks (t-012).
+  for (let i = 0; i < 3; i++)
+    state = stepRules(
+      state,
+      sw({ type: 'capture', id: 'lock', ballId: 1 }),
+    ).state
+  assert.ok(state.sub.doorOpen)
   step = stepRules(state, sw({ type: 'drain', ballId: 1 }))
   assert.equal(step.state.sub.doorOpen, false, 'a new ball shuts the door')
   assert.equal(step.state.bonusMultiplier, 1)
@@ -2243,7 +2290,12 @@ async function runPinballRender() {
   const lit: PinballRulesState = {
     ...initialRules(table.balls),
     dropsDown: { ami: ['drop-a', 'drop-m', 'drop-i'] },
-    sub: { doorOpen: true, closesAt: 1e9, found: 0, nets: ['net-n'] },
+    sub: {
+      ...initialRules(table.balls).sub,
+      doorOpen: true,
+      closesAt: 1e9,
+      nets: ['net-n'],
+    },
     bonusMultiplier: 3,
     kickbackLit: false,
   }
@@ -2945,6 +2997,209 @@ async function runPinballRules() {
   runtime.dispose()
 }
 
+async function runPinballSubRules() {
+  // conductor kind-pinball/t-012: the hidden room's rules. Discovery gets
+  // harder, the room plays its own hurry-up and music, a village's clock
+  // waits for the ball, and the rewards ride home.
+  const table = AMI_VILLAGE_GREYBOX
+  const context = { shots: table.shots }
+  let tick = 0
+  let effects: RuleEffect[] = []
+  const feed = (state: PinballRulesState, event: SwitchEvent) => {
+    tick += 10
+    const step = stepRules(state, { type: 'switch', event, tick }, context)
+    effects = step.effects
+    return step.state
+  }
+  const wait = (state: PinballRulesState, steps: number) => {
+    const all: RuleEffect[] = []
+    let next = state
+    const until = tick + steps
+    while (tick < until) {
+      tick += 10
+      const step = stepRules(next, { type: 'tick', tick }, context)
+      all.push(...step.effects)
+      next = step.state
+    }
+    effects = all
+    return next
+  }
+  const capture = (state: PinballRulesState, id: string, ballId = 1) =>
+    feed(state, { type: 'capture', id, ballId })
+  const said = (text: string) =>
+    effects.some((e) => e.type === 'dmd' && e.text === text)
+  type DmdEffect = Extract<RuleEffect, { type: 'dmd' }>
+  const scene = (name: string) =>
+    effects.find((e): e is DmdEffect => e.type === 'dmd' && e.scene === name)
+  const opened = () =>
+    effects.some(
+      (e) =>
+        e.type === 'mechanism' && e.id === 'secret-door' && e.action === 'open',
+    )
+  const nets = (state: PinballRulesState) => {
+    let next = state
+    for (const id of ['net-n', 'net-e', 'net-t'])
+      next = feed(next, { type: 'contact', id, ballId: 1, impulse: 1 })
+    return next
+  }
+  const start = () => {
+    tick = 0
+    return stepRules(initialRules(3, 21), { type: 'start' }, context).state
+  }
+
+  // Discovery: the first visit takes one lock; the door creaks and, if
+  // nobody finds it, shuts again with a last tease.
+  assert.deepEqual([0, 1, 2, 3, 9].map(keysNeeded), [1, 2, 3, 3, 3])
+  assert.ok(doorSteps(1) < doorSteps(0) && doorSteps(9) >= PHYSICS_HZ * 10)
+  let s = start()
+  s = capture(s, 'lock')
+  assert.ok(s.sub.doorOpen && opened() && said('A DOOR CREAKS...'))
+  assert.ok(
+    effects.some((e) => e.type === 'sound' && e.name === 'secret-tease'),
+  )
+  assert.equal(lampStates(s, table).lamps['flasher-secret'], 'blink')
+  s = wait(s, doorSteps(0) + 20)
+  assert.ok(!s.sub.doorOpen && said('THE DOOR SHUTS...'))
+
+  // Found: NET RUN starts, the room has its own music.
+  s = capture(s, 'lock')
+  s = capture(s, 'secret-hole')
+  assert.equal(s.sub.found, 1)
+  assert.ok(s.sub.inRoom)
+  assert.equal(scene('mode-intro')?.sub, 'YOU FOUND IT')
+  assert.equal(musicFor(s), 'sub-table')
+  s = wait(s, PHYSICS_HZ + 10)
+  const timer = scene('mode-timer')
+  assert.equal(timer?.text, 'NET RUN')
+  assert.equal(timer?.value, HURRY_SECONDS - 1)
+  // The hurry-up runs down to its floor.
+  assert.equal(hurryValue(s.sub, s.sub.hurryAt), HURRY_START)
+  assert.ok(
+    hurryValue(s.sub, s.sub.hurryAt + PHYSICS_HZ * 10) < HURRY_START &&
+      hurryValue(s.sub, s.sub.hurryAt + PHYSICS_HZ * 10) > HURRY_FLOOR,
+  )
+  assert.equal(
+    hurryValue(s.sub, s.sub.hurryAt + PHYSICS_HZ * HURRY_SECONDS * 2),
+    HURRY_FLOOR,
+  )
+
+  // HOME with the nets: the hurry-up, +2x, a village rescued on the map and
+  // doubled jackpots.
+  s = nets(s)
+  let before = s.score
+  const collect = hurryValue(s.sub, tick + 10)
+  s = capture(s, 'sub-home')
+  assert.ok(s.score - before >= collect, 'the hurry-up is collected')
+  assert.equal(scene('mode-total')?.value, collect)
+  assert.equal(s.bonusMultiplier, 3)
+  assert.equal(s.play.villages.visited.length, 1, 'a village is rescued')
+  assert.equal(s.play.villages.saved, 1)
+  assert.equal(s.play.jackpotX, 2)
+  assert.ok(!s.sub.inRoom)
+  assert.equal(musicFor(s), null)
+  assert.ok(
+    effects.some((e) => e.type === 'dmd-clear' && e.scene === 'mode-timer'),
+  )
+
+  // Rediscovery is harder: two locks, and a shorter door.
+  s = capture(s, 'lock')
+  assert.ok(!s.sub.doorOpen && said('THE DOOR RATTLES'))
+  s = capture(s, 'lock')
+  assert.ok(s.sub.doorOpen)
+  assert.equal(s.sub.closesAt, tick + doorSteps(1))
+  s = capture(s, 'secret-hole')
+  assert.equal(scene('mode-intro')?.sub, 'WELCOME BACK')
+  assert.equal(
+    hurryValue(s.sub, s.sub.hurryAt),
+    HURRY_START + HURRY_RAISE,
+    'each visit is worth more',
+  )
+  // Past the room's flippers: no hurry-up, nothing but the nets' 1x.
+  before = s.score
+  s = capture(s, 'sub-drain')
+  assert.equal(s.score, before)
+  assert.equal(s.bonusMultiplier, 3)
+  // A plain HOME relights the saucer when a village needs relighting.
+  s = {
+    ...s,
+    play: {
+      ...s.play,
+      villages: { ...s.play.villages, scoopLit: false, rampsToRelight: 2 },
+    },
+  }
+  for (let i = 0; i < 3; i++) s = capture(s, 'lock')
+  s = capture(s, 'secret-hole')
+  s = capture(s, 'sub-home')
+  assert.ok(s.play.villages.scoopLit && said('VILLAGE IS LIT'))
+
+  // A village's clock waits while the ball is in the room.
+  s = start()
+  s = capture(s, 'award')
+  const mode = s.play.villages.mode!
+  s = capture(s, 'lock')
+  s = capture(s, 'secret-hole')
+  assert.equal(s.play.villages.mode?.pausedAt, tick)
+  assert.equal(musicFor(s), 'sub-table')
+  const away = PHYSICS_HZ * 8
+  s = wait(s, away)
+  assert.ok(!scene('mode-total'), 'the village does not time out meanwhile')
+  s = capture(s, 'sub-drain')
+  const resumed = s.play.villages.mode!
+  assert.ok(resumed.endsAt >= mode.endsAt + away, 'the clock picks up again')
+  assert.equal(resumed.pausedAt, null)
+  assert.equal(scene('mode-timer')?.text, VILLAGES[resumed.village]!.name)
+  assert.equal(musicFor(s), 'mode')
+
+  // In multiball, HOME adds a ball, and doubled jackpots pay double.
+  s = start()
+  s = {
+    ...s,
+    ballsInPlay: 3,
+    play: {
+      ...s.play,
+      jackpotX: 2,
+      multiball: { running: true, jackpots: 0, superLit: false },
+    },
+  }
+  assert.equal(musicFor(s), 'multiball')
+  s = capture(s, 'lock')
+  s = capture(s, 'secret-hole')
+  s = capture(s, 'sub-home')
+  assert.ok(effects.some((e) => e.type === 'add-ball' && e.count === 1))
+  assert.equal(s.ballsInPlay, 4)
+  for (const id of ['left-ramp-entry', 'left-ramp-made'])
+    s = feed(s, { type: 'sensor-enter', id, ballId: 2 })
+  assert.equal(scene('jackpot')?.value, 2 * VALUES.jackpot)
+
+  // The room feeds the wizard mode: a skilled player rescues villages there.
+  s = start()
+  s = {
+    ...s,
+    play: {
+      ...s.play,
+      villages: {
+        ...s.play.villages,
+        visited: VILLAGES.slice(1).map((_, i) => i + 1),
+      },
+    },
+  }
+  s = capture(s, 'lock')
+  s = capture(s, 'secret-hole')
+  s = nets(s)
+  s = capture(s, 'sub-home')
+  assert.equal(s.play.villages.visited.length, VILLAGES.length)
+  assert.ok(s.play.villages.scoopLit)
+  s = capture(s, 'award')
+  assert.ok(s.play.wizard.running, 'the saucer starts the wizard mode')
+
+  // The runtime plays the music the rules call for once audio is unlocked.
+  assert.equal(
+    musicFor({ ...s, tilted: true }),
+    null,
+    'a tilted machine is silent',
+  )
+}
+
 await runLanternRescue()
 await runCoopGames()
 await runPinball3d()
@@ -2954,5 +3209,6 @@ await runPinballFeel()
 await runPinballRender()
 await runPinballDmd()
 await runPinballRules()
+await runPinballSubRules()
 await runPinballSoak()
 console.log('verifyArcadeEngine: ok')

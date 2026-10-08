@@ -262,8 +262,40 @@ function side(name: 'left' | 'right'): ColliderDef[] {
     wall(`sling-${name}-back`, top, bottom, { material: 'plastic-printed' }),
     wall(`sling-${name}-base`, bottom, tip, { material: 'plastic-printed' }),
     wall(`sling-${name}-kicker`, top, tip, { material: 'rubber', kick: 1.4 }),
+    slingCap(`sling-${name}-cap`, [top, bottom, tip]),
   )
   return out
+}
+
+/** The sling plastic's height at its edges, and at its peak. */
+const SLING_CAP_EDGE = 0.03
+const SLING_CAP_PEAK = 0.038
+
+/**
+ * The plastic over a slingshot: a shallow pitched roof over the triangle, so
+ * a ball dropped off a ramp's return rolls off into the inlane or onto the
+ * playfield instead of falling inside the sling and wedging there for good
+ * (found by the attract soak, t-012). Its edges sit above a ball rolling
+ * against the sling, so the kicker plays as before.
+ */
+function slingCap(id: string, corners: [XZ, XZ, XZ]): ColliderDef {
+  const cx = corners.reduce((a, c) => a + c[0], 0) / 3
+  const cz = corners.reduce((a, c) => a + c[1], 0) / 3
+  const vertices = [
+    ...corners.flatMap(([x, z]) => [x, SLING_CAP_EDGE, z]),
+    cx,
+    SLING_CAP_PEAK,
+    cz,
+  ]
+  const indices: number[] = []
+  for (let i = 0; i < 3; i++) {
+    const j = (i + 1) % 3
+    const [a, b] = [corners[i]!, corners[j]!]
+    // Wind each face so its normal points up (the mirrored side flips it).
+    const up = (b[0] - a[0]) * (cz - a[1]) - (b[1] - a[1]) * (cx - a[0]) < 0
+    indices.push(...(up ? [i, j, 3] : [j, i, 3]))
+  }
+  return { kind: 'mesh', id, vertices, indices, material: 'plastic-clear' }
 }
 
 /** The left ramp's centreline (x, z, height); the right ramp mirrors it. */

@@ -81,12 +81,13 @@ export class PinballMixer {
     return sound?.muted === true
   }
 
-  startMusic(bed: PinballMusicBed) {
+  /** Start a music bed; false when audio is muted or not unlocked yet. */
+  startMusic(bed: PinballMusicBed): boolean {
     this.stopMusic()
-    if (this.isMuted()) return
-    if (!this.context || this.context.state !== 'running') return
+    if (this.isMuted()) return false
+    if (!this.context || this.context.state !== 'running') return false
     const bus = this.buses.get('music')
-    if (!bus) return
+    if (!bus) return false
     for (const frequency of MUSIC_BEDS[bed]) {
       const oscillator = this.context.createOscillator()
       const gain = this.context.createGain()
@@ -98,6 +99,7 @@ export class PinballMixer {
       oscillator.start()
       this.music.push(oscillator)
     }
+    return true
   }
 
   stopMusic() {

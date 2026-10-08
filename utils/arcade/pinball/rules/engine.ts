@@ -12,12 +12,11 @@
 // extra ball, ball save, bonus and match) live in rules/features.ts and ride
 // on this reducer in `state.play`.
 //
-// The hidden sub-table (t-011): locking a ball is the feat that opens the
-// secret door for a short while, with only a tease on the DMD. A ball through
-// the door is a discovery. In the room, the N-E-T standups light the full
-// reward; the ball comes home through HOME (or past the room's flippers) and
-// what it earned rides back as the bonus multiplier. t-012 deepens the
-// discovery path, the room's own mode and the rewards on this same state.
+// The hidden sub-table (t-011, rules in t-012: rules/subTable.ts): locking
+// balls is the feat that opens the secret door for a short while, harder on
+// each visit, with only teases on the DMD. A ball through the door is a
+// discovery and starts the room's NET RUN hurry-up; what it earns there rides
+// back home through HOME (or past the room's flippers).
 //
 // Physics-feel rules (t-005): the left outlane kickback is lit at the start
 // of each ball, fires once, and is relit by knocking down the A-M-I bank.
@@ -41,6 +40,16 @@ import {
   type FeatureState,
 } from './features'
 import { initialShotProgress, recognizeShots, type ShotProgress } from './shots'
+import {
+  enterRoom,
+  initialSubTable,
+  leaveRoom,
+  lockFeat,
+  NET_TARGETS,
+  netHit,
+  tickSubTable,
+  type SubTableState,
+} from './subTable'
 import { VALUES } from './village'
 
 export type RulesEvent =
@@ -51,15 +60,8 @@ export type RulesEvent =
   /** The player nudged the cabinet. */
   | { type: 'nudge'; tick: number }
 
-export type SubTableState = {
-  /** The secret door is open (it closes itself at `closesAt`). */
-  doorOpen: boolean
-  closesAt: number
-  /** Times a ball has found its way into the sub-table this game. */
-  found: number
-  /** N-E-T standups lit on this visit. */
-  nets: string[]
-}
+export type { SubTableState }
+export { SECRET_DOOR_STEPS } from './subTable'
 
 export type PinballRulesState = {
   score: number
@@ -113,14 +115,7 @@ export function initialRules(balls: number, seed = 1): PinballRulesState {
   }
 }
 
-function initialSubTable(): SubTableState {
-  return { doorOpen: false, closesAt: 0, found: 0, nets: [] }
-}
-
 const DROP_BANK_SIZE: Record<string, number> = { ami: 3 }
-/** How long the secret door stays open after the feat, in physics steps. */
-export const SECRET_DOOR_STEPS = PHYSICS_HZ * 25
-const NET_TARGETS = ['net-n', 'net-e', 'net-t']
 /** The tilt bob swings this long after a nudge; another nudge inside it warns. */
 export const TILT_BOB_STEPS = Math.round(PHYSICS_HZ * 1.5)
 /** Warnings before the next swing tilts the machine. */
@@ -137,10 +132,7 @@ export function stepRules(
   if (event.type === 'tick') {
     const next = { ...state }
     const effects: RuleEffect[] = []
-    if (state.sub.doorOpen && event.tick >= state.sub.closesAt) {
-      next.sub = { ...state.sub, doorOpen: false }
-      effects.push({ type: 'mechanism', id: 'secret-door', action: 'close' })
-    }
+    tickSubTable(next, event.tick, effects)
     tickFeatures(next, event.tick, effects)
     if (next.sub === state.sub && next.play === state.play)
       return { state, effects: [] }
@@ -234,7 +226,7 @@ export function stepRules(
         lives,
         ballsInPlay: 1,
         dropsDown: {},
-        sub: { ...next.sub, doorOpen: false, nets: [] },
+        sub: { ...next.sub, doorOpen: false, nets: [], inRoom: false },
         bonusMultiplier: 1,
         kickbackLit: true,
         tiltWarnings: 0,
@@ -264,46 +256,11 @@ export function stepRules(
     if (sw.id === 'lock') {
       next.dropsDown = { ...next.dropsDown, ami: [] }
       effects.push({ type: 'mechanism', id: 'ami', action: 'reset' })
-      // The feat: somewhere up the left orbit, a door gives way. The DMD
-      // only teases; the player has to find where.
-      next.sub = {
-        ...next.sub,
-        doorOpen: true,
-        closesAt: tick + SECRET_DOOR_STEPS,
-      }
-      effects.push(
-        { type: 'mechanism', id: 'secret-door', action: 'open' },
-        { type: 'dmd', text: 'A DOOR CREAKS...', ms: 1800 },
-      )
+      lockFeat(next, tick, effects)
     } else if (sw.id === 'secret-hole') {
-      next.sub = {
-        ...next.sub,
-        doorOpen: false,
-        found: next.sub.found + 1,
-        nets: [],
-      }
-      effects.push(
-        { type: 'mechanism', id: 'secret-door', action: 'close' },
-        {
-          type: 'dmd',
-          text: 'SECRET VILLAGE',
-          sub: next.sub.found === 1 ? 'YOU FOUND IT' : 'WELCOME BACK',
-          ms: 2200,
-        },
-      )
+      enterRoom(next, tick, effects)
     } else if (sw.id === 'sub-home' || sw.id === 'sub-drain') {
-      // Home through the goal: x2 more, or x1 without the nets. Draining
-      // past the room's flippers still brings the nets' x1 home.
-      const nets = next.sub.nets.length >= NET_TARGETS.length
-      const reward = (sw.id === 'sub-home' ? 1 : 0) + (nets ? 1 : 0)
-      next.bonusMultiplier += reward
-      next.sub = { ...next.sub, nets: [] }
-      effects.push({
-        type: 'dmd',
-        text: 'BACK TO THE VILLAGE',
-        sub: reward ? `BONUS ${next.bonusMultiplier}X` : undefined,
-        ms: 1800,
-      })
+      leaveRoom(next, sw.id === 'sub-home', tick, effects)
     }
     effects.push({ type: 'sound', name: 'scoop' })
     return { state: next, effects }
@@ -337,22 +294,8 @@ export function stepRules(
     }
     if (sw.type === 'sensor-enter' && sw.id === 'shooter-exit') {
       plunged(next, tick, effects)
-    } else if (NET_TARGETS.includes(sw.id) && !next.sub.nets.includes(sw.id)) {
-      const nets = [...next.sub.nets, sw.id]
-      next.sub = { ...next.sub, nets }
-      award(next, VALUES.standup)
-      effects.push(
-        { type: 'sound', name: 'drop' },
-        { type: 'mechanism', id: sw.id, action: 'flash' },
-      )
-      if (nets.length === NET_TARGETS.length) {
-        effects.push({
-          type: 'dmd',
-          text: 'NETS DELIVERED',
-          sub: 'GO HOME',
-          ms: 1600,
-        })
-      }
+    } else if (NET_TARGETS.includes(sw.id)) {
+      netHit(next, sw.id, effects)
     } else if (sw.id.startsWith('pop-')) {
       bumper(next, sw.id, tick, effects)
       effects.push(

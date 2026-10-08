@@ -37,6 +37,8 @@ import {
   type RulesEvent,
 } from './rules/engine'
 import { lampStates } from './rules/lamps'
+import { musicFor } from './rules/subTable'
+import type { PinballMusicBed } from './audio/catalog'
 import {
   applyShows,
   attractShow,
@@ -54,6 +56,8 @@ const PULL_TICKS = 45
 /** A ball this slow for this long, off the plunger, gets a small shove. */
 const STILL_SPEED = 0.01
 const STILL_TICKS = 60 * 4
+/** How far past a held flipper's length a resting ball counts as cradled. */
+const CRADLE_REACH = 0.03
 /** The sub-table's centre line, for the attract pilot. */
 const ROOM_PILOT_X = 0.02
 /** How often the attract pilot makes a save it goes for. */
@@ -97,6 +101,8 @@ export class PinballRuntime implements ArcadeWebGLGameInstance {
   private addGap = 0
   /** Ticks until the plunger fires a ball it served itself; 0 when none waits. */
   private autoLaunch = 0
+  /** The music bed playing (rules/subTable.ts musicFor). */
+  private bed: PinballMusicBed | null = null
   /** Ticks each ball (by id) has sat still, for the ball search. */
   private still = new Map<number, number>()
   private tick = 0
@@ -193,7 +199,8 @@ export class PinballRuntime implements ArcadeWebGLGameInstance {
         this.apply({ type: 'switch', event, tick: this.steps })
     }
     this.apply({ type: 'tick', tick: this.steps })
-    this.unstick(left || right)
+    this.unstick({ left, right })
+    this.music()
     this.scene?.setView(this.view())
     this.lamps()
     this.dmdQueue.tick(TICK_MS)
@@ -214,6 +221,18 @@ export class PinballRuntime implements ArcadeWebGLGameInstance {
       },
       this.dmdQueue.now,
     )
+  }
+
+  /** Play the music the rules call for; a bed that could not start yet is retried. */
+  private music() {
+    const bed = this.demo ? null : musicFor(this.rules)
+    if (bed === this.bed) return
+    if (!bed) {
+      this.mixer.stopMusic()
+      this.bed = null
+    } else if (this.mixer.startMusic(bed)) {
+      this.bed = bed
+    }
   }
 
   /** Light the table from the rules, or run the attract show in a demo. */
@@ -289,22 +308,28 @@ export class PinballRuntime implements ArcadeWebGLGameInstance {
    * Ball search: a ball that has sat still somewhere odd for a while gets the
    * table shaken, as a real machine pulses its coils. Each ball is watched on
    * its own, so one moving ball cannot hide another that is stuck. A ball on
-   * the plunger, in a scoop, or cradled on a held flipper is not stuck.
+   * the plunger, in a scoop, or cradled on a held flipper is not stuck; a
+   * held flipper only vouches for a ball within its reach, so a player (or
+   * the attract pilot) flipping cannot hide a ball stuck elsewhere.
    */
-  private unstick(flipperHeld: boolean) {
+  private unstick(held: { left: boolean; right: boolean }) {
     const balls = this.physics.ballViews()
     const plunger = this.physics.table.plunger.rest
+    const flippers = this.physics.table.flippers.filter((f) => held[f.side])
     let search = false
     for (const ball of balls) {
       const onPlunger =
         Math.abs(ball.position[0] - plunger[0]) < 0.012 &&
         Math.abs(ball.position[2] - plunger[2]) < 0.03
-      if (
-        ball.captured ||
-        onPlunger ||
-        flipperHeld ||
-        ball.speed > STILL_SPEED
-      ) {
+      const cradled = flippers.some(
+        (f) =>
+          Math.hypot(
+            ball.position[0] - f.pivot[0],
+            ball.position[2] - f.pivot[2],
+          ) <
+          f.length + CRADLE_REACH,
+      )
+      if (ball.captured || onPlunger || cradled || ball.speed > STILL_SPEED) {
         this.still.set(ball.id, 0)
         continue
       }

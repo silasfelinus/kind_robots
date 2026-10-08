@@ -371,7 +371,9 @@ const PAGES: PageSeed[] = [
     page: 'coat-dance',
     title: 'Coat Dance — The Cloakroom Ball',
     scene:
-      'An empty ballroom where coats on stands sway as though dancing, chandeliers dimmed, moonlight across the parquet. Elegant and uncanny.',
+      'indoors, deserted cloakroom of a grand ballroom at night, a long polished wooden counter along the left wall, rows of empty brass hooks and numbered brass tags on the walls, velvet ropes, an open archway on the right onto a moonlit ballroom with dimmed crystal chandeliers and polished parquet, elegant and uncanny',
+    negative:
+      'person, figure, standing figure, walking figure, mannequin, dancer, back view, cloak, hood, robe, coat, gown, red coat',
     canvasFor: { tablet: 'mobile' },
   },
   {

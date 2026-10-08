@@ -71,6 +71,7 @@ import {
   stepRules,
   TILT_BOB_STEPS,
   type PinballRulesState,
+  type RulesEvent,
 } from '../arcade/pinball/rules/engine'
 import {
   DEFAULT_WINDOW_TICKS,
@@ -104,6 +105,13 @@ import { cameraViewFor, PinballRuntime } from '../arcade/pinball/runtime'
 import { aimedShot, delaysFor } from '../arcade/pinball/tuning/aim'
 import { BOT_SKILLS, PinballBot } from '../arcade/pinball/tuning/bot'
 import { playGame, summarize } from './pinballTuning'
+import { goalsMet, MASTERY_GOALS } from '../arcade/pinball/rules/mastery'
+import {
+  masteryLine,
+  masteryProgress,
+  mergeMastery,
+  sanitizeMastery,
+} from '../arcade/mastery'
 import {
   doorSteps,
   HURRY_FLOOR,
@@ -3247,6 +3255,230 @@ async function runPinballTuning() {
   assert.ok(frame.held.down, 'the bot pulls the plunger')
 }
 
+async function runPinballMastery() {
+  // conductor kind-pinball/t-014: the mastery ladder. Goals are read from the
+  // rules' before/after state, announced on the DMD only the first time a
+  // player earns one, kept per player by the arcade store, and the ladder's
+  // secrets stay question marks until earned.
+  const table = AMI_VILLAGE_GREYBOX
+  const context = { shots: table.shots }
+  let tick = 0
+  const met: string[] = []
+  const feed = (state: PinballRulesState, event: SwitchEvent) => {
+    tick += 10
+    const step = stepRules(state, { type: 'switch', event, tick }, context)
+    met.push(...goalsMet(state, step.state, step.effects))
+    return step.state
+  }
+  const start = (seed = 7) => {
+    tick = 0
+    met.length = 0
+    return stepRules(initialRules(3, seed), { type: 'start' }, context).state
+  }
+  const make = (state: PinballRulesState, id: string) => {
+    const def = table.shots.find((s) => s.id === id)!
+    let next = state
+    for (const sensor of def.sensors)
+      next = feed(
+        next,
+        def.kind === 'scoop'
+          ? { type: 'capture', id: sensor, ballId: 1 }
+          : def.kind === 'spinner'
+            ? { type: 'spin', id: sensor, ballId: 1, speed: 2 }
+            : { type: 'sensor-enter', id: sensor, ballId: 1 },
+      )
+    return next
+  }
+
+  // Every rung has a unique id the store accepts, and the ladder is the
+  // one the 3D cabinet shows.
+  const ids = MASTERY_GOALS.map((g) => g.id)
+  assert.equal(new Set(ids).size, ids.length)
+  assert.deepEqual(sanitizeMastery({ 'kind-pinball-3d': ids }), {
+    'kind-pinball-3d': ids,
+  })
+  assert.equal(findArcadeGame('kind-pinball-3d')?.mastery, MASTERY_GOALS)
+
+  // Real play: the skill shot, then the hidden room and NETS HOME, which
+  // also saves a village.
+  let s = feed(start(), { type: 'sensor-enter', id: 'shooter-exit', ballId: 1 })
+  s = make(s, s.play.skill.target)
+  assert.deepEqual(met, ['skill-shot'])
+  met.length = 0
+  s = feed(s, { type: 'capture', id: 'lock', ballId: 1 })
+  s = feed(s, { type: 'capture', id: 'secret-hole', ballId: 1 })
+  assert.ok(met.includes('secret'), 'finding the room is a goal')
+  for (const id of ['net-n', 'net-e', 'net-t'])
+    s = feed(s, { type: 'contact', id, ballId: 1, impulse: 1 })
+  s = feed(s, { type: 'capture', id: 'sub-home', ballId: 1 })
+  assert.ok(met.includes('nets-home') && met.includes('village-saved'))
+  assert.equal(s.bonusMultiplier, 3)
+  assert.ok(!met.includes('wizard') && !met.includes('ten-million'))
+
+  // The rest, from the state changes that mean them.
+  const base = start()
+  const play = base.play
+  const with_ = (
+    over: Partial<PinballRulesState['play']>,
+    rest: Partial<PinballRulesState> = {},
+  ): PinballRulesState => ({ ...base, ...rest, play: { ...play, ...over } })
+  const cases: Array<[string, PinballRulesState]> = [
+    [
+      'first-village',
+      with_({
+        villages: {
+          ...play.villages,
+          mode: {
+            village: 0,
+            hits: 0,
+            endsAt: 1,
+            total: 0,
+            shown: 1,
+            pausedAt: null,
+          },
+        },
+      }),
+    ],
+    ['combo-3', with_({ combo: { ...play.combo, count: 2 } })],
+    [
+      'multiball',
+      with_({
+        multiballs: 1,
+        multiball: { running: true, jackpots: 0, superLit: false },
+      }),
+    ],
+    ['extra-ball', with_({ extraBalls: 1 })],
+    ['wizard', with_({ wizard: { running: true, hits: 0, total: 0 } })],
+    ['ten-million', with_({}, { score: 10_000_000 })],
+  ]
+  for (const [goal, after] of cases)
+    assert.deepEqual(goalsMet(base, after, []), [goal], goal)
+  const running = with_({
+    multiball: { running: true, jackpots: 0, superLit: false },
+  })
+  const dmd = (scene: DmdSceneId): RuleEffect[] => [
+    { type: 'dmd', text: 'X', ms: 1, scene },
+  ]
+  assert.deepEqual(goalsMet(running, running, dmd('jackpot')), ['jackpot'])
+  assert.deepEqual(goalsMet(base, base, dmd('jackpot')), [], 'wizard rescues')
+  assert.deepEqual(goalsMet(running, running, dmd('super-jackpot')), [
+    'super-jackpot',
+  ])
+  assert.deepEqual(goalsMet(base, base, []), [])
+
+  // The runtime: a goal already earned is kept quietly; a new one is
+  // announced with its place on the ladder. The demo earns nothing.
+  const runtime = new PinballRuntime(
+    {
+      rng: mulberry32(5),
+      sound: { play: () => {} },
+      demo: false,
+      hiScore: 0,
+      mastery: ['skill-shot'],
+    },
+    RAPIER,
+    table,
+    () => stubRenderer({ disposed: 0, frames: 0 }),
+  )
+  const inner = runtime as unknown as {
+    rules: PinballRulesState
+    apply(event: RulesEvent): void
+  }
+  const sling = (r: { apply(event: RulesEvent): void }) =>
+    r.apply({
+      type: 'switch',
+      tick: 10,
+      event: {
+        type: 'contact',
+        id: 'sling-left-kicker',
+        ballId: 1,
+        impulse: 1,
+      },
+    })
+  const told = () =>
+    [runtime.dmdQueue.showing, ...runtime.dmdQueue.pending].map(
+      (d) => d?.request.text,
+    )
+  runtime.dmdQueue.reset()
+  inner.rules = { ...inner.rules, score: 9_999_999 }
+  sling(inner)
+  assert.deepEqual(runtime.mastered, ['ten-million'])
+  assert.ok(told().includes('TEN MILLION'), 'a new goal is announced')
+  const announced = [runtime.dmdQueue.showing, ...runtime.dmdQueue.pending]
+    .map((d) => d?.request)
+    .find((r) => r?.text === 'TEN MILLION')
+  assert.equal(announced?.sub, `MASTERY 2/${MASTERY_GOALS.length}`)
+  runtime.dmdQueue.reset()
+  inner.rules = { ...inner.rules, score: 9_999_999 }
+  sling(inner)
+  assert.deepEqual(runtime.mastered, ['ten-million'], 'once a game')
+  const quiet = new PinballRuntime(
+    {
+      rng: mulberry32(5),
+      sound: { play: () => {} },
+      demo: false,
+      hiScore: 0,
+      mastery: ['ten-million'],
+    },
+    RAPIER,
+    table,
+    () => stubRenderer({ disposed: 0, frames: 0 }),
+  )
+  const quietInner = quiet as unknown as typeof inner
+  quiet.dmdQueue.reset()
+  quietInner.rules = { ...quietInner.rules, score: 9_999_999 }
+  sling(quietInner)
+  assert.deepEqual(quiet.mastered, ['ten-million'], 'still reported')
+  assert.ok(
+    ![quiet.dmdQueue.showing, ...quiet.dmdQueue.pending].some(
+      (d) => d?.request.text === 'TEN MILLION',
+    ),
+    'an earned goal is not announced again',
+  )
+  const demo = new PinballRuntime(
+    { rng: mulberry32(5), sound: { play: () => {} }, demo: true, hiScore: 0 },
+    RAPIER,
+    table,
+    () => stubRenderer({ disposed: 0, frames: 0 }),
+  )
+  const demoInner = demo as unknown as typeof inner
+  demoInner.rules = { ...demoInner.rules, score: 9_999_999 }
+  sling(demoInner)
+  assert.deepEqual(demo.mastered, [], 'the attract demo earns nothing')
+  runtime.dispose()
+  quiet.dispose()
+  demo.dispose()
+
+  // The store's half: merged without repeats, junk dropped, and the ladder's
+  // secrets stay hidden on the attract page until earned.
+  let record = mergeMastery({}, 'kind-pinball-3d', ['jackpot', 'jackpot'])
+  record = mergeMastery(record, 'kind-pinball-3d', ['secret', 'jackpot'])
+  assert.deepEqual(record, { 'kind-pinball-3d': ['jackpot', 'secret'] })
+  assert.equal(mergeMastery(record, 'kind-pinball-3d', ['jackpot']), record)
+  assert.deepEqual(
+    sanitizeMastery({
+      'kind-pinball-3d': ['jackpot', 7, 'BAD ID', 'jackpot'],
+      'bad slug!': ['x'],
+      other: 'nope',
+    }),
+    { 'kind-pinball-3d': ['jackpot'] },
+  )
+  assert.deepEqual(sanitizeMastery('[]'), {})
+  assert.deepEqual(sanitizeMastery([1]), {})
+  const progress = masteryProgress(MASTERY_GOALS, ['skill-shot', 'jackpot'])
+  assert.equal(progress.earned, 2)
+  assert.equal(progress.total, MASTERY_GOALS.length)
+  assert.equal(progress.next?.id, 'first-village')
+  const secret = MASTERY_GOALS.find((g) => g.id === 'secret')!
+  assert.equal(masteryLine(secret, false), '???')
+  assert.equal(masteryLine(secret, true), 'SECRET VILLAGE')
+  for (const goal of MASTERY_GOALS.filter((g) => !g.secret)) {
+    assert.ok(!/SECRET|HIDDEN|NET/.test(masteryLine(goal, false)), goal.id)
+    // The 360-wide how-to page fits each line at the font's scale 1.
+    assert.ok(measureText(masteryLine(goal, false)) <= 340, goal.id)
+  }
+}
+
 await runLanternRescue()
 await runCoopGames()
 await runPinball3d()
@@ -3257,6 +3489,7 @@ await runPinballRender()
 await runPinballDmd()
 await runPinballRules()
 await runPinballSubRules()
+await runPinballMastery()
 await runPinballTuning()
 await runPinballSoak()
 console.log('verifyArcadeEngine: ok')

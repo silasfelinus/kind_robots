@@ -235,10 +235,12 @@ import { drawText, lineStep, measureText } from '~/utils/arcade/font'
 import { mulberry32 } from '~/utils/arcade/curve'
 import { INITIALS_ALPHABET, isAllowedInitials } from '~/utils/arcade/initials'
 import { initialsFromUsername } from '~/utils/arcade/leaderboard'
+import { masteryLine, masteryProgress } from '~/utils/arcade/mastery'
 import {
   isWebGLInstance,
   type ArcadeButton,
   type ArcadeGameModule,
+  type ArcadeMasteryGoal,
   type ArcadePlayableInstance,
   type InputFrame,
 } from '~/utils/arcade/types'
@@ -568,6 +570,9 @@ function adopt<T extends ArcadePlayableInstance>(instance: T): T {
 
 /** Free a WebGL game's GPU, physics and audio resources (2D games hold none). */
 function retire(instance: ArcadePlayableInstance | null) {
+  // Goals earned in a game left unfinished still count.
+  if (instance?.mastered?.length)
+    store.recordMastery(props.slug, instance.mastered)
   if (isWebGLInstance(instance)) instance.dispose()
 }
 
@@ -634,6 +639,7 @@ function startGame() {
       demo: false,
       hiScore: hiScore(),
       players: players.value,
+      mastery: store.masteryFor(props.slug),
     }),
   )
   dispatch({ type: 'start' })
@@ -735,6 +741,7 @@ function tick() {
   if (current === 'playing' && game) {
     game.update(frames[0]!, frames)
     if (game.over) {
+      if (game.mastered?.length) store.recordMastery(props.slug, game.mastered)
       lastScore = game.score
       lastLevel = game.level
       qualifies = qualifiesForBoard(lastScore, board.value)
@@ -772,6 +779,38 @@ function drawPlayersLine(g: CanvasRenderingContext2D, w: number, y: number) {
     y,
     { align: 'center', color: '#a5f3fc', shadow: SHADOW },
   )
+}
+
+/**
+ * A cabinet's mastery ladder under its how-to-play lines: earned goals with a
+ * heart, open ones with what to do, open secrets as question marks.
+ */
+function drawMastery(
+  g: CanvasRenderingContext2D,
+  ladder: readonly ArcadeMasteryGoal[],
+  w: number,
+  h: number,
+  top: number,
+) {
+  const earned = new Set(store.masteryFor(props.slug))
+  const { earned: count, total } = masteryProgress(ladder, earned)
+  const step = Math.min(16, Math.floor((h - top - 30) / ladder.length))
+  if (step < 9) return
+  drawText(g, `MASTERY ${count}/${total}`, w / 2, top, {
+    scale: 2,
+    align: 'center',
+    color: '#ffffff',
+    shadow: SHADOW,
+  })
+  ladder.forEach((goal, i) => {
+    const have = earned.has(goal.id)
+    const line = masteryLine(goal, have)
+    drawText(g, have ? `* ${line}` : line, w / 2, top + 26 + i * step, {
+      align: 'center',
+      color: have ? '#f9a8d4' : '#94a3b8',
+      shadow: SHADOW,
+    })
+  })
 }
 
 function blinkOn() {
@@ -946,6 +985,8 @@ function render() {
         shadow: SHADOW,
       })
     })
+    if (info.mastery)
+      drawMastery(g, info.mastery, w, h, 80 + info.howTo.length * step + 16)
     return
   }
 

@@ -276,6 +276,56 @@ const arcadeChannelSource = readFileSync(
 )
 assert.match(arcadeChannelSource, /\nroute:\s*\/play\/arcade\n/)
 assert.match(arcadeChannelSource, /\nicon:\s*kind-icon:arcade\n/)
+assert.match(
+  arcadeChannelSource,
+  /\ntutorial:\s*\n[\s\S]*?title:\s*Arcade\n[\s\S]*?body:\s*Choose a cabinet and start playing\./,
+  'Arcade must keep explicit page-specific tutorial copy.',
+)
+assert.match(
+  arcadeChannelSource,
+  /\ntutorial:\s*\n[\s\S]*?image:\s*\/images\/arcade\/arcade-attract-splash\.webp/,
+  'Arcade tutorial help must keep its relevant attract-screen artwork.',
+)
+
+const projectsChannelSource = readFileSync(
+  'content/channels/projects/index.md',
+  'utf8',
+)
+for (const key of ['purpose', 'launch', 'evolving', 'boundaries']) {
+  assert.match(
+    projectsChannelSource,
+    new RegExp(`\\n\\s{4}- key:\\s*${key}\\n`),
+    `Projects conceptual tutorial must keep the "${key}" section.`,
+  )
+}
+assert.doesNotMatch(
+  projectsChannelSource,
+  /\ntutorial:\s*\n[\s\S]*?sections:\s*\n[\s\S]*?\n\s{4}- key:\s*arcade\n/,
+  'Projects tutorial must explain the channel instead of enumerating individual project tabs.',
+)
+
+const workspaceSheetSource = readFileSync(
+  'components/navigation/workspace-sheet.vue',
+  'utf8',
+)
+assert.match(
+  workspaceSheetSource,
+  /const tutorialChannelKey = computed\(\(\) => \{[\s\S]*?pageStore\.resolvedChannel[\s\S]*?modernChannel\?\.tutorial[\s\S]*?resolveTutorialChannelFromRoute\(route\.path\)/,
+  'Workspace tutorial resolution must prefer modern content channels before legacy route fallback.',
+)
+assert.ok(
+  workspaceSheetSource.includes(':tab="tutorialTabKey || undefined"'),
+  'Workspace tutorials must pass the active modern tab into the tutorial flyer.',
+)
+
+const tutorialFlyerSource = readFileSync(
+  'components/navigation/tutorial-flyer.vue',
+  'utf8',
+)
+assert.ok(
+  tutorialFlyerSource.includes('v-if="activeTabTutorial"'),
+  'Tutorial flyer must surface explicitly authored active-page help alongside conceptual channel guidance.',
+)
 assert.ok(
   workspaceHeaderSource.includes('to="/play/arcade"'),
   'The fixed workspace header must keep a direct Arcade shortcut.',

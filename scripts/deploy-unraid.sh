@@ -5,6 +5,8 @@ APP_DIR="${KIND_ROBOTS_APP_DIR:-/mnt/user/appdata/kind_robots}"
 IMAGE="${KIND_ROBOTS_IMAGE:-ghcr.io/silasfelinus/kind_robots:latest}"
 CONTAINER="${KIND_ROBOTS_CONTAINER:-KindRobots}"
 NETWORK="${KIND_ROBOTS_NETWORK:-cafepurr}"
+# The migration URL keeps its TLS hostname, but avoid public-IP hairpin routing.
+MIGRATION_HOST_MAPPING="${KIND_ROBOTS_MIGRATION_HOST_MAPPING:-acrocatranch.com:host-gateway}"
 ENV_FILE="${KIND_ROBOTS_ENV_FILE:-$APP_DIR/.env}"
 MIGRATION_ENV="${KIND_ROBOTS_MIGRATION_ENV:-$APP_DIR/.secrets/kindrobots-db-migrate.env}"
 STATE_DIR="${KIND_ROBOTS_DEPLOY_STATE_DIR:-$APP_DIR/.deploy-state}"
@@ -68,6 +70,7 @@ run_migrations() {
   log "applying pending migrations from image $image_ref"
   docker run --rm --no-healthcheck \
     --network "$NETWORK" \
+    --add-host "$MIGRATION_HOST_MAPPING" \
     --env-file "$ENV_FILE" \
     -e MIGRATION_DATABASE_URL \
     "$image_ref" \

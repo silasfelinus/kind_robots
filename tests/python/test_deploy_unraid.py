@@ -68,3 +68,15 @@ def test_migration_container_does_not_run_application_healthcheck() -> None:
 
     assert 'docker run --rm --no-healthcheck \\' in migration_block
     assert 'node scripts/prisma-migrate-deploy.mjs' in migration_block
+
+
+def test_migration_routes_public_database_hostname_via_local_host_gateway() -> None:
+    text = script_text()
+    migration_block = text.split('run_migrations() {', 1)[1].split('\n}', 1)[0]
+
+    assert 'MIGRATION_HOST_MAPPING="${KIND_ROBOTS_MIGRATION_HOST_MAPPING:-acrocatranch.com:host-gateway}"' in text
+    assert '--network "$NETWORK"' in migration_block
+    assert '--add-host "$MIGRATION_HOST_MAPPING"' in migration_block
+    assert '-e MIGRATION_DATABASE_URL' in migration_block
+    assert '--no-healthcheck' in migration_block
+    assert 'node scripts/prisma-migrate-deploy.mjs' in migration_block

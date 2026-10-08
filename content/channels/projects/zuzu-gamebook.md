@@ -6,7 +6,7 @@ label: Zuzu Gamebook
 title: Zuzu · The Bell That Never Rang
 subtitle: An illustrated branching weird-west adventure
 summary: Roll dice. Choose Zuzu's fate.
-description: An original illustrated role-playing gamebook in Zuzu's world: choices, dice, combat, inventory, powers and multiple endings. Administrator preview while the full artwork and chapters are authored.
+description: "An original illustrated role-playing gamebook in Zuzu's world: choices, dice, combat, inventory, powers and multiple endings. Administrator preview while the full artwork and chapters are authored."
 icon: kind-icon:book-open
 route: /play/zuzu-gamebook
 sort: 118

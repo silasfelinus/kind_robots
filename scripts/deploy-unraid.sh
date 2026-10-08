@@ -66,7 +66,7 @@ load_migration_credential() {
 run_migrations() {
   local image_ref="$1"
   log "applying pending migrations from image $image_ref"
-  docker run --rm \
+  docker run --rm --no-health \
     --network "$NETWORK" \
     --env-file "$ENV_FILE" \
     -e MIGRATION_DATABASE_URL \

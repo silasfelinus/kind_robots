@@ -349,6 +349,7 @@ const props = withDefaults(
     inline?: boolean
   }>(),
   {
+    tab: '',
     autoOpen: false,
     inline: false,
   },
